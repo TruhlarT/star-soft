@@ -457,6 +457,12 @@ sub IUCheckFile
 	if ( -e "$dir/$file-old"){ unlink("$dir/$file-old");}
 	if ( -e "$dir/$file")    { rename("$dir/$file","$dir/$file-old");}
 
+
+    } elsif ($mode == 3){
+	# csh mode
+	$sts = "";
+	$sts = "if ( ! -e $dir/$file) echo \"This test has never run\" >$dir/$file\n";
+	
     } else {
 	# unknown mode
 	print "ABUtil:: IUCheckFile : Unknown mode $mode\n";

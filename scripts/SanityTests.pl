@@ -28,6 +28,7 @@ use ABUtils;
 # this script will do something different.
 %TESTS=IUTests();
 $SRCDIR=IUTestDir();
+$DESTDIR=IUHtmlPub();
 
 # Number of events ton run in mode
 $NEVT[0]=2;    # Insure mode
@@ -165,6 +166,7 @@ foreach $choice (@ARG){
 	    "cd $SRCDIR/$dir\n",
 	    "\n",
 	    "# Display result\n",
+	    IUCheckFile(3,"$DESTDIR/Ins-$dir-$i.html"),
 	    "set ROOT4STAR=`which root4star`\n",
 	    "echo \"Path   = \$PATH\"\n",
 	    "echo \"LDPath = \$LD_LIBRARY_PATH\"\n",
@@ -185,21 +187,25 @@ foreach $choice (@ARG){
 		"echo '.x bfc.C($NEVT[1],\"$chain\",\"$file\");' >>tmp.C\n",
 		"\$ROOT4STAR -b < tmp.C\n",
 		"\n",
-		"if ( -f ../Prof-$dir-$i.html) rm -f ../Prof-$dir-$i.html\n",
-		JPRFFormat()." \$ROOT4STAR jprof-log >../Prof-$dir-$i.html\n";
+		IUCheckFile(0,"$SRCDIR/Prof-$dir-$i.html"),
+		JPRFFormat()." \$ROOT4STAR jprof-log >$SRCDIR/Prof-$dir-$i.html\n",
+		IUMoveFile(0,"$SRCDIR/Prof-$dir-$i.html","$DESTDIR/Prof-$dir-$i.html",10);
 	} else {
 	    print FO 
 		"\$ROOT4STAR -b -q 'bfc.C($NEVT[0],\"$chain\",\"$file\")'\n",
 		"\n",
-		"if ( -f $SRCDIR/Ins-$dir-$i.html) rm -f $SRCDIR/Ins-$dir-$i.html\n",
-		IURTFormat()." $SRCDIR/$dir/insure$i.log >$SRCDIR/Ins-$dir-$i.html\n";
+		IUCheckFile(0,"$SRCDIR/Ins-$dir-$i.html"),
+		IURTFormat()." $SRCDIR/$dir/insure$i.log >$SRCDIR/Ins-$dir-$i.html\n",
+		IUMoveFile(0,"$SRCDIR/Ins-$dir-$i.html","$DESTDIR/Ins-$dir-$i.html",10);
 	}
 
 	close(FO);
 	chmod(0770,"$SRCDIR/$dir/$script");
 
-	print " - Running it now\n";
-	system("$SRCDIR/$dir/$script"); # we can also trapped the returned error
+	#print " - Running it now\n";
+	#system("$SRCDIR/$dir/$script"); # we can also trapped the returned error
+	print " - Submitting it now\n";
+	IUSubmit("$SRCDIR/$dir/$script",1);
 
     }
 }
