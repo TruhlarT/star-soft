@@ -86,12 +86,12 @@ sub bfcread_dstBranch{
       next;
     }
 
-    if (/tables per event\s+= (\d+)/){ # avg tables per event
+    if (/tables per event\s+= ([\d\.]+)/){ # avg tables per event
       $run_scalar_hash{'avg_tables_per_event'} = $1;
       next;
     }
 
-    if (/objects per event\s+= (\d+)/){ # avg objects per event
+    if (/objects per event\s+= ([\d\.]+)/){ # avg objects per event
       $run_scalar_hash{'avg_objects_per_event'} = $1;
       next;
     }
