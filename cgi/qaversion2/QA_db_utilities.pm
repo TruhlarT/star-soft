@@ -1,4 +1,3 @@
-
 #! /usr/bin/perl
 # 
 # utilities for database interface 
