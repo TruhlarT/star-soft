@@ -299,13 +299,17 @@ my %nodeHash = (
                                 "n/a" => 124, 
 );               
 
+my $year;
 
-($sec,$min,$hour,$mday,$mon) = localtime;
+($sec,$min,$hour,$mday,$mon,$yr) = localtime;
 
-foreach my $int ( $mon,$mday ){
-  $int < 10 and $int = '0'.$int;
-   $thisday .= $int;
-}
+ $year = 1900 + $yr;
+   $mon++;
+if( $mon < 10) { $mon = '0'.$mon };
+if( $mday < 10) { $mday = '0'.$mday };
+
+ $thisday = $year."-".$mon."-".$mday; 
+
 print "Time stamp  ", $thisday, "\n";
 $outname = "mail" . "_" .$thisday . "_" . "out";
 $outfile = "/star/u/starreco/" . $outname;
