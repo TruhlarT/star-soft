@@ -16,7 +16,6 @@ use CGI;
 
 require "/afs/rhic/star/packages/scripts/dbCpProdSetup.pl";
 
-use Math::BigFloat;
 use Class::Struct;
 
 my $debugOn=0;
@@ -25,13 +24,11 @@ my @prodPer;
 my $nprodPer;
 my %prodFlag = ();
 my $mOpt;
-my $mform;
 
 $query = new CGI;
 
 $mcSet   =  $query->param('SetMC');
-$mOpt  = $query->param('qSum');
-$mform = $query->param('form');
+$mOpt = $query->param('qSum');
 
 my @Nchain = ("tfs","trs");
 my $prodCh; 
@@ -63,6 +60,7 @@ $sql="SELECT DISTINCT prodSeries FROM JobStatus where jobfileName like '$jobFile
         $prodPer[$nprodPer] = $myprod;
          $nprodPer++;
       }
+# $prodPer[0] = "P001hi";
 
 for( $ll = 0; $ll<scalar( @prodPer); $ll++) {
   for( $ii = 0; $ii<scalar(@Nchain); $ii++) {
@@ -94,7 +92,7 @@ struct ChainAttr => {
        libVr     => '$',
 		    };
 
- if($mOpt eq "summary") {      
+# if($mOpt eq "summary") {      
 
 #####  Find sets in DataSet table
 
@@ -331,7 +329,7 @@ for ($ii = 0; $ii<scalar(@prChain); $ii++) {
  &StDbProdDisconnect();
 
   &endHtml();
-}elsif
+
 exit 0;
 #######################
 
