@@ -116,7 +116,7 @@ sub GetSelectedKeyList{
   # get the keys from QASummary table matching the selection query
   my @key_list = $self->GetSelectedKeysFromDb();
 
-
+  print "\@key_list=".@key_list."<br>\n";
   # dont make the QA_objects if too many rows are returned.
   my $limit = $Db_KeyList_utilities::selectLimit;
 

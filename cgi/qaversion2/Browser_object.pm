@@ -251,6 +251,10 @@ sub StartingDisplay{
     print "Last backup at $line <br>\n";
   };
 
+  $fh or do{
+      print "No backup available. <br>\n";
+  };
+
   #---------------------------------------------------------------
   # check for running batch jobs and report if update in progress
 

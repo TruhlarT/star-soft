@@ -293,7 +293,7 @@ sub offline_real{
   my $home = $self->Home();
 
   $self->TopDir("$home/offline_real");
-  $self->TopDirWWW("http://connery.star.bnl.gov/~bum/qa");
+  $self->TopDirWWW("http://connery.star.bnl.gov/~starqa/qa");
 
   $self->StandardDirectories();
   
@@ -342,7 +342,7 @@ sub offline_MC{
   my $home = $self->Home();
 
   $self->TopDir("$home/offline_MC");
-  $self->TopDirWWW("http://connery.star.bnl.gov/~bum/qa");
+  $self->TopDirWWW("http://connery.star.bnl.gov/~starqa/qa");
 
   $self->StandardDirectories();
   
@@ -391,7 +391,7 @@ sub nightly_real{
   #------------------------------------------------------
   my $home = $self->Home();
   $self->TopDir("$home/nightly_real");
-  $self->TopDirWWW("http://connery.star.bnl.gov/~bum/qa");
+  $self->TopDirWWW("http://connery.star.bnl.gov/~starqa/qa");
 
   $self->StandardDirectories();
   
@@ -437,7 +437,7 @@ sub nightly_MC{
   #------------------------------------------------------
   my $home = $self->Home();
   $self->TopDir("$home/nightly_MC");
-  $self->TopDirWWW("http://connery.star.bnl.gov/~bum/qa");
+  $self->TopDirWWW("http://connery.star.bnl.gov/~starqa/qa");
 
   $self->StandardDirectories();
   
@@ -483,7 +483,7 @@ sub debug{
   my $home = $self->Home();
 
   $self->TopDir("$home/debug");
-  $self->TopDirWWW("http://connery.star.bnl.gov/~bum/qa");
+  $self->TopDirWWW("http://connery.star.bnl.gov/~starqa/qa");
 
   $self->StandardDirectories();
   

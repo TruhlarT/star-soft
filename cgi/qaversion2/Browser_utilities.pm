@@ -56,7 +56,7 @@ sub start_expert_buttons{
   $row1 = $gCGIquery->startform(-action=>"$script_name/lower_display", 
 		       -TARGET=>"display");
 
-  my $button_ref = Button_object->new('UpdateCatalogue', 'Update Catalogue');
+  my $button_ref = Button_object->new('BatchUpdate', 'Update Catalogue');
   $row1         .= $button_ref->SubmitString;
 
   $button_ref = Button_object->new('BatchUpdateQA', 'Update Catalogue and QA');

@@ -623,6 +623,7 @@ sub ShowPsFiles{
 
   my $report_key = $self->ReportKey();
 
+  print "ShowPsFiles: ReportKey=$report_key<br>\n";
   #-------------------------------------------------------------
   my @filelist_ordered = $self->GetPSFiles();
   #-------------------------------------------------------------
@@ -695,6 +696,7 @@ sub GetPSFiles{
   #---------------------------------------------------------
   # get ps files from directory
 
+  print "\$report_key=$report_key<br>\n";
   my $dh = $QA_object_hash{$report_key}->IOReportDirectory->Open;
   
   # pmj 28/7/00

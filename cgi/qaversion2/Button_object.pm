@@ -195,7 +195,7 @@ sub UpdateCatalogue{
 
   my $self = shift;
   #-------------------------------------------------------
-  print "<h3> Updating calatogue... </h3> \n";
+  print "<h3> Updating catalogue... </h3> \n";
   &QA_utilities::print_refresh;
 
 #  my $KeyList_obj = $gDataClass_object->KeyList_obj();  
@@ -213,6 +213,14 @@ sub BatchUpdateQA{
   #-------------------------------------------------------
   print "<h3> Submitting batch job for catalogue update and global QA... </h3> \n";
   &QA_utilities::submit_batchjob('update_and_qa');
+}
+#========================================================
+sub BatchUpdate{
+
+  my $self = shift;
+  #-------------------------------------------------------
+  print "<h3> Submitting batch job for catalogue update... </h3> \n";
+  &QA_utilities::submit_batchjob('update');
 }
 #========================================================
 sub ServerLog{
