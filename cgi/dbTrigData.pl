@@ -17,23 +17,41 @@ require "/afs/rhic/star/packages/DEV00/mgr/dbCpProdSetup.pl";
 use Class::Struct;
 use CGI;
 use CGI::Carp qw(fatalsToBrowser);
-use File::Find;
 
 #&cgiSetup();
 
 my $debugOn = 0;
 
-
-my @prodSet = (
-                "P00he",
-                "P00hg",
-                "P00hi",
-                "P00hm",
-); 
+my @prodPer;
+my $nprodPer = 0;
+my $myprod;
 
 #my @datSet = ("all","tpc","tpc.rich","tpc.svt.rich");
 my @trigSet  = ("all","central","minbias","medium","peripheral","mixed");
 
+&StDbProdConnect();
+
+$sql="SELECT DISTINCT prodSeries FROM JobStatus WHERE prodSeries like 'P0%'";
+
+   $cursor =$dbh->prepare($sql)
+      || die "Cannot prepare statement: $DBI::errstr\n";
+   $cursor->execute;
+
+    while(@fields = $cursor->fetchrow) {
+      my $cols=$cursor->{NUM_OF_FIELDS};
+
+    for($i=0;$i<$cols;$i++) {
+       my $fvalue=$fields[$i];
+       my $fname=$cursor->{NAME}->[$i];
+       print "$fname = $fvalue\n" if $debugOn;
+
+     $myprod = $fvalue  if($fname eq 'prodSeries'); 
+      }
+        $prodPer[$nprodPer] = $myprod;
+        $nprodPer++;
+      }
+
+&StDbProdDisconnect();
 
 $query = new CGI;
 
@@ -70,7 +88,7 @@ print "<p>";
 print "<h3 align=center>Production series:</h3>";
 print "<h4 align=center>";
 print $query->scrolling_list(-name=>'SetP',  
-                   -values=>\@prodSet,                   
+                   -values=>\@prodPer,                   
                    -size=>4                              
                    );                                  
  

@@ -11,7 +11,7 @@ use CGI;
 
 require "/afs/rhic/star/packages/DEV00/mgr/dbCpProdSetup.pl";
 
-my @prodPer = ("mdc1", "mdc2", "postmdc2", "prod4", "prod5", "mdc3", "prod6", "P00hi");
+my @prodPer;
 my $debugOn = 0;
 my %pair;
 my @Sets;
@@ -21,6 +21,8 @@ my $dtSet;
 my $mySet;
 my $prodSeq = " ";
 my $prodNext;
+my $nprodPer = 0;
+my $myprod;
 
 &cgiSetup();
 
@@ -28,13 +30,32 @@ my $prodNext;
 
 &beginHtml();
 
+$sql="SELECT DISTINCT prodSeries FROM JobStatus";
+
+   $cursor =$dbh->prepare($sql)
+      || die "Cannot prepare statement: $DBI::errstr\n";
+   $cursor->execute;
+
+    while(@fields = $cursor->fetchrow) {
+      my $cols=$cursor->{NUM_OF_FIELDS};
+
+    for($i=0;$i<$cols;$i++) {
+       my $fvalue=$fields[$i];
+       my $fname=$cursor->{NAME}->[$i];
+       print "$fname = $fvalue\n" if $debugOn;
+
+       $myprod = $fvalue  if($fname eq 'prodSeries'); 
+       }
+        $prodPer[$nprodPer] = $myprod;
+         $nprodPer++;
+      }
+
 
 $sql="SELECT DISTINCT dataset FROM $FileCatalogT where jobID <> 'n/a' AND type = 'MC_reco' ";
 $cursor =$dbh->prepare($sql)
   || die "Cannot prepare statement: $DBI::errstr\n";
 $cursor->execute;
 
-my $counter = 0;
 while(@fields = $cursor->fetchrow) {
   my $cols=$cursor->{NUM_OF_FIELDS};
 
@@ -67,7 +88,6 @@ $cursor =$dbh->prepare($sql)
   || die "Cannot prepare statement: $DBI::errstr\n";
 $cursor->execute;
 
-my $counter = 0;
 while(@fields = $cursor->fetchrow) {
   my $cols=$cursor->{NUM_OF_FIELDS};
 
