@@ -61,6 +61,14 @@ sub EvaluateMacro{
   #----------------------------------------------------------
   # any tests defined?
   $self->NTests or return;
+
+  # bum - does the output file exist?
+  my $macro_name = $self->MacroName;
+  unless ( -s $self->MacroReportFilename ) {
+    print "<h4>Did not do evaluation for $macro_name because
+               the macro was never run</h4>\n";
+    return;
+  }
   #----------------------------------------------------------
   $self->Evaluate;
   $self->Write;
@@ -287,6 +295,7 @@ sub RunMacro{
   my $nevent_requested = $QA_object_hash{$report_key}->LogReport->NEvent;
   $nevent_requested or $nevent_requested = 40;
   #--------------------------------------------------------------------------------------------
+  $global_filename = undef;
 
   $global_input_data_type = $self->InputDataType;
 
@@ -1006,3 +1015,4 @@ sub SummaryString{
   #-----------------------------------------------------------
   return $summary_string;
 }
+
