@@ -27,8 +27,9 @@ struct FileAttr => {
          timeS  => '$',
          Nevts  => '$',
          dataSt => '$',
-        fpath   => '$',
-        trig    => '$',
+          fpath => '$',
+          trig  => '$',
+          com   => '$'
 		  };
 
 &cgiSetup();
@@ -54,7 +55,7 @@ $thisDay = '01'.$thisday;
 &beginHtml();
 
 
-$sql="SELECT dataset, path, fName, createTime, Nevents, trigger,dataStatus FROM $FileCatalogT where insertTime like '$thisDay%' AND fName like '%.event.root' AND type = 'daq_reco' and jobID like '%$prodPer%' AND site = 'disk_rcf'";
+$sql="SELECT dataset, path, fName, createTime, Nevents, trigger, dataStatus, comment FROM $FileCatalogT where insertTime like '$thisDay%' AND fName like '%.event.root' AND type = 'daq_reco' and jobID like '%$prodPer%' AND site = 'disk_rcf'";
 $cursor =$dbh->prepare($sql)
   || die "Cannot prepare statement: $DBI::errstr\n";
 $cursor->execute;
@@ -75,7 +76,8 @@ while(@fields = $cursor->fetchrow) {
     ($$fObjAdr)->timeS($fvalue)   if($fname eq 'createTime');
     ($$fObjAdr)->Nevts($fvalue)   if($fname eq 'Nevents');
     ($$fObjAdr)->dataSt($fvalue)  if($fname eq 'dataStatus'); 
-    ($$fObjAdr)->trig($fvalue)    if($fname eq 'trigger');   
+    ($$fObjAdr)->trig($fvalue)    if($fname eq 'trigger');
+    ($$fObjAdr)->com($fvalue)    if($fname eq 'comment');  
 }
        $dbFiles[$ndbFiles] = $fObjAdr;
        $ndbFiles++; 
@@ -89,6 +91,7 @@ my $myPath;
 my $myEvts;
 my $myDataSt;
 my $myTrig;
+my $myCom;
 
  foreach $eachFile (@dbFiles) {
 
@@ -99,6 +102,8 @@ my $myTrig;
        $myEvts  = ($$eachFile)->Nevts;
        $myDataSt = ($$eachFile)->dataSt;
        $myTrig  = ($$eachFile)->trig;
+       $myCom   = ($$eachFile)->com;
+
   &printRow();
 
      }
@@ -125,6 +130,7 @@ print <<END;
 <TD ALIGN=CENTER WIDTH=\"10%\" HEIGHT=20><B>Create Date</B></TD>
 <TD ALIGN=CENTER WIDTH=\"10%\" HEIGHT=20><B>Number of Events</B></TD>
 <TD ALIGN=CENTER WIDTH=\"10%\" HEIGHT=20><B>Data Status</B></TD>
+<TD ALIGN=CENTER WIDTH=\"10%\" HEIGHT=20><B>Comments</B></TD>
 </TR> 
    </head>
     <body>
@@ -143,6 +149,7 @@ print <<END;
 <td>$myCtime</td>
 <td>$myEvts</td>
 <td>$myDataSt</td>
+<td>$myCom</td>
 </TR>
 END
 
