@@ -372,7 +372,7 @@ sub ParseLogfile {
     };
     
     # start recording of run options
-    $line =~ /Requested chain is\W+([\w ]+)/ and do{
+    $line =~ /Requested chain (?:bfc )?is\W+([\w ]+)/ and do{
       $record_run_options = 1;
       $self->RunOptions("\n");
       $self->RequestedChain($1);
