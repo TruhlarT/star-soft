@@ -238,7 +238,7 @@ sub rdaq_add_entries
 
     if($#records != -1){
 	$sth = $obj->prepare("INSERT INTO $dbtable ".
-			     "VALUES(?,?,?,?,?,?,?,?,?,?,?,?,?,NOW()+0,0,0)");
+			     "VALUES(?,?,?,?,?,?,?,?,?,?,?,?,?,NOW()+0,0,0,0)");
 	if($sth){
 	    foreach $line (@records){
 		@values = split(" ",$line);

@@ -56,14 +56,14 @@ do {
 	    $by    = 10000;
 	    if($run >= 0){
 		# fetch new records since that run number
-		my($count,$total,$N);
+		my($count,$tot,$N);
 
 		&Print("Bootstrap case Run >= 0, run=$run\n");
-		$total = 0;
+		$count = $tot = 0;
 		rdaq_set_dlevel(1);
 		
 		do {
-		    $count++; $total;
+		    $count++; 
 		    # cleanup
 		    undef(@records);
 
@@ -75,12 +75,12 @@ do {
 
 			# record entries
 			$N = rdaq_add_entries($dbObj,@records);
-			&Print("Adding $N entries to $total so far\n");
-			$total += $N;
+			&Print("Adding $N entries to $tot so far\n");
+			$tot += $N;
 		    }
 		    $begin += $by;
 		} while ($#records != -1);
-		&Print("Got $total records in $count passes\n");
+		&Print("Got $tot records in $count passes\n");
 		
 	    } else {
 		&Print("Checking entries on ".localtime()."\n");
