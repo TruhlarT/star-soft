@@ -297,7 +297,7 @@ sub IUGetRef
 {
     my($line)=@_;
 
-    if( ! defined($line) ){ die "$PRGM IUGetRef requires an argument\n";}
+    if( ! defined($line) ){ &IUdie("$PRGM IUGetRef requires an argument\n");}
     if( $line ne ""){
 	$line =~ s/[\.\[\]:\(\)]/_/g;
 	$line =~ s/\s//g;
@@ -315,7 +315,7 @@ sub IUresource
 
     if(! -e ".psrc"){
 	open(FO,">.psrc") ||
-	    die "$PRGM Could not open any file in W mode in the current tree\n";
+	    &IUdie("$PRGM Could not open any file in W mode in the current tree\n");
 	print FO qq~
 insure++.summarize bugs
 insure++.checking_uninit on
@@ -685,6 +685,12 @@ sub IUGetLogin
     }
     if ($INSU::USER eq ""){ $INSU::USER = "?unknown?";}
     $INSU::USER;
+}
+
+sub IUdie { 
+    my($msgs)=@_;
+    &IULockDelete();
+    die $msgs;
 }
 
 
