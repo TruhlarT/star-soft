@@ -1,17 +1,17 @@
-#!/usr/local/bin/perl
+#!/usr/bin/env perl
 
 #
 # J.Lauret 1998
 # Revised 2002 with -r dumb implementation.
 # Revised Jan 5th 2002. 
 #    Allow only * pattern for now (some patterned-like file names)
-#    More checks on IO
+#    More checks on IO (wonderfull Uglix fs)
 #    Check for -l (don't trust find)
 #    Commented the not-a-plain text message
 #
 
-$PRGM = "modify";
-
+$PRGM = "modify";           # just a name
+$FIND = "/usr/bin/find";    # location of the find command
 
 # Any of those extensions will be skipped
 %SKIP = (".gif",1,
@@ -26,7 +26,7 @@ $PRGM = "modify";
 if($#ARGV < 1){
     die 
 	"\n",
-	"Modify file content\n\n",
+	"Modify file content using regexp (c) J.Lauret 1998-2002\n\n",
 	"Syntax: modify Pattern1 Pattern2 file1 [file2 ...]\n",
 	"        modify -r Pattern1 Pattern2\n",
 	"\n",
@@ -39,14 +39,14 @@ if($#ARGV < 1){
 if ($ARGV[0] eq "-r"){
     shift(@ARGV);
     print "$PRGM :: Info   : Searching ...\n";
-    chomp(@all = `find . -type f`);
+    chomp(@all = `$FIND . -type f`);
     push(@ARGV,@all);
 } 
 
 $ipat = shift @ARGV;
 $fpat = shift @ARGV;
 
-print "$PRGM :: Info   : Checking $#ARGV files\n";
+print "$PRGM :: Info   : Checking ".($#ARGV+1)." files or pattern\n";
 
 for($i=0; $i <= $#ARGV ; $i++){
     if($ARGV[$i] =~ /\*/){
