@@ -240,11 +240,11 @@ my $chain;
 #####  fill  JobStatus table
       print "filling JobStatus table\n";
  
-#       &fillJSTable();   
+       &fillJSTable();   
 
 #####  fill  jobRelations table
        print "filling jobRelations table\n";
-#       &fillJRelTable();
+       &fillJRelTable();
 
       }  
     }
