@@ -264,6 +264,8 @@ if ($trigD eq "all" and $fieldM eq "all" and $detSet eq "all") {
 
  &printTotal(); 
 
+&begin2Html();
+
 #####  finished with database
  &StDbProdDisconnect();
   
@@ -311,6 +313,22 @@ print <<END;
 <TD ALIGN=CENTER WIDTH=\"10%\" HEIGHT=100><B>Number of Events<br>in MuDst.root file</B></TD>
 </TR> 
 
+   </head>
+    <body>
+END
+}
+
+#######################################################################################################
+
+sub begin2Html {
+
+print <<END;
+
+  <html>
+  <head>
+          <title>Production Summary by Trigger</title>
+   </head>
+   <body BGCOLOR=\"#ccffff\"> 
      <h2 align=center>Event Summary by Trigger Words  </h2>
 <TABLE ALIGN=CENTER BORDER=5 CELLSPACING=1 CELLPADDING=2 >
 <TR>
@@ -330,7 +348,6 @@ print <<END;
     <body>
 END
 }
-
 
 #####################
 sub endHtml {
