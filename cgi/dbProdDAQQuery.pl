@@ -12,20 +12,15 @@
 # 
 #############################################################################
 
-require "/afs/rhic/star/packages/dev/mgr/dbCpProdSetup.pl";
-require "/afs/rhic/star/packages/dev/mgr/dbDescriptorSetup.pl";
-
-
+require "/afs/rhic/star/packages/scripts/dbCpProdSetup.pl";
 
 use Class::Struct;
 use CGI;
 use CGI::Carp qw(fatalsToBrowser);
-use File::Find;
 
 #&cgiSetup();
 
 my $debugOn = 0;
-
 
 my @prodPer; 
 my $nprodPer = 0;

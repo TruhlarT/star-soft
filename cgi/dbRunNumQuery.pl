@@ -12,7 +12,7 @@
 # 
 #############################################################################
 
-require "/afs/rhic/star/packages/dev/mgr/dbCpProdSetup.pl";
+require "/afs/rhic/star/packages/scripts/dbCpProdSetup.pl";
 
 use Class::Struct;
 use CGI;
