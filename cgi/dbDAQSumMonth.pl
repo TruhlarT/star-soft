@@ -30,10 +30,10 @@ $prodSer =  $query->param('setP');
 
 
 my @SetD = (
-             "P00hm/2000/06",
-             "P00hm/2000/07",
-             "P00hm/2000/08", 
-             "P00hm/2000/09" 
+             $prodSer . "/2000/06",
+             $prodSer . "/2000/07",
+             $prodSer . "/2000/08", 
+             $prodSer . "/2000/09" 
 );
 
 struct FilAttr => {
@@ -64,7 +64,11 @@ struct FilAttr => {
  my $topHpss = "/home/starreco/reco";
  my @topDisk = (
                 "/star/data14/reco",
-                "/star/rcf/disk00001/star/reco", 
+                "/star/data03/reco",
+                "/star/data05/reco",
+                "/star/data07/reco",  
+                "/star/data08/reco",
+                "/star/data09/reco", 
 );
 
  my @prodRun = ("JUNE-2000","JULY-2000","AUGUST-2000","SEPTEMBER-2000"); 
@@ -367,7 +371,7 @@ print <<END;
           <title>Production Summary for Real Data</title>
    </head>
    <body BGCOLOR=\"#ccffff\"> 
-     <h1 align=center>Production Summary for period $prodSer </h1>
+     <h2 align=center>Production Summary for period $prodSer </h2>
 <TABLE ALIGN=CENTER BORDER=5 CELLSPACING=1 CELLPADDING=2 >
 <TR>
 <TD ALIGN=CENTER WIDTH=\"30%\" HEIGHT=100><B>MONTH/YEAR</B></TD>
