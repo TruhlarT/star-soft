@@ -1,6 +1,9 @@
-#!/bin/sh
-#  $Id: dropit,v 1.2 1998/03/26 16:41:31 fisyak Exp $
+#!/opt/star/bin/perl
+#  $Id: dropit,v 1.3 2000/05/02 22:45:50 fisyak Exp $
 #  $Log: dropit,v $
+#  Revision 1.3  2000/05/02 22:45:50  fisyak
+#  Replace shell version by perl one
+#
 #  Revision 1.2  1998/03/26 16:41:31  fisyak
 #  Add STAR_LEVELS
 #
@@ -40,52 +43,36 @@
 #                       causes the field to be omitted
 #
 #
-FS=":"
-DS=":"
-string="${PATH}"
-substring=""
-while test $# -gt 0
-do
-  case $1 in
-        -c);;     
-        -i) test $# -gt 0 && shift; FS=$1;;            #input_delimiter
-        -d) test $# -gt 0 && shift; DS=$1;;            #output_delimiter
-        -p) test $# -gt 0 && shift; string=$1;;        #string  
-        -*) test $# -gt 0 && shift;;
-         *)                         substring=$1;;     #substring
-  esac
-  test $# -gt 0 && shift
-done 
-# Search AWK command
-#--------------------
-  if [ -x "/usr/local/bin/gawk" ]; then
-    awkcmd="/usr/local/bin/gawk"
-  elif [ -x "/afs/rhic/local/bin/gawk" ]; then
-    awkcmd="/afs/rhic/local/bin/gawk"
-  elif [ -x "/usr/bin/nawk" ]; then
-    awkcmd="/usr/bin/nawk"
-  elif [ -x "/usr/bin/awk" ]; then
-    awkcmd="/usr/bin/awk"
-  else 
-    awkcmd=`which awk`
-  fi
-#  echo $awkcmd
-  if [ -z "${awkcmd}" ]; then
-    echo  ${string}
-    exit 1
-  else
-    echo ${string} | $awkcmd  -v substring="$substring" -v FS="$FS" -v DS="$DS" '
-BEGIN {}
-{ n=0; m=0;
-   {for (i=1; i<=NF; i++)
-     {m=0; 
-     for (j=1; j<i; j++) {
-       if (length($i)==length($j)&&index($i,$j)>0) {m++; break;}};
-     if (length(substring)>0 && index($i,substring)>0) m++;
-     if (m==0) 
-       if (length($i)>0) {if (n>0) {x=x DS $i} else {x=x""$i; n++}}}
-   }
+my $FS=":";
+my $DS=":";
+my $string= $ENV{PATH};# print "string $string\n";
+my @substring=();
+while ($#ARGV > -1) {
+  my $test = shift @ARGV;# print "test $test\n";
+  next if $test eq '-c';
+  if ($test eq '-i') {$FS = shift @ARGV; next;}      
+  if ($test eq '-d') {$DS = shift @ARGV; next;}     
+  if ($test eq '-p') {$string = shift @ARGV;  next; } 
+  if ($test =~ /^-/) {shift @ARGV; next;}           
+  push @substring, $test;# print "substring = $substring\n";
 }
-END {print x}
-'
-   fi
+my $ostring = $string;
+my @words = split $FS, $string;
+my @newwords = ();
+# remove words containing substring
+foreach my $word (@words) {
+  foreach my $s (@substring) {if ($word =~ $s) {goto NEXT};}
+  push @newwords, $word;
+ NEXT:
+}
+# remove duplications
+@words = ();
+foreach my $word (@newwords) {# print "word = $word\n";
+  foreach my $w (@words) {# print "word $word and w = $w\n";
+			   goto LAST if $w eq $word;}
+  push @words, $word;# print "add $word\n";
+ LAST:
+}
+$string = join $DS,@words;
+if ($string) {print "$string\n";}
+else         {print "$ostring\n";}
