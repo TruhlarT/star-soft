@@ -98,7 +98,9 @@ while ( defined($line = <FI>) ){
 	# Now, tree of broken links i.e. where a broken
 	# link appears. 
 	if( defined($BROKEN{$items[3]}) ){
-	    if( $BROKEN{$items[3]} !~ /$items[1]\|/){
+	    $pat = $items[1];
+	    $pat =~ s/\+//g;
+	    if( $BROKEN{$items[3]} !~ /$pat\|/){
 		$BROKEN{$items[3]} .= "$items[1]|";
 	    }
 	} else {
