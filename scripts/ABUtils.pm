@@ -289,7 +289,7 @@ sub IUresource
 insure++.summarize bugs
 insure++.checking_uninit on
 insure++.demangle full_types
-insure++.symbol_table on
+insure++.symbol_table off
 insure++.stack_internal on
 insure++.leak_combine none
 insure++.leak_search on
