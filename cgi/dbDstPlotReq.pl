@@ -225,7 +225,7 @@ END
 
  print "<p>";
  print "Select run number:";
- print $query->popup_menu(-name=>'numrun',
+ print $query->popup_menu(-name=>'numRun',
                     -values=>\@eachrun,
                     ); 
 
