@@ -13,8 +13,8 @@ require "/afs/rhic/star/packages/DEV00/mgr/dbCpProdSetup.pl";
 my $debugOn = 0;
 my %pair;
 my @pck;
-my $mcomment = "no";
-
+my $mcomment;
+my $mstat;
 
 &cgiSetup();
 
@@ -45,11 +45,11 @@ while(@fields = $cursor->fetchrow) {
     my $fname=$cursor->{NAME}->[$i];
     print "$fname = $fvalue\n" if $debugOn;
     $pair{$fname} = $fvalue;
+
+   $mstat = $fvalue if( $fname eq 'dataStatus');   
    $mcomment = $fvalue if( $fname eq 'comment');
   }
-  if (!defined $mcomment) {
-    $mcomment = "no";
-  }
+  if ($mstat eq "OK"){$mcomment = "no"};
 &printRow();
 
 }
@@ -114,7 +114,7 @@ print <<END;
 <td>$pair{'hpss'}</td>
 <td>$pair{'calib'}</td>
 <td>$pair{'dataStatus'}</td>
-<td>$pair{'comment'}</td>
+<td>$mcomment</td>
 </tr>
 END
 
