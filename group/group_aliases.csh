@@ -1,5 +1,8 @@
-# $Id: group_aliases.csh,v 1.11 2000/02/17 00:40:33 fisyak Exp $
+# $Id: group_aliases.csh,v 1.12 2001/04/09 15:24:19 jeromel Exp $
 # $Log: group_aliases.csh,v $
+# Revision 1.12  2001/04/09 15:24:19  jeromel
+# Small modif for auto-build tree (not complete)
+#
 # Revision 1.11  2000/02/17 00:40:33  fisyak
 # Add starsetup alias
 #
@@ -23,6 +26,7 @@ alias starold    'source ${GROUP_DIR}/.starold'
 alias starpro    'source ${GROUP_DIR}/.starpro'
 alias starnew    'source ${GROUP_DIR}/.starnew'
 alias stardev    'source ${GROUP_DIR}/.stardev'
+alias staradev   'source ${GROUP_DIR}/.staradev'
 alias star.dev   'source ${GROUP_DIR}/star.dev'
 alias star..dev  'source ${GROUP_DIR}/star..dev'
 alias starver    'source ${GROUP_DIR}/.starver'
