@@ -42,11 +42,14 @@ while(@fields = $cursor->fetchrow) {
     my $fvalue=$fields[$i];
     my $fname=$cursor->{NAME}->[$i];
     print "$fname = $fvalue\n" if $debugOn;
-    next if ($fvalue =~ /daq/);
-    next if ($fvalue =~ /dst/);
+#    next if ($fvalue =~ /daq/);
+#    next if ($fvalue =~ /dst/);
 
      $mySet = $fvalue  if($fname eq 'dataset'); 
  }
+    next if ($mySet =~ /daq/);
+    next if ($mySet =~ /dst/);
+
       $Sets[$nSets] = $mySet;
       $nSets++;
 
@@ -59,7 +62,7 @@ for ($ll=0;$ll<scalar(@prodPer);$ll++) {
 
  $prod = "_" . $prodPer[$ll] . "_";
  $prodSeq = " ";
-$sql="SELECT DISTINCT dataset FROM $FileCatalogT where jobID like '%$prod%' ";
+$sql="SELECT DISTINCT dataset FROM $FileCatalogT where jobID like '%$prod%' AND dataset <> 'n/a' ";
 $cursor =$dbh->prepare($sql)
   || die "Cannot prepare statement: $DBI::errstr\n";
 $cursor->execute;
@@ -75,9 +78,9 @@ while(@fields = $cursor->fetchrow) {
 
      $mySet = $fvalue  if($fname eq 'dataset'); 
   }
-    next if ($fvalue =~ /daq/);
-    next if ($fvalue =~ /dst/);
-
+    next if ($mySet =~ /daq/);
+    next if ($mySet =~ /dst/);
+ 
      $prodNext = $prodPer[$ll];
      $pair{$mySet} =  $pair{$mySet} . " : " . $prodNext ;
 
