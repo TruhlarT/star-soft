@@ -70,7 +70,7 @@ $query = new CGI;
 
 print $query->header;
 print $query->start_html('jobsDate');
-print $query->startform(-action=>"CRSjobStatus.pl");  
+print $query->startform(-action=>"CRSjobsStatus.pl");  
 
   print "<html>\n";
   print " <head>\n";
