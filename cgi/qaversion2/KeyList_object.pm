@@ -112,7 +112,7 @@ sub GetSelectedKeyList{
   $self->SelectedKeyList(@key_list);
 
   # pass on the selected key list as hidden values
-  # in order to do qa
+  # in order to do qa on whole dataset
 
   $gCGIquery->param('selected_key_list', @key_list);
 
