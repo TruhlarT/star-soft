@@ -65,18 +65,80 @@ use lib "/afs/rhic/star/packages/scripts";
 use RunDAQ;
 use CRSQueues;
 
-# Default values
-$LIB     = "dev";
-$NUMEVT  = 20;
-$TARGET  = "/star/data13/reco";
+$ThisYear = 2003;
+
+# Default values Year2 data
+if ($ThisYear == 2002){
+    $LIB     = "dev";
+    $NUMEVT  = 20;
+    $TARGET  = "/star/data13/reco";
+
+    $LASERTP = 5;            # This can known only by looking into the FOFileType
+                             # or calling some extra routine from the pm. Prefer to 
+                             # hard-code (that is -> faster) Sorry ...
+    @USEQ    = (4,4,1);      # queue to be used for regular mode, bypass and calib 
+    @SPILL   = (0,3,0);      # queue spill level for the 3 modes
+
+    # Default production chains by species
+    $DCHAIN{"AuAu"}           = "P2001a";
+    $DCHAIN{"ProtonProton"}   = "PP2001,fpd";
 
 
+    # Default pre-pass calibration chains by species used in regular mode if defined
+    $DCALIB{"AuAu"}           = "";   # Trash out default calib pass. All done now, was PreTpcT0
+    $DCALIB{"ProtonProton"}   = "";   # PreLaser" no more interlayed laser, all laser files processed
+
+
+    # Stand-alone Calibration pass. Used in C/mode
+    $SCALIB{"AuAu"}           = "";
+    $SCALIB{"ProtonProton"}   = "OptLaser";
+
+} elsif ($ThisYear == 2003) {
+    $LIB     = "dev";
+    $NUMEVT  = 100;
+    $TARGET  = "/star/data27/reco";
+
+    $LASERTP = 2;
+
+    @USEQ    = (4,4,3);
+    @SPILL   = (3,0,1);      
+    
+    # Default chain
+    $DCHAIN{"dAu"}            = "dAu2003,alltrigger";
+    
+    # Default pre-calib
+    $DCALIB{"dAu"}            = "PreTpcT0";
+
+    # Default stand-alone auto-calib (works only on $LASERTP files)
+    $SCALIB{"dAu"}            = "OptLaser";
+
+
+} else {
+    print "Unknown Year $ThisYear\n";
+    exit;
+}
+
+
+
+
+
+# Default production chains by species
 $DCHAIN{"AuAu"}           = "P2001a";
 $DCHAIN{"ProtonProton"}   = "PP2001,fpd";
+$DCHAIN{"dAu"}            = "dAu2003,alltrigger";
+
+# Default pre-pass calibration chains by species used in regular mode if defined
 $DCALIB{"AuAu"}           = "";         # Trash out default calib pass. All done now, was PreTpcT0
 $DCALIB{"ProtonProton"}   = "";         # PreLaser" no more interlayed laser, all laser files processed
+$DCALIB{"dAu"}            = "PreTpcT0";
+
+# Stand-alone Calibration pass. Used in C/mode
 $SCALIB{"AuAu"}           = "";
 $SCALIB{"ProtonProton"}   = "OptLaser";
+$SCALIB{"dAu"}            = "OptLaser";
+
+
+
 
 $CHAIN   = "";
 
@@ -97,15 +159,11 @@ $SCRATCH = ".";
 $LOCKF   = "FastOff.lock";
 $CONFF   = "JobSubmit$LIB.lis";
 $PRIORITY= 100;              # default queue priority
-@USEQ    = (4,4,1);          # queue to be using (see also SPILL)
-@SPILL   = (0,3,0);          # queue spill level
 $SLEEPT  = 25;               # sleep time between submit
 $MAXCNT  = 20;               # max job to send in a pass
 $RATIO   = 2;                # time drop down for mode + (2=twice faster)
                    
-$LASERTP = 5;                # This can known only by looking into the FOFileType
-                             # or calling some extra routine from the pm. Prefer to 
-                             # hard-code (that is -> faster) Sorry ...
+
 
 
 # Intermediate variable
@@ -410,7 +468,8 @@ sub Submit
     $file  = $items[0];
     $field = $items[6];
     $coll  = $items[8];
-    $dets  = rdaq_bits2string("TrgMask",$items[11]);
+    $trgs  = rdaq_bits2string("TrgMask",$items[11]);
+    $dets  = rdaq_bits2string("DetSetMask",$items[9]);
     
 
     if($chain eq "" || $chain eq "none" || $chain eq "default"){
@@ -441,16 +500,29 @@ sub Submit
 	$calib = "DUMMY";
     }
 
-
+    #
+    # Exclusions
+    #
     # This was added according to an Email I have sent to
     # the period coordinator list. Only Jeff Landgraff 
     # has answered saying we can skip the 'test' once.
-    if( $dets =~ m/test/ && $mode == 0){
-	# start with a warning
-	print "Info :: Skipping $file has 'triggers'=$items[11]=$dets\n";
+    if ( $trgs =~ m/test/ && $mode == 0){
+	if ( $ThisYear == 2002){
+	    # start with a warning
+	    print "Info :: Skipping $file has 'triggers'=$items[11]=$trgs\n";
+	    push(@SKIPPED,$file);
+	    return 0;
+	} else {
+	    print "Info :: $file has 'triggers'=$items[11]=$trgs but Year=$ThisYear not skipping it\n";
+	}
+    }
+    if ( $dets ne "tpc" && $dets !~ m/\.tpc/){
+	print "Info :: detectors are [$dets] (not including tpc) skipping it\n";
 	push(@SKIPPED,$file);
 	return 0;
     }
+
+
 
     # Last element will always be the Status
     if($items[$#items] != 0){ 
@@ -502,7 +574,7 @@ __EOH__
 
 	print FO <<__EOF__;
 #output
-    outputnumstreams=5
+    outputnumstreams=4
 
 #output stream
     outputstreamtype[0]=UNIX
@@ -517,9 +589,9 @@ __EOH__
     outputstreamtype[3]=UNIX
     outputdir[3]=$SCRATCH
     outputfile[3]=$mfile.runco.root
-    outputstreamtype[4]=UNIX
-    outputdir[4]=$SCRATCH
-    outputfile[4]=$mfile.dst.root
+#    outputstreamtype[4]=UNIX
+#    outputdir[4]=$SCRATCH
+#    outputfile[4]=$mfile.dst.root
 
 #standard out
     stdoutdir=/star/rcf/prodlog/$LIB/log/daq
