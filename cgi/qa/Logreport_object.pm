@@ -359,7 +359,7 @@ sub ParseLogfile {
     next unless $line =~ /^QAInfo:|^StWarning:|^StError/;
     
     # get STAR and ROOT levels
-    $line =~ /STAR_LEVEL :\W+(\w+) and ROOT_LEVEL :\W+([0-9\.]+)/ and do{
+    $line =~ /STAR_LEVEL :\W+(\w+), ROOT_LEVEL :\W+([0-9\.]+)/ and do{
       $self->StarLevel($1);
       $self->RootLevel($2);
       next;
