@@ -59,6 +59,10 @@ if ($#ARGV == -1){
 
 $SITE  = "BNL";
 $HPSSD = "/home/starreco";
+$SELF  = "DBUpdate";
+$LOUT  = 0;
+$FLNM  = "";
+
 
 $SCAND = "/star/data06";
 $USER  = "";
@@ -66,12 +70,38 @@ $PASSWD= "";
 $SUB   = "reco";
 
 # Argument pick-up
-$SCAND = shift(@ARGV) if (@ARGV);
-$FTYPE = shift(@ARGV) if (@ARGV);
-$SUB   = shift(@ARGV) if (@ARGV);
-$HPSSD = shift(@ARGV) if (@ARGV);
-$USER  = shift(@ARGV) if (@ARGV);
-$PASSWD= shift(@ARGV) if (@ARGV);
+$kk    = 0;
+$FO    = STDERR;
+
+for ($i=0 ; $i <= $#ARGV ; $i++){
+    # Support "-XXX" options
+    if ($ARGV[$i] eq "-o"){
+	$FLNM = $ARGV[$i+1];
+	if ( -e $FLNM ){  
+	    # Make the file new all the time
+	    unlink($ARGV[$i+1]);
+	}
+	if ( open(FO,">$FLNM") ){
+	    $i++;
+	    $FO = FO;
+	}
+    } else {
+	# ... as well as previous syntax
+	$kk++;
+	$SCAND = $ARGV[$i] if ( $kk == 1);
+	$FTYPE = $ARGV[$i] if ( $kk == 2);
+	$SUB   = $ARGV[$i] if ( $kk == 3);
+	$HPSSD = $ARGV[$i] if ( $kk == 4);
+	$USER  = $ARGV[$i] if ( $kk == 5);
+	$PASSWD= $ARGV[$i] if ( $kk == 6);
+    }
+}
+
+
+# Get shorten string for path or base path for HPSS regexp
+#@items  = split("/",$SCAND);
+#$SCANDS = "/".$items[1]."/".$items[2];
+
 
 
 #@ALL =( "$SCAND/$SUB/FPDXmas/FullField/P02ge/2002/013/st_physics_3013016_raw_0018.MuDst.root",
@@ -180,15 +210,15 @@ foreach  $file (@ALL){
 
     if ($#all == -1){
 	$unkn++;
-	print STDERR "Did not find $path $file in HPSS\n";
+	&Stream("Warning : File not found in HPSS -- $path/$file\n");
 
     } else {
-	$mess = "Found ".($#all+1)." records for $file ";
+	$mess = "Found ".($#all+1)." records for [$file] ";
 
 	@stat   = stat("$path/$file");
 
 	if ($#stat == -1){  
-	    print "/!\ stat($path/$file) failed\n";
+	    &Stream("Error : stat () failed -- $path/$file \n");
 	    next;
 	}
 
@@ -232,7 +262,7 @@ foreach  $file (@ALL){
 		}
 		
 		if ( ! $fC->insert_file_location() ){
-		    print "\tAttempt to insert new location $path failed\n";
+		    &Stream("Error : Attempt to insert new location [$path] failed\n");
 		    $failed++;
 		} else {
 		    $new++;
@@ -246,14 +276,38 @@ foreach  $file (@ALL){
 
 $fC->destroy();
 
-print 
-    "Unknown = $unkn\n",
-    "Old     = $old\n",
-    "New     = $new\n",
-    "Failed  = $failed\n";
+if ($LOUT){
+    print $FO 
+	"$SELF :: Info : ",
+	"Unknown = $unkn\n",
+	"Old     = $old\n",
+	"New     = $new\n",
+	"Failed  = $failed\n";
+    # Check if we have opened a file
+    if ($FO ne STDERR){ 
+	close($FO);
+    }
+} else {
+    # if nothing was output, delete file
+    if ($FO ne STDERR){ 
+	close($FO);
+	unlink($FLNM);
+    }
+}
 
 
 
+
+# Writes to file or STD and count lines
+sub Stream
+{
+    my(@lines)=@_;
+
+    foreach $line (@lines){
+	$LOUT++;
+	print $FO "$SELF :: $line\n";
+    }
+}
 
 
 # This sub has been taken from fcheck software
