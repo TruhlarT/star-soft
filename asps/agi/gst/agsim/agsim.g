@@ -163,12 +163,12 @@ C
 *KEEP,VIDQQ.
       CHARACTER*68 VIDQQ
       DATA VIDQQ/
-     +'@(#)Advanced Geant Inteface               C: 12/06/98  11.37.48
+     +'@(#)Advanced Geant Inteface               C: 19/06/98  11.33.44
      +'/
 *KEEP,DATEQQ.
-      IDATQQ =   980612
+      IDATQQ =   980619
 *KEEP,TIMEQQ.
-      ITIMQQ =   1137
+      ITIMQQ =   1133
 *KEEP,VERSQQ.
       VERSQQ = ' '
       IVERSQ = -1
@@ -2527,7 +2527,7 @@ C
       END DO
       END
  
-*CMZ :          03/06/98  12.01.39  by  Pavel Nevski
+*CMZ :          17/06/98  11.14.47  by  Pavel Nevski
 *CMZ :  1.30/00 27/03/97  19.14.44  by  Pavel Nevski
 *-- Author :    Pavel Nevski   10/04/96
 **************************************************************************
@@ -2625,6 +2625,11 @@ C
     If (NQCASE==6) print *,'   invalid I/O parameter'
     If (NQCASE==7) print *,'   attempt to lift bank in a wrong division'
     If (NQCASE==8) print *,'   attempt to connect the new bank inside a bank'
+  }
+  else If Cname='MZDROP'
+  {  print *,' MZDROP can not drop bank because '
+     If (NQCASE==1) print *,'  the Link ',Iquest(11),' is illegal '
+     If (NQCASE==2) print *,'  the Next Link ',Iquest(12),' is illegal '
   }
   else
   { Print *,' JVOLUM,NVOLUM =',JVOLUM,Nvolum
@@ -7506,7 +7511,7 @@ C
  
  
  
-*CMZ :          30/04/98  14.43.32  by  Pavel Nevski
+*CMZ :          15/06/98  23.04.08  by  Pavel Nevski
 *CMZ :  1.30/00 17/11/96  22.43.56  by  Pavel Nevski
 *CMZU:  1.00/01 21/12/95  22.19.56  by  Pavel Nevski
 *CMZ :  1.00/00 14/11/95  02.46.06  by  Pavel Nevski
@@ -7821,108 +7826,6 @@ if INEW>1
                              Par(2)=IC;               Q(LkArP3+2+Ia)=Par(2)
 }
 END
- 
- 
-****************************************************************************
-          subroutine  ARZOUT(Idiv,Lo,CKey,IC,opt)
-*                                                                          *
-* Description: same functionality as RZOUT is supposed with few additions: *
-*            - consistence between Bank at Lo and Ckey is checked          *
-*            - previous bank with simular Ckey is read and compaired,      *
-*              new bank is writtent only if it differs from the old one.   *
-*            - very crude version , to be developed later (?). Therefore   *
-*              intermediate input bank is kept on a free Link=1 of L1Doc   *
-****************************************************************************
-*KEEP,TYPING.
-      IMPLICIT NONE
-*KEEP,GCBANK.
-      INTEGER IQ,LQ,NZEBRA,IXSTOR,IXDIV,IXCONS,LMAIN,LR1,JCG
-      INTEGER KWBANK,KWWORK,IWS
-      REAL GVERSN,ZVERSN,FENDQ,WS,Q
-C
-      PARAMETER (KWBANK=69000,KWWORK=5200)
-      COMMON/GCBANK/NZEBRA,GVERSN,ZVERSN,IXSTOR,IXDIV,IXCONS,FENDQ(16)
-     +             ,LMAIN,LR1,WS(KWBANK)
-      DIMENSION IQ(2),Q(2),LQ(8000),IWS(2)
-      EQUIVALENCE (Q(1),IQ(1),LQ(9)),(LQ(1),LMAIN),(IWS(1),WS(1))
-      EQUIVALENCE (JCG,JGSTAT)
-      INTEGER       JDIGI ,JDRAW ,JHEAD ,JHITS ,JKINE ,JMATE ,JPART
-     +      ,JROTM ,JRUNG ,JSET  ,JSTAK ,JGSTAT,JTMED ,JTRACK,JVERTX
-     +      ,JVOLUM,JXYZ  ,JGPAR ,JGPAR2,JSKLT
-C
-      COMMON/GCLINK/JDIGI ,JDRAW ,JHEAD ,JHITS ,JKINE ,JMATE ,JPART
-     +      ,JROTM ,JRUNG ,JSET  ,JSTAK ,JGSTAT,JTMED ,JTRACK,JVERTX
-     +      ,JVOLUM,JXYZ  ,JGPAR ,JGPAR2,JSKLT
-C
-*KEEP,GCUNIT.
-      COMMON/GCUNIT/LIN,LOUT,NUNITS,LUNITS(5)
-      INTEGER LIN,LOUT,NUNITS,LUNITS
-      COMMON/GCMAIL/CHMAIL
-      CHARACTER*132 CHMAIL
-C
-*KEEP,GCFLAG.
-      COMMON/GCFLAG/IDEBUG,IDEMIN,IDEMAX,ITEST,IDRUN,IDEVT,IEORUN
-     +        ,IEOTRI,IEVENT,ISWIT(10),IFINIT(20),NEVENT,NRNDM(2)
-      COMMON/GCFLAX/BATCH, NOLOG
-      LOGICAL BATCH, NOLOG
-C
-      INTEGER       IDEBUG,IDEMIN,IDEMAX,ITEST,IDRUN,IDEVT,IEORUN
-     +        ,IEOTRI,IEVENT,ISWIT,IFINIT,NEVENT,NRNDM
-C
-*KEEP,QUEST.
-      INTEGER      IQUEST
-      COMMON/QUEST/IQUEST(100)
-*KEEP,AGCDOCL.
-C     common for the documentation supporting links
-      Integer           LDarea(2),L1Doc,L2Doc,LKDoc,Ldoc,Ldete,Lpar
-      COMMON /AGCDOCL/  LDarea,   L1Doc,L2Doc,LKDoc,Ldoc,Ldete,Lpar
-C     - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-*
-*KEND.
- Integer        Ie,Iprin,Idiv,Lo,Li,Key(2),Nc,IC,i,k,New,Old,Mn,Mo;
- Character*(*)  Ckey,Opt,status*10,Copt*4
-*
- New(k)=IQ(Lo+k)
- Old(k)=IQ(Li+k)
-*
-*
- check Lo>0;  Nc=0;  Iprin=Idebug-1; Ie=0; Li=0;
- 
-* read the highest cycle, return data + cycle info
-  Call UCTOH(Ckey,key,4,8); if (key(1)!=IQ(Lo-4) | key(2)!=IQ(Lo-5))
-  {  prin3 key,IQ(Lo-4),IQ(Lo-5); (' ARZOUT error: key=',2a4,' bank=',2a4)
-     IC=0; Return;
-  }
- 
-* drop previous input - should later be done at the end
-  if (L1DOC>0 & LQ(L1DOC-1)>0) Call MZDROP(IxSTOR,LQ(L1DOC-1),' ')
-  CALL RZIN (IxCons,L1DOC,-1,Key,999999,'CD');   Li=LQ(L1DOC-1);
-* CALL RZIN (IxDIV,Li,2,Key,999999,'CD')
- 
-  IC=0; Nc=IQUEST(50); if (IQUEST(1)==0 & 0<Nc&Nc<20) Ic=IQUEST(50+Nc)
- 
-  ie=1; status='written';  if (Li<=0)
-  { prin3 key; (' ARZOUT error: key=',2a4,' not found '); go to :w: }
- 
-  ie=2; "data"   if (New(15)!=Old(15)) goto :w:
-  mn=new(3)+new(11)+new(12);  mo=old(3)+old(11)+old(12);
-  do i=1,New(15) { If (New(mn+i)!=Old(mo+i)) go to :w: }
- 
-  ie=3; "links"  if (New(12)> Old(12)) goto :w:
- 
-  ie=4; "header" if (New(11)> Old(11)) goto :w:;
-  mn=new(3);  mo=old(3);
-* do i=1,New(11) { If (New(mn+i)!=Old(mo+i)) go to :w: }
- 
-  ie=9; status='found'
- 
-  :w: Copt='SN'; " If (ie>2) Copt='SNR' "
-  if (status!='found') CALL RZOUT(Idiv,Lo,Key,IC,Copt)
-  prin4  status,key,ie,nc,ic; (' aRZOUT status - ',a,' - ',2a4,' cycles ',3i6)
- 
-* if (Li>0) Call MZDROP(IxSTOR,Li,' ')
- 
- end
  
  
 *CMZ :          30/04/98  15.29.51  by  Pavel Nevski
@@ -10366,6 +10269,7 @@ C
      Igauto=Iauto
 end
  
+*CMZ :          15/06/98  12.24.27  by  Pavel Nevski
 *CMZ :  1.30/00 24/03/96  21.59.47  by  Pavel Nevski
 *CMZU:  1.00/01 21/01/96  20.18.19  by  Sasha Vanyashin
 *CMZ :  1.00/00 24/11/95  00.28.56  by  Pavel Nevski
@@ -10452,17 +10356,19 @@ Loop
     {  If LQ(L+1)<=0  { Ctop='NONE' }
        else           { Call UHTOC(IQ(LQ(L+1)-4),4,CTOP,4) }
        Call UHTOC(IQ(L-4),4,CBank,4);   Bank=Cbank//Ctop;
-      *                                    print bank header
+*                                          print bank header
        Chop='PRZ'
        If (Index(Chopt,'H')!=0) Chop='PRZH'
        If (Index(Chopt,'S')!=0) Chop='PRZS'
        If Cold != bank                   " dump new bank header "
        {  IQUEST(MOQUEQ)=1; Call DzDOCO(Luu,Bank,Chop); IERR=IQUEST(MOQUEQ) }
-      *                                    print the bank itself
+*                                          print the bank itself
        If (Index(Chopt,'C')==0) { Chop=' ' } else { Chop='C' }
        If ((Ierr==0|Index(Chopt,'U')>0) & (Index(Chopt,'1')==0|IQ(L-1)<1000))_
           Call DzDDOC(IrbDiv,L,Bank,Chop,1,IQ(L-1),Luu,'    ',K)
        Lk(j)=L;  IL(j)=0;  Cold=Bank;
+*                                          skip content of docu tree
+       if (Bank='DOCUDETM' & J>1) IL(j)=999999;
     }
 *    now navigate in the structure - first through links, then to next bank
     If IL(j)<IQ(LK(j)-2)  { IL(j)+=1; L=LQ(LK(j)-IL(j));  If (L >0) j+=1; }
@@ -11331,22 +11237,23 @@ C
    END
  
  
-*CMZ :          08/06/98  22.08.04  by  Pavel Nevski
+*CMZ :          14/06/98  15.33.41  by  Pavel Nevski
 *-- Author :    Pavel Nevski   25/11/97
-*************************************************************************
-*                                                                       *
+***************************************************************************
+*                                                                         *
                 subroutine  A G K E E P S (Request,Cdest)
-*                                                                       *
-* Description:                                                          *
-* produce include files and update the documentation database           *
-*     Request is a REBANK path, default root is DETM                    *
-*     Cdest   is def, idl or memory (dui etc)                           *
-*     IWr is generated according to request:                            *
-*     0- global include file, 1 - subsystem files, 2 - separate structs *
-*     Kw=0  - no prefix in keep name, not used                          *
-*************************************************************************
+*                                                                         *
+* Description:                                                            *
+* produce include files and update the documentation database             *
+*     Request is a REBANK path, default root is DETM                      *
+*     Cdest   is def, idl or memory (dui etc)                             *
+*     IWr is generated according to request:                              *
+*     0- global include file, 1 - subsystem files, 2 - separate structs   *
+*     Kw=0  - no prefix in keep name, not used                            *
+* Attention: Current links are equivalenced to Ldoc/Ldete for protection  *
+***************************************************************************
 +include,TYPING,GCBANK,SCLINK,GCUNIT,GCFLAG,AGCDOCL.
-     integer     Iprin,i,i1,i2,il,id,ic,jl,L,L1,L2,Iwr,Kw/1/,Lu,Idl,Key(2)
+     integer     Iprin,i,i1,i2,il,id,ic,jl,L,Iwr,Kw/1/,Lu,Idl,Key(2)
      Integer     LENOCC,INDEX,TDM_MAP_TABLE
      Character*8 Sname, Bname, Ckey
      Character*4 Csys, Cban
@@ -11355,11 +11262,11 @@ C
      character      ccc*12000
      common /agcstaftab/ ccc
  
-     Call Agsbegm('DOCUM',Iprin); Call AsbDETE('DOCU',Id); Iprin=Idebug
+     Call Agsbegm('DOCUM',Iprin); Call AsbDETE('DOCU',Id);
  
      Idl = 2
-     if (Cdest=='def') Idl=0
-     if (Cdest=='idl') Idl=1
+     if (Index(Cdest,'idl')>0) Idl=1
+     if (Index(Cdest,'def')>0) Idl=0
  
 *  request a la UNIX: sys/bank
      Iwr = 0
@@ -11381,23 +11288,23 @@ C
      call agdprina(Iprin,Lu,L1doc,0,Iwr,Kw,Idl)
  
      do il=1,IQ(L1doc-2)
-        L1=LQ(L1doc-il); check L1>0;
-        CALL UHTOC(IQ(L1-5),4,Sname,8); Call CUTOL(Sname)
+        Ldoc=LQ(L1doc-il); check Ldoc>0;
+        CALL UHTOC(IQ(Ldoc-5),4,Sname,8); Call CUTOL(Sname)
         Check csys='*' | Sname(5:4+i1)==csys(1:i1)
  
-        call agdprina(Iprin,Lu,L1,1,Iwr,Kw,Idl)
+        call agdprina(Iprin,Lu,Ldoc,1,Iwr,Kw,Idl)
  
-        do jl=1,IQ(L1-2)
-           L2=LQ(L1-jl); check L2>0; ccc=' '
-           CALL UHTOC(IQ(L2-5),4,Bname,8); Call CUTOL(Bname)
+        do jl=1,IQ(Ldoc-2)
+           Ldete=LQ(Ldoc-jl); check Ldete>0; ccc=' '
+           CALL UHTOC(IQ(Ldete-5),4,Bname,8); Call CUTOL(Bname)
            Check cban='*' | Bname(5:4+i2)==cban(1:i2)
-           call agdprina(Iprin,Lu,L2,2,Iwr,Kw,Idl)
+           call agdprina(Iprin,Lu,Ldete,2,Iwr,Kw,Idl)
  
            Table=Sname(5:8)//'_'//Bname(5:8); Call CUTOL(Table)
            if (idl==2) i=TDM_MAP_TABLE(%L(Cdest),%L(Table),%L(ccc),0,0)
  
-           Key(1)=IQ(L2-4);  Key(2)=IQ(L2-5);  Call UHTOC(Key,4,Ckey,8)
-           CALL aRZOUT(IXCONS,L2,CKey,IC,'SN')
+           Key(1)=IQ(Ldete-4);  Key(2)=IQ(Ldete-5);  Call UHTOC(Key,4,Ckey,8)
+           CALL aRZOUT(IXCONS,Ldete,CKey,IC,'SN')
         enddo
      enddo
      If (Lu>6) close (Lu)
@@ -11693,7 +11600,7 @@ C
      end
  
  
-*CMZ :          08/06/98  21.48.20  by  Pavel Nevski
+*CMZ :          14/06/98  16.52.36  by  Pavel Nevski
 *-- Author :    Pavel Nevski   25/11/97
 ***************************************************************************
 *                                                                         *
@@ -11705,6 +11612,7 @@ C
 *     RECB etc alternative form is /RECB/....bank@sys                     *
 *          meaning 'take documentation from sys'                          *
 *     Only existing banks are dumped, alternative is commented out now    *
+* Attention: Current link is equivalenced to Lpar for protection          *
 ***************************************************************************
 *KEEP,TYPING.
       IMPLICIT NONE
@@ -11763,7 +11671,7 @@ C   - combined DETM + Reconstruction bank access variables - AGI version
       INTEGER      IQUEST
       COMMON/QUEST/IQUEST(100)
 *KEND.
-  INTEGER       LENOCC,TDM_MAP_TABLE,Iprin,Nun(15),LK(15),IL(15),
+  INTEGER       LENOCC,TDM_MAP_TABLE,Iprin,Nun(15),LK(15),IL(15),Ist(15),
                 I,J,L,K,M,N,Ia,Lc,Lp,Mj
   Character     Cpath*80,Cdest*80,Csys*80,Table*10,Cbank*4
   Character*(*) Source,Destin
@@ -11790,14 +11698,13 @@ C   - combined DETM + Reconstruction bank access variables - AGI version
   m=Index(Cpath(1:Lc),'*'); Lp=Lc;
   if (m>0) Lp=min(Lp,m-1);  if (Cpath(Lp:Lp)='/') { Lp-=1; m=-1 }
   do i=1,Lp/5 { Nun(i)=1 }; Nun(Lp/5)=0;
-  Call ReBANK(Cpath(:Lp),Nun,0,L,Ia)
-  Call UHTOC(IQ(L-4),4,CBank,4)
+ 
+:A: Call ReBANK(Cpath(:Lp),Nun,0,L,Ia)
+    Call UHTOC(IQ(L-4),4,CBank,4)
  
   prin2  %L(Csys),Cpath(:lp),Cbank,lc,n,m,mj,lp
   (' AGSTRUT decoded Csys,Cpath,Cbank=',3(1x,a),' lc,n,m,mj,lp=',6i8)
- 
   if L<=0 { <w> %L(Cpath); (' AGSTRU: Data source ',a,' not found '); Return; }
-*
 *
 J=1; Loop                                  " over existing banks only "
 {  If L>0
@@ -11807,13 +11714,14 @@ J=1; Loop                                  " over existing banks only "
       { Table=Csys(1:4)//'_'//Cbank;  Call CUTOL(Table);
         Call AGKEEPs(%L(Csys)//'/'//Cbank,%L(Cdest))
         K=1; if (IQ(L-5)<0) K=-IQ(L-5)
-        i=TDM_MAP_TABLE(%L(Cdest),%L(Table),'\000',K,IQ(L+1))
+        i=TDM_MAP_TABLE(%L(Cdest),%L(Table),Char(0),K,IQ(L+1))
         prin2 %L(Cdest),%L(Table),i,k,(Q(L+i),i=1,3)
               (' TDM_MAPing_TABLE:',2(1x,a),2i5,2x,3F8.1)
         " specific bank requested " if (m==0 & Mj==0) Break;
-      } Lk(j)=L;  IL(j)=0;
+      } Lk(j)=L;  Ist(j)=IQ(L);  IL(j)=0;
    }
 *    now navigate in the structure - first through links, then to next bank
+   if IQ(LK(j))!=Ist(j)  { prin2;(' AGSTRUT problem, links are lost'); Goto:A:}
    If IL(j)<IQ(LK(j)-2)  { IL(j)+=1; L=LQ(LK(j)-IL(j));  If (L >0) j+=1; }
    else   " brothers "   { If (j==1) Break; L=LQ(LK(j)); If (L<=0) j-=1; }
 }
@@ -11976,6 +11884,133 @@ C
 *         Numat     = Q(LQ(JTMED-Numed)+6)
           Call Ucopy (Q(LQ(JVOLUM-IVOL)+7),par,min(50,Npar) )
        end
+ 
+*CMZ :          15/06/98  23.12.56  by  Pavel Nevski
+*-- Author :    Pavel Nevski   26/11/94
+****************************************************************************
+          subroutine  ARZOUT(Idiv,Lo,CKey,IC,opt)
+*                                                                          *
+* Description: same functionality as RZOUT is supposed with few additions: *
+*            - consistence between Bank at Lo and Ckey is checked          *
+*            - previous bank with simular Ckey is read and compaired,      *
+*              new bank is writtent only if it differs from the old one.   *
+*            - very crude version , to be developed later (?). Therefore   *
+*              intermediate input bank is kept on a free Link=1 of L1Doc   *
+* Attention:   both RZIN and RZOUT may trigger garbage collection          *
+****************************************************************************
+*KEEP,TYPING.
+      IMPLICIT NONE
+*KEEP,GCBANK.
+      INTEGER IQ,LQ,NZEBRA,IXSTOR,IXDIV,IXCONS,LMAIN,LR1,JCG
+      INTEGER KWBANK,KWWORK,IWS
+      REAL GVERSN,ZVERSN,FENDQ,WS,Q
+C
+      PARAMETER (KWBANK=69000,KWWORK=5200)
+      COMMON/GCBANK/NZEBRA,GVERSN,ZVERSN,IXSTOR,IXDIV,IXCONS,FENDQ(16)
+     +             ,LMAIN,LR1,WS(KWBANK)
+      DIMENSION IQ(2),Q(2),LQ(8000),IWS(2)
+      EQUIVALENCE (Q(1),IQ(1),LQ(9)),(LQ(1),LMAIN),(IWS(1),WS(1))
+      EQUIVALENCE (JCG,JGSTAT)
+      INTEGER       JDIGI ,JDRAW ,JHEAD ,JHITS ,JKINE ,JMATE ,JPART
+     +      ,JROTM ,JRUNG ,JSET  ,JSTAK ,JGSTAT,JTMED ,JTRACK,JVERTX
+     +      ,JVOLUM,JXYZ  ,JGPAR ,JGPAR2,JSKLT
+C
+      COMMON/GCLINK/JDIGI ,JDRAW ,JHEAD ,JHITS ,JKINE ,JMATE ,JPART
+     +      ,JROTM ,JRUNG ,JSET  ,JSTAK ,JGSTAT,JTMED ,JTRACK,JVERTX
+     +      ,JVOLUM,JXYZ  ,JGPAR ,JGPAR2,JSKLT
+C
+*KEEP,GCUNIT.
+      COMMON/GCUNIT/LIN,LOUT,NUNITS,LUNITS(5)
+      INTEGER LIN,LOUT,NUNITS,LUNITS
+      COMMON/GCMAIL/CHMAIL
+      CHARACTER*132 CHMAIL
+C
+*KEEP,GCFLAG.
+      COMMON/GCFLAG/IDEBUG,IDEMIN,IDEMAX,ITEST,IDRUN,IDEVT,IEORUN
+     +        ,IEOTRI,IEVENT,ISWIT(10),IFINIT(20),NEVENT,NRNDM(2)
+      COMMON/GCFLAX/BATCH, NOLOG
+      LOGICAL BATCH, NOLOG
+C
+      INTEGER       IDEBUG,IDEMIN,IDEMAX,ITEST,IDRUN,IDEVT,IEORUN
+     +        ,IEOTRI,IEVENT,ISWIT,IFINIT,NEVENT,NRNDM
+C
+*KEEP,QUEST.
+      INTEGER      IQUEST
+      COMMON/QUEST/IQUEST(100)
+*KEEP,AGCDOCL.
+C     common for the documentation supporting links
+      Integer           LDarea(2),L1Doc,L2Doc,LKDoc,Ldoc,Ldete,Lpar
+      COMMON /AGCDOCL/  LDarea,   L1Doc,L2Doc,LKDoc,Ldoc,Ldete,Lpar
+C     - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+*
+*KEND.
+ Integer        Ie,Iprin,Idiv,Lo,Li,Key(2),Nc,IC,i,k,New,Old,Mn,Mo,Istat;
+ Character*(*)  Ckey,Opt,status*10,Copt*4
+*
+ New(k)=IQ(Lo+k)
+ Old(k)=IQ(Li+k)
+*
+*
+  check Lo>0;  Nc=0;  Iprin=Idebug-1; Ie=0; Li=0;
+ 
+* read the highest cycle, return data + cycle info
+  Call UCTOH(Ckey,key,4,8); if (key(1)!=IQ(Lo-4) | key(2)!=IQ(Lo-5))
+  {  prin3 key,IQ(Lo-4),IQ(Lo-5); (' ARZOUT error: key=',2a4,' bank=',2a4)
+     IC=0; Return;
+  }
+ 
+  istat=IQ(Lo); status=' '; IC=0;
+ 
+* drop previous input - should later be done at the end
+* if (L1DOC>0 & LQ(L1DOC-1)>0) Call MZDROP(IxSTOR,LQ(L1DOC-1),' ')
+* CALL RZIN (IxCons,L1DOC,-1,Key,999999,'CD');   Li=LQ(L1DOC-1);
+ 
+* look for the previous definition, see that it is readable
+* and test thet the output bank was not lost due to garbage collection
+ 
+  CALL RZIN (IxDIV,Li,2,Key,999999,'CD')
+  if (IQUEST(1)!=0)
+  { prin4 ckey; (' ARZOUT message: bank ',a,' not found')
+    Li=0; go to :w:;
+  }
+  if (IQ(Lo)!=Istat)
+  { prin0 ckey; (' ARZOUT error: bank ',a,' link is not protected !')
+    Lo=0; go to :w:;
+  }
+ 
+* previous definition found - extract its cycle number
+  IC=0; Nc=IQUEST(50); if (IQUEST(1)==0 & 0<Nc&Nc<20) Ic=IQUEST(50+Nc)
+ 
+  ie=1; status='written';  if (Li<=0)
+  { prin3 key; (' ARZOUT error: key=',2a4,' not found '); go to :w: }
+ 
+  ie=2; "data"   if (New(15)!=Old(15)) goto :w:
+  mn=new(3)+new(11)+new(12);  mo=old(3)+old(11)+old(12);
+  do i=1,New(15) { If (New(mn+i)!=Old(mo+i)) go to :w: }
+ 
+  ie=3; "links"  if (New(12)> Old(12)) goto :w:
+ 
+  ie=4; "header" if (New(11)> Old(11)) goto :w:;
+  mn=new(3);  mo=old(3);
+ 
+* do i=1,New(11) { If (New(mn+i)!=Old(mo+i)) go to :w: }
+ 
+  ie=0; status='found'
+ 
+  :w: Copt='SN';                           " If (ie>2)   Copt='SNR'  "
+  if (Li>0) Call MZDROP(IxSTOR,Li,' ')     " drop first, it may move "
+  if (Lo>0 & status!='found') CALL RZOUT(Idiv,Lo,Key,IC,Copt)
+  prin4  status,key,ie,nc,ic; (' aRZOUT status - ',a,' - ',2a4,' cycles ',3i6)
+ 
+ end
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
  
 *CMZ :          20/04/98  15.46.43  by  Pavel Nevski
 *CMZ :  1.30/00 29/04/97  23.23.51  by  Pavel Nevski
