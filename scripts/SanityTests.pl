@@ -32,7 +32,7 @@ $DESTDIR=IUHtmlPub();
 
 # Number of events ton run in mode
 $NEVT[0]=2;    # Insure mode
-$NEVT[1]=10;   # Jprofile
+$NEVT[1]=15;   # Jprofile
 
 
 # ------ No Changes below this line -------------------------------------
@@ -154,7 +154,8 @@ foreach $choice (@ARG){
 	    "#\!/bin/csh\n",
 	    "# Script created on ".localtime()."\n",
 	    "# by $0. Written J.Lauret\n",
-	    "source ~/.cshrc\n";
+	    "source ~/.cshrc\n",
+	    "unset noclobber\n";
 
 	if($PROF){
 	    print FO JPLoad()."\n" ;  # Command to load the Profiling env
@@ -175,7 +176,6 @@ foreach $choice (@ARG){
 	    "echo \"CDir   = \" `pwd`\n",
 	    "\n",
 	    "setenv StarEndMakerShell\n",
-	    "unset noclobber\n",
 	    "rm -f *.root\n",
 	    "\n";
 
