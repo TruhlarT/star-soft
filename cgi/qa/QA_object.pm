@@ -108,27 +108,9 @@ sub _init{
     $self->LogfileReportData($logfile_report);
   };
   #------------------------------------------------------
-  # set QA control file
+  # get QA control file
 
-  $control_file = "unknown";
-
- CONTROLFILE: {
-
-    $report_key =~ /year_1b/ and do{
-#      $control_file = "/star/u2/jacobs/QA/cgi/development/control_and_test/test_control.year_1b.txt";
-      $control_file = "$control_dir/test_control.year_1b.txt";
-      last CONTROLFILE;
-    };
-
-    $report_key =~ /year_2a/ and do{
-#      $control_file = "/star/u2/jacobs/QA/cgi/development/control_and_test/test_control.year_2a.txt";
-      $control_file = "$control_dir/test_control.year_2a.txt";
-      last CONTROLFILE;
-    };
-    
-  }
-
-  $self->ControlFile($control_file);
+  #$self->ControlFile($control_file);
 
   #------------------------------------------------------
 
@@ -183,9 +165,58 @@ sub LogfileReportData{
 #========================================================
 sub ControlFile{
   my $self = shift;
-  if (@_) {
-    $self->{control_file} = shift;
-  }
+
+  $self->{control_file} or do{
+
+    my $report_key = $self->ReportKey;
+
+    $control_file = "unknown";
+    
+  CONTROLFILE: {
+      
+      $report_key =~ /year_1b\.hc_low/ and do{
+	$control_file = "$control_dir/test_control.hc_low.year_1b.txt";
+	last CONTROLFILE;
+      };
+      
+      $report_key =~ /year_1b\.hc_std/ and do{
+	$control_file = "$control_dir/test_control.hc_std.year_1b.txt";
+	last CONTROLFILE;
+      };
+      
+      $report_key =~ /year_1b\.hc_high/ and do{
+	$control_file = "$control_dir/test_control.hc_high.year_1b.txt";
+	last CONTROLFILE;
+      };
+      
+      $report_key =~ /year_2a\.hc_low/ and do{
+	$control_file = "$control_dir/test_control.hc_low.year_2a.txt";
+	last CONTROLFILE;
+      };
+      
+      $report_key =~ /year_2a\.hc_std/ and do{
+	$control_file = "$control_dir/test_control.hc_std.year_2a.txt";
+	last CONTROLFILE;
+      };
+      
+      $report_key =~ /year_2a\.hc_high/ and do{
+	$control_file = "$control_dir/test_control.hc_high.year_2a.txt";
+	last CONTROLFILE;
+      };
+      
+      $report_key =~ /year_1b/ and do{
+	$control_file = "$control_dir/test_control.year_1b.txt";
+	last CONTROLFILE;
+      };
+      
+      $report_key =~ /year_2a/ and do{
+	$control_file = "$control_dir/test_control.year_2a.txt";
+	last CONTROLFILE;
+      };
+      
+    }
+    $self->{control_file} = $control_file;    
+  };
   
   return $self->{control_file};
 }

@@ -53,7 +53,9 @@ sub display_reports {
     $test_file =~ /^\#/ and next;
     $test_file !~ /\S+/ and next;
 
-    $test_file_WWW = "$control_dir_WWW/".basename($test_file);
+    ($file_string = $test_file) =~ s/.*control_and_test\///;
+
+    $test_file_WWW = "$control_dir_WWW/$file_string";
     
     QA_cgi_utilities::make_anchor("Macro Definition file", $test_file, $test_file_WWW);
   }
