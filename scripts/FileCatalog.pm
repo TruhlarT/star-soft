@@ -147,9 +147,9 @@ my @DCMD;
 # db information
 my $DSITE     =   undef;
 my $XMLREF    =   undef;
-my $dbname    =   "FileCatalog_BNL";   # Defaults were
-my $dbhost    =   "";                  # "duvall.star.bnl.gov";
-my $dbport    =   "";                  # "3336";
+my $dbname    =   "FileCatalog_BNL";     # Defaults were
+my $dbhost    =   "duvall.star.bnl.gov"; # "duvall.star.bnl.gov";
+my $dbport    =   "3336";                # "3336";
 my $dbuser    =   "FC_user";
 my $dbpass    =   "FCatalog";
 my $DBH;
@@ -296,7 +296,7 @@ $keywrds{"path"          }    =   "filePathName"              .",FilePaths"     
 $keywrds{"node"         }     =   "hostName"                  .",Hosts"                  .",0" .",text" .",0" .",0". ",0";
 
 # old keyword made obsolete
-$obsolete{"datetaken"} = "dtstart";
+$obsolete{"datetaken"} = "datastarts";
 
 
 # The detector configuration can be extended as needed
@@ -942,9 +942,13 @@ sub connect
 	if ($DBI::err == 1045){
 	    &die_message("connect","Incorrect password ".($passwd eq ""?"(NULL)":""));
 	}
+	if ($DBI::err == 2002){
+	    &die_message("connect","Socket is invalid for [$dbref]",
+			 ($host eq ""?"Host was unspecified (too old library version ??)":""));
+	}
 
 	if ( $tries < $NCTRY ){
-	    &print_message("connect","Connection failed $DBI::errstr . Retry in $NCSLP secondes");
+	    &print_message("connect","Connection failed $DBI::err $DBI::errstr . Retry in $NCSLP secondes");
 	    sleep($NCSLP);
 	    goto CONNECT_TRY;
 	} else {
@@ -1914,7 +1918,7 @@ sub insert_run_param_info {
   if (! defined $valuset{"datastarts"} ) {
       $start = "NULL";
   } else {
-      $start = "\"".$valuset{"datestarts"}."\"";
+      $start = "\"".$valuset{"datastarts"}."\"";
   }
   if (! defined $valuset{"dataends"} ) {
       $end   = "NULL";
@@ -4709,6 +4713,8 @@ sub update_record {
 	      $qupdate .= " WHERE $utable.$ufield = '$valuset{$ukeyword}'";
 	  }
       } else {
+	  # In string mode, we can append.
+	  
 	  &print_message("update_record",
 			 "$ukeyword not set with an initial value (giving up)");
 	  return 0;
@@ -4937,6 +4943,7 @@ sub update_location {
       $mtable = $utable;
   }
 
+  # this is left for protection
   if ( $mtable ne "FileLocations" &&
        $mtable ne "FileData"      ){
       &print_message("update_location","Improper method called for keyword $ukeyword ($mtable)");
