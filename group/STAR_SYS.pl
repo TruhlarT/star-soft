@@ -1,4 +1,4 @@
-#!/opt/star/bin/perl
+#!/usr/bin/env perl
 #
 # Perl version of the script that sets the STAR_SYS architecture variable
 #
