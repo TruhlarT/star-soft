@@ -40,7 +40,7 @@ $FRMTPRGM="/afs/rhic/star/packages/scripts/inssort.pl";
 $INSCMD="setup INSURE";
 
 # Compiling will use this command.
-$CMPLCMD="cons INSURE=yes";
+$CMPLCMD="cons -k INSURE=yes";
 
 # For the obj file to be deleted, we need to know :
 # The directory pattern where they are stored
