@@ -1,7 +1,10 @@
 #!/usr/bin/csh -f
-#       $Id: group_env.csh,v 1.77 1999/07/12 22:14:42 wenaus Exp $
+#       $Id: group_env.csh,v 1.78 1999/07/12 22:18:26 wenaus Exp $
 #	Purpose:	STAR group csh setup 
 #       $Log: group_env.csh,v $
+#       Revision 1.78  1999/07/12 22:18:26  wenaus
+#       Update GEANT4 env variables
+#
 #       Revision 1.77  1999/07/12 22:14:42  wenaus
 #       Update GEANT4 env variables
 #
@@ -493,7 +496,7 @@ switch ($STAR_SYS)
 endsw
 
 # Geant4 testing
-setenv RWBASE         /afs/rhic/usatlas/software/geant4/rogue
+setenv RWBASE         /afs/rhic/usatlas/software/geant4/rogue/$G4SYSTEM
 setenv CLHEP_BASE_DIR /afs/rhic/usatlas/software/geant4/CLHEP/$G4SYSTEM/pro
 
 # HP Jetprint
