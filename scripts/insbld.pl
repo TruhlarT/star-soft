@@ -127,7 +127,7 @@ print
     " You are now in directory        : $dir\n\n";
 
 # Manage lock file
-IULockPrepare($dir,"$CMPLCMD $INSCMD");
+IULockPrepare($dir,"$INSCMD $CMPLCMD $dir");
 if ( ! IULockCheck(129600) ){ exit;}
 IULockWrite("Insure++ compilation has started");
 
