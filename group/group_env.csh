@@ -1,7 +1,10 @@
 #!/usr/bin/csh -f
-#       $Id: group_env.csh,v 1.40 1998/07/27 20:23:58 fisyak Exp $
+#       $Id: group_env.csh,v 1.41 1998/07/31 19:40:36 fisyak Exp $
 #	Purpose:	STAR group csh setup 
 #       $Log: group_env.csh,v $
+#       Revision 1.41  1998/07/31 19:40:36  fisyak
+#       Add STAR_PROD to versioning SL
+#
 #       Revision 1.40  1998/07/27 20:23:58  fisyak
 #       Add sgi as unsupport OBJY platform
 #
@@ -155,8 +158,9 @@ setenv STAR_PAMS $STAR/pams;                 if ($ECHO) echo   "Setting up STAR_
 setenv STAR_DATA ${STAR_ROOT}/data;          if ($ECHO) echo   "Setting up STAR_DATA = ${STAR_DATA}"
 if ( ! $?STAR_DB ) setenv STAR_DB /star/sol/db;                 if ($ECHO) echo   "Setting up STAR_DB   = ${STAR_DB}"
 setenv STAR_PARAMS ${STAR}/params;      if ($ECHO) echo   "Setting up STAR_PARAMS= ${STAR_PARAMS}"
-setenv STAR_CALIB ${STAR_ROOT}/calib;        if ($ECHO) echo   "Setting up STAR_CALIB= ${STAR_CALIB}"
-setenv CVSROOT   $STAR_PATH/repository;      if ($ECHO) echo   "Setting up CVSROOT   = ${CVSROOT}"
+setenv STAR_CALIB ${STAR_ROOT}/calib;   if ($ECHO) echo   "Setting up STAR_CALIB= ${STAR_CALIB}"
+setenv STAR_PROD   $STAR/prod;          if ($ECHO) echo   "Setting up STAR_PROD = ${STAR_PROD}"
+setenv CVSROOT   $STAR_PATH/repository; if ($ECHO) echo   "Setting up CVSROOT   = ${CVSROOT}"
 setenv TEXINPUTS :${GROUP_DIR}/latex/styles
 setenv GROUPPATH "${GROUP_DIR}:${STAR_MGR}:${STAR_BIN}"
 if ( -x /afs/rhic/star/group/dropit) then
@@ -225,6 +229,10 @@ switch ($STAR_SYS)
      endif
      set path = ($path  /usr/local/bin/ddd /usr/local/DQS318/bin )
      setenv  MANPATH "$MANPATH":/usr/local/DQS318/man
+     if ( -x /usr/local/DQS32/bin/qstat32) then
+       set path = ($path /usr/local/DQS32/bin )
+       setenv  MANPATH "$MANPATH":/usr/local/DQS32/man
+     endif
 #    set path = ($path  /usr/local/bin/ddd /usr/local/DQS318/bin )
      set path = ($path $PARASOFT/bin.linux)
      if (! ${?LD_LIBRARY_PATH}) setenv LD_LIBRARY_PATH 
