@@ -61,7 +61,11 @@ my $prodSer = "P00hi" ;
  my @dirP;
  my $dirR;
  my $topHpss = "/home/starreco/reco";
- my $topDisk = "/star/rcf/data03/reco"; 
+ my @topDisk = (
+                "/star/rcf/data03/reco",
+                "/star/rcf/disk00001/star/reco", 
+)
+
  my @prodRun = ("JUNE-2000","JULY-2000","AUGUST-2000","SEPTEMBER-2000"); 
 
  my %RunHash = (
@@ -238,9 +242,9 @@ my @diskDstFiles;
 
  $ndiskDstFiles = 0;
 
-for ($kk=0; $kk<scalar(@DRun); $kk++) {
+for ($kk=0; $kk<scalar(@runSet); $kk++) {
 
- $sql="SELECT runID, fName, size, path, Nevents FROM $FileCatalogT WHERE runID = '$DRun[$kk]' AND fName LIKE '%dst.root' AND jobID LIKE '%$prodSer%' AND site = 'disk_rcf'";
+ $sql="SELECT runID, fName, size, path, Nevents FROM $FileCatalogT WHERE runID = '$runSet[$kk]' AND fName LIKE '%dst.root' AND jobID LIKE '%$prodSer%' AND site = 'disk_rcf'";
    $cursor =$dbh->prepare($sql)
      || die "Cannot prepare statement: $DBI::errstr\n";
    $cursor->execute;
