@@ -24,6 +24,8 @@ sub UpdateQAOffline{
   my $limit       = 2;     # limit number of new jobs
   my $oldest_date; # dont retrieve anything older than this
   my $file_type;
+  my $time_sec = 100*3600*24; # number of seconds in a week
+  my $now      = time;        # current time in epoch sec
 
   # real or simulation?
   if($data_type eq 'real')
@@ -38,10 +40,6 @@ sub UpdateQAOffline{
   }
   else {die "Wrong argument $data_type" }
   
-  my @key_list;
-  my $time_sec = 100*3600*24; # number of seconds in a week
-  my $now      = time;        # current time in epoch sec
-
   # report key
   my $query_key = qq{select concat(jobID, '.', runID, '.',   
 			      date_format(file.createTime, '%y%m%d'))
@@ -83,7 +81,7 @@ sub UpdateQAOffline{
 			  $QASum{qaID}        = NULL
 			};
 
-			
+  my (@key_list, $jobID);
   my $sth_update = $dbh->prepare($query_update); # find jobs to update
   my $sth_key    = $dbh->prepare($query_key); # get the report key info
   my $sth_insert = $dbh->prepare($query_insert); # insert into QASummary
@@ -91,8 +89,10 @@ sub UpdateQAOffline{
   my $rc = $sth_update->execute;
   $rc += 0 or return; # get out if there are no jobs to update
 
+  $sth_update->bind_col(1,\$jobID);
+
   # loop over jobs
-  while ( my $jobID= $sth_update->fetchrow_array) {
+  while ( $sth_update->fetch ) {
     $sth_key->execute($jobID);
     
     # get report key
@@ -132,9 +132,11 @@ sub UpdateQAOfflineReal{
 sub UpdateQANightly {  
   my $data_class = shift; # 'real' or 'MC'
   
-  my $limit = 20;
+  my $limit = 1;
   my $oldest_date = '2000-06-20'; # dont retrieve anything older 
   my ($type, $eventGen_string);
+  my $time_sec = 100*3600*24;    #number of seconds in a week
+  my $now      = time;           #current time in epoch sec
 
   # real or simulation
   if ($data_class eq 'real')
@@ -147,9 +149,7 @@ sub UpdateQANightly {
   }
   else { die "Incorrect argument $data_class"; }
 
-  my @key_list;
-  my $time_sec = 100*3600*24;    #number of seconds in a week
-  my $now      = time;           #current time in epoch sec
+  
 
   # get info for report key
   my $query_key = qq{select concat(LibLevel,'.',
@@ -203,6 +203,7 @@ sub UpdateQANightly {
 			  $QASum{type}       = '$data_class',
 		          $QASum{qaID}       = NULL          
 			};
+  my (@key_list, $jobID);
 
   my $sth_update = $dbh->prepare($query_update); # find jobs to update
   my $sth_key    = $dbh->prepare($query_key);    # get report key info
@@ -211,9 +212,11 @@ sub UpdateQANightly {
 
   my $rc = $sth_update->execute;
   $rc += 0 or return; # get out if there are no jobs to update
+
+  $sth_update->bind_col(1,\$jobID);
  
   # loop over jobs
-  while ( my $jobID= $sth_update->fetchrow_array) {
+  while ( $sth_update->fetch) {
     $sth_key->execute($jobID);
     
     # get the report key
@@ -262,12 +265,9 @@ sub db_GetToDoReportKeys{
 		 from $dbQA.$QASum{Table}  
 		 where $QASum{QAdone} = 'N'};
   
-  my $sth = $dbh->prepare($query);
-  $sth->execute;
-  
-  push @todo_keys, $job while( $job = $sth->fetchrow_array );
+  my $todo_keys_ref = $dbh->selectcol_arrayref($query);
 
-  return @todo_keys;
+  return @{$todo_keys_ref};
 }
 
 

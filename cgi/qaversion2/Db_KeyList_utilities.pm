@@ -27,7 +27,7 @@ sub GetOfflineSelections{
   my $now      = time;       # what time is it?
   my $time_sec = 14*24*3600; # 2 weeks
 
-  my $file_type;
+  my ($file_type, %query);
 
  SWITCH:{
     $argument eq 'real' and do{$file_type = 'real';   last; };
@@ -47,36 +47,36 @@ sub GetOfflineSelections{
      
 
   # run id
-  my $query_runID = qq{select distinct file.runID
-		       from $dbFile.$FileCatalog as file,
-			    $dbQA.$QASum{Table} as s
-		       where file.jobID = s.$QASum{jobID} and
-			     ($now-unix_timestamp(createtime))>0 and
-			     s.$QASum{type} = '$file_type'
-		       order by file.runID asc};
+  $query{runID} = qq{select distinct file.runID
+		     from $dbFile.$FileCatalog as file,
+		          $dbQA.$QASum{Table} as s
+		     where file.jobID = s.$QASum{jobID} and
+			   ($now-unix_timestamp(createtime))>0 and
+		           s.$QASum{type} = '$file_type'
+		     order by file.runID asc};
 
   # QA macros
-  my $query_QAmacros = qq{select distinct m.$QAMacros{macroName}
-			  from $dbQA.$QAMacros{Table} as m,
-			       $dbQA.$QASum{Table} as s
-			  where 
-			        m.$QAMacros{qaID} = s.$QASum{qaID} and
-			        m.$QAMacros{extension}!='ps' and
-			        m.$QAMacros{extension}!='ps.gz' and
-				s.$QASum{type}     = '$file_type'           
-			  order by m.$QAMacros{macroName} asc};
+  $query{macroName} = qq{select distinct m.$QAMacros{macroName}
+		       from $dbQA.$QAMacros{Table} as m,
+		            $dbQA.$QASum{Table} as s
+		       where 
+		            m.$QAMacros{qaID} = s.$QASum{qaID} and
+		            m.$QAMacros{extension}!='ps' and
+		            m.$QAMacros{extension}!='ps.gz' and
+		            s.$QASum{type}     = '$file_type'           
+		       order by m.$QAMacros{macroName} asc};
 
   # dataset 
-  my $query_dataset = qq{select distinct file.dataset
-			 from $dbFile.$FileCatalog as file,
-			   $dbQA.$QASum{Table} as s
-			 where file.jobID      = s.$QASum{jobID} and
-			       s.$QASum{type} = '$file_type'
-			 order by file.dataset asc };
+  $query{dataset} = qq{select distinct file.dataset
+		       from $dbFile.$FileCatalog as file,
+			    $dbQA.$QASum{Table} as s
+		       where file.jobID      = s.$QASum{jobID} and
+			    s.$QASum{type} = '$file_type'
+		       order by file.dataset asc };
   
   my $sth;
 
-  # get prodOptions
+  # get prodOptions - this is different from the others.
   $sth = $dbh->prepare($query_library);
   $sth->execute;
 
@@ -84,26 +84,9 @@ sub GetOfflineSelections{
     push( @{$hashref->{prodOptions}->{$prodSeries}}, $chainName );
   }
 
-  # get run id
-  $sth = $dbh->prepare($query_runID);
-  $sth->execute;
-
-  while ( my $runID = $sth->fetchrow_array ) {
-    push( @{$hashref->{runID}}, $runID );
-  }
-  
-  # dataset
-  $sth = $dbh->prepare($query_dataset);
-  $sth->execute;
-  while ( my $dataset = $sth->fetchrow_array ) {
-    push (@{$hashref->{dataset}}, $dataset);
-  }
-
-  # get macro names
-  $sth = $dbh->prepare($query_QAmacros);
-  $sth->execute;
-  while (my $macro_name = $sth->fetchrow_array ){
-    push( @{$hashref->{macroName}}, $macro_name );
+  # more stuff
+  foreach my $field (keys %query){    
+    $hashref->{$field} = $dbh->selectcol_arrayref($query{$field});
   }
   
   return $hashref;
@@ -130,18 +113,17 @@ sub GetOfflineSelectionsMC{
 sub GetNightlySelections{
   my $data_type = shift; # real or MC
 
-
-  my ($query_eventGen, $query_eventType, $file_type);
+  my (%query, $file_type);
 
   # different queries for different class of data
   if ($data_type eq 'MC')
   {
-    $query_eventGen  = qq{select distinct eventGen
+    $query{eventGen}  = qq{select distinct eventGen
 		          from $dbFile.$FileCatalog
 			  where eventGen !='n/a/'
 			  order by eventGen};
 
-    $query_eventType = qq{select distinct eventType
+    $query{eventType} = qq{select distinct eventType
 		          from $dbFile.$FileCatalog
                           where eventType!='n/a' 
                           order by eventType};
@@ -150,12 +132,12 @@ sub GetNightlySelections{
   }
   elsif ($data_type eq 'real')  
   {
-    $query_eventGen  = qq{select ID
+    $query{eventGen}  = qq{select ID
 			  from $dbFile.$FileCatalog
                           where 1<0}; # dummy query
     
     # only want event types where the event gen is not applicable
-    $query_eventType = qq{select distinct eventType
+    $query{eventType} = qq{select distinct eventType
 		         from $dbFile.$FileCatalog
                          where eventType!='n/a' and
 			       eventGen = 'n/a'
@@ -167,20 +149,20 @@ sub GetNightlySelections{
 
   # other queries...
 
-  my $query_library   = qq{select distinct LibLevel
+  $query{LibLevel}   = qq{select distinct LibLevel
 		         from $dbFile.$FileCatalog 
 			 where LibTag!='n/a'
                          order by LibLevel};
-  my $query_platform  = qq{select distinct platform
+  $query{platform}  = qq{select distinct platform
 		          from $dbFile.$FileCatalog 
 			  where platform!='n/a'
                           order by platform};
   
-  my $query_geometry  = qq{select distinct geometry
+  $query{geometry}  = qq{select distinct geometry
 		         from $dbFile.$FileCatalog 
 			 order by geometry};
 
-  my $query_QAmacros = qq{select distinct m.$QAMacros{macroName}
+  $query{macroName} = qq{select distinct m.$QAMacros{macroName}
 			  from $dbQA.$QAMacros{Table} as m,
 			       $dbQA.$QASum{Table} as s
 			  where 
@@ -190,44 +172,16 @@ sub GetNightlySelections{
                                 m.$QAMacros{extension}!='ps.gz'
 			  order by m.$QAMacros{macroName} asc};
 
-  my ($hashref, $row, $sth);
+  my ($hashref, $value, $sth);
 
-  # get the eventGen (maybe)
-  $sth = $dbh->prepare($query_eventGen);
-  $sth->execute;
-    
-  push( @{$hashref->{eventGen}}, $row ) 
-    while ( $row = $sth->fetchrow_array );
+  # get the possible values
+  foreach my $field (keys %query){
+    $sth = $dbh->prepare($query{$field});
+    $sth->execute;
+    $sth->bind_col(1,\$value);
 
-  # get library level
-  $sth = $dbh->prepare($query_library);
-  $sth->execute;
-  
-  push( @{$hashref->{LibLevel}}, $row ) while ( $row = $sth->fetchrow_array );
-
-  # get machine info
-  $sth = $dbh->prepare($query_platform);
-  $sth->execute;
-
-  push( @{$hashref->{platform}}, $row ) while ( $row = $sth->fetchrow_array );
-
-  # get eventType info
-  $sth = $dbh->prepare($query_eventType);
-  $sth->execute;
-
-  push( @{$hashref->{eventType}}, $row ) while ( $row = $sth->fetchrow_array );
-
-  # get geometry info
-  $sth = $dbh->prepare($query_geometry);
-  $sth->execute;
-
-  push( @{$hashref->{geometry}}, $row ) while ( $row = $sth->fetchrow_array );
-
-  # get macro names
-  $sth = $dbh->prepare($query_QAmacros);
-  $sth->execute;
-
-  push (@{$hashref->{macroName}},$row ) while ( $row = $sth->fetchrow_array );
+    push( @{$hashref->{$field}}, $value) while ( $sth->fetch );
+  }
 
   return $hashref;
 }
@@ -365,7 +319,6 @@ sub GetOfflineKeys{
   }
   #--- QA status ---
   # $QAstatus_string must be the last line in the 'where' clause
-  # used when no warnings or errors are specified
   my ($QAstatus_string, $macro_string);
   my ($macro_where_string, $macro_from_string);
 
@@ -415,16 +368,10 @@ sub GetOfflineKeys{
 
   print $query if $gBrowser_object->ExpertPageFlag;
 
-  my $sth = $dbh->prepare( $query );
-  $sth->execute;
+  my $keys_ref = $dbh->selectcol_arrayref( $query );
   
-  my @report_keys;
+  return @{$keys_ref};
 
-  while ( my $key = $sth->fetchrow_array){
-    push @report_keys, $key;
-  }
-
-  return @report_keys;
 }
 #=======================================================================
 # get offline selected keys for real jobs only
@@ -631,16 +578,10 @@ sub GetNightlyKeys{
   # for debugging
   print $query if $gBrowser_object->ExpertPageFlag;
 
-  my $sth = $dbh->prepare( $query );
-  $sth->execute;
-  
-  my @report_keys;
+  my $keys_ref = $dbh->selectcol_arrayref( $query );
 
-  while ( my $key = $sth->fetchrow_array){
-    push @report_keys, $key;
-  }
+  return @{$keys_ref};
 
-  return @report_keys;
 } 
 #=======================================================================
 # get nightly selected keys for real jobs only

@@ -290,6 +290,8 @@ sub DisplayLogReport {
     Machine name = $self->{_Machine}
     Job status = $self->{_JobStatus}
   };
+
+  print join "\n", @{$self->{_ProductionFileListRef}};
   # error?
   defined ($self->{_ErrorString}) and
     print "Error found: $self->{_ErrorString}\n";

@@ -66,6 +66,7 @@ use strict;
 #         QAok        enum('Y','N','n/a') not null default 'n/a',
 #         QAdate      datetime            not null,
 #         controlFile varchar(128)        not null default 'n/a',
+#         insertTime  timestamp(10)       not null,
 #         qaID        mediumint           not null auto_increment,
 #                     primary key (qaID),
 #                     index (jobID),
@@ -250,8 +251,7 @@ sub GetMissingFiles{
 #		        size > $hist_size };
 
   # retrieve components from output files from db
-  my $output_comp_ref = $dbh->selectall_arrayref($query);
-  my @output_comp     = map { $_->[0] } @{$output_comp_ref};   
+  my @output_comp = @{$dbh->selectcol_arrayref($query)};
 
   print h4("@output_comp");
   # construct 'seen' hash - see perl cookbook
@@ -494,14 +494,9 @@ sub GetAllProductionFilesOffline{
 		 from $dbFile.$FileCatalog
 		 where jobID = '$jobID' and
 	               hpss = 'N'};
- 
-  my $sth = $dbh->prepare($query);
-  $sth->execute;
 
-  
-  push @file_list, $file while ($file = $sth->fetchrow_array);
+  return $dbh->selectcol_arrayref($query);
 
-  return \@file_list;
 }
 #=====================================================================
 # returns  all production files for nightly 
@@ -515,13 +510,8 @@ sub GetAllProductionFilesNightly{
 		 where jobID = '$jobID' and
 	               avail = 'Y'};
  
-  my $sth = $dbh->prepare($query);
-  $sth->execute;
+  return $dbh->selectcol_arrayref($query);
 
-  
-  push @file_list, $file while ($file = $sth->fetchrow_array);
-
-  return \@file_list;
 }
 
 #=============================================================
