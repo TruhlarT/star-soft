@@ -75,7 +75,8 @@ while (defined $ARGV[$count]){
 	$host      = $ARGV[++$count];
     } elsif ($ARGV[$count] eq "-P"){
 	$port      = $ARGV[++$count];
-
+    } elsif ($ARGV[$count] eq "-db"){
+	$port      = $ARGV[++$count];
 
     } elsif ($ARGV[$count] eq "-delete"){
 	$mode      = 2;
@@ -129,8 +130,7 @@ while (defined $ARGV[$count]){
 
     } else {
 	print "Wrong keyword used: ".$ARGV[$count]."\n";
-	&Usage();
-	exit;
+	&Usage(1);
     }
     $count++;
 }
@@ -603,13 +603,18 @@ sub Usage
  -boots {X|all}          bootstrap keyword X, using "all" will do a 
                          sequence of table cleaning
 
+ Authentication options
+ ----------------------
+ -u user                 use 'user' db access privs
+ -p passwd               use 'password' for db access
+ -h host                 use 'host' for db access
+ -P port                 use 'port' for db accces
+ -db db                  use dabatase 'db' for db access
 
  Other options
  -------------
  -debug                  turn database module debugging information ON (default=OFF)
  -nodebug                turn this script debugging information OFF (default=ON)
- -u user                 use 'user' ddb access privs
- -p passwd               use 'password' for ddb access
  -doit                   switch MUST be specified to really perform the operation.
                          Without it, the API will only display the operation it 
                          intends to perform (i.e. debug mode). It is wise to start 
