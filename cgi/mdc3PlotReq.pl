@@ -23,13 +23,15 @@ my @prod_set = (
              "auau200/mevsim/vanilla/central/year_1h/hadronic_on",
              "auau200/mevsim/cascade/central/year_1h/hadronic_on",
              "auau200/mevsim/vanilla/flow/year_1h/hadronic_on", 
+             "auau200/mevsim/vanilla/fluct/year_1h/hadronic_on",
+             "auau200/mevsim/vanilla/resonance/year_1h/hadronic_on",
+             "auau200/mevsim/vanilla/trigger/year_1h/hadronic_on",    
              "auau200/hijing/b8_15_jetq_off/jet05/year_1h/hadronic_on",
              "auau200/hijing/b8_15_jetq_on/jet05/year_1h/hadronic_on",
              "auau200/hijing/b0_3_jetq_off/jet05/year_1h/hadronic_on",
              "auau200/hijing/b0_3_jetq_on/jet05/year_1h/hadronic_on",
              "auau200/hbt/default/peripheral/year_1h/hadronic_on",
              "auau200/hbt/default/midperipheral/year_1h/hadronic_on",
-             "auau200/mevsim/vanilla/fluct/year_1h/hadronic_on",
              "auau200/hbt/default/middle/year_1h/hadronic_on",
              "auau200/hbt/default/central/year_1h/hadronic_on", 
              "auau200/hbt/default/midcentral/year_1h/hadronic_on",  
@@ -88,7 +90,7 @@ print "<h3 align=center>Select name of dataset:</h3>";
 print "<h4 align=center>";
 print $query->scrolling_list(-name=>'set1',
                    -values=>\@sets_name,
-                   -size=>6); 
+                   -size=>8); 
 
  
 print <<END;
