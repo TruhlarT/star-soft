@@ -1,5 +1,8 @@
-* $Id: quick_sort_ii.F,v 1.1 1999/12/21 01:22:03 perev Exp $
+* $Id: quick_sort_ii.F,v 1.2 1999/12/22 02:36:40 didenko Exp $
 * $Log: quick_sort_ii.F,v $
+* Revision 1.2  1999/12/22 02:36:40  didenko
+* commit uncommited code
+*
 * Revision 1.1  1999/12/21 01:22:03  perev
 *  Add _ii functions, remove QSortTable.c & tls_sort.c
 *
@@ -44,7 +47,7 @@ C
       itst  = abs((loc(el1) - loc(table(1))))/bytes
       if (itst .ge. len) then
          write(*,*) 'Quick_Sort ***ERROR** Wrong Arguments'
-         Quick_Sort = -1
+         Quick_Sort_ii = -1
          return
       endif
 
