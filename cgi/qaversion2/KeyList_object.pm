@@ -188,7 +188,7 @@ sub GetRowOfMenus{
 	      $gCGIquery->popup_menu(
 				     -name    => $_,
 				     -values  => $self->{values}{$_},
-				     -default => $self->{values}{$_}[$self->{defaults}{$_}],
+				     -default => $self->{defaults}{$_},
 				     -labels  => $self->{labels}{$_}
                                     )
 	    } @select_fields ;

@@ -221,10 +221,9 @@ sub ParseLogfile{
     my $FH_ERR   = $io_err->Open(">", "0664");
  
     # print to StError and StWarning file
-    while( defined( <$fh_error> )){
-      
-      print $FH_ERR  if /StError:/;
-      print $FH_WARN if /StWarning:/;
+    while( my $line = <$fh_error> ){
+      print $FH_ERR  $line if $line =~ /StError:/;
+      print $FH_WARN $line if $line =~ /StWarning:/;
 
     }
     close $FH_ERR; close $FH_WARN;

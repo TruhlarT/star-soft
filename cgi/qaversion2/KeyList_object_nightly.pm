@@ -119,11 +119,11 @@ sub JobPopupMenu{
   
   # set defaults
   # unless specified otherwise, default will be 'any'
-  $self->{defaults}{eventGen}   = 1;
-  $self->{defaults}{LibLevel}   = 1;
-  $self->{defaults}{onDisk}     = 1;
-  $self->{defaults}{QAstatus}   = 3;
-  $self->{defaults}{createTime} = 1;
+  $self->{defaults}{eventGen}   = 'hadronic_cocktail';
+  $self->{defaults}{LibLevel}   = 'dev';
+  $self->{defaults}{onDisk}     = 'on disk';
+  $self->{defaults}{QAstatus}   = 'done';
+  $self->{defaults}{createTime} = 'seven_days';
 
   my $submit_string = br.$gCGIquery->submit('Display datasets');
 

@@ -669,7 +669,7 @@ sub CompareFilename{
 sub StWarningFile{
   my $self       = shift;
   my $report_key = shift;
-
+                 
   $self->ReportErrorOnOpen(1);
 
   # report dir
@@ -684,7 +684,7 @@ sub StWarningFile{
 #=====================================================================
 # StError exceptions in the log file
 
-sub StErrorFile{
+sub StErrorFile{    
   my $self       = shift;
   my $report_key = shift;
 

@@ -22,7 +22,7 @@ use strict;
 #
 sub UpdateQAOffline{
   my $data_type   = shift; # either 'real' or 'MC'
-  my $limit       = 10;     # limit number of new jobs
+  my $limit       = 20;     # limit number of new jobs
   my $oldest_date; # dont retrieve anything older than this
   my $file_type;
   my $time_sec = 100*3600*24; # number of seconds in a week
@@ -133,7 +133,7 @@ sub UpdateQAOfflineReal{
 sub UpdateQANightly {  
   my $data_class = shift; # 'real' or 'MC'
   
-  my $limit       = 1;
+  my $limit       = 10;
   my $oldest_date = '2000-06-25'; # dont retrieve anything older 
   my ($type, $eventGen_string);
   my $today    = strftime("%Y-%m-%d %H:%M:%S",localtime());

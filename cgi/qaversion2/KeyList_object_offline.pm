@@ -125,7 +125,7 @@ sub JobPopupMenu{
   $self->{labels}{createTime}{fourteen_days} = '14 days ago';
 
   # set defaults.  unless otherwise stated, default is 'any'
-  $self->{defaults}{QAstatus}  = 3;
+  $self->{defaults}{QAstatus}  = 'done';
   
 
   my $submit_string = br.$gCGIquery->submit('Display datasets');
