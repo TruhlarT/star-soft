@@ -1,4 +1,4 @@
-#!/usr/local/bin/perl -w
+#!/usr/bin/env perl
 
 #                      Block limits                      File limits
 #User           used   soft   hard    timeleft    used   soft   hard     timeleft
