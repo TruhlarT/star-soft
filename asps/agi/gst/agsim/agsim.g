@@ -164,12 +164,12 @@ C
 *KEEP,VIDQQ.
       CHARACTER*68 VIDQQ
       DATA VIDQQ/
-     +'@(#)Advanced Geant Inteface               C: 29/06/98  13.05.22
+     +'@(#)Advanced Geant Inteface               C: 09/07/98  17.23.48
      +'/
 *KEEP,DATEQQ.
-      IDATQQ =   980629
+      IDATQQ =   980709
 *KEEP,TIMEQQ.
-      ITIMQQ =   1305
+      ITIMQQ =   1723
 *KEEP,VERSQQ.
       VERSQQ = ' '
       IVERSQ = -1
@@ -573,7 +573,7 @@ C
     END
  
  
-*CMZ :          08/06/98  21.29.29  by  Pavel Nevski
+*CMZ :          08/07/98  11.17.31  by  Pavel Nevski
 *CMZ :  1.30/00 23/04/97  18.45.29  by  Pavel Nevski
 *-- Author :    Pavel Nevski   01/04/96
 *********+*********+*********+*********+*********+*********+*********+*********+
@@ -846,8 +846,11 @@ C                                       Link to:
   }
   else If Command=='VERSIONS'
   {  Call KUGETC(string1,len1);
-     IF (String1(1:4)=='RZ95') { prin1; (' RZ format 95 '); IQUEST(99)=0  }
-     IF (String1(1:4)=='RZ96') { prin1; (' RZ format 96 '); IQUEST(99)=96 }
+     IF (String1(1:4)=='RZ95')  { prin1; (' RZ format 95 '); IQUEST(99)=0  }
+     IF (String1(1:4)=='RZ96')  { prin1; (' RZ format 96 '); IQUEST(99)=96 }
+     IF (String1(1:5)=='ATLAS') { prin1; (' rebank old');  call REBANKM(-1); }
+     IF (String1(1:4)=='STAF')  { prin1; (' rebank new');  call REBANKM( 0); }
+     IF (String1(1:5)=='DENSE') { prin1; (' rebank dens'); call REBANKM(+1); }
   }
   else If Command=='GKINE' | Command=='PHASESPACE' _
         | Command='GMOMENTUM' | Command=='MOMENTUMBIN'
@@ -941,7 +944,7 @@ C                                       Link to:
       Do i=2,Npar
       { * awful coding, may be sometime will do it better. PN.
          :more:       string1=string2; Len1=Len2;
-         if Len3==0 { Call KUGETC(string2,len2);  }
+         if Len3==0 { Call KUGETS(string2,len2);  }
          else       { string2=string3; Len2=Len3; }
          Call KUDPAR(string2,Ival,Rval,string3,len3,C);
          Len3=0
@@ -2528,7 +2531,7 @@ C
       END DO
       END
  
-*CMZ :          17/06/98  11.14.47  by  Pavel Nevski
+*CMZ :          07/07/98  10.26.34  by  Pavel Nevski
 *CMZ :  1.30/00 27/03/97  19.14.44  by  Pavel Nevski
 *-- Author :    Pavel Nevski   10/04/96
 **************************************************************************
@@ -2618,13 +2621,13 @@ C
   }
   else If Cname='MZLIFT'
   { print *,' MZLIFT Cannot mount a new bank possibly because of '
-    If (NQCASE==1) print *,'   faulty bank parameters '
-    If (NQCASE==2) print *,'   invalid supporting link'
-    If (NQCASE==3) print *,'   bank at LSUP has too few structural links'
-    If (NQCASE==4) print *,'   invalid next link '
-    If (NQCASE==5) print *,'   non-existing I/O characteristic'
-    If (NQCASE==6) print *,'   invalid I/O parameter'
-    If (NQCASE==7) print *,'   attempt to lift bank in a wrong division'
+    If (NQCASE==1) print *,'        faulty bank parameters '
+    If (NQCASE==2) print *,'        invalid supporting link'
+    If (NQCASE==3) print *,'        bank at LSUP has too few structural links'
+    If (NQCASE==4) print *,'        invalid next link '
+    If (NQCASE==5) print *,'        non-existing I/O characteristic'
+    If (NQCASE==6) print *,'        invalid I/O parameter'
+    If (NQCASE==7) print *,'        attempt to lift bank in a wrong division'
     If (NQCASE==8) print *,'   attempt to connect the new bank inside a bank'
   }
   else If Cname='MZDROP'
@@ -7513,7 +7516,7 @@ C
  
  
  
-*CMZ :          29/06/98  12.53.41  by  Pavel Nevski
+*CMZ :          06/07/98  18.41.28  by  Pavel Nevski
 *CMZ :  1.30/00 17/11/96  22.43.56  by  Pavel Nevski
 *CMZU:  1.00/01 21/12/95  22.19.56  by  Pavel Nevski
 *CMZ :  1.00/00 14/11/95  02.46.06  by  Pavel Nevski
@@ -7715,7 +7718,7 @@ else                                 "     explicit directory setting if /    "
 IDYN=0; INEW=LL;             " dependant dynamic banks now - if any required "
 DO i=1,LL1
 {  if (map(1,i)>0 & map(2,i)>0)       { INEW-=map(1,i)*map(2,i); Next; }
-   INEW-=1;                               " dynamic array found here "
+   INEW-=1; IDYN+=1;                      " dynamic array found here "
    If (Link==0) Link=-1                   " force link to be secured "
    L1=map(1,i); If L1<0
    { L1=-L1;    if L1<M { Call Ucopy(Par(L1),L1,1)} else { L1=nint(Par(L1-M))}}
@@ -7726,6 +7729,7 @@ DO i=1,LL1
    swap(LkArP2,LkArP3)
    CALL ReBANK (Nam,1,2+L1*L2+3,Lk,Ia)
    swap(LkArP2,LkArP3)
+   Err LQ(LkArP3-IDYN)!=Lk {This FILL does not work in this version}
 }
 * LkArP3 keeps the current bank adress now
 Dmodule=Module;  Call AGDLINK(Module,Bank,Link,LkArP3)
@@ -7785,18 +7789,14 @@ If L2Doc>0
    Call UHTOC (IQ(L2doc-4),4,C1,4)           " - for level 3 doc "
    Call AHTOC (IQ(L2doc-5),4,C2,4)
    if C1==Dup(1:4) & C2==Dup(5:8)
-   {  Call AgDOCBA (L2doc,Dup,'*','*','*','*',1,0,Cbank,Btit,X)
-      * print *,' inserting links 1 ',dup,X
-   }
+   {  Call AgDOCBA (L2doc,Dup,'*','*','*','*',1,0,Cbank,Btit,X) }
    do i=1,Ns1
    {  Ldoc=LQ(L2Doc-i);   If (Ldoc<=0) go to :f:
       Call UHTOC (IQ(Ldoc-4),4,C1,4)
       Call AHTOC (IQ(Ldoc-5),4,C2,4)
       if C1==Cbank & C2==Dup(1:4)   { Call MZDROP(IxCons,Ldoc,' '); goto :f:; }
       if C1==Dup(1:4) & C2==Dup(5:8)            " - insert links for level 4 "
-      { Lkdoc=Ldoc; Call AgDOCBA (Ldoc,Dup,'*','*','*','*',1,0,Cbank,Btit,X)
-        * print *,' inserting links 2 ',dup,X
-      }
+      { Lkdoc=Ldoc; Call AgDOCBA (Ldoc,Dup,'*','*','*','*',1,0,Cbank,Btit,X) }
    }  i=Ns1+1;  Call MZPUSH(IxCONS,L2DOC,5,0,' ')
  
    :f: Ldoc=LQ(L2Doc-i)
@@ -8076,7 +8076,7 @@ C
 :E:"<w> AgDOCWR,Cf,I1,I2,TEXT;(' AgDocWr=',i2,' at ',a,' i1,i2,T=',2i5,2x,a)";
 END;
  
-*CMZ :          24/04/98  21.24.51  by  Pavel Nevski
+*CMZ :          06/07/98  18.52.36  by  Pavel Nevski
 *CMZ :  1.30/00 09/02/97  21.15.43  by  Pavel Nevski
 *CMZU:  1.00/01 22/12/95  21.50.31  by  Pavel Nevski
 *CMZ :  1.00/00 15/11/95  01.03.24  by  Pavel Nevski
@@ -8264,10 +8264,11 @@ else
     " If (LkArP3!=Lk)  print *,' popalsia gad ',LkArP3,Lk; "
    Lk=LkArP3;  Call MZIOTC (IxStor,Lk,Nch,Bform);
    If Cform!=Bform & Cform!=Bform(2:) & Cforn!=Bform
-   {  print *,' wrong bank ',Cbank,' : '
-      print *,' required format is = ',cform(1:Lenocc(cform)),'***'
-      print *,' found bank format  = ',bform(1:Nch),          '***'
-      Err Nch>=0 {Bank formats are not the same}
+   {  IF istat==-999
+      { print *,' wrong bank ',Cbank,' : '
+        print *,' required format is = ',cform(1:Lenocc(cform)),'***'
+        print *,' found bank format  = ',bform(1:Nch),          '***'
+      } Err Nch>=0 {Bank formats are not the same}
    }
    "    force link to be secured for banks with dymanic arrays  "
    IDYN=0; Do I=1,LL1 { If (map(1,i)<0 | MAP(2,I)<0) IDYN=1; }
@@ -8303,7 +8304,7 @@ If IrBDIV==IxCONS & ID>0 & JBIT(IQ(Lk),1)==0
 END
  
  
-*CMZ :          02/06/98  12.51.16  by  Pavel Nevski
+*CMZ :          01/07/98  23.32.45  by  Pavel Nevski
 *CMZ :  1.30/00 15/04/97  17.02.23  by  Pavel Nevski
 *CMZ :  1.00/00 07/10/95  19.31.21  by  Pavel Nevski
 *-- Author :    Pavel Nevski   12/01/95
@@ -8316,6 +8317,7 @@ END
 *        a sequence of text addresses 'bank(sel).variable(ind)=' and some  *
 *        amount of real numbers. All parts of the address are optional.    *
 *        Type of the selector Value corresponds to the first letter of Name*
+*        CKRACK is an entry in CHPACK (M432)                               *
 ****************************************************************************
 *KEEP,TYPING.
       IMPLICIT NONE
@@ -8340,8 +8342,10 @@ Common/slate/ ND,NE,NF,NG,NUM(2),Dummy(34);
 Equivalence              (num,                   anum);
 Integer       LL,LL1,LBUF,LENOCC,ICLOCU,ICFIND,Isel,i,j,N,ia,ib,map(2,LL1),
               ie,iv,ii,i0,i1,i2,Lt,Lb,Lv,jv,kv,ind,jb,kb,ia1
-Character     Bank*4,Name*(*),Names(LL1)*(*),Line*80,C*1,EQ*1/'='/
+Character     Name*(*),Names(LL1)*(*),Bank*4,
+              Line*80,Cline*80,C*1,EQ*1/'='/,CRind*4
 Real          Value,Rind,vars(LL),Buf(Lbuf),Blank/-989898.e-17/
+Equivalence   (Rind,Crind)
 Replace[ERR(#)]  with [;<W>;(' AgDatCar error : ','#1'); Isel=0; Ia=0; NEXT;]
 Replace[DEBUG#;] with [;IF (IDEBUG>=7) print *,#1;]
  
@@ -8351,10 +8355,16 @@ While i2<Lbuf
    if Isel>0 & Ia>0      " fill the previous address field with data "
    {  do i=i0+1,i1
       {  j=ia+i-i0-1;  if 1<=j&j<=LL
-         {  if Names(N)(1:1)=='I'
+         {  if  Names(N)(1:1)=='I'
             {  Call Ucopy(Nint(Buf(i)),Vars(j),1)
                <w> Names(N),j-ia1+1,Nint(Buf(i)),Bank,Value
                (' ===> Datacard assign ',a,'(',i2,') =',i10,' in ',a,
+               ' bank selected with ',F10.3)
+            }
+            else if Names(N)(1:1)=='H'
+            {  Call Ucopy(Buf(i),Vars(j),1)
+               <w> Names(N),j-ia1+1,Buf(i),Bank,Value
+               (' ===> Datacard assign ',a,'(',i2,') =',a4,' in ',a,
                ' bank selected with ',F10.3)
             }
             else
@@ -8366,27 +8376,40 @@ While i2<Lbuf
 *                          transform the next address field into characters
    Lt=4*(i2-i1);     If Lt>80   {err(address field is too long)}
    Lt=min(lt,80);    Line=' ';   Call UHTOC(Buf(i1+1),4,line,Lt)
+   Cline=Line;       Call CLTOU (Cline)
    Lb=Lenocc(Bank);  Lt=Lenocc(Line(1:Lt));   Iv=0 "- already used characters "
 *
-   Jb=ICLOCU(Bank,Lb,Line,1,LT);               " look for this bank reference "
+   Jb=ICLOCU(Bank,Lb,CLine,1,LT);              " look for this bank reference "
    debug ' looking for ',bank,' in ',line(1:lt),' LT,JB=',lt,jb
    if jb>0
    {  ib=jb+lb; C=Line(ib:ib);  Rind=blank;   Iv=ib;  Isel=1; Ia=0;
       if C='('                                 " check for index in brackets  "
       {  kb=ICFIND(')',Line,ib,Lt); if kb<=0 {err(no closing bracket)};
-         call CKRACK(Line,ib+1,kb-1,-1);      Iv=kb+1;
-         if Nf=2 {Rind=NUM(1)} else if Nf>2 {Rind=Anum(1)}
-         else    {err(index is not a number)}
+         ia=0; ie=index(line(ib+1:kb-1),'=')
+ 
+         if ie>0
+         {  while Line(ib+1:ib+1)==' ' {ib+=1; ie-=1;}
+            Ia=3;  do N=1,LL1                 " find reference variable "
+            {  if (CLine(ib+1:ib+ie-1)==Names(N)(3:1+ie)) Break
+               Ia+=1; If (Map(1,N)>0&Map(2,N)>0) Ia+=Map(1,N)*Map(2,N)-1
+            }  debug 'name,line,ib,ie,ia=',%L(name),line(ib:kb),ib,ie,ia
+            ib=ib+ie
+         }
+         Iv=kb+1; call CKRACK(Line,ib+1,kb-1,-1);
+         if Nf=2 {Rind=NUM(1)}  else if Nf>2 {Rind=Anum(1)}
+         else    {while Line(ib+1:ib+1)==' ' {ib+=1;}; CRind=Line(ib+1:kb-1)}
       }
       if C=EQ                                  " or direct select assignement "
       {  if ib#Lt {err(equal sign is not the last one)}
          Rind=Buf(i2+1);  Iv=Lt+1;
       }                                        " there was a selection done   "
-      If (Rind!=blank & Rind!=value)  Isel=0
+      if ia==0 { If (Rind!=blank & Rind!=value)    Isel=0 }
+      else     { If (Rind!=blank & Rind!=Vars(ia)) Isel=0 }
+      ia=0
    }  If (Isel=0 | Iv>Lt) Next
 *
    Ia=3; jv=0; do N=1,LL1                      " now check variable reference "
-   {  Lv=Lenocc(Names(N));       Jv=ICLOCU(Names(N)(3:Lv),Lv-2,Line,Iv+1,LT)
+   {  Lv=Lenocc(Names(N));       Jv=ICLOCU(Names(N)(3:Lv),Lv-2,CLine,Iv+1,LT)
                                  C=line(jv+Lv-2:jv+Lv-2)
       debug ' ...now for ',names(n)(3:lv),' in ',line(Iv+1:LT),' iv,lt,jv,C=',
       iv,lt,jv,C
@@ -11271,7 +11294,7 @@ C
    END
  
  
-*CMZ :          22/06/98  14.38.56  by  Pavel Nevski
+*CMZ :          02/07/98  00.04.30  by  Pavel Nevski
 *-- Author :    Pavel Nevski   25/11/97
 ***************************************************************************
 *                                                                         *
@@ -11288,15 +11311,17 @@ C
 ***************************************************************************
 +include,TYPING,GCBANK,SCLINK,GCUNIT,GCFLAG,AGCDOCL.
      integer     Iprin,i,i1,i2,il,id,ic,jl,L,Iwr,Kw/1/,Lu,Idl,Iswap/0/,Key(2)
-     Integer     LENOCC,INDEX,TDM_MAP_TABLE
+     Integer     AgPFLAG,LENOCC,INDEX,TDM_MAP_TABLE
      Character*8 Sname, Bname, Ckey
      Character*4 Csys, Cban
      Character   Request*(*),Cdest*(*), Table*10
- 
+     Logical     opnd
      character      ccc*12000
      common /agcstaftab/ ccc
  
-     Call Agsbegm('DOCUM',Iprin)
+     INQUIRE(FILE='detm.rz',OPENED=opnd)
+     if (.not.opnd) Call Agsbegm('DOCUM',Iprin)
+     Iprin=AgPFLAG('DOCU','RECO')
  
      Idl = 2
      if (Index(Cdest,'idl')>0) Idl=1
@@ -11362,7 +11387,7 @@ C
         enddo
      enddo
      If (Lu>6) close (Lu)
-     Call Agsendm
+     if (.not.opnd) Call Agsendm
      end
  
  
@@ -11664,7 +11689,7 @@ C
      end
  
  
-*CMZ :          14/06/98  16.52.36  by  Pavel Nevski
+*CMZ :          01/07/98  14.53.37  by  Pavel Nevski
 *-- Author :    Pavel Nevski   25/11/97
 ***************************************************************************
 *                                                                         *
@@ -11737,7 +11762,7 @@ C   - combined DETM + Reconstruction bank access variables - AGI version
 *KEND.
   INTEGER       LENOCC,TDM_MAP_TABLE,Iprin,Nun(15),LK(15),IL(15),Ist(15),
                 I,J,L,K,M,N,Ia,Lc,Lp,Mj
-  Character     Cpath*80,Cdest*80,Csys*80,Table*10,Cbank*4
+  Character     Cpath*80,Cdest*80,Csys*4,Table*10,Cbank*4
   Character*(*) Source,Destin
   EQUIVALENCE   (L,Lpar)
 *
@@ -19826,7 +19851,7 @@ CHARACTER*(*)  Cname,FORM;     Integer  NVL(*),Npar,Array(*),Link,Ia;
    Call UCOPY (Array,IQ(Link+1+Ia),Npar);  If (NVL(kk)==0) NVL(kk)=II;
    END
  
-*CMZ :          27/04/98  21.52.32  by  Pavel Nevski
+*CMZ :          01/07/98  19.10.00  by  Pavel Nevski
 *CMZ :  1.30/00 16/04/97  22.11.16  by  Pavel Nevski
 *CMZU:  1.00/01 21/12/95  22.17.57  by  Pavel Nevski
 *CMZ :  1.00/00 03/10/95  18.17.59  by  Pavel Nevski
@@ -19999,7 +20024,7 @@ Lm=LENOCC(Cname);  Check Lm>=J+3;
   If Npar>0 & Link>0
   {  Need=Ie-IQ(Link-1); " If Need>leng { Err Ie,Nd; } "
      If (Need>0)   Call MZPUSH(IrbDIV,Link,0,NEED,' ')
-     if (Del=='.') IQ(Link-5)=-Ie/Leng
+     if (Del=='.') IQ(Link-5)=-max(Ie/Leng,-IQ(Link-5))
   }
   IQUEST(1)=0
 END
