@@ -4,7 +4,11 @@
 # J.Lauret 2001.
 #
 # Current target for this script
-#  Linux61    build a Linux61 AutoBuild report (one version)
+#
+#  Linux61
+#  Linux72    build a Linux61 AutoBuild report (one version)
+#  Linux9     
+#
 #  Solaris    ditto for Solaris (does cache cleaning)
 #  Clean      Runs CleanLibs
 #  Insure     Builds Insure++ compilation
