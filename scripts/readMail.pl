@@ -11,6 +11,10 @@
 #        or using 2nd argument.
 #        Assumed syntax :
 #           % readMail.pl [ProductionLevel] [{0|1}]
+#
+#  Configuration read from a file named readMail.conf if exists.
+#  Supported keywords :
+#       prodtag=XXXX       
 ###############################################################################
 
 
@@ -29,13 +33,34 @@ my ($sec,$min,$hour,$mday,$mon);
 # Added J.Lauret June 11th 2001. Merged from the auto_submit.pl script.
 # Merging is necessary since we are now running SMRSH (more practical
 # in one script anyway).
+# BTW, SMRSH seems to have some nasty side effects which will be later
+# resolved i.e. it now thinks it is different script if an argument
+# is passed ...
 my $prodl;
 if( defined($ARGV[0]) ){   
     $prodl = $ARGV[0];
 } else {
     # default value
-    $prodl ="P01hf";                               # production level
+    $prodl ="P01hf";                               # default production level
 }
+# ... so, also read the production tag from a conf file
+$HOME = $ENV{HOME};
+if( -e "$HOME/readMail.conf"){
+    if (open(FI,"$HOME/readMail.conf") ){
+	while( defined($line = <FI>) ){
+	    chomp($line);
+	    if($line ne ""){
+		@items = split("=",$line);
+		if( $items[0] =~ m/prodtag/i){
+		    $prodl = $items[1];
+		}
+	    }
+	}
+	close(FI);
+    }
+}
+
+
 
 # root for a structure for an implied directory structure made of a
 # 'jobfiles' directory and an 'archive' directory. This structure MUST
