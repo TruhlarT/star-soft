@@ -1,10 +1,10 @@
 #!/usr/local/bin/perl
 #!/usr/bin/env perl 
 #
-# $Id: dbDevTestQueryPlot.pl,v 1.25 2005/01/10 15:44:20 didenko Exp $
+# $Id: dbDevTestQueryPlot.pl,v 1.26 2005/01/10 16:03:50 didenko Exp $
 #
 # $Log: dbDevTestQueryPlot.pl,v $
-# Revision 1.25  2005/01/10 15:44:20  didenko
+# Revision 1.26  2005/01/10 16:03:50  didenko
 # changed colour
 #
 # Revision 1.23  2005/01/10 15:28:47  didenko
@@ -289,7 +289,7 @@ if ( ! $graph){
 		y_max_value => $max_y,
 		y_number_format => \&y_format,
 		labelclr => "lred",
-		dclrs => [ qw(lblack lblue lred lgreen lpink lpurple lyellow lorange ) ],
+		dclrs => [ qw(lblack lblue lred lgreen lpink lpurple lorange lyellow ) ],
 		line_width => 2,
 		markers => [ 2,3,4,5,6,7,8,9],
 		marker_size => 6,
