@@ -191,6 +191,8 @@ $keywrds{"filetype"      }    =   "fileTypeName"              .",FileTypes"     
 $keywrds{"extension"     }    =   "fileTypeExtension"         .",FileTypes"              .",1" .",text" .",0" .",1" .",1";
 $keywrds{"storage"       }    =   "storageTypeName"           .",StorageTypes"           .",1" .",text" .",0" .",1" .",1";
 $keywrds{"site"          }    =   "storageSiteName"           .",StorageSites"           .",1" .",text" .",0" .",1" .",1";
+$keywrds{"siteloc"       }    =   "storageSiteLocation"       .",StorageSites"           .",1" .",text" .",0" .",1" .",1";
+$keywrds{"sitecmt"       }    =   "storageComment"            .",StorageSites"           .",1" .",text" .",0" .",1" .",1";
 $keywrds{"production"    }    =   "productionTag"             .",ProductionConditions"   .",1" .",text" .",0" .",1" .",1";
 $keywrds{"prodcomment"   }    =   "productionComments"        .",ProductionConditions"   .",0" .",text" .",0" .",1" .",1";
 $keywrds{"library"       }    =   "libraryVersion"            .",ProductionConditions"   .",1" .",text" .",0" .",1" .",1";
@@ -244,8 +246,8 @@ $keywrds{"size"          }    =   "fsize"                     .",FileLocations" 
 $keywrds{"owner"         }    =   "owner"                     .",FileLocations"          .",0" .",text" .",0" .",1" .",1";
 $keywrds{"protection"    }    =   "protection"                .",FileLocations"          .",0" .",text" .",0" .",1" .",1";
 $keywrds{"node"          }    =   "nodeName"                  .",FileLocations"          .",0" .",text" .",0" .",1" .",1";
-$keywrds{"available"     }    =   "availability"              .",FileLocations"          .",0" .",text" .",0" .",1" .",1";
-$keywrds{"persistent"    }    =   "persistent"                .",FileLocations"          .",0" .",text" .",0" .",1" .",1";
+$keywrds{"available"     }    =   "availability"              .",FileLocations"          .",0" .",num"  .",0" .",1" .",1";
+$keywrds{"persistent"    }    =   "persistent"                .",FileLocations"          .",0" .",num"  .",0" .",1" .",1";
 $keywrds{"sanity"        }    =   "sanity"                    .",FileLocations"          .",0" .",num"  .",0" .",1" .",1";
 $keywrds{"createtime"    }    =   "createTime"                .",FileLocations"          .",0" .",date" .",0" .",1" .",1";
 $keywrds{"inserttime"    }    =   "insertTime"                .",FileLocations"          .",0" .",date" .",0" .",1" .",1";
@@ -1625,7 +1627,7 @@ sub set_trigger_composition
     for ($i=0 ; $i <= $#FC::TRGNAME ; $i++){
 	print "Should insert $FC::TRGNAME[$i] $FC::TRGWORD[$i] $FC::TRGVERS[$i] $FC::TRGDEFS[$i] $FC::TRGCNTS[$i]\n";
 	if ( $sth1->execute($FC::TRGNAME[$i],$FC::TRGWORD[$i],$FC::TRGVERS[$i]) ){
-	    if ( @all = $sth1->fetchrow ){
+	    if ( @all = $sth1->fetchrow() ){
 		# Already in, fetch
 		&print_debug("Fetched 1 triggerWordID $all[0]");
 		$TrgID[++$cnt] = $all[0];
@@ -1664,7 +1666,7 @@ sub set_trigger_composition
     if ( ! $sth1->execute($tcfdid) ){
 	&print_message("set_trigger_composition","Could not execute [$cmd1 , $tcfdid]");
     } else {
-	@all = $sth1->fetchrow;
+	@all = $sth1->fetchrow();
 	if ($#all != -1){
 	    # There are entries for this tcfdid already
 	    if ($update){
@@ -2230,7 +2232,7 @@ sub insert_file_location {
   my $flinsert   = "INSERT IGNORE INTO FileLocations ";
 
   $flinsert  .= "(fileLocationID, fileDataID, storageTypeID, filePath, createTime, insertTime, owner, fsize, storageSiteID, protection, nodeName, availability, persistent, sanity)";
-  $flinsert  .= " VALUES (NULL, $fileData, $storageType, $filePath, $createTime, NULL, $owner, $fsize, $storageSite, $protection, $nodeName, $availability, '$persistent', $sanity)";
+  $flinsert  .= " VALUES (NULL, $fileData, $storageType, $filePath, $createTime, NULL, $owner, $fsize, $storageSite, $protection, $nodeName, $availability, $persistent, $sanity)";
 
   # NONE of the NULL value should appear below otherwise, one keeps adding
   # entry over and over ... protection and woner are irrelevant here and
@@ -3090,9 +3092,8 @@ sub run_query {
   # Build the actual query string
   my $sqlquery;
   $sqlquery = "SELECT ";
-  if (! defined $valuset{"nounique"}){
-      $sqlquery .= " DISTINCT ";
-  }
+  if (! defined($valuset{"nounique"}) ){  $valuset{"nounique"} = 0;}
+  if (! $valuset{"nounique"} ){           $sqlquery .= " DISTINCT ";}
 
 
   # An ugly hack to return FileLocationID from within the module
@@ -4050,7 +4051,9 @@ sub update_location {
   # 'id' is for internal use only and is NOT an
   # external keyword.
   &set_delimeter("::");
-  &set_context("all=1");
+  &set_context("all=1");                  # all availability
+  &set_context("nounique=1");             # do not run with DISTINCT
+
   @files = &run_query("id","available");
 
   # Bring back the previous delimeter
@@ -4094,77 +4097,117 @@ sub update_location {
       return 0;
   }
 
+  #
+  # Sort out sth
+  #
+  my($qupdate,$qselect,$qdelete);
+  my($sth1,$sth2,$sth3);
 
+  if ( defined($FC::FLRELATED{$utable}) ){
+      # Patch ... The above logic is true only for
+      # tables like FileData/FileLocation but not true for others
+      my $uid    = &get_id_from_dictionary($utable,$ufield,$newvalue);
+      $ukeyword  = &IDize($utable);
+      #$qselect = "SELECT $ukeyword FROM $mtable WHERE $ukeyword=$uid";
+      #$qdelete = "DELETE LOW_PRIORITY FROM $mtable WHERE $ukeyword=$uid" ;
+      $qupdate = "UPDATE LOW_PRIORITY $mtable SET $ukeyword=$uid ";
+      
+      if ($whereclause ne ""){
+	  $qupdate .= " AND $whereclause";
+      }
+
+      # THOSE ONLY UPDATES VALUES
+  } elsif (&get_field_type($ukeyword) eq "text"){
+      #$qselect = "SELECT $ukeyword FROM $mtable WHERE $ufield='$newvalue'";
+      #$qdelete = "DELETE LOW_PRIORITY FROM $mtable WHERE $ufield='$newvalue'" ;
+      $qupdate = "UPDATE LOW_PRIORITY $mtable SET $ufield = '$newvalue' ";
+      if( defined($valuset{$ukeyword}) ){
+	  $qupdate .= " WHERE $ufield = '$valuset{$ukeyword}'";
+      } else {
+	  #&print_message("update_location","$ukeyword ($ufield) not set with an initial value");
+	  #return 0;
+      }
+  } else {
+      #$qselect = "SELECT $ufield FROM $mtable WHERE $ufield=$newvalue" ;
+      #$qdelete = "DELETE LOW_PRIORITY FROM $mtable WHERE $ufield=$newvalue" ;
+      $qupdate = "UPDATE LOW_PRIORITY $mtable SET $ufield = $newvalue ";
+      if( defined($valuset{$ukeyword}) ){
+	  $qupdate .= " WHERE $ufield = $valuset{$ukeyword}";
+      } else {
+	  #&print_message("update_location","$ukeyword ($ufield) not set with an initial value");
+	  #return 0;
+      }
+  }
+  if ($qupdate =~ /WHERE/){
+      $qupdate .= " AND fileLocationID = ?";
+  } else {
+      $qupdate .= " WHERE fileLocationID = ?";
+  }
+  #$qselect .= " AND fileLocationID = ?";
+  #$qdelete .= " AND fileLocationID = ?";
+
+
+  #$sth1 = $DBH->prepare( $qselect );
+  #$sth2 = $DBH->prepare( $qdelete );
+  $sth3 = $DBH->prepare( $qupdate );
+  #if ( ! $sth1 || ! $sth2 || ! $sth3){
+  if (  ! $sth3){
+      #$sth1->finish() if ($sth1);
+      #$sth2->finish() if ($sth2);
+      $sth3->finish() if ($sth3);
+      &print_debug("update_location : Failed to prepare [$qupdate] [$qselect] [$qdelete]");
+      return 0;
+  }
+	
+  #
+  # Now, loop over records with an already prepared sth
+  #
+  my($tmp,$count);
+  
+  $count = 0;
   &print_debug("Ready to scan filelist now ".($#files+1)."\n");
 
   foreach my $line (@files) {
       &print_debug("Returned line ($ukeyword): $line\n");
-      my $qupdate;
 
-      my ($flid, $path) = split("::",$line);
+      my($flid, $trash) = split("::",$line);
 
-      if ( defined($FC::FLRELATED{$utable}) ){
-	  # Patch ... The above logic is true only for
-	  # tables like FileData/FileLocation but not true for others
-	  my $uid    = &get_id_from_dictionary($utable,$ufield,$newvalue);
-	  $ukeyword  = &IDize($utable);
-	  $qupdate = "UPDATE LOW_PRIORITY $mtable SET $ukeyword=$uid ";
-
-	  if ($whereclause ne ""){
-	      $qupdate .= " AND $whereclause";
-	  }
-
-	  # THOSE ONLY UPDATES VALUES
-      } elsif (&get_field_type($ukeyword) eq "text"){
-	  $qupdate = "UPDATE LOW_PRIORITY $mtable SET $ufield = '$newvalue' ";
-	  if( defined($valuset{$ukeyword}) ){
-	      $qupdate .= " WHERE $ufield = '$valuset{$ukeyword}'";
-	  } else {
-	      #&print_message("update_location","$ukeyword ($ufield) not set with an initial value");
-	      #return 0;
-	  }
-      } else {
-	  $qupdate = "UPDATE LOW_PRIORITY $mtable SET $ufield = $newvalue ";
-	  if( defined($valuset{$ukeyword}) ){
-	      $qupdate .= " WHERE $ufield = $valuset{$ukeyword}";
-	  } else {
-	      #&print_message("update_location","$ukeyword ($ufield) not set with an initial value");
-	      #return 0;
-	  }
-      }
-
-
-
-      if ($qupdate =~ /WHERE/){
-	  $qupdate .= " AND fileLocationID = $flid";
-      } else {
-	  $qupdate .= " WHERE fileLocationID = $flid";
-      }
       #&print_debug("Executing update: $qupdate");
 
       if (! $doit){
-	  &print_message("update_location","$qupdate");
+	  #$tmp = $qselect; $tmp =~ s/\?/$flid/;  &print_message("update_location","$tmp");
+	  #$tmp = $qdelete; $tmp =~ s/\?/$flid/;  &print_message("update_location","$tmp");
+	  $tmp = $qupdate; $tmp =~ s/\?/$flid/;  &print_message("update_location","$tmp");
+
       } else {
 	  if( $DELAY){
-	      # DElay mode
-	      push(@DCMD,$qupdate);
+	      # Delay mode
+	      #$tmp = $qdelete; $tmp =~ s/\?/$flid/;  push(@DCMD,"$tmp");
+	      $tmp = $qupdate; $tmp =~ s/\?/$flid/;  push(@DCMD,"$tmp");
+	      $count++;
 	  } else {
-	      my $sth;
-	      $sth = $DBH->prepare( $qupdate );
-	      if ( ! $sth ){
-		  &print_debug("update_location : Failed to prepare [$qupdate]");
+	      #if ( $sth1->execute($flid) ){
+	      #	  my(@all);
+	      #	  if ( @all = $sth1->fetchrow() ){  
+	      #	      &print_message("update_location","Deleting similar records for $flid");
+	      #	      $sth2->execute($flid); 
+	      #	  }
+	      #}
+	      if ( $sth3->execute($flid) ){
+		  &print_debug("Update of $mtable succeeded");
+		  $count++;
 	      } else {
-		  if ( $sth->execute() ){
-		      &print_debug("Update succeded");
-		  } else {
-		      &print_debug("Update failed");
-		  }
-		  $sth->finish();
+		  &print_debug("Update of $mtable failed");
 	      }
 	  }
       }
+      
   }
-  return 1;
+  #$sth1->finish();
+  #$sth2->finish();
+  $sth3->finish();
+
+  return $count;
 }
 
 #============================================
