@@ -52,7 +52,7 @@ my @joinSet = ( $colSet. "%" .$datSet . "%" . $detrSet . "%" .$fldSet . "%" . $f
 struct RunAttr => {
         drun   => '$',
         dtSet  => '$',
-
+ }
 #####  connect to operation DB
 
  &StDbProdConnect();
