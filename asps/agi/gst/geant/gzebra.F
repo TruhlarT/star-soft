@@ -1,7 +1,10 @@
 *
-* $Id: gzebra.F,v 1.6 2000/01/07 00:57:15 nevski Exp $
+* $Id: gzebra.F,v 1.7 2000/01/07 01:04:49 nevski Exp $
 *
 * $Log: gzebra.F,v $
+* Revision 1.7  2000/01/07 01:04:49  nevski
+*  iudivd typed
+*
 * Revision 1.6  2000/01/07 00:57:15  nevski
 *  iudivd typed
 *
@@ -38,7 +41,7 @@ C.
 #include "atcdes/typing.inc"
 #include "geant321/gcbank.inc"
 #include "geant321/gcflag.inc"
-       INTEGER I1,I2,Itry,LL,KWW,memget,LOCF,,iudivdNZEB
+       INTEGER I1,I2,Itry,LL,KWW,memget,LOCF,NZEB,iudivd
 C.
 C.    ------------------------------------------------------------------
 C.
