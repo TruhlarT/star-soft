@@ -32,7 +32,7 @@ my %oldestDate = ( nightly_real => '2001-08-20',
 	       nightly_MC   => 14,
 	       offline_real => 60,
 	       offline_MC   => 60,
-	       offline_fast => 14
+	       offline_fast => 10
 );
 
 # max number of updated jobs
@@ -217,21 +217,24 @@ sub UpdateQAOfflineFast{
 		  };
 
   # update
-  my $queryUpdate = qq{select daq.file, qa.$QASum{QAdone}
+  my $queryUpdate = qq{select daq.$DAQInfo{file}, qa.$QASum{QAdone}, 
+		       daq.$DAQInfo{runNumber}
 		       from $dbFile.$DAQInfo{Table} as daq
 		       LEFT JOIN $dbQA.$QASum{Table} as qa
 		       on daq.$DAQInfo{file}=qa.$QASum{jobID}
 		       where 
+			 daq.diskLoc!=0 and
 			 (daq.$DAQInfo{status} = $doneStatus and
 			 (qa.$QASum{jobID} is NULL ||
-			  qa.$QASum{QAdone}='Y'))			 
+			  qa.$QASum{QAdone}='Y'))
+			 
 		       limit $limit
 		     };
   
   #
   # removed this from the update.
   #
-  # (daq.$DAQInfo{status} = 3 and
+  # || (daq.$DAQInfo{status} = 3 and
   # qa.$QASum{jobID} is NULL)
 
 
@@ -242,6 +245,7 @@ sub UpdateQAOfflineFast{
 			 $QASum{report_key} = ?,
 			 $QASum{type}       = 'real',
 			 $QASum{QAdone}     = 'N',
+		         $QASum{skip}       = ?,
 			 $QASum{qaID}       = NULL
 		       };
 
@@ -249,6 +253,10 @@ sub UpdateQAOfflineFast{
 			    set $QASum{QAdone}='N'
 			    where $QASum{jobID}=?
 			  };
+  my $querySetSkip = qq{update $dbQA.$QASum{Table}
+			set $QASum{skip} = ?
+			where $QASum{jobID} = ?
+			};
 
   # here's the logic.
   # first get all 'files' from DAQInfo with status=2.
@@ -265,36 +273,73 @@ sub UpdateQAOfflineFast{
   my $sthKey    = $dbh->prepare($queryKey);
   my $sthInsert = $dbh->prepare($queryInsert);
   my $sthResetQAdone = $dbh->prepare($queryResetQAdone);
+  my $sthSetSkip = $dbh->prepare($querySetSkip);
 
+  print "executing\n",$queryUpdate,"\n";
+  $sthUpdate->execute();
+  print "done\n";
+  
   # Note: what DAQInfo calls 'file' autoQA calls 'jobID'
  
-  $sthUpdate->execute();
-  my $count=0;
-  while(my($jobID,$QAdone)=$sthUpdate->fetchrow_array()){
-    print "jobID=$jobID : ";
-    $sthKey->execute($jobID);
-    my $report_key = $sthKey->fetchrow_array();
-    if(!$QAdone){ # new file. insert
-      $count++;
-      print "does not exist in QAtable...";
-      $sthKey->execute($jobID);
-      print "inserting...";
-     my $stat = $sthInsert->execute($jobID,$report_key) if !$debug;
-      if($stat) { print "done<br>\n"; }
-      else { print "Cannot insert<br>\n"; next; }
-      push @keyList,$report_key;
+  my %runhash; # hash of hashes of hashes
+  my %noskip;  # keys are runIDs
+
+  # organize the new jobs by runID 
+  while (my ($jobID, $qadone, $runID) = $sthUpdate->fetchrow_array){
+    next if !$jobID; # huh?
+    $runhash{$runID}{$jobID}{qadone}  = $qadone;
+    
+    # set 1/10 as noskip
+    if (rand() < 0.1 ){
+      $runhash{$runID}{$jobID}{noskip}++;
+      $noskip{$runID}++;
     }
-    else{ # already exists, but probably reproduction
-      $count++;
-      print "Already exists but qa is done.  Will reset qa done to No...";
-      my $stat = $sthResetQAdone->execute($jobID) if !$debug;
-      if(!$stat){
-	print "Cannot reset QAdone to no<br>\n";
+  }
+
+  # now double check that there's at least one noskip key per runID
+  foreach my $runID ( keys %runhash ){
+    next if exists $noskip{$runID};
+    
+    # else randomly set one of the jobs as noskip
+  JOB:foreach my $jobID ( keys %{$runhash{$runID}} ){
+      $runhash{$runID}{$jobID}{noskip}++;
+      last JOB;
+    }
+  }
+  # loop over runID, jobID
+  my $countRun=0; my $countJob=0; my $count=0;
+  foreach my $runID ( keys %runhash ){
+    print h4(++$countRun, " : $runID\n");
+    foreach my $jobID ( keys %{$runhash{$runID}} ){
+      print h4("\t",++$countJob, " : $jobID\n"); $count++;
+      $sthKey->execute($jobID);
+      my $report_key = $sthKey->fetchrow_array();
+      my $QAdone = $runhash{$runID}{$jobID}{qadone};
+      my $skip   = exists $runhash{$runID}{$jobID}{noskip} ? 'N' : 'Y';
+      my $stat=undef;
+      if(!$QAdone){ # new file. insert
+	print "does not exist in QAtable...";
+	$sthKey->execute($jobID);
+	print "inserting...";
+	$stat = $sthInsert->execute($jobID,$report_key,$skip) if !$debug;
+	if($stat) { print "done<br>\n"; }
+	else { print "Cannot insert<br>\n";}
       }
-      else{
-	print "done<br>\n"; 	  
+      else{ # already exists, but probably reproduction
+	print "Already exists but qa is done.  Will reset qa done to No...";
+	$stat = $sthResetQAdone->execute($jobID) if !$debug;
+	if(!$stat){
+	  print "Cannot reset QAdone to no<br>\n";
+	}
+	else{
+	  print "done<br>\n"; 	  
+	}
+	if($stat){ $stat = $sthSetSkip->execute($skip,$jobID) if !$debug; }
       }
-      push @keyList,$report_key;
+      if($stat) { push @keyList,$report_key; }
+      
+      print "$runID, $report_key, skip=$skip, stat=$stat\n" if $debug;
+
     }
   }
   print "Found $count new jobs<br>\n";
@@ -570,7 +615,7 @@ sub GetToDoReportKeys{
   #print("query=$query<br>\n");
 
   # quick fix - make sure that the skip field is no for production.
-  if ($gDataClass_object->DataClass() =~ /offline_(?!fast)/){
+  if ($gDataClass_object->DataClass() =~ /offline/){
     $query .= qq{and $QASum{skip} = 'N'
 	       };
   }
