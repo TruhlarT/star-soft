@@ -70,8 +70,8 @@ my @nodeList = (
                 "rcrs6033.rcf.bnl.gov",
                 "rcrs6034.rcf.bnl.gov",
                 "rcrs6035.rcf.bnl.gov",
-                "rcrs6035.rcf.bnl.gov",
-                "rcrs6037.rcf.bnl.gov",
+                "rcrs6036.rcf.bnl.gov",
+                "rcrs6037.rcf.bnl.gov"
              
 );
 
@@ -120,6 +120,10 @@ my %nodeHash = (
                 "rcrs6031.rcf.bnl.gov" => 30,
                 "rcrs6032.rcf.bnl.gov" => 31,
                 "rcrs6033.rcf.bnl.gov" => 32
+                "rcrs6034.rcf.bnl.gov" => 33,
+                "rcrs6035.rcf.bnl.gov" => 34,
+                "rcrs6036.rcf.bnl.gov" => 35,
+                "rcrs6037.rcf.bnl.gov" => 36,
  );               
 
 
