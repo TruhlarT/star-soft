@@ -1,5 +1,5 @@
 #!/bin/csh -f
-#       $Id: group_env.csh,v 1.148 2003/06/27 19:56:06 jeromel Exp $
+#       $Id: group_env.csh,v 1.149 2003/06/27 21:42:38 jeromel Exp $
 #	Purpose:	STAR group csh setup
 #
 #	Author:		Y.Fisyak     BNL
@@ -95,7 +95,7 @@ endif
 # Clear this out. First block STAF, second STAR
 source ${GROUP_DIR}/STAR_SYS;
 
-if ( ! $?optstar && ?$OPTSTAR ) then
+if ( ! $?optstar && $?OPTSTAR ) then
     setenv optstar ${OPTSTAR}
     if ( -e ${OPTSTAR}/${STAR_HOST_SYS} ) then
 	# Redhat > 7.3  transition ; adding one level
