@@ -108,14 +108,13 @@ foreach $diskDir (@diskRecoDirs) {
     $fullname = $diskDir."\/".$filename;
 
     my @dirF = split(/\//, $diskDir); 
-    my $set = sprintf("%s\/%s\/%s\/%s\/%s\/%s",$dirF[3],$dirF[4],$dirF[5],
-		                               $dirF[6],$dirF[7],$dirF[8]);
-
+    my $set = sprintf("%s\/%s\/%s\/%s\/%s\/%s",$dirF[5],$dirF[6],$dirF[7],
+		                               $dirF[8],$dirF[9],$dirF[10]);
 
     my $chainVal = "n\/a";
-    if ( $dirF[1] eq "disk00001") {
-      my $tpcMode = substr($dirF[9],0,3);
-      my $isYear = $yearGeomHash{"$dirF[7]"};
+    if ( $dirF[3] eq "disk00001") {
+      my $tpcMode = substr($dirF[11],0,3);
+      my $isYear = $yearGeomHash{"$dirF[9]"};
       $chainVal = $tpcMode."_".$isYear;
     }
     
