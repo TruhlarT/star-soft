@@ -1563,9 +1563,17 @@ sub run_query {
   my %functions;
   my $count;
   my $grouping = "";
-
+  my $flkey;
+  
+  # An ugly hack to get FileLocation id number from within the module
+  if ($_[0] eq "id")
+    { 
+      $flkey = 1; 
+      shift @_;
+    };
+  
   my (@keywords)  = (@_);
-
+  
   $count = 0;
   # Check the validity of the keywords
   foreach(@keywords)
@@ -1573,9 +1581,9 @@ sub run_query {
       #First check if it is a request for an agregate value
       my $afun;
       my ($aggr, $keyw);
-
+      
       $_ =~ y/ //d;
-
+      
       foreach $afun (@aggregates)
 	{
 	  ($aggr, $keyw) = $_ =~ m/($afun)\((.*)\)/;
@@ -1749,7 +1757,7 @@ sub run_query {
   # if so, and "all" keyword is not set - get only the records
   # with non-zero availability
   my $floc = join(" ",(@fromunique)) =~ m/FileLocations/;
-
+  
   if ($debug > 0)
     { print "Checking for FileLocations ".(join(" ",@fromunique))." $floc\n"; }
   if (($floc > 0) && defined ($valuset{"all"}) && ($valuset{"all"} == 0 ))
@@ -1764,7 +1772,13 @@ sub run_query {
   $sqlquery = "SELECT ";
   if (! defined $valuset{"nounique"})
     { $sqlquery .= " DISTINCT "; }
+  # An ugly hack to return FileLocationID from within the module
+  if (((join(" ",(@fromunique)) =~ m/FileLocations/) > 0) and defined $flkey)
+    {
+      $sqlquery .= " FileLocationID , ";
+    }
   $sqlquery .= join(" , ",(@select))." FROM ".join(" , ",(@fromunique));
+  
   if (defined $where) { 
     $sqlquery .=" WHERE $where"; 
     if ($constraint ne "") {
@@ -2055,6 +2069,93 @@ sub update_record {
     { return 1; }
   else
     { return 0; }
+}
+
+#============================================
+# Updates the fields in FileLocations table - mainly
+# used for updating availability and persistency
+#
+# Params:
+# keyword - the keyword which data is to be updated
+# value - new value that should be put into the database
+#         instead of the current one
+sub update_location {
+  if ($_[0] =~ m/FileCatalog/) {
+    my $self = shift;
+  }
+  my @updates;
+  
+  my ($ukeyword, $newvalue) = (@_);
+  
+  my $utable = get_table_name($ukeyword);
+  my $ufield = get_field_name($ukeyword);
+  
+  my @files;
+
+  my $delim;
+
+  $delim  = get_delimeter();
+
+  # Get the list of the files to be updated
+  set_delimeter("::");
+  set_context("all=1");
+  @files = run_query("id","filename","path");
+  # Bring back the previous delimeter	  
+  set_delimeter($delim);
+
+  delete $valuset{"path"};
+
+  foreach my $key (keys %keywrds) 
+    {
+      my $field = get_field_name($key);
+      my $table = get_table_name($key);
+      
+      # grab keywords which belongs to the same table 
+      # This will be used as the selection WHERE clause.
+      # The ufield is excluded because we use it by default
+      # in the SET xxx= WHERE xxx= as an extra MANDATORY
+      # clause.
+      if (($table eq $utable) && ($field ne $ufield))
+	{ 
+	  if (defined($valuset{$key}))
+	    {
+	      if (get_field_type($key) eq "text")
+		{ push (@updates, "$field = '".$valuset{$key}."'"); }
+	      else
+		{ push (@updates, "$field = ".$valuset{$key}); }
+	    }
+	}
+    }
+  my $whereclause = join(" AND ",(@updates));
+  
+  if ($utable eq "")
+    {
+      if ($debug > 0) { print "ERROR: $ukeyword does not have an associated table\nCannot update\n"; }
+      return 0;
+    }			
+  
+  
+  foreach my $line (@files) {
+    print "Returned line: $line\n";
+    my $qupdate;
+    
+    my ($flid, $fname, $path) = split("::",$line);
+    
+    if (get_field_type($ukeyword) eq "text")
+      { $qupdate = "UPDATE $utable SET $ufield = '$newvalue' WHERE $ufield = '".$valuset{$ukeyword}."'"; }
+    else
+      { $qupdate = "UPDATE $utable SET $ufield = $newvalue WHERE $ufield = ".$valuset{$ukeyword}; }
+    $qupdate .= " AND fileLocationID = $flid"; 
+    if ($debug > 0)
+      {
+	print "Executing update: $qupdate\n";
+      }
+    
+    my $sth = $DBH->prepare( $qupdate );
+    if ( $sth->execute() )
+      { if ($debug > 0) { print "Update succeded\n"; } }
+    else            { if ($debug > 0) { print "Update failed\n"; } }		    
+  }
 }
 
 #============================================
