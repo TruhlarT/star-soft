@@ -1,7 +1,10 @@
 #!/usr/bin/csh -f
-#       $Id: group_env.csh,v 1.25 1998/07/10 12:53:32 fisyak Exp $
+#       $Id: group_env.csh,v 1.26 1998/07/10 13:49:28 fisyak Exp $
 #	Purpose:	STAR group csh setup 
 #       $Log: group_env.csh,v $
+#       Revision 1.26  1998/07/10 13:49:28  fisyak
+#       Add cleaning of STAR_PATH
+#
 #       Revision 1.25  1998/07/10 12:53:32  fisyak
 #       Use STAR_VERSION instead STAR_LEVEL for STAR top directory, to be in sunc. with starver script
 #
@@ -123,6 +126,7 @@ if ( -x /afs/rhic/star/group/dropit) then
 # clean-up PATH
   setenv MANPATH `/afs/rhic/star/group/dropit -p ${MANPATH}`
   setenv PATH `/afs/rhic/star/group/dropit -p ${PATH} GROUPPATH`
+  setenv PATH `/afs/rhic/star/group/dropit -p ${PATH} $STAR_PATH`
 endif
 setenv PATH "/usr/afsws/bin:/usr/afsws/etc:/opt/star/bin:/opt/rhic/bin:/usr/sue/bin:/usr/local/bin:${GROUP_DIR}:${STAR_MGR}:${STAR_BIN}:${PATH}"
 #set path=( /usr/afsws/bin /usr/afsws/etc /opt/rhic/bin /usr/local/bin $GROUP_DIR $STAR_MGR $STAR_BIN $path )
