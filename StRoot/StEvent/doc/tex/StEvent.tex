@@ -2,7 +2,7 @@
 %
 % StEvent - User Guide and Reference Manual -- LaTeX Source
 %
-% $Id: StEvent.tex,v 2.51 2000/12/08 03:54:37 ullrich Exp $
+% $Id: StEvent.tex,v 2.52 2000/12/08 20:21:10 genevb Exp $
 %
 % Author: Thomas Ullrich, Nov 1999
 %
@@ -21,6 +21,9 @@
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %
 % $Log: StEvent.tex,v $
+% Revision 2.52  2000/12/08 20:21:10  genevb
+% Changed kTofPatchId -> kTofId
+%
 % Revision 2.51  2000/12/08 03:54:37  ullrich
 % Add some forgotten RICH stuff and first ToF.
 %
@@ -218,8 +221,8 @@
   \mbox{\includegraphics[width=\textwidth]{StEventTitle.eps}}
   \hfill\mbox{}\\[3cm]
   {\LARGE User Guide and Reference Manual \\[5mm] for Version 2}\\[2cm]
-  {\LARGE $ $Revision: 2.51 $ $}  \\[5mm] % replaced by cvs with current revision
-  {\LARGE $ $Date: 2000/12/08 03:54:37 $ $}  % replaced by cvs with current revision
+  {\LARGE $ $Revision: 2.52 $ $}  \\[5mm] % replaced by cvs with current revision
+  {\LARGE $ $Date: 2000/12/08 20:21:10 $ $}  % replaced by cvs with current revision
   \vfill
 \end{center}
 \cleardoublepage
@@ -351,7 +354,7 @@ enum StDetectorId           {kUnknownId,
                              kRichId,
                              kFtpcWestId,
                              kFtpcEastId,
-                             kTofPatchId,
+                             kTofId,
                              kCtbId,
                              kSsdId,
                              kBarrelEmcTowerId,
