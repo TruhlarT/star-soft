@@ -145,6 +145,9 @@ printf $FO
 $col     = 0;
 @$totals = (0,0,0);
 foreach $disk (sort keys %DINFO){
+    $tdisk =  $disk;
+    $tdisk =~ s/\//_/g;    # used for name reference
+
     #print STDERR "$DINFO{$disk}\n";
     @items = split(";",$DINFO{$disk});
     $items[4] =~ s/\s/&nbsp; /;
@@ -170,7 +173,7 @@ foreach $disk (sort keys %DINFO){
     }
     printf $FO
 	"<TR height=\"10\" bgcolor=\"$col\">\n".
-	"  <TD align=\"right\">%10s</TD>\n".
+	"  <TD align=\"right\"><A NAME=\"%s\">%10s</A></TD>\n".
 	"  <TD align=\"right\">%11s</TD>\n".
 	"  <TD align=\"right\">%11s</TD>\n".
 	"  <TD align=\"right\">%11s</TD>\n".
@@ -178,8 +181,8 @@ foreach $disk (sort keys %DINFO){
 	"  <TD>%s</TD>\n".
 	"  <TD align=\"right\">%s</TD>\n".
 	"</TR>\n",
-	    "<i><b>$disk</b></i>",$items[0],$items[1],$items[2],$items[3],
-	    $items[4],$items[5];
+	    $tdisk,"<i><b>$disk</b></i>",$items[0],$items[1],$items[2],
+	    $items[3],$items[4],$items[5];
 
     $totals[0] += $items[0];
     $totals[1] += $items[1];
