@@ -44,7 +44,7 @@
 # by hand, it may be automatically deleted if older than
 # some arbitrary time. TO stop FastOffline, you should then
 # use the FastOff.quit file mechanism instead.
-# 
+#
 # History
 #  Fri Jul 27. dammit !! Did not take into account that
 #              'staged' and 'staging' jobs are not showed
@@ -94,6 +94,11 @@ $PHYSTP2 = 0;
 # will be the ultimate maximum number of events processed.
 # DO NOT SET IT HERE but in the diverse blocks.
 $MAXEVT  = 0;
+
+
+# Second layer throttling would do one file per run within the
+# regular mode.
+$THROTTLE = 2;
 
 
 
@@ -156,7 +161,7 @@ if ($ThisYear == 2002){
     $LASERTP =  3;
     $PHYSTP  =  1;
     $PHYSTP2 =  5;    # just comment them if you want them disabled
-    $EXPRESS =  8;     
+    $EXPRESS =  8;
     $ZEROBIAS= 11;
 
     @USEQ    = (4,4,3);
@@ -177,12 +182,12 @@ if ($ThisYear == 2002){
     $LIB     = "dev";
     $NUMEVT  = 100;
     #$MAXEVT  = 250;
-    $TARGET  = "/star/data08/reco";   # This is ONLY a default value. 
+    $TARGET  = "/star/data08/reco";   # This is ONLY a default value.
                                       # Overwritten by ARGV (see crontab)
     $LASERTP =  4;
     $PHYSTP  =  1;
     $PHYSTP2 =  6;    # just comment them if you want them disabled
-    $EXPRESS =  0;     
+    $EXPRESS =  0;
     $ZEROBIAS=  7;
 
     @USEQ    = (5,5,4);
@@ -265,7 +270,7 @@ if ($TARGET !~ m/^\d+$/){
 	print "$SELF :: Target disk $target is $space % full (baling out on ".localtime().")\n";
 	exit;
     }
-} 
+}
 
 
 # Intermediate variable
@@ -296,7 +301,8 @@ if( $TARGET =~ m/^\// || $TARGET =~ m/\^\// ){
     #
     # FAST OFFLINE regular mode
     #
-    undef(@files);
+    undef(@Xfiles);
+    undef(@Files);
 
     # Overwrite queue if necessary
     $USEQ[0] = $tmpUQ if ( defined($tmpUQ) );
@@ -327,51 +333,78 @@ if( $TARGET =~ m/^\// || $TARGET =~ m/\^\// ){
 		print "$SELF :: Top of the list only ...\n";
 		$TARGET=~ s/\^//;
 		if ($EXPRESS != 0){
-		    push(@files,rdaq_get_ffiles($obj,-1,$TOT*$EXPRESS_W,$EXPRESS));
+		    push(@Xfiles,rdaq_get_ffiles($obj,-1,$TOT*$EXPRESS_W,$EXPRESS));
 		}
 		if ($ZEROBIAS != 0){
-		    push(@files,rdaq_get_ffiles($obj,-1,$TOT*$ZEROBIAS_W,$ZEROBIAS));
+		    push(@Xfiles,rdaq_get_ffiles($obj,-1,$TOT*$ZEROBIAS_W,$ZEROBIAS));
 		}
 		$W = ($TOT-$num);
-		push(@files,rdaq_get_ffiles($obj,-1,$W,$COND));
+		push(@Files,rdaq_get_ffiles($obj,-1,$W*($THROTTLE?10:0),$COND));
 
 	    } else {
 		# ask only for status=0 files (will therefore
 		# crawl-down the list).
 		print "$SELF :: Crawling down the list ...\n";
 		if ($EXPRESS != 0){
-		    push(@files,rdaq_get_ffiles($obj,0,$TOT*$EXPRESS_W,$EXPRESS));
+		    push(@Xfiles,rdaq_get_ffiles($obj,0,$TOT*$EXPRESS_W,$EXPRESS));
 		}
 		if ($ZEROBIAS != 0){
-		    push(@files,rdaq_get_ffiles($obj,0,$TOT*$ZEROBIAS_W,$ZEROBIAS));
+		    push(@Xfiles,rdaq_get_ffiles($obj,0,$TOT*$ZEROBIAS_W,$ZEROBIAS));
 		}
 		$W = ($TOT-$num);
-		push(@files,rdaq_get_ffiles($obj,0,$W,$COND));
+		push(@Files,rdaq_get_ffiles($obj,0,$W*($THROTTLE?10:0),$COND));
 	    }
 
+	    #undef($files);
+	    for($ii=0; $ii<=1 ; $ii++){
+		@files = @Xfiles if ($ii==0);
+		@files = @Files  if ($ii==1);
 
-	    if($#files != -1){
-		# scramble
-		#@files = &Scramble(@files);
+		if($#files != -1){
+		    # scramble
+		    #@files = &Scramble(@files);
 
-		print "$SELF :: Checking ".($#files+1)." jobs\n";
-		undef(@OKFILES);             # will be filled by Submit
-		undef(@SKIPPED);
-		$kk = $TOT;
-		foreach $file (@files){
-		    sleep($SLEEPT) if &Submit(0,$USEQ[0],$SPILL[0],
-					      $file,$CHAIN,"Normal");
-		    $MAXCNT--;
-		    $kk--;
-		    last if ($MAXCNT == 0);
-		    last if ($kk     == 0);
+		    print "$SELF :: Checking ".($#files+1)." jobs\n";
+		    undef(@OKFILES);             # will be filled by Submit
+		    undef(@SKIPPED);
+
+		    $kk    = $TOT;
+		    $prun  = 0;
+		    foreach $file (@files){
+			# pattern match run-number
+			if ( $file !~ m/(\D+)(\d+)(_raw)/){
+			    print "$SELF :: File $file did not match pattern\n";
+			    push(@SKIPPED,$file);
+			} else {
+			    $run  = $2;
+			    #print "DEBUG:: Deduced run=$run\n";
+
+			    # Check run-number
+			    if ($prun != $run){
+				$count = 0;
+				$prun  = $run;
+			    } else {
+				#print "DEBUG:: Same run but $count cmp $THROTTLE\n";
+				$count++;
+				if ( $count >= $THROTTLE && $THROTTLE != 0){ next;}
+			    }
+
+			    sleep($SLEEPT) if &Submit(0,$USEQ[0],$SPILL[0],
+						      $file,$CHAIN,"Normal");
+			    $MAXCNT--;
+			    $kk--;
+			}
+			last if ($MAXCNT == 0);
+			last if ($kk     == 0);
+		    }
+		    rdaq_set_files($obj,1,@OKFILES);
+		    rdaq_set_files($obj,4,@SKIPPED);
+		} else {
+		    # there is nothing to submit
+		    print "$SELF :: There is nothing to submit on $time\n";
 		}
-		rdaq_set_files($obj,1,@OKFILES);
-		rdaq_set_files($obj,4,@SKIPPED);
-	    } else {
-		# there is nothing to submit
-		print "$SELF :: There is nothing to submit on $time\n";
 	    }
+
 	    rdaq_close_odatabase($obj);
 	}
 	if(-e $LOCKF){  unlink($LOCKF);}
@@ -385,7 +418,7 @@ if( $TARGET =~ m/^\// || $TARGET =~ m/\^\// ){
     #
     # Copied from mode 0. Can be merged ...
     #
-    $TARGET = $2;
+    $TARGET   = $2;
     #print "$SELF :: Target is now $TARGET\n";
 
     # Overwrite queue if necessary
@@ -634,7 +667,7 @@ sub Submit
     if($chain eq "" || $chain eq "none" || $chain eq "default"){
 	$chain = $DCHAIN{$coll};
 	if( ! defined($chain) ){
-	    print 
+	    print
 		"$SELF :: Warning : ".localtime().
 		"No chain options declared. No default for [$coll] either.\n";
 	    return 0;
@@ -757,7 +790,7 @@ mergefactor=1
 __EOH__
 
         } else {
-	    # THIS IS A REGULAR RECONSTRUCTION PROCESSING 
+	    # THIS IS A REGULAR RECONSTRUCTION PROCESSING
 	    print FO <<__EOH__;
 mergefactor=1
 #input
