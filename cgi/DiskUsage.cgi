@@ -24,7 +24,7 @@ $LINKCOL  = "navy";
 $author   = "J&eacute;r&ocirc;me LAURET";
 $email    = "jlauret\@bnl.gov";
 
-print 
+print
     $query->header,
     $query->start_html(-title=>$title,
 		       -AUTHOR=>$author,
@@ -34,7 +34,7 @@ print
     $query->h1($title)."\n";
 
 
-if ($disk){ 
+if ($disk){
     # Display header, Open the file, check content
     print "\n<a href=\"$this_script\">Back</a><br>\n";
     if( -e "$PATH/$disk"){
@@ -51,13 +51,13 @@ if ($disk){
 	    }
 	    close(FI);
 	} else {
-	    print 
+	    print
 		"<B>Error reading information</B>\n",
 		"If this problem persists, please, contact ",
 		"<a mailto=\"$email\">$author</a>";
 	}
     } else {
-	print 
+	print
 	    "<B>There is no information available for $disk</B>";
     }
     print "\n<a href=\"$this_script\">Back</a><br>\n";
@@ -67,6 +67,7 @@ if ($disk){
 
     if($#raw != -1){
 	foreach $val (@raw){
+	    if ($val =~ /overall/){ next;}
 	    $val =~ s/.*\///g;
 	    $txt = $val;
 	    $txt =~ s/\..*//;
@@ -74,7 +75,7 @@ if ($disk){
 	    push(@values,$val);
 	}
 
-	print 
+	print
 	    "<FORM action=$this_script method=POST>\n",
 	    $query->popup_menu(-name=>"disk",
 			       -values=>\@values,
@@ -83,10 +84,10 @@ if ($disk){
 	    submit('button_name','Show'),
 	    "</FORM>\n";
     } else {
-	print 
+	print
 	    "<b>Not properly configured or no information available</b><br>\n",
 	    "If this problem persists, please, contact ",
-	    "<a mailto=\"$email\">$author</a>";	    
+	    "<a mailto=\"$email\">$author</a>";
     }
 }
 
