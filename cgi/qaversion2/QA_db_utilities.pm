@@ -257,8 +257,6 @@ sub GetMissingFiles{
 
   # these are the file components we're looking for
   my @componentAry = qw(dst hist tags runco);
-  
-  my $ondiskString;
 
   # check for one more component 
   push @componentAry, 'geant' if $type eq 'MC';
