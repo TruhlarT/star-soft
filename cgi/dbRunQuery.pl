@@ -215,9 +215,9 @@ END
  print "</html>";
 
 
-if($query->param) {
-  dbRunBrows($query);
-}
+#if($query->param) {
+#  dbRunBrows($query);
+#}
   
 print $query->end_html; 
 
