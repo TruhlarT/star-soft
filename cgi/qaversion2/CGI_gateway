@@ -4,12 +4,13 @@
 # CGI gateway program for AutoQA (CGI_gateway)
 #
 # CGI_gateway is a CGI script which collects all the environment information
-# given by the web server (variables & stdin), then invokes QA_main.pm
-# on an rcas computer and returns QA_main's output to the
-# web server as stdout.
+# given by the web server (variables & stdin), then creates a script to 
+# invoke an arbitrary program (default QA_main.pm) on an rcas computer.  It
+# then waits for the CGI_dispatcher daemon running on rcas to execute the 
+# script and write the output to a file.
 #
-# One should ensure that the user running CGI_gateway (starlib) has afs
-# tokens on both the web server (sol) and the target host (rcas6001).
+# The program ensures that the user running CGI_gateway (starlib) has an afs
+# token on the web server (sol).  CGI_disp
 #
 # Actual communication with RCAS is done using shared afs filespace.  
 # CGI_gateway drops a file in this area, a script to run QA_main.pm and
@@ -18,10 +19,22 @@
 # script in a second file, which CGI_gateway polls for.  This convoluted
 # approach imparts some delay to the process, but it is much better than 5-10
 # seconds for a double ssh jump from sol to rcas via rsshgw.
+#
+# Usage:  http://myserver/mydir/CGI_gateway?targetProgram=<target program>&
+#                                     workingDirectory=<working directory>
+#
+# <working directory> is the directory the target program should be run from,
+#                     defaults to the running directory of CGI_gateway.
+#                     This is given in the target computer file-space.
+# <target program> is the invocation of the target program, relative to
+#                  the working directory.  Keep in mind that this should be
+#                  a cgi program, i.e., one returning good http headers!
+#
 
 use strict;
 use Cwd;
 use FileHandle;
+use CGI;
 
 my $my_name = "CGI_gateway";
 my $working_dir = cwd();
@@ -32,6 +45,8 @@ my $target_program = "QA_main.pm";
 my $afs_pw_file = "$working_dir/starlib_pw";
 
 my $scriptFH = new FileHandle;
+
+my $cgi = new CGI;
 
 # don't buffer output
 \*STDOUT->autoflush(1);
@@ -48,6 +63,15 @@ if (! $reauth) {
     my $cmd = "/usr/afsws/bin/reauth 85000 starlib `cat $afs_pw_file`";
     system ($cmd);
 }
+
+#
+# determine non-default target program and/or working directory
+#
+
+defined $cgi->param("targetProgram") and 
+    $target_program = $cgi->param("targetProgram");
+defined $cgi->param("workingDirectory") and 
+    $working_dir = $cgi->param("workingDirectory");
 
 #
 # Open the batch script
@@ -78,7 +102,7 @@ foreach my $env_var (keys (%ENV)){
 
 print $scriptFH "\n# Invoke the target program\n";
 print $scriptFH "cd $working_dir\n";
-print $scriptFH "./$target_program <<MICA\n";
+print $scriptFH "$target_program <<MICA\n";  # '.' is in the path
 
 while (<STDIN>){
     print $scriptFH $_;
