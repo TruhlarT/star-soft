@@ -289,9 +289,12 @@ for ($ii = 0; $ii<scalar(@prChain); $ii++) {
       $dstHpEvts{$mprSer} = $xdfHpEvts{$mprSer}
     }
  
+    if ($mprSer =~ /MDC4_test/){
+    $prodSer = "MDC4_test";
+  }else {
     @prt = split("_",$mprSer);
     $prodSer = $prt[0];  
-
+  }
  &printTotal(); 
 
    }else{
