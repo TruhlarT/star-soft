@@ -32,7 +32,7 @@ endif
 if ( "$1" == "Clean") then
   # since AFS fluke may induce strange effects
   # auwx is NOT Unix-universal. Use it on Linux.
-  set TEST=`ps auwx | grep $ME | grep $SCRIPT | grep -v grep | awk '{print $2}' | xargs`
+  set TEST=`/bin/ps auwx | /bin/grep $ME | /bin/grep $SCRIPT | /bin/grep -v grep | /bin/awk '{print $2}' | /usr/bin/xargs`
   if ("$TEST" != "") then
     echo "Killing $TEST on `date`"
     kill -9 $TEST
@@ -55,7 +55,7 @@ else if ( "$1" == "Update") then
 
 else
   # default option is to Run
-  set TEST=`ps -ef | grep $ME | grep $SCRIPT | grep -v grep`
+  set TEST=`/bin/ps -ef | /bin/grep $ME | /bin/grep $SCRIPT | /bin/grep -v grep`
   if ("$TEST" == "") then
     cd $PATH
     if( ! -e $LOG) then
