@@ -60,6 +60,7 @@ $PRGM    = "bfcca";                # this program logical name
 #   print "$el -> $ENV{$el}\n";
 #}
 #print "We are now in business ...\n";
+#print `ls -l`;
 
 
 # The first element of the argument list
@@ -80,9 +81,12 @@ $CHAINOPT    = join(" ",@ARGV);
 # would refere to the initial file name (as per in HPSS)
 #
 for($i =0 ; ; $i++){
-   eval('$in = $ENV{"ACTUAL_INPUT$i"}');
-   if( ! defined($in) ){ last;}
-   push(@INPUTS,$in);	
+    eval('$in = $ENV{"ACTUAL_INPUT$i"}');
+    if( ! defined($in) ){ last;}
+    eval('$cin = $ENV{"INPUT$i"}');
+    if( ! defined($cin) ){ last;}
+    push(@CINPUTS,$cin);	
+    push(@INPUTS,$in);	
 } 
 
 
@@ -92,7 +96,8 @@ for($i =0 ; ; $i++){
 # (like adding to the chain option), please, add code with backward
 # compatibility possibility. I think this code is suitable for pp
 # gstar options modulo this implementation.
-$INPUTFILE = shift @INPUTS;
+$INPUTFILE  = shift @INPUTS;
+$CINPUTFILE = shift @CINPUTS;
 
 
 
@@ -100,12 +105,12 @@ $INPUTFILE = shift @INPUTS;
 # The number of output files is unknown but we can evaluate
 # this. This loop may also be used for
 for($i =0 ; ; $i++){
-   eval('$cout = $ENV{"ACTUAL_OUTPUT$i"}');
-   if( ! defined($cout) ){ last;}
-   eval('$out  = $ENV{"OUTPUT$i"}');
-   if( ! defined($out)  ){ last;}      # but this should not happen
-   push(@COUTPUTS,$cout);
-   push(@OUTPUTS,$out);	
+    eval('$cout  = $ENV{"OUTPUT$i"}');
+    if( ! defined($cout)  ){ last;}      
+    eval('$out = $ENV{"ACTUAL_OUTPUT$i"}');
+    if( ! defined($out) ){ last;}
+    push(@COUTPUTS,$cout);
+    push(@OUTPUTS,$out);	
 } 
 
 
@@ -120,13 +125,30 @@ $PWD   = $ENV{"PWD"};
 # Fix default values, check sanity
 #
 # num events default value
-if( $NUMEVT <= 0){ $NUMEVT = 9999999999;}
+if( $NUMEVT <= 0){ $NUMEVT = 10000;}
 # Simplify library version change (commodity)
 if($LIBRARY =~ m/dev/i || $LIBRARY =~ m/new/i || 
    $LIBRARY =~ m/pro/i || $LIBRARY =~ m/old/i){
    $CHVER = "star".lc($LIBRARY);
 } else {
    $CHVER = "starver $LIBRARY";
+}
+if($INPUTFILE eq ""){
+    print STDERR "$PRGM :: Error: no input file specified\n";
+    exit;
+} else {
+    # Extension check. Out chain requires a .daq extension.
+    $ext = $CINPUTFILE;
+    $ext =~ s/.*\.//g;
+    #print "Debug:: [$ext]\n";
+    if($ext eq "" || $ext eq $CINPUTFILE){
+	# An HPSS file was restored. We need to create
+	# a symlink with a .daq name and use this as
+	# our input.
+	$tmp = basename($INPUTFILE);
+	symlink($CINPUTFILE,$tmp);
+	$CINPUTFILE = $tmp;
+    }
 }
 
 
@@ -137,10 +159,9 @@ print "The chain will run with options  $CHAINOPT\n";
 print "The output destination will be   $DESTINATION\n";
 print "The number of events would be    $NUMEVT\n";
 print "The chain will run over file     $INPUTFILE\n";
+print "This file is stored as           $CINPUTFILE\n";
 print "Outputs initial will be          ".join(" ",@COUTPUTS)."\n";
 print "Outputs final will be            ".join(" ",@OUTPUTS)."\n";
-
-
 
 
 
@@ -149,96 +170,103 @@ print "Outputs final will be            ".join(" ",@OUTPUTS)."\n";
 # and loading. Peffered shell will be csh (available on ALL
 # flavor of Unix) rather than tcsh which needs to be installed.
 if ( ! open(FO,">$PWD/$JOB_ID.csh") ){
-   print STDERR "$PRGM :: Failure to open a temporary file $!\n";
+    print STDERR "$PRGM :: Failure to open a temporary file $!\n";
 } else {
-   # Note that we will be able to dup STDOUT STDERR to a file later
-   # (and if required) as well as writing handler routine to prevent
-   # from a crash.
-   print FO 
-   	"#!/bin/csh\n",
-	"cat \$0\n",
+    # Note that we will be able to dup STDOUT STDERR to a file later
+    # (and if required) as well as writing handler routine to prevent
+    # from a crash.
+    print FO 
+	"#!/bin/csh\n",
 	"setenv GROUP_DIR /afs/rhic/rhstar/group\n", # default GROUP_DIR
 	"source \$GROUP_DIR/star_login.csh\n",       # load basic login env
+	"unset noclobber\n",                         # over-write
 	"$CHVER\n",                                  # load chosen library env
 	"echo \"Executing \`which root4star\`\"\n",  # some info/debug message
-	"root4star -b -q 'bfc.C($NUMEVT,\"$CHAINOPT\",\"$INPUTFILE\")'\n";
+	"root4star -b -q 'bfc.C($NUMEVT,\"$CHAINOPT\",\"$CINPUTFILE\")'\n";
 	
 	
 
-   close(FO);
-   chmod(0755,"$PWD/$JOB_ID.csh");
-   system("$PWD/$JOB_ID.csh");
-   
-   # after this, we may have crashed or not
-   if($! == 0){
-      print "$PRGM :: Info: The chain as completed without failure\n";
-   } else {
-      print STDERR "$PRGM :: Error: chain stopped with status [$!]\n";
-   }
-   
-   
-   # But please, do not stop there but move the output if required
-   # Required means that the option was HPSS, UNIX option means
-   # that it will be written over NFS so we do not need to move the
-   # file. We can recognize the difference because the $cfile is
-   # different than the $file in HPSS mode and identical in NFS mode.
-   for($i=0 ; $i <= $#COUTPUTS ; $i++){
-      $cfile = $COUTPUTS[$i];
+    close(FO);
+    chmod(0755,"$PWD/$JOB_ID.csh");
 
-      if( -e $cfile){
-        $file  = $OUTPUTS[$i];
-        $ffile = "";
+    print "$PRGM :: Info: Our working directory contains\n";
+    print `ls -l`;
+    print "$PRGM :: Info: We will now start to run ...\n";
+
+    system("$PWD/$JOB_ID.csh");
+   
+    # after this, we may have crashed or not
+    if($! == 0){
+	print "$PRGM :: Info: The chain as completed without failure\n";
+    } else {
+	print STDERR "$PRGM :: Error: chain stopped with status [$!]\n";
+    }
+   
+   
+    # But please, do not stop there but move the output if required
+    # Required means that the option was HPSS, UNIX option means
+    # that it will be written over NFS so we do not need to move the
+    # file. We can recognize the difference because the $cfile is
+    # different than the $file in HPSS mode and identical in NFS mode.
+    for($i=0 ; $i <= $#COUTPUTS ; $i++){
+	$cfile = $COUTPUTS[$i];
+
+	if( -e $cfile){
+	    $file  = $OUTPUTS[$i];
+	    $ffile = "";
 	
-        if( $file ne $cfile){
-	 # Massage the substitution. This is a HPSS file
-	 # cloned/copied to a disk as well.
-	 $ffile = $file;              
-	 $ffile =~ s|$HPSSBASE|$DESTINATION|;
-        } elsif ( dirname($file) eq "."){
-         # This is a file left on the local disk we want 
-	 # to move now.
-	 $ffile = $file;
-	 $ffile =~ s|./|$DESTINATION/|;
-        } 
+	    if( $file ne $cfile){
+		# Massage the substitution. This is a HPSS file
+		# cloned/copied to a disk as well.
+		$ffile = $file;              
+		$ffile =~ s|$HPSSBASE|$DESTINATION|;
+	    } elsif ( dirname($file) eq "."){
+		# This is a file left on the local disk we want 
+		# to move now.
+		$ffile = $file;
+		$ffile =~ s|./|$DESTINATION/|;
+	    } 
       
       
-        # OK to copy -> $ffile is defined
-        if( $ffile ne ""){
-          # Get the directory name
-	  $dir  = dirname($ffile);
-	  # create directory all the way up but also, try multiple times
-	  # if it fails.
-	  $k    = 0;
-	  CREATE_DIR:
-	   if( MkPath($dir,2) != 1){
-	       print STDERR "$PRGM :: Error: Failed to create $dir on ".localtime()."\n";
-	       $k++;
-	       if($k < $NTRIES){ 
-	          sleep($SLPTIME);
-	          goto CREATE_DIR;
-	       }
-	   }
+	    # OK to copy -> $ffile is defined
+	    if( $ffile ne ""){
+		# Get the directory name
+		$dir  = dirname($ffile);
+		# create directory all the way up but also, try multiple times
+		# if it fails.
+		$k    = 0;
+	      CREATE_DIR:
+		if( MkPath($dir,2) != 1){
+		    print "$PRGM :: Info: Failed to create $dir on ".localtime()."\n";
+		    $k++;
+		    if($k < $NTRIES){ 
+			sleep($SLPTIME);
+			goto CREATE_DIR;
+		    } else {
+			print STDERR "$PRGM :: Error: Failed to create path $dir\n";
+		    }
+		}
 	   
-	  # if the final file already exists, remove it first
-	  if( -e $ffile){ unlink($ffile);}
-	  # OK, the target directory is created, no other file exist with
-	  # that name ... Copy the file now.
-	  print "$PRGM :: Info: Copying $cfile -> $ffile\n";
-	  copy($cfile,$ffile);
-	  if( ! -e $ffile){
-	     print "$PRGM :: Warning: Action did not create $ffile\n";
-	  }
-	 	 
-        } else {
-	  print "$PRGM :: Info: $file is at its final destination\n";
-	}
+		# if the final file already exists, remove it first
+		if( -e $ffile){ unlink($ffile);}
+		# OK, the target directory is created, no other file exist with
+		# that name ... Copy the file now.
+		print "$PRGM :: Info: Copying $cfile -> $ffile\n";
+		copy($cfile,$ffile);
+		if( ! -e $ffile){
+		    print "$PRGM :: Warning: Action did not create $ffile\n";
+		}
+	      
+	    } else {
+		print "$PRGM :: Info: $file is at its final destination\n";
+	    }
 	
-      } else {
-        # Oups ! The output file was not found
-	print STDERR "$PRGM :: Warning: action did not produce expected $cfile\n";
-      }	
-   }
-   print "$PRGM :: Info: All output checked. Done.\n";
+	} else {
+	    # Oups ! The output file was not found
+	    print STDERR "$PRGM :: Warning: action did not produce expected $cfile\n";
+	}	
+    }
+    print "$PRGM :: Info: All output checked. Done.\n";
 }
 
 
@@ -251,38 +279,38 @@ if ( ! open(FO,">$PWD/$JOB_ID.csh") ){
 #
 sub MkPath
 {
-   my($dir,$level)=@_;
-   my(@items,$tmp,$el,$i);
+    my($dir,$level)=@_;
+    my(@items,$tmp,$el,$i);
    
-   # default
-   if( ! defined($level) ){ $level = 0;}
+    # default
+    if( ! defined($level) ){ $level = 0;}
    
-   @items = split("/",$dir);
-   shift(@items);               # strip first blank space
-   $tmp = "";
-   $i   = 0;
-   foreach $el (@items){
-      $tmp .= "/$el";
-      $i++;
-      if( ! -d $tmp){
-         # oupses !! file exists with same name than directory. 
-	 # This is a non-no in Uglix-land.
-         if (-f $tmp){  
-	    print STDERR "$PRGM :: Error: Cannot create dir $tmp. File exists with the same name.\n";
-	    return -1;
-	 }
+    @items = split("/",$dir);
+    shift(@items);               # strip first blank space
+    $tmp = "";
+    $i   = 0;
+    foreach $el (@items){
+	$tmp .= "/$el";
+	$i++;
+	if( ! -d $tmp){
+	    # oupses !! file exists with same name than directory. 
+	    # This is a non-no in Uglix-land.
+	    if (-f $tmp){  
+		print STDERR "$PRGM :: Error: Cannot create dir $tmp. File exists with the same name.\n";
+		return -1;
+	    }
 
-         # we can even test where this fails ...
-	 # The level variable is used to prevent frm accidental directory creation
-	 # in case of disk unmount. For example, level = 2 will prevent creation
-	 # before a /star/dataXX directory ...
-	 if($i >= $level){
-           if( ! mkdir($tmp,$MASK) ){
-             print STDERR "$PRGM :: Error: Failed to create $tmp\n";
-             return -2;
-           }
-	 }
-      }
+	    # we can even test where this fails ...
+	    # The level variable is used to prevent frm accidental directory creation
+	    # in case of disk unmount. For example, level = 2 will prevent creation
+	    # before a /star/dataXX directory ...
+	    if($i >= $level){
+		if( ! mkdir($tmp,"$MASK") ){
+		    print STDERR "$PRGM :: Error: Failed to create $tmp\n";
+		    return -2;
+		}
+	    }
+	}
     }
     1;
 }
