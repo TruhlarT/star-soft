@@ -41,7 +41,7 @@
 #                          can be used as-is in a set_context() statement.
 #        -> clone_location()
 #                          actually create an instance for FileData and a copy of FileLocations
-#                          the latest to be modified with set_context() keywords. Warning :
+#                          the latest to be modified with set_context() keywords.
 #                          
 #
 #        -> run_query()   : get entries from dbtable FileCatalog according to query string
@@ -138,6 +138,7 @@ $keywrds{"filename"      }    =   "filename"                  .",FileData"      
 $keywrds{"size"          }    =   "size"                      .",FileData"               .",1" .",num"  .",0" .",1" .",1";
 $keywrds{"fileseq"       }    =   "fileSeq"                   .",FileData"               .",1" .",num"  .",0" .",1" .",1";
 $keywrds{"filecomment"   }    =   "fileDataComments"          .",FileData"               .",0" .",text" .",0" .",1" .",1";
+$keywrds{"fsize"         }    =   "fsize"                     .",FileLocations"          .",1" .",num"  .",0" .",1" .",1";
 $keywrds{"owner"         }    =   "owner"                     .",FileLocations"          .",0" .",text" .",0" .",1" .",1";
 $keywrds{"protection"    }    =   "protection"                .",FileLocations"          .",0" .",text" .",0" .",1" .",1";
 $keywrds{"node"          }    =   "nodeName"                  .",FileLocations"          .",0" .",text" .",0" .",1" .",1";
@@ -527,7 +528,7 @@ sub get_id_from_dictionary {
   my $sth;
   my $sqlquery;
 
-  $idname = IDize($idname);
+  $idname = &IDize($idname);
 
   $sqlquery = "SELECT $idname FROM $params[0] WHERE UPPER($params[1]) = UPPER(\"$params[2]\")";
   if ($DEBUG > 0) {  &print_debug("Executing: $sqlquery");}
@@ -1548,6 +1549,7 @@ sub insert_file_location {
   my $filePath;
   my $createTime;
   my $owner;
+  my $fsize;
   my $protection;
   my $nodeName;
   my $availability;
@@ -1624,6 +1626,17 @@ sub insert_file_location {
       $sanity = $valuset{"sanity"};
   }
 
+  if (! defined $valuset{"fsize"}) {
+      # *** TRANSITION HACK ***
+      if ( ! defined $valuset{"size"}){
+	  $fsize = "NULL";
+      } else {
+	  $fsize = $valuset{"size"};
+      }
+  } else {
+      $fsize = $valuset{"fsize"};
+  }
+
 
   # This table is exponentially growing with an INSERT IGNORE or INSERT
   # Changed May 31st 2002.
@@ -1631,12 +1644,13 @@ sub insert_file_location {
   my $flinchk    = "SELECT fileLocationID from FileLocations WHERE ";
   my $flinsert   = "INSERT IGNORE INTO FileLocations ";
 
-  $flinsert  .= "(fileLocationID, fileDataID, storageTypeID, filePath, createTime, insertTime, owner, storageSiteID, protection, nodeName, availability, persistent, sanity)";
-  $flinsert  .= " VALUES (NULL, $fileData, $storageType, $filePath, $createTime, NULL, $owner, $storageSite, $protection, $nodeName, $availability, '$persistent', $sanity)";
+  $flinsert  .= "(fileLocationID, fileDataID, storageTypeID, filePath, createTime, insertTime, owner, fsize, storageSiteID, protection, nodeName, availability, persistent, sanity)";
+  $flinsert  .= " VALUES (NULL, $fileData, $storageType, $filePath, $createTime, NULL, $owner, $fsize, $storageSite, $protection, $nodeName, $availability, '$persistent', $sanity)";
 
   # NONE of the NULL value should appear below otherwise, one keeps adding
-  # entry over and over ...
-  $flinchk   .= " fileDataID=$fileData AND storageTypeID=$storageType AND filePath=$filePath AND owner=$owner AND storageSiteID=$storageSite AND protection=$protection AND nodeName=$nodeName";
+  # entry over and over ... protection and woner are irrelevant here and
+  # requires an UPDATE instead of a new insert.
+  $flinchk   .= " fileDataID=$fileData AND storageTypeID=$storageType AND filePath=$filePath AND storageSiteID=$storageSite AND nodeName=$nodeName";
 
 
 
@@ -1802,9 +1816,8 @@ sub connect_fields {
   my (@connections, $connum);
 
 
-  if ($DEBUG > 0) {
-      &print_debug("Looking for connection between fields: $begkeyword, $endkeyword");
-  }
+  &print_debug("Looking for connection between fields: $begkeyword, $endkeyword");
+
 
   $begtable = get_table_name($begkeyword);
   $begfield = get_field_name($begkeyword);
@@ -1820,8 +1833,8 @@ sub connect_fields {
 	($begtable, $endtable, $blevel, $elevel)
       }
   if ($DEBUG > 0) {
-      &print_debug("First: $ftable , $flevel",
-		   "Second: $stable , $slevel");
+      &print_debug("\tFirst: $ftable , $flevel",
+		   "\tSecond: $stable , $slevel");
   }
   # Get to the fields on the same level in tree hierarchy
   while ($slevel < $flevel) {
@@ -1919,6 +1932,8 @@ sub connect_fields {
   return join(" ",@connections);
 }
 
+
+
 #============================================
 # Runs the query to get the data from the database
 # Params: list of keyowrds determining the data
@@ -1997,143 +2012,157 @@ sub run_query {
   }
 
 
+  #
+  # THIS NEXT BLOCK DOES NO WORK AND WAS DISABLED
+  # WOULD PREVENT SINGLE TABLE QUERY WITH DEPENDENCE CONDITION
+  # Introduced at version 1.14 . Need to be revisited.
+  # Idea of this block was to eliminate parts of 
+  # where X.Id=Y.Id AND X.String=' '  and just use
+  # where X.Id=value
+  #
   # Do the constraint pre-check (for query optimization)
-  # check if a given costraint produces a single record ID
+  # check if a given constraint produces a single record ID
   # If so remove the constraint and use this ID directly instead
+  #
   my @constraint;
   my @from;
   my @connections;
 
-  &print_debug("Scanning valuset");
-  foreach (keys(%valuset)) {
-    my $tabname = get_table_name($_);
-    # Check if the table name is one of the dictionary ones
-    if (($tabname ne "FileData") && 
-	($tabname ne "FileLocations") && 
-	($tabname ne "RunParams") && 
-	($tabname ne "SimulationParams") &&
-	($tabname ne "TriggerCompositions") && 
-	($tabname ne ""))
-      {
-	my $fieldname = get_field_name($_);
-	my $idname = $tabname;
-	my $addedconstr = "";
+  if(1==0){
+      &print_debug("Scanning valuset ".join(",",keys %valuset));
+      foreach (keys(%valuset)) {
+	  my $tabname = get_table_name($_);
+	  # Check if the table name is one of the dictionary ones
+	  if (($tabname ne "FileData") && 
+	      ($tabname ne "FileLocations") && 
+	      ($tabname ne "RunParams") && 
+	      ($tabname ne "SimulationParams") &&
+	      ($tabname ne "TriggerCompositions") && 
+	      ($tabname ne ""))
+	  {
+	      my $fieldname   = get_field_name($_);
+	      my $idname      = $tabname;
+	      my $addedconstr = "";
 
-	$idname = IDize($idname);
+	      $idname = &IDize($idname);
 	
-	# Find which table this one is connecting to
-	my $parent_tabname;
-	foreach (@datastruct){
-	    if (($_ =~ m/$idname/) > 0){
-		# We found the right row - get the table name
-		my ($stab,$fld);
-		($stab,$parent_tabname,$fld) = split(",");
-	    }
-	}
+	      # Find which table this one is connecting to
+	      my $parent_tabname;
+	      foreach (@datastruct){
+		  if (($_ =~ m/$idname/) > 0){
+		      # We found the right row - get the table name
+		      my ($stab,$fld);
+		      ($stab,$parent_tabname,$fld) = split(",");
+		  }
+	      }
 
 
-	my $sqlquery = "SELECT $idname FROM $tabname WHERE ";
- 	if ((($roundfields =~ m/$fieldname/) > 0) && (! defined $valuset{"noround"})){
-	    #&print_debug("1 Inspecting [$roundfields] [$fieldname]");
-	    my ($nround) = $roundfields =~ m/$fieldname,([0-9]*)/;
-	    #&print_debug("1 Rounding to [$roundfields] [$fieldname] [$nround]");
-	    $sqlquery .= "ROUND($fieldname, $nround) ".$operset{$_}." ";
-	    if( $valuset{$_} =~ m/^\d+/){
-		$sqlquery .= $valuset{$_};
-	    } else {
-		$sqlquery .= "'$valuset{$_}'";
-	    }
+	      my $sqlquery = "SELECT $idname FROM $tabname WHERE ";
+	      if ((($roundfields =~ m/$fieldname/) > 0) && (! defined $valuset{"noround"})){
+		  #&print_debug("1 Inspecting [$roundfields] [$fieldname]");
+		  my ($nround) = $roundfields =~ m/$fieldname,([0-9]*)/;
+		  #&print_debug("1 Rounding to [$roundfields] [$fieldname] [$nround]");
+		  $sqlquery .= "ROUND($fieldname, $nround) ".$operset{$_}." ";
+		  if( $valuset{$_} =~ m/^\d+/){
+		      $sqlquery .= $valuset{$_};
+		  } else {
+		      $sqlquery .= "'$valuset{$_}'";
+		  }
+		  
+		  #&print_debug("1 Rounding Query will be [$sqlquery]");
+		  
+	      } elsif ($operset{$_} eq "~"){
+		  $sqlquery .= "$fieldname LIKE '%".$valuset{$_}."%'";
 
-	    #&print_debug("1 Rounding Query will be [$sqlquery]");
-
-	} elsif ($operset{$_} eq "~"){
-	    $sqlquery .= "$fieldname LIKE '%".$valuset{$_}."%'";
-
-	} elsif ($operset{$_} eq "!~"){
-	    $sqlquery .= "$fieldname NOT LIKE '%".$valuset{$_}."%'";
-	} else {
-	    if (get_field_type($_) eq "text"){
-		$sqlquery .= "$fieldname ".$operset{$_}." '".$valuset{$_}."'"; 
-	    } else {
-		$sqlquery .= "$fieldname ".$operset{$_}." ".$valuset{$_}; 
-	    }
-	}
-	if ($DEBUG > 0) {  &print_debug("\tExecuting special: $sqlquery");}
-	$sth = $DBH->prepare($sqlquery);
-
-
-	if( ! $sth){
-	  &print_debug("\tFileCatalog:: get id's : Failed to prepare [$sqlquery]");
-
-	} else {
-	  $sth->execute();
-	  my( $id );
-	  $sth->bind_columns( \$id );
-
-	  if (( $sth->rows < 5) && ($sth->rows>0)) {
-	    # Create a new constraint
-	    $addedconstr = " ";
-	    while ( $sth->fetch() ) {
-		if ($addedconstr ne " "){
-		    $addedconstr .= " OR $parent_tabname.$idname = $id "; 
-		} else {
-		    $addedconstr .= " $parent_tabname.$idname = $id ";
-		}
-		&print_debug("\tAdded constraints now $addedconstr");
-	    }
-	    #$addedconstr .= " ) ";
-	    if( index($addedconstr,"OR") != -1){
-		$addedconstr = " ($addedconstr)";
-	    }
+	      } elsif ($operset{$_} eq "!~"){
+		  $sqlquery .= "$fieldname NOT LIKE '%".$valuset{$_}."%'";
+	      } else {
+		  if (get_field_type($_) eq "text"){
+		      $sqlquery .= "$fieldname ".$operset{$_}." '".$valuset{$_}."'"; 
+		  } else {
+		      $sqlquery .= "$fieldname ".$operset{$_}." ".$valuset{$_}; 
+		  }
+	      }
+	      if ($DEBUG > 0) {  &print_debug("\tExecuting special: $sqlquery");}
+	      $sth = $DBH->prepare($sqlquery);
 
 
-	    # Add a newly constructed keyword
-	    push (@constraint, $addedconstr);
+	      if( ! $sth){
+		  &print_debug("\tFileCatalog:: get id's : Failed to prepare [$sqlquery]");
 
-	    # Missing backward constraint for more-than-one table
-	    # relation keyword. Adding it by hand for now (dirty)
-	    # **** NEED TO BE CHANGED AND MADE AUTOMATIC AND USE LEVELS ***
-	    # This does not happen if the field is specified
-	    # as a returned keyword.
-	    if ($parent_tabname eq "TriggerCompositions" ){
-		$addedconstr = " $parent_tabname.fileDataID = FileData.fileDataID";
-		push(@constraint,$addedconstr);
-	    }
+	      } else {
+		  $sth->execute();
+		  my( $id );
+		  $sth->bind_columns( \$id );
+
+		  if (( $sth->rows < 5) && ($sth->rows>0)) {
+		      # Create a new constraint
+		      $addedconstr = " ";
+		      while ( $sth->fetch() ) {
+			  if ($addedconstr ne " "){
+			      $addedconstr .= " OR $parent_tabname.$idname = $id "; 
+			  } else {
+			      $addedconstr .= " $parent_tabname.$idname = $id ";
+			  }
+			  &print_debug("\tAdded constraints now $addedconstr");
+		      }
+		      #$addedconstr .= " ) ";
+		      if( index($addedconstr,"OR") != -1){
+			  $addedconstr = " ($addedconstr)";
+		      }
+
+		      
+		      # Add a newly constructed keyword
+		      push (@constraint, $addedconstr);
+
+		      # Missing backward constraint for more-than-one table
+		      # relation keyword. Adding it by hand for now (dirty)
+		      # **** NEED TO BE CHANGED AND MADE AUTOMATIC AND USE LEVELS ***
+		      # This does not happen if the field is specified
+		      # as a returned keyword.
+		      if ($parent_tabname eq "TriggerCompositions" ){
+			  $addedconstr = " $parent_tabname.fileDataID = FileData.fileDataID";
+			  push(@constraint,$addedconstr);
+		      }
 
 
 
-	    # Remove the condition - we already take care of it
-	    &print_debug("\tDeleting $_=$valuset{$_}");
-	    delete $valuset{$_};
-
-	    # But remember to add the the parent table
-            # push (@connections, (connect_fields($keywords[0], $_)));
-	    push (@from, $parent_tabname);
+		      # Remove the condition - we already take care of it
+		      &print_debug("\tDeleting $_=$valuset{$_}");
+		      delete $valuset{$_};
+		      
+		      # But remember to add the the parent table
+		      # push (@connections, (connect_fields($keywords[0], $_)));
+		      push (@from, $parent_tabname);
+		  }
+		  $sth->finish();
+	      }
+	
 	  }
-	  $sth->finish();
       }
-	
-    }
   }
   
-
-  push (@from, get_table_name($keywords[0]));
+  #&print_debug("Pushing in FROM ".&get_table_name($keywords[0])." $#keywords ");
+  push (@from, &get_table_name($keywords[0]));
   for ($count=1; $count<$#keywords+1; $count++) {
-    push (@connections, (connect_fields($keywords[0], $keywords[$count])));
-    push (@from, get_table_name($keywords[$count]));
+      #&print_debug("\tConnecting $keywords[0] $keywords[$count] ".
+      #&connect_fields($keywords[0], $keywords[$count]));
+
+      push (@connections, (&connect_fields($keywords[0], $keywords[$count])));
+      push (@from, get_table_name($keywords[$count]));
   }
 
-  # Also add to the FROM tables the tables for each set keyword
+  # Also add to the FROM array the tables for each set keyword
   foreach my $key (keys %valuset){
       if (get_table_name($key) ne ""){
-	  push (@connections, (connect_fields($keywords[0], $key)));
-	  push (@from, get_table_name($key));
+	  #&print_debug("\tConnect ".&connect_fields($keywords[0], $key)." From < ".
+	  #&get_table_name($key));
+	  push (@connections, (&connect_fields($keywords[0], $key)));
+	  push (@from, &get_table_name($key));
       }
   }
+  &print_debug("Connections to build the query (1): ".join(" ",@connections));
 
-  if ($DEBUG > 0) {
-      &print_debug("Connections to build the query: ".join(" ",@connections));
-  }
 
   if (defined $valuset{"simulation"}){
       push (@connections, (connect_fields($keywords[0], "runnumber")));
@@ -2148,7 +2177,8 @@ sub run_query {
       push (@toquery, $_);
     }
   }
-  &print_debug("Connections to build the query: ".join(" ",@toquery));
+  &print_debug("Connections to build the query (2): ".join(" ",@toquery));
+
 
 
   # Get the select fields
@@ -2187,7 +2217,7 @@ sub run_query {
 
   # Build the FROM and WHERE parts of the query
   # using thew connection list
-  my  ($where);
+  my $where="";
   &print_debug("Toquery table contains idx ".join("/",@toquery));
   foreach (@toquery) {
     my ($mtable, $stable, $field, $level) = split(",",$datastruct[$_]);
@@ -2206,7 +2236,7 @@ sub run_query {
     }
   }
   my $toquery = join(" ",(@from));
-  #&print_debug("Table list $toquery ; [$where]");
+  &print_debug("Table list $toquery ; [$where]");
 
 
 
@@ -2274,23 +2304,23 @@ sub run_query {
     }
   }
 
-  if (defined $valuset{"simulation"})
-    {
+  if (defined $valuset{"simulation"}){
       if ($valuset{"simulation"} eq "1"){
 	  push ( @constraint, "RunParams.simulationParamsID IS NOT NULL");
       } else {
 	  push ( @constraint, "RunParams.simulationParamsID IS NULL");
       }
-    }
+  }
+
 
   # Check to see if we are getting info from the FileLocations table
   # if so, and "all" keyword is not set - get only the records
   # with non-zero availability
   my $floc = join(" ",(@fromunique)) =~ m/FileLocations/;
 
-  if ($DEBUG > 0){
-      &print_debug("Checking for FileLocations ".(join(" ",@fromunique))." $floc");
-  }
+
+  &print_debug("Checking for FileLocations ".(join(" ",@fromunique))." $floc");
+
 
   if ( $floc > 0 && defined($valuset{"all"}) ){
     if ( $valuset{"all"} == 0 ){
@@ -2303,13 +2333,17 @@ sub run_query {
   # Build the actual query string
   my $sqlquery;
   $sqlquery = "SELECT ";
-  if (! defined $valuset{"nounique"})
-    { $sqlquery .= " DISTINCT "; }
+  if (! defined $valuset{"nounique"}){
+      $sqlquery .= " DISTINCT "; 
+  }
+
 
   # An ugly hack to return FileLocationID from within the module
   if (((join(" ",(@fromunique)) =~ m/FileLocations/) > 0) && defined($flkey) ){
       $sqlquery .= " FileLocationID , ";
   }
+
+
 
   # Ugly hack to test the natural join 
   # (but it's the only way to treat this special case)
@@ -2336,10 +2370,18 @@ sub run_query {
   }
   &print_debug("After the natural: ".join(" ",@fromunique));
 
+
+
+
+  &print_debug("Selector ".join(" , ",@selectunique)." FROM ".join(" , ",(@fromunique)));      
+
+
+
+
   $sqlquery .= join(" , ",(@selectunique))." FROM ".join(" , ",(@fromunique));
 
 
-  if ( defined($where) ) {
+  if ( $where ne "" ) {
       &print_debug("where clause [$where] constraint [$constraint]");
       $sqlquery .=" WHERE $where";
       if ($constraint ne "") {
@@ -2349,26 +2391,33 @@ sub run_query {
       &print_debug("no where clause but constrained");
       $sqlquery .= " WHERE $constraint";
   }
-
   $sqlquery .= $grouping;
 
-  my ($offset, $limit);
 
-  if (defined $valuset{"startrecord"})
-    {
+
+
+  #
+  # Sort out if a limiting number of records or range 
+  # has been asked
+  #
+  my ($offset, $limit);
+  if (defined $valuset{"startrecord"}){
       $offset = $valuset{"startrecord"};
-    }
-  else
-    { $offset = 0 };
-  if (defined $valuset{"limit"})
-    {
+  } else { 
+      $offset = 0;
+  }
+  if (defined $valuset{"limit"}){
       $limit = $valuset{"limit"};
-      if($limit <= 0){ $limit = 1000000000;}
-    }
-  else
-    { $limit = 100 };
+      if($limit <= 0){ 
+	  $limit = 1000000000;
+      }
+  } else { 
+      $limit = 100;
+  }
 
   $sqlquery .= " LIMIT $offset, $limit";
+
+
 
   &print_debug("Using query: $sqlquery");
 
@@ -2909,7 +2958,9 @@ sub flush_delayed
     if( ! $DBH){  return;}
     foreach $cmd (@DCMD){
 	&print_debug("Executing $cmd");
-	$DBH->do($cmd);
+	if ( ! $DBH->do($cmd) ){
+	    &print_message("flush_delayed","Failed $cmd");
+	}
     }
     undef(@DCMD);
     $DELAY = 0;
@@ -2968,7 +3019,7 @@ sub update_location {
   # Get the list of the files to be updated
   &set_delimeter("::");
   &set_context("all=1");
-  @files = run_query("id","filename","path");
+  @files = &run_query("id","filename","path");
   # Bring back the previous delimeter
   &set_delimeter($delim);
 
@@ -3025,8 +3076,8 @@ sub update_location {
       if ($utable eq "StorageTypes"){
 	  # Patch ... The above logic is true only for
 	  # tables like FileData/FileLocation but not true for others
-	  my $uid    = get_id_from_dictionary($utable,$ufield,$newvalue);
-	  $ukeyword  = IDize($utable);
+	  my $uid    = &get_id_from_dictionary($utable,$ufield,$newvalue);
+	  $ukeyword  = &IDize($utable);
 	  $qupdate = "UPDATE LOW_PRIORITY $mtable SET $ukeyword=$uid ";
 
 	  if ($whereclause ne ""){
