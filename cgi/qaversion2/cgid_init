@@ -18,25 +18,27 @@
 # cgid_init runs reauth if no afs token for starlib is found.  It should be
 # run only by starlib.
 #
+# The port can be specified by -p <port>
 
 use strict;
 use Cwd;
 use FileHandle;
 use Getopt::Std;
 
-#my $qaPath = "/star/u2e/starqa/cgi-bin/pro/cgi/qaversion2";  # run pro version
-my $qaPath = "/star/u2e/bnorman/cgi-bin/qa";  # run pro version
+#my $qaPath = "/star/u2e/starqa/pro";  # run pro version
+my $qaPath = "/afs/rhic/star/packages/DEV/cgi/qaversion2";  # run dev version
 my $webServer = "connery.star.bnl.gov";
 my $sleepCmd = "/star/rcf/qa/.sleeper";
 my $afsPwFile = "/star/rcf/qa/.starlib_CGI";
 
 # get options
-my %opt = ();
-getopt('', \%opt);
+my %opt;
+getopt('p', \%opt);
 my $kill = $opt{k};
 my $destroy = $opt{d};
 my $query = $opt{q};
 my $verbose = $opt{v} || $query;
+my $port = ($opt{p} ? $opt{p} : 8080);
 
 # collect the dead kids
 $SIG{CHLD} = 'reaper';
@@ -60,13 +62,13 @@ if ($token !~ /^User/m) {   # token line in output
 }
 
 # check for ssh running
-my $pid = getPID("root", "8080");
+my $pid = getPID("root", $port);
 $verbose && print "ssh pid = $pid\n";
 if (!$query){
     if (!$pid && !$kill && !$destroy){             #start it
 	print "starting ssh...\n";
 	
-	system("ssh -x -f -R 8080:localhost:8080 $webServer $sleepCmd")
+	system("ssh -x -f -R $port:localhost:$port $webServer $sleepCmd") == 0
 	    or die "could not run ssh forwarding"; 
 	
 	print "...ssh started\n";
@@ -74,10 +76,10 @@ if (!$query){
 	print "stopping ssh...\n";
 	
 	if($kill){ 
-	    system("kill $pid") 
+	    system("kill $pid") == 0
 		or die "could not kill ssh forwarding";
 	}elsif($destroy){
-	    system("kill -9 $pid") 
+	    system("kill -9 $pid") == 0
 		or die "could not kill ssh forwarding";
 	}
 
@@ -93,7 +95,7 @@ if (!$query){
 	chdir $qaPath or die "cannot chdir to $qaPath\n";
 	print "starting cgid in " . getcwd() . "...\n";
 	
-	system("./cgid &") 
+	system("./cgid -p $port &") == 0
 	    or die "could not run cgid";
 
 	print "...cgid started\n";
@@ -101,10 +103,10 @@ if (!$query){
 	print "stopping cgid...\n";
 	
 	if($kill){
-	    system("kill -INT $pid")
+	    system("kill -INT $pid") == 0
 		or die "could not kill cgid";
 	}elsif($destroy){
-	    system("kill -9 $pid")
+	    system("kill -9 $pid") == 0
 		or die "could not kill cgid";
 	}
 
