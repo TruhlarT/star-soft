@@ -1,6 +1,7 @@
 # FileCat.pm
 #
 # Written by Adam Kisiel, November-December 2001
+# Modified by J.Lauret, 2002
 #
 # Methods of class FileCatalog:
 #
@@ -90,6 +91,8 @@ my %keywrds;
 # 7 - not used
 # only the keywords in this table are accepted in set_context sub
 
+$keywrds{"fdid"          }    =   "fileDataID"                .",FileData"               .",0" .",num"  .",0" .",1";
+$keywrds{"flid"          }    =   "fileLocationID"            .",FileLocations"          .",0" .",num"  .",0" .",1";
 $keywrds{"filetype"      }    =   "fileTypeName"              .",FileTypes"              .",1" .",text" .",0" .",1";
 $keywrds{"extension"     }    =   "fileTypeExtension"         .",FileTypes"              .",1" .",text" .",0" .",1";
 $keywrds{"storage"       }    =   "storageTypeName"           .",StorageTypes"           .",1" .",text" .",0" .",1";
@@ -552,19 +555,16 @@ sub check_ID_for_params {
     $retid = get_id_from_dictionary($tabname, $fieldname, $valuset{$params[0]});
     if ($retid == 0) {
       if ($DEBUG > 0) {
-	  &print_debug("ERROR: No $params[0] with name: ".$valuset{$params[0]});
+	  &print_debug("check_ID_params::ERROR: No $params[0] with name: ".$valuset{$params[0]});
       }
       $retid = 0;
     }
   } else {
-    if ($DEBUG > 0) {
-	&print_debug("ERROR: No $params[0] defined");
-    }
-    $retid = 0;
+      &print_debug("check_ID_params::ERROR: No $params[0] defined");
+      $retid = 0;
   }
-  if ($DEBUG > 0) {
-      &print_debug("Returning: $retid");
-  }
+  &print_debug("Returning from check_ID_params: $retid");
+
   return $retid;
 }
 
@@ -1824,6 +1824,7 @@ sub run_query {
   my $count;
   my $grouping = "";
   my $flkey;
+  my $dele;
 
   # Protect against bogus query
   if( ! defined($_[0]) ){
@@ -1832,18 +1833,20 @@ sub run_query {
   }
 
   # An ugly hack to get FileLocation id number from within the module
-  if ($_[0] eq "id")
-    {
+  if ($_[0] eq "id"){
       $flkey = 1;
       shift @_;
-    };
+  } 
 
   my (@keywords)  = (@_);
 
+
+  # Little debugging of the table size. This information was
+  # taken during the call to connect(). This information may
+  # be used later to improve queries.
   if($DEBUG > 0){
       &print_debug("By the way ...");
-      foreach (keys(%rowcounts))
-      {
+      foreach (keys(%rowcounts)){
 	  &print_debug("\t$_ count is ".$rowcounts{$_}."\n");
       }
   }
@@ -1851,33 +1854,31 @@ sub run_query {
 
   $count = 0;
   # Check the validity of the keywords
-  foreach(@keywords)
-    {
+  foreach (@keywords){
       #First check if it is a request for an agregate value
       my $afun;
       my ($aggr, $keyw);
 
       $_ =~ y/ //d;
 
-      foreach $afun (@aggregates)
-	{
+      foreach $afun (@aggregates){
 	  ($aggr, $keyw) = $_ =~ m/($afun)\((.*)\)/;
 	  last if (defined $aggr and defined $keyw);
-	}
+      }
       if (defined $keyw){
-	  if ($DEBUG > 0) {
-	      &print_debug("Found aggregate function |$aggr| on keyword |$keyw|");
-	  }
+	  &print_debug("Found aggregate function |$aggr| on keyword |$keyw|");
+
 	  # If it is - save the function, and store only the bare keyword
 	  $functions{$keyw} = $aggr;
 	  $keywords[$count] = $keyw;
-	}
-      if (not defined ($keywrds{$_})){
+      }
+      if ( ! defined ($keywrds{$_})){
 	  &print_message("run_query()","Wrong keyword: $_");
 	  return;
       }
       $count++;
-    }
+  }
+
 
   # Do the constraint pre-check (for query optimization)
   # check if a given costraint produces a single record ID
@@ -1886,6 +1887,7 @@ sub run_query {
   my @from;
   my @connections;
 
+  &print_debug("Scanning valuset");
   foreach (keys(%valuset)) {
     my $tabname = get_table_name($_);
     # Check if the table name is one of the dictionary ones
@@ -1939,12 +1941,13 @@ sub run_query {
 		$sqlquery .= "$fieldname ".$operset{$_}." ".$valuset{$_}; 
 	    }
 	}
-	if ($DEBUG > 0) {  &print_debug("Executing special: $sqlquery");}
+	if ($DEBUG > 0) {  &print_debug("\tExecuting special: $sqlquery");}
 	$sth = $DBH->prepare($sqlquery);
 
 
 	if( ! $sth){
-	  &print_debug("FileCatalog:: get id's : Failed to prepare [$sqlquery]");
+	  &print_debug("\tFileCatalog:: get id's : Failed to prepare [$sqlquery]");
+
 	} else {
 	  $sth->execute();
 	  my( $id );
@@ -1954,26 +1957,40 @@ sub run_query {
 	    # Create a new constraint
 	    $addedconstr = " ";
 	    while ( $sth->fetch() ) {
-	      if ($addedconstr ne " ")
-		{
-		  $addedconstr .= " OR $parent_tabname.$idname = $id "; 
+		if ($addedconstr ne " "){
+		    $addedconstr .= " OR $parent_tabname.$idname = $id "; 
+		} else {
+		    $addedconstr .= " $parent_tabname.$idname = $id ";
 		}
-	      else
-		{
-		  $addedconstr .= " $parent_tabname.$idname = $id ";
-		}
-	      &print_debug("Added constraints now $addedconstr");
+		&print_debug("\tAdded constraints now $addedconstr");
 	    }
 	    #$addedconstr .= " ) ";
 	    if( index($addedconstr,"OR") != -1){
 		$addedconstr = " ($addedconstr)";
 	    }
+
+
 	    # Add a newly constructed keyword
 	    push (@constraint, $addedconstr);
+
+	    # Missing backward constraint for more-than-one table
+	    # relation keyword. Adding it by hand for now (dirty)
+	    # **** NEED TO BE CHANGED AND MADE AUTOMATIC ***
+	    # This does not happen if the field is specified
+	    # as a returned keyword.
+	    if ($parent_tabname eq "TriggerCompositions" ){
+		$addedconstr = " $parent_tabname.fileDataID = FileData.fileDataID";
+		push(@constraint,$addedconstr);
+	    }
+
+
+
 	    # Remove the condition - we already take care of it
+	    &print_debug("\tDeleting $_=$valuset{$_}");
 	    delete $valuset{$_};
+
 	    # But remember to add the the parent table
-#	    push (@connections, (connect_fields($keywords[0], $_)));
+            # push (@connections, (connect_fields($keywords[0], $_)));
 	    push (@from, $parent_tabname);
 	  }
 	  $sth->finish();
@@ -1990,24 +2007,21 @@ sub run_query {
   }
 
   # Also add to the FROM tables the tables for each set keyword
-  foreach my $key (keys %valuset)
-    {
-      if (get_table_name($key) ne "")
-	{
+  foreach my $key (keys %valuset){
+      if (get_table_name($key) ne ""){
 	  push (@connections, (connect_fields($keywords[0], $key)));
 	  push (@from, get_table_name($key));
-	}
-    }
+      }
+  }
 
   if ($DEBUG > 0) {
       &print_debug("Connections to build the query: ".join(" ",@connections));
   }
 
-  if (defined $valuset{"simulation"})
-    {
+  if (defined $valuset{"simulation"}){
       push (@connections, (connect_fields($keywords[0], "runnumber")));
       push (@from, "RunParams");
-    }
+  }
 
   # Fill the table of connections
   my $connections = join(" ",(@connections));
@@ -2017,58 +2031,55 @@ sub run_query {
       push (@toquery, $_);
     }
   }
+  &print_debug("Connections to build the query: ".join(" ",@toquery));
 
-  if ($DEBUG > 0) {
-      &print_debug("Connections to build the query: ".join(" ",@toquery));
-  }
+
   # Get the select fields
   my @select;
   foreach (@keywords) {
-    if ($DEBUG > 0) {
-	&print_debug("Adding keyword: $_");
-    }
-    if (defined $functions{$_})
-      {
-	if ($functions{$_} eq "grp")
-	  {
+      &print_debug("Adding keyword: $_");
+      if (defined $functions{$_}){
+	  if ($functions{$_} eq "grp"){
 	      if (($grouping =~ m/GROUP BY/) == 0){
-		  $grouping .= " GROUP BY ".get_field_name($_)." ";
-		  push (@select, get_field_name($_));
+		  $grouping .= " GROUP BY ".get_table_name($_).".".get_field_name($_)." ";
+		  push (@select, get_table_name($_).".".get_field_name($_));
 	      }
+
+	  } elsif ($functions{$_} eq "orda"){
+	      $grouping .= " ORDER BY ".get_table_name($_).".".get_field_name($_)." ASC ";
+	      push (@select, get_table_name($_).".".get_field_name($_));
+
+	  } elsif ($functions{$_} eq "ordd"){
+	      $grouping .= " ORDER BY ".get_table_name($_).".".get_field_name($_)." DESC ";
+	      push (@select, get_table_name($_).".".get_field_name($_));
+
+	  } else {
+	      push (@select, $functions{$_}."(".get_table_name($_).".".get_field_name($_).")");
 	  }
-	elsif ($functions{$_} eq "orda")
-	  {
-	    $grouping .= " ORDER BY ".get_field_name($_)." ASC ";
-	    push (@select, get_field_name($_));
-	  }
-	elsif ($functions{$_} eq "ordd")
-	  {
-	    $grouping .= " ORDER BY ".get_field_name($_)." DESC ";
-	    push (@select, get_field_name($_));
-	  }
-	else
-	  {
-	    push (@select, $functions{$_}."(".get_field_name($_).")");
-	  }
+
+      } elsif ($_ eq "collision") {
+	  my $tab = get_table_name($_);
+	  push (@select, "CONCAT( $tab.firstParticle, $tab.secondParticle, $tab.collisionEnergy )");
+
+      } else {
+	  push (@select, get_table_name($_).".".get_field_name($_));
+
       }
-    elsif ($_ ne "collision") {
-      push (@select, get_field_name($_));
-    }
-    else
-    {
-      push (@select, "CONCAT( firstParticle, secondParticle, collisionEnergy )");
-    }
   }
+
 
   # Build the FROM and WHERE parts of the query
   # using thew connection list
   my  ($where);
+  &print_debug("Toquery table contains idx ".join("/",@toquery));
   foreach (@toquery) {
     my ($mtable, $stable, $field, $level) = split(",",$datastruct[$_]);
+    &print_debug("\tGot $mtable/$stable/$field/$level from $datastruct[$_]");
     if (($mtable eq "FileData") && ($stable eq "FileLocations"))
       {
 	next;
       }
+    &print_debug("\tTable $mtable is not one of FileData/FileLocations");
     push (@from, $mtable);
     push (@from, $stable);
     if (not $where) {
@@ -2078,18 +2089,17 @@ sub run_query {
     }
   }
   my $toquery = join(" ",(@from));
-  if ($DEBUG > 0) {
-      &print_debug("Table list $toquery");
-  }
+  #&print_debug("Table list $toquery ; [$where]");
+
+
+
   # Get only the unique table names
   my @fromunique;
   foreach (sort {$a cmp $b} split(" ",$toquery)) {
-    if ($DEBUG > 0) {
-	&print_debug("Adding $_");
-    }
-    if ((not $fromunique[$#fromunique]) || ($fromunique[$#fromunique] ne $_)) {
-      push (@fromunique, $_);
-    }
+      &print_debug("Adding $_");
+      if ((not $fromunique[$#fromunique]) || ($fromunique[$#fromunique] ne $_)) {
+	  push (@fromunique, $_);
+      }
   }
 
   # Extra debug line
@@ -2165,8 +2175,10 @@ sub run_query {
       &print_debug("Checking for FileLocations ".(join(" ",@fromunique))." $floc");
   }
 
-  if (($floc > 0) && defined ($valuset{"all"}) && ($valuset{"all"} == 0 )){
-      push ( @constraint, "FileLocations.availability > 0");
+  if ( $floc > 0 && defined($valuset{"all"}) ){
+    if ( $valuset{"all"} == 0 ){
+	push ( @constraint, "FileLocations.availability > 0");
+    }
   }
 
   my $constraint = join(" AND ",@constraint);
@@ -2176,8 +2188,9 @@ sub run_query {
   $sqlquery = "SELECT ";
   if (! defined $valuset{"nounique"})
     { $sqlquery .= " DISTINCT "; }
+
   # An ugly hack to return FileLocationID from within the module
-  if (((join(" ",(@fromunique)) =~ m/FileLocations/) > 0) and defined $flkey){
+  if (((join(" ",(@fromunique)) =~ m/FileLocations/) > 0) && defined($flkey) ){
       $sqlquery .= " FileLocationID , ";
   }
 
@@ -2202,6 +2215,7 @@ sub run_query {
       }
       # Add a natural join instead
       push (@fromunique, "FileData NATURAL JOIN FileLocations");
+      #push (@fromunique, "FileData JOIN FileLocations");
   }
   &print_debug("After the natural: ".join(" ",@fromunique));
 
@@ -2209,13 +2223,14 @@ sub run_query {
 
 
   if ( defined($where) ) {
-    &print_debug("where clause [$where] constraint [$constraint]");
-    $sqlquery .=" WHERE $where";
-    if ($constraint ne "") {
-      $sqlquery .= " AND $constraint";
-    }
+      &print_debug("where clause [$where] constraint [$constraint]");
+      $sqlquery .=" WHERE $where";
+      if ($constraint ne "") {
+	  $sqlquery .= " AND $constraint";
+      }
   } elsif ($constraint ne "") {
-    $sqlquery .= " WHERE $constraint";
+      &print_debug("no where clause but constrained");
+      $sqlquery .= " WHERE $constraint";
   }
 
   $sqlquery .= $grouping;
@@ -2267,17 +2282,21 @@ sub run_query {
 
 #============================================
 # deletes the record that matches the current
-# context. First it deletes it from the file
+# context. Actually calls run_query() so it is
+# easier to see what we select 
+#
+# First it deletes it from the file
 # locations. If this makes the current file
 # data have no location, it deletes the file
 # data too.
+#
 # Returns:
 #  1 if delete was successfull
 #  0 if delete failed
 #
 # Argument : 1/0 doit or not, default doit=1
 #
-sub delete_record {
+sub delete_records {
   # first delete the file location
   my @deletes;
 
@@ -2289,113 +2308,84 @@ sub delete_record {
       return 0;
   }
 
+
   my $doit = shift @_;
-  if( ! defined($doit) ){  $doit = 1;}
+  if( ! defined($doit) ){  $doit = 0;}
 
+  # Since the context is defined, we will rely on run_query()
+  # to return the list of records to be deleted. This will be
+  # less programming support and easier check of what we will
+  # be deleting btw (one ca run a regular query first and delete
+  # after ensuring the same things will be removed) ...
+  my $delim = &get_delimeter();
+  my @all   = &run_query("FileCatalog","flid","fdid");
 
-  foreach my $key (keys %keywrds)
-    {
-      my $field = get_field_name($key);
-      my $table = get_table_name($key);
+  set_delimeter("::");
 
-      if ((is_critical($key) == 1) && ($table eq "FileLocations"))
-	{
-	  if (defined $valuset{$key}){
-	      if (get_field_type($key) eq "text")
-		{ push (@deletes, "$field = '".$valuset{$key}."'"); }
-	      else
-		{ push (@deletes, "$field = ".$valuset{$key}); }
-	  } else {
-	      if ($DEBUG > 0) {
-		  &print_debug("ERROR: Cannot delete record.\n".$key." not defined");
-	      }
-	      return 0;
-	  }
-	}
-      if ((is_critical($key) == 0) && ($table eq "FileLocations"))
-	{
-	  if (defined($valuset{$key}))
-	    {
-	      if (get_field_type($key) eq "text")
-		{ push (@deletes, "$field = '".$valuset{$key}."'"); }
-	      else
-		{ push (@deletes, "$field = ".$valuset{$key}); }
-	    }
-	}
-    }
+  my($count,$cmd);
+  my($sth,$sth2,$stq);
+  my(@ids,$status,$rc);
 
-  my $storage = check_ID_for_params("storage");
-  if ($storage == 0){
-      &print_debug("ERROR: Cannot delete record.","storage not defined");
-      return 0;
-  } else {
-      push (@deletes, "storageTypeID = $storage");
-  }
-  my $site = check_ID_for_params("site");
-  if ($site == 0){
-      &print_debug("ERROR: Cannot delete record.","site not defined");
-      return 0;
-    }
-      else { push (@deletes, "storageSiteID = $site"); }
-  my $fdata = get_current_file_data();
-  if ($fdata == 0)
-    {
-      &print_debug("ERROR: Cannot delete record.","filedata not defined");
-      return 0;
-    }
-  else { push (@deletes, "fileDataID = $fdata"); }
+  $status = 0;
+  foreach (@all){
+      # We now have a pair flid/fdid. Only flid can be deleted
+      # fdid is the logical grouping and may be associated with
+      # more than one location.
+      @ids = split("::",$_);
+      $cmd = "DELETE FROM FileLocations WHERE fileLocationID=$ids[0]";
 
-  my $wheredelete = join(" AND ", (@deletes));
-  my $fldelete;
-  my $sts = 0;
-
-  $fldelete = "DELETE FROM FileLocations WHERE $wheredelete";
-  if ($DEBUG > 0){ &print_debug("Executing delete: $fldelete");}
-
-  if( ! $doit){ 
-      &print_message("delete_record","$fldelete");
-      $sts = 1;
-  } else {
-      my $sth;
-      $sth = $DBH->prepare( $fldelete );
-      if ( ! $sth ){
-	  &print_debug("FileCatalog::delete_record : Failed to prepare [$fldelete]");
+      $sth = $DBH->prepare( $cmd );
+      if( $doit ){
+	  $rc = $sth->execute();
       } else {
-	  if ( $sth->execute() ){
-	      # Checking if the given file data has any file locations attached to it
-	      my $fdquery;
-	      $fdquery = "SELECT fileLocationID from FileLocations, FileData WHERE FileLocations.fileDataID = FileData.fileDataID AND FileData.fileDataID = $fdata";
-
-	      my $stq;
-	      $stq = $DBH->prepare( $fdquery );
-	      if ( ! $stq ){
-		  &print_debug("FileCatalog::delete_record : Failed to preapre [$fdquery]");
-	      } else {
-		  $stq->execute();
-		  if ($stq->rows == 0)
-		  {
-		      # This file data has no file locations - delete it (and its trigger compositions)
-		      my $fddelete;
-		      $fddelete = "DELETE FROM FileData WHERE fileDataID = $fdata";
-		      if ($DEBUG > 0) { &print_debug("Executing $fddelete"); }
-		      my $stfdd = $DBH->prepare($fddelete);
-		      $stfdd->execute();
-		      $stfdd->finish();
-	      
-		      my $tcdelete = "DELETE FROM TriggerCompositions WHERE fileDataID = $fdata";
-		      if ($DEBUG > 0) { &print_debug("Executing $tcdelete"); }
-		      my $sttcd = $DBH->prepare($tcdelete);
-		      $sttcd->execute();
-		      $sttcd->finish();
-		  }
-		  $stq->finish();
-		  $sts = 1;
-	      } 
-	  }
+	  &print_message("delete_record","id=$ids[0] from FileLocation would be deleted");
+	  $rc = 1;
       }
+
+      if ( $rc ){
+	  &print_debug("FileLocation ID=$ids[0] operation done. Checking FileData");
+
+	  $cmd     = "SELECT FileLocations.fileLocationID from FileLocations, FileData ".
+	      " WHERE FileLocations.fileDataID = FileData.fileDataID AND FileData.fileDataID = $ids[1] ";
+
+	  if ( ! $doit){
+	      $cmd .= " AND FileLocations.fileLocationID <> $ids[0]";
+	  }
+	  $stq     = $DBH->prepare( $cmd );
+	  if ( ! $stq->execute() ){
+	      &print_debug("Execution failed [$cmd]");
+	  }
+
+
+	  if ($stq->rows == 0){
+	      # This file data has no file locations - delete it (and its trigger compositions)
+	      $sth2 = $DBH->prepare("DELETE FROM FileData WHERE fileDataID = $ids[1]");
+	      if ($doit){
+		  $sth2->execute();
+	      } else {
+		  &print_message("delete_record","id=$ids[1] from FileData would be deleted");
+	      }
+	      $sth2->finish();
+
+	      $sth2 = $DBH->prepare("DELETE FROM TriggerCompositions WHERE fileDataID = $ids[1]");
+	      if ($doit){
+		  $sth2->execute();
+	      } else {
+		  &print_message("delete_record","... as well as TriggerCompositions entry");
+	      }
+	      $sth2->finish();
+	  }
+	  $stq->finish();
+      }
+      $sth->finish();
   }
-  return $sts;
+  &set_delimeter($delim);
+  
+  return $#all;
 }
+
+
+
 
 #============================================
 # Bootstraps a table - meaning it checks if all
@@ -2673,8 +2663,7 @@ sub update_record {
 
   if( ! defined($doit) ){  $doit = 1;}
 
-  foreach my $key (keys %keywrds)
-    {
+  foreach my $key (keys %keywrds){
       my $field = get_field_name($key);
       my $table = get_table_name($key);
 
@@ -2693,7 +2682,8 @@ sub update_record {
 		{ push (@updates, "$field = ".$valuset{$key}); }
 	    }
 	}
-    }
+  }
+
   my $whereclause = join(" AND ",(@updates));
 
   if ($utable eq ""){
@@ -2704,12 +2694,25 @@ sub update_record {
 
   my $qupdate;
   if (get_field_type($ukeyword) eq "text"){
-      $qupdate = "UPDATE $utable SET $ufield = '$newvalue' WHERE $ufield = '".
-	  $valuset{$ukeyword}."'";
+      $qupdate = "UPDATE $utable SET $ufield = '$newvalue' WHERE ";
+      if( defined($valuset{$ukeyword}) ){
+	  $qupdate .= " $ufield = '$valuset{$ukeyword}'";
+      } else {
+	  &print_message("update_location","$ufield not set with an initial value");
+	  return 0;
+      }
   } else {
-      $qupdate = "UPDATE $utable SET $ufield = $newvalue WHERE $ufield = ".
-	  $valuset{$ukeyword};
+      $qupdate = "UPDATE $utable SET $ufield = $newvalue WHERE ";
+      if( defined($valuset{$ukeyword}) ){
+	  $qupdate .= " $ufield = $valuset{$ukeyword}";
+      } else {
+	  &print_message("update_location","$ufield not set with an initial value");
+	  return 0;
+      }
   }
+  
+
+
   if ($whereclause ne "")
     { $qupdate .= " AND $whereclause"; }
   if ($DEBUG > 0){
@@ -2895,18 +2898,28 @@ sub update_location {
 
 	  # THOSE ONLY UPDATES VALUES 
       } elsif (get_field_type($ukeyword) eq "text"){
-	  $qupdate = "UPDATE $mtable SET $ufield = '$newvalue' WHERE $ufield = '".$valuset{$ukeyword}."'"; 
+	  $qupdate = "UPDATE $mtable SET $ufield = '$newvalue' WHERE ";
+	  if( defined($valuset{$ukeyword}) ){
+	      $qupdate .= " $ufield = '$valuset{$ukeyword}'";
+	  } else {
+	      &print_message("update_location","$ufield not set with an initial value");
+	      return;
+	  }
       } else {
-	  $qupdate = "UPDATE $mtable SET $ufield = $newvalue WHERE $ufield = ".$valuset{$ukeyword}; 
+	  $qupdate = "UPDATE $mtable SET $ufield = $newvalue WHERE ";
+	  if( defined($valuset{$ukeyword}) ){
+	      $qupdate .= " $ufield = $valuset{$ukeyword}";
+	  } else {
+	      &print_message("update_location","$ufield not set with an initial value");
+	      return;
+	  }
       }
 
 
 
 
       $qupdate .= " AND fileLocationID = $flid";
-      if ($DEBUG > 0){
-	  &print_debug("Executing update: $qupdate");
-      }
+      &print_debug("Executing update: $qupdate");
 
       if (! $doit){
 	  &print_message("update_location","$qupdate");
