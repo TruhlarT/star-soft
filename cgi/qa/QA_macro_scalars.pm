@@ -1,3 +1,4 @@
+
 #! /usr/bin/perl -w
 
 # contains a subroutine for each QA macro
@@ -41,6 +42,11 @@ sub bfcread_dstBranch{
     return;
   };
   #--------------------------------------------------------------
+  # default for BfcStatus
+  # 0 means no error...
+
+  $run_scalar_hash{BfcStatusError} = 0;
+
   while (<REPORT>){
     /QAInfo:/ or next; # skip lines that dont start with QAInfo
     
