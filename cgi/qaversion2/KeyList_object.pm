@@ -111,6 +111,12 @@ sub GetSelectedKeyList{
 
   $self->SelectedKeyList(@key_list);
 
+  # pass on the selected key list as hidden values
+  # in order to do qa
+
+  $gCGIquery->param('selected_key_list', @key_list);
+
+
   return @key_list;
 }
 
@@ -176,14 +182,13 @@ sub NKeys{
 # just the selected report keys
 
 sub SelectedKeyList{
-
   my $self = shift;
 
+  no strict 'refs';
   @_ and do{
     my @key_list = @_;
     $self->{_SelectedKeyListRef} = \@key_list;
   };
-  defined $self->{_SelectedKeyListRef} or return;
   return @{$self->{_SelectedKeyListRef}};
 }
 #=======================================================

@@ -299,7 +299,7 @@ sub DoQaDataset{
 
   # BEN(4jun2000):  one batchjob per key 
 
-  my @key_list = $gBrowser_object->KeyList->SelectedKeyList;
+  my @key_list = $gCGIquery->param('selected_key_list');
   
   my $key;
   foreach $key (@key_list){
@@ -315,7 +315,7 @@ sub RedoQaDataset{
 
   # BEN(4jun2000):  one batchjob per key 
 
-  my @key_list = $gBrowser_object->KeyList->SelectedKeyList;
+  my @key_list = $gCGIquery->param('selected_key_list');
   
   my $key;
   foreach $key (@key_list){
