@@ -1,10 +1,10 @@
-#!/opt/star/bin/perl  -w
+#!/usr/bin/env perl 
 #
 # This is the command line utility, which allows access to the data in the
 # FileCatalog database.
 #
 # Written by Adam Kisiel, Warsaw University of Technology (2002)
-# Written J.Lauret 2002
+# Written J.Lauret 2002, 2003
 #
 # Uncodumented paramaters
 #
@@ -25,7 +25,7 @@ my ($all, $unique, $field_list, $cond_list, $start, $limit, $delim, $onefile, $o
 
 # Load the modules to store the data into a new database
 my $fileC = FileCatalog->new;
-$fileC->connect;
+$fileC->connect_as("User");
 
 # Set the defaults for he state values
 $all         = 0;
@@ -104,7 +104,8 @@ if ($count == 0){
 
 
     if ($onefile > 0){
-	$field_list .= ",grp(filename),orda(persistent)";  # ,orda(persistent)"; <-- great idea but returns persistent
+        # ,orda(persistent)"; <-- great idea but returns persistent
+	$field_list .= ",grp(filename),orda(persistent)";
     }
 
     # Getting the data
