@@ -1096,6 +1096,9 @@ sub disentangle_collision_type {
 	      &print_debug("Found second particle = $el in $colstring");
 	      $secondParticle = $el;
 	      $colstring =~ s/(.*)($el)(.*)/$1$3/;
+	      # be sure to get the numerical value only
+	      $colstring =~ m/(\d+\.\d+|\d+)/;
+	      $colstring =  $1;
 	      last;
 	  }
       }
@@ -1146,7 +1149,6 @@ sub get_collision_collection {
   $colstring = lc($colstring);
 
   ($firstParticle, $secondParticle, $energy) = &disentangle_collision_type($colstring);
-
 
   my $sqlquery = "SELECT collisionTypeID FROM CollisionTypes WHERE UPPER(firstParticle) = UPPER(\"$firstParticle\") AND UPPER(secondParticle) = UPPER(\"$secondParticle\") AND ROUND(collisionEnergy) = ROUND($energy)";
 
@@ -4013,7 +4015,7 @@ sub update_location {
 
   my @updates;
 
-  my ($ukeyword, $newvalue, $doit) = (@_);
+  my ($ukeyword, $newvalue, $doit, $delete) = (@_);
 
   my $mtable;
   my $utable = &get_table_name($ukeyword);
@@ -4040,7 +4042,8 @@ sub update_location {
 
   my $delim;
 
-  if( ! defined($doit) ){  $doit = 1;}
+  if( ! defined($doit) ){    $doit    = 1;}
+  if( ! defined($delete) ){  $delete  = 0;}
 
   $delim  = &get_delimeter();
 
@@ -4109,7 +4112,7 @@ sub update_location {
       my $uid    = &get_id_from_dictionary($utable,$ufield,$newvalue);
       $ukeyword  = &IDize($utable);
       #$qselect = "SELECT $ukeyword FROM $mtable WHERE $ukeyword=$uid";
-      #$qdelete = "DELETE LOW_PRIORITY FROM $mtable WHERE $ukeyword=$uid" ;
+      $qdelete = "DELETE LOW_PRIORITY FROM $mtable " ;
       $qupdate = "UPDATE LOW_PRIORITY $mtable SET $ukeyword=$uid ";
       
       if ($whereclause ne ""){
@@ -4119,7 +4122,7 @@ sub update_location {
       # THOSE ONLY UPDATES VALUES
   } elsif (&get_field_type($ukeyword) eq "text"){
       #$qselect = "SELECT $ukeyword FROM $mtable WHERE $ufield='$newvalue'";
-      #$qdelete = "DELETE LOW_PRIORITY FROM $mtable WHERE $ufield='$newvalue'" ;
+      $qdelete = "DELETE LOW_PRIORITY FROM $mtable" ;
       $qupdate = "UPDATE LOW_PRIORITY $mtable SET $ufield = '$newvalue' ";
       if( defined($valuset{$ukeyword}) ){
 	  $qupdate .= " WHERE $ufield = '$valuset{$ukeyword}'";
@@ -4129,7 +4132,7 @@ sub update_location {
       }
   } else {
       #$qselect = "SELECT $ufield FROM $mtable WHERE $ufield=$newvalue" ;
-      #$qdelete = "DELETE LOW_PRIORITY FROM $mtable WHERE $ufield=$newvalue" ;
+      $qdelete = "DELETE LOW_PRIORITY FROM $mtable" ;
       $qupdate = "UPDATE LOW_PRIORITY $mtable SET $ufield = $newvalue ";
       if( defined($valuset{$ukeyword}) ){
 	  $qupdate .= " WHERE $ufield = $valuset{$ukeyword}";
@@ -4144,16 +4147,16 @@ sub update_location {
       $qupdate .= " WHERE fileLocationID = ?";
   }
   #$qselect .= " AND fileLocationID = ?";
-  #$qdelete .= " AND fileLocationID = ?";
+  $qdelete .= " WHERE fileLocationID = ?";
 
 
   #$sth1 = $DBH->prepare( $qselect );
-  #$sth2 = $DBH->prepare( $qdelete );
+  $sth2 = $DBH->prepare( $qdelete );
   $sth3 = $DBH->prepare( $qupdate );
   #if ( ! $sth1 || ! $sth2 || ! $sth3){
   if (  ! $sth3){
       #$sth1->finish() if ($sth1);
-      #$sth2->finish() if ($sth2);
+      $sth2->finish() if ($sth2);
       $sth3->finish() if ($sth3);
       &print_debug("update_location : Failed to prepare [$qupdate] [$qselect] [$qdelete]");
       return 0;
@@ -4162,9 +4165,9 @@ sub update_location {
   #
   # Now, loop over records with an already prepared sth
   #
-  my($tmp,$count);
+  my($tmp,$failed,$count);
   
-  $count = 0;
+  $failed = $count = 0;
   &print_debug("Ready to scan filelist now ".($#files+1)."\n");
 
   foreach my $line (@files) {
@@ -4176,14 +4179,14 @@ sub update_location {
 
       if (! $doit){
 	  #$tmp = $qselect; $tmp =~ s/\?/$flid/;  &print_message("update_location","$tmp");
-	  #$tmp = $qdelete; $tmp =~ s/\?/$flid/;  &print_message("update_location","$tmp");
 	  $tmp = $qupdate; $tmp =~ s/\?/$flid/;  &print_message("update_location","$tmp");
+	  $tmp = $qdelete; $tmp =~ s/\?/$flid/;  &print_message("update_location","($tmp)");
 
       } else {
 	  if( $DELAY){
 	      # Delay mode
-	      #$tmp = $qdelete; $tmp =~ s/\?/$flid/;  push(@DCMD,"$tmp");
 	      $tmp = $qupdate; $tmp =~ s/\?/$flid/;  push(@DCMD,"$tmp");
+	      #$tmp = $qdelete; $tmp =~ s/\?/$flid/;  push(@DCMD,"$tmp");
 	      $count++;
 	  } else {
 	      #if ( $sth1->execute($flid) ){
@@ -4197,17 +4200,37 @@ sub update_location {
 		  &print_debug("Update of $mtable succeeded");
 		  $count++;
 	      } else {
-		  &print_debug("Update of $mtable failed");
+		  $failed++;
+		  if ($DBH->err == 1062){
+		      # Duplicate entry being replaced
+		      #&print_debug("Duplicate entry is being replaced");
+		      if ( $delete){
+			  if ( $sth2->execute($flid) ){
+			      &print_message("update_location",
+					     "selected flid=$flid deleted as update would ".
+					     "lead to duplicate key)");
+			      # This counts as a success because it moves records
+			      # as well.
+			      $count++;
+			  }
+		      } else {
+			  &print_message("update_location",
+					 "selected flid=$flid cannot be updated ".
+					 "(would lead to duplicate)");
+		      }
+		  } else {
+		      &print_debug("Update of $mtable failed ".$DBH->err." ".$DBH->errstr);
+		  }
 	      }
 	  }
       }
       
   }
   #$sth1->finish();
-  #$sth2->finish();
+  $sth2->finish();
   $sth3->finish();
 
-  return $count;
+  return ($count);
 }
 
 #============================================
