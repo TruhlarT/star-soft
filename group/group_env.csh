@@ -1,6 +1,9 @@
-#       $Id: group_env.csh,v 1.6 1998/04/04 14:47:22 fisyak Exp $
+#       $Id: group_env.csh,v 1.7 1998/04/24 17:08:52 fisyak Exp $
 #	Purpose:	STAR group csh setup 
 #       $Log: group_env.csh,v $
+#       Revision 1.7  1998/04/24 17:08:52  fisyak
+#       Set coredupsize=0
+#
 #       Revision 1.6  1998/04/04 14:47:22  fisyak
 #       Add clean PATH
 #
@@ -62,9 +65,12 @@ setenv PATH "/usr/afsws/bin:/usr/afsws/etc:/opt/rhic/bin:/usr/sue/bin:/usr/local
 #set path=( /usr/afsws/bin /usr/afsws/etc /opt/rhic/bin /usr/local/bin $GROUP_DIR $STAR_MGR $STAR_BIN $path )
 setenv MANPATH ${MANPATH}:${STAR_PATH}/man
 setenv STAR_LD_LIBRARY_PATH ""
+setenv PARASOFT /afs/rhic/star/packages/parasoft
 switch ($STAR_SYS)
     case "rs_aix*":
 #  ====================
+	set path = ($path $PARASOFT/bin.aix4) 
+        setenv MANPATH {$MANPATH}:/usr/share/man
     breaksw
     case "alpha_osf32c":
 #  ====================
@@ -90,11 +96,15 @@ switch ($STAR_SYS)
 #	setenv CERN_ROOT $CERN/$CERN_LEVEL
 #	setenv PATH `/afs/rhic/star/group/dropit cern`:$CERN_ROOT/bin
 #     endif
+	set path = ($path $PARASOFT/bin.sgi5)
+	setenv STAR_LD_LIBRARY_PATH ${PARASOFT}/lib.sgi5
+        limit coredumpsize 0
     breaksw
     case "sgi_6*":
 #  ====================
         setenv CERN_LEVEL pro
         setenv CERN_ROOT  /cern/pro
+        limit coredumpsize 0
     breaksw
     case "i386_linux2":
 #  ====================
@@ -105,27 +115,34 @@ switch ($STAR_SYS)
        setenv LM_LICENSE_FILE $PGI/license.dat
        alias pgman 'man -M $PGI/man'
      endif
-     set path = ( $path /afs/rhic/asis/i386_linux2/usr.local/Acrobat3/bin/afs/rhic/asis/i386_linux2/usr.local/bin   )
+     set path = ( $path /afs/rhic/asis/i386_linux2/usr.local/Acrobat3/bin /afs/rhic/asis/i386_linux2/usr.local/bin  /usr/local/bin/ddd )
+     set path = ($path $PARASOFT/bin.linux)
+     setenv STAR_LD_LIBRARY_PATH ${PARASOFT}/lib.linux:/usr/local/lib
+        limit coredump 0
     breaksw
     case "sun4*":
 #  ====================
       setenv STAR_LD_LIBRARY_PATH "/opt/SUNWspro/lib:/usr/openwin/lib:/usr/dt/lib:/usr/local/lib"
+	set path = ($path $PARASOFT/bin.solaris)
+	setenv STAR_LD_LIBRARY_PATH ${PARASOFT}/lib.solaris
     breaksw 
     case "sunx86_55":
 #  ====================
 #	setenv CERN_LEVEL pro
 #	setenv CERN_ROOT $CERN/$CERN_LEVEL
+        limit coredump 0
     breaksw
     default:
 #  ====================
     breaksw
 endsw
+set path = ($path $CERN_ROOT/mgr)
 if ($?LD_LIBRARY_PATH == 0) then
 setenv LD_LIBRARY_PATH "$STAR_LD_LIBRARY_PATH"
 else
 setenv LD_LIBRARY_PATH "$STAR_LD_LIBRARY_PATH":"$LD_LIBRARY_PATH"
 endif
-setenv LD_LIBRARY_PATH `/afs/rhic/star/group/dropit -p ${LD_LIBRARY_PATH}`
+#setenv LD_LIBRARY_PATH `/afs/rhic/star/group/dropit -p ${LD_LIBRARY_PATH}`
 if ( -e /usr/ccs/bin/ld ) set path = ( $path /usr/ccs/bin /usr/ccs/lib )
 #  setenv PATH `/afs/rhic/star/group/dropit`
 #  setenv MANPATH `/afs/rhic/star/group/dropit -p ${MANPATH}`
@@ -166,8 +183,8 @@ if ( -d /opt/hpnp ) then
 endif
 if ( -x /afs/rhic/star/group/dropit) then
 # clean-up PATH
- setenv MANPATH `/afs/rhic/star/group/dropit -p ${MANPATH}`
- setenv PATH `/afs/rhic/star/group/dropit GROUPPATH`
+# setenv MANPATH `/afs/rhic/star/group/dropit -p ${MANPATH}`
+# setenv PATH `/afs/rhic/star/group/dropit GROUPPATH`
 endif
 unset ECHO
 #END
