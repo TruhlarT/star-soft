@@ -741,6 +741,10 @@ sub reduced_key{
   my $value = shift;
 
   $value =~ s/_Solaris|_Linux//;
+
+# take care of Solaris_CC5   pmj 23/2/00
+  $value =~ s/_CC5//;
+
   $value =~ s/(Sun|Mon|Tue|Wed|Thu|Fri|Sat)\.//;
   $value =~ s/\.[0-9]+$//;
 
@@ -759,7 +763,7 @@ sub reduced_key{
     $value .= "\.venus";
     
   }
-  
+
   return $value;
 
 }
