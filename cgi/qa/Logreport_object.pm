@@ -210,13 +210,18 @@ sub OutputDirectory{
 #========================================================
 sub Tags{
   my $self = shift;
-  if (@_) {$self->{Tags} = shift }
+
+# pmj 21/1/00: not currently of interest, make log report big
+#  if (@_) {$self->{Tags} = shift }
+
   return $self->{Tags};
 }
 #========================================================
 sub EventTiming{
   my $self = shift;
-  if (@_) {$self->{EventTiming} = shift }
+
+# pmj 21/1/00: not currently of interest, make log report big
+#  if (@_) {$self->{EventTiming} = shift }
   return $self->{EventTiming};
 }
 #========================================================
@@ -370,22 +375,24 @@ sub ParseLogfile {
     };
     
     # CVS tags
-    $line =~ /with Tag (.*)/ and do{
-      $self->Tags("\n".$1);
-      next;
-    };
-    $line =~ /built.*from Tag (.*)/ and do{
-      $temp = $self->Tags();
-      $self->Tags($temp."\n".$1);
-      next;
-    };
+# not currently of interest   pmj 21/1/00
+#    $line =~ /with Tag (.*)/ and do{
+#      $self->Tags("\n".$1);
+#      next;
+#    };
+#    $line =~ /built.*from Tag (.*)/ and do{
+#      $temp = $self->Tags();
+#      $self->Tags($temp."\n".$1);
+#      next;
+#    };
     
     # event timing
-    $line =~ /Done with (Event.*)/ and do{
-      $temp = $self->EventTiming();
-      $self->EventTiming($temp."\n".$1);
-      next;
-    };
+# not currently of interest   pmj 21/1/00
+#    $line =~ /Done with (Event.*)/ and do{
+#      $temp = $self->EventTiming();
+#      $self->EventTiming($temp."\n".$1);
+#      next;
+#    };
     
   }
     
@@ -596,12 +603,12 @@ sub DisplayLogReport {
       print "Error found:", $self->ErrorString ," \n";
 
   print "$divider Run options =", $self->RunOptions, "\n";
-  print "$divider CVS tags =", $self->Tags, "\n";
+#  print "$divider CVS tags =", $self->Tags, "\n";
 
-  print "$divider";
-  $self->RunCompletedOk or 
-    print "Event timing report is a mess if run didn't complete o.k. \n";
-  print "Event timing =", $self->EventTiming, "\n";
+#  print "$divider";
+#  $self->RunCompletedOk or 
+#    print "Event timing report is a mess if run didn't complete o.k. \n";
+#  print "Event timing =", $self->EventTiming, "\n";
 
   $self->RunCompletedOk and  
     print "$divider Final timing =", $self->TimingString, "\n";
@@ -802,22 +809,23 @@ sub FillObjectFromTxt{
     };
     
     #---
-    
-    /event timing:/ and do {
-      $record_event_timing = 1;
-      $self->EventTiming("\n");
-      next;
-    };
-
-    # done with event timing?
-    $record_event_timing and $_ !~ /Event no\./ and $record_event_timing = 0;
-    
-    $record_event_timing and do {
-      $temp = $self->EventTiming.$_;
-      $self->EventTiming($temp);
-      next;
-    };
-    
+#    
+#    /event timing:/ and do {
+#      $record_event_timing = 1;
+#      $self->EventTiming("\n");
+#      next;
+#    };
+#
+#
+#    # done with event timing?
+#    $record_event_timing and $_ !~ /Event no\./ and $record_event_timing = 0;
+#    
+#    $record_event_timing and do {
+#      $temp = $self->EventTiming.$_;
+#      $self->EventTiming($temp);
+#      next;
+#    };
+#    
     #---
     
     /timing string:/ and do {
