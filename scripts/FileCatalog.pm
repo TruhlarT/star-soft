@@ -312,12 +312,14 @@ sub get_field_type {
 # Parameters:
 # keyword to check
 # Returns:
-# 0 if field is not needed
-# 1 if field is mandatory for inserts
+#  0 if field is not needed
+#  1 if field is mandatory for inserts
 sub is_critical {
   my @params = @_;
 
   my ($fieldname, $tabname, $req, $type, $rest) = split(",",$keywrds{$params[0]});
+  # nolimt, all etc ... will lead to empty string, not numeric
+  if($req eq ""){  $req = 0;}
   return $req;
 }
 
@@ -2267,16 +2269,26 @@ sub run_query {
 # data have no location, it deletes the file
 # data too.
 # Returns:
-# 1 if delete was successfull
-# 0 if delete failed
+#  1 if delete was successfull
+#  0 if delete failed
+#
+# Argument : 1/0 doit or not, default doit=1
+#
 sub delete_record {
   # first delete the file location
   my @deletes;
 
+  if ($_[0] =~ m/FileCatalog/) {
+    shift @_;
+  }
   if( ! defined($DBH) ){
       &print_message("delete_record","Not connected");
       return 0;
   }
+
+  my $doit = shift @_;
+  if( ! defined($doit) ){  $doit = 1;}
+
 
   foreach my $key (keys %keywrds)
     {
@@ -2331,51 +2343,55 @@ sub delete_record {
   else { push (@deletes, "fileDataID = $fdata"); }
 
   my $wheredelete = join(" AND ", (@deletes));
-
   my $fldelete;
+  my $sts = 0;
+
   $fldelete = "DELETE FROM FileLocations WHERE $wheredelete";
   if ($DEBUG > 0){ &print_debug("Executing delete: $fldelete");}
 
-  my $sth;
-  $sth = $DBH->prepare( $fldelete );
-  if ( ! $sth ){
-      &print_debug("FileCatalog::delete_record : Failed to prepare [$fldelete]");
-      return 0;
-  }
-  if ( $sth->execute() )
-    {
-      # Checking if the given file data has any file locations attached to it
-      my $fdquery;
-      $fdquery = "SELECT fileLocationID from FileLocations, FileData WHERE FileLocations.fileDataID = FileData.fileDataID AND FileData.fileDataID = $fdata";
-
-      my $stq;
-      $stq = $DBH->prepare( $fdquery );
-      if ( ! $stq ){
-	  &print_debug("FileCatalog::delete_record : Failed to preapre [$fdquery]");
-	  return 0;
-      }
-      $stq->execute();
-      if ($stq->rows == 0)
-	{
-	  # This file data has no file locations - delete it (and its trigger compositions)
-	  my $fddelete;
-	  $fddelete = "DELETE FROM FileData WHERE fileDataID = $fdata";
-	  if ($DEBUG > 0) { &print_debug("Executing $fddelete"); }
-	  my $stfdd = $DBH->prepare($fddelete);
-	  $stfdd->execute();
-	  $stfdd->finish();
-
-	  my $tcdelete = "DELETE FROM TriggerCompositions WHERE fileDataID = $fdata";
-	  if ($DEBUG > 0) { &print_debug("Executing $tcdelete"); }
-	  my $sttcd = $DBH->prepare($tcdelete);
-	  $sttcd->execute();
-	  $sttcd->finish();
-	}
-      $stq->finish();
-      return 1;
+  if( ! $doit){ 
+      &print_message("delete_record","$fldelete");
+      $sts = 1;
   } else {
-      return 0;
+      my $sth;
+      $sth = $DBH->prepare( $fldelete );
+      if ( ! $sth ){
+	  &print_debug("FileCatalog::delete_record : Failed to prepare [$fldelete]");
+      } else {
+	  if ( $sth->execute() ){
+	      # Checking if the given file data has any file locations attached to it
+	      my $fdquery;
+	      $fdquery = "SELECT fileLocationID from FileLocations, FileData WHERE FileLocations.fileDataID = FileData.fileDataID AND FileData.fileDataID = $fdata";
+
+	      my $stq;
+	      $stq = $DBH->prepare( $fdquery );
+	      if ( ! $stq ){
+		  &print_debug("FileCatalog::delete_record : Failed to preapre [$fdquery]");
+	      } else {
+		  $stq->execute();
+		  if ($stq->rows == 0)
+		  {
+		      # This file data has no file locations - delete it (and its trigger compositions)
+		      my $fddelete;
+		      $fddelete = "DELETE FROM FileData WHERE fileDataID = $fdata";
+		      if ($DEBUG > 0) { &print_debug("Executing $fddelete"); }
+		      my $stfdd = $DBH->prepare($fddelete);
+		      $stfdd->execute();
+		      $stfdd->finish();
+	      
+		      my $tcdelete = "DELETE FROM TriggerCompositions WHERE fileDataID = $fdata";
+		      if ($DEBUG > 0) { &print_debug("Executing $tcdelete"); }
+		      my $sttcd = $DBH->prepare($tcdelete);
+		      $sttcd->execute();
+		      $sttcd->finish();
+		  }
+		  $stq->finish();
+		  $sts = 1;
+	      } 
+	  }
+      }
   }
+  return $sts;
 }
 
 #============================================
@@ -2433,7 +2449,7 @@ sub bootstrap {
   my $stq;
   $stq = $DBH->prepare( $dcquery );
   if( ! $stq ){
-      &print_debug("FileCatalog::bootstarp : Failed to prepare [$dcquery]");
+      &print_debug("FileCatalog::bootstrap : Failed to prepare [$dcquery]");
       return 0;
   }
   &print_debug("Running [$dcquery]");
