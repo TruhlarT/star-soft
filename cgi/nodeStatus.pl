@@ -26,6 +26,7 @@ my %nodeCrCount = ();
 my %nodeStCount = ();
 my %nodeAbCount = ();
 my %nodeDnCount = ();
+my %nodeFNFCount = ();
 my $outname;
 my $outfile;
 
@@ -33,7 +34,7 @@ my @ndCrCount;
 my @ndAbCount;
 my @ndStCount; 
 my @ndDnCount;
-
+my @ndFNFCount;
 my @nodeList = (
                 "rcrs6001.rcf.bnl.gov",
                 "rcrs6002.rcf.bnl.gov",
@@ -71,7 +72,96 @@ my @nodeList = (
                 "rcrs6034.rcf.bnl.gov",
                 "rcrs6035.rcf.bnl.gov",
                 "rcrs6036.rcf.bnl.gov",
-                "rcrs6037.rcf.bnl.gov"
+                "rcrs6037.rcf.bnl.gov",
+                "rcrs6038.rcf.bnl.gov",
+                "rcrs6039.rcf.bnl.gov",
+                "rcrs6040.rcf.bnl.gov",
+                "rcrs6041.rcf.bnl.gov",
+                "rcrs6042.rcf.bnl.gov",
+                "rcrs6043.rcf.bnl.gov",
+                "rcrs6044.rcf.bnl.gov",            
+                "rcrs6045.rcf.bnl.gov",
+                "rcrs6046.rcf.bnl.gov",
+                "rcrs6047.rcf.bnl.gov",
+                "rcrs6048.rcf.bnl.gov",
+                "rcrs6049.rcf.bnl.gov",
+                "rcrs6050.rcf.bnl.gov",
+                "rcrs6051.rcf.bnl.gov",
+                "rcrs6052.rcf.bnl.gov",
+                "rcrs6053.rcf.bnl.gov",
+                "rcrs6054.rcf.bnl.gov",
+                "rcrs6055.rcf.bnl.gov",
+                "rcrs6056.rcf.bnl.gov",
+                "rcrs6057.rcf.bnl.gov",
+                "rcrs6058.rcf.bnl.gov",
+                "rcrs6059.rcf.bnl.gov",
+                "rcrs6060.rcf.bnl.gov",
+                "rcrs6061.rcf.bnl.gov",
+                "rcrs6062.rcf.bnl.gov",
+                "rcrs6063.rcf.bnl.gov",
+                "rcrs6064.rcf.bnl.gov",
+                "rcrs6065.rcf.bnl.gov",
+                "rcrs6066.rcf.bnl.gov",
+                "rcrs6067.rcf.bnl.gov",
+                "rcrs6068.rcf.bnl.gov",
+                "rcrs6069.rcf.bnl.gov",
+                "rcrs6070.rcf.bnl.gov",
+                "rcrs6071.rcf.bnl.gov",
+                "rcrs6072.rcf.bnl.gov",
+                "rcrs6073.rcf.bnl.gov",
+                "rcrs6074.rcf.bnl.gov",
+                "rcrs6075.rcf.bnl.gov",
+                "rcrs6076.rcf.bnl.gov",
+                "rcrs6077.rcf.bnl.gov",
+                "rcrs6078.rcf.bnl.gov",
+                "rcrs6079.rcf.bnl.gov",
+                "rcrs6080.rcf.bnl.gov",
+                "rcrs6081.rcf.bnl.gov",            
+                "rcrs6082.rcf.bnl.gov",
+                "rcrs6083.rcf.bnl.gov",
+                "rcrs6084.rcf.bnl.gov",
+                "rcrs6085.rcf.bnl.gov",
+                "rcrs6086.rcf.bnl.gov",
+                "rcrs6087.rcf.bnl.gov",
+                "rcrs6088.rcf.bnl.gov",
+                "rcrs6089.rcf.bnl.gov",
+                "rcrs6090.rcf.bnl.gov",
+                "rcrs6091.rcf.bnl.gov",
+                "rcrs6092.rcf.bnl.gov",
+                "rcrs6093.rcf.bnl.gov",
+                "rcrs6094.rcf.bnl.gov",
+                "rcrs6094.rcf.bnl.gov",
+                "rcrs6095.rcf.bnl.gov",
+                "rcrs6096.rcf.bnl.gov",
+                "rcrs6097.rcf.bnl.gov",
+                "rcrs6098.rcf.bnl.gov",
+                "rcrs6099.rcf.bnl.gov",
+                "rcrs6100.rcf.bnl.gov",
+                "rcrs6101.rcf.bnl.gov",
+                "rcrs6102.rcf.bnl.gov",
+                "rcrs6103.rcf.bnl.gov",
+                "rcrs6104.rcf.bnl.gov",
+                "rcrs6105.rcf.bnl.gov",
+                "rcrs6106.rcf.bnl.gov",
+                "rcrs6107.rcf.bnl.gov",
+                "rcrs6108.rcf.bnl.gov",
+                "rcrs6109.rcf.bnl.gov",
+                "rcrs6110.rcf.bnl.gov",
+                "rcrs6111.rcf.bnl.gov",
+                "rcrs6112.rcf.bnl.gov",
+                "rcrs6113.rcf.bnl.gov",
+                "rcrs6114.rcf.bnl.gov",
+                "rcrs6115.rcf.bnl.gov",
+                "rcrs6116.rcf.bnl.gov",
+                "rcrs6117.rcf.bnl.gov",
+                "rcrs6118.rcf.bnl.gov",
+                "rcrs6119.rcf.bnl.gov",
+                "rcrs6120.rcf.bnl.gov",
+                "rcrs6121.rcf.bnl.gov",
+                "rcrs6122.rcf.bnl.gov",
+                "rcrs6123.rcf.bnl.gov",
+                "rcrs6124.rcf.bnl.gov",
+                "n/a"
 );
 
 
@@ -83,6 +173,7 @@ my $eachNode;
        $ndAbCount[$ll]  = 0;
        $ndStCount[$ll]  = 0;
        $ndDnCount[$ll]  = 0;
+       $ndFNFCount[$ll] = 0;
      };
 
 my %nodeHash = (
@@ -122,8 +213,96 @@ my %nodeHash = (
                 "rcrs6034.rcf.bnl.gov" => 33,
                 "rcrs6035.rcf.bnl.gov" => 34,
                 "rcrs6036.rcf.bnl.gov" => 35,
-                "rcrs6037.rcf.bnl.gov" => 36 
- );               
+                "rcrs6037.rcf.bnl.gov" => 36, 
+                "rcrs6038.rcf.bnl.gov" => 37,
+                "rcrs6039.rcf.bnl.gov" => 38,
+                "rcrs6040.rcf.bnl.gov" => 39,
+                "rcrs6041.rcf.bnl.gov" => 40,
+                "rcrs6042.rcf.bnl.gov" => 41,
+                "rcrs6043.rcf.bnl.gov" => 42,
+                "rcrs6044.rcf.bnl.gov" => 43,            
+                "rcrs6045.rcf.bnl.gov" => 44,
+                "rcrs6046.rcf.bnl.gov" => 45,
+                "rcrs6047.rcf.bnl.gov" => 46,
+                "rcrs6048.rcf.bnl.gov" => 47,
+                "rcrs6049.rcf.bnl.gov" => 48,
+                "rcrs6050.rcf.bnl.gov" => 49,
+                "rcrs6051.rcf.bnl.gov" => 50,
+                "rcrs6052.rcf.bnl.gov" => 51,
+                "rcrs6053.rcf.bnl.gov" => 52,
+                "rcrs6054.rcf.bnl.gov" => 53,
+                "rcrs6055.rcf.bnl.gov" => 54,
+                "rcrs6056.rcf.bnl.gov" => 55,
+                "rcrs6057.rcf.bnl.gov" => 56,
+                "rcrs6058.rcf.bnl.gov" => 57,
+                "rcrs6059.rcf.bnl.gov" => 58,
+                "rcrs6060.rcf.bnl.gov" => 59,
+                "rcrs6061.rcf.bnl.gov" => 60,
+                "rcrs6062.rcf.bnl.gov" => 61,
+                "rcrs6063.rcf.bnl.gov" => 62,
+                "rcrs6064.rcf.bnl.gov" => 63,
+                "rcrs6065.rcf.bnl.gov" => 64,
+                "rcrs6066.rcf.bnl.gov" => 65,
+                "rcrs6067.rcf.bnl.gov" => 66,
+                "rcrs6068.rcf.bnl.gov" => 67,
+                "rcrs6069.rcf.bnl.gov" => 68,
+                "rcrs6070.rcf.bnl.gov" => 69,
+                "rcrs6071.rcf.bnl.gov" => 70,
+                "rcrs6072.rcf.bnl.gov" => 71,
+                "rcrs6073.rcf.bnl.gov" => 72,
+                "rcrs6074.rcf.bnl.gov" => 73,
+                "rcrs6075.rcf.bnl.gov" => 74,
+                "rcrs6076.rcf.bnl.gov" => 75,
+                "rcrs6077.rcf.bnl.gov" => 76,
+                "rcrs6078.rcf.bnl.gov" => 77,
+                "rcrs6079.rcf.bnl.gov" => 78,
+                "rcrs6080.rcf.bnl.gov" => 79,
+                "rcrs6081.rcf.bnl.gov" => 80,            
+                "rcrs6082.rcf.bnl.gov" => 81,
+                "rcrs6083.rcf.bnl.gov" => 82,
+                "rcrs6084.rcf.bnl.gov" => 83,
+                "rcrs6085.rcf.bnl.gov" => 84,
+                "rcrs6086.rcf.bnl.gov" => 85,
+                "rcrs6087.rcf.bnl.gov" => 86,
+                "rcrs6088.rcf.bnl.gov" => 87,
+                "rcrs6089.rcf.bnl.gov" => 88,
+                "rcrs6090.rcf.bnl.gov" => 89,
+                "rcrs6091.rcf.bnl.gov" => 90,
+                "rcrs6092.rcf.bnl.gov" => 91,
+                "rcrs6093.rcf.bnl.gov" => 92,
+                "rcrs6094.rcf.bnl.gov" => 93,
+                "rcrs6095.rcf.bnl.gov" => 94,
+                "rcrs6096.rcf.bnl.gov" => 95,
+                "rcrs6097.rcf.bnl.gov" => 96,
+                "rcrs6098.rcf.bnl.gov" => 97,
+                "rcrs6099.rcf.bnl.gov" => 98,
+                "rcrs6100.rcf.bnl.gov" => 99,
+                "rcrs6101.rcf.bnl.gov" => 100,
+                "rcrs6102.rcf.bnl.gov" => 101,
+                "rcrs6103.rcf.bnl.gov" => 102,
+                "rcrs6104.rcf.bnl.gov" => 103,
+                "rcrs6105.rcf.bnl.gov" => 104,
+                "rcrs6106.rcf.bnl.gov" => 105,
+                "rcrs6107.rcf.bnl.gov" => 106,
+                "rcrs6108.rcf.bnl.gov" => 107,
+                "rcrs6109.rcf.bnl.gov" => 108,
+                "rcrs6110.rcf.bnl.gov" => 109,
+                "rcrs6111.rcf.bnl.gov" => 110,
+                "rcrs6112.rcf.bnl.gov" => 111,
+                "rcrs6113.rcf.bnl.gov" => 112,
+                "rcrs6114.rcf.bnl.gov" => 113,
+                "rcrs6115.rcf.bnl.gov" => 114,
+                "rcrs6116.rcf.bnl.gov" => 115, 
+                "rcrs6117.rcf.bnl.gov" => 116,
+                "rcrs6118.rcf.bnl.gov" => 117,
+                "rcrs6119.rcf.bnl.gov" => 118,
+                "rcrs6120.rcf.bnl.gov" => 119,
+                "rcrs6121.rcf.bnl.gov" => 120,
+                "rcrs6122.rcf.bnl.gov" => 121,
+                "rcrs6123.rcf.bnl.gov" => 122,
+                "rcrs6124.rcf.bnl.gov" => 123,
+                "n/a"                  => 124 
+);               
 
 
 $now = localtime;
@@ -136,10 +315,10 @@ foreach my $int ( $mon,$mday ){
 
 $outname = "mail" . "_" .$thisday . "_" . "out";
 $outfile = "/star/u/starreco/" . $outname;
-
-print $outfile, "\n";
+#print $outfile, "\n";
 
 open (MAILFILE, $outfile ) or die "cannot open $outfile: $!\n";
+
 
  @mailfile = <MAILFILE>;
 
@@ -148,12 +327,10 @@ open (MAILFILE, $outfile ) or die "cannot open $outfile: $!\n";
      if ($mail_line =~ /JobInfo/ ) {
       @wrd = split ("%", $mail_line);
       $nodeID = $wrd[2];
-       print $nodeID, "\n";
       $jbStat = $wrd[1];
       chop $nodeID;
-      chop $nodeID;
+#      chop $nodeID;
       $nodeID =~ s/^\ *//g;
-# print $nodeID, "\n";
       $ii = $nodeHash{$nodeID};
 
       if ($jbStat =~ /crashed/) {
@@ -165,9 +342,11 @@ open (MAILFILE, $outfile ) or die "cannot open $outfile: $!\n";
      elsif ($jbStat =~ /staging failed/) {
          $ndStCount[$ii]++;
      }
+     elsif ($jbStat =~ /file not found/) {
+         $ndStCount[$ii]++;
+     }
      elsif ($jbStat =~ /done/) {
          $ndDnCount[$ii]++;
-# print  $jbStat,"\n";    
        }
    } 
  }
@@ -176,6 +355,7 @@ my $TotAbCount = 0;
 my $TotDnCount = 0;
 my $TotCrCount = 0;
 my $TotStCount = 0;
+my $TotFNFCount = 0;
 
 for ($ll = 0; $ll < scalar(@nodeList); $ll++) {
       $mynode = $nodeList[$ll];
@@ -183,11 +363,13 @@ for ($ll = 0; $ll < scalar(@nodeList); $ll++) {
       $nodeAbCount{$mynode} = $ndAbCount[$ll];
       $nodeStCount{$mynode} = $ndStCount[$ll]; 
       $nodeDnCount{$mynode} = $ndDnCount[$ll];       
+      $nodeFNFCount{$mynode} = $ndFNFCount[$ll];
       
       $TotAbCount += $ndAbCount[$ll];
       $TotDnCount += $ndDnCount[$ll];
       $TotCrCount += $ndCrCount[$ll];
       $TotStCount += $ndStCount[$ll];
+      $TotFNFCount += $ndFNFCount[$ll];
 
      if(($nodeDnCount{$mynode} != 0) && ($nodeCrCount{$mynode} == 0) && ($nodeAbCount{$mynode}== 0) && ($nodeStCount{$mynode}== 0) ) {
    &printDnRow();
@@ -267,8 +449,10 @@ print <<END;
 <TD ALIGN=CENTER WIDTH= 100  HEIGHT=80><B>Number of Jobs aborted</B></TD>
 <TD ALIGN=CENTER WIDTH= 100  HEIGHT=80><B>Number of Jobs with staging failed</B></TD>
 <TD ALIGN=CENTER WIDTH= 100  HEIGHT=80><B>Number of Jobs <br>Done</B></TD>
+<TD ALIGN=CENTER WIDTH= 100  HEIGHT=80><B>Number of Jobs <br>with file notfound</B></TD>
 </TR> 
-    <body>
+   </head>
+     <body>
 END
 }
 
