@@ -146,17 +146,6 @@ if ($ThisYear == 2002){
 
 
 
-#
-# Check space on the target disk
-#
-chomp($space = `/bin/df -k $TARGET`);
-#print "[$space]\n";
-$space =~ m/(.* )(\d+)(%.*)/;
-$space =  $2;
-if ($space >= 99){
-    print "Target disk $TARGET is $space % full (baling out)\n";
-    exit;
-}
 
 
 $CHAIN   = "";
@@ -183,6 +172,20 @@ $MAXCNT  = 20;               # max job to send in a pass
 $RATIO   = 2;                # time drop down for mode + (2=twice faster)
                    
 
+#
+# Check space on the target disk
+#
+$target = $TARGET;
+$target =~ s/^\+//;
+$target =~ s/^C//;
+$target =~ s/^\^//;
+chomp($space = `/bin/df -k $target`);
+$space =~ m/(.* )(\d+)(%.*)/;
+$space =  $2;
+if ($space >= 99){
+    print "Target disk $target is $space % full (baling out on ".localtime().")\n";
+    exit;
+}
 
 
 # Intermediate variable
