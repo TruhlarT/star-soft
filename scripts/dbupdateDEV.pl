@@ -1,4 +1,4 @@
-#! /opt/star/bin/perl -w
+#!/usr/bin/env perl
 #
 # $Id:
 #
@@ -1308,7 +1308,7 @@ my $mRealTbfc = 0;
               $no_knvertices = $nmb[0];
               $tot_knvertices += $no_knvertices;
            
-#   print $no_tracks, "  ",$no_prtracks, "  ",$no_vertices,"  ",$no_xivertices, "\n";
+#   print "Number of tracks:  ", $no_tracks, "  ",$no_prtracks, "  ",$no_vertices,"  ",$no_xivertices, "\n";
   }   
 #  check if job crashed due to break_buss_error
       if($line =~ /bus error/) {
@@ -1360,11 +1360,14 @@ my $mRealTbfc = 0;
 ##### get CPU and Real Time per event
 
  if ($EvCom != 0) {
-    @cpu_output = `tail -1000 $fl_log`;
+    @cpu_output = `tail -5000 $fl_log`;
  
   foreach $end_line (@cpu_output){
           chop $end_line;
-   if ($end_line =~ /QAInfo: Chain/ and $end_line =~ /StBFChain::bfc/) {
+   if ($end_line =~ /QAInfo:Chain/ and $end_line =~ /StBFChain::bfc/) {
+
+#    if ( $end_line =~ /StBFChain::bfc/) {  
+  print $end_line, "\n";
      @part = split (" ", $end_line); 
       $mCPUbfc = $part[6];
       $mRealTbfc = $part[4];
@@ -1383,7 +1386,9 @@ my $mRealTbfc = 0;
     $avr_prtracks   = $tot_prtracks/$EvCom;
     $avr_knvertices = $tot_knvertices/$EvCom;
     $avr_xivertices = $tot_xivertices/$EvCom;
- 
+
+#   print "Number of tracks:  ",  $avr_tracks,"  ",$avr_vertices,"  ",$avr_prtracks,"  ",$avr_knvertices,"  ",$avr_xivertices, "\n"; 
+
     if ( defined $maker_size[0]) { 
     $memFst = $maker_size[0];
     }else {
