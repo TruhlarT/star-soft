@@ -7,9 +7,9 @@
 # createJobs.pl  
 # L.Didenko
 # script to create jobfiles and JobID and fill in JobStatus and jobRelations tables 
-# script requires 3  arguments: production Series, year of data taken, chain name from ProdOption table
-#
-# example of usage:  createJobs.pl P01hf 2001 p2001f
+# script requires 4  arguments: production Series, year of data taken, chain name from ProdOption table,
+# disk name
+# example of usage:  createJobs.pl P01hf 2001 p2001f /star/data19/reco
 ##################################################################################################
 
 use Mysql;
@@ -26,6 +26,7 @@ my $nSetD = 0;
 my $prodPeriod = $ARGV[0]; 
 my $chName = $ARGV[2];
 my $dyear = $ARGV[1];
+my $datDisk = $ARGV[3];
 my $coll = "AuAu200";
 my $dPath = "/daq/" . $dyear ;             
 my $chainDir = "daq";
@@ -155,14 +156,12 @@ my $myRun;
        }
    }
 
-
-
  my $ii = 0;	    
- $istart = scalar(@SetD) - 3;
+my  $istart = scalar(@SetD) - 32;
  $jobDIn_no = 0; 
- my $ifin = scalar(@SetD) - 2;
- for ($ii=$istart; $ii< scalar(@SetD); $ii++)  { 
-#  for ($ii=$istart; $ii< $ifin ; $ii++)  {
+# my $ifin = scalar(@SetD);
+  for ($ii=0; $ii< scalar(@SetD); $ii++)  {
+# for ($ii=$istart; $ii< scalar(@SetD); $ii++)  { 
 
   $sql="SELECT path, fName, dataset FROM $FileCatalogT WHERE fName LIKE '%daq' AND path = '$SetD[$ii]' AND dataset like '$coll%' and dataset like '%tpc%' AND dataStatus = 'OK' AND hpss = 'Y' ";
     $cursor =$dbh->prepare($sql)
@@ -200,6 +199,9 @@ my $flname;
 my $jpath;
 my $jfile;
 my $chain;
+my $iflag = 0;
+my $num = 0;
+my $fileSeq;
 
   foreach my $jobDnm (@jobDIn_set){
        $dset = "n/a"; 
@@ -210,7 +212,9 @@ my $chain;
        $jfile =~ s/.daq//g;
        @flsplit = split ("_",$jfile);  
        $mrunId =  $flsplit[2];
-
+       $fileSeq = $flsplit[4];
+       if($mrunId == 2243028 ) {
+       $num = $fileSeq/10 - int($fileSeq/10);
            $mprodSr = $prodPeriod; 
            $myID = 100000000 + $new_id;
            $mjobID = "Job". $myID . "/" . $prodPeriod ."/". $mlibVer;
@@ -235,23 +239,30 @@ my $chain;
      if (-f $jb_jobfile)  {$jb_fstat = 0};
      if (-f $jb_hold)     {$jb_fstat = 0};  
 
-      if($jb_fstat eq 1)  {
-      if($dset =~ /_FieldOff/) {
+      if($jb_fstat == 1)  {
+      if($num == 0 ) {
+      $chain = "ry2001,in,tpc_daq,tpc,rich,l3onl,Physics,Kalman,Cdst,tags,Tree,evout,ExB"; 
+    }
+      if($dset =~ /_FieldOff/ || $num == 0) {
        $chain = "ry2001,in,tpc_daq,tpc,rich,l3onl,Physics,FieldOff,Cdst,tags,Tree,evout,ExB";   
      }
-          &create_jobs($jfile, $jbset, $chain, $mlibVer, $JOB_DIR); 
+      elsif($dset =~ /_FieldOff/ || $num > 0) {
+       $chain = "ry2001,in,tpc_daq,tpc,rich,l3onl,Physics,FieldOff,Cdst,tags,Tree,evout,ExB,NoHits";
+     }
+
+          &create_jobs($jfile, $jbset, $chain, $mlibVer, $JOB_DIR, $num, $datDisk); 
 
          print "JOB ID = " ,$mjobID, " % " . $mjobFname,  "\n";
 
 #####  fill  JobStatus table
       print "filling JobStatus table\n";
  
-       &fillJSTable();   
+      &fillJSTable();   
 
 #####  fill  jobRelations table
        print "filling jobRelations table\n";
        &fillJRelTable();
-
+    }
       }  
     }
    
@@ -305,7 +316,7 @@ my $chain;
 
  sub create_jobs {
 
-  my ($gfile, $Jset, $fchain, $jlibVer, $JobDir ) = @_ ;
+  my ($gfile, $Jset, $fchain, $jlibVer, $JobDir, $nseq, $dataDisk ) = @_ ;
 
  my $Jsetd;
  my $Jsetr;
@@ -313,7 +324,6 @@ my $chain;
  my $inFile;
  my $logDir;
  my @pts;
- my $dataDisk = "/star/data19/test2001/";
 
     @pts = split ("_",$Jset);
     $Jsetr = $pts[1] . "/" .$pts[2];
@@ -321,7 +331,7 @@ my $chain;
     $inFile =  $gfile . ".daq";
     $logDir = $JOB_LOG;   
 
- my $exArg = "1,".$jlibVer ."," .$dataDisk . $Jsetd .",-1," . $fchain .",debug1";
+ my $exArg = "1,".$jlibVer ."," .$dataDisk . "/" . $Jsetd .",-1," . $fchain .",debug1";
 
 ##### print $job_set, "\n";
  
@@ -355,7 +365,7 @@ my $chain;
        print JOB_FILE "      inputdir[1]=/star/data20/reco/StarDb\n";
        print JOB_FILE "      inputfile[1]=DUMMY\n";
        print JOB_FILE "#output\n";
-     if ( $gfile =~ /raw_0010/) {
+     if ( $nseq == 0 ) {
        print JOB_FILE "      outputnumstreams=5\n";
      }else{
        print JOB_FILE "      outputnumstreams=4\n";
@@ -373,7 +383,7 @@ my $chain;
        print JOB_FILE "      outputstreamtype[3]=HPSS\n";
        print JOB_FILE "      outputdir[3]=$hpss_dst_dir\n";
        print JOB_FILE "      outputfile[3]=$hpss_dst_file3\n";
-     if ( $gfile =~ /raw_0010/) {     
+     if ( $nseq ==0 ) {     
        print JOB_FILE "      outputstreamtype[4]=HPSS\n";
        print JOB_FILE "      outputdir[4]=$hpss_dst_dir\n";
        print JOB_FILE "      outputfile[4]=$hpss_dst_file4\n";
