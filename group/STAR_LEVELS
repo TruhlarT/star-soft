@@ -14,15 +14,19 @@ if ($ARGV[0] eq "-g"){
     print "STAR_HOST_SYS = $shs\n" if ($DEBUG);
 
     if ( -d "include" || -d ".$shs"){
-	print "There is apossibility of guessing ..\n" if ($DEBUG);
+	print "There is a possibility of guessing ..\n" if ($DEBUG);
 	$version = "";
-	if ( opendir(DIR,"include/") ){
-	    print "Scanning include/ ...\n" if ($DEBUG);
+
+	if ( -d "include"){        $inc = "include";}
+	if ( -d ".$shs/include"){  $inc = ".$shs/include";}
+
+	if ( opendir(DIR,$inc) ){
+	    print "Scanning $inc/ ...\n" if ($DEBUG);
 	    while ( defined($file = readdir(DIR)) ){
-		if ( -l "include/$file"){ next;}
+		if ( -l "$inc/$file"){ next;}
 		# This is a fix format defined in RootCint, stic and ConstructTable
 		# If the format changes, the guesstimator will stop working
-		if ( defined($ver = &Found("include/$file")) ){
+		if ( defined($ver = &Found("$inc/$file")) ){
 		    $version = $ver;
 		    last;
 		}
@@ -50,7 +54,10 @@ if ($ARGV[0] eq "-g"){
 	}
 
 	if ($version ne ""){
-	    if ($version ne $ENV{STAR_LEVEL}){	print "Wrong STAR environment\n";}
+	    if ($version ne $ENV{STAR_LEVEL} && 
+		($version ne "adev" && $ENV{STAR_LEVEL} ne "dev") ){
+		print "Wrong STAR environment\n";
+	    }
 	    print "$version was the version this code was previously compiled in ...\n";
 	} else {
 	    print STDERR "Could not guess the library version you compiled your code in\n";
