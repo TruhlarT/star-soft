@@ -332,7 +332,7 @@ open (MAILFILE, $outfile ) or die "cannot open $outfile: $!\n";
        $ndQuFaCount[$ll] = 0;
        $ndTrFaCount[$ll] = 0;
        $ndMsFaCount[$ll] = 0;
-       $ndDbFaCount[$ii] = 0;
+       $ndDbFaCount[$ll] = 0;
      };
 
    &StDbProdConnect();
