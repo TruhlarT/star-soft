@@ -1,6 +1,9 @@
-# cron table for rcf
+# T. Wenaus cron table for duvall-root
 #
-# Currently run under 'wenaus'    04/24/2000.16:49 (Mon)
+# Registering a cron file:
+#  crontab <filename>    to set up personal cron job; 
+#                        'man crontab 5' for format
+#  crontab -l  to list personal cron job; crontab -r  to remove
 #
 #     A crontab file consists of lines of six  fields  each.   The
 #     fields  are separated by spaces or tabs.  The first five are
@@ -31,11 +34,5 @@
 #     ning  with a `#' is a comment and will be ignored.  The file
 #     should not contain blank lines.
 #
-#### Build the CAS usage page
-#33 *	* * *	/afs/rhic/star/packages/dev/scripts/cron/cas.pl
-#### Nightly management tasks
-0 4     * * *   /afs/rhic/star/packages/dev/scripts/cron/manage-rcf.csh
-#### Run the NOVA log server
-15 *	* * *	/opt/star/bin/perl -I/afs/rhic/star/users/wenaus/novabin /afs/rhic/star/users/wenaus/novabin/novaLog.pl
-#### Run the NOVA server updater
-0,20,40 *  * * * /opt/star/bin/perl -I/afs/rhic/star/users/wenaus/novabin /afs/rhic/star/users/wenaus/novabin/updateServers.pl
+MAILTO=wenaus@bnl.gov
+13 3            * * *   /afs/rhic/star/packages/dev/scripts/cron/manage-duvall-root.csh
