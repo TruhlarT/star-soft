@@ -72,7 +72,7 @@ use lib "/afs/rhic.bnl.gov/star/packages/scripts";
 use RunDAQ;
 use CRSQueues;
 
-$ThisYear = 2004;
+$ThisYear = 2005;
 
 # Self-sorted vars
 $SELF =  $0;
@@ -174,17 +174,17 @@ if ($ThisYear == 2002){
     $PHYSTP  =  1;
     $PHYSTP2 =  6;    # just comment them if you want them disabled
     $EXPRESS =  0;     
-    $ZEROBIAS=  0;
+    $ZEROBIAS=  7;
 
-    @USEQ    = (4,4,3);
+    @USEQ    = (5,5,4);
     @SPILL   = (0,3,2);
 
     # Default chain
-    $DCHAIN{"AuAu"}           = "P2004,svt_daq,svtD,EST,eemcD,OShortR,-OSpaceZ,OSpaceZ2,Xi2,V02,Kink2,CMuDst";
-    $DCHAIN{"PPPP"}           = "P2004,ppOpt,svt_daq,svtD,EST,eemcD,OShortR,-OSpaceZ,OSpaceZ2,Xi2,V02,Kink2,CMuDst";
-    $DCHAIN{"CuCu"}           = "P2004,svt_daq,svtD,EST,eemcD,OShortR,-OSpaceZ,OSpaceZ2,Xi2,V02,Kink2,CMuDst";
+    $DCHAIN{"AuAu"}           = "P2004,svt_daq,svtD,EST,alltrigger,OShortR,-OSpaceZ,OSpaceZ2,Xi2,V02,Kink2,CMuDst";
+    $DCHAIN{"PPPP"}           = "P2004,ppOpt,svt_daq,svtD,EST,alltrigger,OShortR,-OSpaceZ,OSpaceZ2,Xi2,V02,Kink2,CMuDst";
+    $DCHAIN{"CuCu"}           = "P2004,svt_daq,svtD,EST,alltrigger,OShortR,-OSpaceZ,OSpaceZ2,Xi2,V02,Kink2,CMuDst";
 
-    # Default stand-alone auto-calib (works only on $LASERTP files)
+    # Default stand-alone auto-calib (works ONLY on $LASERTP files)
     $SCALIB{"AuAu"}           = "OptLaser";
     $SCALIB{"PPPP"}           = "OptLaser";
     $SCALIB{"CuCu"}           = "OptLaser";
