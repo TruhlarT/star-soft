@@ -3,209 +3,23 @@
 *CMZ :  1.40/05 13/07/98  10.50.50  by  Pavel Nevski
 *-- Author :    Pavel Nevski
 #ifdef __ROOT__
+*CMZ :          30/04/98  00.45.04  by  Pavel Nevski
+*-- Author :    Pavel Nevski
 *****************************************************************************
 *                                                                           *
-      subroutine        A G M A I N
+      subroutine        A G M A I N (nwg,nwp,iwtyp)
 *                                                                           *
 *****************************************************************************
-*KEEP,TYPING.
-      IMPLICIT NONE
-*KEEP,AGECOM.
-      CHARACTER*20 AG_MODULE,  AG_TITLE,  AG_EXNAME,   AG_PARLIST,
-     +             AG_MATERIAL,AG_MIXTURE,AG_COMPONENT,AG_MEDIUM,
-     +             AG_CHDIR
-      CHARACTER*4  AG_VOLUME,AG_MOTHER,AG_SHAPE,AG_CNICK,AG_KONLY,
-     +             AG_OPTION,AG_ORT,AG_MARK
-      INTEGER      AG_BEGCOM,AG_IVOLUME,AG_IMOTHER,AG_IGNUM,AG_ISHAPE,
-     +             AG_IMED,AG_IMAT,AG_IFIELD,AG_IDTYPE,AG_NLMAT,AG_ORTI,
-     +             AG_IERROR,AG_NWBUF,AG_NPAR,AG_ISTATUS,AG_IROT,AG_JDU,
-     +             AG_NBITS,AG_ISET,AG_IDET,AG_ISVOL, AG_ATTRIBUTE(6),
-     +             AG_WORK, AG_SEEN,AG_LSTY,AG_LWID,AG_COLO,AG_FILL,
-     +             AG_LEVEL,AG_NDIV,AG_IAXIS,AG_NDVMAX,AG_NPDV,AG_NCOPY,
-     +             AG_IPRIN,AG_RESET1,AG_RESET2,AG_BEGSCR,AG_ENDSCR,
-     +             AG_IRESER,AG_LSTACK,AG_NWUHIT,AG_NWUVOL,AG_MAGIC,
-     +             AG_LDETU,AG_NPDIV,AG_NZ,AG_IGEOM,AG_IDEBU,AG_IGRAP,
-     +             AG_IHIST,AG_IMFLD,AG_SERIAL,AG_STANDALONE,AG_ISIMU,
-     +             AG_CODE,AG_TRKTYP,AG_ECODE,AG_MODE,AG_PDG,
-     +             AG_ENDSAVE,IPRIN
-      REAL         AG_FIELDM,AG_TMAXFD,AG_STEMAX,AG_DEEMAX,AG_EPSIL,
-     +             AG_STMIN,AG_DENS,AG_RADL,AG_ABSL,AG_THETAX,AG_THETAY,
-     +             AG_THETAZ,AG_ALFAX,AG_ALFAY,AG_ALFAZ,AG_PHIX,AG_PHIY,
-     +             AG_ALPHAX,AG_ALPHAY,AG_ALPHAZ, AG_PHIZ, AG_TWIST,
-     +             AG_DX, AG_DX1, AG_DX2, AG_DY, AG_DY1,AG_DY2,
-     +             AG_THET, AG_THE1, AG_THE2, AG_PHI, AG_PHI1, AG_PHI2,
-     +             AG_ALPH, AG_ALP1, AG_ALP2, AG_RMIN, AG_RMAX, AG_RMN,
-     +             AG_RMX, AG_ZI, AG_RMN1, AG_RMN2, AG_RMX1, AG_RMX2,
-     +             AG_H1, AG_H2, AG_BL1, AG_BL2, AG_TL1, AG_TL2,AG_DPHI,
-     +             AG_DZ, AG_TWIS, AG_X, AG_Y, AG_Z, AG_A, AG_ZA, AG_W,
-     +             AG_STEP, AG_C0, AG_PAR, AG_AA,AG_ZZ,AG_WW,AG_TYPE,
-     +             AG_STACK,AG_UBUF,AG_XHMAX,AG_YHMAX,AG_ZHMAX,
-     +             AG_RHMAX,AG_FHMAX,AG_FHMIN,AG_BIN,AG_DMAXMS,
-     +             AG_LX, AG_LY, AG_LZ, AG_HX, AG_HY, AG_HZ, AG_P1,
-     +             AG_P2, AG_CHARGE, AG_MASS, AG_TLIFE, AG_BRATIO
-      PARAMETER   (AG_LSTACK=130, AG_NWUHIT=10, AG_NWUVOL=3,
-     +             AG_MAGIC=-696969, AG_LDETU=250)
-      COMMON/AGCGLOB/AG_MODULE, AG_CHDIR,   AG_LEVEL,   AG_IDTYPE,
-     +              AG_IERROR,  AG_STANDALONE,          IPRIN,
-     +              AG_IPRIN,   AG_IGEOM,   AG_IDEBU,   AG_IGRAP,
-     +              AG_IHIST,   AG_IMFLD,   AG_ISIMU
-C Inherited variables saved during internal calls
-      COMMON/AGCPARA/AG_BEGCOM, AG_IVOLUME, AG_IMOTHER, AG_IGNUM,
-     +              AG_ISHAPE,  AG_IMED,    AG_IMAT,    AG_IFIELD,
-     +              AG_FIELDM,  AG_TMAXFD,  AG_STEMAX,  AG_DEEMAX,
-     +              AG_EPSIL,   AG_STMIN,   AG_DENS,    AG_RADL,
-     +              AG_ABSL,    AG_DX,      AG_DX1,     AG_DX2,
-     +              AG_DY,      AG_DY1,     AG_DY2,
-     +              AG_RMN1,    AG_RMN2,    AG_RMX1,    AG_RMX2,
-     +              AG_THET,    AG_THE1,    AG_THE2,
-     +              AG_PHI,     AG_PHI1,    AG_PHI2,
-     +              AG_ALPH,    AG_ALP1,    AG_ALP2,
-     +              AG_H1,      AG_BL1,     AG_TL1,
-     +              AG_H2,      AG_BL2,     AG_TL2,
-     +              AG_RMIN,    AG_RMAX,    AG_DPHI,    AG_NPDIV,
-     +              AG_NZ,      AG_DZ,      AG_TWIS,
-     +              AG_LX,      AG_LY,      AG_LZ,
-     +              AG_HX,      AG_HY,      AG_HZ,
-     +              AG_A,       AG_ZA,      AG_W,       AG_NLMAT,
-     +              AG_WORK,    AG_SEEN,    AG_LSTY,
-     +              AG_LWID,    AG_COLO,    AG_FILL,
-     +              AG_SERIAL,  AG_ISVOL,   AG_ISTATUS,
-     +              AG_ZI(16),  AG_RMN(16), AG_RMX(16),
-     +              AG_VOLUME,  AG_MOTHER,  AG_SHAPE,   AG_CNICK,
-     +                                                  AG_ENDSAVE,
-     +              AG_RESET1,  AG_THETAX,  AG_THETAY,  AG_THETAZ,
-     +              AG_ALFAX,   AG_ALFAY,   AG_ALFAZ,
-     +              AG_PHIX,    AG_PHIY,    AG_PHIZ,
-     +              AG_X,       AG_Y,       AG_Z,
-     +              AG_STEP,    AG_C0,      AG_NDIV,
-     +              AG_IAXIS,   AG_NDVMAX,  AG_ORTI,    AG_NCOPY,
-     +              AG_RESET2,
-     +              AG_KONLY,   AG_ORT,     AG_MARK
-      COMMON/AGCPART/AG_code,AG_trktyp,AG_mass,AG_charge,AG_tlife,
-     +                       AG_bratio(6),AG_mode(6),AG_pdg,AG_ecode
-C local variables valid inside same block
-      COMMON/AGCLOCA/AG_BEGSCR, AG_UBUF(100), AG_PAR(100),
-     +              AG_AA(20),  AG_ZZ(20),    AG_WW(20),   AG_NWBUF,
-     +              AG_XHMAX,   AG_YHMAX,     AG_ZHMAX,    AG_RHMAX,
-     +              AG_FHMAX, AG_FHMIN, AG_NBITS, AG_BIN,  AG_TYPE,
-     +              AG_IROT,  AG_NPAR,  AG_ISET,  AG_IDET, AG_JDU,
-     +              AG_IRESER,                             AG_ENDSCR,
-     +              AG_TITLE,   AG_EXNAME,    AG_PARLIST,  AG_MATERIAL,
-     +              AG_MIXTURE, AG_COMPONENT, AG_MEDIUM,   AG_OPTION
-      COMMON/AGCSTAC/AG_STACK(AG_LSTACK,15)
-      EQUIVALENCE  (AG_ATTRIBUTE,AG_WORK),(AG_STEMAX,AG_DMAXMS),
-     +             (AG_ALFAX,AG_ALPHAX),  (AG_ALFAY,AG_ALPHAY),
-     +             (AG_ALFAZ,AG_ALPHAZ),  (AG_TWIST,AG_TWIS),
-     +             (AG_P1,AG_HX),         (AG_P2,AG_HY),
-     +             (AG_NPDIV,AG_NPDV),
-*    - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - *
- 
- 
-*KEEP,agckine.
-*    AGI general data card information
-      Integer          IKineOld,IdInp,Kevent,
-     >                 Iback,IbackOld,IbMode,IbBefor,IbAfter,
-     >                 IbCurrent,IvCurrent,Ioutp,IoutpOld
-      Real             AVflag,AVcoor,AVsigm,Ptype,PTmin,PTmax,
-     >                 Etamin,Etamax,PhiMin,PhiMax,Ptflag,
-     >                 Zmin,Zmax,BgMult,BgTime,BgSkip,
-     >                 Pxmin,Pxmax,Pymin,Pymax,Pzmin,Pzmax
-      COMMON /AgCKINE/ IKineOld,IdInp,Kevent(3),
-     >                 AVflag,AVcoor(3),AVsigm(3),
-     >                 Ptype,PTmin,PTmax,Etamin,Etamax,
-     >                 PhiMin,PhiMax,Ptflag,Zmin,Zmax,
-     >                 Pxmin,Pxmax,Pymin,Pymax,Pzmin,Pzmax
-      COMMON /AgCKINB/ Iback,IbackOld,IbMode,IbBefor,IbAfter,
-     >                 BgMult,BgTime,BgSkip,IbCurrent,IvCurrent
-      COMMON /AgCKINO/ Ioutp,IoutpOld
-      Character*20     CoptKine,CoptBack,CoptOutp
-      COMMON /AgCKINC/ CoptKine,CoptBack,CoptOutp
-      Character*20     StrmKine,StrmBack,StrmOutp
-      COMMON /AgCKINS/ StrmKine,StrmBack,StrmOutp
-      Character*20     CrunType
-      COMMON /AgCKINR/ CrunType
-      Integer          Ncommand
-      Character*20     Ccommand
-      COMMON /AgCCOMD/ Ncommand,Ccommand
-      Integer          IUHIST
-      Character*80            CFHIST,CDHIST
-      COMMON /AgCHIST/ IUHIST,CFHIST,CDHIST
++CDE,TYPING,AGECOM,AGCKINE.
++CDE,GCFLAG,GCTIME,GCPHYS,GCTRAK.
 *
-      Integer          NtrSubEV,NkineMax,NhitsMax,NtoSkip,NsubToSkip,
-     >                 Nsubran,ItrigStat,NsubEvnt,IsubEvnt,
-     >                 Make_Shadow,Flag_Secondaries
-      Real             Cutele_Gas,VertexNow
-      COMMON /AgCSUBE/ NtrSubEV,NkineMax,NhitsMax,
-     >                 NtoSkip,NsubToSkip,Nsubran(2)
-      COMMON /AgCSTAR/ Make_Shadow,Cutele_Gas,Flag_Secondaries
-      COMMON /AgCstat/ ItrigSTAT,NsubEvnt,IsubEvnt,VertexNow(3)
-*
-*    - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-*
-*KEEP,GCFLAG.
-      COMMON/GCFLAG/IDEBUG,IDEMIN,IDEMAX,ITEST,IDRUN,IDEVT,IEORUN
-     +        ,IEOTRI,IEVENT,ISWIT(10),IFINIT(20),NEVENT,NRNDM(2)
-      COMMON/GCFLAX/BATCH, NOLOG
-      LOGICAL BATCH, NOLOG
-C
-      INTEGER       IDEBUG,IDEMIN,IDEMAX,ITEST,IDRUN,IDEVT,IEORUN
-     +        ,IEOTRI,IEVENT,ISWIT,IFINIT,NEVENT,NRNDM
-C
-*KEEP,GCTIME.
-      COMMON/GCTIME/TIMINT,TIMEND,ITIME,IGDATE,IGTIME
-      INTEGER ITIME,IGDATE,IGTIME
-      REAL TIMINT,TIMEND
-C
-*KEEP,GCPHYS.
-      COMMON/GCPHYS/IPAIR,SPAIR,SLPAIR,ZINTPA,STEPPA
-     +             ,ICOMP,SCOMP,SLCOMP,ZINTCO,STEPCO
-     +             ,IPHOT,SPHOT,SLPHOT,ZINTPH,STEPPH
-     +             ,IPFIS,SPFIS,SLPFIS,ZINTPF,STEPPF
-     +             ,IDRAY,SDRAY,SLDRAY,ZINTDR,STEPDR
-     +             ,IANNI,SANNI,SLANNI,ZINTAN,STEPAN
-     +             ,IBREM,SBREM,SLBREM,ZINTBR,STEPBR
-     +             ,IHADR,SHADR,SLHADR,ZINTHA,STEPHA
-     +             ,IMUNU,SMUNU,SLMUNU,ZINTMU,STEPMU
-     +             ,IDCAY,SDCAY,SLIFE ,SUMLIF,DPHYS1
-     +             ,ILOSS,SLOSS,SOLOSS,STLOSS,DPHYS2
-     +             ,IMULS,SMULS,SOMULS,STMULS,DPHYS3
-     +             ,IRAYL,SRAYL,SLRAYL,ZINTRA,STEPRA
-      COMMON/GCPHLT/ILABS,SLABS,SLLABS,ZINTLA,STEPLA
-     +             ,ISYNC
-     +             ,ISTRA
-*
-      INTEGER IPAIR,ICOMP,IPHOT,IPFIS,IDRAY,IANNI,IBREM,IHADR,IMUNU
-     +       ,IDCAY,ILOSS,IMULS,IRAYL,ILABS,ISYNC,ISTRA
-      REAL    SPAIR,SLPAIR,ZINTPA,STEPPA,SCOMP,SLCOMP,ZINTCO,STEPCO
-     +       ,SPHOT,SLPHOT,ZINTPH,STEPPH,SPFIS,SLPFIS,ZINTPF,STEPPF
-     +       ,SDRAY,SLDRAY,ZINTDR,STEPDR,SANNI,SLANNI,ZINTAN,STEPAN
-     +       ,SBREM,SLBREM,ZINTBR,STEPBR,SHADR,SLHADR,ZINTHA,STEPHA
-     +       ,SMUNU,SLMUNU,ZINTMU,STEPMU,SDCAY,SLIFE ,SUMLIF,DPHYS1
-     +       ,SLOSS,SOLOSS,STLOSS,DPHYS2,SMULS,SOMULS,STMULS,DPHYS3
-     +       ,SRAYL,SLRAYL,ZINTRA,STEPRA,SLABS,SLLABS,ZINTLA,STEPLA
-C
-*KEEP,GCTRAK.
-      INTEGER NMEC,LMEC,NAMEC,NSTEP ,MAXNST,IGNEXT,INWVOL,ISTOP,MAXMEC
-     + ,IGAUTO,IEKBIN,ILOSL, IMULL,INGOTO,NLDOWN,NLEVIN,NLVSAV,ISTORY
-     + ,MAXME1,NAMEC1
-      REAL  VECT,GETOT,GEKIN,VOUT,DESTEP,DESTEL,SAFETY,SLENG ,STEP
-     + ,SNEXT,SFIELD,TOFG  ,GEKRAT,UPWGHT
-      REAL POLAR
-      PARAMETER (MAXMEC=30)
-      COMMON/GCTRAK/VECT(7),GETOT,GEKIN,VOUT(7),NMEC,LMEC(MAXMEC)
-     + ,NAMEC(MAXMEC),NSTEP ,MAXNST,DESTEP,DESTEL,SAFETY,SLENG
-     + ,STEP  ,SNEXT ,SFIELD,TOFG  ,GEKRAT,UPWGHT,IGNEXT,INWVOL
-     + ,ISTOP ,IGAUTO,IEKBIN, ILOSL, IMULL,INGOTO,NLDOWN,NLEVIN
-     + ,NLVSAV,ISTORY
-      PARAMETER (MAXME1=30)
-      COMMON/GCTPOL/POLAR(3), NAMEC1(MAXME1)
-C
-*KEND.
-*
+      integer nwg, nwp, iwtyp
       INTEGER           NWGEA/4000000/,NWPA/500000/,p
       CHARACTER*6       PROG/'agroot'/
 *
       CALL TIMEST  (3.E7)  ! set time limit for interactive mode
+      if (nwg .gt. 0) NWGEA = nwg
+      if (nwp .ge. 0) NWPA  = nwp
       write (*,1001) PROG,NWGEA,NWPA
 1001  format(1x,54('*')/' * Starting ',a8,
      >       ' NwGEANT=',i9,' NwPAW=',i8,' *'/ 1x,54('*'))
@@ -214,21 +28,23 @@ C
       CALL TIMEL   (TIMINT)
       CALL MZEBRA  (-3)
       CALL GZEBRA  (NWGEA)         ! store 0 - geant
+      if (iwtyp .gt. 0) then
       CALL MZPAW   (NWPA,' ')      ! store 1 - pawc
       CALL KUINIT  (5000)
       CALL IGINIT  (10000)
       CALL IGSSE   (6,1)
       CALL HLIMIT  (0)
       CALL REBANKM (-1)
+      CALL GDINIT                  ! Initialise Drawing pkg
+      endif
 ****>
       p  = Idebug
       CALL GINIT                   "  GEANT common blocks                "
       CALL GZINIT                  "  GEANT core divisions, link areas,  "
       CALL AGZINI                  "  specific ZEBRA initialization      "
-      CALL GDINIT                  "  Initialise Drawing pkg             "
       CALL GPART                   "  Define standard particles          "
       CALL GMATE                   "  Initialize standard materials      "
-*yf   Call AGXINIT                 "  aguser menu - called here          "
+      Call AGXINIT                 "  aguser menu - called here          "
       CALL GINTRI                  "  Geant MENUs and COMMANDs           "
 *
       Idebug      =  p             "  restore Idebug after GINIT         "
@@ -242,9 +58,8 @@ C
       %Module=' '
       call Agstand
       Call AgDummy
+      end
 *
-END
- 
 #else /*NO __ROOT__ */
  
 *****************************************************************************
@@ -12061,6 +11876,7 @@ C
 ***************************************************************************
 *                                                                         *
                 subroutine  A G K E E P S (Request,Cdest)
+#ifndef __ROOT__
 *                                                                         *
 * Description:                                                            *
 * produce include files and update the documentation database             *
@@ -12155,6 +11971,7 @@ C
      enddo
      If (Lu>6) close (Lu)
      if (.not.opnd) Call Agsendm
+#endif
      end
  
  
