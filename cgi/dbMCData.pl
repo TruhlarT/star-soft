@@ -9,7 +9,7 @@
 use CGI;
 use CGI::Carp qw(fatalsToBrowser);
 use Mysql;
-require "/afs/rhic/star/packages/scripts/dbCpProdSetup.pl";
+require "/star/u/didenko/dev/scripts/dbCpProdSetup.pl";
 
 my $debugOn = 0;
 
