@@ -234,7 +234,8 @@ sub rdaq_add_entries
 		if ($sth->execute(@values)){
 		    $count++;
 		} else {
-		    &info_message("add_entries","Failed to add [$line]\n");
+		    &info_message("add_entries","Failed to add [$line] ".
+				  $sth->errstr."\n");
 		}
 	    }
 	    $sth->finish();
@@ -395,7 +396,7 @@ sub rdaq_last_run
     my($sth,$val);
 
     if(!$obj){ return 0;}
-    $sth = $obj->prepare("SELECT file FROM $dbtable ORDER BY runNumber,file DESC LIMIT 1");
+    $sth = $obj->prepare("SELECT file FROM $dbtable ORDER BY runNumber DESC, file DESC LIMIT 1");
     $sth->execute();
     if($sth){
 	$val = $sth->fetchrow();
@@ -797,7 +798,7 @@ sub rdaq_get_orecords
     }
 
     # order 
-    $cmd .= " ORDER BY runNumber,file DESC";
+    $cmd .= " ORDER BY runNumber DESC, file DESC";
     if( $limit > 0){
 	$cmd .= " LIMIT $limit";
     }
