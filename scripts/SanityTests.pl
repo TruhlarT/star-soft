@@ -17,7 +17,11 @@
 # script so we are only a few steps away from being able 
 # to submit the tests in batch ...
 #
-use lib "/afs/rhic/star/packages/scripts";
+# -prof   do profiling tests
+# -inter  run interrcatively (the default)
+# -batch  use batch
+#
+use lib "/afs/rhic.bnl.gov/star/packages/scripts";
 use ABUtils;
 
 
@@ -34,6 +38,11 @@ $DESTDIR=IUHtmlPub();
 $NEVT[0]=2;    # Insure mode
 $NEVT[1]=15;   # Jprofile
 
+# Beware that non-interactive would mean having
+# a token as per being able to copy the results
+# back to target.
+$INTER = 1;
+
 
 # ------ No Changes below this line -------------------------------------
 $PROF = 0;
@@ -43,7 +52,11 @@ for($i=0 ; $i <= $#ARGV ; $i++){
     $arg = $ARGV[$i];
     if( substr($ARGV[$i],0,1) eq "-"){
 	# consider it an option
-	if ($arg eq "-d"){
+	if ($arg eq "-batch"){
+	    $INTER = 0;
+	} elsif ($arg eq "-inter"){
+	    $INTER = 1;
+	} elsif ($arg eq "-d"){
 	    # Delete all directories option. Maintainance
 	    print "Are you sure you do delete all directories in $SRCDIR ? ";
 	    chomp($ans = <STDIN>); if($ans eq ""){ $ans = "no";}
@@ -69,11 +82,16 @@ for($i=0 ; $i <= $#ARGV ; $i++){
 }
 undef(@ARGV);
 
+#
+# Prepare lock file for this session
+#
+IULockPrepare($SRCDIR,"$INTER");
+if ( ! IULockCheck(129600) ){ exit;}
+IULockWrite("$0 Interactive=$INTER Profiling=$PROF has started");
 
-
-
-
+#
 # Sort array now, transfer i into another associative array.
+#
 foreach $el (keys %TESTS){
     @items = split(" ",$el);
     @items = sort(@items);
@@ -84,7 +102,9 @@ foreach $el (keys %TESTS){
 undef(%TESTS);
 
 
-
+#
+# We are ready to start
+#
 if($#ARG == -1){
     print 
 	"You may enter several tests separated by space or one\n",
@@ -121,20 +141,20 @@ foreach $choice (@ARG){
     for($i=0 ; $i <= $#files ; $i++){
 	$file = $files[$i];
 
-	if(! -e $file){  die "$file cannot be seen from ".`hostname`."\n";}
+	if(! -e $file){  &Die("$file cannot be seen from ".`hostname`."\n");}
 	else          {  system("/bin/touch $file");}
 
 	print "Doing [$chain] on $file\n";
 	# Ready to produce a running script
 	# Create directory
-	if( ! chdir($SRCDIR) ){ die "Cannot change directory to $SRCDIR\n";}
+	if( ! chdir($SRCDIR) ){ &Die("Cannot change directory to $SRCDIR\n");}
 	
 	if(! -d "$dir"){ 
 	    print " - Directory $dir created\n";
 	    mkdir($dir,0755); 
 	}
 	print " - Changing directory to $dir\n";
-	if( ! chdir($dir) ){ die "Could not change directory to $dir\n";}
+	if( ! chdir($dir) ){ &Die("Could not change directory to $dir\n");}
 
 
 	# Pre-script creation tasks/open file
@@ -146,7 +166,7 @@ foreach $choice (@ARG){
 	}
 	print " - Creating a script file\n";
 	if( -e $script){ unlink($script);}
-	open(FO,">$script") || die "Could not open file for write\n";
+	open(FO,">$script") || &Die("Could not open file for write\n");
 
 
 	# Generate the script now
@@ -202,14 +222,28 @@ foreach $choice (@ARG){
 	close(FO);
 	chmod(0770,"$SRCDIR/$dir/$script");
 
-	#print " - Running it now\n";
-	#system("$SRCDIR/$dir/$script"); # we can also trapped the returned error
-	print " - Submitting it now\n";
-	IUSubmit("$SRCDIR/$dir/$script",1);
+	if ($INTER){
+	    print " - Running it now\n";
+	    # we can also trapped the returned error
+	    system("$SRCDIR/$dir/$script"); 
+	} else {
+	    print " - Submitting it now\n";
+	    IUSubmit("$SRCDIR/$dir/$script",1);
+	}
 
     }
 }
 
+IULockDelete();
+
+# --- Sub intercepting for IULockDelete()
+sub Die
+{
+    my($msgs)=@_;
+    IULockDelete();
+    die $msgs;
+    
+}
 
 
 
