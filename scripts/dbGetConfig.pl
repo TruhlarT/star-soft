@@ -1,6 +1,6 @@
 #!/usr/bin/perl 
 ##
-# $Id: dbGetConfig.pl,v 1.2 2003/01/09 20:30:27 porter Exp $
+# $Id: dbGetConfig.pl,v 1.3 2003/04/11 19:53:35 porter Exp $
 #
 # Author: Bum Choi & R. Jeff Porter
 #
@@ -11,6 +11,11 @@
 #****************************************************************************
 # 
 # $Log: dbGetConfig.pl,v $
+# Revision 1.3  2003/04/11 19:53:35  porter
+# fixed a bug retrieving xml configuration when a directory is associated
+# more than one config-tree. i.e. added use of NodeRelation.BranchID which
+# was neglected in previous versions.
+#
 # Revision 1.2  2003/01/09 20:30:27  porter
 # upgrade of db table structure scripts
 #
@@ -46,13 +51,13 @@ $dbh = DBI->connect("DBI:mysql:$dbName:$serverHost",
 #------------------------------------------------------------------- 
 # bunch of checks to see that infact $configVersion is a 'Config' parent
 if (defined $configVersion) {
-    $query = qq{select distinct n.name, n.versionkey, n.id } .
+    $query = qq{select n.name, n.versionkey, n.id , r.BranchID } .
 	qq{from Nodes as n, NodeRelation as r } .
 	qq{where n.id = r.parentid and n.nodetype = 'Config' } .
 	qq{and n.versionkey = '$configVersion'};
 } else {	
-# get id of config nodes that are in NodeRelation as a parent 
-    $query = qq{select distinct n.name, n.versionkey, n.id } .
+# get id of config that are in NodeRelation as a parent 
+    $query = qq{select distinct n.name, n.versionkey, n.id, r.BranchID } .
 	     qq{from Nodes as n, NodeRelation as r  } . 
              qq{where n.id = r.parentid and n.nodetype = 'Config'};
 }
@@ -62,7 +67,7 @@ $sth1->execute;
 #------------------------------------------------------------------
 $check = undef;
 #$indent=" ";
-while(($configname, $configversion, $configid) = $sth1->fetchrow_array){
+while(($configname, $configversion, $configid, $brID) = $sth1->fetchrow_array){
       OpenFile("$dbName"."_$configversion");
       HeaderStart();
       MarkerStart($configname,"dbNode"," ");
@@ -71,7 +76,7 @@ while(($configname, $configversion, $configid) = $sth1->fetchrow_array){
       my $tmpID = 'None';
       my $indent = 3;
 
-      DoIt($configid,$tmpID,$indent);
+      DoIt($configid,$tmpID,$indent,$brID);
 
       MarkerEnd("dbNode"," ");
       NextLine();
@@ -128,21 +133,25 @@ sub DoIt{
     my $parentid = shift;
     my $peID = shift;
     my $mindent = shift;
+    my $brID  = shift;
     my $mshift;
     my $mnextindent = $mindent+3;
     for($i=0;$i<$mindent;$i++){ $mshift = join(" ",$mshift,""); }
 
-    my ($name, $version, $nodetype, $nodeid, $structName, $elementID);
+    my ($name, $version, $nodetype, $nodeid, $structName, $elementID,$branchID);
     # each recursion needs its own statement handle
-    my $sth = $dbh->prepare(qq{select n.name, n.versionkey, n.structName, n.elementID, r.nodeid } .
+    my $q2=qq{select n.name, n.versionkey, n.structName, n.elementID, r.nodeid, r.id } .
 		         qq{from Nodes as n, NodeRelation as r } .
 		         qq{where r.nodeid = n.id and r.parentid = $parentid }.
-			 qq{and n.nodetype = ?});
+			     qq{and r.BranchID=? and n.nodetype = ?};
+
+    my $sth = $dbh->prepare($q2);
     # to print in the order of 'DB', 'table', 'directory'
     foreach $nodetype ('DB', 'table', 'directory'){
  
-	$sth->execute($nodetype);
-	while(($name, $version, $structName, $elementID, $nodeid) = 
+        
+	$sth->execute($brID,$nodetype);
+	while(($name, $version, $structName, $elementID, $nodeid, $branchID) = 
 	      $sth->fetchrow_array){
 	    MarkerStart($name,"dbNode",$mshift);
 	    MarkerBoth($structName,"StDbTable","") if $nodetype eq 'table';
@@ -153,7 +162,7 @@ sub DoIt{
         }
 	    MarkerBoth($version,"version","") if !($version eq 'default');
         NextLine() if $nodetype eq 'directory';
-	   DoIt($nodeid,$elementID,$mnextindent) if $nodetype eq 'directory';
+	   DoIt($nodeid,$elementID,$mnextindent,$branchID) if $nodetype eq 'directory';
 	    if($nodetype eq 'directory') {
             MarkerEnd("dbNode",$mshift);
         } else {
