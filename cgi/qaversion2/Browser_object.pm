@@ -1,4 +1,4 @@
-#! /usr/bin/perl
+ttp#! /usr/bin/perl
 
 # pmj 18/5/00
 
@@ -419,7 +419,7 @@ sub ContactString{
 
   # temporary solution:
 #  my $url = "http://www.star.bnl.gov/~jacobs/contacts.html";
-  my $url = "http://www.star.bnl.gov/~jacobs/contacts.html";
+  my $doc_link = "http://www.star.bnl.gov/STARAFS/comp/pkg/dev/cgi/qaversion2/doc/contacts.html";
 
   my $string = "<a href=$url target = 'documentation'>Contacts </a>";
   return $string;
