@@ -35,9 +35,9 @@ use Cwd;
 use vars qw( $CVS_id $CVS_ver $ver_num $ver_rev $version );
 
 #ifndef __YF__
-#$CVS_id = '$Id: cons,v 1.89 2004/01/15 21:11:11 jeromel Exp $ ';
+#$CVS_id = '$Id: cons,v 1.90 2004/01/22 15:31:36 fisyak Exp $ ';
 #else /* __YF__ */
-$CVS_id = '$Id: cons,v 1.89 2004/01/15 21:11:11 jeromel Exp $ ';
+$CVS_id = '$Id: cons,v 1.90 2004/01/22 15:31:36 fisyak Exp $ ';
 #endif /* __YF__ */
 $CVS_ver = (split(/\s+/, $CVS_id))[2];
 
@@ -227,7 +227,6 @@ Arguments can be any of the following, in any order:
 }
 
 # Default parameters.
-$param::topfile = 'Construct';	# Top-level construction file.
 #ifdef __YF__
 @param::include = ();
 @param::exclude = ();
@@ -242,6 +241,9 @@ if ( -e "mgr/Construct"){
 }
 $param::defaultConscript = "";	# Default construction file.
 $param::defaultInclude   = "^include\$";  # Force to use default include path
+#$param::topfile = $param::defaultConstruct;
+#else
+$param::topfile = 'Construct';	# Top-level construction file.
 #endif /* __YF__ */
 $param::install = 1;		# Show installations
 $param::build = 1;		# Build targets
@@ -254,24 +256,15 @@ $param::rep_sig_times_ok = 1;	# Repository .consign times are in sync
 				#   w/files.
 $param::conscript_chdir = 0;	# Change dir to Conscript directory
 $param::quiet = 0;		# should we show the command being executed.
-#ifndef __YF__
-
-#else /* __YF__ */
+#ifdef __YF__
 $param::debug = 0;		# should we print out debug information
 $param::noRepository = 0;       # should we use sources from repository
 $param::keep  = 0;
-#endif /* __YF__ */
-@param::defaults = ();
-#ifndef __YF__
-
-#endif /* ! __YF__ */
-#
-$indent = '';
-#ifndef __YF__
-
-#else /* __YF__ */
 @main::search_files = ();
 #endif /* __YF__ */
+@param::defaults = ();
+#
+$indent = '';
 # Display a command while executing or otherwise. This
 # should be called by command builder action methods.
 sub showcom {
@@ -500,19 +493,19 @@ if ($param::depfile) {
   open (main::DEPFILE, ">".$param::depfile) ||
     die ("$0: couldn't open $param::depfile ($!)\n");
 }
-
-# If the supplied top-level Conscript file is not in the
-# current directory, then change to that directory.
-{
-    my ($vol, $dir, $file) =
-      File::Spec->splitpath(File::Spec->canonpath($param::topfile));
-    if ($vol || $dir) {
-	my($cd) = File::Spec->catpath($vol, $dir, undef);
-	chdir($cd) || die("$0: couldn't change to directory $cd ($!)\n");
-	$param::topfile = $file;
-    }
-}
-
+#ifndef __YF__
+## If the supplied top-level Conscript file is not in the
+## current directory, then change to that directory.
+#{
+#    my ($vol, $dir, $file) =
+#      File::Spec->splitpath(File::Spec->canonpath($param::topfile));
+#    if ($vol || $dir) {
+#	my($cd) = File::Spec->catpath($vol, $dir, undef);
+#	chdir($cd) || die("$0: couldn't change to directory $cd ($!)\n");
+#	$param::topfile = $file;
+#    }
+#}
+#endif
 # Walk up the directory hierarchy looking for a Conscript file (if -t set).
 my($target_top);
 my(@targetdir) = ();
@@ -1152,12 +1145,8 @@ sub SourcePath {
 # cache file--not recommended).
 sub UseCache($@) {
     my($dir, @args) = @_;
-#ifndef __YF__
-    # NOTE: it's important to process arguments here regardless of whether
-#else /* __YF__ */
-    # NOTE: it\'s important to process arguments here regardless of whether
-#endif /* __YF__ */
-    # the cache is disabled temporarily, since the mixtargets option affects
+    # NOTE: it's important to process arguments here regardless of whether 
+    # the cache is disabled temporarily, since the mixtargets option affects 
     # the salt for derived signatures.
     for (@args) {
 	if ($_ eq "mixtargets") {
@@ -3028,7 +3017,11 @@ sub iflags {
 	# or it's Linked to a source directory (that is, it *will*
 	# exist by the time the compilation occurs).
 	$iflags .= " ".$env->{INCDIRPREFIX}.$dpath.$env->{INCDIRSUFFIX}
-		if ! @param::rpath || -d $dpath || $dir->is_linked;
+#ifdef __YF__
+		if ! @param::rpath || -d $dpath || $dir->is_linked || $dpath eq $param::defaultInclude;
+#else
+#		if ! @param::rpath || -d $dpath || $dir->is_linked;
+#endif
 	next if File::Spec->file_name_is_absolute($dpath);
 	if (@param::rpath) {
 	    my $d;
