@@ -532,6 +532,12 @@ sub FlagQAInProgress{
 }
 #----------
 #
+sub FlagQAdone{
+  my $qaID = shift;
+  UpdateQASummary($QASum{QAdone},'Y',$qaID);
+}
+#----------
+#
 sub ResetInProgressFlag{
   my $qaID = shift;
   UpdateQASummary($QASum{QAdone}, 'N', $qaID);
