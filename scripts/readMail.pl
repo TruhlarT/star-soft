@@ -137,6 +137,11 @@ while (<>) {
 	    @wrd = split (" ",$status_line);
 	    $nodeID = $wrd[4]; 
 
+	} elsif ( $status_line =~ /queuing failed/) {
+	    $jbStat = "queuing failed";
+	    @wrd = split (" ",$status_line);
+	    $nodeID = $wrd[4]; 
+
 	} elsif ($status_line =~ /aborted/) {
 	    $jbStat = "aborted";
 	    @wrd = split (" ",$status_line);
