@@ -155,9 +155,15 @@ $HPSSBASE  = "/home/starsink/raw/daq";        # base path for HPSS file loc.
 
 
 # Required tables on $DDBSERVER
+# List for Year2
+#@REQUIRED  = ("daqFileTag","daqSummary",
+#	      "triggerSet","detectorSet",
+#	      "beamInfo","magField");
+# List for Year3
 @REQUIRED  = ("daqFileTag","daqSummary",
-	      "triggerSet","detectorSet",
+	      "l0TriggerSet","detectorSet",
 	      "beamInfo","magField");
+
 
 
 #
@@ -400,13 +406,17 @@ sub rdaq_last_run
     if(!$obj){ return 0;}
     $sth = $obj->prepare("SELECT file FROM $dbtable ORDER BY runNumber DESC, file DESC LIMIT 1");
     $sth->execute();
-    if($sth){
+    if( $sth ){
 	$val = $sth->fetchrow();
-	$sth->finish();
-	$val =~ /(.*_)(\d+_)(.*_)(\d+)/;
-	$val = $2.$4;
-	$val =~ s/_/./;
-	$val;
+	if ( defined($val) ){
+	    $sth->finish();
+	    $val =~ /(.*_)(\d+_)(.*_)(\d+)/;
+	    $val = $2.$4;
+	    $val =~ s/_/./;
+	    $val;
+	} else {
+	    $val = 0;
+	}
     } else {
 	0;
     }
@@ -442,7 +452,11 @@ sub rdaq_raw_files
     
 
     # We will select on RunStatus == 0
-    $cmd  = "SELECT daqFileTag.file, daqSummary.runNumber, daqFileTag.numberOfEvents, daqFileTag.beginEvent, daqFileTag.endEvent, magField.current, magField.scaleFactor, beamInfo.yellowEnergy+beamInfo.blueEnergy, CONCAT(beamInfo.blueSpecies,beamInfo.yellowSpecies) FROM daqFileTag, daqSummary, magField, beamInfo  WHERE daqSummary.runNumber=daqFileTag.run AND daqSummary.runStatus=0 AND daqSummary.destinationID In(1,2,4) AND magField.runNumber=daqSummary.runNumber AND magField.entryTag=0 AND beamInfo.runNumber=daqSummary.runNumber AND beamInfo.entryTag=0";
+    # Year2
+    #$cmd  = "SELECT daqFileTag.file, daqSummary.runNumber, daqFileTag.numberOfEvents, daqFileTag.beginEvent, daqFileTag.endEvent, magField.current, magField.scaleFactor, beamInfo.yellowEnergy+beamInfo.blueEnergy, CONCAT(beamInfo.blueSpecies,beamInfo.yellowSpecies) FROM daqFileTag, daqSummary, magField, beamInfo  WHERE daqSummary.runNumber=daqFileTag.run AND daqSummary.runStatus=0 AND daqSummary.destinationID In(1,2,4) AND magField.runNumber=daqSummary.runNumber AND magField.entryTag=0 AND beamInfo.runNumber=daqSummary.runNumber AND beamInfo.entryTag=0";
+    # One more table runStatus, daqSummary.runStatus=0 gone, entryTag=5 for hardwired values
+    $cmd   = "SELECT daqFileTag.file, daqSummary.runNumber, daqFileTag.numberOfEvents,daqFileTag.beginEvent, daqFileTag.endEvent, magField.current,magField.scaleFactor, beamInfo.yellowEnergy+beamInfo.blueEnergy,CONCAT(beamInfo.blueSpecies,beamInfo.yellowSpecies) FROM daqFileTag,daqSummary, magField, beamInfo,runStatus WHERE daqSummary.runNumber=daqFileTag.run AND daqSummary.destinationID In(1,2,4) AND runStatus.runNumber=daqFileTag.run and runStatus.rtsStatus=0 AND magField.runNumber=daqSummary.runNumber AND magField.entryTag=5 AND beamInfo.runNumber=daqSummary.runNumber AND beamInfo.entryTag=5";
+ 
 
     # Optional arguments
     if( $from ne ""){
@@ -507,8 +521,12 @@ sub rdaq_hack
 			  "detectorSet.runNumber=?");
 
     # Trigger label
-    $sthl = $obj->prepare("SELECT triggerLabel,numberOfEvents FROM triggerSet ".
-			  "WHERE runNumber=? ORDER BY triggerLabel DESC");
+    # Year2
+    #$sthl = $obj->prepare("SELECT triggerLabel,numberOfEvents FROM triggerSet ".
+    #			  "WHERE runNumber=? ORDER BY triggerLabel DESC");
+    # Year3
+    $sthl = $obj->prepare("SELECT name,numberOfEvents FROM l0TriggerSet ".
+			  "WHERE runNumber=? ORDER BY name DESC");
 
     # Trigger Setup
     $sths = $obj->prepare("SELECT glbSetupName FROM runDescriptor ".
@@ -528,6 +546,7 @@ sub rdaq_hack
 	if( ! $stht ){
 	    &info_message("hack","$run cannot be evaluated. No DataSET info.\n");
 	} else {
+	    $mask = 0;
 	    while( defined($line = $stht->fetchrow() ) ){
 		$mask |= (1 << &GetBitValue("DetSetMask",$line));
 	    }
@@ -597,8 +616,7 @@ sub rdaq_hack
 	push(@res,0);
     }
     
-
-    join(" ",@res);
+    return join(" ",@res);
 }
 
 
@@ -977,6 +995,8 @@ sub Record_n_Fetch
     if($el eq ""){  return 0;}
     if($el eq 0){   return 0;}
 
+    #print "Record_n_Fetch :: $tbl $el\n"  if ($tbl eq "FOFileType");
+
     if( ! defined($rv = $RFETCHED{"$tbl-$el"}) ){
 	# Return value
 	#if($tbl eq "FOruns"){
@@ -1009,8 +1029,8 @@ sub Record_n_Fetch
 	# close database
 	rdaq_close_odatabase($obj);
     }
-
-    $rv;
+    #print "Record_n_Fetch :: returning $rv\n" if ($tbl eq "FOFileType");
+    return $rv;
 }
 
 sub GetRecord
