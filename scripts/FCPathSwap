@@ -6,7 +6,7 @@
 #
 # Note that the database is also updated when
 # this is done and
-# - sanity = 0 files are removed from physical 
+# - sanity = 0 files are removed from physical
 #   location and database
 # - file which do not exists are also removed
 # - if a file fails removal, the record will
@@ -17,7 +17,7 @@
 #   operation aborts (no deletion)
 #
 # This implies that you execute this script
-# while being ABSOLUTLY sure the path are 
+# while being ABSOLUTLY sure the path are
 # seen from where this script exist.
 #
 # Args are (first 3 are mandatory) :
@@ -34,7 +34,7 @@
 #
 # This script was written to make as many checks as
 # possible so it may appear as complicated but really
-# is trying to use a 'conservative' approach (checks 
+# is trying to use a 'conservative' approach (checks
 # at perl, Unix, db level ... more than one check
 # in some cases).
 #
@@ -61,7 +61,7 @@ $SMOOTH  = 1;               # smooth trnasition leaves an soft link at the
                             # old location.
 
 if ( ! defined($ARGV[2])  ){
-    print STDERR 
+    print STDERR
 	"\n",
 	"Syntax is:\n",
 	"  % $PRGM arg0='old base path' arg1='new base path' arg2={1|0} [arg3='move mode']\n",
@@ -71,7 +71,7 @@ if ( ! defined($ARGV[2])  ){
 	"  arg3 = 0   brute force copy and delete of the original. 1 creates a soft-link\n",
 	"             for backward compatibility (you cna delete those afterward)\n",
 	"\n";
-	
+
     exit;
 }
 
@@ -83,7 +83,7 @@ print "$PRGM:: Info   : Connecting to the Catalog\n" if ($DEBUG);
 $fC = FileCatalog->new();
 
 # The next instruction will abort everything
-# if not satisfied. 
+# if not satisfied.
 # API MUST be of version  >= V01.260 .
 $fC->Require("V01.260");
 
@@ -131,7 +131,7 @@ if ($fC){
 
 	if ( $sanity == 0 || ! -e "$path/$file"){
 	    # Either the file is not 'sane' or the file
-	    # does not exists. Database entry and/or file 
+	    # does not exists. Database entry and/or file
 	    # needs to be removed.
 	    if ($DOIT ){
 		# context must lead to one value. If not,
@@ -185,7 +185,7 @@ if ($fC){
 		print "$PRGM :: Info   : $path/$file -> $newpath/$file\n";
 	    }
 	}
-	
+
     }
 }
 
@@ -196,7 +196,7 @@ print "$PRGM :: Indo   : Processed=$OK, Failed=$FAILED, Already done=$DONE\n";
 
 
 
-# Set context for $path $file within the 
+# Set context for $path $file within the
 # scope of arguments and global variables.
 sub Context
 {
@@ -245,7 +245,7 @@ sub DeleteOrMark
 	$cond = ($n > 1);
     }
 
-    if ($cond){ 
+    if ($cond){
 	$fC->unset_delayed() if ($mode ==0);
 	print STDERR "$PRGM :: Warning: More than one record at Delete() for $path/$file\n";
 	return 0;
@@ -266,14 +266,14 @@ sub DeleteOrMark
 		print STDERR "$PRGM :: Error: Problemo\n";
 		die "\n";  # better stop or we will leave something inconsistent
 	    }
-	    $fC->unset_delayed();	
+	    $fC->unset_delayed();
 	}
     }
     return 1;
 }
 
 
-# Clone file in db 
+# Clone file in db
 sub Clone
 {
     my($path,$file,$newpath)=@_;

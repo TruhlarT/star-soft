@@ -1,422 +1,362 @@
-#!/usr/local/bin/perl
+#!/opt/star/bin/perl -w
 
-#
-# Get a detail of the space on each disks
-# Look 2 directory deep for what is there assuming
-#
-# $0 > /afs/rhic.bnl.gov/star/doc/www/html/tmp/pub/overall.html
-#
-#
-# Hidden assumption is that  if a file named FC_$disk.txt or 
-# FC_$disk.html exists in $OUTD, a reference to it will appear.
-# 
-#
+use lib "/afs/rhic.bnl.gov/star/packages/scripts";
+use FileCatalog;
+use Date::Manip;
 
+if ($#ARGV == -1){
 
+    print qq~
 
-# List of disks will be by numbers
-$MIN   =  1;                                             # 4
-$MAX   =  6;                                             # for testing
-$MAX   = 50;                                             # Upper number ; can be as high
-$MAIN  = "/star/data";                                   # default base path
+ Syntax is
+  % DBUpdate.pl [options] BasePath [fileExtension] [RelPathOverwrite] [Substitute]
+     [user] [password]
 
+ Options are
+   -o outputFile      redirect output to file outputFile
 
-# Static configuration
-$OUTD  = "/afs/rhic.bnl.gov/star/doc/www/html/tmp/pub/Spider"; # this will be used for Catalog hand-shake
-$ICON1 = "/icons/transfer.gif";                                # Icon to display for indexer result
-$ICON2 = "/STAR/images/Spider1.jpg";                           # Icon to display for spider result
-$DINFO = "(check 'nova' Spiders)";                             # Many tools may be used for indexing
-                                                               # display info about which one.
+ Purpose
+   This script scans a disk given as the first argument
+   checks all files and update the database with a file
+   location new entry if it finds the same entry as
+   storage = HPSS.
 
-$SpiderControl = "/cgi-bin/starreco/%%RELP%%/SpiderControl.cgi"; # a CGI controling the spiders
+   It uses the clone_location() method to update the
+   database with that entry and is a very good example
+   of how to do this ...
 
+   This is REALLY a spider ... It is used to post-scan
+   disk and catch entries which may be missing.
 
-@COLORS = ("#FFFACD","#C1FFC1","#7FFFD4","#00DEFF","#87CEFA","#ccccee","#D8BFD8","#FF69B4");
+   Only clones (if there is no similar entries in the db,
+   it will not add it).
 
 
-# Insert an extra table break before those numbers
-$BREAK{"01"} =  "User Space";  
-$BREAK{"03"} =  "Reserved Usage Space Area";  
-$BREAK{"06"} =  "Production Disks / Assigned TEMPORARY space for Projects";  
-$BREAK{"08"} =  "Production Disks";  
+ Arguments are
+   ARGV0   the base path of a disk to scan (default /star/data06)
+   ARGV1   the filetype (default .MuDst.root ). If null, it will
+           search for all files
+   ARGV2   this scripts limits it to a sub-directory "reco" starting
+           from ARGV0. Use this argument to overwrite.
+   ARGV3   A base path substitution for find the entry in HPSS
+           Default is /home/starreco .
 
-# Exclude those (alias, un-usable etc ...)
-$DEXCLUDE{"46"} = 1;
-
-
-# Standard header style
-$TD  = "<TD BGCOLOR=\"black\" align=\"center\"><FONT FACE=\"Arial, Helvetica\"><FONT COLOR=\"white\"><B>";
-$ETD = "</FONT></B></FONT></TD>\n\t";
-
+   ARGV4   a user name (default FC_admin)
+   ARGV5   a password (default will be to use the
+           get_connection() method as a guess try)
 
 
+ Examples
+  % DBUpdate.pl /star/data27
+  % DBUpdate.pl /star/data27 ""
+  % DBUpdate.pl /star/data03 .daq daq /home/starsink/raw
 
-
-for ( $i = $MIN ; $i <= $MAX ; $i++){
-    push(@DISKS,sprintf("$MAIN%2.2d",$i));
+~;
+    exit;
 }
 
-foreach $disk (@DISKS){
-    if ( ! -e "$disk" && ! -e "$disk/."){  next;}  # -l may be a unmounted disk
-    if ( ! -d "$disk/." ){                         # this is definitly not mounted
-	$DINFO{$disk} = "?;?;?;?;".
-	    "<BLINK><B><FONT COLOR=#FF0000>Offline or bad mount point".
-		"</FONT></B></BLINK>; ";
-	next;
-    }
+# BEWARE :
+#  (1) $SITE and $HPSSD are global variables
+#  (2) There is an hidden logic based on $path !~ /\/star\/data/
+#      to recognized if the storage is local or NFS.
+
+$SITE  = "BNL";
+$HPSSD = "/home/starreco";
+$SELF  = "DBUpdate";
+$LOUT  = 0;
+$FLNM  = "";
 
 
-    chomp($res = `/bin/df -k $disk | /bin/grep % | /bin/grep '/'`);
-    $res   =~ s/^\s*(.*?)\s*$/$1/;
-    $res   =~ s/\s+/ /g;
-    @items =  split(" ",$res);
+$SCAND = "/star/data06";
+$USER  = "";
+$PASSWD= "";
+$SUB   = "reco";
 
-    #print STDERR "$disk $res\n";
+# Argument pick-up
+$kk    = 0;
+$FO    = STDERR;
+$|     = 1;
 
-    if ($#items < 5){
-	$tota = $items[0];
-	$used = $items[1];
-	$avai = $items[2];
-	$prct = $items[3];
+for ($i=0 ; $i <= $#ARGV ; $i++){
+    # Support "-XXX" options
+    if ($ARGV[$i] eq "-o"){
+	$FLNM = $ARGV[$i+1];
+	if ( -e $FLNM ){
+	    # Make the file new all the time
+	    unlink($ARGV[$i+1]);
+	}
+	if ( open(FO,">$FLNM.tmp") ){
+	    $i++;
+	    $FO = FO;
+	}
+
     } else {
-	$tota = $items[1];
-	$used = $items[2];
-	$avai = $items[3];
-	$prct = $items[4];
+	# ... as well as previous syntax
+	$kk++;
+	$SCAND = $ARGV[$i] if ( $kk == 1);
+	$FTYPE = $ARGV[$i] if ( $kk == 2);
+	$SUB   = $ARGV[$i] if ( $kk == 3);
+	$HPSSD = $ARGV[$i] if ( $kk == 4);
+	$USER  = $ARGV[$i] if ( $kk == 5);
+	$PASSWD= $ARGV[$i] if ( $kk == 6);
     }
-    #print STDERR "\t$tota $used $avai $prct\n";
+}
 
-    # Now scan the disk for a reco directory
-    undef(@TRGS);
-    undef(%LIBS);
 
-    # Logic sorting our the trigger level and the library
-    # level. This implies a strict naming convention.
-    if( -d "$disk/reco"){
-	@TMP = glob("$disk/reco*/*");
-	foreach $trg (@TMP){
-	    #print "Found $trg\n";
-	    if ($trg =~ /StarDb/){ next;}
-	    $tmp = $trg;
-	    $tmp =~ s/.*\///;
-	    push (@TRGS,$tmp);
-	    @vers = glob("$trg/*/*");
-	    foreach $ver (@vers){
-		if (! -d $ver && ! -l $ver){ next;}
-		#print "\tFound $ver\n";
-		$ver =~ s/.*\///;
-		$LIBS{$ver} = 1;
-		if ( defined($ALIBS{$ver}) ){
-		    $ALIBS{$ver} .= "$tmp;$disk ";
+# Get shorten string for path or base path for HPSS regexp
+#@items  = split("/",$SCAND);
+#$SCANDS = "/".$items[1]."/".$items[2];
+
+
+
+#@ALL =( "$SCAND/$SUB/FPDXmas/FullField/P02ge/2002/013/st_physics_3013016_raw_0018.MuDst.root",
+#	"$SCAND/$SUB/FPDXmas/FullField/P02ge/2002/013/st_physics_3013012_raw_0008.MuDst.root");
+
+
+$DOIT  = ($#ALL == -1);
+
+
+if ( ! defined($FTYPE) ){  $FTYPE = ".MuDst.root";}
+
+
+if( $DOIT && -e "$SCAND/$SUB"){
+    if ($FTYPE ne ""){
+	print "Searching for all files like '*$FTYPE' ...\n";
+	@ALL   = `find $SCAND/$SUB -type f -name '*$FTYPE'`;
+	print "Found ".($#ALL+1)." files to add (x2)\n";
+    } else {
+	print "Searching for all files ...\n";
+	@ALL   = `find $SCAND/$SUB -type f`;
+	print "Found ".($#ALL+1)." files to add (x2)\n";
+    }
+}
+
+if ($#ALL == -1){ goto FINAL_EXIT;}
+
+
+
+$fC = FileCatalog->new();
+
+
+# Get connection fills the blanks while reading from XML
+# However, USER/PASSWORD presence are re-checked
+#$fC->debug_on();
+($USER,$PASSWD,$PORT,$HOST,$DB) = $fC->get_connection("Admin");
+$port = $PORT if ( defined($PORT) );
+$host = $HOST if ( defined($HOST) );
+$db   = $DB   if ( defined($DB) );
+
+
+if ( defined($USER) ){   $user = $USER;}
+else {                   $user = "FC_admin";}
+
+if ( defined($PASSWD) ){ $passwd = $PASSWD;}
+else {                   print "Password for $user : ";
+                         chomp($passwd = <STDIN>);}
+
+
+
+
+
+#
+# Now connect
+#
+if ( ! $fC->connect($user,$passwd,$port,$host,$db) ){
+    &Stream("Error: Could not connect to $host $db using $user (passwd=OK)");
+    goto FINAL_EXIT;
+}
+
+#$fC->debug_off();
+
+$failed = $unkn = $old = $new = 0;
+
+#$fC->set_delimeter(",");             # Make it easier to parse
+$fC->set_silent(1);                  # Turn OFF messaging
+
+# Make a main context
+# Temporary so we get it once only
+chomp($NODE    = `hostname`);
+
+
+
+
+
+foreach  $file (@ALL){
+    chomp($file);
+
+    # Skip some known pattern
+    if ( $file =~ m/reco\/StarDb/){  next;}
+
+    # We need to parse the information we can
+    # save in the ddb
+    $file =~ m/(.*\/)(.*)/;
+    $path = $1; $file = $2;
+    chop($path);
+    $hpath= $path;
+    $hpath=~ s/$SCAND/$HPSSD/;
+
+
+    # Is a disk copy ??
+    $fC->clear_context();
+    if ( $path =~ m/\/star\/data/){
+	$node    = "";
+	$storage = "NFS";
+	$fC->set_context("path = $path","filename = $file","storage = NFS","site = $SITE");
+
+    } else {
+	$storage = "local";
+	$node    = $NODE;
+	$fC->set_context("path = $path","filename = $file","storage = local","site = $SITE",
+			 "node = $NODE");
+    }
+    @all1 = $fC->run_query("size");
+
+
+
+    # HPSS copy (must be the last context to use clone_location() afterward )
+    $fC->clear_context();
+    $fC->set_context("path = $hpath","filename = $file","storage = HPSS","site = $SITE");
+    @all = $fC->run_query("size");
+
+
+
+    if ($#all == -1){
+	$unkn++;
+	&Stream("Warning : File not found as storage=HPSS -- $path/$file");
+
+    } else {
+	$mess = "Found ".($#all+1)." records for [$file] ";
+
+	@stat   = stat("$path/$file");
+
+	if ($#stat == -1){
+	    &Stream("Error : stat () failed -- $path/$file");
+	    next;
+	}
+
+	#if( $stat[7] != 0){
+	#    $sanity = 1;
+	#} else {
+	#    $sanity = 0;
+	#}
+
+
+	if ($#all1 != -1){
+	    $old++;
+	    #print "$mess Already in ddb\n";
+
+	} else {
+	    #print "Cloning $hpath $file\n";
+	    if ( ! $fC->clone_location() ){
+		print "Cloning of $file did not occur\n";
+
+	    } else {
+		print "$mess File cloned ".sprintf("%.2f %%",($new/$#ALL)*100)."\n"
+		    if ($new % 10 == 0);
+		$fC->set_context("persistent= 0");
+
+		#chomp($node = `hostname`);
+
+		$fsize = $stat[7];
+		@own   = getpwuid($stat[4]);
+		$prot  = &ShowPerms($stat[2]);
+		#$dt    = &UnixDate(scalar(localtime($stat[10])),"%Y%m%d%H%M%S");
+		$fC->set_context("path       = $path",
+				 "storage    = $storage",
+				 "persistent = 0",
+				 "size       = $fsize",
+				 "owner      = $own[0]",
+				 "protection = $prot",
+				 "available  = 1",
+				 "site       = $SITE");
+		if ( $node ne ""){
+		    $fC->set_context("node       = $node");
+		}
+
+		if ( ! $fC->insert_file_location() ){
+		    &Stream("Error : Attempt to insert new location [$path] failed");
+		    $failed++;
 		} else {
-		    $ALIBS{$ver}  = "$tmp;$disk ";
+		    $new++;
 		}
 	    }
 	}
 
-    }
 
-
-    $DINFO{$disk} = "$tota;$used;$avai;$prct;";
-    $trg = " ";
-    foreach $tmp (@TRGS){
-	$trg .= "$tmp ";
     }
-    if ( -e "$disk/AAAREADME"){
-	@all = `/bin/cat $disk/AAAREADME`;
-	$DINFO{$disk} .= "<B><PRE>".join("",@all)."</PRE></B>";
-    }
-    $DINFO{$disk} .= "$trg;";
-
-    $ver = " ";
-    foreach $tmp (keys %LIBS){
-	$ver .= "<A HREF=\"#".&GetRef($tmp)."\">$tmp</A> ";
-    }
-    $DINFO{$disk} .= "$ver;";
-    #print STDERR "$disk --> $DINFO{$disk}\n";
 }
 
-if ( defined($ARGV[0]) ){
-    open(FO,">$ARGV[0]-tmp") || die "Could not open $ARGV[0]-tmp\n";
-    $FO = FO;
-} else {
-    $FO = STDOUT;
-}
+$fC->destroy();
 
-print $FO
-    "<HTML>\n",
-    "<HEAD><TITLE>Disk space overview</TITLE></HEAD>\n",
-    "<BODY>\n",
-    "<H1 ALIGN=\"center\">Disk space overview</H1>\n",
-    "<h5 align=\"center\">Generated on ".localtime()."</h5>\n",
-    "<H1>Information</H1>\n",
-    "<OL>\n",
-    "<LI><A HREF=\"#DSO\">Disk Space Overview</A>",
-    "<LI><A HREF=\"#FCREF\">Disk needing indexing</A>",
-    "<LI><A HREF=\"#PLOC\">Production locations</A>",
-    "<LI><A HREF=\"#SUM\">Summary</A>",
-    "</OL>\n",
-    "\n",
-    "<H2><A NAME=\"DSO\">Disk space overview</A></H2>\n",
-    "Note that each disk may contain other directories than reco*/. Those ",
-    "are the only ones scanned ...\n",
-    "The reported structure reflects a tree assumed to be of the form ",
-    " Trigger/Field/Production.\n",
-    "<P>\n",
-    "<TABLE border=\"0\">\n<TR><TD>Color Scale</TD>\n";
+FINAL_EXIT:
+    if ($LOUT){
+	print "Have lines, closing summary\n";
+	print $FO
+	    "$SELF :: Info :\n",
+	    ($unkn  !=0 ? "\tUnknown = $unkn ".sprintf("%2.2f%%",100*$unkn/($unkn+$new+$old))."\n": ""),
+	    ($old   !=0 ? "\tOld     = $old\n"   : ""),
+	    ($new   !=0 ? "\tNew     = $new\n"   : ""),
+	    ($failed!=0 ? "\tFailed  = $failed\n": "");
 
-for ($i=0 ; $i <= $#COLORS ; $i++){
-    $low  = int(100*$i/($#COLORS+1));
-    $high = int(100*($i+1)/($#COLORS+1));
-    print $FO "\t<TD BGCOLOR=\"$COLORS[$i]\">$low - $high</TD>\n";
-}
-
-print $FO 
-    "</TR>\n</TABLE>\n",
-    "<P>\n",
-    "<TABLE border=\"1\" cellspacing=\"0\" width=\"50\">\n";
-
-
-printf $FO
-    "<TR>$TD%10s$ETD $TD%11s$ETD $TD%11s$ETD $TD%11s$ETD $TD%3s$ETD $TD%s$ETD $TD%s$ETD</TR>\n",
-    "Disk","Total","Used","Avail","Used %","Triggers","Libs";
-
-
-$col     = 0;
-@$totals = (0,0,0);
-foreach $disk (sort keys %DINFO){
-
-    #print STDERR "$DINFO{$disk}\n";
-    @items = split(";",$DINFO{$disk});
-    $items[4] =~ s/\s/&nbsp; /;
-    $items[5] =~ s/\s/&nbsp; /;
-
-    $icol =  $items[3];
-    $icol =~ s/%//;
-    #print "$icol ";
-    $col =  int( ($#COLORS+1) * ( $icol /100.0));
-    #print "$col ";
-    if( $icol >= 99 ){
-	$col = "red";
+	# Check if we have opened a file
+	if ($FO ne STDERR){
+	    print $FO "Scan done on ".localtime()."\n";
+	    close($FO);
+	    unlink("$FLNM") if ( -e "$FLNM");
+	    rename("$FLNM.tmp","$FLNM");
+	}
     } else {
-	$col = $COLORS[$col];
-    }
-
-    #print "$col\n";
-    $disk =~ m/(\d+)/;
-
-    if ( defined($DEXCLUDE{$1} ) ){  next;}
-    if ( defined($BREAK{$1}) ){
-	printf $FO 
-	    "<TR BGCOLOR=\"#333333\"><TD ALIGN=\"center\" COLSPAN=\"7\">".
-	    "<FONT COLOR=\"white\"><B>$BREAK{$1}</B></FONT></TD></TR>\n";
-    }
-
-    $FCRef = &GetFCRef("FC",$ICON1,$disk);
-    printf $FO
-	"<TR bgcolor=\"$col\">\n".
-	"  <TD align=\"right\"><A NAME=\"%s\">%10s</A></TD>\n".
-	"  <TD align=\"right\">%11s</TD>\n".
-	"  <TD align=\"right\">%11s</TD>\n".
-	"  <TD align=\"right\">%11s</TD>\n".
-	"  <TD align=\"right\">%3s</TD>\n".
-	"  <TD>%s</TD>\n".
-	"  <TD align=\"right\">%s%s%s</TD>\n".
-	"</TR>\n",
-	&GetRef($disk),"<i><b>$disk</b></i>",$items[0],$items[1],$items[2],
-	$items[3],$items[4],$FCRef,(($FCRef eq "")?"":"<BR>"),$items[5];
-
-    $totals[0] += $items[0];
-    $totals[1] += $items[1];
-    $totals[2] += $items[2];
-
-    if ( $FCRef ne ""){
-	push(@FCRefs,$FCRef." $disk ");
-    }
-
-    #$col++;
-    #if($col > $#COLORS){ $col = 0;}
-}
-
-
-
-#
-# FileCatalog index references
-#
-print $FO
-    "</TABLE>\n",
-    "<P>\n",
-    "<H2><A NAME=\"FCREF\">Disk needing indexing</A></H2>\n";
-    
-if ($#FCRefs == -1){
-    print $FO "<I>Catalog is up-to-date or indexing daemon are down $DINFO.</I>\n";
-} else {
-    print $FO 
-	"<TABLE ALIGN=\"center\" CELLSPACING=\"0\"  BORDER=\"0\">\n",
-	"  <TR>\n".
-	"      $TD Disk    $ETD\n".
-	"      $TD Indexer $ETD\n".
-	"      $TD Spider  $ETD\n".
-	"      <TD> &nbsp  </TD>\n".
-	"      $TD Disk    $ETD\n".
-	"      $TD Indexer $ETD\n".
-	"      $TD Spider  $ETD\n".
-	"      <TD> &nbsp  </TD>\n".
-	"      $TD Disk    $ETD\n".
-	"      $TD Indexer $ETD\n".
-	"      $TD Spider  $ETD\n".
-	"</TR>\n";
-
-    $ii = 0;
-    foreach $line (@FCRefs){
-	$line  =~ m/(.*>\s+)(.*)(\s+)/;
-	($ind,$disk) = ($1,$2);
-	$refdisk = $disk;
-	$refdisk =~ s/\//_/g;
-
-	$FCRef = &GetFCRef("SD",$ICON2,$disk);
-	if ( $FCRef ne ""){
-	    $Info  = "<A HREF=\"$SpiderControl?disk=$refdisk&action=view\">$FCRef</A>";	    
-	} else {
-	    $Info  = "<A HREF=\"$SpiderControl?disk=$refdisk&action=ON\"><i>off</i></A>";
-	}
-	$ind = "<A HREF=\"$SpiderControl?disk=$refdisk&action=view\"><i>$ind</i></A>";
-
-	$ind  =~ s/%%RELP%%/public/;
-	$Info =~ s/%%RELP%%/protected/;
-
-	if ($ii % 3 == 0){ print $FO "<TR>\n";}
-	print $FO 
-	    "    <!-- $ii -->\n".
-	    "    <TD BGCOLOR=\"#DDDDDD\">$disk</TD>\n".
-	    "    <TD BGCOLOR=\"#EFEFEF\" ALIGN=\"middle\">$ind</TD>\n".
-	    "    <TD BGCOLOR=\"#EFEFEF\" ALIGN=\"middle\">$Info</TD>\n";
-
-	if (($ii+1) % 3 == 0){ 
-	    print $FO "</TR>\n";
-	} else {
-	    print $FO "    <TD>&nbsp;</TD>\n";
-	}
-	$ii++;
-    }
-    if ($ii % 3 == 0){ 
-	for ($ii=0 ; $ii < 2 ; $ii++){
-	    print $FO 
-		"    <TD>&nbsp;</TD>\n".
-		"    <TD>&nbsp;</TD>\n".
-		"    <TD>&nbsp;</TD>\n".
-		"    <TD>&nbsp;</TD>\n";
-	}
-	print $FO "</TR>\n";
-    } elsif ($ii % 2 == 0){ 
-	print $FO 
-	    "    <TD>&nbsp;</TD>\n".
-	    "    <TD>&nbsp;</TD>\n".
-	    "    <TD>&nbsp;</TD>\n".
-	    "    <TD>&nbsp;</TD>\n".
-	    "</TR>\n";
-    }
-    print $FO "</TABLE>\n";
-}
-
-
-#
-# Production Location summary
-#
-print $FO
-    "<P>",
-    "<H2><A NAME=\"PLOC\">Production Location</A></H2>\n",
-    "<TABLE align=\"center\" cellspacing=\"0\" border=\"1\" width=\"750\">\n",
-    "<TR>$TD Production $ETD$TD Trigger setup $ETD$TD Location list$ETD</TR>\n";
-
-undef(@LINES);
-foreach $tmp (sort keys %ALIBS){
-    @items = split(" ",$ALIBS{$tmp}); undef(%UD);
-    foreach $disku (sort(@items)){ 
-	($trg,$disk) = split(";",$disku);
-	if ( ! defined($TR{$tmp.$trg}) ){
-	    if ($#LINES != -1){ 
-		push(@LINES,"</TD>\n</TR>\n");
-		# make a separator at each new library
-		if ( ! defined($LB{$tmp}) ){
-		    push(@LINES,"<TR BGCOLOR=\"#333333\" HEIGHT=\"1\"><TD COLSPAN=\"3\">".
-			 "</TD></TR>\n");
-		}
-	    }
-	    push(@LINES,
-		 "<TR>\n",
-		 "\t<TD BGCOLOR=\"#DDDDDD\"><FONT FACE=\"Arial, Helvetica\">".
-		 (defined($LB{$tmp})?"&nbsp;":"<A NAME=\"".&GetRef($tmp)."\">$tmp</A>")."</FONT></TD>\n".
-		 "\t<TD BGCOLOR=\"#EEEEEE\">$trg</TD>\n".
-		 "\t<TD BGCOLOR=\"#EEEEEE\">");
-	    $TR{$tmp.$trg} = 1;
-	    $LB{$tmp}      = 1;
-	}
-	if ( ! defined($UD{$tmp.$trg.$disk}) ){
-	    push(@LINES,"<A HREF=\"#".&GetRef($disk)."\">$disk</A> ");
-	    $UD{$tmp.$trg.$disk} = 1;
+	# if nothing was output, delete ALL files (especially if they
+	# were old)
+	if ($FO ne STDERR){
+	    close($FO);
+	    unlink("$FLNM.tmp") if ( -e "$FLNM.tmp");
+	    unlink("$FLNM")     if ( -e "$FLNM");
 	}
     }
-}
-push(@LINES,"</TD>\n</TR>\n");
-foreach $tmp (@LINES){  print $FO $tmp;}
 
-
-print $FO
-    "</TABLE>\n",
-    "<P>",
-    "<H2><A NAME=\"SUM\">Summary</A></H2>\n",
-    "<BLOCKQUOTE>\n",
-    "Total Space = ".sprintf("%.2f",$totals[0]/1024/1024)." GB<br>\n",
-    "Total Used =  ".sprintf("%.2f",$totals[1]/1024/1024)." GB<br>\n",
-    "Available  =  ".sprintf("%.2f",$totals[2]/1024/1024)." GB<br>\n",
-    "</BLOCKQUOTE>\n",
-    "</BODY>\n",
-    "</HTML>\n";
-
-if ( defined($ARGV[0]) ){
-    if ( -e $ARGV[0]){ 
-	# delete if exits the preceedingly renamed file
-	if ( -e "$ARGV[0]-old"){ unlink("$ARGV[0]-old");}
-	# move the file to a new target name
-	if ( ! rename("$ARGV[0]","$ARGV[0]-old") ){
-	    # if we cannot rename() try to delete
-	    unlink($ARGV[0]);
-	}
-    }
-    # move new file to target
-    rename("$ARGV[0]-tmp","$ARGV[0]");
-}
+print "Done\n";
 
 
 
-
-sub GetRef
+# Writes to file or STD and count lines
+sub Stream
 {
-    my($el)=@_;
-    
-    $el =~ s/[\/ ]/_/g;
-    $el;
+    my(@lines)=@_;
+
+    foreach $line (@lines){
+	$LOUT++;
+	chomp($line);
+	print $FO "$SELF :: $line\n";
+    }
 }
 
-sub GetFCRef
+
+# This sub has been taken from fcheck software
+# as-is (was too lazzy to get it done by myself)
+sub ShowPerms
 {
-    my($What,$Icon,$el)=@_;
-    my($x);
+    local ($mode) = @_;
 
-    $el =~ s/[\/ ]/_/g;
-
-    if ( -e $OUTD."/$What$el.txt"){
-	if ( $What eq "FC"){
-	    chomp($x = `/bin/grep Unknown $OUTD/$What$el.txt`);
-	    $x =~ m/(.*)(\d+\.\d+)(.*)/;
-	    $x = "<BR><TT>$2$3</TT>";
-	}
-
-	return 
-	    "<IMG BORDER=\"0\" ALT=\"+\" SRC=\"$Icon\" WIDTH=\"25\" HEIGHT=\"25\">$x";
-    } 
-    return "";
-
+    local (@perms) = ("---", "--x",  "-w-",  "-wx",  "r--",  "r-x",  "rw-",  "rwx");
+    local (@ftype) = ("?", "p", "c", "?", "d", "?", "b", "?", "-", "?", "l", "?", "s", "?", "?", "?");
+    local ($setids) = ($mode & 07000)>>9;
+    local (@permstrs) = @perms[($mode & 0700) >> 6, ($mode & 0070) >> 3, ($mode & 0007) >> 0];
+    local ($ftype) = $ftype[($mode & 0170000)>>12];
+    if ($setids){
+	# Sticky Bit?
+	if ($setids & 01) { $permstrs[2] =~ s/([-x])$/$1 eq 'x' ? 't' : 'T'/e; }
+	# Setuid Bit?
+	if ($setids & 04) { $permstrs[0] =~ s/([-x])$/$1 eq 'x' ? 's' : 'S'/e; }
+	# Setgid Bit?
+	if ($setids & 02) { $permstrs[1] =~ s/([-x])$/$1 eq 'x' ? 's' : 'S'/e; }
+    }
+    return (join('', $ftype, @permstrs));
 }
+
+
+
+
+
+
 
