@@ -142,7 +142,7 @@ else
    setenv SYSMAN "/usr/man"
 endif
 setenv MANPATH "${HOME}/man:${SYSMAN}:/usr/local/man:/cern/man"
-setenv XFILESEARCHPATH "/usr/lib/X11/app-defaults/%N:/usr/local/lib/X11/app-defaults/%N"
+setenv XFILESEARCHPATH "/usr/openwin/lib/app-defaults/%N:/usr/lib/X11/app-defaults/%N:/usr/local/lib/X11/app-defaults/%N"
 setenv EDITOR      "pico -w"
 setenv VISUAL      "pico -w"
 setenv LESSCHARSET latin1

@@ -1,5 +1,8 @@
 #!/bin/csh
 #  $Log: STAR_SYS,v $
+#  Revision 1.29  2002/06/04 23:06:07  jeromel
+#  star_login.csh
+#
 #  Revision 1.28  2001/02/05 16:37:27  fisyak
 #  Move redefinition of STAR_SYS after uname
 #
@@ -95,7 +98,7 @@
 #
 #  Revision 1.1.1.1  1997/12/31 14:35:23  fisyak
 #
-#             Last modification $Date: 2001/02/05 16:37:27 $ 
+#             Last modification $Date: 2002/06/04 23:06:07 $ 
 #
 # Determine STAR_SYS variable.
 #
@@ -185,6 +188,50 @@ if ("${STAR_SYS}" == "i386_linux22" || "${STAR_SYS}" == "i386_linux2") then
     if ("$redhat" == "6.1") setenv STAR_SYS "i386_redhat61"
     if ("$redhat" == "6.2") setenv STAR_SYS "i386_redhat61"
 endif
+
+
+
+
+# Bunch of Ugly backward-compatibility patches between 7.2 and 6.2
+# Well, we should not do that often and this block should be removed
+# and/or commented as soon as possible (i.e. as soon as we get rid
+# of anything 6.1 related).
+if (0) then
+if ("${STAR_SYS}" == "i386_linux24" ) then
+    if ( `echo $STAR_LEVEL | awk '{print ($1 < "SL02b")}'`) then
+	echo "/!\ Backward compatibility switching $STAR_SYS -> i386_redhat61 ..."
+	setenv SAVED_STAR_SYS   $STAR_SYS
+	setenv SAVED_PATH       $PATH
+	#setenv SAVED_LDAPTH     $LD_LIBRARY_PATH
+
+	setenv STAR_SYS          "i386_redhat61"
+
+	# old compiler support /usr/lib/gcc-lib/i386-redhat-linux/egcs-2.91.66
+	setenv PATH             /afs/rhic/asis/$STAR_SYS/usr.local/bin:/usr/lib/gcc-lib/i386-redhat-linux/egcs-2.91.66:${PATH}
+	#setenv LD_LIBRARY_PATH  /afs/rhic/asis/$STAR_SYS/usr.local/lib:${LD_LIBRARY_PATH}
+
+	# may not be initially defined
+	if ( $?OPTSTAR ) then
+	    setenv SAVED_OPTSTAR    $OPTSTAR
+	endif
+	setenv OPTSTAR              /afs/rhic/$STAR_SYS/opt/star
+    else
+	# Need to be able to come back as well
+	if( $?SAVED_PATH && $?SAVED_LDAPTH && $?SAVED_STAR_SYS ) then
+	    setenv STAR_SYS         $SAVED_STAR_SYS
+	    setenv PATH             $SAVED_PATH
+	    #setenv LD_LIBRARY_PATH  $SAVED_LDAPTH
+	    if( $?SAVED_OPTSTAR ) then
+		setenv OPTSTAR          $SAVED_OPTSTAR
+	    endif
+	endif
+    endif
+endif
+endif
+
+
+
+
 if ("$STAR_SYS" == "i386_linux61"|| "$STAR_SYS" == "i386_linux6") setenv STAR_SYS "i386_redhat61"
 if ("$STAR_SYS" == "i386_linux22"|| "$STAR_SYS" == "i386_redhat50" || \
     "$STAR_SYS" == "i386_linux2" || "$STAR_SYS" == "i386_linux3") setenv STAR_SYS "i386_redhat51"
