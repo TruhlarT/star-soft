@@ -318,18 +318,15 @@ sub GetOfflineKeys{
     # create time string
     if ($createTime ne 'any') {
       my $now = time;
-      my $three_days    = 3600*24*3;
-      my $seven_days    = 3600*24*7;
-      my $fourteen_days = 3600*24*14;
-      my $time_sec;
+      my $days;
       # cant get the stupid soft refs to work...
       
-      $time_sec = $three_days if $createTime eq 'three_days';
-      $time_sec = $seven_days if $createTime eq 'seven_days';
-      $time_sec = $fourteen_days if $createTime eq 'fourteen_days';
+      $days = 3  if $createTime eq 'three_days';
+      $days = 7  if $createTime eq 'seven_days';
+      $days = 14 if $createTime eq 'fourteen_days';
       
       $createTime_string  = 
-	" ($now-unix_timestamp(file.createTime))< $time_sec and";
+	" (to_days(from_unixtime($now))-to_days(file.createTime))< $days and";
     }
   }
   
@@ -508,17 +505,15 @@ sub GetNightlyKeys{
     if ($createTime ne 'any'){
       # create time string
       my $now = time;
-      my $three_days    = 3600*24*3;
-      my $seven_days    = 3600*24*7;
-      my $fourteen_days = 3600*24*14;
-
-      my $time_sec;
-      $time_sec = $three_days if $createTime eq 'three_days';
-      $time_sec = $seven_days if $createTime eq 'seven_days';
-      $time_sec = $fourteen_days if $createTime eq 'fourteen_days';
+      my $days;
+      # cant get the stupid soft refs to work...
+      
+      $days = 3  if $createTime eq 'three_days';
+      $days = 7  if $createTime eq 'seven_days';
+      $days = 14 if $createTime eq 'fourteen_days';
       
       $createTime_string  = 
-	" ($now-unix_timestamp(file.createTime))< $time_sec and ";
+	" (to_days(from_unixtime($now))-to_days(file.createTime))< $days and";
     }
   }
 

@@ -250,7 +250,7 @@ sub is_old_report{
   }
 
   # convert it to epoch seconds - note that this doesnt work after 2038...
-  $year = 100 + $year if $year < 38; # timelocal conversion
+  $year += 100 if $year < 38; # timelocal conversion
   $month--; # ditto
   $report_age =  timelocal(0,0,0, $day, $month, $year);
 
