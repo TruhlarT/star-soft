@@ -170,7 +170,7 @@ setenv CERN_ROOT "$CERN/$CERN_LEVEL"
 
 
 # Is this used ??
-setenv INITIALE  `echo $USER | /usr/bin/cut -c1`
+setenv INITIALE  `echo $USER | cut -c1`
 setenv HPSS_HOME "/hpss/rhic.bnl.gov/user/$INITIALE/$USER"
 setenv HSM_HOME  "/hpss/rhic.bnl.gov/user/$INITIALE/$USER"
 unsetenv INITIALE
