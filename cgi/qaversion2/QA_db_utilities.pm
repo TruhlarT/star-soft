@@ -63,7 +63,7 @@ use strict;
 #         jobID       varchar(64)         not null,
 #         report_key  varchar(64)         not null,
 #         type        varchar(20)         not null,
-#         skip        enum('Y','N')       not null default 'Y',
+#         QAanalyzed  enum('Y','Y')       not null default 'N',
 #         QAdone      enum('Y','N')       not null default 'N',
 #         QAok        enum('Y','N','n/a') not null default 'n/a',
 #         QAdate      datetime            not null,
@@ -78,8 +78,9 @@ use strict;
 #                     index (report_key)
 #                     
 
-# QASummary for offline now has one more field.
+# QASummary for offline now has two more fields
 #         redone      smallint            not null default 0
+#         skip        enum('Y','N')       not null default 'Y'
 
 # the QA summary table for online is slightly different...
 
@@ -136,6 +137,7 @@ use strict;
 	 report_key   => 'report_key',
 	 type         => 'type',      # type of data (real, MC)
 	 skip         => 'skip',      # offline only
+	 QAanalyzed   => 'QAanalyzed',
 	 QAdone       => 'QAdone',
 	 QAok         => 'QAok',
 	 QAdate       => 'QAdate',
@@ -352,39 +354,12 @@ sub OnDiskOffline{
 
   return defined GetFromFileOnDiskOffline('ID', $jobID);
 }
-
 #----------
-# returns the value from the '@field(s)' requested from FileCatalog
-# that matches the '$jobID'
+sub GetOneRowFromTable{
+  my $field = shift;
+  my $table = shift;
+  my $where = shift;
 
-sub GetFromFileCatalog{
-  my $field   = shift; # ref to an array or normal scalar
-  my $jobID   = shift;
-
-  my @fields;
-
-  # add commas to a list
-  if ( ref($field) ){
-    @fields = join ',', @$field;
-  }
-  else{
-    @fields = ($field); # just one field
-  }
-
-  my $query = qq{select @fields
-		 from $dbFile.$FileCatalog
-		 where jobID = '$jobID' limit 1};
-
-  return $dbh->selectrow_array($query);
-}
-#----------
-# returns the value from the '@field(s)' requested from JobStatus
-# that matches the '$jobID'
-
-sub GetFromJobStatus{
-  my $field   = shift; # ref to an array or normal scalar
-  my $jobID   = shift;
-  
   my @fields;
   
   # add commas to a list
@@ -396,10 +371,36 @@ sub GetFromJobStatus{
   }
 
   my $query = qq{select @fields 
-		 from $dbFile.$JobStatus
-		 where jobID = '$jobID'};
-  
+		 from $table
+		 where $where
+	       };
   return $dbh->selectrow_array($query);
+}
+#----------
+# returns the value from the '@field(s)' requested from FileCatalog
+# that matches the '$jobID'
+
+sub GetFromFileCatalog{
+  my $field   = shift; # ref to an array or normal scalar
+  my $jobID   = shift;
+
+  my $where_clause = "jobID = '$jobID' limit 1";
+
+  return GetOneRowFromTable($field,"$dbFile.$FileCatalog",$where_clause);
+}
+
+#----------
+# returns the value from the '@field(s)' requested from JobStatus
+# that matches the '$jobID'
+
+sub GetFromJobStatus{
+  my $field   = shift; # ref to an array or normal scalar
+  my $jobID   = shift;
+  
+  my $where_clause = "jobID = '$jobID'";
+
+  return GetOneRowFromTable($field,"$dbFile.$JobStatus",$where_clause);
+
 }
 #----------
 # returns the production series, chain name,
@@ -543,6 +544,12 @@ sub FlagQAdone{
 sub ResetInProgressFlag{
   my $qaID = shift;
   UpdateQASummary($QASum{QAdone}, 'N', $qaID);
+}
+#----------
+# 
+sub FlagQAAnalyzed{
+  my $qaID = shift;
+  UpdateQASummary($QASum{QAanalyzed},'Y',$qaID);
 }
 #----------
 #

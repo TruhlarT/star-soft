@@ -91,24 +91,7 @@ sub JobPopupMenu{
   # QA status
   my @macro_names = @{$select_ref->{macroName}};
 
-  # now fill in errors and warnings info
-  my $abbrev;
-  push @{$self->{values}{QAstatus}}, ( 'ok','not ok','done','not done','in progress');
-  %{$self->{labels}{QAstatus}} = map{$_, $_} @{$self->{values}{QAstatus}};
-
-  foreach my $status ('warnings', 'errors') {
-
-    push @{$self->{values}{QAstatus}}, "$status";
-    $self->{labels}{QAstatus}{$status} = "$status";
-  
-    foreach my $macro_name (@macro_names){
-      my $value = "$status;$macro_name";
-      push @{$self->{values}{QAstatus}}, $value;
-      ($abbrev = $status) =~ s/warnings/warn/ if $status eq 'warnings';
-      ($abbrev = $status) =~ s/errors/err/    if $status eq 'errors';
-      $self->{labels}{QAstatus}{$value} = "$abbrev - $macro_name";
-    }
-  }
+  $self->FillQAStatusMenu(@macro_names);
     
   # createTime
   push @{$self->{values}{createTime}}, ('one_day', 'three_days','seven_days', 'fourteen_days');

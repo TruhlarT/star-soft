@@ -177,7 +177,7 @@ sub FillQAStatusMenu{
   # now fill in errors and warnings info
   my $abbrev;
   push @{$self->{values}{QAstatus}}, 
-  ( 'ok','not ok','done','not done','in progress');
+  ( 'ok','not ok','done','not done','in progress','analyzed','not analyzed');
   
   %{$self->{labels}{QAstatus}} = map{$_, $_} @{$self->{values}{QAstatus}};
 

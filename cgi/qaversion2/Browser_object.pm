@@ -294,50 +294,54 @@ sub DisplayDataset{
   my (@selected_keys);
   # are we looking for datasets?
   if ($gCGIquery->param('Display datasets')){
-      # get selected keys - also make QA_objects
-      my @all_selected_keys = $self->KeyList->GetSelectedKeyList;
+    # delete this parameter
+    $gCGIquery->delete('selected_key_list');
+
+    # get selected keys - also make QA_objects
+    my @all_selected_keys = $self->KeyList->GetSelectedKeyList;
     
-      my $rows = scalar @all_selected_keys;
-      # no keys match query, get out
-      unless ( $rows ) {
-	  print h2('No QA datasets match your query.  Try again.');
-	  return;
-      }
-      # too many matches
-      if ( $rows == $limit ){
-	  print h2(font({-color=>'red'},
-			"Over $limit rows from the database match your query.<br>",
-			"Please choose a more restrictive query.<br>"));
-	  return;
-      }
-      # if the selected keys is greater than the subset_size,
-      # break it up into smaller blocks
-      
-      if ( $rows > $subset_len){
-	
-	$gCGIquery->param('previous_subset',1); 
-	$gCGIquery->param('selected_key_list',@all_selected_keys);
-
-	@selected_keys = splice(@all_selected_keys,0,$subset_len);
-
-	my $n_subset = ceil($rows/$subset_len);
-	my $popup    = Browser_utilities::SelectSubsetMenu($subset_len,$n_subset,$rows, 1);
-	my $more_button = Browser_utilities::SubmitButton('Next subset');
-	my $row_ref  = td([ $popup, $more_button]);
-
-	print "<center>",h3("Rows 1 - $subset_len (total $rows rows)"),
-	      table(Tr($row_ref)). "</center>";
-
-      }
-      else{
-	@selected_keys = @all_selected_keys;
-      }
+    my $rows = scalar @all_selected_keys;
+    # no keys match query, get out
+    unless ( $rows ) {
+      print h2('No QA datasets match your query.  Try again.');
+      return;
     }
+    # too many matches
+    if ( $rows == $limit ){
+      print h2(font({-color=>'red'},
+		    "Over $limit rows from the database match your query.<br>",
+		    "Please choose a more restrictive query.<br>"));
+      return;
+    }
+    # if the selected keys is greater than the subset_size,
+    # break it up into smaller blocks
+    
+    if ( $rows > $subset_len){
+      
+      $gCGIquery->param('previous_subset',1); 
+      $gCGIquery->param('selected_key_list',@all_selected_keys);
+      
+      @selected_keys = splice(@all_selected_keys,0,$subset_len);
+      
+      my $n_subset = ceil($rows/$subset_len);
+      my $popup    = 
+	Browser_utilities::SelectSubsetMenu($subset_len,$n_subset,$rows, 1);
+      my $more_button = Browser_utilities::SubmitButton('Next subset');
+      my $row_ref  = td([ $popup, $more_button]);
+      
+      print "<center>",h3("Rows 1 - $subset_len (total $rows rows)"),
+      table(Tr($row_ref)). "</center>";
+      
+    }
+    else{
+      @selected_keys = @all_selected_keys;
+    }
+  }
   elsif($gCGIquery->param('Next subset') ||
         $gCGIquery->param('Previous subset') ||
         defined $gCGIquery->param('Select subset')){    
     my $previous_subset   = $gCGIquery->param('previous_subset');
-
+    
     my $current_subset;
     if ($gCGIquery->param('Next subset')){
       $current_subset    = $previous_subset + 1;
@@ -435,7 +439,16 @@ sub DisplayDataset{
 #	               "(<font size=1>Message key: $key</font>):" .
 #	               "Author $author;";
 	$data_string = "<strong>Comment for run $temp </strong> " .
-	               "Author $author;";
+	               "Author $author; ";
+	# more info for offline real
+	if ($gDataClass_object->DataClass() =~ /offline_real/){
+	  # temp is the reportkey
+	  $data_string .= 
+	    "Run ID: " .  $QA_object_hash{$temp}->LogReport->RunID . "; " .
+	    "File Seq: " . $QA_object_hash{$temp}->LogReport->FileSeq .
+	    br . "\n";
+	}
+
       }
   
       $data_string .= "<br>$text";

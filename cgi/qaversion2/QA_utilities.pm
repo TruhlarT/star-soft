@@ -429,6 +429,13 @@ sub create_comment_object{
   my $message_file = $io->Name();
   undef $io;
   
+  # if this is a message corresponding to a report_key
+  # flag the database as QAanalyzed.
+  if( $arg ne 'global'){
+    my $qaID = $QA_object_hash{$arg}->qaID;
+    QA_db_utilities::FlagQAAnalyzed($qaID);
+  }
+  
   store($message_ref, $message_file ) or 
     print "<h4> Cannot write $message_file: $! </h4> \n";
 }
