@@ -1,6 +1,6 @@
 /***************************************************************************
  *
- * $Id: StTrsDetectorReader.cc,v 1.1 1999/11/05 22:18:16 calderon Exp $
+ * $Id: StTrsDetectorReader.cc,v 1.2 1999/12/08 02:10:42 calderon Exp $
  *
  * Authors: bl, mcbs
  ***************************************************************************
@@ -10,6 +10,9 @@
  ***************************************************************************
  *
  * $Log: StTrsDetectorReader.cc,v $
+ * Revision 1.2  1999/12/08 02:10:42  calderon
+ * Modified to eliminate warnings on Linux.
+ *
  * Revision 1.1  1999/11/05 22:18:16  calderon
  *
  * Made private copy constructor and operator= in StTrsDigitalSector.
@@ -40,7 +43,7 @@ StTrsDetectorReader::StTrsDetectorReader()
 //     //mTheEvent = 
 // }
 
-StTrsDetectorReader::StTrsDetectorReader(StTpcRawDataEvent* ev, string& ver)
+StTrsDetectorReader::StTrsDetectorReader(StTpcRawDataEvent* ev, string ver)
     : mVersion(ver), mTheEvent(ev) 
 {
     mZSR = StTrsZeroSuppressedReader::instance(mTheEvent);
