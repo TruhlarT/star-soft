@@ -678,8 +678,19 @@ sub LogfileSummaryString {
 
     if ( $self->NEventsProcessed() > 0 ){
 
-      $return_string .= " Events processed: ".$self->NEventsProcessed().
-	", not completed: ".$self->NEventsNotCompleted().";";
+      $return_string .= " Evts processed: ".$self->NEventsProcessed();
+
+      if ( $self->NEventsNotCompleted() > 0 ){
+	$font_string_start = "<font color=red>";
+	$font_string_stop = "</font>";
+      }
+      else{
+	$font_string_start = "";
+	$font_string_stop = "";
+      }
+
+      $return_string .= ", ".$font_string_start."not completed: ".
+	$self->NEventsNotCompleted().$font_string_stop.";";
 
     }
     else{
@@ -694,7 +705,7 @@ sub LogfileSummaryString {
     #---
 
     if ( $self->FirstEventRequested() and $self->LastEventRequested() ){
-       $return_string .= "<br>(events requested: ".$self->FirstEventRequested().
+       $return_string .= "<br>(evts requested: ".$self->FirstEventRequested().
 	 "-".$self->LastEventRequested().")";
      }
     
