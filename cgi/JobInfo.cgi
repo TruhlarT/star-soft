@@ -50,7 +50,7 @@ my $list_dir = "/afs/rhic/star/doc/www/html/comp-nfs/csh/";
 
 my $datasourse = "DBI:mysql:operation:duvall.star.bnl.gov";
 my $username = "starreco";
-my $scriptname = "http://www.star.bnl.gov/cgi-bin/JobInfo.cgi";
+my $scriptname = "http://www.star.bnl.gov/devcgi/JobInfo.cgi";
 
 my @querystr; 
 
