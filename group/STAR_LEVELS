@@ -10,8 +10,10 @@ chomp $pgmf;
 $createTime = (stat($pgmf))[10];
 ($cmin,$chr,$cdy,$cmo,$cyr) = (localtime($createTime))[1,2,3,4,5];
 $cmo = $cmo +1;
+$year = $cyr - 100;
+if ( $cyr > 99 ) {$year = sprintf("%2.2d", $cyr - 100 )}
 $pgmf =~ s,/afs/rhic/star/packages/,,g;
 $pgmf =~ s,/bin/root4star,,g;
 $host = `hostname`;
 chomp $host;
-print "$host;CERN-$ENV{CERN_LEVEL};STAR-$ENV{STAR_LEVEL};root4star-$cmo/$cdy/$cyr-$chr:$cmin-$pgmf\n";
+print "$host;CERN-$ENV{CERN_LEVEL};STAR-$ENV{STAR_LEVEL};root4star-$cmo/$cdy/$year-$chr:$cmin-$pgmf\n";
