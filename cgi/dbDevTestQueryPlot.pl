@@ -1,9 +1,12 @@
 #!/usr/local/bin/perl
 #!/usr/bin/env perl 
 #
-# $Id: dbDevTestQueryPlot.pl,v 1.20 2004/12/20 21:32:02 didenko Exp $
+# $Id: dbDevTestQueryPlot.pl,v 1.21 2004/12/20 21:35:55 didenko Exp $
 #
 # $Log: dbDevTestQueryPlot.pl,v $
+# Revision 1.21  2004/12/20 21:35:55  didenko
+# comment print
+#
 # Revision 1.20  2004/12/20 21:32:02  didenko
 # updated for new datasets and SL3 platform
 #
@@ -125,7 +128,7 @@ while($n_weeks >= 0) {
 	
 	my $path = $set1;
 	$path =~ s(year)($Nday[$d_week]/year);
-	print $path, "\n";
+#	print $path, "\n";
 	$path =~ s(/)(%)g;
 
 	if ($n_weeks == 0) {
@@ -183,13 +186,13 @@ if ($plotVal eq "MemUsage") {
     @data = (\@Nday, \@point0, \@point1, \@point2, \@point3);
     $legend[0] = "MemUsageF";
     $legend[1] = "MemUsgaeL";
-    $legend[2] = "MemUsgaeF(opt)";
-    $legend[3] = "MemUsageL(opt)";
+    $legend[2] = "MemUsgaeF(optimized)";
+    $legend[3] = "MemUsageL(optimized)";
     $mplotVal="MemUsageFirstEvent,MemUsageLastEvent";
 } else {
     @data = (\@Nday, \@point0, \@point2);
     $legend[0] = "$plotVal";
-    $legend[1] = "$plotVal"."(opt)";
+    $legend[1] = "$plotVal"."(optimized)";
 }
 
 
