@@ -90,8 +90,9 @@ END
 print "</td><td>";
 print "<h3 align=center>Production series:</h3>";
 print "<h3 align=center>";
-print $query->scrolling_list(-name=>'SetP',  
-                   -values=>\@prodPer,                   
+print $query->popup_menu(-name=>'SetP',  
+                   -values=>\@prodPer,
+                   -default=>'P01hf',                   
                    -size=>4                              
                    );                                  
  
@@ -111,6 +112,15 @@ print $query->scrolling_list(-name=>'SetP',
  print "<h3 align=center>";
  print $query->popup_menu(-name=>'SetF',
                     -values=>\@mfield,
+                    -default=>'all', 
+                    -size=>4
+                    ); 
+ print "</h3>";
+ print "</td><td>";
+ print "<h3 align=center>Detectors:</h3>";
+ print "<h3 align=center>";
+ print $query->popup_menu(-name=>'SetD',
+                    -values=>\@detSet,
                     -default=>'all', 
                     -size=>4
                     ); 
