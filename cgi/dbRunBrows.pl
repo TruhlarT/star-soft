@@ -37,6 +37,8 @@ $detrSet = $pck[2];
 &beginHtml();
 
 my $dirRun = "/home/starreco/reco/" . $prodSr;
+my $mstat;
+my $mcomment;
 
 if($detrSet eq "all" ) {
 
@@ -60,8 +62,11 @@ while(@fields = $cursor->fetchrow) {
     print "$fname = $fvalue\n" if $debugOn;
     $pair{$fname} = $fvalue;
 
+   $mstat = $fvalue if( $fname eq 'dataStatus');   
+   $mcomment = $fvalue if( $fname eq 'comment');
   }
 
+  if ($mstat eq "OK"){$mcomment = "no"};
 &printRow();
 
 }
@@ -130,7 +135,7 @@ print <<END;
 <td>$pair{'hpss'}</td>
 <td>$pair{'calib'}</td>
 <td>$pair{'dataStatus'}</td>
-<td>$pair{'comment'}</td>
+<td>$mcomment</td>
 </tr>
 END
 
