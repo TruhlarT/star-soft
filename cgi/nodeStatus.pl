@@ -67,7 +67,12 @@ my @nodeList = (
                 "rcrs6030.rcf.bnl.gov",
                 "rcrs6031.rcf.bnl.gov",
                 "rcrs6032.rcf.bnl.gov",
-                "rcrs6033.rcf.bnl.gov"
+                "rcrs6033.rcf.bnl.gov",
+                "rcrs6034.rcf.bnl.gov",
+                "rcrs6035.rcf.bnl.gov",
+                "rcrs6035.rcf.bnl.gov",
+                "rcrs6037.rcf.bnl.gov",
+             
 );
 
 
@@ -127,7 +132,7 @@ foreach my $int ( $mon,$mday ){
 }
 
 $outname = "mail" . "_" .$thisday . "_" . "out";
-$outfile = "/star/u2e/starreco/" . $outname;
+$outfile = "/star/u/starreco/" . $outname;
 #print $outfile, "\n";
 
 open (MAILFILE, $outfile ) or die "cannot open $outfile: $!\n";
