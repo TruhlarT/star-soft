@@ -85,7 +85,7 @@ sub SelectMutipleReports{
   $self->PrintHeader();
   #---------------------------------------------------------
   my $script_name = $gCGIquery->script_name;
-  print $gCGIquery->startform(-action=>"$script_name/lower_display", -TARGET=>"display"); 
+  print $gCGIquery->startform(-action=>"$script_name/lower_display", -TARGET=>"ScalarsAndTests"); 
   #---------------------------------------------------------
   my $report_key = $self->ReportKey();
   my $button_ref = Button_object->new('DoCompareMutipleReports', 'Do Comparison', $report_key);
@@ -158,8 +158,21 @@ sub CompareMutipleReports{
   #--------------------------------------------------------
   my $report_key = $self->ReportKey();
   #---------------------------------------------------------
-  my $production_dirname = $QA_object_hash{$report_key}->ProductionDirectory;
-  print "<h2> Comparison of similar runs to $production_dirname ($report_key) </h2> \n"; 
+  my $title;
+
+  if (  $gDataClass_object->DataClass =~ /offline/ ){
+
+    my $run_id = $QA_object_hash{$report_key}->LogReport->RunID;
+    my $file_seq = $QA_object_hash{$report_key}->LogReport->FileSeq;
+
+    $title = "Comparison of similar runs to Run ID $run_id, File Seq $file_seq";
+  }
+  else{
+    my $production_dirname = $QA_object_hash{$report_key}->ProductionDirectory;
+    $title = "Comparison of similar runs to $production_dirname ($report_key)";
+  }
+  
+  print "<h2> $title </h2> \n"; 
   #---------------------------------------------------------
   my @matched_keys_ordered = &CompareReport_utilities::GetComparisonKeys;
   #---------------------------------------------------------
@@ -207,8 +220,21 @@ sub PrintHeader{
   #--------------------------------------------------------
   my $report_key = $self->ReportKey();
   #--------------------------------------------------------
-  my $production_dirname = $QA_object_hash{$report_key}->ProductionDirectory;
-  print "<h2> Comparison of similar runs to $production_dirname ($report_key) </h2> \n"; 
+  my $title;
+
+  if (  $gDataClass_object->DataClass =~ /offline/ ){
+
+    my $run_id = $QA_object_hash{$report_key}->LogReport->RunID;
+    my $file_seq = $QA_object_hash{$report_key}->LogReport->FileSeq;
+
+    $title = "Comparison of similar runs to Run ID $run_id, File Seq $file_seq";
+  }
+  else{
+    my $production_dirname = $QA_object_hash{$report_key}->ProductionDirectory;
+    $title = "Comparison of similar runs to $production_dirname ($report_key)";
+  }
+  
+  print "<h2> $title </h2> \n"; 
   print "<hr> \n";
 }
 #===================================================================
@@ -247,9 +273,19 @@ sub MakeAsciiReport{
 
   print "<h4> (Ascii version of this page written to $filename_ascii) </h4> \n";
   #---------------------------------------------------------
-  my $production_dirname = $QA_object_hash{$report_key}->ProductionDirectory;
+  my $title;
+  if (  $gDataClass_object->DataClass =~ /offline/ ){
+    my $run_id = $QA_object_hash{$report_key}->LogReport->RunID;
+    my $file_seq = $QA_object_hash{$report_key}->LogReport->FileSeq;
+    $title = "Comparison of similar runs to Run ID $run_id, File Seq $file_seq\n";
+  }
+  else{
+    my $production_dirname = $QA_object_hash{$report_key}->ProductionDirectory;
+    $title = "Comparison of similar runs to \n$production_dirname ($report_key)\n";
+  }
+
   print $dh "*" x 80, "\n";
-  print $dh "Comparison of similar runs to \n$production_dirname ($report_key) \n";
+  print $dh "$title";
   print $dh "(up to 10 most recent runs compared) \n"; 
   print $dh "*" x 80, "\n";
 
