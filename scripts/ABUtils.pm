@@ -119,7 +119,10 @@ $INSU::BSUB    = "/usr/local/lsf/bin/bsub";
 	      "/star/rcf/test/daq/2003/041/st_physics_4041002_raw_0020001.daq",
 
 	      "pp2003 eemcD alltrigger trgd",
-	      "/star/data03/daq/2003/111/st_physics_4111036_raw_0030004.daq"
+	      "/star/data03/daq/2003/111/st_physics_4111036_raw_0030004.daq",
+
+	      "P2004 EST OShortR Xi2 V02 CMuDst",
+	      "/star/rcf/test/daq/2004/028/st_physics_5028066_raw_1010003.daq"
 
 	      );
 
