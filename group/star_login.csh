@@ -159,15 +159,12 @@ setenv VISUAL      "pico -w"
 setenv LESSCHARSET latin1
 #setenv PRINT_CMD   "xprint"
 
-
-# The folowing instruction also appears in the
-# group_login.csh file. One of them will have 
-# to go ...
-if ( `which less` != "" ) then
-    setenv PAGER       "less"
-else
-    setenv PAGER       "more"
-endif
+# Cannot do this here. See later note on back-ticks
+#if ( `which less` != "" ) then
+#    setenv PAGER       "less"
+#else
+#    setenv PAGER       "more"
+#endif
 
 
 
@@ -221,6 +218,17 @@ endif
 if( -r $GROUP_DIR/group_env.csh ) then
     source $GROUP_DIR/group_env.csh
 endif
+
+
+# Back-ticked commands can only be done at this level
+# on Solaris. Get an undefined STAR otherwise (nested
+# shell init).
+if ( `which less` != "" ) then
+    setenv PAGER       "less"
+else
+    setenv PAGER       "more"
+endif
+
 
 
 # ** GROUP LOGIN ***> should be merged as well
