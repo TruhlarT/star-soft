@@ -89,6 +89,7 @@ END
  print $query->submit;
  print "<P><br>", $query->reset;
  print $query->endform;
+ print "<a href=\"http://www.star.bnl.gov/STARAFS/comp/prod/ProdSummary.html\"><h3>Back </h3></a>\n";
  print "  <address><a href=\"mailto:didenko\@bnl.gov\">Lidia Didenko</a></address>\n";
 
  print "</body>";
