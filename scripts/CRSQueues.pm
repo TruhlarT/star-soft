@@ -124,6 +124,10 @@ sub CRSQ_getcnt
 	    $NOTA++;
 	}
     }
+    if($TOT == 0){
+	print "CRSQ :: Error on ".localtime().", none of the queues are available\n";
+	return -1;
+    }
     #print "$TOT $TOTS $NOTA\n";
     $SAVT = $TOT;
     $ATOT = $TOT+$TOTS;
@@ -138,12 +142,18 @@ sub CRSQ_getcnt
     # submission ... The pattern find will prevent this. 
     if( defined($pat) && ! defined($nchk) ){
 	@all = glob($pat);
-	if($#all > 10*$ATOT){ 
+	if($#all > 10*$ATOT ){
 	    print 
 		"CRSQ :: Warning on ".localtime().", there are ",
 		"$#all job files found as $pat\n";
-	    return -1;
-	}
+	    if($ATOT == 0){
+		print 
+		    "        There are 0 jobs running. Check for stale/dead jobs\n";
+	    } else {
+		# Stop, this condition is ab-normal
+		return -1;
+	    }
+	} 
     }
 
 
