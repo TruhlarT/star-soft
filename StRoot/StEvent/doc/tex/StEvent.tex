@@ -2,7 +2,7 @@
 %
 % StEvent - User Guide and Reference Manual -- LaTeX Source
 %
-% $Id: StEvent.tex,v 2.69 2001/12/02 19:43:12 ullrich Exp $
+% $Id: StEvent.tex,v 2.70 2002/01/03 21:07:10 ullrich Exp $
 %
 % Author: Thomas Ullrich, Nov 1999
 %
@@ -21,6 +21,9 @@
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %
 % $Log: StEvent.tex,v $
+% Revision 2.70  2002/01/03 21:07:10  ullrich
+% Added BBC and FPD.
+%
 % Revision 2.69  2001/12/02 19:43:12  ullrich
 % Added info on latest StRunInfo modifications.
 %
@@ -272,8 +275,8 @@
   \mbox{\includegraphics[width=\textwidth]{StEventTitle.eps}}
   \hfill\mbox{}\\[3cm]
   {\LARGE User Guide and Reference Manual \\[5mm] for Version 2}\\[2cm]
-  {\LARGE $ $Revision: 2.69 $ $}  \\[5mm] % replaced by cvs with current revision
-  {\LARGE $ $Date: 2001/12/02 19:43:12 $ $}  % replaced by cvs with current revision
+  {\LARGE $ $Revision: 2.70 $ $}  \\[5mm] % replaced by cvs with current revision
+  {\LARGE $ $Date: 2002/01/03 21:07:10 $ $}  % replaced by cvs with current revision
   \vfill
 \end{center}
 \cleardoublepage
@@ -2780,6 +2783,48 @@ definition in the header file.
 \end{figure}
 \clearpage
 
+\subsection{StBbcTriggerDetector}
+\index{StBbcTriggerDetector|textbf}
+\label{sec:StBbcTriggerDetector}
+\begin{Entry}
+\item[Summary]
+\item[Synopsis]
+    \verb+#include "StBbcTriggerDetector.h"+\\
+    \verb+class StBbcTriggerDetector;+\\
+\item[Description]
+\item[Related Classes]
+\item[Public\\ Constructors]
+    \verb+StBbcTriggerDetector();+\\
+\item[Public Member\\ Functions]
+    \verb+unsigned int numberOfPMTs() const;+\\
+    \verb+unsigned int numberOfRegisters() const;+\\
+    \verb+unsigned int numberOfPedestalData() const;+\\
+    \verb+unsigned int numberOfScalars() const;+\\
+    \verb+unsigned short adc(unsigned int) const;+\\
+    \verb+unsigned short tdc(unsigned int) const;+\\
+    \verb+unsigned short bbcRegister(unsigned int) const;+\\
+    \verb+unsigned short pedestalData(unsigned int) const;+\\
+    \verb+unsigned int scalar(unsigned int) const;+\\
+    \verb+unsigned short pedestal(unsigned int id) const;+\\
+    \verb+unsigned short pedestalWidth(unsigned int id) const;+\\
+    \verb+unsigned short mip(unsigned int id) const;+\\
+    \verb+unsigned short mipWidth(unsigned int id) const;+\\
+    \verb+int nHitEast();+\\
+    \verb+int nHitWest();+\\
+    \verb+int nHitAll();+\\
+    \verb+int adcSumEast(); +\\
+    \verb+int adcSumWest();+\\
+    \verb+int adcSumAll();+\\
+    \verb+float zVertex(); //z vertex in cm+\\
+    \verb+void setAdc(unsigned int, unsigned short);+\\
+    \verb+void setTdc(unsigned int, unsigned short);+\\
+    \verb+void setRegister(unsigned int, unsigned short);+\\
+    \verb+void setPedestal(unsigned int, unsigned short);+\\
+    \verb+void setScalar(unsigned int, unsigned int);+\\
+    \verb+void dump();+\\
+\end{Entry}
+\clearpage
+
 \subsection{StCalibrationVertex}
 \index{StCalibrationVertex|textbf}
 \label{sec:StCalibrationVertex}
@@ -3371,6 +3416,9 @@ definition in the header file.
     \verb+StTofCollection* tofCollection();+\\
     \verb+const StTofCollection* tofCollection() const;+\\
 
+    \verb+StFpdCollection* fpdCollection();+\\
+    \verb+const StFpdCollection* fpdCollection() const;+\\
+
     \verb+StL0Trigger* l0Trigger();+\\
     \verb+const StL0Trigger* l0Trigger() const;+\\
 
@@ -3489,6 +3537,8 @@ definition in the header file.
     \verb+void setRichCollection(StRichCollection*);+\\
 
     \verb+void setTofCollection(StTofCollection*);+\\
+
+    \verb+void setFpdCollection(StFpdCollection*);+\\
 
     \verb+void setTriggerDetectorCollection(StTriggerDetectorCollection*);+\\
 
@@ -3684,6 +3734,43 @@ definition in the header file.
 \end{Entry}
 \clearpage
 
+\subsection{StFpdCollection}
+\index{StFpdCollection|textbf}
+\label{sec:StFpdCollection}
+\begin{Entry}
+\item[Summary]
+\item[Synopsis]
+    \verb+#include "StFpdCollection.h"+\\
+    \verb+class StFpdCollection;+\\
+\item[Description]
+\item[Related Classes]
+\item[Public\\ Constructors]
+    \verb+StFpdCollection();+\\
+\item[Public Member\\ Functions]
+    \verb+unsigned int numberOfADC() const;+\\
+    \verb+unsigned int numberOfTDC() const;+\\
+    \verb+unsigned int numberOfRegisters() const;+\\
+    \verb+unsigned int numberOfPedestal() const;+\\
+    \verb+unsigned short* adc();+\\
+    \verb+unsigned short* tdc();+\\
+    \verb+unsigned short registers(unsigned int) const;+\\
+    \verb+unsigned short* pedestal();+\\
+    \verb+int token() const;+\\
+    \verb+unsigned short north(unsigned int);+\\
+    \verb+unsigned short south(unsigned int);+\\
+    \verb+unsigned short top(unsigned int);+\\
+    \verb+unsigned short bottom(unsigned int);+\\
+    \verb+unsigned short smdx(unsigned int);+\\
+    \verb+unsigned short smdy(unsigned int);+\\
+    \verb+unsigned short pres1(unsigned int);+\\
+    \verb+unsigned short pres2(unsigned int);+\\
+    \verb+void setAdc(unsigned int, unsigned short);+\\
+    \verb+void setTdc(unsigned int, unsigned short);+\\
+    \verb+void setRegister(unsigned int, unsigned short);+\\
+    \verb+void setPedestal(unsigned int, unsigned short);+\\
+    \verb+void dump();+\\
+\end{Entry}
+\clearpage
 
 \subsection{StFtpcHit}
 \index{StFtpcHit|textbf}
@@ -3714,7 +3801,6 @@ definition in the header file.
     \verb+unsigned int timebinsInHit() const;+\\
 \end{Entry}
 \clearpage
-
 
 \subsection{StFtpcHitCollection}
 \index{StFtpcHitCollection|textbf}
@@ -6531,7 +6617,10 @@ numberOfPoints(kTpcId) == numberOfPoints(kFtpcWestId)
 \item[Public\\ Constructors]
     \verb+StTriggerDetectorCollection();+\\
     \verb+StTriggerDetectorCollection(const dst_TrgDet_st&);+\\
+    
 \item[Public Member\\ Functions]
+    \verb+StBbcTriggerDetector& bbc();+\\
+    \verb+const StBbcTriggerDetector& bbc() const;+\\
     \verb+StCtbTriggerDetector& ctb();+\\
     \verb+const StCtbTriggerDetector& ctb() const;+\\
     \verb+StMwcTriggerDetector& mwc();+\\
@@ -7095,8 +7184,8 @@ private:
 
 \end{document}
 \bye
-% The text following after this line is not included into the text
 
+% The text following after this line is not included into the text
 %
 %  Template for reference section
 %
