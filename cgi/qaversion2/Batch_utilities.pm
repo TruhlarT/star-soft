@@ -14,7 +14,7 @@ use IO_object;
 #my $batchType = "AT";
 my $batchType = "LSF";
 # queue to use on LSF
-my $lsfQueue = "star_cas_short";
+my $lsfQueue = "star_cas";
 
 #========================================================
 # return true on loading
