@@ -500,14 +500,24 @@ sub DoTests{
 	  # error if unexpected table found
 	  $this_scalar =~ /nonscalar/ and $operator_string =~ /notfound/ and do{
 
-	    # the =~ comparison will fail if the string contains blanks => make a junk string without blanks
-	    ($scalars_string_X = $scalars_string ) =~ s/ /X/g;
+	    # modified pmj 29/11/99
+	    # clean up scalars_string, make array
+	    $scalars_string =~ s/^\W+//;
+	    $scalars_string =~ s/\W+$//;
+	    @scalars_array = split / /, $scalars_string;
 
 	    foreach $scalar_found ( keys %scalars ){
 	      $display_string = "$scalar_found expected";
-	      $perl_string = "$scalars_string_X =~ /".$scalar_found."/";
+	      $perl_string = "*** Is $scalar_found in $scalars_string? ***";
 
-	      $result = eval( $perl_string ) ? "TRUE" : "FALSE" ;
+	      $result = 'FALSE';
+	      foreach $scalar ( @scalars_array ) {
+		$scalar_found eq $scalar and do{
+		  $result = 'TRUE';
+		  last;
+		};
+	      }
+
 	      $result eq 'FALSE' and $severity eq 'error' and $n_error++;
 	      $result eq 'FALSE' and $severity eq 'warn' and $n_warn++;
 
