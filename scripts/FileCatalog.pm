@@ -119,7 +119,7 @@ require  Exporter;
 
 
 use vars qw($VERSION);
-$VERSION   =   "V01.260";
+$VERSION   =   "V01.261";
 
 # The hashes that hold a current context
 my %optoperset;
@@ -2262,15 +2262,19 @@ sub get_file_data(){
     return &FileTableContent("FileData","FDKWD");
 }
 
+#
+# Routine will populate the $TABREF arrays and return those fields
+# with values as key=value list. This is used for cloing records.
+#
 sub FileTableContent {
 
     my($table,$TABREF)=@_;
 
     my($i,@itab,$iref,@query,@items);
 
-    #print "Checking for $table\n";
-
+    #print "Checking for $table $TABREF\n";
     eval("@itab = @$TABREF");
+    #if($@){ &die_message("FileTableContent()","eval() has failed with $@");}
 
     #print "Evaluating for $table\n";
     foreach ( keys %keywrds ){
@@ -2288,20 +2292,25 @@ sub FileTableContent {
     my $delim;
 
     $delim = &get_delimeter();
-    &set_delimeter("::");                     # set to known one
+    &set_delimeter("::");                          # set to known one
     @all = &run_query("FileCatalog",@itab);
-    &set_delimeter($delim);                   # restore delim
+    &set_delimeter($delim);                        # restore delim
 
-
+    #print "Run with ".join("/",@itab)."\n";
     &print_debug("+","Run with ".join("/",@itab));
 
 
     undef(@query);
     if ($#all != -1){
+	#print "Will loop over $all[0]\n";
 	@all = split("::",$all[0]);                # Only one instance
 
 	for ( $i=0 ; $i <= $#itab ; $i++){
 	    #&print_debug("Return value for $itab[$i] is $all[$i]");
+	    if ( ! defined($all[$i]) ){
+		&print_debug("+","$itab[$i] has no value - setting to null_st\n");
+		$all[$i] = "";
+	    } 
 	    &print_debug("-->","Return value for $itab[$i] is $all[$i]");
 	    if( $all[$i] ne ""){
 		push(@query,"$itab[$i] = $all[$i]");
