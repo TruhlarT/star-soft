@@ -593,9 +593,22 @@ sub ControlFileNightly{
 
   # BEN(4jun00):
   $self->IsDir(0);
-
+ 
   #return "$dir/test_control.txt";
-  return "$dir/test_control$eventGen$eventType$geometry.txt";
+  my $default="$dir/test_control.default.txt";
+  my $control="$dir/test_control$eventGen$eventType$geometry.txt";
+  my $file;
+  if(-e $control){
+    $file = $control;
+  }
+  else{
+    print "*********** WARNING ****************\n",
+    "****** CANNOT FIND $control\n",
+    "****** using default : $default\n";
+    $file = $default;
+  }
+  return $file;
+#  return "$dir/test_control$eventGen$eventType$geometry.txt";
 }
 #=====================================================================
 # dummy control file for now
