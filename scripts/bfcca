@@ -45,8 +45,8 @@ $|       = 1;
 
 # Some default hardwired values
 $HPSSBASE= "/home/starreco";       # base HPSS path
-$NTRIES  = 10;                     # number of tries
-$SLPTIME = 60;                     # sleep time in sec between mkpath
+$NTRIES  = 720;                    # number of tries -1 means infinit tries
+$SLPTIME = 120;                    # sleep time in sec between mkpath attempts
 $PRGM    = "bfcca";                # this program logical name 
 
 
@@ -253,7 +253,7 @@ if ( ! open(FO,">$PWD/$JOB_ID.csh") ){
 		if( MkPath($dir,2) != 1){
 		    print "$PRGM :: Info: Failed to create $dir on ".localtime()."\n";
 		    $k++;
-		    if($k < $NTRIES){ 
+		    if($k != $NTRIES){ 
 			sleep($SLPTIME);
 			goto CREATE_DIR;
 		    } else {
@@ -286,7 +286,7 @@ if ( ! open(FO,">$PWD/$JOB_ID.csh") ){
 
 
 #
-# Subroutine to create path. mkpath()
+# Subroutine to check and create path. mkpath()
 # in the perl module does not return the failure
 # reasons and do not implement special cases as
 # we do. So, screw it ...
