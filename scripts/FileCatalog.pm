@@ -360,8 +360,8 @@ $operators[3] = "!=";
 $operators[4] = "==";
 $operators[5] = "!~";
 $operators[6] = "=";
-$operators[7] = "[";
-$operators[8] = "]";
+$operators[7] = "][";
+$operators[8] = "[]";
 $operators[9] = ">";
 $operators[10]= "<";
 $operators[11]= "~";
@@ -772,8 +772,8 @@ sub disentangle_param {
 
  OPS: foreach my $op (@operators )
     {
-	$op =~ s/\[/\\\[/;
-	$op =~ s/\]/\\\]/;
+	$op =~ s/\[/\\\[/g;
+	$op =~ s/\]/\\\]/g;
 
 	if ($params =~ m/(.*)($op)(.*)/){
 	    ($keyword, $operator, $value) = ($1,$2,$3);
@@ -2907,13 +2907,13 @@ sub run_query {
 					  3);
 		  #$sqlquery .= "$fieldname NOT LIKE '%".$valuset{$keyw}."%'";
 
-	      } elsif ($operset{$keyw} eq "["){
+	      } elsif ($operset{$keyw} eq "[]"){
 		  $sqlquery .= &TreatLOps("$fieldname",
 					  "BETWEEN",
 					  $valuset{$keyw},
 					  4);
 
-	      } elsif ($operset{$keyw} eq "]"){
+	      } elsif ($operset{$keyw} eq "]["){
 		  $sqlquery .= &TreatLOps("$fieldname",
 					  "NOT BETWEEN",
 					  $valuset{$keyw},
@@ -3213,13 +3213,13 @@ sub run_query {
 					    3));
 	      #push( @constraint, "$tabname.$fieldname NOT LIKE '%".$valuset{$keyw}."%'" );
 
-	  }  elsif ($operset{$keyw} eq "["){
+	  }  elsif ($operset{$keyw} eq "[]"){
 	      push( @constraint, &TreatLOps("$tabname.$fieldname",
 					    "BETWEEN",
 					    $valuset{$keyw},
 					    4));
 
-	  }  elsif ($operset{$keyw} eq "]"){
+	  }  elsif ($operset{$keyw} eq "]["){
 	      push( @constraint, &TreatLOps("$tabname.$fieldname",
 					    "NOT BETWEEN",
 					    $valuset{$keyw},
