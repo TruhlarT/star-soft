@@ -9,7 +9,7 @@
 # script to create jobfiles and JobID and fill in JobStatus and jobRelations tables 
 # script requires 4  arguments: production Series, year of data taken, chain name from ProdOption table,
 # disk name
-# example of usage:  createJobs.pl P01hf 2001 p2001f /star/data19/reco
+# example of usage:  createJobs.pl P01hf 2001 p2001f /star/data19
 ##################################################################################################
 
 use Mysql;
@@ -157,7 +157,7 @@ my $myRun;
    }
 
  my $ii = 0;	    
-my  $istart = scalar(@SetD) - 32;
+my  $istart = scalar(@SetD) - 30;
  $jobDIn_no = 0; 
 # my $ifin = scalar(@SetD);
   for ($ii=0; $ii< scalar(@SetD); $ii++)  {
@@ -213,7 +213,7 @@ my $fileSeq;
        @flsplit = split ("_",$jfile);  
        $mrunId =  $flsplit[2];
        $fileSeq = $flsplit[4];
-       if($mrunId == 2243028 ) {
+
        $num = $fileSeq/10 - int($fileSeq/10);
            $mprodSr = $prodPeriod; 
            $myID = 100000000 + $new_id;
@@ -243,10 +243,10 @@ my $fileSeq;
       if($num == 0 ) {
       $chain = "ry2001,in,tpc_daq,tpc,rich,l3onl,Physics,Kalman,Cdst,tags,Tree,evout,ExB"; 
     }
-      if($dset =~ /_FieldOff/ || $num == 0) {
+      if($dset =~ /FieldOff/ and $num == 0) {
        $chain = "ry2001,in,tpc_daq,tpc,rich,l3onl,Physics,FieldOff,Cdst,tags,Tree,evout,ExB";   
      }
-      elsif($dset =~ /_FieldOff/ || $num > 0) {
+      elsif($dset =~ /FieldOff/ and $num > 0) {
        $chain = "ry2001,in,tpc_daq,tpc,rich,l3onl,Physics,FieldOff,Cdst,tags,Tree,evout,ExB,NoHits";
      }
 
@@ -262,7 +262,6 @@ my $fileSeq;
 #####  fill  jobRelations table
        print "filling jobRelations table\n";
        &fillJRelTable();
-    }
       }  
     }
    
@@ -331,7 +330,7 @@ my $fileSeq;
     $inFile =  $gfile . ".daq";
     $logDir = $JOB_LOG;   
 
- my $exArg = "1,".$jlibVer ."," .$dataDisk . "/" . $Jsetd .",-1," . $fchain .",debug1";
+ my $exArg = "1,".$jlibVer ."," .$dataDisk . ",-1," . $fchain .",debug1";
 
 ##### print $job_set, "\n";
  
