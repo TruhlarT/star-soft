@@ -392,16 +392,23 @@ sub IUCompDir
 sub IUSubmit
 {
     my($job,$flag)=@_;
-    my($log);
+    my($log,$cmd);
 
     $log = $job.".log";
 
     if ( ! defined($flag) ){ $flag = 0;}
 
+    if ( -e $log ){ 
+	print "Deleting preceding log\n";
+	unlink($log);
+    }
+
+    $cmd = "bsub -q $INSU::QUEUE -o $log $job";
     if ( ! $flag ){
-	print "bsub -q $INSU::QUEUE -o $log $job\n";
+	print "$cmd\n";
     } else {
-	system("bsub -q $INSU::QUEUE -o $log $job");
+	print "Executing : $cmd\n";
+	system($cmd);
     }
 }
 
