@@ -8,6 +8,12 @@ else
 endif
 if ( -e $GROUP_DIR/group_env.csh ) then
         source $GROUP_DIR/group_env.csh
+	if ( $?prompt ) then
+	    if ( ! -e $STAR) then
+		echo "$STAR_LEVEL is incompletely defined."
+		echo "Could not find $STAR"
+	    endif
+	endif
 	#echo "$STAR"
 	#echo "$STAR_LEVEL"
 	#echo "$LD_LIBRARY_PATH"
