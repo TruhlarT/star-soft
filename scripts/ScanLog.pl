@@ -17,11 +17,11 @@
 #   % 'ThisScriptName' [productionTag] [Flag] [Kind]
 #
 # productionTag -> default P01he
-# Flag             if specified as 'delete' empty the database first 
+# Flag             if specified as 'delete' empty the database first
 #                  (maintainance only).
 # Kind             default "daq". Sets the path to scan and where
 #                  to look. See $log_dir etc ...
-# 
+#
 #
 # Added zcat support. Need tuning (twice a zcat | tail is
 # inefficient).
@@ -111,7 +111,7 @@ if( ! $sth3 || ! $sth1){
 }
 
 my(%JNAMES);
-opendir(ARCH,"$arch_dir") || die "Could not open archive directory\n";
+opendir(ARCH,"$arch_dir") || die "Could not open archive directory $arch_dir\n";
 while ( defined($job_name = readdir(ARCH)) ){
   if($job_name !~ /st_/ && $job_name !~ /rcf.*evts/ ){ next;}
   if ($job_name =~ m/(.*)(st_.*)/){
@@ -354,14 +354,14 @@ $dbh1->disconnect();
 #
 # This matches job generation script
 #
-sub define_trigger 
+sub define_trigger
 {
     my ($lname,$jname) = @_;
     my (@temp);
 
     # define Trigger, use a default value
     $Trigger = "unknown";
-    @temp = split(/_/, $jname);    
+    @temp = split(/_/, $jname);
     if ( $temp[0] !~ /^\d+/){ $Trigger = $temp[0];}
     return $Trigger;
 }
