@@ -47,6 +47,7 @@ print $query->header;
 #-------------------------------------------------------------------------
 
 # reset timing
+
 &QA_utilities::print_timing(0.,0.);
 
 #-------------------------------------------------------------------------
@@ -101,7 +102,6 @@ $query->delete('save_object_hash_scratch_file')
 # puts all objects into QA_object_hash
 
 @QA_key_list = &QA_utilities::get_QA_objects;
-
 #--------------------------------------------------------------------
 &upper_display if $path_info =~ /upper_display/;
 &lower_display if $path_info =~ /lower_display/;

@@ -503,6 +503,11 @@ sub print_timing{
     $wall_clock_start = time;
     $wall_clock_last_call = time;
     $count_print_timing = 0;
+
+    ($package, $filename, $line) = caller;
+    
+    #print "Global print_timing initialized from $package::$filename, line $line <br> \n";
+
     return;
   };
 
@@ -510,7 +515,65 @@ sub print_timing{
 
   ($package, $filename, $line) = caller;
 
-  print "-" x 80, "\n<br> $count_print_timing: print_timing called from $package::$filename, line $line <br> \n";
+  print "Global timing call $count_print_timing: print_timing called from $package::$filename, line $line <br> \n";
+
+  # get elapsed time
+  $wall_clock = time;
+
+  # for batch jobs, initialization doesn't seem to work right- here's a quick fix
+  # pmj 10/5/00
+
+  $do_printing = 1;
+  $wall_clock_start or do{
+    $wall_clock_start = time;
+    $do_printing = 0;
+  };
+
+  $wall_clock_last_call or do{
+    $wall_clock_last_call = time;
+    $do_printing = 0;
+  };
+
+  # end of fix
+
+  $do_printing and do{
+
+    # get cpu time
+    $now = (times)[0];
+    $sys_now = (times)[1];
+    
+    printf "<font color=red>Global user cpu time since start = %.3f sec; user cpu time since last call= %.3f sec </font><br>\n",
+    $now-$time_start,$now-$time_last_call;
+    
+    printf "<font color=blue>Global system cpu time since start = %.3f sec; system cpu time since last call= %.3f sec </font><br>\n",
+    $sys_now-$sys_time_start,$sys_now-$sys_time_last_call;
+    
+    printf "<font color=green>Global elapsed time since start = %d sec; elapsed time since last call= %d sec </font><br>\n",
+    $wall_clock-$wall_clock_start,$wall_clock-$wall_clock_last_call;
+    
+  };
+    
+  $time_last_call = $now;
+  $sys_time_last_call = $sys_now;
+  $wall_clock_last_call = $wall_clock;
+}
+#===========================================================
+sub print_timing_local{
+
+# "local" version of print timing for timing a limited piece of code (e.g. time for one root macro
+# to run   pmj 10/5/00
+
+  @_ and do{
+    $local_timing_hash{time_start} = shift;
+    @_ and $local_timing_hash{time_last_call} = shift;
+    $local_timing_hash{sys_time_start} = 0;
+    $local_timing_hash{sys_time_last_call} = 0;
+    $local_timing_hash{wall_clock_start} = time;
+    $local_timing_hash{wall_clock_last_call} = time;
+
+    print "<font color=purple>Start local timing...</font><br>\n";
+    return;
+  };
 
   # get elapsed time
   $wall_clock = time;
@@ -519,18 +582,19 @@ sub print_timing{
   $now = (times)[0];
   $sys_now = (times)[1];
 
-  printf "<font color=red>user cpu time since start = %.3f sec; user cpu time since last call= %.3f sec </font><br>\n",
-  $now-$time_start,$now-$time_last_call;
+  printf "<font color=red>Local user cpu time since start = %.3f sec; user cpu time since last call= %.3f sec </font><br>\n",
+  $now-$local_timing_hash{time_start},$now-$local_timing_hash{time_last_call};
 
-  printf "<font color=blue>system cpu time since start = %.3f sec; system cpu time since last call= %.3f sec </font><br>\n",
-  $sys_now-$sys_time_start,$sys_now-$sys_time_last_call;
+  printf "<font color=blue>Local system cpu time since start = %.3f sec; system cpu time since last call= %.3f sec </font><br>\n",
+  $sys_now-$local_timing_hash{sys_time_start},$sys_now-$local_timing_hash{sys_time_last_call};
 
-  printf "<font color=green>elapsed time since start = %d sec; elapsed time since last call= %d sec </font><br>\n",
-  $wall_clock-$wall_clock_start,$wall_clock-$wall_clock_last_call;
+  printf "<font color=green>Local elapsed time since start = %d sec; elapsed time since last call= %d sec </font><br>\n",
+  $wall_clock-$local_timing_hash{wall_clock_start},
+  $wall_clock-$local_timing_hash{wall_clock_last_call};
 
-  $time_last_call = $now;
-  $sys_time_last_call = $sys_now;
-  $wall_clock_last_call = $wall_clock;
+  $local_timing_hash{time_last_call} = $now;
+  $local_timing_hash{sys_time_last_call} = $sys_now;
+  $local_timing_hash{wall_clock_last_call} = $wall_clock;
 }
 #=======================================================================
 sub print_traceback{

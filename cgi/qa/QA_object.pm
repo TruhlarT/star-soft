@@ -550,6 +550,11 @@ sub RunQAMacros {
   @_ and my $run_option = shift;
 
   #----------------------------------------------------------
+  # do global timing
+
+  &QA_utilities::print_timing;
+
+  #----------------------------------------------------------
 
   my $report_key = $self->ReportKey;
   my $production_dir = $self->ProductionDirectory;
@@ -642,6 +647,10 @@ sub RunQAMacros {
   # write QA summary
 
   $self->WriteQASummary($summary_string);
+  #----------------------------------------------------------
+  # do global timing
+
+  &QA_utilities::print_timing;
 
 }
 #================================================================================

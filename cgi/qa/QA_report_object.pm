@@ -390,6 +390,9 @@ sub RunMacro{
     return;
   };
   
+  # initialize timing of macro  pmj 10/5/00
+  &QA_utilities::print_timing_local(0.,0.);
+
   print "<H4> Running macro... </H4> \n";
 
   @root_output = QA_run_root::run_root( $starlib_version, $scratch, @root_commands);
@@ -431,6 +434,9 @@ sub RunMacro{
   #--------------------------------------------------------------------------------------------
   # check that output file made o.k.
   QA_make_reports::check_file_made($report_key, $macro_name, $output_file, @root_output);
+
+  # print macro timing  pmj 10/5/00
+  &QA_utilities::print_timing_local;
   
 }
 #=======================================================
