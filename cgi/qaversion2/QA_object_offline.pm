@@ -56,12 +56,19 @@ sub DataDisplayString{
   my $report_key_string = $self->ReportKey . br . br
     if $gBrowser_object->ExpertPageFlag;
 
+  my $runID = $self->LogReport->RunID;
+  # make a link to the run log
+  my $link  = "http://onlsun1.star.bnl.gov/cgi-bin/porter" .
+              "/dbRunData.pm?runnumber='$runID'";
+  my $ahref = "<a href=$link target='runlog'>RunLog</a>";
+
   return $report_key_string .
          "JobID : " . $self->LogReport->JobID . br.
 	 "RunID : " . $self->LogReport->RunID . br.
 	 "File seq : " . $self->LogReport->FileSeq . br .
 	 "Dataset : " . $self->LogReport->Dataset . br . 
-	 "Redone  : " . $self->LogReport->{_Redone} ;
+	 "Redone  : " . $self->LogReport->{_Redone} .br .
+	 $ahref;
 }
 
 
