@@ -1,6 +1,6 @@
 #!/usr/bin/env perl
 #
-# $Id: swguide.pl,v 1.6 2003/12/22 14:20:43 jeromel Exp $
+# $Id: swguide.pl,v 1.7 2003/12/22 14:23:10 jeromel Exp $
 #
 ######################################################################
 #
@@ -14,19 +14,19 @@
 #
 
 BEGIN {
-    use CGI::Carp qw(fatalsToBrowser); 
+    use CGI::Carp qw(fatalsToBrowser);
 }
 
 use CGI;
-use lib "/afs/rhic/star/packages/cgi";
+use lib "/afs/rhic.bnl.gov/star/packages/cgi";
 use File::Basename;
 require SWGdbheader;
 require SWGdbsetup;
 
 
 # Area where the files will be written
-$fpath   = "/afs/rhic/star/doc/www/html/tmp";
-$CVSroot = "/afs/rhic/star/packages/repository/CVSROOT";
+$fpath   = "/afs/rhic.bnl.gov/star/doc/www/html/tmp";
+$CVSroot = "/afs/rhic.bnl.gov/star/packages/repository/CVSROOT";
 $DOXPATH = $fpath."/dox/html";
 $DOXURL  = "/webdatanfs/dox/html";
 $CVSURL  = "/webdatanfs/cvs/user";
@@ -41,7 +41,7 @@ $q->param('detail','1') if ( $q->param('detail') eq '');
 # Option dynamic was suppressed to avoid users clasing with each other
 # The above commented lines were in the form above.
 #<input type="checkbox" name="dynamic" value="yes">
-#    Force regeneration of page. Slow; only for debugging or if displayed 
+#    Force regeneration of page. Slow; only for debugging or if displayed
 #page is too old.
 
 $dynamic = $q->param('dynamic');
@@ -52,7 +52,7 @@ if ( $dynamic ne "yes" && $q->param('pkg') eq '' && $q->param('find') eq '') {
         if( open(FILE,"< $fname") && $all[7] != 0){
 	    # just display the pre-prepared page
 	    print "<!-- $fname opened -->\n";
-	    while (<FILE>) { 
+	    while (<FILE>) {
 		print;
 	    }
 	    exit;
@@ -117,7 +117,7 @@ macros, and scripts. Pointers and comments...
     <li>Only Library version <b>dev</b> provides link to the
     doxygen formatted source code.
     <li> Ball color indicates time since most recent mod:
-    <img src="/STAR/images/redball.gif">=2days, <img src="/STAR//images/greenball.gif">=2weeks, <img src="/STAR/images/blueball.gif">=2months, <img src="/STAR/images/whiteball.gif">=older
+    <img src="/STAR/images/redball.gif">=2days, <img src="/STAR/images/greenball.gif">=2weeks, <img src="/STAR/images/blueball.gif">=2months, <img src="/STAR/images/whiteball.gif">=older
 </ul>
 END
 
@@ -469,7 +469,7 @@ sub showPackage {
     opendir(SUB, "$theRoot/$theDir/$thePkg");
     while (defined ($sub = readdir SUB)) {
         if (-d "$theRoot/$theDir/$thePkg/$sub") {
-            if ( $sub ne "." && $sub ne ".." && $sub ne "CVS" 
+            if ( $sub ne "." && $sub ne ".." && $sub ne "CVS"
                  && $sub ne "doc" ) {
                 $subDirs[$nsub] = $sub;
                 $subdetails[$nsub] = &showFiles ($theRoot, $theDir, $thePkg, $sub, 1);
@@ -520,7 +520,7 @@ sub showPackage {
             $mo = -1;
             $yr = 0;
             $sinceMod = 999;
-        } 
+        }
 	$yr = $yr+1900;
         if ($linecount == 0) {
             $disp1="<font color=\"gray\">$ballUrl";
@@ -529,14 +529,14 @@ sub showPackage {
             $disp1="<b>$ballUrl";
             $disp2="</b>";
         }
-        $pkgLine = 
+        $pkgLine =
 	    sprintf("$disp1%s%-30s%s %-6s %-3s %s%s%9s%s%4d Files".
 		    "%7d Lines %02d/%02d/%04d %4d Days %s$disp2\n",
 		    $pkgUrl,$theDir."/".$thePkg,"</a>",$readme,$doc,$cvs,
 		    "<a href=\"$CVSURL/$pkgOwner/index.html#bottom\">",$pkgOwner,"</a>",
 		    $filecount,$linecount,$mo+1,$dy,$yr,$sinceMod,$thePamUrl);
     } else {
-        $pkgLine = 
+        $pkgLine =
 	    sprintf("%s%-30s%s %-6s %-3s %s\n",
 		    $pkgUrl,$theDir."/".$thePkg,"</a>",$readme,$doc,$cvs);
     }
@@ -733,7 +733,7 @@ sub showFiles {
 		# We can generate other cross-reference list such as the
 		# one generated while using the \file comment.
 		if($CRef eq ""){
-		    $CRef = &DoxyCode($fname,2," ","FileRef");  
+		    $CRef = &DoxyCode($fname,2," ","FileRef");
 		}
 
                 $blank='                                              ';
@@ -767,7 +767,7 @@ sub getList {
             if ( $list ne "" ) { $list .= " "; }
             $list .= $tks[$i+1];
             $eListH{$tks[$i+1]}++;
-        }            
+        }
         $i++;
     }
     return $list;
@@ -802,16 +802,19 @@ sub DoxyCode
 	$tmp =~ s/_/__/g;
 	$tmp =~ s/\./_8/g;
 	$tmp.= "-source.html";
-	
+
 	if( -e "$DOXPATH/$tmp"){
 	    $rv = "<a href=\"$DOXURL/$tmp\">$b2</a>";
-	} 
+	}
     }
     $rv;
 }
 
 
 # $Log: swguide.pl,v $
+# Revision 1.7  2003/12/22 14:23:10  jeromel
+# Trailing spaces removed
+#
 # Revision 1.6  2003/12/22 14:20:43  jeromel
 # Adjustment /STAR/images
 #
