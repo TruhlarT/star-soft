@@ -3,17 +3,50 @@
 # STAR_LEVELS - Perl script to display STAR levels as string.
 # Usage: STAR_LEVELS
 #
-# T. Wenaus
+# T. Wenaus, J. Lauret
 #
-$pgmf = `which root4star`; 
-chomp $pgmf;
-$createTime = (stat($pgmf))[10];
-($cmin,$chr,$cdy,$cmo,$cyr) = (localtime($createTime))[1,2,3,4,5];
-$cmo = $cmo +1;
-$year = $cyr - 100;
-if ( $cyr > 99 ) {$year = sprintf("%2.2d", $cyr - 100 )}
-$pgmf =~ s,/afs/rhic/star/packages/,,g;
-$pgmf =~ s,/bin/root4star,,g;
-$host = `hostname`;
-chomp $host;
-print "$host;CERN-$ENV{CERN_LEVEL};STAR-$ENV{STAR_LEVEL};root4star-$cmo/$cdy/$year-$chr:$cmin-$pgmf\n";
+
+if ($ARGV[0] eq "-g"){
+    # Guesstimator
+    if ( -d "include"){
+	$version = "";
+	if ( opendir(DIR,"include/") ){
+	    while ( defined($file = readdir(DIR)) ){
+		if ( -l "include/$file"){ next;}
+		# This is a fix format defined in RootCint, stic and ConstructTable
+		# If the format changes, the guesstimator will stop working
+		chomp($ver = `grep 'This was generated for version' include/$file`);
+		if ( $ver =~ m/(This was generated for version )(.*)/){
+		    $version = $2;
+		    last;
+		}
+	    }
+	    close(DIR);
+	}
+	if ($version ne ""){
+	    $version =~ s/\'//g;
+	    if ($version ne $ENV{STAR_LEVEL}){	print "Wrong STAR environment\n";}
+	    print "$version was the version this code was previously compiled in ...\n";
+	} else {
+	    print STDERR "Could not guess the library version you compiled your code in\n";
+	}
+    } else {
+	print STDERR "Cannot guess the version (missing include/)\n";
+    }
+} else {
+    chomp($pgmf = `which root4star`);
+    if ( $pgmf ne "" ){
+	$createTime = (stat($pgmf))[10];
+	($cmin,$chr,$cdy,$cmo,$cyr) = (localtime($createTime))[1,2,3,4,5];
+	$cmo = $cmo +1;
+	$year = $cyr - 100;
+	if ( $cyr > 99 ) {$year = sprintf("%2.2d", $cyr - 100 )}
+	$pgmf =~ s,/afs/rhic/star/packages/,,g;
+	$pgmf =~ s,/bin/root4star,,g;
+    } else {
+	$pgmf = "unknown";
+	$cmo  = $cdy = $year = $chr = $cmin = "?";
+    }
+    chomp($host = `hostname`);
+    print "$host;CERN-$ENV{CERN_LEVEL};STAR-$ENV{STAR_LEVEL};root4star-$cmo/$cdy/$year-$chr:$cmin-$pgmf\n";
+}
