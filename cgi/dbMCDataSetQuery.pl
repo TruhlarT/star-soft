@@ -1,4 +1,4 @@
-#!/opt/star/bin/perl -w
+#!/usr/local/bin/perl -w
 #
 # dbMCDatSetQuery.pl
 #

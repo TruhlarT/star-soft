@@ -1,8 +1,11 @@
-#!/opt/star/bin/perl -w
+#!/usr/local/bin/perl -w
 #
-# $Id: dbDevTestQueryPlot.pl,v 1.12 2001/06/07 17:08:18 jeromel Exp $
+# $Id: dbDevTestQueryPlot.pl,v 1.13 2001/11/27 14:57:16 didenko Exp $
 #
 # $Log: dbDevTestQueryPlot.pl,v $
+# Revision 1.13  2001/11/27 14:57:16  didenko
+# /opt/star -> /usr/local
+#
 # Revision 1.12  2001/06/07 17:08:18  jeromel
 # Change DEV00 -> dev
 #

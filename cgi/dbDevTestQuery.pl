@@ -1,8 +1,11 @@
-#!/opt/star/bin/perl -w
+#!/usr/local/bin/perl -w
 #
-# $Id: dbDevTestQuery.pl,v 1.8 2001/08/21 17:03:34 didenko Exp $
+# $Id: dbDevTestQuery.pl,v 1.9 2001/11/27 14:57:16 didenko Exp $
 #
 # $Log: dbDevTestQuery.pl,v $
+# Revision 1.9  2001/11/27 14:57:16  didenko
+# /opt/star -> /usr/local
+#
 # Revision 1.8  2001/08/21 17:03:34  didenko
 # update daq directory
 #

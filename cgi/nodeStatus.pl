@@ -1,4 +1,4 @@
-#! /opt/star/bin/perl -w
+#! /usr/local/bin/perl -w
 #
 #  $Id:
 #
@@ -135,11 +135,11 @@ foreach my $int ( $mon,$mday ){
 }
 
 $outname = "mail" . "_" .$thisday . "_" . "out";
-$outfile = "/star/u2e/starreco/" . $outname;
-#print $outfile, "\n";
+$outfile = "/star/u/starreco/" . $outname;
+
+print $outfile, "\n";
 
 open (MAILFILE, $outfile ) or die "cannot open $outfile: $!\n";
-
 
  @mailfile = <MAILFILE>;
 
@@ -148,10 +148,12 @@ open (MAILFILE, $outfile ) or die "cannot open $outfile: $!\n";
      if ($mail_line =~ /JobInfo/ ) {
       @wrd = split ("%", $mail_line);
       $nodeID = $wrd[2];
+       print $nodeID, "\n";
       $jbStat = $wrd[1];
       chop $nodeID;
       chop $nodeID;
       $nodeID =~ s/^\ *//g;
+# print $nodeID, "\n";
       $ii = $nodeHash{$nodeID};
 
       if ($jbStat =~ /crashed/) {
@@ -165,6 +167,7 @@ open (MAILFILE, $outfile ) or die "cannot open $outfile: $!\n";
      }
      elsif ($jbStat =~ /done/) {
          $ndDnCount[$ii]++;
+# print  $jbStat,"\n";    
        }
    } 
  }
@@ -265,7 +268,6 @@ print <<END;
 <TD ALIGN=CENTER WIDTH= 100  HEIGHT=80><B>Number of Jobs with staging failed</B></TD>
 <TD ALIGN=CENTER WIDTH= 100  HEIGHT=80><B>Number of Jobs <br>Done</B></TD>
 </TR> 
-   </head>
     <body>
 END
 }
