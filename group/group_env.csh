@@ -1,7 +1,10 @@
 #!/usr/bin/csh -f
-#       $Id: group_env.csh,v 1.74 1999/06/08 22:25:59 fisyak Exp $
+#       $Id: group_env.csh,v 1.75 1999/06/19 02:13:16 fisyak Exp $
 #	Purpose:	STAR group csh setup 
 #       $Log: group_env.csh,v $
+#       Revision 1.75  1999/06/19 02:13:16  fisyak
+#       Use CERN_LEVEL and ROOT_LEVEL to synchronize version STAR_LIB and CERNLIB,ROOT
+#
 #       Revision 1.74  1999/06/08 22:25:59  fisyak
 #       Change AFS -> /afs to /usr/afsws
 #
@@ -261,6 +264,10 @@ setenv STAR_CALIB ${STAR_ROOT}/calib;   if ($ECHO) echo   "Setting up STAR_CALIB
 setenv STAR_PROD   $STAR/prod;          if ($ECHO) echo   "Setting up STAR_PROD = ${STAR_PROD}"
 setenv CVSROOT   $STAR_PATH/repository; if ($ECHO) echo   "Setting up CVSROOT   = ${CVSROOT}"
 
+if (-f $STAR/mgr/ROOT_LEVEL && -f $STAR/mgr/CERN_LEVEL) then
+  setenv ROOT_LEVEL `cat $STAR/mgr/ROOT_LEVEL`
+  setenv CERN_LEVEL `cat $STAR/mgr/CERN_LEVEL`
+else
 switch ( $STAR_VERSION )
 
   case SL98l: setenv ROOT_LEVEL 2.20
@@ -284,13 +291,14 @@ switch ( $STAR_VERSION )
   breaksw
 
   case SL99f: 
-  setenv ROOT_LEVEL 2.21.08
+  case SL99g: 
+  setenv ROOT_LEVEL 2.22
   setenv CERN_LEVEL 99  
   breaksw
 
   default: setenv ROOT_LEVEL 2.13
 endsw
-
+endif
 if ($ECHO) echo   "Setting up ROOT_LEVEL= ${ROOT_LEVEL}"
 setenv TEXINPUTS :${GROUP_DIR}/latex/styles
 setenv GROUPPATH "${GROUP_DIR}:${STAR_MGR}:${STAR_BIN}"
