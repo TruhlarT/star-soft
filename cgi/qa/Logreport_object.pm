@@ -750,7 +750,9 @@ sub DisplayLogReport {
   print "Nevents requested = ", $self->NEvent ," \n";
   print "First event requested = ", $self->FirstEventRequested ," \n";
   print "Last event requested = ", $self->LastEventRequested ," \n";
-  print "Nevents completed = ", $self->LastEvent ," \n";
+  print "Last event = ", $self->LastEvent ," \n";
+  print "Nevents processed = ", $self->NEventsProcessed ," \n";
+  print "Nevents not completed = ", $self->NEventsNotCompleted ," \n";
   print "Return code for last event = ", $self->ReturnCodeLastEvent ," \n";
   print "Finish date/time = ", $self->RunCompletionTimeAndDate ," \n";
   print "Machine name = ", $self->Machine ," \n";
