@@ -17,6 +17,7 @@ $URL       = "http://www.star.bnl.gov/";              # URL to analyze
 $LINKCHECK = "/usr/local/bin/linkcheck";              # linkcheck program
 $ARGS      = "--recurse --verbosity 2";               # linkcheck options
 $CHCOL     = 0;                                       # change color if same ws
+$MAXBRK    = 50;                                      # stop listing broken links when exceeded
 
 $TARGETD   = "/star/starlib/doc/www/html/tmp/";       # output directory
 @EXCLUDED  = ("protected",
@@ -139,13 +140,20 @@ if ( open(FO,">$TARGETD/$FLNM-tmp") ){   # If not, forget it
 
 	@items = split(/\|/,$REFS{$el});
 	print FO " <UL>\n";
+	$kk = 0;
 	foreach $line (@items){
 	    $l = &GetRef($line);
-	    if( $line =~ /$URL/ && $CHCOL){
-		print FO " <LI><FONT COLOR=\"#FF0000\"><TT>$line</TT></FONT>".
-		    "<A HREF=\"#$l\">$IMG3</A>\n";
+	    $kk++;
+	    if ( $kk < $MAXBRK){
+		if( $line =~ /$URL/ && $CHCOL){
+		    print FO " <LI><FONT COLOR=\"#FF0000\"><TT>$line</TT></FONT>".
+			"<A HREF=\"#$l\">$IMG3</A>\n";
+		} else {
+		    print FO " <LI><TT>$line</TT> <A HREF=\"#$l\">$IMG3</A>\n";
+		}
 	    } else {
-		print FO " <LI><TT>$line</TT> <A HREF=\"#$l\">$IMG3</A>\n";
+		print FO " <LI><TT>...</TT> ".($#items+1)." broken links, only $MAXBRK shown\n";
+		last;
 	    }
 	}
 	print FO " </UL>\n";
