@@ -101,7 +101,7 @@ switch ($shell)
     case "/usr/local/bin/tcsh":
     case "/bin/tcsh":
 	if ( ! -e  $HOME/history) then
-	    mkdir -p $HOME/history
+	    /bin/mkdir -p $HOME/history
 	endif
 	set correct = cmd
 	set autolist=on
