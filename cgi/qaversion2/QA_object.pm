@@ -593,7 +593,7 @@ sub ShowPsFiles{
   #---------------------------------------------------------
   # open the report directory
 
-  print h3("<hr>QA histograms: \n"); 
+  print h4("<hr>QA histograms: \n"); 
   
   my $dh = $self->IOReportDirectory->Open;
   
@@ -801,7 +801,7 @@ sub DisplayFilesAndReports{
 
     $logfile = $file,         next if $file =~ /logfile_report/; 
     
-    push(@ps_file, $file),    next if $file =~ /ps$|ps\.gz$/;  
+#    push(@ps_file, $file),    next if $file =~ /ps$|ps\.gz$/;  
 
     push(@report, $file),     next if $file =~ /qa_report$/;   
 
@@ -814,21 +814,18 @@ sub DisplayFilesAndReports{
 
   closedir $dh;
 
-  # links to the control file, and the macro test files.
-  $self->ShowControlFiles();
-
+  
   #----------------------------------------------------------------
   # print links to the ps files
+ 
+  $self->ShowPsFiles();
 
-#  $self->ShowPsFiles();
+#  foreach my $file (@ps_file){
+#    $self->PrintFilestring("Postscript file", $file);
+#  }
 
-  print h4("Postscript files:\n"); 
-  
-  foreach my $file (@ps_file){
-    $self->PrintFilestring("Postscript file", $file);
-  }
   print h4("Output of macros:\n");
-  # links to output of the macros
+
   foreach my $file (@report){  
     $self->PrintFilestring("Report", $file);
   }
@@ -837,6 +834,9 @@ sub DisplayFilesAndReports{
 
   # browser created in QA_main
   $gBrowser_object->ExpertPageFlag and do{
+
+    # links to the control file, and the macro test files.
+    $self->ShowControlFiles();
 
     print h4("Other files:\n"); 
     
