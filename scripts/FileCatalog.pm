@@ -234,23 +234,23 @@ $aggregates[5] = "orda";
 $aggregates[6] = "ordd";
 
 # A table holding the number of records in each table
-my %rowcounts;
-$rowcounts{"StorageTypes"} = 0;
-$rowcounts{"StorageSites"} = 0;
-$rowcounts{"FileData"} = 0;
-$rowcounts{"ProductionConditions"} = 0;
-$rowcounts{"FileTypes"} = 0;
-$rowcounts{"TriggerWords"} = 0;
-$rowcounts{"FileData"} = 0;
-$rowcounts{"RunParams"} = 0;
-$rowcounts{"RunTypes"} = 0;
-$rowcounts{"DetectorConfigurations"} = 0;
-$rowcounts{"CollisionTypes"} = 0;
-$rowcounts{"TriggerSetups"} = 0;
-$rowcounts{"SimulationParams"} = 0;
-$rowcounts{"EventGenerators"} = 0;
-$rowcounts{"FileLocations"} = 0;
-$rowcounts{"TriggerCompositions"} = 0;
+#my %rowcounts;
+#$rowcounts{"StorageTypes"} = 0;
+#$rowcounts{"StorageSites"} = 0;
+#$rowcounts{"FileData"} = 0;
+#$rowcounts{"ProductionConditions"} = 0;
+#$rowcounts{"FileTypes"} = 0;
+#$rowcounts{"TriggerWords"} = 0;
+#$rowcounts{"FileData"} = 0;
+#$rowcounts{"RunParams"} = 0;
+#$rowcounts{"RunTypes"} = 0;
+#$rowcounts{"DetectorConfigurations"} = 0;
+#$rowcounts{"CollisionTypes"} = 0;
+#$rowcounts{"TriggerSetups"} = 0;
+#$rowcounts{"SimulationParams"} = 0;
+#$rowcounts{"EventGenerators"} = 0;
+#$rowcounts{"FileLocations"} = 0;
+#$rowcounts{"TriggerCompositions"} = 0;
 
 
 # Those variables will be used internally
@@ -388,24 +388,24 @@ sub connect {
   $DBH = DBI->connect($dbsource,$user,$passwd) ||
       die "cannot connect to $dbname : $DBI::errstr\n";
 
-  foreach (keys(%rowcounts)){
-      my $sqlquery = "SELECT count(*) FROM $_";
-      &print_debug("Executing: $sqlquery");
-      $sth = $DBH->prepare($sqlquery);
-
-      if( ! $sth){
-   	&print_debug("FileCatalog:: connect : Failed to prepare [$sqlquery]");
-
-      } else {
-	$sth->execute();
-	$sth->bind_columns( \$count );
-	
-	if ( $sth->fetch() ) {
-	  $rowcounts{$_} = $count;
-	}
-	$sth->finish();
-      }
-  }
+  #foreach (keys(%rowcounts)){
+  #    my $sqlquery = "SELECT count(*) FROM $_";
+  #    &print_debug("Executing: $sqlquery");
+  #    $sth = $DBH->prepare($sqlquery);
+  #
+  #    if( ! $sth){
+  # 	&print_debug("FileCatalog:: connect : Failed to prepare [$sqlquery]");
+  #
+  #    } else {
+  #	$sth->execute();
+  #	$sth->bind_columns( \$count );
+  #	
+  #	if ( $sth->fetch() ) {
+  #	  $rowcounts{$_} = $count;
+  #	}
+  #	$sth->finish();
+  #    }
+  #}
 
   if ( ! defined($DBH) ) {
       return 0;
@@ -648,7 +648,11 @@ sub insert_dictionary_value {
     $dtvalues .= " , '".$valuset{$_}."'";
   }
 
-  $dtinsert   = "INSERT IGNORE INTO $tabname ";
+  if ( $tabname eq "FileLocations"){
+      $dtinsert   = "INSERT DELAYED IGNORE INTO $tabname ";
+  } else {
+      $dtinsert   = "INSERT IGNORE INTO $tabname ";
+  }
   $dtinsert  .= "($fieldname $dtfields)";
   $dtinsert  .= " VALUES ('".$valuset{$keyname}."' $dtvalues)";
   if ($DEBUG > 0) {    &print_debug("Execute $dtinsert");}
@@ -1957,12 +1961,12 @@ sub run_query {
   # Little debugging of the table size. This information was
   # taken during the call to connect(). This information may
   # be used later to improve queries.
-  if($DEBUG > 0){
-      &print_debug("By the way ...");
-      foreach (keys(%rowcounts)){
-	  &print_debug("\t$_ count is ".$rowcounts{$_}."\n");
-      }
-  }
+  #if($DEBUG > 0){
+  #    &print_debug("By the way ...");
+  #    foreach (keys(%rowcounts)){
+  #        &print_debug("\t$_ count is ".$rowcounts{$_}."\n");
+  #    }
+  #}
 
 
   $count = 0;
@@ -2446,7 +2450,7 @@ sub delete_records {
       # fdid is the logical grouping and may be associated with
       # more than one location.
       @ids = split("::",$_);
-      $cmd = "DELETE FROM FileLocations WHERE fileLocationID=$ids[0]";
+      $cmd = "DELETE LOW_PRIORITY FROM FileLocations WHERE fileLocationID=$ids[0]";
 
       $sth = $DBH->prepare( $cmd );
       if( $doit ){
@@ -2480,7 +2484,7 @@ sub delete_records {
 
 	  if ($stq->rows == 0){
 	      # This file data has no file locations - delete it (and its trigger compositions)
-	      $cmd  = "DELETE FROM FileData WHERE fileDataID = $ids[1]";
+	      $cmd  = "DELETE LOW_PRIORITY FROM FileData WHERE fileDataID = $ids[1]";
 	      $sth2 = $DBH->prepare($cmd);
 
 		  if ($doit){
@@ -2494,7 +2498,7 @@ sub delete_records {
 		  }
 		  $sth2->finish();
 
-		  $sth2 = $DBH->prepare("DELETE FROM TriggerCompositions WHERE fileDataID = $ids[1]");
+		  $sth2 = $DBH->prepare("DELETE LOW_PRIORITY FROM TriggerCompositions WHERE fileDataID = $ids[1]");
 		  if ($doit){
 		      if ( $DELAY ){
 			  push(@DCMD,$cmd);
@@ -2591,7 +2595,7 @@ sub bootstrap {
       {
 	  # We do a bootstapping with delete
 	  my $dcdelete;
-	  $dcdelete = "DELETE FROM $table WHERE $linkfield IN (".join(" , ",(@rows)).")";
+	  $dcdelete = "DELETE LOW_PRIORITY FROM $table WHERE $linkfield IN (".join(" , ",(@rows)).")";
 	  if ( $DELAY ){
 	      push(@DCMD,$dcdelete);
 	  } else {
@@ -2655,7 +2659,7 @@ sub bootstrap_trgc {
       {
 	  # We do a bootstapping with delete
 	  my $dcdelete;
-	  $dcdelete = "DELETE FROM $table WHERE $table.fileDataID IN (".join(" , ",(@rows)).")";
+	  $dcdelete = "DELETE LOW_PRIORITY FROM $table WHERE $table.fileDataID IN (".join(" , ",(@rows)).")";
 	  if ( $DELAY ){
 	      push(@DCMD,$dcdelete);
 	  } else {
@@ -2730,11 +2734,11 @@ sub bootstrap_data {
 	  my $dcdelete;
 	  if ($table eq "FileData")
 	  {	  
-	      $dcdelete = "DELETE FROM $table WHERE $table.fileDataID IN (".join(" , ",(@rows)).")";
+	      $dcdelete = "DELETE LOW_PRIORITY FROM $table WHERE $table.fileDataID IN (".join(" , ",(@rows)).")";
 	  }
 	  elsif ($table eq "FileLocations")
 	  {
-	      $dcdelete = "DELETE FROM $table WHERE $table.fileLocationID IN (".join(" , ",(@rows)).")";
+	      $dcdelete = "DELETE LOW_PRIORITY FROM $table WHERE $table.fileLocationID IN (".join(" , ",(@rows)).")";
 	  }
 	  if ( $DELAY ){
 	      push(@DCMD,$dcdelete);
@@ -2825,7 +2829,7 @@ sub update_record {
 
   my $qupdate;
   if (get_field_type($ukeyword) eq "text"){
-      $qupdate = "UPDATE $utable SET $ufield = '$newvalue' WHERE ";
+      $qupdate = "UPDATE LOW_PRIORITY $utable SET $ufield = '$newvalue' WHERE ";
       if( defined($valuset{$ukeyword}) ){
 	  $qupdate .= " $ufield = '$valuset{$ukeyword}'";
       } else {
@@ -2833,7 +2837,7 @@ sub update_record {
 	  return 0;
       }
   } else {
-      $qupdate = "UPDATE $utable SET $ufield = $newvalue WHERE ";
+      $qupdate = "UPDATE LOW_PRIORITY $utable SET $ufield = $newvalue WHERE ";
       if( defined($valuset{$ukeyword}) ){
 	  $qupdate .= " $ufield = $valuset{$ukeyword}";
       } else {
@@ -3023,7 +3027,7 @@ sub update_location {
 	  # tables like FileData/FileLocation but not true for others
 	  my $uid    = get_id_from_dictionary($utable,$ufield,$newvalue);
 	  $ukeyword  = IDize($utable);
-	  $qupdate = "UPDATE $mtable SET $ukeyword=$uid ";
+	  $qupdate = "UPDATE LOW_PRIORITY $mtable SET $ukeyword=$uid ";
 
 	  if ($whereclause ne ""){
 	      $qupdate .= " AND $whereclause"; 
@@ -3031,7 +3035,7 @@ sub update_location {
 
 	  # THOSE ONLY UPDATES VALUES 
       } elsif (get_field_type($ukeyword) eq "text"){
-	  $qupdate = "UPDATE $mtable SET $ufield = '$newvalue' WHERE ";
+	  $qupdate = "UPDATE LOW_PRIORITY $mtable SET $ufield = '$newvalue' WHERE ";
 	  if( defined($valuset{$ukeyword}) ){
 	      $qupdate .= " $ufield = '$valuset{$ukeyword}'";
 	  } else {
@@ -3039,7 +3043,7 @@ sub update_location {
 	      return;
 	  }
       } else {
-	  $qupdate = "UPDATE $mtable SET $ufield = $newvalue WHERE ";
+	  $qupdate = "UPDATE LOW_PRIORITY $mtable SET $ufield = $newvalue WHERE ";
 	  if( defined($valuset{$ukeyword}) ){
 	      $qupdate .= " $ufield = $valuset{$ukeyword}";
 	  } else {
