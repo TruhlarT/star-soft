@@ -27,7 +27,7 @@ my $nprodPer = 0;
 my $myprod;
 
 #my @datSet = ("all","tpc","tpc.rich","tpc.svt.rich");
-my @trigSet  = ("all","central","minbias","medium","peripheral","mixed");
+my @trigSet  = ("all","central","minbias","medium","peripheral","mixed","physics");
 
 &StDbProdConnect();
 
