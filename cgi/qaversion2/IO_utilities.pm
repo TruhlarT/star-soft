@@ -104,7 +104,7 @@ sub GetGlobalMessages{
 #==============================================================
 # bum
 # clean up the logfile scratch directory 
-# contains the symlinks to the logfile
+# contains the symlinks to the logfiles
 # delete everything older than 12 hours
 
 sub CleanUpLogScratch{
@@ -212,31 +212,33 @@ sub move_old_reports{
   my $dir_name_old = $io_dir->Name();
   undef $io_dir_old;
 
-  my $report;
-  while ( defined ( $report = readdir $dh ) ){
-    
-    # move if older than 30 days
-    
-    next if $report =~ /^\./;
-    next unless is_old_report($report); # bum - 10/03/00 
+  # determine old report files from the database.
+  # probably more robust than trying to determine the
+  # date from the report key.
+  # Which subroutine to call is determined by the DataClass_object.
 
-    my $name = "$dir_name/$report";
-    
-    # $next unless -M $name; 
-    
-    my $name_move = "$dir_name_old/$report";
-    
+  no strict 'refs';
+
+  # this should have deleted the jobs from the db
+  my @old_report_keys = &$gDataClass_object->GetOldReports;
+
+  # now move them on disk
+
+  foreach my $report_key (@old_report_keys){
+    my $name      = "$dir_name/$report_key";
+    my $name_move = "$dir_name_old/$report_key";
+
     print "cp -rp $name $name_move <br> \n";
 #    system ("cp -rp $name $name_move");
 
     print "\\rm -rf $name <br> \n";
 #    system ("\\rm -rf $name");
-    
   }
 }
 
 #============================================================
 # bum 10/3/00 - called in move_old_reports above
+# not used
 
 sub is_old_report{
   my $report  = shift;

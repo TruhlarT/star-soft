@@ -54,36 +54,45 @@ use strict;
 
 # for specific information about the operation database, good luck
 # The structure of QA database is the following:
-# 
+# ($dbQA - set in DataClass_object...)
 
-# table : 'QASummary' ($dbQA - set in DataClass_object...)
+# table : 'QASummary' 
 #         Contains the basic information about the qa status
 #         
-#         jobID       varchar(64)         not null index,
+#         jobID       varchar(64)         not null,
 #         report_key  varchar(64)         not null,
-#         type        varchar(20)         not null index,
-#         QAdone      enum('Y','N')       not null default 'N' index,
-#         QAok        enum('Y','N','n/a') not null default 'n/a' index,
+#         type        varchar(20)         not null,
+#         QAdone      enum('Y','N')       not null default 'N',
+#         QAok        enum('Y','N','n/a') not null default 'n/a',
 #         QAdate      datetime            not null,
 #         controlFile varchar(128)        not null default 'n/a',
 #         qaID        mediumint           not null auto_increment,
 #                     primary key (qaID),
+#                     index (jobID),
+#                     index (type),
+#                     index (QAok),
+#                     index (QAdone)
 #                     
 
 # table : 'QAMacros'
 #          
-#          qaID       mediumint(9) not null index
-#          macroName  varchar(64)  not null
-#          fName      varchar(64)  not null
-#          path       varchar(128) not null
-#          extension  varchar(10)  not null
-#          size       int(11)      not null
-#          createTime datetime     not null
-#          status     varchar(20)  not null index
-#          warnings   varchar(5)   not null index
-#          errors     varchar(5)   not null index
-#          ID         mediumint(9) not null auto_increment 
-#                     primary key(ID)
+#          qaID       mediumint(9) not null, 
+#          macroName  varchar(64)  not null,
+#          fName      varchar(64)  not null,
+#          path       varchar(128) not null,
+#          extension  varchar(10)  not null,
+#          size       int(11)      not null,
+#          createTime datetime     not null,
+#          status     varchar(20)  not null,
+#          warnings   varchar(5)   not null,
+#          errors     varchar(5)   not null, 
+#          ID         mediumint(9) not null auto_increment, 
+#                     primary key(ID),
+#                     index (qaID),
+#                     index (macroName),
+#                     index (status),
+#                     index (warnings),
+#                     index (errors)
 
 
 # database variables - just in case you want to change the column names
@@ -105,7 +114,7 @@ use strict;
 # QAMacros
 %QAMacros = (
 	 Table      => 'QAMacros', # name of the table
-	 qaID      => 'qaID',
+	 qaID       => 'qaID',
 	 macroName  => 'macroName',
 	 fName      => 'fName',
 	 path       => 'path',
@@ -322,31 +331,6 @@ sub GetQAID{
   return $dbh->selectrow_array($query);
 }
 
-#==========================================================================
-# get the input file for the macros
-# arguments are jobID and filetype
-# file type must be in the form 'component'+'format'
-# not used
-
-sub GetMacroInputFile{
-  my $jobID = shift;  
-  my $filetype = shift; #e.g. .hist.root
-
-  # remove leading spaces, dot if any
-  $filetype =~ s/^\s*\.?//;
-
-  my ($component, $format) = split /\./, $filetype;
-				      
-  my $query = qq{select concat(file.path, '/', file.fName)
-	         from $dbFile.$FileCatalog as file 
-	         where file.jobID='$jobID' and
-		       file.component='$component' and
-                       file.format='$format'
-	      };
-
-  return $dbh->selectrow_array($query);
-
-} 
 #========================================================================
 # check if files are on disk
 
@@ -380,7 +364,6 @@ sub OnDiskOffline{
 }
 
 
-
 #===================================================================
 # get the control file info for nightly test
 # event generator, event type, geometry...
@@ -388,10 +371,9 @@ sub OnDiskOffline{
 sub GetControlFileInfo{
   my $jobID = shift;
 
-  my $query = qq{select distinct 
-		   eventGen, eventType, geometry
+  my $query = qq{select eventGen, eventType, geometry
 		 from $dbFile.$FileCatalog 
-		 where jobID='$jobID' };
+		 where jobID='$jobID' limit 1};
   
   return $dbh->selectrow_array( $query );
 
@@ -401,8 +383,6 @@ sub GetControlFileInfo{
 
 sub GetOutputFileOffline{
   my $jobID = shift;
-
-  my $on_disk_clause;
 
   my $query = qq{select path, fName
 		 from $dbFile.$FileCatalog 
@@ -422,8 +402,6 @@ sub GetOutputFileOffline{
 sub GetOutputFileNightly{
   my $jobID = shift;
 
-  my $on_disk_clause;
-
   my $query = qq{select path, fName
 		 from $dbFile.$FileCatalog 
 		 where jobID ='$jobID' and
@@ -435,16 +413,33 @@ sub GetOutputFileNightly{
   #returns the path and name
   return $dbh->selectrow_array( $query );
 }
-
 #===================================================================
-# get job completion time for offline and nightly
+# returns the value from the '$field' requested from FileCatalog
+# that matches the '$jobID'
 
-sub GetJobCompletionTime{
+sub GetFromFileCatalog{
+  my $field = shift;
   my $jobID = shift;
 
-  my $query = qq{select createTime 
+  my $query = qq{select $field 
 		 from $dbFile.$FileCatalog
 		 where jobID = '$jobID' limit 1};
+
+  return $dbh->selectrow_array($query);
+
+}
+
+#===================================================================
+# returns the value from the '$field' requested from JobStatus
+# that matches the '$jobID'
+
+sub GetFromJobStatus{
+  my $field = shift;
+  my $jobID = shift;
+
+  my $query = qq{select $field 
+		 from $dbFile.$JobStatus
+		 where jobID = '$jobID'};
 
 
   return $dbh->selectrow_array($query);
@@ -468,18 +463,7 @@ sub GetProdOptions{
 
   return $dbh->selectrow_array ($query);
 }
-#===================================================================
-# returns the node (machine) that the job was run for offline and nightly
 
-sub GetNodeID{
-  my $jobID = shift;
-
-  my $query = qq{select nodeID 
-		 from $dbFile.$JobStatus 
-		 where jobID = '$jobID' };
-
-  return $dbh->selectrow_array($query);
-}
 #===================================================================
 # returns the input file name for offline
 
@@ -493,57 +477,6 @@ sub GetInputFnOffline{
   return $dbh->selectrow_array($query);
 }
 
-#====================================================================
-# return number of events done for offline
-
-sub GetNEventDoneOffline{
-  my $jobID = shift;
-
-  my $query = qq{select NoEvents 
-		 from $dbFile.$JobStatus
-		 where jobID = '$jobID' };
-
-  return $dbh->selectrow_array($query);
-}
-#====================================================================
-# return number of events done for nightly
-
-sub GetNEventDoneNightly{
-  my $jobID = shift;
-
-  my $query = qq{select NoEventDone 
-		 from $dbFile.$JobStatus
-		 where jobID = '$jobID' };
-
-  return $dbh->selectrow_array($query);
-}
-
-#=====================================================================
-# get the low and high event done (processed) for offline real
-
-sub GetLoAndHiEvent{
-  my $jobID = shift;
-  
-  my $query = qq{select NevLo, NevHi
-		 from $dbFile.$FileCatalog
-		 where jobID = '$jobID' 
-	         limit 1};
-
-  return $dbh->selectrow_array($query);
-}
-
-#=====================================================================
-# returns job status for nightly and offline
-
-sub GetJobStatus{
-  my $jobID = shift;
-
-  my $query = qq{select jobStatus 
-                 from $dbFile.$JobStatus
-                 where jobID = '$jobID' };
-
-  return $dbh->selectrow_array($query);
-}
 #=====================================================================
 # get the root level, star level, starlib version, and chain 
 # for nightly tests
@@ -558,32 +491,6 @@ sub GetStarRootInfo{
   return $dbh->selectrow_array($query);
 }
 
-#======================================================================
-# get num of events requested from nightly
-
-sub GetNEventRequested{
-  my $jobID = shift;
-
-  my $query = qq{select NoEventReq
-		 from $dbFile.$FileCatalog
-		 where jobID = '$jobID' 
-	         limit 1};
-  
-  return $dbh->selectrow_array($query);
-}
-#=====================================================================
-# get runID for offline
-
-sub GetRunID{
-  my $jobID = shift;
-
-  my $query = qq{select runID
-		 from $dbFile.$FileCatalog
-		 where jobID = '$jobID'
-		 limit 1};
-
-  return $dbh->selectrow_array($query);
-}
 #=====================================================================
 # returns all production files for offline 
 
@@ -623,18 +530,6 @@ sub GetAllProductionFilesNightly{
   push @file_list, $file while ($file = $sth->fetchrow_array);
 
   return \@file_list;
-}
-#=============================================================
-# returns the number of events that werent written out to dst
-
-sub GetNoEventSkipped{
-  my $jobID = shift;
-
-  my $query = qq{select NoEventSkip
-		 from $dbFile.$JobStatus
-		 where jobID = '$jobID' };
-
-  return $dbh->selectrow_array($query);
 }
 
 #=============================================================
@@ -822,7 +717,7 @@ sub WriteQAMacroSummary{
            $QAMacros{errors}     = '$errors'
 	 where $QAMacros{macroName} = '$macro_name' and
 	       $QAMacros{fName}     = '$fName' and
-	       $QAMacros{qaID}     = '$qaID'};
+	       $QAMacros{qaID}      = '$qaID'};
   }
   else
   { # new macros... insert into table
@@ -888,20 +783,6 @@ sub GetQAMacrosSummary{
   $sth->execute;
   return $sth->fetchall_arrayref();
 }
-#===============================================================
-# retrieve the dataset field
-# describes the job
-
-sub GetDataset{
-  my $jobID = shift;
-
-  my $query = qq{ select dataset 
-		  from $dbFile.$FileCatalog
-		  where jobID = '$jobID'
-		  limit 1 };
-
-  return $dbh->selectrow_array($query);
-}
 
 #===============================================================
 # parse the dataset field for offline MC
@@ -946,15 +827,56 @@ sub ParseDatasetReal{
 
 }
 #==============================================================
+# 1. deletes the 'old' reports from the database
+# 2. returns the report keys so that we can delete it from disk
 
-sub db_GetControlFile{
-  my $jobID = shift;
+sub GetOldReports{
+  my $data_type = shift; # MC or real
+  my $old_time  = 100;   # number of days
+  my $now       = time;  # current date in epoch seconds
+  my @old_report_keys;
 
-  my $query = qq{select $QASum{controlFile} 
-		 from $dbQA.$QASum{Table}
-		 where $QASum{jobID} = '$jobID' };
+  # determine which reports are old from the FileCatalog.createTime
+  my $query_old = qq{ select distinct qa.$QASum{report_key} 
+		      from $dbQA.$QASum{Table} as qa,
+		           $dbFile.$FileCatalog as file  
+		      where  
+			qa.$QASum{jobID} = file.jobID and
+			(to_days(from_unixtime($now)) -
+			 to_days(file.createTime)) > $old_time and
+			qa.QASum{type} = '$data_type'
+		      };
 
-  return $dbh->selectrow_array($query);
+  my $query_delete = qq{ delete from $QASum{Table} 
+			 where $QASum{report_key} = ? };
+
+  my $sth_old    = $dbh->prepare($query_old);
+  my $sth_delete = $dbh->prepare($query_delete);
+ 
+  $sth_old->execute;
+
+  while(my $report_key = $sth_old->fetchrow_array){
+    push @old_report_keys, $report_key; # save it
+
+    print h4("Deleting $report_key from the database ...<br>\n");
+
+    $sth_delete->execute($report_key);  # delete it
+
+    print h4("... done<br>\n");
+  }
+
+  return @old_report_keys;
 }
+#==============================================================
+sub GetOldReportsReal{
+  return GetOldReports('real');
+}
+#==============================================================
+sub GetOldReportsMC{
+  return GetOldReports('MC');
+}
+
+    
+
 1;  
   

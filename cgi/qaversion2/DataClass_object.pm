@@ -107,6 +107,7 @@ for my $attr ( qw (
 		   QA_obj
 		   GetSelectedKeys
 		   GetSelectionOptions
+		   GetOldReports
 		   dbFile
 		   FileCatalog
 		   JobStatus
@@ -293,6 +294,9 @@ sub offline_real{
   # find missing files
   $self->GetMissingFiles("QA_db_utilities::GetMissingFilesReal");
 
+  # get old reports
+  $self->GetOldReports("QA_db_utilities::GetOldReportsReal");
+
   # browser banner for interactive display
   $self->BrowserBannerColor("red");
   $self->BrowserBannerLabel("Real Data Production");
@@ -334,6 +338,9 @@ sub offline_MC{
   # find missing files
   $self->GetMissingFiles("QA_db_utilities::GetMissingFilesMC");
 
+  # get old reports
+  $self->GetOldReports("QA_db_utilities::GetOldReportsMC");
+
   # browser banner for interactive display
   $self->BrowserBannerColor("red");
   $self->BrowserBannerLabel("MC Data Production");
@@ -374,6 +381,9 @@ sub nightly_real{
   # find missing files
   $self->GetMissingFiles("QA_db_utilities::GetMissingFilesReal");
 
+  # get old reports
+  $self->GetOldReports("QA_db_utilities::GetOldReportsReal");
+
   # browser banner for interactive display
   $self->BrowserBannerColor("red");
   $self->BrowserBannerLabel("Real Data Nightly Tests");
@@ -387,7 +397,7 @@ sub nightly_MC{
   #------------------------------------------------------
   my $home = $self->Home();
   $self->TopDir("$home/nightly_MC");
-  $self->TopDirWWW("http://duvall.star.bnl.gov/~bum");
+  $self->TopDirWWW("http://duvall.star.bnl.gov/~starqa/qa_db");
 
   $self->StandardDirectories();
   
@@ -412,6 +422,9 @@ sub nightly_MC{
   # find missing files
   $self->GetMissingFiles("QA_db_utilities::GetMissingFilesMC");
 
+  # get old reports
+  $self->GetOldReports("QA_db_utilities::GetOldReportsMC");
+
   # browser banner for interactive display
   $self->BrowserBannerColor("red");
   $self->BrowserBannerLabel("MC Data Nightly Tests");
@@ -433,7 +446,7 @@ sub debug{
   $self->KeyList_obj("KeyList_object_nightly");
   $self->QA_obj("QA_object_nightly");
   
-  # database suff
+  # database stuff
   $self->dbFile("TestJobs");
   $self->FileCatalog("FilesCatalog");
   $self->JobStatus("JobStatus");
@@ -445,6 +458,12 @@ sub debug{
 
   # for updating from DB
   $self->UpdateRoutine("Db_update_utilities::UpdateQANightlyMC");
+
+  # find missing files
+  $self->GetMissingFiles("QA_db_utilities::GetMissingFilesMC");
+
+  # get old reports
+  $self->GetOldReports("QA_db_utilities::GetOldReportsMC");
 
   # browser banner for interactive display
   $self->BrowserBannerColor("yellow");
@@ -466,7 +485,7 @@ sub online_raw{
   $self->KeyList_obj("KeyList_object_nightly");
   $self->QA_obj("QA_object_nightly");
   
-  # database suff
+  # database stuff
   $self->dbFile("TestJobs");
   $self->FileCatalog("FilesCatalog");
   $self->JobStatus("JobStatus");

@@ -1,7 +1,7 @@
 #! /usr/bin/perl
 #
 # derived Logreport_object for offline 
-# this is a kludge.
+# this is a kluge.
 # contains both information for offline real and offline MC
 # the difference is controlled by the global DataClass object
 # which determines which _initplus to call
@@ -62,7 +62,7 @@ sub _init_offline{
   my $self = shift;
 
   # runID ?
-  my $runID = QA_db_utilities::GetRunID($self->JobID);
+  my $runID = QA_db_utilities::GetFromFileCatalog('runID',$self->JobID);
   $self->RunID($runID);
 
   # get prod series, chain name, lib version, and chain options
@@ -75,9 +75,9 @@ sub _init_offline{
   $self->StarlibVersion($lib);
   $self->RequestedChain($chain);
 
-  # get the dataset field
+  # dataset field
   
-  $self->Dataset(QA_db_utilities::GetDataset($self->JobID));
+  $self->Dataset(QA_db_utilities::GetFromFileCatalog('dataset',$self->JobID));
 
 }
 #===========================================================
@@ -87,8 +87,9 @@ sub offline_real{
   
   my $self = shift;
   
-  # first and last event done
-  my ($lo, $hi) = QA_db_utilities::GetLoAndHiEvent($self->JobID);
+  # first and last event done (processed)
+  my $lo = QA_db_utilities::GetFromFileCatalog('NevLo',$self->JobID);
+  my $hi = QA_db_utilities::GetFromFileCatalog('NevHi', $self->JobID);
 
   $self->FirstEventDone($lo);
   $self->LastEventDone($hi); 
@@ -240,7 +241,7 @@ sub GetJobInfo{
   my $self = shift;
 
   # node (machine)
-  my $node = QA_db_utilities::GetNodeID($self->JobID);
+  my $node = QA_db_utilities::GetFromJobStatus('nodeID',$self->JobID);
   $self->Machine($node);
 
   # input fn
@@ -248,15 +249,15 @@ sub GetJobInfo{
   $self->InputFn($input);
 
   # number of events done (processed)
-  my $events_done = QA_db_utilities::GetNEventDoneOffline($self->JobID);
+  my $events_done = QA_db_utilities::GetFromJobStatus('NoEvents',$self->JobID);
   $self->NEventDone($events_done);
 
   # job status - done, not completed, etc
-  my $jobstatus = QA_db_utilities::GetJobStatus($self->JobID);
+  my $jobstatus = QA_db_utilities::GetFromJobStatus('jobStatus',$self->JobID);
   $self->JobStatus($jobstatus);
 
   # number of events skipped
-  my $skip = QA_db_utilities::GetNoEventSkipped($self->JobID);
+  my $skip = QA_db_utilities::GetFromJobStatus('NoEventSkip',$self->JobID);
   $self->NoEventSkipped($skip);
 
   # output file name and directory
@@ -267,7 +268,7 @@ sub GetJobInfo{
   $self->OutputFn($name);
 
   # job completion time
-  my $donetime = QA_db_utilities::GetJobCompletionTime($self->JobID);
+  my $donetime = QA_db_utilities::GetFromFileCatalog('createTime',$self->JobID);
   $self->JobCompletionTimeAndDate($donetime);
 
 }

@@ -1,4 +1,5 @@
 #! /usr/bin/perl
+#
 # derived Logreport_object for nightly tests
 #
 #==========================================================
@@ -11,7 +12,7 @@ use QA_db_utilities;
 use FileHandle;
 
 use strict;
-use base qw(Logreport_object); # base class
+use base qw(Logreport_object); 
 #==========================================================
 # more members
 
@@ -170,11 +171,11 @@ sub GetJobInfo{
   $self->RequestedChain($chain);
 
   # node (machine)
-  my $node = QA_db_utilities::GetNodeID($jobID);
+  my $node = QA_db_utilities::GetFromJobStatus('nodeID',$jobID);
   $self->Machine($node);
 
   # number of event requested
-  my $events = QA_db_utilities::GetNEventRequested($jobID);
+  my $events = QA_db_utilities::GetFromFileCatalog('NoEventReq',$jobID);
   $self->NEventRequested($events);
 
   # the first event is always 1
@@ -184,7 +185,7 @@ sub GetJobInfo{
   $self->LastEventRequested($events);
 
   # number of events skipped
-  my $skip = QA_db_utilities::GetNoEventSkipped($jobID);
+  my $skip = QA_db_utilities::GetFromJobStatus('NoEventSkip',$jobID);
   $self->NoEventSkipped($skip);
 
   # output file name and directory
@@ -195,15 +196,15 @@ sub GetJobInfo{
   $self->OutputFn($name);
   
   # job completion time
-  my $donetime = QA_db_utilities::GetJobCompletionTime($jobID);
+  my $donetime = QA_db_utilities::GetFromFileCatalog('createTime',$jobID);
   $self->JobCompletionTimeAndDate($donetime);
 
   # number of events done
-  my $events_done = QA_db_utilities::GetNEventDoneNightly($jobID);
+  my $events_done = QA_db_utilities::GetFromJobStatus('NoEventDone',$jobID);
   $self->NEventDone($events_done);
 
   # job status - done, not completed, etc
-  my $jobstatus = QA_db_utilities::GetJobStatus($jobID);
+  my $jobstatus = QA_db_utilities::GetFromJobStatus('jobStatus',$jobID);
   $self->JobStatus($jobstatus);
   
 
