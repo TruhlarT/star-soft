@@ -115,7 +115,8 @@ sub GetSelectedKeyList{
   # make the QA_objects
   QA_utilities::make_QA_objects(@key_list);
 
-  $self->KeyList(@key_list);
+  # add them to the KeyList and sort them 
+  $self->KeyList( $self->SortKeys(@key_list) );
 
   # pass on the selected key list as hidden values
   # in order to do qa on whole dataset

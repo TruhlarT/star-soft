@@ -599,29 +599,25 @@ sub ControlFileOffline{
 
 sub MacroReportFilename{
   my $self             = shift;
-  my $report_key       = shift;
-  my $macro_name       = shift;
-  my $output_data_type = shift;
-  my $output_data_filename = shift;
-  my $output_data_ext  = shift;
+  my $qa_report        = shift; # QA_report_object
 
   $self->ReportErrorOnOpen(1);
 
   my ($filename) ; # name of the output file
 
-  my $filetype    = ( $output_data_type =~ /ps/ ) ? ".ps" : ".qa_report";
+  my $filetype = ( $qa_report->OutputDataType =~ /ps/ ) ? ".ps" : ".qa_report";
 
   # if an output file name is requested, use that plus the filetype
-  if ($output_data_filename) {
-    $filename = $output_data_filename.$filetype;
+  if ($qa_report->OutputDataFilename) {
+    $filename = $qa_report->OutputDataFilename.$filetype;
   }
   # else just use the macro name and the file type (+data extension)
   else{
-    $filetype = $output_data_ext.$filetype;
-    $filename = $macro_name.$filetype;
+    $filetype = $qa_report->OutputDataExtension.$filetype;
+    $filename = $qa_report->MacroName.$filetype;
   }
   # need to get the report dir
-  my $io = IO_object->new("ReportDir",$report_key);
+  my $io = IO_object->new("ReportDir",$qa_report->ReportKey);
   my $report_dir = $io->Name;
 
   return "$report_dir/$filename";

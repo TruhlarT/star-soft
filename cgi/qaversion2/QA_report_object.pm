@@ -21,7 +21,7 @@ use QA_macro_scalars;
 use QA_db_utilities; 
 use IO_object;
 
-#use strict 'vars';
+use strict 'vars';
 #=========================================================
 1.;
 #=========================================================
@@ -171,13 +171,7 @@ sub GetTests{
 
     $line =~ /end of header:/ and do{
       # set output of filename - use IO_object
-      $self->IOMacroReportFilename(IO_object->new("MacroReportFilename",
-						  $self->ReportKey, 
-						  $self->MacroName,
-						  $self->OutputDataType,
-						  $self->OutputDataFilename,
-						  $self->OutputDataExtension));
-
+      $self->IOMacroReportFilename(IO_object->new("MacroReportFilename",$self));
       next;
     };
 
@@ -254,12 +248,7 @@ sub GetTests{
     $self->InputDataType($input_data_type);
 
     # reset IOMacroReportFilename
-    $self->IOMacroReportFilename(IO_object->new("MacroReportFilename",
-						  $self->ReportKey, 
-						  $self->MacroName,
-						  $self->OutputDataType,
-						  $self->OutputDataFilename,
-						  $self->OutputDataExtension));
+    $self->IOMacroReportFilename(IO_object->new("MacroReportFilename",$self));
   }
   
 
