@@ -12,16 +12,16 @@ use Mysql;
 use Class::Struct;
 
 
-require "/afs/rhic/star/packages/dev/mgr/dbTJobsSetup.pl";
+require "/afs/rhic/star/packages/scripts/dbTJobsSetup.pl";
 
 my $TOP_DIRD = "/star/rcf/test/dev/";
-my @dir_year = ("year_1h", "year_2b");
-my @node_dir = ("trs_redhat61","trs_redhat61_opt","daq_redhat61", "daq_redhat61_opt" ); 
-my @hc_dir = ("hc_lowdensity", "hc_standard", "hc_highdensity", "peripheral", "minbias","central");
+my @dir_year = ("year_1h", "year_2001");
+my @node_dir = ("trs_redhat72","trs_redhat72_opt","daq_redhat72", "daq_redhat72_opt" ); 
+my @hc_dir = ("hc_lowdensity", "hc_standard", "hc_highdensity", "peripheral", "minbias","pp_minbias","ppl_minbias");
 
 my @OUT_DIR;
 my @OUTD_DIR;
-my @Nday = ("Mon","Tue","Wed","Thu","Fri");
+my @Nday = ("Mon","Tue","Wed","Thu","Fri","Sat","Sun");
 
 
 my %dayHash = (
@@ -30,6 +30,8 @@ my %dayHash = (
                  "Wed" => 3, 
                  "Thu" => 4, 
                  "Fri" => 5, 
+                 "Sat" => 6,
+                 "Sun" => 7,
                  );
 
 my $min;
@@ -65,14 +67,7 @@ struct FileAttr => {
   my $testDay;
   my $beforeDay;
   $iday = $dayHash{$thisday}; 
-  if($thisday eq "Mon") {
-  $testDay = "Fri";
- }else{
- $testDay = $Nday[$iday - 2];
- } 
- if($thisday eq "Sat" or $thisday eq "Sun" ){
- $testDay = "Fri";
- } 
+ $testDay = $Nday[$iday - 1];
 
 # print "Today Date :", $thisDay, "\n";
 
@@ -81,7 +76,7 @@ struct FileAttr => {
  &beginHtml();
 
 
-$sql="SELECT path, fName, NoEventDone, NoEventSkip, createTime FROM $FilesCatalogT where path LIKE '%$testDay%' AND path like '%redhat61%' AND avail = 'Y'";
+$sql="SELECT path, fName, NoEventDone, NoEventSkip, createTime FROM $FilesCatalogT where path LIKE '%$testDay%' AND path like '%redhat72%' AND avail = 'Y'";
  $cursor =$dbh->prepare($sql)
    || die "Cannot prepare statement: $DBI::errstr\n";
  $cursor->execute;

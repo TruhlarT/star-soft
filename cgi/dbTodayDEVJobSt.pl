@@ -16,7 +16,7 @@ require "/afs/rhic/star/packages/dev/mgr/dbTJobsSetup.pl";
 
 my $TOP_DIRD = "/star/rcf/test/dev/";
 my @dir_year = ("year_1h", "year_2001");
-my @node_dir = ("trs_redhat61","trs_redhat61_opt", "daq_redhat61", "daq_redhat61_opt","daq_redhat72","trs_redhat72"); 
+my @node_dir = ("trs_redhat72","trs_redhat72_opt", "daq_redhat72", "daq_redhat72_opt"); 
 my @hc_dir = ("hc_lowdensity", "hc_standard", "hc_highdensity", "peripheral", "minbias", "central","embedding");
 
 my @OUT_DIR;
