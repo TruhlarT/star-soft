@@ -258,6 +258,12 @@ for ($i=0 ; $i <= $#CINPUTS ; $i++){
 	if ($copt =~ m/One/){
 	    # Make local directory 
 	    mkdir("StarDb",0755);
+	    # ***** /!\
+	    # this is hardwired for now ... will find a better
+	    # way later.
+	    foreach my $subdir (("Calibrations","Conditions")){
+		mkdir("StarDb/$subdir",0755);
+	    }
 	} else {
 	    # Create directory to remote directory
 	    symlink($cdir,"StarDb");
