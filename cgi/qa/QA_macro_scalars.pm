@@ -216,7 +216,7 @@ sub doEvents{
   }
 
   # now copy to run_scalar_hash, which is flat structure (without sub-hashes)
-  $run_scalar_hash{n_event} = $run_statistics_hash{tracks}->{n_event};
+  $run_scalar_hash{n_event} = $run_statistics_hash{track_nodes}->{n_event};
 
   foreach $name ( keys %run_statistics_hash){
     foreach $field ( 'mean', 'rms', 'min', 'max' ){
