@@ -80,26 +80,26 @@
 # The full DAQInfo table description is as follow (last dumped, Dec 2001). Other
 # tables are of trivial format (i.e. and int id and a char label).
 #
-# +-------------+---------------------+------+-----+---------+-------+
-# | Field       | Type                | Null | Key | Default | Extra |
-# +-------------+---------------------+------+-----+---------+-------+
-# | file        | char(255)           |      | PRI |         |       |
-# | runNumber   | int(10)             |      |     | 0       |       |
-# | NumEvt      | int(10)             | YES  |     | NULL    |       |
-# | BeginEvt    | int(10)             | YES  |     | NULL    |       |
-# | EndEvt      | int(10)             | YES  |     | NULL    |       |
-# | Current     | float(16,8)         | YES  |     | NULL    |       |
-# | scaleFactor | float(16,8)         | YES  |     | NULL    |       |
-# | BeamE       | float(16,8)         | YES  |     | NULL    |       |
-# | Collision   | char(10)            | YES  |     | NULL    |       |
-# | DetSetMask  | bigint(20) unsigned | YES  |     | 0       |       |
-# | TrgSetup    | bigint(20) unsigned | YES  |     | 0       |       |
-# | TrgMask     | bigint(20) unsigned | YES  |     | 0       |       |
-# | ftype       | int(11)             | YES  |     | 0       |       |
-# | EntryDate   | timestamp(14)       | YES  |     | NULL    |       |
-# | DiskLoc     | int(11)             | YES  |     | 0       |       |
-# | Status      | int(11)             | YES  |     | 0       |       |
-# +-------------+---------------------+------+-----+---------+-------+
+#    +-------------+---------------------+------+-----+---------+-------+
+#    | Field       | Type                | Null | Key | Default | Extra |
+#    +-------------+---------------------+------+-----+---------+-------+
+#  0 | file        | char(255)           |      | PRI |         |       |
+#  1 | runNumber   | int(10)             |      |     | 0       |       |
+#  2 | NumEvt      | int(10)             | YES  |     | NULL    |       |
+#  3 | BeginEvt    | int(10)             | YES  |     | NULL    |       |
+#  4 | EndEvt      | int(10)             | YES  |     | NULL    |       |
+#  5 | Current     | float(16,8)         | YES  |     | NULL    |       |
+#  6 | scaleFactor | float(16,8)         | YES  |     | NULL    |       |
+#  7 | BeamE       | float(16,8)         | YES  |     | NULL    |       |
+#  8 | Collision   | char(10)            | YES  |     | NULL    |       |
+#  9 | DetSetMask  | bigint(20) unsigned | YES  |     | 0       |       |
+# 10 | TrgSetup    | bigint(20) unsigned | YES  |     | 0       |       |
+# 11 | TrgMask     | bigint(20) unsigned | YES  |     | 0       |       |
+# 12 | ftype       | int(11)             | YES  |     | 0       |       |
+# 13 | EntryDate   | timestamp(14)       | YES  |     | NULL    |       |
+# 14 | DiskLoc     | int(11)             | YES  |     | 0       |       |
+# 15 | Status      | int(11)             | YES  |     | 0       |       |
+#    +-------------+---------------------+------+-----+---------+-------+
 #
 #
 #
@@ -720,12 +720,12 @@ sub rdaq_get_files
     if( ! defined($limit) ){  $limit = 0;}
     if( ! defined($mode)  ){  $mode  = 0;}
     if( ! defined($status)){  $status= 0;}
-    if( ! defined($ftype) ){  $ftype = 1;}
+    #if( ! defined($ftype) ){  $ftype = 1;}
 
     # We MUST pass a reference to a hash.
     #if($status < 0){ $status = 0;}
     $Conds{"Status"} = $status;
-    $Conds{"ftype"}  = $ftype;
+    $Conds{"ftype"}  = $ftype if (defined($ftype));
 
     return &rdaq_get_orecords($obj,\%Conds,$limit,$mode);
 }
@@ -831,19 +831,27 @@ sub rdaq_get_orecords
     }
 
 
-    #print "<!-- DEBUG : [$cmd] [@Values] -->\n";
+    print "<!-- DEBUG : [$cmd] [@Values] -->\n" if ($DEBUG);
     $sth = $obj->prepare($cmd);
     $sth->execute(@Values);
     if ($sth){
 	while ( @items = $sth->fetchrow_array() ){
+	    print "<!-- Querry returns ".join("::",@items)." -->\n"   if ($DEBUG);
 	    if($mode == 0){
+		print "<!-- Mode is 0, simple return $items[0] -->\n" if ($DEBUG);
 		$file = $items[0];
 	    } else {
+		$file = "";
+		for ($i=0 ; $i <= $#items ;$i++){
+		    if ( ! defined($items[$i]) ){ $items[$i] = "?";}
+		}
 		$file = join(" ",@items);
+		print "<!-- Returning ".join("::",@items)." -->\n"    if ($DEBUG);
 		chomp($file);
 	    }
 	    push(@files,$file);
 	}
+	print "<!-- No more returned values -->\n"                    if ($DEBUG);
     }
     @files;
 }
@@ -1081,6 +1089,7 @@ sub rdaq_bits2string
     my($oobj,$sth);
 
     if( ! defined($BITWISE{$field}) ){  return "unknown";}
+    if( ! defined($val) ){              return "unknown";}
 
     if( ! defined($BITS2STRING{"$field-$val"}) ){
 	$str = "";
