@@ -1,7 +1,7 @@
 #!/bin/csh
 #
 # Wrapper to autobuild
-# J.Lauret 2001.
+# J.Lauret 2001 - 2005
 #
 # Current target for this script
 #
