@@ -1,10 +1,12 @@
 #!/opt/star/bin/perl -w
-#dbitest.pl
+#ScanLog2.pl
 
+#
+# Version2
 #
 # This script was written by Nikita Soldatov, July 2001.
 # Its purpose is to scan a log directory, scan for errors
-# and fill a database (operation -> RJobInfo) with all the 
+# and fill a database (operation -> RJobInfo) with all the
 # required information. This information is viewable via
 # a cgi also developped by your kind servant, Nikita ... :)
 #
@@ -13,8 +15,8 @@
 #
 # Usage :
 #   % 'ThisScriptName' [productionTag] [Flag]
-# 
-# productioTage -> default P01he
+#
+# ProductionTage -> default P01he
 # Flag is specified empty the database first (maintainance
 # only).
 #
@@ -22,32 +24,14 @@
 
 use strict;
 use DBI;
-use File::stat;
+#use File::stat;
 
-my $logname;
-my $fullname;
-my $fsize;
-my $modtime;
-my $mtime;
-my $ctime;
-my $job_name;
-my $id;
+
 my $ProdTag = $ARGV[0] || "P01he";
-print "ProdTag : $ProdTag\n";
-my $Trigger;
-my $err_file;
-my $Status;
-my @log_errs1;
-my @log_errs2;
-my @job_errs;
-my $logerr;
-my $err;
-my $min_size = 1200;
-my $min_time = 3600;
 
-my $i = 0;
-my $m_time;
-my $c_time;
+my $min_size = 1200;
+my $min_time = 60;
+my $max_time = 3600;
 
 #dirs
 my $log_dir = "/star/rcf/prodlog/$ProdTag/log/daq/";
@@ -58,32 +42,64 @@ my $arch_dir = "/star/u/starreco/$ProdTag/requests/daq/archive/";
 my $datasourse = "DBI:mysql:operation:duvall.star.bnl.gov";
 my $username = "starreco";
 
-my $dbh1 = DBI->connect($datasourse,$username) 
+
+
+my $logname;
+my $fullname;
+my $fsize;
+my $deltatime;
+my $mtime;
+my $ctime;
+my $job_name;
+my $id;
+my $Trigger;
+my $err_file;
+my $Status;
+my @log_errs1;
+my @log_errs2;
+my @job_errs;
+my $logerr;
+my $err;
+
+my $i = 0;
+my $m_time;
+my $c_time;
+my $pmtime;
+
+my @fc;
+
+my $dbh1 = DBI->connect($datasourse,$username)
     or die "Can't connect to $datasourse: $DBI::errstr\n";
 
 my $del;
 
-if( defined($ARGV[2]) ){
+if( defined($ARGV[1]) ){
   $dbh1->do("DELETE FROM RJobInfo");
 }
 
 my $sth1 = $dbh1->prepare("INSERT INTO RJobInfo ".
 			  "(ProdTag, Trigger, LFName, ".
-			  "ctime, mtime, ErrorStr) ". 
+			  "ctime, mtime, ErrorStr) ".
 			  "VALUES (?, ?, ?, ?, ?, ?)");
 
-my $sth3=$dbh1->prepare("SELECT id, mtime, Status FROM RJobInfo ". 
-			"WHERE ProdTag = \"$ProdTag\" AND ". 
-			"Trigger = ? AND ". 
+my $sth3=$dbh1->prepare("SELECT id, mtime FROM RJobInfo ".
+			"WHERE ProdTag = \"$ProdTag\" AND ".
+			"Trigger = ? AND ".
 			"LFName = ?");
+my $sth4 = $dbh1->prepare("UPDATE RJobInfo SET ".
+			  "mtime = \"?\", ".
+			  "ErrorStr = \"?\", ".
+			  "Status = 0 ".
+			  "WHERE id = ?");
+
+
 if( ! $sth3 || ! $sth1){
-  die "Problem !! Cannot prepare statement\n";
+   die "Problem !! Cannot prepare statement\n";
 }
 
-# suck it all in array
 my(%JNAMES);
 opendir(ARCH,"$arch_dir") || die "Could not open archive directory\n";
-while( defined($job_name = readdir(ARCH)) ){
+while ( defined($job_name = readdir(ARCH)) ){
   if($job_name !~ /st_/){ next;}
   $job_name =~ m/(.*)(st_.*)/;
   $JNAMES{$2} = $job_name;
@@ -92,166 +108,162 @@ closedir(ARCH);
 
 
 opendir(LOGDIR,$log_dir) || die "can't open $log_dir\n: $!";
-while (defined($logname = readdir(LOGDIR))) {      
-  if ($logname =~/\.log/) {
-    $fullname = $log_dir . $logname; 
-    $err_file = $fullname;
-    $err_file =~ s/\.log/\.err/;                           
-    &define_time($fullname);
+while ( defined($logname = readdir(LOGDIR)) ){
+    if ( $logname =~ /\.log$/ ) {
+        $fullname = $log_dir . $logname;
+	$err_file = $fullname;
+	$err_file =~ s/\.log/\.err/;
+        @fc = stat($fullname);
+        $deltatime = time() - $fc[9];
 
-    if ($modtime > $min_time) {
-      if( -e "$log_dir/$logname.done"){
-	next;
-      } else {
-	if( open(FO,">$log_dir/$logname.done") ){
-	  print FO "$0 (Nikita Man) ".localtime()."\n";
-	  close(FO);
-	  chmod(0775,"$log_dir/$logname.done");
-	}
-      }
-    
-      $fsize = stat($fullname)->size;  
-      $logname =~ s/\.log//;       
+	# laps time has to be at minimum min_time
+	if($deltatime > $min_time ){
+	    if ( -e "$log_dir/$logname.parsed"){
+		# if a .parsed file exists, then skip it UNLESS
+		# the log file is more recent than the .parsed file.
+		$pmtime = (stat("$log_dir/$logname.parsed"))[9];
+		if ( $pmtime > $fc[9] ){
+		    next;
+		} else {
+		    unlink("$log_dir/$logname.parsed");
+		}
+	     } elsif ( $deltatime > $max_time ){
+		 # after max_time, and only after, we create a .parsed
+		 # file has a mark that we do NOT want to go through
+		 # this log file again. However, the logic is such that
+		 # if a run is started again, the .parsed file would be 
+		 # deleted and the related log file would be treated as
+		 # a new one.
+		 if ( open(FO,">$log_dir$logname.parsed") ){
+		     print FO "$0 (Nikita Man) ".localtime()."\n";
+		     close(FO);
+		     chmod(0775,"$log_dir/$logname.parsed");
+		 }
+	     }
 
-      # search for a file with similar name
-      #$job_name = glob("$arch_dir*$logname");
-      #if( ! defined($job_name) ){ next;}
-      if( ! defined($job_name = $JNAMES{$logname}) ){ next;}
-
-      # now, we have a job file
-      $fullname = $log_dir . $logname.".log";   
-      define_trigger_mtime($fullname, $job_name);
-
-
-      if ($fsize <= $min_size) {   
-	print 
-	  "Found log type 1 : $logname\n",
-	  "modtime : $modtime\n",
-	  "size : $fsize\n",
-	  #define ErrorStr           
-	  "Error file : $err_file\n",
-	  "Error string : ";
-
-	$err="";
-	@job_errs = `tail -4 $err_file`;
-	for ($i=0;$i<=$#job_errs;$i++){                 	  
-	  unless ($err=~/$job_errs[$i]/) {
-	    $err .= "$job_errs[$i] | ";                      
-	  }
-	}       
-	print "$err\n";
-
-      } else {       
-	print 
-	  "Found log type 2 : $logname\n",
-	  "modtime : $modtime\n",
-	  "size : $fsize\n",
-	  #define ErrorStr
-	  #scan log_file for break errors    
-	  "Errors in log file : \n";
-
-	$err="";
-	@log_errs2 = `tail -5000 $fullname | grep Break`;
-	foreach $logerr (@log_errs2) {
-	  print "$logerr\n";
-	  if ($logerr=~/(\*+\s+Break\s+\*+)(.*)/) {
-	    unless ($err=~/$2/) {                        
-	      $err.=" $2 |"; 
-	    }
-	  }
-	}
-	undef(@log_errs2);
-
-	#scan err_file for assertion and eof errors    
-	print 
-	  "Error file : $err_file\n",
-	  "Error string : ";  
-
-	@log_errs1 = `tail -5 $err_file`;
-	foreach $logerr (@log_errs1) {                   
-	  if ($logerr=~/Assertion.*\s+failed/) {
-	    $err.= " $logerr |";
-	    print "$logerr\n";     
-	  }
-	  if ($logerr=~/Unexpected EOF/) {  
-	    $err.= "Unexpected EOF | ";
-	    print " $logerr |";
-	  }
-	}  			   
-	chop($err);
-
-
-      }#else fsize/minsize compare
-
-
-      if ($err) {
-	$sth3->execute($Trigger, $logname);
-	# or die "cannot execute sth3\n";                   
-	if (($id, $mtime) = $sth3->fetchrow_array()) {
-	  print "\nold mtime : $mtime\n";
-	  print "\nnew mtime : $m_time\n";
-	  if ($mtime != $m_time) {    
-	    #update record
-	    print "Updated $logname\n";                                  
-	    my $sth4=$dbh1->prepare("UPDATE RJobInfo SET ".
-				    "mtime = \"$m_time\", ".      
-				    "ErrorStr = \"$err\", ".
-				    "Status = 0 ".
-				    "WHERE id = ?");
-	    $sth4->execute($id);
-	    $sth4->finish();
-	  }
-	} else {
-	  #insert record
-	  print "\n Inserted $logname\n";
-	  $sth1->execute($ProdTag, $Trigger, $logname, $c_time, $m_time, $err);
-	}
-                            
-      }#if $err
-
-      print "\n==============================\n";                     
-
-    } # modtime/min_time
-
-  } # logname
-  $sth1->finish();
+	     $logname =~ s/\.log//;
+	     # search for a file with similar name
+	     if( ! defined($job_name = $JNAMES{$logname}) ){ next;}
+                      # now, we have a job file
+                      $fullname = $log_dir . $logname.".log";
+                      define_trigger($fullname, $job_name);
+                      if ( $fc[7] <= $min_size ){
+	                   print
+			     "Found log type 1 : $logname\n",
+			     "deltatime : $deltatime\n",
+			     "size : $fsize\n",
+			     # define ErrorStr
+			     "Error file : $err_file\n",
+			     "Error string : ";
+   	                   $err="";
+ 	                   @job_errs = `tail -4 $err_file`;
+	                   for ( $i=0;$i<=$#job_errs;$i++ ){
+	                         unless ( $err=~/$job_errs[$i]/ ){
+	                                  $err .= "$job_errs[$i] | ";
+	                         }
+	                   }
+	                   print "$err\n";
+                      } else {
+   	                   print
+			     "Found log type 2 : $logname\n",
+			     "deltatime : $deltatime\n",
+			     "size : $fc[7]\n",
+			     #define ErrorStr
+			     #scan log_file for break errors
+			     "Errors in log file : \n";
+	                   $err="";
+	                   @log_errs2 = `tail -5000 $fullname | grep Break`;
+  	                   foreach $logerr (@log_errs2){
+	                           print "$logerr\n";
+	                           if ( $logerr=~/(\*+\s+Break\s+\*+)(.*)/ ){
+	                                unless ( $err=~/$2/ ){
+                                                 $err.=" $2 |";
+	                                }
+	                           }
+                           }
+	                   undef(@log_errs2);
+	                   #scan err_file for assertion and eof errors
+ 	                   print
+	                       "Error file : $err_file\n",
+	                       "Error string : ";
+	                   @log_errs1 = `tail -5 $err_file`;
+	                   foreach $logerr (@log_errs1){
+			     &define_err("Assertion.*\s+failed",$logerr);
+			     &define_err("Unexpected EOF",$logerr);
+			     &define_err("Fatal in <operator delete>",$logerr);
+			     &define_err("Fatal in <operator new>",$logerr);
+	                   }
+	                   chop($err);
+                      }#else fsize/minsize compare
+                      if ( $err ){
+	                   $sth3->execute($Trigger, $logname)
+	                          or die "cannot execute sth3\n";
+			   #print $sth3->fetchrow_array()."\n";
+	                   if ( ($id, $mtime) = $sth3->fetchrow_array() ){
+   	                        print "\nold mtime : $mtime\n";
+	                        print "\nnew mtime : $fc[9]\n";
+	                        if ( $mtime != $fc[9] ){
+	                             #update record
+	                             print "Updated $logname\n";
+	                             $sth4->execute($fc[9],$err,$id);
+	                       }
+	                   } else {
+	                       #insert record
+	                       print "\n Inserted $logname\n";
+	                       $sth1->execute($ProdTag, $Trigger, $logname, $c_time, $fc[9], $err);
+	                   }
+                      } #if $err
+                      print "\n==============================\n";
+	   } #if modtime/min_time
+      } #if logname
 } #while
-closedir(LOGDIR);               
+closedir(LOGDIR);
+
+# terminate statements handler
+$sth1->finish();
+$sth3->finish();
+$sth4->finish();
 
 
-my $sth2 = $dbh1->prepare("SELECT id, ProdTag, Trigger, LFName, ctime, mtime, Status, ErrorStr FROM RJobInfo");
-$sth2->execute();
-while (($id, $ProdTag, $Trigger, $logname, $c_time, $m_time, $Status, $err) = $sth2->fetchrow_array()) {
-    print "$id  $ProdTag  $Trigger  $logname  $Status  $m_time  $err\n";   
-}
-$sth2->finish();
+# This commented block alows you to see a content of the table RJobInfo.
+# If you want to see a content of the table every time you run the script
+# uncomment this block.
+
+#my $sth2 = $dbh1->prepare("SELECT id, ProdTag, Trigger, LFName, ctime, mtime, Status, ErrorStr FROM RJobInfo");
+#$sth2->execute();
+#while (($id, $ProdTag, $Trigger, $logname, $c_time, $m_time, $Status, $err) = $sth2->fetchrow_array()) {
+#    print "$id  $ProdTag  $Trigger  $logname  $Status  $m_time  $err\n";
+#}
+#$sth2->finish();
+
+
 $dbh1->disconnect();
 
 #subs
 #=======================================
 
-sub define_time {
-    my ($fname) = @_;
-    my $now; 
-    my $mod_time;
-    $now = time;
-    $mod_time = stat($fname)->mtime;
-    $modtime = $now - $mod_time;
-}
-
-#=======================================
-
-sub define_trigger_mtime {
+sub define_trigger {
     my ($lname,$jname) = @_;
-    my $Trig;
-    #define Trigger   
-    $Trigger = (split(/_/, $jname))[1];   
+    my @temp;
+    my $i = 0;
+    #define Trigger
+    @temp = split(/_/, $jname);
+    while( $temp[$i++] ne $ProdTag ) {}
+    $Trigger = $temp[$i];
     if ( substr($Trigger,0,1) eq "2" ){
       # Wrong field. Trigger is missing and we
       # grabbed the next item = date.
       $Trigger = "unknown";
-    }     
-    #define mtime,ctime
-    $c_time = 1;#stat($lname)->ctime;               
-    $m_time = stat($lname)->mtime;   
+    }
+    $c_time = 1;
+}
+
+#=======================================
+
+sub define_err {
+    my ($errname,$logerr) = @_;
+    if( $logerr=~/$errname/ ){
+      $err.= "$errname | ";
+      print " $logerr |";
+    }
 }
