@@ -104,6 +104,9 @@ if (1==1){
 	print "Env [$el] -> Value = [$ENV{$el}]\n";
     }
     print "End of ENV variables. We are now in business ...\n";
+    for ($ii=0 ; $ii <= $#ARGV ; $ii++){
+	print "Argument $ii = $ARGV[$ii]\n";
+    }
 }
 
 
@@ -524,9 +527,9 @@ if ( ! open(FO,">$PWD/$JOB_ID.csh") ){
     if($copt !~ m/Opt/){
 	print FO
 	    "echo \"$PRGM :: Reco run is starting on \`date\`\"\n",
-	    "echo \"\"\n";
+	    "echo \"\"\n",
             # Option to output memory consumption
-	    #"setenv StarEndMakerShell\n";
+	    "setenv StarEndMakerShell\n";
 
 	if( ! $MULTIIN ){
 	    if ( $GENERICO ne ""){  $extra = ",\"$GENERICO\""; }
