@@ -20,6 +20,9 @@
 # Flag is specified empty the database first (maintainance
 # only).
 #
+# Added zcat support. Need tuning (twice a zcat | tail is
+# inefficient).
+#
 #
 
 use strict;
@@ -60,6 +63,7 @@ my @log_errs2;
 my @job_errs;
 my $logerr;
 my $err;
+my $cmprss;
 
 my $i = 0;
 my $m_time;
@@ -113,9 +117,15 @@ closedir(ARCH);
 
 opendir(LOGDIR,$log_dir) || die "can't open $log_dir\n: $!";
 while ( defined($logname = readdir(LOGDIR)) ){
-    if ( $logname =~ /\.log$/ ) {
+    if ( $logname =~ /\.log$/ || $logname =~ /\.log\.gz$/) {
         $fullname = $log_dir . $logname;
 	$err_file = $fullname;
+	if ($err_file =~ /\.gz/){
+	    $err_file =~ s/\.gz// ;
+	    $cmprss = 1;
+	} else {
+	    $cmprss = 0;
+	}
 	$err_file =~ s/\.log/\.err/;
         @fc = stat($fullname);
         $deltatime = time() - $fc[9];
@@ -145,12 +155,19 @@ while ( defined($logname = readdir(LOGDIR)) ){
 		 }
 	     }
 
-	     $logname =~ s/\.log//;
-	     # search for a file with similar name
-	     if( ! defined($job_name = $JNAMES{$logname}) ){ next;}
-	     # now, we have a job file
-	     $fullname = $log_dir . $logname.".log";
+	    if($cmprss){
+		$logname =~ s/\.log\.gz//;
+	    } else {
+		$logname =~ s/\.log//;
+	    }
+
+	    # search for a file with similar name
+	    if( ! defined($job_name = $JNAMES{$logname}) ){ next;}
+
+	    # now, we have a job file
+	    $fullname = $log_dir . $logname.".log".($cmprss?".gz":"");
 	    define_trigger($fullname, $job_name);
+
 	    if ( $fc[7] <= $min_size ){
 		if($DEBUG){
 		    print
@@ -188,7 +205,13 @@ while ( defined($logname = readdir(LOGDIR)) ){
 			"Error string : ";
 		}
 		$err="";
-		@log_errs2 = `tail -5000 $fullname | grep Break`;
+		if($cmprss){
+		    @log_errs2 = 
+			`zcat $fullname | tail -5000 | grep Break`;
+		} else {
+		    @log_errs2 = 
+			`tail -5000 $fullname | grep Break`;
+		}
 		foreach $logerr (@log_errs2){
 		    print "$logerr\n";
 		    if ( $logerr=~/(\*+\s+Break\s+\*+)(.*)/ ){
@@ -200,7 +223,13 @@ while ( defined($logname = readdir(LOGDIR)) ){
 		undef(@log_errs2);
 
 		my $tmp = "";
-		@log_errs2 = `tail -5000 $fullname | grep 'Done with Event'`;
+		if($cmprss){
+		    @log_errs2 = 
+			`zcat $fullname | tail -5000 | grep 'Done with Event'`;
+		} else {
+		    @log_errs2 = 
+			`tail -5000 $fullname | grep 'Done with Event'`;
+		}
 		foreach $logerr (@log_errs2){
 		    if($logerr =~ m/(\d+)(\/run)/){
 			$tmp = $1;
