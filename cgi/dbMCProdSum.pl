@@ -150,10 +150,11 @@ my $chainN;
          $chainN = "tfs";
       } elsif($dchName =~ /tss/) {
          $chainN = "tss";
+       }elsif($dchName =~ /trsY2/) {
+         $chainN = "trs2Y";
        }elsif($dchName =~ /trs/) {
          $chainN = "trs";
        }
-
       $prodChain = $dhprSer . "_" . $chainN;
 
  $sql="SELECT chainOpt, libVersion, prodSeries FROM $ProdOptionsT WHERE chainName = '$dchName'  AND prodSeries = '$dhprSer' ";
