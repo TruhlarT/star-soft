@@ -1,9 +1,9 @@
 //*-- Author : Jan Balewski
 //  
-// $Id: StppLPprojectMaker.cxx,v 1.1 2001/01/31 14:00:07 balewski Exp $
+// $Id: StppLPprojectMaker.cxx,v 1.1.1.1 2001/01/31 14:00:07 balewski Exp $
 // $Log: StppLPprojectMaker.cxx,v $
-// Revision 1.1  2001/01/31 14:00:07  balewski
-// Initial revision
+// Revision 1.1.1.1  2001/01/31 14:00:07  balewski
+// First release
 //
 //
 //////////////////////////////////////////////////////////////////////////

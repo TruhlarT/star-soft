@@ -42,10 +42,10 @@ class StppTrigMaker : public StMaker
 
   TH1F *hj[8];
 
-  // static Char_t  m_VersionCVS = "$Id: StppTrigMaker.h,v 1.1 2001/01/31 14:00:07 balewski Exp $";
+  // static Char_t  m_VersionCVS = "$Id: StppTrigMaker.h,v 1.1.1.1 2001/01/31 14:00:07 balewski Exp $";
  
    Bool_t drawinit;
-// static Char_t  m_VersionCVS = "$Id: StppTrigMaker.h,v 1.1 2001/01/31 14:00:07 balewski Exp $";
+// static Char_t  m_VersionCVS = "$Id: StppTrigMaker.h,v 1.1.1.1 2001/01/31 14:00:07 balewski Exp $";
 
 
  protected:  //....................................................
@@ -63,7 +63,7 @@ class StppTrigMaker : public StMaker
    virtual Int_t  Make();
    int  decision ; // see description 
    virtual const char *GetCVS() const
-     {static const char cvs[]="Tag $Name:  $ $Id: StppTrigMaker.h,v 1.1 2001/01/31 14:00:07 balewski Exp $ built "__DATE__" "__TIME__ ; return cvs;}
+     {static const char cvs[]="Tag $Name:  $ $Id: StppTrigMaker.h,v 1.1.1.1 2001/01/31 14:00:07 balewski Exp $ built "__DATE__" "__TIME__ ; return cvs;}
    
    ClassDef(StppTrigMaker, 1)   //StAF chain virtual base class for Makers
 };

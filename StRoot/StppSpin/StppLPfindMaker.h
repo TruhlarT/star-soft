@@ -27,7 +27,7 @@ class St_tpt_track;
 class StppLPfindMaker : public StMaker 
 {
  private: 
-  // static Char_t  m_VersionCVS = "$Id: StppLPfindMaker.h,v 1.1 2001/01/31 14:00:07 balewski Exp $";
+  // static Char_t  m_VersionCVS = "$Id: StppLPfindMaker.h,v 1.1.1.1 2001/01/31 14:00:07 balewski Exp $";
 
   // setup
   float EtaCut;
@@ -70,7 +70,7 @@ class StppLPfindMaker : public StMaker
   // virtual Int_t FinishRun(int runumber){return 0;}; // Overload empty StMaker::FinishRun 
   
   virtual const char *GetCVS() const
-    {static const char cvs[]="Tag $Name:  $ $Id: StppLPfindMaker.h,v 1.1 2001/01/31 14:00:07 balewski Exp $ built "__DATE__" "__TIME__ ; return cvs;}
+    {static const char cvs[]="Tag $Name:  $ $Id: StppLPfindMaker.h,v 1.1.1.1 2001/01/31 14:00:07 balewski Exp $ built "__DATE__" "__TIME__ ; return cvs;}
   
   ClassDef(StppLPfindMaker, 1)   //StAF chain virtual base class for Makers
 };

@@ -5,10 +5,10 @@
 //*-- Author : George  
 //  modified by JB, 9/19/00
 // 
-// $Id: StppTrigMaker.cxx,v 1.1 2001/01/31 14:00:07 balewski Exp $
+// $Id: StppTrigMaker.cxx,v 1.1.1.1 2001/01/31 14:00:07 balewski Exp $
 // $Log: StppTrigMaker.cxx,v $
-// Revision 1.1  2001/01/31 14:00:07  balewski
-// Initial revision
+// Revision 1.1.1.1  2001/01/31 14:00:07  balewski
+// First release
 //
 //
 //////////////////////////////////////////////////////////////////////////
