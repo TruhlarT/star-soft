@@ -272,7 +272,7 @@ sub bfcread_eventBranch{
   my $report_key = shift;
   my $report_filename = shift;
 
-  return doEvents($report_key, $report_filename);
+  return QA_bfcread_dst_analysis($report_key, $report_filename);
 } 
   
 #================================================================
