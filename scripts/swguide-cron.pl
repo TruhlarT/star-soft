@@ -1,8 +1,11 @@
 #!/usr/bin/env perl
 #
-# $Id: swguide-cron.pl,v 1.1 2001/11/21 20:24:42 jeromel Exp $
+# $Id: swguide-cron.pl,v 1.2 2001/12/08 00:53:03 jeromel Exp $
 #
 # $Log: swguide-cron.pl,v $
+# Revision 1.2  2001/12/08 00:53:03  jeromel
+# Added temp file mechanism for security.
+#
 # Revision 1.1  2001/11/21 20:24:42  jeromel
 # Moved from dev/mgr to STAR_SCRIPTS.
 #
@@ -31,7 +34,7 @@
 #
 
 $fpath = "/star/starlib/doc/www/html/comp-nfs";
-$pgm = $ENV{STAR_SCRIPTS}."/swguide.pl";
+$pgm = $ENV{STAR_CGI}."/swguide.pl";
 if ( @ARGV ) {
     @ver = @ARGV;
 } else {
@@ -53,11 +56,20 @@ foreach $v ( @ver ) {
     foreach $d ( @detail ) {
         $fname = $fpath."/swguide-$v-$d.html";
         if ( -e $fname ) { unlink($fname) or die "Can't delete $fname: $!\n"; }
-        open(FILE,">$fname") or die "Can't write to $fname: $!\n";
+        open(FILE,">$fname-tmp") or die "Can't write to $fname: $!\n";
         print "$v-$d\n" if $debugOn;
         $command = "$pgm ver=$v detail=$d dynamic=yes";
         $output = `$command`;
         print FILE $output;
         close (FILE);
+
+	# Added for space security. Noet that this script is in 
+	# buffered IO mode.
+	if( -e "$fname-tmp"){
+	    @items = stat("$fname-tmp");
+	    if( $items[7] != 0){
+		rename("$fname-tmp","$fname");
+	    }
+	}
     }
 }
