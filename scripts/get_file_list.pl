@@ -41,16 +41,11 @@ $outfilename = "";
 
 # Parse the cvommand line arguments.
 $count = 0;
-#foreach (@ARGV)
-#  {
-#    print "Argument $count: $_\n";
-#    $count++;
-#
-#  }
+
 while (defined $ARGV[$count]){
     if ($ARGV[$count] eq "-all")
       {	$all = 1; }
-    if ($ARGV[$count] eq "-alls")
+    elsif ($ARGV[$count] eq "-alls")
       {	$alls = 1; }
     elsif ($ARGV[$count] eq "-onefile")
       { $onefile = 1; }
