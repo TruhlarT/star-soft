@@ -1,15 +1,7 @@
 #!/bin/echo You must source
 
-if ( -d /opt/objy/objy500 ) then
-  # sol location
-    #  setenv OBJY_HOME /opt/objy/objy500
-  # use same location as elsewhere
-    setenv OBJY_HOME /afs/rhic/oodb
-else
-  if ( -d /afs/rhic/oodb ) then
-    # other machines
-    setenv OBJY_HOME /afs/rhic/oodb
-  endif
+if ( -d /afs/rhic/oodb/solaris4/bin ) then
+  setenv OBJY_HOME /afs/rhic/oodb
 endif
 
 if ( $?OBJY_HOME ) then
