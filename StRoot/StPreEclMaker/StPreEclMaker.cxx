@@ -1,7 +1,10 @@
 //
-// $Id: StPreEclMaker.cxx,v 1.8 2000/12/01 21:15:43 suaide Exp $
+// $Id: StPreEclMaker.cxx,v 1.9 2001/02/01 22:23:13 suaide Exp $
 //
 // $Log: StPreEclMaker.cxx,v $
+// Revision 1.9  2001/02/01 22:23:13  suaide
+// Fixed some memory leaks
+//
 // Revision 1.8  2000/12/01 21:15:43  suaide
 //
 //
@@ -79,7 +82,6 @@
 #include "StEvent/StEvent.h" 
 #include "StEvent/StEventTypes.h"
 
-
 ClassImp(StPreEclMaker)
 
 
@@ -151,7 +153,7 @@ Int_t StPreEclMaker::Init()
 Int_t StPreEclMaker::Make()
 {
   cout << "\n************************* Entering PreEclMaker Make() \n\n";
-
+  
 // First of all, try to get StEvent Pointer
   StEvent *currevent = (StEvent*)GetInputDS("StEvent");
   
@@ -218,7 +220,6 @@ Int_t StPreEclMaker::Make()
     StEmcPreClusterCollection* cc=new StEmcPreClusterCollection(detname[i].Data(),mDet);
     if(cc->IsOk())
     {
-      m_DataSet->Add(cc);
       cc->setSizeMax(mSizeMaxConf[i]);
       cc->setEnergySeed(mEnergySeedConf[i]);
       cc->setEnergyAdd(mEnergyAddConf[i]);
@@ -226,11 +227,11 @@ Int_t StPreEclMaker::Make()
       cc->setCheckClusters(kCheckClustersOkConf[i]);
 //      cc->printConf();
   	  if(cc->findClusters()!= kStOK) cout<<"***** ERR: StEmcClusterCollection: No hits\n";
-    }
+      MakeHistograms(i,cc); // Fill QA histgrams
+      fillStEvent(i,cc);
+    }      
+    delete cc;  
   }
-
-  MakeHistograms(); // Fill QA histgrams
-  fillStEvent(); 
   
   AddData(new St_ObjectSet("PreEclEmcCollection",emc));
   cout <<"***** New EmcCollection on local .data\n";
@@ -238,18 +239,10 @@ Int_t StPreEclMaker::Make()
   return kStOK;
 }
 //_____________________________________________________________________________
-void StPreEclMaker::MakeHistograms()
+void StPreEclMaker::MakeHistograms(Int_t idet,StEmcPreClusterCollection* cluster)
 {
 
   Int_t n,det;
-  if (!m_DataSet) return;
-
-  St_DataSetIter itr(m_DataSet);
-  StEmcPreClusterCollection *cluster = 0;
-
-  for(Int_t idet=0; idet <4; idet++)
-  {
-    cluster = (StEmcPreClusterCollection*)itr(detname[idet].Data());
     if(cluster > 0)
     {
       n = cluster->Nclusters();
@@ -289,23 +282,13 @@ void StPreEclMaker::MakeHistograms()
         m_etot->Fill(log10(Etot),(Float_t)det);
       }
     }
-  }
+  
 }
 
 //------------------------------------------------------------------------
-Int_t StPreEclMaker::fillStEvent()
+Int_t StPreEclMaker::fillStEvent(Int_t idet,StEmcPreClusterCollection* cluster)
 {
-  
-  if (!m_DataSet) return kStOK;
-
-  St_DataSetIter itr(m_DataSet);
-  StEmcPreClusterCollection *cluster = 0;
- 
-  for(Int_t idet=0; idet <4; idet++)
-  {
-    
-    cluster = (StEmcPreClusterCollection*)itr(detname[idet].Data());
-    
+       
     if(cluster> 0)
     {
       StDetectorId id = static_cast<StDetectorId>(idet+kBarrelEmcTowerId); 
@@ -352,8 +335,6 @@ Int_t StPreEclMaker::fillStEvent()
         } 
       } 
     } 
-  } 
-  cout <<"**********************************************************************\n"; 
   return kStOK;
 }                                                                               
 //_____________________________________________________________________________
@@ -392,7 +373,7 @@ void StPreEclMaker::SetClusterConditions(char *cdet,Int_t mSizeMax,
 //_____________________________________________________________________________
 void StPreEclMaker::PrintInfo(){
   printf("**************************************************************\n");
-  printf("* $Id: StPreEclMaker.cxx,v 1.8 2000/12/01 21:15:43 suaide Exp $   \n");
+  printf("* $Id: StPreEclMaker.cxx,v 1.9 2001/02/01 22:23:13 suaide Exp $   \n");
   printf("**************************************************************\n");
   if (Debug()) StMaker::PrintInfo();
 }
