@@ -1,5 +1,5 @@
 #!/bin/csh -f
-#       $Id: group_env.csh,v 1.144 2003/06/17 00:26:16 jeromel Exp $
+#       $Id: group_env.csh,v 1.145 2003/06/17 01:22:57 jeromel Exp $
 #	Purpose:	STAR group csh setup
 #
 #	Author:		Y.Fisyak     BNL
@@ -160,9 +160,14 @@ setenv STAR_PAMS $STAR/pams;            if ($ECHO) echo   "Setting up STAR_PAMS 
 setenv STAR_DATA ${STAR_ROOT}/data;     if ($ECHO) echo   "Setting up STAR_DATA = ${STAR_DATA}"
 setenv CVSROOT   $STAR_PATH/repository; if ($ECHO) echo   "Setting up CVSROOT   = ${CVSROOT}"
 
+
 if (-f $STAR/mgr/ROOT_LEVEL && -f $STAR/mgr/CERN_LEVEL) then
   setenv ROOT_LEVEL `cat $STAR/mgr/ROOT_LEVEL`
   setenv CERN_LEVEL `cat $STAR/mgr/CERN_LEVEL`
+  if ( -f $STAR/mgr/CERN_LEVEL.${STAR_HOST_SYS} ) then
+    # Overwrite
+    setenv CERN_LEVEL `cat $STAR/mgr/CERN_LEVEL.${STAR_HOST_SYS}`
+  endif
 else
  switch ( $STAR_VERSION )
 
