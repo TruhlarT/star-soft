@@ -150,7 +150,7 @@ if ($ThisYear == 2002){
 # Check space on the target disk
 #
 chomp($space = `/bin/df -k $TARGET`);
-print "[$space]\n";
+#print "[$space]\n";
 $space =~ m/(.* )(\d+)(%.*)/;
 $space =  $2;
 if ($space >= 99){
