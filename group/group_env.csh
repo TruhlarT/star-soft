@@ -1,7 +1,10 @@
 #!/usr/bin/csh -f
-#       $Id: group_env.csh,v 1.86 1999/10/10 21:45:01 fisyak Exp $
+#       $Id: group_env.csh,v 1.87 1999/11/04 15:39:28 fisyak Exp $
 #	Purpose:	STAR group csh setup 
 #       $Log: group_env.csh,v $
+#       Revision 1.87  1999/11/04 15:39:28  fisyak
+#       Add STAR_SGI to path
+#
 #       Revision 1.86  1999/10/10 21:45:01  fisyak
 #       Take out SGI as supported platform, unify CERN_ROOT variable for different platforms
 #
@@ -298,6 +301,7 @@ endif
 setenv STAR_BIN  $STAR/.${STAR_HOST_SYS}/bin  ; if ($ECHO) echo   "Setting up STAR_BIN  = ${STAR_BIN}"
 setenv STAR_MGR $STAR/mgr
 setenv STAR_SCRIPTS $STAR/scripts
+setenv STAR_CGI $STAR/cgi
 setenv STAR_PAMS $STAR/pams;                 if ($ECHO) echo   "Setting up STAR_PAMS = ${STAR_PAMS}"
 setenv STAR_DATA ${STAR_ROOT}/data;          if ($ECHO) echo   "Setting up STAR_DATA = ${STAR_DATA}"
 if ( ! $?STAR_DB ) setenv STAR_DB /star/sol/db;                 if ($ECHO) echo   "Setting up STAR_DB   = ${STAR_DB}"
@@ -347,7 +351,7 @@ if ( -x /afs/rhic/star/group/dropit) then
   setenv PATH `/afs/rhic/star/group/dropit -p ${PATH} $STAR_PATH`
   if (${?LD_LIBRARY_PATH}) setenv LD_LIBRARY_PATH `/afs/rhic/star/group/dropit -p ${LD_LIBRARY_PATH} $STAR_PATH`
 endif
-setenv PATH "/usr/afsws/bin:/usr/afsws/etc:/opt/star/bin:/usr/sue/bin:/usr/local/bin:${GROUP_DIR}:${STAR_MGR}:${STAR_SCRIPTS}:${STAR_BIN}:${STAF}/mgr:${STAF_BIN}:${PATH}"
+setenv PATH "/usr/afsws/bin:/usr/afsws/etc:/opt/star/bin:/usr/sue/bin:/usr/local/bin:${GROUP_DIR}:${STAR_MGR}:${STAR_SCRIPTS}:${STAR_CGI}:${STAR_BIN}:${STAF}/mgr:${STAF_BIN}:${PATH}"
 ## Put mysql on path if available
 if ( -d /usr/local/mysql/bin) then
   setenv PATH "${PATH}:/usr/local/mysql/bin"
