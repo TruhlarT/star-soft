@@ -11,9 +11,9 @@ while (@ARGV && $ARGV[0] =~ m/^-/) {
   &usage(1, qq/$0(ERROR): unknown option "$arg"\n/);
 }
 
-chop($domain = `domainname`);
-die "FATAL: GetFDID can only be run at BNL.\n"
-    if ($domain !~ /rhic.bnl.gov/);
+#chop($domain = `domainname`);
+#die "FATAL: GetFDID can only be run at BNL.\n"
+#    if ($domain !~ /rhic.bnl.gov/);
 
 $user = $ARGV[0];
 if ($user =~ /^\d+$/) {
