@@ -97,7 +97,7 @@ print $query->scrolling_list(-name=>'SetP',
  
  print "</h3>";
  print "</td><td>";
- print "<h3 align=center>Detectors:</h3>";
+ print "<h3 align=center>Trigger:</h3>";
  print "<h3 align=center>";
  print $query->popup_menu(-name=>'SetT',
                     -values=>\@trigSet,
