@@ -421,8 +421,9 @@ my @files;
            if( $ltime > 1200 && $ltime < 518000 ){         
 #          if( $ltime > 1200) { 
 #   print "Log time: ", $ltime, "\n";
+#   print $fullname, "\n";
         &logInfo("$fullname", "$platf");
-      $jobTime = $timeS;  
+     $jobTime = $timeS;  
 
       $fObjAdr = \(LFileAttr->new());
       ($$fObjAdr)->pth($mpath);
@@ -1116,8 +1117,9 @@ sub  updateJSTable {
     $EvSkip = 0;
     $EvCom = 0;
 @maker_size = ();
+
 #---------------------------------------------------------
-maker_size
+
   open (LOGFILE, $fl_log ) or die "cannot open $fl_log: $!\n";
 
    my @logfile = <LOGFILE>;
@@ -1131,7 +1133,8 @@ my $runflag = 0;
 #   get ROOT_LEVEL and node
 
        if($line =~ /Processing bfc.C/) {
-          $runflag++;       
+          $runflag++;
+          $no_event = 0; 
 	}
    if ($line =~ /StMessageManager message summary/) {
       $Anflag = 1;
@@ -1151,7 +1154,7 @@ my $runflag = 0;
        }
     }
 #   get chain option
-	  if($runflag == 1) {
+	  if($runflag == 2) {
        if ( $line =~ /QAInfo: Requested chain bfc is/)  {
          if( $Anflag == 0 ) {
          @part = split /:/, $line ;
@@ -1177,7 +1180,7 @@ my $runflag = 0;
         @memSize = split("=",$size_line[6]);
         if( $mymaker eq "outputStream:"){
           $maker_size[$no_event] = $memSize[1];
-#          print "outputStream size:",$maker_size[$no_event], "\n";  
+#          print "outputStream size:  ",$no_event, "   ", $maker_size[$no_event], "\n";  
        }
       }
     }
@@ -1251,6 +1254,8 @@ my $runflag = 0;
       $EvDone = $no_event;
       $EvCom = $EvDone - $EvSkip;
  
+   print "Number of events: ", $no_event,"  ", $EvDone,"  ",$EvCom, "\n";
+
 ##### get CPU and Real Time per event
       
  if ($EvCom != 0) {
@@ -1272,13 +1277,13 @@ my $runflag = 0;
     $avr_knvertices = $tot_knvertices/$EvCom;
     $avr_xivertices = $tot_xivertices/$EvCom;
  
-    if ( defined $maker_size[1]) { 
-    $memFst = $maker_size[1];
+    if ( defined $maker_size[0]) { 
+    $memFst = $maker_size[0];
     }else {
     $memFst = 0;
   }
-    if ( defined $maker_size[$no_event]) {
-    $memLst = $maker_size[$no_event];
+    if ( defined $maker_size[$no_event -1]) {
+    $memLst = $maker_size[$no_event -1];
     } else {
     $memLst = 0;
   }
