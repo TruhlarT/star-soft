@@ -98,21 +98,33 @@ sub GetLogFile{
 sub ParseLogfile{
   my $self = shift;
 
-  my $logfile = $self->LogfileName; # found in SUPER::_init
+  my $logFile = $self->LogfileName; # found in SUPER::_init
 
   # change the logfile to the summary of the log file
-
-  my $fh = FileHandle->new($logfile,"r");
-  if(!defined $fh){
-    print "Cannot find the log file $logfile<br>\n";
-    $logfile =~ s|/log/|/log_old/|;
-    print "Will try parsing the logfile: $logfile<br>\n";
-    $fh = FileHandle->new($logfile,"r") or do{
-      print "I give up. Cannot find $logfile :$!<br>\n";
-      return;
-      };
+  # open files
+  # log file may be .log or .fz;
+  #
+  my $openOption=undef;
+  if(-e $logFile) { # .log 
+    $openOption=$logFile;
   }
-  print "Found logfile $logfile<br>\n";
+  else {            # .log.gz
+    $logFile =~ s/\.log$/\.log\.gz/;
+    $openOption="zcat $logFile|";
+  }
+
+  my $fh = FileHandle->new($openOption);
+  if(!defined $fh){
+    print "Cannot find the log file $logFile<br>\n";
+    return;
+    #$logfile =~ s|/log/|/log_old/|;
+    #print "Will try parsing the logfile: $logfile<br>\n";
+    #$fh = FileHandle->new($logfile,"r") or do{
+    # print "I give up. Cannot find $logfile :$!<br>\n";
+    #  return;
+    #};
+  }
+  print "Found logfile $logFile<br>\n";
 
   # read the log file 
   my $startoptions=0;
@@ -192,7 +204,7 @@ sub ParseLogfile{
   }
   
   # deduce the error file
-  (my $errorfile = $logfile) =~ s/log$/err/;
+  (my $errorfile = $logFile) =~ s/log$/err/;
 
   my $fh_error  = FileHandle->new($errorfile, "r");
 
