@@ -1,3 +1,4 @@
+#!/usr/local/bin/perl
 #!/usr/bin/env perl
 ###################################################
 #                                                 #
@@ -16,18 +17,26 @@ BEGIN {
 }
 
 use CGI qw(:standard);
-use lib "/afs/rhic/star/packages/scripts";
+use lib "/afs/rhic.bnl.gov/star/packages/scripts";
 use FileCatalog;
 require "cgi-lib.pl";
 
 my $fields = param("fields");
 
-my $fC = FileCatalog->new;
-$fC->connect;
+my $fC = new FileCatalog();
+$fC->connect_as("User");
 
-my $boxfields = "filetype,extension,storage,site,production,library,triggername,triggerword,triggersetup,runtype,configuration,geometry,collision,magscale,fileseq,owner,node,available,persistent,generator,genversion,genparams,tpc,svt,tof,emc,fpd,ftpc,pmd,rich,ssd";
+my $boxfields = "filetype,extension,storage,site,production,library,trgword,trgsetupname,runtype,configuration,geometry,collision,magscale,fileseq,owner,node,generator,genversion,genparams";
+
+my $binval="persistent,available";
+
 my $queryfields = "filetype,extension,storage,site,production,library,triggername,triggerword,triggersetup,runtype,configuration,geometry,runnumber,runcomments,collision,datetaken,magscale,magvalue,filename,size,fileseq,filecomment,owner,protection,node,available,persistent,createtime,inserttime,path,simcomment,generator,genversion,gencomment,genparams,tpc,svt,tof,emc,fpd,ftpc,pmd,rich,ssd";
 my $operfields = "datetaken,magvalue,runnumber,filename,size,createtime,inserttime,path";
+
+
+my (@dets) =  $fC->get_detectors();
+$binval   .= join(",",@dets);
+$boxfields.= ",$binval";
 
 print
     header,
@@ -55,6 +64,7 @@ foreach (split(",",$boxfields)){
     if ($count % $by1 == 0){ print "<TR>"; }
     print "<TD class=head>$_</TD><TD class=second> <SELECT name=".$_."val>\n";
     print get_options_for_field($_)."\n";
+
     print "</SELECT></TD>\n";
     $count++;
     if ($count % ($by1/2) == 0){ print "</TR>\n"; }
@@ -113,25 +123,45 @@ print
 
 
 
-print "<br>\n<font size=-1><b><i>Written by ".
-    "<A HREF=\"mailto:kisiel\@if.pw.edu.pl\">Adam Kisiel</A> </i></b></font>".
+print "<br>\n<H5><b><i>Written by ".
+    "<A HREF=\"mailto:kisiel\@if.pw.edu.pl\">Adam Kisiel</A> </i></b></H5>".
     "</FORM>\n",
     end_html;
 
-$fC->destroy;
+$fC->destroy();
 
 
 
 
-sub get_options_for_field {
-  ($parkey) = @_;
-  my $retstring;
-  my @entries = $fC->run_query($parkey);
+sub get_options_for_field 
+{
+    ($parkey) = @_;
+    my($retstring,$last,@entries);
 
-  $retstring .= "<OPTION>ALL</OPTION>";
-  foreach (@entries)
-    {
-      $retstring .= "<OPTION>$_</OPTION>";
+    $last = 0;
+
+    if ( index($binval,$_) == -1){
+	if ( -e "/tmp/$parkey.val"){ $last = (stat("/tmp/$parkey.val"))[10];}
+
+	if ( (time() - $last) > 300 ){
+	    @entries = $fC->run_query($parkey);
+	    if ( open(FO,">/tmp/$parkey.val") ){
+		foreach (@entries){ print FO "$_\n";}
+	    }
+	    close(FO);
+	} else {
+	    open(FI,"/tmp/$parkey.val");
+	    @entries = <FI>;
+	    close(FI);
+	}
+    } else {
+	@entries = (0,1);
     }
-  return $retstring;
+
+
+    $retstring .= "<OPTION>ALL</OPTION>";
+    foreach (@entries){
+	$retstring .= "<OPTION>$_</OPTION>";
+    }
+    return $retstring;
 }

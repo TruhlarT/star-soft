@@ -1,3 +1,4 @@
+#!/usr/local/bin/perl
 #!/usr/bin/env perl
 ###################################################
 #                                                 #
@@ -18,18 +19,20 @@ BEGIN {
 }
 
 use CGI qw(:standard);
-use lib "/afs/rhic/star/packages/scripts/";
+use lib "/afs/rhic.bnl.gov/star/packages/scripts/";
 use FileCatalog;
 require "cgi-lib.pl";
 
 my $fields = param("fields");
 
-my $fC = FileCatalog->new;
-$fC->connect;
+my $fC = new FileCatalog();
+$fC->connect_as("User");
 
 
-my $boxfields = "filetype,extension,storage,site,production,library,triggername,triggerword,triggersetup,runtype,configuration,geometry,collision,magscale,fileseq,owner,node,available,persistent,generator,genversion,genparams,tpc,svt,tof,emc,fpd,ftpc,pmd,rich,ssd,simulation";
+my $boxfields = "filetype,extension,storage,site,production,library,trgword,trgsetupname,runtype,configuration,geometry,collision,magscale,fileseq,owner,node,available,persistent,generator,genversion,genparams,tpc,svt,tof,emc,eemc,fpd,ftpc,pmd,rich,ssd,simulation";
+
 my $queryfields = "filetype,extension,storage,site,production,library,triggername,triggerword,triggersetup,runtype,configuration,geometry,runnumber,runcomments,collision,datetaken,magscale,magvalue,filename,size,fileseq,filecomment,owner,protection,node,available,persistent,createtime,inserttime,path,simcomment,generator,genversion,gencomment,genparams,tpc,svt,tof,emc,fpd,ftpc,pmd,rich,ssd";
+
 my $operfields = "datetaken,magvalue,runnumber,filename,size,createtime,inserttime,path";
 
 print
@@ -168,7 +171,8 @@ print "<A href='$newurl'>NEXT $limit RECORDS</A><BR>\n";
 
 
 print
-    "<br>\n<font size=-1><b><i>Written by ",
-    "<A HREF=\"mailto:kisiel\@if.pw.edu.pl\">Adam Kisiel</A> </i></b></font>",
+    "<br>\n<h5><b><i>Written by ",
+    "<A HREF=\"mailto:kisiel\@if.pw.edu.pl\">Adam Kisiel</A> </i></b></h5>",
     end_html;
-$fC->destroy;
+$fC->destroy();
+
