@@ -1,5 +1,5 @@
 #!/usr/bin/csh -f
-#       $Id: group_env.csh,v 1.110 2000/11/03 21:38:41 fisyak Exp $
+#       $Id: group_env.csh,v 1.111 2000/12/02 02:08:26 fisyak Exp $
 #	Purpose:	STAR group csh setup 
 #
 #	Author:		Y.Fisyak     BNL
@@ -184,13 +184,13 @@ switch ($STAR_SYS)
     case "sun4*":
 #  ====================
       if ($?LD_LIBRARY_PATH == 0) setenv LD_LIBRARY_PATH
-      setenv LD_LIBRARY_PATH "/usr/openwin/lib:/usr/dt/lib:/usr/local/lib:/afs/rhic/star/packages/ObjectSpace/2.0m/lib:${LD_LIBRARY_PATH}"
+      setenv LD_LIBRARY_PATH "/usr/openwin/lib:/usr/dt/lib:/usr/local/lib:${LD_LIBRARY_PATH}"
       if ("${STAR_HOST_SYS}" == "sun4x_56_CC5") then
         setenv LD_LIBRARY_PATH "${LD_LIBRARY_PATH}:/opt/WS5.0/lib:/opt/WS5.0/SC5.0/lib"
         setenv PATH "/opt/WS5.0/bin:${PATH}"
 	setenv MANPATH "/opt/WS5.0/man:${MANPATH}"
         if ( -x ${GROUP_DIR}/dropit) then
-          setenv PATH `${GROUP_DIR}/dropit SUNWspro`
+          setenv PATH `${GROUP_DIR}/dropit SUNWspro ObjectSpace`
           setenv LD_LIBRARY_PATH `${GROUP_DIR}/dropit -p $LD_LIBRARY_PATH SUNWspro`
         endif
       else
@@ -199,8 +199,10 @@ switch ($STAR_SYS)
           setenv PATH `${GROUP_DIR}/dropit CC5`
           setenv LD_LIBRARY_PATH `${GROUP_DIR}/dropit -p $LD_LIBRARY_PATH 5.0`
           setenv LD_LIBRARY_PATH `${GROUP_DIR}/dropit -p $LD_LIBRARY_PATH CC5`
+	  
+
         endif
-        setenv LD_LIBRARY_PATH "/opt/SUNWspro/lib:${LD_LIBRARY_PATH}"
+        setenv LD_LIBRARY_PATH "/opt/SUNWspro/lib:${LD_LIBRARY_PATH}:${STAR_PATH}/ObjectSpace/2.0m/lib"
         setenv PATH "/opt/SUNWspro/bin:$PATH"
         setenv MANPATH "/opt/SUNWspro/man:$MANPATH"
       endif
