@@ -1,5 +1,5 @@
 #!/usr/bin/csh -f
-#       $Id: group_env.csh,v 1.133 2003/01/21 06:48:59 jeromel Exp $
+#       $Id: group_env.csh,v 1.134 2003/02/25 03:30:21 jeromel Exp $
 #	Purpose:	STAR group csh setup
 #
 #	Author:		Y.Fisyak     BNL
@@ -34,7 +34,22 @@ if ($ECHO) echo   "Setting up STAR_ROOT = ${STAR_ROOT}"
 
 
 # Define /opt/star
-if ( ! $?OPTSTAR )  setenv OPTSTAR /opt/star
+if ( ! $?OPTSTAR ) then
+    if ( -e /opt/star ) then
+	setenv OPTSTAR /opt/star
+    else
+	if ( -e /afs/rhic/opt/star ) then
+	    setenv OPTSTAR /afs/rhic/opt/star
+	endif
+    endif
+endif
+if (  $?OPTSTAR ) then
+    if ($ECHO) echo   "Setting up OPTSTAR   = ${OPTSTAR}"
+else
+    if ($ECHO) echo   "WARNING : OPTSTAR undefined"
+endif
+    
+
 # Defined by Group Dir
 if ( ! $?GROUP_DIR )  setenv GROUP_DIR ${STAR_ROOT}/group
 # Defined in CORE
