@@ -1,5 +1,5 @@
 #!/bin/csh -f
-#       $Id: group_env.csh,v 1.174 2004/11/16 21:43:34 jeromel Exp $
+#       $Id: group_env.csh,v 1.175 2004/11/25 23:27:23 jeromel Exp $
 #	Purpose:	STAR group csh setup
 #
 #	Author:		Y.Fisyak     BNL
@@ -54,6 +54,9 @@ if ( ! $?OPTSTAR ) then
 	# remote second
 	if ( $?XOPTSTAR ) then
 	    setenv OPTSTAR ${XOPTSTAR}
+	else
+	    # nothing found ...
+	    setenv OPTSTAR 
 	endif
     endif
 endif
@@ -82,7 +85,7 @@ if ($STAR_LEVEL  == "old" || $STAR_LEVEL  == "pro" || $STAR_LEVEL  == "new" || $
     # at all ... Some AFS client do not show the link.
     # No even speaking of absolute path ...
     set a = `/bin/ls -ld $STAR_PATH/${STAR_LEVEL}`
-    set b = `/bin/ls -ld $STAR_PATH/${STAR_LEVEL} |cut -f2 -d">"`
+    set b = `/bin/ls -ld $STAR_PATH/${STAR_LEVEL} | /usr/bin/cut -f2 -d">"`
     if ( "$a" != "$b") then
 	setenv STAR_VERSION $b
     else
@@ -103,7 +106,7 @@ setenv STAF_VERSION ${STAF_LEVEL}
 if ($STAF_LEVEL  == "old" || $STAF_LEVEL  == "pro" || $STAF_LEVEL  == "new" || $STAF_LEVEL  == "dev" || $STAF_LEVEL  == ".dev") then
   if( -e $STAR_PATH/StAF/${STAF_LEVEL}) then
     set a = `/bin/ls -ld $STAR_PATH/StAF/${STAF_LEVEL}`
-    set b = `/bin/ls -ld $STAR_PATH/StAF/${STAF_LEVEL} |cut -f2 -d">"`
+    set b = `/bin/ls -ld $STAR_PATH/StAF/${STAF_LEVEL} | /usr/bin/cut -f2 -d">"`
     if ( "$a" != "$b") then
 	setenv STAF_VERSION $b
     else
@@ -341,7 +344,7 @@ switch ($STAR_SYS)
       endif
       if ( $?PGI ) then
        if ( ! -d $PGI/linux86/bin && -e $PGI/linux86 ) then
-	    set version=`/bin/ls  $PGI/linux86/ | tail -1`
+	    set version=`/bin/ls  $PGI/linux86/ | /usr/bin/tail -1`
 	    setenv PGI_V linux86/$version
        else
 	    setenv PGI_V linux86
@@ -402,8 +405,8 @@ switch ($STAR_SYS)
 
       if (! $?SUNOPT) setenv SUNOPT /opt
 
-      set WSVERS=`echo $SUNWS  | sed "s/WS//"`   # full version number
-      set WSMVER=`echo $WSVERS | sed "s/\..*//"` # major version number
+      set WSVERS=`echo $SUNWS  | /bin/sed "s/WS//"`   # full version number
+      set WSMVER=`echo $WSVERS | /bin/sed "s/\..*//"` # major version number
 
       if ($?LD_LIBRARY_PATH == 0) setenv LD_LIBRARY_PATH
       setenv LD_LIBRARY_PATH `${GROUP_DIR}/dropit -p /usr/openwin/lib -p /usr/dt/lib -p /usr/local/lib -p ${LD_LIBRARY_PATH}`
@@ -455,7 +458,7 @@ endif
 if ( $?LSF_ENVDIR && ! $?LSF_MANPATH ) then
     # may not be full proof
     if ( $?LSF_BINDIR ) then
-	set ver=`echo $LSF_BINDIR | sed "s/\// /g" | awk '{print $3}'`
+	set ver=`echo $LSF_BINDIR | /bin/sed "s/\// /g" | /bin/awk '{print $3}'`
 	if ( -d /usr/lsf/$ver/man ) then
 	    setenv MANPATH  ${MANPATH}:/usr/lsf/$ver/man
 	    setenv LSF_MANPATH /usr/lsf/$ver/man
@@ -468,13 +471,13 @@ endif
 if ( ! $?JAVA_ROOT ) then
     # Search for a default path
     if ( -d /usr/java ) then
-	set a = `/bin/ls /usr/java | tail -1`
+	set a = `/bin/ls /usr/java | /usr/bin/tail -1`
 	if ( "$a" != "") then
 	    setenv JAVA_ROOT /usr/java/$a
 	endif
     else
 	if ( -d /opt/VDT ) then
-	    set a = `/bin/ls /opt/VDT | grep -e jdk -e j2sdk | tail -1`
+	    set a = `/bin/ls /opt/VDT | /bin/grep -e jdk -e j2sdk | /usr/bin/tail -1`
 	    if ( "$a" != "") then
 		setenv JAVA_ROOT /opt/VDT/$a
 	    endif
@@ -483,7 +486,7 @@ if ( ! $?JAVA_ROOT ) then
 endif
 if ( $?JAVA_ROOT ) then
     if ( -d $JAVA_ROOT/ ) then
-	if ( `echo $PATH | grep kerberos` != "") then
+	if ( `echo $PATH | /bin/grep kerberos` != "") then
 	    # Will need to find a better way ... java has
 	    # a 'kinit'
 	    set path=(/usr/kerberos/bin $JAVA_ROOT/bin $path)
@@ -581,7 +584,7 @@ if ( -x ${GROUP_DIR}/dropit) then
 endif
 
 if ($ECHO) then
-    echo "STAR setup on" `hostname` "by" `date` " has been completed"
+    echo "STAR setup on" `/bin/hostname` "by" `/bin/date` " has been completed"
     echo   "LD_LIBRARY_PATH = $LD_LIBRARY_PATH"
     unset ECHO
 endif
