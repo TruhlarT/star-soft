@@ -10,7 +10,6 @@
 #
 # do not do it again, do not even continue
 if( $?star_login_csh ) exit
-setenv star_login_csh 1
 
 
 # This file is reserved for pre-login env setup which
@@ -210,16 +209,23 @@ if( -r $GROUP_DIR/group_env.csh ) then
     source $GROUP_DIR/group_env.csh
 endif
 
-
+#
 # Back-ticked commands can only be done at this level
 # on Solaris. Get an undefined STAR otherwise (nested
-# shell init).
-if ( `which less` != "" ) then
+# shell init). Also, on Solaris, ehich returns something
+# like 'xxx: Command not found'
+#
+set test=`which less`
+set test2=`echo $test | grep "not found"`
+if ( "$test" != "" &&  "$test2" != "$test" ) then
     setenv PAGER       "less"
 else
     setenv PAGER       "more"
 endif
-if ( `which pico` != "") then
+
+set test=`which pico`
+set test2=`echo $test | grep "not found"`
+if ( "$test" != "" && "$test2" != "$test" ) then
     setenv EDITOR      "pico -w"
     setenv VISUAL      "pico -w"
 else
@@ -227,6 +233,8 @@ else
     setenv VISUAL      "emacs -nw"
 endif
 
+unset test
+unset test2
 
 
 # ** GROUP LOGIN ***> should be merged as well
@@ -291,4 +299,10 @@ endif
 if( -r $GROUP_DIR/site_post_setup.csh ) then
     source $GROUP_DIR/site_post_setup.csh
 endif
+
+
+
+# This needs to be set only at the end
+# See head for check of this variable
+setenv star_login_csh 1
 
