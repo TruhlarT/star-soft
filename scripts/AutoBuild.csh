@@ -73,7 +73,7 @@ if ( -r  $GROUP_DIR/star_login.csh ) then
 		endif
 		cd $LPATH
 		echo "Cleaning older libraries"
-		mgr/CleanLibs
+		mgr/CleanLibs obj 1
 		breaksw
 
 
