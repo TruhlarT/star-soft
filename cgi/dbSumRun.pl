@@ -14,7 +14,7 @@
 
 use CGI;
 
-require "/afs/rhic/star/packages/DEV/mgr/dbCpProdSetup.pl";
+require "/afs/rhic/star/packages/scripts/dbCpProdSetup.pl";
 
 use File::Find;
 use Class::Struct;
@@ -30,14 +30,15 @@ $runNum = $query->param('runN');
 
 my $prodDir = "/home/starreco/reco/". $prodSr; 
 
-struct FilAttr => {
-       flName   => '$',
-       DtSt     => '$', 
-       fpath    => '$',
-       fsize    => '$',
-       Nevts    => '$',
-       numRun   => '$',
-}; 
+#struct FilAttr => {
+#       flName   => '$',
+#       DtSt     => '$', 
+#       fpath    => '$',
+#       fsize    => '$',
+#       Nevts    => '$',
+#       numRun   => '$',
+#       trg      => '$',
+#}; 
  
 
 ##### Find sets in DataSet table
@@ -49,6 +50,7 @@ struct FilAttr => {
  my %prodRun = ();
  my %periodRun = ();
  my %dtSet = ();
+ my %dtTrg = ();
  my %numFiles = ();
  my @DRun;
  my $nRun = 0;
@@ -70,12 +72,13 @@ my  @hpssInFiles;
  my $dhRun;
  my $dqRun;
  my $dhSet;
+ my $dhTrg;
  my @OnlFiles;
  my $nOnlFile = 0;
  my @hpssDstFiles;
   $nhpssDstFiles = 0;
 
-  $sql="SELECT runID, dataset, fName, path, size, Nevents  FROM $FileCatalogT WHERE runID = '$runNum' AND fName LIKE '%event.root' AND path like '%$prodSr%' AND hpss = 'Y'";
+  $sql="SELECT runID, dataset, fName, path, size, Nevents, trigger  FROM $FileCatalogT WHERE runID = '$runNum' AND fName LIKE '%event.root' AND path like '%$prodSr%' AND hpss = 'Y'";
   $cursor =$dbh->prepare($sql)
     || die "Cannot prepare statement: $DBI::errstr\n";
   $cursor->execute;
@@ -95,6 +98,7 @@ my  @hpssInFiles;
       ($$fObjAdr)->Nevts($fvalue)    if( $fname eq 'Nevents');
       ($$fObjAdr)->fsize($fvalue)    if( $fname eq 'size');
       ($$fObjAdr)->numRun($fvalue)   if( $fname eq 'runID');
+      ($$fObjAdr)->trg($fvalue)      if( $fname eq 'trigger');
     }
   
     $hpssDstFiles[$nhpssDstFiles] = $fObjAdr;  
@@ -108,6 +112,7 @@ my  @hpssInFiles;
     $dhpath = ($$dsfile)->fpath;
     $dhRun =  ($$dsfile)->numRun;
     $dhSet =  ($$dsfile)->DtSt;
+    $dhTrg =  ($$dsfile)->trg; 
     @dirP = split ("/", $dhpath);
     $dirR = $dirP[5] . "/" . $dirP[6];
 
@@ -115,6 +120,7 @@ my  @hpssInFiles;
   $dstHpEvts{$dhRun}  += ($$dsfile)->Nevts; 
   $dstHpSize{$dhRun}  += ($$dsfile)->fsize;
   $dtSet{$dhRun} = $dhSet;
+  $dtTrg{$dhRun} = $dhTrg;
   }
 
 ##### select daq files from FileCatalog
@@ -183,6 +189,7 @@ print <<END;
 <TR ALIGN=CENTER HEIGHT=60>
 <td HEIGHT=60><a href=\"http://www.star.bnl.gov/devcgi/dbFileDAQRetrv.pl?runD=$runSet\"><h4>$runNum</h4></td>
 <td HEIGHT=60><h4>$dtSet{$runNum}</h4></td>
+<td HEIGHT=60><h4>$dtTrg{$runNum}</h4></td>
 <td HEIGHT=60><h4>$numFiles{$runNum}</h4></td>
 <td HEIGHT=60><h4>$daqHpSize{$runNum}</h4></td>
 <td HEIGHT=60><h4>$daqHpEvts{$runNum}</h4></td>
@@ -212,10 +219,11 @@ print <<END;
      <h2 align=center>Production Summary for $prodSr <br> and Run Number $runNum</h2>
 <TABLE ALIGN=CENTER BORDER=5 CELLSPACING=1 CELLPADDING=2 >
 <TR>
-<TD ALIGN=CENTER WIDTH=\"30%\" HEIGHT=100><B>Run Number </B></TD>
-<TD ALIGN=CENTER WIDTH=\"30%\" HEIGHT=100><B>Dataset </B></TD>
-<TD ALIGN=CENTER WIDTH=\"30%\" HEIGHT=100><B>Number of files </B></TD>
-<TD ALIGN=CENTER WIDTH=\"20%\" HEIGHT=100><B>Size(MB) of DAQ files</B></TD>
+<TD ALIGN=CENTER WIDTH=\"10%\" HEIGHT=100><B>Run Number </B></TD>
+<TD ALIGN=CENTER WIDTH=\"20%\" HEIGHT=100><B>Dataset </B></TD>
+<TD ALIGN=CENTER WIDTH=\"20%\" HEIGHT=100><B>Trigger </B></TD>
+<TD ALIGN=CENTER WIDTH=\"10%\" HEIGHT=100><B>Number of files </B></TD>
+<TD ALIGN=CENTER WIDTH=\"10%\" HEIGHT=100><B>Size(MB) of DAQ files</B></TD>
 <TD ALIGN=CENTER WIDTH=\"10%\" HEIGHT=100><B>Number of Events<br>in DAQ files</B></TD>
 <TD ALIGN=CENTER WIDTH=\"10%\" HEIGHT=100><B>Size(MB) of DST</B></TD>
 <TD ALIGN=CENTER WIDTH=\"10%\" HEIGHT=100><B>Number of Events<br>in DST</B></TD>
