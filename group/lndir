@@ -57,17 +57,17 @@ then
 	exit 1
 fi
 
-for file in `ls -af $DIRFROM`
+for file in `/bin/ls -af $DIRFROM`
 do
     if [ ! -d $DIRFROM/$file ]
     then
-	    /usr/bin/test -e $file && rm $file
+	    /usr/bin/test -e $file && /bin/rm $file
 	    ln -s $DIRFROM/$file .
     else
 	    if [ $file != RCS -a $file != SCCS -a $file != . -a $file != .. ]
 	    then
 		    echo $file:
-		    /usr/bin/test -e $file || mkdir $file
+		    /usr/bin/test -e $file || /bin/mkdir $file
 		    (cd $file
 		     pwd=`pwd`
 		     case "$DIRFROM" in

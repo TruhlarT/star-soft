@@ -1,5 +1,8 @@
 #!/bin/csh
 #  $Log: STAR_SYS,v $
+#  Revision 1.40  2004/11/26 19:28:36  jeromel
+#  Missed a few rm/chmod/mkdir and one awk adjusted
+#
 #  Revision 1.39  2004/11/25 23:29:42  jeromel
 #  AFS collapse made some path invisible (including /opt/star). A dropit
 #  side effect left sessions without a defined PATH exhibiting further
@@ -128,7 +131,7 @@
 #
 #  Revision 1.1.1.1  1997/12/31 14:35:23  fisyak
 #
-#             Last modification $Date: 2004/11/25 23:29:42 $
+#             Last modification $Date: 2004/11/26 19:28:36 $
 #
 # Determine STAR_SYS variable.
 #
@@ -299,8 +302,8 @@ else
 	       case "icc":
 		#set vers = `which icc | /bin/sed 's/.*compiler//i;s/\/.*//'`
 	        set vers = `icc -V -dryrun > & /tmp/icc_version; \
-		awk '{ if (NR==1) print $8 }' /tmp/icc_version | /bin/awk -F\. '{print $1$2}'; \
-		rm  /tmp/icc_version;`
+		/bin/awk '{ if (NR==1) print $8 }' /tmp/icc_version | /bin/awk -F\. '{print $1$2}'; \
+		/bin/rm  /tmp/icc_version;`
 		breaksw
 
 	       default:

@@ -1,5 +1,5 @@
 #!/bin/csh -f
-#       $Id: group_env.csh,v 1.177 2004/11/26 00:42:40 jeromel Exp $
+#       $Id: group_env.csh,v 1.178 2004/11/26 19:28:36 jeromel Exp $
 #	Purpose:	STAR group csh setup
 #
 #	Author:		Y.Fisyak     BNL
@@ -528,8 +528,8 @@ endif
 
 # User Scratch directory
 if ( ! -d $SCRATCH ) then
-    mkdir $SCRATCH
-    chmod 755 $SCRATCH
+    /bin/mkdir $SCRATCH
+    /bin/chmod 755 $SCRATCH
 endif
 if ($ECHO) echo   "Setting up SCRATCH   = $SCRATCH"
 
