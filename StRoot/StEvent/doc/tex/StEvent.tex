@@ -2,7 +2,7 @@
 %
 % StEvent - User Guide and Reference Manual -- LaTeX Source
 %
-% $Id: StEvent.tex,v 2.79 2003/05/23 20:25:54 ullrich Exp $
+% $Id: StEvent.tex,v 2.80 2004/03/30 15:59:43 calderon Exp $
 %
 % Author: Thomas Ullrich, Nov 1999
 %
@@ -21,6 +21,9 @@
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %
 % $Log: StEvent.tex,v $
+% Revision 2.80  2004/03/30 15:59:43  calderon
+% Added method StHit::setFitFlag.
+%
 % Revision 2.79  2003/05/23 20:25:54  ullrich
 % Adapt changes to StTofCollection.
 %
@@ -303,8 +306,8 @@
   \mbox{\includegraphics[width=\textwidth]{StEventTitle.eps}}
   \hfill\mbox{}\\[3cm]
   {\LARGE User Guide and Reference Manual \\[5mm] for Version 2}\\[2cm]
-  {\LARGE $ $Revision: 2.79 $ $}  \\[5mm] % replaced by cvs with current revision
-  {\LARGE $ $Date: 2003/05/23 20:25:54 $ $}  % replaced by cvs with current revision
+  {\LARGE $ $Revision: 2.80 $ $}  \\[5mm] % replaced by cvs with current revision
+  {\LARGE $ $Date: 2004/03/30 15:59:43 $ $}  % replaced by cvs with current revision
   \vfill
 \end{center}
 \cleardoublepage
@@ -4196,6 +4199,7 @@ definition in the header file.
     
     \verb+void setCharge(float);+\\
     \verb+void setFlag(unsigned char);+\\
+    \verb+void setFitFlag(unsigned char);+\\
     \verb+void setTrackReferenceCount(unsigned char);+\\
     \verb+void setHardwarePosition(unsigned int);+\\
     \verb+void setPositionError(const StThreeVectorF&);+\\
