@@ -1,7 +1,10 @@
 #!/usr/bin/csh -f
-#       $Id: group_env.csh,v 1.57 1998/12/17 14:29:07 fisyak Exp $
+#       $Id: group_env.csh,v 1.58 1998/12/27 17:28:49 fisyak Exp $
 #	Purpose:	STAR group csh setup 
 #       $Log: group_env.csh,v $
+#       Revision 1.58  1998/12/27 17:28:49  fisyak
+#       Increase no. of file descriptors on Sun
+#
 #       Revision 1.57  1998/12/17 14:29:07  fisyak
 #       Add parasoft to MANPATH
 #
@@ -257,6 +260,7 @@ switch ($STAR_SYS)
       if (! ${?SHLIB_PATH}) setenv SHLIB_PATH
       setenv SHLIB_PATH ${SHLIB_PATH}:${MINE_LIB}:${STAR_LIB}:${STAF_LIB}
       setenv BFARCH hp_ux102
+      limit coredumpsize 0
     breaksw
     case "sgi_5*":
 #  ====================
@@ -320,6 +324,8 @@ switch ($STAR_SYS)
 	set path = ($path $PARASOFT/bin.solaris)
       setenv BFARCH SunOS5
       setenv OBJY_ARCH solaris4
+      limit coredump 0
+      unlimit descriptors
     breaksw 
     case "sunx86_55":
 #  ====================

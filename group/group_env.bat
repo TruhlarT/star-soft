@@ -91,6 +91,7 @@ echo "SunRPC"="\\\\hepburn\\common\\p32\\Staf\\SunRPC">>Env.reg
                                              if DEFINED ECHO @echo   Setting up  SunRPC   = %SunRPC%
 set include=%SunRPC%;%include%
 set ROOT_LEVEL=2.13
+if "%STAR_LEVEL%" == "dev" set ROOT_LEVEL=2.20
 set ROOTSYS=%AFS_RHIC%\star\ROOT\%ROOT_LEVEL%\.intel_wnt\root
 path %STAR_PATH%\.%STAR_SYS%\gnu\bin;%path%;%ROOTSYS%\bin
 set ECHO=
