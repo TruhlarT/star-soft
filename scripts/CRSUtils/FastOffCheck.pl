@@ -87,7 +87,7 @@ if ($UPDATE == 0){
 
     # Also scan the main tree for obsolete files
     if( -d $TARGET){
-	chomp(@all = `cd $TARGET ; find $LIB -type f -mtime +$RETENT`);
+	chomp(@all = `cd $TARGET ; /usr/bin/find $LIB -type f -mtime +$RETENT`);
 	foreach $el (@all){
 	    print "Deleting $TARGET/$el\n";
 	    unlink("$TARGET/$el");
@@ -127,7 +127,7 @@ if ($UPDATE == 0){
     # directory if files are moved ...
     $obj = rdaq_open_odatabase();
     if($obj){
-	chomp(@all = `cd $TARGET ; find $LIB -name '*.event.root'`);
+	chomp(@all = `cd $TARGET ; /usr/bin/find $LIB -name '*.event.root'`);
 	foreach $el (@all){
 	    $el =~ m/(.*\/)(.*)/;
 	    ($tree,$el) = ($1,$2);
