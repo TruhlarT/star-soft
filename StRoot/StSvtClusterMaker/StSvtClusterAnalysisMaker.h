@@ -1,5 +1,8 @@
-// $Id: StSvtClusterAnalysisMaker.h,v 1.4 2001/07/19 20:42:24 caines Exp $
+// $Id: StSvtClusterAnalysisMaker.h,v 1.5 2001/08/07 20:52:15 caines Exp $
 // $Log: StSvtClusterAnalysisMaker.h,v $
+// Revision 1.5  2001/08/07 20:52:15  caines
+// Implement better packing of svt hardware and charge values
+//
 // Revision 1.4  2001/07/19 20:42:24  caines
 //  Add Reset functions
 //
@@ -65,6 +68,9 @@ class StSvtClusterAnalysisMaker : public StMaker
   Int_t SetClusterAnalysis();
   void  printClusterInfo();
   void MakeHistograms(); // Tracking histograms
+  virtual const char *GetCVS()
+  {static const char cvs[]="Tag $Name:  $ $Id: StSvtClusterAnalysisMaker.h,v 1.5 2001/08/07 20:52:15 caines Exp $ built "__DATE__" "__TIME__ ; return cvs;}
+
     
  protected:
 
