@@ -82,8 +82,11 @@ for ($i = 0; $i < scalar(@node_dir); $i++) {
         $ii++;
   }
   $OUT_DIR[$ii] = $TOP_DIRD . $node_dir[$i] . "/" . $testDay . "/". $dir_year[1] . "/" . $hc_dir[1]; 
+  print "Output Dir for DEV :", $OUT_DIR[$ii], "\n";
     $ii++; 
+
   $OUT_DIR[$ii] = $TOP_DIRD . $node_dir[$i] . "/" . $testDay . "/". $dir_year[2] . "/" . $hc_dir[6];
+  print "Output Dir for DEV :", $OUT_DIR[$ii], "\n";
     $ii++;
 }
 
@@ -106,10 +109,12 @@ for ($i = 0; $i < scalar(@node_dir); $i++) {
         $ii++;
   }
   $OUT_DIR[$ii] = $TOP_DIRD . $node_dir[$i] . "/" . $beforeDay . "/". $dir_year[1] . "/" . $hc_dir[1]; 
+  print "Output Dir for DEV :", $OUT_DIR[$ii], "\n";
     $ii++; 
-  $OUT_DIR[$ii] = $TOP_DIRD . $node_dir[$i] . "/" . $beforeDay . "/". $dir_year[2] . "/" . $hc_dir[6];
-   $ii++;
 
+  $OUT_DIR[$ii] = $TOP_DIRD . $node_dir[$i] . "/" . $beforeDay . "/". $dir_year[2] . "/" . $hc_dir[6];
+  print "Output Dir for DEV :", $OUT_DIR[$ii], "\n";
+   $ii++;
 }
 
 $jj = 0;
