@@ -1,5 +1,8 @@
 #!/bin/csh
 #  $Log: STAR_SYS,v $
+#  Revision 1.34  2003/11/05 01:23:22  jeromel
+#  switch statement treatment for STARCMPL. Implemented icc
+#
 #  Revision 1.33  2003/06/28 00:01:49  jeromel
 #  cygwin + one more sed pattern
 #
@@ -107,7 +110,7 @@
 #
 #  Revision 1.1.1.1  1997/12/31 14:35:23  fisyak
 #
-#             Last modification $Date: 2003/06/28 00:01:49 $
+#             Last modification $Date: 2003/11/05 01:23:22 $
 #
 # Determine STAR_SYS variable.
 #
@@ -224,6 +227,7 @@ if ("${STAR_SYS}" == "sun4x_56") then
     if ($?USE_CC5  == 1) setenv STAR_HOST_SYS sun4x_56_CC5
 endif
 
+
 # All default value
 setenv STAR_HOST_SYS $STAR_SYS
 
@@ -245,7 +249,7 @@ if ("${STAR_SYS}" == "i386_linux22" || "${STAR_SYS}" == "i386_linux2") then
 
     #
     # Compiler hacks : for egcs.
-    # Env vraiables have to be defined prior to this script.
+    # Env variables have to be defined prior to this script.
     #
     if ($?EGCS_ON  == 1 && "${STAR_SYS}" == "i386_redhat51") setenv STAR_HOST_SYS i386_redhat51egcs
     if ($?EGCS_ON  == 1 && "${STAR_SYS}" == "i386_redhat60") setenv STAR_HOST_SYS i386_redhat61egcs
@@ -257,7 +261,10 @@ if ("${STAR_SYS}" == "i386_linux22" || "${STAR_SYS}" == "i386_linux2") then
 else
     #
     # Upper version of Linux drastic change in scheme J.Lauret 2003.
-    # Will need to find a more permanent solution ...
+    # Will need to find a more permanent solution for the above ...
+    # (maybe drop of support) as it is a bit messy in its branching.
+    #
+    # Also, BEWARE of non RedHat releases
     #
     setenv STAR_HOST_SYS $STAR_SYS
     if (-f /etc/redhat-release) then
@@ -265,9 +272,21 @@ else
 	set rhmajor = `echo $redhat | sed "s/\..*//"`
 	set redhat  = `echo $redhat | sed "s/\.//g"`
 	if ($redhat == 73 || $rhmajor >= 8) then
-	    # That's really when the new scheme starts
-	    set gccv = `gcc -dumpversion | awk -F. '{print $1$2$3}'`
-	    if ( "$gccv" != "")  setenv STAR_HOST_SYS rh${redhat}_gcc${gccv}
+	    # Note:  
+            #    always assume the compiler is in the path
+	    #    STARCMPL can be defined outside (see 'setup' for example)
+	    #
+	    if ( ! $?STARCMPL) setenv STARCMPL "gcc"
+	    switch ($STARCMPL)
+	       case "icc":
+		set vers = `which icc | sed 's/.*compiler//i;s/\/.*//'`
+		breaksw
+
+	       default:
+	        setenv STARCMPL "gcc"
+		set vers = `gcc -dumpversion | awk -F. '{print $1$2$3}'`
+            endsw
+	    if ("$vers" != "" ) setenv STAR_HOST_SYS rh${redhat}_${STARCMPL}${vers}
 	endif
     endif
 endif
