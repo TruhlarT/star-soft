@@ -211,7 +211,7 @@ if ($SFLAG == 2 && $QFLAG && $SSUBM && $AUTOS){
 		    system($cmd);
 		    rename("$SOURCE/jobfiles/$file","$SOURCE/archive/$file");
 		    # Just for the heck of it, output submit debugging
-		    &ASLog("Job $SOURCE/jobfiles/$file submitted");
+		    &ASLog("Job $SOURCE/jobfiles/$file submitted ($qnum/$drop)");
 		    unlink($lock);
 		    last;
 		} else {
