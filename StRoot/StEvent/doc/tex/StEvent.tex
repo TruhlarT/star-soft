@@ -2,7 +2,7 @@
 %
 % StEvent - User Guide and Reference Manual -- LaTeX Source
 %
-% $Id: StEvent.tex,v 2.37 2000/06/01 21:36:17 ullrich Exp $
+% $Id: StEvent.tex,v 2.38 2000/06/07 09:44:20 ullrich Exp $
 %
 % Author: Thomas Ullrich, Nov 1999
 %
@@ -21,8 +21,8 @@
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %
 % $Log: StEvent.tex,v $
-% Revision 2.37  2000/06/01 21:36:17  ullrich
-% Added new method flag() to StHit description.
+% Revision 2.38  2000/06/07 09:44:20  ullrich
+% Modified StHit ref section.
 %
 % Revision 2.45  2000/08/23 03:14:07  ullrich
 % Improved (corrected) explanation of return value
@@ -177,17 +177,17 @@
       }%
     }%
   {\end{list}}
-  {\LARGE $ $Revision: 2.37 $ $}  \\[5mm] % replaced by cvs with current revision
-  {\LARGE $ $Date: 2000/06/01 21:36:17 $ $}  % replaced by cvs with current revision
+  {\LARGE $ $Revision: 2.38 $ $}  \\[5mm] % replaced by cvs with current revision
+  {\LARGE $ $Date: 2000/06/07 09:44:20 $ $}  % replaced by cvs with current revision
 {\raisebox{0pt}[1ex][0pt]{\makebox[\labelwidth][l]%
     {\parbox[t]{\labelwidth}{\hspace{0pt}\textbf{{#1}}}}}}
 \newenvironment{Entry}%
 {\renewcommand{\entrylabel}{\Entrylabel}\begin{entry}}%
-  {\LARGE $ $Revision: 2.37 $ $}  \\[5mm] % replaced by cvs with current revision
-  {\LARGE $ $Date: 2000/06/01 21:36:17 $ $}  % replaced by cvs with current revision
+  {\LARGE $ $Revision: 2.38 $ $}  \\[5mm] % replaced by cvs with current revision
+  {\LARGE $ $Date: 2000/06/07 09:44:20 $ $}  % replaced by cvs with current revision
 \begin{document}
-  {\LARGE $ $Revision: 2.37 $ $}  \\[5mm] % replaced by cvs with current revision
-  {\LARGE $ $Date: 2000/06/01 21:36:17 $ $}  % replaced by cvs with current revision
+  {\LARGE $ $Revision: 2.38 $ $}  \\[5mm] % replaced by cvs with current revision
+  {\LARGE $ $Date: 2000/06/07 09:44:20 $ $}  % replaced by cvs with current revision
 %
 %    Title page
 %
@@ -202,8 +202,8 @@
   \mbox{\includegraphics[width=\textwidth]{StEventTitle.eps}}
   \hfill\mbox{}\\[3cm]
   {\LARGE User Guide and Reference Manual \\[5mm] for Version 2}\\[2cm]
-  {\LARGE $ $Revision: 2.37 $ $}  \\[5mm] % replaced by cvs with current revision
-  {\LARGE $ $Date: 2000/06/01 21:36:17 $ $}  % replaced by cvs with current revision
+  {\LARGE $ $Revision: 2.38 $ $}  \\[5mm] % replaced by cvs with current revision
+  {\LARGE $ $Date: 2000/06/07 09:44:20 $ $}  % replaced by cvs with current revision
   \vfill
 \end{center}
 \cleardoublepage
@@ -3362,10 +3362,10 @@ definition in the header file.
 
 \subsection{StHit}
 \index{StHit|textbf}
-    \verb+UChar_t flag() const;+\\
+\label{sec:StHit}
 \begin{Entry}
 \item[Summary] Base class for hits.
-    \verb+UChar_t trackReferenceCount() const;+\\
+    
 \item[Synopsis]
     \verb+#include "StHit.h"+\\
     \verb+class StHit;+\\
