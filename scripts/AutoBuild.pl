@@ -50,6 +50,7 @@ $BY=50;
 	  "echo 1 ; unsetenv NODEBUG   ; cons", 1,
 	  "echo 2 ; setenv NODEBUG yes ; cons", 1);
 @SKIP=IUExcluded();
+$OPTCONS="";
 
 
 # --- Miscellaneous
@@ -95,6 +96,8 @@ for ($i=0 ; $i <= $#ARGV ; $i++){
 	if($arg eq "-x"){
 	    # Exclude this
 	    push(@SKIP,$ARGV[++$i]);
+	} elsif($arg eq "-f"){
+	    undef(@SKIP);
 	} elsif($arg eq "-o"){
 	    $FILO= $ARGV[++$i];
 	    if(-e $FILO){ unlink($FILO);}
@@ -124,6 +127,8 @@ for ($i=0 ; $i <= $#ARGV ; $i++){
 	    $SILENT=1==1;
 	} elsif($arg eq "-d"){
 	    $DEBUG = 1==1;
+	} elsif($arg eq "-k"){
+	    $OPTCONS .= "-k ";
 	} elsif($arg eq "-v"){
 	    $LIBRARY= $ARGV[++$i];
 	} elsif($arg eq "-p"){
@@ -374,7 +379,7 @@ foreach $line (sort keys %COMPILC){
 	"cd $COMPDIR\n",
 	"\n",
 	"setenv SKIP_DIRS \"".join(" ",@SKIP)."\"\n",
-	"$line\n";
+	"$line $OPTCONS\n";
 
 
     close(FO);
@@ -515,7 +520,7 @@ sub ReportToHtml
     # bug but a design i.e. Version 0 will NOT be referenced
     # and this was intended for debug purposes 
     if($LIBRARY ne "adev"){
-	print $fo IUhead("AutoBuild report for $LIBRARY");
+	print $fo IUhead("AutoBuild report using $LIBRARY");
     } else {
 	print $fo IUhead("AutoBuild report");
     }
@@ -681,7 +686,7 @@ sub Execute
 		}
 	    }
 	    if(IUError($line)){
-		push(@REPORT,IUl2pre($line));
+		push(@REPORT,IUl2pre($line,"%%REF%%"));
 	    }
 	}
 	if($k != -1){ push(@REPORT,"</PRE></TR></TD>");}
@@ -697,7 +702,7 @@ sub Execute
 	while (defined($line = <FI>) ){
 	    chomp($line);
 	    if(IUError($line)){
-		push(@REPORT,IUl2pre($line));
+		push(@REPORT,IUl2pre($line,"%%REF%%"));
 	    }
 	}
 	push(@REPORT,"</PRE>");
@@ -732,6 +737,7 @@ sub lhelp
               to 'Path'. This option automatically disables post-compilation
               operations (-d option is ON).
 
+ -f           Flush the default list of directories to skip
  -x ABC       Exclude ABC from list in addition to default exclusion
               list $excl
 
