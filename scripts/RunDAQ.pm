@@ -1013,6 +1013,7 @@ sub rdaq_status_string
     $str = "Submitted" if($sts == 1);
     $str = "Processed" if($sts == 2);
     $str = "QADone"    if($sts == 3); # i.e. + QA
+    $str = "Skipped"   if($sts == 4);
 
     $str;
 }
