@@ -24,6 +24,7 @@ $ProdOptionsT = "ProdOptions";
 $JobStatusT = "JobStatus";
 $jobRelationsT = "jobRelations";
 $DAQInfoT = "DAQInfo";
+$nodeStatusT = "nodeStatus";
 
 ######################
 sub StDbProdConnect {
