@@ -1,0 +1,17 @@
+
+Quick summary of what script does what in this directory
+
+ - RunDAQ.pm    perl module interface to the online DAQ database.
+                Allows immediate copy of new records in the 
+                operation database as well as manipulation of
+                records.
+ - DAQFill.pl   Script performing the transfer online -> operation
+ - DAQFill.csh  csh interface suitable for a cron-job. A cronjob is
+                currently running on rcas6003 under starreco
+
+
+ - bfcca        Generic interface to the CRS batch system. Hopefully
+                more flexible than the preceeding ones, this script
+                should accomodate for all kind of option, chain, 
+                multiple production from the same library version 
+                etc ...
