@@ -12,7 +12,7 @@
 #############################################################################
 
 
-require "/afs/rhic/star/packages/SL99h/cgi/dbOperaSetup.pl";
+require "/afs/rhic/star/packages/DEV00/cgi/dbOperaSetup.pl";
 use CGI;
 use CGI::Carp qw(fatalsToBrowser);
 
