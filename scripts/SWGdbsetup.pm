@@ -1,8 +1,11 @@
 #!/opt/star/bin/perl -w
 #
-# $Id: SWGdbsetup.pm,v 1.1 2001/11/21 20:47:49 jeromel Exp $
+# $Id: SWGdbsetup.pm,v 1.2 2001/11/21 21:09:22 jeromel Exp $
 #
 # $Log: SWGdbsetup.pm,v $
+# Revision 1.2  2001/11/21 21:09:22  jeromel
+# Initially commented, requires group_env. See fix in STAR_SYS.pl to get this to actually work ...
+#
 # Revision 1.1  2001/11/21 20:47:49  jeromel
 # Copied from Wenaus private directory where it was running for ages, those
 # 2 files are 'require'd by swguide.pl . PRefixed with SWG comparing to
@@ -38,11 +41,11 @@
 
 use DBI;
 use File::Basename;
-use lib "/afs/rhic/star/packages/scripts"; # "star/u2d/wenaus/datadb";
+use lib "/afs/rhic/star/packages/scripts"; 
 use lib "/afs/rhic/star/group";
 
 ## STAR environment setup
-#require "group_env.pl";
+require "group_env.pl";
 
 ## Database setup
 $dbhost="duvall.star.bnl.gov";
