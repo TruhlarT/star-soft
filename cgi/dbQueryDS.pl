@@ -29,7 +29,7 @@ my $prodNext;
 &beginHtml();
 
 
-$sql="SELECT DISTINCT dataset FROM $FileCatalogT where jobID <> 'n/a' ";
+$sql="SELECT DISTINCT dataset FROM $FileCatalogT where jobID <> 'n/a' AND type = 'MC_reco' ";
 $cursor =$dbh->prepare($sql)
   || die "Cannot prepare statement: $DBI::errstr\n";
 $cursor->execute;
