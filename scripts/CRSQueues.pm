@@ -205,13 +205,23 @@ sub CRSQ_submit
     my($jfile,$prio,$qnum,$drop)=@_;
     my($res);
 
+    if ( ! -e $jfile){
+	print 
+	    "CRSQ :: File $jfile does not exists. ",
+	    "Cannot submit to queue $qnum\n";
+	0;
+    }
+
     $res = `$SUBMIT $jfile $prio $qnum $drop`;
     $res =~ s/\n//g;
     if( $res =~ m/queue $qnum with priority $prio/){ 
 	1;
     } else {
-	$res =~ m/(queue\s+)(\d+)/;
-	print "CRSQ :: Failed to submit $jfile $qnum -> $2 => [$res]\n";
+	if ( $res =~ m/(queue\s+)(\d+)/ ){
+	    print "CRSQ :: Failed to submit $jfile $qnum -> $2 => [$res]\n";
+	} else {
+	    print "CRSQ :: Failed to submit $jfile $qnum => [$res]\n";
+	}
 	0;
     }
 }
