@@ -11,40 +11,16 @@ use QA_globals;
 use QA_utilities;
 use Db_KeyList_utilities;
 use Browser_object;
+use QA_db_utilities qw(:db_globals); # import db handle and tables
 
 use strict;
 
 use base qw(KeyList_object);
+
+use vars qw(%members);
 1;
 
-#========================================================
-# more members
 
-my %members = ( # cgi parameter names 
-	       select_fields => [ 'eventGen',
-				  'LibLevel',
-				  'platform',
-				  'eventType',
-				  'geometry',
-				  'QAstatus',
-				  'onDisk',
-				  'jobStatus',
-				  'createTime',
-				  'QAdoneTime'
-				],
-	       # labels for user
-	       select_labels => { eventGen  => 'event gen',
-				  LibLevel  => 'library',
-				  platform  => 'platform',
-				  eventType => 'event type',
-				  geometry  => 'geometry',
-				  onDisk    => 'on disk',
-				  QAstatus  => 'QA status',
-				  jobStatus => 'prod job status',
-				  createTime=> 'prod job create time',
-				  QAdoneTime=> 'QA done time'
-				}
-	      );
 
 #========================================================
 
@@ -52,6 +28,41 @@ sub new{
   my $proto     = shift;
   my $classname = ref($proto) || $proto;
   my $self      = $classname->SUPER::new(@_);
+
+  
+  %members = ( # cgi parameter names 
+	      select_fields => [ 'eventGen',
+				 'LibLevel',
+				 'platform',
+				 'eventType',
+				 'geometry',
+				 'QAstatus',
+				 'onDisk',
+				 'jobStatus',
+				 'createTime',
+				 'QAdate'
+			       ],
+	      # labels for user
+	      select_labels => { eventGen  => 'event gen',
+				 LibLevel  => 'library',
+				 platform  => 'platform',
+				 eventType => 'event type',
+				 geometry  => 'geometry',
+				 onDisk    => 'on disk',
+				 QAstatus  => 'QA status',
+				 jobStatus => 'prod job status',
+				 createTime=> 'prod job create time',
+				 QAdate=> 'QA done time'
+			       },
+	      db_fields => {
+			    eventGen => $FileCatalog,
+			    eventType => $FileCatalog,
+			    platform  => $FileCatalog,
+			    LibLevel  => $FileCatalog,
+			    geometry  => $FileCatalog
+			   }
+			    
+	     );
 
   # addmore members
   @{$self}{keys %members} = values %members;
@@ -87,11 +98,9 @@ sub JobPopupMenu{
   my $select_ref = $self->GetSelectionOptions();
   
   # fill some selection values...
-  push @{$self->{values}{eventGen}}, @{$select_ref->{eventGen}};
-  push @{$self->{values}{LibLevel}}, @{$select_ref->{LibLevel}};
-  push @{$self->{values}{platform}}, @{$select_ref->{platform}};
-  push @{$self->{values}{eventType}},@{$select_ref->{eventType}};
-  push @{$self->{values}{geometry}}, @{$select_ref->{geometry}};
+  for my $field (keys %{$self->{db_fields}}){
+    push @{$self->{values}{$field}}, @{$select_ref->{$field}};
+  }
 
   # on disk
   push @{$self->{values}{onDisk}}, ('on disk', 'not on disk');
@@ -100,9 +109,9 @@ sub JobPopupMenu{
   $self->FillJobStatusMenu();
 
   # QA status
-  my @macro_names = @{$select_ref->{macroName}};
+  #my @macro_names = @{$select_ref->{macroName}};
 
-  $self->FillQAStatusMenu(@macro_names);
+  $self->FillQAStatusMenu();
     
   # job createTime
   $self->FillJobCreateTimeMenu();
@@ -117,7 +126,7 @@ sub JobPopupMenu{
   $self->{defaults}{onDisk}     = 'on disk';
   $self->{defaults}{QAstatus}   = 'done';
   #$self->{defaults}{createTime} = 'seven_days';
-  $self->{defaults}{QAdoneTime} = 'seven_days';
+  $self->{defaults}{QAdate} = 'seven_days';
 
   my $submit_string = br.$gCGIquery->submit('Display datasets');
 
@@ -141,7 +150,7 @@ sub JobPopupMenu{
 			      ,'geometry'
 			      ,'onDisk'
 			      ,'createTime'
-			      ,'QAdoneTime'
+			      ,'QAdate'
 			     )
 	                      ,$submit_string
 	])
@@ -185,14 +194,11 @@ sub new{
 
 #----------
 
-sub GetSelectionOptions{
+sub GetSelectionOptionsFromDb{
   my $self = shift;
   
-  my $menuRef = $self->GetSelectionOptionsStorable();
-
-  if(!defined $menuRef){
-    return Db_KeyList_utilities::GetNightlySelectionsMC();
-  }
+  return Db_KeyList_utilities::GetNightlySelectionsMC($self->{db_fields});
+  
 }
 
 #----------
@@ -226,14 +232,11 @@ sub new{
 
 #----------
 
-sub GetSelectionOptions{
+sub GetSelectionOptionsFromDb{
   my $self = shift;
   
-  my $menuRef = $self->GetSelectionOptionsStorable();
-
-  if(!defined $menuRef){
-    return Db_KeyList_utilities::GetNightlySelectionsReal();
-  }
+  return Db_KeyList_utilities::GetNightlySelectionsReal($self->{db_fields});
+  
 }
 #----------
 sub GetSelectedKeysFromDb{

@@ -46,6 +46,7 @@ use vars qw( $AUTOLOAD
 # define registered data classes for offline and online
 
 my @data_class_array_offline = qw ( offline_real
+				    offline_fast
 				    offline_MC
 				    nightly_real
 				    nightly_MC
@@ -54,6 +55,7 @@ my @data_class_array_offline = qw ( offline_real
 
 my %data_class_labels_offline = (offline_real  => 'Real Data Production',
 				 offline_MC    => 'MC Data Production',
+				 offline_fast  => 'Fast Real Data Production',
 				 nightly_real  => 'Real Data Nightly Tests',
 				 nightly_MC    => 'MC Data Nightly Tests',
 				 debug         => 'debug');
@@ -114,6 +116,7 @@ for my $attr ( qw (
 		   MySQLHost
 		   dbFile
 		   FileCatalog
+		   joinField
 		   JobStatus
 		   ProdOptions
 		   JobRelations
@@ -305,6 +308,7 @@ sub offline_real{
   $self->ProdOptions("ProdOptions");
   $self->JobRelations("jobRelations");
   $self->dbQA("prod_QA");
+  $self->joinField("jobID");
   
   # for updating from DB
   $self->UpdateRoutine("Db_update_utilities::UpdateQAOfflineReal");
@@ -315,10 +319,57 @@ sub offline_real{
   # get todo QA keys
   $self->ToDoKeys("Db_update_utilities::GetToDoReportKeysReal");
 
+
   # browser banner for interactive display
   $self->BrowserBannerColor("red");
   $self->BrowserBannerTextColor("darkblue");
   $self->BrowserBannerLabel("Real Data Production");
+
+}
+#========================================================
+sub offline_fast{
+
+  my $self = shift;
+  @_ and my @args = @_;
+  #------------------------------------------------------
+
+  my $home = $self->Home();
+
+  $self->TopDir("$home/offline_fast");
+  $self->TopDirWWW("http://connery.star.bnl.gov/~starqa/qa");
+
+  $self->StandardDirectories();
+  
+  # objects to create
+  $self->KeyList_obj("KeyList_object_offline_fast");
+  $self->QA_obj("QA_object_offline_fast");
+
+  # database stuff
+  $self->dbFile("operation");
+  
+  # this stuff is meaningless
+  $self->FileCatalog("DAQInfo");
+  $self->JobStatus("JobStatus");
+  $self->ProdOptions("ProdOptions");
+  $self->JobRelations("jobRelations");
+  $self->joinField("file");
+
+  $self->dbQA("offline_fast_QA");
+  
+  # for updating from DB
+  $self->UpdateRoutine("Db_update_utilities::UpdateQAOfflineFast");
+
+  # get old reports
+  $self->GetOldReports("QA_db_utilities::GetOldReports");
+
+  # get todo QA keys
+  $self->ToDoKeys("Db_update_utilities::GetToDoReportKeys");
+
+
+  # browser banner for interactive display
+  $self->BrowserBannerColor("red");
+  $self->BrowserBannerTextColor("darkblue");
+  $self->BrowserBannerLabel("Fast Real Data Production");
 
 }
 #========================================================
@@ -345,6 +396,7 @@ sub offline_MC{
   $self->JobStatus("JobStatus");
   $self->ProdOptions("ProdOptions");
   $self->JobRelations("jobRelations");
+  $self->joinField("jobID");
   $self->dbQA("prod_QA");
     
   # for updating from DB
@@ -355,6 +407,7 @@ sub offline_MC{
   
   # get todo QA keys
   $self->ToDoKeys("Db_update_utilities::GetToDoReportKeysMC");
+
 
   # browser banner for interactive display
   $self->BrowserBannerColor("red");
@@ -384,6 +437,7 @@ sub nightly_real{
   $self->dbFile("TestJobs");
   $self->FileCatalog("FilesCatalog");
   $self->JobStatus("JobStatus");
+  $self->joinField("jobID");
   $self->dbQA("nightly_QA");
   
   # for updating from DB
@@ -395,6 +449,7 @@ sub nightly_real{
 
   # get todo QA keys 
   $self->ToDoKeys("Db_update_utilities::GetToDoReportKeysReal");
+
 
   # browser banner for interactive display
   $self->BrowserBannerColor("red");
@@ -422,6 +477,7 @@ sub nightly_MC{
   $self->dbFile("TestJobs");
   $self->FileCatalog("FilesCatalog");
   $self->JobStatus("JobStatus");
+  $self->joinField("jobID");
   $self->dbQA("nightly_QA");
   
   # for updating from DB
@@ -433,6 +489,7 @@ sub nightly_MC{
 
   # get todo QA keys
   $self->ToDoKeys("Db_update_utilities::GetToDoReportKeysMC");
+
 
   # browser banner for interactive display
   $self->BrowserBannerColor("red");
@@ -460,6 +517,7 @@ sub debug{
   $self->dbFile("TestJobs");
   $self->FileCatalog("FilesCatalog");
   $self->JobStatus("JobStatus");
+  $self->joinField("jobID");
   $self->dbQA("debug_QA");
  
 
@@ -472,6 +530,7 @@ sub debug{
 
   # get todo QA keys
   $self->ToDoKeys("Db_update_utilities::GetToDoReportKeysMC");
+
 
   # browser banner for interactive display
   $self->BrowserBannerColor("silver");

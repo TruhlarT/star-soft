@@ -29,7 +29,9 @@ my %members = (
 	        _EventGenDetails  => undef, # more info on the generator
 	        _CollisionType    => undef, # e.g. auau200
 	        _Dataset          => undef,
-	        _Redone           => undef
+	        _Redone           => undef,
+	        _FirstEventDone   => undef, # used for offline real...
+		_LastEventDone    => undef # used for offline real...
 	      );
 
 #=========================================================
@@ -40,7 +42,7 @@ sub new{
 
   defined $self or return; # get out if something went wrong
 
-   $classname eq __PACKAGE__ and 
+  $classname eq __PACKAGE__ and 
     die __PACKAGE__, " is virtual";
 
   if (defined %members){
@@ -69,13 +71,13 @@ sub _init_offline{
 
   # get prod series, chain name, lib version, and chain options
   
-  my ($prodSeries, $chainName, $lib, $chain) 
-    = QA_db_utilities::GetProdOptions($self->JobID);
+#  my ($prodSeries, $chainName, $lib, $chain) 
+#    = QA_db_utilities::GetProdOptions($self->JobID);
   
-  $self->ProdSeries($prodSeries);
-  $self->ChainName($chainName);
-  $self->StarlibVersion($lib);
-  $self->RequestedChain($chain);
+  $self->ProdSeries(QA_db_utilities::GetFromJobStatus('prodSeries',$self->JobID));
+  $self->ChainName("?");
+  $self->StarlibVersion($self->StarLevel());
+  #$self->RequestedChain($chain);
 
 }
   
@@ -100,51 +102,69 @@ sub ParseLogfile{
 
   # change the logfile to the summary of the log file
 
-  (my $sumfile = $logfile) =~ s|/log/|/sum/|g; # change the path
-  $sumfile =~ s/\.log$/\.sum/;                 # change extension
+  my $fh = FileHandle->new($logfile,"r");
+  if(!defined $fh){
+    print "Cannot find the log file $logfile<br>\n";
+    $logfile =~ s|/log/|/log_old/|;
+    print "Will try parsing the logfile: $logfile<br>\n";
+    $fh = FileHandle->new($logfile,"r") or do{
+      print "I give up. Cannot find $logfile :$!<br>\n";
+      return;
+      };
+  }
+  print "Found logfile $logfile<br>\n";
 
-  my $fh_sum = FileHandle->new( $sumfile, "r" ) or return;
-
-  print "Found summary of logfile $sumfile\n" , br;
-
-  # read the log file (actually summary of the log file)
-  
-  while (defined (my $line = $fh_sum->getline )) {
+  # read the log file 
+  my $startoptions=0;
+  while (defined (my $line = $fh->getline )) {
 
     # start time  
     if ($line =~ /Starting job execution at (.*?)on/){
-      $self->{_JobStartTimeAndDate} = $1;
+      my $value=$1;
+      $self->JobStartTimeAndDate($value);
       next;
     }
 
-    # star level - e.g. new
-    if ($line =~ /STAR_LEVEL : (\w+)/ ) {
-      $self->{_StarLevel} = $1; next;
+    # star level and root level
+    if ($line =~ /STAR_LEVEL\s+:\s+(\w+),.*?:\s+([\d\.]+)/) {
+      my $star=$1; my $root=$2;
+      $self->StarLevel($star); $self->RootLevel($root);
+      next;
     }
-
-    # root level - e.g. 2.23.12
-    if ($line =~ /ROOT_LEVEL : ([\d\.]+)/ ) {
-      $self->{_RootLevel} =  $1; next;
-    }
-							  
-    # run options - e.g. StDbT is ON - more than one line
-    if ( $line =~ /^QAInfo: =====/ ){
-      $line =~ s/QAInfo://;  # get rid of leading QAInfo
-      my $run_option = $self->RunOptions;
-      if ( not $run_option ){ $self->RunOptions("\n")}
-      else { $self->RunOptions($run_option.$line) }
+			
+    # requested chain
+    if(!$startoptions and $line =~ /Requested chain bfc is\s+:\s+([^\.]+)/){
+      my $value = $1; $self->RequestedChain($value);
       next;
     }
 
+    # run options ++ 
+    if($line =~ /StMessageManager message summary/ ){ 
+      $startoptions=1;
+      next;
+    }
+    if($startoptions and $line=~ /^QAInfo:\s+==/){
+      $line =~ s/QAInfo://;
+      my $opt = $self->RunOptions;
+      if(!$opt){ $self->RunOptions("\n");}
+      else { $self->RunOptions($opt.$line); }
+      next;
+    }
+    if($startoptions and $line !~ /^QAInfo:/){
+      $startoptions=0;
+      next;
+    }
+      
     # first and last event requested 
     # only good for offline MC
     # offline real overwrites these with undef
 
     if ($line =~ /^QAInfo:\s*Process/){
       $line =~ /First=\s+(\d+)\/Last=\s+(\d+)\/Total=\s+(\d+)/;
-      $self->{_FirstEventRequested} = $1;
-      $self->{_LastEventRequested}  = $2;
-      $self->{_NEventRequested} = $3;
+      my $first=$1; my $last=$2; my $n=$3;
+      $self->FirstEventRequested($first);
+      $self->LastEventRequested($last);
+      $self->NEventRequested($n);
       next;
     }
 
@@ -154,11 +174,21 @@ sub ParseLogfile{
     }
 
     # timing string - more than one line
-    if ( $line =~/Real Time/ ){
-      my $timing = $self->TimingString;
-      $self->TimingString($timing.$line);
+    $line !~ /Done with Event/ and $line =~ /Real Time =/ and do{
+      $line =~ s/QAInfo://;
+      my $divider = "*" x 100 . "\n";
+      my $timing_string = $self->TimingString();
+      ! defined($timing_string) and $timing_string = "\n";
+      if ( $line =~ /bfc/ ){
+	$timing_string .= $divider.$line.$divider;
+      }
+      else{
+	$timing_string .= $line;
+      }
+      $self->TimingString($timing_string);
+
       next;
-    }
+    };
   }
   
   # deduce the error file
@@ -168,7 +198,6 @@ sub ParseLogfile{
 
   if (defined $fh_error)
   {
-
     # init StWarning and StError files
     my $io_warn = new IO_object("StWarningFile",$self->ReportKey);
     my $io_err  = new IO_object("StErrorFile",$self->ReportKey);
@@ -177,14 +206,15 @@ sub ParseLogfile{
     my $FH_ERR   = $io_err->Open(">", "0664");
  
     # print to StError and StWarning file
-    while( my $line = <$fh_error> ){
-      print $FH_ERR  $line if $line =~ /StError:/;
-      print $FH_WARN $line if $line =~ /StWarning:/;
-
-    }
-    close $FH_ERR; close $FH_WARN;
-  } 
-
+    if($FH_WARN and $FH_ERR){
+      while( my $line = <$fh_error> ){
+	print $FH_ERR  $line if $line =~ /StError:/;
+	print $FH_WARN $line if $line =~ /StWarning:/;
+	
+      }
+      close $FH_ERR; close $FH_WARN;
+    } 
+  }
   return 1;
 }
 #----------
@@ -243,6 +273,7 @@ sub new{
   my $classname = shift;
   my $self      = $classname->SUPER::new(@_);  
   #bless($self,$classname);
+  defined $self or return;
 
   $self->offline_MC();
 
@@ -254,7 +285,7 @@ sub GetMissingFiles{
   my $self  =  shift;
   my $jobID =  shift;
 
-  return QA_db_utilities::GetMissingFilesMC($jobID);
+  return QA_db_utilities::GetMissingFiles($jobID,1,1);
 
 }
 
@@ -290,6 +321,7 @@ sub new{
   my $classname = shift;
   my $self      = $classname->SUPER::new(@_);  
   #bless($self,$classname);
+  defined $self or return;
 
   $self->offline_real();
 
@@ -302,7 +334,7 @@ sub GetMissingFiles{
   my $self  =  shift;
   my $jobID =  shift;
 
-  return QA_db_utilities::GetMissingFilesReal($jobID);
+  return QA_db_utilities::GetMissingFiles($jobID,0,1);
 
 }
 

@@ -35,6 +35,7 @@ use Batch_utilities;
 use QA_object_nightly;
 use QA_object_offline;
 use QA_object_online;
+use QA_object_offline_fast;
 
 use DataClass_object;
 use Db_update_utilities;

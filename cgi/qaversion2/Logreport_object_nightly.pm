@@ -17,7 +17,11 @@ use base qw(Logreport_object);
 #=======================================================o===
 # more members
 
-my %members = ();
+my %members = (
+	       _EventGen            => undef, #  
+	       _EventType           => undef, # 
+	       _Geometry            => undef  # 
+	      );
 
 #==========================================================
 sub new{
@@ -94,28 +98,22 @@ sub ParseLogfile {
   # read the log file
   while (defined (my $line = $fh->getline )) {
 
+    if($line =~ /StMessageManager message summary/ ){ 
+      $record_run_options=1;
+      next;
+    }
+
+    if($record_run_options and $line !~ /^QAInfo:/){
+      $record_run_options=0;
+      next;
+    }
+
     next unless $line =~ /^QAInfo:|^StWarning:|^StError/;
      
-    # start recording of run options
-    $line =~ /Requested chain/ and do{
-      $record_run_options = 1;
-      $self->RunOptions("\n");
-      next;
-    };
-    
-    # turn off recording of run options?
-    $record_run_options and $line !~ /=======/ and $record_run_options = 0;
-    
-    # retrieve run options
-    $record_run_options and do {
-      $line =~ s/QAInfo://;
-      $self->{_RunOptions} .= $line;
-      next;
-    };
-    
     # get input file name
     $line =~ /Input file name = (\S+)/ and do {
-      $self->{_InputFn} = $1; # dont know why..
+      my $value=$1;
+      $self->InputFn($value); # dont know why..
       next;
     };
         
@@ -125,7 +123,16 @@ sub ParseLogfile {
       $self->JobStartTimeAndDate($datetime);
       next;
     };
-        
+
+    # runopts
+    if($record_run_options and $line=~ /^QAInfo:\s+==/){
+      $line =~ s/QAInfo://;
+      my $opt = $self->RunOptions;
+      if(!$opt){ $self->RunOptions("\n");}
+      else { $self->RunOptions($opt.$line); }
+      next;
+    }
+    
     # get timing strings
     $line !~ /Done with Event/ and $line =~ /Real Time =/ and do{
       $line =~ s/QAInfo://;
@@ -144,13 +151,13 @@ sub ParseLogfile {
     };
 
     # StError ?
-    print $FH_ERR $line  if $line =~ /^StError:/;
+    print $FH_ERR $line  if ($line =~ /^StError:/ and $FH_ERR);
 
     # StWarning ?    
-    print $FH_WARN $line if $line =~ /^StWarning:/;
+    print $FH_WARN $line if ($line =~ /^StWarning:/ and $FH_WARN);
   }
 
-  close $FH_ERR;  close $FH_WARN;
+  undef $io_err; undef $io_warn;
   
   return 1;
 }
@@ -221,7 +228,7 @@ sub new{
   my $classname = shift;
   my $self      = $classname->SUPER::new(@_);  
   #bless($self,$classname);
-
+  defined $self or return;
   return $self;
 }
 
@@ -231,7 +238,7 @@ sub GetMissingFiles{
   my $self  =  shift;
   my $jobID =  shift;
 
-  return QA_db_utilities::GetMissingFilesMC($jobID);
+  return QA_db_utilities::GetMissingFiles($jobID,1,0);
 
 }
 
@@ -249,6 +256,7 @@ sub new{
   my $classname = shift;
   my $self      = $classname->SUPER::new(@_);  
   #bless($self,$classname);
+  defined $self or return;
 
   return $self;
 }
@@ -259,7 +267,7 @@ sub GetMissingFiles{
   my $self  =  shift;
   my $jobID =  shift;
 
-  return QA_db_utilities::GetMissingFilesReal($jobID);
+  return QA_db_utilities::GetMissingFiles($jobID,0,0);
 
 }
 

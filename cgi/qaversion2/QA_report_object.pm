@@ -438,24 +438,13 @@ sub GZipIt{
   # then it also writes out files of the form "StEventLM.ps", for 
   # low multiplicity, etc.
 
-  # it's probably sufficient just to grab all ps files,
-  # but for now, it only grabs the ps files similar to 
-  # the original output of the macro
-
-  if ($self->MacroName eq 'bfcread_dst_EventQAhist' &&
-      $gDataClass_object->DataClass() =~ /real/ ){
-    # strip off .ps
-    (my $label = basename $outputFile) =~ s/\.ps$//;
-
-    # now find the file names that are similar
-    my $io     = new IO_object("ReportDir",$self->ReportKey);
-    my $dir    = $io->Name();
-    my $DH     = $io->Open();
-    @outputAry = map{ "$dir/$_"} grep { /$label\w{0,2}\.ps$/ } readdir $DH;
-    undef $io;
-  }
-  else { @outputAry = ($outputFile); } # just one output file
-
+  # gzip everything in the directory
+  
+  my $io     = new IO_object("ReportDir",$self->ReportKey);
+  my $dir    = $io->Name();
+  my $DH     = $io->Open();
+  @outputAry = map{ "$dir/$_"} grep { /\.ps$/ } readdir $DH;
+  
   foreach my $outfile ( @outputAry ){
     print h4("gzipping file $outfile...\n");
 
@@ -544,7 +533,8 @@ sub EvaluateMacro{
   my $macro_name = $self->MacroName;
   unless ( -s $self->IOMacroReportFilename->Name ) {
     print h3("Did not do evaluation for $macro_name because\n",
-	     "the macro was never run.\n");
+	     "i cant find the output or the size is zero for",
+	     $self->IOMacroReportFilename->Name(),"\n<br>");
     return;
   }
   # evaluate and write the evaluation file to disk

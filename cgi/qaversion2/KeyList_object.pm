@@ -14,20 +14,12 @@ use CGI qw/:standard :html3/;
 use QA_globals;
 use Storable;
 use IO_object;
+
 use DataClass_object;
 
 use strict;
 #--------------------------------------------------------
 1;
-# for the reader's benefit
-my %members = ( _SelectionRef       => undef,
-		_SelectedKeyListRef => [],
-		_KeyListRef         => [],
-		_NKeys              => undef
-		);
-# there are also a bunch of members related to 
-# the CGI forms... see the derived classes for details.
-
 #========================================================
 # used from browser
 
@@ -40,6 +32,7 @@ sub new{
 
   my $self      = {};
 
+
   bless ($self, $classname);
 
   # initialize
@@ -47,21 +40,41 @@ sub new{
 
   return $self;
 }
-#========================================================
+#----------
 sub _init{
   my $self = shift;
 }
-#========================================================
+#----------
 # get the possible values for various fields from disk
 # for selecting a particular job.
 # if something is funky, gets it from the db.
+# mode 0 : try disk first
+#      1 : just from db
 
 sub GetSelectionOptions{
   my $self = shift;
-
-  print "Defined in derived classes\n";
+  my $mode = shift ||0;
+  
+  if($mode){
+    return $self->GetSelectionOptionsFromDb();
+  }
+  else{
+    my $menuRef = $self->GetSelectionOptionsStorable();
+    if(defined $menuRef){
+      return $menuRef;
+    }
+    else{
+      return $self->GetSelectionOptionsFromDb();
+    }
+  }
 }
-#========================================================
+#----------
+sub GetSelectionOptionsFromDb{
+  my $self=shift;
+  print "Derived\n";
+}
+
+#----------
 # for quicker service, try getting the menu options from disk
 
 sub GetSelectionOptionsStorable{
@@ -80,7 +93,7 @@ sub GetSelectionOptionsStorable{
 }
 
 
-#========================================================
+#----------
 # popup menu for selecting jobs
 # overridden
 
@@ -88,17 +101,22 @@ sub JobPopupMenu{
   my $self = shift;
 
 }
-#========================================================
-# returns an array of cgi values according to the popup menu
+#----------
+# returns an hash of cgi values selected by the user
 # 
 
 sub SelectedParameters{
   my $self = shift;
 
-  return map { $gCGIquery->param($_) } @{$self->{select_fields}};
+  my $hash;
+  @{$hash}{@{$self->{select_fields}}} = 
+    map { $gCGIquery->param($_) } @{$self->{select_fields}};
+  
+  return $hash;
+  
 }
 
-#========================================================
+#----------
 # retrieves the selected keys from the database
 # according to the SelectedParameters
 
@@ -108,7 +126,7 @@ sub GetSelectedKeysFromDb{
   print "blah\n";
 }
 
-#========================================================
+#----------
 # returns a list of keys (jobs) according to the selection
 # options select by the client.
 # also makes the QA objects
@@ -134,9 +152,7 @@ sub GetSelectedKeyList{
 
 }
 
-
-
-#=========================================================
+#----------
    
 sub AddMessagesToKeyList{
   my $self = shift;
@@ -181,7 +197,7 @@ sub AddMessagesToKeyList{
   return $self->KeyList;
  
 }
-#===================================================================
+#----------
 
 sub FillQAStatusMenu{
   my $self        = shift;
@@ -222,7 +238,7 @@ sub FillQAStatusMenu{
     }
   }
 }
-#==================================================================
+#----------
 
 sub FillJobStatusMenu{
   my $self        = shift;
@@ -232,7 +248,7 @@ sub FillJobStatusMenu{
   push @{$self->{values}{jobStatus}}, ('done','not done');
 }
 
-#==================================================================
+#----------
 
 sub FillJobCreateTimeMenu{
   my $self        = shift;
@@ -247,22 +263,22 @@ sub FillJobCreateTimeMenu{
   $self->{labels}{createTime}{fourteen_days} = 'within last 14 days';
 }
 
-#==================================================================
+#----------
 
 sub FillQADoneTimeMenu{
   my $self        = shift;
   no strict 'refs';
 
-  push @{$self->{values}{QAdoneTime}}, ('one_day', 'three_days','seven_days', 'fourteen_days');
+  push @{$self->{values}{QAdate}}, ('one_day', 'three_days','seven_days', 'fourteen_days');
 
-  $self->{labels}{QAdoneTime}{one_day} = 'within last 24 hours';  
-  $self->{labels}{QAdoneTime}{three_days} = 'within last 3 days';
-  $self->{labels}{QAdoneTime}{seven_days} = 'within last 7 days';
-  $self->{labels}{QAdoneTime}{fourteen_days} = 'within last 14 days';
+  $self->{labels}{QAdate}{one_day} = 'within last 24 hours';  
+  $self->{labels}{QAdate}{three_days} = 'within last 3 days';
+  $self->{labels}{QAdate}{seven_days} = 'within last 7 days';
+  $self->{labels}{QAdate}{fourteen_days} = 'within last 14 days';
 
 }
 
-#==================================================================
+#----------
 # make a table row of popup menus
 # uses ben's clever mapping technique
 # returns an array
@@ -283,7 +299,25 @@ sub GetRowOfMenus{
                     
 }
   
-#==================================================================
+#----------
+
+sub TableString{
+  my $self = shift;
+  my @rows = @_;
+
+  my $script_name   = $gCGIquery->script_name;
+  my $hidden_string = $gBrowser_object->Hidden->Parameters;
+
+  return 
+    $gCGIquery->startform(-action=>"$script_name/upper_display",
+			  -TARGET=>"list").
+    table({-align=>'left'}, Tr({-valign=>'top'}, \@rows  )).
+    $hidden_string.
+    $gCGIquery->endform;
+    
+}
+
+#----------
 sub NKeys{
   
   my $self = shift;
@@ -291,7 +325,7 @@ sub NKeys{
   return $self->{_NKeys};
 }
 
-#=======================================================
+#----------
 # an array containing active keys
 # used to include the messages keys as well
 

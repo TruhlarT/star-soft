@@ -37,9 +37,7 @@ my %members = ( _ReportKey           => undef, # identifies job for disk
 		_FirstEventRequested => undef,
 		_LastEventRequested  => undef,
 		_NEventRequested     => undef,
-		_NEventDone          => undef, # really processed
-		_FirstEventDone      => undef, # used for offline real...
-		_LastEventDone       => undef, # used for offline real...
+		_NEventDone          => undef, # really processed	
 		_NoEventSkipped      => undef, # not written to dst
 		_OutputFn            => undef, 
 		_JobStartTimeAndDate => undef,
@@ -53,14 +51,9 @@ my %members = ( _ReportKey           => undef, # identifies job for disk
 		_JobStatus           => undef,
 		_WarningFile         => undef,
 		_ErrorFile           => undef,
-		_EventGen            => undef, #
-	        _EventType           => undef, #
-	        _Geometry            => undef, #
 		_ProductionFileListRef => undef, # ref to an array
 		_MemoryFile          => undef,
 		_MemoryListRef       => undef, # ref to an array
-		_IOStErrorFile       => undef,
-		_IOStWarningFile     => undef  
 	      );
 #========================================================
 sub new{
@@ -92,17 +85,19 @@ sub _init{
   my $self       = shift;
   my $report_key = shift;
  
-  print h4("Making logfile report for $report_key...\n");
-
   # check for report key
   defined $report_key or die __PACKAGE__, " needs a report key";
 
+  print h4("Making logfile report for $report_key...\n");
+  
   # get and set some members
   $self->ReportKey($report_key);
  
   # initialize the IDs from the db
-  $self->InitIDs() or return;
-
+  $self->InitIDs() or do{
+    print "Cannot initialize ids in db\n";
+    return;
+  };
   # get the log file
   my $logfile = $self->GetLogFile();  
   $self->LogfileName($logfile);
@@ -258,38 +253,44 @@ sub DisplayLogReport {
     <br> Report for logfile $self->{_LogfileName} <br> 
     $divider
     <br>
-    <pre>
-    STAR Level = $self->{_StarLevel}
-    ROOT Level = $self->{_RootLevel}
+    STAR Level = $self->{_StarLevel}<br>
+    ROOT Level = $self->{_RootLevel}<br>
     STARLIB version = $self->{_StarlibVersion}<br>
-    Chain = $self->{_RequestedChain}
-    Input filename = $self->{_InputFn} 
-    Output directory = $self->{_OutputDirectory} 
-    Start date/time = $self->{_JobStartTimeAndDate} 
-    Nevents requested = $self->{_NEventRequested}
-    First event requested = $self->{_FirstEventRequested}
-    Last event requested = $self->{_LastEventRequested}
-    Nevents processed = $self->{_NEventDone}
-    Finish date/time = $self->{_JobCompletionTimeAndDate}
-    Machine name = $self->{_Machine}
-    Job status = $self->{_JobStatus}
+    Chain requested = $self->{_RequestedChain}<br>
+    Input filename = $self->{_InputFn} <br>
+    Output directory = $self->{_OutputDirectory}<br> 
+    Start date/time = $self->{_JobStartTimeAndDate}<br>
   };
-  print "Production Files :\n";
+  if($self->NEventRequested){
+    print qq{Nevents requested = $self->{_NEventRequested}<br>
+	     First event requested = $self->{_FirstEventRequested}<br>
+	     Last event requested = $self->{_LastEventRequested}<br>
+	     Nevents processed = $self->{_NEventDone}<br>
+	   };
+  }
+  else{
+    print qq{First event done = $self->{_FirstEventDone}<br>
+	     Last event done = $self->{_LastEventDone}<br>
+	     NEvents done = $self->{_NEventDone}<br>
+	   };
+  }
+  print "Production Files :<br>\n";
 
-  print join "\n", @{$self->{_ProductionFileListRef}};
-  print "\n";
+  print join "<br>\n", @{$self->{_ProductionFileListRef}};
+  print "<br>\n";
   # error?
   defined ($self->{_ErrorString}) and
-    print "Error found: $self->{_ErrorString}\n";
+    print "Error found: $self->{_ErrorString}<br>\n";
 
   # run options
+  print "<pre>\n";
   print "$divider Run options = $self->{_RunOptions}\n";
 
   # final timing
   $self->{_JobStatus} =~ /^[dD]one/ and  
     print "$divider Final timing $self->{_TimingString}\n";
-
-  print "$divider </pre>\n";
+  print "</pre>";
+  print "$divider <br>\n";
 
 }
 #----------

@@ -15,6 +15,10 @@ use QA_globals;
 use POSIX qw(strftime);
 use QA_db_utilities qw(:db_globals); # import db handle and tables
 
+use KeyList_object_offline;
+use KeyList_object_offline_fast;
+use KeyList_object_nightly;
+
 use strict qw(vars subs);
 use vars qw($selectLimit);
 
@@ -23,104 +27,99 @@ $selectLimit = 500; # limit in retrieving report keys
 1;
 #===================================================================
 # get values for dataset selection menu for offline db
-# argument is real or MC
+# argument is 'real' or 'MC'
 
 sub GetOfflineSelections{
-  my $argument = shift;      # real or MC
-
+  my $arg = shift;      # real or MC
+  my $inhash = shift;
+ 
+  my $hashref;
   my $now = time;
-  my $hashref;               # stores all the selections
-  my ($fileType, %query);
+  my ($fileType);
 
-  if ($argument eq 'real'){
-    $fileType = 'real';
-  }
-  elsif ( $argument eq 'MC' ){
-    $fileType = 'MC';
-  }
-  else { die "Wrong argument" }
+  die "Wrong argument $arg" unless ($arg eq 'real' || $arg eq 'MC');
+
+  $fileType = $arg;
   
   # library selections
 
-  my $queryLibrary = qq{select distinct job.prodSeries, job.chainName
-			 from $dbFile.$JobStatus as job,
-			      $dbQA.$QASum{Table} as s
-			 where job.jobID       = s.$QASum{jobID} and
-			       s.$QASum{type} = '$fileType'
-			 order by job.prodSeries asc};
-     
-
-  # run id
-  $query{runID} = QueryOffline('runID',$fileType,'desc');
-  
-  # dataset 
-  $query{dataset} = QueryOffline('dataset',$fileType);
-
-  # QA macros
-#  $query{macroName} = qq{select distinct m.$QAMacros{macroName}
-#		       from $dbQA.$QAMacros{Table} as m,
-#		            $dbQA.$QASum{Table} as s
-#		       where 
-#		            m.$QAMacros{qaID} = s.$QASum{qaID} and
-#		            m.$QAMacros{extension}!='ps' and
-#		            m.$QAMacros{extension}!='ps.gz' and
-#		            s.$QASum{type}     = '$fileType'           
-#		       order by m.$QAMacros{macroName} asc};
-
   my $sth;
 
-  # get prodOptions - this is different from the others.
-  $sth = $dbh->prepare($queryLibrary);
-  $sth->execute;
-
-  while (my ($prodSeries, $chainName) = $sth->fetchrow_array) {
-    push( @{$hashref->{prodOptions}->{$prodSeries}}, $chainName );
-  }
-
-  # more stuff
-  foreach my $field (keys %query){    
-    $hashref->{$field} = $dbh->selectcol_arrayref($query{$field});
+  foreach my $field (keys %{$inhash}){
+    my $table = $inhash->{$field};
+    my $query = QueryOffline($field,$fileType,$table);
+    $hashref->{$field} = $dbh->selectcol_arrayref($query);
   }
   
   return $hashref;
 			 
 } 
-#========================================================================
+#----------
+
 sub QueryOffline{
   my $field     = shift;
   my $fileType  = shift;
+  my $table     = shift;
   my $order     = shift || 'desc';
 
-  return qq{select distinct file.$field
-	    from $dbFile.$FileCatalog as file,
+  return qq{select distinct f.$field
+	    from $dbFile.$table as f,
 	          $dbQA.$QASum{Table} as s
-	    where file.jobID = s.$QASum{jobID} and
+	    where f.jobID = s.$QASum{jobID} and
 	          s.$QASum{type} = '$fileType'
-	    order by file.$field $order};
+	    order by f.$field $order};
 }
-#========================================================================
+#----------
 # get values for dataset selection menu for offline real
 
 sub GetOfflineSelectionsReal{
-  return GetOfflineSelections('real');
+  return GetOfflineSelections('real',@_);
 }
 
-#========================================================================
+#----------
 # get values for dataset selection menu for offline MC
 
 sub GetOfflineSelectionsMC{
-  return GetOfflineSelections('MC');
+  return GetOfflineSelections('MC',@_);
 }
+#----------
 
-#========================================================================
+sub GetOfflineSelectionsFast{
+  my $inhash = shift;
+  my $hashref;
+
+  sub QueryOfflineFast{
+    my $field = shift;
+
+    return qq{select distinct daq.$field
+	      from $dbFile.$DAQInfo{Table} as daq,
+		   $dbQA.$QASum{Table} as qa
+	      where daq.$DAQInfo{file} = qa.$QASum{jobID} 
+	      order by daq.$field desc
+	    };
+  }
+
+  foreach my $field (keys %{$inhash}){    
+    my $query = QueryOfflineFast($field);
+    #print $query,"\n";
+    $hashref->{$field} = $dbh->selectcol_arrayref($query);
+  }
+  
+  return $hashref;
+			 
+} 
+
+
+#----------
 # get values for dataset selection menu for nightly tests
 # see KeyList_object
 
 sub GetNightlySelections{
   my $dataType = shift; # real or MC
+  my $inhash      = shift;
 
   my $now = time;
-  my (%query, $fileType, $where_string);
+  my ($fileType, $where_string);
 
   # different queries for different class of data
   # for real data we have 'daq' and maybe later 'cosmics'
@@ -144,13 +143,6 @@ sub GetNightlySelections{
   }
   else {die "Wrong data type $dataType"};
 
-  # other queries...
-  $query{eventGen}  = QueryNightly('eventGen', $where_string);
-  $query{eventType} = QueryNightly('eventType', $where_string);
-  $query{platform}  = QueryNightly('platform', $where_string);
-  $query{LibLevel}  = QueryNightly('LibLevel', $where_string);
-  $query{geometry}  = QueryNightly('geometry', $where_string); 
-
 #  $query{macroName} = qq{select distinct m.$QAMacros{macroName}
 #			  from $dbQA.$QAMacros{Table} as m,
 #			       $dbQA.$QASum{Table} as s
@@ -162,16 +154,17 @@ sub GetNightlySelections{
 #			  order by m.$QAMacros{macroName} asc};
 
 
-  my ($hashref, $value, $sth);
+  my ($hashref, $value);
 
   # get the possible values
-  foreach my $field (keys %query){
-    $hashref->{$field} = $dbh->selectcol_arrayref($query{$field});
+  foreach my $field (keys %{$inhash}){
+    my $query = QueryNightly($field,$where_string);
+    $hashref->{$field} = $dbh->selectcol_arrayref($query);
   }
 
   return $hashref;
 }
-#========================================================================
+#----------
 sub QueryNightly{
   my $field = shift;
   my $where_string = shift if defined @_;
@@ -182,36 +175,42 @@ sub QueryNightly{
 	          $field !='n/a'
 	    order by $field};
 }
-#========================================================================
+#----------
 # get possible values for dataset selection menu for real nightly tests
 # 
 
 sub GetNightlySelectionsReal{
-  return GetNightlySelections('real');
+  return GetNightlySelections('real',@_);
 }
 
-#========================================================================
+#----------
 # get possible values for dataset selection menu for MC nightly tests
 # 
 
 sub GetNightlySelectionsMC{
-  return GetNightlySelections('MC');
+  return GetNightlySelections('MC',@_);
 }
 
-#=======================================================================
+#----------
 # get the QA report keys according to selection query
-# see KeyList_object
+# see KeyList_object_offline $self->{select_fields} for the keys.
 
 sub GetOfflineKeys{
-  my $dataType     = shift; # real or MC
-  my $prodOptions   = shift; # e.g. "$prodSeries;$chainName"
-  my $runID         = shift; # e.g. 124
-  my $QAstatus_arg  = shift; # e.g. "ok"
-  my $jobStatus     = shift; # e.g. 'not done'
-  my $createTime    = shift; # e.g. three_days
-  my $dataset       = shift;
-  my $QAdoneTime    = shift;
+  my $dataType = shift; # real or MC
+  my $hashref  = shift;
 
+#  no strict 'vars';
+#  foreach my $key (keys %{$hashref}){
+#    $$key = $hashref->{$key};
+#  }
+
+  my $prodOptions   = $hashref->{prodSeries};
+  my $runID         = $hashref->{runID};
+  my $QAstatus_arg  = $hashref->{QAstatus};
+  my $jobStatus     = $hashref->{jobStatus};
+  my $createTime    = $hashref->{createTime};
+  my $dataset       = $hashref->{dataset};
+  my $QAdate        = $hashref->{QAdate};
 
   #---------------------------------------------------------------------
   # pmj 28/6/00 display keys with header, table formatting
@@ -224,28 +223,21 @@ sub GetOfflineKeys{
      "jobStatus = $jobStatus<br>",
      "QAstatus_arg = $QAstatus_arg<br>",
      "createTime = $createTime<br>",
-     "dataset = $dataset<br>"
+     "dataset = $dataset<br>",
+     "qaDate  = $QAdate<br>"
   );
 
   PrintTableOfKeys(@db_key_strings);
   #----------------------------------------------------------------
 
   # which class of data are we looking at?
-  my $dataType_string;
-  if ($dataType eq 'real')
-  {
-    $dataType_string = "sum.$QASum{type} = 'real' and";
-  }
-  elsif ($dataType eq 'MC')
-  {
-    $dataType_string = "sum.$QASum{type} = 'MC' and";
-  }
-  else {die "Wrong dataType $dataType"; }
-  
+
+  die unless ($dataType eq 'real' || $dataType eq 'MC');
+
+  my $dataType_string = " sum.$QASum{type} = '$dataType' and ";
 
   # fine tune prodOptions
-  my ($prodSeries, $chainName) = split( /;/, $prodOptions );
-  
+  my ($prodSeries, $chainName) = split( /;/, $prodOptions );  
   # fine tune status
   my ($QAstatus, $macroName)  = split( /;/, $QAstatus_arg );
 
@@ -256,55 +248,44 @@ sub GetOfflineKeys{
   my ($file_where_string, $job_where_string);
 
   # always include the file catalog
-  $file_from_string = ",$dbFile.$FileCatalog as file";
-  $file_where_string = "sum.jobID = file.jobID and";
+  $file_from_string = " ,$dbFile.$FileCatalog as file ";
+  $file_where_string = " sum.jobID = file.jobID and ";
 
   # --- from FileCatalog ---
-
-  # runID string
-  my $runID_string = "file.runID = '$runID' and" 
-    if $runID ne 'any';
-
-  # dataset string
-  my $dataset_string = "file.dataset = '$dataset' and"
-    if $dataset ne 'any';
+  foreach my $key ('runID','dataset'){
+    my $value = $hashref->{$key};
+    next if $value eq 'any';
+    $file_where_string .= " file.$key = '$value' and ";
+  }
    
   # create time string
-  my $createTime_string;
   if ($createTime ne 'any') {
-    $createTime_string = ProcessJobCreateTimeQuery($createTime); 
+    $file_where_string .= ProcessJobCreateTimeQuery($createTime); 
   }
 
   # --- from JobStatus ---
   my ($prod_string, $chain_string, $jobStatus_string);
+  my $joinJob=0;
 
   if ($jobStatus ne 'any' or $prodSeries ne 'any' ) 
   {  
-    # include this in the from clause
     $job_from_string  = ",$dbFile.$JobStatus as job";
-   
-    # where clause
     $job_where_string = "sum.jobID = job.jobID and";
 
     # prod string
-    $prod_string = "job.prodSeries = '$prodSeries' and"
+    $job_where_string .= " job.prodSeries = '$prodSeries' and "
       if $prodSeries ne 'any';
-
-    # chain string
-    $chain_string = "job.chainName = '$chainName' and"
-      if defined $chainName;
 
     # jobStatus string
     if ($jobStatus ne 'any'){
-      $jobStatus_string = ProcessJobStatusQuery($jobStatus);
-
+      $job_where_string .= ProcessJobStatusQuery($jobStatus)
     }
   }
   #--- QA status ---
   # $QAstatus_string must be the last line in the 'where' clause
 
   my ($QAstatus_string, $macro_string, $macro_where_string, $macro_from_string) 
-    = ProcessQAStatusQuery($QAstatus,$QAdoneTime,$macroName);
+    = ProcessQAStatusQuery($QAstatus,$QAdate,$macroName);
   
   my $query = qq{select distinct sum.$QASum{report_key}
 		 from $dbQA.$QASum{Table} as sum
@@ -315,57 +296,107 @@ sub GetOfflineKeys{
 		      $macro_where_string
 		      $job_where_string
 		      $file_where_string
-		      $prod_string
-		      $chain_string
-		      $runID_string
-		      $jobStatus_string
-		      $createTime_string
-		      $dataset_string
 		      $dataType_string
 		      $macro_string
 		      $QAstatus_string
 		limit $selectLimit };
 
-  print "$query\n" if $gBrowser_object->ExpertPageFlag;
+  #print "$query\n" if $gBrowser_object->ExpertPageFlag;
 
   return GetReportKeys($query, $selectLimit);
 
 
 }
-#=======================================================================
+#----------
 # get offline selected keys for real jobs only
 
 sub GetOfflineKeysReal{
-  my @selectionParam = @_;
-
-  return GetOfflineKeys('real',@selectionParam);
+  return GetOfflineKeys('real',@_);
 }
 
-#=======================================================================
+#----------
 # get offline selected keys for MC jobs only
 
 sub GetOfflineKeysMC{
-  my @selectionParam = @_;
-
-  return GetOfflineKeys('MC',@selectionParam);
+  return GetOfflineKeys('MC',@_);
 }
-			  
-#=======================================================================
+
+#----------
+# see KeyList_object_offline for the keys $self->{select_fields}
+
+sub GetOfflineKeysFast{
+  my $hashref = shift;
+  
+  my @db_key_strings;
+  foreach my $key (keys %{$hashref}){
+    my $value = $hashref->{$key};
+    push @db_key_strings,"$key = $value<br>\n";
+  }
+
+  PrintTableOfKeys(@db_key_strings);
+
+  my ($daq_from_string,$daq_where_string);
+  my $joinDaq=0;
+
+  # join with the daq table?
+  foreach my $key (keys %{$hashref}){
+    next if $key =~ /^QA/;
+    my $value = $hashref->{$key};
+    if($value ne 'any'){
+      if(!$joinDaq){
+	$daq_from_string = ",$dbFile.$DAQInfo{Table} as daq ";
+	$daq_where_string= "sum.jobID = daq.file and ";
+      }
+      if($key eq $DAQInfo{beamE} || $key eq $DAQInfo{scaleFactor}){
+	$daq_where_string .= " daq.$key like '$value%' and ";
+      }
+      else{
+	$daq_where_string .= "daq.$key=$value and ";
+      }
+    }
+    
+  }
+
+  # $QAstatus_string must be the last line in the 'where' clause
+
+  my ($QAstatus_string) 
+    = ProcessQAStatusQuery($hashref->{QAstatus},$hashref->{QAdate});
+
+  my $query = qq{select distinct sum.$QASum{report_key}
+		 from $dbQA.$QASum{Table} as sum
+		 $daq_from_string	       
+		 where 
+		 $daq_where_string
+	         $QAstatus_string
+	         limit $selectLimit 
+	       };
+	      
+  # for debugging
+  #print "$query\n"if $gBrowser_object->ExpertPageFlag; ;
+  
+  return GetReportKeys($query, $selectLimit);
+
+}		
+	  
+#----------
 # get the QA report keys for nightly test 
 # see KeyList_object
 
 sub GetNightlyKeys{
   my $dataType     = shift; # real or MC
-  my $eventGen      = shift;
-  my $LibLevel      = shift;
-  my $platform      = shift;
-  my $eventType     = shift;
-  my $geometry      = shift;
-  my $QAstatus_arg  = shift;
-  my $ondisk        = shift;
-  my $jobStatus     = shift;
-  my $createTime    = shift; 
-  my $QAdoneTime    = shift;
+  my $hashref      = shift;
+
+  my $eventGen      = $hashref->{eventGen};
+  my $LibLevel      = $hashref->{LibLevel};
+  my $platform      = $hashref->{platform};
+  my $eventType     = $hashref->{eventType};
+  my $geometry      = $hashref->{geometry};
+  my $QAstatus_arg  = $hashref->{QAstatus};
+  my $ondisk        = $hashref->{onDisk};
+  my $jobStatus     = $hashref->{jobStatus};
+  my $createTime    = $hashref->{createTime}; 
+  my $QAdate        = $hashref->{QAdate};
+
 
   #---------------------------------------------------------------------
   # pmj 28/6/00 display keys with header, table formatting
@@ -381,7 +412,7 @@ sub GetNightlyKeys{
      "ondisk       = $ondisk<br>",
      "jobStatus    = $jobStatus<br>",
      "createTime   = $createTime<br>",
-     "QAdoneTime   = $QAdoneTime<br>"
+     "QAdate   = $QAdate<br>"
     );
 
   PrintTableOfKeys(@db_key_strings);
@@ -396,39 +427,25 @@ sub GetNightlyKeys{
   my ($job_from_string, $job_where_string);
 
   # --- file catalog ---
-  my ($LibLevel_string, $platform_string, $eventType_string,
-      $geometry_string, $ondisk_string, $createTime_string);
-
   # always join with the file catalog
 
   $file_from_string  = ",$dbFile.$FileCatalog as file";
   $file_where_string = "sum.jobID = file.jobID and";
 
   # any or not any?
-  $LibLevel_string  = "file.LibLevel = '$LibLevel' and"
-    if $LibLevel ne 'any';
-  $platform_string  = "file.platform = '$platform' and"
-    if $platform ne 'any';
-  $eventType_string = "file.eventType = '$eventType' and"
-    if $eventType ne 'any';
-  $geometry_string  = "file.geometry = '$geometry' and"
-    if $geometry ne 'any';
+  foreach my $key ('eventGen','LibLevel','platform','eventType','geometry'){
+    my $value = $hashref->{$key};
+    $file_where_string .= " file.$key='$value' and " if $value ne 'any';
+  }
   
   # ondisk?
   if ($ondisk ne 'any') {
-    if ($ondisk eq 'on disk')
-      {
-	$ondisk_string = "file.avail = 'Y' and";
-      }
-    elsif ($ondisk eq 'not on disk') 
-      {
-	$ondisk_string = "file.avail = 'N' and";
-      }
-    else{ die "Wrong argument for on_disk";}
+    my $value = ($ondisk eq 'on disk') ? 'Y' : 'N';
+    $file_where_string .= " file.avail = '$value' and ";
   }
   
   # when was the job created?
-  $createTime_string = ProcessJobCreateTimeQuery($createTime);    
+  $file_where_string .= ProcessJobCreateTimeQuery($createTime);    
 
   # --- job status info ---
   # only join with jobStatus if client queries jobStatus
@@ -438,8 +455,7 @@ sub GetNightlyKeys{
   {
     $job_from_string  = ",$dbFile.$JobStatus as job";
     $job_where_string = "sum.jobID = job.jobID and ";
-
-    $jobStatus_string = ProcessJobStatusQuery($jobStatus);
+    $job_where_string .= ProcessJobStatusQuery($jobStatus);
   }
     
   # for eventGen, if real we dont need to query on it.
@@ -467,7 +483,7 @@ sub GetNightlyKeys{
   # used when no warnings or errors are specified
 
   my ($QAstatus_string, $macro_string, $macro_where_string, $macro_from_string) 
-    = ProcessQAStatusQuery($QAstatus,$QAdoneTime,$macroName);
+    = ProcessQAStatusQuery($QAstatus,$QAdate,$macroName);
   
   #query ...
   my $query = qq{ select distinct sum.$QASum{report_key}
@@ -479,15 +495,7 @@ sub GetNightlyKeys{
 		       $macro_where_string
 		       $file_where_string
 		       $job_where_string
-		       $eventGen_string 
-		       $LibLevel_string 
-		       $platform_string
-		       $eventType_string
-		       $geometry_string
-		       $ondisk_string
 		       $dataType_string
-		       $createTime_string
-		       $jobStatus_string
 		       $macro_string
 		       $QAstatus_string
 		 limit $selectLimit };
@@ -498,7 +506,7 @@ sub GetNightlyKeys{
   return GetReportKeys($query, $selectLimit);
 
 } 
-#=======================================================================
+#----------
 # get nightly selected keys for real jobs only
 
 sub GetNightlyKeysReal{
@@ -507,7 +515,7 @@ sub GetNightlyKeysReal{
   return GetNightlyKeys('real',@selection_param);
 }
 
-#=======================================================================
+#----------
 # get nightly selected keys for MC jobs only
 
 sub GetNightlyKeysMC{
@@ -515,15 +523,13 @@ sub GetNightlyKeysMC{
 
   return GetNightlyKeys('MC',@selection_param);
 }
-#=======================================================================
+#----------
 # process job creation time query
 
 sub ProcessJobCreateTimeQuery{
   my $createTime = shift;
 
   return if $createTime eq 'any';
-
-  my $createTime_string;
 
   # create time string
   my $now = strftime("%Y-%m-%d %H:%M:%S", localtime());
@@ -535,12 +541,11 @@ sub ProcessJobCreateTimeQuery{
   $days = 7  if $createTime eq 'seven_days';
   $days = 14 if $createTime eq 'fourteen_days';
   
-  $createTime_string  = 
+  return
     " (to_days('$now')-to_days(file.createTime))<= $days and";
  
-  return $createTime_string;
 }
-#========================================================================
+#----------
 # process the job status query
 
 sub ProcessJobStatusQuery{
@@ -550,17 +555,17 @@ sub ProcessJobStatusQuery{
 
   # jobStatus string
   if ($jobStatus eq 'done' ){ 
-    $jobStatus_string = "job.jobStatus ='done' and";
+    $jobStatus_string = " job.jobStatus ='done' and ";
   }
   elsif ($jobStatus eq 'not done'){
-    $jobStatus_string = "job.jobStatus !='done' and";
+    $jobStatus_string = " job.jobStatus !='done' and ";
   }
   else { die "Wrong argument for jobStatus";}
   
   return $jobStatus_string;
 }
   
-#========================================================================
+#----------
 # returns :
 # QAstatus clause, the Macro where clause (optional - to join the table),
 # Macro from clause (optional - to join the table if needed),
@@ -574,24 +579,25 @@ sub ProcessJobStatusQuery{
 
 sub ProcessQAStatusQuery{
   my $QAstatus  = shift;
-  my $QAdoneTime = shift;
+  my $QAdate = shift;
   my $macroName = shift;
 
   my ($QAstatus_string, $macro_string);
   my ($macro_from_string, $macro_where_string);
-  my $QAdoneTime_string;
+  my $QAdate_string;
 
   # create time string
-  if($QAdoneTime ne 'any' && 
-     ($QAstatus ne 'not done' && $QAstatus ne 'running')){
+  if($QAdate ne 'any' && 
+     ($QAstatus ne 'not done' && $QAstatus ne 'running' 
+     && $QAstatus ne 'any')){
     my $now = strftime("%Y-%m-%d %H:%M:%S", localtime());
     my $days;
-    $days = 1  if $QAdoneTime eq 'one_day';
-    $days = 3  if $QAdoneTime eq 'three_days';
-    $days = 7  if $QAdoneTime eq 'seven_days';
-    $days = 14 if $QAdoneTime eq 'fourteen_days';
+    $days = 1  if $QAdate eq 'one_day';
+    $days = 3  if $QAdate eq 'three_days';
+    $days = 7  if $QAdate eq 'seven_days';
+    $days = 14 if $QAdate eq 'fourteen_days';
     
-    $QAdoneTime_string  = 
+    $QAdate_string  = 
       " (to_days('$now')-to_days(sum.$QASum{QAdate}))<= $days and ";
   }
    
@@ -639,12 +645,12 @@ sub ProcessQAStatusQuery{
   }
   else {$QAstatus_string = "1>0";}
 
-  $QAstatus_string = "$QAdoneTime_string $QAstatus_string";
+  $QAstatus_string = "$QAdate_string $QAstatus_string";
 
   return ($QAstatus_string, $macro_string, $macro_where_string, $macro_from_string);
 }
 
-#=======================================================================
+#----------
 # get all runID's for offline
 # sorted by creation date
 
@@ -729,7 +735,7 @@ sub GetOnlineKeys{
   return @{$ref};
 		    
 }
-#=======================================================================
+#----------
 # prepends a '0' for day or month, if the user only types in a single 
 # digit.
 
@@ -738,7 +744,7 @@ sub make_date_nice{
   my $count  = length $number;
   return $count == 1 ? "0$number" : $number;
 }
-#=======================================================================
+#----------
 # eliminate devaint white space
 # also removes unfriendly single quotes
 
@@ -747,7 +753,8 @@ sub remove_white_space{
   $_[0] =~ s/'//g;
   return $_[0];
 }
-#=======================================================================
+
+#----------
 sub GetReportKeys{
   my $query = shift;
 
@@ -761,7 +768,7 @@ sub GetReportKeys{
 
 }
 
-#=======================================================================
+#----------
 # for printing DB query keys to browser
 
 sub PrintTableOfKeys{

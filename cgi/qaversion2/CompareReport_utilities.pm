@@ -466,7 +466,7 @@ sub RunIdentificationString{
 
   my $string;
 
-  if ($dataClass =~ /offline/){
+  if ($dataClass =~ /offline_(?!fast)/){
     # get the jobID associated with the report key
     my $jobID = QA_db_utilities::GetFromQASum($QASum{jobID},$report_key);
     
@@ -477,7 +477,7 @@ sub RunIdentificationString{
     $string = "run ID = $runID, Fseq= $Fseq";
     
   }
-  elsif ($dataClass =~ /nightly/){
+  elsif ($dataClass =~ /nightly|offline_fast/ ){
     $string = "run = $report_key";
   }
 

@@ -12,44 +12,57 @@ use QA_globals;
 use QA_utilities;
 use Db_KeyList_utilities;
 use Browser_object;
+use QA_db_utilities qw(:db_globals); # import db handle and tables
 
 use base qw(KeyList_object);
 
+use vars qw(%members);
+
 use strict;
 1;
-#========================================================
 
-my %members = (
-	       # possible selection fields (i.e. popup menus)
-	       select_fields => [ 
-				 'prodOptions',
-				 'runID',
-				 'QAstatus',
-				 'jobStatus',
-				 'createTime',
-				 'dataset',
-				 'QAdoneTime'
-				],
-	       
-	       # selection labels for the user
-	       select_labels => {
-				 prodOptions => 'prod options',
-				 runID       => 'runID',
-				 QAstatus    => 'QA status',
-				 jobStatus   => 'prod job status',
-				 createTime  => 'prod job create time',
-				 dataset     => 'dataset',
-				 QAdoneTime  => 'QA done time'
-				}
-	      );
 #========================================================
 sub new{
   my $proto     = shift;
   my $classname = ref($proto) || $proto;
   my $self      = $classname->SUPER::new(@_);
 
+  %members = (
+	      # possible selection fields (i.e. popup menus)
+	      select_fields => [ 
+				'prodSeries',
+				'runID',
+				'QAstatus',
+				'jobStatus',
+				'createTime',
+				'dataset',
+				'QAdate'
+			       ],
+	      
+	      # selection labels for the user
+	      select_labels => {
+				prodSeries  => 'prod',
+				runID       => 'runID',
+				QAstatus    => 'QA status',
+				jobStatus   => 'prod job status',
+				createTime  => 'prod job create time',
+				dataset     => 'dataset',
+				QAdate  => 'QA done time'
+			       },
+	      # these are the fields and tables requested from the db
+	      db_fields => { 
+			    prodSeries  => $JobStatus,
+			    runID       => $FileCatalog,
+			    dataset     => $FileCatalog
+			   }
+	      
+	      
+	     );
+
+
   # addmore members
   @{$self}{keys %members} = values %members;
+
 
   #$classname eq __PACKAGE__ and 
   #  die __PACKAGE__, " is virtual";
@@ -81,29 +94,16 @@ sub JobPopupMenu{
   # get some selection values from the database
   my $select_ref = $self->GetSelectionOptions();
 
-  # -- production options -- (prod series and chainname)
-
-  foreach my $prodSeries (keys %{$select_ref->{prodOptions}}){
-    push @{$self->{values}{prodOptions}}, $prodSeries;
-    $self->{labels}{prodOptions}{$prodSeries} = $prodSeries;
-    
-    foreach my $chainName ( @{$select_ref->{prodOptions}{$prodSeries}} ){
-      my $value = "$prodSeries;$chainName";
-      push @{$self->{values}{prodOptions}}, $value;
-      $self->{labels}{prodOptions}{$value} = "$prodSeries - $chainName";
-    }
+  # -- production options -- (prod series)
+  foreach my $field( keys %{$self->{db_fields}}){
+    push @{$self->{values}{$field}}, @{$select_ref->{$field}};
   }
-  # -- runID -- 
-  push @{$self->{values}{runID}}, @{$select_ref->{runID}};
 
   # -- QA status -- (errors, warnings, ok)
-  my @macro_names = @{$select_ref->{macroName}};
+  #$my @macro_names = @{$select_ref->{macroName}};
  
-  $self->FillQAStatusMenu(@macro_names);
+  $self->FillQAStatusMenu();
   
-  # -- dataset --
-  push @{$self->{values}{dataset}}, @{$select_ref->{dataset}};
-    
   # -- job status -- 
   $self->FillJobStatusMenu();
 
@@ -115,7 +115,7 @@ sub JobPopupMenu{
 
   # set defaults.  unless otherwise stated, default is 'any'
   $self->{defaults}{QAstatus}  = 'done';
-  $self->{defaults}{QAdoneTime} = 'seven_days';
+  $self->{defaults}{QAdate} = 'seven_days';
 
   my $submit_string = br.$gCGIquery->submit('Display datasets');
 
@@ -127,7 +127,7 @@ sub JobPopupMenu{
 
   my @rows =
     (
-     td([$self->GetRowOfMenus('prodOptions',
+     td([$self->GetRowOfMenus('prodSeries',
 			      'jobStatus',
 			      'QAstatus',
 			      'dataset')
@@ -136,7 +136,7 @@ sub JobPopupMenu{
      td([$self->GetRowOfMenus(
 			      'runID',
 			      'createTime',
-			      'QAdoneTime'
+			      'QAdate'
 			      ) 
 	                       
 	                       ,$submit_string
@@ -147,17 +147,7 @@ sub JobPopupMenu{
   #my $table_string = 
   #    table({-align=>'center'}, Tr({-valign=>'top'}, \@table_rows));
   
-  my $script_name   = $gCGIquery->script_name;
-  my $hidden_string = $gBrowser_object->Hidden->Parameters;
-
-  my $select_data_string =
-      $gCGIquery->startform(-action=>"$script_name/upper_display",
-			-TARGET=>"list").
-	table({-align=>'left'}, Tr({-valign=>'top'}, \@rows  )).
-	   $hidden_string.
-	    $gCGIquery->endform;
-	      
-  return $select_data_string;
+  return $self->TableString(@rows);
 
 }
 
@@ -181,14 +171,11 @@ sub new{
 
 #----------
 
-sub GetSelectionOptions{
+sub GetSelectionOptionsFromDb{
   my $self = shift;
-  
-  my $menuRef = $self->GetSelectionOptionsStorable();
 
-  if(!defined $menuRef){
-    return Db_KeyList_utilities::GetOfflineSelectionsMC();
-  }
+  return Db_KeyList_utilities::GetOfflineSelectionsMC($self->{db_fields});
+  
 }
 
 #----------
@@ -221,14 +208,10 @@ sub new{
 
 #----------
 
-sub GetSelectionOptions{
+sub GetSelectionOptionsFromDb{
   my $self = shift;
-  
-  my $menuRef = $self->GetSelectionOptionsStorable();
+    return Db_KeyList_utilities::GetOfflineSelectionsReal($self->{db_fields});
 
-  if(!defined $menuRef){
-    return Db_KeyList_utilities::GetOfflineSelectionsReal();
-  }
 }
 
 #----------

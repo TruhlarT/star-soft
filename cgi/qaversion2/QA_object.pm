@@ -30,7 +30,7 @@ use strict;
 
 my %members = 
   ( _JobID               => undef, # interface with db
-    _qaID               => undef, # identifies the qa job
+    _qaID                => undef, # identifies the qa job
     _ReportKey           => undef, # identifies QA_object
     _IOReportDirectory   => undef, # where all the qa files are
     _ReportDirectoryWWW  => undef, # used for links
@@ -114,7 +114,7 @@ sub _init{
   # ----------
   # initialize some members using logreport_object
 
-  #$self->{_JobID} = $self->LogReport->JobID;
+  $self->{_JobID} = $self->LogReport->JobID;
   $self->{_qaID}  = $self->LogReport->qaID;
   $self->{_ProductionDirectory} = $self->LogReport->OutputDirectory;
 
@@ -209,7 +209,6 @@ sub DoQA{
     # create QA_report_object to run macros or do tests
     my $report_obj = QA_report_object->new($report_key,$macro_test_file,
 					   $self->LogReport);
-
     # get the tests and name of macro
     $report_obj->GetTests(); 
     
@@ -233,10 +232,19 @@ sub DoQA{
   # store the overall qa summary for this job
   QA_db_utilities::WriteQASummary($qa_status, $self->qaID, $control_file);
 
+  # offline_fast requires us to communicate back with the DAQInfo db.
+  $self->WrapUpQA();
+
   # for evaluate only...
   # show the qa evaluation if run from browser
   $self->ShowQA unless $run_option =~ /no_tables/;
 }
+#==========================================================
+sub WrapUpQA{
+  my $self=shift;
+}
+
+
 #==========================================================
 # delete the QAFiles before we run macros
 
@@ -517,7 +525,7 @@ sub ButtonString{
   $button_string .= "<br>";
 
   # compare similar reports
-  if ( $self->QADone eq 'Y' ){
+  if ( $self->QADone eq 'Y'){
     $button_ref = Button_object->new('DoCompareToReference', 
 				     'Compare to reference', $report_key);
     $button_string .= $button_ref->SubmitString . br;
@@ -574,7 +582,7 @@ sub ButtonString{
       $title = "Unset QA Analyzed"; $value = 'N';
     }
     elsif($self->QAAnalyzed eq 'N'){
-      $title = "Set QA Analzyed"; $value = 'Y';
+      $title = "Set QA Analyzed"; $value = 'Y';
     }
     $button_ref = Button_object->new('RequestQAAnalyzed',$title,
 				     $report_key,$self->qaID(),$value);
@@ -617,6 +625,16 @@ sub ShowQA{
   # generate one button per table here so user gets overview and
   # only selected table gets displayed in secondary window
 
+  # bum 07/25/2001
+  # before we try showing the scalars, make sure the 
+  # evaluation files actually exists.
+
+  my @ary = $self->EvaluationFileList();
+  if(scalar @ary<1){
+    print h2("No qa scalar evaulation done");
+    return;
+  }
+
   my $button_string_runscalars = $self->MultClassButtonString('ViewScalarsAndTests', 'run_scalars');
 
   #---
@@ -655,7 +673,7 @@ sub ShowPsFiles{
 
   my $report_key = $self->ReportKey();
 
-  print "ShowPsFiles: ReportKey=$report_key<br>\n";
+  #print "ShowPsFiles: ReportKey=$report_key<br>\n";
   #-------------------------------------------------------------
   my @filelist_ordered = $self->GetPSFiles();
   #-------------------------------------------------------------
@@ -674,8 +692,11 @@ sub ShowPsFiles{
   }
   #-------------------------------------------------------------
   my $report_key = $self->ReportKey();
-  my @refKeys = CompareReport_utilities::GetReferenceList($report_key);
-
+  my @refKeys;
+  
+  if($gDataClass_object->DataClass() !~ /offline_fast/){
+    @refKeys= CompareReport_utilities::GetReferenceList($report_key);
+  }
   foreach my $ref_key (@refKeys){
 
     my @ref_filelist = $self->GetPSFiles($ref_key);
@@ -728,7 +749,6 @@ sub GetPSFiles{
   #---------------------------------------------------------
   # get ps files from directory
 
-  print "\$report_key=$report_key<br>\n";
   my $dh = $QA_object_hash{$report_key}->IOReportDirectory->Open;
   
   # pmj 28/7/00
@@ -850,19 +870,14 @@ sub DisplayFilesAndReports{
   print h3("Reports for ",$self->ReportKey,"\n");
 
   # make a temporary link to the log file
+  # Cant access anymore bum 07/25/2001
   if ($self->OnDisk) {
 
     my $logfile = $self->LogReport->LogfileName;
 
-    if (-s $logfile){
-      # this doesnt work anymore jul 30 2000
-      #my $io = IO_object->new("LogScratchWWW",$logfile);
-      #my $link = $io->Name;
-      my $link = IO_object->new("LogfileWWW", $logfile)->Name(); 
+    # just show them where it is.
+    print "Logfile : $logfile<br>\n";
 
-      my $string = "Logfile (created:" . localtime(stat($logfile)->mtime) . ")";
-      QA_cgi_utilities::make_anchor($string, $logfile, $link);
-    }
   }
 
   # add error and warning files ( if they exist )
@@ -890,20 +905,13 @@ sub DisplayFilesAndReports{
   while (defined (my $file = readdir $dh ) ){
 
     next if $file =~ /^\./; # skip dot files
-
     $logfile = $file,         next if $file =~ /logfile_report/; 
-    
 #    push(@ps_file, $file),    next if $file =~ /ps$|ps\.gz$/;  
-
     push(@report, $file),     next if $file =~ /qa_report$/;   
-
     push(@evaluation, $file), next if $file =~ /evaluation$/; 
-
     push(@root_crash, $file), next if $file =~ /rootcrashlog$/;
-
     $batchlog = $file,        next if $file =~ /html$/;
   }
-
   closedir $dh;
 
   
@@ -1049,21 +1057,21 @@ sub PrintProductionFiles{
 
   my $self = shift;
  
-  my @table_heading = ('File name', 'Size (bytes)', 'Created');
+  my @table_heading = ('File name');
   my @table_rows    = th(\@table_heading);
 
   # get the production files (full path)
   foreach my $file (@{$self->LogReport->ProductionFileListRef}){
 
-    # double check that the files are accessible
-    if (not -e $file ){
-      print h4(font({-color=>'red'},"$file is not on disk?"));
-      return;
-    }
+    # bum 7/25/2001 - cant read from disk anymore
+    #if (not -e $file ){
+    #  print h4(font({-color=>'red'},"$file is not on disk?"));
+    #  return;
+    #}
 
-    my $time = localtime(stat($file)->mtime);
-    my $size = stat($file)->size;
-    push @table_rows, td([$file, $size, $time]);
+    # get size from database
+    #my $size = QA_db_utilities::GetFromFileCatalog('size',$self->JobID);
+    push @table_rows, td([$file]);
   }
 
   print h3("Files in ",$self->ProductionDirectory);
@@ -1091,7 +1099,8 @@ sub UpdateLogReport{
   my $topdir_local = $io->Name;
   
   print font({-color=>'red'} ,
-     "Found new job($report_key) for ",$gDataClass_object->DataClass,".\n"),br;;
+     "Found new job($report_key) for ",
+	     $gDataClass_object->DataClass,".\n"),br;;
 
   # make new report dir
   print h4("Making directory: $report_dir\n");

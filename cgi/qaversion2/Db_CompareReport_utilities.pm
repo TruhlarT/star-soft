@@ -77,6 +77,40 @@ sub Controller{
     $subSqlMatch        = \&SqlMatchExact;
     $type               = 'MC';
   }
+  elsif ($dataClass =~ /offline_fast/){
+    @matchCriteria = qw( collision beamE);
+    @order         = qw( collision beamE);
+    $subEditMatchValues = sub {return @_};
+    $subSqlMatch        = \&SqlMatchExact;
+    $type               = 'n/a';
+  }
+}
+
+
+sub SqlMatch{
+  my $mode = shift; #exact, like
+  my @matchValues = @_;
+
+  my $sql;
+
+  foreach my $i ( 0..$#matchCriteria ) {
+    next if ($matchValues[$i] eq 'any'   or 
+             $matchValues[$i] eq 'n/a'  or 
+             not defined $matchValues[$i]  );
+    if($mode eq 'exact'){
+      $sql .= "$dbFile.$FileCatalog.$matchCriteria[$i] = '$matchValues[$i]' and ";}
+    elsif($mode eq 'like'){
+      $sql .= "$dbFile.$FileCatalog.$matchCriteria[$i] like '$matchValues[$i]%' and ";
+    }
+    else { die; }
+  }
+  # strip off the last 'and'
+  $sql =~ s/and\s*$//;
+
+  # if the string is empty, add a dummy query
+  $sql .= "1>0" if (!defined $sql);
+
+  return $sql;
 }
 
 #----------
@@ -84,45 +118,14 @@ sub Controller{
 # where the values match the criteria exactly 
 
 sub SqlMatchExact{
-  my @matchValues   = @_;
-  my $sql;
-
-  foreach my $i ( 0..$#matchCriteria ) {
-    next if ($matchValues[$i] eq 'any'   or 
-             $matchValues[$i] eq 'n/a'  or 
-             not defined $matchValues[$i]  );
-    $sql .= "$dbFile.$FileCatalog.$matchCriteria[$i] = '$matchValues[$i]' and ";
-  }
-  # strip off the last 'and'
-  $sql =~ s/and\s*$//;
-
-  # if the string is empty, add a dummy query
-  $sql .= "1>0" if (!defined $sql);
-
-  return $sql;
+  return SqlMatch('exact',@_);
 }
 #----------
 # returns an sql query string for finding similar jobs.
 # where the values are like the criteria
 
 sub SqlMatchLike{
-  my @matchValues   = @_;
-  my $sql;
-
-  foreach my $i ( 0..$#matchCriteria ) {
-    next if ($matchValues[$i] eq 'any'  or 
-             $matchValues[$i] eq 'n/a'  or 
-             not defined $matchValues[$i]  );
-    $sql .= "$dbFile.$FileCatalog.$matchCriteria[$i] like '$matchValues[$i]%' and ";
-
-  }
-  # strip off the last 'and'
-  $sql =~ s/and\s*$//;
-
-  # if the string is empty, add a dummy query
-  $sql .= "1>0" if (!defined $sql);
-
-  return $sql;
+  return SqlMatch('like',@_);
 }
 
 #----------
@@ -155,7 +158,8 @@ sub GetMatchingDefaultReferences{
 	from $dbQA.$QASum{Table},
 	     $dbFile.$FileCatalog
 	where 
-	     $dbQA.$QASum{Table}.$QASum{jobID} = $dbFile.$FileCatalog.jobID and
+	     $dbQA.$QASum{Table}.$QASum{jobID} = 
+	       $dbFile.$FileCatalog.$joinField and
 	     $dbQA.$QASum{Table}.$QASum{report_key} != '$report_key' and
 	     $dbQA.$QASum{Table}.$QASum{QAdone} = 'Y' and
 	     $dbQA.$QASum{Table}.$QASum{reference} = 'Y' and
@@ -188,7 +192,7 @@ sub GetAllDefaultReferences{
 		          $dbFile.$FileCatalog
 		     where 
 		          $dbQA.$QASum{Table}.$QASum{jobID} = 
-			    $dbFile.$FileCatalog.jobID and
+			    $dbFile.$FileCatalog.$joinField and
 		          $dbQA.$QASum{Table}.$QASum{type}  = '$type'
 			  $orderClause
 	  };
@@ -221,7 +225,7 @@ sub GetAllDefaultReferences{
 	        $dbFile.$FileCatalog
 	 where 
 	        $dbQA.$QASum{Table}.$QASum{jobID} = 
-		  $dbFile.$FileCatalog.jobID and
+		  $dbFile.$FileCatalog.$joinField and
 		$dbQA.$QASum{Table}.$QASum{QAdone} = 'Y' and
 		$dbQA.$QASum{Table}.$QASum{reference} = 'Y' and
 		$matchClause and
@@ -270,13 +274,14 @@ sub GetDefaultReferencesByQuery{
 	        $dbFile.$FileCatalog
 	 where 
 	        $dbQA.$QASum{Table}.$QASum{jobID} = 
-		  $dbFile.$FileCatalog.jobID and
+		  $dbFile.$FileCatalog.$joinField and
 		$dbQA.$QASum{Table}.$QASum{QAdone} = 'Y' and
 		$dbQA.$QASum{Table}.$QASum{reference} = 'Y' and
 		$matchClause and
 		$dbQA.$QASum{Table}.$QASum{type} = '$type'
 		$orderClause
 	      };
+  print $queryRef if $debug;
   my $sthRef = $dbh->prepare($queryRef);
   $sthRef->execute();
 
@@ -336,7 +341,7 @@ sub ReferenceOk{
             $dbFile.$FileCatalog
        where 
 	    $dbQA.$QASum{Table}.$QASum{jobID} = 
-	      $dbFile.$FileCatalog.jobID and
+	      $dbFile.$FileCatalog.$joinField and
 	    $dbQA.$QASum{Table}.$QASum{report_key} = '$report_key' and
 	    $dbQA.$QASum{Table}.$QASum{QAdone}     = 'Y' and
 	    $matchClause and

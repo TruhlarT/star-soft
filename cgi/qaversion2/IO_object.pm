@@ -626,6 +626,24 @@ sub ControlFileOffline{
 #=====================================================================
 # dummy control file for now
 # format
+# [controlDir]/default/test_control.txt
+
+sub ControlFileOfflineFast{
+  my $self   = shift;
+  my $qa_obj = shift;
+
+  $self->ReportErrorOnOpen(1);
+
+  my $dir = $self->ControlDir()."/default";
+    
+  $self->IsDir(0);
+
+  # TEST
+  return "$dir/control_and_test.txt";
+}
+#=====================================================================
+# dummy control file for now
+# format
 # [controlDir]/test_control.txt
 
 sub ControlFileOnline{

@@ -26,9 +26,12 @@ my @db_globals = qw($dbh
 		    $ProdOptions
 		    $JobRelations
 		    $QASummaryTable
-		    $QAMacrosTable 
+		    $QAMacrosTable
+		    $joinField
 		    %QASum
-		    %QAMacros);
+		    %QAMacros
+		    %DAQInfo
+		   );
 
 @EXPORT_OK   = @db_globals;
 %EXPORT_TAGS = ( db_globals => [ @db_globals] );
@@ -36,7 +39,7 @@ my @db_globals = qw($dbh
 
 use vars qw($dbh $dbQA $dbFile $JobStatus $ProdOptions $FileCatalog
 	    $JobRelations $QASummaryTable $QAMacrosTable %QASum %QAMacros
-	    $serverHost );
+	    $serverHost %DAQInfo $joinField);
 
 use strict;
 1;
@@ -64,7 +67,7 @@ use strict;
 #         report_key  varchar(64)         not null,
 #         type        varchar(20)         not null,
 #         QAanalyzed  enum('Y','N')       not null default 'N',
-#         QAdone      enum('Y','N')       not null default 'N',
+#         QAdone      enum('Y','N','in progress') not null default 'N',
 #         QAok        enum('Y','N','n/a') not null default 'n/a',
 #         QAdate      datetime            not null,
 #         reference   enum('Y','N')       not null default 'N',
@@ -72,14 +75,14 @@ use strict;
 #         insertTime  timestamp(10)       not null,
 #         qaID        mediumint           not null auto_increment,
 #                     primary key (qaID),
-#                     index (jobID),
+#                     unique (jobID),
 #                     index (type),
 #                     index (QAok),
 #                     index (QAdone),
 #                     index (report_key)
 #                     
 
-# QASummary for prod now has two more fields
+# QASummary for PRODUCTION (offline) now has two more fields
 #         redone      smallint            not null default 0
 #         skip        enum('Y','N')       not null default 'Y'
 
@@ -169,6 +172,23 @@ use strict;
 	 ID         => 'ID'        # never used
 	 );
 
+# DAQInfo
+%DAQInfo = (
+	    Table       => 'DAQInfo',
+	    file        => 'file',
+	    runNumber   => 'runNumber',
+	    numEvt      => 'NumEvt',
+	    beginEvt    => 'BeginEvt',
+	    endEvt      => 'EndEvt',
+	    current     => 'Current',
+	    scaleFactor => 'scaleFactor',
+	    beamE       => 'beamE',
+	    collision   => 'collision',
+	    detSetMask  => 'DetSetMask',
+	    status      => 'status'
+);
+	    
+	    
 
 #----------------------------------------------------------------------------
 
@@ -221,7 +241,7 @@ sub SetDBVariables{
   $ProdOptions    = $gDataClass_object->ProdOptions();
   $JobRelations   = $gDataClass_object->JobRelations();
   $dbQA           = $gDataClass_object->dbQA();
-
+  $joinField      = $gDataClass_object->joinField();
 }
 #----------
 # get the log file 
@@ -295,7 +315,8 @@ sub GetSmallFilesNightly{
 
 sub GetMissingFiles{
   my $jobID = shift;
-  my $type  = shift; # MC or real
+  my $mc    = shift; # 0,1
+  my $offline = shift; # 0,1
 
   my ($missingFiles); # return the missing files as a string
   my $hist_size =  1000;
@@ -304,14 +325,14 @@ sub GetMissingFiles{
   my @componentAry = qw(event hist tags runco);
 
   # check for one more component 
-  push @componentAry, 'geant' if $type eq 'MC';
+  push @componentAry, 'geant' if $mc;
 
   # quick fix
   my @outputComp;
-  if ($gDataClass_object->DataClass() =~ /offline/){
+  if ($offline){
     @outputComp = GetFromFileOnDiskOffline('component',$jobID);
   }
-  elsif($gDataClass_object->DataClass() =~ /nightly|debug/){
+  else{
     @outputComp = GetFromFileOnDiskNightly('component',$jobID);
     push @componentAry, 'dst';
   }
@@ -326,18 +347,6 @@ sub GetMissingFiles{
   } 
     
   return $missingFiles;
-}
-#----------
-sub GetMissingFilesReal{
-  my $jobID = shift;
-
-  return GetMissingFiles($jobID, 'real');
-}
-#----------
-sub GetMissingFilesMC{
-  my $jobID = shift;
-
-  return GetMissingFiles($jobID, 'MC');
 }
 
 #----------
@@ -377,8 +386,11 @@ sub GetOneRowFromTable{
 		 from $table
 		 where $where
 	       };
+
   return $dbh->selectrow_array($query);
+  
 }
+
 #----------
 # returns the value from the '@field(s)' requested from FileCatalog
 # that matches the '$jobID'
@@ -387,7 +399,7 @@ sub GetFromFileCatalog{
   my $field   = shift; # ref to an array or normal scalar
   my $jobID   = shift;
 
-  my $where_clause = "jobID = '$jobID' limit 1";
+  my $where_clause = "$joinField = '$jobID' limit 1";
 
   return GetOneRowFromTable($field,"$dbFile.$FileCatalog",$where_clause);
 }
@@ -406,23 +418,6 @@ sub GetFromJobStatus{
 
 }
 #----------
-# returns the production series, chain name,
-# library version and chain options of job for offline
-
-sub GetProdOptions{
-  my $jobID =  shift;
-
-  my $query = qq{select prod.prodSeries, prod.chainName,
-		        prod.libVersion, prod.chainOpt
-		 from $dbFile.$ProdOptions as prod,
-		      $dbFile.$JobStatus as job
-		 where job.jobID = '$jobID' and
-		       job.prodSeries = prod.prodSeries and
-                       job.chainName = prod.chainName };
-
-  return $dbh->selectrow_array ($query);
-}
-#----------
 # returns the input file name for offline
 
 sub GetInputFnOffline{
@@ -434,6 +429,21 @@ sub GetInputFnOffline{
 
   return $dbh->selectrow_array($query);
 }
+#----------
+# can get multiple rows or one row from table but just one column
+#
+sub GetRowsFromTable{
+  my $field = shift;
+  my $table = shift;
+  my $where = shift;
+
+  my $query = qq{select $field 
+		 from $table
+		 where $where
+	       };
+  return wantarray ? @{$dbh->selectcol_arrayref($query)}
+                   : $dbh->selectrow_array($query);
+}
 
 #----------
 # only one select field, but can return an array of rows matched
@@ -441,14 +451,9 @@ sub GetInputFnOffline{
 sub GetFromFileOnDiskNightly{
   my $field = shift;
   my $jobID = shift;
+  my $where = "jobID = '$jobID' and avail='Y'";
 
-  my $query = qq{select $field
-		 from $dbFile.$FileCatalog
-		 where jobID = '$jobID' and
-		 avail = 'Y'};
-
-  return wantarray ? @{$dbh->selectcol_arrayref($query)}
-                   : $dbh->selectrow_array($query);
+  return GetRowsFromTable($field,"$dbFile.$FileCatalog",$where);
 }
 #----------
 # ony one select field, but can return an array of rows matched
@@ -456,16 +461,11 @@ sub GetFromFileOnDiskNightly{
 sub GetFromFileOnDiskOffline{
   my $field = shift;
   my $jobID = shift;
+  my $where = "jobID = '$jobID' and hpss='N'";
 
-  my $query = qq{select $field
-		 from $dbFile.$FileCatalog
-		 where jobID = '$jobID' and
-		 hpss = 'N'};
-
-  return wantarray ? @{$dbh->selectcol_arrayref($query)}
-                   : $dbh->selectrow_array($query);
-
+  return GetRowsFromTable($field,"$dbFile.$FileCatalog",$where);
 }
+
 #----------
 # arguments : field      - this is what you want
 #             report_key - where the 'report_key' matches this
@@ -473,13 +473,11 @@ sub GetFromFileOnDiskOffline{
 sub GetFromQASum{
   my $field      = shift;
   my $report_key = shift;
+  my $where = "$QASum{report_key}='$report_key'";
 
-  my $query = qq{select $field 
-		 from  $dbQA.$QASum{Table} 
-	         where $QASum{report_key}='$report_key'};
-
-  return $dbh->selectrow_array($query);
+  return GetOneRowFromTable($field,"$dbQA.$QASum{Table}",$where);
 }
+
 #---------
 # update QAsummary
 # arguments: name of the field you want
@@ -497,6 +495,7 @@ sub UpdateQASummary{
   
   return $dbh->do($query);
 }
+
 #----------
 # delete jobID from QASummary and remove the 
 # corresponding report directory
@@ -538,7 +537,7 @@ sub FlagQAInProgress{
 }
 #----------
 #
-sub FlagQAdone{
+sub FlagQADone{
   my $qaID = shift;
   return UpdateQASummary($QASum{QAdone},'Y',$qaID);
 }
@@ -553,7 +552,6 @@ sub ResetInProgressFlag{
 sub FlagQAAnalyzed{
   my $qaID = shift;
   my $value = shift;
-
   return UpdateQASummary($QASum{QAanalyzed},$value,$qaID);
 }
 #----------

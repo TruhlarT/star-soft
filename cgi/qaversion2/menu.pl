@@ -5,7 +5,9 @@ use Server_object;
 use QA_globals;
 use QA_db_utilities qw(:db_globals);
 use Db_KeyList_utilities;
+use KeyList_object_offline;
 use IO_object;
+use KeyList_object_nightly;
 use Time::Local;
 use Storable;
 
@@ -27,7 +29,7 @@ for my $class (@classes){
   QA_db_utilities::db_connect();
 
   my $start    = timelocal(localtime());
-  my $menuRef  = &{$gDataClass_object->GetSelectionOptions};
+  my $menuRef = $gDataClass_object->KeyList_obj->new()->GetSelectionOptionsFromDb();
   my $stop     = timelocal(localtime());
   print "time - ",$stop-$start," sec\n";
   
@@ -35,7 +37,7 @@ for my $class (@classes){
   print "storing to $storable... ";
   eval {store($menuRef,$storable)};
   if ($@){
-    print "CANNOT STORE\n";
+    print "CANNOT STORE : $@\n";
   } else {
     print "done\n";
   }

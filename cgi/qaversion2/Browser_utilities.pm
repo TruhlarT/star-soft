@@ -361,8 +361,9 @@ sub ScalarDocumentationString{
 
   # pmj 8/9/00 documentation on scalars
 
-  my $doc_link = $gCGIquery->script_name;
-  $doc_link =~ s/QA_main\.pm/doc\/Scalars.html/;
+  #my $doc_link = $gCGIquery->script_name;
+  #$doc_link =~ s/QA_main\.pm/doc\/Scalars.html/;
+  my $doc_link = "http://www.star.bnl.gov/STARAFS/comp/qa/shifts/QA_scalars.html";
 
   my $doc_string = "<a href=$doc_link target='documentation'>Documentation on scalars</a>";
  
@@ -373,7 +374,8 @@ sub HistogramDocumentationString{
 
   # pmj 8/9/00 pointer to Gene's histo documentation page
 
-  my $doc_link = "http://connery.star.bnl.gov/STARAFS/comp/qa/hists";
+  #my $doc_link = "http://connery.star.bnl.gov/STARAFS/comp/qa/hists";
+  my $doc_link ="http://www.star.bnl.gov/STARAFS/comp/qa/shifts/QA_histograms_doc.html";
 
   my $doc_string = "<a href=$doc_link target='documentation'>Documentation on histograms</a>";
  

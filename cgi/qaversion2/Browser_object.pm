@@ -23,6 +23,7 @@ use Browser_utilities;
 use KeyList_object_offline;
 use KeyList_object_nightly;
 use KeyList_object_online;
+use KeyList_object_offline_fast;
 use Db_KeyList_utilities;
 use CompareReport_utilities;
 
@@ -124,9 +125,9 @@ sub PrintPageHeader{
   my $contact_string = $self->ContactString();
 
   # where's the documentation?  
-  my $doc_link = $gCGIquery->script_name;
-  $doc_link =~ s/QA_main\.pm/doc\/index.html/;
-
+  #my $doc_link = $gCGIquery->script_name;
+  #$doc_link =~ s/QA_main\.pm/doc\/index.html/;
+  my $doc_link="http://www.star.bnl.gov/STARAFS/comp/qa/CurrentQADocs.html";
   my $doc_string = "<a href=$doc_link target='documentation'>Documentation </a>";
 
   #---
@@ -322,7 +323,8 @@ sub DisplayDataset{
     # pmj 5/9/00 move these here...
     # show the references
     unless($gCGIquery->param('Display messages')){
-      CompareReport_utilities::ShowReferences();
+      CompareReport_utilities::ShowReferences() 
+	if $gDataClass_object->DataClass()=~/nightly_MC/;
       print "<hr>\n";
     }
 
@@ -581,8 +583,11 @@ sub ContactString{
   # temporary solution:
 #  my $url = "http://www.star.bnl.gov/~jacobs/contacts.html";
   # BEN(9jul00):
-  my $url = $gCGIquery->script_name;
-  $url =~ s/QA_main\.pm/doc\/contacts.html/;
+  #my $url = $gCGIquery->script_name;
+  #$url =~ s/QA_main\.pm/doc\/contacts.html/;
+  
+  # hardcoded 
+  my $url ="http://www.star.bnl.gov/STARAFS/comp/qa/shifts/Contacts_QA_experts.html";
 
   my $string = "<a href=$url target = 'documentation'>Contacts </a>";
   return $string;
