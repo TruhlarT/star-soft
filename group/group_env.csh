@@ -1,7 +1,10 @@
 #!/usr/bin/csh -f
-#       $Id: group_env.csh,v 1.75 1999/06/19 02:13:16 fisyak Exp $
+#       $Id: group_env.csh,v 1.76 1999/07/08 21:50:24 fisyak Exp $
 #	Purpose:	STAR group csh setup 
 #       $Log: group_env.csh,v $
+#       Revision 1.76  1999/07/08 21:50:24  fisyak
+#       Add /opt/star/lib in LD_LIBRARY_PATH for all platforms
+#
 #       Revision 1.75  1999/06/19 02:13:16  fisyak
 #       Use CERN_LEVEL and ROOT_LEVEL to synchronize version STAR_LIB and CERNLIB,ROOT
 #
@@ -395,7 +398,7 @@ switch ($STAR_SYS)
 #    set path = ($path  /usr/local/bin/ddd /usr/local/DQS318/bin )
      set path = ($path $PARASOFT/bin.linux)
      if (! ${?LD_LIBRARY_PATH}) setenv LD_LIBRARY_PATH 
-     setenv LD_LIBRARY_PATH "/usr/lib:${PARASOFT}/lib.linux:/usr/local/lib:${MINE_LIB}:${STAR_LIB}:${STAF_LIB}:${LD_LIBRARY_PATH}:/opt/star/lib"
+     setenv LD_LIBRARY_PATH "/usr/lib:${PARASOFT}/lib.linux:/usr/local/lib:${MINE_LIB}:${STAR_LIB}:${STAF_LIB}:${LD_LIBRARY_PATH}"
      limit coredump 0
      setenv BFARCH Linux2
      setenv OBJY_ARCH linux86
@@ -504,14 +507,17 @@ if ( -x /afs/rhic/star/group/dropit) then
 switch ($STAR_SYS)
     case "hp_ux102":
 #  ====================
+  setenv SHLIB_PATH "${SHLIB_PATH}:/opt/star/lib"
   setenv SHLIB_PATH `/afs/rhic/star/group/dropit -p "$SHLIB_PATH"`
     breaksw
     case "sgi_64":
 #  ====================
+  setenv LD_LIBRARYN32_PATH "${LD_LIBRARYN32_PATH}:/opt/star/lib"
   setenv LD_LIBRARYN32_PATH `/afs/rhic/star/group/dropit -p "$LD_LIBRARYN32_PATH"`
     breaksw
     default:
 #  ====================
+  setenv LD_LIBRARY_PATH "${LD_LIBRARY_PATH}:/opt/star/lib"
   setenv LD_LIBRARY_PATH `/afs/rhic/star/group/dropit -p "$LD_LIBRARY_PATH"`
     breaksw
 endsw
