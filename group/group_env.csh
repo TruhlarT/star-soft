@@ -1,7 +1,10 @@
 #!/usr/bin/csh -f
-#       $Id: group_env.csh,v 1.60 1999/02/04 02:38:54 fisyak Exp $
+#       $Id: group_env.csh,v 1.61 1999/02/06 15:36:51 wenaus Exp $
 #	Purpose:	STAR group csh setup 
 #       $Log: group_env.csh,v $
+#       Revision 1.61  1999/02/06 15:36:51  wenaus
+#       Get CLHEP from /opt/star
+#
 #       Revision 1.60  1999/02/04 02:38:54  fisyak
 #       Add SL99b
 #
@@ -405,7 +408,7 @@ if (`uname -s` == "SunOS" && `hostname` != "rcf.rhic.bnl.gov" && ! ${?OBJY_HOME}
 # Geant4
 setenv G4PROTO /star/sol/packages/geant4/prototype
 setenv RWBASE /star/sol/packages/rogue/workspaces/SOLARIS25/SUNPRO42/12s
-setenv CLHEP_BASE_DIR /opt/rhic
+setenv CLHEP_BASE_DIR /opt/star
 
 # SNiFF+
 switch ($STAR_SYS)

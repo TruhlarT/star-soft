@@ -1,7 +1,17 @@
 #!/bin/echo You must source
 
 if ( -d /afs/rhic/oodb/solaris4/bin ) then
-  setenv OBJY_HOME /afs/rhic/oodb
+  switch ($STAR_SYS)
+    case "i386_*":
+      setenv OBJY_HOME /afs/rhic/oodb
+    breaksw
+    case "sun4*":
+#      setenv OBJY_HOME /afs/rhic/oodb/v_5.1
+      setenv OBJY_HOME /afs/rhic/oodb
+    breaksw
+    default:
+    breaksw
+  endsw
 endif
 
 if ( $?OBJY_HOME ) then
