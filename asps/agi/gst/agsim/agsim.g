@@ -171,12 +171,12 @@ C
 *KEEP,VIDQQ.
       CHARACTER*68 VIDQQ
       DATA VIDQQ/
-     +'@(#)* Advanced Geant Inteface   1.40/05   C: 29/09/98  16.54.49
+     +'@(#)* Advanced Geant Inteface   1.40/05   C: 19/10/98  21.14.54
      +'/
 *KEEP,DATEQQ.
-      IDATQQ =   980929
+      IDATQQ =   981019
 *KEEP,TIMEQQ.
-      ITIMQQ =   1654
+      ITIMQQ =   2114
 *KEEP,VERSQQ.
       VERSQQ = ' 1.40/05'
       IVERSQ =  14005
@@ -2448,7 +2448,7 @@ C
       END
  
  
-*CMZ :          09/09/98  20.49.59  by  Pavel Nevski
+*CMZ :          19/10/98  12.26.26  by  Pavel Nevski
 *CMZ :  1.40/05 30/01/98  13.07.52  by  Pavel Nevski
 *CMZ :  1.30/00 20/04/97  23.19.45  by  Pavel Nevski
 *-- Author :    Pavel Nevski
@@ -2459,24 +2459,24 @@ C
 ******************************************************************
       logical first/.true./
 *
-        if (first) print *,' *******  RNDM substituted by GRNDM  *******'
+        if (first) print *,' *******  RNDM has been replaced by GRNDM  *******'
         first=.false.;   call GRNDM(r,1);   rndm=r;  Return;
       entry IRNDM
-        if (first) print *,' *******  RNDM substituted by GRNDM  *******'
+        if (first) print *,' *******  RNDM has been replaced by GRNDM  *******'
         first=.false.;   call GRNDM(i,1);  irndm=i;  Return;
       END
 *
       subroutine NORRAN (a)
       real    a,b/99999/
       logical first/.true./
-       if (first) print *,' *******  NORRAN substituted by RANNOR  *******'
+       if (first) print *,' ******* NORRAN has been replaced by RANNOR *******'
        if b==99999 { call rannor(a,b); first=.false. } else { a=b; b=99999 }
       end
 *
       function  RANF (a)
       real      RANF,a,b
       logical   first/.true./
-       if (first) print *,' *******  RANF substituted by GRNDM  *******'
+       if (first) print *,' *******  RANF has been replaced by GRNDM  *******'
        first=.false.
        Call GRNDM(b,1)
        RANF=b
@@ -2485,7 +2485,7 @@ C
       function  RN32(a)
       real      RN32,a,b
       logical   first/.true./
-       if (first) print *,' *******  RN32 substituted by GRNDM  *******'
+       if (first) print *,' *******  RN32 has been replaced by GRNDM  *******'
        first=.false.
        Call GRNDM(b,1)
        RN32=b
@@ -2494,7 +2494,7 @@ C
       function  RG32(d)
       real      RG32,d,a,b/99999/
       logical   first/.true./
-       if (first) print *,' *******  RG32 substituted by RANNOR  *******'
+       if (first) print *,' *******  RG32 has been replaced by RANNOR  *******'
        if b==99999 { call rannor(a,b); first=.false. } else { a=b; b=99999 }
        RG32=a
       end
@@ -2506,18 +2506,19 @@ C
         go to 10
       entry     RDMOUT(I1)
         CALL GRNDMQ(I1,I2,0,'G')
-10   If(first) print *,' RNDM substituted by GRNDM, set seed using G/CONT/RNDM'
-     first=.false.
-     end
+10    If (first) _
+        print *,' RNDM has been replaced by GRNDM, set seed using G/CONT/RNDM'
+      first=.false.
+      end
 *
       Subroutine RN32IN
       entry      RN32OT
-        print *,' RN32 substituted by GRNDM, set seed using G/CONT/RNDM'
+        print *,' RN32 has been replaced by GRNDM, set seed using G/CONT/RNDM'
       end
 *
       Subroutine RG32IN
       entry      RG32OT
-        print *,' RG32 substituted by RANNOR, set seed using G/CONT/RNDM'
+        print *,' RG32 has been replaced by RANNOR, set seed using G/CONT/RNDM'
       end
 *
  
@@ -4828,7 +4829,7 @@ C
  }
   END
  
-*CMZ :          07/09/98  18.10.23  by  Pavel Nevski
+*CMZ :          18/10/98  13.17.54  by  Pavel Nevski
 *CMZ :  1.40/05 28/03/98  23.09.07  by  Pavel Nevski
 *CMZ :  1.30/00 02/04/97  15.03.50  by  Pavel Nevski
 *CMZ :  1.00/00 04/09/95  14.29.15  by  Pavel Nevski
@@ -8190,7 +8191,7 @@ C
 :E:"<w> AgDOCWR,Cf,I1,I2,TEXT;(' AgDocWr=',i2,' at ',a,' i1,i2,T=',2i5,2x,a)";
 END;
  
-*CMZ :          24/09/98  16.54.25  by  Pavel Nevski
+*CMZ :          18/10/98  21.33.23  by  Pavel Nevski
 *CMZ :  1.40/05 06/07/98  18.52.36  by  Pavel Nevski
 *CMZ :  1.30/00 09/02/97  21.15.43  by  Pavel Nevski
 *CMZ :  1.00/00 15/11/95  01.03.24  by  Pavel Nevski
@@ -8338,7 +8339,7 @@ REPLACE [ERR#{#}] with [;    IF (#1) {  IQUEST(1)=0;
   ]
  
 " trace module changes - a module may have only ONE default Ctop bank "
-Cbank=Bank;  Jstat=-1;  ie=0;  Iprin=Idebug
+Cbank=Bank;  Jstat=-1;  ie=0;  ia=0;  Iprin=Idebug
 if Oper(1:1)=='N' & (Istat==0 | Istat=-999) " this is a NEXT request "
 { Err LINK<0 { Bank was not selected };       Lk=%LINK(LINK);
   Err Lk<=0  { Previous bank desappeared };   Lk=LQ(Lk);
@@ -8376,6 +8377,7 @@ else
 }}
 *
  Err Lk<=0 {No bank exists for this path}
+ 
 *                                            explicit parameter request
  If Name!=' '
  { Ib=LOCF(Value)-LOCf(Par)+1;    Err 1>Ib|Ib>LL {variable is not in the bank}
@@ -8501,6 +8503,7 @@ If IrBDIV==IxCONS & ID>0 & JBIT(IQ(Lk),1)==0 & Ie==0
 END
  
  
+*CMZ :          18/10/98  13.58.06  by  Pavel Nevski
 *CMZ :  1.40/05 30/07/98  14.12.43  by  Pavel Nevski
 *CMZ :  1.30/00 15/04/97  17.02.23  by  Pavel Nevski
 *CMZ :  1.00/00 07/10/95  19.31.21  by  Pavel Nevski
@@ -8546,7 +8549,7 @@ Equivalence   (Rind,Irind,Crind),(Rvalue,Ivalue,Cvalue)
 Replace[ERR(#)]  with [;<W>;(' AgDatCar error : ','#1'); Isel=0; Ia=0; NEXT;]
 Replace[DEBUG#;] with [;IF (IDEBUG>=7) print *,#1;]
  
-{i1,i2,Ia,Isel}=0;
+{i1,i2,Ia,Isel,M}=0;
  
 do N=1,LL1                 " find reference variable and bank format"
 {  if (name==Names(N)(3:)) M=N
@@ -20460,6 +20463,7 @@ CHARACTER*(*)  Cname,FORM;     Integer  NVL(*),Npar,Array(*),Link,Ia;
    Call UCOPY (Array,IQ(Link+1+Ia),Npar);  If (NVL(kk)==0) NVL(kk)=II;
    END
  
+*CMZ :          18/10/98  12.28.38  by  Pavel Nevski
 *CMZ :  1.40/05 01/07/98  19.10.00  by  Pavel Nevski
 *CMZ :  1.30/00 16/04/97  22.11.16  by  Pavel Nevski
 *CMZU:  1.00/01 21/12/95  22.17.57  by  Pavel Nevski
@@ -20632,7 +20636,8 @@ Lm=LENOCC(Cname);  Check Lm>=J+3;
   }
   If Npar>0 & Link>0
   {  Need=Ie-IQ(Link-1); " If Need>leng { Err Ie,Nd; } "
-     If (Need>0)   Call MZPUSH(IrbDIV,Link,0,NEED,' ')
+     if (IrMode>9) print *,' REBANK: Need,del=',need,del
+     If (Need > 0) Call MZPUSH(IrbDIV,Link,0,NEED,' ')
      if (Del=='.') IQ(Link-5)=-max(Ie/Leng,-IQ(Link-5))
   }
   IQUEST(1)=0
