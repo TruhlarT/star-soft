@@ -826,7 +826,7 @@ sub DisplayFilesAndReports{
   foreach my $file (@ps_file){
     $self->PrintFilestring("Postscript file", $file);
   }
-
+  print h4("Output of macros:\n");
   # links to output of the macros
   foreach my $file (@report){  
     $self->PrintFilestring("Report", $file);

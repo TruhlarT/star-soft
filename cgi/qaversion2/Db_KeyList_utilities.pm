@@ -12,6 +12,7 @@ use CGI qw/:standard :html3/;
 use DBI;
 use Time::Local;
 use QA_globals;
+use POSIX qw(strftime);
 use QA_db_utilities qw(:db_globals); # import db handle and tables
 
 use strict qw(vars subs);
@@ -206,7 +207,7 @@ sub GetOfflineKeys{
   my $createTime    = shift; # e.g. three_days
   my $dataset       = shift;
 
-  my $limit = 50; # dont want to get a million of them
+  my $limit = 75; # dont want to get a million of them
 
   #---------------------------------------------------------------------
   # pmj 28/6/00 display keys with header, table formatting
@@ -248,44 +249,39 @@ sub GetOfflineKeys{
   my ($file_from_string, $job_from_string);
   my ($file_where_string, $job_where_string);
 
-  # --- from cpFileCatalog ---
-  my ($runID_string, $dataset_string, $createTime_string);
+  # always include the file catalog
+  $file_from_string = ",$dbFile.$FileCatalog as file";
+  $file_where_string = "sum.jobID = file.jobID and";
 
-  if ($runID ne 'any' or $createTime ne 'any' or $dataset ne 'any') 
-  {  
-    # include this in the from clause
-    $file_from_string = ",$dbFile.$FileCatalog as file";
+  # --- from FileCatalog ---
+
+  # runID string
+  my $runID_string = "file.runID = '$runID' and" 
+    if $runID ne 'any';
+
+  # dataset string
+  my $dataset_string = "file.dataset = '$dataset' and"
+    if $dataset ne 'any';
+   
+  # create time string
+  my $createTime_string;
+  if ($createTime ne 'any') {
+    my $now = strftime("%Y-%m-%d %H:%M:%S", localtime());
+    my $days;
+    # cant get the stupid soft refs to work...
     
-    # where clause
-    $file_where_string = "sum.jobID = file.jobID and";
-
-    # runID string
-    $runID_string = "file.runID = '$runID' and" 
-      if $runID ne 'any';
-
-    # dataset string
-    $dataset_string = "file.dataset = '$dataset' and"
-      if $dataset ne 'any';
+    $days = 1  if $createTime eq 'one_day';
+    $days = 3  if $createTime eq 'three_days';
+    $days = 7  if $createTime eq 'seven_days';
+    $days = 14 if $createTime eq 'fourteen_days';
     
-    # create time string
-    if ($createTime ne 'any') {
-      my $now = time;
-      my $days;
-      # cant get the stupid soft refs to work...
-      
-      $days = 1  if $createTime eq 'one_day';
-      $days = 3  if $createTime eq 'three_days';
-      $days = 7  if $createTime eq 'seven_days';
-      $days = 14 if $createTime eq 'fourteen_days';
-      
-      $createTime_string  = 
-	" (to_days(from_unixtime($now))-to_days(file.createTime))<= $days and";
-    }
+    $createTime_string  = 
+      " (to_days('$now')-to_days(file.createTime))<= $days and";
   }
-  
-  # --- from cpJobStatus ---2
+
+  # --- from JobStatus ---
   my ($prod_string, $chain_string, $jobStatus_string);
- 
+
   if ($jobStatus ne 'any' or $prodSeries ne 'any' ) 
   {  
     # include this in the from clause
@@ -361,22 +357,13 @@ sub GetOfflineKeys{
 		      $dataType_string
 		      $macro_string
 		      $QAstatus_string
+		      order by file.createTime desc
 		limit $limit };
 
   print $query if $gBrowser_object->ExpertPageFlag;
 
-  my $sth = $dbh->prepare($query);
-  $sth->execute();
-  my $rows = $sth->rows;
-  if ($rows == $limit){
-    print h3(font({-color=>'red'}, "You've selected $rows rows<br>",
-		  "Please narrow your selection for better performance<br>"));
-  }
-  return map { $_->[0] } @{$sth->fetchall_arrayref()};
+  return GetReportKeys($query, $limit);
 
-#  my $keys_ref = $dbh->selectcol_arrayref( $query );
-  
-#  return @{$keys_ref};
 
 }
 #=======================================================================
@@ -413,7 +400,7 @@ sub GetNightlyKeys{
   my $jobStatus     = shift;
   my $createTime    = shift; 
 
-  my $limit = 50; # limit the query
+  my $limit = 75; # limit the query
 
   #---------------------------------------------------------------------
   # pmj 28/6/00 display keys with header, table formatting
@@ -444,55 +431,48 @@ sub GetNightlyKeys{
   my ($LibLevel_string, $platform_string, $eventType_string,
       $geometry_string, $ondisk_string, $createTime_string);
 
-  if ($eventGen   ne 'any' or
-      $LibLevel   ne 'any' or 
-      $platform   ne 'any' or
-      $eventType  ne 'any' or
-      $geometry   ne 'any' or
-      $createTime ne 'any' or
-      $ondisk     ne 'any'     )
-  {
-    $file_from_string  = ",$dbFile.$FileCatalog as file";
-    $file_where_string = "sum.jobID = file.jobID and";
+  # always join with the file catalog
 
-    # any or not any?
-    $LibLevel_string  = "file.LibLevel = '$LibLevel' and"
-      if $LibLevel ne 'any';
-    $platform_string  = "file.platform = '$platform' and"
-      if $platform ne 'any';
-    $eventType_string = "file.eventType = '$eventType' and"
-      if $eventType ne 'any';
-    $geometry_string  = "file.geometry = '$geometry' and"
-      if $geometry ne 'any';
+  $file_from_string  = ",$dbFile.$FileCatalog as file";
+  $file_where_string = "sum.jobID = file.jobID and";
+
+  # any or not any?
+  $LibLevel_string  = "file.LibLevel = '$LibLevel' and"
+    if $LibLevel ne 'any';
+  $platform_string  = "file.platform = '$platform' and"
+    if $platform ne 'any';
+  $eventType_string = "file.eventType = '$eventType' and"
+    if $eventType ne 'any';
+  $geometry_string  = "file.geometry = '$geometry' and"
+    if $geometry ne 'any';
   
-    # ondisk?
-    if ($ondisk ne 'any') {
-      if ($ondisk eq 'on disk')
+  # ondisk?
+  if ($ondisk ne 'any') {
+    if ($ondisk eq 'on disk')
       {
 	$ondisk_string = "file.avail = 'Y' and";
       }
-      elsif ($ondisk eq 'not on disk') 
+    elsif ($ondisk eq 'not on disk') 
       {
 	$ondisk_string = "file.avail = 'N' and";
       }
-      else{ die "Wrong argument for on_disk";}
-    }
-
-    # when was the job created?
-    if ($createTime ne 'any'){
-      # create time string
-      my $now = time;
-      my $days;
-      # cant get the stupid soft refs to work...
-      
-      $days = 1  if $createTime eq 'one_day';
-      $days = 3  if $createTime eq 'three_days';
-      $days = 7  if $createTime eq 'seven_days';
-      $days = 14 if $createTime eq 'fourteen_days';
-      
-      $createTime_string  = 
-	" (to_days(from_unixtime($now))-to_days(file.createTime))<= $days and";
-    }
+    else{ die "Wrong argument for on_disk";}
+  }
+  
+  # when was the job created?
+  if ($createTime ne 'any'){
+    # create time string
+    my $now = strftime("%Y-%m-%d %H:%M:%S", localtime());
+    my $days;
+    # cant get the stupid soft refs to work...
+    
+    $days = 1  if $createTime eq 'one_day';
+    $days = 3  if $createTime eq 'three_days';
+    $days = 7  if $createTime eq 'seven_days';
+    $days = 14 if $createTime eq 'fourteen_days';
+    
+    $createTime_string  = 
+      " (to_days('$now')-to_days(file.createTime))<= $days and";
   }
 
   # --- job status info ---
@@ -586,23 +566,13 @@ sub GetNightlyKeys{
 		       $jobStatus_string
 		       $macro_string
 		       $QAstatus_string
+		       order by file.createTime
 		 limit $limit };
   
   # for debugging
   print $query if $gBrowser_object->ExpertPageFlag;
 
-  my $sth = $dbh->prepare($query);
-  $sth->execute();
-  my $rows = $sth->rows;
-  if ($rows == $limit){
-    print h3(font({-color=>'red'}, "You've selected $rows rows<br>",
-		  "Please narrow your selection for better performance<br>"));
-  }
-  return map { $_->[0] } @{$sth->fetchall_arrayref()};
-
-
-#  my $keys_ref = $dbh->selectcol_arrayref( $query );
-#  return @{$keys_ref};
+  return GetReportKeys($query, $limit);
 
 } 
 #=======================================================================
@@ -728,6 +698,25 @@ sub remove_white_space{
   return $_[0];
 }
 #=======================================================================
+sub GetReportKeys{
+  my $query = shift;
+  my $limit = shift;
+
+  my $sth = $dbh->prepare($query);
+  $sth->execute();
+  my $rows = $sth->rows;
+  if ($rows == $limit){
+    print h4(font({-color=>'blue'}, 
+		  "Here are the first $rows rows from the database ",
+		  "matching your query.<br>",
+		  "They are listed in descending order according to the ",
+		  "creation time of the output files. <br>",
+		  "Choose a more restrictive query for better performance.<br>"));
+  }
+  return map { $_->[0] } @{$sth->fetchall_arrayref()};
+}
+
+#=======================================================================
 # for printing DB query keys to browser
 
 sub PrintTableOfKeys{
@@ -759,7 +748,6 @@ sub PrintTableOfKeys{
 	     ),"<hr>";
   
 }
-
 #=======================================================================
 1;
 
