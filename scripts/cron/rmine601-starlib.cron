@@ -27,4 +27,7 @@
 #     ning  with a `#' is a comment and will be ignored.  The file
 #     should not contain blank lines.
 #
-0,20,40      *   * * * /afs/rhic/star/users/starlib/novabin/updateServers.csh
+01,20,40      *   * * *   /afs/rhic/star/users/starlib/novabin/updateServers.csh update
+00           01   * * 0,3 /afs/rhic/star/users/starlib/novabin/updateServers.csh newlog
+05,35         *   * * *   /afs/rhic/star/packages/scripts/showquotas -html -o /afs/rhic/star/doc/www/html/tmp/pub/data01.html /star/data01
+06,36         *   * * *   /afs/rhic/star/packages/scripts/showquotas -html -o /afs/rhic/star/doc/www/html/tmp/pub/data02.html /star/data02
