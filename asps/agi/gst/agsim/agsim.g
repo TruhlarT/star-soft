@@ -60,6 +60,7 @@ C
                  // ' [ -l login_kumac]'      _
                  // ' [ -b batch_kumac]'      _
                  // ' [ -D debug_level]'      _
+                 // ' [ -S STAF_size(Mw)]'    _
                  // ' [ -P PAWC_size(Mw)]'    _
                  // ' [ -G GCBANK_size(Mw)]'  _
                  // ' [ -f fatmen_catalog  ]' _
