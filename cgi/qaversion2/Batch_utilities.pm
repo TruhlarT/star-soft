@@ -14,7 +14,7 @@ use IO_object;
 # my $batchType = "AT";
 my $batchType = "LSF";
 # queue to use on LSF
-my $lsfQueue = "star_cas";
+my $lsfQueue = "star_cas_short";
 
 #========================================================
 # return true on loading
@@ -29,7 +29,7 @@ my $lsfQueue = "star_cas";
 # $commandName should the name of a script to run as a 
 # batch job
 #
-# returns the result of the "system" call
+# returns the command output
 #========================================================
 sub SubmitJob
 {
@@ -76,7 +76,7 @@ sub Queue
 # $commandName should the name of a script to run as a 
 # batch job
 #
-# returns the result of the "system" call
+# returns the output of the command
 #========================================================
 sub SubmitLSFJob
 {
@@ -92,7 +92,7 @@ sub SubmitLSFJob
     # -B == notify on job dispatch
     my $cmdStr = 
 	"bsub -N -B -u $notifyEmail -J $jobName -q $lsfQueue \"$cmd\"";
-    return system ($cmdStr);
+    return `$cmdStr`;
 }
 
 #========================================================
@@ -103,14 +103,14 @@ sub SubmitLSFJob
 # $commandName should the name of a script to run as a 
 # batch job
 #
-# returns the result of the "system" call
+# returns the output of the command
 #========================================================
 sub SubmitAtJob
 {
     my $cmd = shift;
 
     my $cmdStr = "at -f \"$cmd\" now";
-    return system ($cmdStr);
+    return `$cmdStr`;
 }
 
 #========================================================

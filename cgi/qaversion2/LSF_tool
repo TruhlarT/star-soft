@@ -81,37 +81,57 @@ exit 0;
 sub controlButtons{
     my $cgi = shift;
 
-    my $text = $cgi->submit(-name=>'action',
-			  -value=>'Details for Marked Jobs') . "\n";
+    my $text = "<br><b>View marked jobs:</b>\n";
+    
     $text .= $cgi->submit(-name=>'action',
-			  -value=>'History for Marked Jobs') . "\n";
+			  -value=>'Details') . "\n";
     $text .= $cgi->submit(-name=>'action',
-			  -value=>'Peek at Marked Jobs') . "\n";
+			  -value=>'History') . "\n";
+    $text .= $cgi->submit(-name=>'action',
+			  -value=>'Peek') . "\n";
 
-    $text .= $cgi->br; # change between view & modify job actions
-
-    $text .= $cgi->submit(-name=>'action',
-			  -value=>'Suspend Marked Jobs') . "\n";
-    $text .= $cgi->submit(-name=>'action',
-			  -value=>'Resume Marked Jobs') . "\n";
-    $text .= $cgi->submit(-name=>'action',
-			  -value=>'Kill Marked Jobs') . "\n";
-
-    $text .= $cgi->hr;  # change between job & list actions
+    $text .= "<br><b>Edit marked jobs:</b>\n";
 
     $text .= $cgi->submit(-name=>'action',
-			    -value=>'Refresh Job List') . "\n";
+			  -value=>'Suspend') . "\n";
+    $text .= $cgi->submit(-name=>'action',
+			  -value=>'Resume') . "\n";
+    $text .= $cgi->submit(-name=>'action',
+			  -value=>'Kill') . "\n";
+
+    $text .= "<br>\n";
+
+    $text .= $cgi->submit(-value=>'Refresh Job List') . "\n";
+
+    $text .= "<br>\n";
+
     return $text;
 }
 
 #
-# return the title headings for the job table
+# return the title headings w/ sort buttons for the job table
 #
 
 sub selectionHeadings{
     my $cgi = shift;
+    my $text = $cgi->td();
 
-    my $text = $cgi->td(["", @$selectionLabels]);
+    # get a set of radio buttons to select the field to sort on
+    my $radioButtons = [$cgi->radio_group(
+					  -name=>'sortField',
+					  -value=>$selectionKeys,
+					  -default=>'jobID',
+					  -nolabels=>1,
+					  -onClick=>'this.form.submit()'
+					  ) ];
+
+    for(my $num = 0; $num <= $#$selectionKeys; $num++){
+	$text .= $cgi->td(
+			  {-bgcolor=>'yellow'},
+			  $selectionLabels->[$num] .
+			  "<br>\n(" . $radioButtons->[$num] . " sort)"
+			  );
+    }
 
     return $text;
 }
@@ -159,32 +179,26 @@ sub selectionControls{
     # print the selection controls
     #
 
-    # get a set of radio buttons to select the field to sort on
-    my @radioButtons = $cgi->radio_group(
-				       -name=>'sortField',
-				       -value=>$selectionKeys,
-				       -default=>'jobID',
-				       -nolabels=>1
-				       );
-
-    my $text = $cgi->Tr(
-			$cgi->td(["Sort:", @radioButtons])
-			) . "\n";
-
     # column selection controls
+    my $text = "";
     $text .= $cgi->Tr(
-		      $cgi->td([
-				"",
-				map({ 
-				    $cgi->popup_menu( 
-						      -name=>$_,
-						      -values=>$fieldChoices->{$_},
-						      -default=>"any"
-						      )
-				    } @$selectionKeys)
-				])
+		$cgi->td(
+			 {-bgcolor=>'pink'},
+			 "Mark Jobs"
+			 ) . 
+	        $cgi->td(
+			 {-bgcolor=>'lightblue'},
+			 [map({ 
+			     $cgi->popup_menu( 
+					       -name=>$_,
+					       -values=>$fieldChoices->{$_},
+					       -default=>"any",
+					       -onchange=>"this.form.submit()"
+					       )
+			     } @$selectionKeys)
+			  ])
 		      ) . "\n";
-
+    
     return $text;
 }
 
@@ -232,15 +246,18 @@ sub selectedJobs{
 
     # generate the table text, one row per job
     my $text = "";
-
     for (my $i = 0; $i <= $#selectedJobs; $i++){
 	$text .= $cgi->Tr(
+			  $cgi->td(
+				   {-bgcolor=>'pink'},
+				    $checkBoxes[$i]
+				   ) . 
 			  $cgi->td([
-				    $checkBoxes[$i],
-				    map({ $selectedJobs[$i]->{$_} } 
+				    map(
+					{ $selectedJobs[$i]->{$_} } 
 					@$selectionKeys)
-				    ])
-			  );
+				    ]) . "\n"
+			  ) . "\n";
     }
     
     return $text;
@@ -258,35 +275,34 @@ sub performAction{
     my @markedJobIDs = $cgi->param("markedJobs");
 
     my $text = "";
-    if ($action eq "Refresh Job List"){
-    }elsif($action eq "Details for Marked Jobs"){
+    if($action eq "Details"){
 	foreach my $jobID (@markedJobIDs){
-	    writeToNewWindow($cgi->h3("Details_for_Job_$jobID") . "\n" .  
+	    writeToNewWindow($cgi->h3("Details for Job $jobID") . "\n" .  
 			     $cgi->pre(`bjobs -l $jobID 2>&1`) . "\n");
 	}
-    }elsif($action eq "History for Marked Jobs"){
+    }elsif($action eq "History"){
 	foreach my $jobID (@markedJobIDs){
-	    writeToNewWindow($cgi->h3("History_for_Job_$jobID") . "\n" . 
+	    writeToNewWindow($cgi->h3("History for Job $jobID") . "\n" . 
 			     $cgi->pre(`bhist -l $jobID 2>&1`) . "\n");
 	}
-    }elsif($action eq "Kill Marked Jobs"){
+    }elsif($action eq "Kill"){
 	foreach my $jobID (@markedJobIDs){
-	    writeToNewWindow($cgi->h3("Killing_Job_$jobID") . "\n" . 
+	    writeToNewWindow($cgi->h3("Killing Job $jobID") . "\n" . 
 			     $cgi->pre(`bkill $jobID 2>&1`) . "\n");
 	}
-    }elsif($action eq "Suspend Marked Jobs"){
+    }elsif($action eq "Suspend"){
 	foreach my $jobID (@markedJobIDs){
-	    writeToNewWindow($cgi->h3("Suspending_Job_$jobID") . "\n" .  
+	    writeToNewWindow($cgi->h3("Suspending Job $jobID") . "\n" .  
 			     $cgi->pre(`bstop $jobID 2>&1`) . "\n");
 	}
-    }elsif($action eq "Resume Marked Jobs"){
+    }elsif($action eq "Resume"){
 	foreach my $jobID (@markedJobIDs){
-	    writeToNewWindow($cgi->h3("Resuming_Job_$jobID") . "\n" . 
+	    writeToNewWindow($cgi->h3("Resuming Job $jobID") . "\n" . 
 			     $cgi->pre(`bresume $jobID 2>&1`) . "\n");
 	}
-    }elsif($action eq "Peek at Marked Jobs"){
+    }elsif($action eq "Peek"){
 	foreach my $jobID (@markedJobIDs){
-	    writeToNewWindow($cgi->h3("Peeking_at_Job_$jobID") . "\n" . 
+	    writeToNewWindow($cgi->h3("Peeking at Job $jobID") . "\n" . 
 			     $cgi->pre(`bpeek $jobID 2>&1`) . "\n");
 	}
     }
@@ -312,9 +328,10 @@ sub writeToNewWindow{
 <script language="JavaScript"><!--
 var day = new Date();
 var id = day.getTime();
-eval("var myWindow = window.open('', '" + id + "', 'toolbars=0,scrollbars=1,location=0,statusbars=1,menubars=0,resizable=1,width=600,height=200');");
+eval("var myWindow = window.open('', '" + id + "', 'toolbars=0,scrollbars=1,location=0,statusbars=1,menubars=0,resizable=1');");  
 
 MICA
+#,width=600,height=200');");
 
     my @lines = split("\n",$text);
     foreach my $line (@lines){
@@ -338,6 +355,9 @@ sub startDocument{
 
     # start the form
     $text .= $cgi->start_form() . "\n";
+
+    # print the title
+    $text .= $cgi->h1("LSF Monitor for RCAS") . "\n";
     return $text;
 }
 
@@ -368,7 +388,7 @@ sub bJobs{
 
     # get the jobs from bjobs
     my @lines = `bjobs -w -u all`; # lists jobs for all users
-    shift @lines;                  # discard header
+    shift @lines;                          # discard header
 
     # extract fields from each line
     foreach my $line (@lines){  

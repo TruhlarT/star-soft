@@ -33,6 +33,8 @@
 #
 # Cross Your Fingers.
 #
+# NOTE: cgid is biased to run on rcas by the path environment variable provided
+#       to the child script
 
 use HTTP::Daemon;
 use Net::hostent; # OO getpeerbyaddr
@@ -50,7 +52,7 @@ my $log_dir = "$var_dir/log";
 my $run_dir = "$var_dir/run";
 my $pid_file = "$run_dir/$my_name.pid";
 my $log_file = "$log_dir/$my_name.log";
-my $afs_pw_file = cwd() . "/starlib_pw";
+my $afs_pw_file = "/star/rcf/qa/.starlib_CGI";
 
 my %opt = ();
 getopt('p', \%opt);
@@ -215,12 +217,16 @@ if (my $script_name = get_script_name($request))
     $client->send_status_line;
     $client->send_basic_header;
 
+    # set up linux-friendly path
+
+    %ENV = (); # start clean
+    $ENV{PATH} = "/opt/star/bin:/afs/rhic/star/users/starlib/bin:/afs/rhic/star/users/starlib/bin/.i386_redhat61:/afs/rhic/star/ROOT/2.25.00//.i386_redhat61/root/bin:/usr/local/lsf/bin:/usr/pgi/linux86/bin:/afs/rhic/rhstar/group:/afs/rhic/star/packages/DEV00/mgr:/afs/rhic/star/packages/DEV00/scripts:/afs/rhic/star/packages/DEV00/cgi:.i386_redhat61/bin:/afs/rhic/star/packages/DEV00/.i386_redhat61/bin:/afs/rhic/star/packages/StAF/SL99g/mgr:/afs/rhic/star/packages/StAF/SL99g/.i386_redhat61/bin:/usr/afsws/bin:/usr/afsws/etc:/usr/sue/bin:/usr/local/bin:/afs/rhic/star/users/starlib/scripts:/usr/bin:/bin:/usr/bin/X11:/usr/local/bin/X11:.:/usr/local/bin/ddd:/cern/2000/bin";
+
     #
     # set up the environment ala the CGI/1.1 "specification"
     #    - see http://Web.Golux.Com/coar/cgi/
     #
 
-    %ENV = (); # start clean
     $url = $request->url();
     
     # query string (trailing "?<query string>")
