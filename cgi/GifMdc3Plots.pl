@@ -8,7 +8,7 @@
 # Script to create plots for production operation
 #================================================================== 
 
-require "/afs/rhic/star/packages/DEV00/mgr/dbCpProdSetup.pl";
+require "/afs/rhic/star/packages/scripts/dbCpProdSetup.pl";
 
 use CGI;
 use GIFgraph::linespoints;
