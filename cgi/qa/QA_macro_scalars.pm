@@ -90,6 +90,7 @@ sub bfcread_runcoBranch{
   while ( <REPORT> ) {
     if ( /rows\s+=\s+([\w_]+),\s+(\d+)/ ) {
       $table{$1} = $2; 
+      next;
     }
 
     if ( /(event)\s+(\d+)/         or
@@ -193,21 +194,23 @@ sub bfcread_tagsBranch{
     if ( /table\#,name:\s+(\d+),\s+(\w+)/ ) {
       next if exists $temp_hash{$2};
       $temp_hash{$2} = $1;
+      next;
     }
 
     if ( /total\s+\#\s+(events).*?(\d+)/ ) {
       $run_scalar_hash{$1} = $2;
+      next;
     }
     
     if ( /tables\/event\s+=\s+(\d+)/ ) {
       $key = "tables_per_evt";
       $run_scalar_hash{$key} = $1;
+      next;
     }
       
     if ( /table\s+(\d+)\s+had\s+(\d+)/ ) {
       foreach ( keys %temp_hash ) {
 	  $run_scalar_hash{$_} = $2 if $1 eq $temp_hash{$_};
-	  next;
 	}
     }
 
