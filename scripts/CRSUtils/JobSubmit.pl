@@ -109,13 +109,14 @@ if ($ThisYear == 2002){
     
     # Default chain
     $DCHAIN{"dAu"}            = "dAu2003,alltrigger,est,CMuDst";
+    $DCHAIN{"ProtonProton"}   = "pp2003,alltrigger,trgd,est,CMuDst";
     
     # Default pre-calib
     #$DCALIB{"dAu"}            = "PreTpcT0";
 
     # Default stand-alone auto-calib (works only on $LASERTP files)
     $SCALIB{"dAu"}            = "OptLaser";
-
+    $SCALIB{"ProtonProton"}   = "OptLaser";
 
 } else {
     print "Unknown Year $ThisYear\n";
