@@ -544,9 +544,11 @@ sub get_id_from_dictionary {
   my @params = @_;
   my $idname = $params[0];
   my $sth;
+  my $id;
   my $sqlquery;
 
   $idname = &IDize($idname);
+  $id     = 0;
 
   $sqlquery = "SELECT $idname FROM $params[0] WHERE UPPER($params[1]) = UPPER(\"$params[2]\")";
   if ($DEBUG > 0) {  &print_debug("Executing: $sqlquery");}
@@ -555,15 +557,17 @@ sub get_id_from_dictionary {
   if( ! $sth){
       &print_debug("FileCatalog:: get_id_from_dictionary : Failed to prepare [$sqlquery]");
   } else {
+      my( $val );
+
       $sth->execute();
-      my( $id );
-      $sth->bind_columns( \$id );
+      $sth->bind_columns( \$val );
       
       if ( $sth->fetch() ) {
 	$sth->finish();
-	return $id;
+	$id = $val;
       }
   }
+  return $id;
 }
 
 # Used several places so, made a utility routine
@@ -598,7 +602,7 @@ sub check_ID_for_params {
     my $rest;
 
     ($fieldname, $tabname, $rest) = split(",",$keywrds{$params[0]});
-    $retid = get_id_from_dictionary($tabname, $fieldname, $valuset{$params[0]});
+    $retid = &get_id_from_dictionary($tabname, $fieldname, $valuset{$params[0]});
     if ($retid == 0) {
       if ($DEBUG > 0) {
 	  &print_debug("check_ID_params::ERROR: No $params[0] with name: ".$valuset{$params[0]});
@@ -685,7 +689,7 @@ sub insert_dictionary_value {
       &print_debug("FileCatalog::insert_dictionary_value : Failed to prepare [$dtinsert]");
   } else {
       if ( $sth->execute() ) {
-	  $retid = get_last_id();
+	  $retid = &get_last_id();
 	  if ($DEBUG > 0) { &print_debug("Returning: $retid");}
 	  $sth->finish();
       }
@@ -737,7 +741,7 @@ sub insert_detector_configuration {
       &print_debug("FileCatalog::insert_detector_configuration : Failed to prepare [$dtinsert]");
   } else {
       if ( $sth->execute() ) {
-	  $retid = get_last_id();
+	  $retid = &get_last_id();
 	  if ($DEBUG > 0) { &print_debug("Returning: $retid");}
       }
       $sth->finish();
@@ -907,7 +911,7 @@ sub insert_collision_type {
       &print_debug("FileCatalog::insert_collision_type : Failed to prepare [$ctinsert]");
   } else {
       if ( $sth->execute() ) {
-	  $retid = get_last_id();
+	  $retid = &get_last_id();
 	  &print_debug("Returning: $retid");
       }
       $sth->finish();
@@ -1044,7 +1048,7 @@ sub insert_run_param_info {
   } else {
       # Insert the event counts for a given FileData
       if ( $sth->execute() ) {
-	  $retid = get_last_id();
+	  $retid = &get_last_id();
 	  if ($DEBUG > 0) { &print_debug("Returning: $retid");}
       }
       $sth->finish();
@@ -1185,7 +1189,7 @@ sub insert_file_data {
   $sth = $DBH->prepare( $fdinsert );
   if( $sth ){
       if ( $sth->execute() ) {
-	  $retid = get_last_id();
+	  $retid = &get_last_id();
 	  $sth->finish();
 	  &print_debug("Returning: $retid");
 
@@ -1387,7 +1391,7 @@ sub insert_simulation_params {
     my $sth = $DBH->prepare( $eginsert );
 
     if ( $sth->execute() ) {
-      $eventGenerator = get_last_id();
+      $eventGenerator = &get_last_id();
       if ($DEBUG > 0) {
 	  &print_debug("Returning: $eventGenerator");
       }
@@ -1416,7 +1420,7 @@ sub insert_simulation_params {
       return 0;
   }
   if ( $sth->execute() ) {
-    my $retid = get_last_id();
+    my $retid = &get_last_id();
     if ($DEBUG > 0) {
 	&print_debug("Returning: $retid");
     }
@@ -1725,10 +1729,15 @@ sub insert_file_location {
       if( ! $sth ){
 	  &print_debug("FileCatalog::insert_file_location : Failed to prepare [$flinsert]");
       } else {
-	  if ( $sth->execute() ) {
-	      $retid = get_last_id();
-	      &print_debug("Returning: $retid");
-	      $sth->finish();
+	  if ($DELAY ){
+	      push(@DCMD,$flinsert);
+	      $retid = 0;
+	  } else {
+	      if ( $sth->execute() ) {
+		  $retid = &get_last_id();
+		  &print_debug("Returning: $retid");
+		  $sth->finish();
+	      }
 	  }
       }
   }
