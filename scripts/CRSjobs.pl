@@ -304,9 +304,9 @@ if( $mon < 10) { $mon = '0'.$mon };
 if( $mday < 10) { $mday = '0'.$mday };
 
  $thisday = $year."-".$mon."-".$mday; 
- $today = $thisday
+ $today = $thisday;
 
-print "Time stamp  ", $thisday, "\n";
+#print "Time stamp  ", $thisday, "\n";
 
 $outname = "mail" . "_" .$thisday . "_" . "out";
  
@@ -387,7 +387,7 @@ for ($ll = 0; $ll < scalar(@nodeList); $ll++) {
       $dbnode = "none";
       $dbDate = "none";
       
-  $sql="SELECT nodeName, mdate FROM $crsStatusT WHERE nodeName = '$mynode' AND mdate = '$thisday' ;    
+  $sql="SELECT nodeName, mdate FROM $crsStatusT WHERE nodeName = '$mynode' AND mdate = '$thisday' ";    
 
        $cursor =$dbh->prepare($sql)
    || die "Cannot prepare statement: $DBI::errstr\n";
