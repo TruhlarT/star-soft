@@ -540,7 +540,16 @@ foreach  $eachOutNDir (@OUT_DIR) {
        $EvGen = "hadronic_cocktail";
        $EvType = $EvTp;
     }
-       else {
+
+     elsif ($EvTp eq "dau_minbias") {
+       $EvGen = "hijing";
+       $EvType = "dau_minbias";
+
+    } elsif ($EvTp eq "auau_minbias") {
+       $EvGen = "hijing";
+       $EvType = "auau_minbias";
+
+   } else {
        $EvGen = "daq";
        $EvType = $EvTp;
   }
