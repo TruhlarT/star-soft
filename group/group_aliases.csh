@@ -1,5 +1,8 @@
-# $Id: group_aliases.csh,v 1.15 2003/05/02 00:53:20 jeromel Exp $
+# $Id: group_aliases.csh,v 1.16 2003/11/12 01:54:12 jeromel Exp $
 # $Log: group_aliases.csh,v $
+# Revision 1.16  2003/11/12 01:54:12  jeromel
+# Single quote + remove commented lines
+#
 # Revision 1.15  2003/05/02 00:53:20  jeromel
 # Removed skipping alias.
 #
@@ -38,16 +41,15 @@ alias stardev    'source ${GROUP_DIR}/.stardev'
 alias staradev   'source ${GROUP_DIR}/.staradev'
 alias star.dev   'source ${GROUP_DIR}/star.dev'
 alias star..dev  'source ${GROUP_DIR}/star..dev'
-#if (`uname -s` != "OSF1") then
-   alias starver    'source ${GROUP_DIR}/.starver'
-#endif
+alias starver    'source ${GROUP_DIR}/.starver'
 alias setup      'source ${GROUP_DIR}/setup'
 alias starsetup  'source ${GROUP_DIR}/setup'
+
 if ($?SILENT == 1) then
-  alias makes      "gmake --silent -f $STAR/mgr/MakePam.mk"
-  alias makel      "gmake --silent -f $STAR/mgr/Makeloop.mk"
+  alias makes      'gmake --silent -f ${STAR}/mgr/MakePam.mk'
+  alias makel      'gmake --silent -f ${STAR}/mgr/Makeloop.mk'
 else
-  alias makes      "gmake -f $STAR/mgr/MakePam.mk"
-  alias makel      "gmake -f $STAR/mgr/Makeloop.mk"
+  alias makes      'gmake -f ${STAR}/mgr/MakePam.mk'
+  alias makel      'gmake -f ${STAR}/mgr/Makeloop.mk'
 endif
 # last line
