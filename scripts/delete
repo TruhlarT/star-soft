@@ -1,11 +1,31 @@
 #!/usr/local/bin/perl
 
-foreach $arg (@ARGV){
-    push(@FILES,glob($arg));
+#
+# Simple script J.Lauret 200?
+#
+
+if ( ! defined(@ARGV ) ){
+    die 
+	"\n",
+	"Usage is: $0 {File1|'WildcardFile'}\n",
+	"Example :\n",
+	"    $0 bla.tmp  \n",
+	"    $0 '*.tmp'  \n",
+	"\n",
+	"You MUST use single quote to avoid shell auto-completion.\n",
+	"\n";
 }
 
 $d = 0;
-foreach $file (@FILES){
-    if( ! unlink($file) ){  print "Could not delete $file\n";}
-    else                 {  $d++;}
+foreach $arg (@ARGV){
+    # since globbing can result is lots of files,
+    # do it as the arguments comes. Another way 
+    # would be opendir()
+    push(@FILES,glob($arg));
+    foreach $file (@FILES){
+        if ( ! unlink($file) ){  print STDERR "Could not delete $file\n";}
+	else                  {  $d++;}
+    }
 }
+if ($d != 0){  print "$d files deleted\n"}
+
