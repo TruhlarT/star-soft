@@ -263,7 +263,7 @@ if ($trigD eq "all" and $fieldM eq "all" and $detSet eq "all") {
 &beginHtml();
 
  &printTotal(); 
-
+&cgiSetup();
 &begin2Html();
 
 #####  finished with database
@@ -312,7 +312,7 @@ print <<END;
 <TD ALIGN=CENTER WIDTH=\"10%\" HEIGHT=100><B>Number of Events<br>in event.root file</B></TD>
 <TD ALIGN=CENTER WIDTH=\"10%\" HEIGHT=100><B>Number of Events<br>in MuDst.root file</B></TD>
 </TR> 
-
+</TABLE>
    </head>
     <body>
 END
