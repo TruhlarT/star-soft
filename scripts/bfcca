@@ -88,13 +88,14 @@ $|       = 1;
 $AFS_RHIC= "/afs/rhic.bnl.gov";    # path to AFS head
 $NFSHOME = "/star/u/starreco";     # path to NFS home ** HARDWIRED **
 $HPSSBASE= "/home/starreco";       # base HPSS path   ** HARDWIRED **
-$NTRIES  = 720;                    # number of tries -1 means infinit tries
+$NTRIES  = 100;                    # number of tries -1 means infinit tries
 $SLPTIME = 120;                    # sleep time in sec between mkpath attempts
 $PRGM    = "bfcca";                # this program logical name
 $BFC     = "bfc.C";                # arguments will be passed as numevt, chain, input
 $PERIOD  = 0;                      # See "+" mode
 $GENERICO= "";                     # Default generic output filename
 $SOFFTOL = 0.02;                   # Size offset tolerance (2%)
+$MAXFILL = 97;                     # Maximum disk occupency in %tage for free space algo
 
 # This is for debugging purposes
 if (1==1){
@@ -871,7 +872,7 @@ sub FileCopy
 		$k++;
 		#if($k != $NTRIES){
 		if ($fstat[7] == 0) {
-		    print "$PRGM :: Warning: target size is null and should have been $stat[7]\n";
+		    print "$PRGM :: Error: target size is null and should have been $stat[7]\n";
 		} elsif ( $szd < $SOFFTOL ){
 		    print "$PRGM :: Info: target size missmatches $fstat[7] $stat[7]\n";
 		}
@@ -999,7 +1000,7 @@ sub GetAvailableDisk
 	$prct =~ s/%//;
 	#print "DEBUG $base$i $tota $used $avai $prct\n";
 
-	if ($prct <= 98){
+	if ($prct <= $MAXFILL){
 	    push(@CANDIDATES,"$base$i");
 	    $SIZESORTED{"$base$i"} = $avai;
 	}
