@@ -1,8 +1,11 @@
 #!/opt/star/bin/perl -w
 #
-# $Id: dbDevTestQuery.pl,v 1.4 2001/02/16 15:37:54 liuzx Exp $
+# $Id: dbDevTestQuery.pl,v 1.5 2001/02/23 00:37:48 liuzx Exp $
 #
 # $Log: dbDevTestQuery.pl,v $
+# Revision 1.5  2001/02/23 00:37:48  liuzx
+# .Add a random number as the action's parameter!
+#
 # Revision 1.4  2001/02/16 15:37:54  liuzx
 # .Add select for weeks,(default 1, max 4)
 #
@@ -24,6 +27,7 @@ use CGI::Carp qw(fatalsToBrowser);
 
 my $debugOn = 0;
 
+my $rand = rand(100);
 my @prod_set = (
 		"trs_redhat61/year_1h/hc_lowdensity",
 		"trs_redhat61/year_1h/hc_standard",
@@ -65,7 +69,7 @@ print <<END;
 <META HTTP-EQUIV="Pragma" CONTENT="no-cache">
 <META HTTP-EQUIV="Cache-Control" CONTENT="no-cache">
 END
-print $query->startform(-action=>"dbDevTestQueryPlot.pl");  
+print $query->startform(-action=>"dbDevTestQueryPlot.pl?rand=$rand");  
 
 print "<body bgcolor=\"#ffdc9f\">\n";
 print "<h1 align=center><u>Query for Nightly Test in DEV Library</u></h1>\n";
@@ -104,3 +108,4 @@ print "<address><a href=\"mailto:liuzx\@bnl.gov\">Zhixu Liu</a></address>\n";
 
 #print $query->delete_all;
 print $query->end_html;
+exit 0;
