@@ -52,7 +52,7 @@ foreach $file (@ARGV){
 	    open(FO,">$file-tmp");
 	    $enum = 0;
 
-	    if ($bsfile){
+	    if ($bsfile && $class eq ""){
 		print FO
 		    "/*!\n",
 		    " * \\file $flnm\n",
