@@ -21,6 +21,7 @@ use File::Find;
 use File::Basename;
 
 use Storable;
+$Storable::forgive_me = 1;
 use Data::Dumper;
 
 use Time::Local;

@@ -1,8 +1,25 @@
-#! /usr/local/bin/perl -I/usr/lib/perl5/5.00503 -I/usr/lib/perl5/site_perl/5.005 -I/usr/lib/perl5/site_perl/5.005/i386-linux/ -I/afs/rhic/star/starqa/qa01/lib
+#! /usr/local/bin/perl
+##!/afs/rhic/i386_redhat61/opt/star/bin/perl
+## -I/usr/lib/perl5/5.00503 -I/usr/lib/perl5/site_perl/5.005 -I/usr/lib/perl5/site_perl/5.005/i386-linux/ -I/afs/rhic/star/starqa/qa01/lib
 
 # pmj & bjc 1/6/00
 #=========================================================
 #use CGI qw/:standard :html3 -no_debug/;
+
+#print "Before:\n".join("\n", @INC);
+#kludge to make up for different perl verisions, libraries, and os version
+#on connery and RCAS.  Yeah for upgrades!!!!
+BEGIN{
+  if(`hostname` =~ /connery/){
+#    unshift(@INC, "/afs/rhic/star/starqa/qa01/libConnery/lib/site_perl/5.6.0/");
+#    unshift(@INC, "/afs/rhic/star/starqa/qa01/libConnery/lib/site_perl/5.6.0/i386-linux/");
+  }else{
+    unshift(@INC, "/afs/rhic/star/starqa/qa01/libRCAS/lib");
+  }
+ }
+#use lib qw{/afs/rhic/star/starqa/qa01/lib};
+#print "\nAfter:\n".join("\n", @INC);
+
 use CGI qw/:standard :html3/;
 use CGI::Carp qw(fatalsToBrowser);
 
@@ -119,7 +136,7 @@ sub PrintFrameset{
   my $script_name = $gCGIquery->script_name;
   
   print title($title), frameset( {-rows=>'60%,40%'},
-	"<!--", `whoami && /usr/bin/tokens`, "-->",
+	"<!--\n", join("\n", @INC), "\n-->",
 	frame( {-name=>'list',    -src=>"$script_name/upper_display"} ),
 	frame( {-name=>'display', -src=>"$script_name/lower_display"} ));
 }
