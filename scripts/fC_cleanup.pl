@@ -26,7 +26,7 @@ my $state="";
 my $passwd=undef;
 my $kwrd="";
 my $newval=undef;
-my $user="";
+my $user=undef;
 my $keyw;
 my $n;
 my $confirm;
@@ -126,7 +126,9 @@ if ($count == 0){
     exit;
 }
 
-if ( $user eq ""){
+($user,$passwd) = $fileC->get_connection("Admin");
+
+if ( ! defined($user) ){
     print "Password : ";
     chomp($passwd = <STDIN>);
     $fileC->connect_as("Admin","FC_admin",$passwd);
