@@ -200,6 +200,30 @@ sub display_comment_string{
 
   return $button_string;
 }
+#==============================================================
+# Browser_object::DisplayDataset
+
+sub DisplayMoreButton{
+  my $script_name = $gCGIquery->script_name;
+  return "<center>" .
+    $gCGIquery->startform(-action=>"$script_name/upper_display",
+			  -TARGET=>"list").
+    $gCGIquery->submit('More datasets').
+    $gBrowser_object->Hidden->Parameters .
+    $gCGIquery->endform().
+    "</center>";
+}
+#==============================================================
+sub DisplayPreviousButton{
+  my $script_name = $gCGIquery->script_name;
+  return "<center>" .
+    $gCGIquery->startform(-action=>"$script_name/upper_display",
+			  -TARGET=>"list").
+    $gCGIquery->submit('Previous datasets').
+    $gBrowser_object->Hidden->Parameters .
+    $gCGIquery->endform().
+    "</center>";
+}
 #=============================================================
 
 sub SwitchDataTypeMenu{

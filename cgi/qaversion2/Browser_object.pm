@@ -10,6 +10,7 @@ use CGI::Carp qw(fatalsToBrowser);
 
 use Storable;
 use Data::Dumper;
+use POSIX qw(ceil);
 
 use QA_globals;
 use QA_object;
@@ -277,22 +278,25 @@ sub DisplayDataset{
   my $self = shift;
 
   my $limit = $Db_KeyList_utilities::selectLimit;
+  my $subset_len = 50; 
 
   my @selected_keys;	  
   # get out unless we're looking at messages or datasets
   return unless($gCGIquery->param('Display datasets') or
-		$gCGIquery->param('Display messages')   );
+		$gCGIquery->param('Display messages') or
+	        $gCGIquery->param('More datasets')    or
+	        $gCGIquery->param('Previous datasets'));
  
   $gCGIquery->param('enable_add_edit_comments') 
     and  &Browser_utilities::display_comment_buttons;
 
-  my @selected_keys;
+  my (@selected_keys);
   # are we looking for datasets?
   if ($gCGIquery->param('Display datasets')){
       # get selected keys - also make QA_objects
-      @selected_keys = $self->KeyList->GetSelectedKeyList;
+      my @all_selected_keys = $self->KeyList->GetSelectedKeyList;
     
-      my $rows = scalar @selected_keys;
+      my $rows = scalar @all_selected_keys;
       # no keys match query, get out
       unless ( $rows ) {
 	  print h2('No QA datasets match your query.  Try again.');
@@ -305,9 +309,72 @@ sub DisplayDataset{
 			"Please choose a more restrictive query.<br>"));
 	  return;
       }
+      # if the selected keys is greater than the subset_size,
+      # break it up into smaller blocks
+      
+      if ( $rows > $subset_len){
+	
+	$gCGIquery->param('previous_subset',0); 
+	$gCGIquery->param('selected_key_list',@all_selected_keys);
+
+	@selected_keys = splice(@all_selected_keys,0,$subset_len);
+
+	print "<center>",h3("Rows 1 - $subset_len (total $rows rows)"),
+	      Browser_utilities::DisplayMoreButton(),"</center>";
+
+      }
+      else{
+	@selected_keys = @all_selected_keys;
+      }
+    }
+  elsif($gCGIquery->param('More datasets') ||
+        $gCGIquery->param('Previous datasets')){    
+    my $previous_subset   = $gCGIquery->param('previous_subset');
+
+    my $current_subset;
+    if ($gCGIquery->param('More datasets')){
+      $current_subset    = $previous_subset + 1;
+    }
+    elsif($gCGIquery->param('Previous datasets')){
+      $current_subset    = $previous_subset - 1;
+    }
+    $gCGIquery->param('previous_subset',$current_subset);
+    
+    my @all_selected_keys = $gCGIquery->param('selected_key_list');
+    my $rows              = scalar @all_selected_keys;
+    my $n_subset          = ceil($rows/$subset_len);
+    my $is_last_subset    = ($current_subset == ($n_subset-1));
+    my $is_first_subset   = ($current_subset == 0);
+
+    # if the current subset is the last subset, dont show the more button.
+    # if the current subset is the first subset, dont show the previous button.
+    # note that the current subset is numbered from 0
+    my $more_button = Browser_utilities::DisplayMoreButton() 
+      unless $is_last_subset;
+			     
+    my $previous_button = Browser_utilities::DisplayPreviousButton()
+      unless $is_first_subset;
+
+    my $first_row = $current_subset*$subset_len + 1;
+    my $last_row;
+    if ($is_last_subset){
+      $last_row = scalar @all_selected_keys;
+    }
+    else {
+      $last_row = ($current_subset+1)*$subset_len;
+    }
+    
+    @selected_keys = splice(@all_selected_keys,
+			       $current_subset*$subset_len, $subset_len);
+
+    my $row_ref = td([ $previous_button, $more_button]);
+    print "<center>",
+          h3("Rows $first_row - $last_row (total $rows rows)"), 
+          table( Tr($row_ref) ), 
+          "</center>";
   }
-  
-  # add the messages
+
+  # add the messages - resorts as well
   my @key_list = $self->KeyList->AddMessagesToKeyList(@selected_keys);
 
 	
@@ -322,7 +389,7 @@ sub DisplayDataset{
   #---------------------------------------------------------------------------
 
   # now display datasets
-   my ($data_string, $creation_string, $run_summary_string,
+  my ($data_string, $creation_string, $run_summary_string,
 	  $qa_summary_string, $button_string);
 
   my @table_heading = 
@@ -395,6 +462,7 @@ sub DisplayDataset{
   print $gCGIquery->endform;
   print "<HR>\n";
 }
+
 #===========================================================
 sub CheckForCshScript{
   

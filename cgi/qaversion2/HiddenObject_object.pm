@@ -55,7 +55,7 @@ sub _init{
      defined $gCGIquery->param('Display datasets'));
   
   # clean up the log scratch directory for old symlinks
-  IO_utilities::CleanUpLogScratch();
+#  IO_utilities::CleanUpLogScratch();
   IO_utilities::CleanUpScratch();
   
   $self->Retrieve();
@@ -109,19 +109,16 @@ sub Parameters{
 
   my $self = shift;
   
-  my $string = $gCGIquery->hidden('selected_key_string').
-    $gCGIquery->hidden('dataset_array_previous').
-	$gCGIquery->hidden('expert_pw').
-	  $gCGIquery->hidden('display_env_var').
-	    $gCGIquery->hidden('enable_add_edit_comments').
-	      $gCGIquery->hidden('save_object_hash_scratch_file').
-		$gCGIquery->hidden('data_class');
+  my $string = 
+    $gCGIquery->hidden('previous_subset') . 
+    $gCGIquery->hidden('selected_key_list') .
+    $gCGIquery->hidden('expert_pw').
+    $gCGIquery->hidden('display_env_var').
+    $gCGIquery->hidden('enable_add_edit_comments').
+    $gCGIquery->hidden('save_object_hash_scratch_file').
+    $gCGIquery->hidden('data_class');
 
-  # the select_key_list line may be too long for CGI_gateway to handle?
-
-  my $hidden_key_string = join("\n", $gCGIquery->hidden('selected_key_list'));
-  
-  return $string.$hidden_key_string;
+  return $string;
 }
 #===================================================================
 # store persistent hashes

@@ -18,7 +18,7 @@ use QA_db_utilities qw(:db_globals); # import db handle and tables
 use strict qw(vars subs);
 use vars qw($selectLimit);
 
-$selectLimit = 75; # limit in retrieving report keys
+$selectLimit = 500; # limit in retrieving report keys
 
 1;
 #===================================================================
@@ -718,7 +718,7 @@ sub PrintTableOfKeys{
 
   #---------------------------------------------------------------
 
-  print h2("Database query:");
+  print h4("Database query:");
 
   my @rows;
   my $n_cols = 3;

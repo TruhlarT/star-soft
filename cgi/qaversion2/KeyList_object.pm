@@ -114,17 +114,9 @@ sub GetSelectedKeyList{
   # make the QA_objects
   QA_utilities::make_QA_objects(@key_list);
 
-  # add them to the KeyList and sort them 
-  $self->KeyList( $self->SortKeys(@key_list) );
+  # sort
+  return $self->SortKeys(@key_list);
 
-  # pass on the selected key list as hidden values
-  # in order to do qa on whole dataset.
-
-  # it's currently crapping out
-#  $gCGIquery->param('selected_key_list', @key_list);
-
-
-  return @key_list;
 }
 
 
@@ -133,9 +125,10 @@ sub GetSelectedKeyList{
    
 sub AddMessagesToKeyList{
   my $self = shift;
+  my @report_keys = @_;
 
-  # this should be the selected report keys
-  my @report_keys = $self->KeyList;
+  # add it to the key list
+  $self->KeyList(@report_keys);
 
   # if key list is empty, return.
   # this check now done in Browser_object.
