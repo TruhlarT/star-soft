@@ -1,5 +1,5 @@
 #!/bin/csh -f
-#       $Id: group_env.csh,v 1.157 2003/10/01 15:58:11 jeromel Exp $
+#       $Id: group_env.csh,v 1.158 2003/10/30 20:09:54 jeromel Exp $
 #	Purpose:	STAR group csh setup
 #
 #	Author:		Y.Fisyak     BNL
@@ -294,7 +294,6 @@ switch ($STAR_SYS)
       if ( -d /usr/pgi ) then
        setenv PGI /usr/pgi
        setenv PATH `${GROUP_DIR}/dropit -p $PGI/linux86/bin -p $PATH`
-##VP        setenv MANPATH "${MANPATH}:${PGI}/man"
        setenv MANPATH `${GROUP_DIR}/dropit -p ${MANPATH} -p ${PGI}/man`
        setenv LM_LICENSE_FILE $PGI/license.dat
        alias pgman 'man -M $PGI/man'
