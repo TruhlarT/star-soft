@@ -491,8 +491,18 @@ sub online_raw{
   $self->JobStatus("JobStatus");
   $self->dbQA("nightly_QA");
 
+  # utilities for KeyList_object
+  $self->GetSelectionOptions("Db_KeyList_utilities::GetNightlySelectionsReal");
+  $self->GetSelectedKeys("Db_KeyList_utilities::GetNightlyKeysReal");
+  
   # for updating from DB
   $self->UpdateRoutine("Db_update_utilities::UpdateQANightlyReal");
+
+  # find missing files
+  $self->GetMissingFiles("QA_db_utilities::GetMissingFilesReal");
+
+  # get old reports
+  $self->GetOldReports("QA_db_utilities::GetOldReportsReal");
 
   # browser banner for interactive display
   $self->BrowserBannerColor("green");

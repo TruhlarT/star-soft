@@ -73,7 +73,7 @@ if ( $server_type eq 'offline' ){
   $data_class = $gCGIquery->param('data_class') || $offline_default;
 }
 elsif( $server_type eq 'online' ){
-  $data_class = $gCGIquery->param('data_class') || $offline_default;
+  $data_class = $gCGIquery->param('data_class') || $online_default;
 }
 else{
   $data_class = "unknown";

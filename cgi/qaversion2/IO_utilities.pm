@@ -111,7 +111,7 @@ sub CleanUpLogScratch{
 
   my $io_dir  = new IO_object("LogScratchDir");
   my $log_dir = $io_dir->Name;
-  my $dh      = $io_dir->Open;
+  my $dh      = $io_dir->Open or return;
 
   unlink grep { -M > 0.5 } map{ "$log_dir/$_" } readdir $dh;
 
@@ -125,7 +125,7 @@ sub CleanUpScratch{
   # delete everything older than 12 hours
 
   my $io_dir   = new IO_object("ScratchDir");
-  my $dh       = $io_dir->Open();
+  my $dh       = $io_dir->Open() or return;
   my $dir_name = $io_dir->Name();
 
   unlink grep { -M > 0.5 } map {"$dir_name/$_"} readdir $dh;
@@ -205,7 +205,7 @@ sub PrintLastUpdate{
 sub move_old_reports{
 
   my $io_dir = new IO_object("TopdirReport");
-  my $dh = $io_dir->Open();
+  #my $dh = $io_dir->Open();
   my $dir_name = $io_dir->Name();
 
   my $io_dir_old = new IO_object("TopdirReportOld");
