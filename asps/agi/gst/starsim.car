@@ -721,6 +721,7 @@ Replace[;#,#=>#;] with  [{IF} [EXIST 1] {[INCR a]; %#3([COPY a])=%#1; #2,=>#3;}
  
  
 +DECK,AgSRESET,T=geant. --------------------------------------------------------
+*CMZ :          25/03/98  16.44.21  by  Pavel Nevski
 *CMZ :  1.30/00 14/11/96  17.24.24  by  Pavel Nevski
 *CMZ :  1.00/00 06/08/95  14.00.59  by  Pavel Nevski
 *-- Author :    Pavel Nevski   26/11/94
@@ -735,9 +736,10 @@ Replace[;#,#=>#;] with  [{IF} [EXIST 1] {[INCR a]; %#3([COPY a])=%#1; #2,=>#3;}
 +CDE,TYPING,AGECOM.
   Integer LOCF
   Call VZERO(%Reset1,LOCF(%Reset2)-LOCF(%Reset1)+1)
+  Call VZERO(%code,  LOCF(%eCode) -LOCF(%Code)  +1)
   %Mother=%Volume; %Konly='ONLY'
   {%Thetax,%Thetay,%Phiy}=90
-   END
+  END
  
 +DECK,AgSPUSH,T=geant. ---------------------------------------------------------
 *CMZ :          30/05/97  15.31.01  by  Pavel Nevski
@@ -1612,7 +1614,7 @@ Real         HITS(*)
  
  
 +DECK,AgDOCUM,T=geant. =========================================================
-*CMZ :          16/03/98  12.34.47  by  Pavel Nevski
+*CMZ :          24/03/98  10.02.36  by  Pavel Nevski
 *CMZ :  1.30/00 17/11/96  22.43.56  by  Pavel Nevski
 *CMZU:  1.00/01 21/12/95  22.19.56  by  Pavel Nevski
 *CMZ :  1.00/00 14/11/95  02.46.06  by  Pavel Nevski
@@ -1854,7 +1856,7 @@ END
  
 * read the highest cycle, return data + cycle info
   Call UCTOH(Ckey,key,4,8); if (key(1)!=IQ(Lo-4) | key(2)!=IQ(Lo-5))
-  {  prin2 key,IQ(Lo-4),IQ(Lo-5); (' ARZOUT error: key=',2a4,' bank=',2a4)
+  {  prin3 key,IQ(Lo-4),IQ(Lo-5); (' ARZOUT error: key=',2a4,' bank=',2a4)
      IC=0; Return;
   }
  
@@ -1866,7 +1868,7 @@ END
   IC=0; Nc=IQUEST(50); if (IQUEST(1)==0 & 0<Nc&Nc<20) Ic=IQUEST(50+Nc)
  
   ie=1; status='written';  if (Li<=0)
-  { prin2 key; (' ARZOUT error: key=',2a4,' not found '); go to :w: }
+  { prin3 key; (' ARZOUT error: key=',2a4,' not found '); go to :w: }
  
   ie=2; "data"   if (New(15)!=Old(15)) goto :w:
   mn=new(3)+new(11)+new(12);  mo=old(3)+old(11)+old(12);
@@ -1882,7 +1884,7 @@ END
  
   :w: Copt='SN'; " If (ie>2) Copt='SNR' "
   if (status!='found') CALL RZOUT(Idiv,Lo,Key,IC,Copt)
-  prin2  status,key,ie,nc,ic; (' aRZOUT status - ',a,' - ',2a4,' cycles ',3i6)
+  prin4  status,key,ie,nc,ic; (' aRZOUT status - ',a,' - ',2a4,' cycles ',3i6)
  
 * if (Li>0) Call MZDROP(IxSTOR,Li,' ')
  
@@ -2027,7 +2029,7 @@ END;
 END;
  
 +DECK,AgDGETP,T=geant. ---------------------------------------------------------
-*CMZ :          13/03/98  22.56.27  by  Pavel Nevski
+*CMZ :          22/03/98  21.33.38  by  Pavel Nevski
 *CMZ :  1.30/00 09/02/97  21.15.43  by  Pavel Nevski
 *CMZU:  1.00/01 22/12/95  21.50.31  by  Pavel Nevski
 *CMZ :  1.00/00 15/11/95  01.03.24  by  Pavel Nevski
@@ -2057,8 +2059,8 @@ REPLACE [ERR#{#}] with [;    IF (#1) {  IQUEST(1)=0;
          10x,'Looking for variable ',A8,' =',F10.3/10x, '***** #2 *****'  / _
          10x,'The path is ',A,' with IDN =',10i5 );  Return; }
   ]
-   Integer       LENOCC,LOCF,JBIT,Iname,Ns,LL,IL,Ia,Ib,Id,LP,JP,i,J,L,jstat,
-                 Lb,Lvl,LL1,Link,Lk,Flag,Num(Lb),Map(2,LL1),Nch,IDYN,istat
+   Integer       LENOCC,LOCF,JBIT,Iname,Ns,LL,IL,Ia,Ib,Id,LP,JP,La,Lb,Lc,i,J,L,
+                 Lvl,LL1,Link,Lk,Flag,Num(Lb),Map(2,LL1),Nch,IDYN,istat,jstat
    Character*(*) Module,Bank,Bpath,Name,Names(LL1),Oper
    Character*4   Ctop,Cbank,C1,C2
    Character*8   Dmodu,Dmodule,Dup,Ddef
@@ -2148,8 +2150,13 @@ If IrBDIV==IxCONS & ID>0 & JBIT(IQ(Lk),1)==0
    {  JP=LQ(LP-IL);  Check JP>0;  Check IQ(JP-4)=Iname;  L=IQ(JP-1);
       "   <w> bank; (' detp bank found for bank ',a4)         "
       "  if bank was selected with ISEQ, transmit it as value "
-      Val=Value;   If (Name==' ') Val=IQ(Lk-5);   Call SBIT1(IQ(Lk),1)
-      Call AgDatCar (Bank,Name,Val,Names,map,LL1,Q(Lk+1),IQ(Lk-1),Q(JP+1),L)
+      La=IQ(Lk-1); Lc=IQ(lk-5);  Val=Value;
+      if (Lc<0)    La=IQ(lk-1)/abs(Lc)
+      If (Name==' ' & Lc>=0)  Val=Lc
+      If (Name==' ' & Lc <0)  Val=Ia/La+1
+ 
+      Call AgDatCar (Bank,Name,Val,Names,map,LL1,Q(Lk+1+ia),La,Q(JP+1),L)
+      if (Ia+La>=IQ(Lk-1))  Call SBIT1(IQ(Lk),1)
 }  }
 *
  Call Ucopy (Q(Lk+1+ia),Par,min(LL,IQ(Lk-1)))
@@ -3552,7 +3559,7 @@ end
  
  
 +DECK,agkeeps,T=geant.
-*CMZ :          16/03/98  15.21.26  by  Pavel Nevski
+*CMZ :          25/03/98  09.51.57  by  Pavel Nevski
 *-- Author :    Pavel Nevski   25/11/97
 *************************************************************************
 *                                                                       *
@@ -3560,8 +3567,11 @@ end
 *                                                                       *
 * Description:                                                          *
 * produce include files and update the documentation database           *
-* IWr=0 - global include file, 1 - subsystem files, 2 - separate structs*
-* Kw=0  - no prefix in keep name, not used                              *
+*     Request is a REBANK path, default root is DETM                    *
+*     Cdest   is def, idl or memory (dui etc)                           *
+*     IWr is generated according to request:                            *
+*     0- global include file, 1 - subsystem files, 2 - separate structs *
+*     Kw=0  - no prefix in keep name, not used                          *
 *************************************************************************
 +include,TYPING,GCBANK,SCLINK,GCUNIT,GCFLAG,AGCDOCL.
      integer     Iprin,i,i1,i2,il,id,ic,jl,L,L1,L2,Iwr,Kw/1/,Lu,Idl,Key(2)
@@ -3647,8 +3657,7 @@ end
    character*4  Upper,Bname,Csys/' '/
    Equivalence  (text,var),(texto,varo)
  
-   integer        nc
-   character      ccc*24
+   character           ccc*24
    common /agcstaftab/ ccc(500)
  
    nc=0; check L>0;
@@ -3677,7 +3686,7 @@ end
       else If let='H' & i<=NwDesc+1
       {  j1=1; if (crec=='ba') j1=2;
          Call UHTOC(IQ(L+i1+j1),4,text,4*(Nw-j1+1));
-         If  NN(P)==0  { Nd=0; Texto=' '; Prin3 tit(p); (' ---  ',a,'  ---') }
+         If  NN(P)==0  { Nd=0; Texto=' '; Prin4 tit(p); (' ---  ',a,'  ---') }
          if (P==3 & nn(p)>=mm)  call agreforma(format,mm,type,idl)
          NN(P)+=1;  Prin6 crec,p,NN(p),Nd,type,text(1:Lenocc(text));
          (' sector ',A4,':  NN(',i1,')=',i4,'  ND=',i3,' t=',a,' : ',a)
@@ -3870,7 +3879,7 @@ end
      end
  
 +DECK,agstrut,T=geant.
-*CMZ :          16/03/98  15.02.52  by  Pavel Nevski
+*CMZ :          25/03/98  09.49.54  by  Pavel Nevski
 *-- Author :    Pavel Nevski   25/11/97
 ***************************************************************************
 *                                                                         *
@@ -3883,8 +3892,8 @@ end
 *                                                                         *
 ***************************************************************************
 +CDE,TYPING,GCBANK,GCUNIT,GCFLAG,AgCDOCL,RbBank,QUEST.
-  INTEGER       LENOCC,StafTab,Iprin,Nun(15)/15*1/,
-                I,J,L,K,M,N,Ia,Lc,Lp,Mj,LK(15),IL(15)
+  INTEGER       LENOCC,StafTab,Iprin,Nun(15),LK(15),IL(15),
+                I,J,L,K,M,N,Ia,Lc,Lp,Mj
   Character     Cpath*80,Cdest*80,Csys*80,Table*10,Cbank*4
   Character*(*) Source,Destin
   EQUIVALENCE   (L,Lpar)
@@ -3906,11 +3915,12 @@ end
 * Rebank path does not accept / or /* at the end, truncate:
   m=Index(Cpath(1:Lc),'*'); Lp=Lc;
   if (m>0) Lp=min(Lp,m-1);  if (Cpath(Lp:Lp)='/') { Lp-=1; m=-1 }
+  do i=1,Lp/5 { Nun(i)=1 }; Nun(Lp/5)=0;
   Call ReBANK(Cpath(:Lp),Nun,0,L,Ia)
   Call UHTOC(IQ(L-4),4,CBank,4)
  
   prin2  %L(Csys),Cpath(:lp),Cbank,lc,n,m,mj,lp
-  (' AGSTRUT decoded Csys,Cpath,Cbank=',3(1x,a),' lc,n,m,mj,lp=',6i5)
+  (' AGSTRUT decoded Csys,Cpath,Cbank=',3(1x,a),' lc,n,m,mj,lp=',6i8)
  
   if L<=0 { <w> %L(Cpath); (' AGSTRU: Data source ',a,' not found '); Return; }
 *
@@ -3935,6 +3945,18 @@ J=1; Loop
 }
 END
  
++DECK,axparticle,T=geant.
+*CMZ :          25/03/98  16.16.21  by  Pavel Nevski
+*-- Author :    Pavel Nevski   25/03/98
+**********************************************************************
+                subroutine   a x p a r t i c l e
+**********************************************************************
++CDE,Agecom,GCFLAG.
+    call gspart(%Code,%Title,%TrkTyp,%Mass,%Charge,%Tlife,0,0)
+    if (%Mode(1)>0) call GSDK(%Code,%Bratio,%Mode)
+    if (Idebug>1) Call GPPART(%Code)
+    if (Idebug>2) Call GPDCAY(%Code)
+ end
 +PATCH,ATCDES. ================================================================
 *CMZ :  1.00/00 19/12/95  09.59.59  by  G. Poulard
 +KEEP,agchadr.
@@ -4756,7 +4778,7 @@ C     - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
      >                 Org(Lp),Fct(Lp),NumMX(Lp)
 *
 +KEEP,AGECOM. -----------------------------------------------------------------
-*CMZ :          06/01/98  12.22.43  by  Pavel Nevski
+*CMZ :          25/03/98  16.46.20  by  Pavel Nevski
 *CMZ :  1.30/00 17/11/96  22.43.56  by  Pavel Nevski
 *CMZ :  1.00/01 30/11/95  13.23.57  by  Pavel Nevski
 *CMZ :  1.00/00 01/06/95  14.24.55  by  Pavel Nevski
@@ -4776,7 +4798,7 @@ C     - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
      +             AG_IRESER,AG_LSTACK,AG_NWUHIT,AG_NWUVOL,AG_MAGIC,
      +             AG_LDETU,AG_NPDIV,AG_NZ,AG_IGEOM,AG_IDEBU,AG_IGRAP,
      +             AG_IHIST,AG_IMFLD,AG_SERIAL,AG_STANDALONE,AG_ISIMU,
-     +             AG_ENDSAVE,IPRIN
+     +             AG_CODE,AG_TRKTYP,AG_ECODE,AG_MODE,AG_ENDSAVE,IPRIN
       REAL         AG_FIELDM,AG_TMAXFD,AG_STEMAX,AG_DEEMAX,AG_EPSIL,
      +             AG_STMIN,AG_DENS,AG_RADL,AG_ABSL,AG_THETAX,AG_THETAY,
      +             AG_THETAZ,AG_ALFAX,AG_ALFAY,AG_ALFAZ,AG_PHIX,AG_PHIY,
@@ -4790,8 +4812,8 @@ C     - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
      +             AG_STEP, AG_C0, AG_PAR, AG_AA,AG_ZZ,AG_WW,AG_TYPE,
      +             AG_STACK,AG_UBUF,AG_XHMAX,AG_YHMAX,AG_ZHMAX,
      +             AG_RHMAX,AG_FHMAX,AG_FHMIN,AG_BIN,AG_DMAXMS,
-     +             AG_LX, AG_LY, AG_LZ, AG_HX, AG_HY, AG_HZ,
-     +             AG_P1, AG_P2
+     +             AG_LX, AG_LY, AG_LZ, AG_HX, AG_HY, AG_HZ, AG_P1,
+     +             AG_P2, AG_CHARGE, AG_MASS, AG_TLIFE, AG_BRATIO
       PARAMETER   (AG_LSTACK=130, AG_NWUHIT=10, AG_NWUVOL=3,
      +             AG_MAGIC=-696969, AG_LDETU=250)
       COMMON/AGCGLOB/AG_MODULE, AG_CHDIR,   AG_LEVEL,   AG_IDTYPE,
@@ -4830,6 +4852,8 @@ C Inherited variables saved during internal calls
      +              AG_IAXIS,   AG_NDVMAX,  AG_ORTI,    AG_NCOPY,
      +              AG_RESET2,
      +              AG_KONLY,   AG_ORT,     AG_MARK
+      COMMON/AGCPART/AG_code,AG_trktyp,AG_mass,AG_charge,AG_tlife,
+     +                       AG_bratio(6),AG_mode(6),AG_ecode
 C local variables valid inside same block
       COMMON/AGCLOCA/AG_BEGSCR, AG_UBUF(100), AG_PAR(100),
      +              AG_AA(20),  AG_ZZ(20),    AG_WW(20),   AG_NWBUF,
@@ -4844,22 +4868,24 @@ C local variables valid inside same block
      +             (AG_ALFAX,AG_ALPHAX),  (AG_ALFAY,AG_ALPHAY),
      +             (AG_ALFAZ,AG_ALPHAZ),  (AG_TWIST,AG_TWIS),
      +             (AG_P1,AG_HX),         (AG_P2,AG_HY),
-     +             (AG_NPDIV,AG_NPDV)
+     +             (AG_NPDIV,AG_NPDV),
 *    - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - *
  
  
 +KEEP,RBBANK. ------------------------------------------------------------------
+*CMZ :          22/03/98  21.52.54  by  Pavel Nevski
 *CMZ :  1.30/00 02/04/97  18.53.56  by  Pavel Nevski
 *CMZ :  1.00/00 07/03/95  21.11.16  by  Pavel Nevski
 *-- Author :  by Pavel Nevski
 C   - combined DETM + Reconstruction bank access variables - AGI version
       CHARACTER         CNAM*4
       INTEGER           LU,BIG,MM,INAM,II,KK,IADR,LENG,IOD,IOX,IrbDIV,
-     >                  LDD,NDDMAX,NDD,DDL,NFR,FRTAB
+     >                  LDD,NDDMAX,NDD,DDL,NFR,FRTAB,IrMode
       PARAMETER         (LDD=5,NDDMAX=100,MM=2,BIG=99999)
       COMMON /RBXBANK/  LU, CNAM,II,KK,IADR,LENG,IOD,IOX,IrbDIV
       COMMON /RBXLIST/  NDD,DDL(LDD,NDDMAX)
       COMMON /RBXFORM/  NFR,FRTAB(NDDMAX)
+      COMMON /RBCBANK/  IrMode
       EQUIVALENCE       (CNAM,INAM)
 *
 +PATCH,REBANK. ================================================================
@@ -4904,13 +4930,14 @@ Integer i1,i2,ic,jdd; Data Jdd/1/;
    END
  
 +DECK,RBCOPY,T=geant. ----------------------------------------------------------
+*CMZ :          23/03/98  20.56.20  by  Pavel Nevski
 *CMZ :  1.00/00 30/06/95  13.07.15  by  Pavel Nevski
 *-- Author :    Pavel Nevski   26/11/94
 **********************************************************************
 *                                                                    *
         subroutine   R B C O P Y  (Cname,NVL,Ndim,Npar,Array)
 *                                                                    *
-*  Description:                                                      *
+*  Description: Return a copy of bank into users array               *
 *                                                                    *
 **********************************************************************
 +CDE,TYPING,GCBANK,SCLINK,RBBANK.
@@ -4925,31 +4952,35 @@ CHARACTER  Cname*(*);    Integer    NVL(*),Npar,Array(*),Link,Ia,Ndim;
    END
  
 +DECK,RBSTORE,T=geant. ---------------------------------------------------------
+*CMZ :          24/03/98  14.42.38  by  Pavel Nevski
 *CMZ :  1.00/00 30/06/95  13.07.15  by  Pavel Nevski
 *-- Author :    Pavel Nevski   26/11/94
 **********************************************************************
 *                                                                    *
         subroutine   R B S T O R E (Cname,NVL,Form,Npar,Array)
 *                                                                    *
-*  Description:                                                      *
+*  Description: Copy a user Array into ZEBRA bank at CNAME(NVL)      *
+*  Bank format (Form) is modified to keep the real format address    *
+*  If Form was 0, standard format (32 bit UINT) is provided          *
 *                                                                    *
 **********************************************************************
 +CDE,TYPING,GCBANK,SCLINK,RBBANK.
 CHARACTER*(*)  Cname,FORM;     Integer  NVL(*),Npar,Array(*),Link,Ia;
 ;                                                 /* get format index */
- Cnam=FORM(1:4); Unless 1<=Inam<=Nfr
+ Cnam=FORM(1:4); Unless 0<=Inam<=Nfr
  { If Nfr>=100   { Output Form;
                  (' RBSTORE error: too many different FORMATS defined ! '/,
                   ' probably you use immediate constant ? last format=',A);}
-   Nfr+=1; Call MZFORM('RECB',Form,FrTab(Nfr));   Inam=Nfr;   FORM(1:4)=Cnam;
+   Nfr+=1; Call MZFORM('RECB',Form,FrTab(Nfr));  Inam=Nfr;  FORM(1:4)=Cnam;
  }
 ;                                                   /*  store data  */
-   IOX=FrTab(Inam); Call REbank (Cname,NVL,Npar,Link,Ia);  Check Link>0;
+   IOX=1;  if(Inam>0) IOX=FrTab(Inam);
+   Call REbank (Cname,NVL,Npar,Link,Ia);   Check Link>0;
    Call UCOPY (Array,IQ(Link+1+Ia),Npar);  If (NVL(kk)==0) NVL(kk)=II;
    END
  
 +DECK,REBANK,T=geant. ----------------------------------------------------------
-*CMZ :          16/03/98  03.28.56  by  Pavel Nevski
+*CMZ :          25/03/98  00.58.24  by  Pavel Nevski
 *CMZ :  1.30/00 16/04/97  22.11.16  by  Pavel Nevski
 *CMZU:  1.00/01 21/12/95  22.17.57  by  Pavel Nevski
 *CMZ :  1.00/00 03/10/95  18.17.59  by  Pavel Nevski
@@ -4965,7 +4996,7 @@ CHARACTER*(*)  Cname,FORM;     Integer  NVL(*),Npar,Array(*),Link,Ia;
 *       <0 BAnk is requested for reading, should not be changed      *
 * Output:                                                            *
 *  Link  - returned link pointer to the bank, >0 if bank was found   *
-*  Ia    - displacement in the bank for a raw by raw mode            *
+*  Ia    - displacement in the bank for a row by row mode            *
 *                                                                    *
 **********************************************************************
 +CDE,TYPING,QUEST,GCBANK,SCLINK,RBBANK.
@@ -4981,23 +5012,23 @@ if (Lu<=0) Lu=6
 "  Set starting directory - top level or current "
 KK=0; {J0,J}=1;  While Cname(J0:J0)=='/' {J0=J0+1}
 If J0>1
-{  " Get RECB/DETM bank address and make sure that it has been booked "
+{  KK=1;
+   " Get RECB/DETM bank address and make sure that it has been booked "
     If     Cname(J0:J0+3)=='DETM'
    { If (LK Detm==0) Call MZBOOK(IxCons,LKAR P2,LK Detm,1,'DETM',50,50,50,5,0)
-     IrbDIV=IxCons;   Link=LK Detm;   KK=1;
+     IrbDIV=IxCons;   Link=LK Detm;
    }
    else If Cname(J0:J0+3)=='RECB'
    { If (LKAR P1==0) Call MZBOOK(IxDIV,LKAR P2,LKAR P1, 1,'RECB',MM,MM,10,2,0)
-     IrbDIV=IxDIV;    LINK=LKAR P1;   KK=1;
+     IrbDIV=IxDIV;    LINK=LKAR P1;
    }
-   else If Cname(J0:J0+3)=='SECT' | Cname(J0:J0+3)=='TRIG' " old way of calling recb "
+   else If Cname(J0:J0+3)=='SECT' | Cname(J0:J0+3)=='TRIG' "old name for recb"
    { If (LKAR P1==0) Call MZBOOK(IxDIV,LKAR P2,LKAR P1, 1,'RECB',MM,MM,10,2,0)
      IrbDIV=IxDIV;    LINK=LKAR P1;   KK=0;
    }
-   else If Cname(J0:J0+3)=='SETS'
-   { IrbDIV=IxCons;   Link=JSET;      KK=1; }
-   else
-   { "set externally" Link=LKAR P2;   KK=1; }
+   else If Cname(J0:J0+3)=='EVNT'   { IrbDIV=IxDIV;    Link=LKEVNT;  }
+   else If Cname(J0:J0+3)=='SETS'   { IrbDIV=IxCons;   Link=JSET;    }
+   else                             { "set externally" Link=LKAR P2; }
  
    LKAR P2=Link;  J=J0+5*KK;  If (Cname(J-1:J-1)='*' | Link<=0) Return;
 }
@@ -5017,11 +5048,12 @@ Lm=LENOCC(Cname);  Check Lm>=J+3;
      :Linear_search: do II=2,NV+1
      { NV1=IQ(Link-5);  If (NV1==NV) Break;  If (NV1> NV) GOTO :new_bank:
 ***
-       * on CHAIN entry: last item, no links, no next bank:
-*      im=AgMODE('REBANK_pack_bank_groups_together',iam,1)
-*      If (ii==2 & Nv==Big & Del=='*' & LQ(Link-1)==0 & LQ(Link)==0)
-       If (ii==2 & Del=='*' & LQ(Link-1)==0 & LQ(Link)==0)
-       {  Nd=IQ(Link-1);  Del='.';  kk-=1;  Break :Search_level:; }
+     * on CHAIN entry: last item, no links, no next bank - group them together.
+     * IrMode -1 prevents grouping, 0 - allows only on append, 1 - go wild:
+       if IrMode>=0 & ii==2 & Del=='*' & LQ(Link-1)==0 & LQ(Link)==0
+       { If (Nv==Big | IrMode>0)
+         {  Nd=IQ(Link-1);  Del='.';  kk-=1;  Break :Search_level:; }
+       }
 ***
        JL=0;  LinkUP=Link;  Link=LQ(Link);   If (Link==0) GOTO :new_bank:
      } Nd=IQ(Link-1);       GOTO :Next_level:
@@ -7604,6 +7636,7 @@ C+SELF.
 99999 RETURN
       END
 +DECK,RAW.
+*CMZ :          25/03/98  16.10.20  by  Pavel Nevski
 *CMZ :  1.00/00 19/09/95  15.17.28  by  Pavel Nevski
 *-- Author :
 C------------------------------------------------------------------
@@ -7620,10 +7653,11 @@ C------------------------------------------------------------------
      *1,0,38,107,1,1,0,46,107,24,0/
       DATA (BOO2(K),K=0,26)/26,24,24,24,24,8,0,3,-1,107,0,0,0,-2,107,0,
      *0,0,-1,107,0,0,0,-2,107,24,0/
-      CALLRW(0,O(9),405,O(38))
-      CALLRW(0,O(9),769,769+114)
-      CALLRW(23,O(56),405,405+21)
-      CALLRW(23,O(57),405,405+21)
+ 
+1     CALLRW(0,O(9),769,769+114)
+      if (o(769).ne.ichar('0')) go to 1
+C      CALLRW(23,O(56),405,405+21)
+C      CALLRW(23,O(57),405,405+21)
 CMAKE INPUT AND OUTPUT SAME
       DO 21 K = 769,868
          O(K-100)=O(K)
@@ -7829,10 +7863,10 @@ C ARGUMENTS are: Input string, Output string, Output lengt=
       END
  
 +DECK,geant3,T=text.
-*CMZ :          29/12/97  21.15.22  by  Pavel Nevski
+*CMZ :          25/03/98  16.06.11  by  Pavel Nevski
 *CMZ :  1.30/00 15/04/97  17.15.59  by  Pavel Nevski
 *-- Author :    PN
-C_geant3_UNIX_compiler..v....3....v....4....v....5....v....6....v....7....v....8....v....9....v....100..v....110..v...
+C_geant3_UNIX_compiler..v....3....v....4....v....5....v....6....v....7....v....8....v....9....v....100..v....110..v
 0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZ$_(,.=-+/*) ':%?abcdefghijklmnopqrstuvwxyz{;#@"!}[]<>|&~?\`^????C|r{}bdep<>@#s?????
 %N
 (E1) (NULL TEMPLATE IN RULE DEFINITION)             (F1) (STRING OR STATEMENT TOO LONG)
@@ -7941,11 +7975,13 @@ C_geant3_UNIX_compiler..v....3....v....4....v....5....v....6....v....7....v....8
   SPECIFY  9SYS  AS  {':'|';'|'}'};
   SPECIFY 10SYS  AS  {(1,32){ALPHAS}};
   SPECIFY  SSYS  AS  {'PROGRAM'|'FUNCTION'|'SUBROUTINE'};
-  SPECIFY  GSYS0 AS  {'COMPONENT'|'MIXTURE'|'MEDIUM'|'MATERIAL'|'ATTRIBUTE'|'POSITION'|'SHAPE'|'CREATE AND POSITION'};
+  SPECIFY  GSYS3 AS  {'COMPONENT'|'MIXTURE'|'MEDIUM'|'MATERIAL'|'ATTRIBUTE'};
+  SPECIFY  GSYS4 AS  {'PARTICLE'|'POSITION'|'SHAPE'|'CREATE AND POSITION'};
+  SPECIFY  GSYS0 AS  {GSYS3|GSYS4};
   SPECIFY  GSYS1 AS  {'AUTHOR'|'CREATED'};
   SPECIFY  GSYS2 AS  {'MODULE'|'BLOCK'|'FILL'|'USE'|'HITS'|'DIGI'};
   SPECIFY  GSYSH AS  {'HITS'|'DIGI'};
-  SPECIFY  GSYSA AS  {GSYS0|GSYS1|GSYS2|GSYSH};
+  SPECIFY  GSYSA AS  {GSYS3|GSYS4|GSYS1|GSYS2|GSYSH};
   SPECIFY  GSYSN AS  {(4,4){LETTER}};
   SPECIFY  KSYS1 AS  {'IFIELD'|'FIELDM'|'TMAXFD'|'EPSIL'|'STEMAX'|'DMAXMS'|'RADL'|'NLMAT'};
   SPECIFY  KSYS2 AS  {'NDIV'|'STEP'|'IAXIS'|'C0'|'NDVMAX'|'STMIN'|'DEEMAX'|'ABSL'|'DENS'};
@@ -7957,7 +7993,8 @@ C_geant3_UNIX_compiler..v....3....v....4....v....5....v....6....v....7....v....8
   SPECIFY  KSYS8 AS  {'DX'|'DY'|'DZ'|'RMIN'|'RMAX'|'DPHI'|'NZ'|'ALPH'|'THET'|'TWIS'|'TWIST'};
   SPECIFY  KSYS9 AS  {'RMN1'|'RMN2'|'RMX1'|'RMX2'|'RMN'|'RMX'|'ZI'|'AA'|'ZZ'|'WW'|'PHI'};
   SPECIFY  KSYSC AS  {'LX'|'LY'|'LZ'|'HX'|'HY'|'HZ'|'P1'|'P2'};
-  SPECIFY  KSYS0 AS  {KSYS1|KSYS2|KSYS3|KSYS4|KSYS5|KSYS6|KSYS7|KSYS8|KSYS9|KSYSC|LETTER};
+  SPECIFY  KSYSB AS  {'CODE'|'TRKTYP'|'MASS'|'CHARGE'|'TLIFE'|'BRATIO'|'MODE'};
+  SPECIFY  KSYS0 AS  {KSYS1|KSYS2|KSYS3|KSYS4|KSYS5|KSYS6|KSYS7|KSYS8|KSYS9|KSYSB|KSYSC|LETTER};
 " if anything survived until here this is an error "
   REPLACE [;[GSYSA] [IDENT]#;]    WITH [; <unrecognized geant operator> : #1 #2 #3; ]
   REPLACE [;<#>[GSYSA] [IDENT]#;] WITH [; <unrecognized geant operator> : #2 #3 #4; ]
@@ -8638,7 +8675,11 @@ REPLACE [+CDE,AGECOM] with [;" - Advanced Geant interface ";
   COMMON/AGCSTAC/ %Stack(%LSTACK,15);
   Equivalence    (%Attribute,%Work),(%STEMAX,%DMAXMS),(%Alphax,%Alfax),
                  (%Alphay,%Alfay),(%Alphaz,%Alfaz),(%Twist,%Twis),(%NpDiv,%NpDv),
-                 " temporarly " (%P1,%HX),(%P2,%HY)
+                 " temporarly " (%P1,%HX),(%P2,%HY);
+  Integer         %code,%trktyp,%mode(6);
+  Real            %charge,%mass,%tlife,%bratio(6);
+  Equivalence    (%Thetax,%Mode),(%Phix,%Bratio),(%Step,%tlife),(%C0,%mass),
+                 (%Ndiv,%code),(%Iaxis,%TrkTyp),(%NdvMax,%charge);
 ];
 Replace [+CDE,AGCKINE] with [;"   AGI general data card information "
       Integer          IKineOld,IdInp,Kevent,
@@ -9864,7 +9905,7 @@ C   Check IPRI>0
 1     CONTINUE
       END         ! GUSCNTR
 +DECK,Gtrack.
-*CMZ :          08/12/97  13.35.34  by  Pavel Nevski
+*CMZ :          27/03/98  16.51.21  by  Pavel Nevski
 *CMZ :  1.30/00 17/04/97  14.00.58  by  Pavel Nevski
 *CMZU:  1.00/00 11/07/94  15.46.40  by  Pavel Nevski
 *-- Author :
@@ -10150,7 +10191,19 @@ C - pln - 11/7/94  - add user control over loopers
          VECT(6) = VECT(6)*CMOD
       ENDIF
 *
-      IF (INWVOL.EQ.0) GO TO 80
+      IF (INWVOL.EQ.0) then
+         if   (GONLY(NLEVEL).gt.0
+     +    .or. Safety.gt.0
+     +    .or. Iswit(10).lt.0) then
+                                     GO TO 80
+         else
+            CALL GTMEDI(VECT,NUMED)
+            if (NUMED.EQ.NUMOLD)     GO TO 80
+         endif
+         WRITE(CHMAIL,10003) NAMES(NLEVEL)
+10003    FORMAT(' *** GTRACK *** Logic problem in ',A4)
+         if (IDEBUG.GT.0) CALL GMAIL(1,0)
+      endif
 *
       IF (NJTMAX.GT.0) THEN
          CALL GSTRAC
@@ -13083,27 +13136,6 @@ C
  999  END
  
  
-+DECK,GTNEXT.
-*CMZ :  1.30/00 16/09/96  23.24.54  by  Pavel Nevski
-*-- Author :    Pavel Nevski
-      SUBROUTINE GTNEXT
-+CDE,GCFLAG,GCVOLU.
-      INTEGER IFL/-1/
-*                                   message
-      IF (ISWIT(10).NE.IFL) then
-         IFL=ISWIT(10)
-         IF (IFL.EQ.0) PRINT *,' *** GTNEXT: 3.21 tracking logic *** '
-         IF (IFL.EQ.1) PRINT *,' *** GTNEXT: soft tracking logic *** '
-         IF (IFL.EQ.2) PRINT *,' *** GTNEXT: 3.15 tracking logic *** '
-      endif
-*                                    logic
-      If (IFL.EQ.1 .and. GONLY(NLEVEL).EQ.0 .OR. IFL.GE.2) Then
-         CALL GTNEX2      !  3.15
-      else
-         CALL GTNEX1      !  3.21
-      endif
-*
-      END
 +DECK,gtnex1.
 *CMZ :  1.30/00 09/09/96  22.04.42  by  Pavel Nevski
 *CMZ :  3.21/04 21/03/95  16.13.08  by  S.Giani
@@ -15622,6 +15654,7 @@ C*****  End of Code Expanded From Routine:  GTRNSF
   999 IF(JGSTAT.NE.0) CALL GFSTAT(ISAME)
       END
 +DECK,GSSTAK.
+*CMZ :          25/03/98  00.20.33  by  Pavel Nevski
 *CMZ :  1.30/00 04/05/97  23.58.54  by  Pavel Nevski
 *CMZ :  3.21/02 29/03/94  15.41.23  by  S.Giani
 *-- Author :
@@ -15646,7 +15679,7 @@ C.    *   Author    : S.Banerjee, F.Bruyant                            *
 C.    *   Modifications: PN - put protection against lack of memory.   *
 C.    *   - reject Cerenkov photons if mechanism is not activated.     *
 C.    *   - save interaction description (MECAT) in stack and NTTARG   *
-C.    *                                                                *
+C.    *   - accept all unknown IPART as geantino                       *
 C.    ******************************************************************
 C.
 +CDE, TYPING, GCBANK, GCTRAK, GCKINE, GCKING, GCFLAG.
@@ -15663,7 +15696,8 @@ C.    ------------------------------------------------------------------
 *
       IF (IEOTRI.NE.0) RETURN
 *
-      IF (IPART.LE.0.OR.IPART.GT.NPART) THEN
+*     IF (IPART.LE.0.OR.IPART.GT.NPART) ...
+      IF (IPART.LE.0)  THEN
          PRINT *, ' GSSTAK - Unknown particle code, skip track ', IPART
          GO TO 999
       ENDIF
@@ -15728,9 +15762,11 @@ C.    ------------------------------------------------------------------
          IQ(JSTAK+2) = IQ(JSTAK+2) +NTSTKS
       ENDIF
 *
+      LP   = 0
+      IF (IPART.LE.IQ(JPART-2)) LP = LQ(JPART-Ipart)
+      IF (LP.LE.0)              LP = LQ(JPART-48)
+ 
 *PN:  do not save Cerenkov photons if the mechanism is not activated
-      LP   = LQ(JPART-Ipart)
-      IF (LP.LE.0) GO TO 999
       ITRT =  Q(6+LP)
       IF (ITRT.EQ.7 .and. ITCKOV.EQ.0) GO TO 999
 *
@@ -16073,6 +16109,7 @@ C
   99  RETURN
       END
 +DECK,GSKINE
+*CMZ :          25/03/98  00.14.32  by  Pavel Nevski
 *CMZ :  1.30/00 23/03/97  22.06.36  by  Pavel Nevski
 *CMZ :  3.21/02 28/03/94  01.30.59  by  S.Giani
 *-- Author :
@@ -16086,6 +16123,8 @@ C.    *                                                                *
 C.    *    ==>Called by : <USER>, GUKINE,GUSTEP                        *
 C.    *       Authors    R.Brun, F.Carena, M.Hansroul  *********       *
 C.    *                                                                *
+C.    *    Modifications:                                              *
+C.    *    PN: put all unknown particles as Geantino                   *
 C.    ******************************************************************
 C.
 +CDE,TYPING.
@@ -16125,9 +16164,10 @@ C
       ENDIF
 C
       IF (JPART.LE.0) GO TO 90
-      IF (IPART.GT.IQ(JPART-2)) GO TO 90
-      JPA = LQ(JPART- IPART)
-      IF (JPA.LE.0) GO TO 90
+      JPA = 0
+      IF (IPART.LE.IQ(JPART-2)) JPA = LQ(JPART- IPART)
+      IF (JPA.LE.0)             JPA = LQ(JPART- 48)
+ 
       P2     = PLAB(1)**2 + PLAB(2)**2 + PLAB(3)**2
       AMASS  = Q(JPA + 7)
       E      = SQRT(P2 + AMASS*AMASS)
@@ -16177,6 +16217,7 @@ C
  
  
 +DECK,GLTRAC.
+*CMZ :          25/03/98  00.13.37  by  Pavel Nevski
 *CMZ :  1.30/00 03/05/97  16.07.14  by  Pavel Nevski
 *CMZ :  3.21/04 13/12/94  15.36.22  by  S.Giani
 *-- Author :
@@ -16191,6 +16232,9 @@ C.    *    /GCTRAK/, /GCKINE/ and /GCVOLU/                             *
 C.    *                                                                *
 C.    *   Called by : GTREVE                                           *
 C.    *   Authors   : R.Brun, F.Bruyant                                *
+C.    *   Modifications:                                               *
+C.    *   1. extend KINE bank with LgKINE                              *
+C.    *   2. all unknown particle are treated as geantino              *
 C.    *                                                                *
 C.    ******************************************************************
 C.
@@ -16273,7 +16317,10 @@ C.    ------------------------------------------------------------------
 *  ** Reload Particle characteristics, if needed
 *
       IF (IPART.NE.IPAOLD) THEN
-         JPA = LQ(JPART-IPART)
+         JPA = 0
+         IF (IPART.LE.IQ(JPART-2)) JPA = LQ(JPART-IPART)
+         IF (JPA .EQ. 0)           JPA = LQ(JPART-48)
+ 
          DO 90 I = 1,5
             NAPART(I) = IQ(JPA+I)
    90    CONTINUE
@@ -19540,7 +19587,7 @@ C --- LIMIT THE VALUE OF NGKINE IN CASE OF OVERFLOW ---
       END
  
 +DECK,GCALOR,IF=GCALOR,If=hadron.
-*CMZ :          19/12/97  15.36.36  by  Pavel Nevski
+*CMZ :          25/03/98  17.47.04  by  Pavel Nevski
 *CMZ :  1.04/08 31/08/95  12.01.02  by  Christian Zeitnitz
 *-- Author : Christian Zeitnitz
       SUBROUTINE GCALOR
@@ -19650,7 +19697,7 @@ C  Avogadro number multiplied by 1.E-24
       PARAMETER(XNAVO = 0.60221367)
 C
       DIMENSION NNPART(12)
-      LOGICAL INIT,GOFLUK,DOSKAL,FMICAP,SKALEF,NABSOR,FSTOP
+      LOGICAL INIT,GOFLUK,DOSKAL,SKALEF,NABSOR,FSTOP
       DOUBLE PRECISION DECIN,DMASS
 C
       DATA INIT /.TRUE./
@@ -21588,6 +21635,1145 @@ C The following particle forces the energy conservation
             ENDIF
          ENDIF
       ENDIF
+      END
++DECK,GPART
+*CMZ :          25/03/98  12.07.16  by  Pavel Nevski
+*CMZ :  3.21/03 14/09/94  14.33.42  by  S.Ravndal
+*-- Author :
+      SUBROUTINE GPART
+C.
+C.    *******************************************************************
+C.    *                                                                 *
+C.    *  Define standard GEANT particles plus selected decay modes      *
+C.    *  and branching ratios.                                          *
+C.    *                                                                 *
+C.    *  All data taken from : M. AGUILAR-BENITEZ et al,                *
+C.    *                        Review of Particle Properties,           *
+C.    *                        Rev. Mod. Phys. 56(1984).                *
+C.    *                                                                 *
+C.    *  Updated to:           Phys.Rev. D50,1173(1994)                 *
+C.    *                        S. Ravndal                               *
+C.    *  PN: activate paricles from Geant 3.16 with crude decay guess   *
+C.    *                                                                 *
+C.    *  In the case of W and Z, the lifetimes are calculated from      *
+C.    *  quoted upper limits on widths.                                 *
+C.    *                                                                 *
+C.    *  NPAR           Number of parent particles defined for decay.   *
+C.    *  IPAR           List of parent partilces allowed to decay.      *
+C.    *                 Currently set up for pi0,pi+,pi-,K0long,K+,K-,  *
+C.    *                 K0short,eta,lambda,sigma+,sigma0,sigma-,xi0,    *
+C.    *                 xi-,omega-,antilambda,antisigma -,antisigma 0,  *
+C.    *                 antisigma +,antixi 0,antixi +,antiomega +       *
+C.    *                 decays.                                         *
+C.    *  MODE(I,J)      I'th decay mode of J'th particle defined in     *
+C.    *                 IPAR.                                           *
+C.    *  BRATIO(I,J)    Branching ratio for I'th decay mode of J'th     *
+C.    *                 particle in IPAR.                               *
+C.    *                                                                 *
+C.    *    ==>Called by : <USER>, UGINIT                                *
+C.    *       Author    G.Patrick  *********                            *
+C.    *                                                                 *
+C.    *******************************************************************
+C.
++SEQ,GCBANK
++SEQ,GCPHYS
++SEQ,GCONSP
+C                       do not activate additional decays
+      DATA     NPAR/24/
+      INTEGER  IPAR(36),UBUF(1)
+      REAL     BRATIO(6,36),BRTIO1(6,20),BRTIO2(6,16)
+      INTEGER  MODE(6,36),  MODE1(6,20), MODE2(6,16)
+      DATA     UBUF/0./
+C
+      EQUIVALENCE(BRTIO1(1,1),BRATIO(1,1)),(BRTIO2(1,1),BRATIO(1,21))
+      EQUIVALENCE(MODE1(1,1), MODE(1,1)),  (MODE2(1,1), MODE(1,21))
+C
+      DATA IPAR/ 7, 8, 9,10,11,12,16,17,18,19,20,
+     *          21,22,23,24,26,27,28,29,30,31,32,5,6,
+     *          33,34,35,36,37,38,39,40,41,42,43,44/
+      DATA BRTIO1/ 98.802, 1.198, 0.,    0.,    0.,    0.,
+     *            100.00,  0.,    0.,    0.,    0.,    0.,
+     *            100.00,  0.,    0.,    0.,    0.,    0.,
+     *             21.60, 19.35, 19.35, 13.50, 13.50, 12.38,
+     *             63.51, 21.17,  5.59,  4.82,  3.18,  1.73,
+     *             63.51, 21.17,  5.59,  4.82,  3.18,  1.73,
+     *             68.61, 31.39,  0.,    0.,    0.,    0.,
+     *             38.80, 31.90, 23.6,   4.88,  0.5,   0.071,
+     *             63.90, 35.80,  0.,    0.,    0.,    0.,
+     *             51.57, 48.30,  0.,    0.,    0.,    0.,
+     *            100.00,  0.,    0.,    0.,    0.,    0.,
+     *            100.00,  0.,    0.,    0.,    0.,    0.,
+     *            100.00,  0.,    0.,    0.,    0.,    0.,
+     *            100.00,  0.,    0.,    0.,    0.,    0.,
+     *             67.80, 23.60,  8.60,  0.,    0.,    0.,
+     *             63.90, 35.80,  0.,    0.,    0.,    0.,
+     *             51.57, 48.30,  0.,    0.,    0.,    0.,
+     *            100.00,  0.,    0.,    0.,    0.,    0.,
+     *            100.00,  0.,    0.,    0.,    0.,    0.,
+     *            100.00,  0.,    0.,    0.,    0.,    0./
+      DATA BRTIO2/100.00,  0.,    0.,    0.,    0.,    0.,
+     *             67.80, 23.60,  8.60,  0.,    0.,    0.,
+     *            100.00,  0.,    0.,    0.,    0.,    0.,
+     *            100.00,  0.,    0.,    0.,    0.,    0.,
+     *            25.2,  17.65, 18.01,  11.7,  13.0,  13.0,
+     *            25.2,  17.65, 18.01,  11.7,  13.0,  13.0,
+     *            100.0,   0.,    0.,    0.,    0.,    0.,
+     *            100.0,   0.,    0.,    0.,    0.,    0.,
+     *            100.0,   0.,    0.,    0.,    0.,    0.,
+     *            100.0,   0.,    0.,    0.,    0.,    0.,
+     *            100.0,   0.,    0.,    0.,    0.,    0.,
+     *            100.0,   0.,    0.,    0.,    0.,    0.,
+     *            63.90, 35.80,   0.,    0.,    0.,    0.,
+     *            10.8,  10.6,  10.8,  67.8,    0.,    0.,
+     *            10.8,  10.6,  10.8,  67.8,    0.,    0.,
+     *            3.37,  3.37,  3.36,  69.9,  20.01,   0./
+ 
+      DATA MODE1/  101,30201,    0,    0,    0,    0,
+     *             405,    0,    0,    0,    0,    0,
+     *             406,    0,    0,    0,    0,    0,
+     *             70707,40308,40209,40608,40509,70908,
+     *             405,  708,90808,70402,70405,70708,
+     *             406,  709,80909,70403,70406,70709,
+     *             908,  707,    0,    0,    0,    0,
+     *             101,70707,70908,10908,10302,10107,
+     *             914,  713,    0,    0,    0,    0,
+     *             714,  813,    0,    0,    0,    0,
+     *             118,    0,    0,    0,    0,    0,
+     *             913,    0,    0,    0,    0,    0,
+     *             718,    0,    0,    0,    0,    0,
+     *             918,    0,    0,    0,    0,    0,
+     *            1218,  922,  723,    0,    0,    0,
+     *             815,  725,    0,    0,    0,    0,
+     *             715,  925,    0,    0,    0,    0,
+     *             126,    0,    0,    0,    0,    0,
+     *             825,    0,    0,    0,    0,    0,
+     *             726,    0,    0,    0,    0,    0/
+      DATA MODE2/  826,    0,    0,    0,    0,    0,
+     *            1126,  830,  731,    0,    0,    0,
+     *           40402,    0,    0,    0,    0,    0,
+     *           40403,    0,    0,    0,    0,    0,
+     *          080704, 050404, 020404, 0804, 090808, 080707,     !Tau+
+     *          090704, 060404, 030404, 0904, 090908, 090707,     !Tau-
+     *            1608,    0,    0,    0,    0,    0,             !D+->K0s+pi
+     *            1609,    0,    0,    0,    0,    0,             !D_->K0s+pi
+     *            1208,    0,    0,    0,    0,    0,             !D0->K_+pi+
+     *            1109,    0,    0,    0,    0,    0,             !D0->K++pi_
+     *            1608,    0,    0,    0,    0,    0,             !Ds+->K0s+pi
+     *            1609,    0,    0,    0,    0,    0,             !Ds_->K0s+pi
+     *            141208,180807, 0,    0,    0,    0,             !Lc+
+     *            0204,  0604, 3304, 90908,  0,    0,             !W+
+     *            0304,  0504, 3404, 90908,  0,    0,             !W-
+     *            0203,  0506, 3334, 90807, 0404,  0/             !Z
+C.
+C.    -------------------------------------------------------------------
+C.
+      REMASS=EMASS
+      REMMU =EMMU
+      RPMASS=PMASS
+      CALL GSPART( 1,'GAMMA$      ',1,0.       , 0., 1.E+15,    UBUF,0)
+      CALL GSPART( 2,'POSITRON$   ',2,REMASS   , 1., 1.E+15,    UBUF,0)
+      CALL GSPART( 3,'ELECTRON$   ',2,REMASS   ,-1., 1.E+15,    UBUF,0)
+      CALL GSPART( 4,'NEUTRINO$   ',3,0.       , 0., 1.E+15,    UBUF,0)
+      CALL GSPART( 5,'MUON +$     ',5,REMMU    , 1., 2.19703e-6,UBUF,0)
+      CALL GSPART( 6,'MUON -$     ',5,REMMU    ,-1., 2.19703e-6,UBUF,0)
+      CALL GSPART( 7,'PION 0$     ',3,0.1349764, 0., 0.84E-16,  UBUF,0)
+      CALL GSPART( 8,'PION +$     ',4,0.1395700, 1., 2.603E-08, UBUF,0)
+      CALL GSPART( 9,'PION -$     ',4,0.1395700,-1., 2.603E-08, UBUF,0)
+      CALL GSPART(10,'KAON 0 LONG$',3,0.497672 , 0., 5.17E-08,  UBUF,0)
+      CALL GSPART(11,'KAON +$     ',4,0.493677 , 1., 1.237E-08, UBUF,0)
+      CALL GSPART(12,'KAON -$     ',4,0.493677 ,-1., 1.237E-08, UBUF,0)
+      CALL GSPART(13,'NEUTRON$    ',3,.93956563, 0., 8.870E+02, UBUF,0)
+      CALL GSPART(14,'PROTON$     ',4,RPMASS   , 1., 1.000e+15, UBUF,0)
+      CALL GSPART(15,'ANTIPROTON$ ',4,RPMASS   ,-1., 1.000e+15, UBUF,0)
+      CALL GSPART(16,'KAON 0 SHORT$',3,0.497672, 0., 8.926E-11, UBUF,0)
+      CALL GSPART(17,'ETA$        ',3,0.54745  , 0., 5.485E-19, UBUF,0)
+      CALL GSPART(18,'LAMBDA$     ',3,1.115684 , 0., 2.632E-10, UBUF,0)
+      CALL GSPART(19,'SIGMA +$    ',4,1.18937  , 1., 0.799E-10, UBUF,0)
+      CALL GSPART(20,'SIGMA 0$    ',3,1.19255  , 0., 7.4E-20,   UBUF,0)
+      CALL GSPART(21,'SIGMA -$    ',4,1.197436 ,-1., 1.479E-10, UBUF,0)
+      CALL GSPART(22,'XI 0$       ',3,1.3149   , 0., 2.9E-10,   UBUF,0)
+      CALL GSPART(23,'XI -$       ',4,1.32132  ,-1., 1.639E-10, UBUF,0)
+      CALL GSPART(24,'OMEGA -$    ',4,1.67245  ,-1., 0.822E-10, UBUF,0)
+      CALL GSPART(25,'ANTINEUTRON$',3,.93956563, 0., 8.870E+02, UBUF,0)
+      CALL GSPART(26,'ANTILAMBDA$ ',3,1.115684 , 0., 2.632E-10, UBUF,0)
+      CALL GSPART(27,'ANTISIGMA -$',4,1.18937  ,-1., 0.799E-10, UBUF,0)
+      CALL GSPART(28,'ANTISIGMA 0$',3,1.19255  , 0., 7.4E-20,   UBUF,0)
+      CALL GSPART(29,'ANTISIGMA +$',4,1.197436 , 1., 1.479E-10, UBUF,0)
+      CALL GSPART(30,'ANTIXI 0$   ',3,1.3149   , 0., 2.9E-10,   UBUF,0)
+      CALL GSPART(31,'ANTIXI +$   ',4,1.32132  , 1., 1.639E-10, UBUF,0)
+      CALL GSPART(32,'ANTIOMEGA +$',4,1.67245  , 1., 0.822E-10, UBUF,0)
+      CALL GSPART(33,'TAU +$      ',4,1.7771   , 1., 2.956e-13, UBUF,0)
+      CALL GSPART(34,'TAU -$      ',4,1.7771   ,-1., 2.956e-13, UBUF,0)
+      CALL GSPART(35,'D +$        ',4,1.8694   , 1., 1.062e-12, UBUF,0)
+      CALL GSPART(36,'D -$        ',4,1.8694   ,-1., 1.062e-12, UBUF,0)
+      CALL GSPART(37,'D 0$        ',3,1.8646   , 0., 4.280e-13, UBUF,0)
+      CALL GSPART(38,'ANTI D 0$   ',3,1.8646   , 0., 4.280e-13, UBUF,0)
+      CALL GSPART(39,'DS+$        ',4,1.9685   , 1., 4.360e-13, UBUF,0)
+      CALL GSPART(40,'DS-$        ',4,1.9685   ,-1., 4.360e-13, UBUF,0)
+      CALL GSPART(41,'LAMBDA C +$ ',4,2.2851   , 1., 1.790e-13, UBUF,0)
+      CALL GSPART(42,'W +$        ',4,80.220   , 1., 3.160e-25, UBUF,0)
+      CALL GSPART(43,'W -$        ',4,80.220   ,-1., 2.640e-25, UBUF,0)
+      CALL GSPART(44,'Z 0$        ',3,91.187   , 0., 7.740e-26, UBUF,0)
+      CALL GSPART(45,'DEUTERON$   ',8,1.875613 ,+1., 1.000e+15, UBUF,0)
+      CALL GSPART(46,'TRITON$     ',8,2.80925  ,+1., 1.000e+15, UBUF,0)
+      CALL GSPART(47,'ALPHA$      ',8,3.727417 ,+2., 1.000e+15, UBUF,0)
+      CALL GSPART(48,'GEANTINO$   ',6,0.       , 0., 1.000e+15, UBUF,0)
+      CALL GSPART(49,'HE3$        ',8,2.80923  ,+2., 1.000e+15, UBUF,0)
+      CALL GSPART(50,'Cerenkov$   ',7,0.       , 0., 1.000e+15, UBUF,0)
+c     CALL GSPART(51,'phi$        ',3,1.019    , 0., 1.000e-15, UBUF,0)
+c     CALL GSPART(52,'J/psi$      ',3,3.09688  , 0., 1.000e-15, UBUF,0)
+c     CALL GSPART(53,'Ypsilon$    ',3,9.46037  , 0., 1.000e-15, UBUF,0)
+ 
+C
+C     Define decay modes.
+C
+      DO 10 I=1,NPAR
+      CALL GSDK(IPAR(I),BRATIO(1,I),MODE(1,I))
+   10 CONTINUE
+C
+  99  RETURN
+      END
+ 
+ 
+ 
++DECK,GTMED1,IF=-OLD.
+*CMZ :          26/03/98  12.57.30  by  Pavel Nevski
+*CMZ :  3.21/02 29/03/94  15.22.08  by  S.Giani
+*-- Author :
+      SUBROUTINE GTMED1 (X, NUMED)
+C.
+C.    ******************************************************************
+C.    *                                                                *
+C.    *   Finds in which volume/medium the point X is, and updates the *
+C.    *    common /GCVOLU/ and the structure JGPAR accordingly.        *
+C.    *                                                                *
+C.    *   NUMED returns the tracking medium number, or 0 if point is   *
+C.    *         outside the experimental setup.                        *
+C.    *                                                                *
+C.    *   Note : For INWVOL = 2, INFROM set to a positive number is    *
+C.    *      interpreted by GTMEDI as the number IN of the content     *
+C.    *      just left by the current track within the mother volume   *
+C.    *      where the point X is assumed to be.                       *
+C.    *                                                                *
+C.    *   Note : INFROM is set correctly by this routine but it is     *
+C.    *      used on entrance only in the case GSNEXT has been called  *
+C.    *      by the user. In other words the value of INFROM received  *
+C.    *      on entrance is not considered necessarily valid. This     *
+C.    *      assumption has been made for safety. A wrong value of     *
+C.    *      INFROM can cause wrong tracking.                          *
+C.    *                                                                *
+C.    *   Called by : GTRACK                                           *
+C.    *   Authors   : S.Banerjee, R.Brun, F.Bruyant, A.McPherson       *
+C.    *               S.Giani.                                         *
+C.    *                                                                *
+C.    *   Modified by S.Giani (1993) to perform the search according   *
+C.    *    to the new 'virtual divisions' algorithm and to build the   *
+C.    *    stack of the 'possible overlapping volumes' in the case of  *
+C.    *    MANY volumes. Any kind of boolean operation is now possible.*
+C.    *    Divisions along arbitrary axis are now possible.            *
+C.    *                                                                *
+C.    ******************************************************************
+C.
++SEQ, GCFLAG.
++SEQ, GCKINE.
++CDE, GCBANK.
++CDE, GCVOLU.
++CDE, GCTRAK.
++SEQ, GCJUMP, IF=USRJMP
++SEQ, GCHVIR.
++SEQ, GCVDMA.
+      COMMON/GCCHAN/LSAMVL
+      LOGICAL LSAMVL
+C.
+      CHARACTER*4 NAME
+      DIMENSION  X(*)
+      REAL       XC(6), XT(3)
+      LOGICAL    BTEST
+C.
+C.    ------------------------------------------------------------------
+*
+      nvmany=0
+      nfmany=0
+      new2fl=0
+      neufla=0
+      if(raytra.eq.1.)then
+        JVO  = LQ(JVOLUM-LVOLUM(NLEVEL))
+        if(ingoto.eq.-1.and.q(jvo+3).lt.0)then
+          neufla=1
+        elseif(ingoto.eq.0)then
+              call ggperp(x,veccos,ierr)
+              veccos(1)=-veccos(1)
+              veccos(2)=-veccos(2)
+              veccos(3)=-veccos(3)
+              if(ierr.eq.1)then
+                veccos(1)=1.
+                veccos(2)=0.
+                veccos(3)=0.
+              endif
+        endif
+      endif
+*
+* SECTION I: The /GCVOLU/ table contains the initial guess for a path
+*            in the geometry tree on which X may be found.  Look along this
+*            path until X is found inside.  This is the starting position.
+*            If this is an ONLY volume with no daughters, we are done;
+*            otherwise reset search record variables, proceed to section II.
+*
+* *** Check if point is in current volume
+*
+      INFR = 0
+      INGT = 0
+      JVIN = 0
+*
+* *** LSAMVL is a logical variable that indicates whether we are still
+* *** in the current volume or not. It is used in GTRACK to detect
+* *** precision problems.
+      LSAMVL = .TRUE.
+C*****  Code Expanded From Routine:  GTRNSF
+C
+  100 IF (GRMAT(10,NLEVEL) .EQ. 0.) THEN
+         XC(1) = X(1) - GTRAN(1,NLEVEL)
+         XC(2) = X(2) - GTRAN(2,NLEVEL)
+         XC(3) = X(3) - GTRAN(3,NLEVEL)
+*
+      ELSE
+         XL1 = X(1) - GTRAN(1,NLEVEL)
+         XL2 = X(2) - GTRAN(2,NLEVEL)
+         XL3 = X(3) - GTRAN(3,NLEVEL)
+         XC(1) = XL1*GRMAT(1,NLEVEL) + XL2*GRMAT(2,NLEVEL) + XL3*
+     +      GRMAT(3,NLEVEL)
+         XC(2) = XL1*GRMAT(4,NLEVEL) + XL2*GRMAT(5,NLEVEL) + XL3*
+     +      GRMAT(6,NLEVEL)
+         XC(3) = XL1*GRMAT(7,NLEVEL) + XL2*GRMAT(8,NLEVEL) + XL3*
+     +      GRMAT(9,NLEVEL)
+ 
+      ENDIF
+      xc(4)=0.
+      xc(5)=0.
+      xc(6)=0.
+C*****  End of Code Expanded From Routine:  GTRNSF
+*
+      JVO  = LQ(JVOLUM-LVOLUM(NLEVEL))
+*
+* Note: At entry the variable INGOTO may contain the index of a volume
+* contained within the current one at NLEVEL.  If so, begin by checking
+* if X lies inside.  This improves the search speed over that of GMEDIA.
+*
+      NIN = Q(JVO+3)
+      if(raytra.eq.1..and.imyse.eq.1)then
+            CALL UHTOC(NAMES(NLEVEL),4,NAME,4)
+            CALL GFIND(NAME,'SEEN',ISSEEN)
+            if(isseen.eq.-2.or.isseen.eq.-1)goto 189
+      endif
+      IF ((INGOTO.LE.0).OR.(INGOTO.GT.NIN)) THEN
+         INGOTO = 0
+      ELSE
+*
+* ***   Entrance in content INGOTO predicted by GTNEXT
+*
+         JIN  = LQ(JVO-INGOTO)
+         IVOT = Q(JIN+2)
+         JVOT = LQ(JVOLUM-IVOT)
+         JPAR = LQ(JGPAR-NLEVEL-1)
+*
+         IROTT = Q(JIN+4)
+C*****  Code Expanded From Routine:  GITRAN
+C.
+C.    ------------------------------------------------------------------
+C.
+         IF (IROTT .EQ. 0) THEN
+            XT(1) = XC(1) - Q(5+JIN)
+            XT(2) = XC(2) - Q(6+JIN)
+            XT(3) = XC(3) - Q(7+JIN)
+*
+         ELSE
+            XL1 = XC(1) - Q(5+JIN)
+            XL2 = XC(2) - Q(6+JIN)
+            XL3 = XC(3) - Q(7+JIN)
+            JR = LQ(JROTM-IROTT)
+            XT(1) = XL1*Q(JR+1) + XL2*Q(JR+2) + XL3*Q(JR+3)
+            XT(2) = XL1*Q(JR+4) + XL2*Q(JR+5) + XL3*Q(JR+6)
+            XT(3) = XL1*Q(JR+7) + XL2*Q(JR+8) + XL3*Q(JR+9)
+*
+         ENDIF
+C*****  End of Code Expanded From Routine:  GITRAN
+*
+*   *   Check if point is in content
+*
+         CALL GINME (XT, Q(JVOT+2), Q(JPAR+1), IYES)
+         IF (IYES.NE.0) THEN
+*
+*          If so, prepare information for volume retrieval, and return
+*
+            LSAMVL = .FALSE.
+            NL1 = NLEVEL +1
+            LVOLUM(NL1) = IVOT
+            NAMES(NL1)  = IQ(JVOLUM+IVOT)
+            NUMBER(NL1) = Q(JIN+3)
+            LINDEX(NL1) = INGOTO
+            LINMX(NL1)  = Q(JVO+3)
+            GONLY(NL1)  = Q(JIN+8)
+            IF (LQ(LQ(JVOLUM-IVOT)).EQ.0) THEN
+               NLDEV(NL1) = NLDEV(NLEVEL)
+            ELSE
+               NLDEV(NL1) = NL1
+            ENDIF
+            CALL GTRMUL (GTRAN(1,NLEVEL), GRMAT(1,NLEVEL), Q(JIN+5),
+     +                   IROTT, GTRAN(1,NL1), GRMAT(1,NL1))
+            NLEVEL = NL1
+            XC(1) = XT(1)
+            XC(2) = XT(2)
+            XC(3) = XT(3)
+            JVO = JVOT
+            INFROM = 0
+            if(raytra.eq.1.)then
+              call ggperp(x,veccos,ierr)
+              if(ierr.eq.1)then
+                veccos(1)=1.
+                veccos(2)=0.
+                veccos(3)=0.
+              endif
+            endif
+            GO TO 190
+         ENDIF
+      ENDIF
+*
+* End of INGOTO processing
+*
+ 189  JPAR = LQ(JGPAR-NLEVEL)
+      CALL GINME (XC, Q(JVO+2), Q(JPAR+1), IYES)
+      IF (IYES.EQ.0) THEN
+*
+*  **   Point not in current volume, go up the tree
+*
+         LSAMVL = .FALSE.
+         INGOTO = 0
+         IF (NLEVEL.GT.1) THEN
+            NLEVEL = NLEVEL -1
+            JVO = LQ(JVOLUM-LVOLUM(NLEVEL))
+            NIN = Q(JVO+3)
+            IF(NIN.GT.0) THEN
+               INFROM=LINDEX(NLEVEL+1)
+            ELSE
+               INFROM=0
+            ENDIF
+            INFR = INFROM
+            GO TO 100
+         ELSE
+*
+*   *      Point is outside setup
+*
+            NUMED = 0
+            GO TO 999
+         ENDIF
+      ELSE
+*
+*   *      Point in current volume but not in INGOTO. We block the
+*   *      corresponding volume
+*
+         IF (INGOTO.GT.0) THEN
+            INGT = INGOTO
+            JIN = LQ(JVO-INGOTO)
+            IQ(JIN) = IBSET(IQ(JIN),4)
+         ENDIF
+      ENDIF
+*
+*   *      Found a volume up the tree which contains our point. We block
+*   *      the branch we came up from.
+*
+      IF(INFR.GT.0) THEN
+         JIN=LQ(JVO-INFR)
+         IQ(JIN) = IBSET(IQ(JIN),4)
+         JVIN = JIN
+      ENDIF
+*
+*  **   Point is in current volume
+*
+  190 INGOTO = 0
+      NLMIN = NLEVEL
+      IF (INWVOL.NE.2) INFROM = 0
+      NLMANY = 0
+*
+* SECTION II: X is found inside current node at NLEVEL in /GCVOLU/.
+*             Search all contents recursively for any containing X.
+*             Take the first one found, if any, and continue at that
+*             level, incrementing NLEVEL and extending /GCVOLU/ tables.
+*             This is continued until a level is reached where X is not
+*             found in any of the contents, or there are no contents.
+* Note: Since Section II is re-entered from Section III, a blocking word
+* is used to mark those contents already checked.  Upon exit from Section
+* II, these blocking words are cleared at NLEVEL, but may remain set in
+* levels between NLEVEL-1 and NLMIN, if any.  They must be cleared at exit.
+*
+*  **  Check contents, if any
+*
+  200 JVO = LQ(JVOLUM-LVOLUM(NLEVEL))
+      NIN = Q(JVO+3)
+      if(raytra.eq.1..and.imyse.eq.1)then
+            CALL UHTOC(NAMES(NLEVEL),4,NAME,4)
+            CALL GFIND(NAME,'SEEN',ISSEEN)
+            if(isseen.eq.-2.or.isseen.eq.-1)goto 300
+      endif
+*
+*   *   Case with no contents
+*
+      IF (NIN.EQ.0) THEN
+         GO TO 300
+*
+*   *   Case with contents defined by division
+*
+      ELSEIF (NIN.LT.0) THEN
+         CALL GMEDIV (JVO, IN, XC, 1)
+         IF (IN.GT.0) THEN
+            if(raytra.eq.1..and.neufla.eq.1)then
+              neufla=0
+              call ggperp(x,veccos,ierr)
+              if(ierr.eq.1)then
+                veccos(1)=1.
+                veccos(2)=0.
+                veccos(3)=0.
+              endif
+            endif
+            INFROM = 0
+            INFR   = 0
+            INGT   = 0
+            LSAMVL = .FALSE.
+            GO TO 200
+         ENDIF
+*
+*   *  Case with contents positioned
+*
+      ELSE
+       if(nin.gt.1)then
+        clmoth=q(jvirt+4*(LVOLUM(NLEVEL)-1)+3)
+        chmoth=q(jvirt+4*(LVOLUM(NLEVEL)-1)+4)
+        ndivto=q(jvirt+4*(LVOLUM(NLEVEL)-1)+2)
+        iaxis =q(jvirt+4*(LVOLUM(NLEVEL)-1)+1)
+        if(iaxis.le.3)then
+          ivdiv=((xc(iaxis)-clmoth)*ndivto/(chmoth-clmoth))+1
+            if(ivdiv.lt.1)then
+              ivdiv=1
+            elseif(ivdiv.gt.ndivto)then
+              ivdiv=ndivto
+            endif
+        else
+          call gfcoor(xc,iaxis,cx)
+          if(iaxis.eq.6)then
+            if((cx-clmoth).lt.-1.)then
+              cx=cx+360.
+            elseif((cx-chmoth).gt.1.)then
+              cx=cx-360.
+            endif
+            if(cx.gt.chmoth)then
+              cx=chmoth
+            elseif(cx.lt.clmoth)then
+              cx=clmoth
+            endif
+          endif
+          ivdiv=((cx-clmoth)*ndivto/(chmoth-clmoth))+1
+            if(ivdiv.lt.1)then
+              ivdiv=1
+            elseif(ivdiv.gt.ndivto)then
+              ivdiv=ndivto
+            endif
+        endif
+        jvdiv=lq(jvirt-LVOLUM(NLEVEL))
+        iofset=iq(jvdiv+ivdiv)
+        ncont=iq(jvdiv+iofset+1)
+        jcont=jvdiv+iofset+1
+        if(ncont.eq.0)goto 260
+       else
+         JCONT = LQ(JVO-NIN-1)+1
+         NCONT = 1
+       endif
+*
+*     For each selected content in turn, check if point is inside
+*
+         DO 259 ICONT=1,NCONT
+           if(nin.eq.1)then
+            in=1
+           else
+            IN = IQ(JCONT+ICONT)
+           endif
+            IF(IN.EQ.0) THEN
+*
+*     If the value IQ(JCONT+ICONT)=0 then we are back in the mother.
+*     So jump to 260, the search is finished. Clean-up should be done
+*     only up to ICONT-1, so we set:
+*
+               NCONT=ICONT-1
+               GOTO 260
+            ELSE
+            JIN = LQ(JVO-IN)
+            IF (.NOT.BTEST(IQ(JIN),4)) THEN
+               CALL GMEPOS (JVO, IN, XC, 1)
+               IF (IN.GT.0) THEN
+                  new2fl=0
+                  IF (GONLY(NLEVEL).NE.0.) THEN
+                    NLMANY = 0
+                    nvmany = 0
+                    nfmany = 0
+                  ENDIF
+                  INFROM = 0
+                  INGT   = 0
+                  INFR   = 0
+                  LSAMVL = .FALSE.
+                  GO TO 200
+               ELSE
+                  IQ(JIN) = IBSET(IQ(JIN),4)
+               ENDIF
+            ENDIF
+            ENDIF
+  259    CONTINUE
+*
+  260    IF(NCONT.EQ.NIN) THEN
+         DO 268 IN=1,NIN
+            JIN = LQ(JVO-IN)
+            IQ(JIN) = IBCLR(IQ(JIN),4)
+  268    CONTINUE
+         ELSE
+         DO 269 ICONT=1,NCONT
+           if(nin.eq.1)then
+            in=1
+           else
+            IN  = IQ(JCONT+ICONT)
+           endif
+            JIN = LQ(JVO-IN)
+            IQ(JIN) = IBCLR(IQ(JIN),4)
+  269    CONTINUE
+         IF(INFR.NE.0) THEN
+            JIN = LQ(JVO-INFR)
+            IQ(JIN) = IBCLR(IQ(JIN),4)
+            INFR = 0
+         ENDIF
+         IF(INGT.NE.0) THEN
+            JIN = LQ(JVO-INGT)
+            IQ(JIN) = IBCLR(IQ(JIN),4)
+            INGT = 0
+         ENDIF
+         ENDIF
+*
+      ENDIF
+*
+* SECTION III: X is found at current node (NLEVEL in /GCVOLU) but not in
+*              any of its contents, if any.  If this is a MANY volume,
+*              save it as a candidate best-choice, and continue the search
+*              by backing up the tree one node and proceed to Section II.
+*              If this is an ONLY volume, proceed to Section IV.
+*
+* *** Point is in current volume/medium, and not in any content
+*
+  300 IF (GONLY(NLEVEL).EQ.0.) THEN
+*
+*  **   Lowest level is 'NOT ONLY'
+*
+         IF (NLEVEL.GT.NLMANY) THEN
+            CALL GSCVOL
+            NLMANY = NLEVEL
+            nfmany=nvmany+1
+         ENDIF
+         if(new2fl.eq.0)then
+            nvmany=nvmany+1
+            manyle(nvmany)=nlevel
+            do 401 i = 1,nlevel
+              manyna(nvmany,i)=names(i)
+              manynu(nvmany,i)=number(i)
+ 401        continue
+         endif
+*
+*   *   Go up the tree up to a volume with positioned contents
+*
+         new2fl=-1
+  310    INFROM = LINDEX(NLEVEL)
+         NLEVEL = NLEVEL -1
+         JVO    = LQ(JVOLUM-LVOLUM(NLEVEL))
+         NIN    = Q(JVO+3)
+         IF (NIN.LT.0) GO TO 310
+*
+C*****  Code Expanded From Routine:  GTRNSF
+C
+         IF (GRMAT(10,NLEVEL) .EQ. 0.) THEN
+            XC(1) = X(1) - GTRAN(1,NLEVEL)
+            XC(2) = X(2) - GTRAN(2,NLEVEL)
+            XC(3) = X(3) - GTRAN(3,NLEVEL)
+*
+         ELSE
+            XL1 = X(1) - GTRAN(1,NLEVEL)
+            XL2 = X(2) - GTRAN(2,NLEVEL)
+            XL3 = X(3) - GTRAN(3,NLEVEL)
+            XC(1) = XL1*GRMAT(1,NLEVEL) + XL2*GRMAT(2,NLEVEL) +
+     +      XL3* GRMAT(3,NLEVEL)
+            XC(2) = XL1*GRMAT(4,NLEVEL) + XL2*GRMAT(5,NLEVEL) +
+     +      XL3* GRMAT(6,NLEVEL)
+            XC(3) = XL1*GRMAT(7,NLEVEL) + XL2*GRMAT(8,NLEVEL) +
+     +      XL3* GRMAT(9,NLEVEL)
+*
+         ENDIF
+C*****  End of Code Expanded From Routine:  GTRNSF
+*
+         INFR = INFROM
+         JIN = LQ(JVO-INFROM)
+         IQ(JIN) = IBSET(IQ(JIN),4)
+         NLMIN = MIN(NLEVEL,NLMIN)
+         GO TO 200
+      ENDIF
+*
+* SECTION IV: This is the end of the search.  The current node (NLEVEL
+*             in /GCVOLU/) is the lowest ONLY volume in which X is found.
+*             If X was also found in any of its contents, they are MANY
+*             volumes: the best-choice is the one among them at the greatest
+*             level in the tree, and it is stored.  Otherwise the current
+*             volume is the solution.  Before exit, all of the blocking
+*             words leftover in the tree must be reset to zero.
+* Note: A valid structure is assumed, in which no ONLY volumes overlap.
+* If this rule is violated, or if a daughter is not entirely contained
+* within the mother volume, the results are unpredictable.
+*
+      DO 419 NL=NLMIN,NLEVEL-1
+         JVO = LQ(JVOLUM-LVOLUM(NL))
+         NIN = Q(JVO+3)
+         DO 418 IN=1,NIN
+            JIN = LQ(JVO-IN)
+            IQ(JIN) = IBCLR(IQ(JIN),4)
+  418    CONTINUE
+  419 CONTINUE
+*
+      if(nlmany.eq.0)then
+        nvmany=0
+        nfmany=0
+      endif
+      IF (NLMANY.GT.0) CALL GFCVOL
+      JVO = LQ(JVOLUM-LVOLUM(NLEVEL))
+      IF(JVIN.NE.0) IQ(JVIN) = IBCLR(IQ(JVIN),4)
+      NUMED = Q(JVO+4)
+*                                                             END GTMEDI
+  999 IF(JGSTAT.NE.0) CALL GFSTAT(4)
+      END
++DECK,GTMED2.  IF=OLD.
+*CMZ :          26/03/98  12.40.25  by  Pavel Nevski
+*CMZ :  3.21/02 29/03/94  15.41.24  by  S.Giani
+*-- Author :
+      SUBROUTINE GTMED2 (X, NUMED)
+C.
+C.    ******************************************************************
+C.    *                                                                *
+C.    *   Finds in which volume/medium the point X is, and updates the *
+C.    *    common /GCVOLU/ and the structure JGPAR accordingly.        *
+C.    *                                                                *
+C.    *   NUMED returns the tracking medium number, or 0 if point is   *
+C.    *         outside the experimental setup.                        *
+C.    *                                                                *
+C.    *   Note : For INWVOL = 2, INFROM set to a positive number is    *
+C.    *      interpreted by GTMEDI as the number IN of the content     *
+C.    *      just left by the current track within the mother volume   *
+C.    *      where the point X is assumed to be.                       *
+C.    *                                                                *
+C.    *   Note : INFROM is set correctly by this routine but it is     *
+C.    *      used on entrance only in the case GSNEXT has been called  *
+C.    *      by the user. In other words the value of INFROM received  *
+C.    *      on entrance is not considered necessarily valid. This     *
+C.    *      assumption has been made for safety. A wrong value of     *
+C.    *      INFROM can cause wrong tracking.                          *
+C.    *                                                                *
+C.    *   Called by : GTRACK                                           *
+C.    *   Authors   : S.Banerjee, R.Brun, F.Bruyant, A.McPherson       *
+C.    *                                                                *
+C.    ******************************************************************
+C.
++CDE, GCBANK.
++CDE, GCVOLU.
++CDE, GCTRAK.
++SEQ, GCJUMP, IF=USRJMP
+      COMMON/GCCHAN/LSAMVL
+      LOGICAL LSAMVL
+C.
+      DIMENSION  X(*)
+      REAL       XC(3), XT(3)
+      LOGICAL    BTEST
+C.
+C.    ------------------------------------------------------------------
+*
+* SECTION I: The /GCVOLU/ table contains the initial guess for a path
+*            in the geometry tree on which X may be found.  Look along this
+*            path until X is found inside.  This is the starting position.
+*            If this is an ONLY volume with no daughters, we are done;
+*            otherwise reset search record variables, proceed to section II.
+*
+* *** Check if point is in current volume
+*
+      INFR = 0
+      INGT = 0
+      JVIN = 0
+*
+* *** LSAMVL is a logical variable that indicates whether we are still
+* *** in the current volume or not. It is used in GTRACK to detect
+* *** precision problems.
+      LSAMVL = .TRUE.
+C*****  Code Expanded From Routine:  GTRNSF
+C
+  100 IF (GRMAT(10,NLEVEL) .EQ. 0.) THEN
+         XC(1) = X(1) - GTRAN(1,NLEVEL)
+         XC(2) = X(2) - GTRAN(2,NLEVEL)
+         XC(3) = X(3) - GTRAN(3,NLEVEL)
+*
+      ELSE
+         XL1 = X(1) - GTRAN(1,NLEVEL)
+         XL2 = X(2) - GTRAN(2,NLEVEL)
+         XL3 = X(3) - GTRAN(3,NLEVEL)
+         XC(1) = XL1*GRMAT(1,NLEVEL) + XL2*GRMAT(2,NLEVEL) + XL3*
+     +      GRMAT(3,NLEVEL)
+         XC(2) = XL1*GRMAT(4,NLEVEL) + XL2*GRMAT(5,NLEVEL) + XL3*
+     +      GRMAT(6,NLEVEL)
+         XC(3) = XL1*GRMAT(7,NLEVEL) + XL2*GRMAT(8,NLEVEL) + XL3*
+     +      GRMAT(9,NLEVEL)
+ 
+      ENDIF
+C*****  End of Code Expanded From Routine:  GTRNSF
+*
+      JVO  = LQ(JVOLUM-LVOLUM(NLEVEL))
+*
+* Note: At entry the variable INGOTO may contain the index of a volume
+* contained within the current one at NLEVEL.  If so, begin by checking
+* if X lies inside.  This improves the search speed over that of GMEDIA.
+*
+      NIN = Q(JVO+3)
+      IF ((INGOTO.LE.0).OR.(INGOTO.GT.NIN)) THEN
+         INGOTO = 0
+      ELSE
+*
+* ***   Entrance in content INGOTO predicted by GTNEXT
+*
+         JIN  = LQ(JVO-INGOTO)
+         IVOT = Q(JIN+2)
+         JVOT = LQ(JVOLUM-IVOT)
+         JPAR = LQ(JGPAR-NLEVEL-1)
+*
+         IROTT = Q(JIN+4)
+C*****  Code Expanded From Routine:  GITRAN
+C.
+C.    ------------------------------------------------------------------
+C.
+         IF (IROTT .EQ. 0) THEN
+            XT(1) = XC(1) - Q(5+JIN)
+            XT(2) = XC(2) - Q(6+JIN)
+            XT(3) = XC(3) - Q(7+JIN)
+*
+         ELSE
+            XL1 = XC(1) - Q(5+JIN)
+            XL2 = XC(2) - Q(6+JIN)
+            XL3 = XC(3) - Q(7+JIN)
+            JR = LQ(JROTM-IROTT)
+            XT(1) = XL1*Q(JR+1) + XL2*Q(JR+2) + XL3*Q(JR+3)
+            XT(2) = XL1*Q(JR+4) + XL2*Q(JR+5) + XL3*Q(JR+6)
+            XT(3) = XL1*Q(JR+7) + XL2*Q(JR+8) + XL3*Q(JR+9)
+*
+         ENDIF
+C*****  End of Code Expanded From Routine:  GITRAN
+*
+*   *   Check if point is in content
+*
+         CALL GINME (XT, Q(JVOT+2), Q(JPAR+1), IYES)
+         IF (IYES.NE.0) THEN
+*
+*          If so, prepare information for volume retrieval, and return
+*
+            LSAMVL = .FALSE.
+            NL1 = NLEVEL +1
+            LVOLUM(NL1) = IVOT
+            NAMES(NL1)  = IQ(JVOLUM+IVOT)
+            NUMBER(NL1) = Q(JIN+3)
+            LINDEX(NL1) = INGOTO
+            LINMX(NL1)  = Q(JVO+3)
+            GONLY(NL1)  = Q(JIN+8)
+            IF (LQ(LQ(JVOLUM-IVOT)).EQ.0) THEN
+               NLDEV(NL1) = NLDEV(NLEVEL)
+            ELSE
+               NLDEV(NL1) = NL1
+            ENDIF
+            CALL GTRMUL (GTRAN(1,NLEVEL), GRMAT(1,NLEVEL), Q(JIN+5),
+     +                   IROTT, GTRAN(1,NL1), GRMAT(1,NL1))
+            NLEVEL = NL1
+            XC(1) = XT(1)
+            XC(2) = XT(2)
+            XC(3) = XT(3)
+            JVO = JVOT
+            INFROM = 0
+            GO TO 190
+         ENDIF
+      ENDIF
+*
+* End of INGOTO processing
+*
+      JPAR = LQ(JGPAR-NLEVEL)
+      CALL GINME (XC, Q(JVO+2), Q(JPAR+1), IYES)
+      IF (IYES.EQ.0) THEN
+*
+*  **   Point not in current volume, go up the tree
+*
+         LSAMVL = .FALSE.
+         INGOTO = 0
+         IF (NLEVEL.GT.1) THEN
+            NLEVEL = NLEVEL -1
+            JVO = LQ(JVOLUM-LVOLUM(NLEVEL))
+            NIN = Q(JVO+3)
+            IF(NIN.GT.0) THEN
+               INFROM=LINDEX(NLEVEL+1)
+            ELSE
+               INFROM=0
+            ENDIF
+            INFR = INFROM
+            GO TO 100
+         ELSE
+*
+*   *      Point is outside setup
+*
+            NUMED = 0
+            GO TO 999
+         ENDIF
+      ELSE
+*
+*   *      Point in current volume but not in INGOTO. We block the
+*   *      corresponding volume
+*
+         IF (INGOTO.GT.0) THEN
+            INGT = INGOTO
+            JIN = LQ(JVO-INGOTO)
+            IQ(JIN) = IBSET(IQ(JIN),4)
+         ENDIF
+      ENDIF
+*
+*   *      Found a volume up the tree which contains our point. We block
+*   *      the branch we came up from.
+*
+      IF(INFR.GT.0) THEN
+         JIN=LQ(JVO-INFR)
+         IQ(JIN) = IBSET(IQ(JIN),4)
+         JVIN = JIN
+      ENDIF
+*
+*  **   Point is in current volume
+*
+  190 INGOTO = 0
+      NLMIN = NLEVEL
+      IF (INWVOL.NE.2) INFROM = 0
+      NLMANY = 0
+*
+* SECTION II: X is found inside current node at NLEVEL in /GCVOLU/.
+*             Search all contents recursively for any containing X.
+*             Take the first one found, if any, and continue at that
+*             level, incrementing NLEVEL and extending /GCVOLU/ tables.
+*             This is continued until a level is reached where X is not
+*             found in any of the contents, or there are no contents.
+* Note: Since Section II is re-entered from Section III, a blocking word
+* is used to mark those contents already checked.  Upon exit from Section
+* II, these blocking words are cleared at NLEVEL, but may remain set in
+* levels between NLEVEL-1 and NLMIN, if any.  They must be cleared at exit.
+*
+*  **  Check contents, if any
+*
+  200 JVO = LQ(JVOLUM-LVOLUM(NLEVEL))
+      NIN = Q(JVO+3)
+*
+*   *   Case with no contents
+*
+      IF (NIN.EQ.0) THEN
+         GO TO 300
+*
+*   *   Case with contents defined by division
+*
+      ELSEIF (NIN.LT.0) THEN
+         CALL GMEDIV (JVO, IN, XC, 1)
+         IF (IN.GT.0) THEN
+            INFROM = 0
+            INFR   = 0
+            INGT   = 0
+            LSAMVL = .FALSE.
+            GO TO 200
+         ENDIF
+*
+*   *  Case with contents positioned
+*
+      ELSE
+         JCONT = LQ(JVO-NIN-1)+1
+         NCONT = IQ(JCONT)
+         ISEARC = Q(JVO+1)
+         IF (ISEARC.LT.0) THEN
+*
+*       Prepare access to contents, when ordered by GSORD
+*
+            JSB = LQ(LQ(JVO-NIN-1))
+            IAX = Q(JSB+1)
+            NSB = Q(JSB+2)
+            IF (IAX.LE.3) THEN
+               CX   = XC(IAX)
+            ELSE
+               CALL GFCOOR (XC, IAX, CX)
+            ENDIF
+            IDIV = ABS(LOCATF (Q(JSB+3), NSB, CX))
+            IF (IDIV.EQ.0) THEN
+               IF (IAX.NE.6) GO TO 260
+               IDIV = NSB
+            ELSEIF (IDIV.EQ.NSB) THEN
+               IF (IAX.NE.6) GO TO 260
+            ENDIF
+            JSC0  = LQ(JVO-NIN-2)
+            NCONT = IQ(JSC0+IDIV)
+            JCONT = LQ(JSC0-IDIV)
+         ELSE
+*
+*       otherwise, scan contents (possibly a user selection of them)
+*
+            JNEAR = LQ(JVO-NIN-1)
+            IF (ISEARC.GT.0) THEN
++SELF, IF=-USRJMP
+               CALL GUNEAR (ISEARC, 1, XC, JNEAR)
++SELF, IF=USRJMP
+               CALL JUMPT4(JUNEAR,ISEARC, 1, XC, JNEAR)
++SELF
+            ELSEIF (INFROM.GT.0) THEN
+               JNUP = LQ(LQ(JVO-INFROM)-1)
+               IF (JNUP.GT.0) THEN
+                  JNEAR = JNUP
+               ENDIF
+            ENDIF
+            JCONT = JNEAR +1
+            NCONT = IQ(JCONT)
+         ENDIF
+*
+*     For each selected content in turn, check if point is inside
+*
+         DO 259 ICONT=1,NCONT
+            IN = IQ(JCONT+ICONT)
+            IF(IN.EQ.0) THEN
+*
+*     If the value IQ(JCONT+ICONT)=0 then we are back in the mother.
+*     So jump to 260, the search is finished. Clean-up should be done
+*     only up to ICONT-1, so we set:
+*
+               NCONT=ICONT-1
+               GOTO 260
+            ELSE
+            JIN = LQ(JVO-IN)
+            IF (.NOT.BTEST(IQ(JIN),4)) THEN
+               CALL GMEPOS (JVO, IN, XC, 1)
+               IF (IN.GT.0) THEN
+                  IF (GONLY(NLEVEL).NE.0.) NLMANY = 0
+                  INFROM = 0
+                  INGT   = 0
+                  INFR   = 0
+                  LSAMVL = .FALSE.
+                  GO TO 200
+               ELSE
+                  IQ(JIN) = IBSET(IQ(JIN),4)
+               ENDIF
+            ENDIF
+            ENDIF
+  259    CONTINUE
+*
+  260    IF(NCONT.EQ.NIN) THEN
+         DO 268 IN=1,NIN
+            JIN = LQ(JVO-IN)
+            IQ(JIN) = IBCLR(IQ(JIN),4)
+  268    CONTINUE
+         ELSE
+         DO 269 ICONT=1,NCONT
+            IN  = IQ(JCONT+ICONT)
+            JIN = LQ(JVO-IN)
+            IQ(JIN) = IBCLR(IQ(JIN),4)
+  269    CONTINUE
+         IF(INFR.NE.0) THEN
+            JIN = LQ(JVO-INFR)
+            IQ(JIN) = IBCLR(IQ(JIN),4)
+            INFR = 0
+         ENDIF
+         IF(INGT.NE.0) THEN
+            JIN = LQ(JVO-INGT)
+            IQ(JIN) = IBCLR(IQ(JIN),4)
+            INGT = 0
+         ENDIF
+         ENDIF
+*
+      ENDIF
+*
+* SECTION III: X is found at current node (NLEVEL in /GCVOLU) but not in
+*              any of its contents, if any.  If this is a MANY volume,
+*              save it as a candidate best-choice, and continue the search
+*              by backing up the tree one node and proceed to Section II.
+*              If this is an ONLY volume, proceed to Section IV.
+*
+* *** Point is in current volume/medium, and not in any content
+*
+  300 IF (GONLY(NLEVEL).EQ.0.) THEN
+*
+*  **   Lowest level is 'NOT ONLY'
+*
+         IF (NLEVEL.GT.NLMANY) THEN
+            CALL GSCVOL
+            NLMANY = NLEVEL
+         ENDIF
+*
+*   *   Go up the tree up to a volume with positioned contents
+*
+  310    INFROM = LINDEX(NLEVEL)
+         NLEVEL = NLEVEL -1
+         JVO    = LQ(JVOLUM-LVOLUM(NLEVEL))
+         NIN    = Q(JVO+3)
+         IF (NIN.LT.0) GO TO 310
+*
+C*****  Code Expanded From Routine:  GTRNSF
+C
+         IF (GRMAT(10,NLEVEL) .EQ. 0.) THEN
+            XC(1) = X(1) - GTRAN(1,NLEVEL)
+            XC(2) = X(2) - GTRAN(2,NLEVEL)
+            XC(3) = X(3) - GTRAN(3,NLEVEL)
+*
+         ELSE
+            XL1 = X(1) - GTRAN(1,NLEVEL)
+            XL2 = X(2) - GTRAN(2,NLEVEL)
+            XL3 = X(3) - GTRAN(3,NLEVEL)
+            XC(1) = XL1*GRMAT(1,NLEVEL) + XL2*GRMAT(2,NLEVEL) +
+     +      XL3* GRMAT(3,NLEVEL)
+            XC(2) = XL1*GRMAT(4,NLEVEL) + XL2*GRMAT(5,NLEVEL) +
+     +      XL3* GRMAT(6,NLEVEL)
+            XC(3) = XL1*GRMAT(7,NLEVEL) + XL2*GRMAT(8,NLEVEL) +
+     +      XL3* GRMAT(9,NLEVEL)
+*
+         ENDIF
+C*****  End of Code Expanded From Routine:  GTRNSF
+*
+         INFR = INFROM
+         JIN = LQ(JVO-INFROM)
+         IQ(JIN) = IBSET(IQ(JIN),4)
+         NLMIN = MIN(NLEVEL,NLMIN)
+         GO TO 200
+      ENDIF
+*
+* SECTION IV: This is the end of the search.  The current node (NLEVEL
+*             in /GCVOLU/) is the lowest ONLY volume in which X is found.
+*             If X was also found in any of its contents, they are MANY
+*             volumes: the best-choice is the one among them at the greatest
+*             level in the tree, and it is stored.  Otherwise the current
+*             volume is the solution.  Before exit, all of the blocking
+*             words leftover in the tree must be reset to zero.
+* Note: A valid structure is assumed, in which no ONLY volumes overlap.
+* If this rule is violated, or if a daughter is not entirely contained
+* within the mother volume, the results are unpredictable.
+*
+      DO 419 NL=NLMIN,NLEVEL-1
+         JVO = LQ(JVOLUM-LVOLUM(NL))
+         NIN = Q(JVO+3)
+         DO 418 IN=1,NIN
+            JIN = LQ(JVO-IN)
+            IQ(JIN) = IBCLR(IQ(JIN),4)
+  418    CONTINUE
+  419 CONTINUE
+*
+      IF (NLMANY.GT.0) CALL GFCVOL
+      JVO = LQ(JVOLUM-LVOLUM(NLEVEL))
+      IF(JVIN.NE.0) IQ(JVIN) = IBCLR(IQ(JVIN),4)
+      NUMED = Q(JVO+4)
+*                                                             END GTMEDI
+  999 IF(JGSTAT.NE.0) CALL GFSTAT(4)
       END
 +PATCH,DZDOC. =================================================================
 *CMZ :  1.00/01 02/02/96  12.36.40  by  G. Poulard
@@ -27245,7 +28431,7 @@ C------            Error conditions
       END
 +SEQ, QCARDL.      ==================================================
 +DECK, MZSTOR.
-*CMZ :          13/12/97  06.42.18  by  Pavel Nevski
+*CMZ :          25/03/98  17.51.27  by  Pavel Nevski
 *-- Author :
       SUBROUTINE MZSTOR (IXSTOR,CHNAME,CHOPT
      +,                  IFENCE,LV,LLR,LLD,LIMIT,LAST)
@@ -27527,7 +28713,6 @@ C--                Range of possible values for an origin-link
  
 +SEQ, QTRACE99.
       RETURN
- 
 C------            Error conditions
  
    96 NQCASE = NQCASE + 3
@@ -27545,10 +28730,13 @@ C------            Error conditions
       IQUEST(18) = NQMINR
       IQUEST(19) = NWF
 +SEQ, QTOFATAL.
++SELF,IF=HPUX.  prevent "never used" warning
+      N=NOT(IAND(IBITS(1,1,1),1))
++SELF.
       END
 +SEQ, QCARDL.      ==================================================
 +DECK, MZRELB.
-*CMZ :          01/12/97  23.30.19  by  Pavel Nevski
+*CMZ :          25/03/98  17.50.48  by  Pavel Nevski
 *-- Author :
       SUBROUTINE MZRELB
  
@@ -27823,6 +29011,9 @@ C------            Error conditions
       IQFLIO = -7
 +SELF.
 +SEQ, QTRACE99.
++SELF, IF=HPUX. prevent warning "not used"
+      I=IBITS(1,1,1)
++SELF.
       RETURN
       END
 +SEQ, QCARDL.      ==================================================
@@ -27982,7 +29173,7 @@ C------            Error conditions
       END
 +SEQ, QCARDL.      ==================================================
 +DECK,RZMAKE.
-*CMZ :          12/01/98  20.43.08  by  Pavel Nevski
+*CMZ :          25/03/98  19.29.54  by  Pavel Nevski
 *-- Author :
       SUBROUTINE RZMAKE(LUNIN,CHDIR,NWKEY,CHFORM,CHTAG,NRECP,CHOPT)
 *
@@ -28353,12 +29544,435 @@ C     RZfile maked always with Exchange mode for LINUX
       CHNDIR(1)=CHTOP
       IQUEST(1)=0
 *
++SELF, IF=HPUX. prevent warning "not used"
+      I=IBITS(1,1,1)
++SELF.
+  99  RETURN
+      END
++DECK,RZFILE
+*CMZ :          18/03/98  17.12.00  by  Pavel Nevski
+*-- Author :
+      SUBROUTINE RZFILE(LUNIN,CHDIR,CHOPT)
+*
+************************************************************************
+*
+*           Routine to access an already existing RZ file
+*           To create a new RZ file routine RZMAKE should be used
+* Input:
+*   LUNP    Logical unit number associated with  the RZ file.   A FORTRAN
+*           OPEN statement must precede the call to RZFILE.
+*           Starting address of the memory area which will contain the RZ
+*           information ('M' option)
+*   CHDIR   Character variable specifying  the name of the  top directory
+*           to be associated with unit LUN.
+*   CHOPT   Character variable specifying the selected options.
+*           medium
+*          default
+*                   Disk
+*             'M'   Memory mode
+*                   In this case space has already been allocated starting
+*                   at address LUNP.
+*           other
+*             'U'   UPDATE mode  default is READ mode only
+*             'S'   SHARED mode  default is exclusive access
+*             '1'   UPDATE mode  with only one user (no LOCKs required)
+*             'L'   Show all locked directories and lock-ids
+*             'D'   Reset LOCKing word in first record
+*             'C'   C I/O
+*             'H'   Hook user routine to RZIODO
+*             'X'   Exchange mode file
+*
+*             'B'   Rebuild bit map of file occupancy from file itself
+*
+* Called by <USER>
+*
+*  Author  : R.Brun DD/US/PD
+*  Written : 07.04.86
+*  Last mod: 22.09.94 JDS - include Z=RZCYCLE and call to RZVCYC
+*            18.03.98 PN  - IZRECL assignment moved later to avoid warnings
+*
+************************************************************************
+*
++SEQ,ZUNIT,ZSTATE.
++SEQ,RZCL,RZDIR,RZCLUN,RZK,RZCKEY,RZCYCLE.
++CDE,RZBUFF.
++SELF,IF=QMVAX.
+      CHARACTER*16 CHORG
++SELF
+      CHARACTER    CHOPT*(*),CHDIR*(*)
+      CHARACTER*16 CHTOP
+      DIMENSION    IOPTV(10)
+      EQUIVALENCE (IOPTM,IOPTV(1)), (IOPTU,IOPTV(2))
+      EQUIVALENCE (IOPTS,IOPTV(3)), (IOPTL,IOPTV(4))
+      EQUIVALENCE (IOPT1,IOPTV(5)), (IOPTD,IOPTV(6))
+      EQUIVALENCE (IOPTC,IOPTV(7)), (IOPTX,IOPTV(8))
+      EQUIVALENCE (IOPTB,IOPTV(9)), (IOPTH,IOPTV(10))
+*
+*-----------------------------------------------------------------------
+*
++SEQ,Q$JBIT.
+      IQUEST(1)=0
+      LOGLV = MIN(NQLOGD,4)
+      LOGLV = MAX(LOGLV,-3)
+      LUNSA = LUN
+      LUNP  = LUNIN
+*
+*          Save existing material (if any)
+*
+      CALL RZSAVE
+*
+      CALL UOPTC (CHOPT,'MUSL1DCXBH',IOPTV)
++SELF,IF=-QCFIO.
+*SELF,IF=-QMCRY,IF=-QMVAX,IF=-QMCV64,IF=-QMAPO,IF=-QMAPO9,IF=-QMUIX,IF=-QMDOS.
+      IF(IOPTC.NE.0) THEN
+         WRITE(IQPRNT,*) 'RZFILE. option C ignored - valid only ',
+     +      'for MSDOS, Unix and VMS systems'
+         IOPTC = 0
+       ENDIF
++SELF.
+      IRELAT=0
+      IMODEC=IOPTC
+      IMODEH=IOPTH
+      IMODEX=IOPTX
++SELF,IF=QMLNX.
+C     RZfile always with Exchange mode for LINUX
+*     IMODEX=1
++SELF.
+*
+*     Take LRECL and LUNP from IQUEST(10-11) in case of C I/O
+*
+      IF(IOPTC.NE.0) THEN
+         LRECP = IQUEST(10)
+         LUNP  = IQUEST(11)
+      ENDIF
+*
+*     Take LRECL and address of user routine from IQUEST(10-11)
+*     in case of user I/O routine
+*
+      IF(IOPTH.NE.0) THEN
+         LRECP  = IQUEST(10)
+         LUN    = IQUEST(11)
+         LUSER  = LUNIN
+      ENDIF
+*
+*            Find record length (as specified in the OPEN statement)
+*
+*          A, Memory option. LUN contains the buffer address
+*                            and the value of LUNP is the block length
+*
+      IF(IOPTM.NE.0)THEN
+         LRECP=1024
+         LUN=-99
+      ELSEIF(IOPTH.EQ.0) THEN
+*
+*          B, Standard option DISK. Use information as specified
+*             in the Fortran OPEN statement
+*
++SELF,IF=QMVAX.
+         IF(IOPTC.EQ.0) THEN
+            INQUIRE(UNIT=LUNP,ORGANIZATION=CHORG)
+            IF(CHORG.EQ.'RELATIVE')IRELAT=1
+         ENDIF
++SELF.
+*
+         IZRECL=LRECP
+         CALL RZIODO(LUNP,50,2,ITEST,1)
+*
+*      If option X not specified, determine mode (eXchange, native)
+*      from file
+*
+         IF(IOPTX.EQ.0) THEN
++SELF,IF=QMVAX,QMVMI,QMDOS,QMLNX.
+            CALL VXINVB(ITEST(9),1)
++SELF.
+            IF(JBIT(ITEST(9),12).NE.0)THEN
+               IMODEX=1
++SELF,IF=QMVAX,QMVMI,QMDOS,QMLNX.
+               CALL RZIODO(LUNP,50,2,ITEST,1)
+            ELSE
+               CALL VXINVB(ITEST(9),1)
++SELF.
+            ENDIF
+         ENDIF
+ 
+         IF(IQUEST(1).NE.0)GO TO 30
+         LB=ITEST(KLB)
+         IF(LB.GT.48)CALL RZIODO(LUNP,LB+6,2,ITEST,1)
+         IF(LB.GT.100)THEN
+            IF(LOGLV.GE.-1) WRITE(IQLOG,10000)
+10000       FORMAT(' RZFILE. WARNING!! Top directory is big')
+         ENDIF
+         LRECP=ITEST(LB+1)
++SELF,IF=QMALT,QMAPO,QMDOS.
+         IF(IOPTC.EQ.0.AND.IOPTH.EQ.0) THEN
+            INQUIRE(UNIT=LUNP,RECL=LRECL)
++SELF,IF=QF_DEC,IF=QMDOS. DEC Fortran takes "longword" units
+            IF(LRECP.NE.LRECL)THEN
++SELF,IF=QMALT,QMAPO,QMDOS,IF=-QF_DEC.
+            IF(LRECP.NE.LRECL/4)THEN
++SELF,IF=QMALT,QMAPO,QMDOS.
+               IQUEST(1)=1
+               IF(LOGLV.GE.-2) WRITE(IQLOG,10100)LUNP,LRECP,LRECL/4
+10100          FORMAT(' RZFILE. Unit ',I6,'RECL on file ',I5,
+     +                ' incompatible with RECL in OPEN =',I5)
+               GO TO 30
+            ENDIF
+         ENDIF
++SELF.
+         LUN=LUNP
+         IQUEST(1)=0
+      ENDIF
+*
+      IZRECL=LRECP
+      IF(LOGLV.GE.0) WRITE(IQLOG,10200) LUN,LRECP,CHOPT
+10200 FORMAT(' RZFILE. UNIT ',I6,' Initializing with LREC=',I6,
+     +', OPT= ',A)
+      CALL MZSDIV (0,-7)
+*
+*           Check if LUN not already defined
+*
+      LRZ=LQRS
+   10 IF(LRZ.NE.0)THEN
+         IF(IQ(KQSP+LRZ-5).EQ.LUN)THEN
+            IQUEST(1)=1
+            IF(LOGLV.GE.-2) WRITE(IQLOG,10300)
+10300       FORMAT(' RZFILE. Unit is already in use')
+            LUN=LUNSA
+            GO TO 30
+         ELSE
+            LRZ=LQ(KQSP+LRZ)
+            GO TO 10
+         ENDIF
+      ENDIF
+*
+*            First call to RZFILE, create link area
+*
+      IF(LQRS.EQ.0)THEN
+         CALL MZLINK(JQPDVS,'RZCL',LTOP,LTOP,LFROM)
+         CALL MZBOOK (JQPDVS,LRZ0,LQRS,1,'RZ0 ',2,2,36,2,0)
+         IQ(KQSP+LRZ0-5)=0
+         ISAVE = 1
+         NHPWD = 0
+         CALL VBLANK(IHPWD,2)
+      ENDIF
+      NCHD  = LEN(CHDIR)
+      IF(NCHD.GT.16)NCHD=16
+      CHTOP = CHDIR(1:NCHD)
+*
+*            Create control bank
+*
+      CALL MZBOOK(JQPDVS,LTOP,LQRS,1,'RZ  ',10,9,LRECP,2,0)
+*
+*            Disk or memory
+*
+      IF(IOPTM.EQ.0)THEN
+         IQ(KQSP+LTOP-5) = LUN
+*
+*            C I/O?
+*
+         IF(IOPTC.NE.0) CALL SBIT1(IQ(KQSP+LTOP),5)
+*
+*            user I/O?
+*
+         IF(IOPTH.NE.0) THEN
+            CALL SBIT1(IQ(KQSP+LTOP),6)
+            CALL SBYT(LUSER,IQ(KQSP+LTOP),7,7)
+         ENDIF
+      ELSE
+         NMEM=IQ(KQSP+LRZ0)+1
+         IQ(KQSP+LRZ0)=NMEM
+         IQ(KQSP+LTOP-5)=-NMEM
+         IF(2*NMEM.GT.IQ(KQSP+LRZ0-1))THEN
+            CALL MZPUSH(JQPDVS,LRZ0,0,10,' ')
+         ENDIF
+         IQ(KQSP+LRZ0+2*NMEM-1)=LOCF(LUNP)-LOCF(IQ(1))+1
+         IQ(KQSP+LRZ0+2*NMEM  )=LRECP
+         LUN=-NMEM
+      ENDIF
+*
+*            Read 1st record of directory
+*
+      CALL RZIODO(LUN,LRECP,2,IQ(KQSP+LTOP+1),1)
+      IF(IQUEST(1).NE.0)GO TO 30
+      LD   = IQ(KQSP+LTOP+KLD)
+      LB   = IQ(KQSP+LTOP+KLB)
+      LREC = IQ(KQSP+LTOP+LB+1)
+      NRD  = IQ(KQSP+LTOP+LD)
++SELF,IF=FQXISN.
+*
+*     Set exchange mode bit
+*
+      CALL SBIT1(IQ(KQSP+LTOP+KPW1+2),12)
++SELF.
+      IMODEX=JBIT(IQ(KQSP+LTOP+KPW1+2),12)
+*
+*            Increase size of control bank if required
+*            and read all records for top directory
+*
+      NPUSH=NRD*LREC-LRECP
+      IF(NPUSH.NE.0)CALL MZPUSH(JQPDVS,LTOP,0,NPUSH,'I')
+      DO 20 I=2,NRD
+         CALL RZIODO(LUN,LREC,IQ(KQSP+LTOP+LD+I),
+     +               IQ(KQSP+LTOP+(I-1)*LREC+1),1)
+         IF(IQUEST(1).NE.0)GO TO 30
+   20 CONTINUE
+      CALL VBLANK(IQ(KQSP+LTOP+1),4)
+      CALL UCTOH(CHDIR,IQ(KQSP+LTOP+1),4,NCHD)
+      CALL ZHTOI(IQ(KQSP+LTOP+1),IQ(KQSP+LTOP+1),4)
+      CALL SBYT(NCHD,IQ(KQSP+LTOP+KPW1+2),1,5)
+      CALL UCOPY(IQ(KQSP+LTOP+KPW1),IHPWD,2)
+      NHPWD=JBYT(IQ(KQSP+LTOP+KPW1+2),6,5)
+      IQ(KQSP+LTOP+KIRIN)=0
+      IQ(KQSP+LTOP+KIROUT)=0
++SELF,IF=NOTNEW.
+*
+*     Check that the file is not in the NEW format
+*
+      IF (IQ(KQSP+LTOP+KRZVER).NE.0) THEN
+         CALL ZFATAM
+     +      (' RZFILE. file cannot be processed by this version of RZ')
+      ENDIF
++SELF.
+ 
+      LFREE = 0
+      LUSED = 0
+      LRIN  = 0
+      LPURG = 0
+      LROUT = 0
+      LCDIR = LTOP
+      NLCDIR= 1
+      NLNDIR= 1
+      NLPAT = 1
+      CHCDIR(1)=CHTOP
+      CHNDIR(1)=CHTOP
+*
+*             Reset LOCKing word in record 1
+*
+      IF(IOPTD.NE.0)THEN
+         CALL RZDLOK
+      ENDIF
+*
+*             Show locks
+*
+      IF(IOPTL.NE.0)THEN
+         CALL RZLLOK
+      ENDIF
++SELF,IF=QMVAX.
+*
+*             Set ORGANIZATION type
+*
+      IF(IRELAT.NE.0)THEN
+         UNLOCK(UNIT=LUN)
+         CALL SBIT1(IQ(KQSP+LTOP),4)
+      ENDIF
++SELF.
+*
+*            Store default LOG level
+*
+      LOGL = LOGLV + 3
+      CALL SBYT(LOGL,IQ(KQSP+LTOP),15,3)
+      CALL RZVCYC(LTOP)
+*
+*     Rebuild bit map?
+*
+      IF(IOPTB.NE.0) CALL RZVERI('//'//CHTOP(1:NCHD),'B')
+*
+*             UPDATE mode only
+*
+      CALL SBIT1(IQ(KQSP+LTOP),1)
+      IF(IOPTU.NE.0.OR.IOPT1.NE.0)THEN
+*
+*            Allocate free records
+*
+         CALL SBIT0(IQ(KQSP+LTOP),1)
+         CALL MZBOOK(JQPDVS,LFREE,LTOP,-2,'RZFR',0,0,21,2,0)
+         IQ(KQSP+LFREE-5)=LUN
+*
+*        IF(IOPTU.EQ.0.AND.IOPT1.EQ.0)THEN
+         IF(IOPTS.EQ.0)THEN
+            CALL SBIT1(IQ(KQSP+LTOP),3)
+            CALL RZLOCK('RZFILE')
+            IF(IQUEST(1).NE.0)THEN
+               CALL SBIT1(IQ(KQSP+LTOP),1)
+               IQ1=IQUEST(1)
+               CALL MZDROP(JQPDVS,LFREE,' ')
+               LFREE=0
+               IQUEST(1)=2+IQ1
+               GO TO 30
+            ENDIF
+         ELSE
+            CALL SBIT0(IQ(KQSP+LTOP),3)
+         ENDIF
+*
+*            Allocate space for used records
+*
+         CALL MZBOOK(JQPDVS,LUSED,LTOP,-3,'RZUS',0,0,21,2,0)
+         IQ(KQSP+LUSED-5)=LUN
+      ENDIF
+      IQUEST(7)=IQ(KQSP+LCDIR+KNKEYS)
+      IQUEST(8)=IQ(KQSP+LCDIR+KNWKEY)
+*
+   30 RETURN
+      END
++DECK,RZLOGL
+*CMZ :          18/03/98  17.23.05  by  Pavel Nevski
+*-- Author :
+      SUBROUTINE RZLOGL(LUN,LOGLEV)
+*
+************************************************************************
+*
+*        To set the LOG level
+* Input:
+*   LUN     Logical unit number for which the logging level has to be set
+*   LOGLEV  Logging level
+*           -3  Suppress all messages
+*           -2  Error messages only
+*           -1  Terse logging
+*            0  Normal logging: RZFILE, RZEND
+*            1  Log to watch rare events
+*            2  Log to monitor calls
+*            3  Short diagnostics
+*               Short dumps to debug user-written output routines
+*            4  Full diagnostics
+*               Full dumps to debug user-written output routines
+*
+* Called by <USER>
+*
+*  Author  : R.Brun DD/US/PD
+*  Written : 01.04.86
+*  Last mod: 17.11.92 JDS - restrict loglevel to documented range
+*                     so that only 3 bits are required to store it (15-17)
+*            18.03.98 PN  - NQLOGD is really used in RZ package...
+*
+************************************************************************
++SEQ,ZUNIT.
++SEQ,ZSTATE.
++SEQ,RZCL.
+*-----------------------------------------------------------------------
+*
+      NQLOGD = LOGLEV
+*
+      IQUEST(1)=0
+      IF(LQRS.EQ.0)GO TO 99
+      LRZ=LQRS
+  10  IF(LRZ.EQ.0)GO TO 99
+      IF(IQ(KQSP+LRZ-5).NE.LUN)THEN
+         LRZ=LQ(KQSP+LRZ)
+         GO TO 10
+      ENDIF
+*
+      LOGL = MIN(LOGLEV,4)
+      LOGL = MAX(LOGL, -3) + 3
+      CALL SBYT(LOGL,IQ(KQSP+LRZ),15,3)
+      IF(LOGLEV.GE.0)WRITE(IQLOG,9022)LUN,LOGLEV
+ 9022 FORMAT(' RZLOGL.  File at LUN=',I6,', Diagnostic log level=',I2)
+*
   99  RETURN
       END
 +PATCH,MAIN. ==================================================================
 *CMZ :  1.00/01 27/10/94  01.44.00  by  Pavel Nevski
 +DECK,agmain,T=GEANT.  ------------------------------------------------------
-*CMZ :          12/03/98  16.11.16  by  Pavel Nevski
+*CMZ :          28/03/98  16.48.49  by  Pavel Nevski
 *-- Author :    Pavel Nevski
 *****************************************************************************
 *                                                                           *
@@ -28382,7 +29996,7 @@ C     RZfile maked always with Exchange mode for LINUX
  
 *     ON REAL UNDERFLOW IGNORE
 *
-*     CALL TIMEST  (1.E9)  ! set time limit for interactive (does not work)
+      CALL TIMEST  (3.E7)  ! set time limit for interactive mode
       NWGEA = NWGEAN
       NWPA  = NWPAW
       CALL GETARG(0,PROG)
@@ -28613,7 +30227,7 @@ END
  
  
 +DECK,agxinit,T=kuip.
-*CMZ :          16/03/98  03.12.22  by  Pavel Nevski
+*CMZ :          23/03/98  13.44.53  by  Pavel Nevski
 *CMZ :  1.30/00 19/04/97  15.44.40  by  Pavel Nevski
 *-- Author :    Pavel Nevski   01/04/96
 ******************************************************************************
@@ -28688,7 +30302,7 @@ Possible options are:
  F - dump in a file instead of the terminal. The bank name is used as
      the file name with .sgml extension
  H - convert the dump file in HTML formated set of files with
-     appropriate hyperlinks beween them.
+     apropriate hyperlinks beween them.
      Each bank in the structure is described in a separate file
      with the name of the bank and its top level bank as the filename
      and with .html extension.
@@ -29131,32 +30745,46 @@ key   'name of the selected histogram'  C   D='ALL'
 >Command STRUCTURES
 >Parameters
 +
-name   'name of the system whose structures should be dumped'  C  D='*'
-type   'type of the output'                                    C  D=' '
+system  'name of the system whose structures should be dumped'  C  D='*'
+type    'type of the output'                                    C  D=' '
  
 >Guidance
-Produce a definition file with data structure description and
-update the documentation database in accordance with the
-input data stream. This file may automatically be read by geant
-parser so that user can get access to structure description
-with +cde or +include statements.
  
-type of the output may be
+Produce a definition file with data structure description and
+update the documentation database (detm.rz) in accordance with the
+structures currenly loaded in the program.
+ 
+Type of the output may be
+ 
   def   - AGI preprocessor input file,
   idl   - CORBA interface definitions language,
   other - internal table format
+ 
+This output may automatically be read by the AGI parser so that user
+can get access to structure description with +cde or +include statements.
+CORBA idl file should be processed by STIC compiler to produce .inc and .h
+files. Internal definition file is directly fed to table access module.
  
 >Action AGXUSER
 *-----------------------------------------------------------------------------
 >Command TABLES
 >Parameters
 +
-name   'name of the system to be converted into table'  C  D='*'
-type   'output directory'                               C  D=' '
+system   'name of the system to be converted into table'  C  D='*'
+dataset  'output directory'                               C  D=' '
  
 >Guidance
-Convert AGI structures and objects into StaF tables.
-Actual structure address is mapped to the table.
+Makes AGI structures, which belong to a particular AGI system, visible as
+StaF tables in the requested dataset. Apropriate STAF table descriptions
+is derived from AGI description and actual table adresses are mapped to AGI
+structures. Default value is "*" which means "all system".
+A subset of structures can also be convertes into tables
+by defining the path to them.
+ 
+By default, all tables are created in /dui/Run, but
+destination can be redirectded to another dataset.
+If the dataset does not exist yet, it will be created
+(but not the whole path!)
  
 >Action AGXUSER
 *-----------------------------------------------------------------------------
@@ -29175,7 +30803,41 @@ their keywords (examples: LIB_PATH=... LIBS=...)
  
 >Action AGXUSER
 *-----------------------------------------------------------------------------
->Command STOP
+>Command ONFAULT
+>Parameters
++
+fault   'name of the arithmetic fault signal flag'         C D='IDO'
+counter 'number of faults to catch '                       I D=1
+handler 'name of an optional user error handler routine'   C D=' '
+ 
+>Guidance.
+ 
+Catch certain number of arithmetic faults of selected type and print
+tracing diagnostic. To provide a meaningful diagnostic, user code should
+be compiled with '-g' option (unfortunatly, not all of the cernlib
+routines are compiled with it!).
+ 
+List of possible faults is computer dependant.
+In particular, HP can detect: (I) - illegal instruction, (D) - division by 0,
+(O) - floating overflow, (U) - floating underflow,  and (X) - inexact numbers.
+Last two happens very often and should not be normally considered as errors.
+In addition (*) subsitutes all five flags, (+) means do not alter flags other
+then mentioned in the command, which normally are reset to IGNORE.
+ 
+Counter sets the number of extended error messages to be printed,
+the rest is counted in the common block /agerrorcount/ nnum(5),mmax(5),
+but not reported. If counter is negative, corresponding faults are ignored.
+ 
+After the message is printed, program behaviour depends on the counter,
+i.e. when counter is positive, error is ignored and execution continues,
+otherwise control is transfered to the kuip.
+ 
+If defined, a user handler routine is called instead of the
+standard CERNLIB tracing routine.
+ 
+>Action AGXUSER
+*-----------------------------------------------------------------------------
+>Command ABEND
 >Parameters
 >Guidance
  abort the program - the fastest possible exit
@@ -29410,7 +31072,7 @@ delta-electron production in detector itself.
  
  
 +DECK,agxuser,T=geant. --------------------------------------------------------
-*CMZ :          16/03/98  03.22.25  by  Pavel Nevski
+*CMZ :          22/03/98  23.27.15  by  Pavel Nevski
 *CMZ :  1.30/00 23/04/97  18.45.29  by  Pavel Nevski
 *-- Author :    Pavel Nevski   01/04/96
 *********+*********+*********+*********+*********+*********+*********+*********+
@@ -29469,7 +31131,8 @@ delta-electron production in detector itself.
         IF (Index(String1(1:len1),'B')>0)  Call AGZREAD ('B',ier)
         IF (Index(String1(1:len1),'O')>0)  Call AGZWRITE('O',ier)
      }
-     If (Index(String3(1:Len3),'S')>0 | String3(1:1)='*') Call AGKEEPS('*')
+     If (Index(String3(1:Len3),'S')>0 | String3(1:1)='*') _
+                                      Call AGKEEPS('*','def')
   }
   else If Command=='GHIST' | Command=='HFILE'
   {  " open a histigram file
@@ -29709,8 +31372,13 @@ delta-electron production in detector itself.
   {   Call KuGetS (string1,len1); Call KuGetS (string2,len2);
       Call AGSTRUT(string1(1:len1), string2(1:len2));
   }
-  Else If Command=='STOP'
-  { stop ' quick exit ' }
+  Else If Command=='ONFAULT'
+  {   Call KugetC  (String1,len1); Call KugetI (L1);
+      Call KugetC  (String2,len2);
+      Call Onfault (String1(1:Len1),L1,String2(1:len2))
+  }
+  Else If Command=='ABEND'
+  {   call ABEND; }
   else
   { print *,' AGXuser: Unknown Command - ',command(1:lenocc(command)),
             ', Npar = ',Npar
@@ -30039,8 +31707,8 @@ c----------------------------------------------------------------------
        end
  
  
-+DECK,gupart. -------------------------------------------------------------------
-*CMZ :          30/10/97  11.01.25  by  Pavel Nevski
++DECK,gupart,IF=gupart.
+*CMZ :          25/03/98  14.35.45  by  Pavel Nevski
 *CMZ :  1.30/00 29/03/97  18.01.53  by  Pavel Nevski
 *-- Author :    P.Jacobs  20/03/95
       Subroutine GUPART
@@ -31034,7 +32702,7 @@ END
  
  
 +DECK,agdummy,T=text. ---------------------------------------------------------
-*CMZ :          13/02/98  14.41.58  by  Pavel Nevski
+*CMZ :          26/03/98  12.32.04  by  Pavel Nevski
 *CMZ :  1.30/00 12/05/97  18.07.33  by  Pavel Nevski
 *CMZ :  1.00/00 03/08/95  12.32.47  by  Pavel Nevski
 *-- Author :    Pavel Nevski   03/08/95
@@ -31046,7 +32714,7 @@ Replace[REF#,#;] with [{IF}[EXIST 1]{Call #1;Call CsExt('D',#1);REF #2,;}]
 *************************************************************************
 Replace[LIST #;] with [ #1 _
  "Geant  "   GfKine,GfVert,GfPart,GfPath,GfHead,GDtoM,GMtoD,GlVolu,
-             GpKine,GLast,GsHEAD,GsCKOV,GuPart,GpIons,Grndm,Granor,
+             GpKine,GLast,GsHEAD,GsCKOV,GpIons,Grndm,Granor,Gfnhit,
  "vector "   vdist,vscale,vadd,vmod,sortzv,vfill,Ublank,Ufill,Uzero,IuLast,
  "tr-prop"   trprfn,trprop,trscsp,trspsc,trscsd,trsdsc,
  "minuit "   mnseti,mninit,mnstat,mnexcm,mnpout,mnparm,
@@ -31058,7 +32726,7 @@ Replace[LIST #;] with [ #1 _
  "interp "   fint,polint,lfit,divdif,lfitw,lvsimx,
  "zebra  "   mzvolm,mzdred,zverif,
  "hbook  "   hplfun,hpagsz,hnoent,
- "somesg "   rm48,rm48in,rsfact,rsfinv,rsfeqn,dsfact,rfft,cfft
+ "somesg "   rm48,rm48in,rsfact,rsfinv,rsfeqn,dsfact,rfft,cfft,sortrq
  " sind,cosd "
  ]
 +CDE,GCFLAG.
@@ -31076,20 +32744,29 @@ Replace[LIST #;] with [ #1 _
  
  
 +DECK,acmain,T=CC,If=CC. ------------------------------------------------------
-/*CMZ :          07/12/97  14.21.32  by  Pavel Nevski*/
+/*CMZ :          22/03/98  19.27.39  by  Pavel Nevski*/
 /*-- Author :    Pavel Nevski   28/11/97*/
 /*****************************************************/
 /*                    m a i n                        */
 /*****************************************************/
 #include <string.h>
+#include <math.h>
 static int        Margc=0;
 static char **    Margv=NULL;
 extern "C"  int   agmain_ ();
++SELF,IF=HPUX.
+extern "C"  void  FTN_INITRAP();
++SELF.
 extern "C"  int   getarg_ (int*, char*, int);
 extern "C"  void  k_setar (int , char** );
  
 int main    (int argc, char *argv[])
-{ Margc=argc;  Margv=argv;  k_setar(argc,argv);  agmain_(); }
+{ Margc=argc;  Margv=argv;  k_setar(argc,argv);
++SELF,IF=HPUX.
+  FTN_INITRAP();  fpsetmask(0);
++SELF.
+  agmain_();
+}
  
 int getarg_ (int *k, char *args, int n)
 { int i=0;   if (*k<Margc) i=strlen(Margv[*k]);  if (i>n) i=n;
@@ -31215,6 +32892,193 @@ extern "C" int staftab_(char* path, char* name, char* spec, long* l,
       IDET    = -1;    check LkDETM>0
       CALL GLOOK(CHDET,IQ(LkDETM+1),IQ(LkDETM-1),Idet)
       check Idet>0;    If   (LQ(LkDETM-Idet)<=0) Idet = 0
+*
+      END
+ 
++DECK,onfault,T=geant.
+*CMZ :          23/03/98  01.57.19  by  Pavel Nevski
+*-- Author :    Pavel Nevski   20/03/98
+************************************************************************
+      subroutine on fault (c,n,name)
+*
+* Description: HP arithmetic error handler control
+*
+************************************************************************
++SELF,IF=HPUX
+      common /agerrorcount/nnum(5),mmax(5)
+      common /agerroradres/iErrAddress,aErrName
+      character  Name*(*),c*(*),d*5,cc*6/'IDOUX*'/,aErrName*20,
+                 yes*3/'yes'/,no*3/'no'/,kk(5)*3/'no','no','no','no','no'/
+      Integer    CSADDR
+ 
+      aErrName=%L(Name);  iErrAddress=0
+      if (Lenocc(Name)>0) iErrAddress=CSADDR(%L(Name))
+      d=c;  call CLTOU(d)
+ 
+      do k=1,5
+         check index(d,cc(k:k))>0 | index(d,'*')>0
+         mmax(k)=nnum(k)+max(n,0)   " next bunch of interupts to handle "
+         if (n==0) mmax(k)=999999   " leave this signal to kuip handler "
+         if (n>=0) then
+            if     (k==1) then
+              ON REAL   ILLEGAL   CALL on_err_RILL
+              ON REAL*8 ILLEGAL   CALL on_err_DILL
+              kk(1)=yes
+            elseif (k==2) then
+              ON REAL   DIV 0     CALL on_err_RDIV
+              ON REAL*8 DIV 0     CALL on_err_DDIV
+              kk(2)=yes
+            elseif (k==3) then
+              ON REAL   OVERFLOW  CALL on_err_ROVF
+              ON REAL*8 OVERFLOW  CALL on_err_DOVF
+              kk(3)=yes
+            elseif (k==4) then
+              ON REAL   UNDERFLOW CALL on_err_RUND
+              ON REAL*8 UNDERFLOW CALL on_err_DUND
+              kk(4)=yes
+            elseif (k==5) then
+              ON REAL   INEXACT   CALL on_err_RNEX
+              ON REAL*8 INEXACT   CALL on_err_DNEX
+              kk(5)=yes
+            endif
+         else
+            if     (k==1) then
+              ON REAL   ILLEGAL   IGNORE
+              ON REAL*8 ILLEGAL   IGNORE
+              kk(1)=no
+            elseif (k==2) then
+              ON REAL   DIV 0     IGNORE
+              ON REAL*8 DIV 0     IGNORE
+              kk(2)=no
+            elseif (k==3) then
+              ON REAL   OVERFLOW  IGNORE
+              ON REAL*8 OVERFLOW  IGNORE
+              kk(3)=no
+            elseif (k==4) then
+              ON REAL   UNDERFLOW IGNORE
+              ON REAL*8 UNDERFLOW IGNORE
+              kk(4)=no
+            elseif (k==5) then
+              ON REAL   INEXACT    IGNORE
+              ON REAL*8 INEXACT    IGNORE
+              kk(5)=no
+           endif
+         endif
+      enddo
+      print *,' FP error handler set',(': ',cc(k:k),'-',kk(k),k=1,5)
+      if (iErrAddress!=0) print *,'    with user handler ',%L(aErrName)
+ 
+      end
+*
+      subroutine on_err_act
++CDE,QUEST.
+      common /agerrorcount/nnum(5),mmax(5)
+      common /agerroradres/iErrAddress,aErrName
+      character*20 aErrName, code(5) _
+     /'illegal number','division by 0','overflow','underflow','inexact number'/
+ 
+      Entry on_err_RILL; i=0; goto :e:
+      Entry on_err_DILL; i=1; goto :e:
+      Entry on_err_RDIV; i=2; goto :e:
+      Entry on_err_DDIV; i=3; goto :e:
+      Entry on_err_ROVF; i=4; goto :e:
+      Entry on_err_DOVF; i=5; goto :e:
+      Entry on_err_RUND; i=6; goto :e:
+      Entry on_err_DUND; i=7; goto :e:
+      Entry on_err_RNEX; i=8; goto :e:
+      Entry on_err_DNEX; i=9; goto :e:
+ 
+ :e:  k=i/2+1
+      nnum(k)=nnum(k)+1
+      if (nnum(k)>mmax(k)) return
+      print *,' *** arithmetic fault: ',code(k),' ***'
+      if (iErrAddress==0 & Lenocc(aErrName)>0) iErrAddress=CSADDR(%L(aErrName))
+      if (iErrAddress==0) { CALL TRACEQC }
+      else                { Call CsJCal(iErrAddress,1,k,0) }
+      if (mmax(k)!=999999) return
+      IQUEST(1)=1
+      call kusibr
++SELF.
+      end
+ 
+ 
+ 
++DECK,GUDCAY,T=Geant.
+*CMZ :          25/03/98  10.19.30  by  Pavel Nevski
+*-- Author : Pavel Nevski
+******************************************************************
+                SUBROUTINE GUDCAY
+*                                                                *
+*       User routine to decay particles                          *
+*                                                                *
+*    ==>Called by : GDECAY                                       *
+*                                                                *
+******************************************************************
++CDE,typing,GCFLAG,AGCKINE.
+     integer CsADDR,idevt0/-1/,address/0/
+*
+     If (Idevt0 != Idevt) then
+         Idevt0  = Idevt
+         address = CsADDR ('AGUDCAY')
+     endif
+*
+     if (address>0) CALL CsJCAL (address,0)
+*
+     END
+ 
+ 
+ 
++DECK,gtnext,T=geant.
+*CMZ :          26/03/98  11.40.53  by  Pavel Nevski
+*CMZ :  1.30/00 16/09/96  23.24.54  by  Pavel Nevski
+*-- Author :    Pavel Nevski
+      SUBROUTINE GTNEXT
++CDE,TYPING,GCFLAG,GCVOLU.
+      INTEGER IFL/-1/,IDEVT0/-1/,IAD/0/,CSADDR
+ 
+      If (Idevt.NE.Idevt0) then
+         Iad=CSADDR('AGTNEXT')
+         Idevt0=Idevt
+      endif
+*                                   message
+      IF (ISWIT(10).NE.IFL) then
+         IFL=ISWIT(10)
+         IF (IFL.EQ.0) PRINT *,' *** GTNEXT: 3.21 tracking logic *** '
+         IF (IFL.EQ.1) PRINT *,' *** GTNEXT: soft tracking logic *** '
+         IF (IFL.EQ.2) PRINT *,' *** GTNEXT: 3.15 tracking logic *** '
+      endif
+*
+      if (Iad.NE.0) then
+         Call CSJCAL (Iad,0,0,0)
+      else If (IFL.EQ.1 .and. GONLY(NLEVEL).EQ.0 .OR. IFL.GE.2) Then
+         CALL GTNEX2      !  3.15
+      else
+         CALL GTNEX1      !  3.21
+      endif
+*
+      END
++DECK,GTMEDI,T=geant.
+*CMZ :          26/03/98  12.03.41  by  Pavel Nevski
+*-- Author :    Pavel Nevski
+      SUBROUTINE GTMEDI (X, NUMED)
++CDE,TYPING,GCFLAG,GCVOLU.
+      INTEGER IFL/-1/,IDEVT0/-1/,IAD/0/,CSADDR,NUMED
+      REAL    X(3)
+ 
+      If (Idevt.NE.Idevt0) then
+         Iad=CSADDR('AGTMEDI')
+         Idevt0=Idevt
+      endif
+*                           no  message
+      IF (ISWIT(10).NE.IFL) IFL=ISWIT(10)
+*
+      if (Iad.NE.0) then
+         Call CSJCAL (Iad,2,X,NUMED)
+      else If (IFL.EQ.1 .and. GONLY(NLEVEL).EQ.0 .OR. IFL.GE.2) Then
+         CALL GTMED2  (X,NUMED)    !  3.15
+      else
+         CALL GTMED1  (X,NUMED)    !  3.21
+      endif
 *
       END
  
@@ -34379,6 +36243,22 @@ C        Pop up; QIKS is finished when LEVL returns to 0
 *      CALL CSSOUT('FILE WAS NOT OPEN')
 *      CALL CSSOUT(NAME)
       END
++DECK,csreset.
+*CMZ :          22/03/98  20.47.36  by  Pavel Nevski
+*-- Author :    Pavel Nevski   22/03/98
+*************************************************************************
+      SUBROUTINE CSRESET
+*************************************************************************
++SEQ, CSPAR.
++SEQ, CSPNTS.
+      entry kibres
+      IRECU=1-LRECU
+*
+      END
+ 
+ 
+ 
+ 
 +PATCH,DECCC. ================================================================
 *CMZ :  1.30/00 23/07/96  18.37.07  by  Pavel Nevski
 +KEEP,dlfcn,IF=AIX,IF=SHL,T=XCC. ---------------------------------------------
@@ -35345,10 +37225,16 @@ void cs_shl_symbols_(path, ns, symbol, n, nsy)
  
  
 +DECK,TRACEQC,T=XCC,IF=HPUX. -------------------------------------------------
+/*CMZ :          20/03/98  12.55.44  by  Pavel Nevski*/
 /*CMZ :  1.30/00 22/04/97  14.49.55  by  Pavel Nevski*/
 /*-- Author :    FR & JZ*/
+#include <stdio.h>
 void traceqc_()
-{  void    U_STACK_TRACE();  U_STACK_TRACE();  return; }
+{  void    U_STACK_TRACE();
+  /* printf (" in traceqc   \n"); */
+   U_STACK_TRACE();
+  /* printf (" traceqc done \n"); */
+}
  
 +DECK,memget,T=XCC.
 /*CMZ :          08/07/97  16.16.29  by  Pavel Nevski*/
@@ -37403,7 +39289,7 @@ END
  
  
 +DECK,agskine,T=geant. ---------------------------------------------------------
-*CMZ :          05/09/97  09.20.35  by  Pavel Nevski
+*CMZ :          24/03/98  12.52.35  by  Pavel Nevski
 *-- Author :    Pavel Nevski   06/06/97
 ***************************************************************************
                 Subroutine  A G S K I N E (Plab,Iparti,Nv,UB,NB,Nt)
@@ -37411,8 +39297,8 @@ END
 *              Save tracks in GEANT KINE bank                             *
 ***************************************************************************
 +CDE,TYPING,GCBANK,GCUNIT,GCFLAG,GCKINE,AgCKINE.
-   Real     Vertex(4),Plab(3),UB(*)
-   Integer  Iparti,Nv,NB,Nt,Id/0/,Iprin,Irc,JV
+   Real     ARGUM,Vertex(4),Plab(3),UB(*)
+   Integer  Iparti,Nv,NB,Nt,Id/0/,Iprin,Irc,JV,IV
  
       Iprin=Idebug;      Check JVERTX>0;
       Jv=0; IF (1<=NV & NV<=IQ(JVERTX-2)) Jv=LQ(JVERTX-Nv)
@@ -37425,8 +39311,9 @@ END
          (' AgSKINE: particle',i5,' Plab=',3f10.3,' rejected by filter',i3)
          return
       }
-      Call GSKINE (Plab,IPARTI,Nv,UB,NB,Nt)
-      if nt <= 0  { Prin1 Iparti; (' AgSKINE: unknown geant id: ',i6) }
+      Call GSKINE (Plab,IPARTI,Nv,UB,NB,Nt); IV=ARGUM(UB)
+      if nt>0 & NB==0 { IQ(LQ(JKINE-Nt)-5)=IV }
+      if nt <= 0 { Prin1 Iparti,IV; (' AgSKINE: unknown geant iv,id: ',2i6) }
    END
  
  
@@ -37741,6 +39628,96 @@ end
  
  
  
++DECK,rztest,T=geant,IF=rztest.
+*CMZ :          18/03/98  17.33.08  by  Pavel Nevski
+*-- Author :    Pavel Nevski   18/03/98
+*********************************************************************
+                subroutine rztest
+*
+* description: this routine is for RZ debugging purpouse only
+* It repeats most of the steps in the documentation processing
+*********************************************************************
++CDE,QUEST.
+    COMMON /RZCLUN/LUN,LREC,ISAVE,IMODEX,IRELAT,NHPWD,IHPWD(2),
+                   IZRECL,IMODEC,IMODEH
+ 
+    COMMON /ZSTATE/QVERSN,NQPHAS,IQDBUG,NQDCUT,NQWCUT,NQERR,
+                   NQLOGD,NQLOGM,NQLOCK,NQDEVZ,NQOPTS(6)
+ 
+    character    c*100,Chform*20,chdir*20,cc*4
+    Character*8  CHTAGO(2)/'Bank-ID','Bank-ID'/,ChTag(10)
+    integer      key(2,100),Ibuf(1024)
+    Logical      Opnd,Exst
+ 
+   Lun=61; Lrecl=256; Lout=6
+   INQUIRE(FILE='detm.rz',OPENED=opnd)
+   If .not.opnd
+   {
+      INQUIRE(FILE='detm.rz',EXIST=EXST);  ChDir='RZDOC'
+      If !EXST { print *,' RZTEST: Creating a new detm.rz '
+                 Call RZOPEN (Lun,CHdir,'detm.rz','NWX', Lrecl,Istat)
+                 Call RZMAKE (Lun,CHdir,2,'HH',CHTAGO,5000,'XO')
+                 call RZCLOS (Chdir,' ')
+               }
+      print *,' RZTEST: now openning detm.rz '
+      Call RZOPEN (Lun,ChDir, 'detm.rz','UWXD',Lrecl,Istat);
+      print *,' RZTEST: after openning Chdir=',%L(Chdir),Lenocc(Chdir),
+              ' istat=',istat,' izrecl=',izrecl
+*
+* from pawrop:
+*--- bug in RZOPEN with C I/O, TOPDIR is not returned correctly ---
+*     IF (IOPTC!=0 & LUN <10) WRITE(TOPDIR,'(3HLUN,i1)') LUN
+*     IF (IOPTC!=0 & LUN>=10) WRITE(TOPDIR,'(3HLUN,i2)') LUN
+*
+"      Call RZLOGL (Lun,3);       Call RZCDIR (ChDir0,'P') "
+      NQLOGD=1  " RZ does not have its own trace level, NQLOGD is used instead "
+      IQUEST(10)=256
+      Do Itry=1,2
+      {  print *,' RZTEST: Itry=',itry,' izrecl=',izrecl
+         Call RZFILE(Lun,ChDir,'UDX'); if (Iquest(1)==0) Break
+         Call Rzfree('RZFILE');         Call RZEND(Chdir)
+      }
+      If Istat!=0     { <w>; (' detm.rz absent - no documentation available');}
+      If Iquest(1)!=0 { <w>Iquest(1);(' problem opening detm.rz, IQUEST=',i6);}
+   }
+    call UHTOC(IZRECL,4,CC,4); Print *,' ----> in text ',cc,' <-----'
+ 
+    IZRECL=256          " to avoid more diagnostics "
+    do irec=1,10
+       print *,' reading IREC=',Irec,' izrecl=',izrecl
+       call RZIODO(LUN,256,IREC,IBUF,1)
+       if (irec==1) print *,' irec=',irec,(ibuf(i),i=1,12)
+       if (irec==2) print *,' lrec=',25,'->',ibuf(25),'->',ibuf(ibuf(25)+1)
+    enddo
+ 
+ 
+    print *,' RZTEST: starting polling '
+    call RZCDIR('//LUN61',' ')
+    print *,' after rcdir->lun61 iquest='
+    print *,(iquest(i),i=1,10)
+    if (Iquest(1)!=0) Return
+ 
+    c=' '; call RZCDIR(c,'R')
+    print *,' CWD=',%L(c)
+ 
+    call RZKEYD (NwKey,ChForm,ChTag)
+    print *,' after rzkeyd-> ',Nwkey,' ',ChForm
+    print *,' after rzkeyd   ',(ChTag(i),i=1,NwKey)
+ 
+    call RZKEYS(2,100,key,nkey)
+    print *,' after rzkeys->',nkey
+    write(*,'(i3,2a10)') (i,key(1,i),key(2,i),i=1,min(10,nkey))
+ 
+    print *,' closing CHDIR=',CHDIR
+    call RZCLOS(CHDIR,' ')
+ 
+    end
+ 
+ 
+ 
+ 
+ 
+ 
 +PATCH,$KUMACS.
 *CMZ :          08/07/97  12.52.27  by  Pavel Nevski
 +DECK,install,T=TEXT.
@@ -37786,6 +39763,12 @@ pilot QCDE
 endif
 pilot *ZEBRA
 rel
+*sel Z32 QMUIX A4 B32 HEX QHOLL EQUHOLCH QTRHOLL
+*sel QASCII QCFIO QIEEE FQXISN QPRINT
+*sel QDEBUG QDEBPRI QISASTD QMILSTD
+*sel FZALFA FZCHANNEL FZDACC FZDACCF FZDACCH
+*sel FZDACCL FZFFNAT FZFORTRAN FZLIBC FZMEMORY
+*sel JZTIME RZBYTES RZFRECL
 *     compilation language
 set   f77 C CC kuip geant -lan
 set   *   -com   geant
@@ -37826,12 +39809,11 @@ shell make [1].sl
 call  [1].csl
 exitm
 +DECK,makefile,T=TEXT.
-*CMZ :          15/03/98  14.09.37  by  Pavel Nevski
+*CMZ :          25/03/98  19.38.27  by  Pavel Nevski
 *-- Author :    Pavel Nevski   13/07/97
 CMDS  = atlsim starsim gstar staf staf+ staf++ staf+++
 SIZE  = 1 2 4 6 8 10 12 14 16 18 20 22 24 28 32 34 36
-#INCL = -I$(STAR_LIB)/SL97a/sys/inc/
-INCL  = -I$(STAR)/asps/staf/inc
+INCL  = -Iinc  -I$(STAR)/asps/staf/inc
 +IF,MSDOS. -------------------------------------------------------------------
 SHELL = /usr/bin/ksh
 GEA   = f77  -g
@@ -37887,20 +39869,23 @@ LIB   = -lftn -lm -lc -lmalloc
 LIBSL =
 +ELSEIF,HPUX. -----------------------------------------------------------------
 SHELL = /bin/ksh
-GEA   = fort77 +ppu     -g -K -w
-FOR   = f77    +ppu     -g
-FSL   = f77    +ppu  +z +O2
-GST   = fort77 +ppu     -g -Wl,-E
-GSC   = aCC    -w -z +Z -g +DAportable -Wl,-E
-CC    = cc     +z -Aa      -D_HPUX_SOURCE
+GEA   = fort77 +ppu  -K -g  -w
+FOR   = fort77 +ppu  +T -g
+FSL   = fort77 +ppu  +T -g +z
+# in optimized version all tracing is lost !
+# FSL = fort77 +ppu  +T    +z +O2
+CC    = cc        +z -Aa   -D_HPUX_SOURCE
 CPP   = aCC    -w -z +Z -g +DAportable
+GST   = fort77 +ppu  +T -g +DAportable  -Wl,-E
+GSC   = aCC    -w -z +Z -g +DAportable  -Wl,-E
+LIB   =
 LDS   = ld     -b
-LDC   = aCC    -b -z
-RMF   = /bin/rm   -f
-LIB   = -lCsup -lstream
 LIBSL =
-#LIB  = /opt/fortran/lib/libU77.a
-LIBCC =  -L/opt/CC/lib -lC.ansi -lcxx -lcl -lc
+LDC   = ld     -b
+LIBCC =  -L/opt/CC/lib -lCsup -lcxx -lcl -lc
+RMF   = /bin/rm   -f
+# GSC = aCC    -w -z +Z -g +DAportable  -Wl,-E  -Wl,+FPZVOU
+# LIB = /opt/fortran/lib/libU77.a
 +ELSEIF,ALPHA. ---------------------------------------------------------------
 SHELL = /bin/ksh
 FOR   = f77 -v -fpe2
@@ -37994,7 +39979,7 @@ $(CMDS):ccsim.o fgsim.o agsim.o kgsim.o ggsim.o comisf.o comisc.o agdummy.o
 +endif.
                       ccsim.cc fgsim.o \
 +else.
-	$(GST) -o $@  fgsim.f  ccsim.o \
+	$(GST) -o /tmp/$@  fgsim.f  ccsim.o \
 +endif.
 	agsim.o kgsim.o ggsim.o comisf.o comisc.o agdummy.o \
 +IF,GCALOR.
@@ -38020,7 +40005,7 @@ $(CMDS):ccsim.o fgsim.o agsim.o kgsim.o ggsim.o comisf.o comisc.o agdummy.o
 	nm $@|egrep ' [BAD] '|cut -f1 -d' '|sed -e 's/^#/ #/'|sort|uniq>>import.map
 	xlf $@ -o $@  -bE:import.map -lX11 -lXm -lXt
 +ENDIF.
-	cp  /tmp/$@  ./$@
+	mv  /tmp/$@  ./$@
  
 $(SIZE):
 	sed -e '5,15s/8 000/$@ 000/; 5,15s/2 000/500/' fgsim.f > simsize.f
