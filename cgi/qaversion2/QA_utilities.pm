@@ -159,8 +159,11 @@ sub submit_batchjob {
   #BEN (17aug2000): mark job as in progress in the db.  'seems a shame
   # to create a QA object just for this, but i don't see a better way to
   # get the qaID
-  QA_db_utilities::FlagQAInProgress(
-	      $gDataClass_object->QA_obj->new($report_key)->qaID );
+  # BUM - added the defined report_key requirement
+  if (defined $report_key) {
+    my $qaID = QA_db_utilities::GetFromQASum('qaID',$report_key);
+    QA_db_utilities::FlagQAInProgress($qaID);
+  }
 
   # make file in report_key directory to flag that batch job is in progress
   # it contains the string (LSF|AT)jobID
