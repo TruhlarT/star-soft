@@ -12,7 +12,7 @@ use Mysql;
 use Class::Struct;
 
 
-require "/afs/rhic/star/packages/dev/mgr/dbTJobsSetup.pl";
+require "/afs/rhic/star/packages/scripts/dbTJobsSetup.pl";
 
 my $TOP_DIRD = "/star/rcf/test/dev/";
 
