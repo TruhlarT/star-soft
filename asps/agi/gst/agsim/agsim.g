@@ -432,7 +432,7 @@ C
 C
 *KEND.
 *
-      integer nwg, nwp, iwtyp
+      integer           nwg, nwp, iwtyp, ier
       INTEGER           NWGEA/4000000/,NWPA/500000/,p
       CHARACTER*240     PROG
       COMMON/AgPROGRAM/ PROG
