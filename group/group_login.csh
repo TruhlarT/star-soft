@@ -1,3 +1,4 @@
+#!/usr/bin/csh -f
 #
 #	File:		group_login
 #	Purpose:	STAR group initialization 
