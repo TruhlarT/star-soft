@@ -268,34 +268,34 @@ if ($trigD eq "all" and $fieldM eq "all" and $detSet eq "all") {
     $TMuHpSize = int($MuHpSize/1024/1024/1024); 
     $TemcHpSize = int($emcHpSize/1024/1024/1024);       
 
-# if($colSet eq "AuAu200") {
+    if($colSet eq "AuAu200") {
 
-#   $sql="SELECT sum(NevPrimVtx), sum(NevHadrMinb), sum(NevHadrCent), sum(NevHiMult), sum(NevHiMultZDC), sum(NevUPCMinb), sum(NevTOPO), sum(NevTOPOZDC), sum(NevTOPOeff) from TriggerEvents where triggerSetup = '$trigD' and prodSeries = '$prodSer' ";
+   $sql="SELECT sum(NevPrimVtx), sum(NevHadrMinb), sum(NevHadrCent), sum(NevHiMult), sum(NevHiMultZDC), sum(NevUPCMinb), sum(NevTOPO), sum(NevTOPOZDC), sum(NevTOPOeff) from TriggerEvents where triggerSetup = '$trigD' and prodSeries = '$prodSer' ";
 
-#      $cursor =$dbh->prepare($sql)
-#      || die "Cannot prepare statement: $DBI::errstr\n";
-#   $cursor->execute;
+      $cursor =$dbh->prepare($sql)
+      || die "Cannot prepare statement: $DBI::errstr\n";
+   $cursor->execute;
 
-#   while(@fields = $cursor->fetchrow) {
-#     my $cols=$cursor->{NUM_OF_FIELDS}; 
-#     for($i=0;$i<$cols;$i++) {
-#       my $fvalue=$fields[$i];
-#       my $fname=$cursor->{NAME}->[$i];
-#       print "$fname = $fvalue\n" if $debugOn;
+   while(@fields = $cursor->fetchrow) {
+     my $cols=$cursor->{NUM_OF_FIELDS}; 
+     for($i=0;$i<$cols;$i++) {
+       my $fvalue=$fields[$i];
+       my $fname=$cursor->{NAME}->[$i];
+       print "$fname = $fvalue\n" if $debugOn;
 
-#       $TNevPrimVtx  = $fvalue    if( $fname eq 'sum(NevPrimVtx)');
-#       $TNevHadrMinb = $fvalue    if( $fname eq 'sum(NevHadrMinb)');
-#       $TNevHadrCent = $fvalue    if( $fname eq 'sum(NevHadrCent)');
-#       $TNevHiMult   = $fvalue    if( $fname eq 'sum(NevHiMult)');
-#       $TNevHiMultZDC = $fvalue   if( $fname eq 'sum(NevHiMultZDC)');
-#       $TNevUPCMinb   = $fvalue   if( $fname eq 'sum(NevUPCMinb)');
-#       $TNevTOPO      = $fvalue   if( $fname eq 'sum(NevTOPO)' );
-#       $TNevTOPOZDC   = $fvalue   if( $fname eq 'sum(NevTOPOZDC)');
-#       $TNevTOPOeff   = $fvalue   if( $fname eq 'sum(NevTOPOeff)'); 
+       $TNevPrimVtx  = $fvalue    if( $fname eq 'sum(NevPrimVtx)');
+       $TNevHadrMinb = $fvalue    if( $fname eq 'sum(NevHadrMinb)');
+       $TNevHadrCent = $fvalue    if( $fname eq 'sum(NevHadrCent)');
+       $TNevHiMult   = $fvalue    if( $fname eq 'sum(NevHiMult)');
+       $TNevHiMultZDC = $fvalue   if( $fname eq 'sum(NevHiMultZDC)');
+       $TNevUPCMinb   = $fvalue   if( $fname eq 'sum(NevUPCMinb)');
+       $TNevTOPO      = $fvalue   if( $fname eq 'sum(NevTOPO)' );
+       $TNevTOPOZDC   = $fvalue   if( $fname eq 'sum(NevTOPOZDC)');
+       $TNevTOPOeff   = $fvalue   if( $fname eq 'sum(NevTOPOeff)'); 
 
-#  }
-# }
-#}
+  }
+ }
+}
 
  &StDbProdDisconnect();
 
@@ -307,7 +307,7 @@ if ($trigD eq "all" and $fieldM eq "all" and $detSet eq "all") {
  if($colSet eq "AuAu200") {
 
  &begin2Html();
-# &printTrigSum();
+ &printTrigSum();
 }
 
 
@@ -347,7 +347,7 @@ print <<END;
 <td HEIGHT=80><h3>$TNevHiMultZDC</h3></td>
 <td HEIGHT=80><h3>$TNevUPCMinb</h3></td>
 <td HEIGHT=80><h3>$TNevTOPO</h3></td>
-<td HEIGHT=80><h3>$TNevTOPOZDCT</h3></td>
+<td HEIGHT=80><h3>$TNevTOPOZDC</h3></td>
 <td HEIGHT=80><h3>$TNevTOPOeff</h3></td>
 </TR>
 END
@@ -365,7 +365,7 @@ print <<END;
           <title>Production Summary</title>
    </head>
    <body BGCOLOR=\"#ccffff\"> 
-     <h2 align=center>Summary for $trigD events in $prodSer production </h2>
+     <h2 align=center>Summary for $trigD  $colSet events in $prodSer production </h2>
 <TABLE ALIGN=CENTER BORDER=5 CELLSPACING=1 CELLPADDING=2 >
 <TR>
 <TD ALIGN=CENTER WIDTH=\"20%\" HEIGHT=100><B>Size(GB) of DAQ files</B></TD>
