@@ -14,7 +14,7 @@
 #
 
 # Grab it from env
-if ( ! $?AFS_RHIC ) setenv AFS_RHIC /afs/rhic.bnl.gov
+if ( ! $?AFS_RHIC ) setenv AFS_RHIC /afs/rhic
 
 # In case of token failure, send an Email to
 set EMAIL=jeromel@bnl.gov
@@ -93,7 +93,7 @@ if ( -r  $GROUP_DIR/star_login.csh ) then
 		breaksw
 
 	    case "Linux61":
-	    case "Linux80":
+	    case "Linux72":
 	    case "Linux9":
 		set LPATH=$AFS_RHIC/star/packages/adev
 		set SPATH=$AFS_RHIC/star/doc/www/comp/prod/Sanity
