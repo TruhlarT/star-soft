@@ -206,9 +206,11 @@ sub UpdateQAOfflineFast{
 		       LEFT JOIN $dbQA.$QASum{Table} as qa
 		       on daq.$DAQInfo{file}=qa.$QASum{jobID}
 		       where 
-			 daq.$DAQInfo{status} = $doneStatus and
+			 (daq.$DAQInfo{status} = $doneStatus and
 			 (qa.$QASum{jobID} is NULL ||
-			  qa.$QASum{QAdone}='Y')
+			  qa.$QASum{QAdone}='Y')) ||
+			 (daq.$DAQInfo{status} = 3 and
+			  qa.$QASum{jobID} is NULL)
 		       limit $limit
 		     };
 
@@ -252,15 +254,17 @@ sub UpdateQAOfflineFast{
     $sthKey->execute($jobID);
     my $report_key = $sthKey->fetchrow_array();
     if(!$QAdone){ # new file. insert
+      $count++;
       print "does not exist in QAtable...";
       $sthKey->execute($jobID);
       print "inserting...";
-      my $stat = $sthInsert->execute($jobID,$report_key) if !$debug;
+     my $stat = $sthInsert->execute($jobID,$report_key) if !$debug;
       if($stat) { print "done<br>\n"; }
       else { print "Cannot insert<br>\n"; next; }
       push @keyList,$report_key;
     }
     else{ # already exists, but probably reproduction
+      $count++;
       print "Already exists but qa is done.  Will reset qa done to No...";
       my $stat = $sthResetQAdone->execute($jobID) if !$debug;
       if(!$stat){
@@ -272,6 +276,7 @@ sub UpdateQAOfflineFast{
       push @keyList,$report_key;
     }
   }
+  print "Found $count new jobs<br>\n";
   return @keyList;
 }
 
