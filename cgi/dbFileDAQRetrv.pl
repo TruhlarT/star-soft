@@ -45,7 +45,9 @@ while(@fields = $cursor->fetchrow) {
     $pair{$fname} = $fvalue;
    
   }
-
+  if (! defined $pair{'comment'} ) {
+    $pair{'comment'} = "no";
+  }
 &printRow();
 
 }
