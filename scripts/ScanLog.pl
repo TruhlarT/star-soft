@@ -74,7 +74,8 @@ my $dbh1 = DBI->connect($datasourse,$username)
 my $del;
 
 if( defined($ARGV[1]) ){
-  $dbh1->do("DELETE FROM RJobInfo");
+    # An option ?
+    $dbh1->do("DELETE FROM RJobInfo") if ($ARGV[1] eq "delete");
 }
 
 my $sth1 = $dbh1->prepare("INSERT INTO RJobInfo ".
