@@ -1,5 +1,5 @@
 #!/bin/csh -f
-#       $Id: group_env.csh,v 1.159 2003/11/05 01:24:37 jeromel Exp $
+#       $Id: group_env.csh,v 1.160 2003/11/05 04:06:55 jeromel Exp $
 #	Purpose:	STAR group csh setup
 #
 #	Author:		Y.Fisyak     BNL
@@ -40,11 +40,13 @@ endif
 if ($ECHO) echo   "Setting up STAR_ROOT = ${STAR_ROOT}"
 
 
-# Define /opt/star
-if ( ! $?OPTSTAR ) then
+# Define /opt/star (or equivalent) 
+# X indicates points to the AFS reference
+if ( ! $?XOPTSTAR ) then
     # keep a reference to the AFS one
     if ( -e ${AFS_RHIC}/opt/star )  setenv XOPTSTAR ${AFS_RHIC}/opt/star
-
+endif
+if ( ! $?OPTSTAR ) then
     # local first
     if ( -e /opt/star ) then
 	setenv  OPTSTAR /opt/star
