@@ -176,12 +176,12 @@ sub StartingDisplay{
   my $comment_string 
     = Browser_utilities::start_comment_button();
   
-  my ($action_string, $expert_string);
+  my ($expert_action_string, $expert_string);
   
   if( $self->ExpertPageFlag() )
   {  
   
-    $action_string = Browser_utilities::start_expert_buttons();
+    $expert_action_string = Browser_utilities::start_expert_buttons();
     $expert_string = h3("This is the expert's page");
   
   } 
@@ -189,20 +189,6 @@ sub StartingDisplay{
   {
     $expert_string = Browser_utilities::start_expert_default();
   }
-
-  # pmj 21/6/00 take out $switch_string 
-  
-  #print qq{
-	#<table border=0, width=100%, valign=top, align=center>
-        #<tr valign=top>
-	#    <td> $switch_string
-	 #   <td> $selection_string
-	 #   <td> <table border=0, valign=top, align=center>
-         #        <tr> $expert_string
-         #        <tr> $comment_string
-         #        </table>
-         #   <td> $action_string
-        #</table>};
 
   print qq{
 	<table border=0, width=100%, valign=top, align=center>
@@ -212,12 +198,11 @@ sub StartingDisplay{
                  <tr> $expert_string
                  <tr> $comment_string
                  </table>
-            <td> $action_string
         </table>};
-  #---
-
-  # do i need this?
-  
+  #-----------------------------------------------------------------------------
+  if( $self->ExpertPageFlag() ){
+    print "<hr>$expert_action_string<hr>";
+  }
   #-----------------------------------------------------------------------------
   # display update status
   my ($io, $fh, $line);

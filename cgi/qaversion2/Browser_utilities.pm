@@ -31,18 +31,72 @@ sub start_comment_button{
   my $button_ref 
     = Button_object->new('EnableAddEditComments', "Add or edit comments");
 
-  return 
-    h3('Add or edit comments:').
-    $gCGIquery->startform(-action=>"$script_name/lower_display", 
+# pmj 28/6/00
+#    h3('Add or edit comments:').
+  my $string = $gCGIquery->startform(-action=>"$script_name/lower_display", 
 		      -TARGET=>"display").
     $button_ref->SubmitString.
     $hidden_string.
     $gCGIquery->endform;  
+
+  return $string;
+
 }
 #==========================================================
 # see Browser_object::StartingDisplay
 
 sub start_expert_buttons{
+
+  my $script_name = $gCGIquery->script_name;
+  my $hidden_string = $gBrowser_object->Hidden->Parameters;
+
+  my $action_string = 
+     $gCGIquery->startform(-action=>"$script_name/lower_display", 
+		       -TARGET=>"display");
+
+  my $button_ref = Button_object->new('UpdateCatalogue', 'Update Catalogue');
+  $action_string .= $button_ref->SubmitString;
+
+  $button_ref = Button_object->new('BatchUpdateQA', 'Update Catalogue and QA');
+  $action_string .= $button_ref->SubmitString;
+
+  $button_ref = Button_object->new('ServerLog', 'Server Log');
+  $action_string .= $button_ref->SubmitString;
+
+  $button_ref = Button_object->new('ServerBatchQueue', 'Server Batch Queue');
+  $action_string .= $button_ref->SubmitString;
+
+  $button_ref = Button_object->new('BatchLog', 'Batch Logfiles');
+  $action_string .= $button_ref->SubmitString;
+
+  $button_ref = Button_object->new('CshScript', 'Run csh script');
+  $action_string .= $button_ref->SubmitString;
+
+  $button_ref = Button_object->new('MoveOldReports', 'Move old reports');
+  $action_string .= $button_ref->SubmitString;
+
+  $button_ref = Button_object->new('CrontabAdd', 'Add crontab.txt');
+  $action_string .= $button_ref->SubmitString;
+
+  $button_ref = Button_object->new('CrontabMinusL', 'Do crontab -l');
+  $action_string .= $button_ref->SubmitString;
+
+  $button_ref = Button_object->new('CrontabMinusR', 'Do crontab -r');
+  $action_string .= $button_ref->SubmitString;
+
+  $button_ref = Button_object->new('EnableDSV','Enable DSV'); 
+  $action_string .= $button_ref->SubmitString;
+
+  $action_string .= $hidden_string.$gCGIquery->endform;
+
+  return $action_string;
+}
+#==========================================================
+# see Browser_object::StartingDisplay
+
+# pmj obsolete 28/6/00
+
+sub start_expert_buttons_OLD{
 
   my $script_name = $gCGIquery->script_name;
   my $hidden_string = $gBrowser_object->Hidden->Parameters;
@@ -98,14 +152,17 @@ sub start_expert_default{
 
   my $button_ref = Button_object->new('ExpertPageRequest', "Expert's page");
 
-  return
-    h3("Access expert's page").
-    $gCGIquery->startform(-action=>"$script_name/lower_display", 
-		      -TARGET=>"display").
-    $button_ref->SubmitString.
-    $hidden_string.
-    $gCGIquery->endform;
 
+# pmj 28/6/00
+#  my $string = h3("Access expert's page").
+  my $string = 
+    $gCGIquery->startform(-action=>"$script_name/lower_display", 
+			  -TARGET=>"display").
+			    $button_ref->SubmitString.
+			      $hidden_string.
+				$gCGIquery->endform;
+  return $string;
+    
 }
 #============================================================
 # see Browser_object::DisplayDataset

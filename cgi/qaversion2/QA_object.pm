@@ -454,7 +454,8 @@ sub ButtonString{
   # comments
   if ( $gCGIquery->param('enable_add_edit_comments') ) {
     $button_ref = Button_object->new('AddComment', 'Add comment', $report_key);
-    $button_string .= $button_ref->SubmitString."<br>";
+    $button_string .= $button_ref->SubmitString;
+    $button_string .= "<br>";
   }
   
   # for experts : do qa, redo qa, do evaluation
@@ -463,7 +464,7 @@ sub ButtonString{
     if ( $self->QADone ){ 
       $button_ref = Button_object->new('RedoEvaluation', 'Redo Evaluation', 
 				       $report_key);
-      $button_string .= $button_ref->SubmitString;
+      $button_string .= $button_ref->SubmitString."<br>";
 
       $self->OnDisk and do {	
 	$button_ref = Button_object->new('RedoQaBatch', 'Redo QA (batch)', 
