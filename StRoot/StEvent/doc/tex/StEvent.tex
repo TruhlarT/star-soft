@@ -2,7 +2,7 @@
 %
 % StEvent - User Guide and Reference Manual -- LaTeX Source
 %
-% $Id: StEvent.tex,v 2.34 2000/05/24 15:43:38 ullrich Exp $
+% $Id: StEvent.tex,v 2.35 2000/05/31 14:26:26 lasiuk Exp $
 %
 % Author: Thomas Ullrich, Nov 1999
 %
@@ -21,15 +21,8 @@
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %
 % $Log: StEvent.tex,v $
-% Revision 2.34  2000/05/24 15:43:38  ullrich
-% More on the StEventMaker (update).
-%
-% Revision 2.34  2000/05/24 15:43:38  ullrich
-% More on the StEventMaker (update).
-%
-% Revision 2.33  2000/05/22 22:04:07  ullrich
-% Removed StRichPixelCollection ref section and added description
-% of new RICH methods to class StEvent.
+% Revision 2.35  2000/05/31 14:26:26  lasiuk
+% Add RICH classes and descriptions
 %
 % Revision 2.45  2000/08/23 03:14:07  ullrich
 % Improved (corrected) explanation of return value
@@ -175,8 +168,8 @@
 %
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 \newcommand{\entrylabel}[1]{\mbox{\textbf{{#1}}}\hfil}%
-  {\LARGE $ $Revision: 2.34 $ $}  \\[5mm] % replaced by cvs with current revision
-  {\LARGE $ $Date: 2000/05/24 15:43:38 $ $}  % replaced by cvs with current revision
+\newenvironment{entry}
+\vspace*{-35mm}
     {\renewcommand{\makelabel}{\entrylabel}%
      \setlength{\labelwidth}{90pt}%
      \setlength{\leftmargin}{\labelwidth}
@@ -184,17 +177,17 @@
       }%
     }%
   {\end{list}}
-  {\LARGE $ $Revision: 2.34 $ $}  \\[5mm] % replaced by cvs with current revision
-  {\LARGE $ $Date: 2000/05/24 15:43:38 $ $}  % replaced by cvs with current revision
+  {\LARGE $ $Revision: 2.35 $ $}  \\[5mm] % replaced by cvs with current revision
+  {\LARGE $ $Date: 2000/05/31 14:26:26 $ $}  % replaced by cvs with current revision
 {\raisebox{0pt}[1ex][0pt]{\makebox[\labelwidth][l]%
     {\parbox[t]{\labelwidth}{\hspace{0pt}\textbf{{#1}}}}}}
 \newenvironment{Entry}%
 {\renewcommand{\entrylabel}{\Entrylabel}\begin{entry}}%
-  {\LARGE $ $Revision: 2.34 $ $}  \\[5mm] % replaced by cvs with current revision
-  {\LARGE $ $Date: 2000/05/24 15:43:38 $ $}  % replaced by cvs with current revision
+  {\LARGE $ $Revision: 2.35 $ $}  \\[5mm] % replaced by cvs with current revision
+  {\LARGE $ $Date: 2000/05/31 14:26:26 $ $}  % replaced by cvs with current revision
 \begin{document}
-  {\LARGE $ $Revision: 2.34 $ $}  \\[5mm] % replaced by cvs with current revision
-  {\LARGE $ $Date: 2000/05/24 15:43:38 $ $}  % replaced by cvs with current revision
+  {\LARGE $ $Revision: 2.35 $ $}  \\[5mm] % replaced by cvs with current revision
+  {\LARGE $ $Date: 2000/05/31 14:26:26 $ $}  % replaced by cvs with current revision
 %
 %    Title page
 %
@@ -209,8 +202,8 @@
   \mbox{\includegraphics[width=\textwidth]{StEventTitle.eps}}
   \hfill\mbox{}\\[3cm]
   {\LARGE User Guide and Reference Manual \\[5mm] for Version 2}\\[2cm]
-  {\LARGE $ $Revision: 2.34 $ $}  \\[5mm] % replaced by cvs with current revision
-  {\LARGE $ $Date: 2000/05/24 15:43:38 $ $}  % replaced by cvs with current revision
+  {\LARGE $ $Revision: 2.35 $ $}  \\[5mm] % replaced by cvs with current revision
+  {\LARGE $ $Date: 2000/05/31 14:26:26 $ $}  % replaced by cvs with current revision
   \vfill
 \end{center}
 \cleardoublepage
@@ -722,8 +715,8 @@ are different iterators for \texttt{StSPtrVecTrackNode} and
 
 We already mentioned that all containers are ordered vectors, hence
 the two methods to iterator/loop over a collection work both as well.
-(if any) and does all the things to make \StEvent\ nice and useful.
-How the DST gets into memory is another story and is explained in the next section
+It's a matter of taste which one you choose, although the iterator
+version has some advantages and is somewhat safer.
 
 \begin{verbatim}
 StPtrVecTrack container;
@@ -778,25 +771,7 @@ gets into memory is another story and is explained in the next section
     Print or do not print a dump of the current \texttt{StRun} and
     \texttt{StRunSummary} instances (default=kFALSE).
     
-
-\index{empty StEvent} \index{Makers and Chains} Sometimes \StEvent\ 
-need to be created even if no DST datasets or tables are available.
-Since version 2.24 of \texttt{StEventMaker.cxx} this is possible.  In
-this case an empty instance of the \texttt{StEvent} class is created,
-i.e.~everything
-is initialized to zero.\\
-Slowly but steadily, more and more ``makers'' will write directly into
-\StEvent\ and not use the detour via tables. Any maker who wants to
-access \texttt{StEvent} has to be placed behind the
-\texttt{StEventMaker} in the chain.
-
-To obtain a pointer to \StEvent\ use:
-\begin{verbatim}
-    StEvent* mEvent = (StEvent *) GetInputDS("StEvent");
-\end{verbatim}
-Needless to say that the pointer will only be valid if
-\texttt{StEventMaker} was called beforehand.  Else you get a
-\texttt{NULL} pointer.  \vfill
+    \verb+Bool_t  doPrintEventInfo;+\\
     Print or do not print info on the current \StEvent\ event.
     (default=kFALSE).  This produces a lot of output. Every major
     class is dumped, the sizes of all collections, and the first
@@ -2256,7 +2231,117 @@ fillPoints(points, track);
 // some print-out
 for (int i=0; i<points.size(); i++)
     cout << points[i]->position() << '\t'
+         << points[i]->positionError() << endl;
+
+fitter.addPoints(points);
+fitter.apply();
+
+// ... now print the results ...
+\end{verbatim}
+
+The same scheme can be applied when you want to draw points along a helix
+or sketch a helix by drawing lines between its points.\\
+You can mix vertices and hits freely as long as you stick to the functionality
+\texttt{StMeasuredPoint} provides.
+
+One can now sort the hits according to their radius $\rho$ in cylindrical
+coordinates. This is easy using the STL sort algorithm.\index{sort} All what is
+needed is the definition of the sort 'rule': 
+\begin{verbatim}
+struct compareRadiusOfPoints {
+    bool operator()(const StMeasuredPoint *x, const StMeasuredPoint *y) {
+        return x->position().perp() < y->position().perp();
+    }
+};
+\end{verbatim}
+The following simple line does the job:
+\begin{verbatim}
+    sort(points.begin(), points.end(), compareRadiusOfPoints());
+\end{verbatim}
+\vfill
+\subsection{The EMC}
+\index{EMC}
 ... missing ...
+
+\subsection{The RICH}
+\index{RICH}
+The RICH classes, like those of the EMC do not depend on
+tables for their construction.  They are directly filled
+into the \texttt{StEvent} structure during reconstruction and
+analysis.  The \texttt{StRichCollection} is the main container class
+which holds all of the objects associated with the RICH---that
+is the pixels, clusters, and hits, and these are held in the
+ROOT based ``STL-like'' containers within \texttt{StEvent}.
+This allows internal changes to be made within the \texttt{StRichCollection}
+without imposing overhead on the \texttt{StEvent} infrastructure,
+or changes to other users code, so long as the persistent objects
+fields do not change.
+
+The RICH detector is in the curious situation that not all the
+Monte Carlo information is available at the GEANT stage.  Specifically
+a major source of background and spurious signals come from feed
+back photons which are generated in the avalanche process of the
+signal generation, i.e.~in
+the detector simulation stage.  For this reason it is necessary
+to keep track of the origin of the signals at the pixel level,
+and to include the fractional contribution to all pixels from this
+process at the \texttt{StEvent} level.  Because
+of the relatively small data volume that the RICH produces---the order
+of 1500 10 bit ADC values per central event, this is not an
+overly large burden.
+
+In the reconstruction stage of the analysis, the pixels are grouped
+into \texttt{StRichCluster}s based on topology characteristics,
+and from these objects, hit positions are reconstructed.
+The \texttt{StRichHit}
+follows the generic hit structure defined in \texttt{StEvent} for
+the various detectors.  The \texttt{StRichHit} is an object
+which inherits from both \texttt{StMeasuredPoint} and
+\texttt{StHit}.  The position of the hit is available in STAR global
+coordinates (as is required by the conventions of \texttt{StEvent})
+as well as the local coordinate system of the RICH, so that analysis
+using various survey geometries can occur after the \texttt{StEvent}
+structure exists.  In the case of Monte Carlo generated data, which
+includes embedded events, the process which spawned or contributed to
+the hit is also recoverable.  In the cases of merged hits that produce
+large clusters, the origin of each individual pixel can be recovered
+by tracing back from the hit, to the cluster, to the pixel level.
+All of these objects are kept in ROOT generated collections within
+the \texttt{StRichCollection}:
+\begin{itemize}
+    \item \texttt{StRichHitCollection}
+    \item \texttt{StRichClusterCollection}
+    \item \texttt{StRichPixelCollection}
+\end{itemize}
+For generic studies of efficiecy
+it is expected that \texttt{StMCEvent} will be utilized.  However as
+mentioned previously, the addition
+of pixel labelling in the internal \texttt{StRichCollection} infrastruture
+will allow us to quantify, very accurately, the efficiency of utilizing
+a proximity match for the basis of these calcuations, as well as study
+the effect of various modes and generations of feedback photons, and
+detector noise.  This labelling can also be extended to add a
+parameterized neutron
+background downstream of the GEANT calculation should this prove to
+be a large source of additional background.
+
+The RICH particle identification is initially expected to run
+at the \texttt{StEvent} level.  The identification algorithm is currently
+based on calculating the areal photon density on the RICH pad
+plane for the different particle hypthesis and selecting the
+most probable based on a selected set of criteria which will
+not be detailed here.  This algorithm is contained in a
+Maker module called the \texttt{StRICHPIDMaker} which requires
+\texttt{StEvent} global tracks in addition to the \texttt{StRichCollection}
+as input.
+
+The mode of accessing this data is shown below:
+
+\begin{verbatim}
+  //
+  // retrieve the StEvent data structure
+  //
+  StEvent* mEvent;
   mEvent = (StEvent *) GetInputDS("StRichEvent");
 
   if (!mEvent) {
@@ -2814,12 +2899,6 @@ definition in the header file.
     for QA/QC and event characterization.
 
     \verb+StEventInfo* info();+\\
-    \verb+StEmcCollection* emcCollection();+\\
-    \verb+const StEmcCollection* emcCollection() const;+\\
-
-    \verb+StRichCollection* richCollection();+\\
-    \verb+const StRichCollection* richCollection() const;+\\
-
     \verb+const StEventInfo* info() const;+\\
     Returns a pointer to the one and only instance of \texttt{StEventInfo}.
     \texttt{StEventInfo} provides no additional information but is solely
@@ -2876,8 +2955,6 @@ definition in the header file.
     only one but future implementations of the vertex finder will be
     able to also detect pile-up vertices in which case you better
     check the number before dealing with the event.
-    \verb+void setSummary(StEventSummary*);+\\
-
     
     \verb+StPrimaryVertex* primaryVertex(UInt_t i = 0);+\\
     \verb+const StPrimaryVertex* primaryVertex(UInt_t i = 0) const;+\\
@@ -2886,12 +2963,6 @@ definition in the header file.
     defaults to the first (\texttt{i=0}).\\
     The primary vertices are ordered according to the number of daughters
     (i.e.~primary tracks) they hold. The first in the list is always the
-    \verb+void setSsdHitCollection(StSsdHitCollection*);+\\
-
-    \verb+void setEmcCollection(StEmcCollection*);+\\
-
-    \verb+void setRichCollection(StRichCollection*);+\\
-
     the vertex with the most daughter tracks.\index{primary vertices, order of}
     
     \verb+StSPtrVecXiVertex& xiVertices();+\\
@@ -3651,30 +3722,441 @@ definition in the header file.
     \item[+yx1] for normal, successfully found primary vertex during
         the 3rd iteration
     \item[-yx3] for initial seed value
+    \item[-yx2] for first iteration value
+    \item[-yx1] for second iteration value
+    \item[-yx4] for failed fit with Determinant of G =0.0, occuring
+        during any iteration.
+    \item[-yx5] for failed error covariance matrix evaluation during
+        fit with Determinant of E = 0.0, occuring during any
+        iteration.
+    \end{description}
+    where
+    \begin{description}             
+    \item[x] is the event vertex id (for pileups). Zero means the
+        triggered event vertex, x=1 is the next one etc.
+    \item[y] is the detector id for prevertex finding only.  y=0 is not
+        prevertex, y=1 TPC prevertex, y=2 SVT, y=3 FTPC etc. the detector id
+        compliments this info.
+    \end{description}
+
+    \verb+StTrack* daughter(UInt_t);+\\
+    \verb+const StTrack* daughter(UInt_t) const;+\\
+    
+    \verb+StPtrVecTrack daughters(StTrackFilter&);+\\
+
+    \verb+StSPtrVecPrimaryTrack& daughters();+\\
+    \verb+const StSPtrVecPrimaryTrack& daughters() const;+\\
+
+    \verb+void addDaughter(StTrack*);+\\
+
+    \verb+void removeDaughter(StTrack*);+\\
+
+    \verb+void setParent(StTrack*); // overwrite inherited+\\
+\end{Entry}
+\clearpage
+
+
+\subsection{StRichCluster}
+\index{StRichCluster|textbf}
+\label{sec:StRichCluster}
+\begin{Entry}
+\item[Summary] Description of a group of adjacent pixels from
+    which hits are recontructed.
+\item[Synopsis]
+    \verb+#include "StRichCluster.h"+\\
+    \verb+class StRichCluster;+\\
+\item[Description]   The cluster is an intermediate reconstructed
+    object which allows the traceback from recontructed hits to
+    single pixels.  It is the level at which hit deconvolution
+    algorithms work upon.
+\item[Related Classes]
+\item[Public\\ Constructors]
+    \verb+StRichCluster();+\\
+    Empty Constructor.
+
+    \verb+StRichCluster(Int_t nPads, Int_t nLocMax, Int_t fPad, +\\
+    \verb+       Float_t ampSum, Float_t amp2Sum, Float_t rms2);+\\
+    Constucted given the number of pads, number of local maximum within
+    the cluster, first pad, sum of the amplitudes of the pads making
+    up the cluster, the sum of the squared amplitude and the rms
+    squared of the cluster.
+
+\item[Public Member\\ Functions]
+    \verb+Bool_t operator==(const StRichCluster&) const;+\\
+    Comparison of the pixels based on an exact match of all fields.
+
+    \verb+Int_t numberOfPads() const;+\\
+    Accesses the number of pads the cluster comprises.
+
+    \verb+Int_t numberOfLocalMax() const;+\\
+    Accesses the number of local maxima in the cluster.
+
+    \verb+Int_t firstPad() const;+\\
+    Accesses the first pad (in the pixel list).
+
+    \verb+Float_t amplitudeSum() const;+\\
+    Accesses the sum of the amplitudes of the pads identified
+    with the cluster.
+
+    \verb+Float_t amplitude2Sum() const;+\\
+    Accesses the sum of the squares of the amplitudes of the pads
+    identified with the cluster.
+
+    \verb+Float_t rms2() const;+\\
+    Accesses the square of the RMS of the cluster.
+
+    \verb+Float_t rms2Calc();+\\
+    Calculates the square rms of the cluster.
+
+    \verb+void increaseNumberOfLocalMax();+\\
+    Modifies the cluster object by increasing the number
+    of local maxima by 1.
+
+    \verb+void increaseNumberOfPads();+\\
+    Modifies the cluster object by increasing the number
+    of pads by 1.    
+
+    \verb+void setFirstPad(Int_t index);+\\
+    Modifies the cluster object by setting the first pad
+    of the cluster to index.
+
+    \verb+void setNumberOfPads(Int_t newNPads);+\\
+    Modifies the cluster object by setting the number
+    of pads in the cluster to newNPads.
+
+    \verb+void updateAmplitude(Float_t newamp);+\\
+    Modifies the cluster object by setting the amplitude to
+    newamp.
+\end{Entry}
+\clearpage
+
+
+\subsection{StRichCollection}
+\index{StRichCollection|textbf}
+\label{sec:StRichCollection}
+\begin{Entry}
+\item[Summary] Contains all information of the Rich
+    up until the point of hit reconstruction in generic
+    STL like StEvent containers.
+\item[Synopsis]
+    \verb+#include "StRichCollection.h"+\\
+    \verb+class StRichCollection;+\\
+\item[Description] The raw and reconstructed pixel and
+    hit information is contained in the StRichCollection.
+    The module called StRchMaker is reponsible for 
+    creating a ``RichCollection'' and filling the pixels
+    from the raw data and the clusters and hits from
+    the cluster and hit finding algorithms.
+\item[Related Classes]
+    See StContainers.h.
+\item[Public\\ Constructors]
+    \verb+StRichCollection();+\\
+    Empty constructor.  All containers must be added by
+    ``set'' member functions.
+\item[Public Member\\ Functions]
+    \verb+const StSPtrVecRichPixel& getRichPixels() const;+\\
+    Returns the collection of pixels.
+
+    \verb+StSPtrVecRichPixel& getRichPixels();+\\
+    Returns the collection of pixels.
+
+    \verb+const StSPtrVecRichCluster& getRichClusters() const;+\\
+    Returns the collection of clusters.
+
+    \verb+StSPtrVecRichCluster& getRichClusters();+\\
+    Returns the collection of clusters.
+
+    \verb+const StSPtrVecRichHit& getRichHits() const;+\\
+    Returns the collection of reconstructed hits.
+
+    \verb+StSPtrVecRichHit& getRichHits();+\\
+    Returns the collection of reconstructed hits.
+
+    \verb+void addPixel(const StRichPixel*);+\\
+    Adds a single pixel to the pixel collection.
+
+    \verb+void addCluster(const StRichCluster*);+\\
+    Adds a single cluster to the cluster collection.
+
+    \verb+void addHit(const StRichHit*);+\\
+    Adds a single hit to the hit collection.
+
+    \verb+Bool_t pixelsPresent() const;+\\
+    Returns the condition if the pixel container
+    is present in the RichCollection.
+
+    \verb+Bool_t clustersPresent() const;+\\
+    Returns the condition if the cluster container
+    is present in the RichCollection.
+
+    \verb+Bool_t hitsPresent() const;+\\
+    Returns the condition if the hit container
+    is present in the RichCollection.
+\end{Entry}
+\clearpage
+
+
+\subsection{StRichHit}
+\index{StRichHit|textbf}
+\label{sec:StRichHit}
+\begin{Entry}
+\item[Summary] Description of a reconstructed hit on the detector
+    pad plane.
+\item[Synopsis]
+    \verb+#include "StRichHit.h"+\\
+    \verb+class StRichHit;+\\
+\item[Description] The hit object is the output from the
+    cluster and hit finder.  It specifies a recontructed position
+    of a track (charged or photon) which passes through the
+    detector pad plane.
+\item[Related Classes]
+    Inherits from \texttt{StMeasuredPoint} and \texttt{StHit}.
+\item[Public\\ Constructors]
+    \verb+StRichHit();+\\
+    Empty Constructor.
+    
+    \verb+StRichHit(const StThreeVectorF& xg, const StThreeVectorF& dx);+\\
+    Specify a hit by the global position, xg, and the error on this
+    position, dx.
+
+    \verb+StRichHit(const StThreeVectorF& xg, const StThreeVectorF& dx,+\\
+    \verb+       ULong_t hp, Float_t q, Float_t maxAdc, UChar_t tc);+\\
+    Specify a hit by the global position, xg, the error on this
+    position, dx, the hardware position, hp, total integrated charge
+    contained in the hit, q, the quantity of charge on the pixel with
+    the maximum amplitude within the hit, maxAdc and the number of
+    tracks associated with the hit, tc.
+\item[Public Member\\ Functions]
+    \verb+const StThreeVectorF& local() const;+\\
+    Returns the position of the hit in the local coordinate
+    system of the detector.
+
+    \verb+const StThreeVectorF& internal() const;+\\
+    Returns the position of the hit in the interanl coordinate
+    system of the detector.
+
+    \verb+Float_t maxAmplitude() const;+\\
+    Returns the amplitude of the pixel with the largest
+    amplitude in the hit.
+
+    \verb+ULong_t clusterNumber() const;+\\
+    Returns the number (index) of the cluster from which the
+    hit was produced.
+
+    \verb+UShort_t track() const;+\\
+    Returns the row of the track table from which the hit is
+    associated.
+
+    \verb+ULong_t reservedLong() const;+\\
+    Reserved for future use.
+
+    \verb+Float_t reservedFloat() const;+\\
+    Reserved for future use.
+
+    \verb+StThreeVectorF& local();+\\
+    Returns the position of the hit in the local coordinate
+    system of the detector.
+
+    \verb+StThreeVectorF& internal();+\\
+    Returns the position of the hit in the internal coordinate
+    system of the detector.
+
+    \verb+void setMaxAmplitude(Float_t);+\\
+    Set the amplitude of the pixel with the maximum
+    amplitude contained within the cluster.
+
+    \verb+void setClusterNumber(UShort_t);+\\
+    Assign the cluster number (index) to which the
+    it is associated.
+
+    \verb+void setTrack(ULong_t);+\\
+    Set the track from which the hit is associated.
+
+    \verb+void setReservedLong(ULong_t);+\\
+    Reserved for future use.
+
+    \verb+void setReservedFloat(Float_t);+\\
+    Reserved for future use.
+\end{Entry}
+\clearpage
+
+
+\subsection{StRichMCHit}
+\index{StRichMCHit|textbf}
+\label{sec:StRichMCHit}
+\begin{Entry}
+\item[Summary] Description of a hit but adds Monte Carlo
+    information to describe the origin of the hit.
+\item[Synopsis]
+    \verb+#include "StRichMCHit.h"+\\
+    \verb+class StRichMCHit;+\\
+\item[Description] This class inherits from \texttt{StRichHit}
+    and contains the additional information of the
+    origin of the hit in the \texttt{StRichMCInfo} class.
+\item[Related Classes]
+    See \texttt{StRichInfo}
+\item[Public\\ Constructors]
+    \verb+StRichMCHit();+\\
+    Empty consturctor.
+    
+    \verb+StRichMCHit(const StThreeVectorF& xg,+\\
+    \verb+            const StThreeVectorF& dx);+\\
+    Specify a hit by the global position, xg, and the error on this
+    position, dx.
+
+    \verb+StRichMCHit(const StThreeVectorF& xg,+\\
+    \verb+            const StThreeVectorF& dx,+\\
+    \verb+            ULong_t hp, Float_t q,+\\
+    \verb+            Float_t maxAdc, UChar_t tc);+\\
+
+    \verb+StRichMCHit(const StThreeVectorF& xg,+\\
+    \verb+            const StThreeVectorF& dx,+\\
+    \verb+            ULong_t hp, Float_t q,+\\
+    \verb+            Float_t maxAdc, UChar_t tc,+\\
+    \verb+            StRichMCInfo& info);+\\
+    Specify a hit by the global position, xg, the error on this
+    position, dx, the hardware position, hp, total integrated charge
+    contained in the hit, q, the quantity of charge on the pixel with
+    the maximum amplitude within the hit, maxAdc, the number of
+    tracks associated with the hit, tc, and the associated Monte Carlo
+    information, info.
+\item[Public Member\\ Functions]
+    \verb+void setMCInfo(const StRichMCInfo&);+\\
+    Returns the Monte Carlo information associated with the hit.
+
+    \verb+const StRichMCInfo& getMCInfo() const;+\\
+    Returns the Monte Carlo information associated with the hit.
+\end{Entry}
+\clearpage
+
+
+\subsection{StRichMCInfo}
+\index{StRichMCInfo|textbf}
+\label{sec:StRichMCInfo}
+\begin{Entry}
+\item[Summary] Contains the Monte Carle information associated with
+    an object, be it a pixel, cluster, or hit.
+\item[Synopsis]
+    \verb+#include "StRichMCInfo.h"+\\
+    \verb+class StRichMCInfo;+\\
+\item[Description] This object contains Monte Carlo information
+    so that the origin of an object, be it a pixel, cluster, or
+    hit can be traced.  This is necessary so that the feed-back
+    photons may be accounted for and kept track.
+\item[Related Classes]
+    See \texttt{StRichMCHit} and \texttt{StRichMCPixel}.
+\item[Public\\ Constructors]
+    \verb+StRichMCInfo();+\\
+    Empty constructor.
+
+    \verb+StRichMCInfo(Long_t id, Long_t gid, Long_t trk,+\\
+    \verb+             Float_t q, Long_t process);+\\
+    Specifies the Monte Carlo information of an object by specifying
+    its track, id, GEANT particle id, gid, parent track, trk,
+    charge that it deposited, q, and process of origin, process, be it
+    unknown (0), a charged particle (1), a photon (2), a feedback
+    photon (4), or noise (8).
+\item[Public Member\\ Functions]
+    \verb+Int_t operator==(const StRichMCInfo&) const;+\\
+    Checks the equivalence based on the id, trk, and process
+    field.
+
+    \verb+Int_t operator!=(const StRichMCInfo&) const;+\\
+    The complement of the equality operator.
+
+    \verb+Long_t id() const;+\\
+    Returns the index the track in the track table.
+
+    \verb+Long_t gid() const;+\\
+    Returns the GEANT id of the track.
+
+    \verb+Long_t trackp() const;+\\
+    Returns the index of the the parent track in
+    the track table.
+
+    \verb+Float_t charge() const;+\\
+    Returns the charge deposited by the track in question.
+
+    \verb+Long_t process() const;+\\
+    Returns the type of process, be it unknown (0), a charged
+    particle (1), a photon (2), a feedback photon (4), or
+    noise (8).
+
+\end{Entry}
+\clearpage
+
+
+\subsection{StRichMCPixel}
+\index{StRichMCPixel|textbf}
+\label{sec:StRichMCPixel}
+\begin{Entry}
+\item[Summary] The raw data information from the detector
+    along with the Monte Carlo information of the tracks which
+    produced this information.
+\item[Synopsis]
+    \verb+#include "StRichMCPixel.h"+\\
+    \verb+class StRichMCPixel;+\\
+\item[Description] This class contains, in addition to the raw pixel
+    information, the description of the simulated (Monte Carlo)
+    processes which contributed to its production.
+\item[Related Classes]
+    See \texttt{StRichPixel}, and \texttt{StRichMCInfo}.
+\item[Public\\ Constructors]
+    \verb+StRichMCPixel();+\\
+    Empty constructor.
+
+    \verb+StRichMCPixel(ULong_t packedData);+\\
+    Coded data of the pixel where the first 8 bits are the pad
     number, the second 8 bits are the row, and the next 11 bits
     are the ADC value (11th bit indicates overflow).
 
     \verb+StRichMCPixel(ULong_t packedData,+\\
-\item[Summary]
+    \verb+              const StSPtrVecRichMCInfo&);+\\
         Coded data of the pixel where the first 8 bits are the pad
     number, the second 8 bits are the row, and the next 11 bits
     are the ADC value (11th bit indicates overflow) as well as
-\item[Description]
+    a list of the MC information.
+\item[Public Member\\ Functions]
+    \verb+Int_t operator==(const StRichMCPixel&) const;+\\
     Equality operator based on the packed data ONLY.
 
     \verb+Int_t operator!=(const StRichMCPixel&) const;+\\
+    Complement of the equality operator.
+
     \verb+UShort_t contributions() const;+\\
+    Returns the number of tracks/processes contributing
+    to the pixel.
+
+    \verb+void addInfo(const StRichMCInfo*);+\\
     Adds information to the Monte Carlo list.
 
+    \verb+void setInfo(const StSPtrVecRichMCInfo&);+\\
+    Specifies the Monte Carlo list.
     \verb+Int_t operator==(const StRichPidTraits&) const;+\\
+    \verb+void addPid(StRichPid* );+\\
+    \verb+StSPtrVecRichPid getAllPids();+\\
     \verb+const StSPtrVecRichPid getAllPids() const;+\\
+    \verb+StRichPid* getPid(StParticleDefinition* t);+\\
+    \verb+const StRichPid* getPid(StParticleDefinition* t) const;+\\
 \end{Entry}
+\clearpage
+
 \subsection{StRichPixel}
+\index{StRichPixel|textbf}
+\label{sec:StRichPixel}
 \begin{Entry}
+\item[Summary] The raw data information from the detector.
+\item[Synopsis]
+    \verb+#include "StRichPixel.h"+\\
+    \verb+class StRichPixel;+\\
+\item[Description] This class contains the raw pixel
+    information, which includes the pad, row, and integerized
+    ADC value of a single pixel.
 \item[Related Classes]
 \item[Public\\ Constructors]
     \verb+StRichPixel();+\\
     Empty constructor.
+
     \verb+StRichPixel(ULong_t packedData);+\\
     Specify the pixel utilizing the packed data where
     the first 8 bits are the pad
@@ -3688,13 +4170,13 @@ definition in the header file.
     Complement of the equality operator.
 
     \verb+void setPackedData(ULong_t);+\\
-\item[Public Data\\ Member]
+    Specify the coded data.
 
-    Total multiplicity (or ADC sum) in RICH.
     \verb+UShort_t pad() const;+\\
     Returns the pad number.
 
     \verb+UShort_t row() const;+\\
+    Returns the row number.
 
     \verb+UShort_t adc() const;+\\
     Returns the adc value.
@@ -4748,7 +5230,7 @@ numberOfPoints(kTpcId) == numberOfPoints(kFtpcWestId)
     The class provides methods that allow to access information without
     detailed knowledge on how the bits are packed.   
 
-    \verb+Int_t largestGap(StDetectorId id) const;+\\ 
+\item[Related Classes]
 \item[Public\\ Constructors]
     \verb+StTrackTopologyMap();+\\
     \verb+StTrackTopologyMap(ULong_t, ULong_t);+\\
@@ -4760,7 +5242,6 @@ numberOfPoints(kTpcId) == numberOfPoints(kFtpcWestId)
     indicate that a secondary vertex constraint was used for special
     track fitting methods for decay vertices (see method variable).
 
-    \index{largest gap} \index{gap}
     \verb+UInt_t numberOfHits(StDetectorId id) const;+\\
     Returns the number of hits assigned to the track in detector \texttt{id}.
     
