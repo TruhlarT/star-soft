@@ -315,8 +315,6 @@ sub FilesAndReports{
   my $self = shift;
   my $report_key = $self->ReportKey;
 
-  &QA_utilities::print_timing;
-
   #-------------------------------------------------------
   $QA_object_hash{$report_key}->DisplayFilesAndReports;
 }

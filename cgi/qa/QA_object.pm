@@ -86,7 +86,6 @@ sub _init{
     print "<h4> Error in QA_object constructor: unknown argument $arg_dir </h4> \n";
     return;
   }
-
   #------------------------------------------------------
   $self->ReportKey($report_key);
   $self->ReportDirectory();
@@ -300,23 +299,18 @@ sub QADone{
 sub OnDisk{
   my $self = shift;
 
-  $self->{OnDisk} or do{
+  $report_key = $self->ReportKey(); 
+  
+  $test_data_dir = $self->LogReport->OutputDirectory;
+  $on_disk = 0;
+  
+  if (defined $test_data_dir and -d $test_data_dir){ 
+    # even if same directory exists, may contain later run -> test against dir time
+    $test_report_key = QA_make_reports::get_report_key($test_data_dir); 
+    $test_report_key eq $report_key and $on_disk = 1;
+  }
 
-    $report_key = $self->ReportKey(); 
-    
-    $test_data_dir = $self->LogReport->OutputDirectory;
-    $on_disk = 0;
-    
-    if (defined $test_data_dir and -d $test_data_dir){ 
-      # even if same directory exists, may contain later run -> test against dir time
-      $test_report_key = QA_make_reports::get_report_key($test_data_dir); 
-      $test_report_key eq $report_key and $on_disk = 1;
-    }
-    
-    $self->{OnDisk} = $on_disk;
-  };
-
-  return  $self->{OnDisk};
+  return  $on_disk;
 }
 #========================================================
 sub DataDisplayString{

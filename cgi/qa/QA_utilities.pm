@@ -114,6 +114,8 @@ sub get_QA_objects{
   #-----------------------------------------------------------
   # get report catalogue
 
+  # half of startup time is in this section - can it be reduced?  pmj 3/12/99
+
   opendir(REPORTDIR, $topdir_report) or die "Couldn't open report directory $topdir_report \n";
 
   while ( defined ($report_key = readdir(REPORTDIR))){

@@ -185,7 +185,6 @@ sub starting_display {
 
   @temp = sort selection_sort @selection_list;
   #-----------------------------------------------------------
-
   # now the generic stuff
   $selection_hash{on_disk} = "All datasets on disk";
   $selection_hash{all} = "All archived datasets";
@@ -195,7 +194,6 @@ sub starting_display {
   push @selection_list, @temp;
 
   #-----------------------------------------------------------
-
   $hidden_string = &QA_utilities::hidden_field_string;
 
   $select_data_string= "<H3>Select datasets:</H3>".
