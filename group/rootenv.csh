@@ -26,7 +26,7 @@
 
   switch ($MACHINE)
     case Linux:
-    setenv LD_LIBRARY_PATH "${LD_LIBRARY_PATH}"
+#    setenv LD_LIBRARY_PATH "${LD_LIBRARY_PATH}"
     case SunOS:
     case IRIX:
     case OSF1:
@@ -41,7 +41,6 @@
 #               for Sun
     setenv LD_LIBRARY_PATH ${LD_LIBRARY_PATH}:/usr/dt/lib:/usr/openwin/lib:/usr/ccs/lib
 #               PrintIt
-    if ($?SILENT == 0) echo LD_LIBRARY_PATH = $LD_LIBRARY_PATH
     breaksw
 
     case IRIX64:
@@ -82,6 +81,7 @@
     if ($?SILENT == 0) echo " Unimplemented platform $MACHINE"
     exit   
   endsw
+  if ($?SILENT == 0) echo LD_LIBRARY_PATH = $LD_LIBRARY_PATH
 
 #
 # OpenGL

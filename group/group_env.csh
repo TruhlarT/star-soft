@@ -1,7 +1,10 @@
 #!/usr/bin/csh -f
-#       $Id: group_env.csh,v 1.55 1998/12/03 01:40:09 fisyak Exp $
+#       $Id: group_env.csh,v 1.56 1998/12/04 17:42:43 fisyak Exp $
 #	Purpose:	STAR group csh setup 
 #       $Log: group_env.csh,v $
+#       Revision 1.56  1998/12/04 17:42:43  fisyak
+#       Take out SNIFF for linux -- because of hangup
+#
 #       Revision 1.55  1998/12/03 01:40:09  fisyak
 #       Add user lib to LD_LIBARY_PATH
 #
@@ -365,7 +368,7 @@ if ( -f $GROUP_DIR/rootenv.csh) then
 endif
 
 # Objectivity
-if (`hostname` != "rcf.rhic.bnl.gov") source $GROUP_DIR/ObjySetup.csh
+if (`uname -s` == "SunOS" && `hostname` != "rcf.rhic.bnl.gov") source $GROUP_DIR/ObjySetup.csh
 
 # Geant4
 setenv G4PROTO /star/sol/packages/geant4/prototype
@@ -382,7 +385,7 @@ switch ($STAR_SYS)
     case "i386_*":
 #     ====================
       setenv SNIFF_DIR /star/sol/packages/sniff
-      set path = ( $path $SNIFF_DIR/bin )
+#      set path = ( $path $SNIFF_DIR/bin )
       breaksw
     default:
 #     ====================
