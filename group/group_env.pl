@@ -1,8 +1,11 @@
 #!/usr/bin/env perl
 #
-# $Id: group_env.pl,v 1.4 2004/01/09 19:23:40 jeromel Exp $
+# $Id: group_env.pl,v 1.5 2004/11/16 01:57:26 jeromel Exp $
 #
 # $Log: group_env.pl,v $
+# Revision 1.5  2004/11/16 01:57:26  jeromel
+# Use already defined STAR_ROOT
+#
 # Revision 1.4  2004/01/09 19:23:40  jeromel
 # rhic.bnl.gov instead of rhic
 #
@@ -56,11 +59,11 @@ $CERN_ROOT="$CERN/$CERN_LEVEL";
 
 my $systype = substr($STAR_HOST_SYS,0,4);
 if ( $systype eq 'sun4' ) {
-    $LD_LIBRARY_PATH="/opt/SUNWspro/lib:/usr/openwin/lib:/usr/dt/lib:/usr/local/lib:/afs/rhic/star/packages/ObjectSpace/2.0m/lib:$MINE_LIB:$STAR_LIB:/usr/lib";
+    $LD_LIBRARY_PATH="/opt/SUNWspro/lib:/usr/openwin/lib:/usr/dt/lib:/usr/local/lib:$STAR_ROOT/packages/ObjectSpace/2.0m/lib:$MINE_LIB:$STAR_LIB:/usr/lib";
 } elsif ( $systype eq 'i386' ) {
     $STAR_PATH.=":/usr/local/bin/ddd";
     $LD_LIBRARY_PATH="/usr/lib:/usr/local/lib:$MINE_LIB:$STAR_LIB:/usr/dt/lib:/usr/openwin/lib";
 } else {
-    $LD_LIBRARY_PATH="/opt/SUNWspro/lib:/usr/openwin/lib:/usr/dt/lib:/usr/local/lib:/afs/rhic/star/packages/ObjectSpace/2.0m/lib:$MINE_LIB:$STAR_LIB:/usr/lib";
+    $LD_LIBRARY_PATH="/opt/SUNWspro/lib:/usr/openwin/lib:/usr/dt/lib:/usr/local/lib:$STAR_ROOT/packages/ObjectSpace/2.0m/lib:$MINE_LIB:$STAR_LIB:/usr/lib";
 }
 $LD_LIBRARY_PATH.=":/usr/ccs/lib:/opt/star/lib";
