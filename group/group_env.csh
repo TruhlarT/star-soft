@@ -1,5 +1,5 @@
 #!/bin/csh -f
-#       $Id: group_env.csh,v 1.153 2003/08/18 23:29:32 jeromel Exp $
+#       $Id: group_env.csh,v 1.154 2003/09/16 17:49:13 jeromel Exp $
 #	Purpose:	STAR group csh setup
 #
 #	Author:		Y.Fisyak     BNL
@@ -408,12 +408,14 @@ endif
 
 
 # Support for Insure++
-set INSV=insure-5.2
-if ( -d ${AFS_RHIC}/app/$INSV ) then
-    set VER=`/bin/ls -ld ${AFS_RHIC}/app/$INSV/bin* | sed "s/.*\.//"`
+if ( ! $?INSV ) then
+    setenv INSV insure-6.1-gcc-3.2
+endif
+if ( -d ${AFS_RHIC}/app/${INSV} ) then
+    set VER=`/bin/ls -ld ${AFS_RHIC}/app/${INSV}/bin* | sed "s/.*\.//"`
     if ("$VER" != "") set VER=".$VER"
-    set path=($path ${AFS_RHIC}/app/$INSV/bin$VER)
-    setenv LD_LIBRARY_PATH  ${LD_LIBRARY_PATH}:${AFS_RHIC}/app/$INSV/lib$VER
+    set path=($path ${AFS_RHIC}/app/${INSV}/bin$VER)
+    setenv LD_LIBRARY_PATH  ${LD_LIBRARY_PATH}:${AFS_RHIC}/app/${INSV}/lib$VER
     unset VER
 endif
 
