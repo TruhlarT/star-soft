@@ -19,6 +19,7 @@ my $debugOn = 0;
 
 my @prod_set = (
             "auau200/nexus/default/b0_3/year_1h/hadronic_on",
+            "auau200/nexus/default/minbias/year_1h/hadronic_on", 
              "auau200/mevsim/vanilla/central/year_1h/hadronic_on",
              "auau200/mevsim/vanilla/flow/year_1h/hadronic_on", 
              "auau200/mevsim/vanilla/resonance/year_1h/hadronic_on", 
@@ -52,6 +53,13 @@ my @prod_set = (
              "auau200/hijing_quark/b0_3_jetq_off/jet05/year_1h/hadronic_on",
              "auau200/hijing_antinuc/b0_3_jetq_off/jet05/year_1h/hadronic_on",
              "auau200/hijing_antinuc/b0_3_jetq_on/jet05/year_1h/hadronic_on",
+             "auau200/hijing135/default/b0_3/year_1h/hadronic_on",
+             "auau200/strongcp/broken/eb-400_90/year_1h/hadronic_on",
+             "auau200/strongcp/broken/eb-400_00/year_1h/hadronic_on",
+             "auau200/strongcp/broken/lr_eb-400_90/year_1h/hadronic_on",
+             "auau200/venus/default/b3_6/year_1h/hadronic_on",
+             "auau200/venus/default/b6_9/year_1h/hadronic_on", 
+             "auau200/venus412/default/b0_3/year_1h/hadronic_on",
 
    );
  
@@ -87,7 +95,7 @@ print <<END;
 <META HTTP-EQUIV="Expires" CONTENT="0">
 <META HTTP-EQUIV="Pragma" CONTENT="no-cache">
 <META HTTP-EQUIV="Cache-Control" CONTENT="no-cache">
-<META HTTP-equiv="Refresh" content="300; URL-HTTP://duvall.star.bnl.gov/cgi-bin/didenko/GifMdc3Plots.pl">
+<META HTTP-equiv="Refresh" content="600; URL-HTTP://www.star.bnl.gov/devcgi/GifMdc3Plots.pl">
 END
 
   print " <title>Select Query for Production Plots </title>";
@@ -148,7 +156,7 @@ END
 if($query->param) {
   GifMdc3Plots($query);
 }
-print $query->delete_all;
+#print $query->delete_all;
 print $query->end_html; 
 
 
