@@ -3,7 +3,7 @@
      setenv PATH            `/afs/rhic/star/group/dropit ROOT`
    endif
    setenv ROOTSYS /afs/rhic/opt/rhic/ROOT2
-   if ( -x $STAR_PATH/ROOT2.08/root/bin/root ) setenv ROOTSYS $STAR_PATH/ROOT2.08/root
+   if ( -x /afs/rhic/star/ROOT/2.08/root/bin/root ) setenv ROOTSYS /afs/rhic/star/ROOT/2.08/root
 #   if ( ! -e $ROOTSYS) setenv ROOTSYS /afs/rhic/opt/rhic/root
 #   if ( ! -e $ROOTSYS) setenv ROOTSYS /afs/rhic/sunx86_55/opt/rhic/ROOT2
 
