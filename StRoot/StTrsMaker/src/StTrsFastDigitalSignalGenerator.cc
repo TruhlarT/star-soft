@@ -10,6 +10,12 @@
  ***************************************************************************
  *
  * $Log: StTrsFastDigitalSignalGenerator.cc,v $
+ * Revision 1.20  1999/11/10 15:46:25  calderon
+ * Made changes to reduce timing, including:
+ * Made coordinate transfrom a data member of StTrsAnalogSignalGenerator
+ * Added upper-lower bound instead of symmetric cut.
+ * Revived checking if signal is above threshold.
+ *
  * Revision 1.19  1999/11/05 22:18:16  calderon
  *
  * Made private copy constructor and operator= in StTrsDigitalSector.
@@ -167,6 +173,7 @@ void StTrsFastDigitalSignalGenerator::digitizeSignal()
 		
 		unsigned char digitalAmplitude = 
 		    do10to8Translation(temporary_digitalAmplitude);
+		
 		
 		timeBinIndex = static_cast<int>(mTimeSequenceIterator->time());
 		// Normal processing without shift
