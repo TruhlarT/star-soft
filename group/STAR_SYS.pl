@@ -1,6 +1,8 @@
-#!/usr/bin/env perl
+#!/opt/star/bin/perl
 #
 # Perl version of the script that sets the STAR_SYS architecture variable
+# This is used in a require() statement and cannot be changed to use
+# /usr/bin/env ...
 #
 # T. Wenaus
 #
