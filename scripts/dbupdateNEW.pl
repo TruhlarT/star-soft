@@ -23,7 +23,7 @@ my @dir_year = ("year_2001","year_1h");
 my @node_dir = ("trs_redhat72", "trs_redhat72_opt");
 my @node_daq = ("daq_redhat72", "daq_redhat72_opt"); 
 my @hc_dir = ("hc_lowdensity", "hc_standard", "hc_highdensity","peripheral","pp_minbias","ppl_minbias");
-my @daq_dir = ("minbias", "central", "ppMinBias");
+my @daq_dir = ("minbias", "central", "ppMinBias", "embedding");
 
 my @OUT_DIR;
 my @OUTD_DIR;
