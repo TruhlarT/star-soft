@@ -45,14 +45,16 @@ my @nodeList = ();
 my $nodenum = 0;  
 my %nodeHash = ();
 my $nodeID;
+my $ii = 0;
    
-   for ($ii=0; $ii< 211; $ii++) {
+   for (my $ik=0; $ik< 211; $ik++) {
 
-       $nodenum = 6001 + $ii;
+       $nodenum = 6001 + $ik;
        $nodeID = "rcrs" .$nodenum. ".rcf.bnl.gov";
-       $nodeList[$ii] = $nodeID ;
-#      print $nodeList[$ii], "\n"; 
-       $nodeHash{$nodeID} = $ii;
+       $nodeList[$ik] = $nodeID ;
+#      print $nodeList[$ik], "\n"; 
+       $nodeHash{$nodeID} = $ik;
+#       print  $nodeHash{$nodeID}, "\n";
   };
        $nodeList[211] = "n/a";
        $nodeHash{"n/a"} = 211;
@@ -71,8 +73,8 @@ if( $mday < 10) { $mday = '0'.$mday };
 
 
  $thisday = $year."-".$mon."-".$mday; 
-# $thisday = "2004-01-05";
- $today = $thisday;
+ $thisday = "2004-05-18";
+# $today = $thisday;
  print $thisday, "\n";
 $outname = "mail" . "_" .$thisday . "_" . "out";
 
@@ -113,6 +115,9 @@ open (MAILFILE, $outfile ) or die "cannot open $outfile: $!\n";
    }
       $jbStat = $wrd[1];
       if(! $jbStat ) {$jbStat = "n/a"};
+
+     if(!defined($nodeID)) {$nodeID = "n/a"};       
+      $ii = $nodeHash{$nodeID};
 
 #  print $nodeID,"  ", $jbStat, "\n";
 
@@ -155,6 +160,7 @@ close (MAILFILE);
 
 for ($ll = 0; $ll < scalar(@nodeList); $ll++) {
       $mynode = $nodeList[$ll];
+#      print "Check node name  ", $mynode, "\n";
       $nodeCrCount{$mynode} = $ndCrCount[$ll];
       $nodeAbCount{$mynode} = $ndAbCount[$ll];
       $nodeStCount{$mynode} = $ndStCount[$ll]; 
