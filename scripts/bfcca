@@ -170,6 +170,16 @@ for($i =0 ; ; $i++){
     if( ! defined($out) ){ last;}
     push(@COUTPUTS,$cout);
     push(@OUTPUTS,$out);	
+    # Well, some jobs have it created at startup, some don't
+    # causing a final staging failure. Therefore, do not trust
+    # the CRS pre-job and do it ourselves.
+    if( $cout =~ m/HPSS/){
+	$tmp = basename($out);
+	if( ! -e $tmp){
+	    print "$PRGM :: $cout -> $out missing\n";
+	    symlink($cout,$out);
+	}
+    }
 } 
 
 
@@ -212,6 +222,7 @@ if($INPUTFILE eq ""){
 
 # --- Display information -----------------------------------------
 #
+print "Job is starting on              ".localtime()."\n";
 print "Our job ID                       $JOB_ID\n";
 print "Out working directory            $PWD\n";
 print "The chain will run from library  $LIBRARY\n";
