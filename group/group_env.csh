@@ -1,7 +1,10 @@
 #!/usr/bin/csh -f
-#       $Id: group_env.csh,v 1.36 1998/07/22 21:41:31 fisyak Exp $
+#       $Id: group_env.csh,v 1.37 1998/07/23 14:28:48 wenaus Exp $
 #	Purpose:	STAR group csh setup 
 #       $Log: group_env.csh,v $
+#       Revision 1.37  1998/07/23 14:28:48  wenaus
+#       re-insert new Objy setup
+#
 #       Revision 1.36  1998/07/22 21:41:31  fisyak
 #       Move STAR_SYS  up
 #
@@ -127,6 +130,7 @@ if (${STAR_VERSION} == "") setenv STAR_VERSION ${STAR_LEVEL}
 if ($STAR_VERSION  == "SL98a" || $STAR_VERSION  == "SL98b") then
   setenv STAR $STAR_PATH/${STAR_LEVEL} ;         if ($ECHO) echo   "Setting up STAR      = ${STAR}"
   setenv STAR_LIB  $STAR/lib/${STAR_HOST_SYS};   if ($ECHO) echo   "Setting up STAR_LIB  = ${STAR_LIB}"
+  setenv STAF_LIB 
 else  
   setenv STAR $STAR_PATH/${STAR_VERSION} ;       if ($ECHO) echo   "Setting up STAR      = ${STAR}"
   setenv STAF_LIB  $STAR/asps/../.${STAR_HOST_SYS}/lib  ; if ($ECHO) echo   "Setting up STAF_LIB  = ${STAF_LIB}"
@@ -266,14 +270,9 @@ if ( -f $GROUP_DIR/rootenv.csh) then
   source $GROUP_DIR/rootenv.csh
 endif
 
-# Objy 5.00
-if (-f /opt/objy/objy500/setup.csh) then
-  source  /opt/objy/objy500/setup.csh
-  # BaBar
-  setenv BFROOT /star/sol/packages/BaBar
-  setenv BFSITE starbnl
-  setenv OBJYBASE $OBJY_HOME
-endif
+# Objectivity
+source $GROUP_DIR/ObjySetup.csh
+
 # Geant4
 setenv G4PROTO /star/sol/packages/geant4/prototype
 setenv RWBASE /star/sol/packages/rogue/workspaces/SOLARIS25/SUNPRO42/12s
