@@ -63,7 +63,7 @@ my $err;
 
 my $i = 0;
 my $m_time;
-my $c_time;
+my $c_time=1;
 my $pmtime;
 
 my @fc;
@@ -279,16 +279,27 @@ sub define_trigger {
     my ($lname,$jname) = @_;
     my @temp;
     my $i = 0;
-    #define Trigger
+
+    # define Trigger, use a default value
+    $Trigger = "unknown";
     @temp = split(/_/, $jname);
-    while( $temp[$i++] ne $ProdTag ) {}
-    $Trigger = $temp[$i];
-    if ( substr($Trigger,0,1) eq "2" ){
-      # Wrong field. Trigger is missing and we
-      # grabbed the next item = date.
-      $Trigger = "unknown";
+
+    if($#temp == -1){ return;}
+    print "Looking at $jname\n";
+
+    # We assume that the trigger name will be after the Prodtag
+    # appearance in the file name.
+    while( $temp[$i++] ne $ProdTag ) {
+	if($i == $#temp){ last;}
     }
-    $c_time = 1;
+
+    if ( substr($temp[$i],0,1) eq "2" || $i == ($#temp-1)){
+	# Wrong field. Trigger is missing and we
+	# grabbed the next item = date.
+	return;
+    } else {
+	$Trigger = $temp[$i];
+    }
 }
 
 #=======================================
