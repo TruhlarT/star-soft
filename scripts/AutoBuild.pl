@@ -1,6 +1,6 @@
 #!/usr/bin/env perl
 
-# $Id: AutoBuild.pl,v 1.21 2004/07/09 21:12:19 jeromel Exp $
+# $Id: AutoBuild.pl,v 1.22 2004/10/22 20:23:31 jeromel Exp $
 # This script was written to perform an automatic compilation
 # with cvs co and write some html page related to it afterward.
 # Written J.Lauret Apr 6 2001
@@ -24,6 +24,7 @@ $CVSCMDR = "cvs -q checkout -A";     # first timer directory or real checkout
 $CVSUPDC = "cvs update -A";          # update command
 $BY      = 50;                       # checkout by
 @DIRS    = IUSourceDirs();           # default relative directories to checkout
+
 
 # tasks to peform after compilation
 $DFILE   = "RELEASE.date";
@@ -244,6 +245,8 @@ if( -e $FLNMRC){
 		chomp(@items);
 		if( uc($items[0]) eq "SKIP_DIRS"){
 		    push(@SKIP,$items[1]);
+		} elsif ( uc($items[0]) eq "CO_DIRS"){
+		    push(@CODIRS,$items[1]);
 		}
 	    }
 	}
@@ -254,13 +257,17 @@ if( -e $FLNMRC){
 
 #
 # Do the CVS fake-checkout or checkout of directories
-# declared in @DIRS
+# declared in @DIRS . "fake" simply means that this
+# is done using the -n option which will only list
+# what needs update (and not really do anything).
+# Note that @DIRS contains base level directories so
+# the CODIRS have to be treated sperately.
 #
 if($NIGNOR){
     foreach $dir (@DIRS){
 	IULockWrite(" Inspecting $dir");
 	print $FILO " + Inspecting $dir\n";
-	if( -d $dir){
+	if( -d $dir ){
 	    @res = `$CVSCMDT $dir`;
 	} else {
 	    @res = `$CVSCMDR $dir`;
@@ -272,15 +279,56 @@ if($NIGNOR){
 		push(@UPDATES,(split(" ",$line))[1]);
 	    } elsif ($line =~ m/^M /){
 		push(@MERGED,(split(" ",$line))[1]);
+	    } elsif ($line !~ m/^\? /){
+		push(@DONOTKNOW,$line);
 	    }
 	}
     }
+    # the code is somewhat cleare with 2 loops but could
+    # benefit from a double loop for easier maintainance
+    # as there are code replication here ...
+    foreach $dir (@CODIRS){
+	if ( $dir =~ m/^\s*$/){
+	    IULockWrite(" Fully Inspecting -- got empty string (bogus) [$dir]");
+	    next;
+	}
+	if ( defined($ENV{STAR_HOST_SYS}) ){
+	    # expand to be safer (i.e. avoid syntax mistakes leading to
+	    # disaster)
+	    my(@dirst) = glob(".".$ENV{STAR_HOST_SYS}."/*/$dir");
+	    if ($#dirst != -1){
+		foreach my $dd (@dirst){
+		    # Don't do it for now
+		    push(@PRECOMPILE,"echo \"We would rm -fr $dd\"");
+		}
+	    }
+	}
+	IULockWrite(" Fully Inspecting for new code $dir");
+	print $FILO " + Fully Inspecting for new code $dir\n";
+	@res = `$CVSCMDR $dir`;
+	if($? != 0){ $fail++;}
+	foreach $line (@res){
+	    if($line =~ m/^U /){
+		push(@UPDATES,(split(" ",$line))[1]);
+	    } elsif ($line =~ m/^M /){
+		push(@MERGED,(split(" ",$line))[1]);
+	    } elsif ($line !~ m/^\? /){ 
+		push(@DONOTKNOW,$line);
+	    }
+	}
+    }
+
+
     if($fail != 0){
 	print $FILO "$CVSCMDT problems prevents continuation ...\n";
 	push(@REPORT,"$CVSCMDT problems prevents continuation ...");
 	&Exit($fail);
     }
+
 }
+
+
+
 
 # Output this out. Note that we will update ONLY what was
 # caught in the above search. This will avoid interim commit
@@ -314,6 +362,7 @@ if($#UPDATES != -1){
     push(@REPORT,"</UL>");
 }
 
+
 #
 # Displaying code which needs to be 'M' moved happened already.
 #
@@ -322,7 +371,7 @@ if($#MERGED != -1){
     print $FILO
 	"\n",
 	" - List of un-comitted code will follow ...\n";
-    push(@REPORT,"%%REF%%<H2>List of code found with conflicting cvs version.</H2>");
+    push(@REPORT,"%%REF%%<H2>List of code found with conflicting CVS version.</H2>");
     push(@REPORT,"Those re codes modified on disk and NOT commited ");
     push(@REPORT,"in the repository. This may be a mistake or an experimental ");
     push(@REPORT,"version. Please, <U>delete or commit</U> them now !! ");
@@ -334,6 +383,24 @@ if($#MERGED != -1){
     push(@REPORT,"</UL>");
 }
 
+#
+# Debug those out (who knows what it may contain)
+#
+IULockWrite("Dealing with unknown CVS reports");
+if ($#DONOTKNOW != -1){
+    print $FILO
+	"\n",
+	" - List of unknown problems will follow ...\n";
+    push(@REPORT,"%%REF%%<H2>List of unknown CVS problems</H2>");
+    push(@REPORT,"<UL>");
+    foreach $line (@DONOTKNOW){
+	push(@REPORT," <LI><TT>$line</TT>");
+	print $FILO "   $line\n";
+    }
+    push(@REPORT,"</UL>");
+}
+
+
 
 #
 # Ask for confirmation or proceed depending on interractive
@@ -341,11 +408,19 @@ if($#MERGED != -1){
 # would occur so the librarian can decide if it is correct.
 #
 print $FILO " - Compilation will exclude [".join(" ",@SKIP)."]\n";
+
+if ($#PRECOMPILE != -1){
+    foreach $line (@PRECOMPILE){
+	print $FILO " - Pre-Compilation commands includes [$line]\n"
+    }
+}
+
 print $FILO " - Compilation commands will be \n";
 foreach $line (sort keys %COMPILC){
     print $FILO "   ".($COMPILC{$line}?"MANDATORY":"OPTIONAL ")." '$line'\n";
 }
 print $FILO "\n";
+
 
 if(! $SILENT){
     print $FILO " Is this OK ? y/u/i/[n] ";
@@ -357,6 +432,9 @@ if(! $SILENT){
     elsif($NIGNOR){  $ans = "i";}   # ignore i.e. compile now without updating the tree
     else {           $ans = "n";}   # absolutly not. Stop ASAP.
 }
+
+
+
 
 #
 # On "yes" answer, performs the real update
@@ -463,6 +541,25 @@ if($fail != 0){ &Exit($fail); }
 $PASSM   = "";   # pass message
 $PASSN   = 0;    # pass number
 
+
+#
+# pre-compilation is needed once only
+#
+if ($#PRECOMPILE != -1){
+    push(@REPORT,"%%REF%%<H2>Pre-compilation command were auto-detected</H2>");
+    push(@REPORT,"<UL>");
+    foreach $line (@PRECOMPILE){
+	#push(@REPORT,"<LI><TT>$line</TT>");
+	if ( &Execute($line) == 0){
+	    push(@REPORT,"<LI><TT>".IUl2pre($line)."</TT> ".&STRsts(0));
+	} else {
+	    push(@REPORT,"<LI><TT>".IUl2pre($line)."</TT> ".&STRsts(1));
+	}
+    }
+    push(@REPORT,"</UL>");
+}
+
+
 COMPILE_BEGIN:
 {
     # a global flag will also be used and incremented in Execute()
@@ -472,7 +569,7 @@ COMPILE_BEGIN:
     # Pass number information
     if ($PASSN != 0){  $PASSM = "(pass # $PASSN)";}
 
-    push(@REPORT,"%%REF%%<H2>Compilation report $PASSN</H2>");
+    push(@REPORT,"%%REF%%<H2>Compilation report (pass $PASSN)</H2>");
     push(@REPORT,"<UL>");
 
     # hum ! @ = keys did not put it in the same order.
@@ -580,9 +677,9 @@ if($fail == 0){
     push(@REPORT,"<UL>");
     foreach $tmp (@POSTSKS){
 	if (&Execute($tmp) == 0){
-	    push(@REPORT,"<LI><tt>".IUl2pre($tmp)."</tt> ".&STRsts(0));
+	    push(@REPORT,"<LI><TT>".IUl2pre($tmp)."</TT> ".&STRsts(0));
 	} else {
-	    push(@REPORT,"<LI><tt>".IUl2pre($tmp)."</tt> ".&STRsts(1));
+	    push(@REPORT,"<LI><TT>".IUl2pre($tmp)."</TT> ".&STRsts(1));
 	}
     }
 }
