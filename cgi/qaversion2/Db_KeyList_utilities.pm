@@ -206,23 +206,26 @@ sub GetOfflineKeys{
   my $dataType     = shift; # real or MC
   my $prodOptions   = shift; # e.g. "$prodSeries;$chainName"
   my $runID         = shift; # e.g. 124
-  my $QAstatus_arg  = shift; # e.g. "warnings;$macroName" or "ok"
+  my $QAstatus_arg  = shift; # e.g. "ok"
   my $jobStatus     = shift; # e.g. 'not done'
   my $createTime    = shift; # e.g. three_days
   my $dataset       = shift;
+  my $QAdoneTime    = shift;
 
 
   #---------------------------------------------------------------------
   # pmj 28/6/00 display keys with header, table formatting
 
-  my @db_key_strings;
-  push @db_key_strings, "dataType = $dataType<br>";
-  push @db_key_strings, "prodOptions = $prodOptions<br>";
-  push @db_key_strings, "runID = $runID<br>";
-  push @db_key_strings, "jobStatus = $jobStatus<br>";
-  push @db_key_strings, "QAstatus_arg = $QAstatus_arg<br>";
-  push @db_key_strings, "createTime = $createTime<br>";
-  push @db_key_strings, "dataset = $dataset<br>";
+  my @db_key_strings =
+    (
+     "dataType = $dataType<br>",
+     "prodOptions = $prodOptions<br>",
+     "runID = $runID<br>",
+     "jobStatus = $jobStatus<br>",
+     "QAstatus_arg = $QAstatus_arg<br>",
+     "createTime = $createTime<br>",
+     "dataset = $dataset<br>"
+  );
 
   PrintTableOfKeys(@db_key_strings);
   #----------------------------------------------------------------
@@ -301,7 +304,7 @@ sub GetOfflineKeys{
   # $QAstatus_string must be the last line in the 'where' clause
 
   my ($QAstatus_string, $macro_string, $macro_where_string, $macro_from_string) 
-    = ProcessQAStatusQuery($QAstatus,$macroName);
+    = ProcessQAStatusQuery($QAstatus,$QAdoneTime,$macroName);
   
   my $query = qq{select distinct sum.$QASum{report_key}
 		 from $dbQA.$QASum{Table} as sum
@@ -323,7 +326,7 @@ sub GetOfflineKeys{
 		      $QAstatus_string
 		limit $selectLimit };
 
-#  print $query if $gBrowser_object->ExpertPageFlag;
+  print "$query\n" if $gBrowser_object->ExpertPageFlag;
 
   return GetReportKeys($query, $selectLimit);
 
@@ -362,20 +365,24 @@ sub GetNightlyKeys{
   my $ondisk        = shift;
   my $jobStatus     = shift;
   my $createTime    = shift; 
+  my $QAdoneTime    = shift;
 
   #---------------------------------------------------------------------
   # pmj 28/6/00 display keys with header, table formatting
 
-  my @db_key_strings;
-  push @db_key_strings, "eventGen     = $eventGen<br>";
-  push @db_key_strings, "LibLevel     = $LibLevel<br>";
-  push @db_key_strings, "platform     = $platform<br>";
-  push @db_key_strings, "eventType    = $eventType<br>";
-  push @db_key_strings, "geometry     = $geometry<br>";
-  push @db_key_strings, "QAstatus_arg = $QAstatus_arg<br>";
-  push @db_key_strings, "ondisk       = $ondisk<br>";
-  push @db_key_strings, "jobStatus    = $jobStatus<br>";
-  push @db_key_strings, "createTime   = $createTime<br>";
+  my @db_key_strings = 
+    (
+     "eventGen     = $eventGen<br>",
+     "LibLevel     = $LibLevel<br>",
+     "platform     = $platform<br>",
+     "eventType    = $eventType<br>",
+     "geometry     = $geometry<br>",
+     "QAstatus_arg = $QAstatus_arg<br>",
+     "ondisk       = $ondisk<br>",
+     "jobStatus    = $jobStatus<br>",
+     "createTime   = $createTime<br>",
+     "QAdoneTime   = $QAdoneTime<br>"
+    );
 
   PrintTableOfKeys(@db_key_strings);
   #----------------------------------------------------------------
@@ -421,9 +428,7 @@ sub GetNightlyKeys{
   }
   
   # when was the job created?
-  if ($createTime ne 'any'){
-    $createTime_string = ProcessJobCreateTimeQuery($createTime);    
-  }
+  $createTime_string = ProcessJobCreateTimeQuery($createTime);    
 
   # --- job status info ---
   # only join with jobStatus if client queries jobStatus
@@ -462,7 +467,7 @@ sub GetNightlyKeys{
   # used when no warnings or errors are specified
 
   my ($QAstatus_string, $macro_string, $macro_where_string, $macro_from_string) 
-    = ProcessQAStatusQuery($QAstatus,$macroName);
+    = ProcessQAStatusQuery($QAstatus,$QAdoneTime,$macroName);
   
   #query ...
   my $query = qq{ select distinct sum.$QASum{report_key}
@@ -488,7 +493,7 @@ sub GetNightlyKeys{
 		 limit $selectLimit };
   
   # for debugging
-#  print $query if $gBrowser_object->ExpertPageFlag;
+  #print "$query\n" if $gBrowser_object->ExpertPageFlag;
 
   return GetReportKeys($query, $selectLimit);
 
@@ -515,6 +520,8 @@ sub GetNightlyKeysMC{
 
 sub ProcessJobCreateTimeQuery{
   my $createTime = shift;
+
+  return if $createTime eq 'any';
 
   my $createTime_string;
 
@@ -559,28 +566,63 @@ sub ProcessJobStatusQuery{
 # Macro from clause (optional - to join the table if needed),
 # Macro clause
 
+# 07/12/01 - new qa fields
+# 'any','done','done and ok','done and not ok',
+# 'done and analyzed','done and not analyzed',
+# 'not done', 'running'
+#
+
 sub ProcessQAStatusQuery{
   my $QAstatus  = shift;
+  my $QAdoneTime = shift;
   my $macroName = shift;
 
   my ($QAstatus_string, $macro_string);
   my ($macro_from_string, $macro_where_string);
-  
+  my $QAdoneTime_string;
+
+  # create time string
+  if($QAdoneTime ne 'any' && 
+     ($QAstatus ne 'not done' && $QAstatus ne 'running')){
+    my $now = strftime("%Y-%m-%d %H:%M:%S", localtime());
+    my $days;
+    $days = 1  if $QAdoneTime eq 'one_day';
+    $days = 3  if $QAdoneTime eq 'three_days';
+    $days = 7  if $QAdoneTime eq 'seven_days';
+    $days = 14 if $QAdoneTime eq 'fourteen_days';
+    
+    $QAdoneTime_string  = 
+      " (to_days('$now')-to_days(sum.$QASum{QAdate}))<= $days and ";
+  }
+   
   if ($QAstatus ne 'any')
   {
     if ($QAstatus ne 'warnings' and $QAstatus ne 'errors')
     { # dont need to join with macros table
       
-      $QAstatus_string = "sum.$QASum{QAok}='Y'"   if $QAstatus eq 'ok';
-      $QAstatus_string = "sum.$QASum{QAok}='N'"   if $QAstatus eq 'not ok';
-      $QAstatus_string = "sum.$QASum{QAdone}='Y'" if $QAstatus eq 'done';
-      $QAstatus_string = "sum.$QASum{QAdone}='N'" if $QAstatus eq 'not done';
-      $QAstatus_string = "sum.$QASum{QAdone}='in progress'" if $QAstatus eq 'in progress';
-      $QAstatus_string = "sum.$QASum{QAdone}='Y' and sum.$QASum{QAanalyzed}='Y' "
-	if $QAstatus eq 'analyzed by shift';
-      $QAstatus_string = "sum.$QASum{QAdone}='Y' and sum.$QASum{QAanalyzed}='N' "
-	if $QAstatus eq 'not analyzed by shift';
-      
+      # QAok should be 'n/a' unless QA is done,
+      # but just to be safe, requre both to be true.
+      if($QAstatus eq 'done'){
+	$QAstatus_string = "sum.$QASum{QAdone}='Y'";
+      }
+      elsif($QAstatus eq 'done and ok'){
+	$QAstatus_string = "sum.$QASum{QAdone}='Y' and sum.$QASum{QAok}='Y'";
+      }
+      elsif($QAstatus eq 'done and not ok'){
+	$QAstatus_string = "sum.$QASum{QAdone}='Y' and sum.$QASum{QAok}='N'";
+      }
+      elsif($QAstatus eq 'done and analyzed'){
+	$QAstatus_string = "sum.$QASum{QAdone}='Y' and sum.$QASum{QAanalyzed}='Y'";
+      }
+      elsif($QAstatus eq 'done and not analyzed'){
+	$QAstatus_string = "sum.$QASum{QAdone}='Y' and sum.$QASum{QAanalyzed}='N'";
+      }
+      elsif($QAstatus eq 'not done'){
+	$QAstatus_string = "sum.$QASum{QAdone}='N'";
+      }
+      elsif($QAstatus eq 'running'){
+	$QAstatus_string = "sum.$QASum{QAdone}='in progress'";
+      }
     }
     elsif ($QAstatus eq 'warnings' or $QAstatus eq 'errors')
     { 
@@ -596,6 +638,8 @@ sub ProcessQAStatusQuery{
     else {die "Wrong argument $QAstatus"}
   }
   else {$QAstatus_string = "1>0";}
+
+  $QAstatus_string = "$QAdoneTime_string $QAstatus_string";
 
   return ($QAstatus_string, $macro_string, $macro_where_string, $macro_from_string);
 }

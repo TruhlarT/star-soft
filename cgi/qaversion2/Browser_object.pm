@@ -241,19 +241,20 @@ sub StartingDisplay{
 
   #-----------------------------------------------------------------------------
   # -- display backup status
+  # temporarily remove this
   
-  $io = new IO_object("BackupStatusFile");
-  $fh = $io->Open();
+#  $io = new IO_object("BackupStatusFile");
+#  $fh = $io->Open();
 
-  $fh and do{
-    $line = <$fh>;
-    chomp $line;
-    print "Last backup at $line <br>\n";
-  };
+#  $fh and do{
+#    $line = <$fh>;
+#    chomp $line;
+#    print "Last backup at $line <br>\n";
+#  };
 
-  $fh or do{
-      print "No backup available. <br>\n";
-  };
+#  $fh or do{
+#      print "No backup available. <br>\n";
+#  };
 
   #---------------------------------------------------------------
   # check for running batch jobs and report if update in progress

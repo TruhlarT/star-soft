@@ -47,7 +47,8 @@ sub JobPopupMenu{
 			     'QAstatus',
 			     'onDisk',
 			     'jobStatus',
-			     'createTime' 
+			     'createTime',
+			     'QAdoneTime'
 			   ];
   # selection labels for the user
   $self->{select_labels} = { eventGen  => 'event gen',
@@ -57,8 +58,9 @@ sub JobPopupMenu{
 			     geometry  => 'geometry',
 			     onDisk    => 'on disk',
 			     QAstatus  => 'QA status',
-			     jobStatus => 'job status',
-			     createTime=> 'job createTime'
+			     jobStatus => 'prod job status',
+			     createTime=> 'prod job create time',
+			     QAdoneTime=> 'QA done time'
 			   };
 
   # possible values for each selection field
@@ -86,28 +88,27 @@ sub JobPopupMenu{
   push @{$self->{values}{onDisk}}, ('on disk', 'not on disk');
   
   # job status 
-  push @{$self->{values}{jobStatus}}, ('done', 'not done');
+  $self->FillJobStatusMenu();
 
   # QA status
   my @macro_names = @{$select_ref->{macroName}};
 
   $self->FillQAStatusMenu(@macro_names);
     
-  # createTime
-  push @{$self->{values}{createTime}}, ('one_day', 'three_days','seven_days', 'fourteen_days');
+  # job createTime
+  $self->FillJobCreateTimeMenu();
   
-  $self->{labels}{createTime}{one_day} = 'within last 24 hours';
-  $self->{labels}{createTime}{three_days} = 'within last 3 days';
-  $self->{labels}{createTime}{seven_days} = 'within last 7 days';
-  $self->{labels}{createTime}{fourteen_days} = 'within last 14 days';
-  
+  # -- qa done time --
+  $self->FillQADoneTimeMenu();
+
   # set defaults
   # unless specified otherwise, default will be 'any'
   $self->{defaults}{eventGen}   = 'hadronic_cocktail';
   $self->{defaults}{LibLevel}   = 'dev';
   $self->{defaults}{onDisk}     = 'on disk';
   $self->{defaults}{QAstatus}   = 'done';
-  $self->{defaults}{createTime} = 'seven_days';
+  #$self->{defaults}{createTime} = 'seven_days';
+  $self->{defaults}{QAdoneTime} = 'seven_days';
 
   my $submit_string = br.$gCGIquery->submit('Display datasets');
 
@@ -131,6 +132,7 @@ sub JobPopupMenu{
 			      ,'geometry'
 			      ,'onDisk'
 			      ,'createTime'
+			      ,'QAdoneTime'
 			     )
 	                      ,$submit_string
 	])

@@ -551,7 +551,9 @@ sub ResetInProgressFlag{
 # 
 sub FlagQAAnalyzed{
   my $qaID = shift;
-  return UpdateQASummary($QASum{QAanalyzed},'Y',$qaID);
+  my $value = shift;
+
+  return UpdateQASummary($QASum{QAanalyzed},$value,$qaID);
 }
 #----------
 #
@@ -694,7 +696,7 @@ sub WriteQAMacroSummary{
     $errors   = ($nError > 10) ? ">10" : $nError;
     $warnings = ($nWarn > 10) ? ">10" : $nWarn;
     
-    ($errors or $warnings) and $qaStatus = 0;
+    #($errors or $warnings) and $qaStatus = 0;
   }
 
   my $query;

@@ -188,15 +188,24 @@ sub FillQAStatusMenu{
 
   # now fill in errors and warnings info
   my $abbrev;
-  push @{$self->{values}{QAstatus}}, 
-  ( 'ok','not ok','done','not done','in progress',
-    'analyzed by shift','not analyzed by shift');
-  
+#  push @{$self->{values}{QAstatus}}, 
+#  ( 'ok','not ok','done','not done','in progress',
+#    'analyzed by shift','not analyzed by shift');
+
+  # field 'any' is appended later.
+  push @{$self->{values}{QAstatus}},
+  ( 'done','done and ok','done and not ok',
+    'done and analyzed','done and not analyzed',
+    'not done','running');
+    
+
+ 
   %{$self->{labels}{QAstatus}} = map{$_, $_} @{$self->{values}{QAstatus}};
 
   # remove errors and warnings info for now
   return;
 
+  #----------------------------------------
   foreach my $status ('warnings', 'errors') {
 
     push @{$self->{values}{QAstatus}}, "$status";
@@ -210,6 +219,46 @@ sub FillQAStatusMenu{
     }
   }
 }
+#==================================================================
+
+sub FillJobStatusMenu{
+  my $self        = shift;
+  
+  no strict 'refs';
+
+  push @{$self->{values}{jobStatus}}, ('done','not done');
+}
+
+#==================================================================
+
+sub FillJobCreateTimeMenu{
+  my $self        = shift;
+  
+  no strict 'refs';
+
+  push @{$self->{values}{createTime}}, ('one_day', 'three_days','seven_days', 'fourteen_days');
+
+  $self->{labels}{createTime}{one_day} = 'within last 24 hours';  
+  $self->{labels}{createTime}{three_days} = 'within last 3 days';
+  $self->{labels}{createTime}{seven_days} = 'within last 7 days';
+  $self->{labels}{createTime}{fourteen_days} = 'within last 14 days';
+}
+
+#==================================================================
+
+sub FillQADoneTimeMenu{
+  my $self        = shift;
+  no strict 'refs';
+
+  push @{$self->{values}{QAdoneTime}}, ('one_day', 'three_days','seven_days', 'fourteen_days');
+
+  $self->{labels}{QAdoneTime}{one_day} = 'within last 24 hours';  
+  $self->{labels}{QAdoneTime}{three_days} = 'within last 3 days';
+  $self->{labels}{QAdoneTime}{seven_days} = 'within last 7 days';
+  $self->{labels}{QAdoneTime}{fourteen_days} = 'within last 14 days';
+
+}
+
 #==================================================================
 # make a table row of popup menus
 # uses ben's clever mapping technique

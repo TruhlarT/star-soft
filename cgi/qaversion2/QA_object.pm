@@ -41,8 +41,8 @@ my %members =
     _LogReport           => undef, # pointer to Logreport_object
     _IOControlFile       => undef, # the brains behind running the macros
     _QADone              => undef, # QA done or not?   
-    _QADate              => undef  # date the QA was done  
-    
+    _QADate              => undef,  # date the QA was done  
+    _QAAnalyzed          => undef  # analyzed by shift?
   );
 #========================================================
 # 
@@ -127,6 +127,8 @@ sub _init{
 						   $self->ReportKey);
   $self->{_QADate} = QA_db_utilities::GetFromQASum($QASum{QAdate}, 
 						   $self->ReportKey);
+  $self->{_QAAnalyzed} = QA_db_utilities::GetFromQASum($QASum{QAanalyzed},
+						      $self->ReportKey);
 
   # is data on disk? - see derived classes
   
@@ -218,9 +220,11 @@ sub DoQA{
     
     # add qa macro summary to the database.
     # WriteQAMacroSummary returns 0 if something's bad
-    QA_db_utilities::WriteQAMacroSummary($self->qaID,$report_obj, $run_option) 
-      or $qa_status=0;
     
+    $qa_status = 
+      QA_db_utilities::WriteQAMacroSummary($self->qaID,$report_obj, 
+					   $run_option);
+       
   }
   close $fh;
 
@@ -315,7 +319,16 @@ sub QASummaryString{
   } 
   elsif ( $self->QADone eq 'Y')  # qa indeed has been done
   {
-    $summary_string = "QA done ".br.$self->QADate.br.br;
+    $summary_string = "QA done ".br.$self->QADate.br;
+
+    # analyzed or not?
+    if($self->QAAnalyzed eq 'Y'){
+      $summary_string .= "<font color=green>analyzed by shift</font>".br.br;
+    }
+    else{
+      $summary_string .= "<font color=blue>Not analyzed by shift</font>".br.br;
+    } 
+      
 
     # get specific macro info
     # ref is a ref to a 2-d array
@@ -518,6 +531,9 @@ sub ButtonString{
     $button_string .= "<br>";
   }
   
+  
+  
+
   # for experts : do qa, redo qa, do evaluation
   if ($expert_page){
 
@@ -529,7 +545,7 @@ sub ButtonString{
       $self->OnDisk and do {	
 	$button_ref = Button_object->new('RedoQaBatch', 'Redo QA (batch)', 
 					 $report_key);
-	$button_string .= $button_ref->SubmitString;
+	$button_string .= $button_ref->SubmitString."<br>";
 
       };
     }
@@ -537,18 +553,32 @@ sub ButtonString{
       $self->OnDisk and do {	
 	$button_ref = Button_object->new('DoQaBatch', 'Do QA (batch)', 
 					 $report_key);
-	$button_string .= $button_ref->SubmitString;
+	$button_string .= $button_ref->SubmitString."<br>";
 
       };
     }
     elsif ($self->QADone eq 'in progress'){
       $button_ref = Button_object->new('ResetInProgress', 'Reset in progress', 
 				       $report_key);
-      $button_string .= $button_ref->SubmitString;
+      $button_string .= $button_ref->SubmitString."<br>";
 
     }
   }
 
+  # set analyzed (by shift member)
+  if($self->QADone eq 'Y'){
+    my ($title,$value);
+    if($self->QAAnalyzed eq 'Y'){
+      $title = "Unset QA Analyzed"; $value = 'N';
+    }
+    elsif($self->QAAnalyzed eq 'N'){
+      $title = "Set QA Analzyed"; $value = 'Y';
+    }
+    $button_ref = Button_object->new('RequestQAAnalyzed',$title,
+				     $report_key,$self->qaID(),$value);
+    $button_string .= $button_ref->SubmitString."<br>";
+
+  }
   # return 
   return $button_string;
 
@@ -1336,6 +1366,13 @@ sub QADate{
   $self->{_QADate} = shift if @_;
   return $self->{_QADate};
 }
+
+sub QAAnalyzed{
+  my $self = shift;
+  $self->{_QAAnalyzed} = shift if @_;
+  return $self->{_QAAnalyzed};
+}
+
 
 # pmj 4/6/00
 sub CompareReport_obj{

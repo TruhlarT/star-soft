@@ -22,6 +22,7 @@ use Server_utilities;
 use Browser_object;
 use QA_globals;
 use QA_utilities;
+use QA_db_utilities qw(:db_globals); 
 
 use CompareReport_object;
 
@@ -738,4 +739,69 @@ sub SetUserReference{
   #---
   print "<h4>Data set $report_key added to references</h4>\n";
 
+}
+#===========================================================
+
+sub RequestQAAnalyzed{
+  my $self      = shift;
+
+  my $reportKey = $self->ReportKey();
+  my ($qaID,$value) = $self->Args(); # 'N' unset, 'Y' set
+
+#  print "$reportKey, $value<br>\n";
+
+  my $script_name = $gCGIquery->script_name;
+  my $hidden_string = $gBrowser_object->Hidden->Parameters;
+
+  # this saves the button object in a peristent hash so that
+  # when the browser is run again, it will call this method.
+  my $ref = new Button_object('SetQAAnalyzed','blah',$reportKey,$qaID,$value);
+  $gCGIquery->param($ref->ButtonName(),$ref->ButtonValue());
+
+  print
+    h3("Enter password:") . 
+      $gCGIquery->startform(-action=>"$script_name/lower_display", -TARGET=>"display") .
+	$gCGIquery->password_field('analyzed_pw', '', 20, 20) .
+	  $hidden_string . 	     
+	    $gCGIquery->hidden($ref->ButtonName()) . 
+	    $gCGIquery->endform ."\n";;
+  
+  
+
+}
+
+#===========================================================
+
+sub SetQAAnalyzed{
+  my $self      = shift;
+
+  my $reportKey = $self->ReportKey();
+  my ($qaID,$value) = $self->Args();
+
+  #print "reportKey=$reportKey, value=$value<br><br>qaID=$qaID";
+
+  if($gCGIquery->param('analyzed_pw') eq 'qaexpert'){
+    
+    my $stat = QA_db_utilities::FlagQAAnalyzed($qaID,$value);
+
+#    print "stat=$stat";
+
+    if(!($stat+=0)){
+      print h3("Cannot update QA analyzed for $reportKey?");
+      my $oldValue=QA_db_utilities::GetFromQASum($QASum{QAanalyzed},$reportKey);
+      print h3("old QA analyzed=$oldValue. new QA analyzed=$value\n");
+    }
+    else{
+      if($value eq 'Y'){
+	print h3("QA analyzed has been <font color=green>SET</font> ");
+      }
+      else{
+	print h3("QA analyzed has been <font color=blue>UNSET</font> ");
+      }
+      print h3("for report key = $reportKey\n");
+    }
+  }
+  else{
+    print h3("<font color=red>Sorry. Wrong password</font>\n");
+  }
 }
