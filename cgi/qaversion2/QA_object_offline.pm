@@ -57,9 +57,18 @@ sub DataDisplayString{
     if $gBrowser_object->ExpertPageFlag;
 
   my $runID = $self->LogReport->RunID;
+
   # make a link to the run log
-  my $link  = "http://onlsun1.star.bnl.gov/cgi-bin/porter" .
+  my $link;
+  if ($runID < 1193000){
+    $link  = "http://onlsun1.star.bnl.gov/cgi-bin/porter" .
               "/dbRunData.pm?runnumber='$runID'";
+  }
+  else {
+    $link  = "http://ch2linux.star.bnl.gov/RunLogBrowser" .
+             "/Summary.php3?run=$runID";
+  }
+ 
   my $ahref = "<a href=$link target='runlog'>RunLog</a>"
 	if $gDataClass_object->DataClass() =~ /real/;
 
@@ -69,7 +78,7 @@ sub DataDisplayString{
 	 "File seq : " . $self->LogReport->FileSeq . br .
 	 "Dataset : " . $self->LogReport->Dataset . br . 
 	 "Redone  : " . $self->LogReport->{_Redone} .br .
-	 $ahref;
+	 $ahref ."\n";
 }
 
 

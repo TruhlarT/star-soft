@@ -184,8 +184,7 @@ print("$action-ing....\n");
 	}
         else{ # no longer on disk. just flag as done
 	      # so it doesnt get picked up on the next iteration.
-	  my $qaID = QA_db_utilities::GetFromQASum('qaID',$report_key);
-	  QA_db_utilities::FlagQADone($qaID);
+	  QA_db_utilities::FlagQADone($qa->qaID);
 	}
 
 print("....done $action-ing\n");
