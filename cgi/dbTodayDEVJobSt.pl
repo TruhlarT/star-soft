@@ -80,7 +80,7 @@ struct FileAttr => {
  $testDay = $Nday[$iday - 1];
 
 # print "Today Date :", $thisDay, "\n";
-  print $mdate, "\n"; 
+#  print $mdate, "\n"; 
  
 &StDbTJobsConnect();
 
