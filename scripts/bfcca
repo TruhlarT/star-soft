@@ -516,10 +516,12 @@ if ($COMPRS){
 # and loading. Peffered shell will be csh (available on ALL
 # flavor of Unix) rather than tcsh which needs to be installed.
 
-if ( $ENV{"CRS_JOB_NAME"} ){
-    $RPROG = "echo";
-} else {
-    $RPROG = "root4star";
+$RPROG = "root4star";
+
+if ( defined($ENV{"CRS_JOB_NAME"}) ){
+    if ( $ENV{"CRS_JOB_NAME"} =~ /test_bfcc/ ){
+	$RPROG = "echo";
+    } 
 }
 
 if ( ! open(FO,">$PWD/$JOB_ID.csh") ){
@@ -549,7 +551,7 @@ if ( ! open(FO,">$PWD/$JOB_ID.csh") ){
 	print FO
 	    "echo \"$PRGM :: Calibration pass is starting on \`/bin/date\`\"\n",
 	    "echo \"\"\n",
-	    "$PROG -b -q '$BFC(10000,\"$chainopt\",\"$CINPUTFILE\")'\n",
+	    "$RPROG -b -q '$BFC(10000,\"$chainopt\",\"$CINPUTFILE\")'\n",
 	    "echo \"$PRGM :: Calibration is done on \`/bin/date\`\"\n";
     }
 
@@ -571,10 +573,10 @@ if ( ! open(FO,">$PWD/$JOB_ID.csh") ){
 
 	    if ($NUMEVT != -1){
 		print FO
-		    "$PROG -b -q '$BFC($NUMEVT,\"$CHAINOPT\",\"$CINPUTFILE\"$extra)'\n";
+		    "$RPROG -b -q '$BFC($NUMEVT,\"$CHAINOPT\",\"$CINPUTFILE\"$extra)'\n";
 	    } else {
 		print FO
-		    "$PROG -b -q '$BFC($MINEVT,$MAXEVT,\"$CHAINOPT\",\"$CINPUTFILE\"$extra)'\n";
+		    "$RPROG -b -q '$BFC($MINEVT,$MAXEVT,\"$CHAINOPT\",\"$CINPUTFILE\"$extra)'\n";
 	    }
 
 	} else {
@@ -593,13 +595,13 @@ if ( ! open(FO,">$PWD/$JOB_ID.csh") ){
 		for($in=0 ; $in <= $#FCINPUTS ; $in += $PERIOD){
 		    print FO
 			"#  Mode \"+\". Pass ".($in/$PERIOD+1)."\n",
-			"$PROG -b -q '$BFC(".join(",",@arg).",\"$FCINPUTS[$in]\")'\n\n",
+			"$RPROG -b -q '$BFC(".join(",",@arg).",\"$FCINPUTS[$in]\")'\n\n",
 			"if( \$status ) echo \"$PRGM :: Error: Pass $in failed ($FCINPUTS[$in])\"\n\n";
 		}
 	    } elsif( $CHAINOPT eq "/"){
 		# mode "/"
 		print FO
-		    "$PROG -b -q '$BFC(".join(",",@arg).")'\n";
+		    "$RPROG -b -q '$BFC(".join(",",@arg).")'\n";
 	    } else {
 		print "$PRGM :: Warn: I did not expect option [$CHAINOPT] in MULTI mode\n";
 	    }
