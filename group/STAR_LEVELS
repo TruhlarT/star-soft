@@ -11,7 +11,7 @@ if ( ! defined($VERSION) ){ $VERSION ="";}
 
 if ($ARGV[0] eq "-g"){
     # Guesstimator
-    $DEBUG = 0;
+    $DEBUG = $ENV{STAR_LEVELS_DEBUG};
 
     if ( ! defined($shs = $ENV{STAR_HOST_SYS}) ){  $shs = "share";}
     print "STAR_HOST_SYS = $shs\n" if ($DEBUG);
@@ -56,7 +56,7 @@ if ($ARGV[0] eq "-g"){
 	    }
 	}
 
-	if ($version ne ""){
+	if ($version ne "" && $version !~ /unspecified/){
 	    if ( lc($version) ne lc($VERSION) ){
 		if ($version ne "adev" || lc($VERSION) ne "dev") {
 		    print "Missmatching STAR environment (now in ".$VERSION.")\n";
@@ -72,7 +72,13 @@ if ($ARGV[0] eq "-g"){
 	print STDERR "Cannot guess the version (missing include/)\n";
     }
 } else {
+    # some Uglix print to STDERR
+    open(STDERR,">/dev/null");
     chomp($pgmf = `which root4star`);
+    close(STDERR);
+    # some to STDOUT
+    if ($pgmf =~ /no root4star in/i){ $pgmf = "";}
+
     if ( $pgmf ne "" ){
 	$createTime = (stat($pgmf))[10];
 	($cmin,$chr,$cdy,$cmo,$cyr) = (localtime($createTime))[1,2,3,4,5];
