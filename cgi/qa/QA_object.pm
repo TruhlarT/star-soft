@@ -627,7 +627,7 @@ sub RunQAMacros {
     } elsif ( $macro_object->NTests and not -s $macro_object->MacroReportFilename ) { 
       # bum - check if macro was run where tests were defined
     
-      my $not_run_string = " $macro_name <font color=red>not run; </font>";
+      my $not_run_string = " $macro_name <font color=red>not run; </font><br>";
       $summary_string !~ /$not_run_string/ and $summary_string .= $not_run_string;
     }
     else{		  
