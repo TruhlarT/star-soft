@@ -29,7 +29,7 @@ use Cwd;
 
 use vars qw( $CVS_id $CVS_ver $ver_num $ver_rev $version );
 
-$CVS_id = '$Id: cons,v 1.85 2003/02/11 21:50:13 jeromel Exp $ ';
+$CVS_id = '$Id: cons,v 1.86 2003/06/26 19:00:44 jeromel Exp $ ';
 $CVS_ver = (split(/\s+/, $CVS_id))[2];
 
 $ver_num = "2.3";
@@ -221,7 +221,15 @@ Arguments can be any of the following, in any order:
 
 # Default parameters.
 $param::topfile = 'Construct';	# Top-level construction file.
-$param::defaultConstruct = $STAR . "/mgr/Construct";	# Default construction file.
+if ( -e "mgr/Construct"){
+    # Local construction file
+    $ENV{ConstructLocation} = "mgr/";
+    $param::defaultConstruct = "mgr/Construct";	
+} else {
+    # Default construction file.
+    $ENV{ConstructLocation} = $STAR . "mgr/";
+    $param::defaultConstruct = $STAR . "/mgr/Construct";	
+}
 $param::defaultConscript = "";	# Default construction file.
 $param::defaultInclude   = 1;   # Force to use default include path
 $param::install = 1;		# Show installations
