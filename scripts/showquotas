@@ -9,6 +9,7 @@
 # arg1      path/volume to inspect
 #
 # This script uses $REPQUOTA , a Solaris program. 
+# Written J.Lauret 2002.
 #
 # Configurable
 $REPQUOTA = "/usr/lib/fs/vxfs/vxrepquota";
@@ -103,7 +104,7 @@ if($HTML){
     print $FO
 	"<!-- Generated on ".localtime()." -->\n",
         "<h2>Path $PATH</h2>\n",
-        "Partition info (kBytes)\n",
+        "Partition info (kBytes) on ".localtime()."\n",
         "<table border=0>",
         "<tr><td>Total Usable</td><$TD>$tots</td>\n",
         "<tr><td>Total Used</td><$TD>$totu</td>\n",
@@ -113,12 +114,12 @@ if($HTML){
 
     print $FO
         "<table border=1>\n",
-        "<tr><$TD>Dir/User</td><$TD>kBytes</td><$TD>%tage</td></tr>\n";
+        "<tr><$TD>Dir/User</td><$TD>kBytes</td><$TD>%tageRel</td><$TD>%tageTot</td></tr>\n";
 } else {
     # Regular text formatting
     print $FO
         "Path $PATH\n",
-        "Partition info (kBytes)\n",
+        "Partition info (kBytes) on ".localtime()."\n",
         "     TotalUsable : $tots\n",
         "     TotalUsed   : $totu\n",
         "     Free space  : $totf\n",
