@@ -1,6 +1,9 @@
 #!/usr/bin/env perl
-#  $Id: dropit,v 1.7 2001/03/29 23:48:02 perev Exp $
+#  $Id: dropit,v 1.8 2001/04/13 13:32:24 jeromel Exp $
 #  $Log: dropit,v $
+#  Revision 1.8  2001/04/13 13:32:24  jeromel
+#  ROOT excluded from drop candidate.
+#
 #  Revision 1.7  2001/03/29 23:48:02  perev
 #  HP related fixes
 #
@@ -88,10 +91,15 @@ foreach my $word (@words) {
 # remove duplications
 @words = ();
 foreach my $word (@newwords) {# print "word = $word\n";
-  foreach my $w (@words) {# print "word $word and w = $w\n";
-			   goto LAST if $w eq $word;}
-#  print "Check $word\n";
-  if ($word =~ /lsf/ || $word =~ /scratch/) {push @words, $word; next;}
+  foreach my $w (@words) {
+      # print "word $word and w = $w\n";
+      goto LAST if $w eq $word;
+  }
+  #  print "Check $word\n";
+  if ($word =~ /lsf/ || $word =~ /scratch/ || $word =~ /ROOT/){
+      push @words, $word; 
+      next;
+  }
   if ( (!( -d $word)) and $word !~ /^\./ ) {next;}
   push @words, $word;
 # print "                    add $word\n";
