@@ -211,13 +211,10 @@ sub GetOfflineLogFile{
 # check if the various output files exist
 # input is the jobID
 # .dst.root, .hist.root, (flag if too small), .tags.root, .runco.root
-# (.geant.root) if MC,
+# .geant.root,
 
 sub GetMissingFiles{
   my $jobID = shift;
-  my $type  = shift; # 'real' or 'MC'
-
-
   my ($missing_files); # return the missing files as a string
   my $hist_size =  1000;
 
@@ -226,13 +223,10 @@ sub GetMissingFiles{
 		   dst  => undef, 
 		   hist => undef, 
 		   tags => undef, 
-		   runco=> undef
+		   runco=> undef, 
+		   geant=> undef
 		  );
   
-  # one additional component if type is 'MC'
-  $comp_hash{geant} = undef if $type eq 'MC';
-
-
   # general checking
   my $query =  qq{select component 
 		  from $dbFile.$FileCatalog 
@@ -268,19 +262,6 @@ sub GetMissingFiles{
   
   return $missing_files;
 }
-#=========================================================================
-sub GetMissingFilesMC{
-  my $jobID = shift;
-  
-  return GetMissingFiles($jobID, 'MC');
-}
-#=========================================================================
-sub GetMissingFilesReal{
-  my $jobID = shift;
-
-  return GetMissingFiles($jobID, 'real');
-}
-
 #=========================================================================
 # get the report_key from QASummary
 # never used
@@ -712,7 +693,7 @@ sub WriteQASummary{
 # takes in a report_object as an arg
 # writes in the following information
 #
-# qaID   
+# jobID   
 # macro_name
 # fName
 # path
@@ -849,7 +830,7 @@ sub WriteQAMacroSummary{
 
   if ($rc) { print h4("...done\n")}
   else     { print h4("<font color = red> Error. Cannot insert qa info for ",
-		      "$output_file (qaID = '$qaID')</font>"); return;}
+		      "$output_file</font>"); return;}
     
   return $qa_status;
 }
@@ -890,20 +871,7 @@ sub GetQAMacrosSummary{
   $sth->execute;
   return $sth->fetchall_arrayref();
 }
-#===============================================================
-# get the 'dataset' field 
 
-sub GetDataset{
-  my $jobID = shift;
-
-  my $query = qq{ select dataset 
-		  from $dbFile.$FileCatalog
-		  where jobID = '$jobID'
-		  limit 1 };
-
-  return $dbh->selectrow_array($query);
-}
-  
 #===============================================================
 # parse the dataset field for offline MC
 # format: [collision]/[eventGen]/[details]/[eventType]/[geometry]/[junk]

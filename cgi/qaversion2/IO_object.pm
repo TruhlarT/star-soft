@@ -173,8 +173,8 @@ sub Open{
 
     #---
     if (defined $disk_access_mode){
-	print "doing chmod $disk_access_mode $filename\n";
-	system("chmod $disk_access_mode $filename");
+	my $cmd = "chmod $disk_access_mode $filename";
+	system($cmd);
     }
     #---
   }
@@ -553,11 +553,11 @@ sub ControlFileNightly{
   };
   
   # determine the file name; make some abbreviations
-  $eventGen  = ".hc"     if $eventGen  =~ /hadronic_cocktail/;
-  $eventGen  = ""        if $eventGen  =~ /n\/a/;  # for real events
-  $eventType = ".std"    if $eventType =~ /standard/;
-  $eventType = ".low"    if $eventType =~ /lowdensity/;
-  $eventType = ".high"   if $eventType =~ /highdensity/;
+  $eventGen  = ".hc"     if $eventGen  eq 'hadronic_cocktail';
+  $eventGen  = ""        if $eventGen  eq 'n/a';  # for real events
+  $eventType = ".std"    if $eventType eq 'standard';
+  $eventType = ".low"    if $eventType eq 'lowdensity';
+  $eventType = ".high"   if $eventType eq 'highdensity';
   
   # name the file...
   # e.g. test_control.[eventGen].[eventType].[geometyr]
@@ -595,6 +595,7 @@ sub ControlFileOffline{
 
 sub MacroReportFilename{
   my $self             = shift;
+  my $input_aryref     = shift;
   my $report_key       = shift;
   my $macro_name       = shift;
   my $output_data_type = shift;
@@ -614,9 +615,7 @@ sub MacroReportFilename{
   # else just use the macro name and the file type (+data extension)
   else{
     $filetype = $output_data_ext.$filetype;
-#    print "In IO_object: filetype = '$filetype'\n";
     $filename = $macro_name.$filetype;
-#    print "In IO_object: filename = '$filename'\n";
   }
   # need to get the report dir
   my $io = IO_object->new("ReportDir",$report_key);
@@ -683,30 +682,23 @@ sub StErrorFile{
   return "$report_dir/StError.txt";
 } 
 #=====================================================================
-# creates temporary soft link to the log file to view it over the web
-# returns the WWW link
+# temporary soft link to the log file to view it over the web
 
 sub LogScratchWWW{
   my $self    = shift;
   my $logfile = shift;
 
   srand; # sets the seed
-  my $id_string = int(rand(1000000));
+  my $id_string = int(rand(100000));
 
-  my $scratch_WWW     = $gDataClass_object->LogScratchDirWWW;
-  my $scratch_log_dir = $gDataClass_object->LogScratchDir;
-  my $base_link       = "logfile_link_${id_string}";  
+  my $scratch_WWW = $gDataClass_object->ScratchDirWWW;
+  my $link        = "$scratch_WWW/logfile_link_$id_string";
+  
+  print h3("$link", "$logfile");
 
-  # http link
-  my $WWW_link        = "$scratch_WWW/$base_link";
-  # full soft link on disk
-  my $soft_link       = "$scratch_log_dir/$base_link";
+  symlink $logfile, $link or warn "Couldn't symlink";
 
-  # make the soft link
-  #
-  symlink $logfile, $soft_link or warn "Couldn't symlink";
-
-  return $WWW_link;
+  return $link;
 }
   
 

@@ -1,6 +1,6 @@
 #! /usr/bin/perl
 #
-# runs and tests the macros
+# derived from QA_object.  runs and tests the macros
 #
 #=========================================================
 package QA_report_object;
@@ -171,12 +171,6 @@ sub GetTests{
 
     $line =~ /end of header:/ and do{
       # set output of filename - use IO_object
-      print "macro_name       = ",$self->MacroName,"\n",
-            "output_data_type = ",$self->OutputDataType,"\n",
-	    "output_data_filename= ",$self->OutputDataFilename,"\n",
-	    "output_data_ext  = ",$self->OutputDataExtension,"\n";
-
-
       $self->IOMacroReportFilename(IO_object->new("MacroReportFilename",
 						  $self->ReportKey, 
 						  $self->MacroName,

@@ -33,7 +33,7 @@ my $lsfQueue = "star_cas";
 sub SubmitJob
 {
     my $cmd = shift;
-print "Batch_utilities::SubmitJob($cmd)";
+#print "Batch_utilities::SubmitJob($cmd)";
 
     if ($batchType eq "AT")
     {
@@ -56,7 +56,7 @@ print "Batch_utilities::SubmitJob($cmd)";
 #========================================================
 sub Queue
 {
-print "Batch_utilities::Queue()";
+#print "Batch_utilities::Queue()";
     if ($batchType eq "AT")
     {
 	return AtQueue();

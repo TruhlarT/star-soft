@@ -133,8 +133,8 @@ system("./$script_file.working >& $output_file");
 # clean up after ourselves
 #
 
-#unlink $script_file;
-system ("mv $script_file.working $scratch_dir/old");
+unlink $script_file;
+#system ("mv $script_file.working $scratch_dir/old");
 cleanup();
 
 #

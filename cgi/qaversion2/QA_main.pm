@@ -141,37 +141,37 @@ print("report_key='$report_key'\n");
 
 
     # initialize timer for global timing
-print("creating gTimer_object....");
+print("creating gTimer_object....\n");
     $gTimer_object = new Timer_object("Global");
-print("done\n");
+print("....done creating gTimer_object\n");
 
     # sets the global directories as well
-print("creating gServer_object....");
+print("creating gServer_object....\n");
     $gServer_object = new Server_object;
     my $server_type = $gServer_object->ServerType;
-print("done (server_type='$server_type')\n");
+print("....done creating gServer_object\n");
 
     # set global data class - BEN
     $gDataClass_object = new DataClass_object($data_class);
 
     # connect to db
     # need to call this after the server & dataclass objects
-print("connecting to db...");
+print("connecting to db....\n");
     QA_db_utilities::db_connect();
-print("done\n");
+print("....done connecting to db\n");
 
 
 
     # update everything in the data class
     $action eq 'update' and do{
-print("update-ing....");
+print("update-ing....\n");
         QA_utilities::doUpdate();
-print("done\n");
+print("....done update-ing\n");
     };
     
     # do qa on jobs in the database
     ($action eq 'do_qa' or $action eq 'redo_qa')  and do{
-print("do_qa-ing....");
+print("do_qa-ing....\n");
 	# do qa on all new jobs if none specified
 	my @key_list;
 	if (!$report_key){
@@ -184,12 +184,10 @@ print("do_qa-ing....");
 	foreach $key (@key_list){
 	    # make sure they're on disk
 	    my $qa = $gDataClass_object->QA_obj->new($key);
-	    print "is $key on disk?\n";
 	    next unless $qa->OnDisk;
-	    print "yes\n";
 	    $qa->DoQA('no_tables');
 	}
-print("done\n");
+print("....done do_qa-ing\n");
     };
 
     # disconnect from db

@@ -25,8 +25,7 @@ my %members = (
 	        _ProdSeries       => undef,
 	        _ChainName        => undef, # abbrev of the chain
 	        _EventGenDetails  => undef, # more info on the generator
-	        _CollisionType    => undef, # e.g. auau200
-	        _Dataset          => undef
+	        _CollisionType    => undef  # e.g. auau200
 	      );
 
 #==========================================================
@@ -65,7 +64,7 @@ sub _init_offline{
   my $runID = QA_db_utilities::GetRunID($self->JobID);
   $self->RunID($runID);
 
-  # prod series, chain name, lib version, and chain options
+  # get prod series, chain name, lib version, and chain options
   
   my ($prodSeries, $chainName, $lib, $chain) 
     = QA_db_utilities::GetProdOptions($self->JobID);
@@ -74,11 +73,6 @@ sub _init_offline{
   $self->ChainName($chainName);
   $self->StarlibVersion($lib);
   $self->RequestedChain($chain);
-
-  # dataset -  identifies the production job
-
-  $self->Dataset(QA_db_utilities::GetDataset($self->JobID));
-  
 }
 #===========================================================
 # additional init for offline real
@@ -109,16 +103,14 @@ sub offline_MC{
   my $self = shift;
 
   # parse the dataset column
-  # format: [collision]/[eventGen]/[details]/[eventType]/[geometry]/[junk]
-  #         e.g. auau200/venus412/default/b0_3/year_1b/hadronic_on
 
-  my ($collisionType, $eventGen, $details, $eventType, $geometry, $junk)=
-    split /\//, $self->Dataset, 6;
+  my ($collision, $gen, $gen_details, $event_type, $geometry) = 
+    QA_db_utilities::ParseDatasetMC($self->JobID);
 
-  $self->CollisionType($collisionType);
-  $self->EventGen($eventGen);
-  $self->EventGenDetails($details);
-  $self->EventType($eventType);
+  $self->CollisionType($collision);
+  $self->EventGen($gen);
+  $self->EventGenDetails($gen_details);
+  $self->EventType($event_type);
   $self->Geometry($geometry);
 
 }

@@ -20,8 +20,8 @@ use strict;
 
 sub UpdateQAOffline{
   my $data_type   = shift; # either 'real' or 'MC'
-                           # only used in $query_update
-  my $limit       = 2;     # limit number of new jobs
+                         # only used in $query_update
+  my $limit       = 5; # limit number of new jobs
   my $oldest_date = '2000-01-01'; # dont retrieve anything older than this
   my ($file_type);
 
@@ -61,7 +61,7 @@ sub UpdateQAOffline{
 			  unix_timestamp(file.createTime) < $now and
 			  qa.$QASum{jobID} is NULL and
 			  file.hpss = 'N' and
-			  file.createTime > '$oldest_date'
+			  file.createTime > $oldest_date
 			  
 			limit $limit};
 
@@ -123,7 +123,7 @@ sub UpdateQAOfflineReal{
 sub UpdateQANightly {  
   my $data_class = shift; # 'real' or 'MC'
 
-  my $limit = 5; # limit number of new jobs
+  my $limit = 1; # limit number of new jobs
   my ($type, $eventGen_string);
 
   # real or simulation

@@ -10,8 +10,6 @@ package Logreport_object;
 use CGI qw/:standard :html3/;
 use QA_globals;
 use QA_db_utilities; 
-use DataClass_object;
-
 use strict;
 use vars qw($AUTOLOAD);
 #=========================================================
@@ -127,12 +125,11 @@ sub _init{
   #
   $self->GetJobInfo();
   
-  # check for missing files - depends on the dataclass (real or MC)
+  # check for missing files
+  # returns a string
   #
-  no strict 'refs';
-
-  my $sub_missing_files = $gDataClass_object->GetMissingFiles;
-  $self->MissingFiles( &$sub_missing_files($jobID) );
+  my $missing = QA_db_utilities::GetMissingFiles( $jobID );
+  $self->MissingFiles($missing);
 
   # get the production output files
   #
