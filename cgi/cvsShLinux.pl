@@ -17,7 +17,7 @@ my $setShrLin = ();
 my $Wdir = "/afs/rhic/star/doc/www/comp/prod/";
 opendir DIR, $Wdir or die "Cannot open directory $Wdir <br> \n";
 while( defined ( $file = readdir(DIR) ) ){
-  $file =~ /dev.i386_redhat51/ and push @setShr_Lin, $file;
+  $file =~ /dev.i386_redhat61/ and push @setShr_Lin, $file;
 }
 
 # sort chronologically
@@ -38,7 +38,7 @@ print $query->startform(-action=>"ShowPage.pl");
   print " <title>CVS Status of Shared Libraries on Linux</title>";
   print "  </head>\n";
   print "  <body bgcolor=\"#ffdc9f\"> \n";
-  print "  <h1 align=center>CVS Status of Shared Libraries on Linux</h1>\n";
+  print "  <h1 align=center>CVS Status of Shared Libraries on RedHat61</h1>\n";
   print " </head>\n";
   print " <body>";
 
