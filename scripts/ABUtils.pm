@@ -14,10 +14,11 @@ use Digest::MD5;
 
 @ISA = (Exporter);
 @EXPORT=qw(IUbody IUcmt IUhead IUtrail IUGetRef IUl2pre IUresource
-	   IUExcluded IUSourceDirs IUError IUconsOK
-	   IULoad JPLoad
-	   IURTFormat JPRFFormat
+	   IUFuncMatch IUExcluded IUSourceDirs IUError IUconsOK
+	   IULoad JPLoad VLGLoad
+	   IURTFormat JPRFFormat VLGFormat
 	   JPRExec
+	   IUCanonicalName
 	   IUTests IUTestDir IUListRoutine IUErrorURL IUCVSRef
 	   IUQueue IUSubmit
 	   IUCheckFile IUMoveFile
@@ -72,8 +73,9 @@ $INSU::RELFLNM=".log/afs.release";
 $INSU::QUEUE   ="star_cas_prod";
 
 # Command to issue to load the Insure environment
-$INSU::INSLOAD ="setenv INSURE yes ; unsetenv NODEBUG ; staradev";
-$INSU::JPRLOAD ="staradev";
+$INSU::INSLOAD = "setenv INSURE yes ; unsetenv NODEBUG ; staradev";
+$INSU::JPRLOAD = "staradev";
+$INSU::VLGLOAD = "staradev";
 
 # directory which will contain the test result files
 $INSU::TDIR    ="/star/rcf/test/dev/Insure";
@@ -122,14 +124,20 @@ $INSU::BSUB    = "/usr/local/lsf/bin/bsub";
 	      "/star/data03/daq/2003/111/st_physics_4111036_raw_0030004.daq",
 
 	      "P2004 EST OShortR Xi2 V02 CMuDst",
-	      "/star/rcf/test/daq/2004/028/st_physics_5028066_raw_1010003.daq"
+	      "/star/rcf/test/daq/2004/028/st_physics_5028066_raw_1010003.daq",
+
+	      # ITTF chains
+	      "ry2004 in tpc_daq tpc -tcl -tpt -PreVtx fcf Physics svtDb ITTF dst event ".
+	      "genvtx Sti Tree evout trgd debug1",
+	      "/star/data03/daq/2004/061a/st_physics_5061059_raw_3030004.daq"
 
 	      );
 
 # Default formatting script for run-time
-$INSU::RTFORMAT="/afs/rhic/star/packages/scripts/insrtm.pl";
-$INSU::JPFORMAT="/afs/rhic/star/packages/scripts/jprtm.pl";
-$INSU::JPEXEC  ="/afs/rhic/star/packages/dev/.\@sys/BIN/jprof";
+$INSU::RTFORMAT ="/afs/rhic.bnl.gov/star/packages/scripts/insrtm.pl";
+$INSU::JPFORMAT ="/afs/rhic.bnl.gov/star/packages/scripts/jprtm.pl";
+$INSU::VLGFORMAT="/afs/rhic.bnl.gov/star/packages/scripts/valgrtm.pl"; 
+$INSU::JPEXEC   ="/afs/rhic.bnl.gov/star/packages/dev/.\@sys/BIN/jprof";
 
 # routine exclusion in listing-by-routine
 @INSU::SKIPFUNC=("_Cint",
@@ -341,6 +349,34 @@ insure++.GusCacheDir /tmp
     }
 }
 
+
+sub IUCanonicalName
+{
+    my($func)=@_;
+    $func =~ s/.*OBJ\///;
+    $func =~ s/.*obj\///;  
+    $func =~ s/\/afs\/.*ROOT\//ROOT\//;
+    $func;
+}
+
+#
+# If argument match anything from what we were supposed
+# to compile ...
+#
+sub IUFuncMatch
+{
+    my($func)=@_;
+    my($dir,$ret);
+
+    return "" if ( ! defined($func) );
+    foreach $dir (@INSU::DIRS){
+	if ($func =~ m/(.*)($dir\/.*)/){ 
+	    return $2;
+	}
+    }
+    return "";
+}
+
 # Return TRUE or FALSE if a routine has to be displayed
 # in the Insure report or not. Based on pattern exclusion
 # of course ...
@@ -537,10 +573,10 @@ sub IUMoveFile
     $oflnm        =~ m/(.*)(\..*)/;
     ($oflnm,$oext)= ($1,$2);
 
-    while ( -e "$odir/$oflnm-$cnt.$oext" && $cnt < $limit){ $cnt++;}
+    while ( -e "$odir/$oflnm-$cnt$oext" && $cnt < $limit){ $cnt++;}
     if ($cnt == $limit) {
 	$cnt = 0;
-	unlink(glob("$odir/$oflnm-*.$oext"));
+	unlink(glob("$odir/$oflnm-*$oext"));
     }
 
 
@@ -698,6 +734,7 @@ sub IUdie {
 
 
 
+
 # Returns the directories to update using cvs
 sub IUSourceDirs { return @INSU::DIRS;}
 
@@ -711,6 +748,9 @@ sub IULoad { return $INSU::INSLOAD;}
 # Currently, only 'adev' is loaded
 sub JPLoad { return $INSU::JPRLOAD;}
 
+# REturn what is needed to load valgrind (nothing)
+sub VLGLoad { return $INSU::VLGLOAD;}
+
 # Return the test list
 sub IUTests { return %INSU::TESTS;}
 
@@ -719,6 +759,9 @@ sub IURTFormat { return $INSU::RTFORMAT;}
 
 # Returns the jprof formatting program
 sub JPRFFormat { return $INSU::JPFORMAT;}
+
+# REturn the valgrind formatting program
+sub VLGFormat {  return $INSU::VLGFORMAT;}
 
 # Returns the jprof program location
 sub JPRExec {    return $INSU::JPEXEC;}
