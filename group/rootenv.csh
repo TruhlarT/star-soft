@@ -1,6 +1,16 @@
+#!/usr/bin/csh -f
    if ( -x /afs/rhic/star/group/dropit) then
-     setenv LD_LIBRARY_PATH `/afs/rhic/star/group/dropit -p "$LD_LIBRARY_PATH" ROOT`
-     setenv PATH            `/afs/rhic/star/group/dropit ROOT`
+switch ($STAR_SYS)
+     case "hp_ux102":
+#  ====================
+       setenv SHLIB_PATH `/afs/rhic/star/group/dropit -p "$SHLIB_PATH" ROOT`
+     breaksw
+     default:
+#  ====================
+       setenv LD_LIBRARY_PATH `/afs/rhic/star/group/dropit -p "$LD_LIBRARY_PATH" ROOT`
+       breaksw
+     endsw
+     setenv PATH            `/afs/rhic/star/group/dropit -p "$PATH" ROOT`
    endif
    setenv ROOTSYS /afs/rhic/opt/rhic/ROOT2
    if (! ${?ROOT_LEVEL}) setenv ROOT_LEVEL 2.08
@@ -8,7 +18,8 @@
 #   if ( ! -e $ROOTSYS) setenv ROOTSYS /afs/rhic/opt/rhic/root
 #   if ( ! -e $ROOTSYS) setenv ROOTSYS /afs/rhic/sunx86_55/opt/rhic/ROOT2
 
-   set path = ($ROOTSYS/bin $path)
+#   set path = ($ROOTSYS/bin $path)
+  setenv PATH "${ROOTSYS}/bin:${PATH}"
 # On Solaris, Linux, SGI, Alpha/OSF do:
   set MACHINE = `uname -s`
   
