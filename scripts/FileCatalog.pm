@@ -19,8 +19,10 @@
 #
 #        -> check_ID_for_params() : returns the database row ID from the dictionary table
 #                          connected to this keyword
+#
 #        -> insert_dictionary_value() : inserts the value from the context into the dictionary table
 #        -> insert_detector_configuration() : inserts the detector configuration from current context
+#
 #        -> get_current_detector_configuration() : gets the ID of a detector configuration
 #           described by the current context
 #        -> insert_run_param_info() : insert the run param record taking data from the current context
@@ -33,13 +35,26 @@
 #           to the current contex
 #        -> insert_file_location() : insert the file location data taking data from the
 #           current context
+#
+#        -> get_file_location()
+#                          returns the FileLocations info in an array context. The return value
+#                          can be used as-is in a set_context() statement.
+#        -> clone_location()
+#                          actually create an instance for FileData and a copy of FileLocations
+#                          the latest to be modified with set_context() keywords. Warning :
+#        -> clone_end()    End the cloning. You will NOT be able to update FileData until
+#                          is called.
+#                          
+#
 #        -> run_query()   : get entries from dbtable FileCatalog according to query string
 #           defined by set_context you also give a list of fields to select form
-#        -> delete_record() : deletes the current file location. If it finds that the current
-#           file data has no file locations left, it deletes it too
+#
+#        -> delete_records() : deletes the current file locations based on context. If it finds that 
+#           the current file data has no file locations left, it deletes it too
 #        -> update_record() : modifies the data in the database. The field corresponding
 #           to the given keyword changes it value from the one in the current context to the
 #           one specified as an argument
+#
 #        -> bootstrap() : database maintenance procedure. Looks at the dictionary table and
 #           find all the records that are not referenced by the child table. It offers an option
 #           of deleting this records.
@@ -53,7 +68,7 @@
 #           checks made on delayed commands.
 #        -> flush_delayed() flush out i.e. execute all delayed commands.
 #        -> print_delayed() print out on screen all delayed commands.
-#       
+#        
 #
 
 
@@ -64,6 +79,7 @@ $VERSION   =   0.02;
 
 use DBI;
 use strict;
+no strict "refs";
 
 # define to print debug information
 my $DEBUG     = 0;
@@ -87,66 +103,73 @@ my %keywrds;
 # 3 - table name in the database for the given field
 # 4 - critical for data insertion into the specified table
 # 5 - type of the field (text,num,date)
-# 6 - not used
+# 6 - if 0, is not returned by the FileTableContent() routine
 # 7 - not used
 # only the keywords in this table are accepted in set_context sub
 
-$keywrds{"fdid"          }    =   "fileDataID"                .",FileData"               .",0" .",num"  .",0" .",1";
-$keywrds{"flid"          }    =   "fileLocationID"            .",FileLocations"          .",0" .",num"  .",0" .",1";
-$keywrds{"filetype"      }    =   "fileTypeName"              .",FileTypes"              .",1" .",text" .",0" .",1";
-$keywrds{"extension"     }    =   "fileTypeExtension"         .",FileTypes"              .",1" .",text" .",0" .",1";
-$keywrds{"storage"       }    =   "storageTypeName"           .",StorageTypes"           .",1" .",text" .",0" .",1";
-$keywrds{"site"          }    =   "storageSiteName"           .",StorageSites"           .",1" .",text" .",0" .",1";
-$keywrds{"production"    }    =   "productionTag"             .",ProductionConditions"   .",1" .",text" .",0" .",1";
-$keywrds{"prodcomment"   }    =   "productionComments"        .",ProductionConditions"   .",1" .",text" .",0" .",1";
-$keywrds{"library"       }    =   "libraryVersion"            .",ProductionConditions"   .",1" .",text" .",0" .",1";
-$keywrds{"triggername"   }    =   "triggerName"               .",TriggerWords"           .",1" .",text" .",0" .",1";
-$keywrds{"triggerword"   }    =   "triggerWord"               .",TriggerWords"           .",1" .",text" .",0" .",1";
-$keywrds{"triggersetup"  }    =   "triggerSetupName"          .",TriggerSetups"          .",1" .",text" .",0" .",1";
-$keywrds{"runtype"       }    =   "runTypeName"               .",RunTypes"               .",1" .",text" .",0" .",1";
-$keywrds{"configuration" }    =   "detectorConfigurationName" .",DetectorConfigurations" .",1" .",text" .",0" .",1";
-$keywrds{"geometry"      }    =   "detectorConfigurationName" .",DetectorConfigurations" .",0" .",text" .",0" .",1";
-$keywrds{"runnumber"     }    =   "runNumber"                 .",RunParams"              .",1" .",num"  .",0" .",1";
-$keywrds{"runcomments"   }    =   "runComments"               .",RunParams"              .",0" .",text" .",0" .",1";
-$keywrds{"collision"     }    =   "collisionEnergy"           .",CollisionTypes"         .",1" .",text" .",0" .",1";
-$keywrds{"datetaken"     }    =   "dataTakingStart"           .",RunParams"              .",0" .",date" .",0" .",1";
-$keywrds{"magscale"      }    =   "magFieldScale"             .",RunParams"              .",1" .",text" .",0" .",1";
-$keywrds{"magvalue"      }    =   "magFieldValue"             .",RunParams"              .",0" .",num"  .",0" .",1";
-$keywrds{"filename"      }    =   "filename"                  .",FileData"               .",1" .",text" .",0" .",1";
-$keywrds{"size"          }    =   "size"                      .",FileData"               .",1" .",num"  .",0" .",1";
-$keywrds{"fileseq"       }    =   "fileSeq"                   .",FileData"               .",1" .",num"  .",0" .",1";
-$keywrds{"filecomment"   }    =   "fileDataComments"          .",FileData"               .",0" .",text" .",0" .",1";
-$keywrds{"owner"         }    =   "owner"                     .",FileLocations"          .",0" .",text" .",0" .",1";
-$keywrds{"protection"    }    =   "protection"                .",FileLocations"          .",0" .",text" .",0" .",1";
-$keywrds{"node"          }    =   "nodeName"                  .",FileLocations"          .",0" .",text" .",0" .",1";
-$keywrds{"available"     }    =   "availability"              .",FileLocations"          .",0" .",text" .",0" .",1";
-$keywrds{"persistent"    }    =   "persistent"                .",FileLocations"          .",0" .",text" .",0" .",1";
-$keywrds{"sanity"        }    =   "sanity"                    .",FileLocations"          .",0" .",num"  .",0" .",1";
-$keywrds{"createtime"    }    =   "createTime"                .",FileLocations"          .",0" .",date" .",0" .",1";
-$keywrds{"inserttime"    }    =   "insertTime"                .",FileLocations"          .",0" .",date" .",0" .",1";
-$keywrds{"path"          }    =   "filePath"                  .",FileLocations"          .",1" .",text" .",0" .",1";
-$keywrds{"simcomment"    }    =   "simulationParamComments"   .",SimulationParams"       .",0" .",text" .",0" .",1";
-$keywrds{"generator"     }    =   "eventGeneratorName"        .",EventGenerators"        .",1" .",text" .",0" .",1";
-$keywrds{"genversion"    }    =   "eventGeneratorVersion"     .",EventGenerators"        .",1" .",text" .",0" .",1";
-$keywrds{"gencomment"    }    =   "eventGeneratorComment"     .",EventGenerators"        .",0" .",text" .",0" .",1";
-$keywrds{"genparams"     }    =   "eventGeneratorParams"      .",EventGenerators"        .",1" .",text" .",0" .",1";
-$keywrds{"tpc"           }    =   "dTPC"                      .",DetectorConfigurations" .",1" .",num"  .",0" .",1";
-$keywrds{"svt"           }    =   "dSVT"                      .",DetectorConfigurations" .",1" .",num"  .",0" .",1";
-$keywrds{"tof"           }    =   "dTOF"                      .",DetectorConfigurations" .",1" .",num"  .",0" .",1";
-$keywrds{"emc"           }    =   "dEMC"                      .",DetectorConfigurations" .",1" .",num"  .",0" .",1";
-$keywrds{"fpd"           }    =   "dFPD"                      .",DetectorConfigurations" .",1" .",num"  .",0" .",1";
-$keywrds{"ftpc"          }    =   "dFTPC"                     .",DetectorConfigurations" .",1" .",num"  .",0" .",1";
-$keywrds{"pmd"           }    =   "dPMD"                      .",DetectorConfigurations" .",1" .",num"  .",0" .",1";
-$keywrds{"rich"          }    =   "dRICH"                     .",DetectorConfigurations" .",1" .",num"  .",0" .",1";
-$keywrds{"ssd"           }    =   "dSSD"                      .",DetectorConfigurations" .",1" .",num"  .",0" .",1";
-$keywrds{"triggerevents" }    =   "numberOfEvents"            .",TriggerCompositions"    .",1" .",text" .",0" .",1";
-$keywrds{"events"        }    =   "numberOfEvents"            .",TriggerCompositions"    .",1" .",num"  .",0" .",1";
-$keywrds{"simulation"    }    =   ",,,,,";
-$keywrds{"nounique"      }    =   ",,,,,";
-$keywrds{"noround"       }    =   ",,,,,";
-$keywrds{"startrecord"   }    =   ",,,,,";
-$keywrds{"limit"         }    =   ",,,,,";
-$keywrds{"all"           }    =   ",,,,,";
+# Those are for private use only but require a keyword for access. 
+# DO NOT DOCUMENT THEM !!!
+$keywrds{"fdid"          }    =   "fileDataID"                .",FileData"               .",0" .",num"  .",0" .",1" .",0";
+$keywrds{"flid"          }    =   "fileLocationID"            .",FileLocations"          .",0" .",num"  .",0" .",1" .",0";
+$keywrds{"pcid"          }    =   "productionConditionID"     .",FileData"               .",0" .",num"  .",0" .",1" .",1";
+$keywrds{"rpid"          }    =   "runParamID"                .",FileData"               .",0" .",num"  .",0" .",1" .",1";
+$keywrds{"ftid"          }    =   "fileTypeID"                .",FileData"               .",0" .",num"  .",0" .",1" .",1";
+
+# Those should be documented
+$keywrds{"filetype"      }    =   "fileTypeName"              .",FileTypes"              .",1" .",text" .",0" .",1" .",1";
+$keywrds{"extension"     }    =   "fileTypeExtension"         .",FileTypes"              .",1" .",text" .",0" .",1" .",1";
+$keywrds{"storage"       }    =   "storageTypeName"           .",StorageTypes"           .",1" .",text" .",0" .",1" .",1";
+$keywrds{"site"          }    =   "storageSiteName"           .",StorageSites"           .",1" .",text" .",0" .",1" .",1";
+$keywrds{"production"    }    =   "productionTag"             .",ProductionConditions"   .",1" .",text" .",0" .",1" .",1";
+$keywrds{"prodcomment"   }    =   "productionComments"        .",ProductionConditions"   .",1" .",text" .",0" .",1" .",1";
+$keywrds{"library"       }    =   "libraryVersion"            .",ProductionConditions"   .",1" .",text" .",0" .",1" .",1";
+$keywrds{"triggername"   }    =   "triggerName"               .",TriggerWords"           .",1" .",text" .",0" .",1" .",1";
+$keywrds{"triggerword"   }    =   "triggerWord"               .",TriggerWords"           .",1" .",text" .",0" .",1" .",1";
+$keywrds{"triggersetup"  }    =   "triggerSetupName"          .",TriggerSetups"          .",1" .",text" .",0" .",1" .",1";
+$keywrds{"runtype"       }    =   "runTypeName"               .",RunTypes"               .",1" .",text" .",0" .",1" .",1";
+$keywrds{"configuration" }    =   "detectorConfigurationName" .",DetectorConfigurations" .",1" .",text" .",0" .",1" .",1";
+$keywrds{"geometry"      }    =   "detectorConfigurationName" .",DetectorConfigurations" .",0" .",text" .",0" .",1" .",1";
+$keywrds{"runnumber"     }    =   "runNumber"                 .",RunParams"              .",1" .",num"  .",0" .",1" .",1";
+$keywrds{"runcomments"   }    =   "runComments"               .",RunParams"              .",0" .",text" .",0" .",1" .",1";
+$keywrds{"collision"     }    =   "collisionEnergy"           .",CollisionTypes"         .",1" .",text" .",0" .",1" .",1";
+$keywrds{"datetaken"     }    =   "dataTakingStart"           .",RunParams"              .",0" .",date" .",0" .",1" .",1";
+$keywrds{"magscale"      }    =   "magFieldScale"             .",RunParams"              .",1" .",text" .",0" .",1" .",1";
+$keywrds{"magvalue"      }    =   "magFieldValue"             .",RunParams"              .",0" .",num"  .",0" .",1" .",1";
+$keywrds{"filename"      }    =   "filename"                  .",FileData"               .",1" .",text" .",0" .",1" .",1";
+$keywrds{"size"          }    =   "size"                      .",FileData"               .",1" .",num"  .",0" .",1" .",1";
+$keywrds{"fileseq"       }    =   "fileSeq"                   .",FileData"               .",1" .",num"  .",0" .",1" .",1";
+$keywrds{"filecomment"   }    =   "fileDataComments"          .",FileData"               .",0" .",text" .",0" .",1" .",1";
+$keywrds{"owner"         }    =   "owner"                     .",FileLocations"          .",0" .",text" .",0" .",1" .",1";
+$keywrds{"protection"    }    =   "protection"                .",FileLocations"          .",0" .",text" .",0" .",1" .",1";
+$keywrds{"node"          }    =   "nodeName"                  .",FileLocations"          .",0" .",text" .",0" .",1" .",1";
+$keywrds{"available"     }    =   "availability"              .",FileLocations"          .",0" .",text" .",0" .",1" .",1";
+$keywrds{"persistent"    }    =   "persistent"                .",FileLocations"          .",0" .",text" .",0" .",1" .",1";
+$keywrds{"sanity"        }    =   "sanity"                    .",FileLocations"          .",0" .",num"  .",0" .",1" .",1";
+$keywrds{"createtime"    }    =   "createTime"                .",FileLocations"          .",0" .",date" .",0" .",1" .",1";
+$keywrds{"inserttime"    }    =   "insertTime"                .",FileLocations"          .",0" .",date" .",0" .",1" .",1";
+$keywrds{"path"          }    =   "filePath"                  .",FileLocations"          .",1" .",text" .",0" .",1" .",1";
+$keywrds{"simcomment"    }    =   "simulationParamComments"   .",SimulationParams"       .",0" .",text" .",0" .",1" .",1";
+$keywrds{"generator"     }    =   "eventGeneratorName"        .",EventGenerators"        .",1" .",text" .",0" .",1" .",1";
+$keywrds{"genversion"    }    =   "eventGeneratorVersion"     .",EventGenerators"        .",1" .",text" .",0" .",1" .",1";
+$keywrds{"gencomment"    }    =   "eventGeneratorComment"     .",EventGenerators"        .",0" .",text" .",0" .",1" .",1";
+$keywrds{"genparams"     }    =   "eventGeneratorParams"      .",EventGenerators"        .",1" .",text" .",0" .",1" .",1";
+$keywrds{"tpc"           }    =   "dTPC"                      .",DetectorConfigurations" .",1" .",num"  .",0" .",1" .",1";
+$keywrds{"svt"           }    =   "dSVT"                      .",DetectorConfigurations" .",1" .",num"  .",0" .",1" .",1";
+$keywrds{"tof"           }    =   "dTOF"                      .",DetectorConfigurations" .",1" .",num"  .",0" .",1" .",1";
+$keywrds{"emc"           }    =   "dEMC"                      .",DetectorConfigurations" .",1" .",num"  .",0" .",1" .",1";
+$keywrds{"fpd"           }    =   "dFPD"                      .",DetectorConfigurations" .",1" .",num"  .",0" .",1" .",1";
+$keywrds{"ftpc"          }    =   "dFTPC"                     .",DetectorConfigurations" .",1" .",num"  .",0" .",1" .",1";
+$keywrds{"pmd"           }    =   "dPMD"                      .",DetectorConfigurations" .",1" .",num"  .",0" .",1" .",1";
+$keywrds{"rich"          }    =   "dRICH"                     .",DetectorConfigurations" .",1" .",num"  .",0" .",1" .",1";
+$keywrds{"ssd"           }    =   "dSSD"                      .",DetectorConfigurations" .",1" .",num"  .",0" .",1" .",1";
+$keywrds{"triggerevents" }    =   "numberOfEvents"            .",TriggerCompositions"    .",1" .",text" .",0" .",1" .",1";
+$keywrds{"events"        }    =   "numberOfEvents"            .",TriggerCompositions"    .",1" .",num"  .",0" .",1" .",1";
+$keywrds{"simulation"    }    =   ",,,,,,";
+$keywrds{"nounique"      }    =   ",,,,,,";
+$keywrds{"noround"       }    =   ",,,,,,";
+$keywrds{"startrecord"   }    =   ",,,,,,";
+$keywrds{"limit"         }    =   ",,,,,,";
+$keywrds{"all"           }    =   ",,,,,,";
 
 # Fields that need to be rounded when selecting from the database
 my $roundfields = "magFieldValue,2 collisionEnergy,0";
@@ -229,6 +252,11 @@ $rowcounts{"SimulationParams"} = 0;
 $rowcounts{"EventGenerators"} = 0;
 $rowcounts{"FileLocations"} = 0;
 $rowcounts{"TriggerCompositions"} = 0;
+
+
+# Those variables will be used internally
+my @FDKWD;
+my @FLKWD;
 
 #============================================
 # parse keywrds - get the field name for the given keyword
@@ -439,7 +467,7 @@ sub set_context {
 
   foreach $params (@_){
       #  print ("Setting context for: $params \n");
-      ($keyw, $oper, $valu) = disentangle_param($params);
+      ($keyw, $oper, $valu) = &disentangle_param($params);
 
       # Chop spaces from the key name and value;
       $keyw =~ y/ //d;
@@ -927,8 +955,13 @@ sub insert_run_param_info {
   $detConfiguration = check_ID_for_params("configuration");
 
   if (! defined $valuset{"runnumber"}) {
-      &print_message("insert_run_param_info","runnumber not defined.");
-      return 0;
+      if ( defined( $valuset{"rpid"}) ){
+	  # rpid is set in clone_location() mode
+	  return $valuset{"rpid"};
+      } else {
+	  &print_message("insert_run_param_info","runnumber not defined.");
+	  return 0;
+      }
   }
   if (defined $valuset{"collision"}) {
       $collision = get_collision_type($valuset{"collision"});
@@ -936,7 +969,7 @@ sub insert_run_param_info {
 	  &print_debug("Collsion: $collision");
       }
   } else {
-      &print_debug("ERROR: collsion not defined");
+      &print_debug("ERROR: collision not defined");
   }
   if (($triggerSetup == 0) || ($runType == 0) || ($detConfiguration == 0) || ($collision == 0)) {
       &print_message("insert_run_param_info","Missing triggersetup, runtype or configuration",
@@ -1422,6 +1455,84 @@ sub get_current_simulation_params {
 
 }
 
+# 
+# Gets the entry associated to a context and reset
+# the context with the exact full value list required
+# for a new entry.
+#
+sub clone_location {
+    my(@allfd,@allfl,$tmp);
+
+    @allfd = &FileTableContent("FileData","FDKWD");
+    @allfl = &FileTableContent("FileLocation","FLKWD");
+
+    if ($#allfd != -1 && $#allfl != -1){
+	&clear_context();
+	&set_context(@allfd);
+	&set_context(@allfl);
+
+	&print_debug("What was queried\n",
+		     "\t".join(",",@allfd),
+		     "\t".join(",",@allfl));
+	1;
+    } else {
+	0;
+
+    }
+}
+
+sub get_file_location(){
+    return &FileTableContent("FileLocation","FLKWD");
+}
+
+sub FileTableContent {
+
+    my($table,$TABREF)=@_;
+
+    my($i,@itab,$iref,@query,@items);
+
+    #print "Checking for $table\n";
+
+    eval("@itab = @$TABREF");
+
+    #print "Evaluating for $table\n";
+    foreach ( keys %keywrds ){
+	@items = split(",",$keywrds{$_});
+	if ( $items[1] =~ m/$table/ && $items[6] == 1){
+	    push(@itab,$_);
+	}
+    }
+    #print "-->".join(",",@itab)."\n";
+
+
+    my @all;
+    my $delim;
+
+    $delim = &get_delimeter();
+    &set_delimeter(",");                      # set to known one
+
+    @all = &run_query("FileCatalog",@itab);
+
+    undef(@query);
+    if ($#all != -1){
+	@all = split(",",$all[0]);                # Only one instance
+
+	&set_delimeter($delim);                   # restore delim
+    
+
+	for ( $i=0 ; $i <= $#itab ; $i++){
+	    &print_debug("Return value for $itab[$i] is $all[$i]");
+	    if( $all[$i] ne ""){
+		push(@query,"$itab[$i] = $all[$i]");
+	    } 
+	}
+    }
+    return @query;
+}
+
+
+
+
 #============================================
 # inserts the file location data and the file and run data
 # if neccessary.
@@ -1444,13 +1555,15 @@ sub insert_file_location {
       &print_message("insert_file_location","Not connected");
       return 0;
   }
-
+  
   $fileData = get_current_file_data();
   if ($fileData == 0) {
       &print_message("insert_file_location","No file data available",
 		     "Aborting file insertion query");
       return 0;
   }
+
+
   $storageType = check_ID_for_params("storage");
   $storageSite = check_ID_for_params("site");
   if (($storageType == 0 ) || ($storageSite == 0)) {
@@ -1529,6 +1642,7 @@ sub insert_file_location {
   my $retid=0;
 
   &print_debug("Execute $flinchk");
+  #print "Executing $flinchk\n";
   $sth = $DBH->prepare( $flinchk );
   if ( ! $sth ){
       &print_debug("FileCatalog::insert_file_location : Failed to prepare [$flinchk]"); 
@@ -1539,7 +1653,7 @@ sub insert_file_location {
 	      &print_message("insert","Record already in as $val (may want to update)\n");
 	      $retid = $val;
 	  } 
-      }
+      } 
   }
   $sth->finish();
 
@@ -1975,7 +2089,7 @@ sub run_query {
 
 	    # Missing backward constraint for more-than-one table
 	    # relation keyword. Adding it by hand for now (dirty)
-	    # **** NEED TO BE CHANGED AND MADE AUTOMATIC ***
+	    # **** NEED TO BE CHANGED AND MADE AUTOMATIC AND USE LEVELS ***
 	    # This does not happen if the field is specified
 	    # as a returned keyword.
 	    if ($parent_tabname eq "TriggerCompositions" ){
@@ -2262,20 +2376,21 @@ sub run_query {
       &print_debug("FileCatalog::run_query : Failed to prepare [$sqlquery]");
       return;
   } else {
-      $sth->execute();
       my (@result);
       my (@cols);
       my $rescount = 0;
 
-      while ( @cols = $sth->fetchrow_array() ) {
-	  # if field is empty, fetchrow_array() returns undef()
-	  # fix it by empty string instead.
-	  for (my $i=0 ; $i <= $#cols ; $i++){
-	      if( ! defined($cols[$i]) ){ $cols[$i] = "";}
+      if ( $sth->execute() ){
+	  while ( @cols = $sth->fetchrow_array() ) {
+	      # if field is empty, fetchrow_array() returns undef()
+	      # fix it by empty string instead.
+	      for (my $i=0 ; $i <= $#cols ; $i++){
+		  if( ! defined($cols[$i]) ){ $cols[$i] = "";}
+	      }
+	      $result[$rescount++] = join($delimeter, (@cols));
 	  }
-	  $result[$rescount++] = join($delimeter, (@cols));
+	  $sth->finish();
       }
-      $sth->finish();
       return (@result);
   }
 }
@@ -2318,9 +2433,9 @@ sub delete_records {
   # be deleting btw (one ca run a regular query first and delete
   # after ensuring the same things will be removed) ...
   my $delim = &get_delimeter();
-  my @all   = &run_query("FileCatalog","flid","fdid");
+  my @all   = &run_query("FileCatalog","flid","fdid","path","filename");
 
-  set_delimeter("::");
+  &set_delimeter("::");
 
   my($count,$cmd);
   my($sth,$sth2,$stq);
@@ -2381,7 +2496,7 @@ sub delete_records {
   }
   &set_delimeter($delim);
   
-  return $#all;
+  return @all;
 }
 
 
@@ -2829,11 +2944,11 @@ sub update_location {
   $delim  = get_delimeter();
 
   # Get the list of the files to be updated
-  set_delimeter("::");
-  set_context("all=1");
+  &set_delimeter("::");
+  &set_context("all=1");
   @files = run_query("id","filename","path");
   # Bring back the previous delimeter
-  set_delimeter($delim);
+  &set_delimeter($delim);
 
   delete($valuset{"path"});
 
