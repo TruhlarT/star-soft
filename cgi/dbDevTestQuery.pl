@@ -1,8 +1,11 @@
-#!/usr/local/bin/perl -w
+#!/usr/bin/env perl 
 #
-# $Id: dbDevTestQuery.pl,v 1.12 2003/05/22 18:59:18 didenko Exp $
+# $Id: dbDevTestQuery.pl,v 1.13 2004/02/16 04:13:49 jeromel Exp $
 #
 # $Log: dbDevTestQuery.pl,v $
+# Revision 1.13  2004/02/16 04:13:49  jeromel
+# Small modifs (modules would need to be also installed in OPTSTAR)
+#
 # Revision 1.12  2003/05/22 18:59:18  didenko
 # updated test directories for year2003
 #
@@ -97,7 +100,7 @@ print <<END;
 END
 print $query->startform(-action=>"dbDevTestQueryPlot.pl?rand=$rand");  
 
-print "<body bgcolor=\"#ffdc9f\">\n";
+print "<body bgcolor=\"cornsilk\">\n";
 print "<h1 align=center><u>Query for Nightly Test in DEV Library</u></h1>\n";
 
 print <<END;
@@ -130,7 +133,7 @@ print "</h4>";
 print $query->submit,"<p>";
 print $query->reset;
 print $query->endform;
-print "<address><a href=\"mailto:liuzx\@bnl.gov\">Zhixu Liu</a></address>\n";
+print "<address><a href=\"mailto:liuzx at bnl.gov\">Zhixu Liu</a></address>\n";
 
 #print $query->delete_all;
 print $query->end_html;

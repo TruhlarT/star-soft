@@ -1,8 +1,12 @@
-#!/opt/star/bin/perl -w
+#!/usr/local/bin/perl
+#!/usr/bin/env perl 
 #
-# $Id: dbDevTestQueryPlot.pl,v 1.18 2002/10/11 15:13:42 didenko Exp $
+# $Id: dbDevTestQueryPlot.pl,v 1.19 2004/02/16 04:13:49 jeromel Exp $
 #
 # $Log: dbDevTestQueryPlot.pl,v $
+# Revision 1.19  2004/02/16 04:13:49  jeromel
+# Small modifs (modules would need to be also installed in OPTSTAR)
+#
 # Revision 1.18  2002/10/11 15:13:42  didenko
 # *** empty log message ***
 #
@@ -26,7 +30,7 @@ BEGIN {
  use CGI::Carp qw(fatalsToBrowser carpout);
 }
 
-require "/afs/rhic/star/packages/scripts/dbTJobsSetup.pl";
+require "/afs/rhic.bnl.gov/star/packages/scripts/dbTJobsSetup.pl";
 
 use CGI;
 use GIFgraph::linespoints;
@@ -51,14 +55,14 @@ my %plotHash = (
 		Average_NoKinKVrt => 'avg_no_KinKVrt'
                 );
 
-my $set1   =  $query->param('set1');
+my $set1    =  $query->param('set1');
 my $plotVal = $query->param('plotVal');
-my $weeks = $query->param('weeks');
+my $weeks   = $query->param('weeks');
 
 if ( ($set1 eq "") || ($plotVal eq "") ) {
     print $query->header;
     print $query->start_html('Plot for Nightly Test in DEV Library');
-    print "<body bgcolor=\"#ffdc9f\"><center><pre>";
+    print "<body bgcolor=\"cornsilk\"><center><pre>";
     print "<h1>You must select both the type of test and plot!!</h1>";
     print $query->end_html;
     exit(0);
@@ -185,55 +189,64 @@ if ($plotVal eq "MemUsage") {
     $legend[1] = "$plotVal"."(opt)";
 }
 
-binmode STDOUT;
 
-print STDOUT $query->header(-type => 'image/gif');
 
 $graph = new GIFgraph::linespoints(550+50*$weeks,500);
 
-if( $min_y == 0) {
-    $graph->set(x_label => "(0 value means job failed)");
+if ( ! $graph){
+    print STDOUT $query->header(-type => 'text/plain');
+    print STDOUT "Failed\n";
 } else {
-    # keep the min_y in the 6th ticks (6/3)
-    $min_y = $min_y - ($max_y-$min_y)*2.0;
+    print STDOUT $query->header(-type => 'image/gif');
+    binmode STDOUT;
+
+
+
+    if( $min_y == 0) {
+	$graph->set(x_label => "(0 value means job failed)");
+    } else {
+	# keep the min_y in the 6th ticks (6/3)
+	$min_y = $min_y - ($max_y-$min_y)*2.0;
+    }
+
+    # keep the max_y in the 9th ticks
+    $max_y = $max_y + ($max_y - $min_y)/9.0;
+
+    if($max_y eq $min_y) {
+	$max_y += 1;
+	$min_y -= 1;
+    }
+
+    if($min_y < 0) {
+	$min_y = 0;
+    }
+
+    $graph->set(#x_label => "$xlabel",
+		#y_label => "$mplotVal",
+		x_label_position => 0.5,
+		title   => "$set1"." ($mplotVal)",
+		y_tick_number => 10,
+		y_min_value => $min_y,
+		y_max_value => $max_y,
+		y_number_format => \&y_format,
+		labelclr => "lred",
+		dclrs => [ qw(lred lgreen lblue lpurple) ],
+		line_width => 2,
+		markers => [ 2,4,6,8],
+		marker_size => 6,
+		#long_ticks => 1
+		);
+
+    $graph->set_legend(@legend);
+    $graph->set_legend_font(gdMediumBoldFont);
+    $graph->set_title_font(gdMediumBoldFont);
+    $graph->set_x_label_font(gdMediumBoldFont);
+    $graph->set_y_label_font(gdMediumBoldFont);
+    $graph->set_x_axis_font(gdMediumBoldFont);
+    $graph->set_y_axis_font(gdMediumBoldFont);
+    print STDOUT $graph->plot(\@data);
 }
 
-# keep the max_y in the 9th ticks
-$max_y = $max_y + ($max_y - $min_y)/9.0;
-
-if($max_y eq $min_y) {
-    $max_y += 1;
-    $min_y -= 1;
-}
-
-if($min_y < 0) {
-    $min_y = 0;
-}
-
-$graph->set(#x_label => "$xlabel",
-            #y_label => "$mplotVal",
-	    x_label_position => 0.5,
-            title   => "$set1"." ($mplotVal)",
-	    y_tick_number => 10,
-            y_min_value => $min_y,
-            y_max_value => $max_y,
-	    y_number_format => \&y_format,
-	    labelclr => "lred",
-	    dclrs => [ qw(lred lgreen lblue lpurple) ],
-	    line_width => 2,
-	    markers => [ 2,4,6,8],
-	    marker_size => 6,
-	    #long_ticks => 1
-	    );
-
-$graph->set_legend(@legend);
-$graph->set_legend_font(gdMediumBoldFont);
-$graph->set_title_font(gdMediumBoldFont);
-$graph->set_x_label_font(gdMediumBoldFont);
-$graph->set_y_label_font(gdMediumBoldFont);
-$graph->set_x_axis_font(gdMediumBoldFont);
-$graph->set_y_axis_font(gdMediumBoldFont);
-print STDOUT $graph->plot(\@data);
 
 sub y_format
 {
