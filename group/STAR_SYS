@@ -1,5 +1,8 @@
 #!/bin/csh
 #  $Log: STAR_SYS,v $
+#  Revision 1.36  2004/06/09 01:43:29  jeromel
+#  Support for Scientific Linux along with RedHat
+#
 #  Revision 1.35  2003/12/12 17:24:27  fisyak
 #  Adjust to icc 8.0
 #
@@ -113,7 +116,7 @@
 #
 #  Revision 1.1.1.1  1997/12/31 14:35:23  fisyak
 #
-#             Last modification $Date: 2003/12/12 17:24:27 $
+#             Last modification $Date: 2004/06/09 01:43:29 $
 #
 # Determine STAR_SYS variable.
 #
@@ -271,10 +274,11 @@ else
     #
     setenv STAR_HOST_SYS $STAR_SYS
     if (-f /etc/redhat-release) then
-	set redhat  = `awk '{print $5}' /etc/redhat-release`
-	set rhmajor = `echo $redhat | sed "s/\..*//"`
-	set redhat  = `echo $redhat | sed "s/\.//g"`
-	if ($redhat == 73 || $rhmajor >= 8) then
+	set rhflavor = `awk '{print $1 $2}' /etc/redhat-release | sed "s/[a-z]//g" | awk '{print tolower($1)}'`
+	set redhat   = `awk '{print $5}'    /etc/redhat-release`
+	set rhmajor  = `echo $redhat | sed "s/\..*//"`
+	set redhat   = `echo $redhat | sed "s/\.//g"`
+	if ($redhat == 73 || $rhmajor >= 8 || "$rhflavor" == "sl") then
 	    # Note:  
             #    always assume the compiler is in the path
 	    #    STARCMPL can be defined outside (see 'setup' for example)
@@ -292,7 +296,7 @@ else
 	        setenv STARCMPL "gcc"
 		set vers = `gcc -dumpversion | awk -F. '{print $1$2$3}'`
             endsw
-	    if ("$vers" != "" ) setenv STAR_HOST_SYS rh${redhat}_${STARCMPL}${vers}
+	    if ("$vers" != "" ) setenv STAR_HOST_SYS $rhflavor${redhat}_${STARCMPL}${vers}
 	endif
     endif
 endif
