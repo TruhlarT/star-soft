@@ -22,7 +22,13 @@ use strict;
 my %oldestDate = ( nightlyReal => '2001-04-20',
 		   nightlyMC   => '2001-04-20',
 		   offlineReal => '2001-04-20',
-		   offlineMC   => '2001-04-30'
+		   offlineMC   => '2001-05-01'
+);
+# max number of updated jobs
+my %updateLimit = ( nightlyReal => 10,
+		    nightlyMC   => 2,
+		    offlineReal => 10,
+		    offlineMC   => 10,
 );
 
 #-------------------
@@ -34,21 +40,23 @@ my %oldestDate = ( nightlyReal => '2001-04-20',
 sub UpdateQAOffline{
   my $dataType   = shift; # either 'real' or 'MC'
 
-  my $limit      = 10;     # limit number of new jobs
-  my $oldestDate;         # dont retrieve anything older than this
-  my $fileType;           # daq_reco or MC_reco
+  my $limit;     # limit number of new jobs
+  my $oldestDate;# dont retrieve anything older than this
+  my $fileType;  # daq_reco or MC_reco
   my $today      = strftime("%Y-%m-%d %H:%M:%S",localtime());
 
   # real or simulation?
   if($dataType eq 'real')
   {
-    $fileType = 'daq_reco';
+    $fileType  = 'daq_reco';
     $oldestDate= $oldestDate{'offlineReal'};
+    $limit     = $updateLimit{'offlineReal'};
   }
   elsif($dataType eq 'MC')
   {
-    $fileType = 'MC_reco';  
-    $oldestDate=$oldestDate{'offlineMC'};
+    $fileType  = 'MC_reco';  
+    $oldestDate= $oldestDate{'offlineMC'};
+    $limit     = $updateLimit{'offlineMC'};
   }
   else {die "Wrong argument $dataType" }
   
@@ -100,15 +108,13 @@ sub UpdateQAOffline{
   my $sthInsert = $dbh->prepare($queryInsert); # insert into QASummary
 
   $sthUpdate->execute;
-  my $rows = $sthUpdate->rows or return; # get out if there are no jobs
-
-  print h3("Found $rows new jobs\n");
 
   my %runhash; # hash of hashes of hashes
   my %noskip;  # keys are runIDs
 
   # organize the new jobs by runID 
   while (my ($jobID, $redone, $runID) = $sthUpdate->fetchrow_array){
+    next if !$jobID; # huh?
     $runhash{$runID}{$jobID}{redone}  = $redone;
     
     # set 1/10 as noskip
@@ -129,9 +135,11 @@ sub UpdateQAOffline{
     }
   }
   # loop over runID, jobID
+  my $countRun=0; my $countJob=0; my $count=0;
   foreach my $runID ( keys %runhash ){
+    print h4(++$countRun, " : $runID\n");
     foreach my $jobID ( keys %{$runhash{$runID}} ){
-
+      print h4("\t",++$countJob, " : $jobID\n"); $count++;
       $sthKey->execute($jobID);
     
       # get report key
@@ -148,7 +156,10 @@ sub UpdateQAOffline{
 
       $sthInsert->execute($jobID, $redone, $reportKey, $skip);
     }
+    $countJob=0;
   }	       
+  print h3("Found $count new jobs\n");
+
   return @keyList;
 }
 #-------------------
@@ -177,7 +188,7 @@ sub UpdateQAOfflineReal{
 sub UpdateQANightly {  
   my $dataType = shift; # 'real' or 'MC'
   
-  my $limit       = 20;            # limit number of new jobs
+  my $limit;            # limit number of new jobs
   my $oldestDate; # dont retrieve anything older 
   my $today       = strftime("%Y-%m-%d %H:%M:%S",localtime());
 
@@ -190,6 +201,7 @@ sub UpdateQANightly {
                            file.eventGen = 'cosmics') and
 			 };
     $oldestDate = $oldestDate{'nightlyReal'};
+    $limit = $updateLimit{'nightlyReal'};
   }
   elsif ($dataType eq 'MC')
   {
@@ -198,6 +210,7 @@ sub UpdateQANightly {
 			  file.eventGen != 'cosmics' and
 			};
     $oldestDate = $oldestDate{'nightlyMC'};
+    $limit = $updateLimit{'nightlyMC'};
   }
   else { die "Incorrect argument $dataType"; }
 
@@ -262,42 +275,50 @@ sub UpdateQANightly {
   my $sthInsert = $dbh->prepare($queryInsert); # insert into QASummary 
 
   $sthUpdate->execute;
-  my $rows = $sthUpdate->rows or return; # get out if there are no jobs to update
-
-  print h3("Found $rows new jobs\n");
 
   # somtimes jobIDs are duplicated in the database.
   # they can either be intentional (two jobs run on the same day)
-  # or database errors.
-  # @addLabel is the postfixes to these duplications.
+  # or database errors (QA or production).
+  # @addLabel are the postfixes to these duplications.
 
   my @addLabel = ('a','b','c','d','e','f','g');
 
+  #$sthUpdate->dump_results();
+
+  my $jobID; 
+  $sthUpdate->bind_columns(\$jobID);
+
   # loop over jobs
-  while ( my $jobID = $sthUpdate->fetchrow_array) {
+  my $count=0;
+  while ( $sthUpdate->fetch) {
+    next if !$jobID;
+    print h4(++$count, " : jobId=$jobID\n");
     $sthKey->execute($jobID);
     
     # get the report key
     my $reportKey = make_report_key( $sthKey->fetchrow_array);
+    print h4($reportKey,"\n");
 
     # check if the report key is unique
     $sthCheck->execute($reportKey);
-    my $found = $sthCheck->fetchrow_array;
+    my ($found) = $sthCheck->fetchrow_array;
  
     # apparently not unique
     if($found){
-	my $label;
-	foreach $label (@addLabel){
-	    my $trialKey = $reportKey . $label;
-	    $sthCheck->execute($trialKey);
-	    my $foundAgain = $sthCheck->fetchrow_array;
-    
-	    if(!$foundAgain){ # new reportkey
-		last;
-	    }
+      print "$reportKey found already\n";
+      my $label;
+      CHECK:foreach $label (@addLabel){
+	my $trialKey = $reportKey . $label;
+	$sthCheck->execute($trialKey);
+	my ($foundAgain) = $sthCheck->fetchrow_array;
+	
+	if(!$foundAgain){ # new reportkey
+	  last CHECK;
 	}
-	# set the report key w/ additional label
-	$reportKey .= $label;
+      }
+      # set the report key w/ additional label
+      $reportKey .= $label;
+      print $reportKey,"\n";
     }
         
 
@@ -307,7 +328,8 @@ sub UpdateQANightly {
     # insert into QASummary
     $sthInsert->execute($jobID, $reportKey);
   }
-  
+  print h3("Found $count new jobs\n");
+
   return @keyList;
 }
 
