@@ -1,5 +1,5 @@
 #!/usr/bin/csh -f
-#       $Id: group_env.csh,v 1.107 2000/08/26 16:07:27 fisyak Exp $
+#       $Id: group_env.csh,v 1.108 2000/09/09 17:23:02 fisyak Exp $
 #	Purpose:	STAR group csh setup 
 #
 #	Author:		Y.Fisyak     BNL
@@ -11,15 +11,15 @@
 #
 set ECHO = 1; if ($?STAR == 1) set ECHO = 0
 if ($?SILENT == 1) set ECHO = 0;
-if ($ECHO) then
-  cat /afs/rhic/star/group/small-logo 
-endif
 setenv WWW_HOME http://www.star.bnl.gov/
                                              if ($ECHO) echo   "Setting up WWW_HOME  = $WWW_HOME"
 setenv AFS       /usr/afsws
 setenv AFS_RHIC  /afs/rhic
 if (! $?STAR_ROOT) then
     setenv STAR_ROOT ${AFS_RHIC}/star;
+endif
+if ($ECHO) then
+  cat ${STAR_ROOT}/group/small-logo 
 endif
                                              if ($ECHO) echo   "Setting up STAR_ROOT = ${STAR_ROOT}"         
 # Define /opt/star
