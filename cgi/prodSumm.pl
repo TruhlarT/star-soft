@@ -162,7 +162,7 @@ for( $loopv = 0; $loopv<scalar(@Sets); $loopv++) {
   print "hpssGeantDir: $hpssGeantDirs[$loopv]\n" if $debugOn;
 }
 
-my $ftpHpss = Net::FTP->new("rmds02.rhic.bnl.gov", Port => 2121, Timeout=>100)
+my $ftpHpss = Net::FTP->new("rmds01.rhic.bnl.gov", Port => 2121, Timeout=>100)
   or die "HPSS access failed";
 $ftpHpss->login("starsink","MockData") or die "HPSS access failed";
 
@@ -183,7 +183,7 @@ for( $loopv = 0; $loopv<scalar(@Sets); $loopv++) {
   print "hpssRecoDir: $hpssRecoDirs[$loopv]\n" if $debugOn;
 }
 
-$ftpHpss = Net::FTP->new("rmds02.rhic.bnl.gov", Port => 2121, Timeout=>100)
+$ftpHpss = Net::FTP->new("rmds01.rhic.bnl.gov", Port => 2121, Timeout=>100)
   or die "HPSS access failed";
 $ftpHpss->login("starreco","MockData") or die "HPSS access failed";
 
