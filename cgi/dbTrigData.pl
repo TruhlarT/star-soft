@@ -27,12 +27,13 @@ my $nprodPer = 0;
 my $myprod;
 
 my @detSet = ("all","tpc","svt","rich","tof","ftpc","emc","fpd","pmd");
-my @trigSet  = ("all","central","minbias","medium","peripheral","mixed","physics","MinBias","MinBiasVertex","ProductionMinBias","productionCentral","centralTopo");
+my @trigSet;
 my @mfield = ("all","HalfField","FullField","ReversedFullField","ReversedHalfField","FieldOff");
 my @collis = ("AuAu200", "AuAu130", "AuAu19","ProtonProton200","ProtonProton48" );
 my @trigSet;
 my $ntrigSet = 0;
 my $mytrig;
+my @locSet = ("hpss","disk");
 $trigSet[0] = "all";
 $ntrigSet = 1;
 
@@ -121,7 +122,7 @@ print "<h3 align=center>";
 print $query->popup_menu(-name=>'SetC',  
                    -values=>\@collis,
                    -default=>'AuAu200',                   
-                   -size=>4                              
+                   -size=>5                              
                    );  
 
  print "</h3>";
@@ -130,8 +131,8 @@ print "<h3 align=center>Production series:</h3>";
 print "<h3 align=center>";
 print $query->popup_menu(-name=>'SetP',  
                    -values=>\@prodPer,
-                   -default=>'P01gk',                   
-                   -size=>4                              
+                   -default=>'P01gl',                   
+                   -size=>5                              
                    );                                  
  
  print "</h3>";
@@ -141,7 +142,7 @@ print $query->popup_menu(-name=>'SetP',
  print $query->popup_menu(-name=>'SetT',
                     -values=>\@trigSet,
                     -default=>'all', 
-                    -size=>4
+                    -size=>5
                     ); 
 
  print "</h3>";
@@ -151,7 +152,7 @@ print $query->popup_menu(-name=>'SetP',
  print $query->popup_menu(-name=>'SetF',
                     -values=>\@mfield,
                     -default=>'all', 
-                    -size=>4
+                    -size=>5
                     ); 
  print "</h3>";
  print "</td><td>";
@@ -160,11 +161,20 @@ print $query->popup_menu(-name=>'SetP',
  print $query->popup_menu(-name=>'SetD',
                     -values=>\@detSet,
                     -default=>'all', 
-                    -size=>4
+                    -size=>5
                     ); 
 
 print "</h3>";
 print "</td> </table><hr><center>";
+
+print "<h3 align=center>Location:</h3>";
+print "<h3 align=center>";
+print $query->popup_menu(-name=>'SetLc',
+                    -values=>\@locSet,
+                    -default=>hpss,
+                    -size=>2
+                    ); 
+
 
  print "<p>";
  print "<p><br><br>"; 
