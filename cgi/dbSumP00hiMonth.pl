@@ -269,7 +269,12 @@ my @diskDstFiles;
     $dhfile = ($$ddfile)->flName;
     $dhpath = ($$ddfile)->fpath;
     @dirP = split ("/", $dhpath);
+ if( $dhpath =~ /data0/ ) {
     $dirR = $dirP[6] . "/" . $dirP[7];
+ }
+   elseif($dhpath =~ /disk00001/ ) {
+    $dirR = $dirP[7] . "/" . $dirP[8];   
+}
     $periodRun = $RunHash{$dirR};
     $dstDEvts{$periodRun}  += ($$ddfile)->Nevts;   
     $dstDSize{$periodRun}  += ($$ddfile)->hpsize;     
