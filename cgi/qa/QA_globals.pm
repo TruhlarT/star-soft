@@ -31,12 +31,10 @@ use Exporter ();
 
 @topdir_data = (
 		"/star/rcf/disk00000/star/test/dev/",
-		"/star/rcf/disk00000/star/test/dotdev/",
 		"/star/rcf/disk00000/star/test/new/"
 	       );
 @topdir_data_WWW = (
 		    "http://duvall.star.bnl.gov/data/disk00000_star/test/dev/",
-		    "http://duvall.star.bnl.gov/data/disk00000_star/test/dotdev/",
 		    "http://duvall.star.bnl.gov/data/disk00000_star/test/new/",
 	       );
 
