@@ -27,6 +27,8 @@
 #      rdaq_file2hpss               return an HPSS path+file (several methods)
 #      rdaq_mask2string             convert a detector mask to a string
 #
+# DEV ONLY
+#      rdaq_set_files_where         Not in its final shape.
 #
 
 use Carp;
@@ -43,6 +45,7 @@ require Exporter;
 	     rdaq_open_odatabase rdaq_close_odatabase        
 	     rdaq_raw_files rdaq_add_entry rdaq_add_entries            
 	     rdaq_last_run rdaq_get_files rdaq_get_ffiles rdaq_set_files
+	     rdaq_set_files_where
 
 	     rdaq_file2hpss rdaq_mask2string
 	     );
@@ -355,17 +358,33 @@ sub rdaq_get_files
     @files;
 }
 
-# Set the status for a list of files
+
+# This method is a backward support for the preceeding method
+# which allowed setting status without condition. Now, we
+# also support WHERE Status= cases.
 sub rdaq_set_files
 {
     my($obj,$status,@files)=@_;
-    my($sth,$success);
+    return rdaq_set_files_where($obj,$status,-1,@files);
+}
+
+
+# Set the status for a list of files
+sub rdaq_set_files_where
+{
+    my($obj,$status,$stscond,@files)=@_;
+    my($sth,$success,$cmd);
     my(@items);
     
     if(!$obj){ return 0;}
 
     $success = 0;
-    $sth = $obj->prepare("UPDATE $dbtable SET Status=$status WHERE file=?");
+    $cmd = "UPDATE $dbtable SET Status=$status WHERE file=? ";
+    if ($stscond != -1){
+	$cmd .= " AND Status=$stscond";
+    }
+
+    $sth = $obj->prepare($cmd);
     if($sth){
 	foreach $file (@files){
 	    # support for list of files or full list.
