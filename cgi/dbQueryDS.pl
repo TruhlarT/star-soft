@@ -49,7 +49,7 @@ $sql="SELECT DISTINCT prodSeries FROM JobStatus";
         $prodPer[$nprodPer] = $myprod;
          $nprodPer++;
       }
-
+        $prodPer[$nprodPer] = "prod4";
 
 $sql="SELECT DISTINCT dataset FROM $FileCatalogT where jobID <> 'n/a' AND type = 'MC_reco' ";
 $cursor =$dbh->prepare($sql)
