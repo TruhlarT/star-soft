@@ -1,4 +1,4 @@
-#!/opt/star/bin/perl -w 
+#!/opt/star/bin/perl -w
 
 
 #
@@ -14,13 +14,14 @@ use RunDAQ;
 # We add an infinit loop around so the table will be filled
 # as we go.
 do {
+    $ctime = localtime();
     $dbObj = rdaq_open_odatabase();
     if( $dbObj){
-	print "O-Database opened\n";
+	#print "O-Database opened\n";
 	if ( ($obj = rdaq_open_rdatabase()) == 0){
-	    print "Failed to open R-Database\n";
+	    print "Failed to open R-Database on ".localtime()."\n";
 	} else {
-	    print "R-Database opened\n";
+	    #print "R-Database opened\n";
 	    
 	    # get the top run
 	    $run = rdaq_last_run($dbObj);
@@ -29,17 +30,23 @@ do {
 	    @records = rdaq_raw_files($obj,$run);
 	    
 	    # display info
-	    print "Fetched ".($#records+1)."\n";
-	    
-	    # record entries
-	    rdaq_add_entries($dbObj,@records);
+	    if ($#records != -1){
+		print "Fetched ".($#records+1)." records on $ctime\n";
+
+		# record entries
+		rdaq_add_entries($dbObj,@records);
+
+		# cleanup
+		undef(@records);
+	    }
 
 	    # close
 	    rdaq_close_rdatabase($obj);
+
 	}
 	rdaq_close_odatabase($dbObj);
     } else {
-	print "Failed to open O-Databse\n";
+	print "Failed to open O-Database on ".localtime()."\n";
     }
 
     sleep(60);
