@@ -69,6 +69,13 @@ sub _init{
     find( \&QA_cgi_utilities::get_logfile, $production_dir );
     
     if ( -e $global_logfile ){
+
+      # protect against logfile too old
+      -M $global_logfile > 15 and do{
+	print "<h3> Logfile $global_logfile is too old, skip it... </h3> \n";
+	return;
+      };
+
       print "<h3> Making logfile report for $global_logfile... </h3> \n";
       $self->LogfileName($global_logfile);
     }
