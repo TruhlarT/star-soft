@@ -1,0 +1,74 @@
+#!/usr/local/bin/perl
+
+#
+# Written J.Lauret to add documentation
+# in doxygen format from old block documentation.
+#
+
+foreach $file (@ARGV){
+    print "Reading $file ";
+    if( open(FI,"$file") ){
+	# Initialize those
+	undef(@comments);
+	$author = "";
+	$class  = "";
+	$format =  1;
+	$flag   =  0;
+	
+	while( defined($line = <FI>) ){
+	    chomp($line);
+	    if($line =~ /\\class/i){
+		# Oupsi ! Already doxygenized
+		$format = 0;
+		last;
+	    } elsif ($line =~ /(Author:\s+)(.*)/ ){
+		$author = $2;
+	    } elsif ($line =~ /Description:/){
+		$flag = 1;
+	    } elsif ($line =~ /\s+\*+$/){
+		$flag = 0;
+	    } elsif ($line =~ /(class\s+)(.*)(\s+:)/){
+		$class = $2;
+	    } else {
+		if($flag){
+		    $line =~ s/\s+\*//;
+		    push(@comments,$line);
+		}
+	    }
+	}
+	close(FI);
+
+	if( $format ){
+	    print "\n";
+	    print " Class  = $class\n"  if ($class ne "");
+	    print " Author = $author\n" if ($author ne "");
+	    print " Description ".join("\n",@comments)."\n";
+
+	    open(FI,"$file");
+	    open(FO,">$file-tmp");
+	    while ( defined($line = <FI>) ){
+		if($line =~ /(class\s+)(.*)(\s+:)/){
+		    print FO 
+			"/*!\n",
+			" * \\class $class\n";
+		    print FO
+			" * \\author $author\n" if($author ne "");
+		    if($#comments != -1){
+			print FO " *\n";
+			foreach $tmp (@comments){
+			    print FO " * $tmp\n";
+			}
+			print FO " *\n";
+		    }
+		    print FO " */\n";
+
+		} 
+		print FO "$line";
+	    }
+	    rename("$file-tmp",$file);
+	} else {
+	    print " already doxygenized\n";
+	}
+    }
+
+}
