@@ -1,5 +1,5 @@
 #!/usr/bin/csh -f
-#       $Id: group_env.csh,v 1.102 2000/07/22 22:24:39 fisyak Exp $
+#       $Id: group_env.csh,v 1.103 2000/07/22 22:26:46 fisyak Exp $
 #	Purpose:	STAR group csh setup 
 #
 #	Author:		Y.Fisyak     BNL
@@ -100,7 +100,7 @@ endif
 setenv CERN_ROOT  $CERN/$CERN_LEVEL
 if ($ECHO) echo   "Setting up ROOT_LEVEL= ${ROOT_LEVEL}"
 setenv GROUPPATH "${GROUP_DIR}:${STAR_MGR}:${STAR_SCRIPTS}:${STAR_CGI}:${MY_BIN}:${STAR_BIN}:${STAF}/mgr:${STAF_BIN}"
-setenv PATH "/opt/star/bin:$PATH"
+setenv PATH "${OPTSTAR}/bin:$PATH"
 if ( -x /afs/rhic/star/group/dropit) then
 # clean-up PATH
   setenv MANPATH `/afs/rhic/star/group/dropit -p ${MANPATH}`
@@ -109,7 +109,7 @@ if ( -x /afs/rhic/star/group/dropit) then
   if ($?LD_LIBRARY_PATH == 1) setenv LD_LIBRARY_PATH `/afs/rhic/star/group/dropit -p ${LD_LIBRARY_PATH} $STAR_PATH`
   if ($?SHLIB_PATH == 1)      setenv SHLIB_PATH      `/afs/rhic/star/group/dropit -p ${SHLIB_PATH} $STAR_PATH`
 endif
-setenv PATH "${GROUPPATH}:/usr/afsws/bin:/usr/afsws/etc:/opt/star/bin:/usr/sue/bin:/usr/local/bin:${PATH}"
+setenv PATH "${GROUPPATH}:/usr/afsws/bin:/usr/afsws/etc:${OPTSTAR}/bin:/usr/sue/bin:/usr/local/bin:${PATH}"
 ## Put mysql on path if available
 if ( -d /usr/local/mysql/bin) then
   setenv PATH "${PATH}:/usr/local/mysql/bin"
@@ -269,21 +269,21 @@ if ("$CERN_LEVEL" != "pro") then
   setenv PATH  `/afs/rhic/star/group/dropit cern`
   setenv PATH  "${PATH}:${CERN_ROOT}/bin"
 endif 
-setenv PATH "/opt/star/bin:${PATH}"
+setenv PATH "${OPTSTAR}/bin:${PATH}"
 switch ($STAR_SYS)
     case "hp_ux102":
 #  ====================
-  setenv SHLIB_PATH "${SHLIB_PATH}:/opt/star/lib"
-  if ( -d /opt/star/lib/mysql ) then
-    setenv SHLIB_PATH "${SHLIB_PATH}:/opt/star/lib/mysql"
+  setenv SHLIB_PATH "${SHLIB_PATH}:${OPTSTAR}/lib"
+  if ( -d ${OPTSTAR}/lib/mysql ) then
+    setenv SHLIB_PATH "${SHLIB_PATH}:${OPTSTAR}/lib/mysql"
   endif
   setenv SHLIB_PATH `/afs/rhic/star/group/dropit -p "$SHLIB_PATH"`
     breaksw
     default:
 #  ====================
-  setenv LD_LIBRARY_PATH "${LD_LIBRARY_PATH}:/opt/star/lib"
-  if ( -d /opt/star/lib/mysql ) then
-    setenv LD_LIBRARY_PATH "${LD_LIBRARY_PATH}:/opt/star/lib/mysql"
+  setenv LD_LIBRARY_PATH "${LD_LIBRARY_PATH}:${OPTSTAR}/lib"
+  if ( -d ${OPTSTAR}/lib/mysql ) then
+    setenv LD_LIBRARY_PATH "${LD_LIBRARY_PATH}:${OPTSTAR}/lib/mysql"
   endif
   setenv LD_LIBRARY_PATH `/afs/rhic/star/group/dropit -p "$LD_LIBRARY_PATH"`
     breaksw
