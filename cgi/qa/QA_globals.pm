@@ -28,7 +28,7 @@ use Exporter ();
 
 	     @QA_key_list @selected_key_list $global_expert_page
 
-	     $query 
+	     $query
 
 	     $time_start $time_last_call
 );

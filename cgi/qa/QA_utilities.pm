@@ -360,7 +360,8 @@ sub hidden_field_string{
 	$query->hidden('dataset_array_previous').
 	  $query->hidden('selected_key_list').
 	    $query->hidden('expert_pw').
-	      $query->hidden('save_object_hash_scratch_file');
+	      $query->hidden('display_env_var').
+		$query->hidden('save_object_hash_scratch_file');
   
   #------------------------------------------------------------  
   # store persistent hashes
@@ -428,7 +429,6 @@ sub print_timing{
 }
 #=======================================================================
 sub move_old_reports{
-
  
   opendir REPORTDIR, $topdir_report or die "Cannot open report_dir $topdir_report \n";
   
@@ -449,4 +449,102 @@ sub move_old_reports{
     system ("\\rm -rf $name");
     
   }
+}
+#=======================================================================
+sub run_DSV{
+
+  $report_key = shift;
+
+  $report_key or do{
+    print "Error in QA_utilities::run_DSV: valid report key not supplied <br> \n";
+    return;
+  };
+  #-----------------------------------------------------------------------------
+
+  $global_input_data_type = ".dst.xdf";
+  $production_dir = $QA_object_hash{$report_key}->LogReport->OutputDirectory; 
+  find( \&QA_cgi_utilities::get_file, $production_dir );
+
+  if ( ! -e $global_filename ){
+    print "Error in QA_utilities::run_DSV: file with type .dst.xdf not found in $production_dir <br> \n";
+    return;
+  };
+
+  $xdf_file = $global_filename;
+
+  #-----------------------------------------------------------------------------
+  $DISPLAY = $query->param('display_env_var');
+
+  if ($DISPLAY){
+    print "Current DISPLAY environment variable is $DISPLAY <br> \n";
+  }
+  else{
+    print "DISPLAY environment variable not set. Set it and try again. <br> \n";
+    return;
+  }
+
+  #-----------------------------------------------------------------------------
+  print "Starting dsv on file $xdf_file... <br> \n";
+  #-----------------------------------------------------------------------------
+  # create temporary csh script, use process pid ($$) to make unique name
+  $script = $scratch."/"."run_dsv".$$."\.csh";
+  
+  # make sure it disappears at the end...
+#  END { unlink($script) };
+  
+  open (SCRIPT, "> $script") or die "Cannot open $script: $!\n";
+
+  # write to script
+  print SCRIPT "#! /usr/local/bin/tcsh\n",
+  "setenv GROUP_DIR /afs/rhic/rhstar/group\n",
+  "setenv CERN /cern\n",
+  "setenv CERN_ROOT /cern/pro\n",
+  "setenv HOME /star/u2/jacobs\n",
+  "setenv DISPLAY $DISPLAY\n",
+  "source /afs/rhic/rhstar/group/.stardev\n",
+  "setenv DSV_DIR /afs/rhic/star/tpc/dsv\n",
+  "echo Doing: source /afs/rhic/star/tpc/dsv/set_path\n",
+  "source /afs/rhic/star/tpc/dsv/set_path\n",
+  "echo Doing: rpoints -xdfFile $xdf_file -event dst_0\n",
+  "rpoints -xdfFile $xdf_file -event dst_0 &\n";
+
+  close SCRIPT;
+  
+  chmod 0775, $script;
+  #-----------------------------------------------------------------------------
+  # 2nd layer - needed to get clean return of control to web page, not sure why this 
+  # happens pmj 12/1/99
+  $submit_script = $scratch."/"."submit_run_dsv".$$."\.csh";
+  
+  # make sure it disappears at the end...
+#  END { unlink($submit_script) };
+  
+  open (SUBMIT, "> $submit_script") or die "Cannot open $submit_script: $!\n";
+
+  # write to script
+  print SUBMIT "#! /usr/local/bin/tcsh\n",
+  "$script\n";
+
+  close SUBMIT;
+  
+  chmod 0775, $submit_script;
+  
+  #-----------------------------------------------------------------------------
+  
+  # for debugging - doesn't properly create background process
+  # pipe both STDOUT and STDERR (see PERL Cookbook 16.7)
+  #open SCRIPTLOG, "$script 2>&1 |"  or die "can't fork: $!";
+  #print "<pre> \n";
+  #while ($line = <SCRIPTLOG>){
+  #  print $line;
+  #}
+  #print "</pre> \n";
+  #close SCRIPTLOG;
+
+  #-----------------------------------------------------------------------------
+
+  print "Running DVS on display $DISPLAY, input file $xdf_file... <br> \n";
+  system("$submit_script &");
+  print "DSV is running independently, control has returned to web page<br> \n";
+
 }

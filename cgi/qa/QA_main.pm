@@ -205,6 +205,8 @@ sub starting_display {
 	"<P>".$query->submit('Display selected dataset').
 	  $hidden_string.$query->endform;
 
+  $dsv_button_ref = Button_object->new('EnableDSV','Enable DSV'); 
+
   if($global_expert_page){  
 
     $action_string = "<H3>Global actions:</H3>".
@@ -238,7 +240,9 @@ sub starting_display {
     $action_string .= $button_ref->SubmitString;
 
     $button_ref = Button_object->new('CrontabMinusR', 'Do crontab -r');
-    $action_string .= $button_ref->SubmitString;
+    $action_string .= $button_ref->SubmitString."<br>";
+
+    $action_string .= $dsv_button_ref->SubmitString;
 
     $hidden_string = &QA_utilities::hidden_field_string;
     $action_string .= $hidden_string.$query->endform;
@@ -248,7 +252,14 @@ sub starting_display {
   }
   else{ 
 
-    undef $action_string; 
+#    undef $action_string; 
+
+    $dsv_button_string = "<H3> Enable DSV </H3>".
+      $dsv_button_ref->SubmitString."<br>";
+
+    $action_string = 
+      $query->startform(-action=>"$script_name/lower_display", -TARGET=>"display").
+	$dsv_button_string.$hidden_string.$query->endform; 
 
     $expert_page_string = "<H3>Access expert's page<br>(do updates and QA):</H3>".
       $query->startform(-action=>"$script_name/lower_display", -TARGET=>"display");

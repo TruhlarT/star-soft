@@ -1,1 +1,1 @@
-0 0,8,16 * * * /afs/rhic/star/packages/dev/cgi/qa/cronjob.csh
+0 6,22 * * * /afs/rhic/star/packages/dev/cgi/qa/cronjob.csh

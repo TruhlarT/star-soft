@@ -140,6 +140,31 @@ sub ExpertPageRequest{
   
 }
 #========================================================
+sub EnableDSV{
+
+  my $self = shift;
+  #-------------------------------------------------------
+
+  print "<h3>Enable DSV</h3> \n";
+  print "This button enables the use in this web page of DSV, Duncan Prindle's DataSetViewer, to",
+  " allow you to look in detail at the events in the .dst.xdf file for a given run. Use of it",
+  " here is under development, and though it appears to work, it is slow at remote sites and",
+  " should be used with caution. In addition, the interface to this web page is somewhat ",
+  " messy and is under development. Please send me any comments or questions. pmj 1/12/99"; 
+    
+  print "<h4>To enable DSV, enter your DISPLAY environment variable below. Otherwise, don't",
+  " enter anything and do a different operation in the upper frame.",
+  " If an incorrect DISPLAY value has been entered previously, simply press the 'Enable DSV' button",
+  " and enter the correct one.</h4> \n";
+
+  print $query->startform(-action=>"$script_name/upper_display", -TARGET=>"list"); 
+  print $query->textfield('display_env_var', '', 50, 80);
+  my $string = &QA_utilities::hidden_field_string;
+  print "$string";
+  print $query->endform;
+  
+}
+#========================================================
 sub UpdateCatalogue{
 
   my $self = shift;
@@ -292,6 +317,15 @@ sub FilesAndReports{
 
   #-------------------------------------------------------
   $QA_object_hash{$report_key}->DisplayFilesAndReports;
+}
+#========================================================
+sub RunDSV{
+
+  my $self = shift;
+  my $report_key = $self->ReportKey;
+
+  #-------------------------------------------------------
+  &QA_utilities::run_DSV($report_key);
 }
 #========================================================
 sub CompareSimilarRuns{

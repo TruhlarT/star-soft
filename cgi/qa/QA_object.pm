@@ -378,49 +378,6 @@ sub RunSummaryString{
   return $self->{run_summary_string};
 }
 #========================================================
-sub ButtonStringOld{
-  my $self = shift;
-  #-----------------------------------------------------------------------
-  my $report_key = $self->ReportKey;
-  
-  my $temp = $report_key.".show_log_report";
-  my $button_string = "<input type=submit name=$temp value='Run details'>";
-  
-  if ( $self->QADone ){ 
-    $temp = $report_key.".show_qa";
-    $button_string .= "<input type=submit name=$temp value='QA details'>";
-  }
-  $button_string .= "<br>";
-
-  $temp = $report_key.".show_files";
-  $button_string .= "<input type=submit name=$temp value='Files and Reports'><br>";
-
-  $temp = $report_key.".setup_report_comparison";
-  $button_string .= "<input type=submit name=$temp value='Compare similar runs'><br>";
-  
-  if ($global_expert_page){
-
-    if ( $self->QADone ){ 
-      $temp = $report_key.".redo_evaluation";
-      $button_string .= "<input type=submit name=$temp value='Redo Evaluation'>";
-      $self->OnDisk and do {	
-	$temp = $report_key.".redo_qa_batch";
-	$button_string .= "<input type=submit name=$temp value='Redo QA (batch)'>";
-      };
-    }
-    else{
-      $self->OnDisk and do {	
-	$temp = $report_key.".do_qa_batch";
-	$button_string .= "<input type=submit name=$temp value='Do QA (batch)'>";
-      };
-    }
-  }
-  #-----------------------------------------------------------------------------
-
-  return $button_string;
-
-}
-#========================================================
 sub ButtonString{
   my $self = shift;
 
@@ -429,31 +386,29 @@ sub ButtonString{
 
   $button_string = "";
 
-#  my $temp = $report_key.".show_log_report";
-#  my $button_string = "<input type=submit name=$temp value='Run details'>";
   $button_ref = Button_object->new('RunDetails', 'Run Details', 
 				   $report_key);
   $button_string .= $button_ref->SubmitString;
   
   
   if ( $self->QADone ){ 
-#    $temp = $report_key.".show_qa";
-#    $button_string .= "<input type=submit name=$temp value='QA details'>";
     $button_ref = Button_object->new('QaDetails', 'QA Details', 
 				     $report_key);
     $button_string .= $button_ref->SubmitString;
   }
   $button_string .= "<br>";
 
-#  $temp = $report_key.".show_files";
-#  $button_string .= "<input type=submit name=$temp value='Files and Reports'><br>";
   $button_ref = Button_object->new('FilesAndReports', 'Files and Reports', 
 				   $report_key);
   $button_string .= $button_ref->SubmitString;
+
+  $query->param('display_env_var') and do{
+    $button_ref = Button_object->new('RunDSV', 'Run DSV', $report_key);
+    $button_string .= $button_ref->SubmitString;
+  };
+
   $button_string .= "<br>";
 
-#  $temp = $report_key.".setup_report_comparison";
-#  $button_string .= "<input type=submit name=$temp value='Compare similar runs'><br>";
   $button_ref = Button_object->new('CompareSimilarRuns', 'Compare similar runs', 
 				   $report_key);
   $button_string .= $button_ref->SubmitString;
@@ -462,15 +417,11 @@ sub ButtonString{
   if ($global_expert_page){
 
     if ( $self->QADone ){ 
-#      $temp = $report_key.".redo_evaluation";
-#      $button_string .= "<input type=submit name=$temp value='Redo Evaluation'>";
       $button_ref = Button_object->new('RedoEvaluation', 'Redo Evaluation', 
 				       $report_key);
       $button_string .= $button_ref->SubmitString;
 
       $self->OnDisk and do {	
-#	$temp = $report_key.".redo_qa_batch";
-#	$button_string .= "<input type=submit name=$temp value='Redo QA (batch)'>";
 	$button_ref = Button_object->new('RedoQaBatch', 'Redo QA (batch)', 
 					 $report_key);
 	$button_string .= $button_ref->SubmitString;
@@ -480,8 +431,6 @@ sub ButtonString{
     }
     else{
       $self->OnDisk and do {	
-#	$temp = $report_key.".do_qa_batch";
-#	$button_string .= "<input type=submit name=$temp value='Do QA (batch)'>";
 	$button_ref = Button_object->new('DoQaBatch', 'Do QA (batch)', 
 					 $report_key);
 	$button_string .= $button_ref->SubmitString;
