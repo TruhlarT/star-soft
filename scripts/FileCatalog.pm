@@ -62,7 +62,7 @@ my $dbhost    =   "duvall.star.bnl.gov";
 my $dbuser    =   "FC_user";
 my $dbsource  =   "DBI:mysql:$dbname:$dbhost";
 my $DBH;
-
+my $sth;
 
 # hash of keywords
 my %keywrds;
@@ -194,6 +194,25 @@ $aggregates[4] = "grp";
 $aggregates[5] = "orda";
 $aggregates[6] = "ordd";
 
+# A table holding the number of records in each table
+my %rowcounts;
+$rowcounts{"StorageTypes"} = 0;
+$rowcounts{"StorageSites"} = 0;
+$rowcounts{"FileData"} = 0;
+$rowcounts{"ProductionConditions"} = 0;
+$rowcounts{"FileTypes"} = 0;
+$rowcounts{"TriggerWords"} = 0;
+$rowcounts{"FileData"} = 0;
+$rowcounts{"RunParams"} = 0;
+$rowcounts{"RunTypes"} = 0;
+$rowcounts{"DetectorConfigurations"} = 0;
+$rowcounts{"CollisionTypes"} = 0;
+$rowcounts{"TriggerSetups"} = 0;
+$rowcounts{"SimulationParams"} = 0;
+$rowcounts{"EventGenerators"} = 0;
+$rowcounts{"FileLocations"} = 0;
+$rowcounts{"TriggerCompositions"} = 0;
+
 #============================================
 # parse keywrds - get the field name for the given keyword
 # Parameters:
@@ -304,8 +323,8 @@ sub new {
   #my %valuset=
 
   bless($self);
-  bless(\%valuset, "FileCatalog");
-  bless(\%operset, "FileCatalog");
+  bless(\%valuset, "FileCatlog");
+  bless(\%operset, "FileCatlog");
 
   return $self;
 }
@@ -321,6 +340,23 @@ sub connect {
 
   $DBH = DBI->connect($dbsource,$user,$passwd) ||
       die "cannot connect to $dbname : $DBI::errstr\n";
+
+  foreach (keys(%rowcounts)){
+      my $sqlquery = "SELECT count(*) FROM $_";
+      &print_debug("Executing: $sqlquery");
+      $sth = $DBH->prepare($sqlquery);
+      if( ! $sth){
+   	&print_debug("FileCatalog:: connect : Failed to prepare [$sqlquery]");
+      } else {
+	$sth->execute();
+	my( $count );
+	$sth->bind_columns( \$count );
+	
+	if ( $sth->fetch() ) {
+	  $rowcounts{$_} = $count;
+	}
+      }
+  }
 
   if ( ! defined($DBH) ) {
       return 0;
@@ -372,36 +408,35 @@ sub set_context {
 
   if ($_[0] =~ m/FileCatalog/) {
     shift @_;
-  };
+  }
+  ;
+  my( $params ) = @_;
 
-  my $params;
+  #  print ("Setting context for: $params \n");
   my $keyw;
   my $oper;
   my $valu;
 
-  foreach $params (@_){
-      #  print ("Setting context for: $params \n");
-      ($keyw, $oper, $valu) = disentangle_param($params);
+  ($keyw, $oper, $valu) = disentangle_param($params);
 
-      # Chop spaces from the key name and value;
-      $keyw =~ y/ //d;
-      if ($valu =~ m/.*[\"\'].*[\"\'].*/) {
-	  $valu =~ s/.*[\"\'](.*)[\"\'].*/$1/;
-      } else {
-	  $valu =~ s/ //g;
-      }
+  # Chop spaces from the key name and value;
+  $keyw =~ y/ //d;
+  if ($valu =~ m/.*[\"\'].*[\"\'].*/) {
+    $valu =~ s/.*[\"\'](.*)[\"\'].*/$1/;
+  } else {
+    $valu =~ s/ //g;
+  }
 
-      if (exists $keywrds{$keyw}) {
-	  if ($DEBUG > 0) {
-	      &print_debug("Query accepted $DEBUG: ".$keyw."=".$valu);
-	  }
-	  $operset{$keyw} = $oper;
-	  $valuset{$keyw} = $valu;
-      } else {
-	  if ($DEBUG > 0){
-	      &print_debug("ERROR: $keyw is not a valid keyword.",
-			   "Cannot set context.");
-	  }
+  if (exists $keywrds{$keyw}) {
+    if ($DEBUG > 0) {
+	&print_debug("Query accepted $DEBUG: ".$keyw."=".$valu);
+    }
+    $operset{$keyw} = $oper;
+    $valuset{$keyw} = $valu;
+  } else {
+      if ($DEBUG > 0){
+	  &print_debug("ERROR: $keyw is not a valid keyword.",
+		       "Cannot set context.");
       }
   }
 }
@@ -541,7 +576,7 @@ sub insert_dictionary_value {
 	  &print_debug("The field $fieldnamet $tabnamet is from the same table as $fieldnameo $tabnameo");
       }
       if (defined $valuset{$_}) {
-	push @additional, ($_);
+	  push @additional, ($_);
       }
     }
   }
@@ -803,8 +838,8 @@ sub insert_collision_type {
 sub get_last_id
 {
     my $sqlquery = "SELECT LAST_INSERT_ID()";
+    my $id;
     my $retv=0;
-    my($id,$sth);
 
     if( ! defined($DBH) ){
 	&print_message("get_last_id","Not connected");
@@ -1714,6 +1749,15 @@ sub run_query {
 
   my (@keywords)  = (@_);
 
+  if($DEBUG > 0){
+      &print_debug("By the way ...");
+      foreach (keys(%rowcounts))
+      {
+	  &print_debug("\t$_ count is ".$rowcounts{$_}."\n");
+      }
+  }
+
+
   $count = 0;
   # Check the validity of the keywords
   foreach(@keywords)
@@ -1744,8 +1788,105 @@ sub run_query {
       $count++;
     }
 
-  my @connections;
+  # Do the constraint pre-check (for query optimization)
+  # check if a given costraint produces a single record ID
+  # If so remove the constraint and use this ID directly instead
+  my @constraint;
   my @from;
+  my @connections;
+
+  foreach (keys(%valuset)) {
+    my $tabname = get_table_name($_);
+    # Chceck if the table name is one of the dictionary ones
+    if (($tabname ne "FileData") && 
+	($tabname ne "FileLocations") && 
+	($tabname ne "RunParams") && 
+	($tabname ne "SimulationParams") &&
+	($tabname ne "TriggerCompositions") && 
+	($tabname ne ""))
+      {
+	my $fieldname = get_field_name($_);
+	my $idname = $tabname;
+	my $addedconstr = "";
+
+	chop($idname);
+	$idname = lcfirst($idname);
+	$idname.="ID";
+	
+	# Find which table this one is connecting to
+	my $parent_tabname;
+	foreach (@datastruct)
+	  {
+	    if (($_ =~ m/$idname/) > 0)
+	      {
+		# We found the right row - get the table name
+		my ($stab,$fld);
+		($stab,$parent_tabname,$fld) = split(",");
+	      }
+	  }
+	my $sqlquery = "SELECT $idname FROM $tabname WHERE ";
+ 	if ((($roundfields =~ m/$fieldname/) > 0) && (! defined $valuset{"noround"}))
+	  {
+	    my ($nround) = $roundfields =~ m/$fieldname|([0-9]*)/;
+	    $sqlquery .= "ROUND($fieldname, $nround) ".$operset{$_}." ".$valuset{$_};
+	  }
+	elsif ($operset{$_} eq "~")
+	  {
+	    $sqlquery .= "$fieldname LIKE '%".$valuset{$_}."%'";
+	  }
+	elsif ($operset{$_} eq "!~")
+	  {
+	    $sqlquery .= "$fieldname NOT LIKE '%".$valuset{$_}."%'";
+	  }
+	else
+	  {
+	    if (get_field_type($_) eq "text")
+	      { 
+		$sqlquery .= "$fieldname ".$operset{$_}." '".$valuset{$_}."'"; 
+	      }
+	    else
+	      { 
+		$sqlquery .= "$fieldname ".$operset{$_}." ".$valuset{$_}; 
+	      }
+	  }
+	if ($DEBUG > 0) {  &print_debug("Executing: $sqlquery");}
+	$sth = $DBH->prepare($sqlquery);
+
+	if( ! $sth){
+	  &print_debug("FileCatalog:: get id's : Failed to prepare [$sqlquery]");
+	} else {
+	  $sth->execute();
+	  my( $id );
+	  $sth->bind_columns( \$id );
+
+	  if ( $sth->rows < 5) {
+	    # Create a new constraint
+	    $addedconstr = " ( ";
+	    while ( $sth->fetch() ) {
+	      if ($addedconstr ne " ( ")
+		{
+		  $addedconstr .= " OR $parent_tabname.$idname = $id "; 
+		}
+	      else
+		{
+		  $addedconstr .= " $parent_tabname.$idname = $id ";
+		}
+	      &print_debug("Added constraints now $addedconstr");
+	    }
+	    $addedconstr .= " ) ";
+	    # Add a newly constructed keyword
+	    push (@constraint, $addedconstr);
+	    # Remove the condition - we already take care of it
+	    delete $valuset{$_};
+	    # But remember to add the the parent table
+#	    push (@connections, (connect_fields($keywords[0], $_)));
+	    push (@from, $parent_tabname);
+	  }
+	}
+	
+      }
+  }
+  
 
   push (@from, get_table_name($keywords[0]));
   for ($count=1; $count<$#keywords+1; $count++) {
@@ -1829,6 +1970,10 @@ sub run_query {
   my  ($where);
   foreach (@toquery) {
     my ($mtable, $stable, $field, $level) = split(",",$datastruct[$_]);
+    if (($mtable eq "FileData") && ($stable eq "FileLocations"))
+      {
+	next;
+      }
     push (@from, $mtable);
     push (@from, $stable);
     if (not $where) {
@@ -1871,7 +2016,6 @@ sub run_query {
 
 
   # See if we have any constaint parameters
-  my @constraint;
   foreach (keys(%valuset)) {
     my $fromlist = join(" " , (@fromunique));
     my $tabname = get_table_name($_);
@@ -1933,6 +2077,31 @@ sub run_query {
   if (((join(" ",(@fromunique)) =~ m/FileLocations/) > 0) and defined $flkey){
       $sqlquery .= " FileLocationID , ";
   }
+
+  # Ugly hack to test the natural join 
+  # (but it's the only way to treat this special case)
+  my $fdat = join(" ",(@fromunique)) =~ m/FileData/;
+  &print_debug("Before the natural: ".join(" ",@fromunique));
+  if (($floc > 0) && ($fdat >0)){
+      my $i;
+      #Find the FileLocations and FileData and delete it
+      for ($i=0; $i <= $#fromunique; ){
+	  #&print_debug("Considering splicing of $i $#fromunique [$fromunique[$i]]");
+	  if ($fromunique[$i] eq "FileLocations"){
+	      #&print_debug("Splicing FileLocations [$fromunique[$i]]");
+	      splice(@fromunique, $i, 1);
+	  } elsif ($fromunique[$i] eq "FileData"){
+	      #&print_debug("Splicing FileData $#fromunique [$fromunique[$i]]");
+	      splice(@fromunique, $i, 1);
+	  } else {
+	      $i++;
+	  }
+      }
+      # Add a natural join instead
+      push (@fromunique, "FileData NATURAL JOIN FileLocations");
+  }
+  &print_debug("After the natural: ".join(" ",@fromunique));
+
   $sqlquery .= join(" , ",(@selectunique))." FROM ".join(" , ",(@fromunique));
 
   if (defined $where) {
@@ -2461,16 +2630,13 @@ sub print_message
 
 sub destroy {
   my $self = shift;
-
   clear_context();
   if ( defined($DBH) ) {
-      if ( $DBH->disconnect ) {
-	  return 1;
-      } else {
-	  return 0;
-      }
-  } else {
+    if ( $DBH->disconnect ) {
+      return 1;
+    } else {
       return 0;
+    }
   }
 }
 
