@@ -16,6 +16,7 @@ use Exporter;
 	   IUExcluded IUSourceDirs IUError IUconsOK IULoad
 	   IUTests IUTestDir IURTFormat IUListRoutine IUErrorURL
 	   IUReleaseFile IUManagers IUCompDir IUHtmlDir IUHtmlRef
+	   IUJPFormat
 	   );
 
 # ------------------------------------------
@@ -95,6 +96,7 @@ $INSU::TDIR="/star/rcf/test/dev/Insure";
 
 # Default formatting script for run-time
 $INSU::RTFORMAT="/afs/rhic/star/packages/scripts/insrtm.pl";
+$INSU::JPFORMAT="jprof";
 
 # routine exclusion in listing-by-routine
 @INSU::SKIPFUNC=("_Cint",
@@ -379,6 +381,9 @@ sub IUTests { return %INSU::TESTS;}
 
 # Returns the default run-time formatting script
 sub IURTFormat { return $INSU::RTFORMAT;}
+
+# Returns the jprof formatting program
+sub IUJPFormat { return $INSU::JPFORMAT;}
 
 # Returns the Test working directory
 sub IUTestDir { return $INSU::TDIR;}
