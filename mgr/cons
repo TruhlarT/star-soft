@@ -35,9 +35,9 @@ use Cwd;
 use vars qw( $CVS_id $CVS_ver $ver_num $ver_rev $version );
 
 #ifndef __YF__
-#$CVS_id = '$Id: cons,v 1.90 2004/01/22 15:31:36 fisyak Exp $ ';
+#$CVS_id = '$Id: cons,v 1.91 2004/02/24 02:12:05 jeromel Exp $ ';
 #else /* __YF__ */
-$CVS_id = '$Id: cons,v 1.90 2004/01/22 15:31:36 fisyak Exp $ ';
+$CVS_id = '$Id: cons,v 1.91 2004/02/24 02:12:05 jeromel Exp $ ';
 #endif /* __YF__ */
 $CVS_ver = (split(/\s+/, $CVS_id))[2];
 
@@ -4190,7 +4190,7 @@ use vars qw( $called );
 
 sub init {
     my($dir) = @_;
-    my($consign) = $dir->prefix . ".consign";
+    my($consign) = $dir->prefix . ".consign$^O";
     my($dhash) = $dir->{consign} = {};
     if (-f $consign) {
 	open(CONSIGN, $consign) || die("$0: can't open $consign ($!)\n");
@@ -4232,7 +4232,7 @@ sub END {
     close(CONSIGN); # in case this came in via ^C.
     my $dir;
     for $dir (values %sig::hash::dirty) {
-	my($consign) = $dir->prefix . ".consign";
+	my($consign) = $dir->prefix . ".consign$^O";
 	my($constemp) = $consign . ".$$";
 	if (! open(CONSIGN, ">$constemp")) {
 	    die("$0: can't create $constemp ($!)\n");
