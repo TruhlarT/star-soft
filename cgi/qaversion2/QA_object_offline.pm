@@ -34,7 +34,8 @@ sub new{
 sub InitOnDisk{
   my $self = shift;
 
-  my $ondisk = QA_db_utilities::OnDiskOffline($self->LogReport->JobID);
+  #my $ondisk = QA_db_utilities::OnDiskOffline($self->LogReport->JobID);
+  my $ondisk=-1;
   $self->OnDisk($ondisk);
 }
 

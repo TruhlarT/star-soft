@@ -96,10 +96,10 @@ sub UpdateQAOffline{
   # replace with underscores
   
   sub make_report_key_offline{
-    my $reportKey = shift;
+    my ($jobID,$redone,$runID,$fileSeq) = @_;
 
-    $reportKey =~ s/\//_/g;
-    return $reportKey;
+    $jobID =~ s/\//_/g;
+    return "$jobID.$redone.$runID.$fileSeq";
   }
 
   # update
@@ -183,18 +183,18 @@ sub UpdateQAOffline{
 	print "\t",++$countJob, " fileSeq=$fileSeq : $jobID skip? $skip",
 	  ",redone? $redone\n";
 	$count++;
-	$sthKey->execute($jobID);
+	#$sthKey->execute($jobID);
 	
 	# get report key
-	my $reportKey = make_report_key_offline($sthKey->fetchrow_array);
+	my $reportKey = make_report_key_offline($jobID,$redone,$runID,$fileSeq);
 	
 	# insert into QASummary
-	#print "\n$runID, $skip";
+	#print "\t$reportKey\n";
 	
 	my $rc = $sthInsert->execute($jobID, $redone, $reportKey, $skip) 
 	  unless $debug;
 	# save report key
-	push @keyList, $reportKey if ($rc+=0);
+	push @keyList, $reportKey if ($rc+=0 || $debug);
       }
       #$countJob=0;
     }	 
