@@ -2,7 +2,7 @@
 %
 % StEvent - User Guide and Reference Manual -- LaTeX Source
 %
-% $Id: StEvent.tex,v 2.76 2003/04/16 17:26:03 ullrich Exp $
+% $Id: StEvent.tex,v 2.77 2003/04/22 01:10:34 ullrich Exp $
 %
 % Author: Thomas Ullrich, Nov 1999
 %
@@ -21,6 +21,9 @@
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %
 % $Log: StEvent.tex,v $
+% Revision 2.77  2003/04/22 01:10:34  ullrich
+% Added text from Subhasis on PHMD.
+%
 % Revision 2.76  2003/04/16 17:26:03  ullrich
 % Added References for StTriggerId and referring collections
 % as well as StTriggerData and StTriggerData2003.
@@ -294,8 +297,8 @@
   \mbox{\includegraphics[width=\textwidth]{StEventTitle.eps}}
   \hfill\mbox{}\\[3cm]
   {\LARGE User Guide and Reference Manual \\[5mm] for Version 2}\\[2cm]
-  {\LARGE $ $Revision: 2.76 $ $}  \\[5mm] % replaced by cvs with current revision
-  {\LARGE $ $Date: 2003/04/16 17:26:03 $ $}  % replaced by cvs with current revision
+  {\LARGE $ $Revision: 2.77 $ $}  \\[5mm] % replaced by cvs with current revision
+  {\LARGE $ $Date: 2003/04/22 01:10:34 $ $}  % replaced by cvs with current revision
   \vfill
 \end{center}
 \cleardoublepage
@@ -2337,7 +2340,30 @@ The following simple line does the job:
 \vfill
 \subsection{The PHMD}
 \index{PHMD}
-... missing ...
+The Photon Multiplicity Detector (PMD) measures photon multiplcity event by event. It covers 
+an $\eta$ region of -2.2 to -3.5. It is equipped with Charge Particle Veto (CPV) detector
+ having same granularity and placed before the particle encounters the converter.
+The information stored from this detector is StEvent are
+ hits (StPhmdHit) and clusters (StPhmdCluster) kept in proper containers (StPhmdCollection,
+StPhmdDetector, StPhmdModule). 
+
+Most useful objects for analysis purpose is StPhmdCluster which contains detail information 
+about the cluster and puts a tag on the cluster about its identity as obtained from particular
+discrimination method.
+
+To obtain Phmd info from StEvent, one needs to navigate through following scheme.
+
+(i) Obtain PhmdCollection from StEvent pointer.
+
+(ii) PhmdCollection contains two detector pointers (PMD and CPV) 
+
+(ii) Each detector has 12 modules and it has the clustercollection attached to each detector.
+
+(iii) Each module has StPhmdHits attached to them, so that the module acts as hit container.
+
+(iv) ClusterCollection is the container for StPhmdCluster.
+
+
 
 \subsection{The RICH}
 \index{RICH}
@@ -4624,30 +4650,44 @@ trigger algorithm information.
 \label{sec:StPhmdCluster}
 \begin{Entry}
 \item[Summary]
+ Definitions of cluster objects used in PMD.
+
 \item[Synopsis]
-    \verb+#include "StPhmdCluster.h"+\\
-    \verb+class StPhmdCluster;+\\
+    \verb+#include "StPhmdCluster.h"+\\ \verb+class StPhmdCluster;+\\
 \item[Description]
 \item[Related Classes]
 \item[Public\\ Constructors]
-    \verb+StPhmdCluster(); +\\
+    \verb+StPhmdCluster();+\\
 \item[Public Member\\ Functions]
     \verb+int module() const;+\\
-    Module numbers run from 0 to 11.
-    
+     Returns the supermodule number where the cluster belong. It is assumed that clustering will be performed SM-wise.
+
     \verb+int numberOfCells() const;+\\
-    Return numbers of cell used in cluster.
-    
+     Returns the number of cells in the cluster.
+
     \verb+float eta() const;+\\
+     Returns eta value of the cluster.
+
     \verb+float phi() const;+\\
+     Returns phi value of the cluster.
+
     \verb+float energy() const;+\\
+     Returns the strength(cluster edep) of the cluster.
+
     \verb+float sigma() const;+\\
+     Returns spread(sigma) of the cluster.
+
     \verb+int energyPid() const;+\\
+     Returns cluster ID using MIP enegry cut.
+
     \verb+int pid() const;+\\
+     Returns cluster ID using CPV and PMD matching (or by other method).
+
     \verb+int mcPid() const;+\\
+     Returns Cluster ID from ManteCarlo track.
 
     \verb+void setModule(int);+\\
-    \verb+void setNumberOfCells(int);+\\
+    \verb+void setnumberOfCells(int);+\\
     \verb+void setEta(float);+\\
     \verb+void setPhi(float);+\\
     \verb+void setEnergy(float);+\\
@@ -4655,36 +4695,44 @@ trigger algorithm information.
     \verb+void setEnergyPid(int);+\\
     \verb+void setPid(int);+\\
     \verb+void setMcPid(int);+\\
+  
+  Method for adding hits corresponding to that cluster.
     \verb+void addHit(StPhmdHit*);+\\
+    \verb+void print(ostream& os = cout) const;+\\
+
+  Method for obtaining hits corresponding to that cluster.
     \verb+StPtrVecPhmdHit& hit();+\\
-    \verb+const StPtrVecPhmdHit& hit() const; +\\
+    \verb+const StPtrVecPhmdHit& hit() const;+\\
+
 \end{Entry}
 \clearpage
-
 
 \subsection{StPhmdClusterCollection}
 \index{StPhmdClusterCollection|textbf}
 \label{sec:StPhmdClusterCollection}
 \begin{Entry}
-\item[Summary]
+\item[Summary] Base class for PMD clusterCollecion. 
+
 \item[Synopsis]
     \verb+#include "StPhmdClusterCollection.h"+\\
+    \verb+#include "StPhmdHit.h"+\\
     \verb+class StPhmdClusterCollection;+\\
 \item[Description]
+The PMD cluster collection class \texttt{StPhmdClusterCollection} is the container for clusters in a subdetector.
+
 \item[Related Classes]
 \item[Public\\ Constructors]
-    \verb+StPhmdClusterCollection(); +\\
+    \verb+StPhmdClusterCollection();+\\
 \item[Public Member\\ Functions]
-    \verb+int numberOfclusters() const; +\\
+
+    \verb+void deleteClusters();+\\
+    \verb+void deleteCluster(StPhmdCluster*);+\\
+    \verb+void addCluster(StPhmdCluster*);+\\   
+    \verb+int numberOfClusters() const;+\\
+     Returns the number of clusters.    
+
     \verb+StSPtrVecPhmdCluster& clusters();+\\
     \verb+const StSPtrVecPhmdCluster& clusters() const;+\\
-    \verb+void addCluster(StPhmdCluster*);+\\
-    \verb+void deleteCluster(StPhmdCluster* pc);+\\
-    Delete cluster pointed to by \texttt{pc}.
-    
-    \verb+void deleteClusters();+\\
-    Delete all clusters.
-    
     \verb+int clusterFinderId() const;+\\
     \verb+int clusterFinderParamVersion() const;+\\
     \verb+void setClusterFinderId(int);+\\
@@ -4692,118 +4740,159 @@ trigger algorithm information.
 \end{Entry}
 \clearpage
 
-
 \subsection{StPhmdCollection}
 \index{StPhmdCollection|textbf}
 \label{sec:StPhmdCollection}
 \begin{Entry}
-\item[Summary]
+\item[Summary]Base class for PMD which includes both the
+subdetectors CPV and PMD.
+
 \item[Synopsis]
     \verb+#include "StPhmdCollection.h"+\\
+    \verb+#include "StPhmdDetector.h"+\\
     \verb+class StPhmdCollection;+\\
 \item[Description]
+The PMD Collection class \texttt{StPhmdCollection} keeps all information
+of both the subdetectors(CPV/PMD).
+
 \item[Related Classes]
 \item[Public\\ Constructors]
     \verb+StPhmdCollection();+\\
 \item[Public Member\\ Functions]
     \verb+StPhmdDetector* detector(StDetectorId);+\\
+    Returns ID for subdetector.
+    
     \verb+const StPhmdDetector* detector(StDetectorId) const;+\\
-    \verb+void setDetector(StPhmdDetector*);+\\
+    \verb+void setDetector(StPhmdDetector*);+\\ 
 \end{Entry}
 \clearpage
-
 
 \subsection{StPhmdDetector}
 \index{StPhmdDetector|textbf}
 \label{sec:StPhmdDetector}
 \begin{Entry}
-\item[Summary]
+\item[Summary]Class for subdetector (CPV/PMD)
+
 \item[Synopsis]
     \verb+#include "StPhmdDetector.h"+\\
+    \verb+#include "StPhmdHit.h"+\\
+    \verb+#include "StPhmdModule.h"+\\
+    \verb+#include "StPhmdClusterCollection.h"+\\
     \verb+class StPhmdDetector;+\\
 \item[Description]
+ The PMD detector class \texttt{StPhmdDetector} contains the
+hit information inside \texttt{StPhmdModule} and the cluster 
+information inside \texttt{StPhmdClusterCollection}.There are two instances of
+ this class (CPV/PMD).
+
 \item[Related Classes]
 \item[Public\\ Constructors]
     \verb+StPhmdDetector();+\\
     \verb+StPhmdDetector(StDetectorId);+\\
 \item[Public Member\\ Functions]
-    \verb+StDetectorId id() const; +\\
-    Return detector ID. Can be either \texttt{kPhmdId} or
-    for the charged particle veto \texttt{kPhmdCpvId}.
-    
+    \verb+StDetectorId id() const;+\\
+    Returns detector ID for CPV (25) and PMD (26).
+
     \verb+unsigned int numberOfModules() const;+\\
-    Currently always returns 12.
-    
+    Returns number of modules in each subdetector.
+
     \verb+bool addHit(StPhmdHit*);+\\
     \verb+unsigned int numberOfHits() const;+\\
+    Return total number hits stored in each subdetector.
 
     \verb+StPhmdModule* module(unsigned int);+\\
+    \verb+int moduleHits(unsigned int);+\\
+    Returns number of hits stored in each module.
+
     \verb+const StPhmdModule* module(unsigned int) const;+\\
-    Module numbers run from 0-11.
-    
-    \verb+int moduleHits(unsigned int m);+\\
-    Returns number of hits in module \texttt{m}. Module
-    numbers run from 0 to 11.
-    
     \verb+StPhmdClusterCollection* cluster();+\\
+    Returns number of clusters stored in each subdetector.
+
     \verb+const StPhmdClusterCollection* cluster() const;+\\
+
     \verb+void setCluster(StPhmdClusterCollection*);+\\
-    \verb+void setModule(StPhmdModule*, unsigned int m);+\\
-    Module numbers \texttt{m} runs from 0 to 11.
+    \verb+void setModule(StPhmdModule*, int);+\\
 \end{Entry}
 \clearpage
-
 
 \subsection{StPhmdHit}
 \index{StPhmdHit|textbf}
 \label{sec:StPhmdHit}
 \begin{Entry}
-\item[Summary]
+\item[Summary] 
+      Definition of hit object used in PMD
 \item[Synopsis]
     \verb+#include "StPhmdHit.h"+\\
     \verb+class StPhmdHit;+\\
 \item[Description]
+ The PMD hit class \texttt{StPhmdHit} is the basic class which contains
+the description of hit objects. The PMD consists of two subdetectors(CPV and PMD),
+each subdetectors has 12 supermodules of different sizes. Because of the
+PMD geometry the hits are stored in each supermodule in a given subdetector(CPV or PMD). 
+ 
 \item[Related Classes]
 \item[Public\\ Constructors]
-    \verb+StPhmdHit(); +\\
+    \verb+StPhmdHit();+\\
+
 \item[Public Member\\ Functions]
-    \verb+int superModule() const; //! function for supermodule no.+\\
-    \verb+int module() ; //! function for module+\\
-    \verb+int subDetector() const; //! function for subdetector+\\
-    \verb+int row() const; //! function for row+\\
-    \verb+int column() const; //! function for col+\\
-    \verb+float energy() const; //! function for edep+\\
-    \verb+int adc() const; //! function for adc+\\
+    \verb+int superModule() const;+\\
+    Returns supermodule number running from 1--12.
+
+    \verb+int module();+\\
+    Returns Supermodule number.
+
+    \verb+int subDetector()const;+\\
+    Returns subdetector number (CPV/PMD).
+
+    \verb+int row()const;+\\
+    Returns row number in the supermodule.
+
+    \verb+int column()const;+\\
+    Returns column number in the supermodule.
+
+    \verb+float energy()const;+\\
+    Returns energy deposition in each cell.
+
+    \verb+int adc()const;+\\
+    Returns ADC in each cell.\\
+
+Given below the methods to access various data members.
+
     \verb+void setSuperModule(int);+\\
     \verb+void setSubDetector(int);+\\
     \verb+void setRow(int);+\\
     \verb+void setColumn(int);+\\
-    \verb+void setEnergy(float);+\\
+    \verb+void setEnergy(int);+\\
     \verb+void setAdc(int);+\\
 \end{Entry}
 \clearpage
-
 
 \subsection{StPhmdModule}
 \index{StPhmdModule|textbf}
 \label{sec:StPhmdModule}
 \begin{Entry}
-\item[Summary]
+\item[Summary] Class for each supermodule having the hit information\\
 \item[Synopsis]
     \verb+#include "StPhmdModule.h"+\\
     \verb+class StPhmdModule;+\\
-\item[Description]
+
+\item[Description] 
+ The PMD module class \texttt{StPhmdModule} takes hit information
+ and stored in supermodulewise.\\
+
 \item[Related Classes]
 \item[Public\\ Constructors]
-    \verb+StPhmdModule(); +\\
+    \verb+StPhmdModule();+\\
 \item[Public Member\\ Functions]
     \verb+unsigned int numberOfHits() const;+\\
+     Returns total number of hits in each supermodule.
+
     \verb+StSPtrVecPhmdHit& hits();+\\
-    \verb+const StSPtrVecPhmdHit& hits() const; +\\
+    \verb+const StSPtrVecPhmdHit& hits() const;+\\
+    returns the container of hits.
+
 \end{Entry}
 \clearpage
-
-
 
 
 \subsection{StPrimaryTrack}
