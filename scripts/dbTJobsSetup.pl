@@ -1,4 +1,4 @@
-#!/usr/local/bin/perl -w
+#!/opt/star/bin/perl -w
 #
 # $Id:
 #
