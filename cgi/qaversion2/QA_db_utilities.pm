@@ -512,7 +512,9 @@ sub EraseJob{
     or warn "Could not delete $report_key from $QASum{Table}";
 
   # rm report directory
-  rmdir $report_dir or warn "Could not remove $report_dir";
+  if(-e $report_dir){
+     rmdir $report_dir or warn "Could not remove $report_dir :$!";
+  }
 }
 #----------
 # clear the QAMacros table in db
