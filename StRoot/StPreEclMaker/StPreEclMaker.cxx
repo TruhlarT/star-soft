@@ -1,7 +1,18 @@
 //
-// $Id: StPreEclMaker.cxx,v 1.7 2000/09/08 22:55:06 suaide Exp $
+// $Id: StPreEclMaker.cxx,v 1.8 2000/12/01 21:15:43 suaide Exp $
 //
 // $Log: StPreEclMaker.cxx,v $
+// Revision 1.8  2000/12/01 21:15:43  suaide
+//
+//
+// Small fixes in StPreEclMaker::Make()
+//       if some detector fails to find clusters it was aborting the chain
+//
+// Small fixes in StEmcPreClusterCollection::findClustersInModule()
+// Small fixes in StEmcPreClusterCollection::testOnNeighbor()
+//
+// Small fixes in StEmcPreCluster::calcMeanAndRms()
+//
 // Revision 1.7  2000/09/08 22:55:06  suaide
 //
 //
@@ -214,7 +225,7 @@ Int_t StPreEclMaker::Make()
       cc->setEnergyThresholdAll(mEnergyThresholdAllConf[i]);
       cc->setCheckClusters(kCheckClustersOkConf[i]);
 //      cc->printConf();
-  	  if(cc->findClusters()!= kStOK) return kStErr;
+  	  if(cc->findClusters()!= kStOK) cout<<"***** ERR: StEmcClusterCollection: No hits\n";
     }
   }
 
@@ -290,8 +301,6 @@ Int_t StPreEclMaker::fillStEvent()
   St_DataSetIter itr(m_DataSet);
   StEmcPreClusterCollection *cluster = 0;
  
-  Char_t *cdet;                                   
-
   for(Int_t idet=0; idet <4; idet++)
   {
     
@@ -383,7 +392,7 @@ void StPreEclMaker::SetClusterConditions(char *cdet,Int_t mSizeMax,
 //_____________________________________________________________________________
 void StPreEclMaker::PrintInfo(){
   printf("**************************************************************\n");
-  printf("* $Id: StPreEclMaker.cxx,v 1.7 2000/09/08 22:55:06 suaide Exp $   \n");
+  printf("* $Id: StPreEclMaker.cxx,v 1.8 2000/12/01 21:15:43 suaide Exp $   \n");
   printf("**************************************************************\n");
   if (Debug()) StMaker::PrintInfo();
 }
