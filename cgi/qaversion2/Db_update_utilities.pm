@@ -40,7 +40,7 @@ my %oldestDate = ( nightly_real => '2001-08-20',
 # max number of updated jobs
 my %updateLimit = ( nightly_real => 10,
 		    nightly_MC   => 50,
-		    offline_real => 100,
+		    offline_real => 200,
 		    offline_MC   => 10,
 		    offline_fast => 10
 );
@@ -103,7 +103,8 @@ sub UpdateQAOffline{
   }
 
   # update
-  my $queryUpdate = qq{select distinct file.jobID, file.redone, file.runID
+  my $queryUpdate = qq{select distinct file.jobID, file.redone, file.runID,
+			 file.fileSeq
 			from $dbFile.$FileCatalog as file 
 			LEFT JOIN $dbQA.$QASum{Table} as qa
 			  using (jobID, redone)
@@ -114,6 +115,7 @@ sub UpdateQAOffline{
 			  file.createTime > '$oldestDate' and
 			  $oldestRunString
 			  qa.$QASum{jobID} is NULL
+			  order by file.runID asc
 			limit $limit};
 
   print "update query:\n$queryUpdate\n" if $debug;
@@ -139,53 +141,65 @@ sub UpdateQAOffline{
 
   my %runhash; # hash of hashes of hashes
   my %noskip;  # keys are runIDs
-  my $fraction = 0.02;
+  my $fraction = .1;
   # organize the new jobs by runID 
-  while (my ($jobID, $redone, $runID) = $sthUpdate->fetchrow_array){
+  while (my ($jobID, $redone, $runID,$fileSeq) = $sthUpdate->fetchrow_array){
     next if !$jobID; # huh?
-    $runhash{$runID}{$jobID}{redone}  = $redone;
+    $runhash{$runID}{$fileSeq}{$jobID}{redone}  = $redone;
     
-    # set fraction as noskip
-    if (rand() < $fraction ){
-      $runhash{$runID}{$jobID}{noskip}++;
+    #set fraction as noskip (also mod 10, not 1)
+    if (rand() < $fraction && $fileSeq%10==0){
+      $runhash{$runID}{$fileSeq}{$jobID}{noskip}++;
       $noskip{$runID}++;
     }
   }
-
+  my $jobID;
   # now double check that there's at least one noskip key per runID
   foreach my $runID ( keys %runhash ){
     next if exists $noskip{$runID};
     
-    # else randomly set one of the jobs as noskip
-  JOB:foreach my $jobID ( keys %{$runhash{$runID}} ){
-      $runhash{$runID}{$jobID}{noskip}++;
-      last JOB;
+    # else set one of the jobs as noskip (file seq 10,20..)
+  SEQ:foreach my $fileSeq ( keys %{$runhash{$runID}} ){
+      next if($fileSeq%10!=0);
+      foreach $jobID ( keys %{$runhash{$runID}{$fileSeq}} ){
+	$runhash{$runID}{$fileSeq}{$jobID}{noskip}++;
+	last SEQ;
+      }
     }
   }
   # loop over runID, jobID
   my $countRun=0; my $countJob=0; my $count=0;
-  foreach my $runID ( keys %runhash ){
-    print h4(++$countRun, " : $runID\n");
-    foreach my $jobID ( keys %{$runhash{$runID}} ){
-      print h4("\t",++$countJob, " : $jobID\n"); $count++;
-      $sthKey->execute($jobID);
-    
-      # get report key
-      my $reportKey = make_report_key_offline($sthKey->fetchrow_array);
-      
-      # save report key
-      push @keyList, $reportKey;
-    
-      # insert into QASummary
-      my $redone = $runhash{$runID}{$jobID}{redone};
-      my $skip   = exists $runhash{$runID}{$jobID}{noskip} ? 'N' : 'Y';
-      
-      #print "\n$runID, $skip";
+  my %foundJob;
+  foreach my $runID ( sort keys %runhash ){
+    print ++$countRun, " : $runID\n";
+    foreach my $fileSeq ( sort { $a <=> $b } keys %{$runhash{$runID}} ){
+      foreach my $jobID ( keys %{$runhash{$runID}{$fileSeq}} ){
 
-      $sthInsert->execute($jobID, $redone, $reportKey, $skip) unless $debug;
-    }
-    $countJob=0;
-  }	       
+	# double check for uniqueness
+	next if $foundJob{$jobID}++;
+
+	my $redone = $runhash{$runID}{$fileSeq}{$jobID}{redone};
+	my $skip   = exists $runhash{$runID}{$fileSeq}{$jobID}{noskip} ? 'N' : 'Y';
+	
+	print "\t",++$countJob, " fileSeq=$fileSeq : $jobID skip? $skip",
+	  ",redone? $redone\n";
+	$count++;
+	$sthKey->execute($jobID);
+	
+	# get report key
+	my $reportKey = make_report_key_offline($sthKey->fetchrow_array);
+	
+	# save report key
+	push @keyList, $reportKey;
+	
+	# insert into QASummary
+	#print "\n$runID, $skip";
+	
+	$sthInsert->execute($jobID, $redone, $reportKey, $skip) unless $debug;
+      }
+      #$countJob=0;
+    }	 
+  }      
   print h3("Found $count new jobs\n");
 
   return @keyList;
