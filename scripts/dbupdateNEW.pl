@@ -11,8 +11,6 @@
 ##############################################################################
 
 use Mysql;
-use File::Find;
-use Net::FTP;
 use Class::Struct;
 use File::Basename;
 
@@ -50,15 +48,16 @@ for ($i = 0; $i < scalar(@node_dir); $i++) {
     print "Output Dir for NEW :", $OUT_DIR[$ii], "\n";
         $ii++;
   }
-   $OUT_DIR[$ii] = $TOP_DIRD . $node_dir[$i] . "/" . $dir_year[1] . "/" . $hc_dir[1]; 
-     $ii++;  
+   $OUT_DIR[$ii] = $TOP_DIRD . $node_dir[$i] . "/" . $dir_year[1] . "/" . $hc_dir[1];  
+      print "Output Dir for NEW :", $OUT_DIR[$ii], "\n";
+      $ii++;
 }
 
 
-my $jj = 1;
+my $jj = 0;
 for ($i = 0; $i < scalar(@node_daq); $i++) {
       for ($ll = 0; $ll < scalar(@daq_dir); $ll++) {
-   $OUT_DIR[$ii] = $TOP_DIRD . $node_daq[$i] . "/" . $dir_year[$jj] . "/" . $daq_dir[$ll];
+   $OUT_DIR[$ii] = $TOP_DIRD . $node_daq[$i] . "/" . $dir_year[0] . "/" . $daq_dir[$ll];
     print "Output Dir for NEW :", $OUT_DIR[$ii], "\n";
         $ii++;
       }
@@ -291,6 +290,7 @@ my $Fname;
        if ($fname =~ /.log/)  {
 #    print "File Name:",$fname, "\n";       
        $fullname = $eachOutLDir."/".$fname;
+       print $fullname, "\n";
       $mpath = $eachOutLDir;
       @dirF = split(/\//, $eachOutLDir);
        $libL = $dirF[4];
@@ -314,7 +314,7 @@ my $Fname;
        $timeS = sprintf ("%4.4d-%2.2d-%2.2d %2.2d:%2.2d:00",
                        $fullyear,$mo,$dy,$hr,$min);    
 
-           if( $ltime > 1800 && $ltime < 345600 ){         
+           if( $ltime > 1800 ){         
 #   print "Log time: ", $ltime, "\n";
         &logInfo("$fullname", "$platf");
       $jobTime = $timeS;  
@@ -354,7 +354,7 @@ my $Fname;
           $pfullName = $pvpath . "/" . $pvfile;
         
 #       if( ($fullname eq $pfullName) and ($pvavail eq "Y") ) {
-
+	  next if( !defined $pfullName) ;
         if( $pfullName eq $fullname ) {
         $flagHash{$fullname} = 0;
 
@@ -455,18 +455,18 @@ my $Fname;
       $idHash{$fullName} = $mjID;
     &fillJSTable();
 
-        foreach my $nOldJob (@old_jobs) {
-          $pvjbId = ($$nOldJob)->oldjbId;
-          $pvpath = ($$nOldJob)->oldpath;
-          $pvfile = ($$nOldJob)->oldfile;
+#       foreach my $nOldJob (@old_jobs) {
+#          $pvjbId = ($$nOldJob)->oldjbId;
+#          $pvpath = ($$nOldJob)->oldpath;
+#          $pvfile = ($$nOldJob)->oldfile;
 
-	  if($mpath eq  $pvpath) {
-            $newAvail = "N";
-   print  "Changing avalability for files have been replaced  :", $pvjbId, " % ",$pvpath," % ",$pvfile, "\n";
-     &updateJSTable();
+#	  if($mpath eq  $pvpath) {
+#            $newAvail = "N";
+#   print  "Changing avalability for files have been replaced  :", $pvjbId, " % ",$pvpath," % ",$pvfile, "\n";
+#     &updateJSTable();
 
-    }
-	}
+#    }
+#	}
     }
 }
 ##### delete from $JobStatusT inserted JobID
@@ -564,7 +564,7 @@ foreach  $eachOutNDir (@OUT_DIR) {
           ($size, $mTime) = (stat($lgFile))[7, 9];
             $ltime = $now - $mTime;
 #  print "Log time: ", $ltime, "\n"; 
-           if( $ltime > 1800 && $ltime < 345600 ){         
+           if( $ltime > 1200 && $ltime < 345600 ){         
 	     foreach my $eachLogFile (@testJobStFiles) {
 
                $jpath   = ($$eachLogFile)->pth; 
@@ -575,6 +575,8 @@ foreach  $eachOutNDir (@OUT_DIR) {
                $jfpath  = $jpath . "/" .$jfile;
   
                if ( $jfpath eq $lgFile ) {
+
+            next if( !defined $idHash{$jfpath} );
 
               $idHash{$fullname} = $idHash{$jfpath};
 
@@ -743,7 +745,7 @@ foreach  $eachOutNDir (@OUT_DIR) {
           $pvcomp = ($$eachOldFile)->oldcomp;
           $pvavail = ($$eachOldFile)->oldvail;
           $pfullName = $pvpath . "/" . $pvfile;
-
+	  next if( !defined $pfullName) ;
 #	   if ($pfullName eq $thfullName) {
             if ( ($pvpath eq $mpath) and ( $mcomp eq $pvcomp ) ) {
                $flagHash{$thfullName} = 0;      
