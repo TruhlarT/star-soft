@@ -2,7 +2,7 @@
 %
 % StEvent - User Guide and Reference Manual -- LaTeX Source
 %
-% $Id: StEvent.tex,v 2.47 2000/09/28 10:58:43 ullrich Exp $
+% $Id: StEvent.tex,v 2.48 2000/10/13 19:21:02 ullrich Exp $
 %
 % Author: Thomas Ullrich, Nov 1999
 %
@@ -21,8 +21,8 @@
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %
 % $Log: StEvent.tex,v $
-% Revision 2.47  2000/09/28 10:58:43  ullrich
-% Added ref section for new RICH classes.
+% Revision 2.48  2000/10/13 19:21:02  ullrich
+% Added new chapter on how to wrire miniDSTs using StEvent.
 %
 % Revision 2.49  2000/10/16 17:08:12  ullrich
 % Added more description for StEventScavenger.
@@ -215,8 +215,8 @@
   \mbox{\includegraphics[width=\textwidth]{StEventTitle.eps}}
   \hfill\mbox{}\\[3cm]
   {\LARGE User Guide and Reference Manual \\[5mm] for Version 2}\\[2cm]
-  {\LARGE $ $Revision: 2.47 $ $}  \\[5mm] % replaced by cvs with current revision
-  {\LARGE $ $Date: 2000/09/28 10:58:43 $ $}  % replaced by cvs with current revision
+  {\LARGE $ $Revision: 2.48 $ $}  \\[5mm] % replaced by cvs with current revision
+  {\LARGE $ $Date: 2000/10/13 19:21:02 $ $}  % replaced by cvs with current revision
   \vfill
 \end{center}
 \cleardoublepage
@@ -2433,6 +2433,197 @@ with
      event->l3Trigger()->someMethod();
 \end{verbatim}
 Only the entry point \texttt{event} has to be replaced by \texttt{event->l3trigger()}.
+However, the level of detail in the offline reconstructed data will
+always be somewhat larger and some information might not be available in the L3
+tree (e.g.~certain PID traits, fit traits etc.).
+
+... more description to be provided by the L3 group ...  \clearpage
+
+\section{Writing MiniDSTs using StEvent}
+\label{sec:miniDST}\index{miniDST}
+Following STARs terminology a miniDST is the next higher level in the
+DST hierarchy after the DST itself. What follows are the
+microDST and nanoDST.  The miniDST should be readable STAR-wide which
+implies that it has to be based on \StEvent. This has several
+advantages:
+\begin{itemize}
+\item programs and code that works based on \StEvent\ can be used
+    directly; in fact the analysis code doesn't have to change at all
+    between DST and miniDST
+\item schema evolution comes for free
+\item the standard IO maker handles the writing and reading of the
+    miniDST
+\end{itemize}
+
+The miniDST contains a fraction of the StEvent data tree plus
+(optionally) user defined components.  Which fraction of StEvent gets
+written is up to the user.  The obvious candidates to go on miniDSTs
+are primary tracks, vertices, or certain global tracks.  There is also
+no rule which says that there can only be one miniDST. It makes
+perfectly sense to keep different variants of miniDSTs. Some Physics
+Working Groups might want highly compressed miniDSTs for rare probe
+searches since they deal with many events. Other groups might want
+more complete miniDSTs since they need less events in total.  Several
+PWG can go for a common miniDST, STAR can go for a common miniDST.
+This is a matter a choice.  Important is that the scheme does not
+limit us in our choice that there's a way of achieving this.
+
+The basic principle used in the implementation is not to copy and
+store information in a new scheme in a different place (e.g.~in a
+TTree or user defined format) but to \textbf{remove} those pieces of
+the current \StEvent\ one doesn't need. The result is the same but
+removing or marking instread of copying is faster and more efficient.
+
+The extension for miniDSTs is \texttt{.mdst.root}.
+
+\subsection{The StEventScavanger class}
+\index{StEventScavanger} To get remove unwanted objects from \StEvent\ 
+one can do two things: deleting them (operator \texttt{delete}) or
+marking them (using the zombie mechanism).  Both methods require some
+level of expertise and there are many things that can go wrong.  What
+is needed is a way to savely remove arbitrary parts of StEvent in a
+simple way. This is exactly what the \texttt{StEventScavanger} class
+is for.
+
+The class has only static member functions which means you can call them from
+everywhere in your code without creating an instance of \texttt{StEventScavanger}.\\
+Example:
+\begin{verbatim}
+    StEvent* event = (StEvent *) GetInputDS("StEvent");
+    StEventScavenger::removeEventSummary(event);
+    StEventScavenger::removeSoftwareMonitor(event);
+    StEventScavenger::removeTpcHitCollection(event);
+    StEventScavenger::removeFtpcHitCollection(event); 
+\end{verbatim}
+The class has methods to delete individual tracks, all hits, event summary,
+software monitors, and much more (see section \ref{sec:StEventScavenger}).
+Note, that most of these methods actually mark the objects and do not remove
+via operator \texttt{delete}.
+Marked objects will be ignored by the IO maker and not written
+to the miniDST. So don't worry if you still see them after you called 
+StEventScavenger. They won't show up on the miniDST.
+
+
+\subsection{An Example: StMiniDstMaker}
+
+The STAR library contains a complete example on how to write a miniDST.
+The example consist of the \texttt{StMiniDstMaker} maker and two macros:
+\texttt{mDstWrite.C} and \texttt{mDstRead.C}.
+
+The basic idea behind the example is to show how to write a miniDST of primary kaons
+which contains nothing but the kaons and the trigger information.
+
+The most important thing is that you use the macro \texttt{mDstWrite.C} instead
+of the usual \texttt{doEvents.C}-like macros. \texttt{mDstWrite.C} is especially
+setup to write \StEvent\ read in from a DST into a single
+output file. The version of the macro in the library calls the \texttt{StMiniDstMaker}
+package to select what should be written and what not. 
+
+So a typical run looks like this:
+\begin{verbatim}
+root4star -b
+.x mDstWrite.C(1000,"/star/data03/reco/P00hi/2000/09","*.dst.root","mykaons");
+\end{verbatim}
+
+In this case 1000 events will be read from various\ \texttt{*.dst.root}
+files in the \texttt{/star/data03/reco/P00hi/2000/09} directory and written to
+a miniDST with name \texttt{mykaons.mdst.root}.
+For every event the \texttt{StMiniDstMaker::Make()} method selects the kaon tracks and removes the
+rest. To remove primary track which are not identified as kaons the \texttt{remove(StTrack*)} from
+\texttt{StEventScavanger} class is used.
+The code looks as follows:
+\begin{verbatim}
+    StSPtrVecPrimaryTrack& theTracks = event->primaryVertex()->daughters();
+    for (unsigned int i=0; i<theTracks.size(); i++)
+        if (!accept(theTracks[i]))
+            StEventScavenger::remove(theTracks[i]);
+\end{verbatim}
+
+where \texttt{accept(StTrack*)} is a filter method defined in \texttt{StMiniDstMaker}.
+
+To read the file back use for example:
+\begin{verbatim}
+root4star -b
+.x mDstRead.C(1000,"/star/data03/reco/P00hi/2000/09","*.mdst.root");
+\end{verbatim}
+
+The \texttt{mDstRead.C} macro in the library actually calls the standard StAnalysisMaker.
+Of course one can also create a macro which reads in a miniDSTs and writes out
+another, more compressed version of it.\\
+Please note that \texttt{StMiniDstMaker}, \texttt{mDstWrite.C}, and \texttt{mDstRead.C}
+are only examples and should be used as templates for you own purposes.
+
+\subsection{Advanced features}
+\subsubsection{Using Zombies}
+Most methods of the  \texttt{StEventScavanger} class are based on the 'zombie' mechanism
+introduced by Victor in Sep 2000.
+The scheme relies on the fact that all \StEvent\ objects inherit from \texttt{StObject}
+and \texttt{StObject} itself has a few free user bits which can be used to mark the object.
+Once the object is marked it becomes a zombie and will be ignored when the rest of
+\StEvent\ is written to the miniDST. The object can be marked by invoking the
+\texttt{void StObject::makeZombie()} method and the state of each object can be
+checked with the \texttt{bool StObject::isZombie()} method.
+
+If you feel that your understanding of StEvent is sufficient enough you always can use
+the zombie mechanism directly. Once an object becomes a zombie also all references to the
+object will disappear on the miniDST, i.e.~pointer are nulled, at least. In this sense
+zombies are pretty save to use.
+
+Please note, that - as in the bad movies - zombies are visible. After an object is made
+a zombie you still can use the same way as before. With other words it does not get deleted
+in memory.
+
+\subsubsection{Adding user defined classes}
+
+The miniDST mechanism is in principle not restricted to StEvent
+classes only.  Objects of every class which inherits from
+\texttt{StObject} and use the \texttt{ClassDef()} and
+\texttt{ClassImp()} macros can be written to a miniDST. You
+will need of course the class definition when you read the data back
+in. If the class definition is not availabe the object cannot be
+retrieved from the miniDST; you still we be able to read the rest though.
+Needles to say that it is the responsibility of the user to
+make sure the class is available to everyone who tries to read the
+miniDSTs.
+
+Here's a very simple example:
+\begin{verbatim}
+// StMyDstClass.h
+#include "StObject.h"
+class StMyDstClass : public StObject {
+public:
+    StMyDstClass();
+    int myCounter;
+    int eventIsGood;
+    ClassDef(StMyDstClass,1);
+};
+\end{verbatim}
+
+The \texttt{StMyDstClass.cxx} file of course has to exist and should contain
+\begin{verbatim}
+// StMyDstClass.h
+#include "StMyDstClass.h"
+ClassImp();
+StMyDstClass::StMyDstClass()
+{
+    myCounter = 0;
+    eventIsGood = 0;
+}
+\end{verbatim}
+
+All you have to do is to create an instance of this class in the \texttt{Make()} method
+of your maker (\texttt{StMiniDstMaker}) and attach it to \StEvent\:
+
+\begin{verbatim}
+StMyDstClass *my = new StMyDstClass;
+my->myCounter = 17;
+my->eventIsGood = 1;
+event->content().push_back(my);
+\end{verbatim}
+
+From here on the \texttt{StMyDstClass} object is integral part of \StEvent\ and
+will be treated as such during I/O.
+Please not that you are of course not limited to build in data types
 but can more complex ones as pointers to \texttt{StTrack} objects for example.
 One could imagine to have a class \texttt{StMyPair} which links two tracks which form
 a pair to name just one of many applications. 
@@ -3093,6 +3284,39 @@ definition in the header file.
     Returns the bunch crossing numbers, i.e.~two 32 bit words.
     \texttt{i = 0} returns the lower and \texttt{i = 1} the upper number.
 
+    \verb+void setType(const Char_t*);+\\
+    \verb+void setRunId(Long_t);+\\
+    \verb+void setId(Long_t);+\\
+    \verb+void setTime(Long_t);+\\
+    \verb+void setTriggerMask(ULong_t);+\\
+    \verb+void setBunchCrossingNumber(ULong_t, UInt_t);+\\
+\end{Entry}
+\clearpage
+
+\subsection{StEventScavenger}
+\index{StEventScavenger|textbf}
+\label{sec:StEventScavenger}\index{miniDST, mDST}
+\begin{Entry}
+\item[Summary] Helper class to ease creating miniDSTs based on StEvent
+\item[Synopsis]
+    \verb+#include "StEventScavenger.h"+\\
+    \verb+class StEventScavenger;+\\
+\item[Description]
+    The class contains only static member functions. These
+    methods allow to delete, or better mark, classes which
+    you do \textbf{not} want to end up on the miniDSTs.
+    For more see section \ref{sec:miniDST}.
+\item[Related Classes]
+    none
+\item[Public\\ Constructors]
+    \verb+static bool removeEventSummary(StEvent*);+\\
+    \verb+static bool removeSoftwareMonitor(StEvent*);+\\
+    \verb+static bool removeTpcHitCollection(StEvent*);+\\
+    \verb+static bool removeFtpcHitCollection(StEvent*);+\\
+    \verb+static bool removeSvtHitCollection(StEvent*);+\\
+    \verb+static bool removeSsdHitCollection(StEvent*);+\\
+    \verb+static bool removeEmcCollection(StEvent*);+\\
+    \verb+static bool removeRichCollection(StEvent*);+\\
     \verb+static bool removeTriggerDetectorCollection(StEvent*);+\\
     \verb+static bool removeL3Trigger(StEvent*);+\\
     \verb+static bool removeV0Vertices(StEvent*);+\\
