@@ -3,7 +3,7 @@
 #  $Id:
 #
 #  dbTodayQuery.pl  script to get browser of files updated today. 
-#  L. Didneko
+#  L. Didenko
 #
 ###############################################################################
 
@@ -14,7 +14,7 @@ use Class::Struct;
 
 require "/afs/rhic/star/packages/DEV00/mgr/dbCpProdSetup.pl";
 
-my @prodPer = ("P00hf", "P00he");
+my @prodPer = ("P00hi", "P00hg");
 my $debugOn = 0;
 my $thisDay = "000000";
 my $thisday = 0;
