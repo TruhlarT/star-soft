@@ -1,5 +1,5 @@
 #!/bin/csh -f
-#       $Id: group_env.csh,v 1.160 2003/11/05 04:06:55 jeromel Exp $
+#       $Id: group_env.csh,v 1.161 2003/11/12 01:23:51 jeromel Exp $
 #	Purpose:	STAR group csh setup
 #
 #	Author:		Y.Fisyak     BNL
@@ -124,6 +124,18 @@ source ${GROUP_DIR}/STAR_SYS;
 # made on purpose so the environment would revert to a
 # default $OPTSTAR in case things are not quite in place.
 # 
+
+# There is a second chance to define XOPTSTAR
+if ( ! $?XOPTSTAR ) then
+    if ( -e ${AFS_RHIC}/${STAR_SYS}/opt/star ) then
+	setenv XOPTSTAR ${AFS_RHIC}/${STAR_SYS}/opt/star
+    else
+	# well, as good as anything else (we cannot find a 
+	# global reference)
+	setenv XOPTSTAR /dev/null
+    endif
+endif
+
 if ( $?OPTSTAR ) then
     if (!  $?optstar ) setenv  optstar  ${OPTSTAR}
     if (! $?xoptstar ) setenv xoptstar ${XOPTSTAR}
@@ -144,7 +156,11 @@ if (  $?OPTSTAR ) then
 else
     if ($ECHO) echo   "WARNING : OPTSTAR undefined"
 endif
-
+if (  $XOPTSTAR == "/dev/null" ) then
+    if ($ECHO) echo   "WARNING : XOPTSTAR points to /dev/null (no AFS area for it)"
+else
+    if ($ECHO) echo   "Setting up XOPTSTAR  = ${XOPTSTAR}"
+endif
 
 
 
