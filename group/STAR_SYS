@@ -1,5 +1,8 @@
 #!/bin/csh
 #  $Log: STAR_SYS,v $
+#  Revision 1.35  2003/12/12 17:24:27  fisyak
+#  Adjust to icc 8.0
+#
 #  Revision 1.34  2003/11/05 01:23:22  jeromel
 #  switch statement treatment for STARCMPL. Implemented icc
 #
@@ -110,7 +113,7 @@
 #
 #  Revision 1.1.1.1  1997/12/31 14:35:23  fisyak
 #
-#             Last modification $Date: 2003/11/05 01:23:22 $
+#             Last modification $Date: 2003/12/12 17:24:27 $
 #
 # Determine STAR_SYS variable.
 #
@@ -279,7 +282,10 @@ else
 	    if ( ! $?STARCMPL) setenv STARCMPL "gcc"
 	    switch ($STARCMPL)
 	       case "icc":
-		set vers = `which icc | sed 's/.*compiler//i;s/\/.*//'`
+#		set vers = `which icc | sed 's/.*compiler//i;s/\/.*//'`
+	        set vers = `icc -V -dryrun > & /tmp/icc_version; \
+		awk '{ if (NR==1) print $8 }' /tmp/icc_version | awk -F\. '{print $1$2}'; \
+		rm  /tmp/icc_version;`
 		breaksw
 
 	       default:
