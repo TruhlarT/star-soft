@@ -15,6 +15,7 @@
 use CGI;
 
 require "/afs/rhic/star/packages/DEV00/mgr/dbCpProdSetup.pl";
+require "/afs/rhic/star/packages/DEV00/mgr/dbDescriptorSetup.pl";
 
 use File::Find;
 use Class::Struct;
@@ -60,7 +61,7 @@ my $prodSer = "P00hg" ;
  my @dirP;
  my $dirR;
  my $topHpss = "/home/starreco/reco";
- my $topDisk = "/star/rcf/data09/reco"; 
+ my $topDisk = "/star/rcf/data03/reco"; 
  my @prodRun = ("JUNE-2000","JULY-2000","AUGUST-2000","SEPTEMBER-2000"); 
 
  my %RunHash = (
@@ -70,6 +71,36 @@ my $prodSer = "P00hg" ;
                   "2000/09" => "SEPTEMBER-2000"                    
  ); 
 
+
+#####  connect to RunLog DB
+
+ &StDbDescriptorConnect();
+
+my $mmRun;
+my @runSet;
+my $nrunSet = 0;
+
+ $sql="SELECT runNumber FROM $runDescriptorT WHERE category = 'physics'";
+
+   $cursor =$dbh->prepare($sql)
+    || die "Cannot prepare statement: $DBI::errstr\n";
+   $cursor->execute;
+ 
+    while(@fields = $cursor->fetchrow) {
+      my $cols=$cursor->{NUM_OF_FIELDS};
+
+        for($i=0;$i<$cols;$i++) {
+           my $fvalue=$fields[$i];
+           my $fname=$cursor->{NAME}->[$i];
+#        print "$fname = $fvalue\n" ;
+       
+         $mmRun = $fvalue     if( $fname eq 'runNumber'); 
+         }
+        $runSet[$nrunSet] = $mmRun;
+        $nrunSet++;
+ }
+
+ &StDbDescriptorDisconnect();      
 
 &StDbProdConnect();
 
@@ -153,9 +184,9 @@ my @hpssDstFiles;
  my $dqfile;
  my $dqpath;
 
-   for ($ll=0; $ll<scalar(@DRun); $ll++) {
-
-   $sql="SELECT runID, size, fName,path, Nevents  FROM $FileCatalogT WHERE runID = '$DRun[$ll]' AND fName LIKE '%daq' AND hpss ='Y'";
+   for ($ll=0; $ll<scalar(@runSet); $ll++) {
+  
+ $sql="SELECT runID, size, fName,path, Nevents  FROM $FileCatalogT WHERE runID = '$runSet[$ll]' AND fName LIKE '%daq' AND hpss ='Y' ";
    $cursor =$dbh->prepare($sql)
       || die "Cannot prepare statement: $DBI::errstr\n";
    $cursor->execute;
@@ -168,6 +199,7 @@ my @hpssDstFiles;
        my $fvalue=$fields[$i];
        my $fname=$cursor->{NAME}->[$i];
        print "$fname = $fvalue\n" if $debugOn;
+# print "$fname = $fvalue\n";
        ($$fObjAdr)->flName($fvalue)   if( $fname eq 'fName');
        ($$fObjAdr)->fpath($fvalue)    if( $fname eq 'path');
        ($$fObjAdr)->hpsize($fvalue)   if( $fname eq 'size'); 
@@ -179,8 +211,8 @@ my @hpssDstFiles;
      $nOnlFile++;
    
    }
-  }
 
+}
 
   foreach my $onfile (@OnlFiles) {
 
@@ -274,10 +306,10 @@ for ($kk=0; $kk<scalar(@DRun); $kk++) {
          $TdstDSize   +=  $dstDSize{$runD};
          $TdstHSize   +=  $dstHpSize{$runD}; 
          $TdaqHSize   +=  $daqHpSize{$runD};
-     &printRow(); 
+  &printRow(); 
        }
 
-   &printTotal(); 
+  &printTotal(); 
 
 #####  finished with database
   &StDbProdDisconnect();
