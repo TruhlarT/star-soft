@@ -165,12 +165,12 @@ C
 *KEEP,VIDQQ.
       CHARACTER*68 VIDQQ
       DATA VIDQQ/
-     +'@(#)Advanced Geant Inteface               C: 02/08/98  15.14.05
+     +'@(#)Advanced Geant Inteface               C: 05/08/98  23.53.53
      +'/
 *KEEP,DATEQQ.
-      IDATQQ =   980802
+      IDATQQ =   980805
 *KEEP,TIMEQQ.
-      ITIMQQ =   1514
+      ITIMQQ =   2353
 *KEEP,VERSQQ.
       VERSQQ = ' '
       IVERSQ = -1
@@ -576,7 +576,7 @@ C
     END
  
  
-*CMZ :          02/08/98  15.06.54  by  Pavel Nevski
+*CMZ :          05/08/98  23.31.34  by  Pavel Nevski
 *CMZ :  1.30/00 23/04/97  18.45.29  by  Pavel Nevski
 *-- Author :    Pavel Nevski   01/04/96
 *********+*********+*********+*********+*********+*********+*********+*********+
@@ -820,7 +820,7 @@ C                                       Link to:
         call AgFOPEN(li,string2(1:len2),ier)
         Address=CsADDR('AgUSOPEN')
         L1 = 4*((len2+3)/4)
-        If (address>0) CALL CsJCAL(address,2,string2(1:L1))
+        If (address>0) CALL CsJCAL1S(address,string2(1:L1))
      }
      else If Index(String1(1:len1),'N')>0
      {  Call AgNTOpen(String2(1:len2),4) }
@@ -1033,9 +1033,9 @@ C                                       Link to:
   {  * PN, 04.03.98:  make it case sensitive
      Call KuGetS(string1,len1); " Call CUTOL(string1(1:Len1)) "
      If (Npar>1) Call KuGetS(Library,len2)
-     L=Len1; K=1; DO i=1,Len1
-     { if (string1(i:i)=='/') { K=i+1; L=Len1 };
-       if (string1(i:i)=='.')   L=i-1
+     L=Len1; K=1; DO i=Len1,1,-1
+     { if (string1(i:i)=='.')   L=i-1
+       if (string1(i:i)=='/') { K=i+1; Break; }
      }
 *    call to csrmsl is needed to free the sl file before compilation
      If LENOCC(Source)+LENOCC(Destin)==0
@@ -1060,12 +1060,11 @@ C                                       Link to:
  
      if (JAD!=0) Call Ami_Module_Register (string1(K:L))
      IAD=CsADDR(string1(K:L)//'_init')
-     IF      IAD!=0       " staf module - init and possibly start it "
-     {  CALL CSJCAL(IAD,0,0)
-        IAD=CsADDR(string1(K:L)//'_start')
-        if (IAD!=0) CALL CSJCAL(IAD,0,0)
+     IF  IAD!=0       " staf module - init and possibly start it "
+     {  CALL CSJCAL(IAD,0, 0,0,0,0,0, 0,0,0,0,0)
+        JAD=CsADDR(string1(K:L)//'_start')
      }
-     else if JAD!=0    { CALL CSJCAL(JAD,0,0) }
+     if (JAD!=0)   CALL CSJCAL(JAD,0, 0,0,0,0,0, 0,0,0,0,0)
   }
   Else If Command=='GMAKE'
   {  Call KuGetS(source,len1)
@@ -1110,6 +1109,7 @@ C                                       Link to:
   end
  
  
+*CMZ :          05/08/98  16.29.34  by  Pavel Nevski
 *CMZ :  1.30/00 15/04/97  19.40.26  by  Pavel Nevski
 *-- Author :    Pavel Nevski   18/03/97
 ************************************************************************
@@ -1203,6 +1203,45 @@ C                                       Link to:
      +,              MQKEYS(3),NQINIT,NQTSYS,NQM99,NQPERM,NQFATA,NQCASE
      +,              NQTRAC,MQTRAC(48)
                                        EQUIVALENCE (KQSP,NQOFFS(1))
+*KEEP,agckine.
+*    AGI general data card information
+      Integer          IKineOld,IdInp,Kevent,
+     >                 Iback,IbackOld,IbMode,IbBefor,IbAfter,
+     >                 IbCurrent,IvCurrent,Ioutp,IoutpOld
+      Real             AVflag,AVcoor,AVsigm,Ptype,PTmin,PTmax,
+     >                 Etamin,Etamax,PhiMin,PhiMax,Ptflag,
+     >                 Zmin,Zmax,BgMult,BgTime,BgSkip,
+     >                 Pxmin,Pxmax,Pymin,Pymax,Pzmin,Pzmax
+      COMMON /AgCKINE/ IKineOld,IdInp,Kevent(3),
+     >                 AVflag,AVcoor(3),AVsigm(3),
+     >                 Ptype,PTmin,PTmax,Etamin,Etamax,
+     >                 PhiMin,PhiMax,Ptflag,Zmin,Zmax,
+     >                 Pxmin,Pxmax,Pymin,Pymax,Pzmin,Pzmax
+      COMMON /AgCKINB/ Iback,IbackOld,IbMode,IbBefor,IbAfter,
+     >                 BgMult,BgTime,BgSkip,IbCurrent,IvCurrent
+      COMMON /AgCKINO/ Ioutp,IoutpOld
+      Character*20     CoptKine,CoptBack,CoptOutp
+      COMMON /AgCKINC/ CoptKine,CoptBack,CoptOutp
+      Character*20     CrunType
+      COMMON /AgCKINR/ CrunType
+      Integer          Ncommand
+      Character*20     Ccommand
+      COMMON /AgCCOMD/ Ncommand,Ccommand
+      Integer          IUHIST
+      Character*80            CFHIST,CDHIST
+      COMMON /AgCHIST/ IUHIST,CFHIST,CDHIST
+*
+      Integer          NtrSubEV,NkineMax,NhitsMax,NtoSkip,NsubToSkip,
+     >                 Nsubran,ItrigStat,NsubEvnt,IsubEvnt,
+     >                 Make_Shadow,Flag_Secondaries
+      Real             Cutele_Gas,VertexNow
+      COMMON /AgCSUBE/ NtrSubEV,NkineMax,NhitsMax,
+     >                 NtoSkip,NsubToSkip,Nsubran(2)
+      COMMON /AgCSTAR/ Make_Shadow,Cutele_Gas,Flag_Secondaries
+      COMMON /AgCstat/ ItrigSTAT,NsubEvnt,IsubEvnt,VertexNow(3)
+*
+*    - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+*
 *KEND.
       REAL    TIMNOW/0/
       INTEGER IDEBAG/0/,TRIG/0/,AgPHASE
@@ -1231,7 +1270,8 @@ C                                       Link to:
             If (JHEAD.GT.0)  CALL MZDROP(IxSTOR,JHEAD,'L')
 *
             CALL TIMEL(TIMNOW)
-*          Check time left
+*          Check time left for non-splitted events
+            IF (NtrSubEV.le.0 .or. IsubEVNT.ge.NsubEvnt) then
             IF (ITIME.GT.0 .and. TIMNOW.LE.TIMEND) Then
                WRITE(CHMAIL,10001) TIMEND
 10001          FORMAT(' ***** THE JOB STOPS NOW because the TIME',
@@ -1239,6 +1279,7 @@ C                                       Link to:
                CALL GMAIL(0,1)
                IQUEST(1) = 1
                GO TO 19
+            ENDIF
             ENDIF
 *
 *              initialise event counters
@@ -1377,6 +1418,7 @@ C
 END
  
  
+*CMZ :          05/08/98  23.16.12  by  Pavel Nevski
 *CMZ :  1.30/00 29/07/96  12.00.03  by  Pavel Nevski
 *-- Author :    R.Brun
 ***********************************************************************
@@ -1535,7 +1577,7 @@ C
       enddo
 *
       address=CsADDR ('AGUTREV')
-      if (address>0) CALL CsJCAL (address,0)
+      if (address>0) CALL CsJCAL (address,0, 0,0,0,0,0, 0,0,0,0,0)
 *
 * By default (No ACTION command issued) GEANT simulations are done if:
 * a: IKINE<0 and reading of HITS, DIGI and RECB is prohibited,  b: IKINE>=0.
@@ -1557,7 +1599,7 @@ C
       END
  
  
-*CMZ :          05/06/98  12.12.46  by  Pavel Nevski
+*CMZ :          05/08/98  23.16.12  by  Pavel Nevski
 *CMZ :  1.30/00 17/04/97  20.57.01  by  Pavel Nevski
 *-- Author : R. Brun
 ******************************************************************
@@ -1640,12 +1682,13 @@ C
      endif
 *
      Istop = 0
-     if (address>0) CALL CsJCAL (address,0)
+     if (address>0) CALL CsJCAL (address,0, 0,0,0,0,0, 0,0,0,0,0)
      If (Istop==0)  CALL GTRACK
 *
       END
  
  
+*CMZ :          05/08/98  23.33.58  by  Pavel Nevski
 *CMZ :  1.30/00 01/04/97  15.49.43  by  Pavel Nevski
 *CMZ :  3.21/02 29/03/94  15.41.25  by  S.Giani
 *-- Author :
@@ -1731,31 +1774,31 @@ C
 *
       ISKIP = 0
  
-      If (Idevt0.ne.IDEVT) then
+      If (Idevt0 != IDEVT) then
           Idevt0  = IDEVT
           address = CsADDR ('AGUTREV')
       End IF
  
-      If (NGKINE.eq.0. and. JKINE.gt.0) then
+      If (NGKINE==0 & JKINE>0) then
 *     skip particles with a vertex produced - not final state
          L = LQ(JKINE-ITRA)
-         If (L.gt.0) then
+         If (L>0) then
             ITRT = Q(5+L)
             Nver = Q(7+L)
-            If ( NVER.gt.0 .or. ITRT.le.0) then
+            If (NVER>0 | ITRT<=0) then
                ISKIP = -1
-               If (IDEBUG.ge.3) write (LOUT,1001) ITRA
+               If (IDEBUG>=3) write (LOUT,1001) ITRA
  1001          FORMAT(' *** GUSKIP: skip track number ',i8)
             endif
          endif
       endif
  
-      if (address.gt.0) CALL CsJCAL (address,1,ISKIP)
+      if (address>0) CALL CsJCAL (address,1, ISKIP,0,0,0,0, 0,0,0,0,0)
  
       END
  
  
-*CMZ :          06/02/98  15.16.04  by  Pavel Nevski
+*CMZ :          05/08/98  23.16.12  by  Pavel Nevski
 *CMZ :  1.30/00 22/04/97  20.18.53  by  Pavel Nevski
 *-- Author :    Alexandre Rozanov 02.04.95
 ****************************************************************************
@@ -1961,8 +2004,8 @@ C
          If (ISIMU>=1)            Call AgUsecond   ! - mechanism based
          If (Flag_secondaries>=2) Call AgsSECOND   ! - dense media
       endif
-*
-      if (address>0) CALL CsJCAL (address,0)       ! let user do something
+*                                                  ! let user do something
+      if (address>0) CALL CsJCAL (address,0, 0,0,0,0,0, 0,0,0,0,0)
 *
       If (NGKINE<=0)   Break
          NDONE += NGKINE
@@ -1985,6 +2028,7 @@ C
  END
  
  
+*CMZ :          05/08/98  23.16.12  by  Pavel Nevski
 *CMZ :  1.30/00 10/04/96  18.46.17  by  Pavel Nevski
 *CMZU:  1.00/01 16/11/95  02.01.56  by  Pavel Nevski
 *-- Author :    P. Nevski
@@ -2027,7 +2071,7 @@ C
       endif
 *
       if (address>0) then
-         CALL CsJCAL (address,2,VECT,Field)
+         CALL CsJCAL (address,2, VECT,Field,0,0,0, 0,0,0,0,0)
       Else
          Field={0.,0.,0.}
       Endif
@@ -2035,7 +2079,7 @@ C
       END
  
  
-*CMZ :          14/07/97  16.44.31  by  Pavel Nevski
+*CMZ :          05/08/98  23.16.12  by  Pavel Nevski
 *CMZ :  1.30/00 07/07/96  13.08.33  by  Pavel Nevski
 *-- Author :    Pavel Nevski   07/07/96
      subroutine    G U D I G I
@@ -2137,12 +2181,12 @@ C
            Check Cdet(1:3)//'H'==Cset
            address=CsADDR (cdet//'DIG')
 *           print *,'digi routine for ',cdet,': address=',address
-           if (address>0) CALL CsJCAL (address,0)
+           if (address>0) CALL CsJCAL (address,0, 0,0,0,0,0, 0,0,0,0,0)
         enddo
      enddo
 *
      address=CsADDR ('AGUDIGI')
-     if (address>0) CALL CsJCAL (address,0)
+     if (address>0) CALL CsJCAL (address,0, 0,0,0,0,0, 0,0,0,0,0)
  
      end
  
@@ -2665,7 +2709,7 @@ C
   end
  
  
-*CMZ :          13/07/98  20.17.07  by  Pavel Nevski
+*CMZ :          05/08/98  23.16.12  by  Pavel Nevski
 *-- Author :    Pavel Nevski   20/03/98
 ************************************************************************
       subroutine on fault (c,nn,name)
@@ -2680,7 +2724,7 @@ C
  
  
  
-*CMZ :          25/03/98  10.19.30  by  Pavel Nevski
+*CMZ :          05/08/98  23.16.12  by  Pavel Nevski
 *-- Author : Pavel Nevski
 ******************************************************************
                 SUBROUTINE GUDCAY
@@ -2748,7 +2792,7 @@ C
          address = CsADDR ('AGUDCAY')
      endif
 *
-     if (address>0) CALL CsJCAL (address,0)
+     if (address>0) CALL CsJCAL (address,0, 0,0,0,0,0, 0,0,0,0,0)
 *
      END
  
@@ -6719,7 +6763,7 @@ Do Iv=1,Nvol
 }  }  }
    END
  
-*CMZ :          11/01/98  19.20.57  by  Pavel Nevski
+*CMZ :          05/08/98  23.16.12  by  Pavel Nevski
 *CMZ :  1.30/00 16/03/97  14.27.55  by  Pavel Nevski
 *CMZU:  1.00/01 29/01/96  13.26.30  by  Pavel Nevski
 *-- Author :    Pavel Nevski   26/11/94
@@ -6989,7 +7033,7 @@ C
         hit=serial;
         If   Iad==0   { hit=AgGHIT(ic)           }
         else If ic>0  { Call JumpT2(Iad,j,hit)   }
-        else          { Call CSJCAL(Iad,2,j,hit) }
+        else          { Call CSJCAL(Iad,2, j,hit,0,0,0, 0,0,0,0,0) }
  
         " special case for phi(0,2pi) and rapidity(0,max) -> Org=-Fmin "
         If "phi"  ic==6  { If (Org<=0 & Fmx>6.28 & hit<0) hit+=TwoPi;  }
@@ -12219,7 +12263,7 @@ Common     /AgZbuffer/  K,JRC,JCONT,CSTREAM,COPTN,CREQ,IREQ,iend,mem(100,5)
 End
  
  
-*CMZ :          28/07/98  14.24.39  by  Pavel Nevski
+*CMZ :          05/08/98  23.16.12  by  Pavel Nevski
 *CMZ :  1.30/00 19/03/97  21.57.11  by  Pavel Nevski
 *CMZU:  1.00/01 15/01/96  20.20.30  by  Pavel Nevski
 *-- Author :    L.Vacavant, A.Rozanov    14/12/94
@@ -12469,7 +12513,7 @@ C                                       Link to:
      {  Iadr=CSADDR('AGUSKINE');  call UHTOC(IQ(LKEVNT-4),4,IDH,4)
         If      IDH=='EVNT' { Call AgGZKINE(iprin)      }
         else If IDH=='EVEN' { Call AgEZKINE(iprin)      }
-        else If IADR!=0     { Call CSJCAL(Iadr,1,Iprin) }
+        else If IADR!=0     { Call CSJCAL(Iadr,1, Iprin,0,0,0,0, 0,0,0,0,0) }
         else { <w> IDH; (' READRZ error: unknown event bank :',a) }
      }
      If (LKARAW>0 & LKARP1==0)   Call AgBEAMdat
@@ -15075,7 +15119,7 @@ C
   }  }  }
   call GGCLOS
   End
-*CMZ :          23/04/98  17.12.21  by  Pavel Nevski
+*CMZ :          05/08/98  23.16.13  by  Pavel Nevski
 *CMZ :  1.30/00 02/05/97  17.21.14  by  Pavel Nevski
 *-- Author :    A. Rozanov  11/03/95
 ******************************************************************************
@@ -15234,7 +15278,7 @@ C
          If (IKine==-2) Call AgNTOPEN('hcwn.hbook' ,  4 )
          If (IKine==-3) Call AgFOPEN ( 0,  ' ',      ier)
          If (IKine<=-4) { J=CsADDR('AGUSOPEN'); IkineOld=Ikine;
-                          If (J>0) Call CSjCAL(J,2,' ') }
+                          If (J>0) Call CSjCAL1S(J,' ') }
       endif
 *
       Ier   = 0
@@ -15243,8 +15287,9 @@ C
       If (IKineOld==-1) call AgPread (ier)
       If (IKINEold==-2) call AgNTread(ier)
       If (IKINEold<=-3) call AgFread (ier)
-      If (IKINEold<=-4) {J=CsADDR('AGUSREAD'); If (J>0) Call CSjCAL(J,1,Ier)}
-                         J=CsADDR('AGUKINE');  If (J>0) Call CSjCAL(J,1,Ier)
+      If (IKINEold<=-4)
+      { J=CsADDR('AGUSREAD'); If (J>0) Call CSjCAL(J,1,Ier,0,0,0,0,0,0,0,0,0) }
+        J=CsADDR('AGUKINE');  If (J>0) Call CSjCAL(J,1,Ier,0,0,0,0,0,0,0,0,0)
 *
       If  ier!=0  { Ikineold=0; Ieotri=1; Iquest(1)=Ier; Return; }
 *
