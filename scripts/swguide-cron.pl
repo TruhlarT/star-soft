@@ -1,8 +1,11 @@
 #!/usr/bin/env perl
 #
-# $Id: swguide-cron.pl,v 1.3 2001/12/28 21:20:16 jeromel Exp $
+# $Id: swguide-cron.pl,v 1.4 2002/01/26 23:34:00 jeromel Exp $
 #
 # $Log: swguide-cron.pl,v $
+# Revision 1.4  2002/01/26 23:34:00  jeromel
+# Corrected and secured.
+#
 # Revision 1.3  2001/12/28 21:20:16  jeromel
 # comp-nfs -> tmp
 #
@@ -37,7 +40,11 @@
 #
 
 $fpath = "/star/starlib/doc/www/html/tmp";
-$pgm = $ENV{STAR_CGI}."/swguide.pl";
+if( defined($ENV{STAR_CGI}) ){
+    $pgm = $ENV{STAR_CGI}."/swguide.pl";
+} else {
+    $prgm = "/afs/rhic/star/packages/cgi"."/swguide.pl";
+}
 if ( @ARGV ) {
     @ver = @ARGV;
 } else {
@@ -61,17 +68,20 @@ foreach $v ( @ver ) {
         if ( -e $fname ) { unlink($fname) or die "Can't delete $fname: $!\n"; }
         open(FILE,">$fname-tmp") or die "Can't write to $fname: $!\n";
         print "$v-$d\n" if $debugOn;
-        $command = "$pgm ver=$v detail=$d dynamic=yes";
+        $command = "$prgm ver=$v detail=$d dynamic=yes";
+	print "Executing [$command]\n" if $debugOn; 
         $output = `$command`;
         print FILE $output;
         close (FILE);
 
-	# Added for space security. Noet that this script is in 
+	# Added for space security. Note that this script is in 
 	# buffered IO mode.
 	if( -e "$fname-tmp"){
 	    @items = stat("$fname-tmp");
-	    if( $items[7] != 0){
-		rename("$fname-tmp","$fname");
+	    if($#items != -1){        # oh yeahhh. This can be true too ...
+		if( $items[7] != 0){
+		    rename("$fname-tmp","$fname");
+		}
 	    }
 	}
     }
