@@ -60,7 +60,8 @@ sub DataDisplayString{
   # make a link to the run log
   my $link  = "http://onlsun1.star.bnl.gov/cgi-bin/porter" .
               "/dbRunData.pm?runnumber='$runID'";
-  my $ahref = "<a href=$link target='runlog'>RunLog</a>";
+  my $ahref = "<a href=$link target='runlog'>RunLog</a>"
+	if $gDataClass_object->DataClass() =~ /real/;
 
   return $report_key_string .
          "JobID : " . $self->LogReport->JobID . br.
