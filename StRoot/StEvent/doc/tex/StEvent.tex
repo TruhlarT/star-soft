@@ -2,7 +2,7 @@
 %
 % StEvent - User Guide and Reference Manual -- LaTeX Source
 %
-% $Id: StEvent.tex,v 2.77 2003/04/22 01:10:34 ullrich Exp $
+% $Id: StEvent.tex,v 2.78 2003/05/21 19:10:22 ullrich Exp $
 %
 % Author: Thomas Ullrich, Nov 1999
 %
@@ -21,6 +21,9 @@
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %
 % $Log: StEvent.tex,v $
+% Revision 2.78  2003/05/21 19:10:22  ullrich
+% Updated TOF references.
+%
 % Revision 2.77  2003/04/22 01:10:34  ullrich
 % Added text from Subhasis on PHMD.
 %
@@ -297,8 +300,8 @@
   \mbox{\includegraphics[width=\textwidth]{StEventTitle.eps}}
   \hfill\mbox{}\\[3cm]
   {\LARGE User Guide and Reference Manual \\[5mm] for Version 2}\\[2cm]
-  {\LARGE $ $Revision: 2.77 $ $}  \\[5mm] % replaced by cvs with current revision
-  {\LARGE $ $Date: 2003/04/22 01:10:34 $ $}  % replaced by cvs with current revision
+  {\LARGE $ $Revision: 2.78 $ $}  \\[5mm] % replaced by cvs with current revision
+  {\LARGE $ $Date: 2003/05/21 19:10:22 $ $}  % replaced by cvs with current revision
   \vfill
 \end{center}
 \cleardoublepage
@@ -6225,11 +6228,43 @@ Given below the methods to access various data members.
 \end{Entry}
 \clearpage
 
+\subsection{StTofCell}
+\index{StTofCell|textbf}
+\label{sec:StTofCell}
+\begin{Entry}
+\item[Summary]
+\item[Synopsis]
+    \verb+#include "StTofCell.h"+\\
+    \verb+class StTofCell;+\\
+\item[Description]
+\item[Related Classes]
+\item[Public\\ Constructors]
+    \verb+StTofCell();+\\
+    \verb+StTofCell(int, int, int, int, int, StTrack*);+\\
+\item[Public Member\\ Functions]
+    \verb+int operator==(const StTofCell&) const;+\\
+    \verb+int operator!=(const StTofCell&) const;+\\
+    \verb+int trayIndex() const;+\\
+    \verb+int moduleIndex() const;+\\
+    \verb+int cellIndex() const;+\\
+    \verb+int adc() const;+\\
+    \verb+int tdc() const;+\\
+    \verb+StTrack* associatedTrack();+\\
+    \verb+const StTrack* associatedTrack() const;+\\
+    \verb+void setTrayIndex(int);+\\
+    \verb+void setModuleIndex(int);+\\
+    \verb+void setCellIndex(int);+\\
+    \verb+void setAdc(int);+\\
+    \verb+void setTdc(int);+\\
+    \verb+void setAssociatedTrack(StTrack*);+\\
+\end{Entry}
+\clearpage
+
 \subsection{StTofCollection}
 \index{StTofCollection|textbf}
 \label{sec:StTofCollection}
 \begin{Entry}
-\item[Summary] Top class for ToF data.
+\item[Summary]
 \item[Synopsis]
     \verb+#include "StTofCollection.h"+\\
     \verb+class StTofCollection;+\\
@@ -6238,22 +6273,24 @@ Given below the methods to access various data members.
 \item[Public\\ Constructors]
     \verb+StTofCollection();+\\
 \item[Public Member\\ Functions]
-    \verb+const StSPtrVecTofSlat& tofSlats() const;+\\
-    \verb+StSPtrVecTofSlat& tofSlats();+\\
+    \verb+const StSPtrVecTofCell& tofCell() const;+\\
+    \verb+StSPtrVecTofCell& tofCell();+\\
+    \verb+const StSPtrVecTofSlat& tofSlat() const;+\\
+    \verb+StSPtrVecTofSlat& tofSlat();+\\
     \verb+const StSPtrVecTofHit& tofHits() const;+\\
     \verb+StSPtrVecTofHit& tofHits();+\\
     \verb+const StSPtrVecTofData& tofData() const;+\\
     \verb+StSPtrVecTofData& tofData();+\\
     \verb+void addSlat(const StTofSlat*);+\\
+    \verb+void addCell(const StTofCell*);+\\
     \verb+void addHit(const StTofHit*);+\\
     \verb+void addData(const StTofData*); +\\
+    \verb+bool cellsPresent() const;+\\
     \verb+bool slatsPresent() const;+\\
     \verb+bool hitsPresent() const;+\\
     \verb+bool dataPresent() const;+\\
 \end{Entry}
 \clearpage
-
-
 
 \subsection{StTofData}
 \index{StTofData|textbf}
@@ -6281,8 +6318,6 @@ Given below the methods to access various data members.
     \verb+void setTdc(unsigned short);+\\
     \verb+void setTc(short);+\\
     \verb+void setSc(unsigned short);+\\
-\item[Public Operators]
-    \verb+ostream& operator<<(ostream&, const StTofData&);+\\
 \end{Entry}
 \clearpage
 
@@ -6299,14 +6334,163 @@ Given below the methods to access various data members.
 \item[Public\\ Constructors]
     \verb+StTofHit();+\\
 \item[Public Member\\ Functions]
-    \verb+unsigned short slatIndex() const;+\\
-    \verb+unsigned short numberOfMips() const;+\\
-    \verb+float flightTime() const;+\\
-    \verb+void setSlatIndex(unsigned short);+\\
-    \verb+void setNumberOfMips(unsigned short);+\\
-    \verb+void setFlightTime(float);+\\
-\item[Public Operators]
-    \verb+ostream& operator<<(ostream&, const StTofHit&);+\\
+    \verb+int trayIndex() const;+\\
+    \verb+int moduleIndex() const;+\\
+    \verb+int cellIndex() const;+\\
+    \verb+int daqIndex() const;+\\
+    \verb+float timeOfFlight() const;+\\
+    \verb+float pathLength() const;+\\
+    \verb+float beta() const;+\\
+    \verb+StTrack* associatedTrack();+\\
+    \verb+const StTrack* associatedTrack() const;+\\
+    \verb+float tofExpectedAsElectron() const;+\\
+    \verb+float tofExpectedAsPion() const;+\\
+    \verb+float tofExpectedAsKaon() const;+\\
+    \verb+float tofExpectedAsProton() const;+\\
+    \verb+float sigmaElectron() const;+\\
+    \verb+float sigmaPion() const;+\\
+    \verb+float sigmaKaon() const;+\\
+    \verb+float sigmaProton() const;+\\
+    \verb+StParticleDefinition* particleHypothesis();+\\
+    \verb+const StParticleDefinition* particleHypothesis() const;+\\
+    \verb+void setTrayIndex(int);+\\
+    \verb+void setModuleIndex(int);+\\
+    \verb+void setCellIndex(int);+\\
+    \verb+void setDaqIndex(int);+\\
+    \verb+void setTimeOfFlight(float);+\\
+    \verb+void setPathLength(float);+\\
+    \verb+void setBeta(float);+\\
+    \verb+void setAssociatedTrack(StTrack*);+\\
+    \verb+void settofExpectedAsElectron(float);+\\
+    \verb+void settofExpectedAsPion(float);+\\
+    \verb+void settofExpectedAsKaon(float);+\\
+    \verb+void settofExpectedAsProton(float);+\\
+    \verb+void setsigmaElectron(float);+\\
+    \verb+void setsigmaPion(float);+\\
+    \verb+void setsigmaKaon(float);+\\
+    \verb+void setsigmaProton(float);+\\
+    \verb+void setparticleHypothesis(StParticleDefinition*);+\\
+\end{Entry}
+\clearpage
+
+\subsection{StTofMCCell}
+\index{StTofMCCell|textbf}
+\label{sec:StTofMCCell}
+\begin{Entry}
+\item[Summary]
+\item[Synopsis]
+    \verb+#include "StTofMCCell.h"+\\
+    \verb+class StTofMCCell;+\\
+\item[Description]
+\item[Related Classes]
+\item[Public\\ Constructors]
+    \verb+StTofMCCell();+\\
+    \verb+StTofMCCell(const StTofMCInfo&);+\\
+\item[Public Member\\ Functions]
+    \verb+int operator==(const StTofMCCell&) const;+\\
+    \verb+int operator!=(const StTofMCCell&) const;+\\
+    \verb+const StTofMCInfo& mcInfo() const;+\\
+    \verb+void setMCInfo(const StTofMCInfo&);+\\
+    \verb+void setNHits(int nHits);+\\
+    \verb+void setNPhe(int nPhe);+\\
+    \verb+void setDe(float de);+\\
+    \verb+void setDs(float ds);+\\
+    \verb+void setTof(float tof);+\\
+\end{Entry}
+\clearpage
+
+\subsection{StTofMCHit}
+\index{StTofMCHit|textbf}
+\label{sec:StTofMCHit}
+\begin{Entry}
+\item[Summary]
+\item[Synopsis]
+    \verb+#include "StTofMCHit.h"+\\
+    \verb+class StTofMCHit;+\\
+\item[Description]
+\item[Related Classes]
+\item[Public\\ Constructors]
+    \verb+StTofMCHit();+\\
+\item[Public Member\\ Functions]
+    \verb+int trkId() const;+\\
+    \verb+int gId() const;+\\
+    \verb+void setTrkId(Int_t);+\\
+    \verb+void setGId(Int_t);+\\
+\end{Entry}
+\clearpage
+
+\subsection{StTofMCInfo}
+\index{StTofMCInfo|textbf}
+\label{sec:StTofMCInfo}
+\begin{Entry}
+\item[Summary]
+\item[Synopsis]
+    \verb+#include "StTofMCInfo.h"+\\
+    \verb+class StTofMCInfo;+\\
+\item[Description]
+\item[Related Classes]
+\item[Public\\ Constructors]
+    \verb+StTofMCInfo();+\\
+    \verb+StTofMCInfo(int, int, int, float, int, float, +\\
+    \verb+float, float, float, float, float, float, +\\
+    \verb+float);+\\
+    \verb+int operator==(const StTofMCInfo& MCInfo) const;+\\
+    \verb+int operator!=(const StTofMCInfo& MCInfo) const;+\\
+    \verb+Int_t mTrkId;+\\
+    \verb+Int_t mGId;+\\
+    \verb+Int_t mNHits;+\\
+    \verb+Int_t mNPhe; +\\
+    \verb+Float_t mDe;+\\
+    \verb+Float_t mPTot;+\\
+    \verb+Float_t mDs;+\\
+    \verb+Float_t mSLength;+\\
+    \verb+Float_t mPmLength;+\\
+    \verb+Float_t mTof;+\\
+    \verb+Float_t mTime;+\\
+    \verb+Float_t mMTime;+\\
+    \verb+Float_t mMTimeL;+\\
+\end{Entry}
+\clearpage
+
+\subsection{StTofMCSlat}
+\index{StTofMCSlat|textbf}
+\label{sec:StTofMCSlat}
+\begin{Entry}
+\item[Summary]
+\item[Synopsis]
+    \verb+#include "StTofMCSlat.h"+\\
+    \verb+class StTofMCSlat;+\\
+\item[Description]
+\item[Related Classes]
+\item[Public\\ Constructors]
+    \verb+StTofMCSlat();+\\
+    \verb+StTofMCSlat(const StTofMCInfo&);+\\
+\item[Public Member\\ Functions]
+    \verb+int operator==(const StTofMCSlat&) const;+\\
+    \verb+int operator!=(const StTofMCSlat&) const;+\\
+    \verb+const StTofMCInfo& mcInfo() const;+\\
+    \verb+void setMCInfo(const StTofMCInfo&);+\\
+    \verb+void setNHits(int nHits);+\\
+    \verb+void setNPhe(int nPhe);+\\
+    \verb+void setDe(float de);+\\
+    \verb+void setDs(float ds);+\\
+    \verb+void setTof(float tof);+\\
+\end{Entry}
+\clearpage
+
+\subsection{StTofPidTraits}
+\index{StTofPidTraits|textbf}
+\label{sec:StTofPidTraits}
+\begin{Entry}
+\item[Summary]
+\item[Synopsis]
+    \verb+#include "StTofPidTraits.h"+\\
+    \verb+class StTofPidTraits;+\\
+\item[Description]
+\item[Related Classes]
+\item[Public\\ Constructors]
+    \verb+StTofPidTraits();+\\
+\item[Public Member\\ Functions]
 \end{Entry}
 \clearpage
 
@@ -6322,17 +6506,35 @@ Given below the methods to access various data members.
 \item[Related Classes]
 \item[Public\\ Constructors]
     \verb+StTofSlat();+\\
-    \verb+StTofSlat(unsigned short, unsigned short, unsigned short);+\\
-\item[Public Member\\ Operators]
+    \verb+StTofSlat(unsigned short, unsigned short, unsigned short, StTrack*);+\\
+\item[Public Member\\ Functions]
     \verb+int operator==(const StTofSlat&) const;+\\
     \verb+int operator!=(const StTofSlat&) const;+\\
-\item[Public Member\\ Functions]
     \verb+unsigned short slatIndex() const;+\\
     \verb+unsigned short adc() const;+\\
     \verb+unsigned short tdc() const;+\\
+    \verb+StTrack* associatedTrack();+\\
+    \verb+const StTrack* associatedTrack() const;+\\
     \verb+void setSlatIndex(unsigned short);+\\
     \verb+void setAdc(unsigned short);+\\
     \verb+void setTdc(unsigned short);+\\
+    \verb+void setAssociatedTrack(StTrack*);+\\
+\end{Entry}
+\clearpage
+
+\subsection{StTofSoftwareMonitor}
+\index{StTofSoftwareMonitor|textbf}
+\label{sec:StTofSoftwareMonitor}
+\begin{Entry}
+\item[Summary]
+\item[Synopsis]
+    \verb+#include "StTofSoftwareMonitor.h"+\\
+    \verb+class StTofSoftwareMonitor;+\\
+\item[Description]
+\item[Related Classes]
+\item[Public\\ Constructors]
+    \verb+StTofSoftwareMonitor();+\\
+\item[Public Member\\ Functions]
 \end{Entry}
 \clearpage
 
