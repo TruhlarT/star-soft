@@ -1,13 +1,13 @@
 #! /opt/star/bin/perl
 #
-# derived Logreport_object for nightly tests
+# derived Logreport_object for fast offline
 #
 #==========================================================
 package Logreport_object_offline_fast;
 #==========================================================
 use CGI qw/:standard :html3/;
 
-use IO_object;
+#use IO_object;
 use QA_globals;
 use QA_db_utilities qw(:db_globals);
 use FileHandle;
@@ -34,7 +34,7 @@ my %members = (
 	       _ScaleFactor      => undef
 	      );
 
-my $basePath = "/star/data19/reco/dev";
+#my $basePath = "/star/data19/reco/dev";
 my $logPath = "/star/rcf/prodlog/dev/log/daq";
 
 #==========================================================
@@ -42,6 +42,8 @@ sub new{
   my $classname = shift;
   my $self      = $classname->SUPER::new(@_) or return;  
   defined $self or return;
+
+#  bless($self,$classname);
 
   if (defined %members){
     # using SUPER::AUTOLOAD
@@ -61,6 +63,9 @@ sub new{
 #
 sub _initplus{ 
   my $self = shift;
+
+  
+
 
   $self->ChainName($self->RequestedChain());
 
@@ -144,6 +149,13 @@ sub ParseLogfile {
     if($line =~ /chain will run with options\s+(\S+)/){
       my $value = $1;
       $self->RequestedChain($value);
+      next;
+    }
+
+    # output directory
+    if($line =~ /output destination will be\s+(\S+)/){
+      my $value = $1;
+      $self->OutputDirectory($value);
       next;
     }
 
@@ -242,6 +254,12 @@ sub ParseLogfile {
 
   }
 
+  if(!-d $self->OutputDirectory()){
+    print "<font color=red>Cannot find ",
+    $self->OutputDirectory(), ". Bailing out...</font>\n";
+    return 0;
+  }
+
   # a first stab at the output files. see GetJobInfo for find tuning
   $self->ProductionFileListRef([split(/\s+/,$outFileRequestedString)]);
   	 
@@ -275,13 +293,14 @@ sub GetJobInfo{
 
   
   # output directory
-  my $hpss = rdaq_file2hpss($self->JobID(),2);
-  my ($year,$month) = (split(/\s+/,$hpss))[2,3];
-  $month = "0$month" if length $month<2;
-  my $outputDir = "$basePath/$year/$month";
+#  my $hpss = rdaq_file2hpss($self->JobID(),2);
+#  my ($year,$month) = (split(/\s+/,$hpss))[2,3];
+#  $month = "0$month" if length $month<2;
+#  my $outputDir = "$basePath/$year/$month";
 
-  $self->OutputDirectory($outputDir);
+  my $outputDir = $self->OutputDirectory();
 
+  
   # Real output files
   my @outFiles; 
   my $size =1000;

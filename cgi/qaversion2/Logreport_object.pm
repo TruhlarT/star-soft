@@ -125,7 +125,7 @@ sub _init{
 sub AUTOLOAD {
   my $self = shift;
   my $type = ref($self)
-    or die "$self is not an object";
+    or die "$self (", ref($self), ") is not an object";
 
   my $name = $AUTOLOAD;
   $name =~ s/.*://;   # strip fully-qualified portion
