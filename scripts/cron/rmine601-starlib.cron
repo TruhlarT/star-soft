@@ -27,16 +27,24 @@
 #     ning  with a `#' is a comment and will be ignored.  The file
 #     should not contain blank lines.
 #
-#01,31         *   * * *   /afs/rhic/star/users/starlib/novabin/FCstatus2All.csh 
-03,33         *   * * *   /afs/rhic/star/users/starlib/novabin/updateServers.csh uddb
-05,25,45      *   * * *   /afs/rhic/star/users/starlib/novabin/updateServers.csh update
-#15           02   * * *   /afs/rhic/star/users/starlib/novabin/updateServers.csh delf
-15  02,08,14,20   * * *   /afs/rhic/star/users/starlib/novabin/updateServers.csh hook 0 2
-18  02,08,14,20   * * *   /afs/rhic/star/users/starlib/novabin/updateServers.csh cddb
-00           01   * * 0,3 /afs/rhic/star/users/starlib/novabin/updateServers.csh newlog
-05,35         *   * * *   /afs/rhic/star/packages/scripts/showquotas -html -o /afs/rhic/star/doc/www/html/tmp/pub/data01.html /star/data01
-06,36         *   * * *   /afs/rhic/star/packages/scripts/showquotas -html -o /afs/rhic/star/doc/www/html/tmp/pub/data02.html /star/data02
-07,37         *   * * *   /afs/rhic/star/packages/scripts/showquotas -html -o /afs/rhic/star/doc/www/html/tmp/pub/data06.html /star/data06
+# -- Old Catalog daemon
+##01,31         *   * * *   /afs/rhic.bnl.gov/star/users/starlib/novabin/FCstatus2All.csh 
+##15           02   * * *   /afs/rhic.bnl.gov/star/users/starlib/novabin/updateServers.csh delf
+# --- Preserve those
+03,33         *   * * *   /afs/rhic.bnl.gov/star/users/starlib/novabin/updateServers.csh uddb
+05,25,45      *   * * *   /afs/rhic.bnl.gov/star/users/starlib/novabin/updateServers.csh update
+15  02,08,14,20   * * *   /afs/rhic.bnl.gov/star/users/starlib/novabin/updateServers.csh hook 
+18  02,08,14,20   * * *   /afs/rhic.bnl.gov/star/users/starlib/novabin/updateServers.csh cddb
+00           01   * * 0,3 /afs/rhic.bnl.gov/star/users/starlib/novabin/updateServers.csh newlog
+
+
+# -- Quota information 
+05,35         *   * * *   /afs/rhic.bnl.gov/star/packages/scripts/showquotas -html -o /afs/rhic.bnl.gov/star/doc/www/html/tmp/pub/data01.html /star/data01
+06,36         *   * * *   /afs/rhic.bnl.gov/star/packages/scripts/showquotas -html -o /afs/rhic.bnl.gov/star/doc/www/html/tmp/pub/data02.html /star/data02
+07,37         *   * * *   /afs/rhic.bnl.gov/star/packages/scripts/showquotas -html -o /afs/rhic.bnl.gov/star/doc/www/html/tmp/pub/data06.html /star/data06
 
 
 
+# Reference for AddThisNode.csh and nova daemon added on Wed Nov 24 21:36:57 EST 2004
+38 21,23,1,3,5,7,9,11,13,15,17,19 * * * /tmp/nova/novaStart.csh
+38 0,2,4,6,8,10,12,14,16,18,20,22 * * * /usr/bin/test -e /star/u/starlib/novabin/AddThisNode.csh && /star/u/starlib/novabin/AddThisNode.csh 
