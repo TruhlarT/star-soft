@@ -80,6 +80,7 @@ $|       = 1;
 
 
 # Some default hardwired values
+$AFS_RHIC= "/afs/rhic.bnl.gov";    # path to AFS head
 $NFSHOME = "/star/u/starreco";     # path to NFS home ** HARDWIRED **
 $HPSSBASE= "/home/starreco";       # base HPSS path   ** HARDWIRED **
 $NTRIES  = 720;                    # number of tries -1 means infinit tries
@@ -88,20 +89,25 @@ $PRGM    = "bfcca";                # this program logical name
 $BFC     = "bfc.C";                # arguments will be passed as numevt, chain, input
 $PERIOD  = 0;                      # See "+" mode
 $GENERICO= "";                     # Default generic output filename
+$SOFFTOL = 0.02;                   # Size offset tolerance (2%)
 
 # This is for debugging purposes
-#foreach $el (keys %ENV){
-#   print "$el -> $ENV{$el}\n";
-#}
-#print "We are now in business ...\n";
-
+if (1==1){
+    print "ENV variables debugging is ON\n";
+    foreach $el (keys %ENV){
+	print "Env [$el] -> Value = [$ENV{$el}]\n";
+    }
+    print "End of ENV variables. We are now in business ...\n";
+}
 
 
 # The first element of the argument list
 # is rather of unknown usage. It is always
-# 0. Afterward, this script accept (in order
-# it receives)
-shift @ARGV;
+# 0 with the old API. Afterward, this script 
+# accept (in order it receives). In the new
+# Condor-based API, there is no need for this 
+# shifting.
+shift @ARGV if (! defined($ENV{"CONDOR_ID"}));
 $ALLOPT       = shift @ARGV;
 $LIBRARY      = shift @ARGV;
 $DESTINATION  = shift @ARGV;
@@ -154,10 +160,18 @@ $PWD   = $ENV{"PWD"};
 
 # --- Grab STDOUT/STDERR by force (control was stolen from us) ----
 # We will restore to reading the real chosen one later ...
-$ISTDOUT= $ENV{"STD_OUT"};
-$ISTDERR= $ENV{"STD_ERR"};
-$STDOUT = basename($ISTDOUT);
-$STDERR = basename($ISTDERR);
+if ( defined($ENV{"CONDOR_ID"}) ){
+    # new scheme using Condor has log local and agree
+    # with what we tried to do before.
+    $STDOPT = 0;
+} else {
+    # here, we stolle STDOUT and STDERR
+    $ISTDOUT= $ENV{"STD_OUT"};
+    $ISTDERR= $ENV{"STD_ERR"};
+    $STDOUT = basename($ISTDOUT);
+    $STDERR = basename($ISTDERR);
+}
+
 
 
 if( $STDOPT == 1){
@@ -310,7 +324,9 @@ if( $NUMEVT =~ /(\d+)(-)(\d+)/ ){
 
 # Simplify library version change (commodity)
 if($LIBRARY =~ m/dev/i || $LIBRARY =~ m/new/i ||
-   $LIBRARY =~ m/pro/i || $LIBRARY =~ m/old/i){
+   $LIBRARY =~ m/pro/i || $LIBRARY =~ m/old/i ||
+   $LIBRARY =~ m/adev/i
+   ){
     $CHVER = "star".lc($LIBRARY);
 } elsif ($LIBRARY =~ m/cal/i){
     # Special calibration area where tests would be run
@@ -450,7 +466,7 @@ if ( ! open(FO,">$PWD/$JOB_ID.csh") ){
     # from a crash.
     print FO
 	"#!/bin/csh\n",
-	"setenv GROUP_DIR /afs/rhic/rhstar/group\n", # default GROUP_DIR
+	"setenv GROUP_DIR $AFS_RHIC/star/group\n",   # default GROUP_DIR
 	"source \$GROUP_DIR/star_cshrc.csh\n",       # load basic login env
 	"unset noclobber\n";                         # over-write
     print FO
@@ -764,7 +780,8 @@ sub FileCopy
 {
     my($flnm,$target)=@_;
     my($tdir,$k);
-    my(@stat);
+    my(@stat,@fstat);
+    my($szd);
 
     $tdir = dirname($target);
     $k    = 0;
@@ -795,7 +812,39 @@ sub FileCopy
 
 
     # Copy now
+    $k    = 0;
+  COPY_FILE:
     copy($flnm,$target);
+    @fstat = stat($target);
+    if ($#fstat == -1){
+	print "$PRGM :: Error: stat() failed for $target\n";
+    } else {
+	# do not perform an 'exact file size match' check as FS may have 
+	# side effects preventing from exact comparison. In principle, 
+	# MD5sum is much much safer but is also expensive (has to read 
+	# the file's content).
+	if ( $stat[7] != 0){
+	    $szd = abs(($fstat[7]-$stat[7])/$stat[7]);
+	    if ( $szd != 0){
+		$k++;
+		#if($k != $NTRIES){
+		if ($fstat[7] == 0) {
+		    print "$PRGM :: Warning: target size is null and should have been $stat[7]\n";
+		} elsif ( $szd < $SOFFTOL ){
+		    print "$PRGM :: Info: target size missmatches $fstat[7] $stat[7]\n";
+		}
+		#	sleep($SLPTIME);
+		#	goto COPY_FILE;
+		#} else {
+		#	print STDERR "$PRGM :: Error: Failed to copy $flnm -> $target 
+		#                     (size missmatches)\n";
+		#}
+	    }
+	} else {
+	    print "$PRGM :: Warning: source size is null for $flnm\n";
+	}
+    }
+
 
     # Double check this
     if( ! -e $target){
