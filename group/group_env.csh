@@ -1,5 +1,5 @@
 #!/bin/csh -f
-#       $Id: group_env.csh,v 1.140 2003/05/01 17:18:46 jeromel Exp $
+#       $Id: group_env.csh,v 1.141 2003/05/23 23:33:45 jeromel Exp $
 #	Purpose:	STAR group csh setup
 #
 #	Author:		Y.Fisyak     BNL
@@ -334,7 +334,7 @@ endsw
 # ==================================================================
 
 # Support for LSF
-if ( -d /usr/local/lsf/bin ) then
+if ( -d /usr/local/lsf/bin && ! $?LSF_ENVDIR ) then
     setenv LSF_DIR    /usr/local/lsf
     setenv LSF_ENVDIR $LSF_DIR/mnt/conf
     set path=($path $LSF_DIR/bin)
