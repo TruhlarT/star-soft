@@ -2,7 +2,7 @@
 %
 % StEvent - User Guide and Reference Manual -- LaTeX Source
 %
-% $Id: StEvent.tex,v 2.55 2001/02/22 22:30:59 lasiuk Exp $
+% $Id: StEvent.tex,v 2.56 2001/03/14 03:05:33 ullrich Exp $
 %
 % Author: Thomas Ullrich, Nov 1999
 %
@@ -21,6 +21,9 @@
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %
 % $Log: StEvent.tex,v $
+% Revision 2.56  2001/03/14 03:05:33  ullrich
+% Added description of PSD classes and required enums.
+%
 % Revision 2.55  2001/02/22 22:30:59  lasiuk
 % add information to account for changes in RICH
 %
@@ -230,8 +233,8 @@
   \mbox{\includegraphics[width=\textwidth]{StEventTitle.eps}}
   \hfill\mbox{}\\[3cm]
   {\LARGE User Guide and Reference Manual \\[5mm] for Version 2}\\[2cm]
-  {\LARGE $ $Revision: 2.55 $ $}  \\[5mm] % replaced by cvs with current revision
-  {\LARGE $ $Date: 2001/02/22 22:30:59 $ $}  % replaced by cvs with current revision
+  {\LARGE $ $Revision: 2.56 $ $}  \\[5mm] % replaced by cvs with current revision
+  {\LARGE $ $Date: 2001/03/14 03:05:33 $ $}  % replaced by cvs with current revision
   \vfill
 \end{center}
 \cleardoublepage
@@ -439,6 +442,15 @@ enum StRichHitFlag          {eDeconvoluted=1,
                              eInConstantAreap=262144,
                              eInAreap=524288,
                              eAssignedToRingp=1048576};
+
+enum StPwg                  {generic,
+                             ebye,
+                             hbt,
+                             highpt,
+                             pcoll,
+                             spectra,
+                             spin,
+                             strangeness};
 \end{verbatim}
 
 Note that often the enumeration type names (e.g. \texttt{StTrackType})
@@ -3153,6 +3165,11 @@ definition in the header file.
     \verb+static const TString& cvsTag();+\\
     CVS tag of the version you are using.
     
+    \verb+void statistics() const;+\\
+    Prints information to \texttt{cout}, as number of tracks, hits,
+    vertices, event and run ID, time, and more. This method can be also
+    invoked from the ROOT GUI.
+    
     \verb+const TString& type() const;+\\
     Character string which contains a short description of the type of
     the event you got.
@@ -3278,6 +3295,17 @@ definition in the header file.
     Of course it is now also your job to retrieve the object from the
     list. This is best done using the C++ RTTI mechanism.
     
+    \verb+StPsd*  psd(StPwg pwg, int id);+\\ 
+    \verb+const StPsd* psd(StPwg pwg, int id) const;+\\
+    Retrieve Physics Summary Data (PSD) from physics working group \texttt{pwg}
+    (for \texttt{StPwg} see \ref{sec:Enumerations}) with identifier \texttt{id}.
+    Returns \texttt{null} if not present.
+    \index{Physics Summary Data (PSD)}
+    \index{PSD}
+    
+    \verb+StSPtrVecPsd* psds();+\\
+    \verb+const StSPtrVecPsd* psds() const;+\\
+    Returns vector containing all PSDs or \texttt{null} if no PSD is available.
     
     \verb+void setType(const Char_t*);+\\
 
@@ -3317,6 +3345,18 @@ definition in the header file.
     Adds a primary vertex to the list. The vertices are
     automatically sorted according to their number of daughter
     tracks (descending order). \index{primary vertices, sorting}
+
+    \verb+void addPsd(StPsd* psd);+\\
+    Add PSD \texttt{*psd} to StEvent. This method checks if another
+    PSD with identical identifiers is already stored. If so, it prints
+    an error message and doesn't add the object pointed to by
+    \texttt{psd}. Note that after this call the object is owned by StEvent.
+    Don't delete it. However, you can still modify it.
+    
+    \verb+void removePsd(StPsd* psd);+\\
+    Removes PSD pointed to by \texttt{psd}. Please note that \texttt{psd}
+    itself is not nulled. The pointer is not valid anymore once this method
+    was invoked.
     
 \end{Entry}
 \clearpage
@@ -4171,6 +4211,36 @@ definition in the header file.
     \verb+void removeDaughter(StTrack*);+\\
 
     \verb+void setParent(StTrack*); // overwrite inherited+\\
+\end{Entry}
+\clearpage
+
+\subsection{StPsd}
+\index{StPsd|textbf}
+\label{sec:StPsd}\index{Physics Summary Data (PSD)} \index{PSD}
+\begin{Entry}
+\item[Summary]
+    Abstract base class for all Physics Summary Data classes.
+    
+\item[Synopsis]
+    \verb+#include "StPsd.h"+\\
+    \verb+class StPsd;+\\
+\item[Description]
+    All PSD classes must inherit from this base class.
+    
+\item[Related Classes]
+\item[Public\\ Constructors]
+    \verb+StPsd();+\\
+    \verb+StPsd(StPwg, int);+\\
+\item[Public Member\\ Functions]
+    \verb+StPwg pwg() const;+\\
+    Returns the pwg to which this PSD belongs.
+    
+    \verb+int id() const;+\\
+    Returns the integer id of the PSD. One PWG can have several
+    PSDs which can be distinguished by this ID.
+    
+    \verb+void setPwg(StPwg);+\\
+    \verb+void setId(int);+\\
 \end{Entry}
 \clearpage
 
