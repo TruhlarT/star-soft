@@ -6,6 +6,9 @@
 # T. Wenaus, J. Lauret
 #
 
+$VERSION = $ENV{STAR_LEVEL};
+if ( ! defined($VERSION) ){ $VERSION ="";}
+
 if ($ARGV[0] eq "-g"){
     # Guesstimator
     $DEBUG = 0;
@@ -54,12 +57,14 @@ if ($ARGV[0] eq "-g"){
 	}
 
 	if ($version ne ""){
-	    if ($version ne $ENV{STAR_LEVEL}){
-		if ($version ne "adev" || $ENV{STAR_LEVEL} ne "dev") {
-		    print "Missmatching STAR environment (now in ".$ENV{STAR_LEVEL}.")\n";
+	    if ( lc($version) ne lc($VERSION) ){
+		if ($version ne "adev" || lc($VERSION) ne "dev") {
+		    print "Missmatching STAR environment (now in ".$VERSION.")\n";
 		}
-	    } 
-	    print "$version was the version this code was previously compiled in ...\n";
+		print "$version was the previous version this code was compiled with !!!\n";
+	    } else {
+		print "$version was the version this code was previously compiled in. All is OK.\n";
+	    }
 	} else {
 	    print STDERR "Could not guess the library version you compiled your code in\n";
 	}
@@ -81,7 +86,7 @@ if ($ARGV[0] eq "-g"){
 	$cmo  = $cdy = $year = $chr = $cmin = "?";
     }
     chomp($host = `hostname`);
-    print "$host;CERN-$ENV{CERN_LEVEL};STAR-$ENV{STAR_LEVEL};root4star-$cmo/$cdy/$year-$chr:$cmin-$pgmf\n";
+    print "$host;CERN-$ENV{CERN_LEVEL};STAR-$VERSION;root4star-$cmo/$cdy/$year-$chr:$cmin-$pgmf\n";
 }
 
 
