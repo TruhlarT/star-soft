@@ -18,6 +18,7 @@
 # to submit the tests in batch ...
 #
 # -prof   do profiling tests
+# -valg   do valgrind check
 # -inter  run interrcatively (the default)
 # -batch  use batch
 #
@@ -35,17 +36,18 @@ $SRCDIR=IUTestDir();
 $DESTDIR=IUHtmlPub();
 
 # Number of events ton run in mode
-$NEVT[0]=2;    # Insure mode
-$NEVT[1]=15;   # Jprofile
+$NEVT[0]= 2;    # Insure, valgrind mode
+$NEVT[1]=10;    # Jprofile
 
 # Beware that non-interactive would mean having
 # a token as per being able to copy the results
 # back to target.
-$INTER = 1;
+$INTER = 0;
 
 
 # ------ No Changes below this line -------------------------------------
 $PROF = 0;
+$VALG = 0;
 
 # Parse arguments if any
 for($i=0 ; $i <= $#ARGV ; $i++){
@@ -75,6 +77,13 @@ for($i=0 ; $i <= $#ARGV ; $i++){
 	} elsif (lc($arg) eq "-prof"){
 	    # Turn on profiling instead
 	    $PROF = 1;
+
+	} elsif (lc($arg) eq "-valg"){
+	    # Turn on valgrind
+	    $VALG = 1;
+	} else {
+	    # an unkown - options
+	    die "Don't know what to do with option [$arg]\n";
 	}
     } else {
 	push(@ARG,$arg);
@@ -82,12 +91,6 @@ for($i=0 ; $i <= $#ARGV ; $i++){
 }
 undef(@ARGV);
 
-#
-# Prepare lock file for this session
-#
-IULockPrepare($SRCDIR,"$INTER");
-if ( ! IULockCheck(129600) ){ exit;}
-IULockWrite("$0 Interactive=$INTER Profiling=$PROF has started");
 
 #
 # Sort array now, transfer i into another associative array.
@@ -141,10 +144,25 @@ foreach $choice (@ARG){
     for($i=0 ; $i <= $#files ; $i++){
 	$file = $files[$i];
 
-	if(! -e $file){  &Die("$file cannot be seen from ".`hostname`."\n");}
-	else          {  system("/bin/touch $file");}
+	if(! -e $file){  
+	    print "$file cannot be seen from ".`hostname`."\n";
+	    next;
+	} else {  
+	    system("/bin/touch $file");
+	}
 
-	print "Doing [$chain] on $file\n";
+        #
+        # Prepare lock file for this session 
+        #
+	IULockPrepare($SRCDIR,"$INTER $PROF $VALG $chain");
+	if ( ! IULockCheck(129600) ){ 
+	    print "Skipping [$chain] on $file\n";
+	    next;
+	} else {
+	    IULockWrite("$0 Interactive=$INTER Profiling=$PROF has started");
+	    print "Doing [$chain] on $file\n";
+	}
+
 	# Ready to produce a running script
 	# Create directory
 	if( ! chdir($SRCDIR) ){ &Die("Cannot change directory to $SRCDIR\n");}
@@ -160,6 +178,8 @@ foreach $choice (@ARG){
 	# Pre-script creation tasks/open file
 	if ($PROF){
 	    $script = "Pscript$i.csh";
+	} elsif ($VALG){
+	    $script = "Vscript$i.csh";
 	} else {
 	    IUresource("$SRCDIR/$dir/insure$i.log"," - creating .psrc file");
 	    $script = "Iscript$i.csh";
@@ -179,15 +199,20 @@ foreach $choice (@ARG){
 
 	if($PROF){
 	    print FO JPLoad()."\n" ;  # Command to load the Profiling env
+	    $flnm = "Prof-$dir-$i.html";
+	} elsif ($VALG){
+	    print FO VLGLoad()."\n"; # there is nothing to do to load valgrind
+	    $flnm = "Valg-$dir-$i.html";
 	} else {
 	    print FO IULoad()."\n" ;  # command to load the Insure env
+	    $flnm = "Ins-$dir-$i.html";
 	}
 
 	print FO
 	    "cd $SRCDIR/$dir\n",
 	    "\n",
 	    "# Display result\n",
-	    IUCheckFile(3,($PROF?"$DESTDIR/Prof-$dir-$i.html":"$DESTDIR/Ins-$dir-$i.html")),
+	    IUCheckFile(3,"$DESTDIR/$flnm"),
 	    "set ROOT4STAR=`which root4star`\n",
 	    "echo \"Path   = \$PATH\"\n",
 	    "echo \"LDPath = \$LD_LIBRARY_PATH\"\n",
@@ -207,18 +232,22 @@ foreach $choice (@ARG){
 		"echo '.x bfc.C($NEVT[1],\"$chain\",\"$file\");' >>tmp.C\n",
 		"\$ROOT4STAR -b < tmp.C\n",
 		"\n",
-		IUCheckFile(0,"$SRCDIR/Prof-$dir-$i.html"),
-		JPRFFormat()." \$ROOT4STAR jprof-log >$SRCDIR/Prof-$dir-$i.html\n",
-		IUMoveFile(0,"$SRCDIR/Prof-$dir-$i.html","$DESTDIR/Prof-$dir-$i.html",10);
+		IUCheckFile(0,"$SRCDIR/$flnm"),
+		JPRFFormat()." \$ROOT4STAR $SRCDIR/$dir/jprof-log >$SRCDIR/$flnm\n";
+	} elsif ($VALG){
+	    print FO 
+		"valgrind --leak-check=yes --error-limit=no \$ROOT4STAR -b -q 'bfc.C($NEVT[1],\"$chain\",\"$file\")' >&valg$i.log\n",
+		"\n",
+		IUCheckFile(0,"$SRCDIR/$flnm"),
+		VLGFormat()." $SRCDIR/$dir/valg$i.log >$SRCDIR/$flnm\n";
 	} else {
 	    print FO 
 		"\$ROOT4STAR -b -q 'bfc.C($NEVT[0],\"$chain\",\"$file\")'\n",
 		"\n",
-		IUCheckFile(0,"$SRCDIR/Ins-$dir-$i.html"),
-		IURTFormat()." $SRCDIR/$dir/insure$i.log >$SRCDIR/Ins-$dir-$i.html\n",
-		IUMoveFile(0,"$SRCDIR/Ins-$dir-$i.html","$DESTDIR/Ins-$dir-$i.html",10);
+		IUCheckFile(0,"$SRCDIR/$flnm"),
+		IURTFormat()." $SRCDIR/$dir/insure$i.log >$SRCDIR/$flnm\n";
 	}
-
+	print FO IUMoveFile(0,"$SRCDIR/$flnm","$DESTDIR/$flnm",10)."\n";
 	close(FO);
 	chmod(0770,"$SRCDIR/$dir/$script");
 
@@ -230,11 +259,12 @@ foreach $choice (@ARG){
 	    print " - Submitting it now\n";
 	    IUSubmit("$SRCDIR/$dir/$script",1);
 	}
+	IULockDelete();
 
     }
 }
 
-IULockDelete();
+
 
 # --- Sub intercepting for IULockDelete()
 sub Die
