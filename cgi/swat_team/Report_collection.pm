@@ -102,12 +102,20 @@ sub Display{
 
   my $self = shift;
 #---------------------------------------------------------------------------
+# sort reports
+  
+  my @reports_unsorted = @{ $self->{Reports} };
+
+  my @reports = sort { $b->LastModified() <=> $a->LastModified() } @reports_unsorted;
+
+  # put back into hash for printing index
+  @{ $self->{Reports} } = @reports;
+
+#---------------------------------------------------------------------------
   $self->PrintIntro();
 #---------------------------------------------------------------------------
   $self->PrintIndex();
 #---------------------------------------------------------------------------
-  my @reports = @{ $self->{Reports} };
-
   foreach my $report ( @reports){
     $report->Display();
   }
@@ -234,7 +242,7 @@ sub PrintIndex{
 
   print "<hr>";
  
-  print h3("Index");
+  print h3("Index (most recently modified is first)");
 
 #---------------------------------------------------------------------------
 

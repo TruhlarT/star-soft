@@ -1,6 +1,6 @@
 #! /usr/bin/perl 
 #
-# general object to wrap swpa report
+# general object to wrap swat report
 #
 # pmj 31/7/00
 #
@@ -40,6 +40,10 @@ sub _init{
 
   $self->ReportName($report_name);
   $self->ReportArgs(@args);
+
+  my $last_mod = (stat($report_name))[9];
+  $self->LastModified($last_mod);
+
   #-------------------------------------------------
   # get random tag
 
@@ -62,6 +66,12 @@ sub ReportName{
   my $self = shift;
   @_ and $self->{ReportName} = shift;
   return $self->{ReportName};
+}
+#========================================================
+sub LastModified{
+  my $self = shift;
+  @_ and $self->{LastModified} = shift;
+  return $self->{LastModified};
 }
 #========================================================
 sub ReportArgs{
@@ -123,10 +133,8 @@ sub Display{
   print h3("<a name=$tag>$title</a>");
 
   print "<strong>Authors:</strong>", $self->Author(),"<br>\n";
-
-  my $file = $self->ReportName();
-  my $last_mod = (stat($file))[9];
-
+  
+  my $last_mod = $self->LastModified();
   my $last_mod_time = localtime($last_mod);
   print "Last modified: $last_mod_time<br>\n";
 
