@@ -164,9 +164,9 @@ print $query->startform(-action=>"dbRunBrows.pl");
   print "  </head>\n";
   print "  <body bgcolor=\"#ffdc9f\"> \n";
 if ($frSet eq "daq") {
-  print "  <h2 align=center>Run Numbers for $colSet collisions </h2>\n";
+  print "  <h2 align=center>Run Numbers for $collSet collisions </h2>\n";
 }else{
-  print "  <h2 align=center>Run Numbers for $colSet collisions in $prodSr production </h2>\n";
+  print "  <h2 align=center>Run Numbers for $collSet collisions in $prodSr production </h2>\n";
 }
   print " </head>\n";
   print " <body>";
