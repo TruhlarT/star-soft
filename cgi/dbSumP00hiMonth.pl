@@ -186,7 +186,7 @@ my @hpssDstFiles;
 
    for ($ll=0; $ll<scalar(@runSet); $ll++) {
   
- $sql="SELECT runID, size, fName,path, Nevents  FROM $FileCatalogT WHERE runID = '$runSet[$ll]' fName LIKE '%daq' AND hpss ='Y' ";
+ $sql="SELECT runID, size, fName,path, Nevents  FROM $FileCatalogT WHERE runID = '$runSet[$ll]' AND fName LIKE '%daq' AND hpss ='Y' ";
    $cursor =$dbh->prepare($sql)
       || die "Cannot prepare statement: $DBI::errstr\n";
    $cursor->execute;
@@ -306,10 +306,10 @@ for ($kk=0; $kk<scalar(@DRun); $kk++) {
          $TdstDSize   +=  $dstDSize{$runD};
          $TdstHSize   +=  $dstHpSize{$runD}; 
          $TdaqHSize   +=  $daqHpSize{$runD};
-     &printRow(); 
+#     &printRow(); 
        }
 
-   &printTotal(); 
+  &printTotal(); 
 
 #####  finished with database
   &StDbProdDisconnect();
