@@ -10,6 +10,11 @@
 #        ->destroy         : destroy object and disconnect database FileCatalog
 #        ->set_context()   : set one of the context keywords to the given
 #                            operator and value
+#        ->set_optional_context() 
+#                          : set this context as well but only if one key
+#                            is from the same table. Optional context are valid
+#                            only for querry mode and NOT in record addition
+#                            mode.
 #        ->get_context()   : get a context value connected to a given keyword
 #        ->clear_context() : clear/reset the context
 #        ->get_keyword_list() : get the list of valid keywords
@@ -75,6 +80,7 @@
 #                          and execute later. This may be used in case of several
 #                          non-correlated updates. Warning : no checks made on delayed
 #                          commands.
+#        -> unset_delayed() remove the delay flag
 #        -> flush_delayed() flush out i.e. execute all delayed commands.
 #        -> print_delayed() print out on screen all delayed commands.
 #
@@ -92,10 +98,10 @@ require  5.000;
 require  Exporter;
 @ISA   = qw(Exporter);
 @EXPORT= qw( connect destroy
-	     set_context get_context clear_context
+	     set_context set_optional_context get_context clear_context
 	     get_keyword_list
 	     set_delimeter get_delimeter
-	     set_delayed flush_delayed print_delayed
+	     set_delayed unset_delayed flush_delayed print_delayed
 	     add_trigger_composition
 
 	     run_query
@@ -105,15 +111,19 @@ require  Exporter;
 	     check_ID_for_params insert_dictionary_value
 
 	     debug_on debug_off
+	     Require
+
 	     );
 
 #@EXPORT_OK = qw(%operset %valuset);
 
 
 use vars qw($VERSION);
-$VERSION   =   1.25;
+$VERSION   =   "V01.260";
 
 # The hashes that hold a current context
+my %optoperset;
+my %optvaluset;
 my %operset;
 my %valuset;
 
@@ -368,7 +378,7 @@ $operators[9] = ">";
 $operators[10]= "<";
 $operators[11]= "~";
 $operators[12]= "%";
-$operators[12]= "%%";
+$operators[13]= "%%";
 
 
 # The possible aggregate values
@@ -405,6 +415,22 @@ $aggregates[7] = "ordd";
 # Those variables will be used internally
 my @FDKWD;
 my @FLKWD;
+
+
+sub Require
+{
+    if ($_[0] =~ m/FileCatalog/) {
+	shift @_;
+    }
+    my($vmin)=@_;
+
+    if ( ! defined($vmin) ){ $vmin = "";}
+    if ( $vmin lt $VERSION || $vmin eq ""){
+	&die_message("Require",
+		     "Required $vmin, current version $VERSION");
+    }
+}
+
 
 #============================================
 # parse keywrds - get the field name for the given keyword
@@ -700,6 +726,7 @@ sub connect {
   my ($tries);
   my ($dbref);
 
+  # Some defaults
   if( ! defined($user) )   { $user   = $dbuser;}
   if( ! defined($passwd) ) { $passwd = $dbpass;}
   if( ! defined($port) )   { $port   = $dbport;}
@@ -784,6 +811,7 @@ sub disentangle_param {
 
  OPS: foreach my $op (@operators )
     {
+	#&print_debug("Searching for operator $op");
 	$op = '\]\[' if ($op eq "][");  # unfortunatly need 
 	$op = '\[\]' if ($op eq "[]");  # to be escaped
 	
@@ -806,11 +834,20 @@ sub disentangle_param {
 # Params:
 # context string in the form of:
 # <context variable> <operator> <value>
-sub set_context {
+sub set_optional_context { &_context(1,@_);}
+sub set_context {          &_context(0,@_);}
 
+
+sub _context {
+
+  # Private routine now passing an extraneous argument
+  my $mode = shift(@_);
+
+  # ... but stil need to shift.
   if ($_[0] =~ m/FileCatalog/) {
-    shift @_;
+      shift(@_);
   };
+
 
   my $params;
   my $keyw;
@@ -841,8 +878,13 @@ sub set_context {
 	  if ($DEBUG > 0) {
 	      &print_debug("Query accepted $DEBUG: ".$keyw."=".$valu);
 	  }
-	  $operset{$keyw} = $oper;
-	  $valuset{$keyw} = $valu;
+	  if ($mode == 1){
+	      $optoperset{$keyw} = $oper;
+	      $optvaluset{$keyw} = $valu;
+	  } else {
+	      $operset{$keyw}    = $oper;
+	      $valuset{$keyw}    = $valu;
+	  }
       } else {
 	  if ( defined($obsolete{$keyw}) ){
 	      &die_message("set_context",
@@ -862,12 +904,11 @@ sub set_context {
 # Clears the context deleting all the values
 # form the context hashes
 sub clear_context {
-  foreach my $key (keys %valuset) {
-    delete $valuset{$key};
-  }
-  foreach my $key (keys %operset) {
-    delete $operset{$key};
-  }
+    foreach my $key (keys %optvaluset) { delete $optvaluset{$key};}
+    foreach my $key (keys %optoperset) { delete $optoperset{$key};}
+
+    foreach my $key (keys %valuset) {    delete $valuset{$key};}
+    foreach my $key (keys %operset) {    delete $operset{$key};}
 }
 
 #============================================
@@ -2728,6 +2769,7 @@ sub run_query {
   my ($dele,$i);
   my ($keyw,$count);
   my (%keyset,%xkeys);
+  my (%TableUSED);
 
   my $grouping = "";
 
@@ -2836,6 +2878,9 @@ sub run_query {
 	      delete($keyset{$keyw});
 	      &print_debug("    Selected as a valid key");
 	      push(@temp,$keyw);
+
+	      # logic is for optional context
+	      $TableUSED{&get_table_name($keyw)} = 1;
 	      #$j++;
 	  }
 	  $j++; # <-- not a bug
@@ -2848,6 +2893,21 @@ sub run_query {
   undef($j);
   &print_debug("Ordered list is [".join(" ",@keywords)."]");
 
+
+  # Optional condition can be checked now
+  # Note that they are enabled only if one of the returned
+  # keys belong to the same table than the condition.
+  foreach $keyw (keys %optvaluset){
+      my ($tabname) = &get_table_name($keyw);
+      if ( defined($TableUSED{$tabname}) && $tabname ne ""){
+	  if ( ! defined($valuset{$keyw}) ){
+	      &print_debug("** Activating optional context $keyw ".
+			   "$optoperset{$keyw} $optvaluset{$keyw}");
+	      $valuset{$keyw} = $optvaluset{$keyw};
+	      $operset{$keyw} = $optoperset{$keyw};
+	  }
+      }
+  }
 
 
   #
@@ -3023,7 +3083,8 @@ sub run_query {
 	      }
 
 	  } else {
-	      &print_debug("Table $tabname is NOT a dictionary ...");
+	      # careful, $tabname may be null
+	      &print_debug("Table for [$keyw]=$tabname  is NOT a dictionary ...");
 
 	      if ($tabname eq "CollisionTypes"){
 		  # A special case - the collision type
@@ -4286,6 +4347,14 @@ sub set_delayed
     $DELAY = 1;
 }
 
+sub unset_delayed
+{
+    if ($_[0] =~ m/FileCatalog/) {
+	my $self = shift;
+    }
+    $DELAY = 0;
+}
+
 
 
 #
@@ -4305,9 +4374,10 @@ sub flush_delayed
     }
     my($flag)=@_;
     my($cmd,$sth);
+    my($sts)=1;
 
     if( ! defined($flag) ){ $flag = 0;}
-    if( ! $DBH){  return;}
+    if( ! $DBH){  return 0;}
 
     if( $flag){
 	&print_message("flush_delayed","Flushing ".($#DCMD+1)." commands on ".localtime());
@@ -4316,11 +4386,13 @@ sub flush_delayed
     foreach $cmd (@DCMD){
 	&print_debug("Executing $cmd");
 	if ( ! $DBH->do($cmd) ){
-	    &print_message("flush_delayed","Failed $cmd");
+	    &print_message("flush_delayed","Failed $cmd [".$DBH->errstr."]");
+	    $sts = 0;
 	}
     }
     undef(@DCMD);
     $DELAY = 0;
+    return $sts;
 }
 
 
@@ -4521,7 +4593,7 @@ sub update_location {
   &print_debug("Ready to scan filelist now ".($#files+1)."\n");
 
   foreach my $line (@files) {
-      &print_debug("Returned line ($ukeyword): $line\n");
+      &print_debug("Returned line (id/$ukeyword): $line\n");
 
       my($flid, $trash) = split("::",$line);
 
