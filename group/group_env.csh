@@ -1,5 +1,5 @@
 #!/usr/bin/csh -f
-#       $Id: group_env.csh,v 1.115 2001/04/05 21:05:52 jeromel Exp $
+#       $Id: group_env.csh,v 1.116 2001/04/10 18:52:57 jeromel Exp $
 #	Purpose:	STAR group csh setup 
 #
 #	Author:		Y.Fisyak     BNL
@@ -60,6 +60,7 @@ setenv MY_BIN          .${STAR_HOST_SYS}/bin
 if ($?NODEBUG) then
   setenv STAR_lib  $STAR/.${STAR_HOST_SYS}/LIB; if ($ECHO) echo   "Setting up STAR_lib  = ${STAR_lib}"
   setenv MINE_lib        .${STAR_HOST_SYS}/LIB;
+  setenv STAR_BIN  $STAR/.${STAR_HOST_SYS}/BIN;
 else if ($?INSURE) then
   # do it conditional because this is a late addition. The directory structure may not exist ...
   if( -e $STAR/.${STAR_HOST_SYS}/ILIB) then
