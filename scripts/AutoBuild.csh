@@ -62,6 +62,18 @@ if ( -r  $GROUP_DIR/star_login.csh ) then
 
 	    # ***** THOSE BLOCKS ARE TEMPORARY *****
 	    # Commands uses whatever is found in 'adev' and compiles
+	    case "du":
+		set LPATH=/afs/rhic/star/packages/cal
+		set SPATH=/afs/rhic/star/doc/www/comp/prod/Sanity
+		perl $SCRIPTD/AutoBuild.pl -k -i -1 -t -p $LPATH	    
+		if( -e $HOME/AutoBuild-dec_osf.html) then
+		    mv -f $HOME/AutoBuild-dec_osf.html $SPATH/AutoBuild-dec_osf.html
+		endif
+		cd $LPATH
+		echo "Cleaning older libraries"
+		mgr/CleanLibs
+		breaksw
+
 	    case "Solaris":
 		set LPATH=/afs/rhic/star/packages/adev
 		set SPATH=/afs/rhic/star/doc/www/comp/prod/Sanity
