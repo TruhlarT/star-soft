@@ -18,7 +18,7 @@
 #             Drop value
 #
 
-use lib "/afs/rhic/star/packages/scripts";
+use lib "/afs/rhic.bnl.gov/star/packages/scripts";
 use CRSQueues;  
 
 #
@@ -65,10 +65,21 @@ do {
 
    
    # Sort if requested
-   if($SORT){
-     @all = sort {$b cmp $a} @TMP;
+   if($SORT==1){
+       @all = sort {$b cmp $a} @TMP;
+   } elsif ($SORT == 3){
+       # Random sorting will span a set jobs in the queue
+       # and evenly distribute things
+       undef(@all);
+       while ($#TMP != -1){
+           $i = rand($#TMP+1);
+           $s = splice(@TMP,$i,1); #print "Removing $s\n";
+           if ($s =~ /\.lock/){ next;}
+           push(@all,$s);
+       }
+       
    } else {
-     @all = sort {$a cmp $b} @TMP;
+       @all = sort {$a cmp $b} @TMP;
    }
 
 
