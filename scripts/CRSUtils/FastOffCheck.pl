@@ -48,7 +48,16 @@ if(! $UPDATE){
 
 	    $tree =~ s/_/\//g;
 	    chop($tree);        # remove trailing '/'
-	    if( -e "$JOBDIR/old/$jfile.checked"){ next;}
+	    if( -e "$JOBDIR/old/$jfile.checked"){ 
+		@stat1 = stat("$JOBDIR/old/$jfile.checked");
+		@stat2 = stat("$JOBDIR/$jfile");
+		if ( $stat1[10] >= $stat2[10]){
+		    next;
+		} else {
+		    print "$jfile is more recent than last check. Rescan\n";
+		    unlink("$JOBDIR/old/$jfile.checked");
+		}
+	    }
 
 	    # double check the conformity of the job file name
 	    if( $tree !~ m/$LIB/){
