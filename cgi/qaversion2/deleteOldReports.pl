@@ -56,7 +56,7 @@ sub delete_old_reports{
     #($dataClass eq "offline_fast" or $dataClass eq "nightly_MC") and
     #	$cutDays = 7; # 1 week
     
-    my $cutDays = $Db_update_utilities::oldestDay{$dataClass}/2.;
+    my $cutDays = $Db_update_utilities::oldestDay{$dataClass};
     print "cut=$cutDays\n";
 
     # this sub deletes the jobs from the db
