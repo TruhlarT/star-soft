@@ -69,7 +69,7 @@ sub _init{
 
   # this flags whether to print to browser if error occurs on open - not desirable
   # for all files, default is silent
-  $self->ReportErrorOnOpen(0);
+  $self->ReportErrorOnOpen(1);
 
   my $name = $self->$filetype(@args);
   $self->Name($name);

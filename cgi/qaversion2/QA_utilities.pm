@@ -109,6 +109,8 @@ sub submit_batchjob {
 
   $io = new IO_object("ReportDir", $report_key);
   my $report_dir = $io->Name();
+  # BEN: something fishy; need to make report dir here
+  -d $report_dir or mkdir $report_dir, 0775;
   undef $io;
 
   # BEN(4jun2000):  Took out report_key_file (max of 1 report key now)

@@ -180,6 +180,7 @@ sub ComposeBatchScript{
   my $report_key = shift;
  
   #----------------------------------------------------------------
+
   my $now = getcwd();
   my $program = "$now/QA_main.pm"; #BEN(3jun00): no more QA_main_batch
     
@@ -187,11 +188,13 @@ sub ComposeBatchScript{
 
   my $string = "#! /usr/local/bin/tcsh -f\n".
     "setenv GROUP_DIR /afs/rhic/rhstar/group \n".
-      "setenv CERN_ROOT /cern/pro \n".
-       "setenv CERN /cern \n".
-	"setenv HOME /star/u2e/starqa \n".
-	    "setenv SILENT 1 \n".
-		"source /afs/rhic/rhstar/group/.stardev \n";
+    "setenv CERN_ROOT /cern/pro \n".
+    "setenv CERN /cern \n".
+    "setenv HOME /star/u2e/starqa \n".
+    "setenv SILENT 1 \n".
+    "source /afs/rhic/rhstar/group/.stardev \n".
+    "/usr/afsws/bin/klog -pa `cat /afs/rhic/star/starqa/qa01/.cgi` \n".
+    "cd $now \n";
 
   $string .= 
       "echo \"Starting perl script...<br>\" |& tee $temp_log_html \n".

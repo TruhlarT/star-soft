@@ -52,8 +52,10 @@ sub _init{
   $self->ServerName($hostname);
 
   # offline
-  if ( $self->ServerName eq "sol.star.bnl.gov" ||
-       $self->ServerName =~ /rcas/){
+  if ( $self->ServerName eq "www.star.bnl.gov" ||
+       $self->ServerName eq "connery.star.bnl.gov" ||
+       $self->ServerName =~ /rcas/ ||
+       $self->ServerName =~ /play/ ){
     $self->ServerType("offline");
   } # online
   elsif ( $self->ServerName eq "onllinux1.star.bnl.gov" ){

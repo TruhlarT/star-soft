@@ -585,7 +585,6 @@ sub RcasLsfMonitor{
   my $self = shift;
   
   #---------------------------------------------------------
-  my $server_name = "sol.star.bnl.gov:8080";
   my $lsfTool = "LSF_tool?expertPW=".
       $gCGIquery->param("expert_pw");
 

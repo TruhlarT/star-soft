@@ -16,10 +16,8 @@ my $batchType = "LSF";
 # queue to use on LSF
 my $lsfQueue = "star_cas";
 
-# path to lsf binaries on rcas
-my $lsfPath = "/usr/local/lsf/bin";
 # name of rcas machine from which lsf jobs are submitted
-my $rcasHost = "rcas6004";
+my $rcasHost = "rcas6009";
 # name of ssh gateway used to get to rcas
 my $gatewayHost = "rssh2gw00.rhic.bnl.gov";
 
@@ -97,10 +95,10 @@ sub SubmitLSFJob
 
     # -N == notify on job completion  }___taken out for now
     # -B == notify on job dispatch    }
-    #my $cmdStr = 
-	#"bsub -B -N -u $notifyEmail -J $jobName -q $lsfQueue \"$cmd\"";
-    my $cmdStr = "bsub -N -B -J $jobName -q $lsfQueue \"$cmd\"";
-    my $retStr = `ssh $gatewayHost ssh $rcasHost '$cmdStr 2>&1'`;   
+    my $cmdStr = "/usr/local/lsf/bin/bsub -N -u $notifyEmail -J $jobName -q $lsfQueue \"$cmd\"";
+
+    my $retStr = RunLsfCommand($cmdStr);
+
     #   /bin/sh is bash; need bash redirection
 
     # extract job ID from output
@@ -155,18 +153,23 @@ sub AtQueue
 #========================================================
 sub LSFQueue
 {
-    return `ssh $gatewayHost ssh $rcasHost bjobs`;
+    return RunLsfCommand("/usr/local/lsf/bin/bjobs");
 }
 
 #========================================================
-# 
+# runs the lsf command and returns the output.  SSHes
+# to RCAS if run on the web server.
 #========================================================
+sub RunLsfCommand{
 
-
-
-
-
-
+    my $cmdStr = shift;
+    my $hostName = `/bin/hostname`;
+    if($hostName =~ /rcas/ || $hostName =~ /play/){
+	return `$cmdStr 2>&1`;
+    }else{
+	return `/usr/local/bin/ssh $gatewayHost ssh $rcasHost '$cmdStr' 2>&1`;
+    }   
+}
 
 
 
