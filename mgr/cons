@@ -30,7 +30,7 @@ use Cwd;
 
 use vars qw( $CVS_id $CVS_ver $ver_num $ver_rev $version );
 
-$CVS_id = '$Id: cons,v 1.95 2004/03/03 00:11:19 jeromel Exp $ ';
+$CVS_id = '$Id: cons,v 1.96 2004/04/22 13:48:16 fisyak Exp $ ';
 $CVS_ver = (split(/\s+/, $CVS_id))[2];
 
 $ver_num = "2.3";
@@ -173,7 +173,8 @@ Arguments can be any of the following, in any order:
   -R [repos]	Search for files in [repos].  Multiple -R [repos]
 		directories are searched in the order specified.
 
-  -noR 	        Do not search for files in repositories.
+  -noR 	        Do not search for files in repositories (default)
+  -addR 	Do search for files in repositories.
 
   -S <pkg>	Use package sig::<pkg> to calculate file signatures.
 		Currently supported values are "md5" for MD5
@@ -249,7 +250,7 @@ $param::consignFile = ".consign." . $STAR_HOST_SYS;#$^O;
 $param::conscript_chdir = 0;	# Change dir to Conscript directory
 $param::quiet = 0;		# should we show the command being executed.
 $param::debug = 0;		# should we print out debug information
-$param::noRepository = 0;       # should we use sources from repository
+$param::noRepository = 1;       # should we use sources from repository
 $param::keep  = 0;
 @main::search_files = ();
 @param::defaults = ();
@@ -388,7 +389,10 @@ sub option {
 		    'h' =>    sub { print($usage), exit 0; },
                     'i' =>    sub { $param::defaultInclude = 0;},
                     'g' =>    sub { $param::debug =1;},
-                    'noR' =>  sub { $param::noRepository = 1; },
+                    'noR' =>  sub { $param::noRepository = 1; 
+				    print "-noR option is default. To add repository please use -addR option\n";
+				  },
+                    'addR'=>  sub { $param::noRepository = 0; },
 		);
 
     my %opt_arg = (
