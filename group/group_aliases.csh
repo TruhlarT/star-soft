@@ -1,5 +1,8 @@
-# $Id: group_aliases.csh,v 1.8 1999/04/24 12:59:06 fisyak Exp $
+# $Id: group_aliases.csh,v 1.9 1999/11/04 15:38:21 fisyak Exp $
 # $Log: group_aliases.csh,v $
+# Revision 1.9  1999/11/04 15:38:21  fisyak
+# Add ..dev
+#
 # Revision 1.8  1999/04/24 12:59:06  fisyak
 # Add SILENT option to Makefile
 #
@@ -15,6 +18,7 @@ alias starpro    'source ${GROUP_DIR}/.starpro'
 alias starnew    'source ${GROUP_DIR}/.starnew'
 alias stardev    'source ${GROUP_DIR}/.stardev'
 alias star.dev   'source ${GROUP_DIR}/star.dev'
+alias star..dev   'source ${GROUP_DIR}/star..dev'
 alias starver    'source ${GROUP_DIR}/.starver'
 if ($?SILENT == 1) then
   alias makes      "gmake --silent -f $STAR/mgr/MakePam.mk"
