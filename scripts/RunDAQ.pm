@@ -851,7 +851,10 @@ sub rdaq_get_orecords
     # order 
     $cmd .= " ORDER BY runNumber DESC, file DESC";
     if( $limit > 0){
-	$cmd .= " LIMIT $limit";
+	# allow for float argument, integerize
+	my($l) = int($limit);
+	if ($l < 1){ $l = 1;}
+	$cmd .= " LIMIT $l ";
     }
 
 
