@@ -1,7 +1,10 @@
 #!/usr/bin/csh -f
-#       $Id: group_env.csh,v 1.82 1999/09/01 23:51:08 fisyak Exp $
+#       $Id: group_env.csh,v 1.83 1999/09/07 22:22:48 wenaus Exp $
 #	Purpose:	STAR group csh setup 
 #       $Log: group_env.csh,v $
+#       Revision 1.83  1999/09/07 22:22:48  wenaus
+#       Add /opt/star/lib/mysql to LD_LIBRARY_PATH
+#
 #       Revision 1.82  1999/09/01 23:51:08  fisyak
 #       Fix HEPix cern path
 #
@@ -537,6 +540,9 @@ switch ($STAR_SYS)
     case "hp_ux102":
 #  ====================
   setenv SHLIB_PATH "${SHLIB_PATH}:/opt/star/lib"
+  if ( -d /opt/star/lib/mysql ) then
+    setenv SHLIB_PATH "${SHLIB_PATH}:/opt/star/lib/mysql"
+  endif
   setenv SHLIB_PATH `/afs/rhic/star/group/dropit -p "$SHLIB_PATH"`
     breaksw
     case "sgi_64":
@@ -547,6 +553,9 @@ switch ($STAR_SYS)
     default:
 #  ====================
   setenv LD_LIBRARY_PATH "${LD_LIBRARY_PATH}:/opt/star/lib"
+  if ( -d /opt/star/lib/mysql ) then
+    setenv LD_LIBRARY_PATH "${LD_LIBRARY_PATH}:/opt/star/lib/mysql"
+  endif
   setenv LD_LIBRARY_PATH `/afs/rhic/star/group/dropit -p "$LD_LIBRARY_PATH"`
     breaksw
 endsw
