@@ -1,7 +1,10 @@
 #!/usr/bin/csh -f
-#       $Id: group_env.csh,v 1.61 1999/02/06 15:36:51 wenaus Exp $
+#       $Id: group_env.csh,v 1.62 1999/02/10 16:03:43 wenaus Exp $
 #	Purpose:	STAR group csh setup 
 #       $Log: group_env.csh,v $
+#       Revision 1.62  1999/02/10 16:03:43  wenaus
+#       Switch OBJY_ARCH on Linux to linux86  (and a few uncommitted mods by others)
+#
 #       Revision 1.61  1999/02/06 15:36:51  wenaus
 #       Get CLHEP from /opt/star
 #
@@ -329,8 +332,7 @@ switch ($STAR_SYS)
      set path = ($path $PARASOFT/bin.linux)
      if (! ${?LD_LIBRARY_PATH}) setenv LD_LIBRARY_PATH 
      setenv LD_LIBRARY_PATH "/usr/lib:${PARASOFT}/lib.linux:/usr/local/lib:${MINE_LIB}:${STAR_LIB}:${STAF_LIB}:${LD_LIBRARY_PATH}:/opt/star/lib"
-     if ($?EGCS_ON) setenv LD_LIBRARY_PATH "${LD_LIBRARY_PATH}:/usr/local/egcs-1.1.1/lib"
-     if ($STAR_VERSION  == "SL99a") then
+     if ("`echo $STAR_VERSION | cut -c3-4`" == "99") then
        setenv PATH "/usr/local/egcs-1.1.1/bin:${PATH}"
        setenv LD_LIBRARY_PATH "/usr/local/egcs-1.1.1/lib:${LD_LIBRARY_PATH}"
      else
@@ -341,7 +343,7 @@ switch ($STAR_SYS)
      endif
      limit coredump 0
      setenv BFARCH Linux2
-     setenv OBJY_ARCH linux
+     setenv OBJY_ARCH linux86
     breaksw
     case "sun4*":
 #  ====================
@@ -416,11 +418,13 @@ switch ($STAR_SYS)
 #     ====================
       setenv SNIFF_DIR /star/sol/packages/sniff
       set path = ( $path $SNIFF_DIR/bin )
+      setenv G4SYSTEM SUN-CC
       breaksw 
     case "i386_*":
 #     ====================
       setenv SNIFF_DIR /star/sol/packages/sniff
 #      set path = ( $path $SNIFF_DIR/bin )
+      setenv G4SYSTEM Linux-g++
       breaksw
     default:
 #     ====================
