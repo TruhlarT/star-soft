@@ -499,7 +499,7 @@ sub runLSFCmd{
     my $cmd = shift;
 
     local *READER; 
-    open(\*READER, "echo \$\$; ".$cmd." 2>&1 |" ); 
+    open(\*READER, "ssh rssh2gw00.rhic.bnl.gov ssh rcas6004 'echo \$\$; ".$cmd." 2>&1' |" ); 
 
     my $result = [];
 

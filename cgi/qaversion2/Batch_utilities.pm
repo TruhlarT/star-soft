@@ -16,6 +16,13 @@ my $batchType = "LSF";
 # queue to use on LSF
 my $lsfQueue = "star_cas";
 
+# path to lsf binaries on rcas
+my $lsfPath = "/usr/local/lsf/bin";
+# name of rcas machine from which lsf jobs are submitted
+my $rcasHost = "rcas6004";
+# name of ssh gateway used to get to rcas
+my $gatewayHost = "rssh2gw00.rhic.bnl.gov";
+
 #========================================================
 # return true on loading
 #========================================================
@@ -92,8 +99,9 @@ sub SubmitLSFJob
     # -B == notify on job dispatch    }
     #my $cmdStr = 
 	#"bsub -B -N -u $notifyEmail -J $jobName -q $lsfQueue \"$cmd\"";
-    my $cmdStr = "bsub -J $jobName -q $lsfQueue \"$cmd\"";
-    my $retStr = `$cmdStr 2>&1`;   # /bin/sh is bash; need bash redirection
+    my $cmdStr = "bsub -N -B -J $jobName -q $lsfQueue \"$cmd\"";
+    my $retStr = `ssh $gatewayHost ssh $rcasHost '$cmdStr 2>&1'`;   
+    #   /bin/sh is bash; need bash redirection
 
     # extract job ID from output
     $retStr =~ /^[^<]*<([^>]*)>.*$/m;
@@ -147,9 +155,20 @@ sub AtQueue
 #========================================================
 sub LSFQueue
 {
-    return `bjobs`;
+    return `ssh $gatewayHost ssh $rcasHost bjobs`;
 }
 
 #========================================================
 # 
 #========================================================
+
+
+
+
+
+
+
+
+
+
+
