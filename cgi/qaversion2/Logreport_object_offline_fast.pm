@@ -251,8 +251,6 @@ sub ParseLogfile {
 
   }
 
-  
-
   # a first stab at the output files. see GetJobInfo for find tuning
   $self->ProductionFileListRef([split(/\s+/,$outFileRequestedString)]);
   	 
@@ -291,7 +289,7 @@ sub GetJobInfo{
   $month = "0$month" if length $month<2;
   my $defaultOutputDir = "$basePath/$year/$month";
 
-  my $outputDir = $self->OutputDirectory();
+  
 
   if(!-d $self->OutputDirectory()){
     print "<font color=red>Cannot find",$self->OutputDirectory(),
@@ -306,6 +304,7 @@ sub GetJobInfo{
       $self->OutputDirectory($defaultOutputDir);
     }
   }
+  my $outputDir = $self->OutputDirectory();
 
   # Real output files
   my @outFiles; 
@@ -313,6 +312,11 @@ sub GetJobInfo{
   my ($smallString,$missingString);
 
   # check if they're all there or if they're too small
+  if(scalar @{$self->ProductionFileListRef()} < 2){
+    print "No output files? Bailing out\n";
+    return 0;
+  }
+
   foreach my $file (@{$self->ProductionFileListRef()}){
     next if !$file;
     $file = "$outputDir/" . basename $file;
@@ -327,6 +331,10 @@ sub GetJobInfo{
       }
     }
   }
+  $self->MissingFiles($missingString) if $missingString;
+  $self->SmallFiles($smallString) if $smallString;
+
+  print "outfiles: \n", join("\n",@outFiles),"\n";
   $self->ProductionFileListRef(\@outFiles);
 
   1;
