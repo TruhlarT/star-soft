@@ -1,12 +1,9 @@
 #!/usr/bin/csh -f
-#       $Id: group_env.csh,v 1.34 1998/07/22 20:40:55 wenaus Exp $
+#       $Id: group_env.csh,v 1.35 1998/07/22 21:29:20 fisyak Exp $
 #	Purpose:	STAR group csh setup 
 #       $Log: group_env.csh,v $
-#       Revision 1.34  1998/07/22 20:40:55  wenaus
-#       Set BaBar BFARCH for appropriate platforms
-#
-#       Revision 1.33  1998/07/22 20:16:15  wenaus
-#       Adapt Objy setup for non-sol platforms
+#       Revision 1.35  1998/07/22 21:29:20  fisyak
+#       Add SL98f
 #
 #       Revision 1.32  1998/07/19 01:30:40  fisyak
 #       /usr/bin/ls -> /bin/ls
@@ -124,26 +121,20 @@ if ($?STAR_LEVEL == 0) setenv STAR_LEVEL pro
 setenv STAR_VERSION `/bin/ls -l $STAR_PATH | grep "${STAR_LEVEL} ->" |cut -f2 -d">"`  
 if (${STAR_VERSION} == "") setenv STAR_VERSION ${STAR_LEVEL}
 if ($STAR_VERSION  == "SL98a" || $STAR_VERSION  == "SL98b") then
-setenv STAR $STAR_PATH/${STAR_LEVEL} ;         if ($ECHO) echo   "Setting up STAR      = ${STAR}"
+  setenv STAR $STAR_PATH/${STAR_LEVEL} ;         if ($ECHO) echo   "Setting up STAR      = ${STAR}"
+  setenv STAR_LIB  $STAR/lib/${STAR_HOST_SYS};   if ($ECHO) echo   "Setting up STAR_LIB  = ${STAR_LIB}"
 else  
-setenv STAR $STAR_PATH/${STAR_VERSION} ;       if ($ECHO) echo   "Setting up STAR      = ${STAR}"
+  setenv STAR $STAR_PATH/${STAR_VERSION} ;       if ($ECHO) echo   "Setting up STAR      = ${STAR}"
+  setenv STAF_LIB  $STAR/asps/../.${STAR_HOST_SYS}/lib  ; if ($ECHO) echo   "Setting up STAF_LIB  = ${STAF_LIB}"
+  if ($?NODEBUG == 0) then
+    setenv STAR_LIB  $STAR/.${STAR_HOST_SYS}/lib; if ($ECHO) echo   "Setting up STAR_LIB  = ${STAR_LIB}"
+  else
+    setenv STAR_LIB  $STAR/.${STAR_HOST_SYS}/nodeb; if ($ECHO) echo   "Setting up STAR_LIB  = ${STAR_LIB}"
+  endif
 endif
+setenv STAR_BIN  $STAR/asps/../.${STAR_HOST_SYS}/bin  ; if ($ECHO) echo   "Setting up STAR_BIN  = ${STAR_BIN}"
 setenv STAR_MGR $STAR/mgr
 source ${GROUP_DIR}/STAR_SYS; 
-setenv STAF_LIB  $STAR/asps/../.${STAR_HOST_SYS}/lib  ; if ($ECHO) echo   "Setting up STAF_LIB  = ${STAF_LIB}"
-if ($STAR_VERSION == "SL98d" || $STAR_VERSION == "SL98c" || $STAR_VERSION == "SL98e") then
-if ($?NODEBUG == 0) then
-setenv STAR_LIB  $STAR/.${STAR_HOST_SYS}/lib; if ($ECHO) echo   "Setting up STAR_LIB  = ${STAR_LIB}"
-else
-setenv STAR_LIB  $STAR/.${STAR_HOST_SYS}/nodeb; if ($ECHO) echo   "Setting up STAR_LIB  = ${STAR_LIB}"
-else
-setenv STAR_LIB  $STAR/${STAR_HOST_SYS}/lib; if ($ECHO) echo   "Setting up STAR_LIB  = ${STAR_LIB}"
-endif
-setenv STAR_BIN  $STAR/asps/../.${STAR_HOST_SYS}/bin  ; if ($ECHO) echo   "Setting up STAR_BIN  = ${STAR_BIN}"
-else   
-setenv STAR_LIB  $STAR/lib/${STAR_HOST_SYS}; if ($ECHO) echo   "Setting up STAR_LIB  = ${STAR_LIB}"
-setenv STAR_BIN  $STAR/asps/../.${STAR_HOST_SYS}/bin  ; if ($ECHO) echo   "Setting up STAR_BIN  = ${STAR_BIN}"
-endif
 setenv STAR_PAMS $STAR/pams;                 if ($ECHO) echo   "Setting up STAR_PAMS = ${STAR_PAMS}"
 setenv STAR_DATA ${STAR_ROOT}/data;          if ($ECHO) echo   "Setting up STAR_DATA = ${STAR_DATA}"
 if ( ! $?STAR_DB ) setenv STAR_DB /star/sol/db;                 if ($ECHO) echo   "Setting up STAR_DB   = ${STAR_DB}"
@@ -215,21 +206,19 @@ switch ($STAR_SYS)
        setenv CERN_LEVEL pgf98
        setenv CERN_ROOT  $CERN/$CERN_LEVEL
      endif
-     set path = (/usr/bin $path  /usr/local/bin/ddd /usr/local/DQS318/bin )
+     set path = ($path  /usr/local/bin/ddd /usr/local/DQS318/bin )
      setenv  MANPATH "$MANPATH":/usr/local/DQS318/man
 #    set path = ($path  /usr/local/bin/ddd /usr/local/DQS318/bin )
      set path = ($path $PARASOFT/bin.linux)
      if (! ${?LD_LIBRARY_PATH}) setenv LD_LIBRARY_PATH 
-     setenv LD_LIBRARY_PATH "/usr/lib:${PARASOFT}/lib.linux:/usr/local/lib:${STAF_LIB}:${LD_LIBRARY_PATH}"
+     setenv LD_LIBRARY_PATH "/usr/lib:${PARASOFT}/lib.linux:/usr/local/lib:${STAF_LIB}:${LD_LIBRARY_PATH}:/opt/star/lib"
         limit coredump 0
-     setenv BFARCH Linux
     breaksw
     case "sun4*":
 #  ====================
       if (! ${?LD_LIBRARY_PATH}) setenv LD_LIBRARY_PATH
       setenv LD_LIBRARY_PATH "/opt/SUNWspro/lib:/usr/openwin/lib:/usr/dt/lib:/usr/local/lib:${PARASOFT}/lib.solaris:${STAF_LIB}:${LD_LIBRARY_PATH}"
-      set path = ($path $PARASOFT/bin.solaris)
-      setenv BFARCH SunOS5
+	set path = ($path $PARASOFT/bin.solaris)
     breaksw 
     case "sunx86_55":
 #  ====================
@@ -274,9 +263,14 @@ if ( -f $GROUP_DIR/rootenv.csh) then
   source $GROUP_DIR/rootenv.csh
 endif
 
-# Objectivity
-source $GROUP_DIR/ObjySetup.csh
-
+# Objy 5.00
+if (-f /opt/objy/objy500/setup.csh) then
+  source  /opt/objy/objy500/setup.csh
+  # BaBar
+  setenv BFROOT /star/sol/packages/BaBar
+  setenv BFSITE starbnl
+  setenv OBJYBASE $OBJY_HOME
+endif
 # Geant4
 setenv G4PROTO /star/sol/packages/geant4/prototype
 setenv RWBASE /star/sol/packages/rogue/workspaces/SOLARIS25/SUNPRO42/12s

@@ -1,6 +1,6 @@
 #!/usr/bin/csh -f
    if ( -x /afs/rhic/star/group/dropit) then
-switch ($STAR_SYS)
+     switch ($STAR_SYS)
      case "hp_ux102":
 #  ====================
        setenv SHLIB_PATH `/afs/rhic/star/group/dropit -p "$SHLIB_PATH" ROOT`
@@ -25,6 +25,7 @@ switch ($STAR_SYS)
   
   switch ($MACHINE)
     case Linux:
+    setenv LD_LIBRARY_PATH "${LD_LIBRARY_PATH}"
     case SunOS:
     case IRIX:
     case OSF1:
