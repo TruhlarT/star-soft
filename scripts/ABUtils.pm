@@ -235,13 +235,17 @@ sub IUtrail
 # Some character needs HTML escaping.
 sub IUl2pre
 {
-    my($line)=@_;
+    my($line,$flag)=@_;
     if( defined($line) ){
 	$line =~ s/&/&amp;/g;
 	$line =~ s/</&lt;/g;
 	$line =~ s/>/&gt;/g;
-	if($line =~ m/\serror\s/){
-	    "<b>$line</b>";
+	if($line =~ m/\serror\s/i){
+	    if( defined($flag) ){
+		"$flag<b>$line</b>";
+	    } else {
+		"<b>$line</b>";
+	    }
 	} else {
 	    $line;
 	}
