@@ -150,11 +150,11 @@ sub get_QA_objects{
 
     foreach $dir_string ( @dir_list_update ){
       
-      print "In QA_main: new directory $dir_string, report key $report_key <br> \n";
-
       $new_qa = QA_object->new($dir_string, $arg);
       $report_key = $new_qa->ReportKey();
       $QA_object_hash{$report_key} = $new_qa;
+
+      print "In QA_main: new directory $dir_string, report key $report_key <br> \n";
       
     }
 

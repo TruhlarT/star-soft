@@ -168,11 +168,22 @@ sub starting_display {
     
     # pmj 9/12/99
     # if selection does not contain hc_, this is venus
-    $selection =~ /hc_/ or $selection .= "\.venus";
+
+  SELECTION:{
+      
+      $selection =~ /hc_/ and last SELECTION; 
+      
+      $selection =~ /cosmics/ and do{
+	$selection = "cosmics";
+	last SELECTION;
+      };
+      
+      $selection .= "\.venus";
+    }
 
     # get rid of days of the week
     $selection =~ s/(Mon|Tue|Wed|Thu|Fri|Sat|Sun)\.//;
-
+    
     # replace dots with spaces for readbility
     ($string = $selection) =~ s/\./ /g;
     

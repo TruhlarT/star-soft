@@ -35,22 +35,16 @@ use Exporter ();
 
 #=====================================================================================
 
-#@topdir_data = (
-#		"/star/rcf/disk00000/star/test/dev/",
-#		"/star/rcf/disk00000/star/test/new/"
-#@topdir_data_WWW = (
-#		    "http://duvall.star.bnl.gov/data/disk00000_star/test/dev/",
-#		    "http://duvall.star.bnl.gov/data/disk00000_star/test/new/",
-#	       );
-
 @topdir_data = (
 		"/star/rcf/test/dev/",
-		"/star/rcf/test/new/"
+		"/star/rcf/test/new/",
+		"/star/rcf/test/dst/"
 	       );
 
 @topdir_data_WWW = (
 		    "http://duvall.star.bnl.gov/data/test/dev/",
 		    "http://duvall.star.bnl.gov/data/test/new/",
+		    "http://duvall.star.bnl.gov/data/test/dst/"
 	       );
 
 $topdir_report = "/star/data1/jacobs/qa/reports";

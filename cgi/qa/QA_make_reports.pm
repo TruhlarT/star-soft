@@ -19,36 +19,51 @@ sub get_report_key{
 
   my $dir_string = shift (@_);
 
-  @names = split /\//, $dir_string;
-
-  # protect against junk in directory string pmj 13/10/99
-  $#names < 4 and return "unknown";
+  #----------------------------------------------------------------------
+  # cosmics or simulation run?
 
 
-  # make flexible to handle hadronic cocktail files
-  # pmj 2/11/99
+  if ( $dir_string =~ /\/dst\// ){
 
-  $i_count = -4;
-  for ($i = -$#names; $i < 0 ; $i++ ){
-    $names[$i] =~ /^(dotdev|dev|new|pro|old)$/ and do{
-      $i_count = $i;
-      last;
-    };
+    ($filename = $dir_string) =~ s?/star/rcf/test/dst/?cosmics\.?;
+    $filename =~ s/\///g;
+    $filename .= '.';
+
   }
 
-  $filename = "";
-  for ($i = $i_count; $i < 0 ; $i++ ){
-    $filename .= $names[$i].".";
+  else{
+    
+    @names = split /\//, $dir_string;
+    
+    # protect against junk in directory string pmj 13/10/99
+    $#names < 4 and return "unknown";
+    
+    # make flexible to handle hadronic cocktail files
+    # pmj 2/11/99
+    
+    $i_count = -4;
+    for ($i = -$#names; $i < 0 ; $i++ ){
+      $names[$i] =~ /^(dotdev|dev|new|pro|old)$/ and do{
+	$i_count = $i;
+	last;
+      };
+    }
+    
+    $filename = "";
+    for ($i = $i_count; $i < 0 ; $i++ ){
+      $filename .= $names[$i].".";
+    }
+    
+    # shorten name if hadronic cocktail
+    
+    $filename =~ s/density//;
+    $filename =~ s/standard/std/;
+
   }
-
-  # shorten name if hadronic cocktail
- 
-  $filename =~ s/density//;
-  $filename =~ s/standard/std/;
-
+    
   # get creation time of logfile in directory
   find( \&QA_cgi_utilities::get_logfile, $dir_string);
-
+    
   if ( -e $global_logfile ){
 
     $temp = stat($global_logfile)->mtime; 

@@ -102,6 +102,15 @@ sub _init{
   }
 
   #------------------------------------------------------
+  # special processing for cosmics directories pmj 13/12/99
+
+  $report_key =~ /cosmics\.(\w+)/ and do{
+
+    $new_output_dir = "/star/rcf/test/dst/$1";
+    $self->LogReport->OutputDirectory("$new_output_dir");
+
+  };
+  #------------------------------------------------------
   $self->QASummaryString();
   #------------------------------------------------------
   # is data on disk?
@@ -161,6 +170,9 @@ sub ControlFile{
       if ( $input_filename =~ /venus412\/b0_3/ ){
 	$filestring .= "\.venus";
       }
+      elsif ( $input_filename =~ /daq/ ){
+	$filestring .= "\.cosmics";
+      }
       elsif( $input_filename =~ /hadronic_cocktail/ ){
 
 	if ( $input_filename =~ /lowdensity/ ){
@@ -186,9 +198,6 @@ sub ControlFile{
       }
       elsif ( $input_filename =~ /year_2a/ ){
 	$filestring .= "\.year_2a";
-      }
-      else{
-	last CONTROLFILE;
       }
 
       $control_file = "$filestring\.txt";
