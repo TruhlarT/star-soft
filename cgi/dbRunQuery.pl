@@ -130,7 +130,6 @@ elsif($detrSet eq "all" and $datSet ne "all" and $fldSet eq "all") {
 
  $sql="SELECT DISTINCT runID FROM $FileCatalogT WHERE dataset like '$colSet%' AND fName like '%$frSet' AND site like '$lctSet%' AND path like '%$dPath%' AND dataStatus = 'OK' ";
  }
-}
 
    $cursor =$dbh->prepare($sql)
     || die "Cannot prepare statement: $DBI::errstr\n";
@@ -149,7 +148,7 @@ elsif($detrSet eq "all" and $datSet ne "all" and $fldSet eq "all") {
         $runSet[$nrunSet] = $mmRun;
         $nrunSet++;
  }
-
+}
 
 if($nrunSet == 1) {
   $runSet[0] = "no data";
