@@ -34,6 +34,7 @@ $now = localtime;
 ($sec,$min,$hour,$mday,$mon,$year) = localtime;
 
  $mon += 1;
+ $mday -= 1;  
 foreach my $int ( $mon,$mday ){
 #  $int < 10 and $int = '0'.$int;
    $thisday .= $int;
@@ -48,7 +49,7 @@ $thisDay = '00'.$thisday;
 &beginHtml();
 
 
-$sql="SELECT dataset, fName, createTime FROM $FileCatalogT where insertTime like '$thisDay%' AND fName like '%dst.root' AND type = 'MC_reco' ";
+$sql="SELECT dataset, fName, createTime FROM $FileCatalogT where insertTime like '$thisDay%' AND fName like '%dst.root' AND type = 'daq_reco'";
 $cursor =$dbh->prepare($sql)
   || die "Cannot prepare statement: $DBI::errstr\n";
 $cursor->execute;
@@ -95,10 +96,10 @@ sub beginHtml {
 print <<END;
   <html>
    <head>
-          <title>List of MC DST Files Inserted Today into FileCatalog</title>
+          <title>List of DST Files Inserted Today into FileCatalog</title>
    </head>
    <body BGCOLOR=\"#ccffff\"> 
-     <h1 align=center>List of DST Files Inserted Today into FileCatalog</h1>
+     <h1 align=center>List of DST Files Inserted Yesterday into FileCatalog</h1>
 <TABLE ALIGN=CENTER BORDER=5 CELLSPACING=1 CELLPADDING=2 >
 <TR>
 <TD ALIGN=CENTER WIDTH=\"50%\" HEIGHT=50><B>Dataset</B></TD>

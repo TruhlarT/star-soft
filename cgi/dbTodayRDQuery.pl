@@ -48,7 +48,7 @@ $thisDay = '00'.$thisday;
 &beginHtml();
 
 
-$sql="SELECT dataset, fName, createTime FROM $FileCatalogT where insertTime like '$thisDay%' AND fName like '%dst.root' AND type = 'MC_reco' ";
+$sql="SELECT dataset, fName, createTime FROM $FileCatalogT where insertTime like '$thisDay%' AND fName like '%dst.root' AND type = 'daq_reco'";
 $cursor =$dbh->prepare($sql)
   || die "Cannot prepare statement: $DBI::errstr\n";
 $cursor->execute;
@@ -95,7 +95,7 @@ sub beginHtml {
 print <<END;
   <html>
    <head>
-          <title>List of MC DST Files Inserted Today into FileCatalog</title>
+          <title>List of DST Files Inserted Today into FileCatalog</title>
    </head>
    <body BGCOLOR=\"#ccffff\"> 
      <h1 align=center>List of DST Files Inserted Today into FileCatalog</h1>
