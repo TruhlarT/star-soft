@@ -1,5 +1,5 @@
 #!/bin/csh -f
-#       $Id: group_env.csh,v 1.136 2003/03/07 22:01:31 jeromel Exp $
+#       $Id: group_env.csh,v 1.137 2003/04/08 19:19:52 jeromel Exp $
 #	Purpose:	STAR group csh setup
 #
 #	Author:		Y.Fisyak     BNL
@@ -385,6 +385,10 @@ if ($?CERN_ROOT == 1 ) then
     if ($ECHO) echo   "CERNLIB version "$CERN_LEVEL" has been initiated with CERN_ROOT="${CERN_ROOT}
 endif
 
+# CLHEP library support
+if (! $?CLHEP_BASE_DIR ) then
+    setenv CLHEP_BASE_DIR ${OPTSTAR}
+endif
 
 
 # HP Jetprint
