@@ -1,8 +1,11 @@
 #!/opt/star/bin/perl -w
 #
-# $Id: dbDevTestQuery.pl,v 1.1 2001/02/14 16:59:37 liuzx Exp $
+# $Id: dbDevTestQuery.pl,v 1.2 2001/02/14 17:02:58 liuzx Exp $
 #
 # $Log: dbDevTestQuery.pl,v $
+# Revision 1.2  2001/02/14 17:02:58  liuzx
+# Form->action error modified!
+#
 # Revision 1.1  2001/02/14 16:59:37  liuzx
 # Initial Version: query for nightly test in DEV library.
 #                   (currently only last five days)
@@ -51,7 +54,7 @@ $query = new CGI;
 
 print $query->header;
 print $query->start_html('Select Query for Production Plots');
-print $query->startform(-action=>"dbDevQueryPlot.pl");  
+print $query->startform(-action=>"dbDevTestQueryPlot.pl");  
 
 print <<END;
 <META HTTP-EQUIV="Expires" CONTENT="0">
