@@ -63,7 +63,7 @@
 #
 #
 
-$TARGETD = "/afs/rhic/star/doc/www/html/comp-nfs";   # Working directory
+$TARGETD = "/afs/rhic/star/doc/www/html/tmp";        # Working directory
 $INDEXD  = "/afs/rhic/star/packages/dev/StRoot";     # Dir to scan
 $PROJECT = "StRoot";                                 # Project name
 $SUBDIR  = "";                                       # Sub-dir for output

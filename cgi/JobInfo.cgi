@@ -49,7 +49,7 @@ my $chek;
 my $move_list;
 my $job_dir = "/star/u/starreco/$ProdTag/requests/daq/jobfiles/";
 my $arch_dir = "/star/u/starreco/$ProdTag/requests/daq/archive/";
-my $list_dir = "/afs/rhic/star/doc/www/html/comp-nfs/csh/";
+my $list_dir = "/afs/rhic/star/doc/www/html/tmp/csh/";
 
 my $datasourse = "DBI:mysql:operation:duvall.star.bnl.gov";
 my $username   = "starreco";

@@ -1,8 +1,11 @@
 #!/usr/bin/env perl
 #
-# $Id: swguide-cron.pl,v 1.2 2001/12/08 00:53:03 jeromel Exp $
+# $Id: swguide-cron.pl,v 1.3 2001/12/28 21:20:16 jeromel Exp $
 #
 # $Log: swguide-cron.pl,v $
+# Revision 1.3  2001/12/28 21:20:16  jeromel
+# comp-nfs -> tmp
+#
 # Revision 1.2  2001/12/08 00:53:03  jeromel
 # Added temp file mechanism for security.
 #
@@ -33,7 +36,7 @@
 # Usage: swguide-cron.pl [dev .dev new pro old]
 #
 
-$fpath = "/star/starlib/doc/www/html/comp-nfs";
+$fpath = "/star/starlib/doc/www/html/tmp";
 $pgm = $ENV{STAR_CGI}."/swguide.pl";
 if ( @ARGV ) {
     @ver = @ARGV;

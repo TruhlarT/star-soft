@@ -5,7 +5,7 @@
 use File::Copy;
 
 #my $workdir = "/star/u/nikita/daq/";#testdir
-my $workdir = "/afs/rhic/star/doc/www/html/comp-nfs/csh/";
+my $workdir = "/afs/rhic/star/doc/www/html/tmp/csh/";
 
 my $target;
 my $source;

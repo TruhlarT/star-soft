@@ -17,7 +17,7 @@ $URL       = "http://www.star.bnl.gov/";              # URL to analyze
 $LINKCHECK = "/usr/local/bin/linkcheck";              # linkcheck program
 $ARGS      = "--recurse --verbosity 1";               # linkcheck options
 
-$TARGETD   = "/star/starlib/doc/www/html/comp-nfs/";  # output directory
+$TARGETD   = "/star/starlib/doc/www/html/tmp/";       # output directory
 @EXCLUDED  = ("protected","HyperNews-star");          # patterns to exclude
 
 $BGATTRIB  = "bgcolor=cornsilk text=black link=navy vlink=maroon alink=tomato";

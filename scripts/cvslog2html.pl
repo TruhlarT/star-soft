@@ -12,7 +12,7 @@
 #    final listing with regexp.
 #
 $commitlog   = "/afs/rhic/star/packages/repository/CVSROOT/commitlog";
-$cvsHtml     = "/star/starlib/doc/www/html/comp-nfs/cvs";
+$cvsHtml     = "/star/starlib/doc/www/html/tmp/cvs";
 $cvsUrl      = "/cgi-bin/cvsweb.cgi";
 $currentTime = localtime time;
 $tmp         = "-tmp".getppid();
