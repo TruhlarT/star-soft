@@ -6210,6 +6210,7 @@ C
                   CALL HCDIR(CHDIR(i),' ');  Break;
    }            }
                               * * *
+#ifndef __ROOT__
    INQUIRE(FILE='detm.rz',OPENED=opnd)
    If .not.opnd & LVGEOM(1)>=0
    {  CALL RZCDIR(CWD,'R')
@@ -6241,6 +6242,7 @@ C
       call RZCDIR(CWD,' ')
    }
    If (IDebug>2) Call DZVERI(' module started ',0,'CLU')
+#endif /* ROOT */
    END
  
  
