@@ -126,8 +126,7 @@ $sql="SELECT path, logFile, LibTag, jobStatus, NoEventDone, chainOpt, memUsageF,
         $myCtime = ($$eachFile)->timeS;
         $mychain = ($$eachFile)->chOpt;
         @prt = split (" ", $myCtime);
-    $cdate = $prt[0]; 
-    $mychain =  
+    $cdate = $prt[0];  
     next if $myPath =~ /tfs_/;
     next if $myPath =~ /year_2a/;
 
@@ -180,7 +179,7 @@ print <<END;
 <td>$myMemF</td>
 <td>$myMemL</td>
 <td>$myCPU</td>
-<td>$myCtime</td>
+<td>$cdate</td>
 </TR>
 END
 
