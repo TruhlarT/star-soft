@@ -73,6 +73,7 @@ if ($ThisYear == 2002){
     $NUMEVT  = 20;
     $TARGET  = "/star/data13/reco";
 
+    $PHYSTP  = 1;
     $LASERTP = 5;            # This can known only by looking into the FOFileType
                              # or calling some extra routine from the pm. Prefer to 
                              # hard-code (that is -> faster) Sorry ...
@@ -99,6 +100,7 @@ if ($ThisYear == 2002){
     $TARGET  = "/star/data27/reco";
 
     $LASERTP = 2;
+    $PHYSTP  = 5;
 
     @USEQ    = (4,4,3);
     @SPILL   = (3,0,1);      
@@ -174,7 +176,7 @@ $PAT = "$LIB"."_*_st_*";
 
 
 # Now go ...
-if( $TARGET =~ m/^\// ){
+if( $TARGET =~ m/^\// || $TARGET =~ m/\^\// ){
     #
     # FAST OFFLINE regular mode
     #
@@ -186,7 +188,7 @@ if( $TARGET =~ m/^\// ){
     # get the number of possible jobs per queue.
     $TOT = CRSQ_getcnt($USEQ[0],$SPILL[0],$PAT);
 
-    print "Tot=$TOT\n";
+    print "Mode=direct Queue count Tot=$TOT\n";
 
     $time = localtime();
     if ($TOT > 0 && ! -e $LOCKF){
@@ -203,11 +205,13 @@ if( $TARGET =~ m/^\// ){
 	if( ($obj = rdaq_open_odatabase()) ){
 	    if( substr($TARGET,0,1) eq "^" ){
 		# Simple with a perl module isn't it.
+		print "Top of the list ...\n";
 		$TARGET=~ s/\^//;
 		@files = rdaq_get_ffiles($obj,-1,$TOT);
 	    } else {
 		# ask only for status=0 files (will therefore
 		# crawl-down the list).
+		print "Crawling down the list ...\n";
 		@files = rdaq_get_ffiles($obj,0,$TOT);
 	    }
 
@@ -458,7 +462,7 @@ sub Submit
 {
     my($mode,$queue,$spill,$file,$chain)=@_;
     my($Hfile,$jfile,$mfile,@items);
-    my($field);
+    my($field,$tags);
 
     # We are assuming that the return value of $file is
     # the mode 2 of get_ffiles() and counting on the 
@@ -482,9 +486,11 @@ sub Submit
     }
     if($mode == 2){
 	# This is the calibration specific mode
+	$tags  = "laser";        # **** this is cheap and dirty ****
 	$calib = $SCALIB{$coll};
     } else {
 	# this is any other mode
+	$tags  = "tags";
 	$calib = $DCALIB{$coll};
     }
     if( ! defined($calib) ){ $calib = "";}
@@ -571,7 +577,7 @@ mergefactor=1
     inputfile[0]=$items[1]
 __EOH__
 	}
-
+	
 	print FO <<__EOF__;
 #output
     outputnumstreams=4
@@ -585,7 +591,7 @@ __EOH__
     outputfile[1]=$mfile.hist.root
     outputstreamtype[2]=UNIX
     outputdir[2]=$SCRATCH
-    outputfile[2]=$mfile.tags.root
+    outputfile[2]=$mfile.$tags.root
     outputstreamtype[3]=UNIX
     outputdir[3]=$SCRATCH
     outputfile[3]=$mfile.runco.root
