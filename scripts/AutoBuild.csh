@@ -9,6 +9,7 @@
 #   Linux61
 #   Linux72    build a LinuxXX AutoBuild report (one version)
 #   Linux9     
+#   SL3
 #
 #   Insure     Builds Insure++ compilation
 #   icc        Builds with icc
@@ -152,6 +153,7 @@ if ( -r  $GROUP_DIR/star_login.csh ) then
 	    case "Linux61":
 	    case "Linux72":
 	    case "Linux9":
+	    case "SL3":
 		set LPATH=$AFS_RHIC/star/packages/adev
 		set SPATH=$AFS_RHIC/star/doc/www/comp/prod/Sanity
 		$SCRIPTD/AutoBuild.pl -k -i -1 -t -p $LPATH
