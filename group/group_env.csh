@@ -1,5 +1,5 @@
 #!/bin/csh -f
-#       $Id: group_env.csh,v 1.139 2003/05/01 14:55:00 jeromel Exp $
+#       $Id: group_env.csh,v 1.140 2003/05/01 17:18:46 jeromel Exp $
 #	Purpose:	STAR group csh setup
 #
 #	Author:		Y.Fisyak     BNL
@@ -19,8 +19,9 @@ if ($?SILENT == 1) set ECHO = 0
 
 
 # This variable was added for the ECHOD debug mode
-#set ECHOD= 0
+#set ECHO = 1
 #set Self=`echo $0 | sed "s/.*\///g"`
+#echo "$Self :: Receiving STAR_LEVEL $STAR_LEVEL"
 
 
 setenv WWW_HOME http://www.star.bnl.gov/
@@ -456,4 +457,5 @@ endif
 #END
 
 
-
+#echo "$STAR"
+#echo "$LD_LIBRARY_PATH"

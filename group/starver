@@ -8,5 +8,8 @@ else
 endif
 if ( -e $GROUP_DIR/group_env.csh ) then
         source $GROUP_DIR/group_env.csh
+	#echo "$STAR"
+	#echo "$STAR_LEVEL"
+	#echo "$LD_LIBRARY_PATH"
 endif
 

@@ -1,5 +1,8 @@
-# $Id: group_aliases.csh,v 1.13 2003/04/18 02:14:41 jeromel Exp $
+# $Id: group_aliases.csh,v 1.14 2003/05/01 17:18:45 jeromel Exp $
 # $Log: group_aliases.csh,v $
+# Revision 1.14  2003/05/01 17:18:45  jeromel
+# Linux special case
+#
 # Revision 1.13  2003/04/18 02:14:41  jeromel
 # remove starver as an alias
 #
@@ -32,7 +35,9 @@ alias stardev    'source ${GROUP_DIR}/.stardev'
 alias staradev   'source ${GROUP_DIR}/.staradev'
 alias star.dev   'source ${GROUP_DIR}/star.dev'
 alias star..dev  'source ${GROUP_DIR}/star..dev'
-#alias starver    'source ${GROUP_DIR}/.starver'
+if (`uname -s` != "Linux") then
+   alias starver    'source ${GROUP_DIR}/.starver'
+endif
 alias setup      'source ${GROUP_DIR}/setup'
 alias starsetup  'source ${GROUP_DIR}/setup'
 if ($?SILENT == 1) then
