@@ -133,7 +133,7 @@ sub UpdateQAOfflineReal{
 sub UpdateQANightly {  
   my $dataType = shift; # 'real' or 'MC'
   
-  my $limit       = 20;            # limit number of new jobs
+  my $limit       = 1;            # limit number of new jobs
   my $oldestDate  = '2000-07-01'; # dont retrieve anything older 
   my $today       = strftime("%Y-%m-%d %H:%M:%S",localtime());
 
@@ -141,11 +141,17 @@ sub UpdateQANightly {
   # real or simulation
   if ($dataType eq 'real')
   {
-    $eventGen_string = "file.eventGen = 'n/a' and";
+    $eventGen_string = qq{file.eventGen != 'n/a' and
+			  (file.eventGen = 'daq' or
+                           file.eventGen = 'cosmics') and
+			 };
   }
   elsif ($dataType eq 'MC')
   {
-    $eventGen_string = "file.eventGen != 'n/a' and";
+    $eventGen_string = qq{file.eventGen != 'n/a' and
+			  file.eventGen != 'daq' and
+			  file.eventGen != 'cosmics' and
+			};
   }
   else { die "Incorrect argument $dataType"; }
 

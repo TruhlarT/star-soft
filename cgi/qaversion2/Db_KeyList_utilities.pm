@@ -119,39 +119,36 @@ sub GetNightlySelections{
   my $dataType = shift; # real or MC
 
   my $now = time;
-  my (%query, $fileType);
+  my (%query, $fileType, $where_string);
 
   # different queries for different class of data
+  # for real data we have 'daq' and maybe later 'cosmics'
   if ($dataType eq 'MC')
   {
-    $query{eventGen}  = QueryNightly('eventGen');
-    $query{eventType} = QueryNightly('eventType');
-
+    $where_string  = qq{eventGen!='n/a' and
+			eventGen!='daq' and
+			eventGen!='cosmics' and};
+      
     $fileType = 'MC';
     
   }
   elsif ($dataType eq 'real')  
   {
-    $query{eventGen}  = qq{select ID
-			  from $dbFile.$FileCatalog
-                          where 1<0}; # dummy query
-    
-    # only want event types where the event gen is not applicable
-    $query{eventType} = qq{select distinct eventType
-		         from $dbFile.$FileCatalog
-                         where eventType!='n/a' and
-			       eventGen = 'n/a'
-			 order by eventType};
+    $where_string = qq{eventGen!='n/a' and
+		      (eventGen='daq' or
+		       eventGen='cosmics') and };
+      
     $fileType = 'real';
 
   }
   else {die "Wrong data type $dataType"};
 
   # other queries...
-
-  $query{LibLevel}  = QueryNightly('LibLevel');
-  $query{platform}  = QueryNightly('platform'); 
-  $query{geometry}  = QueryNightly('geometry'); 
+  $query{eventGen}  = QueryNightly('eventGen', $where_string);
+  $query{eventType} = QueryNightly('eventType', $where_string);
+  $query{platform}  = QueryNightly('platform', $where_string);
+  $query{LibLevel}  = QueryNightly('LibLevel', $where_string);
+  $query{geometry}  = QueryNightly('geometry', $where_string); 
 
   $query{macroName} = qq{select distinct m.$QAMacros{macroName}
 			  from $dbQA.$QAMacros{Table} as m,
@@ -160,7 +157,7 @@ sub GetNightlySelections{
 			        m.$QAMacros{qaID} = s.$QASum{qaID} and 
 			        s.$QASum{type}    = '$fileType' and 
 			        m.$QAMacros{extension}!='ps' and
-                                m.$QAMacros{extension}!='ps.gz'
+                                m.$QAMacros{extension}!='ps.gz' 
 			  order by m.$QAMacros{macroName} asc};
 
 
@@ -176,10 +173,12 @@ sub GetNightlySelections{
 #========================================================================
 sub QueryNightly{
   my $field = shift;
+  my $where_string = shift if defined @_;
 
   return qq{select distinct $field
 	    from $dbFile.$FileCatalog 
-	    where $field !='n/a'
+	    where $where_string 
+	          $field !='n/a'
 	    order by $field};
 }
 #========================================================================
