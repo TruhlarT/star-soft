@@ -1,7 +1,7 @@
 #!/usr/bin/env perl
-#JobInfo2.cgi
+# JobInfo2.cgi
 
-#Version 2
+# Version 2
 #
 # This cgi script read the information from the RJobInfo
 # table from the operation database. It displays it
@@ -22,9 +22,8 @@ BEGIN {
 
 use CGI qw(:standard);
 use DBI;
-#use strict;
 
-my $updatetime = 30;
+my $updatetime = 90;
 
 my $ProdTag = param("PT");
 my $Trigger = param("Trigger");
@@ -46,29 +45,41 @@ my ($pt,$tr);
 my @checked;
 my $chek;
 
+my %formdata;
+my @name;
+my $count;
+my $name;
+
 my $move_list;
 my $job_dir = "/star/u/starreco/$ProdTag/requests/daq/jobfiles/";
 my $arch_dir = "/star/u/starreco/$ProdTag/requests/daq/archive/";
 my $list_dir = "/afs/rhic/star/doc/www/html/tmp/csh/";
 
-my $datasourse = "DBI:mysql:operation:duvall.star.bnl.gov";
+my $dbdriver   = "mysql";
+my $dbname     = "operation";
+my $hostname   = "duvall.star.bnl.gov";
 my $username   = "starreco";
+
+# my $datasourse = "DBI:mysql:operation:duvall.star.bnl.gov";
+	
 my $scriptname = "/devcgi/JobInfo.cgi";
 
 my @querystr;
 
 # Build url reference for REFRESH rule
-my $urlref=$scriptname;
-my $qstr = $ENV{'QUERY_STRING'};
-if( $qstr ne ""){
-    $qstr =~ s/button.*/button_name=Submit+Query/;
-    $urlref .= "?$qstr";
-}
+ my $urlref=$scriptname;
+ my $qstr = $ENV{'QUERY_STRING'};
+ if( $qstr ne ""){
+     $qstr =~ s/button.*/button_name=Submit+Query/;
+     $urlref .= "?$qstr";
+ }
 
 my ($dbh1, $sth, $sth1, $sth2, $sth3, $sth4, $sth5, $sth6, $sth7);
 
-$dbh1 = DBI->connect($datasourse,$username)
-    or die "Can't connect to $datasourse";
+$dbh1 = DBI->connect("DBI:$dbdriver:$dbname:$hostname","$username")
+    or die "Can't connect to db $dbname at $hostname";
+
+
 print
     header,
     "<HTML>\n",
@@ -80,30 +91,44 @@ print
 
 if( ($ProdTag) || ($Trigger) ){
 
+    # Generate Block
+    # =====================================================
+
     if( $Method eq "Generate" ){
 	print "<!-- We are in Method=Generate -->\n";
 	$sth1 = $dbh1->prepare("SELECT ProdTag, Trigger, LFName ".
 				  "FROM RJobInfo ".
 				  "WHERE id = ?"
 				  );
-	@querystr = split(/&/,$ENV{'QUERY_STRING'});
-	if( $#querystr>3 ){
-	    undef($chek);
+	&parse_formdata();
+	if( $count<=4 ){
+	    print
+		"<H1>No jobs selected</H1>\n",
+		"<P align=left>".
+		"<A HREF=$scriptname?PT=$ProdTag&Trigger=$Trigger&Status=$Status&button_name=Submit+Query&>Back</A></P>\n";
+	} else {
+	    print
+		"<P align=left>".
+		"<A HREF=$scriptname?PT=$ProdTag&Trigger=$Trigger&Status=$Status&button_name=Submit+Query&>Back</A></P>\n",
+		"<A HREF=\"#ListEnd\">End of list</A>\n<BR>\n<BR>\n",
+		"<A NAME=ListBegin><A>\n";
+	
+	    undef($name);
 	    undef(@checked);
-	    foreach $chek (@querystr){
-		if( $chek=~/(cb)(\d+)/ ){
-		    $id=$2;
-		    push (@checked, "cb$id");
-		    $sth1->execute($id);
-		    while( ($prodtag, $trigger, $LFname)= $sth1->fetchrow_array() ){
-			print 
-			    "mv /star/u/starreco/$prodtag/requests/daq/archive/*$prodtag\_*$LFname ",
-			    "/star/u/starreco/$prodtag/requests/daq/jobfiles/\n", br;
+	    foreach $name (@names){
+		    if( $name=~/(cb)(\d+)/ ){
+		    	$id=$2;
+		    	push (@checked, "cb$id");
+		    	$sth1->execute($id);
+		    	while( ($prodtag, $trigger, $LFname)= $sth1->fetchrow_array() ){
+				print 
+			    	    "mv /star/u/starreco/$prodtag/requests/daq/archive/*$prodtag\_*$LFname ",
+			            "/star/u/starreco/$prodtag/requests/daq/jobfiles/\n", br;
+		    	}
 		    }
-		}
 	    }
 	    print
-		"<FORM action=$scriptname>\n",
+		"<FORM action=$scriptname method=POST>\n",
 		"<INPUT type=hidden name=PT value=$ProdTag>\n",
 		"<INPUT type=hidden name=Trigger value=$Trigger>\n",
 		"<INPUT type=hidden name=Status value=$Status>\n",
@@ -113,33 +138,44 @@ if( ($ProdTag) || ($Trigger) ){
 		print "<INPUT type=hidden name=$chek value=on>\n";
 	    }
 	    print
+		"<A HREF=\"#ListBegin\">Begin of list</A>\n<BR>\n<BR>\n",
+		"<A NAME=ListEnd><A>\n",
 		submit('button_name','Create List'),
 		"</FORM>\n";
-          }else{
-	      print "<H1>No jobs selected</H1>";
-	  }
-	print "<P align=left>".
-	    "<A HREF=$scriptname?PT=$ProdTag&Trigger=$Trigger&Status=$Status&button_name=Submit+Query&>Back</A></P>\n";
-    } #if Method=Generate
+	    print 
+		"<P align=left>".
+	    	"<A HREF=$scriptname?PT=$ProdTag&Trigger=$Trigger&Status=$Status&button_name=Submit+Query&>Back</A></P>\n";
+        } # else
+    } 
+    # End Generate Block
+    # =====================================================
 
-    # Method MarkMoved
+    # MarkMoved Block
+    # =====================================================
+
     if( ($Method eq "MarkMoved") or ($Method eq "Create List") ){
 	print "<!-- We are in Method=MarkMoved -->\n";
 	$sth3 = $dbh1->prepare("UPDATE RJobInfo SET Status=1 WHERE id =?");
-	@querystr = split(/&/,$ENV{'QUERY_STRING'});
-	if( $Method eq "Create List" ){
-	    undef($move_list);
-	    $move_list = $list_dir.time().".ml";
-	    open(MOVELIST,">$move_list") || warn "can't create $move_list\n";
-	    $sth1 = $dbh1->prepare("SELECT ProdTag, Trigger, LFName ".
+	
+	&parse_formdata();
+	if( $count<=4 ){
+	    print 
+		"<H1>No jobs selected</H1>",
+		"<P align=left>",
+		"<A HREF=$scriptname?PT=$ProdTag&Trigger=$Trigger&Status=$Status&button_name=Submit+Query&>Back</A></P>\n";
+	} else { 
+	    if( $Method eq "Create List" ){
+	    	undef($move_list);
+	    	$move_list = $list_dir.time().".ml";
+	    	open(MOVELIST,">$move_list") || warn "can't create $move_list\n";
+	    	$sth1 = $dbh1->prepare("SELECT ProdTag, Trigger, LFName ".
 						  "FROM RJobInfo ".
 						  "WHERE id = ?"
 						  )
-		or die "can't prepare statement\n";
-	}
-	if( $#querystr>3 ){
-	    foreach $chek (@querystr){
-		if( $chek=~/(cb)(\d+)/ ){
+			or die "can't prepare statement\n";
+	    }
+	    foreach $name (@names){
+		if( $name=~/(cb)(\d+)/ ){
 		    $id=$2;
 		    $sth3->execute($id);
 		    if( $Method eq "Create List" ){
@@ -162,15 +198,14 @@ if( ($ProdTag) || ($Trigger) ){
 		    "<P align=left>",
 		    "<A HREF=$scriptname?PT=$ProdTag&Trigger=$Trigger&Status=$Status&button_name=Submit+Query&>Back</A></P>\n";
 	    }
-          }else{
-	      print
-		  "<H1>No jobs selected</H1>\n",
-		  "<P align=left>",
-		  "<A HREF=$scriptname?PT=$ProdTag&Trigger=$Trigger&Status=$Status&button_name=Submit+Query&>Back</A></P>\n";
-	  }
+        }
+    } 
+    # End MarkMoved Block
+    # =====================================================	
 
-    } #if Method=MarkMoved
-    #Method Update
+    # Update & SubmitQuery Block
+    # =====================================================	
+
     if( ($Method eq "Update") or ($Method eq "Submit Query") or ($Method1 eq "Update") ){
 	print "<!-- We are in the update method -->\n";
 	if( $Status==1 ){
@@ -203,68 +238,100 @@ if( ($ProdTag) || ($Trigger) ){
 	    or die "cannot prepare query";
 	$sth2->execute();
 	print
-	    "<H1>Query results</H1>\n",
-	    "<P align=center><A HREF=\"#TableEnd\">End of table</A></P>\n",
-	    "<A NAME=TableBegin><A>\n",
-	    "<FORM action=$scriptname>\n",
+	    "<H1 align=\"center\">Your query</H1>\n",
+	    "<TABLE align=center>\n",
+		"<TR bgcolor=#ffdc9f>",
+			"<TH>ProdTag</TH>\n",
+	    		"<TH>Trigger</TH> \n",
+	    		"<TH>Status</TH>\n",
+		"</TR>\n",
+		"<TR align=center bgcolor=khaki>\n",
+			"<TD>$ProdTag</TD>",
+			"<TD>$Trigger</TD>";
+	    	if( $Status==1 ){
+		    print
+		        "<TD>Moved</TD>";
+	        } elsif ( $Status==0 ){
+		    print
+		        "<TD>NotMoved</TD>";
+                } else {
+		    print
+		        "<TD>All</TD>";
+	        }
+	print
+	    "</TR>\n",				
+	    "</TABLE>\n<BR>\n",
+            "<P align=center><A HREF=\"$scriptname\">Back</A></P>\n",    
+	    "<H1 align=\"center\">Query results</H1>\n",
+	    "<FORM action=$scriptname method=POST>\n",
 	    "<INPUT type=hidden name=PT value=$ProdTag\n>",
 	    "<INPUT type=hidden name=Trigger value=$Trigger>\n",
 	    "<INPUT type=hidden name=Status value=$Status>\n",
+            "<P align=center><A HREF=\"#TableEnd\">End of table</A></P>\n",
+	    "<A NAME=TableBegin><A>\n",
 	    "<TABLE align=center>\n",
-	    "<TR bgcolor=#ffdc9f>",
-	    "<TH>ProdTag</TH>\n",
-	    "<TH>Trigger</TH> \n",
-	    "<TH>LogFileName</TH>\n",
-	    "<TH>MTime</TH>\n",
-	    "<TH>ErrorString</TH>\n",
-	    "<TH>Status</TH>\n",
-	    "<TH>Select</TH>\n",
-	    "</TR>\n";
+	    	"<TR bgcolor=#ffdc9f>",
+	    		"<TH>ProdTag</TH>\n",
+	    		"<TH>Trigger</TH> \n",
+	    		"<TH>LogFileName</TH>\n",
+	    		"<TH>MTime</TH>\n",
+	    		"<TH>ErrorString</TH>\n",
+	    		"<TH>Status</TH>\n",
+	    		"<TH>Select</TH>\n",
+	    	"</TR>\n";
 	while( ($id, $prodtag, $trigger, $LFname, $mtime, $errstr, $status)= $sth2->fetchrow_array ){
-#	    $mTime = modtime($mtime);
-	    $mTime = localtime($mtime);
+		
+#	    	$mTime = modtime($mtime);
+	    	$mTime = localtime($mtime);
 
-	    # Convert error string to HTML
-	    $errstr =~ s/\&/&amp;/g;
-	    $errstr =~ s/</&lt;/g;
-	    $errstr =~ s/>/&gt;/g;
+	    	# Convert error string to HTML
+	    	$errstr =~ s/\&/&amp;/g;
+	    	$errstr =~ s/</&lt;/g;
+	    	$errstr =~ s/>/&gt;/g;
 
-	    print
-		"<TR align=center bgcolor=khaki><TD>$prodtag</TD>",
-		"<TD>$trigger</TD>",
-		"<TD>$LFname</TD>",
-		"<TD>$mTime</TD>",
-		"<TD align=left>$errstr</TD>\n";
-	    if( $status==1 ){
-		print
-		    "<TD bgcolor=red>Moved</TD>\n",
-		    "<TD bgcolor=khaki>&nbsp</TD>\n";
-	    }else{
-		print
-		    "<TD bgcolor=lightgreen>NotMoved</TD>\n",
-		    "<TD><INPUT type=checkbox name=cb$id value=on checked></TD>\n";
-	    }
-	    print "</TR>\n";
-	} #while
-	    print
-		"</Table>\n",
-		"<A NAME=TableEnd><A>\n",
-		"<P align=center><A HREF=\"#TableBegin\">Begin of table</A></P>\n",
-		"<center><p align=center>",
+	    	print
+		    "<TR align=center bgcolor=khaki>\n",
+			"<TD>$prodtag</TD>",
+			"<TD>$trigger</TD>",
+			"<TD>$LFname</TD>",
+			"<TD>$mTime</TD>",
+			"<TD align=left>$errstr</TD>\n";
+	         if( $status==1 ){
+		     print
+		    	 "<TD bgcolor=red>Moved</TD>\n",
+		  	 "<TD bgcolor=khaki>&nbsp</TD>\n";
+	    	 } else {
+		     print
+		         "<TD bgcolor=lightgreen>NotMoved</TD>\n",
+		         "<TD><INPUT type=checkbox name=cb$id value=on checked></TD>\n";
+	         }
+	         print 
+	             "</TR>\n";
+	} # while
+	print
+	    "</Table>\n",
+	    "<A NAME=TableEnd><A>\n",
+	    "<P align=center><A HREF=\"#TableBegin\">Begin of table</A></P>\n",
+	    "<center>\n",
 		"<INPUT type=submit name=button_name value=Generate>",
 		"<INPUT type=submit name=button_name value=MarkMoved>",
 		"<INPUT type=submit name=button_name value=Update>",
-		"</p></center>\n",
-		"<P align=center><A HREF=\"$scriptname\">Back</A></P>\n",
-		"</FORM>\n",
-		"<HR>\n",
-		"<H5>This page is automatically updated every 30 seconds</H5>\n";
-    } #if Method=Update
+	    "</center>\n",
+	    "<P align=center><A HREF=\"$scriptname\">Back</A></P>\n",
+	    "</FORM>\n",
+	    "<HR>\n",
+	    "<H5>This page is automatically updated every $updatetime seconds</H5>\n";
+    } 
+    # End Update Block
+    # =====================================================	
 
 } else {
-    # Default Method
+	
+    # Default Block
+    # =====================================================		
+
     print "<!-- We are in the default block -->\n";
-    #drop temp tables for ProdTag and Trigger if exist and create them
+    # drop temp tables for ProdTag and Trigger if exist and create them
     $sth7 = $dbh1->prepare("DROP TABLE if exists ValidProdTag");
     $sth4 = $dbh1->prepare("CREATE TABLE ValidProdTag (ProdTag CHAR(8) NOT NULL, PRIMARY KEY(ProdTag))");
     $sth7->execute() or die "Cannnot drop table: $DBI::errstr\n";
@@ -275,12 +342,12 @@ if( ($ProdTag) || ($Trigger) ){
     $sth->execute() || die "Cannnot drop table: $DBI::errstr\n";
     $sth1->execute() or die "Cannnot create table: $DBI::errstr\n";
 
-    #fill tables from db RJobInfo
+    # fill tables from db RJobInfo
     $sth2 = $dbh1->prepare("INSERT INTO ValidTrigger SELECT RJobInfo.Trigger FROM RJobInfo");
     $sth2->execute() or die "Cannnot prepare query: $DBI::errstr\n";
     $sth5 = $dbh1->prepare("INSERT INTO ValidProdTag SELECT RJobInfo.ProdTag FROM RJobInfo");
     $sth5->execute() or die "Cannnot prepare query: $DBI::errstr\n";
-    #select Trigger and ProdTag from temp tables
+    # select Trigger and ProdTag from temp tables
     $sth3 = $dbh1->prepare("SELECT Trigger FROM ValidTrigger");
     $sth3->execute() or die "Cannnot execute query: $DBI::errstr\n";
     $sth6 = $dbh1->prepare("SELECT ProdTag FROM ValidProdTag");
@@ -316,8 +383,11 @@ if( ($ProdTag) || ($Trigger) ){
 	br,
 	"</FORM>\n",
 	"<HR>\n",
-	"<H5>This page is automatically updated every 30 seconds</H5>\n";
+	"<H5>This page is automatically updated every $updatetime seconds</H5>\n";
 } #else Method=Default
+
+# End Update Block
+# =====================================================	
 
 print
     "<font size=-1><b><i>Written by <A HREF=\"mailto:nikita\@rcf.rhic.bnl.gov\">Nikita Soldatov</A> </i></b></font>",
@@ -344,4 +414,20 @@ sub modtime {
     $mtime = sprintf("%4.4d-%2.2d-%2.2d %2.2d:%2.2d:00",
 		     $fullyear,$mo,$dy,$hr,$min);
 }
+#==============================================================
+
+sub parse_formdata {
+    
+    undef(%formdata);
+    undef(@names);
+    undef($count);
+    
+    my $name;
+    foreach $name ( param ){
+	push(@names,$name);
+	$formdata{$name}=param( $name );
+	$count++;			   
+    }
+}
+#==============================================================
 #ffdc9f
