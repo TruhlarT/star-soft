@@ -1,5 +1,5 @@
 #! /usr/local/bin/tcsh -f
-set packages = "objy root parasoft|insure sniff g4 cc4 cc5 Dsv kcc" 
+set packages = "objy|OBJY|Objy root|ROOT parasoft|PARASOFT insure|ISURE sniff g4 cc4|CC4 cc5|CC5 Dsv kcc|KCC debug|DEBUG nodebug|NODEBUG" 
 if ($#argv == 0 || $#argv > 2) then
     echo "Usage: setup package [version]"
     echo "List of packages: $packages"
@@ -77,6 +77,17 @@ switch ($pkg)
     case "KCC":
     case "kcc":
       setenv USE_KCC;  starver $STAR_LEVEL
+      breaksw
+    case "nodebug":
+    case "NODEBUG":
+      setenv NODEBUG yes; starver $STAR_LEVEL
+      breaksw
+    case "debug":
+    case "DEBUG":
+      unsetenv NODEBUG yes; 
+      setenv PATH `dropit BIN`
+      setenv LD_LIBRARY_PATH `dropit -p $LD_LIBRARY_PATH LIB`
+      starver $STAR_LEVEL
       breaksw
     default:
 	echo "Setup for $pkg is not defined"

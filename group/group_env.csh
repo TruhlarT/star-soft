@@ -1,5 +1,5 @@
 #!/usr/bin/csh -f
-#       $Id: group_env.csh,v 1.100 2000/05/26 19:01:06 fisyak Exp $
+#       $Id: group_env.csh,v 1.101 2000/07/14 13:07:09 fisyak Exp $
 #	Purpose:	STAR group csh setup 
 #
 #	Author:		Y.Fisyak     BNL
@@ -222,18 +222,18 @@ endif
 if (-r $GROUP_DIR/group_aliases.csh) source $GROUP_DIR/group_aliases.csh
 #
 if ($?SCRATCH == 0) then
-if ( -w /home/scratch ) then
-        setenv SCRATCH /home/scratch/$LOGNAME
-else if ( -w /scr20 ) then
-        setenv SCRATCH /scr20/$LOGNAME
-else if ( -w /scr21 ) then
-        setenv SCRATCH /scr21/$LOGNAME
-else if ( -w /scr22 ) then
-        setenv SCRATCH /scr22/$LOGNAME
-else if ( -w /scratch ) then
-        setenv SCRATCH /scratch/$LOGNAME
-else 
-#	echo No scratch directory available. Using /tmp/$USER ...
+#if ( -w /home/scratch ) then
+#        setenv SCRATCH /home/scratch/$LOGNAME
+#else if ( -w /scr20 ) then
+#        setenv SCRATCH /scr20/$LOGNAME
+#else if ( -w /scr21 ) then
+#        setenv SCRATCH /scr21/$LOGNAME
+#else if ( -w /scr22 ) then
+#        setenv SCRATCH /scr22/$LOGNAME
+#else if ( -w /scratch ) then
+#        setenv SCRATCH /scratch/$LOGNAME
+#else 
+##	echo No scratch directory available. Using /tmp/$USER ...
         setenv SCRATCH /tmp/$LOGNAME
 endif
  
