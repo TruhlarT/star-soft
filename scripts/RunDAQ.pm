@@ -18,14 +18,17 @@
 #      rdaq_add_entries             add entries in the o-ddb
 #      rdaq_last_run                return the last run number from the o-ddb
 #      rdaq_get_files               get a list of files with $status from o-ddb
+#      rdaq_get_ffiles              get a list of characteristic ...
 #      rdaq_set_files               set a list of files from o-ddb to $status
+#                                   Accept both format returned by get_files
+#                                   and get_ffiles.
 #
 # Utility (no need for any ddb to be opened)
 #      rdaq_file2hpss               return an HPSS path+file (several methods)
 #      rdaq_mask2string             convert a detector mask to a string
 #
 #
-#
+
 use Carp;
 use DBI;
 use Date::Manip ();
@@ -39,7 +42,7 @@ require Exporter;
 	     rdaq_open_rdatabase rdaq_close_rdatabase        
 	     rdaq_open_odatabase rdaq_close_odatabase        
 	     rdaq_raw_files rdaq_add_entry rdaq_add_entries            
-	     rdaq_last_run rdaq_get_files rdaq_set_files
+	     rdaq_last_run rdaq_get_files rdaq_get_ffiles rdaq_set_files
 
 	     rdaq_file2hpss rdaq_mask2string
 	     );
@@ -175,7 +178,7 @@ sub rdaq_raw_files
 			  "WHERE detectorSet.runNumber=?");
 
     # We will select on RunStatus == 0
-    $cmd  = "SELECT daqFileTag.file, daqSummary.runNumber, daqFileTag.numberOfEvents, daqFileTag.beginEvent, daqFileTag.endEvent, magField.current, magField.scaleFactor, beamInfo.yellowEnergy+ beamInfo.blueEnergy FROM daqFileTag, daqSummary, magField, beamInfo  WHERE daqSummary.runNumber=daqFileTag.run AND daqSummary.runStatus=0 AND daqSummary.destinationID In(1,4) AND daqFileTag.file LIKE '%physics%' AND magField.runNumber=daqSummary.runNumber AND magField.entryTag=0 AND beamInfo.runNumber=daqSummary.runNumber AND beamInfo.entryTag=0";
+    $cmd  = "SELECT daqFileTag.file, daqSummary.runNumber, daqFileTag.numberOfEvents, daqFileTag.beginEvent, daqFileTag.endEvent, magField.current, magField.scaleFactor, beamInfo.yellowEnergy+beamInfo.blueEnergy, CONCAT(beamInfo.blueSpecies,beamInfo.yellowSpecies) FROM daqFileTag, daqSummary, magField, beamInfo  WHERE daqSummary.runNumber=daqFileTag.run AND daqSummary.runStatus=0 AND daqSummary.destinationID In(1,4) AND daqFileTag.file LIKE '%physics%' AND magField.runNumber=daqSummary.runNumber AND magField.entryTag=0 AND beamInfo.runNumber=daqSummary.runNumber AND beamInfo.entryTag=0";
 
     # Optional arguments
     if( $from ne ""){
@@ -208,7 +211,8 @@ sub rdaq_hack
     # Add a default BeamBeam at the last element.
     # Will later be in beamInfo table. Use global
     # variable for spead.
-    push(@res,"AuAu");
+    # THIS IS NOW IN THE DATABASE. Moi : Jul 20th 2001
+    #push(@res,"AuAu");
     
 
     # Sort out trigger information. This will have to remain
@@ -303,28 +307,42 @@ sub rdaq_open_odatabase
 # a descending order array (first file
 # is last saved to HPSS).
 #
-sub rdaq_get_files
+# Return full list (i.e. all columns from o-ddb)
+sub rdaq_get_ffiles
 {
     my($obj,$status,$limit)=@_;
+    return &rdaq_get_files($obj,$status,$limit,1);
+}
+# return only a list of files (i.e. column file from o-ddb)
+sub rdaq_get_files
+{
+    my($obj,$status,$limit,$mode)=@_;
     my($cmd,$sth);
-    my($file,@files);
+    my($file,@files,@items);
 
     if(!$obj){ return undef;}
 
     # default values
     if( ! defined($status) ){ $status = 0;}
     if( ! defined($limit) ) { $limit  = 0;}
+    if( ! defined($mode)  ) { $mode   = 0;}
 
-    $cmd = "SELECT file FROM $dbtable WHERE Status=$status ORDER BY file DESC";
+    $cmd = "SELECT * FROM $dbtable WHERE Status=$status ORDER BY file DESC";
     if($limit > 0){
 	$cmd .= " LIMIT $limit";
     }
 
+    #print "DEBUG : [$cmd]\n";
     $sth = $obj->prepare($cmd);
-    if($sth){
-	$sth->execute();
-	while ( defined($file = $sth->fetchrow() ) ){
-	    chomp($file);
+    $sth->execute();
+    if ($sth){
+	while ( @items = $sth->fetchrow_array() ){
+	    if($mode == 0){
+		$file = $items[0];
+	    } else {
+		$file = join(" ",@items);
+		chomp($file);
+	    }
 	    push(@files,$file);
 	}
     }
@@ -336,6 +354,7 @@ sub rdaq_set_files
 {
     my($obj,$status,@files)=@_;
     my($sth,$success);
+    my(@items);
     
     if(!$obj){ return 0;}
 
@@ -343,6 +362,8 @@ sub rdaq_set_files
     $sth = $obj->prepare("UPDATE $dbtable SET Status=$status WHERE file=?");
     if($sth){
 	foreach $file (@files){
+	    # support for list of files or full list.
+	    $file = (split(" ",$file))[0];  
 	    if($sth->execute($file)){
 		$success++;
 	    }
@@ -401,6 +422,9 @@ sub rdaq_file2hpss
 
     # default
     if( ! defined($mode) ){ $mode = 0;}
+
+    # reduce the a file list (all characteristics) to a file-only
+    $file  = (split(" ",$file))[0];
 
     # parse the damned file name. This is really trivial but
     # good to put it in a module so we can bacward support Y1
