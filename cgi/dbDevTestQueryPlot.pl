@@ -1,9 +1,12 @@
 #!/usr/local/bin/perl
 #!/usr/bin/env perl 
 #
-# $Id: dbDevTestQueryPlot.pl,v 1.23 2005/01/10 15:28:47 didenko Exp $
+# $Id: dbDevTestQueryPlot.pl,v 1.24 2005/01/10 15:34:36 didenko Exp $
 #
 # $Log: dbDevTestQueryPlot.pl,v $
+# Revision 1.24  2005/01/10 15:34:36  didenko
+# fixed syntex
+#
 # Revision 1.23  2005/01/10 15:28:47  didenko
 # updated for ITTF test
 #
@@ -245,8 +248,6 @@ if ($plotVal eq "MemUsage") {
     $legend[2] = "$plotVal"."(tpt.optimized)";
     $legend[3] = "$plotVal"."(ittf)";
 }
-}
-
 
 
 $graph = new GIFgraph::linespoints(550+50*$weeks,500);
