@@ -1,7 +1,10 @@
 #!/usr/bin/csh -f
-#       $Id: group_env.csh,v 1.38 1998/07/24 15:17:36 fisyak Exp $
+#       $Id: group_env.csh,v 1.39 1998/07/26 06:50:41 wenaus Exp $
 #	Purpose:	STAR group csh setup 
 #       $Log: group_env.csh,v $
+#       Revision 1.39  1998/07/26 06:50:41  wenaus
+#       Fix Objy paths for rsun00
+#
 #       Revision 1.38  1998/07/24 15:17:36  fisyak
 #       Add redhat50
 #
@@ -223,12 +226,16 @@ switch ($STAR_SYS)
      if (! ${?LD_LIBRARY_PATH}) setenv LD_LIBRARY_PATH 
      setenv LD_LIBRARY_PATH "/usr/lib:${PARASOFT}/lib.linux:/usr/local/lib:${STAF_LIB}:${LD_LIBRARY_PATH}:/opt/star/lib"
         limit coredump 0
+     setenv BFARCH Linux2
+     setenv OBJY_ARCH linux
     breaksw
     case "sun4*":
 #  ====================
       if (! ${?LD_LIBRARY_PATH}) setenv LD_LIBRARY_PATH
       setenv LD_LIBRARY_PATH "/opt/SUNWspro/lib:/usr/openwin/lib:/usr/dt/lib:/usr/local/lib:${PARASOFT}/lib.solaris:${STAF_LIB}:${LD_LIBRARY_PATH}"
 	set path = ($path $PARASOFT/bin.solaris)
+      setenv BFARCH SunOS5
+      setenv OBJY_ARCH solaris4
     breaksw 
     case "sunx86_55":
 #  ====================

@@ -19,30 +19,30 @@ setenv BFROOT /star/sol/packages/BaBar
 setenv BFSITE starbnl
 setenv OBJYBASE $OBJY_HOME
 
-setenv PATH $PATH\:$OBJY_HOME/bin
+setenv PATH $PATH\:$OBJY_HOME/$OBJY_ARCH/bin
 
 if (${?LD_LIBRARY_PATH} == 1) then
-	setenv LD_LIBRARY_PATH   $LD_LIBRARY_PATH\:$OBJY_HOME/lib
+	setenv LD_LIBRARY_PATH   $LD_LIBRARY_PATH\:$OBJY_HOME/$OBJY_ARCH/lib
 else
-	setenv LD_LIBRARY_PATH   $OBJY_HOME/lib
+	setenv LD_LIBRARY_PATH   $OBJY_HOME/$OBJY_ARCH/lib
 endif
 
 if (${?XAPPLRESDIR} == 1) then
-	setenv XAPPLRESDIR	$XAPPLRESDIR\:$OBJY_HOME/etc/app-defaults
+	setenv XAPPLRESDIR	$XAPPLRESDIR\:$OBJY_HOME/$OBJY_ARCH/etc/app-defaults
 else
-	setenv XAPPLRESDIR	$OBJY_HOME/etc/app-defaults
+	setenv XAPPLRESDIR	$OBJY_HOME/$OBJY_ARCH/etc/app-defaults
 endif
 
 if ( "$?XUSERFILESEARCHPATH" == 0 ) then
-  setenv XUSERFILESEARCHPATH "${OBJY_HOME}/etc/app-defaults/%N"
+  setenv XUSERFILESEARCHPATH "${OBJY_HOME}/${OBJY_ARCH}/etc/app-defaults/%N"
 else
-  setenv XUSERFILESEARCHPATH "${XUSERFILESEARCHPATH}:${OBJY_HOME}/etc/app-defaults/%N"
+  setenv XUSERFILESEARCHPATH "${XUSERFILESEARCHPATH}:${OBJY_HOME}/${OBJY_ARCH}/etc/app-defaults/%N"
 endif
 
 if ( "$?XBMLANGPATH" == 0 ) then
-  setenv XBMLANGPATH "${OBJY_HOME}/etc/bitmaps/%N/%B"
+  setenv XBMLANGPATH "${OBJY_HOME}/${OBJY_ARCH}/etc/bitmaps/%N/%B"
 else
-  setenv XBMLANGPATH "${XBMLANGPATH}:${OBJY_HOME}/etc/bitmaps/%N/%B"
+  setenv XBMLANGPATH "${XBMLANGPATH}:${OBJY_HOME}/${OBJY_ARCH}/etc/bitmaps/%N/%B"
 endif
 
 endif
