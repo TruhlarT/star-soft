@@ -1,6 +1,6 @@
 #!/usr/bin/env perl
 
-# $Id: AutoBuild.pl,v 1.14 2004/01/27 04:29:05 jeromel Exp $
+# $Id: AutoBuild.pl,v 1.15 2004/01/30 22:29:04 jeromel Exp $
 # This script was written to perform an automatic compilation
 # with cvs co and write some html page related to it afterward.
 # Written J.Lauret Apr 6 2001
@@ -389,6 +389,7 @@ foreach $line (sort keys %COMPILC){
 	goto End;
     }
 
+    $iline= $line;
     $line =~ s/%%CHVER%%/$CHVER/;
     print FO 
 	"#!/bin/csh\n",
@@ -403,7 +404,7 @@ foreach $line (sort keys %COMPILC){
 
     push(@REPORT,"<P>");
     push(@REPORT,"%%REF%%<LI>$line<BR>");
-    $fail = $COMPILC{$line}*(&Execute("$TMPNM$i"));
+    $fail = $COMPILC{$iline}*(&Execute("$TMPNM$i"));
     push(@STATUS,"$i-$fail");
     if($fail != 0){ 
 	last;
@@ -683,12 +684,9 @@ sub Execute
 	    if($line ne ""){
 		if( ($line =~ m/warning/i      || 
 		     $line =~ m/In\sfunction/i ||
-		     $line =~ m/In\smethod/i   ) && 
-		   $line !~ m/warning\:\s*by/ &&
-		   $line !~ m/included\sfrom/    ){
-#		    if($k != -1){ push(@REPORT,"</PRE></TR></TD>"); }
-#		    push(@REPORT,"<TR BGCOLOR=\"$COLORS[$k]\"><TD><PRE>");
-#		    $k++;  if($k > $#COLORS){ $k = 0;}
+		     $line =~ m/In\smethod/i     ) && 
+		    $line !~ m/warning\:\s*by/     &&
+		    $line !~ m/included\sfrom/      ){
 		    $cpat = (split(":",$line))[0];
 		    if($ppat ne $cpat){
 			$ppat = $cpat;
