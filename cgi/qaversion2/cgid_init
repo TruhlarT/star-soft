@@ -25,7 +25,7 @@ use Getopt::Std;
 my $qaPath = "/star/u2e/starqa/cgi-bin/pro/cgi/qaversion2";  # run pro version
 my $webServer = "sol.star.bnl.gov";
 my $sleepCmd = "/star/rcf/qa/.sleeper";
-my $afs_pw_file = "/star/rcf/qa/.starlib_CGI";
+my $afsPwFile = "/star/rcf/qa/.starlib_CGI";
 
 # get options
 my %opt = ();
@@ -51,7 +51,7 @@ my $token = `tokens`;
 
 if ($token !~ /^User/m) {   # token line in output
     print STDERR "(re)starting reauth...\n";
-    system("killall reauth; cat $afs_pw_file | reauth 85000 starlib");
+    system("killall reauth; cat $afsPwFile | reauth 85000 starlib");
     print STDERR "...reauth (re)started\n";
 }
 
@@ -88,7 +88,7 @@ if (!$query){
     }elsif ($pid && $kill){
 	print "stopping cgid...\n";
 	
-	system("./cgid -k");
+	system("kill -INT $pid");
 	
 	print "...cgid stopped\n";
     }
