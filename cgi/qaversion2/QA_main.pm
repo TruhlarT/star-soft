@@ -179,7 +179,7 @@ print("$action-ing....\n");
 	
         # make sure it's on disk
         my $qa = $gDataClass_object->QA_obj->new($report_key);
-        if ($qa->QADone ne 'in progress' and $qa->OnDisk){
+        if ($qa->OnDisk){
 	  $qa->DoQA('no_tables');
 	}
 print("....done $action-ing\n");

@@ -329,7 +329,7 @@ sub InsertOnlineQASum{
 #
 sub GetToDoReportKeys{
   my $type = shift; # real or MC
-  my $limit = 15;
+  my $limit = 20;
   my $type_string;
 
   if ($type eq 'real'){
