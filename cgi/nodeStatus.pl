@@ -17,20 +17,20 @@ use CGI;
 my @maifile;
 my $mail_line;
 my $status_line;
-my $job_file = "none";
 my $jbStat = "n/a";
 my @parts;
 my $nodeID = "n/a";
 my $mynode; 
 my @wrd;
-my @jobFList;
-my $numJbfile = 0;
 my %nodeCrCount = ();
 my %nodeStCount = ();
 my %nodeAbCount = ();
 my $outname;
 my $outfile;
 
+my @ndCrCount;
+my @ndAbCount;
+my @ndStCount; 
 
 my @nodeList = (
                 "rcrs6001.rcf.bnl.gov",
@@ -73,11 +73,46 @@ my $eachNode;
 
  for ( $ll = 0; $ll<scalar(@nodeList); $ll++) {   
         
-       $eachNode = $nodeList[$ll];
-       $nodeCrCount{$eachNode} = 0;
-       $nodeStCount{$eachNode} = 0;
-       $nodeAbCount{$eachNode} = 0;
-     }
+       $ndCrCount[$ll]  = 0;
+       $ndAbCount[$ll]  = 0;
+       $ndStCount[$ll]  = 0;
+     };
+
+my %nodeHash = (
+                "rcrs6001.rcf.bnl.gov" => 0,
+                "rcrs6002.rcf.bnl.gov" => 1, 
+                "rcrs6003.rcf.bnl.gov" => 2,
+                "rcrs6004.rcf.bnl.gov" => 3,
+                "rcrs6005.rcf.bnl.gov" => 4,
+                "rcrs6006.rcf.bnl.gov" => 5,
+                "rcrs6007.rcf.bnl.gov" => 6,            
+                "rcrs6008.rcf.bnl.gov" => 7,
+                "rcrs6009.rcf.bnl.gov" => 8,
+                "rcrs6010.rcf.bnl.gov" => 9,
+                "rcrs6011.rcf.bnl.gov" => 10,
+                "rcrs6012.rcf.bnl.gov" => 11,
+                "rcrs6013.rcf.bnl.gov" => 12,
+                "rcrs6014.rcf.bnl.gov" => 13,
+                "rcrs6015.rcf.bnl.gov" => 14,
+                "rcrs6016.rcf.bnl.gov" => 15,
+                "rcrs6017.rcf.bnl.gov" => 16,
+                "rcrs6018.rcf.bnl.gov" => 17,
+                "rcrs6019.rcf.bnl.gov" => 18,
+                "rcrs6020.rcf.bnl.gov" => 19,
+                "rcrs6021.rcf.bnl.gov" => 20,
+                "rcrs6022.rcf.bnl.gov" => 21,
+                "rcrs6023.rcf.bnl.gov" => 22,
+                "rcrs6024.rcf.bnl.gov" => 23,
+                "rcrs6025.rcf.bnl.gov" => 24,
+                "rcrs6026.rcf.bnl.gov" => 25,
+                "rcrs6027.rcf.bnl.gov" => 26,
+                "rcrs6028.rcf.bnl.gov" => 27,
+                "rcrs6029.rcf.bnl.gov" => 28,
+                "rcrs6030.rcf.bnl.gov" => 29,
+                "rcrs6031.rcf.bnl.gov" => 30,
+                "rcrs6032.rcf.bnl.gov" => 31,
+                "rcrs6033.rcf.bnl.gov" => 32
+ );               
 
 
 $now = localtime;
@@ -103,29 +138,42 @@ open (MAILFILE, $outfile ) or die "cannot open $outfile: $!\n";
       @wrd = split ("%", $mail_line);
       $nodeID = $wrd[2];
       $jbStat = $wrd[1];
-      $job_file = $wrd[3]; 
+      chop $nodeID;
+      chop $nodeID;
+      $nodeID =~ s/^\ *//g;
+      $ii = $nodeHash{$nodeID};
 
       if ($jbStat =~ /crashed/) {
-       $nodeCrCount{$nodeID}++;
+        $ndCrCount[$ii]++;
      }
       elsif ($jbStat =~ /aborted/) {
-      $nodeAbCount{$nodeID}++; 
+        $ndAbCount[$ii]++;  
      }
      elsif ($jbStat =~ /staging failed/) {
-      $nodeStCount{$nodeID}++; 
+         $ndStCount[$ii]++;
      }
-     $jobFList[$numJbfile] = $job_file;
-     $numJbfile++;
   } 
  }
 
 
 for ($ll = 0; $ll < scalar(@nodeList); $ll++) {
       $mynode = $nodeList[$ll];
-       
-   &printRow();     
-
+      $nodeCrCount{$mynode} = $ndCrCount[$ll];
+      $nodeAbCount{$mynode} = $ndAbCount[$ll];
+      $nodeStCount{$mynode} = $ndStCount[$ll]; 
+      if( $nodeCrCount{$mynode} != 0) {
+   &printCrRow();
+  }       
+     elsif ($nodeAbCount{$mynode} != 0) {
+   &printAbRow();
+  }
+     elsif ($nodeStCount{$mynode} != 0) {
+   &printStRow();
+  }else {       
+ &printRow();
 }
+}
+ close (MAILFILE);
 
   &endHtml();
 
@@ -152,9 +200,54 @@ print <<END;
 END
 }
 
+#######################
 
-################
-sub printRow {
+ sub printAbRow {
+
+print <<END;
+<TR ALIGN=CENTER>
+<td>$mynode</td>
+<td>$nodeCrCount{$mynode}</td>
+<td bgcolor=red>$nodeAbCount{$mynode}</td>
+<td>$nodeStCount{$mynode}</td>
+</TR>
+END
+
+}
+
+#######################
+
+ sub printCrRow {
+
+print <<END;
+<TR ALIGN=CENTER>
+<td>$mynode</td>
+<td bgcolor=red>$nodeCrCount{$mynode}</td>
+<td>$nodeAbCount{$mynode}</td>
+<td>$nodeStCount{$mynode}</td>
+</TR>
+END
+
+}
+
+#######################
+
+ sub printStRow {
+
+print <<END;
+<TR ALIGN=CENTER>
+<td>$mynode</td>
+<td>$nodeCrCount{$mynode}</td>
+<td>$nodeAbCount{$mynode}</td>
+<td bgcolor=red>$nodeStCount{$mynode}</td>
+</TR>
+END
+
+}
+
+#######################
+
+ sub printRow {
 
 print <<END;
 <TR ALIGN=CENTER>
@@ -162,11 +255,10 @@ print <<END;
 <td>$nodeCrCount{$mynode}</td>
 <td>$nodeAbCount{$mynode}</td>
 <td>$nodeStCount{$mynode}</td>
-</tr>
+</TR>
 END
 
 }
-
 
 #####################
 sub endHtml {
