@@ -8,10 +8,9 @@ endif
 set pkg = $1; shift;
 set version = 0;
 if ( $#argv > 0 ) set version = $1
-set PKG = `echo $pkg | awk '{print tolower($0)}'`
-#echo $pkg = $PKG $version
 switch ($pkg)
     case "root":
+    case "ROOT":
         #=======#
 	if (-f $GROUP_DIR/rootenv.csh) then
 	    if ( -x /afs/rhic/star/group/dropit) then
@@ -24,28 +23,47 @@ switch ($pkg)
 	endif
 	breaksw
     case "objy":
+    case "OBJY":
+    case "Objy":
          #=====#
 	if (`uname -s` == "SunOS" && `hostname` != "rcf.rhic.bnl.gov" && ! ${?OBJY_HOME} ) source $GROUP_DIR/ObjySetup.csh
 	breaksw
-    case "parasoft":	
+    case "parasof":
+    case "PARASOFT":	
          #=====#
 	if (-f $GROUP_DIR/parasoftenv.csh) source $GROUP_DIR/parasoftenv.csh
 	breaksw
-    case "sniff":	
+    case "sniff":
+    case "SNIFF":	
          #=====#
 	if (-f $GROUP_DIR/sniffenv.csh) source $GROUP_DIR/sniffenv.csh
 	breaksw
-    case "g4":	
+    case "g4":
+    case "G4":	
          #=====#
 	if (-f $GROUP_DIR/g4env.csh) source $GROUP_DIR/G4env.csh
 	breaksw
-    case "cc4":	
+    case "cc4":
+    case "CC4":	
          #=====#
+        if ( -x /afs/rhic/star/group/dropit) then
+          setenv PATH `/afs/rhic/star/group/dropit WS5.0`
+          setenv PATH `/afs/rhic/star/group/dropit .sun4x_56_CC5`
+          setenv LD_LIBRARY_PATH `/afs/rhic/star/group/dropit -p $LD_LIBRARY_PATH 5.0`
+          setenv LD_LIBRARY_PATH `/afs/rhic/star/group/dropit -p $LD_LIBRARY_PATH .sun4x_56_CC5`
+        endif
 	setenv USE_CC4; starver $STAR_LEVEL
 	breaksw
-    case "cc5":	
+    case "cc5":
+    case "CC5":	
          #=====#
 	if ($?USE_CC4 != 0) unsetenv USE_CC4
+        if ( -x /afs/rhic/star/group/dropit) then
+          setenv PATH `/afs/rhic/star/group/dropit SUNWspro`
+          setenv PATH `/afs/rhic/star/group/dropit .sun4x_56`
+          setenv LD_LIBRARY_PATH `/afs/rhic/star/group/dropit -p $LD_LIBRARY_PATH SUNWspro`
+          setenv LD_LIBRARY_PATH `/afs/rhic/star/group/dropit -p $LD_LIBRARY_PATH .sun4x_56`
+        endif
 	starver $STAR_LEVEL
 	breaksw
     default:

@@ -1,5 +1,8 @@
 #!/bin/csh
 #  $Log: STAR_SYS,v $
+#  Revision 1.22  2000/02/22 23:22:54  fisyak
+#  Set default version CC4 for new, pro and old for time being
+#
 #  Revision 1.21  2000/02/15 23:36:29  fisyak
 #  Set CC5 default for Solaris
 #
@@ -77,7 +80,7 @@
 #
 #  Revision 1.1.1.1  1997/12/31 14:35:23  fisyak
 #
-#             Last modification $Date: 2000/02/15 23:36:29 $ 
+#             Last modification $Date: 2000/02/22 23:22:54 $ 
 #
 # Determine STAR_SYS variable.
 #
@@ -176,7 +179,8 @@ if ($?USE_EGCS == 1 && "${STAR_SYS}" == "i386_redhat51") setenv STAR_HOST_SYS i3
 if ($?USE_EGCS == 1 && "${STAR_SYS}" == "i386_redhat60") setenv STAR_HOST_SYS i386_redhat60egcs
 if ($?USE_KCC  == 1 && "${STAR_SYS}" == "i386_redhat60") setenv STAR_HOST_SYS i386_redhat60kcc
 if ($?USE_CC4  == 1 && $?USE_CC5  == 1) unsetenv USE_CC5
-if ($?USE_CC4  == 0 && "${STAR_SYS}" == "sun4x_56") setenv USE_CC5 "YES"
+if ($STAR_LEVEL  == "old" || $STAR_LEVEL  == "pro" || $STAR_LEVEL  == "new") then
+  if ($?USE_CC4  == 0 && "${STAR_SYS}" == "sun4x_56") setenv USE_CC5 "YES"
+endif
 if ($?USE_CC5  == 1 && "${STAR_SYS}" == "sun4x_56") setenv STAR_HOST_SYS sun4x_56_CC5
-if ($?USE_CC5C == 1 && "${STAR_SYS}" == "sun4x_56") setenv STAR_HOST_SYS sun4x_56_CC5C
 
