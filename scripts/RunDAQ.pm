@@ -38,6 +38,7 @@
 #      rdaq_bits2string             Returns a string from a bitfield.
 #      rdaq_mask2string             Returns detector set from detector BitMask.
 #      rdaq_trgs2string             Return trigger Setup name
+#      rdaq_ftype2string            Return file type/flavor name
 #
 #
 # DEV ONLY *** MAY BE CHANGED AT ANY POINT IN TIME ***
@@ -58,7 +59,9 @@
 #  Adding a field with a plain type is easy. Just ALTER the table, modify
 #  VALUES() and add a ?, modify the hack routine to make this field
 #  appear at the proper place, eventually modify the MAINTAINER only
-#  routine update_entries to initialize the column, and save ...
+#  routine update_entries to initialize the column, and save ... Status
+#  column is always expected to be the last field. For readability,
+#  add fields before EntryDate (see the NOW()+0,0,0).
 #
 #  For a BITWISE field, do the same AND, in addition, add a
 #  hash value for that column. The value MUST be a valid existing
@@ -68,12 +71,14 @@
 #  The fields of that extra table are expected to be EXACTLY as above i.e. there
 #  are all standardized to avoid proliferation of routines. THERE is nothing else
 #  to do at this level.
+#
 #  If you have build a script based on get_ffiles() or get_orecords(), you will
 #  need to take into account the fact that the number of fields is larger. The
 #  last field of DAQInfo is expected to be 'Status'. Please, preserve this ...
 #
 # The full DAQInfo table description is as follow (last dumped, Dec 2001). Other
 # tables are of trivial format (i.e. and int id and a char label).
+#
 # +-------------+---------------------+------+-----+---------+-------+
 # | Field       | Type                | Null | Key | Default | Extra |
 # +-------------+---------------------+------+-----+---------+-------+
@@ -89,6 +94,7 @@
 # | DetSetMask  | bigint(20) unsigned | YES  |     | 0       |       |
 # | TrgSetup    | bigint(20) unsigned | YES  |     | 0       |       |
 # | TrgMask     | bigint(20) unsigned | YES  |     | 0       |       |
+# | ftype       | int(11)             | YES  |     | 0       |       |
 # | EntryDate   | timestamp(14)       | YES  |     | NULL    |       |
 # | DiskLoc     | int(11)             | YES  |     | 0       |       |
 # | Status      | int(11)             | YES  |     | 0       |       |
@@ -121,7 +127,7 @@ require Exporter;
 	     rdaq_set_files
 
 	     rdaq_file2hpss rdaq_mask2string rdaq_status_string
-	     rdaq_bits2string rdaq_trgs2string
+	     rdaq_bits2string rdaq_trgs2string rdaq_ftype2string
 
 	     rdaq_set_files_where rdaq_update_entries
 
@@ -183,8 +189,11 @@ $BITWISE{"DetSetMask"} = "FODetectorTypes";
 # For list_field, we may want to select from secondary
 # tables instead of from $dbtable. We can do this only
 # if the fields are associated with a threaded table.
-# Those tables are assumed to be id,Label.
+# Those tables are assumed to be id,Label. The index
+# 0 or 1 indicates if we select by id or label in the
+# list_field() routine returned values.
 $THREAD0{"TrgSetup"} = "FOTriggerSetup";
+$THREAD0{"ftype"}    = "FOFileType";
 $THREAD1{"runNumber"}= "FOruns";
 
 
@@ -199,7 +208,7 @@ sub rdaq_add_entry
 
     if(!$obj){ return 0;}
     $sth = $obj->prepare("INSERT IGNORE INTO $dbtable ".
-			 "VALUES(?,?,?,?,?,?,?,?,?,?,?,?,NOW()+0,0,0)");
+			 "VALUES(?,?,?,?,?,?,?,?,?,?,?,?,?,NOW()+0,0,0)");
     $sth->execute(@values);
     $sth->finish();
     1;
@@ -218,7 +227,7 @@ sub rdaq_add_entries
 
     if($#records != -1){
 	$sth = $obj->prepare("INSERT INTO $dbtable ".
-			     "VALUES(?,?,?,?,?,?,?,?,?,?,?,?,NOW()+0,0,0)");
+			     "VALUES(?,?,?,?,?,?,?,?,?,?,?,?,?,NOW()+0,0,0)");
 	if($sth){
 	    foreach $line (@records){
 		@values = split(" ",$line);
@@ -251,12 +260,15 @@ sub rdaq_update_entries
     if(!$obj){  return 0;}
 
     if($#records != -1){
-	$sth = $obj->prepare("UPDATE $dbtable SET scaleFactor=?, DetSetMask=?, TrgSetup=?, TrgMask=? ".
+	$sth = $obj->prepare("UPDATE $dbtable SET scaleFactor=?, ".
+			     "DetSetMask=?, TrgSetup=?, TrgMask=?, ftype=?".
 			     "WHERE file=?");
 	if($sth){
 	    foreach $line (@records){
 		@values = split(" ",$line);
-		if($sth->execute($values[6],$values[9],$values[10],$values[11],$values[0]) ){
+		if($sth->execute($values[6],
+				 $values[9],$values[10],$values[11],$values[12],
+				 $values[0]) ){
 		    $count++;
 		}
 	    }
@@ -383,7 +395,7 @@ sub rdaq_last_run
     my($sth,$val);
 
     if(!$obj){ return 0;}
-    $sth = $obj->prepare("SELECT file FROM $dbtable ORDER BY file DESC LIMIT 1");
+    $sth = $obj->prepare("SELECT file FROM $dbtable ORDER BY runNumber,file DESC LIMIT 1");
     $sth->execute();
     if($sth){
 	$val = $sth->fetchrow();
@@ -427,7 +439,7 @@ sub rdaq_raw_files
     
 
     # We will select on RunStatus == 0
-    $cmd  = "SELECT daqFileTag.file, daqSummary.runNumber, daqFileTag.numberOfEvents, daqFileTag.beginEvent, daqFileTag.endEvent, magField.current, magField.scaleFactor, beamInfo.yellowEnergy+beamInfo.blueEnergy, CONCAT(beamInfo.blueSpecies,beamInfo.yellowSpecies) FROM daqFileTag, daqSummary, magField, beamInfo  WHERE daqSummary.runNumber=daqFileTag.run AND daqSummary.runStatus=0 AND daqSummary.destinationID In(1,2,4) AND daqFileTag.file LIKE '%physics%' AND magField.runNumber=daqSummary.runNumber AND magField.entryTag=0 AND beamInfo.runNumber=daqSummary.runNumber AND beamInfo.entryTag=0";
+    $cmd  = "SELECT daqFileTag.file, daqSummary.runNumber, daqFileTag.numberOfEvents, daqFileTag.beginEvent, daqFileTag.endEvent, magField.current, magField.scaleFactor, beamInfo.yellowEnergy+beamInfo.blueEnergy, CONCAT(beamInfo.blueSpecies,beamInfo.yellowSpecies) FROM daqFileTag, daqSummary, magField, beamInfo  WHERE daqSummary.runNumber=daqFileTag.run AND daqSummary.runStatus=0 AND daqSummary.destinationID In(1,2,4) AND magField.runNumber=daqSummary.runNumber AND magField.entryTag=0 AND beamInfo.runNumber=daqSummary.runNumber AND beamInfo.entryTag=0";
 
     # Optional arguments
     if( $from ne ""){
@@ -573,6 +585,14 @@ sub rdaq_hack
     # to check this run as we go, we want them ...
     push(@res,$mask);
 
+    # File name is the first field 0
+    if( $res[0] =~ m/(st_)(\w+)(_\d+_raw)/ ){
+	push(@res,&Record_n_Fetch("FOFileType",$2));
+    } else {
+	push(@res,0);
+    }
+    
+
     join(" ",@res);
 }
 
@@ -653,6 +673,10 @@ sub rdaq_open_odatabase
 #    conds     A reference to an hash array
 #              for extraneous condition selection.
 #
+#    ftype     Late addition. Has to be something
+#              like 'laser' 'physics' 'pulser'.
+#              Default is 'physics'. Late addition.
+#
 # The list will be given in a descending ordered
 # array (first file is last saved to HPSS).
 #
@@ -660,22 +684,25 @@ sub rdaq_open_odatabase
 #
 sub rdaq_get_ffiles
 {
-    my($obj,$status,$limit)=@_;
-    return &rdaq_get_files($obj,$status,$limit,1);
+    my($obj,$status,$limit,$ftype)=@_;
+    return &rdaq_get_files($obj,$status,$limit,1,$ftype);
 }
 
 sub rdaq_get_files
 {
-    my($obj,$status,$limit,$mode)=@_;
+    my($obj,$status,$limit,$mode,$ftype)=@_;
     my(%Conds);
 
     # Default values will be sorted out here.
     if( ! defined($limit) ){  $limit = 0;}
     if( ! defined($mode)  ){  $mode  = 0;}
-    if( ! defined($status) ){ $status= 0;}
+    if( ! defined($status)){  $status= 0;}
+    if( ! defined($ftype) ){  $ftype = 1;}
 
     # We MUST pass a reference to a hash.
     $Conds{"Status"} = $status;
+    $Conds{"ftype"}  = $ftype;
+
     return &rdaq_get_orecords($obj,\%Conds,$limit,$mode);
 }
 
@@ -709,6 +736,7 @@ sub rdaq_get_orecords
 
 	# do NOT build a querry for a 'all' keyword
 	if( $el eq "Status" && $val == -1){ next;}
+
 
 	# Sort out possible comparison operators
 	$test= substr($val,0,1);
@@ -767,7 +795,9 @@ sub rdaq_get_orecords
 	}
 
     }
-    $cmd .= " ORDER BY file DESC";
+
+    # order 
+    $cmd .= " ORDER BY runNumber,file DESC";
     if( $limit > 0){
 	$cmd .= " LIMIT $limit";
     }
@@ -1113,8 +1143,9 @@ sub rdaq_status_string
     $str = "new"       if($sts == 0);
     $str = "Submitted" if($sts == 1);
     $str = "Processed" if($sts == 2);
-    $str = "QADone"    if($sts == 3); # i.e. + QA
+    $str = "QADone"    if($sts == 3);   # i.e. + QA
     $str = "Skipped"   if($sts == 4);
+    $str = "SCalib"    if($sts == 5);   # submitted for calibration
     $str = "Died"      if($sts == 666);
 
     $str;
@@ -1131,6 +1162,19 @@ sub rdaq_trgs2string
 	$rv;
     }
 }
+
+sub rdaq_ftype2string
+{
+    my($val)=@_;
+
+    $rv = &GetRecord("FOFileType",$val);
+    if($rv eq 0){
+	return "unknown";
+    } else {
+	$rv;
+    }
+}
+
 
 
 #
