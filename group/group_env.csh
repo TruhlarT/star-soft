@@ -1,7 +1,10 @@
 #!/usr/bin/csh -f
-#       $Id: group_env.csh,v 1.59 1999/01/21 13:43:22 wenaus Exp $
+#       $Id: group_env.csh,v 1.60 1999/02/04 02:38:54 fisyak Exp $
 #	Purpose:	STAR group csh setup 
 #       $Log: group_env.csh,v $
+#       Revision 1.60  1999/02/04 02:38:54  fisyak
+#       Add SL99b
+#
 #       Revision 1.59  1999/01/21 13:43:22  wenaus
 #       Add ObjectSpace STL to LD_LIBRARY_PATH on Solaris
 #
@@ -220,8 +223,10 @@ setenv CVSROOT   $STAR_PATH/repository; if ($ECHO) echo   "Setting up CVSROOT   
 #  if ($STAR_VERSION  == "SL98j") setenv ROOT_LEVEL 2.13
   if ($STAR_VERSION  == "SL98l") setenv ROOT_LEVEL 2.20
   if ($STAR_VERSION  == "SL99a") setenv ROOT_LEVEL 2.21
+  if ($STAR_VERSION  == "SL99b") setenv ROOT_LEVEL 2.21
 #endif
                                         if ($ECHO) echo   "Setting up ROOT_LEVEL= ${ROOT_LEVEL}"
+if ($STAR_VERSION  == "SL99a") setenv CERN_LEVEL 99
 setenv TEXINPUTS :${GROUP_DIR}/latex/styles
 setenv GROUPPATH "${GROUP_DIR}:${STAR_MGR}:${STAR_BIN}"
 if ( -x /afs/rhic/star/group/dropit) then
@@ -302,11 +307,15 @@ switch ($STAR_SYS)
        setenv MANPATH "$MANPATH":$PGI/man
        setenv LM_LICENSE_FILE $PGI/license.dat
        alias pgman 'man -M $PGI/man'
-       if ("$STAR_SYS" != "i386_redhat51") then
-         setenv CERN_LEVEL pgf98
-         setenv CERN_ROOT  $CERN/$CERN_LEVEL
+       if ("$STAR_VERSION"  == "SL99a") then
+         setenv CERN_LEVEL 99
+       else
+         if ("$STAR_SYS" != "i386_redhat51") then
+           setenv CERN_LEVEL pgf98
+         endif
        endif
      endif
+     setenv CERN_ROOT  $CERN/$CERN_LEVEL
      set path = ($path  /usr/local/bin/ddd /usr/local/DQS318/bin )
      setenv  MANPATH "$MANPATH":/usr/local/DQS318/man
      if ( -x /usr/local/DQS32/bin/qstat32) then
@@ -317,7 +326,17 @@ switch ($STAR_SYS)
      set path = ($path $PARASOFT/bin.linux)
      if (! ${?LD_LIBRARY_PATH}) setenv LD_LIBRARY_PATH 
      setenv LD_LIBRARY_PATH "/usr/lib:${PARASOFT}/lib.linux:/usr/local/lib:${MINE_LIB}:${STAR_LIB}:${STAF_LIB}:${LD_LIBRARY_PATH}:/opt/star/lib"
-        limit coredump 0
+     if ($?EGCS_ON) setenv LD_LIBRARY_PATH "${LD_LIBRARY_PATH}:/usr/local/egcs-1.1.1/lib"
+     if ($STAR_VERSION  == "SL99a") then
+       setenv PATH "/usr/local/egcs-1.1.1/bin:${PATH}"
+       setenv LD_LIBRARY_PATH "/usr/local/egcs-1.1.1/lib:${LD_LIBRARY_PATH}"
+     else
+       if ( -x /afs/rhic/star/group/dropit) then
+	 setenv PATH            `/afs/rhic/star/group/dropit egcs-1.1.1`
+         setenv LD_LIBRARY_PATH `/afs/rhic/star/group/dropit -p ${LD_LIBRARY_PATH} egcs-1.1.1`
+       endif
+     endif
+     limit coredump 0
      setenv BFARCH Linux2
      setenv OBJY_ARCH linux
     breaksw
