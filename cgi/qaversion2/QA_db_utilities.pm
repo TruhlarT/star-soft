@@ -166,7 +166,8 @@ use strict;
 
 #----------------------------------------------------------------------------
 
-my $userFile = '/star/u2e/starqa/.my.cnf';
+my $userFile  = '/star/u2e/starqa/.my.cnf';
+my $userFile2 = '/star/rcf/qa/.my.cnf';
 my %attr = (RaiseError =>1, PrintError =>0, AutoCommit => 1); 
 # rely on this to catch errors
 
@@ -185,11 +186,18 @@ sub db_connect{
 
   my ($user_name, $password);
 
-  $dbh = DBI->connect($datasource, $user_name, $password, \%attr)
-    or die "Couldnt connect to $dbQA: $dbh->errstr";
+  eval {
+    $dbh = DBI->connect($datasource, $user_name, $password, \%attr);   
+  };
+  if ($@) {
+    print "Couldnt connect to the database:\n";
+    print "Trying again...<br>\n";
+    $datasource ="DBI:mysql:$dbQA:$serverHost;mysql_read_default_file=$userFile2";
+    $dbh =  DBI->connect($datasource, $user_name, $password, \%attr) or
+      die "Oh well: $DBI::errstr\n";
+  }
 
-  
-}
+}  
 #----------
 #
 sub db_disconnect{
