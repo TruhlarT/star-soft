@@ -22,16 +22,18 @@
 #   -mark    : mark given files as (un)available - no checking
 #              keywords {on|off}
 #
+#   -debug   : turn database module debugging information ON
+#   -nodebug : turn THIS SCRIPT debugging information OFF
 # 
 #   Potentially dammaging mode of operation
 #   ---------------------------------------
 #   -alter keyword=value    
 #              alter keyword value for entry ** DANGEROUS **
-#   -delete/-cdelete
+#   -delete/-cdelete/-ddelete
 #              -cdelete (check) only displays what it will delete
 #              based on context.
-#              If the file is marked unavailable, recheck it
-#              and if still not there - delete from database
+#              -ddelete (delayed) See documentation.
+#
 #              WARNING!!! The delete operation is irreversible!
 #
 #   Integrety check operations
@@ -45,8 +47,12 @@
 #   -cond    : conditions to limit the records processed 
 #              You REALLY shouldn't use this script on the 
 #              whole database at once!
+#   -u user  : use current user ddb access privs
+#   -p passwd: use this password for ddb access
+#
 
 use lib "/afs/rhic/star/packages/scripts";
+
 use strict;
 use FileCatalog;
 
@@ -55,6 +61,7 @@ my $i;
 my $count;
 my $debug;
 my $doit;
+my $delay;
 
 # Control variables
 # The size of a batch to process at once.
@@ -62,10 +69,11 @@ my $batchsize = 1000;
 my $mode;
 my $cond_list;
 my $state="";
-my $passwd;
+my $passwd="";
 my $dodel;
 my $kwrd="";
 my $newval=undef;
+my $user="";
 
 # Load the modules
 my $fileC = FileCatalog->new;
@@ -75,6 +83,8 @@ my $fileC = FileCatalog->new;
 $fileC->debug_off();
 $debug = 1;
 $dodel = 0;
+$delay = 0;
+
 
 # Parse the cvommand line arguments.
 $count = 0;
@@ -91,17 +101,29 @@ while (defined $ARGV[$count]){
     } elsif ($ARGV[$count] eq "-nodebug"){
 	$debug = 0; 
 
+    } elsif ($ARGV[$count] eq "-u"){
+	$user      = $ARGV[++$count];
+    } elsif ($ARGV[$count] eq "-p"){
+	$passwd    = $ARGV[++$count];
+
     } elsif ($ARGV[$count] eq "-delete"){
-	$mode = 2; 
-	$doit = 1;
+	$mode      = 2; 
+	$doit      = 1;
+	$batchsize = 250;
     } elsif ($ARGV[$count] eq "-cdelete"){
-	$mode = 2; 
-	$doit = 0;
+	$mode      = 2; 
+	$doit      = 0;
+	$batchsize = 250;
+    } elsif ($ARGV[$count] eq "-ddelete"){
+	$mode      = 2; 
+	$doit      = 1;
+	$delay     = 1;
+	$batchsize = 250;
 
     } elsif ($ARGV[$count] eq "-clean"){
 	$dodel = 1; 
     } elsif ($ARGV[$count] eq "-mark"){
-	$mode = 3; 
+	$mode  = 3; 
 	$state = $ARGV[++$count];
 
     } elsif ($ARGV[$count] eq "-alter"){
@@ -133,10 +155,13 @@ if ($count == 0){
     exit;
 }
 
-
-print "Password : ";
-chomp($passwd = <STDIN>);
-$fileC->connect("FC_admin",$passwd);
+if ( $user eq ""){
+    print "Password : ";
+    chomp($passwd = <STDIN>);
+    $fileC->connect("FC_admin",$passwd);
+} else {
+    $fileC->connect($user,$passwd);
+}
 
 
 
@@ -156,6 +181,7 @@ while ($morerecords)
     if ($mode == 0)
       # First mode of operation - just get the file list and their availability
       {
+	print "Checking $start (+$batchsize) ".localtime()."\n"; 
 	$fileC->set_context("limit=$batchsize");
 	$fileC->set_context("startrecord=$start");
 	$fileC->set_delimeter("::");
@@ -182,11 +208,21 @@ while ($morerecords)
 	$fileC->set_context("limit=$batchsize");
 	$fileC->set_context("startrecord=$start");
 	$fileC->set_context("available>0");
-	$fileC->set_context("storage=NFS");  # no other mode implemented for checking
 	$fileC->set_delimeter("::");
+
+	my $store=$fileC->get_context("storage");
+	if( ! defined($store) ){
+	    # Impose NFS to minimize errors
+	    $fileC->set_context("storage=NFS");  
+	} else {
+	    if( $store eq "HPSS"){
+		die "HPSS checking not immplemented yet\n";
+	    }
+	}
+	
 	
 	# Getting the data
-	@output = $fileC->run_query("path","filename","available");
+	@output = $fileC->run_query("path","filename","available","node");
 	
 	# Check if there are any records left
 	#print "OUTPUT: $#output batchsize $batchsize\n";
@@ -196,17 +232,17 @@ while ($morerecords)
 	# checking the availability
 	foreach (@output)
 	  { 
-	    my ($path, $fname,$available) = split ("::");
+	    my ($path, $fname,$available,$node) = split ("::");
 	    if (-e $path."/".$fname)
 	      {
 		 if ($debug > 0)
-		  { print "File $_ exists\n"; }
+		  { print "File $store://$node$_ exists\n"; }
 	      }
 	    else
 	    {		
 		#if ($debug>0)
 		#{
-		print "!!! File $_ DOES NOT exist or is unavailable !\n"; 
+		print "!!! File $store://$node$_ DOES NOT exist or is unavailable !\n"; 
 		#}
 		# Marking/re-marking the file as unavailable
 		$fileC->clear_context();
@@ -222,15 +258,26 @@ while ($morerecords)
 	# dangerous now since any record can be deleted based
 	# on context.
 	my($rec,@items);
-
+	print "Checking $start (+$batchsize) ".localtime()."\n"; 
 	$fileC->set_context("limit=$batchsize");
 	$fileC->set_context("startrecord=$start");
 	$fileC->set_context("available=0");
 	$fileC->set_delimeter("::");
+	$fileC->set_delayed() if ($delay);
 
 	# 
 	if( $doit ){
 	    @items = $fileC->delete_records($doit);
+	    if( $debug ){
+		foreach (@items){
+		    print "Deleted $_\n";
+		}
+	    }
+
+	    if ( $delay){
+		#$fileC->print_delayed();
+		$fileC->flush_delayed();
+	    }
 	} else {
 	    @items = $fileC->run_query("path","filename","storage","site","available");
 	    foreach (@items){
@@ -297,11 +344,11 @@ while ($morerecords)
 	$fileC->print_delayed();
 
 
-    } elsif ($mode == 5)
+    } elsif ($mode == 5){
 	# Fifth mode of operation - get the file list, 
 	# and check if they really exist - if not, mark them as unavailable
 	# if yes - remark them as available
-    {
+	print "Checking $start (+$batchsize) ".localtime()."\n"; 
 	$fileC->set_context("limit=$batchsize");
 	$fileC->set_context("startrecord=$start");
 	$fileC->set_context("all=1");
@@ -311,35 +358,31 @@ while ($morerecords)
 	@output = $fileC->run_query("path","filename","available");
 	
 	# Check if there are any records left
-	print "OUTPUT: $#output batchsize $batchsize\n";
+	#print "OUTPUT: $#output batchsize $batchsize\n";
 	if (($#output +1) == $batchsize)
 	  { $morerecords = 1; }
 
 	# checking the availability
-	foreach (@output)
-	  { 
+	foreach (@output){
 	    my ($path, $fname, $av) = split ("::");
-	    if (-e $path."/".$fname)
-	      {
-		if ($av == 0)
-		  {
-		    if ($debug > 0)
-		      { print "File $_ exists\n"; }
-		    # Marking the file as unavailable
+	    if (-e $path."/".$fname){
+		if ($av == 0){
+		    #if ($debug > 0)
+		    #{ 
+		    print "File $_ exists\n"; 
+		    #}
+		    # Marking the file as available
 		    $fileC->clear_context();
 		    $fileC->set_context("filename=$fname");
 		    $fileC->set_context("path=$path");
 		    $fileC->set_context("available=0");
 		    $fileC->update_location("available",1);
-		  }
-	      }
-	    else
-	      {		
-		if ($av == 1)
-		  {
+		}
+	    } else {
+		if ($av == 1){
 		    #if ($debug>0)
 		    #{ 
-		      print "File $_ DOES NOT exist or is unavailable !\n"; 
+		    print "File $_ DOES NOT exist or is unavailable !\n"; 
 		    #}
 		    # Marking the file as unavailable
 		    $fileC->clear_context();
@@ -347,10 +390,12 @@ while ($morerecords)
 		    $fileC->set_context("path=$path");
 		    $fileC->set_context("available=1");
 		    $fileC->update_location("available",0);
-		  }
-	      }
-	  }    
-      }
+		}
+	    }
+	}    
+
+
+    }
     elsif ($mode == 6)
       # Fourth mode of operation - mark selected files as available/unavailable
       # without checking if they exist or not.
@@ -380,7 +425,7 @@ while ($morerecords)
     }
     $start += $batchsize;
 
-  }
+}
 
 
 
@@ -396,7 +441,9 @@ sub Usage
  -recheck                check unavailable files and adjust if necessary
  -mark {on|off}          mark selected files availability
 
- -delete/-cdelete        delete records with availability=0 (current context applies)
+ -delete/-{c|d}delete    delete records with availability=0 (current context applies)
+                         cdelete only checks it but don't do anything
+                         ddelete uses the delayed mechanism of the module
  -alter keyword=value    alter keyword value for entry ** DANGEROUS **
 
 
@@ -405,6 +452,10 @@ sub Usage
  -fdata                  verify the data information
  -trgc                   verify the trigger information
 
+ -debug                  turn ddb module debugging information ON (default=OFF)
+ -nodebug                turn this script debugging information OFF (default=ON)
+
 ~;
 
 }
+
