@@ -1124,9 +1124,12 @@ sub UpdateLogReport{
   mkdir $report_dir, 0775;
 
   # just check for existence since it may already have been created before
-  unless(-e $report_dir){
+  if(!-d $report_dir){
     print "Cannot create the report directory $report_dir: $!";
     return;
+  }
+  else{
+    print "...done\n";
   }
 
   # create Logreport_object_offline, nightly, or online, etc
