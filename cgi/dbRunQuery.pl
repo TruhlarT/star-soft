@@ -49,10 +49,11 @@ $dPath = "/daq/";
 
 my @joinSet = ( $colSet. "%" .$datSet . "%" . $detrSet . "%" .$fldSet . "%" . $frSet . "%" . $lctSet. "%" .$prodSr. "%". $dPath );
 
-struct RunAttr => {
+ struct RunAttr => {
         drun   => '$',
         dtSet  => '$',
- }
+ };
+
 #####  connect to operation DB
 
  &StDbProdConnect();
