@@ -111,7 +111,7 @@ require  Exporter;
 	     check_ID_for_params insert_dictionary_value
 
 	     debug_on debug_off
-	     Require
+	     Require Version
 
 	     );
 
@@ -119,7 +119,7 @@ require  Exporter;
 
 
 use vars qw($VERSION);
-$VERSION   =   "V01.261";
+$VERSION   =   "V01.265";
 
 # The hashes that hold a current context
 my %optoperset;
@@ -143,6 +143,7 @@ my @DCMD;
 
 # db information
 my $DSITE     =   undef;
+my $XMLREF    =   undef;
 my $dbname    =   "FileCatalog_BNL";
 my $dbhost    =   "duvall.star.bnl.gov";
 my $dbport    =   "";
@@ -150,6 +151,7 @@ my $dbuser    =   "FC_user";
 my $dbpass    =   "FCatalog";
 my $DBH;
 my $sth;
+
 
 # hash of keywords
 my %keywrds;
@@ -433,6 +435,13 @@ sub Require
 }
 
 
+sub Version
+{    
+    if ($_[0] =~ m/FileCatalog/) {  shift @_;}
+    return $VERSION;
+}
+
+
 #============================================
 # parse keywrds - get the field name for the given keyword
 # Parameters:
@@ -615,79 +624,175 @@ sub _ReadConfig
     if ($config eq ""){
 	&print_debug("XML :: could not find any config file");
     } else {
-	if ( ! defined($flag) ){
-	    &print_debug("ReadConfig","Searching for $intent in $config");
-	}
-	open(FI,$config);
+	eval "require XML::Parser";
+	if (!$@){
+	    if ( ! defined($XMLREF) ){
+		#use Data::Dumper;
+		require XML::Simple;
+		
+		my($xs) = new XML::Simple();
+		$XMLREF = $xs->XMLin($config, 
+				     ForceArray => 1);
+		#print Dumper($XMLREF);
+	    }
 
-	#
-	# This is low-key XML parsing. Already a better parsing
-	# would be to regexp =~ s/blablafound// to allow one
-	# line. Better even to use XML::Parser but this module
-	# is meant to be as indenpendant as possible from extraneous
-	# perl layers. We skip entireley the header ...
-	#
-	while( defined($line = <FI>) ){
-	    chomp($line);
 
-	    if ($line =~ /(\<SCATALOG)(.*\>)/i){
-		# does not parse SITE for now but should be done
-		$rest = $2;
+	    my($site,$lintent);
+	    my($ref,$server) ;
+	    my($bref);
 
-	    } elsif ($line =~ /(\<SERVER)(.*\>)/i ){
-		# SERVER was found, the syntax may be OK
-		$scope = $2;
-		$scope =~ m/(.*\")(.*)(\".*)/;
-		$scope = $2;
-
-		# the intent flag is not yet set
-		&print_debug("XML :: Comparing scopes found=[$scope] intent=[$intent]");
-		if ($scope =~ m/$intent/){
-		    &print_debug("XML :: scope matches intent (mask ON)");
-		    $ok = 1;
-		} else {
-		    &print_debug("XML :: scope does NOT match intent (masking out everything)");
-		    $ok = 0;
-		}
-	    } elsif ( $line =~ /(\<\/SERVER)(.*\>)/i){   
-		$ok = 0;
-	    } elsif ( $line =~ /(\<\/SCATALOG)(.*\>)/i){ 
-		$ok = 0;
+	    # intent can be BNL::Admin
+	    if ($intent =~ /::/){
+		($site,$lintent) = split("::",$intent);
 	    } else {
-		# i.e. if syntax is correct and intent is allright
+		$site    = (defined($DSITE)?$DSITE:"");
+		$lintent = $intent;
+	    }
 
-		# Parsing of the block of interrest
-		# Host specific information. Note that we do not
-		# assemble things as a tree so, one value possible
-		# so far ... and the latest/
-		if ($line =~ /\<HOST/i && $ok){
-		    &print_debug("XML :: $line");
-		    if ( $line=~ m/(NAME=)(.*)(DBNAME=)(.* )(.*)/){
-			$EL{HOST} = $2;
-			$EL{DB}   = $4;
-			$EL{PORT} = $5;
-			if ($EL{PORT} =~ m/(PORT=)(.*)/){
-			    $EL{PORT} = $2;
-			}
-		    }
-		}
-		if ( $line =~ m/\<ACCESS/ && $ok){
-		    if ( $line =~ m/(USER=)(.*)(PASS=)(.*)/ ){
-			$EL{USER} = $2;
-			$EL{PASS} = $4;
+	    #
+	    # schema change in terms of object inheritance is not that
+	    # hard but currently prevent us from looping over multiple
+	    # the upper level.
+	    # 
+	    my (@servers);
+	    if ( ! defined($XMLREF->{VERSION}) ){ 
+		&print_message("_ReadConfig","Old schema design found in $config (may fail). Please update ..");
+	    }
+
+	    &print_debug("XML :: Parsing schema version $XMLREF->{VERSION}");
+	    if ( $XMLREF->{VERSION} eq "1.0.0" || ! defined($XMLREF->{SITE}) ){
+		# Schema may have one level less i.e. SITE
+		&print_debug("XML :: Dereferencing full schema");
+		@servers = @{$XMLREF->{SERVER}};
+	    } else {
+		# Starting at 1.0.1 actually, SITE is is optional but
+		# all defined and stabalized.
+		$bref = $XMLREF->{SITE};
+		foreach my $key (keys %{$XMLREF->{SITE}} ){
+		    if ($key eq $site || $site eq ""){
+			&print_debug("XML :: Parsing for SITE=$key (agree with intent=$intent)");
+			@servers = @{$XMLREF->{SITE}->{$key}->{SERVER}};
+			last;
 		    }
 		}
 	    }
 
 
+	    # Several servers will appear in an array of hashes
+	    if ($#servers != -1){
+		foreach my $key2 ( @servers ){
+		    if ( $key2->{SCOPE} eq $lintent ){
+			&print_debug("XML :: Found entry for intent=$lintent (as requested)");
+			my (@hosts) = @{$key2->{HOST}};
 
-	}
-	close(FI);
-	foreach $ok (keys %EL){
-	    $EL{$ok} =~ s/[\"\/\>]//g;
-	    $EL{$ok} =~ s/^(.*?)\s*$/$1/;
-	    &print_debug("XML :: Got $ok [$EL{$ok}]\n");
-	    if ($EL{$ok} eq ""){ $EL{$ok} = undef;}
+			if ($#hosts != -1){
+			    # We support one host for now and will take
+			    # the last index
+			    #print "\t\tHost   = ".$hosts[$#hosts]->{NAME}."\n";
+			    #print "\t\tDbname = ".$hosts[$#hosts]->{DBNAME}."\n";
+			    #print "\t\tPort   = ".$hosts[$#hosts]->{PORT}."\n";
+			    $EL{HOST} = $hosts[$#hosts]->{NAME};
+			    $EL{DB}   = $hosts[$#hosts]->{DBNAME};
+			    $EL{PORT} = $hosts[$#hosts]->{PORT};
+
+			    
+			    # And one authentication per host
+			    my (@auths) = @{$hosts[$#hosts]->{ACCESS}};
+			    if ($#auths != -1){
+				#print "\t\t\tUser     " . $auths[$#auths]->{USER}. "\n";
+				#print "\t\t\tPassword " . $auths[$#auths]->{PASS}."\n";
+				$EL{PASS} = $auths[$#auths]->{PASS};
+				$EL{USER} = $auths[$#auths]->{USER};
+			    }
+			}
+			last;
+		    } 
+		}
+	    } else {
+		&print_message("_ReadConfig","XML $config seems invalid ... No SERVER entity found");
+	    }
+
+
+	} else {
+	    #
+	    # This home made parser may collapse at any point in time
+	    # and will not be supported / extended.
+	    # You MUST install XML::Simple 
+	    #
+	    if ( ! defined($flag) ){
+		&print_debug("ReadConfig","Searching for $intent in $config");
+	    }
+	    open(FI,$config);
+
+	    #
+	    # This is low-key XML parsing. Already a better parsing
+	    # would be to regexp =~ s/blablafound// to allow one
+	    # line. Better even to use XML::Parser but this module
+	    # is meant to be as indenpendant as possible from extraneous
+	    # perl layers. We skip entireley the header ...
+	    #
+	    while( defined($line = <FI>) ){
+		chomp($line);
+
+		if ($line =~ /(\<SCATALOG)(.*\>)/i){
+		    # does not parse SITE for now but should be done
+		    $rest = $2;
+
+		} elsif ($line =~ /(\<SERVER)(.*\>)/i ){
+		    # SERVER was found, the syntax may be OK
+		    $scope = $2;
+		    $scope =~ m/(.*\")(.*)(\".*)/;
+		    $scope = $2;
+
+		    # the intent flag is not yet set
+		    &print_debug("XML :: Comparing scopes found=[$scope] intent=[$intent]");
+		    if ($scope =~ m/$intent/){
+			&print_debug("XML :: scope matches intent (mask ON)");
+			$ok = 1;
+		    } else {
+			&print_debug("XML :: scope does NOT match intent (masking out everything)");
+			$ok = 0;
+		    }
+		} elsif ( $line =~ /(\<\/SERVER)(.*\>)/i){   
+		    $ok = 0;
+		} elsif ( $line =~ /(\<\/SCATALOG)(.*\>)/i){ 
+		    $ok = 0;
+		} else {
+		    # i.e. if syntax is correct and intent is allright
+
+		    # Parsing of the block of interrest
+		    # Host specific information. Note that we do not
+		    # assemble things as a tree so, one value possible
+		    # so far ... and the latest/
+		    if ($line =~ /\<HOST/i && $ok){
+			&print_debug("XML :: $line");
+			if ( $line=~ m/(NAME=)(.*)(DBNAME=)(.* )(.*)/){
+			    $EL{HOST} = $2;
+			    $EL{DB}   = $4;
+			    $EL{PORT} = $5;
+			    if ($EL{PORT} =~ m/(PORT=)(.*)/){
+				$EL{PORT} = $2;
+			    }
+			}
+		    }
+		    if ( $line =~ m/\<ACCESS/ && $ok){
+			if ( $line =~ m/(USER=)(.*)(PASS=)(.*)/ ){
+			    $EL{USER} = $2;
+			    $EL{PASS} = $4;
+			}
+		    }
+		}
+
+
+
+	    }
+	    close(FI);
+	    foreach $ok (keys %EL){
+		$EL{$ok} =~ s/[\"\/\>]//g;
+		$EL{$ok} =~ s/^(.*?)\s*$/$1/;
+		&print_debug("XML :: Got $ok [$EL{$ok}]\n");
+		if ($EL{$ok} eq ""){ $EL{$ok} = undef;}
+	    }
 	}
     }
     &print_debug("XML :: Host=$EL{HOST} Db=$EL{DB} Port=$EL{PORT}");
@@ -705,26 +810,30 @@ sub _ReadConfig
 
 sub get_connection
 {
-    my($self)= shift;
+    if ($_[0] =~ m/FileCatalog/) {   shift(@_);}
+
     my($intent)=@_;
+
     my($host,$db,$port,$user,$passwd);
 
-    ($host,$db,$port,$user,$passwd,$DSITE) = &_ReadConfig($intent,1);
+    ($host,$db,$port,$user,$passwd) = &_ReadConfig($intent,1);
 
     return ($user,$passwd,$port,$host,$db);
 }
 
 sub connect_as
 {
-    my($self)= shift;
+    if ($_[0] =~ m/FileCatalog/) {   shift(@_);}
+
     my($intent,$user,$passwd,$port,$host,$db)= @_;
-    my($Lhost,$Ldb,$Lport,$Luser,$Lpasswd);
+    my($Lhost,$Ldb,$Lport,$Luser,$Lpasswd,$Lsite);
 
     if ( ! defined($user)   ||
 	 ! defined($passwd) ||
 	 ! defined($port)   ||
 	 ! defined($host)   ||
-	 ! defined($db) ){
+	 ! defined($db)     
+	 ){
 	# Try again to read the missing stuff from XML if any
 	($Lhost,$Ldb,$Lport,$Luser,$Lpasswd) = &_ReadConfig($intent);
 	if ( ! defined($user) ){    $user   = $Luser;}
@@ -740,7 +849,8 @@ sub connect_as
 
 sub connect 
 {
-    my $self  = shift;
+    if ($_[0] =~ m/FileCatalog/) {   shift(@_);}
+
     my ($user,$passwd,$port,$host,$db) = @_;
     my ($sth,$count);
     my ($tries);
@@ -769,7 +879,10 @@ sub connect
 			  RaiseError => 0, AutoCommit => 1 }
 			);
     if (! $DBH ){
-	&die_message("connect","Incorrect password") if ($DBI::err == 1045);
+	if ($DBI::err == 1045){ 
+	    &die_message("connect","Incorrect password ".($passwd eq ""?"(NULL)":""));
+	}
+
 	if ( $tries < $NCTRY ){
 	    &print_message("connect","Connection failed $DBI::errstr . Retry in $NCSLP secondes");
 	    sleep($NCSLP);
@@ -821,10 +934,7 @@ sub connect
 # value - the value assigned to the keyword
 sub disentangle_param 
 {
-
-    if ($_[0] =~ m/FileCatalog/) {
-	shift @_;
-    };
+    if ($_[0] =~ m/FileCatalog/) {   shift(@_);}
 
     my ($params) = @_;
     my $keyword;
@@ -865,10 +975,10 @@ sub _context {
   # Private routine now passing an extraneous argument
   my $mode = shift(@_);
 
-  # ... but stil need to shift.
-  if ($_[0] =~ m/FileCatalog/) {
-      shift(@_);
-  };
+  # ... but still need to shift (because it serves as a pass-through
+  # interface for 2 routines.
+  if ($_[0] =~ m/FileCatalog/) {   shift(@_);}
+
 
 
   my $params;
