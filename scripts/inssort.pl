@@ -64,8 +64,11 @@ print $FO "<H2>Details</H2>\n<OL>\n";
 foreach $line (sort keys %CODE){
     @items = split(" ",$line);
     $CODE{$line} = IUl2pre($CODE{$line});
-    $ref = IUGetRef($items[0]);
-    print $FO "<LI><A NAME=\"$ref\"><B>$line</B></A><PRE>$CODE{$line}</PRE>\n";
+    $ref    = IUGetRef($items[0]);
+    $docref = IUErrorURL($items[1],1);
+    print $FO 
+	"<LI><A NAME=\"$ref\"><B>$line</B></A>",$docref,
+	"<PRE>$CODE{$line}</PRE>\n";
 }
 print $FO "</OL>\n".IUtrail();
 
