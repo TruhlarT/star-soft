@@ -160,6 +160,10 @@ my  @hpssInFiles;
 
  }
 
+### pack Run number and Prod Series for query
+
+my $runSet = $runNum . "%" . $prodSr;
+
 #################################################################################################
 &cgiSetup();
 
@@ -177,7 +181,7 @@ my  @hpssInFiles;
          $numFiles{$runNum} = $nOnlFile;
 print <<END;
 <TR ALIGN=CENTER HEIGHT=60>
-<td HEIGHT=60><h4>$runNum</h4></td>
+<td HEIGHT=60><a href=\"http://duvall.star.bnl.gov/cgi-bin/didenko/dbFileDAQRetrv.pl?runD=$runSet\"><h4>$runNum</h4></td>
 <td HEIGHT=60><h4>$dtSet{$runNum}</h4></td>
 <td HEIGHT=60><h4>$numFiles{$runNum}</h4></td>
 <td HEIGHT=60><h4>$daqHpSize{$runNum}</h4></td>
