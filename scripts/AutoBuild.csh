@@ -57,7 +57,7 @@ if ( -r  $GROUP_DIR/star_login.csh ) then
 		# Solaris one pass only
 		set LPATH=/afs/rhic/star/packages/adev
 		set SPATH=/afs/rhic/star/doc/www/comp/prod/Sanity
-		$SCRIPTD/AutoBuild.pl -f -k -i -1 -t -p $LPATH 
+		$SCRIPTD/AutoBuild.pl -k -i -1 -t -p $LPATH 
 		if( -e $HOME/AutoBuild-solaris.html) then
 		    mv -f $HOME/AutoBuild-solaris.html $SPATH/AutoBuild-solaris.html
 		endif
@@ -69,7 +69,7 @@ if ( -r  $GROUP_DIR/star_login.csh ) then
 	    case "Gcc":
 		set LPATH=/star/u/jeromel/work/STAR/GCC
 		set SPATH=/afs/rhic/star/doc/www/comp/prod/Sanity
-		$SCRIPTD/AutoBuild.pl -f -k -p $LPATH -v dev -1 -c >$HOME/log/AB-$DAY.log
+		$SCRIPTD/AutoBuild.pl -k -p $LPATH -v dev -1 -c >$HOME/log/AB-$DAY.log
 		if( -e $HOME/AutoBuild.html) then
 		    mv -f $HOME/AutoBuild.html $SPATH/AutoBuild-gcc.html
 		endif
