@@ -1,6 +1,6 @@
 #!/usr/bin/env perl
 
-# $Id: AutoBuild.pl,v 1.17 2004/03/02 23:54:13 jeromel Exp $
+# $Id: AutoBuild.pl,v 1.18 2004/03/17 21:55:24 jeromel Exp $
 # This script was written to perform an automatic compilation
 # with cvs co and write some html page related to it afterward.
 # Written J.Lauret Apr 6 2001
@@ -41,15 +41,16 @@ $DFILE = "RELEASE.date";
 # There are some assumptions made :
 # 0 - csh is used to execute the commands.
 # 1 - the SKIP_DIRS rule will be respected
-# 2 - $CHVER command will be issued before compilation
+# 2 - $CHENV command will be executed before library version change
+# 3 - $CHVER command will be issued before compilation
 #
 # BTW : the echo command is a tupid thing. The keys
 # are returned in reverse order (??) somehow and I 
 # want them to be in this SAME exact order.
 #
 %COMPILC=(
-	  "echo 1 ; unsetenv NODEBUG   ; %%CHVER%% ; cons ", 1,
-	  "echo 2 ; setenv NODEBUG yes ; %%CHVER%% ; cons ", 1);
+	  "echo 1 && %%CHENV%% && unsetenv NODEBUG   && %%CHVER%% && cons ", 1,
+	  "echo 2 && %%CHENV%% && setenv NODEBUG yes && %%CHVER%% && cons ", 1);
 @SKIP=IUExcluded();
 $OPTCONS="";
 
@@ -77,19 +78,20 @@ $POST="";
 # Arguments taking. Also controled via command line options ;
 # Check the help for a better view of what you can do since
 # some of those variables are dependant on others.
-$FIRSTPASS=1==0;      # First pass compilation only
-$SILENT=1==0;         # Ask for confirmation or not
-$NIGNOR=1==1;         # Compile without update
-$CVSUPD=1==0;         # Use cvs update
-$CVSCOU=1==1;         # Use cvs check-out
-$DEBUG= 1==0;         # Debug mode (i.e. no post-tasks)
-$TRASH =1==0;         # trash code cvs finds conflicting
-$FILO  =STDOUT;       # Default Output file
-
+$FIRSTPASS=1==0;       # First pass compilation only
+$SILENT=1==0;          # Ask for confirmation or not
+$NIGNOR=1==1;          # Compile without update
+$CVSUPD=1==0;          # Use cvs update
+$CVSCOU=1==1;          # Use cvs check-out
+$DEBUG= 1==0;          # Debug mode (i.e. no post-tasks)
+$TRASH =1==0;          # trash code cvs finds conflicting
+$FILO  =STDOUT;        # Default Output file
 
 
 # All arguments will be kept for checksum purposes
-$ALLARGS = "$^O";
+$ALLARGS = "$^O";      # platform will be kept in for sure
+$CHENV   = "echo noop";# possible extraneous environment change command
+
 
 # Quick argument parsing (dirty)
 for ($i=0 ; $i <= $#ARGV ; $i++){
@@ -102,6 +104,11 @@ for ($i=0 ; $i <= $#ARGV ; $i++){
 	    push(@SKIP,$ARGV[++$i]);
 	} elsif($arg eq "-f"){
 	    undef(@SKIP);
+
+	} elsif($arg eq "-a"){
+	    $CHENV    = $ARGV[++$i];
+	    $ALLARGS .= " $CHENV";
+
 	} elsif($arg eq "-o"){
 	    $FILO= $ARGV[++$i];
 	    if(-e $FILO){ unlink($FILO);}
@@ -113,7 +120,12 @@ for ($i=0 ; $i <= $#ARGV ; $i++){
 	} elsif($arg eq "-t"){
 	    # tag output file with OS name
 	    $FLNM .= "-$^O" if($FLNM !~ $^O);  
-	    $POST = "-$^O";
+	    $POST .= "-$^O";
+	} elsif($arg eq "-T"){
+	    # tag output file with arbitrary tag
+	    $FLNM .= "-".$ARGV[++$i];
+	    $POST .= "-".$ARGV[$i];
+
 	} elsif($arg eq "-1"){
 	    # first compilation pass only
 	    $ALLARGS .= " $arg";
@@ -201,8 +213,9 @@ if( -e $FLNMRC){
 	print $FILO " - Reading configuration\n";	
 	while( defined($line = <FI>) ){
 	    @items=split("#",$line); # comment lines
-	    $line = $items[0];
+	    $line =  $items[0];
 	    if($line ne ""){
+		$line =~ s/^\s*(.*?)\s*$/$1/;
 		@items = split("=",$line);
 		chomp(@items);
 		if( uc($items[0]) eq "SKIP_DIRS"){
@@ -405,6 +418,8 @@ foreach $line (sort keys %COMPILC){
 
     $iline= $line;
     $line =~ s/%%CHVER%%/$CHVER/;
+    $line =~ s/%%CHENV%%/$CHENV/;
+    print $FILO " - Preparing command [$line]\n";
     print FO 
 	"#!/bin/csh\n",
 	"cd $COMPDIR\n",
@@ -415,6 +430,7 @@ foreach $line (sort keys %COMPILC){
 
     close(FO);
     chmod(0770,"$TMPNM$i");
+    #&DumpContent($FILO,"$TMPNM$i");
 
     push(@REPORT,"<P>");
     push(@REPORT,"%%REF%%<LI>$line<BR>");
@@ -457,6 +473,21 @@ push(@REPORT,"</UL>");
 
 
 # -=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
+
+sub DumpContent
+{
+    my($FO,$flnm)=@_;
+    my($line);
+
+    if ( open(FIDC,$flnm) ){
+	print $FO "# begin content of $flnm --------------------->\n";
+	while ( defined($line = <FIDC>) ){  print $FO $line;}
+	print $FO "# <-------------- end content of $flnm\n";
+    } else {
+	print $FO "DumpContent: Could not find $flnm";
+    }
+
+}
 
 
 #
@@ -762,21 +793,28 @@ sub lhelp
  -i           Do not checkout/update from cvs. 
  -c           Performs a cvs checkout automatically
  -u           Performs a cvs update automatically
+
  -t           Tag any resulting output summary file with OS name i.e. 
               $FLNM-$^O .
- -d           Debug. DO NOT perform post compilation tasks and perform
-              a HTML output in $ENV{HOME} instead of 
-              $TRGTDIR
+ -T Tag       Tag any resulting output summary file with arbitrary tag
+              $FLNM-\$Tag . '-t' and '-T Tag' may be combined (order 
+              will make precedence)
+
  -v Lib       Change default library version from $LIBRARY to 'Lib' where
               'Lib' stands for new, old, SL01i etc ...
  -p Path      Change the default $COMPDIR working directory
               to 'Path'. This option automatically disables post-compilation
               operations (-d option is ON).
+ -a Cmd       Executes 'Cmd' before star library version change (can be used
+              for executing a setup)
 
+
+ -d           Debug. DO NOT perform post compilation tasks and perform
+              a HTML output in $ENV{HOME} instead of 
+              $TRGTDIR
  -f           Flush the default list of directories to skip
  -x ABC       Exclude ABC from list in addition to default exclusion
               list $excl
-
  -1           First compilation pass only
  -k           Keep going as far as possible after errors (cons option)
  
