@@ -224,7 +224,7 @@ my $nfiles = 0;
 
       if($jb_fstat eq 1)  {
       if($dset =~ /FieldOff/) {
-       $mchain = "ry2001,in,tpc_daq,tpc,rich,Physics,FieldOff,Cdst,tags,Tree,evout,ExB";   
+       $mchain = "ry2001,in,tpc_daq,tpc,rich,l3onl,Physics,FieldOff,Cdst,tags,Tree,evout,ExB";   
      }
           &create_jobs($jfile, $jbset, $mchain, $mlibVer, $JOB_DIR); 
 
