@@ -35,11 +35,6 @@ endif
 # out if it is really necessary or not) but is actually a 
 # soft-link to .../star/
 setenv GROUP rhstar           
-if (! $?GROUP_DIR ) then
-    # by testing this, it allows users to have a private copy 
-    # for testing purposes by redefining GROUP_DIR
-    setenv GROUP_DIR   "/afs/rhic/star/group"
-endif
 
 
 # -------------------------------------
@@ -165,16 +160,14 @@ setenv LESSCHARSET latin1
 
 
 # CERN stuff
-if ( ! $?CERN ) then
-    if ( -e /cern ) then
-	setenv CERN "/cern"
-    else 
-	# What to do now ...
-	if( -e "/afs/rhic/asis/@sys/cern" ) then
-	    setenv CERN "/afs/rhic/asis/@sys/cern"
-	else
-	    echo "WARNING /cern nor /afs/rhic/asis/@sys/cern exist ..."
-	endif
+if ( -e /cern ) then
+    setenv CERN "/cern"
+else 
+    # What to do now ...
+    if( -e "${AFS_RHIC}/asis/@sys/cern" ) then
+	setenv CERN "${AFS_RHIC}/asis/@sys/cern"
+    else
+	echo "WARNING /cern nor ${AFS_RHIC}/asis/@sys/cern exist ..."
     endif
 endif
 if ($?CERN == 0) setenv CERN "/cern"
