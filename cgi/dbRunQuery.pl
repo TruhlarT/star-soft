@@ -44,7 +44,7 @@ if ($collSet eq "AuAu130") {
  $dPath = "/2000/";
 }else {
 $colSet = $collSet;
-$dPath = "/2001/";
+$dPath = "/daq/";
 }
 
 my @joinSet = ( $colSet. "%" .$datSet . "%" . $detrSet . "%" .$fldSet . "%" . $frSet . "%" . $lctSet. "%" .$prodSr. "%". $dPath );

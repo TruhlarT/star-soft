@@ -47,7 +47,7 @@ struct FilAttr => {
 }; 
  
 my $colls;
-my $dPath = "/2000/";
+my $dPath;
 if ($prodSer =~ /^P01/) {
   $dPath = "/2001/";
 }
@@ -57,12 +57,9 @@ if ($prodSer eq "P01he" or $prodSer eq "P01hi" ) {
 if($colSet eq "AuAu130") {
   $colls = "AuAu1";
   $dPath = "/2000/";
-}elsif($colSet eq "AuAu200") {
-  $colls = "AuAu200";
-  $dPath = "/2001/";
 }else{
   $colls = $colSet;
-  $dPath = "/2001/";
+  $dPath = "/daq/";
 }
 
 #####  Find sets in DataSet table

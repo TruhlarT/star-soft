@@ -26,7 +26,7 @@ my @prodPer;
 my $myprod;
 my $nprodPer = 0;
 my @colSet = ("AuAu130", "AuAu200","AuAu19","ProtonProton200","ProtonProton48","laser");
-my @detSet = ("all","tpc","svt","rich","tof","ftpc","emc","fpd","pmd","tpc.rich","tpc.rich.svt","tpc.ftpc","tpc.ftpc.rich","tpc.tof.ftpc","tpc.tof.ftpc.rich","tpc.svt.ftpc.rich","tpc.svt.tof.rich","ftpc.rich.svt.tof.tpc","ftpc.rich.svt.tpc", "ftpc.rich.tof.tpc","rich.svt.tpc","rich.svt.tof.tpc","emc.ftpc","emc.rich","emc.tpc","emc.ftpc.rich.svt.tof","emc.rich.tof.tpc");
+my @detSet = ("all","tpc","svt","rich","tof","ftpc","emc","fpd","pmd");
 my @trigSet;
 my $ntrigSet = 0;
 my @mfield = ("all","HalfField","FullField","ReversedFullField","ReversedHalfField","FieldOff");
@@ -100,7 +100,7 @@ END
   print " <title>Production Query</title>";
   print "  </head>\n";
   print "  <body bgcolor=\"#ffdc9f\"> \n";
-  print "<a href=\"http://www.star.bnl.gov/STAR/comp/prod\"><h5>Production </h5></a>\n";
+  print "<a href=\"http://www.star.bnl.gov/STARAFS/comp/prod\"><h5>Production </h5></a>\n";
   print "  <h1 align=center>Production Query </h1>\n";
   print " </head>\n";
   print " <body>";
@@ -166,7 +166,7 @@ print "<h3 align=left>Production series:</h3>";
 print "<h3 align=left>";
 print $query->popup_menu(-name=>'SetPrd',  
                    -values=>\@prodPer,
-                   -default=>'P01hg',                   
+                   -default=>'P01gl',                   
                    -size=>4                              
                    );  
 
