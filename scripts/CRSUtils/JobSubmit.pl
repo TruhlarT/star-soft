@@ -109,17 +109,21 @@ if ($ThisYear == 2002){
     @SPILL   = (0,3,1);      
     
     # Default chain
-    $DCHAIN{"AuAu"}           = "P2004";
-    $DCHAIN{"dAu"}            = "dAu2003,alltrigger,est,CMuDst";
-    $DCHAIN{"ProtonProton"}   = "pp2003,alltrigger,trgd,est,CMuDst";
-    
+    $DCHAIN{"AuAu"}           = "P2004,CMuDst,OShortR";
+    if ($ThisYear == 2003){
+	$DCHAIN{"dAu"}            = "dAu2003,alltrigger,est,CMuDst";
+	$DCHAIN{"ProtonProton"}   = "pp2003,alltrigger,trgd,est,CMuDst";
+    }
+
     # Default pre-calib
     #$DCALIB{"dAu"}            = "PreTpcT0";
 
     # Default stand-alone auto-calib (works only on $LASERTP files)
     $SCALIB{"AuAu"}           = "OptLaser";
-    $SCALIB{"dAu"}            = "OptLaser";
-    $SCALIB{"ProtonProton"}   = "OptLaser";
+    if ($ThisYear == 2003){
+	$SCALIB{"dAu"}            = "OptLaser";
+	$SCALIB{"ProtonProton"}   = "OptLaser";
+    }
 
 } else {
     print "Unknown Year $ThisYear\n";
@@ -526,7 +530,12 @@ sub Submit
     # This was added according to an Email I have sent to
     # the period coordinator list. Only Jeff Landgraff 
     # has answered saying we can skip the 'test' once.
-    if ( $trgrs eq "pedestal" || $trgrs eq "pulser" ||
+    if ( $file =~ /pedestal/){
+	print "Info :: Skipping $file (name matching exclusion)\n";
+	push(@SKIPPED,$file);
+	return 0;
+
+    } elsif ( $trgrs eq "pedestal" || $trgrs eq "pulser" ||
 	 $trgsn eq "pedestal" || $trgsn eq "pulser" ){
 	print "Info :: Skipping $file has setup=$trgsn 'triggers'=$items[11]=$trgrs\n";
 	push(@SKIPPED,$file);
@@ -575,6 +584,10 @@ sub Submit
 	return 0;
     }
 
+    # THIS IS HACK FOR 2004 data until Jeff fixes the names
+    $prefix = "";
+    #$prefix = "COPY_";
+
     # Now generate the file and submit
     if( open(FO,">$jfile") ){
 	if($calib ne ""){
@@ -584,7 +597,7 @@ mergefactor=1
     inputnumstreams=2
     inputstreamtype[0]=HPSS
     inputdir[0]=$items[0]
-    inputfile[0]=$items[1]
+    inputfile[0]=$prefix$items[1]
     inputstreamtype[1]=UNIX
     inputdir[1]=$TARGET/StarDb
     inputfile[1]=$calib
@@ -596,7 +609,7 @@ mergefactor=1
     inputnumstreams=1
     inputstreamtype[0]=HPSS
     inputdir[0]=$items[0]
-    inputfile[0]=$items[1]
+    inputfile[0]=$prefix$items[1]
 __EOH__
 	}
 	
@@ -607,23 +620,23 @@ __EOH__
 #output stream
     outputstreamtype[0]=UNIX
     outputdir[0]=$SCRATCH
-    outputfile[0]=$mfile.event.root
+    outputfile[0]=$prefix$mfile.event.root
 
     outputstreamtype[1]=UNIX
     outputdir[1]=$SCRATCH
-    outputfile[1]=$mfile.MuDst.root
+    outputfile[1]=$prefix$mfile.MuDst.root
 
     outputstreamtype[2]=UNIX
     outputdir[2]=$SCRATCH
-    outputfile[2]=$mfile.hist.root
+    outputfile[2]=$prefix$mfile.hist.root
 
     outputstreamtype[3]=UNIX
     outputdir[3]=$SCRATCH
-    outputfile[3]=$mfile.$tags.root
+    outputfile[3]=$prefix$mfile.$tags.root
 
     outputstreamtype[4]=UNIX
     outputdir[4]=$SCRATCH
-    outputfile[4]=$mfile.runco.root
+    outputfile[4]=$prefix$mfile.runco.root
 
 #    outputstreamtype[4]=UNIX
 #    outputdir[4]=$SCRATCH
