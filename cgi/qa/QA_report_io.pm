@@ -422,19 +422,19 @@ sub setup_report_comparison {
   print "<h2> Comparison of similar runs to $production_dirname ($report_key) </h2> \n"; 
   print "<hr> \n";
   #---------------------------------------------------------
-#  print $query->startform(-action=>"$script_name/lower_display", -TARGET=>"display"); 
+  print $query->startform(-action=>"$script_name/lower_display", -TARGET=>"display"); 
   #---------------------------------------------------------
 
 #  $button_value = $report_key.".do_report_comparison";
 #  print "<strong> Select comparison runs from following list, then </strong>",
 #  $query->submit("$button_value", 'do run comparison.'),".<br> \n";
 
-  $button_string = $query->startform(-action=>"$script_name/lower_display", -TARGET=>"display"); 
-  $button_ref = Button_object->new('DoRunComparison', 'do run comparison');
-  $button_string .= $button_ref->SubmitString;
+
+  $button_ref = Button_object->new('DoRunComparison', 'do run comparison', $report_key);
+  $button_string = $button_ref->SubmitString;
 
   $hidden_string = &QA_utilities::hidden_field_string;
-  $button_string .= $hidden_string.$query->endform;
+  $button_string .= $hidden_string;
 
   print "<strong> Select comparison runs from following list, then </strong>",
   "$button_string.<br> \n";
