@@ -100,7 +100,7 @@ sub submit_batchjob {
   my $batch_log_html_temp = $io->Name();
   undef $io;
 
-  $io = new IO_object("BatchLogHTML", $id_string);
+  $io = new IO_object("BatchLogHTML", $report_key);
   my $batch_log_html = $io->Name();
   undef $io;
 

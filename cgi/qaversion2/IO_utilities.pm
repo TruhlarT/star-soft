@@ -137,7 +137,7 @@ sub CleanUpScratch{
 # BEN(4jun2000):
 #
 # ComposeBatchScript($action, $data_class, $batchscript_filename, 
-#                    $job_filename, 
+#                    $job_filename, $batch_log_html_temp,
 #                    $batch_log_html, $done_dir,
 #                    $report_dir [, $report_key])
 # 
@@ -150,13 +150,14 @@ sub ComposeBatchScript{
 
     my $action = shift;
     my $data_class = shift;
-  my $batchscript_filename = shift;
+    my $batchscript_filename = shift;
   my $job_filename = shift;
+  my $batch_log_html_temp = shift;
   my $batch_log_html = shift;
   my $done_dir = shift;
   my $report_dir = shift;
   my $report_key = shift;
-  
+ 
   #----------------------------------------------------------------
   my $now = getcwd();
   my $program = "$now/QA_main.pm"; #BEN(3jun00): no more QA_main_batch

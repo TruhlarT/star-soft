@@ -367,7 +367,7 @@ sub ServerLogFile{
   return  "/usr/local/apache/var/log/error_log";
 }
 #===================================================================
-sub BatchLogHTML{
+sub BatchLogHTMLTemp{
   my $self = shift;
   my $id_string = shift;
 
@@ -481,8 +481,18 @@ sub LogReportStorable{
   my $report_dir = $io->Name;
 
   return "$report_dir/logfile_report.obj";
-}
+} 
+#===================================================================
+
+sub BatchLogHTML{
+  my $self = shift;
+  my $report_key = shift;
   
+  my $io = IO_object->new("ReportDir",$report_key);
+  my $report_dir = $io->Name;
+
+  return "$report_dir/batch_log.html";
+}
 #===================================================================
 sub DSVRunScript{
   my $self = shift;
