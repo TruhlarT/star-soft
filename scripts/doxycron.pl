@@ -50,9 +50,9 @@
 # superseding the default values that is :
 #  $TARGETD
 #  $INDEXD
-#  $URLPATH
 #  $PROJECT
 #  $SUBDIR
+#  $URLPATH (*)
 #
 # In principle, anyboddy can then run this script
 # and generate their own doc. This will be helpful
@@ -77,24 +77,23 @@ $SUBDIR  = " ";
 
 # Eventually replace by @ARGV
 $DOTAG = 1;
-do {
-    $tmp = shift(@ARGV) if ( @ARGV );
+
+for ($k=$i=0 ; $i <= $#ARGV ; $i++){
+    $tmp = $ARGV[$i];
+
     if( substr($tmp,0,1) eq "-"){
 	# Treat it as option
 	if($tmp eq "-i"){ $DOTAG = 0;}
     } else {
-	$TARGETD = $tmp if ($tmp);
-	$tmp     = "";
+	print "Getting arg $k $tmp\n";
+	$TARGETD = $tmp if ( $k==0 );
+	$INDEXD  = $tmp if ( $k==1 );
+	$PROJECT = $tmp if ( $k==2 );
+	$SUBDIR  = $tmp if ( $k==3 );
+	$k++;
     }
-} while ($tmp ne "");
-
-if ( @ARGV ){
-    $INDEXD  = shift(@ARGV);
-    if ( @ARGV ){  $PROJECT = shift(@ARGV); }
-    else        {  $PROJECT = "StRoot";}
-    if ( @ARGV ){  $SUBDIR  = shift(@ARGV); }
-    else        {  $SUBDIR  = " ";}
 }
+
 
 # -------------------------------------------------------------------------
 $TMPDIR  = "/tmp";                                   # temp dir on cron node
@@ -139,15 +138,15 @@ if( ! -e $DOXYGEN){
 # based on passed parameters.
 # -------------------------------------------------------------------
 
-@PROJECTS = split(",",$PROJECT); #print "Splitting $#PROJECTS from $PROJECT\n";
-@INDEXD   = split(",",$INDEXD);  #print "Splitting $#INDEXD from $INDEXD\n";
-@SUBDIR   = split(",",$SUBDIR);  #print "Splitting $#SUBDIR from $SUBDIR\n";
+@PROJECTS = split(",",$PROJECT); print "Splitting ".($#PROJECTS+1)." from $PROJECT\n";
+@INDEXD   = split(",",$INDEXD);  print "Splitting ".($#INDEXD+1)  ." from $INDEXD\n";
+@SUBDIR   = split(",",$SUBDIR);  print "Splitting ".($#SUBDIR+1)  ." from $SUBDIR\n";
 
 
 if ($#PROJECTS != $#INDEXD || $#PROJECTS != $#SUBDIR){ 
     print 
 	"Missmatch in number of projects, directories and subdir ",
-	"$#PROJECTS $#INDEXD $#SUBDIR\n";
+	($#PROJECTS+1)," ",($#INDEXD+1)," ",($#SUBDIR+1),"\n";
     exit;
 }
 
