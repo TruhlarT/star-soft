@@ -67,12 +67,16 @@
 #              Allows for many cron-tab entries and several
 #              jobs in //.
 #
+# Jan 2005     Added HPSS output mode
+#
 
 use lib "/afs/rhic.bnl.gov/star/packages/scripts";
 use RunDAQ;
 use CRSQueues;
 
 $ThisYear = 2005;
+$HPSS     = 1;                    # turn to 0 for UNIX staging
+
 
 # Self-sorted vars
 $SELF =  $0;
@@ -183,11 +187,12 @@ if ($ThisYear == 2002){
 
     @USEQ    = (4,4,3);
     @SPILL   = (0,3,2);
+    #@SIZES   = (,,);
 
-    # Default chain
-    $DCHAIN{"AuAu"}           = "P2004,svt_daq,svtD,EST,alltrigger,OShortR,-OSpaceZ,OSpaceZ2,Xi2,V02,Kink2,CMuDst";
-    $DCHAIN{"PPPP"}           = "P2004,ppOpt,svt_daq,svtD,EST,alltrigger,OShortR,-OSpaceZ,OSpaceZ2,Xi2,V02,Kink2,CMuDst";
-    $DCHAIN{"CuCu"}           = "P2004,svt_daq,svtD,EST,alltrigger,OShortR,-OSpaceZ,OSpaceZ2,Xi2,V02,Kink2,CMuDst";
+    # Default chain -- P2005 does not include Corr4 but Corr3
+    $DCHAIN{"AuAu"}           = "P2005,svt_daq,svtD,EST,alltrigger,Xi2,V02,Kink2,CMuDst";
+    $DCHAIN{"PPPP"}           = "P2005,ppOpt,svt_daq,svtD,EST,alltrigger,Xi2,V02,Kink2,CMuDst";
+    $DCHAIN{"CuCu"}           = "P2005,svt_daq,svtD,EST,alltrigger,Xi2,V02,Kink2,CMuDst";
 
     # Default stand-alone auto-calib (works ONLY on $LASERTP files)
     $SCALIB{"AuAu"}           = "OptLaser";
@@ -604,6 +609,8 @@ sub Submit
     my($Hfile,$jfile,$mfile,@items);
     my($field,$tags);
     my($trgsn,$trgrs);
+    my($stagedon);
+    my($destination);
 
     # We are assuming that the return value of $file is
     # the mode 2 of get_ffiles() and counting on the
@@ -719,9 +726,24 @@ sub Submit
     $prefix = "";
     #$prefix = "COPY_";
 
+    # PATH are different depending on HPSS storage or local
+    # Mode for UNIX is a Fast-local buffering.
+    if ($HPSS){
+	$SCRATCH     = "/home/starreco/reco/$LIB/$items[2]/$m";
+	$destination = "$TARGET";  $destination =~ s/\/reco//;
+	$stagedon    = "HPSS";
+    } else {
+	$SCRATCH     = ".";
+	$destination = "$TARGET/$LIB/$items[2]/$m";
+	$stagedon    = "UNIX";
+    }
+
     # Now generate the file and submit
     if( open(FO,">$jfile") ){
 	if($calib ne ""){
+
+	    # ------------------------------------------------------------------
+	    # THIS IS A CALIBRATION PRE-PASS -- IT REQUIRES AN EXTRANEOUS INPUT
 	    print FO <<__EOH__;
 mergefactor=1
 #input
@@ -733,7 +755,9 @@ mergefactor=1
     inputdir[1]=$TARGET/StarDb
     inputfile[1]=$calib
 __EOH__
+
         } else {
+	    # THIS IS A REGULAR RECONSTRUCTION PROCESSING 
 	    print FO <<__EOH__;
 mergefactor=1
 #input
@@ -741,35 +765,40 @@ mergefactor=1
     inputstreamtype[0]=HPSS
     inputdir[0]=$items[0]
     inputfile[0]=$prefix$items[1]
+
 __EOH__
 	}
+	    # ------------------------------------------------------------------
 
+	# SEVERAL OUTPUT "MAY" BE CREATED, NOTE THAT IN CALIBF MODE, $tags WILL
+	# BE CHANGED TO TAKE INTO ACCOUNT THE laser.root FILE.
 	print FO <<__EOF__;
+
 #output
     outputnumstreams=5
 
 #output stream
-    outputstreamtype[0]=UNIX
+    outputstreamtype[0]=$stagedon
     outputdir[0]=$SCRATCH
     outputfile[0]=$prefix$mfile.event.root
 
-    outputstreamtype[1]=UNIX
+    outputstreamtype[1]=$stagedon
     outputdir[1]=$SCRATCH
     outputfile[1]=$prefix$mfile.MuDst.root
 
-    outputstreamtype[2]=UNIX
+    outputstreamtype[2]=$stagedon
     outputdir[2]=$SCRATCH
     outputfile[2]=$prefix$mfile.hist.root
 
-    outputstreamtype[3]=UNIX
+    outputstreamtype[3]=$stagedon
     outputdir[3]=$SCRATCH
     outputfile[3]=$prefix$mfile.$tags.root
 
-    outputstreamtype[4]=UNIX
+    outputstreamtype[4]=$stagedon
     outputdir[4]=$SCRATCH
     outputfile[4]=$prefix$mfile.runco.root
 
-#    outputstreamtype[4]=UNIX
+#    outputstreamtype[4]=$stagedon
 #    outputdir[4]=$SCRATCH
 #    outputfile[4]=$mfile.dst.root
 
@@ -786,10 +815,12 @@ __EOH__
     executable=$SPATH/bfccb
 __EOF__
 
+
+
         # Chain default
 	print FO
 	    "    executableargs=25,",
-	    "$LIBV,$TARGET/$LIB/$items[2]/$m,",
+	    "$LIBV,$destination,",
 	    ($MAXEVT!=0?$MAXEVT:$NUMEVT),",$chain",
 	    "\n";
 	close(FO);
