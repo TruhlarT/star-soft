@@ -89,7 +89,7 @@ set notify
 set savehist=50
 set history=100
 
-switch ($SHELL)
+switch ($shell)
     case "/usr/local/bin/tcsh":
     case "/bin/tcsh":
 	set correct = cmd
