@@ -185,7 +185,7 @@ if( ($ProdTag) || ($Trigger) ){
 		$query=~s/Where//;
 	    }
 	    $query =~ s/ProdTag = \"$ProdTag\" AND Trigger = \"$Trigger\" AND//;
-	}elsif( $Status==-1 ){
+	} elsif( $Status==-1 ){
 	    $query=~s/AND  //;
 	}
 	if( $ProdTag eq "All" ){
@@ -194,7 +194,7 @@ if( ($ProdTag) || ($Trigger) ){
 	if( $Trigger eq "All" ){
 	    if( $Status==-1 ){
 		$query =~ s/AND Trigger = \"$Trigger\"//;
-	    }else{
+	    } else {
 		$query =~ s/Trigger = \"$Trigger\" AND//;
 	    }
 	}
@@ -223,6 +223,12 @@ if( ($ProdTag) || ($Trigger) ){
 	while( ($id, $prodtag, $trigger, $LFname, $mtime, $errstr, $status)= $sth2->fetchrow_array ){
 #	    $mTime = modtime($mtime);
 	    $mTime = localtime($mtime);
+
+	    # Convert error string to HTML
+	    $errstr =~ s/\&/&amp;/g;
+	    $errstr =~ s/</&lt;/g;
+	    $errstr =~ s/>/&gt;/g;
+
 	    print
 		"<TR align=center bgcolor=khaki><TD>$prodtag</TD>",
 		"<TD>$trigger</TD>",
@@ -256,7 +262,7 @@ if( ($ProdTag) || ($Trigger) ){
     } #if Method=Update
 
 } else {
-    #Default Method
+    # Default Method
     print "<!-- We are in the default block -->\n";
     #drop temp tables for ProdTag and Trigger if exist and create them
     $sth7 = $dbh1->prepare("DROP TABLE if exists ValidProdTag");
@@ -328,14 +334,14 @@ sub modtime {
     my ($sec,$min,$hr,$dy,$mo,$yr,$fullyear);
 
     ($sec,$min,$hr,$dy,$mo,$yr) = (localtime($mtime))[0,1,2,3,4,5];
-     $mo = sprintf("%2.2d", $mo+1);
-     $dy = sprintf("%2.2d", $dy);
-     if ( $yr > 97 ){
-          $fullyear = 1900 + $yr;
-     } else {
-          $fullyear = 2000 + $yr;
-     }
-     $mtime = sprintf("%4.4d-%2.2d-%2.2d %2.2d:%2.2d:00",
-                       $fullyear,$mo,$dy,$hr,$min);
-  }
+    $mo = sprintf("%2.2d", $mo+1);
+    $dy = sprintf("%2.2d", $dy);
+    if ( $yr > 97 ){
+	$fullyear = 1900 + $yr;
+    } else {
+	$fullyear = 2000 + $yr;
+    }
+    $mtime = sprintf("%4.4d-%2.2d-%2.2d %2.2d:%2.2d:00",
+		     $fullyear,$mo,$dy,$hr,$min);
+}
 #ffdc9f
