@@ -20,7 +20,8 @@ use CGI;
 my $expertMode = 0;
 
 #
-# the keys and headings used in the various selection columns
+# the keys and headings used in the various selection columns -
+# here is where to change the display order
 #
 
 my $selectionKeys = [
@@ -30,8 +31,8 @@ my $selectionKeys = [
 		     "queue",
 		     "fromHost",
 		     "execHost",
-		     "jobName",
-		     "submitTime"
+		     "submitTime",
+		     "jobName"
 		     ];
 my $selectionLabels = [
 		       "Job ID",
@@ -40,8 +41,8 @@ my $selectionLabels = [
 		       "Queue",
 		       "Submitted From",
 		       "Executed On",
-		       "Job Name",
-		       "Submit Time"
+		       "Submit Time",
+		       "Job Name"
 		       ];
 
 my $cgi = new CGI;
@@ -395,15 +396,15 @@ sub bJobs{
 
     # extract fields from each line
     foreach my $line (@$lines){  
-	my @fields = ($line =~ 
-	 /^(\S+)\s+(\S+)\s+(\S+)\s+(\S+)\s+(\S+)\s+(\S+)\s+(.*\S+)\s+(.{12})/);
 	my $job = {};
 
-	foreach my $key (@$selectionKeys){
-	    $job->{$key} = shift @fields; # keys have same order as fields
-	}
+	($job->{"jobID"},   $job->{"user"},     $job->{"status"}, 
+	 $job->{"queue"},   $job->{"fromHost"}, $job->{"execHost"}, 
+	 $job->{"jobName"}, $job->{"submitTime"}) = 
+	     ($line =~ 
+	      /^(\S+)\s+(\S+)\s+(\S+)\s+(\S+)\s+(\S+)\s+(\S+)\s+(.*\S+)\s+(.{12})/);
 
-	$jobs->{ $job->{jobID} } = $job;
+	$jobs->{ $job->{"jobID"} } = $job;
     }
     
     return $jobs;
