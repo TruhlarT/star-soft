@@ -25,7 +25,7 @@ my @dir_year = ("year_2001", "year_1h", "year_2003", "year_2004");
 my @node_dir = ("trs_redhat72", "trs_redhat72_opt");
 my @node_daq = ("daq_redhat72", "daq_redhat72_opt"); 
 my @hc_dir = ("hc_lowdensity", "hc_standard", "hc_highdensity", "peripheral","pp_minbias","ppl_minbias","dau_minbias");
-my @daq_dir = ("minbias", "central", "embedding", "ppMinBias", "dAuMinBias", "AuAuMinBias", "AuAu_prodHigh" );
+my @daq_dir = ("minbias", "central", "embedding", "ppMinBias", "dAuMinBias", "AuAuMinBias", "AuAu_prodHigh","AuAu_prodLow" );
 
 my @OUT_DIR;
 my @OUTD_DIR;
@@ -105,7 +105,7 @@ for ($i = 0; $i < scalar(@node_daq); $i++) {
    print "Output Dir for DEV :", $OUT_DIR[$ii], "\n";
         $ii++;
    } 
-   for ($ik = 5; $ik < 7; $ik++) { 
+   for ($ik = 5; $ik < 8; $ik++) { 
     $OUT_DIR[$ii] = $TOP_DIRD . $node_daq[$i] . "/" . $testDay . "/". $dir_year[3] . "/" . $daq_dir[$ik];
    print "Output Dir for DEV :", $OUT_DIR[$ii], "\n";
         $ii++;
@@ -142,7 +142,7 @@ for ($i = 0; $i < scalar(@node_daq); $i++) {
    print "Output Dir for DEV :", $OUT_DIR[$ii], "\n";
         $ii++;
    } 
-   for ($ik = 5; $ik < 7; $ik++) { 
+   for ($ik = 5; $ik < 8; $ik++) { 
     $OUT_DIR[$ii] = $TOP_DIRD . $node_daq[$i] . "/" . $beforeDay . "/". $dir_year[3] . "/" . $daq_dir[$ik];
    print "Output Dir for DEV :", $OUT_DIR[$ii], "\n";
         $ii++;
