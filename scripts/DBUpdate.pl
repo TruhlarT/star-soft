@@ -15,7 +15,7 @@ if ($#ARGV == -1){
  Purpose
    This script scans a disk given as the first argument
    checks all files and update the database with a file
-   location new netry if it finds the same entry as
+   location new entry if it finds the same entry as
    storage = HPSS.
 
    It uses the clone_location() method to update the 
@@ -114,7 +114,7 @@ $DOIT  = ($#ALL == -1);
 if ( ! defined($FTYPE) ){  $FTYPE = ".MuDst.root";}
 
 
-if( $DOIT ){
+if( $DOIT && -e "$SCAND/$SUB"){
     if ($FTYPE ne ""){
 	print "Searching for all files like '*$FTYPE' ...\n";
 	@ALL   = `find $SCAND/$SUB -type f -name '*$FTYPE'`;
@@ -126,7 +126,8 @@ if( $DOIT ){
     }
 }
 
-if ($#ALL == -1){ exit;}
+if ($#ALL == -1){ goto FINAL_EXIT;}
+
 
 
 $fC = FileCatalog->new();
@@ -276,25 +277,28 @@ foreach  $file (@ALL){
 
 $fC->destroy();
 
-if ($LOUT){
-    print $FO 
-	"$SELF :: Info : ",
-	"Unknown = $unkn\n",
-	"Old     = $old\n",
-	"New     = $new\n",
-	"Failed  = $failed\n";
-    # Check if we have opened a file
-    if ($FO ne STDERR){ 
-	close($FO);
+FINAL_EXIT:
+    if ($LOUT){
+	print "Have lines, closing summary\n";
+	print $FO 
+	    "$SELF :: Info : ",
+	    "Unknown = $unkn\n",
+	    "Old     = $old\n",
+	    "New     = $new\n",
+	    "Failed  = $failed\n";
+	# Check if we have opened a file
+	if ($FO ne STDERR){ 
+	    close($FO);
+	}
+    } else {
+	# if nothing was output, delete file
+	if ($FO ne STDERR){ 
+	    close($FO);
+	    unlink($FLNM);
+	}
     }
-} else {
-    # if nothing was output, delete file
-    if ($FO ne STDERR){ 
-	close($FO);
-	unlink($FLNM);
-    }
-}
 
+print "Done\n";
 
 
 
