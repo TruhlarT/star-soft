@@ -66,30 +66,52 @@ while( defined($line = <FI>) ){
 	} else {
 	    # the next line is the guilty routine in the stack
 	    if ($GUILTY[$rfcnt] eq ""){
-		if ($problem =~ /(at .*\()(.*)(:)(\d+)(\))/){
+		if ($problem =~ /(at .*: )(.*\()(.*)(\))/){
 		    # we know what it is
-		    $routine = $2;
-		    $line    = $4;
-		    if ( $routine =~ m/(.*)(StRoot\/.*)/){ $routine = $2;}
+		    $functor = $2;
+		    $routine = $3;
+		    if ($routine =~ m/(.*)(:)(\d+)/){
+			$routine = $1;
+			$line    = $3;
+		    } else {
+			$line    = "?";
+		    }
+		    chop($functor);
+		    $functor =~ s/^\s*(.*?)\s*$/$1/;
+
+		    if   (($tmp = IUFuncMatch($routine)) ne "" ){  $routine = $tmp;}
+		    else {                                         $routine = $functor;}
+
 		    $GUILTY[$rfcnt] = IUl2pre($routine);
 		    $REFS[$rfcnt]   = "<TT>$routine</TT>";
 		    $LINES[$rfcnt]  = "line $line";
 		} else {
 		    # save as is (don't know)
-		    $GUILTY[$rfcnt] = "(".IUl2pre($problem).")";
+		    $functor = $routine = "";
+		    $line    = 0;
+		    $GUILTY[$rfcnt] = "[".IUl2pre($problem)."]";
 		    $REFS[$rfcnt]   = "";
 		}
 
 		# for any line like this, we know what it is
-		if ($routine =~ m/(.*)(StRoot\/.*)/){ $routine = $2;}
 		if( $routine ne ""){
+		    $routine = IUCanonicalName($routine);
 		    if( defined($FUNC{$routine}) ){
 			$FUNC{$routine} .= "$rfcnt ";
 		    } else {
 			$FUNC{$routine} = "$rfcnt ";
 		    }
 		}
+	    } else {
+		# Build an extended list of guilty ones
+		if ( $problem =~ m/(by .*: )(.*)(\()(.*:\d+)(\))/) {
+		    $routine = IUCanonicalName($4);
+		    if( IUFuncMatch($DUMP[$rfcnt]) eq ""){
+			$FUNC{$routine} .= "$rfcnt ";
+		    } 
+		}
 	    }
+	    
 	    $DUMP[$rfcnt] .= "$problem\n";
 	}
     }
@@ -177,7 +199,7 @@ for ($i=0 ; $i <= $#REFS ; $i++){
     $rfcnt = $i;
     print $FO 
 	"<LI><A NAME=\"Ref$rfcnt\"></A>",
-	"<FONT COLOR=\"#EE0000\"><I>".IUl2pre($REASON[$rfcnt])."</I></FONT>\n",
+	"<I>".IUl2pre($REASON[$rfcnt])."</I>\n",
 	($REFS[$rfcnt] eq "" ? "":"in ".$REFS[$rfcnt]."<BR>"),
 	#$REFS[$rfcnt]." $LINES[$rfcnt]<BR>",
 	#"<TT>$GUILTY[$rfcnt]</TT><BR>",
