@@ -1,13 +1,16 @@
 #! /usr/local/bin/tcsh -f
-set packages = "objy|OBJY|Objy root|ROOT parasoft|PARASOFT insure|ISURE sniff g4 cc4|CC4 cc5|CC5 Dsv kcc|KCC debug|DEBUG nodebug|NODEBUG" 
+set packages = "objy|OBJY|Objy root|ROOT parasoft|PARASOFT insure|ISURE sniff g4 cc4|CC4 cc5|CC5 Dsv kcc|KCC debug|DEBUG nodebug|NODEBUG"
+
 if ($#argv == 0 || $#argv > 2) then
     echo "Usage: setup package [version]"
     echo "List of packages: $packages"
     exit 0
 endif
+
 set pkg = $1; shift;
 set version = 0;
 if ( $#argv > 0 ) set version = $1
+
 switch ($pkg)
     case "root":
     case "ROOT":
@@ -17,7 +20,7 @@ switch ($pkg)
 		setenv MANPATH         `/afs/rhic/star/group/dropit -p ${MANPATH} ROOT`
 		setenv PATH            `/afs/rhic/star/group/dropit -p ${PATH} ROOT`
 		setenv LD_LIBRARY_PATH `/afs/rhic/star/group/dropit -p ${LD_LIBRARY_PATH} ROOT`
-	    endif 
+	    endif
 	    if ($version != 0) setenv ROOT_LEVEL $version
 	    source $GROUP_DIR/rootenv.csh
 	endif
@@ -31,22 +34,22 @@ switch ($pkg)
     case "insure":
     case "INSURE":
     case "parasoft":
-    case "PARASOFT":	
+    case "PARASOFT":
          #=====#
 	if (-f $GROUP_DIR/parasoftenv.csh) source $GROUP_DIR/parasoftenv.csh
 	breaksw
     case "sniff":
-    case "SNIFF":	
+    case "SNIFF":
          #=====#
 	if (-f $GROUP_DIR/sniffenv.csh) source $GROUP_DIR/sniffenv.csh
 	breaksw
     case "g4":
-    case "G4":	
+    case "G4":
          #=====#
 	if (-f $GROUP_DIR/g4env.csh) source $GROUP_DIR/G4env.csh
 	breaksw
     case "cc4":
-    case "CC4":	
+    case "CC4":
          #=====#
 	if ($?USE_CC5 != 0) unsetenv USE_CC5
         if ( -x /afs/rhic/star/group/dropit) then
@@ -58,7 +61,7 @@ switch ($pkg)
 	setenv USE_CC4; starver $STAR_LEVEL
 	breaksw
     case "cc5":
-    case "CC5":	
+    case "CC5":
          #=====#
 	if ($?USE_CC4 != 0) unsetenv USE_CC4
         if ( -x /afs/rhic/star/group/dropit) then
@@ -84,7 +87,7 @@ switch ($pkg)
       breaksw
     case "debug":
     case "DEBUG":
-      unsetenv NODEBUG yes; 
+      unsetenv NODEBUG yes;
       setenv PATH `dropit BIN`
       setenv LD_LIBRARY_PATH `dropit -p $LD_LIBRARY_PATH LIB`
       starver $STAR_LEVEL
