@@ -105,10 +105,10 @@ if ($ThisYear == 2002){
     $PHYSTP  = 5;
 
     @USEQ    = (4,4,3);
-    @SPILL   = (3,0,1);      
+    @SPILL   = (0,3,1);      
     
     # Default chain
-    $DCHAIN{"dAu"}            = "dAu2003,alltrigger,CMuDst";
+    $DCHAIN{"dAu"}            = "dAu2003,alltrigger,est,CMuDst";
     
     # Default pre-calib
     #$DCALIB{"dAu"}            = "PreTpcT0";
@@ -476,7 +476,7 @@ sub Submit
     $field = $items[6];
     $coll  = $items[8];
 
-    $coll  = "dAu" if ($coll = "DeuteronAu");
+    $coll  = "dAu" if ($coll eq "DeuteronAu");
 
     # Trigger setup string
     $trgsn = rdaq_bits2string("TrgMask",$items[10]);
