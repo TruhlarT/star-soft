@@ -378,10 +378,28 @@ sub QASummaryString{
   my $report_dir = $self->IOReportDirectory->Name;
   my $dh         = $self->IOReportDirectory->Open;
 
-  while ( defined( my $file = readdir($dh) ) ){
+  # ben(10jul00):  logic needs to change here, in case there are more than
+  # one .do_qa file hanging about from bad jobs.
 
+  # first find all flag files, keeping track of the latest
+  my @flag_files = ();
+  my $latest_flag = -1;   # which index in flag_files is latest
+  while ( defined( my $file = readdir($dh) ) ){
     $file =~ /^\.+$/ and next;
     $file !~ /batch_(\d+)\.(\w+)/ and next;
+
+    if ($#flag_files < 0 ||                         # first flag found
+	-M $file > -M $flag_files[$latest_flag]){   # newest flag found
+	push @flag_files, $file;
+	$latest_flag = $#flag_files;
+    }
+  }
+  
+  # now process the latest one found
+  if ($latest_flag >= 0){
+
+    my $file = $flag_files[$latest_flag];
+    $file =~ /batch_(\d+)\.(\w+)/;
 
     my $id = $1;
     my $action = $2;
@@ -420,8 +438,6 @@ sub QASummaryString{
       unlink($full_file) or print "Cannot delete file $full_file <br> \n";
     }
     
-    last;
-
   }
   closedir($dh);
 

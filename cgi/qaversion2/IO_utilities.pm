@@ -169,6 +169,7 @@ sub ComposeBatchScript{
   my $string = "#! /usr/local/bin/tcsh -f\n".
     "setenv GROUP_DIR /afs/rhic/rhstar/group \n".
       "setenv CERN_ROOT /cern/pro \n".
+       "setenv CERN /cern \n".
 	"setenv HOME /star/u2e/starqa \n".
 	    "setenv SILENT 1 \n".
 		"source /afs/rhic/rhstar/group/.stardev \n";

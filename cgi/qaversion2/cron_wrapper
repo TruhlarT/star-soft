@@ -7,6 +7,7 @@
 
 setenv GROUP_DIR /afs/rhic/rhstar/group 
 setenv CERN_ROOT /cern/pro
+setenv CERN      /cern
 setenv HOME      /star/users/starlib
 setenv SILENT    1
 
