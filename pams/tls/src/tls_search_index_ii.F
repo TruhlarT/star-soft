@@ -1,5 +1,8 @@
-* $Id: tls_search_index_ii.F,v 1.1 1999/12/21 01:22:03 perev Exp $
+* $Id: tls_search_index_ii.F,v 1.2 2003/10/28 20:58:36 perev Exp $
 * $Log: tls_search_index_ii.F,v $
+* Revision 1.2  2003/10/28 20:58:36  perev
+*  Linux ==> __linux__
+*
 * Revision 1.1  1999/12/21 01:22:03  perev
 *  Add _ii functions, remove QSortTable.c & tls_sort.c
 *
@@ -75,7 +78,7 @@ C
    10 CONTINUE
       IF (JHigh.GT.JLow+1) THEN
           JM = (JHigh+JLow)/2
-#ifdef Linux
+#ifdef __linux__
           IF ((key.GT.el1(1+len*(index(JM)-1))) .EQV. Ascend) THEN
 #else
           IF ((key.GT.el1(1+len*(index(JM)-1))) .EQ. Ascend) THEN
