@@ -77,18 +77,21 @@ July 7, 2000<br>
 
 <h4><li><a name=what_is_qa> What is QA in STAR?</a></h4>
 
-The goal of the QA activities in STAR is the validation of data for
-physics analysis. While QA testing can never be exhaustive, data that
-pass the QA testing stage should (eventually) be considered highly
-reliable for downstream physics analysis. In addition, QA testing
-should be performed very soon after production of the data, so that
-errors and problems can be caught and fixed quickly.
+The goal of the QA activities in STAR is the validation of data and
+software, up to DST production. While QA testing can never be
+exhaustive, the intention is that data that pass the QA testing stage
+should be considered highly reliable for downstream physics
+analysis. In addition, QA testing should be performed soon after
+production of the data, so that errors and problems can be caught and
+fixed in a timely manner.
 
-In practice, QA processes are run that are independent of the data
-taking and DST production. These processes should contain the
-accumulated knowledge of the collaboration of modes of failure of data
-taking and DST production, with the results probing the data in
-various ways:
+<p>
+QA processes are run independently of the data taking and DST
+production. These processes contain the accumulated knowledge of the
+collaboration of modes of failure of data taking and DST production,
+along with those physics distributions that are most sensitive to the
+health of the data and DST production software. The results probe the
+data in various ways:
 
 <ul>
 
@@ -101,35 +104,14 @@ problems with computing hardware and software infrastructure.
 quantities are examined, both as histograms and as scalar quantities
 extracted from the histograms and other distributions. These
 distributions are compared to those of previous runs that are known to
-be valid and their stability is monitored. If changes are observed,
-these must be understood in terms of changing running conditions or
-controlled changes in the software.
+be valid, and the stability of the results is monitored. If changes
+are observed, these must be understood in terms of changing running
+conditions or controlled changes in the software, otherwise an error
+flag should be raised. (Deviations are not always bad, of course, and
+can signal new physics: QA must be used with care in areas where there
+is a danger of biasing the physics results of STAR.)
 
 </ul>
-
-The focus of the QA activities until summer 2000 has been on Offline
-DST production for the DEV branch of the library. With the inception
-of data taking, the scope of QA has broadened considerably, to
-encompass large scale Offline DST production of both real and MC data
-under the PRO branch of the library, together with Online monitoring
-of both raw data and DST data produced on the Online processor farm.
-
-
------------
-
-
-
- This
-requires examination of various aspects of both the software
-infrastructure and physics algorithms used in DST production. QA is
-not the same as physics analysis, but it should give confidence that
-the DSTs that are being produced are valid for physics analysis. The QA
-process should represent the collective knowledge of the content of the
-DSTs, define what constitutes a deviation from known or expected
-distributions of important quanities on the DST, and raise flags if
-deviations are found. Deviations are not always bad, of course, and
-can signal new physics: QA must be used with care in areas where there
-is a danger of biasing the physics results of STAR.
 
 <p>
 STAR will produce hundreds of terabytes of data each year. Meaningful
@@ -137,13 +119,22 @@ testing of the DSTs produced from these data is a daunting task,
 entailing an enormous amount of tedious repetition. This process must
 be automated to a very high degree, for reasons both of reliability
 and finite capacity of even the most dedicated grad student to do
-boring but important things. The web pages you are looking at are the
-first attempt at an automated framework for QA and testing.
+boring but important things. The web pages you are looking at are part
+of an automated framework for QA and testing.
 
 <p>
-There are three general areas that need to be addressed by QA:
+The focus of the QA activities until summer 2000 has been on Offline
+DST production for the DEV branch of the library. With the inception
+of data taking, the scope of QA has broadened considerably, to
+encompass large scale Offline DST production of both real and MC data
+under the PRO branch of the library, together with Online monitoring
+of both raw data and DST data produced on the Online processor
+farm. There are in fact two different servers running QA processes:
 
-<ol>
+<ul>
+
+<li><a href="http://www.star.bnl.gov:8080/v2/QA_main.pm">Offline QA</a>. 
+<li><a href="http://onllinux1.star.bnl.gov/AutoQA/QA_main.pm">Online QA</a>. 
 
 <li> Validation of nightly and weekly prototype production runs of a
 limited number of events, and approval of library version migration
@@ -158,7 +149,7 @@ quickly.
 production to test and validate their code privately in the same
 environment that is used for 1. and 2.
  
-</ol>
+</ul>
 
 Currently, only the first point (nightly and weekly prototype testing)
 is addressed by the Automated Offline Software QA framework. The
