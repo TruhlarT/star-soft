@@ -581,6 +581,7 @@ sub move_old_reports{
     
     # move if older than 30 days
     
+    next if $report =~ /^\./;
     next unless is_old_report($report); # bum - 10/03/00 
 
     $name = "$topdir_report/$report";
