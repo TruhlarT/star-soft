@@ -329,7 +329,11 @@ sub rdaq_get_files
     if( ! defined($limit) ) { $limit  = 0;}
     if( ! defined($mode)  ) { $mode   = 0;}
 
-    $cmd = "SELECT * FROM $dbtable WHERE Status=$status ORDER BY file DESC";
+    if($status == -1){
+	$cmd = "SELECT * FROM $dbtable ORDER BY file DESC";
+    } else {
+	$cmd = "SELECT * FROM $dbtable WHERE Status=$status ORDER BY file DESC";
+    }
     if($limit > 0){
 	$cmd .= " LIMIT $limit";
     }
