@@ -45,12 +45,12 @@
 #        -> clone_location()
 #                          actually create an instance for FileData and a copy of FileLocations
 #                          the latest to be modified with set_context() keywords.
-#                          
+#
 #
 #        -> run_query()   : get entries from dbtable FileCatalog according to query string
 #           defined by set_context you also give a list of fields to select form
 #
-#        -> delete_records() : deletes the current file locations based on context. If it finds that 
+#        -> delete_records() : deletes the current file locations based on context. If it finds that
 #           the current file data has no file locations left, it deletes it too
 #        -> update_record() : modifies the data in the database. The field corresponding
 #           to the given keyword changes it value from the one in the current context to the
@@ -69,7 +69,7 @@
 #           checks made on delayed commands.
 #        -> flush_delayed() flush out i.e. execute all delayed commands.
 #        -> print_delayed() print out on screen all delayed commands.
-#        
+#
 #
 
 
@@ -110,7 +110,7 @@ my %keywrds;
 #     This field cannot be a null string.
 # only the keywords in this table are accepted in set_context sub
 
-# Those are for private use only but require a keyword for access. 
+# Those are for private use only but require a keyword for access.
 # DO NOT DOCUMENT THEM !!!
 $keywrds{"flid"          }    =   "fileLocationID"            .",FileLocations"          .",0" .",num"  .",0" .",0" .",0";
 $keywrds{"fdid"          }    =   "fileDataID"                .",FileData"               .",0" .",num"  .",0" .",0" .",0";
@@ -148,9 +148,10 @@ $keywrds{"magscale"      }    =   "magFieldScale"             .",RunParams"     
 $keywrds{"magvalue"      }    =   "magFieldValue"             .",RunParams"              .",0" .",num"  .",0" .",1" .",1";
 $keywrds{"filename"      }    =   "filename"                  .",FileData"               .",1" .",text" .",0" .",1" .",1";
 $keywrds{"fileseq"       }    =   "fileSeq"                   .",FileData"               .",1" .",num"  .",0" .",1" .",1";
+$keywrds{"stream"        }    =   "fileStream"                .",FileData"               .",1" .",num"  .",0" .",1" .",1";
 $keywrds{"filecomment"   }    =   "fileDataComments"          .",FileData"               .",0" .",text" .",0" .",1" .",1";
 $keywrds{"fdsize"        }    =   "size"                      .",FileData"               .",1" .",num"  .",0" .",1" .",0";
-$keywrds{"size"          }    =   "fsize"                     .",FileLocations"          .",1" .",num"  .",0" .",1" .",0";
+$keywrds{"size"          }    =   "fsize"                     .",FileLocations"          .",1" .",num"  .",0" .",1" .",1";
 $keywrds{"owner"         }    =   "owner"                     .",FileLocations"          .",0" .",text" .",0" .",1" .",1";
 $keywrds{"protection"    }    =   "protection"                .",FileLocations"          .",0" .",text" .",0" .",1" .",1";
 $keywrds{"node"          }    =   "nodeName"                  .",FileLocations"          .",0" .",text" .",0" .",1" .",1";
@@ -295,14 +296,11 @@ sub get_table_name {
 
   if( ! defined($mykey) ){ return;}
 
-  if (exists $keywrds{$mykey})
-    {
+  if (exists $keywrds{$mykey}){
       ($a,$tabname,$b) = split(",",$keywrds{$mykey});
-    }
-  else
-    {
-      print "Using non-existent key: $mykey !!!!!!!\n";
-    }
+  } else {
+      &die_message("get_table_name","Internal error ; Using non-existent key $mykey");
+  }
   return $tabname;
 
 }
@@ -316,8 +314,9 @@ sub get_keyword_list {
     my(@items,@kwds);
 
     foreach $val (keys %keywrds){
-	@items = split(",",$keywrds{$val}); 
+	@items = split(",",$keywrds{$val});
 	if ($items[6] == 1){ push(@kwds,$val);}
+	else { &print_debug("Rejecting $items[0]"); }
     }
   return @kwds;
 }
@@ -422,7 +421,7 @@ sub connect {
   #    } else {
   #	$sth->execute();
   #	$sth->bind_columns( \$count );
-  #	
+  #
   #	if ( $sth->fetch() ) {
   #	  $rowcounts{$_} = $count;
   #	}
@@ -482,7 +481,7 @@ sub set_context {
   if ($_[0] =~ m/FileCatalog/) {
     shift @_;
   };
-  
+
   my $params;
   my $keyw;
   my $oper;
@@ -579,7 +578,7 @@ sub get_id_from_dictionary {
 
       $sth->execute();
       $sth->bind_columns( \$val );
-      
+
       if ( $sth->fetch() ) {
 	$sth->finish();
 	$id = $val;
@@ -887,7 +886,7 @@ sub get_collision_collection {
   if( ! $sth){
       &print_debug("FileCatalog::get_collision_collection : Failed to prepare [$sqlquery]");
   } else {
-      if( ! $sth->execute() ){ 
+      if( ! $sth->execute() ){
 	  &die_message("get_collision_collection","Could not execute [$sqlquery]");
       }
       $sth->bind_columns( \$id );
@@ -1121,6 +1120,7 @@ sub insert_file_data {
   #my $size;
   my $fileComment;
   my $fileSeq;
+  my $filestream;
   my @triggerWords;
   my @eventCounts;
   my @triggerIDs;
@@ -1148,7 +1148,7 @@ sub insert_file_data {
   return 0 if ((($production == 0 ) && ($library == 0)) || $fileType == 0);
 
   if ($production == 0) {       $production = $library;}
-  
+
 
   $runNumber = &get_current_run_param();
 
@@ -1175,6 +1175,11 @@ sub insert_file_data {
     $fileSeq = "NULL";
   } else {
     $fileSeq = "\"".$valuset{"fileseq"}."\"";
+  }
+  if (! defined $valuset{"stream"}) {
+    $filestream = 0;
+  } else {
+    $filestream = "\"".$valuset{"stream"}."\"";
   }
 
 
@@ -1211,8 +1216,8 @@ sub insert_file_data {
 
   # Prepare the SQL query and execute it
   my $fdinsert   = "INSERT IGNORE INTO FileData ";
-  $fdinsert  .= "(runParamID, fileName, productionConditionID, fileTypeID, fileDataComments, fileSeq)";
-  $fdinsert  .= " VALUES ($runNumber, \"".$valuset{"filename"}."\",$production,$fileType,$fileComment,$fileSeq)";
+  $fdinsert  .= "(runParamID, fileName, productionConditionID, fileTypeID, fileDataComments, fileSeq, fileStream)";
+  $fdinsert  .= " VALUES ($runNumber, \"".$valuset{"filename"}."\",$production,$fileType,$fileComment,$fileSeq,$filestream)";
   if ($DEBUG > 0) { &print_debug("Execute $fdinsert");}
 
 
@@ -1275,6 +1280,7 @@ sub get_current_file_data {
   my $library;
   my $fileType;
   my $fileSeq;
+  my $filestream;
   my $sqlquery;
 
   if( ! defined($DBH) ){
@@ -1300,6 +1306,9 @@ sub get_current_file_data {
   }
   if (defined $valuset{"fileseq"}) {
       $sqlquery .= " fileSeq = '".$valuset{"fileseq"}."' AND ";
+  }
+  if (defined $valuset{"stream"}) {
+      $sqlquery .= " fileStream = '".$valuset{"stream"}."' AND ";
   }
   if ( $production != 0) {
       $sqlquery .= " productionConditionID = $production AND ";
@@ -1524,7 +1533,7 @@ sub get_current_simulation_params {
 
 }
 
-# 
+#
 # Gets the entry associated to a context and reset
 # the context with the exact full value list required
 # for a new entry.
@@ -1587,7 +1596,7 @@ sub FileTableContent {
     &set_delimeter("::");                     # set to known one
     @all = &run_query("FileCatalog",@itab);
     &set_delimeter($delim);                   # restore delim
-    
+
 
     &print_debug("+","Run with ".join("/",@itab));
 
@@ -1601,7 +1610,7 @@ sub FileTableContent {
 	    &print_debug("-->","Return value for $itab[$i] is $all[$i]");
 	    if( $all[$i] ne ""){
 		push(@query,"$itab[$i] = $all[$i]");
-	    } 
+	    }
 	}
     }
     return @query;
@@ -1633,7 +1642,7 @@ sub insert_file_location {
       &print_message("insert_file_location","Not connected");
       return 0;
   }
-  
+
   $fileData = &get_current_file_data();
   if ($fileData == 0) {
       &print_message("insert_file_location","No file data available",
@@ -1690,7 +1699,7 @@ sub insert_file_location {
       } else {
 	  $nodeName = "'localhost'";  # Cannot be NULL because of check
       }
-      
+
   }
   if (! defined $valuset{"availability"}) {
       &print_debug("WARNING: availability not defined. Using a default value");
@@ -1742,15 +1751,15 @@ sub insert_file_location {
   #print "Executing $flinchk\n";
   $sth = $DBH->prepare( $flinchk );
   if ( ! $sth ){
-      &print_debug("FileCatalog::insert_file_location : Failed to prepare [$flinchk]"); 
+      &print_debug("FileCatalog::insert_file_location : Failed to prepare [$flinchk]");
   } else {
       if ( $sth->execute() ){
 	  my ($val);
 	  if ( defined($val = $sth->fetchrow()) ){
 	      &print_message("insert","Record already in as $val (may want to update)\n");
 	      $retid = $val;
-	  } 
-      } 
+	  }
+      }
   }
   $sth->finish();
 
@@ -1923,7 +1932,7 @@ sub connect_fields {
   }
   # Get to the fields on the same level in tree hierarchy
   while ($slevel < $flevel) {
-    my ($ttable, $tlevel, $connum) = get_lower_level($ftable);
+    my ($ttable, $tlevel, $connum) = &get_lower_level($ftable);
     push(@connections, $connum);
     $flevel = $tlevel;
     $ftable = $ttable;
@@ -2057,7 +2066,7 @@ sub run_query {
   if ($_[0] eq "id"){
       $flkey = 1;
       shift @_;
-  } 
+  }
 
   my (@keywords)  = (@_);
 
@@ -2105,7 +2114,7 @@ sub run_query {
   # THIS NEXT BLOCK DOES NO WORK AND WAS DISABLED
   # WOULD PREVENT SINGLE TABLE QUERY WITH DEPENDENCE CONDITION
   # Introduced at version 1.14 . Need to be revisited.
-  # Idea of this block was to eliminate parts of 
+  # Idea of this block was to eliminate parts of
   # where X.Id=Y.Id AND X.String=' '  and just use
   # where X.Id=value
   #
@@ -2123,11 +2132,11 @@ sub run_query {
       foreach (keys(%valuset)) {
 	  my $tabname = &get_table_name($_);
 	  # Check if the table name is one of the dictionary ones
-	  if (($tabname ne "FileData")            && 
-	      ($tabname ne "FileLocations")       && 
-	      ($tabname ne "RunParams")           && 
+	  if (($tabname ne "FileData")            &&
+	      ($tabname ne "FileLocations")       &&
+	      ($tabname ne "RunParams")           &&
 	      ($tabname ne "SimulationParams")    &&
-	      ($tabname ne "TriggerCompositions") && 
+	      ($tabname ne "TriggerCompositions") &&
 	      ($tabname ne "CollisionTypes")      &&
 	      ($tabname ne ""))
 	  {
@@ -2136,7 +2145,7 @@ sub run_query {
 	      my $addedconstr = "";
 
 	      $idname = &IDize($idname);
-	
+
 	      # Find which table this one is connecting to
 	      my $parent_tabname;
 	      foreach (@datastruct){
@@ -2155,27 +2164,41 @@ sub run_query {
 		  my ($nround) = $roundfields =~ m/$fieldname,([0-9]*)/;
 		  #&print_debug("1 Rounding to [$roundfields] [$fieldname] [$nround]");
 
-		  
+
 		  $sqlquery .= "ROUND($fieldname, $nround) ".$operset{$_}." ";
 		  if( $valuset{$_} =~ m/^\d+/){
 		      $sqlquery .= $valuset{$_};
 		  } else {
 		      $sqlquery .= "'$valuset{$_}'";
 		  }
-		  
+
 		  #&print_debug("1 Rounding Query will be [$sqlquery]");
-		  
+
 	      } elsif ($operset{$_} eq "~"){
-		  $sqlquery .= "$fieldname LIKE '%".$valuset{$_}."%'";
+		  $sqlquery .= &TreatLOps("$fieldname",
+					  "LIKE",
+					  $valuset{$_},
+					  3);
+		  #$sqlquery .= "$fieldname LIKE '%".$valuset{$_}."%'";
 
 	      } elsif ($operset{$_} eq "!~"){
-		  $sqlquery .= "$fieldname NOT LIKE '%".$valuset{$_}."%'";
+		  $sqlquery .= &TreatLOps("$fieldname",
+					  "NOT LIKE",
+					  $valuset{$_},
+					  3);
+		  #$sqlquery .= "$fieldname NOT LIKE '%".$valuset{$_}."%'";
+
 	      } else {
-		  if (get_field_type($_) eq "text"){
-		      $sqlquery .= "$fieldname ".$operset{$_}." '".$valuset{$_}."'"; 
-		  } else {
-		      $sqlquery .= "$fieldname ".$operset{$_}." ".$valuset{$_}; 
-		  }
+		  $sqlquery .= &TreatLOps($fieldname,
+					  $operset{$_},
+					  $valuset{$_},
+					  (&get_field_type($_) eq "text")?2:undef);
+
+		  #if (&get_field_type($_) eq "text"){
+		  #$sqlquery .= "$fieldname ".$operset{$_}." '".$valuset{$_}."'";
+		  #} else {
+		  #$sqlquery .= "$fieldname ".$operset{$_}." ".$valuset{$_};
+		  #}
 	      }
 	      if ($DEBUG > 0) {  &print_debug("\tExecuting special: $sqlquery");}
 	      $sth = $DBH->prepare($sqlquery);
@@ -2194,7 +2217,7 @@ sub run_query {
 		      $addedconstr = " ";
 		      while ( $sth->fetch() ) {
 			  if ($addedconstr ne " "){
-			      $addedconstr .= " OR $parent_tabname.$idname = $id "; 
+			      $addedconstr .= " OR $parent_tabname.$idname = $id ";
 			  } else {
 			      $addedconstr .= " $parent_tabname.$idname = $id ";
 			  }
@@ -2205,7 +2228,7 @@ sub run_query {
 			  $addedconstr = " ($addedconstr)";
 		      }
 
-		      
+
 		      # Add a newly constructed keyword
 		      push (@constraint, $addedconstr);
 
@@ -2224,7 +2247,7 @@ sub run_query {
 		      # Remove the condition - we already take care of it
 		      &print_debug("\tDeleting $_=$valuset{$_}");
 		      #delete $valuset{$_};
-		      $threaded{$_}=1;		    
+		      $threaded{$_}=1;
 
 		      # But remember to add the the parent table
 		      # push (@connections, (connect_fields($keywords[0], $_)));
@@ -2232,7 +2255,7 @@ sub run_query {
 		  }
 		  $sth->finish();
 	      }
-	
+
 	  } elsif ($tabname eq "CollisionTypes"){
 	      # A special case - the collision type
 	      my $fieldname   = &get_field_name($_);
@@ -2242,7 +2265,7 @@ sub run_query {
 	      chop($idname);
 	      $idname = lcfirst($idname);
 	      $idname.="ID";
-	
+
 	      # Find which table this one is connecting to
 	      my $parent_tabname;
 	      my @retcollisions;
@@ -2253,7 +2276,7 @@ sub run_query {
 		      ($stab,$parent_tabname,$fld) = split(",");
 		  }
 	      }
-	
+
 	      (@retcollisions) = &get_collision_collection($valuset{$_});
 	      &print_debug("Returned ".join(" ",(@retcollisions))." $#retcollisions\n");
 	      if (( $#retcollisions+1 < 5) && ($#retcollisions+1 > 0)) {
@@ -2270,7 +2293,7 @@ sub run_query {
 		  $addedconstr .= " ) ";
 		  # Add a newly constructed keyword
 		  push (@constraint, $addedconstr);
-		  # 
+		  #
 		  # Remove the condition - we already take care of it
 		  #delete $valuset{$_};
 		  $threaded{$_}=1;
@@ -2282,7 +2305,7 @@ sub run_query {
 	  }
       }
   }
-  
+
   #&print_debug("Pushing in FROM ".&get_table_name($keywords[0])." $#keywords ");
   push (@from, &get_table_name($keywords[0]));
 
@@ -2433,19 +2456,32 @@ sub run_query {
 	      push(@constraint,$roundv);
 
 	  }  elsif ($operset{$_} eq "~"){
-	      push( @constraint, "$tabname.$fieldname LIKE '%".$valuset{$_}."%'" );
+	      push( @constraint, &TreatLOps("$tabname.$fieldname",
+					    "LIKE",
+					    $valuset{$_},
+					    3));
+	      #push( @constraint, "$tabname.$fieldname LIKE '%".$valuset{$_}."%'" );
 
 	  }  elsif ($operset{$_} eq "!~"){
-	      push( @constraint, "$tabname.$fieldname NOT LIKE '%".$valuset{$_}."%'" );
+	      push( @constraint, &TreatLOps("$tabname.$fieldname",
+					    "NOT LIKE",
+					    $valuset{$_},
+					    3));	      
+	      #push( @constraint, "$tabname.$fieldname NOT LIKE '%".$valuset{$_}."%'" );
 
 	  } else {
-	      if (&get_field_type($_) eq "text")
-	      { push( @constraint, "$tabname.$fieldname ".$operset{$_}." '".$valuset{$_}."'" ); }
-	      else
-	      { push( @constraint, "$tabname.$fieldname ".$operset{$_}." ".$valuset{$_} ); }
+	      push(@constraint,&TreatLOps("$tabname.$fieldname",
+					  $operset{$_},
+					  $valuset{$_},
+					  (&get_field_type($_) eq "text")?2:undef));
+
+	      #if (&get_field_type($_) eq "text")
+	      #{ push( @constraint, "$tabname.$fieldname ".$operset{$_}." '".$valuset{$_}."'" ); }
+	      #else
+	      #{ push( @constraint, "$tabname.$fieldname ".$operset{$_}." ".$valuset{$_} ); }
 	  }
       }
-  } 
+  }
 
 
   if (defined $valuset{"simulation"}){
@@ -2478,7 +2514,7 @@ sub run_query {
   my $sqlquery;
   $sqlquery = "SELECT ";
   if (! defined $valuset{"nounique"}){
-      $sqlquery .= " DISTINCT "; 
+      $sqlquery .= " DISTINCT ";
   }
 
 
@@ -2489,7 +2525,7 @@ sub run_query {
 
 
 
-  # Ugly hack to test the natural join 
+  # Ugly hack to test the natural join
   # (but it's the only way to treat this special case)
   my $fdat = join(" ",(@fromunique)) =~ m/FileData/;
   &print_debug("Before the natural: ".join(" ",@fromunique));
@@ -2517,7 +2553,7 @@ sub run_query {
 
 
 
-  &print_debug("Selector ".join(" , ",@selectunique)." FROM ".join(" , ",(@fromunique)));      
+  &print_debug("Selector ".join(" , ",@selectunique)." FROM ".join(" , ",(@fromunique)));
 
 
 
@@ -2541,21 +2577,21 @@ sub run_query {
 
 
   #
-  # Sort out if a limiting number of records or range 
+  # Sort out if a limiting number of records or range
   # has been asked
   #
   my ($offset, $limit);
   if (defined $valuset{"startrecord"}){
       $offset = $valuset{"startrecord"};
-  } else { 
+  } else {
       $offset = 0;
   }
   if (defined $valuset{"limit"}){
       $limit = $valuset{"limit"};
-      if($limit <= 0){ 
+      if($limit <= 0){
 	  $limit = 1000000000;
       }
-  } else { 
+  } else {
       $limit = 100;
   }
 
@@ -2591,10 +2627,75 @@ sub run_query {
   }
 }
 
+#
+# Routine to treat Logical, Bitwise, string vs integer
+# values in one does it all.
+# Flag is used as follow
+#   1  get the $val 'as-is' i.e. do not check for string/number
+#   2  explicit string value 'as-is'
+#   3  explicit APPROXIMATE string matching 
+#
+# Note thate && makes no sens whatsoever. Left for 
+# documentary / test purposes.
+#
+sub TreatLOps
+{
+    my($fldnam,$op,$ival,$flag)=@_;
+    my(@Val,$val,$qq,$connect);
+    
+    $flag = 0 if ( ! defined($flag) );
+
+
+    if ( index($ival,"||") != -1 ){
+	@Val = split(/\|\|/,$ival);
+	$connect = "OR";
+    } elsif ( index($ival,"&&") != -1 ){
+	@Val = split("&&",$ival);
+	$connect = "AND";
+    } else {
+	push(@Val,$ival);
+	$connect = "";
+    }
+
+    #print "$ival -> $#Val\n";
+
+    # initialize
+    foreach $val (@Val){
+	#print "Start $val\n";
+	if($flag == 0){
+	    if ($val !~ m/^\d+/){ 
+		$val = "'$val'";
+	    }
+	} elsif ($flag == 2){
+	    $val = "'$val'";
+	} elsif ($flag == 3){
+	    $val = "'%$val%'";
+	} else {
+	    &die_message("TreatLOps","Internal error ; unknown flag $flag");
+	}
+	#print "Now   $val\n";
+	
+	if ( defined($qq) ){
+	    $qq .= " $connect $fldnam $op $val";
+	} else {
+	    $qq = "$fldnam $op $val";
+	}
+    }
+
+    # OR and AND should be re-grouped by ()
+    if ($#Val > 0){ 
+	$qq = "( $qq )";
+    }
+
+    $qq;
+}
+
+
+
 #============================================
 # deletes the record that matches the current
 # context. Actually calls run_query() so it is
-# easier to see what we select 
+# easier to see what we select
 #
 # First it deletes it from the file
 # locations. If this makes the current file
@@ -2708,7 +2809,7 @@ sub delete_records {
       $sth->finish();
   }
   &set_delimeter($delim);
-  
+
   return @all;
 }
 
@@ -2792,7 +2893,7 @@ sub bootstrap {
 	  if ( $DELAY ){
 	      push(@DCMD,$dcdelete);
 	  } else {
-	      &print_debug("Executing $dcdelete"); 
+	      &print_debug("Executing $dcdelete");
 
 	      my $stfdd = $DBH->prepare($dcdelete);
 	      if ($stfdd){
@@ -2824,11 +2925,11 @@ sub bootstrap_trgc {
   }
 
   my ($keyword, $delete) = (@_);
-  my $table = "TriggerCompsitions";
-  
+  my $table = "TriggerCompositions";
+
 
   my $dcquery;
-  $dcquery = "select TriggerCompositions.fileDataID FROM TriggerCompositions LEFT OUTER JOIN FileData ON TriggerCompositions.fileDataID = FileData.fileDataID WHERE FileData.fileDataID IS NULL";
+  $dcquery = "select $table.fileDataID FROM $table LEFT OUTER JOIN FileData ON $table.fileDataID = FileData.fileDataID WHERE FileData.fileDataID IS NULL";
 
 
   my $stq;
@@ -2887,11 +2988,11 @@ sub bootstrap_data {
   }
 
   my ($keyword, $delete) = (@_);
-  my $table = get_table_name($keyword);
+  my $table = &get_table_name($keyword);
   if (($table ne "FileData") && ($table ne "FileLocations"))
-    { 
+    {
       &print_message("bootstrap_data","Wrong table. To bootstrap tables other than FileData and FileLocations use 'bootstrap'");
-      return 0; 
+      return 0;
     }
 
   my $dcquery;
@@ -2926,7 +3027,7 @@ sub bootstrap_data {
 	  # We do a bootstapping with delete
 	  my $dcdelete;
 	  if ($table eq "FileData")
-	  {	  
+	  {
 	      $dcdelete = "DELETE LOW_PRIORITY FROM $table WHERE $table.fileDataID IN (".join(" , ",(@rows)).")";
 	  }
 	  elsif ($table eq "FileLocations")
@@ -3057,7 +3158,7 @@ sub update_record {
 
 
   if ($whereclause ne ""){
-      $qupdate .= " AND $whereclause"; 
+      $qupdate .= " AND $whereclause";
   }
 
   &print_debug("Executing update: $qupdate\n");
@@ -3157,7 +3258,7 @@ sub print_delayed
 # keyword - the keyword which data is to be updated
 # value   - new value that should be put into the database
 #           instead of the current one
-# doit    - do it or not, default is 1 
+# doit    - do it or not, default is 1
 #
 sub update_location {
   if ($_[0] =~ m/FileCatalog/) {
@@ -3185,12 +3286,12 @@ sub update_location {
   if( ! defined($doit) ){  $doit = 1;}
 
   $delim  = &get_delimeter();
-  
+
   # Get the list of the files to be updated
-  # Note that this is additional to what has been 
+  # Note that this is additional to what has been
   # required in a call to set_context() so we
   # can restrict to any field in addition of the id.
-  # 'id' is for internal use only and is NOT an 
+  # 'id' is for internal use only and is NOT an
   # external keyword.
   &set_delimeter("::");
   &set_context("all=1");
@@ -3246,7 +3347,7 @@ sub update_location {
       return 0;
   }
 
-  
+
   &print_debug("Ready to scan filelist now ".($#files+1)."\n");
 
   foreach my $line (@files) {
@@ -3263,10 +3364,10 @@ sub update_location {
 	  $qupdate = "UPDATE LOW_PRIORITY $mtable SET $ukeyword=$uid ";
 
 	  if ($whereclause ne ""){
-	      $qupdate .= " AND $whereclause"; 
+	      $qupdate .= " AND $whereclause";
 	  }
 
-	  # THOSE ONLY UPDATES VALUES 
+	  # THOSE ONLY UPDATES VALUES
       } elsif (&get_field_type($ukeyword) eq "text"){
 	  $qupdate = "UPDATE LOW_PRIORITY $mtable SET $ufield = '$newvalue' ";
 	  if( defined($valuset{$ukeyword}) ){
