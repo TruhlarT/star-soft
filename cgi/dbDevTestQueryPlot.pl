@@ -1,11 +1,11 @@
 #!/usr/local/bin/perl
 #!/usr/bin/env perl 
 #
-# $Id: dbDevTestQueryPlot.pl,v 1.26 2005/01/10 16:03:50 didenko Exp $
+# $Id: dbDevTestQueryPlot.pl,v 1.27 2005/01/10 17:50:53 didenko Exp $
 #
 # $Log: dbDevTestQueryPlot.pl,v $
-# Revision 1.26  2005/01/10 16:03:50  didenko
-# changed colour
+# Revision 1.27  2005/01/10 17:50:53  didenko
+# initial
 #
 # Revision 1.23  2005/01/10 15:28:47  didenko
 # updated for ITTF test
@@ -83,16 +83,26 @@ if ( ($set1 eq "") || ($plotVal eq "") ) {
     exit(0);
 }
 
+my @point0 = ();
+my @point1 = ();
+my @point2 = ();
+my @point3 = ();
+my @point4 = ();
+my @point5 = ();
+my @point6 = ();
+my @point7 = ();
+my @point8 = ();
+
 my @Nday;
 for($i=0;$i<7*$weeks;$i++) {
-    $point0[$i]=undef;
-    $point1[$i]=undef;
-    $point2[$i]=undef;
-    $point3[$i]=undef;
-    $point4[$i]=undef;
-    $point5[$i]=undef;
-    $point6[$i]=undef;
-    $point7[$i]=undef;
+    $point0[$i]=0;
+    $point1[$i]=0;
+    $point2[$i]=0;
+    $point3[$i]=0;
+    $point4[$i]=0;
+    $point5[$i]=0;
+    $point6[$i]=0;
+    $point7[$i]=0;
     $Nday[$i] = undef;
 }
 
