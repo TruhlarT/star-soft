@@ -1734,7 +1734,7 @@ sub disentangle_collision_type {
 
   my ($colstring) = @_;
   my ($firstParticle,$secondParticle,$el);
-  my (@particles) = ("proton", "gas", "au", "ga", "si", "p", "d", "s");
+  my (@particles) = ("proton", "gas", "au", "ga", "si", "p", "d", "s", "cu", "ca");
 
   $firstParticle = $secondParticle = "";
 
