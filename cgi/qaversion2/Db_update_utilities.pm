@@ -21,15 +21,20 @@ use strict;
 # 
 my %oldestDate = ( nightlyReal => '2001-07-05',
 		   nightlyMC   => '2001-07-10',
-		   offlineReal => '2001-07-05',
-		   offlineMC   => '2001-07-05'
+		   offlineReal => '2001-07-20',
+		   offlineMC   => '2001-07-20',
+		   offlineFast => undef
 );
 # max number of updated jobs
 my %updateLimit = ( nightlyReal => 10,
-		    nightlyMC   => 10,
+		    nightlyMC   => 1,
 		    offlineReal => 10,
 		    offlineMC   => 10,
+		    offlineFast => 5
 );
+# for real offline 
+my $oldestRun = 2202000;
+my $debug = 0;
 
 #-------------------
 # performs 2 tasks -
@@ -44,6 +49,7 @@ sub UpdateQAOffline{
   my $oldestDate;# dont retrieve anything older than this
   my $fileType;  # daq_reco or MC_reco
   my $today      = strftime("%Y-%m-%d %H:%M:%S",localtime());
+  my $oldestRunString;
 
   # real or simulation?
   if($dataType eq 'real')
@@ -51,6 +57,7 @@ sub UpdateQAOffline{
     $fileType  = 'daq_reco';
     $oldestDate= $oldestDate{'offlineReal'};
     $limit     = $updateLimit{'offlineReal'};
+    $oldestRunString="file.runID>=$oldestRun and";
   }
   elsif($dataType eq 'MC')
   {
@@ -85,7 +92,8 @@ sub UpdateQAOffline{
 			  file.type = '$fileType' and
 			  file.createTime < '$today' and
 			  file.hpss = 'N' and 
-			  file.createTime > '$oldestDate' and 
+			  file.createTime > '$oldestDate' and
+			  $oldestRunString
 			  qa.$QASum{jobID} is NULL
 			limit $limit};
 
@@ -178,6 +186,118 @@ sub UpdateQAOfflineMC{
 sub UpdateQAOfflineReal{
 
   return UpdateQAOffline('real');
+}
+
+#-------------------
+
+sub UpdateQAOfflineFast{
+  my $limit = $updateLimit{'offlineFast'};
+  my $doneStatus = 2; # according to daqinfo.
+
+  # report key
+  my $queryKey = qq{select concat($DAQInfo{file},'.',$DAQInfo{collision})
+		    from $dbFile.$DAQInfo{Table}
+		    where $DAQInfo{file}=? limit 1
+		  };
+
+  # update
+#  my $queryUpdate = qq{select daq.file
+#		       from $dbFile.$DAQInfo{Table} as daq
+#		       LEFT JOIN $dbQA.$QASum{Table} as qa
+#		       on daq.$DAQInfo{file}=qa.$QASum{jobID}
+#		       where 
+#			 daq.$DAQInfo{status} = $doneStatus and
+#			 qa.$QASum{jobID} is NULL
+#		       limit $limit
+#		     };
+
+  # insert
+  my $queryInsert = qq{insert into $dbQA.$QASum{Table}
+		       set
+			 $QASum{jobID}      = ?,
+			 $QASum{report_key} = ?,
+			 $QASum{type}       = 'n/a',
+			 $QASum{QAdone}     = 'N',
+			 $QASum{qaID}       = NULL
+		       };
+
+  my $queryExists = qq{select $QASum{qaID} 
+		       from $dbQA.$QASum{Table}
+		       where $QASum{jobID}=?
+		     };
+  my $queryQAdone = qq{select $QASum{QAdone}
+		       from $dbQA.$QASum{Table}
+		       where $QASum{jobID}=?
+		     };
+  my $queryResetQAdone = qq{update $dbQA.$QASum{Table}
+			    set $QASum{QAdone}='N'
+			    where $QASum{jobID}=?
+			  };
+
+
+  # here's the logic.
+  # first get all 'files' from DAQInfo with status=2.
+  # check if this file already exists in the qa table.
+  # if NO, then insert a new row.
+  # if YES, then 
+  #         check if QA has been done
+  #         if NO.  ignore it.
+  #         if YES. return this key as well (probably a reproduction)
+  
+  my @keyList;
+
+  my $sthKey    = $dbh->prepare($queryKey);
+  my $sthInsert = $dbh->prepare($queryInsert);
+  my $sthExists = $dbh->prepare($queryExists);
+  my $sthQAdone = $dbh->prepare($queryQAdone);
+  my $sthResetQAdone = $dbh->prepare($queryResetQAdone);
+
+  my @files = 
+    QA_db_utilities::GetRowsFromTable($DAQInfo{file},"$dbFile.$DAQInfo{Table}",
+				      "$DAQInfo{status}=2");
+
+  # Note: what DAQInfo calls 'file' autoQA calls 'jobID'
+  
+  my $count=0;
+  foreach my $jobID (@files){
+    print " : $jobID\n" if $debug;
+    $sthKey->execute($jobID);
+    my $report_key = $sthKey->fetchrow_array();
+    $sthExists->execute($jobID);
+    if(!$sthExists->fetchrow_array()){ # new file/jobID
+      print "$jobID does not exist in QAtable...";
+      $sthKey->execute($jobID);
+      my $report_key = $sthKey->fetchrow_array();
+      print "inserting...";
+      my $stat = $sthInsert->execute($jobID,$report_key) if !$debug;
+      if($stat) { print "...done"; }
+      else { print "...Cannot insert"; next; }
+      print "<br>\n";
+      push @keyList,$report_key;
+      last if ++$count>=$updateLimit{offlineFast};
+      next;
+    }
+    else{ # it already exists
+      $sthQAdone->execute($jobID);
+      if($sthQAdone->fetchrow_array() eq 'Y'){ 
+	# probably means there's been a reproduction
+	print "Already exists but qa is done.  Will reset qa done to No...";
+	my $stat = $sthResetQAdone->execute($jobID) if !$debug;
+	if(!$stat){
+	  print "Cannot reset QAdone to no<br>\n";
+	}
+	else{
+	  print "done<br>\n"; 	  
+	}
+	push @keyList,$report_key;
+	last if ++$count>=$updateLimit{offlineFast};
+      }
+      else{
+	print "Ignore. qa has not been done or is running\n" if $debug;
+      }
+    }
+  }
+  return @keyList;
 }
 
 #-------------------
@@ -276,7 +396,7 @@ sub UpdateQANightly {
 
   $sthUpdate->execute;
 
-  # somtimes jobIDs are duplicated in the database.
+  # somtimes report keys are duplicated in the database.
   # they can either be intentional (two jobs run on the same day)
   # or database errors (QA or production).
   # @addLabel are the postfixes to these duplications.
@@ -319,13 +439,11 @@ sub UpdateQANightly {
       $reportKey .= $label;
       print $reportKey,"\n";
     }
-        
-
     # save keys
     push @keyList, $reportKey;
 
     # insert into QASummary
-    $sthInsert->execute($jobID, $reportKey);
+    my $stat = $sthInsert->execute($jobID, $reportKey);
   }
   print h3("Found $count new jobs\n");
 
@@ -430,23 +548,23 @@ sub GetToDoReportKeys{
   if ($type eq 'real'){
     $query .= qq{and $QASum{type} = 'real'
 		}; 
-    $oldestDate = $oldestDate{'nightlyReal'};
+   # $oldestDate = $oldestDate{'nightlyReal'};
   }
   elsif ($type eq 'MC'){
     $query .= qq{and $QASum{type} = 'MC'
 	       };
-    $oldestDate = $oldestDate{'nightlyMC'};
+   # $oldestDate = $oldestDate{'nightlyMC'};
   }
 
   # adapt date format to sql timestamp, then cut on oldest allowed date
-  $oldestDate =~ /^\d\d(\d\d)-(\d\d)-(\d\d)/;
-  $oldestDate = "${1}${2}${3}2359"; #last minute of oldest day
-  $query .= qq{and insertTime > \'$oldestDate\'
-	       };
-  print("query=$query<br>\n");
+  #$oldestDate =~ /^\d\d(\d\d)-(\d\d)-(\d\d)/;
+  #$oldestDate = "${1}${2}${3}2359"; #last minute of oldest day
+  #$query .= qq{and insertTime > \'$oldestDate\'
+  #	       };
+  #print("query=$query<br>\n");
 
   # quick fix - make sure that the skip field is no for production.
-  if ($gDataClass_object->DataClass() =~ /offline/){
+  if ($gDataClass_object->DataClass() =~ /offline_(?!fast)/){
     $query .= qq{and $QASum{skip} = 'N'
 	       };
   }
@@ -465,7 +583,7 @@ sub GetToDoReportKeysReal{
   return GetToDoReportKeys('real');
 }
 
-
+1;
 
 
 
