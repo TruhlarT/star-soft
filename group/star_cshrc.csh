@@ -10,8 +10,12 @@
 setenv star_cshrc_csh 1
 if ( ! $?star_login_csh ) then
     # OK. Missing environment variables ... 
-    if( -r /afs/rhic/star/group/star_login.csh ) then
-	source /afs/rhic/star/group/star_login.csh
+    # This is actually the case in 'r' or 's'-service calls.
+    if( ! $?GROUP_DIR ) then
+	setenv GROUP_DIR /afs/rhic/star/group/
+    endif
+    if( -r $GROUP_DIR/star_login.csh ) then
+    	source $GROUP_DIR/star_login.csh
     endif
 endif
 
@@ -59,23 +63,30 @@ endif
 /usr/bin/tty -s
 if ( $status == 0 ) then
     if ( ! $?ENVIRONMENT ) then
-	setenv ENVIRONMENT INTERACTIVE
+	setenv ENVIRONMENT LOGIN
     else
         if ( $ENVIRONMENT != "DMLOGIN" ) then
-	    setenv ENVIRONMENT INTERACTIVE
+	    setenv ENVIRONMENT LOGIN
         endif
     endif
+else
+    if ( ! $?ENVIRONMENT ) then
+	setenv ENVIRONMENT BATCH
+    endif
+endif
+if( ! $?TERM || ! $?term) then
+    setenv TERM vt100
+    set term=$TERM
+endif
 
 
+if ( ${ENVIRONMENT} == "LOGIN" || ${ENVIRONMENT} == "DMLOGIN"   ) then
     # Terminal setting. Can be defined in both mode.
     # ls /afs/rhic/star/users/*/.Delete
     # ls /afs/rhic/star/users/*/.BackSpace
     # and same with /star/u did not find anything. I removed
     # support for this (noboddy was apparently aware of it).
-    if( ! $?TERM) then
-	setenv TERM vt100
-        set term=$TERM
-    endif
+
     # Delete mode was /bin/stty erase '^?' intr '^c' kill '^u'
     # BackSpace mode is ...
     stty erase '^h' intr '^c' kill '^u'
@@ -153,11 +164,6 @@ if ( $status == 0 ) then
 
     setprompt
     alias cd 'chdir \!* && setprompt'
-
-else
-    if ( ! $?ENVIRONMENT ) then
-	setenv ENVIRONMENT BATCH
-    endif
 endif 
 
 
