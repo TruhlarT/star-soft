@@ -40,12 +40,24 @@ sub run_root{
   "setenv CERN_ROOT /cern/pro\n",
   "setenv HOME /star/u2/jacobs\n";
 
-  if ($starlib_version eq "dev" ){
+#---
+
+# pmj 9/2/00: There is currently a problem setting any environment other than 
+# dev in the batch jobs. The batch job env variables are not under good control,
+# and it is not clear to me what is wrong. As an emergency measure, run all scripts 
+# under dev, but this needs immediate attention.
+
+#
+#  if ($starlib_version eq "dev" ){
+#    print SCRIPT "source /afs/rhic/rhstar/group/.stardev \n";
+#  }
+#  else{
+#    print SCRIPT "source /afs/rhic/rhstar/group/.starver ".$starlib_version."\n";
+#  }
+
     print SCRIPT "source /afs/rhic/rhstar/group/.stardev \n";
-  }
-  else{
-    print SCRIPT "source /afs/rhic/rhstar/group/.starver ".$starlib_version."\n";
-  }
+
+#----
 
   print SCRIPT "root4star -b<<END \n";
 
