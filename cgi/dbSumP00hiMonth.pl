@@ -272,7 +272,7 @@ my @diskDstFiles;
  if( $dhpath =~ /data0/ ) {
     $dirR = $dirP[6] . "/" . $dirP[7];
  }
-   elseif($dhpath =~ /disk00001/ ) {
+   elsif($dhpath =~ /disk00001/ ) {
     $dirR = $dirP[7] . "/" . $dirP[8];   
 }
     $periodRun = $RunHash{$dirR};
