@@ -104,7 +104,15 @@ sub SelectMutipleReports{
 
   no strict 'refs';
   my @matched_keys_ordered = &$function($report_key);
+
   use strict 'refs';
+
+  # BUM 000625
+  # it's possible that no key in the %QA_object_hash corresponds
+  # to a matched_key.  this creates the QA_object if it doesnt already
+  # exist in the %QA_object_hash.
+
+  QA_utilities::make_QA_objects(@matched_keys_ordered);
 
   #---------------------------------------------------------
   # display matching runs

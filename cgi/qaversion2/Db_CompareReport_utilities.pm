@@ -52,17 +52,11 @@ sub nightly_MC{
 
   my ($eventGen, $eventType, $geometry) = $dbh->selectrow_array($query_info);
 
-  $sth = $dbh->prepare($query_sim );
+  # return similar keys
+  return @{$dbh->selectcol_arrayref($query_sim, undef, 
+				    $eventGen, $eventType, $geometry)};
   
-  $sth->execute($eventGen, $eventType, $geometry);
-
-  while (my $report_key = $sth->fetchrow_array){
-    push @similar_keys, $report_key;
-  }
-
-  return @similar_keys;
 }
-
 #--------------------------------------------------------------
 # finds similar jobs for real data for nightly tests
 # returns a list of report keys
@@ -94,21 +88,16 @@ sub nightly_real{
 			file.eventType   = ? and
 			file.geometry    = ? and
 			qa.$QASum{report_key} != '$report_key'
+			order by file.createTime desc
 		        limit $limit};
 
   my ($sth, @similar_keys);
 
   my ($eventType, $geometry) = $dbh->selectrow_array($query_info);
 
-  $sth = $dbh->prepare($query_sim );
-  
-  $sth->execute($eventType, $geometry);
-
-  while (my $report_key = $sth->fetchrow_array){
-    push @similar_keys, $report_key;
-  }
-
-  return @similar_keys;
+  # return similar keys
+  return @{$dbh->selectcol_arrayref($query_sim, undef, 
+				    $eventType, $geometry)};
 }
 #------------------------------------------------------------------
 # find similar jobs for offline production
@@ -144,6 +133,7 @@ sub offline_real{
 			job.chainName    = ? and
 			file.dataset     = ? and 
 			qa.$QASum{report_key} != '$report_key'
+                        order by file.createTime desc
 		        limit $limit};
 
   my ($sth, @similar_keys);
