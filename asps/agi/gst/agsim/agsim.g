@@ -18353,11 +18353,12 @@ C
              if (nam=='SEJD'&i==IQ(L-1)&mod(IQ(L+i)-IQ(M+i),32)==0) Next
              if nam='SJDU' { if  Q(L+i)!= Q(M+i) { Ndif+=1; k=i } }
              else          { if IQ(L+i)!=IQ(M+i) { Ndif+=1; k=i } }
-         } }
+           }
+         } else { Ndif+=1; }
 
          if (k==0) Cst='same'
-         if (Idebug>1 | K>0) <w> Il(1),IL(2),Cset,Cdet,IQ(L-4),IQ(L-1),
-                                             Dset,Ddet,IQ(M-4),IQ(M-1),Cst
+         if (Idebug>1 | K!=0) <w> Il(1),IL(2),Cset,Cdet,IQ(L-4),IQ(L-1),
+                                              Dset,Ddet,IQ(M-4),IQ(M-1),Cst
             (' Sets at ',2i3,' : ',3a5,' L=',i4,' and ',3a5,' L=',i4,1x,a)
          if (k>0) <W> k,IQ(L+k),Q(L+k),IQ(M+k),Q(M+k), Q(L+k)-Q(M+k)
             (' content at',i4,1x,2(':',i12,'/',G12.3),1x,'D=',G12.2)
