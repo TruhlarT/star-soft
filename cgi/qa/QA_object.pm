@@ -426,6 +426,13 @@ sub ButtonString{
 				   $report_key);
   $button_string .= $button_ref->SubmitString;
   $button_string .= "<br>";
+
+  #---
+  if ( $query->param('enable_add_edit_comments') ) {
+    $button_ref = Button_object->new('AddComment', 'Add comment', $report_key);
+    $button_string .= $button_ref->SubmitString."<br>";
+  }
+  #----
   
   if ($global_expert_page){
 

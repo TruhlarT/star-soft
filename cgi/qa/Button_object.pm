@@ -377,3 +377,105 @@ sub DoRunComparison{
   #-------------------------------------------------------
   QA_report_io::do_report_comparison($report_key);
 }
+#========================================================
+sub EnableAddEditComments{
+
+  my $self = shift;
+
+  #-----------------------------------------------------------------------------
+  print "<h4>Enter your name (will be attached to comments you create): </h4> \n";
+
+  print $query->startform(-action=>"$script_name/upper_display", -TARGET=>"list"); 
+  print $query->textfield('enable_add_edit_comments', '', 50, 80);
+  my $string = &QA_utilities::hidden_field_string;
+  print "$string";
+  print $query->endform;
+
+}
+#========================================================
+sub AddComment{
+
+  my $self = shift;
+
+  #--------------------------------------------------------
+
+  $report_key = $self->ReportKey;
+
+  if ($report_key) {
+    $arg = $report_key;
+  }
+  else{
+    $arg = 'global';
+  }
+
+  #--------------------------------------------------------
+
+  &QA_utilities::comment_form($arg);
+
+}
+#========================================================
+sub NewComment{
+
+  my $self = shift;
+
+  #--------------------------------------------------------
+
+  $report_key = $self->ReportKey;
+
+  if ($report_key) {
+    $arg = $report_key;
+  }
+  else{
+    $arg = 'global';
+  }
+
+  #--------------------------------------------------------
+
+  &QA_utilities::create_comment_object($arg);
+
+}
+#========================================================
+sub EditComment{
+
+  my $self = shift;
+
+  $message_key = $self->ReportKey;
+
+  defined $message_key or do{
+    print "Button_object::EditComment: report key not defined <br> \n";
+    return;
+  };
+
+  &QA_utilities::edit_comment($message_key);
+
+}
+#========================================================
+sub ModifyComment{
+
+  my $self = shift;
+
+  $message_key = $self->ReportKey;
+
+  defined $message_key or do{
+    print "Button_object::ModifyComment: report key not defined <br> \n";
+    return;
+  };
+
+  &QA_utilities::modify_comment($message_key);
+
+}
+#========================================================
+sub DeleteComment{
+
+  my $self = shift;
+
+  $message_key = $self->ReportKey;
+
+  defined $message_key or do{
+    print "Button_object::DeleteComment: report key not defined <br> \n";
+    return;
+  };
+
+  &QA_utilities::delete_comment($message_key);
+
+}

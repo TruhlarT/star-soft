@@ -11,6 +11,8 @@ use Exporter ();
 	     @topdir_data_WWW $topdir_report_WWW
 	     $control_dir_WWW
 
+	     $message_dir $deleted_message_dir %QA_message_hash
+
 	     $script_name
 
 	     $batch_dir $batch_dir_WWW $update_dir $control_dir $cron_dir
@@ -49,6 +51,9 @@ use Exporter ();
 
 $topdir_report = "/star/data1/jacobs/qa/reports";
 $topdir_report_old = "/star/data1/jacobs/qa/reports_old";
+
+$message_dir = "/star/data1/jacobs/qa/messages";
+$deleted_message_dir = "$message_dir/deleted_messages";
 
 $scratch = "/star/data1/jacobs/qa/scratch";
 

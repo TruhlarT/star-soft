@@ -20,6 +20,7 @@ use Data::Dumper;
 # for ensuring that hash elements delivered in insertion order (See Perl Cookbook 5.6)
 use Tie::IxHash;
 
+use Storable;
 #-------------------------------------------------------
 use QA_utilities;
 use QA_server_utilities;
@@ -30,6 +31,7 @@ use QA_display_reports;
 use QA_make_reports;
 
 use Button_object;
+use QA_message;
 
 use QA_report_object;
 use QA_report_io;
@@ -81,6 +83,7 @@ else
   }
 #--------------------------------------------------------
 &QA_utilities::cleanup_topdir;
+
 #-----------------------------------------------------------------------------
 # get all available qa objects (both data on and not on disk)
 # puts all objects into QA_object_hash
@@ -217,6 +220,14 @@ sub starting_display {
 	"<P>".$query->submit('Display selected dataset').
 	  $hidden_string.$query->endform;
 
+  #--- added pmj 22/12/99
+  $comment_string = "<H3>Add or edit comments:</H3>".
+      $query->startform(-action=>"$script_name/lower_display", -TARGET=>"display");
+
+  $button_ref = Button_object->new('EnableAddEditComments', "Add or edit comments");
+  $comment_string .= $button_ref->SubmitString.$hidden_string.$query->endform;
+  #---
+
   $dsv_button_ref = Button_object->new('EnableDSV','Enable DSV'); 
 
   if($global_expert_page){  
@@ -285,7 +296,7 @@ sub starting_display {
   #-----------------------------------------------------------
 
   @table_rows = (); 
-  push( @table_rows, td( [$select_data_string, $expert_page_string, 
+  push( @table_rows, td( [$select_data_string, $comment_string, $expert_page_string, 
 			  $action_string ] ) );
 
   print table( {-width=>'100%', -valign=>'top', -align=>'center'}, Tr(\@table_rows));
@@ -426,26 +437,93 @@ sub display_datasets{
   }
 
   #---------------------------------------------------    
+
+  if ( $query->param('enable_add_edit_comments') ) {
+
+    print $query->startform(-action=>"$script_name/lower_display", -TARGET=>"display"); 
+
+    $button_ref = Button_object->new('AddComment', 'Add global comment');
+    $button_string = $button_ref->SubmitString;
+
+    $hidden_string = &QA_utilities::hidden_field_string;
+    $button_string .= $hidden_string.$query->endform;
+
+    print $button_string;
+
+  }
+
+  #---------------------------------------------------    
+  # add messages to selected_key_list   pmj 22/12/99
+  
+  &add_messages_to_key_list;
+
+  #---------------------------------------------------    
+  # now display datasets
   
   if ($#selected_key_list >= 0) {
     
     @table_heading = ('Data Set', 'Created/On disk?', 'Run Status', 'QA Status', '');
     @table_rows = th(\@table_heading);
 
-    foreach $report_key ( @selected_key_list ){
+    foreach $key ( @selected_key_list ){
 
-      # make sure logfile report exists
-      $logfile_report = $QA_object_hash{$report_key}->LogReportName;
-      -s $logfile_report or next;
+      # check if this is message or report
 
-      $data_string = $QA_object_hash{$report_key}->DataDisplayString;
-      $creation_string = $QA_object_hash{$report_key}->CreationString;
-      $run_summary_string = $QA_object_hash{$report_key}->RunSummaryString;
-      $qa_summary_string = $QA_object_hash{$report_key}->QASummaryString;
-      $button_string = $QA_object_hash{$report_key}->ButtonString;
-      
-      push(@table_rows, td( [$data_string, $creation_string, $run_summary_string, 
-			     $qa_summary_string, $button_string] ) );
+      if ( $key =~ /\.msg/ ) {
+
+	$author = $QA_message_hash{$key}->Author;
+
+	$temp = $QA_message_hash{$key}->CreationEpochSec;
+	$time = localtime($temp);
+	
+	$text = $QA_message_hash{$key}->MessageString;
+
+	if ( $key =~ /global/ ){
+	  $data_string = "<strong>Global comment</strong> (<font size=1>Message key: $key</font>):";
+	  $data_string .= " Author $author; Date $time; ";
+	}
+	else{
+	  ($temp = $key) =~ s/\.msg//;
+	  $data_string = "<strong>Comment for run $temp </strong> (<font size=1>Message key: $key</font>):";
+	  $data_string .= "Author $author;";
+	}
+
+	$data_string .= "<br>$text";
+
+	# check whether add and edit of comments is enabled
+	if( $query->param('enable_add_edit_comments') ){
+	  $button_ref = Button_object->new('EditComment', 'Edit comment', $key);
+	  $button_string = $button_ref->SubmitString;
+	  
+	  $button_ref = Button_object->new('DeleteComment', 'Delete comment', $key);
+	  $button_string .= "<br>".$button_ref->SubmitString;
+	}
+	else{
+	  $button_string = "";
+	}
+	#---
+
+	$row_string = td({-colspan=>4}, $data_string).td($button_string);
+	push(@table_rows, $row_string);
+
+      }
+
+      else{
+
+	# make sure logfile report exists
+	$logfile_report = $QA_object_hash{$key}->LogReportName;
+	-s $logfile_report or next;
+	
+	$data_string = $QA_object_hash{$key}->DataDisplayString;
+	$creation_string = $QA_object_hash{$key}->CreationString;
+	$run_summary_string = $QA_object_hash{$key}->RunSummaryString;
+	$qa_summary_string = $QA_object_hash{$key}->QASummaryString;
+	$button_string = $QA_object_hash{$key}->ButtonString;
+	
+	push(@table_rows, td( [$data_string, $creation_string, $run_summary_string, 
+			       $qa_summary_string, $button_string] ) );
+      }
+
     }
     
     print $query->startform(-action=>"$script_name/lower_display", -TARGET=>"display"); 
@@ -566,5 +644,82 @@ sub button_actions{
       last;
     };
   }
+
+}
+#============================================================
+sub add_messages_to_key_list{
+
+  # if key list is empty, return
+  $#selected_key_list or return;
+
+  #------------------------------------------------------------------
+  # hash to contain all messages
+
+  %QA_message_hash = ();
+
+  #------------------------------------------------------------------
+  # get all global messages
+
+  opendir(MESSDIR, $message_dir) or die "Couldn't open message directory $message_dir \n";
+
+  while ( defined ($message_key = readdir(MESSDIR))){
+
+    $message_key =~ /global/ or next;
+
+    $message_file = "$message_dir/$message_key";
+
+    if ( -e $message_file ){
+      $QA_message_hash{$message_key} = retrieve($message_file)
+	or print "Cannot retrieve file $message_file:$! <br>\n";
+    }
+    else {
+      print "QA_main::add_messages_to_key_list: file $message_file not found <br> \n";
+    }
+
+  }
+  
+  closedir(MESSDIR);
+
+  #------------------------------------------------------------------
+  # get messages associated with specific report key
+  
+  foreach $report_key ( @selected_key_list ) {
+    
+    $message_key = "$report_key.msg";
+    $message_file = "$message_dir/$message_key";
+
+    -e $message_file or next;
+
+    $QA_message_hash{$message_key} = retrieve($message_file)
+      or print "Cannot retrieve file $message_file:$! <br>\n";
+
+  }
+
+  #------------------------------------------------------------------
+  # insert message keys into selected_key_list, resort
+
+  push @selected_key_list, keys %QA_message_hash;
+ 
+  @temp = sort { sort_time_msg($b) <=> sort_time_msg($a) }  @selected_key_list;
+
+  @selected_key_list = @temp;
+ 
+}
+
+#=================================================================
+sub sort_time_msg{
+
+  my $key = shift;
+
+  $key or return -99999;
+
+  if ( $key =~ /\.msg$/ ){
+    $time = $QA_message_hash{$key}->CreationEpochSec;
+  }
+  else{
+    $time = $QA_object_hash{$key}->CreationEpochSec;
+  }
+
+  return $time;
 
 }

@@ -80,6 +80,7 @@ sub get_QA_objects{
 
       %QA_object_hash = %{$Save_object_hash{QA_object_hash}};
       %Button_object_hash = %{$Save_object_hash{Button_object_hash}};
+      %QA_message_hash = %{$Save_object_hash{QA_message_hash}};
 
     }
     else {
@@ -94,6 +95,7 @@ sub get_QA_objects{
 
       %QA_object_hash = ();
       %Button_object_hash = ();
+      %QA_message_hash = ();
 
       #---- 
 
@@ -360,15 +362,14 @@ sub get_update_dirs{
 }
 #===================================================================
 sub hidden_field_string{
-
-#  $string = $query->hidden('select_dataset').
-
+  
   $string = $query->hidden('selected_key_string').
 	$query->hidden('dataset_array_previous').
 	  $query->hidden('selected_key_list').
 	    $query->hidden('expert_pw').
 	      $query->hidden('display_env_var').
-		$query->hidden('save_object_hash_scratch_file');
+		$query->hidden('enable_add_edit_comments').
+		  $query->hidden('save_object_hash_scratch_file');
   
   #------------------------------------------------------------  
   # store persistent hashes
@@ -377,9 +378,7 @@ sub hidden_field_string{
   
   $Save_object_hash{QA_object_hash} = \%QA_object_hash;
   $Save_object_hash{Button_object_hash} = \%Button_object_hash;
-  
-  #print "In QA utilities::hidden string, about to write Save_object_has to $filename . Here dump of Button_object_hash: <br> \n";
-  #print "<pre> ", Dumper(\%Button_object_hash), "</pre> <br> \n";
+  $Save_object_hash{QA_message_hash} = \%QA_message_hash;
   
   store(\%Save_object_hash, $filename ) or print "<h4> Cannot write $filename: $! </h4> \n";
 
@@ -567,4 +566,256 @@ sub run_DSV{
   system("$submit_script &");
   print "DSV is running independently, control has returned to web page<br> \n";
 
+}
+#=======================================================================
+sub comment_form{
+
+  $arg = shift;
+  #-----------------------------------------------------------------------------
+  # pmj 23/12/99 form for creating new comment
+
+  $author = $query->param('enable_add_edit_comments');
+
+  #-----------------------------------------------------------------------------
+
+  print $query->startform(-action=>"$script_name/lower_display", -TARGET=>"display"); 
+
+  print "<h4> Author: </h4>",$query->textfield('comment_author', $author, 50, 80),"<br>\n";
+
+  #---
+
+  if ($arg eq 'global' ){
+    $etime = time;
+  }
+  else{
+    $etime = $QA_object_hash{$arg}->CreationEpochSec + 1;
+  }
+  $date = epochsec_to_message_time($etime);
+  #---
+
+  print "<h4> Date and Time: </h4>",
+  "(Must be in format hh:mm yy/mm/dd to be parsed properly,",
+  "otherwise message will not be in correct chronological order)<br>",
+  $query->textfield('comment_date', $date, 50, 80),"<br>\n";
+
+
+  print "<h4> Comment text: </h4>",$query->textarea(-name=>'comment_text', 
+						     -value=>'', 
+						     -rows=>10, 
+						     -cols=>60,
+						     -wrap=>virtual)
+    ,"<br>\n";
+
+
+  #---
+  # is this global comment or comment specific to a run?
+
+  if ( $arg eq 'global'){
+    $button_ref = Button_object->new('NewComment', 'Submit');
+  }
+  else{
+    $button_ref = Button_object->new('NewComment', 'Submit', $arg);
+  }
+
+  #---
+
+  $hidden_string = &QA_utilities::hidden_field_string;
+
+  print "<br>",$button_ref->SubmitString.$hidden_string;
+
+  print $query->endform;
+
+}
+#=====================================================================
+sub create_comment_object{
+
+  $arg = shift;
+
+  #----------------------------------------------------------------
+
+  if ( $arg eq 'global' ){
+    # this is a global comment, not tied to a specific run 
+    #get a string of current date and time
+    my $string = &QA_cgi_utilities::yymmddhhmmss;
+    $message_key = "global.$string.msg";
+  }
+  else{
+    $message_key = "$arg.msg";
+  }
+
+  #----------------------------------------------------------------
+
+  $author = $query->param('comment_author');
+
+  if ($arg eq 'global' ){
+    $date = $query->param('comment_date');
+    $etime = message_time_to_epochsec($date);
+  }
+  else{
+    $etime = $QA_object_hash{$arg}->CreationEpochSec + 1;
+  }
+
+  $text = $query->param('comment_text');
+
+  #----------------------------------------------------------------
+
+  $message_ref = QA_message->new($message_key,$author,$etime,$text);
+  $QA_message_hash{$message_key} = $message_ref;
+
+  #----------------------------------------------------------------
+
+  $message_file = "$message_dir/$message_key";
+  
+  store($message_ref, $message_file ) or 
+    print "<h4> Cannot write $filename: $! </h4> \n";
+}
+#=====================================================================
+sub edit_comment{
+
+  $message_key = shift;
+
+  exists $QA_message_hash{$message_key} or do{
+    print "QA_utilities::edit_comment: QA_message_hash not defined for key $message_key <br> \n";
+    return;
+  };
+
+  #-----------------------------------------------------------------------------
+
+  $author = $QA_message_hash{$message_key}->Author;
+
+  $temp = $QA_message_hash{$message_key}->CreationEpochSec;
+  $date = epochsec_to_message_time($temp);
+
+  $text = $QA_message_hash{$message_key}->MessageString;
+
+  #-----------------------------------------------------------------------------
+
+  print "<h3> Modify comment fields and press Submit. Reselect dataset to display modifications. </h3>";
+
+  print $query->startform(-action=>"$script_name/lower_display", -TARGET=>"display"); 
+
+  print "<h4> Author: </h4>",$query->textfield('comment_author', $author, 50, 80),"<br>\n";
+
+
+  print "<h4> Date and Time: </h4>",
+  "(Must be in format hh:mm yy/mm/dd to be parsed properly,",
+  "otherwise message will not be in correct chronological order)<br>",
+  $query->textfield('comment_date', $date, 50, 80),"<br>\n";
+
+  print "<h4> Comment text: </h4>",$query->textarea(-name=>'comment_text', 
+						     -value=>$text, 
+						     -rows=>10, 
+						     -cols=>60,
+						     -wrap=>virtual)
+    ,"<br>\n";
+
+  $button_ref = Button_object->new('ModifyComment', 'Submit', $message_key);
+  $hidden_string = &QA_utilities::hidden_field_string;
+
+  print "<br>",$button_ref->SubmitString.$hidden_string;
+
+  print $query->endform;
+
+}
+#=====================================================================
+sub modify_comment{
+
+  $message_key = shift;
+
+  exists $QA_message_hash{$message_key} or do{
+    print "QA_utilities::modify_global_comment: QA_message_hash not defined for key $message_key <br> \n";
+    return;
+  };
+
+  #-----------------------------------------------------------------------------
+
+  $author = $query->param('comment_author');
+  $date = $query->param('comment_date');
+  $text = $query->param('comment_text');
+
+  #----------------------------------------------------------------
+  $QA_message_hash{$message_key}->Author($author);
+
+  $etime = message_time_to_epochsec($date);
+  $QA_message_hash{$message_key}->CreationEpochSec($etime);
+
+  $QA_message_hash{$message_key}->MessageString($text);
+
+  #----------------------------------------------------------------
+  # save modification on disk also
+
+  $message_ref = $QA_message_hash{$message_key};
+  $message_file = "$message_dir/$message_key";
+  
+  store($message_ref, $message_file ) or 
+    print "<h4> Cannot write $filename: $! </h4> \n";
+}
+#=====================================================================
+sub delete_comment{
+
+  $message_key = shift;
+
+  exists $QA_message_hash{$message_key} or do{
+    print "QA_utilities::modify_global_comment: QA_message_hash not defined for key $message_key <br> \n";
+    return;
+  };
+
+  #-----------------------------------------------------------------------------
+
+  print "Delete comment for message key $message_key...<br> \n";
+
+  $old_file = "$message_dir/$message_key";
+  $new_file = "$deleted_message_dir/$message_key";
+
+  system("mv $old_file $new_file");
+
+  delete( $QA_message_hash{$message_key} );
+
+  print "...done. Reselect dataset to remove comment from current listing.<br>\n";
+
+}
+#==========================================================================
+sub epochsec_to_message_time{
+
+  $temp = shift;
+
+  ($sec,$min,$hour,$mday,$mon,$year,$junk) = localtime($temp);
+
+  $sec < 10 and $sec = "0".$sec;
+  $min < 10 and $min = "0".$min;
+  $hour < 10 and $hour = "0".$hour;
+  $mday < 10 and $mday = "0".$mday;
+
+  $mon += 1;
+  $mon < 10 and $mon = "0".$mon;
+
+  $year > 99 and $year -= 100;
+  $year < 10 and $year = "0".$year;
+
+  $string = "$hour:$min $mday/$mon/$year";
+
+  return $string;
+}
+#==========================================================================
+sub message_time_to_epochsec{
+
+  $string = shift;
+
+  $etime = -9999;
+
+  $string =~ /(\d+):(\d+) (\d+)\/(\d+)\/(\d+)/ and do{
+
+    $hour = $1;
+    $min = $2;
+    $sec = 0;
+
+    $mday = $3;
+    $mon = $4 - 1;
+    $year = $5;
+
+    $etime = timelocal($sec, $min, $hour, $mday, $mon, $year);
+
+  };
+  
+  return $etime;
 }
