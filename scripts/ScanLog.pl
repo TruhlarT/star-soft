@@ -37,6 +37,8 @@ my $ProdTag = $ARGV[0] || "P01he";
 my $Kind    = "daq";
    $Kind    = $ARGV[2] if (defined($ARGV[2]));
 
+&CheckLockFile();
+
 my $min_size = 1200;
 my $min_time = 60;
 my $max_time = 3600;
@@ -78,7 +80,7 @@ my $pmtime;
 my @fc;
 
 my $dbh1 = DBI->connect($datasourse,$username)
-    or die "Can't connect to $datasourse: $DBI::errstr\n";
+    or &Die("Can't connect to $datasourse: $DBI::errstr\n");
 
 my $del;
 
@@ -107,11 +109,11 @@ my $DEBUG=0;
 
 
 if( ! $sth3 || ! $sth1){
-   die "Problem !! Cannot prepare statement\n";
+    &Die("Problem !! Cannot prepare statement\n");
 }
 
 my(%JNAMES);
-opendir(ARCH,"$arch_dir") || die "Could not open archive directory $arch_dir\n";
+opendir(ARCH,"$arch_dir") || &Die("Could not open archive directory $arch_dir\n");
 while ( defined($job_name = readdir(ARCH)) ){
   if($job_name !~ /st_/ && $job_name !~ /rcf.*evts/ ){ next;}
   if ($job_name =~ m/(.*)(st_.*)/){
@@ -123,7 +125,7 @@ while ( defined($job_name = readdir(ARCH)) ){
 closedir(ARCH);
 
 
-opendir(LOGDIR,$log_dir) || die "can't open $log_dir\n: $!";
+opendir(LOGDIR,$log_dir) || &Die("can't open $log_dir\n: $!");
 while ( defined($logname = readdir(LOGDIR)) ){
     # we must check for only what we need since the directory
     # may contain other files. Besides, the .parsed will exist
@@ -303,7 +305,7 @@ while ( defined($logname = readdir(LOGDIR)) ){
 
 	    if ( $err ){
 		$sth3->execute($Trigger, $shortname)
-		    or die "cannot execute sth3\n";
+		    or &Die("cannot execute sth3\n");
 		#print $sth3->fetchrow_array()."\n";
 		if ( ($id, $mtime) = $sth3->fetchrow_array() ){
 		    print
@@ -425,3 +427,41 @@ sub ZSHandle
 }
 
 
+sub Die
+{
+    my($messg)=@_;
+    &DeleLockFile();
+    die $messg;
+}
+
+
+sub DeleLockFile
+{
+    my ($fllock)="/tmp/ScanLog$ProdTag.lock";
+    if ( -e $fllock){  unlink($fllock);}
+}
+
+# Checks and creates
+sub CheckLockFile
+{
+    # Checks if another one is running by using a lock file trick
+    my ($fllock)="/tmp/ScanLog$ProdTag.lock";
+    if ( -e $fllock){
+	my($mtime)=5400;      # 3 hours
+	my(@info)=stat($fllock);
+	if ( (time()-$info[9] ) > $mtime){
+	    # 3 hours
+	    if ( unlink($fllock) ){
+		print "$fllock was older than $mtime secondes. Removed on ".localtime()."\n";
+	    } else {
+		print "$fllock is older than $mtime secondes. Cannot remove on ".localtime()."\n";
+	    }
+	} else {
+	    print "Found $fllock . Ignore.\n";
+	}
+	exit;
+    }
+    open(FO,">$fllock");
+    print FO localtime()."\n";
+    close(FO);
+}
