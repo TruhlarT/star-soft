@@ -51,23 +51,32 @@ my $request =
 		      $headers,
 		      $content
 		      );
+
+# get the base path in case any relative urls are given in the doc
+my $basePath = $ENV{'QUERY_STRING'};
+$basePath =~ s|/[^/]*$||;
+
 # 
 # send the request via the user agent and read back the response
 #
 
-my $response = $userAgent->request($request);
-my @lines = split("\n", $response->as_string);
+my $response = $userAgent->request($request)->as_string;
 
 #
 # parse the links inside html tags to make them point back to 
 # nph-http_forward
 #
 
-foreach my $line (@lines){
-    $line =~ s{(<[^<]*)(/pro/|/v2/|/ben/|/bum/|/peter/)([^>]*>)}
-              {$1/devcgi/qaversion2/nph-http_forward?$2$3}g;
-    print $line . "\n";
-}
+# picks up urls (in FORM or A tags, eg) starting with /pro, /v2, etc
+$response =~ s{(<[^<]*)(/pro/|/v2/|/ben/|/bum/|/peter/)([^>]*>)}
+              {$1/devcgi/qaversion2/nph-http_forward?$2$3}gs;
+# picks up urls in A tags without a starting '/'; ignores "mailto:", etc.
+# note that this expects quotes around the url!
+$response =~ 
+    s{(<[^<]*)([hH][rR][eE][fF]\s*=\s*[\"\'])([^/][^:\'\"]+)([\"\'][^>]*>)}
+     {$1$2/devcgi/qaversion2/nph-http_forward?$basePath/$3$4}gs;
+
+print $response;
 
 #print "<h2>Environment:</h2>\n<pre>\n";
 #foreach my $key (keys %ENV){print "$key = ".$ENV{$key}."\n";}
