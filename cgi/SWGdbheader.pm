@@ -1,8 +1,11 @@
 #!/opt/star/bin/perl
 #
-# $Id: SWGdbheader.pm,v 1.2 2002/01/07 20:42:09 jeromel Exp $
+# $Id: SWGdbheader.pm,v 1.3 2003/12/22 14:25:56 jeromel Exp $
 #
 # $Log: SWGdbheader.pm,v $
+# Revision 1.3  2003/12/22 14:25:56  jeromel
+# /STAR/ -> /
+#
 # Revision 1.2  2002/01/07 20:42:09  jeromel
 # Removed star_computing.html
 #
@@ -73,8 +76,8 @@ A:hover.nav {  text-decoration: none}
 <table border=0   cellpadding=5 cellspacing=0 width="100%">
 	<tr bgcolor="#ffdc9f">
 	<td align=left> <font size="-1">
-	<a href="/STAR/">STAR</a>
-	&nbsp; <a href="/STAR/comp/">Computing</a> 
+	<a href="/">STAR</a>
+	&nbsp; <a href="/STAR/comp/">Computing</a>
 	</td>
 	<td align=right> <font size="-1">
 	&nbsp;  <!-- top right corner  --> </font></td>
@@ -84,12 +87,12 @@ A:hover.nav {  text-decoration: none}
 	</b></font></td></tr>
 	<tr bgcolor="#ffdc9f">
 	<td align=left> <font size="-1">
-	<!-- lower left text --> &nbsp; 
+	<!-- lower left text --> &nbsp;
 	</td>
-	<td align=right> <font size="-1"> 
+	<td align=right> <font size="-1">
 &nbsp; </font></td>
 	</tr>
-        <tr><td colspan=2 align=right> <font size="-1"> 
+        <tr><td colspan=2 align=right> <font size="-1">
 Generated at $curtime
  </font></td></tr>
 </table>
