@@ -20,9 +20,10 @@
 # chosen to avoid interference with already existing 
 # documents and so we maintain a clean tree.
 #
-# Currently supported : html and latex directories
+# Currently supported : html, latex, man directories
 # will be moved to their final destination by this
-# script.
+# script. See code for relatively easy extension
+# to other formats.
 #
 # The INPUT directory is defaulted to $INDEXD.
 #
@@ -70,7 +71,18 @@ $SUBDIR  = "";                                       # Sub-dir for output
 
 
 # Eventually replace by @ARGV
-$TARGETD = shift(@ARGV) if ( @ARGV );
+$DOTAG = 1;
+do {
+    $tmp = shift(@ARGV) if ( @ARGV );
+    if( substr($tmp,0,1) eq "-"){
+	# Treat it as option
+	if($tmp eq "-i"){ $DOTAG = 0;}
+    } else {
+	$TARGETD = $tmp;
+	$tmp     = "";
+    }
+} while ($tmp ne "");
+
 $INDEXD  = shift(@ARGV) if ( @ARGV );
 $PROJECT = shift(@ARGV) if ( @ARGV );
 $SUBDIR  = shift(@ARGV) if ( @ARGV );
@@ -127,6 +139,10 @@ $tmpf = $TMPDIR."/doxygen$>-$$";
 open(FI,"$TARGETD/dox/$PROJECT.cfg");
 open(FO,">$tmpf.cfg");
 
+$GENERATE_HTML = 0;
+$GENERATE_LATX = 0;
+$GENERATE_MAN  = 0;
+
 while ( defined($line = <FI>) ){
     chomp($line);
     if($line =~ m/(OUTPUT_DIRECTORY.*=\s+)(.*)/){
@@ -153,15 +169,28 @@ while ( defined($line = <FI>) ){
 	$line = "STRIP_FROM_PATH        = $INDEXD/";
 	
 
-    } elsif ($line =~ m/(HTML_OUTPUT.*=\s+)(.*)/){
+
+    } elsif ($line =~ m/(GENERATE_HTML.*=\s+)(YES)/){
+	$GENERATE_HTML = 1;
+    } elsif ($line =~ m/(GENERATE_LATEX.*=\s+)(YES)/){
+	$GENERATE_LATX = 1;
+    } elsif ($line =~ m/(GENERATE_MAN.*=\s+)(YES)/){
+	$GENERATE_MAN  = 1;
+    } elsif ($line =~ m/(HTML_OUTPUT.*=\s+)(.*)/ && $GENERATE_HTML){
 	if( $2 eq ""){
 	    push(@DIRS,"html");
 	} else {
 	    push(@DIRS,$2);
 	}
-    } elsif ($line =~ m/(LATEX_OUTPUT.*=\s+)(.*)/){
+    } elsif ($line =~ m/(LATEX_OUTPUT.*=\s+)(.*)/ && $GENERATE_LATX){
 	if( $2 eq ""){
 	    push(@DIRS,"latex");
+	} else {
+	    push(@DIRS,$2);
+	}
+    } elsif ($line =~ m/(MAN_OUTPUT.*=\s+)(.*)/ && $GENERATE_MAN){
+	if( $2 eq ""){
+	    push(@DIRS,"man");
 	} else {
 	    push(@DIRS,$2);
 	}
@@ -225,7 +254,7 @@ if( ! -d "$TARGETD/dox$SUBDIR/tmp$$"){
 if( -e "$tmpf.cfg"){
     print "Running $DOXYGEN now ".localtime()."\n";
     system("cd $TMPDIR ; $DOXYGEN $tmpf.cfg >&$tmpf.log");
-    if( -d "$TARGETD/dox$SUBDIR/tmp$$/html"){
+    if( -d "$TARGETD/dox$SUBDIR/tmp$$/html" && $DOTAG){
 	print "Running $DOXYTAG now ".localtime()."\n";
 	system("cd $TARGETD/dox$SUBDIR/tmp$$/html ; ".
 	       "$DOXYTAG -s search.idx >&/dev/null");
@@ -457,7 +486,7 @@ OUTPUT_LANGUAGE        = English
 # Private class members and static file members will be hidden unless 
 # the EXTRACT_PRIVATE and EXTRACT_STATIC tags are set to YES
 
-EXTRACT_ALL            = YES
+EXTRACT_ALL            = NO
 
 # If the EXTRACT_PRIVATE tag is set to YES all private members of a class 
 # will be included in the documentation.
