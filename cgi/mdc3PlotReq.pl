@@ -11,7 +11,7 @@
 #############################################################################
 
 
-#require "/afs/rhic/star/packages/DEV00/mgr/dbCpProdSetup.pl";
+#require "/afs/rhic/star/packages/dev/mgr/dbCpProdSetup.pl";
 use CGI;
 use CGI::Carp qw(fatalsToBrowser);
 

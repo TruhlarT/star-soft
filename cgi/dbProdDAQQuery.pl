@@ -12,8 +12,8 @@
 # 
 #############################################################################
 
-require "/afs/rhic/star/packages/DEV00/mgr/dbCpProdSetup.pl";
-require "/afs/rhic/star/packages/DEV00/mgr/dbDescriptorSetup.pl";
+require "/afs/rhic/star/packages/dev/mgr/dbCpProdSetup.pl";
+require "/afs/rhic/star/packages/dev/mgr/dbDescriptorSetup.pl";
 
 
 

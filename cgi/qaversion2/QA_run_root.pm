@@ -68,7 +68,7 @@ sub run_root{
 
 #----
 
-  print SCRIPT "/afs/rhic/star/packages/DEV00/.i386_redhat61/bin/root4star -b -q<<END \n";
+  print SCRIPT "/afs/rhic/star/packages/dev/.i386_redhat61/bin/root4star -b -q<<END \n";
 #>>& /tmp/starlib/biteme \n";
 
   foreach $command (@commands){

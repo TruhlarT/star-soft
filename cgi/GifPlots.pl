@@ -11,7 +11,7 @@
 # 
 #################################################################### 
 
-require "/afs/rhic/star/packages/DEV00/cgi/dbOperaSetup.pl";
+require "/afs/rhic/star/packages/dev/cgi/dbOperaSetup.pl";
 
 use CGI;
 use GIFgraph::linespoints;

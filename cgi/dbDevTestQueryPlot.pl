@@ -1,8 +1,11 @@
 #!/opt/star/bin/perl -w
 #
-# $Id: dbDevTestQueryPlot.pl,v 1.11 2001/02/27 16:38:05 liuzx Exp $
+# $Id: dbDevTestQueryPlot.pl,v 1.12 2001/06/07 17:08:18 jeromel Exp $
 #
 # $Log: dbDevTestQueryPlot.pl,v $
+# Revision 1.12  2001/06/07 17:08:18  jeromel
+# Change DEV00 -> dev
+#
 # Revision 1.11  2001/02/27 16:38:05  liuzx
 # max_y and min_y changed! (9th and 6th ticks)
 #
@@ -12,7 +15,7 @@
 #
 ##########################################################
 
-require "/afs/rhic/star/packages/DEV00/mgr/dbTJobsSetup.pl";
+require "/afs/rhic/star/packages/dev/mgr/dbTJobsSetup.pl";
 
 use CGI;
 use GIFgraph::linespoints;
