@@ -814,7 +814,7 @@ sub rdaq_get_orecords
 	    @items = split(/\|/,$val);
 	    $val = "(";
 	    foreach $tmp (@items) {
-		$val .= "$el=$tmp OR ";
+		$val .= "$el=$tmp OR " if ($tmp ne "");
 	    }
 	    $val = substr($val,0,length($val)-3).")";
 	    #print "<!-- $val -->\n";
@@ -1249,7 +1249,11 @@ sub	info_message
 }
 
 
-sub    rdaq_toggle_debug { $DEBUG = ! $DEBUG;}
+sub    rdaq_toggle_debug 
+{ 
+    $DEBUG = ! $DEBUG; 
+    return DEBUG;
+}
 
 #
 # New method to set delay
