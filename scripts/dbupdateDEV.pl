@@ -412,6 +412,8 @@ my $fflag;
 my $Fname;
 my @files;
 
+ 
+
  foreach  my $eachOutLDir (@OUT_DIR) {
           if (-d $eachOutLDir) {
      opendir(DIR, $eachOutLDir) or die "can't open $eachOutLDir\n";
@@ -1203,6 +1205,8 @@ sub  updateJSTable {
 @maker_size = ();
 
 #---------------------------------------------------------
+ 
+#  print $fl_log, "\n";
 
   open (LOGFILE, $fl_log ) or die "cannot open $fl_log: $!\n";
 
@@ -1253,7 +1257,8 @@ my $mRealTbfc = 0;
        }
  
 #   get  number of events
-      if ( $line =~ /QAInfo: Done with Event/ ) {
+#     if ( $line =~ /QAInfo: Done with Event/ ) {
+      if ( $line =~ /Done with Event/ ) {
         $no_event++;
      } 
 
@@ -1261,12 +1266,13 @@ my $mRealTbfc = 0;
       if ($num_line > 200){
 	if( $line =~ /EndMaker/ and $line =~ /total/ ) {
         @size_line = split(" ",$line); 
-
+        
           $mymaker = $size_line[3];
         @memSize = split("=",$size_line[6]);
         if( $mymaker eq "outputStream:"){
+
           $maker_size[$no_event] = $memSize[1];
-#          print "outputStream size:  ",$no_event, "   ", $maker_size[$no_event], "\n";  
+
        }
       }
     }
@@ -1299,7 +1305,7 @@ my $mRealTbfc = 0;
               $no_knvertices = $nmb[0];
               $tot_knvertices += $no_knvertices;
            
-#   print "Number of tracks:  ", $no_tracks, "  ",$no_prtracks, "  ",$no_vertices,"  ",$no_xivertices, "\n";
+#  print "Number of tracks:  ", $no_tracks, "  ",$no_prtracks, "  ",$no_vertices,"  ",$no_xivertices, "\n";
   }   
 #  check if job crashed due to break_buss_error
       if($line =~ /bus error/) {
@@ -1326,10 +1332,10 @@ my $mRealTbfc = 0;
        $Err_messg = "Fatal in <operator new>";   
   }
 
-       if ( $line =~ /Total events processed/) {
+       if ( $line =~ /StQAInfo/ and $line =~ /Total events processed/) {
 
         @part = split /:/,$line;
-        $EvSkip = $part[3];
+        $EvSkip = $part[4];
     }      
 # check if job is completed
      if ( $line =~ /Run completed/) {
@@ -1345,9 +1351,10 @@ my $mRealTbfc = 0;
  
       $EvDone = $no_event;
       $EvCom = $EvDone - $EvSkip;
-# print "Number of events: ", $runflag,"  ", $no_event,"  ", $EvDone,"  ",$EvCom, "\n";
 
+#  print "Number of events: ", $runflag,"  ", $no_event,"  ", $EvDone,"  ",$EvCom, ,"  ",$EvSkip, "\n";
 
+ 
 ##### get CPU and Real Time per event
 
  if ($EvCom != 0) {
@@ -1364,7 +1371,7 @@ my $mRealTbfc = 0;
       $mRealTbfc = $part[4];
       $mCPUbfc = substr($mCPUbfc,1) + 0;
       $mRealTbfc = substr($mRealTbfc,1) + 0;
-#    print "CPU ", $mCPUbfc,"   %   ", $mRealTbfc, "\n";
+#     print "CPU ", $mCPUbfc,"   %   ", $mRealTbfc, "\n";
      $mCPU = $mCPUbfc/$EvCom;
      $mRealT = $mRealTbfc/$EvCom;
     
@@ -1380,13 +1387,15 @@ my $mRealTbfc = 0;
 
 #   print "Number of tracks:  ",  $avr_tracks,"  ",$avr_vertices,"  ",$avr_prtracks,"  ",$avr_knvertices,"  ",$avr_xivertices, "\n"; 
 
+# print "Size of executable:  ", $EvDone, "  ", $no_event,"  ",$maker_size[$EvCom  -1], "\n";                               
+
     if ( defined $maker_size[0]) { 
     $memFst = $maker_size[0];
     }else {
     $memFst = 0;
   }
-    if ( defined $maker_size[$no_event -1]) {
-    $memLst = $maker_size[$no_event -1];
+    if ( defined $maker_size[$EvCom - 1]) {
+    $memLst = $maker_size[$EvCom - 1];
     } else {
     $memLst = 0;
   }
