@@ -84,25 +84,25 @@ my $mmRun;
 my @runSet;
 my $nrunSet = 0;
 
-# $sql="SELECT runNumber FROM $runDescriptorT WHERE category = 'physics'";
+ $sql="SELECT runNumber FROM $runDescriptorT WHERE category = 'physics'";
 
-#   $cursor =$dbh->prepare($sql)
-#    || die "Cannot prepare statement: $DBI::errstr\n";
-#   $cursor->execute;
+   $cursor =$dbh->prepare($sql)
+    || die "Cannot prepare statement: $DBI::errstr\n";
+   $cursor->execute;
  
-#    while(@fields = $cursor->fetchrow) {
-#      my $cols=$cursor->{NUM_OF_FIELDS};
+    while(@fields = $cursor->fetchrow) {
+      my $cols=$cursor->{NUM_OF_FIELDS};
 
-#        for($i=0;$i<$cols;$i++) {
-#           my $fvalue=$fields[$i];
-#           my $fname=$cursor->{NAME}->[$i];
-#        print "$fname = $fvalue\n" ;
+        for($i=0;$i<$cols;$i++) {
+           my $fvalue=$fields[$i];
+           my $fname=$cursor->{NAME}->[$i];
+        print "$fname = $fvalue\n" ;
        
-#         $mmRun = $fvalue     if( $fname eq 'runNumber'); 
-#         }
-#        $runSet[$nrunSet] = $mmRun;
-#        $nrunSet++;
-# }
+         $mmRun = $fvalue     if( $fname eq 'runNumber'); 
+         }
+        $runSet[$nrunSet] = $mmRun;
+        $nrunSet++;
+ }
 
 # &StDbDescriptorDisconnect();      
 
