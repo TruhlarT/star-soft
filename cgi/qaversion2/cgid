@@ -29,8 +29,7 @@
 # -h prints usage instructions
 # -v prints log info to stderr
 #
-# cgid is suid starlib.  It gets makes sure reauth is running on the local
-# machine so that it will always have afs access.
+# cgid is suid starlib.  It needs an afs token to run.
 # In practice, you will probably want to run this in the background,
 # and it should definitely be run from the directory in which it lives.
 #
@@ -52,13 +51,12 @@ use Cwd;
 $| = 1; # don't buffer output
 
 my $my_name = "cgid";
-my $script_names = ["QA_main.pm", "LSF_tool", "badJobs"];
+my $script_names = ["QA_main.pm", "LSF_tool"];
 my $var_dir = "/afs/rhic/star/starqa/var";
 my $log_dir = "$var_dir/log";
 my $run_dir = "$var_dir/run";
 my $pid_file = "$run_dir/$my_name.pid";
 my $log_file = "$log_dir/$my_name.log";
-my $afs_pw_file = "/star/rcf/qa/.starlib_CGI";
 
 # look-up table for paths (aliases)
 my $script_dirs = {
@@ -80,20 +78,6 @@ my $client;
 my $request;
 my $content;
 my $url;
-
-#
-# check for reauth running for starlib on sol and restart it if
-# necessary.  reauth refreshes afs tokens automatically, and we
-# need a token before we can write to afs space.
-#
-
-my $token = `tokens`;
-
-if ($token !~ /^User/m) {   # token line in output
-    print STDERR "(re)starting reauth...\n";
-    system("killall reauth; cat $afs_pw_file | reauth 85000 starlib");
-    print STDERR "...reauth (re)started\n";
-}
 
 #
 # handle shutdown or restart requests

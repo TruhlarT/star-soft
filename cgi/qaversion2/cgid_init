@@ -12,16 +12,20 @@
 #
 # "cgid_init -q" takes no action, but
 # shows the pid of ssh & cgid, or 0 if not running (implies "-v")
+#
+# cgid_init runs reauth if no afs token for starlib is found.  It should be
+# run only by starlib.
+#
 
 use strict;
 use Cwd;
 use FileHandle;
 use Getopt::Std;
 
-#my $qaPath = "/afs/rhic/star/packages/dev/cgi/qaversion2";
-my $qaPath = "/star/u2e/bnorman/cgi-bin/qa";
-my $webServer = "duvall.star.bnl.gov";
-my $sleepCmd = "$qaPath/sleeper";
+my $qaPath = "/star/u2e/starqa/cgi-bin/pro/cgi/qaversion2";  # run pro version
+my $webServer = "sol.star.bnl.gov";
+my $sleepCmd = "/star/rcf/qa/.sleeper";
+my $afs_pw_file = "/star/rcf/qa/.starlib_CGI";
 
 # get options
 my %opt = ();
@@ -36,6 +40,20 @@ $SIG{CHLD} = 'reaper';
 # don't buffer output
 STDERR->autoflush(1);
 STDOUT->autoflush(1);
+
+#
+# check for reauth running for starlib on rcas and restart it if
+# necessary.  reauth refreshes afs tokens automatically, and we
+# need a token before we can write to afs space.
+#
+
+my $token = `tokens`;
+
+if ($token !~ /^User/m) {   # token line in output
+    print STDERR "(re)starting reauth...\n";
+    system("killall reauth; cat $afs_pw_file | reauth 85000 starlib");
+    print STDERR "...reauth (re)started\n";
+}
 
 # check for ssh running
 my $pid = getPID("root", "8080");

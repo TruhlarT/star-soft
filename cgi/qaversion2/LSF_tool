@@ -49,6 +49,9 @@ my $cgi = new CGI;
 # don't buffer output
 $| = 1;
 
+# handle dead kids
+$SIG{CHLD} = 'reaper';
+
 # print out the beginning of the document
 print startDocument($cgi);
 
@@ -377,8 +380,8 @@ sub bJobs{
     my $jobs = {};
 
     # get the jobs from bjobs
-    my @lines = `bjobs -w -u all`; # lists jobs for all users
-    shift @lines;                          # discard header
+    my @lines = runLSFCmd("bjobs -w -u all");  # lists jobs for all users
+    shift @lines;                              # discard header
 
     # extract fields from each line
     foreach my $line (@lines){  
@@ -472,3 +475,58 @@ sub jobsSelected{
 
     return 0;
 }
+
+#
+# runs an lsf command in a safe way, i.e. checks for the health of the 
+# batch system.  returns "" if the any line of the command output contains
+# "batch system daemon not responding".  Otherwise
+# lsf commands will hang forever.
+#
+
+sub runLSFCmd{
+    my $cmd = shift;
+
+    local *READER; 
+    open(\*READER, "echo \$\$; ".$cmd." 2>&1 |" ); 
+
+    my $result = "";
+
+    # Is this the only way to get the command's pid?
+    # I know it's not guaranteed, but it seems to work ok.
+    my $lsfPID = <READER>; chomp $lsfPID; $lsfPID++;
+
+    #print "reading output of '".$cmd."' w/pid $lsfPID<br>\n";
+    while (<READER>)
+    {
+	#print "got '".$_."'<br>\n";
+	if (/^batch system daemon not responding/){
+	    print 
+		"<font color=red><h1>Error: lsf daemon not responding.".
+		    "</h1></font>\n";
+	    kill 9, $lsfPID || die "could not kill $lsfPID";
+	    close READER;
+	    #print "killed $lsfPID and closed READER<br>\n";
+	    return "";
+	}else{
+	    $result .= $_;
+	}
+    }
+
+    close READER;
+
+    return $result;
+}
+
+sub reaper{
+    #print "waiting for kid<br>\n";
+    my $waitpid = wait;
+    $SIG{CHLD} = 'reaper';
+    #print "done waiting for kid $waitpid<br>\n";
+}
+
+
+
+
+
+
+
