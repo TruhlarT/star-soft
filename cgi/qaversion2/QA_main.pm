@@ -136,7 +136,11 @@ sub PrintFrameset{
   my $script_name = $gCGIquery->script_name;
   
   print title($title), frameset( {-rows=>'60%,40%'},
+<<<<<<< QA_main.pm
+	"<!--\nINC=@INC\n-->",
+=======
 	"<!--\n", join("\n", @INC), "\n-->",
+>>>>>>> 1.28
 	frame( {-name=>'list',    -src=>"$script_name/upper_display"} ),
 	frame( {-name=>'display', -src=>"$script_name/lower_display"} ));
 }
