@@ -206,7 +206,9 @@ while ( defined($logname = readdir(LOGDIR)) ){
 			$tmp = $1;
 		    }
 		}
-		if($tmp ne ""){  $err = "After $tmp events $err\n";}
+		if($tmp ne "" && $err ne ""){  
+		    $err = "After $tmp events $err\n";
+		}
 		undef(@log_errs2);
 		
 		@log_errs1 = `tail -5 $err_file`;
