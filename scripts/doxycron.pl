@@ -359,6 +359,7 @@ for ($kk=0 ; $kk <= $#PROJECTS ; $kk++){
 	} else {
 	    print "\t\tMissing tmp$$/html directory\n";
 	}
+		
 	#unlink("$tmpf.cfg");
     } else {
 	print "\tAction did not create a temporary configuration file\n";
@@ -548,6 +549,23 @@ for ($kk=0 ; $kk <= $#PROJECTS ; $kk++){
 	}
     }
 
+    if (1==1){
+        # Dimitry has not settled the search (changed from a cgi to a php)
+	# Adding this page relying on the php, older version will have to
+	# refer to the cgi for a standalone linkg to the search
+	print "\tAdding a custom made search page\n";
+	open(FO,">TARGETD/dox$SUBDIR/html/search.html");
+	print FO "<!DOCTYPE HTML PUBLIC \"-//W3C//DTD HTML 4.01 Transitional//E";
+  	print FO "N\">\n<html><head><meta http-equiv=\"Content-Type\" content=\"";
+        print FO "text/html;charset=iso-8859-1\">\n<title>Search</title>\n<link";
+        print FO " href=\"doxygen.css\" rel=\"stylesheet\" type=\"text/css\">\n<";
+        print FO "/head><body>\n<HR>\n<form class=\"search\" action=\"search.ph";
+        print FO "p\" method=\"get\">\n  <span class=\"search\"><u>S</u>earch t";
+        print FO "he doxygen documentation for <input class=\"search\" type=\"t";
+        print FO "ext\" name=\"query\" value=\"\" size=\"20\" accesskey=\"s\"/>";
+        print FO "\n</form>\n<HR>\n</body>\n";
+	close(FO);
+    }
 
     # delete the log now
     print "\tRemoving log file\n";
