@@ -1,6 +1,6 @@
 /***************************************************************************
  *
- * $Id: StEbye2ptMaker.h,v 1.1 2000/02/05 03:15:21 jgreid Exp $
+ * $Id: StEbye2ptMaker.h,v 1.1.1.1 2000/02/05 03:15:21 jgreid Exp $
  *
  * Author: Jeff Reid, UW
  *         with design advice from Thomas Ullrich, Yale
@@ -13,8 +13,8 @@
  ***************************************************************************
  *
  * $Log: StEbye2ptMaker.h,v $
- * Revision 1.1  2000/02/05 03:15:21  jgreid
- * Initial revision
+ * Revision 1.1.1.1  2000/02/05 03:15:21  jgreid
+ * Two particle correlationspace generation package
  *
  *
  **************************************************************************/
@@ -41,7 +41,7 @@ public:
     Int_t Finish();
     
     virtual const char *GetCVS() const
-    {static const char cvs[]="$Id: StEbye2ptMaker.h,v 1.1 2000/02/05 03:15:21 jgreid Exp $ built "__DATE__" "__TIME__ ; return cvs;}
+    {static const char cvs[]="$Id: StEbye2ptMaker.h,v 1.1.1.1 2000/02/05 03:15:21 jgreid Exp $ built "__DATE__" "__TIME__ ; return cvs;}
     
 private:
 

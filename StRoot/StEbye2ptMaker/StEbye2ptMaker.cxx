@@ -1,6 +1,6 @@
 /***************************************************************************
  *
- * $Id: StEbye2ptMaker.cxx,v 1.1 2000/02/05 03:15:21 jgreid Exp $
+ * $Id: StEbye2ptMaker.cxx,v 1.1.1.1 2000/02/05 03:15:21 jgreid Exp $
  *
  * StEbye2ptMaker.cxx
  *
@@ -15,8 +15,8 @@
  ***************************************************************************
  *
  * $Log: StEbye2ptMaker.cxx,v $
- * Revision 1.1  2000/02/05 03:15:21  jgreid
- * Initial revision
+ * Revision 1.1.1.1  2000/02/05 03:15:21  jgreid
+ * Two particle correlationspace generation package
  *
  *
  **************************************************************************/
@@ -31,7 +31,7 @@
 using namespace units;
 #endif
 
-static const char rcsid[] = "$Id: StEbye2ptMaker.cxx,v 1.1 2000/02/05 03:15:21 jgreid Exp $";
+static const char rcsid[] = "$Id: StEbye2ptMaker.cxx,v 1.1.1.1 2000/02/05 03:15:21 jgreid Exp $";
 
 ClassImp(StEbye2ptMaker)
 

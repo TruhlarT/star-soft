@@ -1,7 +1,7 @@
 {
   ///////////////////////////////////////////////////////////////////////////////
   //
-  // $Id: read2pt.C,v 1.1 2000/02/05 03:15:21 jgreid Exp $
+  // $Id: read2pt.C,v 1.1.1.1 2000/02/05 03:15:21 jgreid Exp $
   //
   // read2pt.C
   //
@@ -16,8 +16,8 @@
   //  Janet Seger, Creighton
   //
   // $Log: read2pt.C,v $
-  // Revision 1.1  2000/02/05 03:15:21  jgreid
-  // Initial revision
+  // Revision 1.1.1.1  2000/02/05 03:15:21  jgreid
+  // Two particle correlationspace generation package
   //
   //
   ///////////////////////////////////////////////////////////////////////////////
