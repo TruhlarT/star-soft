@@ -1,8 +1,11 @@
 #!/opt/star/bin/perl -w
 #
-# $Id: dbDevTestQuery.pl,v 1.5 2001/02/23 00:37:48 liuzx Exp $
+# $Id: dbDevTestQuery.pl,v 1.6 2001/04/02 18:02:02 didenko Exp $
 #
 # $Log: dbDevTestQuery.pl,v $
+# Revision 1.6  2001/04/02 18:02:02  didenko
+# update directories
+#
 # Revision 1.5  2001/02/23 00:37:48  liuzx
 # .Add a random number as the action's parameter!
 #
@@ -33,9 +36,9 @@ my @prod_set = (
 		"trs_redhat61/year_1h/hc_standard",
 		"trs_redhat61/year_1h/hc_highdensity",
 		"trs_redhat61/year_1h/peripheral", 
-		"trs_redhat61/year_2b/hc_lowdensity",
-		"trs_redhat61/year_2b/hc_standard",
-		"trs_redhat61/year_2b/hc_highdensity",
+		"trs_redhat61/year_2001/hc_lowdensity",
+		"trs_redhat61/year_2001/hc_standard",
+		"trs_redhat61/year_2001/hc_highdensity",
 		"daq_redhat61/year_1h/minbias",
 		"daq_redhat61/year_1h/central",
 		);
