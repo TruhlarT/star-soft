@@ -1,5 +1,8 @@
-// $Id: bfc.C,v 1.6 1998/07/23 11:32:42 fisyak Exp $
+// $Id: bfc.C,v 1.7 1998/08/10 02:35:13 fisyak Exp $
 // $Log: bfc.C,v $
+// Revision 1.7  1998/08/10 02:35:13  fisyak
+// add laser
+//
 // Revision 1.6  1998/07/23 11:32:42  fisyak
 // Small fixes
 //
@@ -16,18 +19,17 @@
 // Add tcl and tpt
 //
 {
-   gSystem->Load("$STAR/lib/libasu.so");
-   gSystem->Load("$STAR/lib/libdsl.so");
-   gSystem->Load("$STAR/lib/St_base.so");
-   gSystem->Load("$STAR/lib/St_Tables.so");
-   gSystem->Load("$STAR/lib/libmsg.so");
-   gSystem->Load("$STAR/lib/libtls.so");
-   //   gSystem->Load("$STAR/lib/geometry.sl");
-   gSystem->Load("$STAR/lib/tpc.sl");
-   gSystem->Load("$STAR/lib/St_tpc.so");
-   gSystem->Load("$STAR/lib/svt.sl");
-   gSystem->Load("$STAR/lib/St_svt.so");
-   gSystem->Load("$STAR/lib/StChain.so");
+   gSystem->Load("libasu.so");
+   gSystem->Load("libdsl.so");
+   gSystem->Load("St_base.so");
+   gSystem->Load("St_Tables.so");
+   gSystem->Load("libmsg.so");
+   gSystem->Load("libtls.so");
+   gSystem->Load("tpc.sl");
+   gSystem->Load("St_tpc.so");
+   gSystem->Load("svt.sl");
+   gSystem->Load("St_svt.so");
+   gSystem->Load("StChain.so");
 
 #ifndef __CINT__
 #include "Rtypes.h"
@@ -40,13 +42,14 @@
 //  Char_t *filename = "/star/mds/data/SD98/auau200/bfc/central/hijing/set0001/regular/tss/auau_ce_b0-2_0001_0020.xdf";
 //  Char_t *filename = "/afs/rhic/star/data/samples/event_0000050.xdf";
 //  Char_t *filename = "/afs/rhic/star/data/samples/muons_100_ctb.dsl";
-  Char_t *filename = "$STAR_DATA/samples/muons_100_ctb.dsl";
+  Char_t *filename = "/afs/rhic/star/data/samples/muons_100_ctb.dsl";
   St_XDFFile xdffile_in(filename,"r");
 // Create the main chain object
   StChain chain("StChain");
 //  Create the makers to be called by the current chain
   St_xdfin_Maker xdfin("xdfin_Maker","event/geant");
   chain.SetInputXDFile(&xdffile_in);
+  St_run_Maker run_Maker("run_Maker","run/params");
 //  St_evg_Maker evg_Maker("evg_Maker","event");
   St_tss_Maker tss_Maker("tss_Maker","event/raw_data/tpc");
   St_srs_Maker srs_Maker("srs_Maker","event/data/svt");
