@@ -26,12 +26,18 @@ my @prodPer;
 my $myprod;
 my $nprodPer = 0;
 my @colSet = ("AuAu130", "AuAu200","laser");
-my @detSet = ("all","tpc","svt","rich","tof","ftpc","emc","fpd","pmd");
-my @trigSet  = ("all","central","minbias","medium","peripheral","mixed","physics","n/a");
+my @detSet = ("all","tpc","svt","rich","tof","ftpc","emc","fpd","pmd","tpc.rich","tpc.rich.svt","tpc.ftpc","tpc.ftpc.rich","tpc.tof.ftpc","tpc.tof.ftpc.rich","tpc.svt.ftpc.rich","tpc.svt.tof.rich","ftpc.rich.svt.tof.tpc","ftpc.rich.svt.tpc", "ftpc.rich.tof.tpc","rich.svt.tpc","rich.svt.tof.tpc","emc.ftpc","emc.rich","emc.tpc","emc.ftpc.rich.svt.tof","emc.rich.tof.tpc");
+my @trigSet;
+my $ntrigSet = 0;
 my @mfield = ("all","HalfField","ReversedFullField","ReversedHalfField","FieldOff");
 my @format = ("daq","dst.root","event.root","hist.root","tags.root");
 my @locSet = ("hpss","disk");
 
+my $mytrig;
+
+$trigSet[0] = "all";
+$ntrigSet = 1;
+ 
 &StDbProdConnect();
 
 $sql="SELECT DISTINCT prodSeries FROM JobStatus where prodSeries like 'P0%'";
@@ -52,6 +58,26 @@ $sql="SELECT DISTINCT prodSeries FROM JobStatus where prodSeries like 'P0%'";
     }
        $prodPer[$nprodPer] = $myprod;
        $nprodPer++;
+    }
+
+$sql="SELECT DISTINCT trigger FROM FileCatalog where fName like '%daq' ";
+
+   $cursor =$dbh->prepare($sql)
+      || die "Cannot prepare statement: $DBI::errstr\n";
+   $cursor->execute;
+
+    while(@fields = $cursor->fetchrow) {
+      my $cols=$cursor->{NUM_OF_FIELDS};
+
+    for($i=0;$i<$cols;$i++) {
+       my $fvalue=$fields[$i];
+       my $fname=$cursor->{NAME}->[$i];
+       print "$fname = $fvalue\n" if $debugOn;
+   
+       $mytrig = $fvalue  if($fname eq 'trigger'); 
+    }
+       $trigSet[$ntrigSet] = $mytrig;
+       $ntrigSet++;
     }
 
 $query = new CGI;
@@ -82,77 +108,78 @@ END
 
 print <<END;
 <hr>
-<table BORDER=0 align=center width=99% cellspacing=3>
-<tr ALIGN=center VALIGN=CENTER NOSAVE>
-<td>
+<table BORDER=0 align=center width=90% cellspacing=3>
+<tr ALIGN=left VALIGN=CENTER NOSAVE>
 END
 
-print "</td><td>";
-print "<h3 align=center>Collision:</h3>";
-print "<h3 align=center>";
+print "<td width=50%>";
+print "<h3 align=left>Collision:</h3>";
+print "<h3 align=left>";
 print $query->popup_menu(-name=>'SetCl',  
                    -values=>\@colSet,
                    -default=>'AuAu200',                  
                    -size=>4                              
                    );
-print "</h3>"; 
-print "</td><td>";
-print "<h3 align=center>Detector:</h3>";
-print "<h3 align=center>";
-print $query->popup_menu(-name=>'SetDet',
-                    -values=>\@detSet,
-                    -default=>'all',
-                    -size=>4
-                    ); 
-print "</h3>";
-print "</td><td>";
-print "<h3 align=center>Trigger:</h3>";
-print "<h3 align=center>";
+
+print "</td><td width=50%>";
+print "<h3 align=left>Trigger:</h3>";
+print "<h3 align=left>";
 print $query->popup_menu(-name=>'SetTrg',
                     -values=>\@trigSet,
                     -default=>'all',
                     -size=>4
-                    ); 
+                    );  
 
-print "</h3>";
-print "</td> </table><center>";
-
-
+print "</td> </tr> </table><hr>";
+print "</td>";
 print <<END;
-<hr>
-<table BORDER=0 align=center width=99% cellspacing=3>
-<tr ALIGN=center VALIGN=CENTER NOSAVE>
-<td>
+<table BORDER=0 align=center width=90% cellspacing=3>
+<tr ALIGN=left VALIGN=CENTER NOSAVE>
 END
 
-print "</td><td>";
-print "<h3 align=center>Magnetic Field:</h3>";
-print "<h3 align=center>";
+print "<td width=50%>";
+print "<h3 align=left>Magnetic Field:</h3>";
+print "<h3 align=left >";
 print $query->popup_menu(-name=>'SetField',
                     -values=>\@mfield,
                     -default=>'all', 
                     -size=>4
                     ); 
-print "</h3>";
-print "</td><td>";
-print "<h3 align=center>Format:</h3>";
-print "<h3 align=center>";
+
+print "</td><td width=50%>";
+print "<h3 align=left>Detector:</h3>";
+print "<h3 align=left>";
+print $query->popup_menu(-name=>'SetDet',
+                    -values=>\@detSet,
+                    -default=>'all',
+                    -size=>4
+                    ); 
+
+print "</td> </tr> </table><hr>";
+print <<END;
+<table BORDER=0 align=center width=90% cellspacing=3>
+<tr ALIGN=left VALIGN=CENTER NOSAVE>
+END
+
+print "<td width=50%>";
+print "<h3 align=left>Production series:</h3>";
+print "<h3 align=left>";
+print $query->popup_menu(-name=>'SetPrd',  
+                   -values=>\@prodPer,
+                   -default=>'P01hg',                   
+                   -size=>4                              
+                   );  
+
+print "</td><td width=50%>";
+print "<h3 align=left>Format:</h3>";
+print "<h3 align=left>";
 print $query->popup_menu(-name=>'SetForm',
                     -values=>\@format,
                     -default=>'daq',
                     -size=>4
                     ); 
-print "</h3>";
-print "</td><td>";
-print "<h3 align=center>Production series:</h3>";
-print "<h3 align=center>";
-print $query->popup_menu(-name=>'SetPrd',  
-                   -values=>\@prodPer,
-                   -default=>'P01hf',                   
-                   -size=>4                              
-                   );  
-print "</h3>";
-print "</td> </tr> </table><hr><center>";
+
+print "</td> </tr> </table><hr>";
 
 
 print "<h3 align=center>Location:</h3>";
@@ -162,7 +189,6 @@ print $query->popup_menu(-name=>'SetLc',
                     -default=>hpss,
                     -size=>2
                     ); 
-print "</h3>";
 
  print "<p>";
  print "<p><br><br>"; 
