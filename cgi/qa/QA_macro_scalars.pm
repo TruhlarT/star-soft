@@ -29,10 +29,9 @@ sub bfcread_dstBranch{
   my $report_filename = shift;
   #--------------------------------------------------------------
 
-  my (%temp_hash, $temp_object, $end_of_first_event);
+  my ($object, $end_of_first_event);
   my ( %run_scalar_hash, %event_scalar_hash );
 
-  tie %temp_hash, "Tie::IxHash";
   tie %run_scalar_hash, "Tie::IxHash"; 
   tie %event_scalar_hash, "Tie::IxHash"; 
 
@@ -48,9 +47,9 @@ sub bfcread_dstBranch{
     if (/found object: (\w+)/){ # found an object?
       # only store first event
       next if $end_of_first_event;
-      $temp_object = $1;
+      $object = $1;
       # num of rows found in next line
-      $temp_hash{$temp_object} = undef;
+      $run_scalar_hash{$object} = undef;
       next;
     }
     
@@ -58,31 +57,22 @@ sub bfcread_dstBranch{
       # only store first event
       next if $end_of_first_event;
       # get # rows
-      $temp_hash{$temp_object} = $1;
+      $run_scalar_hash{$object} = $1;
       next;
     }
 
     if (/event \# 1,.*?= (\d+).*?= (\d+)/){ # objects, tables in evt1
-      $run_scalar_hash{'tables_in_first_event'} = $2;
-      $run_scalar_hash{'objects_in_first_event'} = $1;
+      $run_scalar_hash{'event_1_num_tables'} = $2;
+      $run_scalar_hash{'event_1_num_objects'} = $1;
       $end_of_first_event = 1;
       next;
     }
 
     # now we're at the end
 
-    if (/Make called\s+= (\d+)/){ # times Make is called
-      $run_scalar_hash{'make_called'} = $1;
-      next;
-    }
 
     if (/events read\s+= (\d+)/){ # events read
-      $run_scalar_hash{'events_read'} = $1;
-      next;
-    }
-
-    if (/events with.*?= (\d+)/){ # events with dst
-      $run_scalar_hash{'events_with_dst'} = $1;
+      $run_scalar_hash{'num_events_read'} = $1;
       next;
     }
 
@@ -97,21 +87,17 @@ sub bfcread_dstBranch{
     }
 
     if (/tables per event\s+= (\d+)/){ # avg tables per event
-      $run_scalar_hash{'tables_per_event'} = $1;
+      $run_scalar_hash{'avg_tables_per_event'} = $1;
       next;
     }
 
     if (/objects per event\s+= (\d+)/){ # avg objects per event
-      $run_scalar_hash{'objects_per_event'} = $1;
+      $run_scalar_hash{'avg_objects_per_event'} = $1;
       next;
     }
 
   } # end of while
 
-  # add the objects now
-  while( ($key, $value) = each %temp_hash ) {
-    $run_scalar_hash{$key} = $value;
-  }
 
   close REPORT;
 
@@ -127,37 +113,53 @@ sub bfcread_runcoBranch{
 
   my $report_key = shift;
   my $report_filename = shift;
-  
-  my ( %table, $key, $value );
+  #--------------------------------------------------------------
+
+  my ($end_of_first_event);
   my ( %run_scalar_hash, %event_scalar_hash );
 
-  tie %table, "Tie::IxHash";
   tie %run_scalar_hash, "Tie::IxHash"; 
-  tie %event_scalar_hash, "Tie::IxHash";
+  tie %event_scalar_hash, "Tie::IxHash"; 
 
+  #--------------------------------------------------------------
   open REPORT, $report_filename or do{
     print "Cannot open report $report_filename \n";
     return;
   };
-  #---------------------------------------------------------
-  while ( <REPORT> ) {
-    if ( /rows\s+=\s+([\w_]+),\s+(\d+)/ ) {
-      $table{$1} = $2; 
+  #--------------------------------------------------------------
+  while (<REPORT>){
+    /QAInfo:/ or next; # skip lines that dont start with QAInfo
+    
+    
+    if (/table with \#rows = (\w+),\s+(\d+)/){ # fill in the # of rows
+      # only store first event
+      next if $end_of_first_event;
+      # get # rows
+      $run_scalar_hash{$1} = $2;
       next;
     }
 
-    if ( /(event)\s+(\d+)/         or
-	 /(directories).*?(\d+)/   or
-	 /(tables).*?(\d+)/           ) {
-      $run_scalar_hash{$1} = $2;
+    if (/event \# 1,.*?= (\d+).*?tables.*?= (\d+)/){ # dirs, tables in evt1
+      $run_scalar_hash{'directories'} = $1;
+      $run_scalar_hash{'tables'} = $2;
+      $end_of_first_event = 1;
+      next;
     }
-  }
-  while( ($key, $value) = each %table ) {
-    $run_scalar_hash{$key} = $value;
-  }
-  #=--------------------------------------------------------
+
+    # now we're at the end
+
+
+    if (/events read\s+= (\d+)/){ # events read
+      $run_scalar_hash{'num_events_read'} = $1;
+      next;
+    }
+
+
+  } # end of while
+
   close REPORT;
 
+  #--------------------------------------------------------------
   return \%run_scalar_hash, \%event_scalar_hash;
 } 
 #================================================================
