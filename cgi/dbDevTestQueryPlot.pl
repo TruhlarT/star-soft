@@ -1,8 +1,11 @@
 #!/usr/local/bin/perl -w
 #
-# $Id: dbDevTestQueryPlot.pl,v 1.14 2002/01/30 17:39:55 didenko Exp $
+# $Id: dbDevTestQueryPlot.pl,v 1.15 2002/10/11 14:25:28 didenko Exp $
 #
 # $Log: dbDevTestQueryPlot.pl,v $
+# Revision 1.15  2002/10/11 14:25:28  didenko
+# *** empty log message ***
+#
 # Revision 1.14  2002/01/30 17:39:55  didenko
 # extand week days for Sat, Sun
 #
@@ -17,6 +20,11 @@
 #
 #
 ##########################################################
+
+
+BEGIN {
+ use CGI::Carp qw(fatalsToBrowser carpout);
+}
 
 require "/afs/rhic/star/packages/scripts/dbTJobsSetup.pl";
 
