@@ -39,3 +39,4 @@ echo "GROUP_DIR"="%AFS_RHIC%\\star\\group">>Env.reg
 rem if "%STAR_SYS%".=="". if exist %GROUP_DIR%\STAR_SYS.bat call %GROUP_DIR%\STAR_SYS.bat
 if exist %GROUP_DIR%\STAR_SYS.bat call %GROUP_DIR%\STAR_SYS.bat
 if exist %GROUP_DIR%\group_env.bat call %GROUP_DIR%\group_env.bat %ECHO%
+path %path%;%STAR%\mgr;%STAR%\bin

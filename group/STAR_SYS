@@ -1,5 +1,8 @@
 #!/bin/csh
 #  $Log: STAR_SYS,v $
+#  Revision 1.15  1999/09/14 17:02:36  fisyak
+#  Add redHat 6.0
+#
 #  Revision 1.14  1999/04/13 20:54:33  fisyak
 #  Set all Linuxes to redhat51
 #
@@ -56,15 +59,20 @@
 #
 #  Revision 1.1.1.1  1997/12/31 14:35:23  fisyak
 #
-#             Last modification $Date: 1999/04/13 20:54:33 $ 
+#             Last modification $Date: 1999/09/14 17:02:36 $ 
 #
 # Determine STAR_SYS variable.
 #
 setenv STAR_SYS ""
 if (-e /usr/afsws/bin/sys)       setenv STAR_SYS `/usr/afsws/bin/sys`
+if ("${STAR_SYS}" == "i386_linux22") then
+    set redhat = "5.2";
+    setenv STAR_SYS i386_redhat51
+    if (-f /etc/redhat-release) set redhat = `awk '{print $5}' /etc/redhat-release`
+    if ("$redhat" == "6.0") setenv STAR_SYS "i386_redhat60"
+endif
 if ("$STAR_SYS" == "i386_linux22"|| "$STAR_SYS" == "i386_redhat50" || \
     "$STAR_SYS" == "i386_linux2" || "$STAR_SYS" == "i386_linux3") setenv STAR_SYS "i386_redhat51"
-if ("${STAR_SYS}" == "i386_redhat50") setenv STAR_SYS i386_linux2
 if (${STAR_SYS} == "") then
 set mach_os = ` uname -sr | sed -e 's/ //g' -e 's/\.//g' `
 #

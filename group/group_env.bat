@@ -53,7 +53,7 @@ rem set STAR=%STAR_PATH%\%STAR_LEVEL%
 set STAR=w:\%STAR_LEVEL%
 rem echo "STAR"="%AFS_RHIC%\\star\\packages\\%STAR_LEVEL%">>Env.reg
 					       if DEFINED ECHO echo   "Setting up STAR      = %STAR%
-
+set STAF=%AFS_RHIC%\star\packages\StAF\SL99g
 set STAR_MGR=%STAR%\mgr
 rem echo "STAR_MGR"="%AFS_RHIC%\\star\\packages\\%STAR_LEVEL%\\mgr">>Env.reg
 
