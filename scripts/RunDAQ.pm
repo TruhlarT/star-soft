@@ -1,4 +1,3 @@
-
 #
 # Written J.Lauret , July 2001
 #
@@ -20,7 +19,9 @@
 #      rdaq_check_entries           check entries and return an array of entries
 #                                   which are suspect (i.e. does not pass the
 #                                   expected conditions).
-#      rdaq_list_field              Returns all possible values for field
+#      rdaq_list_field              Returns all possible values for give record
+#      rdaq_set_location            Set the disk location field for a give record
+#      rdaq_get_location            gets the output directory location if any.
 #
 #      rdaq_last_run                return the last run number from the o-ddb
 #      rdaq_get_files               get a list of files with $status from o-ddb
@@ -34,18 +35,22 @@
 # Utility (no need for any ddb to be opened)
 #      rdaq_file2hpss               return an HPSS path+file (several methods)
 #      rdaq_status_string           returns a status string from a status val
-#      rdaq_getbit                  Returns the bit position for a given variable
-#                                   saved in a given table. If the second argument 
-#                                   is 1, the value is added to the list of possible
-#                                   ones.
-#      rdaq_bits2string             Returns a string from a bitfield.                 
+#      rdaq_bits2string             Returns a string from a bitfield.
+#      rdaq_mask2string             Returns detector set from detector BitMask.
+#
 #
 # DEV ONLY *** MAY BE CHANGED AT ANY POINT IN TIME ***
 #      rdaq_set_files_where         Not in its final shape.
 #      rdaq_update_entries          For maintainance ONLY
 #
-# BACKWARD Compatibility routines
-#      rdaq_mask2string             Returns detector set from detector BitMask.
+#
+# Internal
+#      GetBitValue                  Returns the bit position for a given variable
+#                                   saved in a given table. If the second argument
+#                                   is 1, the value is added to the list of possible
+#                                   ones.
+#      Record_n_Fetch               Base routine to save a string record in an
+#                                   associated array and return the index.
 #
 #
 # HowTo add a field
@@ -53,14 +58,15 @@
 #  VALUES() and add a ?, modify the hack routine to make this field
 #  appear at the proper place, eventually modify the MAINTAINER only
 #  routine update_entries to initialize the column, and save ...
-#  For a BITWISE field, do the same AND, in addition, add a 
+#
+#  For a BITWISE field, do the same AND, in addition, add a
 #  hash value for that column. The value MUST be a valid existing
-#  table you can create using 
-#  > create table $TBLName (id INT NOT NULL AUTO_INCREMENT, Label CHAR(50) NOT NULL, 
+#  table you can create using
+#  > create table $TBLName (id INT NOT NULL AUTO_INCREMENT, Label CHAR(50) NOT NULL,
 #  PRIMARY KEY(id), UNIQUE(Label));
 #  The fields of that extra table are expected to be EXACTLY as above i.e. there
 #  are all standardized to avoid proliferation of routines. THERE is nothing else
-#  to do at this level. 
+#  to do at this level.
 #  If you have build a script based on get_ffiles() or get_orecords(), you will
 #  need to take into account the fact that the number of fields is larger. The
 #  last field of DAQInfo is expected to be 'Status'. Please, preserve this ...
@@ -75,19 +81,22 @@ require 5.000;
 require Exporter;
 @ISA = qw(Exporter);
 
-@EXPORT= qw( 
-	     rdaq_open_rdatabase rdaq_close_rdatabase        
-	     rdaq_open_odatabase rdaq_close_odatabase        
-	     rdaq_raw_files rdaq_add_entry rdaq_add_entries rdaq_delete_entries 
+@EXPORT= qw(
+	     rdaq_open_rdatabase rdaq_close_rdatabase
+	     rdaq_open_odatabase rdaq_close_odatabase
+
+	     rdaq_raw_files rdaq_add_entry rdaq_add_entries
+	     rdaq_set_location rdaq_get_location
+	     rdaq_delete_entries
 
 	     rdaq_check_entries rdaq_list_field
-	     rdaq_last_run 
+	     rdaq_last_run
 
-	     rdaq_get_files rdaq_get_ffiles rdaq_get_orecords 
-	     rdaq_set_files 
+	     rdaq_get_files rdaq_get_ffiles rdaq_get_orecords
+	     rdaq_set_files
 
-	     rdaq_file2hpss rdaq_mask2string rdaq_status_string 
-	     rdaq_getbit rdaq_bits2string
+	     rdaq_file2hpss rdaq_mask2string rdaq_status_string
+	     rdaq_bits2string
 
 	     rdaq_set_files_where rdaq_update_entries
 
@@ -96,7 +105,7 @@ require Exporter;
 
 #
 # Database information
-# 
+#
 $DDBSERVER = "onlsun1.star.bnl.gov";
 $DDBUSER   = "starreco";
 $DDBPASSWD = "";
@@ -112,7 +121,7 @@ $dbname    = "operation";
 $HPSSBASE  = "/home/starsink/raw/daq";        # base path for HPSS file loc.
 
 
-# Required tables on $DDBSERVER 
+# Required tables on $DDBSERVER
 @REQUIRED  = ("daqFileTag","daqSummary",
 	      "triggerSet","detectorSet",
 	      "beamInfo","magField");
@@ -142,9 +151,10 @@ $ROUND{"BeamE"}       = 2; # does not work with 1
 # described above. The value of this hash array is
 # the table name containing the bit position ...
 #
-$BITWISE{"TrgMask"}    = "TriggerBits";
-$BITWISE{"TrgSetup"}   = "TriggerSetup";
-$BITWISE{"DetSetMask"} = "DetectorTypes";
+$BITWISE{"TrgMask"}    = "FOTriggerBits";
+$BITWISE{"TrgSetup"}   = "FOTriggerSetup";
+$BITWISE{"DetSetMask"} = "FODetectorTypes";
+
 
 
 #
@@ -157,7 +167,8 @@ sub rdaq_add_entry
     my($sth);
 
     if(!$obj){ return 0;}
-    $sth = $obj->prepare("INSERT IGNORE INTO $dbtable VALUES(?,?,?,?,?,?,?,?,?,?,?,?,0)");
+    $sth = $obj->prepare("INSERT IGNORE INTO $dbtable ".
+			 "VALUES(?,?,?,?,?,?,?,?,?,?,?,?,NOW()+0,0,0)");
     $sth->execute(@values);
     $sth->finish();
     1;
@@ -170,22 +181,25 @@ sub rdaq_add_entries
     my($obj,@records)=@_;
     my($sth,$line,@values);
     my($count);
-   
+
     $count=0;
     if(!$obj){ return 0;}
 
     if($#records != -1){
-	$sth = $obj->prepare("INSERT INTO $dbtable VALUES(?,?,?,?,?,?,?,?,?,?,?,?,0)");
+	$sth = $obj->prepare("INSERT INTO $dbtable ".
+			     "VALUES(?,?,?,?,?,?,?,?,?,?,?,?,NOW()+0,0,0)");
 	if($sth){
 	    foreach $line (@records){
 		@values = split(" ",$line);
-		if($sth->execute(@values)){
+		if ($sth->execute(@values)){
 		    $count++;
 		} else {
 		    &info_message("add_entries","Failed to add [$line]\n");
 		}
 	    }
-	    $sth->finish();    
+	    $sth->finish();
+	} else {
+	    &info_message("add_entries","Failed to prepare sentence\n");
 	}
     }
     $count;
@@ -201,7 +215,7 @@ sub rdaq_update_entries
     my($obj,@records)=@_;
     my($sth,$line,@values);
     my($count);
-   
+
     $count=0;
     if(!$obj){  return 0;}
 
@@ -215,9 +229,9 @@ sub rdaq_update_entries
 		    $count++;
 		}
 	    }
-	    $sth->finish();    
+	    $sth->finish();
 	} else {
-	    &info_message("update_entries","prepare() failed\n");	    
+	    &info_message("update_entries","prepare() failed\n");
 	}
     }
     $count;
@@ -253,6 +267,54 @@ sub rdaq_delete_entries
 }
 
 #
+# Sets the output directory location for this entry
+#
+sub rdaq_set_location
+{
+    my($obj,$loc,@values)=@_;
+    my($file,$val);
+    my($sth,$sth2);
+
+    if(!$obj){  return 0;}
+
+    # sort out if there is something in the hash array for that
+    # location. Special case is undef which is reserved for
+    # 'not stored on disk'.
+    if( defined($loc) ){
+	$val = &Record_n_Fetch("FOLocations",$loc);
+    } else {
+	$val = 0;
+    }
+
+    $file= shift(@values);
+    $sth = $obj->prepare("UPDATE $dbtable SET DiskLoc=? WHERE file=?");
+    return $sth->execute($val,$file);
+}
+
+# get the outpur directory location
+sub rdaq_get_location
+{
+    my($obj,@values)=@_;
+    my($sth,$val);
+
+    if(!$obj){  return 0;}
+
+    $file= shift(@values);
+    $sth = $obj->prepare("SELECT FOLocations.Label FROM FOLocations,$dbtable ".
+			 "WHERE FOLocations.id=$dbtable.DiskLoc AND ".
+			 "$dbtable.file=?");
+    if($sth){
+	$sth->execute($file);
+	if( ! defined($val = $sth->fetchrow() ) ){
+	    $val = 0;
+	}
+	$sth->finish();
+    }
+    $val;
+}
+
+
+#
 # On August 3rd, we noticed that some entries were in but should not
 # have been. After some discussion, it appeared that this is caused by
 # a hand-shaking problem between offline/online and especially, a
@@ -272,7 +334,7 @@ sub rdaq_check_entries
 
     $tref = Date::Manip::DateCalc("today","-$since minutes");
     $tref = Date::Manip::UnixDate($tref,"%Y%m%H%M%S00");
-    
+
     undef;
 }
 
@@ -295,13 +357,13 @@ sub rdaq_last_run
     if($sth){
 	$val = $sth->fetchrow();
 	$sth->finish();
-	$val =~ /(.*_)(\d+_)(.*)(\d+)/;
+	$val =~ /(.*_)(\d+_)(.*_)(\d+)/;
 	$val = $2.$4;
 	$val =~ s/_/./;
 	$val;
     } else {
 	0;
-    }    
+    }
 }
 
 #
@@ -335,9 +397,9 @@ sub rdaq_raw_files
     # Optional arguments
     if( $from ne ""){
 	# start from some run number
-	if( index($from,"_") != -1){
+	if( index($from,"\.") != -1){
 	    # recent format returns file sequence
-	    @res = split("\.",$from);
+	    @res = split(/\./,$from);
 	    $cmd .= " AND (daqSummary.runNumber > $res[0] OR ".
 		" (daqSummary.runNumber=$res[0] AND daqFileTag.fileSequence > $res[1]))";
 	} else {
@@ -355,7 +417,7 @@ sub rdaq_raw_files
     $sth->execute();
     while( @res = $sth->fetchrow_array() ){
 	# Massage the results to return a non-ambiguous information
-	# We are still lacking 
+	# We are still lacking
 	#print join("|",@res)."\n";
 	push(@all,&rdaq_hack($obj,@res));
     }
@@ -363,7 +425,7 @@ sub rdaq_raw_files
 }
 
 # hack for currently missing elements and information in
-# database. This routine is internal only and may be 
+# database. This routine is internal only and may be
 # rehsaped at any time. However the final returned values
 # should remain the same.
 sub rdaq_hack
@@ -379,7 +441,7 @@ sub rdaq_hack
     # THIS IS NOW IN THE DATABASE. Moi : Jul 20th 2001
     #push(@res,"AuAu");
 
-    
+
     # Dataset selection, the DetectorTypes was filled by hand.
     $stht = $obj->prepare("SELECT detectorTypes.name FROM detectorTypes, detectorSet ".
 			  "WHERE detectorSet.detectorID=detectorTypes.detectorID AND ".
@@ -407,7 +469,7 @@ sub rdaq_hack
 	    &info_message("hack","$run cannot be evaluated. No DataSET info.\n");
 	} else {
 	    while( defined($line = $stht->fetchrow() ) ){
-		$mask |= (1 << &rdaq_getbit("DetSetMask",$line,1));
+		$mask |= (1 << &GetBitValue("DetSetMask",$line));
 	    }
 	}
 	$DETSETS{$run} = $mask;
@@ -423,13 +485,13 @@ sub rdaq_hack
     if( ! defined($TRGSET{$run}) ){
 	#&info_message("hack","Checking TrgMask for run $run -> ");
 	$mask = 0;
-	$sths->execute($run); 
+	$sths->execute($run);
 	if( ! $sths ){
 	    &info_message("hack","$run cannot be evaluated. No TriggerSetup info.\n");
 	    $mask = 0;
 	} else {
 	    while( defined($line = $sths->fetchrow()) ){
-		$mask |= (1 << &rdaq_getbit("TrgSetup",$line,1));
+		$mask |= (1 << &GetBitValue("TrgSetup",$line));
 	    }
 	}
 	$TRGSET{$run} = $mask;
@@ -445,14 +507,14 @@ sub rdaq_hack
     if( ! defined($TRGMASK{$run}) ){
 	#&info_message("hack","Checking TrgMask for run $run -> ");
 	$mask = 0;
-	$sthl->execute($run); 
+	$sthl->execute($run);
 	if( ! $sthl ){
 	    &info_message("hack","$run cannot be evaluated. No TriggerLabel info.\n");
 	    $mask = 0;
 	} else {
 	    while( @items = $sthl->fetchrow_array() ){
 		if($items[1] != 0){
-		    $mask |= (1 << &rdaq_getbit("TrgMask",$items[0],1));
+		    $mask |= (1 << &GetBitValue("TrgMask",$items[0]));
 		}
 	    }
 	}
@@ -461,7 +523,6 @@ sub rdaq_hack
 	$mask = $TRGMASK{$run};
     }
     push(@res,$mask);
-
 
 
     join(" ",@res);
@@ -502,7 +563,7 @@ sub rdaq_open_rdatabase
 sub rdaq_close_rdatabase
 {
     my($obj)=@_;
-    if(!$obj){ 
+    if(!$obj){
 	return 0;
     } else {
 	$obj->disconnect();
@@ -514,7 +575,7 @@ sub rdaq_close_odatabase
 {
     my($obj)=@_;
 
-    if(!$obj){ 
+    if(!$obj){
 	return 0;
     } else {
 	$obj->disconnect();
@@ -525,7 +586,7 @@ sub rdaq_close_odatabase
 sub rdaq_open_odatabase
 {
    my($obj);
-   
+
    $obj = DBI->connect("dbi:mysql:$dbname:$dbhost", $dbuser, $dbpass,
 			{PrintError  => 0, AutoCommit => 1,
 			 ChopBlanks  => 1, LongReadLen => 200});
@@ -534,17 +595,17 @@ sub rdaq_open_odatabase
 
 #
 # Scans o-database and returns a list of
-# files which have status $status. 
+# files which have status $status.
 # The parameters are
 #    status    may be -1 for all status
 #    limit     -1 for no limit
-#    mode      0 for the file name only, 
+#    mode      0 for the file name only,
 #              all fields are otherwise
 #              returned.
 #    conds     A reference to an hash array
 #              for extraneous condition selection.
 #
-# The list will be given in a descending ordered 
+# The list will be given in a descending ordered
 # array (first file is last saved to HPSS).
 #
 # Return full list (i.e. all columns from o-ddb)
@@ -559,20 +620,20 @@ sub rdaq_get_files
 {
     my($obj,$status,$limit,$mode)=@_;
     my(%Conds);
-    
+
     # Default values will be sorted out here.
     if( ! defined($limit) ){  $limit = 0;}
     if( ! defined($mode)  ){  $mode  = 0;}
     if( ! defined($status) ){ $status= 0;}
 
-    # We MUST pass a reference to a hash. 
+    # We MUST pass a reference to a hash.
     $Conds{"Status"} = $status;
     return &rdaq_get_orecords($obj,\%Conds,$limit,$mode);
 }
 
 #
 # Because of a later version of this (evoluated from get_files()),
-# and for backward compatibility, we need to support the options 
+# and for backward compatibility, we need to support the options
 # described above .
 # This basic fundamental function DOES NOT support default values
 # so it needs to be sorted out prior to this call.
@@ -583,7 +644,7 @@ sub rdaq_get_orecords
     my($cmd,$el,$val,$tmp,$sth);
     my(@Values);
     my($file,@files,@items);
-    my($flag);
+    my($flag,$comp);
 
     if(!$obj){ return undef;}
 
@@ -594,9 +655,24 @@ sub rdaq_get_orecords
     # backward compatibility is status selection where -1 = all
     # may be achieved by skipping hash element.
     foreach $el (keys %$Conds){
+	$comp= "=";
 	$val = $$Conds{$el};
+
+	# do NOT build a querry for a 'all' keyword
 	if( $el eq "Status" && $val == -1){ next;}
-	
+
+	# Sort out possible comparison operators
+	$test= substr($val,0,1);
+	$comp= ">=" if($test eq ">");
+	$comp= "<=" if($test eq "<");
+	$comp= "!=" if($test eq "!");
+	if($comp ne "="){
+	    $val = substr($val,1,length($val));
+	    $$Conds{$el} = $val;
+	}
+
+
+	# Sort out now the kind of field we are working with
 	$flag = 1;
 
 	if( defined($ROUND{$el}) ){
@@ -605,13 +681,14 @@ sub rdaq_get_orecords
 	    $flag= 0;
 	    $tmp = (split(":",$val))[0];
 	    if( $tmp == 0){
-		$val = "($el=0)";
+		$val = "($el = 0)";
 	    } else {
 		$val = "($el & (1 << $tmp))";
 	    }
 	} else {
 	    $val = $el;
 	}
+
 
 	# check WHERE keyword presence or not
 	if($cmd !~ /WHERE/){
@@ -622,7 +699,7 @@ sub rdaq_get_orecords
 	# check if selection is completely defined
 	# or not.
 	if( $flag){
-	    $cmd .= "=?";
+	    $cmd .= "$comp?";
 	    push(@Values,$$Conds{$el});
 	} else {
 	    # the syntax is a bit operation therefore complete
@@ -630,7 +707,7 @@ sub rdaq_get_orecords
 
     }
     $cmd .= " ORDER BY file DESC";
-    if( $limit > 0){	            
+    if( $limit > 0){
 	$cmd .= " LIMIT $limit";
     }
 
@@ -669,7 +746,7 @@ sub rdaq_set_files_where
     my($obj,$status,$stscond,@files)=@_;
     my($sth,$success,$cmd);
     my(@items);
-    
+
     if(!$obj){ return 0;}
 
     $success = 0;
@@ -682,7 +759,7 @@ sub rdaq_set_files_where
     if($sth){
 	foreach $file (@files){
 	    # support for list of files or full list.
-	    $file = (split(" ",$file))[0];  
+	    $file = (split(" ",$file))[0];
 	    if($sth->execute($file)){
 		$success++;
 	    }
@@ -695,7 +772,7 @@ sub rdaq_set_files_where
 #
 # Returns all possible values for a given field
 # BEWARE of some querries which may return a long-long list ...
-# 
+#
 #
 sub rdaq_list_field
 {
@@ -753,75 +830,73 @@ sub rdaq_list_field
 # Utility routines.
 # --------------------
 #
-# Returns the bit placement for a trigger Label
-# uses global associative array TRGBITS to save
-# processing time.
+# Returns the bit placement for a BITWISE field.
 # A return value of 0 will mean bit 0 set to 1
 # and indicate an unknown trigger (missing info
 # in the table).
 #
-sub rdaq_getbit
+sub GetBitValue
 {
-    my($field,$el,$mode)=@_;
+    my($field,$el)=@_;
     my($tbl,$rv,$sthc,$oobj);
 
-    if( $field eq ""){         return 0; }
-    if( $el    eq ""){         return 0; }
-    if( ! defined($tbl = $BITWISE{$field})){ return 0;}
+    if( $field eq ""){                       return 0; }
+    if( $el    eq ""){                       return 0; }
 
-    if( ! defined($mode) ){ $mode = 0; }
+    # Get the table name from the BITWISE hash configuration
+    if( ! defined($tbl = $BITWISE{$field})){ return 0; }
 
-    if( ! defined($ALLBITS{$el}) ){
-	# Needs to sort out the bit value for this guy but only if not
-	# already in the database.
-	$rv = 0;
-
-	if($mode == 1){
-	    # Enter that value in.
-	    if( $oobj = rdaq_open_odatabase() ){
-		#&info_message("getbit","Attempt to insert $el\n");
-		$sthc = $oobj->prepare("INSERT IGNORE INTO $tbl VALUES(0,'$el')");
-		$sthc->execute();
-		$sthc->finish();
-
-		$sthc = $oobj->prepare("SELECT $tbl.id FROM $tbl ".
-				       "WHERE $tbl.Label=?");
-		if($sthc){
-		    $sthc->execute($el);
-		    if( defined($val = $sthc->fetchrow()) ){
-			$ALLBITS{$el} = $val;
-			$rv = $val;
-		    } 
-		    $sthc->finish();
-		}
-	    }
-	    rdaq_close_odatabase($oobj);
-	}
-	#print "$el -> $rv\n";
-	$rv;
-    } else {
-	$ALLBITS{$el};
-    }
+    return &Record_n_Fetch($tbl,$el);
 }
 
-
-
 #
-# Returns the status string for a given entry.
+# Fundamental routine saving/fetching the id of a record
+# defined by its descriptor or label. Requires a database
+# object handler.
+# Returns 0 if any failures.
+# Hashes the values to save later processing time.
 #
-sub rdaq_status_string
+sub Record_n_Fetch
 {
-    my($sts)=@_;
-    my($str);
+    my($tbl,$el)=@_;
+    my($obj,$sthc,$val,$rv);
 
-    $str = "Unknown";
-    $str = "new"       if($sts == 0);
-    $str = "Submitted" if($sts == 1);
-    $str = "Processed" if($sts == 2);
-    $str = "QADone"    if($sts == 3); # i.e. + QA
+    # cannot insert a null value
+    if($el eq ""){  return 0;}
+    if($el eq 0){   return 0;}
 
-    $str;
+    if( ! defined($rv = $RFETCHED{"$tbl-$el"}) ){
+	# Return value
+	$rv  = 0;
+	$obj = rdaq_open_odatabase();
+
+	if(!$obj){ return $rv;}
+
+
+	# Quick and dirty insert
+	$sthc = $obj->prepare("INSERT IGNORE INTO $tbl VALUES(0,'$el')");
+	$sthc->execute();
+	$sthc->finish();
+
+	# fetch now.
+	$sthc = $obj->prepare("SELECT $tbl.id FROM $tbl ".
+			      "WHERE $tbl.Label=?");
+	if($sthc){
+	    $sthc->execute($el);
+	    if( defined($val = $sthc->fetchrow()) ){
+		$RFETCHED{"$tbl-$el"} = $val;
+		$rv = $val;
+	    }
+	    $sthc->finish();
+	}
+
+	# close database
+	rdaq_close_odatabase($obj);
+    }
+
+    $rv;
 }
+
 
 
 # BACKWARD Compatibility only
@@ -854,7 +929,7 @@ sub rdaq_bits2string
 	    $sth->execute();
 	    while( @items = $sth->fetchrow_array() ){
 		$str .= "$items[1]." if( $val & (1 << $items[0]) );
-	    } 
+	    }
 	    chop($str);
 	}
 	rdaq_close_odatabase($oobj);
@@ -874,7 +949,7 @@ sub rdaq_bits2string
 # Mode 1 -> return 'path file' (i.e. with space)
 # Mode 2 -> return 'path file year month'
 #           month is calculated.
-# 
+#
 # May implement other modes ...
 #
 sub rdaq_file2hpss
@@ -909,7 +984,7 @@ sub rdaq_file2hpss
 	} elsif ($mode == 2){
 	    "$y1path $file $y $items[1]";
 	} else {
-	    "$y1path/$file"; 
+	    "$y1path/$file";
 	}
     } else {
 	# the default option is to store by day-of-year
@@ -924,6 +999,24 @@ sub rdaq_file2hpss
     }
 }
 
+#
+# Returns the status string for a given entry.
+#
+sub rdaq_status_string
+{
+    my($sts)=@_;
+    my($str);
+
+    $str = "Unknown";
+    $str = "new"       if($sts == 0);
+    $str = "Submitted" if($sts == 1);
+    $str = "Processed" if($sts == 2);
+    $str = "QADone"    if($sts == 3); # i.e. + QA
+
+    $str;
+}
+
+
 
 #
 # Some utility / cut-n-paste
@@ -932,14 +1025,12 @@ sub	info_message
 {
     my($routine,@messages) = @_;
     my($mess);
- 
+
     foreach $mess (@messages){
 	printf "FastOffl :: %10.10s : %s",$routine,$mess;
     }
 }
- 
- 
-1;
- 
 
+
+1;
 
