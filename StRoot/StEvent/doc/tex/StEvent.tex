@@ -2,7 +2,7 @@
 %
 % StEvent - User Guide and Reference Manual -- LaTeX Source
 %
-% $Id: StEvent.tex,v 2.31 2000/05/16 13:22:39 ullrich Exp $
+% $Id: StEvent.tex,v 2.32 2000/05/17 17:20:01 ullrich Exp $
 %
 % Author: Thomas Ullrich, Nov 1999
 %
@@ -21,8 +21,8 @@
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %
 % $Log: StEvent.tex,v $
-% Revision 2.31  2000/05/16 13:22:39  ullrich
-% More details on the second chi2 value in StTrackFitTraits.
+% Revision 2.32  2000/05/17 17:20:01  ullrich
+% Updates and improved description of StTrackTopologyMap.
 %
 % Revision 2.34  2000/05/24 15:43:38  ullrich
 % More on the StEventMaker (update).
@@ -175,8 +175,8 @@
 %
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 \newcommand{\entrylabel}[1]{\mbox{\textbf{{#1}}}\hfil}%
-  {\LARGE $ $Revision: 2.31 $ $}  \\[5mm] % replaced by cvs with current revision
-  {\LARGE $ $Date: 2000/05/16 13:22:39 $ $}  % replaced by cvs with current revision
+  {\LARGE $ $Revision: 2.32 $ $}  \\[5mm] % replaced by cvs with current revision
+  {\LARGE $ $Date: 2000/05/17 17:20:01 $ $}  % replaced by cvs with current revision
     {\renewcommand{\makelabel}{\entrylabel}%
      \setlength{\labelwidth}{90pt}%
      \setlength{\leftmargin}{\labelwidth}
@@ -184,17 +184,17 @@
       }%
     }%
   {\end{list}}
-  {\LARGE $ $Revision: 2.31 $ $}  \\[5mm] % replaced by cvs with current revision
-  {\LARGE $ $Date: 2000/05/16 13:22:39 $ $}  % replaced by cvs with current revision
+  {\LARGE $ $Revision: 2.32 $ $}  \\[5mm] % replaced by cvs with current revision
+  {\LARGE $ $Date: 2000/05/17 17:20:01 $ $}  % replaced by cvs with current revision
 {\raisebox{0pt}[1ex][0pt]{\makebox[\labelwidth][l]%
     {\parbox[t]{\labelwidth}{\hspace{0pt}\textbf{{#1}}}}}}
 \newenvironment{Entry}%
 {\renewcommand{\entrylabel}{\Entrylabel}\begin{entry}}%
-  {\LARGE $ $Revision: 2.31 $ $}  \\[5mm] % replaced by cvs with current revision
-  {\LARGE $ $Date: 2000/05/16 13:22:39 $ $}  % replaced by cvs with current revision
+  {\LARGE $ $Revision: 2.32 $ $}  \\[5mm] % replaced by cvs with current revision
+  {\LARGE $ $Date: 2000/05/17 17:20:01 $ $}  % replaced by cvs with current revision
 \begin{document}
-  {\LARGE $ $Revision: 2.31 $ $}  \\[5mm] % replaced by cvs with current revision
-  {\LARGE $ $Date: 2000/05/16 13:22:39 $ $}  % replaced by cvs with current revision
+  {\LARGE $ $Revision: 2.32 $ $}  \\[5mm] % replaced by cvs with current revision
+  {\LARGE $ $Date: 2000/05/17 17:20:01 $ $}  % replaced by cvs with current revision
 %
 %    Title page
 %
@@ -209,8 +209,8 @@
   \mbox{\includegraphics[width=\textwidth]{StEventTitle.eps}}
   \hfill\mbox{}\\[3cm]
   {\LARGE User Guide and Reference Manual \\[5mm] for Version 2}\\[2cm]
-  {\LARGE $ $Revision: 2.31 $ $}  \\[5mm] % replaced by cvs with current revision
-  {\LARGE $ $Date: 2000/05/16 13:22:39 $ $}  % replaced by cvs with current revision
+  {\LARGE $ $Revision: 2.32 $ $}  \\[5mm] % replaced by cvs with current revision
+  {\LARGE $ $Date: 2000/05/17 17:20:01 $ $}  % replaced by cvs with current revision
   \vfill
 \end{center}
 \cleardoublepage
@@ -4645,18 +4645,31 @@ numberOfPoints(kTpcId) == numberOfPoints(kFtpcWestId)
 \item[Description]
 \item[Related Classes]
 \item[Public\\ Constructors]
-\item[Summary]
+    \verb+StTrackGeometry();+\\
     \verb+StTrackGeometry(const dst_track_st&);+\\
 \item[Public Member\\ Functions]
     \verb+StTrackModel model() const = 0;+\\
+    \verb+Short_t charge() const = 0;+\\
     \verb+Double_t curvature() const = 0;+\\
-\item[Related Classes]
+    \verb+Double_t psi() const = 0;+\\
+    \verb+Double_t dipAngle() const = 0;+\\
+    \verb+const StThreeVectorF& origin() const = 0;+\\
+    \verb+const StThreeVectorF& momentum() const = 0;+\\
+    \verb+StPhysicalHelixD helix() const = 0;+\\
+\end{Entry}
+\clearpage
+
+
+\subsection{StTrackNode}
 \index{StTrackNode|textbf}
 \label{sec:StTrackNode}
 \begin{Entry}
 \item[Summary]
+\item[Synopsis]
     \verb+#include "StTrackNode.h"+\\
     \verb+class StTrackNode;+\\
+\item[Description]
+\item[Related Classes]
 \item[Public\\ Constructors]
     \verb+StTrackNode();+\\
 \item[Public Member\\ Functions]
@@ -4665,19 +4678,36 @@ numberOfPoints(kTpcId) == numberOfPoints(kFtpcWestId)
     \verb+UInt_t entries() const;+\\
     \verb+StTrack* track(UInt_t);+\\
     \verb+const StTrack* track(UInt_t) const;+\\
-\item[Summary]
+    \verb+UInt_t entries(StTrackType) const;+\\
     \verb+StTrack* track(StTrackType, UInt_t = 0);+\\
     \verb+const StTrack* track(StTrackType, UInt_t = 0) const;+\\
 \end{Entry}
 \clearpage
+
+
+\subsection{StTrackPidTraits}
+\index{StTrackPidTraits|textbf}
+\label{sec:StTrackPidTraits}
+\begin{Entry}
+\item[Summary] Abstract interface to all track related PID information.
+\item[Synopsis]
+    \verb+#include "StTrackPidTraits.h"+\\
+    \verb+class StTrackPidTraits;+\\
+
 \item[Description]
     This class is the abstract interface to all track related PID
     information. Since the implementations of the various concrete PID
     classes differ strongly this class is incomplete and thus a
     \texttt{dynamic\_cast} is required each time when concrete
+    implementations are accessed through this interface (e.g.~in
     \texttt{StTrack}).
     
-    \verb+UInt_t numberOfHits(StDetectorId) const;+\\
+\item[Related Classes] All PID classes (e.g.~\texttt{StDedxPidTraits})
+    inherit from this class.
+    
+\item[Public\\ Constructors]
+    \verb+StTrackPidTraits();+\\
+    \verb+StTrackPidTraits(StDetectorId);+\\
     \verb+StTrackPidTraits(const dst_dedx_st&);+\\
 
 \item[Public Member\\ Functions]
@@ -4686,6 +4716,9 @@ numberOfPoints(kTpcId) == numberOfPoints(kFtpcWestId)
 
 \end{Entry}
 \clearpage
+
+
+\subsection{StTrackTopologyMap}
 \index{StTrackTopologyMap|textbf}
 \label{sec:StTrackTopologyMap}
 \begin{Entry}
@@ -4694,6 +4727,33 @@ numberOfPoints(kTpcId) == numberOfPoints(kFtpcWestId)
     \verb+#include "StTrackTopologyMap.h"+\\
     \verb+class StTrackTopologyMap;+\\
 \item[Description]
+    Represents packed 64-bits used to indicate either
+    the continuity or gaps in tracks as they cross different active
+    elements of the SVT, SSD, TPC and FTPC.  Also indicates if track
+    extrapolates to other detectors (MWC, CTB, TOF, RICH, EMC barrel,
+    EMC end cap) and if a vertex constraint was used or not.
+    In case no hits are available on the DST this is the only piece
+    of information available on the topology of the hits belonging
+    to a track.\\
+    \verb+Int_t largestGap(StDetectorId id) const;+\\ \index{largest gap} \index{gap}
+    detailed knowledge on how the bits are packed.   
+
+    \verb+Int_t largestGap(StDetectorId id) const;+\\ 
+\item[Public\\ Constructors]
+    \verb+StTrackTopologyMap();+\\
+    \verb+StTrackTopologyMap(ULong_t, ULong_t);+\\
+    \verb+StTrackTopologyMap(const ULong_t*);+\\
+    
+\item[Public Member\\ Functions]
+    \verb+Bool_t primaryVertexUsed() const;+\\
+    Indicates wether the primary vertex was used or not.  Also used to
+    track fitting methods for decay vertices (see method variable).
+
+    \index{largest gap} \index{gap}
+    \verb+UInt_t numberOfHits(StDetectorId id) const;+\\
+    Returns the number of hits assigned to the track in detector \texttt{id}.
+    
+    \verb+Bool_t hasHitInRow(StDetectorId det, UInt_t row) const;+\\
     Row numbering starts at 1 following STAR conventions.
     
     \verb+Bool_t hasHitInSvtLayer(UInt_t layer) const;+\\
