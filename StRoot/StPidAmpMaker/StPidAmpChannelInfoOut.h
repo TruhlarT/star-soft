@@ -1,6 +1,6 @@
 /***************************************************************************
  *
- * $Id: StPidAmpChannelInfoOut.h,v 1.1 2000/03/09 17:48:33 aihong Exp $
+ * $Id: StPidAmpChannelInfoOut.h,v 1.2 2000/03/24 15:11:09 aihong Exp $
  *
  * Author: Aihong Tang & Richard Witt (FORTRAN Version),Kent State U.
  *         Send questions to aihong@cnr.physics.kent.edu
@@ -11,8 +11,11 @@
  ***************************************************************************
  *
  * $Log: StPidAmpChannelInfoOut.h,v $
- * Revision 1.1  2000/03/09 17:48:33  aihong
- * Initial revision
+ * Revision 1.2  2000/03/24 15:11:09  aihong
+ * add PrintContent()
+ *
+ * Revision 1.1.1.1  2000/03/09 17:48:33  aihong
+ * Installation of package
  *
  **************************************************************************/
 
@@ -27,6 +30,8 @@
 #include "TObject.h"
 //*KEND.
 #endif
+
+#include <iostream.h>
 
 class StPidAmpChannelInfoOut : public TObject {
 //this is a TObject version of StPidAmpChannelInfo
@@ -44,6 +49,8 @@ class StPidAmpChannelInfoOut : public TObject {
     void SetNHitsRange(Int_t nhitsStart, Int_t nhitsEnd);
     void SetPtRange(Double_t ptStart, Double_t ptEnd);
     //SetXRange(Double_t xStart, Double_t xEnd);
+
+    void PrintContent();
 
     Int_t NHitsStart() const;
     Int_t   NHitsEnd() const;
@@ -71,5 +78,9 @@ class StPidAmpChannelInfoOut : public TObject {
  ClassDef(StPidAmpChannelInfoOut,1)
 
 };
+
+
+ostream& operator<<(ostream& s, const StPidAmpChannelInfoOut& infoOut);
+
 
 #endif
