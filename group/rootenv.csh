@@ -19,7 +19,7 @@
 #   if ( ! -e $ROOTSYS) setenv ROOTSYS /afs/rhic/sunx86_55/opt/rhic/ROOT2
 
 #   set path = ($ROOTSYS/bin $path)
-  setenv PATH "${ROOTSYS}/bin:${PATH}"
+  setenv PATH "${PATH}:${ROOTSYS}/bin"
 # On Solaris, Linux, SGI, Alpha/OSF do:
   set MACHINE = `uname -s`
   
