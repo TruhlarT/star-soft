@@ -31,7 +31,7 @@
 03,33         *   * * *   /afs/rhic/star/users/starlib/novabin/updateServers.csh uddb
 05,25,45      *   * * *   /afs/rhic/star/users/starlib/novabin/updateServers.csh update
 #15           02   * * *   /afs/rhic/star/users/starlib/novabin/updateServers.csh delf
-15  02,08,14,20   * * *   /afs/rhic/star/users/starlib/novabin/updateServers.csh hook
+15  02,08,14,20   * * *   /afs/rhic/star/users/starlib/novabin/updateServers.csh hook 0 2
 18  02,08,14,20   * * *   /afs/rhic/star/users/starlib/novabin/updateServers.csh cddb
 00           01   * * 0,3 /afs/rhic/star/users/starlib/novabin/updateServers.csh newlog
 05,35         *   * * *   /afs/rhic/star/packages/scripts/showquotas -html -o /afs/rhic/star/doc/www/html/tmp/pub/data01.html /star/data01
