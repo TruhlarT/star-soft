@@ -45,6 +45,7 @@
 #        -> bootstrap_data() : database maintenance procedure. Looks at the FileData and
 #           FileLocations tables and find all the records that are not referenced. It offers
 #           an option of deleting this records.
+#        -> bootstrap_trgc  Bootstrap the TriggerCompositions table comparing to FileData.
 #
 #        -> set_delayed()  turn database operation in delay mode. A stack is built and execute
 #           later. This may be used in case of several non-correlated updates. Warning : no
@@ -2466,14 +2467,69 @@ sub bootstrap {
 }
 
 #============================================
-# Bootstraps a data table - a FileLocation or FileData
-# Check for the existence of "orphan" records
-# Prams:
-# keyowrd - keword from the table, that is to be checked
-# dodelete - set to 1 to automaticaly delete the offending records
-# Returns
-# List of records that are not connected
-# or 0 if there were errors or no unconnected records
+#
+# Bootstraps TrigerCompositions
+#
+sub bootstrap_trgc {
+  if ($_[0] =~ m/FileCatalog/) {
+    shift @_;
+  }
+
+  if( ! defined($DBH) ){
+      &print_message("bootstrap","Not connected");
+      return 0;
+  }
+
+  my ($keyword, $delete) = (@_);
+  my $table = "TriggerCompsitions";
+  
+
+  my $dcquery;
+  $dcquery = "select TriggerCompositions.fileDataID FROM TriggerCompositions LEFT OUTER JOIN FileData ON TriggerCompositions.fileDataID = FileData.fileDataID WHERE FileData.fileDataID IS NULL";
+
+
+  my $stq;
+  $stq = $DBH->prepare( $dcquery );
+  if( ! $stq ){
+      &print_debug("FileCatalog::bootstrap_trgc : Failed to prepare [$dcquery]");
+      return 0;
+  }
+  &print_debug("Running [$dcquery]");
+  $stq->execute();
+  if ($stq->rows > 0)
+    {
+      my @rows;
+      my( $id );
+      $stq->bind_columns( \$id );
+
+      while ( $stq->fetch() ) {
+	push ( @rows, $id );
+      }
+      if ($delete == 1)
+      {
+	  # We do a bootstapping with delete
+	  my $dcdelete;
+	  $dcdelete = "DELETE FROM $table WHERE $table.fileDataID IN (".join(" , ",(@rows)).")";
+
+	  &print_debug("Executing $dcdelete");
+	  my $stfdd = $DBH->prepare($dcdelete);
+	  if ($stfdd){
+	      $stfdd->execute();
+	      $stfdd->finish();
+	  } else {
+	      &print_debug("FileCatalog::bootstrap_data : Failed to prepare [$dcdelete]",
+			   " Records in $table will not be deleted");
+	  }
+      }
+      $stq->finish();
+      return (@rows);
+    }
+  $stq->finish();
+  return 0;
+}
+
+
+
 sub bootstrap_data {
   if ($_[0] =~ m/FileCatalog/) {
     shift @_;
@@ -2547,6 +2603,8 @@ sub bootstrap_data {
   $stq->finish();
   return 0;
 }
+
+
 
 #============================================
 # Updates the field coresponding to a given keyword
