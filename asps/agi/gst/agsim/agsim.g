@@ -6215,6 +6215,8 @@ C
    {  CALL RZCDIR(CWD,'R')
       Lrecl=256;   INQUIRE(FILE='detm.rz',EXIST=EXST);  %ChDir='RZDOC'
       If !EXST { Call RZOPEN (Lun,%CHdir,'detm.rz','NWX', Lrecl,Istat)
+                 print *,' AGSBEGM: returned Lrecl =',Lrecl
+                 if (Lrecl.eq.0) return
 * from pawrop:
 *--- bug in RZOPEN with C I/O, TOPDIR is not returned correctly ---
                                   %CHdir='LUN61'
