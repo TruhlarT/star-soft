@@ -23,7 +23,7 @@ use strict;
 sub UpdateQAOffline{
   my $dataType   = shift; # either 'real' or 'MC'
 
-  my $limit      = 15;     # limit number of new jobs
+  my $limit      = 100;     # limit number of new jobs
   my $oldestDate;         # dont retrieve anything older than this
   my $fileType;           # daq_reco or MC_reco
   my $today      = strftime("%Y-%m-%d %H:%M:%S",localtime());
@@ -58,7 +58,7 @@ sub UpdateQAOffline{
   }
 
   # update
-  my $queryUpdate = qq{select distinct file.jobID, file.redone
+  my $queryUpdate = qq{select distinct file.jobID, file.redone, file.runID
 			from $dbFile.$FileCatalog as file 
 			LEFT JOIN $dbQA.$QASum{Table} as qa
 			  using (jobID, redone)
@@ -79,6 +79,7 @@ sub UpdateQAOffline{
 			  $QASum{report_key}  = ?,
 			  $QASum{type}        = '$dataType',
 			  $QASum{QAdone}      = 'N',
+			  $QASum{skip}        = ?,
 			  $QASum{qaID}        = NULL
 			};
 
@@ -92,18 +93,50 @@ sub UpdateQAOffline{
 
   print h3("Found $rows new jobs\n");
 
-  # loop over jobs
-  while ( my ($jobID, $redone) = $sthUpdate->fetchrow_array ) {
-    $sthKey->execute($jobID);
+  my %runhash; # hash of hashes of hashes
+  my %noskip;  # keys are runIDs
+
+  # organize the new jobs by runID 
+  while (my ($jobID, $redone, $runID) = $sthUpdate->fetchrow_array){
+    $runhash{$runID}{$jobID}{redone}  = $redone;
     
-    # get report key
-    my $reportKey = make_report_key_offline($sthKey->fetchrow_array);
+    # set 1/10 as noskip
+    if (rand() < 0.1 ){
+      $runhash{$runID}{$jobID}{noskip}++;
+      $noskip{$runID}++;
+    }
+  }
+
+  # now double check that there's at least one noskip key per runID
+  foreach my $runID ( keys %runhash ){
+    next if exists $noskip{$runID};
     
-    # save report key
-    push @keyList, $reportKey;
+    # else randomly set one of the jobs as noskip
+  JOB:foreach my $jobID ( keys %{$runhash{$runID}} ){
+      $runhash{$runID}{$jobID}{noskip}++;
+      last JOB;
+    }
+  }
+  # loop over runID, jobID
+  foreach my $runID ( keys %runhash ){
+    foreach my $jobID ( keys %{$runhash{$runID}} ){
+
+      $sthKey->execute($jobID);
     
-    # insert into QASummary
-    $sthInsert->execute($jobID, $redone, $reportKey);
+      # get report key
+      my $reportKey = make_report_key_offline($sthKey->fetchrow_array);
+      
+      # save report key
+      push @keyList, $reportKey;
+    
+      # insert into QASummary
+      my $redone = $runhash{$runID}{$jobID}{redone};
+      my $skip   = exists $runhash{$runID}{$jobID}{noskip} ? 'N' : 'Y';
+      
+      #print "\n$runID, $skip";
+
+      $sthInsert->execute($jobID, $redone, $reportKey, $skip);
+    }
   }	       
   return @keyList;
 }
@@ -330,22 +363,29 @@ sub InsertOnlineQASum{
 sub GetToDoReportKeys{
   my $type = shift; # real or MC
   my $limit = 15;
-  my $type_string;
-
-  if ($type eq 'real'){
-    $type_string = "$QASum{type} = 'real'";
-  }
-  elsif ($type eq 'MC'){
-    $type_string = "$QASum{type} = 'MC'";
-  }
 
   # distinct just in case
   my $query = qq{select distinct $QASum{report_key} 
 		 from $dbQA.$QASum{Table}  
-		 where $QASum{QAdone} = 'N' and
-	         $type_string
-		 limit $limit};
-  
+		 where $QASum{QAdone} = 'N'
+	       };
+
+  if ($type eq 'real'){
+    $query .= qq{and $QASum{type} = 'real'
+		};
+  }
+  elsif ($type eq 'MC'){
+    $query .= qq{and $QASum{type} = 'MC'
+	       };
+  }
+  # quick fix - make sure that the skip field is no for production.
+  if ($gDataClass_object->DataClass() =~ /offline/){
+    $query .= qq{and $QASum{skip} = 'N'
+	       };
+  }
+  # limit
+  $query .= qq{limit $limit };
+      
   return @{$dbh->selectcol_arrayref($query)};
 
 }

@@ -322,7 +322,7 @@ sub DisplayDataset{
 
 	my $n_subset = ceil($rows/$subset_len);
 	my $popup    = Browser_utilities::SelectSubsetMenu($subset_len,$n_subset,$rows, 1);
-	my $more_button = Browser_utilities::NextSubsetButton();
+	my $more_button = Browser_utilities::SubmitButton('Next subset');
 	my $row_ref  = td([ $popup, $more_button]);
 
 	print "<center>",h3("Rows 1 - $subset_len (total $rows rows)"),
@@ -359,10 +359,10 @@ sub DisplayDataset{
     # if the current subset is the last subset, dont show the more button.
     # if the current subset is the first subset, dont show the previous button.
     # note that the current subset is numbered from 1
-    my $more_button = Browser_utilities::NextSubsetButton() 
+    my $more_button = Browser_utilities::SubmitButton('Next subset') 
       unless $is_last_subset;
 			     
-    my $previous_button = Browser_utilities::PreviousSubsetButton()
+    my $previous_button = Browser_utilities::SubmitButton('Previous subset')
       unless $is_first_subset;
 	  
     my $popup    = Browser_utilities::SelectSubsetMenu($subset_len,$n_subset,$rows, 

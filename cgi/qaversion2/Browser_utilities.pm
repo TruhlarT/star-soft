@@ -203,33 +203,23 @@ sub display_comment_string{
 #==============================================================
 # Browser_object::DisplayDataset
 
-sub NextSubsetButton{
+sub SubmitButton{
+  my $name = shift; # 'Next subset' or 'Previous subset'
   my $script_name = $gCGIquery->script_name;
   return "<center>" .
     $gCGIquery->startform(-action=>"$script_name/upper_display",
 			  -TARGET=>"list").
-    $gCGIquery->submit('Next subset').
-    $gBrowser_object->Hidden->Parameters .
-    $gCGIquery->endform().
-    "</center>";
-}
-#==============================================================
-sub PreviousSubsetButton{
-  my $script_name = $gCGIquery->script_name;
-  return "<center>" .
-    $gCGIquery->startform(-action=>"$script_name/upper_display",
-			  -TARGET=>"list").
-    $gCGIquery->submit('Previous subset').
+    $gCGIquery->submit($name).
     $gBrowser_object->Hidden->Parameters .
     $gCGIquery->endform().
     "</center>";
 }
 #=============================================================
 sub SelectSubsetMenu{
-  my $subset_len = shift;
-  my $n_subset   = shift;
-  my $rows       = shift;
-  my $current    = shift;
+  my $subset_len = shift; # elements in each subset
+  my $n_subset   = shift; # how many subsets?
+  my $rows       = shift; # total number of rows from the query 
+  my $current    = shift; # current subset, from 1
 
   my (@values,%labels);
   my $script_name = $gCGIquery->script_name;

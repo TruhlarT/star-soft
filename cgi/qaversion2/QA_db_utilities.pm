@@ -63,6 +63,7 @@ use strict;
 #         jobID       varchar(64)         not null,
 #         report_key  varchar(64)         not null,
 #         type        varchar(20)         not null,
+#         skip        enum('Y','N')       not null default 'Y',
 #         QAdone      enum('Y','N')       not null default 'N',
 #         QAok        enum('Y','N','n/a') not null default 'n/a',
 #         QAdate      datetime            not null,
@@ -134,6 +135,7 @@ use strict;
 	 redone       => 'redone',    # offline only
 	 report_key   => 'report_key',
 	 type         => 'type',      # type of data (real, MC)
+	 skip         => 'skip',      # offline only
 	 QAdone       => 'QAdone',
 	 QAok         => 'QAok',
 	 QAdate       => 'QAdate',

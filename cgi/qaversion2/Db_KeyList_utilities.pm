@@ -268,17 +268,7 @@ sub GetOfflineKeys{
   # create time string
   my $createTime_string;
   if ($createTime ne 'any') {
-    my $now = strftime("%Y-%m-%d %H:%M:%S", localtime());
-    my $days;
-    # cant get the stupid soft refs to work...
-    
-    $days = 1  if $createTime eq 'one_day';
-    $days = 3  if $createTime eq 'three_days';
-    $days = 7  if $createTime eq 'seven_days';
-    $days = 14 if $createTime eq 'fourteen_days';
-    
-    $createTime_string  = 
-      " (to_days('$now')-to_days(file.createTime))<= $days and";
+    $createTime_string = ProcessJobCreateTimeQuery($createTime); 
   }
 
   # --- from JobStatus ---
@@ -302,44 +292,15 @@ sub GetOfflineKeys{
 
     # jobStatus string
     if ($jobStatus ne 'any'){
-      if ($jobStatus eq 'done' ){ 
-	$jobStatus_string = "job.jobStatus ='done' and";
-      }
-      elsif ($jobStatus eq 'not done'){
-	$jobStatus_string = "job.jobStatus !='done' and";
-      }
-      else {die "Wrong argument for job status"}
+      $jobStatus_string = ProcessJobStatusQuery($jobStatus);
+
     }
   }
   #--- QA status ---
   # $QAstatus_string must be the last line in the 'where' clause
-  my ($QAstatus_string, $macro_string);
-  my ($macro_where_string, $macro_from_string);
 
-  if ($QAstatus ne 'any')
-  {
-    if ($QAstatus ne 'warnings' and $QAstatus ne 'errors')
-    { # dont need to join with macros table
-      
-      $QAstatus_string = "sum.$QASum{QAok}='Y'"   if $QAstatus eq 'ok';
-      $QAstatus_string = "sum.$QASum{QAok}='N'"   if $QAstatus eq 'not ok';
-      $QAstatus_string = "sum.$QASum{QAdone}='Y'" if $QAstatus eq 'done';
-      $QAstatus_string = "sum.$QASum{QAdone}='N'" if $QAstatus eq 'not done';
-      $QAstatus_string = "sum.$QASum{QAdone}='in progress'" if $QAstatus eq 'in progress';
-    }
-    elsif ($QAstatus eq 'warnings' or $QAstatus eq 'errors')
-    { # need to join macros table
-
-      $macro_from_string  = ",$dbQA.$QAMacros{Table} as macro ";
-      $macro_where_string = "sum.$QASum{qaID} = macro.$QAMacros{qaID} and";
-
-      $QAstatus_string = "macro.$QAstatus!='0' and macro.$QAstatus!='n/a'";
-      $macro_string = "macro.$QAMacros{macroName} = '$macroName' and"
-	if defined $macroName;
-    }
-    else {die "Wrong argument $QAstatus"}
-  }
-  else { $QAstatus_string = "1>0";}
+  my ($QAstatus_string, $macro_string, $macro_where_string, $macro_from_string) 
+    = ProcessQAStatusQuery($QAstatus,$macroName);
   
   my $query = qq{select distinct sum.$QASum{report_key}
 		 from $dbQA.$QASum{Table} as sum
@@ -460,37 +421,19 @@ sub GetNightlyKeys{
   
   # when was the job created?
   if ($createTime ne 'any'){
-    # create time string
-    my $now = strftime("%Y-%m-%d %H:%M:%S", localtime());
-    my $days;
-    # cant get the stupid soft refs to work...
-    
-    $days = 1  if $createTime eq 'one_day';
-    $days = 3  if $createTime eq 'three_days';
-    $days = 7  if $createTime eq 'seven_days';
-    $days = 14 if $createTime eq 'fourteen_days';
-    
-    $createTime_string  = 
-      " (to_days('$now')-to_days(file.createTime))<= $days and";
+    $createTime_string = ProcessJobCreateTimeQuery($createTime);    
   }
 
   # --- job status info ---
   # only join with jobStatus if client queries jobStatus
   my ($jobStatus_string);
 
-  if ($jobStatus ne 'any')
+  if ($jobStatus ne 'any') # then join the table
   {
     $job_from_string  = ",$dbFile.$JobStatus as job";
     $job_where_string = "sum.jobID = job.jobID and ";
 
-    # jobStatus string
-    if ($jobStatus eq 'done' ){ 
-      $jobStatus_string = "job.jobStatus ='done' and";
-    }
-    elsif ($jobStatus eq 'not done'){
-      $jobStatus_string = "job.jobStatus !='done' and";
-    }
-    else { die "Wrong argument for jobStatus";}
+    $jobStatus_string = ProcessJobStatusQuery($jobStatus);
   }
     
   # for eventGen, if real we dont need to query on it.
@@ -516,34 +459,10 @@ sub GetNightlyKeys{
   
   # $QAstatus_string must be the last line in the 'where' clause
   # used when no warnings or errors are specified
-  my ($QAstatus_string, $macro_string);
-  my ($macro_where_string, $macro_from_string);
 
-  if ($QAstatus ne 'any')
-  {
-    if ($QAstatus ne 'warnings' and $QAstatus ne 'errors')
-    { # dont need to join with macros table
-      
-      $QAstatus_string = "sum.$QASum{QAok}='Y'"   if $QAstatus eq 'ok';
-      $QAstatus_string = "sum.$QASum{QAok}='N'"   if $QAstatus eq 'not ok';
-      $QAstatus_string = "sum.$QASum{QAdone}='Y'" if $QAstatus eq 'done';
-      $QAstatus_string = "sum.$QASum{QAdone}='N'" if $QAstatus eq 'not done';
-      $QAstatus_string = "sum.$QASum{QAdone}='in progress'" if $QAstatus eq 'in progress';
-    }
-    elsif ($QAstatus eq 'warnings' or $QAstatus eq 'errors')
-    { # need to join macros table
-
-      $macro_from_string  = ",$dbQA.$QAMacros{Table} as macro ";
-      $macro_where_string = "sum.$QASum{qaID} = macro.$QAMacros{qaID} and";
-
-      $QAstatus_string = "macro.$QAstatus!='0' and macro.$QAstatus!='n/a'";
-      $macro_string = "macro.$QAMacros{macroName} = '$macroName' and"
-	if defined $macroName;
-    }
-    else {die "Wrong argument $QAstatus"}
-  }
-  else {$QAstatus_string = "1>0";}
-
+  my ($QAstatus_string, $macro_string, $macro_where_string, $macro_from_string) 
+    = ProcessQAStatusQuery($QAstatus,$macroName);
+  
   #query ...
   my $query = qq{ select distinct sum.$QASum{report_key}
 	 	  from $dbQA.$QASum{Table} as sum
@@ -590,7 +509,90 @@ sub GetNightlyKeysMC{
 
   return GetNightlyKeys('MC',@selection_param);
 }
+#=======================================================================
+# process job creation time query
 
+sub ProcessJobCreateTimeQuery{
+  my $createTime = shift;
+
+  my $createTime_string;
+
+  # create time string
+  my $now = strftime("%Y-%m-%d %H:%M:%S", localtime());
+  my $days;
+  # cant get the stupid soft refs to work...
+  
+  $days = 1  if $createTime eq 'one_day';
+  $days = 3  if $createTime eq 'three_days';
+  $days = 7  if $createTime eq 'seven_days';
+  $days = 14 if $createTime eq 'fourteen_days';
+  
+  $createTime_string  = 
+    " (to_days('$now')-to_days(file.createTime))<= $days and";
+ 
+  return $createTime_string;
+}
+#========================================================================
+# process the job status query
+
+sub ProcessJobStatusQuery{
+  my $jobStatus = shift;
+
+  my ($jobStatus_string);
+
+  # jobStatus string
+  if ($jobStatus eq 'done' ){ 
+    $jobStatus_string = "job.jobStatus ='done' and";
+  }
+  elsif ($jobStatus eq 'not done'){
+    $jobStatus_string = "job.jobStatus !='done' and";
+  }
+  else { die "Wrong argument for jobStatus";}
+  
+  return $jobStatus_string;
+}
+  
+#========================================================================
+# returns :
+# QAstatus clause, the Macro where clause (optional - to join the table),
+# Macro from clause (optional - to join the table if needed),
+# Macro clause
+
+sub ProcessQAStatusQuery{
+  my $QAstatus  = shift;
+  my $macroName = shift;
+
+  my ($QAstatus_string, $macro_string);
+  my ($macro_from_string, $macro_where_string);
+  
+  if ($QAstatus ne 'any')
+  {
+    if ($QAstatus ne 'warnings' and $QAstatus ne 'errors')
+    { # dont need to join with macros table
+      
+      $QAstatus_string = "sum.$QASum{QAok}='Y'"   if $QAstatus eq 'ok';
+      $QAstatus_string = "sum.$QASum{QAok}='N'"   if $QAstatus eq 'not ok';
+      $QAstatus_string = "sum.$QASum{QAdone}='Y'" if $QAstatus eq 'done';
+      $QAstatus_string = "sum.$QASum{QAdone}='N'" if $QAstatus eq 'not done';
+      $QAstatus_string = "sum.$QASum{QAdone}='in progress'" if $QAstatus eq 'in progress';
+    }
+    elsif ($QAstatus eq 'warnings' or $QAstatus eq 'errors')
+    { 
+      # need to join macros table if the macro string is defined
+ 
+      $macro_from_string  = ",$dbQA.$QAMacros{Table} as macro ";
+      $macro_where_string = "sum.$QASum{qaID} = macro.$QAMacros{qaID} and";
+
+      $QAstatus_string = "macro.$QAstatus!='0' and macro.$QAstatus!='n/a'";
+      $macro_string = "macro.$QAMacros{macroName} = '$macroName' and"
+	if defined $macroName;
+    }
+    else {die "Wrong argument $QAstatus"}
+  }
+  else {$QAstatus_string = "1>0";}
+
+  return ($QAstatus_string, $macro_string, $macro_where_string, $macro_from_string);
+}
 
 #=======================================================================
 # get all runID's for offline

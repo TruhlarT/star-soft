@@ -166,22 +166,19 @@ sub AddMessagesToKeyList{
   return $self->KeyList;
  
 }
-#==================================================================
-# set the general popup menus
-# i.e. job status, QA status
+#===================================================================
 
-sub FillStatusMenus{
+sub FillQAStatusMenu{
   my $self        = shift;
   my @macro_names = @_;
   
   no strict 'refs';
 
-  # job status 
-  push @{$self->{values}{jobStatus}}, ('done', 'not done');
-  
   # now fill in errors and warnings info
   my $abbrev;
-  push @{$self->{values}{QAstatus}}, ( 'ok','not ok','done','not done','in progress');
+  push @{$self->{values}{QAstatus}}, 
+  ( 'ok','not ok','done','not done','in progress');
+  
   %{$self->{labels}{QAstatus}} = map{$_, $_} @{$self->{values}{QAstatus}};
 
   foreach my $status ('warnings', 'errors') {
