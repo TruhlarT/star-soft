@@ -3,7 +3,9 @@
 # pmj 30/7/99
 #=========================================================
 
-use CGI qw/:standard :html3 -no_debug/;
+#use CGI qw/:standard :html3 -no_debug/;
+use CGI qw/:standard :html3/;
+
 use CGI::Carp qw(fatalsToBrowser);
 use Cwd;
 
@@ -39,21 +41,33 @@ print $query->header;
 # this turns off "automatic escaping", which is the default and which
 # disables HTML character sequences in labels
 #$query->autoEscape(undef);
-#---------------------------------------------------------
+#-----------------------------------------------------------------------------
 
 $path_info = $query->path_info;
 
 $TITLE = 'Offline Software QA';
 $script_name = $query->script_name;
 
-# If no path information is provided, then create frame set
+$cron_job = $query->param('cron_job');
 
-if (!$path_info) {
-  print_frameset($TITLE);
-  exit 0;
+#---------------------------------------------------------
+
+if(!$cron_job){
+
+  # If no path information is provided, then create frame set
+  
+  if (!$path_info) {
+    print_frameset($TITLE);
+    exit 0;
+  }
+  
+  print_html_header($TITLE);
 }
-
-print_html_header($TITLE);
+else
+  {
+    $path_info = 'display_data';
+    $query->param("$cron_job", 1);
+  }
 #--------------------------------------------------------
 # check if certain fields have changed - if so, clear bottom of page
 #&clear_page_on_field_change;

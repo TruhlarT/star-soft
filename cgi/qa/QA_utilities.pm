@@ -7,7 +7,9 @@
 package QA_utilities;
 #=========================================================
 
-use CGI qw/:standard :html3 -no_debug/;
+#use CGI qw/:standard :html3 -no_debug/;
+use CGI qw/:standard :html3/;
+
 use CGI::Carp qw(fatalsToBrowser);
 use Cwd;
 
