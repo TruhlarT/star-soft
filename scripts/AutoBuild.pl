@@ -20,9 +20,9 @@ $COMPDIR="";
 $TRGTDIR=IUHtmlDir();
 
 # Cvs command and directory
-$CVSCMDT="cvs -n -q co";       # check differences and updates
-$CVSCMDR="cvs -q co";          # first timer directory or real checkout
-$CVSUPDC="cvs update";         # update command
+$CVSCMDT="cvs -n -q checkout -A";  # check differences and updates
+$CVSCMDR="cvs -q checkout -A";     # first timer directory or real checkout
+$CVSUPDC="cvs update -A";          # update command
 # checkout by
 $BY=50;
 # directories (default)
