@@ -11,7 +11,7 @@ use Exporter ();
 	     @topdir_data_WWW $topdir_report_WWW
 	     $control_dir_WWW
 
-	     $batch_dir $batch_dir_WWW $update_dir $control_dir
+	     $batch_dir $batch_dir_WWW $update_dir $control_dir $cron_dir
 
 	     $global_logfile $global_root_dst_file $global_root_hist_file $global_root_event_file
 	     $global_dst_xdf_file $global_analysis_report_filename
@@ -53,6 +53,8 @@ $control_dir = "/star/data1/jacobs/qa/control_and_test";
 $batch_dir_WWW = "../../../../~jacobs/batch_dir";
 
 $update_dir = "/star/data1/jacobs/qa/update";
+
+$cron_dir = "/star/data1/jacobs/qa/batch/cronjob_logs";
 
 #------------------------------------------------------------------------------------
 1;

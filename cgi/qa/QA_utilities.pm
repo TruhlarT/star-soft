@@ -357,3 +357,48 @@ sub hidden_field_string{
   #----------------------------------------------------------------
   return $string;
 }
+#======================================================================
+sub crontab_add{
+
+  $now = cwd();
+  $filename = "$now/crontab.txt";
+
+  print "<h4> Adding file $filename to crontab for starlib. Here are contents: <br> </h4>";
+  
+  open CRONTAB, $filename;
+  while (<CRONTAB>){ print "$_ <br> \n";}
+  close CRONTAB;
+
+  $status = system("crontab $filename");
+
+  print "...done. Status = $status <br> \n";
+}  
+#======================================================================
+sub crontab_l{
+
+  print "<h4> Doing crontab -l for starlib: <br> </h4>";
+
+  $filename = "$cron_dir/minus_l.txt";
+
+  $now = cwd();
+  $status = system("$now/crontab_minus_l.csh $filename");
+  print "...done. Status = $status <br> \n";
+  
+  print "<hr> Here is output: <br> <br>\n";
+
+  open CRONFILE, $filename;
+  while (<CRONFILE>){ print "$_ <br> \n";}
+  close CRONFILE;
+
+}  
+#======================================================================
+sub crontab_r{
+  
+  print "<h4> Doing crontab -r for starlib. <br> </h4>";
+
+  $status = system("crontab -r");
+
+  print "...done. Status = $status <br> \n";
+}  
+
+  

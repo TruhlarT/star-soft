@@ -13,7 +13,7 @@
 <h2> STAR QA for Offline Software</h2>
 
 Peter Jacobs, LBNL<br>
-Sept. 27, 1999
+Sept. 28, 1999
 
 <p> <em>Suggestion for reading this page: open this frame in another
 window or use the mouse to raise the horizontal bar dividing the upper
@@ -29,6 +29,7 @@ and lower frame.</em>
 <ol>
 <li> <a href="#what_is_qa">What is QA?</a>
 <li> <a href="#overview">Overview</a>
+<li> <a href="#mod_history">Modification History</a>
 </ol>
 
 <li> <a href="#database_content">Database Content and Operations</a>
@@ -931,8 +932,15 @@ jobs doing catalogue updates, see comments a few bullets up on
 perform various functions as user <tt>starlib</tt>. Does not accept
 shell commands for security reasons. Operator gives name of file (with
 full pathname) of type .csh that is executable by user
-<tt>starlib</tt>, which contains the commands to be executed. Can be
-used to kill processes, move files, etc.
+<tt>starlib</tt>, which contains the commands to be executed. Also for
+security reasons, filename cannot have string "afs" in it. This
+functionality can be used to kill processes, move files, etc.
+
+<li> "Add crontab.txt", "Do crontab -l", "Do crontab -r": For cron
+jobs, which do a batch submission equivalent to pushing the "Update
+Catalogue and QA (batch job)" button. These buttons are used to add
+file "crontab.txt" to crontab for starlib, to query status, and to
+delete crontab for starlib.
 
 <li> Do QA on whole dataset: submits batch job to carry out QA on all
 runs in current dataset listing for which "QA not done". 
@@ -1018,6 +1026,19 @@ book by Stein called "Official Guide to Programming with CGI.pm",
 published by Wiley. I found it to be of less use than his web
 page. Lousy businessman (that's why he's doing web programming for a
 living at a biology lab).
+<!---------------------------------------------------------------->
+
+<hr><h3><li>
+<a name="mod_history">Modification History</a>
+</h3>
+
+<ul>
+
+<li> Sept. 28, 1999: On Expert's page, added cron job submission,
+crontab -l, and crontab -r buttons. Added security under "Run csh script" so that
+scripts in afs area cannot be run.
+
+</ul>
 
 <!---------------------------------------------------------------->
 </ol>
@@ -1033,7 +1054,7 @@ living at a biology lab).
     <address><a href="mailto:pmjacobs@lbl.gov">webmaster</a></address>
     <!-- Created: Wed May  6 11:37:01 EDT 1998 -->
 <!-- hhmts start -->
-Last modified: Mon Sep 27 14:23:15 EDT 1999
+Last modified: Tue Sep 28 20:51:38 EDT 1999
 <!-- hhmts end -->
 <!--===============================================================-->
 </body>

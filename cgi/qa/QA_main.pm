@@ -182,6 +182,21 @@ sub display_data{
       last GETBUTTON;
     };
     
+    $query->param('crontab_add') and do{
+      &QA_utilities::crontab_add;
+      last GETBUTTON;
+    };
+    
+    $query->param('crontab_l') and do{
+      &QA_utilities::crontab_l;
+      last GETBUTTON;
+    };
+    
+    $query->param('crontab_r') and do{
+      &QA_utilities::crontab_r;
+      last GETBUTTON;
+    };
+    
     foreach $report_key ( @selected_key_list ){
       foreach $suffix ( "show_log_report", "show_qa", "show_files", "compare_runs",
 			"do_qa_batch", "redo_evaluation", "redo_qa_batch"){
@@ -397,11 +412,15 @@ sub starting_display {
       $query->startform(-action=>"$script_name/display_data", -TARGET=>"display"). 
 	$query->submit('update_catalogue', 'Update Catalogue')."<br>".
 	  $query->submit('batch_update_qa', 'Update Catalogue and QA (batch job)')."<br>".
-	    $query->submit('server_log', 'Server Log')."<br>".
+	    $query->submit('server_log', 'Server Log').
 	      $query->submit('server_batch_queue', 'Server Batch Queue').
 		$query->submit('batch_log', 'Batch Logfiles')."<br>".
-		$query->submit('csh_script', 'Run csh script').
-		  $hidden_string.$query->endform;
+		  $query->submit('csh_script', 'Run csh script')."<br>".
+
+    $action_string .= $query->submit('crontab_add', 'Add crontab.txt').
+      $query->submit('crontab_l', 'Do crontab -l').
+	$query->submit('crontab_r', 'Do crontab -r').
+	  $hidden_string.$query->endform;
 
     $expert_page_string = "<H3>This is the expert's page</H3>";
 
@@ -608,11 +627,22 @@ sub check_for_csh_script{
   
   $scriptname = $query->param('csh_scriptname');
 
+  # undef script name so it isn't run again
+  $query->delete('csh_scriptname');
+
   # get rid of leading and following whitespace
   $scriptname =~ s/\s+//g;
   
   # something there?
   $scriptname or return;
+  
+  # for safety, cannot be in afs area
+  $scriptname =~ /afs/ and do{
+    print "File $scriptname contains string 'afs', not allowed.",
+    " Move it to a local disk area and try again. <br> \n";
+    return;
+  };
+
   
   # is it an existing csh script?
   if ($scriptname =~ /\.csh$/ and -x $scriptname){
@@ -625,10 +655,6 @@ sub check_for_csh_script{
     print "File $scriptname does not have type .csh or",
     " is not executable by server; not run <br> \n";
   }
-    
-  
-  # undef script name so it isn't run again
-  $query->delete('csh_scriptname');
   
 }
 #============================================================
