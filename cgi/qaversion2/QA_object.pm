@@ -597,19 +597,42 @@ sub ShowPsFiles{
   
   my $dh = $self->IOReportDirectory->Open;
   
-  my @ps_files;
+  # pmj 28/7/00
+  # force ordering of ps files
 
+  my @filelist_unordered;
   while (my $file = readdir $dh){
     $file =~ /^\./ and next;
 
     # print postscript files
     if ($file =~ /\.ps$|\.gz$/) {
-      $self->PrintFilestring("Postscript file", $file);
+      push @filelist_unordered, $file;
       next;
     }
   }
   close $dh;
+
+  my @filelist_ordered = sort { order_ps_files() } @filelist_unordered;
+
+  #----
+
+  foreach my $file (@filelist_ordered){
+    $self->PrintFilestring("Postscript file", $file);
+  }
+
 }
+#========================================================
+sub order_ps_files{
+
+  $a =~ /QA/ and return -1;
+  $b =~ /QA/ and return 1;
+
+  $a =~ /StEvent/ and return -1;
+  $b =~ /StEvent/ and return 1;
+
+  return 0;
+}
+
 #========================================================
 # QA Details: Scalars and Tests
 
