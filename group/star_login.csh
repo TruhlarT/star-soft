@@ -17,6 +17,11 @@ setenv star_login_csh 1
 # Variables subject to changes
 # ------------------------------
 setenv GROUP rhstar
+if (! $?GROUP_DIR ) then
+    # allow users to have a private copy for testing by
+    # redefining GROUP_DIR
+    setenv GROUP_DIR   "/afs/rhic/$GROUP/group"
+endif
 
 
 # -------------------------------------
@@ -126,7 +131,10 @@ setenv LESSCHARSET latin1
 setenv WWW_HOME    "http://www.rhic.bnl.gov"
 setenv NNTPSERVER  "news.rhic.bnl.gov"
 setenv PRINT_CMD   "xprint"
-setenv GROUP_DIR   "/afs/rhic/$GROUP/group"
+
+# The folowing instruction also appears in the
+# group_login.csh file. One of them will have 
+# to go ...
 if (-e /usr/local/bin/less ) then
     setenv PAGER       "less"
 else
@@ -176,8 +184,9 @@ if( -r $GROUP_DIR/group_env.csh ) then
     source $GROUP_DIR/group_env.csh
 endif
 
+
 # ** GROUP LOGIN ***> should be merged as well
-if( -r $GROUP_DIR/group_login.csh) then
+if( -r $GROUP_DIR/group_login.csh && $?term ) then
     source $GROUP_DIR/group_login.csh
 endif
 
