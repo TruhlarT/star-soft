@@ -167,7 +167,7 @@ sub rdaq_delete_entries
 	@values = split(" ",$line);
 	#print "[$values[0]]\n";
 	if( $sth->execute($values[0]) ){
-	    #print "Successful deletion of $values[0]\n";
+	    print "Successful deletion of $values[0]\n";
 	    $count++;
 	}
     }
@@ -534,15 +534,26 @@ sub rdaq_file2hpss
     # good to put it in a module so we can bacward support Y1
     # convention if necessary.
     #            -----v  may be a | list
-    $file =~ m/(st_)(physics_)(\d+)(_.*)/;
+    $file =~ m/(st_)(\w+_)(\d+)(_.*)/;
     $code = $3;
 
     ($y,$dm,$n) = $code =~ m/(\d)(\d{3,})(\d{3,})/;
     $y += 1999;
     if($y <= 2000){
-	&info_message("file_to_hpss","Y1 not yet supported\n");
-	"";
+	# The default path is to store by month
+	# We are NOT taking care of exceptions ...
+	@items = Date::Manip::Date_NthDayOfYear($y,$dm);
+	my($y1path)=sprintf("%s/%s/%2.2d",$HPSSBASE,$y,$items[1]);
+
+	if($mode == 1){
+	    "$y1path $file";
+	} elsif ($mode == 2){
+	    "$y1path $file $y $items[1]";
+	} else {
+	    "$y1path/$file"; 
+	}
     } else {
+	# the default option is to store by day-of-year
 	if($mode==1){
 	    "$HPSSBASE/$y/$dm $file";
 	} elsif ($mode == 2){
