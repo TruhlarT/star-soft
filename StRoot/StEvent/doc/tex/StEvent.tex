@@ -2,7 +2,7 @@
 %
 % StEvent - User Guide and Reference Manual -- LaTeX Source
 %
-% $Id: StEvent.tex,v 2.48 2000/10/13 19:21:02 ullrich Exp $
+% $Id: StEvent.tex,v 2.49 2000/10/16 17:08:12 ullrich Exp $
 %
 % Author: Thomas Ullrich, Nov 1999
 %
@@ -21,8 +21,8 @@
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %
 % $Log: StEvent.tex,v $
-% Revision 2.48  2000/10/13 19:21:02  ullrich
-% Added new chapter on how to wrire miniDSTs using StEvent.
+% Revision 2.49  2000/10/16 17:08:12  ullrich
+% Added more description for StEventScavenger.
 %
 % Revision 2.49  2000/10/16 17:08:12  ullrich
 % Added more description for StEventScavenger.
@@ -215,8 +215,8 @@
   \mbox{\includegraphics[width=\textwidth]{StEventTitle.eps}}
   \hfill\mbox{}\\[3cm]
   {\LARGE User Guide and Reference Manual \\[5mm] for Version 2}\\[2cm]
-  {\LARGE $ $Revision: 2.48 $ $}  \\[5mm] % replaced by cvs with current revision
-  {\LARGE $ $Date: 2000/10/13 19:21:02 $ $}  % replaced by cvs with current revision
+  {\LARGE $ $Revision: 2.49 $ $}  \\[5mm] % replaced by cvs with current revision
+  {\LARGE $ $Date: 2000/10/16 17:08:12 $ $}  % replaced by cvs with current revision
   \vfill
 \end{center}
 \cleardoublepage
@@ -3320,6 +3320,14 @@ definition in the header file.
     \verb+static bool removeTriggerDetectorCollection(StEvent*);+\\
     \verb+static bool removeL3Trigger(StEvent*);+\\
     \verb+static bool removeV0Vertices(StEvent*);+\\
+    \verb+static bool removeXiVertices(StEvent*);+\\
+    \verb+static bool removeKinkVertices(StEvent*);+\\
+    \verb+static bool remove(StTrack*);+\\
+    
+    \verb+removeTpcHitsNotOnTrack(StEvent*);+\\
+    Marks all TPC hits not associated with valid tracks.
+    'Valid' means that the track will be written to the miniDST
+    (i.e.~the track exist and is not a zombie). This method
     has to be called after the rejected tracks are removed.
     Do not remove the TPC hits via \texttt{removeTpcHitCollection()}
     if you use this method.
