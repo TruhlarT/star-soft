@@ -16,16 +16,16 @@ use Net::FTP;
 use Class::Struct;
 use File::Basename;
 
-require "/afs/rhic.bnl.gov/star/packages/DEV/mgr/dbTJobsSetup.pl";
+require "/afs/rhic/star/packages/scripts/dbTJobsSetup.pl";
 
 #require "dbTJobsSetup.pl";
 
 my $TOP_DIRD = "/star/rcf/test/new/";
 my @dir_year = ("year_2001", "year_1h", "year_2003", "year_2004");
-my @node_dir = ("trs_redhat72", "trs_redhat72_opt","trs_ittf_redhat80","trs_ittf_redhat80_opt");
-my @node_daq = ("daq_redhat72", "daq_redhat72_opt"); 
+my @node_dir = ("trs_sl302", "trs_sl302_opt","trs_sl302.ittf", "trs_sl302.ittf_opt");
+my @node_daq = ("daq_sl302", "daq_sl302_opt","daq_sl302.ittf","daq_sl302.ittf_opt"); 
 my @hc_dir = ("hc_lowdensity", "hc_standard", "hc_highdensity", "peripheral","pp_minbias","ppl_minbias","dau_minbias","auau_minbias");
-my @daq_dir = ("minbias", "central", "ppMinBias", "dAuMinBias", "AuAuMinBias", "AuAu_prodHigh","AuAu_prodLow" );
+my @daq_dir = ("minbias", "central", "ppMinBias", "dAuMinBias", "AuAuMinBias", "AuAu_prodHigh","AuAu_prodLow","prodPP" );
 
 my @OUT_DIR;
 my @OUTD_DIR;
@@ -78,7 +78,7 @@ for ($i = 0; $i < scalar(@node_daq); $i++) {
    print "Output Dir for NEW :", $OUT_DIR[$ii], "\n";
         $ii++;
    } 
-   for ($ik = 4; $ik < 7; $ik++) { 
+   for ($ik = 4; $ik < 8; $ik++) { 
     $OUT_DIR[$ii] = $TOP_DIRD . $node_daq[$i] . "/" . $dir_year[3] . "/" . $daq_dir[$ik];
    print "Output Dir for NEW :", $OUT_DIR[$ii], "\n";
         $ii++;
@@ -593,6 +593,9 @@ foreach  $eachOutNDir (@OUT_DIR) {
      elsif($EvTp eq "AuAu_prodLow") {
         $EvReq = 332;
       }
+     elsif($EvTp eq "prodPP") {
+        $EvReq = 500;
+      }   
 #       else {
 #      @prt = split(/\./,$bsname);
 #      $evR = $prt[1];

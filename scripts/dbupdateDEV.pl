@@ -16,7 +16,7 @@ use Net::FTP;
 use Class::Struct;
 use File::Basename;
 
-require "/afs/rhic.bnl.gov/star/packages/DEV/mgr/dbTJobsSetup.pl";
+require "/afs/rhic/star/packages/scripts/dbTJobsSetup.pl";
 
 #require "dbTJobsSetup.pl";
 
