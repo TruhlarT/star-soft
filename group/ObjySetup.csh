@@ -25,7 +25,7 @@ setenv PATH $PATH\:$BFWORK/bin/$BFARCH\:$OBJY_HOME/$OBJY_ARCH/bin
 if ( $?BFARCH ) then
 
   # Variables needed by BaBar software
-  setenv BFROOT /star/sol/packages/BaBar
+  setenv BFROOT /afs/rhic/star/packages/BaBar
   setenv BFSITE starbnl
   setenv OBJYBASE $OBJY_HOME
 

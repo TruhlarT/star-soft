@@ -1,7 +1,10 @@
 #!/usr/bin/csh -f
-#       $Id: group_env.csh,v 1.65 1999/03/03 23:06:11 fisyak Exp $
+#       $Id: group_env.csh,v 1.66 1999/03/09 02:03:55 fisyak Exp $
 #	Purpose:	STAR group csh setup 
 #       $Log: group_env.csh,v $
+#       Revision 1.66  1999/03/09 02:03:55  fisyak
+#       Add root 2.21.06 for SL99d
+#
 #       Revision 1.65  1999/03/03 23:06:11  fisyak
 #       Add CC5 for Sun
 #
@@ -242,6 +245,7 @@ setenv CVSROOT   $STAR_PATH/repository; if ($ECHO) echo   "Setting up CVSROOT   
     setenv CERN_ROOT $CERN/$CERN_LEVEL
     setenv ROOT_LEVEL 2.21
   endif
+  if ($STAR_VERSION  == "SL99d") setenv ROOT_LEVEL 2.21.06
 #endif
                                         if ($ECHO) echo   "Setting up ROOT_LEVEL= ${ROOT_LEVEL}"
 if ($STAR_VERSION  == "SL99a") setenv CERN_LEVEL 99
@@ -360,9 +364,14 @@ switch ($STAR_SYS)
       setenv LD_LIBRARY_PATH "/opt/SUNWspro/lib:/usr/openwin/lib:/usr/dt/lib:/usr/local/lib:${PARASOFT}/lib.solaris:/afs/rhic/star/packages/ObjectSpace/2.0m/lib:${MINE_LIB}:${STAR_LIB}:${STAF_LIB}:${LD_LIBRARY_PATH}"
 	set path = ($path $PARASOFT/bin.solaris)
       setenv BFARCH SunOS5
+      if ("${STAR_HOST_SYS}" == "sun4x_56_CC5") setenv BFARCH SunOS5_CC5
       setenv OBJY_ARCH solaris4
       limit coredump 0
       unlimit descriptors
+      if ("${STAR_HOST_SYS}" == "sun4x_56_CC5" || "${STAR_HOST_SYS}" == "sun4x_56_CC5C") then
+          setenv LD_LIBRARY_PATH "/opt/WS5.0/lib:/opt/WS5.0/SC5.0/lib:/usr/openwin/lib:/usr/dt/lib:/usr/local/lib:${PARASOFT}/lib.solaris:/afs/rhic/star/packages/ObjectSpace/2.0m/lib:${MINE_LIB}:${STAR_LIB}:${STAF_LIB}:${LD_LIBRARY_PATH}"
+          setenv PATH "/opt/WS5.0/bin:${PATH}"
+        endif
     breaksw 
     case "sunx86_55":
 #  ====================
