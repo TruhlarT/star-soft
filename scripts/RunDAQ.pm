@@ -175,7 +175,7 @@ $DDBREF    = "DBI:mysql:$DDBNAME:$DDBSERVER:$DDBPORT";
 # to be implemented of set_files() or delete entries.
 #
 $ROUND{"scaleFactor"} = 1;
-$ROUND{"BeamE"}       = 2; # does not work with 1
+$ROUND{"BeamE"}       = 1; # does not work with 1
 
 
 #
@@ -741,8 +741,12 @@ sub rdaq_get_orecords
 	$val = $$Conds{$el};
 
 	# do NOT build a querry for a 'all' keyword
+	if( ! defined($val) ){ 
+	    &info_message("get_orecords","[$el] has an undef value"); 
+	    next;
+	}
 	if( $el eq "Status" && $val == -1){ next;}
-
+	
 
 	# Sort out possible comparison operators
 	$test= substr($val,0,1);
