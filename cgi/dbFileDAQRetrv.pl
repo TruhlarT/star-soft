@@ -14,7 +14,7 @@ my $debugOn = 0;
 my %pair;
 my @pck;
 my $mcomment = " ";
- $pair{$mcomment} = " ";
+ $pair{$mcomment} = "no";
 &cgiSetup();
 
 $runPr = $q->param("runD");
@@ -45,9 +45,7 @@ while(@fields = $cursor->fetchrow) {
     $pair{$fname} = $fvalue;
    
   }
-  if (!defined $pair{$mcomment}) {
-   $pair{$mcomment} = "no";
-} 
+
 &printRow();
 
 }
