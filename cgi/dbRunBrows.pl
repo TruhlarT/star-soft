@@ -50,7 +50,7 @@ my $dirRun = "/home/starreco/reco/" . $prodSr;
 my $mstat;
 my $mcomment;
 
-if( $frSet eq "daq") {
+if( $frSet eq ".daq") {
 
 if($detrSet eq "all" and $trgSet ne "all" and $fldSet ne "all") {
 
