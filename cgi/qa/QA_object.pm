@@ -206,6 +206,9 @@ sub ControlFile{
       if ( $input_filename =~ /year_1b/ ){
 	$filestring .= "\.year_1b";
       }
+      elsif ( $input_filename =~ /year_1h/ ){
+	$filestring .= "\.year_1h";
+      }
       elsif ( $input_filename =~ /year_2a/ ){
 	$filestring .= "\.year_2a";
       }
