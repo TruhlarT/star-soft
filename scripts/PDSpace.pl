@@ -23,6 +23,7 @@ for ( $i = $MIN ; $i <= $MAX ; $i++){
 }
 
 foreach $disk (@DISKS){
+    if ( ! -d "$disk/." ){ next;}
     chomp($res = `df -k $disk | grep % | grep '/'`);
     $res =~ s/^\s*(.*?)\s*$/$1/;
     $res =~ s/\s+/ /g;
