@@ -382,7 +382,8 @@ sub DataDisplayString{
 
     # pmj 10/12/99
     # pmj 11/1/00 - simu file catalogue changed
-    ($input_fn_string = $input_filename) =~ s%/star/rcf/disk0/star/test/|/star/rcf/simu/%%;
+    ($input_fn_string = $input_filename) 
+      =~ s%/star/rcf/disk0/star/test/|/star/rcf/simu/%%;
 
     $input_filename and $string .= "<br><font size=1>(input: $input_fn_string)</font>";
 
@@ -644,38 +645,43 @@ sub DisplayFilesAndReports{
   my $self = shift;
 
   #---------------------------------------------------------------------------------
-  $self->PrintProductionFiles;
+  # bum - fixed little bug
+  if ( $self->OnDisk ) {
+    $self->PrintProductionFiles;
+  } else { 
+    print "<h1><font color=green> Not on Disk</font></h1>";
+  }
   #---------------------------------------------------------------------------------
   my $production_dir = $self->ProductionDirectory;
 
   print "<H2> Reports for $production_dir </H2>\n";
   #---------------------------------------------------------------------------------
+  if ($self->OnDisk) {
+    $logfile = $self->LogReport->LogfileName;
+    $logfile_WWW = $self->LogReport->LogfileNameWWW;
 
-  $logfile = $self->LogReport->LogfileName;
-  $logfile_WWW = $self->LogReport->LogfileNameWWW;
-
-  # bum - add error and warning files
-  my $warning_file = $self->LogReport->WarningFile;
-  my $error_file = $self->LogReport->ErrorFile;
-  my $warning_string = "StWarning file: ";
-  my $error_string = "StError file: ";
+    # bum - add error and warning files
+    my $warning_file = $self->LogReport->WarningFile;
+    my $error_file = $self->LogReport->ErrorFile;
+    my $warning_string = "StWarning file: ";
+    my $error_string = "StError file: ";
 
 
-  if (-s $logfile){
+    if (-s $logfile){
 
-    $logfile_WWW and do{
-      $time = stat($logfile)->mtime;
-      $time_string = " (created:".localtime($time).")";
-      $string = "Logfile $time_string";
-      QA_cgi_utilities::make_anchor($string, $logfile, $logfile_WWW);
-    };
+      $logfile_WWW and do{
+	$time = stat($logfile)->mtime;
+	$time_string = " (created:".localtime($time).")";
+	$string = "Logfile $time_string";
+	QA_cgi_utilities::make_anchor($string, $logfile, $logfile_WWW);
+      };
+    }
+
+    $self->PrintFilestring( $warning_string, basename $warning_file )
+      if -s $warning_file;
+    $self->PrintFilestring( $error_string, basename $error_file )
+      if -s $error_file;  
   }
-
-  $self->PrintFilestring( $warning_string, basename $warning_file )
-    if -s $warning_file;
-  $self->PrintFilestring( $error_string, basename $error_file )
-    if -s $error_file;  
-
   #---
   # look in report directory
 
