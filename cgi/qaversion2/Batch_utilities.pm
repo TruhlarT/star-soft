@@ -165,10 +165,13 @@ sub RunLsfCommand{
     my $cmdStr = shift;
     my $hostName = `/bin/hostname`;
     if($hostName =~ /rcas/ || $hostName =~ /play/){
-	return `$cmdStr 2>&1`;
+	$cmdStr = $cmdStr." 2>&1";
     }else{
-	return `/usr/local/bin/ssh $gatewayHost ssh $rcasHost '$cmdStr' 2>&1`;
-    }   
+	$cmdStr = 
+	    "/usr/local/bin/ssh $gatewayHost ssh $rcasHost '".$cmdStr."' 2>&1";
+    }
+    
+    return `$cmdStr`;
 }
 
 
