@@ -27,5 +27,5 @@ setenv MANPATH "/afs/rhic/star/ROOT/${ROOT_LEVEL}/man:${MANPATH}"
 # OpenGL
 if (-e $ROOTSYS/../Mesa) setenv OPENGL $ROOTSYS/../Mesa  
 setenv CINTSYSDIR ${ROOTSYS}/cint
-setenv PATH "${PATH}:${CINTSYSDIR}"
+#setenv PATH "${PATH}:${CINTSYSDIR}"
 setenv MANPATH "${MANPATH}:${CINTSYSDIR}/doc"
