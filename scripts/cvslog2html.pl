@@ -108,9 +108,14 @@ while (<COMMITLOG>) {
 
   } elsif ( m/^=============================/ ) {
       $fnameLine = <COMMITLOG>;
-      @fields = split (/\s/,$fnameLine);
-      $fname = $fields[1];
-      print USERFILE " $fname ";
+      @fields    = split (/\s/,$fnameLine);
+      $fname     = $fields[1];
+      # print USERFILE " $fname";
+      # also cross reference those ...
+      my(@items) = split(" ",$fname);
+      foreach $fname (@items){
+	  print USERFILE " $fname (<a href=\"$cvsUrl/$module/$fname\">+</a>)";
+      }
 
   } elsif ( m/^Log Message:/ ) {
       $logMessage = <COMMITLOG>;
