@@ -70,7 +70,7 @@
 # NOT YET DOCUMENTED
 #
 #        ->add_trigger_composition()
-#                         
+#
 
 
 package FileCatalog;
@@ -109,7 +109,7 @@ $FC::IDX     = -1;
 @FC::TRGNAME = undef;
 @FC::TRGWORD = undef;
 @FC::TRGVERS = undef;
-@FC::TRGDEFS = undef; 
+@FC::TRGDEFS = undef;
 @FC::TRGCNTS = undef;
 
 
@@ -159,7 +159,7 @@ $obsolete{"triggerword"} = "trgword";
 
 $keywrds{"trgsetupname"  }    =   "triggerSetupName"          .",TriggerSetups"          .",1" .",text" .",0" .",1" .",1";
 
-# The count of individual triggers, the FileData index access in TriggerCompositions and 
+# The count of individual triggers, the FileData index access in TriggerCompositions and
 # the trigger word ID in the TRiggerComposition table
 $keywrds{"tcfdid"        }    =   "fileDataID"                .",TriggerCompositions"    .",0" .",num"  .",0" .",0" .",0";
 $keywrds{"tctwid"        }    =   "triggerWordID"             .",TriggerCompositions"    .",0" .",text" .",0" .",1" .",0";
@@ -215,7 +215,7 @@ $keywrds{"genparams"     }    =   "eventGeneratorParams"      .",EventGenerators
 # > alter table DetectorConfigurations ADD dEEMC TINYINT AFTER dEMC;
 # > update DetectorConfigurations SET dEEMC=0;
 #
-# + definition here and insert_detector_configuration() 
+# + definition here and insert_detector_configuration()
 # and we are Ready to go for a new column
 #
 $keywrds{"tpc"           }    =   "dTPC"                      .",DetectorConfigurations" .",1" .",num"  .",0" .",1" .",1";
@@ -903,7 +903,7 @@ sub disentangle_collision_type {
 sub get_collision_type
 {
     my(@tab) = &get_collision_collection(@_);
-    
+
     if( @tab ){
 	return $tab[0];
     } else {
@@ -1286,15 +1286,15 @@ sub insert_file_data {
 
 
 #============================================
-# 
+#
 # This internal routine was added to handle insertion
-# of the trigger information. 
+# of the trigger information.
 # It is developped for handling updates as well.
 #
 
 #
 # Add a new individual trigger to the collection
-# The internal arrays are flushed by any calls to add_file_data() through 
+# The internal arrays are flushed by any calls to add_file_data() through
 # a call to set_trigger_composition()
 #
 # Arguments are obvious ...
@@ -1316,7 +1316,7 @@ sub add_trigger_composition
 
 #
 # This really enters it (or updates) in the database
-# 
+#
 # Arg1 : a fdid
 # Arg2 : an insert/update flag (0 insert, 1 update)
 #
@@ -1386,7 +1386,7 @@ sub set_trigger_composition()
     }
     $sth1->finish;
     $sth2->finish;
-    
+
 
 
     #
@@ -1430,14 +1430,14 @@ sub set_trigger_composition()
 	    # The table is empty. We can now insert the triggerWordIDs recovered
 	    # preceedingly. Note that we MUST die() here if it fails since we
 	    # have already checked the existence of $tcfdid entries ... and there
-	    # none. 
+	    # none.
 	    for ( $i=0 ; $i <= $#TrgID ; $i++){
 		if ( ! $sth2->execute($tcfdid,$TrgID[$i],$TrgCnt[$i]) ){
 		    &die_message("set_trigger_composition",
 				 "Insertion of ($tcfdid,$TrgID[$i],$TrgCnt[$i]) failed");
 		}
 	    }
-	    
+
 	}
     }
     $sth1->finish;
@@ -1468,7 +1468,7 @@ sub del_trigger_composition
 	    $cmd = "DELETE LOW_PRIORITY FROM TriggerCompositions WHERE fileDataID=?";
 	    $sth = $DBH->prepare();
 
-	    if ( ! $sth ){  
+	    if ( ! $sth ){
 		&print_message("del_trigger_composition","Prepare failed. Bootstrap TRGC needed.");
 		return;
 	    }
@@ -2705,7 +2705,7 @@ sub run_query {
 	      push( @constraint, &TreatLOps("$tabname.$fieldname",
 					    "NOT LIKE",
 					    $valuset{$_},
-					    3));	      
+					    3));
 	      #push( @constraint, "$tabname.$fieldname NOT LIKE '%".$valuset{$_}."%'" );
 
 	  } else {
@@ -2872,16 +2872,16 @@ sub run_query {
 # Flag is used as follow
 #   1  get the $val 'as-is' i.e. do not check for string/number
 #   2  explicit string value 'as-is'
-#   3  explicit APPROXIMATE string matching 
+#   3  explicit APPROXIMATE string matching
 #
-# Note thate && makes no sens whatsoever. Left for 
+# Note thate && makes no sens whatsoever. Left for
 # documentary / test purposes.
 #
 sub TreatLOps
 {
     my($fldnam,$op,$ival,$flag)=@_;
     my(@Val,$val,$qq,$connect);
-    
+
     $flag = 0 if ( ! defined($flag) );
 
 
@@ -2902,7 +2902,7 @@ sub TreatLOps
     foreach $val (@Val){
 	#print "Start $val\n";
 	if($flag == 0){
-	    if ($val !~ m/^\d+/){ 
+	    if ($val !~ m/^\d+/){
 		$val = "'$val'";
 	    }
 	} elsif ($flag == 2){
@@ -2913,7 +2913,7 @@ sub TreatLOps
 	    &die_message("TreatLOps","Internal error ; unknown flag $flag");
 	}
 	#print "Now   $val\n";
-	
+
 	if ( defined($qq) ){
 	    $qq .= " $connect $fldnam $op $val";
 	} else {
@@ -2922,7 +2922,7 @@ sub TreatLOps
     }
 
     # OR and AND should be re-grouped by ()
-    if ($#Val > 0){ 
+    if ($#Val > 0){
 	$qq = "( $qq )";
     }
 
@@ -3017,7 +3017,7 @@ sub delete_records {
 	  $stq->finish();
 
 	  if ($rows == 0 || ($DELAY && $rows == 1) ){
-	      # This file data has no file "other" locations 
+	      # This file data has no file "other" locations
 	      $cmd  = "DELETE LOW_PRIORITY FROM FileData WHERE fileDataID = $ids[1]";
 	      $sth2 = $DBH->prepare($cmd);
 
@@ -3054,7 +3054,7 @@ sub delete_records {
 #   dodelete - set to 1 to automaticaly delete the offending records
 #
 # Returns
-#  List of records that are not connected or 0 if there were errors 
+#  List of records that are not connected or 0 if there were errors
 #  or no unconnected records
 #
 # This routine is the top routine
@@ -3092,7 +3092,7 @@ sub bootstrap {
 # Bootstrap all no-special tables (dictionaries, FileData and
 # FileLocations).
 #
-sub bootstrap_general 
+sub bootstrap_general
 {
     my($keyword, $delete) = @_;
 
@@ -3174,7 +3174,7 @@ sub bootstrap_trgc {
     my($cmd1,$cmd2,$sth1,$sth2);
     my(@rows,@rows1,@rows2,$id);
     my($cmdd,$sthd);
-	    
+
 
     $tab1  = "TriggerCompositions";  $field1 = "fileDataID";
     $tab2  = "TriggerWords";         $field2 = "triggerWordID";
@@ -3250,7 +3250,7 @@ sub bootstrap_trgc {
     }
     $sth2->finish();
 
-    # Return value 
+    # Return value
     if ( $#rows1 != -1){ foreach $id (@rows1){ push(@rows,"TC-$id");}}
     if ( $#rows2 != -1){ foreach $id (@rows2){ push(@rows,"TW-$id");}}
 
@@ -3261,7 +3261,7 @@ sub bootstrap_trgc {
 
 
 
-sub bootstrap_data 
+sub bootstrap_data
 {
     if ($_[0] =~ m/FileCatalog/) { shift @_;}
 
@@ -3386,7 +3386,7 @@ sub update_record {
       }
   }
 
-  
+
   if( ! defined($doit) ){  $doit = 1;}
 
   foreach my $key (keys %keywrds){
@@ -3401,9 +3401,9 @@ sub update_record {
       if (($table eq $utable) && ($field ne $ufield)){
 	  if (defined($valuset{$key})){
 	      if (&get_field_type($key) eq "text"){
-		  push (@updates, "$table.$field = '".$valuset{$key}."'"); 
+		  push (@updates, "$table.$field = '".$valuset{$key}."'");
 	      } else {
-		  push (@updates, "$table.$field = ".$valuset{$key}); 
+		  push (@updates, "$table.$field = ".$valuset{$key});
 	      }
 	  }
       } else {
@@ -3411,15 +3411,15 @@ sub update_record {
 	  # a relation. The only relation we will support if through
 	  # the fdid and tables containing this field.
 	  # **** NEED TO WRITE A ROUTINE SORTING OUT THE RELATION ****
-	  if ( $key eq "fdid" && 
+	  if ( $key eq "fdid" &&
 	      ( $utable eq "TriggerCompositions" ||
-		$utable eq "FileLocations") ){ 
+		$utable eq "FileLocations") ){
 	      if ( defined($valuset{$key}) ){
 		  #print "Found fdid = $valuset{$key}\n";
 		  $xcond = " $utable.fileDataID = $valuset{$key}" if ( ! defined($xcond) );
 	      }
 	  }
-	  
+
       }
   }
   if ( defined($xcond) ){ push(@updates,$xcond);}
@@ -3650,9 +3650,9 @@ sub update_location {
       if (($table eq $mtable) && ($field ne $ufield)){
 	  if (defined($valuset{$key})){
 	      if (&get_field_type($key) eq "text"){
-		  push (@updates, "$field = '".$valuset{$key}."'"); 
+		  push (@updates, "$field = '".$valuset{$key}."'");
 	      } else {
-		  push (@updates, "$field = ".$valuset{$key}); 
+		  push (@updates, "$field = ".$valuset{$key});
 	      }
 	  }
       }
@@ -3767,14 +3767,14 @@ sub get_value
 
     # If undef, use default value
     if ( ! defined($var) ){ $var = $dval;}
-    
+
     # If null, use default as well. Do not allow \s+ or "" in ddb (sorry)
     if ( $var =~ m/^\s*$/){ $var = $dval;}
 
     # Now treat special cases
     if($flag == 1){      $var = uc($var);}
     elsif($flag == 2){   $var = lc($var);}
-    
+
     # Return that value
     $var;
 }
