@@ -434,15 +434,16 @@ sub rdaq_last_run
 sub rdaq_raw_files
 {
     my($obj,$from,$limit)=@_;
-    my($sth,$cmd);
+    my($sth,$cmd,$llimit);
     my(@all,@res,$tres);
     my($tref,$kk);
 
     if(!$obj){ return 0;}
 
     # Default values
+    $llimit = 0;
     if( ! defined($from) ){ $from = "";}
-    if( ! defined($limit)){ $limit= -1;}
+    if( ! defined($limit)){ $llimit = $limit= -1;}
     if( $from eq 0){ $from = "";}
 
     # An additional time-stamp selection will be made to minimize
@@ -485,9 +486,10 @@ sub rdaq_raw_files
 	}
 	$cmd .= " AND daqFileTag.entryTime <= $tref";
     }
-    if($limit > 0){
+    # limit can be a string litteral like 10,100
+    if($llimit != -1){  
 	$cmd .= " LIMIT $limit";
-    }
+    } 
 
     print "<!-- $cmd -->\n" if ($DEBUG);
     $sth  = $obj->prepare($cmd);
