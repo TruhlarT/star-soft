@@ -28,7 +28,7 @@ $ICON2 = "/STAR/images/Spider1.jpg";                           # Icon to display
 $DINFO = "(check 'nova' Spiders)";                             # Many tools may be used for indexing
                                                                # display info about which one.
 
-$SpiderControl = "/cgi-bin/starreco/SpiderControl.cgi";        # a CGI controling the spiders
+$SpiderControl = "/cgi-bin/starreco/%%RELP%%/SpiderControl.cgi"; # a CGI controling the spiders
 
 
 @COLORS = ("#FFFACD","#C1FFC1","#7FFFD4","#00DEFF","#87CEFA","#ccccee","#D8BFD8","#FF69B4");
@@ -276,11 +276,14 @@ if ($#FCRefs == -1){
 
 	$FCRef = &GetFCRef("SD",$ICON2,$disk);
 	if ( $FCRef ne ""){
-	    $Info  = "<A HREF=\"$SpiderControl?disk=$refdisk&action=OFF\">$FCRef</A>";	    
+	    $Info  = "<A HREF=\"$SpiderControl?disk=$refdisk&action=view\">$FCRef</A>";	    
 	} else {
 	    $Info  = "<A HREF=\"$SpiderControl?disk=$refdisk&action=ON\"><i>off</i></A>";
 	}
 	$ind = "<A HREF=\"$SpiderControl?disk=$refdisk&action=view\"><i>$ind</i></A>";
+
+	$ind  =~ s/%%RELP%%/public/;
+	$Info =~ s/%%RELP%%/protected/;
 
 	if ($ii % 3 == 0){ print $FO "<TR>\n";}
 	print $FO 
@@ -405,8 +408,9 @@ sub GetFCRef
 
     if ( -e $OUTD."/$What$el.txt"){
 	if ( $What eq "FC"){
-	    chomp($x = `/bin/grep Unknown $OUTD/$What$el.txt | /bin/sed "s/Unknown.*=//"`);
-	    $x = "<BR><FONT SIZE=\"-1\"><TT>$x</TT></FONT>";
+	    chomp($x = `/bin/grep Unknown $OUTD/$What$el.txt`);
+	    $x =~ m/(.*)(\d+\.\d+)(.*)/;
+	    $x = "<BR><TT>$2$3</TT>";
 	}
 
 	return 
