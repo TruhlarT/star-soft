@@ -163,7 +163,8 @@ if ( -r  $GROUP_DIR/star_login.csh ) then
 		# ****** This is the default action *****
 	    case "inter":
 		# Is update mode, not checkout
-		$SCRIPTD/AutoBuild.pl -u -d >$HOME/log/AB-d-$DAY.log
+		$SCRIPTD/AutoBuild.pl -u -s >$HOME/log/AB-d-$DAY.log
+		breaksw
 	    default
 		# Is update mode, not checkout
 		$SCRIPTD/AutoBuild.pl -u >$HOME/log/AB-$DAY.log

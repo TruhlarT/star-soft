@@ -1,6 +1,6 @@
 #!/usr/bin/env perl
 
-# $Id: AutoBuild.pl,v 1.19 2004/04/03 23:31:02 jeromel Exp $
+# $Id: AutoBuild.pl,v 1.20 2004/04/04 02:19:54 jeromel Exp $
 # This script was written to perform an automatic compilation
 # with cvs co and write some html page related to it afterward.
 # Written J.Lauret Apr 6 2001
@@ -85,6 +85,7 @@ $CVSUPD=1==0;          # Use cvs update
 $CVSCOU=1==1;          # Use cvs check-out
 $DEBUG= 1==0;          # Debug mode (i.e. no post-tasks)
 $TRASH =1==0;          # trash code cvs finds conflicting
+$NOTIFY=1==1;          # notify managers if problems
 $FILO  =STDOUT;        # Default Output file
 
 
@@ -143,6 +144,8 @@ for ($i=0 ; $i <= $#ARGV ; $i++){
 	    $CVSUPD   = 1==0;
 	    $CVSCOU   = 1==1;
 	    $SILENT   = 1==1;
+	} elsif($arg eq "-s"){
+	    $NOTIFY   = 1==0;
 	} elsif($arg eq "-d"){
 	    $DEBUG    = 1==1;
 	} elsif($arg eq "-k"){
@@ -525,7 +528,7 @@ sub Exit()
     if($sts != 0){
 	# Send Emails to the list of managers if the compilation
 	# failed. We do NOT want to be influcenced by anything else
-	if ( ! $DEBUG){
+	if ( $NOTIFY ){
 	    @email  = IUManagers();
 	    foreach $tmp (@email){
 		system("echo \"Last error is $ERRSTR\nFor more information, ".
@@ -810,7 +813,7 @@ sub lhelp
  -a Cmd       Executes 'Cmd' before star library version change (can be used
               for executing a setup)
 
-
+ -s           Silent i.e. do not send Email to managers on failures
  -d           Debug. DO NOT perform post compilation tasks and perform
               a HTML output in $ENV{HOME} instead of 
               $TRGTDIR
