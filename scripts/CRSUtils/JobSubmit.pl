@@ -86,8 +86,10 @@ if ($ThisYear == 2002){
 
 
     # Default pre-pass calibration chains by species used in regular mode if defined
-    $DCALIB{"AuAu"}           = "";   # Trash out default calib pass. All done now, was PreTpcT0
-    $DCALIB{"ProtonProton"}   = "";   # PreLaser" no more interlayed laser, all laser files processed
+    $DCALIB{"AuAu"}           = "";   # Trash out default calib pass. 
+                                      # All done now ; was PreTpcT0
+    $DCALIB{"ProtonProton"}   = "";   # PreLaser" no more interlayed laser, 
+                                      # all laser files processed
 
 
     # Stand-alone Calibration pass. Used in C/mode
@@ -106,7 +108,7 @@ if ($ThisYear == 2002){
     @SPILL   = (3,0,1);      
     
     # Default chain
-    $DCHAIN{"dAu"}            = "dAu2003,alltrigger";
+    $DCHAIN{"dAu"}            = "dAu2003,alltrigger,CMuDst";
     
     # Default pre-calib
     $DCALIB{"dAu"}            = "PreTpcT0";
@@ -125,19 +127,19 @@ if ($ThisYear == 2002){
 
 
 # Default production chains by species
-$DCHAIN{"AuAu"}           = "P2001a";
-$DCHAIN{"ProtonProton"}   = "PP2001,fpd";
-$DCHAIN{"dAu"}            = "dAu2003,alltrigger";
+#$DCHAIN{"AuAu"}           = "P2001a";
+#$DCHAIN{"ProtonProton"}   = "PP2001,fpd";
+#$DCHAIN{"dAu"}            = "dAu2003,alltrigger";
 
 # Default pre-pass calibration chains by species used in regular mode if defined
-$DCALIB{"AuAu"}           = "";         # Trash out default calib pass. All done now, was PreTpcT0
-$DCALIB{"ProtonProton"}   = "";         # PreLaser" no more interlayed laser, all laser files processed
-$DCALIB{"dAu"}            = "PreTpcT0";
+#$DCALIB{"AuAu"}           = "";         # Trash out default calib pass. All done now, was PreTpcT0
+#$DCALIB{"ProtonProton"}   = "";         # PreLaser" no more interlayed laser, all laser files processed
+#$DCALIB{"dAu"}            = "PreTpcT0";
 
 # Stand-alone Calibration pass. Used in C/mode
-$SCALIB{"AuAu"}           = "";
-$SCALIB{"ProtonProton"}   = "OptLaser";
-$SCALIB{"dAu"}            = "OptLaser";
+#$SCALIB{"AuAu"}           = "";
+#$SCALIB{"ProtonProton"}   = "OptLaser";
+#$SCALIB{"dAu"}            = "OptLaser";
 
 
 
@@ -463,6 +465,7 @@ sub Submit
     my($mode,$queue,$spill,$file,$chain)=@_;
     my($Hfile,$jfile,$mfile,@items);
     my($field,$tags);
+    my($trgsn,$trgrs);
 
     # We are assuming that the return value of $file is
     # the mode 2 of get_ffiles() and counting on the 
@@ -472,7 +475,12 @@ sub Submit
     $file  = $items[0];
     $field = $items[6];
     $coll  = $items[8];
-    $trgs  = rdaq_bits2string("TrgMask",$items[11]);
+
+    # Trigger setup string
+    $trgsn = rdaq_bits2string("TrgMask",$items[10]);
+    # Triggers  mask information
+    $trgrs = rdaq_bits2string("TrgMask",$items[11]);
+    # Detector setup information
     $dets  = rdaq_bits2string("DetSetMask",$items[9]);
     
 
@@ -512,14 +520,21 @@ sub Submit
     # This was added according to an Email I have sent to
     # the period coordinator list. Only Jeff Landgraff 
     # has answered saying we can skip the 'test' once.
-    if ( $trgs =~ m/test/ && $mode == 0){
+    if ( $trgrs eq "pedestal" || $trgrs eq "pulser" ||
+	 $trgsn eq "pedestal" || $trgsn eq "pulser" ){
+	print "Info :: Skipping $file has setup=$trgsn 'triggers'=$items[11]=$trgrs\n";
+	push(@SKIPPED,$file);
+
+    } elsif ( $trgrs =~ m/test/ && $mode == 0){
 	if ( $ThisYear == 2002){
 	    # start with a warning
-	    print "Info :: Skipping $file has 'triggers'=$items[11]=$trgs\n";
+	    print "Info :: Skipping $file has 'triggers'=$items[11]=$trgrs\n";
 	    push(@SKIPPED,$file);
 	    return 0;
 	} else {
-	    print "Info :: $file has 'triggers'=$items[11]=$trgs but Year=$ThisYear not skipping it\n";
+	    print 
+		"Info :: $file has 'triggers'=$items[11]=$trgrs ",
+		"but Year=$ThisYear not skipping it\n";
 	}
     }
     if ( $dets ne "tpc" && $dets !~ m/\.tpc/){
@@ -580,21 +595,29 @@ __EOH__
 	
 	print FO <<__EOF__;
 #output
-    outputnumstreams=4
+    outputnumstreams=5
 
 #output stream
     outputstreamtype[0]=UNIX
     outputdir[0]=$SCRATCH
     outputfile[0]=$mfile.event.root
+
     outputstreamtype[1]=UNIX
     outputdir[1]=$SCRATCH
-    outputfile[1]=$mfile.hist.root
+    outputfile[1]=$mfile.MuDst.root
+
     outputstreamtype[2]=UNIX
     outputdir[2]=$SCRATCH
-    outputfile[2]=$mfile.$tags.root
+    outputfile[2]=$mfile.hist.root
+
     outputstreamtype[3]=UNIX
     outputdir[3]=$SCRATCH
-    outputfile[3]=$mfile.runco.root
+    outputfile[3]=$mfile.$tags.root
+
+    outputstreamtype[4]=UNIX
+    outputdir[4]=$SCRATCH
+    outputfile[4]=$mfile.runco.root
+
 #    outputstreamtype[4]=UNIX
 #    outputdir[4]=$SCRATCH
 #    outputfile[4]=$mfile.dst.root
