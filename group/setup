@@ -19,6 +19,8 @@ if ($#argv == 0 || $#argv > 2) then
    gcc        {version}             set environment to use gcc (or alternative version)
    icc|ifc|ifort                    set environment to use Intel compilers
 
+   alt|noalt                        adds/remove OPTSTAR/alt from path
+
 EOF
     exit 0
 endif
@@ -84,7 +86,24 @@ switch ($pkg)
       setenv STARCMPL "gcc"; starver $STAR_LEVEL
       breaksw
 
+    # alternatively, add a plugin for the alt tree
+    case "alt":
+      if ( -x $GROUP_DIR/dropit ) then
+	setenv PATH            `$GROUP_DIR/dropit alt`
+	setenv LD_LIBRARY_PATH `$GROUP_DIR/dropit -p $LD_LIBRARY_PATH $OPTSTAR/alt`
+      endif
+      setenv PATH $OPTSTAR/alt/bin:$PATH
+      setenv LD_LIBRARY_PATH $OPTSTAR/alt/lib:$LD_LIBRARY_PATH
+      breaksw
 
+    case "noalt":
+      if ( -x $GROUP_DIR/dropit ) then
+	setenv PATH            `$GROUP_DIR/dropit alt`
+	setenv LD_LIBRARY_PATH `$GROUP_DIR/dropit -p $LD_LIBRARY_PATH $OPTSTAR/alt`
+      endif
+      breaksw
+
+    # debug / nodebug
     case "nodebug":
     case "NODEBUG":
       setenv NODEBUG yes; starver $STAR_LEVEL
@@ -100,27 +119,15 @@ switch ($pkg)
       breaksw
 
 
-
-
-
-    case "objy":
-    case "OBJY":
-    case "Objy":
-         #=====#
-	if (`uname -s` == "SunOS" && `hostname` != "rcf.rhic.bnl.gov" && ! ${?OBJY_HOME} ) source $GROUP_DIR/ObjySetup.csh
-	breaksw
-
-
-    case "sniff":
-    case "SNIFF":
-         #=====#
-	if (-f $GROUP_DIR/sniffenv.csh) source $GROUP_DIR/sniffenv.csh
-	breaksw
+    #
+    # kind of obsolete but may re-add later
+    #
     case "g4":
     case "G4":
          #=====#
 	if (-f $GROUP_DIR/g4env.csh) source $GROUP_DIR/G4env.csh
 	breaksw
+
     case "cc4":
     case "CC4":
          #=====#
@@ -145,6 +152,7 @@ switch ($pkg)
         endif
 	starver $STAR_LEVEL
 	breaksw
+
     case "Dsv":
     case "dsv":
     case "DSV":
