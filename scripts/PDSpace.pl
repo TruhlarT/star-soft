@@ -57,6 +57,8 @@ foreach $disk (@DISKS){
 	$avai = $items[3];
 	$prct = $items[4];
     }
+    #print STDERR "\t$tota $used $avai $prct\n";
+
     # Now scan the disk for a reco directory
     undef(@TRGS);
     undef(%LIBS);
@@ -97,6 +99,7 @@ foreach $disk (@DISKS){
 	$ver .= "$tmp ";
     }
     $DINFO{$disk} .= "$ver;";
+    #print STDERR "$disk --> $DINFO{$disk}\n";
 }
 
 if ( defined($ARGV[0]) ){
@@ -135,11 +138,14 @@ $TD  = "<TD BGCOLOR=\"black\" align=\"center\"><FONT FACE=\"Arial, Helvetica\"><
 $ETD = "</FONT></B></FONT></TD>";
 
 printf $FO
-    "<TR>$TD%10s$ETD $TD%10s$ETD $TD%10s$ETD $TD%10s$ETD $TD%3s$ETD $TD%s$ETD $TD%s$ETD</TR>\n",
+    "<TR>$TD%10s$ETD $TD%11s$ETD $TD%11s$ETD $TD%11s$ETD $TD%3s$ETD $TD%s$ETD $TD%s$ETD</TR>\n",
     "Disk","Total","Used","Avail","Used %","Triggers","Libs";
 
-$col = 0;
+
+$col     = 0;
+@$totals = (0,0,0);
 foreach $disk (sort keys %DINFO){
+    #print STDERR "$DINFO{$disk}\n";
     @items = split(";",$DINFO{$disk});
     $items[4] =~ s/\s/&nbsp; /;
     $items[5] =~ s/\s/&nbsp; /;
@@ -165,15 +171,19 @@ foreach $disk (sort keys %DINFO){
     printf $FO
 	"<TR height=\"10\" bgcolor=\"$col\">\n".
 	"  <TD align=\"right\">%10s</TD>\n".
-	"  <TD align=\"right\">%10d</TD>\n".
-	"  <TD align=\"right\">%10d</TD>\n".
-	"  <TD align=\"right\">%10d</TD>\n".
+	"  <TD align=\"right\">%11s</TD>\n".
+	"  <TD align=\"right\">%11s</TD>\n".
+	"  <TD align=\"right\">%11s</TD>\n".
 	"  <TD align=\"right\">%3s</TD>\n".
 	"  <TD>%s</TD>\n".
 	"  <TD align=\"right\">%s</TD>\n".
 	"</TR>\n",
 	    "<i><b>$disk</b></i>",$items[0],$items[1],$items[2],$items[3],
 	    $items[4],$items[5];
+
+    $totals[0] += $items[0];
+    $totals[1] += $items[1];
+    $totals[2] += $items[2];
 
     #$col++;
     #if($col > $#COLORS){ $col = 0;}
@@ -182,6 +192,12 @@ foreach $disk (sort keys %DINFO){
 
 print $FO
     "</TABLE>\n",
+    "<B>Summary:</B><BR>\n",
+    "<BLOCKQUOTE>\n",
+    "Total Space = ".sprintf("%.2f",$totals[0]/1024/1024)." GB<br>\n",
+    "Total Used =  ".sprintf("%.2f",$totals[1]/1024/1024)." GB<br>\n",
+    "Available  =  ".sprintf("%.2f",$totals[2]/1024/1024)." GB<br>\n",
+    "</BLOCKQUOTE>\n",
     "</BODY>\n",
     "</HTML>\n";
 
