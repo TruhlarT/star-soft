@@ -1,4 +1,4 @@
-#!/usr/local/bin/perl
+#!/opt/star/bin/perl
 #
 # STAR_LEVELS - Perl script to display STAR levels as string.
 # Usage: STAR_LEVELS
