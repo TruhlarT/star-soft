@@ -29,7 +29,7 @@ use Cwd;
 
 use vars qw( $CVS_id $CVS_ver $ver_num $ver_rev $version );
 
-$CVS_id = '$Id: cons,v 1.86 2003/06/26 19:00:44 jeromel Exp $ ';
+$CVS_id = '$Id: cons,v 1.87 2003/06/26 19:12:56 jeromel Exp $ ';
 $CVS_ver = (split(/\s+/, $CVS_id))[2];
 
 $ver_num = "2.3";
@@ -227,7 +227,7 @@ if ( -e "mgr/Construct"){
     $param::defaultConstruct = "mgr/Construct";	
 } else {
     # Default construction file.
-    $ENV{ConstructLocation} = $STAR . "mgr/";
+    $ENV{ConstructLocation} = $STAR . "/mgr/";
     $param::defaultConstruct = $STAR . "/mgr/Construct";	
 }
 $param::defaultConscript = "";	# Default construction file.
