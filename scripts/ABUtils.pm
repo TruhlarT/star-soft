@@ -127,9 +127,13 @@ $INSU::BSUB    = "/usr/local/lsf/bin/bsub";
 
 	      "pp2003 eemcD alltrigger trgd",
 	      "/star/data03/daq/2003/111/st_physics_4111036_raw_0030004.daq",
-
-	      "P2004 EST OShortR Xi2 V02 CMuDst",
+	      
+	      # Y4 chains
+	      "P2004 EST svt_daq svtD eemcD pmdRaw OShortR Xi2 V02 CMuDst",
 	      "/star/rcf/test/daq/2004/028/st_physics_5028066_raw_1010003.daq",
+
+	      "trs,srs,y2004,tpc,l0,svt,Cdst,Kalman,tags,Tree,bbcsim,tofsim,evout,est,-xi,-v0,xi2,XiSvt,svtdEdx,SvtMatchVtx,emcY2,eefs,GeantOut,big,-dstout,CMuDst,fzin ; Full Y4 sim chain",
+	      "/star/rcf/simu/rcf1207_01_225evts.fzd",
 
 	      # ITTF chains
 	      "ry2004 in tpc_daq tpc -tcl -tpt -PreVtx fcf Physics svtDb ITTF dst event ".
@@ -143,8 +147,12 @@ $INSU::BSUB    = "/usr/local/lsf/bin/bsub";
 	      "; ITTF full chain", 
 	      "/star/data03/daq/2004/061a/st_physics_5061059_raw_3030004.daq",
 
-	      "trs,srs,y2004,tpc,l0,svt,Cdst,Kalman,tags,Tree,bbcsim,tofsim,evout,est,-xi,-v0,xi2,XiSvt,svtdEdx,SvtMatchVtx,emcY2,eefs,GeantOut,big,-dstout,CMuDst,fzin ; Full Y4 sim chain",
+	      "trs y2004 globT tcl TpcHitMover sim_T svt_T ftpcT ctf_T l0 SvtCL svtDb ITTF ".
+	      "genvtx Sti DstOut gen_T l3_T dst dEdxY2 EventQA geant tags bbcSim tofsim EvOut ".
+	      "analysis emcY2 -Match EEfs GeantOut big V02 Xi2 Kink2 CMuDst fzin MiniMcMk ".
+	      "; ITTF nightly test",
 	      "/star/rcf/simu/rcf1207_01_225evts.fzd"
+
 
 	      );
 
