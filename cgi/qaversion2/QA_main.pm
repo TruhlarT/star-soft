@@ -163,14 +163,14 @@ print("....done connecting to db\n");
 
 
     # update everything in the data class
-    $action eq 'update' and do{
+    ($action eq 'update' || $action eq 'update_and_qa') and do{
 print("update-ing....\n");
         QA_utilities::doUpdate();
 print("....done update-ing\n");
     };
     
     # do qa on jobs in the database
-    ($action eq 'do_qa' or $action eq 'redo_qa')  and do{
+    ($action eq 'do_qa' or $action eq 'redo_qa' or $action eq 'update_and_qa')  and do{
 print("do_qa-ing....\n");
 	# do qa on all new jobs if none specified
 	my @key_list;
