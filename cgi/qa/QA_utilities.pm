@@ -571,16 +571,21 @@ sub print_traceback_hidden{
 }
 #===========================================================
 sub move_old_reports{
- 
+  
+  local $oldtime = 30*24*3600; # 30 days in seconds
+  local $now     = timelocal( 0,0,0, (localtime)[3,4,5]); # epoch sec
+
   opendir REPORTDIR, $topdir_report or die "Cannot open report_dir $topdir_report \n";
   
   while ( defined ( $report = readdir REPORTDIR ) ){
     
     # move if older than 30 days
     
+    next unless is_old_report($report); # bum - 10/03/00 
+
     $name = "$topdir_report/$report";
     
-    next unless -M $name > 30;
+    # $next unless -M $name; 
     
     $name_move = "$topdir_report_old/$report";
     
@@ -591,6 +596,30 @@ sub move_old_reports{
     system ("\\rm -rf $name");
     
   }
+}
+#============================================================
+# bum 10/3/00 - called in move_old_reports above
+
+sub is_old_report{
+  my $report  = shift;
+  my ($day, $month, $year, $report_age);
+
+  # extract date from report_dir.  e.g. blah.250300 (day,month,year)
+  ($day, $month, $year) = ($report =~ /(\d{2})(\d{2})(\d{2})$/);
+  
+  # error check
+  if (not defined ($day, $month, $year)) {
+    print "$report has a faulty date\n"; return;
+  }
+
+  # convert it to epoch seconds - note that this doesnt work after 2038...
+  $year = 100 + $year if $year < 38; # timelocal conversion
+  $month--; # ditto
+  $report_age =  timelocal(0,0,0, $day, $month, $year);
+
+  # return true if older than 30 days ($oldtime)  
+  # see move_old_reports above for $now and $oldtime
+  return 1 ? ($now - $report_age > $oldtime) : 0;
 }
 #=======================================================================
 sub run_DSV{
