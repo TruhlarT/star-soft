@@ -228,7 +228,7 @@ $xLabelSkip = 1;
 $xLabelSkip = 2 if( scalar(@aflName) > 20 );
 $xLabelSkip = 4 if( scalar(@aflName) > 40 );
 $xLabelSkip = 8 if( scalar(@aflName) > 80 );
-$xLabelSkip = 10 if( scalar(@aflName) > 100);
+$xLabelSkip = 20 if( scalar(@aflName) > 100);
 
 my $qr = new CGI;
 
