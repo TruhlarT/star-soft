@@ -170,13 +170,8 @@ my ($script_name, $doc_name, $working_dir) = translateURL($request);
 
 if ($script_name){       #this is an allowed cgi script
 
-    #
-    # send http header not provided by the cgi script
-    #
-
     #$client->send_basic_header;
     # for some reason, the above does not work ???
-    print $client "HTTP/1.1 200 OK\n";
 
     #
     # set up the environment ala the CGI/1.1 "specification"
@@ -236,28 +231,37 @@ if ($script_name){       #this is an allowed cgi script
 
     # BEN: put timeout on script 
     my @output = ();
+    my $scriptPid = 0;
+    # eval is necessary when using alarm because of system call in open2
     eval{
 	local $SIG{ALRM} = sub{
-	    print $client "Content-type: text/plain\n\n";
-	    print $client "$script_name timed out.\n";
-	    printToLog("$script_name timed out\n");
+	    print $client "HTTP/1.1 500 ERROR\n";
+	    print $client "Content-type: text/html\n\n";
+	    print $client "<h1>$script_name timed out.</h1>\n";
+	    printToLog("$script_name timed out");
 
 	    close Writer; close Reader; $client = undef;
+	    
+	    # destroy running script
+	    kill 9, $scriptPid;
+	    printToLog("killed $script_name (pid $scriptPid)");
 
 	    exit(0);
 	};
 	
-	alarm 15;
+	alarm 30;
 
 	printToLog("running script");
-	open2(\*Reader, \*Writer, "./$script_name"); # I & O sockets
+	$scriptPid = open2(\*Reader, \*Writer, "./$script_name"); 
 	print Writer $request->content();
 	@output = <Reader>;
 
 	alarm 0;
     };
     if ($@){
-	print $client "$script_name died with error $!.\n";
+	print $client "HTTP/1.1 500 ERROR\n";
+	print $client "Content-type: text/html\n\n";
+	print $client "<h1>$script_name died with error $!.</h1>\n";
 	printToLog("$script_name died with error $!.\n");
 
 	close Writer; close Reader; $client = undef;
@@ -265,6 +269,7 @@ if ($script_name){       #this is an allowed cgi script
 	exit(0);
     }
 
+    print $client "HTTP/1.1 200 OK\n";
     print $client join("", @output);
 
     #
