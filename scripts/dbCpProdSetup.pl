@@ -25,7 +25,7 @@ $JobStatusT = "JobStatus";
 $TriggerEventsT = "TriggerEvents";
 $jobRelationsT = "jobRelations";
 $DAQInfoT = "DAQInfo";
-$nodeStatusT = "nodeStatus";
+$crsStatusT = "crsStatus";
 
 ######################
 sub StDbProdConnect {
