@@ -25,9 +25,9 @@ my $debugOn = 0;
 my @prodPer;
 my $myprod;
 my $nprodPer = 0;
-my @colSet = ("AuAu130", "tpc_laser");
-my @datSet = ("all","tpc","tpc.rich","tpc.svt.rich");
-my @trigSet  = ("all","central","minbias","medium","peripheral","mixed");
+my @colSet = ("AuAu130", "AuAu200","tpc_laser");
+my @datSet = ("all","tpc","tpc.rich","tpc.svt","tpc.svt.rich","tpc.ftpc.rhic","tpc.svt.ftpc","tpc.svt.ftpc.rhic","tpc.svt.tof.rhic","tpc.tof.ftpc.rhic","tpc.svt.tof.ftpc.rhic");
+my @trigSet  = ("all","central","minbias","medium","peripheral","mixed","physics","n/a");
 
 &StDbProdConnect();
 
@@ -50,8 +50,6 @@ $sql="SELECT DISTINCT prodSeries FROM JobStatus where prodSeries like 'P0%'";
        $prodPer[$nprodPer] = $myprod;
        $nprodPer++;
     }
-
-&StDbProdDisconnect();
 
 $query = new CGI;
 
