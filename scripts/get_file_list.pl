@@ -104,7 +104,7 @@ if ($count == 0){
 
 
     if ($onefile > 0){
-	$field_list .= ",grp(filename)";  # ,orda(persistent)"; <-- great idea but returns persistent
+	$field_list .= ",grp(filename),orda(persistent)";  # ,orda(persistent)"; <-- great idea but returns persistent
     }
 
     # Getting the data
@@ -162,14 +162,4 @@ Command usage:
  print join(" ",$fileC->get_keyword_list())."\n\n";
 
 }
-
-
-
-
-
-
-
-
-
-
 
