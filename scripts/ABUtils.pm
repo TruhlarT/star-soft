@@ -32,7 +32,7 @@ $INSU::COMPDIR="/afs/.rhic/star/replicas/DEV";
 $INSU::STARAFS="/afs/rhic/star/packages";
 
 # list of dirs affected by a cvs co
-@INSU::DIRS=("StRoot","StarDb","StDb","pams","asps");
+@INSU::DIRS=("StRoot","StarDb","StDb","pams","asps","mgr");
 
 # List of excluded modules in StRoot compilation. This is a default
 # and does not preclude the SKIP_DIRS usage.
@@ -73,6 +73,9 @@ $INSU::JPRLOAD="staradev";
 
 # directory which will contain the test result files
 $INSU::TDIR="/star/rcf/test/dev/Insure";
+
+# LSF submit command
+$INSU::BSUB = "/usr/local/lsf/bin/bsub";
 
 # All tests may be declared here in this array. The first element is the chain
 # the second a list of files to work on. Note that the array will be later
@@ -403,7 +406,7 @@ sub IUSubmit
 	unlink($log);
     }
 
-    $cmd = "bsub -q $INSU::QUEUE -o $log $job";
+    $cmd = "$INSU::BSUB -q $INSU::QUEUE -o $log $job";
     if ( ! $flag ){
 	print "$cmd\n";
     } else {
