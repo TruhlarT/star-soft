@@ -643,8 +643,11 @@ foreach  $eachOutNDir (@OUT_DIR) {
      elsif($EvTp eq "central") {
         $EvReq = 85;
       }
-     elsif($EvTp eq "ppMinBias") {
+     elsif($EvTp eq "ppMinBias" and $geom = "year_2001") {
         $EvReq = 700;
+      }
+     elsif($EvTp eq "ppMinBias" and $geom = "year_2003") {
+        $EvReq = 900;
       }
      elsif($EvTp eq "embedding") {
         $EvReq = 78;
@@ -1134,6 +1137,7 @@ my $runflag = 0;
 
        if($line =~ /Processing bfc.C/) {
           $runflag++;
+   print $runflag,"  ",$line, "\n"; 
 	}
    if ($line =~ /StMessageManager message summary/) {
       $Anflag = 1;
@@ -1248,14 +1252,13 @@ my $runflag = 0;
 ###### 
      
        }
+ 
      }
  
-    if($runflag == 1) { 
-
       $EvDone = $no_event;
       $EvCom = $EvDone - $EvSkip;
-    }
-#   print "Number of events: ", $no_event,"  ", $EvDone,"  ",$EvCom, "\n";
+# print "Number of events: ", $runflag,"  ", $no_event,"  ", $EvDone,"  ",$EvCom, "\n";
+
 
 ##### get CPU and Real Time per event
       
