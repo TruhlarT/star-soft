@@ -1,8 +1,11 @@
 #!/opt/star/bin/perl
 #
-# $Id: cas.pl,v 1.1 1999/09/16 16:32:28 wenaus Exp $
+# $Id: cas.pl,v 1.2 1999/10/07 15:21:11 wenaus Exp $
 #
 # $Log: cas.pl,v $
+# Revision 1.2  1999/10/07 15:21:11  wenaus
+# Use wide ps output
+#
 # Revision 1.1  1999/09/16 16:32:28  wenaus
 # cron script producing CAS usage summary
 #
@@ -18,8 +21,6 @@
 #
 # Usage: cas.pl in cron jobs
 #
-
-use strict;
 
 $htmlFile = '/star/starlib/doc/www/html/comp-nfs/casusage.html';
 
@@ -113,8 +114,8 @@ foreach $node ( sort keys %nodes ) {
         $pscmd = 'ps aux;';
         $pscmd = '';  # root4star check replaced with CPU usage check
         $dfcmd = "df -k $diskname;";
-        $srvcmd = 'ps ax | grep perl | grep analysisServer;';
-        $uscmd = "ps aux | perl -e 'while (<STDIN>) {\@ln = split; \\\$tm = substr(\\\$_,53,2); if (\\\$tm>5 && \\\$ln[0] ne \\\"root\\\") {print \\\"\\\$ln[0] using root4star or lots of CPU\\n\\\"}}';";
+        $srvcmd = 'ps axw | grep perl | grep analysisServer;';
+        $uscmd = "ps auxw | perl -e 'while (<STDIN>) {\@ln = split; \\\$tm = substr(\\\$_,53,2); if (\\\$tm>5 && \\\$ln[0] ne \\\"root\\\") {print \\\"\\\$ln[0] using root4star or lots of CPU\\n\\\"}}';";
     }
     $sshcmd = "$ssh -x $node \"$dfcmd $pscmd $srvcmd $uscmd uptime\"";
     @output = `$sshcmd`;
