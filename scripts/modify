@@ -58,7 +58,8 @@ for($i=0; $i <= $#ARGV ; $i++){
     foreach $file (@FILES){
 	# Check this ... may happen
 	$file =~ m/(.*)(\..*)/;
-        if( defined($SKIP{$2}) ){ next;}			
+        if( defined($SKIP{$2}) ){ next;}      # skipped explicitly by exclusion
+	if( $file =~ m/\/\.backup\//){ next;} # skip as per AFS .backup/
 
 	$ofile = $file;
 
