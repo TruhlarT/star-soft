@@ -1,6 +1,6 @@
 #!/opt/star/bin/perl -w
 
-use lib "/afs/rhic.star.bnl.gov/star/packages/scripts";
+use lib "/afs/rhic.bnl.gov/star/packages/scripts";
 use FileCatalog;
 use Date::Manip;
 
