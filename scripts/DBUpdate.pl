@@ -183,7 +183,7 @@ foreach  $file (@ALL){
 	print STDERR "Did not find $path $file in HPSS\n";
 
     } else {
-	$mess = "Found ".($#all+1)." records for $file " if ($#all > 0);
+	$mess = "Found ".($#all+1)." records for $file ";
 
 	@stat   = stat("$path/$file");
 
