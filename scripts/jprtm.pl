@@ -8,35 +8,55 @@
 use lib "/afs/rhic/star/packages/scripts/";
 use ABUtils;
     
+
 $xprgm = shift(@ARGV) if (@ARGV);
 $fprof = shift(@ARGV) if (@ARGV);
 
-if( ! -x $xprgm){
+
+# Check arguments
+if( ! -e $xprgm ){
     print "First argument must be a program name\n";
+    print "Received ".join(" ",@ARGV)."\n";
     exit;
-} elsif ( ! -f $fprof){
+} elsif ( ! -e $fprof){
     print "Second argument must be a profiling file\n";
+    print "Received ".join(" ",@ARGV)."\n";
     exit;
 } 
 
+
+# Sort out path/file-name
 if( $fprof =~ m/(.*\/)(.*)/ ){
     $path = $1; $file = $2;
 } else {
     $path = "."; $file = $fprof;
 }
 
+
+# Dup STDERR (we don't care about the error)
 open(STDERR,">/dev/null");
-$jprof = `which jprof`;
-if( ! -x $jprof){
+$jprof = JPRExec();
+if( ! -e $jprof){
     print "Could not locate the jprof program\n";
     exit;
 }
 
 
-@all = `stardev ; cd $path && jprof $xprgm $file`;
-foreach $line (@all){
-    if( $line =~ m/<body>/i){ $line =~ s/(.*)(<body>)(.*)/$1.IUbody().$3/}
-    print $line;
+# get the result in an array
+@all = `cd $path && $jprof $xprgm $file`;
+$BODY = IUbody();
+
+
+# And format it out
+if($#all == -1){
+    print IUhead("Profiling result could not be extracted.");
+    print "Chain crashed\n";
+    print IUtrail();
+} else {
+    foreach $line (@all){
+	if( $line =~ m/<body>/i){ $line =~ s/(.*)(<body>)(.*)/$1$BODY$3/}
+	print $line;
+    }
 }
 
-# And that's it ...
+
