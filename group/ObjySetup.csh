@@ -1,12 +1,12 @@
 #!/bin/echo You must source
 
-if ( -d /afs/rhic/oodb/solaris4/bin ) then
+if ( -d $AFS_RHIC/oodb/solaris4/bin ) then
   switch ($STAR_SYS)
     case "i386_*":
-      setenv OBJY_HOME /afs/rhic/oodb/v_5.1
+      setenv OBJY_HOME $AFS_RHIC/oodb/v_5.1
     breaksw
     case "sun4*":
-      setenv OBJY_HOME /afs/rhic/oodb/v_5.1
+      setenv OBJY_HOME $AFS_RHIC/oodb/v_5.1
     breaksw
     default:
     breaksw
@@ -24,13 +24,13 @@ setenv PATH `${GROUP_DIR}/dropit -p $PATH -p $BFWORK/bin/$BFARCH -p $OBJY_HOME/$
 if ( $?BFARCH ) then
 
   # Variables needed by BaBar software
-  setenv BFROOT /afs/rhic/star/packages/BaBar
+  setenv BFROOT $AFS_RHIC/star/packages/BaBar
   setenv BFSITE starbnl
   setenv OBJYBASE $OBJY_HOME
 
-  if ( -d /afs/rhic/star/packages/stardb/bin/$BFARCH ) then
-##VP     setenv PATH $PATH\:/afs/rhic/star/packages/stardb/bin/$BFARCH\:/afs/rhic/star/packages/stardb/bin/share
-    setenv PATH `${GROUP_DIR}/dropit -p $PATH -p /afs/rhic/star/packages/stardb/bin/$BFARCH -p /afs/rhic/star/packages/stardb/bin/share`
+  if ( -d $AFS_RHIC/star/packages/stardb/bin/$BFARCH ) then
+##VP     setenv PATH $PATH\:$AFS_RHIC/star/packages/stardb/bin/$BFARCH\:$AFS_RHIC/star/packages/stardb/bin/share
+    setenv PATH `${GROUP_DIR}/dropit -p $PATH -p $AFS_RHIC/star/packages/stardb/bin/$BFARCH -p $AFS_RHIC/star/packages/stardb/bin/share`
   endif
 
 endif
