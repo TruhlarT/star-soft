@@ -1,0 +1,141 @@
+# Updated by Pine(tm) 3.91, copyright 1989-1993 University of Washington.
+#
+# Pine configuration file -- customize as needed.
+#
+# This file sets the configuration options used by Pine and PC-Pine.  If you
+# are using Pine on a Unix system, there may be a system-wide configuration
+# file which sets the defaults for these variables.  There are comments in
+# this file to explain each variable, but if you have questions about
+# specific settings see the section on configuration options in the Pine
+# notes.  On Unix, run pine -conf to see how system defaults have been set.
+# For variables that accept multiple values, list elements are separated
+# by commas.  A line beginning with a space or tab is considered to be a
+# continuation of the previous line.  For a variable to be unset its value
+# must be blank.  To set a variable to the empty string its value should
+# be "".  You can override system defaults by setting a variable to the
+# empty string.  Switch variables are set to either "yes" or "no", and
+# default to "no".
+# Lines beginning with "#" are comments, and ignored by Pine.
+
+########################### Essential Parameters ###########################
+
+# Over-rides your full name from Unix password file. Required for PC-Pine.
+personal-name=
+
+# Sets domain part of From: and local addresses in outgoing mail.
+user-domain=mail.cern.ch
+
+# List of SMTP servers for sending mail. If blank: Unix Pine uses sendmail.
+smtp-server=mail.cern.ch
+
+# NNTP server for posting news. Also sets news-collections for news reading.
+nntp-server=
+
+# Path of (local or remote) INBOX, e.g. ={mail.somewhere.edu}inbox
+# Normal Unix default is the local INBOX (usually /usr/spool/mail/$USER).
+inbox-path={mail.cern.ch}inbox
+
+###################### Collections, Folders, and Files #####################
+
+# List of incoming msg folders besides INBOX, e.g. ={host2}inbox, {host3}inbox
+# Syntax: optnl-label {optnl-imap-host-name}folder-path
+incoming-folders=
+
+# List of directories where saved-message folders may be. First one is
+# the default for Saves. Example: Main {host1}mail/[], Desktop mail\[]
+# Syntax: optnl-label {optnl-imap-hostname}optnl-directory-path[]
+folder-collections=
+
+# List, only needed if nntp-server not set, or news is on a different host
+# than used for NNTP posting. Examples: News *[] or News *{host3/nntp}[]
+# Syntax: optnl-label *{news-host/protocol}[]
+news-collections=
+
+# Over-rides default path for sent-mail folder, e.g. =old-mail (using first
+# folder collection dir) or ={host2}sent-mail or ="" (to suppress saving).
+# Default: sent-mail (Unix) or SENTMAIL.MTX (PC) in default folder collection.
+default-fcc=
+
+# Over-rides default path for postponed messages folder, e.g. =pm (which uses
+# first folder collection dir) or ={host4}pm (using home dir on host4).
+# Default: postponed-mail (Unix) or POSTPONE.MTX (PC) in default fldr coltn.
+postponed-folder=
+
+# If set, specifies where already-read messages will be moved upon quitting.
+read-message-folder=
+
+# Over-rides default path for signature file. Default is ~/.signature
+signature-file=
+
+# List of file or path names for global/shared addressbook(s).
+# Default: none
+# Syntax: optnl-label path-name
+global-address-book=CMS_ADDRESSBOOK /afs/cern.ch/group/zh/pine/cmspeople
+
+# List of file or path names for personal addressbook(s).
+# Default: ~/.addressbook (Unix) or \PINE\ADDRBOOK (PC)
+# Syntax: optnl-label path-name
+address-book=
+
+############################### Preferences ################################
+
+# List of features; see Pine's Setup/options menu for the current set.
+# e.g. feature-list= select-without-confirm, signature-at-bottom
+# Default condition for all of the features is no-.
+feature-list=
+
+# Pine executes these keys upon startup (e.g. to view msg 13: i,j,1,3,CR,v)
+initial-keystroke-list=
+
+# Only show these headers (by default) when composing messages
+default-composer-hdrs=
+
+# Add these customized headers (and possible default values) when composing
+customized-hdrs=
+
+# Determines default folder name for Saves...
+# Choices: default-folder, by-sender, by-from, by-recipient, last-folder-used.
+# Default: "default-folder", i.e. "saved-messages" (Unix) or "SAVEMAIL" (PC).
+saved-msg-name-rule=
+
+# Determines default name for Fcc...
+# Choices: default-fcc, by-recipient, last-fcc-used.
+# Default: "default-fcc" (see also "default-fcc=" variable.)
+fcc-name-rule=
+
+# Sets presentation order of messages in Index. Choices:
+# subject, from, arrival, date, size. Default: "arrival".
+sort-key=
+
+# Sets presentation order of address book entries. Choices: dont-sort,
+# fullname-with-lists-last, fullname, nickname-with-lists-last, nickname
+# Default: "fullname-with-lists-last".
+addrbook-sort-rule=
+
+# Reflects capabilities of the display you have. Default: US-ASCII.
+# Typical alternatives include ISO-8859-x, (x is a number between 1 and 9).
+character-set=
+
+# Specifies the program invoked by ^_ in the Composer,
+# or the "enable-alternate-editor-implicitly" feature.
+editor=
+
+# Program to view images (e.g. GIF or TIFF attachments).
+image-viewer=
+
+# If "user-domain" not set, strips hostname in FROM address. (Unix only)
+use-only-domain-name=
+
+########## Set within or by Pine: No need to edit below this line ##########
+
+# Your printer selection
+printer=
+
+# Special print command if it isn't one of the standard printers
+personal-print-command=
+
+# Set by Pine; controls beginning-of-month sent-mail pruning.
+last-time-prune-questioned=
+
+# Set by Pine; controls display of "new version" message.
+last-version-used=
