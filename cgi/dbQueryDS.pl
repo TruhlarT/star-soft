@@ -88,7 +88,9 @@ while(@fields = $cursor->fetchrow) {
 for ($ll=0;$ll<scalar(@Sets);$ll++) { 
 
      $mySet = $Sets[$ll];
-     if ($mySet =~ /Bjet/) (pair{$mySet} = ":prod5");
+     if ($mySet =~ /Bjet/) {
+     $pair{$mySet} = ": prod5" ;
+   }
      &printRow();    
 
   } 
