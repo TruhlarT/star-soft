@@ -712,11 +712,14 @@ sub sort_time_msg{
 
   $key or return -99999;
 
-  if ( $key =~ /\.msg$/ ){
+  if ( exists $QA_message_hash{$key} ){
     $time = $QA_message_hash{$key}->CreationEpochSec;
   }
-  else{
+  elsif ( exists $QA_object_hash{$key} ){
     $time = $QA_object_hash{$key}->CreationEpochSec;
+  }
+  else{
+    $time = -99999;
   }
 
   return $time;

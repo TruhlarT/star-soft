@@ -646,7 +646,7 @@ sub comment_form{
   #---
 
   print "<h4> Date and Time: </h4>",
-  "(Must be in format hh:mm yy/mm/dd to be parsed properly,",
+  "(Must be in format hh:mm dd/mm/yy to be parsed properly,",
   "otherwise message will not be in correct chronological order)<br>",
   $query->textfield('comment_date', $date, 50, 80),"<br>\n";
 
@@ -750,7 +750,7 @@ sub edit_comment{
 
 
   print "<h4> Date and Time: </h4>",
-  "(Must be in format hh:mm yy/mm/dd to be parsed properly,",
+  "(Must be in format hh:mm dd/mm/yy to be parsed properly,",
   "otherwise message will not be in correct chronological order)<br>",
   $query->textfield('comment_date', $date, 50, 80),"<br>\n";
 
