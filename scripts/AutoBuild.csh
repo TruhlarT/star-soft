@@ -47,9 +47,9 @@ if ( -r  $GROUP_DIR/star_login.csh ) then
 		breaksw
 		
 
-		# ***** THIS BLOCK IS TEMPORARY *****
+	    # ***** THOSE BLOCKS ARE TEMPORARY *****
+	    # Commands uses whatever is found in 'adev' and compiles
 	    case "Solaris":
-		# Solaris one pass only
 		set LPATH=/afs/rhic/star/packages/adev
 		set SPATH=/afs/rhic/star/doc/www/comp/prod/Sanity
 		$SCRIPTD/AutoBuild.pl -k -i -1 -t -p $LPATH 
@@ -60,7 +60,17 @@ if ( -r  $GROUP_DIR/star_login.csh ) then
 		# Clean this garbage
 		/usr/bin/find . -type d -name SunWS_cache -exec rm -fr {} \;
 		breaksw
+		
+	    case "Linux72":
+		set LPATH=/afs/rhic/star/packages/adev
+		set SPATH=/afs/rhic/star/doc/www/comp/prod/Sanity
+		$SCRIPTD/AutoBuild.pl -k -i -1 -t -p $LPATH 
+		if( -e $HOME/AutoBuild-linux.html) then
+		    mv -f $HOME/AutoBuild-linux.html $SPATH/AutoBuild-linux72.html
+		endif
+		breaksw
 
+	    # Runs in private area and uses 'dev' as the base library
 	    case "Gcc":
 		set LPATH=/star/u/jeromel/work/STAR/GCC
 		set SPATH=/afs/rhic/star/doc/www/comp/prod/Sanity
