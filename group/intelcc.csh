@@ -1,6 +1,6 @@
 #!/bin/csh -f
 
-set pathtointel = `ls -1d /usr/intel* | /usr/bin/tail -1`
+set pathtointel = `/bin/ls -1d /usr/intel* | /usr/bin/tail -1`
 if ( "$pathtointel" != "") then
     set seticc=`/usr/bin/find $pathtointel -type f   -name iccvars.csh | /usr/bin/tail -1`
     set setifc=`/usr/bin/find $pathtointel -type f -name ifcvars.csh | /usr/bin/tail -1`
