@@ -1,6 +1,9 @@
-#       $Id: group_env.csh,v 1.7 1998/04/24 17:08:52 fisyak Exp $
+#       $Id: group_env.csh,v 1.8 1998/05/01 22:55:43 fisyak Exp $
 #	Purpose:	STAR group csh setup 
 #       $Log: group_env.csh,v $
+#       Revision 1.8  1998/05/01 22:55:43  fisyak
+#       add dropit for PATH
+#
 #       Revision 1.7  1998/04/24 17:08:52  fisyak
 #       Set coredupsize=0
 #
@@ -61,9 +64,13 @@ setenv STAR_CALIB ${STAR_ROOT}/calib;        if ($ECHO) echo   "Setting up STAR_
 setenv CVSROOT   $STAR_PATH/repository;      if ($ECHO) echo   "Setting up CVSROOT   = ${CVSROOT}"
 setenv TEXINPUTS :${GROUP_DIR}/latex/styles
 setenv GROUPPATH "${GROUP_DIR}:${STAR_MGR}:${STAR_BIN}"
-setenv PATH "/usr/afsws/bin:/usr/afsws/etc:/opt/rhic/bin:/usr/sue/bin:/usr/local/bin:${GROUP_DIR}:${STAR_MGR}:${STAR_BIN}:${PATH}"
+setenv PATH "/usr/afsws/bin:/usr/afsws/etc:/opt/star/bin:/opt/rhic/bin:/usr/sue/bin:/usr/local/bin:${GROUP_DIR}:${STAR_MGR}:${STAR_BIN}:${PATH}"
 #set path=( /usr/afsws/bin /usr/afsws/etc /opt/rhic/bin /usr/local/bin $GROUP_DIR $STAR_MGR $STAR_BIN $path )
-setenv MANPATH ${MANPATH}:${STAR_PATH}/man
+if ($?MANPATH == 1) then
+  setenv MANPATH ${MANPATH}:${STAR_PATH}/man
+else
+  setenv MANPATH ${STAR_PATH}/man
+endif
 setenv STAR_LD_LIBRARY_PATH ""
 setenv PARASOFT /afs/rhic/star/packages/parasoft
 switch ($STAR_SYS)
@@ -183,8 +190,8 @@ if ( -d /opt/hpnp ) then
 endif
 if ( -x /afs/rhic/star/group/dropit) then
 # clean-up PATH
-# setenv MANPATH `/afs/rhic/star/group/dropit -p ${MANPATH}`
-# setenv PATH `/afs/rhic/star/group/dropit GROUPPATH`
+  setenv MANPATH `/afs/rhic/star/group/dropit -p ${MANPATH}`
+  setenv PATH `/afs/rhic/star/group/dropit GROUPPATH`
 endif
 unset ECHO
 #END
