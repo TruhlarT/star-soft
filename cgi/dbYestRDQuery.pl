@@ -58,7 +58,7 @@ $thisDay = '01'.$thisday;
 &beginHtml();
 
 
-$sql="SELECT dataset, path,fName, createTime, Nevents, dataStatus,comment, trigger FROM $FileCatalogT where insertTime like '$thisDay%' AND fName like '%.event.root' AND type = 'daq_reco' AND site = 'disk_rcf' ";
+$sql="SELECT dataset, path,fName, createTime, Nevents, dataStatus,comment, trigger FROM $FileCatalogT where insertTime like '$thisDay%' AND fName like '%.event.root' AND type = 'daq_reco' AND site = 'disk_rcf' ORDER by runID, fileSeq ";
 $cursor =$dbh->prepare($sql)
   || die "Cannot prepare statement: $DBI::errstr\n";
 $cursor->execute;
