@@ -41,7 +41,6 @@ my @SetD = (
 
 struct FilAttr => {
        flName   => '$',
-       dtset    => '$',
        hpsize   => '$', 
        fpath    => '$',
        Nevts    => '$',
@@ -116,7 +115,6 @@ my $dhpath;
 my @OnlFiles;
 my $nOnlFile = 0;
 my @hpssDstFiles;
-my $dSet;
 
  $nhpssDstFiles = 0;
 
@@ -124,36 +122,38 @@ my $dSet;
 
 if ($trigD eq "all" and $fieldM eq "all"  and $detSet eq "all" ) {
 
- $sql="SELECT fName, dataset, size, path, Nevents  FROM $FileCatalogT WHERE fName LIKE '%.root' AND jobID LIKE '%$prodSer%' AND dataset like '$colls%' AND trigger <> 'n/a' AND site like '$Loc%'";
+ $sql="SELECT fName, size, path, Nevents  FROM $FileCatalogT WHERE fName LIKE '%.root' AND jobID LIKE '%$prodSer%' AND dataset like '$colls%' AND trigger <> 'n/a' AND site like '$Loc%'";
  
 }elsif($trigD ne "all" and $fieldM eq "all" and $detSet eq "all") {
 
- $sql="SELECT fName, dataset, size, path, Nevents  FROM $FileCatalogT WHERE fName LIKE '%.root' AND jobID LIKE '%$prodSer%' AND dataset like '$colls%' AND trigger = '$trigD' AND site like '$Loc%' ";
+ $sql="SELECT fName, size, path, Nevents  FROM $FileCatalogT WHERE fName LIKE '%.root' AND jobID LIKE '%$prodSer%' AND dataset like '$colls%' AND trigger = '$trigD' AND site like '$Loc%' ";
 
 }elsif ($trigD eq "all" and $fieldM ne "all" and $detSet eq "all" ) {
 
- $sql="SELECT fName, dataset, size, path, Nevents  FROM $FileCatalogT WHERE fName LIKE '%.root' AND jobID LIKE '%$prodSer%' AND dataset like '$colls%' AND trigger <> 'n/a' AND dataset like '%$fieldM%' AND site like '$Loc%'";
+ $sql="SELECT fName, size, path, Nevents  FROM $FileCatalogT WHERE fName LIKE '%.root' AND jobID LIKE '%$prodSer%' AND dataset like '$colls%' AND trigger <> 'n/a' AND dataset like '%$fieldM%' AND site like '$Loc%'";
  
 }elsif($trigD ne "all" and $fieldM ne "all" and $detSet eq "all") {
 
- $sql="SELECT fName, dataset, size, path, Nevents  FROM $FileCatalogT WHERE fName LIKE '%.root' AND jobID LIKE '%$prodSer%' AND dataset like '$colls%' AND trigger = '$trigD' AND dataset like '%$fieldM%' AND site like '$Loc%' ";
+ $sql="SELECT fName, size, path, Nevents  FROM $FileCatalogT WHERE fName LIKE '%.root' AND jobID LIKE '%$prodSer%' AND dataset like '$colls%' AND trigger = '$trigD' AND dataset like '%$fieldM%' AND site like '$Loc%' ";
 
 }elsif ($trigD eq "all" and $fieldM eq "all"  and $detSet ne "all" ) {
 
- $sql="SELECT fName, dataset, size, path, Nevents  FROM $FileCatalogT WHERE fName LIKE '%.root' AND jobID LIKE '%$prodSer%' AND dataset like '$colls%' AND trigger <> 'n/a' AND dataset like '%$detSet%'  AND site like '$Loc%'";
+ $sql="SELECT fName, size, path, Nevents  FROM $FileCatalogT WHERE fName LIKE '%.root' AND jobID LIKE '%$prodSer%' AND dataset like '$colls%' AND trigger <> 'n/a' AND dataset like '%$detSet%'  AND site like '$Loc%'";
  
 }elsif($trigD ne "all" and $fieldM eq "all" and $detSet ne "all") {
 
- $sql="SELECT fName, dataset, size, path, Nevents  FROM $FileCatalogT WHERE fName LIKE '%.root' AND jobID LIKE '%$prodSer%' AND dataset like '$colls%' AND trigger = '$trigD' AND dataset like '%$detSet%' AND site like '$Loc%' ";
+ $sql="SELECT fName, size, path, Nevents  FROM $FileCatalogT WHERE fName LIKE '%.root' AND jobID LIKE '%$prodSer%' AND dataset like '$colls%' AND trigger = '$trigD' AND dataset like '%$detSet%' AND site like '$Loc%' ";
 
 }elsif ($trigD eq "all" and $fieldM ne "all" and $detSet ne "all" ) {
 
- $sql="SELECT fName, dataset, size, path, Nevents  FROM $FileCatalogT WHERE fName LIKE '%.root' AND jobID LIKE '%$prodSer%' AND dataset like '$colls%' AND trigger <> 'n/a' AND dataset like '%$fieldM%' AND dataset like '%$detSet%' AND site like '$Loc%'";
+ $sql="SELECT fName, size, path, Nevents  FROM $FileCatalogT WHERE fName LIKE '%.root' AND jobID LIKE '%$prodSer%' AND dataset like '$colls%' AND trigger <> 'n/a' AND dataset like '%$fieldM%' AND dataset like '%$detSet%' AND site like '$Loc%'";
  
 }elsif($trigD ne "all" and $fieldM ne "all" and $detSet ne "all") {
 
- $sql="SELECT fName, dataset, size, path, Nevents  FROM $FileCatalogT WHERE fName LIKE '%.root' AND jobID LIKE '%$prodSer%' AND dataset like '$colls%' AND trigger = '$trigD' AND dataset like '%$fieldM%' AND dataset like '%$detSet%' AND site like '$Loc%' ";
+ $sql="SELECT fName, size, path, Nevents  FROM $FileCatalogT WHERE fName LIKE '%.root' AND jobID LIKE '%$prodSer%' AND dataset like '$colls%' AND trigger = '$trigD' AND dataset like '%$fieldM%' AND dataset like '%$detSet%' AND site like '$Loc%' ";
 }
+
+
 
    $cursor =$dbh->prepare($sql)
      || die "Cannot prepare statement: $DBI::errstr\n";
@@ -169,7 +169,6 @@ if ($trigD eq "all" and $fieldM eq "all"  and $detSet eq "all" ) {
        print "$fname = $fvalue\n" if $debugOn;
 
        ($$fObjAdr)->flName($fvalue)   if( $fname eq 'fName');
-       ($$fObjAdr)->dtset($fvalue)    if( $fname eq 'dataset');
        ($$fObjAdr)->fpath($fvalue)    if( $fname eq 'path');
        ($$fObjAdr)->hpsize($fvalue)   if( $fname eq 'size');
        ($$fObjAdr)->Nevts($fvalue)    if( $fname eq 'Nevents');
@@ -180,15 +179,10 @@ if ($trigD eq "all" and $fieldM eq "all"  and $detSet eq "all" ) {
    
     }
 
-my $mfield;
-my @prt;
-
   foreach my $dsfile (@hpssDstFiles) {
 
       $dhfile = ($$dsfile)->flName; 
       $dhpath = ($$dsfile)->fpath;
-      $dSet = ($$dsfile)->dtset;
-     if( $fieldM eq "all") {
      if ($dhfile =~ /.dst.root/) {
         $dstHpSize  += ($$dsfile)->hpsize;
    }elsif($dhfile =~ /.event.root/) {
@@ -200,67 +194,45 @@ my @prt;
    }elsif($dhfile =~ /.emcEvent.root/) {
         $emcHpSize  += ($$dsfile)->hpsize;
         $emcHpEvts  += ($$dsfile)->Nevts;   
-#     }else{
-#     next;
-   }
- } else{
-      @prt = split ("_", $dSet);
-         $mfield = $prt[1];
-          if($mfield eq $fieldM ) {
-     if ($dhfile =~ /.dst.root/) {
-        $dstHpSize  += ($$dsfile)->hpsize;
-   }elsif($dhfile =~ /.event.root/) {
-        $evtHpSize  += ($$dsfile)->hpsize;
-        $dstHpEvts  += ($$dsfile)->Nevts;  
-   }elsif($dhfile =~ /.MuDst.root/) {
-        $MuHpSize  += ($$dsfile)->hpsize;
-        $MuHpEvts  += ($$dsfile)->Nevts;   
-   }elsif($dhfile =~ /.emcEvent.root/) {
-        $emcHpSize  += ($$dsfile)->hpsize;
-        $emcHpEvts  += ($$dsfile)->Nevts;   
-#     }else{
-#     next;
-     }
-    }
-   }
-  }
-
+  }else{
+   next;
+ }
+}
 #####  select daq files from FileCatalog
  my $dqfile;
  my $dqpath;
- my $dbset; 
 
 if ($trigD eq "all" and $fieldM eq "all" and $detSet eq "all") {
 
-  $sql="SELECT fName, dataset, path, size, Nevents  FROM $FileCatalogT WHERE trigger <> 'n/a' AND dataset <> 'tpc_laser' AND fName LIKE '%daq' AND path like '%$dPath%' AND dataset like '$colls%' AND site like 'hpss%' ";
+  $sql="SELECT fName, path, size, Nevents  FROM $FileCatalogT WHERE trigger <> 'n/a' AND dataset <> 'tpc_laser' AND fName LIKE '%daq' AND path like '%$dPath%' AND dataset like '$colls%' AND site like 'hpss%' ";
 
 }elsif ($trigD ne "all" and $fieldM eq "all" and $detSet eq "all") {
 
- $sql="SELECT fName, dataset, path, size, Nevents  FROM $FileCatalogT WHERE trigger = '$trigD' AND fName LIKE '%daq' AND path like '%$dPath%'  AND dataset like '$colls%' AND site like 'hpss%' ";
+ $sql="SELECT fName, path, size, Nevents  FROM $FileCatalogT WHERE trigger = '$trigD' AND fName LIKE '%daq' AND path like '%$dPath%'  AND dataset like '$colls%' AND site like 'hpss%' ";
 
 }elsif ($trigD eq "all" and $fieldM ne "all" and $detSet eq "all") {
 
- $sql="SELECT fName, dataset, size, path, Nevents  FROM $FileCatalogT WHERE fName LIKE '%.daq' AND path like '%$dPath%' AND trigger <> 'n/a' AND dataset like '%$fieldM%' AND dataset like '$colls%' AND site like 'hpss%'";
+ $sql="SELECT fName, size, path, Nevents  FROM $FileCatalogT WHERE fName LIKE '%.daq' AND path like '%$dPath%' AND trigger <> 'n/a' AND dataset like '%$fieldM%' AND dataset like '$colls%' AND site like 'hpss%'";
  
 }elsif($trigD ne "all" and $fieldM ne "all" and $detSet eq "all") {
 
- $sql="SELECT fName, dataset, size, path, Nevents  FROM $FileCatalogT WHERE fName LIKE '%.daq' AND path like '%$dPath%' AND trigger = '$trigD' AND dataset like '%$fieldM%' AND dataset like '$colls%' AND site like 'hpss%' ";
+ $sql="SELECT fName, size, path, Nevents  FROM $FileCatalogT WHERE fName LIKE '%.daq' AND path like '%$dPath%' AND trigger = '$trigD' AND dataset like '%$fieldM%' AND dataset like '$colls%' AND site like 'hpss%' ";
 
 }elsif ($trigD eq "all" and $fieldM eq "all" and $detSet ne "all") {
 
-  $sql="SELECT fName, dataset, path, size, Nevents  FROM $FileCatalogT WHERE trigger <> 'n/a' AND dataset <> 'tpc_laser' AND fName LIKE '%daq' AND dataset like '%$detSet%' AND path like '%$dPath%' AND dataset like '$colls%' AND site like 'hpss%' ";
+  $sql="SELECT fName, path, size, Nevents  FROM $FileCatalogT WHERE trigger <> 'n/a' AND dataset <> 'tpc_laser' AND fName LIKE '%daq' AND dataset like '%$detSet%' AND path like '%$dPath%' AND dataset like '$colls%' AND site like 'hpss%' ";
 
 }elsif ($trigD ne "all" and $fieldM eq "all" and $detSet ne "all") {
 
- $sql="SELECT fName, dataset, path, size, Nevents  FROM $FileCatalogT WHERE trigger = '$trigD' AND fName LIKE '%daq' AND path like '%$dPath%'  AND dataset like '%$detSet%' AND dataset like '$colls%' AND site like 'hpss%' ";
+ $sql="SELECT fName, path, size, Nevents  FROM $FileCatalogT WHERE trigger = '$trigD' AND fName LIKE '%daq' AND path like '%$dPath%'  AND dataset like '%$detSet%' AND dataset like '$colls%' AND site like 'hpss%' ";
 
 }elsif ($trigD eq "all" and $fieldM ne "all" and $detSet ne "all") {
 
- $sql="SELECT fName, dataset, size, path, Nevents  FROM $FileCatalogT WHERE fName LIKE '%.daq' AND trigger <> 'n/a' AND path like '%$dPath%' AND dataset like '%$detSet%' AND  dataset like '%$fieldM%' AND dataset like '$colls%' AND site like 'hpss%'";
+ $sql="SELECT fName, size, path, Nevents  FROM $FileCatalogT WHERE fName LIKE '%.daq' AND trigger <> 'n/a' AND path like '%$dPath%' AND dataset like '%$detSet%' AND  dataset like '%$fieldM%' AND dataset like '$colls%' AND site like 'hpss%'";
  
 }elsif($trigD ne "all" and $fieldM ne "all" and $detSet ne "all") {
 
- $sql="SELECT fName, dataset, size, path, Nevents  FROM $FileCatalogT WHERE fName LIKE '%.daq' AND path like '%$dPath%' AND trigger = '$trigD' AND dataset like '%$detSet%' AND dataset like '%$fieldM%' AND dataset like '$colls%' AND site like 'hpss%' ";
+ $sql="SELECT fName, size, path, Nevents  FROM $FileCatalogT WHERE fName LIKE '%.daq' AND path like '%$dPath%' AND trigger = '$trigD' AND dataset like '%$detSet%' AND dataset like '%$fieldM%' AND dataset like '$colls%' AND site like 'hpss%' ";
 }
    $cursor =$dbh->prepare($sql)
       || die "Cannot prepare statement: $DBI::errstr\n";
@@ -276,7 +248,6 @@ if ($trigD eq "all" and $fieldM eq "all" and $detSet eq "all") {
        print "$fname = $fvalue\n" if $debugOn;
 # print "$fname = $fvalue\n";
        ($$fObjAdr)->flName($fvalue)   if( $fname eq 'fName');
-       ($$fObjAdr)->dtset($fvalue)    if( $fname eq 'dataset')
        ($$fObjAdr)->fpath($fvalue)    if( $fname eq 'path');
        ($$fObjAdr)->hpsize($fvalue)   if( $fname eq 'size'); 
        ($$fObjAdr)->Nevts($fvalue)    if( $fname eq 'Nevents');
@@ -290,22 +261,15 @@ if ($trigD eq "all" and $fieldM eq "all" and $detSet eq "all") {
   foreach my $onfile (@OnlFiles) {
 
      $dqfile = ($$onfile)->flName;
-     $dbset  = ($$onfile)->dtset;
      $dqpath = ($$onfile)->fpath;
      $dqEvts = ($$onfile)->Nevts;
 #     $dqEvts -= 1;
-       if( $fieldM eq "all") {
+
     $daqHpEvts  += $dqEvts;
     $daqHpSize  += ($$onfile)->hpsize; 
-    }else{
-      @prt = split ("_", $dbset);
-      $mfield = $prt[1];
-     if($mfield eq $fieldM ) {
-    $daqHpEvts  += $dqEvts;
-    $daqHpSize  += ($$onfile)->hpsize; 
-   }
+
  }
-}
+
     $TdaqHpSize = int($daqHpSize/1024/1024/1024);
     $TevtHpSize = int($evtHpSize/1024/1024/1024);
     $TdstHpSize = int($dstHpSize/1024/1024/1024);
