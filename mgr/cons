@@ -26,15 +26,15 @@ use Cwd;
 # Regression tests keep the code honest by checking for warnings
 # and "use strict" failures.
 
-# $Id: cons,v 1.69 2000/11/27 23:16:00 fisyak Exp $
+# $Id: cons,v 1.70 2000/11/27 23:41:02 fisyak Exp $
 
 use vars qw( $ver_num $ver_rev $version );
 
 $ver_num = "2.3";
 $ver_rev = ".0";
 $version = sprintf "This is Cons %s%s " .
-`	    '($Id: cons,v 1.69 2000/11/27 23:16:00 fisyak Exp $)'. "\n",
->	    $ver_num, $ver_rev;
+	    '($Id: cons,v 1.70 2000/11/27 23:41:02 fisyak Exp $)'. "\n",
+	    $ver_num, $ver_rev;
 
 # Cons: A Software Construction Tool.
 # Copyright (c) 1996-2000 Free Software Foundation, Inc.
