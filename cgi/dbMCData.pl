@@ -16,9 +16,9 @@ my $debugOn = 0;
 my @collision = ( "all","auau100", "auau200", "auau130", "auau128", "augas100", "pau200", "pp200", "dAu200");
 my @evtGen  = ("all","hijing", "hijet", "mevsim", "venus", "nexus", "vni", "two_photon", "hbt", "rqmd", "single", "starlight", "strongcp", "pythia", "hemicosm");
 
-my @geoYear = ("all","year_1b", "year_1h", "year_1e", "year_1s", "complete", "year_1a", "year1a", "year2001", "year2003","year_2a", "year2a");
+my @geoYear = ("all","year_1b", "year_1h", "year_1e", "year_1s", "complete", "year_1a", "year1a", "year2001", "year2003", "year2003x", "year_2a", "year2a");
 
-my @ftype = ("fzd","event.root","dst.root","geant.root","hist.root", "tags.root");
+my @ftype = ("fzd","event.root","dst.root","geant.root","hist.root", "tags.root", "MuDst.root");
 my @locSet = ("hpss","disk");
 my @prodPer;
 my $myprod;
@@ -26,7 +26,7 @@ my $nprodPer = 0;
 
 &StDbProdConnect();
 
-$sql="SELECT DISTINCT prodSeries FROM $JobStatusT where jobfileName like '%hadronic%' ";
+$sql="SELECT DISTINCT prodSeries FROM $JobStatusT where jobfileName like '%hadronic%' OR jobfileName like '%gheisha%'";
 
    $cursor =$dbh->prepare($sql)
       || die "Cannot prepare statement: $DBI::errstr\n";
@@ -75,7 +75,7 @@ print "<h3 align=center>Collision:</h3>";
 print "<h4 align=center>";
 print $query->scrolling_list(-name=>'setC',
 			     -values=>\@collision,
-                             -default=>'auau200',
+                             -default=>'dau200',
 			     -size=>6);
 
 print "</td><td>";
@@ -99,7 +99,7 @@ print "<h3 align=center>Production series:</h3>";
 print "<h3 align=center>";
 print $query->popup_menu(-name=>'SetPrd',  
                    -values=>\@prodPer,
-                   -default=>'P01gl',                   
+                   -default=>'P03id',                   
                    -size=>6);                              
 
 print "</td><td>";
