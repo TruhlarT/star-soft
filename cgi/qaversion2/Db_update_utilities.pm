@@ -40,7 +40,7 @@ my %oldestDate = ( nightly_real => '2001-08-20',
 # max number of updated jobs
 my %updateLimit = ( nightly_real => 10,
 		    nightly_MC   => 50,
-		    offline_real => 10,
+		    offline_real => 200,
 		    offline_MC   => 10,
 		    offline_fast => 10
 );
@@ -190,7 +190,7 @@ sub UpdateQAOffline{
 	
 	# insert into QASummary
 	#print "\t$reportKey\n";
-#	unless($debug){
+	unless($debug){
 	  my $rc = $sthInsert->execute($jobID, $redone, $reportKey, $skip);
 	  $rc +=0;
 	  # save report key
@@ -200,7 +200,7 @@ sub UpdateQAOffline{
 	  else{
 	    push @keyList, $reportKey;
 	  }
-#	}
+	}
       }
       #$countJob=0;
     }	 
