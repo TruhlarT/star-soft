@@ -1,6 +1,9 @@
 #!/usr/bin/env perl
-#  $Id: dropit.pl,v 1.2 2004/11/25 23:11:09 jeromel Exp $
+#  $Id: dropit.pl,v 1.3 2004/12/14 20:50:13 jeromel Exp $
 #  $Log: dropit.pl,v $
+#  Revision 1.3  2004/12/14 20:50:13  jeromel
+#  Few more fully specified path execs
+#
 #  Revision 1.2  2004/11/25 23:11:09  jeromel
 #  Added a csh version to dropit command and copied dropit -> dropit.csh
 #
@@ -109,7 +112,7 @@ foreach my $word (@newwords) {# print "word = $word\n";
       next;
   }
   if ( (!( -d $word)) and $word !~ /^\./ ) {next;}
-  if ( $0 =~ m/$word/ ){ next;}
+  #if ( $0 =~ m/$word/ ){ next;}
 
   push @words, $word;
   # print "                    add $word\n";

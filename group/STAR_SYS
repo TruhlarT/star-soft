@@ -1,5 +1,8 @@
 #!/bin/csh
 #  $Log: STAR_SYS,v $
+#  Revision 1.41  2004/12/14 20:50:13  jeromel
+#  Few more fully specified path execs
+#
 #  Revision 1.40  2004/11/26 19:28:36  jeromel
 #  Missed a few rm/chmod/mkdir and one awk adjusted
 #
@@ -131,7 +134,7 @@
 #
 #  Revision 1.1.1.1  1997/12/31 14:35:23  fisyak
 #
-#             Last modification $Date: 2004/11/26 19:28:36 $
+#             Last modification $Date: 2004/12/14 20:50:13 $
 #
 # Determine STAR_SYS variable.
 #
@@ -258,7 +261,7 @@ if ("${STAR_SYS}" == "i386_linux22" || "${STAR_SYS}" == "i386_linux2") then
     # Old scheme pre 2003 and pre kernel 2.4
     set redhat = "6.1";
     setenv STAR_SYS i386_redhat61
-    if (-f /etc/redhat-release) set redhat = `awk '{print $5}' /etc/redhat-release`
+    if (-f /etc/redhat-release) set redhat = `/bin/awk '{print $5}' /etc/redhat-release`
     if ("$redhat" == "6.0") setenv STAR_SYS "i386_redhat60"
     if ("$redhat" == "6.1") setenv STAR_SYS "i386_redhat61"
     if ("$redhat" == "6.2") setenv STAR_SYS "i386_redhat61"
@@ -289,8 +292,8 @@ else
     #
     setenv STAR_HOST_SYS $STAR_SYS
     if (-f /etc/redhat-release) then
-	set rhflavor = `awk '{print $1 $2}' /etc/redhat-release | /bin/sed "s/[a-z]//g" | /bin/awk '{print tolower($1)}'`
-	set redhat   = `awk '{for (i=1;i<=NF;i++) if ($i == "release" || $i == "Release") print $(i+1)}' /etc/redhat-release`
+	set rhflavor = `/bin/awk '{print $1 $2}' /etc/redhat-release | /bin/sed "s/[a-z]//g" | /bin/awk '{print tolower($1)}'`
+	set redhat   = `/bin/awk '{for (i=1;i<=NF;i++) if ($i == "release" || $i == "Release") print $(i+1)}' /etc/redhat-release`
 	set rhmajor  = `echo $redhat | /bin/sed "s/\..*//"`
 	set redhat   = `echo $redhat | /bin/sed "s/\.//g"`
 	    # Note:  
