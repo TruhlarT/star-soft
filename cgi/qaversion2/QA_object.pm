@@ -214,7 +214,7 @@ sub DoQA{
     # evaluate
     $report_obj->EvaluateMacro();
     
-    # add qa macro summary to the database
+    # add qa macro summary to the database.
     # WriteQAMacroSummary returns 0 if something's bad
     QA_db_utilities::WriteQAMacroSummary($self->qaID,$report_obj, $run_option) 
       or $qa_status=0;
@@ -471,7 +471,7 @@ sub ButtonString{
   # summary of log file
   $button_ref = Button_object->new('RunDetails', 'Run Details', 
 				   $report_key);
-  $button_string .= $button_ref   ->SubmitString;
+  $button_string .= $button_ref->SubmitString;
   
   # detailed evaluation of QA if qa if done
   if ( $self->QADone eq 'Y' ){ 
@@ -495,11 +495,15 @@ sub ButtonString{
   $button_string .= "<br>";
 
   # compare similar reports
-  $button_ref = Button_object->new('SetupCompareReport', 'Compare reports', 
-				   $report_key);
-  $button_string .= $button_ref->SubmitString;
-  $button_string .= "<br>";
-
+  if ( $self->QADone eq 'Y' ){
+    $button_ref = Button_object->new('SetupCompareReport', 
+				     'Compare to reference', $report_key);
+    $button_string .= $button_ref->SubmitString . br;
+    $button_ref = Button_object->new('SetUserReference', 
+				     'Set as user reference', $report_key);
+    $button_string .= $button_ref->SubmitString . br;
+    
+  }
   # comments
   if ( $gCGIquery->param('enable_add_edit_comments') ) {
     $button_ref = Button_object->new('AddComment', 'Add comment', $report_key);
@@ -522,13 +526,19 @@ sub ButtonString{
 
       };
     }
-    else{
+    elsif ($self->QADone eq 'N'){
       $self->OnDisk and do {	
 	$button_ref = Button_object->new('DoQaBatch', 'Do QA (batch)', 
 					 $report_key);
 	$button_string .= $button_ref->SubmitString;
 
       };
+    }
+    elsif ($self->QADone eq 'in progress'){
+      $button_ref = Button_object->new('ResetInProgress', 'Reset in progress', 
+				       $report_key);
+      $button_string .= $button_ref->SubmitString;
+
     }
   }
 

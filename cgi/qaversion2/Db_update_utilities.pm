@@ -43,7 +43,7 @@ sub UpdateQAOffline{
   
   # report key
   my $queryKey = qq{select concat(jobID, '.', redone, '.', runID, '.',   
-			      date_format(file.createTime, '%y%m%d'))
+				  fileSeq)
 		     from $dbFile.$FileCatalog as file
 		     where file.jobID=? limit 1};
 
@@ -166,7 +166,7 @@ sub UpdateQAOfflineReal{
 sub UpdateQANightly {  
   my $dataType = shift; # 'real' or 'MC'
   
-  my $limit       = 1;            # limit number of new jobs
+  my $limit       = 20;            # limit number of new jobs
   my $oldestDate  = '2000-07-01'; # dont retrieve anything older 
   my $today       = strftime("%Y-%m-%d %H:%M:%S",localtime());
 

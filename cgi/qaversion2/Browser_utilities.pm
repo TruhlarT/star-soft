@@ -43,6 +43,41 @@ sub start_comment_button{
 
 }
 #==========================================================
+# buttons relating to the compare report references
+
+sub reference_buttons{
+  my ($button, $string);
+  my $script_name   = $gCGIquery->script_name;
+  my $hidden_string = $gBrowser_object->Hidden->Parameters;
+
+  my ($col1, $col2);
+
+  $col1  = $gCGIquery->startform(-action=>"$script_name/lower_display", 
+				  -TARGET=>"display");
+
+  $button  = Button_object->new("ShowDefaultReferences",
+				"Show default references");
+  $col1 .= $button->SubmitString();
+
+  $button  = Button_object->new("ShowUserReferences",
+				"Show user references");
+  $col1 .= $button->SubmitString();
+  
+  $col1 .= $hidden_string . $gCGIquery->endform();
+
+  $col2 .= $gCGIquery->startform(-action=>"$script_name/upper_display", 
+				 -TARGET=>"list");
+  
+  # just a normal submit button.
+  # see Hiddenobject_object for the deletion of param('user_reference_list')
+  $col2 .= $gCGIquery->submit("DeleteUserReferences", 
+			      "Delete user references");
+  
+  $col2 .= $hidden_string . $gCGIquery->endform();
+  
+  return table({-align=>'center'},Tr( td([ $col1, $col2]) ));
+}
+#==========================================================
 # see Browser_object::StartingDisplay
 
 sub start_expert_buttons{
@@ -50,7 +85,7 @@ sub start_expert_buttons{
   my $script_name = $gCGIquery->script_name;
   my $hidden_string = $gBrowser_object->Hidden->Parameters;
 
-  my ($row1, $row2);
+  my ($row1, $row2, $row3);
 
   # -- first row --
   $row1 = $gCGIquery->startform(-action=>"$script_name/lower_display", 
@@ -84,8 +119,8 @@ sub start_expert_buttons{
   $button_ref = Button_object->new('MoveOldReports', 'Move old reports');
   $row2      .= $button_ref->SubmitString;
 
-  $button_ref = Button_object->new('CrontabAdd', 'Add crontab.txt');
-  $row2      .= $button_ref->SubmitString;
+#  $button_ref = Button_object->new('CrontabAdd', 'Add crontab.txt');
+#  $row2      .= $button_ref->SubmitString;
 
   $button_ref = Button_object->new('CrontabMinusL', 'Do crontab -l');
   $row2      .= $button_ref->SubmitString;
@@ -99,8 +134,12 @@ sub start_expert_buttons{
   $button_ref = Button_object->new('EnableDSV','Enable DSV'); 
   $row2      .= $button_ref->SubmitString;
   
-  $row2      .= $hidden_string . $gCGIquery->endform();
+  $button_ref = Button_object->new("SetDefaultReferences",
+				   "Set default references");
+  $row2      .= $button_ref->SubmitString;
 
+  $row2      .= $hidden_string . $gCGIquery->endform();
+  
   # see global messages only
   my $message =
     $gCGIquery->startform(-action=>"$script_name/upper_display", 

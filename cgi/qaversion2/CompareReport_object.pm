@@ -25,7 +25,7 @@ use CompareReport_utilities;
 use CompareScalars_object;
 use Db_CompareReport_utilities;
 
-use strict;
+use strict qw(vars subs); # no strict 'refs'
 #--------------------------------------------------------
 my $CompareScalars_object;
 #--------------------------------------------------------
@@ -60,22 +60,41 @@ sub InitialDisplay{
   $self->PrintHeader();
   #---------------------------------------------------------
   my $script_name = $gCGIquery->script_name;
-  print $gCGIquery->startform(-action=>"$script_name/lower_display", -TARGET=>"display"); 
+  my $hidden_string = $gBrowser_object->Hidden->Parameters;
   #---------------------------------------------------------
   my $report_key = $self->ReportKey();
 
-  my $button_ref = Button_object->new('SelectMultipleReports', 'Compare to Multiple Reports', $report_key);
+  # lets the user choose which set of references to choose
+  # e.g. default, user selected, both
+
+  my $header = h3("Choose the reference set with which to compare ");
+  my $radio_name    = 'Which reference set';
+  my $radio_values  = ['Default','User Selected','Both'];
+  my $radio_default = 'Default';
+
+  my $radio_group = $gCGIquery->radio_group(
+					    -name    =>$radio_name,
+					    -values  =>$radio_values,
+					    -default =>$radio_default
+					    );
+  
+  my $button_ref = Button_object->new('DoCompareToReference', 
+				   'Compare to Reference', $report_key);
   my $button_string = $button_ref->SubmitString;
 
-  $button_ref = Button_object->new('DoCompareToReference', 'Compare to Reference', $report_key);
-  $button_string .= $button_ref->SubmitString;
+  #my $button_ref = Button_object->new('SelectMultipleReports', 
+  #                                    'Compare to Multiple Reports', $report_key);
+  #my $button_string = $button_ref->SubmitString;
 
-  my $hidden_string = $gBrowser_object->Hidden->Parameters;
-  $button_string .= $hidden_string;
-
-  print "$button_string.<br> \n";
-  #-------------------------------------------------------------------
-  print $gCGIquery->endform;
+  print $gCGIquery->startform(-action=>"$script_name/lower_display", 
+			      -TARGET=>"display") . 
+	"<center>"     .
+	$header        .
+        $radio_group   . br .
+	$button_string . 
+	$hidden_string .
+	$gCGIquery->endform() . 
+	"</center>" . "\n";
 }
 #========================================================
 sub SelectMultipleReports{
@@ -115,35 +134,8 @@ sub SelectMultipleReports{
 
   QA_utilities::make_QA_objects(@matched_keys_ordered);
 
-  #---------------------------------------------------------
-  # display matching runs
-
-  my @table_heading = ('Dataset (check to compare)', 'Created/On disk?' );
-  my @table_rows =  th(\@table_heading);
-
-  #--- current run
-
-  my $pre_string = "<strong> this run: </strong>";
-  my $dataset_string = $pre_string.$QA_object_hash{$report_key}->DataDisplayString();
-  my $creation_string = $QA_object_hash{$report_key}->CreationString();
-  
-  push @table_rows, td( [$dataset_string, $creation_string ]); 
-
-  #--- comparison runs
-
-  foreach my $match_key (@matched_keys_ordered){
-
-    my $box_name = $match_key.".compare_report";
-    my $button_string = $gCGIquery->checkbox("$box_name", 0, 'on', '');
-    my $dataset_string = $button_string.$QA_object_hash{$match_key}->DataDisplayString();
-    my $creation_string = $QA_object_hash{$match_key}->CreationString();
-
-    push @table_rows, td( [$dataset_string, $creation_string ]); 
-
-  }
-
   print "<h3> Comparison runs: </h3>";
-  print table( {-border=>undef}, Tr(\@table_rows) );
+  print $self->CompareKeysTable(0,@matched_keys_ordered);
 
   #-------------------------------------------------------------------
   my $hidden_string = $gBrowser_object->Hidden->Parameters;
@@ -209,23 +201,60 @@ sub CompareMultipleReports{
   $self->MakeAsciiReport($ascii_string_file_table);
 }
 #========================================================
+# shows the reference report_keys and 
+# the buttons for the macros/multiplicity classes.
+
 sub CompareToReference{
-
   my $self = shift;
-  #--------------------------------------------------------
-  my $report_key = $self->ReportKey();
 
-  #--------------------------------------------------------
+  
 
-  print "<h4>CompareReport_object::CompareToReference: Sorry, comparison to a single pre-defined reference run is not yet implemented. Go back and do \"Compare to Multiple Reports\" instead. <\h4>\n";
+  $self->PrintHeader();      
 
-}
+  my @refKeys = $self->GetReferenceList();  # get the matching reference(s)
+
+  # get out if there are no reference report keys
+  if ( ! scalar @refKeys ){
+    print h2("<font color=red>Sorry.",
+	     "There is no reference matching this dataset<br>\n");
+    return;
+  }
+
+  # make the QA_objects in case they dont exist
+  QA_utilities::make_QA_objects(@refKeys);
+    
+  my $text;
+  # target is a new window
+  my $script_name = $gCGIquery->script_name;
+  $text = $gCGIquery->startform(-action=>"$script_name/lower_display", 
+				-TARGET=>"ScalarsAndTests"); 
+
+  $text .= h3("Push the button for macro and multiplicity class");
+
+  # multiplicity-macros buttons
+  $text .= 
+    $QA_object_hash{$self->ReportKey}->MultClassButtonString('DoCompareMultipleReports') .
+      "\n";
+  
+  $text .= h3("Comparison datasets : ");
+  
+  # table of matched keys (reference reportkeys)
+  $text .= $self->CompareKeysTable(1,@refKeys);
+
+  $text .= $gBrowser_object->Hidden->Parameters;
+  $text .= $gCGIquery->endform ."\n";
+
+  print $text;
+
+} 
+
 #========================================================
 sub ReportKey{
   my $self = shift;
   @_ and $self->{_Report_Key} = shift;
   return $self->{_Report_Key};
 }
+
 #===================================================================
 sub PrintHeader{
 
@@ -249,11 +278,11 @@ sub PrintHeader{
   
   print "<h2> $title </h2> \n"; 
   print "<hr> \n";
-}
+} 
 #===================================================================
 sub PrintTables{
 
-  my $self = shift;
+  my $self = shift; 
   #--------------------------------------------------------
 
   my $macro = $CompareScalars_object->MacroName();
@@ -268,14 +297,14 @@ sub PrintTables{
   
   print "<h4> Absolute values </h4> \n";
   print table( {-border=>undef}, Tr($ref_table_rows_absolute) );
-}
+} 
 #===================================================================
 sub MakeAsciiReport{
 
   my $self = shift;
-  my $table_string = shift;
+  my $table_string = shift; 
   #---------------------------------------------------------
-  my $report_key = $self->ReportKey();
+  my $report_key = $self->ReportKey(); 
   #---------------------------------------------------------
   my $io = new IO_object("CompareFilename", $report_key);
   my $dh = $io->Open(">", "0644");
@@ -319,4 +348,105 @@ sub MakeAsciiReport{
 
   #---------------------------------------------------------
   undef $io;
+}
+#==========
+sub CompareKeysTable{
+  my $self       = shift;
+  my $checked    = shift; # check boxes default checked or not 
+  my @compareKeys = @_;
+
+  # display matching runs
+
+  my @table_heading = ('Dataset (check to compare)', 'Created/On disk?' );
+  my @table_rows    =  th(\@table_heading);
+
+  #--- current run
+
+  my $pre_string      = "<strong> this run: </strong>";
+  my $dataset_string  = $pre_string.$QA_object_hash{$self->ReportKey}->DataDisplayString();
+  my $creation_string = $QA_object_hash{$self->ReportKey}->CreationString();
+  
+  push @table_rows, td( [$dataset_string, $creation_string ]); 
+
+  #--- comparison runs
+
+  foreach my $key (@compareKeys){
+    
+    # skip possible duplicate
+    next if ($key eq $self->ReportKey);
+
+    my $box_name        = $key.".compare_report";
+    my $button_string   = $gCGIquery->checkbox("$box_name", $checked, 'on', '');
+    my $dataset_string  = $button_string.$QA_object_hash{$key}->DataDisplayString();
+    my $creation_string = $QA_object_hash{$key}->CreationString();
+
+    push @table_rows, td( [$dataset_string, $creation_string ]); 
+
+  }
+
+  return table( {-border=>undef}, Tr(\@table_rows) ."\n" );
+}
+  
+#==========
+# sets the reference report key(s).
+# returns a perl ref to the reference report key(s)
+
+sub GetReferenceList{
+  my $self = shift;
+
+  my $refSet = $gCGIquery->param('Which reference set');
+  my (@userList, @defaultList, @refKeys);
+  my $report_key = $self->ReportKey;
+
+  # first get the appropriate reference list according to 
+  # the reference set selected by the user.
+  # see InitialDisplay
+  if ($refSet eq 'User Selected' || $refSet eq 'Both'){
+    @userList = $gCGIquery->param('user_reference_list');
+  }
+  if ($refSet eq 'Default' || $refSet eq 'Both'){
+    
+    my $dataClass = $gDataClass_object->DataClass;
+    my $sub       = "Db_CompareReport_utilities::$dataClass";
+
+    # arg=1 means we only want the report keys tagged as a reference dataset
+    @defaultList   = &$sub($report_key,1);
+  }
+
+  # return it
+  if ($refSet eq 'User Selected'){
+    
+    # if there's only one elt in the userList
+    # and this in fact matches the report key, get out.
+    if (scalar @userList == 1 && $userList[0] eq $self->ReportKey){
+      return;
+    }
+
+    print h3("Using user defined reference list");
+    return @userList;
+  }
+  elsif($refSet eq 'Default'){
+    
+    # check that if this report key is flagged as a reference.
+    # if so, the user must specify his/her own references
+    # for the comparisons to make sense.
+    
+    my $isReference = 
+      Db_CompareReport_utilities::IsReference($self->ReportKey);
+    
+    if ($isReference and !scalar @defaultList){
+      print h3("Note: this dataset has been flagged as a ",
+	       "reference dataset.\n",
+	       "To do comparisons, please go back and choose your own ",
+	       "references.<br>\n");
+      return;
+    }
+    print h3("Using the default reference list");
+    return @defaultList;
+  }
+  elsif($refSet eq 'Both'){
+    print h3("Using both the default and user defined reference list");
+    return (@defaultList, @userList);
+  }
+  
 }

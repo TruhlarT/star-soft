@@ -216,10 +216,14 @@ sub StartingDisplay{
                  <tr> $table_string
                  </table>
         </table>};
+  # buttons relating to compare report references
+  print hr, "<center>",Browser_utilities::reference_buttons(),"</center>";
+
   #-----------------------------------------------------------------------------
   if( $self->ExpertPageFlag() ){
-    print "<hr>$expert_action_string<hr>";
+    print "$expert_action_string";
   }
+  print hr;
   #-----------------------------------------------------------------------------
   # display update status
   my ($io, $fh, $line);
@@ -329,11 +333,12 @@ sub DisplayDataset{
       my $more_button = Browser_utilities::SubmitButton('Next subset');
       my $row_ref  = td([ $popup, $more_button]);
       
-      print "<center>",h3("Rows 1 - $subset_len (total $rows rows)"),
+      print "<center>",h3("Rows 1 - $subset_len (of $rows)"),
       table(Tr($row_ref)). "</center>";
       
     }
     else{
+      print "<center>",h3("Rows 1 - $rows"),"</center>";
       @selected_keys = @all_selected_keys;
     }
   }
@@ -386,7 +391,7 @@ sub DisplayDataset{
 
     my $row_ref = td([ $previous_button, $popup, $more_button]);
     print "<center>",
-          h3("Rows $first_row - $last_row (total $rows rows)"), 
+          h3("Rows $first_row - $last_row (of $rows)"), 
           table( Tr($row_ref) ), 
           "</center>";
   }

@@ -78,15 +78,15 @@ else{
   $data_class = "unknown";
 }
 
-# global
 # this class sets all the variables which depend on the data class
 $gDataClass_object = new DataClass_object($data_class);
 
 #print Dumper $gDataClass_object;
+#print $gCGIquery->dump;
 #---------------------------------------------------------
 
 # connect to db
-# need to call this after the server object
+# need to call this after the DataClass object
 
 QA_db_utilities::db_connect();
 

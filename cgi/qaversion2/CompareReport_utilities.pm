@@ -11,6 +11,7 @@ use CGI::Carp qw(fatalsToBrowser);
 use Storable;
 use Data::Dumper;
 use File::Find;
+use Tie::IxHash;
 
 use QA_globals;
 use QA_object;
@@ -19,10 +20,12 @@ use Button_object;
 use HiddenObject_object;
 use IO_object;
 use IO_utilities;
+use Db_CompareReport_utilities;
+use QA_db_utilities qw(:db_globals);
 
 use DataClass_object;
 
-use strict;
+use strict qw(vars subs);
 #--------------------------------------------------------
 1;
 #========================================================
@@ -202,4 +205,197 @@ sub BuildFileTable{
   $ascii_string =~ s/<.*?>//g;
   #----------------------------------------------------------------
   return (\@table_rows, \%match_key_label, $ascii_string) ;
+}
+#==================================================================
+# CGI form to set/remove default references
+
+sub SetDefaultReferences{
+
+  # get all the current references
+
+  my $dataClass = $gDataClass_object->DataClass();
+  my $sub       = "Db_CompareReport_utilities::GetReferences_$dataClass";
+  
+  my %refHash; tie %refHash, "Tie::IxHash";
+  %refHash = &$sub;
+
+  my @tableRows = th(['data type', 'report key']);
+  # e.g. $datatype = "P00hg auau130_Halffield
+  foreach my $datatype ( keys %refHash ){ 
+    
+    if (! scalar @{$refHash{$datatype}} ) { # no reference set 
+      @tableRows = AddRefRow(undef,$datatype,@tableRows);
+      next;
+    }
+    
+    foreach my $reference ( @{$refHash{$datatype}} ) { 
+      # there can be more than one default reference per datatype
+      @tableRows = AddRefRow($reference, $datatype,@tableRows);
+ 
+    }
+  }	      
+  
+  print table({-align=>'center'}, Tr([@tableRows]) . "\n");
+
+}
+#========================================================
+sub ShowDefaultReferences{
+ 
+  print h3("Default references:\n");
+  # get all the current references
+
+  my $dataClass = $gDataClass_object->DataClass();
+  my $sub       = "Db_CompareReport_utilities::GetReferences_$dataClass";
+  
+  my %refHash; tie %refHash, "Tie::IxHash";
+  %refHash = &$sub;
+
+  my (@tableRows,$count, @header, @label);
+
+  if ($dataClass =~ /nightly/){
+    @header = "report key";
+  }
+  elsif ($dataClass =~ /offline/){
+    @header = ("runID", "file seq");
+  }
+  
+  @tableRows = th( [ 'data type', @header ] );		      
+
+  # e.g. $datatype = "P00hg auau130_Halffield
+  foreach my $datatype ( keys %refHash ){    
+    foreach my $reference ( @{$refHash{$datatype}} ) { 
+      $count++;
+      if ($dataClass =~ /offline/){
+	# get the jobID associated with the report key
+	my $jobID = QA_db_utilities::GetFromQASum($QASum{jobID},$reference);
+
+	# get the run ID and file seq matching this jobID
+	@label =
+	  QA_db_utilities::GetFromFileCatalog(['runID','fileSeq'],$jobID);
+      }
+      elsif ($dataClass =~ /nightly/){
+	@label = ($reference);
+      }
+
+      @label = map {font({-color=>'blue'},$_) } @label;
+      push @tableRows, td( [ $datatype, @label ] );
+
+    }
+  }	      
+  
+  if ($count){
+    print table({-align=>'center'}, Tr([@tableRows]) . "\n");
+  }
+  else{
+    print h3("None");
+  }
+} 
+#========================================================
+sub AddRefRow{
+  my $default   = shift || 'NULL'; # usually the report key
+  my $datatype  = shift;
+  my @tableRows = @_;
+
+  my $textname   = 'reference_key';
+  my $scriptName = $gCGIquery->script_name;
+  my $hidden     = $gBrowser_object->Hidden->Parameters;
+  my $startform  = $gCGIquery->startform(-action=>"$scriptName/lower_display", 
+					 -TARGET=>"display");
+  my $endform    = $gCGIquery->endform();
+  
+  my $field = $gCGIquery->textfield(-name=>$textname,
+				    -default=>$default,
+				    -override=>1,
+				    -size=>20,
+				    -maxlength=>100);
+  
+  # e.g. the button name is "AddReference$dataType"
+  my $addButton = Button_object->new("AddReference","Add Ref","",$datatype);
+  my $addSubmit = $addButton->SubmitString();
+  my $delButton = Button_object->new("DeleteReference",
+				     "Delete Ref","",$datatype);
+  my $delSubmit = $delButton->SubmitString();
+  my $changeButton = Button_object->new("ChangeReference",
+					"Change Ref","",$datatype);
+  my $changeSubmit = $changeButton->SubmitString();
+
+  # pass on the default report key as a hidden parameter
+  if ($default ne 'NULL') {
+    $gCGIquery->hidden('old_key',$default);
+  }
+  
+  my $row = $startform .
+    td( [ $datatype, $field, $changeSubmit, $addSubmit, $delSubmit ] ) .
+    $hidden .  $gCGIquery->hidden('old_key') . $endform ;
+
+  push @tableRows, $row;
+
+  return @tableRows;
+
+}
+#===================================================================
+# to modify the default references via the web
+
+sub ProcessReference{
+  my $command    = shift; # Add, Delete, Change
+  my $report_key = shift;
+  my $dataType   = shift;
+  my $oldKey     = shift;
+
+  # check that this report key is in fact associated with the datatype
+
+  my $dataClass = $gDataClass_object->DataClass();
+  my $sub       = "Db_CompareReport_utilities::ReferenceOk_$dataClass";
+  my $isOk      = &$sub($report_key, $dataType);
+
+  my $refsub;
+
+  if ($isOk) { 
+    if ($command eq 'Change'){
+      Db_CompareReport_utilities::DeleteReference($oldKey) 
+	if defined $oldKey;
+      $refsub = "Db_CompareReport_utilities::AddReference";
+    }
+    else{
+      $refsub = "Db_CompareReport_utilities::${command}Reference";
+    }
+    # execute the command
+    my $rows = &$refsub($report_key);
+    if (!$rows){
+      print h2("<font color=red>Uh oh, couldn't $command $report_key.</font>");
+    }
+    else{
+      print h2("${command} $report_key done.");
+    }
+  }
+  else{
+    print h2("Apparently the report key $report_key ", 
+	     "does not correspond to $dataType.<br>",
+	     "Maybe qa hasn't been done.  Try again\n");
+    return;
+  } 
+}
+#===================================================================
+sub ShowUserReferences{
+  
+  my @reference_list = $gCGIquery->param('user_reference_list');
+
+  print h3("Current user selected references : \n");
+
+  unless( scalar @reference_list ){
+    print h2("None");
+    return;
+  }
+
+  # make the objects in case they dont exist
+  QA_utilities::make_QA_objects(@reference_list);
+
+  my $count=0;
+  my @rows = 
+    map { td([ ++$count, $QA_object_hash{$_}->DataDisplayString()]) } 
+       @reference_list;
+  
+  print table({-border=>'1',-align=>'center'},
+	      Tr({-align=>'left'},[ @rows ]));
+
 }

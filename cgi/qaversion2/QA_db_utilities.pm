@@ -67,6 +67,7 @@ use strict;
 #         QAdone      enum('Y','N')       not null default 'N',
 #         QAok        enum('Y','N','n/a') not null default 'n/a',
 #         QAdate      datetime            not null,
+#         reference   enum('Y','N')       not null default 'N',
 #         controlFile varchar(128)        not null default 'n/a',
 #         insertTime  timestamp(10)       not null,
 #         qaID        mediumint           not null auto_increment,
@@ -141,6 +142,7 @@ use strict;
 	 QAdone       => 'QAdone',
 	 QAok         => 'QAok',
 	 QAdate       => 'QAdate',
+	 reference    => 'reference',
 	 controlFile  => 'controlFile',
 	 qaID         => 'qaID',
          # the rest or only valid for online
@@ -492,7 +494,7 @@ sub UpdateQASummary{
 		 set $field='$value'
 		 where $QASum{qaID} = '$qaID' };
   
-  $dbh->do($query);
+  return $dbh->do($query);
 }
 #----------
 # delete jobID from QASummary and remove the 
@@ -531,25 +533,25 @@ sub ClearQAMacrosTable{
 # 
 sub FlagQAInProgress{
   my $qaID = shift;
-  UpdateQASummary($QASum{QAdone},'in progress', $qaID);
+  return UpdateQASummary($QASum{QAdone},'in progress', $qaID);
 }
 #----------
 #
 sub FlagQAdone{
   my $qaID = shift;
-  UpdateQASummary($QASum{QAdone},'Y',$qaID);
+  return UpdateQASummary($QASum{QAdone},'Y',$qaID);
 }
 #----------
 #
 sub ResetInProgressFlag{
   my $qaID = shift;
-  UpdateQASummary($QASum{QAdone}, 'N', $qaID);
+  return UpdateQASummary($QASum{QAdone}, 'N', $qaID);
 }
 #----------
 # 
 sub FlagQAAnalyzed{
   my $qaID = shift;
-  UpdateQASummary($QASum{QAanalyzed},'Y',$qaID);
+  return UpdateQASummary($QASum{QAanalyzed},'Y',$qaID);
 }
 #----------
 #
@@ -735,12 +737,14 @@ sub WriteQAMacroSummary{
 	   $QAMacros{ID}         = NULL 
 	 };
   }
+
   print h4("Inserting qa macro summary into db for $fName ($macroName)...\n");
 
   # insert
   my $rows = $dbh->do($query);
 
-  if ($rows += 0) { print h4("...done\n")}
+  # 0 rows affected is ok.  $rows = undef is bad.
+  if ($rows) { print h4("...done\n")}
   else     { print h4("<font color = red> Error. Cannot insert qa info for ",
 		      "$outputFile</font>"); return;}
     

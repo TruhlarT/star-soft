@@ -408,21 +408,10 @@ sub RunMacro{
     close $fh;
    
   }
-    
+  
   # if output file is postscript, gzip it
   if ( $output_file =~ /\.ps$/ and $macro_name ne 'MemoryUsage') {
-    print "<H4> gzipping file $output_file... </H4> \n";
-
-    # kill gzipped file if it exists
-    my $temp = "$output_file\.gz";
-    -e $temp and unlink ($temp);
-
-    chmod 0666, $output_file;
-    my $status = system("/usr/local/bin/gzip $output_file");
-    $output_file .= ".gz";
-    
-    # need to reset output_file
-    $self->IOMacroReportFilename->Name($output_file);
+    $self->GZipIt();
   }
 
   #--------------------------------------------------------------------------
@@ -430,6 +419,51 @@ sub RunMacro{
   $self->CheckFileMade(@root_output);
   
 }
+#===================================================================
+sub GZipIt{
+  my $self       = shift;
+
+  my $outputFile = $self->IOMacroReportFilename->Name;
+  my @outputAry;
+
+  # special case for bfcread_dst_EventQAhist.
+  # for real data, it writes out multiple ps files
+  # according to the multiplicity class.
+  # e.g. if the output file is "StEvent.ps",
+  # then it also writes out files of the form "StEventLM.ps", for 
+  # low multiplicity, etc.
+
+  if ($self->MacroName eq 'bfcread_dst_EventQAhist'){
+    # strip off .ps
+    (my $label = basename $outputFile) =~ s/\.ps$//;
+
+    # now find the file names that are similar
+    my $io     = new IO_object("ReportDir",$self->ReportKey);
+    my $dir    = $io->Name();
+    my $DH     = $io->Open();
+    @outputAry = map{ "$dir/$_"} grep { /$label\w+\.ps$/ } readdir $DH;
+    undef $io;
+  }
+  else { @outputAry = ($outputFile); } # just one output file
+
+  foreach my $outfile ( @outputAry ){
+    print h4("gzipping file $outfile...\n");
+
+    # kill gzipped file if it exists
+    my $gzipped = "$outfile\.gz";
+    -e $gzipped and unlink ($gzipped);
+
+    # gzip 
+    chmod 0666, $outfile;
+    my $status = system("/usr/local/bin/gzip $outfile");
+    $outfile .= ".gz";
+    
+    # need to reset output_file 
+    $self->IOMacroReportFilename->Name($outfile)
+      if $outfile eq $outputFile;
+  }
+}
+    
 #===================================================================
 sub CheckFileMade {
   my $self = shift;

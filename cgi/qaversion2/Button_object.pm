@@ -7,6 +7,7 @@
 #=========================================================
 package Button_object;
 #=========================================================
+use CGI qw/:standard :html3/;
 use Cwd;
 
 use File::stat;
@@ -413,6 +414,7 @@ sub SetupCompareReport{
   
   # initial display for comparison
   $ref->InitialDisplay();
+
   
 }
 #========================================================
@@ -479,6 +481,23 @@ sub DoQaBatch{
   print "<h3> Submitting batch job to do QA on run $report_key... </h3> \n";
   &QA_utilities::submit_batchjob('do_qa', $report_key);
 }
+#========================================================
+sub ResetInProgress{
+  my $self = shift;
+  my $report_key = $self->ReportKey;
+
+  my $qaID = $QA_object_hash{$report_key}->qaID;
+  
+  my $rows = QA_db_utilities::ResetInProgressFlag($qaID);
+
+  if ($rows+=0){
+    print h3("Reset $report_key as QA not done");
+  }
+  else{
+    print h3("<font color=red>Error in resetting in progress flag</font>");
+  }
+}
+
 #========================================================
 sub EnableAddEditComments{
 
@@ -609,4 +628,145 @@ sub CleanUpHungJobs{
 
   QA_db_utilities::ResetQANotDone();
 }
+#=========================================================
+# list the current default references
 
+sub ShowDefaultReferences{
+  my $self = shift;
+  
+  CompareReport_utilities::ShowDefaultReferences();
+}
+
+#=========================================================
+# lets the users modify the default references
+
+sub SetDefaultReferences{
+  my $self = shift;
+
+  CompareReport_utilities::SetDefaultReferences();
+
+}
+  
+#=========================================================
+# add a default reference
+
+sub AddReference{
+  my $self = shift;
+
+  my $method = $self->MethodName;
+  my $name   = $self->ButtonName;
+
+  # extract the datatype from the button name
+  (my $dataType = $name) =~ s/$method//;
+  
+  my $report_key = $gCGIquery->param('reference_key');
+
+  CompareReport_utilities::ProcessReference("Add",$report_key,$dataType);
+    
+}
+#=========================================================
+# delete a default reference
+
+sub DeleteReference{
+  my $self = shift;
+
+  my $method = $self->MethodName;
+  my $name   = $self->ButtonName;
+
+  # extract the datatype from the button name
+  (my $dataType = $name) =~ s/$method//;
+  
+  my $report_key = $gCGIquery->param('reference_key');
+
+  CompareReport_utilities::ProcessReference("Delete",$report_key,$dataType);
+}
+#==========================================================
+# change the old default with the new reference
+
+sub ChangeReference{
+  my $self = shift;
+
+  my $method = $self->MethodName;
+  my $name   = $self->ButtonName;
+
+  # extract the datatype from the button name
+  (my $dataType = $name) =~ s/$method//;
+  
+  # what the user typed in the text field
+  my $report_key = $gCGIquery->param('reference_key');
+
+  # the default value of the text field
+  my $oldKey = $gCGIquery->param('old_key');
+
+  CompareReport_utilities::ProcessReference("Change",$report_key,$dataType,$oldKey);
+
+}
+#==========================================================
+
+sub ShowUserReferences{
+  my $self = shift;
+ 
+  CompareReport_utilities::ShowUserReferences();
+}
+
+#==========================================================
+
+sub SetUserReference{
+  my $self = shift;
+
+  my $report_key = $self->ReportKey;
+
+  my @reference_list = $gCGIquery->param('user_reference_list');
+  
+  # make the objects in case they dont exist
+  QA_utilities::make_QA_objects(@reference_list);
+
+  my $seen;
+  foreach $key ( @reference_list ) {
+    if ($key eq $report_key){
+      $seen++; last;
+    }
+  }
+
+  my $string;
+  
+  if ($seen){
+    $string .= h3("Apparently this dataset has already been chosen ",
+		 "as a reference");
+  }
+  else{
+    my $label;
+    $gCGIquery->append(-name=>'user_reference_list',
+		       -values=>$report_key);
+
+    if ($gDataClass_object->DataClass =~ /offline/){
+      my $runID   = $QA_object_hash{$report_key}->LogReport->RunID;
+      my $fileSeq = $QA_object_hash{$report_key}->LogReport->FileSeq;
+
+      $label = "runID :$runID - file seq: $fileSeq";
+    }
+    else{
+      $label = $QA_object_hash{$report_key}->ProductionDirectory;
+				   
+    }
+    $string .= h3("Press this button to add <br>",
+		  "$label <br>",
+		  "to the user selected reference list\n");
+    
+    my $scriptName = $gCGIquery->script_name;
+    my $hidden     = $gBrowser_object->Hidden->Parameters;
+
+    $string .= $gCGIquery->startform(-action=>"$scriptName/upper_display", 
+				     -TARGET=>"list").
+               $gCGIquery->submit('Set as Reference'). 
+               $hidden .
+	       $gCGIquery->endform() ."\n";
+
+  }
+  print $string;
+
+  if ( scalar @reference_list ){
+    CompareReport_utilities::ShowUserReferences();
+  }
+
+}
