@@ -21,9 +21,9 @@ require "/afs/rhic/star/packages/DEV/mgr/dbTJobsSetup.pl";
 #require "dbTJobsSetup.pl";
 
 my $TOP_DIRD = "/star/rcf/test/dev/";
-my @dir_year = ("year_1h", "year_2001");
-my @node_dir = ("trs_redhat61", "trs_redhat61_opt","trs_redhat72");
-my @node_daq = ("daq_redhat61", "daq_redhat61_opt","daq_redhat72"); 
+my @dir_year = ("year_2001","year_1h");
+my @node_dir = ("trs_redhat72", "trs_redhat72_opt");
+my @node_daq = ("daq_redhat72", "daq_redhat72_opt"); 
 my @hc_dir = ("hc_lowdensity", "hc_standard", "hc_highdensity", "peripheral","pp_minbias","ppl_minbias");
 my @daq_dir = ("minbias", "central", "ppMinBias","embedding");
 
@@ -76,19 +76,20 @@ my $thistime;
 ##### setup output directories for DEV with thisDay
 
 for ($i = 0; $i < scalar(@node_dir); $i++) {
-     for ($j = 0; $j < 2; $j++) {
       for ($ll = 0; $ll < scalar(@hc_dir); $ll++) {
-   $OUT_DIR[$ii] = $TOP_DIRD . $node_dir[$i] . "/" . $testDay . "/". $dir_year[$j] . "/" . $hc_dir[$ll];
+   $OUT_DIR[$ii] = $TOP_DIRD . $node_dir[$i] . "/" . $testDay . "/". $dir_year[0] . "/" . $hc_dir[$ll];
     print "Output Dir for DEV :", $OUT_DIR[$ii], "\n";
         $ii++;
-      }
   }
+  $OUT_DIR[$ii] = $TOP_DIRD . $node_dir[$i] . "/" . $testDay . "/". $dir_year[1] . "/" . $hc_dir[1]; 
+    $ii++; 
 }
 
-my $jj = 1;
+
+my $jj = 0;
 for ($i = 0; $i < scalar(@node_daq); $i++) {
       for ($ll = 0; $ll < scalar(@daq_dir); $ll++) {
-   $OUT_DIR[$ii] = $TOP_DIRD . $node_daq[$i] . "/" . $testDay . "/". $dir_year[$jj] . "/" . $daq_dir[$ll];
+   $OUT_DIR[$ii] = $TOP_DIRD . $node_daq[$i] . "/" . $testDay . "/". $dir_year[0] . "/" . $daq_dir[$ll];
    print "Output Dir for DEV :", $OUT_DIR[$ii], "\n";
         $ii++;
       }
@@ -97,19 +98,19 @@ for ($i = 0; $i < scalar(@node_daq); $i++) {
 ##### setup output directories for DEV with beforeDay
 
 for ($i = 0; $i < scalar(@node_dir); $i++) {
-     for ($j = 0; $j < 2; $j++) {
       for ($ll = 0; $ll < scalar(@hc_dir); $ll++) {
-   $OUT_DIR[$ii] = $TOP_DIRD . $node_dir[$i] . "/" . $beforeDay . "/". $dir_year[$j] . "/" . $hc_dir[$ll];
+   $OUT_DIR[$ii] = $TOP_DIRD . $node_dir[$i] . "/" . $beforeDay . "/". $dir_year[0] . "/" . $hc_dir[$ll];
     print "Output Dir for DEV :", $OUT_DIR[$ii], "\n";
         $ii++;
-      }
   }
+  $OUT_DIR[$ii] = $TOP_DIRD . $node_dir[$i] . "/" . $beforeDay . "/". $dir_year[1] . "/" . $hc_dir[1]; 
+    $ii++; 
 }
 
-$jj = 1;
+$jj = 0;
 for ($i = 0; $i < scalar(@node_daq); $i++) {
       for ($ll = 0; $ll < scalar(@daq_dir); $ll++) {
-   $OUT_DIR[$ii] = $TOP_DIRD . $node_daq[$i] . "/" . $beforeDay . "/". $dir_year[$jj] . "/" . $daq_dir[$ll];
+   $OUT_DIR[$ii] = $TOP_DIRD . $node_daq[$i] . "/" . $beforeDay . "/". $dir_year[0] . "/" . $daq_dir[$ll];
     print "Output Dir for DEV :", $OUT_DIR[$ii], "\n";
         $ii++;
       }
@@ -355,12 +356,12 @@ my @files;
  $tot_prtracks = 0;
  $tot_knvertices = 0;
  $tot_xivertices = 0;
- $node_name = "n/\a";
- $libL = "n/\a";
- $libV = "n/\a";  
- $rootL = "n/\a"; 
+ $node_name = "n/a";
+ $libL = "n/a";
+ $libV = "n/a";  
+ $rootL = "n/a"; 
  $Err_messg = "none";
- $mchain = "n/\a";
+ $mchain = "n/a";
  $no_event = 0;
  $mCPU = 0;
  $mRealT = 0;
@@ -371,7 +372,7 @@ my @files;
  $jobTime = 0; 
 
        if ($fname =~ /.log/)  {
-#    print "File Name:",$fname, "\n";       
+    print "File Name:",$fname, "\n";       
        $fullname = $eachOutLDir."/".$fname;
       $mpath = $eachOutLDir;
       @dirF = split(/\//, $eachOutLDir);
@@ -396,8 +397,8 @@ my @files;
        $timeS = sprintf ("%4.4d-%2.2d-%2.2d %2.2d:%2.2d:00",
                        $fullyear,$mo,$dy,$hr,$min);    
 
-#           if( $ltime > 1800 && $ltime < 345600 ){         
-          if( $ltime > 1800) { 
+           if( $ltime > 1200 && $ltime < 345600 ){         
+#          if( $ltime > 1200) { 
 #   print "Log time: ", $ltime, "\n";
         &logInfo("$fullname", "$platf");
       $jobTime = $timeS;  
@@ -451,7 +452,7 @@ my @files;
       $mavail = 'Y';
       $myID = 100000000 + $new_id;
       $mjID = "Job". $myID ;
-      $crCode = "n\/a"; 
+      $crCode = "n/a"; 
       $idHash{$fullname} = $mjID;
 
   print  "Filling JobStatus with DEV log files for testDay and beforeDay\n";
@@ -630,7 +631,7 @@ foreach  $eachOutNDir (@OUT_DIR) {
 #      @prt = split(/\./,$bsname);
 #      $evR = $prt[1];
 #      $EvReq = substr($evR,0,-5);
-     elsif($EvTp eq "hc_lowdensity") {          
+    elsif($EvTp eq "hc_lowdensity") {          
          $EvReq = 100;
    }  
     elsif($EvTp eq "hc_highdensity") {          
@@ -654,9 +655,8 @@ foreach  $eachOutNDir (@OUT_DIR) {
        if ( -f $lgFile) {
           ($size, $mTime) = (stat($lgFile))[7, 9];
             $ltime = $now - $mTime;
-#  print "Log time: ", $ltime, "\n"; 
-#           if( $ltime > 1800 && $ltime < 345600 ){         
-            if( $ltime > 1800) { 
+           if( $ltime > 1200 && $ltime < 345600 ){         
+#            if( $ltime > 1200) { 
 	     foreach my $eachLogFile (@testJobStFiles) {
 
                $jpath   = ($$eachLogFile)->pth; 
@@ -670,6 +670,7 @@ foreach  $eachOutNDir (@OUT_DIR) {
 
               $idHash{$fullname} = $idHash{$jfpath};
 
+     print "jobs ID:  ", $idHash{$fullname}," % ",$fullname," % ",$jfpath," % ",$idHash{$jfpath}, "\n";
 #       print "File info: ",$idHash{$fullname}," % ", $jpath ," % ", $platf, " % ", $fullname, " % ", $geom, " % ", $EvType," % ", $EvGen, " % ", $EvReq," % ", $comp," % ", $EvDone," % ", $libV,  "\n";
    
      ($size, $mTime) = (stat($fullname))[7, 9];
@@ -872,6 +873,7 @@ foreach  $eachOutNDir (@OUT_DIR) {
                $flagHash{$thfullName} = 0;      
  	     if ( $mcTime ne $pvTime ) {
                $mjID = $idHash{$thfullName};
+      print   $thfullName, " % ",$mjID, "\n";   
               $newAvail = "N";
    print "Changing availability for test files", "\n";
    print "file to be updated:", $pvjbId, " % ", $pfullName, " % ",$pvTime, " % ", $newAvail, "\n"; 
@@ -988,7 +990,8 @@ sub  updateDbTable {
      $sql="update $FilesCatalogT set ";
      $sql.="avail='$newAvail',";
      $sql.="status= 1";
-     $sql.=" WHERE jobID = '$pvjbId' AND path = '$pvpath' AND fName = '$pvfile'";   
+#     $sql.=" WHERE jobID = '$pvjbId' AND path = '$pvpath' AND fName = '$pvfile'";   
+     $sql.=" WHERE path = '$pvpath' AND fName = '$pvfile' AND avail = 'Y' ";
      print "$sql\n" if $debugOn;
      $rv = $dbh->do($sql) || die $dbh->errstr;
 
