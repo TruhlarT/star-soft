@@ -56,7 +56,7 @@ sub _init{
        $self->ServerName =~ /rcas/){
     $self->ServerType("offline");
   } # online
-  elsif ( $self->ServerName eq "online_server_name" ){
+  elsif ( $self->ServerName eq "onllinux1.star.bnl.gov" ){
     $self->ServerType("online");
   }
   else{
