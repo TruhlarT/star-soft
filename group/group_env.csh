@@ -1,5 +1,5 @@
 #!/usr/bin/csh -f
-#       $Id: group_env.csh,v 1.122 2001/11/05 21:09:29 jeromel Exp $
+#       $Id: group_env.csh,v 1.123 2001/11/06 17:56:16 jeromel Exp $
 #	Purpose:	STAR group csh setup
 #
 #	Author:		Y.Fisyak     BNL
@@ -44,12 +44,19 @@ if ($ECHO) echo   "Setting up STAR_PATH = ${STAR_PATH}"
 
 if ($?STAR_LEVEL == 0) setenv STAR_LEVEL pro
 if ($STAR_LEVEL  == "old" || $STAR_LEVEL  == "pro" || $STAR_LEVEL  == "new" || $STAR_LEVEL  == "dev" || $STAR_LEVEL  == ".dev") then
+  # i.e. replace with link value instead
   setenv STAR_VERSION `/bin/ls -ld $STAR_PATH/${STAR_LEVEL} |cut -f2 -d">"`
 else
   setenv STAR_VERSION ${STAR_LEVEL}
 endif
 
-if ($?STAF_LEVEL == 0) setenv STAF_LEVEL $STAR_LEVEL
+if ($?STAF_LEVEL == 0) then
+ if ( -e $STAR_PATH/StAF/${STAR_LEVEL}) then
+    setenv STAF_LEVEL $STAR_LEVEL
+ else
+    setenv STAF_LEVEL pro
+ endif
+endif
 if ($STAF_LEVEL  == "old" || $STAF_LEVEL  == "pro" || $STAF_LEVEL  == "new" || $STAF_LEVEL  == "dev" || $STAF_LEVEL  == ".dev") then
   setenv STAF_VERSION `/bin/ls -ld $STAR_PATH/StAF/${STAF_LEVEL} |cut -f2 -d">"`
 else
