@@ -1,5 +1,5 @@
 #!/bin/csh -f
-#       $Id: group_env.csh,v 1.150 2003/06/28 00:03:37 jeromel Exp $
+#       $Id: group_env.csh,v 1.151 2003/08/07 22:47:54 jeromel Exp $
 #	Purpose:	STAR group csh setup
 #
 #	Author:		Y.Fisyak     BNL
@@ -387,13 +387,24 @@ if ( -d /usr/local/lsf/bin && ! $?LSF_ENVDIR ) then
     endif
 endif
 
+
 # Support for JAVA/JDK
-set JDK=j2sdk1.4.0
-if ( -d /usr/java/$JDK ) then
-    set path=(/usr/java/$JDK/bin $path)
-    setenv MANPATH ${MANPATH}:/usr/java/$JDK/man
+if ( ! $?JAVA_ROOT ) then
+    # Search for a default path
+    if ( -d /usr/java ) then
+	set a = `/bin/ls /usr/java | tail -n 1`
+	if ( "$a" != "") then
+	    setenv JAVA_ROOT /usr/java/$a
+	endif
+    endif
+endif
+if ( -d $JAVA_ROOT/ ) then
+    set path=($JAVA_ROOT/bin $path)
+    setenv MANPATH ${MANPATH}:$JAVA_ROOT/man
     #CLASSPATH anyone ??
 endif
+
+
 
 # Support for Insure++
 set INSV=insure-5.2
