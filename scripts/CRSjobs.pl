@@ -1,4 +1,4 @@
-#!/opt/star/bin/perl -w
+#!/usr/bin/env perl
 #
 #  $Id:
 #
@@ -167,6 +167,37 @@ my @nodeList = (
                 "rcrs6122.rcf.bnl.gov",
                 "rcrs6123.rcf.bnl.gov",
                 "rcrs6124.rcf.bnl.gov",
+                "rcrs6125.rcf.bnl.gov",
+                "rcrs6126.rcf.bnl.gov",
+                "rcrs6127.rcf.bnl.gov",
+                "rcrs6128.rcf.bnl.gov",
+                "rcrs6129.rcf.bnl.gov",
+                "rcrs6130.rcf.bnl.gov",
+                "rcrs6131.rcf.bnl.gov",
+                "rcrs6132.rcf.bnl.gov",
+                "rcrs6133.rcf.bnl.gov",
+                "rcrs6134.rcf.bnl.gov",
+                "rcrs6135.rcf.bnl.gov",
+                "rcrs6136.rcf.bnl.gov",
+                "rcrs6137.rcf.bnl.gov",
+                "rcrs6138.rcf.bnl.gov",
+                "rcrs6139.rcf.bnl.gov",
+                "rcrs6140.rcf.bnl.gov",
+                "rcrs6141.rcf.bnl.gov",
+                "rcrs6142.rcf.bnl.gov",
+                "rcrs6143.rcf.bnl.gov",
+                "rcrs6144.rcf.bnl.gov",
+                "rcrs6145.rcf.bnl.gov",
+                "rcrs6146.rcf.bnl.gov",
+                "rcrs6147.rcf.bnl.gov",
+                "rcrs6148.rcf.bnl.gov",
+                "rcrs6149.rcf.bnl.gov",
+                "rcrs6150.rcf.bnl.gov",
+                "rcrs6151.rcf.bnl.gov",
+                "rcrs6152.rcf.bnl.gov",
+                "rcrs6153.rcf.bnl.gov",
+                "rcrs6154.rcf.bnl.gov",
+                "rcrs6155.rcf.bnl.gov",
                 "n/a"
 );
 
@@ -297,7 +328,38 @@ my %nodeHash = (
                 "rcrs6122.rcf.bnl.gov" => 121,
                 "rcrs6123.rcf.bnl.gov" => 122,
                 "rcrs6124.rcf.bnl.gov" => 123,
-                                "n/a" => 124, 
+                "rcrs6125.rcf.bnl.gov" => 124,
+                "rcrs6126.rcf.bnl.gov" => 125,
+                "rcrs6127.rcf.bnl.gov" => 126,
+                "rcrs6128.rcf.bnl.gov" => 127,
+                "rcrs6129.rcf.bnl.gov" => 128, 
+                "rcrs6130.rcf.bnl.gov" => 129,
+                "rcrs6131.rcf.bnl.gov" => 130,
+                "rcrs6132.rcf.bnl.gov" => 131,
+                "rcrs6133.rcf.bnl.gov" => 132,
+                "rcrs6134.rcf.bnl.gov" => 133,
+                "rcrs6135.rcf.bnl.gov" => 134,
+                "rcrs6136.rcf.bnl.gov" => 135,
+                "rcrs6137.rcf.bnl.gov" => 136,
+                "rcrs6138.rcf.bnl.gov" => 137,
+                "rcrs6139.rcf.bnl.gov" => 138,
+                "rcrs6140.rcf.bnl.gov" => 139,
+                "rcrs6141.rcf.bnl.gov" => 140,
+                "rcrs6142.rcf.bnl.gov" => 141,
+                "rcrs6143.rcf.bnl.gov" => 142,
+                "rcrs6144.rcf.bnl.gov" => 143,
+                "rcrs6145.rcf.bnl.gov" => 144,
+                "rcrs6146.rcf.bnl.gov" => 145,
+                "rcrs6147.rcf.bnl.gov" => 146,
+                "rcrs6148.rcf.bnl.gov" => 147,
+                "rcrs6149.rcf.bnl.gov" => 148,
+                "rcrs6150.rcf.bnl.gov" => 149,
+                "rcrs6151.rcf.bnl.gov" => 150,
+                "rcrs6152.rcf.bnl.gov" => 151,
+                "rcrs6153.rcf.bnl.gov" => 152,
+                "rcrs6154.rcf.bnl.gov" => 153,
+                "rcrs6155.rcf.bnl.gov" => 154,
+                                "n/a" => 155, 
 );               
 
 my $today;
@@ -311,11 +373,12 @@ if( $mday < 10) { $mday = '0'.$mday };
 
 
  $thisday = $year."-".$mon."-".$mday; 
+# $thisday = "2003-04-14";
  $today = $thisday;
  print $thisday, "\n";
 $outname = "mail" . "_" .$thisday . "_" . "out";
 
-# $outname = "mail_2003-04-15_out";
+# $outname = "mail_2003-04-14_out";
  $outfile = "/star/u/starreco/" . $outname;
 
  print $outfile, "\n";
