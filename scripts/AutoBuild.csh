@@ -63,7 +63,7 @@ if ( -r  $GROUP_DIR/star_login.csh ) then
 		endif
 		cd $LPATH
 		# Clean this garbage
-		/usr/bin/find -type d -name SunWS_cache -exec rm -fr {} \;
+		/usr/bin/find . -type d -name SunWS_cache -exec rm -fr {} \;
 		breaksw
 
 	    case "Gcc":
