@@ -154,17 +154,8 @@ else
 endif
 setenv MANPATH "${HOME}/man:${SYSMAN}:/usr/local/man:/cern/man"
 setenv XFILESEARCHPATH "/usr/openwin/lib/app-defaults/%N:/usr/lib/X11/app-defaults/%N:/usr/local/lib/X11/app-defaults/%N"
-setenv EDITOR      "pico -w"
-setenv VISUAL      "pico -w"
 setenv LESSCHARSET latin1
 #setenv PRINT_CMD   "xprint"
-
-# Cannot do this here. See later note on back-ticks
-#if ( `which less` != "" ) then
-#    setenv PAGER       "less"
-#else
-#    setenv PAGER       "more"
-#endif
 
 
 
@@ -227,6 +218,13 @@ if ( `which less` != "" ) then
     setenv PAGER       "less"
 else
     setenv PAGER       "more"
+endif
+if ( `which pico` != "") then
+    setenv EDITOR      "pico -w"
+    setenv VISUAL      "pico -w"
+else
+    setenv EDITOR      "emacs -nw"
+    setenv VISUAL      "emacs -nw"
 endif
 
 
