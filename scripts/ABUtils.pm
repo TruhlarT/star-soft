@@ -15,7 +15,7 @@ use Exporter;
 @EXPORT=qw(IUbody IUcmt IUhead IUtrail IUGetRef IUl2pre IUresource
 	   IUExcluded IUSourceDirs IUError IUconsOK IULoad
 	   IUTests IUTestDir IURTFormat IUListRoutine IUErrorURL
-	   IUReleaseFile IUManagers IUCompDir IUHtmlDir
+	   IUReleaseFile IUManagers IUCompDir IUHtmlDir IUHtmlRef
 	   );
 
 # ------------------------------------------
@@ -23,6 +23,7 @@ use Exporter;
 # ------------------------------------------
 # Directory where we compile
 $INSU::COMPDIR="/afs/.rhic/star/replicas/DEV";
+$INSU::STARAFS="/afs/rhic/star/packages";
 
 # list of dirs affected by a cvs co
 @INSU::DIRS=("StRoot","StarDb","StDb","pams","asps");
@@ -105,6 +106,7 @@ $INSU::RTFORMAT="/afs/rhic/star/packages/scripts/insrtm.pl";
 # ------------------------------------------
 # directory where the HTML file will be stored (final target)
 $INSU::HTMLREPD="/afs/rhic/star/doc/www/comp/prod/Sanity";
+$INSU::HTMLREF="http://www.star.bnl.gov/STARAFS/comp/prod/Sanity";
 
 # variables subject to export. So far, we will be using
 # functions to return their value
@@ -338,6 +340,25 @@ sub IUErrorURL
     }
 }
 
+# Returns the compilation directory
+sub IUCompDir  
+{ 
+    my($lib)=@_;
+    my($retv);
+
+    $retv = $INSU::COMPDIR;
+
+    if( defined($lib) ){
+	if ($lib !~ /adev/){
+	    if( -d "$INSU::STARAFS/$lib"){
+		$retv = "$INSU::STARAFS/$lib";
+	    }
+	}
+    }
+    $retv;
+}
+
+
 
 # Returns the directories to update using cvs
 sub IUSourceDirs { return @INSU::DIRS;}
@@ -363,8 +384,8 @@ sub IUReleaseFile { return $INSU::RELFLNM;}
 # Return the mailing-list /admin accounts
 sub IUManagers { return @INSU::MANAGERS;}
 
-# Returns the compilation directory
-sub IUCompDir  { return $INSU::COMPDIR;}
-
 # Returns the HTML (or other) report directory
 sub IUHtmlDir  { return $INSU::HTMLREPD;}
+
+# Returns the HTML URL reference
+sub IUHtmlRef  { return $INSU::HTMLREF;}

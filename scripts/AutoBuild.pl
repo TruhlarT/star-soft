@@ -14,12 +14,10 @@ use ABUtils;
 
 # DEfault library version to work with
 $LIBRARY="adev";
+$COMPDIR="";
 
 # Directory where the reports will be at the end
 $TRGTDIR=IUHtmlDir();
-
-# Directory this script will work in
-$COMPDIR=IUCompDir();
 
 # Cvs command and directory
 $CVSCMDT="cvs -n -q co";       # check differences and updates
@@ -151,6 +149,10 @@ if($LIBRARY =~ m/dev/i || $LIBRARY =~ m/new/i ||
 } else {
     $CHVER = "starver $LIBRARY";
 }
+
+
+# Directory this script will work in
+$COMPDIR=IUCompDir($LIBRARY) if ( $COMPDIR eq "");
 
 # A temp script will be created with this name (number will be
 # appended at the end).
@@ -512,7 +514,11 @@ sub ReportToHtml
     # The beginning of the "prev" thread at 1 is NOT a coding
     # bug but a design i.e. Version 0 will NOT be referenced
     # and this was intended for debug purposes 
-    print $fo IUhead("AutoBuild report");
+    if($LIBRARY ne "adev"){
+	print $fo IUhead("AutoBuild report for $LIBRARY");
+    } else {
+	print $fo IUhead("AutoBuild report");
+    }
     if ($i != 0){
 	print $fo 
 	    "<H5 ALIGN=\"center\">",
@@ -522,9 +528,16 @@ sub ReportToHtml
     # global success
     print $fo
 	"<TABLE BORDER=\"0\">\n",
-	"<TR><TD><B>Global Status</B></TD><TD>".uc(&STRsts($sts)).  "</TD></TR>\n",
-	"<TR><TD><B>Skipped DIRS </B></TD><TD><TT>".join(" ",@SKIP)."</TT></TD></TR>\n",
-	"</TABLE>\n";
+	"<TR><TD><B>Global Status</B></TD><TD>".
+	    uc(&STRsts($sts))."</TD></TR>\n",
+	"<TR><TD><B>Skipped DIRS </B></TD><TD><TT>".
+	    join(" ",@SKIP)."</TT></TD></TR>\n";
+    if(IUCompDir($LIBRARY) ne $COMPDIR){
+	print $fo 
+	"<TR><TD><B>Working directory</B></TD>".
+	    "<TD><TT>$COMPDIR</TT></TD></TR>\n";
+    }
+    print $fo "</TABLE>\n";
 
     # sort/create references
     $k = 0;
