@@ -307,7 +307,7 @@ sub get_logfiles{
 
   $filename = $File::Find::name;
 
-  $filename =~ /\.log/ and do {
+  $filename =~ /\.log$/ and do {
     push @logfile_list, $filename;
   };
   return;

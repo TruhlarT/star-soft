@@ -503,9 +503,10 @@ sub ParseLogfile {
     $size < 10000 and $missing_files .= " .hist.root";
   };
 
-  undef $global_root_event_file;
-  find ( \&QA_cgi_utilities::get_root_event_file, $this_dir);
-  defined $global_root_event_file or $missing_files .= " .event.root"; 
+  # not relevant after SL99j pmj 11/1/00
+#  undef $global_root_event_file;
+#  find ( \&QA_cgi_utilities::get_root_event_file, $this_dir);
+#  defined $global_root_event_file or $missing_files .= " .event.root"; 
 
   undef $global_dst_xdf_file;
   find ( \&QA_cgi_utilities::get_xdf_file, $this_dir);

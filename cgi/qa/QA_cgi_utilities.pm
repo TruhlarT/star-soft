@@ -49,7 +49,7 @@ sub get_logfile{
   
   $filename = $File::Find::name;
     
-  if ( $filename =~ /\.log/ ) {
+  if ( $filename =~ /\.log$/ ) {
     $global_logfile = $filename;
   }
 }
