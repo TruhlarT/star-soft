@@ -395,7 +395,7 @@ C                                       Link to:
         call AgFOPEN(li,string2(1:len2),ier)
         Address=CsADDR('AgUSOPEN')
         L1 = 4*((len2+3)/4)
-        If (address>0) CALL CsJCAL(address,2,string2(1:L1))
+        If (address != 0) CALL CsJCAL(address,2,string2(1:L1))
      }
      else If Index(String1(1:len1),'N')>0
      {  Call AgNTOpen(String2(1:len2),4) }
@@ -1099,7 +1099,7 @@ C
       enddo
 *
       address=CsADDR ('AGUTREV')
-      if (address>0) CALL CsJCAL (address,0)
+      if (address != 0) CALL CsJCAL (address,0)
 *
 * By default (No ACTION command issued) GEANT simulations are done if:
 * a: IKINE<0 and reading of HITS, DIGI and RECB is prohibited,  b: IKINE>=0.
@@ -1204,7 +1204,7 @@ C
      endif
 *
      Istop = 0
-     if (address>0) CALL CsJCAL (address,0)
+     if (address != 0) CALL CsJCAL (address,0)
      If (Istop==0)  CALL GTRACK
 *
       END
@@ -1314,7 +1314,7 @@ C
          endif
       endif
  
-      if (address.gt.0) CALL CsJCAL (address,1,ISKIP)
+      if (address.ne.0) CALL CsJCAL (address,1,ISKIP)
  
       END
  
@@ -1526,7 +1526,7 @@ C
          If (Flag_secondaries>=2) Call AgsSECOND   ! - dense media
       endif
 *
-      if (address>0) CALL CsJCAL (address,0)       ! let user do something
+      if (address != 0) CALL CsJCAL (address,0)       ! let user do something
 *
       If (NGKINE<=0)   Break
          NDONE += NGKINE
@@ -1590,7 +1590,7 @@ C
          IEVOLD=IEVENT
       endif
 *
-      if (address>0) then
+      if (address != 0) then
          CALL CsJCAL (address,2,VECT,Field)
       Else
          Field={0.,0.,0.}
@@ -1701,12 +1701,12 @@ C
            Check Cdet(1:3)//'H'==Cset
            address=CsADDR (cdet//'DIG')
 *           print *,'digi routine for ',cdet,': address=',address
-           if (address>0) CALL CsJCAL (address,0)
+           if (address != 0) CALL CsJCAL (address,0)
         enddo
      enddo
 *
      address=CsADDR ('AGUDIGI')
-     if (address>0) CALL CsJCAL (address,0)
+     if (address != 0) CALL CsJCAL (address,0)
  
      end
  
@@ -2384,7 +2384,7 @@ C
          address = CsADDR ('AGUDCAY')
      endif
 *
-     if (address>0) CALL CsJCAL (address,0)
+     if (address != 0) CALL CsJCAL (address,0)
 *
      END
  
@@ -14760,7 +14760,7 @@ C
          If (IKine==-2) Call AgNTOPEN('hcwn.hbook' ,  4 )
          If (IKine==-3) Call AgFOPEN ( 0,  ' ',      ier)
          If (IKine<=-4) { J=CsADDR('AGUSOPEN'); IkineOld=Ikine;
-                          If (J>0) Call CSjCAL(J,2,' ') }
+                          If (J != 0) Call CSjCAL(J,2,' ') }
       endif
 *
       Ier   = 0
@@ -14769,8 +14769,8 @@ C
       If (IKineOld==-1) call AgPread (ier)
       If (IKINEold==-2) call AgNTread(ier)
       If (IKINEold<=-3) call AgFread (ier)
-      If (IKINEold<=-4) {J=CsADDR('AGUSREAD'); If (J>0) Call CSjCAL(J,1,Ier)}
-                         J=CsADDR('AGUKINE');  If (J>0) Call CSjCAL(J,1,Ier)
+      If (IKINEold<=-4) {J=CsADDR('AGUSREAD'); If (j != 0) Call CSjCAL(J,1,Ier)}
+                         J=CsADDR('AGUKINE');  If (j != 0) Call CSjCAL(J,1,Ier)
 *
       If  ier!=0  { Ikineold=0; Ieotri=1; Iquest(1)=Ier; Return; }
 *
@@ -20302,5 +20302,97 @@ C                                       Link to:
                     IDET=0
       IF (LKDETM>0) CALL GLOOK(CHDET,IQ(LKDETM+1),IQ(LKDETM-1),IDET)
       END
+*CMZ :  1.40/05 15/08/98  23.01.56  by  Pavel Nevski
+*-- Author :    Pavel Nevski   01/08/98
+*********************************************************************
+*                                                                   *
+    subroutine  AgDETP add (Cpar,p,N)
+*                                                                   *
+* Description: compose a DETP command from the code:                *
+*   - new selects a subsystem and drops the old DETP bank           *
+*   - add appends the parameter description and its values          *
+*********************************************************************
+*KEEP,TYPING.
+      IMPLICIT NONE
+*KEEP,GCBANK.
+      INTEGER IQ,LQ,NZEBRA,IXSTOR,IXDIV,IXCONS,LMAIN,LR1,JCG
+      INTEGER KWBANK,KWWORK,IWS
+      REAL GVERSN,ZVERSN,FENDQ,WS,Q
+C
+      PARAMETER (KWBANK=69000,KWWORK=5200)
+      COMMON/GCBANK/NZEBRA,GVERSN,ZVERSN,IXSTOR,IXDIV,IXCONS,FENDQ(16)
+     +             ,LMAIN,LR1,WS(KWBANK)
+      DIMENSION IQ(2),Q(2),LQ(8000),IWS(2)
+      EQUIVALENCE (Q(1),IQ(1),LQ(9)),(LQ(1),LMAIN),(IWS(1),WS(1))
+      EQUIVALENCE (JCG,JGSTAT)
+      INTEGER       JDIGI ,JDRAW ,JHEAD ,JHITS ,JKINE ,JMATE ,JPART
+     +      ,JROTM ,JRUNG ,JSET  ,JSTAK ,JGSTAT,JTMED ,JTRACK,JVERTX
+     +      ,JVOLUM,JXYZ  ,JGPAR ,JGPAR2,JSKLT
+C
+      COMMON/GCLINK/JDIGI ,JDRAW ,JHEAD ,JHITS ,JKINE ,JMATE ,JPART
+     +      ,JROTM ,JRUNG ,JSET  ,JSTAK ,JGSTAT,JTMED ,JTRACK,JVERTX
+     +      ,JVOLUM,JXYZ  ,JGPAR ,JGPAR2,JSKLT
+C
+*KEEP,SCLINK.
+C SLUG link area :    Permanent Links for SLUG:
+      INTEGER         LKSLUG,NSLINK
+      PARAMETER       (NSLINK=40)
+      COMMON /SCLINK/ LKSLUG(NSLINK)
+C The following names are equivalenced to LKSLUG.
+C The equivalence name is the one used in SLINIB.
+      INTEGER LKGLOB,LKDETM,LKTFLM,LKTFLT,LKAMOD,LKAGEV,LKAMCH,LKADIG,
+     +        LKMAPP,LKMFLD,LKRUNT,LKEVNT,LKARAW,LKATRI,LKAPRE,LKARP1,
+     +        LKARP2,LKARP3,LKDSTD,LKRUN2,LKEVN2,LKVER2,LKKIN2,LKHIT2,
+     +        LKGENE
+C                                       Link to:
+      EQUIVALENCE (LKSLUG(1),LKGLOB)   ! top of temporary HEPEVT Zebra tree
+      EQUIVALENCE (LKSLUG(2),LKDETM)   ! top of subdetector structure
+      EQUIVALENCE (LKSLUG(3),LKTFLM)   ! permanent track filter structure
+      EQUIVALENCE (LKSLUG(4),LKTFLT)   ! temporary track filter structure
+      EQUIVALENCE (LKSLUG(5),LKAMOD)   ! MODule parameters (Dont know this)
+      EQUIVALENCE (LKSLUG(6),LKAGEV)   ! Link to general event structure
+      EQUIVALENCE (LKSLUG(7),LKAMCH)   ! MonteCarlo Hits ( not GEANT I guess)
+      EQUIVALENCE (LKSLUG(8),LKADIG)   ! DIGitized hits (again not GEANT...?)
+      EQUIVALENCE (LKSLUG(9),LKMAPP)   ! map structure
+      EQUIVALENCE (LKSLUG(10),LKMFLD)  ! magnetic field banks
+      EQUIVALENCE (LKSLUG(11),LKRUNT)  ! run tree bank (vertical structure)
+      EQUIVALENCE (LKSLUG(12),LKEVNT)  ! event tree bank (vertical struct)
+      EQUIVALENCE (LKSLUG(13),LKARAW)  ! raw data structure
+      EQUIVALENCE (LKSLUG(14),LKATRI)  ! trigger banks
+      EQUIVALENCE (LKSLUG(15),LKAPRE)  ! preprocessed hits
+      EQUIVALENCE (LKSLUG(16),LKARP1)  ! reconstuction phase 1 banks
+      EQUIVALENCE (LKSLUG(17),LKARP2)  ! reconstuction phase 2 banks
+      EQUIVALENCE (LKSLUG(18),LKARP3)  ! reconstuction phase 3 banks
+      EQUIVALENCE (LKSLUG(19),LKDSTD)  ! DST data banks
+      EQUIVALENCE (LKSLUG(20),LKRUN2)  ! run tree bank for secondary run
+      EQUIVALENCE (LKSLUG(21),LKEVN2)  ! event tree bank for secondary events
+      EQUIVALENCE (LKSLUG(22),LKVER2)  ! secondary GEANT VERT bank
+      EQUIVALENCE (LKSLUG(23),LKKIN2)  ! secondary GEANT KINE bank
+      EQUIVALENCE (LKSLUG(24),LKHIT2)  ! secondary GEANT HITS bank
+      EQUIVALENCE (LKSLUG(26),LKGENE)  ! old slug ZEBRA generator structure
+*KEND.
+   Character   Cpar*(*),EQ*1/'='/,Cd*4/'none'/
+   Integer     LENOCC,N,Par(1000),p(N),L,I,J,LL,Id/0/,Ld
+   Real        R
+   Equivalence (R,I)
+*
+    Call ASLGETBA (Cd,'DETP',1000,LL,Par)
+    L=Lenocc(Cpar)
+    If id<=0
+    {  print *,' AgDETP error: system undefined ',Cd,': ',cpar,p }
+    else
+    {  Call UCTOH (Cpar,Par(LL+1),4,L);  LL+=(L+3)/4;
+       do j=1,N
+       {  I=p(j); if (abs(I)<10000) R=p(j);  LL+=1; Par(LL)=I; }
+       Call ASLSETBA (Cd,'DETP',LL,Par)
+    }
+    return
+*
+    entry AgDETP new (Cpar)
+    Cd=Cpar;  Call CLTOU(cd);  Call ASBDETE (Cd,id);  Check Id>0
+    Call ASLDETBA (Cd,'DETP',1,Ld);  If (Ld>0) Call MZDROP (IxCons,Ld,' ')
+    Call MZFLAG(IxCons,LQ(LkDetm-id),1,'Z')
+*
+   end
  
  
