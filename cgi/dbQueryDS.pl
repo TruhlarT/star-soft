@@ -2,7 +2,7 @@
 #
 #  $Id:
 #
-#  dbQueryDS.pl 
+#  dbQueryDS.pl  script to get browser of MC dataset and create WEB page 
 #  L. Didneko
 #
 ###############################################################################
@@ -10,7 +10,6 @@
 use CGI;
 
 require "/afs/rhic/star/packages/DEV00/mgr/dbCpProdSetup.pl";
-#require "dbCpProdSetup.pl";
 
 my @prodPer = ("mdc1", "mdc2", "postmdc2", "prod4", "prod5", "mdc3");
 my $debugOn = 0;
@@ -78,8 +77,10 @@ while(@fields = $cursor->fetchrow) {
   }
     next if ($fvalue =~ /daq/);
     next if ($fvalue =~ /dst/);
+
      $prodNext = $prodPer[$ll];
      $pair{$mySet} =  $pair{$mySet} . " : " . $prodNext ;
+
   } 
 
  }
@@ -87,6 +88,7 @@ while(@fields = $cursor->fetchrow) {
 for ($ll=0;$ll<scalar(@Sets);$ll++) { 
 
      $mySet = $Sets[$ll];
+     if ($mySet =~ /Bjet/) (pair{$mySet} = :prod5);
      &printRow();    
 
   } 
