@@ -306,7 +306,7 @@ for ($kk=0; $kk<scalar(@DRun); $kk++) {
          $TdstDSize   +=  $dstDSize{$runD};
          $TdstHSize   +=  $dstHpSize{$runD}; 
          $TdaqHSize   +=  $daqHpSize{$runD};
-#     &printRow(); 
+  &printRow(); 
        }
 
   &printTotal(); 
