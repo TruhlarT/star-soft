@@ -451,7 +451,7 @@ if ( ! open(FO,">$PWD/$JOB_ID.csh") ){
     print FO
 	"#!/bin/csh\n",
 	"setenv GROUP_DIR /afs/rhic/rhstar/group\n", # default GROUP_DIR
-	"source \$GROUP_DIR/star_login.csh\n",       # load basic login env
+	"source \$GROUP_DIR/star_cshrc.csh\n",       # load basic login env
 	"unset noclobber\n";                         # over-write
     print FO
 	"setenv NODEBUG yes\n" if($OPTOPT);          # STAR soft specific env
