@@ -280,10 +280,12 @@ sub define_trigger {
 
 #=======================================
 
-sub define_err {
+sub define_err 
+{
     my ($errname,$logerr) = @_;
-    if( $logerr=~/$errname/ ){
-      $err.= "$errname | ";
-      print " $logerr |";
+    if( $logerr =~ m/$errname/ ){
+	chomp($errname);
+	$err .= "$errname | ";
+	print "$err";
     }
 }
