@@ -17,7 +17,7 @@ umask 022
 # Following put in to handle NQS
 #
 if ( $?ENVIRONMENT ) then
-	if ( $ENVIRONMENT == "BATCH" ) exit
+    if ( $ENVIRONMENT == "BATCH" ) exit
 endif
 #
 # Determine terminal type
@@ -106,32 +106,35 @@ default
 breaksw
 endsw
 #
-# Set DISPLAY
+# Set DISPLAY if needed
 #
 if ( ! $?DISPLAY ) then
-	set TTYPORT=`tty`
-	if ( $TTYPORT == /dev/console ) then
-		setenv DISPLAY "localhost:0"
-	else if ( $?REMOTEHOST ) then
-##VP 		setenv DISPLAY "${REMOTEHOST}:0"
-		setenv DISPLAY `${GROUP_DIR}/dropit -p ${REMOTEHOST}:0`
-	else
-		set TTYNAME=`echo $TTYPORT |cut -c6-`
-		set REMOTEHOST=`who|grep "$TTYNAME"|awk '{print $6}'|sed 's/(//'|sed 's/)//'`
-		if ( x"$REMOTEHOST" != x ) then
-##VP 			setenv DISPLAY "${REMOTEHOST}:0"
-			setenv DISPLAY `${GROUP_DIR}/dropit -p ${REMOTEHOST}:0`
-		endif
+    set TTYPORT=`tty`
+    if ( $TTYPORT == /dev/console ) then
+	setenv DISPLAY "localhost:0"
+    else if ( $?REMOTEHOST ) then
+	##VP setenv DISPLAY "${REMOTEHOST}:0"
+	setenv DISPLAY `${GROUP_DIR}/dropit -p ${REMOTEHOST}:0`
+    else
+	set TTYNAME=`echo $TTYPORT |cut -c6-`
+	set REMOTEHOST=`who|grep "$TTYNAME"|awk '{print $6}'|sed 's/(//'|sed 's/)//'`
+	if ( x"$REMOTEHOST" != x ) then
+	    ##VP setenv DISPLAY "${REMOTEHOST}:0"
+	    setenv DISPLAY `${GROUP_DIR}/dropit -p ${REMOTEHOST}:0`
 	endif
+    endif
 endif
 #
-# Establish PAGER
+# Establish PAGER if not defined.
 #
-if ( -r /usr/local/bin/less ) then
+if ( ! $?PAGER ) then 
+    if ( -r /usr/local/bin/less ) then
 	setenv PAGER /usr/local/bin/less
-else
+    else
 	setenv PAGER more
+    endif
 endif
+
 #
 # Common terminal characteristics
 #
@@ -147,21 +150,21 @@ echo "Terminal Type is $TERM"
 
 if ($?SCRATCH == 0) then
 if ( -w /scr20 ) then
-        setenv SCRATCH /scr20/$LOGNAME
+    setenv SCRATCH /scr20/$LOGNAME
 else if ( -w /scr21 ) then
-        setenv SCRATCH /scr21/$LOGNAME
+    setenv SCRATCH /scr21/$LOGNAME
 else if ( -w /scr22 ) then
-        setenv SCRATCH /scr22/$LOGNAME
+    setenv SCRATCH /scr22/$LOGNAME
 else if ( -w /scratch ) then
-        setenv SCRATCH /scratch/$LOGNAME
+    setenv SCRATCH /scratch/$LOGNAME
 else 
-#	echo No scratch directory available. Using /tmp/$USER ...
-        setenv SCRATCH /tmp/$LOGNAME
+    # echo No scratch directory available. Using /tmp/$USER ...
+    setenv SCRATCH /tmp/$LOGNAME
 endif
  
 if ( ! -d $SCRATCH ) then
-        mkdir $SCRATCH
-        chmod 755 $SCRATCH
+    mkdir $SCRATCH
+    chmod 755 $SCRATCH
 endif
 if ($?ECHO) echo   "Setting up SCRATCH   = $SCRATCH"
 endif
