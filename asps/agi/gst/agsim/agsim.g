@@ -3131,7 +3131,7 @@ C
  Integer LENOCC
  " check %W>0; "
  If (%z>0) %Za=%z;
- IF %NLmat>=10 { error('NO more place to store a component of the mixture') }
+ IF %NLmat>=10 { %error('NO more place to store a component of the mixture') }
  %NLmat+=1; %AA(%NLmat)=%A; %ZZ(%NLmat)=%Za; %WW(%NLmat)=%W;
    END
  
@@ -3280,7 +3280,7 @@ C
   If Imixt<0
   {  SW=0; N=0;  do i=1,%Nlmat
      {check %WW(i)>0; N+=1; SW+=%WW(i); a(N)=%aa(i); z(N)=%ZZ(i); W(N)=%WW(i)}
-     If SW<=0 {error('Mixture undefined')};   if (SW>1.5)  N=-N;
+     If SW<=0 {%error('Mixture undefined')};   if (SW>1.5)  N=-N;
      prin1  %L(%Material),%Imat,%Dens,N,(%aa(i),%zz(i),%ww(i),i=1,%NLmat);
      (' GSMIXT   for mixture ',A,' used Imat=',I3,
       ' Density=',F5.2,' NLmat=',i2/(10x,'A,Z,W =',3F10.3));
@@ -3435,7 +3435,7 @@ C
  
  %Medium=%L(%Title);   %Imed=-1;   %Imat=abs(Im);
  if Im<0
- { If %Parlist='NONE'  {error('Undefined material requested',%Title)}
+ { If %Parlist='NONE'  {%error('Undefined material requested',%Title)}
    prin1  %L(%Material),%Imat,%A,%Za,%Dens,%RADL,%ABSL;
    (' GSMATE   called with for material ',A,' produces Imat =',I3/,
       10x, 'A,Z,D,x0,l0 =',5E11.4);
@@ -3595,7 +3595,7 @@ C
  Imed=abs(Im); %Imed=-1;
  If Im<0
  {  %Imed = Imed
-    " If %Parlist='NONE' {error('Undefined medium requested',%Title)} "
+    " If %Parlist='NONE' {%error('Undefined medium requested',%Title)} "
     prin1       %L(%MEDIUM), %Imed, %Imat, %ISVOL,   IFIELD, %FIELDM, %TMAXFD,
                                            %STEMAX, %DEEMAX, %EPSIL,  %STMIN
                 (' AGSTMED  for medium ',A,' med,mat,sen,fld =',2i4,2i2/,
@@ -4004,7 +4004,7 @@ C
   If %Ivolume<=0 | %Mother!=%Volume
   {  %Cnick=%Mother;  Call GLOOK(%Mother,IQ(JVOLUM+1),Nvolum,%Ivolume);
      If %Ivolume<=0
-     {  If %Level>0  {error('mother volume does not exist')};
+     {  If %Level>0  {%error('mother volume does not exist')};
         <w> %Mother; (' Warning: Volume ',a4,' does not exist'); Return;
      }
      Jvm=LQ(JVOLUM-%Ivolume); Ivm=IQ(Jvm-5); IDM=IQ(Jvm-4);
@@ -4013,7 +4013,7 @@ C
   }
   Jmo=LQ(JVOLUM-%Ivolume); nin=Q(Jmo+3);
   If nin<0         " should check names to give the diagnostic !"
-  { "error('volume ',%Cnick,' has both divisions and content')"; return; }
+  { "%error('volume ',%Cnick,' has both divisions and content')"; return; }
  
   If Q(Jmo+1)==-99 & %Level>1
   { prin1 %cnick,Ivm;
@@ -4023,9 +4023,9 @@ C
  
 * get Active volume number from the generic bank IDN word;
   Daughter=%Title;  Call GLOOK (Daughter,IQ(JVOLUM+1),Nvolum,Ivd);
-  If Ivd<=0   {error('daughter ',Daughter,' does not exist ')};
+  If Ivd<=0   {%error('daughter ',Daughter,' does not exist ')};
   " generic daughter "  IDH=IQ(JVOLUM+Ivd); Jvd=LQ(JVOLUM-Ivd);
-  Ivo=IQ(Jvd-5);  If Ivo<=0 {error('Actual daughter does not exist ')};
+  Ivo=IQ(Jvd-5);  If Ivo<=0 {%error('Actual daughter does not exist ')};
   " its nickname "  Idaught=IQ(JVOLUM+Ivo); Jvo=LQ(JVOLUM-Ivo);
   " and number   "  Ign=0;    If (Ivd#Ivo)  Ign=IQ(Jvo-5);
  
@@ -4034,7 +4034,7 @@ C
   Call AgSROTM " - it may cause bank relocation, links should be reaccessed !"
   If Npo=0
   {  Call AgSHAPE;      Npa=%Npar;
-     If %Npar=0  {error('Can not position undefined Volume ',Daughter)}
+     If %Npar=0  {%error('Can not position undefined Volume ',Daughter)}
   }
  
 * set copy number(generic) and avoid content (actual name!) dublication
@@ -4227,7 +4227,7 @@ JATTF(Jj) = Jj+int(Q(Jj+5))+6
 * Toggle the actual Npa = 0 | NPar
   Npa=0;  Do I=1,%Npar { if (%Par(i)#0) Npa=%Npar; }
   Call UCTOH(%Volume,Name,4,4);  %Ignum=-1;  Ivo=0;
-  If %IMED<=0 {error(' Medium  in  ',%Volume,' not defined')};
+  If %IMED<=0 {%error(' Medium  in  ',%Volume,' not defined')};
  
 * if the top level volume has a hole, its inner radius(radii) is reset to 0:
    if Nvolum==0
@@ -4272,7 +4272,7 @@ JATTF(Jj) = Jj+int(Q(Jj+5))+6
    Call GSVOLU(%Cnick, %Shape, %Imed, %Par, Npa, %Ivolume)
    prin1 %Volume,%Cnick,%Shape,%Imed,%Ivolume,Npa,(%Par(i),i=1,Npa)
   (' AGSVOLU: Name/shape ',3(A4,2x),' Imed,Iv,Np=',3I5/(10x,'Par=',10F8.2))
-   If %Ivolume<NVOLUM {error(' error defining GEANT volume ',%Volume)}
+   If %Ivolume<NVOLUM {%error(' error defining GEANT volume ',%Volume)}
 *
   "set also volume generic name and number in IDH & IDN , Idtype "
    Jvo=LQ(JVOLUM-%Ivolume); IQ(Jvo-4)=Name; IQ(Jvo-5)=%Ignum;
@@ -4427,9 +4427,9 @@ C
  Call UCTOH(%Volume,Name,4,4)
  Call UHTOC(IQ(JVOLUM+%Imother),4,Mother,4)
  Jmo=LQ(JVOLUM-%Imother);  nin=Q(Jmo+3);
- If nin>0  { error('Volume has daughters, division impossible')}
+ If nin>0  { %error('Volume has daughters, division impossible')}
  If nin<0  { %Ivolume=Q(LQ(Jmo-1)+2);       Jvd=LQ(JVOLUM-%Ivolume);
-             If IQ(Jvd-4)#NAME  { error('bad name of an existing division')}
+             If IQ(Jvd-4)#NAME  { %error('bad name of an existing division')}
              Call UHTOC(IQ(JVOLUM+%Ivolume),4,%CNICK,4)
              %Ignum=IQ(Jvd-5);              Return;
            }
@@ -4448,10 +4448,10 @@ C
   { Fun='GSDVN2'; Call GSDVN2(%Cnick,Mother,%Ndiv,%Iaxis,%C0,%Imed)}
   else If %C0#0 & %Step#0
   { Fun='GSDVT2'; Call GSDVT2(%Cnick,Mother,%Step,%Iaxis,%C0,%Imed,Ndm)}
-  else { error('missing parameters to make a division ')}
+  else { %error('missing parameters to make a division ')}
 *
   Call UCTOH(%Cnick,Nick,4,4)
-  If IQ(JVOLUM+Nvolum)#Nick {error('can not find newly created division ')}
+  If IQ(JVOLUM+Nvolum)#Nick {%error('can not find newly created division ')}
   "set also volume generic name and number in IDH & IDN, and IdType "
   %Ivolume=NVOLUM; Jvd=LQ(JVOLUM-%Ivolume)
   IQ(Jvd-4)=NAME;  IQ(Jvd-5)=%Ignum;
@@ -4582,7 +4582,7 @@ Replace[;#,#=>#;] with  [{IF} [EXIST 1] {[INCR a]; %#3([COPY a])=%#1; #2,=>#3;}
       'PARA','PGON','PCON','ELTU','HYPE',  13 * '    ','GTRA','CTUB','    '/;
  
  If %Ishape<=0  { Do Is=1,30 { IF %SHAPE==ShapS(Is)  { %Ishape=Is; Break;} } }
- If %Ishape<=0  { error(' Undefined shape ',%SHAPE)}   %Shape=ShapS(%Ishape);
+ If %Ishape<=0  { %error(' Undefined shape ',%SHAPE)}   %Shape=ShapS(%Ishape);
  
  Box  ?  dx,dy,dz;
  Trd1 ?  dx1,dx2, dy,dz;
@@ -5166,7 +5166,7 @@ C
     If (T='D') Call GLOOK (Cdet,IQ(JVOLUM+1), Nvolum, Iv)
     If (iv>0)  Call UCopy (Q(JATTF(LQ(JVOLUM-Iv))+7),sdt,3)
     Call GsDETv (Cset,Cdet,%Idtype,NWHI,NWDI,Iset,Idet)
-    If Idet<=0|Iset<=0 {error(' can not define sensitive detector ',Title)}
+    If Idet<=0|Iset<=0 {%error(' can not define sensitive detector ',Title)}
     "              set empty hit or digi bank with maximum size           "
     Call Vzero (Upar,%LDETU)
     If (T='H') Call GsDETH (Cset,Cdet,Lcumu,Cpar,Upar,Upar,Upar)
@@ -5177,7 +5177,7 @@ C
 *pn: 16/03/96 - to get nice bank NID reset it for the first bank
     JDU=LQ(LQ(LQ(Jset-Iset)-Idet)-3); Cbank=' ';
     If (JDU>0) Call UHTOC(IQ(JDU-4),4,Cbank,4)
-    If Cbank!='SJDU' {error('can not create User Hit/Digi bank for',Cset,Cdet)}
+    If Cbank!='SJDU' {%error('can not create User Hit/Digi bank for',Cset,Cdet)}
     IQ(JDU-5)=1
  }
                             * * *
@@ -5185,7 +5185,7 @@ C
  {  j=JATTF(LQ(JVOLUM-%Ivolume)); Q(j+7)=Iset; Q(j+8)=Idet; Q(j+9)=%IdType; }
  else If %Module(5:5)='D' & T='D' " only digitisation re-definition accepted "
  { if(Iv>0) Call UCopy(sdt,Q(JATTF(LQ(JVOLUM-Iv))+7),3);%iset=Iset;%idet=Idet;}
- else       {error('HITS or DIGI can not be redefined for ',Cset,Cdet)}
+ else       {%error('HITS or DIGI can not be redefined for ',Cset,Cdet)}
  
                             * * *
  " find DETU bank with corresponding serial number and keep its link in %JDU "
@@ -5193,7 +5193,7 @@ C
  While Q(JDU+8)!=%Type & LQ(JDU)>0 { JDU=LQ(JDU);   %JDU=JDU; }
  If %Type!=Q(JDU+8)       " make a new user bank "
  {  Call MZBOOK(IxCons,JDN,JDU,0,'SJDU',0,0,%LDETU,3,0)
-    If JDN<=0  {error(' cant create new copy of DETU bank ',%Type)}
+    If JDN<=0  {%error(' cant create new copy of DETU bank ',%Type)}
     Call Ucopy (Q(JDU+1),Q(JDN+1),%LDETU);    Q(JDN+8)=%Type;
     %iset=Iset;  %idet=Idet;  %JDU=JDN;
  }
@@ -5364,7 +5364,7 @@ C
                                * * *
   If new<0                                            " a new hit element "
   {  Ia=Q(Jdu+1);   N=Q(jdu+2);    Ja=Jdu+Ia+%NwuHit*N;
-     If (N>=14)    {error('Can not store more hit elements ',N)};
+     If (N>=14)    {%error('Can not store more hit elements ',N)};
      N+=1;          Q(jdu+2)=N;    Q(jdu+3)=Ia+%NwuHit*N;
      Call  Vzero(Q(Ja+1),10);
      Q(Ja+1)=ARFROMC(%ParList);    Q(Ja+2)=ARFROMC(%Option);
@@ -5832,7 +5832,7 @@ C                                       Link to:
            STOP '***********************************************************'
  }
  If (%Level=0) NUM=0
- If %Level>=15 {error('Number of nesting levels is more than 15')}; %Level+=1;
+ If %Level>=15 {%error('Number of nesting levels is more than 15')}; %Level+=1;
  L=LOCF(%EndSave)-LOCF(%BegCom)
  if (L>%LSTACK) stop 'AgsPUSH Fatal error: lack of stack dimension'
  Call UCOPY (%BegCom, %Stack(1,%Level), L)
@@ -5842,7 +5842,7 @@ C                                       Link to:
  {%Ivolume,%Istatus,%NLmat,%Isvol}=0;
  Iv=LOCF(Volume)-LOCF(%Begcom)+1;
  Do IL=1,%Level-1
- { IF %Stack(iv,il)=VOLUME {error('Recursive block call not accepted')} }
+ { IF %Stack(iv,il)=VOLUME {%error('Recursive block call not accepted')} }
  Iprin=max(%Iprin-%Level-1,0);   Num+=1;  Prin1 NUM,%level,%L(%Title)
        (/' **',i5,' ** we are at level ',i3,' in block ',A/)
    END
@@ -5959,8 +5959,8 @@ C
 *KEND.
  Integer LOCF,LENOCC;
  
- If %Istatus==0 {error('block is empty')};
- If %Level<=0   {error('Stack underflow: nesting level is wrong')};
+ If %Istatus==0 {%error('block is empty')};
+ If %Level<=0   {%error('Stack underflow: nesting level is wrong')};
  Call UCOPY (%Stack(1,%Level), %BegCom, LOCF(%EndSave)-LOCF(%BegCom));
  %Level-=1;  Iprin=max(%Iprin-%Level-1,0);  if (%level>0) return;
    END
