@@ -33,8 +33,8 @@
 #   All delete operations are made on availability=0 files
 #
 #   -delete/-cdelete/-ddelete
-#              -cdelete (check) only displays what it will delete
-#              based on context.
+#              -cdelete (check deletion) only displays what it will 
+#                       delete based on context.
 #              -ddelete (delayed) See documentation.
 #
 #              WARNING!!! The delete operation is irreversible!
@@ -424,8 +424,8 @@ while ($morerecords)
 	# Marking the file as unavailable
 	my @rows;
 	$fileC->set_context("limit=100000000");
-	@rows = $fileC->bootstrap_data("filename",$dodel);
-	print "Returned IDs: @rows\n";
+	@rows = $fileC->bootstrap("filename",$dodel);
+	print "Returned IDs $#rows: @rows\n";
       }    
     elsif ($mode == 7)
       # Fourth mode of operation - mark selected files as available/unavailable
@@ -434,15 +434,15 @@ while ($morerecords)
 	# Marking the file as unavailable
 	my @rows;
 	$fileC->set_context("limit=100000000");
-	@rows = $fileC->bootstrap_data("path",$dodel);
-	print "Returned IDs: @rows\n";
+	@rows = $fileC->bootstrap("path",$dodel);
+	print "Returned IDs $#rows: @rows\n";
       }    
     elsif ($mode == 8)
     {
 	my @rows;
 	$fileC->set_context("limit=100000000");
-	@rows = $fileC->bootstrap_trgc("triggerWordID",$dodel);
-	print "Returned IDs: @rows\n";
+	@rows = $fileC->bootstrap("tctwid",$dodel);
+	print "Returned IDs $#rows: @rows\n";
     }
     $start += $batchsize;
 
