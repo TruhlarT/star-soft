@@ -420,16 +420,21 @@ sub DisplayDataset{
       my $temp   = $QA_message_hash{$key}->CreationEpochSec;
       my $time   = localtime($temp);
       my $text   = $QA_message_hash{$key}->MessageString;
-      
+
+# pmj 23/8/00 take out message key      
       if ( $key =~ /global/ ){
+#	$data_string = "<strong>Global comment</strong> ". 
+#                       "(<font size=1>Message key: $key</font>):" .
+#	               " Author $author; Date $time; ";
 	$data_string = "<strong>Global comment</strong> ". 
-                       "(<font size=1>Message key: $key</font>):" .
 	               " Author $author; Date $time; ";
       }
       else{
 	($temp = $key) =~ s/\.msg//;
-	$data_string = "<strong>Comment for run $temp </strong " .
-	               "(<font size=1>Message key: $key</font>):" .
+#	$data_string = "<strong>Comment for run $temp </strong> " .
+#	               "(<font size=1>Message key: $key</font>):" .
+#	               "Author $author;";
+	$data_string = "<strong>Comment for run $temp </strong> " .
 	               "Author $author;";
       }
   
@@ -561,8 +566,9 @@ sub OnlineRunBrowser{
   my $self = shift;
   
   #---------------------------------------------------------
-
-  my $url = "http://onlsun1.star.bnl.gov/dbRunBrowser.html";
+  # pmj 23/8/00 point to new browser 
+  #  my $url = "http://onlsun1.star.bnl.gov/dbRunBrowser.html";
+  my $url = "http://ch2linux.star.bnl.gov/RunLogBrowser/Main.html";
 
   my $string = "<a href=$url target = 'documentation'>Online Run Log</a>";
   return $string;
