@@ -62,11 +62,17 @@ struct FileAttr => {
 &cgiSetup();
 
 
-($sec,$min,$hour,$mday,$mon,$year,$wday,$yday,$isdst) = localtime(time);
+($sec,$min,$hour,$mday,$mon,$year,$wday,$yday,$isdst) = localtime;
     $thisday = (Sun,Mon,Tue,Wed,Thu,Fri,Sat)[(localtime)[6]];
 
   my $ii = 0;
-  my $mdate = $year."-".$mon."-".$mday;
+  my $yr;
+  my $mdate;
+  $yr = 1900 + $year;
+  $mon++;
+  if( $mon < 10) { $mon = '0'.$mon };
+  if( $mday < 10) { $mday = '0'.$mday };
+  $mdate = $yr."-".$mon."-".$mday;
   my $iday;
   my $testDay;
   my $beforeDay;
@@ -74,13 +80,14 @@ struct FileAttr => {
  $testDay = $Nday[$iday - 1];
 
 # print "Today Date :", $thisDay, "\n";
-
+  print $mdate, "\n"; 
+ 
 &StDbTJobsConnect();
 
  &beginHtml();
 
 
-$sql="SELECT path, logFile, jobStatus, NoEventDone, chainOpt, memUsageF, memUsageL, CPU_per_evt_sec, createTime FROM $JobStatusT where path LIKE '%$testDay%' AND path LIKE '%redhat%' AND avail = 'Y' ";
+$sql="SELECT path, logFile, jobStatus, NoEventDone, chainOpt, memUsageF, memUsageL, CPU_per_evt_sec, createTime FROM $JobStatusT where path LIKE '%$testDay%' AND path LIKE '%redhat%' AND avail = 'Y' AND createTime like '$mdate%' ";
  $cursor =$dbh->prepare($sql)
    || die "Cannot prepare statement: $DBI::errstr\n";
  $cursor->execute;
@@ -173,7 +180,7 @@ END
 sub printRow {
 
 print <<END;
-<TR ALIGN=CENTER>
+<TR ALIGN=LEFT>
 <td>$myPath</td>
 <td>$myFile</td>
 <td>$mychain</td>
