@@ -20,14 +20,14 @@ if ( ! $?star_login_csh ) then
 endif
 
 
-# --------------------------------------------------------------------------------
+# --------------------------------------------------------------------------
 # Aliases. Backward compatibility only.
 # Somehow, I am sure that most of it is unused ...
 # I have eliminated the following non-portable commands
 #
-# alias pp        '/bin/ps auxww | /bin/egrep '\''PID|\!*'\'' | /bin/grep -v grep'
-# alias rs        'set noglob;eval `/usr/bin/X11/resize`;unset noglob'
-# --------------------------------------------------------------------------------
+# alias pp   '/bin/ps auxww | /bin/egrep '\''PID|\!*'\'' | /bin/grep -v grep'
+# alias rs   'set noglob;eval `/usr/bin/X11/resize`;unset noglob'
+# --------------------------------------------------------------------------
 alias nman       '/usr/bin/nroff -man \!* | $PAGER'
 alias ll         '/bin/ls -lA'
 alias pwd        'echo $cwd'
