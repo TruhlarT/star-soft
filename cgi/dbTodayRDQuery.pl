@@ -105,9 +105,9 @@ print <<END;
      <h1 align=center>List of DST Files Inserted Today into FileCatalog</h1>
 <TABLE ALIGN=CENTER BORDER=5 CELLSPACING=1 CELLPADDING=2 >
 <TR>
-<TD ALIGN=CENTER WIDTH=\"50%\" HEIGHT=30><B>Dataset</B></TD>
+<TD ALIGN=CENTER WIDTH=\"30%\" HEIGHT=30><B>Dataset</B></TD>
 <TD ALIGN=CENTER WIDTH=\"30%\" HEIGHT=30><B>Path</B></TD>
-<TD ALIGN=CENTER WIDTH=\"30%\" HEIGHT=20><B>Name of File</B></TD>
+<TD ALIGN=CENTER WIDTH=\"20%\" HEIGHT=20><B>Name of File</B></TD>
 <TD ALIGN=CENTER WIDTH=\"20%\" HEIGHT=20><B>Create Date</B></TD>
 </TR> 
    </head>
