@@ -262,7 +262,7 @@ foreach $choice (@ARG){
 		JPRFFormat()." \$ROOT4STAR $SRCDIR/$dir/jprof-log >$SRCDIR/$flnm\n";
 	} elsif ($VALG){
 	    print FO 
-		"valgrind --leak-check=yes --error-limit=no \$ROOT4STAR -b -q 'bfc.C($NEVT[1],\"$chain\",\"$file\")' >&valg$i.log\n",
+		"valgrind --tool=memcheck --leak-check=yes --error-limit=no \$ROOT4STAR -b -q 'bfc.C($NEVT[1],\"$chain\",\"$file\")' >&valg$i.log\n",
 		"\n",
 		IUCheckFile(0,"$SRCDIR/$flnm"),
 		VLGFormat()." $SRCDIR/$dir/valg$i.log >$SRCDIR/$flnm\n";
