@@ -60,7 +60,7 @@ sub get_QA_objects{
     opendir (SCRATCH, $scratch) or print "Cannot open scratch directory $scratch \n";
     
     while ( defined( $file = readdir(SCRATCH) ) ){
-      $file =~ /\.qa_hash$/ or next;
+#      $file =~ /\.qa_hash$/ or next;
       my $full_file = "$scratch/$file";
       -M $full_file > 0.5 and do{
 	unlink($full_file);
@@ -68,11 +68,12 @@ sub get_QA_objects{
     }
     close (SCRATCH);
 
-    #-----------------------------------------------------------
+    #---------------------------------------------------------
 
     my $temp = $query->param('save_object_hash_scratch_file');
 
     if (-e $temp) {
+
       $Save_object_hash_scratch_file = $temp;
       my $ref = retrieve($Save_object_hash_scratch_file);
       %Save_object_hash = %$ref;
@@ -104,6 +105,7 @@ sub get_QA_objects{
       &hidden_field_string;
       
     }
+
   }
   else {
     %QA_object_hash = ();
@@ -130,7 +132,6 @@ sub get_QA_objects{
 
   #---------------------------------------------------------------
   # if update, get additional directories on disk
-
 
   $arg eq 'update' and do{
 
@@ -177,6 +178,8 @@ sub get_QA_objects{
 sub sort_time{
 
   my $report_key = shift;
+
+  $report_key or return -99999;
 
   return $QA_object_hash{$report_key}->CreationEpochSec;
 
@@ -356,7 +359,9 @@ sub get_update_dirs{
 #===================================================================
 sub hidden_field_string{
 
-  $string = $query->hidden('select_dataset').
+#  $string = $query->hidden('select_dataset').
+
+  $string = $query->hidden('selected_key_string').
 	$query->hidden('dataset_array_previous').
 	  $query->hidden('selected_key_list').
 	    $query->hidden('expert_pw').
@@ -422,12 +427,25 @@ sub print_timing{
   # get cpu time
   $now = (times)[0];
 
-  printf "time since start = %.2f sec; time since last call= %.2f sec <br>\n",
+  printf "time since start = %.3f sec; time since last call= %.3f sec <br>\n",
   $now-$time_start,$now-$time_last_call;
 
   $time_last_call = $now;
 }
 #=======================================================================
+sub print_traceback{
+
+  print "=" x 80, "\n<br> print_traceback called <br> \n";
+
+  $i = 0;
+  while ( ($package, $filename, $line, $sub, $hasargs, $wantarray) = caller($i++) ){
+    print "from $package::$filename, line $line, subroutine $sub <br> \n";
+  }
+
+  print "=" x 80, "<br> \n";
+
+}
+#===========================================================
 sub move_old_reports{
  
   opendir REPORTDIR, $topdir_report or die "Cannot open report_dir $topdir_report \n";

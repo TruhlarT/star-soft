@@ -42,7 +42,7 @@ sub new{
 sub _init{
 
   my $self = shift;
-  
+
   # if no directory supplied as argument, return
   return unless @_;
   
@@ -54,7 +54,7 @@ sub _init{
 
   #-------------------------------------------------
   # is this a data or report directory?
-  
+
   undef $report_key;
   my $this_is_prod_dir = 0;
 
@@ -93,7 +93,7 @@ sub _init{
   $self->LogReportName();
   #------------------------------------------------------
   # get pointer to logreport object
-    
+
   if($action =~ /update/ and $this_is_prod_dir){
       QA_make_reports::make_report_directory($report_key);
       $self->LogReport($arg_dir);
@@ -300,18 +300,23 @@ sub QADone{
 sub OnDisk{
   my $self = shift;
 
-  #----------------------------------------------------------
-  $report_key = $self->ReportKey(); 
-  $test_data_dir = $self->LogReport->OutputDirectory;
-  $on_disk = 0;
-  
-  if (defined $test_data_dir and -d $test_data_dir){ 
-    # even if same directory exists, may contain later run -> test against dir time
-    $test_report_key = QA_make_reports::get_report_key($test_data_dir); 
-    $test_report_key eq $report_key and $on_disk = 1;
-  }
-  
-  return $on_disk;
+  $self->{OnDisk} or do{
+
+    $report_key = $self->ReportKey(); 
+    
+    $test_data_dir = $self->LogReport->OutputDirectory;
+    $on_disk = 0;
+    
+    if (defined $test_data_dir and -d $test_data_dir){ 
+      # even if same directory exists, may contain later run -> test against dir time
+      $test_report_key = QA_make_reports::get_report_key($test_data_dir); 
+      $test_report_key eq $report_key and $on_disk = 1;
+    }
+    
+    $self->{OnDisk} = $on_disk;
+  };
+
+  return  $self->{OnDisk};
 }
 #========================================================
 sub DataDisplayString{
@@ -359,14 +364,16 @@ sub CreationEpochSec{
 
   my $self = shift;
 
-  #--------------------------------------------------------
-  # get finish time of job, convert to format used by localtime
-  $time_temp = $self->LogReport->RunStartTimeAndDate;
- 
-  return QA_cgi_utilities::convert_logtime_to_epoch_sec($time_temp);
+  $self->{CreationEpochSec} or do{
+
+    # get finish time of job, convert to format used by localtime
+    $time_temp = $self->LogReport->RunStartTimeAndDate;
+    
+    $self->{CreationEpochSec} = QA_cgi_utilities::convert_logtime_to_epoch_sec($time_temp);
+  };
+
+  return $self->{CreationEpochSec}
 }
-
-
 #========================================================
 sub RunSummaryString{
   my $self = shift;
@@ -802,6 +809,12 @@ sub LogReport{
   $self->{logreport} or do{
 
     $report_key = $self->ReportKey();
+
+    $report_key or do{
+      ($package, $filename, $line) = caller;
+      print "=" x 80, "\n<br> No report_key, LogReport called from $package::$filename, line $line <br> \n";
+    };
+
     $filename = QA_make_reports::log_report_name($report_key);
 
     if (@_){
@@ -820,25 +833,42 @@ sub LogReport{
       }
       
       $self->{logreport} = $logreport_ref;
+
     }
     elsif($filename =~ /\.txt/){
       # old style ascii report; creat new object and fill it from disk
-      $self->{logreport} = Logreport_object->new($filename, 'txt_report');
+      $logreport_ref = Logreport_object->new($filename, 'txt_report');
+
+      $self->{logreport} = $logreport_ref;
+     
+      # now write as new-style object
+
+      ($filename_obj = $filename ) =~ s/\.txt$/\.obj/;
+
+      print "<h4> Writing Logreport object to $filename_obj... </h4> \n";
+      store( $logreport_ref, $filename_obj) or die "<h4> Cannot write $filename_obj: $! </h4> \n";
+      if ( -e $filename_obj ){
+	print "<h4> ... done </h4> \n";
+      }
+      else {
+	print "<h4> file $filename_obj not created, something went wrong. </h4> \n";
+      }
+ 
     }
     else{
       # "Storable" object on disk    
-
+      
       if ( -e $filename ){
 	$self->{logreport} = retrieve($filename);
       }
       else{
-	print "Error in QA_object::LogReport: cannot find $filename <br> \n";
+	print "Error in QA_object::LogReport: report_key=$report_key, cannot find $filename <br> \n";
       }
-
+      
     }
-
+    
   };
-
+  
   return $self->{logreport};
 }
 #========================================================

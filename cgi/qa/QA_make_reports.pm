@@ -154,7 +154,10 @@ sub log_report_name{
   # if existing ascii file present, use that. Otherwise, generate "Storable" object pmj 13/11/99
   my $name = "logfile_report";
 
-  if (-e $report_dirname."/$name\.txt"){
+  if (-e $report_dirname."/$name\.obj"){
+    $name .= "\.obj";
+  }
+  elsif (-e $report_dirname."/$name\.txt"){
     $name .= "\.txt";
   }
   else{

@@ -114,7 +114,6 @@ sub upper_display{
   #-----------------------------------------------------------------------------
   display_datasets($select_dataset);
   #-----------------------------------------------------------------------------
-
 }
 #==========================================================================
 sub lower_display{
@@ -325,12 +324,18 @@ sub starting_display {
 #=================================================================
 sub get_selected_key_list {
 
-  my $select_dataset = shift;
-  
-  #-----------------------------------------------------------------------------
 
-  @selected_key_list = ();
-  $select_dataset or return @selected_key_list;
+  $select_dataset = $query->param('select_dataset');
+
+  #-----------------------------------------------------------------------------
+  $select_dataset or do{
+    
+    $selected_key_string =  $query->param('selected_key_string'); 
+    
+    @selected_key_list = split /;/,$selected_key_string;
+
+    return @selected_key_list;
+  };
   #-----------------------------------------------------------------------------
 
  SWITCH: {
@@ -360,6 +365,9 @@ sub get_selected_key_list {
 
   }
 
+  #-----------------------------------------------------------------------------
+  $selected_key_string = join ';', @selected_key_list;
+  $query->param('selected_key_string',$selected_key_string);
   #-----------------------------------------------------------------------------
 
   return @selected_key_list;
@@ -525,12 +533,10 @@ sub selection_sort{
 #============================================================
 sub button_actions{
 
-  $select_dataset = $query->param('select_dataset');
-  get_selected_key_list($select_dataset);
+  &get_selected_key_list;
   #-----------------------------------------------------------------------------
-  
   @get_params = $query->param;
-  
+
   # get button action
   foreach $param ( @get_params ){
     exists $Button_object_hash{$param} and do{
@@ -539,4 +545,5 @@ sub button_actions{
       last;
     };
   }
+
 }
