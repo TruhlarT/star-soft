@@ -2,7 +2,7 @@
 %
 % StEvent - User Guide and Reference Manual -- LaTeX Source
 %
-% $Id: StEvent.tex,v 2.70 2002/01/03 21:07:10 ullrich Exp $
+% $Id: StEvent.tex,v 2.71 2002/01/17 02:05:31 ullrich Exp $
 %
 % Author: Thomas Ullrich, Nov 1999
 %
@@ -21,6 +21,9 @@
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %
 % $Log: StEvent.tex,v $
+% Revision 2.71  2002/01/17 02:05:31  ullrich
+% Mods to StEvent reference. Added StTofCollection.
+%
 % Revision 2.70  2002/01/03 21:07:10  ullrich
 % Added BBC and FPD.
 %
@@ -275,8 +278,8 @@
   \mbox{\includegraphics[width=\textwidth]{StEventTitle.eps}}
   \hfill\mbox{}\\[3cm]
   {\LARGE User Guide and Reference Manual \\[5mm] for Version 2}\\[2cm]
-  {\LARGE $ $Revision: 2.70 $ $}  \\[5mm] % replaced by cvs with current revision
-  {\LARGE $ $Date: 2002/01/03 21:07:10 $ $}  % replaced by cvs with current revision
+  {\LARGE $ $Revision: 2.71 $ $}  \\[5mm] % replaced by cvs with current revision
+  {\LARGE $ $Date: 2002/01/17 02:05:31 $ $}  % replaced by cvs with current revision
   \vfill
 \end{center}
 \cleardoublepage
@@ -3644,6 +3647,9 @@ definition in the header file.
     \verb+static bool removeXiVertices(StEvent*);+\\
     \verb+static bool removeKinkVertices(StEvent*);+\\
     \verb+static bool remove(StTrack*);+\\
+    \verb+static bool removeFpdCollection(StEvent*);+\\
+    \verb+static bool removeToFCollection(StEvent*);+\\
+    \verb+static bool removeCalibrationVertices(StEvent*);+\\
     
     \verb+removeTpcHitsNotOnTrack(StEvent*);+\\
     Marks all TPC hits not associated with valid tracks.
@@ -5783,6 +5789,36 @@ trigger algorithm information.
     \verb+const StSPtrVecSvtHit& hits() const;+\\
 \end{Entry}
 \clearpage
+
+\subsection{StTofCollection}
+\index{StTofCollection|textbf}
+\label{sec:StTofCollection}
+\begin{Entry}
+\item[Summary] Top class for ToF data.
+\item[Synopsis]
+    \verb+#include "StTofCollection.h"+\\
+    \verb+class StTofCollection;+\\
+\item[Description]
+\item[Related Classes]
+\item[Public\\ Constructors]
+    \verb+StTofCollection();+\\
+\item[Public Member\\ Functions]
+    \verb+const StSPtrVecTofSlat& tofSlats() const;+\\
+    \verb+StSPtrVecTofSlat& tofSlats();+\\
+    \verb+const StSPtrVecTofHit& tofHits() const;+\\
+    \verb+StSPtrVecTofHit& tofHits();+\\
+    \verb+const StSPtrVecTofData& tofData() const;+\\
+    \verb+StSPtrVecTofData& tofData();+\\
+    \verb+void addSlat(const StTofSlat*);+\\
+    \verb+void addHit(const StTofHit*);+\\
+    \verb+void addData(const StTofData*); +\\
+    \verb+bool slatsPresent() const;+\\
+    \verb+bool hitsPresent() const;+\\
+    \verb+bool dataPresent() const;+\\
+\end{Entry}
+\clearpage
+
+
 
 \subsection{StTofData}
 \index{StTofData|textbf}
