@@ -126,6 +126,8 @@ $sql="SELECT path, logFile, jobStatus, NoEventDone, chainOpt, memUsageF, memUsag
  my $myCPU;
  my $myCtime;
  my $mychain;
+ my $cdate;
+my @prt;
 
   foreach $eachFile (@dbFiles) {
 
@@ -138,7 +140,8 @@ $sql="SELECT path, logFile, jobStatus, NoEventDone, chainOpt, memUsageF, memUsag
         $myCPU   = ($$eachFile)->mCPU;          
         $myCtime = ($$eachFile)->timeS;  
         $mychain = ($$eachFile)->chOpt;
-
+       @prt = split (" ", $myCtime);
+    $cdate = $prt[0]; 
     next if $myPath =~ /tfs_/;
     next if $myPath =~ /year_2a/;
 
