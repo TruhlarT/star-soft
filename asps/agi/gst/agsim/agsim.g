@@ -1,4 +1,4 @@
-*CMZ :          24/09/98  01.12.46  by  Pavel Nevski
+*CMZ :          24/09/98  02.51.55  by  Pavel Nevski
 *CMZ :  1.40/05 26/08/98  22.10.06  by  Pavel Nevski
 *CMZ :  1.40/05 13/07/98  10.50.50  by  Pavel Nevski
 *-- Author :    Pavel Nevski
@@ -148,6 +148,7 @@ C
       end
 *
       subroutine AGKUSER
+      common /cmd_current/ cmd(20)
       end
  
  
@@ -171,12 +172,12 @@ C
 *KEEP,VIDQQ.
       CHARACTER*68 VIDQQ
       DATA VIDQQ/
-     +'@(#)* Advanced Geant Inteface   1.40/05   C: 24/09/98  02.03.10
+     +'@(#)* Advanced Geant Inteface   1.40/05   C: 24/09/98  03.31.50
      +'/
 *KEEP,DATEQQ.
       IDATQQ =   980924
 *KEEP,TIMEQQ.
-      ITIMQQ =    203
+      ITIMQQ =    331
 *KEEP,VERSQQ.
       VERSQQ = ' 1.40/05'
       IVERSQ =  14005
@@ -2526,7 +2527,7 @@ C
       end
  
  
-*CMZ :          24/09/98  02.02.38  by  Pavel Nevski
+*CMZ :          24/09/98  03.26.27  by  Pavel Nevski
 *CMZ :  1.40/05 01/04/98  11.36.29  by  Pavel Nevski
 *CMZ :  1.30/00 02/04/97  18.16.37  by  Pavel Nevski
 *-- Author :    Pavel Nevski
@@ -2537,7 +2538,7 @@ C
 * Description: dispatch an abnormal situation (arithmetics or ZEBRA)   *
 ************************************************************************
       Implicit   NONE
-      Integer    Lenocc,AgPHASE,AgIPAW,IwTYP,Npar,Leng,Nerr/0/
+      Integer    Lenocc,AgPHASE,AgIPAW,IwTYP,Npar,Nerr/0/
       Common /AgCPHASE/ AgPHASE
       Common /AgCIPAW/  AgIPAW,IwTyp
       character*32      command,commando/' '/
@@ -2552,6 +2553,7 @@ C
 *
       call kupatl (command,npar)
       print *,'*** Last Kuip command was ',%L(Command),' Npar=',Npar,' ***'
+      call dump_arg_list
       print *,'*** in ',%L(cmdlin),' ***'
       if (command=='QUIT' | command=='EXIT') STOP 'IN TRACEQ forced exit'
  
