@@ -3,6 +3,15 @@
 # Wrapper to autobuild
 # J.Lauret 2001.
 #
+# Current target for this script
+#  Linux61    build a Linux61 AutoBuild report (one version)
+#  Solaris    ditto for Solaris (does cache cleaning)
+#  Clean      Runs CleanLibs
+#  Insure     Builds Insure++ compilation
+#  
+#
+#
+#
 
 # Path where to find the damned scripts.
 set SCRIPTD=/afs/rhic/star/packages/scripts
@@ -65,12 +74,12 @@ if ( -r  $GROUP_DIR/star_login.csh ) then
 		mgr/CleanLibs
 		breaksw
 
-	    case "Linux72":
+	    case "Linux61":
 		set LPATH=/afs/rhic/star/packages/adev
 		set SPATH=/afs/rhic/star/doc/www/comp/prod/Sanity
 		$SCRIPTD/AutoBuild.pl -k -i -1 -t -p $LPATH
 		if( -e $HOME/AutoBuild-linux.html) then
-		    mv -f $HOME/AutoBuild-linux.html $SPATH/AutoBuild-linux72.html
+		    mv -f $HOME/AutoBuild-linux.html $SPATH/AutoBuild-linux61.html
 		endif
 		cd $LPATH
 		echo "Cleaning older libraries"
