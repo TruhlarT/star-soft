@@ -798,6 +798,7 @@ sub _ReadConfig
 	    # and will not be supported / extended.
 	    # You MUST install XML::Simple
 	    #
+	    &print_debug("_ReadConfig","XML :: WARNING -- Parsing by hand");
 	    $EL{DBREF} = "";
 	    my ($site,$lintent);
 	    if ($intent =~ /::/){
@@ -880,7 +881,8 @@ sub _ReadConfig
 		$EL{$ok} =~ s/^(.*?)\s*$/$1/;
 		&print_debug("_ReadConfig","XML :: Got $ok [$EL{$ok}]\n");
 		if ($EL{$ok} eq ""){ $EL{$ok} = undef;}
-	    }
+	    }					
+	    $EL{DBREF} = join(":",$EL{DB},$EL{HOST},$EL{PORT}).",".$EL{USER}.",".$EL{PASS}." ";
 	}
     }
     #&print_debug("_ReadConfig","XML :: Host=$EL{HOST} Db=$EL{DB} Port=$EL{PORT}");
@@ -995,33 +997,33 @@ sub Connect
     $idx++;
     if ($idx > $#Dbr){ $idx = 0;}
 
-    &print_debug("connect","Trying connection $idx / $#Dbr");
+    &print_debug("Connect","Trying connection $idx / $#Dbr");
     ($dbref,$user,$passwd)  =  split(",",$Dbr[$idx]);
     if ( $dbref =~ m/\.$/){ chop($dbref);}
     $host  = (split(":",$dbref))[1];
     $dbref = "DBI:mysql:$dbref";
 
 
-    &print_debug("connect","$dbref,$user (+passwd)");
+    &print_debug("Connect","$dbref,$user (+passwd)");
     $DBH = DBI->connect($dbref,$user,$passwd,
 			{ PrintError => 0,
 			  RaiseError => 0, AutoCommit => 1 }
 			);
     if (! $DBH ){
 	if ($DBI::err == 1045){
-	    &print_message("connect","Incorrect password ".($passwd eq ""?"(NULL)":""));
+	    &print_message("Connect","Incorrect password ".($passwd eq ""?"(NULL)":""));
 	}
 	if ($DBI::err == 2002){
-	    &print_message("connect","Socket is invalid for [$dbref]",
+	    &print_message("Connect","Socket is invalid for [$dbref]",
 			   ($host eq ""?"Host was unspecified (too old library version ??)":""));
 	}
 
 	if ( $tries < $NCTRY ){
-	    &print_debug("connect","Connection failed $DBI::err $DBI::errstr . Retry in $NCSLP secondes");
+	    &print_debug("Connect","Connection failed $DBI::err $DBI::errstr . Retry in $NCSLP secondes");
 	    sleep($NCSLP);
 	    goto CONNECT_TRY;
 	} else {
-	    &die_message("connect","cannot connect to $dbname : $DBI::errstr");
+	    &die_message("Connect","cannot connect to $dbname : $DBI::errstr");
 	}
     }
 
@@ -5431,7 +5433,7 @@ sub print_debug
     foreach $line (@lines){
 	chomp($line);
 	if($DEBUG==2){
-	    print "<b>$head</b><tt>$line<tt><br>\n";
+	    print "<b>$head</b> <tt>$line<tt><br>\n";
 	} elsif($DEBUG==3) {
 	    print "<!-- $head $line -->\n";
 	} else {
