@@ -25,7 +25,7 @@ my $debugOn = 0;
 my @prodPer;
 my $myprod;
 my $nprodPer = 0;
-my @colSet = ("AuAu130", "AuAu200","AuAu19","laser");
+my @colSet = ("AuAu130", "AuAu200","AuAu19","ProtonProton200","ProtonProton48","laser");
 my @detSet = ("all","tpc","svt","rich","tof","ftpc","emc","fpd","pmd","tpc.rich","tpc.rich.svt","tpc.ftpc","tpc.ftpc.rich","tpc.tof.ftpc","tpc.tof.ftpc.rich","tpc.svt.ftpc.rich","tpc.svt.tof.rich","ftpc.rich.svt.tof.tpc","ftpc.rich.svt.tpc", "ftpc.rich.tof.tpc","rich.svt.tpc","rich.svt.tof.tpc","emc.ftpc","emc.rich","emc.tpc","emc.ftpc.rich.svt.tof","emc.rich.tof.tpc");
 my @trigSet;
 my $ntrigSet = 0;

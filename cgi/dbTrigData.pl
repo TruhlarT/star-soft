@@ -29,7 +29,7 @@ my $myprod;
 my @detSet = ("all","tpc","svt","rich","tof","ftpc","emc","fpd","pmd");
 my @trigSet  = ("all","central","minbias","medium","peripheral","mixed","physics","MinBias","MinBiasVertex","ProductionMinBias","productionCentral","centralTopo");
 my @mfield = ("all","HalfField","FullField","ReversedFullField","ReversedHalfField","FieldOff");
-my @collis = ("AuAu200", "AuAu130", "AuAu19");
+my @collis = ("AuAu200", "AuAu130", "AuAu19","ProtonProton200","ProtonProton48" );
 my @trigSet;
 my $ntrigSet = 0;
 my $mytrig;
