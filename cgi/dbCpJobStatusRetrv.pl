@@ -20,7 +20,7 @@ my %pair;
 
 &beginHtml();
 
-$sql="SELECT * FROM $cpJobStatusT";
+$sql="SELECT * FROM $JobStatusT";
 $cursor =$dbh->prepare($sql)
   || die "Cannot prepare statement: $DBI::errstr\n";
 $cursor->execute;

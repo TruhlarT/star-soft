@@ -21,7 +21,7 @@ $set = $q->param("set");
 
 &beginHtml();
 
-$sql="SELECT * FROM $cpFileCatalogT WHERE dataset = '$set' AND JobID LIKE '%mdc3%'";
+$sql="SELECT * FROM $FileCatalogT WHERE dataset = '$set' AND JobID LIKE '%mdc3%'";
 $cursor =$dbh->prepare($sql)
   || die "Cannot prepare statement: $DBI::errstr\n";
 $cursor->execute;

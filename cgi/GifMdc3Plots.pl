@@ -84,10 +84,10 @@ my $sql;
   if( $datProd eq 0) { 
 
  if( $set1 ne "all" ) {
-$sql="SELECT sumFileName,jobfileName, jobStatus, mem_size_MB, CPU_per_evt_sec, avg_no_tracks, avg_no_vertex, RealTime_per_evt FROM $cpJobStatusT WHERE jobfileName LIKE '$jobset%' AND JobID LIKE '%mdc3%' AND jobStatus <>'n/a'"; 
+$sql="SELECT sumFileName,jobfileName, jobStatus, mem_size_MB, CPU_per_evt_sec, avg_no_tracks, avg_no_vertex, RealTime_per_evt FROM $JobStatusT WHERE jobfileName LIKE '$jobset%' AND JobID LIKE '%mdc3%' AND jobStatus <>'n/a'"; 
 }
 elsif ( $set1 eq "all") {
-$sql="SELECT sumFileName,jobfileName, jobStatus, mem_size_MB, CPU_per_evt_sec, avg_no_tracks, avg_no_vertex, RealTime_per_evt FROM $cpJobStatusT WHERE JobID LIKE '%mdc3%' AND jobStatus <> 'n/a'";
+$sql="SELECT sumFileName,jobfileName, jobStatus, mem_size_MB, CPU_per_evt_sec, avg_no_tracks, avg_no_vertex, RealTime_per_evt FROM $JobStatusT WHERE JobID LIKE '%mdc3%' AND jobStatus <> 'n/a'";
 }
 
   $cursor =$dbh->prepare($sql)
@@ -119,10 +119,10 @@ $sql="SELECT sumFileName,jobfileName, jobStatus, mem_size_MB, CPU_per_evt_sec, a
 }
   elsif ($datProd ne 0) {
   if ($set1 ne "all") {
-$sql="SELECT fName, dataset FROM $cpFileCatalogT WHERE dataset = '$set1' AND fName LIKE '%dst.root' AND jobID LIKE '%mdc3%' AND createTime LIKE '$datProd%'";
+$sql="SELECT fName, dataset FROM $FileCatalogT WHERE dataset = '$set1' AND fName LIKE '%dst.root' AND jobID LIKE '%mdc3%' AND createTime LIKE '$datProd%'";
 }
   elsif($set1 eq "all") {
-$sql="SELECT fName, dataset FROM $cpFileCatalogT WHERE fName LIKE '%dst.root' AND jobID LIKE '%mdc3%' AND createTime LIKE '$datProd%'";
+$sql="SELECT fName, dataset FROM $FileCatalogT WHERE fName LIKE '%dst.root' AND jobID LIKE '%mdc3%' AND createTime LIKE '$datProd%'";
 }
 
   $cursor =$dbh->prepare($sql)
