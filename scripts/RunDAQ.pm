@@ -73,6 +73,8 @@
 #  are all standardized to avoid proliferation of routines. THERE is nothing else
 #  to do at this level.
 #
+#  WARNING: Log path requires CHAR(255) at least for FOLocations (bummer!!)
+#
 #  If you have build a script based on get_ffiles() or get_orecords(), you will
 #  need to take into account the fact that the number of fields is larger. The
 #  last field of DAQInfo is expected to be 'Status'. Please, preserve this ...
