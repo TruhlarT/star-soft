@@ -29,7 +29,7 @@ if ($user =~ /^\d+$/) {
 
 ## Look up the user in the FDID allocation file
 $fdid = 0;
-open(FDIDFILE,"$ENV{STAR_DB}/starFDID") or die "FATAL: Can't open FDID list file $!\n";
+open(FDIDFILE,"/afs/rhic/star/db/starFDID") or die "FATAL: Can't open FDID list file $!\n";
 while ($line=<FDIDFILE>) {
     ($ufdid, $uname) = split(" ",$line);
     if ( $user ne "" && $uname eq $user ) { $fdid = $ufdid; }
