@@ -107,6 +107,7 @@ my %valuset;
 
 
 use DBI;
+#use Digest::MD5;
 use strict;
 no strict "refs";
 
@@ -129,6 +130,7 @@ my $sth;
 
 # hash of keywords
 my %keywrds;
+my %ksimilar;
 
 # hash of obsolete keywords
 my %obsolete;
@@ -258,6 +260,7 @@ $keywrds{"ftpc"          }    =   "dFTPC"                     .",DetectorConfigu
 $keywrds{"pmd"           }    =   "dPMD"                      .",DetectorConfigurations" .",1" .",num"  .",0" .",1" .",1";
 $keywrds{"rich"          }    =   "dRICH"                     .",DetectorConfigurations" .",1" .",num"  .",0" .",1" .",1";
 $keywrds{"ssd"           }    =   "dSSD"                      .",DetectorConfigurations" .",1" .",num"  .",0" .",1" .",1";
+$keywrds{"bbc"           }    =   "dBBC"                      .",DetectorConfigurations" .",1" .",num"  .",0" .",1" .",1";
 
 # Special keywords
 $keywrds{"simulation"    }    =   ",,,,,,1";
@@ -266,6 +269,21 @@ $keywrds{"noround"       }    =   ",,,,,,1";
 $keywrds{"startrecord"   }    =   ",,,,,,1";
 $keywrds{"limit"         }    =   ",,,,,,1";
 $keywrds{"all"           }    =   ",,,,,,1";
+
+# Keyword aliasing or keyword aggregate
+$keywrds{"lgnm"          }    =   ",,,,,,1";
+$keywrds{"lgpth"         }    =   ",,,,,,1";
+$keywrds{"fulld"         }    =   ",,,,,,1";  # pseudo-full information agregate for real data
+$keywrds{"fulls"         }    =   ",,,,,,1";  # pseudo-full information agregate for simulation data
+#$keywrds{"md5n"          }    =   ",,,,,,1";
+#$keywrds{"md5p"          }    =   ",,,,,,1";
+
+$ksimilar{"lgnm"         }    =   "logical_name;production library runnumber runtype filename trgsetupname configuration";
+$ksimilar{"lgpth"        }    =   "logical_path;site node storage path";
+$ksimilar{"fulld"        }    =   ";production library runnumber runtype site node storage path filename events trgsetupname";
+$ksimilar{"fulls"        }    =   ";production library runnumber runtype site node storage path filename events configuration";
+#$ksimilar{"md5n"         }    =   "md5_name;production library trgsetupname runnumber filename";
+#$ksimilar{"md5p"         }    =   "md5_path;site node storage path";
 
 
 # Fields that need to be rounded when selecting from the database
@@ -285,24 +303,36 @@ my $delimeter = "::";
 #     The table is at level 1, if it not directly referenced by any other table
 #     The table is at level 2 if it is directly referenced by a table at level 1
 #     etc.
+# 5 - 1 if table is a dictionary table, 0 otherwise
+#
+# FileLocations is considered as being at level 1
+#
+# CollisionTypes is NOT a dictionary because the usable returned value
+# is subject to a merging combo of several field with truncation. This
+# is a collection' table.
+#
 
 my @datastruct;
-$datastruct[0]  = ( "StorageTypes"           . ",FileLocations"       . ",storageTypeID"           . ",2");
-$datastruct[1]  = ( "StorageSites"           . ",FileLocations"       . ",storageSiteID"           . ",2");
-$datastruct[2]  = ( "FileData"               . ",FileLocations"       . ",fileDataID"              . ",2");
-$datastruct[3]  = ( "ProductionConditions"   . ",FileData"            . ",productionConditionID"   . ",3");
-$datastruct[4]  = ( "FileTypes"              . ",FileData"            . ",fileTypeID"              . ",3");
-$datastruct[5]  = ( "TriggerWords"           . ",TriggerCompositions" . ",triggerWordID"           . ",2");
-$datastruct[6]  = ( "FileData"               . ",TriggerCompositions" . ",fileDataID"              . ",2");
-$datastruct[7]  = ( "RunParams"              . ",FileData"            . ",runParamID"              . ",3");
-$datastruct[8]  = ( "RunTypes"               . ",RunParams"           . ",runTypeID"               . ",4");
-$datastruct[9]  = ( "DetectorConfigurations" . ",RunParams"           . ",detectorConfigurationID" . ",4");
-$datastruct[10] = ( "CollisionTypes"         . ",RunParams"           . ",collisionTypeID"         . ",4");
-$datastruct[11] = ( "TriggerSetups"          . ",RunParams"           . ",triggerSetupID"          . ",4");
-$datastruct[12] = ( "SimulationParams"       . ",RunParams"           . ",simulationParamsID"      . ",4");
-$datastruct[13] = ( "EventGenerators"        . ",SimulationParams"    . ",eventGeneratorID"        . ",5");
-$datastruct[14] = ( "FileLocations"          . ","                    . ","                        . ",1");
-$datastruct[15] = ( "TriggerCompositions"    . ","                    . ","                        . ",1");
+$datastruct[0]  = ( "StorageTypes"           . ",FileLocations"       . ",storageTypeID"           . ",2" . ",1");
+$datastruct[1]  = ( "StorageSites"           . ",FileLocations"       . ",storageSiteID"           . ",2" . ",1");
+$datastruct[2]  = ( "FileData"               . ",FileLocations"       . ",fileDataID"              . ",2" . ",0");
+$datastruct[3]  = ( "ProductionConditions"   . ",FileData"            . ",productionConditionID"   . ",3" . ",1");
+$datastruct[4]  = ( "FileTypes"              . ",FileData"            . ",fileTypeID"              . ",3" . ",1");
+$datastruct[5]  = ( "TriggerWords"           . ",TriggerCompositions" . ",triggerWordID"           . ",2" . ",1");
+$datastruct[6]  = ( "FileData"               . ",TriggerCompositions" . ",fileDataID"              . ",2" . ",1");
+$datastruct[7]  = ( "RunParams"              . ",FileData"            . ",runParamID"              . ",3" . ",0");
+$datastruct[13] = ( "EventGenerators"        . ",SimulationParams"    . ",eventGeneratorID"        . ",5" . ",1");
+$datastruct[8]  = ( "RunTypes"               . ",RunParams"           . ",runTypeID"               . ",4" . ",1");
+$datastruct[9]  = ( "DetectorConfigurations" . ",RunParams"           . ",detectorConfigurationID" . ",4" . ",1");
+$datastruct[10] = ( "CollisionTypes"         . ",RunParams"           . ",collisionTypeID"         . ",4" . ",0");
+$datastruct[11] = ( "TriggerSetups"          . ",RunParams"           . ",triggerSetupID"          . ",4" . ",1");
+$datastruct[12] = ( "SimulationParams"       . ",RunParams"           . ",simulationParamsID"      . ",4" . ",0");
+$datastruct[14] = ( "FileLocations"          . ","                    . ","                        . ",1" . ",0");
+$datastruct[15] = ( "TriggerCompositions"    . ","                    . ","                        . ",1" . ",0");
+
+#%FC::FLRELATED;
+#%FC::FDRELATED;
+#%FC::ISDICT;
 
 
 # The operators allowed in set_context query - two-characters operators first
@@ -321,6 +351,7 @@ $operators[9] = "~";
 # The possible aggregate values
 my @aggregates;
 $aggregates[0] = "sum";
+$aggregates[0] = "count";
 $aggregates[1] = "avg";
 $aggregates[2] = "min";
 $aggregates[3] = "max";
@@ -452,6 +483,12 @@ sub is_critical {
   return $req;
 }
 
+
+#sub is_dictionary
+#{
+#    my();
+#}
+
 #============================================
 sub new {
 
@@ -467,8 +504,8 @@ sub new {
 
 sub _initialize
 {
-    my $self = shift;
-
+    my ($self) = shift;
+    
     # Only way to bless it is to declare them inside
     # new(). See also use Symbol; and usage of my $bla = gensym;
     $valuset{"all"} = 0;
@@ -478,8 +515,19 @@ sub _initialize
     
 
     #foreach my $el (sort keys %FileCatalog::){
-#	print "$el has for value $FileCatalog::{$el}\n";
-#    }
+    #	print "$el has for value $FileCatalog::{$el}\n";
+    #}
+
+    # Fill this associative arrays automatically
+    my (@items);
+    foreach (@datastruct){
+	@items = split(",",$_);
+	if    ( $items[1] eq "FileLocations"){  $FC::FLRELATED{$items[0]} = $items[2];} # save relat table
+	elsif ( $items[1] eq "FileData"){       $FC::FDRELATED{$items[0]} = $items[2];} # save relat table
+	if ( $items[4] eq "1"){                 $FC::ISDICT{$items[0]}    = $items[3]; # save level
+						&print_debug("Dictionary $items[0] $FC::ISDICT{$items[0]}");
+					    }
+    }
 
 }
 
@@ -693,12 +741,13 @@ sub get_id_from_dictionary {
   } else {
       my( $val );
 
-      $sth->execute();
-      $sth->bind_columns( \$val );
+      if ( $sth->execute() ){
+	  $sth->bind_columns( \$val );
 
-      if ( $sth->fetch() ) {
-	$sth->finish();
-	$id = $val;
+	  if ( $sth->fetch() ) {
+	      $sth->finish();
+	      $id = $val;
+	  }
       }
   }
   return $id;
@@ -722,34 +771,43 @@ sub IDize
 # Returns:
 # The ID value for a given keyword value
 # or 0 if no such record exists
-sub check_ID_for_params {
-  if ($_[0] =~ m/FileCatalog/) {
-    shift @_;
-  }
-  ;
-  my @params = @_;
-  my $retid;
+sub check_ID_for_params 
+{
 
-  if (defined $valuset{$params[0]}) {
-    my $fieldname;
-    my $tabname;
-    my $rest;
+    if ($_[0] =~ m/FileCatalog/) {  shift @_;}
+  
+    my @params = @_;
+    my $retid;
 
-    ($fieldname, $tabname, $rest) = split(",",$keywrds{$params[0]});
-    $retid = &get_id_from_dictionary($tabname, $fieldname, $valuset{$params[0]});
-    if ($retid == 0) {
-      if ($DEBUG > 0) {
-	  &print_debug("check_ID_params::ERROR: No $params[0] with name: ".$valuset{$params[0]});
-      }
-      $retid = 0;
+    if (defined $valuset{$params[0]}) {
+	my $fieldname;
+	my $tabname;
+	my $rest;
+	
+	($fieldname, $tabname, $rest) = split(",",$keywrds{$params[0]});
+	$retid = &get_id_from_dictionary($tabname, $fieldname, $valuset{$params[0]});
+	if ($retid == 0) {
+	    # *** THIS NEEDS TO BE LATER FIXED
+	    if ($tabname eq "DetectorConfigurations"){
+		$retid = &insert_collision_type();
+	    } elsif ( $FC::ISDICT{$tabname} ) {
+		$retid = &insert_dictionary_value($params[0]);
+	    } else {
+		if ($DEBUG > 0) {
+		    &print_debug("check_ID_for_params::ERROR: No $params[0] with name: ".$valuset{$params[0]});
+		}
+		$retid = 0;	
+	    }
+
+	}
+    } else {
+	#&print_debug("check_ID_for_params::ERROR: No $params[0] defined");
+	&print_message("check_ID","$params[0] is required but no value defined");
+	$retid = 0;
     }
-  } else {
-      &print_debug("check_ID_params::ERROR: No $params[0] defined");
-      $retid = 0;
-  }
-  &print_debug("Returning from check_ID_params: $retid");
-
-  return $retid;
+    &print_debug("Returning from check_ID_params: $retid");
+    
+    return $retid;
 }
 
 #============================================
@@ -779,16 +837,16 @@ sub insert_dictionary_value {
   }
 
   # Check if there are other fields from this table set
-  foreach (keys(%keywrds)) {
+  foreach my $kwrd (keys(%keywrds)) {
     my ($fieldnameo, $tabnameo, $resto) = split(",",$keywrds{$keyname});
-    my ($fieldnamet, $tabnamet, $restt) = split(",",$keywrds{$_});
+    my ($fieldnamet, $tabnamet, $restt) = split(",",$keywrds{$kwrd});
 
-    if ($tabnameo eq $tabnamet && $keyname ne $_) {
+    if ($tabnameo eq $tabnamet && $keyname ne $kwrd) {
       if ($DEBUG > 0) {
 	  &print_debug("The field $fieldnamet $tabnamet is from the same table as $fieldnameo $tabnameo");
       }
-      if (defined $valuset{$_}) {
-	  push @additional, ($_);
+      if (defined $valuset{$kwrd}) {
+	  push @additional, ($kwrd);
       }
     }
   }
@@ -798,11 +856,14 @@ sub insert_dictionary_value {
   my $dtvalues = "";
   my $dtinsert;
 
-  foreach (@additional) {
-    my ($fieldnamea, $tabnamea, $resta) = split(",",$keywrds{$_});
+  foreach my $kwrd (@additional) {
+    my ($fieldnamea, $tabnamea, $resta) = split(",",$keywrds{$kwrd});
 
-    $dtfields .= " , $fieldnamea";
-    $dtvalues .= " , '".$valuset{$_}."'";
+    # Skip special Count-er keyword
+    if ($fieldnamea !~ /Count/){
+	$dtfields .= " , $fieldnamea";
+	$dtvalues .= " , '".$valuset{$kwrd}."'";
+    }
   }
 
   if ( $tabname eq "FileLocations"){
@@ -844,7 +905,12 @@ sub insert_detector_configuration {
   }
 
 
-  my ($tpcon, $svton, $emcon, $eemcon, $ftpcon, $richon, $fpdon, $tofon, $pmdon, $ssdon);
+  my ($tpcon, $svton, $emcon, $eemcon, $ftpcon, $richon, $fpdon, $tofon);
+  my ($pmdon, $ssdon, $bbcon);
+
+  if ( defined($valuset{"geometry"}) ){
+      $valuset{"configuration"} = $valuset{"geometry"};
+  }
   if (! defined $valuset{"configuration"}) {
       &print_debug("ERROR: No detector configuration/geometry name given.",
 		   "Cannot add record to the table.");
@@ -860,11 +926,12 @@ sub insert_detector_configuration {
   $tofon = ($valuset{"tof"} == 1)  ? "1" : "0";
   $pmdon = ($valuset{"pmd"} == 1)  ? "1" : "0";
   $ssdon = ($valuset{"ssd"} == 1)  ? "1" : "0";
+  $bbcon = ($valuset{"bbc"} == 1)  ? "1" : "0";
 
 
   my $dtinsert   = "INSERT IGNORE INTO DetectorConfigurations";
-  $dtinsert  .= "(detectorConfigurationName, dTPC, dSVT, dTOF, dEMC, dEEMC, dFPD, dFTPC, dPMD, dRICH, dSSD)";
-  $dtinsert  .= " VALUES ('".$valuset{"configuration"}."', $tpcon , $svton , $tofon , $emcon , $eemcon, $fpdon , $ftpcon , $pmdon , $richon , $ssdon)";
+  $dtinsert  .= "(detectorConfigurationName, dTPC, dSVT, dTOF, dEMC, dEEMC, dFPD, dFTPC, dPMD, dRICH, dSSD, dBBC)";
+  $dtinsert  .= " VALUES ('".$valuset{"configuration"}."', $tpcon , $svton , $tofon , $emcon , $eemcon, $fpdon , $ftpcon , $pmdon , $richon , $ssdon, $bbcon)";
   if ($DEBUG > 0) {  &print_debug("Execute $dtinsert");}
 
 
@@ -1012,17 +1079,19 @@ sub get_collision_collection {
   } else {
       if( ! $sth->execute() ){
 	  &die_message("get_collision_collection","Could not execute [$sqlquery]");
-      }
-      $sth->bind_columns( \$id );
+      } else {
+	  $sth->bind_columns( \$id );
 
-      if ( $sth->fetch() ) {
-	  push(@retv,$id);
-      }
-      if($#retv == -1){
-	  &die_message("get_collision_collection","ERROR: No such collision type");
-      }
+	  if ( $sth->fetch() ) {
+	      push(@retv,$id);
+	  }
+	  if($#retv == -1){
+	      &print_message("get_collision_collection","Inserting $colstring as a new value");
+	      push(@retv,&insert_collision_type());
+	  }
 
-      $sth->finish();
+	  $sth->finish();
+      }
   }
 
   return @retv;
@@ -1090,13 +1159,14 @@ sub get_last_id
 
     $sth = $DBH->prepare($sqlquery);
     if( $sth ){
-	$sth->execute();
-	$sth->bind_columns( \$id );
+	if ( $sth->execute() ){
+	    $sth->bind_columns( \$id );
 
-	if ( $sth->fetch() ) {
-	    $retv = $id;
-	} else {
-	    &print_message("get_last_id","ERROR: Cannot find the last inserted ID");
+	    if ( $sth->fetch() ) {
+		$retv = $id;
+	    } else {
+		&print_message("get_last_id","ERROR: Cannot find the last inserted ID");
+	    }
 	}
 	$sth->finish();
     } else {
@@ -1130,7 +1200,7 @@ sub insert_run_param_info {
   }
 
 
-  $triggerSetup     = &check_ID_for_params("triggersetup");
+  $triggerSetup     = &check_ID_for_params("trgsetupname");
   $runType          = &check_ID_for_params("runtype");
   $detConfiguration = &check_ID_for_params("configuration");
 
@@ -1147,13 +1217,13 @@ sub insert_run_param_info {
       # only one value matters
       $collision = &get_collision_type($valuset{"collision"});
       if ($DEBUG > 0) {
-	  &print_debug("Collsion: $collision");
+	  &print_debug("Collision      : $collision");
       }
   } else {
       &print_debug("ERROR: collision not defined");
   }
   if (($triggerSetup == 0) || ($runType == 0) || ($detConfiguration == 0) || ($collision == 0)) {
-      &print_message("insert_run_param_info","Missing triggersetup, runtype or configuration",
+      &print_message("insert_run_param_info","Missing trgsetupname, runtype or configuration",
 		     "Aborting file insertion query");
       return 0;
   }
@@ -1234,6 +1304,9 @@ sub get_current_run_param {
 # Returns:
 # The id of a lastly inserted file data
 # or 0 is there is insufficient data to insert a record
+#
+# NOT EXPORTED
+#
 sub insert_file_data {
   my @params = @_;
   # Get the ID's of the dictionary tales
@@ -1318,21 +1391,27 @@ sub insert_file_data {
   my $retid;
   $sth = $DBH->prepare( $fdinsert );
   if( $sth ){
-      if ( $sth->execute() ) {
-	  $retid = &get_last_id();
-	  $sth->finish();
-	  &print_debug("Returning: $retid");
-
+      if ($DELAY){
+	  push(@DCMD,$fdinsert);
+	  push(@DCMD,"Delayed mode chosen but operation are not 'flush'-able. Use direct update.");
+	  $retid = 0;
       } else {
-	  $sth->finish();
-	  return 0;
+	  if ( $sth->execute() ) {
+	      $retid = &get_last_id();
+	      $sth->finish();
+	      &print_debug("Returning: $retid");
+
+	  } else {
+	      $sth->finish();
+	      return 0;
+	  }
       }
   } else {
       &print_debug("insert_file_data : Failed to prepare [$fdinsert]");
   }
 
   # TriggerComposition and TriggerWords are now handled by a single routine
-  &set_trigger_composition($retid);
+  &set_trigger_composition($retid) if ($retid != 0);
 
   return $retid;
 }
@@ -1387,14 +1466,19 @@ sub set_trigger_composition()
 	return;
     }
     if ( $FC::IDX == -1 ) {
-	&print_message("set_trigger_composition","No trigger compostion set");
+	if ( $valuset{"simulation"} eq '0'){
+	    &print_message("set_trigger_composition","No trigger composition set");
+	}
 	return;
     }
     if( ! defined($tcfdid) ){
 	&die_message("set_trigger_composition","Mandatory first argument undefined");
     }
 
-
+    if( $tcfdid == 0){
+	&print_message("set_trigger_composition","Preceeding operation prevents current execution");
+	return;
+    }
 
 
     my($i,$el,$cnt);
@@ -1617,37 +1701,29 @@ sub get_current_file_data {
   }
 
   #print "Zobi 3 (execute)\n";
-
-  $sth->execute();
-  $sth->bind_columns( \$id );
-
-  if ($sth->rows == 0) {
-    my $newid;
-    $newid = &insert_file_data();
-    $sth->finish();
-    return $newid;
-  }
-  if ($sth->rows > 1) {
-      &print_message("get_current_file_data","More than one file data matches the query criteria",
-		     "Add more data to unambiguously identify file data");
-      $sth->finish();
-      return 0;
-  }
-
-
   my $retv=0;
-  if ( $sth->fetch() ) {
-    if ($DEBUG > 0) {
-	&print_debug("Returning: $id");
-    }
-    $retv = $id;
+  if ( $sth->execute() ){
+      $sth->bind_columns( \$id );
+
+      if ($sth->rows == 0) {
+	  $retv = &insert_file_data();
+
+      } elsif ($sth->rows > 1) {
+	  &print_message("get_current_file_data","More than one file data matches the query criteria",
+			 "Add more data to unambiguously identify file data");
+
+      } elsif ( $sth->fetch() ) {
+	  if ($DEBUG > 0) { &print_debug("Returning: $id");}
+
+	  $retv = $id;
+      }
   }
   $sth->finish();
+
   #print "Return $retv\n";
   return $retv;
-
-
 }
+
 
 #============================================
 # inserts the file location data and the file and run data
@@ -1696,36 +1772,38 @@ sub insert_simulation_params {
       &print_debug("FileCatalog::insert_simulation_params : Failed to prepare [$sqlquery]");
       return 0;
   }
-  $sth->execute();
+
   my( $id );
+  if ( ! $sth->execute() ){  return 0;}
+
   $sth->bind_columns( \$id );
 
   if ($sth->rows == 0) {
-    my $eginsert   = "INSERT IGNORE INTO EventGenerators ";
-    $eginsert  .= "(eventGeneratorName, eventGeneratorVersion, eventGeneratorComment, eventGeneratorParams)";
-    $eginsert  .= " VALUES ('".$valuset{"generator"}."', '".$valuset{"genversion"}."', $evgenComments, '".$valuset{"genparams"}."')";
-    if ($DEBUG > 0) {
-	&print_debug("Execute $eginsert");
-    }
-    my $sth = $DBH->prepare( $eginsert );
-
-    if ( $sth->execute() ) {
-      $eventGenerator = &get_last_id();
+      my $eginsert   = "INSERT IGNORE INTO EventGenerators ";
+      $eginsert  .= "(eventGeneratorName, eventGeneratorVersion, eventGeneratorComment, eventGeneratorParams)";
+      $eginsert  .= " VALUES ('".$valuset{"generator"}."', '".$valuset{"genversion"}."', $evgenComments, '".$valuset{"genparams"}."')";
       if ($DEBUG > 0) {
-	  &print_debug("Returning: $eventGenerator");
+	  &print_debug("Execute $eginsert");
       }
-    } else {
-	&print_debug("Could not add event gerator data.",
-		     "Aborting simulation data insertion query");
-    }
+      my $sth = $DBH->prepare( $eginsert );
+      
+      if ( $sth->execute() ) {
+	  $eventGenerator = &get_last_id();
+	  if ($DEBUG > 0) {
+	      &print_debug("Returning: $eventGenerator");
+	  }
+      } else {
+	  &print_debug("Could not add event gerator data.",
+		       "Aborting simulation data insertion query");
+      }
   } else {
-    $sth->fetch;
-    if ($DEBUG > 0) {
-	&print_debug("Got eventGenerator: $id");
-    }
-    $eventGenerator = $id;
+      $sth->fetch;
+      if ($DEBUG > 0) {
+	  &print_debug("Got eventGenerator: $id");
+      }
+      $eventGenerator = $id;
   }
-
+  
   my $spinsert   = "INSERT IGNORE INTO SimulationParams ";
   $spinsert  .= "(eventGeneratorID, simulationParamComments)";
   $spinsert  .= " VALUES ($eventGenerator, $simComments)";
@@ -1739,16 +1817,17 @@ sub insert_simulation_params {
       return 0;
   }
   if ( $sth->execute() ) {
-    my $retid = &get_last_id();
-    if ($DEBUG > 0) {
-	&print_debug("Returning: $retid");
-    }
+      my $retid = &get_last_id();
+      if ($DEBUG > 0) {
+	  &print_debug("Returning: $retid");
+      }
   } else {
       &print_debug("Could not add simulation data.",
 		   "Aborting simulation data insertion query.");
       $sth->finish();
       return 0;
   }
+
   $sth->finish();
 
 }
@@ -1784,26 +1863,29 @@ sub get_current_simulation_params {
       &print_debug("Executing query: $sqlquery");
   }
 
-  my $sth;
+  my ($sth);
   $sth = $DBH->prepare($sqlquery);
   if ( ! $sth){
       &print_debug("FileCatalog::get_current_simulation_params : Failed to prepare [$sqlquery]");
       return 0;
   }
-  $sth->execute();
-  my( $id );
-  $sth->bind_columns( \$id );
 
-  if ($sth->rows == 0) {
-      my $newid;
-      $newid = &insert_simulation_params();
-      $sth->finish();
-      return $newid;
-  } else {
-      if ( $sth->fetch() ) {
-	  if ($DEBUG > 0) { &print_debug("Returning: $id");}
+  my ($id);
+
+  if ( $sth->execute() ){
+      $sth->bind_columns( \$id );
+
+      if ($sth->rows == 0) {
+	  my $newid;
+	  $newid = &insert_simulation_params();
 	  $sth->finish();
-	  return $id;
+	  return $newid;
+      } else {
+	  if ( $sth->fetch() ) {
+	      if ($DEBUG > 0) { &print_debug("Returning: $id");}
+	      $sth->finish();
+	      return $id;
+	  }
       }
   }
   $sth->finish();
@@ -1923,9 +2005,14 @@ sub insert_file_location {
 
   $fileData = &get_current_file_data();
   if ($fileData == 0) {
-      &print_message("insert_file_location","No file data available",
-		     "Aborting file insertion query");
-      return 0;
+      if ($DELAY){
+	  &print_message("insert_file_location","Proceeding for debugging purposes only");
+
+      } else {
+	  &print_message("insert_file_location","No file data available",
+			 "Aborting file insertion query");
+	  return 0;
+      }
   }
 
 
@@ -2312,7 +2399,7 @@ sub connect_fields {
 # list of rows matching the query build on the current context
 # in each row the fileds are separated by ::
 sub run_query_st {
-    my(@tab)=&run_query(@_);
+    my (@tab)=&run_query(@_);
     if ( @tab ){
 	return join("\n",@tab);
     } else {
@@ -2325,31 +2412,36 @@ sub run_query {
     shift @_;
   };
 
-
+  # Do not run if not DB
   if( ! defined($DBH) ){
       &print_message("run_query","Not connected");
       return;
   }
-
-  my %functions;
-  my $count;
-  my $grouping = "";
-  my $flkey;
-  my $dele;
-
-  # Protect against bogus query
+  # Protect against bogus empty or undefined query
   if( ! defined($_[0]) ){
       &print_message("run_query()","method called without arguments");
       return;
   }
-
-  # An ugly hack to get FileLocation id number from within the module
+  # Treatment for ugly hack to get FileLocation id number from 
+  # within the module
+  my $flkey;
   if ($_[0] eq "id"){
       $flkey = 1;
       shift @_;
   }
 
   my (@keywords)  = (@_);
+  my (%functions);
+  my ($dele,$i);
+  my ($keyw,$count);
+  my (%keyset,%xkeys);
+
+  my $grouping = "";
+
+
+
+  # Transfer into associative array for easier handling
+  foreach (@keywords){  $keyset{$_} =$_ ;}
 
 
   # Little debugging of the table size. This information was
@@ -2366,12 +2458,12 @@ sub run_query {
   #+
   # Check the validity of the keywords
   #-
-  $count = 0;
-  foreach (@keywords){
+  $i = 0;
+  for ($i = 0 ; $i <= $#keywords ; $i++){
       #First check if it is a request for an agregate value
-      my $afun;
-      my ($aggr, $keyw);
+      my ($aggr,$afun);
 
+      $_ = $keywords[$i]; # too lazzy to change it all but to be cleaned
       $_ =~ y/ //d;
 
       foreach $afun (@aggregates){
@@ -2383,8 +2475,16 @@ sub run_query {
 
 	  # If it is - save the function, and store only the bare keyword
 	  $functions{$keyw} = $aggr;
-	  $keywords[$count] = $keyw;
+	  $_ = $keywords[$i]= $keyw;
+	  $keyset{$keyw}    = 1;
+
+	  if ( defined($ksimilar{$keyw}) ){
+	      &print_message("run_query()",
+			     "Nested agrregate function '$aggr' on ".
+			     "aggregate keyword '$keyw' not supported and ignored.");
+	  }
       }
+
       if ( ! defined ($keywrds{$_})){
 	  if ( defined($obsolete{$_}) ){
 	      &print_message("run_query()","Keyword $_ is obsolete ; use $obsolete{$_} instead");
@@ -2393,20 +2493,70 @@ sub run_query {
 	  }
 	  return;
       } else {
-	  $afun = &get_table_name($_);
-	  if ( &get_table_name($_) eq ""){
-	      &die_message("runquery()",
-			   "[$_] is a special condition or input keyword and does not return a value ");
+	  $keyw = $_;
+	  if ( defined($afun = $ksimilar{$keyw}) ){
+	      &print_debug("Found aggregate option $keyw = $afun");
+	      my ($func,$list) = split(";",$afun);
+
+	      foreach my $el ( (split(" ",$list)) ){
+		  if ( defined($keyset{$el}) ){
+		      &print_message("run_query()","$el specified with $keyw containing it ...");
+		      delete($keyset{$el});
+		  }
+		  #print "Adding  $el\n";
+	      }
+	      $xkeys{$keyw}  = $list;
+	      $keyset{$keyw} = "_$func";
+	  } else {
+	      $afun = &get_table_name($keyw);
+	      if ( &get_table_name($keyw) eq ""){
+		  &die_message("runquery()",
+			       "[$keyw] is a special condition or input keyword and does not return a value ");
+	      }
 	  }
       }
-      $count++;
   }
+
+  # Re-transfer clean list of keys. An associated array is NOT sorted
+  # so we have to revert to a rather ugly (but fast) trick. We will
+  # use the %keyset later
+  my ($j,@temp,@items,@setkeys);
+  
+  for ($j=$i=0 ; $i <= $#keywords ; $i++){
+      $keyw = $keywords[$i];
+      &print_debug("... Checking $keyw");
+      if ( defined($keyset{$keyw}) ){ 
+	  if ( defined($xkeys{$keyw}) ){
+	      push(@setkeys,$keyw);   # keep ordered track for later use
+	      &print_debug("    Pushing in >> ".$xkeys{$keyw}." <<");
+	      @items = split(" ",$xkeys{$keyw});
+	      push(@temp,@items);
+	      $keyset{$keyw} .= "($j,$#items"; 
+	      &print_debug("    Defined as xkeys with function ".$keyset{$keyw});
+	      #$j += ($#items+1);
+	  } else {
+	      delete($keyset{$keyw});
+	      &print_debug("    Selected as a valid key");
+	      push(@temp,$keyw);
+	      #$j++;
+	  }
+	  $j++; # <-- not a bug 
+      }
+  }
+  @keywords = @temp;
+  undef(%xkeys);
+  undef(@items);
+  undef(@temp);  
+  undef($j);
+  &print_debug("Ordered list is [".join(" ",@keywords)."]");
+
 
 
   #
   # THIS NEXT BLOCK IS FLAKY AND SHOULD BE HANDLED WITH CARE. IT
   # WOULD PREVENT SINGLE TABLE QUERY WITH DEPENDENCE CONDITION ON
-  # SIMPLE CODIGN ERROR.
+  # SIMPLE CODING ERROR.
+  #
   # Introduced at version 1.14 . Need to be revisited.
   # Idea of this block was to eliminate parts of
   # where X.Id=Y.Id AND X.String=' '  and just use
@@ -2425,31 +2575,25 @@ sub run_query {
 
   if(1==1){
       &print_debug("Scanning valuset ".join(",",keys %valuset));
-      foreach (keys(%valuset)) {
-	  my $tabname = &get_table_name($_);
+      foreach $keyw (keys(%valuset)) {
+	  my ($tabname) = &get_table_name($keyw);
 
-	  # Check if the table name is one of the dictionary ones
-	  if (($tabname ne "FileData")            &&
-	      ($tabname ne "FileLocations")       &&
-	      ($tabname ne "RunParams")           &&
-	      ($tabname ne "SimulationParams")    &&
-	      ($tabname ne "TriggerCompositions") &&
-	      ($tabname ne "CollisionTypes")      &&
-	      ($tabname ne ""))
-	  {
-	      my $fieldname   = &get_field_name($_);
-	      my $idname      = $tabname;
-	      my $addedconstr = "";
+	  # Check if the table name is one of the dictionary ones (or
+	  # check that it is not a dictionary to be more precise)
+	  if ( defined($FC::ISDICT{$tabname}) ){
+	      my ($fieldname,$idname,$addedconstr) = 
+		  (&get_field_name($keyw),$tabname,"");
 
+	      &print_debug("Table $tabname is a dictionary");
 	      $idname = &IDize($idname);
 
 	      # Find which table this one is connecting to
 	      my $parent_tabname;
-	      foreach (@datastruct){
-		  if (($_ =~ m/$idname/) > 0){
+	      foreach my $el (@datastruct){
+		  if (($el =~ m/$idname/) > 0){
 		      # We found the right row - get the table name
 		      my ($stab,$fld);
-		      ($stab,$parent_tabname,$fld) = split(",");
+		      ($stab,$parent_tabname,$fld) = split(",",$el);
 		  }
 	      }
 
@@ -2462,39 +2606,39 @@ sub run_query {
 		  #&print_debug("1 Rounding to [$roundfields] [$fieldname] [$nround]");
 
 
-		  $sqlquery .= "ROUND($fieldname, $nround) ".$operset{$_}." ";
-		  if( $valuset{$_} =~ m/^\d+/){
-		      $sqlquery .= $valuset{$_};
+		  $sqlquery .= "ROUND($fieldname, $nround) ".$operset{$keyw}." ";
+		  if( $valuset{$keyw} =~ m/^\d+/){
+		      $sqlquery .= $valuset{$keyw};
 		  } else {
-		      $sqlquery .= "'$valuset{$_}'";
+		      $sqlquery .= "'$valuset{$keyw}'";
 		  }
 
 		  #&print_debug("1 Rounding Query will be [$sqlquery]");
 
-	      } elsif ($operset{$_} eq "~"){
+	      } elsif ($operset{$keyw} eq "~"){
 		  $sqlquery .= &TreatLOps("$fieldname",
 					  "LIKE",
-					  $valuset{$_},
+					  $valuset{$keyw},
 					  3);
-		  #$sqlquery .= "$fieldname LIKE '%".$valuset{$_}."%'";
+		  #$sqlquery .= "$fieldname LIKE '%".$valuset{$keyw}."%'";
 
-	      } elsif ($operset{$_} eq "!~"){
+	      } elsif ($operset{$keyw} eq "!~"){
 		  $sqlquery .= &TreatLOps("$fieldname",
 					  "NOT LIKE",
-					  $valuset{$_},
+					  $valuset{$keyw},
 					  3);
-		  #$sqlquery .= "$fieldname NOT LIKE '%".$valuset{$_}."%'";
+		  #$sqlquery .= "$fieldname NOT LIKE '%".$valuset{$keyw}."%'";
 
 	      } else {
 		  $sqlquery .= &TreatLOps($fieldname,
-					  $operset{$_},
-					  $valuset{$_},
-					  (&get_field_type($_) eq "text")?2:undef);
+					  $operset{$keyw},
+					  $valuset{$keyw},
+					  (&get_field_type($keyw) eq "text")?2:undef);
 
-		  #if (&get_field_type($_) eq "text"){
-		  #$sqlquery .= "$fieldname ".$operset{$_}." '".$valuset{$_}."'";
+		  #if (&get_field_type($keyw) eq "text"){
+		  #$sqlquery .= "$fieldname ".$operset{$keyw}." '".$valuset{$keyw}."'";
 		  #} else {
-		  #$sqlquery .= "$fieldname ".$operset{$_}." ".$valuset{$_};
+		  #$sqlquery .= "$fieldname ".$operset{$keyw}." ".$valuset{$keyw};
 		  #}
 	      }
 	      if ($DEBUG > 0) {  &print_debug("\tExecuting special: $sqlquery");}
@@ -2505,99 +2649,105 @@ sub run_query {
 		  &print_debug("\tFileCatalog:: get id's : Failed to prepare [$sqlquery]");
 
 	      } else {
-		  $sth->execute();
 		  my( $id );
-		  $sth->bind_columns( \$id );
 
-		  if (( $sth->rows < 5) && ($sth->rows>0)) {
-		      # Create a new constraint
-		      $addedconstr = " ";
-		      while ( $sth->fetch() ) {
-			  if ($addedconstr ne " "){
-			      $addedconstr .= " OR $parent_tabname.$idname = $id ";
-			  } else {
-			      $addedconstr .= " $parent_tabname.$idname = $id ";
+		  if ( $sth->execute() ){
+		      $sth->bind_columns( \$id );
+
+		      if (( $sth->rows < 5) && ($sth->rows>0)) {
+			  # Create a new constraint
+			  $addedconstr = " ";
+			  while ( $sth->fetch() ) {
+			      if ($addedconstr ne " "){
+				  $addedconstr .= " OR $parent_tabname.$idname = $id ";
+			      } else {
+				  $addedconstr .= " $parent_tabname.$idname = $id ";
+			      }
+			      &print_debug("\tAdded constraints now $addedconstr");
 			  }
-			  &print_debug("\tAdded constraints now $addedconstr");
+			  #$addedconstr .= " ) ";
+			  if( index($addedconstr,"OR") != -1){
+			      $addedconstr = " ($addedconstr)";
+			  }
+			  
+
+			  # Add a newly constructed keyword
+			  push (@constraint, $addedconstr);
+
+			  # Missing backward constraint for more-than-one table
+			  # relation keyword. Adding it by hand for now (dirty)
+			  # **** NEED TO BE CHANGED AND MADE AUTOMATIC AND USE LEVELS ***
+			  # This does not happen if the field is specified
+			  # as a returned keyword.
+			  if ($parent_tabname eq "TriggerCompositions" ){
+			      $addedconstr = " $parent_tabname.fileDataID = FileData.fileDataID";
+			      push(@constraint,$addedconstr);
+			  }
+
+
+
+			  # Remove the condition - we already take care of it
+			  &print_debug("\tDeleting $keyw=$valuset{$keyw}");
+			  #delete $valuset{$keyw};
+			  $threaded{$keyw}=1;
+
+			  # But remember to add the the parent table
+			  # push (@connections, (connect_fields($keywords[0], $keyw)));
+			  push (@from, $parent_tabname);
 		      }
-		      #$addedconstr .= " ) ";
-		      if( index($addedconstr,"OR") != -1){
-			  $addedconstr = " ($addedconstr)";
-		      }
-
-
-		      # Add a newly constructed keyword
-		      push (@constraint, $addedconstr);
-
-		      # Missing backward constraint for more-than-one table
-		      # relation keyword. Adding it by hand for now (dirty)
-		      # **** NEED TO BE CHANGED AND MADE AUTOMATIC AND USE LEVELS ***
-		      # This does not happen if the field is specified
-		      # as a returned keyword.
-		      if ($parent_tabname eq "TriggerCompositions" ){
-			  $addedconstr = " $parent_tabname.fileDataID = FileData.fileDataID";
-			  push(@constraint,$addedconstr);
-		      }
-
-
-
-		      # Remove the condition - we already take care of it
-		      &print_debug("\tDeleting $_=$valuset{$_}");
-		      #delete $valuset{$_};
-		      $threaded{$_}=1;
-
-		      # But remember to add the the parent table
-		      # push (@connections, (connect_fields($keywords[0], $_)));
-		      push (@from, $parent_tabname);
 		  }
 		  $sth->finish();
 	      }
 
-	  } elsif ($tabname eq "CollisionTypes"){
-	      # A special case - the collision type
-	      my $fieldname   = &get_field_name($_);
-	      my $idname      = $tabname;
-	      my $addedconstr = "";
+	  } else {
+	      &print_debug("Table $tabname is NOT a dictionary ...");
 
-	      chop($idname);
-	      $idname = lcfirst($idname);
-	      $idname.="ID";
+	      if ($tabname eq "CollisionTypes"){
+		  # A special case - the collision type
+		  my $fieldname   = &get_field_name($keyw);
+		  my $idname      = $tabname;
+		  my $addedconstr = "";
 
-	      # Find which table this one is connecting to
-	      my $parent_tabname;
-	      my @retcollisions;
-	      foreach (@datastruct){
-		  if (($_ =~ m/$idname/) > 0){
-		      # We found the right row - get the table name
-		      my ($stab,$fld);
-		      ($stab,$parent_tabname,$fld) = split(",");
-		  }
-	      }
+		  chop($idname);
+		  $idname = lcfirst($idname);
+		  $idname.="ID";
 
-	      (@retcollisions) = &get_collision_collection($valuset{$_});
-	      &print_debug("Returned ".join(" ",(@retcollisions))." $#retcollisions\n");
-	      if (( $#retcollisions+1 < 5) && ($#retcollisions+1 > 0)) {
-		  # Create a new constraint
-		  $addedconstr = " ( ";
-		  foreach my $collisionid (@retcollisions){
-		      if ($addedconstr ne " ( "){
-			  $addedconstr .= " OR $parent_tabname.$idname = $collisionid ";
-		      } else {
-			  $addedconstr .= " $parent_tabname.$idname = $collisionid ";
+		  # Find which table this one is connecting to
+		  my $parent_tabname;
+		  my @retcollisions;
+		  foreach my $el (@datastruct){
+		      if (($el =~ m/$idname/) > 0){
+			  # We found the right row - get the table name
+			  my ($stab,$fld);
+			  ($stab,$parent_tabname,$fld) = split(",",$el);
 		      }
-		      &print_debug("Added constraints now $addedconstr");
 		  }
-		  $addedconstr .= " ) ";
-		  # Add a newly constructed keyword
-		  push (@constraint, $addedconstr);
-		  #
-		  # Remove the condition - we already take care of it
-		  #delete $valuset{$_};
-		  $threaded{$_}=1;
+		  
+		  (@retcollisions) = &get_collision_collection($valuset{$keyw});
+		  &print_debug("Returned ".join(" ",(@retcollisions))." $#retcollisions\n");
+		  if (( $#retcollisions+1 < 5) && ($#retcollisions+1 > 0)) {
+		      # Create a new constraint
+		      $addedconstr = " ( ";
+		      foreach my $collisionid (@retcollisions){
+			  if ($addedconstr ne " ( "){
+			      $addedconstr .= " OR $parent_tabname.$idname = $collisionid ";
+			  } else {
+			      $addedconstr .= " $parent_tabname.$idname = $collisionid ";
+			  }
+			  &print_debug("Added constraints now $addedconstr");
+		      }
+		      $addedconstr .= " ) ";
+		      # Add a newly constructed keyword
+		      push (@constraint, $addedconstr);
+		      #
+		      # Remove the condition - we already take care of it
+		      #delete $valuset{$keyw};
+		      $threaded{$keyw}=1;
 
-		  # But remember to add the the parent table
-		  #	    push (@connections, (connect_fields($keywords[0], $_)));
-		  push (@from, $parent_tabname);
+		      # But remember to add the the parent table
+		      #	    push (@connections, (connect_fields($keywords[0], $keyw)));
+		      push (@from, $parent_tabname);
+		  }
 	      }
 	  }
       }
@@ -2633,9 +2783,9 @@ sub run_query {
   # Fill the table of connections
   my $connections = join(" ",(@connections));
   my @toquery;
-  foreach (sort (split(" ",$connections))) {
-    if ((not $toquery[$#toquery]) || ($toquery[$#toquery] != $_)) {
-      push (@toquery, $_);
+  foreach my $el (sort (split(" ",$connections))) {
+    if ((not $toquery[$#toquery]) || ($toquery[$#toquery] != $el)) {
+      push (@toquery, $el);
     }
   }
   &print_debug("Connections to build the query (2): ".join(" ",@toquery));
@@ -2644,35 +2794,35 @@ sub run_query {
 
   # Get the select fields
   my @select;
-  foreach (@keywords) {
-      &print_debug("Adding keyword: $_");
-      if (defined $functions{$_}){
-	  if ($functions{$_} eq "grp"){
+  foreach $keyw (@keywords) {
+      &print_debug("Adding keyword: $keyw");
+      if (defined $functions{$keyw}){
+	  if ($functions{$keyw} eq "grp"){
 	      if (($grouping =~ m/GROUP BY/) == 0){
-		  $grouping .= " GROUP BY ".&get_table_name($_).".".&get_field_name($_)." ";
-		  push (@select, &get_table_name($_).".".&get_field_name($_));
+		  $grouping .= " GROUP BY ".&get_table_name($keyw).".".&get_field_name($keyw)." ";
+		  push (@select, &get_table_name($keyw).".".&get_field_name($keyw));
 	      }
 
-	  } elsif ($functions{$_} eq "orda"){
-	      $grouping .= " ORDER BY ".&get_table_name($_).".".&get_field_name($_)." ASC ";
-	      push (@select, &get_table_name($_).".".&get_field_name($_));
+	  } elsif ($functions{$keyw} eq "orda"){
+	      $grouping .= " ORDER BY ".&get_table_name($keyw).".".&get_field_name($keyw)." ASC ";
+	      push (@select, &get_table_name($keyw).".".&get_field_name($keyw));
 
-	  } elsif ($functions{$_} eq "ordd"){
-	      $grouping .= " ORDER BY ".&get_table_name($_).".".&get_field_name($_)." DESC ";
-	      push (@select, &get_table_name($_).".".&get_field_name($_));
+	  } elsif ($functions{$keyw} eq "ordd"){
+	      $grouping .= " ORDER BY ".&get_table_name($keyw).".".&get_field_name($keyw)." DESC ";
+	      push (@select, &get_table_name($keyw).".".&get_field_name($keyw));
 
 	  } else {
-	      push (@select, $functions{$_}."(".&get_table_name($_).".".&get_field_name($_).")");
+	      push (@select, uc($functions{$keyw})."(".&get_table_name($keyw).".".&get_field_name($keyw).")");
 	  }
 
 
-      } elsif ($_ eq "collision") {
-	  my $tab = &get_table_name($_);
+      } elsif ($keyw eq "collision") {
+	  my $tab = &get_table_name($keyw);
 	  push (@select, "CONCAT( $tab.firstParticle, $tab.secondParticle, $tab.collisionEnergy )");
 
 
       } else {
-	  push (@select, &get_table_name($_).".".&get_field_name($_));
+	  push (@select, &get_table_name($keyw).".".&get_field_name($keyw));
 
       }
   }
@@ -2682,21 +2832,20 @@ sub run_query {
   # using thew connection list
   my $where="";
   &print_debug("Toquery table contains idx ".join("/",@toquery));
-  foreach (@toquery) {
-    my ($mtable, $stable, $field, $level) = split(",",$datastruct[$_]);
-    &print_debug("\tGot $mtable/$stable/$field/$level from $datastruct[$_]");
-    if (($mtable eq "FileData") && ($stable eq "FileLocations"))
-      {
-	next;
+  foreach my $el (@toquery) {
+      my ($mtable, $stable, $field, $level) = split(",",$datastruct[$el]);
+      &print_debug("\tGot $mtable/$stable/$field/$level from $datastruct[$el]");
+      if (($mtable eq "FileData") && ($stable eq "FileLocations")){
+	  next;
       }
-    &print_debug("\tTable $mtable is not one of FileData/FileLocations");
-    push (@from, $mtable);
-    push (@from, $stable);
-    if (not $where) {
-      $where .= " $mtable.$field = $stable.$field ";
-    } else {
-      $where .= " AND $mtable.$field = $stable.$field ";
-    }
+      &print_debug("\tTable $mtable is not one of FileData/FileLocations");
+      push (@from, $mtable);
+      push (@from, $stable);
+      if (not $where) {
+	  $where .= " $mtable.$field = $stable.$field ";
+      } else {
+	  $where .= " AND $mtable.$field = $stable.$field ";
+      }
   }
   my $toquery = join(" ",(@from));
   &print_debug("Table list $toquery ; [$where]");
@@ -2705,10 +2854,10 @@ sub run_query {
 
   # Get only the unique table names
   my @fromunique;
-  foreach (sort {$a cmp $b} split(" ",$toquery)) {
-      &print_debug("Adding $_");
-      if ((not $fromunique[$#fromunique]) || ($fromunique[$#fromunique] ne $_)) {
-	  push (@fromunique, $_);
+  foreach my $el (sort {$a cmp $b} split(" ",$toquery)) {
+      &print_debug("Adding $el");
+      if ((not $fromunique[$#fromunique]) || ($fromunique[$#fromunique] ne $el)) {
+	  push (@fromunique, $el);
       }
   }
 
@@ -2720,62 +2869,62 @@ sub run_query {
   # Get only the unique field names
   my @selectunique;
   #foreach (sort {$a cmp $b} (@select)) {
-  foreach ( @select ) {
+  foreach my $el ( @select ) {
       if ($DEBUG > 0) {
-	  &print_debug("Adding $_");
+	  &print_debug("Adding $el");
       }
-      if ((not $selectunique[$#selectunique]) || ($selectunique[$#selectunique] ne $_)) {
-	  push (@selectunique, $_);
+      if ((not $selectunique[$#selectunique]) || ($selectunique[$#selectunique] ne $el)) {
+	  push (@selectunique, $el);
       }
   }
 
 
 
   # See if we have any constaint parameters
-  foreach (keys(%valuset)) {
-      if ( defined($threaded{$_})) { next;}
+  foreach $keyw (keys(%valuset)) {
+      if ( defined($threaded{$keyw})) { next;}
       my $fromlist = join(" " , (@fromunique));
-      my $tabname = &get_table_name($_);
+      my $tabname = &get_table_name($keyw);
 
 
 
       if ((($fromlist =~ m/$tabname/) > 0) && ($tabname ne "")  ) {
-	  my $fieldname = &get_field_name($_);
+	  my $fieldname = &get_field_name($keyw);
 	  if ((($roundfields =~ m/$fieldname/) > 0) && (! defined $valuset{"noround"})){
 	      my ($nround) = $roundfields =~ m/$fieldname,([0-9]*)/;
-	      my ($roundv) = "ROUND($tabname.$fieldname, $nround) ".$operset{$_}." ";
+	      my ($roundv) = "ROUND($tabname.$fieldname, $nround) ".$operset{$keyw}." ";
 
-	      if( $valuset{$_} =~ m/^\d+/){
-		  $roundv .= $valuset{$_};
+	      if( $valuset{$keyw} =~ m/^\d+/){
+		  $roundv .= $valuset{$keyw};
 	      } else {
-		  $roundv  .= "'$valuset{$_}'";
+		  $roundv  .= "'$valuset{$keyw}'";
 	      }
 	      push(@constraint,$roundv);
 
-	  }  elsif ($operset{$_} eq "~"){
+	  }  elsif ($operset{$keyw} eq "~"){
 	      push( @constraint, &TreatLOps("$tabname.$fieldname",
 					    "LIKE",
-					    $valuset{$_},
+					    $valuset{$keyw},
 					    3));
-	      #push( @constraint, "$tabname.$fieldname LIKE '%".$valuset{$_}."%'" );
+	      #push( @constraint, "$tabname.$fieldname LIKE '%".$valuset{$keyw}."%'" );
 
-	  }  elsif ($operset{$_} eq "!~"){
+	  }  elsif ($operset{$keyw} eq "!~"){
 	      push( @constraint, &TreatLOps("$tabname.$fieldname",
 					    "NOT LIKE",
-					    $valuset{$_},
+					    $valuset{$keyw},
 					    3));
-	      #push( @constraint, "$tabname.$fieldname NOT LIKE '%".$valuset{$_}."%'" );
+	      #push( @constraint, "$tabname.$fieldname NOT LIKE '%".$valuset{$keyw}."%'" );
 
 	  } else {
 	      push(@constraint,&TreatLOps("$tabname.$fieldname",
-					  $operset{$_},
-					  $valuset{$_},
-					  (&get_field_type($_) eq "text")?2:undef));
+					  $operset{$keyw},
+					  $valuset{$keyw},
+					  (&get_field_type($keyw) eq "text")?2:undef));
 
-	      #if (&get_field_type($_) eq "text")
-	      #{ push( @constraint, "$tabname.$fieldname ".$operset{$_}." '".$valuset{$_}."'" ); }
+	      #if (&get_field_type($keyw) eq "text")
+	      #{ push( @constraint, "$tabname.$fieldname ".$operset{$keyw}." '".$valuset{$keyw}."'" ); }
 	      #else
-	      #{ push( @constraint, "$tabname.$fieldname ".$operset{$_}." ".$valuset{$_} ); }
+	      #{ push( @constraint, "$tabname.$fieldname ".$operset{$keyw}." ".$valuset{$keyw} ); }
 	  }
       }
   }
@@ -2857,6 +3006,19 @@ sub run_query {
 
   $sqlquery .= join(" , ",(@selectunique))." FROM ".join(" , ",(@fromunique));
 
+  # Small stupidity check
+  if ( $#selectunique >= 1             &&
+       ($sqlquery =~ /SUM\(.*\)/ || 
+	$sqlquery =~ /MIN\(.*\)/ || 
+	$sqlquery =~ /MAX\(.*\)/ ||
+	$sqlquery =~ /COUNT\(.*\)/ )  &&
+       $sqlquery !~ /GROUP BY/){
+      $sqlquery =~ m/( .*\()(.*)/;
+      &print_message("run_query()","$1) without GRP() will not lead to any result");
+      return;
+  }
+
+
 
   if ( $where ne "" ) {
       &print_debug("where clause [$where] constraint [$constraint]");
@@ -2905,24 +3067,66 @@ sub run_query {
       &print_debug("FileCatalog::run_query : Failed to prepare [$sqlquery]");
       return;
   } else {
-      my (@result);
+      my (@result,$res,$rescount);
       my (@cols);
-      my $rescount = 0;
 
+      $count = 0;
       if ( $sth->execute() ){
 	  while ( @cols = $sth->fetchrow_array() ) {
 	      # if field is empty, fetchrow_array() returns undef()
 	      # fix it by empty string instead.
-	      for (my $i=0 ; $i <= $#cols ; $i++){
+	      for ($i=0 ; $i <= $#cols ; $i++){
 		  if( ! defined($cols[$i]) ){ $cols[$i] = "";}
 	      }
-	      $result[$rescount++] = join($delimeter, (@cols));
+
+
+	      # We are not done ...
+	      foreach $flkey (@setkeys){
+		  $res = "\@cols = $keyset{$flkey}";
+		  foreach my $el (@cols){  $res .= ",\"$el\"";}
+		  $res .= ");";
+		  &print_debug("eval() $res");
+		  eval("\@cols = $res;");
+	      }
+
+	      $result[$count++] = join($delimeter,@cols);
+
 	  }
 	  $sth->finish();
       }
       return (@result);
   }
 }
+
+
+# 2 examples of eval() routines 
+sub _logical_name
+{
+    my($start,$num,@cols)=@_;
+    my($lstr);
+    
+    $lstr    = $cols[$start]."&&".join("&&",splice(@cols,$start+1,$num));
+    $cols[$start] = $lstr;
+    @cols;
+}
+
+#sub _md5_name
+#{
+#    my($start,$num,@cols)=@_;
+#    my($lstr,$md5);
+#    
+#    $md5     =  Digest::MD5->new;
+#    $md5->add($cols[$start]."&&".join("&&",splice(@cols,$start+1,$num)));
+#    $lstr    = $md5->hexdigest();
+#    
+#    $cols[$start] = $lstr;
+#    @cols;
+#}
+
+sub _logical_path { return &_logical_name(@_);}
+#sub _md5_path     { return &_md5_name(@_);}
+
+
 
 #
 # Routine to treat Logical, Bitwise, string vs integer
@@ -3132,6 +3336,7 @@ sub bootstrap {
 
     $table = &get_table_name($keyword);
     if ($table eq ""){ return 0; }
+    &print_debug("bootstrap :: $keyword in table $table");
 
     # Now, pipe it to other routines
     if ($table eq "FileData" || $table eq "FileLocations"){
@@ -3141,7 +3346,7 @@ sub bootstrap {
 	return &bootstrap_trgc($delete);
 
     } else {
-	return &bootstrap_general($keyword, $delete);
+	return &bootstrap_general($keyword, $table, $delete);
     }
 }
 
@@ -3152,19 +3357,20 @@ sub bootstrap {
 #
 sub bootstrap_general
 {
-    my($keyword, $delete) = @_;
+    my($keyword, $table, $delete) = @_;
 
     my($refcount);
     my($childtable, $linkfield);
-    my($table,$mtable, $ctable, $lfield);
+    my($mtable, $ctable, $lfield);
     my($dcquery,$stq);
-    my(@rows, $id);
+    my(@rows, $id, $el);
     my($dcdelete,$stfdd);
 
     # Check if this really is a dictionary table
     $refcount = 0;
-    foreach (@datastruct){
-	($mtable, $ctable, $lfield) = split(",");
+    foreach $el (@datastruct){
+	#print "$el\n";
+	($mtable, $ctable, $lfield) = split(",",$el);
 	if ($ctable eq $table){
 	    # This table is referencing another one - it is not a dictianry!
 	    &print_message("bootstrap","$table is not a dictionary table !");
@@ -3193,8 +3399,7 @@ sub bootstrap_general
     }
 
     &print_debug("Running [$dcquery]");
-    $stq->execute();
-    if ($stq->rows > 0){
+    if ( $stq->execute() ){
 	$stq->bind_columns( \$id );
 
 	while ( $stq->fetch() ) { push ( @rows, $id );}
@@ -3209,7 +3414,7 @@ sub bootstrap_general
 		$stfdd = $DBH->prepare($dcdelete);
 		if ($stfdd){
 		    $stfdd->execute();
-		    $stfdd->fisnih();
+		    $stfdd->finish();
 		} else {
 		    &print_debug("FileCatalog::bootstrap : Failed to prepare [$dcdelete]",
 				 " Record in $table will not be deleted");
@@ -3255,25 +3460,23 @@ sub bootstrap_trgc {
     &print_debug("Running [$sth1]");
     if ( ! $sth1->execute() ){  &die_message("bootstrap_trgc","Execute 1 failed");}
 
-    if ($sth1->rows > 0){
-	$sth1->bind_columns( \$id );
+    $sth1->bind_columns( \$id );
 
-	while ( $sth1->fetch() ) {  push ( @rows1, $id );}
+    while ( $sth1->fetch() ) {  push ( @rows1, $id );}
 
-	if ($delete == 1){
-	    $cmdd = "DELETE LOW_PRIORITY FROM $tab1 WHERE $field1 IN (".join(" , ",(@rows1)).")";
-	    if ( $DELAY ){
-		push(@DCMD,$cmdd);
+    if ($delete == 1){
+	$cmdd = "DELETE LOW_PRIORITY FROM $tab1 WHERE $field1 IN (".join(" , ",(@rows1)).")";
+	if ( $DELAY ){
+	    push(@DCMD,$cmdd);
+	} else {
+	    &print_debug("Executing $cmdd");
+	    $sthd = $DBH->prepare($cmdd);
+	    if ($sthd){
+		$sthd->execute();
+		$sthd->finish();
 	    } else {
-		&print_debug("Executing $cmdd");
-		$sthd = $DBH->prepare($cmdd);
-		if ($sthd){
-		    $sthd->execute();
-		    $sthd->finish();
-		} else {
-		    &print_debug("FileCatalog::bootstrap_data : Failed to prepare [$cmdd]",
-				 " Records in $tab1 will not be deleted");
-		}
+		&print_debug("FileCatalog::bootstrap_data : Failed to prepare [$cmdd]",
+			     " Records in $tab1 will not be deleted");
 	    }
 	}
     }
@@ -3284,25 +3487,23 @@ sub bootstrap_trgc {
     &print_debug("Running [$sth2]");
     if ( ! $sth2->execute() ){  &die_message("bootstrap_trgc","Execute 2 failed");}
 
-    if ($sth2->rows > 0){
-	$sth2->bind_columns( \$id );
+    $sth2->bind_columns( \$id );
 
-	while ( $sth2->fetch() ) {  push ( @rows2, $id );}
-
-	if ($delete == 1){
-	    $cmdd = "DELETE LOW_PRIORITY FROM $tab2 WHERE $field2 IN (".join(" , ",(@rows2)).")";
-	    if ( $DELAY ){
-		push(@DCMD,$cmdd);
+    while ( $sth2->fetch() ) {  push ( @rows2, $id );}
+    
+    if ($delete == 1){
+	$cmdd = "DELETE LOW_PRIORITY FROM $tab2 WHERE $field2 IN (".join(" , ",(@rows2)).")";
+	if ( $DELAY ){
+	    push(@DCMD,$cmdd);
+	} else {
+	    &print_debug("Executing $cmdd");
+	    $sthd = $DBH->prepare($cmdd);
+	    if ($sthd){
+		$sthd->execute();
+		$sthd->finish();
 	    } else {
-		&print_debug("Executing $cmdd");
-		$sthd = $DBH->prepare($cmdd);
-		if ($sthd){
-		    $sthd->execute();
-		    $sthd->finish();
-		} else {
-		    &print_debug("FileCatalog::bootstrap_data : Failed to prepare [$cmdd]",
-				 " Records in $tab2 will not be deleted");
-		}
+		&print_debug("FileCatalog::bootstrap_data : Failed to prepare [$cmdd]",
+			     " Records in $tab2 will not be deleted");
 	    }
 	}
     }
@@ -3353,9 +3554,8 @@ sub bootstrap_data
       return 0;
   }
   &print_debug("Running [$dcquery]");
-  $stq->execute();
-  if ($stq->rows > 0)
-    {
+
+  if ( $stq->execute() ){
       my @rows;
       my( $id );
       $stq->bind_columns( \$id );
@@ -3481,7 +3681,8 @@ sub update_record {
       }
   }
   if ( defined($xcond) ){ push(@updates,$xcond);}
-  my $whereclause = join(" AND ",(@updates)) if ( $#updates != -1);
+  my $whereclause="";
+  $whereclause = join(" AND ",(@updates)) if ( $#updates != -1);
 
 
 
@@ -3490,9 +3691,10 @@ sub update_record {
       return 0;
   }
 
-
-  my $qupdate;
+  # Prevent disaster by checking this out
+  my ($qupdate,$qselect);
   if (&get_field_type($ukeyword) eq "text"){
+      $qselect = "SELECT $utable.$ufield FROM $utable WHERE $utable.$ufield = '$newvalue'";
       $qupdate = "UPDATE LOW_PRIORITY $utable SET $utable.$ufield = '$newvalue' ";
       if( defined($valuset{$ukeyword}) ){
 	  $qupdate .= " WHERE $utable.$ufield = '$valuset{$ukeyword}'";
@@ -3502,6 +3704,7 @@ sub update_record {
       }
 
   } else {
+      $qselect = "SELECT $utable.$ufield FROM $utable WHERE $utable.$ufield = $newvalue";
       $qupdate = "UPDATE LOW_PRIORITY $utable SET $utable.$ufield = $newvalue ";
       if( defined($valuset{$ukeyword}) ){
 	  $qupdate .= " WHERE $utable.$ufield = $valuset{$ukeyword}";
@@ -3514,13 +3717,14 @@ sub update_record {
 
 
   if ($whereclause ne ""){
+      $qselect .= " AND $whereclause";
       $qupdate .= " AND $whereclause";
   }
 
   &print_debug("Executing update: $qupdate\n");
 
 
-  # We may be missisng a 'WHERE'
+  # We may be missing a 'WHERE'
   # This is a provision in case we decide to allow
   # updating records without having the keyword in.
   # In principle, we can't since this routine also
@@ -3535,10 +3739,21 @@ sub update_record {
       &print_message("update_record","$qupdate");
       return 0;
   } else {
-      my $retv=0;
-      my $sth;
+      my ($sth,$retv,$val);
+      
+      $retv=0;
+      $sth = $DBH->prepare($qselect);
 
-
+      if ($sth){ 
+	  if ( $sth->execute() ){
+	      $sth->bind_columns(\$val);
+	      if ( $sth->fetch() ){
+		  &print_message("update_record","Warning ! $ukeyword=$newvalue exists in table $utable");
+	      }
+	  }
+	  $sth->finish();
+      }
+	
       if($DELAY){
 	  # Delayed mode
 	  push(@DCMD,$qupdate );
@@ -3551,8 +3766,10 @@ sub update_record {
 	      if ( $sth->execute() ){  $retv = 1;}
 	      $sth->finish();
 	  }
-	  return $retv;
+
+		  
       }
+      return $retv;
   }
 }
 
@@ -3656,6 +3873,22 @@ sub update_location {
   my $ufield = &get_field_name($ukeyword);
 
 
+  # Change this out to dictionary search and revert keyword
+  # application to the location table for tables immediatly
+  # related to the FileLocations table.
+  if ( defined($FC::FLRELATED{$utable}) ){
+      $mtable = "FileLocations";
+  } else {
+      $mtable = $utable;
+  }
+
+  if ( $mtable ne "FileLocations"){
+      &print_message("update_location","Improper method called for keyword $ukeyword");
+      return 0;
+  }
+
+
+
   my @files;
 
   my $delim;
@@ -3685,14 +3918,6 @@ sub update_location {
       return 0;
   }
 
-
-  # Change this out to dictionary search and revert keyword
-  # application to the location table;
-  if ( $utable eq "StorageTypes"){
-      $mtable = "FileLocations";
-  } else {
-      $mtable = $utable;
-  }
 
 
   foreach my $key (keys %keywrds){
@@ -3732,7 +3957,7 @@ sub update_location {
 
       my ($flid, $path) = split("::",$line);
 
-      if ($utable eq "StorageTypes"){
+      if ( defined($FC::FLRELATED{$utable}) ){
 	  # Patch ... The above logic is true only for
 	  # tables like FileData/FileLocation but not true for others
 	  my $uid    = &get_id_from_dictionary($utable,$ufield,$newvalue);
@@ -3769,7 +3994,7 @@ sub update_location {
       } else {
 	  $qupdate .= " WHERE fileLocationID = $flid";
       }
-      &print_debug("Executing update: $qupdate");
+      #&print_debug("Executing update: $qupdate");
 
       if (! $doit){
 	  &print_message("update_location","$qupdate");
@@ -3875,7 +4100,7 @@ sub print_debug
 	} elsif($DEBUG==3) {
 	    print "<!-- $line -->\n";
 	} else {
-	    print "$line\n";
+	    print "FC-DBG :: $line\n";
 	}
     }
 }
@@ -3908,7 +4133,7 @@ sub print_message
     if ( $SILENT ){ return;}
     foreach $line (@lines){
 	chomp($line);
-	print "$dbname :: $routine : $line\n";
+	printf "$dbname :: %15.15s : %s\n",$routine,$line;
     }
     return;
 }
