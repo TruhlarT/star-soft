@@ -308,9 +308,9 @@ sub get_table_name {
 }
 
 #============================================
-# get the list o valid keywords
+# get the list of valid keywords
 # Returns:
-# the list of valid keyowrds to use in FileCatalog queries
+# the list of valid keywords to use in FileCatalog queries
 sub get_keyword_list {
     my($val,$kwd);
     my(@items,@kwds);
@@ -404,8 +404,12 @@ sub connect {
   if( ! defined($passwd) ){ $passwd = "FCatalog";}
 
 
-  $DBH = DBI->connect($dbsource,$user,$passwd) ||
-      die "cannot connect to $dbname : $DBI::errstr\n";
+  $DBH = DBI->connect($dbsource,$user,$passwd,
+		       { RaiseError => 0, AutoCommit => 1 }
+		      );
+  if ( ! $DBH ){
+      &die_message("connect","cannot connect to $dbname : $DBI::errstr");
+  }
 
   #foreach (keys(%rowcounts)){
   #    my $sqlquery = "SELECT count(*) FROM $_";
@@ -454,13 +458,14 @@ sub disentangle_param {
 
  OPS: foreach (@operators )
     {
-      ($keyword, $value) = $params =~ m/(.*)$_(.*)/;
-      $operator = $_;
-      last if (defined $keyword and defined $value);
-      $operator = "";
+	if ($params =~ m/(.*)($_)(.*)/){
+	    ($keyword, $operator, $value) = ($1,$2,$3);
+	    last if (defined $keyword and defined $value);
+	    $operator = "";
+	}
     }
 
-  if ($DEBUG > 0) {
+  if ($DEBUG > 0 && defined($keyword) ) {
       &print_debug(" Keyword: |".$keyword."|",
 		   " Value: |".$value."|");
   }
@@ -487,6 +492,14 @@ sub set_context {
       #  print ("Setting context for: $params \n");
       ($keyw, $oper, $valu) = &disentangle_param($params);
 
+      if ( ! defined($keyw) ){
+	  &print_message("set_context","Sorry, but I don't understand ".
+		       "[$params] in your query.");
+	  &die_message("set_context","May be a missing operator ?");
+      }
+
+      #&print_debug("$keyw $oper $valu");
+
       # Chop spaces from the key name and value;
       $keyw =~ y/ //d;
       if ($valu =~ m/.*[\"\'].*[\"\'].*/) {
@@ -502,10 +515,15 @@ sub set_context {
 	  $operset{$keyw} = $oper;
 	  $valuset{$keyw} = $valu;
       } else {
-	  if ($DEBUG > 0){
-	      &print_debug("ERROR: $keyw is not a valid keyword.",
-			   "Cannot set context.");
-	  }
+	  #if ($DEBUG > 0){
+	  #&print_debug("ERROR: $keyw is not a valid keyword.".
+	  #"Cannot set context.");
+	  #}
+	  my (@kwd);
+	  @kwd = &get_keyword_list();
+	  &die_message("set_context",
+		       "[$keyw] IS NOT a valid keyword. Choose one of\n".
+		       join(" ",@kwd));
       }
   }
 }
@@ -759,11 +777,11 @@ sub get_current_detector_configuration {
 
   my $detConfiguration;
 
-  $detConfiguration = check_ID_for_params("configuration");
+  $detConfiguration = &check_ID_for_params("configuration");
   if ($detConfiguration == 0) {
     # There is no detector configuration with this name
     # we have to add it
-    $detConfiguration = insert_detector_configuration();
+    $detConfiguration = &insert_detector_configuration();
   }
   return $detConfiguration;
 }
@@ -782,7 +800,7 @@ sub disentangle_collision_type {
   my $firstParticle = "";
   my $secondParticle = "";
 
-  my @particles = ("proton", "gas", "au", "ga", "si", "p", "s");
+  my @particles = ("proton", "gas", "au", "ga", "si", "p", "d", "s");
 
 
   if (($colstring =~ m/cosmic/) > 0)
@@ -818,13 +836,21 @@ sub disentangle_collision_type {
 # Params:
 # The collsion type to find
 # Returns:
-# the id of a collision type in DB or 0 if there is no such collsion type
-sub get_collision_type {
+#   The id of a collision type in DB or 0 if there is no such collsion type
+#
+# METHOD IS FOR INTERNAL USE ONLY.
+# A query may return several values since there is a truncation done.
+#
+sub get_collision_type
+{
+    return ((&get_collision_collection(@_))[0]);
+}
+sub get_collision_collection {
   if ($_[0] =~ m/FileCatalog/) {
     shift @_;
   };
   if( ! defined($DBH) ){
-      &print_message("get_collision_type","Not connected/connecting");
+      &print_message("get_collision_collection","Not connected/connecting");
       return 0;
   }
 
@@ -836,12 +862,12 @@ sub get_collision_type {
   my $energy;
 
   if( $colstring eq ""){
-      die "FileCatalog::get_collision_type : received empty argument\n";
+      &die_message("get_collision_collection","received empty argument");
   }
 
   $colstring = lc($colstring);
 
-  ($firstParticle, $secondParticle, $energy) = disentangle_collision_type($colstring);
+  ($firstParticle, $secondParticle, $energy) = &disentangle_collision_type($colstring);
 
 
   my $sqlquery = "SELECT collisionTypeID FROM CollisionTypes WHERE UPPER(firstParticle) = UPPER(\"$firstParticle\") AND UPPER(secondParticle) = UPPER(\"$secondParticle\") AND ROUND(collisionEnergy) = ROUND($energy)";
@@ -854,24 +880,29 @@ sub get_collision_type {
   }
 
 
-  my $retv=0;
+  my @retv;
   my $id;
 
   my $sth = $DBH->prepare($sqlquery);
   if( ! $sth){
-      &print_debug("FileCatalog::get_collision_type : Failed to prepare [$sqlquery]");
+      &print_debug("FileCatalog::get_collision_collection : Failed to prepare [$sqlquery]");
   } else {
-      if( ! $sth->execute() ){ die "Could not execute [$sqlquery]";}
+      if( ! $sth->execute() ){ 
+	  &die_message("get_collision_collection","Could not execute [$sqlquery]");
+      }
       $sth->bind_columns( \$id );
 
       if ( $sth->fetch() ) {
-	  &print_debug("ERROR: No such collision type");
-	  $retv = $id;
+	  push(@retv,$id);
       }
+      if($#retv == -1){
+	  &die_message("get_collision_collection","ERROR: No such collision type");
+      }
+
       $sth->finish();
   }
 
-  return $retv;
+  return @retv;
 
 }
 
@@ -895,7 +926,7 @@ sub insert_collision_type {
 
   $colstring = lc($colstring);
 
-  ($firstParticle, $secondParticle, $energy) = disentangle_collision_type($colstring);
+  ($firstParticle, $secondParticle, $energy) = &disentangle_collision_type($colstring);
 
   my $ctinsert   = "INSERT IGNORE INTO CollisionTypes ";
   $ctinsert  .= "(firstParticle, secondParticle, collisionEnergy)";
@@ -990,6 +1021,7 @@ sub insert_run_param_info {
       }
   }
   if (defined $valuset{"collision"}) {
+      # only one value matters
       $collision = &get_collision_type($valuset{"collision"});
       if ($DEBUG > 0) {
 	  &print_debug("Collsion: $collision");
@@ -1477,7 +1509,7 @@ sub get_current_simulation_params {
 
   if ($sth->rows == 0) {
       my $newid;
-      $newid = insert_simulation_params();
+      $newid = &insert_simulation_params();
       $sth->finish();
       return $newid;
   } else {
@@ -2084,20 +2116,22 @@ sub run_query {
   my @constraint;
   my @from;
   my @connections;
+  my %threaded;
 
-  if(1==0){
+  if(1==1){
       &print_debug("Scanning valuset ".join(",",keys %valuset));
       foreach (keys(%valuset)) {
-	  my $tabname = get_table_name($_);
+	  my $tabname = &get_table_name($_);
 	  # Check if the table name is one of the dictionary ones
-	  if (($tabname ne "FileData") && 
-	      ($tabname ne "FileLocations") && 
-	      ($tabname ne "RunParams") && 
-	      ($tabname ne "SimulationParams") &&
+	  if (($tabname ne "FileData")            && 
+	      ($tabname ne "FileLocations")       && 
+	      ($tabname ne "RunParams")           && 
+	      ($tabname ne "SimulationParams")    &&
 	      ($tabname ne "TriggerCompositions") && 
+	      ($tabname ne "CollisionTypes")      &&
 	      ($tabname ne ""))
 	  {
-	      my $fieldname   = get_field_name($_);
+	      my $fieldname   = &get_field_name($_);
 	      my $idname      = $tabname;
 	      my $addedconstr = "";
 
@@ -2121,7 +2155,7 @@ sub run_query {
 		  my ($nround) = $roundfields =~ m/$fieldname,([0-9]*)/;
 		  #&print_debug("1 Rounding to [$roundfields] [$fieldname] [$nround]");
 
-
+		  
 		  $sqlquery .= "ROUND($fieldname, $nround) ".$operset{$_}." ";
 		  if( $valuset{$_} =~ m/^\d+/){
 		      $sqlquery .= $valuset{$_};
@@ -2189,8 +2223,9 @@ sub run_query {
 
 		      # Remove the condition - we already take care of it
 		      &print_debug("\tDeleting $_=$valuset{$_}");
-		      delete $valuset{$_};
-		      
+		      #delete $valuset{$_};
+		      $threaded{$_}=1;		    
+
 		      # But remember to add the the parent table
 		      # push (@connections, (connect_fields($keywords[0], $_)));
 		      push (@from, $parent_tabname);
@@ -2198,24 +2233,70 @@ sub run_query {
 		  $sth->finish();
 	      }
 	
+	  } elsif ($tabname eq "CollisionTypes"){
+	      # A special case - the collision type
+	      my $fieldname   = &get_field_name($_);
+	      my $idname      = $tabname;
+	      my $addedconstr = "";
+
+	      chop($idname);
+	      $idname = lcfirst($idname);
+	      $idname.="ID";
+	
+	      # Find which table this one is connecting to
+	      my $parent_tabname;
+	      my @retcollisions;
+	      foreach (@datastruct){
+		  if (($_ =~ m/$idname/) > 0){
+		      # We found the right row - get the table name
+		      my ($stab,$fld);
+		      ($stab,$parent_tabname,$fld) = split(",");
+		  }
+	      }
+	
+	      (@retcollisions) = &get_collision_collection($valuset{$_});
+	      &print_debug("Returned ".join(" ",(@retcollisions))." $#retcollisions\n");
+	      if (( $#retcollisions+1 < 5) && ($#retcollisions+1 > 0)) {
+		  # Create a new constraint
+		  $addedconstr = " ( ";
+		  foreach my $collisionid (@retcollisions){
+		      if ($addedconstr ne " ( "){
+			  $addedconstr .= " OR $parent_tabname.$idname = $collisionid ";
+		      } else {
+			  $addedconstr .= " $parent_tabname.$idname = $collisionid ";
+		      }
+		      &print_debug("Added constraints now $addedconstr");
+		  }
+		  $addedconstr .= " ) ";
+		  # Add a newly constructed keyword
+		  push (@constraint, $addedconstr);
+		  # 
+		  # Remove the condition - we already take care of it
+		  #delete $valuset{$_};
+		  $threaded{$_}=1;
+
+		  # But remember to add the the parent table
+		  #	    push (@connections, (connect_fields($keywords[0], $_)));
+		  push (@from, $parent_tabname);
+	      }
 	  }
       }
   }
   
   #&print_debug("Pushing in FROM ".&get_table_name($keywords[0])." $#keywords ");
   push (@from, &get_table_name($keywords[0]));
-  for ($count=1; $count<$#keywords+1; $count++) {
-      #&print_debug("\tConnecting $keywords[0] $keywords[$count] ".
-      #&connect_fields($keywords[0], $keywords[$count]));
 
+  for ($count=1; $count<$#keywords+1; $count++) {
+      #&print_debug("\t. Connecting $keywords[0] $keywords[$count] ".
+      #&connect_fields($keywords[0], $keywords[$count]));
       push (@connections, (&connect_fields($keywords[0], $keywords[$count])));
-      push (@from, get_table_name($keywords[$count]));
+      push (@from, &get_table_name($keywords[$count]));
   }
 
   # Also add to the FROM array the tables for each set keyword
   foreach my $key (keys %valuset){
-      if (get_table_name($key) ne ""){
-	  #&print_debug("\tConnect ".&connect_fields($keywords[0], $key)." From < ".
+      if (&get_table_name($key) ne ""){
+	  #&print_debug("\t. Connect ".&connect_fields($keywords[0], $key)." From < ".
 	  #&get_table_name($key));
 	  push (@connections, (&connect_fields($keywords[0], $key)));
 	  push (@from, &get_table_name($key));
@@ -2225,7 +2306,7 @@ sub run_query {
 
 
   if (defined $valuset{"simulation"}){
-      push (@connections, (connect_fields($keywords[0], "runnumber")));
+      push (@connections, (&connect_fields($keywords[0], "runnumber")));
       push (@from, "RunParams");
   }
 
@@ -2248,28 +2329,30 @@ sub run_query {
       if (defined $functions{$_}){
 	  if ($functions{$_} eq "grp"){
 	      if (($grouping =~ m/GROUP BY/) == 0){
-		  $grouping .= " GROUP BY ".get_table_name($_).".".get_field_name($_)." ";
-		  push (@select, get_table_name($_).".".get_field_name($_));
+		  $grouping .= " GROUP BY ".&get_table_name($_).".".&get_field_name($_)." ";
+		  push (@select, &get_table_name($_).".".&get_field_name($_));
 	      }
 
 	  } elsif ($functions{$_} eq "orda"){
-	      $grouping .= " ORDER BY ".get_table_name($_).".".get_field_name($_)." ASC ";
-	      push (@select, get_table_name($_).".".get_field_name($_));
+	      $grouping .= " ORDER BY ".&get_table_name($_).".".&get_field_name($_)." ASC ";
+	      push (@select, &get_table_name($_).".".&get_field_name($_));
 
 	  } elsif ($functions{$_} eq "ordd"){
-	      $grouping .= " ORDER BY ".get_table_name($_).".".get_field_name($_)." DESC ";
-	      push (@select, get_table_name($_).".".get_field_name($_));
+	      $grouping .= " ORDER BY ".&get_table_name($_).".".&get_field_name($_)." DESC ";
+	      push (@select, &get_table_name($_).".".&get_field_name($_));
 
 	  } else {
-	      push (@select, $functions{$_}."(".get_table_name($_).".".get_field_name($_).")");
+	      push (@select, $functions{$_}."(".&get_table_name($_).".".&get_field_name($_).")");
 	  }
 
+
       } elsif ($_ eq "collision") {
-	  my $tab = get_table_name($_);
+	  my $tab = &get_table_name($_);
 	  push (@select, "CONCAT( $tab.firstParticle, $tab.secondParticle, $tab.collisionEnergy )");
 
+
       } else {
-	  push (@select, get_table_name($_).".".get_field_name($_));
+	  push (@select, &get_table_name($_).".".&get_field_name($_));
 
       }
   }
@@ -2327,42 +2410,43 @@ sub run_query {
   }
 
 
+
   # See if we have any constaint parameters
   foreach (keys(%valuset)) {
-    my $fromlist = join(" " , (@fromunique));
-    my $tabname = &get_table_name($_);
-    if ((($fromlist =~ m/$tabname/) > 0) && ($tabname ne "")) {
-      my $fieldname = &get_field_name($_);
-      if ((($roundfields =~ m/$fieldname/) > 0) && (! defined $valuset{"noround"}))
-	{
-	  my ($nround) = $roundfields =~ m/$fieldname,([0-9]*)/;
-	  my ($roundv)="ROUND($tabname.$fieldname, $nround) ".$operset{$_}." ";
+      if ( defined($threaded{$_})) { next;}
+      my $fromlist = join(" " , (@fromunique));
+      my $tabname = &get_table_name($_);
 
-	  if( $valuset{$_} =~ m/^\d+/){
-	      $roundv .= $valuset{$_};
+
+
+      if ((($fromlist =~ m/$tabname/) > 0) && ($tabname ne "")  ) {
+	  my $fieldname = &get_field_name($_);
+	  if ((($roundfields =~ m/$fieldname/) > 0) && (! defined $valuset{"noround"})){
+	      my ($nround) = $roundfields =~ m/$fieldname,([0-9]*)/;
+	      my ($roundv) = "ROUND($tabname.$fieldname, $nround) ".$operset{$_}." ";
+
+	      if( $valuset{$_} =~ m/^\d+/){
+		  $roundv .= $valuset{$_};
+	      } else {
+		  $roundv  .= "'$valuset{$_}'";
+	      }
+	      push(@constraint,$roundv);
+
+	  }  elsif ($operset{$_} eq "~"){
+	      push( @constraint, "$tabname.$fieldname LIKE '%".$valuset{$_}."%'" );
+
+	  }  elsif ($operset{$_} eq "!~"){
+	      push( @constraint, "$tabname.$fieldname NOT LIKE '%".$valuset{$_}."%'" );
+
 	  } else {
-	      $roundv  .= "'$valuset{$_}'";
+	      if (&get_field_type($_) eq "text")
+	      { push( @constraint, "$tabname.$fieldname ".$operset{$_}." '".$valuset{$_}."'" ); }
+	      else
+	      { push( @constraint, "$tabname.$fieldname ".$operset{$_}." ".$valuset{$_} ); }
 	  }
-	  push(@constraint,$roundv);
+      }
+  } 
 
-	}
-      elsif ($operset{$_} eq "~")
-	{
-	  push( @constraint, "$tabname.$fieldname LIKE '%".$valuset{$_}."%'" );
-	}
-      elsif ($operset{$_} eq "!~")
-	{
-	  push( @constraint, "$tabname.$fieldname NOT LIKE '%".$valuset{$_}."%'" );
-	}
-      else
-	{
-	  if (get_field_type($_) eq "text")
-	    { push( @constraint, "$tabname.$fieldname ".$operset{$_}." '".$valuset{$_}."'" ); }
-	  else
-	    { push( @constraint, "$tabname.$fieldname ".$operset{$_}." ".$valuset{$_} ); }
-	}
-    }
-  }
 
   if (defined $valuset{"simulation"}){
       if ($valuset{"simulation"} eq "1"){
@@ -3309,6 +3393,12 @@ sub set_silent
 }
 
 
+#============================================
+sub die_message
+{
+    &print_message(@_);
+    die "\n";
+}
 #============================================
 
 sub print_message
