@@ -2,7 +2,7 @@
 %
 % StEvent - User Guide and Reference Manual -- LaTeX Source
 %
-% $Id: StEvent.tex,v 2.36 2000/06/01 16:46:23 ullrich Exp $
+% $Id: StEvent.tex,v 2.37 2000/06/01 21:36:17 ullrich Exp $
 %
 % Author: Thomas Ullrich, Nov 1999
 %
@@ -21,8 +21,8 @@
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %
 % $Log: StEvent.tex,v $
-% Revision 2.36  2000/06/01 16:46:23  ullrich
-% Mods (add text) in StTrack and StTrackDetectorInfo.
+% Revision 2.37  2000/06/01 21:36:17  ullrich
+% Added new method flag() to StHit description.
 %
 % Revision 2.45  2000/08/23 03:14:07  ullrich
 % Improved (corrected) explanation of return value
@@ -177,17 +177,17 @@
       }%
     }%
   {\end{list}}
-  {\LARGE $ $Revision: 2.36 $ $}  \\[5mm] % replaced by cvs with current revision
-  {\LARGE $ $Date: 2000/06/01 16:46:23 $ $}  % replaced by cvs with current revision
+  {\LARGE $ $Revision: 2.37 $ $}  \\[5mm] % replaced by cvs with current revision
+  {\LARGE $ $Date: 2000/06/01 21:36:17 $ $}  % replaced by cvs with current revision
 {\raisebox{0pt}[1ex][0pt]{\makebox[\labelwidth][l]%
     {\parbox[t]{\labelwidth}{\hspace{0pt}\textbf{{#1}}}}}}
 \newenvironment{Entry}%
 {\renewcommand{\entrylabel}{\Entrylabel}\begin{entry}}%
-  {\LARGE $ $Revision: 2.36 $ $}  \\[5mm] % replaced by cvs with current revision
-  {\LARGE $ $Date: 2000/06/01 16:46:23 $ $}  % replaced by cvs with current revision
+  {\LARGE $ $Revision: 2.37 $ $}  \\[5mm] % replaced by cvs with current revision
+  {\LARGE $ $Date: 2000/06/01 21:36:17 $ $}  % replaced by cvs with current revision
 \begin{document}
-  {\LARGE $ $Revision: 2.36 $ $}  \\[5mm] % replaced by cvs with current revision
-  {\LARGE $ $Date: 2000/06/01 16:46:23 $ $}  % replaced by cvs with current revision
+  {\LARGE $ $Revision: 2.37 $ $}  \\[5mm] % replaced by cvs with current revision
+  {\LARGE $ $Date: 2000/06/01 21:36:17 $ $}  % replaced by cvs with current revision
 %
 %    Title page
 %
@@ -202,8 +202,8 @@
   \mbox{\includegraphics[width=\textwidth]{StEventTitle.eps}}
   \hfill\mbox{}\\[3cm]
   {\LARGE User Guide and Reference Manual \\[5mm] for Version 2}\\[2cm]
-  {\LARGE $ $Revision: 2.36 $ $}  \\[5mm] % replaced by cvs with current revision
-  {\LARGE $ $Date: 2000/06/01 16:46:23 $ $}  % replaced by cvs with current revision
+  {\LARGE $ $Revision: 2.37 $ $}  \\[5mm] % replaced by cvs with current revision
+  {\LARGE $ $Date: 2000/06/01 21:36:17 $ $}  % replaced by cvs with current revision
   \vfill
 \end{center}
 \cleardoublepage
@@ -3336,30 +3336,50 @@ definition in the header file.
     
 \item[Public Member\\ Functions]
     \verb+StTrackModel model() const;+\\
-\item[Summary]
+
+    \verb+Short_t charge() const;+\\
     Charge in units of +e.
     
     \verb+Double_t curvature() const;+\\
     Curvature in cm$^{-1}$.
-\item[Related Classes] \texttt{StHit} is derived form
-    \texttt{StMeasuredPoint}.
 
+    \verb+Double_t psi() const;+\\
+    Psi in radians.
+    
+    \verb+Double_t dipAngle() const;+\\
+    Dip angle in radians.
+    
     \verb+const StThreeVectorF& origin() const;+\\
     Origin in cm.
     
     \verb+const StThreeVectorF& momentum() const;+\\
     Momentum in GeV/c.
+    
     \verb+StPhysicalHelixD helix() const;+\\
 \end{Entry}
+\clearpage
+
+
+\subsection{StHit}
+\index{StHit|textbf}
     \verb+UChar_t flag() const;+\\
+\begin{Entry}
+\item[Summary] Base class for hits.
     \verb+UChar_t trackReferenceCount() const;+\\
-    \verb+StThreeVectorF positionError() const; // overwrite inherited+\\
-    \verb+StMatrixF covariantMatrix() const; // overwrite inherited+\\
+\item[Synopsis]
+    \verb+#include "StHit.h"+\\
+    \verb+class StHit;+\\
+\item[Description]
+    
+    \texttt{StEmcPoint} inherit from this class.
+        
 \item[Public\\ Constructors]
+    \verb+StHit();+\\
     \verb+StHit(const StThreeVectorF&,+\\
     \verb+      const StThreeVectorF&,+\\
     \verb+      ULong_t, Float_t, UChar_t = 0);+\\
     
+\item[Public Member\\ Functions]
     \verb+Float_t charge() const;+\\
     Total charge of hit.
     
