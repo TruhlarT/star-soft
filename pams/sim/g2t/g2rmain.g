@@ -1,5 +1,8 @@
-* $Id: g2rmain.g,v 1.1 2000/01/24 14:48:43 nevski Exp $
+* $Id: g2rmain.g,v 1.2 2000/01/28 00:47:13 nevsky Exp $
 * $Log: g2rmain.g,v $
+* Revision 1.2  2000/01/28 00:47:13  nevsky
+* rich hits may contain up to 5 detectors: RCSI,RGAP,QUAR,FREO,OQUA
+*
 * Revision 1.1  2000/01/24 14:48:43  nevski
 *  combined g2t+g2r version
 *
@@ -118,13 +121,15 @@ created   22 april 98
      ctab  = 'rch'        ! table name
      spec  = 'ctf'        ! specification type
      csys  = 'RICH'       ! Geant Subsystem
-     cdet  = 'RGAP'       ! Sensitive detector
-
-   fill dete       ! star subsystem
-     ctab  = 'rch'        ! table name
-     spec  = 'ctf'        ! specification type
-     csys  = 'RICH'       ! Geant Subsystem
      cdet  = 'RCSI'       ! Sensitive detector
+   fill dete       ! star subsystem
+     cdet  = 'RGAP'       ! Sensitive detector
+   fill dete       ! star subsystem
+     cdet  = 'QUAR'       ! Sensitive detector
+   fill dete       ! star subsystem
+     cdet  = 'FREO'       ! Sensitive detector
+   fill dete       ! star subsystem
+     cdet  = 'OQUA'       ! Sensitive detector
 
    fill dete       ! star subsystem
      ctab  = 'emc'        ! table name
