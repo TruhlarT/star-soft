@@ -1,9 +1,26 @@
 #!/usr/local/bin/tcsh -f
-set packages = "objy|OBJY|Objy root|ROOT parasoft|PARASOFT insure|ISURE sniff g4 cc4|CC4 cc5|CC5 Dsv kcc|KCC debug|DEBUG nodebug|NODEBUG"
+
+#set packages = "objy|OBJY|Objy root|ROOT parasoft|PARASOFT insure|ISURE sniff g4 cc4|CC4 cc5|CC5 Dsv kcc|KCC debug|DEBUG nodebug|NODEBUG"
 
 if ($#argv == 0 || $#argv > 2) then
-    echo "Usage: setup package [version]"
-    echo "List of packages: $packages"
+    cat <<EOF
+
+ Usage is:
+   % setup 'Package' {version}
+
+ where packages stands for one of
+   debug|DEBUG                      switch the environment to the debug version of 
+                                    the STAR software
+   nodebug|NODEBUG                  switch the environment to the nodebug (optimized) 
+                                    of the STAR software
+
+   root|ROOT  {version}             load or change root version
+   parasoft|PARASOFT|insure|ISURE   load the Insure++ toolkit environment
+
+   gcc        {version}             set environment to use gcc (or alternative version)
+   icc|ifc                          set environment to use Intel compilers
+
+EOF
     exit 0
 endif
 
@@ -12,9 +29,9 @@ set version = 0;
 if ( $#argv > 0 ) set version = $1
 
 switch ($pkg)
+    # Root setup
     case "root":
     case "ROOT":
-        #=======#
 	if (-f $GROUP_DIR/rootenv.csh) then
 	    if ( -x $GROUP_DIR/dropit) then
 		setenv MANPATH         `$GROUP_DIR/dropit -p ${MANPATH} ROOT`
@@ -25,19 +42,75 @@ switch ($pkg)
 	    source $GROUP_DIR/rootenv.csh
 	endif
 	breaksw
+
+
+    # Parasoft/Isure++ software
+    case "insure":
+    case "INSURE":
+    case "parasoft":
+    case "PARASOFT":
+	if (-f $GROUP_DIR/parasoftenv.csh) source $GROUP_DIR/parasoftenv.csh
+	breaksw
+
+
+    # use of the Intel compiler
+    case "icc":
+    case "ifc":
+	if ( -f $GROUP_DIR/intelcc.csh  )  source $GROUP_DIR/intelcc.csh 
+	if ( $?optstar ) setenv  OPTSTAR  $optstar
+	if ( $?optstar ) setenv XOPTSTAR $xoptstar
+	setenv STARCMPL "icc"; starver $STAR_LEVEL
+	breaksw
+
+
+    # Alternative or restore of gcc version
+    case "gcc":
+      if ( -x $GROUP_DIR/dropit ) then
+	setenv PATH            `$GROUP_DIR/dropit alt`
+	setenv LD_LIBRARY_PATH `$GROUP_DIR/dropit -p $LD_LIBRARY_PATH $OPTSTAR/alt`
+      endif
+
+      if ( $version != 0 ) then
+        set TEST=`/bin/ls -ld $OPTSTAR/alt/lib/gcc-lib/*/$version/`
+        if ("$TEST" == "") then
+	  echo "There are no alternate installation of gcc with version $version in $OPTSTAR/alt"
+        else
+	  setenv PATH $OPTSTAR/alt/bin:$PATH
+	  setenv LD_LIBRARY_PATH $OPTSTAR/alt/lib:$LD_LIBRARY_PATH
+        endif
+      endif
+      if ( $?optstar ) setenv  OPTSTAR  $optstar
+      if ( $?optstar ) setenv XOPTSTAR $xoptstar
+      setenv STARCMPL "gcc"; starver $STAR_LEVEL
+      breaksw
+
+
+    case "nodebug":
+    case "NODEBUG":
+      setenv NODEBUG yes; starver $STAR_LEVEL
+      breaksw
+    case "debug":
+    case "DEBUG":
+      unsetenv NODEBUG yes;
+      if ( -x $GROUP_DIR/dropit ) then
+	setenv PATH            `$GROUP_DIR/dropit BIN`
+	setenv LD_LIBRARY_PATH `$GROUP_DIR/dropit -p $LD_LIBRARY_PATH LIB`
+      endif
+      starver $STAR_LEVEL
+      breaksw
+
+
+
+
+
     case "objy":
     case "OBJY":
     case "Objy":
          #=====#
 	if (`uname -s` == "SunOS" && `hostname` != "rcf.rhic.bnl.gov" && ! ${?OBJY_HOME} ) source $GROUP_DIR/ObjySetup.csh
 	breaksw
-    case "insure":
-    case "INSURE":
-    case "parasoft":
-    case "PARASOFT":
-         #=====#
-	if (-f $GROUP_DIR/parasoftenv.csh) source $GROUP_DIR/parasoftenv.csh
-	breaksw
+
+
     case "sniff":
     case "SNIFF":
          #=====#
@@ -81,33 +154,6 @@ switch ($pkg)
     case "kcc":
       setenv USE_KCC;  starver $STAR_LEVEL
       breaksw
-    case "nodebug":
-    case "NODEBUG":
-      setenv NODEBUG yes; starver $STAR_LEVEL
-      breaksw
-    case "debug":
-    case "DEBUG":
-      unsetenv NODEBUG yes;
-      setenv PATH `dropit BIN`
-      setenv LD_LIBRARY_PATH `dropit -p $LD_LIBRARY_PATH LIB`
-      starver $STAR_LEVEL
-      breaksw
-
-    case "gcc":
-      setenv PATH `dropit alt`
-      setenv LD_LIBRARY_PATH `dropit -p $LD_LIBRARY_PATH $OPTSTAR/alt`
-
-      if ( $version != 0 ) then
-        set TEST=`ls -ld $OPTSTAR/alt/lib/gcc-lib/*/$version/`
-        if ("$TEST" == "") then
-	  echo "There are no alternate installation of gcc with version $version in $OPTSTAR/alt"
-        else
-	  setenv PATH $OPTSTAR/alt/bin:$PATH
-	  setenv LD_LIBRARY_PATH $OPTSTAR/alt/lib:$LD_LIBRARY_PATH
-        endif
-      endif
-      breaksw
-
     default:
 	echo "Setup for $pkg is not defined"
       breaksw
