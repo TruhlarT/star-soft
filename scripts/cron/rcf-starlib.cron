@@ -1,5 +1,7 @@
 # cron table for rcf
 #
+# Currently run under 'wenaus'    04/24/2000.16:49 (Mon)
+#
 #     A crontab file consists of lines of six  fields  each.   The
 #     fields  are separated by spaces or tabs.  The first five are
 #     integer patterns that specify the following:
@@ -35,3 +37,5 @@
 0 4     * * *   /afs/rhic/star/packages/dev/scripts/cron/manage-rcf.csh
 #### Run the NOVA log server
 15 *	* * *	/star/u2d/wenaus/novabin/novaLog.pl
+#### Run the NOVA server updater
+0,20,40 *  * * * /star/u2d/wenaus/novabin/updateServers.pl
