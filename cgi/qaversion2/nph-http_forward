@@ -1,0 +1,77 @@
+#! /opt/star/bin/perl
+
+# http_forward just forwards an http request to another web server.  In the 
+# AutoQA environment this is used to forward requests on port 80 of sol
+# to a high numbered port (8080 usually), which is in turn forwarded to 
+# rcas6006 where the main QA scripts run.  This extra layer is necessary
+# because the only off-site access available is to port 80 on sol, where
+# apache runs.
+#
+# In order to use this to forward requests for a particular resource, one 
+# should modify the url appropriately.
+# Example:
+#
+# URL on sol:8080/rcas6006:8080 (cgid, from bnl.gov only):  
+#      http://sol.star.bnl.gov:8080/<dir>/<script>
+# URL on sol:80 (regular apache web server, from anywhere):
+#      http://sol.star.bnl.gov/devcgi/qaversion2/nph-http_forward?<dir>/<script>
+#
+# Anyone with a better solution is encouraged to implement it.
+
+use strict;
+use IO::Socket::INET;
+use LWP::UserAgent;
+
+my $serverName = 'localhost';
+my $port = 8080;
+my $userAgent = new LWP::UserAgent;
+
+#
+# compose the http request and all components
+#
+
+my $headers = new HTTP::Headers();
+# optional headers (needed for PUT, eg)
+if ($ENV{'CONTENT_TYPE'}){
+    $headers->content_type($ENV{'CONTENT_TYPE'});
+}
+if ($ENV{'CONTENT_ENCODING'}){
+    $headers->content_encoding($ENV{'CONTENT_ENCODING'});
+}
+if ($ENV{'CONTENT_LENGTH'}){
+    $headers->content_length($ENV{'CONTENT_LENGTH'});
+}
+
+my $content = join("", <STDIN>);
+
+# the request URI localized to rcas should be in QUERY_STRING
+my $request = 
+    new HTTP::Request($ENV{'REQUEST_METHOD'},
+		      "http://$serverName:$port" . $ENV{'QUERY_STRING'},
+		      $headers,
+		      $content
+		      );
+# 
+# send the request via the user agent and read back the response
+#
+
+my $response = $userAgent->request($request);
+my @lines = split("\n", $response->content);
+
+#
+# parse the links inside html tags to make them point back to 
+# nph-http_forward
+#
+
+foreach my $line (@lines){
+    $line =~ s{(<[^<]*)(/pro/|/v2/|/ben/|/bum/|/peter/)([^>]*>)}
+              {$1/devcgi/qaversion2/nph-http_forward?$2$3}g;
+    print $line . "\n";
+}
+
+#print "<h2>Environment:</h2>\n<pre>\n";
+#foreach my $key (keys %ENV){print "$key = ".$ENV{$key}."\n";}
+#print "</pre>\n";
+
+#print "<h2>Request:</h2>\n<pre>\n".$request->as_string()."</pre>\n";
+exit 0;

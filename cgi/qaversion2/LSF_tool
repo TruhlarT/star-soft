@@ -237,6 +237,7 @@ sub selectedJobs{
     # generate the table text, one row per job
     my $text = "";
     for (my $i = 0; $i <= $#selectedJobs; $i++){
+	my $job = $selectedJobs[$i];
 	$text .= $cgi->Tr(
 			  $cgi->td(
 				   {-bgcolor=>'pink'},
@@ -244,8 +245,9 @@ sub selectedJobs{
 				   ) . 
 			  $cgi->td([
 				    map(
-					{ $selectedJobs[$i]->{$_} } 
-					@$selectionKeys)
+					$job->{$_}, 
+					@$selectionKeys
+					)
 				    ]) . "\n"
 			  ) . "\n";
     }

@@ -22,7 +22,8 @@ use Cwd;
 use FileHandle;
 use Getopt::Std;
 
-my $qaPath = "/star/u2e/starqa/cgi-bin/pro/cgi/qaversion2";  # run pro version
+#my $qaPath = "/star/u2e/starqa/cgi-bin/pro/cgi/qaversion2";  # run pro version
+my $qaPath = "/star/u2e/bnorman/cgi-bin/qa";  # run pro version
 my $webServer = "sol.star.bnl.gov";
 my $sleepCmd = "/star/rcf/qa/.sleeper";
 my $afsPwFile = "/star/rcf/qa/.starlib_CGI";

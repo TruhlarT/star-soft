@@ -11,6 +11,9 @@
 # 6jul00: cgid now recognizes paths in the url, see $script_dirs var
 # 9jul00: cgid will now retrieve html docs from any directory under
 #         those in $doc_dirs. directory listing is not allowed
+# 21jul00: if you add a new directory to $script_dirs or $doc_dirs,
+#          you must add that name to the url replacement string in
+#          nph-http_forward.
 #
 # cgid makes the script think that it has been run as a normal cgi process.
 # This is accomplished by parsing the HTTP request (from a normal web browser)
@@ -58,11 +61,16 @@ my $log_file = "$log_dir/$my_name.log";
 
 # look-up table for paths (aliases)
 my $script_dirs = {
-    "/ben"   => "/star/u2e/bnorman/cgi-bin/qa",
-    "/peter" => "/afs/rhic/star/users/jacobs/QA/cgi/qaversion2",
-    "/bum"   => "/star/u2e/bum/cgi-bin/version2",
-    "/v2"    => "/afs/rhic/star/packages/dev/cgi/qaversion2",
-    "/pro"   => "/star/u2e/starqa/cgi-bin/pro/cgi/qaversion2"
+    "/ben"   => 
+	"/star/u2e/bnorman/cgi-bin/qa",
+    "/peter" => 
+	"/afs/rhic/star/users/jacobs/QA/cgi/qaversion2",
+    "/bum"   => 
+	"/star/u2e/bum/cgi-bin/version2",
+    "/v2"    => 
+	"/afs/rhic/star/packages/dev/cgi/qaversion2",
+    "/pro"   => 
+	"/star/u2e/starqa/cgi-bin/pro/cgi/qaversion2"
     };
 
 my $doc_dirs = $script_dirs;  # may change in the future
@@ -129,7 +137,9 @@ ACCEPT_LOOP: while ($client = $daemon->accept)
     # So we hope that there's some "user" identification in the http header.
     #
     
-    printToLog ("$0.$$ got request from user " . $request->from());
+    printToLog ("$0.$$ got request from user " . 
+		( defined $request->from() ? $request->from() : "UNKNOWN" )
+		);
 	
     # 
     # Fork off a child to handle this request so the parent can
@@ -164,8 +174,9 @@ if ($script_name){       #this is an allowed cgi script
     # send http header not provided by the cgi script
     #
 
-    $client->send_status_line;
-    $client->send_basic_header;
+    #$client->send_basic_header;
+    # for some reason, the above does not work ???
+    print $client "HTTP/1.1 200 OK\n";
 
     #
     # set up the environment ala the CGI/1.1 "specification"
@@ -221,11 +232,7 @@ if ($script_name){       #this is an allowed cgi script
     Reader->autoflush(1);
 
     print Writer $request->content();
-
-    while (<Reader>)
-    {
-	print $client $_ . "\n";
-    }
+    print $client join("", <Reader>);
 
     #
     # clean up the mess
@@ -245,6 +252,7 @@ if ($script_name){       #this is an allowed cgi script
     # send http headers and document
     #
 
+    print $client "HTTP/1.1 200 OK\n\n";
     $client->send_file_response("$working_dir/$doc_name");
 
     $client = undef;
@@ -253,7 +261,8 @@ if ($script_name){       #this is an allowed cgi script
 		"', exiting");
 
 }else{
-    $client->send_error(404, "So sorry.");
+    print $client "HTTP/1.1 404 File not found\n\n";
+    print $client "<h1>'" . $request->url . "' not found</h1>\n";
     $client = undef; # close the connection
 
     printToLog ("$0.$$ ignored request for '" . $request->url . "', exiting");
