@@ -33,6 +33,7 @@ sub CRSQ_check
     my($pat,$mdir)=@_;
     my($line,$jfile);
     my(@result,@JOBS);
+    my($tmp);
 
 
     @result = `$JOBINF`;
@@ -88,11 +89,11 @@ sub CRSQ_getcnt
 
     my($line);
     my(@result,@items);
-    my($ATOT,$TOT,$TOTS);
+    my($ATOT,$TOT,$TOTS,$NOTA,$SAVT);
     my(%NODES);
     
     # Dummy initialization
-    $TOTS = $TOT = 0;
+    $NOTA = $TOTS = $TOT = 0;
 
     # get queue status first
     @result = `$STATUS`;
@@ -100,26 +101,31 @@ sub CRSQ_getcnt
 	chomp($line);
 	@items = split("%",$line);
 
-	if ($drop){
-	    # In drop mode, all queues number < $qnum are available to us
-	    # However, we will put only 2 jobs in the 'other'
-	    # queues and 3 in the $qnum.
-	    if ($items[4] == $qnum){
-		$TOT  += $items[2];          # requested queue total
-		$NODES{$items[0]} = 1;
-	    } elsif ($items[4] >= ($qnum-$drop)) {
-		$TOTS += $items[2]-1;        # other queue total
+	if( $items[1] ne "unavailable"){
+	    if ($drop){
+		# In drop mode, all queues number < $qnum are available to us
+		# However, we will put only 2 jobs in the 'other'
+		# queues and 3 in the $qnum.
+		if ($items[4] == $qnum){
+		    $TOT  += $items[2];          # requested queue total
+		    $NODES{$items[0]} = 1;
+		} elsif ($items[4] >= ($qnum-$drop) ) {
+		    $TOTS += $items[2]-1;        # other queue total
+		}
+	    } else {
+		if ($items[4] == $qnum){
+		    # choice of -1 (just the exact number) or
+		    # not (add one more in the queue).
+		    $TOT += $items[2]-1;         # requested queue total
+		    $NODES{$items[0]} = 1;
+		}
 	    }
 	} else {
-	    if ($items[4] == $qnum){
-		# choice of -1 (just the exact number) or
-		# not (add one more in the queue).
-		$TOT += $items[2]-1;         # requested queue total
-		$NODES{$items[0]} = 1;
-	    }
+	    $NOTA++;
 	}
     }
-    #print "$TOT $TOTS\n";
+    #print "$TOT $TOTS $NOTA\n";
+    $SAVT = $TOT;
     $ATOT = $TOT+$TOTS;
 
 
@@ -179,7 +185,7 @@ sub CRSQ_getcnt
 	$TOT = -$TOT;
 	print 
 	    "CRSQ :: Error: We have $TOT more jobs than expected ",
-	    "(Max jobs should be $ATOT) on ",
+	    "(Max jobs should be $ATOT, $SAVT found, unavailable $NOTA) on ",
 	    localtime()."\n";
 	return -1;
     }
