@@ -6,6 +6,7 @@
 package Db_update_utilities;
 #===================================================================
 use DBI;
+use POSIX qw(strftime);
 use Time::Local;
 use QA_globals;
 use QA_db_utilities qw(:db_globals); # import
@@ -21,17 +22,18 @@ use strict;
 sub UpdateQAOffline{
   my $data_type   = shift; # either 'real' or 'MC'
 
-  my $limit       = 2;     # limit number of new jobs
+  my $limit       = 30;     # limit number of new jobs
   my $oldest_date; # dont retrieve anything older than this
   my $file_type;
   my $time_sec = 100*3600*24; # number of seconds in a week
-  my $now      = time;        # current time in epoch sec
+
+  my $today    = strftime("%Y-%m-%d %H-%M-%S",localtime());
 
   # real or simulation?
   if($data_type eq 'real')
   {
     $file_type = 'daq_reco';
-    $oldest_date='2000-06-01';
+    $oldest_date='2000-06-20';
   }
   elsif($data_type eq 'MC')
   {
@@ -63,11 +65,10 @@ sub UpdateQAOffline{
 			on file.jobID = qa.$QASum{jobID}
 			where
 			  file.type = '$file_type' and
-			  unix_timestamp(file.createTime) < $now and
-			  qa.$QASum{jobID} is NULL and
-			  file.hpss = 'N' and
-			  file.createTime > '$oldest_date'
-			  
+			  file.createTime < '$today' and
+			  file.hpss = 'N' and 
+			  file.createTime > '$oldest_date' and 
+			  qa.$QASum{jobID} is NULL
 			limit $limit};
 
 
@@ -134,7 +135,8 @@ sub UpdateQANightly {
   my $oldest_date = '2000-06-23'; # dont retrieve anything older 
   my ($type, $eventGen_string);
   my $time_sec = 100*3600*24;    #number of seconds in a week
-  my $now      = time;           #current time in epoch sec
+  my $today    = strftime("%Y-%m-%d %H-%M-%S",localtime());
+
 
   # real or simulation
   if ($data_class eq 'real')
@@ -181,7 +183,7 @@ sub UpdateQANightly {
 			where  
 			  file.avail='Y' and
 			  $eventGen_string
-			  unix_timestamp(file.createTime) < $now and
+			  file.createTime < '$today' and
 			  file.jobID != 'n/a' and
 			  file.createTime > '$oldest_date' and
 			qa.$QASum{jobID} is NULL
