@@ -1,5 +1,5 @@
 #!/bin/csh -f
-#       $Id: group_env.csh,v 1.156 2003/09/30 22:40:54 jeromel Exp $
+#       $Id: group_env.csh,v 1.157 2003/10/01 15:58:11 jeromel Exp $
 #	Purpose:	STAR group csh setup
 #
 #	Author:		Y.Fisyak     BNL
@@ -388,10 +388,12 @@ if ( -d /usr/local/lsf/bin && ! $?LSF_ENVDIR ) then
 endif
 if ( $?LSF_ENVDIR && ! $?LSF_MANPATH ) then
     # may not be full proof
-    set ver=`echo $LSF_BINDIR | sed "s/\// /g" | awk '{print $3}'`
-    if ( -d /usr/lsf/$ver/man ) then
-	setenv MANPATH  ${MANPATH}:/usr/lsf/$ver/man
-	setenv LSF_MANPATH /usr/lsf/$ver/man
+    if ( $?LSF_BINDIR ) then
+	set ver=`echo $LSF_BINDIR | sed "s/\// /g" | awk '{print $3}'`
+	if ( -d /usr/lsf/$ver/man ) then
+	    setenv MANPATH  ${MANPATH}:/usr/lsf/$ver/man
+	    setenv LSF_MANPATH /usr/lsf/$ver/man
+	endif
     endif
 endif
 
