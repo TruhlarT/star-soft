@@ -1,7 +1,10 @@
 #!/usr/bin/csh -f
-#       $Id: group_env.csh,v 1.64 1999/03/01 17:27:09 fisyak Exp $
+#       $Id: group_env.csh,v 1.65 1999/03/03 23:06:11 fisyak Exp $
 #	Purpose:	STAR group csh setup 
 #       $Log: group_env.csh,v $
+#       Revision 1.65  1999/03/03 23:06:11  fisyak
+#       Add CC5 for Sun
+#
 #       Revision 1.64  1999/03/01 17:27:09  fisyak
 #       Set CERNLIB 99 for SL99
 #
@@ -283,6 +286,7 @@ switch ($STAR_SYS)
       endif
       if (! ${?SHLIB_PATH}) setenv SHLIB_PATH
       setenv SHLIB_PATH ${SHLIB_PATH}:${MINE_LIB}:${STAR_LIB}:${STAF_LIB}
+      setenv LD_LIBRARY_PATH ${SHLIB_PATH}
       setenv BFARCH hp_ux102
       limit coredumpsize 0
     breaksw
