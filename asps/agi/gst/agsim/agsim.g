@@ -3403,6 +3403,7 @@ C
 *     print *,' server=',server
   }
   end
+#ifndef __ROOT__
 *CMZ :  2.00/00 29/11/99  01.53.51  by  Pavel Nevski
 *-- Author :    Pavel Nevski   28/11/99
       subroutine   S T E R R O R (text)
@@ -3422,6 +3423,7 @@ C
       L=min(LENOCC(text),100)
       print *,' StINFO: ',text(1:L)
       end
+#endif
 *CMZ :  2.00/00 07/10/99  20.25.17  by  Pavel Nevski
 *CMZ :  1.30/00 16/07/96  23.30.40  by  Pavel Nevski
 *CMZ :  1.00/00 12/04/95  19.53.08  by  Pavel Nevski
