@@ -2958,9 +2958,6 @@ C
 *CMZ :  1.30/00 29/03/97  18.01.53  by  Pavel Nevski
 *-- Author :    Pavel Nevski   15/08/96
  
-      SUBROUTINE GCALOR
-      print *,' No GCALOR available in this version'
-      end
       SUBROUTINE CALSIG
       print *,' No GCALOR available in this version'
       end
