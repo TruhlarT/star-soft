@@ -1,5 +1,8 @@
-# $Id: group_aliases.csh,v 1.16 2003/11/12 01:54:12 jeromel Exp $
+# $Id: group_aliases.csh,v 1.17 2004/11/23 14:47:33 jeromel Exp $
 # $Log: group_aliases.csh,v $
+# Revision 1.17  2004/11/23 14:47:33  jeromel
+# Alias paw -> starsim
+#
 # Revision 1.16  2003/11/12 01:54:12  jeromel
 # Single quote + remove commented lines
 #
@@ -44,6 +47,12 @@ alias star..dev  'source ${GROUP_DIR}/star..dev'
 alias starver    'source ${GROUP_DIR}/.starver'
 alias setup      'source ${GROUP_DIR}/setup'
 alias starsetup  'source ${GROUP_DIR}/setup'
+
+# Alias replacement
+if ( -e $STAR/.$STAR_HOST_SYS/bin/starsim ) then
+    alias paw        '${STAR}/.${STAR_HOST_SYS}/bin/starsim'
+endif
+
 
 if ($?SILENT == 1) then
   alias makes      'gmake --silent -f ${STAR}/mgr/MakePam.mk'
