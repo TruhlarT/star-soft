@@ -2,7 +2,7 @@
 %
 % StEvent - User Guide and Reference Manual -- LaTeX Source
 %
-% $Id: StEvent.tex,v 2.66 2001/11/07 21:35:00 ullrich Exp $
+% $Id: StEvent.tex,v 2.67 2001/11/11 01:10:57 ullrich Exp $
 %
 % Author: Thomas Ullrich, Nov 1999
 %
@@ -21,6 +21,9 @@
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %
 % $Log: StEvent.tex,v $
+% Revision 2.67  2001/11/11 01:10:57  ullrich
+% Added StCalibrationVertex and more on vertices.
+%
 % Revision 2.66  2001/11/07 21:35:00  ullrich
 % Added StL1Trigger.
 %
@@ -263,8 +266,8 @@
   \mbox{\includegraphics[width=\textwidth]{StEventTitle.eps}}
   \hfill\mbox{}\\[3cm]
   {\LARGE User Guide and Reference Manual \\[5mm] for Version 2}\\[2cm]
-  {\LARGE $ $Revision: 2.66 $ $}  \\[5mm] % replaced by cvs with current revision
-  {\LARGE $ $Date: 2001/11/07 21:35:00 $ $}  % replaced by cvs with current revision
+  {\LARGE $ $Revision: 2.67 $ $}  \\[5mm] % replaced by cvs with current revision
+  {\LARGE $ $Date: 2001/11/11 01:10:57 $ $}  % replaced by cvs with current revision
   \vfill
 \end{center}
 \cleardoublepage
@@ -1882,11 +1885,13 @@ the methods inherited from \texttt{StMeasuredPoint} each vertex
 provides a \texttt{type()} method which returns an enumeration type
 StVertexId (see section \ref{sec:Enumerations}), a $\chi^2$ value from
 the fit, a pointer to the parent track and a list of daughter tracks.
-However, \texttt{StVertex} is still abstract. The four concrete vertex
+However, \texttt{StVertex} is still abstract. The five concrete vertex
 classes are:
 \begin{description}
 \item[\texttt{StPrimaryVertex}] to hold the events vertex (or
     vertices)
+\item[\texttt{StCalibrationVertex}] to hold the various
+    vertices used for calibration and test purposes.
 \item[\texttt{StV0Vertex}] which is primarily used for K$_0$ and
     $\Lambda$ decay vertices
 \item[\texttt{StXiVertex}] for $\Xi$ decay vertices
@@ -1914,7 +1919,8 @@ the vertex with the most daughter tracks. \index{primary vertices, order of}
 \begin{figure}[htb]
     \begin{center}
         \includegraphics{vertex.eps}
-        \caption{Vertex class diagrams and their dependencies.}
+        \caption{Vertex class diagrams and their dependencies.
+            \texttt{StCalibrationVertex} is not shown.}
         \label{fig:vertex}
     \end{center}
 \end{figure}
@@ -2768,6 +2774,37 @@ definition in the header file.
 \end{figure}
 \clearpage
 
+\subsection{StCalibrationVertex}
+\index{StCalibrationVertex|textbf}
+\label{sec:StCalibrationVertex}
+\begin{Entry}
+\item[Summary]
+    Represents vertices used for test and calibration purposes.
+    
+\item[Synopsis]
+    \verb+#include "StCalibrationVertex.h"+\\
+    \verb+class StCalibrationVertex;+\\
+    
+\item[Description]
+    Concrete implementatin of the \texttt{StVertex} class.
+    It represents various types of vertices useful for calibration and
+    diagnostics. These vertices have no daughters and no parent.  All
+    vertices of this category are of type \texttt{kOtherVtxId} (see
+    \texttt{StVertex::type()}).  Don't worry if you don't what they
+    are good for.  There are nor relevant for physics analysis.
+    
+\item[Related Classes]
+    Inherits from \texttt{StVertex}. \texttt{StCalibrationVertex} doesn't add
+    any new data member of methods. 
+    
+\item[Public\\ Constructors]
+    \verb+StCalibrationVertex();+\\
+    \verb+StCalibrationVertex(const dst_vertex_st&);+\\
+    
+\item[Public Member\\ Functions]
+    See \texttt{StVertex} (\ref{sec:StVertex}) for available methods.
+\end{Entry}
+\clearpage
 
 \subsection{StContainers}
 \index{StContainers|textbf}
@@ -3324,6 +3361,15 @@ definition in the header file.
     The primary vertices are ordered according to the number of daughters
     (i.e.~primary tracks) they hold. The first in the list is always the
     the vertex with the most daughter tracks.\index{primary vertices, order of}
+
+    \verb+unsigned int numberOfCalibrationVertices() const;+\\
+    Number of vertices stored for calibration and test purposes.
+    
+    \verb+StCalibrationVertex* calibrationVertex(unsigned int i);+\\
+    \verb+const StCalibrationVertex* calibrationVertex(unsigned int i) const;+\\
+    Returns pointer to the \texttt{i}'th 'calibration' vertex. Calibration
+    vertices are of type \texttt{StCalibrationVertex} (see \ref{sec:StCalibrationVertex})
+    and are mainly used for test, calibration, and diagnosis. Not relevant for physics analysis.
     
     \verb+StSPtrVecV0Vertex& v0Vertices();+\\
     \verb+const StSPtrVecV0Vertex& v0Vertices() const;+\\
@@ -3403,6 +3449,8 @@ definition in the header file.
     Adds a primary vertex to the list. The vertices are
     automatically sorted according to their number of daughter
     tracks (descending order). \index{primary vertices, sorting}
+
+    \verb+void addCalibrationVertex(StCalibrationVertex*);+\\
 
     \verb+void addPsd(StPsd* psd);+\\
     Add PSD \texttt{*psd} to StEvent. This method checks if another
@@ -6490,7 +6538,23 @@ numberOfPoints(kTpcId) == numberOfPoints(kFtpcWestId)
 \item[Public Member\\ Functions]
     \verb+StVertexId type() const = 0;+\\
 
-    \verb+int flag() const;+\\
+    \verb+int flag() const;+\\  \index{vertex flags}
+    For primary vertex this indicates the fitting iteration and error reporting as follows.
+    \begin{description}
+    \item[+yx1] for normal, successfully found primary vertex during the 3rd iteration
+    \item[-yx3] for initial seed value
+    \item[-yx2] for first iteration value
+    \item[-yx1] for second iteration value
+    \item[-yx4] for failed fit with Determinant of G =0.0, occuring during any iteration.
+    \item[-yx5] for failed error covariance matrix evaluation during
+        fit with determinant of E = 0.0, occuring during any iteration.
+    \end{description}
+    Definitions: 
+    \begin{description}
+      \item[x] is the event vertex id (for pileups). Zero means the triggered event vertex, x=1 is the next one etc 
+      \item[y] is the detector ID for prevertex finding only 
+        y=0 is not prevertex, y=1 TPC prevertex, y=2 SVT, y=3 FTPC etc.
+    \end{description}    
 
     \verb+float chiSquared() const;+\\
     Returns $\chi^2$ per degree of freedom.\index{$\chi^2$} \index{degree of freedom}
