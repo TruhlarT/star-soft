@@ -30,7 +30,7 @@
 #     should not contain blank lines.
 #
 #### Build the CAS usage page
-33 *	* * *	/afs/rhic/star/packages/dev/scripts/cron/cas.pl
+#33 *	* * *	/afs/rhic/star/packages/dev/scripts/cron/cas.pl
 #### Nightly management tasks
 0 4     * * *   /afs/rhic/star/packages/dev/scripts/cron/manage-rcf.csh
 #### Run the NOVA log server
