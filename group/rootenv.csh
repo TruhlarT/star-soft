@@ -22,7 +22,8 @@
   setenv MANPATH "${MANPATH}:/afs/rhic/star/ROOT/${ROOT_LEVEL}/man"
 # On Solaris, Linux, SGI, Alpha/OSF do:
   set MACHINE = `uname -s`
-  
+  set VERSION = `uname -r`  
+
   switch ($MACHINE)
     case Linux:
     setenv LD_LIBRARY_PATH "${LD_LIBRARY_PATH}"
@@ -44,15 +45,28 @@
     breaksw
 
     case IRIX64:
-    if (! ${?LD_LIBRARYN32_PATH}) setenv LD_LIBRARYN32_PATH 
+    switch ($VERSION)
+      case 6.2
 #       ROOT libs
-    setenv LD_LIBRARYN32_PATH ${LD_LIBRARYN32_PATH}:${ROOTSYS}/lib
+      setenv LD_LIBRARY_PATH ${LD_LIBRARY_PATH}:${ROOTSYS}/lib
 #       System libs
-    setenv LD_LIBRARYN32_PATH ${LD_LIBRARYN32_PATH}:/usr/lib32:/usr/local/lib
+      setenv LD_LIBRARY_PATH ${LD_LIBRARY_PATH}:/usr/lib:/usr/local/lib
+#               for Sun
+      setenv LD_LIBRARY_PATH ${LD_LIBRARY_PATH}:/usr/dt/lib:/usr/openwin/lib:/usr/ccs/lib
 #               PrintIt
-    echo LD_LIBRARYN32_PATH = $LD_LIBRARYN32_PATH
-    breaksw
-
+      echo LD_LIBRARY_PATH = $LD_LIBRARY_PATH
+      breaksw
+    case 6.4   
+      if (! ${?LD_LIBRARYN32_PATH}) setenv LD_LIBRARYN32_PATH 
+#       ROOT libs
+      setenv LD_LIBRARYN32_PATH ${LD_LIBRARYN32_PATH}:${ROOTSYS}/lib
+#       System libs
+      setenv LD_LIBRARYN32_PATH ${LD_LIBRARYN32_PATH}:/usr/lib32:/usr/local/lib
+#               PrintIt
+      echo LD_LIBRARYN32_PATH = $LD_LIBRARYN32_PATH
+      breaksw
+    endsw
+    
     case AIX:
     if (! ${?LIBPATH}) setenv LIBPATH 
     setenv  LIBPATH /lib:/usr/lib:${LIBPATH}:$ROOTSYS/lib    

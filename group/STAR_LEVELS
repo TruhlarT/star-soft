@@ -1,9 +1,9 @@
-#!/bin/csh
+#!/usr/local/bin/tcsh -f
 #
 # STAR_LEVELS.csh - C-Shell script to display STAR levels as string.
 # Usage: STAR_LEVELS
 #
-set staff = `which staf`
+set staff = `which staf`; 
 set staf = `ls -al $staff | cut -c42-120 |sed -e 's/ /_/g'`
 
 echo " "`hostname`"-"CERN-$CERN_LEVEL\;STAR-$STAR_LEVEL\;STAF-${staf}\;`date +%d_%h_%y`|sed -e 's/ //g'

@@ -1,7 +1,10 @@
 #!/usr/bin/csh -f
-#       $Id: group_env.csh,v 1.49 1998/09/20 01:54:29 fisyak Exp $
+#       $Id: group_env.csh,v 1.50 1998/10/05 15:20:39 fisyak Exp $
 #	Purpose:	STAR group csh setup 
 #       $Log: group_env.csh,v $
+#       Revision 1.50  1998/10/05 15:20:39  fisyak
+#       Add BFARCH for sgi's
+#
 #       Revision 1.49  1998/09/20 01:54:29  fisyak
 #       Add path to lsf
 #
@@ -244,14 +247,25 @@ switch ($STAR_SYS)
         if (! ${?LD_LIBRARY_PATH}) setenv LD_LIBRARY_PATH 
 	setenv LD_LIBRARY_PATH "${PARASOFT}/lib.sgi5:${STAF_LIB}:${LD_LIBRARY_PATH}"
         limit coredumpsize 0
+     setenv BFARCH sgi_53
     breaksw
-    case "sgi_6*":
+    case "sgi_62":
+ #  ====================
+	setenv CERN /afs/rhic/asis/sgi_62/cern
+	setenv CERN_ROOT $CERN/pro
+	if (! ${?LD_LIBRARY_PATH}) setenv LD_LIBRARY_PATH 
+	setenv LD_LIBRARY_PATH "${STAF_LIB}:${LD_LIBRARY_PATH}"
+        limit coredumpsize 0
+     setenv BFARCH sgi_53
+    breaksw
+   case "sgi_64":
 #  ====================
         setenv CERN_LEVEL pro
         setenv CERN_ROOT  /cern/pro
         if (! ${?LD_LIBRARYN32_PATH}) setenv LD_LIBRARYN32_PATH 
 	setenv LD_LIBRARYN32_PATH "${STAF_LIB}:${LD_LIBRARYN32_PATH}"
         limit coredumpsize 0
+     setenv BFARCH sgi_64
     breaksw
     case "i386_*":
 #  ====================
@@ -301,7 +315,9 @@ endsw
 if ( -e /usr/ccs/bin/ld ) set path = ( $path /usr/ccs/bin /usr/ccs/lib )
 if ( -d /usr/local/lsf/bin ) then
   if ( -x /afs/rhic/star/group/dropit) setenv PATH `/afs/rhic/star/group/dropit lsf`
-  set path = ( $path /usr/local/lsf/bin )
+  setenv LSF_ENVDIR /usr/local/lsf/mnt/conf
+  set path=(/usr/local/lsf/bin $path)
+  setenv MANPATH {$MANPATH}:/usr/local/lsf/mnt/man
 endif
 # We need this aliases even during BATCH
 if (-r $GROUP_DIR/group_aliases.csh) source $GROUP_DIR/group_aliases.csh
