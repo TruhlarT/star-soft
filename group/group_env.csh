@@ -1,7 +1,10 @@
 #!/usr/bin/csh -f
-#       $Id: group_env.csh,v 1.37 1998/07/23 14:28:48 wenaus Exp $
+#       $Id: group_env.csh,v 1.38 1998/07/24 15:17:36 fisyak Exp $
 #	Purpose:	STAR group csh setup 
 #       $Log: group_env.csh,v $
+#       Revision 1.38  1998/07/24 15:17:36  fisyak
+#       Add redhat50
+#
 #       Revision 1.37  1998/07/23 14:28:48  wenaus
 #       re-insert new Objy setup
 #
@@ -202,7 +205,7 @@ switch ($STAR_SYS)
 	setenv LD_LIBRARYN32_PATH "${STAF_LIB}:${LD_LIBRARYN32_PATH}"
         limit coredumpsize 0
     breaksw
-    case "i386_linux2":
+    case "i386_*":
 #  ====================
      if ( -d /usr/pgi ) then
        setenv PGI /usr/pgi
