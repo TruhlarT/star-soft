@@ -90,8 +90,16 @@ $SUBDIR  = shift(@ARGV) if ( @ARGV );
 
 # -------------------------------------------------------------------------
 $TMPDIR  = "/tmp";                                   # temp dir on cron node
-$BINPATH = "/opt/star/bin/";                         # path to bin for 
-                                                     # doxy-progs on Web server
+
+$BINPATH = "/usr/bin/";                              # path to bin for doxy-progs 
+                                                     # for Web server (indexer)
+
+$BINCRON = "/opt/star/bin";                          # path where doxycron will
+                                                     # find the excutables (not
+                                                     # the same than BINPATH if 
+                                                     # doxycron runs on a
+                                                     # different node than httpd
+
 $DOXYGEN = "doxygen";                                # exe names on local node
 $DOXYTAG = "doxytag";                                # can be full path or not.
 $HTTPD   = "http://www.star.bnl.gov";                # HTTP Server
@@ -104,9 +112,13 @@ $URLPATH = "webdatanfs";                             # Base URL path
 # -------------------------------------------------------------------
 # Sanity checks
 # -------------------------------------------------------------------
-chomp($DOXYGEN=`which $DOXYGEN`);
-chomp($DOXYTAG=`which $DOXYTAG`);
+if ( -e "$BINCRON/$DOXYGEN"){    chomp($DOXYGEN=`which $DOXYGEN`);
+} else {                               $DOXYGEN= "$BINCRON/$DOXYGEN";}
+if ( -e "$BINCRON/$DOXYTAG"){    chomp($DOXYTAG=`which $DOXYTAG`);
+} else {                               $DOXYTAG= "$BINCRON/$DOXYTAG";}
 
+
+# RE-check now
 if( ! -e $DOXYGEN){
     print "Boomer ! Required $DOXYGEN is missing. Please, install.\n";
     exit;
@@ -401,7 +413,10 @@ if( 1==1 ){
 	print FO 
 	    "<hr><h1>$PROJECT Documentation</h1>\n",
 	    "<p>\n",
-	    "<a href=\"doxycron-errors.html\">Runtime warnings</a>\n";
+	    "<ul>",
+	    "<li><a href=\"doxycron-errors.html\">Runtime warnings</a>",
+	    "<li><a href=\"/STAR/comp/sofi/doxygen/\">User documentation</a>",
+	    "</ul>\n";
 
 	foreach $line (@TAIL){ print FO "$line\n";}
 	close(FO);
