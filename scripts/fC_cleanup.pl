@@ -235,10 +235,10 @@ while ($morerecords)
 
 	    if ($mode == 1){
 		# mark it un-available
-		$fileC->update_location("available",0);
+		$fileC->update_location("available",0,$confirm);
 	    } else {
 		# remark available
-		$fileC->update_location("available",1);
+		$fileC->update_location("available",1,$confirm);
 	    }
 
 	}
@@ -327,13 +327,13 @@ while ($morerecords)
 
 	if ($state eq "on"){
 	    $fileC->set_context("available=0");
-	    $fileC->update_location("available",1);
+	    $fileC->update_location("available",1,$confirm);
 	} elsif ( $state eq "off") {
 	    $fileC->set_context("available=1");
-	    $fileC->update_location("available",0);
+	    $fileC->update_location("available",0,$confirm);
 	} else {
 	    $fileC->set_context("available=1");
-	    $fileC->update_location("available",$state);
+	    $fileC->update_location("available",$state,$confirm);
 	}
 
 

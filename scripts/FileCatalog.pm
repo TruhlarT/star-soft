@@ -643,8 +643,7 @@ sub _ReadConfig
 sub connect_as
 {
     my($self)= shift;
-    my($intent)= @_;
-    my($host,$db,$port,$user,$passwd);
+    my($intent,$user,$passwd,$port,$host,$db)= @_;
 
     # We will read a configuration file in XML if
     # any
