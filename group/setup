@@ -1,5 +1,5 @@
 #! /usr/local/bin/tcsh -f
-set packages = "objy root parasoft sniff g4" 
+set packages = "objy root parasoft sniff g4 cc4 cc5" 
 if ($#argv == 0 || $#argv > 2) then
     echo "Usage: setup package [version]"
     echo "List of packages: $packages"
@@ -38,6 +38,15 @@ switch ($pkg)
     case "g4":	
          #=====#
 	if (-f $GROUP_DIR/g4env.csh) source $GROUP_DIR/G4env.csh
+	breaksw
+    case "cc4":	
+         #=====#
+	setenv USE_CC4; starver $STAR_LEVEL
+	breaksw
+    case "cc5":	
+         #=====#
+	if ($?USE_CC4 != 0) unsetenv USE_CC4
+	starver $STAR_LEVEL
 	breaksw
     default:
 	echo "Setup for $pkg is not defined"
