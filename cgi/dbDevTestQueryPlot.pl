@@ -1,9 +1,12 @@
 #!/opt/star/bin/perl 
 #-w
 #
-# $Id: dbDevTestQueryPlot.pl,v 1.2 2001/02/14 18:18:39 liuzx Exp $
+# $Id: dbDevTestQueryPlot.pl,v 1.3 2001/02/14 19:58:19 liuzx Exp $
 #
 # $Log: dbDevTestQueryPlot.pl,v $
+# Revision 1.3  2001/02/14 19:58:19  liuzx
+# Modify the min_y and skip no data now!
+#
 # Revision 1.2  2001/02/14 18:18:39  liuzx
 # Missing max_y added!
 #
@@ -28,11 +31,11 @@ my $query = new CGI;
 
 my @Nday;
 my $day_diff = 8;
-my $max_y = 0;
-my @point0 = (0,0,0,0,0);
-my @point1 = (0,0,0,0,0);
-my @point2 = (0,0,0,0,0);
-my @point3 = (0,0,0,0,0);
+my $max_y = 0, $min_y = 500000;
+my @point0 = (undef,undef,undef,undef,undef);
+my @point1 = (undef,undef,undef,undef,undef);
+my @point2 = (undef,undef,undef,undef,undef);
+my @point3 = (undef,undef,undef,undef,undef);
 my @data;
 my @legend;
 
@@ -122,31 +125,40 @@ for ($d_week = 0; $d_week <=4; $d_week++) {
 # || die "Cannot prepare statement: $DBI::errstr\n";
 
     $cursor->execute;
-    my $blank = 0;
     while(@fields = $cursor->fetchrow_array) {
 	if ($fields[0] =~ /opt/) {
-	    $blank ++;
 	    $point2[$d_week] = $fields[1];
 	    if($point2[$d_week] > $max_y) {
 		$max_y = $point2[$d_week];
+		}
+	    if($point2[$d_week] < $min_y) {
+		$min_y = $point2[$d_week];
 		}
 	    if ($plotVal eq "MemUsage") {
 		$point3[$d_week] = $fields[2];
 		if ($point3[$d_week] > $max_y) {
 		   $max_y = $point3[$d_week];
 		}
+		if ($point3[$d_week] < $min_y) {
+		   $min_y = $point3[$d_week];
+		}
 	    }
 	    #print "opt ",$point2[$d_week],"\t",$point3[$d_week],"\n";
 	} else {
-	    $blank ++;
 	    $point0[$d_week] = $fields[1];
 	    if ($point0[$d_week] > $max_y) {
 		$max_y = $point0[$d_week];
+	    }
+	    if ($point0[$d_week] < $min_y) {
+		$min_y = $point0[$d_week];
 	    }
 	    if ($plotVal eq "MemUsage") {
 		$point1[$d_week] = $fields[2];
 		if ($point1[$d_week] > $max_y) {
 		    $max_y = $point1[$d_week];
+		}
+		if ($point1[$d_week] < $min_y) {
+		    $min_y = $point1[$d_week];
 		}
 	    }
 	    #print $point0[$d_week],"\t",$point1[$d_week],"\n";
@@ -158,13 +170,13 @@ for ($d_week = 0; $d_week <=4; $d_week++) {
 	#}
 	#print "\n";
     }
-
-    if ($blank eq 0) {
-	$Nday[$d_week] = $Nday[$d_week]." (NULL)";
-    }
 }
 
 &StDbTJobsDisconnect();
+
+if( $min_y == 0) {
+    $min_y = 10;
+}
 
 if ($plotVal eq "MemUsage") {
     @data = (\@Nday, \@point0, \@point1, \@point2, \@point3);
@@ -187,7 +199,7 @@ $graph->set(x_label => "",
             y_label => "$mplotVal",
             title   => "$set1"." ($mplotVal)",
 	    y_tick_number => 10,
-            y_min_value => 0,
+            y_min_value => $min_y - 10,
             y_max_value => $max_y + 10,
 	    );
 
