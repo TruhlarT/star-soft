@@ -28,8 +28,8 @@ my $updatetime = 30;
 
 my $ProdTag = param("PT");
 my $Trigger = param("Trigger");
-my $Status = param("Status");
-my $Method = param("button_name");
+my $Status  = param("Status");
+my $Method  = param("button_name");
 my $Method1 = param("button_name1");
 
 my $id;
@@ -52,8 +52,8 @@ my $arch_dir = "/star/u/starreco/$ProdTag/requests/daq/archive/";
 my $list_dir = "/afs/rhic/star/doc/www/html/comp-nfs/csh/";
 
 my $datasourse = "DBI:mysql:operation:duvall.star.bnl.gov";
-my $username = "starreco";
-my $scriptname = "http:/cgi-bin/nikita/JobInfo2.cgi";
+my $username   = "starreco";
+my $scriptname = "/devcgi/JobInfo.cgi";
 
 my @querystr;
 
