@@ -327,6 +327,8 @@ my $delimeter = "::";
 # is subject to a merging combo of several field with truncation. This
 # is a collection' table.
 #
+# Note : TriggerCompositions is NOT a dictionnary comparing to FileData
+#
 
 my @datastruct;
 $datastruct[0]  = ( "StorageTypes"           . ",FileLocations"       . ",storageTypeID"           . ",2" . ",1");
@@ -335,7 +337,7 @@ $datastruct[2]  = ( "FileData"               . ",FileLocations"       . ",fileDa
 $datastruct[3]  = ( "ProductionConditions"   . ",FileData"            . ",productionConditionID"   . ",3" . ",1");
 $datastruct[4]  = ( "FileTypes"              . ",FileData"            . ",fileTypeID"              . ",3" . ",1");
 $datastruct[5]  = ( "TriggerWords"           . ",TriggerCompositions" . ",triggerWordID"           . ",2" . ",1");
-$datastruct[6]  = ( "FileData"               . ",TriggerCompositions" . ",fileDataID"              . ",2" . ",1");
+$datastruct[6]  = ( "FileData"               . ",TriggerCompositions" . ",fileDataID"              . ",2" . ",0");
 $datastruct[7]  = ( "RunParams"              . ",FileData"            . ",runParamID"              . ",3" . ",0");
 $datastruct[13] = ( "EventGenerators"        . ",SimulationParams"    . ",eventGeneratorID"        . ",5" . ",1");
 $datastruct[8]  = ( "RunTypes"               . ",RunParams"           . ",runTypeID"               . ",4" . ",1");
@@ -366,6 +368,7 @@ $operators[9] = ">";
 $operators[10]= "<";
 $operators[11]= "~";
 $operators[12]= "%";
+$operators[12]= "%%";
 
 
 # The possible aggregate values
@@ -542,9 +545,9 @@ sub _initialize
     my (@items);
     foreach (@datastruct){
 	@items = split(",",$_);
-	if    ( $items[1] eq "FileLocations"){  $FC::FLRELATED{$items[0]} = $items[2];} # save relat table
-	elsif ( $items[1] eq "FileData"){       $FC::FDRELATED{$items[0]} = $items[2];} # save relat table
-	if ( $items[4] eq "1"){                 $FC::ISDICT{$items[0]}    = $items[3]; # save level
+	if    ( $items[1] eq "FileLocations"){  $FC::FLRELATED{$items[0]} = $items[2]; } # save relat table
+	elsif ( $items[1] eq "FileData"){       $FC::FDRELATED{$items[0]} = $items[2]; } # save relat table
+	if ( $items[4] eq "1"){                 $FC::ISDICT{$items[0]}    = $items[3];   # save level
 						# BTW : we can only get this printed by outside-hack var() setup
 						&print_debug("Dictionary $items[0] $FC::ISDICT{$items[0]}");
 					    }
@@ -892,7 +895,7 @@ sub get_id_from_dictionary {
   my $id;
   my $sqlquery;
 
-  $idname = &IDize($idname);
+  $idname = &IDize("get_id_from_dictionary",$idname);
   $id     = 0;
 
   $sqlquery = "SELECT $idname FROM $params[0] WHERE UPPER($params[1]) = UPPER(\"$params[2]\")";
@@ -916,13 +919,21 @@ sub get_id_from_dictionary {
   return $id;
 }
 
+#
 # Used several places so, made a utility routine
+#
 sub IDize
 {
-    my($idname)=@_;
-    chop($idname);
+    my($fac,$idname)=@_;
+    my($tmp)=$idname;
+
+    #chop($idname);
+    #if ( substr($idname,length($idname),1) eq "s"){ chop($idname);}
+    #$tmp =~ s/s$//; if ( $idname ne $tmp){ print "Got something different $idname $fac\n";}
+    $idname =~ s/s$//;
     $idname = lcfirst($idname);
     $idname.="ID";
+    #print "$idname\n";
     $idname;
 }
 
@@ -1065,7 +1076,7 @@ sub get_current_detector_configuration {
   my ($detConfiguration,$cmd,$sth,$val);
   my ($tabname)="DetectorConfigurations";
   my ($field)="detectorConfigurationName";
-  my ($index)=&IDize($tabname);
+  my ($index)=&IDize("get_current_detector_configuration",$tabname);
 
   if( ! $DBH){
       &print_message("insert_detector_configuration","Not connected");
@@ -2872,7 +2883,7 @@ sub run_query {
 		  (&get_field_name($keyw),$tabname,"");
 
 	      &print_debug("Table $tabname is a dictionary");
-	      $idname = &IDize($idname);
+	      $idname = &IDize("run_query",$idname);
 
 	      # Find which table this one is connecting to
 	      my $parent_tabname;
@@ -2931,6 +2942,12 @@ sub run_query {
 	      } elsif ($operset{$keyw} eq "%"){
 		  $sqlquery .= &TreatLOps("$fieldname",
 					  "MOD",
+					  $valuset{$keyw},
+					  4);
+
+	      } elsif ($operset{$keyw} eq "%%"){
+		  $sqlquery .= &TreatLOps("$fieldname",
+					  "NOT MOD",
 					  $valuset{$keyw},
 					  4);
 		  
@@ -3244,6 +3261,12 @@ sub run_query {
 					    "MOD",
 					    $valuset{$keyw},
 					    4));
+
+	  } elsif ($operset{$keyw} eq "%%"){
+	      push( @constraint, &TreatLOps("$tabname.$fieldname",
+					    "NOT MOD",
+					    $valuset{$keyw},
+					    4));
 		  
 	  } else {
 	      push(@constraint,&TreatLOps("$tabname.$fieldname",
@@ -3493,6 +3516,14 @@ sub TreatLOps
 	    }
 	    $ival = "'".$Val[0]."' and '".$Val[1]."'";
 	    undef(@Val);
+
+	} elsif ( $op =~ /NOT MOD/){
+	    # Don't worry about the logic inversion
+	    # which is a small detail of how MySQL deals
+	    # with it vs how our logic is. 
+	    $ival  = "MOD($fldnam,$ival)";
+	    $fldnam= "";
+	    $op    = "";
 
 	} elsif ( $op =~ /MOD/){
 	    $ival  = "NOT MOD($fldnam,$ival)";
@@ -4205,9 +4236,17 @@ sub update_record {
 	      if ( $sth->execute() ){
 		  $sth->bind_columns(\$val);
 		  if ( $sth->fetch() ){
-		      &print_message("update_record",
-				     "Warning ! $ukeyword=$newvalue exists ".
-				     "in table $utable");
+		      # this does not need to be displayed if $utable
+		      # id is selected in whereclause as this would 
+		      # select a unique record
+		      #print "--\n";
+		      my $tmp= $utable.".".&IDize("update_record",$utable);
+		      #print "$tmp $whereclause\n";
+		      if ( index($whereclause,$tmp) == - 1){
+			  &print_message("update_record",
+					 "Warning ! $ukeyword=$newvalue exists ".
+					 "in table $utable");
+		      }
 		  }
 	      }
 	      $sth->finish();
@@ -4421,7 +4460,7 @@ sub update_location {
       # Patch ... The above logic is true only for
       # tables like FileData/FileLocation but not true for others
       my $uid    = &get_id_from_dictionary($utable,$ufield,$newvalue);
-      $ukeyword  = &IDize($utable);
+      $ukeyword  = &IDize("update_location",$utable);
       #$qselect = "SELECT $ukeyword FROM $mtable WHERE $ukeyword=$uid";
       $qdelete = "DELETE LOW_PRIORITY FROM $mtable " ;
       $qupdate = "UPDATE LOW_PRIORITY $mtable SET $ukeyword=$uid ";
