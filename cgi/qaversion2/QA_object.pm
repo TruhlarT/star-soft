@@ -294,9 +294,19 @@ sub CreationString{
 
   my $creation_time = $self->LogReport->JobCompletionTimeAndDate.br;
   
-  my $on_disk = 
-    ($self->OnDisk ? "<font color = green> (on disk) </font>"  
-                   : "<font color = red> (not on disk)</font>");
+  #my $on_disk = 
+  #  ($self->OnDisk ? "<font color = green> (on disk) </font>"  
+  #                 : "<font color = red> (not on disk)</font>");
+  my $on_disk;
+  if($self->OnDisk()>0){
+    $on_disk="<font color = green> (on disk) </font>";
+  }
+  elsif($self->OnDisk()==0){
+    $on_disk="<font color = red> (not on disk)</font>";
+  }
+  else{
+    $on_disk="<font color = blue> (on disk unknown) </font>";
+  }
 
   return $creation_time.$on_disk;
 }
