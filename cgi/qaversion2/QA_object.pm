@@ -637,7 +637,7 @@ sub ShowPsFiles{
   "</font><br>\n";
 
   foreach my $file (@filelist_ordered){
-   $file =~ /Shift/ or next;
+   $file =~ /shift/ or next;
    $self->PrintFilestring("Postscript file", $file);
   }
   #-------------------------------------------------------------
