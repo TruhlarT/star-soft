@@ -22,7 +22,8 @@
 #                           1 delayed STD-IO
 #                  Bit 3    0 non-optimized
 #                           1 optimized
-#                  Bit 4      enables/disables compressed STDOUT
+#                  Bit 4-5    enables/disables compressed STDOUT
+#                             enables/disables compressed STDERR
 #  
 #   LibraryVersion can be one of new, dev, old, pro or a version
 #                  understood by 'starver'
@@ -77,9 +78,10 @@ $NUMEVT      = shift @ARGV;
 $CHAINOPT    = join(" ",@ARGV);
 
 # --- Option bitmask ----------------------------------------------
-$STDOPT = $ALLOPT & 3; # i.e.  011, on 2 bits for future extensions
-$OPTOPT = $ALLOPT & 4; # i.e.  100
-$COMPRS = $ALLOPT & 8; # i.e. 1000
+$STDOPT = ($ALLOPT &  3) >> 0; # i.e.    011, on 2 bits for future extensions
+$OPTOPT = ($ALLOPT &  4) >> 2; # i.e.    100
+$COMPRS = ($ALLOPT & 24) >> 3; # i.e.  11000
+
 
 
 # --- ENV variables we may use       ------------------------------
@@ -243,7 +245,8 @@ if ($COMPRS){
 	}
     }
     if($GZIP eq ""){
-	print STDERR "$PRGM :: Warning: Compress feature cannot be used. Missing gzip\n";
+	print STDERR "$PRGM :: Warning: Compress cannot be done. ".
+	    " Missing gzip program.\n";
 	$COMPRS = 0;
     }
 }
@@ -385,13 +388,24 @@ if ( ! open(FO,">$PWD/$JOB_ID.csh") ){
 	    if( $file ne $cfile){
 		# Massage the substitution. This is a HPSS file
 		# cloned/copied to a disk as well.
-		$ffile = $file;
-		$ffile =~ s|$HPSSBASE|$DESTINATION|;
+		if( $DESTINATION eq "." || $DESTINATION eq "./"){
+		    # will ignore those i.e. save in HPSS only.
+		    $ffile = $cfile;
+		} else {
+		    # do copy by doing path substitution
+		    $ffile = $file;
+		    $ffile =~ s|$HPSSBASE|$DESTINATION|;
+		}
 	    } elsif ( dirname($file) eq "."){
 		# This is a file left on the local disk we want
 		# to move now.
 		$ffile = $file;
 		$ffile =~ s|./|$DESTINATION/|;
+	    } else {
+		# Last case is that the directory name is
+		# not "." and the file is of type=UNIX. 
+		# This means that the description file was 
+		# written to do direct-IO for outputstream.
 	    }
 
 
@@ -414,15 +428,22 @@ if ( ! open(FO,">$PWD/$JOB_ID.csh") ){
 
 
     # Take care of STD.
+    if($COMPRS){ print "$PRGM :: Will now perform STD Compression\n";}
     if( $STDOPT == 1){
-	&STDtrap(0);
+	&STDtrap(2);
+
+	if($COMPRS & 1){ ($STDOUT,$ISTDOUT) = &Compress($STDOUT,$ISTDOUT);}
 	&FileCopy($STDOUT,$ISTDOUT);
+
+	if($COMPRS & 2){ ($STDERR,$ISTDERR) = &Compress($STDERR,$ISTDERR);}
 	&FileCopy($STDERR,$ISTDERR);
+    } else {
+	# Same routine handling compression
+	&STDtrap(2);
+	if($COMPRS & 1){ ($ISTDOUT,$STDOUT) = &Compress($ISTDOUT,$STDOUT);}
+	if($COMPRS & 2){ ($ISTDERR,$STDERR) = &Compress($ISTDERR,$STDERR);}
     }
 }
-
-
-
 
 
 
@@ -430,6 +451,32 @@ if ( ! open(FO,">$PWD/$JOB_ID.csh") ){
 # -=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
 # Subroutines
 # -=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
+#
+# Compress or not file1. Change name and return
+# value of file1/file2 if succeded.
+#
+sub Compress
+{
+    my($file1,$file2)=@_;
+
+    if($GZIP eq ""){ return ($file1,$file2);}
+    if(-e "$file1.gz"){ unlink("$file1.gz");}
+
+    system("$GZIP $file1 ");
+    if( -e $file1.".gz"){
+	# Change fie names origin -> destination
+	$file1 .= ".gz";
+
+	# but also delete first the target file name 
+	# if exists before changing its name. Otherwise,
+	# will will have a left-over.
+	if(-e "$file2"){ unlink("$file2");}
+	$file2 .= ".gz";
+    }
+    ($file1,$file2);
+}
+
+
 #
 # Subroutine to check and create path. mkpath()
 # in the perl module does not return the failure
@@ -531,20 +578,8 @@ sub FileCopy
     # if the final file already exists, remove it first
     if( -e $target){ unlink($target);}
 
-
-    # Compression treatment will be done using gzip, not a perl
-    # module.
-    if($COMPRS && $flnm eq $STDOUT){ 
-	system("$GZIP $flnm");
-	if( -e $flnm.".gz"){
-	    $flnm   .= ".gz";
-	    $target .= ".gz";
-	}
-	print "$PRGM :: Info: Copying $flnm.gz -> $target.gz\n";
-    } else {
-	# Informative message
-	print "$PRGM :: Info: Copying $flnm -> $target\n";
-    }
+    # Informative message
+    print "$PRGM :: Info: Copying $flnm -> $target\n";
 
     # Copy now
     copy($flnm,$target);
@@ -581,6 +616,10 @@ sub STDtrap
 	$mode==0?open(STDOUT,">$outf"):open(STDOUT,">>$outf");
 	select(STDOUT); $| = 1;
 
+    } elsif ( $mode == 2){
+	# trash STD-IO
+	open(STDERR,">&/dev/null");
+	open(STDOUT,">&/dev/null");
 
     } else {
 	# default is to close those pipes
