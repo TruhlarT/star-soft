@@ -53,7 +53,7 @@ sub _init{
 
   # offline
   if ( $self->ServerName eq "sol.star.bnl.gov" ||
-       $self->ServerName eq "rcas6001.rcf.bnl.gov"){
+       $self->ServerName =~ /rcas/){
     $self->ServerType("offline");
   } # online
   elsif ( $self->ServerName eq "online_server_name" ){
