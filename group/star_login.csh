@@ -100,9 +100,9 @@ if( ! $?X11BIN || ! $?PATH) then
     endif
 
     set SYSPATH="/usr/bin /bin $X11BIN"
-    set ROOTPATH="$SYSPATH"
+    set ROOTPATH="$X11BIN"
     # Here is a bunch of paths to check for (in reverse order)
-    set DIRS="/usr/dt/bin /usr/ucb /usr/local/bin"
+    set DIRS="/usr/dt/bin /usr/ccs/bin /usr/ucb /bin /usr/bin /usr/local/bin"
     foreach tdir ($DIRS)
 	if ( -d "$tdir" ) then
 	    set ROOTPATH="$tdir $ROOTPATH"
