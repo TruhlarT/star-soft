@@ -349,6 +349,12 @@ sub RunMacro{
       next;
     };
     
+    # bum 25/03/00 - added int argument
+    $arg =~ /int=(\d+)/ and do{
+      $exec_string .= " $1,";
+      next;
+    };
+
     $arg =~ /string=(\S+)/ and do{  
       $exec_string .= " \"$1\",";
       next;
