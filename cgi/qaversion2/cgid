@@ -35,8 +35,6 @@
 #
 #      cgid [options] &
 #
-# Cross Your Fingers.
-#
 # NOTE: cgid is biased to run on rcas by the path environment variable provided
 #       to the child script
 #
@@ -61,7 +59,7 @@ my $log_file = "$log_dir/$my_name.log";
 # look-up table for paths (aliases)
 my $script_dirs = {
     "/ben"   => "/star/u2e/bnorman/cgi-bin/qa",
-    "/peter" => "/afs/rhic/star/users/jacobs/QA/cgi",
+    "/peter" => "/afs/rhic/star/users/jacobs/QA/cgi/qaversion2",
     "/bum"   => "/star/u2e/bum/cgi-bin/version2",
     "/v2"    => "/afs/rhic/star/packages/dev/cgi/qaversion2",
     "/pro"   => "/star/u2e/starqa/cgi-bin/pro/cgi/qaversion2"
