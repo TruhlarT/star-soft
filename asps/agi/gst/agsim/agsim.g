@@ -418,12 +418,12 @@ C
 *KEEP,VIDQQ.
       CHARACTER*68 VIDQQ
       DATA VIDQQ/
-     +'@(#)* Advanced Geant Inteface   1.40/05   C: 27/12/98  22.13.34
+     +'@(#)* Advanced Geant Inteface   1.40/05   C: 02/01/99  22.12.19
      +'/
 *KEEP,DATEQQ.
-      IDATQQ =   981227
+      IDATQQ =   990102
 *KEEP,TIMEQQ.
-      ITIMQQ =   2213
+      ITIMQQ =   2212
 *KEEP,VERSQQ.
       VERSQQ = ' 1.40/05'
       IVERSQ =  14005
@@ -3476,6 +3476,7 @@ C
                        %NLMAT= 0;
    END
  
+*CMZ :          02/01/99  15.36.41  by  Pavel Nevski
 *CMZ :  1.00/00 23/02/95  01.10.25  by  Pavel Nevski
 *-- Author :    Pavel Nevski   26/11/94
 **********************************************************************
@@ -3617,7 +3618,7 @@ C
  if Im<0 & Cmate#Cmodu & Cmodu#' '           " then for a local material"
  {  %Material=Cmodu//'_'//%Title;  Im=AgSMATE(%Material,JMATE,Par); }
  
- %Medium=%Material;   %Imed=-1;   %Imat=abs(Im);
+ %Medium=%L(%Title);   %Imed=-1;   %Imat=abs(Im);
  if Im<0
  { If %Parlist='NONE'  {error('Undefined material requested',%Title)}
    prin1  %L(%Material),%Imat,%A,%Za,%Dens,%RADL,%ABSL;
@@ -3626,9 +3627,12 @@ C
     Call GSMATE(%Imat,%Material,%A,%Za,%Dens,%RADL,%ABSL,%UBUF,%NWBUF);
  }
  Else If %Parlist='NONE'
- {  Call GFMATE(%Imat, Material,%A,%Za,%Dens,%RADL,%ABSL,%UBUF,%NWBUF); }
+ {  Call GFMATE(%Imat, Material,%A,%Za,%Dens,%RADL,%ABSL,%UBUF,%NWBUF);
+    prin1 %L(Material),%L(%Medium); (' AxMATE: fetched material ',a,' med ',a)
+ }
   END
  
+*CMZ :          02/01/99  15.17.52  by  Pavel Nevski
 *CMZ :  1.30/00 02/04/97  15.00.54  by  Pavel Nevski
 *CMZ :  1.00/00 27/02/95  15.31.04  by  Pavel Nevski
 *-- Author :    Pavel Nevski   26/11/94
@@ -3765,7 +3769,8 @@ C
     Character    Medium*20,Cmedi*4,Cmodu*4
     Real         Par(10)
 *
- %Medium=%Title;     Cmedi=%Medium;   Cmodu=%Module;  Ifield=%Ifield*%Imfld
+ %Medium=%Title;     Cmedi=%Medium;   Cmodu=%Module;
+ Ifield=0;  if (%Ifield>0 & %Imfld>0) Ifield=max(%Ifield,%Imfld)
  PAR={0,%IsVol, Ifield,%Fieldm,%TmaxFD, %SteMax,%DeeMax,%Epsil,%Stmin, 0};
  
  Im=AgSMATE (%Medium,JTMED,Par);              " first check for a global "
@@ -5024,6 +5029,7 @@ C
   }  :err:
    END
  
+*CMZ :          02/01/99  19.45.50  by  Pavel Nevski
 *CMZ :  1.00/00 07/03/95  21.07.41  by  Pavel Nevski
 *-- Author :    Pavel Nevski   26/11/94
 **********************************************************************
@@ -5153,18 +5159,19 @@ C
 C
 *KEND.
     Integer      AgSMATE,LENOCC,Imede,Ifield;
-    Character    Cmedi*4,Cmodu*4;
+    Character    Cmedi*4,Cmodu*4,Medium*20;
     Real         Par(10);
  
- Cmedi=%Medium;   Cmodu=%Module;  Ifield=%Ifield * %IMFLD;
- if (Cmedi#Cmodu & Cmodu#' ')  %Medium=Cmodu//'_'//%Medium;
+ Cmedi=%Medium;   Cmodu=%Module;
+ Ifield=0;  if (%Ifield>0 & %Imfld>0) Ifield=max(%Ifield,%Imfld)
+ if  Cmedi#Cmodu & Cmodu#' ' { Medium=Cmodu//'_'//%Medium; %Medium=Medium }
  PAR={%Imat,%IsVol,Ifield,%Fieldm,%TmaxFD,%SteMax,%DeeMax,%Epsil,%Stmin,0};
  
  Imede=AgSMATE(%Medium,JTMED,Par);  %IMED=abs(Imede);
  If Imede<0
  {  prin1       %L(%MEDIUM), %IMED, %Imat, %ISVOL,   IFIELD, %FIELDM, %TMAXFD,
                                            %STEMAX, %DEEMAX, %EPSIL,  %STMIN;
-                (' AGSTMED  for medium ',A,' med,mat,sen,fld =',2i4,2i2/,
+                (' AGSMEDI  for medium ',A,' med,mat,sen,fld =',2i4,2i2/,
                                10x ,'Field = ',2F5.1,'  steps = ',4F8.5);
     Call GSTMED (%IMED, %MEDIUM, %IMAT,   %ISVOL,  IFIELD, %FIELDM, %TMAXFD,
                         %STEMAX, %DEEMAX, %EPSIL, %STMIN,  %UBUF,   %NWBUF);
@@ -16061,6 +16068,7 @@ Do id=1,2*NDet,2
 larea(1)=0; Iquest(1)=0
 End
  
+*CMZ :          29/12/98  13.44.40  by  Pavel Nevski
 *CMZ :  1.30/00 27/07/96  15.41.07  by  Pavel Nevski
 *-- Author :    Pavel Nevski   27/07/96
 ************************************************************************
@@ -16146,8 +16154,9 @@ C
   {  Call MZFLAG(IxSTOR,LkDETM,1,'Z')
      Do Idet=1,IQ(LkDETM-2)
      {  * clean up SIMU and RESA - no jumps are defined
-        Ldet=LQ(LkDETM-Idet);  Check Ldet>0;  Check IQ(Ldet-1)>=13
-        "IRESA" IQ(Ldet+13)=0;        "ISIMU" IQ(Ldet+7) =0
+        Ldet=LQ(LkDETM-Idet);  Check Ldet>0;
+        "SIMU" If (IQ(Ldet-1)>=7)  IQ(Ldet+7)  = -abs(IQ(Ldet+7))
+        "RESA" If (IQ(Ldet-1)>=13) IQ(Ldet+13) = 0
  
         * drop DETP banks
         Do Ib=1,IQ(Ldet-2)
@@ -16651,9 +16660,14 @@ C                                       Link to:
 *
       end
  
+*CMZ :          29/12/98  11.07.02  by  Pavel Nevski
 *CMZ :  1.30/00 21/03/97  12.42.58  by  Pavel Nevski
 *-- Author :    Pavel Nevski   16/03/97
+*************************************************************************
       SUBROUTINE   AGNEED (IER)
+*
+* make sure there is enouph free memory for TRACK/VERTEX/STACK relocation
+*************************************************************************
 *KEEP,TYPING.
       IMPLICIT NONE
 *KEEP,GCBANK.
@@ -16710,8 +16724,11 @@ C
  
       LSTACK=0;  IF (JSTAK>0) LSTACK=IQ(JSTAK-1)
       NNEW = 500+max(NTRACK,NVERTX,LSTACK)
-      Call MZNEED(IXDIV,NNEW,'G');  CHECK IQUEST(11)<0
-*     Iswit(9)-=1; if (Iswit(9)<0) return
+      Call MZNEED(IXDIV,NNEW,'G')
+      CHECK IQUEST(11)<0
+*
+*     requested relocation reserve (NNEW words) is unavailable
+*     trying to recover memory from constant division
 *
       Call MZGARB(2,0);  CALL MZGARB(20,0);  Call MZDRED(20);
       prin2;  (' ***** AGNEED compression done *****')
@@ -17132,6 +17149,7 @@ C
 END
  
  
+*CMZ :          31/12/98  17.37.25  by  Pavel Nevski
 *CMZ :  1.40/05 20/08/98  18.31.05  by  Pavel Nevski
 *-- Author :    Pavel Nevski   06/06/97
 ***************************************************************************
@@ -17225,7 +17243,7 @@ C
 *
 *KEND.
    Real     ARGUM,Vertex(4),Plab(3),UB(*)
-   Integer  Iparti,Nv,NB,Nt,Id/0/,Iprin,Irc,JV,IV
+   Integer  LgKINE,Iparti,Nv,NB,Nt,Id/0/,Iprin,Irc,JV,IV,JKIN
  
       Iprin=Idebug;   Nt=0;   Check JVERTX>0;
       Jv=0; IF (1<=NV & NV<=IQ(JVERTX-2)) Jv=LQ(JVERTX-Nv)
@@ -17239,7 +17257,7 @@ C
          return
       }
       Call GSKINE (Plab,IPARTI,Nv,UB,NB,Nt);  IV=ARGUM(UB)
-      if nt>0 & NB==0 { IQ(LQ(JKINE-Nt)-5)=IV }
+      if nt>0 & NB==0 { IQ(LgKINE(JKIN,Nt)-5)=IV }
       if nt <= 0 { Prin1 Iparti,IV; (' AgSKINE: unknown geant iv,id: ',2i6) }
    END
  
