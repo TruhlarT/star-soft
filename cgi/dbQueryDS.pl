@@ -29,7 +29,7 @@ my $prodNext;
 &beginHtml();
 
 
-$sql="SELECT DISTINCT dataset FROM $cpFileCatalogT where jobID <> 'n/a' ";
+$sql="SELECT DISTINCT dataset FROM $FileCatalogT where jobID <> 'n/a' ";
 $cursor =$dbh->prepare($sql)
   || die "Cannot prepare statement: $DBI::errstr\n";
 $cursor->execute;
@@ -59,7 +59,7 @@ for ($ll=0;$ll<scalar(@prodPer);$ll++) {
 
  $prod = "_" . $prodPer[$ll] . "_";
  $prodSeq = " ";
-$sql="SELECT DISTINCT dataset FROM $cpFileCatalogT where jobID like '%$prod%' ";
+$sql="SELECT DISTINCT dataset FROM $FileCatalogT where jobID like '%$prod%' ";
 $cursor =$dbh->prepare($sql)
   || die "Cannot prepare statement: $DBI::errstr\n";
 $cursor->execute;
