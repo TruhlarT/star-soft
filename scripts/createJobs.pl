@@ -155,7 +155,7 @@ my $myRun;
    }
 
  my $ii = 0;	    
- $istart = scalar(@SetD) - 2;
+ $istart = scalar(@SetD) - 5;
  $jobDIn_no = 0; 
  for ($ii=$istart; $ii< scalar(@SetD); $ii++)  { 
 
@@ -189,12 +189,18 @@ my $jbset;
 my @flsplit;
 my $mrunId;
 my $nfiles = 0;
+my $dset = "n/a";
+my $flname;
+my $jpath;
+my $jfile;
+my $chain;
 
   foreach my $jobDnm (@jobDIn_set){
-      my $jpath  = ($$jobDnm)->pathN;
-      my $flname = ($$jobDnm)->fileN;
-      my $dset   = ($$jobDnm)->dtSet;
-      my $jfile = $flname;
+       $dset = "n/a"; 
+       $jpath  = ($$jobDnm)->pathN;
+       $flname = ($$jobDnm)->fileN;
+       $dset   = ($$jobDnm)->dtSet;
+       $jfile = $flname;
        $jfile =~ s/.daq//g;
        @flsplit = split ("_",$jfile);  
        $mrunId =  $flsplit[2];
@@ -208,6 +214,7 @@ my $nfiles = 0;
            $mjobFdir = "new_jobs";
            $mjobSt = "n/a";
            $mchName = $mNikName;
+           $chain = $mchain;
           @parts =  split ("/", $jpath);
     $jbset = $prodPeriod . "_" . $parts[5] . "_" . $parts[6];
           $mjobFname = $jbset ."_". $jfile;
@@ -223,21 +230,21 @@ my $nfiles = 0;
      if (-f $jb_hold)     {$jb_fstat = 0};  
 
       if($jb_fstat eq 1)  {
-      if($dset =~ /FieldOff/) {
-       $mchain = "ry2001,in,tpc_daq,tpc,rich,l3onl,Physics,FieldOff,Cdst,tags,Tree,evout,ExB";   
+      if($dset =~ /_FieldOff/) {
+       $chain = "ry2001,in,tpc_daq,tpc,rich,l3onl,Physics,FieldOff,Cdst,tags,Tree,evout,ExB";   
      }
-          &create_jobs($jfile, $jbset, $mchain, $mlibVer, $JOB_DIR); 
+          &create_jobs($jfile, $jbset, $chain, $mlibVer, $JOB_DIR); 
 
          print "JOB ID = " ,$mjobID, " % " . $mjobFname,  "\n";
 
 #####  fill  JobStatus table
       print "filling JobStatus table\n";
  
-       &fillJSTable();   
+#       &fillJSTable();   
 
 #####  fill  jobRelations table
        print "filling jobRelations table\n";
-       &fillJRelTable();
+#       &fillJRelTable();
 
       }  
     }
