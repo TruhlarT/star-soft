@@ -1,4 +1,4 @@
-#!/usr/bin/perl -w
+#!/opt/star/bin/perl -w
 #
 # This is a command line utility to do a maintenance and cleanup
 # of te FileCatalog database

@@ -1,4 +1,4 @@
-#!/usr/bin/perl -w
+#!/opt/star/bin/perl  -w
 #
 # This is the command line utility, which allows access to the data in the
 # FileCatalog database.
