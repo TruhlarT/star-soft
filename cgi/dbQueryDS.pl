@@ -11,7 +11,7 @@ use CGI;
 
 require "/afs/rhic/star/packages/DEV00/mgr/dbCpProdSetup.pl";
 
-my @prodPer = ("mdc1", "mdc2", "postmdc2", "prod4", "prod5", "mdc3", "prod6");
+my @prodPer = ("mdc1", "mdc2", "postmdc2", "prod4", "prod5", "mdc3", "prod6", "P00hi");
 my $debugOn = 0;
 my %pair;
 my @Sets;
@@ -59,7 +59,8 @@ while(@fields = $cursor->fetchrow) {
 
 for ($ll=0;$ll<scalar(@prodPer);$ll++) {
 
- $prod = "_" . $prodPer[$ll] . "_";
+# $prod = "_" . $prodPer[$ll] . "_";
+$prod = $prodPer[$ll];
  $prodSeq = " ";
 $sql="SELECT DISTINCT dataset FROM $FileCatalogT where jobID like '%$prod%' AND dataset <> 'n/a' AND type = 'MC_reco' ";
 $cursor =$dbh->prepare($sql)
