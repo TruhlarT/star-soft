@@ -631,7 +631,7 @@ sub do_report_comparison {
     #---
     $table_heading_ascii = join ':',@table_heading;
     $table_heading_ascii =~ s/:/\t/g;
-    $tabstop = 12;
+    $tabstop = 20;
     $table_heading_ascii = expand("$table_heading_ascii"); 
 
     @table_absolute_ascii = ($table_heading_ascii);
@@ -673,7 +673,7 @@ sub do_report_comparison {
       $ascii_abs =~ s/:/\t/g; 
       $ascii_diff =~ s/:/\t/g; 
       
-      $tabstop = 12;
+      $tabstop = 20;
       $ascii_abs = expand( "$ascii_abs");
       $ascii_diff = expand( "$ascii_diff");
 
