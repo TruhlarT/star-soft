@@ -51,6 +51,7 @@ if ( -r  $GROUP_DIR/star_login.csh ) then
 	    set DAY=`date | sed "s/ .*//"`
 
 	    setenv SILENT 1
+	    if ($?INSURE) unsetenv INSURE
 	    staradev
 	    unset noclobber
 
