@@ -8,7 +8,7 @@
 
 use CGI;
 
-require "/afs/rhic/star/packages/DEV/mgr/dbCpProdSetup.pl";
+require "/afs/rhic/star/packages/DEV00/mgr/dbCpProdSetup.pl";
 
 my $debugOn = 0;
 my %pair;
