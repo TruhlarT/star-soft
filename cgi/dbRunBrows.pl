@@ -42,10 +42,10 @@ my $mcomment;
 
 if($detrSet eq "all" ) {
 
-$sql="SELECT * FROM $FileCatalogT WHERE runID = '$runPr' AND jobID like '%$prodSr%' AND trigger = '$trgSet' AND path like '$dirRun%' AND fName like '%root' ";
+$sql="SELECT * FROM $FileCatalogT WHERE runID = '$runPr' AND jobID like '%$prodSr%' AND trigger = '$trgSet' AND fName like '%root' ";
 
 }else {
-$sql="SELECT * FROM $FileCatalogT WHERE runID = '$runPr' AND jobID like '%$prodSr%' AND trigger = '$trgSet' AND dataset like '%$detrSet' AND path like '$dirRun%' AND fName like '%root' ";
+$sql="SELECT * FROM $FileCatalogT WHERE runID = '$runPr' AND jobID like '%$prodSr%' AND trigger = '$trgSet' AND dataset like '%$detrSet' AND fName like '%root' ";
 }
 $cursor =$dbh->prepare($sql)
   || die "Cannot prepare statement: $DBI::errstr\n";
