@@ -41,25 +41,25 @@ if ( "$1" == "Clean") then
 else if ( "$1" == "Update") then
   # Run the script in update mode i.e. fetch intermediate records
   # we may have missed. Sleep time is irrelevant in this mode.
-  cd $PATH 
-  ./$SCRIPT 0 $SLTIME 
+  cd $PATH
+  ./$SCRIPT 0 $SLTIME
 
 else if ( "$1" == "Purge") then
   # Purge mode will bootstrap the entries entered since some
   # period of time and remove the ones which have been marked
   # bad as a post-action.
   cd $PATH
-  ./$SCRIPT -1 $SLTIME   
+  ./$SCRIPT -1 $SLTIME
 
 else
   # default option is to Run
   set TEST=`ps -ef | grep $ME | grep $SCRIPT | grep -v grep`
   if ("$TEST" == "") then
-    cd $PATH                    
-    if( ! -e $LOG) then  
-	echo "Starting on `date`" >$LOG
+    cd $PATH
+    if( ! -e $LOG) then
+    	echo "Starting on `date`" >$LOG
     endif
-    ./$SCRIPT 1 $SLTIME >>$LOG &     
+    ./$SCRIPT 1 $SLTIME >>$LOG
   endif
 
 endif

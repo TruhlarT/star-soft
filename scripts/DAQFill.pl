@@ -41,18 +41,21 @@ do {
 	    
 		# display info
 		if ($#records != -1){
-		    print "Fetched ".($#records+1)." records on $ctime\n";
+		    print "Fetched ".($#records+1)." records on $ctime, entered ";
 		    
 		    # record entries
-		    rdaq_add_entries($dbObj,@records);
+		    print rdaq_add_entries($dbObj,@records)."\n";
 		    
 		    # cleanup
 		    undef(@records);
 		}
 	    } else {
 		print "Checking entries on ".localtime()."\n";
-		$mode = 0;
-		rdaq_check_entries($obj,$sltime);
+		$mode    = 0;  # loop reset
+		@records = rdaq_raw_files($obj,$run);
+		rdaq_update_entries($dbObj,@records);
+
+		#rdaq_check_entries($dbObj,$sltime);
 	    }
 
 	    # close
