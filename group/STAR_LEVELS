@@ -3,19 +3,8 @@
 # STAR_LEVELS.csh - C-Shell script to display STAR levels as string.
 # Usage: STAR_LEVELS
 #
-echo "SL-"\
-$CERN_LEVEL-\
-$STAR_LEVEL-\
-#$STAR_ANA_LEVEL-\
-#$STAR_DAQ_LEVEL-\
-#$STAR_OFL_LEVEL-\
-#$STAR_ONL_LEVEL-\
-#$STAR_PHY_LEVEL-\
-#$STAR_SIM_LEVEL-\
-#$STAR_SYS_LEVEL-\
-#$STAR_TRG_LEVEL-\
-`date +%y`\
-`date +%j`.\
-`date +%R`\
-|sed -e 's/ //g'
+set staff = `which staf`
+set staf = `ls -al $staff | cut -c42-120 |sed -e 's/ /_/g'`
+
+echo " "CERN-$CERN_LEVEL\;STAR-$STAR_LEVEL\;STAF-${staf}\;`date +%d_%h_%y`|sed -e 's/ //g'
 #
