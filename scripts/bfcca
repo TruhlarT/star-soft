@@ -201,11 +201,8 @@ if ( ! open(FO,">$PWD/$JOB_ID.csh") ){
     close(FO);
     chmod(0755,"$PWD/$JOB_ID.csh");
 
-    print "-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=--=-=-=-=-=-=-=-=-=-=-\n";
-    print "$PRGM :: Info: Our working directory contains\n";
-    print `ls -l`;
-    print "$PRGM :: Info: We will now start to run ...\n";
-    print "-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=--=-=-=-=-=-=-=-=-=-=-\n";
+
+    &List("Our working directory contains","We will now start to run ...");
 
     system("$PWD/$JOB_ID.csh");
    
@@ -216,6 +213,9 @@ if ( ! open(FO,">$PWD/$JOB_ID.csh") ){
 	print STDERR "$PRGM :: Error: chain stopped with status [$!]\n";
     }
    
+    &List("The directory content is now ...");
+
+    
    
     # But please, do not stop there but move the output if required
     # Required means that the option was HPSS, UNIX option means
@@ -277,7 +277,7 @@ if ( ! open(FO,">$PWD/$JOB_ID.csh") ){
 	
 	} else {
 	    # Oups ! The output file was not found
-	    print STDERR "$PRGM :: Warning: action did not produce expected $cfile\n";
+	    print "$PRGM :: Warning: action did not produce expected $cfile\n";
 	}	
     }
     print "$PRGM :: Info: All output checked. Done.\n";
@@ -330,4 +330,20 @@ sub MkPath
 }
 
 
+#
+# Small common routine for doing a ls/directory
+# content (helps for debugging purposes).
+#
+sub List
+{
+    my($smess,$emess)=@_;
+    my($i);
 
+    for($i=0 ; $i < 45 ; $i++){ print "-=";}
+    print "\n";
+    print "$PRGM :: Info: $smess\n" if ( defined($smess) );
+    print `ls -l`;
+    print "$PRGM :: Info: $emess\n" if ( defined($emess) );    
+    for($i=0 ; $i < 45 ; $i++){ print "-=";}
+    print "\n";
+}
