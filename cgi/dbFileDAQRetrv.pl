@@ -55,7 +55,7 @@ print <<END;
           <title>Production File Catalog</title>
   </head>
   <body BGCOLOR=\"#ccffff\"> 
-     <h3>set = $set </h3>
+     <h3>run = $set </h3>
 <TABLE BORDER=5 CELLSPACING=1 CELLPADDING=2 >
 <TR>
 <TR ALIGN=CENTER VALIGN=CENTER>
