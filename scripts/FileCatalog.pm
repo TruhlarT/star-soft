@@ -123,7 +123,7 @@ require  Exporter;
 
 
 use vars qw($VERSION);
-$VERSION   =   "V01.295";
+$VERSION   =   "V01.297";
 
 # The hashes that hold a current context
 my %optoperset;
@@ -211,6 +211,10 @@ $keywrds{"dcid"          }    =   "detectorConfigurationID"   .",DetectorConfigu
 $keywrds{"rdcid"         }    =   "detectorConfigurationID"   .",RunParams"              .",0" .",num"  .",0" .",1" .",0";
 $keywrds{"dsid"          }    =   "detectorStateID"           .",DetectorStatess"        .",0" .",num"  .",0" .",1" .",0";
 $keywrds{"rdsid"         }    =   "detectorStateID"           .",RunParams"              .",0" .",num"  .",0" .",1" .",0";
+$keywrds{"spid"          }    =   "simulationParamsID"        .",SimulationParams"       .",0" .",num"  .",0" .",1" .",0";
+$keywrds{"rspid"         }    =   "simulationParamID"         .",EventGenerator"         .",0" .",num"  .",0" .",1" .",0";
+$keywrds{"rtid"          }    =   "runTypeID"                 .",RunTypes"               .",0" .",num"  .",0" .",1" .",0";
+$keywrds{"rrtid"         }    =   "runTypeID"                 .",RunParams"              .",0" .",num"  .",0" .",1" .",0";
 
 # *** Those should be documented
 $keywrds{"filetype"      }    =   "fileTypeName"              .",FileTypes"              .",1" .",text" .",0" .",1" .",1";
