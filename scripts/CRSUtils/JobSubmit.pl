@@ -185,14 +185,14 @@ if ($ThisYear == 2002){
     $EXPRESS =  0;     
     $ZEROBIAS=  7;
 
-    @USEQ    = (4,4,3);
-    @SPILL   = (0,3,2);
+    @USEQ    = (5,5,4);
+    @SPILL   = (0,4,2);
     #@SIZES   = (,,);
 
     # Default chain -- P2005 does not include Corr4 but Corr3
-    $DCHAIN{"AuAu"}           = "P2005,svt_daq,svtD,EST,alltrigger,Xi2,V02,Kink2,CMuDst";
-    $DCHAIN{"PPPP"}           = "P2005,ppOpt,svt_daq,svtD,EST,alltrigger,Xi2,V02,Kink2,CMuDst";
-    $DCHAIN{"CuCu"}           = "P2005,svt_daq,svtD,EST,alltrigger,Xi2,V02,Kink2,CMuDst";
+    $DCHAIN{"AuAu"}           = "P2005,svt_daq,svtD,EST,pmdRaw,alltrigger,Xi2,V02,Kink2,CMuDst,OShortR";
+    $DCHAIN{"PPPP"}           = "P2005,ppOpt,svt_daq,svtD,EST,pmdRaw,alltrigger,Xi2,V02,Kink2,CMuDst,OShortR";
+    $DCHAIN{"CuCu"}           = "P2005,svt_daq,svtD,EST,pmdRaw,alltrigger,Xi2,V02,Kink2,CMuDst,OShortR";
 
     # Default stand-alone auto-calib (works ONLY on $LASERTP files)
     $SCALIB{"AuAu"}           = "OptLaser";
