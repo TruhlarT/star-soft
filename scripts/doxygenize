@@ -65,6 +65,8 @@ foreach $file (@ARGV){
 		} 
 		print FO "$line";
 	    }
+	    close(FI);
+	    close(FO);
 	    rename("$file-tmp",$file);
 	} else {
 	    print " already doxygenized\n";
