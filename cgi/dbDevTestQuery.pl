@@ -1,8 +1,11 @@
 #!/opt/star/bin/perl -w
 #
-# $Id: dbDevTestQuery.pl,v 1.2 2001/02/14 17:02:58 liuzx Exp $
+# $Id: dbDevTestQuery.pl,v 1.3 2001/02/15 18:13:15 liuzx Exp $
 #
 # $Log: dbDevTestQuery.pl,v $
+# Revision 1.3  2001/02/15 18:13:15  liuzx
+# Header Error modified!
+#
 # Revision 1.2  2001/02/14 17:02:58  liuzx
 # Form->action error modified!
 #
@@ -53,14 +56,13 @@ my @myplot =   (
 $query = new CGI;
 
 print $query->header;
-print $query->start_html('Select Query for Production Plots');
-print $query->startform(-action=>"dbDevTestQueryPlot.pl");  
-
+print $query->start_html('Query for Nightly Test in DEV Library');
 print <<END;
 <META HTTP-EQUIV="Expires" CONTENT="0">
 <META HTTP-EQUIV="Pragma" CONTENT="no-cache">
 <META HTTP-EQUIV="Cache-Control" CONTENT="no-cache">
 END
+print $query->startform(-action=>"dbDevTestQueryPlot.pl");  
 
 print "<body bgcolor=\"#ffdc9f\">\n";
 print "<h1 align=center>Query for Nightly Test in DEV Library</h1>\n";
