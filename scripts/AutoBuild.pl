@@ -1,6 +1,6 @@
 #!/usr/bin/env perl
 
-# $Id: AutoBuild.pl,v 1.15 2004/01/30 22:29:04 jeromel Exp $
+# $Id: AutoBuild.pl,v 1.16 2004/02/26 20:31:30 jeromel Exp $
 # This script was written to perform an automatic compilation
 # with cvs co and write some html page related to it afterward.
 # Written J.Lauret Apr 6 2001
@@ -9,8 +9,9 @@
 #   the menu will appear on top of the report.
 # 
 #
-use lib "/afs/rhic/star/packages/scripts";
+use lib "/afs/rhic.bnl.gov/star/packages/scripts";
 use ABUtils;
+use Digest::MD5;
 
 # DEfault library version to work with
 $LIBRARY="adev";
@@ -88,11 +89,13 @@ $FILO  =STDOUT;       # Default Output file
 
 
 
-
+# All arguments will be kept for checksum purposes
+$ALLARGS = "$^O";
 
 # Quick argument parsing (dirty)
 for ($i=0 ; $i <= $#ARGV ; $i++){
-    $arg = $ARGV[$i];
+    $arg      = $ARGV[$i];
+    $ALLARGS .= " $arg";
     if( substr($arg,0,1) eq "-"){
 	# yeap. We consider this as an argument.
 	# I know we can use this package but why ?
@@ -160,18 +163,38 @@ if($LIBRARY =~ m/dev/i || $LIBRARY =~ m/new/i ||
     $CHVER = "starver $LIBRARY";
 }
 
-
 # Directory this script will work in
 $COMPDIR=IUCompDir($LIBRARY) if ( $COMPDIR eq "");
 
 # A temp script will be created with this name (number will be
 # appended at the end).
-$TMPNM="$COMPDIR/.AutoBuild".$POST;
+$TMPNM   ="$COMPDIR/.AutoBuild".$POST;
 # stdout/errors will be re-directed to a file with this main 
 # name. No extension please.
-$FLNMSG="$COMPDIR/Execute".$POST;
+$FLNMSG  ="$COMPDIR/Execute".$POST;
 # name of an eventual resource file
-$FLNMRC="$COMPDIR/.ABrc_$^O";
+$FLNMRC  ="$COMPDIR/.ABrc_$^O";
+# A lock file specific to this pass
+$FLNMLCK ="$COMPDIR/.AutoBuild.".(Digest::MD5->new->add($ALLARGS)->hexdigest()).".lock";
+
+
+# Check lock file
+$MAXDATE = 129600; # 24 hours * 1.5
+if (-e $FLNMLCK){
+    $date = time() - (stat($FLNMLCK))[9];
+    if ( $date > $MAXDATE ){
+	print "$FLNMLCK has a date greater than $MAXDATE. Deleting.\n";
+	unlink($FLNMCK);
+    } else {
+	print "Found a $FLNMCK file (another process is running). Exit ...\n";
+    }
+    exit;
+} else {
+    open(LCK,">$FLNMLCK");
+    print LCK localtime()."\n";
+    close(LCK);
+}
+
 
 
 #
@@ -370,6 +393,7 @@ if ($ans =~ /^\s*y/i){
     exit;
 }
 
+
 # If failure, DO NOT continue.
 if($fail != 0){ &Exit($fail); }
 
@@ -461,6 +485,8 @@ sub Exit()
     # Close global output if needed
     if($FILO ne STDOUT){ close($FILO);}
 
+    # Delete the lock file
+    unlink($FLNMCK);
 
     if( $DEBUG){
 	print "Debug mode. Stopping at this stage. $ERRSTR\n";
