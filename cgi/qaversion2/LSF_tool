@@ -386,11 +386,11 @@ sub bJobs{
     my $jobs = {};
 
     # get the jobs from bjobs
-    my @lines = @{runLSFCmd("bjobs -w -u all")};  # lists jobs for all users
-    shift @lines;                                 # discard header
+    my $lines = runLSFCmd("bjobs -w -u all");  # lists jobs for all users
+    shift @$lines;                                 # discard header
 
     # extract fields from each line
-    foreach my $line (@lines){  
+    foreach my $line (@$lines){  
 	my @fields = ($line =~ 
 	 /^(\S+)\s+(\S+)\s+(\S+)\s+(\S+)\s+(\S+)\s+(\S+)\s+(.*\S+)\s+(.{12})/);
 	my $job = {};
