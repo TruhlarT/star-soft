@@ -42,13 +42,12 @@ while(@fields = $cursor->fetchrow) {
     my $fvalue=$fields[$i];
     my $fname=$cursor->{NAME}->[$i];
     print "$fname = $fvalue\n" if $debugOn;
-#    next if ($fvalue =~ /daq/);
-#    next if ($fvalue =~ /dst/);
 
      $mySet = $fvalue  if($fname eq 'dataset'); 
  }
     next if ($mySet =~ /daq/);
     next if ($mySet =~ /dst/);
+    next if ($mySet eq 'n/a');
 
       $Sets[$nSets] = $mySet;
       $nSets++;
