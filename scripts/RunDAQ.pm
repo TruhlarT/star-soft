@@ -71,6 +71,30 @@
 #  need to take into account the fact that the number of fields is larger. The
 #  last field of DAQInfo is expected to be 'Status'. Please, preserve this ...
 #
+# The full DAQInfo table description is as follow (last dumped, Dec 2001). Other
+# tables are of trivial format (i.e. and int id and a char label).
+# +-------------+---------------------+------+-----+---------+-------+
+# | Field       | Type                | Null | Key | Default | Extra |
+# +-------------+---------------------+------+-----+---------+-------+
+# | file        | char(255)           |      | PRI |         |       |
+# | runNumber   | int(10)             |      |     | 0       |       |
+# | NumEvt      | int(10)             | YES  |     | NULL    |       |
+# | BeginEvt    | int(10)             | YES  |     | NULL    |       |
+# | EndEvt      | int(10)             | YES  |     | NULL    |       |
+# | Current     | float(16,8)         | YES  |     | NULL    |       |
+# | scaleFactor | float(16,8)         | YES  |     | NULL    |       |
+# | BeamE       | float(16,8)         | YES  |     | NULL    |       |
+# | Collision   | char(10)            | YES  |     | NULL    |       |
+# | DetSetMask  | bigint(20) unsigned | YES  |     | 0       |       |
+# | TrgSetup    | bigint(20) unsigned | YES  |     | 0       |       |
+# | TrgMask     | bigint(20) unsigned | YES  |     | 0       |       |
+# | EntryDate   | timestamp(14)       | YES  |     | NULL    |       |
+# | DiskLoc     | int(11)             | YES  |     | 0       |       |
+# | Status      | int(11)             | YES  |     | 0       |       |
+# +-------------+---------------------+------+-----+---------+-------+
+#
+#
+#
 #
 use Carp;
 use DBI;
@@ -463,9 +487,8 @@ sub rdaq_hack
 			  "WHERE runNumber=? ORDER BY triggerLabel DESC");
 
     # Trigger Setup
-    $sths = $obj->prepare("SELECT runDescriptor.trgSetupName FROM runDescriptor ".
-			  "WHERE runDescriptor.runNumber=? ".
-			  "ORDER BY trgSetupName DESC");
+    $sths = $obj->prepare("SELECT trgSetupName FROM runDescriptor ".
+			  "WHERE runNumber=? ORDER BY trgSetupName DESC");
 
 
     #
