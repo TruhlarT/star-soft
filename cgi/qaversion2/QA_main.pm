@@ -1,4 +1,4 @@
-#! /usr/local/bin/perl
+#! /usr/local/bin/perl -I/afs/rhic/star/starqa/qa01/lib
 
 # pmj & bjc 1/6/00
 #=========================================================
