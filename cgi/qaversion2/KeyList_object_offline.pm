@@ -132,13 +132,36 @@ sub JobPopupMenu{
 
   my (@table_rows);
 
-  $table_rows[0] = td( [h3('Select dataset:')]);
-  push @table_rows, td( [$self->GetRowOfMenus('prodOptions','runID','dataset') ]);
-  push @table_rows, td( [$self->GetRowOfMenus('QAstatus','jobStatus','createTime') ]);
-  push @table_rows, td( [$submit_string] );
+  #--- 
+  # pmj 21/6/00: more compact display, no header. Pulldown menu for changing classes
+  # has been moved to banner so there is more horizontal space
 
-  my $table_string = 
-    table({-align=>'center'}, Tr({-valign=>'top'}, \@table_rows));
+  #  $table_rows[0] = td( [h3('Select dataset:')]);
+  #  push @table_rows, td( [$self->GetRowOfMenus('prodOptions','runID','dataset') ]);
+  #  push @table_rows, td( [$self->GetRowOfMenus('QAstatus','jobStatus','createTime') ]);
+  #  push @table_rows, td( [$submit_string] );
+
+  my $null_string = "";
+
+  push @table_rows, td( [$self->GetRowOfMenus(
+					      'prodOptions'
+					      ,'jobStatus'
+					      ,'QAstatus'
+					      ,'dataset'
+					     ) 
+			]);
+
+  push @table_rows, td( [$self->GetRowOfMenus(
+					      'runID'
+					      ,'createTime'
+					     ) 
+			 ,$null_string
+			 ,$submit_string
+			]);
+
+  #---
+  #my $table_string = 
+  #    table({-align=>'center'}, Tr({-valign=>'top'}, \@table_rows));
 
   my $script_name   = $gCGIquery->script_name;
   my $hidden_string = $gBrowser_object->Hidden->Parameters;
@@ -146,7 +169,7 @@ sub JobPopupMenu{
   my $select_data_string =
       $gCGIquery->startform(-action=>"$script_name/upper_display",
 			-TARGET=>"list").
-	table({-align=>'center'}, Tr({-valign=>'top'}, \@table_rows)).
+	table({-align=>'left'}, Tr({-valign=>'top'}, \@table_rows)).
 	  $hidden_string.
 	    $gCGIquery->endform;
 

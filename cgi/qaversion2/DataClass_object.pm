@@ -52,10 +52,10 @@ my @data_class_array_offline = qw ( offline_real
 				    debug
 				  );
 
-my %data_class_labels_offline = (offline_real  => 'real data production',
-				 offline_MC    => 'MC production',
-				 nightly_real  => 'real data nightly tests',
-				 nightly_MC    => 'MC nightly tests',
+my %data_class_labels_offline = (offline_real  => 'Real Data Production',
+				 offline_MC    => 'MC Data Production',
+				 nightly_real  => 'Real Data Nightly Tests',
+				 nightly_MC    => 'MC Data Nightly Tests',
 				 debug         => 'debug');
 
 #----
@@ -65,8 +65,8 @@ my @data_class_array_online = qw ( online_raw
 				   online_debug
 				  );
 
-my %data_class_labels_online = (online_raw  => 'online raw data',
-				online_dst  => 'online dst data',
+my %data_class_labels_online = (online_raw  => 'Raw Data',
+				online_dst  => 'DST Data',
 				online_debug => 'debug');
 
 #----

@@ -118,15 +118,32 @@ sub PrintPageHeader{
     "<address><a href=mailto:pmjacobs\@lbl.gov>webmaster</a></address>";
   my $doc_string = "<a href=$doc_link target='display'>Documentation </a>";
 
-  my $header_string = $self->Title();
-  
+  #---
+  # generate header string with pull-down menu
+  # pmj 21/6/00
+
+  my $script_name = $gCGIquery->script_name;
+  my $header_string = $gCGIquery->startform(-action=>"$script_name/upper_display",
+					    -TARGET=>"list");
+  $header_string .= $self->Title();
+
+  my $class_switch_string = Browser_utilities::SwitchDataTypeMenuLite();
+  $header_string .= ": server=$server_type; data class = $class_switch_string";
+					     
+  my $hidden_string = $gBrowser_object->Hidden->Parameters;
+  $header_string .= $hidden_string.$gCGIquery->endform;
+
+  #---
+
+    
   # this is the header
+
   print qq{
     <table border=0 width=100% cellpadding=0 bgcolor=$colour>
       <tr valign=center>
       <td align=left><br>	  
       <ul> <font color=darkblue>
-	<h2>$header_string: server=$server_type; data class = $class_label</h2>
+	<h2>$header_string</h2>
 	      </font></ul> 
       <td><table border=0> 
       <tr> $doc_string
@@ -151,7 +168,9 @@ sub StartingDisplay{
   my $selection_string = $self->KeyList->JobPopupMenu(); 
 
   # switch class of data menu if not in Online
-  my $switch_string    = Browser_utilities::SwitchDataTypeMenu();
+  # pmj 21/6/00 data class string moved to banner, this is no longer needed
+  #my $switch_string    = Browser_utilities::SwitchDataTypeMenu();
+
 
   # comment form?
   my $comment_string 
@@ -170,11 +189,24 @@ sub StartingDisplay{
   {
     $expert_string = Browser_utilities::start_expert_default();
   }
+
+  # pmj 21/6/00 take out $switch_string 
   
+  #print qq{
+	#<table border=0, width=100%, valign=top, align=center>
+        #<tr valign=top>
+	#    <td> $switch_string
+	 #   <td> $selection_string
+	 #   <td> <table border=0, valign=top, align=center>
+         #        <tr> $expert_string
+         #        <tr> $comment_string
+         #        </table>
+         #   <td> $action_string
+        #</table>};
+
   print qq{
 	<table border=0, width=100%, valign=top, align=center>
         <tr valign=top>
-	    <td> $switch_string
 	    <td> $selection_string
 	    <td> <table border=0, valign=top, align=center>
                  <tr> $expert_string
@@ -182,6 +214,7 @@ sub StartingDisplay{
                  </table>
             <td> $action_string
         </table>};
+  #---
 
   # do i need this?
   

@@ -127,18 +127,41 @@ sub JobPopupMenu{
   my $submit_string = br.$gCGIquery->submit('Display datasets');
 
   my @table_rows;
+  #--- 
+  # pmj 21/6/00: more compact display, no header. Pulldown menu for changing classes
+  # has been moved to banner so there is more horizontal space
 
-  $table_rows[0] =  td ( [h3('Select dataset:')]);
-  push @table_rows, td([$self->GetRowOfMenus('eventGen','LibLevel','platform')]);
-  push @table_rows, td([$self->GetRowOfMenus('eventType','geometry','onDisk')]);
-  push @table_rows, td([$self->GetRowOfMenus('QAstatus','jobStatus','createTime')]);
-  push @table_rows, td( [$submit_string ] ) ;
+  #  $table_rows[0] =  td ( [h3('Select dataset:')]);
+  #  push @table_rows, td([$self->GetRowOfMenus('eventGen','LibLevel','platform')]);
+  #  push @table_rows, td([$self->GetRowOfMenus('eventType','geometry','onDisk')]);
+  #  push @table_rows, td([$self->GetRowOfMenus('QAstatus','jobStatus','createTime')]);
+  #  push @table_rows, td( [$submit_string ] ) ;
+
+  push @table_rows, td([$self->GetRowOfMenus(
+					     'eventGen'
+					     ,'LibLevel'
+					     ,'platform'
+					     ,'jobStatus'
+					     ,'QAstatus'
+					    )
+		       ]);
+
+  push @table_rows, td([$self->GetRowOfMenus(
+					     'eventType'
+					     ,'geometry'
+					     ,'onDisk'
+					     ,'createTime'
+					    )
+		       ,$submit_string
+		       ]);
+
+  #---
 
   my $script_name = $gCGIquery->script_name;
   my $hidden_string = $gBrowser_object->Hidden->Parameters;
 
   my $table_string =
-    table({-align=>'center'}, Tr({-valign=>'top'}, \@table_rows));
+    table({-align=>'left'}, Tr({-valign=>'top'}, \@table_rows));
 
   my $select_data_string = 
       $gCGIquery->startform(-action=>"$script_name/upper_display",

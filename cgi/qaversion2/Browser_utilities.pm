@@ -224,5 +224,60 @@ sub SwitchDataTypeMenu{
   
   return $toggle_string;
 } 
+#=============================================================
 
-1;
+sub SwitchDataTypeMenuLite{
+
+  my $script_name = $gCGIquery->script_name;
+  my $hidden_string = $gBrowser_object->Hidden->Parameters;
+ 
+  my $ref;
+
+  $ref = $gDataClass_object->DataClassArray();
+  my @dir_values = @$ref;
+
+  $ref = $gDataClass_object->DataClassLabels();
+  my %dir_labels = %$ref;
+
+  # set the default
+  my $default; my $count = 0;
+
+  my $current_data_class = $gDataClass_object->DataClass();
+
+  foreach my $data_class (@dir_values){
+    $data_class eq $current_data_class and last;
+    $count++;
+  }
+   
+  #BEN(13jun2000) added javascript to reload on change of data class
+  my $popup_string = $gCGIquery->popup_menu(-name   => 'data_class',
+					    -values => \@dir_values,
+					    -default=> $dir_values[$count],
+					    -labels => \%dir_labels,  
+					    -onChange => 'this.form.submit()'
+					    );
+
+#pmj 6/4/00: change labels from "Select Class" to "Change Class"
+
+#  my $submit_string = $gCGIquery->submit('Select Class');
+#  my @table_rows =  td ( [h3('Select Class of Data:')] );
+
+#  my $submit_string = $gCGIquery->submit('Change Class');
+#  my @table_rows =  td ( [h3('Change Class of Data:')] );
+#---
+
+#  push @table_rows, td ( [$popup_string ] );
+#  push @table_rows, td ( [$submit_string] );
+  
+#  my $table_string = table({-align=>'center'}, 
+#			   Tr({-valign=>'top'},\@table_rows));
+
+  my $toggle_string =
+    $gCGIquery->startform(-action=>"$script_name/upper_display",
+			  -TARGET=>"list").
+      $popup_string.
+	$hidden_string.
+	  $gCGIquery->endform;
+  
+  return $toggle_string;
+} 
