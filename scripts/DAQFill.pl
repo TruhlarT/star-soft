@@ -14,43 +14,46 @@ use RunDAQ;
 # Mode 1 will quit
 $mode  = 1;
 $sltime= 60;
+$file  = "";
 
 $mode   = shift(@ARGV) if ( @ARGV );
 $sltime = shift(@ARGV) if ( @ARGV );
+$file   = shift(@ARGV) if ( @ARGV );
+
 
 # We add an infinit loop around so the table will be filled
 # as we go.
-print "$0 starting on ".localtime()."\n";
+&Print("$0 starting on ".localtime()."\n");
 do {
     $ctime = localtime();
     $dbObj = rdaq_open_odatabase();
     if( $dbObj){
-	#print "O-Database opened\n";
+	#&Print("O-Database opened\n");
 	if ( ($obj = rdaq_open_rdatabase()) == 0){
-	    print "Failed to open R-Database on ".localtime()."\n";
+	    &Print("Failed to open R-Database on ".localtime()."\n");
 	} else {
-	    #print "R-Database opened\n";
-	    
+	    #&Print("R-Database opened\n");
+
 	    # get the top run
 	    $run = $mode*rdaq_last_run($dbObj);
-	    print "Last Run=$run\n";
+	    &Print("Last Run=$run\n");
 
 	    if($run >= 0){
 		# fetch new records since that run number
 		@records = rdaq_raw_files($obj,$run);
-	    
+
 		# display info
 		if ($#records != -1){
-		    print "Fetched ".($#records+1)." records on $ctime, entered ";
-		    
+		    &Print("Fetched ".($#records+1)." records on $ctime, entered ");
+
 		    # record entries
-		    print rdaq_add_entries($dbObj,@records)."\n";
-		    
+		    &Print( rdaq_add_entries($dbObj,@records)."\n");
+
 		    # cleanup
 		    undef(@records);
 		}
 	    } else {
-		print "Checking entries on ".localtime()."\n";
+		&Print("Checking entries on ".localtime()."\n");
 		$mode    = 0;  # loop reset
 		@records = rdaq_raw_files($obj,$run);
 		rdaq_update_entries($dbObj,@records);
@@ -64,10 +67,28 @@ do {
 	}
 	rdaq_close_odatabase($dbObj);
     } else {
-	print "Failed to open O-Database on ".localtime()."\n";
+	&Print("Failed to open O-Database on ".localtime()."\n");
     }
 
     sleep($sltime*$mode);
 } while(1*$mode);
 
 
+#
+# perform IO on a file or STDOUT.
+#
+sub Print
+{
+    my(@all)=@_;
+
+    if($file ne ""){
+	while( ! open(FO,">>$file")){;}
+	$FO = FO;
+    } else {
+	$FO = STDOUT;
+    }
+    foreach $el (@all){
+	print $FO $el;
+    }
+    if($file ne ""){ close(FO);}
+}
