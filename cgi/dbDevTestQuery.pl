@@ -1,8 +1,11 @@
 #!/usr/local/bin/perl -w
 #
-# $Id: dbDevTestQuery.pl,v 1.11 2002/04/12 19:32:39 didenko Exp $
+# $Id: dbDevTestQuery.pl,v 1.12 2003/05/22 18:59:18 didenko Exp $
 #
 # $Log: dbDevTestQuery.pl,v $
+# Revision 1.12  2003/05/22 18:59:18  didenko
+# updated test directories for year2003
+#
 # Revision 1.11  2002/04/12 19:32:39  didenko
 # updated redhat72
 #
@@ -38,7 +41,10 @@
 ################################################################
 
 use CGI;
-use CGI::Carp qw(fatalsToBrowser);
+
+BEGIN {
+ use CGI::Carp qw(fatalsToBrowser carpout);
+}
 
 my $debugOn = 0;
 
@@ -52,10 +58,12 @@ my @prod_set = (
 		"trs_redhat72/year_2001/hc_standard",
 		"trs_redhat72/year_2001/hc_highdensity",
                 "trs_redhat72/year_2001/pp_minbias",
-                "trs_redhat72/year_2001/ppl_minbias",
+                "trs_redhat72/year_2003/dau_minbias",
 		"daq_redhat72/year_2001/minbias",
                 "daq_redhat72/year_2001/central",
-                "daq_redhat72/year_2001/ppMinBias", 
+                "daq_redhat72/year_2001/ppMinBias",
+                "daq_redhat72/year_2003/ppMinBias",
+                "daq_redhat72/year_2003/dAuMinBias",
 		);
 
 my @sets_name;
