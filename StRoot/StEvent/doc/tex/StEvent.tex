@@ -2,7 +2,7 @@
 %
 % StEvent - User Guide and Reference Manual -- LaTeX Source
 %
-% $Id: StEvent.tex,v 2.50 2000/11/01 16:47:49 lasiuk Exp $
+% $Id: StEvent.tex,v 2.51 2000/12/08 03:54:37 ullrich Exp $
 %
 % Author: Thomas Ullrich, Nov 1999
 %
@@ -21,6 +21,9 @@
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %
 % $Log: StEvent.tex,v $
+% Revision 2.51  2000/12/08 03:54:37  ullrich
+% Add some forgotten RICH stuff and first ToF.
+%
 % Revision 2.50  2000/11/01 16:47:49  lasiuk
 % add the RICH changes of today
 %
@@ -215,8 +218,8 @@
   \mbox{\includegraphics[width=\textwidth]{StEventTitle.eps}}
   \hfill\mbox{}\\[3cm]
   {\LARGE User Guide and Reference Manual \\[5mm] for Version 2}\\[2cm]
-  {\LARGE $ $Revision: 2.50 $ $}  \\[5mm] % replaced by cvs with current revision
-  {\LARGE $ $Date: 2000/11/01 16:47:49 $ $}  % replaced by cvs with current revision
+  {\LARGE $ $Revision: 2.51 $ $}  \\[5mm] % replaced by cvs with current revision
+  {\LARGE $ $Date: 2000/12/08 03:54:37 $ $}  % replaced by cvs with current revision
   \vfill
 \end{center}
 \cleardoublepage
@@ -3194,6 +3197,12 @@ definition in the header file.
     Pointer to the SSD hit collection. If no hits are stored on the
     DST this pointer is \texttt{NULL}. You better check for this.   
 
+    \verb+StRichCollection* richCollection();+\\
+    \verb+const StRichCollection* richCollection() const;+\\
+
+    \verb+StTofCollection* tofCollection();+\\
+    \verb+const StTofCollection* tofCollection() const;+\\
+
     \verb+StL0Trigger* l0Trigger();+\\
     \verb+const StL0Trigger* l0Trigger() const;+\\
 
@@ -3261,6 +3270,10 @@ definition in the header file.
     \verb+void setFtpcHitCollection(StFtpcHitCollection*);+\\
 
     \verb+void setSvtHitCollection(StSvtHitCollection*);+\\
+
+    \verb+void setRichCollection(StRichCollection*);+\\
+
+    \verb+void setTofCollection(StTofCollection*);+\\
 
     \verb+void setTriggerDetectorCollection(StTriggerDetectorCollection*);+\\
 
@@ -4804,6 +4817,9 @@ definition in the header file.
     \verb+const StGlobalSoftwareMonitor* global() const;+\\
     \verb+StL3SoftwareMonitor* l3();+\\
     \verb+const StL3SoftwareMonitor* l3() const;+\\
+    \verb+StTofSoftwareMonitor* tof();+\\
+    \verb+const StTofSoftwareMonitor* tof() const;+\\
+
     \verb+void setTpcSoftwareMonitor(StTpcSoftwareMonitor*);+\\
     \verb+void setSvtSoftwareMonitor(StSvtSoftwareMonitor*);+\\
     \verb+void setFtpcSoftwareMonitor(StFtpcSoftwareMonitor*);+\\
@@ -4812,6 +4828,7 @@ definition in the header file.
     \verb+void setCtbSoftwareMonitor(StCtbSoftwareMonitor*);+\\
     \verb+void setGlobalSoftwareMonitor(StGlobalSoftwareMonitor*);+\\
     \verb+void setL3SoftwareMonitor(StL3SoftwareMonitor*);+\\
+    \verb+void setTofSoftwareMonitor(StTofSoftwareMonitor*);+\\
 \end{Entry}
 \clearpage
 
@@ -5401,11 +5418,13 @@ definition in the header file.
 
     \verb+UShort_t numberOfPossiblePoints() const;+\\
     Returns number of the (theoretically) maximum number of
-    points along a track in \emph{all} detectors.
+    points along a track in TPC, SVT, and SSD. Does not include
+    Tof, RICH, or EMC.
     
     \verb+UShort_t numberOfPossiblePoints(StDetectorId det) const;+\\
     Returns number of the (theoretically) maximum number of
     points along a track in a given detector \texttt{det}.
+    Applies only for tracking detectors: TPC, SVT, and SSD.
 
     \verb+const StTrackTopologyMap& topologyMap() const;+\\
 
@@ -5484,6 +5503,12 @@ definition in the header file.
     references to hits exist, this method will return the proper
     values. If you want to know the number of hits actually referenced
     use \texttt{numberOfReferencedPoints()} (see below).
+    This method takes only the following hits into account: TPC, SVT, and SSD.
+    Becomes obsolete when the DST tables are gone.
+    The preferred way of getting this info is via the \texttt{StTrackTopologyMap}
+    (see \ref{sec:StTrackTopologyMap}) available from class \texttt{StTrack} (see
+    \ref{sec:StTrack}). \index{StTrackTopologyMap}
+
 
     \verb+UShort_t numberOfPoints(StDetectorId det) const;+\\
     Returns the number of points in a given detector \texttt{det}.
@@ -5505,15 +5530,17 @@ numberOfPoints(kTpcId) == numberOfPoints(kFtpcWestId)
     If you are not sure you better check using the \texttt{StTrackTopologyMap}
     (see \ref{sec:StTrackTopologyMap}) available from class \texttt{StTrack} (see
     \ref{sec:StTrack}). \index{StTrackTopologyMap}
+    This method does not apply for detectors other than: TPC, SVT, and SSD.
+    Becomes obsolete when the DST tables are gone.
 
     
     \verb+UShort_t numberOfReferencedPoints() const;+\\
     Returns the total number of points (hits) referenced. This is
     \textbf{not} necessarily the number of points assigned to the
-    track during reconstruction. If no hits are loaded (e.g. on DST)
-    this method will return 0. To find out about the number of hits
+    track during reconstruction. If the refrring hits are not loaded
+    (e.g. on DST) this method will return 0. To find out about the number of hits
     used from the reconstruction chain use \texttt{numberOfPoints()}.
-    
+    This method will count all sort of hits including those from EMC, RICH, and ToF.
 
     \verb+UShort_t numberOfReferencedPoints(StDetectorId det) const;+\\
     Returns the number of points (hits) referenced originating from
@@ -5522,6 +5549,7 @@ numberOfPoints(kTpcId) == numberOfPoints(kFtpcWestId)
     are loaded for a given detector (e.g. on DST) this function will
     return 0. To find out about the number of hits as defined in
     reconstruction chain use \texttt{numberOfPoints()}.
+    This method works for all sorts of hits including those from EMC, RICH, and ToF.
 
     
     \verb+StPtrVecHit hits(StDetectorId) const;+\\
