@@ -22,6 +22,7 @@ $dbname="operation";
 $FileCatalogT = "FileCatalog";
 $ProdOptionsT = "ProdOptions";
 $JobStatusT = "JobStatus";
+$TriggerEventsT = "TriggerEvents";
 $jobRelationsT = "jobRelations";
 $DAQInfoT = "DAQInfo";
 $nodeStatusT = "nodeStatus";
