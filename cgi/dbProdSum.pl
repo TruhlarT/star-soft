@@ -155,8 +155,6 @@ if ($trigD eq "all" and $fieldM eq "all"  and $detSet eq "all" ) {
  $sql="SELECT fName, dataset, size, path, Nevents  FROM $FileCatalogT WHERE fName LIKE '%.root' AND jobID LIKE '%$prodSer%' AND dataset like '$colls%' AND trigger = '$trigD' AND dataset like '%$fieldM%' AND dataset like '%$detSet%' AND site like '$Loc%' ";
 }
 
-
-
    $cursor =$dbh->prepare($sql)
      || die "Cannot prepare statement: $DBI::errstr\n";
    $cursor->execute;
@@ -202,8 +200,8 @@ my @prt;
    }elsif($dhfile =~ /.emcEvent.root/) {
         $emcHpSize  += ($$dsfile)->hpsize;
         $emcHpEvts  += ($$dsfile)->Nevts;   
-     }else{
-     next;
+#     }else{
+#     next;
    }
  } else{
       @prt = split ("_", $dSet);
@@ -220,8 +218,8 @@ my @prt;
    }elsif($dhfile =~ /.emcEvent.root/) {
         $emcHpSize  += ($$dsfile)->hpsize;
         $emcHpEvts  += ($$dsfile)->Nevts;   
-     }else{
-     next;
+#     }else{
+#     next;
      }
     }
    }
