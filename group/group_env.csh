@@ -1,5 +1,5 @@
 #!/bin/csh -f
-#       $Id: group_env.csh,v 1.158 2003/10/30 20:09:54 jeromel Exp $
+#       $Id: group_env.csh,v 1.159 2003/11/05 01:24:37 jeromel Exp $
 #	Purpose:	STAR group csh setup
 #
 #	Author:		Y.Fisyak     BNL
@@ -42,11 +42,16 @@ if ($ECHO) echo   "Setting up STAR_ROOT = ${STAR_ROOT}"
 
 # Define /opt/star
 if ( ! $?OPTSTAR ) then
+    # keep a reference to the AFS one
+    if ( -e ${AFS_RHIC}/opt/star )  setenv XOPTSTAR ${AFS_RHIC}/opt/star
+
+    # local first
     if ( -e /opt/star ) then
-	setenv OPTSTAR /opt/star
+	setenv  OPTSTAR /opt/star
     else
-	if ( -e ${AFS_RHIC}/opt/star ) then
-	    setenv OPTSTAR ${AFS_RHIC}/opt/star
+	# remote second
+	if ( $?XOPTSTAR ) then
+	    setenv OPTSTAR ${XOPTSTAR}
 	endif
     endif
 endif
@@ -111,11 +116,22 @@ endif
 # Clear this out. First block STAF, second STAR
 source ${GROUP_DIR}/STAR_SYS;
 
-if ( ! $?optstar && $?OPTSTAR ) then
-    setenv optstar ${OPTSTAR}
+#
+# The above logic forces the creation of "a" compiler
+# specific path prior to setting up $OPTSTAR . This was
+# made on purpose so the environment would revert to a
+# default $OPTSTAR in case things are not quite in place.
+# 
+if ( $?OPTSTAR ) then
+    if (!  $?optstar ) setenv  optstar  ${OPTSTAR}
+    if (! $?xoptstar ) setenv xoptstar ${XOPTSTAR}
+
     if ( -e ${OPTSTAR}/${STAR_HOST_SYS} ) then
 	# Redhat > 7.3  transition ; adding one level
-	setenv OPTSTAR  ${optstar}/${STAR_HOST_SYS}
+	setenv OPTSTAR    ${optstar}/${STAR_HOST_SYS}
+    endif
+    if ( -e ${XOPTSTAR}/${STAR_HOST_SYS} ) then
+	setenv XOPTSTAR  ${xoptstar}/${STAR_HOST_SYS}
     endif
 endif
 
