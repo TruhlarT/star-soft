@@ -745,6 +745,9 @@ sub reduced_key{
 # take care of Solaris_CC5   pmj 23/2/00
   $value =~ s/_CC5//;
 
+# take care of redhat
+  $value =~ s/_redhat61//;
+
   $value =~ s/(Sun|Mon|Tue|Wed|Thu|Fri|Sat)\.//;
   $value =~ s/\.[0-9]+$//;
 

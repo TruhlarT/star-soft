@@ -563,9 +563,22 @@ sub ParseLogfile {
 #  find ( \&QA_cgi_utilities::get_root_event_file, $this_dir);
 #  defined $global_root_event_file or $missing_files .= " .event.root"; 
 
-  undef $global_dst_xdf_file;
-  find ( \&QA_cgi_utilities::get_xdf_file, $this_dir);
-  defined $global_dst_xdf_file or $missing_files .= " .dst.xdf"; 
+
+# pmj 7/3/00: took out xdf file checking, are no longer being produced
+#  undef $global_dst_xdf_file;
+#  find ( \&QA_cgi_utilities::get_xdf_file, $this_dir);
+#  defined $global_dst_xdf_file or $missing_files .= " .dst.xdf"; 
+
+#pmj 7/3/00 Added checks for .tags.root, .runco.root
+  undef $global_root_tags_file;
+  find ( \&QA_cgi_utilities::get_root_tags_file, $this_dir);
+  defined $global_root_tags_file or $missing_files .= " .tags.root"; 
+
+  undef $global_root_runco_file;
+  find ( \&QA_cgi_utilities::get_root_runco_file, $this_dir);
+  defined $global_root_runco_file or $missing_files .= " .runco.root"; 
+
+#----
 
   if ($missing_files  eq ""){
     undef $missing_files;

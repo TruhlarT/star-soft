@@ -83,6 +83,26 @@ sub get_root_event_file{
   
 }
 #==========================================================
+sub get_root_tags_file{
+  
+  $filename = $File::Find::name;
+    
+  if ( $filename =~ /\.tags\.root/ ) {
+    $global_root_tags_file = $filename;
+  }
+  
+}
+#==========================================================
+sub get_root_runco_file{
+  
+  $filename = $File::Find::name;
+    
+  if ( $filename =~ /\.runco\.root/ ) {
+    $global_root_runco_file = $filename;
+  }
+  
+}
+#==========================================================
 sub get_xdf_file{
   
   $filename = $File::Find::name;
