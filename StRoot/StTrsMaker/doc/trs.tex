@@ -2,7 +2,7 @@
 %
 % TRS - User Guide and Reference Manual -- LaTeX Source 
 %
-% $Id: trs.tex,v 1.3 1999/01/24 20:58:59 lasiuk Exp $
+% $Id: trs.tex,v 1.4 2000/01/11 23:18:37 lasiuk Exp $
 %
 % Author: LaTeX template by Thomas Ullrich
 %         1st version by brian
@@ -10,6 +10,9 @@
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %
 % $Log: trs.tex,v $
+% Revision 1.4  2000/01/11 23:18:37  lasiuk
+% pdf and fancyheadings
+%
 % Revision 1.3  1999/01/24 20:58:59  lasiuk
 % simple corrections
 %
@@ -33,11 +36,12 @@
 \usepackage{color}
 \usepackage{amsmath}
 \usepackage{amssymb}
-\usepackage{fancyheadings}
+%\usepackage{fancyheadings}
+\usepackage{fancyhdr}
 \usepackage{times}
 \usepackage{verbatim}
 \usepackage{makeidx}
-\usepackage{subfigure}
+%\usepackage{subfigure}
 
 \PScommands      % init boxit
 \makeindex
@@ -105,8 +109,8 @@
   \mbox{\includegraphics[width=\textwidth]{trsTitle.eps}}
   \hfill\mbox{}\\[3cm]
   {\LARGE User Guide and Reference Manual}\\[2cm]
-  {\LARGE $ $Revision: 1.3 $ $}  \\[5mm] % replaced by cvs with current revision  
-  {\LARGE $ $Date: 1999/01/24 20:58:59 $ $}  % replaced by cvs with current revision  
+  {\LARGE $ $Revision: 1.4 $ $}  \\[5mm] % replaced by cvs with current revision  
+  {\LARGE $ $Date: 2000/01/11 23:18:37 $ $}  % replaced by cvs with current revision  
   \vfill
 \end{center}
 \cleardoublepage
