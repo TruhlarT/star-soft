@@ -32,7 +32,7 @@ my %oldestDate = ( nightly_real => '2001-08-20',
 # days old cut off for updating.
 %oldestDay = ( nightly_real => 30,
 	       nightly_MC   => 14,
-	       offline_real => 30,
+	       offline_real => 14,
 	       offline_MC   => 30,
 	       offline_fast => 10
 );
