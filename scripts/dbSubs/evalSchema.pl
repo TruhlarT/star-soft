@@ -1,6 +1,6 @@
 #!/opt/star/bin/perl -w
 #
-# $Id: evalSchema.pl,v 1.1 2000/04/28 14:08:22 porter Exp $
+# $Id: evalSchema.pl,v 1.2 2000/05/03 20:06:26 porter Exp $
 #
 # Author: R. Jeff Porter
 #
@@ -13,6 +13,9 @@
 #****************************************************************************
 # 
 # $Log: evalSchema.pl,v $
+# Revision 1.2  2000/05/03 20:06:26  porter
+# header output fix ... continued
+#
 # Revision 1.1  2000/04/28 14:08:22  porter
 # management perl scripts for db-structure accessible from StDbLib
 #
@@ -109,6 +112,7 @@ $n=0;    # counter of elements in DB
 while(((@row)=$sth->fetchrow_array) && !$done){
 
     $structComment = $row[9];
+    if(!$cmpH && !($thisSchemaID==$row[4])){ next; }
   if($cmpH){
    if($thisSchemaID!=$row[4]){      
        if( ($#elements eq $numFound-1) && ($#elements eq $numQueried-1)){
