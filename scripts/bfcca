@@ -99,15 +99,31 @@ $MAXFILL = 97;                     # Maximum disk occupency in %tage for free sp
 
 # This is for debugging purposes
 if (1==1){
-    print "ENV variables debugging is ON\n";
+    print "ENV variables debugging is ON -->\n";
     foreach $el (keys %ENV){
 	print "Env [$el] -> Value = [$ENV{$el}]\n";
     }
-    print "End of ENV variables. We are now in business ...\n";
+    print "<-- End of ENV variables. We are now in business ...\n";
+    print "Script ARGV debugging is ON -->\n";
     for ($ii=0 ; $ii <= $#ARGV ; $ii++){
 	print "Argument $ii = $ARGV[$ii]\n";
     }
+    print "<-- End of ARGV debugging\n";
 }
+
+
+# Is this CONDOR CRS ??
+if ( defined($ENV{"_CONDOR_SCRATCH_DIR"}) ){
+    # Defined by Condor. May be volatile.
+    $CONDOR_CRS = 1;
+} elsif ( defined($ENV{"CRS_JOB_NAME"}) ) {
+    # Tomasz says this one will always be defined
+    $CONDOR_CRS = 1;
+} else {
+    $CONDOR_CRS = 0;
+}
+
+
 
 
 # The first element of the argument list
@@ -116,7 +132,7 @@ if (1==1){
 # accept (in order it receives). In the new
 # Condor-based API, there is no need for this
 # shifting.
-#shift @ARGV if (! defined($ENV{"CONDOR_ID"}));
+shift @ARGV if (! $CONDOR_CRS );
 $ALLOPT       = shift @ARGV;
 $LIBRARY      = shift @ARGV;
 $DESTINATION  = shift @ARGV;
@@ -162,14 +178,14 @@ $COMPRS = ($ALLOPT & 24) >> 3; # i.e.  11000
 #
 # Take this as well for later use.
 #$MYSELF= $ENV{"CRS_JOB_FILE"};
-$JOB_ID= $ENV{"CRS_JOB_ID"};
+$JOB_ID= defined($ENV{"CRS_JOB_ID"})?$ENV{"CRS_JOB_ID"}:getppid();
 $PWD   = $ENV{"PWD"};
 
 
 
 # --- Grab STDOUT/STDERR by force (control was stolen from us) ----
 # We will restore to reading the real chosen one later ...
-if ( defined($ENV{"CONDOR_ID"}) ){
+if ( $CONDOR_CRS  ){
     # new scheme using Condor has log local and agree
     # with what we tried to do before.
     $STDOPT = 0;
@@ -527,9 +543,9 @@ if ( ! open(FO,">$PWD/$JOB_ID.csh") ){
     if($copt !~ m/Opt/){
 	print FO
 	    "echo \"$PRGM :: Reco run is starting on \`date\`\"\n",
-	    "echo \"\"\n",
+	    "echo \"\"\n";
             # Option to output memory consumption
-	    "setenv StarEndMakerShell\n";
+	    #"setenv StarEndMakerShell\n";
 
 	if( ! $MULTIIN ){
 	    if ( $GENERICO ne ""){  $extra = ",\"$GENERICO\""; }
