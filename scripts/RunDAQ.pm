@@ -12,10 +12,15 @@
 #      rdaq_open_odatabase          open o-ddb
 #      rdaq_close_odatabase         close the o-ddb
 #
-# Function requirring open/close call
+# Function requiering open/close call
 #      rdaq_raw_files               return a list of raw file from r-ddb
 #      rdaq_add_entry               add one entry in the o-ddb
 #      rdaq_add_entries             add entries in the o-ddb
+#      rdaq_delete_entries          delete entries from the o-ddb
+#      rdaq_check_entries           check entries and return an array of entries
+#                                   which are suspect (i.e. does not pass the
+#                                   expected conditions).
+#
 #      rdaq_last_run                return the last run number from the o-ddb
 #      rdaq_get_files               get a list of files with $status from o-ddb
 #      rdaq_get_ffiles              get a list of characteristic ...
@@ -27,7 +32,7 @@
 #      rdaq_file2hpss               return an HPSS path+file (several methods)
 #      rdaq_mask2string             convert a detector mask to a string
 #
-# DEV ONLY
+# DEV ONLY *** MAY BE CHANGED AT ANY POINT IN TIME ***
 #      rdaq_set_files_where         Not in its final shape.
 #
 
@@ -43,7 +48,9 @@ require Exporter;
 @EXPORT= qw( 
 	     rdaq_open_rdatabase rdaq_close_rdatabase        
 	     rdaq_open_odatabase rdaq_close_odatabase        
-	     rdaq_raw_files rdaq_add_entry rdaq_add_entries            
+	     rdaq_raw_files rdaq_add_entry rdaq_add_entries rdaq_delete_entries 
+	     rdaq_check_entries
+          
 	     rdaq_last_run rdaq_get_files rdaq_get_ffiles rdaq_set_files
 	     rdaq_set_files_where
 
@@ -139,21 +146,78 @@ sub rdaq_add_entries
     $count;
 }
 
+
+#
+# This method may be needed .
+#
+sub rdaq_delete_entries
+{
+    my($obj,@files)=@_;
+    my($sth,$line,@values);
+    my($count);
+
+    $count=0;
+    if(!$obj){ return 0;}
+
+    $sth = $obj->prepare("DELETE FROM $dbtable WHERE file=?");
+    if(!$sth){ return 0;}
+
+    foreach $line (@files){
+	#print "$line\n";
+	@values = split(" ",$line);
+	#print "[$values[0]]\n";
+	if( $sth->execute($values[0]) ){
+	    #print "Successful deletion of $values[0]\n";
+	    $count++;
+	}
+    }
+    $sth->finish();
+    1;
+}
+
+#
+# On August 3rd, we noticed that some entries were in but should not
+# have been. After some discussion, it appeared that this is caused by
+# a hand-shaking problem between offline/online and especially, a
+# problem when a run information is copied in the database but then
+# only after marked as bad.
+# FastOffline wants those entries but the final table should not have
+# them. Therefore, we implemented a method to boostrap the information
+# in our  $dbtable and compare it to the initial expectations.
+#
+# $since is a number of minutes
+#
+sub rdaq_check_entries
+{
+    my($obj,$since)=@_;
+    my($tref);
+
+    $tref = Date::Manip::DateCalc("today","-$since minutes");
+    $tref = Date::Manip::UnixDate($tref,"%Y%m%H%M%S00");
+    
+
+    undef;
+}
+
+
 #
 # Select the top element of the o-database
 #
 sub rdaq_last_run
 {
     my($obj)=@_;
-    my($sth);
+    my($sth,$val);
 
     if(!$obj){ return 0;}
-    $sth = $obj->prepare("SELECT * FROM $dbtable ORDER BY file DESC LIMIT 1");
+    $sth = $obj->prepare("SELECT file FROM $dbtable ORDER BY file DESC LIMIT 1");
     $sth->execute();
     if($sth){
-	@res = $sth->fetchrow_array();
+	$val = $sth->fetchrow();
 	$sth->finish();
-	$res[1];
+	$val =~ /(.*_)(\d+_)(.*)(\d+)/;
+	$val = $2.$4;
+	$val =~ s/_/./;
+	$val;
     } else {
 	0;
     }    
@@ -169,6 +233,7 @@ sub rdaq_raw_files
     my($sth,$cmd);
     my($stht);
     my(@all,@res);
+    my($tref);
 
     if(!$obj){ return 0;}
 
@@ -176,17 +241,31 @@ sub rdaq_raw_files
     if( ! defined($from) ){ $from = "";}
     if( ! defined($limit)){ $limit= -1;}
 
+    # An additional time-stamp selection will be made to minimize
+    # a problem with database hand-shaking. This will affect only
+    # the test runs with max file sequence = 1.
+    $tref = Date::Manip::DateCalc("today","-1 minute");
+    $tref = Date::Manip::UnixDate($tref,"%Y%m%H%M%S00");
+
     # Trigger selection
     $stht = $obj->prepare("SELECT detectorSet.detectorID FROM detectorSet ".
 			  "WHERE detectorSet.runNumber=?");
 
     # We will select on RunStatus == 0
-    $cmd  = "SELECT daqFileTag.file, daqSummary.runNumber, daqFileTag.numberOfEvents, daqFileTag.beginEvent, daqFileTag.endEvent, magField.current, magField.scaleFactor, beamInfo.yellowEnergy+beamInfo.blueEnergy, CONCAT(beamInfo.blueSpecies,beamInfo.yellowSpecies) FROM daqFileTag, daqSummary, magField, beamInfo  WHERE daqSummary.runNumber=daqFileTag.run AND daqSummary.runStatus=0 AND daqSummary.destinationID In(1,4) AND daqFileTag.file LIKE '%physics%' AND magField.runNumber=daqSummary.runNumber AND magField.entryTag=0 AND beamInfo.runNumber=daqSummary.runNumber AND beamInfo.entryTag=0";
+    $cmd  = "SELECT daqFileTag.file, daqSummary.runNumber, daqFileTag.numberOfEvents, daqFileTag.beginEvent, daqFileTag.endEvent, magField.current, magField.scaleFactor, beamInfo.yellowEnergy+beamInfo.blueEnergy, CONCAT(beamInfo.blueSpecies,beamInfo.yellowSpecies) FROM daqFileTag, daqSummary, magField, beamInfo  WHERE daqSummary.runNumber=daqFileTag.run AND daqSummary.runStatus=0 AND daqSummary.destinationID In(1,4) AND daqFileTag.file LIKE '%physics%' AND magField.runNumber=daqSummary.runNumber AND magField.entryTag=0 AND beamInfo.runNumber=daqSummary.runNumber AND beamInfo.entryTag=0 AND daqFileTag.entryTime <= $tref";
 
     # Optional arguments
     if( $from ne ""){
 	# start from some run number
-	$cmd .= " AND daqSummary.runNumber > $from";
+	if( index($from,"_") != -1){
+	    # recent format returns file sequence
+	    @res = split("\.",$from);
+	    $cmd .= " AND (daqSummary.runNumber > $res[0] OR ".
+		" (daqSummary.runNumber=$res[0] AND daqFileTag.fileSequence > $res[1]))";
+	} else {
+	    # old expected a run number only
+	    $cmd .= " AND daqSummary.runNumber > $from";
+	}
     }
     if($limit > 0){
 	$cmd .= " LIMIT $limit";
