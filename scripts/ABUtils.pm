@@ -22,6 +22,7 @@ use Exporter;
 	   IUCheckFile IUMoveFile
 	   IUReleaseFile IUManagers IUCompDir
 	   IUHtmlDir IUHtmlRef IUHtmlPub
+	   IUGetLogin
 	   );
 
 # ------------------------------------------
@@ -559,9 +560,21 @@ sub IUMoveFile
     $sts;
 }
 
-
-
-
+# returns the login name (several methods)
+sub IUGetLogin
+{
+    if( ! defined($INSU::USER) ){
+	my($user) = getpwuid($<);
+	if ( ! defined($user) ){
+	    chomp($user = `id`);
+	    $user =~ m/(uid=\d+\()(.*)\)(\s+gid=)/;
+	    $user = $2;
+	}
+	$INSU::USER = $user;
+    }
+    if ($INSU::USER eq ""){ $INSU::USER = "?unknown?";}
+    $INSU::USER;
+}
 
 
 
