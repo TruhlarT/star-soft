@@ -28,11 +28,20 @@ my ($query) = @_;
 
 $query = new CGI;
 
+my $collSet =  $query->param('SetC');
 my $prodSr  =  $query->param('SetP');
 my $detrSet =  $query->param('SetD');
 my $datSet  =  $query->param('SetT');
 
-my @joinSet = ( $prodSr . "%" .$datSet ."%" . $detrSet);
+
+my $colSet;
+if ($collSet eq "AuAu130") {
+ $colSet = "AuAu1";
+}else {
+$colSet = $collSet;
+}
+
+my @joinSet = ( $colSet. "%" . $prodSr . "%" .$datSet ."%" . $detrSet);
 
 #####  connect to operation DB
 
@@ -42,14 +51,22 @@ my $mmRun;
 my @runSet;
 my $nrunSet = 0;
 
-if($detrSet eq "all" ) {
+if($detrSet eq "all" and $datSet ne "all" ) {
 
- $sql="SELECT DISTINCT runID FROM $FileCatalogT WHERE jobID like '%$prodSr%' AND trigger = '$datSet' AND path like '%/200%' ";
+ $sql="SELECT DISTINCT runID FROM $FileCatalogT WHERE jobID like '%$prodSr%' AND trigger = '$datSet' AND dataset like '$colSet%' AND path like '%/200%' ";
 
-}else{
+}elsif($detrSet ne "all" and $datSet ne "all" ) {
 
- $sql="SELECT DISTINCT runID FROM $FileCatalogT WHERE jobID like '%$prodSr%' AND trigger = '$datSet' AND dataset like '%$detrSet' AND path like '%/200%' ";
+ $sql="SELECT DISTINCT runID FROM $FileCatalogT WHERE jobID like '%$prodSr%' AND trigger = '$datSet' AND dataset like '%$detrSet' AND dataset like '$colSet%' AND path like '%/200%' ";
+}elsif($detrSet ne "all" and $datSet eq "all" ) {
+
+ $sql="SELECT DISTINCT runID FROM $FileCatalogT WHERE jobID like '%$prodSr%' AND dataset like '%$detrSet' AND dataset like '$colSet%' AND path like '%/200%' ";
+
+}elsif($detrSet eq "all" and $datSet eq "all" ) {
+
+ $sql="SELECT DISTINCT runID FROM $FileCatalogT WHERE jobID like '%$prodSr%' AND dataset like '$colSet%' AND path like '%/200%' ";
 }
+
    $cursor =$dbh->prepare($sql)
     || die "Cannot prepare statement: $DBI::errstr\n";
    $cursor->execute;

@@ -25,9 +25,9 @@ my $debugOn = 0;
 my @prodPer;
 my $myprod;
 my $nprodPer = 0;
-
+my @colSet = ("AuAu130", "tpc_laser");
 my @datSet = ("all","tpc","tpc.rich","tpc.svt.rich");
-my @trigSet  = ("central","minbias","medium","peripheral","mixed");
+my @trigSet  = ("all","central","minbias","medium","peripheral","mixed");
 
 &StDbProdConnect();
 
@@ -80,46 +80,45 @@ END
 
 
 print <<END;
-</SELECT><br>
-<br>
+<hr>
+<table BORDER=0 align=center width=99% cellspacing=3>
+<tr ALIGN=center VALIGN=CENTER NOSAVE>
+<td>
 END
 
 print "<p>";
-print "<h3 align=center>Select production series:</h3>";
+print "<h4 align=center>Select dataset:</h4>";
+print "<h4 align=center>";
+print $query->scrolling_list(-name=>'SetC',  
+                   -values=>\@colSet,                   
+                   -size=>4                              
+                   );  
+
+print "</td><td>";
+print "<h4 align=center>Select production series:</h4>";
 print "<h4 align=center>";
 print $query->scrolling_list(-name=>'SetP',  
                    -values=>\@prodPer,                   
                    -size=>4                              
                    );                                  
  
-print <<END;
-</SELECT><br>
-<br>
-END
-
- print "<p>";
- print "<h3 align=center>Select detector set:</h3>";
- print "<h4 align=center>";
- print $query->popup_menu(-name=>'SetD',
+print "</td><td>";
+print "<h4 align=center>Select detector set:</h4>";
+print "<h4 align=center>";
+print $query->popup_menu(-name=>'SetD',
                     -values=>\@datSet,
-                    -size=>3
+                    -size=>4
                     ); 
-print <<END;
-</SELECT><br>
-<br>
-END
 
- print "<p>";
- print "<h3 align=center>Select Dataset:</h3>";
- print "<h4 align=center>";
- print $query->popup_menu(-name=>'SetT',
+print "</td><td>";
+print "<h4 align=center>Select Trigger:</h4>";
+print "<h4 align=center>";
+print $query->popup_menu(-name=>'SetT',
                     -values=>\@trigSet,
                     -size=>4
                     ); 
-print <<END;
-</SELECT><br>
-<br>
-END
+
+print "</td> </tr> </table><hr><center>";
 
  print "<p>";
  print "<p><br>"; 
