@@ -2,7 +2,7 @@
 %
 % StEvent - User Guide and Reference Manual -- LaTeX Source
 %
-% $Id: StEvent.tex,v 2.56 2001/03/14 03:05:33 ullrich Exp $
+% $Id: StEvent.tex,v 2.57 2001/04/05 04:35:25 ullrich Exp $
 %
 % Author: Thomas Ullrich, Nov 1999
 %
@@ -21,6 +21,9 @@
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %
 % $Log: StEvent.tex,v $
+% Revision 2.57  2001/04/05 04:35:25  ullrich
+% Replaced basic ROOT datatypes and more descriptions.
+%
 % Revision 2.56  2001/03/14 03:05:33  ullrich
 % Added description of PSD classes and required enums.
 %
@@ -233,8 +236,8 @@
   \mbox{\includegraphics[width=\textwidth]{StEventTitle.eps}}
   \hfill\mbox{}\\[3cm]
   {\LARGE User Guide and Reference Manual \\[5mm] for Version 2}\\[2cm]
-  {\LARGE $ $Revision: 2.56 $ $}  \\[5mm] % replaced by cvs with current revision
-  {\LARGE $ $Date: 2001/03/14 03:05:33 $ $}  % replaced by cvs with current revision
+  {\LARGE $ $Revision: 2.57 $ $}  \\[5mm] % replaced by cvs with current revision
+  {\LARGE $ $Date: 2001/04/05 04:35:25 $ $}  % replaced by cvs with current revision
   \vfill
 \end{center}
 \cleardoublepage
@@ -644,11 +647,15 @@ typedef double         Double_t;    //Float 8 bytes
 typedef unsigned char  Bool_t;      //Boolean
 \end{verbatim}
 
+Note that since April 2001 the type \texttt{long} (\texttt{Long\_t}) is not supported
+by ROOT any more and cannot be used for declaration of persistent data members.
+
 This is fine and good but there is absolutely no reason to use them in
-code other than in the definition of class data member. Even worse
+code and function declarations.  Even worse
 this can have disadvantages when it comes to calls to system functions
 and speed. It also makes code less portable and readable.  Don't use
-them only because you see them used in \StEvent.
+them only because you see them used in \StEvent. They are only used
+for the declaration of the persistent data members.
 
 \subsection{Container and Iterators}
 \label{sec:Container}
@@ -718,8 +725,8 @@ with any \StEvent\ class one might find in a container.
     \verb+StSPtrVecClassName();+\\
     Constructs an instance with zero length.
 
-    \verb+StPtrVecClassName(UInt_t nelem);+\\
-    \verb+StSPtrVecClassName(UInt_t nelem);+\\
+    \verb+StPtrVecClassName(unsigned int nelem);+\\
+    \verb+StSPtrVecClassName(unsigned int nelem);+\\
     Constructs an instance with length \texttt{nelem}.
     
     \verb+StPtrVecClassName(const StPtrVecClassName& vec);+\\
@@ -732,18 +739,18 @@ with any \StEvent\ class one might find in a container.
     Adds object pointed to by \texttt{pobj}. If the container is not
     large enough it will automatically resize.
 
-    \verb+UInt_t size() const;+\\
+    \verb+unsigned int size() const;+\\
     Returns the current size of the container, i.e. the number of
     stored elements.
     
-    \verb+void resize(UInt_t nelem);+\\
+    \verb+void resize(unsigned int nelem);+\\
     Resizes the collection to size \texttt{nelem}.
 
     \verb+void clear();+\\
     Deletes all elements. If the container is a structural container
     all objects it holds get deleted.
     
-    \verb+Bool_t empty() const;+\\
+    \verb+bool empty() const;+\\
     Checks for zero size.
     
     \verb+const StPtrVecClassNameIterator begin() const;+\\
@@ -760,7 +767,7 @@ with any \StEvent\ class one might find in a container.
     to structural containers the object gets also deleted.
     
 \item[Public Member\\ Operators]
-    \verb+StClassName*& operator[](UInt_t i);+\\
+    \verb+StClassName*& operator[](unsigned int i);+\\
     Returns the pointer to the \texttt{i}'th element where \texttt{i}
     runs from 0 to \texttt{size()-1}.
 \end{Entry}
@@ -823,29 +830,29 @@ methods you should be aware of are:
 \begin{Entry}
     
 \item[Public Data\\ Member]
-    \verb+Bool_t  doLoadTpcHits;+\\
+    \verb+bool  doLoadTpcHits;+\\
     Controls if TPC hits should be loaded (default=kTRUE).
     
-    \verb+Bool_t  doLoadFtpcHits;+\\
+    \verb+bool  doLoadFtpcHits;+\\
     Controls if FTPC hits should be loaded (default=kTRUE).
     
-    \verb+Bool_t  doLoadSvtHits; +\\
+    \verb+bool  doLoadSvtHits; +\\
     Controls if SVT hits should be loaded (default=kTRUE).
                               
-    \verb+Bool_t  doLoadTptTracks;+\\
+    \verb+bool  doLoadTptTracks;+\\
     Controls if TPT tracks should be loaded (default=kFALSE).
 
-\verb+Bool_t  doPrintRunInfo;+\\
+\verb+bool  doPrintRunInfo;+\\
     Print or do not print a dump of the current \texttt{StRun} and
     \texttt{StRunSummary} instances (default=kFALSE).
     
-    \verb+Bool_t  doPrintEventInfo;+\\
+    \verb+bool  doPrintEventInfo;+\\
     Print or do not print info on the current \StEvent\ event.
     (default=kFALSE).  This produces a lot of output. Every major
     class is dumped, the sizes of all collections, and the first
     element in every container. Don't use it for production.
     
-    \verb+Bool_t  doPrintMemoryInfo;+\\
+    \verb+bool  doPrintMemoryInfo;+\\
     Switch on/off checks on memory usage of \StEvent\
     (default=kFALSE).  In order to get a memory snapshot we use
     \texttt{StMemoryInfo} from the \name{StarClassLibrary}.  A
@@ -853,7 +860,7 @@ methods you should be aware of are:
     numbers in brackets refer to the difference. Not available on SUN
     Solaris yet.
     
-    \verb+Bool_t  doPrintCpuInfo;+\\
+    \verb+bool  doPrintCpuInfo;+\\
     Switch on/off CPU usage (default=kFALSE). Tells you how long it
     took to setup \StEvent. Timing is performed using \texttt{StTimer}
     from the \name{StarClassLibrary}.
@@ -2754,7 +2761,7 @@ definition in the header file.
 
     \verb+StCtbSoftwareMonitor(const dst_mon_soft_ctb_st&);+\\
 \item[Public Data\\ Member]
-    \verb+Long_t mult_ctb_tot;+\\
+    \verb+int mult_ctb_tot;+\\
     Total multiplicity (or ADC sum) in CTB.
 \end{Entry}
 \clearpage
@@ -2779,24 +2786,24 @@ definition in the header file.
     \verb+StCtbTriggerDetector(const dst_TrgDet_st&);+\\
     
 \item[Public Member\\ Functions]
-    \verb+UInt_t numberOfTrays() const;+\\
+    \verb+unsigned int numberOfTrays() const;+\\
     Returns number of CTB trays (usually 120).
     
-    \verb+UInt_t numberOfSlats() const;+\\
+    \verb+unsigned int numberOfSlats() const;+\\
     Returns number of slats (usually 2).
     
-    \verb+UInt_t numberOfPreSamples() const;+\\
+    \verb+unsigned int numberOfPreSamples() const;+\\
     Number of pre-samples taken.
     
-    \verb+UInt_t numberOfPostSamples() const;+\\
+    \verb+unsigned int numberOfPostSamples() const;+\\
     Number of post-samples taken.
     
-    \verb+UInt_t numberOfAuxWords() const;+\\
+    \verb+unsigned int numberOfAuxWords() const;+\\
     Number of auxiliary words (usually 16).  No physical significance
     at present, these data are simple reserved for possible future
     use.
     
-    \verb+Float_t mips(UInt_t tr, UInt_t sl, UInt_t evt = 0) const;+\\
+    \verb+float mips(unsigned int tr, unsigned int sl, unsigned int evt = 0) const;+\\
     Return MIPS for tray \texttt{tr} and slot \texttt{sl}.  The trays
     run from 0 -- \texttt{numberOfTrays()}-1, the slots from 0 --
     \texttt{numberOfSlots()}-1. The first half of the tray numbers are
@@ -2823,20 +2830,20 @@ definition in the header file.
     \item[evt = 10] 2nd post event at t = +5
     \end{description}
     
-    \verb+Char_t time(UInt_t tray, UInt_t slot, UInt_t evt = 0) const;+\\
+    \verb+char time(unsigned int tray, unsigned int slot, unsigned int evt = 0) const;+\\
     Same arguments as for \texttt{mips()} (see above).
      
-    \verb+Float_t aux(UInt_t, UInt_t evt = 0) const;+\\
+    \verb+float aux(unsigned int, unsigned int evt = 0) const;+\\
     Argument \texttt{i} has no physical significance at present, these
     data are simple reserved (on request of Hank Crawford) for
     possible future use.  For the second argument (\texttt{evt}) see
     \texttt{mips()} above.
 
-    \verb+void setMips(UInt_t, UInt_t, UInt_t, Float_t);+\\
-    \verb+void setTime(UInt_t, UInt_t, UInt_t, Char_t);+\\
-    \verb+void setAux(UInt_t, UInt_t, Float_t);+\\
-    \verb+void setNumberOfPreSamples(UInt_t);+\\
-    \verb+void setNumberOfPostSamples(UInt_t);+\\
+    \verb+void setMips(unsigned int, unsigned int, unsigned int, float);+\\
+    \verb+void setTime(unsigned int, unsigned int, unsigned int, char);+\\
+    \verb+void setAux(unsigned int, unsigned int, float);+\\
+    \verb+void setNumberOfPreSamples(unsigned int);+\\
+    \verb+void setNumberOfPostSamples(unsigned int);+\\
 \end{Entry}
 \clearpage
 
@@ -2856,28 +2863,28 @@ definition in the header file.
     \verb+StDedxPidTraits();+\\
     Default constructor.
     
-    \verb+StDedxPidTraits(StDetectorId det, Short_t emethod,+\\
-    \verb+                UShort_t np, Float_t dedx, Float_t sig);+\\
+    \verb+StDedxPidTraits(StDetectorId det, short emethod,+\\
+    \verb+                unsigned short np, float dedx, float sig);+\\
     Create an instance of \texttt{StDedxPidTraits} for detector
     \texttt{det}, encoded method \texttt{emethod}, number of points
     \texttt{np}, dE/dx mean \texttt{dedx}, and error on mean \texttt{sig}.
     
 \item[Public Member\\ Functions]
-    \verb+UShort_t numberOfPoints() const;+\\
+    \verb+unsigned short numberOfPoints() const;+\\
     Number of points used to calculate the dE/dx value.
     
-    \verb+Float_t mean() const;+\\
+    \verb+float mean() const;+\\
     The derived dE/dx value.
 
-    \verb+Float_t length() const;+\\
+    \verb+float length() const;+\\
     Track length used in dE/dx calculations.
     
-    \verb+Float_t errorOnMean() const;+\\
+    \verb+float errorOnMean() const;+\\
     Returns the error on the dE/dx value.
     
     \verb+StDedxMethod method() const;+\\    
 
-    \verb+Short_t encodedMethod() const;+\\
+    \verb+short encodedMethod() const;+\\
 \end{Entry}
 \clearpage
 
@@ -2895,25 +2902,25 @@ definition in the header file.
 \item[Public\\ Constructors]
     \verb+StEmcCluster();+\\
 \item[Public Member\\ Functions]
-    \verb+Float_t eta() const;+\\
-    \verb+Float_t phi() const;+\\
-    \verb+Float_t sigmaEta() const;+\\
-    \verb+Float_t sigmaPhi() const;+\\
-    \verb+Float_t energy() const;+\\
-    \verb+Int_t nHits() const; +\\
-    \verb+Int_t nNeighbors() const;+\\
-    \verb+Int_t nTracks() const;+\\
+    \verb+float eta() const;+\\
+    \verb+float phi() const;+\\
+    \verb+float sigmaEta() const;+\\
+    \verb+float sigmaPhi() const;+\\
+    \verb+float energy() const;+\\
+    \verb+int nHits() const; +\\
+    \verb+int nNeighbors() const;+\\
+    \verb+int nTracks() const;+\\
     \verb+StPtrVecEmcRawHit& hit();+\\
     \verb+const StPtrVecEmcRawHit& hit() const;+\\
     \verb+StPtrVecEmcCluster& neighbor();+\\
     \verb+const StPtrVecEmcCluster& neighbor() const;+\\
     \verb+StPtrVecTrack& track();+\\
     \verb+const StPtrVecTrack& track() const;+\\
-    \verb+void setEta(Float_t);+\\
-    \verb+void setPhi(Float_t);+\\
-    \verb+void setSigmaEta(Float_t);+\\
-    \verb+void setSigmaPhi(Float_t);+\\
-    \verb+void setEnergy(Float_t);+\\
+    \verb+void setEta(float);+\\
+    \verb+void setPhi(float);+\\
+    \verb+void setSigmaEta(float);+\\
+    \verb+void setSigmaPhi(float);+\\
+    \verb+void setEnergy(float);+\\
     \verb+void addHit(StEmcRawHit*);+\\
     \verb+void addNeighbor(StEmcCluster*);+\\
     \verb+void addTrack(StTrack*);+\\
@@ -2937,14 +2944,14 @@ definition in the header file.
 \item[Public Member\\ Functions]
     \verb+StDetectorId detector() const;+\\
     \verb+void setDetector(StDetectorId);+\\
-    \verb+Int_t numberOfClusters() const;+\\
+    \verb+int numberOfClusters() const;+\\
     \verb+StSPtrVecEmcCluster& clusters();+\\
     \verb+const StSPtrVecEmcCluster& clusters() const;+\\
     \verb+void addCluster(StEmcCluster*);+\\
-    \verb+Int_t clusterFinderId() const;+\\
-    \verb+Int_t clusterFinderParamVersion() const;+\\
-    \verb+void setClusterFinderId(Int_t);+\\
-    \verb+void setClusterFinderParamVersion(Int_t);+\\
+    \verb+int clusterFinderId() const;+\\
+    \verb+int clusterFinderParamVersion() const;+\\
+    \verb+void setClusterFinderId(int);+\\
+    \verb+void setClusterFinderParamVersion(int);+\\
 \end{Entry}
 \clearpage
 
@@ -2987,14 +2994,14 @@ definition in the header file.
 \item[Related Classes]
 \item[Public\\ Constructors]
     \verb+StEmcDetector();+\\
-    \verb+StEmcDetector(StDetectorId, UInt_t);+\\
+    \verb+StEmcDetector(StDetectorId, unsigned int);+\\
 \item[Public Member\\ Functions]
     \verb+StDetectorId detectorId() const;+\\
-    \verb+UInt_t numberOfModules() const;+\\
-    \verb+Bool_t addHit(StEmcRawHit*);+\\
-    \verb+UInt_t numberOfHits() const;+\\
-    \verb+StEmcModule* module(UInt_t);+\\
-    \verb+const StEmcModule* module(UInt_t) const;+\\
+    \verb+unsigned int numberOfModules() const;+\\
+    \verb+bool addHit(StEmcRawHit*);+\\
+    \verb+unsigned int numberOfHits() const;+\\
+    \verb+StEmcModule* module(unsigned int);+\\
+    \verb+const StEmcModule* module(unsigned int) const;+\\
     \verb+StEmcClusterCollection* cluster();+\\
     \verb+const StEmcClusterCollection* cluster() const;+\\
     \verb+void setCluster(StEmcClusterCollection*);+\\
@@ -3015,7 +3022,7 @@ definition in the header file.
 \item[Public\\ Constructors]
     \verb+StEmcModule();+\\
 \item[Public Member\\ Functions]
-    \verb+UInt_t numberOfHits() const;+\\
+    \verb+unsigned int numberOfHits() const;+\\
     \verb+StSPtrVecEmcRawHit& hits();+\\
     \verb+const StSPtrVecEmcRawHit& hits() const;+\\
 \end{Entry}
@@ -3035,29 +3042,29 @@ definition in the header file.
 \item[Public\\ Constructors]
     \verb+StEmcPoint();+\\
     \verb+StEmcPoint(const StThreeVectorF&,+\\
-    \verb+const StThreeVectorF&,+\\
-    \verb+const StThreeVectorF&,+\\
-    \verb+ULong_t, Float_t,+\\
-    \verb+Float_t, Float_t,+\\
-    \verb+UChar_t = 0);+\\
+    \verb+           const StThreeVectorF&,+\\
+    \verb+           const StThreeVectorF&,+\\
+    \verb+           unsigned int, float,+\\
+    \verb+           float, float,+\\
+    \verb+           unsigned char = 0);+\\
 \item[Public Member\\ Functions]
-    \verb+Float_t energy() const;+\\
-    \verb+Float_t chiSquare() const;+\\
-    \verb+void setEnergy(const Float_t);+\\
-    \verb+void setChiSquare(const Float_t);+\\
+    \verb+float energy() const;+\\
+    \verb+float chiSquare() const;+\\
+    \verb+void setEnergy(const float);+\\
+    \verb+void setChiSquare(const float);+\\
     \verb+StThreeVectorF size() const;+\\
     \verb+void setSize(const StThreeVectorF&);+\\
-    \verb+Float_t energyInDetector(const StDetectorId) const;+\\
-    \verb+Float_t sizeAtDetector(const StDetectorId) const;+\\
-    \verb+void setEnergyInDetector(const StDetectorId, const Float_t);+\\
-    \verb+void setSizeAtDetector(const StDetectorId, const Float_t);+\\
+    \verb+float energyInDetector(const StDetectorId) const;+\\
+    \verb+float sizeAtDetector(const StDetectorId) const;+\\
+    \verb+void setEnergyInDetector(const StDetectorId, const float);+\\
+    \verb+void setSizeAtDetector(const StDetectorId, const float);+\\
     \verb+StPtrVecEmcCluster& cluster(const StDetectorId);+\\
     \verb+const StPtrVecEmcCluster& cluster(const StDetectorId) const;+\\
     \verb+void addCluster(const StDetectorId, const StEmcCluster*);+\\
     \verb+StPtrVecEmcPoint& neighbor();+\\
     \verb+const StPtrVecEmcPoint& neighbor() const;+\\
     \verb+void addNeighbor(const StEmcPoint*);+\\
-    \verb+Int_t nTracks() const;+\\
+    \verb+int nTracks() const;+\\
     \verb+StPtrVecTrack& track();+\\
     \verb+const StPtrVecTrack& track() const;+\\
     \verb+void addTrack(StTrack*);+\\
@@ -3077,18 +3084,18 @@ definition in the header file.
 \item[Related Classes]
 \item[Public\\ Constructors]
     \verb+StEmcRawHit();+\\
-    \verb+StEmcRawHit(StDetectorId, UInt_t, UInt_t, UInt_t, UInt_t);+\\
-    \verb+StEmcRawHit(StDetectorId, UInt_t, UInt_t, UInt_t, UInt_t, Float_t);+\\
+    \verb+StEmcRawHit(StDetectorId, unsigned int, unsigned int, unsigned int, unsigned int);+\\
+    \verb+StEmcRawHit(StDetectorId, unsigned int, unsigned int, unsigned int, unsigned int, float);+\\
 \item[Public Member\\ Functions]
     \verb+StDetectorId detector() const;+\\
-    \verb+UInt_t module() const;+\\
-    \verb+UInt_t eta() const;+\\
-    \verb+UInt_t sub() const;+\\
-    \verb+UInt_t adc() const;+\\
-    \verb+Float_t energy() const;+\\
-    \verb+void setId(StDetectorId, UInt_t, UInt_t, UInt_t);+\\
-    \verb+void setAdc(const UInt_t);+\\
-    \verb+void setEnergy(const Float_t);+\\
+    \verb+unsigned int module() const;+\\
+    \verb+unsigned int eta() const;+\\
+    \verb+unsigned int sub() const;+\\
+    \verb+unsigned int adc() const;+\\
+    \verb+float energy() const;+\\
+    \verb+void setId(StDetectorId, unsigned int, unsigned int, unsigned int);+\\
+    \verb+void setAdc(const unsigned int);+\\
+    \verb+void setEnergy(const float);+\\
 \end{Entry}
 \clearpage
 
@@ -3107,7 +3114,7 @@ definition in the header file.
     \verb+StEmcSoftwareMonitor();+\\
     \verb+StEmcSoftwareMonitor(const dst_mon_soft_emc_st&);+\\
 \item[Public Data\\ Member]
-    \verb+Float_t energy_emc;+\\
+    \verb+float energy_emc;+\\
     Total energy (or ADC sum) in EMC.
 \end{Entry}
 \clearpage
@@ -3174,22 +3181,22 @@ definition in the header file.
     Character string which contains a short description of the type of
     the event you got.
     
-    \verb+Long_t id() const;+\\
+    \verb+int id() const;+\\
     Unique event identifier.
     
-    \verb+Long_t runId() const;+\\
+    \verb+int runId() const;+\\
     Unique run identifier.
     
-    \verb+Long_t time() const;+\\
+    \verb+int time() const;+\\
     Time when the event was taken. The format depends pretty much
     on the DST version. Older DST version return HHMMSS while newer
     runs will return the standard UNIX time. For the latter one then
     is able to use the many UNIX standard tools available for this
     time format (e.g.~\texttt{ctime()}).
     
-    \verb+ULong_t triggerMask() const;+\\
+    \verb+unsigned int triggerMask() const;+\\
 
-    \verb+ULong_t bunchCrossingNumber(Uint_t i) const;+\\       
+    \verb+unsigned int bunchCrossingNumber(Uint_t i) const;+\\       
     Returns the bunch crossing numbers, i.e.~two 32 bit words.
     \texttt{i = 0} returns the lower and \texttt{i = 1} the upper number.
 
@@ -3256,14 +3263,14 @@ definition in the header file.
     \verb+StSPtrVecTrackNode& trackNodes();+\\
     \verb+const StSPtrVecTrackNode& trackNodes() const;+\\
     
-    \verb+UInt_t numberOfPrimaryVertices() const;+\\
+    \verb+unsigned int numberOfPrimaryVertices() const;+\\
     Number of primary vertices (aka event vertices).  Usually there is
     only one but future implementations of the vertex finder will be
     able to also detect pile-up vertices in which case you better
     check the number before dealing with the event.
     
-    \verb+StPrimaryVertex* primaryVertex(UInt_t i = 0);+\\
-    \verb+const StPrimaryVertex* primaryVertex(UInt_t i = 0) const;+\\
+    \verb+StPrimaryVertex* primaryVertex(unsigned int i = 0);+\\
+    \verb+const StPrimaryVertex* primaryVertex(unsigned int i = 0) const;+\\
     Returns pointer to the \texttt{i}'th primary vertex.  Since in
     most of the cases there is only one primary vertex \texttt{i}
     defaults to the first (\texttt{i=0}).\\
@@ -3302,22 +3309,24 @@ definition in the header file.
     Returns \texttt{null} if not present.
     \index{Physics Summary Data (PSD)}
     \index{PSD}
-    
-    \verb+StSPtrVecPsd* psds();+\\
-    \verb+const StSPtrVecPsd* psds() const;+\\
-    Returns vector containing all PSDs or \texttt{null} if no PSD is available.
-    
-    \verb+void setType(const Char_t*);+\\
+        
+    \verb+unsigned int numberOfPsds();+\\
+    Returns number of all PSDs stored in \texttt{StEvent}.
 
-    \verb+void setRunId(Long_t);+\\
+    \verb+unsigned int numberOfPsds(StPwg pwg);+\\ 
+    Returns number of all PSDs from Physics Working Group \texttt{pwg} stored in \texttt{StEvent}.
 
-    \verb+void setId(Long_t);+\\
+    \verb+void setType(const char*);+\\
 
-    \verb+void setTime(Long_t);+\\
+    \verb+void setRunId(int);+\\
 
-    \verb+void setTriggerMask(ULong_t);+\\
+    \verb+void setId(int);+\\
 
-    \verb+void setBunchCrossingNumber(ULong_t, UInt_t);+\\
+    \verb+void setTime(int);+\\
+
+    \verb+void setTriggerMask(unsigned int);+\\
+
+    \verb+void setBunchCrossingNumber(unsigned int, unsigned int);+\\
 
     \verb+void setSummary(StEventSummary*);+\\
 
@@ -3382,21 +3391,21 @@ definition in the header file.
     \verb+StEventInfo(const event_header_st&);+\\
 \item[Public Member\\ Functions]
     \verb+const TString& type() const;+\\
-    \verb+Long_t id() const;+\\
-    \verb+Long_t runId() const;+\\
-    \verb+Long_t time() const;+\\
-    \verb+ULong_t triggerMask() const;+\\
+    \verb+int id() const;+\\
+    \verb+int runId() const;+\\
+    \verb+int time() const;+\\
+    \verb+unsigned int triggerMask() const;+\\
 
-    \verb+ULong_t bunchCrossingNumber(Uint_t i) const;+\\
+    \verb+unsigned int bunchCrossingNumber(Uint_t i) const;+\\
     Returns the bunch crossing numbers, i.e.~two 32 bit words.
     \texttt{i = 0} returns the lower and \texttt{i = 1} the upper number.
 
-    \verb+void setType(const Char_t*);+\\
-    \verb+void setRunId(Long_t);+\\
-    \verb+void setId(Long_t);+\\
-    \verb+void setTime(Long_t);+\\
-    \verb+void setTriggerMask(ULong_t);+\\
-    \verb+void setBunchCrossingNumber(ULong_t, UInt_t);+\\
+    \verb+void setType(const char*);+\\
+    \verb+void setRunId(int);+\\
+    \verb+void setId(int);+\\
+    \verb+void setTime(int);+\\
+    \verb+void setTriggerMask(unsigned int);+\\
+    \verb+void setBunchCrossingNumber(unsigned int, unsigned int);+\\
 \end{Entry}
 \clearpage
 
@@ -3456,50 +3465,50 @@ definition in the header file.
     \verb+StEventSummary(const dst_event_summary_st&,+\\
     \verb+               const dst_summary_param_st&);+\\
 \item[Public Member\\ Functions]
-    \verb+Long_t numberOfTracks() const;+\\
-    \verb+Long_t numberOfGoodTracks() const;+\\
-    \verb+Long_t numberOfGoodTracks(StChargeSign) const;+\\
-    \verb+Long_t numberOfGoodPrimaryTracks() const;+\\
-    \verb+Long_t numberOfExoticTracks() const;+\\
-    \verb+Long_t numberOfVertices() const;+\\
-    \verb+Long_t numberOfVerticesOfType(StVertexId) const;+\\
-    \verb+Long_t numberOfPileupVertices() const;+\\
-    \verb+Float_t meanPt() const;+\\
-    \verb+Float_t meanPt2() const;+\\
-    \verb+Float_t meanEta() const;+\\
-    \verb+Float_t rmsEta() const;+\\
+    \verb+int numberOfTracks() const;+\\
+    \verb+int numberOfGoodTracks() const;+\\
+    \verb+int numberOfGoodTracks(StChargeSign) const;+\\
+    \verb+int numberOfGoodPrimaryTracks() const;+\\
+    \verb+int numberOfExoticTracks() const;+\\
+    \verb+int numberOfVertices() const;+\\
+    \verb+int numberOfVerticesOfType(StVertexId) const;+\\
+    \verb+int numberOfPileupVertices() const;+\\
+    \verb+float meanPt() const;+\\
+    \verb+float meanPt2() const;+\\
+    \verb+float meanEta() const;+\\
+    \verb+float rmsEta() const;+\\
     \verb+const StThreeVectorF& primaryVertexPosition() const;+\\
-    \verb+UInt_t numberOfBins() const;+\\
-    \verb+Long_t tracksInEtaBin(UInt_t) const;+\\
-    \verb+Long_t tracksInPhiBin(UInt_t) const;+\\
-    \verb+Long_t tracksInPtBin(UInt_t) const;+\\
-    \verb+Float_t energyInEtaBin(UInt_t) const;+\\
-    \verb+Float_t energyInPhiBin(UInt_t) const;+\\
-    \verb+Float_t lowerEdgeEtaBin(UInt_t) const;+\\
-    \verb+Float_t upperEdgeEtaBin(UInt_t) const;+\\
-    \verb+Float_t lowerEdgePhiBin(UInt_t) const;+\\
-    \verb+Float_t upperEdgePhiBin(UInt_t) const;+\\
-    \verb+Float_t lowerEdgePtBin(UInt_t) const;+\\
-    \verb+Float_t upperEdgePtBin(UInt_t) const;+\\
+    \verb+unsigned int numberOfBins() const;+\\
+    \verb+int tracksInEtaBin(unsigned int) const;+\\
+    \verb+int tracksInPhiBin(unsigned int) const;+\\
+    \verb+int tracksInPtBin(unsigned int) const;+\\
+    \verb+float energyInEtaBin(unsigned int) const;+\\
+    \verb+float energyInPhiBin(unsigned int) const;+\\
+    \verb+float lowerEdgeEtaBin(unsigned int) const;+\\
+    \verb+float upperEdgeEtaBin(unsigned int) const;+\\
+    \verb+float lowerEdgePhiBin(unsigned int) const;+\\
+    \verb+float upperEdgePhiBin(unsigned int) const;+\\
+    \verb+float lowerEdgePtBin(unsigned int) const;+\\
+    \verb+float upperEdgePtBin(unsigned int) const;+\\
 
-    \verb+Double_t magneticField() const;+\\
+    \verb+double magneticField() const;+\\
     Returns z-component of magnetic field in kGauss.
     
-    \verb+void setNumberOfTracks(Long_t);+\\
-    \verb+void setNumberOfGoodTracks(Long_t);+\\
-    \verb+void setNumberOfGoodTracks(StChargeSign, Long_t);+\\
-    \verb+void setNumberOfGoodPrimaryTracks(Long_t);+\\
-    \verb+void setNumberOfNegativeTracks(Long_t);+\\
-    \verb+void setNumberOfExoticTracks(Long_t);+\\
-    \verb+void setNumberOfVertices(Long_t);+\\
-    \verb+void setNumberOfVerticesForType(StVertexId, Long_t);+\\
-    \verb+void setNumberOfPileupVertices(Long_t);+\\
-    \verb+void setMeanPt(Float_t);+\\
-    \verb+void setMeanPt2(Float_t);+\\
-    \verb+void setMeanEta(Float_t);+\\
-    \verb+void setRmsEta(Float_t);+\\
+    \verb+void setNumberOfTracks(int);+\\
+    \verb+void setNumberOfGoodTracks(int);+\\
+    \verb+void setNumberOfGoodTracks(StChargeSign, int);+\\
+    \verb+void setNumberOfGoodPrimaryTracks(int);+\\
+    \verb+void setNumberOfNegativeTracks(int);+\\
+    \verb+void setNumberOfExoticTracks(int);+\\
+    \verb+void setNumberOfVertices(int);+\\
+    \verb+void setNumberOfVerticesForType(StVertexId, int);+\\
+    \verb+void setNumberOfPileupVertices(int);+\\
+    \verb+void setMeanPt(float);+\\
+    \verb+void setMeanPt2(float);+\\
+    \verb+void setMeanEta(float);+\\
+    \verb+void setRmsEta(float);+\\
     \verb+void setPrimaryVertexPosition(const StThreeVectorF&);+\\
-    \verb+void setMagneticField(Double_t);+\\
+    \verb+void setMagneticField(double);+\\
 \end{Entry}
 \clearpage
 
@@ -3536,18 +3545,18 @@ definition in the header file.
 
     \verb+StFtpcHit(const StThreeVectorF&,+\\
     \verb+          const StThreeVectorF&,+\\
-    \verb+          ULong_t, Float_t, UChar_t = 0);+\\
+    \verb+          unsigned int, float, unsigned char = 0);+\\
 
     \verb+StFtpcHit(const dst_point_st&);+\\
 \item[Public Member\\ Functions]
-    \verb+ULong_t sector() const;+\\
+    \verb+unsigned int sector() const;+\\
     Returns sector number running from 1--6.
     
-    \verb+ULong_t plane() const;+\\
+    \verb+unsigned int plane() const;+\\
     Returns plane number running from 1--20.      
 
-    \verb+ULong_t padsInHit() const;+\\
-    \verb+ULong_t timebinsInHit() const;+\\
+    \verb+unsigned int padsInHit() const;+\\
+    \verb+unsigned int timebinsInHit() const;+\\
 \end{Entry}
 \clearpage
 
@@ -3565,15 +3574,15 @@ definition in the header file.
 \item[Public\\ Constructors]
     \verb+StFtpcHitCollection();+\\
 \item[Public Member\\ Functions]
-    \verb+Bool_t addHit(StFtpcHit*);+\\
+    \verb+bool addHit(StFtpcHit*);+\\
     
-    \verb+ULong_t numberOfHits() const;+\\
+    \verb+unsigned int numberOfHits() const;+\\
     Total number of FTPC hits stored in the collection.
     
-    \verb+UInt_t numberOfPlanes() const;+\\
+    \verb+unsigned int numberOfPlanes() const;+\\
     
-    \verb+StFtpcPlaneHitCollection* plane(UInt_t i);+\\
-    \verb+const StFtpcPlaneHitCollection* plane(UInt_t i) const;+\\
+    \verb+StFtpcPlaneHitCollection* plane(unsigned int i);+\\
+    \verb+const StFtpcPlaneHitCollection* plane(unsigned int i) const;+\\
     Index \texttt{i} runs from 0--(n-1) where n =
     \texttt{numberOfPlanes()}.
 \end{Entry}
@@ -3600,14 +3609,14 @@ definition in the header file.
     Default constructor.
     
 \item[Public Member\\ Functions]
-    \verb+ULong_t numberOfHits() const;+\\
+    \verb+unsigned int numberOfHits() const;+\\
     Number of hits stored in this FTPC plane.
     
-    \verb+UInt_t numberOfSectors() const;+\\
+    \verb+unsigned int numberOfSectors() const;+\\
     Number of sectors in this FTPC plane.
     
-    \verb+StFtpcSectorHitCollection* sector(UInt_t i);+\\
-    \verb+const StFtpcSectorHitCollection* sector(UInt_t i) const;+\\
+    \verb+StFtpcSectorHitCollection* sector(unsigned int i);+\\
+    \verb+const StFtpcSectorHitCollection* sector(unsigned int i) const;+\\
     Returns the \texttt{i}'th sector, where \texttt{i =
         0--(numberOfSectors()-1).}
 \end{Entry}
@@ -3649,29 +3658,29 @@ definition in the header file.
 
     \verb+StFtpcSoftwareMonitor(const dst_mon_soft_ftpc_st&);+\\
 \item[Public Data\\ Member]
-    \verb+Long_t n_clus_ftpc[2];+\\
+    \verb+int n_clus_ftpc[2];+\\
     Total number of clusters in FTPC, east/west.
     
-    \verb+Long_t n_pts_ftpc[2];+\\
+    \verb+int n_pts_ftpc[2];+\\
     Total number of space points in FTPC, east/west.
     
-    \verb+Long_t n_trk_ftpc[2];+\\
+    \verb+int n_trk_ftpc[2];+\\
     Total number of tracks in FTPC east/west .
     
-    \verb+Float_t chrg_ftpc_tot[2];+\\
+    \verb+float chrg_ftpc_tot[2];+\\
     Total charge deposited in FTPC, east/west.
     
-    \verb+Float_t hit_frac_ftpc[2];+\\
+    \verb+float hit_frac_ftpc[2];+\\
     Fraction of hits used in FTPC, east/west.
     
-    \verb+Float_t avg_trkL_ftpc[2];+\\
+    \verb+float avg_trkL_ftpc[2];+\\
     Average track length (cm) FTPC, east/west \\
     or average number of points assigned.
     
-    \verb+Float_t res_pad_ftpc[2];+\\
+    \verb+float res_pad_ftpc[2];+\\
     Average residual, pad direction, FTPC east/west.
     
-    \verb+Float_t res_drf_ftpc[2];+\\
+    \verb+float res_drf_ftpc[2];+\\
     Average residual, drift direction, FTPC east/west.
 \end{Entry}
 \clearpage
@@ -3703,17 +3712,17 @@ definition in the header file.
     \verb+StGlobalSoftwareMonitor();+\\
     \verb+StGlobalSoftwareMonitor(const dst_mon_soft_glob_st&);+\\
 \item[Public Data\\ Member]
-    \verb+Long_t n_trk_match[2];+\\
+    \verb+int n_trk_match[2];+\\
     Total number of SVT-TPC tracks matched with tan(dip angle) $< 0$
     $(\ge 0)$.
 
-    \verb+Long_t prim_vrtx_ntrk;+\\
+    \verb+int prim_vrtx_ntrk;+\\
     Number of tracks used in primary vertex fit.
 
-    \verb+Float_t prim_vrtx_cov[6];+\\
+    \verb+float prim_vrtx_cov[6];+\\
     Primary vertex covariance matrix.
 
-    \verb+Float_t prim_vrtx_chisq;+\\
+    \verb+float prim_vrtx_chisq;+\\
     Primary vertex $\chi^2$ of fit.
 \end{Entry}
 \clearpage
@@ -3761,7 +3770,7 @@ definition in the header file.
 \item[Public\\ Constructors]
     \verb+StHelixModel();+\\
     
-    \verb+StHelixModel(Short_t q, Float_t psi, Float_t c, Float_t dip,+\\
+    \verb+StHelixModel(short q, float psi, float c, float dip,+\\
     \verb+             const StThreeVectorF& o, const StThreeVectorF& p);+\\
     
     \verb+StHelixModel(const dst_track_st&);+\\
@@ -3769,16 +3778,16 @@ definition in the header file.
 \item[Public Member\\ Functions]
     \verb+StTrackModel model() const;+\\
 
-    \verb+Short_t charge() const;+\\
+    \verb+short charge() const;+\\
     Charge in units of +e.
     
-    \verb+Double_t curvature() const;+\\
+    \verb+double curvature() const;+\\
     Curvature in cm$^{-1}$.
 
-    \verb+Double_t psi() const;+\\
+    \verb+double psi() const;+\\
     Psi in radians.
     
-    \verb+Double_t dipAngle() const;+\\
+    \verb+double dipAngle() const;+\\
     Dip angle in radians.
     
     \verb+const StThreeVectorF& origin() const;+\\
@@ -3813,20 +3822,20 @@ definition in the header file.
     \verb+StHit();+\\
     \verb+StHit(const StThreeVectorF&,+\\
     \verb+      const StThreeVectorF&,+\\
-    \verb+      ULong_t, Float_t, UChar_t = 0);+\\
+    \verb+      unsigned int, float, unsigned char = 0);+\\
     
 \item[Public Member\\ Functions]
-    \verb+Float_t charge() const;+\\
+    \verb+float charge() const;+\\
     Total charge of hit.
     
-    \verb+UInt_t flag() const;+\\
+    \verb+unsigned int flag() const;+\\
     Returns status flag.
     
-    \verb+UInt_t usedInFit() const;+\\
+    \verb+unsigned int usedInFit() const;+\\
     Returns flag providing info on if this hit was actually used in one
     of the various track fits.
     
-    \verb+UInt_t trackReferenceCount() const;+\\
+    \verb+unsigned int trackReferenceCount() const;+\\
     Returns the number of tracks associated with that hit.
     
     \verb+StDetectorId detector() const;+\\
@@ -3837,16 +3846,16 @@ definition in the header file.
     Returns covariant matrix. In unknown (or not overwritten) simply fills
     the diagonal elements with the errors obtained via \texttt{positionError()}.
     
-    \verb+void setCharge(Float_t);+\\
-    \verb+void setFlag(UChar_t);+\\
-    \verb+void setTrackReferenceCount(UChar_t);+\\
-    \verb+void setHardwarePosition(ULong_t);+\\
+    \verb+void setCharge(float);+\\
+    \verb+void setFlag(unsigned char);+\\
+    \verb+void setTrackReferenceCount(unsigned char);+\\
+    \verb+void setHardwarePosition(unsigned int);+\\
     \verb+void setPositionError(const StThreeVectorF&);+\\
     \verb+StPtrVecTrack relatedTracks(const StSPtrVecTrackNode&, StTrackType);+\\
     
 \item[Public Member\\ Operators]
-    \verb+Int_t operator==(const StHit&) const;+\\
-    \verb+Int_t operator!=(const StHit&) const;+\\
+    \verb+int operator==(const StHit&) const;+\\
+    \verb+int operator!=(const StHit&) const;+\\
 \end{Entry}
 \clearpage
 
@@ -3866,36 +3875,36 @@ definition in the header file.
     \verb+StKinkVertex(const dst_vertex_st&, const dst_tkf_vertex_st&);+\\
 \item[Public Member\\ Functions]
     \verb+StVertexId type() const;+\\
-    \verb+UInt_t numberOfDaughters() const;+\\
-    \verb+StTrack* daughter(UInt_t = 0);+\\
-    \verb+const StTrack* daughter(UInt_t = 0) const;+\\
+    \verb+unsigned int numberOfDaughters() const;+\\
+    \verb+StTrack* daughter(unsigned int = 0);+\\
+    \verb+const StTrack* daughter(unsigned int = 0) const;+\\
     \verb+StPtrVecTrack daughters(StTrackFilter&);+\\
     \verb+StParticleDefinition* pidParent() const;+\\
     \verb+StParticleDefinition* pidDaughter() const;+\\
-    \verb+UShort_t geantIdParent() const;+\\
-    \verb+UShort_t geantIdDaughter() const;+\\
-    \verb+Float_t dcaParentDaughter() const;+\\
-    \verb+Float_t dcaDaughterPrimaryVertex() const;+\\
-    \verb+Float_t dcaParentPrimaryVertex() const;+\\
-    \verb+Float_t hitDistanceParentDaughter() const;+\\
-    \verb+Float_t hitDistanceParentVertex() const;+\\
-    \verb+Float_t dE(UInt_t i) const;+\\
-    \verb+Float_t decayAngle() const;+\\
-    \verb+Float_t decayAngleCM() const;+\\
+    \verb+unsigned short geantIdParent() const;+\\
+    \verb+unsigned short geantIdDaughter() const;+\\
+    \verb+float dcaParentDaughter() const;+\\
+    \verb+float dcaDaughterPrimaryVertex() const;+\\
+    \verb+float dcaParentPrimaryVertex() const;+\\
+    \verb+float hitDistanceParentDaughter() const;+\\
+    \verb+float hitDistanceParentVertex() const;+\\
+    \verb+float dE(unsigned int i) const;+\\
+    \verb+float decayAngle() const;+\\
+    \verb+float decayAngleCM() const;+\\
     \verb+const StThreeVectorF& parentMomentum() const;+\\
     \verb+StThreeVectorF& parentMomentum();+\\
     \verb+const StThreeVectorF& daughterMomentum() const;+\\
     \verb+StThreeVectorF& daughterMomentum();+\\
-    \verb+void setGeantIdParent(UShort_t);+\\
-    \verb+void setGeantIdDaughter(UShort_t);+\\
-    \verb+void setDcaParentDaughter(Float_t);+\\
-    \verb+void setDcaDaughterPrimaryVertex(Float_t);+\\
-    \verb+void setDcaParentPrimaryVertex(Float_t);+\\
-    \verb+void setHitDistanceParentDaughter(Float_t);+\\
-    \verb+void setHitDistanceParentVertex(Float_t);+\\
-    \verb+void setdE(UInt_t, Float_t);+\\
-    \verb+void setDecayAngle(Float_t);+\\
-    \verb+void setDecayAngleCM(Float_t);+\\
+    \verb+void setGeantIdParent(unsigned short);+\\
+    \verb+void setGeantIdDaughter(unsigned short);+\\
+    \verb+void setDcaParentDaughter(float);+\\
+    \verb+void setDcaDaughterPrimaryVertex(float);+\\
+    \verb+void setDcaParentPrimaryVertex(float);+\\
+    \verb+void setHitDistanceParentDaughter(float);+\\
+    \verb+void setHitDistanceParentVertex(float);+\\
+    \verb+void setdE(unsigned int, float);+\\
+    \verb+void setDecayAngle(float);+\\
+    \verb+void setDecayAngleCM(float);+\\
     \verb+void setParentMomentum(const StThreeVectorF&);+\\
     \verb+void setDaughterMomentum(const StThreeVectorF&);+\\
     \verb+void addDaughter(StTrack*);+\\
@@ -3918,18 +3927,18 @@ definition in the header file.
     \verb+StL0Trigger();+\\
     \verb+StL0Trigger(const dst_L0_Trigger_st&);+\\
 \item[Public Member\\ Functions]
-    \verb+UInt_t coarsePixelArraySize();+\\
-    \verb+Long_t coarsePixelArray(UInt_t);+\\
-    \verb+Long_t mwcCtbMultiplicity() const;+\\
-    \verb+Long_t mwcCtbDipole() const;+\\
-    \verb+Long_t mwcCtbTopology() const;+\\
-    \verb+Long_t mwcCtbMoment() const;+\\
+    \verb+unsigned int coarsePixelArraySize();+\\
+    \verb+int coarsePixelArray(unsigned int);+\\
+    \verb+int mwcCtbMultiplicity() const;+\\
+    \verb+int mwcCtbDipole() const;+\\
+    \verb+int mwcCtbTopology() const;+\\
+    \verb+int mwcCtbMoment() const;+\\
     
-    \verb+void setMwcCtbMultiplicity(Long_t);+\\
-    \verb+void setMwcCtbDipole(Long_t);+\\
-    \verb+void setMwcCtbTopology(Long_t);+\\
-    \verb+void setMwcCtbMoment(Long_t);+\\
-    \verb+void setCoarsePixelArray(UInt_t, Long_t);+\\
+    \verb+void setMwcCtbMultiplicity(int);+\\
+    \verb+void setMwcCtbDipole(int);+\\
+    \verb+void setMwcCtbTopology(int);+\\
+    \verb+void setMwcCtbMoment(int);+\\
+    \verb+void setCoarsePixelArray(unsigned int, int);+\\
 \end{Entry}
 \clearpage
 
@@ -3948,43 +3957,43 @@ definition in the header file.
     \verb+StL3SoftwareMonitor();+\\
     \verb+StL3SoftwareMonitor(const dst_mon_soft_l3_st&);+\\
 \item[Public Data\\ Member]
-    \verb+Long_t id_algorithm;+\\
+    \verb+int id_algorithm;+\\
     Id of the algorithm used in global L3.
     
-    \verb+Long_t id_hardware;+\\
+    \verb+int id_hardware;+\\
     Id of the hardware configuration.
     
-    \verb+Short_t triggermask;+\\
+    \verb+short triggermask;+\\
     The result of the trigger inquiry.
     
-    \verb+Long_t nTotalHits ;+\\
+    \verb+int nTotalHits ;+\\
     Total number of clusters in the event.
     
-    \verb+Long_t nTotalTracks;+\\
+    \verb+int nTotalTracks;+\\
     Total number of tracks found by the tracker.
     
-    \verb+Long_t nTotalPrimaryTracks;+\\
+    \verb+int nTotalPrimaryTracks;+\\
     Number of primary tracks found by the tracker.
     
-    \verb+Short_t processorId[24] ;+\\
+    \verb+short processorId[24] ;+\\
     Processor where the sector was reconstructed.
     
-    \verb+Float_t vertex[3][24];+\\
+    \verb+float vertex[3][24];+\\
     xyz coordinates of the vertex used for track finding.
     
-    \verb+Short_t id_param[24];+\\
+    \verb+short id_param[24];+\\
     The parameter set used in the tracker.
     
-    \verb+Long_t nHits[24];+\\
+    \verb+int nHits[24];+\\
     Number of clusters in the sector.
     
-    \verb+Long_t nTracks[24];+\\
+    \verb+int nTracks[24];+\\
     Number of tracks found by the tracker.
     
-    \verb+Long_t nPrimaryTracks[24];+\\
+    \verb+int nPrimaryTracks[24];+\\
     Number of primary tracks found by the tracker.
     
-    \verb+Float_t cpuTime[24];+\\
+    \verb+float cpuTime[24];+\\
     CPU time used by the tracker.
 \end{Entry}
 \clearpage
@@ -4012,9 +4021,9 @@ definition in the header file.
     \verb+StSPtrVecTrackNode& trackNodes();+\\
     \verb+const StSPtrVecTrackNode& trackNodes() const;+\\
 
-    \verb+UInt_t numberOfPrimaryVertices() const;+\\
-    \verb+StPrimaryVertex* primaryVertex(UInt_t = 0);+\\
-    \verb+const StPrimaryVertex* primaryVertex(UInt_t = 0) const;+\\
+    \verb+unsigned int numberOfPrimaryVertices() const;+\\
+    \verb+StPrimaryVertex* primaryVertex(unsigned int = 0);+\\
+    \verb+const StPrimaryVertex* primaryVertex(unsigned int = 0) const;+\\
 
     \verb+void setTpcHitCollection(StTpcHitCollection*);+\\
     \verb+void addPrimaryVertex(StPrimaryVertex*);+\\
@@ -4041,8 +4050,8 @@ definition in the header file.
     \verb+StMatrixF covariantMatrix() const = 0;+\\
     \verb+void setPosition(const StThreeVectorF&);+\\
 \item[Public Member\\ Operators]
-    \verb+Int_t operator==(const StMeasuredPoint&) const;+\\
-    \verb+Int_t operator!=(const StMeasuredPoint&) const;+\\
+    \verb+int operator==(const StMeasuredPoint&) const;+\\
+    \verb+int operator!=(const StMeasuredPoint&) const;+\\
 \end{Entry}
 \clearpage
 
@@ -4068,24 +4077,24 @@ definition in the header file.
     \verb+StMwcTriggerDetector(const dst_TrgDet_st&);+\\
     
 \item[Public Member\\ Functions]
-    \verb+UInt_t numberOfSectors() const;+\\
+    \verb+unsigned int numberOfSectors() const;+\\
     Number of MWC sectors (usually 24).
     
-    \verb+UInt_t numberOfSubSectors() const;+\\
+    \verb+unsigned int numberOfSubSectors() const;+\\
     Number of MWC subsectors (usually 4).
     
-    \verb+UInt_t numberOfPreSamples() const;+\\
+    \verb+unsigned int numberOfPreSamples() const;+\\
     Number of pre-samples available.
     
-    \verb+UInt_t numberOfPostSamples() const;+\\
+    \verb+unsigned int numberOfPostSamples() const;+\\
     Number of post-samples available.
     
-    \verb+UInt_t numberOfAuxWords() const;+\\
+    \verb+unsigned int numberOfAuxWords() const;+\\
     Number of auxiliary words (usually 32).  No physical significance
     at present, these data are simple reserved for possible future
     use.
     
-    \verb+Float_t mips(UInt_t sec, UInt_t subsec, UInt_t evt = 0) const;+\\
+    \verb+float mips(unsigned int sec, unsigned int subsec, unsigned int evt = 0) const;+\\
     Return MIPS for sector \texttt{sec} and subsector \texttt{subsec}.
     The sectors run from 0 -- \texttt{numberOfSectors()}-1, the
     subsectors from 0 -- \texttt{numberOfSubSectors()}-1. The first
@@ -4107,16 +4116,16 @@ definition in the header file.
     \item[evt = 5] 2nd post event at t = +2
     \end{description}    
        
-    \verb+Float_t aux(UInt_t i, UInt_t evt = 0) const;+\\
+    \verb+float aux(unsigned int i, unsigned int evt = 0) const;+\\
     Argument \texttt{i} has no physical significance at present, these
     data are simple reserved (on request of Hank Crawford) for
     possible future use.  For the second argument (\texttt{evt}) see
     \texttt{mips()} above.
     
-    \verb+void setMips(UInt_t, UInt_t, UInt_t, Float_t);+\\
-    \verb+void setAux(UInt_t, UInt_t, Float_t);+\\
-    \verb+void setNumberOfPreSamples(UInt_t);+\\
-    \verb+void setNumberOfPostSamples(UInt_t);+\\
+    \verb+void setMips(unsigned int, unsigned int, unsigned int, float);+\\
+    \verb+void setAux(unsigned int, unsigned int, float);+\\
+    \verb+void setNumberOfPreSamples(unsigned int);+\\
+    \verb+void setNumberOfPostSamples(unsigned int);+\\
 \end{Entry}
 \clearpage
 
@@ -4166,10 +4175,10 @@ definition in the header file.
 
 \item[Public Member\\ Functions]
     \verb+StVertexId type() const;+\\
-    \verb+UInt_t numberOfDaughters() const;+\\
+    \verb+unsigned int numberOfDaughters() const;+\\
     
 
-    \verb+Long_t flag() const;+\\
+    \verb+int flag() const;+\\
     Inherited from StVertex. It his mentioned here since the return
     value in the context of the \texttt{StPrimaryVertex} has a special
     meaning.\index{flag() in StPrimaryVertex}\index{iflag}
@@ -4198,8 +4207,8 @@ definition in the header file.
         compliments this info.
     \end{description}
 
-    \verb+StTrack* daughter(UInt_t);+\\
-    \verb+const StTrack* daughter(UInt_t) const;+\\
+    \verb+StTrack* daughter(unsigned int);+\\
+    \verb+const StTrack* daughter(unsigned int) const;+\\
     
     \verb+StPtrVecTrack daughters(StTrackFilter&);+\\
 
@@ -4263,38 +4272,38 @@ definition in the header file.
     \verb+StRichCluster();+\\
     Empty Constructor.
 
-    \verb+StRichCluster(Int_t nPads, Int_t nLocMax, Int_t fPad, +\\
-    \verb+       Float_t ampSum, Float_t amp2Sum, Float_t rms2);+\\
+    \verb+StRichCluster(int nPads, int nLocMax, int fPad, +\\
+    \verb+       float ampSum, float amp2Sum, float rms2);+\\
     Constucted given the number of pads, number of local maximum within
     the cluster, first pad, sum of the amplitudes of the pads making
     up the cluster, the sum of the squared amplitude and the rms
     squared of the cluster.
 
 \item[Public Member\\ Functions]
-    \verb+Bool_t operator==(const StRichCluster&) const;+\\
+    \verb+bool operator==(const StRichCluster&) const;+\\
     Comparison of the pixels based on an exact match of all fields.
 
-    \verb+Int_t numberOfPads() const;+\\
+    \verb+int numberOfPads() const;+\\
     Accesses the number of pads the cluster comprises.
 
-    \verb+Int_t numberOfLocalMax() const;+\\
+    \verb+int numberOfLocalMax() const;+\\
     Accesses the number of local maxima in the cluster.
 
-    \verb+Int_t firstPad() const;+\\
+    \verb+int firstPad() const;+\\
     Accesses the first pad (in the pixel list).
 
-    \verb+Float_t amplitudeSum() const;+\\
+    \verb+float amplitudeSum() const;+\\
     Accesses the sum of the amplitudes of the pads identified
     with the cluster.
 
-    \verb+Float_t amplitude2Sum() const;+\\
+    \verb+float amplitude2Sum() const;+\\
     Accesses the sum of the squares of the amplitudes of the pads
     identified with the cluster.
 
-    \verb+Float_t rms2() const;+\\
+    \verb+float rms2() const;+\\
     Accesses the square of the RMS of the cluster.
 
-    \verb+Float_t rms2Calc();+\\
+    \verb+float rms2Calc();+\\
     Calculates the square rms of the cluster.
 
     \verb+void increaseNumberOfLocalMax();+\\
@@ -4305,15 +4314,15 @@ definition in the header file.
     Modifies the cluster object by increasing the number
     of pads by 1.    
 
-    \verb+void setFirstPad(Int_t index);+\\
+    \verb+void setFirstPad(int index);+\\
     Modifies the cluster object by setting the first pad
     of the cluster to index.
 
-    \verb+void setNumberOfPads(Int_t newNPads);+\\
+    \verb+void setNumberOfPads(int newNPads);+\\
     Modifies the cluster object by setting the number
     of pads in the cluster to newNPads.
 
-    \verb+void updateAmplitude(Float_t newamp);+\\
+    \verb+void updateAmplitude(float newamp);+\\
     Modifies the cluster object by setting the amplitude to
     newamp.
 \end{Entry}
@@ -4378,15 +4387,15 @@ definition in the header file.
     \verb+void addHit(const StRichHit*);+\\
     Adds a single hit to the hit collection.
 
-    \verb+Bool_t pixelsPresent() const;+\\
+    \verb+bool pixelsPresent() const;+\\
     Returns the condition if the pixel container
     is present in the RichCollection.
 
-    \verb+Bool_t clustersPresent() const;+\\
+    \verb+bool clustersPresent() const;+\\
     Returns the condition if the cluster container
     is present in the RichCollection.
 
-    \verb+Bool_t hitsPresent() const;+\\
+    \verb+bool hitsPresent() const;+\\
     Returns the condition if the hit container
     is present in the RichCollection.
 \end{Entry}
@@ -4417,7 +4426,7 @@ definition in the header file.
     position, dx.
 
     \verb+StRichHit(const StThreeVectorF& xg, const StThreeVectorF& dx,+\\
-    \verb+       ULong_t hp, Float_t q, Float_t maxAdc, UChar_t tc);+\\
+    \verb+       unsigned int hp, float q, float maxAdc, unsigned char tc);+\\
     Specify a hit by the global position, xg, the error on this
     position, dx, the hardware position, hp, total integrated charge
     contained in the hit, q, the quantity of charge on the pixel with
@@ -4432,22 +4441,22 @@ definition in the header file.
     Returns the position of the hit in the interanl coordinate
     system of the detector.
 
-    \verb+Float_t maxAmplitude() const;+\\
+    \verb+float maxAmplitude() const;+\\
     Returns the amplitude of the pixel with the largest
     amplitude in the hit.
 
-    \verb+Long_t clusterNumber() const;+\\
+    \verb+int clusterNumber() const;+\\
     Returns the number (index) of the cluster from which the
     hit was produced.
 
-    \verb+UShort_t track() const;+\\
+    \verb+unsigned short track() const;+\\
     Returns the row of the track table from which the hit is
     associated.
 
-    \verb+ULong_t reservedLong() const;+\\
+    \verb+unsigned int reservedLong() const;+\\
     Reserved for future use.
 
-    \verb+Float_t reservedFloat() const;+\\
+    \verb+float reservedFloat() const;+\\
     Reserved for future use.
 
     \verb+StThreeVectorF& local();+\\
@@ -4458,29 +4467,29 @@ definition in the header file.
     Returns the position of the hit in the internal coordinate
     system of the detector.
 
-    \verb+UShort_t numberOfPads() const;+\\
+    \verb+unsigned short numberOfPads() const;+\\
     Returns the number of pads from which a hit was
     constructed.
     
-    \verb+void setNumberOfPads(UShort_t);+\\
+    \verb+void setNumberOfPads(unsigned short);+\\
     Set the number of pads from which a hit was
     constructed.
     
-    \verb+void setMaxAmplitude(Float_t);+\\
+    \verb+void setMaxAmplitude(float);+\\
     Set the amplitude of the pixel with the maximum
     amplitude contained within the cluster.
 
-    \verb+void setClusterNumber(Long_t);+\\
+    \verb+void setClusterNumber(int);+\\
     Assign the cluster number (index) to which the
     it is associated.
 
-    \verb+void setTrack(ULong_t);+\\
+    \verb+void setTrack(unsigned int);+\\
     Set the track from which the hit is associated.
 
-    \verb+void setReservedLong(ULong_t);+\\
+    \verb+void setReservedLong(unsigned int);+\\
     Reserved for future use.
 
-    \verb+void setReservedFloat(Float_t);+\\
+    \verb+void setReservedFloat(float);+\\
     Reserved for future use.
 \end{Entry}
 \clearpage
@@ -4511,13 +4520,13 @@ definition in the header file.
 
     \verb+StRichMCHit(const StThreeVectorF& xg,+\\
     \verb+            const StThreeVectorF& dx,+\\
-    \verb+            ULong_t hp, Float_t q,+\\
-    \verb+            Float_t maxAdc, UChar_t tc);+\\
+    \verb+            unsigned int hp, float q,+\\
+    \verb+            float maxAdc, unsigned char tc);+\\
 
     \verb+StRichMCHit(const StThreeVectorF& xg,+\\
     \verb+            const StThreeVectorF& dx,+\\
-    \verb+            ULong_t hp, Float_t q,+\\
-    \verb+            Float_t maxAdc, UChar_t tc,+\\
+    \verb+            unsigned int hp, float q,+\\
+    \verb+            float maxAdc, unsigned char tc,+\\
     \verb+            StRichMCInfo& info);+\\
     Specify a hit by the global position, xg, the error on this
     position, dx, the hardware position, hp, total integrated charge
@@ -4554,35 +4563,35 @@ definition in the header file.
     \verb+StRichMCInfo();+\\
     Empty constructor.
 
-    \verb+StRichMCInfo(Long_t id, Long_t gid, Long_t trk,+\\
-    \verb+             Float_t q, Long_t process);+\\
+    \verb+StRichMCInfo(int id, int gid, int trk,+\\
+    \verb+             float q, int process);+\\
     Specifies the Monte Carlo information of an object by specifying
     its track, id, GEANT particle id, gid, parent track, trk,
     charge that it deposited, q, and process of origin, process, be it
     unknown (0), a charged particle (1), a photon (2), a feedback
     photon (4), or noise (8).
 \item[Public Member\\ Functions]
-    \verb+Int_t operator==(const StRichMCInfo&) const;+\\
+    \verb+int operator==(const StRichMCInfo&) const;+\\
     Checks the equivalence based on the id, trk, and process
     field.
 
-    \verb+Int_t operator!=(const StRichMCInfo&) const;+\\
+    \verb+int operator!=(const StRichMCInfo&) const;+\\
     The complement of the equality operator.
 
-    \verb+Long_t id() const;+\\
+    \verb+int id() const;+\\
     Returns the index the track in the track table.
 
-    \verb+Long_t gid() const;+\\
+    \verb+int gid() const;+\\
     Returns the GEANT id of the track.
 
-    \verb+Long_t trackp() const;+\\
+    \verb+int trackp() const;+\\
     Returns the index of the the parent track in
     the track table.
 
-    \verb+Float_t charge() const;+\\
+    \verb+float charge() const;+\\
     Returns the charge deposited by the track in question.
 
-    \verb+Long_t process() const;+\\
+    \verb+int process() const;+\\
     Returns the type of process, be it unknown (0), a charged
     particle (1), a photon (2), a feedback photon (4), or
     noise (8).
@@ -4610,25 +4619,25 @@ definition in the header file.
     \verb+StRichMCPixel();+\\
     Empty constructor.
 
-    \verb+StRichMCPixel(ULong_t packedData);+\\
+    \verb+StRichMCPixel(unsigned int packedData);+\\
     Coded data of the pixel where the first 8 bits are the pad
     number, the second 8 bits are the row, and the next 11 bits
     are the ADC value (11th bit indicates overflow).
 
-    \verb+StRichMCPixel(ULong_t packedData,+\\
+    \verb+StRichMCPixel(unsigned int packedData,+\\
     \verb+              const StSPtrVecRichMCInfo&);+\\
         Coded data of the pixel where the first 8 bits are the pad
     number, the second 8 bits are the row, and the next 11 bits
     are the ADC value (11th bit indicates overflow) as well as
     a list of the MC information.
 \item[Public Member\\ Functions]
-    \verb+Int_t operator==(const StRichMCPixel&) const;+\\
+    \verb+int operator==(const StRichMCPixel&) const;+\\
     Equality operator based on the packed data ONLY.
 
-    \verb+Int_t operator!=(const StRichMCPixel&) const;+\\
+    \verb+int operator!=(const StRichMCPixel&) const;+\\
     Complement of the equality operator.
 
-    \verb+UShort_t contributions() const;+\\
+    \verb+unsigned short contributions() const;+\\
     Returns the number of tracks/processes contributing
     to the pixel.
 
@@ -4666,9 +4675,9 @@ definition in the header file.
     \verb+StRichPid();+\\
 \item[Public Member\\ Functions]
     \verb+StRichPid(StParticleDefinition* particle, StThreeVectorD resid,+\\
-    \verb+Float_t totAzim, Float_t totArea,+\\
-    \verb+UShort_t totHits, Float_t trunAzim,+\\
-    \verb+Float_t trunArea, UShort_t trunHits);+\\
+    \verb+float totAzim, float totArea,+\\
+    \verb+unsigned short totHits, float trunAzim,+\\
+    \verb+float trunArea, unsigned short trunHits);+\\
     Constructor requires the particle type (particle),
     species dependent residual from the extrapolated
     track (resid), the total Azimuthal angle (totAzim),
@@ -4677,7 +4686,7 @@ definition in the header file.
     photons/hits (totHits) as well as the corresponding
     quantities in the trucated ring bands.
 
-    \verb+Int_t operator==(const StRichPid&) const;+\\
+    \verb+int operator==(const StRichPid&) const;+\\
 
     \verb+void setRingType(StParticleDefinition* particle);+\\
     Sets the ring type according to the mass hypothesis.
@@ -4688,27 +4697,27 @@ definition in the header file.
     residual is calculated with the particle species dependent
     momentum loss.
     
-    \verb+void setTotalAzimuth(Float_t);+\\
+    \verb+void setTotalAzimuth(float);+\\
     Sets the total azimuthal angle of the ring
     seen on the pad plane.
     
-    \verb+void setTotalArea(Float_t);+\\
+    \verb+void setTotalArea(float);+\\
     Sets the total area of the ring/bands
     seen on the pad plane.
 
-    \verb+void setTotalHits(UShort_t);+\\
+    \verb+void setTotalHits(unsigned short);+\\
     Sets the total number of photons/hits
     contained in the ring on the pad plane.
     
-    \verb+void setTruncatedAzimuth(Float_t);+\\
+    \verb+void setTruncatedAzimuth(float);+\\
     Sets the truncated azimuthal angle of the ring
     seen on the pad plane.
 
-    \verb+void setTruncatedArea(Float_t);+\\
+    \verb+void setTruncatedArea(float);+\\
     Sets the truncated area of the ring/bands
     seen on the pad plane.
 
-    \verb+void setTruncatedHits(UShort_t);+\\
+    \verb+void setTruncatedHits(unsigned short);+\\
     Sets the total number of photons/hits
     contained in the truncated ring area on
     the pad plane.
@@ -4724,7 +4733,7 @@ definition in the header file.
     Returns the photons/hits associated with the
     mass hypothesis.
     
-    \verb+Int_t getParticleNumber() const;+\\
+    \verb+int getParticleNumber() const;+\\
     Returns the particle type (pdgEncoding)
     of the mass hypothesis.
     
@@ -4734,36 +4743,36 @@ definition in the header file.
     residual is calculated with the particle species dependent
     momentum loss.
     
-    \verb+Float_t getTotalAzimuth() const;+\\
+    \verb+float getTotalAzimuth() const;+\\
     Returns the total azimuthal angle of the ring
     seen on the pad plane.
     
-    \verb+Float_t getTotalArea() const;+\\
+    \verb+float getTotalArea() const;+\\
     Returns the total area of the ring/bands
     seen on the pad plane.
     
-    \verb+UShort_t getTotalHits() const;+\\
+    \verb+unsigned short getTotalHits() const;+\\
     Returns the total number of photons/hits
     contained in the ring on the pad plane.
     
-    \verb+Float_t getTotalDensity() const;+\\
+    \verb+float getTotalDensity() const;+\\
     Returns the total area of the ring/bands
     seen on the pad plane.
 
-    \verb+Float_t getTruncatedAzimuth() const;+\\
+    \verb+float getTruncatedAzimuth() const;+\\
     Returns the truncated azimuthal angle of the ring
     seen on the pad plane.
 
-    \verb+Float_t getTruncatedArea() const;+\\
+    \verb+float getTruncatedArea() const;+\\
     Returns the truncated area of the ring/bands
     seen on the pad plane.
 
-    \verb+UShort_t getTruncatedHits() const;+\\
+    \verb+unsigned short getTruncatedHits() const;+\\
     Returns the total number of photons/hits
     contained in the truncated ring area on
     the pad plane.
 
-    \verb+Float_t getTruncatedDensity() const;+\\
+    \verb+float getTruncatedDensity() const;+\\
     Returns the areal density of the truncated
     number of hits and area.
 
@@ -4801,7 +4810,7 @@ definition in the header file.
 \item[Public\\ Constructors]
     \verb+StRichPidTraits();+\\
 \item[Public Member\\ Functions]
-    \verb+Int_t operator==(const StRichPidTraits&) const;+\\
+    \verb+int operator==(const StRichPidTraits&) const;+\\
     \verb+void addPid(StRichPid* );+\\
     adds an \texttt{StRichPid} to the container.
     This is data related to a ``particle hypothesis''.
@@ -4822,7 +4831,7 @@ definition in the header file.
     Returns the \texttt{StRichPid} associated to a
     the particle type {\bf t}.
 
-    \verb+void setProductionVersion(Int_t);+\\
+    \verb+void setProductionVersion(int);+\\
     Label for the time which the \texttt{StRichPidTrait}
     was produced.  The default version (for OFFICIAL production)
     has a value of -999.  This allows us to keep track of
@@ -4830,11 +4839,11 @@ definition in the header file.
     subsequently reprocessed; another production version
     is assigned.
     
-    \verb+void setId(Int_t);+\\
+    \verb+void setId(int);+\\
     Set the probable id of the particle.  This is not filled
     in the reconstruction.
     
-    \verb+void setProbability(Float_t);+\\
+    \verb+void setProbability(float);+\\
     Set the probability of it being identified as
     an ``id()''.
     
@@ -4851,26 +4860,26 @@ definition in the header file.
     the match from the TPC track extrapolation AFTER a
     refit of the TPC track has been done.
     
-    \verb+void setSignedDca2d(Float_t);+\\
+    \verb+void setSignedDca2d(float);+\\
     Set the signed 2-dimensional dca (in bend-plane)
     as calculated from the parent global
     of the track in question.
     
-    \verb+void setSignedDca3d(Float_t);+\\
+    \verb+void setSignedDca3d(float);+\\
     Set the signed 3-dimensional dca
     as calculated from the parent global
     of the track in question.
 
-    \verb+Int_t   productionVersion() const;+\\
+    \verb+int   productionVersion() const;+\\
     Returns the production version under which
     the \texttt{StRichPidTrait} was created.
     Default or official STAR production is always
     -999.
     
-    \verb+Int_t   id() const;+\\
+    \verb+int   id() const;+\\
     Returns the probable id of the particle.
     
-    \verb+Float_t probability() const;+\\
+    \verb+float probability() const;+\\
     Returns the probability that the particle is
     assigned an ``id()''.
 
@@ -4887,13 +4896,13 @@ definition in the header file.
     extrapolated TPC track AFTER a refit of the track
     parameters has been done.
 
-    \verb+Float_t signedDca2d() const;+\\
+    \verb+float signedDca2d() const;+\\
     Returns the signed 2-dimensional (bend-plane)
     distance of closest approach (dca) between the
     global partner of the track and the primary vertex
     position.
     
-    \verb+Float_t signedDca3d() const;+\\
+    \verb+float signedDca3d() const;+\\
     Returns the signed 3-dimensional
     distance of closest approach (dca) between the
     global partner of the track and the primary vertex
@@ -4917,34 +4926,34 @@ definition in the header file.
     \verb+StRichPixel();+\\
     Empty constructor.
 
-    \verb+StRichPixel(ULong_t packedData);+\\
+    \verb+StRichPixel(unsigned int packedData);+\\
     Specify the pixel utilizing the packed data where
     the first 8 bits are the pad
     number, the second 8 bits are the row, and the next 11 bits
     are the ADC value (11th bit indicates overflow).
 \item[Public Member\\ Functions]
-    \verb+Int_t operator==(const StRichPixel&) const;+\\
+    \verb+int operator==(const StRichPixel&) const;+\\
     Equality operator based on the coded data.
 
-    \verb+Int_t operator!=(const StRichPixel&) const;+\\
+    \verb+int operator!=(const StRichPixel&) const;+\\
     Complement of the equality operator.
 
-    \verb+void setPackedData(ULong_t);+\\
+    \verb+void setPackedData(unsigned int);+\\
     Specify the coded data.
 
-    \verb+UShort_t pad() const;+\\
+    \verb+unsigned short pad() const;+\\
     Returns the pad number.
 
-    \verb+UShort_t row() const;+\\
+    \verb+unsigned short row() const;+\\
     Returns the row number.
 
-    \verb+UShort_t adc() const;+\\
+    \verb+unsigned short adc() const;+\\
     Returns the adc value.
 
-    \verb+ULong_t reservedLong() const;+\\
+    \verb+unsigned int reservedLong() const;+\\
     Reserved for future use.
 
-    \verb+void setReservedLong(ULong_t);+\\
+    \verb+void setReservedLong(unsigned int);+\\
     Reserved for future use.
 \end{Entry}
 \clearpage
@@ -4963,24 +4972,24 @@ definition in the header file.
     \verb+StRichSoftwareMonitor();+\\
     \verb+StRichSoftwareMonitor(const dst_mon_soft_rich_st&);+\\
 \item[Public Member\\ Functions]
-    \verb+void setNumberOfPixels(Long_t);+\\
-    \verb+void setNumberOfClusters(Long_t);+\\
-    \verb+void setNumberOfHits(Long_t);+\\
-    \verb+void setTotalCharge(Long_t);+\\
-    \verb+Long_t numberOfPixels() const;+\\
-    \verb+Long_t numberOfClusters() const;+\\
-    \verb+Long_t numberOfHits() const;+\\
-    \verb+Long_t totalCharge() const;+\\
-    \verb+void setNumberOfTracksCrossing(Long_t);+\\
-    \verb+void setNumberOfTracksPidCalculated(Long_t);+\\
-    \verb+void setNumberOfTracksAbove1Gev(Long_t);+\\
-    \verb+void setNumberOfHitsInRings(Long_t);+\\
-    \verb+void setNumberOfRings(Long_t);+\\
-    \verb+Long_t numberOfTracksCrossing() const;+\\
-    \verb+Long_t numberOfTracksPidCalculated() const;+\\
-    \verb+Long_t numberOfTracksAbove1Gev() const;+\\
-    \verb+Long_t numberOfHitsInRings() const;+\\
-    \verb+Long_t mult_rich_tot;+\\
+    \verb+void setNumberOfPixels(int);+\\
+    \verb+void setNumberOfClusters(int);+\\
+    \verb+void setNumberOfHits(int);+\\
+    \verb+void setTotalCharge(int);+\\
+    \verb+int numberOfPixels() const;+\\
+    \verb+int numberOfClusters() const;+\\
+    \verb+int numberOfHits() const;+\\
+    \verb+int totalCharge() const;+\\
+    \verb+void setNumberOfTracksCrossing(int);+\\
+    \verb+void setNumberOfTracksPidCalculated(int);+\\
+    \verb+void setNumberOfTracksAbove1Gev(int);+\\
+    \verb+void setNumberOfHitsInRings(int);+\\
+    \verb+void setNumberOfRings(int);+\\
+    \verb+int numberOfTracksCrossing() const;+\\
+    \verb+int numberOfTracksPidCalculated() const;+\\
+    \verb+int numberOfTracksAbove1Gev() const;+\\
+    \verb+int numberOfHitsInRings() const;+\\
+    \verb+int mult_rich_tot;+\\
 \end{Entry}
 
 \subsection{StRun}
@@ -4998,32 +5007,32 @@ definition in the header file.
     \verb+StRun(const run_header_st&, const dst_run_summary_st&);+\\
     \verb+StRun(const run_header_st&);+\\
 \item[Public Member\\ Functions]
-    \verb+Long_t id() const;+\\
-    \verb+Long_t bfcId() const;+\\
+    \verb+int id() const;+\\
+    \verb+int bfcId() const;+\\
     \verb+const TString& type() const;+\\
-    \verb+Long_t triggerMask() const;+\\
-    \verb+Double_t centerOfMassEnergy() const;+\\
-    \verb+Short_t beamMassNumber(StBeamDirection) const;+\\
-    \verb+Short_t beamCharge(StBeamDirection) const;+\\
+    \verb+int triggerMask() const;+\\
+    \verb+double centerOfMassEnergy() const;+\\
+    \verb+short beamMassNumber(StBeamDirection) const;+\\
+    \verb+short beamCharge(StBeamDirection) const;+\\
 
-    \verb+Double_t magneticField() const;+\\
+    \verb+double magneticField() const;+\\
     Returns z-component of magnetic field in kGauss.
     
     \verb+StRunSummary* summary();+\\
     \verb+const StRunSummary* summary() const;+\\
     \verb+static const TString& cvsTag();+\\
-    \verb+void setId(Long_t);+\\
-    \verb+void setBfcId(Long_t);+\\
-    \verb+void setType(const Char_t*);+\\
-    \verb+void setTriggerMask(Long_t);+\\
-    \verb+void setCenterOfMassEnergy(Double_t);+\\
-    \verb+void setBeamMassNumber(StBeamDirection, Short_t);+\\
-    \verb+void setBeamCharge(StBeamDirection, Short_t);+\\
+    \verb+void setId(int);+\\
+    \verb+void setBfcId(int);+\\
+    \verb+void setType(const char*);+\\
+    \verb+void setTriggerMask(int);+\\
+    \verb+void setCenterOfMassEnergy(double);+\\
+    \verb+void setBeamMassNumber(StBeamDirection, short);+\\
+    \verb+void setBeamCharge(StBeamDirection, short);+\\
     \verb+void setSummary(StRunSummary*);+\\
-    \verb+void setMagneticField(Double_t);+\\
+    \verb+void setMagneticField(double);+\\
 \item[Public Member\\ Operator]
-    \verb+Int_t operator==(const StRun&) const;+\\
-    \verb+Int_t operator!=(const StRun&) const;+\\
+    \verb+int operator==(const StRun&) const;+\\
+    \verb+int operator!=(const StRun&) const;+\\
 \end{Entry}
 \clearpage
 
@@ -5042,36 +5051,36 @@ definition in the header file.
     \verb+StRunSummary();+\\
     \verb+StRunSummary(const dst_run_summary_st&);+\\
 \item[Public Member\\ Functions]
-    \verb+ULong_t numberOfEvents() const;+\\
-    \verb+ULong_t numberOfProcessedEvents() const;+\\
-    \verb+Long_t startTime() const;+\\
-    \verb+Long_t stopTime() const;+\\
-    \verb+Float_t cpuSeconds() const;+\\
-    \verb+Float_t averageBeamPolarization(StBeamDirection, StBeamPolarizationAxis) const;+\\
-    \verb+Float_t averageLuminosity() const;+\\
-    \verb+Float_t meanEta() const;+\\
-    \verb+Float_t rmsEta() const;+\\
-    \verb+Float_t meanPt() const;+\\
-    \verb+Float_t rmsPt() const;+\\
-    \verb+Float_t meanNumberOfVertices() const;+\\
-    \verb+Float_t rmsNumberOfVertices() const;+\\
-    \verb+Float_t meanMultiplicity(StDetectorId) const;+\\
-    \verb+Float_t rmsMultiplicity(StDetectorId) const;+\\
-    \verb+void setNumberOfEvents(ULong_t);+\\
-    \verb+void setNumberOfProcessedEvents(ULong_t);+\\
-    \verb+void setStartTime(Long_t);+\\
-    \verb+void setStopTime(Long_t);+\\
-    \verb+void setCpuSeconds(Float_t);+\\
-    \verb+void setAverageBeamPolarization(StBeamDirection, StBeamPolarizationAxis, Float_t);+\\
-    \verb+void setAverageLuminosity(Float_t);+\\
-    \verb+void setMeanEta(Float_t);+\\
-    \verb+void setRmsEta(Float_t);+\\
-    \verb+void setMeanPt(Float_t);+\\
-    \verb+void setRmsPt(Float_t);+\\
-    \verb+void setMeanNumberOfVertices(Float_t);+\\
-    \verb+void setRmsNumberOfVertices(Float_t);+\\
-    \verb+void setMeanMultiplicity(StDetectorId, Float_t);+\\
-    \verb+void setRmsMultiplicity(StDetectorId, Float_t);+\\
+    \verb+unsigned int numberOfEvents() const;+\\
+    \verb+unsigned int numberOfProcessedEvents() const;+\\
+    \verb+int startTime() const;+\\
+    \verb+int stopTime() const;+\\
+    \verb+float cpuSeconds() const;+\\
+    \verb+float averageBeamPolarization(StBeamDirection, StBeamPolarizationAxis) const;+\\
+    \verb+float averageLuminosity() const;+\\
+    \verb+float meanEta() const;+\\
+    \verb+float rmsEta() const;+\\
+    \verb+float meanPt() const;+\\
+    \verb+float rmsPt() const;+\\
+    \verb+float meanNumberOfVertices() const;+\\
+    \verb+float rmsNumberOfVertices() const;+\\
+    \verb+float meanMultiplicity(StDetectorId) const;+\\
+    \verb+float rmsMultiplicity(StDetectorId) const;+\\
+    \verb+void setNumberOfEvents(unsigned int);+\\
+    \verb+void setNumberOfProcessedEvents(unsigned int);+\\
+    \verb+void setStartTime(int);+\\
+    \verb+void setStopTime(int);+\\
+    \verb+void setCpuSeconds(float);+\\
+    \verb+void setAverageBeamPolarization(StBeamDirection, StBeamPolarizationAxis, float);+\\
+    \verb+void setAverageLuminosity(float);+\\
+    \verb+void setMeanEta(float);+\\
+    \verb+void setRmsEta(float);+\\
+    \verb+void setMeanPt(float);+\\
+    \verb+void setRmsPt(float);+\\
+    \verb+void setMeanNumberOfVertices(float);+\\
+    \verb+void setRmsNumberOfVertices(float);+\\
+    \verb+void setMeanMultiplicity(StDetectorId, float);+\\
+    \verb+void setRmsMultiplicity(StDetectorId, float);+\\
 \end{Entry}
 \clearpage
 
@@ -5145,19 +5154,19 @@ definition in the header file.
     \verb+StSsdHit();+\\
     \verb+StSsdHit(const StThreeVectorF&,+\\
     \verb+const StThreeVectorF&,+\\
-    \verb+ULong_t, Float_t, UChar_t = 0);+\\
+    \verb+unsigned int, float, unsigned char = 0);+\\
     \verb+StSsdHit(const dst_point_st&);+\\
 \item[Public Member\\ Functions]
-    \verb+ULong_t ladder() const;+\\
+    \verb+unsigned int ladder() const;+\\
     Returns ladder number in the range 1--20.
     
-    \verb+ULong_t wafer() const;+\\
+    \verb+unsigned int wafer() const;+\\
     Returns wafer number in the range 1--16.
     
-    \verb+ULong_t centralStripNSide() const;+\\
-    \verb+ULong_t centralStripPSide() const;+\\
-    \verb+ULong_t clusterSizeNSide() const;+\\
-    \verb+ULong_t clusterSizePSide() const;+\\
+    \verb+unsigned int centralStripNSide() const;+\\
+    \verb+unsigned int centralStripPSide() const;+\\
+    \verb+unsigned int clusterSizeNSide() const;+\\
+    \verb+unsigned int clusterSizePSide() const;+\\
 \end{Entry}
 \clearpage
 
@@ -5174,11 +5183,11 @@ definition in the header file.
 \item[Public\\ Constructors]
     \verb+StSsdHitCollection();+\\
 \item[Public Member\\ Functions]
-    \verb+Bool_t addHit(StSsdHit*);+\\
-    \verb+ULong_t numberOfHits() const;+\\
-    \verb+UInt_t numberOfLadders() const;+\\
-    \verb+StSsdLadderHitCollection* ladder(UInt_t);+\\
-    \verb+const StSsdLadderHitCollection* ladder(UInt_t) const;+\\
+    \verb+bool addHit(StSsdHit*);+\\
+    \verb+unsigned int numberOfHits() const;+\\
+    \verb+unsigned int numberOfLadders() const;+\\
+    \verb+StSsdLadderHitCollection* ladder(unsigned int);+\\
+    \verb+const StSsdLadderHitCollection* ladder(unsigned int) const;+\\
 \end{Entry}
 \clearpage
 
@@ -5195,10 +5204,10 @@ definition in the header file.
 \item[Public\\ Constructors]
     \verb+StSsdLadderHitCollection();+\\
 \item[Public Member\\ Functions]
-    \verb+ULong_t numberOfHits() const;+\\
-    \verb+UInt_t numberOfWafers() const;+\\
-    \verb+StSsdWaferHitCollection* wafer(UInt_t);+\\
-    \verb+const StSsdWaferHitCollection* wafer(UInt_t) const;+\\
+    \verb+unsigned int numberOfHits() const;+\\
+    \verb+unsigned int numberOfWafers() const;+\\
+    \verb+StSsdWaferHitCollection* wafer(unsigned int);+\\
+    \verb+const StSsdWaferHitCollection* wafer(unsigned int) const;+\\
 \end{Entry}
 \clearpage
 
@@ -5233,10 +5242,10 @@ definition in the header file.
 \item[Public\\ Constructors]
     \verb+StSvtBarrelHitCollection();+\\
 \item[Public Member\\ Functions]
-    \verb+ULong_t numberOfHits() const;+\\
-    \verb+UInt_t numberOfLadders() const;+\\
-    \verb+StSvtLadderHitCollection* ladder(UInt_t);+\\
-    \verb+const StSvtLadderHitCollection* ladder(UInt_t) const;+\\
+    \verb+unsigned int numberOfHits() const;+\\
+    \verb+unsigned int numberOfLadders() const;+\\
+    \verb+StSvtLadderHitCollection* ladder(unsigned int);+\\
+    \verb+const StSvtLadderHitCollection* ladder(unsigned int) const;+\\
 \end{Entry}
 \clearpage
 
@@ -5254,23 +5263,23 @@ definition in the header file.
     \verb+StSvtHit();+\\
     \verb+StSvtHit(const StThreeVectorF&,+\\
     \verb+         const StThreeVectorF&,+\\
-    \verb+         ULong_t, Float_t, UChar_t = 0);+\\
+    \verb+         unsigned int, float, unsigned char = 0);+\\
     \verb+StSvtHit(const dst_point_st&);+\\
 \item[Public Member\\ Functions]
-    \verb+ULong_t layer() const;+\\
+    \verb+unsigned int layer() const;+\\
     Layer in which hit is located. Layer number runs from 1--6.
 
-    \verb+ULong_t ladder() const;+\\
+    \verb+unsigned int ladder() const;+\\
     Ladder number runs from 1--16. Ladders
     are counted per barrel.
     
-    \verb+ULong_t wafer() const;+\\
+    \verb+unsigned int wafer() const;+\\
     Wafer number runs from 1--7.
     
-    \verb+ULong_t barrel() const;+\\
+    \verb+unsigned int barrel() const;+\\
     Barrel number runs from 1--3.
     
-    \verb+ULong_t hybrid() const;+\\
+    \verb+unsigned int hybrid() const;+\\
 \end{Entry}
 \clearpage
 
@@ -5289,14 +5298,14 @@ definition in the header file.
     \verb+StSvtHitCollection();+\\
 \item[Public Member\\ Functions]
 
-    \verb+Bool_t addHit(StSvtHit*);+\\
+    \verb+bool addHit(StSvtHit*);+\\
 
-    \verb+ULong_t numberOfHits() const;+\\
+    \verb+unsigned int numberOfHits() const;+\\
 
-    \verb+UInt_t numberOfBarrels() const;+\\
+    \verb+unsigned int numberOfBarrels() const;+\\
     
-    \verb+StSvtBarrelHitCollection* barrel(UInt_t);+\\
-    \verb+const StSvtBarrelHitCollection* barrel(UInt_t) const;+\\
+    \verb+StSvtBarrelHitCollection* barrel(unsigned int);+\\
+    \verb+const StSvtBarrelHitCollection* barrel(unsigned int) const;+\\
 \end{Entry}
 \clearpage
 
@@ -5314,10 +5323,10 @@ definition in the header file.
 \item[Public\\ Constructors]
     \verb+StSvtLadderHitCollection();+\\
 \item[Public Member\\ Functions]
-    \verb+ULong_t numberOfHits() const;+\\
-    \verb+UInt_t numberOfWafers() const;+\\
-    \verb+StSvtWaferHitCollection* wafer(UInt_t);+\\
-    \verb+const StSvtWaferHitCollection* wafer(UInt_t) const;+\\
+    \verb+unsigned int numberOfHits() const;+\\
+    \verb+unsigned int numberOfWafers() const;+\\
+    \verb+StSvtWaferHitCollection* wafer(unsigned int);+\\
+    \verb+const StSvtWaferHitCollection* wafer(unsigned int) const;+\\
 \end{Entry}
 \clearpage
 
@@ -5338,30 +5347,30 @@ definition in the header file.
     \verb+StSvtSoftwareMonitor();+\\
     \verb+StSvtSoftwareMonitor(const dst_mon_soft_svt_st&);+\\
 \item[Public Data\\ Member]
-    \verb+Long_t n_clus_svt[4];+\\
+    \verb+int n_clus_svt[4];+\\
     Total number clusters in each SVT/SSD barrel/layer. 
     
-    \verb+Long_t n_pts_svt[4];+\\
+    \verb+int n_pts_svt[4];+\\
     Total number of space points in each SVT/SSD barrel/layer. 
     
-    \verb+Long_t n_trk_svt;+\\
+    \verb+int n_trk_svt;+\\
     Total number of tracks in SVT.
     
-    \verb+Float_t chrg_svt_tot[4];+\\
+    \verb+float chrg_svt_tot[4];+\\
     Total charge deposition in each SVT/SSD barrel/layer. 
     
-    \verb+Float_t hit_frac_svt[4];+\\
+    \verb+float hit_frac_svt[4];+\\
     Fraction of hits used in each SVT/SSD barrel/layer. 
     
-    \verb+Float_t avg_trkL_svt;+\\
+    \verb+float avg_trkL_svt;+\\
     Average track length (cm) SVT \\
     or average number of points assigned.
     
-    \verb+Float_t res_pad_svt;+\\
+    \verb+float res_pad_svt;+\\
     Average residual, pad direction, SVT \\
     or average chisq(1) of fit.
 
-    \verb+Float_t res_drf_svt;+\\
+    \verb+float res_drf_svt;+\\
     Average residuals, drift direction, SVT \\
     or average chisq(2) of fit.
 \end{Entry}
@@ -5399,12 +5408,12 @@ definition in the header file.
 \item[Public\\ Constructors]
     \verb+StTofHit();+\\
 \item[Public Member\\ Functions]
-    \verb+UShort_t slatIndex() const;+\\
-    \verb+UShort_t numberOfMips() const;+\\
-    \verb+Float_t flightTime() const;+\\
-    \verb+void setSlatIndex(UShort_t);+\\
-    \verb+void setNumberOfMips(UShort_t);+\\
-    \verb+void setFlightTime(Float_t);+\\
+    \verb+unsigned short slatIndex() const;+\\
+    \verb+unsigned short numberOfMips() const;+\\
+    \verb+float flightTime() const;+\\
+    \verb+void setSlatIndex(unsigned short);+\\
+    \verb+void setNumberOfMips(unsigned short);+\\
+    \verb+void setFlightTime(float);+\\
 \item[Public Operators]
     \verb+ostream& operator<<(ostream&, const StTofHit&);+\\
 \end{Entry}
@@ -5422,17 +5431,17 @@ definition in the header file.
 \item[Related Classes]
 \item[Public\\ Constructors]
     \verb+StTofSlat();+\\
-    \verb+StTofSlat(UShort_t, UShort_t, UShort_t);+\\
+    \verb+StTofSlat(unsigned short, unsigned short, unsigned short);+\\
 \item[Public Member\\ Operators]
-    \verb+Int_t operator==(const StTofSlat&) const;+\\
-    \verb+Int_t operator!=(const StTofSlat&) const;+\\
+    \verb+int operator==(const StTofSlat&) const;+\\
+    \verb+int operator!=(const StTofSlat&) const;+\\
 \item[Public Member\\ Functions]
-    \verb+UShort_t slatIndex() const;+\\
-    \verb+UShort_t adc() const;+\\
-    \verb+UShort_t tdc() const;+\\
-    \verb+void setSlatIndex(UShort_t);+\\
-    \verb+void setAdc(UShort_t);+\\
-    \verb+void setTdc(UShort_t);+\\
+    \verb+unsigned short slatIndex() const;+\\
+    \verb+unsigned short adc() const;+\\
+    \verb+unsigned short tdc() const;+\\
+    \verb+void setSlatIndex(unsigned short);+\\
+    \verb+void setAdc(unsigned short);+\\
+    \verb+void setTdc(unsigned short);+\\
 \end{Entry}
 \clearpage
 
@@ -5494,20 +5503,20 @@ definition in the header file.
     
     \verb+StTpcHit(const StThreeVectorF&,+\\
     \verb+         const StThreeVectorF&,+\\
-    \verb+         ULong_t, Float_t, UChar_t = 0);+\\
+    \verb+         unsigned int, float, unsigned char = 0);+\\
     
     \verb+StTpcHit(const dst_point_st&);+\\
     
 \item[Public Member\\ Functions]
-    \verb+ULong_t sector() const;+\\
+    \verb+unsigned int sector() const;+\\
     Returns sector number in the range 1--24.
     
-    \verb+ULong_t padrow() const;+\\
+    \verb+unsigned int padrow() const;+\\
     Returns padrow number in the range 1--45.
 
-    \verb+ULong_t padsInHit() const;+\\
+    \verb+unsigned int padsInHit() const;+\\
     
-    \verb+ULong_t pixelsInHit() const;+\\
+    \verb+unsigned int pixelsInHit() const;+\\
 \end{Entry}
 \clearpage
 
@@ -5525,15 +5534,15 @@ definition in the header file.
 \item[Public\\ Constructors]
     \verb+StTpcHitCollection();+\\
 \item[Public Member\\ Functions]
-    \verb+Bool_t addHit(StTpcHit*);+\\
+    \verb+bool addHit(StTpcHit*);+\\
     
-    \verb+ULong_t numberOfHits() const;+\\
+    \verb+unsigned int numberOfHits() const;+\\
     Total number of TPC hits in the collection.
     
-    \verb+UInt_t numberOfSectors() const;+\\
+    \verb+unsigned int numberOfSectors() const;+\\
 
-    \verb+StTpcSectorHitCollection* sector(UInt_t i);+\\
-    \verb+const StTpcSectorHitCollection* sector(UInt_t i) const;+\\
+    \verb+StTpcSectorHitCollection* sector(unsigned int i);+\\
+    \verb+const StTpcSectorHitCollection* sector(unsigned int i) const;+\\
     Index \texttt{i} runs from 0--(n-1) where n =
     \texttt{numberOfSectors()}.
 \end{Entry}
@@ -5571,23 +5580,23 @@ definition in the header file.
 \item[Related Classes]
 \item[Public\\ Constructors]
     \verb+StTpcPixel();+\\
-    \verb+StTpcPixel(UShort_t, ULong_t);+\\
+    \verb+StTpcPixel(unsigned short, unsigned int);+\\
     \verb+StTpcPixel(const dst_pixel_st&);+\\
 \item[Public Member\\ Functions]
-    \verb+UShort_t detector() const;+\\
+    \verb+unsigned short detector() const;+\\
     
-    \verb+UShort_t sector() const;+\\
+    \verb+unsigned short sector() const;+\\
     Returns sector in the range 1--24.
 
-    \verb+UShort_t padrow() const;+\\
+    \verb+unsigned short padrow() const;+\\
     Returns padrow in the range 1--45.
 
-    \verb+ULong_t pad() const;+\\
-    \verb+ULong_t timebin() const;+\\
-    \verb+ULong_t adc() const;+\\
+    \verb+unsigned int pad() const;+\\
+    \verb+unsigned int timebin() const;+\\
+    \verb+unsigned int adc() const;+\\
 \item[Public Member\\ Operator]
-    \verb+Int_t operator==(const StTpcPixel&) const;+\\
-    \verb+Int_t operator!=(const StTpcPixel&) const;+\\
+    \verb+int operator==(const StTpcPixel&) const;+\\
+    \verb+int operator!=(const StTpcPixel&) const;+\\
 \end{Entry}
 \clearpage
 
@@ -5605,14 +5614,14 @@ definition in the header file.
 \item[Public\\ Constructors]
     \verb+StTpcSectorHitCollection();+\\
 \item[Public Member\\ Functions]
-    \verb+ULong_t numberOfHits() const;+\\
+    \verb+unsigned int numberOfHits() const;+\\
     Total number of hits in the sector.
     
-    \verb+UInt_t numberOfPadrows() const;+\\
+    \verb+unsigned int numberOfPadrows() const;+\\
     Always 45.
     
-    \verb+StTpcPadrowHitCollection* padrow(UInt_t i);+\\
-    \verb+const StTpcPadrowHitCollection* padrow(UInt_t) const;+\\
+    \verb+StTpcPadrowHitCollection* padrow(unsigned int i);+\\
+    \verb+const StTpcPadrowHitCollection* padrow(unsigned int) const;+\\
     Returns padrow hit collection. Note that \texttt{i}=0--44.
     
 \end{Entry}
@@ -5633,47 +5642,47 @@ definition in the header file.
     \verb+StTpcSoftwareMonitor();+\\
     \verb+StTpcSoftwareMonitor(const dst_mon_soft_tpc_st&);+\\
 \item[Public Data\\ Member]
-    \verb+Long_t n_clus_tpc_tot;+\\
+    \verb+int n_clus_tpc_tot;+\\
     Total number of clusters in TPC.
     
-    \verb+Long_t n_clus_tpc_in[24];+\\
+    \verb+int n_clus_tpc_in[24];+\\
     Total number of clusters in inner TPC sectors.
     
-    \verb+Long_t n_clus_tpc_out[24];+\\
+    \verb+int n_clus_tpc_out[24];+\\
     Total number of clusters in outer TPC sectors.
     
-    \verb+Long_t n_pts_tpc_tot;+\\
+    \verb+int n_pts_tpc_tot;+\\
     Total number of space points in TPC.
     
-    \verb+Long_t n_pts_tpc_in[24];+\\
+    \verb+int n_pts_tpc_in[24];+\\
     Total number of space points in inner TPC sectors.
     
-    \verb+Long_t n_pts_tpc_out[24];+\\
+    \verb+int n_pts_tpc_out[24];+\\
     Total number of space points in outer TPC sectors.
     
-    \verb+Long_t n_trk_tpc[2];+\\
+    \verb+int n_trk_tpc[2];+\\
     Total number of tracks in TPC, tan(dip angle) $< 0$ $(\ge 0)$.
     
-    \verb+Float_t chrg_tpc_drift[10];+\\
+    \verb+float chrg_tpc_drift[10];+\\
     Charge deposited in TPC in along z.
     
-    \verb+Float_t chrg_tpc_tot;+\\
+    \verb+float chrg_tpc_tot;+\\
     Total charge deposition in TPC.
     
-    \verb+Float_t chrg_tpc_in[24];+\\
+    \verb+float chrg_tpc_in[24];+\\
     Total charge deposition in inner TPC sectors.
     
-    \verb+Float_t chrg_tpc_out[24];+\\
+    \verb+float chrg_tpc_out[24];+\\
     Total charge deposition in outer TPC sectors.
     
-    \verb+Float_t hit_frac_tpc[2];+\\
+    \verb+float hit_frac_tpc[2];+\\
     Fraction of hits used in TPC, tan(dip angle) $< 0$ $(\ge 0)$.
     
-    \verb+Float_t avg_trkL_tpc[2];+\\
+    \verb+float avg_trkL_tpc[2];+\\
     Average track length (cm) \\ or average number of assigned,
     tan(dip angle) $< 0$ $(\ge 0)$.
     
-    \verb+Float_t res_drf_tpc[2];+\\
+    \verb+float res_drf_tpc[2];+\\
     Average residuals, drift direction, \\ or average chisq(2) of fit,
     tan(dip angle) $< 0$ $(\ge 0)$.
 \end{Entry}
@@ -5733,13 +5742,13 @@ definition in the header file.
     Pure virtual function. To be implemented in
     concrete classes inheriting from \texttt{StTrack}.
     
-    \verb+UShort_t key() const;+\\
+    \verb+unsigned short key() const;+\\
     Returns foreign key as defined in the dst\_track table.
     The key can be used as track ID. All tracks in the same
     track node should carry the same ID. 
     \index{foreign key}
     
-    \verb+Short_t flag() const;+\\
+    \verb+short flag() const;+\\
     Track quality control flag.  \index{track quality
         flag}\index{iflag}\index{flag() in StTrack} The most important
     point is: \texttt{flag()} $>$ 0 is good, \texttt{flag()} $<$ 0 is bad.  The meaning
@@ -5751,24 +5760,24 @@ definition in the header file.
     \item http://www.star.bnl.gov/STARAFS/comp/reco/kalerr.html
     \end{itemize} 
      
-    \verb+UShort_t encodedMethod() const;+\\
+    \verb+unsigned short encodedMethod() const;+\\
 
-    \verb+Bool_t finderScheme(StTrackFinderScheme) const;+\\
+    \verb+bool finderScheme(StTrackFinderScheme) const;+\\
 
     \verb+StTrackFittingMethod fittingMethod() const;+\\
 
-    \verb+Float_t impactParameter() const;+\\
+    \verb+float impactParameter() const;+\\
     Returns the impact parameter, or better the distance-of-closest
     aproach, of the track to the primary vertex.
     
-    \verb+Float_t length() const;+\\
+    \verb+float length() const;+\\
 
-    \verb+UShort_t numberOfPossiblePoints() const;+\\
+    \verb+unsigned short numberOfPossiblePoints() const;+\\
     Returns number of the (theoretically) maximum number of
     points along a track in TPC, SVT, and SSD. Does not include
     Tof, RICH, or EMC.
     
-    \verb+UShort_t numberOfPossiblePoints(StDetectorId det) const;+\\
+    \verb+unsigned short numberOfPossiblePoints(StDetectorId det) const;+\\
     Returns number of the (theoretically) maximum number of
     points along a track in a given detector \texttt{det}.
     Applies only for tracking detectors: TPC, SVT, and SSD.
@@ -5789,10 +5798,10 @@ definition in the header file.
     \verb+const StParticleDefinition* pidTraits(StPidAlgorithm&) const;+\\
     \verb+StTrackNode* node();+\\
     \verb+const StTrackNode* node() const;+\\
-    \verb+void setFlag(Short_t);+\\
-    \verb+void setEncodedMethod(UShort_t);+\\
-    \verb+void setImpactParameter(Float_t);+\\
-    \verb+void setLength(Float_t);+\\
+    \verb+void setFlag(short);+\\
+    \verb+void setEncodedMethod(unsigned short);+\\
+    \verb+void setImpactParameter(float);+\\
+    \verb+void setLength(float);+\\
     \verb+void setTopologyMap(const StTrackTopologyMap&);+\\
     \verb+void setGeometry(StTrackGeometry*);+\\
     \verb+void setFitTraits(const StTrackFitTraits&);+\\
@@ -5841,7 +5850,7 @@ definition in the header file.
     \verb+const StThreeVectorF& lastPoint() const;+\\
     Last point on the track.
     
-    \verb+UShort_t numberOfPoints() const;+\\
+    \verb+unsigned short numberOfPoints() const;+\\
     Returns the number of points assigned to the the track during
     reconstruction (\emph{all} detectors).  This number might or might
     not reflect the number of hits actually referenced by this class,
@@ -5857,7 +5866,7 @@ definition in the header file.
     \ref{sec:StTrack}). \index{StTrackTopologyMap}
 
 
-    \verb+UShort_t numberOfPoints(StDetectorId det) const;+\\
+    \verb+unsigned short numberOfPoints(StDetectorId det) const;+\\
     Returns the number of points in a given detector \texttt{det}.
     This is the number of hits from detector \texttt{det} assigned to
     this track at reconstruction time. This number might or might not
@@ -5881,7 +5890,7 @@ numberOfPoints(kTpcId) == numberOfPoints(kFtpcWestId)
     Becomes obsolete when the DST tables are gone.
 
     
-    \verb+UShort_t numberOfReferencedPoints() const;+\\
+    \verb+unsigned short numberOfReferencedPoints() const;+\\
     Returns the total number of points (hits) referenced. This is
     \textbf{not} necessarily the number of points assigned to the
     track during reconstruction. If the refrring hits are not loaded
@@ -5889,7 +5898,7 @@ numberOfPoints(kTpcId) == numberOfPoints(kFtpcWestId)
     used from the reconstruction chain use \texttt{numberOfPoints()}.
     This method will count all sort of hits including those from EMC, RICH, and ToF.
 
-    \verb+UShort_t numberOfReferencedPoints(StDetectorId det) const;+\\
+    \verb+unsigned short numberOfReferencedPoints(StDetectorId det) const;+\\
     Returns the number of points (hits) referenced originating from
     detector \texttt{det}. This does \textbf{not} necessarily reflect
     the number of points assigned during reconstruction. If no hits
@@ -5905,7 +5914,7 @@ numberOfPoints(kTpcId) == numberOfPoints(kFtpcWestId)
     \verb+const StPtrVecHit& hits() const;+\\
     \verb+void setFirstPoint(const StThreeVectorF&);+\\
     \verb+void setLastPoint(const StThreeVectorF&);+\\
-    \verb+void setNumberOfPoints(UShort_t);+\\
+    \verb+void setNumberOfPoints(unsigned short);+\\
     \verb+void addHit(StHit*);+\\
     \verb+void removeHit(StHit*&);+\\
 \end{Entry}
@@ -5924,15 +5933,15 @@ numberOfPoints(kTpcId) == numberOfPoints(kFtpcWestId)
 \item[Related Classes]
 \item[Public\\ Constructors]
     \verb+StTrackFitTraits();+\\
-    \verb+StTrackFitTraits(UShort_t, UShort_t, Float_t[2], Float_t[15]);+\\
+    \verb+StTrackFitTraits(unsigned short, unsigned short, float[2], float[15]);+\\
     \verb+StTrackFitTraits(const dst_track_st&);+\\
 \item[Public Member\\ Functions]
     
-    \verb+UShort_t numberOfFitPoints() const;+\\
+    \verb+unsigned short numberOfFitPoints() const;+\\
     Total number of points used for the fit, i.e. summing the
     hits in all detectors the track crossed.
     
-    \verb+UShort_t numberOfFitPoints(StDetectorId id) const;+\\
+    \verb+unsigned short numberOfFitPoints(StDetectorId id) const;+\\
     Number of points in detector \texttt{id} used for the fit.
     
     \verb+StParticleDefinition* pidHypothesis() const;+\\
@@ -5942,7 +5951,7 @@ numberOfPoints(kTpcId) == numberOfPoints(kFtpcWestId)
     
     \verb+StMatrixF covariantMatrix() const;+\\
 
-    \verb+Double_t chi2(UInt_t i = 0) const;+\\
+    \verb+double chi2(unsigned int i = 0) const;+\\
     Depending on the fitting method and the type of track there is either
     one or two values.
     If a real 3D fit is performed (e.g.~Kalman) the first value (\texttt{i = 0}) is the
@@ -5971,10 +5980,10 @@ numberOfPoints(kTpcId) == numberOfPoints(kFtpcWestId)
     \verb+StTrackGeometry(const dst_track_st&);+\\
 \item[Public Member\\ Functions]
     \verb+StTrackModel model() const = 0;+\\
-    \verb+Short_t charge() const = 0;+\\
-    \verb+Double_t curvature() const = 0;+\\
-    \verb+Double_t psi() const = 0;+\\
-    \verb+Double_t dipAngle() const = 0;+\\
+    \verb+short charge() const = 0;+\\
+    \verb+double curvature() const = 0;+\\
+    \verb+double psi() const = 0;+\\
+    \verb+double dipAngle() const = 0;+\\
     \verb+const StThreeVectorF& origin() const = 0;+\\
     \verb+const StThreeVectorF& momentum() const = 0;+\\
     \verb+StPhysicalHelixD helix() const = 0;+\\
@@ -5997,12 +6006,12 @@ numberOfPoints(kTpcId) == numberOfPoints(kFtpcWestId)
 \item[Public Member\\ Functions]
     \verb+void addTrack(StTrack*);+\\
     \verb+void removeTrack(StTrack*);+\\
-    \verb+UInt_t entries() const;+\\
-    \verb+StTrack* track(UInt_t);+\\
-    \verb+const StTrack* track(UInt_t) const;+\\
-    \verb+UInt_t entries(StTrackType) const;+\\
-    \verb+StTrack* track(StTrackType, UInt_t = 0);+\\
-    \verb+const StTrack* track(StTrackType, UInt_t = 0) const;+\\
+    \verb+unsigned int entries() const;+\\
+    \verb+StTrack* track(unsigned int);+\\
+    \verb+const StTrack* track(unsigned int) const;+\\
+    \verb+unsigned int entries(StTrackType) const;+\\
+    \verb+StTrack* track(StTrackType, unsigned int = 0);+\\
+    \verb+const StTrack* track(StTrackType, unsigned int = 0) const;+\\
 \end{Entry}
 \clearpage
 
@@ -6033,7 +6042,7 @@ numberOfPoints(kTpcId) == numberOfPoints(kFtpcWestId)
     \verb+StTrackPidTraits(const dst_dedx_st&);+\\
 
 \item[Public Member\\ Functions]
-    \verb+Short_t detector() const;+\\
+    \verb+short detector() const;+\\
     Returns the detector from which the PID is derived.
 
 \end{Entry}
@@ -6063,29 +6072,29 @@ numberOfPoints(kTpcId) == numberOfPoints(kFtpcWestId)
 \item[Related Classes]
 \item[Public\\ Constructors]
     \verb+StTrackTopologyMap();+\\
-    \verb+StTrackTopologyMap(ULong_t, ULong_t);+\\
-    \verb+StTrackTopologyMap(const ULong_t*);+\\
+    \verb+StTrackTopologyMap(unsigned int, unsigned int);+\\
+    \verb+StTrackTopologyMap(const unsigned int*);+\\
     
 \item[Public Member\\ Functions]
-    \verb+Bool_t primaryVertexUsed() const;+\\
+    \verb+bool primaryVertexUsed() const;+\\
     Indicates wether the primary vertex was used or not.  Also used to
     indicate that a secondary vertex constraint was used for special
     track fitting methods for decay vertices (see method variable).
 
-    \verb+UInt_t numberOfHits(StDetectorId id) const;+\\
+    \verb+unsigned int numberOfHits(StDetectorId id) const;+\\
     Returns the number of hits assigned to the track in detector \texttt{id}.
     
-    \verb+Bool_t hasHitInRow(StDetectorId det, UInt_t row) const;+\\
+    \verb+bool hasHitInRow(StDetectorId det, unsigned int row) const;+\\
     Row numbering starts at 1 following STAR conventions.
     
-    \verb+Bool_t hasHitInSvtLayer(UInt_t layer) const;+\\
+    \verb+bool hasHitInSvtLayer(unsigned int layer) const;+\\
     Layer numbering starts at 1 following STAR conventions.    
 
-    \verb+Bool_t turnAroundFlag() const;+\\
+    \verb+bool turnAroundFlag() const;+\\
     Indicates if a track spirals in which case the information stored
     is incomplete. 
     
-    \verb+ULong_t data(UInt_t i) const;+\\
+    \verb+unsigned int data(unsigned int i) const;+\\
     Returns the ``raw'' data in case you want to figure out yourself
     what bit is set (in case you know what it stands for). The map
     needs 2 long words (64 bits) hence one has to provide an argument
@@ -6094,7 +6103,7 @@ numberOfPoints(kTpcId) == numberOfPoints(kFtpcWestId)
     may be stored in a TTree (TBranch does not support ULong\_t),
     but the interface effectively hides this from the user.
 
-    \verb+Int_t largestGap(StDetectorId id) const;+\\ \index{largest gap} \index{gap}
+    \verb+int largestGap(StDetectorId id) const;+\\ \index{largest gap} \index{gap}
     Returns the largest gap in units of rows/layers in detector id.
     Please note, that the method does \textbf{not} return a path length
     but an integer number representing the maximum number of contiguous rows/layers
@@ -6136,15 +6145,15 @@ numberOfPoints(kTpcId) == numberOfPoints(kFtpcWestId)
 \item[Related Classes]
 \item[Public\\ Constructors]
     \verb+StTrigger();+\\
-    \verb+StTrigger(UShort_t aw, UShort_t w);+\\
+    \verb+StTrigger(unsigned short aw, unsigned short w);+\\
 \item[Public Member\\ Functions]
-    \verb+UShort_t triggerActionWord() const;+\\
-    \verb+UShort_t triggerWord() const;+\\
-    \verb+void setTriggerActionWord(UShort_t);+\\
-    \verb+void setTriggerWord(UShort_t);+\\
+    \verb+unsigned short triggerActionWord() const;+\\
+    \verb+unsigned short triggerWord() const;+\\
+    \verb+void setTriggerActionWord(unsigned short);+\\
+    \verb+void setTriggerWord(unsigned short);+\\
 \item[Public Member\\ Operator]
-    \verb+Int_t operator==(const StTrigger&) const;+\\
-    \verb+Int_t operator!=(const StTrigger&) const;+\\
+    \verb+int operator==(const StTrigger&) const;+\\
+    \verb+int operator!=(const StTrigger&) const;+\\
  \end{Entry}
  \clearpage
 
@@ -6191,15 +6200,15 @@ numberOfPoints(kTpcId) == numberOfPoints(kFtpcWestId)
 \item[Public Member\\ Functions]
     \verb+StVertexId type() const;+\\
     
-    \verb+UInt_t numberOfDaughters() const;+\\
+    \verb+unsigned int numberOfDaughters() const;+\\
 
     \verb+StTrack* daughter(StChargeSign sign);+\\
 
     \verb+const StTrack* daughter(StChargeSign sign) const;+\\
 
-    \verb+StTrack* daughter(UInt_t);+\\
+    \verb+StTrack* daughter(unsigned int);+\\
 
-    \verb+const StTrack* daughter(UInt_t) const;+\\
+    \verb+const StTrack* daughter(unsigned int) const;+\\
 
     \verb+StPtrVecTrack daughters(StTrackFilter&);+\\
 
@@ -6207,23 +6216,23 @@ numberOfPoints(kTpcId) == numberOfPoints(kFtpcWestId)
 
     \verb+void removeDaughter(StTrack*);+\\
 
-    \verb+Float_t dcaDaughterToPrimaryVertex(StChargeSign sign) const;+\\
+    \verb+float dcaDaughterToPrimaryVertex(StChargeSign sign) const;+\\
 
-    \verb+Float_t dcaDaughters() const;+\\
+    \verb+float dcaDaughters() const;+\\
 
-    \verb+Float_t dcaParentToPrimaryVertex() const;+\\
+    \verb+float dcaParentToPrimaryVertex() const;+\\
 
     \verb+const StThreeVectorF& momentumOfDaughter(StChargeSign sign) const;+\\
 
     \verb+StThreeVectorF momentum() const;+\\
 
-    \verb+void setDcaDaughterToPrimaryVertex(StChargeSign, Float_t);+\\
+    \verb+void setDcaDaughterToPrimaryVertex(StChargeSign, float);+\\
 
     \verb+void setMomentumOfDaughter(StChargeSign, const StThreeVectorF&);+\\
 
-    \verb+void setDcaDaughters(Float_t);+\\
+    \verb+void setDcaDaughters(float);+\\
 
-    \verb+void setDcaParentToPrimaryVertex(Float_t);+\\
+    \verb+void setDcaParentToPrimaryVertex(float);+\\
 \end{Entry}
 \clearpage
 
@@ -6244,12 +6253,12 @@ numberOfPoints(kTpcId) == numberOfPoints(kFtpcWestId)
 \item[Public Member\\ Functions]
     \verb+StVertexId type() const = 0;+\\
 
-    \verb+Long_t flag() const;+\\
+    \verb+int flag() const;+\\
 
-    \verb+Float_t chiSquared() const;+\\
+    \verb+float chiSquared() const;+\\
     Returns $\chi^2$ per degree of freedom.\index{$\chi^2$} \index{degree of freedom}
 
-    \verb+Float_t probChiSquared() const;+\\
+    \verb+float probChiSquared() const;+\\
     Upper tail probability of $\chi^2$ distribution.
 
     \verb+StMatrixF covariantMatrix() const;+\\
@@ -6260,24 +6269,24 @@ numberOfPoints(kTpcId) == numberOfPoints(kFtpcWestId)
     \verb+const StTrack* parent() const;+\\
     Return pointer to parent track.
     
-    \verb+UInt_t numberOfDaughters() const = 0;+\\
+    \verb+unsigned int numberOfDaughters() const = 0;+\\
 
-    \verb+StTrack* daughter(UInt_t i) = 0;+\\
-    \verb+const StTrack* daughter(UInt_t i) const = 0;+\\
+    \verb+StTrack* daughter(unsigned int i) = 0;+\\
+    \verb+const StTrack* daughter(unsigned int i) const = 0;+\\
 
     \verb+StPtrVecTrack daughters(StTrackFilter&) = 0;+\\
 
-    \verb+void setFlag(ULong_t);+\\
-    \verb+void setCovariantMatrix(Float_t[6]);+\\
-    \verb+void setChiSquared(Float_t);+\\
-    \verb+void setProbChiSquared(Float_t);+\\
+    \verb+void setFlag(unsigned int);+\\
+    \verb+void setCovariantMatrix(float[6]);+\\
+    \verb+void setChiSquared(float);+\\
+    \verb+void setProbChiSquared(float);+\\
     \verb+void setParent(StTrack*);+\\
     \verb+void addDaughter(StTrack*) = 0;+\\
     \verb+void removeDaughter(StTrack*) = 0;+\\
 
 \item[Public Member\\ Operator]
-    \verb+Int_t operator==(const StVertex&) const;+\\
-    \verb+Int_t operator!=(const StVertex&) const;+\\
+    \verb+int operator==(const StVertex&) const;+\\
+    \verb+int operator!=(const StVertex&) const;+\\
 \end{Entry}
 \clearpage
 
@@ -6296,15 +6305,15 @@ numberOfPoints(kTpcId) == numberOfPoints(kFtpcWestId)
     \verb+StVpdTriggerDetector();+\\
     \verb+StVpdTriggerDetector(const dst_TrgDet_st&);+\\
 \item[Public Member\\ Functions]
-    \verb+UInt_t numberOfVpdCounters() const;+\\
-    \verb+Float_t adc(UInt_t) const;+\\
-    \verb+Float_t time(UInt_t) const;+\\
-    \verb+Float_t minimumTime(StBeamDirection) const;+\\
-    \verb+Float_t vertexZ() const;+\\
-    \verb+void setAdc(UInt_t, Float_t);+\\
-    \verb+void setTime(UInt_t, Float_t);+\\
-    \verb+void setMinimumTime(StBeamDirection, Float_t);+\\
-    \verb+void setVertexZ(Float_t);+\\
+    \verb+unsigned int numberOfVpdCounters() const;+\\
+    \verb+float adc(unsigned int) const;+\\
+    \verb+float time(unsigned int) const;+\\
+    \verb+float minimumTime(StBeamDirection) const;+\\
+    \verb+float vertexZ() const;+\\
+    \verb+void setAdc(unsigned int, float);+\\
+    \verb+void setTime(unsigned int, float);+\\
+    \verb+void setMinimumTime(StBeamDirection, float);+\\
+    \verb+void setVertexZ(float);+\\
 \end{Entry}
 \clearpage
 
@@ -6324,24 +6333,24 @@ numberOfPoints(kTpcId) == numberOfPoints(kFtpcWestId)
     \verb+StXiVertex(const dst_vertex_st&, const dst_xi_vertex_st&);+\\
 \item[Public Member\\ Functions]
     \verb+StVertexId type() const;+\\
-    \verb+UInt_t numberOfDaughters() const;+\\
-    \verb+StTrack* daughter(UInt_t = 0);+\\
-    \verb+const StTrack* daughter(UInt_t = 0) const;+\\
+    \verb+unsigned int numberOfDaughters() const;+\\
+    \verb+StTrack* daughter(unsigned int = 0);+\\
+    \verb+const StTrack* daughter(unsigned int = 0) const;+\\
     \verb+StPtrVecTrack daughters(StTrackFilter&);+\\
-    \verb+Float_t dcaBachelorToPrimaryVertex() const;+\\
-    \verb+Float_t dcaV0ToPrimaryVertex() const;+\\
-    \verb+Float_t dcaDaughters() const;+\\
-    \verb+Float_t dcaParentToPrimaryVertex() const;+\\
+    \verb+float dcaBachelorToPrimaryVertex() const;+\\
+    \verb+float dcaV0ToPrimaryVertex() const;+\\
+    \verb+float dcaDaughters() const;+\\
+    \verb+float dcaParentToPrimaryVertex() const;+\\
     \verb+const StThreeVectorF& momentumOfBachelor() const;+\\
     \verb+StThreeVectorF momentumOfV0() const;+\\
     \verb+StThreeVectorF momentum() const;+\\
     \verb+StV0Vertex* v0Vertex() const;+\\
     \verb+StTrack* bachelor();+\\
-    \verb+Double_t chargeOfBachelor();+\\
-    \verb+void setDcaBachelorToPrimaryVertex(Float_t);+\\
+    \verb+double chargeOfBachelor();+\\
+    \verb+void setDcaBachelorToPrimaryVertex(float);+\\
     \verb+void setMomentumOfBachelor(const StThreeVectorF&);+\\
-    \verb+void setDcaDaughters(Float_t);+\\
-    \verb+void setDcaParentToPrimaryVertex(Float_t);+\\
+    \verb+void setDcaDaughters(float);+\\
+    \verb+void setDcaParentToPrimaryVertex(float);+\\
     \verb+void setV0Vertex(StV0Vertex*);+\\
     \verb+void addDaughter(StTrack*);+\\
     \verb+void removeDaughter(StTrack*);+\\
@@ -6365,11 +6374,11 @@ numberOfPoints(kTpcId) == numberOfPoints(kFtpcWestId)
     \verb+StZdcTriggerDetector(const dst_TrgDet_st&);+\\
 \item[Public Member\\ Functions]
 
-    \verb+UInt_t numberOfZdcWords() const;+\\
+    \verb+unsigned int numberOfZdcWords() const;+\\
     Currently, and probably for the rest of its lifetime, this method
     will return 16.
     
-    \verb+Float_t adc(UInt_t) const;+\\
+    \verb+float adc(unsigned int) const;+\\
     The meaning of the various words is as follows:
     \begin{itemize}
     \item unattenuated signals (mostly useful for looking at the single neutron peak)
@@ -6400,18 +6409,18 @@ numberOfPoints(kTpcId) == numberOfPoints(kFtpcWestId)
     is however still the sum of all 3 channels per module. The most
     relevant are the sum channels.
 
-    \verb+Float_t tdc(UInt_t) const;+\\
+    \verb+float tdc(unsigned int) const;+\\
 
-    \verb+Float_t adcSum(StBeamDirection) const;+\\
+    \verb+float adcSum(StBeamDirection) const;+\\
     Sum for ZDC east and west.
     
-    \verb+Float_t adcSum() const;+\\
+    \verb+float adcSum() const;+\\
     Total ZDC sum.
     
-    \verb+void setAdc(UInt_t, Float_t);+\\
-    \verb+void setTdc(UInt_t, Float_t);+\\
-    \verb+void setAdcSum(StBeamDirection, Float_t);+\\
-    \verb+void setAdcSum(Float_t);+\\
+    \verb+void setAdc(unsigned int, float);+\\
+    \verb+void setTdc(unsigned int, float);+\\
+    \verb+void setAdcSum(StBeamDirection, float);+\\
+    \verb+void setAdcSum(float);+\\
 \end{Entry}
 \clearpage
 
