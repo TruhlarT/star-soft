@@ -1,7 +1,10 @@
 #!/usr/bin/csh -f
-#       $Id: group_env.csh,v 1.81 1999/08/25 13:40:28 fisyak Exp $
+#       $Id: group_env.csh,v 1.82 1999/09/01 23:51:08 fisyak Exp $
 #	Purpose:	STAR group csh setup 
 #       $Log: group_env.csh,v $
+#       Revision 1.82  1999/09/01 23:51:08  fisyak
+#       Fix HEPix cern path
+#
 #       Revision 1.81  1999/08/25 13:40:28  fisyak
 #       Devorce STAF mgr from STAR mgr
 #
@@ -526,6 +529,10 @@ endif
 set path = ($HOME/bin $HOME/bin/.$STAR_SYS $path $CERN_ROOT/bin $CERN_ROOT/mgr .)
 if ( -x /afs/rhic/star/group/dropit) then
 # clean-up PATH
+if ("$CERN_LEVEL" != "pro") then
+  setenv PATH  `/afs/rhic/star/group/dropit cern`
+  setenv PATH  "${PATH}:${CERN_ROOT}/bin"
+endif 
 switch ($STAR_SYS)
     case "hp_ux102":
 #  ====================
