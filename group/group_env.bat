@@ -51,47 +51,47 @@ rem setenv STAR_VERSION
 :SetStar
 rem set STAR=%STAR_PATH%\%STAR_LEVEL%
 set STAR=w:\%STAR_LEVEL%
-echo "STAR"="%AFS_RHIC%\\star\\packages\\%STAR_LEVEL%">>Env.reg
+rem echo "STAR"="%AFS_RHIC%\\star\\packages\\%STAR_LEVEL%">>Env.reg
 					       if DEFINED ECHO echo   "Setting up STAR      = %STAR%
 
 set STAR_MGR=%STAR%\mgr
-echo "STAR_MGR"="%AFS_RHIC%\\star\\packages\\%STAR_LEVEL%\\mgr">>Env.reg
+rem echo "STAR_MGR"="%AFS_RHIC%\\star\\packages\\%STAR_LEVEL%\\mgr">>Env.reg
 
 set STAR_LIB=%STAR%\lib\%STAR_HOST_SYS%
-echo "STAR_LIB"="%AFS_RHIC%\\star\\packages\\%STAR_LEVEL%\\lib\\%STAR_HOST_SYS%">>Env.reg
+rem echo "STAR_LIB"="%AFS_RHIC%\\star\\packages\\%STAR_LEVEL%\\lib\\%STAR_HOST_SYS%">>Env.reg
 					     if DEFINED ECHO @echo   Setting up STAR_LIB  = %STAR_LIB%
 set STAR_BIN=%STAR%\bin\%STAR_HOST_SYS%
-echo "STAR_BIN"="%AFS_RHIC%\\star\\packages\\%STAR_LEVEL%\\bin\\%STAR_HOST_SYS%">>Env.reg
+rem echo "STAR_BIN"="%AFS_RHIC%\\star\\packages\\%STAR_LEVEL%\\bin\\%STAR_HOST_SYS%">>Env.reg
                                              if DEFINED ECHO @echo   Setting up STAR_BIN  = %STAR_BIN%
 set STAR_PAMS=%STAR%\pams
-echo "STAR_PAMS"="%AFS_RHIC%\\star\\packages\\%STAR_LEVEL%\\pams">>Env.reg
+rem echo "STAR_PAMS"="%AFS_RHIC%\\star\\packages\\%STAR_LEVEL%\\pams">>Env.reg
                                              if DEFINED ECHO @echo   Setting up STAR_PAMS = %STAR_PAMS%
 set STAR_DATA=%STAR_ROOT%\data
-echo "STAR_DATA"="%AFS_RHIC%\\star\\data">>Env.reg
+rem echo "STAR_DATA"="%AFS_RHIC%\\star\\data">>Env.reg
                                              if DEFINED ECHO @echo    Setting up STAR_DATA = %STAR_DATA%
 set STAR_CALB=%STAR_ROOT%\calb
-echo "STAR_CALB"="%AFS_RHIC%\\star\\calb">>Env.reg
+rem echo "STAR_CALB"="%AFS_RHIC%\\star\\calb">>Env.reg
                                              if DEFINED ECHO @echo    Setting up STAR_CALB = %STAR_CALB%
 set CVSROOT=%STAR_ROOT%\repository
-echo "CVSROOT"="%AFS_RHIC%\\star\\packages\\repository">>Env.reg
+rem echo "CVSROOT"="%AFS_RHIC%\\star\\packages\\repository">>Env.reg
                                              if DEFINED ECHO @echo   Setting up CVSROOT   = %CVSROOT%
 
 set CERN_LEVEL=98a
-echo "CERN_LEVEL"="98a">>Env.reg
+rem echo "CERN_LEVEL"="98a">>Env.reg
                                              if DEFINED ECHO @echo   Setting up  CERN_LEVEL   = %CERN_LEVEL%
 
 set CERN_ROOT=\\hepburn\common\p32\cern
-echo "CERN_ROOT"="\\\\hepburn\\common\\p32\\cern">>Env.reg
+rem echo "CERN_ROOT"="\\\\hepburn\\common\\p32\\cern">>Env.reg
                                              if DEFINED ECHO @echo   Setting up  CERN_ROOT   = %CERN_ROOT%
 set include=%STAR%\inc;%CERN_ROOT%\include;%include%
 set lib=%CERN_ROOT%\lib;%lib%
 
 set SunRPC=\\hepburn\common\p32\Staf\SunRPC
-echo "SunRPC"="\\\\hepburn\\common\\p32\\Staf\\SunRPC">>Env.reg
+rem echo "SunRPC"="\\\\hepburn\\common\\p32\\Staf\\SunRPC">>Env.reg
                                              if DEFINED ECHO @echo   Setting up  SunRPC   = %SunRPC%
 set include=%SunRPC%;%include%
 set ROOT_LEVEL=2.13
-if "%STAR_LEVEL%" == "dev" set ROOT_LEVEL=2.20
+if "%STAR_LEVEL%" == "dev" set ROOT_LEVEL=2.21
 set ROOTSYS=%AFS_RHIC%\star\ROOT\%ROOT_LEVEL%\.intel_wnt\root
 path %STAR_PATH%\.%STAR_SYS%\gnu\bin;%path%;%ROOTSYS%\bin
 set ECHO=

@@ -1,7 +1,10 @@
 #!/usr/bin/csh -f
-#       $Id: group_env.csh,v 1.67 1999/03/10 20:48:21 fisyak Exp $
+#       $Id: group_env.csh,v 1.68 1999/03/11 19:01:00 fisyak Exp $
 #	Purpose:	STAR group csh setup 
 #       $Log: group_env.csh,v $
+#       Revision 1.68  1999/03/11 19:01:00  fisyak
+#       Set ROOT_LEVEL 2.21.07 for SL99c
+#
 #       Revision 1.67  1999/03/10 20:48:21  fisyak
 #       Change default for SL99d from ROOT 2.21/06 to 2.21/07
 #
@@ -248,7 +251,7 @@ setenv CVSROOT   $STAR_PATH/repository; if ($ECHO) echo   "Setting up CVSROOT   
     setenv CERN_ROOT $CERN/$CERN_LEVEL
     setenv ROOT_LEVEL 2.21
   endif
-  if ($STAR_VERSION  == "SL99d") setenv ROOT_LEVEL 2.21.07
+  if ($STAR_VERSION  == "SL99d" || $STAR_VERSION  == "SL99c") setenv ROOT_LEVEL 2.21.07
 #endif
                                         if ($ECHO) echo   "Setting up ROOT_LEVEL= ${ROOT_LEVEL}"
 if ($STAR_VERSION  == "SL99a") setenv CERN_LEVEL 99
