@@ -1,5 +1,5 @@
 #!/bin/csh -f
-#       $Id: group_env.csh,v 1.163 2004/01/26 19:42:13 jeromel Exp $
+#       $Id: group_env.csh,v 1.164 2004/07/27 18:35:46 jeromel Exp $
 #	Purpose:	STAR group csh setup
 #
 #	Author:		Y.Fisyak     BNL
@@ -331,11 +331,22 @@ switch ($STAR_SYS)
       if (! -d /usr/afsws/bin) setenv PATH `${GROUP_DIR}/dropit -p $PATH -p ${AFS_RHIC}/i386_redhat50/usr/afsws/bin`
       if ( -d /usr/pgi ) then
        setenv PGI /usr/pgi
-       setenv PATH `${GROUP_DIR}/dropit -p $PGI/linux86/bin -p $PATH`
-       setenv MANPATH `${GROUP_DIR}/dropit -p ${MANPATH} -p ${PGI}/man`
+       if ( ! -d $PGI/bin) then
+	    set version=`/bin/ls  $PGI/linux86/ | tail -1`
+	    setenv PGI_V linux86/$version
+       else
+	    setenv PGI_V linux86
+       endif
+       setenv PATH `${GROUP_DIR}/dropit -p $PGI/$PGI_V/bin -p $PATH`
+       if ( -d $PGI/$PGI_V/man) then
+	setenv MANPATH `${GROUP_DIR}/dropit -p ${MANPATH} -p ${PGI}/${PGI_V}/man`
+       else
+	setenv MANPATH `${GROUP_DIR}/dropit -p ${MANPATH} -p ${PGI}/man`
+	#alias  pgman 'man -M $PGI/man'
+       endif
        setenv LM_LICENSE_FILE $PGI/license.dat
-       alias pgman 'man -M $PGI/man'
       endif
+
       if (-d /usr/local/KAI/KCC.flex-3.4f-1/KCC_BASE) then
        setenv KAI /usr/local/KAI/KCC.flex-3.4f-1/KCC_BASE
        setenv PATH `${GROUP_DIR}/dropit -p $KAI/bin -p $PATH`
