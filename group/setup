@@ -14,12 +14,12 @@ switch ($pkg)
         #=======#
 	if (-f $GROUP_DIR/rootenv.csh) then
 	    if ( -x /afs/rhic/star/group/dropit) then
-	    setenv MANPATH         `/afs/rhic/star/group/dropit -p ROOT`
-	    setenv PATH            `/afs/rhic/star/group/dropit -p ${PATH} ROOT`
-	    setenv LD_LIBRARY_PATH `/afs/rhic/star/group/dropit -p ${LD_LIBRARY_PATH} ROOT`
-	endif 
-	if ($version != 0) setenv ROOT_LEVEL $version
-	source $GROUP_DIR/rootenv.csh
+		setenv MANPATH         `/afs/rhic/star/group/dropit -p ${MANPATH} ROOT`
+		setenv PATH            `/afs/rhic/star/group/dropit -p ${PATH} ROOT`
+		setenv LD_LIBRARY_PATH `/afs/rhic/star/group/dropit -p ${LD_LIBRARY_PATH} ROOT`
+	    endif 
+	    if ($version != 0) setenv ROOT_LEVEL $version
+	    source $GROUP_DIR/rootenv.csh
 	endif
 	breaksw
     case "objy":
