@@ -1,6 +1,9 @@
-#       $Id: group_env.csh,v 1.16 1998/06/20 01:05:23 fisyak Exp $
+#       $Id: group_env.csh,v 1.17 1998/06/24 18:01:23 wenaus Exp $
 #	Purpose:	STAR group csh setup 
 #       $Log: group_env.csh,v $
+#       Revision 1.17  1998/06/24 18:01:23  wenaus
+#       Add env variables for BaBar and G4 software
+#
 #       Revision 1.16  1998/06/20 01:05:23  fisyak
 #       Add STAF_LIB in LD_LIBRARY_PATH
 #
@@ -206,6 +209,14 @@ endif
 if (-f /opt/objy/objy500/setup.csh) then
 if ( ! $?OBJY_HOME) source  /opt/objy/objy500/setup.csh
 endif
+# BaBar
+setenv BFROOT /star/sol/packages/BaBar
+setenv BFSITE starbnl
+setenv OBJYBASE $OBJY_HOME
+# Geant4
+setenv G4PROTO /star/sol/packages/geant4/prototype
+setenv RWBASE /star/sol/packages/rogue/workspaces/SOLARIS25/SUNPRO42/12s
+setenv CLHEP_BASE_DIR /opt/rhic
 # HP Jetprint
 if ( -d /opt/hpnp ) then
   if ($ECHO) echo   "Paths set up for HP Jetprint"
