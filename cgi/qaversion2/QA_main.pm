@@ -44,7 +44,7 @@ print $gCGIquery->header;
 #-----------------------------------------------------------
 my $path_info  = $gCGIquery->path_info;
 my $first_call = $path_info ? 0 : 1;  
-my $title      = 'STAR Software QA';
+my $title      = 'STAR autoQA';
 
 # If no path information is provided, then create frame set
 # N.B. Do not print anything to screen prior to this statement, or frames 
