@@ -1,7 +1,10 @@
 #!/usr/bin/csh -f
-#       $Id: group_env.csh,v 1.95 2000/02/15 22:16:46 fisyak Exp $
+#       $Id: group_env.csh,v 1.96 2000/02/16 14:21:11 fisyak Exp $
 #	Purpose:	STAR group csh setup 
 #       $Log: group_env.csh,v $
+#       Revision 1.96  2000/02/16 14:21:11  fisyak
+#       Move objy root parasoft sniff g4 initialization to setup
+#
 #       Revision 1.95  2000/02/15 22:16:46  fisyak
 #       take out Objy from default path, add /star/rcf/scratch as default scratch area
 #
@@ -393,7 +396,6 @@ endif
 switch ($STAR_SYS)
     case "rs_aix*":
 #  ====================
-#	set path = ($path $PARASOFT/bin.aix4) 
         setenv MANPATH {$MANPATH}:/usr/share/man
     breaksw
     case "alpha_osf32c":
@@ -442,11 +444,6 @@ switch ($STAR_SYS)
      endif
      limit coredump 0
      setenv BFARCH Linux2
-     setenv PARASOFT /afs/rhic/i386_linux22/app/parasoft
-     setenv LD_LIBRARY_PATH ${LD_LIBRARY_PATH}:{$PARASOFT}/lib.linux
-     if ( -x /afs/rhic/star/group/dropit) setenv PATH `dropit parasoft`
-     set path = ($path $PARASOFT/bin.linux)
-     setenv MANPATH ${MANPATH}:{$PARASOFT}/man
 
      setenv OBJY_ARCH linux86
     breaksw
@@ -484,11 +481,6 @@ switch ($STAR_SYS)
      setenv OBJY_ARCH solaris4
      limit coredump 0
      unlimit descriptors
-     setenv PARASOFT /afs/rhic/sun4x_56/app/parasoft
-     setenv LD_LIBRARY_PATH ${LD_LIBRARY_PATH}:{$PARASOFT}/lib.solaris
-     if ( -x /afs/rhic/star/group/dropit) setenv PATH `dropit parasoft`
-     set path = ($path $PARASOFT/bin.solaris)
-     setenv MANPATH ${MANPATH}:{$PARASOFT}/man
     breaksw 
     default:
 #  ====================
@@ -535,32 +527,6 @@ if ( -f $GROUP_DIR/rootenv.csh) then
   source $GROUP_DIR/rootenv.csh
 endif
 
-# Objectivity
-#if (`uname -s` == "SunOS" && `hostname` != "rcf.rhic.bnl.gov" && ! ${?OBJY_HOME} ) source $GROUP_DIR/ObjySetup.csh
-
-# SNiFF+
-setenv G4SYSTEM
-switch ($STAR_SYS)
-    case "sun4*":
-#     ====================
-      setenv SNIFF_DIR /star/sol/packages/sniff
-      set path = ( $path $SNIFF_DIR/bin )
-      setenv G4SYSTEM SUN-CC
-      breaksw 
-    case "i386_*":
-#     ====================
-      setenv SNIFF_DIR /star/sol/packages/sniff
-#      set path = ( $path $SNIFF_DIR/bin )
-      setenv G4SYSTEM Linux-g++
-      breaksw
-    default:
-#     ====================
-      breaksw
-endsw
-
-# Geant4 testing
-setenv RWBASE         /afs/rhic/usatlas/software/geant4/rogue/$G4SYSTEM
-setenv CLHEP_BASE_DIR /afs/rhic/usatlas/software/geant4/CLHEP/$G4SYSTEM/pro
 
 # HP Jetprint
 if ( -d /opt/hpnp ) then

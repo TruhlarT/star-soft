@@ -1,0 +1,46 @@
+#! /usr/local/bin/tcsh -f
+set packages = "objy root parasoft sniff g4" 
+if ($#argv == 0 || $#argv > 2) then
+    echo "Usage: setup package [version]"
+    echo "List of packages: $packages"
+    exit 0
+endif
+set pkg = $1; shift;
+set version = 0;
+if ( $#argv > 0 ) set version = $1
+set PKG = `echo $pkg | awk '{print tolower($0)}'`
+#echo $pkg = $PKG $version
+switch ($pkg)
+    case "root":
+        #=======#
+	if (-f $GROUP_DIR/rootenv.csh) then
+	    if ( -x /afs/rhic/star/group/dropit) then
+	    setenv MANPATH         `/afs/rhic/star/group/dropit -p ROOT`
+	    setenv PATH            `/afs/rhic/star/group/dropit -p ${PATH} ROOT`
+	    setenv LD_LIBRARY_PATH `/afs/rhic/star/group/dropit -p ${LD_LIBRARY_PATH} ROOT`
+	endif 
+	if ($version != 0) setenv ROOT_LEVEL $version
+	source $GROUP_DIR/rootenv.csh
+	endif
+	breaksw
+    case "objy":
+         #=====#
+	if (`uname -s` == "SunOS" && `hostname` != "rcf.rhic.bnl.gov" && ! ${?OBJY_HOME} ) source $GROUP_DIR/ObjySetup.csh
+	breaksw
+    case "parasoft":	
+         #=====#
+	if (-f $GROUP_DIR/parasoftenv.csh) source $GROUP_DIR/parasoftenv.csh
+	breaksw
+    case "sniff":	
+         #=====#
+	if (-f $GROUP_DIR/sniffenv.csh) source $GROUP_DIR/sniffenv.csh
+	breaksw
+    case "g4":	
+         #=====#
+	if (-f $GROUP_DIR/g4env.csh) source $GROUP_DIR/G4env.csh
+	breaksw
+    default:
+	echo "Setup for $pkg is not defined"
+      breaksw
+    
+endsw
