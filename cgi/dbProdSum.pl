@@ -88,6 +88,14 @@ if($colSet eq "AuAu130") {
  my $TNevTOPOeff = 0;
  my $TNevTOPOZDC = 0;
  my $TNevLaser = 0;
+ my $TNevppMinBias = 0;
+ my $TNevppCTB = 0;
+ my $TNevppEMChi = 0;
+ my $TNevppFPD = 0;
+ my $TNevppFPD2 = 0;
+ my $TNevppFPDTB = 0;
+ my $TNevppMBNoVtx = 0;
+
 
  my $topHpss = "/home/starreco/reco";
 
@@ -297,6 +305,37 @@ if ($trigD eq "all" and $fieldM eq "all" and $detSet eq "all") {
  }
 }
 
+ 
+    if($colSet eq "ProtonProton200") {
+
+   $sql="SELECT sum(NevPrimVtx), sum(NevppMinBias), sum(NevppCTB), sum(NevppEMChi), sum(NevppFPD), sum(NevppFPD2), sum(NevppFPDTB), sum(NevppMBNoVtx) from TriggerEvents where triggerSetup = '$trigD' and prodSeries = '$prodSer' ";
+
+      $cursor =$dbh->prepare($sql)
+      || die "Cannot prepare statement: $DBI::errstr\n";
+   $cursor->execute;
+
+   while(@fields = $cursor->fetchrow) {
+     my $cols=$cursor->{NUM_OF_FIELDS}; 
+     for($i=0;$i<$cols;$i++) {
+       my $fvalue=$fields[$i];
+       my $fname=$cursor->{NAME}->[$i];
+       print "$fname = $fvalue\n" if $debugOn;
+
+
+        $TNevPrimVtx   = $fvalue    if( $fname eq 'sum(NevPrimVtx)');
+        $TNevppMinBias = $fvalue    if( $fname eq 'sum(NevppMinBias)');
+        $TNevppCTB     = $fvalue    if( $fname eq 'sum(NevppCTB)');
+        $TNevppEMChi   = $fvalue    if( $fname eq 'sum(NevppEMChi)');
+        $TNevppFPD     = $fvalue    if( $fname eq 'sum(NevppFPD)');
+        $TNevppFPD2    = $fvalue    if( $fname eq 'sum(NevppFPD2)');
+        $TNevppFPDTB   = $fvalue    if( $fname eq 'sum(NevppFPDTB)');
+        $TNevppMBNoVtx = $fvalue    if( $fname eq 'sum(NevppMBNoVtx)');
+
+         }
+      }
+   }
+
+
  &StDbProdDisconnect();
 
 &cgiSetup();
@@ -308,8 +347,11 @@ if ($trigD eq "all" and $fieldM eq "all" and $detSet eq "all") {
 
  &begin2Html();
  &printTrigSum();
-}
+ }elsif($colSet eq "ProtonProton200") {
 
+  &begin3Html();
+ &printTrigpp();
+ }
 
 #####  finished with database
   
@@ -356,6 +398,25 @@ END
 
 ######################
 
+ sub printTrigpp {
+
+print <<END;
+<TR ALIGN=CENTER HEIGHT=80 bgcolor=lightblue>
+<td HEIGHT=80><h3>$TNevPrimVtx</h3></td>
+<td HEIGHT=80><h3>$TNevppMinBias</h3></td>
+<td HEIGHT=80><h3>$TNevppCTB</h3></td>
+<td HEIGHT=80><h3>$TNevppEMChi</h3></td>
+<td HEIGHT=80><h3>$TNevppFPD</h3></td>
+<td HEIGHT=80><h3>$TNevppFPD2</h3></td>
+<td HEIGHT=80><h3>$TNevppFPDTB</h3></td>
+<td HEIGHT=80><h3>$TNevppMBNoVtx</h3></td>
+</TR>
+END
+
+}
+
+######################
+
 sub beginHtml {
 
 print <<END;
@@ -368,8 +429,8 @@ print <<END;
      <h2 align=center>Summary for $trigD  $colSet events in $prodSer production </h2>
 <TABLE ALIGN=CENTER BORDER=5 CELLSPACING=1 CELLPADDING=2 >
 <TR>
-<TD ALIGN=CENTER WIDTH=\"20%\" HEIGHT=100><B>Size(GB) of DAQ files</B></TD>
-<TD ALIGN=CENTER WIDTH=\"20%\" HEIGHT=100><B>Number of Events<br>in DAQ files</B></TD>
+<TD ALIGN=CENTER WIDTH=\"10%\" HEIGHT=100><B>Size(GB) of DAQ files</B></TD>
+<TD ALIGN=CENTER WIDTH=\"10%\" HEIGHT=100><B>Number of Events<br>in DAQ files</B></TD>
 <TD ALIGN=CENTER WIDTH=\"10%\" HEIGHT=100><B>Size(GB) of dst.root files</B></TD>
 <TD ALIGN=CENTER WIDTH=\"10%\" HEIGHT=100><B>Size(GB) of event.root files</B></TD>
 <TD ALIGN=CENTER WIDTH=\"10%\" HEIGHT=100><B>Size(GB) of MuDst.root files</B></TD>
@@ -404,6 +465,34 @@ print <<END;
 <TD ALIGN=CENTER WIDTH=\"10%\" HEIGHT=100><B>TOPO</B></TD>
 <TD ALIGN=CENTER WIDTH=\"10%\" HEIGHT=100><B>TOPO & ZDC</B></TD>
 <TD ALIGN=CENTER WIDTH=\"10%\" HEIGHT=100><B>TOPOeff</B></TD>
+</TR> 
+
+   </head>
+    <body>
+END
+}
+
+#######################################################################################################
+
+sub begin3Html {
+
+print <<END;
+
+  <html>
+  <head>
+          <title>Production Summary by Trigger</title>
+   </head>
+   <body BGCOLOR=\"#ccffff\"> 
+<TABLE ALIGN=CENTER BORDER=5 CELLSPACING=1 CELLPADDING=2 >
+<TR>
+<TD ALIGN=CENTER WIDTH=\"10%\" HEIGHT=100><B>Events<br> with primary vertex</B></TD>
+<TD ALIGN=CENTER WIDTH=\"10%\" HEIGHT=100><B>ppMinBias</B></TD>
+<TD ALIGN=CENTER WIDTH=\"10%\" HEIGHT=100><B>ppCTB</B></TD>
+<TD ALIGN=CENTER WIDTH=\"10%\" HEIGHT=100><B>ppEMChi</B></TD>
+<TD ALIGN=CENTER WIDTH=\"10%\" HEIGHT=100><B>ppFPD</B></TD>
+<TD ALIGN=CENTER WIDTH=\"10%\" HEIGHT=100><B>ppFPD2</B></TD>
+<TD ALIGN=CENTER WIDTH=\"10%\" HEIGHT=100><B>ppFPD_TB</B></TD>
+<TD ALIGN=CENTER WIDTH=\"10%\" HEIGHT=100><B>ppMBNoVtx</B></TD>
 </TR> 
 
    </head>
