@@ -1,6 +1,6 @@
 #!/usr/bin/env perl
 
-# $Id: AutoBuild.pl,v 1.13 2003/09/27 18:36:40 jeromel Exp $
+# $Id: AutoBuild.pl,v 1.14 2004/01/27 04:29:05 jeromel Exp $
 # This script was written to perform an automatic compilation
 # with cvs co and write some html page related to it afterward.
 # Written J.Lauret Apr 6 2001
@@ -48,8 +48,8 @@ $DFILE = "RELEASE.date";
 # want them to be in this SAME exact order.
 #
 %COMPILC=(
-	  "echo 1 ; unsetenv NODEBUG   ; cons", 1,
-	  "echo 2 ; setenv NODEBUG yes ; cons", 1);
+	  "echo 1 ; unsetenv NODEBUG   ; %%CHVER%% ; cons ", 1,
+	  "echo 2 ; setenv NODEBUG yes ; %%CHVER%% ; cons ", 1);
 @SKIP=IUExcluded();
 $OPTCONS="";
 
@@ -389,10 +389,9 @@ foreach $line (sort keys %COMPILC){
 	goto End;
     }
 
-
+    $line =~ s/%%CHVER%%/$CHVER/;
     print FO 
 	"#!/bin/csh\n",
-	"$CHVER\n",
 	"cd $COMPDIR\n",
 	"\n",
 	"setenv SKIP_DIRS \"".join(" ",@SKIP)."\"\n",
