@@ -20,11 +20,10 @@
       COMMON /CSDEBUG/  ICSDEBUG
       LOGICAL           S,G
       EXTERNAL          AgKUSER
-      CHARACTER*240     PROG
 
       COMMON/AgPROGRAM/ PROG
 
-      INTEGER           GETPID,LENOCC,ICDECI,Iprin,I,J,K,L,N,LP,ier,
+      INTEGER           GETPID,LENOCC,ICDECI,I,J,K,L,N,LP,ier,
                         Nr/0/,Na/0/,Irc,J1,J2,JE,Ilog/0/,JDEB/0/
       CHARACTER         T*1
  
