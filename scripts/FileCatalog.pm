@@ -139,7 +139,7 @@ no strict "refs";
 
 # define to print debug information
 my $NCTRY     =  6;
-my $NCSLP     = 10;
+my $NCSLP     =  5;
 my $DEBUG     =  0;
 my $PCLASS    = "";
 my $DELAY     =  0;
@@ -745,23 +745,43 @@ sub _ReadConfig
 			my (@hosts) = @{$key2->{HOST}};
 
 			if ($#hosts != -1){
-			    # We support one host for now and will take
-			    # the last index
-			    #print "\t\tHost   = ".$hosts[$#hosts]->{NAME}."\n";
-			    #print "\t\tDbname = ".$hosts[$#hosts]->{DBNAME}."\n";
-			    #print "\t\tPort   = ".$hosts[$#hosts]->{PORT}."\n";
-			    $EL{HOST} = $hosts[$#hosts]->{NAME};
-			    $EL{DB}   = $hosts[$#hosts]->{DBNAME};
-			    $EL{PORT} = $hosts[$#hosts]->{PORT};
+			    my($ii,$dbref);
+			    for($ii=0 ; $ii <= $#hosts ; $ii++){
+				&print_debug("_ReadConfig","\t\tHost   = ".$hosts[$ii]->{NAME});
+				&print_debug("_ReadConfig","\t\tDbname = ".$hosts[$ii]->{DBNAME});
+				&print_debug("_ReadConfig","\t\tPort   = ".$hosts[$ii]->{PORT});
+				if ( ! defined($EL{HOST}) ){
+				    $EL{HOST}  =  $hosts[$#hosts]->{NAME};
+				    $EL{DB}    =  $hosts[$#hosts]->{DBNAME};
+				    $EL{PORT}  =  $hosts[$#hosts]->{PORT};
+				    $EL{DBREF} =  "";
+				}
+				
 
+				# And one authentication per host
+				my (@auths) = @{$hosts[$ii]->{ACCESS}};
+				if ($#auths != -1){
+				    my($jj);
+				    if ( ! defined($EL{PASS}) ){
+					$EL{PASS}  =     $auths[$#auths]->{PASS};
+					$EL{USER}  =     $auths[$#auths]->{USER};
+				    }
+				    for($jj=0 ; $jj <= $#auths ; $jj++){
+					$EL{DBREF} .= join(":",
+							   $hosts[$ii]->{DBNAME},
+							   $hosts[$ii]->{NAME},
+							   $hosts[$ii]->{PORT}).
+							       ",".$auths[$jj]->{USER}.
+							       ",".$auths[$jj]->{PASS}." ";
 
-			    # And one authentication per host
-			    my (@auths) = @{$hosts[$#hosts]->{ACCESS}};
-			    if ($#auths != -1){
-				#print "\t\t\tUser     " . $auths[$#auths]->{USER}. "\n";
-				#print "\t\t\tPassword " . $auths[$#auths]->{PASS}."\n";
-				$EL{PASS} = $auths[$#auths]->{PASS};
-				$EL{USER} = $auths[$#auths]->{USER};
+				    }
+				} else {
+				    # A simple format may be valid
+				    $EL{DBREF} .= join(":",
+						      $hosts[$ii]->{DBNAME},
+						      $hosts[$ii]->{NAME},
+						      $hosts[$ii]->{PORT}).",, ";
+				}
 			    }
 			}
 			last;
@@ -778,6 +798,7 @@ sub _ReadConfig
 	    # and will not be supported / extended.
 	    # You MUST install XML::Simple
 	    #
+	    $EL{DBREF} = "";
 	    my ($site,$lintent);
 	    if ($intent =~ /::/){
 		($site,$lintent) = split("::",$intent);
@@ -866,7 +887,9 @@ sub _ReadConfig
     #&print_debug("_ReadConfig","XML :: User=$EL{USER} Pass=$EL{PASS} Site=$EL{site}");
     #print "XML :: Host=$EL{HOST} Db=$EL{DB} Port=$EL{PORT}\n";
     #print "XML :: User=$EL{USER} Pass=$EL{PASS} Site=$EL{site}\n";
-    return ($EL{HOST},$EL{DB},$EL{PORT},$EL{USER},$EL{PASS},$EL{site});
+    chop($EL{DBREF}) if ( defined($EL{DBREF}));
+
+    return ($EL{DBREF},$EL{HOST},$EL{DB},$EL{PORT},$EL{USER},$EL{PASS},$EL{site});
 }
 
 
@@ -880,65 +903,104 @@ sub get_connection
     if ($_[0] =~ m/FileCatalog/) {   shift(@_);}
 
     my($intent)=@_;
-
-    my($host,$db,$port,$user,$passwd);
-
-    ($host,$db,$port,$user,$passwd) = &_ReadConfig($intent,1);
-
+    my($dbr,$host,$db,$port,$user,$passwd) = &_ReadConfig($intent,1);
     return ($user,$passwd,$port,$host,$db);
 }
+sub get_Connection
+{
+    if ($_[0] =~ m/FileCatalog/) {   shift(@_);}
 
+    my($intent)=@_;
+    my($dbr) = &_ReadConfig($intent,1);
+    return $dbr;
+}
+
+# Connect as 'intent' or specific incompletely specified
+# reference.
 sub connect_as
 {
     if ($_[0] =~ m/FileCatalog/) {   shift(@_);}
 
     my($intent,$user,$passwd,$port,$host,$db)= @_;
-    my($Lhost,$Ldb,$Lport,$Luser,$Lpasswd,$Lsite);
+    my($Ldbr,$Lhost,$Ldb,$Lport,$Luser,$Lpasswd,$Lsite);
 
-    if ( ! defined($user)   ||
-	 ! defined($passwd) ||
-	 ! defined($port)   ||
-	 ! defined($host)   ||
-	 ! defined($db)
-	 ){
+    if ( ! defined($user)   &&
+	 ! defined($passwd) &&
+	 ! defined($port)   &&
+	 ! defined($host)   &&
+	 ! defined($db) ){
+	# New style, intent is sufficient for returning a selection
+	# of connections.
+	($Ldbr) = &_ReadConfig($intent);
+	return &Connect("FileCatalog",$Ldbr);
+    } else {
 	# Try again to read the missing stuff from XML if any
-	($Lhost,$Ldb,$Lport,$Luser,$Lpasswd) = &_ReadConfig($intent);
+	($Ldbr,$Lhost,$Ldb,$Lport,$Luser,$Lpasswd) = &_ReadConfig($intent);
 	if ( ! defined($user) ){    $user   = $Luser;}
 	if ( ! defined($passwd) ){  $passwd = $Lpasswd;}
 	if ( ! defined($port) ){    $port   = $Lport;}
 	if ( ! defined($host) ){    $host   = $Lhost;}
 	if ( ! defined($db) ){      $db     = $Ldb;}
-    }
 
-    return &connect("FileCatalog",$user,$passwd,$port,$host,$db);
+	return &connect("FileCatalog",$user,$passwd,$port,$host,$db);
+    }
 }
 
 
+# Maintained for backward compat or specific account/server
+# connection. Beware that the order are different.
 sub connect
+{
+   if ($_[0] =~ m/FileCatalog/) {   shift(@_);}
+   my($user,$passwd,$port,$host,$db)=@_;
+   if (!defined($user)){   $user   = $dbuser;}
+   if (!defined($passwd)){ $passwd = $dbpass;}
+   if (!defined($port)){   $port   = $dbport;}
+   if (!defined($host)){   $host   = $dbhost;}
+   if (!defined($db)){     $db     = $dbname;}
+   return &Connect("FileCatalog",join(":",$db,$host,$port).",$user,$passwd");
+}
+
+
+sub Connect
 {
     if ($_[0] =~ m/FileCatalog/) {   shift(@_);}
 
-    my ($user,$passwd,$port,$host,$db) = @_;
+    #my ($user,$passwd,$port,$host,$db) = @_;
+    my ($dbr)=@_;
+    my ($dbref,$user,$passwd,$host);
     my ($sth,$count);
-    my ($tries);
-    my ($dbref);
+    my ($tries,$idx);
 
-    # Some defaults
-    if( ! defined($user) )   { $user   = $dbuser;}
-    if( ! defined($passwd) ) { $passwd = $dbpass;}
-    if( ! defined($port) )   { $port   = $dbport;}
-    if( ! defined($host) )   { $host   = $dbhost;}
-    if( ! defined($db) )     { $db     = $dbname;}
 
     # Build connect
-    $dbref  =   "DBI:mysql:$db:$host";
-    if ( $port ne ""){ $dbref .= ":$port";}
+    my(@Dbr)= split(" ",$dbr);
+    my(@Dbrr);
+
+    # Now randomize order
+    #print "BEFORE $#Dbr [".join(" ",@Dbr)."]\n";
+    for($tries=$#Dbr ; $tries >= 0 ; $tries--){
+	$idx = splice(@Dbr,int(rand($#Dbr+1)),1);
+	push(@Dbrr,$idx);
+    }
+    #print "AFTER  $#Dbrr [".join(" ",@Dbrr)."]\n";
+    @Dbr = @Dbrr;
+
 
     # Make it more permissive. Simultaneous connections
     # may make this fail.
-    $tries = 0;
+    $idx = $tries = 0;
   CONNECT_TRY:
     $tries++;
+    $idx++;
+    if ($idx > $#Dbr){ $idx = 0;}
+
+    &print_debug("connect","Trying connection $idx / $#Dbr");
+    ($dbref,$user,$passwd)  =  split(",",$Dbr[$idx]);
+    if ( $dbref =~ m/\.$/){ chop($dbref);}
+    $host  = (split(":",$dbref))[1];
+    $dbref = "DBI:mysql:$dbref";
+
 
     &print_debug("connect","$dbref,$user (+passwd)");
     $DBH = DBI->connect($dbref,$user,$passwd,
@@ -947,15 +1009,15 @@ sub connect
 			);
     if (! $DBH ){
 	if ($DBI::err == 1045){
-	    &die_message("connect","Incorrect password ".($passwd eq ""?"(NULL)":""));
+	    &print_message("connect","Incorrect password ".($passwd eq ""?"(NULL)":""));
 	}
 	if ($DBI::err == 2002){
-	    &die_message("connect","Socket is invalid for [$dbref]",
-			 ($host eq ""?"Host was unspecified (too old library version ??)":""));
+	    &print_message("connect","Socket is invalid for [$dbref]",
+			   ($host eq ""?"Host was unspecified (too old library version ??)":""));
 	}
 
 	if ( $tries < $NCTRY ){
-	    &print_message("connect","Connection failed $DBI::err $DBI::errstr . Retry in $NCSLP secondes");
+	    &print_debug("connect","Connection failed $DBI::err $DBI::errstr . Retry in $NCSLP secondes");
 	    sleep($NCSLP);
 	    goto CONNECT_TRY;
 	} else {
@@ -968,32 +1030,14 @@ sub connect
     # Set/Unset global variables here
     $FC::IDX = -1;
 
-
-    #foreach (keys(%rowcounts)){
-    #    my $sqlquery = "SELECT count(*) FROM $_";
-    #    &print_debug("connect","Executing: $sqlquery");
-    #    $sth = $DBH->prepare($sqlquery);
-    #
-    #    if( ! $sth){
-    # 	&print_debug("connect","Failed to prepare [$sqlquery]");
-    #
-    #    } else {
-    #	$sth->execute();
-    #	$sth->bind_columns( \$count );
-    #
-    #	if ( $sth->fetch() ) {
-    #	  $rowcounts{$_} = $count;
-    #	}
-    #	$sth->finish();
-    #    }
-    #}
-
     if ( ! defined($DBH) ) {
 	return 0;
     } else {
 	return 1;
     }
 }
+
+
 
 # dangerous external db handler manipulation perspectives
 # for experts only
