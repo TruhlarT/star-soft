@@ -121,9 +121,10 @@ if ($count == 0){
 	{ 
 	    my @fields;
 	    (@fields) = split($delimeter,$_);
-	    $fields[$#fields] = "";
+	    undef($fields[$#fields]);
+	    $#fields--;
 	    if (join($delimeter,(@fields)) ne $lastfname)
-	      { print "$_\n"; }
+	      { print join($delimeter,(@fields))."\n"; }
 	    $lastfname = join($delimeter,(@fields));
 	}
     }
@@ -136,3 +137,21 @@ sub Usage
     print "get_file_list.pl [-all|-distinct] -keys field{,field} [-cond field=value{,field=value}] [-start <start record number>] [-limit <number of output records>] [-delim <string>]\n";
     print "The valid keywords are: ".join(" ",$fileC->get_keyword_list())."\n";
 }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

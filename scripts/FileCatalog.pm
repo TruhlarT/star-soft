@@ -1668,10 +1668,10 @@ sub run_query {
       push (@toquery, $_);
     }
   }
-
   if ($DEBUG > 0) {
     print_debug("Connections to build the query: ".join(" ",@toquery));
   }
+
   # Get the select fields
   my @select;
   foreach (@keywords) {
@@ -1681,10 +1681,13 @@ sub run_query {
     if (defined $functions{$_})
       {
 	if ($functions{$_} eq "grp")
-	  {
-	    $grouping .= " GROUP BY ".get_field_name($_)." ";
-	    push (@select, get_field_name($_));
-	  }
+	{
+	    if (($grouping =~ m/GROUP BY/) == 0)
+	    {
+		$grouping .= " GROUP BY ".get_field_name($_)." ";
+		push (@select, get_field_name($_));
+	    }
+	}
 	elsif ($functions{$_} eq "orda")
 	  {
 	    $grouping .= " ORDER BY ".get_field_name($_)." ASC ";
@@ -1736,6 +1739,18 @@ sub run_query {
       push (@fromunique, $_);
     }
   }
+
+  # Get only the unique field names
+  my @selectunique;
+  foreach (sort {$a cmp $b} (@select)) {
+    if ($debug > 0) {
+      print "Adding $_\n";
+    }
+    if ((not $selectunique[$#selectunique]) || ($selectunique[$#selectunique] ne $_)) {
+      push (@selectunique, $_);
+    }
+  }
+
 
   # See if we have any constaint parameters
   my @constraint;
@@ -1804,10 +1819,11 @@ sub run_query {
     {
       $sqlquery .= " FileLocationID , ";
     }
-  $sqlquery .= join(" , ",(@select))." FROM ".join(" , ",(@fromunique));
 
-  if (defined $where) {
-    $sqlquery .=" WHERE $where";
+  $sqlquery .= join(" , ",(@selectunique))." FROM ".join(" , ",(@fromunique));
+  
+  if (defined $where) { 
+    $sqlquery .=" WHERE $where"; 
     if ($constraint ne "") {
       $sqlquery .= " AND $constraint";
     }
