@@ -310,6 +310,22 @@ print <<END;
 <TD ALIGN=CENTER WIDTH=\"10%\" HEIGHT=100><B>Number of Events<br>in event.root file</B></TD>
 <TD ALIGN=CENTER WIDTH=\"10%\" HEIGHT=100><B>Number of Events<br>in MuDst.root file</B></TD>
 </TR> 
+
+     <h2 align=center>Event Summary by Trigger Words  </h2>
+<TABLE ALIGN=CENTER BORDER=5 CELLSPACING=1 CELLPADDING=2 >
+<TR>
+<TD ALIGN=CENTER WIDTH=\"20%\" HEIGHT=100><B>Events<br> with primary vertex</B></TD>
+<TD ALIGN=CENTER WIDTH=\"20%\" HEIGHT=100><B>Hadronic MinBias</B></TD>
+<TD ALIGN=CENTER WIDTH=\"10%\" HEIGHT=100><B>Hadronic Central</B></TD>
+<TD ALIGN=CENTER WIDTH=\"10%\" HEIGHT=100><B>Hi-mult</B></TD>
+<TD ALIGN=CENTER WIDTH=\"10%\" HEIGHT=100><B>Hi-mult & ZDC </B></TD>
+<TD ALIGN=CENTER WIDTH=\"10%\" HEIGHT=100><B>UPC MinBias</B></TD>
+<TD ALIGN=CENTER WIDTH=\"10%\" HEIGHT=100><B>TOPO</B></TD>
+<TD ALIGN=CENTER WIDTH=\"10%\" HEIGHT=100><B>TOPO & ZDC</B></TD>
+<TD ALIGN=CENTER WIDTH=\"10%\" HEIGHT=100><B>TOPOeff</B></TD>
+<TD ALIGN=CENTER WIDTH=\"10%\" HEIGHT=100><B>Laser Events</B></TD>
+</TR> 
+
    </head>
     <body>
 END
