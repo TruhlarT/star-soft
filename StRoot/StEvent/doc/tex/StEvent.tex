@@ -2,7 +2,7 @@
 %
 % StEvent - User Guide and Reference Manual -- LaTeX Source
 %
-% $Id: StEvent.tex,v 2.78 2003/05/21 19:10:22 ullrich Exp $
+% $Id: StEvent.tex,v 2.79 2003/05/23 20:25:54 ullrich Exp $
 %
 % Author: Thomas Ullrich, Nov 1999
 %
@@ -21,6 +21,9 @@
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %
 % $Log: StEvent.tex,v $
+% Revision 2.79  2003/05/23 20:25:54  ullrich
+% Adapt changes to StTofCollection.
+%
 % Revision 2.78  2003/05/21 19:10:22  ullrich
 % Updated TOF references.
 %
@@ -300,8 +303,8 @@
   \mbox{\includegraphics[width=\textwidth]{StEventTitle.eps}}
   \hfill\mbox{}\\[3cm]
   {\LARGE User Guide and Reference Manual \\[5mm] for Version 2}\\[2cm]
-  {\LARGE $ $Revision: 2.78 $ $}  \\[5mm] % replaced by cvs with current revision
-  {\LARGE $ $Date: 2003/05/21 19:10:22 $ $}  % replaced by cvs with current revision
+  {\LARGE $ $Revision: 2.79 $ $}  \\[5mm] % replaced by cvs with current revision
+  {\LARGE $ $Date: 2003/05/23 20:25:54 $ $}  % replaced by cvs with current revision
   \vfill
 \end{center}
 \cleardoublepage
@@ -6273,10 +6276,10 @@ Given below the methods to access various data members.
 \item[Public\\ Constructors]
     \verb+StTofCollection();+\\
 \item[Public Member\\ Functions]
-    \verb+const StSPtrVecTofCell& tofCell() const;+\\
-    \verb+StSPtrVecTofCell& tofCell();+\\
-    \verb+const StSPtrVecTofSlat& tofSlat() const;+\\
-    \verb+StSPtrVecTofSlat& tofSlat();+\\
+    \verb+const StSPtrVecTofCell& tofCells() const;+\\
+    \verb+StSPtrVecTofCell& tofCells();+\\
+    \verb+const StSPtrVecTofSlat& tofSlats() const;+\\
+    \verb+StSPtrVecTofSlat& tofSlats();+\\
     \verb+const StSPtrVecTofHit& tofHits() const;+\\
     \verb+StSPtrVecTofHit& tofHits();+\\
     \verb+const StSPtrVecTofData& tofData() const;+\\
