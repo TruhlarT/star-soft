@@ -41,7 +41,12 @@ my $scratch_dir = "/afs/rhic/star/starqa/scratch";
 my $script_name = "$scratch_dir/$my_name.$$";
 my $output_name = "$script_name.output";
 my $target_program = "QA_main.pm";
-my $afs_pw_file = "$working_dir/starlib_pw";
+
+# BUM 000624 - quick fix
+# moved the afs_pw_file
+
+my $afs_pw_file = "/star/rcf/qa/.CGI_starlib";
+#my $afs_pw_file = "$working_dir/starlib_pw";
 
 my $scriptFH = new FileHandle;
 
@@ -55,9 +60,16 @@ my $scriptFH = new FileHandle;
 # need a token before we can write to afs space.
 #
 
+# BUM 000624 - quick fix 
+# changed the system call...
+# according to some, it included the pwd when listing processes.
+# try a different way
+
 my $reauth = `ps -u starlib | grep reauth`;
 if (! $reauth) {
-    my $cmd = "/usr/afsws/bin/reauth 85000 starlib `cat $afs_pw_file`";
+    
+    my $cmd = "cat $afs_pw_file | /usr/afsws/bin/reauth 85000 starlib";
+    #my $cmd = "/usr/afsws/bin/reauth 85000 starlib `cat $afs_pw_file`";
     system ($cmd);
 }
 

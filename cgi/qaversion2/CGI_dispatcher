@@ -43,7 +43,13 @@ my $run_dir = "$var_dir/run";
 
 my $pid_file = "$run_dir/$my_name.pid";
 my $log_file = "$log_dir/$my_name.log";
-my $afs_pw_file = "$working_dir/starlib_pw";
+
+# BUM 000624- quick fix.  
+# i moved the afs_pw_file to qa's top dir.
+
+my $afs_pw_file = "/star/rcf/qa/.starlib_CGI";
+#my $afs_pw_file = "$working_dir/starlib_pw";
+
 
 my $script_file;
 
@@ -62,10 +68,15 @@ getopt('', \%opt); # no args take options
 # need a token before we can write to afs space.
 #
 
+# BUM 000624 - quick fix.
+# changed the system call below...
+# `cat` commands seem to include the pwd when listing current processes??
+
 my $reauth = `ps -u starlib | grep reauth`;
 if (! $reauth) {
     print "no reauth running for starlib...running it now.\n";
-    system("/usr/afsws/bin/reauth 85000 starlib `cat $afs_pw_file`");
+    #system("/usr/afsws/bin/reauth 85000 starlib `cat $afs_pw_file`");
+    system(" cat $afs_pw_file | /usr/afsws/bin/reauth 85000 starlib");
 }
 
 #
