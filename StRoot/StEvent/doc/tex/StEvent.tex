@@ -2,7 +2,7 @@
 %
 % StEvent - User Guide and Reference Manual -- LaTeX Source
 %
-% $Id: StEvent.tex,v 2.54 2000/12/21 23:58:48 ullrich Exp $
+% $Id: StEvent.tex,v 2.55 2001/02/22 22:30:59 lasiuk Exp $
 %
 % Author: Thomas Ullrich, Nov 1999
 %
@@ -21,6 +21,9 @@
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %
 % $Log: StEvent.tex,v $
+% Revision 2.55  2001/02/22 22:30:59  lasiuk
+% add information to account for changes in RICH
+%
 % Revision 2.54  2000/12/21 23:58:48  ullrich
 % Added class StTofSlat and StTofHit to ref section.
 %
@@ -227,8 +230,8 @@
   \mbox{\includegraphics[width=\textwidth]{StEventTitle.eps}}
   \hfill\mbox{}\\[3cm]
   {\LARGE User Guide and Reference Manual \\[5mm] for Version 2}\\[2cm]
-  {\LARGE $ $Revision: 2.54 $ $}  \\[5mm] % replaced by cvs with current revision
-  {\LARGE $ $Date: 2000/12/21 23:58:48 $ $}  % replaced by cvs with current revision
+  {\LARGE $ $Revision: 2.55 $ $}  \\[5mm] % replaced by cvs with current revision
+  {\LARGE $ $Date: 2001/02/22 22:30:59 $ $}  % replaced by cvs with current revision
   \vfill
 \end{center}
 \cleardoublepage
@@ -4288,6 +4291,14 @@ definition in the header file.
     \verb+StSPtrVecRichHit& getRichHits();+\\
     Returns the collection of reconstructed hits.
 
+    \verb+const StPtrVecTrack& getTracks() const;+\\
+    Returns the collection of \texttt{StTracks} that have an
+    \texttt{StRichPidTrait} calculated in the reconstruction.
+
+    \verb+StPtrVecTrack& getTracks();+\\
+    Returns the collection of \texttt{StTracks} that have an
+    \texttt{StRichPidTrait} calculated in the reconstruction.
+
     \verb+void addPixel(const StRichPixel*);+\\
     Adds a single pixel to the pixel collection.
 
@@ -4569,7 +4580,13 @@ definition in the header file.
 \index{StRichPid|textbf}
 \label{sec:StRichPid}
 \begin{Entry}
-\item[Summary]
+\item[Summary] This class contains information specific
+    to a mass hypothesis of the track in question.  It
+    contains the photons associated with the ring or
+    band of the tracks as well as parameters calculated
+    for the photons.  It also contains derived parameters
+    which are used in the algorithm of identifying the
+    particles.
 \item[Synopsis]
     \verb+#include "StRichPid.h"+\\
     \verb+class StRichPid;+\\
@@ -4582,31 +4599,116 @@ definition in the header file.
     \verb+Float_t totAzim, Float_t totArea,+\\
     \verb+UShort_t totHits, Float_t trunAzim,+\\
     \verb+Float_t trunArea, UShort_t trunHits);+\\
+    Constructor requires the particle type (particle),
+    species dependent residual from the extrapolated
+    track (resid), the total Azimuthal angle (totAzim),
+    total Area(totArea) of the ring bands that are found
+    on the pad plane, as well as the total number of
+    photons/hits (totHits) as well as the corresponding
+    quantities in the trucated ring bands.
+
     \verb+Int_t operator==(const StRichPid&) const;+\\
+
     \verb+void setRingType(StParticleDefinition* particle);+\\
+    Sets the ring type according to the mass hypothesis.
+    
     \verb+void setMipResidual(StThreeVectorD t);+\\
+    Sets the residual between the associated hit on the
+    RICH pad plane and the extrapolated TPC track.  This
+    residual is calculated with the particle species dependent
+    momentum loss.
+    
     \verb+void setTotalAzimuth(Float_t);+\\
+    Sets the total azimuthal angle of the ring
+    seen on the pad plane.
+    
     \verb+void setTotalArea(Float_t);+\\
+    Sets the total area of the ring/bands
+    seen on the pad plane.
+
     \verb+void setTotalHits(UShort_t);+\\
+    Sets the total number of photons/hits
+    contained in the ring on the pad plane.
+    
     \verb+void setTruncatedAzimuth(Float_t);+\\
+    Sets the truncated azimuthal angle of the ring
+    seen on the pad plane.
+
     \verb+void setTruncatedArea(Float_t);+\\
+    Sets the truncated area of the ring/bands
+    seen on the pad plane.
+
     \verb+void setTruncatedHits(UShort_t);+\\
+    Sets the total number of photons/hits
+    contained in the truncated ring area on
+    the pad plane.
+
     \verb+StParticleDefinition* getRingType() const;+\\
+    Returns the ring type according to the mass hypothesis.
+
     \verb+const StPtrVecRichHit& getAssociatedRichHits() const;+\\
+    Returns the photons/hits associated with the
+    mass hypothesis.
+    
     \verb+StPtrVecRichHit& getAssociatedRichHits();+\\
+    Returns the photons/hits associated with the
+    mass hypothesis.
+    
     \verb+Int_t getParticleNumber() const;+\\
+    Returns the particle type (pdgEncoding)
+    of the mass hypothesis.
+    
     \verb+StThreeVectorD getMipResidual() const;+\\
+    Returns  the residual between the associated hit on the
+    RICH pad plane and the extrapolated TPC track.  This
+    residual is calculated with the particle species dependent
+    momentum loss.
+    
     \verb+Float_t getTotalAzimuth() const;+\\
+    Returns the total azimuthal angle of the ring
+    seen on the pad plane.
+    
     \verb+Float_t getTotalArea() const;+\\
+    Returns the total area of the ring/bands
+    seen on the pad plane.
+    
     \verb+UShort_t getTotalHits() const;+\\
+    Returns the total number of photons/hits
+    contained in the ring on the pad plane.
+    
     \verb+Float_t getTotalDensity() const;+\\
+    Returns the total area of the ring/bands
+    seen on the pad plane.
+
     \verb+Float_t getTruncatedAzimuth() const;+\\
+    Returns the truncated azimuthal angle of the ring
+    seen on the pad plane.
+
     \verb+Float_t getTruncatedArea() const;+\\
+    Returns the truncated area of the ring/bands
+    seen on the pad plane.
+
     \verb+UShort_t getTruncatedHits() const;+\\
+    Returns the total number of photons/hits
+    contained in the truncated ring area on
+    the pad plane.
+
     \verb+Float_t getTruncatedDensity() const;+\\
+    Returns the areal density of the truncated
+    number of hits and area.
+
     \verb+bool isSet(StRichPidFlag);+\\
+    Checks the bit flags, as defined
+    in \texttt{StEnumerations}
+    
     \verb+void setBit(StRichPidFlag);+\\
+    Sets a bit flag, as defined
+    in \texttt{StEnumerations}
+    
     \verb+void unSetBit(StRichPidFlag);+\\
+    Unsets a bit flag, as defined
+    in \texttt{StEnumerations}
+    
 \end{Entry}
 \clearpage
 
@@ -4614,7 +4716,13 @@ definition in the header file.
 \index{StRichPidTraits|textbf}
 \label{sec:StRichPidTraits}
 \begin{Entry}
-\item[Summary]
+\item[Summary] This is the PID Trait of a track that
+    passes through the RICH detector.  It contains
+    track specific information as well as a
+    container of \texttt{StRichPid} which in
+    turn contain information about the Cerenkov
+    radiation associated with the rings associated
+    with a different mass hypothesis ($\pi$/K/p).
 \item[Synopsis]
     \verb+#include "StRichPidTraits.h"+\\
     \verb+class StRichPidTraits;+\\
@@ -4625,10 +4733,101 @@ definition in the header file.
 \item[Public Member\\ Functions]
     \verb+Int_t operator==(const StRichPidTraits&) const;+\\
     \verb+void addPid(StRichPid* );+\\
+    adds an \texttt{StRichPid} to the container.
+    This is data related to a ``particle hypothesis''.
+    In the most general case there would be 3 such
+    structures ($\pi$/K/p).
+    
     \verb+StSPtrVecRichPid getAllPids();+\\
+    Returns the container of the \texttt{StRichPid}s.
+    
     \verb+const StSPtrVecRichPid getAllPids() const;+\\
+    Returns the container of the \texttt{StRichPid}s.
+
     \verb+StRichPid* getPid(StParticleDefinition* t);+\\
+    Returns the \texttt{StRichPid} associated to a
+    the particle type {\bf t}.
+    
     \verb+const StRichPid* getPid(StParticleDefinition* t) const;+\\
+    Returns the \texttt{StRichPid} associated to a
+    the particle type {\bf t}.
+
+    \verb+void setProductionVersion(Int_t);+\\
+    Label for the time which the \texttt{StRichPidTrait}
+    was produced.  The default version (for OFFICIAL production)
+    has a value of -999.  This allows us to keep track of
+    modifications if ``\texttt{StEvent} .root'' files are
+    subsequently reprocessed; another production version
+    is assigned.
+    
+    \verb+void setId(Int_t);+\\
+    Set the probable id of the particle.  This is not filled
+    in the reconstruction.
+    
+    \verb+void setProbability(Float_t);+\\
+    Set the probability of it being identified as
+    an ``id()''.
+    
+    \verb+void setAssociatedMip(StRichHit*);+\\
+    Set the \texttt{StRichHit} which is identified
+    with being the match from the TPC track extrapolation.
+    
+    \verb+void setMipResidual(const StThreeVectorF&);+\\
+    Set the residual or distance between the associated Mip and
+    the match from the TPC track extrapolation.
+
+    \verb+void setRefitResidual(const StThreeVectorF&);+\\
+    Set the residual or distance between the associated Mip and
+    the match from the TPC track extrapolation AFTER a
+    refit of the TPC track has been done.
+    
+    \verb+void setSignedDca2d(Float_t);+\\
+    Set the signed 2-dimensional dca (in bend-plane)
+    as calculated from the parent global
+    of the track in question.
+    
+    \verb+void setSignedDca3d(Float_t);+\\
+    Set the signed 3-dimensional dca
+    as calculated from the parent global
+    of the track in question.
+
+    \verb+Int_t   productionVersion() const;+\\
+    Returns the production version under which
+    the \texttt{StRichPidTrait} was created.
+    Default or official STAR production is always
+    -999.
+    
+    \verb+Int_t   id() const;+\\
+    Returns the probable id of the particle.
+    
+    \verb+Float_t probability() const;+\\
+    Returns the probability that the particle is
+    assigned an ``id()''.
+
+    \verb+StRichHit* associatedMip() const;+\\
+    Returns the \texttt{StRichHit} which has been
+    associated with the TPC track extrapolation.
+    
+    \verb+const StThreeVectorF& mipResidual() const;+\\
+    Returns the residual of associated MIP and the
+    extrapolated TPC track.
+    
+    \verb+const StThreeVectorF& refitResidual() const;+\\
+    Returns the residual of associated MIP and the
+    extrapolated TPC track AFTER a refit of the track
+    parameters has been done.
+
+    \verb+Float_t signedDca2d() const;+\\
+    Returns the signed 2-dimensional (bend-plane)
+    distance of closest approach (dca) between the
+    global partner of the track and the primary vertex
+    position.
+    
+    \verb+Float_t signedDca3d() const;+\\
+    Returns the signed 3-dimensional
+    distance of closest approach (dca) between the
+    global partner of the track and the primary vertex
+    position.
 \end{Entry}
 \clearpage
 
