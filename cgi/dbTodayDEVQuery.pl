@@ -15,9 +15,9 @@ use Class::Struct;
 require "/afs/rhic/star/packages/DEV00/mgr/dbTJobsSetup.pl";
 
 my $TOP_DIRD = "/star/rcf/test/dev/";
-my @dir_year = ("year_1h", "year_2a");
-my @node_dir = ("tfs_redhat61", "tfs_Solaris_CC5","trs_redhat61","tfs_Solaris"); 
-my @hc_dir = ("hc_lowdensity", "hc_standard", "hc_highdensity", "peripheral");
+my @dir_year = ("year_1h", "year_2b");
+my @node_dir = ("trs_redhat61","trs_redhat61_opt","daq_redhat61", "daq_redhat61_opt" ); 
+my @hc_dir = ("hc_lowdensity", "hc_standard", "hc_highdensity", "peripheral", "minbias","central");
 
 my @OUT_DIR;
 my @OUTD_DIR;
@@ -81,7 +81,7 @@ struct FileAttr => {
  &beginHtml();
 
 
-$sql="SELECT path, fName, NoEventDone, NoEventSkip, createTime FROM $FilesCatalogT where path LIKE '%$testDay%' AND avail = 'Y'";
+$sql="SELECT path, fName, NoEventDone, NoEventSkip, createTime FROM $FilesCatalogT where path LIKE '%$testDay%' AND path like '%redhat61%' AND avail = 'Y'";
  $cursor =$dbh->prepare($sql)
    || die "Cannot prepare statement: $DBI::errstr\n";
  $cursor->execute;
@@ -120,6 +120,8 @@ $sql="SELECT path, fName, NoEventDone, NoEventSkip, createTime FROM $FilesCatalo
         $myEvtD  = ($$eachFile)->noEvtD;
         $myEvtS  = ($$eachFile)->noEvtS; 
         $myCtime = ($$eachFile)->timeS;  
+    next if $myPath =~ /tfs_/;
+    next if $myPath =~ /year_2a/;
 
    &printRow();
 
