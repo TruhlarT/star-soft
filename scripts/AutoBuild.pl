@@ -1,6 +1,6 @@
 #!/usr/bin/env perl
 
-# $Id: AutoBuild.pl,v 1.11 2003/08/22 14:04:19 jeromel Exp $
+# $Id: AutoBuild.pl,v 1.12 2003/08/28 21:36:48 jeromel Exp $
 # This script was written to perform an automatic compilation
 # with cvs co and write some html page related to it afterward.
 # Written J.Lauret Apr 6 2001
@@ -153,7 +153,8 @@ for ($i=0 ; $i <= $#ARGV ; $i++){
 
 # Massage parameters
 if($LIBRARY =~ m/dev/i || $LIBRARY =~ m/new/i ||
-   $LIBRARY =~ m/pro/i || $LIBRARY =~ m/old/i){
+   $LIBRARY =~ m/pro/i || $LIBRARY =~ m/old/i ||
+   $LIBRARY =~ m/\.dev/i ){
     $CHVER = "star".lc($LIBRARY);
 } else {
     $CHVER = "starver $LIBRARY";
