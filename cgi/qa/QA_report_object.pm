@@ -194,9 +194,9 @@ sub GetTests{
   $self->NTests($n_tests);
 
   #------------------------------------------------------
-  # if macro is QA_bfcread_hist_to_ps, check that .hist.root file exists
+  # if macro is bfcread_hist_to_ps, check that .hist.root file exists
 
-  $self->MacroName eq "QA_bfcread_hist_to_ps" and do{
+  $self->MacroName eq "bfcread_hist_to_ps" and do{
 
     $global_input_data_type = ".hist.root";
     
@@ -224,7 +224,7 @@ sub GetTests{
     $replace_macro and do{
 
       print "<h4> .hist.root file not found or too small to contain histograms: ",
-      "Replacing QA_bfcread_hist_to_ps with bfcread_dst_QAhist </h4> \n";
+      "Replacing bfcread_hist_to_ps with bfcread_dst_QAhist </h4> \n";
 
       $macro_name = "bfcread_dst_QAhist";
       $file = '$STAR/StRoot/macros/analysis/bfcread_dst_QAhist.C';

@@ -546,9 +546,12 @@ sub RunQAMacros {
     $macro_name = $macro_object->MacroName;
     $rootcrashlog = "$report_dir/$macro_name.rootcrashlog";
 
-    -s $rootcrashlog and $summary_string .= "<font color=red> $macro_name crashed; </font>" ;
-
-    $summary_string .= $macro_object->SummaryString;
+    if (-s $rootcrashlog){
+      $summary_string .= "<font color=red> $macro_name crashed; </font>" ;
+    }
+    else{		  
+      $summary_string .= $macro_object->SummaryString;
+    }
 
    }
 
