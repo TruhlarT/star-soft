@@ -163,7 +163,7 @@ sub parse_logfile {
     };
     
     # machine and directory
-    $line =~ /Run on ([\w\.]+) in ([\/\w]+)/ and do {
+    $line =~ /Run on ([\w\.]+) in (\S+)/ and do {
       $machine = $1;
       $output_directory = $2;
       next;
