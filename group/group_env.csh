@@ -1,7 +1,10 @@
 #!/usr/bin/csh -f
-#       $Id: group_env.csh,v 1.62 1999/02/10 16:03:43 wenaus Exp $
+#       $Id: group_env.csh,v 1.63 1999/02/10 19:19:39 fisyak Exp $
 #	Purpose:	STAR group csh setup 
 #       $Log: group_env.csh,v $
+#       Revision 1.63  1999/02/10 19:19:39  fisyak
+#       Set CERN LEVEL 99 for SL99
+#
 #       Revision 1.62  1999/02/10 16:03:43  wenaus
 #       Switch OBJY_ARCH on Linux to linux86  (and a few uncommitted mods by others)
 #
@@ -228,8 +231,11 @@ setenv CVSROOT   $STAR_PATH/repository; if ($ECHO) echo   "Setting up CVSROOT   
   setenv ROOT_LEVEL 2.13
 #  if ($STAR_VERSION  == "SL98j") setenv ROOT_LEVEL 2.13
   if ($STAR_VERSION  == "SL98l") setenv ROOT_LEVEL 2.20
-  if ($STAR_VERSION  == "SL99a") setenv ROOT_LEVEL 2.21
-  if ($STAR_VERSION  == "SL99b") setenv ROOT_LEVEL 2.21
+  if ("`echo $STAR_VERSION | cut -c3-4`" == "99") then
+    setenv CERN_LEVEL 99
+    setenv CERN_ROOT $CERN/$CERN_LEVEL
+    setenv ROOT_LEVEL 2.21
+  endif
 #endif
                                         if ($ECHO) echo   "Setting up ROOT_LEVEL= ${ROOT_LEVEL}"
 if ($STAR_VERSION  == "SL99a") setenv CERN_LEVEL 99
@@ -313,12 +319,8 @@ switch ($STAR_SYS)
        setenv MANPATH "$MANPATH":$PGI/man
        setenv LM_LICENSE_FILE $PGI/license.dat
        alias pgman 'man -M $PGI/man'
-       if ("$STAR_VERSION"  == "SL99a") then
-         setenv CERN_LEVEL 99
-       else
-         if ("$STAR_SYS" != "i386_redhat51") then
+       if ("$STAR_VERSION"  != "SL99a") then
            setenv CERN_LEVEL pgf98
-         endif
        endif
      endif
      setenv CERN_ROOT  $CERN/$CERN_LEVEL
