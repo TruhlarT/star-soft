@@ -77,7 +77,7 @@ END
   print " <title>Production Summary</title>";
   print "  </head>\n";
   print "  <body bgcolor=\"#ffdc9f\"> \n";
-  print "<a href=\"http://www.star.bnl.gov/STARAFS/comp/prod/ProdSummary.html\"><h5>Production </h5></a>\n";
+  print "<a href=\"http://www.star.bnl.gov/STARAFS/comp/prod\"><h5>Production </h5></a>\n";
   print "  <h1 align=center>Production Series Query </h1>\n";
   print " </head>\n";
   print " <body>";
