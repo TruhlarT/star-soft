@@ -319,6 +319,7 @@ insure++.leak_trace off
 insure++.summarize leaks outstanding
 insure++.uninit_flow 300
 insure++.report_file $ofile
+insure++.GusCacheDir /tmp
     ~;
 #insure++.unsuppress all
 	close(FO);
