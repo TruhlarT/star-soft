@@ -34,6 +34,7 @@ setenv PATH "${ROOTSYS}/${root}/bin:${PATH}"
 if ($?NODEBUG) then
   setenv PATH "${ROOTSYS}/${root}/BIN:${PATH}"
 endif
+if ($?MANPATH == 0) setenv MANPATH
 setenv MANPATH "${ROOTSYS}/man:${MANPATH}"
 #
 # OpenGL
