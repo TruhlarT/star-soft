@@ -554,7 +554,7 @@ for ($kk=0 ; $kk <= $#PROJECTS ; $kk++){
 	# Adding this page relying on the php, older version will have to
 	# refer to the cgi for a standalone linkg to the search
 	print "\tAdding a custom made search page\n";
-	open(FO,">TARGETD/dox$SUBDIR/html/search.html");
+	open(FO,">$TARGETD/dox$SUBDIR/html/search.html");
 	print FO "<!DOCTYPE HTML PUBLIC \"-//W3C//DTD HTML 4.01 Transitional//E";
   	print FO "N\">\n<html><head><meta http-equiv=\"Content-Type\" content=\"";
         print FO "text/html;charset=iso-8859-1\">\n<title>Search</title>\n<link";
