@@ -274,7 +274,9 @@ sub DisplayDataset{
   # get out unless we're looking at messages or datasets
   return unless($gCGIquery->param('Display datasets') or
 		$gCGIquery->param('Display messages')   );
-
+ 
+  $gCGIquery->param('enable_add_edit_comments') 
+    and  &Browser_utilities::display_comment_buttons;
 
   my @selected_keys;
   # are we looking for datasets?
@@ -295,9 +297,6 @@ sub DisplayDataset{
   # BUM - these buttons are causing problems...
   #$self->ExpertPageFlag() 
   #  and &Browser_utilities::display_expert_page_buttons;
- 
-  $gCGIquery->param('enable_add_edit_comments') 
-    and  &Browser_utilities::display_comment_buttons;
 
   if (!scalar @key_list and $gCGIquery->param('Display messages')){
     print h2("No global messages\n");

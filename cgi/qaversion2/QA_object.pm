@@ -300,8 +300,9 @@ sub QASummaryString{
   my $self = shift;
 
   my (%seen, $summary_string);
-  
 
+  my $show_log_link = 0;
+     
   if ($self->QADone eq 'N') 
   { 
     $summary_string = "QA not done";
@@ -310,31 +311,15 @@ sub QASummaryString{
   {
     $summary_string = "QA done ".br.$self->QADate.br.br;
 
-    # find the HTML file and make the link
-    my $outputFullHTML = IO_object->new("BatchLogHTML", $self->ReportKey)->Name();
-    my $outputHTML     = basename($outputFullHTML);
-
-    # first need the WWW report directory
-    my $report_dir = $self->IOReportDirectory->Name();
-
-    if (-s "$report_dir/$outputHTML") {
-
-      my $linkdirWWW = $self->ReportDirectoryWWW;
-      my $linkWWW    = "$linkdirWWW/$outputHTML";
-
-      $summary_string .= $gCGIquery->a({-href=>$linkWWW,
-				        -target=>'display'}, $outputHTML);
-
-      $summary_string .= br;
-    }
-
     # get specific macro info
     # ref is a ref to a 2-d array
     my $ref = QA_db_utilities::GetQAMacrosSummary($self->qaID);
-     
+
     foreach my $macro_ref (@{$ref}) {
      my ($macro, $status, $warnings, $errors) = @{$macro_ref};
       
+     $status eq "crashed" and $show_log_link = 1;
+
      # crashed or not run?
      if (($status eq "crashed" or $status eq "not run") and !$seen{$macro})
      {
@@ -363,6 +348,29 @@ sub QASummaryString{
    }
   } # qa in progress
   else { $summary_string .= "QA in progress"}
+
+
+  if ( $show_log_link ) {
+    
+    # find the HTML file and make the link
+    my $outputFullHTML = IO_object->new("BatchLogHTML", $self->ReportKey)->Name();
+    my $outputHTML     = basename($outputFullHTML);
+    
+    # first need the WWW report directory
+    my $report_dir = $self->IOReportDirectory->Name();
+    
+    if (-s "$report_dir/$outputHTML") {
+      
+      my $linkdirWWW = $self->ReportDirectoryWWW;
+      my $linkWWW    = "$linkdirWWW/$outputHTML";
+      
+      $summary_string .= $gCGIquery->a({-href=>$linkWWW,
+				        -target=>'display'}, $outputHTML);
+      $summary_string .= br;
+      
+    }
+  }
+
 
   #-------------------------------------------------------
   # check status of batch jobs: look for batch flags in report directory
@@ -585,7 +593,18 @@ sub ShowScalarsAndTests{
   my $report_dir = $self->IOReportDirectory->Name;
   #---------------------------------------------------------
   # title
-  print h2("QA Scalars and Tests for $report_key\n"); 
+
+  my $title;
+
+  if (  $gDataClass_object->DataClass =~ /offline/ ){
+    $title = "QA Scalars and Tests for Run ID ".
+      $self->LogReport->RunID.", File Seq ".$self->LogReport->FileSeq;
+  }
+  else{
+    $title = "QA Scalars and Tests for $report_key"; 
+  }
+
+  print h2($title);
 
   #---------------------------------------------------------
   # open the report directory, get evaluation files
