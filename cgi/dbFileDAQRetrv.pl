@@ -20,7 +20,7 @@ $set = $q->param("run");
 &StDbProdConnect();
 
 &beginHtml();
-my $prodPr = "P00hd_1";
+my $prodPr = "P00he";
 
 $sql="SELECT * FROM $FileCatalogT WHERE runID = '$set' AND fName like '%.root' ";
 $cursor =$dbh->prepare($sql)
