@@ -96,8 +96,9 @@ $gBrowser_object = new Browser_object($title, $server_type);
 $gBrowser_object->StartHtml();
 
 #useful for debugging:
-#print "path_info = $path_info, script_name = $script_name<br>\n";
-#foreach my $string( @INC){print "string = $string <br>\n";}
+#print "path_info = $path_info, script_name=".$gCGIquery->script_name."<br>\n";
+#foreach my $string( @INC){print "include = $string <br>\n";}
+#foreach my $key (keys %ENV){print "$key = ".$ENV{$key}."<br>\n";}
 
 $gBrowser_object->UpperDisplay() if $path_info =~ /upper_display/;
 $gBrowser_object->LowerDisplay() if $path_info =~ /lower_display/;
