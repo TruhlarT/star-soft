@@ -144,9 +144,7 @@ my @hpssDstFiles;
 
  $nhpssDstFiles = 0;
 
- for ($ll=0; $ll<scalar(@DRun); $ll++) {
-
- $sql="SELECT runID, size, fName, path, Nevents  FROM $FileCatalogT WHERE runID = '$DRun[$ll]' AND fName LIKE '%dst.root' AND JobID LIKE '%$prodSer%' AND hpss ='Y'";
+ $sql="SELECT runID, size, fName, path, Nevents  FROM $FileCatalogT WHERE fName LIKE '%dst.root' AND JobID LIKE '%$prodSer%' AND hpss ='Y'";
    $cursor =$dbh->prepare($sql)
      || die "Cannot prepare statement: $DBI::errstr\n";
    $cursor->execute;
@@ -171,7 +169,6 @@ my @hpssDstFiles;
      $nhpssDstFiles++;
    
     }
-  }
 
   foreach my $dsfile (@hpssDstFiles) {
 
@@ -242,9 +239,7 @@ my @diskDstFiles;
 
  $ndiskDstFiles = 0;
 
-for ($kk=0; $kk<scalar(@runSet); $kk++) {
-
- $sql="SELECT runID, fName, size, path, Nevents FROM $FileCatalogT WHERE runID = '$runSet[$kk]' AND fName LIKE '%dst.root' AND jobID LIKE '%$prodSer%' AND site = 'disk_rcf'";
+ $sql="SELECT runID, fName, size, path, Nevents FROM $FileCatalogT WHERE fName LIKE '%dst.root' AND jobID LIKE '%$prodSer%' AND site = 'disk_rcf'";
    $cursor =$dbh->prepare($sql)
      || die "Cannot prepare statement: $DBI::errstr\n";
    $cursor->execute;
@@ -268,7 +263,6 @@ for ($kk=0; $kk<scalar(@runSet); $kk++) {
      $diskDstFiles[$ndiskDstFiles] = $fObjAdr;  
      $ndiskDstFiles++;
     }
-   }
  
  foreach my $ddfile (@diskDstFiles) {
 
