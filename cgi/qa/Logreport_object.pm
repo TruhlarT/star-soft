@@ -410,11 +410,14 @@ sub ParseLogfile {
     #---------- added memory usage stuff, bum 25/1/00 ----- 
     if ($line =~ /tree:\s+endmaker/i) {
 	@list = split /\s+/, $line;
-	$line =~ /SIZE/i and do {
+	$line =~ /SIZE|SZ/i and do {
 	    $count=0;
-	    foreach (@list) {last if /SIZE/i; $count++;}
+	    foreach (@list) {last if /SIZE|SZ/i; $count++;}
 	    next;
 	};
+	#solaris is weird, 10/2/00
+	$count-- if $self->OutputDirectory =~ /Solaris/i;
+	#fill array
 	$list[$count] =~ /(\d+)/ and $self->MemoryArray($1);
     }
     #------------------------------------------------------
