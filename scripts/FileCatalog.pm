@@ -30,7 +30,8 @@
 #        -> insert_dictionary_value() : inserts the value from the context
 #                          into the dictionary table
 #        -> get_current_detector_configuration() : gets the ID of a detector
-#                          configuration described by the current context
+#                          configuration described by the current context. If
+#                          does not exists, return an existing ID (or 0)
 #        -> insert_run_param_info() : insert the run param record taking data
 #                          from the current context
 #        -> get_current_run_param() : get the ID of a run params corresponding
@@ -106,7 +107,7 @@ require  Exporter;
 
 	     run_query
 	     close_location
-	     delete_records update_location update_record
+	     delete_records update_location update_record 
 
 	     check_ID_for_params insert_dictionary_value
 
@@ -119,7 +120,7 @@ require  Exporter;
 
 
 use vars qw($VERSION);
-$VERSION   =   "V01.275";
+$VERSION   =   "V01.280";
 
 # The hashes that hold a current context
 my %optoperset;
@@ -290,18 +291,17 @@ $keywrds{"node"         }     =   "hostName"                  .",Hosts"         
 #
 # + definition here and insert_detector_configuration()
 # and we are Ready to go for a new column
-#
-$keywrds{"tpc"           }    =   "dTPC"                      .",DetectorConfigurations" .",1" .",num"  .",0" .",1" .",1";
-$keywrds{"svt"           }    =   "dSVT"                      .",DetectorConfigurations" .",1" .",num"  .",0" .",1" .",1";
-$keywrds{"tof"           }    =   "dTOF"                      .",DetectorConfigurations" .",1" .",num"  .",0" .",1" .",1";
-$keywrds{"emc"           }    =   "dEMC"                      .",DetectorConfigurations" .",1" .",num"  .",0" .",1" .",1";
-$keywrds{"eemc"          }    =   "dEEMC"                     .",DetectorConfigurations" .",1" .",num"  .",0" .",1" .",1";
-$keywrds{"fpd"           }    =   "dFPD"                      .",DetectorConfigurations" .",1" .",num"  .",0" .",1" .",1";
-$keywrds{"ftpc"          }    =   "dFTPC"                     .",DetectorConfigurations" .",1" .",num"  .",0" .",1" .",1";
-$keywrds{"pmd"           }    =   "dPMD"                      .",DetectorConfigurations" .",1" .",num"  .",0" .",1" .",1";
-$keywrds{"rich"          }    =   "dRICH"                     .",DetectorConfigurations" .",1" .",num"  .",0" .",1" .",1";
-$keywrds{"ssd"           }    =   "dSSD"                      .",DetectorConfigurations" .",1" .",num"  .",0" .",1" .",1";
-$keywrds{"bbc"           }    =   "dBBC"                      .",DetectorConfigurations" .",1" .",num"  .",0" .",1" .",1";
+#  
+# DETECTORS array correspond the fields in DetectorConfigurations table. 
+# This will make extension easier. For a keyword 'xxx', a field 'dXXX'
+# must exist in the db table.
+# Auto-initialization of keywords will do the equivalent of the above
+# for xxx=tpc. See _initialize() for how this is auto-set.
+# $keywrds{"tpc"           }    =   "dTPC"                      .",DetectorConfigurations" .",1" .",num"  .",0" .",1" .",1";
+my @DETECTORS=("tpc","svt","tof","emc","eemc","fpd","ftpc","pmd","rich","ssd","bbc","bsmd","esmd");
+
+
+
 
 # Special keywords
 $keywrds{"simulation"    }    =   ",,,,,,1";
@@ -614,6 +614,15 @@ sub _initialize
 						&print_debug("_initialize","Dictionary $items[0] $FC::ISDICT{$items[0]}");
 					    }
     }
+    #
+    # Initialize the DETECTORS for handling the DetectorConfigurations
+    # table. This is an automatic setup of keywords.
+    #
+    my($det);
+    foreach $det (@DETECTORS){
+	$keywrds{lc($det)} = "d".uc($det)                    .",DetectorConfigurations" .",1" .",num"  .",0" .",1" .",1";
+    }
+
 
 }
 
@@ -1484,11 +1493,9 @@ sub insert_detector_configuration {
       return 0;
   }
 
-  my ($config);
-  my ($tpcon, $svton, $emcon, $eemcon, $ftpcon, $richon, $fpdon, $tofon);
-  my ($pmdon, $ssdon, $bbcon);
-  my (@dets) =("tpc","svt","emc","eemc","ftpc","rich","fpd","tof","pmd","ssd","bbc");
-  my ($el);
+  my ($config,$dtinsert,$dtvalues); 
+  my ($sth);
+  my ($el,$retid);
 
   if ( defined($valuset{"geometry"}) ){
       $config = $valuset{"geometry"};
@@ -1510,6 +1517,8 @@ sub insert_detector_configuration {
       #print "Trying to split ".$valuset{"configuration"}."\n";
       my @items = split(/\./,$valuset{"configuration"});
       foreach $el (@items){
+	  # the keyword is defined in the 'configuration' but no value
+	  # Prevent catastrophe and set default to 1.
 	  if ( defined($keywrds{$el}) ){
 	      if ( ! defined($valuset{$el}) ){
 		  &print_debug("insert_detector_configuration",
@@ -1520,38 +1529,27 @@ sub insert_detector_configuration {
       }
   }
 
-
-  # Be sure of this being initialized for schema evolution
-  foreach $el (@dets){
-      if ( ! defined($valuset{$el}) ){
-	  $valuset{$el} = 0;
-      }
+  # Auto-construct the full stuff based on content of @DETECTORS
+  # Note that although it that the orderdoes not  matter, MySQL 
+  # does not care at all (as far as consistency dXXX and associated 
+  # value is consistent).
+  $dtinsert = "INSERT IGNORE INTO DetectorConfigurations (detectorConfigurationName";
+  $dtvalues = " VALUES ('".$config."'";
+  foreach $el (@DETECTORS){
+      # the defined() test is NOT the same than above. It sets to 0 the
+      # value of a un-specified keyword. Note also that only 1/0 are allowed
+      $dtinsert .= ", d".uc($el);
+      $dtvalues .= ", ".(defined($valuset{$el})?1:0);
   }
+  $dtinsert .= ")";
+  $dtvalues .= ")";
 
-  $tpcon = ($valuset{"tpc"} == 1)  ? "1" : "0";
-  $svton = ($valuset{"svt"} == 1)  ? "1" : "0";
-  $emcon = ($valuset{"emc"} == 1)  ? "1" : "0";
-  $eemcon= ($valuset{"eemc"} == 1) ? "1" : "0";
-  $ftpcon= ($valuset{"ftpc"} == 1) ? "1" : "0";
-  $richon= ($valuset{"rich"} == 1) ? "1" : "0";
-  $fpdon = ($valuset{"fpd"} == 1)  ? "1" : "0";
-  $tofon = ($valuset{"tof"} == 1)  ? "1" : "0";
-  $pmdon = ($valuset{"pmd"} == 1)  ? "1" : "0";
-  $ssdon = ($valuset{"ssd"} == 1)  ? "1" : "0";
-  $bbcon = ($valuset{"bbc"} == 1)  ? "1" : "0";
+  if ($DEBUG > 0) {  &print_debug("insert_detector_configuration","Execute $dtinsert$dtvalues");}
 
-
-  my $dtinsert = "INSERT IGNORE INTO DetectorConfigurations ";
-  $dtinsert   .= "(detectorConfigurationName, dTPC, dSVT, dTOF, dEMC, dEEMC, dFPD, dFTPC, dPMD, dRICH, dSSD, dBBC)";
-  $dtinsert   .= " VALUES ('".$config."', $tpcon , $svton , $tofon , $emcon , $eemcon, $fpdon , $ftpcon , $pmdon , $richon , $ssdon, $bbcon)";
-  if ($DEBUG > 0) {  &print_debug("insert_detector_configuration","Execute $dtinsert");}
-
-  my $sth;
-  my $retid=0;
-
-  $sth = $DBH->prepare( $dtinsert );
+  $retid = 0;
+  $sth   = $DBH->prepare( $dtinsert.$dtvalues );
   if( ! $sth ){
-      &print_debug("insert_detector_configuration","Failed to prepare [$dtinsert]");
+      &print_debug("insert_detector_configuration","Failed to prepare [$dtinsert$dtvalues]");
   } else {
       if ( $sth->execute() ) {
 	  $retid = &get_last_id();
@@ -1954,8 +1952,8 @@ sub insert_file_data {
       return 0;
   }
 
-  $production = &check_ID_for_params("production");
-  $library    = &check_ID_for_params("library");
+  $production = &check_ID_for_params("production"); # production
+  $library    = &check_ID_for_params("library");    # and library are dependent
   $fileType   = &check_ID_for_params("filetype");
 
   # cloning has side effects. we must delete the content if replaced
@@ -1984,6 +1982,7 @@ sub insert_file_data {
       return 0;
   }
 
+  # non mandatory keywords
   if (! defined $valuset{"filecomment"}) {
       $fileComment = "NULL";
   } else {
@@ -2556,6 +2555,10 @@ sub clone_location {
 
     if ($#allfd != -1 && $#allfl != -1){
 	&print_debug("clone_location","Clearing context now");
+	# we clear the context, so the real keyword are flushed, leaving only
+	# the reference to the keyword. For example, rpcid is kept but not
+	# production. The external use can then reset the production keyword
+	# which will be considered (otherwise, rpcid will be used).
 	&clear_context();
 	&print_debug("clone_location","Setting  context now");
 	&set_context(@allfd);
@@ -2579,7 +2582,7 @@ sub get_file_data(){       return &_FileTableContent("FileData","FDKWD");}
 
 #
 # Routine will populate the $TABREF arrays and return those fields
-# with values as key=value list. This is used for cloing records.
+# with values as key=value list. This is used for cloning records.
 #
 sub _FileTableContent {
 
@@ -2696,6 +2699,7 @@ sub insert_file_location {
       if( defined($valuset{"rssid"}) ){  $storageSite = $valuset{"rssid"}; delete($valuset{"rssid"});}
       if ($storageSite == 0){
 	  &print_message("insert_file_location","Aborting file location insertion query. [site] mandatory");
+	  return 0;
       }
   }
 
@@ -2714,7 +2718,9 @@ sub insert_file_location {
       }
   }
 
-
+  #
+  # not mandatory
+  #
   if (! defined $valuset{"createtime"}) {
       &print_debug("insert_file_location","WARNING: createtime not defined. Using a default value");
       $createTime = "NULL";
@@ -2751,7 +2757,8 @@ sub insert_file_location {
 	  $nodeID = &check_ID_for_params("node"); # recheck index with default value
       }
   }
-  return 0 if ($nodeID == 0);
+  return 0 if ($nodeID == 0); # not because it is mandatory, but because it
+                              # it has failed
 
 
   # now for those ...
@@ -4464,8 +4471,8 @@ sub _bootstrap_data
 # doit    - an extra non-mandatory value 0/1
 #
 # Returns:
-# 1 if update was successfull
-# 0 if delete failed
+#  1 if update was successfull
+#  0 if delete failed
 sub update_record {
   if ($_[0] =~ m/FileCatalog/) {
     my $self = shift;
@@ -4488,10 +4495,10 @@ sub update_record {
   if ( $ufield =~ m/(.*)(ID)/ ){
       my $idnm=$1;
       if ( index(lc($utable),lc($idnm)) != -1 ){
-	  &print_message("update_record","Changing $ufield in $utable not allowed\n");
-	  # btw, if you do this, you are screwed big time ... because you
-	  # lose the cross table associations.
-	  return 0;
+  	  &print_message("update_record","Changing $ufield in $utable not allowed\n");
+  	  # btw, if you do this, you are screwed big time ... because you
+  	  # lose the cross table associations.
+  	  return 0;
       }
   }
 
@@ -4647,6 +4654,8 @@ sub update_record {
   }
 }
 
+
+
 #============================================
 #
 # The 3 following method are argument-less.
@@ -4759,23 +4768,31 @@ sub update_location {
   my $ufield = &get_field_name($ukeyword);
 
 
+  &print_debug("update_location","The keyword is [$ukeyword] from table=[$utable]");
+
   # Change this out to dictionary search and revert keyword
   # application to the location table for tables immediatly
   # related to the FileLocations table.
-  if ( defined($FC::FLRELATED{$utable}) ){
+  # The order IS important
+  if ( defined($FC::FDRELATED{$utable}) ){
+      $mtable = "FileData";
+  } elsif ( defined($FC::FLRELATED{$utable}) ){
       $mtable = "FileLocations";
   } else {
       $mtable = $utable;
   }
 
-  if ( $mtable ne "FileLocations"){
-      &print_message("update_location","Improper method called for keyword $ukeyword");
+  if ( $mtable ne "FileLocations" &&
+       $mtable ne "FileData"      ){
+      &print_message("update_location","Improper method called for keyword $ukeyword ($mtable)");
       return 0;
   }
 
 
+  &print_debug("update_location","Main table related to [$utable] is indentified as [$mtable]");
 
-  my @files;
+
+  my @REFid;
 
   my $delim;
 
@@ -4794,7 +4811,13 @@ sub update_location {
   &set_context("all=1");                  # all availability
   &set_context("nounique=1");             # do not run with DISTINCT
 
-  @files = &run_query("id","available");
+  my ($id);
+  if ($utable eq "FileLocations"){
+      $id = "flid";
+  } else {
+      $id = "fdid";
+  }
+  @REFid = &run_query($id);
 
   # Bring back the previous delimeter
   &set_delimeter($delim);
@@ -4802,7 +4825,7 @@ sub update_location {
   #delete($valuset{"path"});
 
 
-  if ($#files == -1){
+  if ($#REFid == -1){
       &print_message("update_location","The context did not return any candidate");
       return 0;
   }
@@ -4818,14 +4841,17 @@ sub update_location {
       # The ufield is excluded because we use it by default
       # in the SET xxx= WHERE xxx= as an extra MANDATORY
       # clause.
-      #print "+ $table + \n";
-      if (($table eq $mtable) && ($field ne $ufield)){
-	  if (defined($valuset{$key})){
+      if (defined($valuset{$key})){
+	  &print_debug("update_location","+ key=[$key] for table=$table");
+	  if ( (($table eq $mtable) && ($field ne $ufield))  ||
+	       (($table eq $utable))  
+	       ){
 	      if ( $operset{$key} =~ m/^=/ ){
+		  &print_debug("update_location","Accepting operator = for [$key]");
 		  if (&get_field_type($key) eq "text"){
-		      push (@updates, "$field = '".$valuset{$key}."'");
+		      push (@updates, "$table.$field = '".$valuset{$key}."'");
 		  } else {
-		      push (@updates, "$field = ".$valuset{$key});
+		      push (@updates, "$table.$field = ".$valuset{$key});
 		  }
 	      } else {
 		  # note that run_query() takes care of it. This block only treats extraneous
@@ -4853,14 +4879,15 @@ sub update_location {
   my($qupdate,$qselect,$qdelete);
   my($sth1,$sth2,$sth3);
 
-  if ( defined($FC::FLRELATED{$utable}) ){
+  if ( defined($FC::FLRELATED{$utable}) && ($utable ne "FileData") ){
       # Patch ... The above logic is true only for
       # tables like FileData/FileLocation but not true for others
+      # Note that we should not test FDRELATED in this case ...
       my $uid    = &get_id_from_dictionary($utable,$ufield,$newvalue);
       $ukeyword  = &_IDize("update_location",$utable);
       #$qselect = "SELECT $ukeyword FROM $mtable WHERE $ukeyword=$uid";
-      $qdelete = "DELETE LOW_PRIORITY FROM $mtable " ;
-      $qupdate = "UPDATE LOW_PRIORITY $mtable SET $ukeyword=$uid ";
+      $qdelete = "DELETE LOW_PRIORITY FROM $utable " ;
+      $qupdate = "UPDATE LOW_PRIORITY $utable SET $ukeyword=$uid ";
 
       if ($whereclause ne ""){
 	  $qupdate .= " AND $whereclause";
@@ -4869,32 +4896,36 @@ sub update_location {
       # THOSE ONLY UPDATES VALUES
   } elsif (&get_field_type($ukeyword) eq "text"){
       #$qselect = "SELECT $ukeyword FROM $mtable WHERE $ufield='$newvalue'";
-      $qdelete = "DELETE LOW_PRIORITY FROM $mtable" ;
-      $qupdate = "UPDATE LOW_PRIORITY $mtable SET $ufield = '$newvalue' ";
+      $qdelete = "DELETE LOW_PRIORITY FROM $utable" ;
+      $qupdate = "UPDATE LOW_PRIORITY $utable SET $utable.$ufield = '$newvalue' ";
       if( defined($valuset{$ukeyword}) ){
-	  $qupdate .= " WHERE $ufield = '$valuset{$ukeyword}'";
+	  $qupdate .= " WHERE $utable.$ufield = '$valuset{$ukeyword}'";
       } else {
 	  &print_debug("update_location"," (text)  $ukeyword ($ufield) not set with an initial value");
 	  #return 0;
       }
   } else {
       #$qselect = "SELECT $ufield FROM $mtable WHERE $ufield=$newvalue" ;
-      $qdelete = "DELETE LOW_PRIORITY FROM $mtable" ;
-      $qupdate = "UPDATE LOW_PRIORITY $mtable SET $ufield = $newvalue ";
+      $qdelete = "DELETE LOW_PRIORITY FROM $utable" ;
+      $qupdate = "UPDATE LOW_PRIORITY $utable SET $utable.$ufield = $newvalue ";
       if( defined($valuset{$ukeyword}) ){
-	  $qupdate .= " WHERE $ufield = $valuset{$ukeyword}";
+	  $qupdate .= " WHERE $utable.$ufield = $valuset{$ukeyword}";
       } else {
 	  &print_debug("update_location"," (other) $ukeyword ($ufield) not set with an initial value");
 	  #return 0;
       }
   }
   if ($qupdate =~ /WHERE/){
-      $qupdate .= " AND fileLocationID = ?";
+      $qupdate .= " AND $utable.".&_IDize("update_location",$utable)." = ?";
   } else {
-      $qupdate .= " WHERE fileLocationID = ?";
+      $qupdate .= " WHERE $utable.".&_IDize("update_location",$utable)." = ?";
   }
   #$qselect .= " AND fileLocationID = ?";
-  $qdelete .= " WHERE fileLocationID = ?";
+  $qdelete .= " WHERE $utable.".&_IDize("update_location",$utable)." = ?";
+
+  &print_debug("update_location"," update >> $qupdate");
+  &print_debug("update_location"," select >> $qselect");
+  &print_debug("update_location"," delete >> $qdelete");
 
 
   #$sth1 = $DBH->prepare( $qselect );
@@ -4915,36 +4946,36 @@ sub update_location {
   my($tmp,$failed,$count);
 
   $failed = $count = 0;
-  &print_debug("update_location","Ready to scan filelist now ".($#files+1)."\n");
+  &print_debug("update_location","Ready to scan filelist now ".($#REFid+1)."\n");
 
-  foreach my $line (@files) {
-      &print_debug("update_location","Returned line (id/$ukeyword): $line\n");
+  foreach my $line (@REFid) {
+      &print_debug("update_location","Returned line (id/$ukeyword): $line");
 
-      my($flid, $trash) = split("::",$line);
+      my($fldid) = $line;
 
       #&print_debug("update_location","Executing update: $qupdate");
 
       if (! $doit){
-	  #$tmp = $qselect; $tmp =~ s/\?/$flid/;  &print_message("update_location","$tmp");
-	  $tmp = $qupdate; $tmp =~ s/\?/$flid/;  &print_message("update_location","would try      $tmp");
-	  $tmp = $qdelete; $tmp =~ s/\?/$flid/;  &print_message("update_location","if duplicate  ($tmp)");
+	  #$tmp = $qselect; $tmp =~ s/\?/$fldid/;  &print_message("update_location","$tmp");
+	  $tmp = $qupdate; $tmp =~ s/\?/$fldid/;  &print_message("update_location","would try      $tmp");
+	  $tmp = $qdelete; $tmp =~ s/\?/$fldid/;  &print_message("update_location","if duplicate  ($tmp)");
 
       } else {
 	  if( $DELAY){
 	      # Delay mode
-	      $tmp = $qupdate; $tmp =~ s/\?/$flid/;  push(@DCMD,"$tmp");
-	      #$tmp = $qdelete; $tmp =~ s/\?/$flid/;  push(@DCMD,"$tmp");
+	      $tmp = $qupdate; $tmp =~ s/\?/$fldid/;  push(@DCMD,"$tmp");
+	      #$tmp = $qdelete; $tmp =~ s/\?/$fldid/;  push(@DCMD,"$tmp");
 	      $count++;
 	  } else {
-	      #if ( $sth1->execute($flid) ){
+	      #if ( $sth1->execute($fldid) ){
 	      #	  my(@all);
 	      #	  if ( @all = $sth1->fetchrow() ){
-	      #	      &print_message("update_location","Deleting similar records for $flid");
-	      #	      $sth2->execute($flid);
+	      #	      &print_message("update_location","Deleting similar records for $fldid");
+	      #	      $sth2->execute($fldid);
 	      #	  }
 	      #}
-	      if ( $sth3->execute($flid) ){
-		  #&print_debug("update_location","Update of $mtable at $flid succeeded [$qupdate]");
+	      if ( $sth3->execute($fldid) ){
+		  #&print_debug("update_location","Update of $mtable at $fldid succeeded [$qupdate]");
 		  $count++;
 	      } else {
 		  $failed++;
@@ -4952,9 +4983,9 @@ sub update_location {
 		      # Duplicate entry being replaced
 		      #&print_debug("update_location","Duplicate entry is being replaced");
 		      if ( $delete){
-			  if ( $sth2->execute($flid) ){
+			  if ( $sth2->execute($fldid) ){
 			      &print_message("update_location",
-					     "selected flid=$flid deleted as update would ".
+					     "selected fldid=$fldid deleted as update would ".
 					     "lead to duplicate key)");
 			      # This counts as a success because it moves records
 			      # as well.
@@ -4962,7 +4993,7 @@ sub update_location {
 			  }
 		      } else {
 			  &print_message("update_location",
-					 "selected flid=$flid cannot be updated ".
+					 "selected flid=$fldid cannot be updated ".
 					 "(would lead to duplicate)");
 		      }
 		  } else {
