@@ -1,7 +1,10 @@
 #!/usr/bin/csh -f
-#       $Id: group_env.csh,v 1.24 1998/07/07 18:25:49 fisyak Exp $
+#       $Id: group_env.csh,v 1.25 1998/07/10 12:53:32 fisyak Exp $
 #	Purpose:	STAR group csh setup 
 #       $Log: group_env.csh,v $
+#       Revision 1.25  1998/07/10 12:53:32  fisyak
+#       Use STAR_VERSION instead STAR_LEVEL for STAR top directory, to be in sunc. with starver script
+#
 #       Revision 1.24  1998/07/07 18:25:49  fisyak
 #       Add STAR_PARAMS to STAR environment variables
 #
@@ -92,12 +95,13 @@ setenv GROUPPATH  $GROUP_PATH
 setenv STAR_PATH ${STAR_ROOT}/packages;      if ($ECHO) echo   "Setting up STAR_PATH = ${STAR_PATH}"
 if ($?STAR_LEVEL == 0) setenv STAR_LEVEL pro
 setenv STAR_VERSION `ls -l $STAR_PATH | grep "${STAR_LEVEL} ->" |cut -f2 -d">"`  
-setenv STAR $STAR_PATH/${STAR_LEVEL} ;       if ($ECHO) echo   "Setting up STAR      = ${STAR}"
+if (${STAR_VERSION} == "") setenv STAR_VERSION ${STAR_LEVEL}
+setenv STAR $STAR_PATH/${STAR_VERSION} ;       if ($ECHO) echo   "Setting up STAR      = ${STAR}"
 setenv STAR_MGR $STAR/mgr
 source ${GROUP_DIR}/STAR_SYS; 
 setenv STAF_LIB  $STAR/asps/../.${STAR_HOST_SYS}/lib  ; if ($ECHO) echo   "Setting up STAF_LIB  = ${STAF_LIB}"
-if ($STAR_LEVEL == "dev" || $STAR_LEVEL == "new") then
-if ($STAR_LEVEL == "dev" && $?NODEBUG == 0) then
+if ($STAR_VERSION == "98d" || $STAR_VERSION == "98c") then
+if ($STAR_VERSION == "98d" && $?NODEBUG == 0) then
 setenv STAR_LIB  $STAR/.${STAR_HOST_SYS}/lib; if ($ECHO) echo   "Setting up STAR_LIB  = ${STAR_LIB}"
 else
 setenv STAR_LIB  $STAR/.${STAR_HOST_SYS}/nodeb; if ($ECHO) echo   "Setting up STAR_LIB  = ${STAR_LIB}"
@@ -276,8 +280,8 @@ endif
 if ($ECHO) echo "STAR setup on" `hostname` "by" `date` " has been completed"
 unset ECHO
 set date="`date`"
-cat >> $GROUP_DIR/statistics/star${STAR_LEVEL} << EOD
-$USER from $HOST asked for $STAR_VERSION $date
+cat >> $GROUP_DIR/statistics/star${STAR_VERSION} << EOD
+$USER from $HOST asked for STAR_LEVEL=$STAR_LEVEL / STAR_VERSION=$STAR_VERSION  $date
 EOD
 #END
 
