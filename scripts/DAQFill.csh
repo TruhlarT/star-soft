@@ -10,7 +10,7 @@
 # % DAQFill.csh {Update|Clean|Run|Purge} [SleepTime]
 #
 #
-
+setenv COLUMNS 512
 set PATH="/afs/rhic/star/packages/scripts"
 set SCRIPT="DAQFill.pl"
 set LOG="$HOME/DAQFill.log"
