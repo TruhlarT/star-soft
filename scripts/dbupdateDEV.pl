@@ -625,7 +625,7 @@ foreach  $eachOutNDir (@OUT_DIR) {
         $EvReq = 700;
       }
      elsif($EvTp eq "embedding") {
-        $EvReq = 10;
+        $EvReq = 78;
       }
 #       else {
 #      @prt = split(/\./,$bsname);
