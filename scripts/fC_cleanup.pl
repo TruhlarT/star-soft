@@ -1,4 +1,4 @@
-#!/usr/bin/perl -w
+#!/usr/bin/env perl 
 #
 # This is a command line utility to do a maintenance and cleanup
 # of te FileCatalog database
@@ -23,7 +23,7 @@ my $batchsize = 1000;
 my $mode;
 my $cond_list;
 my $state="";
-my $passwd="";
+my $passwd=undef;
 my $kwrd="";
 my $newval=undef;
 my $user="";
@@ -129,9 +129,9 @@ if ($count == 0){
 if ( $user eq ""){
     print "Password : ";
     chomp($passwd = <STDIN>);
-    $fileC->connect("FC_admin",$passwd);
+    $fileC->connect_as("Admin","FC_admin",$passwd);
 } else {
-    $fileC->connect($user,$passwd);
+    $fileC->connect_as("Admin",$user,$passwd);
 }
 
 
