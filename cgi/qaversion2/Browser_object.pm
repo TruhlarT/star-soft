@@ -421,7 +421,7 @@ sub ContactString{
 
   # temporary solution:
 #  my $url = "http://www.star.bnl.gov/~jacobs/contacts.html";
-  my $url = "http://duvall.star.bnl.gov/~jacobs/contacts.html";
+  my $url = "http://www.star.bnl.gov/~jacobs/contacts.html";
 
   my $string = "<a href=$url target = 'documentation'>Contacts </a>";
   return $string;
