@@ -54,7 +54,7 @@ use DBI;
 use strict;
 
 # define to print debug information
-my $DEBUG  = 1;
+my $DEBUG     = 0;
 
 # db information
 my $dbname    =   "FileCatalog";
@@ -321,10 +321,12 @@ sub connect {
 
   $DBH = DBI->connect($dbsource,$user,$passwd) ||
       die "cannot connect to $dbname : $DBI::errstr\n";
-  if ( !defined($DBH) ) {
-    return 0;
+
+  if ( ! defined($DBH) ) {
+      return 0;
+  } else {
+      return 1;
   }
-  1;
 }
 
 #============================================
@@ -429,7 +431,11 @@ sub get_id_from_dictionary {
   if ($_[0] =~ m/FileCatalog/) {
     shift @_;
   }
-  ;
+  if( ! defined($DBH)){
+      &print_message("get_id_from_dictionary","Not connected/connecting");
+      return 0;
+  }
+
   my @params = @_;
   my $idname = $params[0];
   my $sth;
@@ -509,7 +515,11 @@ sub insert_dictionary_value {
   if ($_[0] =~ m/FileCatalog/) {
     shift @_;
   }
-  ;
+  if( ! defined($DBH) ){
+      &print_message("insert_dictionary_value","Not connected");
+      return 0;
+  }
+
   my ($keyname) = @_;
   my @additional;
   if (! defined $valuset{$keyname}) {
@@ -575,12 +585,16 @@ sub insert_dictionary_value {
 # or 0 if such insertion was not possible
 sub insert_detector_configuration {
 
+  if( ! $DBH){
+      &print_message("insert_detector_configuration","Not connected");
+      return 0;
+  }
+
+
   my ($tpcon, $svton, $emcon, $ftpcon, $richon, $fpdon, $tofon, $pmdon, $ssdon);
   if (! defined $valuset{"configuration"}) {
-    if ($DEBUG > 0) {
-	&print_debug("ERROR: No detector configuration/geometry name given.",
-		     "Cannot add record to the table.");
-    }
+      &print_debug("ERROR: No detector configuration/geometry name given.",
+		   "Cannot add record to the table.");
     return 0;
   }
   $tpcon = ($valuset{"tpc"} == 1) ? "1" : "0";
@@ -622,6 +636,7 @@ sub insert_detector_configuration {
 # the ID of a runParams record,
 # or 0 if no such record exists
 sub get_current_detector_configuration {
+
   my $detConfiguration;
 
   $detConfiguration = check_ID_for_params("configuration");
@@ -688,6 +703,11 @@ sub get_collision_type {
   if ($_[0] =~ m/FileCatalog/) {
     shift @_;
   };
+  if( ! defined($DBH) ){
+      &print_message("get_collision_type","Not connected/connecting");
+      return 0;
+  }
+
 
   my ($colstring) = @_;
   my $retid;
@@ -725,9 +745,7 @@ sub get_collision_type {
 	  #    print "Returning: $id\n";
 	  return $id;
       }
-      if ($DEBUG > 0) {
-	  &print_debug("ERROR: No such collision type");
-      }
+      &print_debug("ERROR: No such collision type");
   }
 
   return 0;
@@ -747,7 +765,11 @@ sub insert_collision_type {
   my $secondParticle;
   my $energy;
 
-#  my @particles = ("au", "p", "ga", "s");
+  if( ! defined($DBH) ){
+      &print_message("insert_collision_type","Not connected");
+      return 0;
+  }
+
 
   $colstring = lc($colstring);
 
@@ -756,18 +778,17 @@ sub insert_collision_type {
   my $ctinsert   = "INSERT IGNORE INTO CollisionTypes ";
   $ctinsert  .= "(firstParticle, secondParticle, collisionEnergy)";
   $ctinsert  .= " VALUES ('$firstParticle' , '$secondParticle' , $energy)";
-  if ($DEBUG > 0) {
-      &print_debug("Execute $ctinsert");
-  }
-  my $sth;
 
+  &print_debug("Execute $ctinsert");
+
+  my $sth;
   $sth = $DBH->prepare( $ctinsert );
   if( ! $sth){
       &print_debug("FileCatalog::insert_collision_type : Failed to prepare [$ctinsert]");
   } else {
       if ( $sth->execute() ) {
 	  my $retid = get_last_id();
-	  if ($DEBUG > 0) { &print_debug("Returning: $retid");}
+	  &print_debug("Returning: $retid");
 	  return $retid;
       }
   }
@@ -778,25 +799,31 @@ sub insert_collision_type {
 # Get the ID of a last inserted record from the database
 # Returns:
 # The ID of a most recently successfully added record
-sub get_last_id {
-  my $sqlquery = "SELECT LAST_INSERT_ID()";
-  my $id;
-  my $retv=0;
+sub get_last_id
+{
+    my $sqlquery = "SELECT LAST_INSERT_ID()";
+    my $id;
+    my $retv=0;
 
-  $sth = $DBH->prepare($sqlquery);
-  if( $sth ){
-      $sth->execute();
-      $sth->bind_columns( \$id );
+    if( ! defined($DBH) ){
+	&print_message("get_last_id","Not connected");
+	return 0;
+    }
 
-      if ( $sth->fetch() ) {
-	  $retv = $id;
-      } else {
-	  if ($DEBUG > 0) { &print_debug("ERROR: Cannot find the last inserted ID");}
-      }
-  } else {
-      &print_debug("FileCatalog::get_last_id : Arghhh !!! Cannot prepare [$sqlquery]");
-  }
-  return $retv;
+    $sth = $DBH->prepare($sqlquery);
+    if( $sth ){
+	$sth->execute();
+	$sth->bind_columns( \$id );
+
+	if ( $sth->fetch() ) {
+	    $retv = $id;
+	} else {
+	    &print_debug("ERROR: Cannot find the last inserted ID");
+	}
+    } else {
+	&print_debug("FileCatalog::get_last_id : Arghhh !!! Cannot prepare [$sqlquery]");
+    }
+    return $retv;
 }
 
 #============================================
@@ -818,31 +845,31 @@ sub insert_run_param_info {
   my $simulation;
   my $magvalue;
 
-  $triggerSetup = check_ID_for_params("triggersetup");
-  $runType = check_ID_for_params("runtype");
+  if( ! defined($DBH) ){
+      &print_message("insert_run_param_info","Not connected");
+      return 0;
+  }
+
+
+  $triggerSetup     = check_ID_for_params("triggersetup");
+  $runType          = check_ID_for_params("runtype");
   $detConfiguration = check_ID_for_params("configuration");
 
   if (! defined $valuset{"runnumber"}) {
-    if ($DEBUG > 0) {
-	&print_debug("ERROR: Cannot add runtype\nrunnumber not defined.");
-    }
-    return 0;
+      &print_debug("ERROR: Cannot add runtype","runnumber not defined.");
+      return 0;
   }
   if (defined $valuset{"collision"}) {
-    $collision = get_collision_type($valuset{"collision"});
-    if ($DEBUG > 0) {
-	&print_debug("Collsion: $collision");
-    }
+      $collision = get_collision_type($valuset{"collision"});
+      if ($DEBUG > 0) {
+	  &print_debug("Collsion: $collision");
+      }
   } else {
-    if ($DEBUG > 0){
-	&print_debug("ERROR: collsion not defined");
-    }
+      &print_debug("ERROR: collsion not defined");
   }
   if (($triggerSetup == 0) || ($runType == 0) || ($detConfiguration == 0) || ($collision == 0)) {
-    if ($DEBUG > 0) {
-	&print_debug("ERROR: Cannot add run\nAborting file insertion query");
-    }
-    return 0;
+      &print_debug("ERROR: Cannot add run","Aborting file insertion query");
+      return 0;
   }
   if (! defined $valuset{"runcomments"}) {
     $comment = "NULL";
@@ -850,10 +877,8 @@ sub insert_run_param_info {
     $comment = "\"".$comment."\"";
   }
   if (! defined $valuset{"magscale"}) {
-    if ($DEBUG > 0) {
-	&print_debug("ERROR: Cannot add runtype\nmagscale not defined.");
-    }
-    return 0;
+      &print_debug("ERROR: Cannot add runtype","magscale not defined.");
+      return 0;
   }
   if (! defined $valuset{"magvalue"}) {
     $magvalue = "NULL";
@@ -868,12 +893,10 @@ sub insert_run_param_info {
     $end = "\"".$valuset{"datetaken"}."\"";
   }
   if ((defined $valuset{"simulation"}) && (! ($valuset{"simulation"} eq '0') ) ) {
-    if ($DEBUG > 0) {
-	&print_debug("Adding simulation data.");
-    }
-    $simulation = get_current_simulation_params();
+      &print_debug("Adding simulation data.");
+      $simulation = get_current_simulation_params();
   } else {
-    $simulation = "NULL";
+      $simulation = "NULL";
   }
 
 
@@ -939,6 +962,11 @@ sub insert_file_data {
   my @triggerIDs;
   my $count;
 
+  if( ! defined($DBH) ){
+      &print_message("insert_file_data","Not connected");
+      return 0;
+  }
+
   $production = check_ID_for_params("production");
   $library = check_ID_for_params("library");
   $fileType= check_ID_for_params("filetype");
@@ -950,16 +978,12 @@ sub insert_file_data {
   }
   $runNumber = get_current_run_param();
   if ($runNumber == 0) {
-    if ($DEBUG > 0) {
-	&print_debug("Could not add run data\nAborting file insertion query");
-    }
-    return 0;
+      &print_debug("Could not add run data","Aborting file insertion query");
+      return 0;
   }
   if (! defined $valuset{"filename"}) {
-    if ($DEBUG > 0) {
-	&print_debug("ERROR: Cannot add file data\nfilename not defined.");
-    }
-    return 0;
+      &print_debug("ERROR: Cannot add file data","filename not defined.");
+      return 0;
   }
   if (! defined $valuset{"size"}) {
     $size = "NULL";
@@ -981,11 +1005,9 @@ sub insert_file_data {
   # tom the triggerevents string. It should have a format:
   # '<triggerword> <number of events> [ ; <triggerword> <number of events> ]'
   if (! defined $valuset{"triggerevents"}) {
-    if ($DEBUG > 0) {
-	&print_debug("ERROR: Cannot add runtype",
-		     "events for triggerWords not defined.");
-    }
-    return 0;
+      &print_debug("ERROR: Cannot add runtype",
+		   "events for triggerWords not defined.");
+      return 0;
   } else {
     my @splitted;
     my $count = 0;
@@ -1071,35 +1093,39 @@ sub get_current_file_data {
   my $fileSeq;
   my $sqlquery;
 
-  $runParam = get_current_run_param();
+  if( ! defined($DBH) ){
+      &print_message("get_current_file_data","Not connected");
+      return 0;
+  }
+
+  $runParam   = get_current_run_param();
   $production = check_ID_for_params("production");
-  $library = check_ID_for_params("library");
-  $fileType = check_ID_for_params("filetype");
+  $library    = check_ID_for_params("library");
+  $fileType   = check_ID_for_params("filetype");
+
   if ($production == 0) {
-    $production = $library;
+      $production = $library;
   }
   if ( $runParam != 0) {
-    $sqlquery .= " runParamID = $runParam AND ";
+      $sqlquery .= " runParamID = $runParam AND ";
   }
   if (defined $valuset{"filename"}) {
-    $sqlquery .= " fileName = '".$valuset{"filename"}."' AND ";
+      $sqlquery .= " fileName = '".$valuset{"filename"}."' AND ";
   }
   if (defined $valuset{"fileseq"}) {
-    $sqlquery .= " fileSeq = '".$valuset{"fileseq"}."' AND ";
+      $sqlquery .= " fileSeq = '".$valuset{"fileseq"}."' AND ";
   }
   if ( $production != 0) {
-    $sqlquery .= " productionConditionID = $production AND ";
+      $sqlquery .= " productionConditionID = $production AND ";
   }
   if ( $fileType != 0) {
-    $sqlquery .= " fileTypeID = $fileType AND ";
+      $sqlquery .= " fileTypeID = $fileType AND ";
   }
   if (defined $sqlquery) {
-    $sqlquery =~ s/(.*)AND $/$1/g;
+      $sqlquery =~ s/(.*)AND $/$1/g;
   } else {
-    if ($DEBUG > 0) {
-	&print_debug("No parameters set to identify File Data");
-    }
-    return 0;
+      &print_debug("No parameters set to identify File Data");
+      return 0;
   }
   $sqlquery = "SELECT fileDataID FROM FileData WHERE $sqlquery";
   if ($DEBUG > 0) {
@@ -1124,11 +1150,9 @@ sub get_current_file_data {
     return $newid;
   }
   if ($sth->rows > 1) {
-    if ($DEBUG > 0) {
-	&print_debug("More than one file data matches the query criteria",
-		     "Add more data to unambiguously identify file data");
-    }
-    return 0;
+      &print_debug("More than one file data matches the query criteria",
+		   "Add more data to unambiguously identify file data");
+      return 0;
   }
 
   if ( $sth->fetch() ) {
@@ -1152,32 +1176,35 @@ sub insert_simulation_params {
   my $evgenComments;
   my $eventGenerator;
 
-  if (! (defined $valuset{"generator"} && defined $valuset{"genversion"} && defined $valuset{"genparams"})) {
-    if ($DEBUG > 0){
-	&print_debug("Not enough parameters to insert event generator data",
-		     "Define generator, genversion and genparams");
-    }
-    return 0;
+  if( ! defined($DBH) ){
+      &print_message("insert_simulation_params","Not connected");
+      return 0;
+  }
+
+  if (! (defined $valuset{"generator"}  &&
+	 defined $valuset{"genversion"} &&
+	 defined $valuset{"genparams"})) {
+      &print_debug("Not enough parameters to insert event generator data",
+		   "Define generator, genversion and genparams");
+      return 0;
   }
   if (! defined $valuset{"gencomment"}) {
-    if ($DEBUG > 0) {
-	&print_debug("WARNING: gencomment not defined. Using NULL");
-    }
-    $evgenComments = "NULL";
+      &print_debug("WARNING: gencomment not defined. Using NULL");
+      $evgenComments = "NULL";
   } else {
-    $evgenComments = '"'.$valuset{"gencomment"}.'"';
+      $evgenComments = '"'.$valuset{"gencomment"}.'"';
   }
   if (! defined $valuset{"simcomment"}) {
-    if ($DEBUG > 0) {
-	&print_debug("WARNING: simcomment not defined. Using NULL");
-    }
-    $simComments = "NULL";
+      &print_debug("WARNING: simcomment not defined. Using NULL");
+      $simComments = "NULL";
   } else {
-    $simComments = '"'.$valuset{"simcomment"}.'"';
+      $simComments = '"'.$valuset{"simcomment"}.'"';
   }
 
   my $sqlquery = "SELECT eventGeneratorID FROM EventGenerators WHERE eventGeneratorName = '".$valuset{"generator"}."' AND eventGeneratorVersion = '".$valuset{"genversion"}."' AND eventGeneratorParams = '".$valuset{"genparams"}."'";
-  if ($DEBUG > 0) { &print_debug("Executing query: $sqlquery");}
+  if ($DEBUG > 0) {
+      &print_debug("Executing query: $sqlquery");
+  }
 
 
   my $sth;
@@ -1205,10 +1232,8 @@ sub insert_simulation_params {
 	  &print_debug("Returning: $eventGenerator");
       }
     } else {
-      if ($DEBUG > 0) {
-	  &print_debug("Could not add event gerator data.",
-		       "Aborting simulation data insertion query");
-      }
+	&print_debug("Could not add event gerator data.",
+		     "Aborting simulation data insertion query");
     }
   } else {
     $sth->fetch;
@@ -1236,11 +1261,9 @@ sub insert_simulation_params {
 	&print_debug("Returning: $retid");
     }
   } else {
-    if ($DEBUG > 0) {
-	&print_debug("Could not add simulation data.",
-		     "Aborting simulation data insertion query.");
-    }
-    return 0;
+      &print_debug("Could not add simulation data.",
+		   "Aborting simulation data insertion query.");
+      return 0;
   }
 
 }
@@ -1259,19 +1282,24 @@ sub get_current_simulation_params {
   my $generatorComment;
   my $sqlquery;
 
-  if (! (defined $valuset{"generator"} && defined $valuset{"genversion"} && defined $valuset{"genparams"})) {
-    if ($DEBUG > 0) {
-	&print_debug("Not enough parameters to find event generator data",
-		     "Define generator, genversion and genparams");
-    }
-    return 0;
+  if( ! defined($DBH) ){
+      &print_message("get_current_simulation_params","Not connected");
+      return 0;
+  }
+
+  if (! (defined $valuset{"generator"}  &&
+	 defined $valuset{"genversion"} &&
+	 defined $valuset{"genparams"})) {
+      &print_debug("Not enough parameters to find event generator data",
+		   "Define generator, genversion and genparams");
+      return 0;
   }
   $sqlquery = "SELECT simulationParamsID FROM SimulationParams, EventGenerators WHERE eventGeneratorName = '".$valuset{"generator"}."' AND eventGeneratorVersion = '".$valuset{"genversion"}."' AND eventGeneratorParams = '".$valuset{"genparams"}."' AND SimulationParams.eventGeneratorID = EventGenerators.eventGeneratorID";
   if ($DEBUG > 0) {
       &print_debug("Executing query: $sqlquery");
   }
-  my $sth;
 
+  my $sth;
   $sth = $DBH->prepare($sqlquery);
   if ( ! $sth){
       &print_debug("FileCatalog::get_current_simulation_params : Failed to prepare [$sqlquery]");
@@ -1313,87 +1341,72 @@ sub insert_file_location {
   my $persistent;
   my $sanity;
 
+  if( ! defined($DBH) ){
+      &print_message("insert_file_location","Not connected");
+      return 0;
+  }
+
   $fileData = get_current_file_data();
   if ($fileData == 0) {
-    if ($DEBUG > 0) {
-	&print_debug("No file data available",
-		     "Aborting file insertion query");
-    }
-    return 0;
+      &print_debug("No file data available",
+		   "Aborting file insertion query");
+      return 0;
   }
   $storageType = check_ID_for_params("storage");
   $storageSite = check_ID_for_params("site");
   if (($storageType == 0 ) || ($storageSite == 0)) {
-    if ($DEBUG > 0) {
-	&print_debug("Aborting file location insertion query");
-    }
-    return 0;
+      &print_debug("Aborting file location insertion query");
+      return 0;
   }
   if (! defined $valuset{"path"}) {
-    if ($DEBUG > 0) {
-	&print_debug("ERROR: file path not defined. Cannot add file location",
-		     "Aborting File Location a");
-    }
-    return 0;
+      &print_debug("ERROR: file path not defined. Cannot add file location",
+		   "Aborting File Location a");
+      return 0;
   } else {
-    $filePath = "'".$valuset{"path"}."'";
+      $filePath = "'".$valuset{"path"}."'";
   }
   if (! defined $valuset{"createtime"}) {
-    if ($DEBUG > 0) {
-	&print_debug("WARNING: createtime not defined. Using a default value");
-    }
-    $createTime = "NULL";
+      &print_debug("WARNING: createtime not defined. Using a default value");
+      $createTime = "NULL";
   } else {
-    $createTime = $valuset{"createtime"};
+      $createTime = $valuset{"createtime"};
   }
 
   if (! defined $valuset{"owner"}) {
-    if ($DEBUG > 0) {
-	&print_debug("WARNING: owner not defined. Using a default value");
-    }
-    $owner = "NULL";
+      &print_debug("WARNING: owner not defined. Using a default value");
+      $owner = "NULL";
   } else {
-    $owner = '"'.$valuset{"owner"}.'"';
+      $owner = '"'.$valuset{"owner"}.'"';
   }
   if (! defined $valuset{"protection"}) {
-    if ($DEBUG > 0) {
-	&print_debug("WARNING: protection not defined. Using a default value");
-    }
-    $protection = "NULL";
+      &print_debug("WARNING: protection not defined. Using a default value");
+      $protection = "NULL";
   } else {
-    $protection = '"'.$valuset{"protection"}.'"';
+      $protection = '"'.$valuset{"protection"}.'"';
   }
   if (! defined $valuset{"node"}) {
-    if ($DEBUG > 0) {
-	&print_debug("WARNING:  not defined. Using a default value");
-    }
-    $nodeName = "NULL";
+      &print_debug("WARNING:  not defined. Using a default value");
+      $nodeName = "NULL";
   } else {
-    $nodeName = '"'.$valuset{"node"}.'"';
+      $nodeName = '"'.$valuset{"node"}.'"';
   }
   if (! defined $valuset{"availability"}) {
-    if ($DEBUG > 0) {
-	&print_debug("WARNING:  not defined. Using a default value");
-    }
-    $availability = 1 ;
+      &print_debug("WARNING:  not defined. Using a default value");
+      $availability = 1 ;
   } else {
-    $availability = $valuset{"availability"};
+      $availability = $valuset{"availability"};
   }
   if (! defined $valuset{"persistent"}) {
-    if ($DEBUG > 0) {
-	&print_debug("WARNING:  not defined. Using a default value");
-    }
-    $persistent = 0 ;
+      &print_debug("WARNING:  not defined. Using a default value");
+      $persistent = 0 ;
   } else {
-    $persistent = $valuset{"persistent"};
+      $persistent = $valuset{"persistent"};
   }
   if (! defined $valuset{"sanity"}) {
-    if ($DEBUG > 0) {
-	&print_debug("WARNING:  not defined. Using a default value");
-    }
-    $sanity = 0;
+      &print_debug("WARNING:  not defined. Using a default value");
+      $sanity = 0;
   } else {
-    $sanity = $valuset{"sanity"};
+      $sanity = $valuset{"sanity"};
   }
 
 
@@ -1538,20 +1551,23 @@ sub connect_fields {
   if ($_[0] =~ m/FileCatalog/) {
     shift @_;
   }
-  ;
+
   my ($begkeyword, $endkeyword) = (@_);
   my ($begtable, $begfield, $endtable, $endfield, $blevel, $elevel);
   my ($ftable, $stable, $flevel, $slevel);
   my (@connections, $connum);
+
+
   if ($DEBUG > 0) {
       &print_debug("Looking for connection between fields: $begkeyword, $endkeyword");
   }
+
   $begtable = get_table_name($begkeyword);
   $begfield = get_field_name($begkeyword);
   $endtable = get_table_name($endkeyword);
   $endfield = get_field_name($endkeyword);
-  $blevel = get_struct_level($begtable);
-  $elevel = get_struct_level($endtable);
+  $blevel   = get_struct_level($begtable);
+  $elevel   = get_struct_level($endtable);
   if ($blevel > $elevel) {
     ($ftable, $stable, $flevel, $slevel) =
       ($begtable, $endtable, $blevel, $elevel)
@@ -1570,11 +1586,10 @@ sub connect_fields {
     $flevel = $tlevel;
     $ftable = $ttable;
   }
+
   # If not the same table - look again
   if ( $stable ne $ftable) {
-    if ($DEBUG > 0) {
-	&print_debug("Looking for downward connections");
-    }
+    &print_debug("Looking for downward connections");
     my @upconnections;
     # look upward in table structure
     while (($stable ne $ftable) && ($slevel != 1)) {
@@ -1589,9 +1604,8 @@ sub connect_fields {
     }
     push (@connections, @upconnections);
     if ( $stable ne $ftable) {
-      if ($DEBUG > 0) {
-	  &print_debug("Looking for upward connections");
-      }
+      &print_debug("Looking for upward connections");
+
       # Go up from the tree root searching for the link between tables
       my (%froads, %sroads);
       my (@flevelfields, @slevelfields);
@@ -1673,6 +1687,12 @@ sub run_query {
     shift @_;
   };
 
+
+  if( ! defined($DBH) ){
+      &print_message("run_query","Not connected");
+      return;
+  }
+
   my %functions;
   my $count;
   my $grouping = "";
@@ -1681,7 +1701,7 @@ sub run_query {
   # Protect against bogus query
   if( ! defined($_[0]) ){
       &print_message("run_query()","method called without arguments");
-      return 0;
+      return;
   }
 
   # An ugly hack to get FileLocation id number from within the module
@@ -1718,7 +1738,7 @@ sub run_query {
 	}
       if (not defined ($keywrds{$_})){
 	  &print_message("run_query()","Wrong keyword: $_");
-	  return 0;
+	  return;
       }
       $count++;
     }
@@ -1768,7 +1788,7 @@ sub run_query {
   my @select;
   foreach (@keywords) {
     if ($DEBUG > 0) {
-	&print_debug("Adding keyword: $_<br>");
+	&print_debug("Adding keyword: $_");
     }
     if (defined $functions{$_})
       {
@@ -1983,6 +2003,11 @@ sub delete_record {
   # first delete the file location
   my @deletes;
 
+  if( ! defined($DBH) ){
+      &print_message("delete_record","Not connected");
+      return 0;
+  }
+
   foreach my $key (keys %keywrds)
     {
       my $field = get_field_name($key);
@@ -1990,18 +2015,17 @@ sub delete_record {
 
       if ((is_critical($key) == 1) && ($table eq "FileLocations"))
 	{
-	  if (defined $valuset{$key})
-	    {
+	  if (defined $valuset{$key}){
 	      if (get_field_type($key) eq "text")
 		{ push (@deletes, "$field = '".$valuset{$key}."'"); }
 	      else
 		{ push (@deletes, "$field = ".$valuset{$key}); }
-	    }
-	  else
-	    {
-		if ($DEBUG > 0) { &print_debug("ERROR: Cannot delete record.\n".$key." not defined"); }
-		return 0;
-	    }
+	  } else {
+	      if ($DEBUG > 0) {
+		  &print_debug("ERROR: Cannot delete record.\n".$key." not defined");
+	      }
+	      return 0;
+	  }
 	}
       if ((is_critical($key) == 0) && ($table eq "FileLocations"))
 	{
@@ -2014,24 +2038,24 @@ sub delete_record {
 	    }
 	}
     }
+
   my $storage = check_ID_for_params("storage");
-  if ($storage == 0)
-    {
-      if ($DEBUG > 0) { &print_debug("ERROR: Cannot delete record.\nstorage not defined"); }
+  if ($storage == 0){
+      &print_debug("ERROR: Cannot delete record.","storage not defined");
       return 0;
-    }
-  else { push (@deletes, "storageTypeID = $storage"); }
+  } else {
+      push (@deletes, "storageTypeID = $storage");
+  }
   my $site = check_ID_for_params("site");
-  if ($site == 0)
-    {
-      if ($DEBUG > 0) { &print_debug("ERROR: Cannot delete record.\nsite not defined"); }
+  if ($site == 0){
+      &print_debug("ERROR: Cannot delete record.","site not defined");
       return 0;
     }
       else { push (@deletes, "storageSiteID = $site"); }
   my $fdata = get_current_file_data();
   if ($fdata == 0)
     {
-      if ($DEBUG > 0) { &print_debug("ERROR: Cannot delete record.\nfiledata not defined"); }
+      &print_debug("ERROR: Cannot delete record.","filedata not defined");
       return 0;
     }
   else { push (@deletes, "fileDataID = $fdata"); }
@@ -2094,6 +2118,12 @@ sub bootstrap {
   if ($_[0] =~ m/FileCatalog/) {
     shift @_;
   }
+
+  if( ! defined($DBH) ){
+      &print_message("bootstrap","Not connected");
+      return 0;
+  }
+
   my ($keyword, $delete) = (@_);
   my $table = get_table_name($keyword);
   if ($table eq "")
@@ -2105,14 +2135,11 @@ sub bootstrap {
   foreach (@datastruct)
     {
       my ($mtable, $ctable, $lfield) = split(",");
-      if ($ctable eq $table)
-	# This table is referencing another one - it is not a dictianry!
-	{
-	  if ( $DEBUG > 0 ) {
-	      &print_debug("$table is not a dictionary table!\nConnot do bootstrapping");
-	  }
+      if ($ctable eq $table){
+	  # This table is referencing another one - it is not a dictianry!
+	  &print_message("bootstrap","$table is not a dictionary table !");
 	  return 0;
-	}
+      }
       if ($mtable eq $table)
 	{
 	  $childtable = $ctable;
@@ -2120,15 +2147,13 @@ sub bootstrap {
 	  $refcount++;
 	}
     }
-  if ($refcount != 1)
-    # This table is not refernced by any other table or referenced
-    # by more than one - it is not a proper dictionary
-    {
-      if ( $DEBUG > 0 ) {
-	  &print_debug("$table is not a dictionary table!\nConnot do bootstrapping");
-      }
+  if ($refcount != 1){
+      # This table is not refernced by any other table or referenced
+      # by more than one - it is not a proper dictionary
+      &print_message("bootstrap","$table is not a dictionary table !");
       return 0;
-    }
+  }
+
   my $dcquery;
   $dcquery = "select $table.$linkfield FROM $table LEFT OUTER JOIN $childtable ON $table.$linkfield = $childtable.$linkfield WHERE $childtable.runTypeID IS NULL";
 
@@ -2186,6 +2211,11 @@ sub update_record {
   if ($_[0] =~ m/FileCatalog/) {
     my $self = shift;
   }
+  if( ! defined($DBH) ){
+      &print_message("update_record","Not connected");
+      return 0;
+  }
+
   my @updates;
 
   my ($ukeyword, $newvalue) = (@_);
@@ -2216,13 +2246,10 @@ sub update_record {
     }
   my $whereclause = join(" AND ",(@updates));
 
-  if ($utable eq "")
-    {
-      if ($DEBUG > 0) {
-	  &print_debug("ERROR: $ukeyword does not have an associated table\nCannot update");
-      }
+  if ($utable eq ""){
+      &print_debug("ERROR: $ukeyword does not have an associated table","Cannot update");
       return 0;
-    }
+  }
 
 
   my $qupdate;
@@ -2265,6 +2292,12 @@ sub update_location {
   if ($_[0] =~ m/FileCatalog/) {
     my $self = shift;
   }
+  if( ! defined($DBH) ){
+      &print_message("update_location","Not connected");
+      return 0;
+  }
+
+
   my @updates;
 
   my ($ukeyword, $newvalue) = (@_);
@@ -2310,14 +2343,11 @@ sub update_location {
     }
   my $whereclause = join(" AND ",(@updates));
 
-  if ($utable eq "")
-    {
-      if ($DEBUG > 0) {
-	  &print_debug("ERROR: $ukeyword does not have an associated table",
-		       "Cannot update");
-      }
+  if ($utable eq ""){
+      &print_debug("ERROR: $ukeyword does not have an associated table",
+		   "Cannot update");
       return 0;
-    }
+  }
 
 
   foreach my $line (@files) {
@@ -2341,9 +2371,9 @@ sub update_location {
 	  &print_debug("FileCatalog::update_location : Failed to prepare [$qupdate]");
       } else {
 	  if ( $sth->execute() ){
-	      if ($DEBUG > 0) { &print_debug("Update succeded"); }
+	      &print_debug("Update succeded");
 	  } else {
-	      if ($DEBUG > 0) { &print_debug("Update failed"); }
+	      &print_debug("Update failed");
 	  }
       }
   }
