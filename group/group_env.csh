@@ -1,5 +1,5 @@
 #!/usr/bin/csh -f
-#       $Id: group_env.csh,v 1.121 2001/09/25 20:25:13 jeromel Exp $
+#       $Id: group_env.csh,v 1.122 2001/11/05 21:09:29 jeromel Exp $
 #	Purpose:	STAR group csh setup
 #
 #	Author:		Y.Fisyak     BNL
@@ -111,30 +111,33 @@ if (-f $STAR/mgr/ROOT_LEVEL && -f $STAR/mgr/CERN_LEVEL) then
 else
  switch ( $STAR_VERSION )
 
-  case SL98l: setenv ROOT_LEVEL 2.20
-  breaksw
+  case SL98l: 
+    setenv ROOT_LEVEL 2.20
+    breaksw
 
   case SL99a:
   case SL99b:
   case SL99c:
-  setenv ROOT_LEVEL 2.21
-  setenv CERN_LEVEL 99
-  breaksw
+    setenv ROOT_LEVEL 2.21
+    setenv CERN_LEVEL 99
+    breaksw
 
   case SL99d:
   case SL99e:
-  setenv ROOT_LEVEL 2.21.08
-  setenv CERN_LEVEL 99
-  breaksw
+    setenv ROOT_LEVEL 2.21.08
+    setenv CERN_LEVEL 99
+    breaksw
 
   case SL99f:
   case SL99g:
-  setenv ROOT_LEVEL 2.22
-  setenv CERN_LEVEL 99
-  breaksw
+    setenv ROOT_LEVEL 2.22
+    setenv CERN_LEVEL 99
+    breaksw
 
-  default: setenv ROOT_LEVEL 2.13
- endsw
+  default: 
+    setenv ROOT_LEVEL 3.02.00
+
+  endsw
 endif
 
 setenv CERN_ROOT  $CERN/$CERN_LEVEL
