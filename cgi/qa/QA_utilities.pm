@@ -198,6 +198,23 @@ sub submit_batchjob {
   my $topdir = $query->param('topdir') || $topdir_default;
 
   #-----------------------------------------------------------------------
+  # special check for update_and_qa: prevent multiple jobs of this type
+  # pmj 10/5/00
+
+  $action eq 'update_and_qa' and do{
+
+    opendir(DIR,$update_dir) or die "Cannot open update dir $update_dir:$! \n"; 
+    while ( defined( $file = readdir(DIR) ) ){
+
+      $file !~ /(\d+)\.csh/ and next;
+      $batch_job_file = "$batch_dir/$file";
+
+      print "<font color=red>Update and QA batch job found ($batch_job_file), new one not submitted.</font><br>\n";
+
+      return;
+    }
+  };
+  #-----------------------------------------------------------------------
   # set random seed for unique file ID
   srand;
 
