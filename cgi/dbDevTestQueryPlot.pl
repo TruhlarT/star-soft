@@ -1,33 +1,10 @@
 #!/opt/star/bin/perl -w
 #
-# $Id: dbDevTestQueryPlot.pl,v 1.9 2001/02/21 22:31:27 didenko Exp $
+# $Id: dbDevTestQueryPlot.pl,v 1.10 2001/02/23 00:46:06 liuzx Exp $
 #
 # $Log: dbDevTestQueryPlot.pl,v $
-# Revision 1.9  2001/02/21 22:31:27  didenko
-# change gif file location
-#
-# Revision 1.7  2001/02/16 16:22:45  liuzx
-# .Format Y number format: %8.2f
-#
-# Revision 1.6  2001/02/16 15:37:54  liuzx
-# .Add select for weeks,(default 1, max 4)
-#
-# Revision 1.5  2001/02/15 19:02:55  liuzx
-# .Fixed the problem with Netscape's Cache!
-#
-# Revision 1.4  2001/02/14 23:16:39  liuzx
-# .Update for description of MemUsage
-# .Update for 0 value's meaning
-#
-# Revision 1.3  2001/02/14 19:58:19  liuzx
-# Modify the min_y and skip no data now!
-#
-# Revision 1.2  2001/02/14 18:18:39  liuzx
-# Missing max_y added!
-#
-# Revision 1.1  2001/02/14 16:59:37  liuzx
-# Initial Version: query for nightly test in DEV library.
-#                   (currently only last five days)
+# Revision 1.10  2001/02/23 00:46:06  liuzx
+# Now output the GIF on the fly!
 #
 #
 ##########################################################
@@ -37,37 +14,14 @@ require "/afs/rhic/star/packages/DEV00/mgr/dbTJobsSetup.pl";
 use CGI;
 use GIFgraph::linespoints;
 use GD;
-#use strict;
-#use CGI::Carp qw(fatalsToBrowser);
-#use Class::Struct;
-#use File::Basename;
 
 
 my $query = new CGI;
 
-print $query->header;
-print $query->start_html('Plot for Nightly Test in DEV Library');
-print <<END;
-<META HTTP-EQUIV="Expires" CONTENT="0">
-<META HTTP-EQUIV="Pragma" CONTENT="no-cache">
-<META HTTP-EQUIV="Cache-Control" CONTENT="no-cache">
-END
-
-print "<body bgcolor=\"#ffdc9f\"><center><pre>";
-
 my $day_diff = 8;
 my $max_y = 0, $min_y = 500000;
-#my @point0, @point1, @point2, @point3;
-#my @point0 = (undef,undef,undef,undef,undef);
-#my @point1 = (undef,undef,undef,undef,undef);
-#my @point2 = (undef,undef,undef,undef,undef);
-#my @point3 = (undef,undef,undef,undef,undef);
 my @data;
 my @legend;
-
-#print <<END;
-#<META HTTP-equiv="Refresh" content="0; URL-HTTP://duvall.star.bnl.gov/cgi-bin/liuzx/star/dbDevTestQueryPlot.pl">
-#END
 
 my %plotHash = (
                 MemUsage => 'memUsageF, memUsageL',
@@ -81,18 +35,19 @@ my %plotHash = (
                 );
 
 my $set1   =  $query->param('set1');
-#$datProd = $query->param('datProd');
 my $plotVal = $query->param('plotVal');
 my $weeks = $query->param('weeks');
 
 if ( ($set1 eq "") || ($plotVal eq "") ) {
+    print $query->header;
+    print $query->start_html('Plot for Nightly Test in DEV Library');
+    print "<body bgcolor=\"#ffdc9f\"><center><pre>";
     print "<h1>You must select both the type of test and plot!!</h1>";
     print $query->end_html;
     exit(0);
 }
 
 my @Nday;
-#if(! defined $datProd) { $datProd = 0};
 for($i=0;$i<5*$weeks;$i++) {
     $point0[$i]=undef;
     $point1[$i]=undef;
@@ -103,8 +58,8 @@ for($i=0;$i<5*$weeks;$i++) {
 
 my $mplotVal = $plotHash{$plotVal};
 
-($sec,$min,$hour,$mday,$mon,$year,$today,$today,$today) = localtime(time);
-#                                 $wday,$yday,$isdst
+($today,$today,$today,$mday,$mon,$year,$today,$today,$today) = localtime(time);
+#$sec,$min,$hour                  $wday,$yday,$isdst
 $today = (Sun,Mon,Tue,Wed,Thu,Fri,Sat)[(localtime)[6]];
 my $nowdate = ($year+1900)."-".($mon+1)."-".$mday;
 
@@ -128,23 +83,10 @@ for($i=1;$i<$weeks;$i++) {
 
 &StDbTJobsConnect();
 
-#print $query->header;
-#print $query->start_html('Select Query for Production Plots');
-
-#print "<pre>";
-
-#print $datProd, "\n";
-#print $mplotVal, "\n";
-#print $set1, "\n";
-
 my $n_weeks = $weeks - 1;
-#for($n_weeks=$weeks-1; $n_week>=0;$n_week--) {
 while($n_weeks >= 0) {
     my $rn_weeks = $weeks-1-$n_weeks;
-    #my $nowdate = ($year+1900)."-".($mon+1)."-".($mday-7*$n_weeks);
-    #print $n_weeks,"\t",$rn_weeks,"\n";
     for ($d_week = 0; $d_week <=4; $d_week++) {
-	#print $d_week,"\n";
 	if ($today eq "Fri") {
 	    if($d_week eq 0) {
 		$day_diff = 8;
@@ -167,14 +109,12 @@ while($n_weeks >= 0) {
 	#print $path, "\n";
 	$path =~ s(/)(%)g;
 
-	#$path = $dbh->quote($path);
 	if ($n_weeks == 0) {
 	    $sql="SELECT path, $mplotVal FROM JobStatus WHERE path LIKE \"%$path%\" AND avail='Y' AND jobStatus=\"Done\" AND errMessage=\"none\" AND (TO_DAYS(\"$nowdate\") -TO_DAYS(createTime)) < $day_diff ORDER by createTime DESC LIMIT 2";
 	} else {
 	    $sql="SELECT path, $mplotVal FROM JobStatus WHERE path LIKE \"%$path%\" AND jobStatus=\"Done\" AND errMessage=\"none\" AND (TO_DAYS(\"$nowdate\") -TO_DAYS(createTime)) < $day_diff AND (TO_DAYS(\"$nowdate\") -TO_DAYS(createTime)) > $day_diff1 ORDER by createTime DESC LIMIT 2";
 	}
 
-	#print $sql,"\n";
 	$cursor = $dbh->prepare($sql) || die "Cannot prepare statement: $dbh->errstr\n";
 	$cursor->execute;
 	while(@fields = $cursor->fetchrow_array) {
@@ -195,7 +135,6 @@ while($n_weeks >= 0) {
 			$min_y = $point3[$d_week+5*$rn_weeks];
 		    }
 		}
-		#print "opt ",$point2[$d_week],"\t",$point3[$d_week],"\n";
 	    } else {
 		$point0[$d_week+5*$rn_weeks] = $fields[1];
 		if ($point0[$d_week+5*$rn_weeks] > $max_y) {
@@ -213,29 +152,13 @@ while($n_weeks >= 0) {
 			$min_y = $point1[$d_week+5*$rn_weeks];
 		    }
 		}
-		#print $point0[$d_week],"\t",$point1[$d_week],"\n";
 	    }
-	    #print $point0[$d_week],"\t",$point1[$d_week],"\n";
-	    #my $cols=$cursor->{NUM_OF_FIELDS};
-	    #for($i=0;$i<$cols;$i++) {
-	    #    print $fields[$i], "\t";
-	    #}
-	    #print "\n";
 	}
     }
     $n_weeks--;
 }
 
 &StDbTJobsDisconnect();
-
-my $xlable = "";
-
-if( $min_y == 0) {
-    $min_y = 10;
-    $xlabel = "(0 value means job failed)";
-} elsif (($min_y < 10)&& ($min_y != 0) ) {
-    $min_y = 10;
-}
 
 if ($plotVal eq "MemUsage") {
     @data = (\@Nday, \@point0, \@point1, \@point2, \@point3);
@@ -250,12 +173,20 @@ if ($plotVal eq "MemUsage") {
     $legend[1] = "$plotVal"."(opt)";
 }
 
-#binmode STDOUT;
-#print STDOUT $query->header(-type => 'image/gif');
+binmode STDOUT;
+
+print STDOUT $query->header(-type => 'image/gif');
 
 $graph = new GIFgraph::linespoints(550+50*$weeks,500);
 
-$graph->set(x_label => "$xlabel",
+if( $min_y == 0) {
+    $min_y = 10;
+    $graph->set(x_label => "(0 value means job failed)");
+} elsif (($min_y < 10)&& ($min_y != 0) ) {
+    $min_y = 10;
+}
+
+$graph->set(#x_label => "$xlabel",
             #y_label => "$mplotVal",
 	    x_label_position => 0.5,
             title   => "$set1"." ($mplotVal)",
@@ -278,21 +209,7 @@ $graph->set_x_label_font(gdMediumBoldFont);
 $graph->set_y_label_font(gdMediumBoldFont);
 $graph->set_x_axis_font(gdMediumBoldFont);
 $graph->set_y_axis_font(gdMediumBoldFont);
-#print STDOUT $graph->plot(\@data);
-
-#`rm -fr /star/starlib/doc/www/html/comp-nfs/plot*.gif`;
-#my $gif = "/star/starlib/doc/www/html/comp-nfs/plot".$sec.$min.$hour.".gif";
-`rm -fr /u1/webdata/plot*.gif`;
-my $gif = "/u1/webdata/plot".$sec.$min.$hour.".gif";
-$graph->plot_to_gif("$gif",\@data);
-
-#open (GRAPH,"$gif");
-#while($line = <GRAPH>) {
-#	print STDOUT $line;
-#	}
-print "</pre>";
-print "<img src=\"http://www.star.bnl.gov/webdata/plot".$sec.$min.$hour.".gif\"></center>";
-print $query->end_html;
+print STDOUT $graph->plot(\@data);
 
 sub y_format
 {
@@ -301,4 +218,3 @@ sub y_format
 
     $ret = sprintf("%8.2f", $value);
 }
-
