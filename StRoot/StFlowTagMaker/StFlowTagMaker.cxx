@@ -1,6 +1,6 @@
 /***************************************************************************
  *
- * $Id: StFlowTagMaker.cxx,v 1.1 1999/07/22 18:34:39 snelling Exp $
+ * $Id: StFlowTagMaker.cxx,v 1.1.1.1 1999/07/22 18:34:39 snelling Exp $
  *
  * Author: Raimond Snellings, LBNL, Jun 1999
  * Description:  Maker to fill the Flow EbyE Tag
@@ -8,8 +8,8 @@
  ***************************************************************************
  *
  * $Log: StFlowTagMaker.cxx,v $
- * Revision 1.1  1999/07/22 18:34:39  snelling
- * Initial revision
+ * Revision 1.1.1.1  1999/07/22 18:34:39  snelling
+ * FlowTagMaker: fills FlowTags defined by EbE workgroup
  *
  *  
  **************************************************************************/
@@ -56,7 +56,7 @@ Int_t StFlowTagMaker::Make()
 
 void StFlowTagMaker::PrintInfo() 
 {
-  cout << "$Id: StFlowTagMaker.cxx,v 1.1 1999/07/22 18:34:39 snelling Exp $" << endl;
+  cout << "$Id: StFlowTagMaker.cxx,v 1.1.1.1 1999/07/22 18:34:39 snelling Exp $" << endl;
   if (Debug()) StMaker::PrintInfo();
 }
 
