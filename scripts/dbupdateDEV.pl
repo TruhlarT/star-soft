@@ -24,7 +24,7 @@ my $TOP_DIRD = "/star/rcf/test/dev/";
 my @dir_year = ("year_2001", "year_1h", "year_2003", "year_2004");
 my @node_dir = ("trs_redhat72", "trs_redhat72_opt");
 my @node_daq = ("daq_redhat72", "daq_redhat72_opt","daq_redhat80.icc"); 
-my @hc_dir = ("hc_lowdensity", "hc_standard", "hc_highdensity", "peripheral","pp_minbias","ppl_minbias","dau_minbias");
+my @hc_dir = ("hc_lowdensity", "hc_standard", "hc_highdensity", "peripheral","pp_minbias","ppl_minbias","dau_minbias","auau_minbias");
 my @daq_dir = ("minbias", "central", "embedding", "ppMinBias", "dAuMinBias", "AuAuMinBias", "AuAu_prodHigh","AuAu_prodLow" );
 
 my @OUT_DIR;
@@ -89,6 +89,9 @@ for ($i = 0; $i < scalar(@node_dir); $i++) {
   print "Output Dir for DEV :", $OUT_DIR[$ii], "\n";
     $ii++;
 
+  $OUT_DIR[$ii] = $TOP_DIRD . $node_dir[$i] . "/" . $testDay . "/". $dir_year[3] . "/" . $hc_dir[7];
+  print "Output Dir for DEV :", $OUT_DIR[$ii], "\n";
+    $ii++;
 }
 
 
@@ -138,6 +141,11 @@ my $jj = 0;
   $OUT_DIR[$ii] = $TOP_DIRD . $node_dir[$i] . "/" . $beforeDay . "/". $dir_year[2] . "/" . $hc_dir[6];
   print "Output Dir for DEV :", $OUT_DIR[$ii], "\n";
    $ii++;
+
+  $OUT_DIR[$ii] = $TOP_DIRD . $node_dir[$i] . "/" . $beforeDay . "/". $dir_year[3] . "/" . $hc_dir[7];
+  print "Output Dir for DEV :", $OUT_DIR[$ii], "\n";
+    $ii++;
+
 }
 
 $jj = 0;
@@ -653,7 +661,15 @@ foreach  $eachOutNDir (@OUT_DIR) {
        $EvGen = "hadronic_cocktail";
        $EvType = $EvTp;
     }
-       else {
+      elsif ($EvTp eq "dau_minbias") {
+       $EvGen = "hijing";
+       $EvType = "dau_minbias";
+
+    } elsif ($EvTp eq "auau_minbias") {
+       $EvGen = "hijing";
+       $EvType = "auau_minbias";
+
+      } else {
        $EvGen = "daq";
        $EvType = $EvTp;
   }
@@ -718,7 +734,13 @@ foreach  $eachOutNDir (@OUT_DIR) {
     elsif($EvTp eq "pp_minbias") {          
          $EvReq = 1000;
  }
-      
+     elsif($EvTp eq "dau_minbias") {          
+         $EvReq = 500;
+ }
+     elsif($EvTp eq "auau_minbias") {          
+         $EvReq = 225;
+ }
+     
       if( $bsname =~ /hc_highdensity/) {
       $lgFile = $eachOutNDir ."/" . $bsname ."16_evts.log" ;
       }elsif( $bsname =~ /hc_lowdensity/) {
