@@ -347,10 +347,8 @@ sub DataDisplayString{
     $input_filename = $self->LogReport->InputFn;
 
     # pmj 10/12/99
-    ($input_fn_string = $input_filename) =~ s%/star/rcf/disk0/star/test/%%;
-
     # pmj 11/1/00 - simu file catalogue changed
-    ($input_fn_string = $input_filename) =~ s%/star/rcf/simu/%%;
+    ($input_fn_string = $input_filename) =~ s%/star/rcf/disk0/star/test/|/star/rcf/simu/%%;
 
     $input_filename and $string .= "<br><font size=1>(input: $input_fn_string)</font>";
 
