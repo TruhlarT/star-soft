@@ -17,7 +17,7 @@
 #  arg3 a retention time for the output in days
 #
 
-use lib "/afs/rhic/star/packages/scripts";
+use lib "/afs/rhic.bnl.gov/star/packages/scripts";
 use RunDAQ;
 
 $LIB     = "dev";
@@ -28,7 +28,9 @@ $RETENT  = 14;
 $LIB     = shift(@ARGV) if ( @ARGV );
 $TARGET  = shift(@ARGV) if ( @ARGV );
 $RETENT  = shift(@ARGV) if ( @ARGV );
-$UPDATE  = shift(@ARGV) if ( @ARGV );
+$UPDATE  = shift(@ARGV) if ( @ARGV );   # 0, scan and delete if old, 
+                                        # 1, scan and enter in db
+                                        # 2, get db entries and compare 
 
 # Assume standard tree structure
 $JOBDIR  = "/star/u/starreco/$LIB/requests/daq/archive/";
@@ -36,7 +38,7 @@ $JOBDIR  = "/star/u/starreco/$LIB/requests/daq/archive/";
 # Fault tolerant. No info if fails.
 if( ! opendir(DIR,"$JOBDIR") ){  exit;}
 
-if(! $UPDATE){
+if ($UPDATE == 0){
     print "Scanning $JOBDIR vs $TARGET on ".localtime()."\n";
     while( defined($jfile = readdir(DIR)) ){
 	#print "$jfile\n";
@@ -115,7 +117,7 @@ if(! $UPDATE){
 	    close(FO);
 	}
     }
-} else {
+} elsif ($UPDATE == 1) {
     # Scan the directory for all files present and mark their
     # path in the database. This is rarely used. And done
     # only to update the database with a new location
@@ -139,6 +141,20 @@ if(! $UPDATE){
 	    rdaq_set_location($obj,$LOCATIONS{$el},$el);
 	}
 	rdaq_close_odatabase($obj);
+    }
+
+} else {
+    $obj = rdaq_open_odatabase();
+    @all = rdaq_get_files($obj,2,0);
+    foreach $file (@all){
+	if ( $path  = rdaq_get_location($obj,$file) ){
+	    $ffile = $file;
+	    $ffile =~ s/\.daq/\.event\.root/;
+	    if ( ! -e "$path/$ffile"){
+		rdaq_set_location($obj,0,$file);
+		print "$path $ffile not found\n";
+	    }
+	}
     }
 }
 
