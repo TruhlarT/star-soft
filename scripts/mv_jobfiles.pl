@@ -31,12 +31,13 @@ my $fnotf_count = 0;
 $now = localtime;
 ($sec,$min,$hour,$mday,$mon) = localtime;
 
-foreach my $int ( $mon,$mday ){
-  $int < 10 and $int = '0'.$int;
-   $thisday .= $int;
-}
+my $year = "2002";
+   $mon++;
+
+my $thisday = $year."-".$mon."-".$mday; 
 
 $outname = "mail" . "_" .$thisday . "_" . "out";
+#$outname = "mail_2002-09-17_out";
 $outfile = "/star/u/starreco/" . $outname;
 #print $outfile, "\n";
 
@@ -57,11 +58,11 @@ open (MAILFILE, $outfile ) or die "cannot open $outfile: $!\n";
      $jobFList[$numJbfile] = $job_file;
      $numJbfile++;
      }
-      elsif ($jbStat =~ /aborted/) {
-      $abort_count++; 
-     $jobFList[$numJbfile] = $job_file;
-     $numJbfile++;  
-     }
+#      elsif ($jbStat =~ /aborted/) {
+#      $abort_count++; 
+#     $jobFList[$numJbfile] = $job_file;
+#     $numJbfile++;  
+#     }
      elsif ($jbStat =~ /staging failed/) {
       $stag_count++; 
      $jobFList[$numJbfile] = $job_file;
