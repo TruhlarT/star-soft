@@ -1,5 +1,5 @@
 #!/bin/csh -f
-#       $Id: group_env.csh,v 1.137 2003/04/08 19:19:52 jeromel Exp $
+#       $Id: group_env.csh,v 1.138 2003/04/18 02:12:28 jeromel Exp $
 #	Purpose:	STAR group csh setup
 #
 #	Author:		Y.Fisyak     BNL
@@ -15,7 +15,13 @@
 set ECHO = 1; 
 if ($?STAR == 1)   set ECHO = 0
 if ( ! $?prompt)   set ECHO = 0
-if ($?SILENT == 1) set ECHO = 0;
+if ($?SILENT == 1) set ECHO = 0
+
+
+# This variable was added for the ECHOD debug mode
+#set ECHOD= 0
+#set Self=`echo $0 | sed "s/.*\///g"`
+
 
 setenv WWW_HOME http://www.star.bnl.gov/
 if ($ECHO) echo   "Setting up WWW_HOME  = $WWW_HOME"
@@ -133,7 +139,6 @@ endif
 
 if ($ECHO)    echo   "Setting up STAR_BIN  = ${STAR_BIN}"
 
-
 # Common stuff
 setenv STAR_SCRIPTS $STAR_PATH/scripts
 setenv STAR_CGI  $STAR_PATH/cgi
@@ -180,9 +185,13 @@ endif
 setenv CERN_ROOT  $CERN/$CERN_LEVEL
 if ($ECHO) echo   "Setting up ROOT_LEVEL= ${ROOT_LEVEL}"
 
-
-setenv GROUPPATH `${GROUP_DIR}/dropit -p ${GROUP_DIR} -p ${STAR_MGR} -p ${STAR_SCRIPTS} -p ${STAR_CGI} -p ${MY_BIN} -p ${STAR_BIN} -p ${STAF}/mgr -p ${STAF_BIN}`
-setenv PATH `${GROUP_DIR}/dropit -p ${OPTSTAR}/bin -p $PATH`
+if ( -x ${GROUP_DIR}/dropit) then
+    setenv GROUPPATH `${GROUP_DIR}/dropit -p ${GROUP_DIR} -p ${STAR_MGR} -p ${STAR_SCRIPTS} -p ${STAR_CGI} -p ${MY_BIN} -p ${STAR_BIN} -p ${STAF}/mgr -p ${STAF_BIN}`
+    setenv PATH `${GROUP_DIR}/dropit -p ${OPTSTAR}/bin -p $PATH`
+else
+    setenv GROUPPATH ${GROUP_DIR}:${STAR_MGR}:${STAR_SCRIPTS}:${STAR_CGI}:${MY_BIN}:${STAR_BIN}:${STAF}/mgr:${STAF_BIN}
+    setenv PATH  ${OPTSTAR}/bin:$PATH
+endif
 
 
 # ROOT
@@ -398,7 +407,6 @@ if ( -d /opt/hpnp ) then
   setenv PATH    `${GROUP_DIR}/dropit -p $PATH  -p /opt/hpnp/bin -p /opt/hpnp/admin`
 endif
 setenv PATH `${GROUP_DIR}/dropit -p $HOME/bin -p $HOME/bin/.$STAR_SYS -p $PATH -p $CERN_ROOT/bin -p $CERN_ROOT/mgr .`
-
 
 
 # clean-up PATH
