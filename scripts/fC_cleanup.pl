@@ -5,10 +5,10 @@
 # of te FileCatalog database
 #
 # Written by Adam Kisiel, Warsaw University of Technology (2002)
-# Modified by J.Lauret, BNL 2002-2003 
+# Modified by J.Lauret, BNL 2002-2004
 #
 
-use lib "/afs/rhic/star/packages/scripts";
+use lib "/afs/rhic.bnl.gov/star/packages/scripts";
 use strict;
 use FileCatalog;
 
@@ -151,12 +151,12 @@ $host   = $HOST   if ( defined($HOST)   && ! defined($host) );
 $db     = $DB     if ( defined($DB)     && ! defined($db)   );
 
 
-if ( $user eq "" ){ 
+if ( $user eq "" ){
     # get it from command line
     print "Username for FileCatalog : ";
     chomp($user = <STDIN>);
 }
-if ( $passwd eq "" ){ 
+if ( $passwd eq "" ){
     # get it from command line
     print "Password for $user : ";
     chomp($passwd = <STDIN>);
@@ -211,8 +211,8 @@ while ($morerecords)
 
 
     } elsif ($mode*$mode == 1){
-	# Second mode of operation - get the file list, 
-	# select the available ones and check if they 
+	# Second mode of operation - get the file list,
+	# select the available ones and check if they
 	# really exist - if not, mark them as unavailable
 	print "Checking mode=$mode $start (+$batchsize) ".localtime()."\n";
 	$fileC->set_context("limit=$batchsize");
@@ -256,8 +256,8 @@ while ($morerecords)
 	    $fileC->set_context("node=$node") if ($node ne "");
 	    $fileC->set_context("site=$site") if ($site ne "");
 
-	    if ( ($mode == 1  && $available <= 0) || 
-		 ($mode == -1 && $available != 0)){ 
+	    if ( ($mode == 1  && $available <= 0) ||
+		 ($mode == -1 && $available != 0)){
 		print "BOGUS logic or corrupt records !!\n";
 		next;
 	    }
@@ -334,7 +334,7 @@ while ($morerecords)
 	    $morerecords = 1;
 	} else {
 	    print "Running post-deletion bootstrap\n";
-	    &FullBootstrap();
+	    &FullBootstrap($confirm);
 	}
 	if ($confirm){
 	    # we have shifted records
@@ -492,7 +492,7 @@ while ($morerecords)
 	# Marking the file as unavailable
 	my @rows;
 	$fileC->set_context("limit=100000000");
-	@rows = $fileC->bootstrap("path",$confirm);
+	@rows = $fileC->bootstrap("owner",$confirm);
 	print "Returned IDs $#rows: @rows\n";
 	print "Use -doit to do a real cleaning\n" if (! $confirm);
 
@@ -505,7 +505,7 @@ while ($morerecords)
 
     } elsif ($mode == 9){
 	if ( $keyw eq "all"){
-	    &FullBootstrap();
+	    &FullBootstrap($confirm);
 	} else {
 	    my @rows;
 	    $fileC->set_context("limit=100000000");
@@ -521,15 +521,15 @@ while ($morerecords)
 sub Exist
 {
     my($file)=@_;
-    
+
     # do not support soft-links
-    if ( -l $file ){  
-	return 0; 
-    } elsif ( -e $file ){  
-	return 1; 
-    } else { 
+    if ( -l $file ){
+	return 0;
+    } elsif ( -e $file ){
+	return 1;
+    } else {
         # and since I am paranoid
-	if ( open(FT,$file) ){    
+	if ( open(FT,$file) ){
 	    close(FT);
 	    return 1;
 	} else {
@@ -541,15 +541,17 @@ sub Exist
 
 sub FullBootstrap
 {
+    my($confirm)=@_;
     my(@rows);
 
     $fileC->set_context("limit=100000000");
-    @rows = $fileC->bootstrap("runnumber",1);     print "Runnumber cleaned @rows\n" if (@rows);
-    @rows = $fileC->bootstrap("collision",1);     print "Collision cleaned @rows\n" if (@rows);
-    @rows = $fileC->bootstrap("generator",1);     print "Generator cleaned @rows\n" if (@rows);
-    @rows = $fileC->bootstrap("configuration",1); print "Configuration cleaned @rows\n" if (@rows);
+    @rows = $fileC->bootstrap("runnumber",$confirm);
+    @rows = $fileC->bootstrap("collision",$confirm);
+    @rows = $fileC->bootstrap("generator",$confirm);
+    @rows = $fileC->bootstrap("configuration",$confirm);
+    @rows = $fileC->bootstrap("path",$confirm);
+    @rows = $fileC->bootstrap("node",$confirm);
 }
-
 
 
 sub Usage
@@ -591,15 +593,15 @@ sub Usage
  keywords unless you are sure of what will happen :
 
    + -doit  switch MUST now be specified for ALL delete operations.
-   + -allst Unless specified, the context storage is set to NFS by default for 
-            delete operations. -allst is a switch you may want to use to take into 
-            account all storage type in one shot. The default storage=NFS is made 
-            to prevent accidental deletion of persistent stored files. This should 
+   + -allst Unless specified, the context storage is set to NFS by default for
+            delete operations. -allst is a switch you may want to use to take into
+            account all storage type in one shot. The default storage=NFS is made
+            to prevent accidental deletion of persistent stored files. This should
             be used with caution.
 
    + -alla  is a switch you may use to affect availability < 0
-            The default is to only delete the 0 ones. Practically, -ucheck would 
-            check for files previously marked unavailable (on more check) and 
+            The default is to only delete the 0 ones. Practically, -ucheck would
+            check for files previously marked unavailable (on more check) and
             -delete -alla would delete all records marked with any availability <= 0.
 
  -alter keyword=value    alter keyword value for entry(ies) ** DANGEROUS **
@@ -610,10 +612,10 @@ sub Usage
  Integrety check operations
  --------------------------
  The -doit switch MUST be specified for the above
- -floc                   check the FileLocations for orphan records
- -fdata                  check the FileData for orphan records
+ -floc                   check the FileLocations for orphan records (no associated Data)
+ -fdata                  check the FileData for orphan records (no associated Locations)
  -trgc                   check the TriggerCompositions table
- -boots {X|all}          bootstrap keyword X, using "all" will do a 
+ -boots {X|all}          bootstrap keyword X, using "all" will do a
                          sequence of table cleaning
 
  Authentication options
@@ -629,8 +631,8 @@ sub Usage
  -debug                  turn database module debugging information ON (default=OFF)
  -nodebug                turn this script debugging information OFF (default=ON)
  -doit                   switch MUST be specified to really perform the operation.
-                         Without it, the API will only display the operation it 
-                         intends to perform (i.e. debug mode). It is wise to start 
+                         Without it, the API will only display the operation it
+                         intends to perform (i.e. debug mode). It is wise to start
                          in debug mode.
 ~;
 
