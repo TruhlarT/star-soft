@@ -7,7 +7,7 @@
 # Arg2 : html file for output (optional ; default is STDOUT)
 #
 #
-use lib "/afs/rhic/star/packages/scripts";
+use lib "/afs/rhic.bnl.gov/star/packages/scripts";
 use ABUtils;
 
 if( defined($ARGV[0]) ){

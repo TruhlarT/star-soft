@@ -19,7 +19,7 @@
 # to default.
 #
 
-use lib "/afs/rhic/star/packages/scripts";
+use lib "/afs/rhic.bnl.gov/star/packages/scripts";
 use FileCatalog;
 
 $sanity = 0;

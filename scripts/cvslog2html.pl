@@ -11,7 +11,7 @@
 #  - Found a strange case where CVS: appears. Removed from
 #    final listing with regexp.
 #
-$commitlog   = "/afs/rhic/star/packages/repository/CVSROOT/commitlog";
+$commitlog   = "/afs/rhic.bnl.gov/star/packages/repository/CVSROOT/commitlog";
 $cvsHtml     = "/star/starlib/doc/www/html/tmp/cvs";
 $cvsUrl      = "/cgi-bin/cvsweb.cgi";
 $currentTime = localtime time;

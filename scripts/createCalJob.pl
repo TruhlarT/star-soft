@@ -17,7 +17,7 @@ use Mysql;
 use Class::Struct;
 use File::Basename;
 
-require "/afs/rhic/star/packages/scripts/dbCpProdSetup.pl";
+require "/afs/rhic.bnl.gov/star/packages/scripts/dbCpProdSetup.pl";
 
 my $debugOn=0;
 
@@ -194,7 +194,7 @@ my $jb_hold;
       my $hpss_raw_file = $inFile;
       my $hpss_dst_dir  = $TOPHPSS_RECO . "/" . $Jsetd;
       my $hpss_dst_file0 = $gfile . ".dst.root";
-      my $executable     = "/afs/rhic/star/packages/" . $jlibVer . "/mgr/bfcT.csh";
+      my $executable     = "/afs/rhic.bnl.gov/star/packages/" . $jlibVer . "/mgr/bfcT.csh";
       my $executableargs = $fchain; 
       my $log_dir       = $JOB_LOG;
       my $log_name      = $gfile . ".log";

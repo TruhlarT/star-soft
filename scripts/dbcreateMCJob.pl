@@ -16,7 +16,7 @@ use File::Basename;
 use File::Find;
 use Net::FTP;
 
-require "/afs/rhic/star/packages/scripts/dbCpProdSetup.pl";
+require "/afs/rhic.bnl.gov/star/packages/scripts/dbCpProdSetup.pl";
 
 my $debugOn=0;
 
@@ -323,7 +323,7 @@ my $SUM_DIR = "/star/rcf/prodlog/" . $prodPeriod . "/log/trs";
      my $hpss_dst_file3 = $gfile . ".runco.root";
      my $hpss_dst_file4 = $gfile . ".geant.root";
      my $hpss_dst_file5 = $gfile . ".event.root";
-     my $executable     = "/afs/rhic/star/packages/scripts/bfcca";
+     my $executable     = "/afs/rhic.bnl.gov/star/packages/scripts/bfcca";
      my $executableargs = $exArg;
      my $log_dir       = $logDir;
      my $log_name      = $gfile . ".log";

@@ -4,7 +4,7 @@
 # Get a detail of the space on each disks
 # Look 2 directory deep for what is there assuming
 #
-# $0 > /afs/rhic/star/doc/www/html/tmp/pub/overall.html
+# $0 > /afs/rhic.bnl.gov/star/doc/www/html/tmp/pub/overall.html
 #
 
 #

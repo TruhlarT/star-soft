@@ -13,7 +13,7 @@ $startSub    = 88;
 $endSub      = 89;
 $startIP     = 1;
 $endIP       = 255;
-$workDir     = "/afs/rhic/star/doc_protected/www/comp";
+$workDir     = "/afs/rhic.bnl.gov/star/doc_protected/www/comp";
 
 #
 # Settings for html.

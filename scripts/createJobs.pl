@@ -16,7 +16,7 @@ use Mysql;
 use Class::Struct;
 use File::Basename;
 
-require "/afs/rhic/star/packages/scripts/dbCpProdSetup.pl";
+require "/afs/rhic.bnl.gov/star/packages/scripts/dbCpProdSetup.pl";
 
 my $debugOn=0;
 
@@ -346,7 +346,7 @@ my $fileSeq;
       my $hpss_dst_file3 = $gfile . ".runco.root";
       my $hpss_dst_file4 = $gfile . ".dst.root";
 
-      my $executable     = "/afs/rhic/star/packages/scripts/bfcca";
+      my $executable     = "/afs/rhic.bnl.gov/star/packages/scripts/bfcca";
       my $executableargs = $exArg; 
       my $log_dir       = $logDir;
       my $log_name      = $gfile . ".log";

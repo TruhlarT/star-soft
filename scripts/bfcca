@@ -72,7 +72,7 @@
 #
 #
 #
-#use lib "/afs/rhic/star/packages/scripts";
+#use lib "/afs/rhic.bnl.gov/star/packages/scripts";
 use File::Basename;
 use File::Copy;
 use Sys::Hostname;

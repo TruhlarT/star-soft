@@ -5,7 +5,7 @@
 # i.e. arg1 program
 #      arg2 jprof-log
 #
-use lib "/afs/rhic/star/packages/scripts/";
+use lib "/afs/rhic.bnl.gov/star/packages/scripts/";
 use ABUtils;
     
 

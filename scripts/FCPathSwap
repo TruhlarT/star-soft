@@ -44,7 +44,7 @@
 #
 #
 
-use lib "/afs/rhic/star/packages/scripts";
+use lib "/afs/rhic.bnl.gov/star/packages/scripts";
 use FileCatalog;
 use File::Basename;
 use File::Copy;
