@@ -193,8 +193,7 @@ sub FillQAStatusMenu{
     foreach my $macro_name (@macro_names){
       my $value = "$status;$macro_name";
       push @{$self->{values}{QAstatus}}, $value;
-      ($abbrev = $status) =~ s/warnings/warn/ if $status eq 'warnings';
-      ($abbrev = $status) =~ s/errors/err/    if $status eq 'errors';
+      $abbrev = ($status eq 'warnings') ? 'warn' : 'err';
       $self->{labels}{QAstatus}{$value} = "$abbrev - $macro_name";
     }
   }

@@ -57,15 +57,15 @@ sub GetOfflineSelections{
   $query{dataset} = QueryOffline('dataset',$fileType);
 
   # QA macros
-  $query{macroName} = qq{select distinct m.$QAMacros{macroName}
-		       from $dbQA.$QAMacros{Table} as m,
-		            $dbQA.$QASum{Table} as s
-		       where 
-		            m.$QAMacros{qaID} = s.$QASum{qaID} and
-		            m.$QAMacros{extension}!='ps' and
-		            m.$QAMacros{extension}!='ps.gz' and
-		            s.$QASum{type}     = '$fileType'           
-		       order by m.$QAMacros{macroName} asc};
+#  $query{macroName} = qq{select distinct m.$QAMacros{macroName}
+#		       from $dbQA.$QAMacros{Table} as m,
+#		            $dbQA.$QASum{Table} as s
+#		       where 
+#		            m.$QAMacros{qaID} = s.$QASum{qaID} and
+#		            m.$QAMacros{extension}!='ps' and
+#		            m.$QAMacros{extension}!='ps.gz' and
+#		            s.$QASum{type}     = '$fileType'           
+#		       order by m.$QAMacros{macroName} asc};
 
   my $sth;
 
@@ -151,15 +151,15 @@ sub GetNightlySelections{
   $query{LibLevel}  = QueryNightly('LibLevel', $where_string);
   $query{geometry}  = QueryNightly('geometry', $where_string); 
 
-  $query{macroName} = qq{select distinct m.$QAMacros{macroName}
-			  from $dbQA.$QAMacros{Table} as m,
-			       $dbQA.$QASum{Table} as s
-			  where 
-			        m.$QAMacros{qaID} = s.$QASum{qaID} and 
-			        s.$QASum{type}    = '$fileType' and 
-			        m.$QAMacros{extension}!='ps' and
-                                m.$QAMacros{extension}!='ps.gz' 
-			  order by m.$QAMacros{macroName} asc};
+#  $query{macroName} = qq{select distinct m.$QAMacros{macroName}
+#			  from $dbQA.$QAMacros{Table} as m,
+#			       $dbQA.$QASum{Table} as s
+#			  where 
+#			        m.$QAMacros{qaID} = s.$QASum{qaID} and 
+#			        s.$QASum{type}    = '$fileType' and 
+#			        m.$QAMacros{extension}!='ps' and
+#                                m.$QAMacros{extension}!='ps.gz' 
+#			  order by m.$QAMacros{macroName} asc};
 
 
   my ($hashref, $value, $sth);
