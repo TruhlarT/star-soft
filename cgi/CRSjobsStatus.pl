@@ -7,23 +7,26 @@
 #  L.Didenko
 ###############################################################################
 
-
+BEGIN {
+ use CGI::Carp qw(fatalsToBrowser carpout);
+}
 use CGI;
 use Mysql;
 use Class::Struct;
 
-require "/afs/rhic/star/packages/scripts/dbCpProdSetup.pl";
+ require "/afs/rhic/star/packages/scripts/dbCpProdSetup.pl";
 
-&cgiSetup();
+my ($query) = @_;
 
-&beginHtml();
+$query = new CGI;
+
+my $ldate =  $query->param('dateFst');
+my $hdate =  $query->param('dateLst');
+
 
 my $mynode; 
-my $nodeCrCount;
-my $nodeStCount;
-my $nodeAbCount;
-my $nodeDnCount;
-my $nodeFNFCount;
+my @nodeCount;
+
 my @jobsCount = ();
 my $njobsCount = 0;
 
@@ -33,7 +36,8 @@ my $njobsCount = 0;
          abort   => '$',
          staging => '$',
          donejob => '$',
-         nofile  => '$'
+         nofile  => '$',
+         qufail  => '$'
 };
 
 my $TotAbCount = 0;
@@ -41,10 +45,53 @@ my $TotDnCount = 0;
 my $TotCrCount = 0;
 my $TotStCount = 0;
 my $TotFNFCount = 0;
+my $TotQuFaCount = 0;
+my $thisday;
+my $year;
 
+my %NodeSum = ();
+
+ ($sec,$min,$hour,$mday,$mon,$yr) = localtime;
+   $mon++;
+ if( $mon < 10) { $mon = '0'.$mon };
+ if( $mday < 10) { $mday = '0'.$mday };
+ $year = 1900 + $yr;
+
+ $thisday = $year."-".$mon."-".$mday; 
+
+my @nodes;
+my $nnode = 0;
 
     &StDbProdConnect();
- $sql="SELECT  nodeName, crashedJobs, abortedJobs, stagingFailed, doneJobs, fileNotFound from $nodeStatusT" ;
+
+ $sql="SELECT DISTINCT nodeName FROM $crsStatusT ";
+
+    $cursor =$dbh->prepare($sql)
+      || die "Cannot prepare statement: $DBI::errstr\n";
+   $cursor->execute;
+
+    while(@fields = $cursor->fetchrow) {
+      my $cols=$cursor->{NUM_OF_FIELDS};
+
+    for($i=0;$i<$cols;$i++) {
+       my $fvalue=$fields[$i];
+       my $fname=$cursor->{NAME}->[$i];
+
+     $mynode = $fvalue  if($fname eq 'nodeName'); 
+      }
+        $nodes[$nnode] = $mynode;
+        $nnode++;
+      }
+
+ 
+ if( $ldate eq $hdate) {
+   $thisday =  $hdate ;
+
+ $sql="SELECT  nodeName, crashedJobs, abortedJobs, stagingFailed, doneJobs, fileNotFound, queuingFailed from $crsStatusT where mdate = '$thisday'" ;
+ }else{
+ 
+ $sql="SELECT  nodeName, crashedJobs, abortedJobs, stagingFailed, doneJobs, fileNotFound, queuingFailed from $crsStatusT where mdate >= '$ldate' and mdate <= '$hdate' " ;
+ }
 
       $cursor =$dbh->prepare($sql)
         || die "Cannot prepare statement: $DBI::errstr\n";
@@ -65,82 +112,87 @@ my $TotFNFCount = 0;
         ($$fObjAdr)->staging($fvalue)  if( $fname eq 'stagingFailed');
         ($$fObjAdr)->donejob($fvalue)  if( $fname eq 'doneJobs'); 
         ($$fObjAdr)->nofile($fvalue)   if( $fname eq 'fileNotFound');
+        ($$fObjAdr)->qufail($fvalue)   if( $fname eq 'queuingFailed');
       }
         
         $jobsCount[$njobsCount] = $fObjAdr;
         $njobsCount++;
 }
 
+my @nodeCount = ();
+my %NodeSumCr = ();
+my %NodeSumAb = ();
+my %NodeSumSt = ();
+my %NodeSumDn = ();
+my %NodeSumFNF = ();
+my %NodeSumQuFa = ();
+
+&cgiSetup();
+
+&beginHtml();
+
   foreach my $eachNode(@jobsCount) {
       $mynode = ($$eachNode)->node;
-      $nodeCrCount = ($$eachNode)->crash;
-      $nodeAbCount = ($$eachNode)->abort;
-      $nodeStCount = ($$eachNode)->staging; 
-      $nodeDnCount = ($$eachNode)->donejob;       
-      $nodeFNFCount = ($$eachNode)->nofile;
-      
-      $TotAbCount += $nodeAbCount;
-      $TotDnCount += $nodeDnCount;
-      $TotCrCount += $nodeCrCount;
-      $TotStCount += $nodeStCount;
-      $TotFNFCount += $nodeFNFCount;
-
-     if(($nodeDnCount  != 0) && ($nodeCrCount  == 0) && ($nodeAbCount == 0) && ($nodeStCount == 0) ) {
-   &printDnRow();
-  }      
-     elsif($nodeDnCount  != 0 && $nodeCrCount  != 0 && $nodeAbCount  == 0 && $nodeStCount  == 0 ) {
-   &printCrDnRow();
-  }       
-     elsif ($nodeDnCount  != 0 && $nodeAbCount  != 0 && $nodeCrCount  == 0 && $nodeStCount  == 0 ) {
-   &printAbDnRow();
-  }
-     elsif ($nodeDnCount  != 0 && $nodeStCount  != 0 && $nodeAbCount  == 0 && $nodeCrCount  == 0 ) {
-   &printStDnRow();
+      $NodeSumCr{$mynode} += ($$eachNode)->crash;
+      $NodeSumAb{$mynode} += ($$eachNode)->abort;
+      $NodeSumSt{$mynode} += ($$eachNode)->staging; 
+      $NodeSumDn{$mynode} += ($$eachNode)->donejob;       
+      $NodeSumFNF{$mynode} += ($$eachNode)->nofile;
+      $NodeSumQuFa{$mynode} += ($$eachNode)->qufail;
  }
-#
-     elsif($nodeDnCount  == 0 && $nodeCrCount  != 0 && $nodeAbCount == 0 && $nodeStCount  == 0 ) {
-   &printCrRow();
-  }       
-     elsif ($nodeDnCount  == 0 && $nodeAbCount  != 0 && $nodeCrCount  == 0 && $nodeStCount  == 0) {
-   &printAbRow();
-  }
-     elsif ($nodeDnCount  == 0 && $nodeStCount  != 0 && $nodeAbCount  == 0 && $nodeCrCount  == 0) {
-   &printStRow();
-}
-#
-     elsif($nodeDnCount  == 0 && $nodeCrCount  != 0 && $nodeAbCount  != 0 && $nodeStCount  == 0 ) {
-   &printAbCrRow();
-  }       
-     elsif ($nodeDnCount  == 0 && $nodeAbCount  != 0 && $nodeCrCount  == 0 && $nodeStCount  != 0) {
-   &printAbStRow();
-  }
-     elsif ($nodeDnCount  == 0 && $nodeStCount  != 0 && $nodeAbCount  == 0 && $nodeCrCount  != 0) {
-   &printCrStRow();
-}
-#
-     elsif($nodeDnCount  != 0 && $nodeCrCount  != 0 && $nodeAbCount  != 0 && $nodeStCount  == 0 ) {
-   &printAbCrDnRow();
-  }       
-     elsif ($nodeDnCount  != 0 && $nodeAbCount  != 0 && $nodeCrCount  == 0 && $nodeStCount  != 0) {
-   &printAbStDnRow();
-  }
-     elsif ($nodeDnCount  != 0 && $nodeStCount  != 0 && $nodeAbCount  == 0 && $nodeCrCount  != 0) {
-   &printCrStDnRow();
-}
-# 
-     elsif($nodeDnCount  != 0 && $nodeCrCount  != 0 && $nodeAbCount  != 0 && $nodeStCount  != 0 ) {
-   &printAbCrStDnRow();
-  }       
-     elsif ($nodeDnCount  == 0 && $nodeAbCount  != 0 && $nodeCrCount  != 0 && $nodeStCount  != 0) {
-   &printAbCrStRow();
-  }
- elsif ($nodeDnCount  == 0 && $nodeAbCount  == 0 && $nodeCrCount  == 0 && $nodeStCount  == 0 && $nodeFNFCount  != 0) {
-   &printFNFRow(); 
- }else {       
- &printRow();
-}
-}
 
+  for ($ii = 0; $ii < 6; $ii++)  {
+   $nodeCount[$ii] = 0;
+ }
+
+
+  foreach my $dnode (@nodes) {
+   
+    if( $njobsCount <= 1) {
+
+  $mynode = $dnode;  
+&printRow();
+
+  }else{
+
+      $nodeCount[0] = $NodeSumCr{$dnode};
+      $nodeCount[1] = $NodeSumAb{$dnode};
+      $nodeCount[2] = $NodeSumSt{$dnode}; 
+      $nodeCount[3] = $NodeSumDn{$dnode};       
+      $nodeCount[4] = $NodeSumFNF{$dnode};
+      $nodeCount[5] = $NodeSumQuFa{$dnode};
+     
+      $TotCrCount += $nodeCount[0];
+      $TotAbCount += $nodeCount[1];
+      $TotStCount += $nodeCount[2];
+      $TotDnCount += $nodeCount[3];
+      $TotFNFCount += $nodeCount[4];
+      $TotQuFaCount += $nodeCount[5];
+
+print <<END;
+<TR ALIGN=CENTER>
+<td>$dnode</td>
+END
+     for ($ii = 0; $ii < scalar(@nodeCount); $ii++)  {
+     if($nodeCount[$ii] == 0) {
+print <<END;
+<td>$nodeCount[$ii]</td>
+END
+ }elsif($ii == 3 && $nodeCount[3] != 0 ) {
+print <<END;
+<td bgcolor=lightgreen>$nodeCount[$ii]</td>
+END
+ }else{
+print <<END;
+<td bgcolor=red>$nodeCount[$ii]</td>
+END
+   }
+  }
+print <<END;
+</TR>
+END
+  }
+  }
  &printTotal();
 
   &endHtml();
@@ -164,79 +216,13 @@ print <<END;
  <TD ALIGN=CENTER WIDTH= 100  HEIGHT=80><B>Number of Jobs with staging failed</B></TD>
  <TD ALIGN=CENTER WIDTH= 100  HEIGHT=80><B>Number of Jobs <br>Done</B></TD>
  <TD ALIGN=CENTER WIDTH= 100  HEIGHT=80><B>Number of Jobs <br>with file notfound</B></TD>
+ <TD ALIGN=CENTER WIDTH= 100  HEIGHT=80><B>Number of Jobs <br>with queuing failed</B></TD> 
  </TR> 
     </head>
       <body>
 END
 }
 
-#######################
-
- sub printAbRow {
-
-print <<END;
-<TR ALIGN=CENTER>
-<td>$mynode</td>
-<td>$nodeCrCount </td>
-<td bgcolor=red>$nodeAbCount </td>
-<td>$nodeStCount </td>
-<td>$nodeDnCount </td>
-<td>$nodeFNFCount </td>
-</TR>
-END
-
-}
-
-#######################
-
- sub printCrRow {
-
-print <<END;
-<TR ALIGN=CENTER>
-<td>$mynode</td>
-<td bgcolor=red>$nodeCrCount </td>
-<td>$nodeAbCount </td>
-<td>$nodeStCount </td>
-<td>$nodeDnCount </td>
-<td>$nodeFNFCount </td>
-</TR>
-END
-
-}
-
-#######################
-
- sub printStRow {
-
-print <<END;
-<TR ALIGN=CENTER>
-<td>$mynode</td>
-<td>$nodeCrCount </td>
-<td>$nodeAbCount </td>
-<td bgcolor=red>$nodeStCount </td>
-<td>$nodeDnCount </td>
-<td>$nodeFNFCount </td>
-</TR>
-END
-
-}
-
-#######################
-
- sub printRow {
-
-print <<END;
-<TR ALIGN=CENTER>
-<td>$mynode</td>
-<td>$nodeCrCount </td>
-<td>$nodeAbCount </td>
-<td>$nodeStCount </td>
-<td>$nodeDnCount </td>
-<td>$nodeFNFCount </td>
-</TR>
-END
-
-}
 #######################
 
  sub printTotal {
@@ -249,227 +235,31 @@ print <<END;
 <td>$TotStCount</td>
 <td>$TotDnCount</td>
 <td>$TotFNFCount</td>
+<td>$TotQuFaCount</td>
 </TR>
 END
 
 }
 
-#######################
+###############################
 
- sub printDnRow {
+ sub printRow {
 
 print <<END;
 <TR ALIGN=CENTER>
 <td>$mynode</td>
-<td>$nodeCrCount </td>
-<td>$nodeAbCount </td>
-<td>$nodeStCount </td>
-<td bgcolor=lightgreen>$nodeDnCount </td>
-<td>$nodeFNFCount </td>
-</TR>
-END
-
-}
-#######################
-
- sub printAbDnRow {
-
-print <<END;
-<TR ALIGN=CENTER>
-<td>$mynode</td>
-<td>$nodeCrCount </td>
-<td bgcolor=red>$nodeAbCount </td>
-<td>$nodeStCount </td>
-<td bgcolor=lightgreen>$nodeDnCount </td>
-<td>$nodeFNFCount </td>
+<td>$nodeCount[0]</td>
+<td>$nodeCount[1]</td>
+<td>$nodeCount[2]</td>
+<td>$nodeCount[3]</td>
+<td>$nodeCount[4]</td>
+<td>$nodeCount[5]</td>
 </TR>
 END
 
 }
 
-#######################
 
- sub printCrDnRow {
-
-print <<END;
-<TR ALIGN=CENTER>
-<td>$mynode</td>
-<td bgcolor=red>$nodeCrCount </td>
-<td>$nodeAbCount </td>
-<td>$nodeStCount </td>
-<td bgcolor=lightgreen>$nodeDnCount </td>
-<td>$nodeFNFCount </td>
-</TR>
-END
-
-}
-
-#######################
-
- sub printStDnRow {
-
-print <<END;
-<TR ALIGN=CENTER>
-<td>$mynode</td>
-<td>$nodeCrCount </td>
-<td>$nodeAbCount </td>
-<td bgcolor=red>$nodeStCount </td>
-<td bgcolor=lightgreen>$nodeDnCount </td>
-<td>$nodeFNFCount </td>
-</TR>
-END
-
-}
-
-#######################
-
- sub printAbCrRow {
-
-print <<END;
-<TR ALIGN=CENTER>
-<td>$mynode</td>
-<td bgcolor=red>$nodeCrCount </td>
-<td bgcolor=red>$nodeAbCount </td>
-<td>$nodeStCount </td>
-<td>$nodeDnCount </td>
-<td>$nodeFNFCount </td>
-</TR>
-END
-
-}
-
-#######################
-
- sub printAbStRow {
-
-print <<END;
-<TR ALIGN=CENTER>
-<td>$mynode</td>
-<td>$nodeCrCount </td>
-<td bgcolor=red>$nodeAbCount </td>
-<td bgcolor=red>$nodeStCount </td>
-<td>$nodeDnCount </td>
-<td>$nodeFNFCount </td>
-</TR>
-END
-
-}
-
-#######################
-
- sub printCrStRow {
-
-print <<END;
-<TR ALIGN=CENTER>
-<td>$mynode</td>
-<td bgcolor=red>$nodeCrCount </td>
-<td>$nodeAbCount </td>
-<td bgcolor=red>$nodeStCount </td>
-<td>$nodeDnCount </td>
-<td>$nodeFNFCount </td>
-</TR>
-END
-
-}
-
-#######################
-
- sub printAbCrDnRow {
-
-print <<END;
-<TR ALIGN=CENTER>
-<td>$mynode</td>
-<td bgcolor=red>$nodeCrCount </td>
-<td bgcolor=red>$nodeAbCount </td>
-<td>$nodeStCount </td>
-<td bgcolor=lightgreen>$nodeDnCount </td>
-<td>$nodeFNFCount </td>
-</TR>
-END
-
-}
-
-#######################
-
- sub printAbStDnRow {
-
-print <<END;
-<TR ALIGN=CENTER>
-<td>$mynode</td>
-<td>$nodeCrCount </td>
-<td bgcolor=red>$nodeAbCount </td>
-<td bgcolor=red>$nodeStCount </td>
-<td bgcolor=lightgreen>$nodeDnCount </td>
-<td>$nodeFNFCount </td>
-</TR>
-END
-
-}
-
-#######################
-
- sub printCrStDnRow {
-
-print <<END;
-<TR ALIGN=CENTER>
-<td>$mynode</td>
-<td bgcolor=red>$nodeCrCount </td>
-<td>$nodeAbCount </td>
-<td bgcolor=red>$nodeStCount </td>
-<td bgcolor=lightgreen>$nodeDnCount </td>
-<td>$nodeFNFCount </td>
-</TR>
-END
-
-}
-#######################
-
- sub printAbCrStDnRow {
-
-print <<END;
-<TR ALIGN=CENTER>
-<td>$mynode</td>
-<td bgcolor=red>$nodeCrCount </td>
-<td bgcolor=red>$nodeAbCount </td>
-<td bgcolor=red>$nodeStCount </td>
-<td bgcolor=lightgreen>$nodeDnCount </td>
-<td>$nodeFNFCount </td>
-</TR>
-END
-
-}
-#######################
-
- sub printAbCrStRow {
-
-print <<END;
-<TR ALIGN=CENTER>
-<td>$mynode</td>
-<td bgcolor=red>$nodeCrCount </td>
-<td bgcolor=red>$nodeAbCount </td>
-<td bgcolor=red>$nodeStCount </td>
-<td>$nodeDnCount </td>
-<td>$nodeFNFCount </td>
-</TR>
-END
-
-}
-
-########################
- sub printFNFRow {
-
-print <<END;
-<TR ALIGN=CENTER>
-<td>$mynode</td>
-<td>$nodeCrCount </td>
-<td>$nodeAbCount </td>
-<td>$nodeStCount </td>
-<td>$nodeDnCount </td>
-<td bgcolor=red>$nodeFNFCount</td>
-</TR>
-END
-
-}
 #####################
 sub endHtml {
 my $Date = `date`;
