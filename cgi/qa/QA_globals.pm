@@ -15,6 +15,8 @@ use Exporter ();
 
 	     $script_name
 
+	     $backup_dir
+
 	     $batch_dir $batch_dir_WWW $update_dir $control_dir $cron_dir
 
 	     $global_logfile $global_root_dst_file $global_root_hist_file $global_root_event_file
