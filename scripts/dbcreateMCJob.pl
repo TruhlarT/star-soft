@@ -4,7 +4,7 @@
 # 
 # $Log: 
 # 
-# dbcreateMCJob.pl P02ge trsge /star/data15  - arguments: production series, chain name, disk
+# dbcreateMCJob.pl P02ge trsge trs_ge1 /star/data15  - arguments: production series, chain name, last subdirectory, disk
 # L.Didenko
 # script to create jobfiles and JobID
 # and fill in JobStatus and jobRelations tables 
@@ -22,14 +22,15 @@ my $debugOn=0;
 
 my @Sets = (             
                "auau200/hijing/b0_3/inverse/year2001/hadronic_on",
-#               "auau200/hijing/b0_20/inverse/year2001/hadronic_on", 
+               "auau200/hijing/b0_20/inverse/year2001/hadronic_on", 
 );
 
 my $prodPeriod = $ARGV[0]; 
 my $chName = $ARGV[1];
-my $prodDir = "trs_ge";              
+my $prodDir = $ARGV[2];
+#my $prodDir = "trs_ge";              
 my $chainDir = "trs";
-my $prodDisk = $ARGV[2];
+my $prodDisk = $ARGV[3];
 ###Set directories to be created for jobfiles
 
 my $DISK1        = "/star/rcf/prodlog/";
@@ -110,7 +111,8 @@ my $filename;
    $rv = $dbh->do($sql) || die $dbh->errstr;
    $new_id = $dbh->{'mysql_insertid'};
 
-  $JOB_LOG =  $DISK1 . $prodPeriod . "/log/" . $chainDir;
+#  $JOB_LOG =  $DISK1 . $prodPeriod . "/log/" . $chainDir;
+  $JOB_LOG =  $DISK1 . $prodPeriod . "/log/" . $prodDir; 
   $JOB_DIR =  "/star/u/starreco/" . $prodPeriod ."/requests/". $chainDir; 
 
  $jobIn_no = 0;
@@ -148,7 +150,7 @@ my $filename;
   $jobIn_no = 0; 
   for ($ii=0; $ii< scalar(@Sets); $ii++)  { 
 
- $sql="SELECT dataset, fName, Nevents FROM $FileCatalogT WHERE fName LIKE '%fzd' AND dataset = '$Sets[$ii]' AND hpss = 'Y' order by runID ";
+ $sql="SELECT dataset, fName, Nevents FROM $FileCatalogT WHERE fName LIKE '%fzd' AND dataset = '$Sets[$ii]' AND hpss = 'Y' ";
    $cursor =$dbh->prepare($sql)
     || die "Cannot prepare statement: $DBI::errstr\n";
           $cursor->execute;
@@ -222,7 +224,7 @@ my $SUM_DIR = "/star/rcf/prodlog/" . $prodPeriod . "/log/trs";
     if (-f $jb_hold)     {$jb_fstat = 0};  
      if($jb_fstat eq 1)  {
 
-#    if($nfiles < 11 ) {
+#    if($nfiles < 6 ) {
          &create_jobs($jfile, $jset, $mchain, $mlibVer, $JOB_DIR, $prodDisk); 
      $nfiles++;
         print "JOB ID = " ,$mjobID, "\n";
@@ -299,8 +301,6 @@ my $SUM_DIR = "/star/rcf/prodlog/" . $prodPeriod . "/log/trs";
   my $Jsetr;
   my $inFile;
   my $logDir;
-
-#  $fchain =~ s/_/,/g;
  
   $Jsetr = $Jset . "/gstardata";
   $Jsetd = $Jset . "/" . $prodDir;
@@ -328,48 +328,48 @@ my $SUM_DIR = "/star/rcf/prodlog/" . $prodPeriod . "/log/trs";
      my $log_dir       = $logDir;
      my $log_name      = $gfile . ".log";
      my $err_log       = $gfile . ".err";
-     if (!open (TOM_SCRIPT,">$jb_new")) {printf ("Unable to create job submission script %s\n",$jb_new);}
-       print TOM_SCRIPT "mergefactor=1\n";
+     if (!open (JOB_FILE,">$jb_new")) {printf ("Unable to create job submission script %s\n",$jb_new);}
+       print JOB_FILE "mergefactor=1\n";
 
 
-      print TOM_SCRIPT "#input\n";
-       print TOM_SCRIPT "      inputnumstreams=1\n";
-       print TOM_SCRIPT "      inputstreamtype[0]=HPSS\n";
-       print TOM_SCRIPT "      inputdir[0]=$hpss_raw_dir\n";
-       print TOM_SCRIPT "      inputfile[0]=$hpss_raw_file\n";
-       print TOM_SCRIPT "#output\n";
-       print TOM_SCRIPT "      outputnumstreams=6\n";
-       print TOM_SCRIPT "#output stream \n";
-       print TOM_SCRIPT "      outputstreamtype[0]=HPSS\n";
-       print TOM_SCRIPT "      outputdir[0]=$hpss_dst_dir\n";
-       print TOM_SCRIPT "      outputfile[0]=$hpss_dst_file0\n";
-       print TOM_SCRIPT "      outputstreamtype[1]= HPSS\n";
-       print TOM_SCRIPT "      outputdir[1]=$hpss_dst_dir\n";
-       print TOM_SCRIPT "      outputfile[1]=$hpss_dst_file1\n";
-       print TOM_SCRIPT "      outputstreamtype[2]=HPSS\n";
-       print TOM_SCRIPT "      outputdir[2]=$hpss_dst_dir\n";
-       print TOM_SCRIPT "      outputfile[2]=$hpss_dst_file2\n";
-       print TOM_SCRIPT "      outputstreamtype[3]=HPSS\n";
-       print TOM_SCRIPT "      outputdir[3]=$hpss_dst_dir\n";
-       print TOM_SCRIPT "      outputfile[3]=$hpss_dst_file3\n";
-       print TOM_SCRIPT "      outputstreamtype[4]=HPSS\n";
-       print TOM_SCRIPT "      outputdir[4]=$hpss_dst_dir\n";
-       print TOM_SCRIPT "      outputfile[4]=$hpss_dst_file4\n";
-       print TOM_SCRIPT "      outputstreamtype[5]=HPSS\n";
-       print TOM_SCRIPT "      outputdir[5]=$hpss_dst_dir\n";
-       print TOM_SCRIPT "      outputfile[5]=$hpss_dst_file5\n";
-       print TOM_SCRIPT "#standard out -- Should be five outputs\n";
-       print TOM_SCRIPT "      stdoutdir=$log_dir\n";
-       print TOM_SCRIPT "      stdout=$log_name\n";
-       print TOM_SCRIPT "#standard error -- Should be five\n";
-       print TOM_SCRIPT "      stderrdir=$log_dir\n";
-       print TOM_SCRIPT "      stderr=$err_log\n";
-       print TOM_SCRIPT "      notify=starreco\@rcrsuser1.rhic.bnl.gov\n";
-       print TOM_SCRIPT "#program to run\n";
-       print TOM_SCRIPT "      executable=$executable\n";
-       print TOM_SCRIPT "      executableargs=$executableargs\n";
+      print JOB_FILE "#input\n";
+       print JOB_FILE "      inputnumstreams=1\n";
+       print JOB_FILE "      inputstreamtype[0]=HPSS\n";
+       print JOB_FILE "      inputdir[0]=$hpss_raw_dir\n";
+       print JOB_FILE "      inputfile[0]=$hpss_raw_file\n";
+       print JOB_FILE "#output\n";
+       print JOB_FILE "      outputnumstreams=6\n";
+       print JOB_FILE "#output stream \n";
+       print JOB_FILE "      outputstreamtype[0]=HPSS\n";
+       print JOB_FILE "      outputdir[0]=$hpss_dst_dir\n";
+       print JOB_FILE "      outputfile[0]=$hpss_dst_file0\n";
+       print JOB_FILE "      outputstreamtype[1]= HPSS\n";
+       print JOB_FILE "      outputdir[1]=$hpss_dst_dir\n";
+       print JOB_FILE "      outputfile[1]=$hpss_dst_file1\n";
+       print JOB_FILE "      outputstreamtype[2]=HPSS\n";
+       print JOB_FILE "      outputdir[2]=$hpss_dst_dir\n";
+       print JOB_FILE "      outputfile[2]=$hpss_dst_file2\n";
+       print JOB_FILE "      outputstreamtype[3]=HPSS\n";
+       print JOB_FILE "      outputdir[3]=$hpss_dst_dir\n";
+       print JOB_FILE "      outputfile[3]=$hpss_dst_file3\n";
+       print JOB_FILE "      outputstreamtype[4]=HPSS\n";
+       print JOB_FILE "      outputdir[4]=$hpss_dst_dir\n";
+       print JOB_FILE "      outputfile[4]=$hpss_dst_file4\n";
+       print JOB_FILE "      outputstreamtype[5]=HPSS\n";
+       print JOB_FILE "      outputdir[5]=$hpss_dst_dir\n";
+       print JOB_FILE "      outputfile[5]=$hpss_dst_file5\n";
+       print JOB_FILE "#standard out -- Should be five outputs\n";
+       print JOB_FILE "      stdoutdir=$log_dir\n";
+       print JOB_FILE "      stdout=$log_name\n";
+       print JOB_FILE "#standard error -- Should be five\n";
+       print JOB_FILE "      stderrdir=$log_dir\n";
+       print JOB_FILE "      stderr=$err_log\n";
+       print JOB_FILE "      notify=starreco\@rcrsuser1.rhic.bnl.gov\n";
+       print JOB_FILE "#program to run\n";
+       print JOB_FILE "      executable=$executable\n";
+       print JOB_FILE "      executableargs=$executableargs\n";
  
-       close(TOM_SCRIPT);
+       close(JOB_FILE);
 
   }
 
