@@ -225,12 +225,7 @@ sub SetDBVariables{
 sub GetNightlyLogFile{
   my $jobID = shift;
   
-  my $query = qq{select 
-		 concat(path,'/',logFile)		 
-		 from $dbFile.$JobStatus  
-		 where jobID='$jobID' };
-  
-  return $dbh->selectrow_array($query);
+  return GetFromJobStatus("concat(path,'/',logFile)", $jobID);
 }    
 #----------
 # get the log file for offline
@@ -238,13 +233,7 @@ sub GetNightlyLogFile{
 sub GetOfflineLogFile{
   my $jobID = shift;
 
-  # this query gets the summary of the log file
-  my $query = qq{select 
-		 concat(sumFileDir,'/',sumFileName)		 
-		 from $dbFile.$JobStatus  
-		 where jobID='$jobID' };
-  
-  my $logfile = $dbh->selectrow_array($query);
+  my $logfile = GetFromJobStatus("concat(sumFileDir,'/',sumFileName)", $jobID);
    
   # change to the actual logfile
   # e.g. /star/rcf/disk00001/star/P00hd/sum/daq/st_physics_1166036_raw_0002.sum
@@ -321,14 +310,8 @@ sub GetMissingFilesMC{
 sub OnDiskNightly{
   my $jobID =  shift;
 
-  my $query = qq{select ID 
-		   from $dbFile.$FileCatalog
-		   where jobID = '$jobID' and
-                         avail = 'Y' limit 1};
+  return defined GetFromFileOnDiskNightly('ID', $jobID);
 
-  my $status = $dbh->selectrow_array($query);
-
-  return defined $status ;
 }
 #----------
 # check if files are on disk
@@ -336,14 +319,7 @@ sub OnDiskNightly{
 sub OnDiskOffline{
   my $jobID =  shift;
 
-  my $query = qq{select ID 
-		   from $dbFile.$FileCatalog
-		   where jobID = '$jobID' and
-                         hpss = 'N' limit 1};
-
-  my $status = $dbh->selectrow_array($query);
-
-  return defined $status;
+  return defined GetFromFileOnDiskOffline('ID', $jobID);
 }
 
 #----------
@@ -425,6 +401,7 @@ sub GetInputFnOffline{
 }
 
 #----------
+# only one select field, but can return an array of rows matched
 #
 sub GetFromFileOnDiskNightly{
   my $field = shift;
@@ -439,6 +416,7 @@ sub GetFromFileOnDiskNightly{
                    : $dbh->selectrow_array($query);
 }
 #----------
+# ony one select field, but can return an array of rows matched
 #
 sub GetFromFileOnDiskOffline{
   my $field = shift;
