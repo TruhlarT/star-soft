@@ -499,11 +499,11 @@ sub runLSFCmd{
     my $cmd = shift;
 
     my $cmdLine = 
-	"/usr/local/bin/ssh rssh2gw00.rhic.bnl.gov ssh rcas6009 'echo \$\$; /usr/local/lsf/bin/".$cmd."'";
+	"/usr/bin/ssh -l starqa -i ~/.ssh/id_sra rssh01.rhic.bnl.gov ssh rcas6009 'echo \$\$; /usr/local/lsf/bin/".$cmd."'";
     local *READER; 
     open(\*READER, $cmdLine." 2>&1 |"); 
 
-    #print "'$cmdLine'=><br>\n<font color=red>".`$cmdLine`."</font><br>\n";
+#   print "'$cmdLine'=><br>\n<font color=red>".`$cmdLine 2>&1`."</font><br>\n";
     my $result = [];
 
     # Is this the only way to get the command's pid?
@@ -511,6 +511,7 @@ sub runLSFCmd{
     my $lsfPID = <READER>; chomp $lsfPID; $lsfPID++;
 
     #print "reading output of '".$cmd."' w/pid $lsfPID<br>\n";
+    my $skippedWarning = 0; # have we reached the actual job list yet?
     while (<READER>)
     {
 	#print "got '".$_."'<br>\n";
@@ -522,10 +523,12 @@ sub runLSFCmd{
 	    close READER;
 	    #print "killed $lsfPID and closed READER<br>\n";
 	    return "";
-	}else{
+	}elsif ($skippedWarning==1){
 	    # don't interpret <...> as html
 	    s/</&lt;/g;   s/>/&gt;/g;
 	    push @$result, $_;
+	}else{
+	    if(/^JOBID/){ $skippedWarning = 1; }
 	}
     }
 

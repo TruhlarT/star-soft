@@ -12,6 +12,7 @@ use File::Basename;
 use Tie::IxHash;
 use Data::Dumper;
 use Storable qw(nstore retrieve); 
+$Storable::forgive_me = 1;
 
 use QA_globals;
 use QA_cgi_utilities;

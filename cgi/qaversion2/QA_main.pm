@@ -134,7 +134,7 @@ sub PrintFrameset{
   my $script_name = $gCGIquery->script_name;
   
   print title($title), frameset( {-rows=>'60%,40%'},
-	"<!--\nINC=@INC\n-->",
+	"<!--\n", `/usr/bin/tokens`, "\n-->",
 	frame( {-name=>'list',    -src=>"$script_name/upper_display"} ),
 	frame( {-name=>'display', -src=>"$script_name/lower_display"} ));
 }
