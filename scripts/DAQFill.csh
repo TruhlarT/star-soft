@@ -7,31 +7,45 @@
 # to die ...
 # Will be running on some node ...
 #
+# % DAQFill.csh {Update|Clean|Run} [SleepTime]
+#
+#
 
 set PATH="/afs/rhic/star/packages/scripts"
 set SCRIPT="DAQFill.pl"
 set LOG="$HOME/DAQFill.log"
 set ME=`whoami`
 
-if ( "$1" == "") then
-  set TEST=`ps -ef | grep $ME | grep $SCRIPT | grep -v grep`
-  if ("$TEST" == "") then
-    cd $PATH
-    ./$SCRIPT >>$LOG &
-  endif
+# get the sleep time as second argument
+if ("$2" != "") then
+    set SLTIME=$2
+else
+    set SLTIME=60
+endif
 
-else if ( "$1" == "Clean") then
+
+# first argument is the primary option
+if ( "$1" == "Clean") then
   # since AFS fluke may induce strange effects
-  set TEST=`ps -ef | grep $ME | grep $SCRIPT | grep -v grep | awk '{print $2}' | xargs`
+  # auwx is NOT Unix-universal. Use it on Linux.
+  set TEST=`ps auwx | grep $ME | grep $SCRIPT | grep -v grep | awk '{print $2}' | xargs`
   if ("$TEST" != "") then
     kill -9 $TEST
   endif
 
 else if ( "$1" == "Update") then
   # Run the script in update mode i.e. fetch intermediate records
-  # we may have missed  
+  # we may have missed. Sleep time is irrelevant in this mode.
   cd $PATH 
-  ./$SCRIPT 1 >&/dev/null 
+  ./$SCRIPT 0 >&/dev/null 
+
+else
+  # default option is to Run
+  set TEST=`ps -ef | grep $ME | grep $SCRIPT | grep -v grep`
+  if ("$TEST" == "") then
+    cd $PATH
+    ./$SCRIPT 1 $SLTIME >>$LOG &
+  endif
 
 endif
 
