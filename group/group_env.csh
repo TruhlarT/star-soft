@@ -1,7 +1,10 @@
 #!/usr/bin/csh -f
-#       $Id: group_env.csh,v 1.69 1999/03/27 14:56:48 fisyak Exp $
+#       $Id: group_env.csh,v 1.70 1999/03/28 18:41:34 fisyak Exp $
 #	Purpose:	STAR group csh setup 
 #       $Log: group_env.csh,v $
+#       Revision 1.70  1999/03/28 18:41:34  fisyak
+#       Add cleanup for STAR_LIB on HP
+#
 #       Revision 1.69  1999/03/27 14:56:48  fisyak
 #       ROOT_LEVEL 2.21.08 for SL99e
 #
@@ -292,13 +295,8 @@ switch ($STAR_SYS)
     breaksw
     case "hp_ux102":
 #  ====================
-      if ($?CERN == 0 || $CERN == "/cern" ) then
-#	setenv CERN ${AFS_RHIC}/asis/hp_ux102/cern
-#	setenv CERN_LEVEL new
-#	setenv CERN_ROOT $CERN/$CERN_LEVEL
-#	set path = ( $CERN_ROOT/bin $path )
-      endif
       if (! ${?SHLIB_PATH}) setenv SHLIB_PATH
+      if ( -x /afs/rhic/star/group/dropit) setenv SHLIB_PATH `/afs/rhic/star/group/dropit -p ${SHLIB_PATH} $STAR_PATH`
       setenv SHLIB_PATH ${SHLIB_PATH}:${MINE_LIB}:${STAR_LIB}:${STAF_LIB}
       setenv LD_LIBRARY_PATH ${SHLIB_PATH}
       setenv BFARCH hp_ux102
