@@ -220,12 +220,12 @@ sub rdaq_update_entries
     if(!$obj){  return 0;}
 
     if($#records != -1){
-	$sth = $obj->prepare("UPDATE $dbtable SET DetSetMask=?, TrgSetup=?, TrgMask=? ".
+	$sth = $obj->prepare("UPDATE $dbtable SET scaleFactor=?, DetSetMask=?, TrgSetup=?, TrgMask=? ".
 			     "WHERE file=?");
 	if($sth){
 	    foreach $line (@records){
 		@values = split(" ",$line);
-		if($sth->execute($values[9],$values[10],$values[11],$values[0]) ){
+		if($sth->execute($values[6],$values[9],$values[10],$values[11],$values[0]) ){
 		    $count++;
 		}
 	    }
@@ -375,7 +375,7 @@ sub rdaq_raw_files
     my($obj,$from,$limit)=@_;
     my($sth,$cmd);
     my(@all,@res);
-    my($tref);
+    my($tref,$kk);
 
     if(!$obj){ return 0;}
 
@@ -416,14 +416,20 @@ sub rdaq_raw_files
 	$cmd .= " LIMIT $limit";
     }
 
-    print "$cmd\n";
+    #print "$cmd\n";
     $sth  = $obj->prepare($cmd);
     $sth->execute();
+    $kk=0;
     while( @res = $sth->fetchrow_array() ){
 	# Massage the results to return a non-ambiguous information
 	# We are still lacking
-	#print join("|",@res)."\n";
 	push(@all,&rdaq_hack($obj,@res));
+	$kk++;
+	if( $kk % 10000 == 0){ 
+	    # always output debug lines in HTML comment format
+	    # since this may be used in a CGI.
+	    print "<!-- Fetched $kk records -->\n";
+	}
     }
     $sth->finish();
     @all;
@@ -527,8 +533,10 @@ sub rdaq_hack
     } else {
 	$mask = $TRGMASK{$run};
     }
+    # if we want to ensure that only good-runs (i.e. marked as such) are
+    # taken, we can return 'undef' if mask==0. However, if we need Fastoffline
+    # to check this run as we go, we want them ...
     push(@res,$mask);
-
 
     join(" ",@res);
 }
@@ -806,15 +814,19 @@ sub rdaq_list_field
     # unsafe. It works for 'scaleFactor' but not for 'BeamE' (??).
     # We will therefore make the unicity ourselves.
     if( defined($ROUND{$field}) ){
-	$cmd   = "SELECT DISTINCT ROUND($field,$ROUND{$field}) FROM $dbtable";
+	$cmd   = "SELECT DISTINCT ROUND($field,$ROUND{$field})".
+	    " AS SELECTED FROM $dbtable";
+	$cmd  .= " ORDER BY SELECTED DESC";
     } elsif ( defined($BITWISE{$field}) ) {
 	# this works fine
 	$cmd   = "SELECT CONCAT(id,':',Label) FROM $BITWISE{$field}";
 	$field = "id";
+	$cmd  .= " ORDER BY $field DESC";
     } else {
-	$cmd   = "SELECT DISTINCT $field FROM $dbtable";
+	$cmd   = "SELECT DISTINCT $field AS SELECTED FROM $dbtable";
+	$cmd  .= " ORDER BY $field DESC";
     }
-    $cmd .= " ORDER BY $field DESC";
+
     #print "$cmd\n";
 
     $sth = $obj->prepare($cmd);
