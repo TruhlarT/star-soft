@@ -133,7 +133,7 @@ if ($ThisYear == 2002){
     $EXPRESS = 8;
 
     @USEQ    = (4,4,3);
-    @SPILL   = (2,3,2);
+    @SPILL   = (0,3,2);
 
     # Default chain
     $DCHAIN{"AuAu"}           = "P2004,OShortR,Xi2,V02,CMuDst";
