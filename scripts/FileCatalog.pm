@@ -62,7 +62,7 @@ my $dbhost    =   "duvall.star.bnl.gov";
 my $dbuser    =   "FC_user";
 my $dbsource  =   "DBI:mysql:$dbname:$dbhost";
 my $DBH;
-my $sth;
+
 
 # hash of keywords
 my %keywrds;
@@ -304,8 +304,8 @@ sub new {
   #my %valuset=
 
   bless($self);
-  bless(\%valuset, "FileCatlog");
-  bless(\%operset, "FileCatlog");
+  bless(\%valuset, "FileCatalog");
+  bless(\%operset, "FileCatalog");
 
   return $self;
 }
@@ -372,35 +372,36 @@ sub set_context {
 
   if ($_[0] =~ m/FileCatalog/) {
     shift @_;
-  }
-  ;
-  my( $params ) = @_;
+  };
 
-  #  print ("Setting context for: $params \n");
+  my $params;
   my $keyw;
   my $oper;
   my $valu;
 
-  ($keyw, $oper, $valu) = disentangle_param($params);
+  foreach $params (@_){
+      #  print ("Setting context for: $params \n");
+      ($keyw, $oper, $valu) = disentangle_param($params);
 
-  # Chop spaces from the key name and value;
-  $keyw =~ y/ //d;
-  if ($valu =~ m/.*[\"\'].*[\"\'].*/) {
-    $valu =~ s/.*[\"\'](.*)[\"\'].*/$1/;
-  } else {
-    $valu =~ s/ //g;
-  }
+      # Chop spaces from the key name and value;
+      $keyw =~ y/ //d;
+      if ($valu =~ m/.*[\"\'].*[\"\'].*/) {
+	  $valu =~ s/.*[\"\'](.*)[\"\'].*/$1/;
+      } else {
+	  $valu =~ s/ //g;
+      }
 
-  if (exists $keywrds{$keyw}) {
-    if ($DEBUG > 0) {
-	&print_debug("Query accepted $DEBUG: ".$keyw."=".$valu);
-    }
-    $operset{$keyw} = $oper;
-    $valuset{$keyw} = $valu;
-  } else {
-      if ($DEBUG > 0){
-	  &print_debug("ERROR: $keyw is not a valid keyword.",
-		       "Cannot set context.");
+      if (exists $keywrds{$keyw}) {
+	  if ($DEBUG > 0) {
+	      &print_debug("Query accepted $DEBUG: ".$keyw."=".$valu);
+	  }
+	  $operset{$keyw} = $oper;
+	  $valuset{$keyw} = $valu;
+      } else {
+	  if ($DEBUG > 0){
+	      &print_debug("ERROR: $keyw is not a valid keyword.",
+			   "Cannot set context.");
+	  }
       }
   }
 }
@@ -802,8 +803,8 @@ sub insert_collision_type {
 sub get_last_id
 {
     my $sqlquery = "SELECT LAST_INSERT_ID()";
-    my $id;
     my $retv=0;
+    my($id,$sth);
 
     if( ! defined($DBH) ){
 	&print_message("get_last_id","Not connected");
@@ -2460,13 +2461,16 @@ sub print_message
 
 sub destroy {
   my $self = shift;
+
   clear_context();
   if ( defined($DBH) ) {
-    if ( $DBH->disconnect ) {
-      return 1;
-    } else {
+      if ( $DBH->disconnect ) {
+	  return 1;
+      } else {
+	  return 0;
+      }
+  } else {
       return 0;
-    }
   }
 }
 
