@@ -21,7 +21,8 @@ my $count;
 my $debug;
 
 # The state variables
-my ($all, $unique, $field_list, $cond_list, $start, $limit, $delim, $onefile, $outfilename);
+my ($all, $alls, $unique, $field_list);
+my ($cond_list, $start, $limit, $delim, $onefile, $outfilename);
 
 # Load the modules to store the data into a new database
 my $fileC = FileCatalog->new;
@@ -29,6 +30,7 @@ $fileC->connect_as("User");
 
 # Set the defaults for he state values
 $all         = 0;
+$alls        = 0;
 $unique      = 0;
 $field_list  = "";
 $cond_list   = "";
@@ -48,6 +50,8 @@ $count = 0;
 while (defined $ARGV[$count]){
     if ($ARGV[$count] eq "-all")
       {	$all = 1; }
+    if ($ARGV[$count] eq "-alls")
+      {	$alls = 1; }
     elsif ($ARGV[$count] eq "-onefile")
       { $onefile = 1; }
     elsif ($ARGV[$count] eq "-distinct")
@@ -96,7 +100,16 @@ if ($count == 0){
     foreach (split(/,/,$cond_list)){
 	$fileC->set_context($_);
     }
-    if ($all==1){          $fileC->set_context("all=1");   }
+    if ($all ==1){         $fileC->set_context("all=1");   }
+    if ($alls==1){         
+        # do nothing
+    } else {
+	# do something only if sanity was not used
+	# in the condition
+	if ( ! defined($fileC->get_context("sanity")) ){
+	    $fileC->set_context("sanity=1");
+	}
+    }
     if (defined $limit){   $fileC->set_context("limit=$limit"); }
     if (defined $start){   $fileC->set_context("startrecord=$start"); }
     if (defined $delim){   $fileC->set_delimeter($delim); }
@@ -149,6 +162,10 @@ Command usage:
 
  where the qualifiers may be
  -all                               use all entries regardless of availability flag
+                                    default is available=1
+ -alls                              use all entries regardless of sanity flag 
+                                    default is sanity=1 unless the sanity key
+                                    was used as condition
  -onefile                           returns only one location (not the default)
  -distinct                          get only one value for a key-set (not the default
                                     which is faster).
