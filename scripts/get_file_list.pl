@@ -4,7 +4,7 @@
 # FileCatalog database.
 #
 # Written by Adam Kisiel, Warsaw University of Technology (2002)
-# Written J.Lauret 2002, 2003
+# Written J.Lauret 2002
 #
 # Uncodumented paramaters
 #
@@ -112,30 +112,30 @@ if ($count == 0){
     @output = $fileC->run_query(split(/,/,$field_list));
 
     # Printing the output
-    if ($onefile != 1)
-      {
-	foreach (@output)
-	  { print "$_\n"; }
-    }
-    else
-    {
-	my $lastfname = "";
-	my $delimeter;
+    if ($onefile == 0) {
+	foreach (@output){ print "$_\n"; }
 
-	if (defined $delim)
-	  { $delimeter = $delim; }
-	else
-	  { $delimeter = "::"; }
-	foreach (@output)
-	  {
-	    my @fields;
-	    (@fields) = split($delimeter,$_);
-	    $fields[$#fields] = "";
-	    if (join($delimeter,(@fields)) ne $lastfname)
-	      { print "$_\n"; }
-	    $lastfname = join($delimeter,(@fields));
-	  }
+    } else {
+	my (@fields);
+	my ($delimeter,$line,$cline);
+	my ($lastfname) = "";
 
+	if (defined $delim){
+	    $delimeter = $delim; 
+	} else {
+	    $delimeter = "::"; 
+	}
+	# not secure to do this with split() as delim can be
+	# changed.
+	foreach $line (@output){
+	    for ( $i= length($line) ; $i > 0 ; $i--){
+		if ( substr($line,$i,length($delimeter)) eq $delimeter){ last;}
+	    }
+	    $cline = substr($line,0,$i);
+
+	    if ($cline ne $lastfname){     print "$cline\n"; }
+	    $lastfname = $cline;
+	}
     }
 }
 
