@@ -26,6 +26,7 @@
 #   -mark    : mark given files as (un)available - no checking
 #              keywords {on|off}
 #
+#   -clean   : delete records failing the bootstrap
 #   -fdata   : check the FileData for orphan records
 #   -floc    : check the FileLocations for orphan records
 #   -trgc    : check the TriggerCompositions table
@@ -162,6 +163,7 @@ while ($morerecords)
 	$fileC->set_context("limit=$batchsize");
 	$fileC->set_context("startrecord=$start");
 	$fileC->set_context("available>0");
+	$fileC->set_context("storage=NFS");  # no other mode implemented for checking
 	$fileC->set_delimeter("::");
 	
 	# Getting the data
@@ -193,6 +195,25 @@ while ($morerecords)
 		$fileC->update_location("available",0);
 	      }
 	  }    
+
+    } elsif ($mode == 2){
+	# Delete records
+	my($rec,@items);
+
+	$fileC->set_context("limit=0");
+	$fileC->set_context("startrecord=$start");
+	$fileC->set_context("available=0");
+	$fileC->set_delimeter("::");
+
+	@output = $fileC->run_query("path","filename","storage","site");
+
+	foreach $rec (@output){
+	    @items = split("::",$rec);
+	    $fileC->set_context("path=$items[0]","filename=$items[1]",
+				"storage=$items[2]","site=$items[3]");
+	    $fileC->delete_record();
+	}
+
 
     } elsif ( $mode == 3 ){
 	# Fourth mode of operation - mark selected files as available/unavailable
