@@ -77,12 +77,14 @@ sub CRSQ_check
 # If $drop is specified, check all queues lt than $qnum.
 # If $pat is specified, check files with that wildcard pattern. If plenty
 # exists, return an error. See comments for this obscure mode ...
+# This can be disabled by using $nchk parameter (in case the job files
+# are pre-generated, we do not want to do this check).
 #
 # Returns the total number of available slots.
 #
 sub CRSQ_getcnt
 {
-    my($qnum,$drop,$pat)=@_;
+    my($qnum,$drop,$pat,$nchk)=@_;
 
     my($line);
     my(@result,@items);
@@ -128,7 +130,7 @@ sub CRSQ_getcnt
     # any information. This leads to a bad count of jobs and
     # available slots (0 actually) and subsequently, too many 
     # submission ... The pattern find will prevent this. 
-    if( defined($pat) ){
+    if( defined($pat) && ! defined($nchk) ){
 	@all = glob($pat);
 	if($#all > 10*$ATOT){ 
 	    print 
