@@ -328,8 +328,9 @@ sub GetJobInfo{
 
   foreach my $file (@{$self->ProductionFileListRef()}){
     next if !$file;
-    $file = "$outputDir/" . basename $file;
-    (my $comp = $file)=~ s/\.(\w+)\.root$/$1/;
+    $file =~ /\.(\w+\.root)$/; 
+    my $comp = $1;
+    $file = "$outputDir/" . basename $file;    
     if(!-e $file){
       $missingString .= "$comp<br>";
     }
