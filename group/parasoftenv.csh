@@ -1,23 +1,39 @@
 #!/usr/bin/csh -f
 
 switch ($STAR_SYS)
+    case "i386_sl*":
+	# Starting at SL3, we have one version defined. Note the missing
+	# breaksw to get the next block executed as well.
+	if ( ! $?INSV ) then
+	    setenv INSV insure-7.0
+	endif
+
     case "i386_redhat8*":
-	if ($?INSV) then
-	    # use the defined version in pre-login
-	    setenv PARASOFT $AFS_RHIC/app/$INSV
+	# Support for Insure++ -- This is set to allow other sites
+	# to chose their version of INSURE.
+	if ( ! $?INSV ) then
+	    setenv INSV insure-6.1-gcc-3.2
+	endif
+
+	# use the defined version in pre-login
+	if ( -e ${AFS_RHIC}/app/$INSV ) then
+	    setenv PARASOFT ${AFS_RHIC}/app/$INSV
 	else
-	    setenv PARASOFT $AFS_RHIC/app/insure
+	    # old default or soft-link
+	    setenv PARASOFT ${AFS_RHIC}/app/insure
 	endif
-	if ( -x $GROUP_DIR/dropit) then
-	    setenv LD_LIBRARY_PATH `${GROUP_DIR}/dropit -p ${LD_LIBRARY_PATH} -p {$PARASOFT}/lib.linux2`
-	    setenv PATH `${GROUP_DIR}/dropit parasoft insure`
-	    if ( -e {$PARASOFT}/man ) then
-		# no manpages starting from 4.2
-		setenv MANPATH `${GROUP_DIR}/dropit -p ${MANPATH} -p {$PARASOFT}/man`
-	    endif
+
+	set VER=`/bin/ls -ld ${PARASOFT}/bin* | sed "s/.*\.//"`
+	if ("$VER" != "") set VER=".$VER"
+	set path = ($path $PARASOFT/bin$VER)
+	setenv LD_LIBRARY_PATH  ${LD_LIBRARY_PATH}:${AFS_RHIC}/app/${INSV}/lib$VER	    
+	if ( -e ${PARASOFT}/man ) then
+	   # no manpages starting from 4.2
+	   setenv MANPATH `${GROUP_DIR}/dropit -p ${MANPATH} -p {$PARASOFT}/man`
 	endif
-	set path = ($path $PARASOFT/bin.linux2)
+	unset VER
 	breaksw	
+
 
     case "i386_redhat6*":
     case "i386_linux2*":
