@@ -1,6 +1,6 @@
 /***************************************************************************
  *
- * $Id: StFlowAnalysisMaker.cxx,v 1.1 1999/08/09 19:50:37 posk Exp $
+ * $Id: StFlowAnalysisMaker.cxx,v 1.1.1.1 1999/08/09 19:50:37 posk Exp $
  *
  * Author: Raimond Snellings and Art Poskanzer, LBNL, Aug 1999
  * Description:  Maker to analyze the Flow EbyE Tags
@@ -8,8 +8,8 @@
  ***************************************************************************
  *
  * $Log: StFlowAnalysisMaker.cxx,v $
- * Revision 1.1  1999/08/09 19:50:37  posk
- * Initial revision
+ * Revision 1.1.1.1  1999/08/09 19:50:37  posk
+ * ver. 1.0
  *
  * Revision 1.0  1999/08/02 
  *
@@ -66,7 +66,7 @@ Int_t StFlowAnalysisMaker::Make()
 
 void StFlowAnalysisMaker::PrintInfo() 
 {
-  cout << "$Id: StFlowAnalysisMaker.cxx,v 1.1 1999/08/09 19:50:37 posk Exp $" << endl;
+  cout << "$Id: StFlowAnalysisMaker.cxx,v 1.1.1.1 1999/08/09 19:50:37 posk Exp $" << endl;
   if (Debug()) StMaker::PrintInfo();
 }
 
