@@ -30,6 +30,8 @@ my $Trigger = param("Trigger");
 my $Status  = param("Status");
 my $Method  = param("button_name");
 my $Method1 = param("button_name1");
+my $Kind    = param("Kind");
+if(! $Kind){ $Kind = "daq";}
 
 my $id;
 my $prodtag;
@@ -51,8 +53,9 @@ my $count;
 my $name;
 
 my $move_list;
-my $job_dir = "/star/u/starreco/$ProdTag/requests/daq/jobfiles/";
-my $arch_dir = "/star/u/starreco/$ProdTag/requests/daq/archive/";
+
+my $job_dir  = "/star/u/starreco/$ProdTag/requests/$kind/jobfiles/";
+my $arch_dir = "/star/u/starreco/$ProdTag/requests/$Kind/archive/";
 my $list_dir = "/afs/rhic/star/doc/www/html/tmp/csh/";
 
 my $dbdriver   = "mysql";
@@ -63,6 +66,7 @@ my $username   = "starreco";
 # my $datasourse = "DBI:mysql:operation:duvall.star.bnl.gov";
 	
 my $scriptname = "/devcgi/JobInfo.cgi";
+my @KINDS      = ("daq","event");         # Ugly hardwiring
 
 my @querystr;
 
@@ -97,19 +101,19 @@ if( ($ProdTag) || ($Trigger) ){
     if( $Method eq "Generate" ){
 	print "<!-- We are in Method=Generate -->\n";
 	$sth1 = $dbh1->prepare("SELECT ProdTag, Trigger, LFName ".
-				  "FROM RJobInfo ".
-				  "WHERE id = ?"
-				  );
+			       "FROM RJobInfo ".
+			       "WHERE id = ?"
+			       );
 	&parse_formdata();
 	if( $count<=4 ){
 	    print
 		"<H1>No jobs selected</H1>\n",
 		"<P align=left>".
-		"<A HREF=$scriptname?PT=$ProdTag&Trigger=$Trigger&Status=$Status&button_name=Submit+Query&>Back</A></P>\n";
+		"<A HREF=$scriptname?PT=$ProdTag&Kind=$Kind&Trigger=$Trigger&Status=$Status&button_name=Submit+Query&>Back</A></P>\n";
 	} else {
 	    print
 		"<P align=left>".
-		"<A HREF=$scriptname?PT=$ProdTag&Trigger=$Trigger&Status=$Status&button_name=Submit+Query&>Back</A></P>\n",
+		"<A HREF=$scriptname?PT=$ProdTag&Kind=$Kind&Trigger=$Trigger&Status=$Status&button_name=Submit+Query&>Back</A></P>\n",
 		"<A HREF=\"#ListEnd\">End of list</A>\n<BR>\n<BR>\n",
 		"<A NAME=ListBegin><A>\n";
 	
@@ -122,14 +126,15 @@ if( ($ProdTag) || ($Trigger) ){
 		    	$sth1->execute($id);
 		    	while( ($prodtag, $trigger, $LFname)= $sth1->fetchrow_array() ){
 				print 
-			    	    "mv /star/u/starreco/$prodtag/requests/daq/archive/*$prodtag\_*$LFname ",
-			            "/star/u/starreco/$prodtag/requests/daq/jobfiles/\n", br;
+			    	    "mv /star/u/starreco/$prodtag/requests/$Kind/archive/*$prodtag\_*$LFname ",
+			            "/star/u/starreco/$prodtag/requests/$Kind/jobfiles/\n", br;
 		    	}
 		    }
 	    }
 	    print
 		"<FORM action=$scriptname method=POST>\n",
 		"<INPUT type=hidden name=PT value=$ProdTag>\n",
+		"<INPUT type=hidden name=Kind value=$Kind>\n",
 		"<INPUT type=hidden name=Trigger value=$Trigger>\n",
 		"<INPUT type=hidden name=Status value=$Status>\n",
 		"<INPUT type=hidden name=button_name1 value=Update>\n";
@@ -144,7 +149,7 @@ if( ($ProdTag) || ($Trigger) ){
 		"</FORM>\n";
 	    print 
 		"<P align=left>".
-	    	"<A HREF=$scriptname?PT=$ProdTag&Trigger=$Trigger&Status=$Status&button_name=Submit+Query&>Back</A></P>\n";
+	    	"<A HREF=$scriptname?PT=$ProdTag&Kind=$Kind&Trigger=$Trigger&Status=$Status&button_name=Submit+Query&>Back</A></P>\n";
         } # else
     } 
     # End Generate Block
@@ -162,7 +167,7 @@ if( ($ProdTag) || ($Trigger) ){
 	    print 
 		"<H1>No jobs selected</H1>",
 		"<P align=left>",
-		"<A HREF=$scriptname?PT=$ProdTag&Trigger=$Trigger&Status=$Status&button_name=Submit+Query&>Back</A></P>\n";
+		"<A HREF=$scriptname?PT=$ProdTag&Kind=$Kind&Trigger=$Trigger&Status=$Status&button_name=Submit+Query&>Back</A></P>\n";
 	} else { 
 	    if( $Method eq "Create List" ){
 	    	undef($move_list);
@@ -182,8 +187,8 @@ if( ($ProdTag) || ($Trigger) ){
 			$sth1->execute($id);
 			while( ($prodtag, $trigger, $LFname)= $sth1->fetchrow_array() ){
 			    print MOVELIST
-				"/star/u/starreco/$prodtag/requests/daq/archive/*$prodtag\_*$LFname ",
-				"/star/u/starreco/$prodtag/requests/daq/jobfiles/\n";
+				"/star/u/starreco/$prodtag/requests/$Kind/archive/*$prodtag\_*$LFname ",
+				"/star/u/starreco/$prodtag/requests/$Kind/jobfiles/\n";
 			}
 		    } #if Method=CreatList
 		}
@@ -196,7 +201,7 @@ if( ($ProdTag) || ($Trigger) ){
 		print
 		    "<H1>db RJobInfo was updated</H1>\n",
 		    "<P align=left>",
-		    "<A HREF=$scriptname?PT=$ProdTag&Trigger=$Trigger&Status=$Status&button_name=Submit+Query&>Back</A></P>\n";
+		    "<A HREF=$scriptname?PT=$ProdTag&Kind=$Kind&Trigger=$Trigger&Status=$Status&button_name=Submit+Query&>Back</A></P>\n";
 	    }
         }
     } 
@@ -242,11 +247,13 @@ if( ($ProdTag) || ($Trigger) ){
 	    "<TABLE align=center>\n",
 		"<TR bgcolor=#ffdc9f>",
 			"<TH>ProdTag</TH>\n",
+			"<TH>Kind</TH>\n",
 	    		"<TH>Trigger</TH> \n",
 	    		"<TH>Status</TH>\n",
 		"</TR>\n",
 		"<TR align=center bgcolor=khaki>\n",
 			"<TD>$ProdTag</TD>",
+			"<TD>$Kind</TD>",
 			"<TD>$Trigger</TD>";
 	    	if( $Status==1 ){
 		    print
@@ -265,6 +272,7 @@ if( ($ProdTag) || ($Trigger) ){
 	    "<H1 align=\"center\">Query results</H1>\n",
 	    "<FORM action=$scriptname method=POST>\n",
 	    "<INPUT type=hidden name=PT value=$ProdTag\n>",
+	    "<INPUT type=hidden name=Kind value=$Kind>\n",
 	    "<INPUT type=hidden name=Trigger value=$Trigger>\n",
 	    "<INPUT type=hidden name=Status value=$Status>\n",
             "<P align=center><A HREF=\"#TableEnd\">End of table</A></P>\n",
@@ -376,7 +384,15 @@ if( ($ProdTag) || ($Trigger) ){
 	"\t<OPTION value=0>0\n",
 	"\t<OPTION value=1>1\n",
 	"\t<OPTION value=-1>-1\n",
-	"\t</SELECT></td></tr></table>\n",
+	"\t</SELECT></td></tr>",
+	"<tr bgcolor=khaki><td>Kind:</td><td bgcolor=beige>",
+	"<SELECT name=Kind>\n";
+    foreach my $value (@KINDS){
+	print "\t<OPTION value=$value>$value\n";
+    }
+    print
+	"\t</SELECT></td></tr>\n",
+	"</table>\n",
 	"<BR>\n<center><p align=center>",
 	submit('button_name','Submit Query'),
 	"\n</P></center>\n",
