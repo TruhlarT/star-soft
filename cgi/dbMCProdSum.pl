@@ -16,7 +16,7 @@ use CGI;
 
 require "/afs/rhic/star/packages/DEV00/mgr/dbCpProdSetup.pl";
 
-use File::Find;
+use Math::BigFloat;
 use Class::Struct;
 
 my $debugOn=0;
@@ -24,7 +24,6 @@ my $debugOn=0;
 my @prodPer = ("mdc1", "mdc2", "postmdc2", "prod4", "prod5", "mdc3", "prod6", "P00hi");
 my %prodFlag = ();
 
-#my ($query) = @_;
 
 $query = new CGI;
 
@@ -238,22 +237,46 @@ my $chainN;
 
 &cgiSetup();
 
+print $query->start_html('Prodcution Summmary');
+
+print <<END;
+<META HTTP-EQUIV="Expires" CONTENT="0">
+<META HTTP-EQUIV="Pragma" CONTENT="no-cache">
+<META HTTP-EQUIV="Cache-Control" CONTENT="no-cache">
+END
+
 &beginHtml();
 
 my $mprSer;
 my $prodSer;
 my @prt;
+my $MgeantHpSize;
+my %MevtHpSize = ();
+my %MdstHpSize = ();
+my %MgntHpSize = ();
+my %MxdfHpSize = ();
+my $XgeantHpSize;
+my $XevtHpSize;
+my $XdstHpSize;
+my $XgntHpSize;
+my $XxdfHpSize;
 
 for ($ii = 0; $ii<scalar(@prChain); $ii++) {
    $mprSer = $prChain[$ii];
   if($prodFlag{$mprSer} == 1) {  
 
-    $TgeantHpSize = int($geantHpSize/1024/1024/1024);
-    $TevtHpSize{$mprSer} = int($evtHpSize{$mprSer}/1024/1024/1024);
-    $TdstHpSize{$mprSer} = int($dstHpSize{$mprSer}/1024/1024/1024);        
-    $TgntHpSize{$mprSer} = int($gntHpSize{$mprSer}/1024/1024/1024); 
-    $TxdfHpSize{$mprSer} = int($xdfHpSize{$mprSer}/1024/1024/1024);  
-   
+    $MgeantHpSize = $geantHpSize/1024/1024/1024;
+    $MevtHpSize{$mprSer} = $evtHpSize{$mprSer}/1024/1024/1024;
+    $MdstHpSize{$mprSer} = $dstHpSize{$mprSer}/1024/1024/1024;        
+    $MgntHpSize{$mprSer} = $gntHpSize{$mprSer}/1024/1024/1024; 
+    $MxdfHpSize{$mprSer} = $xdfHpSize{$mprSer}/1024/1024/1024;
+     
+    $TgeantHpSize = sprintf( "%8.3f", $MgeantHpSize);
+    $TevtHpSize{$mprSer} = sprintf( "%8.3f",$MevtHpSize{$mprSer});
+    $TdstHpSize{$mprSer} = sprintf( "%8.3f",$MdstHpSize{$mprSer});
+    $TgntHpSize{$mprSer} = sprintf( "%8.3f",$MgntHpSize{$mprSer});
+    $TxdfHpSize{$mprSer} = sprintf( "%8.3f",$MxdfHpSize{$mprSer});
+ 
     if ($dstHpEvts{$mprSer} == 0) {
       $dstHpEvts{$mprSer} = $xdfHpEvts{$mprSer}
     }
@@ -270,9 +293,10 @@ for ($ii = 0; $ii<scalar(@prChain); $ii++) {
 
 #####  finished with database
  &StDbProdDisconnect();
-  
+
   &endHtml();
 
+exit 0;
 #######################
 
  sub printTotal {
@@ -299,10 +323,6 @@ sub beginHtml {
 
 print <<END;
 
-  <html>
-  <head>
-          <title>Production Summary</title>
-   </head>
    <body BGCOLOR=\"#ccffff\"> 
      <h2 align=center>Production Summary for Dataset: <br> $DtSet</h2>
 <TABLE ALIGN=CENTER BORDER=5 CELLSPACING=1 CELLPADDING=2 >
@@ -318,8 +338,6 @@ print <<END;
 <TD ALIGN=CENTER WIDTH=\"10%\" HEIGHT=100><B>Size(GB) of geant.root files</B></TD>
 <TD ALIGN=CENTER WIDTH=\"10%\" HEIGHT=100><B>Size(GB) of .xdf files</B></TD>
 </TR> 
-   </head>
-    <body>
 END
 }
 
