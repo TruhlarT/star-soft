@@ -372,7 +372,7 @@ sub IUErrorURL
 
     if ( ! defined($mode) ){  $mode = 0;}
 
-    if ( $err =~ /(\w+)(\(.*\))/){
+    if ( $err =~ m/(\w+)(\(.*\))/){
 	# some errors will come here like BAD_FORMAT(other)
 	# and we need the reference to BAD_FORMAT only
 	$perr = $1;
@@ -382,13 +382,9 @@ sub IUErrorURL
 
     if( defined($INSERRORS{$perr}) ){
 	($mode == 1?" ":$err).
-	    "<FONT SIZE=\"-1\">(<A HREF=\"$INSURL/$INSERRORS{$err}\">learn more</A>)</FONT>";
+	    "<FONT SIZE=\"-1\">(<A HREF=\"$INSURL/$INSERRORS{$perr}\">learn more</A>)</FONT>";
     } else {
-	if ( $mode == 1){
-	    "";
-	} else {
-	    $err;
-	}
+	($mode == 1?" ":$err);
     }
 }
 
