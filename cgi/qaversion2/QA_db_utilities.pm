@@ -263,20 +263,14 @@ sub GetMissingFiles{
   # check for one more component 
   push @componentAry, 'geant' if $type eq 'MC';
 
-  # general checking
-  my $query =  qq{select distinct component 
-		  from $dbFile.$FileCatalog 
-	          where jobID='$jobID' 
-		};
-
-#  my $query2 = qq{select component
-#		  from $dbFile.$FileCatalog 
-#                  where jobID = '$jobID' and
-#		        component='hist' and
-#		        size > $hist_size };
-
-  # retrieve components from output files from db
-  my @outputComp = @{$dbh->selectcol_arrayref($query)};
+  # quick fix
+  my @outputComp;
+  if ($gDataClass_object->DataClass() =~ /offline/){
+    @outputComp = GetFromFileOnDiskOffline('component',$jobID);
+  }
+  elsif($gDataClass_object->DataClass() =~ /nightly|debug/){
+    @outputComp = GetFromFileOnDiskNightly('component',$jobID);
+  }
 
   # construct 'seen' hash - see perl cookbook
   my %seen;
