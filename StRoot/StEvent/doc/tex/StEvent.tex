@@ -2,7 +2,7 @@
 %
 % StEvent - User Guide and Reference Manual -- LaTeX Source
 %
-% $Id: StEvent.tex,v 2.41 2000/06/29 18:00:37 ullrich Exp $
+% $Id: StEvent.tex,v 2.42 2000/07/13 12:47:07 ullrich Exp $
 %
 % Author: Thomas Ullrich, Nov 1999
 %
@@ -21,8 +21,8 @@
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %
 % $Log: StEvent.tex,v $
-% Revision 2.41  2000/06/29 18:00:37  ullrich
-% Better description of StCtbTriggerDetector.
+% Revision 2.42  2000/07/13 12:47:07  ullrich
+% Added ZDC info provided by Clemens
 %
 % Revision 2.47  2000/09/28 10:58:43  ullrich
 % Added ref section for new RICH classes.
@@ -190,11 +190,11 @@
     {\parbox[t]{\labelwidth}{\hspace{0pt}\textbf{{#1}}}}}}
 \newenvironment{Entry}%
 {\renewcommand{\entrylabel}{\Entrylabel}\begin{entry}}%
-  {\LARGE $ $Revision: 2.41 $ $}  \\[5mm] % replaced by cvs with current revision
-  {\LARGE $ $Date: 2000/06/29 18:00:37 $ $}  % replaced by cvs with current revision
+  {\LARGE $ $Revision: 2.42 $ $}  \\[5mm] % replaced by cvs with current revision
+  {\LARGE $ $Date: 2000/07/13 12:47:07 $ $}  % replaced by cvs with current revision
 \begin{document}
-  {\LARGE $ $Revision: 2.41 $ $}  \\[5mm] % replaced by cvs with current revision
-  {\LARGE $ $Date: 2000/06/29 18:00:37 $ $}  % replaced by cvs with current revision
+  {\LARGE $ $Revision: 2.42 $ $}  \\[5mm] % replaced by cvs with current revision
+  {\LARGE $ $Date: 2000/07/13 12:47:07 $ $}  % replaced by cvs with current revision
 %
 %    Title page
 %
@@ -209,8 +209,8 @@
   \mbox{\includegraphics[width=\textwidth]{StEventTitle.eps}}
   \hfill\mbox{}\\[3cm]
   {\LARGE User Guide and Reference Manual \\[5mm] for Version 2}\\[2cm]
-  {\LARGE $ $Revision: 2.41 $ $}  \\[5mm] % replaced by cvs with current revision
-  {\LARGE $ $Date: 2000/06/29 18:00:37 $ $}  % replaced by cvs with current revision
+  {\LARGE $ $Revision: 2.42 $ $}  \\[5mm] % replaced by cvs with current revision
+  {\LARGE $ $Date: 2000/07/13 12:47:07 $ $}  % replaced by cvs with current revision
   \vfill
 \end{center}
 \cleardoublepage
@@ -5541,21 +5541,64 @@ numberOfPoints(kTpcId) == numberOfPoints(kFtpcWestId)
     \verb+Float_t dcaParentToPrimaryVertex() const;+\\
     \verb+const StThreeVectorF& momentumOfBachelor() const;+\\
     \verb+StThreeVectorF momentumOfV0() const;+\\
-\item[Summary]
+    \verb+StThreeVectorF momentum() const;+\\
     \verb+StV0Vertex* v0Vertex() const;+\\
     \verb+StTrack* bachelor();+\\
     \verb+Double_t chargeOfBachelor();+\\
     \verb+void setDcaBachelorToPrimaryVertex(Float_t);+\\
     \verb+void setMomentumOfBachelor(const StThreeVectorF&);+\\
+    \verb+void setDcaDaughters(Float_t);+\\
     \verb+void setDcaParentToPrimaryVertex(Float_t);+\\
     \verb+void setV0Vertex(StV0Vertex*);+\\
     \verb+void addDaughter(StTrack*);+\\
     \verb+void removeDaughter(StTrack*);+\\
-    \verb+UInt_t numberOfZdcCounters() const;+\\
+\end{Entry}
+\clearpage
+
+
+\subsection{StZdcTriggerDetector}
 \index{StZdcTriggerDetector|textbf}
+\label{sec:StZdcTriggerDetector}
+\begin{Entry}
+\item[Summary] Zero Degree Calorimeter (ZDC) data
+\item[Synopsis]
+    \verb+#include "StZdcTriggerDetector.h"+\\
+    \verb+class StZdcTriggerDetector;+\\
+\item[Description]
+\item[Related Classes]
+    
+\item[Public\\ Constructors]
+    \verb+StZdcTriggerDetector();+\\
+    \verb+StZdcTriggerDetector(const dst_TrgDet_st&);+\\
+\item[Public Member\\ Functions]
+
+    \verb+UInt_t numberOfZdcWords() const;+\\
+    Currently, and probably for the rest of its lifetime, this method
+        \item adc[7] = zdcEast1;     
+        \item adc[7] = zdcEast1;     
+        \item adc[6] = zdcEast2;     
+        \item adc[5] = zdcEast3;     
+        \item adc[4] = zdcEastSum;   
+        \item adc[3] = zdcWest1;     
+        \item adc[2] = zdcWest2;     
         \item adc[1] = zdcWest3;     
+        \item adc[0] = zdcWestSum;   
+        \begin{description}
+        \item adc[7] = zdcEast1;
+        \item adc[7] = zdcEast1;    
+        \item adc[6] = zdcEast2;     
+        \item adc[5] = zdcEast3;     
+        \item adc[4] = zdcEastSum;   
+        \item adc[3] = zdcWest1;     
+        \item adc[2] = zdcWest2;     
+        \item adc[1] = zdcWest3;     
+        \item adc[0] = zdcWestSum;   
         \end{description}
+    \item attenuated signals
+        \begin{description}
         \item adc[10] = zdcWestSumAtt; 
+        \item adc[11] = zdcWest2Att; 
+        \item adc[12] = zdcWest1Att;    
         \item adc[13] = zdcEastSumAtt;  
         \item adc[14] = zdcEast2Att;  
         \item adc[15] = zdcEast1Att;     
