@@ -218,17 +218,19 @@ if ($PHYSTP2 != 0){ $COND .= " || $PHYSTP2";}
 #
 # Check space on the target disk
 #
-$target = $TARGET;
-$target =~ s/^\+//;
-$target =~ s/^C//;
-$target =~ s/^\^//;
-chomp($space = `/bin/df -k $target`);
-$space =~ m/(.* )(\d+)(%.*)/;
-$space =  $2;
-if ($space >= 99){
-    print "$SELF :: Target disk $target is $space % full (baling out on ".localtime().")\n";
-    exit;
-}
+if ($TARGET !~ m/^\d+$/){
+    $target = $TARGET;
+    $target =~ s/^\+//;
+    $target =~ s/^C//;
+    $target =~ s/^\^//;
+    chomp($space = `/bin/df -k $target`);
+    $space =~ m/(.* )(\d+)(%.*)/;
+    $space =  $2;
+    if ($space >= 99){
+	print "$SELF :: Target disk $target is $space % full (baling out on ".localtime().")\n";
+	exit;
+    }
+} 
 
 
 # Intermediate variable
@@ -251,6 +253,8 @@ if ( -e $LOCKF){
     exit;
 }
 
+$DEBUG = 0;
+
 
 # Now go ...
 if( $TARGET =~ m/^\// || $TARGET =~ m/\^\// ){
@@ -266,6 +270,7 @@ if( $TARGET =~ m/^\// || $TARGET =~ m/\^\// ){
     # Default mode is submit. Target is a path
     # get the number of possible jobs per queue.
     $TOT = CRSQ_getcnt($USEQ[0],$SPILL[0],$PAT);
+    $TOT = 1 if ($DEBUG);
 
     print "$SELF :: Mode=direct Queue count Tot=$TOT\n";
 
@@ -367,6 +372,7 @@ if( $TARGET =~ m/^\// || $TARGET =~ m/\^\// ){
 
     # get number of slots. Work is spill mode.
     $TOT = CRSQ_getcnt($USEQ[1],$SPILL[1],$PAT);
+    $TOT = 1 if ($DEBUG);
 
     # Ok or not ?
     if( $TOT > 0){
@@ -486,6 +492,7 @@ if( $TARGET =~ m/^\// || $TARGET =~ m/\^\// ){
     # get the number of possible jobs per queue.
     #print "$SELF :: Using $USEQ[2] $SPILL[2]\n";
     $TOT = CRSQ_getcnt($USEQ[2],$SPILL[2],$PAT,1);
+    $TOT = 1 if ($DEBUG);
 
     $time = localtime();
     if ($TOT > 0 && ! -e $LOCKF){
