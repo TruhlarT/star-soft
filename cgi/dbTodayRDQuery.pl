@@ -14,7 +14,7 @@ use Class::Struct;
 
 require "/afs/rhic/star/packages/dev/mgr/dbCpProdSetup.pl";
 
-my @prodPer = ("P00hi","P00hg");
+my $prodPer = "P01he";
 my $debugOn = 0;
 my $thisDay = "000000";
 my $thisday = 0;
@@ -26,6 +26,8 @@ struct FileAttr => {
         flname  => '$', 
          dtSet  => '$',
          timeS  => '$',
+         Nevts  => '$',
+         dataSt => '$',
         fpath   => '$',
 		  };
 
@@ -43,7 +45,7 @@ $now = localtime;
  }   
   $thisday = $mon . $mday;
 
-$thisDay = '00'.$thisday;
+$thisDay = '01'.$thisday;
 
 # print "Today Date :", $thisDay, "\n";
 
@@ -52,7 +54,7 @@ $thisDay = '00'.$thisday;
 &beginHtml();
 
 
-$sql="SELECT dataset, path, fName, createTime FROM $FileCatalogT where insertTime like '$thisDay%' AND fName like '%dst.root' AND type = 'daq_reco' and jobID like '%$prodPer[0]%' ";
+$sql="SELECT dataset, path, fName, createTime, Nevents, dataStatus FROM $FileCatalogT where insertTime like '$thisDay%' AND fName like '%.root' AND type = 'daq_reco' and jobID like '%$prodPer%' ";
 $cursor =$dbh->prepare($sql)
   || die "Cannot prepare statement: $DBI::errstr\n";
 $cursor->execute;
@@ -71,6 +73,8 @@ while(@fields = $cursor->fetchrow) {
     ($$fObjAdr)->flname($fvalue)  if($fname eq 'fName');
     ($$fObjAdr)->fpath($fvalue)   if($fname eq 'path');
     ($$fObjAdr)->timeS($fvalue)   if($fname eq 'createTime');
+    ($$fObjAdr)->Nevts($fvalue)   if($fname eq 'Nevents');
+    ($$fObjAdr)->dataSt($fvalue)  if($fname eq 'dataStatus'); 
  }
        $dbFiles[$ndbFiles] = $fObjAdr;
        $ndbFiles++; 
@@ -81,6 +85,8 @@ my $myFile;
 my $myDSet;
 my $myCtime;
 my $myPath;
+my $myEvts;
+my $myDataSt;
 
  foreach $eachFile (@dbFiles) {
 
@@ -88,6 +94,8 @@ my $myPath;
        $myDSet  = ($$eachFile)->dtSet;
        $myPath  = ($$eachFile)->fpath;
        $myCtime = ($$eachFile)->timeS;  
+       $myEvts  = ($$eachFile)->Nevts;
+       $myDataSt = ($$eachFile)->dataSt;
 
   &printRow();
 
@@ -108,10 +116,12 @@ print <<END;
      <h1 align=center>List of DST Files Inserted Today into FileCatalog</h1>
 <TABLE ALIGN=CENTER BORDER=5 CELLSPACING=1 CELLPADDING=2 >
 <TR>
-<TD ALIGN=CENTER WIDTH=\"30%\" HEIGHT=30><B>Dataset</B></TD>
+<TD ALIGN=CENTER WIDTH=\"20%\" HEIGHT=30><B>Dataset</B></TD>
 <TD ALIGN=CENTER WIDTH=\"30%\" HEIGHT=30><B>Path</B></TD>
 <TD ALIGN=CENTER WIDTH=\"20%\" HEIGHT=20><B>Name of File</B></TD>
-<TD ALIGN=CENTER WIDTH=\"20%\" HEIGHT=20><B>Create Date</B></TD>
+<TD ALIGN=CENTER WIDTH=\"10%\" HEIGHT=20><B>Create Date</B></TD>
+<TD ALIGN=CENTER WIDTH=\"10%\" HEIGHT=20><B>Number of Events</B></TD>
+<TD ALIGN=CENTER WIDTH=\"10%\" HEIGHT=20><B>Data Status</B></TD>
 </TR> 
    </head>
     <body>
@@ -127,6 +137,8 @@ print <<END;
 <td>$myPath</td>
 <td>$myFile</td>
 <td>$myCtime</td>
+<td>$myEvts</td>
+<td>$myDataSt</td>
 </TR>
 END
 
