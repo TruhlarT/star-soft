@@ -7,9 +7,9 @@
 # createCalJob.pl        / L.Didenko 
 # 
 # script to create jobfiles to produce TPC driftvelocity calibrations
-# script requires 2 arguments: production Series, year of data taken
+# script requires 3 arguments: production Series, year of data taken, library version
 #
-# example of usage:  createJobs.pl P01hf 2001 
+# example of usage:  createJobs.pl P01hg 2001 SL01g 
 # 
 ##########################################################################################
 
@@ -24,7 +24,8 @@ my $debugOn=0;
 my @SetD;
 my $nSetD = 0;
 my $prodPeriod = $ARGV[0];
-my $dyear = $ARGV[1]; 
+my $dyear = $ARGV[1];
+my $mlibVer = $ARGV[2]; 
 my $dPath = "/daq/" . $dyear ;  
 my $chainDir = "daq";
 
@@ -60,7 +61,6 @@ struct JFileAttr => {
 
  #####  start loop over input files
 my $jbset;
-my $mlibVer;
 my $jpath;  
 my $jfile;
 my $mchain;
@@ -68,8 +68,7 @@ my $mprodSr;
 my @parts;
 my $mySet;
 
- $mchain = "p00h";
- $mlibVer = "SL01f";   
+ $mchain = "p00h";  
  $mprodSr = $prodPeriod; 
 
 &StDbProdConnect();
