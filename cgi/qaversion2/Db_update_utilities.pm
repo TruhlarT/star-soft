@@ -61,8 +61,7 @@ sub UpdateQAOffline{
   my $queryUpdate = qq{select distinct file.jobID, file.redone
 			from $dbFile.$FileCatalog as file 
 			LEFT JOIN $dbQA.$QASum{Table} as qa
-			on file.jobID  = qa.$QASum{jobID} and
-			   file.redone = qa.$QASum{redone}
+			  using (jobID, redone)
 			where
 			  file.type = '$fileType' and
 			  file.createTime < '$today' and

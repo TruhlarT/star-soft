@@ -235,7 +235,7 @@ sub move_old_reports{
   my @old_report_keys = &{$gDataClass_object->GetOldReports};
 
   if (not defined @old_report_keys){
-    print h4("No report files to move\n") .br ;
+    print h4("No report files to move\n") ;
     return;
   }
 
