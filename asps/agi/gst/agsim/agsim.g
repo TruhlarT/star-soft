@@ -165,12 +165,12 @@ C
 *KEEP,VIDQQ.
       CHARACTER*68 VIDQQ
       DATA VIDQQ/
-     +'@(#)Advanced Geant Inteface               C: 02/08/98  15.07.04
+     +'@(#)Advanced Geant Inteface               C: 02/08/98  15.14.05
      +'/
 *KEEP,DATEQQ.
       IDATQQ =   980802
 *KEEP,TIMEQQ.
-      ITIMQQ =   1507
+      ITIMQQ =   1514
 *KEEP,VERSQQ.
       VERSQQ = ' '
       IVERSQ = -1
@@ -16323,7 +16323,7 @@ C
    End
  
  
-*CMZ :          20/05/98  06.18.54  by  Pavel Nevski
+*CMZ :          02/08/98  15.13.50  by  Pavel Nevski
 *-- Author :    Pavel Nevski   18/07/97
 *************************************************************************
    Subroutine   A g R E A D T X T (Igate)
@@ -16337,7 +16337,7 @@ Replace [READ[DIGIT](#)#;] with [READ(#2,ERR=:E:)#3;IF(Idebug>=#1)<W>#3;]
                  LabelTr,LabelVx,ge_pid,StartVx,StopVx,
                  eg_proc,parent
    Real          version,east_z,east_a,west_z,west_a,sqrts,b_max,
-                 PP(3),vert(4),UBUF(10),a,b
+                 PP(3),vert(4),UBUF(10)
 *
    integer       istat,eg_pid,moth,daut,num(5)
    data          num/1,1,0,0,0/
@@ -16376,7 +16376,7 @@ C
    }
    else If Line(1:5)=='EVENT'
    {
-     read2 (line(7:),*) Ieven,Ntrac,Nvert,a,b;(' AgReadNew: EVENT :',3i8,2f8.3)
+     read2 (line(7:),*) Ieven,Ntrac,Nvert;(' AgReadNew: EVENT :',3i8,2f8.3)
      if (Ieven<=-999) goto :e: " end of data "
    }
    else If Line(1:5)='TRACK'
