@@ -366,19 +366,18 @@ my $today;
 
 ($sec,$min,$hour,$mday,$mon) = localtime;
 
-my $year = "2003";
+my $year = "2004";
    $mon++;
 if( $mon < 10) { $mon = '0'.$mon };
 if( $mday < 10) { $mday = '0'.$mday };
 
 
  $thisday = $year."-".$mon."-".$mday; 
-# $thisday = "2003-04-14";
+# $thisday = "2004-01-05";
  $today = $thisday;
  print $thisday, "\n";
 $outname = "mail" . "_" .$thisday . "_" . "out";
 
-# $outname = "mail_2003-04-14_out";
  $outfile = "/star/u/starreco/" . $outname;
 
  print $outfile, "\n";
