@@ -1,6 +1,11 @@
-// $Id: StEmcPreCluster.cxx,v 1.2 2000/08/24 11:26:48 suaide Exp $
+// $Id: StEmcPreCluster.cxx,v 1.3 2000/08/24 19:45:36 suaide Exp $
 //
 // $Log: StEmcPreCluster.cxx,v $
+// Revision 1.3  2000/08/24 19:45:36  suaide
+//
+//
+// small modifications: some cout has been removed
+//
 // Revision 1.2  2000/08/24 11:26:48  suaide
 //
 //
@@ -24,13 +29,6 @@
 //    StBemcPreClusterCollection.cxx StBemcPreClusterCollection.h
 //    StBsmdePreClusterCollection.cxx StBsmdePreClusterCollection.h
 //    StBsmdpPreClusterCollection.cxx StBsmdpPreClusterCollection.h
-//
-// Revision 1.2  000/08/22 05:30:00  A. A. P. Suaide
-//     Some modifications to be StEventCompatible
-//     Modifications on constructor and CalMeanAndRms methods
-//     StBemcPreCluster  now obsolete
-//     StBsmdePreCluster now obsolete
-//     StBsmdpPreCluster now obsolete
 //
 // Revision 1.1  2000/05/15 21:24:00  subhasis
 // initial version
