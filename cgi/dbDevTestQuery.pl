@@ -1,8 +1,11 @@
 #!/usr/bin/env perl 
 #
-# $Id: dbDevTestQuery.pl,v 1.14 2004/02/20 15:27:26 didenko Exp $
+# $Id: dbDevTestQuery.pl,v 1.15 2004/12/20 20:56:35 didenko Exp $
 #
 # $Log: dbDevTestQuery.pl,v $
+# Revision 1.15  2004/12/20 20:56:35  didenko
+# updated for SL3 platform
+#
 # Revision 1.14  2004/02/20 15:27:26  didenko
 # updated for 2004 run test
 #
@@ -56,23 +59,25 @@ my $debugOn = 0;
 
 my $rand = rand(100);
 my @prod_set = (
-#		"trs_redhat72/year_1h/hc_lowdensity",
-		"trs_redhat72/year_1h/hc_standard",
-#		"trs_redhat72/year_1h/hc_highdensity",
-#		"trs_redhat72/year_1h/peripheral", 
-		"trs_redhat72/year_2001/hc_lowdensity",
-		"trs_redhat72/year_2001/hc_standard",
-		"trs_redhat72/year_2001/hc_highdensity",
-                "trs_redhat72/year_2001/pp_minbias",
-                "trs_redhat72/year_2003/dau_minbias",
-		"daq_redhat72/year_2001/minbias",
-                "daq_redhat72/year_2001/central",
-                "daq_redhat72/year_2001/ppMinBias",
-                "daq_redhat72/year_2003/ppMinBias",
-                "daq_redhat72/year_2003/dAuMinBias",
-                "daq_redhat72/year_2004/AuAuMinBias",
-                "daq_redhat72/year_2004/AuAu_prodHigh",
-                "daq_redhat72/year_2004/AuAu_prodLow",
+#		"trs_sl302/year_1h/hc_lowdensity",
+		"trs_sl302/year_1h/hc_standard",
+#		"trs_sl302/year_1h/hc_highdensity",
+#		"trs_sl302/year_1h/peripheral", 
+		"trs_sl302/year_2001/hc_lowdensity",
+		"trs_sl302/year_2001/hc_standard",
+		"trs_sl302/year_2001/hc_highdensity",
+                "trs_sl302/year_2001/pp_minbias",
+                "trs_sl302/year_2003/dau_minbias",
+                "trs_sl302/year_2004/auau_minbias", 
+		"daq_sl302/year_2001/minbias",
+                "daq_sl302/year_2001/central",
+                "daq_sl302/year_2001/ppMinBias",
+                "daq_sl302/year_2003/ppMinBias",
+                "daq_sl302/year_2003/dAuMinBias",
+                "daq_sl302/year_2004/AuAuMinBias",
+                "daq_sl302/year_2004/AuAu_prodHigh",
+                "daq_sl302/year_2004/AuAu_prodLow",
+                "daq_sl302/year_2004/prodPP",
 		);
 
 my @sets_name;
@@ -139,7 +144,7 @@ print "</h4>";
 print $query->submit,"<p>";
 print $query->reset;
 print $query->endform;
-print "<address><a href=\"mailto:liuzx at bnl.gov\">Zhixu Liu</a></address>\n";
+print "<address><a href=\"mailto:didenko\@bnl.gov\">Lidia Didenko</a></address>\n";
 
 #print $query->delete_all;
 print $query->end_html;
