@@ -1,6 +1,6 @@
 #!/opt/star/bin/perl -w
 
-#
+# $Id: AutoBuild.pl,v 1.8 2002/02/19 18:33:33 jeromel Exp $
 # This script was written to perform an automatic compilation
 # with cvs co and write some html page related to it afterward.
 # Written J.Lauret Apr 6 2001
@@ -83,6 +83,7 @@ $NIGNOR=1==1;         # Compile without update
 $CVSUPD=1==0;         # Use cvs update
 $CVSCOU=1==1;         # Use cvs check-out
 $DEBUG= 1==0;         # Debug mode (i.e. no post-tasks)
+$TRASH =1==0;         # trash code cvs finds conflicting
 $FILO  =STDOUT;       # Default Output file
 
 
@@ -259,13 +260,11 @@ if($#UPDATES != -1){
 if($#MERGED != -1){
     print $FILO
 	"\n",
-	" - List of merged will follow ...\n";
-    push(@REPORT,"%%REF%%<H2>List of code replaced.</H2>");
-    push(@REPORT,"Replaced code are codes modified on disk and NOT commited ");
-    push(@REPORT,"in the repository. This is a mistake and the file will be ");
-    push(@REPORT,"over-written. Please, <U>DO NOT WORK</U> in the DEV tree ");
-    push(@REPORT,"directly. If any code appears in this list, be aware that ");
-    push(@REPORT,"the modifications are lost ...");
+	" - List of un-comitted code will follow ...\n";
+    push(@REPORT,"%%REF%%<H2>List of code found with conflicting cvs version.</H2>");
+    push(@REPORT,"Those re codes modified on disk and NOT commited ");
+    push(@REPORT,"in the repository. This may be a mistakeor an experimenatl ");
+    push(@REPORT,"version. Please, <U>delete or commit</U> them now !! ");
     push(@REPORT,"<UL>");
     foreach $line (@MERGED){
 	push(@REPORT," <LI><TT>$line</TT>");
@@ -331,13 +330,17 @@ if ($ans =~ /^\s*y/i){
 	    foreach $file (@MERGED){
 		push(@REPORT,"<LI><TT>$file</TT>");
 		if(-e $file){
-		    if(unlink($file)){
-			push(@REPORT,"deleted");
-			$fail += &Execute("$CVSCMDR $file");
+		    if(! $TRASH){
+			push(@REPORT," found and preserved as-is");
 		    } else {
-			push(@REPORT,"<U>*** Could not delete ***</U>");
-			push(@REPORT,
-			     "Build will continue but manual intervention is required");
+			if(unlink($file)){
+			    push(@REPORT,"deleted");
+			    $fail += &Execute("$CVSCMDR $file");
+			} else {
+			    push(@REPORT,"<U>*** Could not delete ***</U>");
+			    push(@REPORT,
+				 "Build will continue but manual intervention is required");
+			}
 		    }
 		} else {
 		    push(@REPORT,"<I>File not found</I>");
