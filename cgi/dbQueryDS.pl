@@ -1,4 +1,4 @@
-#! /usr/local/bin/perl -w
+#! /opt/star/bin/perl -w
 #
 #  $Id:
 #
@@ -11,18 +11,18 @@ use CGI;
 
 require "/afs/rhic/star/packages/scripts/dbCpProdSetup.pl";
 
-my @prodPer;
+my @prodPer = ();
 my $debugOn = 0;
 my %pair;
-my @Sets;
+my @Sets = ();
 my $nSets = 0;
-my $prod;
 my $dtSet;
 my $mySet;
 my $prodSeq = " ";
 my $prodNext;
 my $nprodPer = 0;
 my $myprod;
+my $mSet;
 
 &cgiSetup();
 
@@ -30,7 +30,7 @@ my $myprod;
 
 &beginHtml();
 
-$sql="SELECT DISTINCT prodSeries FROM JobStatus";
+$sql="SELECT DISTINCT prodSeries FROM $JobStatusT ";
 
    $cursor =$dbh->prepare($sql)
       || die "Cannot prepare statement: $DBI::errstr\n";
@@ -66,8 +66,6 @@ while(@fields = $cursor->fetchrow) {
 
      $mySet = $fvalue  if($fname eq 'dataset'); 
  }
-    next if ($mySet =~ /daq/);
-    next if ($mySet =~ /dst/);
     next if ($mySet eq 'n/a');
 
       $Sets[$nSets] = $mySet;
@@ -78,11 +76,10 @@ while(@fields = $cursor->fetchrow) {
   }
 
 
-for ($ll=0;$ll<scalar(@prodPer);$ll++) {
+for ($ll=0; $ll < scalar(@prodPer); $ll++) {
 
-# $prod = "_" . $prodPer[$ll] . "_";
-$prod = $prodPer[$ll];
- $prodSeq = " ";
+my $prod = $prodPer[$ll];
+
 $sql="SELECT DISTINCT dataset FROM $FileCatalogT where jobID like '%$prod%' AND dataset <> 'n/a' AND type = 'MC_reco' ";
 $cursor =$dbh->prepare($sql)
   || die "Cannot prepare statement: $DBI::errstr\n";
@@ -96,30 +93,25 @@ while(@fields = $cursor->fetchrow) {
     my $fname=$cursor->{NAME}->[$i];
     print "$fname = $fvalue\n" if $debugOn;
 
-     $mySet = $fvalue  if($fname eq 'dataset'); 
+     $mSet = $fvalue  if($fname eq 'dataset'); 
   }
-    next if ($mySet =~ /daq/);
-    next if ($mySet =~ /dst/);
-    next if ($mySet eq 'n/a');
-    next if ($mySet =~ /AuAu/); 
      $prodNext = $prodPer[$ll];
-     $pair{$mySet} =  $pair{$mySet} . " : " . $prodNext ;
-
+     $pair{$mSet} =  $pair{$mSet} . " : " . $prodNext ;
+#     $pair{$mSet} = $prodPer[$ll]; 
   } 
 
  }
 
-for ($ll=0;$ll<scalar(@Sets);$ll++) { 
+for ($ll=0; $ll<scalar(@Sets); $ll++) { 
 
      $mySet = $Sets[$ll];
      if ($mySet =~ /Bjet/) {
      $pair{$mySet} = ": prod5" ;
    }
      &printRow();    
-
   } 
 
-&endHtml();
+ &endHtml();
 
 &StDbProdDisconnect();
 
@@ -150,7 +142,7 @@ print <<END;
 <TR ALIGN=LEFT VALIGN=CENTER>
 <td><a href=\"http://www.star.bnl.gov/devcgi/dbMCProdSum.pl?SetMC=$mySet\">$mySet</td>
 <td>$pair{$mySet}</td>
-</tr>
+</TR>
 END
 
 }
