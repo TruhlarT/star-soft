@@ -175,10 +175,13 @@ sub print_page_header{
     
   $doc_string = "<a href=$doc_link target='display'>Documentation </a>";
 
+  my $name = basename($topdir);
+  my $current = "<font size=+1><b>You are in $name</b><font>" ;
+
   @table_rows = (); 
-  push( @table_rows, td( [$doc_string, $webmaster_string] ) );
+  push( @table_rows, td( [$doc_string, $webmaster_string, $current ]) );
 #  print table( {-width=>'20%', -valign=>'top', -align=>'left'}, Tr(\@table_rows));
-  print table( {-width=>'20%'}, Tr(\@table_rows));
+  print table( {-width=>'50%'}, Tr(\@table_rows));
 
 #  print "<br><hr noshade=noshade> \n";
 #  print "<p> \n";

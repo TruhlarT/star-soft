@@ -297,9 +297,10 @@ sub starting_display {
 
     $action_string = 
       $query->startform(-action=>"$script_name/lower_display", -TARGET=>"display").
-	$dsv_button_string.$hidden_string.$query->endform; 
+        $hidden_string.$query->endform;
+#	$dsv_button_string.$hidden_string.$query->endform; 
 
-    $expert_page_string = "<H3>Access expert's page<br>(do updates and QA):</H3>".
+    $expert_page_string = "<H3>Access expert's page:</H3>".
       $query->startform(-action=>"$script_name/lower_display", -TARGET=>"display");
 
     $button_ref = Button_object->new('ExpertPageRequest', "Expert's page");
@@ -313,14 +314,28 @@ sub starting_display {
   @table_rows = (); 
   #bum, toggle
   my $toggle_string = popup_directory();
-  my $name = basename($topdir);
-  print $query->h3({-color=>'red'}, "You are in $name") ;
   #-----------------------------------------------------------
-  push( @table_rows, td( [$select_data_string, $comment_string, $expert_page_string, 
-			  $action_string ] ) );
+  # old style
+  print "
+	<table border=0, width=100%, valign=top, align=center>
+        <tr valign=top>
+	    <td> $select_data_string
+	    <td> $toggle_string
+	    <td> <table border=0, valign=top, align=center>
+                 <tr> $expert_page_string
+                 <tr> $comment_string
+                 </table>
+            <td> $action_string
+        </table>";
 
-  print table( {-width=>'100%', -valign=>'top', -align=>'center'},
-	       Tr(\@table_rows), td([$toggle_string]));
+
+#  push( @table_rows, td( [$select_data_string, $comment_string, 
+#			  $expert_page_string, 
+#			  $action_string ] ) );
+#
+#  print table( {-border=>1, -width=>'100%', -valign=>'bottom',
+#      -align=>'center'},
+#	       Tr(\@table_rows), td([$toggle_string])  ));
 
   my $string = &QA_utilities::hidden_field_string;
   print "$string";
@@ -780,7 +795,7 @@ sub popup_directory{
 		    $topdir_debug   =>'debug');
   my $hidden_string = &QA_utilities::hidden_field_string('DontWriteFile');
   
-  my $toggle_string = "<h3>Switch directory</h3>".
+  my $toggle_string = "<h3>Switch directory:</h3>".
     $query->startform(-action=>"$script_name/upper_display", -TARGET=>"list").
     $query->popup_menu(-name=>'topdir',
 			 -values=>\@dir_values,
