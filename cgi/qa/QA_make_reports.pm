@@ -30,7 +30,7 @@ sub get_report_key{
 
   $i_count = -4;
   for ($i = -$#names; $i < 0 ; $i++ ){
-    $names[$i] =~ /dev|new|pro|old/ and do{
+    $names[$i] =~ /^(dotdev|dev|new|pro|old)$/ and do{
       $i_count = $i;
       last;
     };

@@ -328,6 +328,11 @@ sub OnDisk{
       # even if same directory exists, may contain later run -> test against dir time
       $test_report_key = QA_make_reports::get_report_key($test_data_dir); 
       $test_report_key eq $report_key and $on_disk = 1;
+
+      # snafu for dotdev runs: directories pointed to in log file differ from
+      # those being looked at (directory was copied by Lidia) so punt on 
+      # last check for now - this definitely needs cleaning up  pmj 4/11/99
+      $report_key =~ /dotdev/ and $on_disk = 1;
     }
 
     $self->{on_disk} = $on_disk;
