@@ -296,8 +296,8 @@ $keywrds{"fulls"         }    =   ",,,,,,1";  # pseudo-full information agregate
 
 $ksimilar{"lgnm"         }    =   "logical_name;production library runnumber runtype filename trgsetupname configuration";
 $ksimilar{"lgpth"        }    =   "logical_path;site node storage path";
-$ksimilar{"fulld"        }    =   ";production library runnumber runtype site node storage path filename events trgsetupname";
-$ksimilar{"fulls"        }    =   ";production library runnumber runtype site node storage path filename events configuration generator genversion genparams";
+$ksimilar{"fulld"        }    =   "data_description;production library runnumber runtype site node storage path filename events trgsetupname";
+$ksimilar{"fulls"        }    =   "simulation_description;production library runnumber runtype site node storage path filename events configuration generator genversion genparams";
 #$ksimilar{"md5n"         }    =   "md5_name;production library trgsetupname runnumber filename";
 #$ksimilar{"md5p"         }    =   "md5_path;site node storage path";
 
@@ -3678,6 +3678,9 @@ sub bootstrap {
     } elsif ($table eq "TriggerWords" || $table eq "TriggerCompositions"){
 	return &bootstrap_trgc($delete);
 
+    } elsif ($table eq "SimulationParams" || $table eq "EventGenerators"){
+	return &bootstrap_sim($delete);
+
     } else {
 	return &bootstrap_general($keyword, $table, $delete);
     }
@@ -3771,7 +3774,7 @@ sub bootstrap_general
 sub bootstrap_trgc {
     my($delete) = (@_);
 
-    my($tab1,$tab2,$field1,$field2);
+    my($tab1,$tab2,$tab3,$field1,$field2);
     my($cmd1,$cmd2,$sth1,$sth2);
     my(@rows,@rows1,@rows2,$id);
     my($cmdd,$sthd);
@@ -3779,8 +3782,9 @@ sub bootstrap_trgc {
 
     $tab1  = "TriggerCompositions";  $field1 = "fileDataID";
     $tab2  = "TriggerWords";         $field2 = "triggerWordID";
+    $tab3  = "FileData";
 
-    $cmd1  = "SELECT $tab1.$field1 FROM $tab1 LEFT OUTER JOIN FileData ON $tab1.$field1 = FileData.$field1 WHERE FileData.$field1 IS NULL";
+    $cmd1  = "SELECT $tab1.$field1 FROM $tab1 LEFT OUTER JOIN FileData ON $tab1.$field1 = $tab3.$field1 WHERE $tab3.$field1 IS NULL";
     $cmd2  = "SELECT $tab2.$field2 FROM $tab2 LEFT OUTER JOIN $tab1 ON $tab2.$field2 = $tab1.$field2 WHERE $tab1.$field2 IS NULL";
 
 
@@ -3813,7 +3817,7 @@ sub bootstrap_trgc {
 		$sthd->execute();
 		$sthd->finish();
 	    } else {
-		&print_debug("FileCatalog::bootstrap_data : Failed to prepare [$cmdd]",
+		&print_debug("FileCatalog::bootstrap_trgc : Failed to prepare [$cmdd]",
 			     " Records in $tab1 will not be deleted");
 	    }
 	}
@@ -3840,7 +3844,7 @@ sub bootstrap_trgc {
 		$sthd->execute();
 		$sthd->finish();
 	    } else {
-		&print_debug("FileCatalog::bootstrap_data : Failed to prepare [$cmdd]",
+		&print_debug("FileCatalog::bootstrap_trgc : Failed to prepare [$cmdd]",
 			     " Records in $tab2 will not be deleted");
 	    }
 	}
@@ -3850,6 +3854,95 @@ sub bootstrap_trgc {
     # Return value
     if ( $#rows1 != -1){ foreach $id (@rows1){ push(@rows,"TC-$id");}}
     if ( $#rows2 != -1){ foreach $id (@rows2){ push(@rows,"TW-$id");}}
+
+    if ( $#rows != -1){ return @rows; }
+    else {              return 0;}
+
+}
+
+sub bootstrap_sim {
+    my($delete) = (@_);
+
+    my($tab1,$tab2,$tab3,$field1,$field2);
+    my($cmd1,$cmd2,$sth1,$sth2);
+    my(@rows,@rows1,@rows2,$id);
+    my($cmdd,$sthd);
+
+
+    $tab1  = "SimulationParams";     $field1 = "simulationParamsID";
+    $tab2  = "EventGenerators";      $field2 = "eventGeneratorID";
+    $tab3  = "RunParams";
+
+    $cmd1  = "SELECT $tab1.$field1 FROM $tab1 LEFT OUTER JOIN $tab3 ON $tab1.$field1 = $tab3.$field1 WHERE $tab3.$field1 IS NULL";
+    $cmd2  = "SELECT $tab2.$field2 FROM $tab2 LEFT OUTER JOIN $tab1 ON $tab2.$field2 = $tab1.$field2 WHERE $tab1.$field2 IS NULL";
+
+
+    $sth1 = $DBH->prepare( $cmd1 );
+    $sth2 = $DBH->prepare( $cmd2 );
+
+    if( ! $sth1 || ! $sth2 ){ &die_message("bootstrap_sim"," Failed to prepare statements");}
+
+
+
+    #
+    # Run the first sth on $tab1 since it may leave further
+    # holes sth2 would pick up.
+    #
+    &print_debug("Running [$cmd1]");
+    if ( ! $sth1->execute() ){  &die_message("bootstrap_sim","Execute 1 failed");}
+
+    $sth1->bind_columns( \$id );
+
+    while ( $sth1->fetch() ) {  push ( @rows1, $id );}
+
+    if ($delete == 1){
+	$cmdd = "DELETE LOW_PRIORITY FROM $tab1 WHERE $field1 IN (".join(" , ",(@rows1)).")";
+	if ( $DELAY ){
+	    push(@DCMD,$cmdd);
+	} else {
+	    &print_debug("Executing $cmdd");
+	    $sthd = $DBH->prepare($cmdd);
+	    if ($sthd){
+		$sthd->execute();
+		$sthd->finish();
+	    } else {
+		&print_debug("FileCatalog::bootstrap_sim : Failed to prepare [$cmdd]",
+			     " Records in $tab1 will not be deleted");
+	    }
+	}
+    }
+    $sth1->finish();
+
+
+
+    &print_debug("Running [$sth2]");
+    if ( ! $sth2->execute() ){  &die_message("bootstrap_sim","Execute 2 failed");}
+
+    $sth2->bind_columns( \$id );
+
+    while ( $sth2->fetch() ) {  push ( @rows2, $id );}
+
+    if ($delete == 1){
+	$cmdd = "DELETE LOW_PRIORITY FROM $tab2 WHERE $field2 IN (".join(" , ",(@rows2)).")";
+	if ( $DELAY ){
+	    push(@DCMD,$cmdd);
+	} else {
+	    &print_debug("Executing $cmdd");
+	    $sthd = $DBH->prepare($cmdd);
+	    if ($sthd){
+		$sthd->execute();
+		$sthd->finish();
+	    } else {
+		&print_debug("FileCatalog::bootstrap_sim : Failed to prepare [$cmdd]",
+			     " Records in $tab2 will not be deleted");
+	    }
+	}
+    }
+    $sth2->finish();
+
+    # Return value
+    if ( $#rows1 != -1){ foreach $id (@rows1){ push(@rows,"SP-$id");}}
+    if ( $#rows2 != -1){ foreach $id (@rows2){ push(@rows,"EG-$id");}}
 
     if ( $#rows != -1){ return @rows; }
     else {              return 0;}
