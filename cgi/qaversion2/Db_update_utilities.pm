@@ -162,7 +162,7 @@ sub UpdateQAOffline{
       
       #print "\n$runID, $skip";
 
-      $sthInsert->execute($jobID, $redone, $reportKey, $skip);
+      $sthInsert->execute($jobID, $redone, $reportKey, $skip) unless $debug;
     }
     $countJob=0;
   }	       
