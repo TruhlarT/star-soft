@@ -1,5 +1,5 @@
 #!/usr/bin/csh -f
-#       $Id: group_env.csh,v 1.132 2002/09/07 22:28:02 jeromel Exp $
+#       $Id: group_env.csh,v 1.133 2003/01/21 06:48:59 jeromel Exp $
 #	Purpose:	STAR group csh setup
 #
 #	Author:		Y.Fisyak     BNL
@@ -260,9 +260,13 @@ switch ($STAR_SYS)
       if ( ! $?SUNWS ) then
 	if ( -r $STAR_MGR/sunWS ) then
 	    setenv SUNWS `cat $STAR_MGR/sunWS`
+	    if ( ! -d /opt/$SUNWS ) then
+		if ($ECHO) echo "$SUNWS Workshop not found. Reverting to SUNWspro"
+		setenv SUNWS "SUNWspro"
+	    endif
         else
 	    # default packages distribution directory
-	    setenv SUNWS "WS5.0"
+	    setenv SUNWS "SUNWspro"
 	endif
       endif
 
