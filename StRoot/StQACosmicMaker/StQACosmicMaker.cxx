@@ -1,11 +1,14 @@
 /***************************************************************************
  *
- * $Id: StQACosmicMaker.cxx,v 1.18 2000/07/04 01:15:08 snelling Exp $
+ * $Id: StQACosmicMaker.cxx,v 1.19 2000/07/14 23:18:24 snelling Exp $
  *
  * Author: Raimond Snellings, LBNL, Jun 1999
  * Description:  Maker to QA the data from the tables (hitfinding, tracking etc.)
  *
  * $Log: StQACosmicMaker.cxx,v $
+ * Revision 1.19  2000/07/14 23:18:24  snelling
+ * Added the z-residual histograms
+ *
  * Revision 1.18  2000/07/04 01:15:08  snelling
  * change to make ntuple write out even if tables last event are empty
  *
@@ -72,6 +75,7 @@ Int_t StQACosmicMaker::Init() {
 Int_t StQACosmicMaker::Make() {
 
   fillTablePointers();
+  if (bWriteTNtupleOn && btptrack) {fillTrackTNtuple();}
   if (bWriteTNtupleOn && brestpt && btphit && btptrack) {fillHitTNtuple();}
   if (bWriteTNtupleOn && bmorph && btphit && btptrack) {fillMorphTNtuple();}
   if (bWriteTNtupleOn && brestpt && btphit && btptrack) {fillHitTNtupleNoTrk();}
@@ -89,7 +93,7 @@ Int_t StQACosmicMaker::Make() {
 
 void StQACosmicMaker::PrintInfo() {
   printf("**************************************************************\n");
-  printf("* $Id: StQACosmicMaker.cxx,v 1.18 2000/07/04 01:15:08 snelling Exp $\n");
+  printf("* $Id: StQACosmicMaker.cxx,v 1.19 2000/07/14 23:18:24 snelling Exp $\n");
   printf("**************************************************************\n");
 
   if (Debug()) StMaker::PrintInfo();
@@ -250,7 +254,7 @@ Int_t StQACosmicMaker::writeOutHistograms() {
 
 Int_t StQACosmicMaker::initTNtuple() {
 
-  char* ntVars = "hrow:hx:hy:hz:hq:dedx:halpha:hlambda:hdalpha:hdlambda:resy:resz:trknfit:trkp";  
+  char* ntVars = "hflag:hrow:hx:hy:hz:hq:dedx:halpha:hlambda:hdalpha:hdlambda:resy:resz:trknfit:trkp";  
   mTNtupleTPC = new TNtuple("nttpc","TPC TNtuple",ntVars);
 
   mTNtupleMorph = new TNtuple("ntmorph",
@@ -259,11 +263,38 @@ Int_t StQACosmicMaker::initTNtuple() {
 
   mTNtupleTPCNoTrk = new TNtuple("nttpcnotrk",
 			    "TPC TNtuple Hits not on track",
-			    "hrow:hx:hy:hz:hq:dedx");
+			    "hflag:hrow:hx:hy:hz:hq:dedx");
 
   mTNtupleMorphNoTrk = new TNtuple("ntmorphnotrk",
 			    "Morph TNtuple Hits not on track",
 			    "hx:hy:hz:cnseq:cnpix:cnpads");
+
+  mTNtupleTrk = new TNtuple("nttrk",
+			    "TPC TNtuple Track parameters",
+			    "flag:r0:z0:tanl:phi0:trkcalcp");
+  
+  return kStOK;
+}
+
+//-----------------------------------------------------------------------
+
+Int_t StQACosmicMaker::fillTrackTNtuple() {
+
+  for (Int_t i=0; i<phtrk->GetNRows();i++) {
+
+    Float_t trkcalcp = sqrt((pttrk[i].tanl * pttrk[i].tanl + 1.) /
+			    (pttrk[i].invp * pttrk[i].invp));
+    if (Debug()) {cout << "track momentum" << trkcalcp << endl;}
+    
+    mTNtupleTrk->Fill(
+		      (Float_t)(pttrk[i].flag),
+		      (Float_t)(pttrk[i].r0),
+		      (Float_t)(pttrk[i].z0),
+		      (Float_t)(pttrk[i].tanl),
+		      (Float_t)(pttrk[i].phi0),
+		      (Float_t)(trkcalcp)
+		      );
+  }
   
   return kStOK;
 }
@@ -290,6 +321,7 @@ Int_t StQACosmicMaker::fillHitTNtuple() {
 	Int_t isector = (Int_t)(floor(pttphit[i].row / 100.));
 	Int_t irowsector = pttphit[i].row - 100 * isector;
 
+	ntEntries[hflag]    = pttphit[i].flag;
 	ntEntries[hrow]     = (Float_t)(irowsector);
 	ntEntries[hx]       = pttphit[i].x;
 	ntEntries[hy]       = pttphit[i].y;
@@ -361,6 +393,7 @@ Int_t StQACosmicMaker::fillHitTNtupleNoTrk() {
       Int_t irowsector = pttphit[i].row - 100 * isector;
 
       mTNtupleTPCNoTrk->Fill(
+			(Float_t)(pttphit[i].flag),
 			(Float_t)(irowsector),
 			(Float_t)(pttphit[i].x),
 			(Float_t)(pttphit[i].y),
@@ -379,6 +412,7 @@ Int_t StQACosmicMaker::fillHitTNtupleNoTrk() {
 	Int_t irowsector = pttphit[i].row - 100 * isector;
 
 	mTNtupleTPCNoTrk->Fill(
+			       (Float_t)(pttphit[i].flag),
 			       (Float_t)(irowsector),
 			       (Float_t)(pttphit[i].x),
 			       (Float_t)(pttphit[i].y),
@@ -452,6 +486,7 @@ Int_t StQACosmicMaker::writeOutTNtuple() {
   mTNtupleMorph->Write();
   mTNtupleTPCNoTrk->Write();
   mTNtupleMorphNoTrk->Write();
+  mTNtupleTrk->Write();
   outTNtupleFile.Close();
 
   delete mTNtupleFileName;
@@ -490,6 +525,10 @@ Int_t StQACosmicMaker::initResHistograms() {
   for (i = 0; i < nResHist; i++) {
 
     sprintf(mCount,"%1d",i);
+
+
+    // XY residual versus crossing angle
+
 
     mHistTitle = new TString("xy residual vs crossing angle");
     mHistTitle->Append(mIndexName[i]);
@@ -776,6 +815,874 @@ Int_t StQACosmicMaker::initResHistograms() {
     delete mHistTitle;
     delete mHistName;
 
+
+
+    // XY residual versus dip angle
+
+
+    mHistTitle = new TString("xy residual vs dip angle");
+    mHistTitle->Append(mIndexName[i]);
+    if (bSectorSelectionOn) {mHistTitle->Append(" Sector "); mHistTitle->Append(*mSector);}
+    mHistName  = new TString("xyresvsDip");
+    mHistName->Append(*mCount);
+    ResidualHists[i].mXYResVersusDip =
+      new TH2F(mHistName->Data(), mHistTitle->Data(), nXBins, xMin, xMax, nYBins, yMin, yMax);
+    ResidualHists[i].mXYResVersusDip->Sumw2();
+    ResidualHists[i].mXYResVersusDip->SetXTitle("dip angle (degree)");
+    ResidualHists[i].mXYResVersusDip->SetYTitle("xy residuals");
+    delete mHistTitle;
+    delete mHistName;
+
+    mHistTitle = new TString("Mean xy residual vs dip angle");
+    mHistTitle->Append(mIndexName[i]);
+    if (bSectorSelectionOn) {mHistTitle->Append(" Sector "); mHistTitle->Append(*mSector);}
+    mHistName  = new TString("meanxyresvsDip");
+    mHistName->Append(*mCount);
+    ResidualHists[i].FitHists.mXYResVersusDip_mean =
+      new TH1D(mHistName->Data(), mHistTitle->Data(), nXBins, xMin, xMax);
+    ResidualHists[i].FitHists.mXYResVersusDip_mean->Sumw2();
+    delete mHistTitle;
+    delete mHistName;
+
+    mHistTitle = new TString("Sigma xy residual vs dip angle");
+    mHistTitle->Append(mIndexName[i]);
+    if (bSectorSelectionOn) {mHistTitle->Append(" Sector "); mHistTitle->Append(*mSector);}
+    mHistName  = new TString("sigmaxyresvsDip");
+    mHistName->Append(*mCount);
+    ResidualHists[i].FitHists.mXYResVersusDip_sigma =
+      new TH1D(mHistName->Data(), mHistTitle->Data(), nXBins, xMin, xMax);
+    ResidualHists[i].FitHists.mXYResVersusDip_sigma->Sumw2();
+    delete mHistTitle;
+    delete mHistName;
+
+    mHistTitle = new TString("Magnitude xy residual vs dip angle");
+    mHistTitle->Append(mIndexName[i]);
+    if (bSectorSelectionOn) {mHistTitle->Append(" Sector "); mHistTitle->Append(*mSector);}
+    mHistName  = new TString("magxyresvsDip");
+    mHistName->Append(*mCount);
+    ResidualHists[i].FitHists.mXYResVersusDip_mag =
+      new TH1D(mHistName->Data(), mHistTitle->Data(), nXBins, xMin, xMax);
+    ResidualHists[i].FitHists.mXYResVersusDip_mag->Sumw2();
+    delete mHistTitle;
+    delete mHistName;
+
+    mHistTitle = new TString("ChiSquared xy residual vs dip angle");
+    mHistTitle->Append(mIndexName[i]);
+    if (bSectorSelectionOn) {mHistTitle->Append(" Sector "); mHistTitle->Append(*mSector);}
+    mHistName  = new TString("chixyresvsDip");
+    mHistName->Append(*mCount);
+    ResidualHists[i].FitHists.mXYResVersusDip_chi =
+      new TH1D(mHistName->Data(), mHistTitle->Data(), nXBins, xMin, xMax);
+    ResidualHists[i].FitHists.mXYResVersusDip_chi->Sumw2();
+    delete mHistTitle;
+    delete mHistName;
+
+    mHistTitle = new TString("xy residual vs dip angle 0 < z <= 50");
+    mHistTitle->Append(mIndexName[i]);
+    if (bSectorSelectionOn) {mHistTitle->Append(" Sector "); mHistTitle->Append(*mSector);}
+    mHistName  = new TString("xyresvsDipZ1");
+    mHistName->Append(*mCount);
+    ResidualHists[i].mXYResVersusDipZ1 =
+      new TH2F(mHistName->Data(), mHistTitle->Data(), nXBins, xMin, xMax, nYBins, yMin, yMax);
+    ResidualHists[i].mXYResVersusDipZ1->Sumw2();
+    ResidualHists[i].mXYResVersusDipZ1->SetXTitle("dip angle (degree)");
+    ResidualHists[i].mXYResVersusDipZ1->SetYTitle("xy residuals");
+    delete mHistTitle;
+    delete mHistName;
+
+    mHistTitle = new TString("Mean xy residual vs dip angle 0 < z <= 50");
+    mHistTitle->Append(mIndexName[i]);
+    if (bSectorSelectionOn) {mHistTitle->Append(" Sector "); mHistTitle->Append(*mSector);}
+    mHistName  = new TString("meanxyresvsDipZ1");
+    mHistName->Append(*mCount);
+    ResidualHists[i].FitHists.mXYResVersusDipZ1_mean =
+      new TH1D(mHistName->Data(), mHistTitle->Data(), nXBins, xMin, xMax);
+    ResidualHists[i].FitHists.mXYResVersusDipZ1_mean->Sumw2();
+    delete mHistTitle;
+    delete mHistName;
+
+    mHistTitle = new TString("Sigma xy residual vs dip angle 0 < z <= 50");
+    mHistTitle->Append(mIndexName[i]);
+    if (bSectorSelectionOn) {mHistTitle->Append(" Sector "); mHistTitle->Append(*mSector);}
+    mHistName  = new TString("sigmaxyresvsDipZ1");
+    mHistName->Append(*mCount);
+    ResidualHists[i].FitHists.mXYResVersusDipZ1_sigma =
+      new TH1D(mHistName->Data(), mHistTitle->Data(), nXBins, xMin, xMax);
+    ResidualHists[i].FitHists.mXYResVersusDipZ1_sigma->Sumw2();
+    delete mHistTitle;
+    delete mHistName;
+
+    mHistTitle = new TString("Magnitude xy residual vs dip angle 0 < z <= 50");
+    mHistTitle->Append(mIndexName[i]);
+    if (bSectorSelectionOn) {mHistTitle->Append(" Sector "); mHistTitle->Append(*mSector);}
+    mHistName  = new TString("magxyresvsDipZ1");
+    mHistName->Append(*mCount);
+    ResidualHists[i].FitHists.mXYResVersusDipZ1_mag =
+      new TH1D(mHistName->Data(), mHistTitle->Data(), nXBins, xMin, xMax);
+    ResidualHists[i].FitHists.mXYResVersusDipZ1_mag->Sumw2();
+    delete mHistTitle;
+    delete mHistName;
+
+    mHistTitle = new TString("ChiSquared xy residual vs dip angle 0 < z <= 50");
+    mHistTitle->Append(mIndexName[i]);
+    if (bSectorSelectionOn) {mHistTitle->Append(" Sector "); mHistTitle->Append(*mSector);}
+    mHistName  = new TString("chixyresvsDipZ1");
+    mHistName->Append(*mCount);
+    ResidualHists[i].FitHists.mXYResVersusDipZ1_chi =
+      new TH1D(mHistName->Data(), mHistTitle->Data(), nXBins, xMin, xMax);
+    ResidualHists[i].FitHists.mXYResVersusDipZ1_chi->Sumw2();
+    delete mHistTitle;
+    delete mHistName;
+
+    mHistTitle = new TString("xy residual vs dip angle 50 < z <= 100");
+    mHistTitle->Append(mIndexName[i]);
+    if (bSectorSelectionOn) {mHistTitle->Append(" Sector "); mHistTitle->Append(*mSector);}
+    mHistName  = new TString("xyresvsDipZ2");
+    mHistName->Append(*mCount);
+    ResidualHists[i].mXYResVersusDipZ2 =
+      new TH2F(mHistName->Data(), mHistTitle->Data(), nXBins, xMin, xMax, nYBins, yMin, yMax);
+    ResidualHists[i].mXYResVersusDipZ2->Sumw2();
+    ResidualHists[i].mXYResVersusDipZ2->SetXTitle("dip angle (degree)");
+    ResidualHists[i].mXYResVersusDipZ2->SetYTitle("xy residuals");
+    delete mHistTitle;
+    delete mHistName;
+
+    mHistTitle = new TString("Mean xy residual vs dip angle 50 < z <= 100");
+    mHistTitle->Append(mIndexName[i]);
+    if (bSectorSelectionOn) {mHistTitle->Append(" Sector "); mHistTitle->Append(*mSector);}
+    mHistName  = new TString("meanxyresvsDipZ2");
+    mHistName->Append(*mCount);
+    ResidualHists[i].FitHists.mXYResVersusDipZ2_mean =
+      new TH1D(mHistName->Data(), mHistTitle->Data(), nXBins, xMin, xMax);
+    ResidualHists[i].FitHists.mXYResVersusDipZ2_mean->Sumw2();
+    delete mHistTitle;
+    delete mHistName;
+
+    mHistTitle = new TString("Sigma xy residual vs dip angle 50 < z <= 100");
+    mHistTitle->Append(mIndexName[i]);
+    if (bSectorSelectionOn) {mHistTitle->Append(" Sector "); mHistTitle->Append(*mSector);}
+    mHistName  = new TString("sigmaxyresvsDipZ2");
+    mHistName->Append(*mCount);
+    ResidualHists[i].FitHists.mXYResVersusDipZ2_sigma =
+      new TH1D(mHistName->Data(), mHistTitle->Data(), nXBins, xMin, xMax);
+    ResidualHists[i].FitHists.mXYResVersusDipZ2_sigma->Sumw2();
+    delete mHistTitle;
+    delete mHistName;
+
+    mHistTitle = new TString("Magnitude xy residual vs dip angle 50 < z <= 100");
+    mHistTitle->Append(mIndexName[i]);
+    if (bSectorSelectionOn) {mHistTitle->Append(" Sector "); mHistTitle->Append(*mSector);}
+    mHistName  = new TString("magxyresvsDipZ2");
+    mHistName->Append(*mCount);
+    ResidualHists[i].FitHists.mXYResVersusDipZ2_mag =
+      new TH1D(mHistName->Data(), mHistTitle->Data(), nXBins, xMin, xMax);
+    ResidualHists[i].FitHists.mXYResVersusDipZ2_mag->Sumw2();
+    delete mHistTitle;
+    delete mHistName;
+
+    mHistTitle = new TString("ChiSquared xy residual vs dip angle 50 < z <= 100");
+    mHistTitle->Append(mIndexName[i]);
+    if (bSectorSelectionOn) {mHistTitle->Append(" Sector "); mHistTitle->Append(*mSector);}
+    mHistName  = new TString("chixyresvsDipZ2");
+    mHistName->Append(*mCount);
+    ResidualHists[i].FitHists.mXYResVersusDipZ2_chi =
+      new TH1D(mHistName->Data(), mHistTitle->Data(), nXBins, xMin, xMax);
+    ResidualHists[i].FitHists.mXYResVersusDipZ2_chi->Sumw2();
+    delete mHistTitle;
+    delete mHistName;
+
+    mHistTitle = new TString("xy residual vs dip angle 100 < z <= 150");
+    mHistTitle->Append(mIndexName[i]);
+    if (bSectorSelectionOn) {mHistTitle->Append(" Sector "); mHistTitle->Append(*mSector);}
+    mHistName  = new TString("xyresvsDipZ3");
+    mHistName->Append(*mCount);
+    ResidualHists[i].mXYResVersusDipZ3 =
+      new TH2F(mHistName->Data(), mHistTitle->Data(), nXBins, xMin, xMax, nYBins, yMin, yMax);
+    ResidualHists[i].mXYResVersusDipZ3->Sumw2();
+    ResidualHists[i].mXYResVersusDipZ3->SetXTitle("dip angle (degree)");
+    ResidualHists[i].mXYResVersusDipZ3->SetYTitle("xy residuals");
+    delete mHistTitle;
+    delete mHistName;
+
+    mHistTitle = new TString("Mean xy residual vs dip angle 100 < z <= 150");
+    mHistTitle->Append(mIndexName[i]);
+    if (bSectorSelectionOn) {mHistTitle->Append(" Sector "); mHistTitle->Append(*mSector);}
+    mHistName  = new TString("meanxyresvsDipZ3");
+    mHistName->Append(*mCount);
+    ResidualHists[i].FitHists.mXYResVersusDipZ3_mean =
+      new TH1D(mHistName->Data(), mHistTitle->Data(), nXBins, xMin, xMax);
+    ResidualHists[i].FitHists.mXYResVersusDipZ3_mean->Sumw2();
+    delete mHistTitle;
+    delete mHistName;
+
+    mHistTitle = new TString("Sigma xy residual vs dip angle 100 < z <= 150");
+    mHistTitle->Append(mIndexName[i]);
+    if (bSectorSelectionOn) {mHistTitle->Append(" Sector "); mHistTitle->Append(*mSector);}
+    mHistName  = new TString("sigmaxyresvsDipZ3");
+    mHistName->Append(*mCount);
+    ResidualHists[i].FitHists.mXYResVersusDipZ3_sigma =
+      new TH1D(mHistName->Data(), mHistTitle->Data(), nXBins, xMin, xMax);
+    ResidualHists[i].FitHists.mXYResVersusDipZ3_sigma->Sumw2();
+    delete mHistTitle;
+    delete mHistName;
+
+    mHistTitle = new TString("Magnitude xy residual vs dip angle 100 < z <= 150");
+    mHistTitle->Append(mIndexName[i]);
+    if (bSectorSelectionOn) {mHistTitle->Append(" Sector "); mHistTitle->Append(*mSector);}
+    mHistName  = new TString("magxyresvsDipZ3");
+    mHistName->Append(*mCount);
+    ResidualHists[i].FitHists.mXYResVersusDipZ3_mag =
+      new TH1D(mHistName->Data(), mHistTitle->Data(), nXBins, xMin, xMax);
+    ResidualHists[i].FitHists.mXYResVersusDipZ3_mag->Sumw2();
+    delete mHistTitle;
+    delete mHistName;
+
+    mHistTitle = new TString("ChiSquared xy residual vs dip angle 100 < z <= 150");
+    mHistTitle->Append(mIndexName[i]);
+    if (bSectorSelectionOn) {mHistTitle->Append(" Sector "); mHistTitle->Append(*mSector);}
+    mHistName  = new TString("chixyresvsDipZ3");
+    mHistName->Append(*mCount);
+    ResidualHists[i].FitHists.mXYResVersusDipZ3_chi =
+      new TH1D(mHistName->Data(), mHistTitle->Data(), nXBins, xMin, xMax);
+    ResidualHists[i].FitHists.mXYResVersusDipZ3_chi->Sumw2();
+    delete mHistTitle;
+    delete mHistName;
+
+    mHistTitle = new TString("xy residual vs dip angle 150 < z <= 200");
+    mHistTitle->Append(mIndexName[i]);
+    if (bSectorSelectionOn) {mHistTitle->Append(" Sector "); mHistTitle->Append(*mSector);}
+    mHistName  = new TString("xyresvsDipZ4");
+    mHistName->Append(*mCount);
+    ResidualHists[i].mXYResVersusDipZ4 =
+      new TH2F(mHistName->Data(), mHistTitle->Data(), nXBins, xMin, xMax, nYBins, yMin, yMax);
+    ResidualHists[i].mXYResVersusDipZ4->Sumw2();
+    ResidualHists[i].mXYResVersusDipZ4->SetXTitle("dip angle (degree)");
+    ResidualHists[i].mXYResVersusDipZ4->SetYTitle("xy residuals");
+    delete mHistTitle;
+    delete mHistName;
+
+    mHistTitle = new TString("Mean xy residual vs dip angle 150 < z <= 200");
+    mHistTitle->Append(mIndexName[i]);
+    if (bSectorSelectionOn) {mHistTitle->Append(" Sector "); mHistTitle->Append(*mSector);}
+    mHistName  = new TString("meanxyresvsDipZ4");
+    mHistName->Append(*mCount);
+    ResidualHists[i].FitHists.mXYResVersusDipZ4_mean =
+      new TH1D(mHistName->Data(), mHistTitle->Data(), nXBins, xMin, xMax);
+    ResidualHists[i].FitHists.mXYResVersusDipZ4_mean->Sumw2();
+    delete mHistTitle;
+    delete mHistName;
+
+    mHistTitle = new TString("Sigma xy residual vs dip angle 150 < z <= 200");
+    mHistTitle->Append(mIndexName[i]);
+    if (bSectorSelectionOn) {mHistTitle->Append(" Sector "); mHistTitle->Append(*mSector);}
+    mHistName  = new TString("sigmaxyresvsDipZ4");
+    mHistName->Append(*mCount);
+    ResidualHists[i].FitHists.mXYResVersusDipZ4_sigma =
+      new TH1D(mHistName->Data(), mHistTitle->Data(), nXBins, xMin, xMax);
+    ResidualHists[i].FitHists.mXYResVersusDipZ4_sigma->Sumw2();
+    delete mHistTitle;
+    delete mHistName;
+
+    mHistTitle = new TString("Magnitude xy residual vs dip angle 150 < z <= 200");
+    mHistTitle->Append(mIndexName[i]);
+    if (bSectorSelectionOn) {mHistTitle->Append(" Sector "); mHistTitle->Append(*mSector);}
+    mHistName  = new TString("magxyresvsDipZ4");
+    mHistName->Append(*mCount);
+    ResidualHists[i].FitHists.mXYResVersusDipZ4_mag =
+      new TH1D(mHistName->Data(), mHistTitle->Data(), nXBins, xMin, xMax);
+    ResidualHists[i].FitHists.mXYResVersusDipZ4_mag->Sumw2();
+    delete mHistTitle;
+    delete mHistName;
+
+    mHistTitle = new TString("ChiSquared xy residual vs dip angle 150 < z <= 200");
+    mHistTitle->Append(mIndexName[i]);
+    if (bSectorSelectionOn) {mHistTitle->Append(" Sector "); mHistTitle->Append(*mSector);}
+    mHistName  = new TString("chixyresvsDipZ4");
+    mHistName->Append(*mCount);
+    ResidualHists[i].FitHists.mXYResVersusDipZ4_chi =
+      new TH1D(mHistName->Data(), mHistTitle->Data(), nXBins, xMin, xMax);
+    ResidualHists[i].FitHists.mXYResVersusDipZ4_chi->Sumw2();
+    delete mHistTitle;
+    delete mHistName;
+
+
+
+    // Z residual versus crossing angle
+
+
+    mHistTitle = new TString("Z residual vs crossing angle");
+    mHistTitle->Append(mIndexName[i]);
+    if (bSectorSelectionOn) {mHistTitle->Append(" Sector "); mHistTitle->Append(*mSector);}
+    mHistName  = new TString("ZresvsAlpha");
+    mHistName->Append(*mCount);
+    ResidualHists[i].mZResVersusAlpha =
+      new TH2F(mHistName->Data(), mHistTitle->Data(), nXBins, xMin, xMax, nYBins, yMin, yMax);
+    ResidualHists[i].mZResVersusAlpha->Sumw2();
+    ResidualHists[i].mZResVersusAlpha->SetXTitle("crossing angle (degree)");
+    ResidualHists[i].mZResVersusAlpha->SetYTitle("Z residuals");
+    delete mHistTitle;
+    delete mHistName;
+
+    mHistTitle = new TString("Mean Z residual vs crossing angle");
+    mHistTitle->Append(mIndexName[i]);
+    if (bSectorSelectionOn) {mHistTitle->Append(" Sector "); mHistTitle->Append(*mSector);}
+    mHistName  = new TString("meanZresvsAlpha");
+    mHistName->Append(*mCount);
+    ResidualHists[i].FitHists.mZResVersusAlpha_mean =
+      new TH1D(mHistName->Data(), mHistTitle->Data(), nXBins, xMin, xMax);
+    ResidualHists[i].FitHists.mZResVersusAlpha_mean->Sumw2();
+    delete mHistTitle;
+    delete mHistName;
+
+    mHistTitle = new TString("Sigma Z residual vs crossing angle");
+    mHistTitle->Append(mIndexName[i]);
+    if (bSectorSelectionOn) {mHistTitle->Append(" Sector "); mHistTitle->Append(*mSector);}
+    mHistName  = new TString("sigmaZresvsAlpha");
+    mHistName->Append(*mCount);
+    ResidualHists[i].FitHists.mZResVersusAlpha_sigma =
+      new TH1D(mHistName->Data(), mHistTitle->Data(), nXBins, xMin, xMax);
+    ResidualHists[i].FitHists.mZResVersusAlpha_sigma->Sumw2();
+    delete mHistTitle;
+    delete mHistName;
+
+    mHistTitle = new TString("Magnitude Z residual vs crossing angle");
+    mHistTitle->Append(mIndexName[i]);
+    if (bSectorSelectionOn) {mHistTitle->Append(" Sector "); mHistTitle->Append(*mSector);}
+    mHistName  = new TString("magZresvsAlpha");
+    mHistName->Append(*mCount);
+    ResidualHists[i].FitHists.mZResVersusAlpha_mag =
+      new TH1D(mHistName->Data(), mHistTitle->Data(), nXBins, xMin, xMax);
+    ResidualHists[i].FitHists.mZResVersusAlpha_mag->Sumw2();
+    delete mHistTitle;
+    delete mHistName;
+
+    mHistTitle = new TString("ChiSquared Z residual vs crossing angle");
+    mHistTitle->Append(mIndexName[i]);
+    if (bSectorSelectionOn) {mHistTitle->Append(" Sector "); mHistTitle->Append(*mSector);}
+    mHistName  = new TString("chiZresvsAlpha");
+    mHistName->Append(*mCount);
+    ResidualHists[i].FitHists.mZResVersusAlpha_chi =
+      new TH1D(mHistName->Data(), mHistTitle->Data(), nXBins, xMin, xMax);
+    ResidualHists[i].FitHists.mZResVersusAlpha_chi->Sumw2();
+    delete mHistTitle;
+    delete mHistName;
+
+    mHistTitle = new TString("Z residual vs crossing angle 0 < z <= 50");
+    mHistTitle->Append(mIndexName[i]);
+    if (bSectorSelectionOn) {mHistTitle->Append(" Sector "); mHistTitle->Append(*mSector);}
+    mHistName  = new TString("ZresvsAlphaZ1");
+    mHistName->Append(*mCount);
+    ResidualHists[i].mZResVersusAlphaZ1 =
+      new TH2F(mHistName->Data(), mHistTitle->Data(), nXBins, xMin, xMax, nYBins, yMin, yMax);
+    ResidualHists[i].mZResVersusAlphaZ1->Sumw2();
+    ResidualHists[i].mZResVersusAlphaZ1->SetXTitle("crossing angle (degree)");
+    ResidualHists[i].mZResVersusAlphaZ1->SetYTitle("Z residuals");
+    delete mHistTitle;
+    delete mHistName;
+
+    mHistTitle = new TString("Mean Z residual vs crossing angle 0 < z <= 50");
+    mHistTitle->Append(mIndexName[i]);
+    if (bSectorSelectionOn) {mHistTitle->Append(" Sector "); mHistTitle->Append(*mSector);}
+    mHistName  = new TString("meanZresvsAlphaZ1");
+    mHistName->Append(*mCount);
+    ResidualHists[i].FitHists.mZResVersusAlphaZ1_mean =
+      new TH1D(mHistName->Data(), mHistTitle->Data(), nXBins, xMin, xMax);
+    ResidualHists[i].FitHists.mZResVersusAlphaZ1_mean->Sumw2();
+    delete mHistTitle;
+    delete mHistName;
+
+    mHistTitle = new TString("Sigma Z residual vs crossing angle 0 < z <= 50");
+    mHistTitle->Append(mIndexName[i]);
+    if (bSectorSelectionOn) {mHistTitle->Append(" Sector "); mHistTitle->Append(*mSector);}
+    mHistName  = new TString("sigmaZresvsAlphaZ1");
+    mHistName->Append(*mCount);
+    ResidualHists[i].FitHists.mZResVersusAlphaZ1_sigma =
+      new TH1D(mHistName->Data(), mHistTitle->Data(), nXBins, xMin, xMax);
+    ResidualHists[i].FitHists.mZResVersusAlphaZ1_sigma->Sumw2();
+    delete mHistTitle;
+    delete mHistName;
+
+    mHistTitle = new TString("Magnitude Z residual vs crossing angle 0 < z <= 50");
+    mHistTitle->Append(mIndexName[i]);
+    if (bSectorSelectionOn) {mHistTitle->Append(" Sector "); mHistTitle->Append(*mSector);}
+    mHistName  = new TString("magZresvsAlphaZ1");
+    mHistName->Append(*mCount);
+    ResidualHists[i].FitHists.mZResVersusAlphaZ1_mag =
+      new TH1D(mHistName->Data(), mHistTitle->Data(), nXBins, xMin, xMax);
+    ResidualHists[i].FitHists.mZResVersusAlphaZ1_mag->Sumw2();
+    delete mHistTitle;
+    delete mHistName;
+
+    mHistTitle = new TString("ChiSquared Z residual vs crossing angle 0 < z <= 50");
+    mHistTitle->Append(mIndexName[i]);
+    if (bSectorSelectionOn) {mHistTitle->Append(" Sector "); mHistTitle->Append(*mSector);}
+    mHistName  = new TString("chiZresvsAlphaZ1");
+    mHistName->Append(*mCount);
+    ResidualHists[i].FitHists.mZResVersusAlphaZ1_chi =
+      new TH1D(mHistName->Data(), mHistTitle->Data(), nXBins, xMin, xMax);
+    ResidualHists[i].FitHists.mZResVersusAlphaZ1_chi->Sumw2();
+    delete mHistTitle;
+    delete mHistName;
+
+    mHistTitle = new TString("Z residual vs crossing angle 50 < z <= 100");
+    mHistTitle->Append(mIndexName[i]);
+    if (bSectorSelectionOn) {mHistTitle->Append(" Sector "); mHistTitle->Append(*mSector);}
+    mHistName  = new TString("ZresvsAlphaZ2");
+    mHistName->Append(*mCount);
+    ResidualHists[i].mZResVersusAlphaZ2 =
+      new TH2F(mHistName->Data(), mHistTitle->Data(), nXBins, xMin, xMax, nYBins, yMin, yMax);
+    ResidualHists[i].mZResVersusAlphaZ2->Sumw2();
+    ResidualHists[i].mZResVersusAlphaZ2->SetXTitle("crossing angle (degree)");
+    ResidualHists[i].mZResVersusAlphaZ2->SetYTitle("Z residuals");
+    delete mHistTitle;
+    delete mHistName;
+
+    mHistTitle = new TString("Mean Z residual vs crossing angle 50 < z <= 100");
+    mHistTitle->Append(mIndexName[i]);
+    if (bSectorSelectionOn) {mHistTitle->Append(" Sector "); mHistTitle->Append(*mSector);}
+    mHistName  = new TString("meanZresvsAlphaZ2");
+    mHistName->Append(*mCount);
+    ResidualHists[i].FitHists.mZResVersusAlphaZ2_mean =
+      new TH1D(mHistName->Data(), mHistTitle->Data(), nXBins, xMin, xMax);
+    ResidualHists[i].FitHists.mZResVersusAlphaZ2_mean->Sumw2();
+    delete mHistTitle;
+    delete mHistName;
+
+    mHistTitle = new TString("Sigma Z residual vs crossing angle 50 < z <= 100");
+    mHistTitle->Append(mIndexName[i]);
+    if (bSectorSelectionOn) {mHistTitle->Append(" Sector "); mHistTitle->Append(*mSector);}
+    mHistName  = new TString("sigmaZresvsAlphaZ2");
+    mHistName->Append(*mCount);
+    ResidualHists[i].FitHists.mZResVersusAlphaZ2_sigma =
+      new TH1D(mHistName->Data(), mHistTitle->Data(), nXBins, xMin, xMax);
+    ResidualHists[i].FitHists.mZResVersusAlphaZ2_sigma->Sumw2();
+    delete mHistTitle;
+    delete mHistName;
+
+    mHistTitle = new TString("Magnitude Z residual vs crossing angle 50 < z <= 100");
+    mHistTitle->Append(mIndexName[i]);
+    if (bSectorSelectionOn) {mHistTitle->Append(" Sector "); mHistTitle->Append(*mSector);}
+    mHistName  = new TString("magZresvsAlphaZ2");
+    mHistName->Append(*mCount);
+    ResidualHists[i].FitHists.mZResVersusAlphaZ2_mag =
+      new TH1D(mHistName->Data(), mHistTitle->Data(), nXBins, xMin, xMax);
+    ResidualHists[i].FitHists.mZResVersusAlphaZ2_mag->Sumw2();
+    delete mHistTitle;
+    delete mHistName;
+
+    mHistTitle = new TString("ChiSquared Z residual vs crossing angle 50 < z <= 100");
+    mHistTitle->Append(mIndexName[i]);
+    if (bSectorSelectionOn) {mHistTitle->Append(" Sector "); mHistTitle->Append(*mSector);}
+    mHistName  = new TString("chiZresvsAlphaZ2");
+    mHistName->Append(*mCount);
+    ResidualHists[i].FitHists.mZResVersusAlphaZ2_chi =
+      new TH1D(mHistName->Data(), mHistTitle->Data(), nXBins, xMin, xMax);
+    ResidualHists[i].FitHists.mZResVersusAlphaZ2_chi->Sumw2();
+    delete mHistTitle;
+    delete mHistName;
+
+    mHistTitle = new TString("Z residual vs crossing angle 100 < z <= 150");
+    mHistTitle->Append(mIndexName[i]);
+    if (bSectorSelectionOn) {mHistTitle->Append(" Sector "); mHistTitle->Append(*mSector);}
+    mHistName  = new TString("ZresvsAlphaZ3");
+    mHistName->Append(*mCount);
+    ResidualHists[i].mZResVersusAlphaZ3 =
+      new TH2F(mHistName->Data(), mHistTitle->Data(), nXBins, xMin, xMax, nYBins, yMin, yMax);
+    ResidualHists[i].mZResVersusAlphaZ3->Sumw2();
+    ResidualHists[i].mZResVersusAlphaZ3->SetXTitle("crossing angle (degree)");
+    ResidualHists[i].mZResVersusAlphaZ3->SetYTitle("Z residuals");
+    delete mHistTitle;
+    delete mHistName;
+
+    mHistTitle = new TString("Mean Z residual vs crossing angle 100 < z <= 150");
+    mHistTitle->Append(mIndexName[i]);
+    if (bSectorSelectionOn) {mHistTitle->Append(" Sector "); mHistTitle->Append(*mSector);}
+    mHistName  = new TString("meanZresvsAlphaZ3");
+    mHistName->Append(*mCount);
+    ResidualHists[i].FitHists.mZResVersusAlphaZ3_mean =
+      new TH1D(mHistName->Data(), mHistTitle->Data(), nXBins, xMin, xMax);
+    ResidualHists[i].FitHists.mZResVersusAlphaZ3_mean->Sumw2();
+    delete mHistTitle;
+    delete mHistName;
+
+    mHistTitle = new TString("Sigma Z residual vs crossing angle 100 < z <= 150");
+    mHistTitle->Append(mIndexName[i]);
+    if (bSectorSelectionOn) {mHistTitle->Append(" Sector "); mHistTitle->Append(*mSector);}
+    mHistName  = new TString("sigmaZresvsAlphaZ3");
+    mHistName->Append(*mCount);
+    ResidualHists[i].FitHists.mZResVersusAlphaZ3_sigma =
+      new TH1D(mHistName->Data(), mHistTitle->Data(), nXBins, xMin, xMax);
+    ResidualHists[i].FitHists.mZResVersusAlphaZ3_sigma->Sumw2();
+    delete mHistTitle;
+    delete mHistName;
+
+    mHistTitle = new TString("Magnitude Z residual vs crossing angle 100 < z <= 150");
+    mHistTitle->Append(mIndexName[i]);
+    if (bSectorSelectionOn) {mHistTitle->Append(" Sector "); mHistTitle->Append(*mSector);}
+    mHistName  = new TString("magZresvsAlphaZ3");
+    mHistName->Append(*mCount);
+    ResidualHists[i].FitHists.mZResVersusAlphaZ3_mag =
+      new TH1D(mHistName->Data(), mHistTitle->Data(), nXBins, xMin, xMax);
+    ResidualHists[i].FitHists.mZResVersusAlphaZ3_mag->Sumw2();
+    delete mHistTitle;
+    delete mHistName;
+
+    mHistTitle = new TString("ChiSquared Z residual vs crossing angle 100 < z <= 150");
+    mHistTitle->Append(mIndexName[i]);
+    if (bSectorSelectionOn) {mHistTitle->Append(" Sector "); mHistTitle->Append(*mSector);}
+    mHistName  = new TString("chiZresvsAlphaZ3");
+    mHistName->Append(*mCount);
+    ResidualHists[i].FitHists.mZResVersusAlphaZ3_chi =
+      new TH1D(mHistName->Data(), mHistTitle->Data(), nXBins, xMin, xMax);
+    ResidualHists[i].FitHists.mZResVersusAlphaZ3_chi->Sumw2();
+    delete mHistTitle;
+    delete mHistName;
+
+    mHistTitle = new TString("Z residual vs crossing angle 150 < z <= 200");
+    mHistTitle->Append(mIndexName[i]);
+    if (bSectorSelectionOn) {mHistTitle->Append(" Sector "); mHistTitle->Append(*mSector);}
+    mHistName  = new TString("ZresvsAlphaZ4");
+    mHistName->Append(*mCount);
+    ResidualHists[i].mZResVersusAlphaZ4 =
+      new TH2F(mHistName->Data(), mHistTitle->Data(), nXBins, xMin, xMax, nYBins, yMin, yMax);
+    ResidualHists[i].mZResVersusAlphaZ4->Sumw2();
+    ResidualHists[i].mZResVersusAlphaZ4->SetXTitle("crossing angle (degree)");
+    ResidualHists[i].mZResVersusAlphaZ4->SetYTitle("Z residuals");
+    delete mHistTitle;
+    delete mHistName;
+
+    mHistTitle = new TString("Mean Z residual vs crossing angle 150 < z <= 200");
+    mHistTitle->Append(mIndexName[i]);
+    if (bSectorSelectionOn) {mHistTitle->Append(" Sector "); mHistTitle->Append(*mSector);}
+    mHistName  = new TString("meanZresvsAlphaZ4");
+    mHistName->Append(*mCount);
+    ResidualHists[i].FitHists.mZResVersusAlphaZ4_mean =
+      new TH1D(mHistName->Data(), mHistTitle->Data(), nXBins, xMin, xMax);
+    ResidualHists[i].FitHists.mZResVersusAlphaZ4_mean->Sumw2();
+    delete mHistTitle;
+    delete mHistName;
+
+    mHistTitle = new TString("Sigma Z residual vs crossing angle 150 < z <= 200");
+    mHistTitle->Append(mIndexName[i]);
+    if (bSectorSelectionOn) {mHistTitle->Append(" Sector "); mHistTitle->Append(*mSector);}
+    mHistName  = new TString("sigmaZresvsAlphaZ4");
+    mHistName->Append(*mCount);
+    ResidualHists[i].FitHists.mZResVersusAlphaZ4_sigma =
+      new TH1D(mHistName->Data(), mHistTitle->Data(), nXBins, xMin, xMax);
+    ResidualHists[i].FitHists.mZResVersusAlphaZ4_sigma->Sumw2();
+    delete mHistTitle;
+    delete mHistName;
+
+    mHistTitle = new TString("Magnitude Z residual vs crossing angle 150 < z <= 200");
+    mHistTitle->Append(mIndexName[i]);
+    if (bSectorSelectionOn) {mHistTitle->Append(" Sector "); mHistTitle->Append(*mSector);}
+    mHistName  = new TString("magZresvsAlphaZ4");
+    mHistName->Append(*mCount);
+    ResidualHists[i].FitHists.mZResVersusAlphaZ4_mag =
+      new TH1D(mHistName->Data(), mHistTitle->Data(), nXBins, xMin, xMax);
+    ResidualHists[i].FitHists.mZResVersusAlphaZ4_mag->Sumw2();
+    delete mHistTitle;
+    delete mHistName;
+
+    mHistTitle = new TString("ChiSquared Z residual vs crossing angle 150 < z <= 200");
+    mHistTitle->Append(mIndexName[i]);
+    if (bSectorSelectionOn) {mHistTitle->Append(" Sector "); mHistTitle->Append(*mSector);}
+    mHistName  = new TString("chiZresvsAlphaZ4");
+    mHistName->Append(*mCount);
+    ResidualHists[i].FitHists.mZResVersusAlphaZ4_chi =
+      new TH1D(mHistName->Data(), mHistTitle->Data(), nXBins, xMin, xMax);
+    ResidualHists[i].FitHists.mZResVersusAlphaZ4_chi->Sumw2();
+    delete mHistTitle;
+    delete mHistName;
+
+    // Z residual versus dip angle
+
+    mHistTitle = new TString("Z residual vs Dip Angle");
+    mHistTitle->Append(mIndexName[i]);
+    if (bSectorSelectionOn) {mHistTitle->Append(" Sector "); mHistTitle->Append(*mSector);}
+    mHistName  = new TString("ZresvsDip");
+    mHistName->Append(*mCount);
+    ResidualHists[i].mZResVersusDip =
+      new TH2F(mHistName->Data(), mHistTitle->Data(), nXBins, xMin, xMax, nYBins, yMin, yMax);
+    ResidualHists[i].mZResVersusDip->Sumw2();
+    ResidualHists[i].mZResVersusDip->SetXTitle("Dip Angle (degree)");
+    ResidualHists[i].mZResVersusDip->SetYTitle("Z residuals");
+    delete mHistTitle;
+    delete mHistName;
+
+    mHistTitle = new TString("Mean Z residual vs Dip Angle");
+    mHistTitle->Append(mIndexName[i]);
+    if (bSectorSelectionOn) {mHistTitle->Append(" Sector "); mHistTitle->Append(*mSector);}
+    mHistName  = new TString("meanZresvsDip");
+    mHistName->Append(*mCount);
+    ResidualHists[i].FitHists.mZResVersusDip_mean =
+      new TH1D(mHistName->Data(), mHistTitle->Data(), nXBins, xMin, xMax);
+    ResidualHists[i].FitHists.mZResVersusDip_mean->Sumw2();
+    delete mHistTitle;
+    delete mHistName;
+
+    mHistTitle = new TString("Sigma Z residual vs Dip Angle");
+    mHistTitle->Append(mIndexName[i]);
+    if (bSectorSelectionOn) {mHistTitle->Append(" Sector "); mHistTitle->Append(*mSector);}
+    mHistName  = new TString("sigmaZresvsDip");
+    mHistName->Append(*mCount);
+    ResidualHists[i].FitHists.mZResVersusDip_sigma =
+      new TH1D(mHistName->Data(), mHistTitle->Data(), nXBins, xMin, xMax);
+    ResidualHists[i].FitHists.mZResVersusDip_sigma->Sumw2();
+    delete mHistTitle;
+    delete mHistName;
+
+    mHistTitle = new TString("Magnitude Z residual vs Dip Angle");
+    mHistTitle->Append(mIndexName[i]);
+    if (bSectorSelectionOn) {mHistTitle->Append(" Sector "); mHistTitle->Append(*mSector);}
+    mHistName  = new TString("magZresvsDip");
+    mHistName->Append(*mCount);
+    ResidualHists[i].FitHists.mZResVersusDip_mag =
+      new TH1D(mHistName->Data(), mHistTitle->Data(), nXBins, xMin, xMax);
+    ResidualHists[i].FitHists.mZResVersusDip_mag->Sumw2();
+    delete mHistTitle;
+    delete mHistName;
+
+    mHistTitle = new TString("ChiSquared Z residual vs Dip Angle");
+    mHistTitle->Append(mIndexName[i]);
+    if (bSectorSelectionOn) {mHistTitle->Append(" Sector "); mHistTitle->Append(*mSector);}
+    mHistName  = new TString("chiZresvsDip");
+    mHistName->Append(*mCount);
+    ResidualHists[i].FitHists.mZResVersusDip_chi =
+      new TH1D(mHistName->Data(), mHistTitle->Data(), nXBins, xMin, xMax);
+    ResidualHists[i].FitHists.mZResVersusDip_chi->Sumw2();
+    delete mHistTitle;
+    delete mHistName;
+
+    mHistTitle = new TString("Z residual vs Dip Angle 0 < z <= 50");
+    mHistTitle->Append(mIndexName[i]);
+    if (bSectorSelectionOn) {mHistTitle->Append(" Sector "); mHistTitle->Append(*mSector);}
+    mHistName  = new TString("ZresvsDipZ1");
+    mHistName->Append(*mCount);
+    ResidualHists[i].mZResVersusDipZ1 =
+      new TH2F(mHistName->Data(), mHistTitle->Data(), nXBins, xMin, xMax, nYBins, yMin, yMax);
+    ResidualHists[i].mZResVersusDipZ1->Sumw2();
+    ResidualHists[i].mZResVersusDipZ1->SetXTitle("Dip Angle (degree)");
+    ResidualHists[i].mZResVersusDipZ1->SetYTitle("Z residuals");
+    delete mHistTitle;
+    delete mHistName;
+
+    mHistTitle = new TString("Mean Z residual vs Dip Angle 0 < z <= 50");
+    mHistTitle->Append(mIndexName[i]);
+    if (bSectorSelectionOn) {mHistTitle->Append(" Sector "); mHistTitle->Append(*mSector);}
+    mHistName  = new TString("meanZresvsDipZ1");
+    mHistName->Append(*mCount);
+    ResidualHists[i].FitHists.mZResVersusDipZ1_mean =
+      new TH1D(mHistName->Data(), mHistTitle->Data(), nXBins, xMin, xMax);
+    ResidualHists[i].FitHists.mZResVersusDipZ1_mean->Sumw2();
+    delete mHistTitle;
+    delete mHistName;
+
+    mHistTitle = new TString("Sigma Z residual vs Dip Angle 0 < z <= 50");
+    mHistTitle->Append(mIndexName[i]);
+    if (bSectorSelectionOn) {mHistTitle->Append(" Sector "); mHistTitle->Append(*mSector);}
+    mHistName  = new TString("sigmaZresvsDipZ1");
+    mHistName->Append(*mCount);
+    ResidualHists[i].FitHists.mZResVersusDipZ1_sigma =
+      new TH1D(mHistName->Data(), mHistTitle->Data(), nXBins, xMin, xMax);
+    ResidualHists[i].FitHists.mZResVersusDipZ1_sigma->Sumw2();
+    delete mHistTitle;
+    delete mHistName;
+
+    mHistTitle = new TString("Magnitude Z residual vs Dip Angle 0 < z <= 50");
+    mHistTitle->Append(mIndexName[i]);
+    if (bSectorSelectionOn) {mHistTitle->Append(" Sector "); mHistTitle->Append(*mSector);}
+    mHistName  = new TString("magZresvsDipZ1");
+    mHistName->Append(*mCount);
+    ResidualHists[i].FitHists.mZResVersusDipZ1_mag =
+      new TH1D(mHistName->Data(), mHistTitle->Data(), nXBins, xMin, xMax);
+    ResidualHists[i].FitHists.mZResVersusDipZ1_mag->Sumw2();
+    delete mHistTitle;
+    delete mHistName;
+
+    mHistTitle = new TString("ChiSquared Z residual vs Dip Angle 0 < z <= 50");
+    mHistTitle->Append(mIndexName[i]);
+    if (bSectorSelectionOn) {mHistTitle->Append(" Sector "); mHistTitle->Append(*mSector);}
+    mHistName  = new TString("chiZresvsDipZ1");
+    mHistName->Append(*mCount);
+    ResidualHists[i].FitHists.mZResVersusDipZ1_chi =
+      new TH1D(mHistName->Data(), mHistTitle->Data(), nXBins, xMin, xMax);
+    ResidualHists[i].FitHists.mZResVersusDipZ1_chi->Sumw2();
+    delete mHistTitle;
+    delete mHistName;
+
+    mHistTitle = new TString("Z residual vs Dip Angle 50 < z <= 100");
+    mHistTitle->Append(mIndexName[i]);
+    if (bSectorSelectionOn) {mHistTitle->Append(" Sector "); mHistTitle->Append(*mSector);}
+    mHistName  = new TString("ZresvsDipZ2");
+    mHistName->Append(*mCount);
+    ResidualHists[i].mZResVersusDipZ2 =
+      new TH2F(mHistName->Data(), mHistTitle->Data(), nXBins, xMin, xMax, nYBins, yMin, yMax);
+    ResidualHists[i].mZResVersusDipZ2->Sumw2();
+    ResidualHists[i].mZResVersusDipZ2->SetXTitle("Dip Angle (degree)");
+    ResidualHists[i].mZResVersusDipZ2->SetYTitle("Z residuals");
+    delete mHistTitle;
+    delete mHistName;
+
+    mHistTitle = new TString("Mean Z residual vs Dip Angle 50 < z <= 100");
+    mHistTitle->Append(mIndexName[i]);
+    if (bSectorSelectionOn) {mHistTitle->Append(" Sector "); mHistTitle->Append(*mSector);}
+    mHistName  = new TString("meanZresvsDipZ2");
+    mHistName->Append(*mCount);
+    ResidualHists[i].FitHists.mZResVersusDipZ2_mean =
+      new TH1D(mHistName->Data(), mHistTitle->Data(), nXBins, xMin, xMax);
+    ResidualHists[i].FitHists.mZResVersusDipZ2_mean->Sumw2();
+    delete mHistTitle;
+    delete mHistName;
+
+    mHistTitle = new TString("Sigma Z residual vs Dip Angle 50 < z <= 100");
+    mHistTitle->Append(mIndexName[i]);
+    if (bSectorSelectionOn) {mHistTitle->Append(" Sector "); mHistTitle->Append(*mSector);}
+    mHistName  = new TString("sigmaZresvsDipZ2");
+    mHistName->Append(*mCount);
+    ResidualHists[i].FitHists.mZResVersusDipZ2_sigma =
+      new TH1D(mHistName->Data(), mHistTitle->Data(), nXBins, xMin, xMax);
+    ResidualHists[i].FitHists.mZResVersusDipZ2_sigma->Sumw2();
+    delete mHistTitle;
+    delete mHistName;
+
+    mHistTitle = new TString("Magnitude Z residual vs Dip Angle 50 < z <= 100");
+    mHistTitle->Append(mIndexName[i]);
+    if (bSectorSelectionOn) {mHistTitle->Append(" Sector "); mHistTitle->Append(*mSector);}
+    mHistName  = new TString("magZresvsDipZ2");
+    mHistName->Append(*mCount);
+    ResidualHists[i].FitHists.mZResVersusDipZ2_mag =
+      new TH1D(mHistName->Data(), mHistTitle->Data(), nXBins, xMin, xMax);
+    ResidualHists[i].FitHists.mZResVersusDipZ2_mag->Sumw2();
+    delete mHistTitle;
+    delete mHistName;
+
+    mHistTitle = new TString("ChiSquared Z residual vs Dip Angle 50 < z <= 100");
+    mHistTitle->Append(mIndexName[i]);
+    if (bSectorSelectionOn) {mHistTitle->Append(" Sector "); mHistTitle->Append(*mSector);}
+    mHistName  = new TString("chiZresvsDipZ2");
+    mHistName->Append(*mCount);
+    ResidualHists[i].FitHists.mZResVersusDipZ2_chi =
+      new TH1D(mHistName->Data(), mHistTitle->Data(), nXBins, xMin, xMax);
+    ResidualHists[i].FitHists.mZResVersusDipZ2_chi->Sumw2();
+    delete mHistTitle;
+    delete mHistName;
+
+    mHistTitle = new TString("Z residual vs Dip Angle 100 < z <= 150");
+    mHistTitle->Append(mIndexName[i]);
+    if (bSectorSelectionOn) {mHistTitle->Append(" Sector "); mHistTitle->Append(*mSector);}
+    mHistName  = new TString("ZresvsDipZ3");
+    mHistName->Append(*mCount);
+    ResidualHists[i].mZResVersusDipZ3 =
+      new TH2F(mHistName->Data(), mHistTitle->Data(), nXBins, xMin, xMax, nYBins, yMin, yMax);
+    ResidualHists[i].mZResVersusDipZ3->Sumw2();
+    ResidualHists[i].mZResVersusDipZ3->SetXTitle("Dip Angle (degree)");
+    ResidualHists[i].mZResVersusDipZ3->SetYTitle("Z residuals");
+    delete mHistTitle;
+    delete mHistName;
+
+    mHistTitle = new TString("Mean Z residual vs Dip Angle 100 < z <= 150");
+    mHistTitle->Append(mIndexName[i]);
+    if (bSectorSelectionOn) {mHistTitle->Append(" Sector "); mHistTitle->Append(*mSector);}
+    mHistName  = new TString("meanZresvsDipZ3");
+    mHistName->Append(*mCount);
+    ResidualHists[i].FitHists.mZResVersusDipZ3_mean =
+      new TH1D(mHistName->Data(), mHistTitle->Data(), nXBins, xMin, xMax);
+    ResidualHists[i].FitHists.mZResVersusDipZ3_mean->Sumw2();
+    delete mHistTitle;
+    delete mHistName;
+
+    mHistTitle = new TString("Sigma Z residual vs Dip Angle 100 < z <= 150");
+    mHistTitle->Append(mIndexName[i]);
+    if (bSectorSelectionOn) {mHistTitle->Append(" Sector "); mHistTitle->Append(*mSector);}
+    mHistName  = new TString("sigmaZresvsDipZ3");
+    mHistName->Append(*mCount);
+    ResidualHists[i].FitHists.mZResVersusDipZ3_sigma =
+      new TH1D(mHistName->Data(), mHistTitle->Data(), nXBins, xMin, xMax);
+    ResidualHists[i].FitHists.mZResVersusDipZ3_sigma->Sumw2();
+    delete mHistTitle;
+    delete mHistName;
+
+    mHistTitle = new TString("Magnitude Z residual vs Dip Angle 100 < z <= 150");
+    mHistTitle->Append(mIndexName[i]);
+    if (bSectorSelectionOn) {mHistTitle->Append(" Sector "); mHistTitle->Append(*mSector);}
+    mHistName  = new TString("magZresvsDipZ3");
+    mHistName->Append(*mCount);
+    ResidualHists[i].FitHists.mZResVersusDipZ3_mag =
+      new TH1D(mHistName->Data(), mHistTitle->Data(), nXBins, xMin, xMax);
+    ResidualHists[i].FitHists.mZResVersusDipZ3_mag->Sumw2();
+    delete mHistTitle;
+    delete mHistName;
+
+    mHistTitle = new TString("ChiSquared Z residual vs Dip Angle 100 < z <= 150");
+    mHistTitle->Append(mIndexName[i]);
+    if (bSectorSelectionOn) {mHistTitle->Append(" Sector "); mHistTitle->Append(*mSector);}
+    mHistName  = new TString("chiZresvsDipZ3");
+    mHistName->Append(*mCount);
+    ResidualHists[i].FitHists.mZResVersusDipZ3_chi =
+      new TH1D(mHistName->Data(), mHistTitle->Data(), nXBins, xMin, xMax);
+    ResidualHists[i].FitHists.mZResVersusDipZ3_chi->Sumw2();
+    delete mHistTitle;
+    delete mHistName;
+
+    mHistTitle = new TString("Z residual vs Dip Angle 150 < z <= 200");
+    mHistTitle->Append(mIndexName[i]);
+    if (bSectorSelectionOn) {mHistTitle->Append(" Sector "); mHistTitle->Append(*mSector);}
+    mHistName  = new TString("ZresvsDipZ4");
+    mHistName->Append(*mCount);
+    ResidualHists[i].mZResVersusDipZ4 =
+      new TH2F(mHistName->Data(), mHistTitle->Data(), nXBins, xMin, xMax, nYBins, yMin, yMax);
+    ResidualHists[i].mZResVersusDipZ4->Sumw2();
+    ResidualHists[i].mZResVersusDipZ4->SetXTitle("Dip Angle (degree)");
+    ResidualHists[i].mZResVersusDipZ4->SetYTitle("Z residuals");
+    delete mHistTitle;
+    delete mHistName;
+
+    mHistTitle = new TString("Mean Z residual vs Dip Angle 150 < z <= 200");
+    mHistTitle->Append(mIndexName[i]);
+    if (bSectorSelectionOn) {mHistTitle->Append(" Sector "); mHistTitle->Append(*mSector);}
+    mHistName  = new TString("meanZresvsDipZ4");
+    mHistName->Append(*mCount);
+    ResidualHists[i].FitHists.mZResVersusDipZ4_mean =
+      new TH1D(mHistName->Data(), mHistTitle->Data(), nXBins, xMin, xMax);
+    ResidualHists[i].FitHists.mZResVersusDipZ4_mean->Sumw2();
+    delete mHistTitle;
+    delete mHistName;
+
+    mHistTitle = new TString("Sigma Z residual vs Dip Angle 150 < z <= 200");
+    mHistTitle->Append(mIndexName[i]);
+    if (bSectorSelectionOn) {mHistTitle->Append(" Sector "); mHistTitle->Append(*mSector);}
+    mHistName  = new TString("sigmaZresvsDipZ4");
+    mHistName->Append(*mCount);
+    ResidualHists[i].FitHists.mZResVersusDipZ4_sigma =
+      new TH1D(mHistName->Data(), mHistTitle->Data(), nXBins, xMin, xMax);
+    ResidualHists[i].FitHists.mZResVersusDipZ4_sigma->Sumw2();
+    delete mHistTitle;
+    delete mHistName;
+
+    mHistTitle = new TString("Magnitude Z residual vs Dip Angle 150 < z <= 200");
+    mHistTitle->Append(mIndexName[i]);
+    if (bSectorSelectionOn) {mHistTitle->Append(" Sector "); mHistTitle->Append(*mSector);}
+    mHistName  = new TString("magZresvsDipZ4");
+    mHistName->Append(*mCount);
+    ResidualHists[i].FitHists.mZResVersusDipZ4_mag =
+      new TH1D(mHistName->Data(), mHistTitle->Data(), nXBins, xMin, xMax);
+    ResidualHists[i].FitHists.mZResVersusDipZ4_mag->Sumw2();
+    delete mHistTitle;
+    delete mHistName;
+
+    mHistTitle = new TString("ChiSquared Z residual vs Dip Angle 150 < z <= 200");
+    mHistTitle->Append(mIndexName[i]);
+    if (bSectorSelectionOn) {mHistTitle->Append(" Sector "); mHistTitle->Append(*mSector);}
+    mHistName  = new TString("chiZresvsDipZ4");
+    mHistName->Append(*mCount);
+    ResidualHists[i].FitHists.mZResVersusDipZ4_chi =
+      new TH1D(mHistName->Data(), mHistTitle->Data(), nXBins, xMin, xMax);
+    ResidualHists[i].FitHists.mZResVersusDipZ4_chi->Sumw2();
+    delete mHistTitle;
+    delete mHistName;
+
+
   }
 
   return kStOK;
@@ -810,41 +1717,101 @@ Int_t StQACosmicMaker::fillResHistograms() {
 	    if (trkcalcp >= 0.3) {
 	      ResidualHists[0].mXYResVersusAlpha->
 		Fill((Float_t)(pttphit[i].alpha),(Float_t)(ptres[irow_res].resy) );
+	      ResidualHists[0].mXYResVersusDip->
+		Fill((Float_t)(pttphit[i].lambda),(Float_t)(ptres[irow_res].resy) );
+	      ResidualHists[0].mZResVersusAlpha->
+		Fill((Float_t)(pttphit[i].alpha),(Float_t)(ptres[irow_res].resz) );
+	      ResidualHists[0].mZResVersusDip->
+		Fill((Float_t)(pttphit[i].lambda),(Float_t)(ptres[irow_res].resz) );
 	      if (fabs(pttphit[i].z) <= 50.) {
 		ResidualHists[0].mXYResVersusAlphaZ1->
 		  Fill((Float_t)(pttphit[i].alpha),(Float_t)(ptres[irow_res].resy) );
+		ResidualHists[0].mXYResVersusDipZ1->
+		  Fill((Float_t)(pttphit[i].lambda),(Float_t)(ptres[irow_res].resy) );
+		ResidualHists[0].mZResVersusAlphaZ1->
+		  Fill((Float_t)(pttphit[i].alpha),(Float_t)(ptres[irow_res].resz) );
+		ResidualHists[0].mZResVersusDipZ1->
+		  Fill((Float_t)(pttphit[i].lambda),(Float_t)(ptres[irow_res].resz) );
 	      }
 	      if (fabs(pttphit[i].z) > 50. && fabs(pttphit[i].z) <= 100.) {
 		ResidualHists[0].mXYResVersusAlphaZ2->
 		  Fill((Float_t)(pttphit[i].alpha),(Float_t)(ptres[irow_res].resy) );
+		ResidualHists[0].mXYResVersusDipZ2->
+		  Fill((Float_t)(pttphit[i].lambda),(Float_t)(ptres[irow_res].resy) );
+		ResidualHists[0].mZResVersusAlphaZ2->
+		  Fill((Float_t)(pttphit[i].alpha),(Float_t)(ptres[irow_res].resz) );
+		ResidualHists[0].mZResVersusDipZ2->
+		  Fill((Float_t)(pttphit[i].lambda),(Float_t)(ptres[irow_res].resz) );
 	      }
 	      if (fabs(pttphit[i].z) > 100. && fabs(pttphit[i].z) <= 150.) {
 		ResidualHists[0].mXYResVersusAlphaZ3->
 		  Fill((Float_t)(pttphit[i].alpha),(Float_t)(ptres[irow_res].resy) );
+		ResidualHists[0].mXYResVersusDipZ3->
+		  Fill((Float_t)(pttphit[i].lambda),(Float_t)(ptres[irow_res].resy) );
+		ResidualHists[0].mZResVersusAlphaZ3->
+		  Fill((Float_t)(pttphit[i].alpha),(Float_t)(ptres[irow_res].resz) );
+		ResidualHists[0].mZResVersusDipZ3->
+		  Fill((Float_t)(pttphit[i].lambda),(Float_t)(ptres[irow_res].resz) );
 	      }
 	      if (fabs(pttphit[i].z) > 150. && fabs(pttphit[i].z) <= 200.) {
 		ResidualHists[0].mXYResVersusAlphaZ4->
 		  Fill((Float_t)(pttphit[i].alpha),(Float_t)(ptres[irow_res].resy) );
+		ResidualHists[0].mXYResVersusDipZ4->
+		  Fill((Float_t)(pttphit[i].lambda),(Float_t)(ptres[irow_res].resy) );
+		ResidualHists[0].mZResVersusAlphaZ4->
+		  Fill((Float_t)(pttphit[i].alpha),(Float_t)(ptres[irow_res].resz) );
+		ResidualHists[0].mZResVersusDipZ4->
+		  Fill((Float_t)(pttphit[i].lambda),(Float_t)(ptres[irow_res].resz) );
 	      }
 	    }
 	    else {
 	      ResidualHists[1].mXYResVersusAlpha->
-		Fill((Float_t)(pttphit[i].alpha),(Float_t)(ptres[irow_res].resy));
+		Fill((Float_t)(pttphit[i].alpha),(Float_t)(ptres[irow_res].resy) );
+	      ResidualHists[1].mXYResVersusDip->
+		Fill((Float_t)(pttphit[i].lambda),(Float_t)(ptres[irow_res].resy) );
+	      ResidualHists[1].mZResVersusAlpha->
+		Fill((Float_t)(pttphit[i].alpha),(Float_t)(ptres[irow_res].resz) );
+	      ResidualHists[1].mZResVersusDip->
+		Fill((Float_t)(pttphit[i].lambda),(Float_t)(ptres[irow_res].resz) );
 	      if (fabs(pttphit[i].z) <= 50.) {
 		ResidualHists[1].mXYResVersusAlphaZ1->
 		  Fill((Float_t)(pttphit[i].alpha),(Float_t)(ptres[irow_res].resy) );
+		ResidualHists[1].mXYResVersusDipZ1->
+		  Fill((Float_t)(pttphit[i].lambda),(Float_t)(ptres[irow_res].resy) );
+		ResidualHists[1].mZResVersusAlphaZ1->
+		  Fill((Float_t)(pttphit[i].alpha),(Float_t)(ptres[irow_res].resz) );
+		ResidualHists[1].mZResVersusDipZ1->
+		  Fill((Float_t)(pttphit[i].lambda),(Float_t)(ptres[irow_res].resz) );
 	      }
 	      if (fabs(pttphit[i].z) > 50. && fabs(pttphit[i].z) <= 100.) {
 		ResidualHists[1].mXYResVersusAlphaZ2->
 		  Fill((Float_t)(pttphit[i].alpha),(Float_t)(ptres[irow_res].resy) );
+		ResidualHists[1].mXYResVersusDipZ2->
+		  Fill((Float_t)(pttphit[i].lambda),(Float_t)(ptres[irow_res].resy) );
+		ResidualHists[1].mZResVersusAlphaZ2->
+		  Fill((Float_t)(pttphit[i].alpha),(Float_t)(ptres[irow_res].resz) );
+		ResidualHists[1].mZResVersusDipZ2->
+		  Fill((Float_t)(pttphit[i].lambda),(Float_t)(ptres[irow_res].resz) );
 	      }
 	      if (fabs(pttphit[i].z) > 100. && fabs(pttphit[i].z) <= 150.) {
 		ResidualHists[1].mXYResVersusAlphaZ3->
 		  Fill((Float_t)(pttphit[i].alpha),(Float_t)(ptres[irow_res].resy) );
+		ResidualHists[1].mXYResVersusDipZ3->
+		  Fill((Float_t)(pttphit[i].lambda),(Float_t)(ptres[irow_res].resy) );
+		ResidualHists[1].mZResVersusAlphaZ3->
+		  Fill((Float_t)(pttphit[i].alpha),(Float_t)(ptres[irow_res].resz) );
+		ResidualHists[1].mZResVersusDipZ3->
+		  Fill((Float_t)(pttphit[i].lambda),(Float_t)(ptres[irow_res].resz) );
 	      }
 	      if (fabs(pttphit[i].z) > 150. && fabs(pttphit[i].z) <= 200.) {
 		ResidualHists[1].mXYResVersusAlphaZ4->
 		  Fill((Float_t)(pttphit[i].alpha),(Float_t)(ptres[irow_res].resy) );
+		ResidualHists[1].mXYResVersusDipZ4->
+		  Fill((Float_t)(pttphit[i].lambda),(Float_t)(ptres[irow_res].resy) );
+		ResidualHists[1].mZResVersusAlphaZ4->
+		  Fill((Float_t)(pttphit[i].alpha),(Float_t)(ptres[irow_res].resz) );
+		ResidualHists[1].mZResVersusDipZ4->
+		  Fill((Float_t)(pttphit[i].lambda),(Float_t)(ptres[irow_res].resz) );
 	      }
 	    }
 	  }
@@ -852,42 +1819,102 @@ Int_t StQACosmicMaker::fillResHistograms() {
 	  else {
 	    if (trkcalcp >= 0.3) {
 	      ResidualHists[2].mXYResVersusAlpha->
-		Fill((Float_t)(pttphit[i].alpha),(Float_t)(ptres[irow_res].resy));
+		Fill((Float_t)(pttphit[i].alpha),(Float_t)(ptres[irow_res].resy) );
+	      ResidualHists[2].mXYResVersusDip->
+		Fill((Float_t)(pttphit[i].lambda),(Float_t)(ptres[irow_res].resy) );
+	      ResidualHists[2].mZResVersusAlpha->
+		Fill((Float_t)(pttphit[i].alpha),(Float_t)(ptres[irow_res].resz) );
+	      ResidualHists[2].mZResVersusDip->
+		Fill((Float_t)(pttphit[i].lambda),(Float_t)(ptres[irow_res].resz) );
 	      if (fabs(pttphit[i].z) <= 50.) {
 		ResidualHists[2].mXYResVersusAlphaZ1->
 		  Fill((Float_t)(pttphit[i].alpha),(Float_t)(ptres[irow_res].resy) );
+		ResidualHists[2].mXYResVersusDipZ1->
+		  Fill((Float_t)(pttphit[i].lambda),(Float_t)(ptres[irow_res].resy) );
+		ResidualHists[2].mZResVersusAlphaZ1->
+		  Fill((Float_t)(pttphit[i].alpha),(Float_t)(ptres[irow_res].resz) );
+		ResidualHists[2].mZResVersusDipZ1->
+		  Fill((Float_t)(pttphit[i].lambda),(Float_t)(ptres[irow_res].resz) );
 	      }
 	      if (fabs(pttphit[i].z) > 50. && fabs(pttphit[i].z) <= 100.) {
 		ResidualHists[2].mXYResVersusAlphaZ2->
 		  Fill((Float_t)(pttphit[i].alpha),(Float_t)(ptres[irow_res].resy) );
+		ResidualHists[2].mXYResVersusDipZ2->
+		  Fill((Float_t)(pttphit[i].lambda),(Float_t)(ptres[irow_res].resy) );
+		ResidualHists[2].mZResVersusAlphaZ2->
+		  Fill((Float_t)(pttphit[i].alpha),(Float_t)(ptres[irow_res].resz) );
+		ResidualHists[2].mZResVersusDipZ2->
+		  Fill((Float_t)(pttphit[i].lambda),(Float_t)(ptres[irow_res].resz) );
 	      }
 	      if (fabs(pttphit[i].z) > 100. && fabs(pttphit[i].z) <= 150.) {
 		ResidualHists[2].mXYResVersusAlphaZ3->
 		  Fill((Float_t)(pttphit[i].alpha),(Float_t)(ptres[irow_res].resy) );
+		ResidualHists[2].mXYResVersusDipZ3->
+		  Fill((Float_t)(pttphit[i].lambda),(Float_t)(ptres[irow_res].resy) );
+		ResidualHists[2].mZResVersusAlphaZ3->
+		  Fill((Float_t)(pttphit[i].alpha),(Float_t)(ptres[irow_res].resz) );
+		ResidualHists[2].mZResVersusDipZ3->
+		  Fill((Float_t)(pttphit[i].lambda),(Float_t)(ptres[irow_res].resz) );
 	      }
 	      if (fabs(pttphit[i].z) > 150. && fabs(pttphit[i].z) <= 200.) {
 		ResidualHists[2].mXYResVersusAlphaZ4->
 		  Fill((Float_t)(pttphit[i].alpha),(Float_t)(ptres[irow_res].resy) );
+		ResidualHists[2].mXYResVersusDipZ4->
+		  Fill((Float_t)(pttphit[i].lambda),(Float_t)(ptres[irow_res].resy) );
+		ResidualHists[2].mZResVersusAlphaZ4->
+		  Fill((Float_t)(pttphit[i].alpha),(Float_t)(ptres[irow_res].resz) );
+		ResidualHists[2].mZResVersusDipZ4->
+		  Fill((Float_t)(pttphit[i].lambda),(Float_t)(ptres[irow_res].resz) );
 	      }
 	    }
 	    else {
 	      ResidualHists[3].mXYResVersusAlpha->
-		Fill((Float_t)(pttphit[i].alpha),(Float_t)(ptres[irow_res].resy));
+		Fill((Float_t)(pttphit[i].alpha),(Float_t)(ptres[irow_res].resy) );
+	      ResidualHists[3].mXYResVersusDip->
+		Fill((Float_t)(pttphit[i].lambda),(Float_t)(ptres[irow_res].resy) );
+	      ResidualHists[3].mZResVersusAlpha->
+		Fill((Float_t)(pttphit[i].alpha),(Float_t)(ptres[irow_res].resz) );
+	      ResidualHists[3].mZResVersusDip->
+		Fill((Float_t)(pttphit[i].lambda),(Float_t)(ptres[irow_res].resz) );
 	      if (fabs(pttphit[i].z) <= 50.) {
 		ResidualHists[3].mXYResVersusAlphaZ1->
 		  Fill((Float_t)(pttphit[i].alpha),(Float_t)(ptres[irow_res].resy) );
+		ResidualHists[3].mXYResVersusDipZ1->
+		  Fill((Float_t)(pttphit[i].lambda),(Float_t)(ptres[irow_res].resy) );
+		ResidualHists[3].mZResVersusAlphaZ1->
+		  Fill((Float_t)(pttphit[i].alpha),(Float_t)(ptres[irow_res].resz) );
+		ResidualHists[3].mZResVersusDipZ1->
+		  Fill((Float_t)(pttphit[i].lambda),(Float_t)(ptres[irow_res].resz) );
 	      }
 	      if (fabs(pttphit[i].z) > 50. && fabs(pttphit[i].z) <= 100.) {
 		ResidualHists[3].mXYResVersusAlphaZ2->
 		  Fill((Float_t)(pttphit[i].alpha),(Float_t)(ptres[irow_res].resy) );
+		ResidualHists[3].mXYResVersusDipZ2->
+		  Fill((Float_t)(pttphit[i].lambda),(Float_t)(ptres[irow_res].resy) );
+		ResidualHists[3].mZResVersusAlphaZ2->
+		  Fill((Float_t)(pttphit[i].alpha),(Float_t)(ptres[irow_res].resz) );
+		ResidualHists[3].mZResVersusDipZ2->
+		  Fill((Float_t)(pttphit[i].lambda),(Float_t)(ptres[irow_res].resz) );
 	      }
 	      if (fabs(pttphit[i].z) > 100. && fabs(pttphit[i].z) <= 150.) {
 		ResidualHists[3].mXYResVersusAlphaZ3->
 		  Fill((Float_t)(pttphit[i].alpha),(Float_t)(ptres[irow_res].resy) );
+		ResidualHists[3].mXYResVersusDipZ3->
+		  Fill((Float_t)(pttphit[i].lambda),(Float_t)(ptres[irow_res].resy) );
+		ResidualHists[3].mZResVersusAlphaZ3->
+		  Fill((Float_t)(pttphit[i].alpha),(Float_t)(ptres[irow_res].resz) );
+		ResidualHists[3].mZResVersusDipZ3->
+		  Fill((Float_t)(pttphit[i].lambda),(Float_t)(ptres[irow_res].resz) );
 	      }
 	      if (fabs(pttphit[i].z) > 150. && fabs(pttphit[i].z) <= 200.) {
 		ResidualHists[3].mXYResVersusAlphaZ4->
 		  Fill((Float_t)(pttphit[i].alpha),(Float_t)(ptres[irow_res].resy) );
+		ResidualHists[3].mXYResVersusDipZ4->
+		  Fill((Float_t)(pttphit[i].lambda),(Float_t)(ptres[irow_res].resy) );
+		ResidualHists[3].mZResVersusAlphaZ4->
+		  Fill((Float_t)(pttphit[i].alpha),(Float_t)(ptres[irow_res].resz) );
+		ResidualHists[3].mZResVersusDipZ4->
+		  Fill((Float_t)(pttphit[i].lambda),(Float_t)(ptres[irow_res].resz) );
 	      }
 	    }
 	  }
@@ -1006,6 +2033,8 @@ Int_t StQACosmicMaker::calcResHistograms() {
   for (i = 0; i < nResHist; i++) {
 
     sprintf(mCount,"%1d",i);
+
+    // XY residual versus crossing angle
 
     mHistTitle = new TString("xy residual vs crossing angle");
     mHistTitle->Append(mIndexName[i]);
@@ -1407,6 +2436,1219 @@ Int_t StQACosmicMaker::calcResHistograms() {
     for (j=0; j<ResidualHists[i].FitHists.mXYResVersusAlphaZ4_sigma->fN; j++) { 
       ResidualHists[i].FitHists.mXYResVersusAlphaZ4_sigma->fArray[j] = 
     	fabs(ResidualHists[i].FitHists.mXYResVersusAlphaZ4_sigma->fArray[j]);
+    }
+
+    // XY residual versus dip angle
+
+    mHistTitle = new TString("xy residual vs Dip Angle");
+    mHistTitle->Append(mIndexName[i]);
+    ResidualHists[i].mXYResVersusDip->FitSlicesY();
+    ResidualHists[i].mXYResVersusDip->SetName(mHistTitle->Data());
+    ResidualHists[i].mXYResVersusDip->SetTitle(mHistTitle->Data());
+    delete mHistTitle;
+
+    mHistTitle = new TString("Magnitude xy residual vs Dip Angle");
+    mHistTitle->Append(mIndexName[i]);
+    if (bSectorSelectionOn) {mHistTitle->Append(" Sector "); mHistTitle->Append(*mSector);}
+    mHistName  = new TString("xyresvsDip");
+    mHistName->Append(*mCount);
+    mHistName->Append("_0");
+    ((TH1D *) gDirectory->Get(mHistName->Data()))->Copy(*ResidualHists[i].FitHists.mXYResVersusDip_mag);
+    delete ((TH1D *) gDirectory->Get(mHistName->Data()));
+    ResidualHists[i].FitHists.mXYResVersusDip_mag->SetName(mHistTitle->Data());
+    ResidualHists[i].FitHists.mXYResVersusDip_mag->SetTitle(mHistTitle->Data());
+    delete mHistName;
+    delete mHistTitle;
+    ResidualHists[i].FitHists.mXYResVersusDip_mag->SetXTitle("Dip Angle (degree)");
+    ResidualHists[i].FitHists.mXYResVersusDip_mag->SetYTitle("Magnitude");
+
+    mHistTitle = new TString("Mean xy residual vs Dip Angle");
+    mHistTitle->Append(mIndexName[i]);
+    if (bSectorSelectionOn) {mHistTitle->Append(" Sector "); mHistTitle->Append(*mSector);}
+    mHistName  = new TString("xyresvsDip");
+    mHistName->Append(*mCount);
+    mHistName->Append("_1");
+    ((TH1D *) gDirectory->Get(mHistName->Data()))->Copy(*ResidualHists[i].FitHists.mXYResVersusDip_mean);
+    delete ((TH1D *) gDirectory->Get(mHistName->Data()));
+    ResidualHists[i].FitHists.mXYResVersusDip_mean->SetName(mHistTitle->Data());
+    ResidualHists[i].FitHists.mXYResVersusDip_mean->SetTitle(mHistTitle->Data());
+    delete mHistName;
+    delete mHistTitle;
+    ResidualHists[i].FitHists.mXYResVersusDip_mean->SetMaximum(.4);
+    ResidualHists[i].FitHists.mXYResVersusDip_mean->SetMinimum(-.4);
+    ResidualHists[i].FitHists.mXYResVersusDip_mean->SetXTitle("Dip Angle (degree)");
+    ResidualHists[i].FitHists.mXYResVersusDip_mean->SetYTitle("Mean xy residuals");
+    ResidualHists[i].FitHists.mXYResVersusDip_mean->GetXaxis()->SetLabelSize(0.04);
+    ResidualHists[i].FitHists.mXYResVersusDip_mean->GetYaxis()->SetLabelSize(0.04);
+    ResidualHists[i].FitHists.mXYResVersusDip_mean->SetMarkerColor(kBlue);
+    ResidualHists[i].FitHists.mXYResVersusDip_mean->SetMarkerStyle(20);
+
+    mHistTitle = new TString("Sigma xy residual vs Dip Angle");
+    mHistTitle->Append(mIndexName[i]);
+    if (bSectorSelectionOn) {mHistTitle->Append(" Sector "); mHistTitle->Append(*mSector);}
+    mHistName  = new TString("xyresvsDip");
+    mHistName->Append(*mCount);
+    mHistName->Append("_2");
+    ((TH1D *) gDirectory->Get(mHistName->Data()))->Copy(*ResidualHists[i].FitHists.mXYResVersusDip_sigma);
+    delete ((TH1D *) gDirectory->Get(mHistName->Data()));
+    ResidualHists[i].FitHists.mXYResVersusDip_sigma->SetName(mHistTitle->Data());
+    ResidualHists[i].FitHists.mXYResVersusDip_sigma->SetTitle(mHistTitle->Data());
+    delete mHistName;
+    delete mHistTitle;
+    ResidualHists[i].FitHists.mXYResVersusDip_sigma->SetXTitle("Dip Angle (degree)");
+    ResidualHists[i].FitHists.mXYResVersusDip_sigma->SetYTitle("Sigma");
+    
+    mHistTitle = new TString("Chi2 xy residual vs Dip Angle");
+    mHistTitle->Append(mIndexName[i]);
+    if (bSectorSelectionOn) {mHistTitle->Append(" Sector "); mHistTitle->Append(*mSector);}
+    mHistName  = new TString("xyresvsDip");
+    mHistName->Append(*mCount);
+    mHistName->Append("_chi2");
+    ((TH1D *) gDirectory->Get(mHistName->Data()))->Copy(*ResidualHists[i].FitHists.mXYResVersusDip_chi);
+    delete ((TH1D *) gDirectory->Get(mHistName->Data()));
+    ResidualHists[i].FitHists.mXYResVersusDip_chi->SetName(mHistTitle->Data());
+    ResidualHists[i].FitHists.mXYResVersusDip_chi->SetTitle(mHistTitle->Data());
+    delete mHistName;
+    delete mHistTitle;
+    ResidualHists[i].FitHists.mXYResVersusDip_chi->SetXTitle("Dip Angle (degree)");
+    ResidualHists[i].FitHists.mXYResVersusDip_chi->SetYTitle("chi2");
+    
+    for (j=0; j<ResidualHists[i].FitHists.mXYResVersusDip_sigma->fN; j++) { 
+      ResidualHists[i].FitHists.mXYResVersusDip_sigma->fArray[j] = 
+    	fabs(ResidualHists[i].FitHists.mXYResVersusDip_sigma->fArray[j]);
+    }
+
+    //-----------------------------------------------------------------------
+    // z dependence residuals 0 - 50 cm
+
+    mHistTitle = new TString("xy residual vs Dip Angle (0 < z <= 50)");
+    mHistTitle->Append(mIndexName[i]);
+    ResidualHists[i].mXYResVersusDipZ1->FitSlicesY();
+    ResidualHists[i].mXYResVersusDipZ1->SetName(mHistTitle->Data());
+    ResidualHists[i].mXYResVersusDipZ1->SetTitle(mHistTitle->Data());
+    delete mHistTitle;
+
+    mHistTitle = new TString("Magnitude xy residual vs Dip Angle (0 < z <= 50)");
+    mHistTitle->Append(mIndexName[i]);
+    if (bSectorSelectionOn) {mHistTitle->Append(" Sector "); mHistTitle->Append(*mSector);}
+    mHistName  = new TString("xyresvsDipZ1");
+    mHistName->Append(*mCount);
+    mHistName->Append("_0");
+    ((TH1D *) gDirectory->Get(mHistName->Data()))->Copy(*ResidualHists[i].FitHists.mXYResVersusDipZ1_mag);
+    delete ((TH1D *) gDirectory->Get(mHistName->Data()));
+    ResidualHists[i].FitHists.mXYResVersusDipZ1_mag->SetName(mHistTitle->Data());
+    ResidualHists[i].FitHists.mXYResVersusDipZ1_mag->SetTitle(mHistTitle->Data());
+    delete mHistName;
+    delete mHistTitle;
+    ResidualHists[i].FitHists.mXYResVersusDipZ1_mag->SetXTitle("Dip Angle (degree)");
+    ResidualHists[i].FitHists.mXYResVersusDipZ1_mag->SetYTitle("Magnitude");
+
+    mHistTitle = new TString("Mean xy residual vs Dip Angle (0 < z <= 50)");
+    mHistTitle->Append(mIndexName[i]);
+    if (bSectorSelectionOn) {mHistTitle->Append(" Sector "); mHistTitle->Append(*mSector);}
+    mHistName  = new TString("xyresvsDipZ1");
+    mHistName->Append(*mCount);
+    mHistName->Append("_1");
+    ((TH1D *) gDirectory->Get(mHistName->Data()))->Copy(*ResidualHists[i].FitHists.mXYResVersusDipZ1_mean);
+    delete ((TH1D *) gDirectory->Get(mHistName->Data()));
+    ResidualHists[i].FitHists.mXYResVersusDipZ1_mean->SetName(mHistTitle->Data());
+    ResidualHists[i].FitHists.mXYResVersusDipZ1_mean->SetTitle(mHistTitle->Data());
+    delete mHistName;
+    delete mHistTitle;
+    ResidualHists[i].FitHists.mXYResVersusDipZ1_mean->SetMaximum(.4);
+    ResidualHists[i].FitHists.mXYResVersusDipZ1_mean->SetMinimum(-.4);
+    ResidualHists[i].FitHists.mXYResVersusDipZ1_mean->SetXTitle("Dip Angle (degree)");
+    ResidualHists[i].FitHists.mXYResVersusDipZ1_mean->SetYTitle("Mean xy residuals");
+    ResidualHists[i].FitHists.mXYResVersusDipZ1_mean->GetXaxis()->SetLabelSize(0.04);
+    ResidualHists[i].FitHists.mXYResVersusDipZ1_mean->GetYaxis()->SetLabelSize(0.04);
+    ResidualHists[i].FitHists.mXYResVersusDipZ1_mean->SetMarkerColor(kBlue);
+    ResidualHists[i].FitHists.mXYResVersusDipZ1_mean->SetMarkerStyle(20);
+
+    mHistTitle = new TString("Sigma xy residual vs Dip Angle (0 < z <= 50)");
+    mHistTitle->Append(mIndexName[i]);
+    if (bSectorSelectionOn) {mHistTitle->Append(" Sector "); mHistTitle->Append(*mSector);}
+    mHistName  = new TString("xyresvsDipZ1");
+    mHistName->Append(*mCount);
+    mHistName->Append("_2");
+    ((TH1D *) gDirectory->Get(mHistName->Data()))->Copy(*ResidualHists[i].FitHists.mXYResVersusDipZ1_sigma);
+    delete ((TH1D *) gDirectory->Get(mHistName->Data()));
+    ResidualHists[i].FitHists.mXYResVersusDipZ1_sigma->SetName(mHistTitle->Data());
+    ResidualHists[i].FitHists.mXYResVersusDipZ1_sigma->SetTitle(mHistTitle->Data());
+    delete mHistName;
+    delete mHistTitle;
+    ResidualHists[i].FitHists.mXYResVersusDipZ1_sigma->SetXTitle("Dip Angle (degree)");
+    ResidualHists[i].FitHists.mXYResVersusDipZ1_sigma->SetYTitle("Sigma");
+    
+    mHistTitle = new TString("Chi2 xy residual vs Dip Angle (0 < z <= 50)");
+    mHistTitle->Append(mIndexName[i]);
+    if (bSectorSelectionOn) {mHistTitle->Append(" Sector "); mHistTitle->Append(*mSector);}
+    mHistName  = new TString("xyresvsDipZ1");
+    mHistName->Append(*mCount);
+    mHistName->Append("_chi2");
+    ((TH1D *) gDirectory->Get(mHistName->Data()))->Copy(*ResidualHists[i].FitHists.mXYResVersusDipZ1_chi);
+    delete ((TH1D *) gDirectory->Get(mHistName->Data()));
+    ResidualHists[i].FitHists.mXYResVersusDipZ1_chi->SetName(mHistTitle->Data());
+    ResidualHists[i].FitHists.mXYResVersusDipZ1_chi->SetTitle(mHistTitle->Data());
+    delete mHistName;
+    delete mHistTitle;
+    ResidualHists[i].FitHists.mXYResVersusDipZ1_chi->SetXTitle("Dip Angle (degree)");
+    ResidualHists[i].FitHists.mXYResVersusDipZ1_chi->SetYTitle("chi2");
+    
+    for (j=0; j<ResidualHists[i].FitHists.mXYResVersusDipZ1_sigma->fN; j++) { 
+      ResidualHists[i].FitHists.mXYResVersusDipZ1_sigma->fArray[j] = 
+    	fabs(ResidualHists[i].FitHists.mXYResVersusDipZ1_sigma->fArray[j]);
+    }
+
+    //-----------------------------------------------------------------------
+    // z dependence residuals 50 - 100 cm
+
+    mHistTitle = new TString("xy residual vs Dip Angle (50 < z <= 100)");
+    mHistTitle->Append(mIndexName[i]);
+    ResidualHists[i].mXYResVersusDipZ2->FitSlicesY();
+    ResidualHists[i].mXYResVersusDipZ2->SetName(mHistTitle->Data());
+    ResidualHists[i].mXYResVersusDipZ2->SetTitle(mHistTitle->Data());
+    delete mHistTitle;
+
+    mHistTitle = new TString("Magnitude xy residual vs Dip Angle (50 < z <= 100)");
+    mHistTitle->Append(mIndexName[i]);
+    if (bSectorSelectionOn) {mHistTitle->Append(" Sector "); mHistTitle->Append(*mSector);}
+    mHistName  = new TString("xyresvsDipZ2");
+    mHistName->Append(*mCount);
+    mHistName->Append("_0");
+    ((TH1D *) gDirectory->Get(mHistName->Data()))->Copy(*ResidualHists[i].FitHists.mXYResVersusDipZ2_mag);
+    delete ((TH1D *) gDirectory->Get(mHistName->Data()));
+    ResidualHists[i].FitHists.mXYResVersusDipZ2_mag->SetName(mHistTitle->Data());
+    ResidualHists[i].FitHists.mXYResVersusDipZ2_mag->SetTitle(mHistTitle->Data());
+    delete mHistName;
+    delete mHistTitle;
+    ResidualHists[i].FitHists.mXYResVersusDipZ2_mag->SetXTitle("Dip Angle (degree)");
+    ResidualHists[i].FitHists.mXYResVersusDipZ2_mag->SetYTitle("Magnitude");
+
+    mHistTitle = new TString("Mean xy residual vs Dip Angle (50 < z <= 100)");
+    mHistTitle->Append(mIndexName[i]);
+    if (bSectorSelectionOn) {mHistTitle->Append(" Sector "); mHistTitle->Append(*mSector);}
+    mHistName  = new TString("xyresvsDipZ2");
+    mHistName->Append(*mCount);
+    mHistName->Append("_1");
+    ((TH1D *) gDirectory->Get(mHistName->Data()))->Copy(*ResidualHists[i].FitHists.mXYResVersusDipZ2_mean);
+    delete ((TH1D *) gDirectory->Get(mHistName->Data()));
+    ResidualHists[i].FitHists.mXYResVersusDipZ2_mean->SetName(mHistTitle->Data());
+    ResidualHists[i].FitHists.mXYResVersusDipZ2_mean->SetTitle(mHistTitle->Data());
+    delete mHistName;
+    delete mHistTitle;
+    ResidualHists[i].FitHists.mXYResVersusDipZ2_mean->SetMaximum(.4);
+    ResidualHists[i].FitHists.mXYResVersusDipZ2_mean->SetMinimum(-.4);
+    ResidualHists[i].FitHists.mXYResVersusDipZ2_mean->SetXTitle("Dip Angle (degree)");
+    ResidualHists[i].FitHists.mXYResVersusDipZ2_mean->SetYTitle("Mean xy residuals");
+    ResidualHists[i].FitHists.mXYResVersusDipZ2_mean->GetXaxis()->SetLabelSize(0.04);
+    ResidualHists[i].FitHists.mXYResVersusDipZ2_mean->GetYaxis()->SetLabelSize(0.04);
+    ResidualHists[i].FitHists.mXYResVersusDipZ2_mean->SetMarkerColor(kBlue);
+    ResidualHists[i].FitHists.mXYResVersusDipZ2_mean->SetMarkerStyle(20);
+
+    mHistTitle = new TString("Sigma xy residual vs Dip Angle (50 < z <= 100)");
+    mHistTitle->Append(mIndexName[i]);
+    if (bSectorSelectionOn) {mHistTitle->Append(" Sector "); mHistTitle->Append(*mSector);}
+    mHistName  = new TString("xyresvsDipZ2");
+    mHistName->Append(*mCount);
+    mHistName->Append("_2");
+    ((TH1D *) gDirectory->Get(mHistName->Data()))->Copy(*ResidualHists[i].FitHists.mXYResVersusDipZ2_sigma);
+    delete ((TH1D *) gDirectory->Get(mHistName->Data()));
+    ResidualHists[i].FitHists.mXYResVersusDipZ2_sigma->SetName(mHistTitle->Data());
+    ResidualHists[i].FitHists.mXYResVersusDipZ2_sigma->SetTitle(mHistTitle->Data());
+    delete mHistName;
+    delete mHistTitle;
+    ResidualHists[i].FitHists.mXYResVersusDipZ2_sigma->SetXTitle("Dip Angle (degree)");
+    ResidualHists[i].FitHists.mXYResVersusDipZ2_sigma->SetYTitle("Sigma");
+    
+    mHistTitle = new TString("Chi2 xy residual vs Dip Angle (50 < z <= 100)");
+    mHistTitle->Append(mIndexName[i]);
+    if (bSectorSelectionOn) {mHistTitle->Append(" Sector "); mHistTitle->Append(*mSector);}
+    mHistName  = new TString("xyresvsDipZ2");
+    mHistName->Append(*mCount);
+    mHistName->Append("_chi2");
+    ((TH1D *) gDirectory->Get(mHistName->Data()))->Copy(*ResidualHists[i].FitHists.mXYResVersusDipZ2_chi);
+    delete ((TH1D *) gDirectory->Get(mHistName->Data()));
+    ResidualHists[i].FitHists.mXYResVersusDipZ2_chi->SetName(mHistTitle->Data());
+    ResidualHists[i].FitHists.mXYResVersusDipZ2_chi->SetTitle(mHistTitle->Data());
+    delete mHistName;
+    delete mHistTitle;
+    ResidualHists[i].FitHists.mXYResVersusDipZ2_chi->SetXTitle("Dip Angle (degree)");
+    ResidualHists[i].FitHists.mXYResVersusDipZ2_chi->SetYTitle("chi2");
+    
+    for (j=0; j<ResidualHists[i].FitHists.mXYResVersusDipZ2_sigma->fN; j++) { 
+      ResidualHists[i].FitHists.mXYResVersusDipZ2_sigma->fArray[j] = 
+    	fabs(ResidualHists[i].FitHists.mXYResVersusDipZ2_sigma->fArray[j]);
+    }
+
+    //-----------------------------------------------------------------------
+    // z dependence residuals 100 - 150 cm
+
+    mHistTitle = new TString("xy residual vs Dip Angle (100 < z <= 150)");
+    mHistTitle->Append(mIndexName[i]);
+    ResidualHists[i].mXYResVersusDipZ3->FitSlicesY();
+    ResidualHists[i].mXYResVersusDipZ3->SetName(mHistTitle->Data());
+    ResidualHists[i].mXYResVersusDipZ3->SetTitle(mHistTitle->Data());
+    delete mHistTitle;
+
+    mHistTitle = new TString("Magnitude xy residual vs Dip Angle (100 < z <= 150)");
+    mHistTitle->Append(mIndexName[i]);
+    if (bSectorSelectionOn) {mHistTitle->Append(" Sector "); mHistTitle->Append(*mSector);}
+    mHistName  = new TString("xyresvsDipZ3");
+    mHistName->Append(*mCount);
+    mHistName->Append("_0");
+    ((TH1D *) gDirectory->Get(mHistName->Data()))->Copy(*ResidualHists[i].FitHists.mXYResVersusDipZ3_mag);
+    delete ((TH1D *) gDirectory->Get(mHistName->Data()));
+    ResidualHists[i].FitHists.mXYResVersusDipZ3_mag->SetName(mHistTitle->Data());
+    ResidualHists[i].FitHists.mXYResVersusDipZ3_mag->SetTitle(mHistTitle->Data());
+    delete mHistName;
+    delete mHistTitle;
+    ResidualHists[i].FitHists.mXYResVersusDipZ3_mag->SetXTitle("Dip Angle (degree)");
+    ResidualHists[i].FitHists.mXYResVersusDipZ3_mag->SetYTitle("Magnitude");
+
+    mHistTitle = new TString("Mean xy residual vs Dip Angle (100 < z <= 150)");
+    mHistTitle->Append(mIndexName[i]);
+    if (bSectorSelectionOn) {mHistTitle->Append(" Sector "); mHistTitle->Append(*mSector);}
+    mHistName  = new TString("xyresvsDipZ3");
+    mHistName->Append(*mCount);
+    mHistName->Append("_1");
+    ((TH1D *) gDirectory->Get(mHistName->Data()))->Copy(*ResidualHists[i].FitHists.mXYResVersusDipZ3_mean);
+    delete ((TH1D *) gDirectory->Get(mHistName->Data()));
+    ResidualHists[i].FitHists.mXYResVersusDipZ3_mean->SetName(mHistTitle->Data());
+    ResidualHists[i].FitHists.mXYResVersusDipZ3_mean->SetTitle(mHistTitle->Data());
+    delete mHistName;
+    delete mHistTitle;
+    ResidualHists[i].FitHists.mXYResVersusDipZ3_mean->SetMaximum(.4);
+    ResidualHists[i].FitHists.mXYResVersusDipZ3_mean->SetMinimum(-.4);
+    ResidualHists[i].FitHists.mXYResVersusDipZ3_mean->SetXTitle("Dip Angle (degree)");
+    ResidualHists[i].FitHists.mXYResVersusDipZ3_mean->SetYTitle("Mean xy residuals");
+    ResidualHists[i].FitHists.mXYResVersusDipZ3_mean->GetXaxis()->SetLabelSize(0.04);
+    ResidualHists[i].FitHists.mXYResVersusDipZ3_mean->GetYaxis()->SetLabelSize(0.04);
+    ResidualHists[i].FitHists.mXYResVersusDipZ3_mean->SetMarkerColor(kBlue);
+    ResidualHists[i].FitHists.mXYResVersusDipZ3_mean->SetMarkerStyle(20);
+
+    mHistTitle = new TString("Sigma xy residual vs Dip Angle (100 < z <= 150)");
+    mHistTitle->Append(mIndexName[i]);
+    if (bSectorSelectionOn) {mHistTitle->Append(" Sector "); mHistTitle->Append(*mSector);}
+    mHistName  = new TString("xyresvsDipZ3");
+    mHistName->Append(*mCount);
+    mHistName->Append("_2");
+    ((TH1D *) gDirectory->Get(mHistName->Data()))->Copy(*ResidualHists[i].FitHists.mXYResVersusDipZ3_sigma);
+    delete ((TH1D *) gDirectory->Get(mHistName->Data()));
+    ResidualHists[i].FitHists.mXYResVersusDipZ3_sigma->SetName(mHistTitle->Data());
+    ResidualHists[i].FitHists.mXYResVersusDipZ3_sigma->SetTitle(mHistTitle->Data());
+    delete mHistName;
+    delete mHistTitle;
+    ResidualHists[i].FitHists.mXYResVersusDipZ3_sigma->SetXTitle("Dip Angle (degree)");
+    ResidualHists[i].FitHists.mXYResVersusDipZ3_sigma->SetYTitle("Sigma");
+    
+    mHistTitle = new TString("Chi2 xy residual vs Dip Angle (100 < z <= 150)");
+    mHistTitle->Append(mIndexName[i]);
+    if (bSectorSelectionOn) {mHistTitle->Append(" Sector "); mHistTitle->Append(*mSector);}
+    mHistName  = new TString("xyresvsDipZ3");
+    mHistName->Append(*mCount);
+    mHistName->Append("_chi2");
+    ((TH1D *) gDirectory->Get(mHistName->Data()))->Copy(*ResidualHists[i].FitHists.mXYResVersusDipZ3_chi);
+    delete ((TH1D *) gDirectory->Get(mHistName->Data()));
+    ResidualHists[i].FitHists.mXYResVersusDipZ3_chi->SetName(mHistTitle->Data());
+    ResidualHists[i].FitHists.mXYResVersusDipZ3_chi->SetTitle(mHistTitle->Data());
+    delete mHistName;
+    delete mHistTitle;
+    ResidualHists[i].FitHists.mXYResVersusDipZ3_chi->SetXTitle("Dip Angle (degree)");
+    ResidualHists[i].FitHists.mXYResVersusDipZ3_chi->SetYTitle("chi2");
+    
+    for (j=0; j<ResidualHists[i].FitHists.mXYResVersusDipZ3_sigma->fN; j++) { 
+      ResidualHists[i].FitHists.mXYResVersusDipZ3_sigma->fArray[j] = 
+    	fabs(ResidualHists[i].FitHists.mXYResVersusDipZ3_sigma->fArray[j]);
+    }
+
+    //-----------------------------------------------------------------------
+    // z dependence residuals 150 - 200 cm
+
+    mHistTitle = new TString("xy residual vs Dip Angle (150 < z <= 200)");
+    mHistTitle->Append(mIndexName[i]);
+    ResidualHists[i].mXYResVersusDipZ4->FitSlicesY();
+    ResidualHists[i].mXYResVersusDipZ4->SetName(mHistTitle->Data());
+    ResidualHists[i].mXYResVersusDipZ4->SetTitle(mHistTitle->Data());
+    delete mHistTitle;
+
+    mHistTitle = new TString("Magnitude xy residual vs Dip Angle (150 < z <= 200)");
+    mHistTitle->Append(mIndexName[i]);
+    if (bSectorSelectionOn) {mHistTitle->Append(" Sector "); mHistTitle->Append(*mSector);}
+    mHistName  = new TString("xyresvsDipZ4");
+    mHistName->Append(*mCount);
+    mHistName->Append("_0");
+    ((TH1D *) gDirectory->Get(mHistName->Data()))->Copy(*ResidualHists[i].FitHists.mXYResVersusDipZ4_mag);
+    delete ((TH1D *) gDirectory->Get(mHistName->Data()));
+    ResidualHists[i].FitHists.mXYResVersusDipZ4_mag->SetName(mHistTitle->Data());
+    ResidualHists[i].FitHists.mXYResVersusDipZ4_mag->SetTitle(mHistTitle->Data());
+    delete mHistName;
+    delete mHistTitle;
+    ResidualHists[i].FitHists.mXYResVersusDipZ4_mag->SetXTitle("Dip Angle (degree)");
+    ResidualHists[i].FitHists.mXYResVersusDipZ4_mag->SetYTitle("Magnitude");
+
+    mHistTitle = new TString("Mean xy residual vs Dip Angle (150 < z <= 200)");
+    mHistTitle->Append(mIndexName[i]);
+    if (bSectorSelectionOn) {mHistTitle->Append(" Sector "); mHistTitle->Append(*mSector);}
+    mHistName  = new TString("xyresvsDipZ4");
+    mHistName->Append(*mCount);
+    mHistName->Append("_1");
+    ((TH1D *) gDirectory->Get(mHistName->Data()))->Copy(*ResidualHists[i].FitHists.mXYResVersusDipZ4_mean);
+    delete ((TH1D *) gDirectory->Get(mHistName->Data()));
+    ResidualHists[i].FitHists.mXYResVersusDipZ4_mean->SetName(mHistTitle->Data());
+    ResidualHists[i].FitHists.mXYResVersusDipZ4_mean->SetTitle(mHistTitle->Data());
+    delete mHistName;
+    delete mHistTitle;
+    ResidualHists[i].FitHists.mXYResVersusDipZ4_mean->SetMaximum(.4);
+    ResidualHists[i].FitHists.mXYResVersusDipZ4_mean->SetMinimum(-.4);
+    ResidualHists[i].FitHists.mXYResVersusDipZ4_mean->SetXTitle("Dip Angle (degree)");
+    ResidualHists[i].FitHists.mXYResVersusDipZ4_mean->SetYTitle("Mean xy residuals");
+    ResidualHists[i].FitHists.mXYResVersusDipZ4_mean->GetXaxis()->SetLabelSize(0.04);
+    ResidualHists[i].FitHists.mXYResVersusDipZ4_mean->GetYaxis()->SetLabelSize(0.04);
+    ResidualHists[i].FitHists.mXYResVersusDipZ4_mean->SetMarkerColor(kBlue);
+    ResidualHists[i].FitHists.mXYResVersusDipZ4_mean->SetMarkerStyle(20);
+
+    mHistTitle = new TString("Sigma xy residual vs Dip Angle (150 < z <= 200)");
+    mHistTitle->Append(mIndexName[i]);
+    if (bSectorSelectionOn) {mHistTitle->Append(" Sector "); mHistTitle->Append(*mSector);}
+    mHistName  = new TString("xyresvsDipZ4");
+    mHistName->Append(*mCount);
+    mHistName->Append("_2");
+    ((TH1D *) gDirectory->Get(mHistName->Data()))->Copy(*ResidualHists[i].FitHists.mXYResVersusDipZ4_sigma);
+    delete ((TH1D *) gDirectory->Get(mHistName->Data()));
+    ResidualHists[i].FitHists.mXYResVersusDipZ4_sigma->SetName(mHistTitle->Data());
+    ResidualHists[i].FitHists.mXYResVersusDipZ4_sigma->SetTitle(mHistTitle->Data());
+    delete mHistName;
+    delete mHistTitle;
+    ResidualHists[i].FitHists.mXYResVersusDipZ4_sigma->SetXTitle("Dip Angle (degree)");
+    ResidualHists[i].FitHists.mXYResVersusDipZ4_sigma->SetYTitle("Sigma");
+    
+    mHistTitle = new TString("Chi2 xy residual vs Dip Angle (150 < z <= 200)");
+    mHistTitle->Append(mIndexName[i]);
+    if (bSectorSelectionOn) {mHistTitle->Append(" Sector "); mHistTitle->Append(*mSector);}
+    mHistName  = new TString("xyresvsDipZ4");
+    mHistName->Append(*mCount);
+    mHistName->Append("_chi2");
+    ((TH1D *) gDirectory->Get(mHistName->Data()))->Copy(*ResidualHists[i].FitHists.mXYResVersusDipZ4_chi);
+    delete ((TH1D *) gDirectory->Get(mHistName->Data()));
+    ResidualHists[i].FitHists.mXYResVersusDipZ4_chi->SetName(mHistTitle->Data());
+    ResidualHists[i].FitHists.mXYResVersusDipZ4_chi->SetTitle(mHistTitle->Data());
+    delete mHistName;
+    delete mHistTitle;
+    ResidualHists[i].FitHists.mXYResVersusDipZ4_chi->SetXTitle("Dip Angle (degree)");
+    ResidualHists[i].FitHists.mXYResVersusDipZ4_chi->SetYTitle("chi2");
+    
+    for (j=0; j<ResidualHists[i].FitHists.mXYResVersusDipZ4_sigma->fN; j++) { 
+      ResidualHists[i].FitHists.mXYResVersusDipZ4_sigma->fArray[j] = 
+    	fabs(ResidualHists[i].FitHists.mXYResVersusDipZ4_sigma->fArray[j]);
+    }
+
+    // Z residual versus dip angle
+
+    mHistTitle = new TString("Z residual vs Dip Angle");
+    mHistTitle->Append(mIndexName[i]);
+    ResidualHists[i].mZResVersusDip->FitSlicesY();
+    ResidualHists[i].mZResVersusDip->SetName(mHistTitle->Data());
+    ResidualHists[i].mZResVersusDip->SetTitle(mHistTitle->Data());
+    delete mHistTitle;
+
+    mHistTitle = new TString("Magnitude Z residual vs Dip Angle");
+    mHistTitle->Append(mIndexName[i]);
+    if (bSectorSelectionOn) {mHistTitle->Append(" Sector "); mHistTitle->Append(*mSector);}
+    mHistName  = new TString("ZresvsDip");
+    mHistName->Append(*mCount);
+    mHistName->Append("_0");
+    ((TH1D *) gDirectory->Get(mHistName->Data()))->Copy(*ResidualHists[i].FitHists.mZResVersusDip_mag);
+    delete ((TH1D *) gDirectory->Get(mHistName->Data()));
+    ResidualHists[i].FitHists.mZResVersusDip_mag->SetName(mHistTitle->Data());
+    ResidualHists[i].FitHists.mZResVersusDip_mag->SetTitle(mHistTitle->Data());
+    delete mHistName;
+    delete mHistTitle;
+    ResidualHists[i].FitHists.mZResVersusDip_mag->SetXTitle("Dip Angle (degree)");
+    ResidualHists[i].FitHists.mZResVersusDip_mag->SetYTitle("Magnitude");
+
+    mHistTitle = new TString("Mean Z residual vs Dip Angle");
+    mHistTitle->Append(mIndexName[i]);
+    if (bSectorSelectionOn) {mHistTitle->Append(" Sector "); mHistTitle->Append(*mSector);}
+    mHistName  = new TString("ZresvsDip");
+    mHistName->Append(*mCount);
+    mHistName->Append("_1");
+    ((TH1D *) gDirectory->Get(mHistName->Data()))->Copy(*ResidualHists[i].FitHists.mZResVersusDip_mean);
+    delete ((TH1D *) gDirectory->Get(mHistName->Data()));
+    ResidualHists[i].FitHists.mZResVersusDip_mean->SetName(mHistTitle->Data());
+    ResidualHists[i].FitHists.mZResVersusDip_mean->SetTitle(mHistTitle->Data());
+    delete mHistName;
+    delete mHistTitle;
+    ResidualHists[i].FitHists.mZResVersusDip_mean->SetMaximum(.4);
+    ResidualHists[i].FitHists.mZResVersusDip_mean->SetMinimum(-.4);
+    ResidualHists[i].FitHists.mZResVersusDip_mean->SetXTitle("Dip Angle (degree)");
+    ResidualHists[i].FitHists.mZResVersusDip_mean->SetYTitle("Mean Z residuals");
+    ResidualHists[i].FitHists.mZResVersusDip_mean->GetXaxis()->SetLabelSize(0.04);
+    ResidualHists[i].FitHists.mZResVersusDip_mean->GetYaxis()->SetLabelSize(0.04);
+    ResidualHists[i].FitHists.mZResVersusDip_mean->SetMarkerColor(kBlue);
+    ResidualHists[i].FitHists.mZResVersusDip_mean->SetMarkerStyle(20);
+
+    mHistTitle = new TString("Sigma Z residual vs Dip Angle");
+    mHistTitle->Append(mIndexName[i]);
+    if (bSectorSelectionOn) {mHistTitle->Append(" Sector "); mHistTitle->Append(*mSector);}
+    mHistName  = new TString("ZresvsDip");
+    mHistName->Append(*mCount);
+    mHistName->Append("_2");
+    ((TH1D *) gDirectory->Get(mHistName->Data()))->Copy(*ResidualHists[i].FitHists.mZResVersusDip_sigma);
+    delete ((TH1D *) gDirectory->Get(mHistName->Data()));
+    ResidualHists[i].FitHists.mZResVersusDip_sigma->SetName(mHistTitle->Data());
+    ResidualHists[i].FitHists.mZResVersusDip_sigma->SetTitle(mHistTitle->Data());
+    delete mHistName;
+    delete mHistTitle;
+    ResidualHists[i].FitHists.mZResVersusDip_sigma->SetXTitle("Dip Angle (degree)");
+    ResidualHists[i].FitHists.mZResVersusDip_sigma->SetYTitle("Sigma");
+    
+    mHistTitle = new TString("Chi2 Z residual vs Dip Angle");
+    mHistTitle->Append(mIndexName[i]);
+    if (bSectorSelectionOn) {mHistTitle->Append(" Sector "); mHistTitle->Append(*mSector);}
+    mHistName  = new TString("ZresvsDip");
+    mHistName->Append(*mCount);
+    mHistName->Append("_chi2");
+    ((TH1D *) gDirectory->Get(mHistName->Data()))->Copy(*ResidualHists[i].FitHists.mZResVersusDip_chi);
+    delete ((TH1D *) gDirectory->Get(mHistName->Data()));
+    ResidualHists[i].FitHists.mZResVersusDip_chi->SetName(mHistTitle->Data());
+    ResidualHists[i].FitHists.mZResVersusDip_chi->SetTitle(mHistTitle->Data());
+    delete mHistName;
+    delete mHistTitle;
+    ResidualHists[i].FitHists.mZResVersusDip_chi->SetXTitle("Dip Angle (degree)");
+    ResidualHists[i].FitHists.mZResVersusDip_chi->SetYTitle("chi2");
+    
+    for (j=0; j<ResidualHists[i].FitHists.mZResVersusDip_sigma->fN; j++) { 
+      ResidualHists[i].FitHists.mZResVersusDip_sigma->fArray[j] = 
+    	fabs(ResidualHists[i].FitHists.mZResVersusDip_sigma->fArray[j]);
+    }
+
+    //-----------------------------------------------------------------------
+    // z dependence residuals 0 - 50 cm
+
+    mHistTitle = new TString("Z residual vs Dip Angle (0 < z <= 50)");
+    mHistTitle->Append(mIndexName[i]);
+    ResidualHists[i].mZResVersusDipZ1->FitSlicesY();
+    ResidualHists[i].mZResVersusDipZ1->SetName(mHistTitle->Data());
+    ResidualHists[i].mZResVersusDipZ1->SetTitle(mHistTitle->Data());
+    delete mHistTitle;
+
+    mHistTitle = new TString("Magnitude Z residual vs Dip Angle (0 < z <= 50)");
+    mHistTitle->Append(mIndexName[i]);
+    if (bSectorSelectionOn) {mHistTitle->Append(" Sector "); mHistTitle->Append(*mSector);}
+    mHistName  = new TString("ZresvsDipZ1");
+    mHistName->Append(*mCount);
+    mHistName->Append("_0");
+    ((TH1D *) gDirectory->Get(mHistName->Data()))->Copy(*ResidualHists[i].FitHists.mZResVersusDipZ1_mag);
+    delete ((TH1D *) gDirectory->Get(mHistName->Data()));
+    ResidualHists[i].FitHists.mZResVersusDipZ1_mag->SetName(mHistTitle->Data());
+    ResidualHists[i].FitHists.mZResVersusDipZ1_mag->SetTitle(mHistTitle->Data());
+    delete mHistName;
+    delete mHistTitle;
+    ResidualHists[i].FitHists.mZResVersusDipZ1_mag->SetXTitle("Dip Angle (degree)");
+    ResidualHists[i].FitHists.mZResVersusDipZ1_mag->SetYTitle("Magnitude");
+
+    mHistTitle = new TString("Mean Z residual vs Dip Angle (0 < z <= 50)");
+    mHistTitle->Append(mIndexName[i]);
+    if (bSectorSelectionOn) {mHistTitle->Append(" Sector "); mHistTitle->Append(*mSector);}
+    mHistName  = new TString("ZresvsDipZ1");
+    mHistName->Append(*mCount);
+    mHistName->Append("_1");
+    ((TH1D *) gDirectory->Get(mHistName->Data()))->Copy(*ResidualHists[i].FitHists.mZResVersusDipZ1_mean);
+    delete ((TH1D *) gDirectory->Get(mHistName->Data()));
+    ResidualHists[i].FitHists.mZResVersusDipZ1_mean->SetName(mHistTitle->Data());
+    ResidualHists[i].FitHists.mZResVersusDipZ1_mean->SetTitle(mHistTitle->Data());
+    delete mHistName;
+    delete mHistTitle;
+    ResidualHists[i].FitHists.mZResVersusDipZ1_mean->SetMaximum(.4);
+    ResidualHists[i].FitHists.mZResVersusDipZ1_mean->SetMinimum(-.4);
+    ResidualHists[i].FitHists.mZResVersusDipZ1_mean->SetXTitle("Dip Angle (degree)");
+    ResidualHists[i].FitHists.mZResVersusDipZ1_mean->SetYTitle("Mean Z residuals");
+    ResidualHists[i].FitHists.mZResVersusDipZ1_mean->GetXaxis()->SetLabelSize(0.04);
+    ResidualHists[i].FitHists.mZResVersusDipZ1_mean->GetYaxis()->SetLabelSize(0.04);
+    ResidualHists[i].FitHists.mZResVersusDipZ1_mean->SetMarkerColor(kBlue);
+    ResidualHists[i].FitHists.mZResVersusDipZ1_mean->SetMarkerStyle(20);
+
+    mHistTitle = new TString("Sigma Z residual vs Dip Angle (0 < z <= 50)");
+    mHistTitle->Append(mIndexName[i]);
+    if (bSectorSelectionOn) {mHistTitle->Append(" Sector "); mHistTitle->Append(*mSector);}
+    mHistName  = new TString("ZresvsDipZ1");
+    mHistName->Append(*mCount);
+    mHistName->Append("_2");
+    ((TH1D *) gDirectory->Get(mHistName->Data()))->Copy(*ResidualHists[i].FitHists.mZResVersusDipZ1_sigma);
+    delete ((TH1D *) gDirectory->Get(mHistName->Data()));
+    ResidualHists[i].FitHists.mZResVersusDipZ1_sigma->SetName(mHistTitle->Data());
+    ResidualHists[i].FitHists.mZResVersusDipZ1_sigma->SetTitle(mHistTitle->Data());
+    delete mHistName;
+    delete mHistTitle;
+    ResidualHists[i].FitHists.mZResVersusDipZ1_sigma->SetXTitle("Dip Angle (degree)");
+    ResidualHists[i].FitHists.mZResVersusDipZ1_sigma->SetYTitle("Sigma");
+    
+    mHistTitle = new TString("Chi2 Z residual vs Dip Angle (0 < z <= 50)");
+    mHistTitle->Append(mIndexName[i]);
+    if (bSectorSelectionOn) {mHistTitle->Append(" Sector "); mHistTitle->Append(*mSector);}
+    mHistName  = new TString("ZresvsDipZ1");
+    mHistName->Append(*mCount);
+    mHistName->Append("_chi2");
+    ((TH1D *) gDirectory->Get(mHistName->Data()))->Copy(*ResidualHists[i].FitHists.mZResVersusDipZ1_chi);
+    delete ((TH1D *) gDirectory->Get(mHistName->Data()));
+    ResidualHists[i].FitHists.mZResVersusDipZ1_chi->SetName(mHistTitle->Data());
+    ResidualHists[i].FitHists.mZResVersusDipZ1_chi->SetTitle(mHistTitle->Data());
+    delete mHistName;
+    delete mHistTitle;
+    ResidualHists[i].FitHists.mZResVersusDipZ1_chi->SetXTitle("Dip Angle (degree)");
+    ResidualHists[i].FitHists.mZResVersusDipZ1_chi->SetYTitle("chi2");
+    
+    for (j=0; j<ResidualHists[i].FitHists.mZResVersusDipZ1_sigma->fN; j++) { 
+      ResidualHists[i].FitHists.mZResVersusDipZ1_sigma->fArray[j] = 
+    	fabs(ResidualHists[i].FitHists.mZResVersusDipZ1_sigma->fArray[j]);
+    }
+
+    //-----------------------------------------------------------------------
+    // z dependence residuals 50 - 100 cm
+
+    mHistTitle = new TString("Z residual vs Dip Angle (50 < z <= 100)");
+    mHistTitle->Append(mIndexName[i]);
+    ResidualHists[i].mZResVersusDipZ2->FitSlicesY();
+    ResidualHists[i].mZResVersusDipZ2->SetName(mHistTitle->Data());
+    ResidualHists[i].mZResVersusDipZ2->SetTitle(mHistTitle->Data());
+    delete mHistTitle;
+
+    mHistTitle = new TString("Magnitude Z residual vs Dip Angle (50 < z <= 100)");
+    mHistTitle->Append(mIndexName[i]);
+    if (bSectorSelectionOn) {mHistTitle->Append(" Sector "); mHistTitle->Append(*mSector);}
+    mHistName  = new TString("ZresvsDipZ2");
+    mHistName->Append(*mCount);
+    mHistName->Append("_0");
+    ((TH1D *) gDirectory->Get(mHistName->Data()))->Copy(*ResidualHists[i].FitHists.mZResVersusDipZ2_mag);
+    delete ((TH1D *) gDirectory->Get(mHistName->Data()));
+    ResidualHists[i].FitHists.mZResVersusDipZ2_mag->SetName(mHistTitle->Data());
+    ResidualHists[i].FitHists.mZResVersusDipZ2_mag->SetTitle(mHistTitle->Data());
+    delete mHistName;
+    delete mHistTitle;
+    ResidualHists[i].FitHists.mZResVersusDipZ2_mag->SetXTitle("Dip Angle (degree)");
+    ResidualHists[i].FitHists.mZResVersusDipZ2_mag->SetYTitle("Magnitude");
+
+    mHistTitle = new TString("Mean Z residual vs Dip Angle (50 < z <= 100)");
+    mHistTitle->Append(mIndexName[i]);
+    if (bSectorSelectionOn) {mHistTitle->Append(" Sector "); mHistTitle->Append(*mSector);}
+    mHistName  = new TString("ZresvsDipZ2");
+    mHistName->Append(*mCount);
+    mHistName->Append("_1");
+    ((TH1D *) gDirectory->Get(mHistName->Data()))->Copy(*ResidualHists[i].FitHists.mZResVersusDipZ2_mean);
+    delete ((TH1D *) gDirectory->Get(mHistName->Data()));
+    ResidualHists[i].FitHists.mZResVersusDipZ2_mean->SetName(mHistTitle->Data());
+    ResidualHists[i].FitHists.mZResVersusDipZ2_mean->SetTitle(mHistTitle->Data());
+    delete mHistName;
+    delete mHistTitle;
+    ResidualHists[i].FitHists.mZResVersusDipZ2_mean->SetMaximum(.4);
+    ResidualHists[i].FitHists.mZResVersusDipZ2_mean->SetMinimum(-.4);
+    ResidualHists[i].FitHists.mZResVersusDipZ2_mean->SetXTitle("Dip Angle (degree)");
+    ResidualHists[i].FitHists.mZResVersusDipZ2_mean->SetYTitle("Mean Z residuals");
+    ResidualHists[i].FitHists.mZResVersusDipZ2_mean->GetXaxis()->SetLabelSize(0.04);
+    ResidualHists[i].FitHists.mZResVersusDipZ2_mean->GetYaxis()->SetLabelSize(0.04);
+    ResidualHists[i].FitHists.mZResVersusDipZ2_mean->SetMarkerColor(kBlue);
+    ResidualHists[i].FitHists.mZResVersusDipZ2_mean->SetMarkerStyle(20);
+
+    mHistTitle = new TString("Sigma Z residual vs Dip Angle (50 < z <= 100)");
+    mHistTitle->Append(mIndexName[i]);
+    if (bSectorSelectionOn) {mHistTitle->Append(" Sector "); mHistTitle->Append(*mSector);}
+    mHistName  = new TString("ZresvsDipZ2");
+    mHistName->Append(*mCount);
+    mHistName->Append("_2");
+    ((TH1D *) gDirectory->Get(mHistName->Data()))->Copy(*ResidualHists[i].FitHists.mZResVersusDipZ2_sigma);
+    delete ((TH1D *) gDirectory->Get(mHistName->Data()));
+    ResidualHists[i].FitHists.mZResVersusDipZ2_sigma->SetName(mHistTitle->Data());
+    ResidualHists[i].FitHists.mZResVersusDipZ2_sigma->SetTitle(mHistTitle->Data());
+    delete mHistName;
+    delete mHistTitle;
+    ResidualHists[i].FitHists.mZResVersusDipZ2_sigma->SetXTitle("Dip Angle (degree)");
+    ResidualHists[i].FitHists.mZResVersusDipZ2_sigma->SetYTitle("Sigma");
+    
+    mHistTitle = new TString("Chi2 Z residual vs Dip Angle (50 < z <= 100)");
+    mHistTitle->Append(mIndexName[i]);
+    if (bSectorSelectionOn) {mHistTitle->Append(" Sector "); mHistTitle->Append(*mSector);}
+    mHistName  = new TString("ZresvsDipZ2");
+    mHistName->Append(*mCount);
+    mHistName->Append("_chi2");
+    ((TH1D *) gDirectory->Get(mHistName->Data()))->Copy(*ResidualHists[i].FitHists.mZResVersusDipZ2_chi);
+    delete ((TH1D *) gDirectory->Get(mHistName->Data()));
+    ResidualHists[i].FitHists.mZResVersusDipZ2_chi->SetName(mHistTitle->Data());
+    ResidualHists[i].FitHists.mZResVersusDipZ2_chi->SetTitle(mHistTitle->Data());
+    delete mHistName;
+    delete mHistTitle;
+    ResidualHists[i].FitHists.mZResVersusDipZ2_chi->SetXTitle("Dip Angle (degree)");
+    ResidualHists[i].FitHists.mZResVersusDipZ2_chi->SetYTitle("chi2");
+    
+    for (j=0; j<ResidualHists[i].FitHists.mZResVersusDipZ2_sigma->fN; j++) { 
+      ResidualHists[i].FitHists.mZResVersusDipZ2_sigma->fArray[j] = 
+    	fabs(ResidualHists[i].FitHists.mZResVersusDipZ2_sigma->fArray[j]);
+    }
+
+    //-----------------------------------------------------------------------
+    // z dependence residuals 100 - 150 cm
+
+    mHistTitle = new TString("Z residual vs Dip Angle (100 < z <= 150)");
+    mHistTitle->Append(mIndexName[i]);
+    ResidualHists[i].mZResVersusDipZ3->FitSlicesY();
+    ResidualHists[i].mZResVersusDipZ3->SetName(mHistTitle->Data());
+    ResidualHists[i].mZResVersusDipZ3->SetTitle(mHistTitle->Data());
+    delete mHistTitle;
+
+    mHistTitle = new TString("Magnitude Z residual vs Dip Angle (100 < z <= 150)");
+    mHistTitle->Append(mIndexName[i]);
+    if (bSectorSelectionOn) {mHistTitle->Append(" Sector "); mHistTitle->Append(*mSector);}
+    mHistName  = new TString("ZresvsDipZ3");
+    mHistName->Append(*mCount);
+    mHistName->Append("_0");
+    ((TH1D *) gDirectory->Get(mHistName->Data()))->Copy(*ResidualHists[i].FitHists.mZResVersusDipZ3_mag);
+    delete ((TH1D *) gDirectory->Get(mHistName->Data()));
+    ResidualHists[i].FitHists.mZResVersusDipZ3_mag->SetName(mHistTitle->Data());
+    ResidualHists[i].FitHists.mZResVersusDipZ3_mag->SetTitle(mHistTitle->Data());
+    delete mHistName;
+    delete mHistTitle;
+    ResidualHists[i].FitHists.mZResVersusDipZ3_mag->SetXTitle("Dip Angle (degree)");
+    ResidualHists[i].FitHists.mZResVersusDipZ3_mag->SetYTitle("Magnitude");
+
+    mHistTitle = new TString("Mean Z residual vs Dip Angle (100 < z <= 150)");
+    mHistTitle->Append(mIndexName[i]);
+    if (bSectorSelectionOn) {mHistTitle->Append(" Sector "); mHistTitle->Append(*mSector);}
+    mHistName  = new TString("ZresvsDipZ3");
+    mHistName->Append(*mCount);
+    mHistName->Append("_1");
+    ((TH1D *) gDirectory->Get(mHistName->Data()))->Copy(*ResidualHists[i].FitHists.mZResVersusDipZ3_mean);
+    delete ((TH1D *) gDirectory->Get(mHistName->Data()));
+    ResidualHists[i].FitHists.mZResVersusDipZ3_mean->SetName(mHistTitle->Data());
+    ResidualHists[i].FitHists.mZResVersusDipZ3_mean->SetTitle(mHistTitle->Data());
+    delete mHistName;
+    delete mHistTitle;
+    ResidualHists[i].FitHists.mZResVersusDipZ3_mean->SetMaximum(.4);
+    ResidualHists[i].FitHists.mZResVersusDipZ3_mean->SetMinimum(-.4);
+    ResidualHists[i].FitHists.mZResVersusDipZ3_mean->SetXTitle("Dip Angle (degree)");
+    ResidualHists[i].FitHists.mZResVersusDipZ3_mean->SetYTitle("Mean Z residuals");
+    ResidualHists[i].FitHists.mZResVersusDipZ3_mean->GetXaxis()->SetLabelSize(0.04);
+    ResidualHists[i].FitHists.mZResVersusDipZ3_mean->GetYaxis()->SetLabelSize(0.04);
+    ResidualHists[i].FitHists.mZResVersusDipZ3_mean->SetMarkerColor(kBlue);
+    ResidualHists[i].FitHists.mZResVersusDipZ3_mean->SetMarkerStyle(20);
+
+    mHistTitle = new TString("Sigma Z residual vs Dip Angle (100 < z <= 150)");
+    mHistTitle->Append(mIndexName[i]);
+    if (bSectorSelectionOn) {mHistTitle->Append(" Sector "); mHistTitle->Append(*mSector);}
+    mHistName  = new TString("ZresvsDipZ3");
+    mHistName->Append(*mCount);
+    mHistName->Append("_2");
+    ((TH1D *) gDirectory->Get(mHistName->Data()))->Copy(*ResidualHists[i].FitHists.mZResVersusDipZ3_sigma);
+    delete ((TH1D *) gDirectory->Get(mHistName->Data()));
+    ResidualHists[i].FitHists.mZResVersusDipZ3_sigma->SetName(mHistTitle->Data());
+    ResidualHists[i].FitHists.mZResVersusDipZ3_sigma->SetTitle(mHistTitle->Data());
+    delete mHistName;
+    delete mHistTitle;
+    ResidualHists[i].FitHists.mZResVersusDipZ3_sigma->SetXTitle("Dip Angle (degree)");
+    ResidualHists[i].FitHists.mZResVersusDipZ3_sigma->SetYTitle("Sigma");
+    
+    mHistTitle = new TString("Chi2 Z residual vs Dip Angle (100 < z <= 150)");
+    mHistTitle->Append(mIndexName[i]);
+    if (bSectorSelectionOn) {mHistTitle->Append(" Sector "); mHistTitle->Append(*mSector);}
+    mHistName  = new TString("ZresvsDipZ3");
+    mHistName->Append(*mCount);
+    mHistName->Append("_chi2");
+    ((TH1D *) gDirectory->Get(mHistName->Data()))->Copy(*ResidualHists[i].FitHists.mZResVersusDipZ3_chi);
+    delete ((TH1D *) gDirectory->Get(mHistName->Data()));
+    ResidualHists[i].FitHists.mZResVersusDipZ3_chi->SetName(mHistTitle->Data());
+    ResidualHists[i].FitHists.mZResVersusDipZ3_chi->SetTitle(mHistTitle->Data());
+    delete mHistName;
+    delete mHistTitle;
+    ResidualHists[i].FitHists.mZResVersusDipZ3_chi->SetXTitle("Dip Angle (degree)");
+    ResidualHists[i].FitHists.mZResVersusDipZ3_chi->SetYTitle("chi2");
+    
+    for (j=0; j<ResidualHists[i].FitHists.mZResVersusDipZ3_sigma->fN; j++) { 
+      ResidualHists[i].FitHists.mZResVersusDipZ3_sigma->fArray[j] = 
+    	fabs(ResidualHists[i].FitHists.mZResVersusDipZ3_sigma->fArray[j]);
+    }
+
+    //-----------------------------------------------------------------------
+    // z dependence residuals 150 - 200 cm
+
+    mHistTitle = new TString("Z residual vs Dip Angle (150 < z <= 200)");
+    mHistTitle->Append(mIndexName[i]);
+    ResidualHists[i].mZResVersusDipZ4->FitSlicesY();
+    ResidualHists[i].mZResVersusDipZ4->SetName(mHistTitle->Data());
+    ResidualHists[i].mZResVersusDipZ4->SetTitle(mHistTitle->Data());
+    delete mHistTitle;
+
+    mHistTitle = new TString("Magnitude Z residual vs Dip Angle (150 < z <= 200)");
+    mHistTitle->Append(mIndexName[i]);
+    if (bSectorSelectionOn) {mHistTitle->Append(" Sector "); mHistTitle->Append(*mSector);}
+    mHistName  = new TString("ZresvsDipZ4");
+    mHistName->Append(*mCount);
+    mHistName->Append("_0");
+    ((TH1D *) gDirectory->Get(mHistName->Data()))->Copy(*ResidualHists[i].FitHists.mZResVersusDipZ4_mag);
+    delete ((TH1D *) gDirectory->Get(mHistName->Data()));
+    ResidualHists[i].FitHists.mZResVersusDipZ4_mag->SetName(mHistTitle->Data());
+    ResidualHists[i].FitHists.mZResVersusDipZ4_mag->SetTitle(mHistTitle->Data());
+    delete mHistName;
+    delete mHistTitle;
+    ResidualHists[i].FitHists.mZResVersusDipZ4_mag->SetXTitle("Dip Angle (degree)");
+    ResidualHists[i].FitHists.mZResVersusDipZ4_mag->SetYTitle("Magnitude");
+
+    mHistTitle = new TString("Mean Z residual vs Dip Angle (150 < z <= 200)");
+    mHistTitle->Append(mIndexName[i]);
+    if (bSectorSelectionOn) {mHistTitle->Append(" Sector "); mHistTitle->Append(*mSector);}
+    mHistName  = new TString("ZresvsDipZ4");
+    mHistName->Append(*mCount);
+    mHistName->Append("_1");
+    ((TH1D *) gDirectory->Get(mHistName->Data()))->Copy(*ResidualHists[i].FitHists.mZResVersusDipZ4_mean);
+    delete ((TH1D *) gDirectory->Get(mHistName->Data()));
+    ResidualHists[i].FitHists.mZResVersusDipZ4_mean->SetName(mHistTitle->Data());
+    ResidualHists[i].FitHists.mZResVersusDipZ4_mean->SetTitle(mHistTitle->Data());
+    delete mHistName;
+    delete mHistTitle;
+    ResidualHists[i].FitHists.mZResVersusDipZ4_mean->SetMaximum(.4);
+    ResidualHists[i].FitHists.mZResVersusDipZ4_mean->SetMinimum(-.4);
+    ResidualHists[i].FitHists.mZResVersusDipZ4_mean->SetXTitle("Dip Angle (degree)");
+    ResidualHists[i].FitHists.mZResVersusDipZ4_mean->SetYTitle("Mean Z residuals");
+    ResidualHists[i].FitHists.mZResVersusDipZ4_mean->GetXaxis()->SetLabelSize(0.04);
+    ResidualHists[i].FitHists.mZResVersusDipZ4_mean->GetYaxis()->SetLabelSize(0.04);
+    ResidualHists[i].FitHists.mZResVersusDipZ4_mean->SetMarkerColor(kBlue);
+    ResidualHists[i].FitHists.mZResVersusDipZ4_mean->SetMarkerStyle(20);
+
+    mHistTitle = new TString("Sigma Z residual vs Dip Angle (150 < z <= 200)");
+    mHistTitle->Append(mIndexName[i]);
+    if (bSectorSelectionOn) {mHistTitle->Append(" Sector "); mHistTitle->Append(*mSector);}
+    mHistName  = new TString("ZresvsDipZ4");
+    mHistName->Append(*mCount);
+    mHistName->Append("_2");
+    ((TH1D *) gDirectory->Get(mHistName->Data()))->Copy(*ResidualHists[i].FitHists.mZResVersusDipZ4_sigma);
+    delete ((TH1D *) gDirectory->Get(mHistName->Data()));
+    ResidualHists[i].FitHists.mZResVersusDipZ4_sigma->SetName(mHistTitle->Data());
+    ResidualHists[i].FitHists.mZResVersusDipZ4_sigma->SetTitle(mHistTitle->Data());
+    delete mHistName;
+    delete mHistTitle;
+    ResidualHists[i].FitHists.mZResVersusDipZ4_sigma->SetXTitle("Dip Angle (degree)");
+    ResidualHists[i].FitHists.mZResVersusDipZ4_sigma->SetYTitle("Sigma");
+    
+    mHistTitle = new TString("Chi2 Z residual vs Dip Angle (150 < z <= 200)");
+    mHistTitle->Append(mIndexName[i]);
+    if (bSectorSelectionOn) {mHistTitle->Append(" Sector "); mHistTitle->Append(*mSector);}
+    mHistName  = new TString("ZresvsDipZ4");
+    mHistName->Append(*mCount);
+    mHistName->Append("_chi2");
+    ((TH1D *) gDirectory->Get(mHistName->Data()))->Copy(*ResidualHists[i].FitHists.mZResVersusDipZ4_chi);
+    delete ((TH1D *) gDirectory->Get(mHistName->Data()));
+    ResidualHists[i].FitHists.mZResVersusDipZ4_chi->SetName(mHistTitle->Data());
+    ResidualHists[i].FitHists.mZResVersusDipZ4_chi->SetTitle(mHistTitle->Data());
+    delete mHistName;
+    delete mHistTitle;
+    ResidualHists[i].FitHists.mZResVersusDipZ4_chi->SetXTitle("Dip Angle (degree)");
+    ResidualHists[i].FitHists.mZResVersusDipZ4_chi->SetYTitle("chi2");
+    
+    for (j=0; j<ResidualHists[i].FitHists.mZResVersusDipZ4_sigma->fN; j++) { 
+      ResidualHists[i].FitHists.mZResVersusDipZ4_sigma->fArray[j] = 
+    	fabs(ResidualHists[i].FitHists.mZResVersusDipZ4_sigma->fArray[j]);
+    }
+
+
+    // Z residual versus crossing angle
+
+    mHistTitle = new TString("Z residual vs Crossing Angle");
+    mHistTitle->Append(mIndexName[i]);
+    ResidualHists[i].mZResVersusAlpha->FitSlicesY();
+    ResidualHists[i].mZResVersusAlpha->SetName(mHistTitle->Data());
+    ResidualHists[i].mZResVersusAlpha->SetTitle(mHistTitle->Data());
+    delete mHistTitle;
+
+    mHistTitle = new TString("Magnitude Z residual vs Crossing Angle");
+    mHistTitle->Append(mIndexName[i]);
+    if (bSectorSelectionOn) {mHistTitle->Append(" Sector "); mHistTitle->Append(*mSector);}
+    mHistName  = new TString("ZresvsAlpha");
+    mHistName->Append(*mCount);
+    mHistName->Append("_0");
+    ((TH1D *) gDirectory->Get(mHistName->Data()))->Copy(*ResidualHists[i].FitHists.mZResVersusAlpha_mag);
+    delete ((TH1D *) gDirectory->Get(mHistName->Data()));
+    ResidualHists[i].FitHists.mZResVersusAlpha_mag->SetName(mHistTitle->Data());
+    ResidualHists[i].FitHists.mZResVersusAlpha_mag->SetTitle(mHistTitle->Data());
+    delete mHistName;
+    delete mHistTitle;
+    ResidualHists[i].FitHists.mZResVersusAlpha_mag->SetXTitle("Crossing Angle (degree)");
+    ResidualHists[i].FitHists.mZResVersusAlpha_mag->SetYTitle("Magnitude");
+
+    mHistTitle = new TString("Mean Z residual vs Crossing Angle");
+    mHistTitle->Append(mIndexName[i]);
+    if (bSectorSelectionOn) {mHistTitle->Append(" Sector "); mHistTitle->Append(*mSector);}
+    mHistName  = new TString("ZresvsAlpha");
+    mHistName->Append(*mCount);
+    mHistName->Append("_1");
+    ((TH1D *) gDirectory->Get(mHistName->Data()))->Copy(*ResidualHists[i].FitHists.mZResVersusAlpha_mean);
+    delete ((TH1D *) gDirectory->Get(mHistName->Data()));
+    ResidualHists[i].FitHists.mZResVersusAlpha_mean->SetName(mHistTitle->Data());
+    ResidualHists[i].FitHists.mZResVersusAlpha_mean->SetTitle(mHistTitle->Data());
+    delete mHistName;
+    delete mHistTitle;
+    ResidualHists[i].FitHists.mZResVersusAlpha_mean->SetMaximum(.4);
+    ResidualHists[i].FitHists.mZResVersusAlpha_mean->SetMinimum(-.4);
+    ResidualHists[i].FitHists.mZResVersusAlpha_mean->SetXTitle("Crossing Angle (degree)");
+    ResidualHists[i].FitHists.mZResVersusAlpha_mean->SetYTitle("Mean Z residuals");
+    ResidualHists[i].FitHists.mZResVersusAlpha_mean->GetXaxis()->SetLabelSize(0.04);
+    ResidualHists[i].FitHists.mZResVersusAlpha_mean->GetYaxis()->SetLabelSize(0.04);
+    ResidualHists[i].FitHists.mZResVersusAlpha_mean->SetMarkerColor(kBlue);
+    ResidualHists[i].FitHists.mZResVersusAlpha_mean->SetMarkerStyle(20);
+
+    mHistTitle = new TString("Sigma Z residual vs Crossing Angle");
+    mHistTitle->Append(mIndexName[i]);
+    if (bSectorSelectionOn) {mHistTitle->Append(" Sector "); mHistTitle->Append(*mSector);}
+    mHistName  = new TString("ZresvsAlpha");
+    mHistName->Append(*mCount);
+    mHistName->Append("_2");
+    ((TH1D *) gDirectory->Get(mHistName->Data()))->Copy(*ResidualHists[i].FitHists.mZResVersusAlpha_sigma);
+    delete ((TH1D *) gDirectory->Get(mHistName->Data()));
+    ResidualHists[i].FitHists.mZResVersusAlpha_sigma->SetName(mHistTitle->Data());
+    ResidualHists[i].FitHists.mZResVersusAlpha_sigma->SetTitle(mHistTitle->Data());
+    delete mHistName;
+    delete mHistTitle;
+    ResidualHists[i].FitHists.mZResVersusAlpha_sigma->SetXTitle("Crossing Angle (degree)");
+    ResidualHists[i].FitHists.mZResVersusAlpha_sigma->SetYTitle("Sigma");
+    
+    mHistTitle = new TString("Chi2 Z residual vs Crossing Angle");
+    mHistTitle->Append(mIndexName[i]);
+    if (bSectorSelectionOn) {mHistTitle->Append(" Sector "); mHistTitle->Append(*mSector);}
+    mHistName  = new TString("ZresvsAlpha");
+    mHistName->Append(*mCount);
+    mHistName->Append("_chi2");
+    ((TH1D *) gDirectory->Get(mHistName->Data()))->Copy(*ResidualHists[i].FitHists.mZResVersusAlpha_chi);
+    delete ((TH1D *) gDirectory->Get(mHistName->Data()));
+    ResidualHists[i].FitHists.mZResVersusAlpha_chi->SetName(mHistTitle->Data());
+    ResidualHists[i].FitHists.mZResVersusAlpha_chi->SetTitle(mHistTitle->Data());
+    delete mHistName;
+    delete mHistTitle;
+    ResidualHists[i].FitHists.mZResVersusAlpha_chi->SetXTitle("Crossing Angle (degree)");
+    ResidualHists[i].FitHists.mZResVersusAlpha_chi->SetYTitle("chi2");
+    
+    for (j=0; j<ResidualHists[i].FitHists.mZResVersusAlpha_sigma->fN; j++) { 
+      ResidualHists[i].FitHists.mZResVersusAlpha_sigma->fArray[j] = 
+    	fabs(ResidualHists[i].FitHists.mZResVersusAlpha_sigma->fArray[j]);
+    }
+
+    //-----------------------------------------------------------------------
+    // z dependence residuals 0 - 50 cm
+
+    mHistTitle = new TString("Z residual vs Crossing Angle (0 < z <= 50)");
+    mHistTitle->Append(mIndexName[i]);
+    ResidualHists[i].mZResVersusAlphaZ1->FitSlicesY();
+    ResidualHists[i].mZResVersusAlphaZ1->SetName(mHistTitle->Data());
+    ResidualHists[i].mZResVersusAlphaZ1->SetTitle(mHistTitle->Data());
+    delete mHistTitle;
+
+    mHistTitle = new TString("Magnitude Z residual vs Crossing Angle (0 < z <= 50)");
+    mHistTitle->Append(mIndexName[i]);
+    if (bSectorSelectionOn) {mHistTitle->Append(" Sector "); mHistTitle->Append(*mSector);}
+    mHistName  = new TString("ZresvsAlphaZ1");
+    mHistName->Append(*mCount);
+    mHistName->Append("_0");
+    ((TH1D *) gDirectory->Get(mHistName->Data()))->Copy(*ResidualHists[i].FitHists.mZResVersusAlphaZ1_mag);
+    delete ((TH1D *) gDirectory->Get(mHistName->Data()));
+    ResidualHists[i].FitHists.mZResVersusAlphaZ1_mag->SetName(mHistTitle->Data());
+    ResidualHists[i].FitHists.mZResVersusAlphaZ1_mag->SetTitle(mHistTitle->Data());
+    delete mHistName;
+    delete mHistTitle;
+    ResidualHists[i].FitHists.mZResVersusAlphaZ1_mag->SetXTitle("Crossing Angle (degree)");
+    ResidualHists[i].FitHists.mZResVersusAlphaZ1_mag->SetYTitle("Magnitude");
+
+    mHistTitle = new TString("Mean Z residual vs Crossing Angle (0 < z <= 50)");
+    mHistTitle->Append(mIndexName[i]);
+    if (bSectorSelectionOn) {mHistTitle->Append(" Sector "); mHistTitle->Append(*mSector);}
+    mHistName  = new TString("ZresvsAlphaZ1");
+    mHistName->Append(*mCount);
+    mHistName->Append("_1");
+    ((TH1D *) gDirectory->Get(mHistName->Data()))->Copy(*ResidualHists[i].FitHists.mZResVersusAlphaZ1_mean);
+    delete ((TH1D *) gDirectory->Get(mHistName->Data()));
+    ResidualHists[i].FitHists.mZResVersusAlphaZ1_mean->SetName(mHistTitle->Data());
+    ResidualHists[i].FitHists.mZResVersusAlphaZ1_mean->SetTitle(mHistTitle->Data());
+    delete mHistName;
+    delete mHistTitle;
+    ResidualHists[i].FitHists.mZResVersusAlphaZ1_mean->SetMaximum(.4);
+    ResidualHists[i].FitHists.mZResVersusAlphaZ1_mean->SetMinimum(-.4);
+    ResidualHists[i].FitHists.mZResVersusAlphaZ1_mean->SetXTitle("Crossing Angle (degree)");
+    ResidualHists[i].FitHists.mZResVersusAlphaZ1_mean->SetYTitle("Mean Z residuals");
+    ResidualHists[i].FitHists.mZResVersusAlphaZ1_mean->GetXaxis()->SetLabelSize(0.04);
+    ResidualHists[i].FitHists.mZResVersusAlphaZ1_mean->GetYaxis()->SetLabelSize(0.04);
+    ResidualHists[i].FitHists.mZResVersusAlphaZ1_mean->SetMarkerColor(kBlue);
+    ResidualHists[i].FitHists.mZResVersusAlphaZ1_mean->SetMarkerStyle(20);
+
+    mHistTitle = new TString("Sigma Z residual vs Crossing Angle (0 < z <= 50)");
+    mHistTitle->Append(mIndexName[i]);
+    if (bSectorSelectionOn) {mHistTitle->Append(" Sector "); mHistTitle->Append(*mSector);}
+    mHistName  = new TString("ZresvsAlphaZ1");
+    mHistName->Append(*mCount);
+    mHistName->Append("_2");
+    ((TH1D *) gDirectory->Get(mHistName->Data()))->Copy(*ResidualHists[i].FitHists.mZResVersusAlphaZ1_sigma);
+    delete ((TH1D *) gDirectory->Get(mHistName->Data()));
+    ResidualHists[i].FitHists.mZResVersusAlphaZ1_sigma->SetName(mHistTitle->Data());
+    ResidualHists[i].FitHists.mZResVersusAlphaZ1_sigma->SetTitle(mHistTitle->Data());
+    delete mHistName;
+    delete mHistTitle;
+    ResidualHists[i].FitHists.mZResVersusAlphaZ1_sigma->SetXTitle("Crossing Angle (degree)");
+    ResidualHists[i].FitHists.mZResVersusAlphaZ1_sigma->SetYTitle("Sigma");
+    
+    mHistTitle = new TString("Chi2 Z residual vs Crossing Angle (0 < z <= 50)");
+    mHistTitle->Append(mIndexName[i]);
+    if (bSectorSelectionOn) {mHistTitle->Append(" Sector "); mHistTitle->Append(*mSector);}
+    mHistName  = new TString("ZresvsAlphaZ1");
+    mHistName->Append(*mCount);
+    mHistName->Append("_chi2");
+    ((TH1D *) gDirectory->Get(mHistName->Data()))->Copy(*ResidualHists[i].FitHists.mZResVersusAlphaZ1_chi);
+    delete ((TH1D *) gDirectory->Get(mHistName->Data()));
+    ResidualHists[i].FitHists.mZResVersusAlphaZ1_chi->SetName(mHistTitle->Data());
+    ResidualHists[i].FitHists.mZResVersusAlphaZ1_chi->SetTitle(mHistTitle->Data());
+    delete mHistName;
+    delete mHistTitle;
+    ResidualHists[i].FitHists.mZResVersusAlphaZ1_chi->SetXTitle("Crossing Angle (degree)");
+    ResidualHists[i].FitHists.mZResVersusAlphaZ1_chi->SetYTitle("chi2");
+    
+    for (j=0; j<ResidualHists[i].FitHists.mZResVersusAlphaZ1_sigma->fN; j++) { 
+      ResidualHists[i].FitHists.mZResVersusAlphaZ1_sigma->fArray[j] = 
+    	fabs(ResidualHists[i].FitHists.mZResVersusAlphaZ1_sigma->fArray[j]);
+    }
+
+    //-----------------------------------------------------------------------
+    // z dependence residuals 50 - 100 cm
+
+    mHistTitle = new TString("Z residual vs Crossing Angle (50 < z <= 100)");
+    mHistTitle->Append(mIndexName[i]);
+    ResidualHists[i].mZResVersusAlphaZ2->FitSlicesY();
+    ResidualHists[i].mZResVersusAlphaZ2->SetName(mHistTitle->Data());
+    ResidualHists[i].mZResVersusAlphaZ2->SetTitle(mHistTitle->Data());
+    delete mHistTitle;
+
+    mHistTitle = new TString("Magnitude Z residual vs Crossing Angle (50 < z <= 100)");
+    mHistTitle->Append(mIndexName[i]);
+    if (bSectorSelectionOn) {mHistTitle->Append(" Sector "); mHistTitle->Append(*mSector);}
+    mHistName  = new TString("ZresvsAlphaZ2");
+    mHistName->Append(*mCount);
+    mHistName->Append("_0");
+    ((TH1D *) gDirectory->Get(mHistName->Data()))->Copy(*ResidualHists[i].FitHists.mZResVersusAlphaZ2_mag);
+    delete ((TH1D *) gDirectory->Get(mHistName->Data()));
+    ResidualHists[i].FitHists.mZResVersusAlphaZ2_mag->SetName(mHistTitle->Data());
+    ResidualHists[i].FitHists.mZResVersusAlphaZ2_mag->SetTitle(mHistTitle->Data());
+    delete mHistName;
+    delete mHistTitle;
+    ResidualHists[i].FitHists.mZResVersusAlphaZ2_mag->SetXTitle("Crossing Angle (degree)");
+    ResidualHists[i].FitHists.mZResVersusAlphaZ2_mag->SetYTitle("Magnitude");
+
+    mHistTitle = new TString("Mean Z residual vs Crossing Angle (50 < z <= 100)");
+    mHistTitle->Append(mIndexName[i]);
+    if (bSectorSelectionOn) {mHistTitle->Append(" Sector "); mHistTitle->Append(*mSector);}
+    mHistName  = new TString("ZresvsAlphaZ2");
+    mHistName->Append(*mCount);
+    mHistName->Append("_1");
+    ((TH1D *) gDirectory->Get(mHistName->Data()))->Copy(*ResidualHists[i].FitHists.mZResVersusAlphaZ2_mean);
+    delete ((TH1D *) gDirectory->Get(mHistName->Data()));
+    ResidualHists[i].FitHists.mZResVersusAlphaZ2_mean->SetName(mHistTitle->Data());
+    ResidualHists[i].FitHists.mZResVersusAlphaZ2_mean->SetTitle(mHistTitle->Data());
+    delete mHistName;
+    delete mHistTitle;
+    ResidualHists[i].FitHists.mZResVersusAlphaZ2_mean->SetMaximum(.4);
+    ResidualHists[i].FitHists.mZResVersusAlphaZ2_mean->SetMinimum(-.4);
+    ResidualHists[i].FitHists.mZResVersusAlphaZ2_mean->SetXTitle("Crossing Angle (degree)");
+    ResidualHists[i].FitHists.mZResVersusAlphaZ2_mean->SetYTitle("Mean Z residuals");
+    ResidualHists[i].FitHists.mZResVersusAlphaZ2_mean->GetXaxis()->SetLabelSize(0.04);
+    ResidualHists[i].FitHists.mZResVersusAlphaZ2_mean->GetYaxis()->SetLabelSize(0.04);
+    ResidualHists[i].FitHists.mZResVersusAlphaZ2_mean->SetMarkerColor(kBlue);
+    ResidualHists[i].FitHists.mZResVersusAlphaZ2_mean->SetMarkerStyle(20);
+
+    mHistTitle = new TString("Sigma Z residual vs Crossing Angle (50 < z <= 100)");
+    mHistTitle->Append(mIndexName[i]);
+    if (bSectorSelectionOn) {mHistTitle->Append(" Sector "); mHistTitle->Append(*mSector);}
+    mHistName  = new TString("ZresvsAlphaZ2");
+    mHistName->Append(*mCount);
+    mHistName->Append("_2");
+    ((TH1D *) gDirectory->Get(mHistName->Data()))->Copy(*ResidualHists[i].FitHists.mZResVersusAlphaZ2_sigma);
+    delete ((TH1D *) gDirectory->Get(mHistName->Data()));
+    ResidualHists[i].FitHists.mZResVersusAlphaZ2_sigma->SetName(mHistTitle->Data());
+    ResidualHists[i].FitHists.mZResVersusAlphaZ2_sigma->SetTitle(mHistTitle->Data());
+    delete mHistName;
+    delete mHistTitle;
+    ResidualHists[i].FitHists.mZResVersusAlphaZ2_sigma->SetXTitle("Crossing Angle (degree)");
+    ResidualHists[i].FitHists.mZResVersusAlphaZ2_sigma->SetYTitle("Sigma");
+    
+    mHistTitle = new TString("Chi2 Z residual vs Crossing Angle (50 < z <= 100)");
+    mHistTitle->Append(mIndexName[i]);
+    if (bSectorSelectionOn) {mHistTitle->Append(" Sector "); mHistTitle->Append(*mSector);}
+    mHistName  = new TString("ZresvsAlphaZ2");
+    mHistName->Append(*mCount);
+    mHistName->Append("_chi2");
+    ((TH1D *) gDirectory->Get(mHistName->Data()))->Copy(*ResidualHists[i].FitHists.mZResVersusAlphaZ2_chi);
+    delete ((TH1D *) gDirectory->Get(mHistName->Data()));
+    ResidualHists[i].FitHists.mZResVersusAlphaZ2_chi->SetName(mHistTitle->Data());
+    ResidualHists[i].FitHists.mZResVersusAlphaZ2_chi->SetTitle(mHistTitle->Data());
+    delete mHistName;
+    delete mHistTitle;
+    ResidualHists[i].FitHists.mZResVersusAlphaZ2_chi->SetXTitle("Crossing Angle (degree)");
+    ResidualHists[i].FitHists.mZResVersusAlphaZ2_chi->SetYTitle("chi2");
+    
+    for (j=0; j<ResidualHists[i].FitHists.mZResVersusAlphaZ2_sigma->fN; j++) { 
+      ResidualHists[i].FitHists.mZResVersusAlphaZ2_sigma->fArray[j] = 
+    	fabs(ResidualHists[i].FitHists.mZResVersusAlphaZ2_sigma->fArray[j]);
+    }
+
+    //-----------------------------------------------------------------------
+    // z dependence residuals 100 - 150 cm
+
+    mHistTitle = new TString("Z residual vs Crossing Angle (100 < z <= 150)");
+    mHistTitle->Append(mIndexName[i]);
+    ResidualHists[i].mZResVersusAlphaZ3->FitSlicesY();
+    ResidualHists[i].mZResVersusAlphaZ3->SetName(mHistTitle->Data());
+    ResidualHists[i].mZResVersusAlphaZ3->SetTitle(mHistTitle->Data());
+    delete mHistTitle;
+
+    mHistTitle = new TString("Magnitude Z residual vs Crossing Angle (100 < z <= 150)");
+    mHistTitle->Append(mIndexName[i]);
+    if (bSectorSelectionOn) {mHistTitle->Append(" Sector "); mHistTitle->Append(*mSector);}
+    mHistName  = new TString("ZresvsAlphaZ3");
+    mHistName->Append(*mCount);
+    mHistName->Append("_0");
+    ((TH1D *) gDirectory->Get(mHistName->Data()))->Copy(*ResidualHists[i].FitHists.mZResVersusAlphaZ3_mag);
+    delete ((TH1D *) gDirectory->Get(mHistName->Data()));
+    ResidualHists[i].FitHists.mZResVersusAlphaZ3_mag->SetName(mHistTitle->Data());
+    ResidualHists[i].FitHists.mZResVersusAlphaZ3_mag->SetTitle(mHistTitle->Data());
+    delete mHistName;
+    delete mHistTitle;
+    ResidualHists[i].FitHists.mZResVersusAlphaZ3_mag->SetXTitle("Crossing Angle (degree)");
+    ResidualHists[i].FitHists.mZResVersusAlphaZ3_mag->SetYTitle("Magnitude");
+
+    mHistTitle = new TString("Mean Z residual vs Crossing Angle (100 < z <= 150)");
+    mHistTitle->Append(mIndexName[i]);
+    if (bSectorSelectionOn) {mHistTitle->Append(" Sector "); mHistTitle->Append(*mSector);}
+    mHistName  = new TString("ZresvsAlphaZ3");
+    mHistName->Append(*mCount);
+    mHistName->Append("_1");
+    ((TH1D *) gDirectory->Get(mHistName->Data()))->Copy(*ResidualHists[i].FitHists.mZResVersusAlphaZ3_mean);
+    delete ((TH1D *) gDirectory->Get(mHistName->Data()));
+    ResidualHists[i].FitHists.mZResVersusAlphaZ3_mean->SetName(mHistTitle->Data());
+    ResidualHists[i].FitHists.mZResVersusAlphaZ3_mean->SetTitle(mHistTitle->Data());
+    delete mHistName;
+    delete mHistTitle;
+    ResidualHists[i].FitHists.mZResVersusAlphaZ3_mean->SetMaximum(.4);
+    ResidualHists[i].FitHists.mZResVersusAlphaZ3_mean->SetMinimum(-.4);
+    ResidualHists[i].FitHists.mZResVersusAlphaZ3_mean->SetXTitle("Crossing Angle (degree)");
+    ResidualHists[i].FitHists.mZResVersusAlphaZ3_mean->SetYTitle("Mean Z residuals");
+    ResidualHists[i].FitHists.mZResVersusAlphaZ3_mean->GetXaxis()->SetLabelSize(0.04);
+    ResidualHists[i].FitHists.mZResVersusAlphaZ3_mean->GetYaxis()->SetLabelSize(0.04);
+    ResidualHists[i].FitHists.mZResVersusAlphaZ3_mean->SetMarkerColor(kBlue);
+    ResidualHists[i].FitHists.mZResVersusAlphaZ3_mean->SetMarkerStyle(20);
+
+    mHistTitle = new TString("Sigma Z residual vs Crossing Angle (100 < z <= 150)");
+    mHistTitle->Append(mIndexName[i]);
+    if (bSectorSelectionOn) {mHistTitle->Append(" Sector "); mHistTitle->Append(*mSector);}
+    mHistName  = new TString("ZresvsAlphaZ3");
+    mHistName->Append(*mCount);
+    mHistName->Append("_2");
+    ((TH1D *) gDirectory->Get(mHistName->Data()))->Copy(*ResidualHists[i].FitHists.mZResVersusAlphaZ3_sigma);
+    delete ((TH1D *) gDirectory->Get(mHistName->Data()));
+    ResidualHists[i].FitHists.mZResVersusAlphaZ3_sigma->SetName(mHistTitle->Data());
+    ResidualHists[i].FitHists.mZResVersusAlphaZ3_sigma->SetTitle(mHistTitle->Data());
+    delete mHistName;
+    delete mHistTitle;
+    ResidualHists[i].FitHists.mZResVersusAlphaZ3_sigma->SetXTitle("Crossing Angle (degree)");
+    ResidualHists[i].FitHists.mZResVersusAlphaZ3_sigma->SetYTitle("Sigma");
+    
+    mHistTitle = new TString("Chi2 Z residual vs Crossing Angle (100 < z <= 150)");
+    mHistTitle->Append(mIndexName[i]);
+    if (bSectorSelectionOn) {mHistTitle->Append(" Sector "); mHistTitle->Append(*mSector);}
+    mHistName  = new TString("ZresvsAlphaZ3");
+    mHistName->Append(*mCount);
+    mHistName->Append("_chi2");
+    ((TH1D *) gDirectory->Get(mHistName->Data()))->Copy(*ResidualHists[i].FitHists.mZResVersusAlphaZ3_chi);
+    delete ((TH1D *) gDirectory->Get(mHistName->Data()));
+    ResidualHists[i].FitHists.mZResVersusAlphaZ3_chi->SetName(mHistTitle->Data());
+    ResidualHists[i].FitHists.mZResVersusAlphaZ3_chi->SetTitle(mHistTitle->Data());
+    delete mHistName;
+    delete mHistTitle;
+    ResidualHists[i].FitHists.mZResVersusAlphaZ3_chi->SetXTitle("Crossing Angle (degree)");
+    ResidualHists[i].FitHists.mZResVersusAlphaZ3_chi->SetYTitle("chi2");
+    
+    for (j=0; j<ResidualHists[i].FitHists.mZResVersusAlphaZ3_sigma->fN; j++) { 
+      ResidualHists[i].FitHists.mZResVersusAlphaZ3_sigma->fArray[j] = 
+    	fabs(ResidualHists[i].FitHists.mZResVersusAlphaZ3_sigma->fArray[j]);
+    }
+
+    //-----------------------------------------------------------------------
+    // z dependence residuals 150 - 200 cm
+
+    mHistTitle = new TString("Z residual vs Crossing Angle (150 < z <= 200)");
+    mHistTitle->Append(mIndexName[i]);
+    ResidualHists[i].mZResVersusAlphaZ4->FitSlicesY();
+    ResidualHists[i].mZResVersusAlphaZ4->SetName(mHistTitle->Data());
+    ResidualHists[i].mZResVersusAlphaZ4->SetTitle(mHistTitle->Data());
+    delete mHistTitle;
+
+    mHistTitle = new TString("Magnitude Z residual vs Crossing Angle (150 < z <= 200)");
+    mHistTitle->Append(mIndexName[i]);
+    if (bSectorSelectionOn) {mHistTitle->Append(" Sector "); mHistTitle->Append(*mSector);}
+    mHistName  = new TString("ZresvsAlphaZ4");
+    mHistName->Append(*mCount);
+    mHistName->Append("_0");
+    ((TH1D *) gDirectory->Get(mHistName->Data()))->Copy(*ResidualHists[i].FitHists.mZResVersusAlphaZ4_mag);
+    delete ((TH1D *) gDirectory->Get(mHistName->Data()));
+    ResidualHists[i].FitHists.mZResVersusAlphaZ4_mag->SetName(mHistTitle->Data());
+    ResidualHists[i].FitHists.mZResVersusAlphaZ4_mag->SetTitle(mHistTitle->Data());
+    delete mHistName;
+    delete mHistTitle;
+    ResidualHists[i].FitHists.mZResVersusAlphaZ4_mag->SetXTitle("Crossing Angle (degree)");
+    ResidualHists[i].FitHists.mZResVersusAlphaZ4_mag->SetYTitle("Magnitude");
+
+    mHistTitle = new TString("Mean Z residual vs Crossing Angle (150 < z <= 200)");
+    mHistTitle->Append(mIndexName[i]);
+    if (bSectorSelectionOn) {mHistTitle->Append(" Sector "); mHistTitle->Append(*mSector);}
+    mHistName  = new TString("ZresvsAlphaZ4");
+    mHistName->Append(*mCount);
+    mHistName->Append("_1");
+    ((TH1D *) gDirectory->Get(mHistName->Data()))->Copy(*ResidualHists[i].FitHists.mZResVersusAlphaZ4_mean);
+    delete ((TH1D *) gDirectory->Get(mHistName->Data()));
+    ResidualHists[i].FitHists.mZResVersusAlphaZ4_mean->SetName(mHistTitle->Data());
+    ResidualHists[i].FitHists.mZResVersusAlphaZ4_mean->SetTitle(mHistTitle->Data());
+    delete mHistName;
+    delete mHistTitle;
+    ResidualHists[i].FitHists.mZResVersusAlphaZ4_mean->SetMaximum(.4);
+    ResidualHists[i].FitHists.mZResVersusAlphaZ4_mean->SetMinimum(-.4);
+    ResidualHists[i].FitHists.mZResVersusAlphaZ4_mean->SetXTitle("Crossing Angle (degree)");
+    ResidualHists[i].FitHists.mZResVersusAlphaZ4_mean->SetYTitle("Mean Z residuals");
+    ResidualHists[i].FitHists.mZResVersusAlphaZ4_mean->GetXaxis()->SetLabelSize(0.04);
+    ResidualHists[i].FitHists.mZResVersusAlphaZ4_mean->GetYaxis()->SetLabelSize(0.04);
+    ResidualHists[i].FitHists.mZResVersusAlphaZ4_mean->SetMarkerColor(kBlue);
+    ResidualHists[i].FitHists.mZResVersusAlphaZ4_mean->SetMarkerStyle(20);
+
+    mHistTitle = new TString("Sigma Z residual vs Crossing Angle (150 < z <= 200)");
+    mHistTitle->Append(mIndexName[i]);
+    if (bSectorSelectionOn) {mHistTitle->Append(" Sector "); mHistTitle->Append(*mSector);}
+    mHistName  = new TString("ZresvsAlphaZ4");
+    mHistName->Append(*mCount);
+    mHistName->Append("_2");
+    ((TH1D *) gDirectory->Get(mHistName->Data()))->Copy(*ResidualHists[i].FitHists.mZResVersusAlphaZ4_sigma);
+    delete ((TH1D *) gDirectory->Get(mHistName->Data()));
+    ResidualHists[i].FitHists.mZResVersusAlphaZ4_sigma->SetName(mHistTitle->Data());
+    ResidualHists[i].FitHists.mZResVersusAlphaZ4_sigma->SetTitle(mHistTitle->Data());
+    delete mHistName;
+    delete mHistTitle;
+    ResidualHists[i].FitHists.mZResVersusAlphaZ4_sigma->SetXTitle("Crossing Angle (degree)");
+    ResidualHists[i].FitHists.mZResVersusAlphaZ4_sigma->SetYTitle("Sigma");
+    
+    mHistTitle = new TString("Chi2 Z residual vs Crossing Angle (150 < z <= 200)");
+    mHistTitle->Append(mIndexName[i]);
+    if (bSectorSelectionOn) {mHistTitle->Append(" Sector "); mHistTitle->Append(*mSector);}
+    mHistName  = new TString("ZresvsAlphaZ4");
+    mHistName->Append(*mCount);
+    mHistName->Append("_chi2");
+    ((TH1D *) gDirectory->Get(mHistName->Data()))->Copy(*ResidualHists[i].FitHists.mZResVersusAlphaZ4_chi);
+    delete ((TH1D *) gDirectory->Get(mHistName->Data()));
+    ResidualHists[i].FitHists.mZResVersusAlphaZ4_chi->SetName(mHistTitle->Data());
+    ResidualHists[i].FitHists.mZResVersusAlphaZ4_chi->SetTitle(mHistTitle->Data());
+    delete mHistName;
+    delete mHistTitle;
+    ResidualHists[i].FitHists.mZResVersusAlphaZ4_chi->SetXTitle("Crossing Angle (degree)");
+    ResidualHists[i].FitHists.mZResVersusAlphaZ4_chi->SetYTitle("chi2");
+    
+    for (j=0; j<ResidualHists[i].FitHists.mZResVersusAlphaZ4_sigma->fN; j++) { 
+      ResidualHists[i].FitHists.mZResVersusAlphaZ4_sigma->fArray[j] = 
+    	fabs(ResidualHists[i].FitHists.mZResVersusAlphaZ4_sigma->fArray[j]);
     }
 
   }
