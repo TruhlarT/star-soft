@@ -34,7 +34,7 @@ setenv PATH "${ROOTSYS}/${root}/bin:${PATH}"
 if ($?NODEBUG) then
   setenv PATH "${ROOTSYS}/${root}/BIN:${PATH}"
 endif
-setenv MANPATH "/afs/rhic/star/ROOT/${ROOT_LEVEL}/man:${MANPATH}"
+setenv MANPATH "${ROOTSYS}/man:${MANPATH}"
 #
 # OpenGL
 if (-e $ROOTSYS/../Mesa) setenv OPENGL $ROOTSYS/../Mesa  
