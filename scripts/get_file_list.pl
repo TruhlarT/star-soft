@@ -192,7 +192,8 @@ Command usage:
  -o <output filename>               redirects results to an ouput file (use STDOUT)
 
  -V                                 print version and exits
- -as {Admin|User}                   connect as specified
+ -as <scope>                        connects as specified, scopes={Admin|User}
+ -as <site>::<scope>                connects to site as specified
 
  Fields appearing in -keys and/or -cond may be amongst the following
      ~;
