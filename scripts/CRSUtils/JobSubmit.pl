@@ -146,24 +146,17 @@ if ($ThisYear == 2002){
 
 
 
-
-
-# Default production chains by species
-#$DCHAIN{"AuAu"}           = "P2001a";
-#$DCHAIN{"ProtonProton"}   = "PP2001,fpd";
-#$DCHAIN{"dAu"}            = "dAu2003,alltrigger";
-
-# Default pre-pass calibration chains by species used in regular mode if defined
-#$DCALIB{"AuAu"}           = "";         # Trash out default calib pass. All done now, was PreTpcT0
-#$DCALIB{"ProtonProton"}   = "";         # PreLaser" no more interlayed laser, all laser files processed
-#$DCALIB{"dAu"}            = "PreTpcT0";
-
-# Stand-alone Calibration pass. Used in C/mode
-#$SCALIB{"AuAu"}           = "";
-#$SCALIB{"ProtonProton"}   = "OptLaser";
-#$SCALIB{"dAu"}            = "OptLaser";
-
-
+#
+# Check space on the target disk
+#
+chomp($space = `/bin/df -k $TARGET`);
+print "[$space]\n";
+$space =~ m/(.* )(\d+)(%.*)/;
+$space =  $2;
+if ($space >= 99){
+    print "Target disk $TARGET is $space % full (baling out)\n";
+    exit;
+}
 
 
 $CHAIN   = "";
