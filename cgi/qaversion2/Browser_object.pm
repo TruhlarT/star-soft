@@ -486,6 +486,8 @@ sub DisplayDataset{
     else{ # print dataset
      
       # make sure logfile report exists
+
+      defined  $QA_object_hash{$key} or next;
       my $logfile_report = $QA_object_hash{$key}->LogReportStorable;
       -s $logfile_report or next;
       
