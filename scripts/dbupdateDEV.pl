@@ -615,10 +615,10 @@ foreach  $eachOutNDir (@OUT_DIR) {
         $EvReq = $EvReq = substr($evR,0,-5);
    }
       elsif($EvTp eq "minbias") {
-        $EvReq = 160; 
+        $EvReq = 192; 
      } 
      elsif($EvTp eq "central") {
-        $EvReq = 100;
+        $EvReq = 85;
       }
      elsif($EvTp eq "ppMinBias") {
         $EvReq = 700;
