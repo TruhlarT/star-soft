@@ -2,7 +2,7 @@
 %
 % StEvent - User Guide and Reference Manual -- LaTeX Source
 %
-% $Id: StEvent.tex,v 2.63 2001/09/28 22:47:22 ullrich Exp $
+% $Id: StEvent.tex,v 2.64 2001/10/01 20:02:21 ullrich Exp $
 %
 % Author: Thomas Ullrich, Nov 1999
 %
@@ -21,6 +21,9 @@
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %
 % $Log: StEvent.tex,v $
+% Revision 2.64  2001/10/01 20:02:21  ullrich
+% Added StTofData.
+%
 % Revision 2.63  2001/09/28 22:47:22  ullrich
 % Updated description of StTrack and StTrackGeometry.
 %
@@ -254,8 +257,8 @@
   \mbox{\includegraphics[width=\textwidth]{StEventTitle.eps}}
   \hfill\mbox{}\\[3cm]
   {\LARGE User Guide and Reference Manual \\[5mm] for Version 2}\\[2cm]
-  {\LARGE $ $Revision: 2.63 $ $}  \\[5mm] % replaced by cvs with current revision
-  {\LARGE $ $Date: 2001/09/28 22:47:22 $ $}  % replaced by cvs with current revision
+  {\LARGE $ $Revision: 2.64 $ $}  \\[5mm] % replaced by cvs with current revision
+  {\LARGE $ $Date: 2001/10/01 20:02:21 $ $}  % replaced by cvs with current revision
   \vfill
 \end{center}
 \cleardoublepage
@@ -5317,6 +5320,37 @@ definition in the header file.
 \item[Public Member\\ Functions]
     \verb+StSPtrVecSvtHit& hits();+\\
     \verb+const StSPtrVecSvtHit& hits() const;+\\
+\end{Entry}
+\clearpage
+
+\subsection{StTofData}
+\index{StTofData|textbf}
+\label{sec:StTofData}
+\begin{Entry}
+\item[Summary]
+\item[Synopsis]
+    \verb+#include "StTofData.h"+\\
+    \verb+class StTofData;+\\
+\item[Description]
+\item[Related Classes]
+\item[Public\\ Constructors]
+    \verb+StTofData();+\\
+    \verb+StTofData(unsigned short, unsigned short, unsigned short, short, unsigned short);+\\
+\item[Public Member\\ Functions]
+    \verb+int operator==(const StTofData&) const;+\\
+    \verb+int operator!=(const StTofData&) const;+\\
+    \verb+unsigned short dataIndex() const;+\\
+    \verb+unsigned short adc() const;+\\
+    \verb+unsigned short tdc() const;+\\
+    \verb+short tc() const;+\\
+    \verb+unsigned short sc() const;+\\
+    \verb+void setDataIndex(unsigned short);+\\
+    \verb+void setAdc(unsigned short);+\\
+    \verb+void setTdc(unsigned short);+\\
+    \verb+void setTc(short);+\\
+    \verb+void setSc(unsigned short);+\\
+\item[Public Operators]
+    \verb+ostream& operator<<(ostream&, const StTofData&);+\\
 \end{Entry}
 \clearpage
 
