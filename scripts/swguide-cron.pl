@@ -1,8 +1,11 @@
 #!/usr/bin/env perl
 #
-# $Id: swguide-cron.pl,v 1.4 2002/01/26 23:34:00 jeromel Exp $
+# $Id: swguide-cron.pl,v 1.5 2002/01/26 23:54:50 jeromel Exp $
 #
 # $Log: swguide-cron.pl,v $
+# Revision 1.5  2002/01/26 23:54:50  jeromel
+# *** empty log message ***
+#
 # Revision 1.4  2002/01/26 23:34:00  jeromel
 # Corrected and secured.
 #
@@ -41,7 +44,7 @@
 
 $fpath = "/star/starlib/doc/www/html/tmp";
 if( defined($ENV{STAR_CGI}) ){
-    $pgm = $ENV{STAR_CGI}."/swguide.pl";
+    $prgm = $ENV{STAR_CGI}."/swguide.pl";
 } else {
     $prgm = "/afs/rhic/star/packages/cgi"."/swguide.pl";
 }
