@@ -725,9 +725,13 @@ sub Submit
 	}
     }
     if ( $dets ne "tpc" && $dets !~ m/\.tpc/){
-	print "$SELF :: Info : detectors are [$dets] (not including tpc) skipping it\n";
-	push(@SKIPPED,$file);
-	return 0;
+	if ($mode != 1){
+	    print "$SELF :: Info : detectors are [$dets] (not including tpc) skipping it\n";
+	    push(@SKIPPED,$file);
+	    return 0;
+	} else {
+	    print "$SELF :: Info : detectors are [$dets] (not including tpc) - Submitting anyway\n";
+	}
     }
 
 
