@@ -13,7 +13,8 @@ require "/afs/rhic/star/packages/DEV00/mgr/dbCpProdSetup.pl";
 my $debugOn = 0;
 my %pair;
 my @pck;
-
+my $mcomment = " ";
+ $pair{$mcomment} = " ";
 &cgiSetup();
 
 $runPr = $q->param("runD");
@@ -42,8 +43,11 @@ while(@fields = $cursor->fetchrow) {
     my $fname=$cursor->{NAME}->[$i];
     print "$fname = $fvalue\n" if $debugOn;
     $pair{$fname} = $fvalue;
+   
   }
-
+  if (!defined $pair{$mcomment}) {
+   $pair{$mcomment} = " ";
+} 
 &printRow();
 
 }
