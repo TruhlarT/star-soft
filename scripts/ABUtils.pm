@@ -282,12 +282,12 @@ sub IUresource
 insure++.summarize bugs
 insure++.checking_uninit on
 insure++.demangle full_types
-insure++.symbol_table off
+insure++.symbol_table on
 insure++.stack_internal on
 insure++.leak_combine none
-insure++.leak_search off
+insure++.leak_search on
 insure++.leak_sort size
-insure++.leak_sweep off
+insure++.leak_sweep on
 insure++.leak_trace off
 insure++.summarize leaks outstanding
 insure++.report_file $ofile
