@@ -30,7 +30,7 @@ my %updateLimit = ( nightlyReal => 10,
 		    nightlyMC   => 10,
 		    offlineReal => 10,
 		    offlineMC   => 10,
-		    offlineFast => 5
+		    offlineFast => 2
 );
 # for real offline 
 my $oldestRun = 2202000;
@@ -201,15 +201,16 @@ sub UpdateQAOfflineFast{
 		  };
 
   # update
-#  my $queryUpdate = qq{select daq.file
-#		       from $dbFile.$DAQInfo{Table} as daq
-#		       LEFT JOIN $dbQA.$QASum{Table} as qa
-#		       on daq.$DAQInfo{file}=qa.$QASum{jobID}
-#		       where 
-#			 daq.$DAQInfo{status} = $doneStatus and
-#			 qa.$QASum{jobID} is NULL
-#		       limit $limit
-#		     };
+  my $queryUpdate = qq{select daq.file, qa.$QASum{QAdone}
+		       from $dbFile.$DAQInfo{Table} as daq
+		       LEFT JOIN $dbQA.$QASum{Table} as qa
+		       on daq.$DAQInfo{file}=qa.$QASum{jobID}
+		       where 
+			 daq.$DAQInfo{status} = $doneStatus and
+			 (qa.$QASum{jobID} is NULL ||
+			  qa.$QASum{QAdone}='Y')
+		       limit $limit
+		     };
 
   # insert
   my $queryInsert = qq{insert into $dbQA.$QASum{Table}
@@ -221,19 +222,10 @@ sub UpdateQAOfflineFast{
 			 $QASum{qaID}       = NULL
 		       };
 
-  my $queryExists = qq{select $QASum{qaID} 
-		       from $dbQA.$QASum{Table}
-		       where $QASum{jobID}=?
-		     };
-  my $queryQAdone = qq{select $QASum{QAdone}
-		       from $dbQA.$QASum{Table}
-		       where $QASum{jobID}=?
-		     };
   my $queryResetQAdone = qq{update $dbQA.$QASum{Table}
 			    set $QASum{QAdone}='N'
 			    where $QASum{jobID}=?
 			  };
-
 
   # here's the logic.
   # first get all 'files' from DAQInfo with status=2.
@@ -246,55 +238,38 @@ sub UpdateQAOfflineFast{
   
   my @keyList;
 
+  my $sthUpdate = $dbh->prepare($queryUpdate);
   my $sthKey    = $dbh->prepare($queryKey);
   my $sthInsert = $dbh->prepare($queryInsert);
-  my $sthExists = $dbh->prepare($queryExists);
-  my $sthQAdone = $dbh->prepare($queryQAdone);
   my $sthResetQAdone = $dbh->prepare($queryResetQAdone);
 
-  my @files = 
-    QA_db_utilities::GetRowsFromTable($DAQInfo{file},"$dbFile.$DAQInfo{Table}",
-				      "$DAQInfo{status}=2");
-
   # Note: what DAQInfo calls 'file' autoQA calls 'jobID'
-  
+ 
+  $sthUpdate->execute();
   my $count=0;
-  foreach my $jobID (@files){
-    print " : $jobID\n" if $debug;
+  while(my($jobID,$QAdone)=$sthUpdate->fetchrow_array()){
+    print "jobID=$jobID : ";
     $sthKey->execute($jobID);
     my $report_key = $sthKey->fetchrow_array();
-    $sthExists->execute($jobID);
-    if(!$sthExists->fetchrow_array()){ # new file/jobID
-      print "$jobID does not exist in QAtable...";
+    if(!$QAdone){ # new file. insert
+      print "does not exist in QAtable...";
       $sthKey->execute($jobID);
-      my $report_key = $sthKey->fetchrow_array();
       print "inserting...";
       my $stat = $sthInsert->execute($jobID,$report_key) if !$debug;
-      if($stat) { print "...done"; }
-      else { print "...Cannot insert"; next; }
-      print "<br>\n";
+      if($stat) { print "done<br>\n"; }
+      else { print "Cannot insert<br>\n"; next; }
       push @keyList,$report_key;
-      last if ++$count>=$updateLimit{offlineFast};
-      next;
     }
-    else{ # it already exists
-      $sthQAdone->execute($jobID);
-      if($sthQAdone->fetchrow_array() eq 'Y'){ 
-	# probably means there's been a reproduction
-	print "Already exists but qa is done.  Will reset qa done to No...";
-	my $stat = $sthResetQAdone->execute($jobID) if !$debug;
-	if(!$stat){
-	  print "Cannot reset QAdone to no<br>\n";
-	}
-	else{
-	  print "done<br>\n"; 	  
-	}
-	push @keyList,$report_key;
-	last if ++$count>=$updateLimit{offlineFast};
+    else{ # already exists, but probably reproduction
+      print "Already exists but qa is done.  Will reset qa done to No...";
+      my $stat = $sthResetQAdone->execute($jobID) if !$debug;
+      if(!$stat){
+	print "Cannot reset QAdone to no<br>\n";
       }
       else{
-	print "Ignore. qa has not been done or is running\n" if $debug;
+	print "done<br>\n"; 	  
       }
+      push @keyList,$report_key;
     }
   }
   return @keyList;
