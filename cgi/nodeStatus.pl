@@ -72,7 +72,6 @@ my @nodeList = (
                 "rcrs6035.rcf.bnl.gov",
                 "rcrs6036.rcf.bnl.gov",
                 "rcrs6037.rcf.bnl.gov"
-             
 );
 
 
@@ -123,7 +122,7 @@ my %nodeHash = (
                 "rcrs6034.rcf.bnl.gov" => 33,
                 "rcrs6035.rcf.bnl.gov" => 34,
                 "rcrs6036.rcf.bnl.gov" => 35,
-                "rcrs6037.rcf.bnl.gov" => 36,
+                "rcrs6037.rcf.bnl.gov" => 36 
  );               
 
 
@@ -136,7 +135,7 @@ foreach my $int ( $mon,$mday ){
 }
 
 $outname = "mail" . "_" .$thisday . "_" . "out";
-$outfile = "/star/u/starreco/" . $outname;
+$outfile = "/star/u2e/starreco/" . $outname;
 #print $outfile, "\n";
 
 open (MAILFILE, $outfile ) or die "cannot open $outfile: $!\n";
