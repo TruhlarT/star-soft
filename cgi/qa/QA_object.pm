@@ -194,6 +194,10 @@ sub ControlFile{
 	elsif ( $input_filename =~ /highdensity/ ){
 	  	$filestring .= "\.hc_high";
 	      }
+	# bum 9/3/00 - added peripheral
+        elsif ( $input_filename =~ /peripheral/ ){
+	        $filestring .= "\.peripheral";
+	      }
 	else{
 	  	last CONTROLFILE;
 	      }
