@@ -517,6 +517,12 @@ sub FlagQAInProgress{
 }
 #----------
 #
+sub ResetInProgressFlag{
+  my $qaID = shift;
+  UpdateQASummary($QASum{QAdone}, 'N', $qaID);
+}
+#----------
+#
 sub ResetQANotDone{
 
   my $query = qq{ select $QASum{qaID}, $QASum{report_key}

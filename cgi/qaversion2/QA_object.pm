@@ -180,8 +180,10 @@ sub DoQA{
   # determines which macro and tests to run
   
   my $control_file = $self->IOControlFile->Name;
-  my $fh           = $self->IOControlFile->Open() or return;
-
+  my $fh           = $self->IOControlFile->Open() or do {
+    QA_db_utilities::ResetInProgressFlag($self->qaID);
+    return;
+  };
   print h2("<hr>QA for report key $report_key\n");
   print "The time is " . localtime(). "\n". br;
   print h3("Using control file $control_file\n");
@@ -347,7 +349,7 @@ sub QASummaryString{
      
    }
   } # qa in progress
-  else { $summary_string .= "QA in progress"}
+  else { $summary_string .= "QA in progress\n"}
 
 
   if ( $show_log_link ) {
@@ -765,22 +767,23 @@ sub DisplayFilesAndReports{
 
   my $dh = $self->IOReportDirectory->Open;
   
-  my ($logfile, @ps_file, @report, @evaluation, @root_crash);
+  my ($logfile, @ps_file, @report, @evaluation, @root_crash, $batchlog);
 
   while (defined (my $file = readdir $dh ) ){
 
     next if $file =~ /^\./; # skip dot files
 
-    $logfile = $file, next         if $file =~ /logfile_report/; 
+    $logfile = $file,         next if $file =~ /logfile_report/; 
     
-    push(@ps_file, $file), next    if $file =~ /ps$|ps\.gz$/;  
+    push(@ps_file, $file),    next if $file =~ /ps$|ps\.gz$/;  
 
-    push(@report, $file),  next    if $file =~ /qa_report$/;   
+    push(@report, $file),     next if $file =~ /qa_report$/;   
 
     push(@evaluation, $file), next if $file =~ /evaluation$/; 
 
     push(@root_crash, $file), next if $file =~ /rootcrashlog$/;
 
+    $batchlog = $file,        next if $file =~ /html$/;
   }
 
   closedir $dh;
@@ -820,6 +823,8 @@ sub DisplayFilesAndReports{
     foreach my $file (@root_crash){  
       $self->PrintFilestring("Root crash", $file);
     }
+
+    $self->PrintFilestring("Batch log", $batchlog);
     
   };
 
