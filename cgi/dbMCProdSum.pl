@@ -21,7 +21,7 @@ use Class::Struct;
 
 my $debugOn=0;
 
-my @prodPer = ("mdc1", "mdc2", "postmdc2", "prod4", "prod5", "mdc3", "prod6", "P00hi");
+my @prodPer = ("mdc1", "mdc2", "postmdc2", "prod4", "prod5", "mdc3", "prod6", "P00hi", "MDC4");
 my %prodFlag = ();
 
 
