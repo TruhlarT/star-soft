@@ -35,9 +35,9 @@ use Cwd;
 use vars qw( $CVS_id $CVS_ver $ver_num $ver_rev $version );
 
 #ifndef __YF__
-#$CVS_id = '$Id: cons,v 1.88 2004/01/15 00:11:53 fisyak Exp $ ';
+#$CVS_id = '$Id: cons,v 1.89 2004/01/15 21:11:11 jeromel Exp $ ';
 #else /* __YF__ */
-$CVS_id = '$Id: cons,v 1.88 2004/01/15 00:11:53 fisyak Exp $ ';
+$CVS_id = '$Id: cons,v 1.89 2004/01/15 21:11:11 jeromel Exp $ ';
 #endif /* __YF__ */
 $CVS_ver = (split(/\s+/, $CVS_id))[2];
 
@@ -120,40 +120,21 @@ $| = 1;
 srand(time . $$); # this works better than time ^ $$ in perlfunc manpage.
 
 $usage = q(
-#ifndef __YF__
-#Usage: cons <arguments> -- <construct-args>
-#else /* __YF__ */
 Usage: cons [arguments] -- [construct-args]
-#endif /* __YF__ */
 
 Arguments can be any of the following, in any order:
 
-#ifndef __YF__
-#  <targets>	Build the specified targets. If <target> is a directory
-#else /* __YF__ */
   [targets]	Build the specified targets. If [target] is a directory
-#endif /* __YF__ */
 		recursively build everything within that directory.
 
-#ifndef __YF__
-#  +<pattern>	Limit the cons scripts considered to just those that
-#		match <pattern>. Multiple + arguments are accepted.
-#else /* __YF__ */
   +[pattern]	Limit the cons scripts considered to just those that
 		match [pattern]. Multiple + arguments are accepted.
-#endif /* __YF__ */
 
-#ifndef __YF__
-#  <name>=<val>	Sets <name> to value <val> in the ARG hash passed to the
-#else /* __YF__ */
   [name]=[val]	Sets [name] to value [val] in the ARG hash passed to the
-#endif /* __YF__ */
 		top-level Construct file.
 
-#ifdef __YF__
   -c [file]     Set standard Conscript to file
 
-#endif /* __YF__ */
   -cc           Show command that would have been executed, when
 		retrieving from cache. No indication that the file
 		has been retrieved is given; this is useful for
@@ -173,22 +154,13 @@ Arguments can be any of the following, in any order:
 
   -d            Enable dependency debugging.
 
-#ifndef __YF__
-#  -f <file>	Use the specified file instead of "Construct" (but first
-#		change to containing directory of <file>).
-#else /* __YF__ */
   -g            Enable Construct/Conscript debug print out
 
   -f [file]	Use the specified file instead of "Construct" (but first
 		change to containing directory of [file]).
-#endif /* __YF__ */
 
-#ifndef __YF__
-#  -h            Show a help message local to the current build if
-#else /* __YF__ */
   -i            Don\'t force to search for include file in default include directory
   -lh           Show a help message local to the current build if
-#endif /* __YF__ */
 		one such is defined,  and exit.
 
   -k		Keep going as far as possible after errors.
@@ -203,23 +175,13 @@ Arguments can be any of the following, in any order:
 		1: quiet about Installing and Removing targets
 		2: quiet about build commands, up-to-date targets
 
-#ifndef __YF__
-#  -r		Remove construction products associated with <targets>
-#else /* __YF__ */
   -r		Remove construction products associated with [targets]
-#endif /* __YF__ */
 
-#ifndef __YF__
-#  -R <repos>	Search for files in <repos>.  Multiple -R <repos>
-#else /* __YF__ */
   -R [repos]	Search for files in [repos].  Multiple -R [repos]
-#endif /* __YF__ */
 		directories are searched in the order specified.
 
-#ifdef __YF__
   -noR 	        Do not search for files in repositories.
 
-#endif /* __YF__ */
   -S <pkg>	Use package sig::<pkg> to calculate file signatures.
 		Currently supported values are "md5" for MD5
 		signatures (the default) and "md5::debug" for MD5
@@ -236,10 +198,8 @@ Arguments can be any of the following, in any order:
   -wf <file>    Write all filenames considered into <file>.
 
   -x		Show this message and exit.
-#ifdef __YF__
   -h		Show this message and exit.
 
-#endif /* __YF__ */
 
 
    Please report any suggestions through the cons-discuss@gnu.org mailing
@@ -261,12 +221,6 @@ Arguments can be any of the following, in any order:
 
 );
 
-#ifdef __YF__
-# stash the path to cons.
-#$param::conspath = $0;  # commentted
-
-#endif /* __YF__ */
-# Simplify program name, if it is a path.
 {
     my ($vol, $dir, $file) = File::Spec->splitpath(File::Spec->canonpath($0));
     $0 = $file;
