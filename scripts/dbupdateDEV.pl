@@ -1134,7 +1134,6 @@ my $runflag = 0;
 
        if($line =~ /Processing bfc.C/) {
           $runflag++;
-          $no_event = 0; 
 	}
    if ($line =~ /StMessageManager message summary/) {
       $Anflag = 1;
@@ -1154,7 +1153,7 @@ my $runflag = 0;
        }
     }
 #   get chain option
-	  if($runflag == 2) {
+	  if($runflag == 1) {
        if ( $line =~ /QAInfo: Requested chain bfc is/)  {
          if( $Anflag == 0 ) {
          @part = split /:/, $line ;
@@ -1250,10 +1249,12 @@ my $runflag = 0;
      
        }
      }
+ 
+    if($runflag == 1) { 
 
       $EvDone = $no_event;
       $EvCom = $EvDone - $EvSkip;
- 
+    }
 #   print "Number of events: ", $no_event,"  ", $EvDone,"  ",$EvCom, "\n";
 
 ##### get CPU and Real Time per event
