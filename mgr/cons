@@ -28,9 +28,9 @@ use Cwd;
 
 use vars qw( $CVS_id $CVS_ver $ver_num $ver_rev $version );
 
-$CVS_id = '$Id: cons,v 1.78 2001/01/31 15:38:47 fisyak Exp $ ';   
+$CVS_id = '$Id: cons,v 1.79 2001/02/04 00:45:34 fisyak Exp $ ';   
 
-$CVS_id = '$Id: cons,v 1.78 2001/01/31 15:38:47 fisyak Exp $';
+$CVS_id = '$Id: cons,v 1.79 2001/02/04 00:45:34 fisyak Exp $';
 $CVS_ver = (split(/\s+/, $CVS_id))[2];
 
 $ver_num = "2.3";
@@ -2362,7 +2362,6 @@ sub getcoms {
 # Build the target using the previously specified commands.
 sub execute {
     my($self, $env, $tgt, $package) = @_;
-
     if ($param::build) {
 	futil::mkdir($tgt->{dir});
 	unlink($tgt->path) if ! $tgt->precious;
@@ -2411,6 +2410,27 @@ sub execute {
     }
 
     # success.
+    if ($tgt->keep) {
+# use ->keep to keep versioning
+      my $vers = 0;
+      my $file = $tgt->path;
+      my $dir =  File::Basename::dirname($file);#$tgt->{dir};
+      my $newfile = "";
+      my $local= $tgt->{entry}; #File::Basename::basename($file);
+      opendir (DIR,$dir) or die "Can't open $dir\n";
+      my @files = readdir DIR;
+      closedir DIR;
+      foreach my $f (@files) {
+	next if $f !~ /$local\.\d*/;
+	(my $v = $f) =~ s/$local\.//;
+	if ($v > $vers) {$vers = $v;}
+      } 
+      $vers += 1;
+      $newfile = $local . "." . $vers;
+      symlink($newfile,$file);
+      rename $file, $dir . "/" . $newfile or die "Can't rename $file to $newfile";
+      symlink($newfile,$file);
+    }
     return 1;
 }
 
