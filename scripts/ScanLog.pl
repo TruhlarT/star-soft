@@ -240,7 +240,7 @@ while ( defined($logname = readdir(LOGDIR)) ){
 
 		$err="";
 		$cmd = &ZSHandle($logname,"tail -5000");
-		@log_errs2 = `$cmd | grep -E 'Break|Abort|Assert'`;
+		@log_errs2 = `$cmd | grep -E 'Break|Abort|Assert|relocation error'`;
 		foreach $logerr (@log_errs2){
 		    print "$logerr\n";
 		    if ( $logerr=~/(\*+\s+Break\s+\*+)(.*)/ ){
@@ -254,6 +254,10 @@ while ( defined($logname = readdir(LOGDIR)) ){
 		    } elsif ( $logerr =~ m/(^CheckFail:+)(.*)/){
 			unless ($err =~ /$2/){
 			    $err .= "$2 | ";
+			}
+		    } elsif ( $logerr =~ m/(relocation error)(.*)/) {
+			unless ($err =~ /$2/){
+			    $err .= "$logerr | ";
 			}
 		    }
 		}
