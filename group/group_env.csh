@@ -1,7 +1,10 @@
 #!/usr/bin/csh -f
-#       $Id: group_env.csh,v 1.48 1998/09/18 16:30:47 fisyak Exp $
+#       $Id: group_env.csh,v 1.49 1998/09/20 01:54:29 fisyak Exp $
 #	Purpose:	STAR group csh setup 
 #       $Log: group_env.csh,v $
+#       Revision 1.49  1998/09/20 01:54:29  fisyak
+#       Add path to lsf
+#
 #       Revision 1.48  1998/09/18 16:30:47  fisyak
 #       Replace afs path
 #
@@ -296,6 +299,10 @@ switch ($STAR_SYS)
     breaksw
 endsw
 if ( -e /usr/ccs/bin/ld ) set path = ( $path /usr/ccs/bin /usr/ccs/lib )
+if ( -d /usr/local/lsf/bin ) then
+  if ( -x /afs/rhic/star/group/dropit) setenv PATH `/afs/rhic/star/group/dropit lsf`
+  set path = ( $path /usr/local/lsf/bin )
+endif
 # We need this aliases even during BATCH
 if (-r $GROUP_DIR/group_aliases.csh) source $GROUP_DIR/group_aliases.csh
 #
