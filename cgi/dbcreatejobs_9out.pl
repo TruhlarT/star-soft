@@ -99,6 +99,10 @@ exit();
  $job_set = $Jset;
  $job_set =~ s/\//_/g;
 
+ if($job_set =~ /auau200/) {
+      $job_set =~ s/auau200_//g;
+ }
+
 # print $job_set, "\n";
  
  my $jb_new = $JOB_DIR . $process . "/new_jobs/" .  $job_set . "_" . $gfile;

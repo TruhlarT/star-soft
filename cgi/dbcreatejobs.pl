@@ -99,6 +99,9 @@ exit();
 
  $job_set = $Jset;
  $job_set =~ s/\//_/g;
+ if($job_set =~ /auau200/) {
+      $job_set =~ s/auau200_//g;
+ }
 
 # print $job_set, "\n";
  
