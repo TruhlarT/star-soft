@@ -103,7 +103,7 @@ sub newCheck {
 #<P><IMG SRC="Bullet1.gif" WIDTH=13 HEIGHT=13><B><FONT SIZE=5>&nbsp;</FONT><FONT SIZE=4>/disk00000/star/test/new/</B></FONT></P>
 
 print <<END;
-<P><B><FONT SIZE=5>&nbsp;</FONT><FONT SIZE=4>/disk00000/star/test/new/</B></FONT></P>
+<P><B><FONT SIZE=5>&nbsp;</FONT><FONT SIZE=4>$newHomeDir</B></FONT></P>
  <h4>
 <TABLE BORDER=1 CELLSPACING=0 CELLPADDING=0 >
 <TR>
@@ -163,7 +163,7 @@ END
 print <<END;
  <h4>
 </TABLE>
-<P><B><FONT SIZE=5>&nbsp;</FONT><FONT SIZE=4>/disk00000/star/test/dev/$tpcOs/</B></FONT></P>
+<P><B><FONT SIZE=5>&nbsp;</FONT><FONT SIZE=4>$devHomeDir/$tpcOs/</B></FONT></P>
  <h4>
 <TABLE BORDER=1 CELLSPACING=0 CELLPADDING=0 >
 <TR>
