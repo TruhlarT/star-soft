@@ -8,9 +8,12 @@
 #
 # Syntax is
 #
-# % FCremove.pl [{-s|-k}] FileList.lis  [StorageType] [Site] [Node]
+# % FCremove.pl [-s] [-c] FileList.lis  [StorageType] [Site] [Node]
 #
-# Use -s to mark the file as sanity=0 instead of available=0 .
+# The default is to mark files with available=0
+#   Use -s to mark the file as sanity=0 instead of available=0 .
+#   Use -c to cancel marking files (i.e. restore with 
+#                                   availability or sanity to 1)
 #
 # The last 3 arguments are non-mandatory and may revert
 # to default.
@@ -19,17 +22,39 @@
 use lib "/afs/rhic/star/packages/scripts";
 use FileCatalog;
 
-if ($ARGV[0] eq "-s"){
-    $sanity = 1;
-    shift @ARGV;
+$sanity = 0;
+$cancel = 0;
+$FILIN  = "";
+$STORE  = "";
+$SITE   = "";
+$NODE   = "";
+
+foreach $ARG (@ARGV){
+    if ($ARG eq "-s"){
+	$sanity = 1;
+    } elsif ($ARG eq "-c"){
+	$cancel = 1;
+
+    } elsif (substr($ARG,0,1) eq "-"){
+	print "Unkown option $ARG\n";
+
+    } else {
+	# Take things in order
+	if ($FILIN eq ""){ $FILIN = $ARG;}
+	elsif ($STORE eq ""){ $STORE = $ARG;}
+	elsif ($SITE  eq ""){ $SITE  = $ARG;}	
+	elsif ($NODE  eq ""){ $NODE  = $ARG;}
+    }
 }
 
-$STORE = "";
-$SITE  = "";
-$FILIN = shift(@ARGV) if (@ARGV);
-$STORE = shift(@ARGV) if (@ARGV);
-$SITE  = shift(@ARGV) if (@ARGV);
-$NODE  = shift(@ARGV) if (@ARGV);
+
+
+print "Will scan for files in $FILIN ";
+print " storage=$STORE" if ($STORE ne "");
+print " site   =$SITE"  if ($SITE  ne "");
+print " NODE   =$NODE"  if ($NODE  ne "");
+print "\nWill mark ".($sanity?"sanity":"available")." ".($cancel?"ON":"OFF")."\n";
+
 
 
 open(FI,$FILIN) || die "Give a file name as input\n";
@@ -37,16 +62,19 @@ open(FI,$FILIN) || die "Give a file name as input\n";
 # Instantiate
 $fileC = FileCatalog->new;
 
+# Password
 print "Password : ";
 chomp($passwd = <STDIN>);
 $fileC->connect("FC_admin",$passwd);
 
-
 # Turn off module debugging and script debugging
 $fileC->debug_off();
 
+
 while ( defined($file = <FI>)){
     chomp($file);
+    # File list sent by the HPSS team i.e. FSS dump-lists
+    # have file path starting with a "." . Strip it out.
     if ( substr($file,0,1) eq "."){
 	$file = substr($file,1,length($file)-1);
     }
@@ -65,12 +93,13 @@ while ( defined($file = <FI>)){
 	$fileC->set_context("storage=$STORE") if ($STORE ne "");
 	$fileC->set_context("site=$SITE")     if ($SITE  ne "");
 	$fileC->set_context("node=$NODE")     if ($NODE  ne "");
+	$fileC->set_context("all=1")          if ($cancel);
 
 
 	if ($sanity){
-	    $fileC->set_context("sanity=1");
+	    $fileC->set_context("sanity=".($cancel?0:1));
 	} else {
-	    $fileC->set_context("available=1");
+	    $fileC->set_context("available=".($cancel?0:1));
 	}
 	@all = $fileC->run_query("path","filename");
 	if( $#all != -1 ){
@@ -79,11 +108,11 @@ while ( defined($file = <FI>)){
 	    #foreach (@all){
 	    #($path,$file) = split("::",$_);
 	    if ( $sanity ){
-		print "Marking $path $file insane\n";
-		$fileC->update_location("sanity",0);
+		print "Marking $path $file sanity=".($cancel?1:0)."\n";
+		$fileC->update_location("sanity",$cancel?1:0);
 	    } else {
-		print "Disabling $path $file\n";
-		$fileC->update_location("available",0);
+		print "".($cancel?"Enabling":"Disabling")." $path $file\n";
+		$fileC->update_location("available",$cancel?1:0);
 	    }
 	    #}
 	} else {
