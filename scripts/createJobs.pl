@@ -322,7 +322,7 @@ my $nfiles = 0;
 #  if ( $gfile =~ /raw_0001/) {
       my $hpss_dst_file4 = $gfile . ".dst.root";
 #    }
-      my $executable     = "/afs/rhic/star/packages/" . $jlibVer . "/mgr/bfcc.csh";
+      my $executable     = "/afs/rhic/star/packages/" . $jlibVer . "/mgr/bfc.csh";
       my $executableargs = $fchain; 
       my $log_dir       = $logDir;
       my $log_name      = $gfile . ".log";
