@@ -3,11 +3,10 @@
 use Class::Struct;
 use CGI;
 
-require "dbOperaSetup.pl";
+require "/afs/rhic/star/packages/SL99h/cgi/dbOperaSetup.pl";
 #require "dbOperaRetrv.pl";
 
 my $debugOn=0;
-use CGI;
 
 
 ###Set directories to be created for jobfiles

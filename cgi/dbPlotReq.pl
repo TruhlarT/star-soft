@@ -12,7 +12,7 @@
 #############################################################################
 
 
-require "dbOperaSetup.pl";
+require "/afs/rhic/star/packages/SL99h/cgi/dbOperaSetup.pl";
 use CGI;
 use CGI::Carp qw(fatalsToBrowser);
 
@@ -94,9 +94,8 @@ print <<END;
 <META HTTP-EQUIV="Expires" CONTENT="0">
 <META HTTP-EQUIV="Pragma" CONTENT="no-cache">
 <META HTTP-EQUIV="Cache-Control" CONTENT="no-cache">
+<META HTTP-equiv="Refresh" content="10; URL-HTTP://duvall.star.bnl.gov/devcgi/GifPlots.pl">
 END
-
-#<META HTTP-equiv="Refresh" content="10; URL-HTTP://duvall.star.bnl.gov/cgi-bin#/didenko/GifPlots.pl">
 
   print " <title>Select query for plot</title>";
   print "  </head>\n";
@@ -140,7 +139,7 @@ END
  print "<p>";
  print "Select library tag:";
  print $query->popup_menu(-name=>'libTag1',
-                    -values=>\@libTag,sar
+                    -values=>\@libTag,
                     ); 
 
 

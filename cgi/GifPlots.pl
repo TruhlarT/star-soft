@@ -11,7 +11,7 @@
 # 
 #################################################################### 
 
-require "dbOperaSetup.pl";
+require "/afs/rhic/star/packages/SL99h/cgi/dbOperaSetup.pl";
 
 use CGI;
 use GIFgraph::linespoints;
@@ -20,10 +20,18 @@ use CGI::Carp qw(fatalsToBrowser);
 use Class::Struct;
 use File::Basename;
 
+
  my ($query) = @_;
 
  
  $query = new CGI;
+
+
+print <<END;
+<META HTTP-equiv="Refresh" content="1; URL-HTTP://duvall.star.bnl.gov/devcgi/dbPlotReq.pl">
+END
+
+
   
  $set1 =  $query->param('set1');
  $mchain = $query->param('mchain');
@@ -236,7 +244,7 @@ print $graph->plot(\@data);
 
 elsif ( $plotVal eq "Avg_No_Vertexes") {
  
- my @data = (\@aGeantFName, \@$aAveVtxs);
+ my @data = (\@aGeantFName, \@aAveVtxs);
 
 $xLabelsVertical = 1;
 
