@@ -94,9 +94,14 @@ sub CRSQ_check
 # Check the number of slots in queue $qnum. 
 #
 #  If $drop is specified, check all queues lt than $qnum but no less than
-# $qnum - $drop. Not this routine calculates for MAX jobs for queue $qnum 
-# and MAX-1 for lower queues. However, if $drop is negative, $MAX-1 will
-# enter in the base calculation of the number of available slots for $qnum.
+# $qnum - $drop. 
+#   drop >=0    by default, note that this routine calculates for MAX jobs for queue $qnum 
+#               and MAX-1 for lower queues. 
+#   $drop > 100 (unlikely number), all queues will be calculated as MAX
+#   $drop < 0   $MAX-1 will enter in the base calculation of the number 
+#               of available slots for $qnum.
+#   $drop < 100  $qnum will have MAX-1 and lower queues MAX
+#
 #
 #  If $pat is specified, check files with that wildcard pattern. If plenty
 # exists, return an error. See comments for this obscure mode ...
@@ -108,6 +113,7 @@ sub CRSQ_check
 sub CRSQ_getcnt
 {
     my($qnum,$drop,$pat,$nchk)=@_;
+    my($fcdrop,$fldrop);
 
     my($i,$line,$ratio);
     my(@result,@items);
@@ -122,8 +128,36 @@ sub CRSQ_getcnt
 	return &Exceed("QueueNum",$CRSQ::MAXQ);
     }
 
-
     # Initialization
+    if ( ! defined($drop) ){ $drop = 0;}
+    if ( $drop >= 0 ){
+	# Use flags to tell the code to do that and treat
+	# all options.
+	if ( $drop > 100){
+	    # > 100, all queues at MAX
+	    $fcdrop = 0;
+	    $fldrop = 0;
+	} else {
+	    # normal case, current queue is MAX, drop by 
+	    # one for lower queues. 
+	    $fcdrop = 0;
+	    $fldrop = 1;
+	}
+    } else {
+	# Case negative
+	if ( $drop < -100){
+	    # For the upper queue, use only MAX-1 and
+	    # MAX for the lower ones.
+	    $fcdrop = 1;
+	    $fldrop = 0;	    
+	} else {
+	    # Drop by 1 for all queues
+	    $fcdrop = 1;
+	    $fldrop = 1;
+	}
+    }
+
+
     $CRSQ::GETCNT = 1;
     $NOTA = 0;
     for($i=0 ; $i < $CRSQ::MAXQ ; $i++){   
@@ -144,10 +178,8 @@ sub CRSQ_getcnt
 	    $CRSQ::RUN{$i}       += $items[3];
 	    $NODES{$items[0]}    += $i;
 
-	    if( ($i < $qnum && $drop && $i != 0) || ($drop < 0)) {
-		# Reduce by one comparing to MAX.
-		$CRSQ::TOT{$i}--;
-	    } 
+	    if ($i == $qnum && $fcdrop){  $CRSQ::TOT{$i}--;}
+	    if ($i != $qnum && $fldrop){  $CRSQ::TOT{$i}--;}	   
 
 	} else {
 	    # Number of un-available nodes for any reasons
@@ -229,7 +261,10 @@ sub CRSQ_getcnt
     $TOT = 0;
     foreach $i (keys %CRSQ::TOT){
 	if( $i == 0){ next;}
-	if( ($i == $qnum && ! $drop)                         ||
+
+	# sounds complicated ? it just say if to do something if
+	# arguments are valid.
+	if( ($i == $qnum && ! $drop)                         ||   
 	    ($i <= $qnum && $i >= ($qnum - $drop) && $drop)) {
 
 	    if($DEBUG){
