@@ -1,8 +1,11 @@
-#!/opt/star/bin/perl
+#!/usr/bin/env perl
 #
-# $Id: group_env.pl,v 1.2 2001/12/01 22:22:30 jeromel Exp $
+# $Id: group_env.pl,v 1.3 2003/02/23 21:52:37 jeromel Exp $
 #
 # $Log: group_env.pl,v $
+# Revision 1.3  2003/02/23 21:52:37  jeromel
+# More /usr/bin/env
+#
 # Revision 1.2  2001/12/01 22:22:30  jeromel
 # STAR_CALIB variable removed. This was an old entry on my list (from
 # Oct 1st). Directory was removed then.
