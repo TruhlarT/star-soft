@@ -42,6 +42,22 @@ sub start_comment_button{
   return $string;
 
 }
+#=========================================================
+# see Browser::StartingDisplay
+
+sub start_rcas_lsf_monitor{
+  
+  my $script_name = $gCGIquery->script_name;
+
+  (my $path_name = $script_name) =~ s/\/\w+?$//;
+  
+  my $url = "http://www.star.bnl.gov$path_name/CGI_gateway?targetProgram=LSF_tool";
+
+  my $string = "<a href=$url target='monitor'>rcas/LSF monitor </a>";
+
+  return $string;
+
+}
 #==========================================================
 # see Browser_object::StartingDisplay
 

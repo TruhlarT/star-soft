@@ -15,6 +15,8 @@ use File::Copy;
 use File::Find;
 use File::Basename;
 
+use CGI qw(:cgi);
+
 use Data::Dumper;
 
 use Server_utilities;
