@@ -1,3 +1,9 @@
+#
+# This module is used to get information about the CRS queue
+# system. Only a few routine implemented so far.
+#
+#
+
 use Carp;
 
 package CRSQueues;
@@ -110,6 +116,7 @@ sub CRSQ_getcnt
 	    }
 	}
     }
+    #print "$TOT $TOTS\n";
     $ATOT = $TOT+$TOTS;
 
 
@@ -122,7 +129,7 @@ sub CRSQ_getcnt
     # submission ... The pattern find will prevent this. 
     if( defined($pat) ){
 	@all = glob($pat);
-	if($#all > 3*$ATOT){ 
+	if($#all > 10*$ATOT){ 
 	    print 
 		"CRSQ :: Warning on ".localtime().", there are ",
 		"$#all job files found as $pat\n";
@@ -161,9 +168,11 @@ sub CRSQ_getcnt
 	    }
 	}
     }
+    #print "$TOT\n";
 
-    # Check TOT only.
-    if($TOT < 0){ 
+    # Check TOT only in non-spill mode. In spill mode, the new
+    # count TOT+TOTS will give the accurate number of slots.
+    if($TOT < 0 && ! $drop){ 
 	$TOT = -$TOT;
 	print 
 	    "CRSQ :: Error: We have $TOT more jobs than expected ",
@@ -179,11 +188,9 @@ sub CRSQ_getcnt
     # We don't care of what is happening to the spill-over
     # queue pool. If the count is incorrect there, just set
     # to 0.
-    if($TOTS < 0){ 
-	$TOTS = 0;
-    }
-    $TOT += $TOTS;
-
+    if($TOT < 0 && $TOTS < 0){  return 0;}
+    if($TOTS < 0){              return $TOT;}
+    return $TOT+$TOTS;
 }
 
 
@@ -202,7 +209,7 @@ sub CRSQ_submit
     if( $res =~ m/queued in queue $qnum with priority $prio/){ 
 	1;
     } else {
-	print "CRSQ :: Failed to submit $jfile\n";
+	print "CRSQ :: Failed to submit $jfile [$?]\n";
 	0;
     }
 }
