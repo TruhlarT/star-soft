@@ -1,4 +1,4 @@
-*CMZ :          24/09/98  02.51.55  by  Pavel Nevski
+*CMZ :          27/09/98  14.15.12  by  Pavel Nevski
 *CMZ :  1.40/05 26/08/98  22.10.06  by  Pavel Nevski
 *CMZ :  1.40/05 13/07/98  10.50.50  by  Pavel Nevski
 *-- Author :    Pavel Nevski
@@ -148,7 +148,6 @@ C
       end
 *
       subroutine AGKUSER
-      common /cmd_current/ cmd(20)
       end
  
  
@@ -172,12 +171,12 @@ C
 *KEEP,VIDQQ.
       CHARACTER*68 VIDQQ
       DATA VIDQQ/
-     +'@(#)* Advanced Geant Inteface   1.40/05   C: 24/09/98  03.31.50
+     +'@(#)* Advanced Geant Inteface   1.40/05   C: 27/09/98  14.43.38
      +'/
 *KEEP,DATEQQ.
-      IDATQQ =   980924
+      IDATQQ =   980927
 *KEEP,TIMEQQ.
-      ITIMQQ =    331
+      ITIMQQ =   1443
 *KEEP,VERSQQ.
       VERSQQ = ' 1.40/05'
       IVERSQ =  14005
@@ -2527,7 +2526,7 @@ C
       end
  
  
-*CMZ :          24/09/98  03.26.27  by  Pavel Nevski
+*CMZ :          27/09/98  14.16.22  by  Pavel Nevski
 *CMZ :  1.40/05 01/04/98  11.36.29  by  Pavel Nevski
 *CMZ :  1.30/00 02/04/97  18.16.37  by  Pavel Nevski
 *-- Author :    Pavel Nevski
@@ -2542,24 +2541,28 @@ C
       Common /AgCPHASE/ AgPHASE
       Common /AgCIPAW/  AgIPAW,IwTyp
       character*32      command,commando/' '/
-      common /kcparc/ cmdlin
-      character*255   cmdlin
+      common /kcparc/   cmdlin
+      character*255     cmdlin
+      integer              cmd
+      common /cmd_current/ cmd(20)
 *
 *    first, protect against infinite break loops - they are dangerous
+      call kupatl (command,npar)
+      print *,'*** Last Kuip command was ',%L(Command),' Npar=',Npar,' ***'
+      print *,'*** in ',%L(cmdlin),' ***'
+*
+      if (command=='QUIT' | command=='EXIT') STOP 'IN TRACEQ forced exit'
+ 
       if (command==commando) then
          nerr=nerr+1
          if (nerr>10)    STOP 'IN TRACEQ - too many consequantive entries'
+      else
+         nerr=0
+         commando =command
       endif
 *
-      call kupatl (command,npar)
-      print *,'*** Last Kuip command was ',%L(Command),' Npar=',Npar,' ***'
       call dump_arg_list
-      print *,'*** in ',%L(cmdlin),' ***'
-      if (command=='QUIT' | command=='EXIT') STOP 'IN TRACEQ forced exit'
- 
-      if (commando!=command) nerr=0
-          commando =command
- 
+*
       call traceqc
       If AgPHASE>0                                 " in event loop  "
       {  call qnexte; print *,' in traceq: qnexte exit' }
@@ -8178,7 +8181,7 @@ C
 :E:"<w> AgDOCWR,Cf,I1,I2,TEXT;(' AgDocWr=',i2,' at ',a,' i1,i2,T=',2i5,2x,a)";
 END;
  
-*CMZ :          07/09/98  18.56.32  by  Pavel Nevski
+*CMZ :          24/09/98  16.54.25  by  Pavel Nevski
 *CMZ :  1.40/05 06/07/98  18.52.36  by  Pavel Nevski
 *CMZ :  1.30/00 09/02/97  21.15.43  by  Pavel Nevski
 *CMZ :  1.00/00 15/11/95  01.03.24  by  Pavel Nevski
@@ -8455,7 +8458,7 @@ If IrBDIV==IxCONS & ID>0 & JBIT(IQ(Lk),1)==0 & Ie==0
          j=INDEX(cc,'[');  if (j==0) j=INDEX(cc,';')
          k=INDEX(cc,']');  if (k >j) cnt=cc(j+1:k-1)//' 0 0 '
          read (cnt,*,err=:n:) n1,n2; :n:;
-         if (cc(3:3)=='C' & n2==1) n1/=4 " byte counter";
+          if (cc(3:3)=='C' & n2==1) n1/=4 " byte counter";
          If Cna=cc(11:j-1) { typ=cc(3:3);  Break; }
          if n1>0  &  n2>0  { n3+=n1*n2; } else { n3+=1; }
       enddo
