@@ -1,22 +1,52 @@
 
 #
+# Written J.Lauret , July 2001
+#
 # Perl macro for fastOffline communication
 # Changing this will change EVERY scripts
 # accessing this schema. Please, be carefull.
 #
+# Open/Close
 #      rdaq_open_rdatabase          open raw-ddb
 #      rdaq_close_rdatabase         close raw-ddb
-#      rdaq_raw_files               return a list of raw fileinformation
 #      rdaq_open_odatabase          open o-ddb
 #      rdaq_close_odatabase         close the o-ddb
+#
+# Function requirring open/close call
+#      rdaq_raw_files               return a list of raw file from r-ddb
 #      rdaq_add_entry               add one entry in the o-ddb
 #      rdaq_add_entries             add entries in the o-ddb
 #      rdaq_last_run                return the last run number from the o-ddb
+#      rdaq_get_files               get a list of files with $status from o-ddb
+#      rdaq_set_files               set a list of files from o-ddb to $status
+#
+# Utility (no need for any ddb to be opened)
+#      rdaq_file2hpss               return an HPSS path+file (2 method)
+#      rdaq_mask2string             convert a detector mask to a string
+#
+#
 #
 use Carp;
 use DBI;
 
+package RunDAQ;
+require 5.000;
+require Exporter;
+@ISA = qw(Exporter);
 
+@EXPORT= qw( 
+	     rdaq_open_rdatabase rdaq_close_rdatabase        
+	     rdaq_open_odatabase rdaq_close_odatabase        
+	     rdaq_raw_files rdaq_add_entry rdaq_add_entries            
+	     rdaq_last_run rdaq_get_files rdaq_set_files
+
+	     rdaq_file2hpss rdaq_mask2string
+	     );
+
+
+#
+# Database information
+# 
 $DDBSERVER = "onlsun1.star.bnl.gov";
 $DDBUSER   = "starreco";
 $DDBPASSWD = "";
@@ -29,28 +59,35 @@ $dbpass    = "";
 $dbtable   = "DAQInfo";
 $dbname    = "operation";
 
+$HPSSBASE  = "/home/starsink/raw/daq";        # base path for HPSS file loc.
+
+# Required tables on $DDBSERVER 
+@REQUIRED  = ("daqFileTag","daqSummary","triggerSet","beamInfo","magField");
 
 
-require 5.000;
-require Exporter;
-@ISA = qw(Exporter);
-@EXPORT= qw( 
-	     rdaq_open_rdatabase         
-	     rdaq_close_rdatabase        
-	     rdaq_raw_files              
-	     rdaq_open_odatabase         
-	     rdaq_close_odatabase        
-	     rdaq_add_entry              
-	     rdaq_add_entries            
-	     rdaq_last_run               
-	     );
+#
+# There should be NO OTHER configuration below this line but
+# only composit variables or assumed fixed values.
+#
+
+
+# The following was dumped from detectorTypes table in the RunLog
+# database.
+$DETECTOR[0]="tpc";
+$DETECTOR[1]="svt";
+$DETECTOR[2]="tof";
+$DETECTOR[3]="emc";
+$DETECTOR[4]="fpd";
+$DETECTOR[5]="ftpc";
+$DETECTOR[6]="pmd";
+$DETECTOR[7]="rich";
+$DETECTOR[8]="trg";
+$DETECTOR[9]="l3";
+$DETECTOR[10]="sc";
 
 
 # Build ddb ref here.
 $DDBREF    = "DBI:mysql:$DDBNAME:$DDBSERVER:$DDBPORT";
-
-# Required tables
-@REQUIRED  = ("daqFileTag","daqSummary","triggerSet","beamInfo","magField");
 
 
 #
@@ -62,27 +99,37 @@ sub rdaq_add_entry
     my($obj,@values)=@_;
     my($sth);
 
+    if(!$obj){ return 0;}
     $sth = $obj->prepare("INSERT IGNORE INTO $dbtable VALUES(?,?,?,?,?,?,?,?,?,?,0)");
     $sth->execute(@values);
     $sth->finish();
+    1;
 }
 
 # enter records as returned by rdaq_raw_files
+# Returns the number of added entries.
 sub rdaq_add_entries
 {
     my($obj,@records)=@_;
     my($sth,$line,@values);
+    my($count);
    
+    $count=0;
+    if(!$obj){ return 0;}
+
     if($#records != -1){
 	$sth = $obj->prepare("INSERT INTO $dbtable VALUES(?,?,?,?,?,?,?,?,?,?,0)");
 	if($sth){
 	    foreach $line (@records){
 		@values = split(" ",$line);
-		$sth->execute(@values);
+		if($sth->execute(@values)){
+		    $count++;
+		}
 	    }
 	    $sth->finish();    
 	}
     }
+    $count;
 }
 
 #
@@ -93,6 +140,7 @@ sub rdaq_last_run
     my($obj)=@_;
     my($sth);
 
+    if(!$obj){ return 0;}
     $sth = $obj->prepare("SELECT * FROM $dbtable ORDER BY file DESC LIMIT 1");
     $sth->execute();
     if($sth){
@@ -115,6 +163,7 @@ sub rdaq_raw_files
     my($stht);
     my(@all,@res);
 
+    if(!$obj){ return 0;}
 
     # Default values
     if( ! defined($from) ){ $from = "";}
@@ -217,13 +266,24 @@ sub rdaq_open_rdatabase
 sub rdaq_close_rdatabase
 {
     my($obj)=@_;
-    $obj->disconnect();
+    if(!$obj){ 
+	return 0;
+    } else {
+	$obj->disconnect();
+	1;
+    }
 }
 
 sub rdaq_close_odatabase
 {
     my($obj)=@_;
-    $obj->disconnect();
+
+    if(!$obj){ 
+	return 0;
+    } else {
+	$obj->disconnect();
+	1;
+    }
 }
 
 sub rdaq_open_odatabase
@@ -232,6 +292,63 @@ sub rdaq_open_odatabase
    
    $obj = DBI->connect("dbi:mysql:$dbname:$dbhost", $dbuser, $dbpass);
    return $obj;
+}
+
+#
+# Scans o-database and returns a list of
+# files which have status $status. A limit
+# number of files may be required. 
+# -1 for all. The list will be given in 
+# a descending order array (first file
+# is last saved to HPSS).
+#
+sub rdaq_get_files
+{
+    my($obj,$status,$limit)=@_;
+    my($cmd,$sth);
+    my($file,@files);
+
+    if(!$obj){ return undef;}
+
+    # default values
+    if( ! defined($status) ){ $status = 0;}
+    if( ! defined($limit) ) { $limit  = 0;}
+
+    $cmd = "SELECT file FROM $dbtable WHERE Status=$status ORDER BY file DESC";
+    if($limit > 0){
+	$cmd .= " LIMIT $limit";
+    }
+
+    $sth = $obj->prepare($cmd);
+    if($sth){
+	$sth->execute();
+	while ( defined($file = $sth->fetchrow() ) ){
+	    chomp($file);
+	    push(@files,$file);
+	}
+    }
+    @files;
+}
+
+# Set the status for a list of files
+sub rdaq_set_files
+{
+    my($obj,$status,@files)=@_;
+    my($sth,$success);
+    
+    if(!$obj){ return 0;}
+
+    $success = 0;
+    $sth = $obj->prepare("UPDATE $dbtable SET Status=$status WHERE file=?");
+    if($sth){
+	foreach $file (@files){
+	    if($sth->execute($file)){
+		$success++;
+	    }
+	}
+	$sth->finish();
+    }
+    $success;
 }
 
 
@@ -246,7 +363,61 @@ sub rdaq_open_odatabase
 # won't change);
 sub rdaq_mask2string
 {
-    0;
+    my($mask)=@_;
+    my($st);
+
+    if( ! defined($MASKS[$mask]) ){
+	# build string
+	for($i=0; $i <= $#DETECTOR ; $i++){
+	    if( ($mask & (1 << $i)) >> $i ){
+		$st .= ".$DETECTOR[$i]";
+	    }
+	}
+	$st =~ s/\.//;
+	$MASKS[$mask] = $st;
+    } else {
+	# fast = in memory
+	$st = $MASKS[$mask];
+    }
+    $st;
+}
+
+#
+# Accept a raw name, return a fully specified HPSS path
+# file name.
+# Mode 0 -> return path/file (default)
+# Mode 1 -> return path file (i.e. with space)
+# 
+# May implement other modes ...
+#
+sub rdaq_file2hpss
+{
+    my($file,$mode)=@_;
+    my($Hfile,$code);
+    my($y,$dm,$n);
+
+    # default
+    if( ! defined($mode) ){ $mode = 0;}
+
+    # parse the damned file name. This is really trivial but
+    # good to put it in a module so we can bacward support Y1
+    # convention if necessary.
+    #            -----v  may be a | list
+    $file =~ m/(st_)(physics_)(\d+)(_.*)/;
+    $code = $3;
+
+    ($y,$dm,$n) = $code =~ m/(\d)(\d{3,})(\d{3,})/;
+    $y += 1999;
+    if($y <= 2000){
+	&info_message("file_to_hpss","Y1 not yet supported\n");
+	"";
+    } else {
+	if($mode==1){
+	    "$HPSSBASE/$y/$dm $file";
+	} else {
+	    "$HPSSBASE/$y/$dm/$file";
+	}
+    }
 }
 
 
