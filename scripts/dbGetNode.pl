@@ -1,7 +1,7 @@
-#!/opt/star/bin/perl 
+#!/usr/bin/perl 
 #
 #
-# $Id: dbGetNode.pl,v 1.3 2001/02/23 21:37:33 porter Exp $
+# $Id: dbGetNode.pl,v 1.4 2003/01/09 20:30:27 porter Exp $
 #
 # Author: Bum Choi & R. Jeff Porter
 #
@@ -12,8 +12,8 @@
 #****************************************************************************
 # 
 # $Log: dbGetNode.pl,v $
-# Revision 1.3  2001/02/23 21:37:33  porter
-# added indexName, indexVal and all Config in Node list
+# Revision 1.4  2003/01/09 20:30:27  porter
+# upgrade of db table structure scripts
 #
 # Revision 1.2  2000/08/15 18:36:01  porter
 # changed StDbtable to StDbTable
@@ -45,7 +45,7 @@ my $nodeName   = $opt_n;
 my ($dbh, $sth);  
 my ($query, $elementid, $type);
 my ($configname, $configversion, $configtype);
-my ($name, $version, $nodetype, $structname, $baseline, $isbinary, $isindexed, $indexName, $indexVal);
+my ($name, $version, $nodetype, $structname, $baseline, $isbinary, $isindexed);
 my $xml_fh;  # handle used in all the print statements
 #-------------------------------------------------------------------
 $dbh = DBI->connect("DBI:mysql:$dbName:$serverHost",
@@ -60,23 +60,22 @@ $query = qq{select distinct n.name, n.nodetype, n.versionkey } .
          qq{where n.id = r.parentid and n.nodetype = 'Config'};
 
 $sth=$dbh->prepare(qq{select name, versionkey, structname, } .
-		   qq{baseline, isbinary, isindexed, elementid,}.
-                   qq{ indexName, indexVal }.
+		   qq{baseline, isbinary, isindexed, elementid }.
 		   qq{from Nodes where nodeType = ?});
 
 ($configname, $configtype,$configversion) = $dbh->selectrow_array($query);
 #------------------------------------------------------------------
 OpenFile($dbName);
 HeaderStart();
-#MarkerStart($configname,"dbNode");
-#MarkerBoth($configtype,"type");
-#MarkerBoth($configversion,"version");
-#MarkerEnd("dbNode"); 
+MarkerStart($configname,"dbNode");
+MarkerBoth($configtype,"type");
+MarkerBoth($configversion,"version");
+MarkerEnd("dbNode"); 
 
-foreach $type  ('Config','DB','directory','table'){
+foreach $type  ('DB', 'table', 'directory'){
     $sth->execute($type);
     while(($name, $version, $structname, $baseline, $isbinary, $isindexed,
-       $elementid, $indexName, $indexVal) = $sth->fetchrow){
+       $elementid) = $sth->fetchrow){
 	MarkerStart($name,"dbNode");
 	MarkerBoth($type,"type") if !($type eq 'table');
 	MarkerBoth($version,"version") if !($version eq 'default');
@@ -88,8 +87,6 @@ foreach $type  ('Config','DB','directory','table'){
         MarkerBoth($isindexed,"isIndexed") if ($type eq 'table' 
 	    and $isindexed =~ /N/);
 	MarkerBoth($elementid,"elementID") if !($elementid=~m/None/);
-        MarkerBoth($indexName,"indexName") if !($indexName=~m/None/);
-        MarkerBoth($indexVal,"indexVal") if !($indexName=~m/None/) && ($elementid=~m/None/);         
 	MarkerEnd("dbNode");
     }
 }

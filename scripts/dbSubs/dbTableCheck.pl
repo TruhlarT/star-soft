@@ -1,6 +1,6 @@
-#!/opt/star/bin/perl -w
+#!/usr/bin/perl -w
 #
-# $Id: dbTableCheck.pl,v 1.2 2001/07/18 19:30:52 jeromel Exp $
+# $Id: dbTableCheck.pl,v 1.3 2003/01/09 20:30:41 porter Exp $
 #
 # Author: R. Jeff Porter
 #
@@ -11,8 +11,8 @@
 #****************************************************************************
 # 
 # $Log: dbTableCheck.pl,v $
-# Revision 1.2  2001/07/18 19:30:52  jeromel
-# Corrected $ENV{"STAR"}."/scripts" -> should have been $ENV{"STAR_SCRIPTS"}
+# Revision 1.3  2003/01/09 20:30:41  porter
+# upgrade of db table structure scripts
 #
 # Revision 1.1  2000/04/28 14:08:21  porter
 # management perl scripts for db-structure accessible from StDbLib
@@ -23,7 +23,7 @@
 use DBI;
 
 $DbScripts=$ENV{"STDB_ADMIN"};
-if(!$DbScripts){ $DbScripts=$ENV{"STAR_SCRIPTS"}; }
+if(!$DbScripts){ $DbScripts=$ENV{"STAR"}."/scripts"; }
 require "$DbScripts/dbSubs/evalSchema.pl";
 
 sub dbTableCheck(){

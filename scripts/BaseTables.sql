@@ -1,5 +1,5 @@
 #
-# $Id: BaseTables.sql,v 1.3 2001/02/16 22:11:22 porter Exp $
+# $Id: BaseTables.sql,v 1.4 2003/01/09 20:30:26 porter Exp $
 #
 # Author: R. Jeff Porter
 #***************************************************************************
@@ -10,6 +10,9 @@
 #****************************************************************************
 # 
 # $Log: BaseTables.sql,v $
+# Revision 1.4  2003/01/09 20:30:26  porter
+# upgrade of db table structure scripts
+#
 # Revision 1.3  2001/02/16 22:11:22  porter
 # modified for new low-level table structures
 #
@@ -108,62 +111,6 @@ CREATE TABLE NodeRelation (
   KEY ID (ID),
   PRIMARY KEY (ParentID,NodeID,ConfigID,BranchID)
 );
-
-#
-# Table structure for table 'dbCollection'
-#
-DROP TABLE IF EXISTS dbCollection;
-CREATE TABLE dbCollection (
-  dataID int(11) DEFAULT '0' NOT NULL auto_increment,
-  entryTime timestamp(14),
-  name varchar(64) NOT NULL,
-  KEY dataID (dataID),
-  KEY name (name)
-);
-
-
-############################################################
-#
-#  index & data tables:  'dataIndex' & 'bytes' (for pure binary)
-#                        general data tables are created at
-#                        time c-struct is loaded into db.
-#
-#  - dataIndex for backwards compatibility
-#
-############################################################
-
-#
-# Table structure for table 'dataIndex'
-#
-DROP TABLE IF EXISTS dataIndex;
-CREATE TABLE dataIndex (
-  count int(11) NOT NULL auto_increment,
-  nodeID smallint(6) DEFAULT '0' NOT NULL,
-  entryTime timestamp(14),
-  schemaID int(11) DEFAULT '1' NOT NULL,
-  beginTime datetime DEFAULT '1969-12-31 19:00:00' NOT NULL,
-  elementID smallint(6) DEFAULT '0' NOT NULL,
-  numRows smallint(6) DEFAULT '1' NOT NULL,
-  dataID int(11) DEFAULT '0' NOT NULL,
-  flavor char(8) DEFAULT 'ofl' NOT NULL,
-  deactive int(10) unsigned DEFAULT '0' NOT NULL,
-  version char(32) DEFAULT 'default' NOT NULL,
-  KEY count (count),
-  KEY dataID (dataID),
-  PRIMARY KEY (nodeID,beginTime,flavor,elementID,deactive,version)
-);
-
-#
-# Table structre for table 'bytes'
-#
-DROP TABLE IF EXISTS bytes;
-CREATE TABLE bytes (
-  dataID  int(11) DEFAULT '0' NOT NULL auto_increment,
-  entryTime timestamp(14),
-  bytes longblob,
-  Primary Key (dataID)
-);
-
 
 
 

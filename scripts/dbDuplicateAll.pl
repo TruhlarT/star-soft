@@ -1,6 +1,6 @@
-#!/opt/star/bin/perl 
+#!/usr/bin/perl 
 #
-# $Id: dbDuplicateAll.pl,v 1.1 2000/04/28 14:08:03 porter Exp $
+# $Id: dbDuplicateAll.pl,v 1.2 2003/01/09 20:30:26 porter Exp $
 #
 # Author: R. Jeff Porter
 #***************************************************************************
@@ -11,6 +11,9 @@
 #****************************************************************************
 # 
 # $Log: dbDuplicateAll.pl,v $
+# Revision 1.2  2003/01/09 20:30:26  porter
+# upgrade of db table structure scripts
+#
 # Revision 1.1  2000/04/28 14:08:03  porter
 # management perl scripts for db-structure accessible from StDbLib
 #
@@ -73,7 +76,7 @@ if(!$databaseName){
 
 #---- loop over most databases (skip 'mysql') -----
 
-$mbindir="/opt/star/bin";
+$mbindir="/usr/bin";
 
 
 

@@ -1,6 +1,6 @@
-#!/opt/star/bin/perl 
+#!/usr/bin/perl 
 #
-# $Id: dbMakeFiles.pl,v 1.3 2001/07/18 19:29:29 jeromel Exp $
+# $Id: dbMakeFiles.pl,v 1.4 2003/01/09 20:30:27 porter Exp $
 #
 # Author: R. Jeff Porter
 #
@@ -14,8 +14,8 @@
 #****************************************************************************
 # 
 # $Log: dbMakeFiles.pl,v $
-# Revision 1.3  2001/07/18 19:29:29  jeromel
-# Corrected $ENV{"STAR"}."/scripts" -> should have been $ENV{"STAR_SCRIPTS"}
+# Revision 1.4  2003/01/09 20:30:27  porter
+# upgrade of db table structure scripts
 #
 # Revision 1.2  2000/05/03 19:00:10  porter
 # fixed header file output option
@@ -30,7 +30,7 @@ use Getopt::Std;
 
 #--> choose which scripts to run <--
 $DbScripts=$ENV{"STDB_ADMIN"};
-if(!$DbScripts){ $DbScripts=$ENV{"STAR_SCRIPTS"}; }
+if(!$DbScripts){ $DbScripts=$ENV{"STAR"}."/scripts"; }
 require "$DbScripts/dbSubs/dbTableCheck.pl";
 
 getopts('n:d:i:s:o:c:gh');

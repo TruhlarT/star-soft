@@ -1,6 +1,6 @@
-#!/opt/star/bin/perl 
+#!/usr/bin/perl 
 #
-# $Id: dbDefTable.pl,v 1.2 2001/07/18 19:29:29 jeromel Exp $
+# $Id: dbDefTable.pl,v 1.3 2003/01/09 20:30:26 porter Exp $
 #
 # Author: R. Jeff Porter
 #
@@ -15,8 +15,8 @@
 #****************************************************************************
 # 
 # $Log: dbDefTable.pl,v $
-# Revision 1.2  2001/07/18 19:29:29  jeromel
-# Corrected $ENV{"STAR"}."/scripts" -> should have been $ENV{"STAR_SCRIPTS"}
+# Revision 1.3  2003/01/09 20:30:26  porter
+# upgrade of db table structure scripts
 #
 # Revision 1.1  2000/04/28 14:08:03  porter
 # management perl scripts for db-structure accessible from StDbLib
@@ -28,12 +28,12 @@ use Getopt::Std;
 
 $DbScripts=$ENV{"STDB_ADMIN"};
 
-if(!$DbScripts){ $DbScripts=$ENV{"STAR_SCRIPTS"}; }
+if(!$DbScripts){ $DbScripts=$ENV{"STAR"}."/scripts"; }
 
 require "$DbScripts/dbSubs/parseXmlTable.pl";
 require "$DbScripts/dbSubs/dbTableCreate.pl";
 
-getopts('f:d:s:p:gh');
+getopts('f:d:s:p:n:cegh');
 
  $inputFile=$opt_f;
  $dbName=$opt_d;
@@ -41,8 +41,12 @@ getopts('f:d:s:p:gh');
  $helpout=$opt_h;
  $serverHost=$opt_s;
  $passwd=$opt_p;
+ $cstruct=$opt_c;
+my $empty=$opt_e;
+my $strTable=$opt_n;
 
 if($helpout or (!$inputFile or !$serverHost)){ Usage();};
+if(!$strTable && !$cstruct && !$empty) { Usage(); }
 
 if($debug){print $inputFile," \n";}
 
@@ -106,7 +110,17 @@ for($i=0;$i<=$#elements;$i++){
     $emask[$i]=1;
 }
 
-dbTableCreate(dbHostName=>$serverHost, DEBUG=>$debug, TableName=>$tableName, dbName=>$dbName, NameRef=>$namedRef, PassWord=>$passwd);
+my $passStoreTable='';
+if($cstruct && $strTable){ Usage(); };
+if($cstruct){
+   $passStoreTable=$tableName;
+}
+if($strTable){
+    $passStoreTable=$strTable;
+}
+
+
+dbTableCreate(dbHostName=>$serverHost, DEBUG=>$debug, TableName=>$tableName, dbName=>$dbName, NameRef=>$namedRef, PassWord=>$passwd, StoreTable=>$passStoreTable);
 
 #print "*\n* End of dbDefTable.pl \n*\n";
 print "**************************************************************\n";
@@ -119,13 +133,19 @@ print "**************************************************************\n";
 sub Usage() {
 
     print "\n";
-print "****  Usage   :: dbDefTable.pl -f xmlfile -s server [-p passwd] [-d database]  [-g|-h]\n";
+print "****  Usage   :: dbDefTable.pl -f xmlfile -s server [-p passwd] [-d database]  (-n storename|-c|-e) [-g|-h]\n";
 print "****  Purpose :: Loads schema for a single table stored in an XML file\n";
     print "                 -f xml-file\n";
     print "                 -s server has the form 'hostname:portnumber' or simply\n";
     print "                 'hostname' if portnumber=3306\n";
     print "                 -p passwd option if one is needed to write to specified db \n";
 print "                 -d database option overides database in the xml-file\n";
+    print "\n               One of the following (-n store | -c | -e) is REQUIRED\n";
+print "                 -n store => storage table name  \n";
+print "                 -c => use tableName in xml file for storage table \n";
+print "                 -e => do not create a storage tables\n\n"; 
+
+                    
 print "                 -g for debug output\n";
 print "                 -h for this message \n\n";
 

@@ -1,7 +1,7 @@
-#!/opt/star/bin/perl 
+#!/usr/bin/perl 
 #
 #
-# $Id: dbGetSchema.pl,v 1.1 2000/04/28 14:08:04 porter Exp $
+# $Id: dbGetSchema.pl,v 1.2 2003/01/09 20:30:27 porter Exp $
 #
 # Author: Bum Choi & R. Jeff Porter
 #
@@ -12,12 +12,15 @@
 #****************************************************************************
 # 
 # $Log: dbGetSchema.pl,v $
+# Revision 1.2  2003/01/09 20:30:27  porter
+# upgrade of db table structure scripts
+#
 # Revision 1.1  2000/04/28 14:08:04  porter
 # management perl scripts for db-structure accessible from StDbLib
 #
 #
 #####################################
-#!/opt/star/bin/perl 
+#!/usr/bin/perl 
 #
 # parses c structs from mysql into an xml format
 # 
