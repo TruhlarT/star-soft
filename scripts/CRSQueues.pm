@@ -23,7 +23,7 @@ $SUBMIT="/usr/local/bin/crs_submit.pl";
 #$SUBMIT="/usr/crs/bin/CRS_submit_awc.pl";
 
 
-$CRSQ::MAXQ=5;                  # support up to that number of queues 
+$CRSQ::MAXQ=6;                  # support up to that number of queues 
 $CRSQ::PFACT=5;                 # some number of files arbitrary proportion factor
 $CRSQ::OFFSYNC=20;              # queue submission will continue up to this %tage
                                 # of off-sync.
