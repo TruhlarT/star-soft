@@ -12,9 +12,9 @@ use Mysql;
 use Class::Struct;
 
 
-require "/afs/rhic/star/packages/dev/mgr/dbCpProdSetup.pl";
+require "/afs/rhic/star/packages/scripts/dbCpProdSetup.pl";
 
-my $prodPer = "P01he";
+my $prodPer = "P01hf";
 my $debugOn = 0;
 my $thisDay = "000000";
 my $thisday = 0;
