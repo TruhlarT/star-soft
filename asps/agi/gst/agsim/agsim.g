@@ -8159,7 +8159,7 @@ END
  
                  Subroutine   A g D O C U M E _
              (Module,MTitle,Author,Created,Btit,JOB)
-character*(*) Module,MTitle,Author,Created,Btit,JOB)
+character*(*) Module,MTitle,Author,Created,Btit,JOB
                  end
  
 ***************************************************************************
