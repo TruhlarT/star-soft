@@ -217,6 +217,7 @@ while ( defined($logname = readdir(LOGDIR)) ){
 		    &define_err("Unexpected EOF",$logerr);
 		    &define_err("Fatal in <operator delete>",$logerr);
 		    &define_err("Fatal in <operator new>",$logerr);
+		    &define_err("error in loading shared libraries",$logerr);
 		}
 		chop($err);
 
