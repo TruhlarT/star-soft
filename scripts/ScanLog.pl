@@ -233,7 +233,7 @@ while ( defined($logname = readdir(LOGDIR)) ){
 
 		$err="";
 		$cmd = &ZSHandle($logname,"tail -5000");
-		@log_errs2 = `$cmd | grep -E 'Break|Abort'`;
+		@log_errs2 = `$cmd | grep -E 'Break|Abort|Assert'`;
 		foreach $logerr (@log_errs2){
 		    print "$logerr\n";
 		    if ( $logerr=~/(\*+\s+Break\s+\*+)(.*)/ ){
@@ -243,6 +243,10 @@ while ( defined($logname = readdir(LOGDIR)) ){
 		    } elsif ( $logerr =~ m/^Abort/){
 			unless ( $err =~ /Code was aborted/){
 			    $err .= "Code was aborted | ";
+			}
+		    } elsif ( $logerr =~ m/(^CheckFail:+)(.*)/){
+			unless ($err =~ /$2/){
+			    $err .= "$2 | ";
 			}
 		    }
 		}
