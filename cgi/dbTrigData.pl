@@ -32,7 +32,7 @@ my @prodSet = (
 ); 
 
 #my @datSet = ("all","tpc","tpc.rich","tpc.svt.rich");
-my @trigSet  = ("central","minbias","medium","peripheral","mixed");
+my @trigSet  = ("all","central","minbias","medium","peripheral","mixed");
 
 
 $query = new CGI;

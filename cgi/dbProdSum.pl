@@ -76,7 +76,14 @@ my @hpssDstFiles;
  $nhpssDstFiles = 0;
 
 
+
+if ($trigD eq "all") {
+
+ $sql="SELECT fName, size, path, Nevents  FROM $FileCatalogT WHERE fName LIKE '%.root' AND jobID LIKE '%$prodSer%' AND trigger <> 'n/a' AND dataset <> 'tpc_laser' AND hpss ='Y'"; 
+}else {
  $sql="SELECT fName, size, path, Nevents  FROM $FileCatalogT WHERE fName LIKE '%.root' AND jobID LIKE '%$prodSer%' AND trigger = '$trigD' AND hpss ='Y'";
+
+}
    $cursor =$dbh->prepare($sql)
      || die "Cannot prepare statement: $DBI::errstr\n";
    $cursor->execute;
@@ -118,7 +125,12 @@ my @hpssDstFiles;
  my $dqfile;
  my $dqpath;
 
+if ($trigD eq "all") {
+
+  $sql="SELECT fName, path, size, Nevents  FROM $FileCatalogT WHERE trigger <> 'n/a' AND dataset <> 'tpc_laser' AND fName LIKE '%daq' AND hpss ='Y' ";
+}else{
  $sql="SELECT fName, path, size, Nevents  FROM $FileCatalogT WHERE trigger = '$trigD' AND fName LIKE '%daq' AND hpss ='Y' ";
+}
    $cursor =$dbh->prepare($sql)
       || die "Cannot prepare statement: $DBI::errstr\n";
    $cursor->execute;
@@ -149,7 +161,7 @@ my @hpssDstFiles;
      $dqfile = ($$onfile)->flName;
      $dqpath = ($$onfile)->fpath;
      $dqEvts = ($$onfile)->Nevts;
-     $dqEvts -= 1;
+#     $dqEvts -= 1;
 
     $daqHpEvts  += $dqEvts;
     $daqHpSize  += ($$onfile)->hpsize; 
