@@ -15,8 +15,8 @@ use Class::Struct;
 require "/afs/rhic/star/packages/dev/mgr/dbTJobsSetup.pl";
 
 my $TOP_DIRD = "/star/rcf/test/new/";
-my @dir_year = ("year_1h", "year_2001", "yeart_2003", "yeart_2004");
-my @node_dir = ("trs_redhat72","trs_redhat72_opt", "daq_redhat72", "daq_redhat72_opt","trs_ittf_redhat80","trs_ittf_redhat80_opt"); 
+my @dir_year = ("year_1h", "year_2001", "year_2003", "year_2004");
+my @node_dir = ("trs_sl302","trs_sl302_opt", "trs_sl302.ittf", "trs_sl302.ittf_opt", "daq_sl302", "daq_sl302_opt","daq_sl302.ittf","daq_sl302.ittf_opt"); 
 my @hc_dir = ("hc_lowdensity", "hc_standard", "hc_highdensity", "peripheral", "minbias", "central");
 
 my @OUT_DIR;
@@ -69,7 +69,7 @@ struct FileAttr => {
  &beginHtml();
 
 
-$sql="SELECT path, logFile, LibTag, jobStatus, NoEventDone, chainOpt, memUsageF, memUsageL, CPU_per_evt_sec, createTime FROM $JobStatusT where path LIKE '%test/new%' AND path LIKE '%redhat%' AND avail = 'Y'";
+$sql="SELECT path, logFile, LibTag, jobStatus, NoEventDone, chainOpt, memUsageF, memUsageL, CPU_per_evt_sec, createTime FROM $JobStatusT where path LIKE '%test/new%'  AND avail = 'Y'";
  $cursor =$dbh->prepare($sql)
    || die "Cannot prepare statement: $DBI::errstr\n";
  $cursor->execute;
