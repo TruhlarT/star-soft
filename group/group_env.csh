@@ -1,7 +1,10 @@
 #!/usr/bin/csh -f
-#       $Id: group_env.csh,v 1.79 1999/07/30 21:30:44 fisyak Exp $
+#       $Id: group_env.csh,v 1.80 1999/08/19 22:51:53 fisyak Exp $
 #	Purpose:	STAR group csh setup 
 #       $Log: group_env.csh,v $
+#       Revision 1.80  1999/08/19 22:51:53  fisyak
+#       Devorce STAR_LIB and StAF
+#
 #       Revision 1.79  1999/07/30 21:30:44  fisyak
 #       old(SL99b) -> root 2.21(.04)
 #
@@ -256,9 +259,17 @@ if ($STAR_LEVEL  == "old" || $STAR_LEVEL  == "pro" || $STAR_LEVEL  == "new" || $
 else
   setenv STAR_VERSION ${STAR_LEVEL}
 endif
+if ($?STAF_LEVEL == 0) setenv STAF_LEVEL pro
+if ($STAF_LEVEL  == "old" || $STAF_LEVEL  == "pro" || $STAF_LEVEL  == "new" || $STAF_LEVEL  == "dev" || $STAF_LEVEL  == ".dev") then
+  setenv STAF_VERSION `/bin/ls -ld $STAR_PATH/StAF/${STAF_LEVEL} |cut -f2 -d">"`  
+else
+  setenv STAF_VERSION ${STAF_LEVEL}
+endif
 source ${GROUP_DIR}/STAR_SYS; 
 setenv STAR $STAR_PATH/${STAR_VERSION} ;        if ($ECHO) echo   "Setting up STAR      = ${STAR}"
-setenv STAF_LIB  $STAR/.${STAR_HOST_SYS}/lib  ; if ($ECHO) echo   "Setting up STAF_LIB  = ${STAF_LIB}"
+setenv STAF $STAR_PATH/StAF/${STAF_VERSION} ;   if ($ECHO) echo   "Setting up STAF      = ${STAF}"
+setenv STAF_LIB  $STAF/.${STAR_HOST_SYS}/lib  ; if ($ECHO) echo   "Setting up STAF_LIB  = ${STAF_LIB}"
+setenv STAF_BIN  $STAF/.${STAR_HOST_SYS}/bin  ; if ($ECHO) echo   "Setting up STAF_BIN  = ${STAF_BIN}"
 if ($?NODEBUG == 0) then
  setenv STAR_LIB  $STAR/.${STAR_HOST_SYS}/lib;  if ($ECHO) echo   "Setting up STAR_LIB  = ${STAR_LIB}"
  setenv MINE_LIB        .${STAR_HOST_SYS}/lib;
@@ -308,18 +319,21 @@ switch ( $STAR_VERSION )
 endsw
 endif
 if ($ECHO) echo   "Setting up ROOT_LEVEL= ${ROOT_LEVEL}"
-setenv TEXINPUTS :${GROUP_DIR}/latex/styles
-setenv GROUPPATH "${GROUP_DIR}:${STAR_MGR}:${STAR_BIN}"
+if ($?TEXINPUTS == 0) then
+  setenv TEXINPUTS "${GROUP_DIR}/latex/styles"
+else
+  setenv TEXINPUTS "${TEXINPUTS}:${GROUP_DIR}/latex/styles"
+endif
+setenv GROUPPATH "${GROUP_DIR}:${STAR_MGR}:${STAR_BIN}:${STAF_BIN}"
 if ( -x /afs/rhic/star/group/dropit) then
 # clean-up PATH
+  setenv TEXINPUTS `/afs/rhic/star/group/dropit -p ${TEXINPUTS}`
   setenv MANPATH `/afs/rhic/star/group/dropit -p ${MANPATH}`
   setenv PATH `/afs/rhic/star/group/dropit -p ${PATH} GROUPPATH`
   setenv PATH `/afs/rhic/star/group/dropit -p ${PATH} $STAR_PATH`
   if (${?LD_LIBRARY_PATH}) setenv LD_LIBRARY_PATH `/afs/rhic/star/group/dropit -p ${LD_LIBRARY_PATH} $STAR_PATH`
 endif
-setenv PATH "/usr/afsws/bin:/usr/afsws/etc:/opt/star/bin:/usr/sue/bin:/usr/local/bin:${GROUP_DIR}:${STAR_MGR}:${STAR_BIN}:${PATH}"
-#setenv PATH "/usr/afsws/bin:/usr/afsws/etc:/opt/star/bin:/opt/rhic/bin:/usr/sue/bin:/usr/local/bin:${GROUP_DIR}:${STAR_MGR}:${STAR_BIN}:${PATH}"
-#set path=( /usr/afsws/bin /usr/afsws/etc /opt/rhic/bin /usr/local/bin $GROUP_DIR $STAR_MGR $STAR_BIN $path )
+setenv PATH "/usr/afsws/bin:/usr/afsws/etc:/opt/star/bin:/usr/sue/bin:/usr/local/bin:${GROUP_DIR}:${STAR_MGR}:${STAR_BIN}:${STAF_BIN}:${PATH}"
 ## Put mysql on path if available
 if ( -d /usr/local/mysql/bin) then
   setenv PATH "${PATH}:/usr/local/mysql/bin"
@@ -394,12 +408,12 @@ switch ($STAR_SYS)
        endif
      endif
      setenv CERN_ROOT  $CERN/$CERN_LEVEL
-     set path = ($path  /usr/local/bin/ddd /usr/local/DQS318/bin )
-     setenv  MANPATH "$MANPATH":/usr/local/DQS318/man
-     if ( -x /usr/local/DQS32/bin/qstat32) then
-       set path = ($path /usr/local/DQS32/bin )
-       setenv  MANPATH "$MANPATH":/usr/local/DQS32/man
-     endif
+     set path = ($path  /usr/local/bin/ddd)
+#                                            /usr/local/DQS318/bin )
+#     if ( -x /usr/local/DQS32/bin/qstat32) then
+#       set path = ($path /usr/local/DQS32/bin )
+#       setenv  MANPATH "$MANPATH":/usr/local/DQS32/man
+#     endif
 #    set path = ($path  /usr/local/bin/ddd /usr/local/DQS318/bin )
      set path = ($path $PARASOFT/bin.linux)
      if (! ${?LD_LIBRARY_PATH}) setenv LD_LIBRARY_PATH 
