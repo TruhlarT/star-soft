@@ -86,7 +86,7 @@ sub SubmitLSFJob
     #my $notifyEmail = "starqa\@rcf.rhic.bnl.gov";  
     my $notifyEmail = 'bnorman@kent.edu';
     # unique (someday, perhaps...) name of job in batch system
-    my $jobName = "QATEST";
+    my $jobName = "AutoQA";
 
     # -N == notify on job completion  }___taken out for now
     # -B == notify on job dispatch    }
