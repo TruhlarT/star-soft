@@ -1098,6 +1098,7 @@ sub  updateJSTable {
    my @logfile = <LOGFILE>;
 
 my $Anflag = 0;
+my $runflag = 0;
 
    foreach my $line (@logfile) {
        chop $line ;
@@ -1124,6 +1125,7 @@ my $Anflag = 0;
 #   get chain option
 
        if ( $line =~ /QAInfo: Requested chain bfc is/)  {
+         $runflag++;
          if( $Anflag == 0 ) {
          @part = split /:/, $line ;
          $mchain = $part[2]; 
@@ -1132,6 +1134,7 @@ my $Anflag = 0;
        next;
         }
        }
+       if($runflag = 1)  {
 #   get  number of events
       if ( $line =~ /QAInfo: Done with Event/ ) {
         $no_event++;
@@ -1215,7 +1218,8 @@ my $Anflag = 0;
 
 ###### 
      
-    }
+       }
+     }
       $EvDone = $no_event;
       $EvCom = $EvDone - $EvSkip;
  
