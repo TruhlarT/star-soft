@@ -5076,7 +5076,7 @@ sub update_location {
   &set_context("nounique=1");             # do not run with DISTINCT
 
   my ($id);
-  if ($utable eq "FileLocations"){
+  if ($mtable eq "FileLocations"){
       $id = "flid";
   } else {
       $id = "fdid";
