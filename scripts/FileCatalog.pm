@@ -600,19 +600,23 @@ sub _ReadConfig
     foreach $scope ( (".",
 		      $ENV{HOME},
 		      $ENV{SCATALOG},
-		      $ENV{STAR}."StDb/servers",
+		      $ENV{STAR}."/StDb/servers",
 		      ) ){
 	if ( ! defined($scope) ){ next;}
+	&print_debug("XML :: Checking $scope");
 	if ( -e $scope."/Catalog.xml" ){
 	    $config = $scope."/Catalog.xml";
+	    &print_debug("XML :: Will use $config");
 	    last;
 	}
     }
 
 
-    if ($config ne ""){
+    if ($config eq ""){
+	&print_debug("XML :: could not find any config file");
+    } else {
 	if ( ! defined($flag) ){
-	    &print_message("ReadConfig","Searching for $intent in $config");
+	    &print_debug("ReadConfig","Searching for $intent in $config");
 	}
 	open(FI,$config);
 
@@ -625,44 +629,38 @@ sub _ReadConfig
 	#
 	while( defined($line = <FI>) ){
 	    chomp($line);
-	    if ($line =~ /(\<SCATALOG)(.*\>)/i){
-		$rest = $2;
-		$ok   = 1;
-		#if ($rest =~ m/(SITE=)(.*)/){
-		#    $EL{site} = $2;
-		#} else {
-		#    $EL{site} = "";
-		#}
-	    }
 
-	    if ($line =~ /\<\/SCATALOG\>/i){    $ok = 0;}
-	    if ($line =~ /(\<SERVER)(.*\>)/i && $ok ){
+	    if ($line =~ /(\<SCATALOG)(.*\>)/i){
+		# does not parse SITE for now but should be done
+		$rest = $2;
+
+	    } elsif ($line =~ /(\<SERVER)(.*\>)/i ){
+		# SERVER was found, the syntax may be OK
 		$scope = $2;
 		$scope =~ m/(.*\")(.*)(\".*)/;
 		$scope = $2;
-		#print "[$scope] [$intent]\n";
 
+		# the intent flag is not yet set
+		&print_debug("XML :: Comparing scopes found=[$scope] intent=[$intent]");
 		if ($scope =~ m/$intent/){
-		    $ok |= 0x2;
+		    &print_debug("XML :: scope matches intent (mask ON)");
+		    $ok = 1;
 		} else {
-		    $ok &= 0x1;
+		    &print_debug("XML :: scope does NOT match intent (masking out everything)");
+		    $ok = 0;
 		}
-	    }
+	    } elsif ( $line =~ /(\<\/SERVER)(.*\>)/i){   
+		$ok = 0;
+	    } elsif ( $line =~ /(\<\/SCATALOG)(.*\>)/i){ 
+		$ok = 0;
+	    } else {
+		# i.e. if syntax is correct and intent is allright
 
-	    if ($line =~ /\<\/SERVER\>/i){
-		if (! ($ok && 0x2) ){
-		    &print_message("ReadConfig","Parsing error. Check syntax");
-		} else {
-		    $ok &= 0x1; # i.e. remove bit 2
-		}
-	    }
-
-	    if ( ($ok & 0x2) ){
 		# Parsing of the block of interrest
 		# Host specific information. Note that we do not
 		# assemble things as a tree so, one value possible
 		# so far ... and the latest/
-		if ($line =~ /\<HOST/i){
+		if ($line =~ /\<HOST/i && $ok){
 		    &print_debug("XML :: $line");
 		    if ( $line=~ m/(NAME=)(.*)(DBNAME=)(.* )(.*)/){
 			$EL{HOST} = $2;
@@ -673,13 +671,16 @@ sub _ReadConfig
 			}
 		    }
 		}
-		if ( $line =~ m/\<ACCESS/){
+		if ( $line =~ m/\<ACCESS/ && $ok){
 		    if ( $line =~ m/(USER=)(.*)(PASS=)(.*)/ ){
 			$EL{USER} = $2;
 			$EL{PASS} = $4;
 		    }
 		}
 	    }
+
+
+
 	}
 	close(FI);
 	foreach $ok (keys %EL){
@@ -689,6 +690,10 @@ sub _ReadConfig
 	    if ($EL{$ok} eq ""){ $EL{$ok} = undef;}
 	}
     }
+    &print_debug("XML :: Host=$EL{HOST} Db=$EL{DB} Port=$EL{PORT}");
+    &print_debug("XML :: User=$EL{USER} Pass=$EL{PASS} Site=$EL{site}");
+    #print "XML :: Host=$EL{HOST} Db=$EL{DB} Port=$EL{PORT}\n";
+    #print "XML :: User=$EL{USER} Pass=$EL{PASS} Site=$EL{site}\n";
     return ($EL{HOST},$EL{DB},$EL{PORT},$EL{USER},$EL{PASS},$EL{site});
 }
 
@@ -713,83 +718,97 @@ sub connect_as
 {
     my($self)= shift;
     my($intent,$user,$passwd,$port,$host,$db)= @_;
+    my($Lhost,$Ldb,$Lport,$Luser,$Lpasswd);
 
-    # We will read a configuration file in XML if
-    # any
-    ($host,$db,$port,$user,$passwd) = &_ReadConfig($intent);
+    if ( ! defined($user)   ||
+	 ! defined($passwd) ||
+	 ! defined($port)   ||
+	 ! defined($host)   ||
+	 ! defined($db) ){
+	# Try again to read the missing stuff from XML if any
+	($Lhost,$Ldb,$Lport,$Luser,$Lpasswd) = &_ReadConfig($intent);
+	if ( ! defined($user) ){    $user   = $Luser;}
+	if ( ! defined($passwd) ){  $passwd = $Lpasswd;}
+	if ( ! defined($port) ){    $port   = $Lport;}
+	if ( ! defined($host) ){    $host   = $Lhost;}
+	if ( ! defined($db) ){      $db     = $Ldb;}
+    }
+
     return &connect("FileCatalog",$user,$passwd,$port,$host,$db);
 }
 
 
-sub connect {
-  my $self  = shift;
-  my ($user,$passwd,$port,$host,$db) = @_;
-  my ($sth,$count);
-  my ($tries);
-  my ($dbref);
+sub connect 
+{
+    my $self  = shift;
+    my ($user,$passwd,$port,$host,$db) = @_;
+    my ($sth,$count);
+    my ($tries);
+    my ($dbref);
 
-  # Some defaults
-  if( ! defined($user) )   { $user   = $dbuser;}
-  if( ! defined($passwd) ) { $passwd = $dbpass;}
-  if( ! defined($port) )   { $port   = $dbport;}
-  if( ! defined($host) )   { $host   = $dbhost;}
-  if( ! defined($db) )     { $db     = $dbname;}
+    # Some defaults
+    if( ! defined($user) )   { $user   = $dbuser;}
+    if( ! defined($passwd) ) { $passwd = $dbpass;}
+    if( ! defined($port) )   { $port   = $dbport;}
+    if( ! defined($host) )   { $host   = $dbhost;}
+    if( ! defined($db) )     { $db     = $dbname;}
+    
+    # Build connect
+    $dbref  =   "DBI:mysql:$db:$host";
+    if ( $port ne ""){ $dbref .= ":$port";}
 
-  # Build connect
-  $dbref  =   "DBI:mysql:$db:$host";
-  if ( $port ne ""){ $dbref .= ":$port";}
+    # Make it more permissive. Simultaneous connections
+    # may make this fail.
+    $tries = 0;
+  CONNECT_TRY:
+    $tries++;
 
-  # Make it more permissive. Simultaneous connections
-  # may make this fail.
-  $tries = 0;
- CONNECT_TRY:
-  $tries++;
-
-  $DBH = DBI->connect($dbref,$user,$passwd,
-		      { PrintError => 0,
-			RaiseError => 0, AutoCommit => 1 }
-		      );
-  if (! $DBH ){
-      &die_message("connect","Incorrect password") if ($DBI::err == 1045);
-      if ( $tries < $NCTRY ){
-	  &print_message("connect","Connection failed $DBI::errstr . Retry in $NCSLP secondes");
-	  sleep($NCSLP);
-	  goto CONNECT_TRY;
-      } else {
-	  &die_message("connect","cannot connect to $dbname : $DBI::errstr");
-      }
-  }
-
-
-
-  # Set/Unset global variables here
-  $FC::IDX = -1;
+    &print_debug("connect >>> $dbref,$user (+passwd)");
+    $DBH = DBI->connect($dbref,$user,$passwd,
+			{ PrintError => 0,
+			  RaiseError => 0, AutoCommit => 1 }
+			);
+    if (! $DBH ){
+	&die_message("connect","Incorrect password") if ($DBI::err == 1045);
+	if ( $tries < $NCTRY ){
+	    &print_message("connect","Connection failed $DBI::errstr . Retry in $NCSLP secondes");
+	    sleep($NCSLP);
+	    goto CONNECT_TRY;
+	} else {
+	    &die_message("connect","cannot connect to $dbname : $DBI::errstr");
+	}
+    }
 
 
-  #foreach (keys(%rowcounts)){
-  #    my $sqlquery = "SELECT count(*) FROM $_";
-  #    &print_debug("Executing: $sqlquery");
-  #    $sth = $DBH->prepare($sqlquery);
-  #
-  #    if( ! $sth){
-  # 	&print_debug("FileCatalog:: connect : Failed to prepare [$sqlquery]");
-  #
-  #    } else {
-  #	$sth->execute();
-  #	$sth->bind_columns( \$count );
-  #
-  #	if ( $sth->fetch() ) {
-  #	  $rowcounts{$_} = $count;
-  #	}
-  #	$sth->finish();
-  #    }
-  #}
 
-  if ( ! defined($DBH) ) {
-      return 0;
-  } else {
-      return 1;
-  }
+    # Set/Unset global variables here
+    $FC::IDX = -1;
+
+
+    #foreach (keys(%rowcounts)){
+    #    my $sqlquery = "SELECT count(*) FROM $_";
+    #    &print_debug("Executing: $sqlquery");
+    #    $sth = $DBH->prepare($sqlquery);
+    #
+    #    if( ! $sth){
+    # 	&print_debug("FileCatalog:: connect : Failed to prepare [$sqlquery]");
+    #
+    #    } else {
+    #	$sth->execute();
+    #	$sth->bind_columns( \$count );
+    #
+    #	if ( $sth->fetch() ) {
+    #	  $rowcounts{$_} = $count;
+    #	}
+    #	$sth->finish();
+    #    }
+    #}
+
+    if ( ! defined($DBH) ) {
+	return 0;
+    } else {
+	return 1;
+    }
 }
 
 #============================================
@@ -800,23 +819,24 @@ sub connect {
 # keyword - the keyword used
 # operator - the operator used
 # value - the value assigned to the keyword
-sub disentangle_param {
+sub disentangle_param 
+{
 
-  if ($_[0] =~ m/FileCatalog/) {
-      shift @_;
-  };
+    if ($_[0] =~ m/FileCatalog/) {
+	shift @_;
+    };
 
-  my ($params) = @_;
-  my $keyword;
-  my $operator;
-  my $value;
+    my ($params) = @_;
+    my $keyword;
+    my $operator;
+    my $value;
 
- OPS: foreach my $op (@operators )
-    {
+  OPS: 
+    foreach my $op (@operators ){
 	#&print_debug("Searching for operator $op");
 	$op = '\]\[' if ($op eq "][");  # unfortunatly need
 	$op = '\[\]' if ($op eq "[]");  # to be escaped
-
+	
 	if ($params =~ m/(.*)($op)(.*)/){
 	    ($keyword, $operator, $value) = ($1,$2,$3);
 	    last if (defined $keyword and defined $value);
@@ -824,11 +844,11 @@ sub disentangle_param {
 	}
     }
 
-  if ($DEBUG > 0 && defined($keyword) ) {
-      &print_debug(" Keyword: |".$keyword."|",
-		   " Value: |".$value."|");
-  }
-  return ($keyword, $operator, $value);
+    if ($DEBUG > 0 && defined($keyword) ) {
+	&print_debug(" Keyword: |".$keyword."|",
+		     " Value: |".$value."|");
+    }
+    return ($keyword, $operator, $value);
 }
 
 #============================================
