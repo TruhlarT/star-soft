@@ -7,16 +7,19 @@
 #
 # J.Lauret May 2001
 #
+set self="star_cshrc_csh"
 setenv star_cshrc_csh 1
 if ( ! $?star_login_csh ) then
     #
     # OK. Missing environment variables ... 
-    # This is actually the case in 'r' or 's'-service calls.
+    # This is actually the case in 'r' or 's'-service calls or even
+    # some shells ...
     #
     if( ! $?AFS_RHIC)   setenv AFS_RHIC  /afs/rhic
     if( ! $?GROUP_DIR ) setenv GROUP_DIR $AFS_RHIC/star/group/
 
     if( -r $GROUP_DIR/star_login.csh ) then
+	if ( $?DECHO ) echo "$self :: Sourcing star_login.csh"
     	source $GROUP_DIR/star_login.csh
     endif
 endif
@@ -52,6 +55,7 @@ endif
 
 # This group file might be merged later on.
 if( -r $GROUP_DIR/group_aliases.csh ) then
+    if ( $?DECHO ) echo "$self :: Sourcing group_aliases.csh"
     source $GROUP_DIR/group_aliases.csh
 endif
 

@@ -9,6 +9,7 @@
 # Based on some Hepix script content written by A. Taddei
 #
 # do not do it again, do not even continue
+set self="star_login_csh"
 if( $?star_login_csh ) exit
 
 # This needs in principle to be set only at the end
@@ -21,6 +22,7 @@ setenv star_login_csh 1
 # are site specific. None of the star variables are
 # known at this stage ...
 if( -r $GROUP_DIR/site_pre_setup.csh ) then
+    if ( $?DECHO )  echo "$self :: Sourcing site pre setup"
     source $GROUP_DIR/site_pre_setup.csh
 endif
 
@@ -207,13 +209,14 @@ endif
 # although we can do further merging and avoid further unecessary
 # checks and actions.
 if( -r $GROUP_DIR/group_env.csh ) then
+    if ( $?DECHO )  echo "$self :: Sourcing group_env.csh"
     source $GROUP_DIR/group_env.csh
 endif
 
 #
 # Back-ticked commands can only be done at this level
 # on Solaris. Get an undefined STAR otherwise (nested
-# shell init). Also, on Solaris, ehich returns something
+# shell init). Also, on Solaris, which returns something
 # like 'xxx: Command not found'
 #
 set test=`which less`
@@ -279,6 +282,7 @@ endif
 # a user forgets to do it from within is cshrc
 if ( ! $?star_cshrc_csh) then
     if ( -e $GROUP_DIR/star_cshrc.csh ) then
+	if ( $?DECHO )  echo "$self :: Sourcing star_cshrc.csh"
 	source $GROUP_DIR/star_cshrc.csh
     endif
 endif
@@ -298,6 +302,7 @@ endif
 # the star login and/or massage them out according to 
 # needs).
 if( -r $GROUP_DIR/site_post_setup.csh ) then
+    if ( $?DECHO )  echo "$self :: Sourcing site post setup"
     source $GROUP_DIR/site_post_setup.csh
 endif
 
