@@ -86,7 +86,8 @@ sub nightly_real{
 			qa.$QASum{jobID} = file.jobID and
 			file.eventType   = ? and
 			file.geometry    = ? and
-			qa.$QASum{report_key} != '$report_key'
+			qa.$QASum{report_key} != '$report_key' and
+			qa.$QASum{QAdone} = 'Y'
 			order by file.createTime desc
 		        limit $limit};
 
@@ -114,7 +115,7 @@ sub offline_real{
 			   $dbFile.$JobStatus as job
 		      where qa.$QASum{report_key} = '$report_key' and
 			    qa.$QASum{jobID}      = job.jobID     and
-			    qa.$QASum{jobID}      = file.jobID 
+			    qa.$QASum{jobID}      = file.jobID    
 			    limit 1 };
 
   # then find similar jobs- return the report keys
@@ -129,7 +130,8 @@ sub offline_real{
 			job.prodSeries   = ? and
 			job.chainName    = ? and
 			file.dataset     = ? and 
-			qa.$QASum{report_key} != '$report_key'
+			qa.$QASum{report_key} != '$report_key' and
+			qa.$QASum{QAdone} = 'Y'
                         order by file.createTime desc
 		        limit $limit};
 
