@@ -94,7 +94,7 @@ for ($i = 0; $i < scalar(@node_dir); $i++) {
 
 my $jj = 0;
 for ($i = 0; $i < scalar(@node_daq); $i++) {
-      for ($ll = 0; $ll < 3; $ll++) {
+      for ($ll = 0; $ll < 4; $ll++) {
           
    $OUT_DIR[$ii] = $TOP_DIRD . $node_daq[$i] . "/" . $testDay . "/". $dir_year[0] . "/" . $daq_dir[$ll];
    print "Output Dir for DEV :", $OUT_DIR[$ii], "\n";

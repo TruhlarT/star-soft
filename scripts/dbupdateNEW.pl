@@ -1,16 +1,18 @@
-#!/opt/star/bin/perl -w
+#! /opt/star/bin/perl -w
 #
 # $Id:
 #
 # $Log: L.Didenko
 #
-# dbupdateNEW.pl
+# dbupdateDEV.pl
 #
 # update JobStatus and FileCatalog for DEV test jobs
 # Run this script next day after jobs have been submitted
 ##############################################################################
 
 use Mysql;
+use File::Find;
+use Net::FTP;
 use Class::Struct;
 use File::Basename;
 
@@ -19,11 +21,11 @@ require "/afs/rhic/star/packages/DEV/mgr/dbTJobsSetup.pl";
 #require "dbTJobsSetup.pl";
 
 my $TOP_DIRD = "/star/rcf/test/new/";
-my @dir_year = ("year_2001","year_1h");
+my @dir_year = ("year_2001", "year_1h", "year_2003", "year_2004");
 my @node_dir = ("trs_redhat72", "trs_redhat72_opt");
 my @node_daq = ("daq_redhat72", "daq_redhat72_opt"); 
-my @hc_dir = ("hc_lowdensity", "hc_standard", "hc_highdensity","peripheral","pp_minbias","ppl_minbias");
-my @daq_dir = ("minbias", "central", "ppMinBias", "embedding");
+my @hc_dir = ("hc_lowdensity", "hc_standard", "hc_highdensity", "peripheral","pp_minbias","ppl_minbias","dau_minbias");
+my @daq_dir = ("minbias", "central", "ppMinBias", "dAuMinBias", "AuAuMinBias", "AuAu_prodHigh","AuAu_prodLow" );
 
 my @OUT_DIR;
 my @OUTD_DIR;
@@ -40,29 +42,45 @@ my $thisday;
 my $thistime;
 my $ii = 0;
 
-##### setup output directories for DEV with thisDay
+##### setup output directories 
 
 for ($i = 0; $i < scalar(@node_dir); $i++) {
-      for ($ll = 0; $ll < scalar(@hc_dir); $ll++) {
+      for ($ll = 0; $ll < scalar(@hc_dir) - 1; $ll++) {
    $OUT_DIR[$ii] = $TOP_DIRD . $node_dir[$i] . "/" . $dir_year[0] . "/" . $hc_dir[$ll];
     print "Output Dir for NEW :", $OUT_DIR[$ii], "\n";
         $ii++;
   }
-   $OUT_DIR[$ii] = $TOP_DIRD . $node_dir[$i] . "/" . $dir_year[1] . "/" . $hc_dir[1];  
-      print "Output Dir for NEW :", $OUT_DIR[$ii], "\n";
-      $ii++;
+  $OUT_DIR[$ii] = $TOP_DIRD . $node_dir[$i] . "/" . $dir_year[1] . "/" . $hc_dir[1]; 
+  print "Output Dir for NEW :", $OUT_DIR[$ii], "\n";
+    $ii++; 
+
+  $OUT_DIR[$ii] = $TOP_DIRD . $node_dir[$i] . "/" . $dir_year[2] . "/" . $hc_dir[6];
+  print "Output Dir for NEW :", $OUT_DIR[$ii], "\n";
+    $ii++;
+
 }
 
 
 my $jj = 0;
 for ($i = 0; $i < scalar(@node_daq); $i++) {
-      for ($ll = 0; $ll < scalar(@daq_dir); $ll++) {
+      for ($ll = 0; $ll < 3; $ll++) {
+          
    $OUT_DIR[$ii] = $TOP_DIRD . $node_daq[$i] . "/" . $dir_year[0] . "/" . $daq_dir[$ll];
-    print "Output Dir for NEW :", $OUT_DIR[$ii], "\n";
+   print "Output Dir for NEW :", $OUT_DIR[$ii], "\n";
         $ii++;
       }
-  }
-
+    for ($ik = 2; $ik < 4; $ik++) { 
+    $OUT_DIR[$ii] = $TOP_DIRD . $node_daq[$i] . "/" . $dir_year[2] . "/" . $daq_dir[$ik];
+   print "Output Dir for NEW :", $OUT_DIR[$ii], "\n";
+        $ii++;
+   } 
+   for ($ik = 4; $ik < 7; $ik++) { 
+    $OUT_DIR[$ii] = $TOP_DIRD . $node_daq[$i] . "/" . $dir_year[3] . "/" . $daq_dir[$ik];
+   print "Output Dir for NEW :", $OUT_DIR[$ii], "\n";
+        $ii++;
+   } 
+ 
+ }
 
 struct FileAttr => {
       fjbID     => '$',
@@ -140,8 +158,8 @@ struct JFileAttr => {
  my $fullname;
  my $flname;
  my @prt;
- my $libL = "n/a";
- my $libV = "n/a";
+ my $libL = "n\/a";
+ my $libV = "n\/a";
  my $platf;
  my $EvTp;
  my $lgFile;
@@ -170,18 +188,18 @@ struct JFileAttr => {
  my $avr_prtracks = 0;
  my $avr_knvertices = 0;
  my $avr_xivertices = 0;
- my $node_name = "n/a";
- my $rootL = "n/a"; 
+ my $node_name = "n/\a";
+ my $rootL = "n/\a"; 
  my $Err_messg = "none";
  my $mCPU = 0;
  my $mRealT = 0;
- my $mchain = "n/a";
+ my $mchain = "n/\a";
  my $fname;
  my $mpath;
  my $memFst = 0;
  my $memLst = 0;
  my $jobTime;
- my $mavail = "n/a";
+ my $mavail = "n\/a";
  my $lgTest = "test.log";
  my $startId = "Job00000_test";
  my $myID;
@@ -194,14 +212,14 @@ struct JFileAttr => {
  my $jfile;
  my $jEvSkip;
  my $logName; 
- my $crCode = "n/a"; 
+ my $crCode = "n\/a"; 
  
   $now = time;
 ##### connect to DB TestJobs
 
   &StDbTJobsConnect(); 
 
-#####  select all available files from JobStatusT for NEW library test
+#####  select all files from JobStatusT from testDay direcroties
 
  $sql="SELECT jobID, path, logFile, createTime, avail FROM $JobStatusT WHERE path LIKE '%test/new%' AND avail = 'Y'";
    $cursor =$dbh->prepare($sql)
@@ -221,7 +239,7 @@ struct JFileAttr => {
         ($$fObjAdr)->oldjbId($fvalue)   if( $fname eq 'jobID');
         ($$fObjAdr)->oldpath($fvalue)   if( $fname eq 'path');
         ($$fObjAdr)->oldfile($fvalue)   if( $fname eq 'logFile');  
-        ($$fObjAdr)->oldTime($fvalue)   if( $fname eq 'createTime');
+       ($$fObjAdr)->oldTime($fvalue)   if( $fname eq 'createTime');
         ($$fObjAdr)->oldvail($fvalue)   if( $fname eq 'avail'); 
    }
 
@@ -229,7 +247,6 @@ struct JFileAttr => {
        $nold_jobs++; 
 
  }
-
 
 ##### insert first line to JobStatusT table get last ID 
 
@@ -252,12 +269,15 @@ my $pvcomp;
 my $pfullName;
 my $fflag;
 my $Fname;
+my @files;
 
  foreach  my $eachOutLDir (@OUT_DIR) {
           if (-d $eachOutLDir) {
      opendir(DIR, $eachOutLDir) or die "can't open $eachOutLDir\n";
-
-    while( defined($fname = readdir(DIR)) ) {
+      @files = readdir(DIR);
+#    while( defined($fname = readdir(DIR)) ) {
+     foreach $fname ( @files) {
+      next if !$fname;
       next if $fname =~ /^\.\.?$/;    
      
  $jrun = "Run not completed";
@@ -290,7 +310,6 @@ my $Fname;
        if ($fname =~ /.log/)  {
 #    print "File Name:",$fname, "\n";       
        $fullname = $eachOutLDir."/".$fname;
-       print $fullname, "\n";
       $mpath = $eachOutLDir;
       @dirF = split(/\//, $eachOutLDir);
        $libL = $dirF[4];
@@ -305,7 +324,7 @@ my $Fname;
       $mo = sprintf("%2.2d", $mo+1);
       $dy = sprintf("%2.2d", $dy);
   
-      if( $yr > 98 ) {
+      if( $yr > 97 ) {
         $fullyear = 1900 + $yr;
       } else {
         $fullyear = 2000 + $yr;
@@ -314,10 +333,12 @@ my $Fname;
        $timeS = sprintf ("%4.4d-%2.2d-%2.2d %2.2d:%2.2d:00",
                        $fullyear,$mo,$dy,$hr,$min);    
 
-           if( $ltime > 1800 ){         
+           if( $ltime > 600 && $ltime < 518400 ){         
+#          if( $ltime > 600 ) { 
 #   print "Log time: ", $ltime, "\n";
+#   print $fullname, "\n";
         &logInfo("$fullname", "$platf");
-      $jobTime = $timeS;  
+     $jobTime = $timeS;  
 
       $fObjAdr = \(LFileAttr->new());
       ($$fObjAdr)->pth($mpath);
@@ -354,7 +375,7 @@ my $Fname;
           $pfullName = $pvpath . "/" . $pvfile;
         
 #       if( ($fullname eq $pfullName) and ($pvavail eq "Y") ) {
-	  next if( !defined $pfullName) ;
+
         if( $pfullName eq $fullname ) {
         $flagHash{$fullname} = 0;
 
@@ -363,7 +384,7 @@ my $Fname;
           $newAvail = "N";
   print  "Changing availability for test files", "\n";
   print  "files to be updated:", $pvjbId, " % ",$pvpath, " % ",$pvTime, " % ",$newAvail, "\n"; 
-     &updateJSTable();
+    &updateJSTable();
 
       $mavail = 'Y';
       $myID = 100000000 + $new_id;
@@ -372,8 +393,8 @@ my $Fname;
       $idHash{$fullname} = $mjID;
 
   print  "Filling JobStatus with NEW log files \n";
-  print  "files to be inserted:", $mjID, " % ",$mpath, " % ",$timeS , " % ", $memFst," % ",$memLst," % ",$mCPU," % ",$avr_tracks," % ",$EvDone," % ",$mavail,"\n";  
-      &fillJSTable();
+  print  "files to be inserted:", $mjID, " % ",$mpath, " % ",$timeS , " % ", $memFst," % ",$memLst," % ", $mavail, "\n";  
+     &fillJSTable();
 
    }else{
    }  
@@ -447,6 +468,7 @@ my $Fname;
 
     if($flagHash{$fullName} == 1) {
 
+#      $new_id = $dbh->{'mysql_insertid'};
       $mavail = 'Y';
       $myID = 100000000 + $new_id;
       $mjID = "Job". $myID ;
@@ -455,18 +477,18 @@ my $Fname;
       $idHash{$fullName} = $mjID;
     &fillJSTable();
 
-#       foreach my $nOldJob (@old_jobs) {
-#          $pvjbId = ($$nOldJob)->oldjbId;
-#          $pvpath = ($$nOldJob)->oldpath;
-#          $pvfile = ($$nOldJob)->oldfile;
+        foreach my $nOldJob (@old_jobs) {
+          $pvjbId = ($$nOldJob)->oldjbId;
+          $pvpath = ($$nOldJob)->oldpath;
+          $pvfile = ($$nOldJob)->oldfile;
 
-#	  if($mpath eq  $pvpath) {
-#            $newAvail = "N";
-#   print  "Changing avalability for files have been replaced  :", $pvjbId, " % ",$pvpath," % ",$pvfile, "\n";
-#     &updateJSTable();
+	  if($mpath eq  $pvpath) {
+            $newAvail = "N";
+   print  "Changing avalability for files have been replaced  :", $pvjbId, " % ",$pvpath," % ",$pvfile, "\n";
+     &updateJSTable();
 
-#    }
-#	}
+    }
+	}
     }
 }
 ##### delete from $JobStatusT inserted JobID
@@ -478,13 +500,18 @@ my $Fname;
      print "$sql\n" if $debugOn;
     $rv = $dbh->do($sql) || die $dbh->errstr;
 
-######## read output files for NEW test 
+
+my @fileR = ();
+######## read output files for NEW test
 
 foreach  $eachOutNDir (@OUT_DIR) {
          if (-d $eachOutNDir) {
     opendir(DIR, $eachOutNDir) or die "can't open $eachOutNDir\n";
 
-    while( defined($flname = readdir(DIR)) ) {
+#    while( defined($flname = readdir(DIR)) ) {
+           @fileR = readdir(DIR);  
+   foreach $flname ( @fileR) {
+       next if !$flname;
       next if $flname =~ /^\.\.?$/;    
       if ($flname =~ /.root/)   {
       $fullname = $eachOutNDir."/".$flname;
@@ -498,15 +525,15 @@ foreach  $eachOutNDir (@OUT_DIR) {
        $EvGen = "hadronic_cocktail";
        $EvType = substr($EvTp,3); 
     }
-       elsif ($EvTp =~ /pp_/ or $EvTp =~ /ppl_/) {
+       elsif ($EvTp =~ /pp_/ ) {
        $EvGen = "pythia";
        $EvType = "pp_minbias";
      }
        elsif ($EvTp =~ /ppl_/) {
        $EvGen = "pythia";
        $EvType = "ppl_minbias";
-    } 
-      elsif ($EvTp =~ /peripheral/) {
+     }
+       elsif ($EvTp =~ /peripheral/) {
        $EvGen = "hadronic_cocktail";
        $EvType = $EvTp;
     }
@@ -516,7 +543,7 @@ foreach  $eachOutNDir (@OUT_DIR) {
   }
        $form = "root";
     my $comname = basename("$flname",".root");
-      if ($comname =~ m/\.([a-z0-9_]{3,})$/) {
+      if ($comname =~ m/\.([A-Za-z0-9_]{3,})$/) {
       $comp = $1;
     }     
       my $bsname = basename("$comname","$comp");
@@ -531,15 +558,33 @@ foreach  $eachOutNDir (@OUT_DIR) {
      elsif($EvTp eq "central") {
         $EvReq = 85;
       }
-     elsif($EvTp eq "ppMinBias") {
+     elsif($EvTp eq "ppMinBias" and $geom = "year_2001") {
         $EvReq = 700;
       }
+     elsif($EvTp eq "ppMinBias" and $geom = "year_2003") {
+        $EvReq = 900;
+      }
+     elsif($EvTp eq "embedding") {
+        $EvReq = 78;
+      }
+     elsif($EvTp eq "dAuMinBias") {
+        $EvReq = 497;
+      }
 
+     elsif($EvTp eq "AuAuMinBias") {
+        $EvReq = 500;
+      }
+     elsif($EvTp eq "AuAu_prodHigh") {
+        $EvReq = 335;
+      }
+     elsif($EvTp eq "AuAu_prodLow") {
+        $EvReq = 332;
+      }
 #       else {
 #      @prt = split(/\./,$bsname);
 #      $evR = $prt[1];
 #      $EvReq = substr($evR,0,-5);
-     elsif($EvTp eq "hc_lowdensity") {          
+    elsif($EvTp eq "hc_lowdensity") {          
          $EvReq = 400;
    }  
     elsif($EvTp eq "hc_highdensity") {          
@@ -551,20 +596,33 @@ foreach  $eachOutNDir (@OUT_DIR) {
     elsif($EvTp eq "peripheral") {          
          $EvReq = 500;
  }
-   elsif($EvTp eq "ppl_minbias") {          
+    elsif($EvTp eq "ppl_minbias") {          
          $EvReq = 100;
  }
     elsif($EvTp eq "pp_minbias") {          
          $EvReq = 1000;
  }
+      
+      if( $bsname =~ /hc_highdensity/) {
+      $lgFile = $eachOutNDir ."/" . $bsname ."16_evts.log" ;
+      }elsif( $bsname =~ /hc_lowdensity/) {
+      $lgFile = $eachOutNDir ."/" . $bsname ."400_evts.log" ;
+      }elsif( $bsname =~ /hc_standard/) {
+      $lgFile = $eachOutNDir ."/" . $bsname ."40_evts.log" ;
+     }else{
+       $lgFile = $eachOutNDir ."/" . $bsname ."log" ;
+     }
 
-       $lgFile = $eachOutNDir ."/" . $bsname . "log";
+     if( $EvGen eq "hadronic_cocktail" and $flname =~ /tags.root/)  {
+       $lgFile = $eachOutNDir ."/" . $bsname ."log" ;
+     }
 
+#      print $lgFile, "\n"; 
        if ( -f $lgFile) {
           ($size, $mTime) = (stat($lgFile))[7, 9];
             $ltime = $now - $mTime;
-#  print "Log time: ", $ltime, "\n"; 
-           if( $ltime > 1200 && $ltime < 345600 ){         
+#           if( $ltime > 1200 && $ltime < 518000 ){         
+            if( $ltime > 1200) { 
 	     foreach my $eachLogFile (@testJobStFiles) {
 
                $jpath   = ($$eachLogFile)->pth; 
@@ -577,9 +635,9 @@ foreach  $eachOutNDir (@OUT_DIR) {
                if ( $jfpath eq $lgFile ) {
 
             next if( !defined $idHash{$jfpath} );
-
               $idHash{$fullname} = $idHash{$jfpath};
 
+     print "jobs ID:  ", $idHash{$fullname}," % ",$fullname," % ",$jfpath," % ",$idHash{$jfpath}, "\n";
 #       print "File info: ",$idHash{$fullname}," % ", $jpath ," % ", $platf, " % ", $fullname, " % ", $geom, " % ", $EvType," % ", $EvGen, " % ", $EvReq," % ", $comp," % ", $EvDone," % ", $libV,  "\n";
    
      ($size, $mTime) = (stat($fullname))[7, 9];
@@ -587,7 +645,7 @@ foreach  $eachOutNDir (@OUT_DIR) {
      $mo = sprintf("%2.2d", $mo+1);
      $dy = sprintf("%2.2d", $dy);
   
-     if( $yr > 97 ) {
+     if( $yr > 98 ) {
        $fullyear = 1900 + $yr;
      } else {
        $fullyear = 2000 + $yr;
@@ -597,7 +655,7 @@ foreach  $eachOutNDir (@OUT_DIR) {
                       $fullyear,$mo,$dy,$hr,$min);
 
      $Fname = $eachOutNDir . "/" .$flname;
-     $flagHash{ $Fname} = 1;
+     $flagHash{$Fname} = 1;
  
      $fObjAdr = \(FileAttr->new());
 
@@ -674,47 +732,48 @@ foreach  $eachOutNDir (@OUT_DIR) {
 
  }
 
-
 ######### declare variables needed to fill the database table
 ##  for database filling
 
- my $mLibL= "n/a"; 
- my $mLibT = "n/a";
- my $mplform = "n/a";
- my $mevtType = "n/a";
- my $mflName = "n/a";
- my $mgeom = "n/a";
+ my $mLibL= "n\/a"; 
+ my $mLibT = "n\/a";
+ my $mplform = "n\/a";
+ my $mevtType = "n\/a";
+ my $mflName = "n\/a";
+ my $mgeom = "n\/a";
  my $msize = 0;
- my $mevtGen = "n/a";
+ my $mevtGen = "n\/a";
  my $mcTime = "0000-00-00";
  my $mNevtR = 0;
  my $mNevtD = 0;
  my $mNevtS = 0;
- my $mcomp = "n/a";
- my $mformat = "n/a";
+ my $mcomp = "n\/a";
+ my $mformat = "n\/a";
  my $mstatus = 0;
 
+#####  change avail for files from testDay and beforeDay directories
+#####  in FilesCatalogT if new files available and fill in new files
 
         foreach my $eachTestFile (@testOutNFiles) {
 
 ### reinitialize variables
-  $mjID = "n/a";
-  $mLibL= "n/a"; 
-  $mLibT = "n/a";
-  $mplform = "n/a";
-  $mevtType = "n/a";
-  $mflName = "n/a";
-  $mpath  = "n/a";
-  $mgeom = "n/a";
+  $mjID = "n\/a";
+  $mLibL= "n\/a"; 
+  $mLibT = "n\/a";
+  $mplform = "n\/a";
+  $mevtType = "n\/a";
+  $mflName = "n\/a";
+  $mpath  = "n\/a";
+  $mgeom = "n\/a";
   $msize = 0;
-  $mevtGen = "n/a";
+  $mevtGen = "n\/a";
   $mcTime = "0000-00-00";
   $mNevtR = 0;
   $mNevtD = 0;
   $mNevtS = 0; 
-  $mcomp = "n/a";
-  $mformat = "n/a";
-  $mavail = "n/a";
+  $mcomp = "n\/a";
+  $mformat = "n\/a";
+  $mavail = "n\/a";
   $mstatus = 0;
              
             $mpath = ($$eachTestFile)->fpath;
@@ -745,19 +804,20 @@ foreach  $eachOutNDir (@OUT_DIR) {
           $pvcomp = ($$eachOldFile)->oldcomp;
           $pvavail = ($$eachOldFile)->oldvail;
           $pfullName = $pvpath . "/" . $pvfile;
-	  next if( !defined $pfullName) ;
+
 #	   if ($pfullName eq $thfullName) {
             if ( ($pvpath eq $mpath) and ( $mcomp eq $pvcomp ) ) {
                $flagHash{$thfullName} = 0;      
  	     if ( $mcTime ne $pvTime ) {
                $mjID = $idHash{$thfullName};
+      print   $thfullName, " % ",$mjID, "\n";   
               $newAvail = "N";
    print "Changing availability for test files", "\n";
    print "file to be updated:", $pvjbId, " % ", $pfullName, " % ",$pvTime, " % ", $newAvail, "\n"; 
    &updateDbTable();
 
            
-    print "Filling Files Catalog with NEW output files \n";
+    print "Filling Files Catalog with NEW output files\n";
     print "file to be inserted:", $mjID, " % ",$thfullName, " % ", $mcTime," % ", $mavail, "\n";
    &fillDbTable();
 	    }else{
@@ -774,23 +834,23 @@ foreach  $eachOutNDir (@OUT_DIR) {
         foreach my $newTestFile (@testOutNFiles) {
 
 ### reinitialize variables
-  $mjID = "n/a";
-  $mLibL= "n/a"; 
-  $mLibT = "n/a";
-  $mplform = "n/a";
-  $mevtType = "n/a";
-  $mflName = "n/a";
-  $mpath  = "n/a";
-  $mgeom = "n/a";
+  $mjID = "n\/a";
+  $mLibL= "n\/a"; 
+  $mLibT = "n\/a";
+  $mplform = "n\/a";
+  $mevtType = "n\/a";
+  $mflName = "n\/a";
+  $mpath  = "n\/a";
+  $mgeom = "n\/a";
   $msize = 0;
-  $mevtGen = "n/a";
+  $mevtGen = "n\/a";
   $mcTime = "0000-00-00";
   $mNevtR = 0;
   $mNevtD = 0;
   $mNevtS = 0; 
-  $mcomp = "n/a";
-  $mformat = "n/a";
-  $mavail = "n/a";
+  $mcomp = "n\/a";
+  $mformat = "n\/a";
+  $mavail = "n\/a";
   $mstatus = 0;
 
             $mpath = ($$newTestFile)->fpath;
@@ -816,7 +876,7 @@ foreach  $eachOutNDir (@OUT_DIR) {
          
            $mjID = $idHash{$thfullName};
 
-    print "Filling Files Catalog with new NEW output files\n";
+    print "Filling Files Catalog with new output files\n";
     print "Insert new files:", $mjID, " % ",$thfullName, " % ", $mcTime," % ",$mNevtR, " % ",$mNevtD, "\n";
    &fillDbTable();
 
@@ -867,7 +927,8 @@ sub  updateDbTable {
      $sql="update $FilesCatalogT set ";
      $sql.="avail='$newAvail',";
      $sql.="status= 1";
-     $sql.=" WHERE jobID = '$pvjbId' AND path = '$pvpath' AND fName = '$pvfile'";   
+#     $sql.=" WHERE jobID = '$pvjbId' AND path = '$pvpath' AND fName = '$pvfile'";   
+     $sql.=" WHERE path = '$pvpath' AND fName = '$pvfile' AND avail = 'Y' ";
      print "$sql\n" if $debugOn;
      $rv = $dbh->do($sql) || die $dbh->errstr;
 
@@ -934,9 +995,11 @@ sub  updateJSTable {
  my $no_knvertices;
  my $no_prtracks;
  my @word_tr;
+ my @nmb;
  my $i;
  my @part;
  my @size_line;
+ my @memSize;
  my @cpu_output;
  my $ij = 0;
  my $end_line; 
@@ -952,6 +1015,8 @@ sub  updateJSTable {
     $memLst = 0; 
     $EvSkip = 0;
     $EvCom = 0;
+@maker_size = ();
+
 #---------------------------------------------------------
 
   open (LOGFILE, $fl_log ) or die "cannot open $fl_log: $!\n";
@@ -959,12 +1024,19 @@ sub  updateJSTable {
    my @logfile = <LOGFILE>;
 
 my $Anflag = 0;
+my $runflag = 0;
+my $mCPUbfc = 0;
+my $mRealTbfc = 0;
 
+ 
    foreach my $line (@logfile) {
        chop $line ;
         $num_line++; 
 #   get ROOT_LEVEL and node
 
+       if($line =~ /Processing bfc.C/) {
+          $runflag++;
+	}
    if ($line =~ /StMessageManager message summary/) {
       $Anflag = 1;
     }
@@ -983,16 +1055,18 @@ my $Anflag = 0;
        }
     }
 #   get chain option
-
-       if ( $line =~ /QAInfo: Requested chain bfc is/)  {
+	  if($runflag == 1) {
+	      if ( $line =~ /Processing bfc.C/)   {
          if( $Anflag == 0 ) {
-         @part = split /:/, $line ;
-         $mchain = $part[2]; 
+         @part = split /"/, $line ;
+         $mchain = $part[1]; 
          $mchain =~ s/ /_/g;  
-     }else{
+#   print  $mchain, "\n";
+    }else{
        next;
         }
        }
+ 
 #   get  number of events
       if ( $line =~ /QAInfo: Done with Event/ ) {
         $no_event++;
@@ -1000,13 +1074,14 @@ my $Anflag = 0;
 
 #  get memory size
       if ($num_line > 200){
-      if( $line =~ /EndMaker/ and $line =~ /total/){
+	if( $line =~ /EndMaker/ and $line =~ /total/ ) {
         @size_line = split(" ",$line); 
 
           $mymaker = $size_line[3];
         @memSize = split("=",$size_line[6]);
         if( $mymaker eq "outputStream:"){
-          $maker_size[$no_event + 1] = $memSize[1];
+          $maker_size[$no_event] = $memSize[1];
+#          print "outputStream size:  ",$no_event, "   ", $maker_size[$no_event], "\n";  
        }
       }
     }
@@ -1015,26 +1090,31 @@ my $Anflag = 0;
       if ($line =~ /QAInfo: StAnalysisMaker/ && $Anflag == 0 ) {
             my  $string = $logfile[$num_line];
               @word_tr = split /:/,$string;
-              $no_tracks = $word_tr[2];
+              @nmb =  split /</,$word_tr[2];
+              $no_tracks = $nmb[0];
               $tot_tracks += $no_tracks; 
-#              print $word_tr[2], $no_tracks, "\n";
               $string = $logfile[$num_line + 1];
               @word_tr = split /:/,$string;
-              $no_prtracks = $word_tr[2]; 
+              @nmb =  split /</,$word_tr[2];
+              $no_prtracks = $nmb[0];
               $tot_prtracks += $no_prtracks;
               $string = $logfile[$num_line + 2];
               @word_tr = split /:/,$string;
-              $no_vertices = $word_tr[2]; 
+              @nmb =  split /</,$word_tr[2];
+              $no_vertices = $nmb[0];              
               $tot_vertices += $no_vertices;
               $string = $logfile[$num_line + 3];
               @word_tr = split /:/,$string;
-              $no_xivertices = $word_tr[2]; 
+              @nmb =  split /</,$word_tr[2];
+              $no_xivertices = $nmb[0];
               $tot_xivertices += $no_xivertices;
               $string = $logfile[$num_line + 4];
               @word_tr = split /:/,$string;
-              $no_knvertices = $word_tr[2]; 
+              @nmb =  split /</,$word_tr[2];
+              $no_knvertices = $nmb[0];
               $tot_knvertices += $no_knvertices;
            
+#   print $no_tracks, "  ",$no_prtracks, "  ",$no_vertices,"  ",$no_xivertices, "\n";
   }   
 #  check if job crashed due to break_buss_error
       if($line =~ /bus error/) {
@@ -1074,21 +1154,32 @@ my $Anflag = 0;
 
 ###### 
      
-    }
+       }
+ 
+     }
+ 
       $EvDone = $no_event;
       $EvCom = $EvDone - $EvSkip;
- 
+# print "Number of events: ", $runflag,"  ", $no_event,"  ", $EvDone,"  ",$EvCom, "\n";
+
+
 ##### get CPU and Real Time per event
-      
+
  if ($EvCom != 0) {
     @cpu_output = `tail -1000 $fl_log`;
-     
+ 
   foreach $end_line (@cpu_output){
           chop $end_line;
-   if ($end_line =~ /QAInfo: Total: bfc/ and $end_line =~ /Cpu Time/) {
+   if ($end_line =~ /QAInfo: Chain/ and $end_line =~ /StBFChain::bfc/) {
      @part = split (" ", $end_line); 
-     $mCPU = $part[12]/$EvCom;
-     $mRealT = $part[7]/$EvCom;
+      $mCPUbfc = $part[6];
+      $mRealTbfc = $part[4];
+      $mCPUbfc = substr($mCPUbfc,1) + 0;
+      $mRealTbfc = substr($mRealTbfc,1) + 0;
+#    print "CPU ", $mCPUbfc,"   %   ", $mRealTbfc, "\n";
+     $mCPU = $mCPUbfc/$EvCom;
+     $mRealT = $mRealTbfc/$EvCom;
+    
    }else{
     next;
       }
@@ -1099,13 +1190,13 @@ my $Anflag = 0;
     $avr_knvertices = $tot_knvertices/$EvCom;
     $avr_xivertices = $tot_xivertices/$EvCom;
  
-    if ( defined $maker_size[1]) { 
-    $memFst = $maker_size[1];
+    if ( defined $maker_size[0]) { 
+    $memFst = $maker_size[0];
     }else {
     $memFst = 0;
   }
-    if ( defined $maker_size[$no_event]) {
-    $memLst = $maker_size[$no_event];
+    if ( defined $maker_size[$no_event -1]) {
+    $memLst = $maker_size[$no_event -1];
     } else {
     $memLst = 0;
   }
