@@ -343,13 +343,15 @@ sub comment_form{
   $gCGIquery->textfield('comment_date', $date, 50, 80),"<br>\n";
 
 
-  print "<h4> Comment text: </h4>",$gCGIquery->textarea(-name=>'comment_text', 
-						     -value=>'', 
-						     -rows=>10, 
-						     -cols=>60,
-						     -wrap=>'virtual')
+  print "<h4> Comment text: </h4>",
+  "(interpreted as html, can include links)<br>",
+  $gCGIquery->textarea(-name=>'comment_text', 
+		       -value=>'', 
+		       -rows=>10, 
+		       -cols=>60,
+		       -wrap=>'virtual')
     ,"<br>\n";
-
+  
 
   #---
   # is this global comment or comment specific to a run?
