@@ -1,4 +1,4 @@
-#!/usr/bin/csh -f
+#!/bin/csh -f
 #
 #	File:		group_login
 #	Purpose:	STAR group initialization 
@@ -13,6 +13,29 @@
 # by others, but writable only by the user.
 #
 umask 022
+
+cat <<EOF 
+ $0 is an obsolete file. Use the following instead
+
+ In your $HOME/.cshrc :
+   setenv GROUP_DIR /afs/rhic/star/group
+   if ( -r  $GROUP_DIR/star_cshrc.csh ) then
+	source $GROUP_DIR/star_cshrc.csh 
+   endif
+
+ In your $HOME/.login
+   setenv GROUP_DIR /afs/rhic/star/group
+   if ( -r  $GROUP_DIR/star_login.csh ) then
+	source $GROUP_DIR/star_login.csh 
+   endif
+
+ Thanks.
+
+EOF
+
+
+
+
 #
 # Following put in to handle NQS
 #
