@@ -103,6 +103,9 @@ my $myCom;
        $myDataSt = ($$eachFile)->dataSt;
        $myTrig  = ($$eachFile)->trig;
        $myCom   = ($$eachFile)->com;
+       if($myDataSt eq "notOK")  {
+         $myDataSt = $myCom;
+       }
 
   &printRow();
 
@@ -130,7 +133,6 @@ print <<END;
 <TD ALIGN=CENTER WIDTH=\"10%\" HEIGHT=20><B>Create Date</B></TD>
 <TD ALIGN=CENTER WIDTH=\"10%\" HEIGHT=20><B>Number of Events</B></TD>
 <TD ALIGN=CENTER WIDTH=\"10%\" HEIGHT=20><B>Data Status</B></TD>
-<TD ALIGN=CENTER WIDTH=\"10%\" HEIGHT=20><B>Comments</B></TD>
 </TR> 
    </head>
     <body>
@@ -149,7 +151,6 @@ print <<END;
 <td>$myCtime</td>
 <td>$myEvts</td>
 <td>$myDataSt</td>
-<td>$myCom</td>
 </TR>
 END
 
