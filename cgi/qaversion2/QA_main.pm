@@ -96,7 +96,8 @@ $gBrowser_object = new Browser_object($title, $server_type);
 $gBrowser_object->StartHtml();
 
 #useful for debugging:
-#print "path_info = $path_info, script_name=".$gCGIquery->script_name."<br>\n";
+print "path_info = $path_info, script_name=".$gCGIquery->script_name.
+    ", query_string=".$gCGIquery->query_string."<br>\n";
 #foreach my $string( @INC){print "include = $string <br>\n";}
 #foreach my $key (keys %ENV){print "$key = ".$ENV{$key}."<br>\n";}
 
