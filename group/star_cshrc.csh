@@ -73,7 +73,7 @@ if ( -o /bin/su ) then
     endif
 else
     # user - bold %S
-    alias setprompt 'set prompt="%m%s@%.04/> "'
+    alias setprompt 'set prompt="%S[%m]%s %.04/> "'
 endif
 
 
