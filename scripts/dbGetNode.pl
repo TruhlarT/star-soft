@@ -1,7 +1,7 @@
 #!/opt/star/bin/perl 
 #
 #
-# $Id: dbGetNode.pl,v 1.1 2000/04/28 14:08:04 porter Exp $
+# $Id: dbGetNode.pl,v 1.2 2000/08/15 18:36:01 porter Exp $
 #
 # Author: Bum Choi & R. Jeff Porter
 #
@@ -12,6 +12,9 @@
 #****************************************************************************
 # 
 # $Log: dbGetNode.pl,v $
+# Revision 1.2  2000/08/15 18:36:01  porter
+# changed StDbtable to StDbTable
+#
 # Revision 1.1  2000/04/28 14:08:04  porter
 # management perl scripts for db-structure accessible from StDbLib
 #
@@ -73,7 +76,7 @@ foreach $type  ('DB', 'table', 'directory'){
 	MarkerStart($name,"dbNode");
 	MarkerBoth($type,"type") if !($type eq 'table');
 	MarkerBoth($version,"version") if !($version eq 'default');
-	MarkerBoth($structname,"StDbtable") if $type eq 'table';
+	MarkerBoth($structname,"StDbTable") if $type eq 'table';
 	MarkerBoth($baseline,"baseLine") if ($type eq 'table' 
 	    and $baseline =~/Y/);
         MarkerBoth($isbinary,"isBinary") if ($type eq 'table' 
