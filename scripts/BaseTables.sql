@@ -1,5 +1,5 @@
 #
-# $Id: BaseTables.sql,v 1.1 2000/04/28 14:09:03 porter Exp $
+# $Id: BaseTables.sql,v 1.2 2000/05/03 19:00:09 porter Exp $
 #
 # Author: R. Jeff Porter
 #***************************************************************************
@@ -10,6 +10,9 @@
 #****************************************************************************
 # 
 # $Log: BaseTables.sql,v $
+# Revision 1.2  2000/05/03 19:00:09  porter
+# fixed header file output option
+#
 # Revision 1.1  2000/04/28 14:09:03  porter
 # Base tables definition is SQL form
 #
@@ -105,7 +108,7 @@ DROP TABLE IF EXISTS dbCollection;
 CREATE TABLE dbCollection (
   dataID int(11) DEFAULT '0' NOT NULL auto_increment,
   entryTime timestamp(14),
-  name varchar(64),
+  name varchar(64) NOT NULL,
   KEY dataID (dataID),
   KEY name (name)
 );
@@ -135,7 +138,7 @@ CREATE TABLE dataIndex (
   elementID smallint DEFAULT '0' NOT NULL,
   numRows smallint DEFAULT '1' NOT NULL,
   deactive int unsigned DEFAULT '0' NOT NULL,
-  dataID int(11),
+  dataID int(11) NOT NULL,
   KEY count (count),  
   KEY dataID (dataID),
   KEY flavor (flavor),
@@ -172,7 +175,7 @@ CREATE TABLE CatalogNodes (
   entryTime timestamp(14),
   Comment varchar(255),
   ConfigID int(11) DEFAULT '0',
-  beginTime datetime DEFAULT NULL,
+  beginTime datetime DEFAULT '1970-01-01 00:00:00' NOT NULL,
   isFolder enum('Y','N') DEFAULT 'N' NOT NULL,
   KEY ID (ID),
   PRIMARY KEY (Name,ID,beginTime)

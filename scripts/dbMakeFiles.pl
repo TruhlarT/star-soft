@@ -1,6 +1,6 @@
 #!/opt/star/bin/perl 
 #
-# $Id: dbMakeFiles.pl,v 1.1 2000/04/28 14:08:04 porter Exp $
+# $Id: dbMakeFiles.pl,v 1.2 2000/05/03 19:00:10 porter Exp $
 #
 # Author: R. Jeff Porter
 #
@@ -14,6 +14,9 @@
 #****************************************************************************
 # 
 # $Log: dbMakeFiles.pl,v $
+# Revision 1.2  2000/05/03 19:00:10  porter
+# fixed header file output option
+#
 # Revision 1.1  2000/04/28 14:08:04  porter
 # management perl scripts for db-structure accessible from StDbLib
 #
@@ -74,7 +77,7 @@ $outfile='';
 print "******************************\n";
 print "*\n* Running dbMakeFiles.pl \n*\n"; 
 
-dbTableCheck(DEBUG=>$debug, TableName=>$tableName, dbName=>$dbName, MakeIDL=>$idlout, dbHostName=>$serverHost, OnlIDL=>$OnlIdls);
+dbTableCheck(DEBUG=>$debug, TableName=>$tableName, dbName=>$dbName, MakeIDL=>$idlout, dbHostName=>$serverHost, OnlIDL=>$OnlIdls, MakeHeader=>$headerout);
 
 print "******************************\n";
 
