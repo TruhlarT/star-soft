@@ -2,7 +2,7 @@
 %
 % StEvent - User Guide and Reference Manual -- LaTeX Source
 %
-% $Id: StEvent.tex,v 2.60 2001/09/07 15:00:07 ullrich Exp $
+% $Id: StEvent.tex,v 2.61 2001/09/19 03:49:13 ullrich Exp $
 %
 % Author: Thomas Ullrich, Nov 1999
 %
@@ -21,6 +21,9 @@
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %
 % $Log: StEvent.tex,v $
+% Revision 2.61  2001/09/19 03:49:13  ullrich
+% Removed StRun and StRunSummary. Added StRunInfo.
+%
 % Revision 2.60  2001/09/07 15:00:07  ullrich
 % Modified description of ZDC ADC values.
 %
@@ -245,8 +248,8 @@
   \mbox{\includegraphics[width=\textwidth]{StEventTitle.eps}}
   \hfill\mbox{}\\[3cm]
   {\LARGE User Guide and Reference Manual \\[5mm] for Version 2}\\[2cm]
-  {\LARGE $ $Revision: 2.60 $ $}  \\[5mm] % replaced by cvs with current revision
-  {\LARGE $ $Date: 2001/09/07 15:00:07 $ $}  % replaced by cvs with current revision
+  {\LARGE $ $Revision: 2.61 $ $}  \\[5mm] % replaced by cvs with current revision
+  {\LARGE $ $Date: 2001/09/19 03:49:13 $ $}  % replaced by cvs with current revision
   \vfill
 \end{center}
 \cleardoublepage
@@ -850,10 +853,6 @@ methods you should be aware of are:
                               
     \verb+bool  doLoadTptTracks;+\\
     Controls if TPT tracks should be loaded (default=kFALSE).
-
-\verb+bool  doPrintRunInfo;+\\
-    Print or do not print a dump of the current \texttt{StRun} and
-    \texttt{StRunSummary} instances (default=kFALSE).
     
     \verb+bool  doPrintEventInfo;+\\
     Print or do not print info on the current \StEvent\ event.
@@ -877,17 +876,12 @@ methods you should be aware of are:
 \item[Public Member\\ Functions]
     \verb+StEvent*  event();+\\
     Returns a pointer to the current \texttt{StEvent} object.
-    
-    \verb+StRun*    run();+\\
-    Returns a pointer to the current \texttt{StRun} object.  This
-    object gets only updated for a new run, else you will get always
-    the same instance.
 \end{Entry}
 
 And don't forget to check if you got a \texttt{NULL} pointer. If
 something went wrong this might be the case. Something else should be
-mentioned here: Do \emph{not} delete the \texttt{StEvent} or
-\texttt{StRun} object you get through these methods.  They will be
+mentioned here: Do \emph{not} delete the \texttt{StEvent} object you
+get through these method.  It wl be
 automatically deleted by the system once you read-in a new event.
 \vfill
 
@@ -1003,82 +997,6 @@ you need more details have a look at the reference section and if you
 want to know \emph{everything} about \StEvent\ you have to visit the
 source code directly.
 
-\subsection{Run Header}
-\index{StRun} \index{StRunSummary} \index{run header} \index{run
-    summary}
-
-The class \texttt{StRun} contains all information you would expect
-from a run header: run number, trigger settings, beam setup, and much
-more. Every living \texttt{StRun} object also contains a pointer to an
-instance of \texttt{StRunSummary} which contains - you guessed it -
-the run summary.  The fact that the summary is contained by pointer
-already tells you that the pointer might be \texttt{NULL} if something
-went wrong. So better make sure it is non-zero before you dereference
-it.\\
-The run summary contains information gathered during the DST
-reconstruction run like mean p$_\perp$, mean pseudo-rapidity, CPU
-time, and similar stuff.  It does \emph{not} contain all data on the
-experimental run but only on the events of the run which were handled
-in a single batch job. These are usually around 50 events, while an
-experimental run can contain thousands of events.
-\begin{figure}[htb]
-    \begin{center}
-        \includegraphics{run.eps}
-        \caption{Class diagrams for \texttt{StRun} and \texttt{StRunSummary}.}
-        \label{fig:umlRun}
-    \end{center}
-\end{figure}
-Fig.~\ref{fig:umlRun} shows the UML class diagrams for the two
-classes. Pretty simple.  What is not shown is the relation to the
-\texttt{StEvent} class, simply because there is none.  \texttt{StRun}
-and \texttt{StEvent} are completely separate entities. They don't know
-from each other.  The \texttt{StRun} object is valid over many events,
-i.e.~ many generatins of \StEvent\ events.  \texttt{StEventMaker} (see
-Sec.~\ref{sec:StEventMaker} will give you the same one over and over
-again, unless there's a new run header on the DST.
-
-\index{example using StRun} \index{example using StRunSummary} Here is
-an example of a simple function \texttt{printRunInfo} which takes a
-pointer to an instance of \texttt{StRun} as argument and prints out
-some stuff.
-\begin{verbatim}
-void printRunInfo(StRun* run)
-{
-    if (!run) return;     // Oops, null pointer
-
-    cout << "run id:                " << run->id() << endl;
-    cout << "run type:              " << run->type() << endl;
-    cout << "center of mass energy: " << run->centerOfMassEnergy() << endl;
-    cout << "magnetic field:        " << run->magneticField() << endl;
-
-    if (run->summary()) {
-        cout << "# of events:            "
-             << run->summary()->numberOfEvents() << endl;
-        cout << "# of processed events:  "
-             << run->summary()->numberOfProcessedEvents() << endl;
-        cout << "CPU time used:          "
-             << run->summary()->cpuSeconds() << endl;
-        cout << "average luminosity:     "
-             << run->summary()->averageLuminosity() << endl;
-        cout << "<pt>:                   "
-             << run->summary()->meanPt() << endl;
-    }
-}
-\end{verbatim}
-This example also illustrates how useful it is to name the methods
-properly. This code actually could have been written simpler using the
-\texttt{PR(x)} macro defined in \texttt{StGlobals.hh} from the
-\name{StarClassLibrary}.
-Instead of\\
-\verb+    cout << "magnetic field:        " << run->magneticField() << endl;+\\
-one then would write\\
-\verb+    PR(run->magneticField());+\\
-which prints:\\
-\verb+    run->magneticField() = 0.5+\\
-or whatever setting STAR was running at this time. As long as the
-names are descriptive this makes life much easier and provides the
-reader the same amount of information.
-
 \subsection{Event Header}
 \index{event header} \index{event summary} \index{StEvent}
 \index{StEventSummary}
@@ -1091,9 +1009,8 @@ The class \texttt{StEvent} plays a special role since it is the entry
 point and the upper most object of the whole \StEvent\ tree. From here
 you
 can reach every single bit and byte there is on the DST.\\
-Obviously, this makes the \texttt{StEvent} class is a bit more complex
-than \texttt{StRun}. However, one thing is very similar: the summary.
-This is depicted in Fig.~\ref{fig:umlEvent} which shows only a very
+Obviously, this makes the \texttt{StEvent} class somewhat ``fat''.
+Figure ref{fig:umlEvent} shows only a very
 small fraction of the class design around \texttt{StEvent}.
 \begin{figure}[htb]
     \begin{center}
@@ -1108,7 +1025,7 @@ gathered during the reconstruction of the event like: the total number
 of tracks, the number of positive or negative tracks, the number of
 vertices of certain types, and several \emph{quasi}-histograms which
 hold for example transverse momenta distributions and other important
-quantities. The same warning as for \texttt{StRun} applies here.
+quantities. 
 Check the pointer to the event summary before you use it. It could be
 \texttt{NULL}.
  
@@ -3222,6 +3139,13 @@ definition in the header file.
     StEvent. See also \ref{sec:StEventInfo}.
     \index{StEventInfo}
 
+    \verb+StRunInfo* runInfo();+\\
+    \verb+const StRunInfo* runInfo() const;+\\
+    Returns a pointer to the one and only instance of \texttt{StRunInfo}.
+    \texttt{StRunInfo} contains parameters related to the current run.
+    See also \ref{sec:StRunInfo}.
+    \index{StRunInfo}
+
     \verb+StSoftwareMonitor* softwareMonitor();+\\
     \verb+const StSoftwareMonitor* softwareMonitor() const;+\\
     Returns pointer to the software-monitor collection. This class
@@ -3340,6 +3264,8 @@ definition in the header file.
     \verb+void setSummary(StEventSummary*);+\\
 
     \verb+void setInfo(StEventInfo*);+\\
+    
+    \verb+void setRunInfo(StRunInfo*);+\\
 
     \verb+void setSoftwareMonitor(StSoftwareMonitor*);+\\
 
@@ -5021,99 +4947,57 @@ definition in the header file.
     \verb+int numberOfHitsInRings() const;+\\
     \verb+int mult_rich_tot;+\\
 \end{Entry}
+\clearpage
 
-\subsection{StRun}
-\index{StRun|textbf}
-\label{sec:StRun}
+\subsection{StRunInfo}
+\index{StRunInfo|textbf}
+\label{sec:StRunInfo}
 \begin{Entry}
 \item[Summary]
+    Parameters related to current run.
 \item[Synopsis]
-    \verb+#include "StRun.h"+\\
-    \verb+class StRun;+\\
+    \verb+#include "StRunInfo.h"+\\
+    \verb+class StRunInfo;+\\
 \item[Description]
-\item[Related Classes]
+    This class contains parameters related to the current run.
+    Much of the information is redundant since some parameters
+    can be obtained from the offline DB and other classes.
+        
 \item[Public\\ Constructors]
-    \verb+StRun();+\\
-    \verb+StRun(const run_header_st&, const dst_run_summary_st&);+\\
-    \verb+StRun(const run_header_st&);+\\
-\item[Public Member\\ Functions]
-    \verb+int id() const;+\\
-    \verb+int bfcId() const;+\\
-    \verb+const TString& type() const;+\\
-    \verb+int triggerMask() const;+\\
-    \verb+double centerOfMassEnergy() const;+\\
-    \verb+short beamMassNumber(StBeamDirection) const;+\\
-    \verb+short beamCharge(StBeamDirection) const;+\\
-
-    \verb+double magneticField() const;+\\
-    Returns z-component of magnetic field in kGauss.
+    \verb+StRunInfo();+\\
     
-    \verb+StRunSummary* summary();+\\
-    \verb+const StRunSummary* summary() const;+\\
-    \verb+static const TString& cvsTag();+\\
-    \verb+void setId(int);+\\
-    \verb+void setBfcId(int);+\\
-    \verb+void setType(const char*);+\\
-    \verb+void setTriggerMask(int);+\\
-    \verb+void setCenterOfMassEnergy(double);+\\
-    \verb+void setBeamMassNumber(StBeamDirection, short);+\\
-    \verb+void setBeamCharge(StBeamDirection, short);+\\
-    \verb+void setSummary(StRunSummary*);+\\
-    \verb+void setMagneticField(double);+\\
-\item[Public Member\\ Operator]
-    \verb+int operator==(const StRun&) const;+\\
-    \verb+int operator!=(const StRun&) const;+\\
-\end{Entry}
-\clearpage
-
-
-\subsection{StRunSummary}
-\index{StRunSummary|textbf}
-\label{sec:StRunSummary}
-\begin{Entry}
-\item[Summary]
-\item[Synopsis]
-    \verb+#include "StRunSummary.h"+\\
-    \verb+class StRunSummary;+\\
-\item[Description]
-\item[Related Classes]
-\item[Public\\ Constructors]
-    \verb+StRunSummary();+\\
-    \verb+StRunSummary(const dst_run_summary_st&);+\\
 \item[Public Member\\ Functions]
-    \verb+unsigned int numberOfEvents() const;+\\
-    \verb+unsigned int numberOfProcessedEvents() const;+\\
-    \verb+int startTime() const;+\\
-    \verb+int stopTime() const;+\\
-    \verb+float cpuSeconds() const;+\\
-    \verb+float averageBeamPolarization(StBeamDirection, StBeamPolarizationAxis) const;+\\
-    \verb+float averageLuminosity() const;+\\
-    \verb+float meanEta() const;+\\
-    \verb+float rmsEta() const;+\\
-    \verb+float meanPt() const;+\\
-    \verb+float rmsPt() const;+\\
-    \verb+float meanNumberOfVertices() const;+\\
-    \verb+float rmsNumberOfVertices() const;+\\
-    \verb+float meanMultiplicity(StDetectorId) const;+\\
-    \verb+float rmsMultiplicity(StDetectorId) const;+\\
-    \verb+void setNumberOfEvents(unsigned int);+\\
-    \verb+void setNumberOfProcessedEvents(unsigned int);+\\
-    \verb+void setStartTime(int);+\\
-    \verb+void setStopTime(int);+\\
-    \verb+void setCpuSeconds(float);+\\
-    \verb+void setAverageBeamPolarization(StBeamDirection, StBeamPolarizationAxis, float);+\\
-    \verb+void setAverageLuminosity(float);+\\
-    \verb+void setMeanEta(float);+\\
-    \verb+void setRmsEta(float);+\\
-    \verb+void setMeanPt(float);+\\
-    \verb+void setRmsPt(float);+\\
-    \verb+void setMeanNumberOfVertices(float);+\\
-    \verb+void setRmsNumberOfVertices(float);+\\
-    \verb+void setMeanMultiplicity(StDetectorId, float);+\\
-    \verb+void setRmsMultiplicity(StDetectorId, float);+\\
+    \verb+int runId() const;+\\
+    Run number.
+    
+    \verb+time_t productionTime() const;+\\
+    Time when production of this run/file started. Since the
+    production is done on a file-by-file basis and a run can be split
+    in many files this time stamp is related to the beginning of the
+    production of the file. The format is UNIX time.
+    
+    \verb+TString productionVersion() const;+\\
+    Library version of the production chain.
+    
+    \verb+double centerOfMassEnergy() const;+\\
+    \verb+int beamMassNumber(StBeamDirection) const;+\\
+    \verb+int beamCharge(StBeamDirection) const;+\\
+    \verb+double magneticField() const;+\\
+    Z-component of magnetic field at $(x,y,z)=(0,0,0)$.
+    
+    \verb+double tpcDriftVelocity(StBeamDirection) const;+\\
+    TPC drift velocity as obtained from the DB.
+    
+    \verb+void setRunId(int);+\\
+    \verb+void setProductionTime(time_t);+\\
+    \verb+void setProductionVersion(const char*);+\\
+    \verb+void setCenterOfMassEnergy(double);+\\
+    \verb+void setBeamMassNumber(StBeamDirection, int);+\\
+    \verb+void setBeamCharge(StBeamDirection, int);+\\
+    \verb+void setMagneticField(double);+\\
+    \verb+void setTpcDriftVelocity(StBeamDirection, double);+\\
 \end{Entry}
 \clearpage
-
 
 \subsection{StSoftwareMonitor}
 \index{StSoftwareMonitor|textbf}
