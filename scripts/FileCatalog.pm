@@ -42,23 +42,36 @@
 #        -> bootstrap() : database maintenance procedure. Looks at the dictionary table and
 #           find all the records that are not referenced by the child table. It offers an option
 #           of deleting this records.
+#        -> bootstrap_data() : database maintenance procedure. Looks at the FileData and
+#           FileLocations tables and find all the records that are not referenced. It offers
+#           an option of deleting this records.
+#
+#        -> set_delayed()  turn database operation in delay mode. A stack is built and execute
+#           later. This may be used in case of several non-correlated updates. Warning : no
+#           checks made on delayed commands.
+#        -> flush_delayed() flush out i.e. execute all delayed commands.
+#        -> print_delayed() print out on screen all delayed commands.
+#       
 #
 
 
 package FileCatalog;
 
 use vars qw($VERSION);
-$VERSION   =   0.01;
+$VERSION   =   0.02;
 
 use DBI;
 use strict;
 
 # define to print debug information
 my $DEBUG     = 0;
+my $DELAY     = 0;
+my @DCMD;
 
 # db information
 my $dbname    =   "FileCatalog";
 my $dbhost    =   "duvall.star.bnl.gov";
+#my $dbhost    =   "localhost";
 my $dbuser    =   "FC_user";
 my $dbsource  =   "DBI:mysql:$dbname:$dbhost";
 my $DBH;
@@ -481,9 +494,7 @@ sub get_id_from_dictionary {
   my $sth;
   my $sqlquery;
 
-  chop($idname);
-  $idname = lcfirst($idname);
-  $idname.="ID";
+  $idname = IDize($idname);
 
   $sqlquery = "SELECT $idname FROM $params[0] WHERE UPPER($params[1]) = UPPER(\"$params[2]\")";
   if ($DEBUG > 0) {  &print_debug("Executing: $sqlquery");}
@@ -495,12 +506,22 @@ sub get_id_from_dictionary {
       $sth->execute();
       my( $id );
       $sth->bind_columns( \$id );
-
+      
       if ( $sth->fetch() ) {
-	  return $id;
+	$sth->finish();
+	return $id;
       }
   }
+}
 
+# Used several places so, made a utility routine
+sub IDize
+{
+    my($idname)=@_;
+    chop($idname);
+    $idname = lcfirst($idname);
+    $idname.="ID";
+    $idname;
 }
 
 #============================================
@@ -1333,8 +1354,10 @@ sub insert_simulation_params {
   } else {
       &print_debug("Could not add simulation data.",
 		   "Aborting simulation data insertion query.");
+      $sth->finish();
       return 0;
   }
+  $sth->finish();
 
 }
 
@@ -1382,13 +1405,16 @@ sub get_current_simulation_params {
   if ($sth->rows == 0) {
       my $newid;
       $newid = insert_simulation_params();
+      $sth->finish();
       return $newid;
   } else {
       if ( $sth->fetch() ) {
 	  if ($DEBUG > 0) { &print_debug("Returning: $id");}
+	  $sth->finish();
 	  return $id;
       }
   }
+  $sth->finish();
   return 0;
 
 }
@@ -1871,9 +1897,7 @@ sub run_query {
 	my $idname = $tabname;
 	my $addedconstr = "";
 
-	chop($idname);
-	$idname = lcfirst($idname);
-	$idname.="ID";
+	$idname = IDize($idname);
 	
 	# Find which table this one is connecting to
 	my $parent_tabname;
@@ -1923,7 +1947,7 @@ sub run_query {
 	  my( $id );
 	  $sth->bind_columns( \$id );
 
-	  if ( $sth->rows < 5) {
+	  if (( $sth->rows < 5) && ($sth->rows>0)) {
 	    # Create a new constraint
 	    $addedconstr = " ( ";
 	    while ( $sth->fetch() ) {
@@ -1939,7 +1963,7 @@ sub run_query {
 	    }
 	    $addedconstr .= " ) ";
 	    # Add a newly constructed keyword
-	    push (@constraint, $addedconstr) if ($addedconstr !~ m/\(\s+\)/);
+	    push (@constraint, $addedconstr);
 	    # Remove the condition - we already take care of it
 	    delete $valuset{$_};
 	    # But remember to add the the parent table
@@ -2358,7 +2382,7 @@ sub delete_record {
 # the records in this table are connected to some
 # child table
 # Prams:
-# keyowrd - keword for which to check the table
+# keyowrd - keword from the table, which is to be checked
 # dodelete - set to 1 to automaticaly delete the offending records
 # Returns
 # List of records that are not connected
@@ -2442,7 +2466,90 @@ sub bootstrap {
 }
 
 #============================================
-# Updates the field coresponding to a given keyowrd
+# Bootstraps a data table - a FileLocation or FileData
+# Check for the existence of "orphan" records
+# Prams:
+# keyowrd - keword from the table, that is to be checked
+# dodelete - set to 1 to automaticaly delete the offending records
+# Returns
+# List of records that are not connected
+# or 0 if there were errors or no unconnected records
+sub bootstrap_data {
+  if ($_[0] =~ m/FileCatalog/) {
+    shift @_;
+  }
+
+  if( ! defined($DBH) ){
+      &print_message("bootstrap","Not connected");
+      return 0;
+  }
+
+  my ($keyword, $delete) = (@_);
+  my $table = get_table_name($keyword);
+  if (($table ne "FileData") && ($table ne "FileLocations"))
+    { 
+      &print_message("bootstrap_data","Wrong table. To bootstrap tables other than FileData and FileLocations use 'bootstrap'");
+      return 0; 
+    }
+
+  my $dcquery;
+  if ($table eq "FileData")
+    {
+      $dcquery = "select FileData.fileDataID FROM FileData LEFT OUTER JOIN FileLocations ON FileData.fileDataID = FileLocations.fileDataID WHERE FileLocations.fileLocationID IS NULL";
+    }
+  elsif ($table eq "FileLocations")
+    {
+      $dcquery = "select FileLocations.fileLocationID FROM FileLocations LEFT OUTER JOIN FileData ON FileData.fileDataID = FileLocations.fileDataID WHERE FileData.fileDataID IS NULL";
+    }
+
+  my $stq;
+  $stq = $DBH->prepare( $dcquery );
+  if( ! $stq ){
+      &print_debug("FileCatalog::bootstrap_data : Failed to prepare [$dcquery]");
+      return 0;
+  }
+  &print_debug("Running [$dcquery]");
+  $stq->execute();
+  if ($stq->rows > 0)
+    {
+      my @rows;
+      my( $id );
+      $stq->bind_columns( \$id );
+
+      while ( $stq->fetch() ) {
+	push ( @rows, $id );
+      }
+      if ($delete == 1)
+      {
+	  # We do a bootstapping with delete
+	  my $dcdelete;
+	  if ($table eq "FileData")
+	    {	  
+	      $dcdelete = "DELETE FROM $table WHERE $table.fileDataID IN (".join(" , ",(@rows)).")";
+	    }
+	  elsif ($table eq "FileLocations")
+	    {
+	      $dcdelete = "DELETE FROM $table WHERE $table.fileLocationID IN (".join(" , ",(@rows)).")";
+	    }
+	  if ($DEBUG > 0) { &print_debug("Executing $dcdelete"); }
+	  my $stfdd = $DBH->prepare($dcdelete);
+	  if ($stfdd){
+	      $stfdd->execute();
+	      $stfdd->finish();
+	  } else {
+	      &print_debug("FileCatalog::bootstrap_data : Failed to prepare [$dcdelete]",
+			   " Records in $table will not be deleted");
+	  }
+      }
+      $stq->finish();
+      return (@rows);
+    }
+  $stq->finish();
+  return 0;
+}
+
+#============================================
+# Updates the field coresponding to a given keyword
 # with a new value, replaces the value in the current
 # context.The value of the keyword to be modified,
 # MUST appear in a previous set_context() statement.
@@ -2451,8 +2558,10 @@ sub bootstrap {
 #
 # Params:
 # keyword - the keyword which data is to be updated
-# value - new value that should be put into the database
-#         instead of the current one
+# value   - new value that should be put into the database
+#           instead of the current one
+# doit    - an extra mandatory value 0/1
+#
 # Returns:
 # 1 if update was successfull
 # 0 if delete failed
@@ -2467,10 +2576,12 @@ sub update_record {
 
   my @updates;
 
-  my ($ukeyword, $newvalue) = (@_);
+  my ($ukeyword, $newvalue, $doit) = (@_);
 
   my $utable = get_table_name($ukeyword);
   my $ufield = get_field_name($ukeyword);
+
+  if( ! defined($doit) ){  $doit = 1;}
 
   foreach my $key (keys %keywrds)
     {
@@ -2515,20 +2626,77 @@ sub update_record {
       &print_debug("Executing update: $qupdate\n");
   }
 
-  my $retv=0;
-  my $sth;
 
-  $sth = $DBH->prepare( $qupdate );
-  if (!$sth){
-      &print_debug("FileCatalog::update_record : Failed to prepare [$qupdate]");
+  if( ! $doit ){
+      &print_message("update_record","$qupdate");
+      return 0;
   } else {
-      if ( $sth->execute() ){
-	  $retv = 1;
+      my $retv=0;
+      my $sth;
+
+
+      if($DELAY){
+	  # Delayed mode
+	  push(@DCMD,$qupdate );
+	  return 1;
+      } else {
+	  $sth = $DBH->prepare( $qupdate );
+	  if (!$sth){
+	      &print_debug("FileCatalog::update_record : Failed to prepare [$qupdate]");
+	  } else {
+	      if ( $sth->execute() ){  $retv = 1;}
+	      $sth->finish();
+	  }
+	  return $retv;
       }
-      $sth->finish();
   }
-  return $retv;
 }
+
+#============================================
+#
+# The 3 following method are argument-less.
+#
+# Set operation in delay mode.
+#
+sub set_delayed
+{
+    if ($_[0] =~ m/FileCatalog/) {
+	my $self = shift;
+    }
+    $DELAY = 1;
+}
+
+#
+# Quick and dirty stack command execution
+# Dirty because a do() statement has only little
+# handle on what can be done ... whatever is in the
+# stack may succeed or not without error bootstraping.
+# However, this will be fine/adequate in any major record
+# update.
+#
+sub flush_delayed
+{
+    my($cmd,$sth);
+
+    if( ! $DBH){  return;}
+    foreach $cmd (@DCMD){
+	&print_debug("Executing $cmd");
+	$DBH->do($cmd);
+    }
+    undef(@DCMD);
+    $DELAY = 0;
+}
+
+
+sub print_delayed
+{
+    my($cmd);
+    foreach $cmd (@DCMD){
+	# ready for a piping to cmdline mysql
+	print "$cmd;\n";
+    }
+}
+
 
 #============================================
 # Updates the fields in FileLocations table - mainly
@@ -2536,8 +2704,10 @@ sub update_record {
 #
 # Params:
 # keyword - the keyword which data is to be updated
-# value - new value that should be put into the database
-#         instead of the current one
+# value   - new value that should be put into the database
+#           instead of the current one
+# doit    - do it or not, default is 1 
+#
 sub update_location {
   if ($_[0] =~ m/FileCatalog/) {
     my $self = shift;
@@ -2550,14 +2720,18 @@ sub update_location {
 
   my @updates;
 
-  my ($ukeyword, $newvalue) = (@_);
+  my ($ukeyword, $newvalue, $doit) = (@_);
 
+  my $mtable;
   my $utable = get_table_name($ukeyword);
   my $ufield = get_field_name($ukeyword);
+
 
   my @files;
 
   my $delim;
+
+  if( ! defined($doit) ){  $doit = 1;}
 
   $delim  = get_delimeter();
 
@@ -2568,7 +2742,17 @@ sub update_location {
   # Bring back the previous delimeter
   set_delimeter($delim);
 
-  delete $valuset{"path"};
+  delete($valuset{"path"});
+
+
+  # Change this out to dictionary search and revert keyword
+  # application to the location table;
+  if ( $utable eq "StorageTypes"){
+      $mtable = "FileLocations";
+  } else {
+      $mtable = $utable;
+  }
+
 
   foreach my $key (keys %keywrds)
     {
@@ -2580,7 +2764,8 @@ sub update_location {
       # The ufield is excluded because we use it by default
       # in the SET xxx= WHERE xxx= as an extra MANDATORY
       # clause.
-      if (($table eq $utable) && ($field ne $ufield))
+      #print "+ $table + \n";
+      if (($table eq $mtable) && ($field ne $ufield))
 	{
 	  if (defined($valuset{$key}))
 	    {
@@ -2599,33 +2784,60 @@ sub update_location {
       return 0;
   }
 
+  
 
   foreach my $line (@files) {
-      print "Returned line: $line\n";
+      #print "Returned line ($ukeyword): $line\n";
       my $qupdate;
 
       my ($flid, $fname, $path) = split("::",$line);
 
-      if (get_field_type($ukeyword) eq "text")
-      { $qupdate = "UPDATE $utable SET $ufield = '$newvalue' WHERE $ufield = '".$valuset{$ukeyword}."'"; }
-      else
-      { $qupdate = "UPDATE $utable SET $ufield = $newvalue WHERE $ufield = ".$valuset{$ukeyword}; }
+      if ($utable eq "StorageTypes"){
+	  # Patch ... The above logic is true only for
+	  # tables like FileData/FileLocation but not true for others
+	  my $uid    = get_id_from_dictionary($utable,$ufield,$newvalue);
+	  $ukeyword  = IDize($utable);
+	  $qupdate = "UPDATE $mtable SET $ukeyword=$uid ";
+
+	  if ($whereclause ne ""){
+	      $qupdate .= " AND $whereclause"; 
+	  }
+
+	  # THOSE ONLY UPDATES VALUES 
+      } elsif (get_field_type($ukeyword) eq "text"){
+	  $qupdate = "UPDATE $mtable SET $ufield = '$newvalue' WHERE $ufield = '".$valuset{$ukeyword}."'"; 
+      } else {
+	  $qupdate = "UPDATE $mtable SET $ufield = $newvalue WHERE $ufield = ".$valuset{$ukeyword}; 
+      }
+
+
+
+
       $qupdate .= " AND fileLocationID = $flid";
       if ($DEBUG > 0){
 	  &print_debug("Executing update: $qupdate");
       }
 
-      my $sth;
-      $sth = $DBH->prepare( $qupdate );
-      if ( ! $sth ){
-	  &print_debug("FileCatalog::update_location : Failed to prepare [$qupdate]");
+      if (! $doit){
+	  &print_message("update_location","$qupdate");
       } else {
-	  if ( $sth->execute() ){
-	      &print_debug("Update succeded");
+	  if( $DELAY){
+	      # DElay mode
+	      push(@DCMD,$qupdate);
 	  } else {
-	      &print_debug("Update failed");
+	      my $sth;
+	      $sth = $DBH->prepare( $qupdate );
+	      if ( ! $sth ){
+		  &print_debug("update_location : Failed to prepare [$qupdate]");
+	      } else {
+		  if ( $sth->execute() ){
+		      &print_debug("Update succeded");
+		  } else {
+		      &print_debug("Update failed");
+		  }
+		  $sth->finish();
+	      }
 	  }
-	  $sth->finish();
       }
   }
 }
