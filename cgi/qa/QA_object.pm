@@ -110,7 +110,6 @@ sub _init{
 
     $new_output_dir = "/star/rcf/test/dst/$1";
     $self->LogReport->OutputDirectory("$new_output_dir");
-
   };
 
   #------------------------------------------------------
@@ -118,7 +117,7 @@ sub _init{
   #------------------------------------------------------
   # is data on disk?
 
-  $self->OnDisk();
+#  $self->OnDisk();
 
 }
 #========================================================
@@ -303,6 +302,9 @@ sub QASummaryString{
       $full_file = "$report_dir/$file";
       unlink($full_file) or print "Cannot delete file $full_file <br> \n";
     }
+    
+    last;
+
   }
   closedir(DIR);
 

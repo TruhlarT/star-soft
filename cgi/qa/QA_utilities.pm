@@ -470,20 +470,39 @@ sub print_timing{
   @_ and do{
     $time_start = shift;
     @_ and $time_last_call = shift;
+    $sys_time_start = 0;
+    $sys_time_last_call = 0;
+    $wall_clock_start = time;
+    $wall_clock_last_call = time;
+    $count_print_timing = 0;
     return;
   };
 
+  $count_print_timing++;
+
   ($package, $filename, $line) = caller;
 
-  print "-" x 80, "\n<br> print_timing called from $package::$filename, line $line <br> \n";
+  print "-" x 80, "\n<br> $count_print_timing: print_timing called from $package::$filename, line $line <br> \n";
+
+  # get elapsed time
+  $wall_clock = time;
 
   # get cpu time
   $now = (times)[0];
+  $sys_now = (times)[1];
 
-  printf "time since start = %.3f sec; time since last call= %.3f sec <br>\n",
+  printf "<font color=red>user cpu time since start = %.3f sec; user cpu time since last call= %.3f sec </font><br>\n",
   $now-$time_start,$now-$time_last_call;
 
+  printf "<font color=blue>system cpu time since start = %.3f sec; system cpu time since last call= %.3f sec </font><br>\n",
+  $sys_now-$sys_time_start,$sys_now-$sys_time_last_call;
+
+  printf "<font color=green>elapsed time since start = %d sec; elapsed time since last call= %d sec </font><br>\n",
+  $wall_clock-$wall_clock_start,$wall_clock-$wall_clock_last_call;
+
   $time_last_call = $now;
+  $sys_time_last_call = $sys_now;
+  $wall_clock_last_call = $wall_clock;
 }
 #=======================================================================
 sub print_traceback{

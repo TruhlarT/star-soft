@@ -102,20 +102,25 @@ print  $query->end_html;
 ### END OF MAIN ###
 #=================================================================
 
-#=============================================================
+#=================================================================
 sub upper_display{
 
   #--------------------------------------------------------
   QA_cgi_utilities::print_page_header("Offline Software QA");		    
   #-----------------------------------------------------------------------------
+
   &check_for_expert_page;
   #--------------------------------------------------------
+
   &starting_display;
   #-----------------------------------------------------------------------------
+
   &button_actions;
   #-----------------------------------------------------------------------------
+
   display_datasets($select_dataset);
   #-----------------------------------------------------------------------------
+
 }
 #==========================================================================
 sub lower_display{
@@ -205,8 +210,9 @@ sub starting_display {
   # now the generic stuff
   $selection_hash{on_disk} = "All datasets on disk";
   $selection_hash{all} = "All archived datasets";
+  $selection_hash{global_comments} = "global comments only";
 
-  @selection_list = ("on_disk", "all");
+  @selection_list = ("on_disk", "all", "global_comments");
 
   push @selection_list, @temp;
 
@@ -331,6 +337,7 @@ sub starting_display {
   #-----------------------------------------------------------------------------
   # check for running batch jobs and report if update in progress
 
+
   opendir(DIR,$update_dir) or die "Cannot open update dir $update_dir:$! \n"; 
   while ( defined( $file = readdir(DIR) ) ){
 
@@ -387,6 +394,12 @@ sub get_selected_key_list {
       foreach $report_key ( @QA_key_list ) {
 	$QA_object_hash{$report_key}->OnDisk() and push @selected_key_list, $report_key;
       }
+      last SWITCH;
+    };
+
+    $select_dataset =~ /global_comments/ and do {
+# return null list, comments added later
+      @selected_key_list = ();
       last SWITCH;
     };
 

@@ -34,7 +34,8 @@ use Exporter ();
 
 	     $query
 
-	     $time_start $time_last_call
+	     $time_start $time_last_call $sys_time_start $sys_time_last_call
+	     $wall_clock_start $wall_clock_last_call $count_print_timing
 );
 
 #=====================================================================================
