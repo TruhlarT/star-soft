@@ -132,6 +132,7 @@ my $SILENT    =  0;
 my @DCMD;
 
 # db information
+my $DSITE     =   undef;
 my $dbname    =   "FileCatalog_BNL";
 my $dbhost    =   "duvall.star.bnl.gov";
 my $dbport    =   "";
@@ -359,20 +360,23 @@ $operators[3] = "!=";
 $operators[4] = "==";
 $operators[5] = "!~";
 $operators[6] = "=";
-$operators[7] = ">";
-$operators[8] = "<";
-$operators[9] = "~";
+$operators[7] = "[";
+$operators[8] = "]";
+$operators[9] = ">";
+$operators[10]= "<";
+$operators[11]= "~";
+
 
 # The possible aggregate values
 my @aggregates;
 $aggregates[0] = "sum";
-$aggregates[0] = "count";
-$aggregates[1] = "avg";
-$aggregates[2] = "min";
-$aggregates[3] = "max";
-$aggregates[4] = "grp";
-$aggregates[5] = "orda";
-$aggregates[6] = "ordd";
+$aggregates[1] = "count";
+$aggregates[2] = "avg";
+$aggregates[3] = "min";
+$aggregates[4] = "max";
+$aggregates[5] = "grp";
+$aggregates[6] = "orda";
+$aggregates[7] = "ordd";
 
 # A table holding the number of records in each table
 #my %rowcounts;
@@ -553,9 +557,12 @@ sub _initialize
 #
 sub _ReadConfig
 {
-    my($intent)=@_;
-    my($config,$line,$ok,$scope);
-    my(%EL);                        # ($host,$db,$port,$user,$passwd);
+    my($intent,$flag)=@_;
+    my($config,$line,$rest);
+    my ($ok,$scope);
+    my(%EL);                        # ($host,$db,$port,$user,$passwd,$site);
+
+
     $config = "";
 
     foreach $scope ( (".",
@@ -571,7 +578,9 @@ sub _ReadConfig
 
 
     if ($config ne ""){
-	&print_message("ReadConfig","Searching for $intent in $config");
+	if ( ! defined($flag) ){
+	    &print_message("ReadConfig","Searching for $intent in $config");
+	}
 	open(FI,$config);
 
 	#
@@ -583,7 +592,16 @@ sub _ReadConfig
 	#
 	while( defined($line = <FI>) ){
 	    chomp($line); 
-	    if ($line =~ /\<SCATALOG.*\>/i){           $ok = 1;}
+	    if ($line =~ /(\<SCATALOG)(.*\>)/i){
+		$rest = $2;
+		$ok   = 1;
+		#if ($rest =~ m/(SITE=)(.*)/){
+		#    $EL{site} = $2;
+		#} else {
+		#    $EL{site} = "";
+		#}
+	    }
+
 	    if ($line =~ /\<\/SCATALOG\>/i){           $ok = 0;}
 	    if ($line =~ /(\<SERVER)(.*\>)/i && $ok ){
 		$scope = $2;
@@ -632,7 +650,7 @@ sub _ReadConfig
 	    if ($EL{$ok} eq ""){ $EL{$ok} = undef;}
 	}
     }
-    return ($EL{HOST},$EL{DB},$EL{PORT},$EL{USER},$EL{PASS});
+    return ($EL{HOST},$EL{DB},$EL{PORT},$EL{USER},$EL{PASS},$EL{site});
 }
 
 
@@ -640,6 +658,17 @@ sub _ReadConfig
 #=================================================
 # This routine has been added later and interfaces
 # with the XML description.
+
+sub get_connection
+{
+    my($intent)=@_;
+    my($host,$db,$port,$user,$passwd);
+
+    ($host,$db,$port,$user,$passwd,$DSITE) = &_ReadConfig($intent,1);
+
+    return ($user,$passwd,$port,$host,$db);
+}
+
 sub connect_as
 {
     my($self)= shift;
@@ -741,9 +770,12 @@ sub disentangle_param {
   my $operator;
   my $value;
 
- OPS: foreach (@operators )
+ OPS: foreach my $op (@operators )
     {
-	if ($params =~ m/(.*)($_)(.*)/){
+	$op =~ s/\[/\\\[/;
+	$op =~ s/\]/\\\]/;
+
+	if ($params =~ m/(.*)($op)(.*)/){
 	    ($keyword, $operator, $value) = ($1,$2,$3);
 	    last if (defined $keyword and defined $value);
 	    $operator = "";
@@ -2452,7 +2484,7 @@ sub get_all_upper {
 #===================================================
 # Return the connection description index from a @datastruct table
 # describing the connection between two tables
-sub get_connection {
+sub _get_connection {
   my ($amtable, $astable) = (@_);
 
   for (my $count = 0; $count<($#datastruct+1); $count++) {
@@ -2587,10 +2619,10 @@ sub connect_fields {
 	      # Add a road going from the tree root to this field
 	      if( defined($froads{$flower[$cflow]}) ){
 		  $froads{$flower[$cflow]} = $froads{$flevelfields[$fcount]}." ".
-		      &get_connection($flower[$cflow], $flevelfields[$fcount]);
+		      &_get_connection($flower[$cflow], $flevelfields[$fcount]);
 	      } else {
 		  $froads{$flower[$cflow]} = " ".
-		      &get_connection($flower[$cflow], $flevelfields[$fcount]);
+		      &_get_connection($flower[$cflow], $flevelfields[$fcount]);
 	      }
 	      if ($DEBUG > 0) {
 		  &print_debug("Added road $froads{$flower[$cflow]}");
@@ -2608,10 +2640,10 @@ sub connect_fields {
 	    # Add a road going from the tree root to this field
 	      if( defined($sroads{$slower[$cslow]}) ){
 		  $sroads{$slower[$cslow]} = $sroads{$slevelfields[$scount]}." ".
-		      &get_connection($slower[$cslow], $slevelfields[$scount]);
+		      &_get_connection($slower[$cslow], $slevelfields[$scount]);
 	      } else {
 		  $sroads{$slower[$cslow]} = " ".
-		      &get_connection($slower[$cslow], $slevelfields[$scount]);
+		      &_get_connection($slower[$cslow], $slevelfields[$scount]);
 	      }
 
 	    if ($DEBUG > 0) {
@@ -2707,12 +2739,17 @@ sub run_query {
       $_ = $keywords[$i]; # too lazzy to change it all but to be cleaned
       $_ =~ y/ //d;
 
+      #&print_debug("\tChecking $_");
+
       foreach $afun (@aggregates){
+	  #&print_debug("\tSearching for aggregate $afun");
 	  ($aggr, $keyw) = $_ =~ m/($afun)\((.*)\)/;
-	  last if (defined $aggr and defined $keyw);
+	  last if ( defined($aggr) and defined($keyw) );
       }
+      &print_debug("\tAggregate operation '$aggr' found for '$keyw'\n") if (defined($aggr));
+
       if ( defined($keyw) ){
-	  &print_debug("Found aggregate function |$aggr| on keyword |$keyw|");
+	  #&print_debug("Found aggregate function |$aggr| on keyword |$keyw|");
 
 	  # If it is - save the function, and store only the bare keyword
 	  $functions{$keyw} = $aggr;
@@ -2869,6 +2906,19 @@ sub run_query {
 					  $valuset{$keyw},
 					  3);
 		  #$sqlquery .= "$fieldname NOT LIKE '%".$valuset{$keyw}."%'";
+
+	      } elsif ($operset{$keyw} eq "["){
+		  $sqlquery .= &TreatLOps("$fieldname",
+					  "BETWEEN",
+					  $valuset{$keyw},
+					  4);
+
+	      } elsif ($operset{$keyw} eq "]"){
+		  $sqlquery .= &TreatLOps("$fieldname",
+					  "NOT BETWEEN",
+					  $valuset{$keyw},
+					  4);
+		  
 
 	      } else {
 		  $sqlquery .= &TreatLOps($fieldname,
@@ -3036,12 +3086,14 @@ sub run_query {
   # Get the select fields
   my @select;
   foreach $keyw (@keywords) {
-      &print_debug("Adding keyword: $keyw");
       if (defined $functions{$keyw}){
+	  &print_debug(">> Adding keyword: [$keyw] associated with operation [$functions{$keyw}] ");
 	  if ($functions{$keyw} eq "grp"){
 	      if (($grouping =~ m/GROUP BY/) == 0){
 		  $grouping .= " GROUP BY ".&get_table_name($keyw).".".&get_field_name($keyw)." ";
 		  push (@select, &get_table_name($keyw).".".&get_field_name($keyw));
+	      } else {
+		  &print_debug("\tSecond grouping ignored. Already $grouping");
 	      }
 
 	  } elsif ($functions{$keyw} eq "orda"){
@@ -3058,11 +3110,13 @@ sub run_query {
 
 
       } elsif ($keyw eq "collision") {
+	  &print_debug(">> Adding keyword: [$keyw] (special treatment) ");
 	  my $tab = &get_table_name($keyw);
 	  push (@select, "CONCAT( $tab.firstParticle, $tab.secondParticle, $tab.collisionEnergy )");
 
 
       } else {
+	  &print_debug(">> Adding keyword: [$keyw] (nothing special) ");
 	  push (@select, &get_table_name($keyw).".".&get_field_name($keyw));
 
       }
@@ -3071,8 +3125,11 @@ sub run_query {
 
   # Build the FROM and WHERE parts of the query
   # using thew connection list
-  my $where="";
   &print_debug("Toquery table contains idx ".join("/",@toquery));
+  &print_debug("Select  table contains val ".join("/",@select));
+  &print_debug("Grouping is now            ".$grouping);
+
+  my $where="";
   foreach my $el (@toquery) {
       my ($mtable, $stable, $field, $level) = split(",",$datastruct[$el]);
       &print_debug("\tGot $mtable/$stable/$field/$level from $datastruct[$el]");
@@ -3156,6 +3213,17 @@ sub run_query {
 					    3));
 	      #push( @constraint, "$tabname.$fieldname NOT LIKE '%".$valuset{$keyw}."%'" );
 
+	  }  elsif ($operset{$keyw} eq "["){
+	      push( @constraint, &TreatLOps("$tabname.$fieldname",
+					    "BETWEEN",
+					    $valuset{$keyw},
+					    4));
+
+	  }  elsif ($operset{$keyw} eq "]"){
+	      push( @constraint, &TreatLOps("$tabname.$fieldname",
+					    "NOT BETWEEN",
+					    $valuset{$keyw},
+					    4));
 	  } else {
 	      push(@constraint,&TreatLOps("$tabname.$fieldname",
 					  $operset{$keyw},
@@ -3252,7 +3320,7 @@ sub run_query {
 	$sqlquery =~ /MIN\(.*\)/ ||
 	$sqlquery =~ /MAX\(.*\)/ ||
 	$sqlquery =~ /COUNT\(.*\)/ )  &&
-       $sqlquery !~ /GROUP BY/){
+       $grouping !~ /GROUP BY/){
       $sqlquery =~ m/( .*\()(.*)/;
       &print_message("run_query()","$1) without GRP() will not lead to any result");
       return;
@@ -3390,10 +3458,22 @@ sub TreatLOps
     if ( index($ival,"||") != -1 ){
 	@Val = split(/\|\|/,$ival);
 	$connect = "OR";
+
     } elsif ( index($ival,"&&") != -1 ){
 	@Val = split("&&",$ival);
 	$connect = "AND";
+
     } else {
+	# Yet another special treatment
+	if ( $op =~ /BETWEEN/){
+	    @Val = split("-",$ival);
+	    if ($#Val > 1){
+		&die_message("TreatLOps","Syntax for a range is min-max");
+	    }
+	    $ival = "'".$Val[0]."' and '".$Val[1]."'";
+	    undef(@Val);
+	}
+
 	push(@Val,$ival);
 	$connect = "";
     }
@@ -3411,6 +3491,9 @@ sub TreatLOps
 	    $val = "'$val'";
 	} elsif ($flag == 3){
 	    $val = "'%$val%'";
+	} elsif ($flag == 4){
+	    # By pass for special cases.
+	    # Do nothing
 	} else {
 	    &die_message("TreatLOps","Internal error ; unknown flag $flag");
 	}
@@ -3424,7 +3507,7 @@ sub TreatLOps
     }
 
     # OR and AND should be re-grouped by ()
-    if ($#Val > 0){
+    if ($#Val > 0 || $flag == 4){
 	$qq = "( $qq )";
     }
 
