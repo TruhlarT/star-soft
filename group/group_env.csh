@@ -1,5 +1,5 @@
 #!/bin/csh -f
-#       $Id: group_env.csh,v 1.173 2004/11/12 21:39:08 jeromel Exp $
+#       $Id: group_env.csh,v 1.174 2004/11/16 21:43:34 jeromel Exp $
 #	Purpose:	STAR group csh setup
 #
 #	Author:		Y.Fisyak     BNL
@@ -220,15 +220,15 @@ setenv CVSROOT   $STAR_PATH/repository; if ($ECHO) echo   "Setting up CVSROOT   
 
 
 if (-f $STAR/mgr/ROOT_LEVEL && -f $STAR/mgr/CERN_LEVEL) then
-  setenv ROOT_LEVEL `cat $STAR/mgr/ROOT_LEVEL`
-  setenv CERN_LEVEL `cat $STAR/mgr/CERN_LEVEL`
+  setenv ROOT_LEVEL `/bin/cat $STAR/mgr/ROOT_LEVEL`
+  setenv CERN_LEVEL `/bin/cat $STAR/mgr/CERN_LEVEL`
   if ( -f $STAR/mgr/CERN_LEVEL.${STAR_HOST_SYS} ) then
     # Overwrite
-    setenv CERN_LEVEL `cat $STAR/mgr/CERN_LEVEL.${STAR_HOST_SYS}`
+    setenv CERN_LEVEL `/bin/cat $STAR/mgr/CERN_LEVEL.${STAR_HOST_SYS}`
   endif
   if ( -f $STAR/mgr/ROOT_LEVEL.${STAR_HOST_SYS} ) then
     # Overwrite
-    setenv ROOT_LEVEL `cat $STAR/mgr/ROOT_LEVEL.${STAR_HOST_SYS}`
+    setenv ROOT_LEVEL `/bin/cat $STAR/mgr/ROOT_LEVEL.${STAR_HOST_SYS}`
   endif
 else
  switch ( $STAR_VERSION )
@@ -389,7 +389,7 @@ switch ($STAR_SYS)
       #  ====================
       if ( ! $?SUNWS ) then
 	if ( -r $STAR_MGR/sunWS ) then
-	    setenv SUNWS `cat $STAR_MGR/sunWS`
+	    setenv SUNWS `/bin/cat $STAR_MGR/sunWS`
 	    if ( ! -d /opt/$SUNWS ) then
 		if ($ECHO) echo "$SUNWS Workshop not found. Reverting to SUNWspro"
 		setenv SUNWS "SUNWspro"
@@ -591,7 +591,7 @@ endif
 # login level. 
 #
 #set date="`date`"
-#cat >> $GROUP_DIR/statistics/star${STAR_VERSION} << EOD
+#/bin/cat >> $GROUP_DIR/statistics/star${STAR_VERSION} << EOD
 #$USER from $HOST asked for STAR_LEVEL=$STAR_LEVEL / STAR_VERSION=$STAR_VERSION  $date
 #EOD
 #END
