@@ -24,6 +24,7 @@ use KeyList_object_offline;
 use KeyList_object_nightly;
 use KeyList_object_online;
 use Db_KeyList_utilities;
+use CompareReport_utilities;
 
 use DataClass_object;
 
@@ -294,6 +295,10 @@ sub DisplayDataset{
  
   $gCGIquery->param('enable_add_edit_comments') 
     and  &Browser_utilities::display_comment_buttons;
+
+  # show the references
+  CompareReport_utilities::ShowDefaultReferences();
+  CompareReport_utilities::ShowUserReferences();
 
   my (@selected_keys);
   # are we looking for datasets?

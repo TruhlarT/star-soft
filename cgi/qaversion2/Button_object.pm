@@ -412,7 +412,7 @@ sub SetupCompareReport{
   # save reference as part of object
   $QA_object_hash{$report_key}->CompareReport_obj($ref);
   
-  # initial display for comparison
+  # initial display 
   $ref->InitialDisplay();
 
   
@@ -446,7 +446,12 @@ sub DoCompareToReference{
   my $report_key = $self->ReportKey;
 
   #-------------------------------------------------------
-  my $ref = $QA_object_hash{$report_key}->CompareReport_obj();
+  my $ref = new CompareReport_object($report_key);
+  
+  # save reference as part of object
+  $QA_object_hash{$report_key}->CompareReport_obj($ref);
+
+  #my $ref = $QA_object_hash{$report_key}->CompareReport_obj();
   $ref->CompareToReference();
 }
 #========================================================
@@ -628,14 +633,6 @@ sub CleanUpHungJobs{
 
   QA_db_utilities::ResetQANotDone();
 }
-#=========================================================
-# list the current default references
-
-sub ShowDefaultReferences{
-  my $self = shift;
-  
-  CompareReport_utilities::ShowDefaultReferences();
-}
 
 #=========================================================
 # lets the users modify the default references
@@ -698,15 +695,9 @@ sub ChangeReference{
   # the default value of the text field
   my $oldKey = $gCGIquery->param('old_key');
 
+  
   CompareReport_utilities::ProcessReference("Change",$report_key,$dataType,$oldKey);
 
-}
-#==========================================================
-
-sub ShowUserReferences{
-  my $self = shift;
- 
-  CompareReport_utilities::ShowUserReferences();
 }
 
 #==========================================================
@@ -714,59 +705,9 @@ sub ShowUserReferences{
 sub SetUserReference{
   my $self = shift;
 
-  my $report_key = $self->ReportKey;
-
   my @reference_list = $gCGIquery->param('user_reference_list');
   
-  # make the objects in case they dont exist
-  QA_utilities::make_QA_objects(@reference_list);
-
-  my $seen;
-  foreach $key ( @reference_list ) {
-    if ($key eq $report_key){
-      $seen++; last;
-    }
-  }
-
-  my $string;
-  
-  if ($seen){
-    $string .= h3("Apparently this dataset has already been chosen ",
-		 "as a reference");
-  }
-  else{
-    my $label;
-    $gCGIquery->append(-name=>'user_reference_list',
-		       -values=>$report_key);
-
-    if ($gDataClass_object->DataClass =~ /offline/){
-      my $runID   = $QA_object_hash{$report_key}->LogReport->RunID;
-      my $fileSeq = $QA_object_hash{$report_key}->LogReport->FileSeq;
-
-      $label = "runID :$runID - file seq: $fileSeq";
-    }
-    else{
-      $label = $QA_object_hash{$report_key}->ProductionDirectory;
-				   
-    }
-    $string .= h3("Press this button to add <br>",
-		  "$label <br>",
-		  "to the user selected reference list\n");
-    
-    my $scriptName = $gCGIquery->script_name;
-    my $hidden     = $gBrowser_object->Hidden->Parameters;
-
-    $string .= $gCGIquery->startform(-action=>"$scriptName/upper_display", 
-				     -TARGET=>"list").
-               $gCGIquery->submit('Set as Reference'). 
-               $hidden .
-	       $gCGIquery->endform() ."\n";
-
-  }
-  print $string;
-
-  if ( scalar @reference_list ){
-    CompareReport_utilities::ShowUserReferences();
-  }
+  CompareReport_utilities::SetUserReference($self->ReportKey(),
+					    @reference_list);
 
 }

@@ -207,8 +207,6 @@ sub CompareMultipleReports{
 sub CompareToReference{
   my $self = shift;
 
-  
-
   $self->PrintHeader();      
 
   my @refKeys = $self->GetReferenceList();  # get the matching reference(s)
@@ -228,7 +226,6 @@ sub CompareToReference{
   my $script_name = $gCGIquery->script_name;
   $text = $gCGIquery->startform(-action=>"$script_name/lower_display", 
 				-TARGET=>"ScalarsAndTests"); 
-
   $text .= h3("Push the button for macro and multiplicity class");
 
   # multiplicity-macros buttons
@@ -239,6 +236,7 @@ sub CompareToReference{
   $text .= h3("Comparison datasets : ");
   
   # table of matched keys (reference reportkeys)
+  # 1 means all the boxes are checked by default
   $text .= $self->CompareKeysTable(1,@refKeys);
 
   $text .= $gBrowser_object->Hidden->Parameters;
@@ -388,65 +386,16 @@ sub CompareKeysTable{
 }
   
 #==========
-# sets the reference report key(s).
-# returns a perl ref to the reference report key(s)
+# returns both the default and all the user references
 
 sub GetReferenceList{
   my $self = shift;
 
-  my $refSet = $gCGIquery->param('Which reference set');
-  my (@userList, @defaultList, @refKeys);
   my $report_key = $self->ReportKey;
 
-  # first get the appropriate reference list according to 
-  # the reference set selected by the user.
-  # see InitialDisplay
-  if ($refSet eq 'User Selected' || $refSet eq 'Both'){
-    @userList = $gCGIquery->param('user_reference_list');
-  }
-  if ($refSet eq 'Default' || $refSet eq 'Both'){
-    
-    my $dataClass = $gDataClass_object->DataClass;
-    my $sub       = "Db_CompareReport_utilities::$dataClass";
+  my @defaultList = 
+    Db_CompareReport_utilities::GetMatchingDefaultReferences($report_key);
 
-    # arg=1 means we only want the report keys tagged as a reference dataset
-    @defaultList   = &$sub($report_key,1);
-  }
-
-  # return it
-  if ($refSet eq 'User Selected'){
-    
-    # if there's only one elt in the userList
-    # and this in fact matches the report key, get out.
-    if (scalar @userList == 1 && $userList[0] eq $self->ReportKey){
-      return;
-    }
-
-    print h3("Using user defined reference list");
-    return @userList;
-  }
-  elsif($refSet eq 'Default'){
-    
-    # check that if this report key is flagged as a reference.
-    # if so, the user must specify his/her own references
-    # for the comparisons to make sense.
-    
-    my $isReference = 
-      Db_CompareReport_utilities::IsReference($self->ReportKey);
-    
-    if ($isReference and !scalar @defaultList){
-      print h3("Note: this dataset has been flagged as a ",
-	       "reference dataset.\n",
-	       "To do comparisons, please go back and choose your own ",
-	       "references.<br>\n");
-      return;
-    }
-    print h3("Using the default reference list");
-    return @defaultList;
-  }
-  elsif($refSet eq 'Both'){
-    print h3("Using both the default and user defined reference list");
-    return (@defaultList, @userList);
-  }
+  return (@defaultList, $gCGIquery->param('user_reference_list'));
   
 }

@@ -50,32 +50,16 @@ sub reference_buttons{
   my $script_name   = $gCGIquery->script_name;
   my $hidden_string = $gBrowser_object->Hidden->Parameters;
 
-  my ($col1, $col2);
-
-  $col1  = $gCGIquery->startform(-action=>"$script_name/lower_display", 
-				  -TARGET=>"display");
-
-  $button  = Button_object->new("ShowDefaultReferences",
-				"Show default references");
-  $col1 .= $button->SubmitString();
-
-  $button  = Button_object->new("ShowUserReferences",
-				"Show user references");
-  $col1 .= $button->SubmitString();
-  
-  $col1 .= $hidden_string . $gCGIquery->endform();
-
-  $col2 .= $gCGIquery->startform(-action=>"$script_name/upper_display", 
-				 -TARGET=>"list");
-  
+  my $string .= $gCGIquery->startform(-action=>"$script_name/upper_display", 
+				 -TARGET=>"list");  
   # just a normal submit button.
   # see Hiddenobject_object for the deletion of param('user_reference_list')
-  $col2 .= $gCGIquery->submit("DeleteUserReferences", 
+  $string  .= $gCGIquery->submit("DeleteUserReferences", 
 			      "Delete user references");
   
-  $col2 .= $hidden_string . $gCGIquery->endform();
+  $string .= $hidden_string . $gCGIquery->endform();
   
-  return table({-align=>'center'},Tr( td([ $col1, $col2]) ));
+  return "<center> $string </center>";
 }
 #==========================================================
 # see Browser_object::StartingDisplay

@@ -323,7 +323,7 @@ sub GetOfflineKeys{
 		      $QAstatus_string
 		limit $selectLimit };
 
-  print $query if $gBrowser_object->ExpertPageFlag;
+#  print $query if $gBrowser_object->ExpertPageFlag;
 
   return GetReportKeys($query, $selectLimit);
 
@@ -488,7 +488,7 @@ sub GetNightlyKeys{
 		 limit $selectLimit };
   
   # for debugging
-  print $query if $gBrowser_object->ExpertPageFlag;
+#  print $query if $gBrowser_object->ExpertPageFlag;
 
   return GetReportKeys($query, $selectLimit);
 

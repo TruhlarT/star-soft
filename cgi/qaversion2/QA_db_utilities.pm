@@ -770,47 +770,6 @@ sub GetQAMacrosSummary{
   return $sth->fetchall_arrayref();
 }
 #----------
-# parse the dataset field for offline MC
-# format: [collision]/[eventGen]/[details]/[eventType]/[geometry]/[junk]
-#         e.g. auau200/venus412/default/b0_3/year_1b/hadronic_on
-
-sub ParseDatasetMC{
-  my $jobID = shift;
-
-  my $query = qq{ select dataset 
-		  from $dbFile.$FileCatalog
-		  where jobID = '$jobID'
-		  limit 1 };
-
-  # retrieve the dataset
-  my $dataset = $dbh->selectrow_array($query);
-  
-  my ($collisionType, $eventGen, $details, $eventType, $geometry, $junk)=
-    split /\//, $dataset, 6;
-
-  return ($collisionType, $eventGen, $details, $eventType, $geometry);
-  
-}
-#----------
-# parse the dataset field for offline real
-# format: [collisionType]/[geometry]/[eventType]
-
-sub ParseDatasetReal{
-  my $jobID = shift;
-
-  my $query = qq{ select dataset 
-		  from $dbFile.$FileCatalog
-		  where jobID = '$jobID'
-		  limit 1 };
-
-  # retrieve the dataset
-  my $dataset = $dbh->selectrow_array($query);
-
-  # collisionType, geometry, eventType
-  return split /\//, $dataset, 3;
-
-}
-#----------
 # 1. deletes the 'old' reports from the databasee
 # 2. returns the report keys so that we can delete it from disk
 

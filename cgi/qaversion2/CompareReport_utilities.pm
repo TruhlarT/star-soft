@@ -213,13 +213,10 @@ sub SetDefaultReferences{
 
   # get all the current references
 
-  my $dataClass = $gDataClass_object->DataClass();
-  my $sub       = "Db_CompareReport_utilities::GetReferences_$dataClass";
-  
   my %refHash; tie %refHash, "Tie::IxHash";
-  %refHash = &$sub;
+  %refHash = Db_CompareReport_utilities::GetAllDefaultReferences();
 
-  my @tableRows = th(['data type', 'report key']);
+  my @tableRows = th(['match criteria', 'report key']);
   # e.g. $datatype = "P00hg auau130_Halffield
   foreach my $datatype ( keys %refHash ){ 
     
@@ -238,59 +235,8 @@ sub SetDefaultReferences{
   print table({-align=>'center'}, Tr([@tableRows]) . "\n");
 
 }
-#========================================================
-sub ShowDefaultReferences{
- 
-  print h3("Default references:\n");
-  # get all the current references
 
-  my $dataClass = $gDataClass_object->DataClass();
-  my $sub       = "Db_CompareReport_utilities::GetReferences_$dataClass";
-  
-  my %refHash; tie %refHash, "Tie::IxHash";
-  %refHash = &$sub;
-
-  my (@tableRows,$count, @header, @label);
-
-  if ($dataClass =~ /nightly/){
-    @header = "report key";
-  }
-  elsif ($dataClass =~ /offline/){
-    @header = ("runID", "file seq");
-  }
-  
-  @tableRows = th( [ 'data type', @header ] );		      
-
-  # e.g. $datatype = "P00hg auau130_Halffield
-  foreach my $datatype ( keys %refHash ){    
-    foreach my $reference ( @{$refHash{$datatype}} ) { 
-      $count++;
-      if ($dataClass =~ /offline/){
-	# get the jobID associated with the report key
-	my $jobID = QA_db_utilities::GetFromQASum($QASum{jobID},$reference);
-
-	# get the run ID and file seq matching this jobID
-	@label =
-	  QA_db_utilities::GetFromFileCatalog(['runID','fileSeq'],$jobID);
-      }
-      elsif ($dataClass =~ /nightly/){
-	@label = ($reference);
-      }
-
-      @label = map {font({-color=>'blue'},$_) } @label;
-      push @tableRows, td( [ $datatype, @label ] );
-
-    }
-  }	      
-  
-  if ($count){
-    print table({-align=>'center'}, Tr([@tableRows]) . "\n");
-  }
-  else{
-    print h3("None");
-  }
-} 
-#========================================================
+#----------
 sub AddRefRow{
   my $default   = shift || 'NULL'; # usually the report key
   my $datatype  = shift;
@@ -310,18 +256,19 @@ sub AddRefRow{
 				    -maxlength=>100);
   
   # e.g. the button name is "AddReference$dataType"
-  my $addButton = Button_object->new("AddReference","Add Ref","",$datatype);
-  my $addSubmit = $addButton->SubmitString();
-  my $delButton = Button_object->new("DeleteReference",
-				     "Delete Ref","",$datatype);
-  my $delSubmit = $delButton->SubmitString();
+  my $addButton    = Button_object->new("AddReference",
+					"Add Ref","",$datatype);
+  my $addSubmit    = $addButton->SubmitString();
+  my $delButton    = Button_object->new("DeleteReference",
+					"Delete Ref","",$datatype);
+  my $delSubmit    = $delButton->SubmitString();
   my $changeButton = Button_object->new("ChangeReference",
 					"Change Ref","",$datatype);
   my $changeSubmit = $changeButton->SubmitString();
 
-  # pass on the default report key as a hidden parameter
+  # pass on the default report key as a parameter
   if ($default ne 'NULL') {
-    $gCGIquery->hidden('old_key',$default);
+    $gCGIquery->param('old_key',$default);
   }
   
   my $row = $startform .
@@ -333,20 +280,18 @@ sub AddRefRow{
   return @tableRows;
 
 }
-#===================================================================
+#----------
 # to modify the default references via the web
 
 sub ProcessReference{
   my $command    = shift; # Add, Delete, Change
   my $report_key = shift;
-  my $dataType   = shift;
+  my $matchString= shift;
   my $oldKey     = shift;
 
   # check that this report key is in fact associated with the datatype
 
-  my $dataClass = $gDataClass_object->DataClass();
-  my $sub       = "Db_CompareReport_utilities::ReferenceOk_$dataClass";
-  my $isOk      = &$sub($report_key, $dataType);
+  my $isOk = Db_CompareReport_utilities::ReferenceOk($report_key, $matchString);
 
   my $refsub;
 
@@ -364,38 +309,167 @@ sub ProcessReference{
     if (!$rows){
       print h2("<font color=red>Uh oh, couldn't $command $report_key.</font>");
     }
+    elsif($command eq 'Change'){
+      print h2("${command} from $oldKey to $report_key done");
+    }
     else{
       print h2("${command} $report_key done.");
     }
   }
   else{
     print h2("Apparently the report key $report_key ", 
-	     "does not correspond to $dataType.<br>",
+	     "does not correspond to $matchString.<br>",
 	     "Maybe qa hasn't been done.  Try again\n");
     return;
   } 
 }
-#===================================================================
+#----------
+sub ShowDefaultReferences{
+ 
+  print h4("Default references matching this query:\n");
+  # get all the current references
+
+  my %refHash; tie %refHash, "Tie::IxHash";
+  %refHash = Db_CompareReport_utilities::GetDefaultReferencesByQuery();
+
+  my (@tableRows,$count, @header, @label);
+
+  my $dataClass = $gDataClass_object->DataClass();
+
+  if ($dataClass =~ /nightly/){
+    @header = "report key";
+  }
+  elsif ($dataClass =~ /offline/){
+    @header = ("runID", "file seq");
+  }
+  
+  @tableRows = th( [ 'matching criteria', @header ] );		      
+
+  # e.g. $matchValues = "P00hg auau130_Halffield
+  foreach my $matchValues ( keys %refHash ){    
+    foreach my $reference ( @{$refHash{$matchValues}} ) { 
+      $count++;
+      if ($dataClass =~ /offline/){
+	# get the jobID associated with the report key
+	my $jobID = QA_db_utilities::GetFromQASum($QASum{jobID},$reference);
+
+	# get the run ID and file seq matching this jobID
+	@label =
+	  QA_db_utilities::GetFromFileCatalog(['runID','fileSeq'],$jobID);
+      }
+      elsif ($dataClass =~ /nightly/){
+	@label = ($reference);
+      }
+
+      @label = map {font({-color=>'blue'},$_) } @label;
+      push @tableRows, td( [ $matchValues, @label ] );
+
+    }
+  }	      
+  
+  if ($count){
+    print table({-align=>'center',-border=>0}, 
+		Tr([@tableRows]) . "\n");
+  }
+  else{
+    print h4("None");
+  }
+} 
+#----------
+# user references list upon select datasets.
+
 sub ShowUserReferences{
   
   my @reference_list = $gCGIquery->param('user_reference_list');
 
-  print h3("Current user selected references : \n");
+  print h4("User selected references : \n");
 
   unless( scalar @reference_list ){
-    print h2("None");
+    print h4("None");
     return;
   }
+  # this sets the Db_CompareReport_utilities globals.
+  # probably need to move this into DataClass_object
+  Db_CompareReport_utilities::Controller();
+
+  my @tableRows;
+  my $dataClass = $gDataClass_object->DataClass();
+
+  foreach my $report_key (@reference_list){
+    my $jobID = QA_db_utilities::GetFromQASum('jobID',$report_key);
+  
+    # get the match values
+    my @matchValues = Db_CompareReport_utilities::GetMatchValues($jobID);
+
+    my @label;
+    if ($dataClass =~ /offline/){
+      
+      # get the run ID and file seq matching this jobID
+      @label =
+	QA_db_utilities::GetFromFileCatalog(['runID','fileSeq'],$jobID);
+    }
+    elsif ($dataClass =~ /nightly/){
+      @label = ($report_key);
+    }
+  
+    @label = map {font({-color=>'blue'},$_) } @label;
+    push @tableRows, td( [ "@matchValues", @label ] );
+  }
+  print table({-border=>0,-align=>'center'},
+	      Tr([ @tableRows ]));
+
+}
+#----------
+
+sub SetUserReference{
+  my $report_key = shift;
+  my @reference_list = @_;
 
   # make the objects in case they dont exist
   QA_utilities::make_QA_objects(@reference_list);
 
-  my $count=0;
-  my @rows = 
-    map { td([ ++$count, $QA_object_hash{$_}->DataDisplayString()]) } 
-       @reference_list;
-  
-  print table({-border=>'1',-align=>'center'},
-	      Tr({-align=>'left'},[ @rows ]));
+  my ($seen, $string);
+  foreach my $key ( @reference_list ) {
+    if ($key eq $report_key){
+      $seen++; last;
+    }
+  }
+  if ($seen){
+    $string .= h3("Apparently this dataset has already been chosen ",
+		 "as a reference");
+  }
+  else{
+    my $label;
+    $gCGIquery->append(-name=>'user_reference_list',
+		       -values=>$report_key);
 
+    if ($gDataClass_object->DataClass =~ /offline/){
+      my $runID   = $QA_object_hash{$report_key}->LogReport->RunID;
+      my $fileSeq = $QA_object_hash{$report_key}->LogReport->FileSeq;
+
+      $label = "runID :$runID - file seq: $fileSeq";
+    }
+    else{
+      $label = $QA_object_hash{$report_key}->ProductionDirectory;
+      $label .= " ($report_key) ";
+				   
+    }
+    $string .= h3("Press this button to add <br>",
+		  "$label <br>",
+		  "to the user selected reference list\n");
+    
+    my $scriptName = $gCGIquery->script_name;
+
+    $string .= $gCGIquery->startform(-action=>"$scriptName/upper_display", 
+				     -TARGET=>"list").
+               $gCGIquery->submit('Set as Reference'). 
+               $gBrowser_object->Hidden->Parameters .
+	       $gCGIquery->endform() ."\n";
+
+  }
+  print $string;
+
+  if ( scalar @reference_list ){
+    CompareReport_utilities::ShowUserReferences();
+  }
 }

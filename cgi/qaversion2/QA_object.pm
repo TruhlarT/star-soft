@@ -496,7 +496,7 @@ sub ButtonString{
 
   # compare similar reports
   if ( $self->QADone eq 'Y' ){
-    $button_ref = Button_object->new('SetupCompareReport', 
+    $button_ref = Button_object->new('DoCompareToReference', 
 				     'Compare to reference', $report_key);
     $button_string .= $button_ref->SubmitString . br;
     $button_ref = Button_object->new('SetUserReference', 
