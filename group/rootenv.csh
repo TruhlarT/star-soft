@@ -19,6 +19,7 @@
 
 #   set path = ($ROOTSYS/bin $path)
   setenv PATH "${PATH}:${ROOTSYS}/bin"
+  setenv MANPATH "${MANPATH}:/afs/rhic/star/ROOT/${ROOT_LEVEL}/man"
 # On Solaris, Linux, SGI, Alpha/OSF do:
   set MACHINE = `uname -s`
   
