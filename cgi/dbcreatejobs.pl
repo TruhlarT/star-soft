@@ -1,19 +1,4 @@
 #! /opt/star/bin/perl -w
-#
-# $Id:
-#
-# $Log:
-#
-#
-######################################################################
-#
-# Script for automated creation of jobfiles for production using
-# db "operation"
-# this version to get default set of output files *dst.root, *dst.xdf,
-# *hist.xdf, *event.root
-#
-########################################################################
-
 
 use Class::Struct;
 use CGI;
@@ -26,7 +11,7 @@ use CGI;
 
 
 ###Set directories to be created for jobfiles
-my $DISK1        = "/disk00001";
+my $DISK1        = "/star/rcf/disk00001";
 my $TOPHPSS_SINK =  "/home/starsink/raw";
 my $TOPHPSS_RECO =  "/home/starreco/reco";
 my $JOB_LOG      =  $DISK1 . "/star/prod4/log";
@@ -99,9 +84,6 @@ exit();
 
  $job_set = $Jset;
  $job_set =~ s/\//_/g;
- if($job_set =~ /auau200/) {
-      $job_set =~ s/auau200_//g;
- }
 
 # print $job_set, "\n";
  

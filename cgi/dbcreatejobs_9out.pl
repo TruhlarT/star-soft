@@ -25,7 +25,7 @@ use CGI;
 
 
 ###Set directories to be created for jobfiles
-my $DISK1        = "/disk00001";
+my $DISK1        = "/star/rcf/disk00001";
 my $TOPHPSS_SINK =  "/home/starsink/raw";
 my $TOPHPSS_RECO =  "/home/starreco/reco";
 my $JOB_LOG      =  $DISK1 . "/star/prod4/log";
