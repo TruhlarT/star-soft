@@ -1,5 +1,5 @@
-#!/usr/bin/csh -f
-#       $Id: group_env.csh,v 1.134 2003/02/25 03:30:21 jeromel Exp $
+#!/bin/csh -f
+#       $Id: group_env.csh,v 1.135 2003/03/05 21:15:32 jeromel Exp $
 #	Purpose:	STAR group csh setup
 #
 #	Author:		Y.Fisyak     BNL
