@@ -2,7 +2,7 @@
 %
 % StEvent - User Guide and Reference Manual -- LaTeX Source
 %
-% $Id: StEvent.tex,v 2.39 2000/06/21 22:55:42 ullrich Exp $
+% $Id: StEvent.tex,v 2.40 2000/06/22 18:18:33 ullrich Exp $
 %
 % Author: Thomas Ullrich, Nov 1999
 %
@@ -21,8 +21,11 @@
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %
 % $Log: StEvent.tex,v $
-% Revision 2.39  2000/06/21 22:55:42  ullrich
-% Added StEventInfo to ref section. Updated StEvent.
+% Revision 2.40  2000/06/22 18:18:33  ullrich
+% Fixed problem with page numbering. Increased textheight.
+%
+% Revision 2.47  2000/09/28 10:58:43  ullrich
+% Added ref section for new RICH classes.
 %
 % Revision 2.46  2000/09/06 22:30:57  ullrich
 % Changes to StEvent and StEventInfo.
@@ -101,6 +104,7 @@
 % Revision 2.20  2000/02/24 13:25:12  ullrich
 % Added RICH and EMC to the reference section. Created
 % (empty) section for EMC and RICH in User Guide.
+%
 % Revision 2.19  2000/02/17 18:16:18  ullrich
 % Add documentation of new SVT hit storage layout.
 %
@@ -172,7 +176,7 @@
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 \newcommand{\entrylabel}[1]{\mbox{\textbf{{#1}}}\hfil}%
 \newenvironment{entry}
-\vspace*{-35mm}
+{\begin{list}{}%
     {\renewcommand{\makelabel}{\entrylabel}%
      \setlength{\labelwidth}{90pt}%
      \setlength{\leftmargin}{\labelwidth}
@@ -180,17 +184,17 @@
       }%
     }%
   {\end{list}}
-  {\LARGE $ $Revision: 2.39 $ $}  \\[5mm] % replaced by cvs with current revision
-  {\LARGE $ $Date: 2000/06/21 22:55:42 $ $}  % replaced by cvs with current revision
+
+\newcommand{\Entrylabel}[1]%
 {\raisebox{0pt}[1ex][0pt]{\makebox[\labelwidth][l]%
     {\parbox[t]{\labelwidth}{\hspace{0pt}\textbf{{#1}}}}}}
 \newenvironment{Entry}%
 {\renewcommand{\entrylabel}{\Entrylabel}\begin{entry}}%
-  {\LARGE $ $Revision: 2.39 $ $}  \\[5mm] % replaced by cvs with current revision
-  {\LARGE $ $Date: 2000/06/21 22:55:42 $ $}  % replaced by cvs with current revision
+  {\LARGE $ $Revision: 2.40 $ $}  \\[5mm] % replaced by cvs with current revision
+  {\LARGE $ $Date: 2000/06/22 18:18:33 $ $}  % replaced by cvs with current revision
 \begin{document}
-  {\LARGE $ $Revision: 2.39 $ $}  \\[5mm] % replaced by cvs with current revision
-  {\LARGE $ $Date: 2000/06/21 22:55:42 $ $}  % replaced by cvs with current revision
+  {\LARGE $ $Revision: 2.40 $ $}  \\[5mm] % replaced by cvs with current revision
+  {\LARGE $ $Date: 2000/06/22 18:18:33 $ $}  % replaced by cvs with current revision
 %
 %    Title page
 %
@@ -205,8 +209,8 @@
   \mbox{\includegraphics[width=\textwidth]{StEventTitle.eps}}
   \hfill\mbox{}\\[3cm]
   {\LARGE User Guide and Reference Manual \\[5mm] for Version 2}\\[2cm]
-  {\LARGE $ $Revision: 2.39 $ $}  \\[5mm] % replaced by cvs with current revision
-  {\LARGE $ $Date: 2000/06/21 22:55:42 $ $}  % replaced by cvs with current revision
+  {\LARGE $ $Revision: 2.40 $ $}  \\[5mm] % replaced by cvs with current revision
+  {\LARGE $ $Date: 2000/06/22 18:18:33 $ $}  % replaced by cvs with current revision
   \vfill
 \end{center}
 \cleardoublepage
@@ -246,7 +250,6 @@ Version 2 of \StEvent\ contains significant changes as compared to the
 previous versions. Part of the changes were made to cope with the
 modification of the DST format in Fall of 1999, others were made to
 overcome shortcomings in the previous implementation. This version is
-\pagenumbering{arabic}
 also more flexible in terms of extendibility to allow future track and
 vertex models to be incorporated easily.  The current implementation
 is also meant to be used further upstream of the analysis, i.e. in the
