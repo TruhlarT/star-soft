@@ -133,10 +133,20 @@ sub get_QA_objects{
 
     @logfile_list = ();
     
-    foreach $dir ( @topdir_data){
-      find( \&get_logfiles, $dir );
+    # bum, toggle -  we only want the logfiles which corresponds
+    # to the current directory.  if debug, look in dev.
+
+    switch:{
+      $dir = $topdir_data[0] and last if $topdir eq $topdir_dev;
+      $dir = $topdir_data[1] and last if $topdir eq $topdir_new;
+      $dir = $topdir_data[2] and last if $topdir eq $topdir_cosmics;
+      $dir = $topdir_data[0] and last if $topdir eq $topdir_debug;
+      print "<h3>Can't find $topdir in updating </h3>\n";
     }
-    
+   
+    find( \&get_logfiles, $dir );
+
+    #------------------------------------------------
     $dir_list_update_ref = get_update_dirs(@logfile_list);
     @dir_list_update = @$dir_list_update_ref;
 
@@ -183,6 +193,9 @@ sub submit_batchjob {
 
   $action = shift;
   @_ and @key_list = @_;
+
+  #bum. toggle - $topdir is passed into QA_main_batch to set directories 
+  my $topdir = $query->param('topdir') || $topdir_default;
 
   #-----------------------------------------------------------------------
   # set random seed for unique file ID
@@ -234,13 +247,14 @@ sub submit_batchjob {
   print BATCHSCRIPT "#! /usr/local/bin/tcsh \n",
   "setenv GROUP_DIR /afs/rhic/rhstar/group \n",
   "setenv CERN_ROOT /cern/pro \n",
-  "setenv HOME /star/u2/jacobs \n",
+  "setenv HOME /star/u2e/starqa \n",
   "setenv SILENT 1 \n",
   "source /afs/rhic/rhstar/group/.stardev \n";
 
   print BATCHSCRIPT 
     "echo \"Starting perl script...<br>\" >& $output_filename \n",
-    "/opt/star/bin/perl -I$now $program $report_filename >>& $output_filename \n",
+    # bum, toggle - main_batch needs $topdir 
+    "/opt/star/bin/perl -I$now $program $report_filename $topdir >>& $output_filename \n",
     "echo \"Moving files...\" >>& $output_filename \n",
     "\\mv $batchscript_filename $done_dir \n",
     "\\mv $report_filename $done_dir \n",
@@ -311,6 +325,9 @@ sub get_update_dirs{
 
   @dir_list_update = ();
 
+  # bum, toggle
+  my $count=1;
+
   foreach $logfile (@logfile_list){
 
     # already catalogued?
@@ -346,7 +363,9 @@ sub get_update_dirs{
     }
 
     if($job_done){
-      push @dir_list_update, dirname($logfile)."/";
+      push @dir_list_update, dirname($logfile)."/"; $count++;
+      # bum, toggle
+      last if ($topdir eq $topdir_debug and $count>1);     
     }
     else{
       print "<font color = red> New logfile found: $logfile; ",
@@ -410,15 +429,15 @@ sub hidden_field_string{
   @_ and my $arg = shift;
   
   #-----------------------------------------------------------------
-  
+  # bum, toggle -- added 'topdir', 
   $string = $query->hidden('selected_key_string').
     $query->hidden('dataset_array_previous').
       $query->hidden('selected_key_list').
 	$query->hidden('expert_pw').
 	  $query->hidden('display_env_var').
 	    $query->hidden('enable_add_edit_comments').
-	      $query->hidden('save_object_hash_scratch_file');
-  
+	      $query->hidden('save_object_hash_scratch_file').
+		$query->hidden('topdir');
   #------------------------------------------------------------  
   # store persistent hashes if this hasn't been done since script was
   # invoked or a new object has been created
@@ -622,7 +641,7 @@ sub run_DSV{
   "setenv GROUP_DIR /afs/rhic/rhstar/group\n",
   "setenv CERN /cern\n",
   "setenv CERN_ROOT /cern/pro\n",
-  "setenv HOME /star/u2/jacobs\n",
+  "setenv HOME /star/u2e/starqa\n",
   "setenv DISPLAY $DISPLAY\n",
   "source /afs/rhic/rhstar/group/.stardev\n",
   "setenv DSV_DIR /afs/rhic/star/tpc/dsv\n",
@@ -923,3 +942,97 @@ sub message_time_to_epochsec{
   
   return $etime;
 }
+#===========================================================================
+#   bum, toggle - set global directories - called in QA_main, QA_main_batch
+#===========================================================================
+# dont forget to modify the popup menu in QA_main if adding more dirs
+
+sub set_directories{  
+  my $topdir = shift;
+  
+  my %switch = ($topdir_dev      => \&dev,
+		$topdir_new      => \&new,
+		$topdir_cosmics  => \&cosmics,
+                $topdir_debug    => \&debug);
+  $switch{$topdir}->();
+}
+#===================================================================
+# bum, toggle -called in set_directories above.  
+# these actually do the resetting
+sub dev{
+  $topdir            = $topdir_dev;
+  $topdir_report     = $topdir_report_dev;
+  $topdir_report_WWW = $topdir_report_WWW_dev;
+  $batch_dir         = $batch_dir_dev;
+  $batch_dir_WWW     = $batch_dir_WWW_dev;
+  $control_dir       = $control_dir_dev;
+  $control_dir_WWW   = $control_dir_WWW_dev;
+  $update_dir        = $update_dir_dev;
+  $scratch           = $scratch_dev;
+  $cron_dir          = $cron_dir_dev;
+  $backup_dir        = $backup_dir_dev;
+  $compare_dir       = $compare_dir_dev;
+}
+#-------------------------------------------------------------------
+sub new{
+  $topdir            = $topdir_new;
+  $topdir_report     = $topdir_report_new;
+  $topdir_report_WWW = $topdir_report_WWW_new;
+  $batch_dir         = $batch_dir_new;
+  $batch_dir_WWW     = $batch_dir_WWW_new;
+  $control_dir       = $control_dir_new;
+  $control_dir_WWW   = $control_dir_WWW_new;
+  $update_dir        = $update_dir_new;
+  $scratch           = $scratch_new;
+  $cron_dir          = $cron_dir_new;
+  $backup_dir        = $backup_dir_new;
+  $compare_dir       = $compare_dir_new;
+}
+#-------------------------------------------------------------------
+sub cosmics{
+  $topdir            = $topdir_cosmics;
+  $topdir_report     = $topdir_report_cosmics;
+  $topdir_report_WWW = $topdir_report_WWW_cosmics;
+  $batch_dir         = $batch_dir_cosmics;
+  $batch_dir_WWW     = $batch_dir_WWW_cosmics;
+  $control_dir       = $control_dir_cosmics;
+  $control_dir_WWW   = $control_dir_WWW_cosmics;
+  $update_dir        = $update_dir_cosmics;
+  $scratch           = $scratch_cosmics;
+  $cron_dir          = $cron_dir_cosmics;
+  $backup_dir        = $backup_dir_cosmics;
+  $compare_dir       = $compare_dir_cosmics;
+}
+#--------------------------------------------------------------------
+sub test{
+  $topdir            = $topdir_test;
+  $topdir_report     = $topdir_report_test;
+  $topdir_report_WWW = $topdir_report_WWW_test;
+  $batch_dir         = $batch_dir_test;
+  $batch_dir_WWW     = $batch_dir_WWW_test;
+  $control_dir       = $control_dir_test;
+  $control_dir_WWW   = $control_dir_WWW_test;
+  $update_dir        = $update_dir_test;
+  $scratch           = $scratch_test;
+  $cron_dir          = $cron_dir_test;
+  $backup_dir        = $backup_dir_test;
+  $compare_dir       = $compare_dir_test;
+}
+#-------------------------------------------------------------------
+sub debug{
+  $topdir            = $topdir_debug;
+  $topdir_report     = $topdir_report_debug;
+  $topdir_report_WWW = $topdir_report_WWW_debug;
+  $batch_dir         = $batch_dir_debug;
+  $batch_dir_WWW     = $batch_dir_WWW_debug;
+  $control_dir       = $control_dir_debug;
+  $control_dir_WWW   = $control_dir_WWW_debug;
+  $update_dir        = $update_dir_debug;
+  $scratch           = $scratch_debug;
+  $cron_dir          = $cron_dir_debug;
+  $backup_dir        = $backup_dir_debug;
+  $compare_dir       = $compare_dir_debug;
+}
+
+
+  

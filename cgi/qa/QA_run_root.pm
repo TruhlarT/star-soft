@@ -38,8 +38,7 @@ sub run_root{
   print SCRIPT "#! /usr/local/bin/tcsh\n",
   "setenv GROUP_DIR /afs/rhic/rhstar/group\n",
   "setenv CERN_ROOT /cern/pro\n",
-  "setenv HOME /star/u2/jacobs\n";
-
+  "setenv HOME /star/u2e/starqa\n";
 #---
 
 # pmj 9/2/00: There is currently a problem setting any environment other than 

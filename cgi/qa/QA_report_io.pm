@@ -563,7 +563,7 @@ sub do_report_comparison {
   #---------------------------------------------------------
   # make ascii report - cheap version 
 
-  $filename_ascii = "/star/data1/jacobs/qa/compare_runs/$report_key";
+  $filename_ascii = "$compare_dir/$report_key";
 
   print "<h4> (Ascii version of this page written to $filename_ascii) </h4> \n";
 

@@ -86,6 +86,13 @@ else
     $path_info = 'batch';
 #    $query->param("$cron_job", 1);
   }
+#---bum, toggle - initialize directories  ----------------
+$topdir = $query->param('topdir') || $topdir_default;
+QA_utilities::set_directories($topdir);
+
+#delete to create new QA_objects when switching directories
+$query->delete('save_object_hash_scratch_file')
+  if defined $query->param('Switch directory');
 #--------------------------------------------------------
 &QA_utilities::cleanup_topdir;
 
@@ -304,10 +311,16 @@ sub starting_display {
   #-----------------------------------------------------------
 
   @table_rows = (); 
+  #bum, toggle
+  my $toggle_string = popup_directory();
+  my $name = basename($topdir);
+  print $query->h3({-color=>'red'}, "You are in $name") ;
+  #-----------------------------------------------------------
   push( @table_rows, td( [$select_data_string, $comment_string, $expert_page_string, 
 			  $action_string ] ) );
 
-  print table( {-width=>'100%', -valign=>'top', -align=>'center'}, Tr(\@table_rows));
+  print table( {-width=>'100%', -valign=>'top', -align=>'center'},
+	       Tr(\@table_rows), td([$toggle_string]));
 
   my $string = &QA_utilities::hidden_field_string;
   print "$string";
@@ -753,4 +766,28 @@ sub sort_time_msg{
 
   return $time;
 
+}
+#================bum, toggle========================================
+#================popup menu to switch directories==================
+sub popup_directory{
+  my @dir_values = ($topdir_dev,
+	            $topdir_new,
+		    $topdir_cosmics,
+		    $topdir_debug);
+  my %dir_labels = ($topdir_dev     =>'dev',
+	  	    $topdir_new     =>'new',
+		    $topdir_cosmics =>'cosmics',
+		    $topdir_debug   =>'debug');
+  my $hidden_string = &QA_utilities::hidden_field_string('DontWriteFile');
+  
+  my $toggle_string = "<h3>Switch directory</h3>".
+    $query->startform(-action=>"$script_name/upper_display", -TARGET=>"list").
+    $query->popup_menu(-name=>'topdir',
+			 -values=>\@dir_values,
+			 -default=>$dir_values[0],
+			 -labels=>\%dir_labels).
+    $query->submit('Switch directory').$hidden_string.
+    $query->endform;
+  
+  return $toggle_string;
 }

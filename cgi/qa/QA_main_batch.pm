@@ -30,6 +30,10 @@ use QA_report_io;
 
 $report_key_filename = shift;
 
+#bum, toggle - set directories - 
+$topdir = shift;
+QA_utilities::set_directories($topdir);
+
 #get rid of potential white space
 $report_key_filename =~ s/\s+//;
 #-----------------------------------------------------------------------------
@@ -44,9 +48,14 @@ ACTION: {
   # update and do QA on everything
 
   $action eq 'update_and_qa' and do{
-    QA_utilities::get_QA_objects('update');
-    foreach $report_key (keys %QA_object_hash){
-      $QA_object_hash{$report_key}->DoQA('no_tables');
+    #bum,toggle - loop over topdirs - @topdir_array is a global
+    #set directories as well
+    foreach $topdir (@topdir_array){
+      QA_utilities::set_directories($topdir);
+      QA_utilities::get_QA_objects('update');
+      foreach $report_key (keys %QA_object_hash){
+	$QA_object_hash{$report_key}->DoQA('no_tables');
+      }
     }
     last ACTION;
   };
