@@ -1,7 +1,10 @@
 #!/usr/bin/csh -f
-#       $Id: group_env.csh,v 1.20 1998/06/30 14:37:22 didenko Exp $
+#       $Id: group_env.csh,v 1.21 1998/07/01 23:28:08 fisyak Exp $
 #	Purpose:	STAR group csh setup 
 #       $Log: group_env.csh,v $
+#       Revision 1.21  1998/07/01 23:28:08  fisyak
+#       Add non debug version
+#
 #       Revision 1.20  1998/06/30 14:37:22  didenko
 #       Add hp
 #
@@ -85,7 +88,11 @@ setenv STAR_MGR $STAR/mgr
 source ${GROUP_DIR}/STAR_SYS; 
 setenv STAF_LIB  $STAR/asps/../.${STAR_HOST_SYS}/lib  ; if ($ECHO) echo   "Setting up STAF_LIB  = ${STAF_LIB}"
 if ($STAR_LEVEL == "dev" || $STAR_LEVEL == "new") then
+if ($?NODEBUG == 0) then
 setenv STAR_LIB  $STAR/.${STAR_HOST_SYS}/lib; if ($ECHO) echo   "Setting up STAR_LIB  = ${STAR_LIB}"
+else
+setenv STAR_LIB  $STAR/.${STAR_HOST_SYS}/nodeb; if ($ECHO) echo   "Setting up STAR_LIB  = ${STAR_LIB}"
+endif
 setenv STAR_BIN  $STAR/asps/../.${STAR_HOST_SYS}/bin  ; if ($ECHO) echo   "Setting up STAR_BIN  = ${STAR_BIN}"
 else   
 setenv STAR_LIB  $STAR/lib/${STAR_HOST_SYS}; if ($ECHO) echo   "Setting up STAR_LIB  = ${STAR_LIB}"
@@ -252,6 +259,7 @@ endsw
   setenv MANPATH `/afs/rhic/star/group/dropit -p ${MANPATH}`
   setenv PATH `/afs/rhic/star/group/dropit -p ${PATH} GROUPPATH`
 endif
+if ($ECHO) echo "STAR setup on" `hostname` "by" `date` " has been completed"
 unset ECHO
 set date="`date`"
 cat >> $GROUP_DIR/statistics/star${STAR_LEVEL} << EOD
