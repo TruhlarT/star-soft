@@ -1,6 +1,6 @@
 /***************************************************************************
  *
- * $Id: StPidAmpChannelCollection.hh,v 1.1 2000/03/09 17:48:35 aihong Exp $
+ * $Id: StPidAmpChannelCollection.hh,v 1.1.1.1 2000/03/09 17:48:35 aihong Exp $
  *
  * Author: Aihong Tang & Richard Witt (FORTRAN Version),Kent State U.
  *         Send questions to aihong@cnr.physics.kent.edu
@@ -14,8 +14,8 @@
  ***************************************************************************
  *
  * $Log: StPidAmpChannelCollection.hh,v $
- * Revision 1.1  2000/03/09 17:48:35  aihong
- * Initial revision
+ * Revision 1.1.1.1  2000/03/09 17:48:35  aihong
+ * Installation of package
  *
  **************************************************************************/
 

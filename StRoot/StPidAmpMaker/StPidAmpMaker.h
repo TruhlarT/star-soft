@@ -1,6 +1,6 @@
 /***************************************************************************
  *
- * $Id: StPidAmpMaker.h,v 1.1 2000/03/09 17:48:34 aihong Exp $
+ * $Id: StPidAmpMaker.h,v 1.1.1.1 2000/03/09 17:48:34 aihong Exp $
  *
  * Author: Aihong Tang & Richard Witt (FORTRAN Version),Kent State U.
  *         Send questions to aihong@cnr.physics.kent.edu
@@ -11,8 +11,8 @@
  ***************************************************************************
  *
  * $Log: StPidAmpMaker.h,v $
- * Revision 1.1  2000/03/09 17:48:34  aihong
- * Initial revision
+ * Revision 1.1.1.1  2000/03/09 17:48:34  aihong
+ * Installation of package
  *
  **************************************************************************/
 
@@ -60,7 +60,7 @@ public:
     void AddPtNHitsChannelCollection(Int_t n, Int_t* nhitsAry,Int_t p, Double_t* ptAry,TString fitOpt="BAR", TString drawOpt="B");
   
     virtual const char *GetCVS() const
-    {static const char cvs[]="Tag $Name:  $ $Id: StPidAmpMaker.h,v 1.1 2000/03/09 17:48:34 aihong Exp $ built "__DATE__" "__TIME__ ; return cvs;}
+    {static const char cvs[]="Tag $Name:  $ $Id: StPidAmpMaker.h,v 1.1.1.1 2000/03/09 17:48:34 aihong Exp $ built "__DATE__" "__TIME__ ; return cvs;}
     
 private:
 

@@ -1,6 +1,6 @@
 /***************************************************************************
  *
- * $Id: StPidAmpNetOut.cxx,v 1.1 2000/03/09 17:48:33 aihong Exp $
+ * $Id: StPidAmpNetOut.cxx,v 1.1.1.1 2000/03/09 17:48:33 aihong Exp $
  *
  * Author: Aihong Tang & Richard Witt (FORTRAN Version),Kent State U.
  *         Send questions to aihong@cnr.physics.kent.edu
@@ -17,8 +17,8 @@
  ***************************************************************************
  *
  * $Log: StPidAmpNetOut.cxx,v $
- * Revision 1.1  2000/03/09 17:48:33  aihong
- * Initial revision
+ * Revision 1.1.1.1  2000/03/09 17:48:33  aihong
+ * Installation of package
  *
  **************************************************************************/
 
