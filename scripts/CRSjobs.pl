@@ -298,19 +298,19 @@ my $today;
 
 ($sec,$min,$hour,$mday,$mon) = localtime;
 
-my $year = "2002";
+my $year = "2003";
    $mon++;
 if( $mon < 10) { $mon = '0'.$mon };
 if( $mday < 10) { $mday = '0'.$mday };
 
  $thisday = $year."-".$mon."-".$mday; 
  $today = $thisday;
-
-#print "Time stamp  ", $thisday, "\n";
-
+ print $thisday, "\n";
 $outname = "mail" . "_" .$thisday . "_" . "out";
  
  $outfile = "/star/u/starreco/" . $outname;
+
+ print $outfile, "\n";
 
 open (MAILFILE, $outfile ) or die "cannot open $outfile: $!\n";
 
