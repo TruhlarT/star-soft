@@ -213,9 +213,15 @@ if( $NUMEVT <= 0){ $NUMEVT = 10000;}
 # Simplify library version change (commodity)
 if($LIBRARY =~ m/dev/i || $LIBRARY =~ m/new/i ||
    $LIBRARY =~ m/pro/i || $LIBRARY =~ m/old/i){
-   $CHVER = "star".lc($LIBRARY);
+    $CHVER = "star".lc($LIBRARY);
+} elsif ($LIBRARY =~ m/cal/i){
+    # Special calibration area where tests would be run
+    # before code gets commited. 
+    $CHVER  = "stardev\n";
+    $CHVER .= "ln -s \$STAR_PATH/cal/.\@sys ./.\$STAR_SYS";
+    $LIBRARY= "dev (cal)";
 } else {
-   $CHVER = "starver $LIBRARY";
+    $CHVER = "starver $LIBRARY";
 }
 if($INPUTFILE eq ""){
     print STDERR "$PRGM :: Error: no input file specified\n";
@@ -542,7 +548,7 @@ sub List
     for($i=0 ; $i < 45 ; $i++){ print "-=";}
     print "\n";
     print "$PRGM :: Info: $smess\n" if ( defined($smess) );
-    print `ls -l`;
+    print `ls -al`;
     print "$PRGM :: Info: $emess\n" if ( defined($emess) );
     for($i=0 ; $i < 45 ; $i++){ print "-=";}
     print "\n";
