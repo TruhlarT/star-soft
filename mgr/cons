@@ -26,14 +26,14 @@ use Cwd;
 # Regression tests keep the code honest by checking for warnings
 # and "use strict" failures.
 
-# $Id: cons,v 1.65 2000/11/06 01:20:11 fisyak Exp $
+# $Id: cons,v 1.66 2000/11/06 02:11:19 fisyak Exp $
 
 use vars qw( $ver_num $ver_rev $version );
 
 $ver_num = "2.1";
 $ver_rev = ".3";
 $version = sprintf "This is Cons %s%s " .
-	    '($Id: cons,v 1.65 2000/11/06 01:20:11 fisyak Exp $)'. "\n",
+	    '($Id: cons,v 1.66 2000/11/06 02:11:19 fisyak Exp $)'. "\n",
 	    $ver_num, $ver_rev;
 
 # Cons: A Software Construction Tool.
@@ -288,6 +288,7 @@ sub showcom {
 	 '.o'  => '.o',
 	 '.c'  => '.o',
 	 '.g'  => '.o',
+	 '.cdf'=> '.o',
 	 '.f'  => '.o',
 	 '.F'  => '.o',
 	 '.s'  => '.o',
@@ -1467,11 +1468,11 @@ sub _Objects {
     my($env) = shift;
 #yf    my($suffix) = $env->{SUFOBJ};
 #yf    map(_Object($env, $_, $_->{dir}->lookupfile($_->base_suf($suffix))), @_);
-    map(_Object($env, $_, $_->{dir}->lookup($_->base . $env->{OBJMAP}{$_->suffix})), @_);
+    map(_Object($env, $_, $_->{dir}->lookup($_->base_suf($env->{OBJMAP}{$_->suffix}))), @_);
 }
 
 # Called with an object and source reference.  If no object reference
-# is supplied, then the object file is determined implicitly from the
+# is supplied, then the object file is determined implicitly from theb
 # source file\'s extension. Sets up the appropriate rules for creating
 # the object from the source.  Returns the object reference.
 sub _Object {
