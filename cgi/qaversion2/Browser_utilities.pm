@@ -93,7 +93,7 @@ sub start_expert_buttons{
 #  $button_ref = Button_object->new('CrontabMinusR', 'Do crontab -r');
 #  $row2      .= $button_ref->SubmitString;
 
-  $button_ref = Button_object->new('CleanUpHangedJobs', 'Hung jobs');
+  $button_ref = Button_object->new('CleanUpHungJobs', 'Hung jobs');
   $row2      .= $button_ref->SubmitString;
   
   $button_ref = Button_object->new('EnableDSV','Enable DSV'); 

@@ -564,7 +564,7 @@ sub DeleteComment{
 
 }
 #========================================================
-sub CleanUpHangedJobs{
+sub CleanUpHungJobs{
   my $self = shift;
 
   my $io;
