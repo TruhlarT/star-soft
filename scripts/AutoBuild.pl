@@ -1,6 +1,6 @@
 #!/usr/bin/env perl
 
-# $Id: AutoBuild.pl,v 1.16 2004/02/26 20:31:30 jeromel Exp $
+# $Id: AutoBuild.pl,v 1.17 2004/03/02 23:54:13 jeromel Exp $
 # This script was written to perform an automatic compilation
 # with cvs co and write some html page related to it afterward.
 # Written J.Lauret Apr 6 2001
@@ -11,7 +11,6 @@
 #
 use lib "/afs/rhic.bnl.gov/star/packages/scripts";
 use ABUtils;
-use Digest::MD5;
 
 # DEfault library version to work with
 $LIBRARY="adev";
@@ -95,7 +94,6 @@ $ALLARGS = "$^O";
 # Quick argument parsing (dirty)
 for ($i=0 ; $i <= $#ARGV ; $i++){
     $arg      = $ARGV[$i];
-    $ALLARGS .= " $arg";
     if( substr($arg,0,1) eq "-"){
 	# yeap. We consider this as an argument.
 	# I know we can use this package but why ?
@@ -118,29 +116,32 @@ for ($i=0 ; $i <= $#ARGV ; $i++){
 	    $POST = "-$^O";
 	} elsif($arg eq "-1"){
 	    # first compilation pass only
-	    $FIRSTPASS=1==1;
+	    $ALLARGS .= " $arg";
+	    $FIRSTPASS= 1==1;
 	} elsif($arg eq "-i"){
 	    # interractive that is no cvs 
 	    # operations
-	    $NIGNOR=1==0;
-	    $SILENT=1==1;
+	    $NIGNOR   = 1==0;
+	    $SILENT   = 1==1;
 	} elsif($arg eq "-u"){
-	    $CVSUPD=1==1;
-	    $CVSCOU=1==0;
-	    $SILENT=1==1;
+	    $CVSUPD   = 1==1;
+	    $CVSCOU   = 1==0;
+	    $SILENT   = 1==1;
 	} elsif($arg eq "-c"){
-	    $CVSUPD=1==0;
-	    $CVSCOU=1==1;
-	    $SILENT=1==1;
+	    $CVSUPD   = 1==0;
+	    $CVSCOU   = 1==1;
+	    $SILENT   = 1==1;
 	} elsif($arg eq "-d"){
-	    $DEBUG = 1==1;
+	    $DEBUG    = 1==1;
 	} elsif($arg eq "-k"){
 	    $OPTCONS .= "-k ";
 	} elsif($arg eq "-v"){
-	    $LIBRARY= $ARGV[++$i];
+	    $LIBRARY  = $ARGV[++$i];
+	    $ALLARGS .= " $LIBRARY";
 	} elsif($arg eq "-p"){
-	    $COMPDIR= $ARGV[++$i];
-	    $DEBUG = 1==1;
+	    $COMPDIR  = $ARGV[++$i];
+	    $DEBUG    = 1==1;
+	    $ALLARGS .= " $COMPDIR";
 	} elsif ($arg eq "-h" || $arg eq "--help"){
 	    &lhelp();
 	    exit;
@@ -174,27 +175,11 @@ $TMPNM   ="$COMPDIR/.AutoBuild".$POST;
 $FLNMSG  ="$COMPDIR/Execute".$POST;
 # name of an eventual resource file
 $FLNMRC  ="$COMPDIR/.ABrc_$^O";
-# A lock file specific to this pass
-$FLNMLCK ="$COMPDIR/.AutoBuild.".(Digest::MD5->new->add($ALLARGS)->hexdigest()).".lock";
 
 
-# Check lock file
-$MAXDATE = 129600; # 24 hours * 1.5
-if (-e $FLNMLCK){
-    $date = time() - (stat($FLNMLCK))[9];
-    if ( $date > $MAXDATE ){
-	print "$FLNMLCK has a date greater than $MAXDATE. Deleting.\n";
-	unlink($FLNMCK);
-    } else {
-	print "Found a $FLNMCK file (another process is running). Exit ...\n";
-    }
-    exit;
-} else {
-    open(LCK,">$FLNMLCK");
-    print LCK localtime()."\n";
-    close(LCK);
-}
-
+# Lock file automated handling
+IULockPrepare($COMPDIR,$ALLARGS);     # prepare create one
+if ( ! IULockCheck(129600) ){ exit;}  # Check lock file lifetime
 
 
 #
@@ -205,12 +190,14 @@ if( ! chdir($COMPDIR) ){
 }
 
 # else
+IULockWrite("We are now in $COMPDIR");
 print $FILO " - We are now in $COMPDIR\n";
 $fail = 0;
 
 # if a config file exists, read it
 if( -e $FLNMRC){
     if (open(FI,$FLNMRC)){
+	IULockWrite("Reading configuration $FLNMRC");
 	print $FILO " - Reading configuration\n";	
 	while( defined($line = <FI>) ){
 	    @items=split("#",$line); # comment lines
@@ -229,6 +216,7 @@ if( -e $FLNMRC){
 
 if($NIGNOR){
     foreach $dir (@DIRS){
+	IULockWrite(" Inspecting $dir");
 	print $FILO " + Inspecting $dir\n";
 	if( -d $dir){
 	    @res = `$CVSCMDT $dir`;
@@ -258,6 +246,7 @@ if($NIGNOR){
 $tmp = "";
 
 # U
+IULockWrite("Updating code");
 if($#UPDATES != -1){
     print $FILO
 	"\n",
@@ -281,6 +270,7 @@ if($#UPDATES != -1){
 }
 
 # M
+IULockWrite("Dealing with merging");
 if($#MERGED != -1){
     print $FILO
 	"\n",
@@ -390,7 +380,7 @@ if ($ans =~ /^\s*y/i){
     push(@REPORT,"%%REF%%<H2>no cvs operation performed</H2>");
 } else {
     print $FILO "OK. Goodbye !...\n";
-    exit;
+    &Exit(-1);
 }
 
 
@@ -470,7 +460,7 @@ push(@REPORT,"</UL>");
 
 
 #
-# Exit routine dup the report table and
+# Exit routine dump the report table and
 # leave.
 #
 sub Exit()
@@ -479,14 +469,19 @@ sub Exit()
     my($tmp);
     my(@email);
 
+    # Delete the lock file
+    IULockDelete();
+
+    # this was added as a bypass to delete the lock
+    # while using the Exit()
+    if ( $sts < 0){ exit;}
+
     # Output HTML
     &ReportToHtml($sts);
 
     # Close global output if needed
     if($FILO ne STDOUT){ close($FILO);}
 
-    # Delete the lock file
-    unlink($FLNMCK);
 
     if( $DEBUG){
 	print "Debug mode. Stopping at this stage. $ERRSTR\n";
@@ -660,6 +655,7 @@ sub Execute
     my($rc,$line,$k);
 
     if( ! defined($mode) ){ $mode = 0;}
+    IULockWrite("Executing [$cmd]");
 
     open(SAVEERR,">&STDERR");
     open(STDERR,">$FLNMSG.err");
@@ -804,4 +800,6 @@ sub STRsts
 	return "<FONT COLOR=\"#FF0000\"><B>FAILURE </B></FONT>";
     }
 }
+
+
 

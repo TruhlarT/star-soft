@@ -112,6 +112,8 @@ if( `which $cmd` =~ m/Command\snot\sfound/i){
 # Now we start
 chomp($dir = `pwd`);
 
+
+
 $file= join(" ",@SKIP);
 print 
     "\n",
@@ -124,6 +126,12 @@ print
     " Those module will be skipped    : $file\n",
     " You are now in directory        : $dir\n\n";
 
+# Manage lock file
+IULockPrepare($dir,"$CMPLCMD $INSCMD");
+if ( ! IULockCheck(129600) ){ exit;}
+IULockWrite("Insure++ compilation has started");
+
+
 if(! $SILENT){ 
     print " Is this correct y/[n] ";
     chomp($ans = <STDIN>);
@@ -133,8 +141,11 @@ if(! $SILENT){
 }
 
 if($ans !~ /^\s*y/i){ 
-    die "Hum... OK. Aborting then ...\n";
+    &Die("Hum... OK. Aborting then ...\n");
 } 
+
+
+
 
 # Check if old file is present. Read it if so ...
 # We will actually build a list of obj files in a file referenced
@@ -157,7 +168,7 @@ if( -e "$HOME/.insbld"){
 
 if( -e $FILOUT){
     print " - Old report $FILOUT exists. Reading it (may take a while).\n";
-    open(FI,$FILOUT) || die "Could not open $FLNM as read.\n";
+    open(FI,$FILOUT) || &Die("Could not open $FLNM as read.\n");
     while( defined($line = <FI>) ){
 	chomp($line);
 	if ($line =~ m/(\[.*\]\s)(.*)/ ){
@@ -234,7 +245,7 @@ if($COMPIL){
 
     $tmp = "/tmp/InsureComp".time().".com";
     open(FO,">$tmp") || 
-	die "Could not open file for write in /tmp\n";
+	&Die("Could not open file for write in /tmp\n");
     print FO 
 	"#\!/bin/csh\n",
 	"cd $dir\n",
@@ -245,14 +256,14 @@ if($COMPIL){
     chmod(0770,$tmp);
     print " - We will now start the compilation. Excluded = $file\n";
 
-
+    IULockWrite("Executing $tmp");
     $rc = 0xffff & system($tmp);
     if($rc != 0){
 	print " * Failure. Returned status is $rc\n";
     } else {
 	if( ! -e "$dir/$FILOUT"){
 	    # create a dummy file
-	    open(FO,">$FILOUT") || die "Could not create empty file\n";
+	    open(FO,">$FILOUT") || &Die("Could not create empty file\n");
 	    close(FO);
 	}
 	print " - Formatting now ...\n"; 
@@ -263,15 +274,24 @@ if($COMPIL){
 	    print " - All done. $FLNM is ready\n";
 	} else {
 	    print 
-		" * Problem : Preceeding action did not create $FLNM\n",
+		" * Problem : Previous action did not create $FLNM\n",
 		" * Run $FRMTPRGM $dir/$FILOUT $FLNM by hand\n";
 	}
     }
 } else {
     print " - Compilation skipped. Used '-c' to compile.\n";
 }
+IULockDelete();
 
 
+# --- subs ---
+
+sub Die
+{
+    my($msgs)=@_;
+    IULockDelete();
+    die $msgs;
+}
 
 sub lhelp
 {
