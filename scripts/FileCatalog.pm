@@ -190,6 +190,8 @@ $keywrds{"pcid"          }    =   "productionConditionID"     .",ProductionCondi
 $keywrds{"rpcid"         }    =   "productionConditionID"     .",FileData"               .",0" .",num"  .",0" .",1" .",0";
 $keywrds{"rfpid"         }    =   "filePathID"                .",FileLocations"          .",0" .",num"  .",0" .",1" .",0";
 $keywrds{"fpid"          }    =   "filePathID"                .",FilePaths"              .",0" .",num"  .",0" .",0" .",0";
+$keywrds{"rhid"          }    =   "hostID"                    .",FileLocations"          .",0" .",num"  .",0" .",1" .",0";
+$keywrds{"hid"           }    =   "hostID"                    .",Hosts"                  .",0" .",num"  .",0" .",0" .",0";
 $keywrds{"rpid"          }    =   "runParamID"                .",RunParams"              .",0" .",num"  .",0" .",0" .",0";
 $keywrds{"rrpid"         }    =   "runParamID"                .",FileData"               .",0" .",num"  .",0" .",1" .",0";
 $keywrds{"trgid"         }    =   "triggerSetupID"            .",TriggerSetups"          .",0" .",num"  .",0" .",0" .",0";
@@ -227,10 +229,10 @@ $keywrds{"tctwid"        }    =   "triggerWordID"             .",TriggerComposit
 $keywrds{"trgcount"      }    =   "triggerCount"              .",TriggerCompositions"    .",0" .",text" .",0" .",1" .",1";
 
 $keywrds{"twid"          }    =   "triggerWordID"             .",TriggerWords"           .",0" .",text" .",0" .",1" .",0";
-$keywrds{"trgname"       }    =   "triggerName"               .",TriggerWords"           .",0" .",text" .",0" .",1" .",1";
-$keywrds{"trgversion"    }    =   "triggerVersion"            .",TriggerWords"           .",0" .",text" .",0" .",1" .",1";
-$keywrds{"trgword"       }    =   "triggerWord"               .",TriggerWords"           .",0" .",text" .",0" .",1" .",1";
-$keywrds{"trgdefinition" }    =   "triggerDefinition"         .",TriggerWords"           .",0" .",text" .",0" .",1" .",1";
+$keywrds{"trgname"       }    =   "triggerWordName"           .",TriggerWords"           .",0" .",text" .",0" .",1" .",1";
+$keywrds{"trgversion"    }    =   "triggerWordVersion"        .",TriggerWords"           .",0" .",text" .",0" .",1" .",1";
+$keywrds{"trgword"       }    =   "triggerWordBits"           .",TriggerWords"           .",0" .",text" .",0" .",1" .",1";
+$keywrds{"trgdefinition" }    =   "triggerWordComment"        .",TriggerWords"           .",0" .",text" .",0" .",1" .",1";
 
 
 # This keyword is a special keyword which will be used to enter
@@ -260,7 +262,6 @@ $keywrds{"md5sum"        }    =   "md5sum"                    .",FileData"      
 $keywrds{"size"          }    =   "fsize"                     .",FileLocations"          .",1" .",num"  .",0" .",1" .",1";
 $keywrds{"owner"         }    =   "owner"                     .",FileLocations"          .",0" .",text" .",0" .",1" .",1";
 $keywrds{"protection"    }    =   "protection"                .",FileLocations"          .",0" .",text" .",0" .",1" .",1";
-$keywrds{"node"          }    =   "nodeName"                  .",FileLocations"          .",0" .",text" .",0" .",1" .",1";
 $keywrds{"available"     }    =   "availability"              .",FileLocations"          .",0" .",num"  .",0" .",1" .",1";
 $keywrds{"persistent"    }    =   "persistent"                .",FileLocations"          .",0" .",num"  .",0" .",1" .",1";
 $keywrds{"sanity"        }    =   "sanity"                    .",FileLocations"          .",0" .",num"  .",0" .",1" .",1";
@@ -274,8 +275,12 @@ $keywrds{"genparams"     }    =   "eventGeneratorParams"      .",EventGenerators
 
 # Path related keywords apart from index -- NEW
 $keywrds{"path"          }    =   "filePath"                  .",FileLocations"          .",1" .",text" .",0" .",1" .",1";
-$keywrds{"Xpath"         }    =   "filePathName"              .",FilePaths"              .",1" .",text" .",0" .",0". ",0";
-$keywrds{"pathcnt"       }    =   "filePathCount"             .",FilePaths"              .",0" .",num"  .",0" .",0". ",1";
+$keywrds{"Xpath"         }    =   "filePathName"              .",FilePaths"              .",0" .",text" .",0" .",0". ",0";
+
+# Node related keywords -- NEW
+$keywrds{"node"          }    =   "nodeName"                  .",FileLocations"          .",0" .",text" .",0" .",1" .",1";
+$keywrds{"Xnode"         }    =   "hostName"                  .",Hosts"                  .",0" .",text" .",0" .",0". ",0";
+
 
 
 # The detector configuration can be extended as needed
@@ -353,20 +358,21 @@ my @datastruct;
 $datastruct[0]  = ( "StorageTypes"           . ",FileLocations"       . ",storageTypeID"           . ",2" . ",1");
 $datastruct[1]  = ( "StorageSites"           . ",FileLocations"       . ",storageSiteID"           . ",2" . ",1");
 $datastruct[2]  = ( "FileData"               . ",FileLocations"       . ",fileDataID"              . ",2" . ",0");
-$datastruct[3]  = ( "ProductionConditions"   . ",FileData"            . ",productionConditionID"   . ",3" . ",1");
-$datastruct[4]  = ( "FileTypes"              . ",FileData"            . ",fileTypeID"              . ",3" . ",1");
+$datastruct[3]  = ( "FilePaths"              . ",FileLocations"       . ",filePathID"              . ",2" . ",1");
+$datastruct[4]  = ( "Hosts"                  . ",FileLocations"       . ",hostID"                  . ",2" . ",1");
 $datastruct[5]  = ( "TriggerWords"           . ",TriggerCompositions" . ",triggerWordID"           . ",2" . ",1");
 $datastruct[6]  = ( "FileData"               . ",TriggerCompositions" . ",fileDataID"              . ",2" . ",0");
-$datastruct[7]  = ( "RunParams"              . ",FileData"            . ",runParamID"              . ",3" . ",0");
-$datastruct[13] = ( "EventGenerators"        . ",SimulationParams"    . ",eventGeneratorID"        . ",5" . ",1");
-$datastruct[8]  = ( "RunTypes"               . ",RunParams"           . ",runTypeID"               . ",4" . ",1");
-$datastruct[9]  = ( "DetectorConfigurations" . ",RunParams"           . ",detectorConfigurationID" . ",4" . ",0");
-$datastruct[10] = ( "CollisionTypes"         . ",RunParams"           . ",collisionTypeID"         . ",4" . ",0");
-$datastruct[11] = ( "TriggerSetups"          . ",RunParams"           . ",triggerSetupID"          . ",4" . ",1");
-$datastruct[12] = ( "SimulationParams"       . ",RunParams"           . ",simulationParamsID"      . ",4" . ",0");
-$datastruct[14] = ( "FileLocations"          . ","                    . ","                        . ",1" . ",0");
-$datastruct[15] = ( "TriggerCompositions"    . ","                    . ","                        . ",1" . ",0");
-$datastruct[16] = ( "FilePaths"              . ",FileLocations"       . ",filePathID"              . ",2" . ",1");
+$datastruct[7]  = ( "ProductionConditions"   . ",FileData"            . ",productionConditionID"   . ",3" . ",1");
+$datastruct[8]  = ( "FileTypes"              . ",FileData"            . ",fileTypeID"              . ",3" . ",1");
+$datastruct[9]  = ( "RunParams"              . ",FileData"            . ",runParamID"              . ",3" . ",0");
+$datastruct[10] = ( "RunTypes"               . ",RunParams"           . ",runTypeID"               . ",4" . ",1");
+$datastruct[11] = ( "DetectorConfigurations" . ",RunParams"           . ",detectorConfigurationID" . ",4" . ",0");
+$datastruct[12] = ( "CollisionTypes"         . ",RunParams"           . ",collisionTypeID"         . ",4" . ",0");
+$datastruct[13] = ( "TriggerSetups"          . ",RunParams"           . ",triggerSetupID"          . ",4" . ",1");
+$datastruct[14] = ( "SimulationParams"       . ",RunParams"           . ",simulationParamsID"      . ",4" . ",0");
+$datastruct[15] = ( "EventGenerators"        . ",SimulationParams"    . ",eventGeneratorID"        . ",5" . ",1");
+$datastruct[16] = ( "FileLocations"          . ","                    . ","                        . ",1" . ",0");
+$datastruct[17] = ( "TriggerCompositions"    . ","                    . ","                        . ",1" . ",0");
 
 
 #%FC::FLRELATED;
@@ -425,8 +431,18 @@ $aggregates[7] = "ordd";
 
 
 # Those variables will be used internally
+# - those are used to store main tables associated keywords
 my @FDKWD;
 my @FLKWD;
+
+# - those are for caching
+my %KNOWNVP;                 # 2 arrays (the P=persistent and
+my %KNOWNVT;                 #           T=Temporary)
+my @KNOWNVC     =  (0,0);    # 2 counters
+my $CACHESZ     = 500000;    # both are subecjt to cache flush but "T"
+                             # holds large dictionnaries
+my %TCACHED;
+$TCACHED{"FilePaths"} = 1;   # declare who is in T (default is P)
 
 
 sub Require
@@ -1083,28 +1099,39 @@ sub get_id_from_dictionary {
   my $idname = $params[0];
   my $sth;
   my $id;
+  my $idx;
   my $sqlquery;
 
   $idname = &_IDize("get_id_from_dictionary",$idname);
   $id     = 0;
+  $idx    = uc($params[1])."_".uc($params[2]);
 
-  $sqlquery = "SELECT $idname FROM $params[0] WHERE UPPER($params[1]) = UPPER(\"$params[2]\")";
-  if ($DEBUG > 0) {  &print_debug("Executing: $sqlquery");}
-  $sth = $DBH->prepare($sqlquery);
+  ## use cache
+  if ( ( $id = &_CachedValue($params[0],$idx) ) == 0){
+      #
+      # Dictionnary are intrinsically not case sensitive which may 
+      # be an issue for accessing Path information.
+      #
+      $sqlquery = "SELECT $idname FROM $params[0] WHERE UPPER($params[1]) = UPPER(\"$params[2]\")";
+      if ($DEBUG > 0) {  &print_debug("Executing: $sqlquery");}
+      $sth = $DBH->prepare($sqlquery);
 
-  if( ! $sth){
-      &print_debug("FileCatalog:: get_id_from_dictionary : Failed to prepare [$sqlquery]");
-  } else {
-      my( $val );
+      if( ! $sth){
+	  &print_debug("FileCatalog:: get_id_from_dictionary : Failed to prepare [$sqlquery]");
+      } else {
+	  my( $val );
 
-      if ( $sth->execute() ){
-	  $sth->bind_columns( \$val );
-
-	  if ( $sth->fetch() ) {
-	      $sth->finish();
-	      $id = $val;
+	  if ( $sth->execute() ){
+	      $sth->bind_columns( \$val );
+	      
+	      if ( $sth->fetch() ) {
+		  $sth->finish();
+		  $id = $val;
+	      }
 	  }
       }
+      ## save in cache
+      &_SaveValue($params[0],$idx,$id);
   }
   return $id;
 }
@@ -1124,28 +1151,34 @@ sub get_value_from_dictionary {
   my $valname = $params[0];
   my $sth;
   my $id;
+  my $idx;
   my $sqlquery;
 
   $valname  = &_Nameize("get_value_from_dictionary",$valname);
   $id       = 0;
+  $idx      = uc($params[1])." ".$params[2];
 
-  $sqlquery = "SELECT $valname FROM $params[0] WHERE UPPER($params[1]) = $params[2]";
-  if ($DEBUG > 0) {  &print_debug("Executing: $sqlquery");}
-  $sth = $DBH->prepare($sqlquery);
+  if ( ($id = &_CachedValue($params[0],$idx)) == 0 ){
+      $sqlquery = "SELECT $valname FROM $params[0] WHERE UPPER($params[1]) = $params[2]";
+      if ($DEBUG > 0) {  &print_debug("Executing: $sqlquery");}
+      $sth = $DBH->prepare($sqlquery);
 
-  if( ! $sth){
-      &print_debug("FileCatalog:: get_id_from_dictionary : Failed to prepare [$sqlquery]");
-  } else {
-      my( $val );
+      if( ! $sth){
+	  &print_debug("FileCatalog:: get_id_from_dictionary : Failed to prepare [$sqlquery]");
+      } else {
+	  my( $val );
 
-      if ( $sth->execute() ){
-	  $sth->bind_columns( \$val );
+	  if ( $sth->execute() ){
+	      $sth->bind_columns( \$val );
 
-	  if ( $sth->fetch() ) {
-	      $sth->finish();
-	      $id = $val;
+	      if ( $sth->fetch() ) {
+		  $sth->finish();
+		  $id = $val;
+	      }
 	  }
       }
+      ## save in cache
+      &_SaveValue($params[0],$idx,$id);
   }
   return $id;
 }
@@ -1154,9 +1187,11 @@ sub get_value_from_dictionary {
 #
 # Used several places so, made a few utility routine
 #
-sub _IDize {    return &_GlobIzer("ID",@_);   }
-sub _Nameize {  return &_GlobIzer("Name",@_); }
-sub _Countize { return &_GlobIzer("Count",@_); }
+sub _IDize {      return &_GlobIzer("ID",@_);   }
+sub _Nameize {    return &_GlobIzer("Name",@_); }
+sub _Countize {   return &_GlobIzer("Count",@_); }
+sub _Creatorize { return &_GlobIzer("Creator",@_); }
+sub _IDatize  {   return &_GlobIzer("IDate",@_); }
 
 #
 # Used several places so, made a utility routine
@@ -1175,66 +1210,50 @@ sub _GlobIzer
     $idname =~ s/s$//;
     $idname = lcfirst($idname);
     $idname.= $postfix;
-    #print "$idname\n";
+    #print "$postfix,$fac,$idname - > $idname\n";
     $idname;
 }
 
 
 # This was added to handle backward compatible path
 # scheme
-sub get_path_name_and_ID
+sub _Path_name_and_ID {  return &_name_and_ID("rfpid","path","Xpath");}
+sub _Host_name_and_ID {  return &_name_and_ID("rhid","node","Xnode");}
+
+sub _name_and_ID
 {
-    my ($path,$pathID);
+    my ($idx,$okwd,$nkwd)=@_;
+    my ($val,$valID);
 
-    if ( ! defined($valuset{"rfpid"}) ){ $valuset{"rfpid"} = 0;}
+    if ( ! defined($valuset{$idx}) ){ $valuset{$idx} = 0;}
 
-    if ( defined($valuset{"path"}) && ! defined($valuset{"Xpath"}) ){
-	# transfer path -> Xpath
-	$path  = $valuset{"Xpath"} = $valuset{"path"};
+    if ( defined($valuset{$okwd}) && ! defined($valuset{$nkwd}) ){
+	# transfer old keyword -> new keyword
+	$val  = $valuset{$nkwd} = $valuset{$okwd};
 
-    } elsif ( ! defined($valuset{"path"}) && defined($valuset{"Xpath"}) ){
-	# transfer Xpath -> path
-	$path  = $valuset{"path"}  = $valuset{"Xpath"};
+    } elsif ( defined($valuset{$nkwd}) ){
+	# transfer new -> old
+	$val  = $valuset{$okwd} = $valuset{$nkwd};
 
-    } elsif ( $valuset{"rfpid"} != 0 ){
+    } elsif ( $valuset{$idx} != 0 ){
 	# clone mode, possibly a non-zero rfpid, we need to recover the name
-	my ($fieldname, $tabname, $rest) = split(",",$keywrds{"Xpath"});
-	$pathID = $valuset{"rfpid"};
-	$path   = &get_value_from_dictionary($tabname, $fieldname, $pathID);
+	my ($fieldname, $tabname, $rest) = split(",",$keywrds{$nkwd});
+	$valID  = $valuset{$idx};
+	$val    = &get_value_from_dictionary($tabname, $fieldname, $valID);
 
     } else {
 	# no known method to recover the information
-	&die_message("get_path_name_and_ID", "None of Path / Xpath / rfpid defined");
+	&die_message("_Path_name_and_ID", "None of $nkwd / $okwd / $idx defined");
     }
 
-    # any mode has set Xpath
-    $pathID       = &check_ID_for_params("Xpath");
+    # any mode has set $nkwd
+    $valID       = &check_ID_for_params($nkwd);
 
-    #print "### --> $path $pathID\n";
+    #print "### --> $val $valID\n";
 
-    return ('"'.$path.'"',$pathID);
+    return ('"'.$val.'"',$valID);
 }
 
-
-
-# "'".$valuset{"path"}."'";         # backward compatibility, recover this
-#      $filePathID  = &check_ID_for_params("path");     # new field and require version 1.270+
-#
-#      if ( $filePathID == 0){ 
-#	  $filePathID = $valuset{"rfpid"};  # transfer the cloned value rfpid into filePathID
-#
-#	  my ($fieldname, $tabname, $rest) = split(",",$keywrds{"Xpath"});
-#	  $filePath   = &get_value_from_dictionary($tabname, $fieldname, $filePathID);
-#
-#	  die "Security abort :: \$filePathID was 0, rfpid defined, returned value $filePath\n";
-#      }
-#
-#      if (  $valuset{"rfpid"} != 0){
-#	  # we do have a previously set index and it is non-null
-#	  # we need to set both path and pathID accordingly
-#	  my ($fieldnameo, $tabnameo, $resto) = split(",",$keywrds{"fpid"});
-#
-#      }   
 
 
 #============================================
@@ -1332,8 +1351,10 @@ sub insert_dictionary_value {
   foreach my $kwrd (@additional) {
     my ($fieldnamea, $tabnamea, $resta) = split(",",$keywrds{$kwrd});
 
-    # Skip special Count-er keyword
-    if ($fieldnamea !~ /Count/){
+    # Skip special keywords
+    if ($fieldnamea !~ /Count/   &&
+	$fieldnamea !~ /Creator/ &&
+	$fieldnamea !~ /IDate/   ){
 	$dtfields .= " , $fieldnamea";
 	$dtvalues .= " , '".$valuset{$kwrd}."'";
     }
@@ -1344,8 +1365,17 @@ sub insert_dictionary_value {
   } else {
       $dtinsert   = "INSERT IGNORE INTO $tabname ";
   }
-  $dtinsert  .= "($fieldname $dtfields)";
-  $dtinsert  .= " VALUES ('".$valuset{$keyname}."' $dtvalues)";
+
+  # If dictionary
+  my ($dtxfields,$dtxvalues);
+  if ( $FC::ISDICT{$tabname} ){
+      &print_debug("Calling _IDatize($tabname) and  _Creatorize($tabname)");
+      $dtxfields = " , ".&_IDatize("",$tabname)." , ".&_Creatorize("",$tabname);
+      $dtxvalues = " , NOW()+0, '".&_GetLogin()."'";
+  }
+
+  $dtinsert  .= "($fieldname $dtfields $dtxfields)";
+  $dtinsert  .= " VALUES ('".$valuset{$keyname}."' $dtvalues $dtxvalues)";
   if ($DEBUG > 0) {    &print_debug("Execute $dtinsert");}
 
 
@@ -1360,6 +1390,11 @@ sub insert_dictionary_value {
 	  $retid = &get_last_id();
 	  if ($DEBUG > 0) { &print_debug("Returning: $retid");}
 	  $sth->finish();
+      } elsif ( $DBH->errstr == 1054) {
+	  # wrong field name
+	  &die_message("insert_dictionary_value","logic error for $tabname ".$DBH->err." >> ".$DBH->errstr); 
+      } else {
+	  &print_debug("ERROR for $tabname ".$DBH->err." >> ".$DBH->errstr);
       }
   }
   return $retid;
@@ -1374,9 +1409,9 @@ sub insert_dictionary_value {
 sub get_current_detector_configuration {
 
   my ($detConfiguration,$cmd,$sth,$val);
-  my ($tabname)="DetectorConfigurations";
-  my ($field)="detectorConfigurationName";
-  my ($index)=&_IDize("get_current_detector_configuration",$tabname);
+  my ($tabname) = "DetectorConfigurations";
+  my ($field)   = "detectorConfigurationName";
+  my ($index)   = &_IDize("get_current_detector_configuration",$tabname);
 
   if( ! $DBH){
       &print_message("insert_detector_configuration","Not connected");
@@ -1391,7 +1426,7 @@ sub get_current_detector_configuration {
   }
 
   # This routine introduces caching
-  if ( ($detConfiguration = &cached_value($tabname,$val)) == 0){
+  if ( ($detConfiguration = &_CachedValue($tabname,$val)) == 0){
       $cmd = "SELECT $tabname.$index from $tabname WHERE $tabname.$field='$val'";
 
       $sth = $DBH->prepare($cmd);
@@ -1415,6 +1450,8 @@ sub get_current_detector_configuration {
 	  # we have to add it
 	  $detConfiguration = &insert_detector_configuration();
       }
+      ## save in cache
+      &_SaveValue($tabname,$val,$detConfiguration);
   }
   return $detConfiguration;
 }
@@ -1503,7 +1540,6 @@ sub insert_detector_configuration {
   } else {
       if ( $sth->execute() ) {
 	  $retid = &get_last_id();
-	  &new_value("insert_detector_configuration",$retid,$config,"DetectorConfigurations");
       }
       $sth->finish();
   }
@@ -2073,9 +2109,9 @@ sub set_trigger_composition
     #
     # Insert first all entries in TriggerWords in INSERT mode
     #
-    $cmd1 = "SELECT triggerWordID, triggerDefinition FROM TriggerWords ".
-	" WHERE triggerName=? AND triggerWord=?  AND triggerVersion=?";
-    $cmd2 = "INSERT INTO TriggerWords values(NULL, ?, ?, ?, ?)";
+    $cmd1 = "SELECT triggerWordID, triggerWordComment FROM TriggerWords ".
+	" WHERE triggerWordName=? AND triggerWordBits=?  AND triggerWordVersion=?";
+    $cmd2 = "INSERT INTO TriggerWords values(NULL, ?, ?, ?, NOW()+0, '".&_GetLogin()."', 0, ?)";
 
     $sth1 = $DBH->prepare($cmd1);
     $sth2 = $DBH->prepare($cmd2);
@@ -2094,18 +2130,20 @@ sub set_trigger_composition
 		$TrgCnt[$cnt]  = $FC::TRGCNTS[$i];
 	    } else {
 		# Not in, Insert
-		if ( $sth2->execute($FC::TRGNAME[$i],$FC::TRGWORD[$i],$FC::TRGVERS[$i],$FC::TRGDEFS[$i]) ){
+		if ( $sth2->execute($FC::TRGNAME[$i],$FC::TRGVERS[$i], $FC::TRGWORD[$i],$FC::TRGDEFS[$i]) ){
 		    $TrgID[++$cnt] = &get_last_id();
 		    $TrgCnt[$cnt]  = $FC::TRGCNTS[$i];
 		    &print_debug("Fecthed 2 triggerWordID $TrgID[$cnt]");
 		} else {
 		    &die_message("set_trigger_composition",
-				 "Failed to insert $FC::TRGNAME[$i],$FC::TRGWORD[$i],$FC::TRGVERS[$i],$FC::TRGDEFS[$i]");
+				 "Failed to insert $FC::TRGNAME[$i],$FC::TRGWORD[$i],$FC::TRGVERS[$i],$FC::TRGDEFS[$i] error=".
+				 $DBH->err." >> ".$DBH->errstr);
 		}
 	    }
 	} else {
 	    &die_message("set_trigger_composition",
-			 "Failed to execute for $FC::TRGNAME[$i],$FC::TRGWORD[$i],$FC::TRGVERS[$i]");
+			 "Failed to execute for $FC::TRGNAME[$i],$FC::TRGWORD[$i],$FC::TRGVERS[$i] error=".
+			 $DBH->err." >> ".$DBH->errstr);
 	}
     }
     $sth1->finish;
@@ -2493,37 +2531,38 @@ sub get_current_simulation_params {
 sub clone_location {
     my(@allfd,@allfl,$tmp);
 
-    @allfd = &FileTableContent("FileData","FDKWD");
-    @allfl = &FileTableContent("FileLocation","FLKWD");
+    &print_debug("clone_location : Checking FileData");
+    @allfd = &get_file_data();
+    &print_debug("clone_location : Checking FileLocation");
+    @allfl = &get_file_location();
 
     if ($#allfd != -1 && $#allfl != -1){
+	&print_debug("clone_location : clearing context now");
 	&clear_context();
+	&print_debug("clone_location : setting  context now");
 	&set_context(@allfd);
 	&set_context(@allfl);
 
-	&print_debug("clone_location :: What was queried\n",
+	&print_debug("clone_location : What was queried\n",
 		     "\t".join(",",@allfd),
 		     "\t".join(",",@allfl));
 	1;
     } else {
-	&print_message("clone_location","FileData/FileLocation cloning failed");
+	&print_message("clone_location","FileData/FileLocation cloning failed $#allfd $#allfl");
 	0;
 
     }
 }
 
-sub get_file_location(){
-    return &FileTableContent("FileLocation","FLKWD");
-}
-sub get_file_data(){
-    return &FileTableContent("FileData","FDKWD");
-}
+sub get_file_location(){   return &_FileTableContent("FileLocation","FLKWD");}
+sub get_file_data(){       return &_FileTableContent("FileData","FDKWD");}
+
 
 #
 # Routine will populate the $TABREF arrays and return those fields
 # with values as key=value list. This is used for cloing records.
 #
-sub FileTableContent {
+sub _FileTableContent {
 
     my($table,$TABREF)=@_;
 
@@ -2545,16 +2584,19 @@ sub FileTableContent {
     #print "-->".join(",",@itab)."\n";
 
 
-    my @all;
-    my $delim;
-
+    my (@all,$delim,$dsts);
+    
+    
     $delim = &get_delimeter();
+    $dsts  = &get_debug();
+    &set_debug(0) if ($table eq "FileLocation");
     &set_delimeter("::");                          # set to known one
     @all = &run_query("FileCatalog",@itab);
     &set_delimeter($delim);                        # restore delim
+    &set_debug($dsts);
 
     #print "Run with ".join("/",@itab)."\n";
-    &print_debug("+","Run with ".join("/",@itab));
+    &print_debug("+ Run with ".join("/",@itab));
 
 
     undef(@query);
@@ -2565,14 +2607,16 @@ sub FileTableContent {
 	for ( $i=0 ; $i <= $#itab ; $i++){
 	    #&print_debug("Return value for $itab[$i] is $all[$i]");
 	    if ( ! defined($all[$i]) ){
-		&print_debug("+","$itab[$i] has no value - setting to null_st\n");
+		&print_debug("/!\\  $itab[$i] has no value - setting to null_st\n");
 		$all[$i] = "";
 	    } 
-	    &print_debug("-->","Return value for $itab[$i] is $all[$i]");
+	    &print_debug("--> Return value for $itab[$i] is $all[$i]");
 	    if( $all[$i] ne ""){
 		push(@query,"$itab[$i] = $all[$i]");
 	    }
 	}
+    } else {
+	&print_debug("/!\\ Querry leaded to nothing");
     }
     return @query;
 }
@@ -2589,13 +2633,14 @@ sub insert_file_location {
   my $fileData;
   my $storageType;
   my $storageSite;
-  my $filePath;
+  my $filePath;    
   my $filePathID;
   my $createTime;
   my $owner;
   my $fsize;
   my $protection;
   my $nodeName;
+  my $nodeID;
   my $availability;
   my $persistent;
   my $sanity;
@@ -2638,7 +2683,7 @@ sub insert_file_location {
   #} else {
   #    $filePath = "'".$valuset{"path"}."'";
   #}
-  if (! defined $valuset{"path"} && ! defined($valuset{"rfpid"}) ) {
+  if (! defined $valuset{"path"} && ! defined($valuset{"rfpid"}) && ! defined $valuset{"Xpath"}) {
       &print_message("insert_file_location",
 		     "ERROR: file path not defined. Cannot add file location",
 		     "Aborting File Location");
@@ -2648,7 +2693,7 @@ sub insert_file_location {
       # *** backward compatibility support around this (some line should be dropped later)
       # *** at the end, we have a path and pathID for filling
       # ***
-      ($filePath,$filePathID)  = &get_path_name_and_ID();
+      ($filePath,$filePathID)  = &_Path_name_and_ID();
   }
 
 
@@ -2672,18 +2717,33 @@ sub insert_file_location {
   } else {
       $protection = '"'.$valuset{"protection"}.'"';
   }
+
+  # ***
+  # *** backward compatibility support around this (some line should be dropped later)
+  # **
   if (! defined $valuset{"node"}) {
       &print_debug("WARNING: node not defined. Using a default value");
-      $nodeName = "'localhost'";      # Cannot be NULL because of check
+      $valuset{"node"}  = "localhost";     # Cannot be NULL because of check
   } else {
       $valuset{"node"} =~ s/\s+//g;
-      if ( $valuset{"node"} ne ""){
-	  $nodeName = '"'.$valuset{"node"}.'"';
-      } else {
-	  $nodeName = "'localhost'";  # Cannot be NULL because of check
+      if ( $valuset{"node"} eq ""){
+	  $valuset{"node"} = "localhost";  # Cannot be NULL because of check
       }
 
   }
+  if (! defined $valuset{"Xnode"}) {
+      &print_debug("WARNING: Xnode not defined. Using a default value");
+      $valuset{"Xnode"} = "localhost";      # Cannot be NULL because of check
+  } else {
+      $valuset{"Xnode"} =~ s/\s+//g;
+      if ( $valuset{"Xnode"} eq ""){
+	  $valuset{"Xnode"} = "localhost";  # Cannot be NULL because of check
+      }
+
+  }
+  ($nodeName,$nodeID) = &_Host_name_and_ID();
+
+
   if (! defined $valuset{"available"}) {
       &print_debug("WARNING: available not defined. Using a default value");
       $availability = 1 ;
@@ -2716,8 +2776,8 @@ sub insert_file_location {
   my $flinchk    = "SELECT fileLocationID from FileLocations WHERE ";
   my $flinsert   = "INSERT IGNORE INTO FileLocations ";
 
-  $flinsert  .= "(fileLocationID, fileDataID, storageTypeID, filePath, filePathID, createTime, insertTime, owner, fsize, storageSiteID, protection, nodeName, availability, persistent, sanity)";
-  $flinsert  .= " VALUES (NULL, $fileData, $storageType, $filePath, $filePathID, $createTime, NULL, $owner, $fsize, $storageSite, $protection, $nodeName, $availability, $persistent, $sanity)";
+  $flinsert  .= "(fileLocationID, fileDataID, storageTypeID, filePath, filePathID, createTime, insertTime, owner, fsize, storageSiteID, protection, nodeName, hostID, availability, persistent, sanity)";
+  $flinsert  .= " VALUES (NULL, $fileData, $storageType, $filePath, $filePathID, $createTime, NULL, $owner, $fsize, $storageSite, $protection, $nodeName, $nodeID, $availability, $persistent, $sanity)";
 
   # NONE of the NULL value should appear below otherwise, one keeps adding
   # entry over and over ... protection and woner are irrelevant here and
@@ -2761,6 +2821,8 @@ sub insert_file_location {
 		  $retid = &get_last_id();
 		  &print_debug("Returning: $retid");
 		  $sth->finish();
+	      } else {
+		  &print_debug("ERROR in insert_file_location() ".$DBH->err." >> ".$DBH->errstr);
 	      }
 	  }
       }
@@ -3177,6 +3239,10 @@ sub run_query {
   undef($j);
   &print_debug("Ordered list is [".join(" ",@keywords)."]");
 
+  # Get all keys for later scan in another form. Those are
+  # really all the tables we will ever need to access ...
+  my @USEDTables = keys %TableUSED;
+
 
   # Optional condition can be checked now
   # Note that they are enabled only if one of the returned
@@ -3226,18 +3292,26 @@ sub run_query {
 	      my ($fieldname,$idname,$addedconstr) =
 		  (&get_field_name($keyw),$tabname,"");
 
-	      &print_debug("Table $tabname is a dictionary");
+	      &print_debug("Table $tabname is a dictionary $#USEDTables");
 	      $idname = &_IDize("run_query",$idname);
 
 	      # Find which table this one is connecting to
 	      my $parent_tabname;
-	      foreach my $el (@datastruct){
-		  if (($el =~ m/$idname/) > 0){
-		      # We found the right row - get the table name
-		      my ($stab,$fld);
-		      ($stab,$parent_tabname,$fld) = split(",",$el);
+	      #if ( $#USEDTables > 0){
+		  # There are more than one table involve so we need
+		  # to do a complicated dependency threading ...
+		  foreach my $el (@datastruct){
+		      if (($el =~ m/$idname/) > 0){
+			  # We found the right row - get the table name
+			  my ($stab,$fld);
+			  ($stab,$parent_tabname,$fld) = split(",",$el);
+			  &print_debug("\t$idname relates to $parent_tabname");
+		      }
 		  }
-	      }
+	      #} else {
+		  # Only one table is used (table info within table cond)
+		#  $parent_tabname = $USEDTables[0];
+	      #}
 
 
 	      my $sqlquery = "SELECT $idname FROM $tabname WHERE ";
@@ -3330,7 +3404,7 @@ sub run_query {
 			      } else {
 				  $addedconstr .= " $parent_tabname.$idname = $id ";
 			      }
-			      &print_debug("\tAdded constraints now $addedconstr");
+			      &print_debug("\tAdded constraints case-1 now $addedconstr");
 			  }
 			  #$addedconstr .= " ) ";
 			  if( index($addedconstr,"OR") != -1){
@@ -3358,9 +3432,10 @@ sub run_query {
 			  #delete $valuset{$keyw};
 			  $threaded{$keyw}=1;
 
-			  # But remember to add the the parent table
+			  # But remember to add the parent table
 			  # push (@connections, (connect_fields($keywords[0], $keyw)));
-			  push (@from, $parent_tabname);
+			  &print_debug("\tPushing $parent_tabname in the case-1 \@from list");
+			  #push (@from, $parent_tabname);
 		      }
 		  }
 		  $sth->finish();
@@ -3402,7 +3477,7 @@ sub run_query {
 			  } else {
 			      $addedconstr .= " $parent_tabname.$idname = $collisionid ";
 			  }
-			  &print_debug("Added constraints now $addedconstr");
+			  &print_debug("Added constraints case-2 now $addedconstr");
 		      }
 		      $addedconstr .= " ) ";
 		      # Add a newly constructed keyword
@@ -3414,6 +3489,7 @@ sub run_query {
 
 		      # But remember to add the the parent table
 		      #	    push (@connections, (connect_fields($keywords[0], $keyw)));
+		      &print_debug("\tPushing $parent_tabname in the case-2 \@from list");
 		      push (@from, $parent_tabname);
 		  }
 	      }
@@ -4139,7 +4215,7 @@ sub bootstrap_general
 	$stq->bind_columns( \$id );
 
 	while ( $stq->fetch() ) { push ( @rows, $id );}
-	if ($delete == 1){
+	if ($delete == 1 && $#rows != -1){
 	    # We do a bootstapping with delete
 	    $dcdelete = "DELETE LOW_PRIORITY FROM $table WHERE $linkfield IN (".join(" , ",(@rows)).")";
 	    if ( $DELAY ){
@@ -4201,7 +4277,7 @@ sub bootstrap_trgc {
 
     while ( $sth1->fetch() ) {  push ( @rows1, $id );}
 
-    if ($delete == 1){
+    if ($delete == 1 && $#rows1 != -1){
 	$cmdd = "DELETE LOW_PRIORITY FROM $tab1 WHERE $field1 IN (".join(" , ",(@rows1)).")";
 	if ( $DELAY ){
 	    push(@DCMD,$cmdd);
@@ -4228,7 +4304,7 @@ sub bootstrap_trgc {
 
     while ( $sth2->fetch() ) {  push ( @rows2, $id );}
 
-    if ($delete == 1){
+    if ($delete == 1 && $#rows2 != -1){
 	$cmdd = "DELETE LOW_PRIORITY FROM $tab2 WHERE $field2 IN (".join(" , ",(@rows2)).")";
 	if ( $DELAY ){
 	    push(@DCMD,$cmdd);
@@ -4290,7 +4366,7 @@ sub bootstrap_sim {
 
     while ( $sth1->fetch() ) {  push ( @rows1, $id );}
 
-    if ($delete == 1){
+    if ($delete == 1 && $#rows1 != -1){
 	$cmdd = "DELETE LOW_PRIORITY FROM $tab1 WHERE $field1 IN (".join(" , ",(@rows1)).")";
 	if ( $DELAY ){
 	    push(@DCMD,$cmdd);
@@ -4317,7 +4393,7 @@ sub bootstrap_sim {
 
     while ( $sth2->fetch() ) {  push ( @rows2, $id );}
 
-    if ($delete == 1){
+    if ($delete == 1 && $#rows2 != -1){
 	$cmdd = "DELETE LOW_PRIORITY FROM $tab2 WHERE $field2 IN (".join(" , ",(@rows2)).")";
 	if ( $DELAY ){
 	    push(@DCMD,$cmdd);
@@ -4389,7 +4465,7 @@ sub bootstrap_data
       while ( $stq->fetch() ) {
 	push ( @rows, $id );
       }
-      if ($delete == 1)
+      if ($delete == 1 && $#rows != -1)
       {
 	  # We do a bootstapping with delete
 	  my $dcdelete;
@@ -4607,10 +4683,14 @@ sub update_record {
 	  if (!$sth){
 	      &print_debug("FileCatalog::update_record : Failed to prepare [$qupdate]");
 	  } else {
-	      if ( $sth->execute() ){  $retv = 1;}
+	      if ( $sth->execute() ){  
+		  $retv = 1;
+	      } else {
+		  &print_message("update_record","update failed with error=".
+				 $DBH->err." >> ".$DBH->errstr);
+	      }
 	      $sth->finish();
-	  }
-
+	  } 
 
       }
       return $retv;
@@ -4903,7 +4983,7 @@ sub update_location {
 	      #	  }
 	      #}
 	      if ( $sth3->execute($flid) ){
-		  &print_debug("Update of $mtable succeeded");
+		  #&print_debug("Update of $mtable at $flid succeeded [$qupdate]");
 		  $count++;
 	      } else {
 		  $failed++;
@@ -4925,8 +5005,8 @@ sub update_location {
 					 "(would lead to duplicate)");
 		      }
 		  } else {
-		      &print_debug("Update of $mtable failed error=".$DBH->err." >> ".$DBH->errstr);
-		      #&print_debug("STH was $qupdate");
+		      &print_message("update_location","Update of $mtable failed error=".
+				     $DBH->err." >> ".$DBH->errstr);
 		  }
 	      }
 	  }
@@ -4998,10 +5078,17 @@ sub debug_on
     }
 }
 
-#============================================
-sub debug_off {
-    $DEBUG = 0;
+sub debug_off {    $DEBUG = 0;}
+sub get_debug {    $DEBUG;}
+sub set_debug {    
+    if ($_[0] =~ m/FileCatalog/) {  shift @_;}
+
+    my ($d)=@_;
+    $DEBUG = $d;
+    $DEBUG;
 }
+
+#============================================
 
 #============================================
 
@@ -5038,20 +5125,51 @@ sub set_silent
 
 #============================================
 
-sub new_value
+sub _SaveValue
 {
-    my($routine,$id,$val,$table)=@_;
+    my($table,$idx,$val)=@_;
+    my($type);
 
-    &print_message($routine,"Inserting new value [$val] in $table") if ($id != 0);
-    $FC::KNOWNV{$table." ".$val} = $id;
+    if ( $KNOWNVC[0] > $CACHESZ){
+	&print_debug("SaveValue","Flushing the P cache (all OK)");
+	$KNOWNVC[0] = 0;
+	undef(%KNOWNVP);
+    }
+    if ( $KNOWNVC[1] > $CACHESZ){
+	&print_message("SaveValue","Flushing the T cache (all OK)");
+	$KNOWNVC[1] = 0;
+	undef(%KNOWNVT);
+    }
+
+    if ( defined($TCACHED{$table}) ){
+	$KNOWNVC[1]++;
+	$KNOWNVT{$table." ".$idx} = $val;
+	$type = "T";
+    } else {
+	$KNOWNVC[0]++;
+	$KNOWNVP{$table." ".$idx} = $val;
+	$type = "P";
+    }
+    &print_debug("<<SaveValue>>".
+		 "Keeping track of $type value [$val] for table=$table for idx=$idx");
 }
 
-sub cached_value
+sub _CachedValue
 {
-    my($tab,$val)=@_;
-    my($rv);
+    my($tab,$idx)=@_;
+    my($rv,$type);
+    
+    if ( defined($TCACHED{$tab}) ){
+	$rv   = $KNOWNVT{$tab." ".$idx};
+	$type = "T";
+    } else {
+	$rv   = $KNOWNVP{$tab." ".$idx};
+	$type = "P";
+    }
 
-    if ( defined($rv = $FC::KNOWNV{$tab." ".$val}) ){
+    if ( defined($rv) ){
+	&print_debug("<<CachedValue>>".
+		     "Returning in $type memory $rv for table=$tab idx=$idx");
 	return $rv;
     } else {
 	return 0;
@@ -5097,6 +5215,26 @@ sub destroy {
   } else {
       return 0;
   }
+}
+
+
+# getlogin() appeared to be unreliable
+sub _GetLogin
+{
+    if( ! defined($FC::USER) ){
+	#my($user)=getlogin(); bad !! bad !! bad !! Gets the account prior
+	# to su.
+	my($user) = getpwuid($<);
+
+	if ( ! defined($user) ){
+	    chomp($user = `id`);
+	    $user =~ m/(uid=\d+\()(.*)\)(\s+gid=)/;
+	    $user = $2;
+	}
+	$FC::USER = $user;
+    }
+    if( $FC::USER eq ""){  $FC::USER = "getpwuid() failed";}
+    $FC::USER;
 }
 
 #============================================
