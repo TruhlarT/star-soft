@@ -14,7 +14,7 @@
 
 use CGI;
 
-require "/afs/rhic/star/packages/dev/mgr/dbCpProdSetup.pl";
+require "/afs/rhic/star/packages/cgi/dbCpProdSetup.pl";
 require "/afs/rhic/star/packages/dev/mgr/dbDescriptorSetup.pl";
 
 use File::Find;
