@@ -13,7 +13,7 @@
 #############################################################################
 
 
-require "/afs/rhic/star/packages/SL99i/mgr/dbDstProdSetup.pl";
+require "/afs/rhic/star/packages/DEV/mgr/dbDstProdSetup.pl";
 #require "dbDstProdSetup.pl";
 
 

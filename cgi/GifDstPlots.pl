@@ -11,7 +11,7 @@
 # 
 #################################################################### 
 
-require "/afs/rhic/star/packages/SL99i/mgr/dbDstProdSetup.pl";
+require "/afs/rhic/star/packages/DEV/mgr/dbDstProdSetup.pl";
 
 use CGI;
 use GIFgraph::linespoints;
@@ -24,7 +24,7 @@ use File::Basename;
  my ($query) = @_;
 
  
- $query = new CGI;
+$query = new CGI;
 
 
 print <<END;
@@ -38,7 +38,7 @@ END
  $datProd = $query->param('datProd');
  $plotVal = $query->param('plotVal');
 
- 
+
 
 struct Products => {
     flName  => '$',
@@ -99,6 +99,7 @@ $sql="SELECT fileName, id, summaryFile, mem_size_MB, CPU_per_evt_sec, avg_no_tra
     for($i=0;$i<$cols;$i++) {
         my $fvalue=$fields[$i];
         my $fname=$cursor->{NAME}->[$i];
+
         ($$prodAddr)->flName($fvalue) if( $fname eq 'fileName');
         ($$prodAddr)->dbId($fvalue) if( $fname eq 'id');
         ($$prodAddr)->memSize($fvalue) if( $fname eq 'mem_size_MB');
