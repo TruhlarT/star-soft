@@ -15,8 +15,8 @@ use RunDAQ;
 $mode  = 1;
 $sltime= 60;
 
-$mode   = shift(@ARGV) if ( defined(@ARGV) );
-$sltime = shift(@ARGV) if ( defined(@ARGV) );
+$mode   = shift(@ARGV) if ( @ARGV );
+$sltime = shift(@ARGV) if ( @ARGV );
 
 
 # We add an infinit loop around so the table will be filled
@@ -34,18 +34,23 @@ do {
 	    # get the top run
 	    $run = $mode*rdaq_last_run($dbObj);
 	    
-	    # fetch new records since that run number
-	    @records = rdaq_raw_files($obj,$run);
+	    if($run > 0){
+		# fetch new records since that run number
+		@records = rdaq_raw_files($obj,$run);
 	    
-	    # display info
-	    if ($#records != -1){
-		print "Fetched ".($#records+1)." records on $ctime\n";
-
-		# record entries
-		rdaq_add_entries($dbObj,@records);
-
-		# cleanup
-		undef(@records);
+		# display info
+		if ($#records != -1){
+		    print "Fetched ".($#records+1)." records on $ctime\n";
+		    
+		    # record entries
+		    rdaq_add_entries($dbObj,@records);
+		    
+		    # cleanup
+		    undef(@records);
+		}
+	    } else {
+		$mode = 0;
+		rdaq_check_entries($obj,$sltime);
 	    }
 
 	    # close

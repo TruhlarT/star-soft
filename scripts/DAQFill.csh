@@ -16,6 +16,10 @@ set SCRIPT="DAQFill.pl"
 set LOG="$HOME/DAQFill.log"
 set ME=`whoami`
 
+unalias cd
+unset noclobber
+
+
 # get the sleep time as second argument
 if ("$2" != "") then
     set SLTIME=$2
@@ -39,12 +43,19 @@ else if ( "$1" == "Update") then
   cd $PATH 
   ./$SCRIPT 0 >&/dev/null 
 
+else if ( "$1" == "Purge") then
+  # Purge mode will bootstrap the entries entered since some
+  # period of time and remove the ones which have been marked
+  # bad as a post-action.
+  cd $PATH
+  ./$SCRIPT -1 $SLTIME   >>$LOG
+
 else
   # default option is to Run
   set TEST=`ps -ef | grep $ME | grep $SCRIPT | grep -v grep`
   if ("$TEST" == "") then
-    cd $PATH
-    ./$SCRIPT 1 $SLTIME >>$LOG &
+    cd $PATH                    
+    ./$SCRIPT 1 $SLTIME  >>$LOG   &     
   endif
 
 endif
