@@ -30,7 +30,8 @@ else if ( "$1" == "Clean") then
 else if ( "$1" == "Update") then
   # Run the script in update mode i.e. fetch intermediate records
   # we may have missed  
-  ./$SCRIPT 1 >&/dev/null
+  cd $PATH 
+  ./$SCRIPT 1 >&/dev/null 
 
 endif
 
