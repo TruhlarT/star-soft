@@ -107,7 +107,7 @@ $INSU::RTFORMAT="/afs/rhic/star/packages/scripts/insrtm.pl";
 # ------------------------------------------
 # directory where the HTML file will be stored (final target)
 $INSU::HTMLREPD="/afs/rhic/star/doc/www/comp/prod/Sanity";
-$INSU::HTMLREF="http://www.star.bnl.gov/STARAFS/comp/prod/Sanity";
+$INSU::HTMLREF="http://www.star.bnl.gov/STAR/comp/prod/Sanity";
 
 # variables subject to export. So far, we will be using
 # functions to return their value
