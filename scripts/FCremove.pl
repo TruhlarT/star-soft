@@ -68,14 +68,16 @@ open(FI,$FILIN) || die "Give a file name as input\n";
 $fileC = new FileCatalog();
 
 my ($user,$passwd) = $fileC->get_connection($SITE."::Admin");
+if ( ! defined($user) ){   $user = "";}
+if ( ! defined($passwd) ){ $passwd = "";}
 
-if ( ! defined($user) ){
+if ( $user eq ""){
     print "Password : ";
     chomp($passwd = <STDIN>);
     $fileC->connect_as($SITE."::Admin","FC_admin",$passwd) || die "Cannot connect as FC_admin\n";
 } else {
-    if ( ! defined($passwd) ){
-        print "Password for $user : ";
+    if ( $passwd eq ""){
+	print "Password for $user : ";
         chomp($passwd = <STDIN>);
     }
     $fileC->connect_as($SITE."::Admin",$user,$passwd)      || die "Cannot connect as $user\n";
