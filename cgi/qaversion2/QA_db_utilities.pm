@@ -832,6 +832,7 @@ sub ParseDatasetReal{
 
 sub GetOldReports{
   my $data_type = shift; # MC or real
+
   my $old_time  = 100;   # number of days
   my $now       = time;  # current date in epoch seconds
   my @old_report_keys;
@@ -844,7 +845,7 @@ sub GetOldReports{
 			qa.$QASum{jobID} = file.jobID and
 			(to_days(from_unixtime($now)) -
 			 to_days(file.createTime)) > $old_time and
-			qa.QASum{type} = '$data_type'
+			qa.$QASum{type} = '$data_type'
 		      };
 
   my $query_delete = qq{ delete from $QASum{Table} 

@@ -213,7 +213,7 @@ sub ParseLogfile{
   }
   
   # deduce the error file
-  (my $errorfile = $logfile) =~ s/\/log$/err/;
+  (my $errorfile = $logfile) =~ s/log$/err/;
 
   my $fh_err = FileHandle->new($errorfile, "r");
 
@@ -225,8 +225,8 @@ sub ParseLogfile{
     # print to StError and StWarning file
     while( defined( my $line = $fh_err->getline ) ){
       
-      print $FH_ERR  $line if $line =~ /^StError:/;
-      print $FH_WARN $line if $line =~ /^StWarning:/;
+      print $FH_ERR  $line if $line =~ /StError:/;
+      print $FH_WARN $line if $line =~ /StWarning:/;
 
     }
     close $FH_ERR; close $FH_WARN;

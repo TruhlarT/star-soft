@@ -8,6 +8,7 @@ package QA_object_offline;
 use CGI qw(:standard :html3);
 use IO_object;
 use QA_db_utilities;
+use QA_globals;
 use Logreport_object_offline;
 
 use base qw(QA_object);
@@ -52,7 +53,10 @@ sub DataDisplayString{
   my $prodSeries = $self->LogReport->ProdSeries;
   my $chainName  = $self->LogReport->ChainName;
   
-  return $self->ReportKey. br. br .
+  my $report_key_string = $self->ReportKey . br . br
+    if $gBrowser_object->ExpertPageFlag;
+
+  return $report_key_string .
          "JobID : " . $self->JobID . br.
 	 "RunID : " . $self->LogReport->RunID . br.
 	 "Dataset : " . $self->LogReport->Dataset . br .	   

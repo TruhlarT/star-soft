@@ -220,7 +220,12 @@ sub move_old_reports{
   no strict 'refs';
 
   # this should have deleted the jobs from the db
-  my @old_report_keys = &$gDataClass_object->GetOldReports;
+  my @old_report_keys = &{$gDataClass_object->GetOldReports};
+
+  if (not defined @old_report_keys){
+    print h4("No report files to move\n") .br ;
+    return;
+  }
 
   # now move them on disk
 
@@ -229,10 +234,10 @@ sub move_old_reports{
     my $name_move = "$dir_name_old/$report_key";
 
     print "cp -rp $name $name_move <br> \n";
-#    system ("cp -rp $name $name_move");
+    system ("cp -rp $name $name_move");
 
     print "\\rm -rf $name <br> \n";
-#    system ("\\rm -rf $name");
+    system ("\\rm -rf $name");
   }
 }
 
