@@ -4,7 +4,7 @@
 # of te FileCatalog database
 #
 # Written by Adam Kisiel, Warsaw University of Technology (2002)
-# Modified by J.Lauret, BNL
+# Modified by J.Lauret, BNL 2002-2003 
 #
 
 use lib "/afs/rhic/star/packages/scripts";
@@ -28,6 +28,7 @@ my $newval=undef;
 my $keyw;
 my $n;
 my $confirm;
+my $allst;
 my $user=undef;
 my $passwd=undef;
 
@@ -41,6 +42,7 @@ $debug = 1;
 $delay = 0;
 $mode  = 1;  # check is the default
 $confirm = 0;
+$allst  = 0;
 
 # Parse the cvommand line arguments.
 $count = 0;
@@ -85,6 +87,9 @@ while (defined $ARGV[$count]){
 
     } elsif ($ARGV[$count] eq "-doit"){
 	$confirm = 1;
+
+    } elsif ($ARGV[$count] eq "-allst"){
+	$allst = 1;
 
     } elsif ($ARGV[$count] eq "-mark"){
 	$mode  = 3;
@@ -132,10 +137,11 @@ if ( ! defined($user) && ! defined($passwd) ){
 
 
 if ( ! defined($user) ){
-    print "Password : ";
+    print "Password FC_admin : ";
     chomp($passwd = <STDIN>);
     $fileC->connect_as("Admin","FC_admin",$passwd);
 } else {
+    # defined, values from get_connection() were returned
     $fileC->connect_as("Admin",$user,$passwd);
 }
 
@@ -268,10 +274,11 @@ while ($morerecords)
 	$fileC->set_delayed() if ($delay);
 
 	my $store=$fileC->get_context("storage");
-	if( ! defined($store) ){
+	if( ! defined($store) && ! $allst){
 	    # Impose NFS to minimize errors
 	    $store = "NFS";
 	    $fileC->set_context("storage=NFS");
+	    print "NOTE :: storage=NFS is set by default. Use storage keyword to over-write\n";
 	}
 
 
@@ -297,12 +304,8 @@ while ($morerecords)
 	if (($#items +1) == $batchsize){
 	    $morerecords = 1;
 	} else {
-	    my(@rows);
 	    print "Running post-deletion bootstrap\n";
-	    $fileC->set_context("limit=100000000");
-	    @rows = $fileC->bootstrap("runnumber",1);     print "Runnumber cleaned @rows\n" if (@rows);
-	    @rows = $fileC->bootstrap("collision",1);     print "Collision cleaned @rows\n" if (@rows);
-	    @rows = $fileC->bootstrap("configuration",1); print "Configuration cleaned @rows\n" if (@rows);
+	    &FullBootstrap();
 	}
 	if ($confirm){
 	    # we have shifted records
@@ -466,16 +469,32 @@ while ($morerecords)
 	print "Use -doit to do a real cleaning\n" if (! $confirm);
 
     } elsif ($mode == 9){
-	my @rows;
-	$fileC->set_context("limit=100000000");
-	@rows = $fileC->bootstrap($keyw,$confirm);
-	print "Returned IDs $#rows: @rows\n";
+	if ( $keyw eq "all"){
+	    &FullBootstrap();
+	} else {
+	    my @rows;
+	    $fileC->set_context("limit=100000000");
+	    @rows = $fileC->bootstrap($keyw,$confirm);
+	    print "Returned IDs $#rows: @rows\n";
+	}
 	print "Use -doit to do a real cleaning\n" if (! $confirm);
     }
 
 
 }
 
+
+
+sub FullBootstrap
+{
+    my(@rows);
+
+    $fileC->set_context("limit=100000000");
+    @rows = $fileC->bootstrap("runnumber",1);     print "Runnumber cleaned @rows\n" if (@rows);
+    @rows = $fileC->bootstrap("collision",1);     print "Collision cleaned @rows\n" if (@rows);
+    @rows = $fileC->bootstrap("generator",1);     print "Generator cleaned @rows\n" if (@rows);
+    @rows = $fileC->bootstrap("configuration",1); print "Configuration cleaned @rows\n" if (@rows);
+}
 
 
 
@@ -511,13 +530,19 @@ sub Usage
                          ddelete uses the delayed mechanism of the module
 
 
-                         WARNING!!! The delete operation is irreversible!
-                         -alla is a switch you may use to delete availability < 0
-                               The default is to only delete the 0 ones.
+ WARNING!!! The delete operation is irreversible ! Therefore, we made it perticularly
+ combersome to delete records to prevent accidental delete. DO NOT use the above
+ keywords unless you are sure of what will happen :
 
- Unless specified, the context storage is set to NFS by default for delete operations.
- The -doit switch MUST now be specified for ALL delete operations.
- For the 2 above switches, -doit switch MUST be specified (debug mode otherwise)
+   + The -doit switch MUST now be specified for ALL delete operations.
+   + Unless specified, the context storage is set to NFS by default for delete 
+     operations. 
+     -allst is a switch you may want to use to take into account all 
+     storage type in one shot. The default storage=NFS is made to prevent 
+     accidental deletion of persistent stored files. This should be used with
+     caution.
+   + -alla is a switch you may use to delete availability < 0
+     The default is to only delete the 0 ones.
 
  -alter keyword=value    alter keyword value for entry(ies) ** DANGEROUS **
                          This works on dictionaries or tables
@@ -530,16 +555,20 @@ sub Usage
  -floc                   check the FileLocations for orphan records
  -fdata                  check the FileData for orphan records
  -trgc                   check the TriggerCompositions table
- -boots X                bootstrap keyword X
+ -boots {X|all}          bootstrap keyword X, using "all" will do a 
+                         sequence of table cleaning
 
 
  Other options
  -------------
- -debug                  turn ddb module debugging information ON (default=OFF)
+ -debug                  turn database module debugging information ON (default=OFF)
  -nodebug                turn this script debugging information OFF (default=ON)
  -u user                 use 'user' ddb access privs
  -p passwd               use 'password' for ddb access
-
+ -doit                   switch MUST be specified to really perform the operation.
+                         Without it, the API will only display the operation it 
+                         intends to perform (i.e. debug mode). It is wise to start 
+                         in debug mode.
 ~;
 
 }
