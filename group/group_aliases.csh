@@ -1,5 +1,8 @@
-# $Id: group_aliases.csh,v 1.12 2001/04/09 15:24:19 jeromel Exp $
+# $Id: group_aliases.csh,v 1.13 2003/04/18 02:14:41 jeromel Exp $
 # $Log: group_aliases.csh,v $
+# Revision 1.13  2003/04/18 02:14:41  jeromel
+# remove starver as an alias
+#
 # Revision 1.12  2001/04/09 15:24:19  jeromel
 # Small modif for auto-build tree (not complete)
 #
@@ -29,7 +32,7 @@ alias stardev    'source ${GROUP_DIR}/.stardev'
 alias staradev   'source ${GROUP_DIR}/.staradev'
 alias star.dev   'source ${GROUP_DIR}/star.dev'
 alias star..dev  'source ${GROUP_DIR}/star..dev'
-alias starver    'source ${GROUP_DIR}/.starver'
+#alias starver    'source ${GROUP_DIR}/.starver'
 alias setup      'source ${GROUP_DIR}/setup'
 alias starsetup  'source ${GROUP_DIR}/setup'
 if ($?SILENT == 1) then
