@@ -1,7 +1,10 @@
 #!/usr/bin/csh -f
-#       $Id: group_env.csh,v 1.41 1998/07/31 19:40:36 fisyak Exp $
+#       $Id: group_env.csh,v 1.42 1998/08/05 13:07:17 wenaus Exp $
 #	Purpose:	STAR group csh setup 
 #       $Log: group_env.csh,v $
+#       Revision 1.42  1998/08/05 13:07:17  wenaus
+#       SNiFF+ setup
+#
 #       Revision 1.41  1998/07/31 19:40:36  fisyak
 #       Add STAR_PROD to versioning SL
 #
@@ -299,6 +302,24 @@ source $GROUP_DIR/ObjySetup.csh
 setenv G4PROTO /star/sol/packages/geant4/prototype
 setenv RWBASE /star/sol/packages/rogue/workspaces/SOLARIS25/SUNPRO42/12s
 setenv CLHEP_BASE_DIR /opt/rhic
+
+# SNiFF+
+switch ($STAR_SYS)
+    case "sun4*":
+#     ====================
+      setenv SNIFF_DIR /star/sol/packages/sniff
+      set path = ( $path $SNIFF_DIR/bin )
+      breaksw 
+    case "i386_*":
+#     ====================
+      setenv SNIFF_DIR /star/sol/packages/sniff
+      set path = ( $path $SNIFF_DIR/bin )
+      breaksw
+    default:
+#     ====================
+      breaksw
+endsw
+
 # HP Jetprint
 if ( -d /opt/hpnp ) then
   if ($ECHO) echo   "Paths set up for HP Jetprint"
