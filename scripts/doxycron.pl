@@ -288,22 +288,22 @@ for ($kk=0 ; $kk <= $#PROJECTS ; $kk++){
 
 
 	    #### CGI setup
-	} elsif ($line =~ m/(CGI_NAME.*=\s+)(.*)/){
+	} elsif ($line =~ m/(^CGI_NAME.*=\s+)(.*)/){
 	    $line = "CGI_NAME               = search.cgi";
 	    
-	} elsif ($line =~ m/(CGI_URL.*=\s+)(.*)/){
+	} elsif ($line =~ m/(^CGI_URL.*=\s+)(.*)/){
 	    $line = "CGI_URL                = $HTTPD/cgi-bin/dox$SUBDIR";
 
 
 
 	    #### URL setup for search
-	} elsif ($line =~ m/(DOC_URL.*=\s+)(.*)/){
+	} elsif ($line =~ m/(^DOC_URL.*=\s+)(.*)/){
 	    $line = "DOC_URL                = $HTTPD/$URLPATH/dox$SUBDIR/html";
 
-	} elsif ($line =~ m/(DOC_ABSPATH.*=\s+)(.*)/){
+	} elsif ($line =~ m/(^DOC_ABSPATH.*=\s+)(.*)/){
 	    $line = "DOC_ABSPATH            = $TARGETD/dox$SUBDIR/html";
 
-	} elsif ($line =~ m/(BIN_ABSPATH.*=\s+)(.*)/){
+	} elsif ($line =~ m/(^BIN_ABSPATH.*=\s+)(.*)/){
 	    $line = "BIN_ABSPATH            = $BINPATH";
 
 	}
@@ -342,7 +342,10 @@ for ($kk=0 ; $kk <= $#PROJECTS ; $kk++){
     # resulting output of doxygen to a temp file
     # -------------------------------------------------------------------
     if( -e "$tmpf.cfg"){
-	print "\tRunning $DOXYGEN now ".localtime()."\n";
+	print 
+	    "\tRunning $DOXYGEN now ".localtime()."\n".
+	    "\t\t(cd $TMPDIR ; $DOXYGEN $tmpf.cfg >&$tmpf.log)\n";
+
 	system("cd $TMPDIR ; $DOXYGEN $tmpf.cfg >&$tmpf.log");
 	if( -d "$TARGETD/dox$SUBDIR/tmp$$/html" && $DOTAG){
 	    print "\tRunning $DOXYTAG now ".localtime()."\n";
@@ -424,7 +427,15 @@ for ($kk=0 ; $kk <= $#PROJECTS ; $kk++){
 		} else {
 		    $ERRORS{$el}  = "$line";
 		}
-	    } elsif($line =~ m/(.*)(:\d+\s+)(Warning:)(.*)/){
+	    } elsif ($line =~ m/(Warning: ignoring unknown tag)(.*)(, file)/){
+		$el = "Configuration";
+		if( defined($ERRORS{$el}) ){
+		    $ERRORS{$el} .= ";$1$2";
+		} else {
+		    $ERRORS{$el}  = "$1$2";
+		}
+
+	    } elsif ($line =~ m/(.*)(:\d+\s+)(Warning:)(.*)/){
 		# I separated it because it may become a ';' list
 		# in the pattern. So far, only saw 'Warning'.
 		$el = $1; $val = "$2$3$4";
@@ -494,7 +505,7 @@ for ($kk=0 ; $kk <= $#PROJECTS ; $kk++){
 		print FO "<p><a name=\"$ref\"></a>$line\n<blockquote><pre>\n";
 		@items = split(/;/,$ERRORS{$line});
 		foreach $tmp (@items){
-		    print FO "$tmp\n";
+		    print FO &Escape($tmp)."\n";
 		}
 		print FO "</pre></blockquote>\n";
 	    }
@@ -509,8 +520,7 @@ for ($kk=0 ; $kk <= $#PROJECTS ; $kk++){
 	    open(FO,">$TARGETD/dox$SUBDIR/html/index.html");
 	    foreach $line (@HEAD){ print FO "$line\n";}
 	    print FO 
-		"<hr><h1>$PROJECT Documentation</h1>\n",
-		"<p>\n",
+		"\n",
 		"<ul>",
 		"<li><a href=\"doxycron-errors.html\">Runtime warnings</a>",
 		"<li><a href=\"/STAR/comp/sofi/doxygen/\">User documentation</a>";
@@ -541,7 +551,7 @@ for ($kk=0 ; $kk <= $#PROJECTS ; $kk++){
 
     # delete the log now
     print "\tRemoving log file\n";
-    unlink("$tmpf.log");
+    #unlink("$tmpf.log");
 }
 
 
@@ -553,6 +563,22 @@ sub GetRef
     $line =~ s/\s//g;
     $line;
 }
+
+
+sub Escape
+{
+    my($line)=@_;
+
+    if ( defined($line) ){
+	$line =~ s/&/&amp;/g;
+	$line =~ s/</&lt;/g;
+	$line =~ s/>/&gt;/g;
+    } else {
+	$line = "";
+    }
+    $line;
+}
+
 
 
 #
@@ -569,7 +595,7 @@ sub CfgCreate
     if( ! open(FO,">$file") ){ return 0;}
     print FO qq~
 
-# Doxyfile 1.2.12-20011125
+# Doxyfile 1.2.12 to 1.3.5
 
 # This file describes the settings to be used by the documentation system
 # doxygen (www.doxygen.org) for a project
@@ -679,7 +705,7 @@ FULL_PATH_NAMES        = YES
 STRIP_FROM_PATH        = Auto->\$INPUT/
 
 # The INTERNAL_DOCS tag determines if documentation 
-# that is typed after a \internal command is included. If the tag is set 
+# that is typed after a \\internal command is included. If the tag is set 
 # to NO (the default) then the documentation will be excluded. 
 # Set it to YES to include the internal documentation.
 
@@ -727,7 +753,7 @@ SHOW_INCLUDE_FILES     = YES
 # will interpret the first line (until the first dot) of a JavaDoc-style 
 # comment as the brief description. If set to NO, the JavaDoc 
 # comments  will behave just like the Qt-style comments (thus requiring an 
-# explict \@brief command for a brief description.
+# explict \\@brief command for a brief description.
 
 JAVADOC_AUTOBRIEF      = NO
 
@@ -762,19 +788,19 @@ DISTRIBUTE_GROUP_DOC   = NO
 TAB_SIZE               = 8
 
 # The GENERATE_TODOLIST tag can be used to enable (YES) or 
-# disable (NO) the todo list. This list is created by putting \todo 
+# disable (NO) the todo list. This list is created by putting \\todo 
 # commands in the documentation.
 
 GENERATE_TODOLIST      = YES
 
 # The GENERATE_TESTLIST tag can be used to enable (YES) or 
-# disable (NO) the test list. This list is created by putting \test 
+# disable (NO) the test list. This list is created by putting \\test 
 # commands in the documentation.
 
 GENERATE_TESTLIST      = YES
 
 # The GENERATE_BUGLIST tag can be used to enable (YES) or 
-# disable (NO) the bug list. This list is created by putting \bug 
+# disable (NO) the bug list. This list is created by putting \\bug 
 # commands in the documentation.
 
 GENERATE_BUGLIST       = YES
@@ -789,7 +815,7 @@ GENERATE_BUGLIST       = YES
 ALIASES                = 
 
 # The ENABLED_SECTIONS tag can be used to enable conditional 
-# documentation sections, marked by \if sectionname ... \endif.
+# documentation sections, marked by \\if sectionname ... \\endif.
 
 ENABLED_SECTIONS       = 
 
@@ -798,7 +824,7 @@ ENABLED_SECTIONS       =
 # the documentation. If the initializer consists of more lines than specified 
 # here it will be hidden. Use a value of 0 to hide initializers completely. 
 # The appearance of the initializer of individual variables and defines in the 
-# documentation can be controlled using \showinitializer or \hideinitializer 
+# documentation can be controlled using \\showinitializer or \\hideinitializer 
 # command in the documentation regardless of this setting.
 
 MAX_INITIALIZER_LINES  = 30
@@ -838,7 +864,7 @@ WARNINGS               = YES
 WARN_IF_UNDOCUMENTED   = NO
 
 # The WARN_FORMAT tag determines the format of the warning messages that 
-# doxygen can produce. The string should contain the \$file, \$line, and \$text 
+# doxygen can produce. The string should contain the \\\$file, \\\$line, and \\\$text 
 # tags, which will be replaced by the file and line number from which the 
 # warning originated and the warning text.
 
@@ -882,6 +908,11 @@ RECURSIVE              = YES
 
 EXCLUDE                = /html /doc 
 
+# The EXCLUDE_SYMLINKS tag can be used select whether or not files or directories 
+# that are symbolic links (a Unix filesystem feature) are excluded from the input.
+
+EXCLUDE_SYMLINKS       = NO
+
 # If the value of the INPUT tag contains directories, you can use the 
 # EXCLUDE_PATTERNS tag to specify one or more wildcard patterns to exclude 
 # certain files from those directories.
@@ -890,7 +921,7 @@ EXCLUDE_PATTERNS       =
 
 # The EXAMPLE_PATH tag can be used to specify one or more files or 
 # directories that contain example code fragments that are included (see 
-# the \include command).
+# the \\include command).
 
 EXAMPLE_PATH           = Auto->\$INPUT/*/examples
 
@@ -902,7 +933,7 @@ EXAMPLE_PATH           = Auto->\$INPUT/*/examples
 EXAMPLE_PATTERNS       = 
 
 # If the EXAMPLE_RECURSIVE tag is set to YES then subdirectories will be 
-# searched for input files to be used with the \include or \dontinclude 
+# searched for input files to be used with the \\include or \\dontinclude 
 # commands irrespective of the value of the RECURSIVE tag. 
 # Possible values are YES and NO. If left blank NO is used.
 
@@ -910,7 +941,7 @@ EXAMPLE_RECURSIVE      = NO
 
 # The IMAGE_PATH tag can be used to specify one or more files or 
 # directories that contain image that are included in the documentation (see 
-# the \image command).
+# the \\image command).
 
 IMAGE_PATH             = 
 
@@ -1360,6 +1391,12 @@ INCLUDED_BY_GRAPH      = YES
 
 GRAPHICAL_HIERARCHY    = YES
 
+# The DOT_IMAGE_FORMAT tag can be used to set the image format of the images 
+# generated by dot. Possible values are gif, jpg, and png
+# If left blank gif will be used.
+
+DOT_IMAGE_FORMAT       = gif
+
 # The tag DOT_PATH can be used to specify the path where the dot tool can be 
 # found. If left blank, it is assumed the dot tool can be found on the path.
 
@@ -1367,7 +1404,7 @@ DOT_PATH               =
 
 # The DOTFILE_DIRS tag can be used to specify one or more directories that 
 # contain dot files that are included in the documentation (see the 
-# \dotfile command).
+# \\dotfile command).
 
 DOTFILE_DIRS           = 
 
@@ -1407,6 +1444,12 @@ DOT_CLEANUP            = YES
 # used. If set to NO the values of all tags below this one will be ignored.
 
 SEARCHENGINE           = YES
+
+#+
+# All tags above will be ignored by recent versions of doxygen
+# modulo warnings. However, for backward portability, we will leave
+# them in.
+#-
 
 # The CGI_NAME tag should be the name of the CGI script that 
 # starts the search engine (doxysearch) with the correct parameters. 
