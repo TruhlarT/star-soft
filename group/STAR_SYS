@@ -1,5 +1,8 @@
 #!/bin/csh
 #  $Log: STAR_SYS,v $
+#  Revision 1.32  2003/06/16 23:59:25  jeromel
+#  new scheme (need more testing) for STAR_SYS and STAR_HOST_SYS
+#
 #  Revision 1.31  2002/08/14 02:23:25  jeromel
 #  Beuh !! There is not /bin/sys but a /usr/bin/sys ... Corrected.
 #
@@ -101,12 +104,16 @@
 #
 #  Revision 1.1.1.1  1997/12/31 14:35:23  fisyak
 #
-#             Last modification $Date: 2002/08/14 02:23:25 $
+#             Last modification $Date: 2003/06/16 23:59:25 $
 #
 # Determine STAR_SYS variable.
 #
 setenv STAR_SYS ""
 
+#
+# Get it through the AFS fs sysname command which may
+# be set by the administrator.
+#
 if (-e /usr/arla/bin/fs) then
   setenv STAR_SYS `/usr/arla/bin/fs sysname | awk -F\' '{print $2}'`
 else
@@ -122,59 +129,61 @@ else
   endif
 endif
 
-
-if (${STAR_SYS} == "") then
-set mach_os = ` uname -sr | sed -e 's/ //g' -e 's/\.//g' `
 #
-switch ($mach_os)
-case "sn6*":
+# Sort it out otherwise via uname command
+#
+if (${STAR_SYS} == "") then
+    set mach_os = ` uname -sr | sed -e 's/ //g' -e 's/\.//g' `
+    #
+    switch ($mach_os)
+    case "sn6*":
 	setenv STAR_SYS cray
 	breaksw
-case "AIX1":
+    case "AIX1":
 	setenv STAR_SYS rs_aix31
 	breaksw
-case "AIX2":
+    case "AIX2":
 	setenv STAR_SYS rs_aix32
 	breaksw
-case "HP-UXB1020":
+    case "HP-UXB1020":
 	setenv STAR_SYS hp_ux102
 	breaksw
-case "IRIX4*":
-case "IRIX52":
+    case "IRIX4*":
+    case "IRIX52":
 	setenv STAR_SYS sgi_52
 	breaksw
-case "IRIX53:"
+    case "IRIX53:"
 	setenv STAR_SYS sgi_53
 	breaksw
-case "IRIX62":
+    case "IRIX62":
 	setenv STAR_SYS sgi_62
 	breaksw
-case "IRIX63":
+    case "IRIX63":
 	setenv STAR_SYS sgi_63
 	breaksw
-case "IRIX6464":
+    case "IRIX6464":
 	setenv STAR_SYS sgi_64
 	breaksw
-case "Linux222":
+    case "Linux222":
 	setenv STAR_SYS i386_redhat51
 	breaksw
-case "Linux*":
+    case "Linux*":
 	setenv STAR_SYS i386_redhat61
 	breaksw
-case "OSF1V32":
-case "OSF1V40":
+    case "OSF1V32":
+    case "OSF1V40":
 	setenv STAR_SYS alpha_osf32c
 	breaksw
-case "OSF1*":
+    case "OSF1*":
 	setenv STAR_SYS osf1
 	breaksw
-case "SunOS54"
+    case "SunOS54"
         setenv STAR_SYS sun4x_54
 	breaksw
-case "SunOS551"
+    case "SunOS551"
         setenv STAR_SYS sun4x_55
 	breaksw
-case "SunOS5*":
+    case "SunOS5*":
 	switch ("`uname -p`")
 	case "*86":
 		setenv STAR_SYS sunx86_55
@@ -184,30 +193,14 @@ case "SunOS5*":
 		breaksw
 	endsw
 	breaksw
-default:
+    default:
 	setenv STAR_SYS unknown
 	breaksw
-endsw
+    endsw
 endif
-if ("${STAR_SYS}" == "i386_linux22" || "${STAR_SYS}" == "i386_linux2") then
-    set redhat = "6.1";
-    setenv STAR_SYS i386_redhat61
-    if (-f /etc/redhat-release) set redhat = `awk '{print $5}' /etc/redhat-release`
-    if ("$redhat" == "6.0") setenv STAR_SYS "i386_redhat60"
-    if ("$redhat" == "6.1") setenv STAR_SYS "i386_redhat61"
-    if ("$redhat" == "6.2") setenv STAR_SYS "i386_redhat61"
-endif
-if ("$STAR_SYS" == "i386_linux61"|| "$STAR_SYS" == "i386_linux6") setenv STAR_SYS "i386_redhat61"
-if ("$STAR_SYS" == "i386_linux22"|| "$STAR_SYS" == "i386_redhat50" || \
-    "$STAR_SYS" == "i386_linux2" || "$STAR_SYS" == "i386_linux3") setenv STAR_SYS "i386_redhat51"
-setenv STAR_HOST_SYS $STAR_SYS
-if ($?EGCS_ON  == 1 && "${STAR_SYS}" == "i386_redhat51") setenv STAR_HOST_SYS i386_redhat51egcs
-if ($?EGCS_ON  == 1 && "${STAR_SYS}" == "i386_redhat60") setenv STAR_HOST_SYS i386_redhat61egcs
-if ($?EGCS_ON  == 1 && "${STAR_SYS}" == "i386_redhat61") setenv STAR_HOST_SYS i386_redhat61egcs
-if ($?USE_EGCS == 1 && "${STAR_SYS}" == "i386_redhat51") setenv STAR_HOST_SYS i386_redhat51egcs
-if ($?USE_EGCS == 1 && "${STAR_SYS}" == "i386_redhat60") setenv STAR_HOST_SYS i386_redhat61egcs
-if ($?USE_EGCS == 1 && "${STAR_SYS}" == "i386_redhat61") setenv STAR_HOST_SYS i386_redhat61egcs
-if ($?USE_KCC  == 1 && "${STAR_SYS}" == "i386_redhat60") setenv STAR_HOST_SYS i386_redhat60kcc
+
+
+# Solaris 4 hack
 if ("${STAR_SYS}" == "sun4x_56") then
     if ($STAR_LEVEL  == "old") then
 	if ($?USE_CC4  == 1 && $?USE_CC5  == 1) unsetenv USE_CC5
@@ -218,3 +211,55 @@ if ("${STAR_SYS}" == "sun4x_56") then
     endif
     if ($?USE_CC5  == 1) setenv STAR_HOST_SYS sun4x_56_CC5
 endif
+
+# All default value
+setenv STAR_HOST_SYS $STAR_SYS
+
+
+# Linux hacks
+if ("${STAR_SYS}" == "i386_linux22" || "${STAR_SYS}" == "i386_linux2") then
+    # Old scheme pre 2003 and pre kernel 2.4
+    set redhat = "6.1";
+    setenv STAR_SYS i386_redhat61
+    if (-f /etc/redhat-release) set redhat = `awk '{print $5}' /etc/redhat-release`
+    if ("$redhat" == "6.0") setenv STAR_SYS "i386_redhat60"
+    if ("$redhat" == "6.1") setenv STAR_SYS "i386_redhat61"
+    if ("$redhat" == "6.2") setenv STAR_SYS "i386_redhat61"
+
+    # This is part of the old scheme
+    if ("$STAR_SYS" == "i386_linux61"|| "$STAR_SYS" == "i386_linux6") setenv STAR_SYS "i386_redhat61"
+    if ("$STAR_SYS" == "i386_linux22"|| "$STAR_SYS" == "i386_redhat50" || \
+	"$STAR_SYS" == "i386_linux2" || "$STAR_SYS" == "i386_linux3") setenv STAR_SYS "i386_redhat51"
+
+    #
+    # Compiler hacks : for egcs.
+    # Env vraiables have to be defined prior to this script.
+    #
+    if ($?EGCS_ON  == 1 && "${STAR_SYS}" == "i386_redhat51") setenv STAR_HOST_SYS i386_redhat51egcs
+    if ($?EGCS_ON  == 1 && "${STAR_SYS}" == "i386_redhat60") setenv STAR_HOST_SYS i386_redhat61egcs
+    if ($?EGCS_ON  == 1 && "${STAR_SYS}" == "i386_redhat61") setenv STAR_HOST_SYS i386_redhat61egcs
+    if ($?USE_EGCS == 1 && "${STAR_SYS}" == "i386_redhat51") setenv STAR_HOST_SYS i386_redhat51egcs
+    if ($?USE_EGCS == 1 && "${STAR_SYS}" == "i386_redhat60") setenv STAR_HOST_SYS i386_redhat61egcs
+    if ($?USE_EGCS == 1 && "${STAR_SYS}" == "i386_redhat61") setenv STAR_HOST_SYS i386_redhat61egcs
+    if ($?USE_KCC  == 1 && "${STAR_SYS}" == "i386_redhat60") setenv STAR_HOST_SYS i386_redhat60kcc
+else
+    #
+    # Upper version of Linux drastic change in scheme J.Lauret 2003.
+    # Will need to find a more permanent solution ...
+    #
+    setenv STAR_HOST_SYS $STAR_SYS
+    if (-f /etc/redhat-release) then
+	set redhat  = `awk '{print $5}' /etc/redhat-release`
+	set rhmajor = `echo $redhat | sed "s/\..*//"`
+	set redhat  = `echo $redhat | sed "s/\.//g"`
+	if ($redhat == 73 || $rhmajor >= 8) then
+	    # That's really when the new scheme starts
+	    set gccv = `gcc -dumpversion | awk -F. '{print $1$2$3}'`
+	    if ( "$gccv" != "")  setenv STAR_HOST_SYS rh${redhat}_gcc${gccv}
+	endif
+    endif
+endif
+
+
+
+
