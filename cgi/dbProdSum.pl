@@ -263,7 +263,6 @@ if ($trigD eq "all" and $fieldM eq "all" and $detSet eq "all") {
 &beginHtml();
 
  &printTotal(); 
-&cgiSetup();
 &begin2Html();
 
 #####  finished with database
