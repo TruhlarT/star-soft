@@ -59,7 +59,8 @@ $INSU::CONSOK=0;
 # ------------------------------------------
 $INSU::RELFLNM=".log/afs.release";
 @INSU::MANAGERS=("jlauret\@bnl.gov",
-		 "didenko\@bnl.gov"
+		 "didenko\@bnl.gov",
+		 "fisyak\@bnl.gov"
 		 );
 
 
@@ -433,7 +434,7 @@ sub IUSubmit
 
     if ( ! defined($flag) ){ $flag = 0;}
 
-    if ( -e $log ){ 
+    if ( -e $log ){
 	print "Deleting preceding log\n";
 	unlink($log);
     }
@@ -444,7 +445,7 @@ sub IUSubmit
     } else {
 	$tmpfile = "/tmp/$$-$<.ABUtils";
 	if (open(FO,">$tmpfile") ){
-	    print FO 
+	    print FO
 		"#!/bin/csh\n",
 		"$cmd\n";
 	    close(FO);
@@ -498,7 +499,7 @@ sub IUCheckFile
 	# csh mode
 	$sts = "";
 	$sts = "if ( ! -e $dir/$file) echo \"This test has never run\" >$dir/$file\n";
-	
+
     } else {
 	# unknown mode
 	print "ABUtil:: IUCheckFile : Unknown mode $mode\n";
