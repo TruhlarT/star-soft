@@ -10,7 +10,7 @@
 #        ->destroy         : destroy object and disconnect database FileCatalog
 #        ->set_context()   : set one of the context keywords to the given
 #                            operator and value
-#        ->set_optional_context() 
+#        ->set_optional_context()
 #                          : set this context as well but only if one key
 #                            is from the same table. Optional context are valid
 #                            only for querry mode and NOT in record addition
@@ -377,8 +377,9 @@ $operators[8] = "[]";
 $operators[9] = ">";
 $operators[10]= "<";
 $operators[11]= "~";
-$operators[12]= "%";
-$operators[13]= "%%";
+$operators[12]= "%%";
+$operators[13]= "%";
+
 
 
 # The possible aggregate values
@@ -601,7 +602,7 @@ sub _ReadConfig
 		      $ENV{SCATALOG},
 		      $ENV{STAR}."StDb/servers",
 		      ) ){
-	if ( -e $scope."/Catalog.xml" ){ 
+	if ( -e $scope."/Catalog.xml" ){
 	    $config = $scope."/Catalog.xml";
 	    last;
 	}
@@ -622,7 +623,7 @@ sub _ReadConfig
 	# perl layers. We skip entireley the header ...
 	#
 	while( defined($line = <FI>) ){
-	    chomp($line); 
+	    chomp($line);
 	    if ($line =~ /(\<SCATALOG)(.*\>)/i){
 		$rest = $2;
 		$ok   = 1;
@@ -647,7 +648,7 @@ sub _ReadConfig
 		}
 	    }
 
-	    if ($line =~ /\<\/SERVER\>/i){            
+	    if ($line =~ /\<\/SERVER\>/i){
 		if (! ($ok && 0x2) ){
 		    &print_message("ReadConfig","Parsing error. Check syntax");
 		} else {
@@ -747,7 +748,7 @@ sub connect {
 		      { PrintError => 0,
 			RaiseError => 0, AutoCommit => 1 }
 		      );
-  if (! $DBH ){ 
+  if (! $DBH ){
       &die_message("connect","Incorrect password") if ($DBI::err == 1045);
       if ( $tries < $NCTRY ){
 	  &print_message("connect","Connection failed $DBI::errstr . Retry in $NCSLP secondes");
@@ -812,9 +813,9 @@ sub disentangle_param {
  OPS: foreach my $op (@operators )
     {
 	#&print_debug("Searching for operator $op");
-	$op = '\]\[' if ($op eq "][");  # unfortunatly need 
+	$op = '\]\[' if ($op eq "][");  # unfortunatly need
 	$op = '\[\]' if ($op eq "[]");  # to be escaped
-	
+
 	if ($params =~ m/(.*)($op)(.*)/){
 	    ($keyword, $operator, $value) = ($1,$2,$3);
 	    last if (defined $keyword and defined $value);
@@ -3010,7 +3011,7 @@ sub run_query {
 					  "NOT MOD",
 					  $valuset{$keyw},
 					  4);
-		  
+
 
 	      } else {
 		  $sqlquery .= &TreatLOps($fieldname,
@@ -3328,7 +3329,7 @@ sub run_query {
 					    "NOT MOD",
 					    $valuset{$keyw},
 					    4));
-		  
+
 	  } else {
 	      push(@constraint,&TreatLOps("$tabname.$fieldname",
 					  $operset{$keyw},
@@ -3581,7 +3582,7 @@ sub TreatLOps
 	} elsif ( $op =~ /NOT MOD/){
 	    # Don't worry about the logic inversion
 	    # which is a small detail of how MySQL deals
-	    # with it vs how our logic is. 
+	    # with it vs how our logic is.
 	    $ival  = "MOD($fldnam,$ival)";
 	    $fldnam= "";
 	    $op    = "";
@@ -4298,7 +4299,7 @@ sub update_record {
 		  $sth->bind_columns(\$val);
 		  if ( $sth->fetch() ){
 		      # this does not need to be displayed if $utable
-		      # id is selected in whereclause as this would 
+		      # id is selected in whereclause as this would
 		      # select a unique record
 		      #print "--\n";
 		      my $tmp= $utable.".".&IDize("update_record",$utable);
@@ -4536,7 +4537,7 @@ sub update_location {
       #$qselect = "SELECT $ukeyword FROM $mtable WHERE $ukeyword=$uid";
       $qdelete = "DELETE LOW_PRIORITY FROM $mtable " ;
       $qupdate = "UPDATE LOW_PRIORITY $mtable SET $ukeyword=$uid ";
-      
+
       if ($whereclause ne ""){
 	  $qupdate .= " AND $whereclause";
       }
@@ -4583,12 +4584,12 @@ sub update_location {
       &print_debug("update_location : Failed to prepare [$qupdate] [$qselect] [$qdelete]");
       return 0;
   }
-	
+
   #
   # Now, loop over records with an already prepared sth
   #
   my($tmp,$failed,$count);
-  
+
   $failed = $count = 0;
   &print_debug("Ready to scan filelist now ".($#files+1)."\n");
 
@@ -4613,9 +4614,9 @@ sub update_location {
 	  } else {
 	      #if ( $sth1->execute($flid) ){
 	      #	  my(@all);
-	      #	  if ( @all = $sth1->fetchrow() ){  
+	      #	  if ( @all = $sth1->fetchrow() ){
 	      #	      &print_message("update_location","Deleting similar records for $flid");
-	      #	      $sth2->execute($flid); 
+	      #	      $sth2->execute($flid);
 	      #	  }
 	      #}
 	      if ( $sth3->execute($flid) ){
@@ -4646,7 +4647,7 @@ sub update_location {
 	      }
 	  }
       }
-      
+
   }
   #$sth1->finish();
   $sth2->finish();
