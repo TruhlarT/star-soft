@@ -1058,6 +1058,12 @@ sub UpdateLogReport{
   print h4("Making directory: $report_dir\n");
   mkdir $report_dir, 0775;
 
+  # just check for existence since it may already have been created before
+  unless(-e $report_dir){
+    print "Cannot create the report directory $report_dir: $!";
+    return;
+  }
+
   # create Logreport_object_offline, nightly, or online, etc
 
   my $logreport_ref = $self->NewLogReportObject() or return;
@@ -1101,9 +1107,12 @@ sub GetLogReport{
   }
   else
   {
-    print h3("<font color=red>Cannot find $filename<br>\n",
-	     "It's possible that the db has been updated, ",
-	     "but the logfile has not been parsed</font>\n"); 
+
+    print h3($self->ReportKey," is currently being updated?");
+
+#    print h3("<font color=red>Cannot find $filename<br>\n",
+#	     "It's possible that the db has been updated, ",
+#	     "but the logfile has not been parsed</font>\n"); 
     return; 
   }
   
