@@ -1952,9 +1952,9 @@ sub run_query {
 
 	  if (( $sth->rows < 5) && ($sth->rows>0)) {
 	    # Create a new constraint
-	    $addedconstr = " ( ";
+	    $addedconstr = " ";
 	    while ( $sth->fetch() ) {
-	      if ($addedconstr ne " ( ")
+	      if ($addedconstr ne " ")
 		{
 		  $addedconstr .= " OR $parent_tabname.$idname = $id "; 
 		}
@@ -1964,7 +1964,10 @@ sub run_query {
 		}
 	      &print_debug("Added constraints now $addedconstr");
 	    }
-	    $addedconstr .= " ) ";
+	    #$addedconstr .= " ) ";
+	    if( index($addedconstr,"OR") != -1){
+		$addedconstr = " ($addedconstr)";
+	    }
 	    # Add a newly constructed keyword
 	    push (@constraint, $addedconstr);
 	    # Remove the condition - we already take care of it
