@@ -1,6 +1,9 @@
-#       $Id: group_env.csh,v 1.12 1998/06/11 20:29:49 wenaus Exp $
+#       $Id: group_env.csh,v 1.13 1998/06/12 13:11:57 fisyak Exp $
 #	Purpose:	STAR group csh setup 
 #       $Log: group_env.csh,v $
+#       Revision 1.13  1998/06/12 13:11:57  fisyak
+#       Add version statistics
+#
 #       Revision 1.12  1998/06/11 20:29:49  wenaus
 #       Set STAR_DB only if not yet set to allow offsite overrides
 #
@@ -206,6 +209,9 @@ if ( -x /afs/rhic/star/group/dropit) then
 endif
 unset ECHO
 #END
+cat >> $GROUP_DIR/statistics/star${STAR_LEVEL} << EOD
+$USER from $HOST asked for $STAR_VERSION
+EOD
 
 
 
