@@ -1,5 +1,11 @@
-README for cgi/qa
-=================
+cgi
+===
+
+This area contains cgi scripts for general applications requiring
+dynamically generated web pages.
+
+cgi/qa
+======
 
 Author: Peter Jacobs, LBNL (pmjacobs@lbl.gov)
 Date of last change to this README file: Sept. 24, 1999
