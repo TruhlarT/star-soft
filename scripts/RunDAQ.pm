@@ -21,13 +21,14 @@
 #      rdaq_set_files               set a list of files from o-ddb to $status
 #
 # Utility (no need for any ddb to be opened)
-#      rdaq_file2hpss               return an HPSS path+file (2 method)
+#      rdaq_file2hpss               return an HPSS path+file (several methods)
 #      rdaq_mask2string             convert a detector mask to a string
 #
 #
 #
 use Carp;
 use DBI;
+use Date::Manip ();
 
 package RunDAQ;
 require 5.000;
@@ -385,8 +386,10 @@ sub rdaq_mask2string
 #
 # Accept a raw name, return a fully specified HPSS path
 # file name.
-# Mode 0 -> return path/file (default)
-# Mode 1 -> return path file (i.e. with space)
+# Mode 0 -> return 'path/file' (default)
+# Mode 1 -> return 'path file' (i.e. with space)
+# Mode 2 -> return 'path file year month'
+#           month is calculated.
 # 
 # May implement other modes ...
 #
@@ -394,7 +397,7 @@ sub rdaq_file2hpss
 {
     my($file,$mode)=@_;
     my($Hfile,$code);
-    my($y,$dm,$n);
+    my($y,$dm,$n,@items);
 
     # default
     if( ! defined($mode) ){ $mode = 0;}
@@ -414,6 +417,9 @@ sub rdaq_file2hpss
     } else {
 	if($mode==1){
 	    "$HPSSBASE/$y/$dm $file";
+	} elsif ($mode == 2){
+	    @items = Date::Manip::Date_NthDayOfYear($y,$dm);
+	    "$HPSSBASE/$y/$dm $file $y $items[1]";
 	} else {
 	    "$HPSSBASE/$y/$dm/$file";
 	}
