@@ -118,8 +118,8 @@ print "<h3 align=left>Collision:</h3>";
 print "<h3 align=left>";
 print $query->popup_menu(-name=>'SetCl',  
                    -values=>\@colSet,
-                   -default=>'AuAu200',                  
-                   -size=>5                              
+                   -default=>'DeuteronAu200',                  
+                   -size=>6                              
                    );
 
 print "</td><td width=50%>";
@@ -128,7 +128,7 @@ print "<h3 align=left>";
 print $query->popup_menu(-name=>'SetTrg',
                     -values=>\@trigSet,
                     -default=>'all',
-                    -size=>5
+                    -size=>6
                     );  
 
 print "</td> </tr> </table><hr>";
@@ -144,7 +144,7 @@ print "<h3 align=left >";
 print $query->popup_menu(-name=>'SetField',
                     -values=>\@mfield,
                     -default=>'all', 
-                    -size=>5
+                    -size=>6
                     ); 
 
 print "</td><td width=50%>";
@@ -153,7 +153,7 @@ print "<h3 align=left>";
 print $query->popup_menu(-name=>'SetDet',
                     -values=>\@detSet,
                     -default=>'all',
-                    -size=>5
+                    -size=>6
                     ); 
 
 print "</td> </tr> </table><hr>";
@@ -167,7 +167,7 @@ print "<h3 align=left>Production series:</h3>";
 print "<h3 align=left>";
 print $query->popup_menu(-name=>'SetPrd',  
                    -values=>\@prodPer,
-                   -default=>'P01gl',                   
+                   -default=>'P03ia',                   
                    -size=>5                              
                    );  
 
