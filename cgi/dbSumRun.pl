@@ -75,7 +75,7 @@ my  @hpssInFiles;
  my @hpssDstFiles;
   $nhpssDstFiles = 0;
 
-  $sql="SELECT runID, dataset, fName, path, size, Nevents  FROM $FileCatalogT WHERE runID = '$runNum' AND fName LIKE '%dst.root' AND path like '$prodDir%' AND hpss = 'Y'";
+  $sql="SELECT runID, dataset, fName, path, size, Nevents  FROM $FileCatalogT WHERE runID = '$runNum' AND fName LIKE '%dst.root' AND path like '%$prodSr%' AND hpss = 'Y'";
   $cursor =$dbh->prepare($sql)
     || die "Cannot prepare statement: $DBI::errstr\n";
   $cursor->execute;

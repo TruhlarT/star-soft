@@ -30,7 +30,7 @@ $setN = $pck[1];
 &beginHtml();
 my $dirRun = "/home/starreco/reco/" . $setN;
 
-$sql="SELECT * FROM $FileCatalogT WHERE runID = '$runN' AND jobID like '%$setN%' AND path like '$dirRun%' AND fName like '%root' ";
+$sql="SELECT * FROM $FileCatalogT WHERE runID = '$runN' AND jobID like '%$setN%' AND path like '%setN%' AND fName like '%root' ";
 $cursor =$dbh->prepare($sql)
   || die "Cannot prepare statement: $DBI::errstr\n";
 $cursor->execute;
