@@ -1,6 +1,9 @@
 //
-// $Id: StEpcMaker.cxx,v 1.3 2000/05/16 21:48:32 subhasis Exp $
+// $Id: StEpcMaker.cxx,v 1.4 2000/07/03 02:07:45 perev Exp $
 // $Log: StEpcMaker.cxx,v $
+// Revision 1.4  2000/07/03 02:07:45  perev
+// StEvent: vector<TObject*>
+//
 // Revision 1.3  2000/05/16 21:48:32  subhasis
 //  new checks for events with no clusters
 //
@@ -59,7 +62,7 @@ extern "C" {void type_of_call F77_NAME(gufld,GUFLD)(float *x, float *b);}
 // declaring cernlib routine (mathlib, H301) assndx to be used for matching.
 #include "StarCallf77.h"
 #define    assndx  F77_NAME(assndx,ASSNDX)
-extern "C" {void type_of_call assndx ( Int_t &, Float_t (*)[], Int_t &, Int_t &, Int_t &,Int_t *, Float_t &,Int_t (*)[],Int_t &); }
+extern "C" {void type_of_call assndx ( Int_t &, Float_t *, Int_t &, Int_t &, Int_t &,Int_t *, Float_t &,Int_t *,Int_t &); }
 
 
 ClassImp(StEpcMaker)
