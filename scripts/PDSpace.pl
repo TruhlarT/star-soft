@@ -6,16 +6,30 @@
 #
 # $0 > /afs/rhic.bnl.gov/star/doc/www/html/tmp/pub/overall.html
 #
+#
+# Hidden assumption is that  if a file named FC_$disk.txt or 
+# FC_$disk.html exists in $OUTD, a reference to it will appear.
+# 
+#
 
-#
+
+
 # List of disks will be by numbers
-#
-$MIN   =  1;  # 4
-$MAX   =  6;  # for testing
-$MAX   = 50;
-$MAIN  = "/star/data";
+$MIN   =  1;                                             # 4
+$MAX   =  6;                                             # for testing
+$MAX   = 50;                                             # Upper number ; can be as high
+$MAIN  = "/star/data";                                   # default base path
+
+# Static configuration
+$OUTD  = "/afs/rhic.bnl.gov/star/doc/www/html/tmp/pub/Spider";  # this will be used for Catalog hand-shake
+$WWWD  = "/webdatanfs/pub/";                             # Web equivalent
+$ICON  = "/icons/transfer.gif";                          # Icon to display
+$DINFO = "(check 'nova' Spiders)";                       # Many tools may be used for indexing
+                                                         # display info about which one.
+
 
 @COLORS = ("#FFFACD","#C1FFC1","#7FFFD4","#00DEFF","#87CEFA","#ccccee","#D8BFD8","#FF69B4");
+
 
 # Insert an extra table break before those numbers
 $BREAK{"01"} =  "User Space";  
@@ -23,9 +37,13 @@ $BREAK{"03"} =  "Reserved Usage Space Area";
 $BREAK{"06"} =  "Production Disks / Assigned TEMPORARY space for Projects";  
 $BREAK{"08"} =  "Production Disks";  
 
+
 # Standard header style
 $TD  = "<TD BGCOLOR=\"black\" align=\"center\"><FONT FACE=\"Arial, Helvetica\"><FONT COLOR=\"white\"><B>";
 $ETD = "</FONT></B></FONT></TD>";
+
+
+
 
 
 for ( $i = $MIN ; $i <= $MAX ; $i++){
@@ -128,6 +146,7 @@ print $FO
     "<H1>Information</H1>\n",
     "<OL>\n",
     "<LI><A HREF=\"#DSO\">Disk Space Overview</A>",
+    "<LI><A HREF=\"#FCREF\">Disk needing indexing</A>",
     "<LI><A HREF=\"#PLOC\">Production locations</A>",
     "<LI><A HREF=\"#SUM\">Summary</A>",
     "</OL>\n",
@@ -184,9 +203,10 @@ foreach $disk (sort keys %DINFO){
 	    "<TR BGCOLOR=\"#333333\"><TD ALIGN=\"center\" COLSPAN=\"7\">".
 	    "<FONT COLOR=\"white\"><B>$BREAK{$1}</B></FONT></TD></TR>\n";
     }
+    $FCRef = &GetFCRef($disk);
     printf $FO
 	"<TR bgcolor=\"$col\">\n".
-	"  <TD align=\"right\"><A NAME=\"%s\">%10s</A></TD>\n".
+	"  <TD align=\"right\"><A NAME=\"%s\">%10s</A>%s</TD>\n".
 	"  <TD align=\"right\">%11s</TD>\n".
 	"  <TD align=\"right\">%11s</TD>\n".
 	"  <TD align=\"right\">%11s</TD>\n".
@@ -194,20 +214,46 @@ foreach $disk (sort keys %DINFO){
 	"  <TD>%s</TD>\n".
 	"  <TD align=\"right\">%s</TD>\n".
 	"</TR>\n",
-	    &GetRef($disk),"<i><b>$disk</b></i>",$items[0],$items[1],$items[2],
-	    $items[3],$items[4],$items[5];
+	&GetRef($disk),"<i><b>$disk</b></i>",$FCRef,$items[0],$items[1],$items[2],
+	$items[3],$items[4],$items[5];
 
     $totals[0] += $items[0];
     $totals[1] += $items[1];
     $totals[2] += $items[2];
+
+    if ( $FCRef ne ""){
+	push(@FCRefs,$FCRef);
+    }
 
     #$col++;
     #if($col > $#COLORS){ $col = 0;}
 }
 
 
+
+#
+# FileCatalog index references
+#
 print $FO
     "</TABLE>\n",
+    "<P>\n",
+    "<H2><A NAME=\"FCREF\">Disk needing indexing</A></H2>\n";
+    
+if ($#FCRefs == -1){
+    print $FO "<I>Catalog is up-to-date or indexing daemon are down $DINFO.</I>\n";
+} else {
+    print $FO "<UL>\n";
+    foreach $line (@FCRefs){
+	print $FO "<LI>$line\n";
+    }
+    print $FO "</UL>\n";
+}
+
+
+#
+# Production Location summary
+#
+print $FO
     "<P>",
     "<H2><A NAME=\"PLOC\">Production Location</A></H2>\n",
     "<TABLE align=\"center\" cellspacing=\"0\" border=\"1\" width=\"750\">\n",
@@ -281,4 +327,17 @@ sub GetRef
     
     $el =~ s/[\/ ]/_/g;
     $el;
+}
+
+sub GetFCRef
+{
+    my($el)=@_;
+    $el =~ s/[\/ ]/_/g;
+    if ( -e $OUTD."/FC$el.html"){
+	return "<A HREF=\"$WWWD/FC$el.html\"><IMG SRC=\"/icons/transfer.gif\"></A>";
+    } elsif ( -e $OUTD."/FC$el.txt"){
+	return "<A HREF=\"$WWWD/FC$el.txt\"><IMG SRC=\"\"></A>";
+    } else {
+	return "";
+    }
 }
