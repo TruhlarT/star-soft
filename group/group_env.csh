@@ -1,5 +1,5 @@
 #!/usr/bin/csh -f
-#       $Id: group_env.csh,v 1.101 2000/07/14 13:07:09 fisyak Exp $
+#       $Id: group_env.csh,v 1.102 2000/07/22 22:24:39 fisyak Exp $
 #	Purpose:	STAR group csh setup 
 #
 #	Author:		Y.Fisyak     BNL
@@ -19,6 +19,8 @@ setenv WWW_HOME http://www.star.bnl.gov/
 setenv AFS       /usr/afsws
 setenv AFS_RHIC  /afs/rhic
 setenv STAR_ROOT ${AFS_RHIC}/star;           if ($ECHO) echo   "Setting up STAR_ROOT = ${STAR_ROOT}"         
+# Define /opt/star
+if ( ! $?OPTSTAR )  setenv OPTSTAR /opt/star
 # Defined by HEPiX
 if ( ! $?GROUP_DIR )  setenv GROUP_DIR ${STAR_ROOT}/group
 # Defined in CORE
