@@ -1,13 +1,206 @@
-#ifdef __ROOT__
-*CMZ :          30/04/98  00.45.04  by  Pavel Nevski
+*CMZ :          27/12/98  22.02.31  by  Pavel Nevski
+*CMZ :  1.40/05 26/08/98  22.10.06  by  Pavel Nevski
+*CMZ :  1.40/05 13/07/98  10.50.50  by  Pavel Nevski
 *-- Author :    Pavel Nevski
+#ifdef __ROOT__
 *****************************************************************************
 *                                                                           *
       subroutine        A G M A I N
 *                                                                           *
 *****************************************************************************
-+CDE,TYPING,AGECOM,AGCKINE.
-+CDE,GCFLAG,GCTIME,GCPHYS,GCTRAK.
+*KEEP,TYPING.
+      IMPLICIT NONE
+*KEEP,AGECOM.
+      CHARACTER*20 AG_MODULE,  AG_TITLE,  AG_EXNAME,   AG_PARLIST,
+     +             AG_MATERIAL,AG_MIXTURE,AG_COMPONENT,AG_MEDIUM,
+     +             AG_CHDIR
+      CHARACTER*4  AG_VOLUME,AG_MOTHER,AG_SHAPE,AG_CNICK,AG_KONLY,
+     +             AG_OPTION,AG_ORT,AG_MARK
+      INTEGER      AG_BEGCOM,AG_IVOLUME,AG_IMOTHER,AG_IGNUM,AG_ISHAPE,
+     +             AG_IMED,AG_IMAT,AG_IFIELD,AG_IDTYPE,AG_NLMAT,AG_ORTI,
+     +             AG_IERROR,AG_NWBUF,AG_NPAR,AG_ISTATUS,AG_IROT,AG_JDU,
+     +             AG_NBITS,AG_ISET,AG_IDET,AG_ISVOL, AG_ATTRIBUTE(6),
+     +             AG_WORK, AG_SEEN,AG_LSTY,AG_LWID,AG_COLO,AG_FILL,
+     +             AG_LEVEL,AG_NDIV,AG_IAXIS,AG_NDVMAX,AG_NPDV,AG_NCOPY,
+     +             AG_IPRIN,AG_RESET1,AG_RESET2,AG_BEGSCR,AG_ENDSCR,
+     +             AG_IRESER,AG_LSTACK,AG_NWUHIT,AG_NWUVOL,AG_MAGIC,
+     +             AG_LDETU,AG_NPDIV,AG_NZ,AG_IGEOM,AG_IDEBU,AG_IGRAP,
+     +             AG_IHIST,AG_IMFLD,AG_SERIAL,AG_STANDALONE,AG_ISIMU,
+     +             AG_CODE,AG_TRKTYP,AG_ECODE,AG_MODE,AG_PDG,
+     +             AG_ENDSAVE,IPRIN
+      REAL         AG_FIELDM,AG_TMAXFD,AG_STEMAX,AG_DEEMAX,AG_EPSIL,
+     +             AG_STMIN,AG_DENS,AG_RADL,AG_ABSL,AG_THETAX,AG_THETAY,
+     +             AG_THETAZ,AG_ALFAX,AG_ALFAY,AG_ALFAZ,AG_PHIX,AG_PHIY,
+     +             AG_ALPHAX,AG_ALPHAY,AG_ALPHAZ, AG_PHIZ, AG_TWIST,
+     +             AG_DX, AG_DX1, AG_DX2, AG_DY, AG_DY1,AG_DY2,
+     +             AG_THET, AG_THE1, AG_THE2, AG_PHI, AG_PHI1, AG_PHI2,
+     +             AG_ALPH, AG_ALP1, AG_ALP2, AG_RMIN, AG_RMAX, AG_RMN,
+     +             AG_RMX, AG_ZI, AG_RMN1, AG_RMN2, AG_RMX1, AG_RMX2,
+     +             AG_H1, AG_H2, AG_BL1, AG_BL2, AG_TL1, AG_TL2,AG_DPHI,
+     +             AG_DZ, AG_TWIS, AG_X, AG_Y, AG_Z, AG_A, AG_ZA, AG_W,
+     +             AG_STEP, AG_C0, AG_PAR, AG_AA,AG_ZZ,AG_WW,AG_TYPE,
+     +             AG_STACK,AG_UBUF,AG_XHMAX,AG_YHMAX,AG_ZHMAX,
+     +             AG_RHMAX,AG_FHMAX,AG_FHMIN,AG_BIN,AG_DMAXMS,
+     +             AG_LX, AG_LY, AG_LZ, AG_HX, AG_HY, AG_HZ, AG_P1,
+     +             AG_P2, AG_CHARGE, AG_MASS, AG_TLIFE, AG_BRATIO
+      PARAMETER   (AG_LSTACK=130, AG_NWUHIT=10, AG_NWUVOL=3,
+     +             AG_MAGIC=-696969, AG_LDETU=250)
+      COMMON/AGCGLOB/AG_MODULE, AG_CHDIR,   AG_LEVEL,   AG_IDTYPE,
+     +              AG_IERROR,  AG_STANDALONE,          IPRIN,
+     +              AG_IPRIN,   AG_IGEOM,   AG_IDEBU,   AG_IGRAP,
+     +              AG_IHIST,   AG_IMFLD,   AG_ISIMU
+C Inherited variables saved during internal calls
+      COMMON/AGCPARA/AG_BEGCOM, AG_IVOLUME, AG_IMOTHER, AG_IGNUM,
+     +              AG_ISHAPE,  AG_IMED,    AG_IMAT,    AG_IFIELD,
+     +              AG_FIELDM,  AG_TMAXFD,  AG_STEMAX,  AG_DEEMAX,
+     +              AG_EPSIL,   AG_STMIN,   AG_DENS,    AG_RADL,
+     +              AG_ABSL,    AG_DX,      AG_DX1,     AG_DX2,
+     +              AG_DY,      AG_DY1,     AG_DY2,
+     +              AG_RMN1,    AG_RMN2,    AG_RMX1,    AG_RMX2,
+     +              AG_THET,    AG_THE1,    AG_THE2,
+     +              AG_PHI,     AG_PHI1,    AG_PHI2,
+     +              AG_ALPH,    AG_ALP1,    AG_ALP2,
+     +              AG_H1,      AG_BL1,     AG_TL1,
+     +              AG_H2,      AG_BL2,     AG_TL2,
+     +              AG_RMIN,    AG_RMAX,    AG_DPHI,    AG_NPDIV,
+     +              AG_NZ,      AG_DZ,      AG_TWIS,
+     +              AG_LX,      AG_LY,      AG_LZ,
+     +              AG_HX,      AG_HY,      AG_HZ,
+     +              AG_A,       AG_ZA,      AG_W,       AG_NLMAT,
+     +              AG_WORK,    AG_SEEN,    AG_LSTY,
+     +              AG_LWID,    AG_COLO,    AG_FILL,
+     +              AG_SERIAL,  AG_ISVOL,   AG_ISTATUS,
+     +              AG_ZI(16),  AG_RMN(16), AG_RMX(16),
+     +              AG_VOLUME,  AG_MOTHER,  AG_SHAPE,   AG_CNICK,
+     +                                                  AG_ENDSAVE,
+     +              AG_RESET1,  AG_THETAX,  AG_THETAY,  AG_THETAZ,
+     +              AG_ALFAX,   AG_ALFAY,   AG_ALFAZ,
+     +              AG_PHIX,    AG_PHIY,    AG_PHIZ,
+     +              AG_X,       AG_Y,       AG_Z,
+     +              AG_STEP,    AG_C0,      AG_NDIV,
+     +              AG_IAXIS,   AG_NDVMAX,  AG_ORTI,    AG_NCOPY,
+     +              AG_RESET2,
+     +              AG_KONLY,   AG_ORT,     AG_MARK
+      COMMON/AGCPART/AG_code,AG_trktyp,AG_mass,AG_charge,AG_tlife,
+     +                       AG_bratio(6),AG_mode(6),AG_pdg,AG_ecode
+C local variables valid inside same block
+      COMMON/AGCLOCA/AG_BEGSCR, AG_UBUF(100), AG_PAR(100),
+     +              AG_AA(20),  AG_ZZ(20),    AG_WW(20),   AG_NWBUF,
+     +              AG_XHMAX,   AG_YHMAX,     AG_ZHMAX,    AG_RHMAX,
+     +              AG_FHMAX, AG_FHMIN, AG_NBITS, AG_BIN,  AG_TYPE,
+     +              AG_IROT,  AG_NPAR,  AG_ISET,  AG_IDET, AG_JDU,
+     +              AG_IRESER,                             AG_ENDSCR,
+     +              AG_TITLE,   AG_EXNAME,    AG_PARLIST,  AG_MATERIAL,
+     +              AG_MIXTURE, AG_COMPONENT, AG_MEDIUM,   AG_OPTION
+      COMMON/AGCSTAC/AG_STACK(AG_LSTACK,15)
+      EQUIVALENCE  (AG_ATTRIBUTE,AG_WORK),(AG_STEMAX,AG_DMAXMS),
+     +             (AG_ALFAX,AG_ALPHAX),  (AG_ALFAY,AG_ALPHAY),
+     +             (AG_ALFAZ,AG_ALPHAZ),  (AG_TWIST,AG_TWIS),
+     +             (AG_P1,AG_HX),         (AG_P2,AG_HY),
+     +             (AG_NPDIV,AG_NPDV),
+*    - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - *
+ 
+ 
+*KEEP,agckine.
+*    AGI general data card information
+      Integer          IKineOld,IdInp,Kevent,
+     >                 Iback,IbackOld,IbMode,IbBefor,IbAfter,
+     >                 IbCurrent,IvCurrent,Ioutp,IoutpOld
+      Real             AVflag,AVcoor,AVsigm,Ptype,PTmin,PTmax,
+     >                 Etamin,Etamax,PhiMin,PhiMax,Ptflag,
+     >                 Zmin,Zmax,BgMult,BgTime,BgSkip,
+     >                 Pxmin,Pxmax,Pymin,Pymax,Pzmin,Pzmax
+      COMMON /AgCKINE/ IKineOld,IdInp,Kevent(3),
+     >                 AVflag,AVcoor(3),AVsigm(3),
+     >                 Ptype,PTmin,PTmax,Etamin,Etamax,
+     >                 PhiMin,PhiMax,Ptflag,Zmin,Zmax,
+     >                 Pxmin,Pxmax,Pymin,Pymax,Pzmin,Pzmax
+      COMMON /AgCKINB/ Iback,IbackOld,IbMode,IbBefor,IbAfter,
+     >                 BgMult,BgTime,BgSkip,IbCurrent,IvCurrent
+      COMMON /AgCKINO/ Ioutp,IoutpOld
+      Character*20     CoptKine,CoptBack,CoptOutp
+      COMMON /AgCKINC/ CoptKine,CoptBack,CoptOutp
+      Character*20     StrmKine,StrmBack,StrmOutp
+      COMMON /AgCKINS/ StrmKine,StrmBack,StrmOutp
+      Character*20     CrunType
+      COMMON /AgCKINR/ CrunType
+      Integer          Ncommand
+      Character*20     Ccommand
+      COMMON /AgCCOMD/ Ncommand,Ccommand
+      Integer          IUHIST
+      Character*80            CFHIST,CDHIST
+      COMMON /AgCHIST/ IUHIST,CFHIST,CDHIST
+*
+      Integer          NtrSubEV,NkineMax,NhitsMax,NtoSkip,NsubToSkip,
+     >                 Nsubran,ItrigStat,NsubEvnt,IsubEvnt,
+     >                 Make_Shadow,Flag_Secondaries
+      Real             Cutele_Gas,VertexNow
+      COMMON /AgCSUBE/ NtrSubEV,NkineMax,NhitsMax,
+     >                 NtoSkip,NsubToSkip,Nsubran(2)
+      COMMON /AgCSTAR/ Make_Shadow,Cutele_Gas,Flag_Secondaries
+      COMMON /AgCstat/ ItrigSTAT,NsubEvnt,IsubEvnt,VertexNow(3)
+*
+*    - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+*
+*KEEP,GCFLAG.
+      COMMON/GCFLAG/IDEBUG,IDEMIN,IDEMAX,ITEST,IDRUN,IDEVT,IEORUN
+     +        ,IEOTRI,IEVENT,ISWIT(10),IFINIT(20),NEVENT,NRNDM(2)
+      COMMON/GCFLAX/BATCH, NOLOG
+      LOGICAL BATCH, NOLOG
+C
+      INTEGER       IDEBUG,IDEMIN,IDEMAX,ITEST,IDRUN,IDEVT,IEORUN
+     +        ,IEOTRI,IEVENT,ISWIT,IFINIT,NEVENT,NRNDM
+C
+*KEEP,GCTIME.
+      COMMON/GCTIME/TIMINT,TIMEND,ITIME,IGDATE,IGTIME
+      INTEGER ITIME,IGDATE,IGTIME
+      REAL TIMINT,TIMEND
+C
+*KEEP,GCPHYS.
+      COMMON/GCPHYS/IPAIR,SPAIR,SLPAIR,ZINTPA,STEPPA
+     +             ,ICOMP,SCOMP,SLCOMP,ZINTCO,STEPCO
+     +             ,IPHOT,SPHOT,SLPHOT,ZINTPH,STEPPH
+     +             ,IPFIS,SPFIS,SLPFIS,ZINTPF,STEPPF
+     +             ,IDRAY,SDRAY,SLDRAY,ZINTDR,STEPDR
+     +             ,IANNI,SANNI,SLANNI,ZINTAN,STEPAN
+     +             ,IBREM,SBREM,SLBREM,ZINTBR,STEPBR
+     +             ,IHADR,SHADR,SLHADR,ZINTHA,STEPHA
+     +             ,IMUNU,SMUNU,SLMUNU,ZINTMU,STEPMU
+     +             ,IDCAY,SDCAY,SLIFE ,SUMLIF,DPHYS1
+     +             ,ILOSS,SLOSS,SOLOSS,STLOSS,DPHYS2
+     +             ,IMULS,SMULS,SOMULS,STMULS,DPHYS3
+     +             ,IRAYL,SRAYL,SLRAYL,ZINTRA,STEPRA
+      COMMON/GCPHLT/ILABS,SLABS,SLLABS,ZINTLA,STEPLA
+     +             ,ISYNC
+     +             ,ISTRA
+*
+      INTEGER IPAIR,ICOMP,IPHOT,IPFIS,IDRAY,IANNI,IBREM,IHADR,IMUNU
+     +       ,IDCAY,ILOSS,IMULS,IRAYL,ILABS,ISYNC,ISTRA
+      REAL    SPAIR,SLPAIR,ZINTPA,STEPPA,SCOMP,SLCOMP,ZINTCO,STEPCO
+     +       ,SPHOT,SLPHOT,ZINTPH,STEPPH,SPFIS,SLPFIS,ZINTPF,STEPPF
+     +       ,SDRAY,SLDRAY,ZINTDR,STEPDR,SANNI,SLANNI,ZINTAN,STEPAN
+     +       ,SBREM,SLBREM,ZINTBR,STEPBR,SHADR,SLHADR,ZINTHA,STEPHA
+     +       ,SMUNU,SLMUNU,ZINTMU,STEPMU,SDCAY,SLIFE ,SUMLIF,DPHYS1
+     +       ,SLOSS,SOLOSS,STLOSS,DPHYS2,SMULS,SOMULS,STMULS,DPHYS3
+     +       ,SRAYL,SLRAYL,ZINTRA,STEPRA,SLABS,SLLABS,ZINTLA,STEPLA
+C
+*KEEP,GCTRAK.
+      INTEGER NMEC,LMEC,NAMEC,NSTEP ,MAXNST,IGNEXT,INWVOL,ISTOP,MAXMEC
+     + ,IGAUTO,IEKBIN,ILOSL, IMULL,INGOTO,NLDOWN,NLEVIN,NLVSAV,ISTORY
+     + ,MAXME1,NAMEC1
+      REAL  VECT,GETOT,GEKIN,VOUT,DESTEP,DESTEL,SAFETY,SLENG ,STEP
+     + ,SNEXT,SFIELD,TOFG  ,GEKRAT,UPWGHT
+      REAL POLAR
+      PARAMETER (MAXMEC=30)
+      COMMON/GCTRAK/VECT(7),GETOT,GEKIN,VOUT(7),NMEC,LMEC(MAXMEC)
+     + ,NAMEC(MAXMEC),NSTEP ,MAXNST,DESTEP,DESTEL,SAFETY,SLENG
+     + ,STEP  ,SNEXT ,SFIELD,TOFG  ,GEKRAT,UPWGHT,IGNEXT,INWVOL
+     + ,ISTOP ,IGAUTO,IEKBIN, ILOSL, IMULL,INGOTO,NLDOWN,NLEVIN
+     + ,NLVSAV,ISTORY
+      PARAMETER (MAXME1=30)
+      COMMON/GCTPOL/POLAR(3), NAMEC1(MAXME1)
+C
+*KEND.
 *
       INTEGER           NWGEA/4000000/,NWPA/500000/,p
       CHARACTER*6       PROG/'agroot'/
@@ -27,12 +220,12 @@
       CALL IGSSE   (6,1)
       CALL HLIMIT  (0)
       CALL REBANKM (-1)
-      CALL GDINIT                  ! Initialise Drawing pkg
 ****>
       p  = Idebug
       CALL GINIT                   "  GEANT common blocks                "
       CALL GZINIT                  "  GEANT core divisions, link areas,  "
       CALL AGZINI                  "  specific ZEBRA initialization      "
+      CALL GDINIT                  "  Initialise Drawing pkg             "
       CALL GPART                   "  Define standard particles          "
       CALL GMATE                   "  Initialize standard materials      "
 *yf   Call AGXINIT                 "  aguser menu - called here          "
@@ -51,12 +244,9 @@
       Call AgDummy
 *
 END
-
+ 
 #else /*NO __ROOT__ */
-*CMZ :          27/09/98  14.15.12  by  Pavel Nevski
-*CMZ :  1.40/05 26/08/98  22.10.06  by  Pavel Nevski
-*CMZ :  1.40/05 13/07/98  10.50.50  by  Pavel Nevski
-*-- Author :    Pavel Nevski
+ 
 *****************************************************************************
 *                                                                           *
       subroutine        A G M A I N
@@ -207,6 +397,7 @@ C
  
 #endif /* __ROOT__ */
  
+ 
 *CMZ :          07/09/98  19.02.49  by  Pavel Nevski
 *CMZ :  1.40/05 13/07/98  10.44.40  by  Pavel Nevski
 *CMZ :  1.30/00 13/05/97  14.57.05  by  Pavel Nevski
@@ -227,12 +418,12 @@ C
 *KEEP,VIDQQ.
       CHARACTER*68 VIDQQ
       DATA VIDQQ/
-     +'@(#)* Advanced Geant Inteface   1.40/05   C: 05/12/98  22.52.16
+     +'@(#)* Advanced Geant Inteface   1.40/05   C: 27/12/98  22.13.34
      +'/
 *KEEP,DATEQQ.
-      IDATQQ =   981205
+      IDATQQ =   981227
 *KEEP,TIMEQQ.
-      ITIMQQ =   2252
+      ITIMQQ =   2213
 *KEEP,VERSQQ.
       VERSQQ = ' 1.40/05'
       IVERSQ =  14005
@@ -288,10 +479,13 @@ C
  <w>;(' *              do:  MANUAL AGUSER MAN.TEX LATEX                    *')
  <w>;(' ********************************************************************')
       end
-#ifndef __ROOT__ 
+ 
+ 
+*CMZ :          27/12/98  22.11.06  by  Pavel Nevski
 *CMZ :  1.40/05 30/12/97  11.59.38  by  Pavel Nevski
 *CMZ :  1.30/00 17/04/97  20.55.24  by  Pavel Nevski
 *-- Author :    Pavel Nevski   27/11/94
+#ifndef __ROOT__
 *****************************************************************************
 *                                                                           *
              Subroutine   U G I N I T (C)
@@ -560,7 +754,6 @@ C local variables valid inside same block
 END
  
 #endif /* __ROOT__ */
- 
 *CMZ :          03/09/98  16.43.10  by  Pavel Nevski
 *CMZ :  1.40/05 21/11/97  17.47.13  by  Pavel Nevski
 *CMZ :  1.30/00 02/04/97  22.56.51  by  Pavel Nevski
@@ -648,7 +841,8 @@ C
     " STOP "
     END
  
-*CMZ :          20/11/98  11.42.15  by  Pavel Nevski
+ 
+*CMZ :          27/12/98  21.53.56  by  Pavel Nevski
 *CMZ :  1.40/05 27/08/98  22.49.57  by  Pavel Nevski
 *CMZ :  1.40/05 21/08/98  13.34.22  by  Pavel Nevski
 *CMZ :  1.30/00 23/04/97  18.45.29  by  Pavel Nevski
@@ -898,7 +1092,7 @@ C                                       Link to:
         call AgFOPEN(li,string2(1:len2),ier)
         Address=CsADDR('AgUSOPEN')
         L1 = 4*((len2+3)/4)
-        If (address>0) CALL CsJCAL1S(address,string2(1:L1))
+        If (address!=0) CALL CsJCAL1S(address,string2(1:L1))
      }
      else If Index(String1(1:len1),'N')>0
      {  Call AgNTOpen(String2(1:len2),4);  If (Ikine!=IkineOld) Ier=1; }
@@ -1519,6 +1713,7 @@ C
 END
  
  
+*CMZ :          27/12/98  21.53.56  by  Pavel Nevski
 *CMZ :  1.40/05 05/08/98  23.16.12  by  Pavel Nevski
 *CMZ :  1.30/00 29/07/96  12.00.03  by  Pavel Nevski
 *-- Author :    R.Brun
@@ -1680,7 +1875,7 @@ C
       enddo
 *
       address=CsADDR ('AGUTREV')
-      if (address>0) CALL CsJCAL (address,0, 0,0,0,0,0, 0,0,0,0,0)
+      if (address!=0) CALL CsJCAL (address,0, 0,0,0,0,0, 0,0,0,0,0)
 *
 * By default (No ACTION command issued) GEANT simulations are done if:
 * a: IKINE<0 and reading of HITS, DIGI and RECB is prohibited,  b: IKINE>=0.
@@ -1702,6 +1897,7 @@ C
       END
  
  
+*CMZ :          27/12/98  21.53.56  by  Pavel Nevski
 *CMZ :  1.40/05 05/08/98  23.16.12  by  Pavel Nevski
 *CMZ :  1.30/00 17/04/97  20.57.01  by  Pavel Nevski
 *-- Author : R. Brun
@@ -1787,12 +1983,13 @@ C
      endif
 *
      Istop = 0
-     if (address>0) CALL CsJCAL (address,0, 0,0,0,0,0, 0,0,0,0,0)
+     if (address!=0) CALL CsJCAL (address,0, 0,0,0,0,0, 0,0,0,0,0)
      If (Istop==0)  CALL GTRACK
 *
       END
  
  
+*CMZ :          27/12/98  21.53.56  by  Pavel Nevski
 *CMZ :  1.40/05 05/08/98  23.33.58  by  Pavel Nevski
 *CMZ :  1.30/00 01/04/97  15.49.43  by  Pavel Nevski
 *CMZ :  3.21/02 29/03/94  15.41.25  by  S.Giani
@@ -1898,11 +2095,12 @@ C
          endif
       endif
  
-      if (address>0) CALL CsJCAL (address,1, ISKIP,0,0,0,0, 0,0,0,0,0)
+      if (address!=0) CALL CsJCAL (address,1, ISKIP,0,0,0,0, 0,0,0,0,0)
  
       END
  
  
+*CMZ :          27/12/98  21.53.56  by  Pavel Nevski
 *CMZ :  1.40/05 05/08/98  23.16.12  by  Pavel Nevski
 *CMZ :  1.30/00 22/04/97  20.18.53  by  Pavel Nevski
 *-- Author :    Alexandre Rozanov 02.04.95
@@ -2112,7 +2310,7 @@ C
          If (Flag_secondaries>=2) Call AgsSECOND   ! - dense media
       endif
 *                                                  ! let user do something
-      if (address>0) CALL CsJCAL (address,0, 0,0,0,0,0, 0,0,0,0,0)
+      if (address!=0) CALL CsJCAL (address,0, 0,0,0,0,0, 0,0,0,0,0)
 *
       If (NGKINE<=0)   Break
          NDONE += NGKINE
@@ -2135,6 +2333,7 @@ C
  END
  
  
+*CMZ :          27/12/98  21.53.56  by  Pavel Nevski
 *CMZ :  1.40/05 05/08/98  23.16.12  by  Pavel Nevski
 *CMZ :  1.30/00 10/04/96  18.46.17  by  Pavel Nevski
 *CMZU:  1.00/01 16/11/95  02.01.56  by  Pavel Nevski
@@ -2177,7 +2376,7 @@ C
          IEVOLD=IEVENT
       endif
 *
-      if (address>0) then
+      if (address!=0) then
          CALL CsJCAL (address,2, VECT,Field,0,0,0, 0,0,0,0,0)
       Else
          Field={0.,0.,0.}
@@ -2186,7 +2385,7 @@ C
       END
  
  
-*CMZ :          22/09/98  02.49.01  by  Pavel Nevski
+*CMZ :          27/12/98  21.53.56  by  Pavel Nevski
 *CMZ :  1.40/05 05/08/98  23.16.12  by  Pavel Nevski
 *CMZ :  1.30/00 07/07/96  13.08.33  by  Pavel Nevski
 *-- Author :    Pavel Nevski   07/07/96
@@ -2295,13 +2494,13 @@ C
            Check Cdet(1:3)//'H'==Cset
            address=CsADDR (cdet//'DIG')
 *           print *,'digi routine for ',cdet,': address=',address
-           if (address>0) CALL CsJCAL (address,0, 0,0,0,0,0, 0,0,0,0,0)
+           if (address!=0) CALL CsJCAL (address,0, 0,0,0,0,0, 0,0,0,0,0)
         enddo
      enddo
   enddo
 *
      address=CsADDR ('AGUDIGI')
-     if (address>0) CALL CsJCAL (address,0, 0,0,0,0,0, 0,0,0,0,0)
+     if (address!=0) CALL CsJCAL (address,0, 0,0,0,0,0, 0,0,0,0,0)
  
      end
  
@@ -2385,13 +2584,24 @@ C
 END
  
  
+*CMZ :          27/12/98  21.53.56  by  Pavel Nevski
 *CMZ :  1.30/00 19/04/97  21.12.12  by  Pavel Nevski
 *-- Author :    Rashid Mekhdiev
 ****************************************************************************
                 SUBROUTINE   G U H A D R
+* Description:  select hadronic package according to IHADR switch          *
 ****************************************************************************
 *KEEP,TYPING.
       IMPLICIT NONE
+*KEEP,GCFLAG.
+      COMMON/GCFLAG/IDEBUG,IDEMIN,IDEMAX,ITEST,IDRUN,IDEVT,IEORUN
+     +        ,IEOTRI,IEVENT,ISWIT(10),IFINIT(20),NEVENT,NRNDM(2)
+      COMMON/GCFLAX/BATCH, NOLOG
+      LOGICAL BATCH, NOLOG
+C
+      INTEGER       IDEBUG,IDEMIN,IDEMAX,ITEST,IDRUN,IDEVT,IEORUN
+     +        ,IEOTRI,IEVENT,ISWIT,IFINIT,NEVENT,NRNDM
+C
 *KEEP,GCPHYS.
       COMMON/GCPHYS/IPAIR,SPAIR,SLPAIR,ZINTPA,STEPPA
      +             ,ICOMP,SCOMP,SLCOMP,ZINTCO,STEPCO
@@ -2451,6 +2661,12 @@ C
       REAL          GPOS
 C
 *KEND.
+     integer CsADDR,idevt0/-1/,address/0/
+*
+     If (Idevt0 != Idevt) then
+         Idevt0  = Idevt
+         address = CsADDR ('AGUHADR')
+     endif
 *
       IF      IHADR==0  { ISTOP=2; KCASE=NAMEC(12); DESTEP+=GEKIN; }
       ELSE IF IHADR<=3  { CALL GHEISH }
@@ -2458,16 +2674,29 @@ C
       ELSE IF IHADR==5  { CALL GFMFIN }
       ELSE IF IHADR==6  { CALL GCALOR }
 *
+     if (address!=0) CALL CsJCAL (address,0, 0,0,0,0,0, 0,0,0,0,0)
+*
       END
  
  
+*CMZ :          27/12/98  21.53.56  by  Pavel Nevski
 *CMZ :  1.30/00 17/04/97  19.08.11  by  Pavel Nevski
 *-- Author :    Rashid mekhdiev
 ****************************************************************************
-      SUBROUTINE GUPHAD
+                SUBROUTINE GUPHAD
+* Description:  initialase selected hadronic package                       *
 ****************************************************************************
 *KEEP,TYPING.
       IMPLICIT NONE
+*KEEP,GCFLAG.
+      COMMON/GCFLAG/IDEBUG,IDEMIN,IDEMAX,ITEST,IDRUN,IDEVT,IEORUN
+     +        ,IEOTRI,IEVENT,ISWIT(10),IFINIT(20),NEVENT,NRNDM(2)
+      COMMON/GCFLAX/BATCH, NOLOG
+      LOGICAL BATCH, NOLOG
+C
+      INTEGER       IDEBUG,IDEMIN,IDEMAX,ITEST,IDRUN,IDEVT,IEORUN
+     +        ,IEOTRI,IEVENT,ISWIT,IFINIT,NEVENT,NRNDM
+C
 *KEEP,GCPHYS.
       COMMON/GCPHYS/IPAIR,SPAIR,SLPAIR,ZINTPA,STEPPA
      +             ,ICOMP,SCOMP,SLCOMP,ZINTCO,STEPCO
@@ -2497,10 +2726,20 @@ C
      +       ,SRAYL,SLRAYL,ZINTRA,STEPRA,SLABS,SLLABS,ZINTLA,STEPLA
 C
 *KEND.
+      integer CsADDR,idevt0/-1/,address/0/
+*
+      If (Idevt0 != Idevt) then
+         Idevt0  = Idevt
+         address = CsADDR ('AGUPHAD')
+      endif
+*
       IF       IHADR<=3 {"geisha"       CALL GPGHEI  }
       ELSE IF  IHADR==4 {"fluka"        CALL FLDIST  }
       ELSE IF  IHADR==5 {"fluka+Mikap"  CALL GFMDIS  }
       ELSE IF  IHADR==6 {"gcalor"       CALL CALSIG  }
+*
+      if (address!=0) CALL CsJCAL (address,0, 0,0,0,0,0, 0,0,0,0,0)
+*
       END
  
  
@@ -2594,12 +2833,12 @@ C
       print *,' No GCALOR available in this version'
       end
  
-#ifndef __ROOT__
  
-*CMZ :          27/09/98  14.16.22  by  Pavel Nevski
+*CMZ :          27/12/98  22.13.28  by  Pavel Nevski
 *CMZ :  1.40/05 01/04/98  11.36.29  by  Pavel Nevski
 *CMZ :  1.30/00 02/04/97  18.16.37  by  Pavel Nevski
 *-- Author :    Pavel Nevski
+#ifndef __ROOT__
 ************************************************************************
       subroutine TRACEQ
 *                         (LUNP,LEV)
@@ -2645,8 +2884,9 @@ C
       STOP ' TRACEQ exit from AGPAWQ reached '
  
       END
+#endif
  
-#endif 
+ 
 *CMZ :  1.30/00 15/07/96  15.54.59  by  Pavel Nevski
 *-- Author :    P.Nevski    20/01/94
 ***************************************************************************
@@ -2885,7 +3125,9 @@ C
  
  
  
+*CMZ :          27/12/98  21.53.56  by  Pavel Nevski
 *CMZ :  1.40/05 05/08/98  23.16.12  by  Pavel Nevski
+*CMZ :  1.00/01 27/10/94  01.44.00  by  Pavel Nevski
 *-- Author : Pavel Nevski
 ******************************************************************
                 SUBROUTINE GUDCAY
@@ -2955,13 +3197,12 @@ C
          address = CsADDR ('AGUDCAY')
      endif
 *
-     if (address>0) CALL CsJCAL (address,0, 0,0,0,0,0, 0,0,0,0,0)
+     if (address!=0) CALL CsJCAL (address,0, 0,0,0,0,0, 0,0,0,0,0)
 *
      END
  
  
  
-*CMZ :  1.00/01 27/10/94  01.44.00  by  Pavel Nevski
 *CMZ :  1.30/00 16/07/96  23.30.40  by  Pavel Nevski
 *CMZ :  1.00/00 12/04/95  19.53.08  by  Pavel Nevski
 *-- Author :    Pavel Nevski   26/11/94
@@ -3784,7 +4025,7 @@ C
  }
  END
  
-*CMZ :          29/11/98  20.53.51  by  Pavel Nevski
+*CMZ :          26/12/98  09.53.44  by  Pavel Nevski
 *CMZ :  1.30/00 21/11/96  19.48.44  by  Pavel Nevski
 *CMZ :  1.00/00 06/08/95  14.04.27  by  Pavel Nevski
 *-- Author :    Pavel Nevski   26/11/94
@@ -3955,7 +4196,7 @@ C
   { "error('volume ',%Cnick,' has both divisions and content')"; return; }
  
   If Q(Jmo+1)==-99 & %Level>1
-  { if (Idebug>1) <w> %cnick,Ivm;
+  { prin1 %cnick,Ivm;
     (' mother ',a,' copy ',i6,' was already positioned, skip filling ')
     return
   }
@@ -5137,6 +5378,7 @@ C
    END
  
  
+*CMZ :          26/12/98  19.17.41  by  Pavel Nevski
 *CMZ :  1.40/05 15/02/98  12.51.45  by  Pavel Nevski
 *CMZ :  1.30/00 16/04/96  19.12.28  by  Pavel Nevski
 *CMZ :  1.00/00 02/06/95  02.20.02  by  Pavel Nevski
@@ -5287,11 +5529,11 @@ C
 *KEND.
  Integer     CSADDR,LENOCC,IEXT,Ltab,Ioption,Jdu,Ia,N,Ja,i1,i2,Ifun,k,i,new
  Real        ARFROMC
- Parameter   (Ltab=27)
+ Parameter   (Ltab=30)
  Character   T*1, Hit*4, Ctab(Ltab)*4 _
             /'X','Y','Z','R','RR','PHI','THE','ETA','TDR','CT',
-             'CX','CY','CZ','ETOT','ELOS','BIRK','STEP','LGAM',
-             'TOF','USER','XX','YY','ZZ','PX','PY','PZ','SLEN'/
+             'CX','CY','CZ','ETOT','ELOS','BIRK','STEP','LGAM','TOF','USER',
+             'XX','YY','ZZ','PX','PY','PZ','SLEN','PTOT','LPTO','rese'/
  
   Check %Idet>0 & %Iset>0 & %Jdu>0;
   " save next hit in DETU bank for a new structure marked by negative U(10) "
@@ -5901,7 +6143,7 @@ C
  %Level-=1;  Iprin=max(%Iprin-%Level-1,0);  if (%level>0) return;
    END
  
-*CMZ :          31/10/98  14.45.26  by  Pavel Nevski
+*CMZ :          24/12/98  17.51.43  by  Pavel Nevski
 *CMZ :  1.40/05 26/08/98  01.18.22  by  Pavel Nevski
 *CMZ :  1.30/00 13/05/97  14.31.40  by  Pavel Nevski
 *-- Author :    Pavel Nevski   26/11/94
@@ -6174,9 +6416,11 @@ C
       If Iquest(1)!=0 { <w>Iquest(1); (' problem opening detm.rz IQUEST=',i6);}
       call RZCDIR(CWD,' ')
    }
+   If (IDebug>2) Call DZVERI(' module started ',0,'CLU')
    END
  
  
+*CMZ :          24/12/98  17.52.05  by  Pavel Nevski
 *CMZ :  1.40/05 04/03/98  23.44.07  by  Pavel Nevski
 *CMZ :  1.30/00 17/04/97  17.59.21  by  Pavel Nevski
 *CMZ :  1.00/00 29/11/95  08.55.19  by  Pavel Nevski
@@ -6404,6 +6648,7 @@ C
    { Call TIMEX(XXtime); <W> %module,XXtime-Xtime,XXi-Xtime
      (' Module ',a,' done',11x,'Time=',F8.3,' (proper time=',F8.3,')')
    } %Module=' '
+   If (IDebug>2) Call DZVERI(' module finished ',0,'CLU')
    END
  
  
@@ -6752,6 +6997,7 @@ C
  *
   END
  
+*CMZ :          26/12/98  18.48.36  by  Pavel Nevski
 *CMZ :  1.30/00 17/11/96  21.31.31  by  Pavel Nevski
 *CMZ :  1.00/00 22/09/95  18.08.16  by  Pavel Nevski
 *-- Author :    Pavel Nevski   26/11/94
@@ -6893,30 +7139,35 @@ If 15<=Ifun & Ifun<=17  "step and energy losses"
  If Ifun=14              "ETOT"    { CL=0;      CH=1000;    }
  If Ifun=15 | Ifun=16    "ELOS"    { CL=0;      CH=.01*dens*step3; }
  If Ifun=17              "STEP"    { CL=0;      CH=Step2;   }
- If Ifun=18              "Lgam"    { CL=0;      CH=10;      }
+ If Ifun=18              "Lgam"    { CL=-3;     CH=+7;      }
  If Ifun=19              "TOF "    { CL=0;      CH=TOFMAX;  }
  If Ifun=20              "USER"    { CL=%Magic; CH=%Magic   }
  If 21<=Ifun&Ifun<=23  "XX,YY,ZZ"  { CL=-1000;  CH=1000;    }
  If 24<=Ifun&Ifun<=26  "PX,PY,PZ"  { CL=-1000;  CH=1000;    }
  If Ifun=27              "SLEN"    { CL=0;      CH=10000;   }
- If Ifun=28              "SHTN"    { CL=%Magic; CH=%Magic   }
+ If Ifun=28              "PTOT"    { CL=0;      CH=1000;    }
+ If Ifun=29              "LPTO"    { CL=-3;     CH=+7;      }
+ If Ifun=30              "rese"    { CL=%Magic; CH=%Magic   }
  If Ifun>0  { If (Clo=%Magic) Clo=CL; If (Chi=%Magic) Chi=CH; }
    END
  
  
  
  
+*CMZ :          26/12/98  09.47.17  by  Pavel Nevski
 *CMZ :  1.30/00 17/11/96  21.32.11  by  Pavel Nevski
 *CMZU:  1.00/01 27/01/96  22.06.24  by  Pavel Nevski
 *CMZ :  1.00/00 04/09/95  14.29.15  by  Pavel Nevski
 *-- Author :    Pavel Nevski   26/11/94
-**********************************************************************
-*                                                                    *
+************************************************************************
+*                                                                      *
           Subroutine   A g G F D I M (Iax,Cdet,Cl0,Ch0,dens)
-*                                                                    *
-*  Description: given a sensetive volume and axis, find its dimension*
-*             Just a continuation of AgGFLIM splitted for convenience*
-**********************************************************************
+*                                                                      *
+* Description: given a sensetive volume and axis, find its dimension.  *
+*              Just a continuation of AgGFLIM splitted for convenience *
+* Modifications:                                                       *
+* PN, 26dec98: JIN in GFIPAR is a link to POSITION bank, not to mother *
+************************************************************************
 *KEEP,TYPING.
       IMPLICIT NONE
 *KEEP,GCBANK.
@@ -6971,10 +7222,12 @@ Do Iv=1,Nvol
       do In=1,Abs(Nin)
       {  Jda=LQ(Jmo-In);  Check Jda>0;  Ida=Q(Jda+2);
          NR=Q(Jda+3);     Check Ida=Iv; Npar=Q(Jv+5);
-         Call GFIPAR(Jv,Jmo,In, Npar,Natt,Par,Att)
+         Call GFIPAR(Jv,LQ(Jmo-In),In, Npar,Natt,Par,Att)
          IF Npar<=0 | Npar>50
-         { <W> Cdet; (' AgGFDIM: still error in GFIPAR for volume ',a4/,
-                      ' ***** PLEASE USE EXPLICIT HIT LIMITS *****')
+         { <W> Cdet,Iax,Npar
+           (' AgGFDIM: still error in GFIPAR for volume ',a4,
+            ' Axis = ',i3,' Nparameters = ',i3/,
+            ' ***** PLEASE USE EXPLICIT HIT LIMITS *****')
            next
          }
          if      Iax<=3  {  call GFLCAR (Iax,Ish,0,    Par,CL,CH,ier);  }
@@ -7298,6 +7551,7 @@ C
    END
  
  
+*CMZ :          26/12/98  18.48.36  by  Pavel Nevski
 *CMZ :  1.40/05 08/08/97  11.42.02  by  Pavel Nevski
 *CMZ :  1.30/00 02/04/96  14.53.21  by  Pavel Nevski
 *CMZ :  1.00/00 31/05/95  23.17.43  by  Pavel Nevski
@@ -7391,13 +7645,13 @@ C
 *KEND.
  REAL             AgGHIT,VDOTN,VDOT,Hit,V(3),R,THE,VMOD,
                   a(2),c(2),dk,da,Vec(2)
- Integer          IC,JMP,i,IcMax/27/
+ Integer          IC,JMP,i,IcMax/30/
  
  AgGHIT=-9999;    If (0>Ic | Ic>IcMax) Return;      hit=0;
  
- Case  IC of ( X  Y  Z   R    RR   PHI  THET ETA  TDR CP    _
-               U  V  W   ETOT ELOS BIRK STEP LGAM TOF USER  _
-               XX YY ZZ  PX   PY   PZ   SLEN                )
+ Case  IC of ( X  Y  Z   R    RR   PHI  THET ETA  TDR  CP    _
+               U  V  W   ETOT ELOS BIRK STEP LGAM TOF  USER  _
+               XX YY ZZ  PX   PY   PZ   SLEN PTOT LPTO rese )
  {
   :X:;:Y:;:Z: hit=Xloc(ic);                                              Break;
   :R:         hit=VMOD(Xloc,2);                                          Break;
@@ -7425,6 +7679,9 @@ C
   :XX:;:YY:;:ZZ:  i=ic-20; Hit=(Vect(i)+Vect0(i))/2;                     Break;
   :PX:;:PY:;:PZ:  i=ic-20; Hit=(Vect(i)*Vect(7)+Vect0(i)*Vect0(7))/2;    Break;
   :SLEN:      hit= Sleng;                                                Break;
+  :PTOT:      hit= (Vect(7)+Vect0(7))/2;                                 Break;
+  :LPTO:      hit= ALOG10((Vect(7)+Vect0(7))/2);                         Break;
+  :rese:      hit= 0;                                                    Break;
  }
 2 AgGHIT=hit;
    END
@@ -7723,7 +7980,7 @@ C
  
  
  
-*CMZ :          30/11/98  11.14.36  by  Pavel Nevski
+*CMZ :          16/12/98  00.04.59  by  Pavel Nevski
 *CMZ :  1.40/05 19/08/98  16.55.50  by  Pavel Nevski
 *CMZ :  1.30/00 17/11/96  22.43.56  by  Pavel Nevski
 *CMZ :  1.00/00 14/11/95  02.46.06  by  Pavel Nevski
@@ -7850,7 +8107,7 @@ C   - combined DETM + Reconstruction bank access variables - AGI version
       EQUIVALENCE       (CNAM,INAM)
 *
 *KEND.
-Integer       LENOCC,IndexN,jj,j1,word2desc,
+Integer       LENOCC,IndexN,j1,word2desc,
               OK,Lb,LL,LL1,LvL,ns1,ns2,Ndm,i,j,k,l,M/1000000/,ND(3),
               Idat,Itim,Link,Ia,Lk,L1,L2,Flag,IDYN,INEW,JOX,iw,idd/0/,X/0/,
               map(2,LL1),num(Lb),key(3),ID/0/,Iform/0/,Jform/0/,Istat/0/,IC
@@ -8431,7 +8688,7 @@ C
 :E:"<w> AgDOCWR,Cf,I1,I2,TEXT;(' AgDocWr=',i2,' at ',a,' i1,i2,T=',2i5,2x,a)";
 END;
  
-*CMZ :          18/11/98  16.03.19  by  Pavel Nevski
+*CMZ :          17/12/98  13.07.30  by  Pavel Nevski
 *CMZ :  1.40/05 06/07/98  18.52.36  by  Pavel Nevski
 *CMZ :  1.30/00 09/02/97  21.15.43  by  Pavel Nevski
 *CMZ :  1.00/00 15/11/95  01.03.24  by  Pavel Nevski
@@ -8631,7 +8888,8 @@ else
    {  Call ZSHUNT(IxCONS,Lk,LkArP2,-IL,0)
       If (LQ(Lk)>0) Call MZDROP(IxSTOR,LQ(Lk),'L')
  } }
-" CHECK LL>0   finish processing for dummy calls "
+If LL<=0  " finish processing for dummy calls "
+{  if (istat==-999) istat=0; return; }
 *
 *                                        bank Validation
  If mod(IQ(Lk-1),LL)>0
@@ -8644,7 +8902,8 @@ else
     " If (LkArP3!=Lk)  print *,' popalsia gad ',LkArP3,Lk; "
    Lk=LkArP3;  Call MZIOTC (IxStor,Lk,Nch,Bform);
    If Cform!=Bform & Cform!=Bform(2:) & Cforn!=Bform
-   {  ie=2; IF istat==-999 | Idebug>1
+   {  ie=2; Flag=0;
+      IF istat==-999 | Idebug>1
       { prin1 Cbank,%L(cform),bform(1:Nch)
         (' Modified format in bank ',a,':'/,
          '    required format is = ',a,'*'/,
@@ -8683,23 +8942,30 @@ If IrBDIV==IxCONS & ID>0 & JBIT(IQ(Lk),1)==0 & Ie==0
  {
     ***********************************************************************
     If (LdArea(1)=0) call MZLINT(IxCONS,'AGCDOCL',LDarea,L1Doc,Lpar)
-    L=LKDETM; Call UCTOH('DETMDOCUDETM'//BPath(7:10)//Bank(1:4),Ipath,4,20)
-    prin1 %L(Bpath),bank,LL;
-    (' Schema evolution for Bpath=',a,' bank=',a,' LL=',i5,' : ');
+    prin1 %L(Bpath),bank,LL
+    (' Schema evolution for Bpath=',a,' bank=',a,' LL=',i5,' : ')
+    Call UCTOH('DETMDOCUDETM'//BPath(7:10)//Bank(1:4),Ipath,4,20)
+    L=LKDETM;   Call MZIOTC (IxStor,Lk,Nch,Bform)
     :i: do i=1,4
-    {  Check L>0;  Check IQ(L-4)==Ipath(i);  Ns=IQ(L-2)
+    {  Check L>0;
+       Check IQ(L-4)==Ipath(i);  Ns=IQ(L-2)
+       Prin3 i,L,IQ(L-4),Ns; (' ===> i,L,bank,ns=>',i3,i8,2x,a4,i3)
        do IL=1,Ns
-       { JP=LQ(L-IL); Check JP>0; IF IQ(JP-4)==Ipath(i+1) {L=JP; Next :i:;} }
-       L=0; Break;
-    }
-    Lus=1; format=' '; ndtab=99999;
-    while L>0 & ( format!=Bform | mod(IQ(lk-1),ndtab)!=0 )
-    { call agdprina(Iprin,Lus,L,2,0,0,2,Upp); L=LQ(L);
-      if (ndtab==0) ndtab=99999 " protect against division by 0 "
-    }
-    prin3 %L(format),ndtab; (' *** found format=',a,' ndtab=',i5)
+       {  JP=LQ(L-IL);  Check JP>0;  check IQ(JP-4)==Ipath(i+1)
+          If i<4 { L=JP; Next :i:; }
+          Lus=1;  format=' ';  ndtab=99999;
+          while JP>0
+          { call agdprina(Iprin,Lus,JP,2,0,0,2,Upp);
+            If (format==Bform & mod(IQ(lk-1),ndtab)==0) goto :j:
+            JP=LQ(JP);
+    }  }  }
+    prin1 %L(format),ndtab;  (' *** bank format in descriptor=',a,' ndtab=',i5)
+    prin1 %L(Bform),IQ(lk-4);(' *** actualy found bank format=',a,' bank =',a4)
     Err (format!=Bform | mod(IQ(lk-1),ndtab)!=0)
     { cant find correct bank format and length for the schema evolution }
+ 
+    :j: INEW=LL; Do I=1,LL1
+    { INEW-=1; If (map(1,i)>0 & map(2,i)>0) INEW=INEW-map(1,i)*map(2,I)+1; }
  
     {I0,m3,n3}=0; If (Inew==0) I0=1;
     Do I1=I0,LL1
@@ -8730,7 +8996,7 @@ If IrBDIV==IxCONS & ID>0 & JBIT(IQ(Lk),1)==0 & Ie==0
       }
       if m1>0 & m2>0 { m3+=m1*m2; } else { m3+=1; }
     }
-    ie=0
+    if (Istat==-999) ie=0
     *************************************************************************
  }
  if (Oper(1:1)=='Z') call VZERO(IQ(Lk+1),IQ(Lk-1))
@@ -8739,6 +9005,7 @@ If IrBDIV==IxCONS & ID>0 & JBIT(IQ(Lk),1)==0 & Ie==0
  If  LVL == 3    { " print *,' default bank set ' "; LkArP2=Lk; }
 *                                      check length once more
  If  istat!=-999 { Istat=0;  Jstat=min(LL,IQ(Lk-1)); }
+ Prin3 ie,istat; (' AgdGetP: use done ,ie,istat=',2i5)
  Err Ie>0  {Bank does not correspond to the structure}
  IQUEST(1)=0; Return;
  
@@ -11884,6 +12151,7 @@ C
      end
  
  
+*CMZ :          14/12/98  22.18.10  by  Pavel Nevski
 *CMZ :  1.40/05 31/03/98  19.05.30  by  Pavel Nevski
 *-- Author :    Pavel Nevski   06/03/98
 ************************************************************************
@@ -11997,6 +12265,111 @@ C
      end
  
  
+ 
+ 
+   subroutine myphysics
+*KEEP,TYPING.
+      IMPLICIT NONE
+*KEEP,GCBANK.
+      INTEGER IQ,LQ,NZEBRA,IXSTOR,IXDIV,IXCONS,LMAIN,LR1,JCG
+      INTEGER KWBANK,KWWORK,IWS
+      REAL GVERSN,ZVERSN,FENDQ,WS,Q
+C
+      PARAMETER (KWBANK=69000,KWWORK=5200)
+      COMMON/GCBANK/NZEBRA,GVERSN,ZVERSN,IXSTOR,IXDIV,IXCONS,FENDQ(16)
+     +             ,LMAIN,LR1,WS(KWBANK)
+      DIMENSION IQ(2),Q(2),LQ(8000),IWS(2)
+      EQUIVALENCE (Q(1),IQ(1),LQ(9)),(LQ(1),LMAIN),(IWS(1),WS(1))
+      EQUIVALENCE (JCG,JGSTAT)
+      INTEGER       JDIGI ,JDRAW ,JHEAD ,JHITS ,JKINE ,JMATE ,JPART
+     +      ,JROTM ,JRUNG ,JSET  ,JSTAK ,JGSTAT,JTMED ,JTRACK,JVERTX
+     +      ,JVOLUM,JXYZ  ,JGPAR ,JGPAR2,JSKLT
+C
+      COMMON/GCLINK/JDIGI ,JDRAW ,JHEAD ,JHITS ,JKINE ,JMATE ,JPART
+     +      ,JROTM ,JRUNG ,JSET  ,JSTAK ,JGSTAT,JTMED ,JTRACK,JVERTX
+     +      ,JVOLUM,JXYZ  ,JGPAR ,JGPAR2,JSKLT
+C
+*KEEP,GCUNIT.
+      COMMON/GCUNIT/LIN,LOUT,NUNITS,LUNITS(5)
+      INTEGER LIN,LOUT,NUNITS,LUNITS
+      COMMON/GCMAIL/CHMAIL
+      CHARACTER*132 CHMAIL
+C
+*KEEP,GCCUTS.
+      COMMON/GCCUTS/CUTGAM,CUTELE,CUTNEU,CUTHAD,CUTMUO,BCUTE,BCUTM
+     +             ,DCUTE ,DCUTM ,PPCUTM,TOFMAX,GCUTS(5)
+C
+      REAL          CUTGAM,CUTELE,CUTNEU,CUTHAD,CUTMUO,BCUTE,BCUTM
+     +             ,DCUTE ,DCUTM ,PPCUTM,TOFMAX,GCUTS
+C
+*KEEP,GCPHYS.
+      COMMON/GCPHYS/IPAIR,SPAIR,SLPAIR,ZINTPA,STEPPA
+     +             ,ICOMP,SCOMP,SLCOMP,ZINTCO,STEPCO
+     +             ,IPHOT,SPHOT,SLPHOT,ZINTPH,STEPPH
+     +             ,IPFIS,SPFIS,SLPFIS,ZINTPF,STEPPF
+     +             ,IDRAY,SDRAY,SLDRAY,ZINTDR,STEPDR
+     +             ,IANNI,SANNI,SLANNI,ZINTAN,STEPAN
+     +             ,IBREM,SBREM,SLBREM,ZINTBR,STEPBR
+     +             ,IHADR,SHADR,SLHADR,ZINTHA,STEPHA
+     +             ,IMUNU,SMUNU,SLMUNU,ZINTMU,STEPMU
+     +             ,IDCAY,SDCAY,SLIFE ,SUMLIF,DPHYS1
+     +             ,ILOSS,SLOSS,SOLOSS,STLOSS,DPHYS2
+     +             ,IMULS,SMULS,SOMULS,STMULS,DPHYS3
+     +             ,IRAYL,SRAYL,SLRAYL,ZINTRA,STEPRA
+      COMMON/GCPHLT/ILABS,SLABS,SLLABS,ZINTLA,STEPLA
+     +             ,ISYNC
+     +             ,ISTRA
+*
+      INTEGER IPAIR,ICOMP,IPHOT,IPFIS,IDRAY,IANNI,IBREM,IHADR,IMUNU
+     +       ,IDCAY,ILOSS,IMULS,IRAYL,ILABS,ISYNC,ISTRA
+      REAL    SPAIR,SLPAIR,ZINTPA,STEPPA,SCOMP,SLCOMP,ZINTCO,STEPCO
+     +       ,SPHOT,SLPHOT,ZINTPH,STEPPH,SPFIS,SLPFIS,ZINTPF,STEPPF
+     +       ,SDRAY,SLDRAY,ZINTDR,STEPDR,SANNI,SLANNI,ZINTAN,STEPAN
+     +       ,SBREM,SLBREM,ZINTBR,STEPBR,SHADR,SLHADR,ZINTHA,STEPHA
+     +       ,SMUNU,SLMUNU,ZINTMU,STEPMU,SDCAY,SLIFE ,SUMLIF,DPHYS1
+     +       ,SLOSS,SOLOSS,STLOSS,DPHYS2,SMULS,SOMULS,STMULS,DPHYS3
+     +       ,SRAYL,SLRAYL,ZINTRA,STEPRA,SLABS,SLLABS,ZINTLA,STEPLA
+C
+*KEEP,GCFLAG.
+      COMMON/GCFLAG/IDEBUG,IDEMIN,IDEMAX,ITEST,IDRUN,IDEVT,IEORUN
+     +        ,IEOTRI,IEVENT,ISWIT(10),IFINIT(20),NEVENT,NRNDM(2)
+      COMMON/GCFLAX/BATCH, NOLOG
+      LOGICAL BATCH, NOLOG
+C
+      INTEGER       IDEBUG,IDEMIN,IDEMAX,ITEST,IDRUN,IDEVT,IEORUN
+     +        ,IEOTRI,IEVENT,ISWIT,IFINIT,NEVENT,NRNDM
+C
+*KEND.
+*
+   Integer       MECA(5,13),Iprin,I,J,N,JTM,JTN,Material,Vacuum/16/
+   real          cuts(11),copy(40)
+*  provide index access to geant mechanism
+   EQUIVALENCE  (MECA,IPAIR),(CUTGAM,cuts)
+*
+*
+   Iprin=Idebug
+   IF JTMED>0
+   {  call UCOPY(Q(JTMED+1),copy,40)
+ 
+*    set mecanism flags and tracking cuts to standard medium
+      Do I=1,9  { Q(JTMED+I)=CUTS(I) }
+      DO I=1,13 { Q(JTMED+10+I)=MECA(1,I) }
+ 
+*    set mecanism flags and tracking cuts to special media
+      DO J=1,IQ(JTMED-2)
+      { JTM=LQ(JTMED-J);    Check JTM>0
+        JTN=LQ(JTM);        Check JTN>0
+*       never modify vacuum parameters:
+        Material=Q(JTM+6);  Check material!=Vacuum
+        N=0
+        Do I=1,9  { check Q(JTN+I)  == copy(I);    N+=1; Q(JTN+I)=CUTS(I)     }
+        DO I=1,13 { check Q(JTN+10+I)==copy(10+I); N+=1; Q(JTN+10+I)=MECA(1,I)}
+        Check N<22;
+        prin1 22-N,J; (I5,' NON-standard parameters in medium ',I4)
+        if (Idebug>1) Call GPTMED(J)
+      }
+   }
+   end
 *CMZ :          07/09/98  00.37.50  by  Pavel Nevski
 *CMZ :  1.40/05 23/08/98  21.58.55  by  Pavel Nevski
 *-- Author :    Pavel Nevski   25/11/97
@@ -21906,3 +22279,5 @@ C                                       Link to:
     Call MZFLAG(IxCons,LQ(LkDetm-id),1,'Z')
 *
    end
+ 
+ 
