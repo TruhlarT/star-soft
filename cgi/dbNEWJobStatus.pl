@@ -15,7 +15,7 @@ use Class::Struct;
 require "/afs/rhic/star/packages/dev/mgr/dbTJobsSetup.pl";
 
 my $TOP_DIRD = "/star/rcf/test/new/";
-my @dir_year = ("year_1h", "year_2001");
+my @dir_year = ("year_1h", "year_2001", "yeart_2003", "yeart_2004");
 my @node_dir = ("trs_redhat72","trs_redhat72_opt", "daq_redhat72", "daq_redhat72_opt"); 
 my @hc_dir = ("hc_lowdensity", "hc_standard", "hc_highdensity", "peripheral", "minbias", "central");
 
@@ -55,6 +55,7 @@ struct FileAttr => {
           memF  => '$',
           memL  => '$',
           mCPU  => '$', 
+         chOpt  => '$',
 		  };
 
 &cgiSetup();
@@ -68,7 +69,7 @@ struct FileAttr => {
  &beginHtml();
 
 
-$sql="SELECT path, logFile, LibTag, jobStatus, NoEventDone, memUsageF, memUsageL, CPU_per_evt_sec, createTime FROM $JobStatusT where path LIKE '%test/new%' AND path LIKE '%redhat72%' AND avail = 'Y'";
+$sql="SELECT path, logFile, LibTag, jobStatus, NoEventDone, chainOpt, memUsageF, memUsageL, CPU_per_evt_sec, createTime FROM $JobStatusT where path LIKE '%test/new%' AND path LIKE '%redhat72%' AND avail = 'Y'";
  $cursor =$dbh->prepare($sql)
    || die "Cannot prepare statement: $DBI::errstr\n";
  $cursor->execute;
@@ -92,6 +93,7 @@ $sql="SELECT path, logFile, LibTag, jobStatus, NoEventDone, memUsageF, memUsageL
      ($$fObjAdr)->memL($fvalue)    if($fname eq 'memUsageL');
      ($$fObjAdr)->mCPU($fvalue)    if($fname eq 'CPU_per_evt_sec');
      ($$fObjAdr)->timeS($fvalue)   if($fname eq 'createTime');
+     ($$fObjAdr)->chOpt($fvalue)   if($fname eq 'chainOpt');
  }
         $dbFiles[$ndbFiles] = $fObjAdr;
         $ndbFiles++; 
@@ -107,6 +109,9 @@ $sql="SELECT path, logFile, LibTag, jobStatus, NoEventDone, memUsageF, memUsageL
  my $myCPU;
  my $myCtime;
  my $mylib;
+ my $mychain;
+ my $cdate;
+ my @prt;
 
   foreach $eachFile (@dbFiles) {
 
@@ -118,7 +123,11 @@ $sql="SELECT path, logFile, LibTag, jobStatus, NoEventDone, memUsageF, memUsageL
         $myMemF  = ($$eachFile)->memF; 
         $myMemL  = ($$eachFile)->memL; 
         $myCPU   = ($$eachFile)->mCPU;          
-        $myCtime = ($$eachFile)->timeS;  
+        $myCtime = ($$eachFile)->timeS;
+        $mychain = ($$eachFile)->chOpt;
+        @prt = split (" ", $myCtime);
+    $cdate = $prt[0]; 
+    $mychain =  
     next if $myPath =~ /tfs_/;
     next if $myPath =~ /year_2a/;
 
@@ -144,6 +153,7 @@ print <<END;
 <TD ALIGN=CENTER WIDTH=\"20%\" HEIGHT=50><B>Path</B></TD>
 <TD ALIGN=CENTER WIDTH=\"10%\" HEIGHT=50><B>Log File Name</B></TD>
 <TD ALIGN=CENTER WIDTH=\"10%\" HEIGHT=50><B>Library Version</B></TD>
+<TD ALIGN=CENTER WIDTH=\"20%\" HEIGHT=50><B>Chain Option</B></TD>
 <TD ALIGN=CENTER WIDTH=\"10%\" HEIGHT=50><B>Job Status</B></TD>
 <TD ALIGN=CENTER WIDTH=\"10%\" HEIGHT=50><B>Number of Events<br>Done</B></TD>
 <TD ALIGN=CENTER WIDTH=\"10%\" HEIGHT=50><B>Memory Usage<br>for First Event</B></TD>
@@ -164,6 +174,7 @@ print <<END;
 <td>$myPath</td>
 <td>$myFile</td>
 <td>$mylib</td>
+<td>$mychain</td>
 <td>$myJobS</td>
 <td>$myEvtD</td>
 <td>$myMemF</td>
