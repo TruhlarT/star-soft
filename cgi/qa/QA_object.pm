@@ -177,7 +177,9 @@ sub ControlFile{
       elsif ( $input_filename =~ /daq/ ){
 	$filestring .= "\.cosmics";
       }
-      elsif( $input_filename =~ /hadronic_cocktail/ ){
+      elsif( ($input_filename =~ /hadronic_cocktail/) 
+	     or ($input_filename =~ /cocktail\/hadronic/)
+	   ){
 
 	if ( $input_filename =~ /lowdensity/ ){
 	  	$filestring .= "\.hc_low";
@@ -346,6 +348,10 @@ sub DataDisplayString{
 
     # pmj 10/12/99
     ($input_fn_string = $input_filename) =~ s%/star/rcf/disk0/star/test/%%;
+
+    # pmj 11/1/00 - simu file catalogue changed
+    ($input_fn_string = $input_filename) =~ s%/star/rcf/simu/%%;
+
     $input_filename and $string .= "<br><font size=1>(input: $input_fn_string)</font>";
 
   }
@@ -536,7 +542,7 @@ sub RunQAMacros {
   $control_file = $self->ControlFile;
 
   -s $control_file or do{    
-    print "<h4> <font color = red> Cannot find control file for report key $report_key </font> </h4> \n";
+    print "<h4> <font color = red> Cannot find control file $control_file for report key $report_key </font> </h4> \n";
     return;
   };
 
