@@ -176,8 +176,8 @@ for($i =0 ; ; $i++){
     if( $cout =~ m/HPSS/){
 	$tmp = basename($out);
 	if( ! -e $tmp){
-	    print "$PRGM :: $cout -> $out missing\n";
-	    symlink($cout,$out);
+	    print "$PRGM :: $cout -> $tmp missing\n";
+	    symlink($cout,$tmp);
 	}
     }
 } 
