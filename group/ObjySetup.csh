@@ -16,9 +16,7 @@ endif
 if ( $?OBJY_HOME ) then
 
 if ( ! $?OO_FD_BOOT ) setenv OO_FD_BOOT $STAR_DB/stardb/STAR
-if ( ! $?BFWORK ) setenv BFWORK $STAR_DB/StObjy
-if ( ! $?BFSTAR ) setenv BFSTAR $STAR_DB/StafObjy
-
+if ( ! $?BFWORK ) setenv BFWORK /star/sol/db/StObjy
 if ( $?SILENT == 0 ) echo Objectivity location OBJY_HOME set to $OBJY_HOME
 setenv PATH $PATH\:$BFWORK/bin/$BFARCH\:$OBJY_HOME/$OBJY_ARCH/bin
 
@@ -29,8 +27,8 @@ if ( $?BFARCH ) then
   setenv BFSITE starbnl
   setenv OBJYBASE $OBJY_HOME
 
-  if ( -d $STAR_DB/bin/$BFARCH ) then
-    setenv PATH $PATH\:$STAR_DB/bin/$BFARCH\:$STAR_DB/bin/share
+  if ( -d /afs/rhic/star/packages/stardb/bin/$BFARCH ) then
+    setenv PATH $PATH\:/afs/rhic/star/packages/stardb/bin/$BFARCH\:/afs/rhic/star/packages/stardb/bin/share
   endif
 
 endif
