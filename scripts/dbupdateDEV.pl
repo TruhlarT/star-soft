@@ -1105,6 +1105,9 @@ my $runflag = 0;
         $num_line++; 
 #   get ROOT_LEVEL and node
 
+       if($line =~ /Processing bfc.C/) {
+          $runflag++;       
+
    if ($line =~ /StMessageManager message summary/) {
       $Anflag = 1;
     }
@@ -1123,9 +1126,8 @@ my $runflag = 0;
        }
     }
 #   get chain option
-
+	  if($runflag == 1) {
        if ( $line =~ /QAInfo: Requested chain bfc is/)  {
-         $runflag++;
          if( $Anflag == 0 ) {
          @part = split /:/, $line ;
          $mchain = $part[2]; 
@@ -1134,7 +1136,7 @@ my $runflag = 0;
        next;
         }
        }
-       if($runflag = 1)  {
+ 
 #   get  number of events
       if ( $line =~ /QAInfo: Done with Event/ ) {
         $no_event++;
@@ -1220,6 +1222,7 @@ my $runflag = 0;
      
        }
      }
+
       $EvDone = $no_event;
       $EvCom = $EvDone - $EvSkip;
  
