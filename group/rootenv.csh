@@ -43,16 +43,23 @@ endsw
 
 
 if ( -x ${GROUP_DIR}/dropit) setenv PATH  `${GROUP_DIR}/dropit -p "$PATH" ROOT`
+
 ##VP setenv PATH "${ROOTSYS}/${root}/bin:${PATH}"
 setenv PATH `${GROUP_DIR}/dropit -p ${ROOTSYS}/bin -p ${PATH}`
+
 if ($?NODEBUG) then
-##VP   setenv PATH "${ROOTSYS}/${root}/BIN:${PATH}"
+  ##VP   setenv PATH "${ROOTSYS}/${root}/BIN:${PATH}"
   setenv PATH `${GROUP_DIR}/dropit -p ${ROOTSYS}/BIN -p ${PATH}`
 endif
+if ($?INSURE) then
+  setenv PATH `${GROUP_DIR}/dropit -p ${ROOTSYS}/IBIN -p ${PATH}`
+endif
+
+
 if ($?MANPATH == 0) setenv MANPATH
 ##VP setenv MANPATH "${ROOTSYS}/man:${MANPATH}"
 setenv MANPATH `${GROUP_DIR}/dropit -p ${ROOTSYS}/man -p ${MANPATH}`
-#
+
 # OpenGL
 if (-e $ROOTSYS/../Mesa) setenv OPENGL $ROOTSYS/../Mesa  
 setenv CINTSYSDIR ${ROOTSYS}/cint
