@@ -26,6 +26,7 @@ my $fields = param("fields");
 
 my $fC = FileCatalog->new;
 $fC->connect;
+$fileC->debug_on("html");
 
 my $boxfields = "filetype,extension,storage,site,production,library,triggername,triggerword,triggersetup,runtype,configuration,geometry,collision,magscale,fileseq,owner,node,available,persistent,generator,genversion,genparams,tpc,svt,tof,emc,fpd,ftpc,pmd,rich,ssd,simulation";
 my $queryfields = "filetype,extension,storage,site,production,library,triggername,triggerword,triggersetup,runtype,configuration,geometry,runnumber,runcomments,collision,datetaken,magscale,magvalue,filename,size,fileseq,filecomment,owner,protection,node,available,persistent,createtime,inserttime,path,simcomment,generator,genversion,gencomment,genparams,tpc,svt,tof,emc,fpd,ftpc,pmd,rich,ssd";
@@ -42,11 +43,11 @@ print
 
 $fC->clear_context;
 my (@pars);
-foreach (split(",",$boxfields))
-  {
+foreach (split(",",$boxfields)){
     if ((param($_."val") ne "ALL") && (param($_."val") ne ""))
-      { $fC->set_context("$_ = ".param($_."val")); }
-  }
+    { $fC->set_context("$_ = ".param($_."val")); }
+}
+
 foreach (split(",",$operfields))
   {
     if (param($_."glob") ne "")
@@ -162,10 +163,11 @@ if (not $oldlimit)
   {
     $newurl .= "&limit=$limit";
   }
-print "<A href='$newurl'>NEXT $limit RECORDS</A><BR>/n";
+print "<A href='$newurl'>NEXT $limit RECORDS</A><BR>\n";
 
 
 print
-    "<br>\n<font size=-1><b><i>Written by <A HREF=\"mailto:kisiel\@if.pw.edu.pl\">Adam Kisiel</A> </i></b></font>",
+    "<br>\n<font size=-1><b><i>Written by ",
+    "<A HREF=\"mailto:kisiel\@if.pw.edu.pl\">Adam Kisiel</A> </i></b></font>",
     end_html;
 $fC->destroy;
