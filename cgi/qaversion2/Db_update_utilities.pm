@@ -219,7 +219,7 @@ sub UpdateQAOfflineFast{
 		       set
 			 $QASum{jobID}      = ?,
 			 $QASum{report_key} = ?,
-			 $QASum{type}       = 'n/a',
+			 $QASum{type}       = 'real',
 			 $QASum{QAdone}     = 'N',
 			 $QASum{qaID}       = NULL
 		       };
