@@ -1,4 +1,4 @@
-# FileCat.pm
+# FileCatalog.pm
 #
 # Written by Adam Kisiel, November-December 2001
 # Modified by J.Lauret, 2002
@@ -39,6 +39,9 @@
 #        -> get_file_location()
 #                          returns the FileLocations info in an array context. The return value
 #                          can be used as-is in a set_context() statement.
+#        -> get_file_data()
+#                          returns the FileData info in an array context. The return value
+#                          can be used as-is in a set_context() statement.
 #        -> clone_location()
 #                          actually create an instance for FileData and a copy of FileLocations
 #                          the latest to be modified with set_context() keywords.
@@ -73,7 +76,7 @@
 package FileCatalog;
 
 use vars qw($VERSION);
-$VERSION   =   0.02;
+$VERSION   =   1.03;
 
 use DBI;
 use strict;
@@ -103,16 +106,25 @@ my %keywrds;
 # 4 - critical for data insertion into the specified table
 # 5 - type of the field (text,num,date)
 # 6 - if 0, is not returned by the FileTableContent() routine
-# 7 - not used
+# 7 - if 1, displays as a user usable keywords, skip otherwise.
+#     This field cannot be a null string.
 # only the keywords in this table are accepted in set_context sub
 
 # Those are for private use only but require a keyword for access. 
 # DO NOT DOCUMENT THEM !!!
-$keywrds{"fdid"          }    =   "fileDataID"                .",FileData"               .",0" .",num"  .",0" .",1" .",0";
-$keywrds{"flid"          }    =   "fileLocationID"            .",FileLocations"          .",0" .",num"  .",0" .",1" .",0";
-$keywrds{"pcid"          }    =   "productionConditionID"     .",FileData"               .",0" .",num"  .",0" .",1" .",1";
-$keywrds{"rpid"          }    =   "runParamID"                .",FileData"               .",0" .",num"  .",0" .",1" .",1";
-$keywrds{"ftid"          }    =   "fileTypeID"                .",FileData"               .",0" .",num"  .",0" .",1" .",1";
+$keywrds{"flid"          }    =   "fileLocationID"            .",FileLocations"          .",0" .",num"  .",0" .",0" .",0";
+$keywrds{"fdid"          }    =   "fileDataID"                .",FileData"               .",0" .",num"  .",0" .",0" .",0";
+$keywrds{"rfdid"         }    =   "fileDataID"                .",FileLocations"          .",0" .",num"  .",0" .",1" .",0";
+$keywrds{"pcid"          }    =   "productionConditionID"     .",ProductionConditions"   .",0" .",num"  .",0" .",0" .",0";
+$keywrds{"rpcid"         }    =   "productionConditionID"     .",FileData"               .",0" .",num"  .",0" .",1" .",0";
+$keywrds{"rpid"          }    =   "runParamID"                .",RunParams"              .",0" .",num"  .",0" .",0" .",0";
+$keywrds{"rrpid"         }    =   "runParamID"                .",FileData"               .",0" .",num"  .",0" .",1" .",0";
+$keywrds{"ftid"          }    =   "fileTypeID"                .",FileTypes"              .",0" .",num"  .",0" .",0" .",0";
+$keywrds{"rftid"         }    =   "fileTypeID"                .",FileData"               .",0" .",num"  .",0" .",1" .",0";
+$keywrds{"stid"          }    =   "storageTypeID"             .",StorageTypes"           .",0" .",num"  .",0" .",0" .",0";
+$keywrds{"rstid"         }    =   "storageTypeID"             .",FileLocations"          .",0" .",num"  .",0" .",0" .",0";
+$keywrds{"ssid"          }    =   "storageSiteID"             .",StorageSites"           .",0" .",num"  .",0" .",0" .",0";
+$keywrds{"rssid"         }    =   "storageSiteID"             .",FileLocations"          .",0" .",num"  .",0" .",1" .",0";
 
 # Those should be documented
 $keywrds{"filetype"      }    =   "fileTypeName"              .",FileTypes"              .",1" .",text" .",0" .",1" .",1";
@@ -122,8 +134,8 @@ $keywrds{"site"          }    =   "storageSiteName"           .",StorageSites"  
 $keywrds{"production"    }    =   "productionTag"             .",ProductionConditions"   .",1" .",text" .",0" .",1" .",1";
 $keywrds{"prodcomment"   }    =   "productionComments"        .",ProductionConditions"   .",1" .",text" .",0" .",1" .",1";
 $keywrds{"library"       }    =   "libraryVersion"            .",ProductionConditions"   .",1" .",text" .",0" .",1" .",1";
-$keywrds{"triggername"   }    =   "triggerName"               .",TriggerWords"           .",1" .",text" .",0" .",1" .",1";
-$keywrds{"triggerword"   }    =   "triggerWord"               .",TriggerWords"           .",1" .",text" .",0" .",1" .",1";
+$keywrds{"triggername"   }    =   "triggerName"               .",TriggerWords"           .",1" .",text" .",0" .",1" .",0";
+$keywrds{"triggerword"   }    =   "triggerWord"               .",TriggerWords"           .",1" .",text" .",0" .",1" .",0";
 $keywrds{"triggersetup"  }    =   "triggerSetupName"          .",TriggerSetups"          .",1" .",text" .",0" .",1" .",1";
 $keywrds{"runtype"       }    =   "runTypeName"               .",RunTypes"               .",1" .",text" .",0" .",1" .",1";
 $keywrds{"configuration" }    =   "detectorConfigurationName" .",DetectorConfigurations" .",1" .",text" .",0" .",1" .",1";
@@ -135,10 +147,10 @@ $keywrds{"datetaken"     }    =   "dataTakingStart"           .",RunParams"     
 $keywrds{"magscale"      }    =   "magFieldScale"             .",RunParams"              .",1" .",text" .",0" .",1" .",1";
 $keywrds{"magvalue"      }    =   "magFieldValue"             .",RunParams"              .",0" .",num"  .",0" .",1" .",1";
 $keywrds{"filename"      }    =   "filename"                  .",FileData"               .",1" .",text" .",0" .",1" .",1";
-$keywrds{"size"          }    =   "size"                      .",FileData"               .",1" .",num"  .",0" .",1" .",1";
 $keywrds{"fileseq"       }    =   "fileSeq"                   .",FileData"               .",1" .",num"  .",0" .",1" .",1";
 $keywrds{"filecomment"   }    =   "fileDataComments"          .",FileData"               .",0" .",text" .",0" .",1" .",1";
-$keywrds{"fsize"         }    =   "fsize"                     .",FileLocations"          .",1" .",num"  .",0" .",1" .",1";
+$keywrds{"fdsize"        }    =   "size"                      .",FileData"               .",1" .",num"  .",0" .",1" .",0";
+$keywrds{"size"          }    =   "fsize"                     .",FileLocations"          .",1" .",num"  .",0" .",1" .",0";
 $keywrds{"owner"         }    =   "owner"                     .",FileLocations"          .",0" .",text" .",0" .",1" .",1";
 $keywrds{"protection"    }    =   "protection"                .",FileLocations"          .",0" .",text" .",0" .",1" .",1";
 $keywrds{"node"          }    =   "nodeName"                  .",FileLocations"          .",0" .",text" .",0" .",1" .",1";
@@ -164,12 +176,12 @@ $keywrds{"rich"          }    =   "dRICH"                     .",DetectorConfigu
 $keywrds{"ssd"           }    =   "dSSD"                      .",DetectorConfigurations" .",1" .",num"  .",0" .",1" .",1";
 $keywrds{"triggerevents" }    =   "numberOfEvents"            .",TriggerCompositions"    .",1" .",text" .",0" .",1" .",1";
 $keywrds{"events"        }    =   "numberOfEvents"            .",TriggerCompositions"    .",1" .",num"  .",0" .",1" .",1";
-$keywrds{"simulation"    }    =   ",,,,,,";
-$keywrds{"nounique"      }    =   ",,,,,,";
-$keywrds{"noround"       }    =   ",,,,,,";
-$keywrds{"startrecord"   }    =   ",,,,,,";
-$keywrds{"limit"         }    =   ",,,,,,";
-$keywrds{"all"           }    =   ",,,,,,";
+$keywrds{"simulation"    }    =   ",,,,,,1";
+$keywrds{"nounique"      }    =   ",,,,,,1";
+$keywrds{"noround"       }    =   ",,,,,,1";
+$keywrds{"startrecord"   }    =   ",,,,,,1";
+$keywrds{"limit"         }    =   ",,,,,,1";
+$keywrds{"all"           }    =   ",,,,,,1";
 
 # Fields that need to be rounded when selecting from the database
 my $roundfields = "magFieldValue,2 collisionEnergy,0";
@@ -300,8 +312,14 @@ sub get_table_name {
 # Returns:
 # the list of valid keyowrds to use in FileCatalog queries
 sub get_keyword_list {
+    my($val,$kwd);
+    my(@items,@kwds);
 
-  return (keys %keywrds);
+    foreach $val (keys %keywrds){
+	@items = split(",",$keywrds{$val}); 
+	if ($items[6] == 1){ push(@kwds,$val);}
+    }
+  return @kwds;
 }
 
 #============================================
@@ -751,9 +769,9 @@ sub get_current_detector_configuration {
 # Params:
 # The collsion type
 # Returns:
-# first particle name
-# second particle name
-# collision energy
+#   first particle name
+#   second particle name
+#   collision energy
 sub disentangle_collision_type {
 
   my ($colstring) = @_;
@@ -954,21 +972,21 @@ sub insert_run_param_info {
   }
 
 
-  $triggerSetup     = check_ID_for_params("triggersetup");
-  $runType          = check_ID_for_params("runtype");
-  $detConfiguration = check_ID_for_params("configuration");
+  $triggerSetup     = &check_ID_for_params("triggersetup");
+  $runType          = &check_ID_for_params("runtype");
+  $detConfiguration = &check_ID_for_params("configuration");
 
   if (! defined $valuset{"runnumber"}) {
-      if ( defined( $valuset{"rpid"}) ){
+      if ( defined( $valuset{"rrpid"}) ){
 	  # rpid is set in clone_location() mode
-	  return $valuset{"rpid"};
+	  return $valuset{"rrpid"};
       } else {
 	  &print_message("insert_run_param_info","runnumber not defined.");
 	  return 0;
       }
   }
   if (defined $valuset{"collision"}) {
-      $collision = get_collision_type($valuset{"collision"});
+      $collision = &get_collision_type($valuset{"collision"});
       if ($DEBUG > 0) {
 	  &print_debug("Collsion: $collision");
       }
@@ -1003,7 +1021,7 @@ sub insert_run_param_info {
   }
   if ((defined $valuset{"simulation"}) && (! ($valuset{"simulation"} eq '0') ) ) {
       &print_debug("Adding simulation data.");
-      $simulation = get_current_simulation_params();
+      $simulation = &get_current_simulation_params();
   } else {
       $simulation = "NULL";
   }
@@ -1042,11 +1060,11 @@ sub insert_run_param_info {
 sub get_current_run_param {
   my $runNumber;
 
-  $runNumber = check_ID_for_params("runnumber");
+  $runNumber = &check_ID_for_params("runnumber");
   if ($runNumber == 0) {
     # There is no run with this run number
     # we have to add it
-    $runNumber = insert_run_param_info();
+    $runNumber = &insert_run_param_info();
   }
   return $runNumber;
 }
@@ -1064,7 +1082,7 @@ sub insert_file_data {
   my $library;
   my $fileType;
   my $runNumber;
-  my $size;
+  #my $size;
   my $fileComment;
   my $fileSeq;
   my @triggerWords;
@@ -1077,16 +1095,27 @@ sub insert_file_data {
       return 0;
   }
 
-  $production = check_ID_for_params("production");
-  $library    = check_ID_for_params("library");
-  $fileType   = check_ID_for_params("filetype");
+  $production = &check_ID_for_params("production");
+  $library    = &check_ID_for_params("library");
+  $fileType   = &check_ID_for_params("filetype");
 
+  # cloning has side effects. we must delete the content if replaced
+  if ( defined($valuset{"rpcid"}) ){
+      # library because later check assigns prod = lib
+      if ( $library == 0 ){     $library = $valuset{"rpcid"};}
+      delete($valuset{"rpcid"});
+  }
+  if ( defined($valuset{"rftid"}) ){
+      if ( $fileType == 0  ){   $fileType = $valuset{"rftid"};}
+      delete($valuset{"rftid"});
+  }
   return 0 if ((($production == 0 ) && ($library == 0)) || $fileType == 0);
 
-  if ($production == 0) {
-    $production = $library;
-  }
-  $runNumber = get_current_run_param();
+  if ($production == 0) {       $production = $library;}
+  
+
+  $runNumber = &get_current_run_param();
+
   if ($runNumber == 0) {
       &print_message("insert_file_data","Could not add run data");
       return 0;
@@ -1095,11 +1124,11 @@ sub insert_file_data {
       &print_message("insert_file_data","filename not defined.");
       return 0;
   }
-  if (! defined $valuset{"size"}) {
-    $size = "NULL";
-  } else {
-    $size = $valuset{"size"};
-  }
+  #if (! defined $valuset{"size"}) {
+  #$size = "NULL";
+  #} else {
+  #  $size = $valuset{"size"};
+  #}
 
   if (! defined $valuset{"filecomment"}) {
     $fileComment = "NULL";
@@ -1134,7 +1163,7 @@ sub insert_file_data {
 	      &print_debug("Added triggerword ".$triggerWords[$count].
 			   " with event count ".$eventCounts[$count]);
 	  }
-	  $triggerIDs[$count] = get_id_from_dictionary("TriggerWords","triggerName",$triggerWords[$count]);
+	  $triggerIDs[$count] = &get_id_from_dictionary("TriggerWords","triggerName",$triggerWords[$count]);
 	  if ( ! defined($triggerIDs[$count]) ) {
 	      $triggerIDs[$count] = 0;
 	      &print_message("insert_file_data","Warning: no triggerID for triggerword $triggerWords[$count]");
@@ -1146,8 +1175,8 @@ sub insert_file_data {
 
   # Prepare the SQL query and execute it
   my $fdinsert   = "INSERT IGNORE INTO FileData ";
-  $fdinsert  .= "(runParamID, fileName, productionConditionID, fileTypeID, size, fileDataComments, fileSeq)";
-  $fdinsert  .= " VALUES ($runNumber, \"".$valuset{"filename"}."\",$production,$fileType,$size,$fileComment,$fileSeq)";
+  $fdinsert  .= "(runParamID, fileName, productionConditionID, fileTypeID, fileDataComments, fileSeq)";
+  $fdinsert  .= " VALUES ($runNumber, \"".$valuset{"filename"}."\",$production,$fileType,$fileComment,$fileSeq)";
   if ($DEBUG > 0) { &print_debug("Execute $fdinsert");}
 
 
@@ -1201,8 +1230,8 @@ sub insert_file_data {
 # get the ID for the current file data, or create it
 # if not found.
 # Returns:
-# the ID of a fileData record
-# or 0 if no such fielData, cannot create it, or more than one record exists for a given context.
+#  the ID of a fileData record
+#  or 0 if no such fielData, cannot create it, or more than one record exists for a given context.
 sub get_current_file_data {
   my $runParam;
   my $fileName;
@@ -1217,10 +1246,10 @@ sub get_current_file_data {
       return 0;
   }
 
-  $runParam   = get_current_run_param();
-  $production = check_ID_for_params("production");
-  $library    = check_ID_for_params("library");
-  $fileType   = check_ID_for_params("filetype");
+  $runParam   = &get_current_run_param();
+  $production = &check_ID_for_params("production");
+  $library    = &check_ID_for_params("library");
+  $fileType   = &check_ID_for_params("filetype");
 
   #print "In get_current_file_data $runParam $production $library $fileType\n";
 
@@ -1271,7 +1300,7 @@ sub get_current_file_data {
 
   if ($sth->rows == 0) {
     my $newid;
-    $newid = insert_file_data();
+    $newid = &insert_file_data();
     $sth->finish();
     return $newid;
   }
@@ -1475,11 +1504,12 @@ sub clone_location {
 	&set_context(@allfd);
 	&set_context(@allfl);
 
-	&print_debug("What was queried\n",
+	&print_debug("clone_location :: What was queried\n",
 		     "\t".join(",",@allfd),
 		     "\t".join(",",@allfl));
 	1;
     } else {
+	&print_message("clone_location","FileData/FileLocation cloning failed");
 	0;
 
     }
@@ -1487,6 +1517,9 @@ sub clone_location {
 
 sub get_file_location(){
     return &FileTableContent("FileLocation","FLKWD");
+}
+sub get_file_data(){
+    return &FileTableContent("FileData","FDKWD");
 }
 
 sub FileTableContent {
@@ -1502,8 +1535,10 @@ sub FileTableContent {
     #print "Evaluating for $table\n";
     foreach ( keys %keywrds ){
 	@items = split(",",$keywrds{$_});
-	if ( $items[1] =~ m/$table/ && $items[6] == 1){
+	if ( $items[1] =~ m/$table/ && $items[5] == 1 ){
 	    push(@itab,$_);
+	    #} else {
+	    #print "Rejecting $_ $keywrds{$_}\n";
 	}
     }
     #print "-->".join(",",@itab)."\n";
@@ -1513,19 +1548,21 @@ sub FileTableContent {
     my $delim;
 
     $delim = &get_delimeter();
-    &set_delimeter(",");                      # set to known one
-
+    &set_delimeter("::");                     # set to known one
     @all = &run_query("FileCatalog",@itab);
+    &set_delimeter($delim);                   # restore delim
+    
+
+    &print_debug("+","Run with ".join("/",@itab));
+
 
     undef(@query);
     if ($#all != -1){
-	@all = split(",",$all[0]);                # Only one instance
-
-	&set_delimeter($delim);                   # restore delim
-    
+	@all = split("::",$all[0]);                # Only one instance
 
 	for ( $i=0 ; $i <= $#itab ; $i++){
-	    &print_debug("Return value for $itab[$i] is $all[$i]");
+	    #&print_debug("Return value for $itab[$i] is $all[$i]");
+	    &print_debug("-->","Return value for $itab[$i] is $all[$i]");
 	    if( $all[$i] ne ""){
 		push(@query,"$itab[$i] = $all[$i]");
 	    } 
@@ -1561,7 +1598,7 @@ sub insert_file_location {
       return 0;
   }
   
-  $fileData = get_current_file_data();
+  $fileData = &get_current_file_data();
   if ($fileData == 0) {
       &print_message("insert_file_location","No file data available",
 		     "Aborting file insertion query");
@@ -1569,13 +1606,19 @@ sub insert_file_location {
   }
 
 
-  $storageType = check_ID_for_params("storage");
-  $storageSite = check_ID_for_params("site");
-  if (($storageType == 0 ) || ($storageSite == 0)) {
-      &print_message("insert_file_location","Aborting file location insertion query");
+  $storageType = &check_ID_for_params("storage");
+  $storageSite = &check_ID_for_params("site");
+  if ( $storageType == 0 ) {
+      &print_message("insert_file_location","Aborting file location insertion query. storage mandatory");
       return 0;
   }
-  if (! defined $valuset{"path"}) {
+  if( defined($valuset{"rssid"}) ){
+      if ($storageSite == 0){  $storageSite = $valuset{"rssid"};}
+      delete($valuset{"rssid"});
+  }
+
+
+  if (! defined $valuset{"path"} ) {
       &print_message("insert_file_location","ERROR: file path not defined. Cannot add file location",
 		     "Aborting File Location");
       return 0;
@@ -1602,39 +1645,40 @@ sub insert_file_location {
       $protection = '"'.$valuset{"protection"}.'"';
   }
   if (! defined $valuset{"node"}) {
-      &print_debug("WARNING:  not defined. Using a default value");
-      $nodeName = '" "';
+      &print_debug("WARNING: node not defined. Using a default value");
+      $nodeName = "'localhost'";      # Cannot be NULL because of check
   } else {
-      $nodeName = '"'.$valuset{"node"}.'"';
+      $valuset{"node"} =~ s/\s+//g;
+      if ( $valuset{"node"} ne ""){
+	  $nodeName = '"'.$valuset{"node"}.'"';
+      } else {
+	  $nodeName = "'localhost'";  # Cannot be NULL because of check
+      }
+      
   }
   if (! defined $valuset{"availability"}) {
-      &print_debug("WARNING:  not defined. Using a default value");
+      &print_debug("WARNING: availability not defined. Using a default value");
       $availability = 1 ;
   } else {
       $availability = $valuset{"availability"};
   }
   if (! defined $valuset{"persistent"}) {
-      &print_debug("WARNING:  not defined. Using a default value");
+      &print_debug("WARNING: persistent not defined. Using a default value");
       $persistent = 0 ;
   } else {
       $persistent = $valuset{"persistent"};
   }
   if (! defined $valuset{"sanity"}) {
-      &print_debug("WARNING:  not defined. Using a default value");
+      &print_debug("WARNING: sanity not defined. Using a default value");
       $sanity = 0;
   } else {
       $sanity = $valuset{"sanity"};
   }
 
-  if (! defined $valuset{"fsize"}) {
-      # *** TRANSITION HACK ***
-      if ( ! defined $valuset{"size"}){
-	  $fsize = "NULL";
-      } else {
-	  $fsize = $valuset{"size"};
-      }
+  if (! defined $valuset{"size"}) {
+      $fsize = 0;
   } else {
-      $fsize = $valuset{"fsize"};
+      $fsize = $valuset{"size"};
   }
 
 
@@ -1819,12 +1863,12 @@ sub connect_fields {
   &print_debug("Looking for connection between fields: $begkeyword, $endkeyword");
 
 
-  $begtable = get_table_name($begkeyword);
-  $begfield = get_field_name($begkeyword);
-  $endtable = get_table_name($endkeyword);
-  $endfield = get_field_name($endkeyword);
-  $blevel   = get_struct_level($begtable);
-  $elevel   = get_struct_level($endtable);
+  $begtable = &get_table_name($begkeyword);
+  $begfield = &get_field_name($begkeyword);
+  $endtable = &get_table_name($endkeyword);
+  $endfield = &get_field_name($endkeyword);
+  $blevel   = &get_struct_level($begtable);
+  $elevel   = &get_struct_level($endtable);
   if ($blevel > $elevel) {
     ($ftable, $stable, $flevel, $slevel) =
       ($begtable, $endtable, $blevel, $elevel)
@@ -1850,11 +1894,11 @@ sub connect_fields {
     my @upconnections;
     # look upward in table structure
     while (($stable ne $ftable) && ($slevel != 1)) {
-      my ($ttable, $tlevel, $connum) = get_lower_level($stable);
+      my ($ttable, $tlevel, $connum) = &get_lower_level($stable);
       push(@upconnections, $connum);
       $slevel = $tlevel;
       $stable = $ttable;
-      ($ttable, $tlevel, $connum) = get_lower_level($ftable);
+      ($ttable, $tlevel, $connum) = &get_lower_level($ftable);
       push(@upconnections, $connum);
       $flevel = $tlevel;
       $ftable = $ttable;
@@ -1870,7 +1914,7 @@ sub connect_fields {
 
       @flevelfields = $ftable;
       @slevelfields = $stable;
-      ($findex, $sindex) = get_intersect($#flevelfields, @flevelfields, @slevelfields);
+      ($findex, $sindex) = &get_intersect($#flevelfields, @flevelfields, @slevelfields);
       while ($findex == -1) {
 	if ($DEBUG > 0) {
 	    &print_debug("First fields: ".join(" ",(@flevelfields)),
@@ -1881,7 +1925,7 @@ sub connect_fields {
 	for ($fcount=0; $fcount<$#flevelfields+1; $fcount++) {
 	  # Get all the fields that are connected to this one
 	  # and one level up
-	  (@flower) = get_all_upper($flevelfields[$fcount]);
+	  (@flower) = &get_all_upper($flevelfields[$fcount]);
 	  if ($DEBUG > 0) {
 	      &print_debug("All first descendants: ".join(" ",(@flower)));
 	  }
@@ -1889,10 +1933,10 @@ sub connect_fields {
 	      # Add a road going from the tree root to this field
 	      if( defined($froads{$flower[$cflow]}) ){
 		  $froads{$flower[$cflow]} = $froads{$flevelfields[$fcount]}." ".
-		      get_connection($flower[$cflow], $flevelfields[$fcount]);
+		      &get_connection($flower[$cflow], $flevelfields[$fcount]);
 	      } else {
 		  $froads{$flower[$cflow]} = " ".
-		      get_connection($flower[$cflow], $flevelfields[$fcount]);
+		      &get_connection($flower[$cflow], $flevelfields[$fcount]);
 	      }
 	      if ($DEBUG > 0) {
 		  &print_debug("Added road $froads{$flower[$cflow]}");
@@ -1902,7 +1946,7 @@ sub connect_fields {
 	for ($scount=0; $scount <= $#slevelfields ; $scount++) {
 	  # Get all the fields that are connected to this one
 	  # and one level up
-	  (@slower) = get_all_upper($slevelfields[$scount]);
+	  (@slower) = &get_all_upper($slevelfields[$scount]);
 	  if ($DEBUG > 0) {
 	      &print_debug("All second descendants: ".join(" ",(@slower)));
 	  }
@@ -1910,10 +1954,10 @@ sub connect_fields {
 	    # Add a road going from the tree root to this field
 	      if( defined($sroads{$slower[$cslow]}) ){
 		  $sroads{$slower[$cslow]} = $sroads{$slevelfields[$scount]}." ".
-		      get_connection($slower[$cslow], $slevelfields[$scount]);
+		      &get_connection($slower[$cslow], $slevelfields[$scount]);
 	      } else {
 		  $sroads{$slower[$cslow]} = " ".
-		      get_connection($slower[$cslow], $slevelfields[$scount]);
+		      &get_connection($slower[$cslow], $slevelfields[$scount]);
 	      }
 
 	    if ($DEBUG > 0) {
@@ -1923,7 +1967,7 @@ sub connect_fields {
 	}
 	@flevelfields = @flower;
 	@slevelfields = @slower;
-	($findex, $sindex) = get_intersect($#flevelfields, @flevelfields, @slevelfields);
+	($findex, $sindex) = &get_intersect($#flevelfields, @flevelfields, @slevelfields);
       }
       push (@connections, $froads{$flevelfields[$findex]});
       push (@connections, $sroads{$slevelfields[$sindex]});
@@ -1941,6 +1985,10 @@ sub connect_fields {
 # Returns:
 # list of rows matching the query build on the current context
 # in each row the fileds are separated by ::
+sub run_query_st {
+    return join("\n",&run_query(@_));
+}
+
 sub run_query {
   if ($_[0] =~ m/FileCatalog/) {
     shift @_;
@@ -2058,10 +2106,13 @@ sub run_query {
 
 
 	      my $sqlquery = "SELECT $idname FROM $tabname WHERE ";
+
 	      if ((($roundfields =~ m/$fieldname/) > 0) && (! defined $valuset{"noround"})){
 		  #&print_debug("1 Inspecting [$roundfields] [$fieldname]");
 		  my ($nround) = $roundfields =~ m/$fieldname,([0-9]*)/;
 		  #&print_debug("1 Rounding to [$roundfields] [$fieldname] [$nround]");
+
+
 		  $sqlquery .= "ROUND($fieldname, $nround) ".$operset{$_}." ";
 		  if( $valuset{$_} =~ m/^\d+/){
 		      $sqlquery .= $valuset{$_};
@@ -2270,13 +2321,13 @@ sub run_query {
   # See if we have any constaint parameters
   foreach (keys(%valuset)) {
     my $fromlist = join(" " , (@fromunique));
-    my $tabname = get_table_name($_);
+    my $tabname = &get_table_name($_);
     if ((($fromlist =~ m/$tabname/) > 0) && ($tabname ne "")) {
-      my $fieldname = get_field_name($_);
+      my $fieldname = &get_field_name($_);
       if ((($roundfields =~ m/$fieldname/) > 0) && (! defined $valuset{"noround"}))
 	{
 	  my ($nround) = $roundfields =~ m/$fieldname,([0-9]*)/;
-	  my ($roundv)="ROUND($fieldname, $nround) ".$operset{$_}." ";
+	  my ($roundv)="ROUND($tabname.$fieldname, $nround) ".$operset{$_}." ";
 
 	  if( $valuset{$_} =~ m/^\d+/){
 	      $roundv .= $valuset{$_};
@@ -2288,18 +2339,18 @@ sub run_query {
 	}
       elsif ($operset{$_} eq "~")
 	{
-	  push( @constraint, "$fieldname LIKE '%".$valuset{$_}."%'" );
+	  push( @constraint, "$tabname.$fieldname LIKE '%".$valuset{$_}."%'" );
 	}
       elsif ($operset{$_} eq "!~")
 	{
-	  push( @constraint, "$fieldname NOT LIKE '%".$valuset{$_}."%'" );
+	  push( @constraint, "$tabname.$fieldname NOT LIKE '%".$valuset{$_}."%'" );
 	}
       else
 	{
 	  if (get_field_type($_) eq "text")
-	    { push( @constraint, "$fieldname ".$operset{$_}." '".$valuset{$_}."'" ); }
+	    { push( @constraint, "$tabname.$fieldname ".$operset{$_}." '".$valuset{$_}."'" ); }
 	  else
-	    { push( @constraint, "$fieldname ".$operset{$_}." ".$valuset{$_} ); }
+	    { push( @constraint, "$tabname.$fieldname ".$operset{$_}." ".$valuset{$_} ); }
 	}
     }
   }
@@ -2482,10 +2533,10 @@ sub delete_records {
   # Since the context is defined, we will rely on run_query()
   # to return the list of records to be deleted. This will be
   # less programming support and easier check of what we will
-  # be deleting btw (one ca run a regular query first and delete
+  # be deleting btw (one can run a regular query first and delete
   # after ensuring the same things will be removed) ...
   my $delim = &get_delimeter();
-  my @all   = &run_query("FileCatalog","flid","fdid","path","filename");
+  my @all   = &run_query("FileCatalog","flid","rfdid","path","filename");
 
   &set_delimeter("::");
 
@@ -2495,8 +2546,8 @@ sub delete_records {
 
   $status = 0;
   foreach (@all){
-      # We now have a pair flid/fdid. Only flid can be deleted
-      # fdid is the logical grouping and may be associated with
+      # We now have a pair flid/rfdid. Only flid can be deleted
+      # rfdid is the logical grouping and may be associated with
       # more than one location.
       @ids = split("::",$_);
       $cmd = "DELETE LOW_PRIORITY FROM FileLocations WHERE fileLocationID=$ids[0]";
@@ -2520,9 +2571,9 @@ sub delete_records {
 	  $cmd     = "SELECT FileLocations.fileLocationID from FileLocations, FileData ".
 	      " WHERE FileLocations.fileDataID = FileData.fileDataID AND FileData.fileDataID = $ids[1] ";
 
-	  if ( ! $doit){
-	      $cmd .= " AND FileLocations.fileLocationID <> $ids[0]";
-	  }
+	  #if ( ! $doit){
+	  #    $cmd .= " AND FileLocations.fileLocationID <> $ids[0]";
+	  #}
 	  $stq     = $DBH->prepare( $cmd );
 
 
@@ -2536,29 +2587,29 @@ sub delete_records {
 	      $cmd  = "DELETE LOW_PRIORITY FROM FileData WHERE fileDataID = $ids[1]";
 	      $sth2 = $DBH->prepare($cmd);
 
-		  if ($doit){
-		      if ( $DELAY ){
-			  push(@DCMD,$cmd);
-		      } else {
-			  $sth2->execute();
-		      }
+	      if ($doit){
+		  if ( $DELAY ){
+		      push(@DCMD,$cmd);
 		  } else {
-		      &print_message("delete_record","id=$ids[1] from FileData would be deleted");
+		      $sth2->execute();
 		  }
-		  $sth2->finish();
-
-		  $sth2 = $DBH->prepare("DELETE LOW_PRIORITY FROM TriggerCompositions WHERE fileDataID = $ids[1]");
-		  if ($doit){
-		      if ( $DELAY ){
-			  push(@DCMD,$cmd);
-		      } else {
-			  $sth2->execute();
-		      }
-		  } else {
-		      &print_message("delete_record","... as well as TriggerCompositions entry");
-		  }
-		  $sth2->finish();
+	      } else {
+		  &print_message("delete_record","id=$ids[1] from FileData would be deleted");
 	      }
+	      $sth2->finish();
+
+	      $sth2 = $DBH->prepare("DELETE LOW_PRIORITY FROM TriggerCompositions WHERE fileDataID = $ids[1]");
+	      if ($doit){
+		  if ( $DELAY ){
+		      push(@DCMD,$cmd);
+		  } else {
+		      $sth2->execute();
+		  }
+	      } else {
+		  &print_message("delete_record","... as well as TriggerCompositions entry");
+	      }
+	      $sth2->finish();
+	  }
 	  $stq->finish();
       }
       $sth->finish();
@@ -2824,7 +2875,7 @@ sub bootstrap_data {
 # keyword - the keyword which data is to be updated
 # value   - new value that should be put into the database
 #           instead of the current one
-# doit    - an extra mandatory value 0/1
+# doit    - an extra non-mandatory value 0/1
 #
 # Returns:
 # 1 if update was successfull
@@ -2842,14 +2893,28 @@ sub update_record {
 
   my ($ukeyword, $newvalue, $doit) = (@_);
 
-  my $utable = get_table_name($ukeyword);
-  my $ufield = get_field_name($ukeyword);
+  my $utable = &get_table_name($ukeyword);
+  my $ufield = &get_field_name($ukeyword);
+
+  # There is bunch of exclusion preventing catastrophe
+  # ALL Id's associated to their main tables should be
+  # eliminated
+  if ( $ufield =~ m/(.*)(ID)/ ){
+      my $idnm=$1;
+      if ( index(lc($utable),lc($idnm)) != -1 ){
+	  &print_message("update_record","Changing $ufield in $utable not allowed\n");
+	  # btw, if you do this, you are screwed big time ... because you
+	  # lose the cross table associations.
+	  return 0;
+      }
+  }
+
 
   if( ! defined($doit) ){  $doit = 1;}
 
   foreach my $key (keys %keywrds){
-      my $field = get_field_name($key);
-      my $table = get_table_name($key);
+      my $field = &get_field_name($key);
+      my $table = &get_table_name($key);
 
       # grab keywords which belongs to the same table
       # This will be used as the selection WHERE clause.
@@ -2860,15 +2925,15 @@ sub update_record {
 	{
 	  if (defined($valuset{$key}))
 	    {
-	      if (get_field_type($key) eq "text")
-		{ push (@updates, "$field = '".$valuset{$key}."'"); }
+	      if (&get_field_type($key) eq "text")
+		{ push (@updates, "$table.$field = '".$valuset{$key}."'"); }
 	      else
-		{ push (@updates, "$field = ".$valuset{$key}); }
+		{ push (@updates, "$table.$field = ".$valuset{$key}); }
 	    }
 	}
   }
+  my $whereclause = join(" AND ",(@updates)) if ( $#updates != -1);
 
-  my $whereclause = join(" AND ",(@updates));
 
   if ($utable eq ""){
       &print_debug("ERROR: $ukeyword does not have an associated table","Cannot update");
@@ -2877,30 +2942,42 @@ sub update_record {
 
 
   my $qupdate;
-  if (get_field_type($ukeyword) eq "text"){
-      $qupdate = "UPDATE LOW_PRIORITY $utable SET $ufield = '$newvalue' WHERE ";
+  if (&get_field_type($ukeyword) eq "text"){
+      $qupdate = "UPDATE LOW_PRIORITY $utable SET $ufield = '$newvalue' ";
       if( defined($valuset{$ukeyword}) ){
-	  $qupdate .= " $ufield = '$valuset{$ukeyword}'";
+	  $qupdate .= " WHERE $ufield = '$valuset{$ukeyword}'";
       } else {
-	  &print_message("update_location","$ufield not set with an initial value");
+	  &print_message("update_record","$ukeyword ($ufield) not set with an initial value");
 	  return 0;
       }
+
   } else {
-      $qupdate = "UPDATE LOW_PRIORITY $utable SET $ufield = $newvalue WHERE ";
+      $qupdate = "UPDATE LOW_PRIORITY $utable SET $ufield = $newvalue ";
       if( defined($valuset{$ukeyword}) ){
-	  $qupdate .= " $ufield = $valuset{$ukeyword}";
+	  $qupdate .= " WHERE $ufield = $valuset{$ukeyword}";
       } else {
-	  &print_message("update_location","$ufield not set with an initial value");
+	  &print_message("update_record","$ukeyword ($ufield) not set with an initial value");
 	  return 0;
       }
+
   }
-  
 
 
-  if ($whereclause ne "")
-    { $qupdate .= " AND $whereclause"; }
-  if ($DEBUG > 0){
-      &print_debug("Executing update: $qupdate\n");
+  if ($whereclause ne ""){
+      $qupdate .= " AND $whereclause"; 
+  }
+
+  &print_debug("Executing update: $qupdate\n");
+
+
+  # We may be missisng a 'WHERE'
+  # This is a provision in case we decide to allow
+  # updating records without having the keyword in.
+  # In principle, we can't since this routine also
+  # updates dictionaries.
+  if ( $qupdate !~ /WHERE/){
+      $qupdate =~ s/AND//;  # strip one AND
+      $qupdate = "WHERE ".$qupdate;
   }
 
 
@@ -3004,8 +3081,8 @@ sub update_location {
   my ($ukeyword, $newvalue, $doit) = (@_);
 
   my $mtable;
-  my $utable = get_table_name($ukeyword);
-  my $ufield = get_field_name($ukeyword);
+  my $utable = &get_table_name($ukeyword);
+  my $ufield = &get_field_name($ukeyword);
 
 
   my @files;
@@ -3014,16 +3091,28 @@ sub update_location {
 
   if( ! defined($doit) ){  $doit = 1;}
 
-  $delim  = get_delimeter();
-
+  $delim  = &get_delimeter();
+  
   # Get the list of the files to be updated
+  # Note that this is additional to what has been 
+  # required in a call to set_context() so we
+  # can restrict to any field in addition of the id.
+  # 'id' is for internal use only and is NOT an 
+  # external keyword.
   &set_delimeter("::");
   &set_context("all=1");
-  @files = &run_query("id","filename","path");
+  @files = &run_query("id","available");
+
   # Bring back the previous delimeter
   &set_delimeter($delim);
 
-  delete($valuset{"path"});
+  #delete($valuset{"path"});
+
+
+  if ($#files == -1){
+      &print_message("update_location","The context did not return any candidate");
+      return 0;
+  }
 
 
   # Change this out to dictionary search and revert keyword
@@ -3035,10 +3124,9 @@ sub update_location {
   }
 
 
-  foreach my $key (keys %keywrds)
-    {
-      my $field = get_field_name($key);
-      my $table = get_table_name($key);
+  foreach my $key (keys %keywrds){
+      my $field = &get_field_name($key);
+      my $table = &get_table_name($key);
 
       # grab keywords which belongs to the same table
       # This will be used as the selection WHERE clause.
@@ -3050,7 +3138,7 @@ sub update_location {
 	{
 	  if (defined($valuset{$key}))
 	    {
-	      if (get_field_type($key) eq "text")
+	      if (&get_field_type($key) eq "text")
 		{ push (@updates, "$field = '".$valuset{$key}."'"); }
 	      else
 		{ push (@updates, "$field = ".$valuset{$key}); }
@@ -3066,12 +3154,13 @@ sub update_location {
   }
 
   
+  &print_debug("Ready to scan filelist now ".($#files+1)."\n");
 
   foreach my $line (@files) {
-      #print "Returned line ($ukeyword): $line\n";
+      &print_debug("Returned line ($ukeyword): $line\n");
       my $qupdate;
 
-      my ($flid, $fname, $path) = split("::",$line);
+      my ($flid, $path) = split("::",$line);
 
       if ($utable eq "StorageTypes"){
 	  # Patch ... The above logic is true only for
@@ -3085,28 +3174,31 @@ sub update_location {
 	  }
 
 	  # THOSE ONLY UPDATES VALUES 
-      } elsif (get_field_type($ukeyword) eq "text"){
-	  $qupdate = "UPDATE LOW_PRIORITY $mtable SET $ufield = '$newvalue' WHERE ";
+      } elsif (&get_field_type($ukeyword) eq "text"){
+	  $qupdate = "UPDATE LOW_PRIORITY $mtable SET $ufield = '$newvalue' ";
 	  if( defined($valuset{$ukeyword}) ){
-	      $qupdate .= " $ufield = '$valuset{$ukeyword}'";
+	      $qupdate .= " WHERE $ufield = '$valuset{$ukeyword}'";
 	  } else {
-	      &print_message("update_location","$ufield not set with an initial value");
-	      return;
+	      &print_message("update_location","$ukeyword ($ufield) not set with an initial value");
+	      #return 0;
 	  }
       } else {
-	  $qupdate = "UPDATE LOW_PRIORITY $mtable SET $ufield = $newvalue WHERE ";
+	  $qupdate = "UPDATE LOW_PRIORITY $mtable SET $ufield = $newvalue ";
 	  if( defined($valuset{$ukeyword}) ){
-	      $qupdate .= " $ufield = $valuset{$ukeyword}";
+	      $qupdate .= " WHERE $ufield = $valuset{$ukeyword}";
 	  } else {
-	      &print_message("update_location","$ufield not set with an initial value");
-	      return;
+	      &print_message("update_location","$ukeyword ($ufield) not set with an initial value");
+	      #return 0;
 	  }
       }
 
 
 
-
-      $qupdate .= " AND fileLocationID = $flid";
+      if ($qupdate =~ /WHERE/){
+	  $qupdate .= " AND fileLocationID = $flid";
+      } else {
+	  $qupdate .= " WHERE fileLocationID = $flid";
+      }
       &print_debug("Executing update: $qupdate");
 
       if (! $doit){
@@ -3131,6 +3223,7 @@ sub update_location {
 	  }
       }
   }
+  return 1;
 }
 
 #============================================
