@@ -1,7 +1,10 @@
 #!/usr/bin/csh -f
-#       $Id: group_env.csh,v 1.22 1998/07/03 20:04:04 fisyak Exp $
+#       $Id: group_env.csh,v 1.23 1998/07/04 18:49:35 fisyak Exp $
 #	Purpose:	STAR group csh setup 
 #       $Log: group_env.csh,v $
+#       Revision 1.23  1998/07/04 18:49:35  fisyak
+#       Add STAF_LIB to LD_LIBRARYN32_PATH for sgi_64
+#
 #       Revision 1.22  1998/07/03 20:04:04  fisyak
 #       Add MANPATH to DQS386
 #
@@ -155,9 +158,8 @@ switch ($STAR_SYS)
 #  ====================
         setenv CERN_LEVEL pro
         setenv CERN_ROOT  /cern/pro
-        if (! ${?LD_LIBRARY_PATHN32}) setenv LD_LIBRARY_PATHN32 
-	setenv LD_LIBRARY_PATHN32 "${STAF_LIB}:${LD_LIBRARY_PATHN32}"
-        
+        if (! ${?LD_LIBRARYN32_PATH}) setenv LD_LIBRARYN32_PATH 
+	setenv LD_LIBRARYN32_PATH "${STAF_LIB}:${LD_LIBRARYN32_PATH}"
         limit coredumpsize 0
     breaksw
     case "i386_linux2":
@@ -254,6 +256,10 @@ switch ($STAR_SYS)
     case "hp_ux102":
 #  ====================
   setenv SHLIB_PATH `/afs/rhic/star/group/dropit -p "$SHLIB_PATH"`
+    breaksw
+    case "sgi_64":
+#  ====================
+  setenv LD_LIBRARYN32_PATH `/afs/rhic/star/group/dropit -p "$LD_LIBRARYN32_PATH"`
     breaksw
     default:
 #  ====================
