@@ -508,47 +508,10 @@ sub ShowQA{
   # title
   print h2("QA for $report_key\n"); 
 
-  # get links to test files  
-  print h3("<hr>Control and Macro Definition files:\n");
-  
-  my $control_file = $self->IOControlFile->Name;
+  #--------------------------------------------------------
 
-  # get names of directories
-  my $io = new IO_object("ControlDir");
-  my $control_dir_local = $io->Name();
-  undef $io;
-  
-  $io = new IO_object("ControlDirWWW");   
-  my $control_dir_WWW_local = $io->Name();
-  undef $io;      
-
-  # chop off the path 
-  (my $base_control = $control_file) =~ s/$control_dir_local//;
-  
-  # link to control file
-  my $control_file_WWW = "$control_dir_WWW_local/$base_control";
-  QA_cgi_utilities::make_anchor("Control file", $control_file, $control_file_WWW);
- 
-  # check if it still exists on disk
-  if ( -e $control_file ){
- 
-    my $fh = $self->IOControlFile->Open;
-    while (my $test_file = <$fh>){
-      
-      $test_file =~ /^\#/ and next; # skip comments
-      $test_file !~ /\S+/ and next; # skip blank lines
-      
-      (my $base_test = $test_file) =~ s/$control_dir_local//;
-      my $test_file_WWW = "$control_dir_WWW_local/$base_test";
-
-      # link to macro definition file
-      QA_cgi_utilities::make_anchor("Macro Definition file", $test_file, $test_file_WWW);
-    }
-    close $fh;
-  }
-  else{
-    print "Control file $control_file does not exist <br> \n";
-  }
+  # pmj 21/6/00
+  # Control and Test File listing moved to "Files and Reports"
 
   #---------------------------------------------------------
   # open the report directory
@@ -712,6 +675,52 @@ sub DisplayFilesAndReports{
   }
 
   closedir $dh;
+  #----------------------------------------------------------------
+  # Control and Test Files
+  # pmj moved here 21/6/00
+
+  # get links to test files  
+  print h3("<hr>Control and Macro Definition files:\n");
+  
+  my $control_file = $self->IOControlFile->Name;
+
+  # get names of directories
+  my $io = new IO_object("ControlDir");
+  my $control_dir_local = $io->Name();
+  undef $io;
+  
+  $io = new IO_object("ControlDirWWW");   
+  my $control_dir_WWW_local = $io->Name();
+  undef $io;      
+
+  # chop off the path 
+  (my $base_control = $control_file) =~ s/$control_dir_local//;
+  
+  # link to control file
+  my $control_file_WWW = "$control_dir_WWW_local/$base_control";
+  QA_cgi_utilities::make_anchor("Control file", $control_file, $control_file_WWW);
+ 
+  # check if it still exists on disk
+  if ( -e $control_file ){
+ 
+    my $fh = $self->IOControlFile->Open;
+    while (my $test_file = <$fh>){
+      
+      $test_file =~ /^\#/ and next; # skip comments
+      $test_file !~ /\S+/ and next; # skip blank lines
+      
+      (my $base_test = $test_file) =~ s/$control_dir_local//;
+      my $test_file_WWW = "$control_dir_WWW_local/$base_test";
+
+      # link to macro definition file
+      QA_cgi_utilities::make_anchor("Macro Definition file", $test_file, $test_file_WWW);
+    }
+    close $fh;
+  }
+  else{
+    print "Control file $control_file does not exist <br> \n";
+  }
+
   #----------------------------------------------------------------
   # print links to the ps files
 
