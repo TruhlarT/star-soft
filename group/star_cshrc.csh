@@ -44,9 +44,9 @@ if ( -x "/bin/domainname" ) then
     if( ! $?DOMAINNAME) then
 	setenv DOMAINNAME `/bin/domainname`
     endif
-    if ($DOMAINNAME != "") then
-	alias passwd /usr/bin/yppasswd
-    endif
+    #if ($DOMAINNAME != "") then
+    #	alias passwd /usr/bin/yppasswd
+    #endif
 endif
 
 
