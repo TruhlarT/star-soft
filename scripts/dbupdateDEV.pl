@@ -489,12 +489,12 @@ my @files;
  $tot_prtracks = 0;
  $tot_knvertices = 0;
  $tot_xivertices = 0;
- $node_name = "n/\a";
- $libL = "n/\a";
- $libV = "n/\a";  
- $rootL = "n/\a"; 
+ $node_name = "n/a";
+ $libL = "n/a";
+ $libV = "n/a";  
+ $rootL = "n/a"; 
  $Err_messg = "none";
- $mchain = "n/\a";
+ $mchain = "n/a";
  $no_event = 0;
  $mCPU = 0;
  $mRealT = 0;
@@ -534,7 +534,7 @@ my @files;
       $mavail = 'Y';
       $myID = 100000000 + $new_id;
       $mjID = "Job". $myID ;
-      $crCode = "n\/a"; 
+      $crCode = "n/a"; 
  print "Insert new files: ", $mjID, " % ",$fullName, "\n";
       $idHash{$fullName} = $mjID;
     &fillJSTable();
@@ -587,7 +587,7 @@ foreach  $eachOutNDir (@OUT_DIR) {
        $EvGen = "hadronic_cocktail";
        $EvType = substr($EvTp,3); 
     }
-       elsif ($EvTp =~ /pp_/ or $EvTp =~ /ppp_/) {
+       elsif ($EvTp =~ /pp_/ or $EvTp =~ /ppl_/) {
        $EvGen = "pythia";
        $EvType = "pp_minbias";
      }
@@ -611,7 +611,7 @@ foreach  $eachOutNDir (@OUT_DIR) {
         $EvReq = $EvReq = substr($evR,0,-5);
    }
       elsif($EvTp eq "minbias") {
-        $EvReq = 300; 
+        $EvReq = 160; 
      } 
      elsif($EvTp eq "central") {
         $EvReq = 100;
