@@ -32,8 +32,8 @@ for ( $i = $MIN ; $i <= $MAX ; $i++){
 foreach $disk (@DISKS){
     if ( ! -d "$disk/." ){ 
 	$DINFO{$disk} = "?;?;?;?;".
-	    "<BLINK><FONT COLOR=#FF0000><B>Offline or bad mount point".
-		"</B></FONT></BLINK>; ";
+	    "<BLINK><B><FONT COLOR=#FF0000>Offline or bad mount point".
+		"</FONT></B></BLINK>; ";
 	next;
     }
 
