@@ -1,5 +1,5 @@
 #!/usr/bin/csh -f
-#       $Id: group_env.csh,v 1.130 2002/05/21 00:47:00 jeromel Exp $
+#       $Id: group_env.csh,v 1.131 2002/08/18 23:52:15 jeromel Exp $
 #	Purpose:	STAR group csh setup
 #
 #	Author:		Y.Fisyak     BNL
@@ -13,8 +13,8 @@
 #	STAR software group	1998
 #
 set ECHO = 1; 
-if ($?STAR == 1) set ECHO = 0
-if ( ! $?prompt) set ECHO = 0
+if ($?STAR == 1)   set ECHO = 0
+if ( ! $?prompt)   set ECHO = 0
 if ($?SILENT == 1) set ECHO = 0;
 
 setenv WWW_HOME http://www.star.bnl.gov/
@@ -35,7 +35,7 @@ if ($ECHO) echo   "Setting up STAR_ROOT = ${STAR_ROOT}"
 
 # Define /opt/star
 if ( ! $?OPTSTAR )  setenv OPTSTAR /opt/star
-# Defined by HEPiX
+# Defined by Group Dir
 if ( ! $?GROUP_DIR )  setenv GROUP_DIR ${STAR_ROOT}/group
 # Defined in CORE
 if ( ! $?GROUP_PATH ) setenv GROUP_PATH ${STAR_ROOT}/group
@@ -44,7 +44,7 @@ if ($?STAR_PATH == 0) setenv STAR_PATH ${STAR_ROOT}/packages;
 if ($ECHO) echo   "Setting up STAR_PATH = ${STAR_PATH}"
 
 
-# Default value
+# Default value (some if not already defined)
 if ($?STAR_LEVEL == 0) setenv STAR_LEVEL pro
 
 setenv STAR_VERSION ${STAR_LEVEL}
@@ -121,11 +121,10 @@ if ($ECHO)    echo   "Setting up STAR_BIN  = ${STAR_BIN}"
 
 # Common stuff
 setenv STAR_SCRIPTS $STAR_PATH/scripts
-setenv STAR_CGI $STAR_PATH/cgi
-setenv STAR_MGR $STAR/mgr
+setenv STAR_CGI  $STAR_PATH/cgi
+setenv STAR_MGR  $STAR/mgr
 setenv STAR_PAMS $STAR/pams;            if ($ECHO) echo   "Setting up STAR_PAMS = ${STAR_PAMS}"
 setenv STAR_DATA ${STAR_ROOT}/data;     if ($ECHO) echo   "Setting up STAR_DATA = ${STAR_DATA}"
-#setenv STAR_CALIB ${STAR_ROOT}/calib;   if ($ECHO) echo   "Setting up STAR_CALIB= ${STAR_CALIB}"
 setenv CVSROOT   $STAR_PATH/repository; if ($ECHO) echo   "Setting up CVSROOT   = ${CVSROOT}"
 
 if (-f $STAR/mgr/ROOT_LEVEL && -f $STAR/mgr/CERN_LEVEL) then
@@ -166,40 +165,40 @@ endif
 setenv CERN_ROOT  $CERN/$CERN_LEVEL
 if ($ECHO) echo   "Setting up ROOT_LEVEL= ${ROOT_LEVEL}"
 
-##VP setenv GROUPPATH "${GROUP_DIR}:${STAR_MGR}:${STAR_SCRIPTS}:${STAR_CGI}:${MY_BIN}:${STAR_BIN}:${STAF}/mgr:${STAF_BIN}"
-setenv GROUPPATH `${GROUP_DIR}/dropit -p ${GROUP_DIR} -p ${STAR_MGR} -p ${STAR_SCRIPTS} -p ${STAR_CGI} -p ${MY_BIN} -p ${STAR_BIN} -p ${STAF}/mgr -p ${STAF_BIN}`
 
-##VP setenv PATH "${OPTSTAR}/bin:$PATH"
+setenv GROUPPATH `${GROUP_DIR}/dropit -p ${GROUP_DIR} -p ${STAR_MGR} -p ${STAR_SCRIPTS} -p ${STAR_CGI} -p ${MY_BIN} -p ${STAR_BIN} -p ${STAF}/mgr -p ${STAF_BIN}`
 setenv PATH `${GROUP_DIR}/dropit -p ${OPTSTAR}/bin -p $PATH`
 
 
-# root
+# ROOT
 if ( -f $GROUP_DIR/rootenv.csh) then
   source $GROUP_DIR/rootenv.csh
 endif
+
 if ( -x ${GROUP_DIR}/dropit) then
-# clean-up PATH
+  # clean-up PATH
   setenv MANPATH `${GROUP_DIR}/dropit -p ${OPTSTAR}/man -p ${MANPATH}`
-  setenv PATH `${GROUP_DIR}/dropit -p ${PATH} GROUPPATH`
-  setenv PATH `${GROUP_DIR}/dropit -p ${PATH} $STAR_PATH`
+  setenv PATH    `${GROUP_DIR}/dropit -p ${PATH} GROUPPATH`
+  setenv PATH    `${GROUP_DIR}/dropit -p ${PATH} $STAR_PATH`
   if ($?LD_LIBRARY_PATH == 1) setenv LD_LIBRARY_PATH `${GROUP_DIR}/dropit -p ${LD_LIBRARY_PATH} $STAR_PATH`
   if ($?SHLIB_PATH == 1)      setenv SHLIB_PATH      `${GROUP_DIR}/dropit -p ${SHLIB_PATH} $STAR_PATH`
 endif
-##VP setenv PATH "${GROUPPATH}:/usr/afsws/bin:/usr/afsws/etc:${OPTSTAR}/bin:/usr/sue/bin:/usr/local/bin:${PATH}"
+
 setenv PATH `${GROUP_DIR}/dropit -p ${GROUPPATH} -p /usr/afsws/bin -p /usr/afsws/etc -p ${OPTSTAR}/bin -p /usr/sue/bin -p /usr/local/bin -p ${PATH}`
+
 ## Put mysql on path if available
 if ( -d /usr/local/mysql/bin) then
-##VP   setenv PATH "${PATH}:/usr/local/mysql/bin"
   setenv PATH `${GROUP_DIR}/dropit -p ${PATH} -p /usr/local/mysql/bin`
 endif
+
 if ($?MANPATH == 1) then
-##VP   setenv MANPATH ${MANPATH}:${STAR_PATH}/man
+  ##VP   setenv MANPATH ${MANPATH}:${STAR_PATH}/man
   setenv MANPATH `${GROUP_DIR}/dropit -p ${MANPATH} -p ${STAR_PATH}/man`
 else
   setenv MANPATH ${STAR_PATH}/man
 endif
-     
-setenv OBJY_ARCH  ""
+  
+   
 switch ($STAR_SYS)
     case "rs_aix*":
         setenv MANPATH `${GROUP_DIR}/dropit -p {$MANPATH} -p /usr/share/man`
@@ -221,7 +220,7 @@ switch ($STAR_SYS)
       endif
       setenv LD_LIBRARY_PATH ${SHLIB_PATH}
       setenv BFARCH hp_ux102
-      limit coredumpsize 0
+      limit  coredumpsize 0
       breaksw
 
     case "i386_*":
@@ -249,72 +248,59 @@ switch ($STAR_SYS)
        if ( -x ${GROUP_DIR}/dropit) setenv LD_LIBRARY_PATH `${GROUP_DIR}/dropit -p ${LD_LIBRARY_PATH} .${STAR_HOST_SYS}/LIB`
        setenv LD_LIBRARY_PATH `${GROUP_DIR}/dropit -p ${MINE_LIB} -p ${STAR_LIB} -p ${STAF_LIB} -p ${LD_LIBRARY_PATH}`
       endif
-      limit coredump 0
-      setenv BFARCH Linux2
 
-      setenv OBJY_ARCH linux86
+      limit  coredump 0
+      setenv BFARCH Linux2
       breaksw
 
     case "sun4*":
       #  ====================
       # Sun/Solaris version 4
       #  ====================
-      if ( -r $STAR_MGR/sunWS ) then
-	setenv SUNWS `cat $STAR_MGR/sunWS`
-      else
-	# default packages distribution directory
-	setenv SUNWS "WS5.0"
+      if ( ! $?SUNWS ) then
+	if ( -r $STAR_MGR/sunWS ) then
+	    setenv SUNWS `cat $STAR_MGR/sunWS`
+        else
+	    # default packages distribution directory
+	    setenv SUNWS "WS5.0"
+	endif
       endif
+
+      if (! $?SUNOPT) setenv SUNOPT /opt
+
       set WSVERS=`echo $SUNWS  | sed "s/WS//"`   # full version number
       set WSMVER=`echo $WSVERS | sed "s/\..*//"` # major version number
 
       if ($?LD_LIBRARY_PATH == 0) setenv LD_LIBRARY_PATH
       setenv LD_LIBRARY_PATH `${GROUP_DIR}/dropit -p /usr/openwin/lib -p /usr/dt/lib -p /usr/local/lib -p ${LD_LIBRARY_PATH}`
-      if (! $?SUNOPT) setenv SUNOPT /opt
 
-      if ("${STAR_HOST_SYS}" == "sun4x_56_CC5" || "${STAR_HOST_SYS}" == "sun4x_58" ) then
-        setenv LD_LIBRARY_PATH `${GROUP_DIR}/dropit -p ${LD_LIBRARY_PATH} -p $SUNOPT/$SUNWS/lib -p $SUNOPT/$SUNWS/SC$WSVERS/lib -p $SUNOPT/$SUNWS/WS$WSMVER/lib`
-        setenv PATH `${GROUP_DIR}/dropit -p $SUNOPT/$SUNWS/bin -p ${PATH}`
+
+      # Rebuild path - Basic
+      if ( -x ${GROUP_DIR}/dropit) then
+	setenv LD_LIBRARY_PATH `${GROUP_DIR}/dropit -p ${LD_LIBRARY_PATH} -p $SUNOPT/$SUNWS/lib -p $SUNOPT/$SUNWS/SC$WSVERS/lib -p $SUNOPT/$SUNWS/WS$WSMVER/lib`
+	setenv PATH `${GROUP_DIR}/dropit -p $SUNOPT/$SUNWS/bin -p ${PATH}`
 	setenv MANPATH `${GROUP_DIR}/dropit -p $SUNOPT/$SUNWS/man -p ${MANPATH}`
-        if ( -x ${GROUP_DIR}/dropit) then
-          setenv PATH `${GROUP_DIR}/dropit SUNWspro ObjectSpace`
-          setenv LD_LIBRARY_PATH `${GROUP_DIR}/dropit -p $LD_LIBRARY_PATH SUNWspro`
-        endif
-      else
-        if ( -x ${GROUP_DIR}/dropit) then
-          setenv PATH `${GROUP_DIR}/dropit $SUNWS`
-          setenv PATH `${GROUP_DIR}/dropit CC$WSMVER`
-          setenv LD_LIBRARY_PATH `${GROUP_DIR}/dropit -p $LD_LIBRARY_PATH $WSVERS`
-          setenv LD_LIBRARY_PATH `${GROUP_DIR}/dropit -p $LD_LIBRARY_PATH CC$WSMVER`
-        endif
 
-        setenv LD_LIBRARY_PATH `${GROUP_DIR}/dropit -p $SUNOPT/SUNWspro/lib -p ${LD_LIBRARY_PATH} -p ${STAR_PATH}/ObjectSpace/2.0m/lib`
-        setenv PATH `${GROUP_DIR}/dropit -p $SUNOPT/SUNWspro/bin -p $PATH`
-        setenv MANPATH `${GROUP_DIR}/dropit -p $SUNOPT/SUNWspro/man -p $MANPATH`
+	if ($?MINE_lib == 1 && $?STAR_lib == 1 ) then
+	    setenv LD_LIBRARY_PATH `${GROUP_DIR}/dropit -p ${MINE_lib} -p ${MINE_LIB} -p ${STAR_lib} -p ${STAR_LIB} -p ${STAF_LIB} -p ${LD_LIBRARY_PATH}`
+        else
+	    setenv LD_LIBRARY_PATH `${GROUP_DIR}/dropit -p ${MINE_LIB} -p ${STAR_LIB} -p ${STAF_LIB} -p ${LD_LIBRARY_PATH}`
+        endif
       endif
 
-     if ($?MINE_lib == 1 && $?STAR_lib == 1) then
-       setenv LD_LIBRARY_PATH `${GROUP_DIR}/dropit -p ${MINE_lib} -p ${MINE_LIB} -p ${STAR_lib} -p ${STAR_LIB} -p ${STAF_LIB} -p ${LD_LIBRARY_PATH}`
-     else
-##VP        setenv LD_LIBRARY_PATH "${MINE_LIB}:${STAR_LIB}:${STAF_LIB}:${LD_LIBRARY_PATH}"
-       setenv LD_LIBRARY_PATH `${GROUP_DIR}/dropit -p ${MINE_LIB} -p ${STAR_LIB} -p ${STAF_LIB} -p ${LD_LIBRARY_PATH}`
-     endif
-     setenv BFARCH SunOS5
-     if ("${STAR_HOST_SYS}" == "sun4x_56_CC5") setenv BFARCH SunOS5_CC5
-     setenv OBJY_ARCH solaris4
-     limit coredump 0
-     unlimit descriptors
-     breaksw
+      setenv  BFARCH SunOS5
+      if ("${STAR_HOST_SYS}" == "sun4x_56_CC5") setenv BFARCH SunOS5_CC5
+      limit   coredump 0
+      unlimit descriptors
+      breaksw
 
     default:
 	#  ====================
 	breaksw
 endsw
 
-if ( -e /usr/local/lib/libMesaGL.so && -e /usr/X11R6/lib/libXmu.so) then
-    setenv OPENGL /usr/local
-endif
 
+# Support for LSF
 if ( -d /usr/local/lsf/bin ) then
   if ( -x ${GROUP_DIR}/dropit) setenv PATH  `${GROUP_DIR}/dropit lsf`
   setenv LSF_ENVDIR /usr/local/lsf/mnt/conf
@@ -341,11 +327,11 @@ endif
 
 # User Scratch directory
 if ( ! -d $SCRATCH ) then
-        mkdir $SCRATCH
-        chmod 755 $SCRATCH
+    mkdir $SCRATCH
+    chmod 755 $SCRATCH
 endif
 if ($ECHO) echo   "Setting up SCRATCH   = $SCRATCH"
-endif
+
 
 # Echo CERN level information
 if ($?CERN_ROOT == 1 ) then
@@ -358,7 +344,7 @@ endif
 if ( -d /opt/hpnp ) then
   if ($ECHO) echo   "Paths set up for HP Jetprint"
   setenv MANPATH `${GROUP_DIR}/dropit -p $MANPATH -p /opt/hpnp/man`
-  setenv PATH `${GROUP_DIR}/dropit -p $PATH  -p /opt/hpnp/bin -p /opt/hpnp/admin`
+  setenv PATH    `${GROUP_DIR}/dropit -p $PATH  -p /opt/hpnp/bin -p /opt/hpnp/admin`
 endif
 setenv PATH `${GROUP_DIR}/dropit -p $HOME/bin -p $HOME/bin/.$STAR_SYS -p $PATH -p $CERN_ROOT/bin -p $CERN_ROOT/mgr .`
 
@@ -400,7 +386,10 @@ if ($ECHO) then
     unset ECHO
 endif
 
-
+#
+# Uncomment to get statistics on version used at
+# login level. 
+#
 #set date="`date`"
 #cat >> $GROUP_DIR/statistics/star${STAR_VERSION} << EOD
 #$USER from $HOST asked for STAR_LEVEL=$STAR_LEVEL / STAR_VERSION=$STAR_VERSION  $date
