@@ -1,5 +1,8 @@
 #!/bin/csh
 #  $Log: STAR_SYS,v $
+#  Revision 1.16  1999/09/26 21:51:36  fisyak
+#  Add non pgf platform for Linux
+#
 #  Revision 1.15  1999/09/14 17:02:36  fisyak
 #  Add redHat 6.0
 #
@@ -59,7 +62,7 @@
 #
 #  Revision 1.1.1.1  1997/12/31 14:35:23  fisyak
 #
-#             Last modification $Date: 1999/09/14 17:02:36 $ 
+#             Last modification $Date: 1999/09/26 21:51:36 $ 
 #
 # Determine STAR_SYS variable.
 #
@@ -140,7 +143,8 @@ default:
 endsw
 endif
 setenv STAR_HOST_SYS $STAR_SYS
-if ($?EGCS_ON == 1 && "${STAR_SYS}" == "sun4x_56") setenv STAR_HOST_SYS sun4x_56egcs
-if ($?USE_CC5 == 1 && "${STAR_SYS}" == "sun4x_56") setenv STAR_HOST_SYS sun4x_56_CC5
+if ($?EGCS_ON  == 1 && "${STAR_SYS}" == "i386_redhat51") setenv STAR_HOST_SYS i386_redhat51egcs
+if ($?EGCS_ON  == 1 && "${STAR_SYS}" == "sun4x_56") setenv STAR_HOST_SYS sun4x_56egcs
+if ($?USE_CC5  == 1 && "${STAR_SYS}" == "sun4x_56") setenv STAR_HOST_SYS sun4x_56_CC5
 if ($?USE_CC5C == 1 && "${STAR_SYS}" == "sun4x_56") setenv STAR_HOST_SYS sun4x_56_CC5C
 
