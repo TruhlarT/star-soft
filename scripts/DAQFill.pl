@@ -12,8 +12,12 @@ use lib "/afs/rhic/star/packages/scripts/";
 use RunDAQ;
 
 # Mode 1 will quit
-$mode = 1;
-$mode = 0 if ( defined($ARGV[0]) );
+$mode  = 1;
+$sltime= 60;
+
+$mode   = shift(@ARGV) if ( defined(@ARGV) );
+$sltime = shift(@ARGV) if ( defined(@ARGV) );
+
 
 # We add an infinit loop around so the table will be filled
 # as we go.
@@ -53,6 +57,6 @@ do {
 	print "Failed to open O-Database on ".localtime()."\n";
     }
 
-    sleep(60*$mode);
+    sleep($sltime*$mode);
 } while(1*$mode);
 
