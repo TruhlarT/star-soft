@@ -185,6 +185,16 @@ print $FO
     "</HTML>\n";
 
 if ( defined($ARGV[0]) ){
+    if ( -e $ARGV[0]){ 
+	# delete if exits the preceedingly renamed file
+	if ( -e "$ARGV[0]-old"){ unlink("$ARGV[0]-old");}
+	# move the file to a new target name
+	if ( ! rename("$ARGV[0]","$ARGV[0]-old") ){
+	    # if we cannot rename() try to delete
+	    unlink($ARGV[0]);
+	}
+    }
+    # move new file to target
     rename("$ARGV[0]-tmp","$ARGV[0]");
 }
 
