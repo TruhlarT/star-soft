@@ -44,7 +44,7 @@ $now = localtime;
  }   
   $thisday = $mon . $mday;
 
-$thisDay = '00'.$thisday;
+$thisDay = '01'.$thisday;
 
 # print "Today Date :", $thisDay, "\n";
 
