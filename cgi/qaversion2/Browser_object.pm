@@ -619,7 +619,8 @@ sub OnlineRunBrowser{
   #---------------------------------------------------------
   # pmj 23/8/00 point to new browser 
   #  my $url = "http://onlsun1.star.bnl.gov/dbRunBrowser.html";
-  my $url = "http://ch2linux.star.bnl.gov/RunLogBrowser/Main.html";
+  #  my $url = "http://ch2linux.star.bnl.gov/RunLogBrowser/Main.html";
+  my $url = "http://online.star.bnl.gov/RunLog2001/";
 
   my $string = "<a href=$url target = 'documentation'>Online Run Log</a>";
   return $string;
