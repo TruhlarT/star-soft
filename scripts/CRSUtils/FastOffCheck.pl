@@ -34,6 +34,10 @@ $UPDATE  = shift(@ARGV) if ( @ARGV );   # 0, scan and delete if old,
 
 # Assume standard tree structure
 $JOBDIR  = "/star/u/starreco/$LIB/requests/daq/archive/";
+$SCRATCH = defined($ENV{SCRATCH})?$ENV{SCRATCH}:"/tmp/$<";
+
+
+if ( ! -d $SCRATCH){  mkdir($SCRATCH);}
 
 # Fault tolerant. No info if fails.
 if( ! opendir(DIR,"$JOBDIR") ){
@@ -66,16 +70,27 @@ if ($UPDATE == 0){
 
 	    # double check the conformity of the job file name
 	    if( $tree !~ m/$LIB/){
-		print "WARNING :: Illformed $jfile found in $JOBDIR\n";
+		print "WARNING :: Ill-formed $jfile found in $JOBDIR\n";
 		push(@MOVE,$jfile);
 	    } else {
-		if( -e "$TARGET/$tree/$file.event.root"){
-		    # found it so it is done.
-		    $LOCATIONS{"$file.daq"} = "$TARGET/$tree";
-		    push(@DONE,"$file.daq");
-		    push(@MOVE,$jfile);
-		} else {
-		    #print "Could not find $TARGET/$tree/$file.event.root\n";
+		if ( ! -e "$SCRATCH/$file.done"){
+		    open(FF,">$SCRATCH/$file.done"); close(FF);
+		    #print "Searching for $file\n";
+		    chomp($lfile = `cd $TARGET ; /usr/bin/find -type f -name $file.event.root`);
+		    if( $lfile ne ""){
+			# found it so it is done.
+			($tree,$el) = $lfile =~ m/(.*\/)(.*)/;
+			chop($tree);
+			$tree =~ s/\.\///;
+			
+			#print " $el --> $TARGET/$tree\n";
+
+			$LOCATIONS{"$file.daq"} = "$TARGET/$tree";
+			push(@DONE,"$file.daq");
+			push(@MOVE,$jfile);
+		    } else {
+			#print "Could not find $TARGET/$tree/$file.event.root\n";
+		    }
 		}
 	    }
 	}
