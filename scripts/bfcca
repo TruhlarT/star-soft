@@ -189,7 +189,17 @@ $PWD   = $ENV{"PWD"};
 if ( $CONDOR_CRS  ){
     # new scheme using Condor has log local and agree
     # with what we tried to do before.
-    $STDOPT = 0;
+    #$STDOPT = 0;
+    $ISTDOUT= $ENV{"CRS_STDOUT_DIR"}."/".$ENV{"STD_OUT"};
+    $ISTDERR= $ENV{"CRS_STDERR_DIR"}."/".$ENV{"STD_ERR"};
+    $STDOUT = $ENV{"STD_OUT"}.".$$";
+    $STDERR = $ENV{"STD_ERR"}.".$$";
+
+    if ($DEBUG){
+	print 
+	    "Attempting to steal STDOUT $ISTDOUT as $STDOUT\n",
+	    "Attempting to steal STDERR $ISTDERR as $STDERR\n";
+    }
 } else {
     # here, we stolle STDOUT and STDERR
     $ISTDOUT= $ENV{"STD_OUT"};
@@ -505,6 +515,13 @@ if ($COMPRS){
 # a local csh file containing all of the required commands
 # and loading. Peffered shell will be csh (available on ALL
 # flavor of Unix) rather than tcsh which needs to be installed.
+
+if ( $ENV{"CRS_JOB_NAME"} ){
+    $RPROG = "echo";
+} else {
+    $RPROG = "root4star";
+}
+
 if ( ! open(FO,">$PWD/$JOB_ID.csh") ){
     print STDERR "$PRGM :: Failure to open a temporary file $!\n";
 } else {
@@ -528,12 +545,12 @@ if ( ! open(FO,">$PWD/$JOB_ID.csh") ){
     # Pre-process the calibration run first if necessary
     if($copt ne "" ){
 	# the file contains the calibration pass chain options
-	chomp($chainopt = `cat $cdir/$copt`);
+	chomp($chainopt = `/bin/cat $cdir/$copt`);
 	print FO
-	    "echo \"$PRGM :: Calibration pass is starting on \`date\`\"\n",
+	    "echo \"$PRGM :: Calibration pass is starting on \`/bin/date\`\"\n",
 	    "echo \"\"\n",
-	    "root4star -b -q '$BFC(10000,\"$chainopt\",\"$CINPUTFILE\")'\n",
-	    "echo \"$PRGM :: Calibration is done on \`date\`\"\n";
+	    "$PROG -b -q '$BFC(10000,\"$chainopt\",\"$CINPUTFILE\")'\n",
+	    "echo \"$PRGM :: Calibration is done on \`/bin/date\`\"\n";
     }
 
 
@@ -543,7 +560,7 @@ if ( ! open(FO,">$PWD/$JOB_ID.csh") ){
     #
     if($copt !~ m/Opt/){
 	print FO
-	    "echo \"$PRGM :: Reco run is starting on \`date\`\"\n",
+	    "echo \"$PRGM :: Reco run is starting on \`/bin/date\`\"\n",
 	    "echo \"\"\n";
             # Option to output memory consumption
 	    #"setenv StarEndMakerShell\n";
@@ -554,10 +571,10 @@ if ( ! open(FO,">$PWD/$JOB_ID.csh") ){
 
 	    if ($NUMEVT != -1){
 		print FO
-		    "root4star -b -q '$BFC($NUMEVT,\"$CHAINOPT\",\"$CINPUTFILE\"$extra)'\n";
+		    "$PROG -b -q '$BFC($NUMEVT,\"$CHAINOPT\",\"$CINPUTFILE\"$extra)'\n";
 	    } else {
 		print FO
-		    "root4star -b -q '$BFC($MINEVT,$MAXEVT,\"$CHAINOPT\",\"$CINPUTFILE\"$extra)'\n";
+		    "$PROG -b -q '$BFC($MINEVT,$MAXEVT,\"$CHAINOPT\",\"$CINPUTFILE\"$extra)'\n";
 	    }
 
 	} else {
@@ -576,13 +593,13 @@ if ( ! open(FO,">$PWD/$JOB_ID.csh") ){
 		for($in=0 ; $in <= $#FCINPUTS ; $in += $PERIOD){
 		    print FO
 			"#  Mode \"+\". Pass ".($in/$PERIOD+1)."\n",
-			"root4star -b -q '$BFC(".join(",",@arg).",\"$FCINPUTS[$in]\")'\n\n",
+			"$PROG -b -q '$BFC(".join(",",@arg).",\"$FCINPUTS[$in]\")'\n\n",
 			"if( \$status ) echo \"$PRGM :: Error: Pass $in failed ($FCINPUTS[$in])\"\n\n";
 		}
 	    } elsif( $CHAINOPT eq "/"){
 		# mode "/"
 		print FO
-		    "root4star -b -q '$BFC(".join(",",@arg).")'\n";
+		    "$PROG -b -q '$BFC(".join(",",@arg).")'\n";
 	    } else {
 		print "$PRGM :: Warn: I did not expect option [$CHAINOPT] in MULTI mode\n";
 	    }
@@ -757,7 +774,8 @@ sub Compress
 	# but also delete first the target file name
 	# if exists before changing its name. Otherwise,
 	# will will have a left-over.
-	if(-e "$file2"){ unlink("$file2");}
+	if(-e "$file2" ){ unlink("$file2");}
+
 	$file2 .= ".gz";
     }
     ($file1,$file2);
@@ -829,7 +847,7 @@ sub List
     for($i=0 ; $i < 45 ; $i++){ print "-=";}
     print "\n";
     print "$PRGM :: Info: $smess\n" if ( defined($smess) );
-    print `ls -al`;
+    print `/bin/ls -al`;
     print "$PRGM :: Info: $emess\n" if ( defined($emess) );
     for($i=0 ; $i < 45 ; $i++){ print "-=";}
     print "\n";
