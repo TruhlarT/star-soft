@@ -79,10 +79,10 @@ my $TotFNFCount = 0;
       $nodeDnCount = ($$eachNode)->donejob;       
       $nodeFNFCount = ($$eachNode)->nofile;
       
-      $TotAbCount += $nodeCrCount;
-      $TotDnCount += $nodeAbCount;
-      $TotCrCount += $nodeStCount;
-      $TotStCount += $nodeDnCount;
+      $TotAbCount += $nodeAbCount;
+      $TotDnCount += $nodeDnCount;
+      $TotCrCount += $nodeCrCount;
+      $TotStCount += $nodeStCount;
       $TotFNFCount += $nodeFNFCount;
 
      if(($nodeDnCount  != 0) && ($nodeCrCount  == 0) && ($nodeAbCount == 0) && ($nodeStCount == 0) ) {
