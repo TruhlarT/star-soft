@@ -1,5 +1,5 @@
 #!/bin/csh -f
-#       $Id: group_env.csh,v 1.169 2004/10/18 22:01:22 jeromel Exp $
+#       $Id: group_env.csh,v 1.170 2004/10/20 01:46:49 jeromel Exp $
 #	Purpose:	STAR group csh setup
 #
 #	Author:		Y.Fisyak     BNL
@@ -481,7 +481,13 @@ if ( ! $?JAVA_ROOT ) then
 endif
 if ( $?JAVA_ROOT ) then
     if ( -d $JAVA_ROOT/ ) then
-	set path=($JAVA_ROOT/bin $path)
+	if ( `echo $PATH | grep kerberos` != "") then
+	    # Will need to find a better way ... java has
+	    # a 'kinit'
+	    set path=(/usr/kerberos/bin $JAVA_ROOT/bin $path)
+	else
+	    set path=($JAVA_ROOT/bin $path)
+	endif
 	setenv MANPATH ${MANPATH}:$JAVA_ROOT/man
 	#CLASSPATH anyone ??
     endif
