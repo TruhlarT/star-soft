@@ -119,7 +119,10 @@ foreach $choice (@ARG){
     @files = split(" ",$STESTS{$chain});
     for($i=0 ; $i <= $#files ; $i++){
 	$file = $files[$i];
+
 	if(! -e $file){  die "$file cannot be seen from ".`hostname`."\n";}
+	else          {  system("/bin/touch $file");}
+
 	print "Doing [$chain] on $file\n";
 	# Ready to produce a running script
 	# Create directory
