@@ -218,15 +218,20 @@ sub GetOfflineKeys{
 
   my $limit = 50; # dont want to get a million of them
 
-  print h4("data_type = $data_type<br>",
-	   "prodOptions = $prodOptions<br>",
-	   "runID       = $runID<br>",
-	   "jobStatus   = $jobStatus<br>",
-	   "QAstatus_arg= $QAstatus_arg<br>",
-	   "createTime  = $createTime<br>",
-	   "dataset     = $dataset<br>");
+  #---------------------------------------------------------------------
+  # pmj 28/6/00 display keys with header, table formatting
 
+  my @db_key_strings;
+  push @db_key_strings, "data_type = $data_type<br>";
+  push @db_key_strings, "prodOptions = $prodOptions<br>";
+  push @db_key_strings, "runID = $runID<br>";
+  push @db_key_strings, "jobStatus = $jobStatus<br>";
+  push @db_key_strings, "QAstatus_arg = $QAstatus_arg<br>";
+  push @db_key_strings, "createTime = $createTime<br>";
+  push @db_key_strings, "dataset = $dataset<br>";
 
+  PrintTableOfKeys(@db_key_strings);
+  #----------------------------------------------------------------
 
   # which class of data are we looking at?
   my $data_type_string;
@@ -409,17 +414,23 @@ sub GetNightlyKeys{
   my $createTime    = shift; 
 
   my $limit = 50; # limit the query
-  
-  print h4("eventGen     = $eventGen<br>",
-	   "LibLevel     = $LibLevel<br>",
-	   "platform     = $platform<br>",
-	   "eventType    = $eventType<br>",
-	   "geometry     = $geometry<br>",
-	   "QAstatus_arg = $QAstatus_arg<br>",
-	   "ondisk       = $ondisk<br>",
-	   "jobStatus    = $jobStatus<br>",
-	   "createTime   = $createTime<br>"
-	   );
+
+  #---------------------------------------------------------------------
+  # pmj 28/6/00 display keys with header, table formatting
+
+  my @db_key_strings;
+  push @db_key_strings, "eventGen     = $eventGen<br>";
+  push @db_key_strings, "LibLevel     = $LibLevel<br>";
+  push @db_key_strings, "platform     = $platform<br>";
+  push @db_key_strings, "eventType    = $eventType<br>";
+  push @db_key_strings, "geometry     = $geometry<br>";
+  push @db_key_strings, "QAstatus_arg = $QAstatus_arg<br>";
+  push @db_key_strings, "ondisk       = $ondisk<br>";
+  push @db_key_strings, "jobStatus    = $jobStatus<br>";
+  push @db_key_strings, "createTime   = $createTime<br>";
+
+  PrintTableOfKeys(@db_key_strings);
+  #----------------------------------------------------------------
 
 
   # fine tune status
@@ -600,6 +611,39 @@ sub GetNightlyKeysMC{
 
   return GetNightlyKeys('MC',@selection_param);
 }
+#=======================================================================
+# for printing DB query keys to browser
 
+sub PrintTableOfKeys{
+
+  my @db_key_strings = @_;
+
+  #---------------------------------------------------------------
+
+  print h2("Database query:");
+
+  my @rows;
+  my $n_cols = 3;
+
+  for (my $i = 0; $i<= $#db_key_strings; $i += $n_cols){
+
+    my @temp;
+
+    for (my $j = 0; $j<$n_cols; $j++){
+      my $element = $i + $j;
+      $element > $#db_key_strings and last;
+      $temp[$j] = "<strong>".$db_key_strings[$element]."</strong>";
+    }
+   push @rows, td([ @temp ]);
+  }
+
+  print table(
+	      {-border=>'0', -width=>'100%', -align=>'center'},
+	      Tr(\@rows)
+	     ),"<hr>";
+  
+}
+
+#=======================================================================
 1;
 
