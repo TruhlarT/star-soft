@@ -152,7 +152,7 @@ if ( -r "/etc/man.config" ) then
 else
    setenv SYSMAN "/usr/man"
 endif
-setenv MANPATH "${HOME}/man:${SYSMAN}:/usr/local/man:/cern/man"
+setenv MANPATH "${HOME}/man:${SYSMAN}:/usr/local/man:/usr/share/man:/cern/man"
 setenv XFILESEARCHPATH "/usr/openwin/lib/app-defaults/%N:/usr/lib/X11/app-defaults/%N:/usr/local/lib/X11/app-defaults/%N"
 setenv LESSCHARSET latin1
 #setenv PRINT_CMD   "xprint"
