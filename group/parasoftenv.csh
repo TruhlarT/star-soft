@@ -1,5 +1,12 @@
 #! /usr/local/bin/tcsh -f
 switch ($STAR_SYS)
+    case "i386_redhat61":
+	setenv PARASOFT /afs/rhic/i386_linux6/app/parasoft
+	setenv LD_LIBRARY_PATH ${LD_LIBRARY_PATH}:{$PARASOFT}/lib.linux
+	if ( -x /afs/rhic/star/group/dropit) setenv PATH `dropit parasoft`
+	set path = ($path $PARASOFT/bin.linux)
+	setenv MANPATH ${MANPATH}:{$PARASOFT}/man
+	breaksw
     case "i386_*":
 	setenv PARASOFT /afs/rhic/i386_linux22/app/parasoft
 	setenv LD_LIBRARY_PATH ${LD_LIBRARY_PATH}:{$PARASOFT}/lib.linux
