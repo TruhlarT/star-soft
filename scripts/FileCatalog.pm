@@ -1,7 +1,7 @@
 # FileCatalog.pm
 #
 # Written by Adam Kisiel, November-December 2001
-# Modified by J.Lauret, 2002
+# Written and/or Modified by J.Lauret, 2002
 #
 # Methods of class FileCatalog:
 #
@@ -59,10 +59,6 @@
 #        -> bootstrap() : database maintenance procedure. Looks at the dictionary table and
 #           find all the records that are not referenced by the child table. It offers an option
 #           of deleting this records.
-#        -> bootstrap_data() : database maintenance procedure. Looks at the FileData and
-#           FileLocations tables and find all the records that are not referenced. It offers
-#           an option of deleting this records.
-#        -> bootstrap_trgc  Bootstrap the TriggerCompositions table comparing to FileData.
 #
 #        -> set_delayed()  turn database operation in delay mode. A stack is built and execute
 #           later. This may be used in case of several non-correlated updates. Warning : no
@@ -71,12 +67,16 @@
 #        -> print_delayed() print out on screen all delayed commands.
 #
 #
+# NOT YET DOCUMENTED
+#
+#        ->add_trigger_composition()
+#                         
 
 
 package FileCatalog;
 
 use vars qw($VERSION);
-$VERSION   =   1.03;
+$VERSION   =   1.19;
 
 use DBI;
 use strict;
@@ -91,7 +91,7 @@ my @DCMD;
 # db information
 my $dbname    =   "FileCatalog";
 my $dbhost    =   "duvall.star.bnl.gov";
-#my $dbhost    =   "localhost";
+my $dbport    =   "";
 my $dbuser    =   "FC_user";
 my $dbsource  =   "DBI:mysql:$dbname:$dbhost";
 my $DBH;
@@ -99,14 +99,28 @@ my $sth;
 
 # hash of keywords
 my %keywrds;
+
+# hash of obsolete keywords
+my %obsolete;
+
+
+# Arrays to treat triggers
+$FC::IDX     = -1;
+@FC::TRGNAME = undef;
+@FC::TRGWORD = undef;
+@FC::TRGVERS = undef;
+@FC::TRGDEFS = undef; 
+@FC::TRGCNTS = undef;
+
+
 # $keys{keyword} meaning of the parts of the field:
-# 1 - parameter name as entered by the user
-# 2 - field name in the database
-# 3 - table name in the database for the given field
-# 4 - critical for data insertion into the specified table
-# 5 - type of the field (text,num,date)
-# 6 - if 0, is not returned by the FileTableContent() routine
-# 7 - if 1, displays as a user usable keywords, skip otherwise.
+# k - parameter name as entered by the user
+# 0 - field name in the database
+# 1 - table name in the database for the given field
+# 2 - critical for data insertion into the specified table
+# 3 - type of the field (text,num,date)
+# 4 - if 0, is not returned by the FileTableContent() routine (used in cloning)
+# 5 - if 1, displays as a user usable keywords, skip otherwise.
 #     This field cannot be a null string.
 # only the keywords in this table are accepted in set_context sub
 
@@ -119,6 +133,8 @@ $keywrds{"pcid"          }    =   "productionConditionID"     .",ProductionCondi
 $keywrds{"rpcid"         }    =   "productionConditionID"     .",FileData"               .",0" .",num"  .",0" .",1" .",0";
 $keywrds{"rpid"          }    =   "runParamID"                .",RunParams"              .",0" .",num"  .",0" .",0" .",0";
 $keywrds{"rrpid"         }    =   "runParamID"                .",FileData"               .",0" .",num"  .",0" .",1" .",0";
+$keywrds{"trgid"         }    =   "triggerSetupID"            .",TriggerSetups"          .",0" .",num"  .",0" .",0" .",0";
+$keywrds{"rtrgid"        }    =   "triggerSetupID"            .",Runparams"              .",0" .",num"  .",0" .",1" .",0";
 $keywrds{"ftid"          }    =   "fileTypeID"                .",FileTypes"              .",0" .",num"  .",0" .",0" .",0";
 $keywrds{"rftid"         }    =   "fileTypeID"                .",FileData"               .",0" .",num"  .",0" .",1" .",0";
 $keywrds{"stid"          }    =   "storageTypeID"             .",StorageTypes"           .",0" .",num"  .",0" .",0" .",0";
@@ -126,17 +142,45 @@ $keywrds{"rstid"         }    =   "storageTypeID"             .",FileLocations" 
 $keywrds{"ssid"          }    =   "storageSiteID"             .",StorageSites"           .",0" .",num"  .",0" .",0" .",0";
 $keywrds{"rssid"         }    =   "storageSiteID"             .",FileLocations"          .",0" .",num"  .",0" .",1" .",0";
 
-# Those should be documented
+# *** Those should be documented
 $keywrds{"filetype"      }    =   "fileTypeName"              .",FileTypes"              .",1" .",text" .",0" .",1" .",1";
 $keywrds{"extension"     }    =   "fileTypeExtension"         .",FileTypes"              .",1" .",text" .",0" .",1" .",1";
 $keywrds{"storage"       }    =   "storageTypeName"           .",StorageTypes"           .",1" .",text" .",0" .",1" .",1";
 $keywrds{"site"          }    =   "storageSiteName"           .",StorageSites"           .",1" .",text" .",0" .",1" .",1";
 $keywrds{"production"    }    =   "productionTag"             .",ProductionConditions"   .",1" .",text" .",0" .",1" .",1";
-$keywrds{"prodcomment"   }    =   "productionComments"        .",ProductionConditions"   .",1" .",text" .",0" .",1" .",1";
+$keywrds{"prodcomment"   }    =   "productionComments"        .",ProductionConditions"   .",0" .",text" .",0" .",1" .",1";
 $keywrds{"library"       }    =   "libraryVersion"            .",ProductionConditions"   .",1" .",text" .",0" .",1" .",1";
-$keywrds{"triggername"   }    =   "triggerName"               .",TriggerWords"           .",1" .",text" .",0" .",1" .",0";
-$keywrds{"triggerword"   }    =   "triggerWord"               .",TriggerWords"           .",1" .",text" .",0" .",1" .",0";
-$keywrds{"triggersetup"  }    =   "triggerSetupName"          .",TriggerSetups"          .",1" .",text" .",0" .",1" .",1";
+
+
+# Trigger related keywords. Reshaped and cleaned on Dec 1st 2002
+$obsolete{"triggersetup"}= "trgsetupname";
+$obsolete{"triggername"} = "trgsetupname";  # not a 1 to 1 mapping but this is what we initially meant
+$obsolete{"triggerword"} = "trgword";
+
+$keywrds{"trgsetupname"  }    =   "triggerSetupName"          .",TriggerSetups"          .",1" .",text" .",0" .",1" .",1";
+
+# The count of individual triggers, the FileData index access in TriggerCompositions and 
+# the trigger word ID in the TRiggerComposition table
+$keywrds{"tcfdid"        }    =   "fileDataID"                .",TriggerCompositions"    .",0" .",num"  .",0" .",0" .",0";
+$keywrds{"tctwid"        }    =   "triggerWordID"             .",TriggerCompositions"    .",0" .",text" .",0" .",1" .",0";
+$keywrds{"trgcount"      }    =   "triggerCount"              .",TriggerCompositions"    .",0" .",text" .",0" .",1" .",1";
+
+$keywrds{"twid"          }    =   "triggerWordID"             .",TriggerWords"           .",0" .",text" .",0" .",1" .",0";
+$keywrds{"trgname"       }    =   "triggerName"               .",TriggerWords"           .",0" .",text" .",0" .",1" .",1";
+$keywrds{"trgversion"    }    =   "triggerVersion"            .",TriggerWords"           .",0" .",text" .",0" .",1" .",1";
+$keywrds{"trgword"       }    =   "triggerWord"               .",TriggerWords"           .",0" .",text" .",0" .",1" .",1";
+$keywrds{"trgdefinition" }    =   "triggerDefinition"         .",TriggerWords"           .",0" .",text" .",0" .",1" .",1";
+
+
+# This keyword is a special keyword which will be used to enter
+# a list of triggers/count in the database. It is an agregate
+# keyword only used in INSERT mode.
+$keywrds{"triggerevents" }    =   ",,,,,,0";
+
+
+
+
+
 $keywrds{"runtype"       }    =   "runTypeName"               .",RunTypes"               .",1" .",text" .",0" .",1" .",1";
 $keywrds{"configuration" }    =   "detectorConfigurationName" .",DetectorConfigurations" .",1" .",text" .",0" .",1" .",1";
 $keywrds{"geometry"      }    =   "detectorConfigurationName" .",DetectorConfigurations" .",0" .",text" .",0" .",1" .",1";
@@ -150,7 +194,7 @@ $keywrds{"filename"      }    =   "filename"                  .",FileData"      
 $keywrds{"fileseq"       }    =   "fileSeq"                   .",FileData"               .",1" .",num"  .",0" .",1" .",1";
 $keywrds{"stream"        }    =   "fileStream"                .",FileData"               .",1" .",num"  .",0" .",1" .",1";
 $keywrds{"filecomment"   }    =   "fileDataComments"          .",FileData"               .",0" .",text" .",0" .",1" .",1";
-$keywrds{"fdsize"        }    =   "size"                      .",FileData"               .",1" .",num"  .",0" .",1" .",0";
+$keywrds{"events"        }    =   "numEntries"                .",FileData"               .",1" .",num"  .",0" .",1" .",1";
 $keywrds{"size"          }    =   "fsize"                     .",FileLocations"          .",1" .",num"  .",0" .",1" .",1";
 $keywrds{"owner"         }    =   "owner"                     .",FileLocations"          .",0" .",text" .",0" .",1" .",1";
 $keywrds{"protection"    }    =   "protection"                .",FileLocations"          .",0" .",text" .",0" .",1" .",1";
@@ -166,23 +210,33 @@ $keywrds{"generator"     }    =   "eventGeneratorName"        .",EventGenerators
 $keywrds{"genversion"    }    =   "eventGeneratorVersion"     .",EventGenerators"        .",1" .",text" .",0" .",1" .",1";
 $keywrds{"gencomment"    }    =   "eventGeneratorComment"     .",EventGenerators"        .",0" .",text" .",0" .",1" .",1";
 $keywrds{"genparams"     }    =   "eventGeneratorParams"      .",EventGenerators"        .",1" .",text" .",0" .",1" .",1";
+
+# The detector configuration can be extended as needed
+# > alter table DetectorConfigurations ADD dEEMC TINYINT AFTER dEMC;
+# > update DetectorConfigurations SET dEEMC=0;
+#
+# + definition here and insert_detector_configuration() 
+# and we are Ready to go for a new column
+#
 $keywrds{"tpc"           }    =   "dTPC"                      .",DetectorConfigurations" .",1" .",num"  .",0" .",1" .",1";
 $keywrds{"svt"           }    =   "dSVT"                      .",DetectorConfigurations" .",1" .",num"  .",0" .",1" .",1";
 $keywrds{"tof"           }    =   "dTOF"                      .",DetectorConfigurations" .",1" .",num"  .",0" .",1" .",1";
 $keywrds{"emc"           }    =   "dEMC"                      .",DetectorConfigurations" .",1" .",num"  .",0" .",1" .",1";
+$keywrds{"eemc"          }    =   "dEEMC"                     .",DetectorConfigurations" .",1" .",num"  .",0" .",1" .",1";
 $keywrds{"fpd"           }    =   "dFPD"                      .",DetectorConfigurations" .",1" .",num"  .",0" .",1" .",1";
 $keywrds{"ftpc"          }    =   "dFTPC"                     .",DetectorConfigurations" .",1" .",num"  .",0" .",1" .",1";
 $keywrds{"pmd"           }    =   "dPMD"                      .",DetectorConfigurations" .",1" .",num"  .",0" .",1" .",1";
 $keywrds{"rich"          }    =   "dRICH"                     .",DetectorConfigurations" .",1" .",num"  .",0" .",1" .",1";
 $keywrds{"ssd"           }    =   "dSSD"                      .",DetectorConfigurations" .",1" .",num"  .",0" .",1" .",1";
-$keywrds{"triggerevents" }    =   "numberOfEvents"            .",TriggerCompositions"    .",1" .",text" .",0" .",1" .",1";
-$keywrds{"events"        }    =   "numberOfEvents"            .",TriggerCompositions"    .",1" .",num"  .",0" .",1" .",1";
+
+# Special keywords
 $keywrds{"simulation"    }    =   ",,,,,,1";
 $keywrds{"nounique"      }    =   ",,,,,,1";
 $keywrds{"noround"       }    =   ",,,,,,1";
 $keywrds{"startrecord"   }    =   ",,,,,,1";
 $keywrds{"limit"         }    =   ",,,,,,1";
 $keywrds{"all"           }    =   ",,,,,,1";
+
 
 # Fields that need to be rounded when selecting from the database
 my $roundfields = "magFieldValue,2 collisionEnergy,0";
@@ -313,7 +367,7 @@ sub get_keyword_list {
     my($val,$kwd);
     my(@items,@kwds);
 
-    foreach $val (keys %keywrds){
+    foreach $val (sort { $a cmp $b } keys %keywrds){
 	@items = split(",",$keywrds{$val});
 	if ($items[6] == 1){ push(@kwds,$val);}
 	else { &print_debug("Rejecting $items[0]"); }
@@ -409,6 +463,10 @@ sub connect {
   if ( ! $DBH ){
       &die_message("connect","cannot connect to $dbname : $DBI::errstr");
   }
+
+  # Set/Unset global variables here
+  $FC::IDX = -1;
+
 
   #foreach (keys(%rowcounts)){
   #    my $sqlquery = "SELECT count(*) FROM $_";
@@ -507,22 +565,23 @@ sub set_context {
 	  $valu =~ s/ //g;
       }
 
-      if (exists $keywrds{$keyw}) {
+      if ( exists $keywrds{$keyw}) {
 	  if ($DEBUG > 0) {
 	      &print_debug("Query accepted $DEBUG: ".$keyw."=".$valu);
 	  }
 	  $operset{$keyw} = $oper;
 	  $valuset{$keyw} = $valu;
       } else {
-	  #if ($DEBUG > 0){
-	  #&print_debug("ERROR: $keyw is not a valid keyword.".
-	  #"Cannot set context.");
-	  #}
-	  my (@kwd);
-	  @kwd = &get_keyword_list();
-	  &die_message("set_context",
-		       "[$keyw] IS NOT a valid keyword. Choose one of\n".
-		       join(" ",@kwd));
+	  if ( defined($obsolete{$keyw}) ){
+	      &die_message("set_context",
+			   "[$keyw] is obsolste. Use $obsolete{$keyw} instead\n");
+	  } else {
+	      my (@kwd);
+	      @kwd = &get_keyword_list();
+	      &die_message("set_context",
+			   "[$keyw] IS NOT a valid keyword. Choose one of\n".
+			   join(" ",@kwd));
+	  }
       }
   }
 }
@@ -727,26 +786,27 @@ sub insert_detector_configuration {
   }
 
 
-  my ($tpcon, $svton, $emcon, $ftpcon, $richon, $fpdon, $tofon, $pmdon, $ssdon);
+  my ($tpcon, $svton, $emcon, $eemcon, $ftpcon, $richon, $fpdon, $tofon, $pmdon, $ssdon);
   if (! defined $valuset{"configuration"}) {
       &print_debug("ERROR: No detector configuration/geometry name given.",
 		   "Cannot add record to the table.");
     return 0;
   }
-  $tpcon = ($valuset{"tpc"} == 1) ? "1" : "0";
-  $svton = ($valuset{"svt"} == 1) ? "1" : "0";
-  $emcon = ($valuset{"emc"} == 1) ? "1" : "0";
-  $ftpcon = ($valuset{"ftpc"} == 1) ? "1" : "0";
-  $richon = ($valuset{"rich"} == 1) ? "1" : "0";
-  $fpdon = ($valuset{"fpd"} == 1) ? "1" : "0";
-  $tofon = ($valuset{"tof"} == 1) ? "1" : "0";
-  $pmdon = ($valuset{"pmd"} == 1) ? "1" : "0";
-  $ssdon = ($valuset{"ssd"} == 1) ? "1" : "0";
+  $tpcon = ($valuset{"tpc"} == 1)  ? "1" : "0";
+  $svton = ($valuset{"svt"} == 1)  ? "1" : "0";
+  $emcon = ($valuset{"emc"} == 1)  ? "1" : "0";
+  $eemcon= ($valuset{"eemc"} == 1) ? "1" : "0";
+  $ftpcon= ($valuset{"ftpc"} == 1) ? "1" : "0";
+  $richon= ($valuset{"rich"} == 1) ? "1" : "0";
+  $fpdon = ($valuset{"fpd"} == 1)  ? "1" : "0";
+  $tofon = ($valuset{"tof"} == 1)  ? "1" : "0";
+  $pmdon = ($valuset{"pmd"} == 1)  ? "1" : "0";
+  $ssdon = ($valuset{"ssd"} == 1)  ? "1" : "0";
 
 
   my $dtinsert   = "INSERT IGNORE INTO DetectorConfigurations";
-  $dtinsert  .= "(detectorConfigurationName, dTPC, dSVT, dTOF, dEMC, dFPD, dFTPC, dPMD, dRICH, dSSD)";
-  $dtinsert  .= " VALUES ('".$valuset{"configuration"}."', $tpcon , $svton , $tofon , $emcon , $fpdon , $ftpcon , $pmdon , $richon , $ssdon)";
+  $dtinsert  .= "(detectorConfigurationName, dTPC, dSVT, dTOF, dEMC, dEEMC, dFPD, dFTPC, dPMD, dRICH, dSSD)";
+  $dtinsert  .= " VALUES ('".$valuset{"configuration"}."', $tpcon , $svton , $tofon , $emcon , $eemcon, $fpdon , $ftpcon , $pmdon , $richon , $ssdon)";
   if ($DEBUG > 0) {  &print_debug("Execute $dtinsert");}
 
 
@@ -842,7 +902,13 @@ sub disentangle_collision_type {
 #
 sub get_collision_type
 {
-    return ((&get_collision_collection(@_))[0]);
+    my(@tab) = &get_collision_collection(@_);
+    
+    if( @tab ){
+	return $tab[0];
+    } else {
+	return;
+    }
 }
 sub get_collision_collection {
   if ($_[0] =~ m/FileCatalog/) {
@@ -1117,7 +1183,7 @@ sub insert_file_data {
   my $library;
   my $fileType;
   my $runNumber;
-  #my $size;
+  my $nevents;
   my $fileComment;
   my $fileSeq;
   my $filestream;
@@ -1160,64 +1226,33 @@ sub insert_file_data {
       &print_message("insert_file_data","filename not defined.");
       return 0;
   }
-  #if (! defined $valuset{"size"}) {
-  #$size = "NULL";
-  #} else {
-  #  $size = $valuset{"size"};
-  #}
 
   if (! defined $valuset{"filecomment"}) {
-    $fileComment = "NULL";
+      $fileComment = "NULL";
   } else {
-    $fileComment = "\"".$valuset{"filecomment"}."\"";
+      $fileComment = "\"".$valuset{"filecomment"}."\"";
   }
   if (! defined $valuset{"fileseq"}) {
-    $fileSeq = "NULL";
+      $fileSeq = "NULL";
   } else {
-    $fileSeq = "\"".$valuset{"fileseq"}."\"";
+      $fileSeq = "\"".$valuset{"fileseq"}."\"";
   }
   if (! defined $valuset{"stream"}) {
-    $filestream = 0;
+      $filestream = 0;
   } else {
-    $filestream = "\"".$valuset{"stream"}."\"";
+      $filestream = "\"".$valuset{"stream"}."\"";
   }
-
-
-  # March 2002 - Made triggerevents optional
-  # Try to disentangle the triggerword / event count combinations
-  # from the triggerevents string. It should have a format:
-  # '<triggerword> <number of events> [ ; <triggerword> <number of events> ]'
-  if (! defined $valuset{"triggerevents"}) {
-      &print_message("insert_file_data","Warning : events for triggerWords not defined.");
-      $valuset{"triggerevents"} = 'unknown 0';
-  }
-
-  {
-      my @splitted;
-      my $count = 0;
-      (@splitted) = split(";",$valuset{"triggerevents"});
-      #print "==> ".$valuset{"triggerevents"}."\n";
-      foreach (@splitted) {
-	  ($triggerWords[$count], $eventCounts[$count]) = split(" ");
-	  if( ! defined($eventCounts[$count]) ){ $eventCounts[$count] = 0;}
-	  if ($DEBUG > 0) {
-	      &print_debug("Added triggerword ".$triggerWords[$count].
-			   " with event count ".$eventCounts[$count]);
-	  }
-	  $triggerIDs[$count] = &get_id_from_dictionary("TriggerWords","triggerName",$triggerWords[$count]);
-	  if ( ! defined($triggerIDs[$count]) ) {
-	      $triggerIDs[$count] = 0;
-	      &print_message("insert_file_data","Warning: no triggerID for triggerword $triggerWords[$count]");
-	  }
-	  $count++;
-      }
+  if (! defined $valuset{"events"}) {
+      $nevents = 0;
+  } else {
+      $nevents = $valuset{"events"};
   }
 
 
   # Prepare the SQL query and execute it
   my $fdinsert   = "INSERT IGNORE INTO FileData ";
-  $fdinsert  .= "(runParamID, fileName, productionConditionID, fileTypeID, fileDataComments, fileSeq, fileStream)";
-  $fdinsert  .= " VALUES ($runNumber, \"".$valuset{"filename"}."\",$production,$fileType,$fileComment,$fileSeq,$filestream)";
+  $fdinsert  .= "(runParamID, fileName, productionConditionID, numEntries, fileTypeID, fileDataComments, fileSeq, fileStream)";
+  $fdinsert  .= " VALUES ($runNumber, \"".$valuset{"filename"}."\",$production, $nevents, $fileType,$fileComment,$fileSeq,$filestream)";
   if ($DEBUG > 0) { &print_debug("Execute $fdinsert");}
 
 
@@ -1238,34 +1273,219 @@ sub insert_file_data {
       &print_debug("insert_file_data : Failed to prepare [$fdinsert]");
   }
 
-  # Add the triggerword / event count combinations for this FileData
-  if ($DEBUG > 0) { &print_debug("Adding triggerWords $#triggerWords");}
+  # TriggerComposition and TriggerWords are now handled by a single routine
+  &set_trigger_composition($retid);
 
-  for ($count = 0; $count < ($#triggerWords+1); $count++) {
-      if ($DEBUG > 0) {
-	  &print_debug("Adding triggerWord $count");
-      }
-      my $tcinsert   = "INSERT IGNORE INTO TriggerCompositions ";
-      $tcinsert  .= "(fileDataID, triggerWordID, numberOfEvents)";
-      $tcinsert  .= " VALUES ( $retid , ".$triggerIDs[$count]." , ".$eventCounts[$count].")";
-      &print_debug("Execute $tcinsert");
-
-
-      my $sth;
-      $sth = $DBH->prepare( $tcinsert );
-      #print "--> [$tcinsert]\n";
-      if( $sth ){
-	  if ( ! $sth->execute() ) {
-	      &print_message("insert_file_data","ERROR: did not add the ".
-			     "event count for triggerword $triggerWords[$count]");
-	  }
-	  $sth->finish();
-      } else {
-	  &print_debug("FileCatalog::insert_file_data : Failed to prepare [$tcinsert]");
-      }
-  }
   return $retid;
 }
+
+
+
+
+
+
+
+#============================================
+# 
+# This internal routine was added to handle insertion
+# of the trigger information. 
+# It is developped for handling updates as well.
+#
+
+#
+# Add a new individual trigger to the collection
+# The internal arrays are flushed by any calls to add_file_data() through 
+# a call to set_trigger_composition()
+#
+# Arguments are obvious ...
+#
+sub add_trigger_composition
+{
+    if ($_[0] =~ m/FileCatalog/) {  shift @_;}
+    my($triggerName,$triggerWord,$triggerVersion,$triggerDefinition,$triggerCount) = @_;
+
+    # Store it in internal arrays
+    $FC::IDX++;
+    $FC::TRGNAME[$FC::IDX] = &get_value($triggerName,"unknown",0);
+    $FC::TRGWORD[$FC::IDX] = &get_value($triggerWord,"000000",0);
+    $FC::TRGVERS[$FC::IDX] = &get_value($triggerVersion,"V0.0",1);
+    $FC::TRGDEFS[$FC::IDX] = &get_value($triggerDefinition,"unspecified",0);
+    $FC::TRGCNTS[$FC::IDX] = &get_value($triggerCount,0,0);
+
+}
+
+#
+# This really enters it (or updates) in the database
+# 
+# Arg1 : a fdid
+# Arg2 : an insert/update flag (0 insert, 1 update)
+#
+sub set_trigger_composition()
+{
+    my($tcfdid,$update)=@_;
+
+    if( ! defined($DBH)){
+	&print_message("set_trigger_compositio","Not connected/connecting");
+	return;
+    }
+    if ( $FC::IDX == -1 ) {
+	&print_message("set_trigger_composition","No trigger compostion set");
+	return;
+    }
+    if( ! defined($tcfdid) ){
+	&die_message("set_trigger_composition","Mandatory first argument undefined");
+    }
+
+
+
+
+    my($i,$el,$cnt);
+    my($cmd1,$sth1,$cmd2,$sth2);
+    my($cmdd,$sthd);
+    my(@all);
+    my(@TrgID,@TrgCnt);
+
+
+    #
+    # Insert first all entries in TriggerWords in INSERT mode
+    #
+    $cmd1 = "SELECT triggerWordID, triggerDefinition FROM TriggerWords ".
+	" WHERE triggerName=? AND triggerWord=?  AND triggerVersion=?";
+    $cmd2 = "INSERT INTO TriggerWords values(NULL, ?, ?, ?, ?)";
+
+    $sth1 = $DBH->prepare($cmd1);
+    $sth2 = $DBH->prepare($cmd2);
+
+    if ( ! $sth1 || ! $sth2 ){  &die_message("set_trigger_composition","Prepare statements 1 failed");}
+
+    # Loop over and check/insert
+    $cnt = -1;
+    for ($i=0 ; $i <= $#FC::TRGNAME ; $i++){
+	print "Should insert $FC::TRGNAME[$i] $FC::TRGWORD[$i] $FC::TRGVERS[$i] $FC::TRGDEFS[$i] $FC::TRGCNTS[$i]\n";
+	if ( $sth1->execute($FC::TRGNAME[$i],$FC::TRGWORD[$i],$FC::TRGVERS[$i]) ){
+	    if ( @all = $sth1->fetchrow ){
+		# Already in, fetch
+		&print_debug("Fetched 1 triggerWordID $all[0]");
+		$TrgID[++$cnt] = $all[0];
+		$TrgCnt[$cnt]  = $FC::TRGCNTS[$i];
+	    } else {
+		# Not in, Insert
+		if ( $sth2->execute($FC::TRGNAME[$i],$FC::TRGWORD[$i],$FC::TRGVERS[$i],$FC::TRGDEFS[$i]) ){
+		    $TrgID[++$cnt] = &get_last_id();
+		    $TrgCnt[$cnt]  = $FC::TRGCNTS[$i];
+		    &print_debug("Fecthed 2 triggerWordID $TrgID[$cnt]");
+		} else {
+		    &die_message("set_trigger_composition",
+				 "Failed to insert $FC::TRGNAME[$i],$FC::TRGWORD[$i],$FC::TRGVERS[$i],$FC::TRGDEFS[$i]");
+		}
+	    }
+	} else {
+	    &die_message("set_trigger_composition",
+			 "Failed to execute for $FC::TRGNAME[$i],$FC::TRGWORD[$i],$FC::TRGVERS[$i]");
+	}
+    }
+    $sth1->finish;
+    $sth2->finish;
+    
+
+
+    #
+    # Enter entries in TriggerCompositions
+    #
+    $cmd1 = "SELECT triggerWordID FROM TriggerCompositions WHERE fileDataID=?";
+    $cmd2 = "INSERT DELAYED INTO TriggerCompositions values(?,?,?)";
+    $sth1 = $DBH->prepare($cmd1);
+    $sth2 = $DBH->prepare($cmd2);
+
+    if ( ! $sth1 || ! $sth2 ){  &die_message("set_trigger_composition","Prepare statements 2 failed");}
+
+    if ( ! $sth1->execute($tcfdid) ){
+	&print_message("set_trigger_composition","Could not execute [$cmd1 , $tcfdid]");
+    } else {
+	@all = $sth1->fetchrow;
+	if ($#all != -1){
+	    # There are entries for this tcfdid already
+	    if ($update){
+		# We can drop them all from TriggerCompositions. We cannot delay this ...
+		# The entries in the TriggerWords table may be used in other records
+		# (will do a bootstrap routine).
+		#
+		# Here, we deleted only the fully-specified records because we envision
+		# this routine to be used in update of perticular triggerWord (leaving
+		# the rest of the list unmodified).
+		#
+		$cmdd = "DELETE LOW_PRIORITY FROM TriggerCompositions WHERE fileDataID=? AND triggerWord=?";
+		$sthd = $DBH->prepare($cmdd);
+		foreach $el (@all){
+		    &print_debug("$cmdd , $tcfdid, $el");
+		    $sthd->execute($tcfdid,$el);
+		}
+		$sthd->finish;
+
+	    } else {
+		&print_message("set_trigger_composition","Update not yet implemented");
+		return;
+	    }
+	} else {
+	    # The table is empty. We can now insert the triggerWordIDs recovered
+	    # preceedingly. Note that we MUST die() here if it fails since we
+	    # have already checked the existence of $tcfdid entries ... and there
+	    # none. 
+	    for ( $i=0 ; $i <= $#TrgID ; $i++){
+		if ( ! $sth2->execute($tcfdid,$TrgID[$i],$TrgCnt[$i]) ){
+		    &die_message("set_trigger_composition",
+				 "Insertion of ($tcfdid,$TrgID[$i],$TrgCnt[$i]) failed");
+		}
+	    }
+	    
+	}
+    }
+    $sth1->finish;
+    $sth2->finish;
+
+
+    # Entries are NOT re-usable (would be too dangerous)
+    $FC::IDX=-1;
+    undef(@FC::TRGNAME);
+    undef(@FC::TRGWORD);
+    undef(@FC::TRGVERS);
+    undef(@FC::TRGDEFS);
+}
+
+
+
+# This is an internal routine
+sub del_trigger_composition
+{
+    my($tcfdid,$doit)=@_;
+    my($cmd,$sth);
+
+    if ($doit){
+	if ( $DELAY ){
+	    push(@DCMD,"DELETE LOW_PRIORITY FROM TriggerCompositions WHERE fileDataID=$tcfdid");
+	} else {
+	    # a complete different story
+	    $cmd = "DELETE LOW_PRIORITY FROM TriggerCompositions WHERE fileDataID=?";
+	    $sth = $DBH->prepare();
+
+	    if ( ! $sth ){  
+		&print_message("del_trigger_composition","Prepare failed. Bootstrap TRGC needed.");
+		return;
+	    }
+	    &print_debug("Execute $cmd , $tcfdid");
+
+	    if ( ! $sth->execute($tcfdid) ){
+		&print_message("del_trigger_composition","Execute failed. Bootstrap TRGC needed.");
+	    }
+	    $sth->finish;
+	}
+    } else {
+	&print_message("del_trigger_composition","[$tcfdid] from TriggerCompositions would be deleted");
+    }
+}
+
+
+
 
 #============================================
 # get the ID for the current file data, or create it
@@ -1900,9 +2120,7 @@ sub get_intersect {
 # Returns:
 # list of the numbers of the connections
 sub connect_fields {
-  if ($_[0] =~ m/FileCatalog/) {
-    shift @_;
-  }
+  if ($_[0] =~ m/FileCatalog/) {  shift @_;}
 
   my ($begkeyword, $endkeyword) = (@_);
   my ($begtable, $begfield, $endtable, $endfield, $blevel, $elevel);
@@ -2036,7 +2254,12 @@ sub connect_fields {
 # list of rows matching the query build on the current context
 # in each row the fileds are separated by ::
 sub run_query_st {
-    return join("\n",&run_query(@_));
+    my(@tab)=&run_query(@_);
+    if ( @tab ){
+	return join("\n",@tab);
+    } else {
+	return undef;
+    }
 }
 
 sub run_query {
@@ -2082,8 +2305,10 @@ sub run_query {
   #}
 
 
-  $count = 0;
+  #+
   # Check the validity of the keywords
+  #-
+  $count = 0;
   foreach (@keywords){
       #First check if it is a request for an agregate value
       my $afun;
@@ -2095,7 +2320,7 @@ sub run_query {
 	  ($aggr, $keyw) = $_ =~ m/($afun)\((.*)\)/;
 	  last if (defined $aggr and defined $keyw);
       }
-      if (defined $keyw){
+      if ( defined($keyw) ){
 	  &print_debug("Found aggregate function |$aggr| on keyword |$keyw|");
 
 	  # If it is - save the function, and store only the bare keyword
@@ -2103,20 +2328,33 @@ sub run_query {
 	  $keywords[$count] = $keyw;
       }
       if ( ! defined ($keywrds{$_})){
-	  &print_message("run_query()","Wrong keyword: $_");
+	  if ( defined($obsolete{$_}) ){
+	      &print_message("run_query()","Keyword $_ is obsolete ; use $obsolete{$_} instead");
+	  } else {
+	      &print_message("run_query()","Wrong keyword: $_");
+	  }
 	  return;
+      } else {
+	  $afun = &get_table_name($_);
+	  if ( &get_table_name($_) eq ""){
+	      &die_message("runquery()",
+			   "[$_] is a special condition or input keyword and does not return a value ");
+	  }
       }
       $count++;
   }
 
 
   #
-  # THIS NEXT BLOCK DOES NO WORK AND WAS DISABLED
-  # WOULD PREVENT SINGLE TABLE QUERY WITH DEPENDENCE CONDITION
+  # THIS NEXT BLOCK IS FLAKY AND SHOULD BE HANDLED WITH CARE. IT
+  # WOULD PREVENT SINGLE TABLE QUERY WITH DEPENDENCE CONDITION ON
+  # SIMPLE CODIGN ERROR.
   # Introduced at version 1.14 . Need to be revisited.
   # Idea of this block was to eliminate parts of
   # where X.Id=Y.Id AND X.String=' '  and just use
   # where X.Id=value
+  #
+  # Was restored to a working version at version 1.31
   #
   # Do the constraint pre-check (for query optimization)
   # check if a given constraint produces a single record ID
@@ -2131,6 +2369,7 @@ sub run_query {
       &print_debug("Scanning valuset ".join(",",keys %valuset));
       foreach (keys(%valuset)) {
 	  my $tabname = &get_table_name($_);
+
 	  # Check if the table name is one of the dictionary ones
 	  if (($tabname ne "FileData")            &&
 	      ($tabname ne "FileLocations")       &&
@@ -2734,9 +2973,11 @@ sub delete_records {
 
   &set_delimeter("::");
 
+
   my($count,$cmd);
   my($sth,$sth2,$stq);
   my(@ids,$status,$rc);
+  my($rows);
 
   $status = 0;
   foreach (@all){
@@ -2744,9 +2985,10 @@ sub delete_records {
       # rfdid is the logical grouping and may be associated with
       # more than one location.
       @ids = split("::",$_);
-      $cmd = "DELETE LOW_PRIORITY FROM FileLocations WHERE fileLocationID=$ids[0]";
 
+      $cmd = "DELETE LOW_PRIORITY FROM FileLocations WHERE fileLocationID=$ids[0]";
       $sth = $DBH->prepare( $cmd );
+
       if( $doit ){
 	  if( $DELAY ){
 	      $rc = 1;
@@ -2762,12 +3004,8 @@ sub delete_records {
       if ( $rc ){
 	  &print_debug("FileLocation ID=$ids[0] operation done. Checking FileData");
 
-	  $cmd     = "SELECT FileLocations.fileLocationID from FileLocations, FileData ".
-	      " WHERE FileLocations.fileDataID = FileData.fileDataID AND FileData.fileDataID = $ids[1] ";
-
-	  #if ( ! $doit){
-	  #    $cmd .= " AND FileLocations.fileLocationID <> $ids[0]";
-	  #}
+	  $cmd  = "SELECT FileLocations.fileLocationID from FileLocations, FileData ".
+		  " WHERE FileLocations.fileDataID = FileData.fileDataID AND FileData.fileDataID = $ids[1] ";
 	  $stq     = $DBH->prepare( $cmd );
 
 
@@ -2775,9 +3013,11 @@ sub delete_records {
 	      &print_debug("Execution failed [$cmd]");
 	  }
 
+	  $rows = $stq->rows;
+	  $stq->finish();
 
-	  if ($stq->rows == 0){
-	      # This file data has no file locations - delete it (and its trigger compositions)
+	  if ($rows == 0 || ($DELAY && $rows == 1) ){
+	      # This file data has no file "other" locations 
 	      $cmd  = "DELETE LOW_PRIORITY FROM FileData WHERE fileDataID = $ids[1]";
 	      $sth2 = $DBH->prepare($cmd);
 
@@ -2787,24 +3027,13 @@ sub delete_records {
 		  } else {
 		      $sth2->execute();
 		  }
+		  &del_trigger_composition($ids[1],$doit);
 	      } else {
 		  &print_message("delete_record","id=$ids[1] from FileData would be deleted");
 	      }
 	      $sth2->finish();
-
-	      $sth2 = $DBH->prepare("DELETE LOW_PRIORITY FROM TriggerCompositions WHERE fileDataID = $ids[1]");
-	      if ($doit){
-		  if ( $DELAY ){
-		      push(@DCMD,$cmd);
-		  } else {
-		      $sth2->execute();
-		  }
-	      } else {
-		  &print_message("delete_record","... as well as TriggerCompositions entry");
-	      }
-	      $sth2->finish();
 	  }
-	  $stq->finish();
+
       }
       $sth->finish();
   }
@@ -2815,184 +3044,238 @@ sub delete_records {
 
 
 
-
 #============================================
 # Bootstraps a table - meaning it checks if all
 # the records in this table are connected to some
 # child table
-# Prams:
-# keyowrd - keword from the table, which is to be checked
-# dodelete - set to 1 to automaticaly delete the offending records
+#
+# Params:
+#   keyword - keword from the table, which is to be checked
+#   dodelete - set to 1 to automaticaly delete the offending records
+#
 # Returns
-# List of records that are not connected
-# or 0 if there were errors or no unconnected records
+#  List of records that are not connected or 0 if there were errors 
+#  or no unconnected records
+#
+# This routine is the top routine
+#
 sub bootstrap {
-  if ($_[0] =~ m/FileCatalog/) {
-    shift @_;
-  }
+    if ($_[0] =~ m/FileCatalog/) {  shift @_;}
 
-  if( ! defined($DBH) ){
-      &print_message("bootstrap","Not connected");
-      return 0;
-  }
-
-  my ($keyword, $delete) = (@_);
-  my $table = get_table_name($keyword);
-  if ($table eq "")
-    { return 0; }
-
-  my ( $childtable, $linkfield );
-  # Check if this really is a dictionary table
-  my $refcount = 0;
-  foreach (@datastruct){
-      my ($mtable, $ctable, $lfield) = split(",");
-      if ($ctable eq $table){
-	  # This table is referencing another one - it is not a dictianry!
-	  &print_message("bootstrap","$table is not a dictionary table !");
-	  return 0;
-      }
-      if ($mtable eq $table)
-	{
-	  $childtable = $ctable;
-	  $linkfield = $lfield;
-	  $refcount++;
-	}
-  }
-  if ($refcount != 1){
-      # This table is not referenced by any other table or referenced
-      # by more than one - it is not a proper dictionary
-      &print_message("bootstrap","$table is not a dictionary table !");
-      return 0;
-  }
-
-  my $dcquery;
-  $dcquery = "select $table.$linkfield FROM $table LEFT OUTER JOIN $childtable ON $table.$linkfield = $childtable.$linkfield WHERE $childtable.$linkfield IS NULL";
-
-  my $stq;
-  $stq = $DBH->prepare( $dcquery );
-  if( ! $stq ){
-      &print_debug("FileCatalog::bootstrap : Failed to prepare [$dcquery]");
-      return 0;
-  }
-  &print_debug("Running [$dcquery]");
-  $stq->execute();
-  if ($stq->rows > 0)
-    {
-      my @rows;
-      my( $id );
-      $stq->bind_columns( \$id );
-
-      while ( $stq->fetch() ) {
-	push ( @rows, $id );
-      }
-      if ($delete == 1)
-      {
-	  # We do a bootstapping with delete
-	  my $dcdelete;
-	  $dcdelete = "DELETE LOW_PRIORITY FROM $table WHERE $linkfield IN (".join(" , ",(@rows)).")";
-	  if ( $DELAY ){
-	      push(@DCMD,$dcdelete);
-	  } else {
-	      &print_debug("Executing $dcdelete");
-
-	      my $stfdd = $DBH->prepare($dcdelete);
-	      if ($stfdd){
-		  $stfdd->execute();
-		  $stfdd->fisnih();
-	      } else {
-		  &print_debug("FileCatalog::bootstrap : Failed to prepare [$dcdelete]",
-			   " Record in $table will not be deleted");
-	      }
-	  }
-      }
-      return (@rows);
+    if( ! defined($DBH) ){
+	&print_message("bootstrap","Not connected");
+	return 0;
     }
-  return 0;
+
+    my($keyword, $delete) = (@_);
+
+    my($table);
+
+
+    $table = &get_table_name($keyword);
+    if ($table eq ""){ return 0; }
+
+    # Now, pipe it to other routines
+    if ($table eq "FileData" || $table eq "FileLocations"){
+	return &bootstrap_data($keyword, $delete);
+
+    } elsif ($table eq "TriggerWords" || $table eq "TriggerCompositions"){
+	return &bootstrap_trgc($delete);
+
+    } else {
+	return &bootstrap_general($keyword, $delete);
+    }
 }
 
-#============================================
+
 #
-# Bootstraps TrigerCompositions
+# Bootstrap all no-special tables (dictionaries, FileData and
+# FileLocations).
+#
+sub bootstrap_general 
+{
+    my($keyword, $delete) = @_;
+
+    my($refcount);
+    my($childtable, $linkfield);
+    my($table,$mtable, $ctable, $lfield);
+    my($dcquery,$stq);
+    my(@rows, $id);
+    my($dcdelete,$stfdd);
+
+    # Check if this really is a dictionary table
+    $refcount = 0;
+    foreach (@datastruct){
+	($mtable, $ctable, $lfield) = split(",");
+	if ($ctable eq $table){
+	    # This table is referencing another one - it is not a dictianry!
+	    &print_message("bootstrap","$table is not a dictionary table !");
+	    return 0;
+	}
+	if ($mtable eq $table){
+	    $childtable = $ctable;
+	    $linkfield = $lfield;
+	    $refcount++;
+	}
+    }
+    if ($refcount != 1){
+	# This table is not referenced by any other table or referenced
+	# by more than one - it is not a proper dictionary
+	&print_message("bootstrap","$table is not a dictionary table !");
+	return 0;
+    }
+
+
+    $dcquery = "select $table.$linkfield FROM $table LEFT OUTER JOIN $childtable ON $table.$linkfield = $childtable.$linkfield WHERE $childtable.$linkfield IS NULL";
+
+    $stq = $DBH->prepare( $dcquery );
+    if( ! $stq ){
+	&print_debug("FileCatalog::bootstrap : Failed to prepare [$dcquery]");
+	return 0;
+    }
+
+    &print_debug("Running [$dcquery]");
+    $stq->execute();
+    if ($stq->rows > 0){
+	$stq->bind_columns( \$id );
+
+	while ( $stq->fetch() ) { push ( @rows, $id );}
+	if ($delete == 1){
+	    # We do a bootstapping with delete
+	    $dcdelete = "DELETE LOW_PRIORITY FROM $table WHERE $linkfield IN (".join(" , ",(@rows)).")";
+	    if ( $DELAY ){
+		push(@DCMD,$dcdelete);
+	    } else {
+		&print_debug("Executing $dcdelete");
+
+		$stfdd = $DBH->prepare($dcdelete);
+		if ($stfdd){
+		    $stfdd->execute();
+		    $stfdd->fisnih();
+		} else {
+		    &print_debug("FileCatalog::bootstrap : Failed to prepare [$dcdelete]",
+				 " Record in $table will not be deleted");
+		}
+	    }
+	}
+	return (@rows);
+    }
+    return 0;
+}
+
+#
+# Bootstraps TrigerCompositions and TriggerWords
+# **** BOTH BLOCK CAN BE MERGED ****
 #
 sub bootstrap_trgc {
-  if ($_[0] =~ m/FileCatalog/) {
-    shift @_;
-  }
+    my($delete) = (@_);
 
-  if( ! defined($DBH) ){
-      &print_message("bootstrap","Not connected");
-      return 0;
-  }
+    my($tab1,$tab2,$field1,$field2);
+    my($cmd1,$cmd2,$sth1,$sth2);
+    my(@rows,@rows1,@rows2,$id);
+    my($cmdd,$sthd);
+	    
 
-  my ($keyword, $delete) = (@_);
-  my $table = "TriggerCompositions";
+    $tab1  = "TriggerCompositions";  $field1 = "fileDataID";
+    $tab2  = "TriggerWords";         $field2 = "triggerWordID";
 
-
-  my $dcquery;
-  $dcquery = "select $table.fileDataID FROM $table LEFT OUTER JOIN FileData ON $table.fileDataID = FileData.fileDataID WHERE FileData.fileDataID IS NULL";
+    $cmd1  = "SELECT $tab1.$field1 FROM $tab1 LEFT OUTER JOIN FileData ON $tab1.$field1 = FileData.$field1 WHERE FileData.$field1 IS NULL";
+    $cmd2  = "SELECT $tab2.$field2 FROM $tab2 LEFT OUTER JOIN $tab1 ON $tab2.$field2 = $tab1.$field2 WHERE $tab1.$field2 IS NULL";
 
 
-  my $stq;
-  $stq = $DBH->prepare( $dcquery );
-  if( ! $stq ){
-      &print_debug("FileCatalog::bootstrap_trgc : Failed to prepare [$dcquery]");
-      return 0;
-  }
-  &print_debug("Running [$dcquery]");
-  $stq->execute();
-  if ($stq->rows > 0)
-    {
-      my @rows;
-      my( $id );
-      $stq->bind_columns( \$id );
+    $sth1 = $DBH->prepare( $cmd1 );
+    $sth2 = $DBH->prepare( $cmd2 );
 
-      while ( $stq->fetch() ) {
-	push ( @rows, $id );
-      }
-      if ($delete == 1)
-      {
-	  # We do a bootstapping with delete
-	  my $dcdelete;
-	  $dcdelete = "DELETE LOW_PRIORITY FROM $table WHERE $table.fileDataID IN (".join(" , ",(@rows)).")";
-	  if ( $DELAY ){
-	      push(@DCMD,$dcdelete);
-	  } else {
-	      &print_debug("Executing $dcdelete");
-	      my $stfdd = $DBH->prepare($dcdelete);
-	      if ($stfdd){
-		  $stfdd->execute();
-		  $stfdd->finish();
-	      } else {
-		  &print_debug("FileCatalog::bootstrap_data : Failed to prepare [$dcdelete]",
-			       " Records in $table will not be deleted");
-	      }
-	  }
-      }
-      $stq->finish();
-      return (@rows);
+    if( ! $sth1 || ! $sth2 ){ &die_message("bootstrap_trgc"," Failed to prepare statements");}
+
+
+
+    #
+    # Run the first sth on $tab1 since it may leave further
+    # holes sth2 would pick up.
+    #
+    &print_debug("Running [$sth1]");
+    if ( ! $sth1->execute() ){  &die_message("bootstrap_trgc","Execute 1 failed");}
+
+    if ($sth1->rows > 0){
+	$sth1->bind_columns( \$id );
+
+	while ( $sth1->fetch() ) {  push ( @rows1, $id );}
+
+	if ($delete == 1){
+	    $cmdd = "DELETE LOW_PRIORITY FROM $tab1 WHERE $field1 IN (".join(" , ",(@rows1)).")";
+	    if ( $DELAY ){
+		push(@DCMD,$cmdd);
+	    } else {
+		&print_debug("Executing $cmdd");
+		$sthd = $DBH->prepare($cmdd);
+		if ($sthd){
+		    $sthd->execute();
+		    $sthd->finish();
+		} else {
+		    &print_debug("FileCatalog::bootstrap_data : Failed to prepare [$cmdd]",
+				 " Records in $tab1 will not be deleted");
+		}
+	    }
+	}
     }
-  $stq->finish();
-  return 0;
+    $sth1->finish();
+
+
+
+    &print_debug("Running [$sth2]");
+    if ( ! $sth2->execute() ){  &die_message("bootstrap_trgc","Execute 2 failed");}
+
+    if ($sth2->rows > 0){
+	$sth2->bind_columns( \$id );
+
+	while ( $sth2->fetch() ) {  push ( @rows2, $id );}
+
+	if ($delete == 1){
+	    $cmdd = "DELETE LOW_PRIORITY FROM $tab2 WHERE $field2 IN (".join(" , ",(@rows2)).")";
+	    if ( $DELAY ){
+		push(@DCMD,$cmdd);
+	    } else {
+		&print_debug("Executing $cmdd");
+		$sthd = $DBH->prepare($cmdd);
+		if ($sthd){
+		    $sthd->execute();
+		    $sthd->finish();
+		} else {
+		    &print_debug("FileCatalog::bootstrap_data : Failed to prepare [$cmdd]",
+				 " Records in $tab2 will not be deleted");
+		}
+	    }
+	}
+    }
+    $sth2->finish();
+
+    # Return value 
+    if ( $#rows1 != -1){ foreach $id (@rows1){ push(@rows,"TC-$id");}}
+    if ( $#rows2 != -1){ foreach $id (@rows2){ push(@rows,"TW-$id");}}
+
+    if ( $#rows != -1){ return @rows; }
+    else {              return 0;}
+
 }
 
 
 
-sub bootstrap_data {
-  if ($_[0] =~ m/FileCatalog/) {
-    shift @_;
-  }
+sub bootstrap_data 
+{
+    if ($_[0] =~ m/FileCatalog/) { shift @_;}
 
-  if( ! defined($DBH) ){
-      &print_message("bootstrap","Not connected");
-      return 0;
-  }
+    if( ! defined($DBH) ){
+	&print_message("bootstrap_data","Not connected");
+	return 0;
+    }
 
-  my ($keyword, $delete) = (@_);
-  my $table = &get_table_name($keyword);
-  if (($table ne "FileData") && ($table ne "FileLocations"))
-    {
-      &print_message("bootstrap_data","Wrong table. To bootstrap tables other than FileData and FileLocations use 'bootstrap'");
-      return 0;
+    my ($keyword, $delete) = (@_);
+    my $table = &get_table_name($keyword);
+
+    if (($table ne "FileData") && ($table ne "FileLocations")){
+	&print_message("bootstrap_data","Wrong usage of routine. Use bootstrap()");
+	return 0;
     }
 
   my $dcquery;
@@ -3083,9 +3366,9 @@ sub update_record {
       return 0;
   }
 
-  my @updates;
-
   my ($ukeyword, $newvalue, $doit) = (@_);
+  my @updates;
+  my $xcond;
 
   my $utable = &get_table_name($ukeyword);
   my $ufield = &get_field_name($ukeyword);
@@ -3103,7 +3386,7 @@ sub update_record {
       }
   }
 
-
+  
   if( ! defined($doit) ){  $doit = 1;}
 
   foreach my $key (keys %keywrds){
@@ -3115,18 +3398,33 @@ sub update_record {
       # The ufield is excluded because we use it by default
       # in the SET xxx= WHERE xxx= as an extra MANDATORY
       # clause.
-      if (($table eq $utable) && ($field ne $ufield))
-	{
-	  if (defined($valuset{$key}))
-	    {
-	      if (&get_field_type($key) eq "text")
-		{ push (@updates, "$table.$field = '".$valuset{$key}."'"); }
-	      else
-		{ push (@updates, "$table.$field = ".$valuset{$key}); }
-	    }
-	}
+      if (($table eq $utable) && ($field ne $ufield)){
+	  if (defined($valuset{$key})){
+	      if (&get_field_type($key) eq "text"){
+		  push (@updates, "$table.$field = '".$valuset{$key}."'"); 
+	      } else {
+		  push (@updates, "$table.$field = ".$valuset{$key}); 
+	      }
+	  }
+      } else {
+	  # Otherkeywords may make the context more specific if there is
+	  # a relation. The only relation we will support if through
+	  # the fdid and tables containing this field.
+	  # **** NEED TO WRITE A ROUTINE SORTING OUT THE RELATION ****
+	  if ( $key eq "fdid" && 
+	      ( $utable eq "TriggerCompositions" ||
+		$utable eq "FileLocations") ){ 
+	      if ( defined($valuset{$key}) ){
+		  #print "Found fdid = $valuset{$key}\n";
+		  $xcond = " $utable.fileDataID = $valuset{$key}" if ( ! defined($xcond) );
+	      }
+	  }
+	  
+      }
   }
+  if ( defined($xcond) ){ push(@updates,$xcond);}
   my $whereclause = join(" AND ",(@updates)) if ( $#updates != -1);
+
 
 
   if ($utable eq ""){
@@ -3137,18 +3435,18 @@ sub update_record {
 
   my $qupdate;
   if (&get_field_type($ukeyword) eq "text"){
-      $qupdate = "UPDATE LOW_PRIORITY $utable SET $ufield = '$newvalue' ";
+      $qupdate = "UPDATE LOW_PRIORITY $utable SET $utable.$ufield = '$newvalue' ";
       if( defined($valuset{$ukeyword}) ){
-	  $qupdate .= " WHERE $ufield = '$valuset{$ukeyword}'";
+	  $qupdate .= " WHERE $utable.$ufield = '$valuset{$ukeyword}'";
       } else {
 	  &print_message("update_record","$ukeyword ($ufield) not set with an initial value");
 	  return 0;
       }
 
   } else {
-      $qupdate = "UPDATE LOW_PRIORITY $utable SET $ufield = $newvalue ";
+      $qupdate = "UPDATE LOW_PRIORITY $utable SET $utable.$ufield = $newvalue ";
       if( defined($valuset{$ukeyword}) ){
-	  $qupdate .= " WHERE $ufield = $valuset{$ukeyword}";
+	  $qupdate .= " WHERE $utable.$ufield = $valuset{$ukeyword}";
       } else {
 	  &print_message("update_record","$ukeyword ($ufield) not set with an initial value");
 	  return 0;
@@ -3214,6 +3512,8 @@ sub set_delayed
     $DELAY = 1;
 }
 
+
+
 #
 # Quick and dirty stack command execution
 # Dirty because a do() statement has only little
@@ -3221,12 +3521,24 @@ sub set_delayed
 # stack may succeed or not without error bootstraping.
 # However, this will be fine/adequate in any major record
 # update.
+# Possible argument {0|1} (default 0)
+#   1 means it will display a message  time/#of updates
 #
 sub flush_delayed
 {
+    if ($_[0] =~ m/FileCatalog/) {
+	my $self = shift;
+    }
+    my($flag)=@_;
     my($cmd,$sth);
 
+    if( ! defined($flag) ){ $flag = 0;}
     if( ! $DBH){  return;}
+
+    if( $flag){
+	&print_message("flush_delayed","Flushing ".($#DCMD+1)." commands on ".localtime());
+    }
+
     foreach $cmd (@DCMD){
 	&print_debug("Executing $cmd");
 	if ( ! $DBH->do($cmd) ){
@@ -3240,7 +3552,15 @@ sub flush_delayed
 
 sub print_delayed
 {
+    if ($_[0] =~ m/FileCatalog/) { my $self = shift;}
+
+    my($flag)=@_;
     my($cmd);
+
+    if( $flag){
+	&print_message("print_delayed","Printing ".($#DCMD+1)." commands on ".localtime());
+    }
+
     foreach $cmd (@DCMD){
 	# ready for a piping to cmdline mysql
 	print "$cmd;\n";
@@ -3261,9 +3581,8 @@ sub print_delayed
 # doit    - do it or not, default is 1
 #
 sub update_location {
-  if ($_[0] =~ m/FileCatalog/) {
-    my $self = shift;
-  }
+  if ($_[0] =~ m/FileCatalog/) { my $self = shift;}
+
   if( ! defined($DBH) ){
       &print_message("update_location","Not connected");
       return 0;
@@ -3328,17 +3647,16 @@ sub update_location {
       # in the SET xxx= WHERE xxx= as an extra MANDATORY
       # clause.
       #print "+ $table + \n";
-      if (($table eq $mtable) && ($field ne $ufield))
-	{
-	  if (defined($valuset{$key}))
-	    {
-	      if (&get_field_type($key) eq "text")
-		{ push (@updates, "$field = '".$valuset{$key}."'"); }
-	      else
-		{ push (@updates, "$field = ".$valuset{$key}); }
-	    }
-	}
-    }
+      if (($table eq $mtable) && ($field ne $ufield)){
+	  if (defined($valuset{$key})){
+	      if (&get_field_type($key) eq "text"){
+		  push (@updates, "$field = '".$valuset{$key}."'"); 
+	      } else {
+		  push (@updates, "$field = ".$valuset{$key}); 
+	      }
+	  }
+      }
+  }
   my $whereclause = join(" AND ",(@updates));
 
   if ($utable eq ""){
@@ -3373,7 +3691,7 @@ sub update_location {
 	  if( defined($valuset{$ukeyword}) ){
 	      $qupdate .= " WHERE $ufield = '$valuset{$ukeyword}'";
 	  } else {
-	      &print_message("update_location","$ukeyword ($ufield) not set with an initial value");
+	      #&print_message("update_location","$ukeyword ($ufield) not set with an initial value");
 	      #return 0;
 	  }
       } else {
@@ -3381,7 +3699,7 @@ sub update_location {
 	  if( defined($valuset{$ukeyword}) ){
 	      $qupdate .= " WHERE $ufield = $valuset{$ukeyword}";
 	  } else {
-	      &print_message("update_location","$ukeyword ($ufield) not set with an initial value");
+	      #&print_message("update_location","$ukeyword ($ufield) not set with an initial value");
 	      #return 0;
 	  }
       }
@@ -3436,15 +3754,37 @@ sub get_context {
 }
 
 #============================================
-sub set_field {
+#
+# Set default value if necessary. Returns it
+#  Arg1   the variable to set (passed by value)
+#  Arg2   the default value
+#  Arg3   a flag : 1  upperCase
+#                  2  lowercase
+#
+sub get_value
+{
+    my($var,$dval,$flag)=@_;
+
+    # If undef, use default value
+    if ( ! defined($var) ){ $var = $dval;}
+    
+    # If null, use default as well. Do not allow \s+ or "" in ddb (sorry)
+    if ( $var =~ m/^\s*$/){ $var = $dval;}
+
+    # Now treat special cases
+    if($flag == 1){      $var = uc($var);}
+    elsif($flag == 2){   $var = lc($var);}
+    
+    # Return that value
+    $var;
 }
+
 
 #============================================
 sub debug_on
 {
-    if ($_[0] =~ m/FileCatalog/) {
-	shift @_;
-    }
+    if ($_[0] =~ m/FileCatalog/) {  shift @_;}
+
     my($mode)=@_;
 
     #print "Debug is $mode\n";
