@@ -1,6 +1,11 @@
 
 Quick summary of what script does what in this directory
 
+ - ScanLog.pl   perl script interface to the Job failure cgi.
+                This script scans a production log directory and
+                fills a database with the eventual crash information
+                it encounter.
+
  - RunDAQ.pm    perl module interface to the online DAQ database.
                 Allows immediate copy of new records in the 
                 operation database as well as manipulation of
