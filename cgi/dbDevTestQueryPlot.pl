@@ -1,9 +1,12 @@
 #!/usr/local/bin/perl
 #!/usr/bin/env perl 
 #
-# $Id: dbDevTestQueryPlot.pl,v 1.19 2004/02/16 04:13:49 jeromel Exp $
+# $Id: dbDevTestQueryPlot.pl,v 1.20 2004/12/20 21:32:02 didenko Exp $
 #
 # $Log: dbDevTestQueryPlot.pl,v $
+# Revision 1.20  2004/12/20 21:32:02  didenko
+# updated for new datasets and SL3 platform
+#
 # Revision 1.19  2004/02/16 04:13:49  jeromel
 # Small modifs (modules would need to be also installed in OPTSTAR)
 #
@@ -122,7 +125,7 @@ while($n_weeks >= 0) {
 	
 	my $path = $set1;
 	$path =~ s(year)($Nday[$d_week]/year);
-	#print $path, "\n";
+	print $path, "\n";
 	$path =~ s(/)(%)g;
 
 	if ($n_weeks == 0) {
