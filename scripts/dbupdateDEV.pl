@@ -21,11 +21,11 @@ require "/afs/rhic/star/packages/DEV/mgr/dbTJobsSetup.pl";
 #require "dbTJobsSetup.pl";
 
 my $TOP_DIRD = "/star/rcf/test/dev/";
-my @dir_year = ("year_2001","year_1h","year_2003");
+my @dir_year = ("year_2001", "year_1h", "year_2003");
 my @node_dir = ("trs_redhat72", "trs_redhat72_opt");
 my @node_daq = ("daq_redhat72", "daq_redhat72_opt"); 
 my @hc_dir = ("hc_lowdensity", "hc_standard", "hc_highdensity", "peripheral","pp_minbias","ppl_minbias","dau_minbias");
-my @daq_dir = ("minbias", "central", "ppMinBias","embedding");
+my @daq_dir = ("minbias", "central", "ppMinBias","embedding", "dAuMinBias");
 
 my @OUT_DIR;
 my @OUTD_DIR;
@@ -93,12 +93,17 @@ for ($i = 0; $i < scalar(@node_dir); $i++) {
 
 my $jj = 0;
 for ($i = 0; $i < scalar(@node_daq); $i++) {
-      for ($ll = 0; $ll < scalar(@daq_dir); $ll++) {
+      for ($ll = 0; $ll < scalar(@daq_dir) -1; $ll++) {
+          
    $OUT_DIR[$ii] = $TOP_DIRD . $node_daq[$i] . "/" . $testDay . "/". $dir_year[0] . "/" . $daq_dir[$ll];
    print "Output Dir for DEV :", $OUT_DIR[$ii], "\n";
         $ii++;
       }
-  }
+    $OUT_DIR[$ii] = $TOP_DIRD . $node_daq[$i] . "/" . $testDay . "/". $dir_year[2] . "/" . $daq_dir[4];
+   print "Output Dir for DEV :", $OUT_DIR[$ii], "\n";
+        $ii++;
+    
+ }
 
 ##### setup output directories for DEV with beforeDay
 
@@ -119,11 +124,14 @@ for ($i = 0; $i < scalar(@node_dir); $i++) {
 
 $jj = 0;
 for ($i = 0; $i < scalar(@node_daq); $i++) {
-      for ($ll = 0; $ll < scalar(@daq_dir); $ll++) {
+      for ($ll = 0; $ll < scalar(@daq_dir) -1; $ll++) {
    $OUT_DIR[$ii] = $TOP_DIRD . $node_daq[$i] . "/" . $beforeDay . "/". $dir_year[0] . "/" . $daq_dir[$ll];
     print "Output Dir for DEV :", $OUT_DIR[$ii], "\n";
         $ii++;
       }
+   $OUT_DIR[$ii] = $TOP_DIRD . $node_daq[$i] . "/" . $beforeDay . "/". $dir_year[2] . "/" . $daq_dir[4];
+    print "Output Dir for DEV :", $OUT_DIR[$ii], "\n";
+        $ii++;
   }
 
 struct FileAttr => {
@@ -636,6 +644,9 @@ foreach  $eachOutNDir (@OUT_DIR) {
       }
      elsif($EvTp eq "embedding") {
         $EvReq = 78;
+      }
+     elsif($EvTp eq "dAuMinBias") {
+        $EvReq = 497;
       }
 #       else {
 #      @prt = split(/\./,$bsname);
