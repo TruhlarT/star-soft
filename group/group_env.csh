@@ -1,7 +1,10 @@
 #!/usr/bin/csh -f
-#       $Id: group_env.csh,v 1.43 1998/08/10 21:32:30 fisyak Exp $
+#       $Id: group_env.csh,v 1.44 1998/08/11 13:41:20 fisyak Exp $
 #	Purpose:	STAR group csh setup 
 #       $Log: group_env.csh,v $
+#       Revision 1.44  1998/08/11 13:41:20  fisyak
+#       remove user lib directory from LD_LIBRARY_PATH
+#
 #       Revision 1.43  1998/08/10 21:32:30  fisyak
 #       add clean up of LD_LIBRARY_PATH
 #
@@ -215,7 +218,7 @@ switch ($STAR_SYS)
 #  ====================
 	set path = ($path $PARASOFT/bin.sgi5)
         if (! ${?LD_LIBRARY_PATH}) setenv LD_LIBRARY_PATH 
-	setenv LD_LIBRARY_PATH "${PARASOFT}/lib.sgi5:.${STAR_SYS}/lib:${STAF_LIB}:${LD_LIBRARY_PATH}"
+	setenv LD_LIBRARY_PATH "${PARASOFT}/lib.sgi5:${STAF_LIB}:${LD_LIBRARY_PATH}"
         limit coredumpsize 0
     breaksw
     case "sgi_6*":
@@ -223,7 +226,7 @@ switch ($STAR_SYS)
         setenv CERN_LEVEL pro
         setenv CERN_ROOT  /cern/pro
         if (! ${?LD_LIBRARYN32_PATH}) setenv LD_LIBRARYN32_PATH 
-	setenv LD_LIBRARYN32_PATH ".${STAR_SYS}/lib:${STAF_LIB}:${LD_LIBRARYN32_PATH}"
+	setenv LD_LIBRARYN32_PATH "${STAF_LIB}:${LD_LIBRARYN32_PATH}"
         limit coredumpsize 0
     breaksw
     case "i386_*":
@@ -246,7 +249,7 @@ switch ($STAR_SYS)
 #    set path = ($path  /usr/local/bin/ddd /usr/local/DQS318/bin )
      set path = ($path $PARASOFT/bin.linux)
      if (! ${?LD_LIBRARY_PATH}) setenv LD_LIBRARY_PATH 
-     setenv LD_LIBRARY_PATH "/usr/lib:${PARASOFT}/lib.linux:/usr/local/lib:.${STAR_SYS}/lib:${STAF_LIB}:${LD_LIBRARY_PATH}:/opt/star/lib"
+     setenv LD_LIBRARY_PATH "/usr/lib:${PARASOFT}/lib.linux:/usr/local/lib:${STAF_LIB}:${LD_LIBRARY_PATH}:/opt/star/lib"
         limit coredump 0
      setenv BFARCH Linux2
      setenv OBJY_ARCH linux
@@ -254,7 +257,7 @@ switch ($STAR_SYS)
     case "sun4*":
 #  ====================
       if (! ${?LD_LIBRARY_PATH}) setenv LD_LIBRARY_PATH
-      setenv LD_LIBRARY_PATH "/opt/SUNWspro/lib:/usr/openwin/lib:/usr/dt/lib:/usr/local/lib:${PARASOFT}/lib.solaris:.${STAR_SYS}/lib:${STAF_LIB}:${LD_LIBRARY_PATH}"
+      setenv LD_LIBRARY_PATH "/opt/SUNWspro/lib:/usr/openwin/lib:/usr/dt/lib:/usr/local/lib:${PARASOFT}/lib.solaris:${STAF_LIB}:${LD_LIBRARY_PATH}"
 	set path = ($path $PARASOFT/bin.solaris)
       setenv BFARCH SunOS5
       setenv OBJY_ARCH solaris4
@@ -262,7 +265,7 @@ switch ($STAR_SYS)
     case "sunx86_55":
 #  ====================
         if (! ${?LD_LIBRARY_PATH}) setenv LD_LIBRARY_PATH
-        setenv LD_LIBRARY_PATH ".${STAR_SYS}/lib:${STAF_LIB}:${LD_LIBRARY_PATH}"
+        setenv LD_LIBRARY_PATH "${STAF_LIB}:${LD_LIBRARY_PATH}"
         limit coredump 0
     breaksw
     default:
