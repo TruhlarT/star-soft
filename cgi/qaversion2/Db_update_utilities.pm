@@ -139,14 +139,14 @@ sub UpdateQAOffline{
 
   my %runhash; # hash of hashes of hashes
   my %noskip;  # keys are runIDs
-
+  my $fraction = 0.02;
   # organize the new jobs by runID 
   while (my ($jobID, $redone, $runID) = $sthUpdate->fetchrow_array){
     next if !$jobID; # huh?
     $runhash{$runID}{$jobID}{redone}  = $redone;
     
-    # set 1/10 as noskip
-    if (rand() < 0.1 ){
+    # set fraction as noskip
+    if (rand() < $fraction ){
       $runhash{$runID}{$jobID}{noskip}++;
       $noskip{$runID}++;
     }
@@ -286,14 +286,14 @@ sub UpdateQAOfflineFast{
  
   my %runhash; # hash of hashes of hashes
   my %noskip;  # keys are runIDs
-
+  my $fraction=0;
   # organize the new jobs by runID 
   while (my ($jobID, $qadone, $runID) = $sthUpdate->fetchrow_array){
     next if !$jobID; # huh?
     $runhash{$runID}{$jobID}{qadone}  = $qadone;
     
-    # set 1/10 as noskip
-    if (rand() < 0.1 ){
+    # set $fraction as noskip
+    if (rand() < $fraction ){
       $runhash{$runID}{$jobID}{noskip}++;
       $noskip{$runID}++;
     }
