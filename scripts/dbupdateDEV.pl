@@ -23,7 +23,7 @@ require "/afs/rhic.bnl.gov/star/packages/DEV/mgr/dbTJobsSetup.pl";
 my $TOP_DIRD = "/star/rcf/test/dev/";
 my @dir_year = ("year_2001", "year_1h", "year_2003", "year_2004");
 my @node_dir = ("trs_redhat72", "trs_redhat72_opt", "trs_ittf_redhat80");
-my @node_daq = ("daq_redhat72", "daq_redhat72_opt","daq_redhat80.icc"); 
+my @node_daq = ("daq_redhat72", "daq_redhat72_opt","daq_redhat80.icc","daq_ittf_redhat80","daq_ittf_redhat80_opt"); 
 my @hc_dir = ("hc_lowdensity", "hc_standard", "hc_highdensity", "peripheral","pp_minbias","ppl_minbias","dau_minbias","auau_minbias");
 my @daq_dir = ("minbias", "central", "embedding", "ppMinBias", "dAuMinBias", "AuAuMinBias", "AuAu_prodHigh","AuAu_prodLow" );
 
@@ -75,7 +75,7 @@ my $thistime;
 
 ##### setup output directories for DEV with thisDay
 
-for ($i = 0; $i < scalar(@node_dir); $i++) {
+for ($i = 0; $i < scalar(@node_dir) - 1; $i++) {
       for ($ll = 0; $ll < scalar(@hc_dir) - 1; $ll++) {
    $OUT_DIR[$ii] = $TOP_DIRD . $node_dir[$i] . "/" . $testDay . "/". $dir_year[0] . "/" . $hc_dir[$ll];
     print "Output Dir for DEV :", $OUT_DIR[$ii], "\n";
@@ -94,6 +94,9 @@ for ($i = 0; $i < scalar(@node_dir); $i++) {
     $ii++;
 }
 
+ $OUT_DIR[$ii] = $TOP_DIRD . $node_dir[2] . "/" . $testDay . "/". $dir_year[3] . "/" . $hc_dir[7];
+  print "Output Dir for DEV :", $OUT_DIR[$ii], "\n";
+    $ii++;
 
 my $jj = 0;
 #for ($i = 0; $i < scalar(@node_daq); $i++) {
@@ -124,10 +127,19 @@ my $jj = 0;
         $ii++;
 }
 
+    for ($i = 3; $i < 5; $i++) {
+#   for ($ik = 5; $ik < 8; $ik++) { 
+    $OUT_DIR[$ii] = $TOP_DIRD . $node_daq[$i] . "/" . $testDay . "/". $dir_year[2] . "/" . $daq_dir[4];
+   print "Output Dir for DEV :", $OUT_DIR[$ii], "\n";
+        $ii++;
+#    }
+   }
+
+
 ##### setup output directories for DEV with beforeDay
 
 
- for ($i = 0; $i < scalar(@node_dir); $i++) {
+ for ($i = 0; $i < scalar(@node_dir) - 1; $i++) {
 
       for ($ll = 0; $ll < scalar(@hc_dir) - 1; $ll++) {
    $OUT_DIR[$ii] = $TOP_DIRD . $node_dir[$i] . "/" . $beforeDay . "/". $dir_year[0] . "/" . $hc_dir[$ll];
@@ -147,6 +159,11 @@ my $jj = 0;
     $ii++;
 
 }
+
+$OUT_DIR[$ii] = $TOP_DIRD . $node_dir[2] . "/" . $beforeDay . "/". $dir_year[3] . "/" . $hc_dir[7];
+  print "Output Dir for DEV :", $OUT_DIR[$ii], "\n";
+    $ii++;
+
 
 $jj = 0;
 
@@ -175,6 +192,15 @@ $jj = 0;
    print "Output Dir for DEV :", $OUT_DIR[$ii], "\n";
         $ii++;
 }
+
+      for ($i = 3; $i < 5; $i++) {
+#   for ($ik = 5; $ik < 8; $ik++) { 
+    $OUT_DIR[$ii] = $TOP_DIRD . $node_daq[$i] . "/" . $beforeDay . "/". $dir_year[2] . "/" . $daq_dir[4];
+   print "Output Dir for DEV :", $OUT_DIR[$ii], "\n";
+        $ii++;
+#    }
+   }
+
 
 struct FileAttr => {
       fjbID     => '$',
@@ -460,7 +486,7 @@ my @files;
            if( $ltime > 600 && $ltime < 518400 ){         
 #          if( $ltime > 600 ) { 
 #   print "Log time: ", $ltime, "\n";
-#   print $fullname, "\n";
+   print $fullname, "\n";
         &logInfo("$fullname", "$platf");
      $jobTime = $timeS;  
 
