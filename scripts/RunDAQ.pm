@@ -33,13 +33,39 @@
 #
 # Utility (no need for any ddb to be opened)
 #      rdaq_file2hpss               return an HPSS path+file (several methods)
-#      rdaq_mask2string             convert a detector mask to a string
 #      rdaq_status_string           returns a status string from a status val
+#      rdaq_getbit                  Returns the bit position for a given variable
+#                                   saved in a given table. If the second argument 
+#                                   is 1, the value is added to the list of possible
+#                                   ones.
+#      rdaq_bits2string             Returns a string from a bitfield.                 
 #
 # DEV ONLY *** MAY BE CHANGED AT ANY POINT IN TIME ***
 #      rdaq_set_files_where         Not in its final shape.
+#      rdaq_update_entries          For maintainance ONLY
 #
-
+# BACKWARD Compatibility routines
+#      rdaq_mask2string             Returns detector set from detector BitMask.
+#
+#
+# HowTo add a field
+#  Adding a field with a plain type is easy. Just ALTER the table, modify
+#  VALUES() and add a ?, modify the hack routine to make this field
+#  appear at the proper place, eventually modify the MAINTAINER only
+#  routine update_entries to initialize the column, and save ...
+#  For a BITWISE field, do the same AND, in addition, add a 
+#  hash value for that column. The value MUST be a valid existing
+#  table you can create using 
+#  > create table $TBLName (id INT NOT NULL AUTO_INCREMENT, Label CHAR(50) NOT NULL, 
+#  PRIMARY KEY(id), UNIQUE(Label));
+#  The fields of that extra table are expected to be EXACTLY as above i.e. there
+#  are all standardized to avoid proliferation of routines. THERE is nothing else
+#  to do at this level. 
+#  If you have build a script based on get_ffiles() or get_orecords(), you will
+#  need to take into account the fact that the number of fields is larger. The
+#  last field of DAQInfo is expected to be 'Status'. Please, preserve this ...
+#
+#
 use Carp;
 use DBI;
 use Date::Manip ();
@@ -58,9 +84,13 @@ require Exporter;
 	     rdaq_last_run 
 
 	     rdaq_get_files rdaq_get_ffiles rdaq_get_orecords 
-	     rdaq_set_files rdaq_set_files_where
+	     rdaq_set_files 
 
-	     rdaq_file2hpss rdaq_mask2string rdaq_status_string
+	     rdaq_file2hpss rdaq_mask2string rdaq_status_string 
+	     rdaq_getbit rdaq_bits2string
+
+	     rdaq_set_files_where rdaq_update_entries
+
 	     );
 
 
@@ -81,29 +111,17 @@ $dbname    = "operation";
 
 $HPSSBASE  = "/home/starsink/raw/daq";        # base path for HPSS file loc.
 
+
 # Required tables on $DDBSERVER 
-@REQUIRED  = ("daqFileTag","daqSummary","triggerSet","beamInfo","magField");
+@REQUIRED  = ("daqFileTag","daqSummary",
+	      "triggerSet","detectorSet",
+	      "beamInfo","magField");
 
 
 #
 # There should be NO OTHER configuration below this line but
 # only composit variables or assumed fixed values.
 #
-
-
-# The following was dumped from detectorTypes table in the RunLog
-# database.
-$DETECTOR[0]="tpc";
-$DETECTOR[1]="svt";
-$DETECTOR[2]="tof";
-$DETECTOR[3]="emc";
-$DETECTOR[4]="fpd";
-$DETECTOR[5]="ftpc";
-$DETECTOR[6]="pmd";
-$DETECTOR[7]="rich";
-$DETECTOR[8]="trg";
-$DETECTOR[9]="l3";
-$DETECTOR[10]="sc";
 
 
 # Build ddb ref here.
@@ -118,6 +136,16 @@ $ROUND{"scaleFactor"} = 1;
 $ROUND{"BeamE"}       = 2; # does not work with 1
 
 
+#
+# Those fields are indicative of a bitmask operation.
+# A bitwise operation will affect the functions as
+# described above. The value of this hash array is
+# the table name containing the bit position ...
+#
+$BITWISE{"TrgMask"}    = "TriggerBits";
+$BITWISE{"TrgSetup"}   = "TriggerSetup";
+$BITWISE{"DetSetMask"} = "DetectorTypes";
+
 
 #
 # Insert an element in the o-database.
@@ -129,7 +157,7 @@ sub rdaq_add_entry
     my($sth);
 
     if(!$obj){ return 0;}
-    $sth = $obj->prepare("INSERT IGNORE INTO $dbtable VALUES(?,?,?,?,?,?,?,?,?,?,0)");
+    $sth = $obj->prepare("INSERT IGNORE INTO $dbtable VALUES(?,?,?,?,?,?,?,?,?,?,?,?,0)");
     $sth->execute(@values);
     $sth->finish();
     1;
@@ -147,15 +175,49 @@ sub rdaq_add_entries
     if(!$obj){ return 0;}
 
     if($#records != -1){
-	$sth = $obj->prepare("INSERT INTO $dbtable VALUES(?,?,?,?,?,?,?,?,?,?,0)");
+	$sth = $obj->prepare("INSERT INTO $dbtable VALUES(?,?,?,?,?,?,?,?,?,?,?,?,0)");
 	if($sth){
 	    foreach $line (@records){
 		@values = split(" ",$line);
 		if($sth->execute(@values)){
 		    $count++;
+		} else {
+		    &info_message("add_entries","Failed to add [$line]\n");
 		}
 	    }
 	    $sth->finish();    
+	}
+    }
+    $count;
+}
+
+
+#
+# Update a few field. This routine serves whenever we add a column and
+# want to have a specific field updated. This has to be done manually.
+#
+sub rdaq_update_entries
+{
+    my($obj,@records)=@_;
+    my($sth,$line,@values);
+    my($count);
+   
+    $count=0;
+    if(!$obj){  return 0;}
+
+    if($#records != -1){
+	$sth = $obj->prepare("UPDATE $dbtable SET DetSetMask=?, TrgSetup=?, TrgMask=? ".
+			     "WHERE file=?");
+	if($sth){
+	    foreach $line (@records){
+		@values = split(" ",$line);
+		if($sth->execute($values[9],$values[10],$values[11],$values[0]) ){
+		    $count++;
+		}
+	    }
+	    $sth->finish();    
+	} else {
+	    &info_message("update_entries","prepare() failed\n");	    
 	}
     }
     $count;
@@ -206,13 +268,17 @@ sub rdaq_check_entries
 {
     my($obj,$since)=@_;
     my($tref);
+    my(@all);
 
     $tref = Date::Manip::DateCalc("today","-$since minutes");
     $tref = Date::Manip::UnixDate($tref,"%Y%m%H%M%S00");
     
-
     undef;
 }
+
+
+
+
 
 
 #
@@ -246,7 +312,6 @@ sub rdaq_raw_files
 {
     my($obj,$from,$limit)=@_;
     my($sth,$cmd);
-    my($stht);
     my(@all,@res);
     my($tref);
 
@@ -263,9 +328,6 @@ sub rdaq_raw_files
     $tref = Date::Manip::DateCalc("today","-1 minute");
     $tref = Date::Manip::UnixDate($tref,"%Y%m%H%M%S00");
 
-    # Trigger selection
-    $stht = $obj->prepare("SELECT detectorSet.detectorID FROM detectorSet ".
-			  "WHERE detectorSet.runNumber=?");
 
     # We will select on RunStatus == 0
     $cmd  = "SELECT daqFileTag.file, daqSummary.runNumber, daqFileTag.numberOfEvents, daqFileTag.beginEvent, daqFileTag.endEvent, magField.current, magField.scaleFactor, beamInfo.yellowEnergy+beamInfo.blueEnergy, CONCAT(beamInfo.blueSpecies,beamInfo.yellowSpecies) FROM daqFileTag, daqSummary, magField, beamInfo  WHERE daqSummary.runNumber=daqFileTag.run AND daqSummary.runStatus=0 AND daqSummary.destinationID In(1,4) AND daqFileTag.file LIKE '%physics%' AND magField.runNumber=daqSummary.runNumber AND magField.entryTag=0 AND beamInfo.runNumber=daqSummary.runNumber AND beamInfo.entryTag=0";
@@ -295,7 +357,7 @@ sub rdaq_raw_files
 	# Massage the results to return a non-ambiguous information
 	# We are still lacking 
 	#print join("|",@res)."\n";
-	push(@all,&rdaq_hack($stht,@res));
+	push(@all,&rdaq_hack($obj,@res));
     }
     @all;
 }
@@ -306,27 +368,46 @@ sub rdaq_raw_files
 # should remain the same.
 sub rdaq_hack
 {
-    my($stht,@res)=@_;
-    my($run,$mask);
+    my($obj,@res)=@_;
+    my($stht,$sthl,$sths);
+    my(@items,$line,$run,$mask);
+
 
     # Add a default BeamBeam at the last element.
     # Will later be in beamInfo table. Use global
     # variable for spead.
     # THIS IS NOW IN THE DATABASE. Moi : Jul 20th 2001
     #push(@res,"AuAu");
-    
 
-    # Sort out trigger information. This will have to remain
+    
+    # Dataset selection, the DetectorTypes was filled by hand.
+    $stht = $obj->prepare("SELECT detectorTypes.name FROM detectorTypes, detectorSet ".
+			  "WHERE detectorSet.detectorID=detectorTypes.detectorID AND ".
+			  "detectorSet.runNumber=?");
+
+    # Trigger label
+    $sthl = $obj->prepare("SELECT triggerLabel,numberOfEvents FROM triggerSet ".
+			  "WHERE runNumber=? ORDER BY triggerLabel DESC");
+
+    # Trigger Setup
+    $sths = $obj->prepare("SELECT runDescriptor.trgSetupName FROM runDescriptor ".
+			  "WHERE runDescriptor.runNumber=? ".
+			  "ORDER BY trgSetupName DESC");
+
+
+    #
+    # Sort out Dataset information. This will have to remain
     # as is.
+    #
     $run = $res[1];
     if( ! defined($DETSETS{$run}) ){
-	&info_message("hack","Checking run $run\n");
+	#&info_message("hack","Checking DataSet for run $run\n");
 	$stht->execute($run);
 	if( ! $stht ){
-	    &info_message("hack","$run cannot be evaluated. No SET info.\n");
+	    &info_message("hack","$run cannot be evaluated. No DataSET info.\n");
 	} else {
 	    while( defined($line = $stht->fetchrow() ) ){
-		$mask |= 1 << $line;
+		$mask |= (1 << &rdaq_getbit("DetSetMask",$line,1));
 	    }
 	}
 	$DETSETS{$run} = $mask;
@@ -335,8 +416,57 @@ sub rdaq_hack
     }
     push(@res,$mask);
 
+
+    #
+    # This block is for the TriggerSetup
+    #
+    if( ! defined($TRGSET{$run}) ){
+	#&info_message("hack","Checking TrgMask for run $run -> ");
+	$mask = 0;
+	$sths->execute($run); 
+	if( ! $sths ){
+	    &info_message("hack","$run cannot be evaluated. No TriggerSetup info.\n");
+	    $mask = 0;
+	} else {
+	    while( defined($line = $sths->fetchrow()) ){
+		$mask |= (1 << &rdaq_getbit("TrgSetup",$line,1));
+	    }
+	}
+	$TRGSET{$run} = $mask;
+    } else {
+	$mask = $TRGSET{$run};
+    }
+    push(@res,$mask);
+
+
+    #
+    # Now, add to this all possible trigger mask
+    #
+    if( ! defined($TRGMASK{$run}) ){
+	#&info_message("hack","Checking TrgMask for run $run -> ");
+	$mask = 0;
+	$sthl->execute($run); 
+	if( ! $sthl ){
+	    &info_message("hack","$run cannot be evaluated. No TriggerLabel info.\n");
+	    $mask = 0;
+	} else {
+	    while( @items = $sthl->fetchrow_array() ){
+		if($items[1] != 0){
+		    $mask |= (1 << &rdaq_getbit("TrgMask",$items[0],1));
+		}
+	    }
+	}
+	$TRGMASK{$run} = $mask;
+    } else {
+	$mask = $TRGMASK{$run};
+    }
+    push(@res,$mask);
+
+
+
     join(" ",@res);
 }
+
 
 
 
@@ -450,9 +580,10 @@ sub rdaq_get_files
 sub rdaq_get_orecords
 {
     my($obj,$Conds,$limit,$mode)=@_;
-    my($cmd,$el,$val,$sth);
+    my($cmd,$el,$val,$tmp,$sth);
     my(@Values);
     my($file,@files,@items);
+    my($flag);
 
     if(!$obj){ return undef;}
 
@@ -465,18 +596,38 @@ sub rdaq_get_orecords
     foreach $el (keys %$Conds){
 	$val = $$Conds{$el};
 	if( $el eq "Status" && $val == -1){ next;}
+	
+	$flag = 1;
 
 	if( defined($ROUND{$el}) ){
 	    $val = "ROUND($el,$ROUND{$el})";
+	} elsif ( defined($BITWISE{$el}) ){
+	    $flag= 0;
+	    $tmp = (split(":",$val))[0];
+	    if( $tmp == 0){
+		$val = "($el=0)";
+	    } else {
+		$val = "($el & (1 << $tmp))";
+	    }
 	} else {
 	    $val = $el;
 	}
+
+	# check WHERE keyword presence or not
 	if($cmd !~ /WHERE/){
-	    $cmd .= " WHERE $val=?";
+	    $cmd .= " WHERE $val";
 	} else  {
-	    $cmd .= " AND $val=?";
+	    $cmd .= " AND $val";
 	}
-	push(@Values,$$Conds{$el});
+	# check if selection is completely defined
+	# or not.
+	if( $flag){
+	    $cmd .= "=?";
+	    push(@Values,$$Conds{$el});
+	} else {
+	    # the syntax is a bit operation therefore complete
+	}
+
     }
     $cmd .= " ORDER BY file DESC";
     if( $limit > 0){	            
@@ -560,9 +711,13 @@ sub rdaq_list_field
     # unsafe. It works for 'scaleFactor' but not for 'BeamE' (??).
     # We will therefore make the unicity ourselves.
     if( defined($ROUND{$field}) ){
-	$cmd = "SELECT DISTINCT ROUND($field,$ROUND{$field}) FROM $dbtable";
+	$cmd   = "SELECT DISTINCT ROUND($field,$ROUND{$field}) FROM $dbtable";
+    } elsif ( defined($BITWISE{$field}) ) {
+	# this works fine
+	$cmd   = "SELECT CONCAT(id,':',Label) FROM $BITWISE{$field}";
+	$field = "id";
     } else {
-	$cmd = "SELECT DISTINCT $field FROM $dbtable";
+	$cmd   = "SELECT DISTINCT $field FROM $dbtable";
     }
     $cmd .= " ORDER BY $field DESC";
     #print "$cmd\n";
@@ -584,11 +739,11 @@ sub rdaq_list_field
 		if($i == $limit){ last;}
 	    }
 	} else {
-	    &info_message("list_field","Execute failed for $field");
+	    &info_message("list_field","Execute failed for $field\n");
 	}
 	$sth->finish();
     } else {
-	&info_message("list_field","[$cmd] could no be prepared");
+	&info_message("list_field","[$cmd] could no be prepared\n");
     }
     @all;
 }
@@ -597,6 +752,59 @@ sub rdaq_list_field
 # --------------------
 # Utility routines.
 # --------------------
+#
+# Returns the bit placement for a trigger Label
+# uses global associative array TRGBITS to save
+# processing time.
+# A return value of 0 will mean bit 0 set to 1
+# and indicate an unknown trigger (missing info
+# in the table).
+#
+sub rdaq_getbit
+{
+    my($field,$el,$mode)=@_;
+    my($tbl,$rv,$sthc,$oobj);
+
+    if( $field eq ""){         return 0; }
+    if( $el    eq ""){         return 0; }
+    if( ! defined($tbl = $BITWISE{$field})){ return 0;}
+
+    if( ! defined($mode) ){ $mode = 0; }
+
+    if( ! defined($ALLBITS{$el}) ){
+	# Needs to sort out the bit value for this guy but only if not
+	# already in the database.
+	$rv = 0;
+
+	if($mode == 1){
+	    # Enter that value in.
+	    if( $oobj = rdaq_open_odatabase() ){
+		#&info_message("getbit","Attempt to insert $el\n");
+		$sthc = $oobj->prepare("INSERT IGNORE INTO $tbl VALUES(0,'$el')");
+		$sthc->execute();
+		$sthc->finish();
+
+		$sthc = $oobj->prepare("SELECT $tbl.id FROM $tbl ".
+				       "WHERE $tbl.Label=?");
+		if($sthc){
+		    $sthc->execute($el);
+		    if( defined($val = $sthc->fetchrow()) ){
+			$ALLBITS{$el} = $val;
+			$rv = $val;
+		    } 
+		    $sthc->finish();
+		}
+	    }
+	    rdaq_close_odatabase($oobj);
+	}
+	#print "$el -> $rv\n";
+	$rv;
+    } else {
+	$ALLBITS{$el};
+    }
+}
+
+
 
 #
 # Returns the status string for a given entry.
@@ -607,7 +815,7 @@ sub rdaq_status_string
     my($str);
 
     $str = "Unknown";
-    $str = "Recorded"  if($sts == 0);
+    $str = "new"       if($sts == 0);
     $str = "Submitted" if($sts == 1);
     $str = "Processed" if($sts == 2);
     $str = "QADone"    if($sts == 3); # i.e. + QA
@@ -615,29 +823,49 @@ sub rdaq_status_string
     $str;
 }
 
-# Provide a decoding method for the above
-# built mask, We can hardcode values (they
-# won't change);
+
+# BACKWARD Compatibility only
 sub rdaq_mask2string
 {
-    my($mask)=@_;
-    my($st);
-
-    if( ! defined($MASKS[$mask]) ){
-	# build string
-	for($i=0; $i <= $#DETECTOR ; $i++){
-	    if( ($mask & (1 << $i)) >> $i ){
-		$st .= ".$DETECTOR[$i]";
-	    }
-	}
-	$st =~ s/\.//;
-	$MASKS[$mask] = $st;
-    } else {
-	# fast = in memory
-	$st = $MASKS[$mask];
-    }
-    $st;
+    my($val)=@_;
+    return rdaq_bits2string("DetSetMask",$val);
 }
+
+#
+# Any bits 'val' from field column 'field'
+# will be associated to a string. Noet that
+# the column needs to have a BITWISE association
+# entry for this to work.
+#
+sub rdaq_bits2string
+{
+    my($field,$val)=@_;
+    my($str,@items);
+    my($oobj,$sth);
+
+    if( ! defined($BITWISE{$field}) ){  return "unknown";}
+
+    if( ! defined($BITS2STRING{"$field-$val"}) ){
+	$str = "";
+	$oobj= rdaq_open_odatabase();
+	#print "SELECT * FROM $BITWISE{$field}\n";
+	$sth = $oobj->prepare("SELECT * FROM $BITWISE{$field} ORDER BY Label ASC");
+	if($sth){
+	    $sth->execute();
+	    while( @items = $sth->fetchrow_array() ){
+		$str .= "$items[1]." if( $val & (1 << $items[0]) );
+	    } 
+	    chop($str);
+	}
+	rdaq_close_odatabase($oobj);
+	if($str eq ""){ $str = "unknown";}
+	$BITS2STRING{"$field-$val"} = $str;
+    }
+    $BITS2STRING{"$field-$val"};
+}
+
+
+
 
 #
 # Accept a raw name, return a fully specified HPSS path
