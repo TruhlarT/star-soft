@@ -357,7 +357,7 @@ $operators[0] = "<=";
 $operators[1] = ">=";
 $operators[2] = "<>";
 $operators[3] = "!=";
-$operators[4] = "==";
+$operators[4] = "=="; # this operator is fake
 $operators[5] = "!~";
 $operators[6] = "=";
 $operators[7] = "][";
@@ -772,9 +772,9 @@ sub disentangle_param {
 
  OPS: foreach my $op (@operators )
     {
-	$op =~ s/\[/\\\[/g;
-	$op =~ s/\]/\\\]/g;
-
+	$op = '\]\[' if ($op eq "][");  # unfortunatly need 
+	$op = '\[\]' if ($op eq "[]");  # to be escaped
+	
 	if ($params =~ m/(.*)($op)(.*)/){
 	    ($keyword, $operator, $value) = ($1,$2,$3);
 	    last if (defined $keyword and defined $value);
