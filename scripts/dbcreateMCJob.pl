@@ -16,7 +16,7 @@ use File::Basename;
 use File::Find;
 use Net::FTP;
 
-require "/afs/rhic.bnl.gov/star/packages/scripts/dbCpProdSetup.pl";
+require "/afs/rhic.bnl.gov/star/packages/cgi/dbCpProdSetup.pl";
 
 my $debugOn=0;
 

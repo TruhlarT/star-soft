@@ -12,7 +12,7 @@
 # 
 ################################################################################################
 
-require "/afs/rhic.bnl.gov/star/packages/scripts/dbCpProdSetup.pl";
+require "/afs/rhic.bnl.gov/star/packages/cgi/dbCpProdSetup.pl";
 
 use File::Find;
 use Class::Struct;

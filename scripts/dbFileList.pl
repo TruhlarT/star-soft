@@ -11,7 +11,7 @@ use Mysql;
 use Class::Struct;
 use File::Basename;
 
-require "/afs/rhic.bnl.gov/star/packages/scripts/dbCpProdSetup.pl";
+require "/afs/rhic.bnl.gov/star/packages/cgi/dbCpProdSetup.pl";
 
 my $debugOn=0;
 
