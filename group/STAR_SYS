@@ -1,5 +1,8 @@
 #!/bin/csh
 #  $Log: STAR_SYS,v $
+#  Revision 1.21  2000/02/15 23:36:29  fisyak
+#  Set CC5 default for Solaris
+#
 #  Revision 1.20  2000/01/26 17:29:05  fisyak
 #  Add arla afs
 #
@@ -74,7 +77,7 @@
 #
 #  Revision 1.1.1.1  1997/12/31 14:35:23  fisyak
 #
-#             Last modification $Date: 2000/01/26 17:29:05 $ 
+#             Last modification $Date: 2000/02/15 23:36:29 $ 
 #
 # Determine STAR_SYS variable.
 #
@@ -97,7 +100,7 @@ if ("${STAR_SYS}" == "i386_linux22" || "${STAR_SYS}" == "i386_linux2") then
     if ("$redhat" == "6.0") setenv STAR_SYS "i386_redhat60"
     if ("$redhat" == "6.1") setenv STAR_SYS "i386_redhat61"
 endif
-if ("$STAR_SYS" == "i386_linux61") setenv STAR_SYS "i386_redhat61"
+if ("$STAR_SYS" == "i386_linux61"|| "$STAR_SYS" == "i386_linux6") setenv STAR_SYS "i386_redhat61"
 if ("$STAR_SYS" == "i386_linux22"|| "$STAR_SYS" == "i386_redhat50" || \
     "$STAR_SYS" == "i386_linux2" || "$STAR_SYS" == "i386_linux3") setenv STAR_SYS "i386_redhat51"
 if (${STAR_SYS} == "") then
@@ -172,6 +175,8 @@ if ($?EGCS_ON  == 1 && "${STAR_SYS}" == "i386_redhat60") setenv STAR_HOST_SYS i3
 if ($?USE_EGCS == 1 && "${STAR_SYS}" == "i386_redhat51") setenv STAR_HOST_SYS i386_redhat51egcs
 if ($?USE_EGCS == 1 && "${STAR_SYS}" == "i386_redhat60") setenv STAR_HOST_SYS i386_redhat60egcs
 if ($?USE_KCC  == 1 && "${STAR_SYS}" == "i386_redhat60") setenv STAR_HOST_SYS i386_redhat60kcc
+if ($?USE_CC4  == 1 && $?USE_CC5  == 1) unsetenv USE_CC5
+if ($?USE_CC4  == 0 && "${STAR_SYS}" == "sun4x_56") setenv USE_CC5 "YES"
 if ($?USE_CC5  == 1 && "${STAR_SYS}" == "sun4x_56") setenv STAR_HOST_SYS sun4x_56_CC5
 if ($?USE_CC5C == 1 && "${STAR_SYS}" == "sun4x_56") setenv STAR_HOST_SYS sun4x_56_CC5C
 
