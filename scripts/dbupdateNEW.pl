@@ -24,7 +24,7 @@ my $TOP_DIRD = "/star/rcf/test/new/";
 my @dir_year = ("year_2001", "year_1h", "year_2003", "year_2004");
 my @node_dir = ("trs_redhat72", "trs_redhat72_opt");
 my @node_daq = ("daq_redhat72", "daq_redhat72_opt"); 
-my @hc_dir = ("hc_lowdensity", "hc_standard", "hc_highdensity", "peripheral","pp_minbias","ppl_minbias","dau_minbias");
+my @hc_dir = ("hc_lowdensity", "hc_standard", "hc_highdensity", "peripheral","pp_minbias","ppl_minbias","dau_minbias","auau_minbias");
 my @daq_dir = ("minbias", "central", "ppMinBias", "dAuMinBias", "AuAuMinBias", "AuAu_prodHigh","AuAu_prodLow" );
 
 my @OUT_DIR;
@@ -58,6 +58,9 @@ for ($i = 0; $i < scalar(@node_dir); $i++) {
   print "Output Dir for NEW :", $OUT_DIR[$ii], "\n";
     $ii++;
 
+   $OUT_DIR[$ii] = $TOP_DIRD . $node_dir[$i] . "/" . $dir_year[3] . "/" . $hc_dir[7];
+  print "Output Dir for NEW :", $OUT_DIR[$ii], "\n";
+    $ii++;
 }
 
 
