@@ -397,7 +397,7 @@ my @files;
        $timeS = sprintf ("%4.4d-%2.2d-%2.2d %2.2d:%2.2d:00",
                        $fullyear,$mo,$dy,$hr,$min);    
 
-           if( $ltime > 1200 && $ltime < 345600 ){         
+           if( $ltime > 1200 && $ltime < 518000 ){         
 #          if( $ltime > 1200) { 
 #   print "Log time: ", $ltime, "\n";
         &logInfo("$fullname", "$platf");
@@ -606,7 +606,7 @@ foreach  $eachOutNDir (@OUT_DIR) {
   }
        $form = "root";
     my $comname = basename("$flname",".root");
-      if ($comname =~ m/\.([a-z0-9_]{3,})$/) {
+      if ($comname =~ m/\.([A-Za-z0-9_]{3,})$/) {
       $comp = $1;
     }     
       my $bsname = basename("$comname","$comp");
@@ -649,13 +649,26 @@ foreach  $eachOutNDir (@OUT_DIR) {
     elsif($EvTp eq "pp_minbias") {          
          $EvReq = 1000;
  }
+      
+      if( $bsname =~ /hc_highdensity/) {
+      $lgFile = $eachOutNDir ."/" . $bsname ."16_evts.log" ;
+      }elsif( $bsname =~ /hc_lowdensity/) {
+      $lgFile = $eachOutNDir ."/" . $bsname ."400_evts.log" ;
+      }elsif( $bsname =~ /hc_standard/) {
+      $lgFile = $eachOutNDir ."/" . $bsname ."40_evts.log" ;
+     }else{
+       $lgFile = $eachOutNDir ."/" . $bsname ."log" ;
+     }
 
-       $lgFile = $eachOutNDir ."/" . $bsname . "log";
+     if( $EvGen eq "hadronic_cocktail" and $flname =~ /tags.root/)  {
+       $lgFile = $eachOutNDir ."/" . $bsname ."log" ;
+     }
 
+#      print $lgFile, "\n"; 
        if ( -f $lgFile) {
           ($size, $mTime) = (stat($lgFile))[7, 9];
             $ltime = $now - $mTime;
-           if( $ltime > 1200 && $ltime < 345600 ){         
+           if( $ltime > 1200 && $ltime < 518000 ){         
 #            if( $ltime > 1200) { 
 	     foreach my $eachLogFile (@testJobStFiles) {
 
@@ -689,7 +702,7 @@ foreach  $eachOutNDir (@OUT_DIR) {
                       $fullyear,$mo,$dy,$hr,$min);
 
      $Fname = $eachOutNDir . "/" .$flname;
-     $flagHash{ $Fname} = 1;
+     $flagHash{$Fname} = 1;
  
      $fObjAdr = \(FileAttr->new());
 
