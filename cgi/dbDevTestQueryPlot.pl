@@ -1,9 +1,12 @@
 #!/opt/star/bin/perl 
 #-w
 #
-# $Id: dbDevTestQueryPlot.pl,v 1.1 2001/02/14 16:59:37 liuzx Exp $
+# $Id: dbDevTestQueryPlot.pl,v 1.2 2001/02/14 18:18:39 liuzx Exp $
 #
 # $Log: dbDevTestQueryPlot.pl,v $
+# Revision 1.2  2001/02/14 18:18:39  liuzx
+# Missing max_y added!
+#
 # Revision 1.1  2001/02/14 16:59:37  liuzx
 # Initial Version: query for nightly test in DEV library.
 #                   (currently only last five days)
@@ -34,7 +37,7 @@ my @data;
 my @legend;
 
 print <<END;
-<META HTTP-equiv="Refresh" content="0; URL-HTTP://duvall.star.bnl.gov/cgi-bin/liuzx/star/dbDevQueryPlot.pl">
+<META HTTP-equiv="Refresh" content="0; URL-HTTP://duvall.star.bnl.gov/cgi-bin/liuzx/star/dbDevTestQueryPlot.pl">
 END
 
 my $mplotVal;
@@ -124,8 +127,14 @@ for ($d_week = 0; $d_week <=4; $d_week++) {
 	if ($fields[0] =~ /opt/) {
 	    $blank ++;
 	    $point2[$d_week] = $fields[1];
+	    if($point2[$d_week] > $max_y) {
+		$max_y = $point2[$d_week];
+		}
 	    if ($plotVal eq "MemUsage") {
 		$point3[$d_week] = $fields[2];
+		if ($point3[$d_week] > $max_y) {
+		   $max_y = $point3[$d_week];
+		}
 	    }
 	    #print "opt ",$point2[$d_week],"\t",$point3[$d_week],"\n";
 	} else {
