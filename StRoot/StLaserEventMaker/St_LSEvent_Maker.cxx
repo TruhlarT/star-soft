@@ -1,7 +1,7 @@
-// $Id: St_LSEvent_Maker.cxx,v 1.1 1999/04/27 14:29:31 love Exp $
+// $Id: St_LSEvent_Maker.cxx,v 1.1.1.1 1999/04/27 14:29:31 love Exp $
 // $Log: St_LSEvent_Maker.cxx,v $
-// Revision 1.1  1999/04/27 14:29:31  love
-// Initial revision
+// Revision 1.1.1.1  1999/04/27 14:29:31  love
+// First release of Laser Event
 //
 //copied from St_tpt_Maker
 //
@@ -181,7 +181,7 @@ Int_t St_LSEvent_Maker::Make(){
 //_____________________________________________________________________________
 void St_LSEvent_Maker::PrintInfo(){
   printf("**************************************************************\n");
-  printf("* $Id: St_LSEvent_Maker.cxx,v 1.1 1999/04/27 14:29:31 love Exp $\n");
+  printf("* $Id: St_LSEvent_Maker.cxx,v 1.1.1.1 1999/04/27 14:29:31 love Exp $\n");
   printf("**************************************************************\n");
   if (Debug()) StMaker::PrintInfo();
 }

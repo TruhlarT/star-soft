@@ -1,7 +1,7 @@
-// $Id: St_LSEvent_Maker.h,v 1.1 1999/04/27 14:29:31 love Exp $
+// $Id: St_LSEvent_Maker.h,v 1.1.1.1 1999/04/27 14:29:31 love Exp $
 // $Log: St_LSEvent_Maker.h,v $
-// Revision 1.1  1999/04/27 14:29:31  love
-// Initial revision
+// Revision 1.1.1.1  1999/04/27 14:29:31  love
+// First release of Laser Event
 //
 
 
