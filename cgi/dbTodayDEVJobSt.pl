@@ -84,7 +84,7 @@ struct FileAttr => {
  &beginHtml();
 
 
-$sql="SELECT path, logFile, jobStatus, NoEventDone, memUsageF, memUsageL, CPU_per_evt_sec, createTime FROM $JobStatusT where path LIKE '%$testDay%' AND avail = 'Y'";
+$sql="SELECT path, logFile, jobStatus, NoEventDone, memUsageF, memUsageL, CPU_per_evt_sec, createTime FROM $JobStatusT where path LIKE '%$testDay%' AND path LIKE '%redhat61%' AND avail = 'Y'";
  $cursor =$dbh->prepare($sql)
    || die "Cannot prepare statement: $DBI::errstr\n";
  $cursor->execute;
@@ -132,6 +132,7 @@ $sql="SELECT path, logFile, jobStatus, NoEventDone, memUsageF, memUsageL, CPU_pe
         $myMemL  = ($$eachFile)->memL; 
         $myCPU   = ($$eachFile)->mCPU;          
         $myCtime = ($$eachFile)->timeS;  
+    next if $myPath =~ /tfs_/;
 
    &printRow();
 
