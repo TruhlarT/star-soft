@@ -52,7 +52,7 @@ $thisDay = '00'.$thisday;
 &beginHtml();
 
 
-$sql="SELECT dataset, path, fName, createTime FROM $FileCatalogT where insertTime like '$thisDay%' AND fName like '%dst.root' AND type = 'daq_reco'";
+$sql="SELECT dataset, path, fName, createTime FROM $FileCatalogT where insertTime like '$thisDay%' AND fName like '%dst.root' AND type = 'daq_reco' and jobID like '%$prodPer[0]%' ";
 $cursor =$dbh->prepare($sql)
   || die "Cannot prepare statement: $DBI::errstr\n";
 $cursor->execute;
