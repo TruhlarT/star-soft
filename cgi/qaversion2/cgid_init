@@ -8,7 +8,7 @@
 # info.
 #
 # cgid_init also allows the user to shut down cgid and the ssh forwarding in
-# one step, with "cgid_init -k".
+# one step, with "cgid_init -k".  
 #
 # "cgid_init -q" takes no action, but
 # shows the pid of ssh & cgid, or 0 if not running (implies "-v")
@@ -63,13 +63,15 @@ if (!$query){
     if (!$pid && !$kill ){             #start it
 	print "starting ssh...\n";
 	
-	system("ssh -x -f -R 8080:localhost:8080 $webServer $sleepCmd"); 
+	system("ssh -x -f -R 8080:localhost:8080 $webServer $sleepCmd")
+	    or die "could not run ssh forwarding"; 
 	
 	print "...ssh started\n";
     } elsif ($pid && $kill){           #stop it
 	print "stopping ssh...\n";
 	
-	system("kill $pid");
+	system("kill $pid") 
+	    or die "could not kill ssh forwarding";
 	
 	print "...ssh stopped\n";
     }
@@ -83,13 +85,15 @@ if (!$query){
 	chdir $qaPath or die "cannot chdir to $qaPath\n";
 	print "starting cgid in " . getcwd() . "...\n";
 	
-	system("./cgid &");
+	system("./cgid &") 
+	    or die "could not run cgid";
 
 	print "...cgid started\n";
     }elsif ($pid && $kill){
 	print "stopping cgid...\n";
 	
-	system("kill -INT $pid");
+	system("kill -INT $pid")
+	    or die "could not kill cgid";
 	
 	print "...cgid stopped\n";
     }

@@ -56,7 +56,7 @@ my $request =
 #
 
 my $response = $userAgent->request($request);
-my @lines = split("\n", $response->content);
+my @lines = split("\n", $response->as_string);
 
 #
 # parse the links inside html tags to make them point back to 
@@ -65,7 +65,7 @@ my @lines = split("\n", $response->content);
 
 foreach my $line (@lines){
     $line =~ s{(<[^<]*)(/pro/|/v2/|/ben/|/bum/|/peter/)([^>]*>)}
-              {$1/cgi-bin/bnorman/qa/nph-http_forward?$2$3}g;
+              {$1/devcgi/qaversion2/nph-http_forward?$2$3}g;
     print $line . "\n";
 }
 
