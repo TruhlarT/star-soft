@@ -1,6 +1,9 @@
-#       $Id: group_env.csh,v 1.8 1998/05/01 22:55:43 fisyak Exp $
+#       $Id: group_env.csh,v 1.9 1998/05/12 12:14:20 fisyak Exp $
 #	Purpose:	STAR group csh setup 
 #       $Log: group_env.csh,v $
+#       Revision 1.9  1998/05/12 12:14:20  fisyak
+#       Clean up
+#
 #       Revision 1.8  1998/05/01 22:55:43  fisyak
 #       add dropit for PATH
 #
@@ -39,31 +42,26 @@ setenv STAR_ROOT ${AFS_RHIC}/star;           if ($ECHO) echo   "Setting up STAR_
 if ( ! $?GROUP_DIR )  setenv GROUP_DIR ${STAR_ROOT}/group
 # Defined in CORE
 if ( ! $?GROUP_PATH ) setenv GROUP_PATH ${STAR_ROOT}/group
-#setenv GROUPPATH  "__NONE__"
 setenv GROUPPATH  $GROUP_PATH
-#if ($ECHO && -r ${GROUP_DIR}/logo )                      cat  ${GROUP_DIR}/logo  
 setenv STAR_PATH ${STAR_ROOT}/packages;      if ($ECHO) echo   "Setting up STAR_PATH = ${STAR_PATH}"       
 if ($?STAR_LEVEL == 0) setenv STAR_LEVEL pro
-setenv LEVEL_STAR $STAR_LEVEL
 setenv STAR_VERSION `ls -l $STAR_PATH | grep "${STAR_LEVEL} ->" |cut -f2 -d">"`  
-setenv VERSION_STAR $STAR_VERSION
 setenv STAR $STAR_PATH/${STAR_LEVEL} ;       if ($ECHO) echo   "Setting up STAR      = ${STAR}"
 setenv STAR_MGR $STAR/mgr
 source ${GROUP_DIR}/STAR_SYS;    
-setenv SYS_STAR ${STAR_SYS}
-setenv SYS_HOST_STAR ${STAR_HOST_SYS}
 setenv STAR_LIB  $STAR/lib/${STAR_HOST_SYS}; if ($ECHO) echo   "Setting up STAR_LIB  = ${STAR_LIB}"
-setenv LIB_STAR  ${STAR_LIB}
-#setenv STAR_BIN  $STAR/bin/${STAR_HOST_SYS}; if ($ECHO) echo   "Setting up STAR_BIN  = ${STAR_BIN}"
 setenv STAR_BIN  $STAR/asps/../.${STAR_HOST_SYS}/bin  ; if ($ECHO) echo   "Setting up STAR_BIN  = ${STAR_BIN}"
-setenv BIN_STAR  ${STAR_BIN}
 setenv STAR_PAMS $STAR/pams;                 if ($ECHO) echo   "Setting up STAR_PAMS = ${STAR_PAMS}"
-setenv PAMS_STAR ${STAR_PAMS}
 setenv STAR_DATA ${STAR_ROOT}/data;          if ($ECHO) echo   "Setting up STAR_DATA = ${STAR_DATA}"
 setenv STAR_CALIB ${STAR_ROOT}/calib;        if ($ECHO) echo   "Setting up STAR_CALIB= ${STAR_CALIB}"
 setenv CVSROOT   $STAR_PATH/repository;      if ($ECHO) echo   "Setting up CVSROOT   = ${CVSROOT}"
 setenv TEXINPUTS :${GROUP_DIR}/latex/styles
 setenv GROUPPATH "${GROUP_DIR}:${STAR_MGR}:${STAR_BIN}"
+if ( -x /afs/rhic/star/group/dropit) then
+# clean-up PATH
+  setenv MANPATH `/afs/rhic/star/group/dropit -p ${MANPATH}`
+  setenv PATH `/afs/rhic/star/group/dropit GROUPPATH`
+endif
 setenv PATH "/usr/afsws/bin:/usr/afsws/etc:/opt/star/bin:/opt/rhic/bin:/usr/sue/bin:/usr/local/bin:${GROUP_DIR}:${STAR_MGR}:${STAR_BIN}:${PATH}"
 #set path=( /usr/afsws/bin /usr/afsws/etc /opt/rhic/bin /usr/local/bin $GROUP_DIR $STAR_MGR $STAR_BIN $path )
 if ($?MANPATH == 1) then
@@ -97,12 +95,6 @@ switch ($STAR_SYS)
     breaksw
     case "sgi_5*":
 #  ====================
-#     if ($?CERN == 0 || $CERN == "/cern") then
-#	setenv CERN ${AFS_RHIC}/asis/sgi_52/cern
-#	setenv CERN_LEVEL pro
-#	setenv CERN_ROOT $CERN/$CERN_LEVEL
-#	setenv PATH `/afs/rhic/star/group/dropit cern`:$CERN_ROOT/bin
-#     endif
 	set path = ($path $PARASOFT/bin.sgi5)
 	setenv STAR_LD_LIBRARY_PATH ${PARASOFT}/lib.sgi5
         limit coredumpsize 0
@@ -149,6 +141,7 @@ setenv LD_LIBRARY_PATH "$STAR_LD_LIBRARY_PATH"
 else
 setenv LD_LIBRARY_PATH "$STAR_LD_LIBRARY_PATH":"$LD_LIBRARY_PATH"
 endif
+unsetenv STAR_LD_LIBRARY_PATH
 #setenv LD_LIBRARY_PATH `/afs/rhic/star/group/dropit -p ${LD_LIBRARY_PATH}`
 if ( -e /usr/ccs/bin/ld ) set path = ( $path /usr/ccs/bin /usr/ccs/lib )
 #  setenv PATH `/afs/rhic/star/group/dropit`
@@ -180,7 +173,14 @@ if ($ECHO) echo   "STAR library version "$STAR_VERSION" has been initiated with 
 if ($?CERN_ROOT == 1 ) then
 if ($ECHO) echo   "CERNLIB version "$CERN_LEVEL" has been initiated with CERN_ROOT="${CERN_ROOT}
 endif
-#
+# root
+if ( -f /afs/rhic/opt/rhic/ROOT2/rootenv.csh) then
+if ( ! $?ROOTSYS) source /afs/rhic/opt/rhic/ROOT2/rootenv.csh
+endif
+# Objy 5.00
+if (-f /opt/objy/objy500/setup.csh) then
+if ( ! $?OBJY_HOME) source  /opt/objy/objy500/setup.csh
+endif
 # HP Jetprint
 if ( -d /opt/hpnp ) then
   if ($ECHO) echo   "Paths set up for HP Jetprint"
@@ -195,4 +195,6 @@ if ( -x /afs/rhic/star/group/dropit) then
 endif
 unset ECHO
 #END
+
+
 
