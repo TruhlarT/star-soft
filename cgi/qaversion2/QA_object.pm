@@ -398,7 +398,7 @@ sub QASummaryString{
   
   # delete any old flag files
   for(my $i = 0; $i <= $#flag_files; $i++){
-      next if $i == $latest_flag;
+      $i == $latest_flag && next;
       unlink("$report_dir/".$flag_files[$i]);
   }
 
