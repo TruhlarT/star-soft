@@ -30,15 +30,15 @@ $runNum = $query->param('runN');
 
 my $prodDir = "/home/starreco/reco/". $prodSr; 
 
-#struct FilAttr => {
-#       flName   => '$',
-#       DtSt     => '$', 
-#       fpath    => '$',
-#       fsize    => '$',
-#       Nevts    => '$',
-#       numRun   => '$',
-#       trg      => '$',
-#}; 
+struct FilAttr => {
+       flName   => '$',
+       DtSt     => '$', 
+       fpath    => '$',
+       fsize    => '$',
+       Nevts    => '$',
+       numRun   => '$',
+       trg      => '$',
+}; 
  
 
 ##### Find sets in DataSet table
