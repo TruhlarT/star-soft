@@ -47,6 +47,7 @@ my $thistime;
 
 struct FileAttr => {
         flname  => '$', 
+         lbtag  => '$',
          fpath  => '$',
          jobSt  => '$',
          timeS  => '$',
@@ -62,22 +63,12 @@ struct FileAttr => {
 ($sec,$min,$hour,$mday,$mon,$year,$wday,$yday,$isdst) = localtime(time);
     $thisday = (Sun,Mon,Tue,Wed,Thu,Fri,Sat)[(localtime)[6]];
 
-  my $ii = 0;
- 
-  my $iday;
-  my $testDay;
-  my $beforeDay;
-  $iday = $dayHash{$thisday}; 
- $testDay = $Nday[$iday - 2];
-
-# print "Today Date :", $thisDay, "\n";
-
 &StDbTJobsConnect();
 
  &beginHtml();
 
 
-$sql="SELECT path, logFile, jobStatus, NoEventDone, memUsageF, memUsageL, CPU_per_evt_sec, createTime FROM $JobStatusT where path LIKE '%test/new%' AND path LIKE '%redhat61%' AND avail = 'Y'";
+$sql="SELECT path, logFile, LibTag, jobStatus, NoEventDone, memUsageF, memUsageL, CPU_per_evt_sec, createTime FROM $JobStatusT where path LIKE '%test/new%' AND path LIKE '%redhat61%' AND avail = 'Y'";
  $cursor =$dbh->prepare($sql)
    || die "Cannot prepare statement: $DBI::errstr\n";
  $cursor->execute;
@@ -94,6 +85,7 @@ $sql="SELECT path, logFile, jobStatus, NoEventDone, memUsageF, memUsageL, CPU_pe
 
      ($$fObjAdr)->fpath($fvalue)   if($fname eq 'path'); 
      ($$fObjAdr)->flname($fvalue)  if($fname eq 'logFile');
+     ($$fObjAdr)->lbtag($fvalue)   if($fname eq 'LibTag');
      ($$fObjAdr)->noEvtD($fvalue)  if($fname eq 'NoEventDone');
      ($$fObjAdr)->jobSt($fvalue)   if($fname eq 'jobStatus');
      ($$fObjAdr)->memF($fvalue)    if($fname eq 'memUsageF');
@@ -114,11 +106,13 @@ $sql="SELECT path, logFile, jobStatus, NoEventDone, memUsageF, memUsageL, CPU_pe
  my $myMemL;
  my $myCPU;
  my $myCtime;
+ my $mylib;
 
   foreach $eachFile (@dbFiles) {
 
         $myFile  = ($$eachFile)->flname;
         $myPath  = ($$eachFile)->fpath;
+        $mylib   = ($$eachFile)->lbtag;
         $myEvtD  = ($$eachFile)->noEvtD;
         $myJobS  = ($$eachFile)->jobSt; 
         $myMemF  = ($$eachFile)->memF; 
@@ -141,14 +135,15 @@ sub beginHtml {
 print <<END;
   <html>
    <head>
-          <title>Status of Nightly Test Jobs Produced Last Night</title>
+          <title>Status of Nightly Test Jobs for NEW library</title>
    </head>
    <body BGCOLOR=\"#ccffff\"> 
-     <h1 align=center>Status of Nightly Test Jobs Produced Last Night</h1>
+     <h1 align=center>Status of Nightly Test Jobs for NEW library</h1>
 <TABLE ALIGN=CENTER BORDER=5 CELLSPACING=1 CELLPADDING=2 >
 <TR>
 <TD ALIGN=CENTER WIDTH=\"20%\" HEIGHT=50><B>Path</B></TD>
-<TD ALIGN=CENTER WIDTH=\"20%\" HEIGHT=50><B>Log File Name</B></TD>
+<TD ALIGN=CENTER WIDTH=\"10%\" HEIGHT=50><B>Log File Name</B></TD>
+<TD ALIGN=CENTER WIDTH=\"10%\" HEIGHT=50><B>Library Version</B></TD>
 <TD ALIGN=CENTER WIDTH=\"10%\" HEIGHT=50><B>Job Status</B></TD>
 <TD ALIGN=CENTER WIDTH=\"10%\" HEIGHT=50><B>Number of Events<br>Done</B></TD>
 <TD ALIGN=CENTER WIDTH=\"10%\" HEIGHT=50><B>Memory Usage<br>for First Event</B></TD>
@@ -168,6 +163,7 @@ print <<END;
 <TR ALIGN=CENTER>
 <td>$myPath</td>
 <td>$myFile</td>
+<td>$mylib</td>
 <td>$myJobS</td>
 <td>$myEvtD</td>
 <td>$myMemF</td>
