@@ -141,7 +141,7 @@ endif
 stty intr '^c'	# set interrupt key to <ctrl-c>
 stty kill '^x'	# set kill key to <ctrl-x>
 stty echoe			# erase ERASEd characters
-echo "Terminal Type is $TERM"
+#echo "Terminal Type is $TERM"
 #
 # Some systems the user doesn't own his tty device ( Sun OpenWindows) so
 # redirect stderr
