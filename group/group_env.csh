@@ -1,5 +1,5 @@
 #!/usr/bin/csh -f
-#       $Id: group_env.csh,v 1.104 2000/08/18 22:26:29 fisyak Exp $
+#       $Id: group_env.csh,v 1.105 2000/08/18 22:34:01 fisyak Exp $
 #	Purpose:	STAR group csh setup 
 #
 #	Author:		Y.Fisyak     BNL
@@ -214,7 +214,7 @@ switch ($STAR_SYS)
     breaksw
 endsw
 if ( -e /usr/local/lib/libMesaGL.so) then
-    setenv OPENGL /usr/local/lib
+    setenv OPENGL /usr/local
 endif
 if ( -e /usr/ccs/bin/ld ) set path = ( $path /usr/ccs/bin /usr/ccs/lib )
 if ( -d /usr/local/lsf/bin ) then
