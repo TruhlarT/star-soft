@@ -115,7 +115,8 @@ sub PrintPageHeader{
   # where's the documentation?  
   my $doc_link = 
       "http://duvall.star.bnl.gov/STARAFS/comp/pkg/dev/cgi/qa/doc/index.html";
-  my $doc_string = "<a href=$doc_link target='display'>Documentation </a>";
+#  my $doc_string = "<a href=$doc_link target='display'>Documentation </a>";
+  my $doc_string = "<a href=$doc_link target='documentation'>Documentation </a>";
 
   #---
   # generate header string with pull-down menu
@@ -426,7 +427,7 @@ sub ContactString{
   # temporary solution:
   my $url = "http://www.star.bnl.gov/~jacobs/contacts.html";
 
-  my $string = "<a href=$url target = 'display'>Contacts </a>";
+  my $string = "<a href=$url target = 'documentation'>Contacts </a>";
   return $string;
 }
 
