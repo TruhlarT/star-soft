@@ -1,5 +1,5 @@
 #!/bin/csh -f
-#       $Id: group_env.csh,v 1.172 2004/10/28 21:40:12 jeromel Exp $
+#       $Id: group_env.csh,v 1.173 2004/11/12 21:39:08 jeromel Exp $
 #	Purpose:	STAR group csh setup
 #
 #	Author:		Y.Fisyak     BNL
@@ -180,12 +180,7 @@ setenv MY_BIN          .${STAR_HOST_SYS}/bin
 
 # Options my alter *_BIN and/or add *_lib. All options should
 # be treated here. Defaults hould be preserved above.
-if ($?NODEBUG) then
-  setenv STAR_lib  $STAR/.${STAR_HOST_SYS}/LIB ;  if ($ECHO) echo   "Setting up STAR_lib  = ${STAR_lib}"
-  setenv MINE_lib        .${STAR_HOST_SYS}/LIB
-  setenv STAR_BIN  $STAR/.${STAR_HOST_SYS}/BIN
-  setenv MY_BIN          .${STAR_HOST_SYS}/BIN
-else if ($?INSURE) then
+if ($?INSURE) then
   # Do it conditional because this is a late addition.
   # The directory structure may not exist for all library version.
   if( -e $STAR/.${STAR_HOST_SYS}/ILIB) then
@@ -201,6 +196,13 @@ else if ($?INSURE) then
   else
    if ($ECHO) echo  "Setting up STAR_lib  = Cannot Set (missing tree)"
   endif
+
+else if ($?NODEBUG) then
+  setenv STAR_lib  $STAR/.${STAR_HOST_SYS}/LIB ;  if ($ECHO) echo   "Setting up STAR_lib  = ${STAR_lib}"
+  setenv MINE_lib        .${STAR_HOST_SYS}/LIB
+  setenv STAR_BIN  $STAR/.${STAR_HOST_SYS}/BIN
+  setenv MY_BIN          .${STAR_HOST_SYS}/BIN
+
 else
   if ($?STAR_lib) unsetenv STAR_lib
   if ($?MINE_lib) unsetenv MINE_lib
