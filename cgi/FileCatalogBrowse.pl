@@ -26,7 +26,7 @@ my $fields = param("fields");
 
 my $fC = FileCatalog->new;
 $fC->connect;
-$fileC->debug_on("html");
+
 
 my $boxfields = "filetype,extension,storage,site,production,library,triggername,triggerword,triggersetup,runtype,configuration,geometry,collision,magscale,fileseq,owner,node,available,persistent,generator,genversion,genparams,tpc,svt,tof,emc,fpd,ftpc,pmd,rich,ssd,simulation";
 my $queryfields = "filetype,extension,storage,site,production,library,triggername,triggerword,triggersetup,runtype,configuration,geometry,runnumber,runcomments,collision,datetaken,magscale,magvalue,filename,size,fileseq,filecomment,owner,protection,node,available,persistent,createtime,inserttime,path,simcomment,generator,genversion,gencomment,genparams,tpc,svt,tof,emc,fpd,ftpc,pmd,rich,ssd";
@@ -42,6 +42,8 @@ print
     "<body bgcolor=#E0E0E0 link=blue, alink=#5599CC, vlink=navy>\n";
 
 $fC->clear_context;
+$fC->debug_on("cmth");
+
 my (@pars);
 foreach (split(",",$boxfields)){
     if ((param($_."val") ne "ALL") && (param($_."val") ne ""))
@@ -148,21 +150,20 @@ if (not $oldlimit)
   {
     $newurl .= "&limit=$limit";
   }
-print "<A href='$newurl'>PREVIOUS $limit RECORDS</A>&nbsp;&nbsp;";
+
+
+print "<A href='$newurl'>PREVIOUS $limit RECORDS</A>&nbsp;&nbsp;\n";
+
 my $newurl = $cururl;
 my $newstart = $start + $limit;
-if ($oldstart)
-  {
+if ($oldstart){
     $newurl =~ s/start=$oldstart/start=$newstart/;
-  }
-else
-  {
+} else {
     $newurl .= "&start=$newstart";
-  }
-if (not $oldlimit)
-  {
+}
+if (not $oldlimit){
     $newurl .= "&limit=$limit";
-  }
+}
 print "<A href='$newurl'>NEXT $limit RECORDS</A><BR>\n";
 
 
