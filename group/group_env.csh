@@ -1,5 +1,5 @@
 #!/bin/csh -f
-#       $Id: group_env.csh,v 1.152 2003/08/08 16:41:50 jeromel Exp $
+#       $Id: group_env.csh,v 1.153 2003/08/18 23:29:32 jeromel Exp $
 #	Purpose:	STAR group csh setup
 #
 #	Author:		Y.Fisyak     BNL
@@ -246,13 +246,13 @@ if ( -x ${GROUP_DIR}/dropit) then
   setenv PATH    `${GROUP_DIR}/dropit -p ${PATH} $STAR_PATH`
   if ($?LD_LIBRARY_PATH == 1) setenv LD_LIBRARY_PATH `${GROUP_DIR}/dropit -p ${LD_LIBRARY_PATH} $STAR_PATH`
   if ($?SHLIB_PATH == 1)      setenv SHLIB_PATH      `${GROUP_DIR}/dropit -p ${SHLIB_PATH} $STAR_PATH`
+  setenv PATH `${GROUP_DIR}/dropit -p ${GROUPPATH} -p /usr/afsws/bin -p /usr/afsws/etc -p ${OPTSTAR}/bin -p /usr/sue/bin -p /usr/local/bin -p ${PATH}`
 endif
 
-setenv PATH `${GROUP_DIR}/dropit -p ${GROUPPATH} -p /usr/afsws/bin -p /usr/afsws/etc -p ${OPTSTAR}/bin -p /usr/sue/bin -p /usr/local/bin -p ${PATH}`
 
 ## Put mysql on path if available
 if ( -d /usr/local/mysql/bin) then
-  setenv PATH `${GROUP_DIR}/dropit -p ${PATH} -p /usr/local/mysql/bin`
+  if ( -x ${GROUP_DIR}/dropit) setenv PATH `${GROUP_DIR}/dropit -p ${PATH} -p /usr/local/mysql/bin`
 endif
 
 if ($?MANPATH == 1) then
@@ -265,7 +265,7 @@ endif
    
 switch ($STAR_SYS)
     case "rs_aix*":
-        setenv MANPATH `${GROUP_DIR}/dropit -p {$MANPATH} -p /usr/share/man`
+        if ( -x ${GROUP_DIR}/dropit) setenv MANPATH `${GROUP_DIR}/dropit -p {$MANPATH} -p /usr/share/man`
         breaksw
     case "alpha_osf32c":
 	breaksw
