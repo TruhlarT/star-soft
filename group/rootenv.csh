@@ -1,7 +1,5 @@
 #!/usr/bin/csh -f
 setenv ROOTSYS /afs/rhic/star/ROOT/${ROOT_LEVEL}/.${STAR_HOST_SYS}/root
-setenv PATH "${ROOTSYS}/bin:${PATH}"
-setenv MANPATH "/afs/rhic/star/ROOT/${ROOT_LEVEL}/man:${MANPATH}"
 switch ($STAR_SYS)
     case "hp_ux102":
     #  ====================
@@ -16,6 +14,8 @@ if ( -x /afs/rhic/star/group/dropit) setenv LD_LIBRARY_PATH `/afs/rhic/star/grou
 setenv LD_LIBRARY_PATH "${ROOTSYS}/lib:${LD_LIBRARY_PATH}"
 endsw
 if ( -x /afs/rhic/star/group/dropit) setenv PATH  `/afs/rhic/star/group/dropit -p "$PATH" ROOT`
+setenv PATH "${ROOTSYS}/bin:${PATH}"
+setenv MANPATH "/afs/rhic/star/ROOT/${ROOT_LEVEL}/man:${MANPATH}"
 # On Solaris, Linux, SGI, Alpha/OSF do:
 set MACHINE = `uname -s`
 
