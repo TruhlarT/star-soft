@@ -1,5 +1,5 @@
 #!/bin/csh -f
-#       $Id: group_env.csh,v 1.142 2003/06/07 19:45:53 jeromel Exp $
+#       $Id: group_env.csh,v 1.143 2003/06/16 23:58:28 jeromel Exp $
 #	Purpose:	STAR group csh setup
 #
 #	Author:		Y.Fisyak     BNL
@@ -28,14 +28,16 @@ setenv WWW_HOME http://www.star.bnl.gov/
 if ($ECHO) echo   "Setting up WWW_HOME  = $WWW_HOME"
 
 setenv AFS       /usr/afsws
-setenv AFS_RHIC  /afs/rhic
+#setenv AFS_RHIC  /afs/rhic <-- in principle in the star_cshrc
 
 
 if (! $?STAR_ROOT) then
     setenv STAR_ROOT ${AFS_RHIC}/star;
 endif
 if ($ECHO) then
-  cat ${STAR_ROOT}/group/small-logo
+  echo ""
+  echo "         ----- STAR Group Login from $GROUP_DIR/ -----"
+  echo ""
 endif
 if ($ECHO) echo   "Setting up STAR_ROOT = ${STAR_ROOT}"
 
@@ -45,8 +47,8 @@ if ( ! $?OPTSTAR ) then
     if ( -e /opt/star ) then
 	setenv OPTSTAR /opt/star
     else
-	if ( -e /afs/rhic/opt/star ) then
-	    setenv OPTSTAR /afs/rhic/opt/star
+	if ( -e ${AFS_RHIC}/opt/star ) then
+	    setenv OPTSTAR ${AFS_RHIC}/opt/star
 	endif
     endif
 endif
@@ -251,7 +253,7 @@ switch ($STAR_SYS)
     case "i386_*":
       #  ====================
       # make sure that afws in the path
-      if (! -d /usr/afsws/bin) setenv PATH `${GROUP_DIR}/dropit -p $PATH -p /afs/rhic/i386_redhat50/usr/afsws/bin`
+      if (! -d /usr/afsws/bin) setenv PATH `${GROUP_DIR}/dropit -p $PATH -p ${AFS_RHIC}/i386_redhat50/usr/afsws/bin`
       if ( -d /usr/pgi ) then
        setenv PGI /usr/pgi
        setenv PATH `${GROUP_DIR}/dropit -p $PGI/linux86/bin -p $PATH`
@@ -351,11 +353,11 @@ endif
 
 # Support for Insure++
 set INSV=insure-5.2
-if ( -d /afs/rhic/app/$INSV ) then
-    set VER=`/bin/ls -ld /afs/rhic/app/$INSV/bin* | sed "s/.*\.//"`
+if ( -d ${AFS_RHIC}/app/$INSV ) then
+    set VER=`/bin/ls -ld ${AFS_RHIC}/app/$INSV/bin* | sed "s/.*\.//"`
     if ("$VER" != "") set VER=".$VER"
-    set path=($path /afs/rhic/app/$INSV/bin$VER)
-    setenv LD_LIBRARY_PATH  ${LD_LIBRARY_PATH}:/afs/rhic/app/$INSV/lib$VER
+    set path=($path ${AFS_RHIC}/app/$INSV/bin$VER)
+    setenv LD_LIBRARY_PATH  ${LD_LIBRARY_PATH}:${AFS_RHIC}/app/$INSV/lib$VER
     unset VER
 endif
 
@@ -407,7 +409,7 @@ if ( -d /opt/hpnp ) then
   setenv MANPATH `${GROUP_DIR}/dropit -p $MANPATH -p /opt/hpnp/man`
   setenv PATH    `${GROUP_DIR}/dropit -p $PATH  -p /opt/hpnp/bin -p /opt/hpnp/admin`
 endif
-setenv PATH `${GROUP_DIR}/dropit -p $HOME/bin -p $HOME/bin/.$STAR_SYS -p $PATH -p $CERN_ROOT/bin -p $CERN_ROOT/mgr .`
+setenv PATH `${GROUP_DIR}/dropit -p $HOME/bin -p $HOME/bin/.$STAR_HOST_SYS -p $PATH -p $CERN_ROOT/bin -p $CERN_ROOT/mgr .`
 
 
 # clean-up PATH
