@@ -125,9 +125,9 @@ if( ! $?X11BIN || ! $?PATH) then
     # Support for Globus toolkit
     if ( $?GLOBUS_PATH ) then
 	if ( -d /opt/globus/bin ) then 
-	    set UGLOBUS="$GLOBUS_PATH /opt/globus/bin"
+	    set UGLOBUS="$GLOBUS_PATH/bin /opt/globus/bin"
 	else
-	    set UGLOBUS=$GLOBUS_PATH
+	    set UGLOBUS="$GLOBUS_PATH/bin"
 	endif
     else
 	set UGLOBUS=""
