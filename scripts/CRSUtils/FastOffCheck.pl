@@ -3,15 +3,15 @@
 #
 # This script checks if jobs are done or not.
 # Done jobs are simply based on the appearance of
-# the root files associated to the job. 
+# the root files associated to the job.
 # this script is meant to run in a cronjob ...
 #
 # There is NOTHING to change from this script.
 # Use arguments like
 #
-# .../FastOffCheck.pl dev /star/data27/reco 12 
+# .../FastOffCheck.pl dev /star/data27/reco 12
 #
-# where 
+# where
 #  arg1 is the directory to scan
 #  arg2 the path where the files are supposed to appear
 #  arg3 a retention time for the output in days
@@ -28,15 +28,18 @@ $RETENT  = 14;
 $LIB     = shift(@ARGV) if ( @ARGV );
 $TARGET  = shift(@ARGV) if ( @ARGV );
 $RETENT  = shift(@ARGV) if ( @ARGV );
-$UPDATE  = shift(@ARGV) if ( @ARGV );   # 0, scan and delete if old, 
+$UPDATE  = shift(@ARGV) if ( @ARGV );   # 0, scan and delete if old,
                                         # 1, scan and enter in db
-                                        # 2, get db entries and compare 
+                                        # 2, get db entries and compare
 
 # Assume standard tree structure
 $JOBDIR  = "/star/u/starreco/$LIB/requests/daq/archive/";
 
 # Fault tolerant. No info if fails.
-if( ! opendir(DIR,"$JOBDIR") ){  exit;}
+if( ! opendir(DIR,"$JOBDIR") ){
+    print "$JOBDIR does not exists\n";
+    exit;
+}
 
 if ($UPDATE == 0){
     print "Scanning $JOBDIR vs $TARGET on ".localtime()."\n";
@@ -50,7 +53,7 @@ if ($UPDATE == 0){
 
 	    $tree =~ s/_/\//g;
 	    chop($tree);        # remove trailing '/'
-	    if( -e "$JOBDIR/old/$jfile.checked"){ 
+	    if( -e "$JOBDIR/old/$jfile.checked"){
 		@stat1 = stat("$JOBDIR/old/$jfile.checked");
 		@stat2 = stat("$JOBDIR/$jfile");
 		if ( $stat1[10] >= $stat2[10]){
@@ -91,11 +94,11 @@ if ($UPDATE == 0){
 	    $el =~ s/.*\///g;
 	    $el =~ s/\..*//;
 	    $el .= ".daq";
-	    
+
 	    if( ! defined($LOCATIONS{$el}) ){
 		$LOCATIONS{$el} = 0;
 	    }
-	}    
+	}
     }
 
 
@@ -110,7 +113,7 @@ if ($UPDATE == 0){
 
 	rdaq_set_files_where($obj,2,1,@DONE);
 	rdaq_close_odatabase($obj);
-	
+
 	foreach $jfile (@MOVE){
 	    open(FO,">$JOBDIR/old/$jfile.checked");
 	    print FO "$0 ".localtime()."\n";
@@ -129,12 +132,12 @@ if ($UPDATE == 0){
 	    $el =~ m/(.*\/)(.*)/;
 	    ($tree,$el) = ($1,$2);
 	    $el =~ s/\..*//;
-	    $el .= ".daq";  
+	    $el .= ".daq";
 
 	    chop($tree);
 	    if( ! defined($LOCATIONS{$el}) ){
 		$LOCATIONS{$el} = "$TARGET/$tree";
-	    }    
+	    }
 	}
 
 	foreach $el (keys %LOCATIONS){
