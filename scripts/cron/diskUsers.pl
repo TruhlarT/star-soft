@@ -1,8 +1,11 @@
 #!/usr/local/bin/perl
 #
-# $Id: diskUsers.pl,v 1.1 1999/09/16 16:43:25 wenaus Exp $
+# $Id: diskUsers.pl,v 1.2 2000/01/22 02:21:42 wenaus Exp $
 #
 # $Log: diskUsers.pl,v $
+# Revision 1.2  2000/01/22 02:21:42  wenaus
+# no 'strict'
+#
 # Revision 1.1  1999/09/16 16:43:25  wenaus
 # cron scripts for home dir usage summaries
 #
@@ -18,9 +21,6 @@
 #
 # Usage: diskUsers.pl path
 #
-
-use strict;
-
 
 $dir = shift @ARGV;
 $verbose = shift @ARGV;
