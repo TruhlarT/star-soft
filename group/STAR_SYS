@@ -1,5 +1,8 @@
 #!/bin/csh
 #  $Log: STAR_SYS,v $
+#  Revision 1.7  1998/12/01 01:55:56  fisyak
+#  Merge with NT
+#
 #  Revision 1.6  1998/09/10 22:47:00  fisyak
 #  Protection for no sys
 #
@@ -32,12 +35,16 @@
 #
 #  Revision 1.1.1.1  1997/12/31 14:35:23  fisyak
 #
-#             Last modification $Date: 1998/09/10 22:47:00 $ 
+#             Last modification $Date: 1998/12/01 01:55:56 $ 
 #
 # Determine STAR_SYS variable.
 #
 setenv STAR_SYS ""
 if (-e /usr/afsws/bin/sys)       setenv STAR_SYS `/usr/afsws/bin/sys`
+if (-e /usr/afsws/bin/fs)  then
+  setenv STAR_SYS2 `/usr/afsws/bin/fs sys | awk -F\' '{print $2}'`
+  if ("${STAR_SYS2}" == "i386_redhat51")           setenv STAR_SYS ${STAR_SYS2}
+endif
 if (${STAR_SYS} == "") then
 set mach_os = ` uname -sr | sed -e 's/ //g' -e 's/\.//g' `
 #

@@ -1,7 +1,10 @@
 #!/usr/bin/csh -f
-#       $Id: group_env.csh,v 1.53 1998/10/14 14:53:15 fisyak Exp $
+#       $Id: group_env.csh,v 1.54 1998/12/01 01:55:57 fisyak Exp $
 #	Purpose:	STAR group csh setup 
 #       $Log: group_env.csh,v $
+#       Revision 1.54  1998/12/01 01:55:57  fisyak
+#       Merge with NT
+#
 #       Revision 1.53  1998/10/14 14:53:15  fisyak
 #       Fix ROOT version
 #
@@ -173,27 +176,20 @@ if ( ! $?GROUP_PATH ) setenv GROUP_PATH ${STAR_ROOT}/group
 setenv GROUPPATH  $GROUP_PATH
 setenv STAR_PATH ${STAR_ROOT}/packages;      if ($ECHO) echo   "Setting up STAR_PATH = ${STAR_PATH}"
 if ($?STAR_LEVEL == 0) setenv STAR_LEVEL pro
-if ($STAR_LEVEL  == "old" || $STAR_LEVEL  == "pro" || $STAR_LEVEL  == "new" || $STAR_LEVEL  == "dev") then
+if ($STAR_LEVEL  == "old" || $STAR_LEVEL  == "pro" || $STAR_LEVEL  == "new" || $STAR_LEVEL  == "dev" || $STAR_LEVEL  == ".dev") then
   setenv STAR_VERSION `/bin/ls -ld $STAR_PATH/${STAR_LEVEL} |cut -f2 -d">"`  
 else
   setenv STAR_VERSION ${STAR_LEVEL}
 endif
 source ${GROUP_DIR}/STAR_SYS; 
-if ($STAR_VERSION  == "SL98a" || $STAR_VERSION  == "SL98b") then
-  setenv STAR $STAR_PATH/${STAR_LEVEL} ;         if ($ECHO) echo   "Setting up STAR      = ${STAR}"
-  setenv STAR_LIB  $STAR/lib/${STAR_HOST_SYS};   if ($ECHO) echo   "Setting up STAR_LIB  = ${STAR_LIB}"
-  setenv STAF_LIB 
-  setenv STAR_BIN  $STAR/asps/../.${STAR_HOST_SYS}/bin  ; if ($ECHO) echo   "Setting up STAR_BIN  = ${STAR_BIN}"
-else  
-  setenv STAR $STAR_PATH/${STAR_VERSION} ;       if ($ECHO) echo   "Setting up STAR      = ${STAR}"
-  setenv STAF_LIB  $STAR/.${STAR_HOST_SYS}/lib  ; if ($ECHO) echo   "Setting up STAF_LIB  = ${STAF_LIB}"
-  if ($?NODEBUG == 0) then
-    setenv STAR_LIB  $STAR/.${STAR_HOST_SYS}/lib; if ($ECHO) echo   "Setting up STAR_LIB  = ${STAR_LIB}"
-  else
-    setenv STAR_LIB  $STAR/.${STAR_HOST_SYS}/LIB; if ($ECHO) echo   "Setting up STAR_LIB  = ${STAR_LIB}"
-  endif
-  setenv STAR_BIN  $STAR/.${STAR_HOST_SYS}/bin  ; if ($ECHO) echo   "Setting up STAR_BIN  = ${STAR_BIN}"
+setenv STAR $STAR_PATH/${STAR_VERSION} ;        if ($ECHO) echo   "Setting up STAR      = ${STAR}"
+setenv STAF_LIB  $STAR/.${STAR_HOST_SYS}/lib  ; if ($ECHO) echo   "Setting up STAF_LIB  = ${STAF_LIB}"
+if ($?NODEBUG == 0) then
+ setenv STAR_LIB  $STAR/.${STAR_HOST_SYS}/lib;  if ($ECHO) echo   "Setting up STAR_LIB  = ${STAR_LIB}"
+else
+  setenv STAR_LIB  $STAR/.${STAR_HOST_SYS}/LIB; if ($ECHO) echo   "Setting up STAR_LIB  = ${STAR_LIB}"
 endif
+setenv STAR_BIN  $STAR/.${STAR_HOST_SYS}/bin  ; if ($ECHO) echo   "Setting up STAR_BIN  = ${STAR_BIN}"
 setenv STAR_MGR $STAR/mgr
 setenv STAR_PAMS $STAR/pams;                 if ($ECHO) echo   "Setting up STAR_PAMS = ${STAR_PAMS}"
 setenv STAR_DATA ${STAR_ROOT}/data;          if ($ECHO) echo   "Setting up STAR_DATA = ${STAR_DATA}"
@@ -205,6 +201,8 @@ setenv CVSROOT   $STAR_PATH/repository; if ($ECHO) echo   "Setting up CVSROOT   
 #if (! ${?ROOT_LEVEL}) then
   setenv ROOT_LEVEL 2.11
   if ($STAR_VERSION  == "SL98e") setenv ROOT_LEVEL 2.09
+  if ($STAR_VERSION  == "SL98j") setenv ROOT_LEVEL 2.13
+  if ($STAR_VERSION  == "SL98k") setenv ROOT_LEVEL 2.13
 #endif
                                         if ($ECHO) echo   "Setting up ROOT_LEVEL= ${ROOT_LEVEL}"
 setenv TEXINPUTS :${GROUP_DIR}/latex/styles
@@ -285,8 +283,10 @@ switch ($STAR_SYS)
        setenv MANPATH "$MANPATH":$PGI/man
        setenv LM_LICENSE_FILE $PGI/license.dat
        alias pgman 'man -M $PGI/man'
-       setenv CERN_LEVEL pgf98
-       setenv CERN_ROOT  $CERN/$CERN_LEVEL
+       if ("$STAR_SYS" != "i386_redhat51") then
+         setenv CERN_LEVEL pgf98
+         setenv CERN_ROOT  $CERN/$CERN_LEVEL
+       endif
      endif
      set path = ($path  /usr/local/bin/ddd /usr/local/DQS318/bin )
      setenv  MANPATH "$MANPATH":/usr/local/DQS318/man

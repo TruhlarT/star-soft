@@ -1,5 +1,8 @@
-# $Id: group_aliases.csh,v 1.6 1998/07/27 20:24:16 fisyak Exp $
+# $Id: group_aliases.csh,v 1.7 1998/12/01 01:55:57 fisyak Exp $
 # $Log: group_aliases.csh,v $
+# Revision 1.7  1998/12/01 01:55:57  fisyak
+# Merge with NT
+#
 # Revision 1.6  1998/07/27 20:24:16  fisyak
 # remove frozen
 #
@@ -8,6 +11,7 @@ alias starold    'source ${GROUP_DIR}/.starold'
 alias starpro    'source ${GROUP_DIR}/.starpro'
 alias starnew    'source ${GROUP_DIR}/.starnew'
 alias stardev    'source ${GROUP_DIR}/.stardev'
+alias star.dev   'source ${GROUP_DIR}/star.dev'
 alias starver    'source ${GROUP_DIR}/.starver'
 alias makes      "gmake -f $STAR/mgr/MakePam.mk"
 alias makel      "gmake -f $STAR/mgr/Makeloop.mk"

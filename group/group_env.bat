@@ -38,49 +38,61 @@ if DEFINED ECHO if exist %GROUP_DIR%\logo type %GROUP_DIR%\logo
 set STAR_PATH=%STAR_ROOT%\packages
 echo "STAR_PATH"="%AFS_RHIC%\\star\\packages">>Env.reg
 	  				      IF DEFINED ECHO echo   Setting up STAR_PATH = %STAR_PATH%       
+subst w: %STAR_PATH%
+w:
 
 
-if NOT "%LEVEL_STAR%".=="". goto :SetStar
-set LEVEL_STAR=dev
-echo "LEVEL_STAR"="%LEVEL_STAR%">>Env.reg
+if NOT "%STAR_LEVEL%".=="". goto :SetStar
+set STAR_LEVEL=dev
+echo "STAR_LEVEL"="%STAR_LEVEL%">>Env.reg
 
-rem setenv VERSION_STAR
+rem setenv STAR_VERSION
 
 :SetStar
-set STAR=%STAR_ROOT%\packages\%LEVEL_STAR%
-echo "STAR"="%AFS_RHIC%\\star\\packages\\%LEVEL_STAR%">>Env.reg
+rem set STAR=%STAR_PATH%\%STAR_LEVEL%
+set STAR=w:\%STAR_LEVEL%
+echo "STAR"="%AFS_RHIC%\\star\\packages\\%STAR_LEVEL%">>Env.reg
 					       if DEFINED ECHO echo   "Setting up STAR      = %STAR%
 
 set STAR_MGR=%STAR%\mgr
-echo "STAR_MGR"="%AFS_RHIC%\\star\\packages\\%LEVEL_STAR%\\mgr">>Env.reg
+echo "STAR_MGR"="%AFS_RHIC%\\star\\packages\\%STAR_LEVEL%\\mgr">>Env.reg
 
-if "%SYS_STAR%".=="". call %STAR_MGR%\SYS_STAR.bat
-
-set LIB_STAR=%STAR%\lib\%SYS_HOST_STAR%
-echo "LIB_STAR"="%AFS_RHIC%\\star\\packages\\%LEVEL_STAR%\\lib\\%SYS_HOST_STAR%">>Env.reg
-					     if DEFINED ECHO echo   Setting up LIB_STAR  = %LIB_STAR%
-set BIN_STAR=%STAR%\bin\%SYS_HOST_STAR%
-echo "BIN_STAR"="%AFS_RHIC%\\star\\packages\\%LEVEL_STAR%\\bin\\%SYS_HOST_STAR%">>Env.reg
-                                             if DEFINED ECHO echo   Setting up BIN_STAR  = %BIN_STAR%
-set PAMS_STAR=%STAR%\pams
-echo "PAMS_STAR"="%AFS_RHIC%\\star\\packages\\%LEVEL_STAR%\\pams">>Env.reg
-                                             if DEFINED ECHO echo   Setting up PAMS_STAR = %PAMS_STAR%
+set STAR_LIB=%STAR%\lib\%STAR_HOST_SYS%
+echo "STAR_LIB"="%AFS_RHIC%\\star\\packages\\%STAR_LEVEL%\\lib\\%STAR_HOST_SYS%">>Env.reg
+					     if DEFINED ECHO @echo   Setting up STAR_LIB  = %STAR_LIB%
+set STAR_BIN=%STAR%\bin\%STAR_HOST_SYS%
+echo "STAR_BIN"="%AFS_RHIC%\\star\\packages\\%STAR_LEVEL%\\bin\\%STAR_HOST_SYS%">>Env.reg
+                                             if DEFINED ECHO @echo   Setting up STAR_BIN  = %STAR_BIN%
+set STAR_PAMS=%STAR%\pams
+echo "STAR_PAMS"="%AFS_RHIC%\\star\\packages\\%STAR_LEVEL%\\pams">>Env.reg
+                                             if DEFINED ECHO @echo   Setting up STAR_PAMS = %STAR_PAMS%
 set STAR_DATA=%STAR_ROOT%\data
 echo "STAR_DATA"="%AFS_RHIC%\\star\\data">>Env.reg
-                                             if DEFINED ECHO echo    Setting up STAR_DATA = %STAR_DATA%
+                                             if DEFINED ECHO @echo    Setting up STAR_DATA = %STAR_DATA%
 set STAR_CALB=%STAR_ROOT%\calb
 echo "STAR_CALB"="%AFS_RHIC%\\star\\calb">>Env.reg
-                                             if DEFINED ECHO  echo    Setting up STAR_CALB = %STAR_CALB%
+                                             if DEFINED ECHO @echo    Setting up STAR_CALB = %STAR_CALB%
 set CVSROOT=%STAR_ROOT%\repository
 echo "CVSROOT"="%AFS_RHIC%\\star\\packages\\repository">>Env.reg
-                                             if DEFINED ECHO echo   Setting up CVSROOT   = %CVSROOT%
+                                             if DEFINED ECHO @echo   Setting up CVSROOT   = %CVSROOT%
 
+set CERN_LEVEL=98a
+echo "CERN_LEVEL"="98a">>Env.reg
+                                             if DEFINED ECHO @echo   Setting up  CERN_LEVEL   = %CERN_LEVEL%
 
+set CERN_ROOT=\\hepburn\common\p32\cern
+echo "CERN_ROOT"="\\\\hepburn\\common\\p32\\cern">>Env.reg
+                                             if DEFINED ECHO @echo   Setting up  CERN_ROOT   = %CERN_ROOT%
+set include=%STAR%\inc;%CERN_ROOT%\include;%include%
+set lib=%CERN_ROOT%\lib;%lib%
 
-rem====== to define the compiler options
-rem if ( -e $STAR/mgr/init_star.csh) source $STAR/mgr/init_star.csh
-rem =======
-
+set SunRPC=\\hepburn\common\p32\Staf\SunRPC
+echo "SunRPC"="\\\\hepburn\\common\\p32\\Staf\\SunRPC">>Env.reg
+                                             if DEFINED ECHO @echo   Setting up  SunRPC   = %SunRPC%
+set include=%SunRPC%;%include%
+set ROOT_LEVEL=2.13
+set ROOTSYS=%AFS_RHIC%\star\ROOT\%ROOT_LEVEL%\.intel_wnt\root
+path %STAR_PATH%\.%STAR_SYS%\gnu\bin;%path%;%ROOTSYS%\bin
 set ECHO=
 rem alias makes "make -f $STAR/mgr/Makefile"
 

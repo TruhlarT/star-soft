@@ -28,7 +28,7 @@ rem for /F " " %%i in ('net use') DO if "%%k".=="\\Sol\afs_rhic" set STAR_Drive=
 rem SET StarDrive=s:
 rem net use %StarDrive% \\Sol\afs_rhic\star
 
-set STAR_LEVEL=dev
+set STAR_LEVEL=.dev
 echo "STAR_LEVEL"="%STAR_LEVEL%">>Env.reg
 
 set STAR_DIR=%StarDrive%\packages

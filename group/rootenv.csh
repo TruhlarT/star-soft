@@ -33,7 +33,7 @@
     if (! ${?LD_LIBRARY_PATH}) setenv LD_LIBRARY_PATH 
 
 #       for those who uses non standard pthread library
-    setenv LD_LIBRARY_PATH ${LD_LIBRARY_PATH}:${ROOTSYS}/pthread/lib
+#    setenv LD_LIBRARY_PATH ${LD_LIBRARY_PATH}:${ROOTSYS}/pthread/lib
 #       ROOT libs
     setenv LD_LIBRARY_PATH ${LD_LIBRARY_PATH}:${ROOTSYS}/lib
 #       System libs
