@@ -84,8 +84,12 @@ $EXPRESS = 0;  $EXPRESS_W  = 50;
 $ZEROBIAS= 0;  $ZEROBIAS_W = 30;
 
 # this does not have a weight
-$PHYSTP2 = 0;  
+$PHYSTP2 = 0;
 
+# If defined, command line argument will be ignored and this
+# will be the ultimate maximum number of events processed.
+# DO NOT SET IT HERE but in the diverse blocks.
+$MAXEVT  = 0;
 
 
 
@@ -168,6 +172,7 @@ if ($ThisYear == 2002){
 } elsif ( $ThisYear == 2005 ){
     $LIB     = "dev";
     $NUMEVT  = 100;
+    #$MAXEVT  = 250;
     $TARGET  = "/star/data08/reco";   # This is ONLY a default value. 
                                       # Overwritten by ARGV (see crontab)
     $LASERTP =  4;
@@ -176,7 +181,7 @@ if ($ThisYear == 2002){
     $EXPRESS =  0;     
     $ZEROBIAS=  7;
 
-    @USEQ    = (5,5,4);
+    @USEQ    = (4,4,3);
     @SPILL   = (0,3,2);
 
     # Default chain
@@ -785,7 +790,7 @@ __EOF__
 	print FO
 	    "    executableargs=25,",
 	    "$LIBV,$TARGET/$LIB/$items[2]/$m,",
-	    "$NUMEVT,$chain",
+	    ($MAXEVT!=0?$MAXEVT:$NUMEVT),",$chain",
 	    "\n";
 	close(FO);
 
