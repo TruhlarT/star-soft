@@ -785,7 +785,7 @@ sub GetQAMacrosSummary{
 
 sub GetOldReports{
   my $data_type = shift; # MC or real
-
+  
   my $old_time  = shift || 5;   # number of days
   my $now       = time;  # current date in epoch seconds
   my @old_report_keys;
@@ -830,14 +830,14 @@ sub GetOldReports{
   while(my ($report_key, $qaID) = $sth_old->fetchrow_array){
     push @old_report_keys, $report_key; # save it
 
-    print h4("Deleting $report_key from $QASum{Table} ...\n");
+    print "Deleting $report_key from $QASum{Table} ...<br>\n";
     $rc = $sth_delete_sum->execute($report_key);  # delete it
-    print h4("Uh oh. could not delete\n") if !$rc;
+    print "Uh oh. could not delete\n" unless ($rc+=0);
 
-    print h4("Deleting $report_key from $QAMacros{Table} ...\n");
+    print "Deleting $report_key from $QAMacros{Table} ...<br>\n";
     $sth_delete_macro->execute($qaID);
 
-    print h4("... done<br>\n");
+    print "... done<br>\n";
   }
   
   return @old_report_keys;

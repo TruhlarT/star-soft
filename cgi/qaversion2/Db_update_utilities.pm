@@ -115,13 +115,12 @@ sub UpdateQAOffline{
 			  file.createTime > '$oldestDate' and
 			  $oldestRunString
 			  qa.$QASum{jobID} is NULL
-			  order by file.runID asc
 			limit $limit};
 
   print "update query:\n$queryUpdate\n" if $debug;
 
   # insert new jobs into  the QASummaryTable 
-  my $queryInsert = qq{insert into $dbQA.$QASum{Table} 
+  my $queryInsert = qq{insert IGNORE into $dbQA.$QASum{Table} 
 			set
 			  $QASum{jobID}       = ?,
 			  $QASum{redone}      = ?,
@@ -176,7 +175,7 @@ sub UpdateQAOffline{
       foreach my $jobID ( keys %{$runhash{$runID}{$fileSeq}} ){
 
 	# double check for uniqueness
-	next if $foundJob{$jobID}++;
+	#next if $foundJob{$jobID}++;
 
 	my $redone = $runhash{$runID}{$fileSeq}{$jobID}{redone};
 	my $skip   = exists $runhash{$runID}{$fileSeq}{$jobID}{noskip} ? 'N' : 'Y';
@@ -189,13 +188,13 @@ sub UpdateQAOffline{
 	# get report key
 	my $reportKey = make_report_key_offline($sthKey->fetchrow_array);
 	
-	# save report key
-	push @keyList, $reportKey;
-	
 	# insert into QASummary
 	#print "\n$runID, $skip";
 	
-	$sthInsert->execute($jobID, $redone, $reportKey, $skip) unless $debug;
+	my $rc = $sthInsert->execute($jobID, $redone, $reportKey, $skip) 
+	  unless $debug;
+	# save report key
+	push @keyList, $reportKey if ($rc+=0);
       }
       #$countJob=0;
     }	 
