@@ -1,5 +1,5 @@
 #!/bin/csh -f
-#       $Id: group_env.csh,v 1.165 2004/07/29 17:34:13 jeromel Exp $
+#       $Id: group_env.csh,v 1.166 2004/08/14 18:19:07 jeromel Exp $
 #	Purpose:	STAR group csh setup
 #
 #	Author:		Y.Fisyak     BNL
@@ -329,8 +329,13 @@ switch ($STAR_SYS)
       #  ====================
       # make sure that afws in the path
       if (! -d /usr/afsws/bin) setenv PATH `${GROUP_DIR}/dropit -p $PATH -p ${AFS_RHIC}/i386_redhat50/usr/afsws/bin`
-      if ( -d /usr/pgi ) then
-       setenv PGI /usr/pgi
+
+      if ( ! $?PGI) then
+	if ( -d /usr/pgi ) then
+	    setenv PGI /usr/pgi
+	endif
+      endif
+      if ( $?PGI ) then
        if ( ! -d $PGI/bin) then
 	    set version=`/bin/ls  $PGI/linux86/ | tail -1`
 	    setenv PGI_V linux86/$version
