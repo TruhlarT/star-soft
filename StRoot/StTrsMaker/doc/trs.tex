@@ -2,7 +2,7 @@
 %
 % TRS - User Guide and Reference Manual -- LaTeX Source 
 %
-% $Id: trs.tex,v 1.1 1999/01/12 15:35:25 lasiuk Exp $
+% $Id: trs.tex,v 1.2 1999/01/24 03:32:57 lasiuk Exp $
 %
 % Author: LaTeX template by Thomas Ullrich
 %         1st version by brian
@@ -10,8 +10,11 @@
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %
 % $Log: trs.tex,v $
-% Revision 1.1  1999/01/12 15:35:25  lasiuk
-% Initial Revision
+% Revision 1.2  1999/01/24 03:32:57  lasiuk
+% update of manual
+%
+% Revision 1.2  1999/01/24 03:32:57  lasiuk
+% update of manual
 %
 % Revision 1.1  1999/01/12 15:35:25  lasiuk
 % Initial Revision
@@ -99,11 +102,11 @@
   \mbox{\includegraphics[width=2cm]{StarIcon.eps}}
   {\Large\bf Offline Library TRS Long Writeup}
   \hfill\mbox{}\\[3cm]
-  {\LARGE $ $Revision: 1.1 $ $}  \\[5mm] % replaced by cvs with current revision  
-  {\LARGE $ $Date: 1999/01/12 15:35:25 $ $}  % replaced by cvs with current revision  
+  \mbox{\includegraphics[width=\textwidth]{trsTitle.eps}}
+  \hfill\mbox{}\\[3cm]
   {\LARGE User Guide and Reference Manual}\\[2cm]
-  {\LARGE $ $Revision: 1.1 $ $}  \\[5mm] % replaced by cvs with current revision  
-  {\LARGE $ $Date: 1999/01/12 15:35:25 $ $}  % replaced by cvs with current revision  
+  {\LARGE $ $Revision: 1.2 $ $}  \\[5mm] % replaced by cvs with current revision  
+  {\LARGE $ $Date: 1999/01/24 03:32:57 $ $}  % replaced by cvs with current revision  
   \vfill
 \end{center}
 \cleardoublepage
@@ -128,26 +131,29 @@
 \clearpage
 
 \section{Philosophy and Motivation} \index{philosophy}
-at LBNL that a migration to the C++ language and Object-Oriented (OO)
+\label{Philosophy}
+
 With the decision at the STAR collaboration meeting in January 1998
-be the first package which should be re-engineered using these techniques
+at LBNL that a migration to the C++ programming language and 
 Object-Oriented (OO)
 coding practices will be made, it was suggested that the TPC slow simulator
 be the first package to be re-engineered using these techniques
-and work began on simple design, prototyping and evaluation of 
+and principles.  This project was to be a prototype for such future
 developments within the collaboration, both in its design and structure.  
 A requirements documents was quickly prepared after the meeting
 and work began on simple design, prototyping, and evaluation of 
 various commercial and public domain class libraries.
 
-CLHEP \index{CLHEP} but relied much more heavily on the
-ANSI standard C++ Standard Library and specifically the Standard Template
-Library or STL \index{STL}.  This library provided several
+The result of these initial studies was the development of the 
+StarClassLibrary\footnote{http://star.physics.yale.edu/SCL} 
+\index{SCL} which drew on the developments of 
+CLHEP\index{http://wwwinfo.cern.ch/lhc++/clhep/index.htm} \index{CLHEP} 
+but relied heavily on the
 ANSI \index{ANSI} standard\footnote{http://www.cyngus.com/misc/wp/nov97/} 
-random number generators, a system of units etc).  It was upon this
-development that the TPC Response Simulator (TRS) was built.
+C++ Standard Library and specifically the Standard Template
+Library or STL. \index{STL}  This library provides several
 physics containers (three- and four- vectors) as well as matrices
-The goal of re-engineering TRS was two-fold:
+random number generators, a system of units, etc.).  It was upon this
 development that the \name{TPC Response Simulator} (\name{TRS}) was built.
 
 The goal of re-engineering \name{TRS} was two-fold:
@@ -158,33 +164,36 @@ The goal of re-engineering \name{TRS} was two-fold:
   \item add detail and develop the simulation tools parallel to the
     commissioning schedule of the STAR TPC.
 \end{itemize}
-a very detailed microscopic simulation of the processes occuring
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 In order to add flexibility to the package it was designed to
 support two types of simulation from a single interface; that is,
 a very detailed microscopic simulation of the processes occurring
 in the STAR-TPC and a faster parameterized version which could be
-data containers.  As such, these were drawn up in a requirements document
-\footnote{see http://www.rhic.bnl.gov/STAR/html/comp\_l/simu/TpcRespSim/src/ps/TrsDesign.ps}
-as well as a  preliminary class design which was discussed at the STAR 
-collaboration meeting in August at BNL.  This document was
+used for large scale processing.  In order to do this the design
+concentrated on isolating the physics
+processes of interest and how the data could be stored in generic
+data containers.  These ideas, as well as a preliminary class design
 were drawn up in a design document\footnote{see http://www.rhic.bnl.gov/STAR/html/comp\_l/simu/TpcRespSim/src/ps/TrsDesign.ps} 
-of TRS.  This document is a report of these developments as well
+which was discussed at the STAR 
 collaboration meeting in August 1998 at BNL.  This document was
 the basis for the design and developments for the first version
 of \name{TRS}.  This document is a report of these developments as well
 as a guide for its use in its current form.
-This manual is a description of the TPC Response Simulator (TRS) 
-package.  The first part of the manual is a User Guide which
-describes the platform dependencies, package organization and
+
+\section{Organization of the Manual}
+
 This manual is a description of the \name{TPC Response Simulator} 
 (\name{TRS}) package.  The first part of the manual is a {\bf User Guide} 
-up the reference manual which is a detailed description of the
-component classes of TRS.  This is broken into four different 
+which describes the platform dependencies, package organization and
+general description of the design and basic implementation of
 the components within the package.  The subsequent parts make
-and coordinate classes used in the package which are not necessarily
+up the {\bf Reference Manual} which is a detailed description of the
 component classes of \name{TRS}.  This is broken into four different 
-software environment and could be used in any software package.
-The last two parts deal with the TRS specific classes which
+sections, the first two of which describe the generic data base
+and coordinate classes used in the package, which are not necessarily
+specific to TRS, but which are of interest to the general STAR
+software environment and could be used in any software package.  If
+these gain acceptance within the collaboration, they can be moved
 to a more accessible location such as the \name{StarClassLibrary} 
 \index{STAR Class Library}
 The last two parts deal with the \name{TRS} specific classes which
@@ -193,27 +202,28 @@ and {\bf processes}.
 
 \section{Platforms and Compilers} \index{compiler} \index{platform}
 \label{platformsAndCompilers}
-closest ANSI compliant compiler and standard libraries.  However
+
 The \name{TPC Response Simulator} (\name{TRS}) was developed on
-run were LINUX \index{Linux} and SUN \index{SUN}.  Red Hat LINUX 5.0
+an HP \index{HP} workstation since HP currently provides the
 closest ANSI \index{ANSI} compliant compiler and standard libraries.  However
 the target platforms on which the code will ultimately
 run are LINUX \index{Linux} and SUN \index{SUN}.  Red Hat LINUX 5.0
 and higher versions provide very close to fully ANSI compliant compilers
-supported.  The current SUN compliler (CC v4.2) however,
+with only exceptions\footnote{and some member functions of minimal
   importance in the STL.}
 being not fully
 supported.  The current SUN compiler (CC v4.2) however,
 is far from compliant and the large scale use of macros populate
 the code to allow for operation in a SOLARIS \index{SOLARIS} 
-for distribution from the STAR CVS \index{CVS} repository for
-any institution interested in this.  It is foreseen that the
+environment.  A modified standard C++ library from Object 
+Space \index{Object Space} (v2.0.2) was created in order to make up for
 the vendor short-comings.  This library is currently available
 for distribution from the STAR CVS \index{CVS} repository.  
 It is foreseen that the
 new SUN compiler (CC v5.0) which is scheduled for release in
-TRS has been tested and the example programs that utilize the \name{TRS}
-classes currently compile on the following platforms:
+March of 1999 should large solve many of the current problems
+and inconveniences of the SUN compiler.
+
 \name{TRS} has been tested and the example programs that 
 utilize the \name{TRS} classes currently compile on the following 
 platforms:
@@ -234,47 +244,51 @@ platforms:
     \item CC 4.2 and Object Space 2.0.2 modified. \index{Object Space}
   \end{itemize}
 \end{enumerate}
-not currently compile because of the lack of support of \index{Visual C++}
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 Tests with Visual C++ 5.0 have not been attempted since the
 StarClassLibrary (SCL) \index{SCL} does
-(but not tested).
+not currently build due to the lack of support of \index{Visual C++}
+templated member functions and a broken overloading mechanism.  It
+is hoped that this will be addressed with v6.0 which has been released
 (but not tested).  In the interim, non-templated container classes
 have been written and incorporated into the\name{SCL}, so that this
 should now be possible.
 No efforts have been spent to write, port, or adapt the code
 to SGI-IRIX \index{Irix} 
-\section{Organization of the TRS Package}
+nor IBM-AIX and such developments are not foreseen  unless there is
 significant user demand. \index{Irix} \index{AIX}
-All documentation, code, and header files of TRS are contained in
+
 \section{Organization of the \name{TRS} Package}
 
-directory named \name{StTrsMaker/}.  There are several subdirectories
+All documentation, code, and header files of \name{TRS} are contained in
+the {\bf CVS} repository at BNL in the \comp{\$STAR/StRoot} section
+in a
 directory named \name{./St_trs_Maker}.\footnote{To be changed to: 
         \name{StTrsMaker/}}.  
-directories respectively.  The \name{local} directory containes the
-necessary {\bf GNUMakefile}s in order to compile standalone shared
+There are several subdirectories
+in  which  the code is then distributed.  The header files as well
 as the source code in contained in the \name{./include} and \name{./src}
 directories respectively.  The \name{./local} directory contains the
-evolving STAR (i.e.~STAF/ROOT) \index{STAF} \index{ROOT} infrastructure,
+necessary {\bf GNUMakefile}s in order to compile stand-alone shared
 libraries such that code can be run outside the ROOT/STAR framework.
 This was initially done to avoid the complications of the constantly
-not necessarily require or warrent the use of the complete STAR 
+evolving STAR infrastructure, (i.e.~STAF/ROOT) \index{STAF} \index{ROOT}
 however it has been retained in order to aid in parallel development
 projects which require the use of some classes within \name{TRS}, but do
 not necessarily require or warrant the use of the complete STAR 
-within the TRS classes are contained in the directory \name{./examples}.
-This directory also contains the necesary {\bf GNUMakefile}s for 
-compilation.  To avoid confusion, both the TRS shared libraries and the
-executables from the shared libraies are kept in a directory denoted by
+infrastructure.  
+
+Example programs as well as those to monitor and control the developments
+within the \name{TRS} classes are contained in the directory \name{./examples}.
 This directory also contains the necessary {\bf GNUMakefile}s for 
-variable {\bf STAR\_SYS}.  Finally the documentation is stored in the
+compilation.  To avoid confusion, both the \name{TRS} shared libraries and the
 executables from the shared libraries are kept in a directory denoted by
 the system architecture derived from the STAR environment
-prototypes, also used with the SCL is also a possiblity in the future.
+variable {\bf \$STAR\_SYS}.  Finally the documentation is stored in the
 \name{./doc} directory.  This currently consists of this manual which
 is written in \LaTeX.  A class browser which illustrates the function
 prototypes, also used with the SCL is also a possibility in the future.
-All makefiles are especially written for the GNU make utility (gmake) 
+The developments that occur in TRS are kept on the STAR WWW \index{WWW}
 page (see: http://www.rhic.bnl.gov/STAR/html/comp\_l/simu/TpcRespSim/src/Welcome.html).
 
 All makefiles are especially written for the \name{GNU} make utility (gmake) 
@@ -300,7 +314,7 @@ and is therefore present in the actual STAR software releases.
 If you want to install \name{TRS} locally on your machine you should
 continue to read the following three sections which explains how to
 obtain, compile and install the code.
-The {\em TPC Response Simulator} is under {\bf CVS} control at BNL.  It can
+
 \subsection{The source code} 
 
 The \name{TPC Response Simulator} is under {\bf CVS} control at BNL.  It can
@@ -314,16 +328,16 @@ be accessed via \name{afs}: \index{afs} \index{CVS} \index{CVSROOT}
     \comp{cvs checkout StRoot/StTrsMaker}
 \end{enumerate}
 
-you must first have the STAR Class Library \index{SCL} installed
-and compiled.  For instructions see the SCL manual\footnote{Post-script
+\subsection{Compilation}  \index{Compiling TRS} \label{compile}
+
 In order to create the library and (optionally) the referring examples
-\index{SCL installation}.  After the SCL is installed and compiled,
+you must first have the STAR Class Library (\name{SCL}) \index{SCL} installed
 and compiled.  For instructions see the \name{SCL} manual\footnote{Post-script
   version available at http://star.physics.yale.edu/SCL}
 \index{SCL installation}.  After the \name{SCL} is installed and compiled,
-copy of the SCL can be used.  In order to use this, a flag
+the directory with the  header files and shared libraries must
 be set in the \name{TRS} {\bf GNUMakefile.architecture}.  If the
-otherwise, the BNL installation of the SCL is assumed to be used.
+installation is away from BNL, a local (or through \name{afs})
 copy of the \name{SCL} can be used.  In order to use this, a flag
 (\texttt{AT\_BNL}) can also be set in the {\bf GNUMakefile.architecture},
 otherwise, the BNL installation of the \name{SCL} is assumed to be used.
@@ -375,7 +389,7 @@ general it should be sufficient to adjust the settings in
 
 \section{Macros} \index{macros} \label{Macros}
 
-StarClassLibary \index{SCL}. If the compiler used is fully ANSI
+The \name{TPC Response Simulator (TRS)} is coded under the assumption that all
 ANSI features, and a standard Library, including the STL, are available,
 and that there is access to the 
 Star Class Library \index{SCL}. If the compiler used is fully ANSI
@@ -386,14 +400,14 @@ compiler technology, a number of compiler and Standard C++
 Library \index{Standard C++ Library}
 features are often missing or implemented in a way that differs from
 the ANSI standard.\\
-The following macros are used throughout the SCL and TRS.
-If the SCL and TRS is installed properly they should be defined
+In order to use TRS on those systems various macros were defined
+which either disable certain features, e.g. exception handling, or use
 slightly modified (and less elegant) code.
-flags should be used for the compilation of both the SCL and TRS!
+The following macros are used throughout the \name{SCL} and \name{TRS}.
 If the \name{SCL} and \name{TRS} is installed properly they should be defined
 according to your platform/compiler.  Please note that the same
 flags should be used for the compilation of both the \name{SCL} and \name{TRS}!
-The following macros are also used in the  Star Class Library.
+
 \subsection{Generic Macros}
 
 The following macros are also used in the  Star Class Library \index{SCL}.
@@ -414,9 +428,13 @@ handling. \index{ST\_NO\_EXCEPTIONS}
 \item[\comp{ST\_NO\_NAMESPACES}:] definded if the compiler does not support
   multiple namespaces.\index{ST\_NO\_NAMESPACES}
 \item[\comp{ST\_OLD\_CLHEP\_SYSTEM\_OF\_UNITS}:] user defined if one must use units as
+  defined in CLHEP v1.2 (use of this macro is strongly discouraged).\index{ST\_OLD\_CLHEP\_SYSTEM\_OF\_UNITS}
+\item[\comp{NO\_HBOOK\_INIT}:] restricts the automatic initialization of HBOOK
+  memory (SCL specific).
+\item[\comp{RWSTD\_BOUNDS\_CHECKING:] used to check that the bounds of 
 STL \index{STL} containers\footnote{Only for Rogue-Wave \index{Rogue-Wave} 
         implementations of the STL}
-Furthermore several platform idioscynchrocies and shortcomigns must
+are not exceeded.
 \end{description}
 
 Furthermore several platform idiosynchrocies and shortcomings must
@@ -433,16 +451,17 @@ which are defined by the compilers. For:
 \subsection{\name{TRS} Specific Macros}
 
 The following macros are only used in TRS specific classes.
-    check that the indices do not overstep the boundaries for pad rows,
+
 \begin{description}
   \item[\comp{ST\_CHECK\_SECTOR\_BOUNDS}:] defined if it is desired to
     check that the indices do not over step the boundaries for pad rows,
     pad numbers, or time bins.
 \end{description}
 
-The documentation of \name{TRS} consists of the {\em User Guide and
-    Reference Manual} located in \name{StRoot/StTrsMaker/doc/tex}, 
-(i.e.~this document), and (shortly) a \name{HTML} class browser in
+
+\section{Documentation} \index{documentation} \index{class browser} \index{HTML}
+
+The documentation of \name{TRS} consists of the {\em \bfUser Guide and
     Reference Manual} (i.e.~this document) is 
 located in \name{./StRoot/StTrsMaker/doc/tex}, and (shortly) 
 a \name{HTML} class browser in
@@ -465,42 +484,44 @@ will be generated automatically from the current code.
 %header file(s) and the signature of the class object followed by the \name{C++}
 %code that describes the public interface. Please note, that the interface is
 %displayed in its pure ANSI form. In a few rare cases and depending on your
-     
+%platform the actual code might differ slightly. 
 %This browser only shows the interfaces, i.e., the prototypes of the classes and
 %function objects.
 %$     
 \section{Overview and Design} \index{overview} \index{design}
 \label{sec:design}
 
-the various processes that are modelled.
+The \name{TRS} design document\footnote{http://www.rhic.bnl.gov/STAR/html/comp\_l/simu/TpcRespSim/src/ps/TrsDesign.ps} 
 sets out the design, requirements and philosophy of \name{TRS}, as well as
 the first simple description of the algorithms proposed for use in
 the various processes that are modeled.
 
-TRS:
+The initial prototyping
 phase led to the development of two types of classes
 that make up the core of the physics and simulation components of
-   \item Processes -- physical processes that model the physics occuring
+\name{TRS}:
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 \begin{itemize}
    \item {\bf Processes} -- physical processes that model an aspect of 
      the physics occuring
-   \item Containers -- structures which contain the various types and
-        forms of data required in the time evolution of the simulation.
+     in the chamber such as charge transport, wire chamber operation
+     and signal generation.  These are defined in detail in 
+     section~\ref{sec:processes}.
    \item {\bf Containers} -- structures which contain the various types and
      forms of data required in the time evolution of the simulation.
      These are defined in section~\ref{sec:containers}. 
-In the class design of the package, each process as described above
-was mapped to a single class as to were the containers.
-This provided a simple factorization 
-between processes which allowed them to function independently of
+\end{itemize}
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+In the class design of the package, each physical process, 
 as described above, was mapped to a single class, as were the containers.
-for detailed study without worrying about the effect of orthogonal
+This provides a simple factorization 
 between processes which allows them to function independently of
-behavior of a wire chamber use a parameterization of a pad response
-function from empirical relations such as:
+one another.  It also allows the isolation of single processes
+for detailed study independent of the effect of other
 processes.  As an example, previous attempts to simulate the
 behavior of a wire chamber use a parameterization (f) of a 
-f(y) \sim  e^{-(x-x_{o})^{2}/(2 \sigma^{2})}
+pad response function from empirical relations such as:
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 \begin{equation}
 f(x) \sim  e^{-(x-x_{o})^{2}/(2 \sigma^{2})}
@@ -508,177 +529,201 @@ f(x) \sim  e^{-(x-x_{o})^{2}/(2 \sigma^{2})}
 \end{equation}
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 where $\sigma$ incorporates terms which depend on the orientation of the
-in a simulation a parameter which has to be tuned and it usually 
-is reduced to an empirical fit to the data where the physical
-significance is  reduced.  This does not need to be the case since
+trajectory of a particle, the transport properties
+of ionization through a gaseous medium, pad plane geometry, 
+electronics properties, etc.  As such it is very difficult to isolate
+the effects of a specific process, and parameters which affected
+by many different processes result. This reduces the physical significance
 of tunable parameters and while this may be fine for large scale production
 of data, for understanding of the effects of physical processes, it is
 not very useful.  This does not need to be the case since
-transport the ionzation to the read-out plane independent of whether 
+the physics processes important in the operation of a TPC are
 independent of not only the granularity of the simulation but also
 the level of detail of the simulation.  As an example, one needs to
-mesh grid and propogate the charge across the grid, or do a simple
+transport the ionization to the read-out plane independent of whether 
 it is a single electron or segment of charge, however the detail of
 whether one calculates the drift velocity at every point on a fine
-and the {\em SLOW} microscopic simulation can use.  This allows
-the use of a
-switch (flag) or parameter which to set the detail of
-the simulation and there will not be two separate codes within the
-same framework.  Rather the same interface will mean the same functions
-will be called, however the implementations can vary in the detail.
+mesh grid and propagate the charge across the grid, or do a simple
+projection of the charge onto the pad plane.  As such, the above processes
+can define an interface from which the {\em FAST}  parameterizations
+and the {\em SLOW} microscopic simulation can utilize.  This allows
+the use of the same code and interface with only a 
+switch (or flag) which can be used to set the detail of
+the simulation.  This allows the same infrastructure to handle
+various levels of detail without resorting to separate packages for each.
+Rather the same interface will mean the same function names
+will be called, with only the implementations which vary.
 
-As such, the {\em processes} are the actual physical events that occur inside the chamber
-and operate on data which are stored in {\em containers}.  Thus a general
-practice was followed that input data would be passed to a {\em process} class
-via a {\em container} and the processor would either
+As such, the {\bf processes} are the actual physical events that occur 
+inside the chamber
 and operate on data which are stored in {\bf containers}.  Thus a general
-be stored more naturally in a new or separate {\em container} for the next
+practice was followed that input data would be passed to a {\bf process} class
 via a {\bf container} and the processor would either
-of classes fulfill two different needs withing the package, the relation
+mutate the data within the containers or produce data that would
 be stored more naturally in a new or separate {\bf container} for the next
-very physical means in the following two sections (sections~\ref{sec:processes},
-\ref{sec:containers})
+physics process.  As such, although the functions of these two types
+of classes fulfill two different needs within the package, the relation
 between them is very close.  These relations are explained in terms of
 very physical means in the following two sections 
 (sections~\ref{sec:processes} and \ref{sec:dataContainers}),
 
-There are four main types of processes that were deemed necessary
-to model to reproduce the operation of the TPC in \name{TRS}.
-When dicussing the mode of operation of a TPC they become evident:
+\subsection{Physical Processes}
+\label{sec:processes}
+
+There are four main types of {\bf processes} that were identified 
 as being necessary to model in order to reproduce the operation of 
 a TPC in \name{TRS}.  When discussing the mode of operation of a TPC 
-  \item Ionization Transport -- charge transport of the ionization
+they become evident:
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-  \item Charge Collection -- electron/ionization collection on the
+\begin{itemize}
   \item {\em Ionization Transport} -- charge transport of the ionization.
-  \item Analog Signal Generation -- charge induction on the pad plane and
+    deposited in the active region to the readout chambers.
   \item {\em Charge Collection} -- electron/ionization collection on the
-  \item Digital Signal Generation -- Digital conversion of analog signals.
+    sense wires of the multi-wire proportional chamber (MWPC).
   \item {\em Analog Signal Generation} -- charge induction on the pad plane and
     the generation of the time evolution of the analog signals on the pads.
-A brief overview of the processes are given below.  More detailed
+  \item {\em Digital Signal Generation} -- Digital conversion of analog signals.
 \end{itemize}
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-\subsubsection{Ionization Decomposistion and Transport}
+A brief overview of the processes are given below, and more detailed
 remarks are given in section~\ref{sec:simulationProcedure}.
 
 \subsubsection{Ionization Decomposition and Transport}
-within a detector and transports it through the field cage structure of
+\label{sec:ionizationTransport}
 
-be generated externally, by GEANT \index{GEANT} or generated internally
+The ionization transport takes the charge deposited in an active volume
 within a TPC detector and transports it through the field cage structure of
 the TPC to the read-out plane.  The charge which is deposited can either
 be generated externally, by GEANT \index{GEANT} or internally
-Generally the ionization of the particle tracks will be described
+given knowledge about parameters of the the fill gas in the chamber such
+as the mean free path and ionization potential.
 
-over a given length (ds), by a particle with a momentum $\vec{p}$.
+In the most common mode of operation, the ionization of the particle 
 tracks will be described
 by GEANT, which will provide the amount of energy deposited (dE) 
-segment level (dE) or the single electron level.  This allows a mechanism 
-to allow us to distinguish between a detailed microscopic simulation and
-a macroscopic parameterization---that is the granularity of the simulation
+over a given path-length (ds), by a particle with a momentum $\vec{p}$.
+Given the average ionization potential of the gas, the total number of 
+electrons can be calculated such that the transport can be done at the
+segment level (dE) or the single electron level.  This provides a mechanism 
 which allows the possibility to distinguish between a detailed microscopic 
-as specified by the geometrical description of the chamber in GEANT.
+simulation and
 a macroscopic parameterization; that is, the granularity of the simulation
 can take on a range from the single electron level to a charge segment
 containing many 10s of electrons.
-which characterize the effects of diffusion.
+By varying the length of the segment that is transported (and subsequently
+processed), the granularity of the simulation can be varied.  The ionization
+can then be distributed on the pad-plane according to the distributions
+which characterize the effects of diffusion.  The role of the charge 
+transporter is
+to alter the x and y positions according to the transverse diffusions, the
 z position to reflect the drift time, with the effects of longitudinal
 diffusion folded in) and the amount of charge that actually reached the
 read-out plane.
 
-Once the electrons arrive at the wire plane by the drift
-field within the field cage, they must be collected by the anode/sense
-wires of the proportional chamber (MWPC).
+\subsubsection{Charge Collection and Amplification}
+\label{sec:chargeCollection}
+
 Once the electrons arrive at the read-out plane, they must be 
 collected by the individual anode/sense wires of the multi-wire 
-on the potential of the wires.  This operation is somewhat of a hybrid as
+proportional chamber (MWPC).
 This is where the avalanche process multiplies
 the signal of several 10s of electrons to several 10$^{3}$-10$^{5}$, depending
 on the potential on the wires.  This operation is somewhat of a hybrid as
-proccesses are incoporated here for an efficient implementation.
+it is really occurring within a container, however the processes
 occur in the amplification
 stage require the knowledge of the wire grid structure, and so the
 processes are incorporated here for an efficient implementation.
 
 \subsubsection{Analog Signal Generation}
-amount of charge induced on the pads can be estimated and this is
-modelled via two processes:
+\label{sec:analogSignalGeneration}
+
+Once the charge is multiplied at the field wires of the MWPC, the
 amount of charge induced on the pads produces an analog signal which
 varies as a function of time.  These events can be modeled via two 
-  \item charge induction.
-  \item charge sampling.
+processes:
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 \begin{itemize}
   \item charge induction on the pads.
   \item charge sampling by the electronics.
 \end{itemize}
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-charge density, the signal at the output of the pre-amplifier/shaper
-can be determined.  Although the
+Given
+the amount of charge on the wires and the geometry of the pad plane,
+the induced charge on any arbitrary pad can be calculated.  From this
 quantity of charge, the signal at the output of the pre-amplifier/shaper
-entirely due to the motion of the postive ions away from the wire, 
+can be determined given the response (i.e.~transfer function) of the
 analog electronics.  Although the
-of charge that is available to be induced on the pad plane.  In reality
-however, only a fraction of this charge is seen because of the
+time evolution of the signal that is developed on the wires is nearly 
+entirely due to the motion of the positive ions away from the wire, 
+the number of electrons produced provides a measure of the total amount
+of charge that is available to be induced on the pad plane.  The shaping
 width of the electronics provide an estimate of the fraction of charge
 that is really observed.  In reality only a fraction of the total charge 
 is seen because of the
 small mobility of the positive charged ions and it takes a long
-plays an important role in the amount of charge acutally measured.
+time for the signal to finally decay (the famous 1/T tail).
 As such the shaping 
 properties of the analog electronics (i.e.~pre-amplifier and pulse shaping)
 plays an important role in the amount of charge actually measured.
-the order of 30-50\% of the charge.  This charge can then be distributed
-into time bins modelling the behavior of the switch capacitor array (SCA)
+As such, given the total amount of charge induced on the pads, the
+electronics will differentiate the signal, and be sensitive to a 
 certain fraction of the total charge.  In the case of STAR, it is of
 the order of 45\% of the charge.  This analog charge can then be distributed
 into time bins modeling the behavior of the switch capacitor array (SCA)
 
 \subsubsection{Digital Signal Generation}
-After the anolog charge has been distributed into the time bins on
+\label{sec:digitalSignalGeneration}
 \index{digital signal generator}
-is to be modelled because STAR uses a non-linear 8-bit ADC which
-After the analog charge has been distributed into the time bins on
-and digital signal generation componenents operate on the signals
-is to be modeled because STAR uses a non-linear 8-bit ADC which
-differ enough to justify breaking the processes into two distinct
-categories.
 
+After the analog charge has been distributed into the time bins on
+each pad, it can be digitized.  This is an important property which
+is to be modeled because STAR uses a non-linear 8-bit ADC which
+contains the information of a 10-bit linear scale.  Both the analog
+and digital signal generation components operate on the signals
+which are distributed in time bins, however there functions and operations
+as well as the information contained differ enough to justify breaking 
 the processes into two distinct types of processes.  The digital information
 can be compressed much more and require a format that is accessible
 via the {\em Data Decoder}.\footnote{see DAQ interface to Offline, M.~Shultz et al.}
 
 \subsection{Data Containers}
-The need for containers is defined by the extent that the physics
-processes as described in section~\ref{sec:processes}.  Container
+\label{sec:dataContainers}
+\index{containers}
 
 The containers required for \name{TRS} are essentially defined by 
-are closely matched to the structure of the container.  In essence the
+the physics processes as described in section~\ref{sec:processes}.  Container
+classes are used rather than simple data structures because it is
 more simple to incorporate book-keeping and simple functions which
 are closely matched to the structure of the container into a class.  
 In essence the
 containers establish a kind of {\em I/O} interface between the separate
 processes and allow the same "physics framework" to exist, independent of
 the granularity or detail of the simulation.  As a concrete example the
-are designed in a very generic manner that would facillitate implementation
+physics of the ionization transport of a charge segment through the
 TPC field cage is independent of whether the segment in question is
 a single electron or macroscopic charge cloud.  As such the containers
 are designed in a very generic manner that would facilitate implementation
 of the physics processes at various levels of detail and granularity.
-   \item Charge Segment -- the input to the program is an amount of
+The containers required for \name{TRS} are:
 
 \begin{itemize}
    \item {\em Charge Segment} -- the input to the program is an amount of
-   \item Charge Mini Segment -- a fraction of a Charge Segment (above) 
+     energy (dE) deposited in a TPC volume with length (ds), by a
      particle of momentum $\vec{p}$.  In essence it is a object definition
-   \item Wire Bin Entry -- Position and charge of the Charge Mini Segment
+     of a {\em g2t\_tpc\_hit}-like structure.
+   \item {\em Charge Mini Segment} -- a fraction of a Charge Segment (above) 
+     which can be, in the limit, the position of a single electron.
      This is transported to the read-out plane.
-   \item Wire Histogram -- collection of all anode wires which make
-     up the MWPC.  Collects the charge.
-   \item Analog Signal -- structure containing the time (centroid) and 
+   \item {\em Wire Bin Entry} -- Position and charge of an ionization segment 
+     (Charge Mini Segment)
+     at the wire plane after the ionization transport.
    \item {\em Wire Histogram} -- all anode/sense wires which make
      up the MWPC which facilitates the charge collection.
-   \item Sector -- contains analog (and digital) signals on pads.
+   \item {\em Analog Signal} -- structure containing the time (centroid) and 
+     amplitude of a signal on a pad.  This can function as storage 
+     for both analog and digital signals
+   \item {\em Analog Sector} -- contains analog signals on pads and is the
+     main working structure for calculations involving the charge induced
      on the pads.
    \item {\em Digital Sector} -- contains digital signals on pads and contains the
      output data of the simulation.     
@@ -690,13 +735,13 @@ the design guidelines.  The functions of the containers are described
 in more detail below:
 
 \subsubsection{Charge Segment}
-segments produced by GEANT (or some type of external program)
-to pixel data, or Raw TPC Data.  As such the input will nominally
+\label{sec:chargeSegment}
+
 The purpose of the slow simulator is to transform ionization
-pathlength (ds) at a coordinate ($\vec{x}$).  This information was
+segments (usually produced by GEANT, or some type of external program)
 to pixel, or Raw TPC Data.  As such the input will nominally
-and {\em g2t\_tpc\_track}.  In the context of \comp{TRS} it is necessary and
-more convenient to have this data wrapped in a class structure.  This
+be a quantity of energy (dE) deposited by a track over a finite
+path length (ds) at a coordinate ($\vec{x}$).  This information was
 previously wrapped in two C/Fortran structures called {\em g2t\_tpc\_hit}
 and {\em g2t\_tpc\_track}.  In the context of \comp{TRS} it is necessary, and
 more convenient, to have this data wrapped in a class structure.  This
@@ -714,44 +759,41 @@ charge segment into the sector 12 reference frame of the TPC and
 splitting the ionization into smaller segments to increase the granularity
 of the simulation.
 
-The mini segment is a fragment of a charge segment (above) after it
-has been split.  It can contain the complete or a component of the
-segment.  It is distributed onto a helical trajectory over the pathlength
-(ds) as specified in the charge segment.  It is this mini segment on which
-the charge transporter {\em process} will operate.  As such the relavent
+\subsubsection{Charge Mini Segment}
+\label{sec:chargeMiniSegment}
+
+The charge mini segment is a fragment of a charge segment (above) after it
+has been split.  It can contain the complete charge segment or a 
+fraction of it.  Each mini segment is distributed within the path length
+of the charge segment (ds) onto a helical trajectory according to
 the mean free path of the particle within the gas (medium).  
 It is this mini segment on which
-write access to these quantities.  The role of the charge transporter is
-to alter the x and y positions according to the transverse diffusions, the
-z position to reflect the drift time, with the effects of longitudinal
-diffusion folded in) and the amount of charge that actually reached the
-read-out plane.
+the charge transporter {\em process} will operate.  As such the relevant
 data members are the position of the segment and the number of electrons.
 Access and set functions are provided so that the transporter has read and
 write access to these quantities.  
 
 \subsubsection{Wire Bin Entry}
-the wires.  As such the charge mini segment, which has a ionization
-distribution which is in general, orthogonal to the wire direction,
-distributes the charge on the pad plane in a Gaussian-like distribution
-to model the effects of diffusion.  This charge must then be collected
-on the wires and so, must be repackaged such that a specific quantity of
+\label{sec:wireBin}
+
+Once the charge reaches the anode wire grid it must be collected on
+the sense/anode wires.  In order to distribute the ionization onto
 the wires after diffusion effects are introduced 
-{\em wire bin entry} is made to collect an amount of charge, q in the vicinity of
+(in the charge transporter), the ionization must be repackaged 
 such that a specific quantity of
 ionization can be assigned to a position on the anode wires.  Thus the
 {\em wire bin entry} is made to collect an amount of charge, $q$ in the vicinity of
 an anode wire at a position $\vec{x}$, which can be assigned to a wire.
 
-The {\em wire histogram} is a class in which charge can be assigned to single
+\subsubsection{Wire Histogram}
 \label{sec:wireHistogram}
-{\em wire bin entry} class.  The functionality of this class goes much beyond
+
 The wire histogram is a class which models the charge collection on single
-wire, but also posseses functions necessary to facilitate gas gain
+wires in a controlled manner; that is, charge is assigned through the
 wire bin entry class.  The functionality of this class goes beyond
 simply keeping track of the amount of ionization collected on a single
-which is necessary in the {\em wire histogram} is also necessary to be
-able to do gas gain.  Thus instead of imposing overhead of redundent
+wire, but also possesses functions necessary to calculate gas gain
+amplification of each cluster.  The reason this {\em ``process''} is associated
 with a container is that the structure and layout of the wire grid,
 which is necessary in the wire histogram is also necessary to be
 able to do gas gain.  Thus instead of imposing overhead of redundant
@@ -761,7 +803,7 @@ induce a signal on the pad plane.
 
 \subsubsection{Analog Signal}
 \label{sec:analogSignal}
-time (centroid) and amplitude.  The class provides both access and
+
 An electronic signal, regardless of it being analog or digital,
 can be characterized by a pair of numbers which represents the
 time (centroid) and total charge.  This class provides both access and
@@ -776,20 +818,31 @@ This structure is used to keep all the signals that are generated on the
 pad plane, both analog and digital.  In this sense the term {\em analog}
 is probably a misnomer, but it is foreseen in the future to introduce
 another digital signal which does not require {\bf float} precision of
-\subsubsection{Sector}
+the stored values.  This should improve the storage requirements for
 a single event.  
 
 \subsubsection{Analog Sector}
-by pad-row, pad number, and perhaps time-bin.  The {\em sector} is
-a container which can store an indeterminate number {\em analog signals}
-indexed by these quantities.  Please note that either analog or
-digital signals can be stored currently.  The data is accessible either
-Please note that although both analog or
-the class to facilitate traversal of the structure.  An array (or container)
-containing 24 sectors will be the end result of the complete simulation.
-this structure.  The data is accessible either
+\label{sec:sector}
 
-\subsection{Auxilliary Components}
+The final output of the simulator is pixel data which is indexed
+by pad-row, pad number, and perhaps time-bin.  The sector is
+a container which can store an indeterminate number analog signals
+indexed by these quantities.  As such after a specific charge is induced
+onto the cathode pads, the analog sector keeps track of all intermediate
+stages of calculation before digitization occurs.  
+Please note that although both analog or
+digital signals can be stored, only analog information is stored within
+this structure.  The data is accessible either
+by pad-row, or single pad indices.  Iterators are also provided within
+the class to facilitate traversal of the structure.  
+
+\subsubsection{Digital Sector}
+\label{sec:digitalSector}
+
+The final output of the simulator is pixel data which is indexed
+by pad-row, pad number.  The digital sector is
+a container which can store an indeterminate number of digital (8-bit) signals
+indexed by these quantities.  The complete simulation of a complete
 detector is 24 separate digital sectors.
 
 \subsection{Auxiliary Components}
@@ -840,8 +893,8 @@ different types.  These are:
    \item Slow Control -- parameters which must be monitored or
          controlled such as drift velocity, voltages, and environmental
          conditions.
-   \item Gas/$\frac{dE}{dx}$ requires knowledge of the parameters
-         of the gas. (Processes)
+   \item Electronics -- all electronics parameters such as gains,
+         sampling times, frequencies, gains, etc.
    \item Magnetic Field.
    \item Gas/Ionization requires knowledge of the parameters
          of the gas.
@@ -850,97 +903,109 @@ different types.  These are:
 
 Along with these data base interfaces, various transformation routines
 between different coordinate systems were required.  Currently
-   \item TPC Raw Coordinate -- defined by a sector, pad row, pad, 
+three types of coordinates are implemented and used: \index{coordinates}
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-   \item TPC Local Coordinate -- defined by a three-vector with repspect 
-         to the center of the TPC at (0,0,0).
+\begin{itemize}
+   \item TPC Raw Pad Coordinate -- defined by a sector, pad row, pad, 
          and time bucket.
-         global coorindate system, which is fixed by the survey.
+   \item TPC Local Coordinate -- defined by a three-vector with respect 
+         to an origin at the center of the TPC.
    \item STAR Global Coordinate -- defined by a three-vector which is the
          global coordinate system, fixed by a survey  of the detector
          with respect to the magnet iron.
 \end{itemize}
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
-this coordinate system.
+Although the simulation is done within the TPC local coordinate system,
+there is a need to also define a global coordinate system as the 
 magnetic field (as well as any other detector) will be linked through
 this coordinate system.  It should be noted that the geometry for
-knowledge of the geometry of the chamber in general.  As such access
-to these parameters was required, and it was developed from the
-beginning that all would refer to the paramters through an interface
-which would access any Grand Challenge \index{Grand Challenge}
-infrastructure defined for STAR.
+this transformation has not been implemented into \name{TRS} yet.
+
+The coordinates and transformations between each system requires the
+knowledge of the geometry of the chamber in general.  As such the
+coordinate transformations were designed so that any reference to
 these parameters would be through an interface
 which could access any Grand Challenge \index{Grand Challenge}
-are not specific to the \name{TRS} package, they were required before a 
-real implementation
-could be developed.  As such the implementation was done in a TPC
+infrastructure defined for STAR in the future.
+
+Although the coordinate transformations and data base interfaces
 are not specific to the \name{TRS} package, they were required before
 a  real implementation could be developed.  As such the implementation
-In the near future it is hoped these classes (or subsequent versions) 
-will be incorporated into the SCL.   Below the data base interfaces
+of these classes was done in a TPC
+specific manner, however the design incorporated ideas such that the
+framework could be easily extended to other detector sub-systems.  
+It is foreseen that in the near future these classes (or subsequent versions) 
 will be incorporated into the \name{SCL} with access to the official
 STAR data base infrastructure, rather than the simple \name{TRS} framework.
 Below the data base interfaces
 and the coordinate transformations are described in more detail.
-The same common design for all interfaces are implemented.  A purely
-virtual abstract class from which any concrete class must inherit
-from is defined.  This provides a constant user interface, independent
-A purely abstract base class, from which any concrete class must inherit
-Each concrete class is implemented as
-a singleton class\footnote{see: E.~Gamma et al., {\em Design Patterns: Elements of Resusable Object-Oriented Software}}
-for several reaons. \index{singleton} 
- First, because the class must be initialized each
-time an instance is created which can be very time consuming if
-all variables must be assigned to data members within the class.  Thus
-for concerns of efficiency it is advisable.  Also because the classes
-require access to data bases, it is necessary to ensure that
-several different data base implemenations are {\bf NOT} used simultaneously.
-A singleton class ensures the same functions are used homogenously
-in the code.
+ 
+\subsubsection{Data Base Interfaces}
 
-The data-base classes are a collection of inline access functions,
-along with some simple diagnostic features that allows the user to print out
-the values associated with all member functions.  It should also
+The same common design for all data base interfaces was implemented.
+A purely abstract base class, from which any concrete class must inherit
+from, defined the necessary functionality of these access classes.
+This provides a constant user interface, independent
+of the evolution of the developments in data base implementation.
+This was seen as a necessity to keep \name{TRS} stable against this
+evolution.  Each concrete class is implemented as
+a singleton class\footnote{see: E.~Gamma et al.,
+  {\em Design Patterns: Elements of Reusable Object-Oriented Software}, Addison-Wesley 1995.}
+for several reasons. \index{singleton} 
+First, in the initial implementation, these classes are initialized
+each time an instance is created and this can be very time consuming if
+all values must be assigned to data members within the class.
+Also because the many classes which model the physics require access
+to the data bases, it is necessary to ensure that several {\em different}
+data base implementations are {\bf NOT} used simultaneously.
+A singleton class ensures the same functions are used homogeneously
+in the code.  Thus for reasons of efficiency, and robustness it was
+decided to use this design pattern.  It should be mentioned that this
+mechanism can be extended to allow for multiple versions of geometry
+which will be important once real survey data must be reconciled
+with experimental data.
+
+In the current implementation of the simple data bases,
 the classes are a collection of inline access functions,
-class from the SCL \index{System Of Units} \index{SCL} are also
-used. 
+along with some simple diagnostic features that allows the user to
+print out the values associated with all member functions.  It should also
 be noted that to ensure consistency in the units, the \comp{SystemOfUnits}
-\paragraph{Geometry}
+class from the SCL \index{System Of Units} \index{SCL} are used
 through out. 
 
 \paragraph{Geometry--}
 
 Contains the
 geometrical parameters which define the dimensions and construction
-\paragraph{Slow Control}
+of the detector.  For the TPC, these parameters describe the field
 cage, pad plane, and wire chamber dimensions.
 
 \paragraph{Slow Control--}
 
 Contains all parameters which are monitored and/or controlled by 
 the experiment.  These include not only environmental parameters such
-\paragraph{Electronics}
+as temperature and pressure but also detector operating conditions,
 such as voltage, drift velocity etc.
 
-gains, sampling times, shaping widths are included.  This interface 
+\paragraph{Electronics--}
 
 All electronics parameters and specifications such as nominal
 gain, sampling time, shaping time, etc. are included.  This interface 
 can also be extended to include derived parameters such as channel gains
-course of the experiment.  {\bf NOTE:}{\em the offsets are not implemented as of this time.}
+and time offsets derived from calibration runs.  It should be noted
 that these types of parameters may also be, or rather be, located in
-\paragraph{Magnetic Field}
+the Slow Controls data base if they are found to fluctuate over the
 course of the experiment.  {\bf NOTE:}{\em The individual channel time offsets are not yet implemented.}
-Provides access to the magnetic field components at any postion specfied by
-its three-vector.  It is assumed in the current implementation that
+
+\paragraph{Magnetic Field--}
 
 Provides access to the magnetic field components at any position specified by
-\paragraph{Gas/Ionization}
+its global coordinate.  It should be noted that it is currently assumed that
 the TPC Local Coordinate system and the Global system coincide exactly.
 
 \paragraph{Gas/Ionization--}
-only three gases:
+
 This is currently not contained in an interface but a generic
 stand-alone class which contains the gas parameter listings for
 three gases:
@@ -950,20 +1015,19 @@ three gases:
   \item P10 (Ar:CH$_{4}$ 90:10)
   \item NeCO$_{2}$ (90:10)
 \end{itemize}
-the $\frac{dE}{dx}$ class can be split into two which will be a 
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 Parameters for a HeC$_{2}$H$_{6}$ (50:50) mixture are pending.
-this way, because few other classes makes use of any parameters of the gas
-mixtures, and splitting it would result in a penalty in efficiency.
+Should it become necessary,
 the $\frac{dE}{dx}$ class can be split into two components---a 
 gas data base and the calculation portion.  Currently it is implemented
 as a single class, for reasons of efficiency.
 See~\ref{sec:stTrsDeDx} for more details.
 
-only the geometrical layout of the detctor, but also control parameters.
+\subsubsection{Coordinate Transformations}
 
-and electronics offsets may also be important.
-As such they require an implementation of the data bases if hard-coded
-constants are to be avoided.
+The transformation between coordinate systems requires information of not
+only the geometrical layout of the detector, but also control parameters.
+It should be noted that even calibration offsets due to sector alignment
 and electronics offsets may also be important.  Although it is possible
 to incorporate such values in the current design, they are not currently
 implemented.
@@ -980,76 +1044,80 @@ a single overloaded operator ``()''.  This structure allows the
 same form of the function call between any of the six
 allowed transformations:
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-  \item TRC Raw $\leftrightarrow$ Global
+\begin{itemize}
   \item TPC Raw $\leftrightarrow$ TPC Local
   \item TPC Local $\leftrightarrow$ Global
-
+  \item TPC Raw $\leftrightarrow$ Global
 \end{itemize}
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 with the last being trivial calls of the former two.
-and \comp{StTpcSlowControl} data base (interface) need be specified.
+As mentioned previously, the transformations are dependent on
 parameters which are accessible via the data bases.  Thus in
-individual channel time offsets are not implemented, but it
-is a straighforward additions which may require the additional
-specification of an electronics data base.
+order to instantiate the transformation functor, an \comp{StTpcGeometry}
+and \comp{StTpcSlowControl} data base (interface) needs to be specified.
 Currently the
 individual electronic channel time offsets are not implemented, but it
 is a straight forward addition.
 
 \section{Mode of Simulation} \index{Simulation}
-modelled, and the algorithms and methods that implement
-the physics.  It is, as close as possible, mapped directly
-to class structures.  Technical details of the implemenation
+\label{sec:simulationProcedure}
+
 This section describes in detail the processes that are
 modeled, and the algorithms and methods that implement
+the physics.  Technical details of the implementation
+are not included as this is discussed in 
 sections~\ref{sec:physicsprocesses}--\ref{sec:containers}.
 As mentioned previously a single process is
 mapped directly to a single class structure, where possible.
-The ionization generation component of the package is capable of
-handling ionization either generated from an external package 
+
+\subsection{Ionization Process}
+
 The classes that deal with the raw ionization components within
-the ionzation in the active detector volume internally according 
-to basic parameters of the fill gas in the chamber.  Given this 
-capability, the package is also capable of fragmenting segments 
-of ionization as generated externally.
+the package is capable of manipulating ionization distributions
+either generated from an external package 
 (i.e.~GEANT), or given the momentum vector of a particle, generate 
-In normal operations, the ionzation for each TPC sub-volume 
+the ionization in the active detector volume internally according 
 to basic parameters of the fill gas in the chamber.
 
-to an exponential distribution which is derived from the mean
-free path in the gas.  This distribution is given by:
+In normal operations, the ionization for each TPC sub-volume 
+is taken according to the \texttt{g2t\_tpc\_hit} structures.  
+This large segment is then broken up into pieces, according 
+to an exponential distribution which has a mean value characterized
 by the mean free path, between ionizing interactions, of a charged
 particle within the gas.  This distribution, which specifies the
-        f(d) = K e^{-d/d_{ave}}
+distance to the next interaction is given by:
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 \begin{equation}
         f(d) = K e^{-d/\bar{d}}
-where d$_{ave}$ is the mean free path which can be calculated from
-the parameter n$_{ave}$, the number of ionizating collisions which 
-occur per unit distance.  The mean free path is then given by 1/n$_{ave}$.  
-This gives rise to a Poissonian distribution of the number of
-interactions, or primary electrons, per unit length which can be used
-to generate the total number of electron-ion pairs by an ionizing particle.
-      
-At each interaction point a single primary electron is produced.  
+\label{eq:meanFreePath}
+\end{equation}
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+where $\bar{d}$ is the mean free path.  It is derived from
+the number of ionizing collisions which occur per unit
+distance, $\bar{n}$.  The mean free path is then given by 1/$\bar{n}$.  
+This gives rise to a distribution of ionizing interactions per
 unit distance which is Poissonian in character.
 
-scattering, this implies an energry distribution (E) varies as 
-E$^{-2}$.  However, strictly speaking, the electrons are not free 
-but are bound to the atoms of the medium (in our case the TPC gas)
-via a finite potential.  As such the energy distribution will not be 
-exactly quadratic, but will have a slight medium dependence which will
-have the form E$^{-n}$.  For Ar, it is found experimentally that  
+At each interaction point a single ``primary'' electron is produced.  
+These electrons will have an energy distribution given by 
+the Rutherford scattering formula.  In the case of free $e^{-}e^{-}$ 
+scattering (or at high momentum transfer where the binding energy
+can be neglected), this implies an energy (E) distribution which
+varies as E$^{-2}$.  Because the electrons are not, strictly speaking,
+free  but rather bound to the atoms of the medium (in our case the TPC gas)
+via a finite potential, there is a modification to this energy dependence
+which is medium dependent.  This dependence has been measured experimentally
+and can be quite accurately parameterized by a function of the
 form E$^{-n}$.\footnote{see: H.~Fischle et al., NIM {\bf A301} (1991) 202;
-which is 90\% Ar.  For other gases, this dependence is different.  For
-example, Ne requires n=2.2, and He, n=2.6.  This "stiffening" of the
+  and B.~Lasiuk NIM {\bf A409} (1998) 402.}
+For Ar, it is found experimentally that  
 n=2 is a good approximation.  A similar behavior is expected for P10
-binding energies of the lighter gases.  It also has the desirable
+which is 90\% Ar.  For lighter gases, n increases.  For
 example, Ne requires n=2.2, and He, n=2.6.  This ``stiffening'' of the
-lower Z gases are used.  This compensates the fact that fewer
-primary electrons are produced which gives rise to larger
-statistical uncertainty in the amount of energy spent in the
-ionization process.  For this reason, resolution of dE/dx
+primary electron energy spectrum is a consequence of the higher
+binding energies of the lighter gases, however it has the desirable
+effect of decreasing the width of the Landau distribution as
+lower Z gases are used.  The reason is that although fewer secondary
 electrons are produced, the spread in the energy distribution is smaller,
 and this compensates for the degradation in statistics.
 For this reason, resolution of dE/dx
@@ -1058,18 +1126,21 @@ type used (to first order).
     
 The energy dependence of the primary electrons is important because
 it determines the amount of subsequent ionization that is generated.
-N is then given by:
+For those primaries that have an energy above the ionization potential 
 of the medium, which is typically the order of 10s of eV, subsequent 
-        N = (E_{p} - I_{p})/W
+electrons (secondaries) can be generated.  The number of secondaries 
 N$_{sec}$ is then given by:
 \begin{equation}
         N_{sec} = (E_{p} - I_{p})/W
 \label{eq:secondary}
 \end{equation}
-which must be measured for each gas mixture individually.  It is found
-that for most cases, except where the energy of the particle is very
-small, the amount of energy required is very small.  This is seen
-in figure~\ref{fig:W}.
+where E$_{p}$ is the energy of the primary electron, I$_{p}$ is the 
+ionization potential of the medium and W is the amount of energy necessary
+to create an $e^{-}-ion$ pair. This is an ``effective'' quantity
+which is very difficult to calculate from first principles and therefore
+must be measured for each gas mixture individually.  It is found
+that in most cases, except where the energy of the particle is very
+small, the amount of energy required to produce an $e^{-}-ion$ pair
 is independent of the energy of the incident particle.  This is seen
 in figure~\ref{fig:W}.\footnote{From W.~Blum and L.~Rolandi
   {\em Particle Detection with Drift Chambers} Springer-Verlag 1994.}
@@ -1083,12 +1154,14 @@ in figure~\ref{fig:W}.\footnote{From W.~Blum and L.~Rolandi
   Dashed lines are extrapolations to higher energies.}
 \label{fig:W}
 \end{center}
-The total number of electrons produced (in a given distance) is
-then given as the sum of the primaries and secondaries.  This procedure of
-generating each component separately from two distinct distributions 
-produces a Landau-like distribution---which is expected for the yield of 
-ionization in a given path length, since it effectively convolutes
-a Poissonian and E$^{-n}$ distribution.  Results for Ar and Ne are
+\end{figure}
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+The total number of electrons produced per interaction is
+then given as the sum of the primaries and secondaries.
+Thus calculating the number of electrons generated in a specific
+length convolutes two distributions---a Poissonian which determines
+the number of interactions, and an E$^{-n}$ which determines
 the majority of the yield.  This procedure results in 
 a Landau-like distribution---which is expected for the yield of 
 ionization in a given path length.  Results for Ar and Ne are
@@ -1103,43 +1176,47 @@ shown in figure~\ref{fig:landauGases}.
   are from a path length of 1.95~cm which is the pad length in the
   outer part of the TPC super-sector.}
 \label{fig:landauGases}
-
 \end{center}
-segements, it may then be transported to the multi-wire proportional
+\end{figure}
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 Once the ionization is generated, or distributed into smaller
 segments, it may then be transported to the multi-wire proportional
 chamber (MWPC).
 
 \subsection{Charge Transporter}
-This transport is modelled in the {\bf Charge Transporter} component of 
-TRS, and three distinct processes are described:
+
+The charge, or ionization, in the segments that have been produced
 must be transported to the sense (anode) wires of the MWPC for read-out.  
-   \item E $\times$ B Effect
-   \item Transverse and Longitudinal Diffusion
+This transport is modeled in the {\bf Charge Transporter} component of 
+\name{TRS}, and three distinct processes are described:
 \begin{itemize}
    \item E $\times$ B Effect.
-     \item Absorption through attachment (O$_{2}$)
-     \item Gating Grid Transparency
+   \item Transverse and Longitudinal Diffusion.
+   \item Charge Loss {\em through}
    \begin{itemize}   
      \item Absorption through attachment (O$_{2}$).
-and it is possible to control each process independently.  In the
-current implementation the charge is simple projected in (z)
-to the position of the anode wire plane, the underlying assumption
-that the ionization follows the $\vec{E}$ field lines and no
-distortions are visible.  This will be refined in future versions.
+     \item Gating Grid Transparency.
+     \end{itemize}
+\end{itemize}
+and it is possible to control each process independently.
+The charge transporter calculates the position of the charge
+segment/electron at the z-plane of the anode/sense wire grid
+and the amount of charge that arrives.  This charge must then
+be collected and amplified on the anode wires.  In the
+current implementation (i.e.~\em FAST} the charge is simply projected
+in the z coordinate to the position of the anode/sense wire plane;
 the underlying assumption that the ionization follows the $\vec{E}$
-\subsubsection{E $\times$ B Effect} {\em NOTE: not currently implemented}
+field lines and no distortions are visible.  This will be refined
 in future versions.
-The misalignment (or inhomogeneities) of the electric and magnetic field 
+
+\subsubsection{E $\times$ B Effect} {\em NOTE: not currently implemented!}
         
 A misalignment between the electric and magnetic fields
-into the trajectories of ionization left in the TPC which are
-collectivly known E$\times$B distortions.
-In the presence of an 
-electric and magnetic field, a charged particle will not follow the 
-electric field lines, but rather a helical trajectory which is 
-described by the Langevin equation:
+or inhomogeneities in the magnetic field can
+give rise to the ionization following trajectories which are not 
+parallel to the $\vec{E}$ field lines.  This introduces distortions
+into the trajectories of ionization left in the chamber.  These are
+collectively known $\vec{E} \times \vec{B}$ distortions.
 In the general case of a charged particle in the presence of an 
 electric and magnetic field, it will not follow a trajectory
 which is described by the Langevin equation:
@@ -1160,34 +1237,38 @@ The steady state solution (i.e.~$\frac{d{\bf v}}{dt} = 0$) is given by:
 {\bf v} = \frac{\mu |{\bf E}| }{1 + \omega ^{2} \tau ^{2}} ( \hat{\bf E} + \omega  \tau   (\hat{\bf E} \times \hat{\bf B})  + \omega ^{2} \tau ^{2}(\hat{\bf E} \cdot \hat{\bf B} )\hat{\bf B})
 \label{eq:exb}
 \end{equation}
-A misalignment between the electric drift field and magnetic 
-field, or inhomogeneities in the  magnetic field produces a force 
-perpendicular to the electric field direction.
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+where $\mu$ $($ $= \frac{e \tau}{m})$ is the electron mobility 
+and $\omega$ $($ $= \frac{e B}{m})$ is the cyclotron frequency.  
+Although in the ideal field cage structure of a TPC, the electric and
 magnetic fields are parallel and the drift direction is defined
-These equations allows the drift velocity to be calculated at any
+by the electric field vector.  Deviations from this idealization
 introduces velocity components in the orthogonal directions.
-field vectors.  The effect can then be modelled either by numerically
+
+Equation~\ref{eq:exb} allows the drift velocity to be calculated at any
 arbitrary spatial point given knowledge regarding the electro-magnetic
-parameterizing the displacement of the ionizatino in the plane
-orthoogonal to the $\vec{E}$ field.
+field vectors and the mobility of electrons in the gas.
+The distortions can then be modeled either by numerically
 integrating the equation over the drift time of the ionization, or
 parameterizing the displacement of the ionization in the plane
 orthogonal to the $\vec{E}$ field.
-The effects of diffusion are due to multiple scattering of
-the ionization in the tranport from the position of deposition
+
+\subsubsection{Diffusion}
+
 The effects of diffusion are due to thermal motion of the molecules
-The mean position of a charge segment may be transported, but
-it will broaden considerable in proportion to the drift length,
-or more appropriately the square root of its drift length.
-It is simple to parameterize the evolution of the extent of the
-charge distribution (its width) in terms of a single coefficient---the
-diffusion coefficient.  In principle they are distinct in the
-transverse ($\sigma_{T}$) and longitudinal ($\sigma_{L}$) directions.
-This distintion is
-necessary not only to separate the temporal width (in drift direction)
-of the charge cloud and the spatial width (in pad and pad-row
-direction), but to also include the reduction of the tranvese width
-in the presence of a magnetic field as it evolves according to:
+in the gas and multiple scattering of
+the ionization in the transport from the position of deposition
+in the chamber to the read-out or sense wires on the pad plane.
+While the mean position of a charge segment may be transported through
+a volume with arbitrary electro-magnetic fields according to
+equation~\ref{eq:exb}, its profile will broaden
+in proportion to the drift length, or more appropriately,
+the square root of its drift length.
+It is possible to parameterize the evolution of the size of the
+charge distribution (its width) in terms of a diffusion coefficient,
+which is in principle,
+different in the transverse ($\sigma_{T}$) and longitudinal ($\sigma_{L}$)
+directions.  This distinction is important because the evolution
 of the diffusion coefficient in the transverse direction also
 depends on the presence of an magnetic field where it is
 reduced according to:
@@ -1201,11 +1282,11 @@ Once the charge segment/cloud is transported to the read-out plane,
 each segment (or sub-component) can be distributed according to a
 Gaussian (or any other) distribution characterized by a width derived
 from the diffusion constants.  Increasing the granularity of the
-\subsubsection{Absorption of charge}
+charge distribution will better reproduce single electron statistical
 fluctuations.
 
-can be attributed to many different mechanisms.\footnote{Details in
-  soon to be added appendix.}
+\subsubsection{Charge Absorption}
+        
 The absorption of charge is a complex process that
 can be attributed to many different mechanisms.\footnote{Details
   contained in a soon to be added appendix.}
@@ -1228,32 +1309,36 @@ where A specifies an {\em attachment rate} given by:
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 where P$_{O2}$ and P$_{M}$ are the partial
 pressures of the oxygen and TPC gas respectively.
-has been deduced.\footnote{soon to be added appenidix.}
+C$_{O2,M}$ specifies an {\em attachment coefficient} which
 is a function of the gas in question and the reduced electric field (E/p).
 For the case of STAR, a value of C = 10.2~$\mu$s$^{-1}$~bar$^{-2}$
 has been deduced.\footnote{soon to be added appendix.}
-          
+To give an idea of the order of magnitude, for a concentration
+of oxygen of 50~ppm and an ionization cloud drifting for
+50~$\mu$s, the charge loss is expected to be approximately 2.5\%.
 This charge loss can be applied at the single electron level or
 an extended charge cloud where a fraction of the total is lost.
 
 \subsubsection{Wire Grid Transparency}
-be transmitted due to the potential configuration of the wires.
-In the STAR TPC there are three wire grids:
+        
+As the charge enters the region of the wire grids in the
 TPC, there is a non-zero probability that the charge may not
 be transmitted due to the potential configuration on the wire
 grids.  In the STAR TPC there are three wire grids:
-     amplification).
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 \begin{itemize}
-     allows a sink for ion collection in the amplificaton process.
-   \item gate---switch which allows ionization to pass through when
-     on and restrict it when truned off.  To control space charge in
-     the active volume.
+   \item anode/sense---responsible for charge collection and
+     amplification.
+   \item zero/frisch---defines the boundary of the field cage and
      allows a sink for ion collection in the amplification process.
    \item gate---switch which controls passage of ionization from
-The transparency is controlled by the potential which is applied to
-the gate wires and as such, the most important gate for determining
-the amount of ionization that gets transmitted to the sense wire
-grid is the gating grid.
+     the active TPC volume to the sense/anode wire plane.
+\end{itemize}
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+The passage of ionization is controlled by the potential which
+is applied to the gate wires.  Basically by setting the appropriate
+potential on this grid, the drift $\vec{E}$ lines can be made to
+terminate on the gating grid (zero transparency) or at the anode
 wires (full transparency).  The transparency is the fraction of
 lines that terminate on the anode wires compared to those that
 terminate on the gating grid.
@@ -1264,7 +1349,7 @@ the full range from 0-100\% transmission can be
 modeled.  It should be noted that the effects of a bi-polar switching
 grid (which is the actual construction of the STAR-TPC) should not
 influence the values at more than the $\sim$5\% level.
-is shown below.
+The expressions involved require only the geometry of the
 wire grids and the voltages set on the gating grid
 and high-voltage plane.  An example of the transmission curve
 is shown in figure~\ref{fig:gridTransparency}.
@@ -1276,119 +1361,127 @@ is shown in figure~\ref{fig:gridTransparency}.
   and STAR outer sector read-out chamber geometry.}
 \label{fig:gridTransparency}
 \end{center}
-The charge transporter provides the new position of the charge
-segment/electron at the z-plane of the anode wire grid and the
-amount of charge that was transported.  This charge must then
-be collected and amplified on the anode wires.
-
 \end{figure}
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 \subsection{Charge Collection}
 
-be projected directly on top of the wire position.  Once the charge
-is assigned to a wire, the amplification can occur.
+According to the position of the charge segment/electron at the
+anode wire plane, the ionization can be collected by the nearest wire.
 The appropriate time delays for charge collection should a segment not
 be projected directly on top of the wire position can be calculated.
 Once the charge is assigned to a wire, the gas amplification can occur.
-The process of gas amplification at the sense wires is modelled
+
 \subsubsection{Gas Gain Amplification at Sense Wires}
-or, as it is denoted in Blum and Rolandi, the Yule-Furry process which
-describes the amplification factor p of an amount of charge q with
-an exponential distribution:
+
+The process of gas amplification at the sense wires is modeled
+by the Raether distribution,\footnote{see http://www.rhic.bnl.gov/STAR/html/comp\_l/simu/TpcRespSim/src/literature.html}
+or, as it is denoted in Blum and Rolandi\footnote{W.~Blum and L.~Rolandi
+  {\em Particle Detection with Drift Chambers} Springer-Verlag 1994.},
 the Yule-Furry process which
 describes the fluctuations in the amplification an amount of
 charge q with an exponential distribution:
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 \begin{equation}
           p(q) = \frac{1}{\bar{q}} e^{-q/\bar{q}}
-There have been subsequent theoretical refinements to this simple
-expression which were made in order to take into accounts like
+\label{eq:raether}
+\end{equation}
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-effects.  This resulted in the Polya distribution, which requires an
-additional parameter to supplement the mean amplification ($\bar{q}$).
+Subsequent theoretical refinements to this simple expression which
+were made in order to take into account effects like
+the asymmetric growth of the avalanche profile as well as saturation
+effects.  This resulted in several distribution, the Polya distribution
 being the most popular.  It requires an additional parameter to supplement
 the mean amplification ($\bar{q}$).  The effect of the additional parameter
-low to moderate gas gains, in parallel plate geometry, however
-at gas gains above 10$^{5}$, slight deformation from
+is to suppress the small amplification factors.
+As this parameter tends to zero, the Raether distribution is recovered.
 Experimentally, perfectly exponential behavior is seen at
 low to moderate gas gains (i.e.$<$10$^{4}$}, in parallel plate geometry,
-become important because of space charge.  since the TPC is generally
+however at gas gains above 10$^{5}$, slight deformation from
 exponential shape is observed.  This is probably
-deemed acceptable, howeverthe Polya function may be substituted
+attributable to self-saturation effects which
 become important because of space charge.  Since the TPC is generally
 operated at low gas gains, the simple Raether distribution was
 deemed acceptable, however the Polya function may be substituted
-the effect of the fluctuations in gas gain simply degrade of space-point
-resolution, and the exact functional form is not critical for this.
+if there is need.
+
+It should be noted that in TPC (or any drift chamber) operation,
 the effect of the fluctuations in gas gain is to simply degrade the
 attainable space-point resolution, and for this purpose the exact
 functional form of the avalanche yields is not absolutely critical.
 This degradation is the physics that the implementation of the gas-gain
-Once the charge has been amplified, the amound of charge induced on
-the cathod pad plane can then be calculated.
+fluctuations will attempt to address, and the Raether distribution should
+be quite acceptable in this regard.
 
 Once the charge has been amplified, the amount of charge induced on
 the cathode pad plane can then be calculated.
 
 \subsection{Analog Signal Generation}
 
-   \item Calculate the Induced Charge on single pads.
-   \item Sample the charge in time according to the electronics
-     response (i.e~pre-amplifier/shaper).
+The Analog Signal Generator has three main functions:
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\begin{itemize}
+   \item Determine the charge induced on single pads from the charge
      ``collected'' on the anode wires.
-     according to the switched capacitor array (SCA).
+   \item Sample the induced charge signals in time according to the
      electronics (i.e~pre-amplifier/shaper) response.
    \item Distribute the \underline{\bf analog} charge into time bins
      according to the parameters of the switched capacitor array (SCA).
    \end{itemize}
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-The charge induced on a grounded pad plane by a charge q located
-a distance d above the plane can be calculated by the method of
-images.  The charge density on the plane is given by:
+
+\subsubsection{Charge Induction}
+
 The charge induced on a grounded pad plane by a point charge $q$ located
 a distance $d$ above the plane can be calculated by the method of
 images.  The charge density ($\sigma$) on the plane is given by:
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 \begin{equation}
   \sigma (x,y) = \frac{1}{2 \pi} \frac{q d}{((x-x_{o})^{2} + (y-y_{o})^{2} + d^{2})^{3/2}}
-where the charge q is located at a position (x$_{o}$,y$_{o}$).  However
-this problem is not the solution for a wire chamber as the charge
-(anode wire) is generally surrounded by two cathod planes---one from
+\label{eq:imageQ}
+\end{equation}
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+where the charge $q$ is located at a position (x$_{o}$,y$_{o}$).  However
+this expression is not the solution for the charge induced on the pad
 plane of a wire chamber.  In the case of a MWPC the charge, which
 is at the position of the anode wire, is generally surrounded by {\em two}
-  discrete charge.}
-This requires one to account for all higher order poles.
-Thus the charge density induced on the pad plane can be written as:
+cathode planes---one from
+above and one from below.\footnote{Also the charge is in the form of
+  a line charge associated with a linear charge density, not a
+  discrete point charge.}
 Thus in order to calculate the charge density induced on the pad
 plane, all higher order multi-pole terms must be incorporated.
 This results in the following expression:
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 \begin{equation}
 \sigma (x,y) = \frac{1}{2 \pi} \sum_{n}^{\infty} \frac{(2n+1) q d}{((x-x_{o})^{2} + (y-y_{o})^{2} + ((2n+1) d)^{2})^{3/2}}
-Doing the sum, (and integrating over y) yields a function
+\label{eq:imageQ2}
 \end{equation}
-pad plane at a distance x from the wire where x$_{o}$ is
-the position of the charge q:
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+Doing the sum, (and integrating over all y) yields a function
 which describes the charge distribution induced on the
 pad plane at a distance $x$ from the wire where $x_{o}$ is
 the position of the charge $q$:
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 \begin{equation}
 \sigma(x,y) = \frac{q}{4 d \cosh(\frac{\pi (x- x_{o})}{2 d})}
-An inverse hyperbolic cosine function as shown in equation~\ref{eq:endo1}
-is called an {\em Endo function}.  The same function can be written in a
-form more instructive for our purposes:
+\label{eq:endo1}
+\end{equation}
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+This function, an inverse hyperbolic cosine as shown in
+equation~\ref{eq:endo1} is called an {\em Endo function}.  Note that the
+derivation put no limits on the extent of the pad in the y direction
+(i.e.~$\frac{w}{l}=0$).
 The effect of finite geometry of segmented cathodes can be accounted
 for with the addition of another parameter.  The same function can
-F(x) = K_{1} \frac{1 - \tanh^{2}(\frac{\pi (x-x_{o})}{4 d})}{1 + \tanh^{2}(\frac{\pi (x-x_{o})}{4 d})}
+be written in a form more instructive for our purposes:
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 \begin{equation}
 \sigma(x) = K_{1} \frac{1 - \tanh^{2}(\frac{\pi (x-x_{o})}{4 d})}{1 + \tanh^{2}(\frac{\pi (x-x_{o})}{4 d})}
 \label{eq:endo2}
 \end{equation}
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-pad has a finite pad/length ratio.  This can be accounted for with
+where K$_{1}$ is a normalization constant.  Equation~\ref{eq:endo2}
 can be used to generalize the Endo function in order to account for
 finite geometry effects of the segmented cathode pads.  That is, each
 pad has a finite width/length ratio.  This can be accounted for with
@@ -1417,27 +1510,30 @@ A comparison of the Gatti and Endo functions to a Gaussian
 \label{fig:gatti}
 \end{center}
 \end{figure}
-amount of charge induced per pad which means one must integrate
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 For the case of the TPC, the quantity of interest is the total
 amount of charge ($Q$) induced per pad which means one must integrate
 these functions, which specify the charge density, according to the
 pad dimensions.  Thus for a point charge (equation~\ref{eq:imageQ}),
-  \frac{1}{2 \pi} \int_{yl}^{yu} \int_{xl}^{xu} dx dy \frac{q d}{((x-x_{o})^{2} + (y-y_{o})^{2} + d^{2})^{3/2}}
+the integral is:
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 \begin{equation}
   Q = \frac{1}{2 \pi} \int_{yl}^{yu} \int_{xl}^{xu} dx dy \frac{q d}{((x-x_{o})^{2} + (y-y_{o})^{2} + d^{2})^{3/2}}
-where xl and xu denote the lower (l) and upper (u) extremeties of
-the pad in the x direction and yl and yu denote the same in the y
+  \label{eq:imageQint}
+\end{equation}    
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 where $xl$ and $xu$ denotes the lower and upper bounds of
-arbitrary charge density.  The advantage of using such functions
+the pad in the x direction respectively.  Similarly $yl$ and $yu$
 denotes the same in the y
-non-Gaussian characteristics.  These tails will be important in the
+direction.  Similar integrals can be constructed given any
+arbitrary charge density ($\sigma$).  The advantage of using such functions
+is that they allow the production of longer tails which have
 non-Gaussian characteristics.  The tails are an important characteristic
-Furthermore the integrals are defined
-given the inputs of the position of the charge and the coordinates
+to understand as they determine the efficiency of the ionization
+collection which is very important in the
 study of ionization collection for $\frac{dE}{dx}$ resolution.
-can be calculated in this formalism.
+Furthermore these integrals are well defined
 given the the position of the charge and the coordinates
 of the pads.  Thus charge induced on adjacent pads as well as rows
 can be also be calculated quite simply in this formalism.
@@ -1445,26 +1541,25 @@ Illustrations of some of these
 function are shown in figures~\ref{fig:gatti}.\footnote{For more
   details see: http://www.rhic.bnl.gov/STAR/html/comp\_l/simu/TpcRespSim/src/literature.html} 
 
-%\includegraphics[bbllx=14pt,bblly=137pt,bburx=569pt,bbury=701pt,width=.55\textwidth]{./pics/wireTransparency.ps}
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %\begin{figure}[htb]
 %\begin{center}
 %\includegraphics[bbllx=14pt,bblly=137pt,bburx=569pt,bbury=701pt,width=.55\textwidth]{}
 %\caption{Comparison of Gaussian, Endo, and Gatti functions for PRF.}
 %\label{fig:xxx}
 %\end{center}
-due almost exclusively to the motion of the charged ions away from
+%\end{figure}
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 Please keep in mind that the fact that the signal on the wire is
 due almost exclusively to the motion of the charged ions {\bf away} from
 the wire.  In order to calculate the total amount of charge induced
 on the pad however, it is possible to use the number of electrons
 as a quantity, even though they are not the physical reason for
-\subsubsection{Sample the signal in time}
+the charge induction.  This point will be reiterated in the electronics
 response of this description.
 
-on each pad is determined, the electronics sampling
-can be calculated.  This simulates the behavior of the
-switched capacitor array (SCA) in the front-end electronics.
+\subsubsection{Sample the Signal in Time}
+
 Once the amount and centroid of the charge distribution
 on each pad is determined, this charge can be sampled in
 time corresponding to the analog electronics response.
@@ -1474,27 +1569,42 @@ This allows the shaping
 time of the electronics can be varied independently of
 the width of the pad response function which is the strength
 of this simulation methodology.  Currently four types of
-  \item Symmetric Gaussian
-  \item Asymmetric Gaussian
-  \item Asymmetric Gaussian 
-  \item Endo
-  \item STAR response
+sampling are possible:
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\begin{itemize}
+  \item delta function.
   \item Symmetric Gaussian.
   \item Asymmetric Gaussian.
-A function also exists where a fractional scale of the total amplitude
+  \item Parameterized STAR response.
 \end{itemize}
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 A function also exists where a fractional scale of the total charge integral
 can be added as an Undershoot/Unrestored baseline component in the
 signal which has the effect of convoluting effects from the long 1/T tail.
-entirely due to the {\bf motion of the postive ions} away from the wire.
-The resulting signal is a differentiation of this signal after a
-characteristic time (i.e.~shaping time) and as such the signal, as
-seen by the ADC stage of the electronics is dominated very strongly
-by the properties of the electronics after this time.  Thus the
+This is an important point and one that actually blurs the line of
+physics and simulation.  In reality the
+time evolution of the signal that is developed on the wires is nearly 
+entirely due to the {\bf motion of the positive ions} away from the wire.
+This produces a signal with a long 1/T tail.  For the STAR geometry
+the signal is $\sim$62~$\mu$s.  In order to make a detector faster,
+the signal is differentiated after a characteristic time---the
+shaping time of the pre-amplifier.  Although the detector response
+becomes faster, the trade-off is that only a fraction of the total
+charge is seen by the downstream electronics (i.e.~the ADC).  This
+fraction $F$, is given by:
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\begin{equation}
+  F = \frac{ln(1+\frac{t_{m}}{t_{o}})}{ln(1+\frac{t_{s}}{t_{o}})}
+  \label{eq:fraction}
+\end{equation}    
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+where t$_{m}$ is the length of time the undifferentiated signal would
+persist (i.e.~$\sim$62~$\mu$s), t$_{o}$ is the characteristic time
+of the signal development (i.e.~$\sim$1~ns), and t$_{s}$ is the shaping
+time of the pre-amplifier (i.e.~$\sim$180~ns).  For STAR this implies
 the order of 45\% of the charge is distributed into time bins by the
-processing component of the simulator.  Although it is a small effect,
-it should be noted!
+SCA.  More importantly is that the signal shape is dominated very strongly
+by the shaping properties of the electronics.  Thus the
 long time response of the chamber is parameterized in the electronics
 processing component of the simulator, rather than modeling the
 motion of the positive ions.
@@ -1503,7 +1613,7 @@ The symmetric Gaussian response, with the effect of an unrestored baseline
 due to under/over shoot is illustrated in figure~\ref{fig:baseline}
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 \begin{figure}[htb]
-  showing both undershoot (top panel) and an underdamped (overshoot)
+\begin{center}
 \includegraphics[bbllx=14pt,bblly=137pt,bburx=569pt,bbury=701pt,width=.55\textwidth]{./pics/baseline.ps}
 \caption{Asymmetric Gaussian Electronics Response with pedestal suppressed
   showing both undershoot (top panel) and an under damped
@@ -1513,60 +1623,32 @@ due to under/over shoot is illustrated in figure~\ref{fig:baseline}
 \end{figure}
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 where the time evolution of a series of 20 signals, of identical
-            
+amplitude, are induced on a single pad.\footnote{More examples can
+  be seen at: http://www.rhic.bnl.gov/STAR/html/comp\_l/simu/TpcRespSim/src/literature.html} 
+The pulses are simply added using the principle of super-position.
+The modeling of an unrestored baseline is very
+important since the pulse height (actually the integral) of the
+signal is used as a measure of the velocity of the particle (via $\rac{dE}{dx}$
+information).  An unrestored baseline due to undershoot can result in
+an effective loss of charge in a high-multiplicity environment.  Conversely
+an unrestored baseline due to under-damping will result in too much
 charge being observed at large drift distances.  Both effects
 will reduce the attainable resolution if not taken into account.  
-can be distributed into discrete time bins according to the SCA sampling
-frequency.  This is done by integrating the amount of charge in
-a time interval $\Delta$t.
 
-\subsubsection{Real Electronics Response}
+Once the complete functional form of the signals induced on a pad
+over the read-out period of the TPC electronics, the analog charge
+can be distributed into discrete time bins. This sampling simulates
+the behavior of the switched capacitor array (SCA) in the front-end
+electronics.  This is done by integrating the amount of charge in
+a time interval $\Delta$t, which is determined from the SCA sampling
+frequency.  Chamber noise as well as electronic noise
+can be added at this point.
 
-There are two effects which have previously been difficult
-to study in the context of simulations because of the
-manner in which the time sampling has been implemented.
-Because the signal sampling is independent of any other
-process, any function can, in principle, be used.  This
-allows us to extend the sampling to an Asymmetric Gaussian.
-This is as simple as giving the two halves of the Gaussian
-different widths.  Of course the constraints of the total integral
-of the function as well as continuity must be respected.
+\subsection{Digital Signal Generation}
 
-A comparison between the signals generated on a pad (with constant
-amplitude) with a symmetric Gaussian reponse with an asymmetric
-Gaussian response are shown in the left series of plots below.
-The plots include the complete series of time bins as well
-as a region where two pulses overlap.  The width of the
-sampling distribution (which is fixed by the time constant of
-the electronics) has a dramatic effect on the way charge
-"leaks" into neighboring time bins.
-
-Baseline Restoration
-
-Because any functional shape can be specified for the response,
-it is also possible to parameterize an undershoot of the electronic
-response or an underdamping where the baseline is not restored.
-On the right is a single plot showing the same series of pulses
-as on the left, but with inadequate baseline restoration.
-They are exagerated to enhance the effect as there has not
-been evidence for significant baseline distortions unless
-"monster signals" are induced on the pads.  It is again interesting
-to compare how the tails in the response affect neighboring
-time bins.
-
-
-                                %         <table><tr>
-%             <td><table><tr><td align="center"><a href="ps/sym-asymResponse.ps"><img src="ps/sym-asymResponse.gif"></a></td></tr><tr><td align="center"><small>Symmetric and Asymetric Electronic Response</small></td></tr></table></td>
-%             <td><table><tr><td align="center"><a href="ps/baseline.ps"><img src="ps/baseline.gif"></a></td></tr><tr><td align="center"><small>Deviation in Baseline Restoration</small></td></tr></table></td>
-%           </tr></table>
-
-          
-
-Chamber noise as well as electronic noise from the analog part
-of the electronics can be added at this point.  Once this
-is done, the digitization can occur where a true pedestal
-is added and the effect of the ADC is applied to the
-analog charge information.  Any characteristics of the
+Once the analog charge is distributed into time bins on the pads,
+the digitization can occur.  This is currently a simple
+conversion from voltage to ADC counts.  Other features
 such as the addition of a pedestal
 and non-linearities in the ADC can also be added.
 In fact, any characteristic of the
@@ -1578,7 +1660,7 @@ digital and analog electronic components are separated.
 \section{Physics Limitations}
 
 There are still some components either not implemented,
-preliminary work exists for this modelling, it has currently not
+or completely missing from TRS in its current form.  It
 is hoped that these will be incorporated as the understanding
 of TRS evolves.  Most critically is the noise.  Although some
 preliminary work exists for this modeling, it has currently not
@@ -1586,33 +1668,31 @@ reached a mature enough state where it can be added.  Some obvious
 short-comings are listed below.
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 \begin{itemize}
-  \item A function is needed for the non-linear ADC response.
-  \item The pad geometry is not incorporating the pad fragments at the
+  \item $\vec{E} \times \vec{B}$ in not tested although code exists
+    and can be "plugged" in.
+  \item Noise at the chamber and electronics level does not yet exist.
   \item A function (or look-up table) is needed for the non-linear ADC
-  \item The gas gain is currently independent of the position on the wire.
+    response.
+  \item The pad geometry is not incorporating the fractional pads at the
     border of the sectors.
   \item The gas gain is currently independent of the wire and the
-  \item Positional Dependence in the transparecy of the gating grid.
-    Currently a constant transparency independent of position is calculated.
+    position of the avalanche on the wire.
+  \item Effects of space charge in the charge transport stage of the
+    simulation.
   \item No positional dependence in the transparency of the gating grid
     exists.  Currently a constant transparency, independent of position
     is calculated.
-  It is almost certain that as
+\end{itemize}
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 It is almost certain that as
 experience is gained with the package, this list will be further
 expanded, however the code is written in a flexible manner such that
 these type of additions should be relatively straight forward.
-The physics processes that are modelled are described in
-the previous sections, however there is still need for 
-improvement and evolution of the package in order to
-increase the speed of the simulation process and model small
-details.  Currently no noise, either analog nor digital
-is incorporated.  This is the most urgent addition required.
- 
+
 \section{Known Limitations} \index{limitations}
 
+To be seen... 
 
 \section{Support and Reporting Bugs} \index{support}
 
@@ -1646,7 +1726,7 @@ the {\em Containers} and {\em Physics Processes} that are accessible and
 utilized in \name{TRS}.  The fifth section is not yet complete but
 will include the {\em Administrative} type
 classes that are utilized while the final section contains
-closesly related classes which either inherit or are derived are
+an {\em Example} and describes how
 the package is used in an example program.  Within the categories,
 as much as possible, the listing of classes are alphabetical, and
 closely related classes which either inherit or are derived are
@@ -1659,8 +1739,8 @@ conventions adopted in the SCL are carried through into \name{TRS}
 in order to ensure compatibility.  As {\bf namespaces} are not
 currently supported
 widely among vendor or commercial compilers, the current STAR
-{\bf Trs} to denote TRS specific classes where appropriate.  As an
-extension, the prefix {\bf Tpc} is also used occaisionally.
+conventions advocate the addition of prefixes to indicate the
+scope of a class.  {\bf St}
 denotes all STAR specific classes.  This prefix is supplemented with
 {\bf Trs} to denote \name{TRS} specific classes where appropriate.  As an
 extension, the prefix {\bf Tpc} is also used occasionally.
@@ -1733,9 +1813,9 @@ from \name{TRS}\comp{StThreeVector} from the SCL \index{StThreeVector}.
 \item[Summary]
   Implementation of a simple data base which provides the magnetic 
   field components which are read from an ASCII file.
-  requires \comp{StGlobalCoordinates.hh} from TRS 
-  and \comp{StThreeVector.hh} as well as \comp{StGetConfigValue}
-  from the SCL. \index{SCL}   The \comp{SystemOfUnits} class in 
+
+\item[Synopsis]
+  \verb+#include "StSimpleMagneticField.hh"+\\
   requires \comp{StGlobalCoordinates.hh} from \name{TRS}. 
   \comp{StThreeVector.hh} as well as \comp{StGetConfigValue}
   are required from the SCL. \index{SCL}   The \comp{SystemOfUnits} class in 
@@ -1814,8 +1894,8 @@ See section~\ref{sec:stMagneticField}.
    which is only invoked if a previous instance is not detected.
    The parsing of the ASCII file is done in this constructor to
    initialize the data members.  The file is provided in the {\bf run}
-   Called from the member function 
-   \texttt{instance(const StThreeVector$<$double$>$\& B)} if and only if
+   directory of the package.
+
    \verb+StSimpleMagneticField(const StThreeVector<double>& B)+\\
    Called from the member function {\em instance(const StThreeVector$<$double$>$\& B)}
    if and only if
@@ -1834,7 +1914,12 @@ See section~\ref{sec:stMagneticField}.
 \item[Public \\ Member Functions]
 
   Following are implementations of the functions defined in
-  \verb+at(const StGlobalCoordinate& gp) const+\\
+  the interface \comp{StMagneticField}.
+
+  \verb+const StThreeVector<double>&+\\
+  \verb+         at(const StGlobalCoordinate& gp) const+\\
+  Returns the magnetic field components in an \comp{StThreeVector}
+  at a position, gp specified in the STAR global coordinate system.
 
   \verb+const StThreeVector<double>&+\\
   \verb+         at(const StThreeVector<double>& gp) const+\\
@@ -1874,7 +1959,7 @@ int main()
   
    magDb->print();
 
-      myCoordinate(0.*centimeter, 0.*centirmeter, 0.*centimeter);
+   // Access to the field at a spatial point
 
    StGlobalCoordinate 
       myCoordinate(0.*centimeter, 0.*centimeter, 0.*centimeter);
@@ -1940,12 +2025,12 @@ the class \comp{StTpcSimpleElectronics}.
   \verb+virtual double nominalGain() const+\\
   Provides access to the nominal gain of the pre-amplifier in mV/fC.
 
-  should be more relavent once an electronics gain calibration has been
+  \verb+virtual double channelGain(int s,int r,int p) const+\\
   Provides access to the individual channel gain of the pre-amplifier
   indexed  by the sector (s), pad row (r), and pad (p).  This function
-  \verb+virtual double channelGain(StTpcPadCoordinate&) const+\\
+  should be more relevant once an electronics gain calibration has been
   done.
-  indexed  given a StTpcPadCoordinate.  
+
   \verb+virtual double channelGain(StTpcPadCoordinate& c) const+\\
   Provides access to the individual channel gain of the pre-amplifier  
   indexed  given a StTpcPadCoordinate (c).  
@@ -1953,7 +2038,7 @@ the class \comp{StTpcSimpleElectronics}.
 
   \verb+virtual double shapingTime() const+\\
   Provides access to the shaping time of the pre-amplifier shaper.
-  arrary (SCA) \index{SCA}.
+
   \verb+virtual double samplingFrequency() const+\\
   Provides access to the sampling frequency of the switched capacitor 
   array (SCA) \index{SCA}.
@@ -1968,16 +2053,16 @@ the class \comp{StTpcSimpleElectronics}.
   \verb+virtual int averagePedestal() const+\\
   Provides access to the nominal pedestal value for the ADC.
 
-  be more relavent once a real electronics calibration has been done.
+  \verb+virtual int pedestal(int s,int r, int p, int t) const+\\
   Provides access to the pedestal value for a single ADC channel indexed
   by a sector (s), pad row (r), pad (p), and time bin (t).  Should
   be more relevant once a real electronics calibration has been done.
 
   \verb+virtual int pedestal(StTpcPadCoordinate&) const+\\
-  [\bf Diagnostic \\]
+  Provides access to the pedestal value for a single ADC channel specified
   by a raw pad coordinate.  See section~ref{sec:rawCoordinate}.
 
-  fucntions to an output file stream.  The default is the screen.
+  {\bf Diagnostic\\} \index{Analog Electronics}
   \verb+virtual void print(ostream& = cout) const+\\
   Prints the values of all constants accessible by public access
   functions to an output file stream.  The default is the screen.
@@ -2002,7 +2087,7 @@ the class \comp{StTpcSimpleElectronics}.
     constants or parameters.
     
 \item[Synopsis]
-Class StTpcGeometry is an abstract base class that defines
+    Purely abstract class; instantiation is not possible.
 
 \item[Description]  
 Class \comp{StTpcGeometry} is an abstract base class that defines
@@ -2213,18 +2298,18 @@ the class \comp{StTpcSimpleGeometry}. \index{StTpcSimpleGeometry}
   Provides access to the radial distance to the inner field cage electrodes.
 
   \verb+virtual double ofcRadius() const+\\
-  Provides access to the z-coordinate of the endcap of the TPC.
+  Provides access to the radial distance to the outer field cage electrodes.
 
   \verb+virtual double endCapZ() const+\\
   Provides access to the z-coordinate of the end-cap of the TPC.
-  Provides access to a boolean value that indicates whether a position
+
   \verb+virtual bool+\\
   \verb+ acceptance(StThreeVector<double>& c) const+\\
   Provides a boolean value that indicates whether a position
   as specified by the \comp{StThreeVector}, c lies within the confines
   of the TPC field cage/active-volume.
 
-  a file stream.  
+  \verb+virtual void print(ostream& os = cout) const+\\
   Diagnostic function which prints all constants within
   the data base accessible by member functions to
   a file stream.  The default is the screen.  
@@ -2267,8 +2352,8 @@ simply return these values.   The data base is implemented as a singleton class 
   via a public member function.
   
 \item[Persistence]
-The base class which defines the interface is specfied in
-the class \comp{StTpcElectronics}.
+   None
+
 \item[Related Classes]
 The base class which defines the interface is specified in
 the class \\ \comp{StTpcElectronics}.
@@ -2315,7 +2400,7 @@ the class \\ \comp{StTpcElectronics}.
 
   Following are implementations of the functions defined in
   the interface \comp{StTpcElectronics}.
-  Returns the nominal gain of the pre-amplifier in mV/fC.  The
+
   {\bf Analog Electronics \\} \index{Analog Electronics}
   \verb+double nominalGain() const+\\
   Returns the nominal gain of the pre-amplifier.  The
@@ -2324,27 +2409,27 @@ the class \\ \comp{StTpcElectronics}.
   \verb+double channelGain(int s,int r,int p) const+\\
   Returns the individual channel gain of the pre-amplifier in
   mV/fC indexed  by the sector (s), pad row (r), and pad (p).
-  \verb+double channelGain(StTpcPadCoordinate&) const+\\
+  Should take on more importance when the first calibration runs
   for the electronics are available.
-  mV/fC indexed  given a StTpcPadCoordinate.  
+
   \verb+double channelGain(StTpcPadCoordinate& c) const+\\
   Returns the individual channel gain of the pre-amplifier in
   mV/fC indexed by given a StTpcPadCoordinate, c.  
   See section~\ref{sec:rawCoordinate}.
   Should take on more importance when the first calibration runs
-  Returns the shaping time of the pre-amplifier shaper in
-  nanoseconds.  A value of 180~ns is specified in STAR Note \#230.
+  for the electronics are available.
+
   \verb+double shapingTime() const+\\
   Returns the shaping time of the pre-amplifier shaper.
-  Returns the sampling frequency of the switched capacitor arrary (SCA)
-  \index{SCA} in MHz.
+  A value of 180~ns is specified in STAR Note \#230.
+
   \verb+double samplingFrequency() const+\\
   Returns the sampling frequency of the switched capacitor array (SCA)
   \index{SCA}.  The value of 16~mV/fC is taken from STAR Note \#230.
-  Returns the nominal ADC conversion value in mV/channel.
+
   {\bf Digital Electronics \\}
   \verb+double adcConversion() const+\\
-  Returns the nominal ADC conversion value in fC/channel.
+  Returns the nominal ADC conversion value.
 
   \verb+double adcConversionCharge() const+\\
   Returns the nominal ADC conversion value.
@@ -2362,7 +2447,7 @@ the class \\ \comp{StTpcElectronics}.
   Returns the pedestal value for a single ADC channel specified
   by a raw pad coordinate.  See section~\ref{sec:rawCoordinate}.
 
-  fucntions to an output file stream.  The default is the screen.
+  {\bf  Diagnostic \\}
   \verb+void print(ostream& = cout) const+\\
   Prints the values of all constants accessible by public access
   functions to an output file stream.  The default is the screen.
@@ -2521,23 +2606,23 @@ simply return these values.  This initialization is done in the
   where the row pitch is 52~mm.
 
   \verb+int numberOfOuterRows() const+\\
-  Returns the pitch of the rows in the 8 innermost pad rows in mm
+  Returns the number of rows in the outer part of a super sector.
 
   \verb+double innerSectorRowPitch1() const+\\
   Returns the pitch of the rows in the 8 innermost pad rows
-  Returns the pitch of the rows in the 5 outermost pad rows in mm
+  of the inner super sector.
 
   \verb+double innerSectorRowPitch2() const+\\
   Returns the pitch of the rows in the 5 outermost pad rows
   of the inner super sector.
-  sector in mm.
+
   \verb+double outerSectorRowPitch() const+\\
   Returns the pitch of the rows in the outer part of a super 
   sector.
     
   \verb+int numberOfPadsAtRow(int r) const+\\
   Returns the total number of pads in row, r of a super sector.
-  of a pad row r in a super sector, in mm.
+
   \verb+  double radialDistanceAtRow(int r)+\\
   Returns the radial distance to the center of the mid-point
   of a pad row r in a super sector.
@@ -2546,98 +2631,98 @@ simply return these values.  This initialization is done in the
   \verb+int numberOfTimeBuckets() const+\\
   Returns the number of time bins on a single pad.
     
-  of a super sector, in mm.
+  {\bf Pads \\}
   \verb+double innerSectorPadWidth() const+\\
   Returns the geometric width of a single pad in the inner part
   of a super sector.
-  of a super sector, in mm.
+
   \verb+double outerSectorPadWidth() const+\\
   Returns the geometric width of a single pad in the outer part
   of a super sector.
-  part of a super sector, in mm.
+
   \verb+double innerSectorPadLength() const+\\
   Returns the geometric length of a single pad in the inner
   part of a super sector.
-  part of a super sector, in mm.
+
   \verb+double outerSectorPadLength() const+\\
   Returns the geometric length of a single pad in the outer
   part of a super sector.
-  super sector, in mm.
+
   \verb+double innerSectorPadPitch() const+\\
   Returns the pitch of the pads in the inner part of a
   super sector.
-  super sector, in mm.
+
   \verb+double outerSectorPadPitch() const+\\
   Returns the pitch of the pads in the outer part of a
   super sector.
 
-  part of a super sector closest to the inner field cage, in mm.
+  {\bf Sector Dimensions \\}
   \verb+double innerSectorEdge() const+\\
   Returns the radial distance of the edge of the inner
   part of a super sector closest to the inner field cage.
-  part of a super sector closest to the outer field cage, in mm.
+
   \verb+double outerSectorEdge() const+\\
   Returns the radial distance of the edge of the outer
   part of a super sector closest to the outer field cage.
-  of a super sector, in mm.
+
   \verb+double ioSectorSpacing() const+\\
   Returns the distance between the inner and outer parts
   of a super sector.
     
-  MWPC, in $\mu$m.
+  {\bf Wire Plane \\}
   \verb+double anodeWireRadius() const+\\
   Returns the radius of the anode sense wires of the
   MWPC.
-  zero potential wire grid (frisch grid) of the MWPC, in $\mu$m.
+
   \verb+double frischGridWireRadius() const+\\
   Returns the radius of the wires which make up the 
   zero potential wire grid (frisch grid) of the MWPC.
-  of the MWPC, in $\mu$m.
+
   \verb+double gateWireRadius() const+\\
   Returns the radius of the wires which make up the gating grid
-  Returns the pitch of the anode wires in the MWPC, in mm.
+  of the MWPC.
     
   \verb+double anodeWirePitch() const+\\
   Returns the pitch of the anode wires in the MWPC.
-  (frisch) grid of the MWPC, in mm.
+
   \verb+double frischGridPitch() const+\\
   Returns the pitch of the wires which make up the zero potential
   (frisch) grid of the MWPC.
-  of the MWPC, in mm.
+ 
   \verb+double gatePitch() const+\\
   Returns the pitch of the wires which make up the gating grid
   of the MWPC.
     
-  and the pad plane in the inner part of a super sector, in mm.
+  \verb+double+\\
   \verb+  innerSectorAnodeWirePadPlaneSeparation() const+\\
   Returns the separation distance between the anode wires
   and the pad plane in the inner part of a super sector.
 
   \verb+double+\\
-  super sector, in mm.
+  \verb+  innerSectorFrischGridPadPlaneSeparation() const+\\
   Returns the separation distance between the zero potential
   (frisch) wire grid and the pad plane in the inner part of a 
   super sector.
 
   \verb+double+\\
-  of a super sector, in mm.
+  \verb+  innerSectorGatingGridPadPlaneSeparation() const+\\
   Returns the separation distance between the gating
   grid wire grid and the pad plane in the inner part 
   of a super sector.
 
-  and the pad plane in the outer part of the super sector, in mm.
+  \verb+double+\\
   \verb+  outerSectorAnodeWirePadPlaneSeparation() const+\\
   Returns the separation distance between the anode wires
   and the pad plane in the outer part of the super sector.
 
   \verb+double+\\
-  the super sector, in mm.
+  \verb+  outerSectorFrischGridPadPlaneSeparation() const+\\
   Returns the separation distance between the zero potential
   (frisch) wire grid and the pad plane in the outer part of 
   the super sector.
  
   \verb+double+\\
-  of the super sector, in mm.
+  \verb+  outerSectorGatingGridPadPlaneSeparation() const+\\
   Returns the separation distance between the gating
   grid wire grid and the pad plane in the outer part 
   of the super sector.
@@ -2647,16 +2732,16 @@ simply return these values.  This initialization is done in the
   Returns the number of anode wires in the inner part
   of the super sector.
 
-  at the centroid of the inner part of a super sector, in mm.
+  \verb+double+\\
   \verb+  firstInnerSectorAnodeWire() const+\\
   Returns the radial distance to the first anode wire
   at the centroid of the inner part of a super sector.
 
-  at the centroid of the inner part of a super sector, in mm.
+  \verb+double+\\
   \verb+  lastInnerSectorAnodeWire() const+\\
   Returns the radial distance to the last anode wire
   at the centroid of the inner part of a super sector.
-  Returns the radial distance to the anode wire, w, in mm.
+
   \verb+double+\\
   \verb+  innerSectorAnodeWire(int w) const+\\
   Returns the radial distance to the anode wire, w.
@@ -2665,35 +2750,35 @@ simply return these values.  This initialization is done in the
   Returns the number of anode wires in the outer part
   of a super sector.
 
-  the outer part of a super sector, in mm.
+  \verb+double+\\
   \verb+  firstOuterSectorAnodeWire() const+\\
   Returns the radial distance of the first anode wire in
   the outer part of a super sector.
 
-  part of a super sector in mm.
+  \verb+double+\\
   \verb+  lastOuterSectorAnodeWire() const+\\
   Returns the radial distance to the last anode wire in the outer
   part of a super sector.
 
-  of a super sector, in mm.
+  \verb+double+\\
   \verb+   outerSectorAnodeWire(int w) const+\\
   Returns the radial distance to the anode wire, w in the outer part
   of a super sector.
     
-  with respect to center of the TPC volume, in mm.
+  {\bf General -- Field Cage \\}
   \verb+double frischGrid() const+\\
   Returns the z-position of the zero potential (frisch) grid
   with respect to center of the TPC volume.
-  the field cage volume, in mm.
+
   \verb+double driftDistance() const+\\
   Returns the maximum drift distance of ionization within
-  Returns the radial distance to the inner field cage electrodes, in mm.
+  the field cage volume.
     
   \verb+double ifcRadius() const+\\
-  Returns the radial distance to the outer field cage electrodes in mm.
+  Returns the radial distance to the inner field cage electrodes.
 
   \verb+double ofcRadius() const+\\
-  Returns the z-coordinate of the endcap of the TPC, in mm.
+  Returns the radial distance to the outer field cage electrodes.
 
   \verb+double endCapZ() const+\\
   Returns the z-coordinate of the end-cap of the TPC.
@@ -2839,21 +2924,21 @@ section~\ref{sec:stTpcSlowControl}.
 
   Following are implementations of the functions defined in
   the interface \comp{StTpcSlowControl}.
-  Returns the envrionmental temperature within the experimental 
-  hall in $^{\circ}$C.
+
+  {\bf Environment \\}
   \verb+double hallTemperature() const+\\
   Returns the environmental temperature within the experimental 
   hall.
-  hall in mBar.
+  
   \verb+double hallPressure() const+\\
   Returns the environmental pressure within the experimental
   hall.
-  Returns the voltage applied to the membrame which produces
-  the drift field voltage, in volts.
+    
+  {\bf Voltages \\}
   \verb+double driftVoltage() const+\\
   Returns the voltage applied to the membrane which produces
   the drift field voltage.
-  inner part of a super sector, in volts.
+    
   \verb+double innerSectorAnodeVoltage() const+\\
   Returns the voltage applied to the anode wires in the
   inner part of a super sector.
@@ -2861,16 +2946,17 @@ section~\ref{sec:stTpcSlowControl}.
   \verb+ double innerSectorGatingGridVoltage() const+\\
   Returns the voltage applied to the gating grid wires
   in the inner part of a super sector.
-  outer part of a super sector, in volts.
+
   \verb+double outerSectorAnodeVoltage() const+\\
   Returns the voltage applied to the anode wires in the
   outer part of a super sector.
-  in the outer part of a super sector, in volts.
+
   \verb+double outerSectorGatingGridVoltage() const+\\
   Returns the voltage applied to the gating grid wires
   in the outer part of a super sector.
 
-  via public member functions to an output file stream os.
+  {\bf Diagnostic \\}
+  \verb+  void print(ostream& os = cout) const+\\
   Diagnostic feature which prints all the parameters accessible
   via public member functions to an output file stream.  Default
   is the screen.
@@ -2960,7 +3046,7 @@ section~\ref{sec:stTpcSimpleSlowControl}.
    None
 
 \item[Public Virtual \\ Member Functions]
-  Provides access to the envrionmental temperature within the experimental 
+
   {\bf Environment \\}
   \verb+virtual double hallTemperature() const+\\
   Provides access to the environmental temperature within the experimental 
@@ -2969,7 +3055,7 @@ section~\ref{sec:stTpcSimpleSlowControl}.
   \verb+virtual double hallPressure() const+\\
   Provides access to the environmental pressure within the experimental
   hall.
-  Provides access to the voltage applied to the membrame which produces
+    
   {\bf Voltages \\}
   \verb+virtual double driftVoltage() const+\\
   Provides access to the voltage applied to the membrane which produces
@@ -3026,12 +3112,12 @@ section~\ref{sec:dbint}.
 \subsection{StGlobalCoordinate} \index{StGlobalCoordinate}
 \label{sec:stGlobalCoordinate}
 
-  of double precision.  This edfines the global STAR coordinate 
+\begin{Entry}
 \item[Summary]
   Definition of a global coordinate given by an \comp{StThreeVector}
   of double precision.  This defines the global STAR coordinate 
   system which is deduced from the survey measurements of the
-  \verb+#include ``StGlobalCoordinate.hh''+\\
+  detectors.
 
 \item[Synopsis]
   \verb+#include "StGlobalCoordinate.hh"+\\
@@ -3039,7 +3125,7 @@ section~\ref{sec:dbint}.
   well as \comp{StGlobals} from the SCL. \index{SCL}  These
   are included internally.
 
-This is the coordinate system that the detctor subsystem as well as the
+\item[Description]
 Class \comp{StGlobalCoordinate} stores a position as a three
 vector (i.e.~(x,y,z)).
 This is the coordinate system that the detector subsystem as well as the
@@ -3048,9 +3134,9 @@ following track trajectories between detectors.  No units are implied
 or assumed.  These must be specified by the user.
 
 \item[Persistence]
-The header file "StTpcCoordinates.hh" contains the {\em include}
+   None
 
-functor "StCoordinateTransform" is also related.  See 
+\item[Related Classes]
 The header file ``StTpcCoordinates.hh'' contains the {\em include}
 directives for all coordinate systems.  The transformation class or
 functor ``StCoordinateTransform'' is also related.  See 
@@ -3077,7 +3163,8 @@ section~\ref{sec:stCoordinateTransform}.
   Inline access function which returns the coordinate in thr
   form of an StThreeVector.  Single components can only be accessed
   through member function of the StThreeVector. \index{StThreeVector}
-  \verb+ostream& operator<<(ostream& os, const StGlobalCoordinate& c)+\\
+
+\item[Non-Member \\ Operators]
 
   \verb+ostream& operator<<(ostream& os,+\\
   \verb+                    const StGlobalCoordinate& c)+\\
@@ -3131,7 +3218,7 @@ To be run
   Functor which contains the routines necessary to transform any
   of the three coordinate systems as specified in this section 
   (section~\ref{sec:coordtrans}).
-  The functor utilizes the classes {\em StThreeVector},
+
 \item[Synopsis]
   \verb+#include "StTpcCoordinateTransform.hh"+\\
   The functor utilizes the classes \comp{StThreeVector},
@@ -3143,7 +3230,7 @@ To be run
   classes contained within the framework of \name{TRS},
   the \comp{SystemOfUnits} from the SCL is also utilized.
 
-This is the coordinate system that the detctor subsystem as well as the
+\item[Description]
 Class \comp{StGlobalCoordinate} stores a position as a three
 vector (i.e.~(x,y,z)).
 This is the coordinate system that the detector subsystem as well as the
@@ -3164,14 +3251,14 @@ via the constructor.
 The header file "StTpcCoordinates.hh" contains the {\em include}
 directives for all coordinate systems.
 
-   \verb+                       StTpcSlowControl* scDb)+\\
+\item[Public \\ Constructors]
 
    \verb+StCoordinateTransform(StTpcGeometry* geoDb,+\\
    \verb+                               StTpcSlowControl* scDb)+\\
    Instantiates the coordinate transformation functor.  
-   The only operations publically accessible are the ``()''
+
 \item[Public \\ Operators]
-   been overloaded to facillitate the transformation between the
+
    The only operations publicly accessible are the ``()''
    operators which have
    been overloaded to facilitate the transformation between the
@@ -3184,7 +3271,7 @@ directives for all coordinate systems.
    Six such overloads are currently available,
    two of which are trivial calls of the other four:
 
-   \verb+                 StTpcLocalCoordinate& loc)+\\
+   {\bf RAW TPC Coordinate $\leftrightarrow$ TPC Local Coordinates} \\
    \verb+void operator()+\\
    \verb+  (const StTpcPadCoordinate& raw, +\\
    \verb+                           StTpcLocalCoordinate& loc)+\\
@@ -3197,8 +3284,8 @@ directives for all coordinate systems.
    y coordinate and the pad number directly maps from the x coordinate.
    The z coordinate is obtained from the drift velocity.  The coordinate
    is then rotated through the appropriate angle to coincide with the
-   \verb+  (StTpcLocalCoordinate& loc,+\\
-   \verb+         const StTpcPadCoordinate& raw)+\\
+   sector in question.
+
    \verb+void operator()+\\
    \verb+  (const StTpcLocalCoordinate& loc,+\\
    \verb+                         StTpcPadCoordinate& raw)+\\
@@ -3210,8 +3297,8 @@ directives for all coordinate systems.
    a specific pad.  The time bin is related to the z position via
    the drift velocity.  As above these calculations are buried in
    private member functions.
-   \verb+  (StTpcLocalCoordinate& loc,+\\
-   \verb+               const StGlobalCoordinate& glo)+\\
+
+   {\bf TPC Local Coordinate $\leftrightarrow$ STAR Global Coordinates} \\
    \verb+void operator()+\\
    \verb+  (const StTpcLocalCoordinate& loc,+\\
    \verb+                        StGlobalCoordinate& glo)+\\
@@ -3221,21 +3308,21 @@ directives for all coordinate systems.
    detector survey and alignment calibration procedure.  Currently, in
    the absence of these numbers, the local and global coordinate systems
    coincide.
-   \verb+                 StTpcLocalCoordinate& loc)+\\
+
    \verb+void operator()+\\
    \verb+  (const StGlobalCoordinate& glo,+\\
    \verb+                       StTpcLocalCoordinate& loc)+\\
    Transforms an \comp{StGlobalCoordinate} (see~\ref{sec:stGlobalCoordinate})
-   As mentioned above, urrently, in the absence of these numbers, the 
+   to an \comp{StTpcLocalCoordinate} (see~\ref{sec:stTpcLocalCoordinate}).
    The coordinates are shifted by the appropriate amounts specified by the
    detector survey and alignment calibration procedure.  
    As mentioned above, currently, in the absence of these numbers, the 
    local and global coordinate systems coincide.
 
-   \verb+                    StGlobalCoordinate& glo)+\\
+   {\bf RAW TPC Coordinate $\leftrightarrow$ STAR Global Coordinates} \\
    \verb+void operator()+\\
    \verb+  (const StTpcPadCoordinate& raw,+\\
-   is facillitated through two subsequent calls of the above
+   \verb+                           StGlobalCoordinate& glo)+\\
    Transforms an \comp{StTpcPadCoordinate} (see~\ref{sec:rawCoordinate})
    to an \comp{StGlobalCoordinate} (see~\ref{sec:stGlobalCoordinate}).  This
    is facilitated through two subsequent calls of the above
@@ -3243,7 +3330,7 @@ directives for all coordinate systems.
 
    \verb+void operator()+\\
    \verb+  (StGlobalCoordinate& glo,+\\
-   is facillitated through two subsequent calls of the above
+   \verb+             const StTpcPadCoordinate& raw)+\\
    Transforms an \comp{StGlobalCoordinate} (see~\ref{sec:stGlobalCoordinate})
    to an \comp{StTpcPadCoordinate} (see~\ref{sec:rawCoordinate}).  This
    is facilitated through two subsequent calls of the above
@@ -3556,14 +3643,14 @@ To be run
 %                                                                      %
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 \section{Physics Processes}
-that are modelled in \name{TRS} at present.  These include the classes
+\label{sec:physicsprocesses}
 
 Following are descriptions of the four groups of processes
 that are modeled in \name{TRS} at present.  These include the classes
 responsible for the ionization calculations 
 (\comp{StTrsDeDx} -- see section~\ref{sec:stTrsDeDx}), charge transport
 of the ionization through the field cage to the read out plane
-\ref{sec:stTrsSlowChargeTransporter}), analog signal genereration
+(\comp{StTrsChargeTransporter} -- see 
 sections~\ref{sec:stTrsChargeTransporter}, 
 \ref{sec:stTrsFastChargeTransporter}, and
 \ref{sec:stTrsSlowChargeTransporter}), analog signal generation
@@ -3602,11 +3689,11 @@ section~\ref{sec:containers}.
    classes as well as the wire plane (section~\ref{sec:stTrsWireHistogram})
    \index{StTrsWireHistogram}, and the sector where the charge will
    distributed (section~\ref{sec:stTrsSector}).
-the necessary functions to facillitate the modelling of the physics
+
 \item[Description]
 Class \comp{StTrsAnalogSignalGenerator} is an abstract class which defines
 the necessary functions to facilitate the modeling of the physics
-a switched capacitor arrary (SCA) \index{switched capacitor arrary}.
+processes that occur after charge collection occurs on the anode wires.
 This entails the charge induction on the pad plane which is then read
 out by an analog pre-amplifier and stored in discrete time bins by
 a switched capacitor array (SCA) \index{switched capacitor array}.
@@ -3653,7 +3740,8 @@ generator is being used.
 \item[Public \\ Operators]
    None
 
-  \verb+virtual void inducedChargeOnPad(StTrsWireHistogram& wires)+\\
+\item[Public \\ Member Functions]
+
   {\bf Charge Induction \\}
   \verb+virtual void+\\
   \verb+  inducedChargeOnPad(StTrsWireHistogram& wires)+\\
@@ -3666,7 +3754,7 @@ generator is being used.
   {\bf Charge Sampling \\}
   \verb+virtual void sampleAnalogSignal()+\\
   Provides interface for sampling an analog signal given the centroid and
-  \verb+                     StTrsAnalogSignal& sig)+\\
+  maximum amplitude of the signal on a pad.
 
   \verb+virtual double signalSampler(double t,+\\
   \verb+                             StTrsAnalogSignal& sig)+\\
@@ -3877,12 +3965,12 @@ itself.  Currently constants for three gas mixtures are included:
   \item Ar.
 \end{itemize}
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-due to electronegative impurities (i.e.~O$_{2}$ and H$_{2}$O) are also
+Parameters needed for transport properties include diffusion coefficients
 in both the longitudinal and transverse directions.  The magnetic field
 dependence on these parameters is also calculable.  Attachment coefficients
 due to electro-negative impurities (i.e.~O$_{2}$ and H$_{2}$O) are also
 stored.  (in a soon to be included appendix).
-produced per unit length etc.  This allows the modelling of energy loss
+
 Ionization parameters that are stored include the mean average ionization
 yield per unit length, ionization potential, average number of pairs
 produced per unit length etc.  This allows the modeling of energy loss
@@ -3943,16 +4031,15 @@ the generation of:
 
   \verb+void setPadLength(double len)+\\
   Allows one to set the sample length to any arbitrary length.
-  Inline access function returns the transverse diffusion constant
-  in units of $\mu$m/$\sqrt{cm}$.  No magnetic field is assumed.
+  Use \comp{SystemOfUnits} to remove ambiguity in sample length.
+
   \verb+double transverseDiffusionCoefficient() const+\\
   Inline access function returns the transverse diffusion constant.
-  Inline access function returns the longitudinal diffusion constant
-  in units of $\mu$m/$\sqrt{cm}$.
+  No magnetic field is currently assumed.
 
   \verb+double longitudinalDiffusionCoefficient() const+\\
   Inline access function returns the longitudinal diffusion constant.
-  coefficient in units of s$^{-1}$bar$^{-2}$.
+
   \verb+double attachmentCoefficient() const+\\
   Inline access function which returns the oxygen attachment
   coefficient.
@@ -3966,12 +4053,12 @@ the generation of:
   Returns the number of primary electrons produced in a sample length
   as specified in the constructor due to ionization
   interactions by a particle with a relativistic value of $\beta \gamma$.  
-  mean number of ionzations per unit length in the specific gas.
+  By default it is taken as 3 which is a minimum ionizing particle.  
   The number of ionizations is calculated from a Poissonian distribution 
   with a mean which is calculated from a parameter which specifies the
   mean number of ionizations per unit length in the specific gas.
  
-  to the intial primaries.  The energy of the primary is
+  \verb+int secondary(double* E)+\\
   Returns the number of secondary electrons generated in a sample length
   as specified in the constructor from ionization processes subsequent
   to the initial primaries.  The energy of the primary is
@@ -4022,7 +4109,7 @@ using namespace units;
 #include "StTrsDeDx.hh"
 
 int main()
-    float  subSegments     = 1.;    // number of pieces to break a sample into
+{
     int    numberOfTracks  = 1000;
     int    numberOfSamples = 45;    // number of pads
     float  subSegments     = 1.;    // break sample into
@@ -4106,11 +4193,13 @@ int main()
    Abstract class, no instantiation is possible.
 
 \item[Dependencies]
-   information is stored \comp{StTrsSector} (section~\ref{sec:stTrsSector}).
+   Requires the electronics (section~\ref{sec:stTpcElectronics}) 
+   data base class \comp{StTpcElectronics} as well as the sector
+   information where the analog
    information is stored \comp{StTrsSector}
    (section~\ref{sec:stTrsSector}) and the output data structure
    \comp{StTrsDigitalSector} (section~\ref{sec:stTrsDigitalSector}).
-the necessary functions to facillitate the modelling of the 
+
 \item[Description]
 Class \comp{StTrsDigitalSignalGenerator} is an abstract class which defines
 the necessary functions to facilitate the modeling of the 
@@ -4119,7 +4208,7 @@ which occupy the time buckets in a sector.  This is currently
 implemented as a simple proportionality constant.  In the near
 future, pending an appropriate function, the non-linear characteristics
 of the STAR ADC will be implemented.  {\bf Digital noise is also not
-toggle the active processes, however they should be added upon implmentation
+  currently implemented.}
 The base class keeps track of the data base information.
 No flags currently exist to
 toggle the active processes, however they should be added upon implementation
@@ -4138,7 +4227,7 @@ generator is being used.
    section~\ref{sec:stTrsFastDigitalSignalGenerator}) and
    \comp{StTrsSlowDigitalSignalGenerator} (see 
    section~\ref{sec:stTrsSlowDigitalSignalGenerator}).  
-   \verb+                                      StTrsSector& sec)+\\
+
 \item[Public \\ Constructors]
    \verb+StTrsDigitalSignalGenerator(StTpcElectronics* elec,+\\
    \verb+             StTrsSector& sec,StTrsDigitalSector& digSec)+\\
@@ -4153,7 +4242,7 @@ generator is being used.
 
 \item[Public \\ Member Functions]
 
-  by referenece.
+  \verb+virtual void digitizeSignal() const+\\
   Provides interface for digitizing the signals stored in the 
   \comp{StTrsSector} which is stored as a protected data member,
   by reference.
@@ -4187,7 +4276,7 @@ generator is being used.
 
 \begin{Entry}
 \item[Summary]
-  {\bf NOTE:} This class is not currently implmeneted!!!
+   Implements the virtual functions in the class 
   \comp{StTrsAnalogSignalGenerator} 
   (section~\ref{sec:stTrsAnalogSignalGenerator}).
   {\bf NOTE:} This class is not currently implemented!!!
@@ -4206,8 +4295,8 @@ Class \comp{StTrsFastAnalogSignalGenerator} is meant to implement
 the three virtual
 functions specified in the class \comp{StTrsAnalogSignalGenerator} 
 (section~\ref{sec:stTrsAnalogSignalGenerator} with fast (parameterized)
-will be modelled with these algorithms.  Currently it is
-not implmeneted as the {\bf Slow} version of the implementation
+algorithms which reproduce the statistical mean behavior of the 
+processes in question.  The emphasis should be on speed and
 efficiency as it is foreseen that many full events
 will be modeled with these algorithms.  Currently it is
 not implemented as the {\bf Slow} version of the implementation
@@ -4218,7 +4307,7 @@ multiple transporters cannot exist within the same program.
 \item[Persistence]
    None
 
-a detailed microscopic version of the implentation.
+\item[Related Classes]
 The header file "StTrsAnalogSignalGenerator.hh" contains the
 base class and "StTrsSlowAnalogSignalGenerator.hh" contains 
 a detailed microscopic version of the implementation.
@@ -4307,7 +4396,7 @@ algorithms which reproduced that statistical mean or af the process
 parameters.  Currently the member function \texttt{transportToWire()}
 simple projects the mini charge segment onto the pad plane.  
 A parameterization of the field cage distortions and effects of the
-the processes which will be modelled are contained in the base class.
+magnetic field are required to go beyond this.  The charge attachment
 is done as a statistical mean rather than at the single charge level, and
 no positional dependence is allowed.  All flags which determine
 the processes which will be modeled are contained in the base class.
@@ -4491,7 +4580,7 @@ contain are more microscopic approach to the implementation.
    \verb+StTrsFastDigitalSignalGenerator()+\\
    No default constructor is accessible.
 
-   and book-keeping variables are dept in the base class 
+   \verb+StTrsFastDigitalSignalGeneratorStTpcElectronics* elec,+\\
    \verb+                                      StTrsSector& sec)+\\
    Creates an instance of the fast digital signal generator.  Initialization 
    and book-keeping variables are kept in the base class 
@@ -4639,12 +4728,25 @@ contain are more microscopic approach to the implementation.
    No default constructor is accessible.
 
    \verb+StTrsSlowAnalogSignalGenerator(+\\
-   and book-keeping variables are dept in the base class 
+   \verb+  StTpcGeometry* geo, StTpcSlowControl* sc,+\\
    \verb+  StTpcElectronics* elec, StTrsSector& sec)+\\
    Creates an instance of the slow analog signal generator.  Initialization 
    and book-keeping variables are kept in the base class 
    (section~\ref{sec:stTrsAnalogSignalGenerator}).
 
+\item[Public \\ Operators]
+   None
+
+\item[Enumerated \\ Data Types]
+  \verb+StDistribution+\\
+  Used to specify the functional form of the charge distribution.
+  Values include: {\bf endo}, {\bf gatti}, {\bf dipole},
+  {\bf unknown}.
+
+  \verb+StSignal+\\
+  Used to specify the functional form of the electronics
+  response.  Values include: {\bf delta},
+  {\bf symmetricGaussianApproximation},
   {\bf symmetricGaussianExact}, {\bf symmetricGaussianExact},
   {\bf realShaper} {\bf undefined}.
     
@@ -4677,6 +4779,16 @@ contain are more microscopic approach to the implementation.
   \verb+double signalSampler(double tb, StTrsAnalogSignal& sig)+\\
   Selects the functional form of the analog electronics response.
   These functions must be implemented as {\em private} data members
+  and return an amplitude (double precision) given the centroid and
+  total charge. 
+
+  \verb+void setChargeDistribution(StDistribution dist)+\\
+  User Selection of the functional form of the charge distribution.
+  Must be specified by an \texttt{StDistribution} which is
+  an enumerated data type.
+
+  \verb+void setElectronicSampler(StSignal dist)+\\
+  User Selection of the functional form of the signal sampler.
   Must be specified by an \texttt{StSignal} which is
   an enumerated data type.
 
@@ -4739,7 +4851,7 @@ int main()
 \label{sec:stTrsSlowChargeTransporter}
 
 \begin{Entry}
-  {\bf NOTE:} This class is not currently implmeneted!!!
+\item[Summary]
    Implements the virtual functions in the class 
   \comp{StTrsChargeTransporter} (section~\ref{sec:stTrsChargeTransporter}).
   {\bf NOTE:} This class is not currently implemented!!!
@@ -4756,15 +4868,15 @@ int main()
 \item[Description]
 Class \comp{StTrsSlowChargeTransporter} is meant to implement the three virtual
 functions specified in the class \comp{StTrsChargeTransporter}
-few tracks will be modelled with these algorithms, but it is meant to
+(section~\ref{sec:stTrsChargeTransporter} with detailed microscopic
 algorithms which model the processes as close as possible.  Little regard
 is made for time or efficiency.  It is not foreseen that more than a 
 few tracks will be modeled with these algorithms, but it is meant to
 study and tune parameterizations that can be used in the fast charge
 transporter.  Currently the member function \texttt{transportToWire()}
-equation, and propogated using a Runge-Kutta solution to the
+simply projects the mini charge segment onto the pad plane.  
 It is foreseen that the drift velocity of the ionization at
-should be done at the single electron level given a probablity for
+and position within the field cage will be done via the Langevin
 equation, and propagated using a Runge-Kutta solution to the
 equation.  The charge attachment
 should be done at the single electron level given a probability for
@@ -4775,7 +4887,7 @@ multiple transporters cannot exist within the same program.
 \item[Persistence]
    None
 
-version of the implentation.
+\item[Related Classes]
 The header file "StTrsChargeTransporter.hh" contains the
 base class and "StTrsFastChargeTransporter.hh" contains a parameterized
 version of the implementation.
@@ -4829,179 +4941,6 @@ version of the implementation.
 
 None Possible.
 
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-%
-%    Reference: StTrsSlowAnalogSignalGenerator
-%
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-\subsection{StTrsSlowAnalogSignalGenerator} 
-\index{StTrsSlowAnalogSignalGenerator}
-\label{sec:stTrsSlowAnalogSignalGenerator}
-
-\begin{Entry}
-\item[Summary]
-  Implements the virtual functions in the class 
-  \comp{StTrsAnalogSignalGenerator} 
-  (section~\ref{sec:stTrsAnalogSignalGenerator}).
-
-\item[Synopsis]
-  \verb+#include ``StTrsSlowAnalogSignalGenerator.hh''+\\
-  Requires \comp{StTpcGeometry} (section~\ref{sec:stTpcGeometry} 
-  \index{StTpcSlowControl}
-  \comp{StTpcSlowControl} (section~\ref{sec:stTpcSlowControl}),
-  \index{StTpcSlowControl}
-  \comp{StTrsDeDx} (section~\ref{sec:stTrsDeDx}) \index{StTrsDeDx}
-  \comp{StMagneticField} (section~\ref{sec:stMagneticField} 
-  \index{StMagneticField}.
-
-\item[Description]
-Class \comp{StTrsSlowAnalogSignalGenerator} implements the three virtual
-functions specified in the class \comp{StTrsAnalogSignalGenerator} 
-(section~\ref{sec:stTrsAnalogSignalGenerator} with fast (parameterized)
-algorithms which reproduced that statistical mean or af the process
-parameters.  Currently the member function \texttt{inducedChargeOnPad()}
-calculates the amount of charge induced on a specified pad through
-a (selectable) analytic expression as described in 
-section~\ref{sec:simulationProcedure}
-The charge is then sampled in time after amplification.
-Charge is distributed into time bins according to a specific electronics
-response.  Integer flags which determine the extent of the pad and
-row cross coupling are set in the base class.
-The implementation is a singleton \index{singleton} so that
-multiple transporters cannot exist within the same program. 
-
-\item[Persistence]
-   None
-
-\item[Related Classes]
-The header file "StTrsAnalogSignalGenerator.hh" contains the base
-class and "StTrsSlowAnalogSignalGenerator.hh" (not yet implemented)
-contain are more microscopic approach to the implementation.
-
-\item[Dependencies]
-  As mentioned above, this class requires \comp{\bf StTpcGeometry} 
-  (section~\ref{sec:stTpcGeometry} 
-  \index{StTpcSlowControl} \comp{\bf StTpcSlowControl} 
-  (section~\ref{sec:stTpcSlowControl}), \index{StTpcSlowControl}
-  \comp{\bf StTrsDeDx} (section~\ref{sec:stTrsDeDx}) 
-  \index{StTrsDeDx} \comp{\bf StMagneticField} (section~\ref{sec:stMagneticField} 
-  \index{StMagneticField}.  An \comp{StTrsWireHistogram} is the
-  object that is required for the input as this contains all the
-  charge collected on the sense wires.  The output is written as analog
-  signals (section~\ref{sec:stAnalogSignal}) in a container class which
-  is an \comp{\bf StTrsSector} indexed by an \comp{\bf StTpcPadCoordinate}.  As
-  with all classes, use of \comp{SystemOfUnits} is made where appropriate.
-
-\item[Public \\ Constructors]
-   \verb+StTrsAnalogSignalGenerator* instance(+\\
-   \verb+  StTpcGeometry* geo, StTpcSlowControl* sc,+\\
-   \verb+  StTpcElectronics* elec, StTrsSector& sec)+\\
-   Checks whether or not a previous instance of the class exists and
-   either returns a pointer to that instance or calls the private constructor
-   and returns a pointer to it.  Base class contains the data base
-   instances as well as the output container (by reference).
-
-   \verb+StTrsAnalogSignalGenerator* instance()+\\
-   Checks whether or not a previous instance of the class exists and
-   returns a pointer to that instance or returns an error message.
-
-\item[Protected \\ Constructors]
-   \verb+StTrsSlowAnalogSignalGenerator()+\\
-   No default constructor is accessible.
-
-   \verb+StTrsSlowAnalogSignalGenerator(+\\
-   \verb+  StTpcGeometry* geo, StTpcSlowControl* sc,+\\
-   \verb+  StTpcElectronics* elec, StTrsSector& sec)+\\
-   Creates an instance of the slow analog signal generator.  Initialization 
-   and book-keeping variables are dept in the base class 
-   (section~\ref{sec:stTrsAnalogSignalGenerator}).
-
-\item[Public \\ Operators]
-   None
-
-\item[Public \\ Member Functions]
-
-  \verb+void inducedChargeOnPad(StTrsWireHistogram& hist)+\\
-  Creates an analog signal which denotes the amplitude and centroid
-  (in time) of a pulse generated by an \comp{\bf StTrsWireBinEntry}.  Filled
-  into the private data member {\em mSector}.  The functional forms
-  of the charge distributions are specified by {\em private} member
-  functions that are called internally.
-
-  \verb+double signalOnPad(double xo, double yo, double xl,+\\
-  \verb+                       double xu, double yl, double yu)+\\
-  Calculates the charge with coordinates specified in a Cartesian system
-  from xl $\rightarrow$ xu in the x-direction and yl $\rightarrow$ yu 
-  in the y-direction.  Note that the value returned must be scaled by
-  the appropriate amplitude of the charge cluster.  The actual functional
-  forms are specified by {\em private} member functions which are called
-  internally.
-
-  \verb+void sampleAnalogSignal()+\\
-  Given the centroid and amplitude of all signals on a pad, the signal
-  from the analog electronics is deduced and distributed into time
-  bins.  Currently there is provisions to add purely random noise, however
-  it is foreseen to implement algorithms which produced series and
-  parallel noise for more accurate simulations.  The results are
-  written into the container {\em StTrsSector}.
-
-  \verb+double signalSampler(double tb, StTrsAnalogSignal& sig)+\\
-  Selects the functional form of the analog electronics response.
-  These functions must be implemented as {\em private} data members
-  and return an amplitude (double precision) given the centroid and
-  total charge. 
-
-\item[Non-Member \\ Operators]
-  None
-
-\item[Example]
-
-Do not run this example!  It is meant for illustrative purposes only.
-For a real example consult section~\ref{sec:physicalExamples}.
-
-{\footnotesize
-\begin{verbatim}
-
-// DataBases
-#include "StTpcSimpleGeometry.hh"
-#include "StTpcSimpleSlowControl.hh"
-#include "StTpcSimpleElectronics.hh"
-#include "StSimpleMagneticField.hh"
-#include "StTrsDeDx.hh"
-
-// processes
-#include "StTrsSlowAnalogSignalGenerator.hh"
-
-int main()
-{
-    // after the Data bases have been created
-
-    StTrsAnalogSignalGenerator *trsAnalogSignalGenerator =
-        StTrsSlowAnalogSignalGenerator::instance(geomDb, 
-                                          scDb, electronicsDb, sector);
-    // set the flags
-
-    trsAnalogSignalGenerator->setDeltaRow(0);
-    trsAnalogSignalGenerator->setDeltaPad(0);
-    trsAnalogSignalGenerator->setSignalThreshold(.0001);
-    trsAnalogSignalGenerator->setSuppressEmptyTimeBins(true);
-
-    // create a Sector:
-    StTrsSector *sector = new StTrsSector(geomDb);
-
-    // after charge transport and charge collection
-    // Generate the ANALOG Signals on pads
-
-    trsAnalogSignalGenerator->inducedChargeOnPad(theWirePlane);
-}
-\end{verbatim}
-}%footnotesize    
-
-
-\end{Entry}
-\clearpage
-
-
 \end{Entry}
 \clearpage
 
@@ -5041,10 +4980,10 @@ of the simulation
 
 \item[Synopsis]
   \verb+#include "StTrsAnalogSignal.hh"+\\
-  and digital signal for insertion into the sector struture which
+
 \item[Description] 
   Class \comp{StTrsAnalogSignal} provides a way to wrap both analog
-  charge at the peak.  It is the responsibilty of the user to make
+  and digital signal for insertion into the sector structure which
   is the complete raw data of the TPC.  It characterizes a signal
   by its centroid (in time) and either total integrated charge or
   charge at the peak.  It is the responsibility of the user to make
@@ -5144,7 +5083,7 @@ To be run
   Requires {\em StThreeVector}, {\em  StMatrix} from the SCL.  
 
 \item[Description]
-  pathlenght (ds) at a position $\vec{x}$ of a track t.  This is the
+  The input to the simulator is generally taken from an external
   program which will dominantly be GEANT.  The information required
   for input is the amount of ionization (dE) deposited over a
   path length (ds) at a position $\vec{x}$ of a track t.  This is the
@@ -5166,12 +5105,12 @@ To be run
   A list of \comp{StTrsMiniChargeSegment} is constructed by calling the
   member function \texttt{split()}.
 
-   Constructs a charge segment with all components intialized to zero.
+\item[Public \\ Constructors]
 
   \verb+StTrsChargeSegment()+\\
    Constructs a charge segment with all components initialized to zero.
 
-   The number of electrons and pathlength are also kept in data members
+   \verb+StTrsChargeSegment(StThreeVector<double>& pos,+\\
    \verb+  StThreeVector<double>& mom, g2t_tpc_hit* g2t)+\\
    Constructs a charge segment with a momentum, mom at a position, pos.
    The number of electrons and path length are also kept in data members
@@ -5230,6 +5169,113 @@ To be run
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %
+%    Reference: StTrsDigitalSector
+%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\subsection{StTrsDigitalSector} \index{StTrsDigitalSector}
+\label{sec:stTrsDigitalSector}
+
+\begin{Entry}
+\item[Summary]
+  Storage for the pixel data in digital, zero compressed format.
+
+
+\item[Synopsis]
+  \verb+#include "StTrsDigitalSector.hh"+\\
+  Requires \comp{StTpcGeometry}, and
+  \comp{StTpcPadCoordinate}.
+
+\item[Description]
+  The final output of the simulator is pixel data which is indexed
+  by pad-row, pad number, and perhaps time-bin.
+  The \comp{StTrsDigitalSector} is
+  a container which can store an indeterminate number of \texttt{signed char}
+  indexed by these quantities which represent 8-bit ADC values.
+  Access is provided by the pad number of
+  a given row and by a complete pad row.  The class also provides methods to
+  add entries with a single function call.
+
+\item[Persistence]
+   None
+
+\item[Related Classes]
+  \comp{StTrsAnalogSignal} is the only type of structure that the
+  sector can store.
+
+\item[Public \\ Constructors]
+
+  \verb+StTrsDigitalSector()+\\
+  Default constructor cannot be called!
+
+  \verb+StTrsDigitalSector(StTpcGeometry* geoDb)+\\
+  Constructs a sector with the number of pad-rows and pads contained
+  in a STAR sector.  The numbers are read from the geometry database
+  specified by geoDb.
+
+\item[Public \\ Operators]
+
+  None
+
+\item[Public \\ Member Functions]
+
+  \verb+vector<char>& timeBinsOfRowAndPad(int r, int p)+\\
+  Returns all the ADC values contained on pad p of row r in
+  an STL vector.
+
+  \verb+typedef vector<vector<char>> tpcPadRow+\\
+  \verb+tpcPadRow& padsOfRow(int r)+\
+  Returns all the ADC values on the pads in row r.  The signals are
+  accessible by an additional pad number.
+
+  \verb+typedef vector<tpcDigitalPadRow>> tpcSector+\\
+  \verb+tpcDigitalSector& rows()+\\
+  Returns the complete digital sector.
+
+  \verb+int numberOfRows() const+\\
+  Returns the number of pad-rows contained by the digital
+  sector.
+
+  \verb+int numberOfPadsInRow(int r) const+\\
+  Returns the number of pads in row r contained by the digital sector.
+
+  \verb+void clear()+\\
+  Clears all ADC values from the sector.
+
+  \verb+void assignTimeBins(int r, int p, vector<char>& sig)+\\
+  Assigns a set of time bins sig to the pad p of row r.
+  {\bf Indices start from 1!}.
+
+  \verb+void assignTimeBins(StTpcPadCoordinate& c,+\\
+  \verb+                              vector<char>& sig)+\\
+  Assigns a set of time bins sig to the pad and row r
+  specified by the raw TPC coordinate c.
+  
+\item[Non-Member \\ Operators]
+
+  None
+  
+\item[Example]
+
+{\footnotesize
+\begin{verbatim}
+
+\end{verbatim}
+}%footnotesize    
+{\bf Programs Output:}
+{\footnotesize
+\begin{verbatim}
+
+To be run
+
+\end{verbatim}
+} %footnotesize
+
+\end{Entry}
+\clearpage
+
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%
 %    Reference: StTrsMiniChargeSegment
 %
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -5246,7 +5292,7 @@ To be run
   \verb+#include "StTrsMiniChargeSegment.hh"+\\
   Requires \comp{StThreeVector}, \comp{StMatrix} from the SCL.
 
-  segment.  It is distributed onto a helical trajectory over the pathlength
+\item[Description]
   The mini segment is a fragment of a charge segment (above) after it
   has been split.  It can contain the complete or a component of the
   segment.  It is distributed onto a helical trajectory over the path length
@@ -5264,11 +5310,11 @@ To be run
  An \comp{StTrsChargeSegment} is fragmented to produce mini segments.
 
 \item[Public \\ Constructors]
-   and pathlength over which ionization is distributed to zero.
+  
    \verb+StTrsMiniChargeSegment()+\\
    Default constructor initializes the position and amount of ionization
-   Initializes the position of the mini segmetn to x and amount of
-   ionization de deposited over a pathlength dl to the specified values.
+   and path length over which ionization is distributed to zero.
+
    \verb+StTrsMiniChargeSegment(StThreeVector<double>& x, double de, double dl)+\\
    Initializes the position of the mini segment to x and amount of
    ionization de deposited over a path length dl to the specified values.
@@ -5283,7 +5329,7 @@ To be run
   Returns the position of the mini segment.
 
   \verb+StThreeVector<double>& position()+\\
-  Returns the value of the pathlength.
+  Allows assignment of the position of the mini segment.
   
   \verb+double dl() const+\\
   Returns the value of the path length.
@@ -5456,11 +5502,11 @@ To be run
 
 \item[Description]
   The {\em wire histogram} is a class in which charge can be assigned to single
-  wire, but also posseses functions necessary to facilitate gas gain
+  wires in a controlled manner; that is, charge is assigned through the
   {\em wire bin entry} class.  The functionality of this class goes much beyond
   simply keeping track of the amount of ionization collected on a single
   wire, but also possesses functions necessary to facilitate gas gain
-  able to do gas gain.  Thus instead of imposing overhead of redundent
+  amplification of each cluster.  The reason this {\em ``process''} is associated
   with a container is that the structure and layout of the wire grid,
   which is necessary in the {\em wire histogram} is also necessary to be
   able to do gas gain.  Thus instead of imposing overhead of redundant
@@ -5542,7 +5588,7 @@ To be run
   Sets a flag according the the value v whether gas gain
   amplification should be done with fluctuations according to
   the Raether distribution.  Actual gas gain is done
-  Proforms the gas gain amplification according to the status of the
+  in private member function.
 
   \verb+double avalanche(int n)+\\
   Performs the gas gain amplification according to the status of the
@@ -5686,7 +5732,7 @@ To be run
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %@@@                                                                   %
-\section{Management and Auxilliary Classes}
+%                       Auxillary and Management                       %
 %                                                                      %
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 \section{Management and Auxiliary Classes}
