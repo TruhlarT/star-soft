@@ -1,6 +1,9 @@
-#       $Id: group_env.csh,v 1.15 1998/06/14 19:48:00 fisyak Exp $
+#       $Id: group_env.csh,v 1.16 1998/06/20 01:05:23 fisyak Exp $
 #	Purpose:	STAR group csh setup 
 #       $Log: group_env.csh,v $
+#       Revision 1.16  1998/06/20 01:05:23  fisyak
+#       Add STAF_LIB in LD_LIBRARY_PATH
+#
 #       Revision 1.15  1998/06/14 19:48:00  fisyak
 #       Add crean up of ROOT path
 #
@@ -61,12 +64,13 @@ if ( ! $?GROUP_DIR )  setenv GROUP_DIR ${STAR_ROOT}/group
 # Defined in CORE
 if ( ! $?GROUP_PATH ) setenv GROUP_PATH ${STAR_ROOT}/group
 setenv GROUPPATH  $GROUP_PATH
-setenv STAR_PATH ${STAR_ROOT}/packages;      if ($ECHO) echo   "Setting up STAR_PATH = ${STAR_PATH}"       
+setenv STAR_PATH ${STAR_ROOT}/packages;      if ($ECHO) echo   "Setting up STAR_PATH = ${STAR_PATH}"
 if ($?STAR_LEVEL == 0) setenv STAR_LEVEL pro
 setenv STAR_VERSION `ls -l $STAR_PATH | grep "${STAR_LEVEL} ->" |cut -f2 -d">"`  
 setenv STAR $STAR_PATH/${STAR_LEVEL} ;       if ($ECHO) echo   "Setting up STAR      = ${STAR}"
 setenv STAR_MGR $STAR/mgr
 source ${GROUP_DIR}/STAR_SYS; 
+setenv STAF_LIB  $STAR/asps/../.${STAR_HOST_SYS}/lib  ; if ($ECHO) echo   "Setting up STAF_LIB  = ${STAF_LIB}"
 if ($STAR_LEVEL == "dev") then
 setenv STAR_LIB  $STAR/.${STAR_HOST_SYS}/lib; if ($ECHO) echo   "Setting up STAR_LIB  = ${STAR_LIB}"
 setenv STAR_BIN  $STAR/asps/../.${STAR_HOST_SYS}/bin  ; if ($ECHO) echo   "Setting up STAR_BIN  = ${STAR_BIN}"
@@ -93,7 +97,6 @@ if ($?MANPATH == 1) then
 else
   setenv MANPATH ${STAR_PATH}/man
 endif
-setenv STAR_LD_LIBRARY_PATH ""
 setenv PARASOFT /afs/rhic/star/packages/parasoft
 switch ($STAR_SYS)
     case "rs_aix*":
@@ -120,13 +123,17 @@ switch ($STAR_SYS)
     case "sgi_5*":
 #  ====================
 	set path = ($path $PARASOFT/bin.sgi5)
-	setenv STAR_LD_LIBRARY_PATH ${PARASOFT}/lib.sgi5
+        if (! ${?LD_LIBRARY_PATH}) setenv LD_LIBRARY_PATH 
+	setenv LD_LIBRARY_PATH "${PARASOFT}/lib.sgi5:${STAF_LIB}:${LD_LIBRARY_PATH}"
         limit coredumpsize 0
     breaksw
     case "sgi_6*":
 #  ====================
         setenv CERN_LEVEL pro
         setenv CERN_ROOT  /cern/pro
+        if (! ${?LD_LIBRARY_PATHN32}) setenv LD_LIBRARY_PATHN32 
+	setenv LD_LIBRARY_PATHN32 "${STAF_LIB}:${LD_LIBRARY_PATHN32}"
+        
         limit coredumpsize 0
     breaksw
     case "i386_linux2":
@@ -140,38 +147,30 @@ switch ($STAR_SYS)
        setenv CERN_LEVEL pgf98
        setenv CERN_ROOT  $CERN/$CERN_LEVEL
      endif
-     set path = (/usr/bin $path  /usr/local/bin/ddd )
+     set path = (/usr/bin $path  /usr/local/bin/ddd /usr/local/DQS318/bin )
+#    set path = ($path  /usr/local/bin/ddd /usr/local/DQS318/bin )
      set path = ($path $PARASOFT/bin.linux)
-     setenv STAR_LD_LIBRARY_PATH /usr/lib:${PARASOFT}/lib.linux:/usr/local/lib
+     if (! ${?LD_LIBRARY_PATH}) setenv LD_LIBRARY_PATH 
+     setenv LD_LIBRARY_PATH "/usr/lib:${PARASOFT}/lib.linux:/usr/local/lib:${STAF_LIB}:${LD_LIBRARY_PATH}"
         limit coredump 0
     breaksw
     case "sun4*":
 #  ====================
-      setenv STAR_LD_LIBRARY_PATH "/opt/SUNWspro/lib:/usr/openwin/lib:/usr/dt/lib:/usr/local/lib"
+      if (! ${?LD_LIBRARY_PATH}) setenv LD_LIBRARY_PATH
+      setenv LD_LIBRARY_PATH "/opt/SUNWspro/lib:/usr/openwin/lib:/usr/dt/lib:/usr/local/lib:${PARASOFT}/lib.solaris:${STAF_LIB}:{LD_LIBRARY_PATH}"
 	set path = ($path $PARASOFT/bin.solaris)
-	setenv STAR_LD_LIBRARY_PATH ${PARASOFT}/lib.solaris
     breaksw 
     case "sunx86_55":
 #  ====================
-#	setenv CERN_LEVEL pro
-#	setenv CERN_ROOT $CERN/$CERN_LEVEL
+        if (! ${?LD_LIBRARY_PATH}) setenv LD_LIBRARY_PATH
+        setenv LD_LIBRARY_PATH "${STAF_LIB}:${LD_LIBRARY_PATH}"
         limit coredump 0
     breaksw
     default:
 #  ====================
     breaksw
 endsw
-set path = ($path $CERN_ROOT/mgr)
-if ($?LD_LIBRARY_PATH == 0) then
-setenv LD_LIBRARY_PATH "$STAR_LD_LIBRARY_PATH"
-else
-setenv LD_LIBRARY_PATH "$STAR_LD_LIBRARY_PATH":"$LD_LIBRARY_PATH"
-endif
-unsetenv STAR_LD_LIBRARY_PATH
-#setenv LD_LIBRARY_PATH `/afs/rhic/star/group/dropit -p ${LD_LIBRARY_PATH}`
 if ( -e /usr/ccs/bin/ld ) set path = ( $path /usr/ccs/bin /usr/ccs/lib )
-#  setenv PATH `/afs/rhic/star/group/dropit`
-#  setenv MANPATH `/afs/rhic/star/group/dropit -p ${MANPATH}`
 # We need this aliases even during BATCH
 if (-r $GROUP_DIR/group_aliases.csh) source $GROUP_DIR/group_aliases.csh
 #
@@ -202,7 +201,6 @@ endif
 # root
 if ( -f $GROUP_DIR/rootenv.csh) then
   source $GROUP_DIR/rootenv.csh
-  if ( -x /afs/rhic/star/group/dropit) setenv LD_LIBRARY_PATH `/afs/rhic/star/group/dropit -p "$LD_LIBRARY_PATH"`
 endif
 # Objy 5.00
 if (-f /opt/objy/objy500/setup.csh) then
@@ -215,16 +213,19 @@ if ( -d /opt/hpnp ) then
 # set PATH = ( $PATH':'/opt/hpnp/bin':'/opt/hpnp/admin )
   set path = ( $path /opt/hpnp/bin /opt/hpnp/admin )
 endif
+set path = (. $HOME/bin $HOME/bin/$STAR_SYS $path $CERN_ROOT/mgr)
 if ( -x /afs/rhic/star/group/dropit) then
 # clean-up PATH
+  setenv LD_LIBRARY_PATH `/afs/rhic/star/group/dropit -p "$LD_LIBRARY_PATH"`
   setenv MANPATH `/afs/rhic/star/group/dropit -p ${MANPATH}`
   setenv PATH `/afs/rhic/star/group/dropit GROUPPATH`
 endif
 unset ECHO
-#END
+set date="`date`"
 cat >> $GROUP_DIR/statistics/star${STAR_LEVEL} << EOD
-$USER from $HOST asked for $STAR_VERSION
+$USER from $HOST asked for $STAR_VERSION $date
 EOD
+#END
 
 
 
