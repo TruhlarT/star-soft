@@ -81,6 +81,10 @@ for($i=0 ; $i <= $#ARGV ; $i++){
 	} elsif (lc($arg) eq "-valg"){
 	    # Turn on valgrind
 	    $VALG = 1;
+	} elsif ($arg eq "-1"){
+	    # separate option ...
+	    push(@ARG,$arg);
+	    next;
 	} else {
 	    # an unkown - options
 	    die "Don't know what to do with option [$arg]\n";
@@ -96,10 +100,22 @@ undef(@ARGV);
 # Sort array now, transfer i into another associative array.
 #
 foreach $el (keys %TESTS){
-    @items = split(" ",$el);
+    # chain argument may be post-fixed by a tag
+    @items = split(";",$el);
+    if ($#items > 0){
+	$chst = pop(@items);
+    } else {
+	$chst = "";
+    }
+    $chain = $items[0];
+    
+    # chain argument need to be sorted
+    @items = split(" ",$chain);
     @items = sort(@items);
     $chain = join(" ",@items);
+
     push(@CHAINS,$chain);
+    push(@CHAINST,$chst);
     $STESTS{$chain} = $TESTS{$el};
 }
 undef(%TESTS);
@@ -114,7 +130,7 @@ if($#ARG == -1){
 	"per line. Press return to end input.\n";
     do {
 	for($i=0 ; $i <= $#CHAINS ; $i++){
-	    printf "%4d --> %s\n",$i,$CHAINS[$i];
+	    printf "%4d --> %s %s\n",$i,$CHAINS[$i],($CHAINST[$i] ne ""?"(".$CHAINST[$i].")":"");
 	}
 	print "Test number : ";
 	chomp($choice = <STDIN>);
@@ -125,6 +141,11 @@ if($#ARG == -1){
 
 # test all choices
 print "You chose test(s) [".join(" ",@ARG)."]\n";
+
+# If choice was -1, run all tests
+if ($ARG[0] eq -1){     for ($i=0 ; $i <= $#CHAINS ; $i++){ $ARG[$i] = $i;}}
+
+# Loop over choices
 foreach $choice (@ARG){
     # Now we know
     $chain = $CHAINS[$choice];
@@ -138,7 +159,11 @@ foreach $choice (@ARG){
     # else, multiple files may be used. Several tests will follow
     print "\n*** $chain ***\n";
 
-    $dir   = $chain;
+    if ($CHAINST[$choice] ne ""){
+	$dir   = $CHAINST[$choice];
+    } else {
+	$dir   = $chain;
+    }
     $dir   =~ s/[ -]/_/g;
     @files = split(" ",$STESTS{$chain});
     for($i=0 ; $i <= $#files ; $i++){
