@@ -166,6 +166,10 @@ sub starting_display {
     # get rid of date
     ($selection = $key) =~ s/\.\d{6}//;;
     
+    # pmj 9/12/99
+    # if selection does not contain hc_, this is venus
+    $selection =~ /hc_/ or $selection .= "\.venus";
+
     # get rid of days of the week
     $selection =~ s/(Mon|Tue|Wed|Thu|Fri|Sat|Sun)\.//;
 
@@ -353,10 +357,18 @@ sub get_selected_key_list {
     };
 
     # now pattern match selection to report keys
-    
+
     foreach $report_key ( @QA_key_list ) {
       # get rid of days of week
       ($temp = $report_key) =~ s/(Mon|Tue|Wed|Thu|Fri|Sat|Sun)\.//;
+      
+      # get rid of date
+      $temp =~ s/\.\d{6}//;;
+
+      # pmj 9/12/99
+      # if report key doesn't contain hc_, this is venus
+      $temp =~ /hc_/ or $temp .= "\.venus";
+
       $temp =~ /$select_dataset/ and push @selected_key_list, $report_key;
     }
     last SWITCH;
