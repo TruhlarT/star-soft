@@ -146,7 +146,7 @@ my $DSITE     =   undef;
 my $XMLREF    =   undef;
 my $dbname    =   "FileCatalog_BNL";
 my $dbhost    =   "duvall.star.bnl.gov";
-my $dbport    =   "";
+my $dbport    =   "3336";
 my $dbuser    =   "FC_user";
 my $dbpass    =   "FCatalog";
 my $DBH;
@@ -624,7 +624,7 @@ sub _ReadConfig
     if ($config eq ""){
 	&print_debug("XML :: could not find any config file");
     } else {
-	eval "require XML::Parser";
+	eval "require XML::Simple";
 	if (!$@){
 	    if ( ! defined($XMLREF) ){
 		#use Data::Dumper;
@@ -670,7 +670,7 @@ sub _ReadConfig
 		$bref = $XMLREF->{SITE};
 		foreach my $key (keys %{$XMLREF->{SITE}} ){
 		    if ($key eq $site || $site eq ""){
-			&print_debug("XML :: Parsing for SITE=$key (agree with intent=$intent)");
+			&print_debug("XML :: Parsing for SITE=$key (agree with intent=$lintent)");
 			@servers = @{$XMLREF->{SITE}->{$key}->{SERVER}};
 			last;
 		    }
@@ -719,8 +719,16 @@ sub _ReadConfig
 	    # and will not be supported / extended.
 	    # You MUST install XML::Simple 
 	    #
+	    my ($site,$lintent);
+	    if ($intent =~ /::/){
+		($site,$lintent) = split("::",$intent);
+	    } else {
+		$site    = (defined($DSITE)?$DSITE:"");
+		$lintent = $intent;
+	    }
+
 	    if ( ! defined($flag) ){
-		&print_debug("ReadConfig","Searching for $intent in $config");
+		&print_debug("ReadConfig","Searching for $lintent in $config");
 	    }
 	    open(FI,$config);
 
@@ -745,8 +753,8 @@ sub _ReadConfig
 		    $scope = $2;
 
 		    # the intent flag is not yet set
-		    &print_debug("XML :: Comparing scopes found=[$scope] intent=[$intent]");
-		    if ($scope =~ m/$intent/){
+		    &print_debug("XML :: Comparing scopes found=[$scope] intent=[$lintent]");
+		    if ($scope =~ m/$lintent/){
 			&print_debug("XML :: scope matches intent (mask ON)");
 			$ok = 1;
 		    } else {
@@ -795,8 +803,8 @@ sub _ReadConfig
 	    }
 	}
     }
-    &print_debug("XML :: Host=$EL{HOST} Db=$EL{DB} Port=$EL{PORT}");
-    &print_debug("XML :: User=$EL{USER} Pass=$EL{PASS} Site=$EL{site}");
+    #&print_debug("XML :: Host=$EL{HOST} Db=$EL{DB} Port=$EL{PORT}");
+    #&print_debug("XML :: User=$EL{USER} Pass=$EL{PASS} Site=$EL{site}");
     #print "XML :: Host=$EL{HOST} Db=$EL{DB} Port=$EL{PORT}\n";
     #print "XML :: User=$EL{USER} Pass=$EL{PASS} Site=$EL{site}\n";
     return ($EL{HOST},$EL{DB},$EL{PORT},$EL{USER},$EL{PASS},$EL{site});
