@@ -13,8 +13,7 @@
 #
 # Rebuild the glimpse database once a week
 #
-00 10          * * 0 glimpseindex -n -M 20 -H `pwd` -i -z .
-
+00 10          * * 0 cd /home/hn-star/hnstar && glimpseindex -n -M 20 -H . -i -z . >&/dev/null
 
 #
 # Check the status of machines on the STAR domain. Should be once during daytime to
