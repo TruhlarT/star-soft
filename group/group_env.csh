@@ -1,6 +1,9 @@
-#       $Id: group_env.csh,v 1.13 1998/06/12 13:11:57 fisyak Exp $
+#       $Id: group_env.csh,v 1.14 1998/06/12 15:45:32 fisyak Exp $
 #	Purpose:	STAR group csh setup 
 #       $Log: group_env.csh,v $
+#       Revision 1.14  1998/06/12 15:45:32  fisyak
+#       Resotore dev environment
+#
 #       Revision 1.13  1998/06/12 13:11:57  fisyak
 #       Add version statistics
 #
@@ -60,9 +63,14 @@ if ($?STAR_LEVEL == 0) setenv STAR_LEVEL pro
 setenv STAR_VERSION `ls -l $STAR_PATH | grep "${STAR_LEVEL} ->" |cut -f2 -d">"`  
 setenv STAR $STAR_PATH/${STAR_LEVEL} ;       if ($ECHO) echo   "Setting up STAR      = ${STAR}"
 setenv STAR_MGR $STAR/mgr
-source ${GROUP_DIR}/STAR_SYS;    
+source ${GROUP_DIR}/STAR_SYS; 
+if ($STAR_LEVEL == "dev") then
+setenv STAR_LIB  $STAR/.${STAR_HOST_SYS}/lib; if ($ECHO) echo   "Setting up STAR_LIB  = ${STAR_LIB}"
+setenv STAR_BIN  $STAR/asps/../.${STAR_HOST_SYS}/bin  ; if ($ECHO) echo   "Setting up STAR_BIN  = ${STAR_BIN}"
+else   
 setenv STAR_LIB  $STAR/lib/${STAR_HOST_SYS}; if ($ECHO) echo   "Setting up STAR_LIB  = ${STAR_LIB}"
 setenv STAR_BIN  $STAR/asps/../.${STAR_HOST_SYS}/bin  ; if ($ECHO) echo   "Setting up STAR_BIN  = ${STAR_BIN}"
+endif
 setenv STAR_PAMS $STAR/pams;                 if ($ECHO) echo   "Setting up STAR_PAMS = ${STAR_PAMS}"
 setenv STAR_DATA ${STAR_ROOT}/data;          if ($ECHO) echo   "Setting up STAR_DATA = ${STAR_DATA}"
 if ( ! $?STAR_DB ) setenv STAR_DB /star/sol/db;                 if ($ECHO) echo   "Setting up STAR_DB = ${STAR_DB}"
@@ -127,7 +135,7 @@ switch ($STAR_SYS)
        setenv LM_LICENSE_FILE $PGI/license.dat
        alias pgman 'man -M $PGI/man'
      endif
-     set path = ( $path /afs/rhic/asis/i386_linux2/usr.local/Acrobat3/bin /afs/rhic/asis/i386_linux2/usr.local/bin  /usr/local/bin/ddd )
+     set path = (/usr/bin $path /afs/rhic/asis/i386_linux2/usr.local/Acrobat3/bin /afs/rhic/asis/i386_linux2/usr.local/bin  /usr/local/bin/ddd )
      set path = ($path $PARASOFT/bin.linux)
      setenv STAR_LD_LIBRARY_PATH ${PARASOFT}/lib.linux:/usr/local/lib
         limit coredump 0
@@ -187,8 +195,8 @@ if ($?CERN_ROOT == 1 ) then
 if ($ECHO) echo   "CERNLIB version "$CERN_LEVEL" has been initiated with CERN_ROOT="${CERN_ROOT}
 endif
 # root
-if ( -f /afs/rhic/opt/rhic/ROOT2/rootenv.csh) then
-  source /afs/rhic/opt/rhic/ROOT2/rootenv.csh
+if ( -f $GROUP_DIR/rootenv.csh) then
+  source $GROUP_DIR/rootenv.csh
   if ( -x /afs/rhic/star/group/dropit) setenv LD_LIBRARY_PATH `/afs/rhic/star/group/dropit -p "$LD_LIBRARY_PATH"`
 endif
 # Objy 5.00

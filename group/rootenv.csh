@@ -1,7 +1,7 @@
-   setenv ROOTSYS /afs/rhic/opt/rhic/ROOT
-   if ( -x $STAR_PATH/ROOT/root/bin/root ) setenv ROOTSYS $STAR_PATH/ROOT/root
-   if ( ! -e $ROOTSYS) setenv ROOTSYS /afs/rhic/opt/rhic/root
-   if ( ! -e $ROOTSYS) setenv ROOTSYS /afs/rhic/sunx86_55/opt/rhic/ROOT2
+   setenv ROOTSYS /afs/rhic/opt/rhic/ROOT2
+#   if ( -x $STAR_PATH/ROOT/root/bin/root ) setenv ROOTSYS $STAR_PATH/ROOT/root
+#   if ( ! -e $ROOTSYS) setenv ROOTSYS /afs/rhic/opt/rhic/root
+#   if ( ! -e $ROOTSYS) setenv ROOTSYS /afs/rhic/sunx86_55/opt/rhic/ROOT2
 
    set path = ($ROOTSYS/bin $path)
 # On Solaris, Linux, SGI, Alpha/OSF do:
