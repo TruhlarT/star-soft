@@ -1,5 +1,5 @@
 #!/usr/bin/csh -f
-#       $Id: group_env.csh,v 1.125 2002/01/04 15:01:20 jeromel Exp $
+#       $Id: group_env.csh,v 1.126 2002/03/12 23:53:27 jeromel Exp $
 #	Purpose:	STAR group csh setup
 #
 #	Author:		Y.Fisyak     BNL
@@ -91,10 +91,15 @@ else if ($?INSURE) then
   # Do it conditional because this is a late addition.
   # The directory structure may not exist for all library version.
   if( -e $STAR/.${STAR_HOST_SYS}/ILIB) then
-   setenv STAR_lib  $STAR/.${STAR_HOST_SYS}/ILIB;if ($ECHO) echo   "Setting up STAR_lib  = ${STAR_lib}"
-   setenv MINE_lib        .${STAR_HOST_SYS}/ILIB
-   setenv STAR_BIN  $STAR/.${STAR_HOST_SYS}/IBIN
-   setenv MY_BIN          .${STAR_HOST_SYS}/IBIN
+   if (-f $GROUP_DIR/parasoftenv.csh) then
+     source $GROUP_DIR/parasoftenv.csh
+     setenv STAR_lib  $STAR/.${STAR_HOST_SYS}/ILIB;if ($ECHO) echo   "Setting up STAR_lib  = ${STAR_lib}"
+     setenv MINE_lib        .${STAR_HOST_SYS}/ILIB
+     setenv STAR_BIN  $STAR/.${STAR_HOST_SYS}/IBIN
+     setenv MY_BIN          .${STAR_HOST_SYS}/IBIN
+   else
+     if ($ECHO) echo "Setting up STAR_lib  = Insure not found (not set)"
+   endif
   else
    if ($ECHO) echo  "Setting up STAR_lib  = Cannot Set (missing tree)"
   endif
