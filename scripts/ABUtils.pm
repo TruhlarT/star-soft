@@ -84,7 +84,10 @@ $INSU::TDIR="/star/rcf/test/dev/Insure";
 	      "/star/data03/daq/2000/08/st_physics_1229021_raw_0003.daq",
 
 	      "p2001 -Kalman fiedloff",
-	      "/star/data03/daq/2001/192/st_physics_2192029_raw_0003.daq"
+	      "/star/data03/daq/2001/192/st_physics_2192029_raw_0003.daq",
+
+	      "p2001a",
+	      "/star/data03/daq/2001/251/st_physics_2251004_raw_0001.daq"
 
 	      );
 
