@@ -39,12 +39,16 @@ if( ! opendir(DIR,"$JOBDIR") ){  exit;}
 if(! $UPDATE){
     print "Scanning $JOBDIR vs $TARGET on ".localtime()."\n";
     while( defined($jfile = readdir(DIR)) ){
-	if( $jfile =~ /(.*)(st_.*)/){
-	    if( -e "$JOBDIR/old/$jfile.checked"){ next;}
+	#print "$jfile\n";
+	if( $jfile =~ /(.*_)(st_.*)/){
 	    $tree = $1;
 	    $file = $2;
+
+	    #print "$jfile Tree=$tree file=$file\n";
+
 	    $tree =~ s/_/\//g;
 	    chop($tree);        # remove trailing '/'
+	    if( -e "$JOBDIR/old/$jfile.checked"){ next;}
 
 	    # double check the conformity of the job file name
 	    if( $tree !~ m/$LIB/){
@@ -56,6 +60,8 @@ if(! $UPDATE){
 		    $LOCATIONS{"$file.daq"} = "$TARGET/$tree";
 		    push(@DONE,"$file.daq");
 		    push(@MOVE,$jfile);
+		} else {
+		    #print "Could not find $TARGET/$tree/$file.event.root\n";
 		}
 	    }
 	}
