@@ -130,7 +130,7 @@ sub ParseLogfile {
   }
   else {            # .log.gz
     $logFile =~ s/\.log$/\.log\.gz/;
-    $openOption="|zcat $logFile";
+    $openOption="zcat $logFile|";
   }
 
   my $fh = FileHandle->new($openOption) or 
@@ -268,6 +268,11 @@ sub ParseLogfile {
     };
 
   }
+  # check that the input file name is valid
+  defined $self->InputFn() or do {
+    print "Cannot find the input file.  Trouble parsing log file?\n";
+    return 0;
+    };
 
   # just set the job status as done
   my $jobStatus = ($segFault) ? "segmentation violation" : "done";
