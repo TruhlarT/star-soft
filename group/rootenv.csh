@@ -1,5 +1,7 @@
 #!/usr/bin/csh -f
 setenv ROOTSYS /afs/rhic/star/ROOT/${ROOT_LEVEL}/.${STAR_HOST_SYS}/root
+set level = `echo $ROOT_LEVEL | awk -F. '{print $2}'`
+if ($level  >= 24)  setenv ROOTSYS /afs/rhic/star/ROOT/${ROOT_LEVEL}
 switch ($STAR_SYS)
     case "hp_ux102":
     #  ====================
