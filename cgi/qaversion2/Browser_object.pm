@@ -110,12 +110,11 @@ sub PrintPageHeader{
   my $colour = $gDataClass_object->BrowserBannerColor();
   my $class_label = $gDataClass_object->BrowserBannerLabel();
 
+  my $contact_string = $self->ContactString();
+
   # where's the documentation?  
   my $doc_link = 
       "http://duvall.star.bnl.gov/STARAFS/comp/pkg/dev/cgi/qa/doc/index.html";
-    
-  my $webmaster_string = 
-    "<address><a href=mailto:pmjacobs\@lbl.gov>webmaster</a></address>";
   my $doc_string = "<a href=$doc_link target='display'>Documentation </a>";
 
   #---
@@ -146,8 +145,8 @@ sub PrintPageHeader{
 	<h2>$header_string</h2>
 	      </font></ul> 
       <td><table border=0> 
-      <tr> $doc_string
-      <tr> $webmaster_string
+      <tr> $doc_string <br>
+      <tr> $contact_string
       </table>
       </table>
       <hr noshade>
@@ -410,6 +409,25 @@ sub CheckForCshScript{
     " is not executable by server; not run <br> \n";
   }
   
+}
+#===========================================================
+# pmj 28/6/00 returns link to html page containing contact info 
+
+sub ContactString{
+
+  my $self = shift;
+  
+  #---------------------------------------------------------
+  # doesn't work - why not???
+  #my $server_name = $gCGIquery->server_name;
+  #(my $base_name = $gCGIquery->script_name) =~  s/\/\w+?$//;
+  #my $url = "http://$server_name$base_name/contacts.html";
+
+  # temporary solution:
+  my $url = "http://www.star.bnl.gov/~jacobs/contacts.html";
+
+  my $string = "<a href=$url target = 'display'>Contacts </a>";
+  return $string;
 }
 
 #===========================================================
