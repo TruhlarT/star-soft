@@ -17,7 +17,7 @@
 
 
 BEGIN {
- use CGI::Carp qw(fatalsToBrowser carpout);
+ use CGI::Carp qw(fatalsToBrowser); # carpout);
 }
 
 use CGI qw(:standard);
@@ -56,7 +56,7 @@ my $move_list;
 
 my $job_dir  = "/star/u/starreco/$ProdTag/requests/$kind/jobfiles/";
 my $arch_dir = "/star/u/starreco/$ProdTag/requests/$Kind/archive/";
-my $list_dir = "/afs/rhic/star/doc/www/html/tmp/csh/";
+my $list_dir = "/afs/rhic.bnl.gov/star/doc/www/html/tmp/csh/";
 
 my $dbdriver   = "mysql";
 my $dbname     = "operation";
@@ -126,7 +126,7 @@ if( ($ProdTag) || ($Trigger) ){
 		    	$sth1->execute($id);
 		    	while( ($prodtag, $trigger, $LFname)= $sth1->fetchrow_array() ){
 				print 
-			    	    "mv /star/u/starreco/$prodtag/requests/$Kind/archive/*$prodtag\_*$LFname ",
+			    	    "mv /star/u/starreco/$prodtag/requests/$Kind/archive/*$LFname ",
 			            "/star/u/starreco/$prodtag/requests/$Kind/jobfiles/\n", br;
 		    	}
 		    }
@@ -187,7 +187,7 @@ if( ($ProdTag) || ($Trigger) ){
 			$sth1->execute($id);
 			while( ($prodtag, $trigger, $LFname)= $sth1->fetchrow_array() ){
 			    print MOVELIST
-				"/star/u/starreco/$prodtag/requests/$Kind/archive/*$prodtag\_*$LFname ",
+				"/star/u/starreco/$prodtag/requests/$Kind/archive/*$LFname ",
 				"/star/u/starreco/$prodtag/requests/$Kind/jobfiles/\n";
 			}
 		    } #if Method=CreatList
@@ -351,9 +351,9 @@ if( ($ProdTag) || ($Trigger) ){
     $sth1->execute() or die "Cannnot create table: $DBI::errstr\n";
 
     # fill tables from db RJobInfo
-    $sth2 = $dbh1->prepare("INSERT INTO ValidTrigger SELECT RJobInfo.Trigger FROM RJobInfo");
+    $sth2 = $dbh1->prepare("INSERT INTO ValidTrigger SELECT DISTINCT RJobInfo.Trigger FROM RJobInfo");
     $sth2->execute() or die "Cannnot prepare query: $DBI::errstr\n";
-    $sth5 = $dbh1->prepare("INSERT INTO ValidProdTag SELECT RJobInfo.ProdTag FROM RJobInfo");
+    $sth5 = $dbh1->prepare("INSERT INTO ValidProdTag SELECT DISTINCT RJobInfo.ProdTag FROM RJobInfo");
     $sth5->execute() or die "Cannnot prepare query: $DBI::errstr\n";
     # select Trigger and ProdTag from temp tables
     $sth3 = $dbh1->prepare("SELECT Trigger FROM ValidTrigger");
