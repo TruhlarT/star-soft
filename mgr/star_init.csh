@@ -1,6 +1,6 @@
 #  $Log: star_init.csh,v $
-#  Revision 1.1  1997/12/31 14:35:23  fisyak
-#  Initial revision
+#  Revision 1.1.1.1  1997/12/31 14:35:23  fisyak
+#
 #
 #             Last modification $Date: 1997/12/31 14:35:23 $ 
 #! /bin/csh -f
