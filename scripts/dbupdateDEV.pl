@@ -372,7 +372,7 @@ my @files;
  $jobTime = 0; 
 
        if ($fname =~ /.log/)  {
-    print "File Name:",$fname, "\n";       
+#    print "File Name:",$fname, "\n";       
        $fullname = $eachOutLDir."/".$fname;
       $mpath = $eachOutLDir;
       @dirF = split(/\//, $eachOutLDir);

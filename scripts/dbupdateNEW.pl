@@ -21,9 +21,9 @@ require "/afs/rhic/star/packages/DEV/mgr/dbTJobsSetup.pl";
 #require "dbTJobsSetup.pl";
 
 my $TOP_DIRD = "/star/rcf/test/new/";
-my @dir_year = ("year_1h", "year_2001");
-my @node_dir = ("trs_redhat61", "trs_redhat61_opt");
-my @node_daq = ("daq_redhat61", "daq_redhat61_opt"); 
+my @dir_year = ("year_2001","year_1h");
+my @node_dir = ("trs_redhat72", "trs_redhat72_opt");
+my @node_daq = ("daq_redhat72", "daq_redhat72_opt"); 
 my @hc_dir = ("hc_lowdensity", "hc_standard", "hc_highdensity","peripheral","pp_minbias","ppl_minbias");
 my @daq_dir = ("minbias", "central", "ppMinBias");
 
@@ -45,13 +45,13 @@ my $ii = 0;
 ##### setup output directories for DEV with thisDay
 
 for ($i = 0; $i < scalar(@node_dir); $i++) {
-     for ($j = 0; $j < scalar(@dir_year); $j++) {
       for ($ll = 0; $ll < scalar(@hc_dir); $ll++) {
-   $OUT_DIR[$ii] = $TOP_DIRD . $node_dir[$i] . "/" . $dir_year[$j] . "/" . $hc_dir[$ll];
+   $OUT_DIR[$ii] = $TOP_DIRD . $node_dir[$i] . "/" . $dir_year[0] . "/" . $hc_dir[$ll];
     print "Output Dir for NEW :", $OUT_DIR[$ii], "\n";
         $ii++;
-      }
   }
+   $OUT_DIR[$ii] = $TOP_DIRD . $node_dir[$i] . "/" . $dir_year[1] . "/" . $hc_dir[1]; 
+     $ii++;  
 }
 
 
