@@ -33,6 +33,7 @@ my @prodSet = (
                 "P00he",
                 "P00hg",
                 "P00hi",
+                "P00hm",
 ); 
 
 #####  connect to RunLog DB
