@@ -108,6 +108,7 @@ sub PrintPageHeader{
   my $server_type = $self->ServerType();
 
   my $colour = $gDataClass_object->BrowserBannerColor();
+  my $text_colour = $gDataClass_object->BrowserBannerTextColor();
   my $class_label = $gDataClass_object->BrowserBannerLabel();
 
   my $contact_string = $self->ContactString();
@@ -142,7 +143,7 @@ sub PrintPageHeader{
     <table border=0 width=100% cellpadding=0 bgcolor=$colour>
       <tr valign=center>
       <td align=left><br>	  
-      <ul> <font color=darkblue>
+      <ul> <font color=$text_colour>
 	<h2>$header_string</h2>
 	      </font></ul> 
       <td><table border=0> 

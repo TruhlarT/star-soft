@@ -118,6 +118,7 @@ for my $attr ( qw (
 		   UpdateRoutine
 		   ToDoKeys
 		   BrowserBannerColor
+		   BrowserBannerTextColor
 		   BrowserBannerLabel
 		   DataClassArray
 		   DataClassLabels
@@ -303,6 +304,7 @@ sub offline_real{
 
   # browser banner for interactive display
   $self->BrowserBannerColor("red");
+  $self->BrowserBannerTextColor("darkblue");
   $self->BrowserBannerLabel("Real Data Production");
 
 }
@@ -350,6 +352,7 @@ sub offline_MC{
 
   # browser banner for interactive display
   $self->BrowserBannerColor("red");
+  $self->BrowserBannerTextColor("darkblue");
   $self->BrowserBannerLabel("MC Data Production");
 
 }
@@ -396,6 +399,7 @@ sub nightly_real{
 
   # browser banner for interactive display
   $self->BrowserBannerColor("red");
+  $self->BrowserBannerTextColor("darkblue");
   $self->BrowserBannerLabel("Real Data Nightly Tests");
 
 }
@@ -440,6 +444,7 @@ sub nightly_MC{
 
   # browser banner for interactive display
   $self->BrowserBannerColor("red");
+  $self->BrowserBannerTextColor("darkblue");
   $self->BrowserBannerLabel("MC Data Nightly Tests");
 
 }
@@ -482,7 +487,8 @@ sub debug{
   $self->ToDoKeys("Db_update_utilities::GetToDoReportKeysMC");
 
   # browser banner for interactive display
-  $self->BrowserBannerColor("yellow");
+  $self->BrowserBannerColor("silver");
+  $self->BrowserBannerTextColor("maroon");
   $self->BrowserBannerLabel("Debug");
 
 }
@@ -521,7 +527,8 @@ sub online_raw{
   $self->GetOldReports("QA_db_utilities::GetOldReportsReal");
 
   # browser banner for interactive display
-  $self->BrowserBannerColor("green");
+  $self->BrowserBannerColor("silver");
+  $self->BrowserBannerTextColor("maroon");
   $self->BrowserBannerLabel("Raw Data");
 
 }
@@ -551,7 +558,8 @@ sub online_dst{
   $self->UpdateRoutine("Db_update_utilities::UpdateQANightlyReal");
 
   # browser banner for interactive display
-  $self->BrowserBannerColor("green");
+  $self->BrowserBannerColor("silver");
+  $self->BrowserBannerTextColor("maroon");
   $self->BrowserBannerLabel("DST Data");
 
 }
@@ -581,7 +589,8 @@ sub online_debug{
   $self->UpdateRoutine("Db_update_utilities::UpdateQANightlyReal");
 
   # browser banner for interactive display
-  $self->BrowserBannerColor("green");
+  $self->BrowserBannerColor("yellow");
+  $self->BrowserBannerTextColor("maroon");
   $self->BrowserBannerLabel("Online Debug");
 
 }
