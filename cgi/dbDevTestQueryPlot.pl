@@ -1,10 +1,10 @@
 #!/usr/local/bin/perl -w
 #
-# $Id: dbDevTestQueryPlot.pl,v 1.13 2001/11/27 14:57:16 didenko Exp $
+# $Id: dbDevTestQueryPlot.pl,v 1.14 2002/01/30 17:39:55 didenko Exp $
 #
 # $Log: dbDevTestQueryPlot.pl,v $
-# Revision 1.13  2001/11/27 14:57:16  didenko
-# /opt/star -> /usr/local
+# Revision 1.14  2002/01/30 17:39:55  didenko
+# extand week days for Sat, Sun
 #
 # Revision 1.12  2001/06/07 17:08:18  jeromel
 # Change DEV00 -> dev
@@ -18,7 +18,7 @@
 #
 ##########################################################
 
-require "/afs/rhic/star/packages/dev/mgr/dbTJobsSetup.pl";
+require "/afs/rhic/star/packages/scripts/dbTJobsSetup.pl";
 
 use CGI;
 use GIFgraph::linespoints;
@@ -57,7 +57,7 @@ if ( ($set1 eq "") || ($plotVal eq "") ) {
 }
 
 my @Nday;
-for($i=0;$i<5*$weeks;$i++) {
+for($i=0;$i<7*$weeks;$i++) {
     $point0[$i]=undef;
     $point1[$i]=undef;
     $point2[$i]=undef;
@@ -73,20 +73,23 @@ $today = (Sun,Mon,Tue,Wed,Thu,Fri,Sat)[(localtime)[6]];
 my $nowdate = ($year+1900)."-".($mon+1)."-".$mday;
 
 if ( $today eq Tue ) {
-    $Nday[0] = "Tue"; $Nday[1] = "Wed"; $Nday[2] = "Thu"; $Nday[3] = "Fri"; $Nday[4] = "Mon";
+    $Nday[0] = "Tue"; $Nday[1] = "Wed"; $Nday[2] = "Thu"; $Nday[3] = "Fri"; $Nday[4] = "Sat"; $Nday[5] = "Sun"; $Nday[6] = "Mon";
 } elsif ( $today eq Wed ) {
-    $Nday[4] = "Tue"; $Nday[0] = "Wed"; $Nday[1] = "Thu"; $Nday[2] = "Fri"; $Nday[3] = "Mon";
+    $Nday[6] = "Tue"; $Nday[0] = "Wed"; $Nday[1] = "Thu"; $Nday[2] = "Fri"; $Nday[3] = "Sat"; $Nday[4] = "Sun"; $Nday[5] = "Mon";
 } elsif ( $today eq Thu ) {
-    $Nday[3] = "Tue"; $Nday[4] = "Wed"; $Nday[0] = "Thu"; $Nday[1] = "Fri"; $Nday[2] = "Mon";
+    $Nday[5] = "Tue"; $Nday[6] = "Wed"; $Nday[0] = "Thu"; $Nday[1] = "Fri"; $Nday[2] = "Sat"; $Nday[3] = "Sun"; $Nday[4] = "Mon";
 } elsif ( $today eq Fri ) {
-    $Nday[2] = "Tue"; $Nday[3] = "Wed"; $Nday[4] = "Thu"; $Nday[0] = "Fri"; $Nday[1] = "Mon";
+    $Nday[4] = "Tue"; $Nday[5] = "Wed"; $Nday[6] = "Thu"; $Nday[0] = "Fri"; $Nday[1] = "Sat"; $Nday[2] = "Sun"; $Nday[3] = "Mon";
+} elsif ( $today eq Sat ) {
+    $Nday[3] = "Tue"; $Nday[4] = "Wed"; $Nday[5] = "Thu"; $Nday[6] = "Fri"; $Nday[0] = "Sat"; $Nday[1] = "Sun"; $Nday[2] = "Mon";
+} elsif ( $today eq Sun ) {
+    $Nday[2] = "Tue"; $Nday[3] = "Wed"; $Nday[4] = "Thu"; $Nday[5] = "Fri"; $Nday[6] = "Sat"; $Nday[0] = "Sun"; $Nday[1] = "Mon";
 } else {
-    $Nday[1] = "Tue"; $Nday[2] = "Wed"; $Nday[3] = "Thu"; $Nday[4] = "Fri"; $Nday[0] = "Mon";
+    $Nday[1] = "Tue"; $Nday[2] = "Wed"; $Nday[3] = "Thu"; $Nday[4] = "Fri"; $Nday[5] = "Sat"; $Nday[6] = "Sun"; $Nday[0] = "Mon";
 }
-
 for($i=1;$i<$weeks;$i++) {
-    for($j=0;$j<5;$j++) {
-	$Nday[$j+5*$i] = $Nday[$j];
+    for($j=0;$j<7;$j++) {
+	$Nday[$j+7*$i] = $Nday[$j];
     }
 }
 
@@ -95,20 +98,12 @@ for($i=1;$i<$weeks;$i++) {
 my $n_weeks = $weeks - 1;
 while($n_weeks >= 0) {
     my $rn_weeks = $weeks-1-$n_weeks;
-    for ($d_week = 0; $d_week <=4; $d_week++) {
-	if ($today eq "Fri") {
+    for ($d_week = 0; $d_week <=6; $d_week++) {
 	    if($d_week eq 0) {
 		$day_diff = 8;
 	    } else {
-		$day_diff = 6-$d_week;
+		$day_diff = 8-$d_week;
 	    }
-	} elsif ($today eq "Sat") {
-	    $day_diff = 6-$d_week;
-	} elsif ($today eq "Sun") {
-	    $day_diff = 7-$d_week;
-	} else {
-	    $day_diff = 8-$d_week;
-	}
 	$day_diff = $day_diff + 7*$n_weeks;
 	$day_diff1 = 7*$n_weeks;
 	my $sql;
@@ -128,37 +123,37 @@ while($n_weeks >= 0) {
 	$cursor->execute;
 	while(@fields = $cursor->fetchrow_array) {
 	    if ($fields[0] =~ /opt/) {
-		$point2[$d_week+5*$rn_weeks] = $fields[1];
-		if($point2[$d_week+5*$rn_weeks] > $max_y) {
-		    $max_y = $point2[$d_week+5*$rn_weeks];
+		$point2[$d_week+7*$rn_weeks] = $fields[1];
+		if($point2[$d_week+7*$rn_weeks] > $max_y) {
+		    $max_y = $point2[$d_week+7*$rn_weeks];
 		}
-		if($point2[$d_week+5*$rn_weeks] < $min_y) {
-		    $min_y = $point2[$d_week+5*$rn_weeks];
+		if($point2[$d_week+7*$rn_weeks] < $min_y) {
+		    $min_y = $point2[$d_week+7*$rn_weeks];
 		}
 		if ($plotVal eq "MemUsage") {
-		    $point3[$d_week+5*$rn_weeks] = $fields[2];
-		    if ($point3[$d_week+5*$rn_weeks] > $max_y) {
-			$max_y = $point3[$d_week+5*$rn_weeks];
+		    $point3[$d_week+7*$rn_weeks] = $fields[2];
+		    if ($point3[$d_week+7*$rn_weeks] > $max_y) {
+			$max_y = $point3[$d_week+7*$rn_weeks];
 		    }
-		    if ($point3[$d_week+5*$rn_weeks] < $min_y) {
-			$min_y = $point3[$d_week+5*$rn_weeks];
+		    if ($point3[$d_week+7*$rn_weeks] < $min_y) {
+			$min_y = $point3[$d_week+7*$rn_weeks];
 		    }
 		}
 	    } else {
-		$point0[$d_week+5*$rn_weeks] = $fields[1];
-		if ($point0[$d_week+5*$rn_weeks] > $max_y) {
-		    $max_y = $point0[$d_week+5*$rn_weeks];
+		$point0[$d_week+7*$rn_weeks] = $fields[1];
+		if ($point0[$d_week+7*$rn_weeks] > $max_y) {
+		    $max_y = $point0[$d_week+7*$rn_weeks];
 		}
-		if ($point0[$d_week+5*$rn_weeks] < $min_y) {
-		    $min_y = $point0[$d_week+5*$rn_weeks];
+		if ($point0[$d_week+7*$rn_weeks] < $min_y) {
+		    $min_y = $point0[$d_week+7*$rn_weeks];
 		}
 		if ($plotVal eq "MemUsage") {
-		    $point1[$d_week+5*$rn_weeks] = $fields[2];
-		    if ($point1[$d_week+5*$rn_weeks] > $max_y) {
-			$max_y = $point1[$d_week+5*$rn_weeks];
+		    $point1[$d_week+7*$rn_weeks] = $fields[2];
+		    if ($point1[$d_week+7*$rn_weeks] > $max_y) {
+			$max_y = $point1[$d_week+7*$rn_weeks];
 		    }
-		    if ($point1[$d_week+5*$rn_weeks] < $min_y) {
-			$min_y = $point1[$d_week+5*$rn_weeks];
+		    if ($point1[$d_week+7*$rn_weeks] < $min_y) {
+			$min_y = $point1[$d_week+7*$rn_weeks];
 		    }
 		}
 	    }
