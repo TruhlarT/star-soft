@@ -229,52 +229,44 @@ sub GetMissingFiles{
   my $hist_size =  1000;
 
   # these are the file components we're looking for
-  my %comp_hash = (
-		   dst  => undef, 
-		   hist => undef, 
-		   tags => undef, 
-		   runco=> undef 
-		  );
+  my @component_ary = ('dst','hist','tags','runco');
   
-  # check for one more component if MC
-  $comp_hash{geant} = undef if $type eq 'MC';
+  my $ondisk_string;
 
+  # check for one more component 
+  push @component_ary, 'geant' if $type eq 'MC';
 
   # general checking
-  my $query =  qq{select component 
+  my $query =  qq{select distinct component 
 		  from $dbFile.$FileCatalog 
-	          where jobID='$jobID' };
+	          where jobID='$jobID' 
+		};
 
   # special check for hist files
-  my $query2 = qq{select component
-		  from $dbFile.$FileCatalog 
-                  where jobID = '$jobID' and
-		        component='hist' and
-		        size > $hist_size };
+#  my $query2 = qq{select component
+#		  from $dbFile.$FileCatalog 
+#                  where jobID = '$jobID' and
+#		        component='hist' and
+#		        size > $hist_size };
 
+  # retrieve components from output files from db
+  my $output_comp_ref = $dbh->selectall_arrayref($query);
+  my @output_comp     = map { $_->[0] } @{$output_comp_ref};   
 
-  my $sth= $dbh->prepare($query);
-  $sth->execute;
+  print h4("@output_comp");
+  # construct 'seen' hash - see perl cookbook
+  my %seen;
+  @seen{ @output_comp } = ();
 
-  # for each component, mark if it exists in the db
-  while(my $component = $sth->fetchrow_array){
-    exists $comp_hash{$component} and $comp_hash{$component} = 1;
-  }
-  
-  $sth = $dbh->prepare($query2);
-  $sth->execute;
+  # find missing files
 
-  # additional stuff for .hist
-  my $hist_file = $sth->fetchrow_array;
-  defined $hist_file or $comp_hash{'hist'}=undef; 
-
-  # mark the missing files
-  while ( my ($component, $status) = each %comp_hash){
-      $status eq 1 or $missing_files .= " $component.root";
-    }
-  
+  foreach ( @component_ary) {
+    $missing_files .= "$_.root" unless exists $seen{$_};
+  } 
+    
   return $missing_files;
 }
+
 #=========================================================================
 sub GetMissingFilesReal{
   my $jobID = shift;
@@ -733,7 +725,9 @@ sub WriteQAMacroSummary{
            $QAMacros{createTime} = '$createTime',
            $QAMacros{status}     = '$status',
            $QAMacros{warnings}   = '$warnings',
-           $QAMacros{errors}     = '$errors'};
+           $QAMacros{errors}     = '$errors',
+	   $QAMacros{ID}         = NULL 
+	 };
   }
   print h4("Inserting qa macro summary into db for $macro_name...\n");
 
@@ -861,7 +855,7 @@ sub GetOldReports{
 
     print h4("Deleting $report_key from the database ...<br>\n");
 
-    $sth_delete->execute($report_key);  # delete it
+    #$sth_delete->execute($report_key);  # delete it
 
     print h4("... done<br>\n");
   }

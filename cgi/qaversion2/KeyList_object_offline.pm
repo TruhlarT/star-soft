@@ -143,21 +143,22 @@ sub JobPopupMenu{
 
   my $null_string = "";
 
-  push @table_rows, td( [$self->GetRowOfMenus(
-					      'prodOptions'
-					      ,'jobStatus'
-					      ,'QAstatus'
-					      ,'dataset'
-					     ) 
-			]);
-
-  push @table_rows, td( [$self->GetRowOfMenus(
-					      'runID'
-					      ,'createTime'
-					     ) 
-			 ,$null_string
-			 ,$submit_string
-			]);
+  my $rows_ref =
+    [ 
+     td([$self->GetRowOfMenus('prodOptions',
+			      'jobStatus',
+			      'QAstatus',
+			      'dataset')
+	]),
+     
+     td([$self->GetRowOfMenus(
+			       'runID'
+			       ,'createTime'
+			      ) 
+	                       ,$null_string
+	                       ,$submit_string
+	])
+    ];
 
   #---
   #my $table_string = 
@@ -169,7 +170,7 @@ sub JobPopupMenu{
   my $select_data_string =
       $gCGIquery->startform(-action=>"$script_name/upper_display",
 			-TARGET=>"list").
-	table({-align=>'left'}, Tr({-valign=>'top'}, \@table_rows)).
+	table({-align=>'left'}, Tr({-valign=>'top'}, $rows_ref)).
 	  $hidden_string.
 	    $gCGIquery->endform;
 
@@ -183,14 +184,7 @@ sub JobPopupMenu{
 sub SelectedParameters{
   my $self = shift;
 
-  return (
-	  $gCGIquery->param('prodOptions'),
-	  $gCGIquery->param('runID'),
-	  $gCGIquery->param('QAstatus'),
-	  $gCGIquery->param('jobStatus'),
-	  $gCGIquery->param('createTime'),
-	  $gCGIquery->param('dataset')
-	  );
+  return map { $gCGIquery->param($_) } @{$self->{select_fields}};
 
 }
 

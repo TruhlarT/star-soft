@@ -44,8 +44,8 @@ sub JobPopupMenu{
 			     'platform',
 			     'eventType',
 			     'geometry',
-			     'onDisk',
 			     'QAstatus',
+			     'onDisk',
 			     'jobStatus',
 			     'createTime' 
 			   ];
@@ -137,31 +137,32 @@ sub JobPopupMenu{
   #  push @table_rows, td([$self->GetRowOfMenus('QAstatus','jobStatus','createTime')]);
   #  push @table_rows, td( [$submit_string ] ) ;
 
-  push @table_rows, td([$self->GetRowOfMenus(
-					     'eventGen'
-					     ,'LibLevel'
-					     ,'platform'
-					     ,'jobStatus'
-					     ,'QAstatus'
-					    )
-		       ]);
-
-  push @table_rows, td([$self->GetRowOfMenus(
-					     'eventType'
-					     ,'geometry'
-					     ,'onDisk'
-					     ,'createTime'
-					    )
-		       ,$submit_string
-		       ]);
-
+  my $rows_ref = 
+    [
+     td([$self->GetRowOfMenus(
+			      'eventGen'
+			      ,'LibLevel'
+			      ,'platform'
+			      ,'jobStatus'
+			      ,'QAstatus'
+			     )
+	]),
+     td([$self->GetRowOfMenus(
+			      'eventType'
+			      ,'geometry'
+			      ,'onDisk'
+			      ,'createTime'
+			     )
+	                      ,$submit_string
+	])
+    ];
   #---
 
   my $script_name = $gCGIquery->script_name;
   my $hidden_string = $gBrowser_object->Hidden->Parameters;
 
   my $table_string =
-    table({-align=>'left'}, Tr({-valign=>'top'}, \@table_rows));
+    table({-align=>'left'}, Tr({-valign=>'top'}, $rows_ref));
 
   my $select_data_string = 
       $gCGIquery->startform(-action=>"$script_name/upper_display",
@@ -180,17 +181,8 @@ sub JobPopupMenu{
 sub SelectedParameters{
   my $self = shift;
 
-  return (
-	  $gCGIquery->param('eventGen'),
-	  $gCGIquery->param('LibLevel'),
-	  $gCGIquery->param('platform'),
-	  $gCGIquery->param('eventType'),
-	  $gCGIquery->param('geometry'),
-	  $gCGIquery->param('QAstatus'),
-	  $gCGIquery->param('onDisk'),
-	  $gCGIquery->param('jobStatus'),
-	  $gCGIquery->param('createTime')
-	 );
+  return map { $gCGIquery->param($_) } @{$self->{select_fields}};
+
 
 }
  

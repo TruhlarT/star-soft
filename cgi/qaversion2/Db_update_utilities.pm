@@ -20,18 +20,23 @@ use strict;
 
 sub UpdateQAOffline{
   my $data_type   = shift; # either 'real' or 'MC'
-                           # only used in $query_update
-  my $limit       = 20;    # limit number of new jobs
-  my $oldest_date = '2000-06-01'; # dont retrieve anything older than this
-  my ($file_type);
+
+  my $limit       = 2;     # limit number of new jobs
+  my $oldest_date; # dont retrieve anything older than this
+  my $file_type;
 
   # real or simulation?
- switch:{
-    $data_type eq 'real' and do {$file_type = 'daq_reco'; last ;};
-    $data_type eq 'MC'   and do {$file_type = 'MC_reco';  last ;};
-    # default
-    die "Wrong argument $data_type";
+  if($data_type eq 'real')
+  {
+    $file_type = 'daq_reco';
+    $oldest_date='2000-06-01';
   }
+  elsif($data_type eq 'MC')
+  {
+    $file_type = 'MC_reco';  
+    $oldest_date='2000-04-01';
+  }
+  else {die "Wrong argument $data_type" }
   
   my @key_list;
   my $time_sec = 100*3600*24; # number of seconds in a week
@@ -74,7 +79,9 @@ sub UpdateQAOffline{
 			  $QASum{jobID}       = ?,
 			  $QASum{report_key}  = ?,
 			  $QASum{type}        = '$data_type',
-			  $QASum{QAdone}      = 'N' };
+			  $QASum{QAdone}      = 'N',
+			  $QASum{qaID}        = NULL
+			};
 
 			
   my $sth_update = $dbh->prepare($query_update); # find jobs to update
@@ -193,7 +200,9 @@ sub UpdateQANightly {
 			  $QASum{jobID}      = ?,
 			  $QASum{report_key} = ?,
 			  $QASum{QAdone}     = 'N',
-			  $QASum{type}       = '$data_class' };
+			  $QASum{type}       = '$data_class',
+		          $QASum{qaID}       = NULL          
+			};
 
   my $sth_update = $dbh->prepare($query_update); # find jobs to update
   my $sth_key    = $dbh->prepare($query_key);    # get report key info
