@@ -21,6 +21,8 @@ if ( ! $?star_login_csh ) then
     if( -r $GROUP_DIR/star_login.csh ) then
 	if ( $?DECHO ) echo "$self :: Sourcing star_login.csh"
     	source $GROUP_DIR/star_login.csh
+    else
+	if ( $?DECHO ) echo "$self :: Unreadable star_login.csh"
     endif
 endif
 
@@ -57,6 +59,8 @@ endif
 if( -r $GROUP_DIR/group_aliases.csh ) then
     if ( $?DECHO ) echo "$self :: Sourcing group_aliases.csh"
     source $GROUP_DIR/group_aliases.csh
+else
+    if ( $?DECHO ) echo "$self :: Un-readable group_aliases.csh"
 endif
 
 
