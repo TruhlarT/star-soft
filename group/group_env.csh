@@ -1,5 +1,5 @@
 #!/bin/csh -f
-#       $Id: group_env.csh,v 1.164 2004/07/27 18:35:46 jeromel Exp $
+#       $Id: group_env.csh,v 1.165 2004/07/29 17:34:13 jeromel Exp $
 #	Purpose:	STAR group csh setup
 #
 #	Author:		Y.Fisyak     BNL
@@ -344,6 +344,7 @@ switch ($STAR_SYS)
 	setenv MANPATH `${GROUP_DIR}/dropit -p ${MANPATH} -p ${PGI}/man`
 	#alias  pgman 'man -M $PGI/man'
        endif
+       setenv PGILIB  ${PGI}/${PGI_V}/lib
        setenv LM_LICENSE_FILE $PGI/license.dat
       endif
 
