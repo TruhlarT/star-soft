@@ -15,8 +15,8 @@
 
 /*
 $Log: AliGeant3.cxx,v $
-Revision 1.1  2000/04/23 18:21:13  fisyak
-Initial revision
+Revision 1.1.1.1  2000/04/23 18:21:13  fisyak
+New version from ALICE
 
 Revision 1.3  2000/04/07 11:12:35  fca
 G4 compatibility changes

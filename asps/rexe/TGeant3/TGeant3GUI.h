@@ -3,7 +3,7 @@
 /* Copyright(c) 1998-1999, ALICE Experiment at CERN, All rights reserved. *
  * See cxx source for full Copyright notice                               */
 
-/* $Id: TGeant3GUI.h,v 1.1 2000/04/23 18:21:15 fisyak Exp $ */
+/* $Id: TGeant3GUI.h,v 1.1.1.1 2000/04/23 18:21:15 fisyak Exp $ */
 
 #include <TROOT.h>
 #include <TVirtualX.h>

@@ -2,7 +2,7 @@
 /* Copyright(c) 1998-1999, ALICE Experiment at CERN, All rights reserved. *
  * See cxx source for full Copyright notice                               */
 
-/* $Id: TGeant3LinkDef.h,v 1.1 2000/04/23 18:21:15 fisyak Exp $ */
+/* $Id: TGeant3LinkDef.h,v 1.1.1.1 2000/04/23 18:21:15 fisyak Exp $ */
 
 #pragma link off all globals;
 #pragma link off all classes;

@@ -15,8 +15,8 @@
 
 /*
 $Log: TGeant3GUI.cxx,v $
-Revision 1.1  2000/04/23 18:21:15  fisyak
-Initial revision
+Revision 1.1.1.1  2000/04/23 18:21:15  fisyak
+New version from ALICE
 
 Revision 1.5  2000/03/20 15:11:03  fca
 Mods to make the code compile on HP

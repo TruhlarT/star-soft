@@ -15,8 +15,8 @@
 
 /*
 $Log: TGeant3Dummy.cxx,v $
-Revision 1.1  2000/04/23 18:21:15  fisyak
-Initial revision
+Revision 1.1.1.1  2000/04/23 18:21:15  fisyak
+New version from ALICE
 
 Revision 1.19  2000/04/09 19:00:26  fca
 Small corrections left over from removal of AliVMC for G4 compatibility
