@@ -10,6 +10,8 @@
 #  Linux9     
 #
 #  Solaris    ditto for Solaris (does cache cleaning)
+#  du         Digital Unix using hack space in 'cal' (dev only)
+#
 #  Clean      Runs CleanLibs
 #  Insure     Builds Insure++ compilation
 #  
@@ -109,6 +111,8 @@ if ( -r  $GROUP_DIR/star_login.csh ) then
 		cd $LPATH
 		echo "Cleaning older libraries"
 		mgr/CleanLibs obj 1
+		echo "Cleaning emacs crap"
+		/usr/bin/find StRoot/ -name '*.flc' -exec rm -f {} \;
 		breaksw
 
 
