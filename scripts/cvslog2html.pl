@@ -40,6 +40,7 @@ if( ! -e $LockFile){
 $iCommit = 0;
 while (<COMMITLOG>) {
   if ( m/^--------------------------/ ) {
+      undef(%codes);
       if ( $iCommit > 0) {
         $modA[$iCommit] = $module;
         $userA[$iCommit] = $uname;
@@ -110,10 +111,8 @@ while (<COMMITLOG>) {
       $fnameLine = <COMMITLOG>;
       @fields    = split (/\s/,$fnameLine);
       $fname     = $fields[1];
-      # print USERFILE " $fname";
-      # also cross reference those ...
-      my(@items) = split(" ",$fname);
-      foreach $fname (@items){
+      if ( ! defined($codes{$fname}) ){
+	  $codes{$fname} = 1;
 	  print USERFILE " $fname (<a href=\"$cvsUrl/$module/$fname\">+</a>)";
       }
 
