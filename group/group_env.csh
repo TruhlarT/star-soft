@@ -1,6 +1,10 @@
-#       $Id: group_env.csh,v 1.19 1998/06/24 20:18:38 wenaus Exp $
+#!/usr/bin/csh -f
+#       $Id: group_env.csh,v 1.20 1998/06/30 14:37:22 didenko Exp $
 #	Purpose:	STAR group csh setup 
 #       $Log: group_env.csh,v $
+#       Revision 1.20  1998/06/30 14:37:22  didenko
+#       Add hp
+#
 #       Revision 1.19  1998/06/24 20:18:38  wenaus
 #       BaBar setup only in conjunction with Objy setup
 #
@@ -56,7 +60,7 @@
 #	Date:		27 Feb. 1998
 #	Modified:
 #     3 Mar 98  T. Wenaus  HP Jetprint added (for sol)
-#
+# 
 #	STAR software group	1998
 #
 set ECHO = 1; if ($?STAR == 1) set ECHO = 0
@@ -80,7 +84,7 @@ setenv STAR $STAR_PATH/${STAR_LEVEL} ;       if ($ECHO) echo   "Setting up STAR 
 setenv STAR_MGR $STAR/mgr
 source ${GROUP_DIR}/STAR_SYS; 
 setenv STAF_LIB  $STAR/asps/../.${STAR_HOST_SYS}/lib  ; if ($ECHO) echo   "Setting up STAF_LIB  = ${STAF_LIB}"
-if ($STAR_LEVEL == "dev") then
+if ($STAR_LEVEL == "dev" || $STAR_LEVEL == "new") then
 setenv STAR_LIB  $STAR/.${STAR_HOST_SYS}/lib; if ($ECHO) echo   "Setting up STAR_LIB  = ${STAR_LIB}"
 setenv STAR_BIN  $STAR/asps/../.${STAR_HOST_SYS}/bin  ; if ($ECHO) echo   "Setting up STAR_BIN  = ${STAR_BIN}"
 else   
@@ -97,7 +101,7 @@ setenv GROUPPATH "${GROUP_DIR}:${STAR_MGR}:${STAR_BIN}"
 if ( -x /afs/rhic/star/group/dropit) then
 # clean-up PATH
   setenv MANPATH `/afs/rhic/star/group/dropit -p ${MANPATH}`
-  setenv PATH `/afs/rhic/star/group/dropit GROUPPATH`
+  setenv PATH `/afs/rhic/star/group/dropit -p ${PATH} GROUPPATH`
 endif
 setenv PATH "/usr/afsws/bin:/usr/afsws/etc:/opt/star/bin:/opt/rhic/bin:/usr/sue/bin:/usr/local/bin:${GROUP_DIR}:${STAR_MGR}:${STAR_BIN}:${PATH}"
 #set path=( /usr/afsws/bin /usr/afsws/etc /opt/rhic/bin /usr/local/bin $GROUP_DIR $STAR_MGR $STAR_BIN $path )
@@ -121,13 +125,14 @@ switch ($STAR_SYS)
     breaksw
     case "hp_ux102":
 #  ====================
-      if ($?CERN == 0 || $CERN == "/cern") then
-	setenv CERN ${AFS_RHIC}/asis/hp_ux102/cern
-	setenv CERN_LEVEL new
-	setenv CERN_ROOT $CERN/$CERN_LEVEL
-        set path = ( $CERN_ROOT/bin $path )
-        echo hp_ux102 PATH = $PATH
+      if ($?CERN == 0 || $CERN == "/cern" ) then
+#	setenv CERN ${AFS_RHIC}/asis/hp_ux102/cern
+#	setenv CERN_LEVEL new
+#	setenv CERN_ROOT $CERN/$CERN_LEVEL
+#	set path = ( $CERN_ROOT/bin $path )
       endif
+      if (! ${?SHLIB_PATH}) setenv SHLIB_PATH
+      setenv SHLIB_PATH ${SHLIB_PATH}:${STAF_LIB}
     breaksw
     case "sgi_5*":
 #  ====================
@@ -211,6 +216,7 @@ endif
 if ( -f $GROUP_DIR/rootenv.csh) then
   source $GROUP_DIR/rootenv.csh
 endif
+
 # Objy 5.00
 if (-f /opt/objy/objy500/setup.csh) then
   source  /opt/objy/objy500/setup.csh
@@ -230,12 +236,21 @@ if ( -d /opt/hpnp ) then
 # set PATH = ( $PATH':'/opt/hpnp/bin':'/opt/hpnp/admin )
   set path = ( $path /opt/hpnp/bin /opt/hpnp/admin )
 endif
-set path = (. $HOME/bin $HOME/bin/$STAR_SYS $path $CERN_ROOT/mgr)
+set path = (. $HOME/bin $HOME/bin/.$STAR_SYS $path $CERN_ROOT/mgr)
 if ( -x /afs/rhic/star/group/dropit) then
 # clean-up PATH
+switch ($STAR_SYS)
+    case "hp_ux102":
+#  ====================
+  setenv SHLIB_PATH `/afs/rhic/star/group/dropit -p "$SHLIB_PATH"`
+    breaksw
+    default:
+#  ====================
   setenv LD_LIBRARY_PATH `/afs/rhic/star/group/dropit -p "$LD_LIBRARY_PATH"`
+    breaksw
+endsw
   setenv MANPATH `/afs/rhic/star/group/dropit -p ${MANPATH}`
-  setenv PATH `/afs/rhic/star/group/dropit GROUPPATH`
+  setenv PATH `/afs/rhic/star/group/dropit -p ${PATH} GROUPPATH`
 endif
 unset ECHO
 set date="`date`"
