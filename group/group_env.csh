@@ -1,7 +1,10 @@
 #!/usr/bin/csh -f
-#       $Id: group_env.csh,v 1.35 1998/07/22 21:29:20 fisyak Exp $
+#       $Id: group_env.csh,v 1.36 1998/07/22 21:41:31 fisyak Exp $
 #	Purpose:	STAR group csh setup 
 #       $Log: group_env.csh,v $
+#       Revision 1.36  1998/07/22 21:41:31  fisyak
+#       Move STAR_SYS  up
+#
 #       Revision 1.35  1998/07/22 21:29:20  fisyak
 #       Add SL98f
 #
@@ -119,6 +122,7 @@ setenv GROUPPATH  $GROUP_PATH
 setenv STAR_PATH ${STAR_ROOT}/packages;      if ($ECHO) echo   "Setting up STAR_PATH = ${STAR_PATH}"
 if ($?STAR_LEVEL == 0) setenv STAR_LEVEL pro
 setenv STAR_VERSION `/bin/ls -l $STAR_PATH | grep "${STAR_LEVEL} ->" |cut -f2 -d">"`  
+source ${GROUP_DIR}/STAR_SYS; 
 if (${STAR_VERSION} == "") setenv STAR_VERSION ${STAR_LEVEL}
 if ($STAR_VERSION  == "SL98a" || $STAR_VERSION  == "SL98b") then
   setenv STAR $STAR_PATH/${STAR_LEVEL} ;         if ($ECHO) echo   "Setting up STAR      = ${STAR}"
@@ -134,7 +138,6 @@ else
 endif
 setenv STAR_BIN  $STAR/asps/../.${STAR_HOST_SYS}/bin  ; if ($ECHO) echo   "Setting up STAR_BIN  = ${STAR_BIN}"
 setenv STAR_MGR $STAR/mgr
-source ${GROUP_DIR}/STAR_SYS; 
 setenv STAR_PAMS $STAR/pams;                 if ($ECHO) echo   "Setting up STAR_PAMS = ${STAR_PAMS}"
 setenv STAR_DATA ${STAR_ROOT}/data;          if ($ECHO) echo   "Setting up STAR_DATA = ${STAR_DATA}"
 if ( ! $?STAR_DB ) setenv STAR_DB /star/sol/db;                 if ($ECHO) echo   "Setting up STAR_DB   = ${STAR_DB}"
