@@ -24,14 +24,34 @@
 #                           1 optimized
 #                  Bit 4-5    enables/disables compressed STDOUT
 #                             enables/disables compressed STDERR
-#  
+#
 #   LibraryVersion can be one of new, dev, old, pro or a version
 #                  understood by 'starver'
 #   Destination    is a disk-path used for file copy.
 #   Numevt         the number of events to process. -1 or 0 means
 #                  a large number.
+#
 #   Options        as many comma separated options. They will all
 #                  go as bfc chain options.
+#
+# OR
+#
+#    "/"           this interface changes mode. The next argument
+#                  after "/" will be a script to run instead of bfc.C,
+#                  all subsequent arguments will be passed to that
+#                  script as is. Note : string arguments will passed
+#                  stringified. You MUST NOT add quotes around strings.
+#
+#    "+"           The next argument is a script name, the following a
+#                  periodicity. What it will do is call the script with
+#                  all of the other argument but the last which will
+#                  be replaced by the input given as per the job 
+#                  description. In other words, it will loop on all inputs
+#                  and call the script separatly for each call. The
+#                  periodicity is used to take one input every 'period'.
+#                  
+#
+#
 #
 # There are 2 cases where the Destination field is used
 #
@@ -41,6 +61,9 @@
 # 2 - The outputstreamtype=UNIX has been chose __AND__ the
 #     stdoutdir was specified as ./ . This will automatically
 #     trigger a copy of the local output to the destination.
+#
+#
+#
 #
 #use lib "/afs/rhic/star/packages/scripts";
 use File::Basename;
@@ -53,12 +76,13 @@ $|       = 1;
 
 
 # Some default hardwired values
-$NFSHOME = "/star/u/starreco";     # path to NFS home
-$HPSSBASE= "/home/starreco";       # base HPSS path
+$NFSHOME = "/star/u/starreco";     # path to NFS home ** HARDWIRED **
+$HPSSBASE= "/home/starreco";       # base HPSS path   ** HARDWIRED **
 $NTRIES  = 720;                    # number of tries -1 means infinit tries
 $SLPTIME = 120;                    # sleep time in sec between mkpath attempts
 $PRGM    = "bfcca";                # this program logical name
-
+$BFC     = "bfc.C";                # arguments will be passed as numevt, chain, input
+$PERIOD  = 0;                      # See "+" mode
 
 # This is for debugging purposes
 #foreach $el (keys %ENV){
@@ -73,11 +97,30 @@ $PRGM    = "bfcca";                # this program logical name
 # 0. Afterward, this script accept (in order
 # it receives)
 shift @ARGV;
-$ALLOPT      = shift @ARGV;
-$LIBRARY     = shift @ARGV;
-$DESTINATION = shift @ARGV;
-$NUMEVT      = shift @ARGV;
-$CHAINOPT    = join(" ",@ARGV);
+$ALLOPT       = shift @ARGV;
+$LIBRARY      = shift @ARGV;
+$DESTINATION  = shift @ARGV;
+$NUMEVT       = shift @ARGV;
+
+
+
+# ---- Chain Option or mode switch ---------------------------------
+$CHAINOPT     = shift @ARGV;
+if( $CHAINOPT eq "/"){
+    # Change mode, now arguments will be SCRIPT, ARG1,...
+    $BFC      = shift @ARGV;
+    $MULTIIN  = 1;
+} elsif( $CHAINOPT eq "+"){
+    # One more mode, almost the same than before
+    $PERIOD   = shift @ARGV;
+    $BFC      = shift @ARGV;
+    $MULTIIN  = 1;
+} else {
+    $CHAINOPT .= " ".join(" ",@ARGV);
+    $MULTIIN  = 0;
+}
+
+
 
 # --- Option bitmask ----------------------------------------------
 $STDOPT = ($ALLOPT &  3) >> 0; # i.e.    011, on 2 bits for future extensions
@@ -92,6 +135,7 @@ $COMPRS = ($ALLOPT & 24) >> 3; # i.e.  11000
 #$MYSELF= $ENV{"CRS_JOB_FILE"};
 $JOB_ID= $ENV{"CRS_JOB_ID"};
 $PWD   = $ENV{"PWD"};
+
 
 
 # --- Grab STDOUT/STDERR by force (control was stolen from us) ----
@@ -138,15 +182,24 @@ for($i =0 ; ; $i++){
 }
 
 
+
 # The first one is used as our input stream, the rest are
 # subject to chain options.
 # If something else needs to be done for the other input files
 # (like adding to the chain option), please, add code with backward
 # compatibility possibility. I think this code is suitable for pp
 # gstar options modulo this implementation.
-$INPUTFILE  = shift @INPUTS;
-$CINPUTFILE = shift @CINPUTS;
-
+if($MULTIIN){
+    # Only take this as a test, leave everything on the stack
+    $INPUTFILE  = $INPUTS[0];
+    $CINPUTFILE = $CINPUTS[0];
+} else {
+    # Pop first input OFF the stack. Case we have a sole input
+    # the others may be options or "dormant" files but their
+    # names will not be passed to bfc.C ...
+    $INPUTFILE  = shift @INPUTS;
+    $CINPUTFILE = shift @CINPUTS;
+}
 
 
 
@@ -164,7 +217,8 @@ $CINPUTFILE = shift @CINPUTS;
 #
 $copt = "";
 $cdir = "";
-foreach $file (@CINPUTS){
+for ($i=0 ; $i <= $#CINPUTS ; $i++){
+    $file = $CINPUTS[$i];
     if( $file =~ /StarDb/){
 	# Calibration run enabled. Create soft link.
 	$copt = basename($file);
@@ -173,8 +227,27 @@ foreach $file (@CINPUTS){
 	# make default option "" unless the pattern
 	# matches what is in the help list above.
 	if($copt !~ m/Pre/ && $copt !~ m/Opt/){ $copt = "";}
+    } else {
+	# Those are "other" inputs. Treat it as output i.e. make
+	# soft-links
+	$cin = $file;
+	$in  = $INPUTS[$i];
+	if( $cin =~ m/HPSS/){
+	    $tmp  = basename($in);
+	    if( ! -e $tmp){
+		print "$PRGM :: $cin -> $tmp created\n";
+		symlink($cin,$tmp);
+		$cin = $tmp;
+	    }
+	}
+	push(@FCINPUTS,$cin);
+	push(@FINPUTS,$in);
     }
 }
+# Swap arrays
+undef(@CINPUTS);
+undef(@INPUTS);
+
 
 
 
@@ -196,7 +269,7 @@ for($i =0 ; ; $i++){
     if( $cout =~ m/HPSS/){
 	$tmp = basename($out);
 	if( ! -e $tmp){
-	    print "$PRGM :: $cout -> $tmp missing\n";
+	    print "$PRGM :: $cout -> $tmp created\n";
 	    symlink($cout,$tmp);
 	}
     }
@@ -218,7 +291,7 @@ if($LIBRARY =~ m/dev/i || $LIBRARY =~ m/new/i ||
     $CHVER = "star".lc($LIBRARY);
 } elsif ($LIBRARY =~ m/cal/i){
     # Special calibration area where tests would be run
-    # before code gets commited. 
+    # before code gets commited.
     if ( index($LIBRARY,"-") != -1){
 	@items  = split("-",$LIBRARY);
 	$CHVER  = "starver $items[0]\n";
@@ -237,15 +310,20 @@ if($INPUTFILE eq ""){
     exit;
 } else {
     # Extension check. Out chain requires a .daq extension.
-    $ext = $CINPUTFILE;
-    $ext =~ s/.*\.//g;
+    #$ext = $CINPUTFILE;
+    #$ext =~ s/.*\.//g;
     #print "Debug:: [$ext]\n";
-    if($ext eq "" || $ext eq $CINPUTFILE){
+    #if($ext eq "" || $ext eq $CINPUTFILE){
+    if( $CINPUTFILE =! m/HPSS/){
 	# An HPSS file was restored. We need to create
 	# a symlink with a .daq name and use this as
 	# our input.
 	$tmp = basename($INPUTFILE);
 	symlink($CINPUTFILE,$tmp);
+	print "$PRGM :: $CINPUTFILE -> $tmp created\n";
+
+	# Overwrite the input file name with it's local link-name
+	# This will be used as a chain input.
 	$CINPUTFILE = $tmp;
     }
 }
@@ -254,8 +332,8 @@ if($INPUTFILE eq ""){
 $GZIP = "";
 if ($COMPRS){
     foreach $file ( ("/bin/gzip","/usr/bin/gzip","/usr/local/bin/gzip") ){
-	if( -x $file){ 
-	    $GZIP = $file; 
+	if( -x $file){
+	    $GZIP = $file;
 	    last;
 	}
     }
@@ -291,12 +369,23 @@ print "CPU speed                        $CPUSPD MHz\n";
 print "Our job ID is                    $JOB_ID\n";
 print "Our working directory            $PWD\n";
 print "We will run from library version $LIBRARY\n";
-print "Main processing chain options    $CHAINOPT\n"    if($copt !~ m/Opt/);
-print "Calibration pass using           $cdir/$copt\n"  if($copt ne "" );
+if($MULTIIN){
+    # There is no notion of secondary input in those
+    # modes so put this one back on the stack
+    print "We will be running               $BFC\n";
+    print "Argument list will be            ".join(",",@ARGV)."\n";
+} else {
+    print "Main processing chain options    $CHAINOPT\n"    if($copt !~ m/Opt/);
+    print "The number of events would be    $NUMEVT\n";
+    print "The chain will run over file     $INPUTFILE\n";
+    print "This file is stored as           $CINPUTFILE\n";
+    print "Calibration pass using           $cdir/$copt\n"  if($copt ne "" );
+}
+if($#FCINPUTS != -1){
+    print "Secondary inputs (CRS name)      ".join(" ",@FCINPUTS)."\n";
+    print "Secondary inputs (actual name)   ".join(" ",@FINPUTS)."\n";
+}
 print "The output destination will be   $DESTINATION\n";
-print "The number of events would be    $NUMEVT\n";
-print "The chain will run over file     $INPUTFILE\n";
-print "This file is stored as           $CINPUTFILE\n";
 print "Outputs initial will be          ".join(" ",@COUTPUTS)."\n";
 print "Outputs final will be            ".join(" ",@OUTPUTS)."\n";
 print "Running condition                ".($OPTOPT?"Optimized":"Non-Optimized")."\n";
@@ -305,7 +394,7 @@ if ( -e "$NFSHOME/dbServers.xml"){
     print "DB will take its data from       $NFSHOME/dbServers.xml\n";
     $ENV{STDB_SERVERS} = "$NFSHOME/dbServers.xml";
 }
-if ($COMPRS){ 
+if ($COMPRS){
     print "Output Compression was required, will use $GZIP\n";
 }
 
@@ -349,7 +438,7 @@ if ( ! open(FO,">$PWD/$JOB_ID.csh") ){
 	print FO
 	    "echo \"$PRGM :: Calibration pass is starting on \`date\`\"\n",
 	    "echo \"\"\n",
-	    "root4star -b -q 'bfc.C(10000,\"$chainopt\",\"$CINPUTFILE\")'\n",
+	    "root4star -b -q '$BFC(10000,\"$chainopt\",\"$CINPUTFILE\")'\n",
 	    "echo \"$PRGM :: Calibration is done on \`date\`\"\n";
     }
 
@@ -360,13 +449,43 @@ if ( ! open(FO,">$PWD/$JOB_ID.csh") ){
 	print FO
 	    "echo \"$PRGM :: Reco run is starting on \`date\`\"\n",
 	    "echo \"\"\n",
-	    "setenv StarEndMakerShell\n",            # Option to outpu memory consumption
-	    "root4star -b -q 'bfc.C($NUMEVT,\"$CHAINOPT\",\"$CINPUTFILE\")'\n";
+	    "setenv StarEndMakerShell\n";            # Option to outpu memory consumption
+	if( ! $MULTIIN ){
+	    print FO
+		"root4star -b -q '$BFC($NUMEVT,\"$CHAINOPT\",\"$CINPUTFILE\")'\n";
+	} else {
+	    # stringify strings if any
+	    foreach (@ARGV){
+		if( $_ =~ /\D+/ && $_ !~ /[-\+]\D+/){
+		    push(@arg,"\"$_\"");
+		} else {
+		    push(@arg,$_);
+		}
+	    }
+	    # Separate mode "/" and mode "+"
+	    if( $CHAINOPT eq "+"){
+		# mode "+" loops over inputs, put back primary input in
+		print "Generating job with periodicity $PERIOD $#FCINPUTS\n";
+		for($in=0 ; $in <= $#FCINPUTS ; $in += $PERIOD){
+		    print FO 
+			"# Pass ".($in/$PERIOD+1)."\n",
+			"root4star -b -q '$BFC(".join(",",@arg).",\"$FCINPUTS[$in]\")'\n\n",
+			"if( \$status ) echo \"$PRGM :: Error: Pass $in failed ($FCINPUTS[$in])\"\n\n";
+		}
+	    } else {
+		# mode "/"
+		print FO
+		    "root4star -b -q '$BFC(".join(",",@arg).")'\n";
+	    }
+	    undef(@arg);
+	}
     }
     close(FO);
     chmod(0755,"$PWD/$JOB_ID.csh");
 
 
+    print "-=-=-=- Generated script content follows -=-=-=-\n";
+    system("cat $PWD/$JOB_ID.csh");
 
 
 
@@ -421,8 +540,8 @@ if ( ! open(FO,">$PWD/$JOB_ID.csh") ){
 		$ffile =~ s|./|$DESTINATION/|;
 	    } else {
 		# Last case is that the directory name is
-		# not "." and the file is of type=UNIX. 
-		# This means that the description file was 
+		# not "." and the file is of type=UNIX.
+		# This means that the description file was
 		# written to do direct-IO for outputstream.
 	    }
 
@@ -485,7 +604,7 @@ sub Compress
 	# Change fie names origin -> destination
 	$file1 .= ".gz";
 
-	# but also delete first the target file name 
+	# but also delete first the target file name
 	# if exists before changing its name. Otherwise,
 	# will will have a left-over.
 	if(-e "$file2"){ unlink("$file2");}
@@ -623,7 +742,7 @@ sub STDtrap
 {
     my($mode,$outf,$errf)=@_;
 
-    # Open create or append 
+    # Open create or append
     if ($mode == 0 || $mode == 1){
 	# dup and auto-flush
 	open(SAVEERR,">&STDERR");
