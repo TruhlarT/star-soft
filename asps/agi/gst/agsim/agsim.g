@@ -162,12 +162,12 @@ C
 *KEEP,VIDQQ.
       CHARACTER*68 VIDQQ
       DATA VIDQQ/
-     +'@(#)Advanced Geant Inteface               C: 10/04/98  11.49.34
+     +'@(#)Advanced Geant Inteface               C: 13/04/98  13.47.32
      +'/
 *KEEP,DATEQQ.
-      IDATQQ =   980410
+      IDATQQ =   980413
 *KEEP,TIMEQQ.
-      ITIMQQ =   1149
+      ITIMQQ =   1347
 *KEEP,VERSQQ.
       VERSQQ = ' '
       IVERSQ = -1
@@ -5733,7 +5733,7 @@ C
  %Level-=1;  Iprin=max(%Iprin-%Level-1,0);  if (%level>0) return;
    END
  
-*CMZ :          13/01/98  01.32.23  by  Pavel Nevski
+*CMZ :          10/04/98  18.37.13  by  Pavel Nevski
 *CMZ :  1.30/00 13/05/97  14.31.40  by  Pavel Nevski
 *-- Author :    Pavel Nevski   26/11/94
 ************************************************************************
@@ -5975,7 +5975,7 @@ C
    }            }
                               * * *
    INQUIRE(FILE='detm.rz',OPENED=opnd)
-   If .not.opnd
+   If .not.opnd & LVGEOM(1)>=0
    {  Lrecl=256;   INQUIRE(FILE='detm.rz',EXIST=EXST);  %ChDir='RZDOC'
       If !EXST { Call RZOPEN (Lun,%CHdir,'detm.rz','NWX', Lrecl,Istat)
                  Call RZMAKE (Lun,%CHdir,2,'HH',CHTAG,5000,'XO')

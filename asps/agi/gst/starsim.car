@@ -802,7 +802,7 @@ Replace[;#,#=>#;] with  [{IF} [EXIST 1] {[INCR a]; %#3([COPY a])=%#1; #2,=>#3;}
    END
  
 +DECK,AgSBEGM,T=geant. ---------------------------------------------------------
-*CMZ :          13/01/98  01.32.23  by  Pavel Nevski
+*CMZ :          10/04/98  18.37.13  by  Pavel Nevski
 *CMZ :  1.30/00 13/05/97  14.31.40  by  Pavel Nevski
 *-- Author :    Pavel Nevski   26/11/94
 ************************************************************************
@@ -856,7 +856,7 @@ Replace[;#,#=>#;] with  [{IF} [EXIST 1] {[INCR a]; %#3([COPY a])=%#1; #2,=>#3;}
    }            }
                               * * *
    INQUIRE(FILE='detm.rz',OPENED=opnd)
-   If .not.opnd
+   If .not.opnd & LVGEOM(1)>=0
    {  Lrecl=256;   INQUIRE(FILE='detm.rz',EXIST=EXST);  %ChDir='RZDOC'
       If !EXST { Call RZOPEN (Lun,%CHdir,'detm.rz','NWX', Lrecl,Istat)
                  Call RZMAKE (Lun,%CHdir,2,'HH',CHTAG,5000,'XO')
