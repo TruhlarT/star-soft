@@ -12,27 +12,33 @@ else
 endif
 switch ($STAR_HOST_SYS)
     case "hp_ux102":
-#  ====================
+    #  ====================
     if (! ${?SHLIB_PATH}) setenv SHLIB_PATH 
     if ( -x ${GROUP_DIR}/dropit) setenv SHLIB_PATH `${GROUP_DIR}/dropit -p "$SHLIB_PATH" ROOT`
-##VP     setenv  SHLIB_PATH  ${ROOTSYS}${root}/lib:${SHLIB_PATH}
+    ##VP     setenv  SHLIB_PATH  ${ROOTSYS}${root}/lib:${SHLIB_PATH}
     setenv SHLIB_PATH `${GROUP_DIR}/dropit -p ${ROOTSYS}${root}/lib -p ${SHLIB_PATH}`
     if ($?NODEBUG) then
-##VP       setenv  SHLIB_PATH  ${ROOTSYS}${root}/LIB:${SHLIB_PATH}
-      setenv SHLIB_PATH `${GROUP_DIR}/dropit -p ${ROOTSYS}${root}/LIB -p ${SHLIB_PATH}`
+    ##VP       setenv  SHLIB_PATH  ${ROOTSYS}${root}/LIB:${SHLIB_PATH}
+	setenv SHLIB_PATH `${GROUP_DIR}/dropit -p ${ROOTSYS}${root}/LIB -p ${SHLIB_PATH}`
     endif
-	breaksw
-	default:
-#  ====================
+    breaksw
+        
+    default:
+    #  ====================
     if (! ${?LD_LIBRARY_PATH}) setenv LD_LIBRARY_PATH 
     if ( -x ${GROUP_DIR}/dropit) setenv LD_LIBRARY_PATH `${GROUP_DIR}/dropit -p "$LD_LIBRARY_PATH" ROOT`
-##VP     setenv LD_LIBRARY_PATH "${ROOTSYS}${root}/lib:${LD_LIBRARY_PATH}"
+    ##VP     setenv LD_LIBRARY_PATH "${ROOTSYS}${root}/lib:${LD_LIBRARY_PATH}"
     setenv LD_LIBRARY_PATH `${GROUP_DIR}/dropit -p ${ROOTSYS}${root}/lib -p ${LD_LIBRARY_PATH}`
     if ($?NODEBUG) then
-##VP       setenv LD_LIBRARY_PATH "${ROOTSYS}${root}/LIB:${LD_LIBRARY_PATH}"
-      setenv LD_LIBRARY_PATH `${GROUP_DIR}/dropit -p ${ROOTSYS}${root}/LIB -p ${LD_LIBRARY_PATH}`
+	##VP       setenv LD_LIBRARY_PATH "${ROOTSYS}${root}/LIB:${LD_LIBRARY_PATH}"
+	setenv LD_LIBRARY_PATH `${GROUP_DIR}/dropit -p ${ROOTSYS}${root}/LIB -p ${LD_LIBRARY_PATH}`
+    endif
+    if ($?INSURE) then
+	setenv LD_LIBRARY_PATH `${GROUP_DIR}/dropit -p ${ROOTSYS}${root}/ILIB -p ${LD_LIBRARY_PATH}`
     endif
 endsw
+
+
 if ( -x ${GROUP_DIR}/dropit) setenv PATH  `${GROUP_DIR}/dropit -p "$PATH" ROOT`
 ##VP setenv PATH "${ROOTSYS}/${root}/bin:${PATH}"
 setenv PATH `${GROUP_DIR}/dropit -p ${ROOTSYS}/${root}/bin -p ${PATH}`
