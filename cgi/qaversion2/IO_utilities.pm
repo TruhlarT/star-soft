@@ -58,7 +58,9 @@ sub CheckBatchStatus{
     my $time_string = " (started ".localtime($start_time).")";
     
     if ( -e $batch_job_file ){
-      $print_string = "<font color=blue>Update and QA batch job in progress $time_string</font><br>";
+
+      # pmj removed 10/7/00 - what is this doing here?
+      # $print_string = "<font color=blue>Update and QA batch job in progress $time_string</font><br>";
     }
     else{
       my $full_file = "$update_dir_local/$file";
