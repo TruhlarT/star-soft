@@ -1,9 +1,12 @@
 #!/opt/star/bin/perl 
 #-w
 #
-# $Id: dbDevTestQueryPlot.pl,v 1.4 2001/02/14 23:16:39 liuzx Exp $
+# $Id: dbDevTestQueryPlot.pl,v 1.5 2001/02/15 19:02:55 liuzx Exp $
 #
 # $Log: dbDevTestQueryPlot.pl,v $
+# Revision 1.5  2001/02/15 19:02:55  liuzx
+# .Fixed the problem with Netscape's Cache!
+#
 # Revision 1.4  2001/02/14 23:16:39  liuzx
 # .Update for description of MemUsage
 # .Update for 0 value's meaning
@@ -43,9 +46,9 @@ my @point3 = (undef,undef,undef,undef,undef);
 my @data;
 my @legend;
 
-print <<END;
-<META HTTP-equiv="Refresh" content="0; URL-HTTP://duvall.star.bnl.gov/cgi-bin/liuzx/star/dbDevTestQueryPlot.pl">
-END
+#print <<END;
+#<META HTTP-equiv="Refresh" content="0; URL-HTTP://duvall.star.bnl.gov/cgi-bin/liuzx/star/dbDevTestQueryPlot.pl">
+#END
 
 my $mplotVal;
 my %plotHash = (
@@ -197,8 +200,8 @@ if ($plotVal eq "MemUsage") {
     $legend[1] = "$plotVal"."(opt)";
 }
 
-binmode STDOUT;
-print STDOUT $query->header(-type => 'image/gif');
+#binmode STDOUT;
+#print STDOUT $query->header(-type => 'image/gif');
 
 $graph = new GIFgraph::linespoints(600,500);
 
@@ -209,7 +212,8 @@ $graph->set(x_label => "$xlabel",
 	    y_tick_number => 10,
             y_min_value => $min_y - 10,
             y_max_value => $max_y + 10,
-	    labelclr => "lred"
+	    labelclr => "lred",
+	    dclrs => [ qw(lred lgreen lblue lpurple) ]
 	    );
 
 $graph->set_legend(@legend);
@@ -219,6 +223,25 @@ $graph->set_x_label_font(gdMediumBoldFont);
 $graph->set_y_label_font(gdMediumBoldFont);
 $graph->set_x_axis_font(gdMediumBoldFont);
 $graph->set_y_axis_font(gdMediumBoldFont);
-print STDOUT $graph->plot(\@data);
+#print STDOUT $graph->plot(\@data);
+
+`rm -fr /star/starlib/doc/www/html/comp-nfs/plot*.gif`;
+my $gif = "/star/starlib/doc/www/html/comp-nfs/plot".$sec.$min.".gif";
+$graph->plot_to_gif("$gif",\@data);
+
+#open (GRAPH,"$gif");
+#while($line = <GRAPH>) {
+#	print STDOUT $line;
+#	}
 #print "</pre>";
-#print $query->end_html;
+print $query->header;
+print $query->start_html('Plot for Nightly Test in DEV Library');
+print <<END;
+<META HTTP-EQUIV="Expires" CONTENT="0">
+<META HTTP-EQUIV="Pragma" CONTENT="no-cache">
+<META HTTP-EQUIV="Cache-Control" CONTENT="no-cache">
+END
+
+print "<body bgcolor=\"#ffdc9f\"><center>";
+print "<img src=\"http://www.star.bnl.gov/webdata/plot".$sec.$min.".gif\"></center>";
+print $query->end_html;
