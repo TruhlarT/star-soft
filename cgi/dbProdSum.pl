@@ -279,7 +279,7 @@ print <<END;
           <title>Production Summary</title>
    </head>
    <body BGCOLOR=\"#ccffff\"> 
-     <h2 align=center>Summary for $trigD events production<br>in $prodSer series </h2>
+     <h2 align=center>Summary for $trigD events in $prodSer production </h2>
 <TABLE ALIGN=CENTER BORDER=5 CELLSPACING=1 CELLPADDING=2 >
 <TR>
 <TD ALIGN=CENTER WIDTH=\"20%\" HEIGHT=100><B>Size(GB) of DAQ files</B></TD>
