@@ -83,16 +83,6 @@ print $query->header;
 print $query->start_html('dbRunQuery');
 print $query->startform(-action=>"dbRunBrows.pl");  
 
-  print "<html>\n";
-  print " <head>\n";
-
-print <<END;
-<META Name="Query for Run Number" CONTENT="Interactive Box for Run Number Query">
-<META HTTP-EQUIV="Expires" CONTENT="0">
-<META HTTP-EQUIV="Pragma" CONTENT="no-cache">
-<META HTTP-EQUIV="Cache-Control" CONTENT="no-cache">
-END
-
   print " <title>Query for Run Number</title>";
   print "  </head>\n";
   print "  <body bgcolor=\"#ffdc9f\"> \n";

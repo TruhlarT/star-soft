@@ -64,21 +64,9 @@ my $nrunSet = 0;
  &StDbProdDisconnect();      
 
       
-#$qq = new CGI;
-
 print $query->header;
 print $query->start_html('dbRunNumQuery');
 print $query->startform(-action=>"dbSumRun.pl");  
-
-  print "<html>\n";
-  print " <head>\n";
-
-print <<END;
-<META Name="Query for Run Number" CONTENT="Interactive Box for Run Number Query">
-<META HTTP-EQUIV="Expires" CONTENT="0">
-<META HTTP-EQUIV="Pragma" CONTENT="no-cache">
-<META HTTP-EQUIV="Cache-Control" CONTENT="no-cache">
-END
 
   print " <title>Query for Run Number</title>";
   print "  </head>\n";
@@ -134,9 +122,6 @@ END
 
 #=======================================================================
 
-#if($query->param) {
-#  dbSumRun($query);
-#}
 print $query->delete_all;
 print $query->end_html; 
 
