@@ -23,6 +23,7 @@ use base qw(Logreport_object); # base class
 
 my %members = (
 	        _RunID            => undef,     
+	        _FileSeq          => undef,
 	        _ProdSeries       => undef,
 	        _ChainName        => undef, # abbrev of the chain
 	        _EventGenDetails  => undef, # more info on the generator
@@ -62,9 +63,10 @@ sub new{
 sub _init_offline{
   my $self = shift;
 
-  # runID ?
-  my $runID = QA_db_utilities::GetFromFileCatalog('runID',$self->JobID);
-  $self->RunID($runID);
+  # runID, file seq, dataset
+  $self->RunID(QA_db_utilities::GetFromFileCatalog('runID',$self->JobID) );
+  $self->FileSeq(QA_db_utilities::GetFromFileCatalog('fileSeq',$self->JobID));
+  $self->Dataset(QA_db_utilities::GetFromFileCatalog('dataset',$self->JobID));
 
   # get prod series, chain name, lib version, and chain options
   
@@ -75,10 +77,6 @@ sub _init_offline{
   $self->ChainName($chainName);
   $self->StarlibVersion($lib);
   $self->RequestedChain($chain);
-
-  # dataset field
-  
-  $self->Dataset(QA_db_utilities::GetFromFileCatalog('dataset',$self->JobID));
 
 }
 #=======================================================
@@ -144,7 +142,7 @@ sub ParseLogfile{
 
   # change the logfile to the summary of the log file
 
-  (my $sumfile = $logfile) =~ s/\/log/\/sum/g; # change the path
+  (my $sumfile = $logfile) =~ s|/log/|/sum/|g; # change the path
   $sumfile =~ s/\.log$/\.sum/;                 # change extension
 
   my $fh_sum = FileHandle->new( $sumfile, "r" ) or return;

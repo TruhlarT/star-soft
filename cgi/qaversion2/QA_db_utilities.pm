@@ -180,7 +180,6 @@ sub db_connect{
 
   my ($user_name, $password);
 
-  # $dbh is a global...
   $dbh = DBI->connect($datasource, $user_name, $password, \%attr)
     or die "Couldnt connect to $dbQA: $dbh->errstr";
 
@@ -253,16 +252,16 @@ sub GetMissingFiles{
   my $jobID = shift;
   my $type  = shift; # MC or real
 
-  my ($missing_files); # return the missing files as a string
+  my ($missingFiles); # return the missing files as a string
   my $hist_size =  1000;
 
   # these are the file components we're looking for
-  my @component_ary = ('dst','hist','tags','runco');
+  my @componentAry = qw(dst hist tags runco);
   
-  my $ondisk_string;
+  my $ondiskString;
 
   # check for one more component 
-  push @component_ary, 'geant' if $type eq 'MC';
+  push @componentAry, 'geant' if $type eq 'MC';
 
   # general checking
   my $query =  qq{select distinct component 
@@ -277,18 +276,18 @@ sub GetMissingFiles{
 #		        size > $hist_size };
 
   # retrieve components from output files from db
-  my @output_comp = @{$dbh->selectcol_arrayref($query)};
+  my @outputComp = @{$dbh->selectcol_arrayref($query)};
 
   # construct 'seen' hash - see perl cookbook
   my %seen;
-  @seen{ @output_comp } = ();
+  @seen{ @outputComp } = ();
 
   # find missing files
-  foreach ( @component_ary) {
-    $missing_files .= "$_.root" unless exists $seen{$_};
+  foreach ( @componentAry) {
+    $missingFiles .= "$_.root" unless exists $seen{$_};
   } 
     
-  return $missing_files;
+  return $missingFiles;
 }
 #----------
 sub GetMissingFilesReal{
@@ -463,7 +462,6 @@ sub GetInputFnOffline{
 
 sub GetAllProductionFilesOffline{
   my $jobID     = shift;
-  my (@file_list, $file);
   
   my $query = qq{select concat(path,'/',fName)
 		 from $dbFile.$FileCatalog
@@ -478,7 +476,6 @@ sub GetAllProductionFilesOffline{
 
 sub GetAllProductionFilesNightly{
   my $jobID     = shift;
-  my (@file_list, $file);
   
   my $query = qq{select concat(path,'/',fName)
 		 from $dbFile.$FileCatalog
@@ -542,15 +539,15 @@ sub ClearQAMacrosTable{
 # 
 
 sub WriteQASummary{
-  my $qa_status    = shift; # 0,1
-  my $qaID         = shift;
-  my $control_file = shift;
+  my $qaStatus    = shift; # 0,1
+  my $qaID        = shift;
+  my $controlFile = shift;
 
   # the control file may be a symlink
-  $control_file = readlink $control_file || $control_file;
+  $controlFile = readlink $controlFile || $controlFile;
   
   # qa ok?
-  my $QAok = $qa_status ? 'Y' : 'N';
+  my $QAok = $qaStatus ? 'Y' : 'N';
   
   # get current date
   my ($sec, $min, $hour, $day, $month, $year) = localtime;
@@ -562,7 +559,7 @@ sub WriteQASummary{
 		$QASum{QAdone}      ='Y', 
 		$QASum{QAok}        ='$QAok', 
 		$QASum{QAdate}      = '$datetime',
-		$QASum{controlFile} = '$control_file'
+		$QASum{controlFile} = '$controlFile'
 	      where $QASum{qaID} ='$qaID'};
 
   print h4("Writing overall QA summary into db...\n");
@@ -581,16 +578,16 @@ sub WriteQAMacroSummary{
   my $report_obj = shift; # QA_report_object
   my $option     = shift; # evaluate_only
 
-  my ($status, $errors, $warnings, $n_error, $n_warn);
-  my $qa_status = 1; # default is that everything's a-ok
+  my ($status, $errors, $warnings, $nError, $nWarn);
+  my $qaStatus = 1; # default is that everything's a-ok
 
   # macro output info
-  my $output_file = $report_obj->IOMacroReportFilename->Name;
-  $output_file =~ s/ps$/ps\.gz/; # assume ps changed to ps.gz...
+  my $outputFile = $report_obj->IOMacroReportFilename->Name;
+  $outputFile =~ s/ps$/ps\.gz/; # assume ps changed to ps.gz...
 
-  my $macro_name  = $report_obj->MacroName;
-  my $fName       = basename($output_file);
-  my $path        = dirname($output_file);
+  my $macroName  = $report_obj->MacroName;
+  my $fName       = basename($outputFile);
+  my $path        = dirname($outputFile);
   my ($junk, $extension) = split /\./, $fName, 2;
 
   my ($size, $createTime_epoch, $createTime);
@@ -603,10 +600,10 @@ sub WriteQAMacroSummary{
 
   # check that the output file exists
   
-  if ( -e $output_file) 
+  if ( -e $outputFile) 
   {
-    $size             = stat($output_file)->size;
-    $createTime_epoch = stat($output_file)->mtime;
+    $size             = stat($outputFile)->size;
+    $createTime_epoch = stat($outputFile)->mtime;
   } 
   else 
   { # doesnt exist - keep the extention though...
@@ -624,16 +621,16 @@ sub WriteQAMacroSummary{
     $status    = "crashed";
     $errors    = "n/a";
     $warnings  = "n/a";
-    $qa_status = 0;
+    $qaStatus  = 0;
   }
   # check if the macro was actually run
   # look for output file - maybe the input file didnt exist
-  elsif (not -e $output_file)
+  elsif (not -e $outputFile)
   {
     $status     = "not run";
     $errors     = "n/a";
     $warnings   = "n/a";
-    $qa_status  = 0;
+    $qaStatus  = 0;
   }
   # if no tests were defined and it succesfully ran
   elsif ($report_obj->NTests == 0 )
@@ -648,21 +645,21 @@ sub WriteQAMacroSummary{
   # loop over each type of test
     foreach my $type ('run','event'){
 
-      my @test_name_list = $report_obj->TestNameList($type);
+      my @testNameList = $report_obj->TestNameList($type);
     
       # loop over each test 
-      foreach my $test_name (@test_name_list){
-	$n_error += $report_obj->Nerror($type,$test_name);
-	$n_warn  += $report_obj->Nwarn($type,$test_name);
+      foreach my $testName (@testNameList){
+	$nError += $report_obj->Nerror($type,$testName);
+	$nWarn  += $report_obj->Nwarn($type,$testName);
       }
       
     }
     # adjust if more than 10 warnings
     $status   = "finished";
-    $errors   = ($n_error > 10) ? ">10" : $n_error;
-    $warnings = ($n_warn > 10) ? ">10" : $n_warn;
+    $errors   = ($nError > 10) ? ">10" : $nError;
+    $warnings = ($nWarn > 10) ? ">10" : $nWarn;
     
-    ($errors or $warnings) and $qa_status = 0;
+    ($errors or $warnings) and $qaStatus = 0;
   }
 
   my $query;
@@ -683,7 +680,7 @@ sub WriteQAMacroSummary{
 	   $QAMacros{status}     = '$status',
            $QAMacros{warnings}   = '$warnings',
            $QAMacros{errors}     = '$errors'
-	 where $QAMacros{macroName} = '$macro_name' and
+	 where $QAMacros{macroName} = '$macroName' and
 	       $QAMacros{fName}     = '$fName' and
 	       $QAMacros{qaID}      = '$qaID'};
   }
@@ -693,7 +690,7 @@ sub WriteQAMacroSummary{
       qq{insert into $dbQA.$QAMacros{Table}
 	 set
 	   $QAMacros{qaID}      = '$qaID',
-	   $QAMacros{macroName}  = '$macro_name',
+	   $QAMacros{macroName}  = '$macroName',
 	   $QAMacros{fName}      = '$fName',
            $QAMacros{path}       = '$path',
            $QAMacros{extension}  = '$extension',
@@ -712,9 +709,9 @@ sub WriteQAMacroSummary{
 
   if ($rows += 0) { print h4("...done\n")}
   else     { print h4("<font color = red> Error. Cannot insert qa info for ",
-		      "$output_file</font>"); return;}
+		      "$outputFile</font>"); return;}
     
-  return $qa_status;
+  return $qaStatus;
 }
 #----------
 # get overall qa summary

@@ -59,6 +59,7 @@ sub DataDisplayString{
   return $report_key_string .
          "JobID : " . $self->LogReport->JobID . br.
 	 "RunID : " . $self->LogReport->RunID . br.
+	 "File seq : " . $self->LogReport->FileSeq . br .
 	 "Dataset : " . $self->LogReport->Dataset . br .	   
          "(prodSeries: $prodSeries; chain name: $chainName)";
 }

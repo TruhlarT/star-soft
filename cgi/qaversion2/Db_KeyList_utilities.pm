@@ -25,23 +25,23 @@ sub GetOfflineSelections{
 
   my $now = time;
   my $hashref;               # stores all the selections
-  my ($file_type, %query);
+  my ($fileType, %query);
 
   if ($argument eq 'real'){
-    $file_type = 'real';
+    $fileType = 'real';
   }
   elsif ( $argument eq 'MC' ){
-    $file_type = 'MC';
+    $fileType = 'MC';
   }
   else { die "Wrong argument" }
   
   # library selections
 
-  my $query_library = qq{select distinct job.prodSeries, job.chainName
+  my $queryLibrary = qq{select distinct job.prodSeries, job.chainName
 			 from $dbFile.$JobStatus as job,
 			      $dbQA.$QASum{Table} as s
 			 where job.jobID       = s.$QASum{jobID} and
-			       s.$QASum{type} = '$file_type'
+			       s.$QASum{type} = '$fileType'
 			 order by job.prodSeries asc};
      
 
@@ -51,7 +51,7 @@ sub GetOfflineSelections{
 		          $dbQA.$QASum{Table} as s
 		     where file.jobID = s.$QASum{jobID} and
 			   ($now-unix_timestamp(createtime))>0 and
-		           s.$QASum{type} = '$file_type'
+		           s.$QASum{type} = '$fileType'
 		     order by file.runID asc};
 
 
@@ -63,7 +63,7 @@ sub GetOfflineSelections{
 		            m.$QAMacros{qaID} = s.$QASum{qaID} and
 		            m.$QAMacros{extension}!='ps' and
 		            m.$QAMacros{extension}!='ps.gz' and
-		            s.$QASum{type}     = '$file_type'           
+		            s.$QASum{type}     = '$fileType'           
 		       order by m.$QAMacros{macroName} asc};
 
   # dataset 
@@ -71,13 +71,13 @@ sub GetOfflineSelections{
 		       from $dbFile.$FileCatalog as file,
 			    $dbQA.$QASum{Table} as s
 		       where file.jobID      = s.$QASum{jobID} and
-			    s.$QASum{type} = '$file_type'
+			    s.$QASum{type} = '$fileType'
 		       order by file.dataset asc };
   
   my $sth;
 
   # get prodOptions - this is different from the others.
-  $sth = $dbh->prepare($query_library);
+  $sth = $dbh->prepare($queryLibrary);
   $sth->execute;
 
   while (my ($prodSeries, $chainName) = $sth->fetchrow_array) {
@@ -111,13 +111,13 @@ sub GetOfflineSelectionsMC{
 # see KeyList_object
 
 sub GetNightlySelections{
-  my $data_type = shift; # real or MC
+  my $dataType = shift; # real or MC
 
   my $now = time;
-  my (%query, $file_type);
+  my (%query, $fileType);
 
   # different queries for different class of data
-  if ($data_type eq 'MC')
+  if ($dataType eq 'MC')
   {
     $query{eventGen}  = qq{select distinct eventGen
 		          from $dbFile.$FileCatalog
@@ -128,10 +128,10 @@ sub GetNightlySelections{
 		          from $dbFile.$FileCatalog
                           where eventType!='n/a' 
                           order by eventType};
-    $file_type = 'MC';
+    $fileType = 'MC';
     
   }
-  elsif ($data_type eq 'real')  
+  elsif ($dataType eq 'real')  
   {
     $query{eventGen}  = qq{select ID
 			  from $dbFile.$FileCatalog
@@ -143,10 +143,10 @@ sub GetNightlySelections{
                          where eventType!='n/a' and
 			       eventGen = 'n/a'
 			 order by eventType};
-    $file_type = 'real';
+    $fileType = 'real';
 
   }
-  else {die "Wrong data type $data_type"};
+  else {die "Wrong data type $dataType"};
 
   # other queries...
 
@@ -168,7 +168,7 @@ sub GetNightlySelections{
 			       $dbQA.$QASum{Table} as s
 			  where 
 			        m.$QAMacros{qaID} = s.$QASum{qaID} and 
-			        s.$QASum{type}    = '$file_type' and 
+			        s.$QASum{type}    = '$fileType' and 
 			        m.$QAMacros{extension}!='ps' and
                                 m.$QAMacros{extension}!='ps.gz'
 			  order by m.$QAMacros{macroName} asc};
@@ -206,10 +206,10 @@ sub GetNightlySelectionsMC{
 # see KeyList_object
 
 sub GetOfflineKeys{
-  my $data_type     = shift; # real or MC
+  my $dataType     = shift; # real or MC
   my $prodOptions   = shift; # e.g. "$prodSeries;$chainName"
   my $runID         = shift; # e.g. 124
-  my $QAstatus_arg  = shift; # e.g. "warnings;$macro_name" or "ok"
+  my $QAstatus_arg  = shift; # e.g. "warnings;$macroName" or "ok"
   my $jobStatus     = shift; # e.g. 'not done'
   my $createTime    = shift; # e.g. three_days
   my $dataset       = shift;
@@ -220,7 +220,7 @@ sub GetOfflineKeys{
   # pmj 28/6/00 display keys with header, table formatting
 
   my @db_key_strings;
-  push @db_key_strings, "data_type = $data_type<br>";
+  push @db_key_strings, "dataType = $dataType<br>";
   push @db_key_strings, "prodOptions = $prodOptions<br>";
   push @db_key_strings, "runID = $runID<br>";
   push @db_key_strings, "jobStatus = $jobStatus<br>";
@@ -232,23 +232,23 @@ sub GetOfflineKeys{
   #----------------------------------------------------------------
 
   # which class of data are we looking at?
-  my $data_type_string;
-  if ($data_type eq 'real')
+  my $dataType_string;
+  if ($dataType eq 'real')
   {
-    $data_type_string = "sum.$QASum{type} = 'real' and";
+    $dataType_string = "sum.$QASum{type} = 'real' and";
   }
-  elsif ($data_type eq 'MC')
+  elsif ($dataType eq 'MC')
   {
-    $data_type_string = "sum.$QASum{type} = 'MC' and";
+    $dataType_string = "sum.$QASum{type} = 'MC' and";
   }
-  else {die "Wrong data_type $data_type"; }
+  else {die "Wrong dataType $dataType"; }
   
 
   # fine tune prodOptions
   my ($prodSeries, $chainName) = split( /;/, $prodOptions );
   
   # fine tune status
-  my ($QAstatus, $macro_name)  = split( /;/, $QAstatus_arg );
+  my ($QAstatus, $macroName)  = split( /;/, $QAstatus_arg );
 
   #----
   # selection strings...
@@ -342,8 +342,8 @@ sub GetOfflineKeys{
       $macro_where_string = "sum.$QASum{qaID} = macro.$QAMacros{qaID} and";
 
       $QAstatus_string = "macro.$QAstatus!='0' and macro.$QAstatus!='n/a'";
-      $macro_string = "macro.$QAMacros{macroName} = '$macro_name' and"
-	if defined $macro_name;
+      $macro_string = "macro.$QAMacros{macroName} = '$macroName' and"
+	if defined $macroName;
     }
     else {die "Wrong argument $QAstatus"}
   }
@@ -364,7 +364,7 @@ sub GetOfflineKeys{
 		      $jobStatus_string
 		      $createTime_string
 		      $dataset_string
-		      $data_type_string
+		      $dataType_string
 		      $macro_string
 		      $QAstatus_string
 		limit $limit };
@@ -389,18 +389,18 @@ sub GetOfflineKeys{
 # get offline selected keys for real jobs only
 
 sub GetOfflineKeysReal{
-  my @selection_param = @_;
+  my @selectionParam = @_;
 
-  return GetOfflineKeys('real',@selection_param);
+  return GetOfflineKeys('real',@selectionParam);
 }
 
 #=======================================================================
 # get offline selected keys for MC jobs only
 
 sub GetOfflineKeysMC{
-  my @selection_param = @_;
+  my @selectionParam = @_;
 
-  return GetOfflineKeys('MC',@selection_param);
+  return GetOfflineKeys('MC',@selectionParam);
 }
 			  
 #=======================================================================
@@ -408,7 +408,7 @@ sub GetOfflineKeysMC{
 # see KeyList_object
 
 sub GetNightlyKeys{
-  my $data_type     = shift; # real or MC
+  my $dataType     = shift; # real or MC
   my $eventGen      = shift;
   my $LibLevel      = shift;
   my $platform      = shift;
@@ -440,7 +440,7 @@ sub GetNightlyKeys{
 
 
   # fine tune status
-  my ($QAstatus, $macro_name) = split( /;/, $QAstatus_arg);
+  my ($QAstatus, $macroName) = split( /;/, $QAstatus_arg);
 
   # --- determine which tables to join ---
   my ($file_from_string, $file_where_string);
@@ -520,24 +520,24 @@ sub GetNightlyKeys{
   }
     
   # for eventGen, if real we dont need to query on it.
-  # data_type_string takes care of selecting on real vs MC
+  # dataType_string takes care of selecting on real vs MC
   
   # which class of data are we looking at?
-  my ($data_type_string, $eventGen_string);
+  my ($dataType_string, $eventGen_string);
 
-  if ($data_type eq 'real')
+  if ($dataType eq 'real')
   {
-    $data_type_string = "sum.$QASum{type} = 'real' and";
+    $dataType_string = "sum.$QASum{type} = 'real' and";
   }
-  elsif ($data_type eq 'MC')
+  elsif ($dataType eq 'MC')
   {
-    $data_type_string = "sum.$QASum{type} = 'MC' and";
+    $dataType_string = "sum.$QASum{type} = 'MC' and";
 
     # want specific event gen info if ne 'any'
     $eventGen_string  = "file.eventGen = '$eventGen' and"
       if $eventGen ne 'any';
   }
-  else {die "Wrong data_type $data_type"; }
+  else {die "Wrong data type $dataType"; }
  
   
   # $QAstatus_string must be the last line in the 'where' clause
@@ -562,8 +562,8 @@ sub GetNightlyKeys{
       $macro_where_string = "sum.$QASum{qaID} = macro.$QAMacros{qaID} and";
 
       $QAstatus_string = "macro.$QAstatus!='0' and macro.$QAstatus!='n/a'";
-      $macro_string = "macro.$QAMacros{macroName} = '$macro_name' and"
-	if defined $macro_name;
+      $macro_string = "macro.$QAMacros{macroName} = '$macroName' and"
+	if defined $macroName;
     }
     else {die "Wrong argument $QAstatus"}
   }
@@ -585,7 +585,7 @@ sub GetNightlyKeys{
 		       $eventType_string
 		       $geometry_string
 		       $ondisk_string
-		       $data_type_string
+		       $dataType_string
 		       $createTime_string
 		       $jobStatus_string
 		       $macro_string
@@ -724,9 +724,11 @@ sub make_date_nice{
 }
 #=======================================================================
 # eliminate devaint white space
+# also removes unfriendly single quotes
 
 sub remove_white_space{
   $_[0] =~ s/\s+//g;
+  $_[0] =~ s/'//g;
   return $_[0];
 }
 #=======================================================================

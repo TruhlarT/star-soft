@@ -76,7 +76,6 @@ sub JobPopupMenu{
 
 }
 #========================================================
-# get the selected cgi values chose by the user
 # returns an array of cgi values according to the popup menu
 # overridden
 
@@ -130,8 +129,7 @@ sub GetSelectedKeyList{
 
 
 #=========================================================
-# add the messages to the key list
-
+   
 sub AddMessagesToKeyList{
   my $self = shift;
 

@@ -21,28 +21,28 @@ use strict;
 # takes an argument of either real or MC
 #
 sub UpdateQAOffline{
-  my $data_type   = shift; # either 'real' or 'MC'
-  my $limit       = 1;     # limit number of new jobs
-  my $oldest_date; # dont retrieve anything older than this
-  my $file_type;
-  my $time_sec = 100*3600*24; # number of seconds in a week
-  my $today    = strftime("%Y-%m-%d %H:%M:%S",localtime());
+  my $dataType   = shift; # either 'real' or 'MC'
+
+  my $limit      = 1;     # limit number of new jobs
+  my $oldestDate;         # dont retrieve anything older than this
+  my $fileType;
+  my $today      = strftime("%Y-%m-%d %H:%M:%S",localtime());
 
   # real or simulation?
-  if($data_type eq 'real')
+  if($dataType eq 'real')
   {
-    $file_type = 'daq_reco';
-    $oldest_date='2000-06-20';
+    $fileType = 'daq_reco';
+    $oldestDate='2000-06-20';
   }
-  elsif($data_type eq 'MC')
+  elsif($dataType eq 'MC')
   {
-    $file_type = 'MC_reco';  
-    $oldest_date='2000-04-01';
+    $fileType = 'MC_reco';  
+    $oldestDate='2000-04-01';
   }
-  else {die "Wrong argument $data_type" }
+  else {die "Wrong argument $dataType" }
   
   # report key
-  my $query_key = qq{select concat(jobID, '.', runID, '.',   
+  my $queryKey = qq{select concat(jobID, '.', runID, '.',   
 			      date_format(file.createTime, '%y%m%d'))
 		     from $dbFile.$FileCatalog as file
 		     where file.jobID=? limit 1};
@@ -51,61 +51,60 @@ sub UpdateQAOffline{
   # replace with underscores
   
   sub make_report_key_offline{
-    my $report_key = shift;
+    my $reportKey = shift;
 
-    $report_key =~ s/\//_/g;
-    return $report_key;
+    $reportKey =~ s/\//_/g;
+    return $reportKey;
   }
 
   # update
-  my $query_update = qq{select distinct file.jobID
+  my $queryUpdate = qq{select distinct file.jobID
 			from $dbFile.$FileCatalog as file 
 			LEFT JOIN $dbQA.$QASum{Table} as qa
 			on file.jobID = qa.$QASum{jobID}
 			where
-			  file.type = '$file_type' and
+			  file.type = '$fileType' and
 			  file.createTime < '$today' and
 			  file.hpss = 'N' and 
-			  file.createTime > '$oldest_date' and 
+			  file.createTime > '$oldestDate' and 
 			  qa.$QASum{jobID} is NULL
 			limit $limit};
 
 
   # insert new jobs into  the QASummaryTable 
-  my $query_insert = qq{insert into $dbQA.$QASum{Table} 
+  my $queryInsert = qq{insert into $dbQA.$QASum{Table} 
 			set
 			  $QASum{jobID}       = ?,
 			  $QASum{report_key}  = ?,
-			  $QASum{type}        = '$data_type',
+			  $QASum{type}        = '$dataType',
 			  $QASum{QAdone}      = 'N',
 			  $QASum{qaID}        = NULL
 			};
 
-  my (@key_list);
-  my $sth_update = $dbh->prepare($query_update); # find jobs to update
-  my $sth_key    = $dbh->prepare($query_key);    # get the report key info
-  my $sth_insert = $dbh->prepare($query_insert); # insert into QASummary
+  my (@keyList);
+  my $sthUpdate = $dbh->prepare($queryUpdate); # find jobs to update
+  my $sthKey    = $dbh->prepare($queryKey);    # get the report key info
+  my $sthInsert = $dbh->prepare($queryInsert); # insert into QASummary
 
-print $query_update,"\n";
-  $sth_update->execute;
-  my $rows = $sth_update->rows or return; # get out if there are no jobs
+  $sthUpdate->execute;
+  my $rows = $sthUpdate->rows or return; # get out if there are no jobs
 
   print h3("Found $rows new jobs\n");
 
   # loop over jobs
-  while ( my $jobID = $sth_update->fetchrow_array ) {
-    $sth_key->execute($jobID);
+  while ( my $jobID = $sthUpdate->fetchrow_array ) {
+    $sthKey->execute($jobID);
     
     # get report key
-    my $report_key = make_report_key_offline($sth_key->fetchrow_array);
+    my $reportKey = make_report_key_offline($sthKey->fetchrow_array);
     
-    # save report_key
-    push @key_list, $report_key;
+    # save report key
+    push @keyList, $reportKey;
     
     # insert into QASummary
-    $sth_insert->execute($jobID, $report_key);
+    $sthInsert->execute($jobID, $reportKey);
   }	       
-  return @key_list;
+  return @keyList;
 }
 #-------------------
 # update for offline MC
@@ -131,28 +130,28 @@ sub UpdateQAOfflineReal{
 # 2. update QASummary with these jobID's
 #
 sub UpdateQANightly {  
-  my $data_class = shift; # 'real' or 'MC'
+  my $dataType = shift; # 'real' or 'MC'
   
   my $limit       = 1;
-  my $oldest_date = '2000-06-25'; # dont retrieve anything older 
-  my ($type, $eventGen_string);
-  my $today    = strftime("%Y-%m-%d %H:%M:%S",localtime());
+  my $oldestDate  = '2000-06-25'; # dont retrieve anything older 
+  my $today       = strftime("%Y-%m-%d %H:%M:%S",localtime());
 
+  my ($type, $eventGen_string);
   # real or simulation
-  if ($data_class eq 'real')
+  if ($dataType eq 'real')
   {
     $eventGen_string = "file.eventGen = 'n/a' and";
   }
-  elsif ($data_class eq 'MC')
+  elsif ($dataType eq 'MC')
   {
     $eventGen_string = "file.eventGen != 'n/a' and";
   }
-  else { die "Incorrect argument $data_class"; }
+  else { die "Incorrect argument $dataType"; }
 
   
 
   # get info for report key
-  my $query_key = qq{select concat(LibLevel,'.',
+  my $queryKey =  qq{select concat(LibLevel,'.',
 			        platform,'.', eventGen,'.', 
 			        eventType,'.', geometry,'.',
 			        date_format(createTime,'%y%m%d'))
@@ -161,22 +160,22 @@ sub UpdateQANightly {
 
   # make the report key
   sub make_report_key{
-    my $report_key = shift;
+    my $reportKey = shift;
     
     # make some abbreviations
-    $report_key =~ s/lowdensity/low/;
-    $report_key =~ s/highdensity/high/;
-    $report_key =~ s/standard/std/;
-    $report_key =~ s/hadronic_cocktail/hc/;
+    $reportKey =~ s/lowdensity/low/;
+    $reportKey =~ s/highdensity/high/;
+    $reportKey =~ s/standard/std/;
+    $reportKey =~ s/hadronic_cocktail/hc/;
 
     # get rid of any n/a (e.g. for real jobs)
-    $report_key =~ s/\.n\/a//;
+    $reportKey =~ s/\.n\/a//;
 
-    return $report_key;
+    return $reportKey;
   }
   
   # update
-  my $query_update = qq{select distinct file.jobID
+  my $queryUpdate =  qq{select distinct file.jobID
 			from $dbFile.$FileCatalog as file
 			LEFT JOIN $dbQA.$QASum{Table} as qa
 			  on file.jobID = qa.$QASum{jobID}
@@ -185,57 +184,56 @@ sub UpdateQANightly {
 			  $eventGen_string
 			  file.createTime < '$today' and
 			  file.jobID != 'n/a' and
-			  file.createTime > '$oldest_date' and
+			  file.createTime > '$oldestDate' and
 			qa.$QASum{jobID} is NULL
 			limit $limit};
   
   # check if the report_key is unique
-  my $query_check = qq{select $QASum{qaID}
+  my $queryCheck =  qq{select $QASum{qaID}
 		       from $dbQA.$QASum{Table}
-		       where report_key = ? };
+		       where $QASum{report_key} = ? };
 
   # insert new jobs into  the QASummaryTable 
-  my $query_insert = qq{insert into $dbQA.$QASum{Table} 
+  my $queryInsert =  qq{insert into $dbQA.$QASum{Table} 
 			set
 			  $QASum{jobID}      = ?,
    			  $QASum{report_key} = ?,
 			  $QASum{QAdone}     = 'N',
-			  $QASum{type}       = '$data_class',
+			  $QASum{type}       = '$dataType',
 		          $QASum{qaID}       = NULL          
 			};
-  my (@key_list);
-print $query_update,"\n";
-  my $sth_update = $dbh->prepare($query_update); # find jobs to update
-  my $sth_key    = $dbh->prepare($query_key);    # get report key info
-  my $sth_check  = $dbh->prepare($query_check);  # check for uniqueness
-  my $sth_insert = $dbh->prepare($query_insert); # insert into QASummary 
+  my (@keyList);
+  my $sthUpdate = $dbh->prepare($queryUpdate); # find jobs to update
+  my $sthKey    = $dbh->prepare($queryKey);    # get report key info
+  my $sthCheck  = $dbh->prepare($queryCheck);  # check for uniqueness
+  my $sthInsert = $dbh->prepare($queryInsert); # insert into QASummary 
 
-  $sth_update->execute;
-  my $rows = $sth_update->rows or return; # get out if there are no jobs to update
+  $sthUpdate->execute;
+  my $rows = $sthUpdate->rows or return; # get out if there are no jobs to update
 
   print h3("Found $rows new jobs\n");
 
   # loop over jobs
-  while ( my $jobID = $sth_update->fetchrow_array) {
-    $sth_key->execute($jobID);
+  while ( my $jobID = $sthUpdate->fetchrow_array) {
+    $sthKey->execute($jobID);
     
     # get the report key
-    my $report_key = make_report_key( $sth_key->fetchrow_array);
+    my $reportKey = make_report_key( $sthKey->fetchrow_array);
 
     # check if the report key is unique
-    $sth_check->execute($report_key);
-    my $found = $sth_check->fetchrow_array;
+    $sthCheck->execute($reportKey);
+    my $found = $sthCheck->fetchrow_array;
     # not unique, add a 'b'.  if this is not unique, we're in trouble
-    $found and $report_key .= 'b'; 
+    $found and $reportKey .= 'b'; 
 
     # save keys
-    push @key_list, $report_key;
+    push @keyList, $reportKey;
 
     # insert into QASummary
-    $sth_insert->execute($jobID, $report_key);
+    $sthInsert->execute($jobID, $reportKey);
   }
   
-  return @key_list;
+  return @keyList;
 }
 
 #-------------------
@@ -320,13 +318,12 @@ sub InsertOnlineQASum{
 }
   
 #-------------------
-# called in QA_main
 # gets the report keys from the QATable that need to be QA-ed
 #
 sub GetToDoReportKeys{
   my $type = shift; # real or MC
-  my (@todo_keys, $job, $type_string);
-  
+
+  my $type_string;
 
   if ($type eq 'real'){
     $type_string = "$QASum{type} = 'real'";
@@ -341,9 +338,8 @@ sub GetToDoReportKeys{
 		 where $QASum{QAdone} = 'N' and
 	         $type_string};
   
-  my $todo_keys_ref = $dbh->selectcol_arrayref($query);
+  return @{$dbh->selectcol_arrayref($query)};
 
-  return @{$todo_keys_ref};
 }
 #---------------------------
 sub GetToDoReportKeysMC{
@@ -353,9 +349,5 @@ sub GetToDoReportKeysMC{
 sub GetToDoReportKeysReal{
   return GetToDoReportKeys('real');
 }
-
-sub Test{ print "dbFile      = $dbFile\n",
-	        "FileCatalog = $FileCatalog\n",
-	        "JobStatus   = $JobStatus\n" }
 
 

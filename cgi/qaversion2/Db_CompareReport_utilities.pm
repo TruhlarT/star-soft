@@ -28,7 +28,7 @@ sub nightly_MC{
   # first get the eventGen, event type, and geometry
   # according to the report key
 
-  my $query_info = qq{select file.eventGen, file.eventType, file.geometry
+  my $queryInfo = qq{select file.eventGen, file.eventType, file.geometry
 		      from $dbQA.$QASum{Table} as qa,
 			   $dbFile.$FileCatalog as file
 		      where qa.$QASum{report_key} = '$report_key' and
@@ -37,7 +37,7 @@ sub nightly_MC{
 
   # then find similar jobs- return the report keys
   
-  my $query_sim = qq{select distinct qa.$QASum{report_key}
+  my $querySim = qq{select distinct qa.$QASum{report_key}
 		     from $dbQA.$QASum{Table} as qa,
 		          $dbFile.$FileCatalog as file
 		     where 
@@ -49,12 +49,10 @@ sub nightly_MC{
 			order by file.createTime desc
 		        limit $limit};
 
-  my ($sth, @similar_keys);
-
-  my ($eventGen, $eventType, $geometry) = $dbh->selectrow_array($query_info);
+  my ($eventGen, $eventType, $geometry) = $dbh->selectrow_array($queryInfo);
 
   # return similar keys
-  return @{$dbh->selectcol_arrayref($query_sim, undef, 
+  return @{$dbh->selectcol_arrayref($querySim, undef, 
 				    $eventGen, $eventType, $geometry)};
   
 }
@@ -72,7 +70,7 @@ sub nightly_real{
   # first get the event type, and geometry
   # according to the report key
 
-  my $query_info = qq{select file.eventType, file.geometry
+  my $queryInfo = qq{select file.eventType, file.geometry
 		      from $dbQA.$QASum{Table} as qa,
 			   $dbFile.$FileCatalog as file
 		      where qa.$QASum{report_key} = '$report_key' and
@@ -81,7 +79,7 @@ sub nightly_real{
 
   # then find similar jobs- return the report keys
   
-  my $query_sim = qq{select distinct qa.$QASum{report_key}
+  my $querySim = qq{select distinct qa.$QASum{report_key}
 		     from $dbQA.$QASum{Table} as qa,
 		          $dbFile.$FileCatalog as file
 		     where 
@@ -92,12 +90,10 @@ sub nightly_real{
 			order by file.createTime desc
 		        limit $limit};
 
-  my ($sth, @similar_keys);
-
-  my ($eventType, $geometry) = $dbh->selectrow_array($query_info);
+  my ($eventType, $geometry) = $dbh->selectrow_array($queryInfo);
 
   # return similar keys
-  return @{$dbh->selectcol_arrayref($query_sim, undef, 
+  return @{$dbh->selectcol_arrayref($querySim, undef, 
 				    $eventType, $geometry)};
 }
 #------------------------------------------------------------------
@@ -112,7 +108,7 @@ sub offline_real{
   # first get the prodSeries, chainName, dataset
   # according to the report key
 
-  my $query_info = qq{select job.prodSeries, job.chainName, file.dataset
+  my $queryInfo = qq{select job.prodSeries, job.chainName, file.dataset
 		      from $dbQA.$QASum{Table} as qa,
 			   $dbFile.$FileCatalog as file,
 			   $dbFile.$JobStatus as job
@@ -123,7 +119,7 @@ sub offline_real{
 
   # then find similar jobs- return the report keys
   
-  my $query_sim = qq{select distinct qa.report_key
+  my $querySim = qq{select distinct qa.report_key
 		     from $dbQA.$QASum{Table} as qa,
 		          $dbFile.$JobStatus as job,
 		          $dbFile.$FileCatalog as file
@@ -137,19 +133,19 @@ sub offline_real{
                         order by file.createTime desc
 		        limit $limit};
 
-  my ($sth, @similar_keys);
+  my ($sth, @similarKeys);
 
-  my ($prodSeries, $chainName, $dataset) = $dbh->selectrow_array($query_info);
+  my ($prodSeries, $chainName, $dataset) = $dbh->selectrow_array($queryInfo);
 
-  $sth = $dbh->prepare($query_sim );
+  $sth = $dbh->prepare($querySim );
   
   $sth->execute($prodSeries, $chainName, $dataset);
 
   while (my $report_key = $sth->fetchrow_array){
-    push @similar_keys, $report_key;
+    push @similarKeys, $report_key;
   }
 
-  return @similar_keys;
+  return @similarKeys;
 }
 
 #----------------------------------------------------------------

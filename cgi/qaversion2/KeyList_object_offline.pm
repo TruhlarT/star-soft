@@ -136,11 +136,6 @@ sub JobPopupMenu{
   # pmj 21/6/00: more compact display, no header. Pulldown menu for changing classes
   # has been moved to banner so there is more horizontal space
 
-  #  $table_rows[0] = td( [h3('Select dataset:')]);
-  #  push @table_rows, td( [$self->GetRowOfMenus('prodOptions','runID','dataset') ]);
-  #  push @table_rows, td( [$self->GetRowOfMenus('QAstatus','jobStatus','createTime') ]);
-  #  push @table_rows, td( [$submit_string] );
-
   my $null_string = "";
 
   my $rows_ref =
