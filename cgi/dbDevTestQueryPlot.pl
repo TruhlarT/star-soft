@@ -1,11 +1,11 @@
 #!/usr/local/bin/perl
 #!/usr/bin/env perl 
 #
-# $Id: dbDevTestQueryPlot.pl,v 1.28 2005/01/10 17:55:33 didenko Exp $
+# $Id: dbDevTestQueryPlot.pl,v 1.29 2005/01/10 18:02:43 didenko Exp $
 #
 # $Log: dbDevTestQueryPlot.pl,v $
-# Revision 1.28  2005/01/10 17:55:33  didenko
-# array initial
+# Revision 1.29  2005/01/10 18:02:43  didenko
+# remove icc path
 #
 # Revision 1.23  2005/01/10 15:28:47  didenko
 # updated for ITTF test
@@ -163,6 +163,7 @@ while($n_weeks >= 0) {
 	$cursor = $dbh->prepare($sql) || die "Cannot prepare statement: $dbh->errstr\n";
 	$cursor->execute;
 	while(@fields = $cursor->fetchrow_array) {
+            next if ( $fields[0] =~ /daq_sl302.icc80/) ;
 	    if ($fields[0] =~ /sl302.ittf_opt/) {
 		$point2[$d_week+7*$rn_weeks] = $fields[1];
 		if($point2[$d_week+7*$rn_weeks] > $max_y) {
