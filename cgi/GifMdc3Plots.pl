@@ -75,7 +75,7 @@ my $mjobSt;
 
 my @dstFile;
 my $ndstFile = 0;
-
+my $mcpuEvt = 0;
 
 &StDbProdConnect();
 
@@ -110,9 +110,9 @@ $sql="SELECT sumFileName,jobfileName, jobStatus, mem_size_MB, CPU_per_evt_sec, a
         ($$prodAddr)->aveTrks($fvalue) if( $fname eq 'avg_no_tracks'); 
         ($$prodAddr)->aveVtxs($fvalue) if( $fname eq 'avg_no_vertex');   
         $mjobSt = $fvalue if ( $fname eq 'jobStatus');       
-  
+        $mcpuEvt =  $fvalue if ( $fname eq 'CPU_per_evt_sec');
     }       
-        next if ( $mjobSt ne "Done" );
+        next if ( $mcpuEvt = 0 );
       $prodInfo[$nProdInfo] = $prodAddr;      
       $nProdInfo++;
 }
