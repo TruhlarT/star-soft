@@ -71,8 +71,9 @@ if(!$cron_job){
 }
 else
   {
-    $path_info = 'lower_display';
-    $query->param("$cron_job", 1);
+#    $path_info = 'lower_display';
+    $path_info = 'batch';
+#    $query->param("$cron_job", 1);
   }
 #--------------------------------------------------------
 &QA_utilities::cleanup_topdir;
@@ -85,6 +86,7 @@ else
 #--------------------------------------------------------------------
 &upper_display if $path_info =~ /upper_display/;
 &lower_display if $path_info =~ /lower_display/;
+&batch if $path_info =~ /batch/;
 #-----------------------------------------------------------------------------
 
 print  $query->end_html;
@@ -123,6 +125,27 @@ sub lower_display{
   &check_for_csh_script;
   #-----------------------------------------------------------------------------
   &button_actions;
+}
+#==========================================================================
+sub batch{
+
+  #-------------------------------------------------------
+
+  print "In QA_main::batch, cron_job = $cron_job <br> \n";
+
+ BATCH:{
+
+    $cron_job eq batch_update_qa and do{
+      print "<h3> Submitting batch job for catalogue update and global QA... </h3> \n";
+      &QA_utilities::submit_batchjob('update_and_qa');      
+      last BATCH;
+    };
+
+    # default
+
+      print "<h3> No action taken for cron_job = $cron_job </h3> \n";
+    
+  }
 }
 #=================================================================
 sub starting_display {
