@@ -231,36 +231,36 @@ sub bfcread_tagsBranch{
     print "Cannot open report $report_filename \n";
     return;
   };
-  #------------------------------------------------
+  #-------------------------------------
   while ( <REPORT> ) {
     /QAInfo:/ or next; 
 
-    # get the number of tags for each leaf
-    if (/dimensions\(tags\) = (\d+)\s+(\d+)/){
-      $run_scalar_hash{"leaf_$1"} = $2;
+    # for all leaves, avg over all tags, all evts
+    
+    if (/avg leaf \#\d+,\s+(\w+)\s+=\s+([\d\.]+)/){
+      $run_scalar_hash{$1} = $2;
       next;
     }
 
-    # total # events
-    if (/total \# events = (\d+)/){
-      $run_scalar_hash{'tot_num_events'} = $1;
+    # list the branch name, num of leaves, num of tags
+    
+    if (/branch\(table\)\s+(\w+)\s+has\s+(\d+)\s+leaves,\s+(\d+)\s+tags/){
+      $run_scalar_hash{"$1_leaves"} = $2;
+      $run_scalar_hash{"$1_tags"}   = $3;
       next;
     }
 
-    # tot num of leaves
-    if (/tot num leaves = (\d+)/){
-      $run_scalar_hash{'tot_num_leaves'} = $1;
-      next;
-    }
+    #--- we're at the end ---
 
-    # tot num of tags
-    if (/tot num tags = (\d+)/){
-      $run_scalar_hash{'tot_num_tags'} = $1;
+    # total num of events/branches/leaves/tags
+    
+    if (/tot num (\w+) = (\d+)/){
+      $run_scalar_hash{"tot_num_$1"} = $2;
       next;
     }
   }
-
-  #=------------------------------------------------
+   
+  #=------------------------------------
 
   close REPORT;
 
