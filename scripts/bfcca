@@ -217,6 +217,7 @@ if($MULTIIN){
 #
 $copt = "";
 $cdir = "";
+print "Taking care of $#CINPUTS inputs\n";
 for ($i=0 ; $i <= $#CINPUTS ; $i++){
     $file = $CINPUTS[$i];
     if( $file =~ /StarDb/){
@@ -235,7 +236,7 @@ for ($i=0 ; $i <= $#CINPUTS ; $i++){
 	if( $cin =~ m/HPSS/){
 	    $tmp  = basename($in);
 	    if( ! -e $tmp){
-		print "$PRGM :: $cin -> $tmp created\n";
+		print "$PRGM :: inX : $cin -> $tmp created\n";
 		symlink($cin,$tmp);
 		$cin = $tmp;
 	    }
@@ -269,7 +270,7 @@ for($i =0 ; ; $i++){
     if( $cout =~ m/HPSS/){
 	$tmp = basename($out);
 	if( ! -e $tmp){
-	    print "$PRGM :: $cout -> $tmp created\n";
+	    print "$PRGM :: out : $cout -> $tmp created\n";
 	    symlink($cout,$tmp);
 	}
     }
@@ -314,13 +315,13 @@ if($INPUTFILE eq ""){
     #$ext =~ s/.*\.//g;
     #print "Debug:: [$ext]\n";
     #if($ext eq "" || $ext eq $CINPUTFILE){
-    if( $CINPUTFILE =! m/HPSS/){
+    if( $CINPUTFILE =~ m/HPSS/){
 	# An HPSS file was restored. We need to create
 	# a symlink with a .daq name and use this as
 	# our input.
 	$tmp = basename($INPUTFILE);
 	symlink($CINPUTFILE,$tmp);
-	print "$PRGM :: $CINPUTFILE -> $tmp created\n";
+	print "$PRGM :: Uin : $CINPUTFILE -> $tmp created\n";
 
 	# Overwrite the input file name with it's local link-name
 	# This will be used as a chain input.
@@ -484,8 +485,8 @@ if ( ! open(FO,">$PWD/$JOB_ID.csh") ){
     chmod(0755,"$PWD/$JOB_ID.csh");
 
 
-    print "-=-=-=- Generated script content follows -=-=-=-\n";
-    system("cat $PWD/$JOB_ID.csh");
+    #print "-=-=-=- Generated script content follows -=-=-=-\n";
+    #system("cat $PWD/$JOB_ID.csh");
 
 
 
