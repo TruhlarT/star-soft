@@ -1,0 +1,2 @@
+7,37         *   * * * /afs/rhic/star/packages/scripts/showquotas -html -o /afs/rhic/star/doc/www/html/tmp/pub/data03.html /star/data03
+8,38         *   * * * /afs/rhic/star/packages/scripts/showquotas -html -o /afs/rhic/star/doc/www/html/tmp/pub/data04.html /star/data04
