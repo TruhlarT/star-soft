@@ -43,6 +43,11 @@ struct FilAttr => {
 }; 
  
 
+my $dPath = "/2000/";
+if ($prodSer eq "P01hf") {
+  $dPath = "/2001/";
+}
+
 #####  Find sets in DataSet table
 
  my $dstHpEvts = 0;
@@ -127,9 +132,9 @@ if ($trigD eq "all") {
 
 if ($trigD eq "all") {
 
-  $sql="SELECT fName, path, size, Nevents  FROM $FileCatalogT WHERE trigger <> 'n/a' AND dataset <> 'tpc_laser' AND fName LIKE '%daq' AND hpss ='Y' ";
+  $sql="SELECT fName, path, size, Nevents  FROM $FileCatalogT WHERE trigger <> 'n/a' AND dataset <> 'tpc_laser' AND fName LIKE '%daq' AND path like '%$dPath%' AND hpss ='Y' ";
 }else{
- $sql="SELECT fName, path, size, Nevents  FROM $FileCatalogT WHERE trigger = '$trigD' AND fName LIKE '%daq' AND hpss ='Y' ";
+ $sql="SELECT fName, path, size, Nevents  FROM $FileCatalogT WHERE trigger = '$trigD' AND fName LIKE '%daq' AND path like '%$dPath%'  AND hpss ='Y' ";
 }
    $cursor =$dbh->prepare($sql)
       || die "Cannot prepare statement: $DBI::errstr\n";
