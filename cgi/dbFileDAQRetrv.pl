@@ -13,8 +13,9 @@ require "/afs/rhic/star/packages/DEV00/mgr/dbCpProdSetup.pl";
 my $debugOn = 0;
 my %pair;
 my @pck;
-my $mcomment = " ";
- $pair{$mcomment} = "no";
+my $mcomment = "no";
+
+
 &cgiSetup();
 
 $runPr = $q->param("runD");
@@ -35,7 +36,7 @@ $cursor =$dbh->prepare($sql)
 $cursor->execute;
 
 my $counter = 0;
-$pair{'comment'} = "no";
+
 while(@fields = $cursor->fetchrow) {
   my $cols=$cursor->{NUM_OF_FIELDS};
 
@@ -44,10 +45,10 @@ while(@fields = $cursor->fetchrow) {
     my $fname=$cursor->{NAME}->[$i];
     print "$fname = $fvalue\n" if $debugOn;
     $pair{$fname} = $fvalue;
-   
+   $mcomment = $fvalue if( $fname eq 'comment');
   }
-  if (!defined $pair{'comment'} ) {
-    $pair{'comment'} = "no";
+  if (!defined $mcomment) {
+    $mcomment = "no";
   }
 &printRow();
 
