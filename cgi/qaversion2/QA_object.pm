@@ -389,11 +389,13 @@ sub QASummaryString{
 
       if ($batch_mode =~ /LSF/){
 	
-	my $lsfTool = "LSF_tool?jobID=$jobID";
+	my $lsfTool = "LSF_tool?jobID=$jobID&markedJobs=$jobID";
+	#BEN: pass on expert privileges, if any, to LSF_tool
+	$lsfTool .= "&expertPW=".$gCGIquery->param("expert_pw");
 	my $lsfToolURL = $gCGIquery->script_name;
 	$lsfToolURL =~ s/QA_main\.pm/$lsfTool/e;
 	$summary_string .= $gCGIquery->a({-href=>$lsfToolURL,
-					  -target=>"_new"}, "LSF status");
+					  -target=>"_blank"}, "LSF status");
       }
 
       close flagFH;

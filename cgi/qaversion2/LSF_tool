@@ -17,6 +17,8 @@
 use strict;
 use CGI;
 
+my $expertMode = 0;
+
 #
 # the keys and headings used in the various selection columns
 #
@@ -90,14 +92,28 @@ sub controlButtons{
     $text .= $cgi->submit(-name=>'action',
 			  -value=>'Peek') . "\n";
 
-    $text .= "<br><b>Edit marked jobs:</b>\n";
+    # show modification buttons, or expert password prompt
+    if ($expertMode){
+	$text .= "<br><b>Edit marked jobs ".
+	    "<font color=red>(Expert Mode)</font>:</b>\n";
+	
+	$text .= $cgi->hidden(-name=>'expertPW',
+			      -value=>$cgi->param("expertPW")) . "\n";
+	$text .= $cgi->submit(-name=>'action',
+			      -value=>'Suspend') . "\n";
+	$text .= $cgi->submit(-name=>'action',
+			      -value=>'Resume') . "\n";
+	$text .= $cgi->submit(-name=>'action',
+			      -value=>'Kill') . "\n";
+    }else{
+	$text .= "<br><b>Enter expert password to modify jobs:</b>\n";
 
-    $text .= $cgi->submit(-name=>'action',
-			  -value=>'Suspend') . "\n";
-    $text .= $cgi->submit(-name=>'action',
-			  -value=>'Resume') . "\n";
-    $text .= $cgi->submit(-name=>'action',
-			  -value=>'Kill') . "\n";
+	$text .= $cgi->password_field(-name=>'expertPW',
+				      -size=>8,
+				      -maxlength=>8) . "\n";
+	$text .= $cgi->submit(-name=>'action',
+			      -value=>'Expert Mode') . "\n";
+    }
 
     $text .= "<br>\n";
 
@@ -275,6 +291,11 @@ sub performAction{
     my $action = $cgi->param("action");
     my @markedJobIDs = $cgi->param("markedJobs");
 
+    # is the user an expert?
+    if ($cgi->param("expertPW") eq "qaexpert"){
+	$expertMode = 1;
+    }
+
     my $text = "";
     if($action eq "Details"){
 	foreach my $jobID (@markedJobIDs){
@@ -291,17 +312,17 @@ sub performAction{
 	    writeToNewWindow($cgi->h3("Killing Job $jobID") . "\n" . 
 			     $cgi->pre(`bkill $jobID 2>&1`) . "\n");
 	}
-    }elsif($action eq "Suspend"){
+    }elsif($action eq "Suspend" && $expertMode){
 	foreach my $jobID (@markedJobIDs){
 	    writeToNewWindow($cgi->h3("Suspending Job $jobID") . "\n" .  
 			     $cgi->pre(`bstop $jobID 2>&1`) . "\n");
 	}
-    }elsif($action eq "Resume"){
+    }elsif($action eq "Resume" && $expertMode){
 	foreach my $jobID (@markedJobIDs){
 	    writeToNewWindow($cgi->h3("Resuming Job $jobID") . "\n" . 
 			     $cgi->pre(`bresume $jobID 2>&1`) . "\n");
 	}
-    }elsif($action eq "Peek"){
+    }elsif($action eq "Peek" && $expertMode){
 	foreach my $jobID (@markedJobIDs){
 	    writeToNewWindow($cgi->h3("Peeking at Job $jobID") . "\n" . 
 			     $cgi->pre(`bpeek $jobID 2>&1`) . "\n");

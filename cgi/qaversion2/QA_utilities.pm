@@ -130,12 +130,13 @@ sub submit_batchjob {
 
   my $string = IO_utilities::ComposeBatchScript($action, $data_class, 
 						$batchscript_filename, 
-						$job_filename, $batch_log_html,
+						$job_filename, 
+						$batch_log_html_temp,
 						$batch_log_html,
 						$done_dir, $report_dir,
 						$report_key);
 
-  print "<h3>My batch script is:</h3>\n<pre>\n$string\n</pre>\n";
+  #print "<h3>My batch script is:</h3>\n<pre>\n$string\n</pre>\n";
   print $BATCH $string;
 
   undef $io_batch;
@@ -351,7 +352,7 @@ sub comment_form{
 		       -cols=>60,
 		       -wrap=>'virtual')
     ,"<br>\n";
-  
+
 
   #---
   # is this global comment or comment specific to a run?

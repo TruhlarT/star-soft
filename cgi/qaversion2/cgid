@@ -8,11 +8,7 @@
 # just like a cgi-only web server.  If given a request for a document other
 # than those allowed, it gives a HTTP 404 error message.  
 #
-# 6jul00: cgid now recognizes paths in the url:
-#         /ben/   -> /star/u2e/bnorman/cgi-bin/qa/
-#         /peter/ -> /star/u2/jacobs/QA/cgi/qaversion2/
-#         /bum/   -> /star/u2e/bum/cgi-bin/version2/
-#         /       -> /afs/rhic/star/packages/dev/cgi/qaversion2/
+# 6jul00: cgid now recognizes paths in the url, see $path_table var
 #
 # cgid makes the script think that it has been run as a normal cgi process.
 # This is accomplished by parsing the HTTP request (from a normal web browser)
@@ -23,12 +19,13 @@
 # It stores its process id in /afs/rhic/star/starqa/var/run/cgid.pid.
 # Logging is appended to /afs/rhic/star/starqa/var/log/cgid.log.
 #
-# Usage:  cgid [-p port] [-r] [-k] [-h]
+# Usage:  cgid [-p port] [-r] [-k] [-h] [-v]
 #
 # 'port' is the listening port (default 8080)
 # -k kills cgid gently
 # -r restarts cgid
 # -h prints usage instructions
+# -v prints log info to stderr
 #
 # cgid is suid starlib.  It gets makes sure reauth is running on the local
 # machine so that it will always have afs access.
@@ -63,19 +60,14 @@ my $afs_pw_file = "/star/rcf/qa/.starlib_CGI";
 # look-up table for paths (aliases)
 my $path_table = {
     "/ben"   => "/star/u2e/bnorman/cgi-bin/qa",
-    "/peter" => "/star/u2/jacobs/QA/cgi/qaversion2",
+    "/peter" => "/afs/rhic/star/users/jacobs/QA/cgi",
     "/bum"   => "/star/u2e/bum/cgi-bin/version2",
-    "/v2"    => "/afs/rhic/star/packages/dev/cgi/qaversion2"
+    "/v2"    => "/afs/rhic/star/packages/dev/cgi/qaversion2",
+    "pro"    => "/star/u2e/starqa/cgi-bin/pro"
     };
 
 my %opt = ();
 getopt('p', \%opt);
-
-if ($opt{h})
-{
-	print_usage();
-	exit;
-}
 
 my $port = ($opt{p} ? $opt{p} : 8080);
 my $daemon;
@@ -83,7 +75,6 @@ my $client;
 my $request;
 my $content;
 my $url;
-local *LOGFILE;
 
 #
 # check for reauth running for starlib on sol and restart it if
@@ -91,80 +82,40 @@ local *LOGFILE;
 # need a token before we can write to afs space.
 #
 
-my $reauth = `ps -u starlib | grep reauth`;
+my $token = `tokens`;
 
-if (! $reauth) {
-    system("reauth 50000 starlib `cat $afs_pw_file`");
+if ($token !~ /^User/m) {   # token line in output
+    print STDERR "(re)starting reauth...\n";
+    system("killall reauth; reauth 85000 starlib `cat $afs_pw_file`");
+    print STDERR "...reauth (re)started\n";
 }
 
 #
 # handle shutdown or restart requests
 #
 
-if ($opt{k} || $opt{r})
-{
-	# get PID of running process
-	my $kill_pid = `cat $pid_file`;
-	if ($kill_pid)
-	{
-		print "Killing $my_name with pid $kill_pid...";
-		system "kill -INT $kill_pid";
-		print "done\n";
-	}
-	else
-	{
-		print "No pid file found for $my_name.\n";
-	}
-}
-
-if ($opt{k})
-{
-	exit;
-}
-elsif ($opt{r})
-{
-	print "Running new invocation of $my_name with pid $$.\n";
-}
+processArgs();
 
 #
 # start logging and write out pid to give us an easy handle
 #
 
 system("echo $$ | cat > $pid_file");
-open LOGFILE, ">>$log_file" or die "Cannot open logfile";
-LOGFILE->autoflush(1);
-print LOGFILE "[" . localtime() . "]  $0.$$ starting\n";
+printToLog ("$0.$$ starting\n");
 
 #
 # ignore all signals but SIGINT (^c) and SIGTSTP (^z)
 #
 
-my $key;
-foreach $key (keys(%SIG))
-{
-    if ($key eq "INT")
-    {
-	$SIG{$key} = 'cleanup';
-    }
-    elsif ($key eq "TSTP")
-    {
-	$SIG{$key} = 'DEFAULT';
-    }
-    else
-    {
-	$SIG{$key} = 'IGNORE';
-    }
-}
+setSignals();
 
 #
 # instantiate the http daemon
 #
 
 $daemon = new HTTP::Daemon( LocalPort => $port ) 
-    or (print LOGFILE "[" . localtime() . "]  $0.$$ can't open port $port\n]" 
-	&& cleanup() );
-print LOGFILE "[" . localtime() . 
-    "]  $0.$$ running CGI server on port $port\n";
+    or (printToLog ("$0.$$ can't open port $port") && cleanup() );
+printToLog ("$0.$$ running CGI server on port $port");
 
 #
 # Loop through incoming HTTP requests
@@ -181,7 +132,7 @@ ACCEPT_LOOP: while ($client = $daemon->accept)
     unless ($request)
     {
 	$client = undef; # close connection
-	print LOGFILE "[" . localtime() . "] $0.$$ got bad http request\n";
+	printToLog ("$0.$$ got bad http request");
 	next ACCEPT_LOOP
     }
 
@@ -191,8 +142,7 @@ ACCEPT_LOOP: while ($client = $daemon->accept)
     # So we hope that there's some "user" identification in the http header.
     #
     
-    print LOGFILE "[" . localtime() . "] $0.$$ got request from user " .
-	$request->from() . "\n";
+    printToLog ("$0.$$ got request from user " . $request->from());
 	
     # 
     # Fork off a child to handle this request so the parent can
@@ -213,8 +163,7 @@ ACCEPT_LOOP: while ($client = $daemon->accept)
 # I'm the child, handle the request
 #
 
-print LOGFILE "[" . localtime() . 
-    "]  $0.$$ child handling request\n";
+printToLog ("$0.$$ child handling request");
 
 #
 # process requests to allowed scripts and only that!
@@ -231,15 +180,15 @@ if ($script_name)
     $client->send_status_line;
     $client->send_basic_header;
 
-    # set up linux-friendly path
-
-    %ENV = (); # start clean
-    $ENV{PATH} = "/opt/star/bin:/afs/rhic/star/users/starlib/bin:/afs/rhic/star/users/starlib/bin/.i386_redhat61:/afs/rhic/star/ROOT/2.25.00//.i386_redhat61/root/bin:/usr/local/lsf/bin:/usr/pgi/linux86/bin:/afs/rhic/rhstar/group:/afs/rhic/star/packages/DEV00/mgr:/afs/rhic/star/packages/DEV00/scripts:/afs/rhic/star/packages/DEV00/cgi:.i386_redhat61/bin:/afs/rhic/star/packages/DEV00/.i386_redhat61/bin:/afs/rhic/star/packages/StAF/SL99g/mgr:/afs/rhic/star/packages/StAF/SL99g/.i386_redhat61/bin:/usr/afsws/bin:/usr/afsws/etc:/usr/sue/bin:/usr/local/bin:/afs/rhic/star/users/starlib/scripts:/usr/bin:/bin:/usr/bin/X11:/usr/local/bin/X11:.:/usr/local/bin/ddd:/cern/2000/bin";
-
     #
     # set up the environment ala the CGI/1.1 "specification"
     #    - see http://Web.Golux.Com/coar/cgi/
     #
+
+    # start clean
+    my $PATH = $ENV{PATH};
+    %ENV = (); 
+    $ENV{PATH} = $PATH;
 
     $url = $request->url();
     
@@ -300,8 +249,7 @@ if ($script_name)
 
     $client = undef;
 
-    print LOGFILE "[" . localtime() . 
-	"]  $0.$$ handled request for '" . $request->url . "', exiting\n";
+    printToLog ("$0.$$ handled request for '" . $request->url . "', exiting");
 
 }
 else
@@ -309,12 +257,11 @@ else
     $client->send_error(404, "So sorry.");
     $client = undef; # close the connection
 
-    print LOGFILE "[" . localtime() . 
-	"]  $0.$$ ignored request for '" . $request->url . "', exiting\n";
+    printToLog ("$0.$$ ignored request for '" . $request->url . "', exiting");
 
 }
 
-exit;
+exit 0;
 
 #########################################################################
 
@@ -324,13 +271,11 @@ exit;
 
 sub cleanup
 {
-    print LOGFILE "[" . localtime() . "]  $0.$$ exiting\n";
+    printToLog ("$0.$$ exiting");
 
     $client = undef; # close any http connection
     $daemon = undef; # close socket
     unlink $pid_file; # remove runtime pid file
-
-    close LOGFILE;
 
     exit;
 } # sub cleanup
@@ -338,12 +283,13 @@ sub cleanup
 sub print_usage
 {
         print <<MICA;
- Usage:  $my_name [-p port] [-r] [-k] [-h]
+ Usage:  $my_name [-p port] [-r] [-k] [-h] [-v]
 
  'port' is the listening port (default 8080)
  -k kills $my_name gently
  -r restarts $my_name
  -h prints usage instructions
+ -v prints log info to stderr
 MICA
 }
 
@@ -366,12 +312,69 @@ sub get_script {
 }
 
 
+# print timestamped diagnostic message to someplace useful
+# 
+sub printToLog{
+    my $msg = "[" . localtime() . "] " . shift();
+
+    system("echo \"$msg\" >> $log_file");
+    $opt{v} && print STDERR "$msg\n";
+
+}
 
 
+#
+# process command line args, handle shutdown or restart requests
+#
+sub processArgs{
 
+    if ($opt{h})
+    {
+	print_usage();
+	exit;
+    }
 
+    if ($opt{k} || $opt{r}){
+	# get PID of running process
+	my $kill_pid = `cat $pid_file`;
+	if ($kill_pid){
+	    print "Killing $my_name with pid $kill_pid...";
+	    system "kill -INT $kill_pid";
+	    print "done\n";
+	}else{
+	    print "No pid file found for $my_name.\n";
+	}
+    }
+    
+    if ($opt{k}){
+	exit 0;
+    }elsif ($opt{r}){
+	print "Running new invocation of $my_name with pid $$.\n";
+    }
 
+}
 
+#
+# ignore all signals but SIGINT (^c), SIGCHLD, and SIGTSTP (^z)
+#
+sub setSignals{
+    foreach my $key (keys(%SIG)){
+	if ($key eq "INT"){
+	    $SIG{$key} = 'cleanup';
+	}elsif ($key eq "TSTP"){
+	    $SIG{$key} = 'DEFAULT';
+	}elsif ($key eq "CHLD"){
+	    $SIG{$key} = 'reaper';
+	}else{
+	    $SIG{$key} = 'IGNORE';
+	}
+    }
+}
+
+sub reaper{
+    my $waitpid = wait;
+    $SIG{CHLD} = 'reaper';
+}
 
 
 

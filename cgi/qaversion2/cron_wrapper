@@ -1,0 +1,22 @@
+#! /usr/local/bin/tcsh
+
+# wraps a script to be executed by cron and sets up necessary environment
+# for root
+
+# usage: cron_wrapper <working_dir> <command> [<arg1> .... <argN>]
+
+setenv GROUP_DIR /afs/rhic/rhstar/group 
+setenv CERN_ROOT /cern/pro
+setenv HOME      /star/users/starlib
+setenv SILENT    1
+
+source /afs/rhic/rhstar/group/.stardev
+
+# change to directory & discard
+cd $1
+shift
+
+# run program w/args
+$argv
+
+

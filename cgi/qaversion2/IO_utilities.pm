@@ -171,11 +171,15 @@ sub ComposeBatchScript{
 	  "setenv SILENT 1 \n".
 	      "source /afs/rhic/rhstar/group/.stardev \n";
 
-  $string .= "echo \"Starting perl script...<br>\" |& tee $batch_log_html \n".
+  $string .= 
+      "echo \"Starting perl script...<br>\" |& tee $batch_log_html_temp \n".
+#      "echo \"Environment:<br>\\n<pre>\" |& tee -a $batch_log_html_temp \n".
+#      "setenv |& tee -a $batch_log_html_temp \n".
+#      "echo \"</pre>\" |& tee -a $batch_log_html_temp \n".
     "/opt/star/bin/perl -I$now $program batch_job $data_class $action ".
 	($report_key ? "$report_key " : "") . 
-	    "|& tee -a $batch_log_html \n".
-      "echo \"Moving files...\" |& tee -a $batch_log_html \n".
+	    "|& tee -a $batch_log_html_temp \n".
+      "echo \"Moving files...\" |& tee -a $batch_log_html_temp \n".
 	"\\mv $batchscript_filename $done_dir \n".
 	    "\\cp $batch_log_html_temp $done_dir \n".
 		"\\mv $batch_log_html_temp $batch_log_html \n".
