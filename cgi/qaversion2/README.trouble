@@ -1,0 +1,43 @@
+---------
+PROBLEM:  Occassionally AutoQA returns an error about truncated headers 
+(on-site) or says that the document contains no data (off-site).
+
+SOLUTION:  Reload the page.  Sorry for the Microsoft-ish advice, but the 
+source of this problem has yet to be found.
+
+---------
+PROBLEM:  AutoQA never loads (on- or off-site).
+
+SOLUTION:  (or at least diagnosis of problem)
+
+1)	Try to ssh to rcas6004.rcf from inside the rcf firewall.  I.e., do so 
+from another cas node or rcf.rhic or rsshgw.rcf or rssh2gw.rcf.  If you can't 
+ssh there, odds are that the machine needs to be rebooted.  I believe Matthias 
+is the person to contact in this event; please correct me if I am mistaken.
+
+2)	Assuming you can ssh to rcas6004, things can probably be fixed.
+Try the following:
+
+cd ~starqa/cgi-bin/pro/cgi/qaversion2
+./cgid_init -q
+
+This should give you 2 process id numbers (PIDs):
+a)	If either one is 0 that means the process is not running.  Both have 
+to be running for autoqa to work.  If both are not running, try
+
+./cgid_init -d
+
+This should make sure both processes are dead.  A cron job runs on rcas6004 
+and should restart autoqa within 10 minutes.  Do not start it manually, even 
+if you know how.
+b)	If both are nonzero, try this
+
+telnet localhost 8080
+get a
+
+If you get an HTTP error, that means things are running fine on rcas6004.  The
+ situation will require "expert" intervention.  If you get nothing, try
+
+./cgid_init -d
+
+and wait for autoqa to restart automatically.  This may take up to 10 minutes.
