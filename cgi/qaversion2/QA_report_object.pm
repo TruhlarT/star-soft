@@ -428,7 +428,7 @@ sub RunMacro{
 #===================================================================
 sub CheckFileMade {
   my $self = shift;
-  my @root_output = shift;
+  my @root_output = @_;
 
   my $report_key = $self->ReportKey;
   my $macro_name = $self->MacroName; # basename
