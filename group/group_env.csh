@@ -1,7 +1,10 @@
 #!/usr/bin/csh -f
-#       $Id: group_env.csh,v 1.54 1998/12/01 01:55:57 fisyak Exp $
+#       $Id: group_env.csh,v 1.55 1998/12/03 01:40:09 fisyak Exp $
 #	Purpose:	STAR group csh setup 
 #       $Log: group_env.csh,v $
+#       Revision 1.55  1998/12/03 01:40:09  fisyak
+#       Add user lib to LD_LIBARY_PATH
+#
 #       Revision 1.54  1998/12/01 01:55:57  fisyak
 #       Merge with NT
 #
@@ -186,8 +189,10 @@ setenv STAR $STAR_PATH/${STAR_VERSION} ;        if ($ECHO) echo   "Setting up ST
 setenv STAF_LIB  $STAR/.${STAR_HOST_SYS}/lib  ; if ($ECHO) echo   "Setting up STAF_LIB  = ${STAF_LIB}"
 if ($?NODEBUG == 0) then
  setenv STAR_LIB  $STAR/.${STAR_HOST_SYS}/lib;  if ($ECHO) echo   "Setting up STAR_LIB  = ${STAR_LIB}"
+ setenv MINE_LIB        .${STAR_HOST_SYS}/lib;
 else
   setenv STAR_LIB  $STAR/.${STAR_HOST_SYS}/LIB; if ($ECHO) echo   "Setting up STAR_LIB  = ${STAR_LIB}"
+  setenv MINE_LIB        .${STAR_HOST_SYS}/LIB;
 endif
 setenv STAR_BIN  $STAR/.${STAR_HOST_SYS}/bin  ; if ($ECHO) echo   "Setting up STAR_BIN  = ${STAR_BIN}"
 setenv STAR_MGR $STAR/mgr
@@ -244,14 +249,14 @@ switch ($STAR_SYS)
 #	set path = ( $CERN_ROOT/bin $path )
       endif
       if (! ${?SHLIB_PATH}) setenv SHLIB_PATH
-      setenv SHLIB_PATH ${SHLIB_PATH}:${STAF_LIB}
+      setenv SHLIB_PATH ${SHLIB_PATH}:${MINE_LIB}:${STAR_LIB}:${STAF_LIB}
       setenv BFARCH hp_ux102
     breaksw
     case "sgi_5*":
 #  ====================
 	set path = ($path $PARASOFT/bin.sgi5)
         if (! ${?LD_LIBRARY_PATH}) setenv LD_LIBRARY_PATH 
-	setenv LD_LIBRARY_PATH "${PARASOFT}/lib.sgi5:${STAF_LIB}:${LD_LIBRARY_PATH}"
+	setenv LD_LIBRARY_PATH "${PARASOFT}/lib.sgi5:${MINE_LIB}:${STAR_LIB}:${STAF_LIB}:${LD_LIBRARY_PATH}"
         limit coredumpsize 0
      setenv BFARCH sgi_53
     breaksw
@@ -260,7 +265,7 @@ switch ($STAR_SYS)
 	setenv CERN /afs/rhic/asis/sgi_62/cern
 	setenv CERN_ROOT $CERN/pro
 	if (! ${?LD_LIBRARY_PATH}) setenv LD_LIBRARY_PATH 
-	setenv LD_LIBRARY_PATH "${STAF_LIB}:${LD_LIBRARY_PATH}"
+	setenv LD_LIBRARY_PATH "${MINE_LIB}:${STAR_LIB}:${STAF_LIB}:${LD_LIBRARY_PATH}"
         limit coredumpsize 0
      setenv BFARCH sgi_53
     breaksw
@@ -269,7 +274,7 @@ switch ($STAR_SYS)
         setenv CERN_LEVEL pro
         setenv CERN_ROOT  /cern/pro
         if (! ${?LD_LIBRARYN32_PATH}) setenv LD_LIBRARYN32_PATH 
-	setenv LD_LIBRARYN32_PATH "${STAF_LIB}:${LD_LIBRARYN32_PATH}"
+	setenv LD_LIBRARYN32_PATH "${MINE_LIB}:${STAR_LIB}:${STAF_LIB}:${LD_LIBRARYN32_PATH}"
         limit coredumpsize 0
      setenv BFARCH sgi_64
     breaksw
@@ -297,7 +302,7 @@ switch ($STAR_SYS)
 #    set path = ($path  /usr/local/bin/ddd /usr/local/DQS318/bin )
      set path = ($path $PARASOFT/bin.linux)
      if (! ${?LD_LIBRARY_PATH}) setenv LD_LIBRARY_PATH 
-     setenv LD_LIBRARY_PATH "/usr/lib:${PARASOFT}/lib.linux:/usr/local/lib:${STAF_LIB}:${LD_LIBRARY_PATH}:/opt/star/lib"
+     setenv LD_LIBRARY_PATH "/usr/lib:${PARASOFT}/lib.linux:/usr/local/lib:${MINE_LIB}:${STAR_LIB}:${STAF_LIB}:${LD_LIBRARY_PATH}:/opt/star/lib"
         limit coredump 0
      setenv BFARCH Linux2
      setenv OBJY_ARCH linux
@@ -305,7 +310,7 @@ switch ($STAR_SYS)
     case "sun4*":
 #  ====================
       if (! ${?LD_LIBRARY_PATH}) setenv LD_LIBRARY_PATH
-      setenv LD_LIBRARY_PATH "/opt/SUNWspro/lib:/usr/openwin/lib:/usr/dt/lib:/usr/local/lib:${PARASOFT}/lib.solaris:${STAF_LIB}:${LD_LIBRARY_PATH}"
+      setenv LD_LIBRARY_PATH "/opt/SUNWspro/lib:/usr/openwin/lib:/usr/dt/lib:/usr/local/lib:${PARASOFT}/lib.solaris:${MINE_LIB}:${STAR_LIB}:${STAF_LIB}:${LD_LIBRARY_PATH}"
 	set path = ($path $PARASOFT/bin.solaris)
       setenv BFARCH SunOS5
       setenv OBJY_ARCH solaris4
@@ -313,7 +318,7 @@ switch ($STAR_SYS)
     case "sunx86_55":
 #  ====================
         if (! ${?LD_LIBRARY_PATH}) setenv LD_LIBRARY_PATH
-        setenv LD_LIBRARY_PATH "${STAF_LIB}:${LD_LIBRARY_PATH}"
+        setenv LD_LIBRARY_PATH "${MINE_LIB}:${STAR_LIB}:${STAF_LIB}:${LD_LIBRARY_PATH}"
         limit coredump 0
     breaksw
     default:
