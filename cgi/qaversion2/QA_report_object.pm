@@ -447,7 +447,7 @@ sub GZipIt{
     my $io     = new IO_object("ReportDir",$self->ReportKey);
     my $dir    = $io->Name();
     my $DH     = $io->Open();
-    @outputAry = map{ "$dir/$_"} grep { /$label\w+\.ps$/ } readdir $DH;
+    @outputAry = map{ "$dir/$_"} grep { /$label\w{0,2}\.ps$/ } readdir $DH;
     undef $io;
   }
   else { @outputAry = ($outputFile); } # just one output file
@@ -462,10 +462,10 @@ sub GZipIt{
     # gzip 
     chmod 0666, $outfile;
     my $status = system("/usr/local/bin/gzip $outfile");
-    $outfile .= ".gz";
+    my $newfile = $outfile . ".gz";
     
     # need to reset output_file 
-    $self->IOMacroReportFilename->Name($outfile)
+    $self->IOMacroReportFilename->Name($newfile)
       if $outfile eq $outputFile;
   }
 }
