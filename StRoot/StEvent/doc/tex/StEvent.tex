@@ -2,7 +2,7 @@
 %
 % StEvent - User Guide and Reference Manual -- LaTeX Source
 %
-% $Id: StEvent.tex,v 2.49 2000/10/16 17:08:12 ullrich Exp $
+% $Id: StEvent.tex,v 2.50 2000/11/01 16:47:49 lasiuk Exp $
 %
 % Author: Thomas Ullrich, Nov 1999
 %
@@ -21,8 +21,8 @@
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %
 % $Log: StEvent.tex,v $
-% Revision 2.49  2000/10/16 17:08:12  ullrich
-% Added more description for StEventScavenger.
+% Revision 2.50  2000/11/01 16:47:49  lasiuk
+% add the RICH changes of today
 %
 % Revision 2.49  2000/10/16 17:08:12  ullrich
 % Added more description for StEventScavenger.
@@ -215,8 +215,8 @@
   \mbox{\includegraphics[width=\textwidth]{StEventTitle.eps}}
   \hfill\mbox{}\\[3cm]
   {\LARGE User Guide and Reference Manual \\[5mm] for Version 2}\\[2cm]
-  {\LARGE $ $Revision: 2.49 $ $}  \\[5mm] % replaced by cvs with current revision
-  {\LARGE $ $Date: 2000/10/16 17:08:12 $ $}  % replaced by cvs with current revision
+  {\LARGE $ $Revision: 2.50 $ $}  \\[5mm] % replaced by cvs with current revision
+  {\LARGE $ $Date: 2000/11/01 16:47:49 $ $}  % replaced by cvs with current revision
   \vfill
 \end{center}
 \cleardoublepage
@@ -402,6 +402,28 @@ enum StTrackFinderMethod    {svtGrouper,
 enum StRichPidFlag          {eNoMip,
                              eFastEnough,
                              eLightOnPadPlane};
+
+enum StRichHitFlag          {eDeconvoluted=1,
+                             eMip=2,
+                             eSaturatedPad=4 ,
+                             ePhotoElectron=8,
+                             eMultiplyAssignedToRing=16,
+                             eAssociatedMip=32,
+                             e1SigmaPi=64,
+                             e2SigmaPi=128,
+                             eInConstantAreaPi=256,
+                             eInAreaPi=512,
+                             eAssignedToRingPi=1024,
+                             e1SigmaK=2048,
+                             e2SigmaK=4096,
+                             eInConstantAreaK=8192,
+                             eInAreaK=16384,
+                             eAssignedToRingK=32768,
+                             e1Sigmap=65536,
+                             e2Sigmap=131072,
+                             eInConstantAreap=262144,
+                             eInAreap=524288,
+                             eAssignedToRingp=1048576};
 \end{verbatim}
 
 Note that often the enumeration type names (e.g. \texttt{StTrackType})
@@ -4291,7 +4313,7 @@ definition in the header file.
     Returns the amplitude of the pixel with the largest
     amplitude in the hit.
 
-    \verb+ULong_t clusterNumber() const;+\\
+    \verb+Long_t clusterNumber() const;+\\
     Returns the number (index) of the cluster from which the
     hit was produced.
 
@@ -4313,11 +4335,19 @@ definition in the header file.
     Returns the position of the hit in the internal coordinate
     system of the detector.
 
+    \verb+UShort_t numberOfPads() const;+\\
+    Returns the number of pads from which a hit was
+    constructed.
+    
+    \verb+void setNumberOfPads(UShort_t);+\\
+    Set the number of pads from which a hit was
+    constructed.
+    
     \verb+void setMaxAmplitude(Float_t);+\\
     Set the amplitude of the pixel with the maximum
     amplitude contained within the cluster.
 
-    \verb+void setClusterNumber(UShort_t);+\\
+    \verb+void setClusterNumber(Long_t);+\\
     Assign the cluster number (index) to which the
     it is associated.
 
@@ -4520,6 +4550,9 @@ definition in the header file.
     \verb+void setTruncatedArea(Float_t);+\\
     \verb+void setTruncatedHits(UShort_t);+\\
     \verb+StParticleDefinition* getRingType() const;+\\
+    \verb+const StPtrVecRichHit& getAssociatedRichHits() const;+\\
+    \verb+StPtrVecRichHit& getAssociatedRichHits();+\\
+    \verb+Int_t getParticleNumber() const;+\\
     \verb+StThreeVectorD getMipResidual() const;+\\
     \verb+Float_t getTotalAzimuth() const;+\\
     \verb+Float_t getTotalArea() const;+\\
