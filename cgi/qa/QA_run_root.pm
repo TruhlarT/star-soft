@@ -60,7 +60,7 @@ sub run_root{
     push @root_log, $line;
   }
   
-  close <ROOTLOG>;
+  close ROOTLOG;
 
   return @root_log;
 
