@@ -46,8 +46,8 @@ $CMPLCMD="cons INSURE=yes";
 # The directory pattern where they are stored
 $DIRPAT="IOBJ";
 # the object file extension (may be sustem/make dependant)
-$FIND="/bin/find";
-$GREP="/bin/grep";
+$FIND="/usr/bin/find";
+$GREP="/usr/bin/grep";
 $OBJ=".o";
 
 # Not used for now
