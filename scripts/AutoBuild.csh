@@ -90,11 +90,13 @@ if ( -r  $GROUP_DIR/star_login.csh ) then
 		breaksw
 
 	    case "Linux61":
+	    case "Linux80":
+	    case "Linux9":
 		set LPATH=/afs/rhic/star/packages/adev
 		set SPATH=/afs/rhic/star/doc/www/comp/prod/Sanity
 		$SCRIPTD/AutoBuild.pl -k -i -1 -t -p $LPATH
 		if( -e $HOME/AutoBuild-linux.html) then
-		    mv -f $HOME/AutoBuild-linux.html $SPATH/AutoBuild-linux61.html
+		    mv -f $HOME/AutoBuild-linux.html $SPATH/AutoBuild-$1.html
 		endif
 		cd $LPATH
 		echo "Cleaning older libraries"
