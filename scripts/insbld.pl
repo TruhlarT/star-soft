@@ -260,24 +260,27 @@ if($COMPIL){
     $rc = 0xffff & system($tmp);
     if($rc != 0){
 	print " * Failure. Returned status is $rc\n";
-    } else {
-	if( ! -e "$dir/$FILOUT"){
-	    # create a dummy file
-	    open(FO,">$FILOUT") || &Die("Could not create empty file\n");
-	    close(FO);
-	}
-	print " - Formatting now ...\n"; 
-        # delay was added due to not-that-rare afs fluke
-	# making the -e test fail somehow. May be fixed later
-	system("$FRMTPRGM $dir/$FILOUT $FLNM ; sleep 5");
-	if( -e "$FLNM"){
-	    print " - All done. $FLNM is ready\n";
-	} else {
-	    print 
-		" * Problem : Previous action did not create $FLNM\n",
-		" * Run $FRMTPRGM $dir/$FILOUT $FLNM by hand\n";
-	}
+    } 
+
+    # The above formatting may fail but we decided to proceed
+    # anyway and attempt it.
+    if( ! -e "$dir/$FILOUT"){
+	# create a dummy file
+	open(FO,">$FILOUT") || &Die("Could not create empty file\n");
+	close(FO);
     }
+    print " - Formatting now ...\n"; 
+    # delay was added due to not-that-rare AFS fluke
+    # making the -e test fail somehow. May be fixed later
+    system("$FRMTPRGM $dir/$FILOUT $FLNM ; sleep 5");
+    if( -e "$FLNM"){
+	print " - All done. $FLNM is ready\n";
+    } else {
+	print 
+	    " * Problem : Previous action did not create $FLNM\n",
+	    " * Run $FRMTPRGM $dir/$FILOUT $FLNM by hand\n";
+    }
+
 } else {
     print " - Compilation skipped. Used '-c' to compile.\n";
 }
