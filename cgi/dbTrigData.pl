@@ -29,6 +29,7 @@ my $myprod;
 my @detSet = ("all","tpc","svt","rich","tof","ftpc","emc","fpd","pmd");
 my @trigSet  = ("all","central","minbias","medium","peripheral","mixed","physics");
 my @mfield = ("all","HalfField","ReversedFullField","ReversedHalfField","FieldOff");
+my @collis = ("AuAu200", "AuAu130");
 
 &StDbProdConnect();
 
@@ -87,6 +88,16 @@ print <<END;
 <td>
 END
 
+print "</td><td>";
+print "<h3 align=center>Collisions:</h3>";
+print "<h3 align=center>";
+print $query->popup_menu(-name=>'SetC',  
+                   -values=>\@collis,
+                   -default=>'AuAu200',                   
+                   -size=>4                              
+                   );  
+
+ print "</h3>";
 print "</td><td>";
 print "<h3 align=center>Production series:</h3>";
 print "<h3 align=center>";
