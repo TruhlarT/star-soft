@@ -19,6 +19,9 @@ $REPQUOTA = "/usr/lib/fs/vxfs/vxrepquota";
 # Parse arguments -- Do not change
 if ( ! -x $REPQUOTA){  die "Missing $REPQUOTA\n";}
 
+$color[0] = "#ffffff"; 
+$color[1] = "#eeeeee"; 
+$color[2] = "#dddddd"; 
 
 
 $PATH = "";
@@ -113,8 +116,8 @@ if($HTML){
         "</table><p>\n";
 
     print $FO
-        "<table border=1>\n",
-        "<tr><$TD>Dir/User</td><$TD>kBytes</td><$TD>%tageRel</td><$TD>%tageTot</td></tr>\n";
+        "<table border=\"0\" cellspacing=\"0\" width=\"500\">\n",
+        "<tr><$TD bgcolor=\"orange\">Dir/User</td><$TD bgcolor=\"orange\">kBytes</td><$TD bgcolor=\"orange\">%tageRel</td><$TD bgcolor=\"orange\">%tageTot</td></tr>\n";
 } else {
     # Regular text formatting
     print $FO
@@ -131,6 +134,7 @@ if($HTML){
 
 
 #print "tots = $tots\n"; 
+$col = 0;
 foreach $user (sort  { $HOGS{$b} <=> $HOGS{$a} } keys %HOGS){
     $val1 = ($HOGS{$user}/$TOT)*100;
     $val2 = ($HOGS{$user}/$tots)*100;
@@ -150,9 +154,12 @@ foreach $user (sort  { $HOGS{$b} <=> $HOGS{$a} } keys %HOGS){
     #print "$user $val1 $val2\n";
 
     if($HTML){
+	$COL = "bgcolor=\"$color[$col]\"";
+	$col++; if ($col > $#color){ $col = 0;}
+
         print $FO 
-            "<tr><$TD>$user</td><$TD>$HOGS{$user}</td>",
-            "<$TD>$val1</td><$TD>$val2</td></tr>\n";
+            "<tr><$TD $COL><i>$user</i></td><$TD $COL>$HOGS{$user}</td>",
+            "<$TD $COL>$val1</td><$TD $COL>$val2</td></tr>\n";
     } else {
         printf $FO "%10.10s %15d  %s %%  %s %%\n",$user,$HOGS{$user},$val1,$val2;
     }
