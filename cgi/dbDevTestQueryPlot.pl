@@ -1,9 +1,12 @@
 #!/usr/local/bin/perl
 #!/usr/bin/env perl 
 #
-# $Id: dbDevTestQueryPlot.pl,v 1.22 2004/12/20 22:28:58 didenko Exp $
+# $Id: dbDevTestQueryPlot.pl,v 1.23 2005/01/10 15:28:47 didenko Exp $
 #
 # $Log: dbDevTestQueryPlot.pl,v $
+# Revision 1.23  2005/01/10 15:28:47  didenko
+# updated for ITTF test
+#
 # Revision 1.22  2004/12/20 22:28:58  didenko
 # more directories to query
 #
@@ -83,6 +86,10 @@ for($i=0;$i<7*$weeks;$i++) {
     $point1[$i]=undef;
     $point2[$i]=undef;
     $point3[$i]=undef;
+    $point4[$i]=undef;
+    $point5[$i]=undef;
+    $point6[$i]=undef;
+    $point7[$i]=undef;
     $Nday[$i] = undef;
 }
 
@@ -135,15 +142,15 @@ while($n_weeks >= 0) {
 	$path =~ s(/)(%)g;
 
 	if ($n_weeks == 0) {
-	    $sql="SELECT path, $mplotVal FROM JobStatus WHERE path LIKE \"%$path%\" AND avail='Y' AND jobStatus=\"Done\" AND (TO_DAYS(\"$nowdate\") -TO_DAYS(createTime)) < $day_diff ORDER by createTime DESC LIMIT 4";
+	    $sql="SELECT path, $mplotVal FROM JobStatus WHERE path LIKE \"%$path%\" AND avail='Y' AND jobStatus=\"Done\" AND (TO_DAYS(\"$nowdate\") -TO_DAYS(createTime)) < $day_diff ORDER by createTime DESC LIMIT 6";
 	} else {
-	    $sql="SELECT path, $mplotVal FROM JobStatus WHERE path LIKE \"%$path%\" AND jobStatus=\"Done\" AND (TO_DAYS(\"$nowdate\") -TO_DAYS(createTime)) < $day_diff AND (TO_DAYS(\"$nowdate\") -TO_DAYS(createTime)) > $day_diff1 ORDER by createTime DESC LIMIT 4";
+	    $sql="SELECT path, $mplotVal FROM JobStatus WHERE path LIKE \"%$path%\" AND jobStatus=\"Done\" AND (TO_DAYS(\"$nowdate\") -TO_DAYS(createTime)) < $day_diff AND (TO_DAYS(\"$nowdate\") -TO_DAYS(createTime)) > $day_diff1 ORDER by createTime DESC LIMIT 6";
 	}
 
 	$cursor = $dbh->prepare($sql) || die "Cannot prepare statement: $dbh->errstr\n";
 	$cursor->execute;
 	while(@fields = $cursor->fetchrow_array) {
-	    if ($fields[0] =~ /opt/) {
+	    if ($fields[0] =~ /sl302.ittf_opt/) {
 		$point2[$d_week+7*$rn_weeks] = $fields[1];
 		if($point2[$d_week+7*$rn_weeks] > $max_y) {
 		    $max_y = $point2[$d_week+7*$rn_weeks];
@@ -160,6 +167,41 @@ while($n_weeks >= 0) {
 			$min_y = $point3[$d_week+7*$rn_weeks];
 		    }
 		}
+           }elsif($fields[0] =~ /sl302_opt/) {
+		$point4[$d_week+7*$rn_weeks] = $fields[1];
+		if($point4[$d_week+7*$rn_weeks] > $max_y) {
+		    $max_y = $point4[$d_week+7*$rn_weeks];
+		}
+		if($point4[$d_week+7*$rn_weeks] < $min_y) {
+		    $min_y = $point4[$d_week+7*$rn_weeks];
+		}
+		if ($plotVal eq "MemUsage") {
+		    $point5[$d_week+7*$rn_weeks] = $fields[2];
+		    if ($point5[$d_week+7*$rn_weeks] > $max_y) {
+			$max_y = $point5[$d_week+7*$rn_weeks];
+		    }
+		    if ($point5[$d_week+7*$rn_weeks] < $min_y) {
+			$min_y = $point5[$d_week+7*$rn_weeks];
+		    }
+		}
+          }elsif($fields[0] =~ /sl302.ittf/) {
+		$point6[$d_week+7*$rn_weeks] = $fields[1];
+		if($point6[$d_week+7*$rn_weeks] > $max_y) {
+		    $max_y = $point6[$d_week+7*$rn_weeks];
+		}
+		if($point6[$d_week+7*$rn_weeks] < $min_y) {
+		    $min_y = $point6[$d_week+7*$rn_weeks];
+		}
+		if ($plotVal eq "MemUsage") {
+		    $point7[$d_week+7*$rn_weeks] = $fields[2];
+		    if ($point7[$d_week+7*$rn_weeks] > $max_y) {
+			$max_y = $point7[$d_week+7*$rn_weeks];
+		    }
+		    if ($point7[$d_week+7*$rn_weeks] < $min_y) {
+			$min_y = $point7[$d_week+7*$rn_weeks];
+		    }
+		}
+
 	    } else {
 		$point0[$d_week+7*$rn_weeks] = $fields[1];
 		if ($point0[$d_week+7*$rn_weeks] > $max_y) {
@@ -186,16 +228,23 @@ while($n_weeks >= 0) {
 &StDbTJobsDisconnect();
 
 if ($plotVal eq "MemUsage") {
-    @data = (\@Nday, \@point0, \@point1, \@point2, \@point3);
-    $legend[0] = "MemUsageF";
-    $legend[1] = "MemUsgaeL";
-    $legend[2] = "MemUsgaeF(optimized)";
-    $legend[3] = "MemUsageL(optimized)";
+    @data = (\@Nday, \@point0, \@point1, \@point2, \@point3, \@point4, \@point5, \@point6, \@point7 );
+    $legend[0] = "MemUsageF(tpt)";
+    $legend[1] = "MemUsgaeL(tpt)";
+    $legend[2] = "MemUsgaeF(ittf.optimized)";
+    $legend[3] = "MemUsageL(tpt.optimized)";
+    $legend[4] = "MemUsageF(tpt.optimized)";
+    $legend[5] = "MemUsgaeL(ittf.optimized)";
+    $legend[6] = "MemUsgaeF(ittf)";
+    $legend[7] = "MemUsageL(ittf)";
     $mplotVal="MemUsageFirstEvent,MemUsageLastEvent";
 } else {
-    @data = (\@Nday, \@point0, \@point2);
-    $legend[0] = "$plotVal";
-    $legend[1] = "$plotVal"."(optimized)";
+    @data = (\@Nday, \@point0, \@point2, \@point4, \@point6 );
+    $legend[0] = "$plotVal"."(tpt)";
+    $legend[1] = "$plotVal"."(ittf.optimized)";
+    $legend[2] = "$plotVal"."(tpt.optimized)";
+    $legend[3] = "$plotVal"."(ittf)";
+}
 }
 
 
@@ -239,9 +288,9 @@ if ( ! $graph){
 		y_max_value => $max_y,
 		y_number_format => \&y_format,
 		labelclr => "lred",
-		dclrs => [ qw(lred lgreen lblue lpurple) ],
+		dclrs => [ qw(lblack lpink lred lgreen lblue lpurple lyellow lorange ) ],
 		line_width => 2,
-		markers => [ 2,4,6,8],
+		markers => [ 2,3,4,5,6,7,8,9],
 		marker_size => 6,
 		#long_ticks => 1
 		);
