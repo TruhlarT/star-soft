@@ -1,8 +1,11 @@
 #!/usr/local/bin/perl -w
 #
-# $Id: dbDevTestQuery.pl,v 1.10 2002/01/30 15:08:54 didenko Exp $
+# $Id: dbDevTestQuery.pl,v 1.11 2002/04/12 19:32:39 didenko Exp $
 #
 # $Log: dbDevTestQuery.pl,v $
+# Revision 1.11  2002/04/12 19:32:39  didenko
+# updated redhat72
+#
 # Revision 1.10  2002/01/30 15:08:54  didenko
 # add new daq test
 #
@@ -41,18 +44,18 @@ my $debugOn = 0;
 
 my $rand = rand(100);
 my @prod_set = (
-		"trs_redhat61/year_1h/hc_lowdensity",
-		"trs_redhat61/year_1h/hc_standard",
-		"trs_redhat61/year_1h/hc_highdensity",
-		"trs_redhat61/year_1h/peripheral", 
-		"trs_redhat61/year_2001/hc_lowdensity",
-		"trs_redhat61/year_2001/hc_standard",
-		"trs_redhat61/year_2001/hc_highdensity",
-                "trs_redhat61/year_2001/pp_minbias",
-                "trs_redhat61/year_2001/ppl_minbias",
-		"daq_redhat61/year_2001/minbias",
-                "daq_redhat61/year_2001/central",
-                "daq_redhat61/year_2001/ppMinBias", 
+#		"trs_redhat72/year_1h/hc_lowdensity",
+		"trs_redhat72/year_1h/hc_standard",
+#		"trs_redhat72/year_1h/hc_highdensity",
+#		"trs_redhat72/year_1h/peripheral", 
+		"trs_redhat72/year_2001/hc_lowdensity",
+		"trs_redhat72/year_2001/hc_standard",
+		"trs_redhat72/year_2001/hc_highdensity",
+                "trs_redhat72/year_2001/pp_minbias",
+                "trs_redhat72/year_2001/ppl_minbias",
+		"daq_redhat72/year_2001/minbias",
+                "daq_redhat72/year_2001/central",
+                "daq_redhat72/year_2001/ppMinBias", 
 		);
 
 my @sets_name;
