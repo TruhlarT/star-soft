@@ -1,6 +1,6 @@
 #!/usr/bin/env perl
 
-# $Id: AutoBuild.pl,v 1.22 2004/10/22 20:23:31 jeromel Exp $
+# $Id: AutoBuild.pl,v 1.23 2004/10/28 00:00:29 jeromel Exp $
 # This script was written to perform an automatic compilation
 # with cvs co and write some html page related to it afterward.
 # Written J.Lauret Apr 6 2001
@@ -299,7 +299,7 @@ if($NIGNOR){
 	    if ($#dirst != -1){
 		foreach my $dd (@dirst){
 		    # Don't do it for now
-		    push(@PRECOMPILE,"echo \"We would rm -fr $dd\"");
+		    push(@PRECOMPILE,"rm -fr $dd\"");
 		}
 	    }
 	}
@@ -551,9 +551,9 @@ if ($#PRECOMPILE != -1){
     foreach $line (@PRECOMPILE){
 	#push(@REPORT,"<LI><TT>$line</TT>");
 	if ( &Execute($line) == 0){
-	    push(@REPORT,"<LI><TT>".IUl2pre($line)."</TT> ".&STRsts(0));
+	    push(@REPORT,"<LI><TT>".IUl2pre($line)."</TT> ".&STRsts(0,$line));
 	} else {
-	    push(@REPORT,"<LI><TT>".IUl2pre($line)."</TT> ".&STRsts(1));
+	    push(@REPORT,"<LI><TT>".IUl2pre($line)."</TT> ".&STRsts(1,$line));
 	}
     }
     push(@REPORT,"</UL>");
@@ -677,9 +677,9 @@ if($fail == 0){
     push(@REPORT,"<UL>");
     foreach $tmp (@POSTSKS){
 	if (&Execute($tmp) == 0){
-	    push(@REPORT,"<LI><TT>".IUl2pre($tmp)."</TT> ".&STRsts(0));
+	    push(@REPORT,"<LI><TT>".IUl2pre($tmp)."</TT> ".&STRsts(0,$tmp));
 	} else {
-	    push(@REPORT,"<LI><TT>".IUl2pre($tmp)."</TT> ".&STRsts(1));
+	    push(@REPORT,"<LI><TT>".IUl2pre($tmp)."</TT> ".&STRsts(1,$tmp));
 	}
     }
 }
@@ -1081,12 +1081,18 @@ sub lhelp
 
 sub STRsts
 {
-    my($sts)=@_;
+    my($sts,$mess)=@_;
+    my($xtra);
 
-    if($sts==0){
-	return "<FONT COLOR=\"#0000FF\"><B>Success </B></FONT>";
+    if ( defined($mess) ){
+	$xtra = "<!-- ".IUl2pre($mess)." -->";
     } else {
-	return "<FONT COLOR=\"#FF0000\"><B>FAILURE </B></FONT>";
+	$xtra = "";
+    }
+    if($sts==0){
+	return $xtra."<FONT COLOR=\"#0000FF\"><B>Success </B></FONT>";
+    } else {
+	return $xtra."<FONT COLOR=\"#FF0000\"><B>FAILURE </B></FONT>";
     }
 }
 
