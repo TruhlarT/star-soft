@@ -46,7 +46,7 @@ while(@fields = $cursor->fetchrow) {
    
   }
   if (!defined $pair{$mcomment}) {
-   $pair{$mcomment} = " ";
+   $pair{$mcomment} = "no";
 } 
 &printRow();
 
