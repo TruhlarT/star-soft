@@ -1108,7 +1108,8 @@ sub GetLogReport{
   else
   {
 
-    print h3($self->ReportKey," is currently being updated?");
+    print h3("<font color=orange>",$self->ReportKey,
+	     " is currently being updated?</font>\n");
 
 #    print h3("<font color=red>Cannot find $filename<br>\n",
 #	     "It's possible that the db has been updated, ",
