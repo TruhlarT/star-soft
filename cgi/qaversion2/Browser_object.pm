@@ -199,8 +199,12 @@ sub StartingDisplay{
   my $table_string = "<tr> $expert_string <tr> $comment_string";
 
   $gServer_object->ServerType eq "offline" and do{
+
     my $rcas_lsf_string = $self->RcasLsfMonitor();
+    my $online_run_browser_string = $self->OnlineRunBrowser();
+
     $table_string .= "<tr> $rcas_lsf_string";
+    $table_string .= "<br><tr> $online_run_browser_string";
   };
   #----------------------------------------------------------
   print qq{
@@ -466,6 +470,20 @@ sub RcasLsfMonitor{
   $url =~ s/QA_main\.pm/$lsfTool/e;
 
   my $string = "<a href=$url target = 'documentation'>Rcas/LSF monitor </a>";
+  return $string;
+}
+#===========================================================
+# pmj 6/8/00 returns link to Run Browser
+
+sub OnlineRunBrowser{
+
+  my $self = shift;
+  
+  #---------------------------------------------------------
+
+  my $url = "http://onlsun1.star.bnl.gov/dbRunBrowser.html";
+
+  my $string = "<a href=$url target = 'documentation'>Online Run Log</a>";
   return $string;
 }
 
