@@ -22,7 +22,7 @@ my $debugOn=0;
 
 my @Sets = (             
                "auau200/hijing/b0_3/inverse/year2001/hadronic_on",
-               "auau200/hijing/b0_20/inverse/year2001/hadronic_on", 
+#               "auau200/hijing/b0_20/inverse/year2001/hadronic_on", 
 );
 
 my $prodPeriod = $ARGV[0]; 
@@ -148,7 +148,7 @@ my $filename;
   $jobIn_no = 0; 
   for ($ii=0; $ii< scalar(@Sets); $ii++)  { 
 
- $sql="SELECT dataset, fName, Nevents FROM $FileCatalogT WHERE fName LIKE '%fzd' AND dataset = '$Sets[$ii]' AND hpss = 'Y'";
+ $sql="SELECT dataset, fName, Nevents FROM $FileCatalogT WHERE fName LIKE '%fzd' AND dataset = '$Sets[$ii]' AND hpss = 'Y' order by runID ";
    $cursor =$dbh->prepare($sql)
     || die "Cannot prepare statement: $DBI::errstr\n";
           $cursor->execute;
@@ -222,7 +222,7 @@ my $SUM_DIR = "/star/rcf/prodlog/" . $prodPeriod . "/log/trs";
     if (-f $jb_hold)     {$jb_fstat = 0};  
      if($jb_fstat eq 1)  {
 
-#    if($nfiles < 10 ) {
+#    if($nfiles < 11 ) {
          &create_jobs($jfile, $jset, $mchain, $mlibVer, $JOB_DIR, $prodDisk); 
      $nfiles++;
         print "JOB ID = " ,$mjobID, "\n";
