@@ -2,7 +2,7 @@
 %
 % StEvent - User Guide and Reference Manual -- LaTeX Source
 %
-% $Id: StEvent.tex,v 2.45 2000/08/23 03:14:07 ullrich Exp $
+% $Id: StEvent.tex,v 2.46 2000/09/06 22:30:57 ullrich Exp $
 %
 % Author: Thomas Ullrich, Nov 1999
 %
@@ -21,9 +21,8 @@
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %
 % $Log: StEvent.tex,v $
-% Revision 2.45  2000/08/23 03:14:07  ullrich
-% Improved (corrected) explanation of return value
-% of chi2 methods of StVertex and StTrackFitTraits.
+% Revision 2.46  2000/09/06 22:30:57  ullrich
+% Changes to StEvent and StEventInfo.
 %
 % Revision 2.49  2000/10/16 17:08:12  ullrich
 % Added more description for StEventScavenger.
@@ -216,8 +215,8 @@
   \mbox{\includegraphics[width=\textwidth]{StEventTitle.eps}}
   \hfill\mbox{}\\[3cm]
   {\LARGE User Guide and Reference Manual \\[5mm] for Version 2}\\[2cm]
-  {\LARGE $ $Revision: 2.45 $ $}  \\[5mm] % replaced by cvs with current revision
-  {\LARGE $ $Date: 2000/08/23 03:14:07 $ $}  % replaced by cvs with current revision
+  {\LARGE $ $Revision: 2.46 $ $}  \\[5mm] % replaced by cvs with current revision
+  {\LARGE $ $Date: 2000/09/06 22:30:57 $ $}  % replaced by cvs with current revision
   \vfill
 \end{center}
 \cleardoublepage
@@ -2922,7 +2921,9 @@ definition in the header file.
     \verb+const TString& type() const;+\\
     Character string which contains a short description of the type of
     the event you got.
-    \verb+ULong_t bunchCrossingNumber() const;+\\       
+    
+    \verb+Long_t id() const;+\\
+    Unique event identifier.
     
     \verb+Long_t runId() const;+\\
     Unique run identifier.
@@ -3018,7 +3019,7 @@ definition in the header file.
     
     \verb+StSPtrVecKinkVertex& kinkVertices();+\\
     \verb+const StSPtrVecKinkVertex& kinkVertices() const;+\\
-    \verb+void setBunchCrossingNumber(ULong_t);+\\
+    Returns container with kink vertices.
     
     \verb+void setType(const Char_t*);+\\
 
@@ -3071,13 +3072,17 @@ definition in the header file.
 \item[Description] Please note that the information this class provides
     is already accessible directly through the \texttt{StEvent} class
     itself. This class is only used hold this information within
-    \verb+ULong_t bunchCrossingNumber() const;+\\
+    \texttt{StEvent}. For more information see \ref{sec:StEvent}.
+
+\item[Related Classes]
+\item[Public\\ Constructors]
+    \verb+StEventInfo();+\\
     \verb+StEventInfo(const event_header_st&);+\\
 \item[Public Member\\ Functions]
     \verb+const TString& type() const;+\\
     \verb+Long_t id() const;+\\
     \verb+Long_t runId() const;+\\
-    \verb+void setBunchCrossingNumber(ULong_t);+\\
+    \verb+Long_t time() const;+\\
     \verb+ULong_t triggerMask() const;+\\
 
     \verb+ULong_t bunchCrossingNumber(Uint_t i) const;+\\
