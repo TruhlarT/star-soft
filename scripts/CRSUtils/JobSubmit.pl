@@ -46,10 +46,10 @@
 #
 # Sunday Sept 10. Added +/path syntax.
 #
-# Mon Dec 17 2001, chained to DCHAIN functioning on based on 
+# Mon Dec 17 2001, chained to DCHAIN functioning on based on
 #              a mandatory collision
 #              type for submiting with the default chain. If
-#              a chain is used as argument, this does not 
+#              a chain is used as argument, this does not
 #              apply.
 # Jan 22 2002  Added mode 3 which performs calibration sweep
 #              on ftype. We MUST use the proper ftype number
@@ -67,6 +67,10 @@ use CRSQueues;
 
 $ThisYear = 2004;
 
+# default values global (unless overwritten)
+$EXPRESS = 0;
+$PHYSTP2 = 0;
+
 # Default values Year2 data
 if ($ThisYear == 2002){
     $LIB     = "dev";
@@ -75,9 +79,9 @@ if ($ThisYear == 2002){
 
     $PHYSTP  = 1;
     $LASERTP = 3;            # This can known only by looking into the FOFileType
-                             # or calling some extra routine from the pm. Prefer to 
+                             # or calling some extra routine from the pm. Prefer to
                              # hard-code (that is -> faster) Sorry ...
-    @USEQ    = (4,4,2);      # queue to be used for regular mode, bypass and calib 
+    @USEQ    = (4,4,2);      # queue to be used for regular mode, bypass and calib
     @SPILL   = (0,3,1);      # queue spill level for the 3 modes
 
     # Default production chains by species
@@ -86,9 +90,9 @@ if ($ThisYear == 2002){
 
 
     # Default pre-pass calibration chains by species used in regular mode if defined
-    $DCALIB{"AuAu"}           = "";   # Trash out default calib pass. 
+    $DCALIB{"AuAu"}           = "";   # Trash out default calib pass.
                                       # All done now ; was PreTpcT0
-    $DCALIB{"ProtonProton"}   = "";   # PreLaser" no more interlayed laser, 
+    $DCALIB{"ProtonProton"}   = "";   # PreLaser" no more interlayed laser,
                                       # all laser files processed
 
 
@@ -105,8 +109,8 @@ if ($ThisYear == 2002){
     $PHYSTP  = 5;
 
     @USEQ    = (4,4,3);
-    @SPILL   = (0,3,1);      
-    
+    @SPILL   = (0,3,1);
+
     # Default chain
     $DCHAIN{"dAu"}            = "dAu2003,alltrigger,est,CMuDst";
     $DCHAIN{"ProtonProton"}   = "pp2003,alltrigger,trgd,est,CMuDst";
@@ -125,10 +129,12 @@ if ($ThisYear == 2002){
 
     $LASERTP = 3;
     $PHYSTP  = 1;
+    $PHYSTP2 = 5;
+    $EXPRESS = 8;
 
     @USEQ    = (4,4,3);
-    @SPILL   = (0,3,2);      
-    
+    @SPILL   = (2,3,2);
+
     # Default chain
     $DCHAIN{"AuAu"}           = "P2004,OShortR,Xi2,V02,CMuDst";
 
@@ -143,7 +149,6 @@ if ($ThisYear == 2002){
     print "Unknown Year $ThisYear\n";
     exit;
 }
-
 
 
 
@@ -170,7 +175,19 @@ $PRIORITY= 100;              # default queue priority
 $SLEEPT  = 10;               # sleep time between submit
 $MAXCNT  = 20;               # max job to send in a pass
 $RATIO   = 2;                # time drop down for mode + (2=twice faster)
-                   
+
+
+
+# be sure to turn it ON
+if (rdaq_toggle_debug()){ rdaq_toggle_debug();}
+
+# Global condition wille exclude from accidental processing of junk
+# puslers or lasers types. Note that EXPRESS are NOT added as they
+# will be grabbed FIRST (then, if there is room, some other files).
+$COND = "$PHYSTP";
+if ($PHYSTP2 != 0){ $COND .= " || $PHYSTP2";}
+
+
 
 #
 # Check space on the target disk
@@ -200,6 +217,8 @@ if( $TARGET =~ m/^\// || $TARGET =~ m/\^\// ){
     #
     # FAST OFFLINE regular mode
     #
+    undef(@files);
+
     # Overwrite queue if necessary
     $USEQ[0] = $tmpUQ if ( defined($tmpUQ) );
     $SPILL[0]= $tmpSP if ( defined($tmpSP) );
@@ -225,14 +244,24 @@ if( $TARGET =~ m/^\// || $TARGET =~ m/\^\// ){
 	if( ($obj = rdaq_open_odatabase()) ){
 	    if( substr($TARGET,0,1) eq "^" ){
 		# Simple with a perl module isn't it.
-		print "Top of the list ...\n";
+		print "Top of the list only ...\n";
 		$TARGET=~ s/\^//;
-		@files = rdaq_get_ffiles($obj,-1,$TOT);
+		if ($EXPRESS != 0){
+		    push(@files,rdaq_get_ffiles($obj,-1,$TOT,$EXPRESS));
+		    push(@files,rdaq_get_ffiles($obj,-1,$TOT,$COND));
+		} else {
+		    @files = rdaq_get_ffiles($obj,-1,$TOT,$COND);
+		}
 	    } else {
 		# ask only for status=0 files (will therefore
 		# crawl-down the list).
 		print "Crawling down the list ...\n";
-		@files = rdaq_get_ffiles($obj,0,$TOT);
+		if ($EXPRESS != 0){
+		    push(@files,rdaq_get_ffiles($obj,0,$TOT,$EXPRESS));
+		    push(@files,rdaq_get_ffiles($obj,0,$TOT,$COND));
+		} else {
+		    @files = rdaq_get_ffiles($obj,0,$TOT,$COND);
+		}
 	    }
 
 
@@ -243,7 +272,7 @@ if( $TARGET =~ m/^\// || $TARGET =~ m/\^\// ){
 		foreach $file (@files){
 		    sleep($SLEEPT) if &Submit(0,$USEQ[0],$SPILL[0],
 					      $file,$CHAIN);
-		    $MAXCNT--; 
+		    $MAXCNT--;
 		    last if ($MAXCNT == 0);
 		}
 		rdaq_set_files($obj,1,@OKFILES);
@@ -311,14 +340,14 @@ if( $TARGET =~ m/^\// || $TARGET =~ m/\^\// ){
 		    if($CHAIN eq ""){ $CHAIN = "default";}
 		    $cho = $CHAIN;
 		}
-		$SEL{"runNumber"} = $items[0]; 
+		$SEL{"runNumber"} = $items[0];
 		@files = rdaq_get_orecords($obj,\%SEL,-1);
 		rdaq_set_files($obj,0,@files);
 
 		# Get the count as being the total
 		$run = $items[0];
 		$cnt = $#files+1;
-		
+
 	    } else {
 		# Else old and/or only the one with status
 		# 0 can be sent to the queue.
@@ -342,7 +371,7 @@ if( $TARGET =~ m/^\// || $TARGET =~ m/\^\// ){
 		foreach $file (@files){
 		    last if ($MAXCNT <= 0);    # max jobs per pass
 
-		    last if ($TOT <= 0);       # max available queues 
+		    last if ($TOT <= 0);       # max available queues
 		    last if (($cnt-$k) <= 0);  # max file seq for this run
 
 		    #print "Submitting $file\n";
@@ -352,7 +381,7 @@ if( $TARGET =~ m/^\// || $TARGET =~ m/\^\// ){
 		    sleep($SLEEPT/$RATIO) if &Submit(1,$USEQ[1],$SPILL[1],
 						     $file,$cho);
 
-		    $MAXCNT--; 
+		    $MAXCNT--;
 		}
 		# Mark files as submitted
 		rdaq_set_files($obj,1,@OKFILES);
@@ -439,7 +468,7 @@ if( $TARGET =~ m/^\// || $TARGET =~ m/\^\// ){
 		    #print "HW : $file\n";
 		    sleep($SLEEPT) if &Submit(2,$USEQ[2],$SPILL[2],
 					      $file,$CHAIN);
-		    $MAXCNT--; 
+		    $MAXCNT--;
 		    last if ($MAXCNT == 0);
 		}
 		rdaq_set_files($obj,5,@OKFILES);  # special flag
@@ -489,7 +518,7 @@ sub Submit
     my($trgsn,$trgrs);
 
     # We are assuming that the return value of $file is
-    # the mode 2 of get_ffiles() and counting on the 
+    # the mode 2 of get_ffiles() and counting on the
     # elements position.
     #print "$file\n";
     @items = split(" ",$file);
@@ -505,12 +534,12 @@ sub Submit
     $trgrs = rdaq_bits2string("TrgMask",$items[11]);
     # Detector setup information
     $dets  = rdaq_bits2string("DetSetMask",$items[9]);
-    
+
 
     if($chain eq "" || $chain eq "none" || $chain eq "default"){
 	$chain = $DCHAIN{$coll};
 	if( ! defined($chain) ){
-	    print 
+	    print
 		"No chain options declared. No default for [$coll] either.\n";
 	    return 0;
 	}
@@ -541,7 +570,7 @@ sub Submit
     # Exclusions
     #
     # This was added according to an Email I have sent to
-    # the period coordinator list. Only Jeff Landgraff 
+    # the period coordinator list. Only Jeff Landgraff
     # has answered saying we can skip the 'test' once.
     if ( $file =~ /pedestal/){
 	print "Info :: Skipping $file (name matching exclusion)\n";
@@ -561,7 +590,7 @@ sub Submit
 	    push(@SKIPPED,$file);
 	    return 0;
 	} else {
-	    print 
+	    print
 		"Info :: $file has 'triggers'=$items[11]=$trgrs ",
 		"but Year=$ThisYear not skipping it\n";
 	}
@@ -575,7 +604,7 @@ sub Submit
 
 
     # Last element will always be the Status
-    if($items[$#items] != 0){ 
+    if($items[$#items] != 0){
 	print "Found status = $items[$#items] (??)\n";
 	return;
     }
@@ -625,7 +654,7 @@ mergefactor=1
     inputfile[0]=$prefix$items[1]
 __EOH__
 	}
-	
+
 	print FO <<__EOF__;
 #output
     outputnumstreams=5
