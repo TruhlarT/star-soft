@@ -39,7 +39,7 @@ my $kill = $opt{k};
 my $destroy = $opt{d};
 my $query = $opt{q};
 my $verbose = $opt{v} || $query;
-my $port = ($opt{p} ? $opt{p} : 8080);
+my $port = ($opt{p} ? $opt{p} : 9000);
 
 # collect the dead kids
 $SIG{CHLD} = 'reaper';

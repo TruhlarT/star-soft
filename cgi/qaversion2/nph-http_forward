@@ -23,7 +23,7 @@ use IO::Socket::INET;
 use LWP::UserAgent;
 
 my $serverName = 'localhost';
-my $port = 8080;
+my $port = 9000;
 my $userAgent = new LWP::UserAgent;
 
 # ben debugging - invoke with nph-http_forward/DEBUG/<port>?<query string>
