@@ -15,14 +15,14 @@ my %pair;
 
 &cgiSetup();
 
-$set = $q->param("set");
+$set = $q->param("run");
 
 &StDbProdConnect();
 
 &beginHtml();
 my $prodPr = "P00hd_1";
 
-$sql="SELECT * FROM $FileCatalogT WHERE runID = '$set' AND jobID LIKE '%$prodPr%' AND fName like '%.root' ";
+$sql="SELECT * FROM $FileCatalogT WHERE runID = '$set' AND fName like '%.root' ";
 $cursor =$dbh->prepare($sql)
   || die "Cannot prepare statement: $DBI::errstr\n";
 $cursor->execute;
