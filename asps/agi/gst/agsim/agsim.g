@@ -1,4 +1,4 @@
-*CMZ :          30/04/98  00.45.04  by  Pavel Nevski
+*CMZ :          29/06/98  13.05.15  by  Pavel Nevski
 *-- Author :    Pavel Nevski
 *****************************************************************************
 *                                                                           *
@@ -164,12 +164,12 @@ C
 *KEEP,VIDQQ.
       CHARACTER*68 VIDQQ
       DATA VIDQQ/
-     +'@(#)Advanced Geant Inteface               C: 19/06/98  11.33.44
+     +'@(#)Advanced Geant Inteface               C: 29/06/98  13.05.22
      +'/
 *KEEP,DATEQQ.
-      IDATQQ =   980619
+      IDATQQ =   980629
 *KEEP,TIMEQQ.
-      ITIMQQ =   1133
+      ITIMQQ =   1305
 *KEEP,VERSQQ.
       VERSQQ = ' '
       IVERSQ = -1
@@ -5711,7 +5711,7 @@ C
  %Level-=1;  Iprin=max(%Iprin-%Level-1,0);  if (%level>0) return;
    END
  
-*CMZ :          10/04/98  18.37.13  by  Pavel Nevski
+*CMZ :          20/06/98  13.32.24  by  Pavel Nevski
 *CMZ :  1.30/00 13/05/97  14.31.40  by  Pavel Nevski
 *-- Author :    Pavel Nevski   26/11/94
 ************************************************************************
@@ -5926,7 +5926,8 @@ C
                             * * *
    Check %Module != Module;
    %Module=Module; Cs=Module(5:5);
-   If Cs='G' {Stage='GEOM'} else if Cs='D' {Stage='DIGI'} else {Stage='RECO'}
+   If Cs='G'      {Stage='GEOM'} else if Cs='D' {Stage='DIGI'}
+   else if Cs='R' {Stage='RECO'} else           {Stage='UNKN'}
    Cmother=' ';    If (JVOLUM>0) CALL UHTOC(IQ(JVOLUM+1),4,CMother,4);
    If Cs='G' { do i=1,5 { %attribute(i)=1; };  %attribute(6)=0 }
                                * * *
@@ -7512,7 +7513,7 @@ C
  
  
  
-*CMZ :          15/06/98  23.04.08  by  Pavel Nevski
+*CMZ :          29/06/98  12.53.41  by  Pavel Nevski
 *CMZ :  1.30/00 17/11/96  22.43.56  by  Pavel Nevski
 *CMZU:  1.00/01 21/12/95  22.19.56  by  Pavel Nevski
 *CMZ :  1.00/00 14/11/95  02.46.06  by  Pavel Nevski
@@ -7638,14 +7639,14 @@ C   - combined DETM + Reconstruction bank access variables - AGI version
       EQUIVALENCE       (CNAM,INAM)
 *
 *KEND.
-Integer       LENOCC,OK,Lb,LL,LL1,LvL,ns1,ns2,Need,Ndm,i,j,k,l,M/1000000/,
-              Idat,Itim,Link,Ia,Lk,L1,L2,Flag,IDYN,INEW,JOX,iw,idd/0/,X,IC,
-              map(2,LL1),num(Lb),key(3),ID/0/,Iform/0/,Jform/0/,Istat/0/
+Integer       LENOCC,OK,Lb,LL,LL1,LvL,ns1,ns2,Ndm,i,j,k,l,M/1000000/,
+              Idat,Itim,Link,Ia,Lk,L1,L2,Flag,IDYN,INEW,JOX,iw,idd/0/,X/0/,
+              map(2,LL1),num(Lb),key(3),ID/0/,Iform/0/,Jform/0/,Istat/0/,IC
 Character*(*) Module,MTitle,Author,Created,Bank,Bpath,Btit,
               Names(LL1),Comment(LL1)
 Character*12  Ddoc,nam
 Character*4   Ctop,Cbank,C1,C2
-Character*8   Flags(15),Dmodule,Dmodu,Dbank,Dbanu,Dup,Ddef,Bname,dash/'-'/
+Character*8   Flags(15),Dmodule,Dmodu,Dbank,Dbanu,Dup,Ddef,dash/'-'/
 Character*24  Descr(15),Tshort
 Character     Cform*80,Cforn*80,C*1
 Parameter     (OK=0)
@@ -7665,21 +7666,17 @@ Data Descr  _
 * - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - *
  
 If First
-{  First=.false.;   Istat=0;
-   Call MZFORM('DETP',  '-F'  ,Iform);   Call MZFORM('DDOC','1H 19I -S',Jform);
-  "this part may be re-executed only after recompilation(standalone debugging)"
-  "-in this case make sure that link areas are not initialized twice (commons)"
-  " If (L1Doc>0)     call MZDROP(IxCONS,L1Doc,' ')  Standalone debugging mode "
-*
-*  it was a structural link area, now it becomes a reference one
-*  If (LdArea(1)=0) call MZLINT(IxCONS,'AGCDOCL',LDarea,Lpar,LDarea)
+{  First=.false.;   Istat=0;   L1Doc=0;
+   Call MZFORM('DETP','-F',Iform);  Call MZFORM('DDOC','1H 19I -S',Jform);
    If (LdArea(1)=0) call MZLINT(IxCONS,'AGCDOCL',LDarea,L1Doc,Lpar)
-   L1Doc=0;
 }
 If L1Doc<=0
-{  Call AsbDETE('DOCU',I);  L=0;  If (LKDETM>0 & I>0)  L=LQ(LQ(LKDETM-I)-1);
-   If L>0 { CALL UHTOC(IQ(L-5),4,bname,8); if (bname=='NONEDETM') L1doc=L; }
+{  * locate documentation system at the first link of DOCU bank:
+   *(only bank IDH is checked, IDN may be swapped - check later)
+   Call AsbDETE('DOCU',I);  L=0;  If (I>0)  L=LQ(LQ(LKDETM-I)-1)
+   If L>0  { " both DETM?" if (IQ(L-4)==IQ(LKDETM-4)) L1doc=L; }
 }
+ 
 * - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - *
 * - - - - - -          create the information bank itself           - - - - - *
 * - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - *
@@ -7739,70 +7736,76 @@ Check Flag==0;   Flag=JOX;
 * - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - *
  
 If Start
-{ "-------------------       level 1  -  DETM bank       -------------------"
-  Call AsBDETE(Dmodu,ID);     Err Id<=0 {detector does not exist in DETM bank}
-  Dbanu='DETMNONE';  Call UCTOH(Dbanu,Key,4,8);  IQUEST(1)=0;
+{ "-------------------      level 1  - main DETM bank    -------------------"
+  Call AsBDETE(Dmodu,ID);     Err Id<=0  {detector does not exist in DETM bank}
+  Call AsBDETE('DOCU',Idd);   Err Idd<=0 {cannot book DOCU system in DETM bank}
+  Dbanu='DETMNONE';  IQUEST(1)=0;  X=0;
   If Istat=0 & L1Doc<=0
-  { Call AsBDETE('DOCU',idd)
+  {
+    Call UCTOH(Dbanu,Key,4,8)
     Call RZIN (IxCONS,LQ(LKDETM-idd),-1,Key,0,' ')
-    If (Iquest(1)==0) L1Doc=LQ(LQ(LkDETM-idd)-1)
-    If L1Doc<=0               " main documentation bank does not exist "
-    { IQuest(1)=0
-      Call MZBOOK(IxCONS,L1Doc,LQ(LkDETM-idd),-1,'DETM',2,2,300,Jform,0)
-*      if (idebug>0) print *,'DETM/DOCU/DETM done '
-      Err L1Doc<=0 | Iquest(1)#0 { Cant create main documentation bank }
-      IQ(L1Doc-5)=key(2)
-      Call AgDOCBA(L1Doc,Dbanu,'Detector main bank', Author,Created,'-H',
-                         0, 1, 'detector','subsystem or faculty name ',X)
-      Err L1Doc<=0 | Iquest(1)#0 { Cant write main documentation bank }
-  } }
+    If IQuest(1)==0 { L1Doc=LQ(LQ(LkDETM-idd)-1) }
+    else
+    {  IQuest(1)=0
+       Call MZBOOK (IxCONS,L1Doc,LQ(LkDETM-idd),-1,'DETM',2,2,300,Jform,0)
+       Call AgDOCBA(L1Doc,Dbanu,'Detector main bank', Author,Created,'-H',
+                          0, 1, 'detector','subsystem or faculty name ',X)
+    }
+    Err L1Doc<=0 | Iquest(1)#0 | X!=0 { Cant access main documentation bank }
+  }
   "-------------------       level 2  -  DETE bank      -------------------"
   If Istat==0 & L1Doc>0
   { "        first add link description in DETM bank                       "
-    Call AgDTIT (MTitle,Tshort)
+    Call AgDTIT  (MTitle,Tshort)
     Call AgDOCBA (L1Doc,Dbanu,'*','*','*','*',1,0,Module(1:4),Tshort,X)
+ 
     " insure that links in doc DETM coincides with the main DETM "
-    Ns1=IQ(LkDETM-2);  Ns2=IQ(L1Doc-2);  Need=ns1-ns2
-    If (Need>0) Call MZPUSH (IxCONS,L1Doc,Need,0,' ')
-    L2Doc=LQ(L1Doc-Id)
-    If L1Doc>0 & L2Doc<=0
+    Ns1=IQ(LkDETM-2);  Ns2=IQ(L1Doc-2)
+    If (Ns1>Ns2) Call MZPUSH (IxCONS,L1Doc,Ns1-Ns2,0,' ')
+    if (L1Doc>0) L2Doc=LQ(L1Doc-Id)
+ 
+    If L1Doc>0 & L2Doc<=0    "Documentation does not exist for THIS detector"
     { Dbank=DModu(1:4)//'DETM';   Call UCTOH(Dbank,Key,4,8);
       Call RZIN (IxCONS,L1Doc,-ID,Key,0,' ');  L2Doc=LQ(L1Doc-Id);
-      If Iquest(1)#0|L2Doc<=0 "Documentation does not exist for THIS detector"
+      If Iquest(1)#0|L2Doc<=0
       { IQuest(1)=0; Call MZBOOK(IxCONS,L2Doc,L1Doc,-ID,Dbank,2,2,300,Jform,0)
-        Err L2Doc<=0 | Iquest(1)#0  { Can not create DETE documentation bank }
-        IQ(L2DOC-5)=key(2)
         Call AgDOCBA(L2Doc,Dbank,Tshort,Author,Created,'-I',0,15,Flags,Descr,X)
-        Err L2Doc<=0 | Iquest(1)#0  { Can not write DETE documentation bank  }
-  } } }
-  Err IQuest(1)#0|L2Doc<=0|L1Doc<0{cannot find top level documentation banks}
+      }
+      Err L2Doc<=0|Iquest(1)#0|X!=0 { Can not access DETE documentation bank  }
+  } }
+  Err IQuest(1)#0|L2Doc<=0|L1Doc<0 {cannot find top level documentation banks}
 }
+ 
 "---   level 3/4  -  the bank itself: all documentation is linear in DETE  ---"
-Ldoc=0; Lkdoc=0;
+ 
+Ldoc=0; Lkdoc=0; X=0;
 If L2Doc>0
-{  * first, update links in upper level bank
-   Ddoc=Cbank//Dup; Call UCTOH(Ddoc,Key,4,12);
-   Ndm=60+LL*16;    Ns1=IQ(L2doc-2)
-   if IQ(L2doc-4)==Key(2) & IQ(L2doc-5)==Key(3)  " - for level 3 doc "
-   {  "link" Call AgDOCBA (L2doc,Dup,'*','*','*','*',1,0,Cbank,Btit,X) }
+{  * first, update links in the upper level bank
+   Ddoc=Cbank//Dup;   Ndm=60+LL*16;    Ns1=IQ(L2doc-2)
+   Call UHTOC (IQ(L2doc-4),4,C1,4)           " - for level 3 doc "
+   Call AHTOC (IQ(L2doc-5),4,C2,4)
+   if C1==Dup(1:4) & C2==Dup(5:8)
+   {  Call AgDOCBA (L2doc,Dup,'*','*','*','*',1,0,Cbank,Btit,X)
+      * print *,' inserting links 1 ',dup,X
+   }
    do i=1,Ns1
    {  Ldoc=LQ(L2Doc-i);   If (Ldoc<=0) go to :f:
-      * if this is a previus description of the same bank - drop it
-      if IQ(Ldoc-4)==Key(1) & IQ(Ldoc-5)==Key(2)
-      {  Call MZDROP (IxCons,Ldoc,' ');   goto :f:;  }
-      * if this is a description of the parent bank - insert links
-      if IQ(Ldoc-4)==Key(2) & IQ(Ldoc-5)==Key(3)   " - for level 4 doc "
-      { Lkdoc=Ldoc; Call AgDOCBA (Ldoc,Dup,'*','*','*','*',1,0,Cbank,Btit,X) }
+      Call UHTOC (IQ(Ldoc-4),4,C1,4)
+      Call AHTOC (IQ(Ldoc-5),4,C2,4)
+      if C1==Cbank & C2==Dup(1:4)   { Call MZDROP(IxCons,Ldoc,' '); goto :f:; }
+      if C1==Dup(1:4) & C2==Dup(5:8)            " - insert links for level 4 "
+      { Lkdoc=Ldoc; Call AgDOCBA (Ldoc,Dup,'*','*','*','*',1,0,Cbank,Btit,X)
+        * print *,' inserting links 2 ',dup,X
+      }
    }  i=Ns1+1;  Call MZPUSH(IxCONS,L2DOC,5,0,' ')
  
    :f: Ldoc=LQ(L2Doc-i)
    If (Ldoc==0)  Call MZBOOK (IxCONS,Ldoc,L2doc,-i,Cbank,2,2,Ndm,Jform,0)
    Call AGDTIT (Btit,Tshort)
-   If (INEW>1)
-   {  Call AgDOCBA(Ldoc,Ddoc,Tshort,Author,Created,cform,0,1,dash,
-                                                   'usage counter',X)
-      Call AgDOCBA(Ldoc,Ddoc, '*' , '*' , '*' , '*' ,0,1,dash,
-                                                   'system version',X)
+   Call AgDOCBA(Ldoc,Ddoc,Tshort,Author,Created,cform,0,0,' ',' ',X)
+   If INEW>1
+   {  Call AgDOCBA(Ldoc,Ddoc, '*', '*', '*', '*',0,-1,dash,'usage counter',X)
+      Call AgDOCBA(Ldoc,Ddoc, '*', '*', '*', '*',0,-1,dash,'system version',X)
    }
    Err LDoc<=0 | Iquest(1)#0 { Can not create documentation bank }
    DO i=1,LL1
@@ -7821,7 +7824,9 @@ If L2Doc>0
      CALL aRZOUT (IXCONS,Lkdoc,Dup , IC,'SN')
      CALL aRZOUT (IXCONS,Ldoc, Ddoc, IC,'SN')
      call RZPURG (1)
-}  }
+   }
+   else { <W> Ddoc; (' AGDOCUM: problems writing out doc for ',a) }
+}
 if INEW>1
 {  Call DATIME (Idat,Itim);  Par(1)=Idat+Itim/2401.;  Q(LkArP3+1+Ia)=Par(1)
                              Par(2)=IC;               Q(LkArP3+2+Ia)=Par(2)
@@ -7829,7 +7834,17 @@ if INEW>1
 END
  
  
-*CMZ :          30/04/98  15.29.51  by  Pavel Nevski
+  subroutine AHTOC(iw,n,c,m)
+  character  C*(*)
+  integer    iw(*),n,m,i,ii
+  ii=iw(1)
+  do i=4,1,-1
+     c(i:i)=CHAR(mod(ii,256))
+     ii=ii/256
+  enddo
+  end
+ 
+*CMZ :          27/06/98  20.48.53  by  Pavel Nevski
 *CMZ :  1.30/00 26/04/96  19.30.43  by  Pavel Nevski
 *CMZU:  1.00/01 16/01/96  00.31.26  by  Pavel Nevski
 *CMZ :  1.00/00 25/08/95  23.30.46  by  Pavel Nevski
@@ -7840,6 +7855,8 @@ END
             (Link,Bank,Tit,au,ve,io,NL,ND,Cvar,Comment,i)
 *                                                                    *
 *  Description:  fill a documentation bank                           *
+*  Output i - (success flag) should be Ok(0). At least one of the    *
+*  operations - create, insert link or data should be done           *
 **********************************************************************
 *KEEP,TYPING.
       IMPLICIT NONE
@@ -7874,20 +7891,24 @@ Integer       AgDocRd,AgDocWr,Lenocc,Link,NL,ND,Lb,key(2),
               i,j,k,L,Lk,N,N0,ioff,M,ok;
 Parameter      (ok=0);
  
-I=-1;  Check Link>0;  Lb=IQ(Link-1)
+check I>=0;  I=-1;  Check Link>0;  Lb=IQ(Link-1)
 If Bank(1:1)#'*'
-{  Call UCTOH(Bank,key,4,8); If IQ(Link-4)#key(1)
-   { <w> Bank,IQ(LINK-4); (' AgDOCBA wrong bank: request ',a8,' found ',a4/,
+{  CALL UCTOH(Bank(1:4),key(1),4,4)
+   CALL ACTOH(Bank(5:8),key(2),4,4)
+   If IQ(Link-4)!=key(1)
+   { <w> Bank,IQ(LINK-4),key;
+    (' AgDOCBA wrong bank: request ',a8,' found ',3(1x,a4)/,
     ' *********************************************************************'/,
-    ' * Probably this means that the documentation RZ file is currupted.  *'/,
+    ' * Probably this means that the documentation RZ file is corrupted.  *'/,
     ' * This is often fatal and program may crash imediately afterword !  *'/,
     ' * To solve the problem simply remove detm.rz, it will be re-created *'/,
     ' *********************************************************************')
-     Link=0;  stop ' too dangerous to continue, re-make detm.rz ! ';
+    return
    }
    If IQ(Link+1)=0               " create new bank "
    {  Call Vzero(IQ(Link+1),Lb);  IQ(Link-5)=key(2);
-      IQ(Link+1)=key(1);  IQ(Link+2)=20;  IQ(Link+3)=20;
+      Call UCTOH(Bank,IQ(Link+1),4,4);
+      IQ(Link+2)=20;  IQ(Link+3)=20;
       Cbuf = Bank(1:4)//Tit(1:LENOCC(Tit))
       i    = AgDocWr(Link,'..',0,0,Cbuf)
       i    = AgDocWr(Link,'up',0,0,Bank(5:8))
@@ -7901,7 +7922,8 @@ If Bank(1:1)#'*'
 }  }
 do k=1,NL                               " links can not be doubled "
 {  Lk=Lenocc(Comment(k));
-   if AgDocRd(Link,'Link',Cvar(k)(1:4), N,ioff,L) > Ok
+   i =AgDocRd(Link,'Link',Cvar(k)(1:4), N,ioff,L)
+   if i > Ok
    {  if (AgDocRd(Link,'nl',' ', M,Ioff,L)=Ok) IQ(Link+Ioff+3)=N+1;
       if (AgDocRd(Link,'ns',' ', M,Ioff,L)=Ok) IQ(Link+Ioff+3)=N+1;
       Cbuf = Cvar(k)(1:4)//'    - '//Comment(k)(1:Lk)
@@ -7918,6 +7940,16 @@ do k=NL+1,NL+abs(ND)                    "    data can be doubled   "
 }  }
 END
  
+ 
+  subroutine ACTOH(c,iw,n,m)
+  character  C*(*)
+  integer    iw(*),n,m,i,ii
+  ii=0
+  do i=1,4
+     ii=ii*256+ichar(c(i:i))
+  enddo
+  iw(1)=ii
+  end
  
 *CMZ :  1.00/00 06/01/95  01.38.29  by  Pavel Nevski
 *-- Author :    Pavel Nevski   06/01/95
@@ -8707,6 +8739,7 @@ C
  
  
  
+*CMZ :          22/06/98  21.58.44  by  Pavel Nevski
 *CMZ :  1.30/00 26/11/96  23.11.18  by  Pavel Nevski
 *-- Author :    Pavel Nevski   26/11/94
 **********************************************************************
@@ -8875,7 +8908,7 @@ C local variables valid inside same block
  
 *KEND.
   Integer        AGPFLAG,Idet/0/,Ista/0/
-  Character      Cdet*4,Stage*4,Cdeto*4/'.'/,Stageo*4/'.'/
+  Character      Cdet*(*),Stage*(*),Cdeto*4/'.'/,Stageo*4/'.'/
 *KEEP,STAFUNC.
 C Declare types for the things used in the statement function STAFUNC
       INTEGER IIIII, LVPRIN,LVGEOM,LVHIST,LVGRAP,LVDEBU,LWPRIN,
@@ -8904,9 +8937,9 @@ C
       If (Cdet!=Cdeto) CALL GLOOK(Cdet, IQ(LKDETM+1),IQ(LKDETM-1),Idet)
       Cdeto=Cdet;  Check Idet>0
 *                                     attempt to reconsile with DICE
-      If      Stage='RECO'  { Check LVRECO(Idet)>0; }
-      Else If Stage='ANAL'  { Check LVANAL(Idet)>0; }
-      Else                  { Check LVGEOM(Idet)>0; }
+      If      Stage=='RECO'  { Check LVRECO(Idet)>0; }
+      Else If Stage=='ANAL'  { Check LVANAL(Idet)>0; }
+      Else If Stage!='UNKN'  { Check LVGEOM(Idet)>0; }
 *
       AgPFLAG = max(LVPRIN(Idet),LWPRIN(Idet),IDEBUG)
       If (stage!=stageo) CALL GLOOK(Stage,IQ(LKDETM+1),IQ(LKDETM-1),Ista)
@@ -11238,7 +11271,7 @@ C
    END
  
  
-*CMZ :          14/06/98  15.33.41  by  Pavel Nevski
+*CMZ :          22/06/98  14.38.56  by  Pavel Nevski
 *-- Author :    Pavel Nevski   25/11/97
 ***************************************************************************
 *                                                                         *
@@ -11254,7 +11287,7 @@ C
 * Attention: Current links are equivalenced to Ldoc/Ldete for protection  *
 ***************************************************************************
 +include,TYPING,GCBANK,SCLINK,GCUNIT,GCFLAG,AGCDOCL.
-     integer     Iprin,i,i1,i2,il,id,ic,jl,L,Iwr,Kw/1/,Lu,Idl,Key(2)
+     integer     Iprin,i,i1,i2,il,id,ic,jl,L,Iwr,Kw/1/,Lu,Idl,Iswap/0/,Key(2)
      Integer     LENOCC,INDEX,TDM_MAP_TABLE
      Character*8 Sname, Bname, Ckey
      Character*4 Csys, Cban
@@ -11263,13 +11296,14 @@ C
      character      ccc*12000
      common /agcstaftab/ ccc
  
-     Call Agsbegm('DOCUM',Iprin); Call AsbDETE('DOCU',Id);
+     Call Agsbegm('DOCUM',Iprin)
  
      Idl = 2
      if (Index(Cdest,'idl')>0) Idl=1
      if (Index(Cdest,'def')>0) Idl=0
  
-*  request a la UNIX: sys/bank
+*  request a la UNIX: sys/bank.
+*  single name (without /) is equivalent to name/
      Iwr = 0
      i2=lenocc(request);    i1=index(request,'/');  if (i1<=0) i1=i2+1
      Csys='*'; if (i1>2)    Csys=request(1:i1-1);   if (i2>0)  Iwr=1
@@ -11280,32 +11314,51 @@ C
      i2=Lenocc(Cban);       Call CUTOL(Cban);
 *
      If (LdArea(1)=0) call MZLINT(IxCONS,'AGCDOCL',LDarea,L1Doc,Lpar)
-     Check LKDETM>0 & Id>0;  L=LQ(LQ(LKDETM-Id)-1); Check L>0;
-     CALL UHTOC(IQ(L-5),4,Sname,8);
-     if (Sname=='NONEDETM' | Sname=='ENONDETM')  L1doc=L;
-     prin4 L1Doc;  (' ==> got L1Doc  ',i10);     Check L1Doc>0;
+     Call AsbDETE('DOCU',Id); Check LKDETM>0 & Id>0;
+     L=LQ(LQ(LKDETM-Id)-1);   Check L>0;
+*
+*    top level documantation bank should be 'NONEDETM', but NONE
+*    may be swapped on some machines because of big/little endian
+*
+     CALL UHTOC(IQ(L-5),4,Sname,8); Iswap=-1;
+     if (Sname(5:8)=='DETM')
+     { L1doc=L
+       if     Sname(1:4)='NONE' {Iswap=0}
+       elseif Sname(1:4)='ENON' {Iswap=1}
+       else   { prin0 Sname; (' AgKEEPS warning : IDN coding wrong ',a)}
+     }
+     if (Iswap==1) call agswap(Sname)
+     prin4 sname,L1Doc;  (' ==> got DocName=',a,' L1Doc=',i10);  Check L1Doc>0;
  
-     Lu  = 0
+     Lu = 0;  Kw = Iswap
      call agdprina(Iprin,Lu,L1doc,0,Iwr,Kw,Idl)
  
      do il=1,IQ(L1doc-2)
-        Ldoc=LQ(L1doc-il); check Ldoc>0;
-        CALL UHTOC(IQ(Ldoc-5),4,Sname,8); Call CUTOL(Sname)
+        Ldoc=LQ(L1doc-il); check Ldoc>0
+        CALL UHTOC(IQ(Ldoc-5),4,Sname,8)
+        if (Iswap==1) call agswap(Sname)
+        Call CUTOL(Sname)
         Check csys='*' | Sname(5:4+i1)==csys(1:i1)
  
         call agdprina(Iprin,Lu,Ldoc,1,Iwr,Kw,Idl)
  
+        Ckey=Sname(5:8)//Sname(1:4); Call UCTOH(Ckey,Key,4,8)
+        CALL aRZOUT(IXCONS,Ldoc,CKey,IC,'SN')
+ 
         do jl=1,IQ(Ldoc-2)
            Ldete=LQ(Ldoc-jl); check Ldete>0; ccc=' '
-           CALL UHTOC(IQ(Ldete-5),4,Bname,8); Call CUTOL(Bname)
+           CALL UHTOC(IQ(Ldete-5),4,Bname,8)
+           if (Iswap==1) call agswap(Bname)
+           Call CUTOL(Bname)
            Check cban='*' | Bname(5:4+i2)==cban(1:i2)
            call agdprina(Iprin,Lu,Ldete,2,Iwr,Kw,Idl)
  
            Table=Sname(5:8)//'_'//Bname(5:8); Call CUTOL(Table)
            if (idl==2) i=TDM_MAP_TABLE(%L(Cdest),%L(Table),%L(ccc),0,0)
  
-           Key(1)=IQ(Ldete-4);  Key(2)=IQ(Ldete-5);  Call UHTOC(Key,4,Ckey,8)
+           Ckey=Bname(5:8)//Bname(1:4); Call UCTOH(Ckey,Key,4,8)
            CALL aRZOUT(IXCONS,Ldete,CKey,IC,'SN')
+ 
         enddo
      enddo
      If (Lu>6) close (Lu)
@@ -11342,7 +11395,8 @@ C
  
    nc=0; check L>0;
    prin3 (IQ(L-i),i=1,5);(' ***** doc bank =',3i10,2x,2a5,' *****')
-   call UHTOC(IQ(L-5),4,dname,8); prin5 dname;  (' dname  = ',a)
+   call UHTOC(IQ(L-5),4,dname,8)
+   if (kw==1) call agswap(dname); prin5 dname;  (' dname  = ',a)
    call UHTOC(IQ(L+1),4,bname,4); prin5 bname;  (' bname  = ',a)
    NwDesc = IQ(L+2);              prin5 NwDesc; (' Nwdesc = ',i4)
    NwHead = IQ(L+3);              prin5 Nwhead; (' Nwhead = ',i4)
@@ -11486,6 +11540,15 @@ C
      else        { type ='float'; if (format(i:i)=='I') type='long'; }
      if (format(i:i)=='H') type='char'
      end
+ 
+ 
+****************************************************************************
+   subroutine  agswap(cname)
+   character   c*1,cname*(*)
+   c=cname(1:1); cname(1:1)=cname(4:4); cname(4:4)=c
+   c=cname(2:2); cname(2:2)=cname(3:3); cname(3:3)=c
+   end
+****************************************************************************
  
  
 *CMZ :          31/03/98  19.05.30  by  Pavel Nevski
@@ -11728,7 +11791,7 @@ J=1; Loop                                  " over existing banks only "
 }
 END
  
-*CMZ :          13/05/98  20.43.24  by  Pavel Nevski
+*CMZ :          29/06/98  12.56.45  by  Pavel Nevski
 *-- Author :    Pavel Nevski   25/03/98
 **********************************************************************
                 subroutine   a x p a r t i c l e
@@ -11834,8 +11897,15 @@ C
      +        ,IEOTRI,IEVENT,ISWIT,IFINIT,NEVENT,NRNDM
 C
 *KEND.
+    real    Sum,bratio(6)
+    Integer i
+ 
     call gspart(%Code,%Title,%TrkTyp,%Mass,%Charge,%Tlife,0,0)
-    if (%Mode(1)>0) call GSDK(%Code,%Bratio,%Mode)
+    Sum=0;   Do i=1,6 { if (%Mode(i)>0) Sum+=%Bratio(i); }
+    If Sum>0
+    {  Do i=1,6 { bratio(i)=%Bratio(i)*100.0001/Sum; }
+       call GSDK(%Code, Bratio, %Mode)
+    }
     If (%pdg  != 0) Call SET_PDGEA(%pdg,%code)
     if (Idebug > 1) Call GPPART(%Code)
     if (Idebug > 2) Call GPDCAY(%Code)
@@ -11886,10 +11956,10 @@ C
           Call Ucopy (Q(LQ(JVOLUM-IVOL)+7),par,min(50,Npar) )
        end
  
-*CMZ :          15/06/98  23.12.56  by  Pavel Nevski
+*CMZ :          29/06/98  13.00.34  by  Pavel Nevski
 *-- Author :    Pavel Nevski   26/11/94
 ****************************************************************************
-          subroutine  ARZOUT(Idiv,Lo,CKey,IC,opt)
+          subroutine  ARZOUT(Idiv,Lo,CCKey,IC,opt)
 *                                                                          *
 * Description: same functionality as RZOUT is supposed with few additions: *
 *            - consistence between Bank at Lo and Ckey is checked          *
@@ -11945,45 +12015,50 @@ C     common for the documentation supporting links
 C     - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 *
 *KEND.
- Integer        Ie,Iprin,Idiv,Lo,Li,Key(2),Nc,IC,i,k,New,Old,Mn,Mo,Istat;
- Character*(*)  Ckey,Opt,status*10,Copt*4
+ Integer        Ie,Iprin,Idiv,Lo,Li,Key(3),Nc,IC,i,k,New,Old,Mn,Mo,Istat,diff;
+ Character*(*)  CCkey,Opt,status*10,Copt*4,Ckey*12
 *
  New(k)=IQ(Lo+k)
  Old(k)=IQ(Li+k)
 *
 *
-  check Lo>0;  Nc=0;  Iprin=Idebug-1; Ie=0; Li=0;
+  check Lo>0;  Nc=0;  Iprin=Idebug; Ie=0; Li=0;
+  if new(2)>20
+  { diff=IQ(Lo-1)-new(2)-1; if (diff>1) Call MZPUSH(IxCONS,Lo,0,-Diff,'I') }
+  else
+  { prin4 CCkey; (' ARZOUT: empty documentation bank detected for ',a); }
  
-* read the highest cycle, return data + cycle info
-  Call UCTOH(Ckey,key,4,8); if (key(1)!=IQ(Lo-4) | key(2)!=IQ(Lo-5))
-  {  prin3 key,IQ(Lo-4),IQ(Lo-5); (' ARZOUT error: key=',2a4,' bank=',2a4)
+* take into account that IQ(L-5) are integer and may be swaped,
+* but key is ascii and should never be swapped
+*
+  Ckey=CCkey(1:8)//CCkey(8:8)//CCkey(7:7)//CCkey(6:6)//CCkey(5:5)
+  Call CLTOU(Ckey);   Call UCTOH(Ckey,key,4,12);
+  if (key(1)!=IQ(Lo-4) | (key(2)!=IQ(Lo-5) & key(3)!=IQ(Lo-5)))
+  {  prin4 key,IQ(Lo-4),IQ(Lo-5); (' ARZOUT error: key=',3a4,' bank=',2a4)
      IC=0; Return;
   }
  
   istat=IQ(Lo); status=' '; IC=0;
  
-* drop previous input - should later be done at the end
-* if (L1DOC>0 & LQ(L1DOC-1)>0) Call MZDROP(IxSTOR,LQ(L1DOC-1),' ')
-* CALL RZIN (IxCons,L1DOC,-1,Key,999999,'CD');   Li=LQ(L1DOC-1);
- 
 * look for the previous definition, see that it is readable
 * and test thet the output bank was not lost due to garbage collection
+* CD - read the highest cycle, return data + cycle info
  
   CALL RZIN (IxDIV,Li,2,Key,999999,'CD')
   if (IQUEST(1)!=0)
   { prin4 ckey; (' ARZOUT message: bank ',a,' not found')
-    Li=0; go to :w:;
+    status='new';  Li=0;  go to :w:;
   }
   if (IQ(Lo)!=Istat)
   { prin0 ckey; (' ARZOUT error: bank ',a,' link is not protected !')
-    Lo=0; go to :w:;
+    status='bad';  Lo=0;  go to :w:;
   }
  
 * previous definition found - extract its cycle number
   IC=0; Nc=IQUEST(50); if (IQUEST(1)==0 & 0<Nc&Nc<20) Ic=IQUEST(50+Nc)
  
-  ie=1; status='written';  if (Li<=0)
-  { prin3 key; (' ARZOUT error: key=',2a4,' not found '); go to :w: }
+  ie=1; status='updated';  if (Li<=0)
+  { prin4 key; (' ARZOUT error: key=',3a4,' not found '); go to :w: }
  
   ie=2; "data"   if (New(15)!=Old(15)) goto :w:
   mn=new(3)+new(11)+new(12);  mo=old(3)+old(11)+old(12);
@@ -12001,14 +12076,9 @@ C     - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
   :w: Copt='SN';                           " If (ie>2)   Copt='SNR'  "
   if (Li>0) Call MZDROP(IxSTOR,Li,' ')     " drop first, it may move "
   if (Lo>0 & status!='found') CALL RZOUT(Idiv,Lo,Key,IC,Copt)
-  prin4  status,key,ie,nc,ic; (' aRZOUT status - ',a,' - ',2a4,' cycles ',3i6)
+  prin4  status,key,ie,nc,ic; (' aRZOUT status - ',a,' - ',3a4,' cycles ',3i6)
  
  end
- 
- 
- 
- 
- 
  
  
  
