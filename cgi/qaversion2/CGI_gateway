@@ -34,7 +34,6 @@
 use strict;
 use Cwd;
 use FileHandle;
-#use CGI;
 
 my $my_name = "CGI_gateway";
 my $working_dir = cwd();
@@ -45,8 +44,6 @@ my $target_program = "QA_main.pm";
 my $afs_pw_file = "$working_dir/starlib_pw";
 
 my $scriptFH = new FileHandle;
-
-#my $cgi = new CGI;
 
 # don't buffer output
 \*STDOUT->autoflush(1);
@@ -70,12 +67,12 @@ if (! $reauth) {
 #
 
 my $queryString = $ENV{QUERY_STRING};
-#defined $cgi->param("targetProgram") and 
-$queryString =~ /targetProgram=([^&]*)/ and
+if ($queryString =~ /targetProgram=([^&]*)/){
     $target_program = $1;
-#defined $cgi->param("workingDirectory") and 
-$queryString =~ /workingDirectory=([^&]*)/ and
+}
+if ($queryString =~ /workingDirectory=([^&]*)/){
     $working_dir = $1;
+}
 
 #
 # Open the batch script

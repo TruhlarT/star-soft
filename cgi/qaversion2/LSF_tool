@@ -1,0 +1,352 @@
+#!/usr/bin/perl
+
+# LSF_tool provides a cgi interface to the lsf commands bjobs,
+# bhist and bkill.
+#
+# BEN(20jun2000): will add bstop, bresume, bpeek when I get back.
+#
+# some semantics:  
+#   "selected" jobs are those which are selected by 
+#              attribute in the browser and returned to the user
+#   "marked"   jobs are those which the user has chosen from among
+#              the "selected" jobs using checkboxes
+
+use strict;
+use CGI;
+
+#
+# the keys and headings used in the various selection columns
+#
+
+my $selectionKeys = [
+		     "jobID",
+		     "user",
+		     "status",
+		     "queue",
+		     "fromHost",
+		     "execHost",
+		     "jobName",
+		     "submitTime"
+		     ];
+my $selectionLabels = [
+		       "Job ID",
+		       "User",
+		       "Status",
+		       "Queue",
+		       "Submitted From",
+		       "Executed On",
+		       "Job Name",
+		       "Submit Time"
+		       ];
+
+my $cgi = new CGI;
+
+# don't buffer output
+$| = 1;
+
+# we need the lsf job information no matter what we're doing
+my $jobs = bJobs();  # reference to hash (by jobID) of references to hashes
+
+# print out the beginning of the document
+print startDocument($cgi);
+print controlButtons($cgi);
+
+# print out the table which includes job selection controls and
+# the selected jobs
+print $cgi->table({-border=>1},
+		  $cgi->Tr(
+			   {-align=>"CENTER",-valign=>"TOP"},
+			   selectionHeadings($cgi)
+			   ) . "\n",
+		  selectionControls($cgi, $jobs) . "\n",
+		  selectedJobs($cgi, $jobs) . "\n"
+		  ) . "\n";
+
+# carry out any action requested by the user and print the result
+print performAction($cgi, $jobs);
+
+print endDocument($cgi);
+
+exit 0;
+
+#
+# return the control buttons for acting on the jobs
+#
+
+sub controlButtons{
+    my $cgi = shift;
+
+    my $text = $cgi->submit(-name=>'action',
+			    -value=>'Refresh Job List') . "\n";
+    $text .= $cgi->submit(-name=>'action',
+			  -value=>'Details for Marked Jobs') . "\n";
+    $text .= $cgi->submit(-name=>'action',
+			  -value=>'History for Marked Jobs') . "\n";
+    $text .= $cgi->submit(-name=>'action',
+			  -value=>'Kill Marked Jobs') . "\n";
+
+    return $text;
+}
+
+#
+# return the title headings for the job table
+#
+
+sub selectionHeadings{
+    my $cgi = shift;
+
+    my $text = $cgi->td(["", @$selectionLabels]);
+
+    return $text;
+}
+
+#
+# return the controls for selecting jobs by attribute
+#
+
+sub selectionControls{
+    my $cgi = shift;
+    my $jobs = shift;
+    
+    #
+    # get allowed values for selection lists based on current jobs.
+    # If it doesn't appear in a current job, it won't be available.
+    #
+
+    my $fieldChoices = {}; # ref to hash of array refs
+    foreach my $key (@$selectionKeys){
+	$fieldChoices->{$key} = [];
+    }    
+
+    # temporarily add "any" job to allow no selection on a field
+    my $anyJob = {};
+    foreach my $key (@$selectionKeys){
+	$anyJob->{$key} = "any";
+    }
+    $jobs->{"any"} = $anyJob;
+
+    # collect all possible field values, including duplicates
+    foreach my $job (values %$jobs){
+	foreach my $key (@$selectionKeys){
+	    push @{ $fieldChoices->{$key} }, $job->{$key};
+	}
+    }
+    delete $jobs->{"any"};
+    
+    # remove duplicate elements from each list of field values, then sort
+    foreach my $key (@$selectionKeys){
+	removeDuplicates($fieldChoices->{$key});
+	$fieldChoices->{$key} = [sort(@{ $fieldChoices->{$key} })];
+    }
+
+    #
+    # print the selection controls
+    #
+
+    # get a set of radio buttons to select the field to sort on
+    my @radioButtons = $cgi->radio_group(
+				       -name=>'sortField',
+				       -value=>$selectionKeys,
+				       -default=>'jobID',
+				       -nolabels=>1
+				       );
+
+    my $text = $cgi->Tr(
+			$cgi->td(["Sort:", @radioButtons])
+			) . "\n";
+
+    # column selection controls
+    $text .= $cgi->Tr(
+		      $cgi->td([
+				"",
+				map({ 
+				    $cgi->popup_menu( 
+						      -name=>$_,
+						      -values=>$fieldChoices->{$_},
+						      -default=>"any"
+						      )
+				    } @$selectionKeys)
+				])
+		      ) . "\n";
+
+    return $text;
+}
+
+#
+# return the selected jobs, one per table row
+#
+
+sub selectedJobs{
+    my $cgi = shift;
+    my $jobs = shift;
+
+    # get the jobs meeting the selection criteria
+    my @selectedJobs = ();
+    my @selectedJobIDs = ();
+    
+    if ($cgi->param("jobID")){ # selection params are valid (not first call)
+      JOB_LOOP: foreach my $job (values %$jobs){
+	  foreach my $key (@$selectionKeys){
+	      if ($cgi->param($key) ne "any" &&
+		  $cgi->param($key) ne $job->{$key}){
+		  next JOB_LOOP;
+	      }
+	  }
+	  # matches all necessary criteria, add it
+	  push @selectedJobs, $job;
+      }
+    }else{                     # first call, show all jobs
+	@selectedJobs = values %$jobs;
+    }
+
+    # sort the jobs based on the sortField parameter
+    my $sortKey = $cgi->param('sortField');
+    $sortKey or $sortKey = "jobID";   # first call, sort on job id
+    @selectedJobs = sort {$a->{$sortKey} cmp $b->{$sortKey}} @selectedJobs;
+    for (my $i = 0; $i <= $#selectedJobs; $i++){
+	$selectedJobIDs[$i] = $selectedJobs[$i]->{"jobID"};
+    }
+
+    # get a set of checkboxes to select the rows (jobs)
+    my @checkBoxes = $cgi->checkbox_group(
+					  -name=>'markedJobs',
+					  -value=>[@selectedJobIDs],
+					  -nolabels=>1
+					  );
+
+    # generate the table text, one row per job
+    my $text = "";
+
+    for (my $i = 0; $i <= $#selectedJobs; $i++){
+	$text .= $cgi->Tr(
+			  $cgi->td([
+				    $checkBoxes[$i],
+				    map({ $selectedJobs[$i]->{$_} } 
+					@$selectionKeys)
+				    ])
+			  );
+    }
+    
+    return $text;
+}
+
+#
+# perform any action requested by the user and return the output
+#
+
+sub performAction{
+    my $cgi = shift;
+    my $jobs = shift;
+
+    my $action = $cgi->param("action");
+    my @markedJobIDs = $cgi->param("markedJobs");
+
+    my $text = "";
+    if ($action eq "Refresh Job List"){
+    }elsif($action eq "Details for Marked Jobs"){
+	foreach my $jobID (@markedJobIDs){
+	    $text .= $cgi->h3("Details for Job $jobID:") . "\n";
+	    $text .= $cgi->pre(`bjobs -l $jobID 2>&1`) . "\n";
+	    # capture stderr for appearance's sake
+	}
+    }elsif($action eq "History for Marked Jobs"){
+	foreach my $jobID (@markedJobIDs){
+	    $text .= $cgi->h3("Details for Job $jobID:") . "\n";
+	    $text .= $cgi->pre(`bhist -l $jobID 2>&1`) . "\n"; 
+	}
+    }elsif($action eq "Kill Marked Jobs"){
+	foreach my $jobID (@markedJobIDs){
+	    $text .= $cgi->h3("Result of Killing Job $jobID:") . "\n";
+	    $text .= $cgi->pre(`bkill $jobID 2>&1`) . "\n"; 
+	}
+    }
+
+    return $text;
+}
+
+#
+# return the HTTP header and beginning html code
+#
+
+sub startDocument{
+    my $cgi = shift;
+
+    # start http & html
+    my $text =  $cgi->header;
+    $text .= $cgi->start_html(-title => "AutoQA LSF Utility") . "\n";
+
+    # start the form
+    $text .= $cgi->start_form() . "\n";
+    return $text;
+}
+
+#
+# return the ending html code
+#
+
+sub endDocument{
+    my $cgi = shift;
+
+    # end the form
+    my $text = $cgi->end_form() . "\n";
+
+    $text .= $cgi->end_html . "\n";
+    
+    return $text;
+}
+
+# 
+# return a reference to a hash (by jobID) of hash references containing
+# data on lsf jobs.  Each hash has keys 
+# (jobID, user, status, queue, fromHost, execHost, jobName, submitTime)
+#
+
+sub bJobs{
+
+    my $jobs = {};
+
+    # get the jobs from bjobs
+    my @lines = `bjobs -w -u all`; # lists jobs for all users
+    shift @lines;                  # discard header
+
+    # extract fields from each line
+    foreach my $line (@lines){  
+	my @fields = ($line =~ 
+	   /^(\S+)\s+(\S+)\s+(\S+)\s+(\S+)\s+(\S+)\s+(\S+)\s+(.*)\s+(.{12})/);
+	my $job = {};
+
+	foreach my $key (@$selectionKeys){
+	    $job->{$key} = shift @fields; # keys have same order as fields
+	}
+
+	$jobs->{ $job->{jobID} } = $job;
+    }
+    
+    return $jobs;
+}
+
+#
+# given an array reference, removes duplicate elements.
+# also returns the array reference
+# 
+
+sub removeDuplicates{
+
+    my $arrayRef = shift;
+
+    my %found = ();
+    
+    # loop through all elements, removing dupes
+    for (my $i = 0; $i <= $#$arrayRef;$i++){
+	if ($found{ $arrayRef->[$i] } eq 1){
+	    splice(@$arrayRef, $i, 1); # not unique, cut it 
+	    $i--;
+	}else{
+	    $found{ $arrayRef->[$i] } = 1;
+	}
+    }
+
+    return $arrayRef;
+}
+
+
