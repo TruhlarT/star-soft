@@ -1,7 +1,7 @@
 
 #
 # This simple module was added to regroup a bunch of utility
-# routines for the Insure++ build. 
+# routines for the Insure++ build.
 # Put there WebStyles, routines or anything which would be
 # common to several scripts (so we don't have to re-write
 # it and we would have everything centralized)
@@ -13,13 +13,15 @@ use Exporter;
 
 @ISA = (Exporter);
 @EXPORT=qw(IUbody IUcmt IUhead IUtrail IUGetRef IUl2pre IUresource
-	   IUExcluded IUSourceDirs IUError IUconsOK 
+	   IUExcluded IUSourceDirs IUError IUconsOK
 	   IULoad JPLoad
 	   IURTFormat JPRFFormat
 	   JPRExec
 	   IUTests IUTestDir IUListRoutine IUErrorURL
 	   IUQueue IUSubmit
-	   IUReleaseFile IUManagers IUCompDir IUHtmlDir IUHtmlRef
+	   IUCheckFile IUMoveFile
+	   IUReleaseFile IUManagers IUCompDir
+	   IUHtmlDir IUHtmlRef IUHtmlPub
 	   );
 
 # ------------------------------------------
@@ -38,8 +40,8 @@ $INSU::STARAFS="/afs/rhic/star/packages";
 $INSU::SKIPNM="SKIP_DIRS";
 
 
-# This array declares a list of errors or messages 
-# to ignore. 
+# This array declares a list of errors or messages
+# to ignore.
 # Pattern only ; case insensitive.
 @INSU::MSGISERR=("Do not generate Streamer",
 		 ".consign",
@@ -70,7 +72,7 @@ $INSU::INSLOAD="setenv INSURE yes ; unsetenv NODEBUG ; staradev";
 $INSU::JPRLOAD="staradev";
 
 # directory which will contain the test result files
-$INSU::TDIR="/star/rcf/test/dev/Insure"; 
+$INSU::TDIR="/star/rcf/test/dev/Insure";
 
 # All tests may be declared here in this array. The first element is the chain
 # the second a list of files to work on. Note that the array will be later
@@ -118,8 +120,10 @@ $INSU::JPEXEC  ="/afs/rhic/star/packages/dev/.\@sys/BIN/jprof";
 # ---- HTML section
 # ------------------------------------------
 # directory where the HTML file will be stored (final target)
-$INSU::HTMLREPD="/afs/rhic/star/doc/www/comp/prod/Sanity";
-$INSU::HTMLREF="http://www.star.bnl.gov/STAR/comp/prod/Sanity";
+$INSU::HTMLREPD="/afs/rhic/star/doc/www/comp/prod/Sanity";       # final direcory
+$INSU::HTMLREF="http://www.star.bnl.gov/STAR/comp/prod/Sanity";  # URL
+$INSU::HTMLPUBD="/afs/rhic/star/doc/www/html/tmp/pub/Sanity";    # public dir (temp)
+
 
 # variables subject to export. So far, we will be using
 # functions to return their value
@@ -217,7 +221,7 @@ sub IUExcluded
 
 # Although I am forseing only the use if INSUhead, flexibility
 # of 2 extra routines added.
-sub IUbody {    
+sub IUbody {
     "<BODY $INSU::BODYATTR>\n$INSU::FONT\n";
 }
 sub IUcmt {
@@ -240,7 +244,7 @@ sub IUhead
 }
 sub IUtrail
 {
-    "</BODY>\n</HTML>\n";  
+    "</BODY>\n</HTML>\n";
 }
 
 
@@ -289,7 +293,7 @@ sub IUresource
     my($ofile,$mess)=@_;
 
     if(! -e ".psrc"){
-	open(FO,">.psrc") || 
+	open(FO,">.psrc") ||
 	    die "$PRGM Could not open any file in W mode in the current tree\n";
 	print FO qq~
 insure++.summarize bugs
@@ -307,7 +311,7 @@ insure++.uninit_flow 300
 insure++.report_file $ofile
     ~;
 #insure++.unsuppress all
-	close(FO); 
+	close(FO);
 	print "$mess\n";
     }
 }
@@ -331,7 +335,7 @@ sub IUError
     return &IUIfAnyMatchExclude($line,@INSU::MSGISERR);
 }
 
-# Global internal routine managing both 
+# Global internal routine managing both
 # INSListRoutine and IUError. Based on pattern
 # exclusion (if found, not OK) mechanism.
 sub IUIfAnyMatchExclude
@@ -362,8 +366,8 @@ sub IUErrorURL
 }
 
 # Returns the compilation directory
-sub IUCompDir  
-{ 
+sub IUCompDir
+{
     my($lib)=@_;
     my($retv);
 
@@ -391,7 +395,7 @@ sub IUSubmit
     my($log);
 
     $log = $job.".log";
-    
+
     if ( ! defined($flag) ){ $flag = 0;}
 
     if ( ! $flag ){
@@ -400,6 +404,107 @@ sub IUSubmit
 	system("bsub -q $INSU::QUEUE -o $log $job");
     }
 }
+
+
+
+
+
+
+#
+# This routines only checks for existence of an output file
+# and prepares for a new one to appear. Arguments are
+#   mode     0 returns a csh instruction
+#            1 do it in perl on the fly
+#   file     the filename
+#
+# This routine does not create an empty file.
+#
+sub IUCheckFile
+{
+    my($mode,$file)=@_;
+    my($dir,$sts);
+
+    $sts = 0;
+    $file =~ m/(.*\/)(.*)/;
+    ($dir,$file) = ($1,$2);
+    chop($dir);
+
+    if ($mode == 0){
+	# csh mode
+	$sts = "";
+	$sts = "if ( -e $dir/$file-old) rm -f $dir/$file-old\n";
+	$sts.= "if ( -e $dir/$file)     mv -f $dir/$file $dir/$file-old\n";
+
+    } elsif ($mode == 1){
+	# perl mode
+	if ( -e "$dir/$file-old"){ unlink("$dir/$file-old");}
+	if ( -e "$dir/$file")    { rename("$dir/$file","$dir/$file-old");}
+
+    } else {
+	# unknown mode
+	print "ABUtil:: IUCheckFile : Unknown mode $mode\n";
+    }
+    $sts;
+}
+
+
+#
+# This routine move a file infile to outfile using target
+# outfile versioning with filename-version.ext
+# The argument $mode functions as above.
+#
+sub IUMoveFile
+{
+    my($mode,$infile,$outfile,$limit)=@_;
+    my($sts,$file,$odir,$oflnm,$oext);
+    my($cnt,$line);
+
+    $cnt = $sts   = 0;
+
+    $outfile      =~ m/(.*\/)(.*)/;
+    ($odir,$oflnm)= ($1,$2);
+    chop($odir);
+    $oflnm        =~ m/(.*)(\..*)/;
+    ($oflnm,$oext)= ($1,$2);
+
+    while ( -e "$odir/$oflnm-$cnt.$oext" && $cnt < $limit){ $cnt++;}
+    if ($cnt == $limit) {
+	$cnt = 0;
+	unlink(glob("$odir/$oflnm-*.$oext"));
+    }
+
+
+    if ($mode == 0){
+	# csh mode ; we are cheating for the version
+	$sts = "";
+	$sts.= "if ( -e $odir/$oflnm$oext ) mv -f $odir/$oflnm$oext $odir/$oflnm-$cnt$oext\n";
+	$sts.= "if ( -e $infile) cp -f $infile $odir/$oflnm$oext\n";
+
+    } elsif ($mode == 1){
+	# perl mode
+	if ( -e "$odir/$oflnm$oext"){ rename("$odir/$oflnm$oext","$odir/$oflnm-$cnt$oext");}
+	if ( -e "$infile"){
+	    $sts = open(FO,">$odir/$oflnm$oext") && open(FI,"$infile");
+	    if ($sts){
+		while ( defined($line = <FI>) ){
+		    chomp($line);
+		    print FO "$line\n";
+		}
+	    }
+	    close(FI);
+	    close(FO);
+	}
+    } else {
+	# unknown mode
+	print "ABUtil:: IUMoveFile : Unknown mode $mode\n";
+    }
+    $sts;
+}
+
+
+
+
+
 
 
 # Returns the directories to update using cvs
@@ -436,11 +541,14 @@ sub IUReleaseFile { return $INSU::RELFLNM;}
 # Return the mailing-list /admin accounts
 sub IUManagers { return @INSU::MANAGERS;}
 
-# Returns the HTML (or other) report directory
+# Returns the HTML (or other) report directory (token required)
 sub IUHtmlDir  { return $INSU::HTMLREPD;}
 
 # Returns the HTML URL reference
 sub IUHtmlRef  { return $INSU::HTMLREF;}
+
+# Returns "a" HTML output public directory (volatile ; no token)
+sub IUHtmlPub  { return $INSU::HTMLPUBD;}
 
 # Returns the queue name
 sub IUQueue    { return $INSU::QUEUE;}
