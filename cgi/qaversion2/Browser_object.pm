@@ -192,13 +192,22 @@ sub StartingDisplay{
     $expert_string = Browser_utilities::start_expert_default();
   }
 
+
+  #----------------------------------------------------------
+
+  my $table_string = "<tr> $expert_string <tr> $comment_string";
+
+  $gServer_object->ServerType eq "offline" and do{
+    my $rcas_lsf_string = $self->RcasLsfMonitor();
+    $table_string .= "<tr> $rcas_lsf_string";
+  };
+  #----------------------------------------------------------
   print qq{
 	<table border=0, width=100%, valign=top, align=center>
         <tr valign=top>
 	    <td> $selection_string
 	    <td> <table border=0, valign=top, align=center>
-                 <tr> $expert_string
-                 <tr> $comment_string
+                 <tr> $table_string
                  </table>
         </table>};
   #-----------------------------------------------------------------------------
@@ -411,9 +420,24 @@ sub ContactString{
   #my $url = "http://$server_name$base_name/contacts.html";
 
   # temporary solution:
-  my $url = "http://www.star.bnl.gov/~jacobs/contacts.html";
+#  my $url = "http://www.star.bnl.gov/~jacobs/contacts.html";
+  my $url = "http://duvall.star.bnl.gov/~jacobs/contacts.html";
 
   my $string = "<a href=$url target = 'documentation'>Contacts </a>";
+  return $string;
+}
+#===========================================================
+# pmj 7/6/00 returns link to rcas/lsf monitor
+
+sub RcasLsfMonitor{
+
+  my $self = shift;
+  
+  #---------------------------------------------------------
+  my $server_name = "sol.star.bnl.gov:8080";
+  my $url = "http://$server_name/v2/LSF_tool";
+
+  my $string = "<a href=$url target = 'documentation'>Rcas/LSF monitor </a>";
   return $string;
 }
 
