@@ -647,6 +647,7 @@ sub rdaq_get_orecords
     my($flag,$comp);
 
     if(!$obj){ return undef;}
+    if( ! defined($mode) ){ $mode = 1;}
 
     # basic selection
     $cmd = "SELECT * FROM $dbtable";
@@ -712,7 +713,7 @@ sub rdaq_get_orecords
     }
 
 
-    #print "DEBUG : [$cmd] [@Values]\n";
+    #print "<!-- DEBUG : [$cmd] [@Values] -->\n";
     $sth = $obj->prepare($cmd);
     $sth->execute(@Values);
     if ($sth){
