@@ -336,41 +336,7 @@ sub OnDiskOffline{
 
   return defined $status;
 }
-#----------
-# get output file of the job (dst.root) for offline and nightly
 
-sub GetOutputFileOffline{
-  my $jobID = shift;
-
-  my $query = qq{select path, fName
-		 from $dbFile.$FileCatalog 
-		 where jobID ='$jobID' and
-		       component = 'dst' and
-		       format = 'root' and
-		       hpss = 'N'
-		       limit 1};
-
-  #returns the path and name
-  return $dbh->selectrow_array( $query );
-}
-#----------
-# get output file of the job (dst.root) for offline and nightly
-# path and name for nightly
-
-sub GetOutputFileNightly{
-  my $jobID = shift;
-
-  my $query = qq{select path, fName
-		 from $dbFile.$FileCatalog 
-		 where jobID ='$jobID' and
-		       component = 'dst' and
-		       format = 'root' and
-		       avail = 'Y'
-		       limit 1};
-
-  #returns the path and name
-  return $dbh->selectrow_array( $query );
-}
 #----------
 # returns the value from the '@field(s)' requested from FileCatalog
 # that matches the '$jobID'
@@ -448,32 +414,34 @@ sub GetInputFnOffline{
 
   return $dbh->selectrow_array($query);
 }
-#----------
-# returns all production files for offline 
 
-sub GetAllProductionFilesOffline{
-  my $jobID     = shift;
-  
-  my $query = qq{select concat(path,'/',fName)
+#----------
+#
+sub GetFromFileOnDiskNightly{
+  my $field = shift;
+  my $jobID = shift;
+
+  my $query = qq{select $field
 		 from $dbFile.$FileCatalog
 		 where jobID = '$jobID' and
-	               hpss = 'N'};
+		 avail = 'Y'};
 
-  return $dbh->selectcol_arrayref($query);
-
+  return wantarray ? @{$dbh->selectcol_arrayref($query)}
+                   : $dbh->selectrow_array($query);
 }
 #----------
-# returns  all production files for nightly 
+#
+sub GetFromFileOnDiskOffline{
+  my $field = shift;
+  my $jobID = shift;
 
-sub GetAllProductionFilesNightly{
-  my $jobID     = shift;
-  
-  my $query = qq{select concat(path,'/',fName)
+  my $query = qq{select $field
 		 from $dbFile.$FileCatalog
 		 where jobID = '$jobID' and
-	               avail = 'Y'};
- 
-  return $dbh->selectcol_arrayref($query);
+		 hpss = 'N'};
+
+  return wantarray ? @{$dbh->selectcol_arrayref($query)}
+                   : $dbh->selectrow_array($query);
 
 }
 #----------
@@ -544,8 +512,15 @@ sub ClearQAMacrosTable{
 # 
 sub FlagQAInProgress{
   my $qaID = shift;
-  UpdateQASummmary($QASum{QAdone},'in progress', $qaID);
+  UpdateQASummary($QASum{QAdone},'in progress', $qaID);
 }
+#----------
+#
+sub SetQANotDone{
+  my $qaID = shift;
+  UpdateQASummary($QASum{QAdone},'N', $qaID);
+}
+
 #----------
 # 
 sub WriteQASummary{

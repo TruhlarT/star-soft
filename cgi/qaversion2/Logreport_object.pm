@@ -262,7 +262,6 @@ sub DisplayLogReport {
     Chain = $self->{_RequestedChain}
     Input filename = $self->{_InputFn} 
     Output directory = $self->{_OutputDirectory} 
-    Output filename = $self->{_OutputFn}
     Start date/time = $self->{_JobStartTimeAndDate} 
     Nevents requested = $self->{_NEventRequested}
     First event requested = $self->{_FirstEventRequested}

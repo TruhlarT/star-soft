@@ -12,7 +12,7 @@ use IO_object;
 
 # this should be "LSF" for lsf and "AT" for at
 # my $batchType = "AT";
-my $batchType = "LSF";
+my $batchType = "AT";
 # queue to use on LSF
 my $lsfQueue = "star_cas_short";
 

@@ -60,8 +60,8 @@ sub DataDisplayString{
          "JobID : " . $self->LogReport->JobID . br.
 	 "RunID : " . $self->LogReport->RunID . br.
 	 "File seq : " . $self->LogReport->FileSeq . br .
-	 "Dataset : " . $self->LogReport->Dataset . br .	   
-         "(prodSeries: $prodSeries; chain name: $chainName)";
+	 "Dataset : " . $self->LogReport->Dataset . br ; 
+#	 "Redone  : " . $self->LogReport->Redone ;
 }
 
 

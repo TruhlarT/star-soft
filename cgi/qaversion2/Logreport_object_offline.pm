@@ -28,7 +28,8 @@ my %members = (
 	        _ChainName        => undef, # abbrev of the chain
 	        _EventGenDetails  => undef, # more info on the generator
 	        _CollisionType    => undef, # e.g. auau200
-	        _Dataset          => undef
+	        _Dataset          => undef,
+	        _Redone           => undef
 	      );
 
 #=========================================================
@@ -67,6 +68,7 @@ sub _init_offline{
   $self->RunID(QA_db_utilities::GetFromFileCatalog('runID',$self->JobID) );
   $self->FileSeq(QA_db_utilities::GetFromFileCatalog('fileSeq',$self->JobID));
   $self->Dataset(QA_db_utilities::GetFromFileCatalog('dataset',$self->JobID));
+  $self->Redone(QA_db_utilities::GetFromFileCatalog('redone',$self->JobID));
 
   # get prod series, chain name, lib version, and chain options
   
@@ -250,22 +252,22 @@ sub GetJobInfo{
   my $input = QA_db_utilities::GetInputFnOffline($self->JobID);
   $self->InputFn($input);
 
-  # output file name and directory
-  my ($path, $name) = 
-    QA_db_utilities::GetOutputFileOffline( $self->JobID );
-
+  # output directory
+  my $path = 
+    QA_db_utilities::GetFromFileOnDiskOffline('path',$self->JobID);
   $self->OutputDirectory($path);
-  $self->OutputFn($name);
-
+  
   # job completion time
   my $donetime = QA_db_utilities::GetFromFileCatalog('createTime',$self->JobID);
   $self->JobCompletionTimeAndDate($donetime);
 
   # all output files
-   my $file_ref = 
-    QA_db_utilities::GetAllProductionFilesOffline($self->JobID);
+  my @files = 
+    QA_db_utilities::GetFromFileOnDiskOffline('fname', $self->JobID);
 
-  $self->ProductionFileListRef($file_ref);
+  @files = map{ $self->OutputDirectory . "/$_" } @files;
+  $self->ProductionFileListRef(\@files);
+
 
   # check for missing files.
   # depends on the data class - use global DataClass_object.

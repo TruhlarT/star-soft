@@ -23,9 +23,9 @@ use strict;
 sub UpdateQAOffline{
   my $dataType   = shift; # either 'real' or 'MC'
 
-  my $limit      = 20;     # limit number of new jobs
+  my $limit      = 1;     # limit number of new jobs
   my $oldestDate;         # dont retrieve anything older than this
-  my $fileType;
+  my $fileType;           # daq_reco or MC_reco
   my $today      = strftime("%Y-%m-%d %H:%M:%S",localtime());
 
   # real or simulation?
@@ -42,7 +42,7 @@ sub UpdateQAOffline{
   else {die "Wrong argument $dataType" }
   
   # report key
-  my $queryKey = qq{select concat(jobID, '.', runID, '.',   
+  my $queryKey = qq{select concat(jobID, '.', redone, '.', runID, '.',   
 			      date_format(file.createTime, '%y%m%d'))
 		     from $dbFile.$FileCatalog as file
 		     where file.jobID=? limit 1};
@@ -61,7 +61,8 @@ sub UpdateQAOffline{
   my $queryUpdate = qq{select distinct file.jobID
 			from $dbFile.$FileCatalog as file 
 			LEFT JOIN $dbQA.$QASum{Table} as qa
-			on file.jobID = qa.$QASum{jobID}
+			on file.jobID  = qa.$QASum{jobID} and
+			   file.redone = qa.$QASum{redone}
 			where
 			  file.type = '$fileType' and
 			  file.createTime < '$today' and
@@ -132,7 +133,7 @@ sub UpdateQAOfflineReal{
 sub UpdateQANightly {  
   my $dataType = shift; # 'real' or 'MC'
   
-  my $limit       = 20;
+  my $limit       = 1;            # limit number of new jobs
   my $oldestDate  = '2000-07-01'; # dont retrieve anything older 
   my $today       = strftime("%Y-%m-%d %H:%M:%S",localtime());
 

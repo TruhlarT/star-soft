@@ -123,8 +123,10 @@ sub _init{
     QA_utilities::datetime_to_epochsec($time_temp);
 
   # has QA been done or not?
-  $self->{_QADone} = QA_db_utilities::GetFromQASum($QASum{QAdone}, $self->ReportKey);
-  $self->{_QADate} = QA_db_utilities::GetFromQASum($QASum{QAdate}, $self->ReportKey);
+  $self->{_QADone} = QA_db_utilities::GetFromQASum($QASum{QAdone}, 
+						   $self->ReportKey);
+  $self->{_QADate} = QA_db_utilities::GetFromQASum($QASum{QAdate}, 
+						   $self->ReportKey);
 
   # is data on disk? - see derived classes
   
@@ -360,7 +362,7 @@ sub QASummaryString{
      
    }
   } # qa in progress
-  else { }
+  else { $summary_string .= "QA in progress"}
 
   #-------------------------------------------------------
   # check status of batch jobs: look for batch flags in report directory
@@ -437,7 +439,7 @@ sub ButtonString{
   $button_string .= $button_ref   ->SubmitString;
   
   # detailed evaluation of QA if qa if done
-  if ( $self->QADone ){ 
+  if ( $self->QADone eq 'Y' ){ 
     $button_ref = Button_object->new('QaDetails', 'QA Details', 
 				     $report_key);
     $button_string .= $button_ref->SubmitString;
@@ -473,7 +475,7 @@ sub ButtonString{
   # for experts : do qa, redo qa, do evaluation
   if ($expert_page){
 
-    if ( $self->QADone ){ 
+    if ( $self->QADone eq 'Y' ){ 
       $button_ref = Button_object->new('RedoEvaluation', 'Redo Evaluation', 
 				       $report_key);
       $button_string .= $button_ref->SubmitString."<br>";

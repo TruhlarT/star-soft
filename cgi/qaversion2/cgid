@@ -52,7 +52,7 @@ use Cwd;
 $| = 1; # don't buffer output
 
 my $my_name = "cgid";
-my $script_names = ["QA_main.pm", "LSF_tool"];
+my $script_names = ["QA_main.pm", "LSF_tool", "badJobs"];
 my $var_dir = "/afs/rhic/star/starqa/var";
 my $log_dir = "$var_dir/log";
 my $run_dir = "$var_dir/run";

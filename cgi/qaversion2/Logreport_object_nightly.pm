@@ -186,18 +186,17 @@ sub GetJobInfo{
   $self->LastEventRequested($events);
   $self->JobCompletionTimeAndDate($createTime);   
   
-  # output file name and directory
-  my ($path, $name) = 
-    QA_db_utilities::GetOutputFileNightly( $jobID );
-
+  # output directory
+  my $path = 
+    QA_db_utilities::GetFromFileOnDiskNightly('path',$self->JobID);
   $self->OutputDirectory($path);
-  $self->OutputFn($name);
-  
   
   # all the output files
-  my $file_ref = 
-    QA_db_utilities::GetAllProductionFilesNightly($self->JobID);
-  $self->ProductionFileListRef($file_ref);
+  my @files = 
+    QA_db_utilities::GetFromFileOnDiskNightly('fname', $self->JobID);
+
+  @files = map{ $self->OutputDirectory . "/$_" } @files;
+  $self->ProductionFileListRef(\@files);
 
   # check for missing files.
   # depends on the data class - use global DataClass_object.

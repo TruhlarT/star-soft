@@ -178,7 +178,7 @@ sub AddMessagesToKeyList{
 
 sub FillStatusMenus{
   my $self        = shift;
-  my @macro_names = shift;
+  my @macro_names = @_;
   
   no strict 'refs';
 

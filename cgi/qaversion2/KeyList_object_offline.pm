@@ -73,7 +73,7 @@ sub JobPopupMenu{
   # get some selection values from the database
   my $select_ref = $self->GetSelectionOptions();
 
-  # production options (prod series and chainname)
+  # -- production options -- (prod series and chainname)
 
   foreach my $prodSeries (keys %{$select_ref->{prodOptions}}){
     push @{$self->{values}{prodOptions}}, $prodSeries;
@@ -85,10 +85,10 @@ sub JobPopupMenu{
       $self->{labels}{prodOptions}{$value} = "$prodSeries - $chainName";
     }
   }
-  # runID
+  # -- runID -- 
   push @{$self->{values}{runID}}, @{$select_ref->{runID}};
 
-  # QA status (errors, warnings, ok)
+  # -- QA status -- (errors, warnings, ok)
   my @macro_names = @{$select_ref->{macroName}};
   my $abbrev;
 
@@ -112,13 +112,13 @@ sub JobPopupMenu{
     }
   }
   
-  # dataset
+  # -- dataset --
   push @{$self->{values}{dataset}}, @{$select_ref->{dataset}};
     
-  # job status 
+  # -- job status -- 
   push @{$self->{values}{jobStatus}}, ('done', 'not done');
 
-  # createTime
+  # -- createTime --
   push @{$self->{values}{createTime}}, ('three_days','seven_days', 'fourteen_days');
   
   $self->{labels}{createTime}{three_days} = '3 days ago';
@@ -130,8 +130,6 @@ sub JobPopupMenu{
   
 
   my $submit_string = br.$gCGIquery->submit('Display datasets');
-
-  my (@table_rows);
 
   #--- 
   # pmj 21/6/00: more compact display, no header. Pulldown menu for changing classes

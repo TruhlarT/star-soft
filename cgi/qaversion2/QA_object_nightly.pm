@@ -7,6 +7,7 @@ package QA_object_nightly;
 #=============================================================================
 use CGI qw(:standard :html3);
 use IO_object;
+use QA_globals;
 use QA_db_utilities;
 use Logreport_object_nightly;
 
@@ -51,10 +52,12 @@ sub DataDisplayString{
 
   my $starlib_version = $self->LogReport->StarlibVersion;
   my $star_level      = $self->LogReport->StarLevel;
-  
+  my $jobID_string    = $self->LogReport->JobID . br
+    if $gBrowser_object->ExpertPageFlag;
+
   return
     $self->ReportKey . br . br .
-    "JobID : " . $self->JobID . br .
+    $jobID_string .
     "(STARLIB version: $starlib_version; STAR level: $star_level)";
       
     
