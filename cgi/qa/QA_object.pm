@@ -144,53 +144,56 @@ sub ControlFile{
 
   $self->{control_file} or do{
 
-    my $report_key = $self->ReportKey;
-
-    $control_file = "unknown";
+    my $starlib_version = $self->LogReport->StarlibVersion;
+    my $input_filename = $self->LogReport->InputFn;
     
   CONTROLFILE: {
       
-      $report_key =~ /year_1b\.hc_low/ and do{
-	$control_file = "$control_dir/test_control.hc_low.year_1b.txt";
-	last CONTROLFILE;
-      };
+      $control_file = "unknown";
       
-      $report_key =~ /year_1b\.hc_std/ and do{
-	$control_file = "$control_dir/test_control.hc_std.year_1b.txt";
+      my $dir = "$control_dir/$starlib_version";
+      -d $dir or $dir = "$control_dir/default";
+      -d $dir or last CONTROLFILE;
+
+      my $filestring = "$dir/test_control";
+
+      if ( $input_filename =~ /venus412\/b0_3/ ){
+	$filestring .= "\.venus";
+      }
+      elsif( $input_filename =~ /hadronic_cocktail/ ){
+
+	if ( $input_filename =~ /lowdensity/ ){
+	  	$filestring .= "\.hc_low";
+	      }
+	elsif ( $input_filename =~ /standard/ ){
+	  	$filestring .= "\.hc_std";
+	      }
+	elsif ( $input_filename =~ /highdensity/ ){
+	  	$filestring .= "\.hc_high";
+	      }
+	else{
+	  	last CONTROLFILE;
+	      }
+
+      }
+      else{
 	last CONTROLFILE;
-      };
-      
-      $report_key =~ /year_1b\.hc_high/ and do{
-	$control_file = "$control_dir/test_control.hc_high.year_1b.txt";
+      }
+
+      if ( $input_filename =~ /year_1b/ ){
+	$filestring .= "\.year_1b";
+      }
+      elsif ( $input_filename =~ /year_2a/ ){
+	$filestring .= "\.year_2a";
+      }
+      else{
 	last CONTROLFILE;
-      };
+      }
+
+      $control_file = "$filestring\.txt";
       
-      $report_key =~ /year_2a\.hc_low/ and do{
-	$control_file = "$control_dir/test_control.hc_low.year_2a.txt";
-	last CONTROLFILE;
-      };
-      
-      $report_key =~ /year_2a\.hc_std/ and do{
-	$control_file = "$control_dir/test_control.hc_std.year_2a.txt";
-	last CONTROLFILE;
-      };
-      
-      $report_key =~ /year_2a\.hc_high/ and do{
-	$control_file = "$control_dir/test_control.hc_high.year_2a.txt";
-	last CONTROLFILE;
-      };
-      
-      $report_key =~ /year_1b/ and do{
-	$control_file = "$control_dir/test_control.year_1b.txt";
-	last CONTROLFILE;
-      };
-      
-      $report_key =~ /year_2a/ and do{
-	$control_file = "$control_dir/test_control.year_2a.txt";
-	last CONTROLFILE;
-      };
-      
-    }
+    } # end of CONTROLFILE
+
     $self->{control_file} = $control_file;    
   };
   

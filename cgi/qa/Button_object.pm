@@ -52,9 +52,11 @@ sub _init{
 
   # generate a unique name for the button, put reference to this
   #object into a hash that persists over multiple calls to script
+  
   $name = $self->ButtonName();
   $Button_object_hash{$name} = \$self;
 
+#  &QA_utilities::print_button_object_hash;
 }
 #========================================================
 sub MethodName{
@@ -73,7 +75,17 @@ sub ButtonName{
   my $self = shift;
 
   # generate unique name for button (use address of instance of object)
-  $self->{ButtonName} or $self->{ButtonName} = \$self;
+#  $self->{ButtonName} or $self->{ButtonName} = \$self;
+
+  $self->{ButtonName} or do{
+
+    $name = $self->MethodName;
+
+    $report_key = $self->ReportKey;
+    $report_key and $name .= "\.$report_key";
+    $self->{ButtonName} = $name;
+
+  };
 
   return $self->{ButtonName};
 }

@@ -30,36 +30,45 @@ use QA_report_object;
 #--------------------------------------------------------
 1;
 #========================================================
-sub display_reports {
+sub display_reports{
   
   my $report_key = shift;
  
   my $report_dirname = $QA_object_hash{$report_key}->ReportDirectory;
   my $production_dirname = $QA_object_hash{$report_key}->ProductionDirectory;
   #---------------------------------------------------------
-    print "<h2> QA for $production_dirname </h2> \n"; 
+  print "<h2> QA for $production_dirname </h2> \n"; 
   #---------------------------------------------------------
   # get links to test files
-
+  
   print "<hr><h3> Control and Macro Definition files: </h3> \n";
   
   $control_file = $QA_object_hash{$report_key}->ControlFile;
-  $control_file_WWW = "$control_dir_WWW/".basename($control_file);
-  QA_cgi_utilities::make_anchor("Control file", $control_file, $control_file_WWW);
+  $file_string = $control_file; 
+  $file_string =~ s/$control_dir\///;
   
-  open CONTROL, $control_file or die "Cannot open control file $control_file: $! \n";
-  while ($test_file = <CONTROL>){
-    
-    $test_file =~ /^\#/ and next;
-    $test_file !~ /\S+/ and next;
-
-    ($file_string = $test_file) =~ s/.*control_and_test\///;
-
-    $test_file_WWW = "$control_dir_WWW/$file_string";
-    
-    QA_cgi_utilities::make_anchor("Macro Definition file", $test_file, $test_file_WWW);
+  $control_file_WWW = "$control_dir_WWW/$file_string";
+  QA_cgi_utilities::make_anchor("Control file", $control_file, $control_file_WWW);
+ 
+  if ( -e $control_file ){
+ 
+    open CONTROL, $control_file or die "Cannot open control file $control_file: $! \n";
+    while ($test_file = <CONTROL>){
+      
+      $test_file =~ /^\#/ and next;
+      $test_file !~ /\S+/ and next;
+      
+      ($file_string = $test_file) =~ s/$control_dir\///;
+      
+      $test_file_WWW = "$control_dir_WWW/$file_string";
+      
+      QA_cgi_utilities::make_anchor("Macro Definition file", $test_file, $test_file_WWW);
+    }
+    close CONTROL;
   }
-  close CONTROL;
+  else{
+    print "Control file $control_file does not exist <br> \n";
+  }
 
   #---------------------------------------------------------
   # display ps files

@@ -380,5 +380,26 @@ sub print_refresh{
   print "<h3> <font color = blue> To refresh upper panel when done, reselect dataset </font> </h3> \n";
   return;
 }
+#===========================================================
+sub print_button_object_hash{
 
+  ($package, $filename, $line) = caller;
+
+  print "-" x 80, "\n<br> print_button_object_hash called from $package::$filename, line $line <br> \n";
+
+  foreach $key ( keys %Button_object_hash ){
+
+    $object_ref = $Button_object_hash{$key};
+    $object = $$object_ref;
+
+    my $name = $object->ButtonName;
+    my $method = $object->MethodName;
+    my $value = $object->ButtonValue;
+    my $report_key = $object->ReportKey;
+
+    print "ref = $object_ref, name = $name, method = $method, value = $value, report_key = $report_key <br> \n";
+
+  }
+
+}
   
