@@ -55,7 +55,7 @@ STDOUT->autoflush(1);
 
 my $token = `tokens`;
 
-if ($token !~ /^User/m) {   # token line in output
+if ($token !~ /^User\'s \(AFS ID 31012\)/m) {   # token line in output
     print STDERR "(re)starting reauth...\n";
     system("killall reauth; cat $afsPwFile | reauth 85000 starlib");
     print STDERR "...reauth (re)started\n";
@@ -88,7 +88,7 @@ if (!$query){
 }
 
 # check for cgid running
-$pid = getPID("starlib","./cgid\$"); 
+$pid = getPID("starlib","cgid"); 
 $verbose && print "cgid pid = $pid\n";
 if (!$query){
     if (!$pid && !$kill && !$destroy){
@@ -122,7 +122,8 @@ sub getPID{
     my $user = shift;
     my $search = shift;
 
-    my $cmd = "ps -flu $user | grep '$search' | grep -v grep";
+    my $cmd = 
+        "ps -flu $user | grep '$search' | grep -v grep | grep -v 'cgid_init'";
     my $result = `$cmd`;
     #print "cmd = $cmd\n";
     #print "result = $result\n";
