@@ -10,7 +10,8 @@
 #
 # -debug      : maintainance option
 #
-
+#use Env (OPTSTAR);
+#use lib "$OPTSTAR/lib";
 use lib "/afs/rhic/star/packages/scripts";
 use strict;
 use FileCatalog;
@@ -23,10 +24,12 @@ my $debug;
 # The state variables
 my ($all, $alls, $unique, $field_list);
 my ($cond_list, $start, $limit, $delim, $onefile, $outfilename);
+my ($intent)="User";
 
 # Load the modules to store the data into a new database
-my $fileC = FileCatalog->new;
-$fileC->connect_as("User");
+# Simple way to connect (possibly using XML or default values)
+my $fileC = FileCatalog->new();
+
 
 # Set the defaults for he state values
 $all         = 0;
@@ -51,10 +54,18 @@ while (defined $ARGV[$count]){
       { $onefile = 1; }
     elsif ($ARGV[$count] eq "-distinct")
       { $unique = 1; }
+
+    elsif ($ARGV[$count] eq "-V")
+      { print "This is Version ".$fileC->Version()."\n"; exit;}
     elsif ($ARGV[$count] eq "-debug" ||
 	   $ARGV[$count] eq "-coffee"){
 	$fileC->debug_on();
     }
+
+    elsif ($ARGV[$count] eq "-as")
+      { $intent = $ARGV[++$count]; }
+
+
     elsif ($ARGV[$count] eq "-start")
       { $start = $ARGV[++$count]; }
     elsif ($ARGV[$count] eq "-limit")
@@ -88,6 +99,8 @@ while (defined $ARGV[$count]){
 if ($count == 0){
     &Usage();
 } else {
+    $fileC->connect_as($intent);
+
     if ($outfilename ne ""){
 	open (STDOUT, ">$outfilename") || die "Cannot redirect output to file $outfilename";
     }
@@ -169,6 +182,9 @@ Command usage:
  -limit <number of output records>  limits the number of returned values (0 for all)
  -start <start record number>       start at the n-th record of the sample
  -o <output filename>               redirects results to an ouput file (use STDOUT)
+
+ -V                                 print version and exits
+ -as {Admin|User}                   connect as specified
 
  Fields appearing in -keys and/or -cond may be amongst the following
      ~;
