@@ -309,11 +309,13 @@ my $year = "2003";
 if( $mon < 10) { $mon = '0'.$mon };
 if( $mday < 10) { $mday = '0'.$mday };
 
+
  $thisday = $year."-".$mon."-".$mday; 
  $today = $thisday;
  print $thisday, "\n";
 $outname = "mail" . "_" .$thisday . "_" . "out";
- 
+
+# $outname = "mail_2003-04-15_out";
  $outfile = "/star/u/starreco/" . $outname;
 
  print $outfile, "\n";
@@ -421,6 +423,7 @@ for ($ll = 0; $ll < scalar(@nodeList); $ll++) {
      my $fvalue=$fields[$i];
        my $fname=$cursor->{NAME}->[$i];
        print "$fname = $fvalue\n" if $debugOn;
+       print "$fname = $fvalue\n";
 
        $dbnode = $fvalue     if( $fname eq 'nodeName');
        $dbDate = $fvalue     if( $fname eq 'mdate');
@@ -453,9 +456,12 @@ exit;
  $sql.="doneJobs='$nodeDnCount{$mynode}',";
  $sql.="fileNotFound='$nodeFNFCount{$mynode}',";
  $sql.="queuingFailed='$nodeQuFaCount{$mynode}',";
+ $sql.="transferFailed='$nodeTrFaCount{$mynode}',";
+ $sql.="msgFailed='$nodeMsFaCount{$mynode}',";
+ $sql.="dbFailed='$nodeDbFaCount{$mynode}',";
  $sql.="mdate='$thisday' "; 
     print "$sql\n" if $debugOn;
-   $rv = $dbh->do($sql) || die $dbh->errstr;
+  $rv = $dbh->do($sql) || die $dbh->errstr;
    }
 
 #######################################################################
@@ -468,7 +474,10 @@ exit;
  $sql.="stagingFailed='$nodeStCount{$mynode}',";
  $sql.="doneJobs='$nodeDnCount{$mynode}',";
  $sql.="fileNotFound='$nodeFNFCount{$mynode}',";
- $sql.="queuingFailed='$nodeQuFaCount{$mynode}' ";
+ $sql.="queuingFailed='$nodeQuFaCount{$mynode}',";
+ $sql.="transferFailed='$nodeTrFaCount{$mynode}',";
+ $sql.="msgFailed='$nodeMsFaCount{$mynode}',";
+ $sql.="dbFailed='$nodeDbFaCount{$mynode}' ";
  $sql.=" WHERE nodeName = '$mynode' AND  mdate = '$thisday' ";
     print "$sql\n" if $debugOn;
    $rv = $dbh->do($sql) || die $dbh->errstr;
