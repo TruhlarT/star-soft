@@ -1,5 +1,5 @@
 #!/bin/csh -f
-#       $Id: group_env.csh,v 1.146 2003/06/17 22:13:52 jeromel Exp $
+#       $Id: group_env.csh,v 1.147 2003/06/24 17:27:00 jeromel Exp $
 #	Purpose:	STAR group csh setup
 #
 #	Author:		Y.Fisyak     BNL
@@ -106,7 +106,7 @@ if ( ! $?optstar ) then
 endif
 
 
-# 
+# Display the messages here now
 if (  $?OPTSTAR ) then
     if ($ECHO) echo   "Setting up OPTSTAR   = ${OPTSTAR}"
 else
@@ -360,10 +360,14 @@ endsw
 
 # Support for LSF
 if ( -d /usr/local/lsf/bin && ! $?LSF_ENVDIR ) then
-    setenv LSF_DIR    /usr/local/lsf
-    setenv LSF_ENVDIR $LSF_DIR/mnt/conf
-    set path=($path $LSF_DIR/bin)
-    setenv MANPATH ${MANPATH}:$LSF_DIR/mnt/man
+    if ( -e /etc/profile.d/lsfsetup.csh ) then
+	source /etc/profile.d/lsfsetup.csh
+    else
+	setenv LSF_DIR    /usr/local/lsf
+	setenv LSF_ENVDIR $LSF_DIR/mnt/conf
+	set path=($path $LSF_DIR/bin)
+	setenv MANPATH ${MANPATH}:$LSF_DIR/mnt/man
+    endif
 endif
 
 # Support for JAVA/JDK
