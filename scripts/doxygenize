@@ -103,7 +103,7 @@ foreach $file (@ARGV){
 		    }
 		} elsif ($line =~ /(^\#define\s+)(\w+)(\s+\w+)/){
 		    print " Found #define $2\n";
-		    print FO "/*! \def $2 */\n";
+		    $line = &PadTo($line,"/*! \\def $2 */");
 		}
 
 		# enumeration needs some extra comments to have the

@@ -85,7 +85,7 @@ while (defined $ARGV[$count])
   }
 
 if ($count == 0){
-    &usage();
+    &Usage();
 } else {
     # Setting the context based on the swiches
     foreach (split(/,/,$cond_list)) {

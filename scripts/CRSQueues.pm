@@ -26,7 +26,9 @@ $SUBMIT="/usr/local/bin/crs_submit.pl";
 #
 # This routine checks the job files matching $pat
 # if they are anywhere in the queue. If not, the jobfiles
-# found are moved to a directory named $mdir.
+# found are moved to a directory named $mdir. Note that
+# this function will perform its expected task only when
+# the queue will contain something ...
 #
 sub CRSQ_check
 {
@@ -191,10 +193,10 @@ sub CRSQ_getcnt
 
     # Check TOT only in non-spill mode. In spill mode, the new
     # count TOT+TOTS will give the accurate number of slots.
-    if($TOT < 0 && ! $drop){ 
+    if($TOT < 0 && ! $drop && $TOTS != 0){ 
 	$TOT = -$TOT;
 	print 
-	    "CRSQ :: Error: We have $TOT more jobs than expected ",
+	    "CRSQ :: Error: We have $TOT/$TOTS more jobs than expected ",
 	    "(Max jobs should be $ATOT, $SAVT found, unavailable $NOTA) on ",
 	    localtime()."\n";
 	return -1;
@@ -207,8 +209,8 @@ sub CRSQ_getcnt
     # We don't care of what is happening to the spill-over
     # queue pool. If the count is incorrect there, just set
     # to 0.
-    if($TOT < 0 && $TOTS < 0){  return 0;}
-    if($TOTS < 0){              return $TOT;}
+    if($TOT  < 0 && $TOTS <= 0){  return 0;}
+    if($TOTS < 0){                return $TOT;}
     return $TOT+$TOTS;
 }
 

@@ -39,10 +39,14 @@ my $batchsize = 1000;
 my $mode;
 my $cond_list;
 my $state;
+my $passwd;
 
 # Load the modules
 my $fileC = FileCatalog->new;
-$fileC->connect;
+
+print "Password : ";
+chomp($passwd = <STDIN>);
+$fileC->connect("FC_admin",$passwd);
 
 # Turn off module debugging and script debugging
 $fileC->debug_off();
