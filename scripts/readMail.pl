@@ -16,6 +16,7 @@
 #  Supported keywords :
 #       prodtag=XXXX       
 #       qnum=XXX
+#       dropq=XXX
 #
 # By default, qnum=0 means ANY Email coming from the CRS system release
 # a new job to the queue. If this parameter is specified, only Emails
@@ -36,7 +37,7 @@ my @wrd;
 my $date_line;
 my ($sec,$min,$hour,$mday,$mon);
 my $qnum=0;
-
+my $drop=0;
 
 # Added J.Lauret June 11th 2001. Merged from the auto_submit.pl script.
 # Merging is necessary since we are now running SMRSH (more practical
@@ -69,6 +70,8 @@ if( -e "$HOME/readMail.conf"){
 		    $prodl = $items[1];
 		} elsif ( $items[0] =~ m/qnum/i){
 		    $qnum  = $items[1];
+		} elsif ( $items[0] =~ m/dropq/i){
+		    $drop  = $items[1];
 		}
 	    }
 	}
@@ -168,7 +171,7 @@ close(FO);
 if( defined($date_line) ){
     open (OUT,">> $outfile") or die "Can't open $outfile";
     print OUT $date_line, "\n";
-    print OUT "JobInfo:   %  $jbStat  %  $nodeID  %  $job_file % $qnum \n"; 
+    print OUT "JobInfo:  %  $jbStat % $nodeID % $job_file % $qnum % $drop\n"; 
     close (OUT);
 }
 
@@ -181,11 +184,15 @@ if ($SFLAG == 2 && $QFLAG && $SSUBM){
 	    $lock = "$SOURCE/jobfiles/$file.lock";
 	    if( ! -e "$lock" ){
 		if ( open(FO,">$lock") ){
+                    $cmd = "$SUBMIT $SOURCE/jobfiles/$file $PRIO ";
 		    if( $qnum !=0){
-		      system("$SUBMIT $SOURCE/jobfiles/$file $PRIO $qnum");
-		    } else {
-		      system("$SUBMIT $SOURCE/jobfiles/$file $PRIO");
-		    }
+			$cmd .= " $qnum ";
+			if( $drop != 0){
+			    $cmd .= " $drop";
+			}
+		    } 
+
+		    system($cmd);
 		    rename("$SOURCE/jobfiles/$file","$SOURCE/archive/$file");
 		    # Just for the heck of it, output submit debugging
 		    &ASLog("Job $SOURCE/jobfiles/$file submitted");
