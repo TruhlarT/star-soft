@@ -128,7 +128,7 @@ sub printRow {
 
 print <<END;
 <TR ALIGN=LEFT VALIGN=CENTER>
-<td>$mySet</td>
+<td><a href=\"http://duvall.star.bnl.gov/devcgi/dbMCProdSum.pl?SetMC=$mySet\">$mySet</td>
 <td>$pair{$mySet}</td>
 </tr>
 END
