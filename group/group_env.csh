@@ -1,5 +1,5 @@
 #!/bin/csh -f
-#       $Id: group_env.csh,v 1.178 2004/11/26 19:28:36 jeromel Exp $
+#       $Id: group_env.csh,v 1.179 2004/12/15 15:12:00 jeromel Exp $
 #	Purpose:	STAR group csh setup
 #
 #	Author:		Y.Fisyak     BNL
@@ -555,6 +555,7 @@ setenv PATH `${GROUP_DIR}/dropit -p $HOME/bin -p $HOME/bin/.$STAR_HOST_SYS -p $P
 
 
 # clean-up PATH
+#if ( -d /cern/../usr.local/lib) setenv LD_LIBRARY_PATH ${LD_LIBRARY_PATH}:/cern/../usr.local/lib
 if ( -x ${GROUP_DIR}/dropit) then
     if ("$CERN_LEVEL" != "pro") then
 	setenv PATH  `${GROUP_DIR}/dropit cern`
