@@ -1,8 +1,11 @@
 #!/opt/star/bin/perl -w
 #
-# $Id: dbDevTestQueryPlot.pl,v 1.10 2001/02/23 00:46:06 liuzx Exp $
+# $Id: dbDevTestQueryPlot.pl,v 1.11 2001/02/27 16:38:05 liuzx Exp $
 #
 # $Log: dbDevTestQueryPlot.pl,v $
+# Revision 1.11  2001/02/27 16:38:05  liuzx
+# max_y and min_y changed! (9th and 6th ticks)
+#
 # Revision 1.10  2001/02/23 00:46:06  liuzx
 # Now output the GIF on the fly!
 #
@@ -180,10 +183,22 @@ print STDOUT $query->header(-type => 'image/gif');
 $graph = new GIFgraph::linespoints(550+50*$weeks,500);
 
 if( $min_y == 0) {
-    $min_y = 10;
     $graph->set(x_label => "(0 value means job failed)");
-} elsif (($min_y < 10)&& ($min_y != 0) ) {
-    $min_y = 10;
+} else {
+    # keep the min_y in the 6th ticks (6/3)
+    $min_y = $min_y - ($max_y-$min_y)*2.0;
+}
+
+# keep the max_y in the 9th ticks
+$max_y = $max_y + ($max_y - $min_y)/9.0;
+
+if($max_y eq $min_y) {
+    $max_y += 1;
+    $min_y -= 1;
+}
+
+if($min_y < 0) {
+    $min_y = 0;
 }
 
 $graph->set(#x_label => "$xlabel",
@@ -191,8 +206,8 @@ $graph->set(#x_label => "$xlabel",
 	    x_label_position => 0.5,
             title   => "$set1"." ($mplotVal)",
 	    y_tick_number => 10,
-            y_min_value => $min_y-10,
-            y_max_value => $max_y+1+($max_y-$min_y)/16.0,
+            y_min_value => $min_y,
+            y_max_value => $max_y,
 	    y_number_format => \&y_format,
 	    labelclr => "lred",
 	    dclrs => [ qw(lred lgreen lblue lpurple) ],
