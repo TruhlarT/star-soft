@@ -100,7 +100,7 @@ setenv SYSTYPE sysV
 # -------------------------------------
 # This is done stupidly in HEpix. I prefer
 if( ! $?X11BIN || ! $?PATH) then
-    if ( $?PATH && ! $?SAVED_PATH) setenv SAVED_PATH `echo $PATH | sed "s/:/ /"`
+    if ( $?PATH && ! $?SAVED_PATH) setenv SAVED_PATH `echo $PATH | sed "s/:/ /g"`
     if( -d /usr/openwin/bin ) then
 	# Damned open window systems
 	setenv X11BIN  "/usr/openwin/bin"
