@@ -44,16 +44,18 @@ my $mcomment;
 
 $sql = "SELECT * FROM $FileCatalogT WHERE fName like '%root' AND jobID like '%$prodSr%' ";
 
-if ($runPr ne "all"){
-    $sql .= "AND runID = '$runPr'";
-}
+
 if ($detrSet ne "all"){
     $sql .= "AND  dataset like '%$detrSet' ";
 }
 if ($trgSet ne "all"){
     $sql .= "AND trigger = '$trgSet' ";
 }
-
+if ($runPr ne "all"){
+    $sql .= "AND runID = '$runPr' ";
+} else {
+    $sql .= "LIMIT 500";
+}
 
 
 
