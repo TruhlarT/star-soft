@@ -388,13 +388,20 @@ sub QASummaryString{
     $file =~ /^\.+$/ and next;
     $file !~ /batch_(\d+)\.(\w+)/ and next;
 
-    if ($#flag_files < 0 ||                         # first flag found
+    push @flag_files, $file;
+    
+    if ($#flag_files < 1 ||                         # first flag found
 	-M $file > -M $flag_files[$latest_flag]){   # newest flag found
-	push @flag_files, $file;
 	$latest_flag = $#flag_files;
     }
   }
   
+  # delete any old flag files
+  for(my $i = 0; $i <= $#flag_files; $i++){
+      next if $i == $latest_flag;
+      unlink("$report_dir/".$flag_files[$i]);
+  }
+
   # now process the latest one found
   if ($latest_flag >= 0){
 
