@@ -2,7 +2,7 @@
 %
 % StEvent - User Guide and Reference Manual -- LaTeX Source
 %
-% $Id: StEvent.tex,v 2.52 2000/12/08 20:21:10 genevb Exp $
+% $Id: StEvent.tex,v 2.53 2000/12/11 21:35:16 ullrich Exp $
 %
 % Author: Thomas Ullrich, Nov 1999
 %
@@ -21,6 +21,9 @@
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %
 % $Log: StEvent.tex,v $
+% Revision 2.53  2000/12/11 21:35:16  ullrich
+% Add minor changes to text.
+%
 % Revision 2.52  2000/12/08 20:21:10  genevb
 % Changed kTofPatchId -> kTofId
 %
@@ -221,8 +224,8 @@
   \mbox{\includegraphics[width=\textwidth]{StEventTitle.eps}}
   \hfill\mbox{}\\[3cm]
   {\LARGE User Guide and Reference Manual \\[5mm] for Version 2}\\[2cm]
-  {\LARGE $ $Revision: 2.52 $ $}  \\[5mm] % replaced by cvs with current revision
-  {\LARGE $ $Date: 2000/12/08 20:21:10 $ $}  % replaced by cvs with current revision
+  {\LARGE $ $Revision: 2.53 $ $}  \\[5mm] % replaced by cvs with current revision
+  {\LARGE $ $Date: 2000/12/11 21:35:16 $ $}  % replaced by cvs with current revision
   \vfill
 \end{center}
 \cleardoublepage
@@ -3152,7 +3155,11 @@ definition in the header file.
     Unique run identifier.
     
     \verb+Long_t time() const;+\\
-    Time when the event was taken.
+    Time when the event was taken. The format depends pretty much
+    on the DST version. Older DST version return HHMMSS while newer
+    runs will return the standard UNIX time. For the latter one then
+    is able to use the many UNIX standard tools available for this
+    time format (e.g.~\texttt{ctime()}).
     
     \verb+ULong_t triggerMask() const;+\\
 
@@ -3249,6 +3256,19 @@ definition in the header file.
     \verb+StSPtrVecKinkVertex& kinkVertices();+\\
     \verb+const StSPtrVecKinkVertex& kinkVertices() const;+\\
     Returns container with kink vertices.
+
+    \verb+StSPtrVecObject& content();+\\
+    Returns the content of \texttt{StEvent}. Use with great care!\\
+    The class \texttt{StEvent} itself is, technically spoken, not
+    much more than a container of objects of type \texttt{StObject}.
+    It is the level of sophistication in the member functions
+    which gives the class its look-and-feel. Any class inheriting
+    from \texttt{StObject} can be added to StEvent and such be made
+    persistent. To add use:\\
+    \texttt{StEvent::content().push\_back(StObject*);}\\
+    Of course it is now also your job to retrieve the object from the
+    list. This is best done using the C++ RTTI mechanism.
+    
     
     \verb+void setType(const Char_t*);+\\
 
