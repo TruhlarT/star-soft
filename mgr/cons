@@ -26,14 +26,14 @@ use Cwd;
 # Regression tests keep the code honest by checking for warnings
 # and "use strict" failures.
 
-# $Id: cons,v 1.62 2000/10/02 11:56:59 fisyak Exp $
+# $Id: cons,v 1.63 2000/10/27 23:51:23 fisyak Exp $
 
 use vars qw( $ver_num $ver_rev $version );
 
 $ver_num = "2.1";
 $ver_rev = ".3";
 $version = sprintf "This is Cons %s%s " .
-	    '($Id: cons,v 1.62 2000/10/02 11:56:59 fisyak Exp $)'. "\n",
+	    '($Id: cons,v 1.63 2000/10/27 23:51:23 fisyak Exp $)'. "\n",
 	    $ver_num, $ver_rev;
 
 # Cons: A Software Construction Tool.
@@ -351,6 +351,7 @@ if ($_WIN32) {
 	    '.C++'=> '.obj',
 	    '.rc' => '.res',
 	    '.RC' => '.res',
+            '.lib'=> '.dll'
 	},
     );
     push(@param::defaults, @win);
@@ -3476,7 +3477,8 @@ sub install {
     if ($sp !~ /^$dir::MATCH_SEPARATOR/) {
       $dir_prefix = File::Basename::dirname($tp);
       $dir_prefix .= $dir::SEPARATOR;
-      $dir_prefix =~ s#[\w|\.|\+]*$dir::SEPARATOR#\.\.$dir::SEPARATOR#g;
+#yf      $dir_prefix =~ s#[\w|\.|\+]*$dir::SEPARATOR#\.\.$dir::SEPARATOR#g;
+      $dir_prefix =~ s#[\w|\.|\+]*$dir::MATCH_SEPARATOR#\.\.$dir::MATCH_SEPARATOR#g;
     }
     my $lsp = $dir_prefix . $sp;
     return 1 if $tp eq $sp;
