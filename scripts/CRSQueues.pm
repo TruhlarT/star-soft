@@ -20,6 +20,7 @@ require Exporter;
 $STATUS="/usr/local/bin/crs_status.pl -m";
 $JOBINF="/usr/local/bin/crs_status.pl -c";
 $SUBMIT="/usr/local/bin/crs_submit.pl";
+#$SUBMIT="/usr/crs/bin/CRS_submit_awc.pl";
 
 
 #
@@ -104,7 +105,7 @@ sub CRSQ_getcnt
 	    if ($items[4] == $qnum){
 		$TOT  += $items[2];          # requested queue total
 		$NODES{$items[0]} = 1;
-	    } elsif ($items[4] < $qnum) {
+	    } elsif ($items[4] >= ($qnum-$drop)) {
 		$TOTS += $items[2]-1;        # other queue total
 	    }
 	} else {
@@ -159,7 +160,7 @@ sub CRSQ_getcnt
 		# Otherwise, those are dying/finishing spill-over
 		# jobs. Staging and Staged jobs needs to be counted
 		# because we do not not know where they belong.
-	    } else {
+	    } elsif ( $items[4] >= ($qnum-$drop) ) {
 		$TOTS = $TOTS - 1;
 	    }
 	} else {
@@ -206,10 +207,11 @@ sub CRSQ_submit
 
     $res = `$SUBMIT $jfile $prio $qnum $drop`;
     $res =~ s/\n//g;
-    if( $res =~ m/queued in queue $qnum with priority $prio/){ 
+    if( $res =~ m/queue $qnum with priority $prio/){ 
 	1;
     } else {
-	print "CRSQ :: Failed to submit $jfile [$?]\n";
+	$res =~ m/(queue\s+)(\d+)/;
+	print "CRSQ :: Failed to submit $jfile $qnum -> $2 => [$res]\n";
 	0;
     }
 }
