@@ -16,8 +16,8 @@
 
 /* 
 $Log: StTGeant3.cxx,v $
-Revision 1.1  2004/07/17 20:02:55  perev
-Initial revision
+Revision 1.2  2004/07/22 18:09:19  perev
+WITHROOT + WITHG3 + WITHBOTH are obsolete
 
 Revision 1.25  2004/03/23 11:16:44  brun
 From Ivana
@@ -118,7 +118,7 @@ Revision 1.5  2003/01/23 11:34:04  brun
 In gustep, replace 
    gMC->TrackPosition(x,y,z);
 by
-   geant3->TrackPosition(x,y,z);
+   fgGeant3->TrackPosition(x,y,z);
 
 Revision 1.4  2003/01/06 17:20:52  brun
 Add new functions TrackPosition and TrackMomentum as alternative to the original
@@ -652,11 +652,13 @@ extern "C"
 
 //
 // Geant3 global pointer
-//
-TGeoNode *gCurrentNode = 0;
-Gctrak_t *gctrak = 0;
-Gcvolu_t *gcvolu = 0;
-StTGeant3* geant3 = 0;
+// 
+TGeoNode  *StTGeant3::fgCurrentNode = 0;
+Gctrak_t  *StTGeant3::fgGctrack     = 0;
+Gcvolu_t  *StTGeant3::fgGcvolu      = 0;
+Int_t      StTGeant3::fgMode        = 0;
+StTGeant3 *StTGeant3::fgGeant3      = 0;
+
 static const Int_t kDefSize = 600;
 Int_t count_ginvol = 0;
 Int_t count_gmedia = 0;
@@ -686,15 +688,16 @@ StTGeant3::StTGeant3()
   //
   // Default constructor
   //
-   geant3 = this;
+   fgGeant3 = this;
    InitBridge(); 
 } 
  
 //____________________________________________________________________________ 
-StTGeant3::StTGeant3(const char *title, Bool_t isrootgeom, Int_t nwgeant) 
-       : TVirtualMC("StTGeant3",title, isrootgeom),
+StTGeant3::StTGeant3(const char *title, Int_t isrg, Int_t nwgeant) 
+       : TVirtualMC("StTGeant3",title, isrg&kWithRoot),
          fImportRootGeometry(kFALSE)
 {
+  fgMode = isrg;
   //
   // Standard constructor for StTGeant3 with ZEBRA initialisation
   // 
@@ -710,15 +713,13 @@ StTGeant3::StTGeant3(const char *title, Bool_t isrootgeom, Int_t nwgeant)
    stattree->Branch("safety",&statsafety,"statsafety/D");
 #endif
    
-  geant3 = this;
-  
-#if defined(WITHROOT)
+  fgGeant3 = this;
+  fMCGeo = 0;
+  if (Mode()==kWithG3)
   fMCGeo = new TGeoMCGeometry("MCGeo", "TGeo Implementation of VirtualMCGeometry");
-#endif
-#if defined(WITHBOTH)
+  if (Mode()==kWithBoth)
   fMCGeo = new TGeoMCGeometry("MCGeo", "TGeo Implementation of VirtualMCGeometry",
                               true);
-#endif
   
   if(nwgeant) {
     g3zebra(nwgeant); 
@@ -850,8 +851,8 @@ void StTGeant3::LoadAddress()
    gcomad(PASSCHARD("LQ"), addr  PASSCHARL("LQ"));
    fZlq = addr;
    fZq       = (float*)fZiq; 
-   gctrak = fGctrak;
-   gcvolu = fGcvolu;
+   fgGctrack = fGctrak;
+   fgGcvolu = fGcvolu;
 } 
 
 //_____________________________________________________________________________
@@ -861,12 +862,8 @@ void StTGeant3::GeomIter()
   // Geometry iterator for moving upward in the geometry tree
   // Initialise the iterator
   //
-#if defined(WITHG3) || defined(WITHBOTH)
-  fNextVol=fGcvolu->nlevel;
-#endif
-#ifdef WITHROOT
-  fNextVol=gGeoManager->GetLevel();
-#endif
+  if (Mode()&kWithG3   ) {fNextVol=fGcvolu->nlevel        ;return;}
+  if (Mode()==kWithRoot) {fNextVol=gGeoManager->GetLevel();return;}
 }
 
 //____________________________________________________________________________ 
@@ -877,30 +874,31 @@ Int_t StTGeant3::NextVolUp(Text_t *name, Int_t &copy)
   // Return next volume up
   //
   fNextVol--;
-#if defined(WITHG3) || defined(WITHBOTH)
-  Int_t i, gname;
-  if(fNextVol>=0) {
-    gname=fGcvolu->names[fNextVol];
-    copy=fGcvolu->number[fNextVol];
-    i=fGcvolu->lvolum[fNextVol];
-    name = fVolNames[i-1];
-    if(gname == fZiq[fGclink->jvolum+i]) return i;
-    else printf("GeomTree: Volume %s not found in bank\n",name);
+  if (Mode()&kWithG3){
+    Int_t i, gname;
+    if(fNextVol>=0) {
+      gname=fGcvolu->names[fNextVol];
+      copy=fGcvolu->number[fNextVol];
+      i=fGcvolu->lvolum[fNextVol];
+      name = fVolNames[i-1];
+      if(gname == fZiq[fGclink->jvolum+i]) return i;
+      else printf("GeomTree: Volume %s not found in bank\n",name);
+    }
+    return 0;
+  }
+  if (Mode()==kWithRoot){
+    if (fNextVol>=0) {
+       Int_t level = gGeoManager->GetLevel();
+       if (level<=fNextVol) return 0;
+       TGeoNode *mother = gGeoManager->GetMother(level-fNextVol);
+       if (!mother) return 0;
+       sprintf(name, "%s", mother->GetVolume()->GetName());
+       copy = mother->GetNumber();
+       return mother->GetVolume()->GetNumber();
+    }     
+    return 0;
   }
   return 0;
-#endif
-#ifdef WITHROOT
-  if (fNextVol>=0) {
-     Int_t level = gGeoManager->GetLevel();
-     if (level<=fNextVol) return 0;
-     TGeoNode *mother = gGeoManager->GetMother(level-fNextVol);
-     if (!mother) return 0;
-     sprintf(name, "%s", mother->GetVolume()->GetName());
-     copy = mother->GetNumber();
-     return mother->GetVolume()->GetNumber();
-  }     
-  return 0;
-#endif
 }
 
 //_____________________________________________________________________________
@@ -961,26 +959,27 @@ Int_t StTGeant3::CurrentVolID(Int_t &copy) const
   //
   // Returns the current volume ID and copy number
   //
-#if defined(WITHG3) || defined(WITHBOTH)
-  Int_t i, gname;
-  if( (i=fGcvolu->nlevel-1) < 0 ) {
-    Warning("CurrentVolID","Stack depth only %d\n",fGcvolu->nlevel);
-  } else {
-    gname=fGcvolu->names[i];
-    copy=fGcvolu->number[i];
-    i=fGcvolu->lvolum[i];   
-    if(gname == fZiq[fGclink->jvolum+i]) return i;
-    else Warning("CurrentVolID","Volume %4s not found\n",(char*)&gname);
+  if (Mode()&kWithG3){
+    Int_t i, gname;
+    if( (i=fGcvolu->nlevel-1) < 0 ) {
+      Warning("CurrentVolID","Stack depth only %d\n",fGcvolu->nlevel);
+    } else {
+      gname=fGcvolu->names[i];
+      copy=fGcvolu->number[i];
+      i=fGcvolu->lvolum[i];   
+      if(gname == fZiq[fGclink->jvolum+i]) return i;
+      else Warning("CurrentVolID","Volume %4s not found\n",(char*)&gname);
+    }
+    return 0;
+  }
+  if (Mode()==kWithRoot){
+    if (gGeoManager->IsOutside()) return 0;
+    TGeoNode *node = gGeoManager->GetCurrentNode();
+    copy = node->GetNumber();
+    Int_t id = node->GetVolume()->GetNumber();
+    return id;
   }
   return 0;
-#endif
-#ifdef WITHROOT
-  if (gGeoManager->IsOutside()) return 0;
-  TGeoNode *node = gGeoManager->GetCurrentNode();
-  copy = node->GetNumber();
-  Int_t id = node->GetVolume()->GetNumber();
-  return id;
-#endif
 }
 
 //_____________________________________________________________________________
@@ -990,28 +989,29 @@ Int_t StTGeant3::CurrentVolOffID(Int_t off, Int_t &copy) const
   // Return the current volume "off" upward in the geometrical tree 
   // ID and copy number
   //
-#if defined(WITHG3) || defined(WITHBOTH)
-  Int_t i, gname;
-  if( (i=fGcvolu->nlevel-off-1) < 0 ) {
-    Warning("CurrentVolOffID","Offset requested %d but stack depth %d\n",
-	    off,fGcvolu->nlevel);
-  } else {
-    gname=fGcvolu->names[i];
-    copy=fGcvolu->number[i];          
-    i=fGcvolu->lvolum[i];    
-    if(gname == fZiq[fGclink->jvolum+i]) return i;
-    else Warning("CurrentVolOffID","Volume %4s not found\n",(char*)&gname);
+  if (Mode()&kWithG3){
+    Int_t i, gname;
+    if( (i=fGcvolu->nlevel-off-1) < 0 ) {
+      Warning("CurrentVolOffID","Offset requested %d but stack depth %d\n",
+	      off,fGcvolu->nlevel);
+    } else {
+      gname=fGcvolu->names[i];
+      copy=fGcvolu->number[i];          
+      i=fGcvolu->lvolum[i];    
+      if(gname == fZiq[fGclink->jvolum+i]) return i;
+      else Warning("CurrentVolOffID","Volume %4s not found\n",(char*)&gname);
+    }
+    return 0;
+  }
+  if (Mode()==kWithRoot){
+    if (off<0 || off>gGeoManager->GetLevel()) return 0;
+    if (off==0) return CurrentVolID(copy);
+    TGeoNode *node = gGeoManager->GetMother(off);
+    if (!node) return 0;
+    copy = node->GetNumber();
+    return node->GetVolume()->GetNumber();
   }
   return 0;
-#endif
-#ifdef WITHROOT
-  if (off<0 || off>gGeoManager->GetLevel()) return 0;
-  if (off==0) return CurrentVolID(copy);
-  TGeoNode *node = gGeoManager->GetMother(off);
-  if (!node) return 0;
-  copy = node->GetNumber();
-  return node->GetVolume()->GetNumber();
-#endif
 }
 
 //_____________________________________________________________________________
@@ -1020,22 +1020,23 @@ const char* StTGeant3::CurrentVolName() const
   //
   // Returns the current volume name
   //
-#if defined(WITHG3) || defined(WITHBOTH)
-  Int_t i;
-  if( (i=fGcvolu->nlevel-1) < 0 ) {
-    Warning("CurrentVolName","Stack depth %d\n",fGcvolu->nlevel);
+  if (Mode()&kWithG3){
+    Int_t i;
+    if( (i=fGcvolu->nlevel-1) < 0 ) {
+      Warning("CurrentVolName","Stack depth %d\n",fGcvolu->nlevel);
+      return 0;
+    }
+    Int_t gname=fGcvolu->names[i];
+    i=fGcvolu->lvolum[i];   
+    if(gname == fZiq[fGclink->jvolum+i]) return fVolNames[i-1];
+    else Warning("CurrentVolName","Volume %4s not found\n",(char*) &gname);
     return 0;
   }
-  Int_t gname=fGcvolu->names[i];
-  i=fGcvolu->lvolum[i];   
-  if(gname == fZiq[fGclink->jvolum+i]) return fVolNames[i-1];
-  else Warning("CurrentVolName","Volume %4s not found\n",(char*) &gname);
+  if (Mode()==kWithRoot){
+    if (gGeoManager->IsOutside()) return 0;
+    return gGeoManager->GetCurrentVolume()->GetName();
+  }
   return 0;
-#endif
-#ifdef WITHROOT
-  if (gGeoManager->IsOutside()) return 0;
-  return gGeoManager->GetCurrentVolume()->GetName();
-#endif
 }
 
 //_____________________________________________________________________________
@@ -1052,20 +1053,21 @@ const char* StTGeant3::CurrentVolOffName(Int_t off) const
 	    "Offset requested %d but stack depth %d\n",off,fGcvolu->nlevel);
     return 0;
   }
-#if defined(WITHG3) || defined(WITHBOTH)
-  Int_t gname=fGcvolu->names[i];
-  i=fGcvolu->lvolum[i];    
-  if(gname == fZiq[fGclink->jvolum+i]) return fVolNames[i-1];
-  else Warning("CurrentVolOffName","Volume %4s not found\n",(char*)&gname);
+  if (Mode()&kWithG3){
+    Int_t gname=fGcvolu->names[i];
+    i=fGcvolu->lvolum[i];    
+    if(gname == fZiq[fGclink->jvolum+i]) return fVolNames[i-1];
+    else Warning("CurrentVolOffName","Volume %4s not found\n",(char*)&gname);
+    return 0;
+  }
+    if (Mode()==kWithRoot){
+    if (off<0 || off>gGeoManager->GetLevel()) return 0;
+    if (off==0) return CurrentVolName();
+    TGeoNode *node = gGeoManager->GetMother(off);
+    if (!node) return 0;
+    return node->GetVolume()->GetName();
+  }
   return 0;
-#endif
-#ifdef WITHROOT
-  if (off<0 || off>gGeoManager->GetLevel()) return 0;
-  if (off==0) return CurrentVolName();
-  TGeoNode *node = gGeoManager->GetMother(off);
-  if (!node) return 0;
-  return node->GetVolume()->GetName();
-#endif
 }
 
 //_____________________________________________________________________________
@@ -1433,17 +1435,18 @@ Int_t StTGeant3::VolId(const Text_t *name) const
   //
   // Return the unique numeric identifier for volume name
   //
-#if defined(WITHG3) || defined(WITHBOTH)
-  Int_t gname, i;
-  strncpy((char *) &gname, name, 4);
-  for(i=1; i<=fGcnum->nvolum; i++)
-    if(gname == fZiq[fGclink->jvolum+i]) return i;
-  printf("VolId: Volume %s not found\n",name);
+  if (Mode()&kWithG3){
+    Int_t gname, i;
+    strncpy((char *) &gname, name, 4);
+    for(i=1; i<=fGcnum->nvolum; i++)
+      if(gname == fZiq[fGclink->jvolum+i]) return i;
+    printf("VolId: Volume %s not found\n",name);
+    return 0;
+  }
+  if (Mode()==kWithRoot){
+    return fMCGeo->VolId(name);
+  }
   return 0;
-#endif
-#ifdef WITHROOT
-  return fMCGeo->VolId(name);
-#endif
 }
 
 //_____________________________________________________________________________
@@ -1452,12 +1455,11 @@ Int_t StTGeant3::NofVolumes() const
   //
   // Return total number of volumes in the geometry
   //
-#if defined(WITHG3) || defined(WITHBOTH)
-  return fGcnum->nvolum;
-#endif
-#ifdef WITHROOT
-  return fMCGeo->NofVolumes();
-#endif
+  if (Mode()&kWithG3){
+    return fGcnum->nvolum;
+  } else {
+    return fMCGeo->NofVolumes();
+  }
 }
 
 //_____________________________________________________________________________
@@ -1466,17 +1468,16 @@ Int_t StTGeant3::VolId2Mate(Int_t id) const
   //
   // Return material number for a given volume id
   //
-#if defined(WITHG3) || defined(WITHBOTH)
-  if(id<1 || id > fGcnum->nvolum || fGclink->jvolum<=0) 
-    return 0;
-  else {
-    Int_t jvo = fZlq[fGclink->jvolum-id];
-    return Int_t(fZq[jvo+4]);
+  if (Mode()&kWithG3){
+    if(id<1 || id > fGcnum->nvolum || fGclink->jvolum<=0) 
+      return 0;
+    else {
+      Int_t jvo = fZlq[fGclink->jvolum-id];
+      return Int_t(fZq[jvo+4]);
+    }
+  } else {
+    return fMCGeo->VolId2Mate(id);
   }
-#endif
-#ifdef WITHROOT
-  return fMCGeo->VolId2Mate(id);
-#endif
 }
 
 //_____________________________________________________________________________
@@ -1485,15 +1486,16 @@ const char* StTGeant3::VolName(Int_t id) const
   //
   // Return the volume name given the volume identifier
   //
-#if defined(WITHG3) || defined(WITHBOTH)
-  if(id<1 || id > fGcnum->nvolum || fGclink->jvolum<=0) 
-    return fVolNames[fGcnum->nvolum];
-  else
-    return fVolNames[id-1];
-#endif
-#ifdef WITHROOT
-  return fMCGeo->VolName(id);
-#endif
+  if (Mode()&kWithG3){
+      if(id<1 || id > fGcnum->nvolum || fGclink->jvolum<=0) 
+	return fVolNames[fGcnum->nvolum];
+      else
+	return fVolNames[id-1];
+  }
+  if (Mode()==kWithRoot){
+      return fMCGeo->VolName(id);
+  }
+  return 0;
 }
 
 //_____________________________________________________________________________
@@ -2102,7 +2104,6 @@ void StTGeant3::G3Material(Int_t& kmat, const char* name, Double_t a, Double_t z
   //  nbuf               number of user words
   //
   Int_t jmate=fGclink->jmate;
-  Int_t ns = (jmate)? fZiq[jmate-2]:0;
   kmat=1;
   if(jmate>0) {
     Int_t ns = fZiq[jmate-2];
@@ -2149,9 +2150,9 @@ void StTGeant3::Material(Int_t& kmat, const char* name, Double_t a, Double_t z,
 
   G3Material(kmat, name, a, z, dens, radl, absl, buf, nwbuf);
   
-#if defined(WITHROOT) || defined(WITHBOTH)
-  fMCGeo->Material(kmat, name, a, z, dens, radl, absl, buf, nwbuf);
-#endif
+  if (Mode()&kWithRoot){
+    fMCGeo->Material(kmat, name, a, z, dens, radl, absl, buf, nwbuf);
+  }
 }
 
 //_____________________________________________________________________________
@@ -2182,9 +2183,9 @@ void StTGeant3::Material(Int_t& kmat, const char* name, Double_t a, Double_t z,
   G3Material(kmat, name, a, z, dens, radl, absl, fbuf, nwbuf);
   delete [] fbuf;
 
-#if defined(WITHROOT) || defined(WITHBOTH)
-  fMCGeo->Material(kmat, name, a, z, dens, radl, absl, buf, nwbuf);
-#endif
+  if (Mode()&kWithRoot){
+    fMCGeo->Material(kmat, name, a, z, dens, radl, absl, buf, nwbuf);
+  }
 }
 
 //_____________________________________________________________________________
@@ -2249,9 +2250,9 @@ void StTGeant3::Mixture(Int_t& kmat, const char* name, Float_t* a, Float_t* z,
 
   G3Mixture(kmat, name, a, z, dens, nlmat, wmat);
   
-#if defined(WITHROOT) || defined(WITHBOTH)
-  fMCGeo->Mixture(kmat, name, a, z, dens, TMath::Abs(nlmat), wmat);
-#endif
+  if (Mode()&kWithRoot){
+    fMCGeo->Mixture(kmat, name, a, z, dens, TMath::Abs(nlmat), wmat);
+  }
 }
 
 //_____________________________________________________________________________
@@ -2285,9 +2286,9 @@ void StTGeant3::Mixture(Int_t& kmat, const char* name, Double_t* a, Double_t* z,
   delete [] fz;
   delete [] fwmat;
 
-#if defined(WITHROOT) || defined(WITHBOTH)
-  fMCGeo->Mixture(kmat, name, a, z, dens, TMath::Abs(nlmat), wmat);
-#endif
+  if (Mode()&kWithRoot){
+    fMCGeo->Mixture(kmat, name, a, z, dens, TMath::Abs(nlmat), wmat);
+  }
 }
 
 //_____________________________________________________________________________
@@ -2314,7 +2315,6 @@ void StTGeant3::G3Medium(Int_t& kmed, const char* name, Int_t nmat, Int_t isvol,
   //  performed with g3helix; ifield = 3 if tracking performed with g3helx3.
   //  
   Int_t jtmed=fGclink->jtmed;
-  Int_t ns = (jtmed)? fZiq[jtmed-2]:0;
   kmed=1;
   if(jtmed>0) {
     Int_t ns = fZiq[jtmed-2];
@@ -2363,10 +2363,10 @@ void StTGeant3::Medium(Int_t& kmed, const char* name, Int_t nmat, Int_t isvol,
   G3Medium(kmed, name, nmat, isvol, ifield, fieldm, tmaxfd, stemax, deemax, epsil,
            stmin, ubuf, nbuf);
 
-#if defined(WITHROOT) || defined(WITHBOTH)
-  fMCGeo->Medium(kmed, name, nmat, isvol, ifield, fieldm, tmaxfd, stemax, deemax, 
-                 epsil, stmin, ubuf, nbuf);
-#endif
+  if (Mode()&kWithRoot){
+    fMCGeo->Medium(kmed, name, nmat, isvol, ifield, fieldm, tmaxfd, stemax, deemax, 
+                   epsil, stmin, ubuf, nbuf);
+  }
 }
 
 //_____________________________________________________________________________
@@ -2398,10 +2398,10 @@ void StTGeant3::Medium(Int_t& kmed, const char* name, Int_t nmat, Int_t isvol,
            stmin, fubuf, nbuf);
   delete [] fubuf;	 
 
-#if defined(WITHROOT) || defined(WITHBOTH)
-  fMCGeo->Medium(kmed, name, nmat, isvol, ifield, fieldm, tmaxfd, stemax, deemax, 
+  if (Mode()&kWithRoot){
+    fMCGeo->Medium(kmed, name, nmat, isvol, ifield, fieldm, tmaxfd, stemax, deemax, 
                  epsil, stmin, ubuf, nbuf);
-#endif		 
+  }		 
 }
 
 //_____________________________________________________________________________
@@ -2420,25 +2420,24 @@ void StTGeant3::Matrix(Int_t& krot, Double_t thex, Double_t phix, Double_t they,
   //  it defines the rotation matrix number irot.
   //  
   krot = -1;
-#if defined(WITHG3) || defined(WITHBOTH)
-  Int_t jrotm=fGclink->jrotm;
-  krot=1;
-  Int_t ns, i;
-  if(jrotm>0) {
-    ns=fZiq[jrotm-2];
-    krot=ns+1;
-    for(i=1; i<=ns; i++) {
-      if(fZlq[jrotm-i]==0) {
-	krot=i;
-	break;
+  if (Mode()&kWithG3){
+    Int_t jrotm=fGclink->jrotm;
+    krot=1;
+    Int_t ns, i;
+    if(jrotm>0) {
+      ns=fZiq[jrotm-2];
+      krot=ns+1;
+      for(i=1; i<=ns; i++) {
+	if(fZlq[jrotm-i]==0) {
+	  krot=i;
+	  break;
+	}
       }
-    }
   }
   g3srotm(krot, thex, phix, they, phiy, thez, phiz);
-#endif
-#if defined(WITHROOT) || defined(WITHBOTH)
-  fMCGeo->Matrix(krot, thex, phix, they, phiy, thez, phiz);  
-#endif
+  } else {
+    fMCGeo->Matrix(krot, thex, phix, they, phiy, thez, phiz);  
+  }
 }
 
 //_____________________________________________________________________________
@@ -2447,13 +2446,14 @@ Int_t StTGeant3::GetMedium() const
   //
   // Return the number of the current medium
   //
-#if defined(WITHROOT) || defined(WITHBOTH)
+  if (Mode()&kWithRoot){
   Int_t imed = 0;
   TGeoNode *node = gGeoManager->GetCurrentNode();
   if (!node) imed = gGeoManager->GetTopNode()->GetVolume()->GetMedium()->GetId();
   else       imed = node->GetVolume()->GetMedium()->GetId();
   //printf("==GetMedium: ROOT id=%i  numed=%i\n", imed,fGctmed->numed);
-#endif
+  return imed;
+}
   return fGctmed->numed;
 }
 
@@ -2471,7 +2471,7 @@ void  StTGeant3::SetRootGeometry()
 const char *StTGeant3::GetPath()
 {
 // Get current path inside G3 geometry
-#if defined(WITHG3) || defined(WITHBOTH)
+  if (Mode()&kWithG3){
    Int_t i,j;
    if ((i=fGcvolu->nlevel-1)<0) {
       Warning("GetPath", "level null");
@@ -2493,31 +2493,29 @@ const char *StTGeant3::GetPath()
    }
    fPath[nch-1]=0;
    return fPath;
-#endif
-#ifdef WITHROOT
+  } else {
    return gGeoManager->GetPath();
-#endif
+  }
 }      
 
 //_____________________________________________________________________________
 const char *StTGeant3::GetNodeName()
 {
 // Get name of current G3 node
-#if defined(WITHG3) || defined(WITHBOTH)
-   Int_t i=fGcvolu->nlevel-1;
-   if (i<0) return "";
-   Int_t gname = fGcvolu->names[i];
-   Int_t copy = fGcvolu->number[i];
-   char name[10];
-   memcpy(name, &gname, 4);
-   name[4] = 0;
-   sprintf(fPath, "%s_%d", name, copy);
-   return fPath;
-#endif
-#ifdef WITHROOT
-   if (gGeoManager->IsOutside()) return "";
-   return gGeoManager->GetCurrentNode()->GetName();
-#endif
+  if (Mode()&kWithG3){
+     Int_t i=fGcvolu->nlevel-1;
+     if (i<0) return "";
+     Int_t gname = fGcvolu->names[i];
+     Int_t copy = fGcvolu->number[i];
+     char name[10];
+     memcpy(name, &gname, 4);
+     name[4] = 0;
+     sprintf(fPath, "%s_%d", name, copy);
+     return fPath;
+  } else {
+     if (gGeoManager->IsOutside()) return "";
+     return gGeoManager->GetCurrentNode()->GetName();
+  }
 }
 
 //_____________________________________________________________________________
@@ -2605,7 +2603,7 @@ void  StTGeant3::Ggclos()
   //   numbers, and the generic path(s) in the JVOLUM tree, 
   //   through the routine GHCLOS. 
   //
-#if defined(WITHG3) || defined(WITHBOTH)
+  if (Mode()&kWithG3){
   g3gclos(); 
   // Create internal list of volumes
   fVolNames = new char[fGcnum->nvolum+1][5];
@@ -2615,10 +2613,9 @@ void  StTGeant3::Ggclos()
     fVolNames[i][4]='\0';
   }
   strcpy(fVolNames[fGcnum->nvolum],"NULL");
-#endif
-#ifdef WITHROOT
-  fVolNames = 0;
-#endif
+  } else {
+    fVolNames = 0;
+  }
 } 
  
 //_____________________________________________________________________________
@@ -2647,9 +2644,9 @@ void  StTGeant3::Gprint(const char *name)
   // 
   char vname[5];
   Vname(name,vname);
-#if defined(WITHG3) || defined(WITHBOTH)
+  if (Mode()&kWithG3){
   g3print(PASSCHARD(vname),0 PASSCHARL(vname)); 
-#endif
+  }
 } 
 
 //_____________________________________________________________________________
@@ -2901,9 +2898,9 @@ void  StTGeant3::Gsmate(Int_t imat, const char *name, Float_t a, Float_t z,
   g3smate(imat,PASSCHARD(name), a, z, dens, radl, absl, ubuf, nbuf
 	 PASSCHARL(name)); 
   
-#if defined(WITHROOT) || defined(WITHBOTH)
- gGeoManager->Material(name,a,z,dens,imat);
-#endif
+  if (Mode()&kWithRoot){
+    gGeoManager->Material(name,a,z,dens,imat);
+  }
 } 
  
 //_____________________________________________________________________________
@@ -2924,20 +2921,20 @@ void  StTGeant3::Gsmixt(Int_t imat, const char *name, Float_t *a, Float_t *z,
   //
   g3smixt(imat,PASSCHARD(name), a, z,dens, nlmat,wmat PASSCHARL(name)); 
   
-#if defined(WITHROOT) || defined(WITHBOTH) 
-  Int_t i;
-  if (nlmat < 0) {
-     nlmat = - nlmat;
-     Double_t amol = 0;
-     for (i=0;i<nlmat;i++) {
-        amol += a[i]*wmat[i];
-     }
-     for (i=0;i<nlmat;i++) {
-        wmat[i] *= a[i]/amol;
-     }
+  if (Mode()&kWithRoot){ 
+    Int_t i;
+    if (nlmat < 0) {
+       nlmat = - nlmat;
+       Double_t amol = 0;
+       for (i=0;i<nlmat;i++) {
+          amol += a[i]*wmat[i];
+       }
+       for (i=0;i<nlmat;i++) {
+          wmat[i] *= a[i]/amol;
+       }
+    }
+    gGeoManager->Mixture(name, a, z, dens, nlmat, wmat, imat);
   }
-  gGeoManager->Mixture(name, a, z, dens, nlmat, wmat, imat);
-#endif
 } 
  
 //_____________________________________________________________________________
@@ -2993,9 +2990,9 @@ void  StTGeant3::Gstmed(Int_t numed, const char *name, Int_t nmat, Int_t isvol,
 	 deemax, epsil, stmin, ubuf, nbuf PASSCHARL(name)); 
   
   //printf("Creating medium: %s, numed=%d, nmat=%d\n",name,numed,nmat);
-#if defined(WITHROOT) || defined(WITHBOTH)
-  gGeoManager->Medium(name,numed,nmat, isvol, ifield, fieldm, tmaxfd, stemax,deemax, epsil, stmin);
-#endif
+  if (Mode()&kWithRoot){
+    gGeoManager->Medium(name,numed,nmat, isvol, ifield, fieldm, tmaxfd, stemax,deemax, epsil, stmin);
+  }
 } 
  
 //_____________________________________________________________________________
@@ -3380,17 +3377,16 @@ void  StTGeant3::Gdtom(Float_t *xd, Float_t *xm, Int_t iflag)
   //   If IFLAG=1  convert coordinates
   //      IFLAG=2  convert direction cosinus
   //
-#if defined(WITHG3) || defined(WITHBOTH)
-  g3dtom(xd, xm, iflag);
-#endif 
-#ifdef WITHROOT
-   Double_t XM[3], XD[3];
-   Int_t i;
-   for (i=0;i<3;i++) XD[i] = xd[i];
-   if (iflag == 1) gGeoManager->LocalToMaster(XD,XM);
-   else            gGeoManager->LocalToMasterVect(XD,XM);
-   for (i=0;i<3;i++) xm[i]=XM[i];
-#endif
+  if (Mode()&kWithG3){
+    g3dtom(xd, xm, iflag);
+  } else {
+    Double_t XM[3], XD[3];
+    Int_t i;
+    for (i=0;i<3;i++) XD[i] = xd[i];
+    if (iflag == 1) gGeoManager->LocalToMaster(XD,XM);
+    else            gGeoManager->LocalToMasterVect(XD,XM);
+    for (i=0;i<3;i++) xm[i]=XM[i];
+  }
 } 
  
 //_____________________________________________________________________________
@@ -3408,23 +3404,22 @@ void  StTGeant3::Gdtom(Double_t *xd, Double_t *xm, Int_t iflag)
   //      IFLAG=2  convert direction cosinus
   //
   
-#if defined(WITHG3) || defined(WITHBOTH)
-  Float_t* fxd = CreateFloatArray(xd, 3);
-  Float_t* fxm = CreateFloatArray(xm, 3);
-  
-  Gdtom(fxd, fxm, iflag) ;
-  
-  for (Int_t i=0; i<3; i++) {
-     xd[i] = fxd[i]; xm[i] = fxm[i]; 
-  }
+  if (Mode()&kWithG3){
+    Float_t* fxd = CreateFloatArray(xd, 3);
+    Float_t* fxm = CreateFloatArray(xm, 3);
 
-  delete [] fxd;
-  delete [] fxm;
-#endif
-#ifdef WITHROOT
-   if (iflag == 1) gGeoManager->LocalToMaster(xd,xm);
-   else            gGeoManager->LocalToMasterVect(xd,xm);
-#endif
+    Gdtom(fxd, fxm, iflag) ;
+
+    for (Int_t i=0; i<3; i++) {
+       xd[i] = fxd[i]; xm[i] = fxm[i]; 
+    }
+
+    delete [] fxd;
+    delete [] fxm;
+  } else {
+     if (iflag == 1) gGeoManager->LocalToMaster(xd,xm);
+     else            gGeoManager->LocalToMasterVect(xd,xm);
+  }
 } 
  
 //_____________________________________________________________________________
@@ -3454,15 +3449,14 @@ void  StTGeant3::Gmedia(Float_t *x, Int_t &numed)
   //         outside the experimental setup.
   //
 
-#if defined(WITHG3) || defined(WITHBOTH)
-  static Int_t check = 0;
-  g3media(x,numed,check); 
-#endif
-    
-#if defined(WITHROOT) || defined(WITHBOTH)
-  gGeoManager->InitTrack(x[0],x[1],x[2],0,0,0);
-  gGeoManager->FindNode();
-#endif
+  if (Mode()&kWithG3){
+    static Int_t check = 0;
+    g3media(x,numed,check); 
+  } else {
+
+    gGeoManager->InitTrack(x[0],x[1],x[2],0,0,0);
+    gGeoManager->FindNode();
+  }
 } 
  
 //_____________________________________________________________________________
@@ -3480,17 +3474,16 @@ void  StTGeant3::Gmtod(Float_t *xm, Float_t *xd, Int_t iflag)
   //        If IFLAG=1  convert coordinates 
   //           IFLAG=2  convert direction cosinus
   //
-#if defined(WITHG3) || defined(WITHBOTH)
-  g3mtod(xm, xd, iflag); 
-#endif
-#ifdef WITHROOT
-   Double_t XM[3], XD[3];
-   Int_t i;
-   for (i=0;i<3;i++) XM[i]=xm[i];
-   if (iflag == 1) gGeoManager->MasterToLocal(XM,XD);
-   else            gGeoManager->MasterToLocalVect(XM,XD);
-   for (i=0;i<3;i++) xd[i] = XD[i];
-#endif
+  if (Mode()&kWithG3){
+    g3mtod(xm, xd, iflag); 
+  } else {
+     Double_t XM[3], XD[3];
+     Int_t i;
+     for (i=0;i<3;i++) XM[i]=xm[i];
+     if (iflag == 1) gGeoManager->MasterToLocal(XM,XD);
+     else            gGeoManager->MasterToLocalVect(XM,XD);
+     for (i=0;i<3;i++) xd[i] = XD[i];
+  }
 } 
  
 //_____________________________________________________________________________
@@ -3510,23 +3503,22 @@ void  StTGeant3::Gmtod(Double_t *xm, Double_t *xd, Int_t iflag)
   //
 
   
-#if defined(WITHG3) || defined(WITHBOTH)
-  Float_t* fxm = CreateFloatArray(xm, 3);
-  Float_t* fxd = CreateFloatArray(xd, 3);
-  
-  Gmtod(fxm, fxd, iflag) ;
-  
-  for (Int_t i=0; i<3; i++) {
-     xm[i] = fxm[i]; xd[i] = fxd[i];  
-  }
+  if (Mode()&kWithG3){
+    Float_t* fxm = CreateFloatArray(xm, 3);
+    Float_t* fxd = CreateFloatArray(xd, 3);
 
-  delete [] fxm;
-  delete [] fxd;
-#endif
-#ifdef WITHROOT
-   if (iflag == 1) gGeoManager->MasterToLocal(xm,xd);
-   else            gGeoManager->MasterToLocalVect(xm,xd);
-#endif
+    Gmtod(fxm, fxd, iflag) ;
+
+    for (Int_t i=0; i<3; i++) {
+       xm[i] = fxm[i]; xd[i] = fxd[i];  
+    }
+
+    delete [] fxm;
+    delete [] fxd;
+  } else {   
+    if (iflag == 1)  gGeoManager->MasterToLocal    (xm,xd);
+    else             gGeoManager->MasterToLocalVect(xm,xd);
+  }
 } 
  
 //_____________________________________________________________________________
@@ -3549,14 +3541,13 @@ void  StTGeant3::Gsdvn(const char *name, const char *mother, Int_t ndiv,
   char vmother[5];
   Vname(mother,vmother);
  
-#if defined(WITHG3) || defined(WITHBOTH)
-  g3sdvn(PASSCHARD(vname), PASSCHARD(vmother), ndiv, iaxis PASSCHARL(vname)
-	PASSCHARL(vmother)); 
-#endif
-    
-#if defined(WITHROOT) || defined(WITHBOTH)
-  fMCGeo->Gsdvn(name, mother, ndiv, iaxis);
-#endif
+  if (Mode()&kWithG3){
+    g3sdvn(PASSCHARD(vname), PASSCHARD(vmother), ndiv, iaxis PASSCHARL(vname)
+	  PASSCHARL(vmother)); 
+  } else {
+
+    fMCGeo->Gsdvn(name, mother, ndiv, iaxis);
+  }
 } 
  
 //_____________________________________________________________________________
@@ -3575,15 +3566,13 @@ void  StTGeant3::Gsdvn2(const char *name, const char *mother, Int_t ndiv,
   char vmother[5];
   Vname(mother,vmother);
   
-#if defined(WITHG3) || defined(WITHBOTH)
-  Float_t fc0i = c0i;
-  g3sdvn2(PASSCHARD(vname), PASSCHARD(vmother), ndiv, iaxis, fc0i, numed
-	 PASSCHARL(vname) PASSCHARL(vmother)); 
-#endif
-    
-#if defined(WITHROOT) || defined(WITHBOTH)
-  fMCGeo->Gsdvn2(name, mother, ndiv, iaxis, c0i, numed);
-#endif
+  if (Mode()&kWithG3){
+    Float_t fc0i = c0i;
+    g3sdvn2(PASSCHARD(vname), PASSCHARD(vmother), ndiv, iaxis, fc0i, numed
+	   PASSCHARL(vname) PASSCHARL(vmother)); 
+  } else {
+    fMCGeo->Gsdvn2(name, mother, ndiv, iaxis, c0i, numed);
+  }
 } 
  
 //_____________________________________________________________________________
@@ -3598,14 +3587,12 @@ void  StTGeant3::Gsdvs(const char *name, const char *mother, Float_t step,
   char vmother[5];
   Vname(mother,vmother);
 
-#if defined(WITHG3) || defined(WITHBOTH)
-  g3sdvs(PASSCHARD(vname), PASSCHARD(vmother), step, iaxis, numed
-	PASSCHARL(vname) PASSCHARL(vmother)); 
-#endif
-    
-#if defined(WITHROOT) || defined(WITHBOTH)
-  gGeoManager->Division(vname,vmother,iaxis,0,0,step,numed,"s");
-#endif  
+  if (Mode()&kWithG3){
+    g3sdvs(PASSCHARD(vname), PASSCHARD(vmother), step, iaxis, numed
+	  PASSCHARL(vname) PASSCHARL(vmother)); 
+  } else {
+    gGeoManager->Division(vname,vmother,iaxis,0,0,step,numed,"s");
+  }  
 } 
  
 //_____________________________________________________________________________
@@ -3620,14 +3607,12 @@ void  StTGeant3::Gsdvs2(const char *name, const char *mother, Float_t step,
   char vmother[5];
   Vname(mother,vmother);
 
-#if defined(WITHG3) || defined(WITHBOTH)
-  g3sdvs2(PASSCHARD(vname), PASSCHARD(vmother), step, iaxis, c0, numed
-	 PASSCHARL(vname) PASSCHARL(vmother)); 
-#endif
-    
-#if defined(WITHROOT) || defined(WITHBOTH)
-  gGeoManager->Division(vname,vmother,iaxis,0,c0,step,numed,"sx");
-#endif  
+  if (Mode()&kWithG3){
+    g3sdvs2(PASSCHARD(vname), PASSCHARD(vmother), step, iaxis, c0, numed
+	   PASSCHARL(vname) PASSCHARL(vmother)); 
+  } else {
+    gGeoManager->Division(vname,vmother,iaxis,0,c0,step,numed,"sx");
+  } 
 } 
  
 //_____________________________________________________________________________
@@ -3650,15 +3635,13 @@ void  StTGeant3::Gsdvt(const char *name, const char *mother, Double_t step,
   char vmother[5];
   Vname(mother,vmother);
   
-#if defined(WITHG3) || defined(WITHBOTH)
-  Float_t fstep = step;
-  g3sdvt(PASSCHARD(vname), PASSCHARD(vmother), fstep, iaxis, numed, ndvmx
-	PASSCHARL(vname) PASSCHARL(vmother)); 
-#endif
-    
-#if defined(WITHROOT) || defined(WITHBOTH)
-  fMCGeo->Gsdvt(name, mother, step, iaxis, numed, ndvmx);
-#endif  
+  if (Mode()&kWithG3){
+    Float_t fstep = step;
+    g3sdvt(PASSCHARD(vname), PASSCHARD(vmother), fstep, iaxis, numed, ndvmx
+	  PASSCHARL(vname) PASSCHARL(vmother)); 
+  } else {
+    fMCGeo->Gsdvt(name, mother, step, iaxis, numed, ndvmx);
+  }  
 } 
 
 //_____________________________________________________________________________
@@ -3681,16 +3664,14 @@ void  StTGeant3::Gsdvt2(const char *name, const char *mother, Double_t step,
   char vmother[5];
   Vname(mother,vmother);
   
-#if defined(WITHG3) || defined(WITHBOTH)
-  Float_t fstep = step;
-  Float_t fc0 = c0;
-  g3sdvt2(PASSCHARD(vname), PASSCHARD(vmother), fstep, iaxis, fc0,
-	 numed, ndvmx PASSCHARL(vname) PASSCHARL(vmother)); 
-#endif
-    
-#if defined(WITHROOT) || defined(WITHBOTH)
-  fMCGeo->Gsdvt2(name, mother, step, iaxis, c0, numed, ndvmx);
-#endif  
+  if (Mode()&kWithG3){
+    Float_t fstep = step;
+    Float_t fc0 = c0;
+    g3sdvt2(PASSCHARD(vname), PASSCHARD(vmother), fstep, iaxis, fc0,
+	   numed, ndvmx PASSCHARL(vname) PASSCHARL(vmother)); 
+  } else {
+    fMCGeo->Gsdvt2(name, mother, step, iaxis, c0, numed, ndvmx);
+  }  
 } 
 
 //_____________________________________________________________________________
@@ -3710,11 +3691,11 @@ void  StTGeant3::Gsord(const char *name, Int_t iax)
   //           IAX = 7    THETA (THETA=0 => Z axis)
   //
 
-#if defined(WITHG3) || defined(WITHBOTH)
-  char vname[5];
-  Vname(name,vname);
-  g3sord(PASSCHARD(vname), iax PASSCHARL(vname)); 
-#endif
+  if (Mode()&kWithG3){
+    char vname[5];
+    Vname(name,vname);
+    g3sord(PASSCHARD(vname), iax PASSCHARL(vname)); 
+  }
 } 
  
 //_____________________________________________________________________________
@@ -3745,18 +3726,17 @@ void  StTGeant3::Gspos(const char *name, Int_t nr, const char *mother, Double_t 
   char vmother[5];
   Vname(mother,vmother);
   
-#if defined(WITHG3) || defined(WITHBOTH)
-  Float_t fx = x;
-  Float_t fy = y;
-  Float_t fz = z;  
-  g3spos(PASSCHARD(vname), nr, PASSCHARD(vmother), fx, fy, fz, irot,
-	PASSCHARD(konly) PASSCHARL(vname) PASSCHARL(vmother)
-	PASSCHARL(konly)); 
-#endif
-    
-#if defined(WITHROOT) || defined(WITHBOTH)
-  fMCGeo->Gspos(name, nr, mother, x, y, z, irot, konly);
-#endif  
+  if (Mode()&kWithG3){
+    Float_t fx = x;
+    Float_t fy = y;
+    Float_t fz = z;  
+    g3spos(PASSCHARD(vname), nr, PASSCHARD(vmother), fx, fy, fz, irot,
+	  PASSCHARD(konly) PASSCHARL(vname) PASSCHARL(vmother)
+	  PASSCHARL(konly)); 
+  } else {
+
+    fMCGeo->Gspos(name, nr, mother, x, y, z, irot, konly);
+  } 
 } 
  
 //_____________________________________________________________________________
@@ -3795,13 +3775,12 @@ void  StTGeant3::Gsposp(const char *name, Int_t nr, const char *mother,
   //      NR inside MOTHER, with its parameters UPAR(1..NP)
   //
 
-#if defined(WITHG3) || defined(WITHBOTH)
-  G3Gsposp(name, nr, mother, x, y, z, irot, konly, upar, np); 
-#endif
-    
-#if defined(WITHROOT) || defined(WITHBOTH)
-  fMCGeo->Gsposp(name, nr, mother, x, y, z, irot, konly, upar, np);
-#endif  
+  if (Mode()&kWithG3){
+    G3Gsposp(name, nr, mother, x, y, z, irot, konly, upar, np); 
+  } else {
+
+    fMCGeo->Gsposp(name, nr, mother, x, y, z, irot, konly, upar, np);
+  }  
 } 
  
 //_____________________________________________________________________________
@@ -3814,16 +3793,13 @@ void  StTGeant3::Gsposp(const char *name, Int_t nr, const char *mother,
   //      NR inside MOTHER, with its parameters UPAR(1..NP)
   //
 
-#if defined(WITHG3) || defined(WITHBOTH)
-  Float_t* fupar = CreateFloatArray(upar, np);
-  G3Gsposp(name, nr, mother, x, y, z, irot, konly, fupar, np); 
-  delete [] fupar;
-#endif
-
-#if defined(WITHROOT) || defined(WITHBOTH)
-  fMCGeo->Gsposp(name, nr, mother, x, y, z, irot, konly, upar, np);
-#endif  
-
+  if (Mode()&kWithG3){
+    Float_t* fupar = CreateFloatArray(upar, np);
+    G3Gsposp(name, nr, mother, x, y, z, irot, konly, fupar, np); 
+    delete [] fupar;
+  } else {
+    fMCGeo->Gsposp(name, nr, mother, x, y, z, irot, konly, upar, np);
+  }
 } 
  
 //_____________________________________________________________________________
@@ -3842,13 +3818,11 @@ void  StTGeant3::Gsrotm(Int_t nmat, Float_t theta1, Float_t phi1, Float_t theta2
   //  It defines the rotation matrix number IROT.
   //  
 
-#if defined(WITHG3) || defined(WITHBOTH)
-  g3srotm(nmat, theta1, phi1, theta2, phi2, theta3, phi3); 
-#endif
-  
-#if defined(WITHROOT) || defined(WITHBOTH)
-  gGeoManager->Matrix(nmat, theta1, phi1, theta2, phi2, theta3, phi3);
-#endif  
+  if (Mode()&kWithG3){
+    g3srotm(nmat, theta1, phi1, theta2, phi2, theta3, phi3); 
+  } else {
+    gGeoManager->Matrix(nmat, theta1, phi1, theta2, phi2, theta3, phi3);
+  }  
 } 
  
 //_____________________________________________________________________________
@@ -3858,20 +3832,19 @@ void  StTGeant3::Gprotm(Int_t nmat)
   //    To print rotation matrices structure JROTM
   //     nmat     Rotation matrix number
   //
-#if defined(WITHG3) || defined(WITHBOTH)
-  g3protm(nmat); 
-#endif
-#ifdef WITHROOT
-  TIter next(gGeoManager->GetListOfMatrices());
-  TGeoMatrix *matrix;
-  while ((matrix = (TGeoMatrix*)next())) {
-     if (UInt_t(nmat) == matrix->GetUniqueID()) {
-        matrix->Print();
-	return;
-     }
-  }     	
-  Error("Gprotm","Rotation with id=%i not found", nmat);
-#endif
+  if (Mode()&kWithG3){
+    g3protm(nmat); 
+  } else {
+    TIter next(gGeoManager->GetListOfMatrices());
+    TGeoMatrix *matrix;
+    while ((matrix = (TGeoMatrix*)next())) {
+       if (UInt_t(nmat) == matrix->GetUniqueID()) {
+          matrix->Print();
+	  return;
+       }
+    }     	
+    Error("Gprotm","Rotation with id=%i not found", nmat);
+  }
  } 
  
 //_____________________________________________________________________________
@@ -3914,13 +3887,11 @@ Int_t StTGeant3::Gsvolu(const char *name, const char *shape, Int_t nmed,
   //  
 
   Int_t ivolu = 0; 
-#if defined(WITHG3) || defined(WITHBOTH)
-  ivolu = G3Gsvolu(name, shape, nmed, upar, npar);
-#endif  
-  
-#if defined(WITHROOT) || defined(WITHBOTH)
-  ivolu = fMCGeo->Gsvolu(name, shape, nmed, upar, npar);
-#endif  
+  if (Mode()&kWithG3){
+    ivolu = G3Gsvolu(name, shape, nmed, upar, npar);
+  } else {
+    ivolu = fMCGeo->Gsvolu(name, shape, nmed, upar, npar);
+  }  
   return ivolu; 
 
 } 
@@ -3941,15 +3912,13 @@ Int_t StTGeant3::Gsvolu(const char *name, const char *shape, Int_t nmed,
 
 
   Int_t ivolu = 0; 
-#if defined(WITHG3) || defined(WITHBOTH)
-  Float_t* fupar = CreateFloatArray(upar, npar);
-  ivolu = G3Gsvolu(name, shape, nmed, fupar, npar);
-  delete [] fupar;  
-#endif  
-
-#if defined(WITHROOT) || defined(WITHBOTH)
-  ivolu = fMCGeo->Gsvolu(name, shape, nmed, upar, npar);
-#endif  
+  if (Mode()&kWithG3){
+    Float_t* fupar = CreateFloatArray(upar, npar);
+    ivolu = G3Gsvolu(name, shape, nmed, fupar, npar);
+    delete [] fupar;  
+  } else {
+    ivolu = fMCGeo->Gsvolu(name, shape, nmed, upar, npar);
+  }  
   return ivolu; 
 } 
  
@@ -4095,14 +4064,12 @@ void StTGeant3::Gsatt(const char *name, const char *att, Int_t val)
   Vname(name,vname);
   char vatt[5];
   Vname(att,vatt);
-#if defined(WITHG3) || defined(WITHBOTH)
-  g3satt(PASSCHARD(vname), PASSCHARD(vatt), val PASSCHARL(vname)
-	PASSCHARL(vatt)); 
-#endif
-  
-#if defined(WITHROOT) || defined(WITHBOTH)
-  gGeoManager->SetVolumeAttribute(vname, vatt, val);
-#endif
+  if (Mode()&kWithG3){
+    g3satt(PASSCHARD(vname), PASSCHARD(vatt), val PASSCHARL(vname)
+	  PASSCHARL(vatt)); 
+  } else {
+    gGeoManager->SetVolumeAttribute(vname, vatt, val);
+  }
 } 
 
 //_____________________________________________________________________________
@@ -4145,7 +4112,7 @@ Int_t StTGeant3::Glvolu(Int_t nlev, Int_t *lnam,Int_t *lnum)
   //  lnum   an integer array containing the copy numbers for that specific
   //         volume
   //
-  //  This routine fills the volulme paramters in common /gcvolu/ for a
+  //  This routine fills the volulme paramters in common /fgGcvolu/ for a
   //  physical tree, specified by the list lnam and lnum of volume names
   //  and numbers, and for all its ascendants up to level 1. This routine
   //  is optimsed and does not re-compute the part of the history already
@@ -4154,15 +4121,14 @@ Int_t StTGeant3::Glvolu(Int_t nlev, Int_t *lnam,Int_t *lnum)
   //  to zero NLEVEL in the common GCVOLU. It return 0 if there were no
   //  problems in make the call.
   //
-#if defined(WITHG3) || defined(WITHBOTH)
-  Int_t ier;
-  g3lvolu(nlev, lnam, lnum, ier); 
-  return ier;
-#endif
-#ifdef WITHROOT
-  Warning("Glvolu","not yet implemented");
-  return 0;
-#endif
+  if (Mode()&kWithG3){
+    Int_t ier;
+    g3lvolu(nlev, lnam, lnum, ier); 
+    return ier;
+  } else {
+    Warning("Glvolu","not yet implemented");
+    return 0;
+  }
 }
 
 //_____________________________________________________________________________
@@ -4249,9 +4215,7 @@ void StTGeant3::Gdopt(const char *name,const char *value)
   //     USER    ON       User graphics options in the raytracing.
   //             OFF (D)  Automatic graphics options.
   //  
-  #ifdef WITHROOT
-  return;
-  #endif
+  if (Mode()==kWithRoot) return;
   InitHIGZ();
   char vname[5];
   Vname(name,vname);
@@ -4299,9 +4263,7 @@ void StTGeant3::Gdraw(const char *name,Double_t theta, Double_t phi, Double_t ps
   //  Finally, some examples are given for the ray-tracing. (A possible
   //  string for the NAME of the volume can be found using the command DTREE).
   //
-  #ifdef WITHROOT
-  return;
-  #endif
+  if (Mode()==kWithRoot)return;
   
   InitHIGZ();
   gHigz->Clear();
@@ -4341,9 +4303,8 @@ void StTGeant3::Gdrawc(const char *name,Int_t axis, Float_t cut,Float_t u0,
   //  When HIDE Mode is ON, it is possible to get the same effect with
   //  the CVOL/BOX function.
   //  
-  #ifdef WITHROOT
-  return;
-  #endif
+  if (Mode()==kWithRoot) return;
+  
 
   InitHIGZ();
   gHigz->Clear();
@@ -4374,9 +4335,8 @@ void StTGeant3::Gdrawx(const char *name,Float_t cutthe, Float_t cutphi,
   //  cutthe and cutphi and placed at the distance cutval from the origin.
   //  The resulting picture is seen from the viewing angles theta,phi.
   //
-  #ifdef WITHROOT
-  return;
-  #endif
+  if (Mode()==kWithRoot)return;
+  
 
   InitHIGZ();
   gHigz->Clear();
@@ -4454,9 +4414,7 @@ void StTGeant3::Gdspec(const char *name)
   //  SHAD and according the current SetClipBox clipping parameters for that
   //  volume.
   //  
-  #ifdef WITHROOT
-  return;
-  #endif
+   if (Mode()==kWithRoot) return;
 
   InitHIGZ();
   gHigz->Clear();
@@ -4472,9 +4430,8 @@ void StTGeant3::DrawOneSpec(const char *name)
   //  Function called when one double-clicks on a volume name
   //  in a TPavelabel drawn by Gdtree.
   //
-  #ifdef WITHROOT
-  return;
-  #endif
+  if (Mode()==kWithRoot) return;
+
   THIGZ *higzSave = gHigz;
   higzSave->SetName("higzSave");
   THIGZ *higzSpec = (THIGZ*)gROOT->FindObject("higzSpec");
@@ -4509,9 +4466,7 @@ void StTGeant3::Gdtree(const char *name,Int_t levmax, Int_t isel)
   //    - drawing tree
   //    - drawing tree of parent
   //  
-  #ifdef WITHROOT
-  return;
-  #endif
+  if (Mode()==kWithRoot) return;
 
   InitHIGZ();
   gHigz->Clear();
@@ -4531,34 +4486,33 @@ void StTGeant3::GdtreeParent(const char *name,Int_t levmax, Int_t isel)
   //
   //  This function draws the logical tree of the parent of name.
   //  
-  #ifdef WITHROOT
-  return;
-  #endif
+  if (Mode()==kWithRoot) return;
+
 
   InitHIGZ();
   gHigz->Clear();
   // Scan list of volumes in JVOLUM
-#if defined(WITHG3) || defined(WITHBOTH)
-  char vname[5];
-  Int_t gname, i, jvo, in, nin, jin, num;
-  strncpy((char *) &gname, name, 4);
-  for(i=1; i<=fGcnum->nvolum; i++) {
-    jvo = fZlq[fGclink->jvolum-i];
-    nin = Int_t(fZq[jvo+3]);
-    if (nin == -1) nin = 1;
-    for (in=1;in<=nin;in++) {
-      jin = fZlq[jvo-in];
-      num = Int_t(fZq[jin+2]);
-      if(gname == fZiq[fGclink->jvolum+num]) {
-	strncpy(vname,(char*)&fZiq[fGclink->jvolum+i],4);
-	vname[4] = 0;           
-	g3dtree(PASSCHARD(vname), levmax, isel PASSCHARL(vname)); 
-	gHigz->SetPname("");
-	return;
+  if (Mode()&kWithG3){
+    char vname[5];
+    Int_t gname, i, jvo, in, nin, jin, num;
+    strncpy((char *) &gname, name, 4);
+    for(i=1; i<=fGcnum->nvolum; i++) {
+      jvo = fZlq[fGclink->jvolum-i];
+      nin = Int_t(fZq[jvo+3]);
+      if (nin == -1) nin = 1;
+      for (in=1;in<=nin;in++) {
+	jin = fZlq[jvo-in];
+	num = Int_t(fZq[jin+2]);
+	if(gname == fZiq[fGclink->jvolum+num]) {
+	  strncpy(vname,(char*)&fZiq[fGclink->jvolum+i],4);
+	  vname[4] = 0;           
+	  g3dtree(PASSCHARD(vname), levmax, isel PASSCHARL(vname)); 
+	  gHigz->SetPname("");
+	  return;
+	}
       }
     }
   }
-#endif
 } 
  
 //_____________________________________________________________________________
@@ -4682,9 +4636,8 @@ void  StTGeant3::SetClipBox(const char *name,Double_t xmin,Double_t xmax,
   //  coordinates.
   
 //  InitHIGZ();
-  #ifdef WITHROOT
-  return;
-  #endif
+  if (Mode()==kWithRoot) return;
+
 
   char vname[5];
   Vname(name,vname);
@@ -5606,59 +5559,59 @@ void StTGeant3::FinishGeometry()
   if (gDebug > 0) printf("FinishGeometry, calling ggclos\n");
   Ggclos();
 
-#if defined(WITHROOT) || defined(WITHBOTH)
-  if (fImportRootGeometry) {
-    // Materials
-    TIter next1(gGeoManager->GetListOfMaterials());
-    TGeoMaterial* mat=0;
-    while ((mat=(TGeoMaterial*)next1())) {
-      Int_t kmat=mat->GetUniqueID();
-      TGeoMixture* mixt = dynamic_cast<TGeoMixture*>(mat);
-      if (mixt) {
-        Int_t nlmat = mixt->GetNelements(); 
-        Float_t* fa = CreateFloatArray(mixt->GetAmixt(), TMath::Abs(nlmat));  
-        Float_t* fz = CreateFloatArray(mixt->GetZmixt(), TMath::Abs(nlmat));  
-        Float_t* fwmat = CreateFloatArray(mixt->GetWmixt(), TMath::Abs(nlmat));  
-        G3Mixture(kmat, mixt->GetName(), fa, fz, mixt->GetDensity(), nlmat, fwmat); 
-        delete [] fa;
-        delete [] fz;
-        delete [] fwmat;
-      } 
-      else {
-        Float_t* buf = 0;
-        G3Material(kmat, mat->GetName(), mat->GetA(), mat->GetZ(),
-                   mat->GetDensity(), mat->GetRadLen(), mat->GetIntLen(), buf, 0);
-                                                // Is fIntLen == absl ??
-      }
-      mat->SetUniqueID(kmat);
-    }  	         	        
+  if (Mode()&kWithRoot){
+    if (fImportRootGeometry) {
+      // Materials
+      TIter next1(gGeoManager->GetListOfMaterials());
+      TGeoMaterial* mat=0;
+      while ((mat=(TGeoMaterial*)next1())) {
+	Int_t kmat=mat->GetUniqueID();
+	TGeoMixture* mixt = dynamic_cast<TGeoMixture*>(mat);
+	if (mixt) {
+          Int_t nlmat = mixt->GetNelements(); 
+          Float_t* fa = CreateFloatArray(mixt->GetAmixt(), TMath::Abs(nlmat));  
+          Float_t* fz = CreateFloatArray(mixt->GetZmixt(), TMath::Abs(nlmat));  
+          Float_t* fwmat = CreateFloatArray(mixt->GetWmixt(), TMath::Abs(nlmat));  
+          G3Mixture(kmat, mixt->GetName(), fa, fz, mixt->GetDensity(), nlmat, fwmat); 
+          delete [] fa;
+          delete [] fz;
+          delete [] fwmat;
+	} 
+	else {
+          Float_t* buf = 0;
+          G3Material(kmat, mat->GetName(), mat->GetA(), mat->GetZ(),
+                     mat->GetDensity(), mat->GetRadLen(), mat->GetIntLen(), buf, 0);
+                                                  // Is fIntLen == absl ??
+	}
+	mat->SetUniqueID(kmat);
+      }  	         	        
 
-    // Media
-    TIter next2(gGeoManager->GetListOfMedia());
-    TGeoMedium* med;
-    while ((med=(TGeoMedium*)next2())) {
-      Int_t kmed = med->GetId();
-      Int_t nmat = med->GetMaterial()->GetUniqueID();
-      Int_t isvol  = (Int_t) med->GetParam(0);
-      Int_t ifield = (Int_t) med->GetParam(1);
-      Double_t fieldm = med->GetParam(2);
-      Double_t tmaxfd = med->GetParam(3);
-      Double_t stemax = med->GetParam(4);
-      Double_t deemax = med->GetParam(5);
-      Double_t epsil  = med->GetParam(6);
-      Double_t stmin  = med->GetParam(7);
-      G3Medium(kmed, med->GetName(), nmat, isvol, ifield, fieldm, tmaxfd,
-               stemax,deemax, epsil, stmin);
-      med->SetUniqueID(kmed);	         	        
-    }
-    if (gDebug > 0) printf("FinishGeometry, geometry retreived from file, materials/media mapped to G3\n");
-  } else {
-    TGeoVolume *top = (TGeoVolume*)gGeoManager->GetListOfVolumes()->First();
-    gGeoManager->SetTopVolume(top);
-    if (gDebug > 0) printf("FinishGeometry, calling CloseGeometry\n");
-    gGeoManager->CloseGeometry();  
-  }  
-#endif
+      // Media
+      TIter next2(gGeoManager->GetListOfMedia());
+      TGeoMedium* med;
+      while ((med=(TGeoMedium*)next2())) {
+	Int_t kmed = med->GetId();
+	Int_t nmat = med->GetMaterial()->GetUniqueID();
+	Int_t isvol  = (Int_t) med->GetParam(0);
+	Int_t ifield = (Int_t) med->GetParam(1);
+	Double_t fieldm = med->GetParam(2);
+	Double_t tmaxfd = med->GetParam(3);
+	Double_t stemax = med->GetParam(4);
+	Double_t deemax = med->GetParam(5);
+	Double_t epsil  = med->GetParam(6);
+	Double_t stmin  = med->GetParam(7);
+	G3Medium(kmed, med->GetName(), nmat, isvol, ifield, fieldm, tmaxfd,
+        	 stemax,deemax, epsil, stmin);
+	med->SetUniqueID(kmed);	         	        
+      }
+      if (gDebug > 0) printf("FinishGeometry, geometry retreived from file, materials/media mapped to G3\n");
+    } else {
+      TGeoVolume *top = (TGeoVolume*)gGeoManager->GetListOfVolumes()->First();
+      gGeoManager->SetTopVolume(top);
+      if (gDebug > 0) printf("FinishGeometry, calling CloseGeometry\n");
+      gGeoManager->CloseGeometry();  
+    }  
+}
 
   //  gROOT->GetListOfBrowsables()->Add(gGeoManager);
   if (gDebug > 0) printf("FinishGeometry, calling SetColors\n");
@@ -5728,41 +5681,41 @@ void StTGeant3::SetColors()
   // this is done sequentially for all volumes
   // based on the number of their medium
   //
-#if defined(WITHG3) || defined(WITHBOTH)
-  Int_t kv, icol;
-  Int_t jvolum=fGclink->jvolum;
-  //Int_t jtmed=fGclink->jtmed;
-  //Int_t jmate=fGclink->jmate;
-  Int_t nvolum=fGcnum->nvolum;
-  char name[5];
-  //
-  //    Now for all the volumes
-  for(kv=1;kv<=nvolum;kv++) {
-    //     Get the tracking medium
-    Int_t itm=Int_t (fZq[fZlq[jvolum-kv]+4]);
-    //     Get the material
-    //Int_t ima=Int_t (fZq[fZlq[jtmed-itm]+6]);
-    //     Get z
-    //Float_t z=fZq[fZlq[jmate-ima]+7];
-    //     Find color number
-    //icol = Int_t(z)%6+2;
-    //icol = 17+Int_t(z*150./92.);
-    //icol = kv%6+2;
-    icol = itm%6+2;
-    strncpy(name,(char*)&fZiq[jvolum+kv],4);
-    name[4]='\0';
-    Gsatt(name,"COLO",icol);
+  if (Mode()&kWithG3){
+    Int_t kv, icol;
+    Int_t jvolum=fGclink->jvolum;
+    //Int_t jtmed=fGclink->jtmed;
+    //Int_t jmate=fGclink->jmate;
+    Int_t nvolum=fGcnum->nvolum;
+    char name[5];
+    //
+    //    Now for all the volumes
+    for(kv=1;kv<=nvolum;kv++) {
+      //     Get the tracking medium
+      Int_t itm=Int_t (fZq[fZlq[jvolum-kv]+4]);
+      //     Get the material
+      //Int_t ima=Int_t (fZq[fZlq[jtmed-itm]+6]);
+      //     Get z
+      //Float_t z=fZq[fZlq[jmate-ima]+7];
+      //     Find color number
+      //icol = Int_t(z)%6+2;
+      //icol = 17+Int_t(z*150./92.);
+      //icol = kv%6+2;
+      icol = itm%6+2;
+      strncpy(name,(char*)&fZiq[jvolum+kv],4);
+      name[4]='\0';
+      Gsatt(name,"COLO",icol);
+    }
+}
+  if (Mode()==kWithRoot){
+    TIter next(gGeoManager->GetListOfVolumes());
+    TGeoVolume *volume;
+    while ((volume = (TGeoVolume*)next())) {
+       TGeoMedium *medium = (TGeoMedium*)volume->GetMedium();
+       Int_t icol = medium->GetId()%6+2;
+       volume->SetLineColor(icol);
+    }
   }
-#endif
-#ifdef WITHROOT
-  TIter next(gGeoManager->GetListOfVolumes());
-  TGeoVolume *volume;
-  while ((volume = (TGeoVolume*)next())) {
-     TGeoMedium *medium = (TGeoMedium*)volume->GetMedium();
-     Int_t icol = medium->GetId()%6+2;
-     volume->SetLineColor(icol);
-  }
-#endif
 }
 
 //_____________________________________________________________________________
@@ -6048,46 +6001,46 @@ void StTGeant3::Bginvol(Float_t *x, Int_t &isame)
 #ifdef STATISTICS
    statcode = 0;
    for (int j=0;j<6;j++) if (j <3) oldvect[j] = x[j]; else oldvect[j]=0;
-   oldsafety = gctrak->safety;
-   oldstep   = gctrak->step;
+   oldsafety = fgGctrack->safety;
+   oldstep   = fgGctrack->step;
 #endif
-#ifdef WITHBOTH
-   g3invol(x,isame);
+  if (Mode()==kWithBoth){
+     g3invol(x,isame);
 
-   const char *gnode = geant3->GetNodeName();
-   if (gCurrentNode) {
-      // make sure the reference paths are the same, otherwise comparison makes no sense
-      if (strcmp(gCurrentNode->GetName(), gnode)) return;
-   }   
+     const char *gnode = fgGeant3->GetNodeName();
+     if (fgCurrentNode) {
+	// make sure the reference paths are the same, otherwise comparison makes no sense
+	if (strcmp(fgCurrentNode->GetName(), gnode)) return;
+     }   
 
-   Int_t rsame;
-   TGeoNode *node = gGeoManager->FindNode(x[0], x[1], x[2]);
-   if (gGeoManager->IsOutside()) node=0;
-   rsame = (node==gCurrentNode)?1:0;
-   
-   static Int_t count_err = 0;
-   if (isame != rsame) {
-      // same starting node, different paths -> error
-      count_err++;
-      if (isame) {
-         printf("%6d INVOL ERR=%d (%g, %g, %g): only TGeo have crossed a boundary after step\n", count_ginvol, count_err, x[0], x[1], x[2]);
-         printf("         gpath: %s\n", geant3->GetPath());
-      } else {
-         printf("%6d INVOL ERR=%d (%g, %g, %g): only G3 have crossed a boundary after step\n", count_ginvol, count_err, x[0], x[1], x[2]);
-         printf("         gpath: %s\n", geant3->GetPath());
-      }   
-   }   
-#endif
-#ifdef WITHG3
-   g3invol(x,isame);
-#endif
-#ifdef WITHROOT
-   if (gGeoManager->IsSameLocation(x[0], x[1], x[2])) isame = 1;
-   else isame = 0;
-#endif
+     Int_t rsame;
+     TGeoNode *node = gGeoManager->FindNode(x[0], x[1], x[2]);
+     if (gGeoManager->IsOutside()) node=0;
+     rsame = (node==fgCurrentNode)?1:0;
+
+     static Int_t count_err = 0;
+     if (isame != rsame) {
+	// same starting node, different paths -> error
+	count_err++;
+	if (isame) {
+           printf("%6d INVOL ERR=%d (%g, %g, %g): only TGeo have crossed a boundary after step\n", count_ginvol, count_err, x[0], x[1], x[2]);
+           printf("         gpath: %s\n", fgGeant3->GetPath());
+	} else {
+           printf("%6d INVOL ERR=%d (%g, %g, %g): only G3 have crossed a boundary after step\n", count_ginvol, count_err, x[0], x[1], x[2]);
+           printf("         gpath: %s\n", fgGeant3->GetPath());
+	}   
+     }   
+  }
+  if (Mode()==kWithG3){
+    g3invol(x,isame);
+  }
+  if (Mode()==kWithRoot){
+    if (gGeoManager->IsSameLocation(x[0], x[1], x[2])) isame = 1;
+    else isame = 0;
+  }
 #ifdef STATISTICS
-   statsnext=gctrak->snext;
-   statsafety=gctrak->safety;
+   statsnext=fgGctrack->snext;
+   statsafety=fgGctrack->safety;
    stattree->Fill();
    count_ginvol++;
 #endif
@@ -6101,173 +6054,173 @@ void StTGeant3::Bgtmedi(Float_t *x, Int_t &numed)
 #ifdef STATISTICS
    statcode = 2;
    for (int j=0;j<6;j++) if (j <3) oldvect[j] = x[j]; else oldvect[j]=0;
-   oldsafety = gctrak->safety;
-   oldstep   = gctrak->step;
+   oldsafety = fgGctrack->safety;
+   oldstep   = fgGctrack->step;
 #endif
    // printf("GTMEDI %i:\n", count_gtmedi);
-#ifdef WITHBOTH
-   static Int_t count_berr = 0;
-   static Int_t count_errors = 0;
-   g3tmedi(x,numed);
-   
-   gCurrentNode = gGeoManager->FindNode(x[0],x[1],x[2]);
-   if (!gCurrentNode) {numed=0; return;};
-   gcvolu->nlevel = 1 + gGeoManager->GetLevel();
-   gGeoManager->GetBranchNames(gcvolu->names);
-   gGeoManager->GetBranchNumbers(gcvolu->number,gcvolu->lvolum);
-   TGeoVolume *vol = gCurrentNode->GetVolume();
-   Int_t rmed=0;
-   if (vol) {
-      TGeoMedium *medium = vol->GetMedium();
-      if (medium) rmed = medium->GetId();
-   } else {
-      printf("found case with vol=0 in gtmedi\n");
-   }
-   char rpath[512];
-   sprintf(rpath, "%s", gGeoManager->GetPath());
-   const char *gpath = geant3->GetPath();
-   Bool_t rdeeper = (strstr(rpath, gpath))?kTRUE:kFALSE;
-   Bool_t gdeeper = (strstr(gpath, rpath))?kTRUE:kFALSE;
-   if (strcmp(gpath, rpath) && strlen(rpath)>1) {
-      // paths are different
-      //---> see if crossing first boundary forward-backward leads to G3 path
-      Double_t dir[3];
-      Bool_t found = kFALSE, foundp=kFALSE, foundm=kFALSE;
-      Double_t berrplus=1E4, berrminus=1E4, berr; 
-      // save modeller state
-      gGeoManager->PushPoint(); 
-      memcpy(dir, gGeoManager->GetCurrentDirection(), 3*sizeof(Double_t));
-      //--->Find next boundary forward
-      gGeoManager->FindNextBoundary();
-      berr = gGeoManager->GetStep();
-      gGeoManager->Step();
-      if (!strcmp(gpath, gGeoManager->GetPath())) {
-         // G3 boundary forward at berr
-	       berrplus = berr;
-	       foundp = kTRUE;
-      }
-      //--->Find backward the closest boundary
-      gGeoManager->PopPoint();
-      gGeoManager->PushPoint();
-      gGeoManager->SetCurrentDirection(-dir[0], -dir[1], -dir[2]);
-      gGeoManager->FindNextBoundary();
-      berr = gGeoManager->GetStep();
-      gGeoManager->Step();
-      if (!strcmp(gpath, gGeoManager->GetPath())) {
-         // G3 boundary backward at berr
-	       berrminus = berr;
-	       foundm = kTRUE;
-      }
-      gGeoManager->PopPoint();
-      gGeoManager->SetCurrentDirection(-dir[0], -dir[1], -dir[2]);
-      found = (foundm || foundp)?kTRUE:kFALSE;
-      berr = TMath::Min(berrplus, berrminus);
-      if (found && berr<1e-2) { // cut at 100 microns
-         count_berr++;
-         if (berr==berrplus) {
-            printf("%6d LOCATE OK ibdr=%d (%g, %g, %g) -> G3 boundary forward at %g\n",
-	                 count_gtmedi, count_berr, x[0],x[1],x[2], berr);
-         } else {		
-  	        printf("%6d LOCATE OK ibdr=%d (%g, %g, %g) -> G3 boundary backward at %g\n",
-	                 count_gtmedi, count_berr, x[0],x[1],x[2], berr);
-	       }
-	       printf("         gpath=%s\n", gpath);
-	       printf("         rpath=%s\n", rpath);
-	       return;
-      }
-      if (found && berr>=1E-2) {
-         printf("       ---> G3 boundary found at %g -> check following errors of %d\n", berr, count_gtmedi);
-      }   	 	
-      //---> check if current G3 path is known by TGeo
-      gGeoManager->PushPoint();
-      if (gGeoManager->cd(gpath)) {
-         Double_t pt[3];
-         gGeoManager->MasterToLocal(gGeoManager->GetCurrentPoint(), pt);
-         if (gGeoManager->GetCurrentNode()->GetVolume()->GetShape()->Contains(pt)) {
-            // Both G3 and TGeo paths contain current point
-            //---> check if current node is MANY
-            if (gGeoManager->IsCurrentOverlapping()) {
-               printf("%6d LOCATE OK (%g, %g, %g)->in overlapping region of MANY\n",count_gtmedi, x[0],x[1],x[2]);
-               printf("         gpath: %s\n", gpath);
-               printf("         rpath: %s\n", rpath); 
-            } else {
-               count_errors++;
-               if (rdeeper || gdeeper) {
-                  if (rdeeper) printf("%6d LOCATE ERR=%d (%g, %g, %g) -> ROOT path deeper than G3\n", 
-                                       count_gtmedi, count_errors, x[0],x[1],x[2]);
-                  else printf("%6d LOCATE ERR=%d (%g, %g, %g) -> G3 path deeper than ROOT\n", 
-                                       count_gtmedi, count_errors, x[0],x[1],x[2]); 
-                  printf("         gpath: %s\n", gpath);
-                  printf("         rpath: %s\n", rpath); 
-                  gGeoManager->PopPoint();
-                  return;
-               }
-               printf("%6d LOCATE ERR=%d (%g, %g, %g)->both ONLY paths valid !!!\n", count_gtmedi,count_errors,x[0],x[1],x[2]);
-               printf("         gpath: %s\n", gpath);
-               printf("         rpath: %s\n", rpath);
-            }          
-            gGeoManager->PopPoint();
-            return;
-         }
-      } else {
-         count_errors++;
-         printf("%6d LOCATE ERR!!!=%d (%g,%g,%g)-> ERROR in TGeo: G3 path not known!!!!\n", count_gtmedi, count_errors,x[0],x[1],x[2]);
-         printf("         gpath: %s\n", gpath);
-         gGeoManager->PopPoint();
-         return;
-      }
-      gGeoManager->PopPoint();   
-      count_errors++;
-      printf("%6d LOCATE ERR=%d (%g, %g, %g)->DIFFERENCE in paths: \n", count_gtmedi, count_errors, x[0],x[1],x[2]); 
-      printf("         gpath=%s\n",gpath);
-      printf("         rpath=%s\n",rpath);
-   }   
-#endif
-#ifdef WITHG3
+  if (Mode()==kWithBoth){
+     static Int_t count_berr = 0;
+     static Int_t count_errors = 0;
+     g3tmedi(x,numed);
+
+     fgCurrentNode = gGeoManager->FindNode(x[0],x[1],x[2]);
+     if (!fgCurrentNode) {numed=0; return;};
+     fgGcvolu->nlevel = 1 + gGeoManager->GetLevel();
+     gGeoManager->GetBranchNames(fgGcvolu->names);
+     gGeoManager->GetBranchNumbers(fgGcvolu->number,fgGcvolu->lvolum);
+     TGeoVolume *vol = fgCurrentNode->GetVolume();
+     Int_t rmed=0;
+     if (vol) {
+	TGeoMedium *medium = vol->GetMedium();
+	if (medium) rmed = medium->GetId();
+     } else {
+	printf("found case with vol=0 in gtmedi\n");
+     }
+     char rpath[512];
+     sprintf(rpath, "%s", gGeoManager->GetPath());
+     const char *gpath = fgGeant3->GetPath();
+     Bool_t rdeeper = (strstr(rpath, gpath))?kTRUE:kFALSE;
+     Bool_t gdeeper = (strstr(gpath, rpath))?kTRUE:kFALSE;
+     if (strcmp(gpath, rpath) && strlen(rpath)>1) {
+	// paths are different
+	//---> see if crossing first boundary forward-backward leads to G3 path
+	Double_t dir[3];
+	Bool_t found = kFALSE, foundp=kFALSE, foundm=kFALSE;
+	Double_t berrplus=1E4, berrminus=1E4, berr; 
+	// save modeller state
+	gGeoManager->PushPoint(); 
+	memcpy(dir, gGeoManager->GetCurrentDirection(), 3*sizeof(Double_t));
+	//--->Find next boundary forward
+	gGeoManager->FindNextBoundary();
+	berr = gGeoManager->GetStep();
+	gGeoManager->Step();
+	if (!strcmp(gpath, gGeoManager->GetPath())) {
+           // G3 boundary forward at berr
+		 berrplus = berr;
+		 foundp = kTRUE;
+	}
+	//--->Find backward the closest boundary
+	gGeoManager->PopPoint();
+	gGeoManager->PushPoint();
+	gGeoManager->SetCurrentDirection(-dir[0], -dir[1], -dir[2]);
+	gGeoManager->FindNextBoundary();
+	berr = gGeoManager->GetStep();
+	gGeoManager->Step();
+	if (!strcmp(gpath, gGeoManager->GetPath())) {
+           // G3 boundary backward at berr
+		 berrminus = berr;
+		 foundm = kTRUE;
+	}
+	gGeoManager->PopPoint();
+	gGeoManager->SetCurrentDirection(-dir[0], -dir[1], -dir[2]);
+	found = (foundm || foundp)?kTRUE:kFALSE;
+	berr = TMath::Min(berrplus, berrminus);
+	if (found && berr<1e-2) { // cut at 100 microns
+           count_berr++;
+           if (berr==berrplus) {
+              printf("%6d LOCATE OK ibdr=%d (%g, %g, %g) -> G3 boundary forward at %g\n",
+	                   count_gtmedi, count_berr, x[0],x[1],x[2], berr);
+           } else {		
+  	          printf("%6d LOCATE OK ibdr=%d (%g, %g, %g) -> G3 boundary backward at %g\n",
+	                   count_gtmedi, count_berr, x[0],x[1],x[2], berr);
+		 }
+		 printf("         gpath=%s\n", gpath);
+		 printf("         rpath=%s\n", rpath);
+		 return;
+	}
+	if (found && berr>=1E-2) {
+           printf("       ---> G3 boundary found at %g -> check following errors of %d\n", berr, count_gtmedi);
+	}   	 	
+	//---> check if current G3 path is known by TGeo
+	gGeoManager->PushPoint();
+	if (gGeoManager->cd(gpath)) {
+           Double_t pt[3];
+           gGeoManager->MasterToLocal(gGeoManager->GetCurrentPoint(), pt);
+           if (gGeoManager->GetCurrentNode()->GetVolume()->GetShape()->Contains(pt)) {
+              // Both G3 and TGeo paths contain current point
+              //---> check if current node is MANY
+              if (gGeoManager->IsCurrentOverlapping()) {
+        	 printf("%6d LOCATE OK (%g, %g, %g)->in overlapping region of MANY\n",count_gtmedi, x[0],x[1],x[2]);
+        	 printf("         gpath: %s\n", gpath);
+        	 printf("         rpath: %s\n", rpath); 
+              } else {
+        	 count_errors++;
+        	 if (rdeeper || gdeeper) {
+                    if (rdeeper) printf("%6d LOCATE ERR=%d (%g, %g, %g) -> ROOT path deeper than G3\n", 
+                                	 count_gtmedi, count_errors, x[0],x[1],x[2]);
+                    else printf("%6d LOCATE ERR=%d (%g, %g, %g) -> G3 path deeper than ROOT\n", 
+                                	 count_gtmedi, count_errors, x[0],x[1],x[2]); 
+                    printf("         gpath: %s\n", gpath);
+                    printf("         rpath: %s\n", rpath); 
+                    gGeoManager->PopPoint();
+                    return;
+        	 }
+        	 printf("%6d LOCATE ERR=%d (%g, %g, %g)->both ONLY paths valid !!!\n", count_gtmedi,count_errors,x[0],x[1],x[2]);
+        	 printf("         gpath: %s\n", gpath);
+        	 printf("         rpath: %s\n", rpath);
+              }          
+              gGeoManager->PopPoint();
+              return;
+           }
+	} else {
+           count_errors++;
+           printf("%6d LOCATE ERR!!!=%d (%g,%g,%g)-> ERROR in TGeo: G3 path not known!!!!\n", count_gtmedi, count_errors,x[0],x[1],x[2]);
+           printf("         gpath: %s\n", gpath);
+           gGeoManager->PopPoint();
+           return;
+	}
+	gGeoManager->PopPoint();   
+	count_errors++;
+	printf("%6d LOCATE ERR=%d (%g, %g, %g)->DIFFERENCE in paths: \n", count_gtmedi, count_errors, x[0],x[1],x[2]); 
+	printf("         gpath=%s\n",gpath);
+	printf("         rpath=%s\n",rpath);
+     }   
+}
+  if (Mode()==kWithG3){
    g3tmedi(x,numed);
    // printf("   imed=%i\n", numed);
-#endif
-#ifdef WITHROOT
-{
-   //TGeoNode *old = gCurrentNode;
-   gcchan->lsamvl = kTRUE;
-   gCurrentNode = gGeoManager->FindNode(x[0],x[1],x[2]);
-   if (gGeoManager->IsOutside()) {
-//printf("found numed=0\n");
-      numed=0; 
-#ifdef STATISTICS
-      goto stats;
-#else
-      return;
-#endif
-   }
-   gcvolu->nlevel = 1 + gGeoManager->GetLevel();
-   gGeoManager->GetBranchNames(gcvolu->names);
-   gGeoManager->GetBranchNumbers(gcvolu->number,gcvolu->lvolum);
-   TGeoVolume *vol = gCurrentNode->GetVolume();
-   //if(gCurrentNode != old) gcchan->lsamvl = kFALSE;   
-   //if (gcchan->lsamvl != gGeoManager->IsSameLocation()) {
-   //   printf("lsamvl=%d, issameloc=%d\n",gcchan->lsamvl,gGeoManager->IsSameLocation());
-   //}
-   gcchan->lsamvl = gGeoManager->IsSameLocation();   
-   if (vol) {
-      TGeoMedium *medium = vol->GetMedium();
-      if (medium) numed = medium->GetId();
-   } else {
-      printf("found case with vol=0 in gtmedi\n");
-   }
-//printf("found3 numed=%d\n",numed);
-   // printf("   imed=%i\n", numed);   
-}
-#endif
-#ifdef STATISTICS
-stats:
-   statsnext=gctrak->snext;
-   statsafety=gctrak->safety;
-   stattree->Fill();
-   count_gtmedi++;
-#endif
-}
+  }
+  if (Mode()==kWithRoot){
+  {
+     //TGeoNode *old = fgCurrentNode;
+     gcchan->lsamvl = kTRUE;
+     fgCurrentNode = gGeoManager->FindNode(x[0],x[1],x[2]);
+     if (gGeoManager->IsOutside()) {
+  //printf("found numed=0\n");
+	numed=0; 
+  #ifdef STATISTICS
+	goto stats;
+  #else
+	return;
+  #endif
+     }
+     fgGcvolu->nlevel = 1 + gGeoManager->GetLevel();
+     gGeoManager->GetBranchNames(fgGcvolu->names);
+     gGeoManager->GetBranchNumbers(fgGcvolu->number,fgGcvolu->lvolum);
+     TGeoVolume *vol = fgCurrentNode->GetVolume();
+     //if(fgCurrentNode != old) gcchan->lsamvl = kFALSE;   
+     //if (gcchan->lsamvl != gGeoManager->IsSameLocation()) {
+     //   printf("lsamvl=%d, issameloc=%d\n",gcchan->lsamvl,gGeoManager->IsSameLocation());
+     //}
+     gcchan->lsamvl = gGeoManager->IsSameLocation();   
+     if (vol) {
+	TGeoMedium *medium = vol->GetMedium();
+	if (medium) numed = medium->GetId();
+     } else {
+	printf("found case with vol=0 in gtmedi\n");
+     }
+  //printf("found3 numed=%d\n",numed);
+     // printf("   imed=%i\n", numed);   
+  }
+  }
+  #ifdef STATISTICS
+  stats:
+     statsnext=fgGctrack->snext;
+     statsafety=fgGctrack->safety;
+     stattree->Fill();
+     count_gtmedi++;
+  #endif
+  }
 
 
 //______________________________________________________________________
@@ -6277,38 +6230,38 @@ void StTGeant3::Bgmedia(Float_t *x, Int_t &numed, Int_t &check)
 #ifdef STATISTICS
    statcode = 1;
    for (int j=0;j<6;j++) if (j <3) oldvect[j] = x[j]; else oldvect[j]=0;
-   oldsafety = gctrak->safety;
-   oldstep   = gctrak->step;
+   oldsafety = fgGctrack->safety;
+   oldstep   = fgGctrack->step;
 #endif
    // printf("GMEDIA %i:\n", count_gmedia);
-#ifdef WITHBOTH
-   g3media(x,numed,check);
-   
-   gCurrentNode = gGeoManager->FindNode(x[0],x[1],x[2]);
-   if (!gCurrentNode) {numed=0; return;};
-   gcvolu->nlevel = 1 + gGeoManager->GetLevel();
-   gGeoManager->GetBranchNames(gcvolu->names);
-   gGeoManager->GetBranchNumbers(gcvolu->number,gcvolu->lvolum);
-   TGeoVolume *vol = gCurrentNode->GetVolume();
-   Int_t rmed = 0;
-   if (vol) {
-      TGeoMedium *medium = vol->GetMedium();
-      if (medium) rmed = medium->GetId();
-   } else {
-      printf("found case with vol=0 in gmedia\n");
-   }
-   if (rmed != numed) {
-      const char *path = gGeoManager->GetPath();
-      printf("      GMEDIA ERR : (%g, %g,%g), numed=%d, rmed=%d, path=%s\n",x[0],x[1],x[2],numed,rmed,path);
-   }
-#endif
-#ifdef WITHG3
-   g3media(x,numed,check);
-   // printf("   imed=%i\n", numed);
-#endif
-#ifdef WITHROOT
-{
-   gCurrentNode = gGeoManager->FindNode(x[0],x[1],x[2]);
+  if (Mode()==kWithBoth){
+     g3media(x,numed,check);
+
+     fgCurrentNode = gGeoManager->FindNode(x[0],x[1],x[2]);
+     if (!fgCurrentNode) {numed=0; return;};
+     fgGcvolu->nlevel = 1 + gGeoManager->GetLevel();
+     gGeoManager->GetBranchNames(fgGcvolu->names);
+     gGeoManager->GetBranchNumbers(fgGcvolu->number,fgGcvolu->lvolum);
+     TGeoVolume *vol = fgCurrentNode->GetVolume();
+     Int_t rmed = 0;
+     if (vol) {
+	TGeoMedium *medium = vol->GetMedium();
+	if (medium) rmed = medium->GetId();
+     } else {
+	printf("found case with vol=0 in gmedia\n");
+     }
+     if (rmed != numed) {
+	const char *path = gGeoManager->GetPath();
+	printf("      GMEDIA ERR : (%g, %g,%g), numed=%d, rmed=%d, path=%s\n",x[0],x[1],x[2],numed,rmed,path);
+     }
+  }
+  if (Mode()==kWithG3){
+     g3media(x,numed,check);
+     // printf("   imed=%i\n", numed);
+  }
+  if (Mode()==kWithRoot){
+  {
+   fgCurrentNode = gGeoManager->FindNode(x[0],x[1],x[2]);
    if (gGeoManager->IsOutside()) {
       numed=0; 
 #ifdef STATISTICS
@@ -6317,10 +6270,10 @@ void StTGeant3::Bgmedia(Float_t *x, Int_t &numed, Int_t &check)
       return;
 #endif
    }
-   gcvolu->nlevel = 1 + gGeoManager->GetLevel();
-   gGeoManager->GetBranchNames(gcvolu->names);
-   gGeoManager->GetBranchNumbers(gcvolu->number,gcvolu->lvolum);
-   TGeoVolume *vol = gCurrentNode->GetVolume();
+   fgGcvolu->nlevel = 1 + gGeoManager->GetLevel();
+   gGeoManager->GetBranchNames(fgGcvolu->names);
+   gGeoManager->GetBranchNumbers(fgGcvolu->number,fgGcvolu->lvolum);
+   TGeoVolume *vol = fgCurrentNode->GetVolume();
    if (vol) {
       TGeoMedium *medium = vol->GetMedium();
       if (medium) numed = medium->GetId();
@@ -6328,12 +6281,12 @@ void StTGeant3::Bgmedia(Float_t *x, Int_t &numed, Int_t &check)
       printf("found case with vol=0 in gmedia\n");
    }
    // printf("   imed=%i\n", numed);
+  }
 }
-#endif
 #ifdef STATISTICS
 stats:
-   statsnext=gctrak->snext;
-   statsafety=gctrak->safety;
+   statsnext=fgGctrack->snext;
+   statsafety=fgGctrack->safety;
    stattree->Fill();
    count_gmedia++;
 #endif
@@ -6342,34 +6295,34 @@ stats:
 //______________________________________________________________________
 void StTGeant3::Bgtmany(Int_t &level1)
 {
-#if defined(WITHG3) || defined(WITHBOTH)
+  if (Mode()&kWithG3){
    g3tmany(level1); //not necessary with TGeo
-#endif
+  }
 }
 
 //______________________________________________________________________
 void StTGeant3::Bgtonly(Int_t &isOnly)
 {
    //with Geant3, return gonly(nlevel);
-#ifdef WITHBOTH
-   isOnly = (Int_t)gcvolu->gonly[gcvolu->nlevel-1];
-   //with TGeo
-   Int_t kOnly;
-   if (gGeoManager->IsCurrentOverlapping()) kOnly = 0;
-   else kOnly = 1;
-   if (isOnly != kOnly) {
-      printf("kOnly != isOnly\n");
-   }
-#endif
-#ifdef WITHG3
-   isOnly = (Int_t)gcvolu->gonly[gcvolu->nlevel-1];
-#endif
-#ifdef WITHROOT
+  if (Mode()==kWithBoth){
+    isOnly = (Int_t)fgGcvolu->gonly[fgGcvolu->nlevel-1];
+    //with TGeo
+    Int_t kOnly;
+    if (gGeoManager->IsCurrentOverlapping()) kOnly = 0;
+    else kOnly = 1;
+    if (isOnly != kOnly) {
+       printf("kOnly != isOnly\n");
+    }
+  }
+  if (Mode()==kWithG3){
+     isOnly = (Int_t)fgGcvolu->gonly[fgGcvolu->nlevel-1];
+  }
+  if (Mode()==kWithRoot){
 //   if (gGeoManager->IsCurrentOverlapping()) isOnly = 0;
 //   else isOnly = 1;
    // With TGeo, G3 is seeing a ONLY geometry
    isOnly = 1;
-#endif
+  }
 }
 
 //_____________________________________________________________________________
@@ -6383,7 +6336,7 @@ void StTGeant3::Bglvolu(Int_t &nlev, Int_t *lnam,Int_t *lnum, Int_t &ier)
   //  lnum   an integer array containing the copy numbers for that specific
   //         volume
   //
-  //  This routine fills the volume parameters in common /gcvolu/ for a
+  //  This routine fills the volume parameters in common /fgGcvolu/ for a
   //  physical tree, specified by the list lnam and lnum of volume names
   //  and numbers, and for all its ascendants up to level 1. This routine
   //  is optimised and does not re-compute the part of the history already
@@ -6393,13 +6346,13 @@ void StTGeant3::Bglvolu(Int_t &nlev, Int_t *lnam,Int_t *lnum, Int_t &ier)
   //  problems in make the call.
   //
 // printf("glvolu called\n");
-#if defined(WITHG3) || defined(WITHBOTH)
-  g3lvolu(nlev, lnam, lnum, ier); 
-#endif
+  if (Mode()&kWithG3){
+    g3lvolu(nlev, lnam, lnum, ier); 
+  }
 
-#if defined(WITHBOTH)
-  gGeoManager->cd(geant3->GetPath());
-#endif
+  if (Mode()==kWithBoth){
+    gGeoManager->cd(fgGeant3->GetPath());
+  }
  }
 
 
@@ -6409,105 +6362,104 @@ void StTGeant3::Bgtnext()
 //   count_gtnext++;
 #ifdef STATISTICS
    statcode = 3;
-   for (int j=0;j<6;j++) oldvect[j] = gctrak->vect[j];
-   oldsafety = gctrak->safety;
-   oldstep   = gctrak->step;
+   for (int j=0;j<6;j++) oldvect[j] = fgGctrack->vect[j];
+   oldsafety = fgGctrack->safety;
+   oldstep   = fgGctrack->step;
 #endif
-#ifdef WITHBOTH
-   static Int_t count_virtual = 0;
-   static Int_t count_errors = 0;
-   Double_t step = gctrak->step;
-   Float_t *x = gctrak->vect;
-   
-   g3tnext();
-   
-   
-   gGeoManager->SetCurrentPoint(x[0],x[1],x[2]);
-   gGeoManager->SetCurrentDirection(x[3],x[4],x[5]);
-   Double_t gsnext  = gctrak->snext;
-   Double_t gsafety = gctrak->safety;
-   gGeoManager->FindNextBoundary(step);
-   Double_t rsnext  = gGeoManager->GetStep();
-   Double_t rsafety = gGeoManager->GetSafeDistance();
-   const char *rpath = gGeoManager->GetPath();
-   const char *gpath = geant3->GetPath();
-   Bool_t samepath = (strcmp(gpath,rpath) && strlen(gpath)>1)?kFALSE:kTRUE;
+  if (Mode()==kWithBoth){
+     static Int_t count_virtual = 0;
+     static Int_t count_errors = 0;
+     Double_t step = fgGctrack->step;
+     Float_t *x = fgGctrack->vect;
 
-   // CHECK :
-   // - G3 step was due to geometry
-   // - boundary error > 1e-2
-   // - G3 safety > 1e-10 (otherwise G3 does not check distance to get outside current volume
-   // - both G3 and TGeo steps were computed starting from the same path
-   
-   if (gsnext != step && TMath::Abs(rsnext-gsnext)>1e-2 && gsafety>1e-10 && samepath) {
-      TGeoShape *shape = gGeoManager->GetCurrentVolume()->GetShape();
-      if (shape->TestBit(TGeoShape::kGeoPcon) && (gsnext<rsnext)) {
-         count_virtual++;
-         printf("%6d SNEXT OK ->virtual boundary of pcon/pgon %s crossed\n", count_virtual, gGeoManager->GetCurrentVolume()->GetName());
-         if (gDebug>0) {
-            printf("         igsnext=%d, gsnext=%g, gsafety=%g, rsnext=%g, rsafety=%g, step=%g, x,y,z=(%g,%g,%g,%g,%g,%g)\n" ,gctrak->ignext,gsnext,gsafety,rsnext,rsafety,step,x[0],x[1],x[2],x[3],x[4],x[5]); 
-            printf("         rpath=%s\n", rpath);
-         }   
-      } else {    
-         count_errors++;
-         printf("%6d SNEXT ERR=%d (%g,%g,%g,%g,%g,%g)->DIFFERENT DISTANCE\n", count_gtnext,count_errors,x[0],x[1],x[2],x[3],x[4],x[5]);
-         printf("         rpath=%s :\n", rpath);
-         printf("         ignext=%d, gsnext=%g, gsafety=%g, rsnext=%g, rsafety=%g, step=%g, \n" ,gctrak->ignext,gsnext,gsafety,rsnext,rsafety,step);
-      }   
-   }   
-#endif
-#ifdef WITHG3
-   g3tnext();
-#ifdef STATISTICS
-      goto stats;
-#else
-      return;
-#endif
-#endif
-#ifdef WITHROOT
-{
-   Float_t *x = gctrak->vect;   
-   Double_t step = gctrak->step;
-   gGeoManager->SetCurrentPoint(x[0],x[1],x[2]);
-//geant3->Gpcxyz();
-   if (!gGeoManager->IsSameLocation(x[0],x[1],x[2])) {
-//static int acount=0;
-//acount++;
-//printf("acount=%5d, x=%g, %g, %g, sleng=%g\n",acount,x[0],x[1],x[2],gctrak->sleng);
-//geant3->Gpcxyz();
-      gctrak->safety = 0.;
-      gctrak->snext = 0.;
-      gctrak->ignext = 1;
-#ifdef STATISTICS
-      goto stats;
-#else
-      return;
-#endif
-   }
-   gGeoManager->SetCurrentDirection(x[3],x[4],x[5]);
-   gGeoManager->SetLastPoint(x[0],x[1],x[2]);
-   gGeoManager->FindNextBoundary(step);
-   gctrak->safety = gGeoManager->GetSafeDistance();
-   Double_t snext  = gGeoManager->GetStep();
-//   printf("%7d SNEXT (%f,%f,%f,%f,%f,%f) step=%g snext=%g safety=%g\n", count_gtnext, x[0], x[1], x[2], x[3],x[4],x[5],step, snext,gctrak->safety);
-//   if (snext<0) exit(1);   
-   if (snext < step) {
-      gctrak->snext  = snext;
-      gctrak->ignext = 1;
-#ifdef STATISTICS
-      goto stats;
-#else
-      return;
-#endif
-   }
-   gctrak->ignext = 0;
-   gctrak->snext = gctrak->step;
-}
-#endif
+     g3tnext();
+
+
+     gGeoManager->SetCurrentPoint(x[0],x[1],x[2]);
+     gGeoManager->SetCurrentDirection(x[3],x[4],x[5]);
+     Double_t gsnext  = fgGctrack->snext;
+     Double_t gsafety = fgGctrack->safety;
+     gGeoManager->FindNextBoundary(step);
+     Double_t rsnext  = gGeoManager->GetStep();
+     Double_t rsafety = gGeoManager->GetSafeDistance();
+     const char *rpath = gGeoManager->GetPath();
+     const char *gpath = fgGeant3->GetPath();
+     Bool_t samepath = (strcmp(gpath,rpath) && strlen(gpath)>1)?kFALSE:kTRUE;
+
+     // CHECK :
+     // - G3 step was due to geometry
+     // - boundary error > 1e-2
+     // - G3 safety > 1e-10 (otherwise G3 does not check distance to get outside current volume
+     // - both G3 and TGeo steps were computed starting from the same path
+
+     if (gsnext != step && TMath::Abs(rsnext-gsnext)>1e-2 && gsafety>1e-10 && samepath) {
+	TGeoShape *shape = gGeoManager->GetCurrentVolume()->GetShape();
+	if (shape->TestBit(TGeoShape::kGeoPcon) && (gsnext<rsnext)) {
+           count_virtual++;
+           printf("%6d SNEXT OK ->virtual boundary of pcon/pgon %s crossed\n", count_virtual, gGeoManager->GetCurrentVolume()->GetName());
+           if (gDebug>0) {
+              printf("         igsnext=%d, gsnext=%g, gsafety=%g, rsnext=%g, rsafety=%g, step=%g, x,y,z=(%g,%g,%g,%g,%g,%g)\n" ,fgGctrack->ignext,gsnext,gsafety,rsnext,rsafety,step,x[0],x[1],x[2],x[3],x[4],x[5]); 
+              printf("         rpath=%s\n", rpath);
+           }   
+	} else {    
+           count_errors++;
+           printf("%6d SNEXT ERR=%d (%g,%g,%g,%g,%g,%g)->DIFFERENT DISTANCE\n", count_gtnext,count_errors,x[0],x[1],x[2],x[3],x[4],x[5]);
+           printf("         rpath=%s :\n", rpath);
+           printf("         ignext=%d, gsnext=%g, gsafety=%g, rsnext=%g, rsafety=%g, step=%g, \n" ,fgGctrack->ignext,gsnext,gsafety,rsnext,rsafety,step);
+	}   
+     }   
+  }
+  if (Mode()==kWithG3){
+     g3tnext();
+  #ifdef STATISTICS
+	goto stats;
+  #else
+	return;
+  #endif
+  }
+    if (Mode()==kWithRoot)
+  {
+     Float_t *x = fgGctrack->vect;   
+     Double_t step = fgGctrack->step;
+     gGeoManager->SetCurrentPoint(x[0],x[1],x[2]);
+  //fgGeant3->Gpcxyz();
+     if (!gGeoManager->IsSameLocation(x[0],x[1],x[2])) {
+  //static int acount=0;
+  //acount++;
+  //printf("acount=%5d, x=%g, %g, %g, sleng=%g\n",acount,x[0],x[1],x[2],fgGctrack->sleng);
+  //fgGeant3->Gpcxyz();
+	fgGctrack->safety = 0.;
+	fgGctrack->snext = 0.;
+	fgGctrack->ignext = 1;
+  #ifdef STATISTICS
+	goto stats;
+  #else
+	return;
+  #endif
+     }
+     gGeoManager->SetCurrentDirection(x[3],x[4],x[5]);
+     gGeoManager->SetLastPoint(x[0],x[1],x[2]);
+     gGeoManager->FindNextBoundary(step);
+     fgGctrack->safety = gGeoManager->GetSafeDistance();
+     Double_t snext  = gGeoManager->GetStep();
+  //   printf("%7d SNEXT (%f,%f,%f,%f,%f,%f) step=%g snext=%g safety=%g\n", count_gtnext, x[0], x[1], x[2], x[3],x[4],x[5],step, snext,fgGctrack->safety);
+  //   if (snext<0) exit(1);   
+     if (snext < step) {
+	fgGctrack->snext  = snext;
+	fgGctrack->ignext = 1;
+  #ifdef STATISTICS
+	goto stats;
+  #else
+	return;
+  #endif
+     }
+     fgGctrack->ignext = 0;
+     fgGctrack->snext = fgGctrack->step;
+  }
 #ifdef STATISTICS
 stats:
-   statsnext=gctrak->snext;
-   statsafety=gctrak->safety;
+   statsnext=fgGctrack->snext;
+   statsafety=fgGctrack->safety;
    stattree->Fill();
    count_gtnext++;
 #endif
@@ -6519,12 +6471,12 @@ void StTGeant3::Bggperp(Float_t *x, Float_t *norm, Int_t &ierr)
 {
 // Computes the normal to the next crossed surface, assuming that 
 // FindNextBoundary() was already called.
-#ifdef WITHG3
+  if (Mode()==kWithG3){
    g3gperp(x,norm,ierr);
 //   printf("norm(%f, %f, %f)\n",norm[0],norm[1],norm[2]);
-#endif
+  }
 
-#ifdef WITHROOT
+  if (Mode()==kWithRoot){
    ierr = 0;
 //   Double_t *dir = gGeoManager->GetCurrentDirection();
 //   gGeoManager->SetCurrentPoint(x[0],x[1],x[2]);
@@ -6538,7 +6490,7 @@ void StTGeant3::Bggperp(Float_t *x, Float_t *norm, Int_t &ierr)
    norm[1] = -dblnorm[1];
    norm[2] = -dblnorm[2];
 //   printf("norm(%f, %f, %f)\n",norm[0],norm[1],norm[2]);
-#endif
+  }
 }
 //______________________________________________________________________
 void StTGeant3::Bgrndm(Float_t *r, const Int_t &n)
