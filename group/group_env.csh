@@ -1,5 +1,5 @@
 #!/usr/bin/csh -f
-#       $Id: group_env.csh,v 1.128 2002/04/01 21:16:45 jeromel Exp $
+#       $Id: group_env.csh,v 1.129 2002/04/12 02:28:18 jeromel Exp $
 #	Purpose:	STAR group csh setup
 #
 #	Author:		Y.Fisyak     BNL
@@ -171,7 +171,7 @@ if ( -f $GROUP_DIR/rootenv.csh) then
 endif
 if ( -x ${GROUP_DIR}/dropit) then
 # clean-up PATH
-  setenv MANPATH `${GROUP_DIR}/dropit -p ${MANPATH}`
+  setenv MANPATH `${GROUP_DIR}/dropit -p ${OPTSTAR}/man -p ${MANPATH}`
   setenv PATH `${GROUP_DIR}/dropit -p ${PATH} GROUPPATH`
   setenv PATH `${GROUP_DIR}/dropit -p ${PATH} $STAR_PATH`
   if ($?LD_LIBRARY_PATH == 1) setenv LD_LIBRARY_PATH `${GROUP_DIR}/dropit -p ${LD_LIBRARY_PATH} $STAR_PATH`
