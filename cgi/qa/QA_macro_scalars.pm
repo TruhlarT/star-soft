@@ -45,8 +45,9 @@ sub bfcread_dstBranch{
     /QAInfo:/ or next; # skip lines that dont start with QAInfo
     
     if (/found object: (\w+)/){ # found an object?
-      # only store first event
-      next if $end_of_first_event;
+      # only store first event 
+      # BfcStatus has special status
+      next if ($end_of_first_event or $1 eq 'BfcStatus') ;
       $object = $1;
       # num of rows found in next line
       $run_scalar_hash{$object} = undef;
@@ -55,24 +56,36 @@ sub bfcread_dstBranch{
     
     if (/table with \#rows = (\d+)/){ # fill in the # of rows
       # only store first event
-      next if $end_of_first_event;
+      next if ($end_of_first_event or $1 eq 'BfcStatus');
       # get # rows
       $run_scalar_hash{$object} = $1;
       next;
     }
 
-    if (/event \# 1,.*?= (\d+).*?= (\d+)/){ # objects, tables in evt1
+    # BfcStatus has special status
+    # error!
+    if (/BfcStatus table --/){
+      $run_scalar_hash{BfcStatusError} = 1;
+      next;
+    }
+
+    # end of the first event
+    if (/ev \# 1,.*?= (\d+).*?= (\d+)/){ # objects, tables in evt1
       $run_scalar_hash{'event_1_num_tables'} = $2;
       $run_scalar_hash{'event_1_num_objects'} = $1;
       $end_of_first_event = 1;
       next;
     }
 
-    # now we're at the end
+    # --- now we're at the end ---
 
-
-    if (/events read\s+= (\d+)/){ # events read
+    if (/events read\s+= (\d+)/){ # num events read
       $run_scalar_hash{'num_events_read'} = $1;
+      next;
+    }
+
+    if (/with tables\s+= (\d+)/){ # num events with tables
+      $run_scalar_hash{'events_with_tables'} = $1;
       next;
     }
 
@@ -80,21 +93,32 @@ sub bfcread_dstBranch{
       $run_scalar_hash{'events_with_objects'} = $1;
       next;
     }
-
-    if (/with tables\s+= (\d+)/){ # events with tables
-      $run_scalar_hash{'events_with_tables'} = $1;
-      next;
-    }
-
-    if (/tables per event\s+= ([\d\.]+)/){ # avg tables per event
+    
+    # avg tables per event
+    if (/(?<!Bfc )tables per event\s+= ([\d\.]+)/){ 
       $run_scalar_hash{'avg_tables_per_event'} = $1;
       next;
     }
 
-    if (/objects per event\s+= ([\d\.]+)/){ # avg objects per event
+    # avg objects per event
+    if (/(?<!Bfc )objects per event\s+= ([\d\.]+)/){ 
       $run_scalar_hash{'avg_objects_per_event'} = $1;
       next;
     }
+
+    # avg Bfc tables per event
+    if (/Bfc tables per event\s+= ([\d\.]+)/){ 
+      $run_scalar_hash{'avg_bfc_tables_per_event'} = $1;
+      next;
+    }
+
+    # avg Bfc objects per event
+    if (/Bfc objects per event\s+= ([\d\.]+)/){ 
+      $run_scalar_hash{'avg_bfc_objects_per_event'} = $1;
+      next;
+    }
+    
+
 
   } # end of while
 
