@@ -31,7 +31,7 @@ my @detSet = ("all","tpc","svt","rich","tof","ftpc","emc","fpd","pmd");
 my @trigSet;
 my $ntrigSet = 0;
 my @mfield = ("all","HalfField","FullField","ReversedFullField","ReversedHalfField","FieldOff");
-my @format = ("daq","dst.root","event.root","hist.root","tags.root");
+my @format = ("daq","dst.root","event.root","emcEvent.root","MuDst.root","hist.root","tags.root");
 my @locSet = ("hpss","disk");
 
 my $mytrig;
