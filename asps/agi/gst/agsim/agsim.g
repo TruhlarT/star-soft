@@ -1,4 +1,5 @@
-*CMZ :          13/07/98  10.50.50  by  Pavel Nevski
+*CMZ :          26/08/98  22.10.06  by  Pavel Nevski
+*CMZ :  1.40/05 13/07/98  10.50.50  by  Pavel Nevski
 *-- Author :    Pavel Nevski
 *****************************************************************************
 *                                                                           *
@@ -41,13 +42,15 @@ C
       CALL TIMEST  (3.E7)  ! set time limit for interactive mode
       NWGEA = NWGEAN
       NWPA  = NWPAW
-      CALL GETARG(0,PROG)
+      CALL GETARG(0,ARG)
       I = 1
-      N = LENOCC (PROG)
-      DO J=1,N   { IF (PROG(J:J).EQ.'/') I=J+1; }
+      N = LENOCC (ARG)
+      DO J=1,N   { IF (ARG(J:J).EQ.'/') I=J+1; }
       VERSION = '       '
-*     VERSION = PROG(I:N)
-      FATCAT = ' '
+      PROG    = ARG(I:N)
+      FATCAT  = ' '
+      N=N-I+1; I=1; Call CUTOL(PROG)
+*
       if (PROG(I:N)=='atlsim') CALL REBANKM(-1)
 *
       do J=1,999
@@ -101,18 +104,18 @@ C
       IF (IWTYP.EQ.999) THEN        ! motif zebra browser
          CALL PMINIT                ! Paw-Motif
          CALL GBROWS                ! Geant Browser
-         CALL KUINIM (PROG)         ! Kuip-Motif
+         CALL KUINIM (PROG(I:N))    ! Kuip-Motif
       ELSE
 *        CALL ZBRDEF                ! zebra menu  (p.248)
       ENDIF
 *
       CALL PAWINT3                  ! HIGZ,HPLOT,COMIS,SIGMA, commons
       if (G) CALL GXCS              ! declare GEANT routines to COMIS
-      if (G) CALL UGINIT (PROG)     ! user MENUs
+      if (G) CALL UGINIT(PROG(I:N)) ! user MENUs
       if (G) CALL GDINIT            ! Initialise Drawing pkg
       CALL TIMEL  (TIMINT)
  
-      if (PROG(I:N)!='staf' | Version!=' ')  Call AgVERSION
+      if (PROG(I:N)!='staf' | Version!=' '&Version!='staf') Call AgVERSION
       if (G) Call KUEXEC('ROOT /GEANT')
       if (S) Call staf_start
 ****>
@@ -146,7 +149,7 @@ C
 *
  
  
-*CMZ :          13/07/98  10.44.40  by  Pavel Nevski
+*CMZ :  1.40/05 13/07/98  10.44.40  by  Pavel Nevski
 *CMZ :  1.30/00 13/05/97  14.57.05  by  Pavel Nevski
 *-- Author :    Pavel Nevski   10/07/96
       SUBROUTINE AGVERSION
@@ -165,15 +168,15 @@ C
 *KEEP,VIDQQ.
       CHARACTER*68 VIDQQ
       DATA VIDQQ/
-     +'@(#)Advanced Geant Inteface               C: 26/08/98  18.38.46
+     +'@(#)* Advanced Geant Inteface  1.40/05    C: 26/08/98  22.23.08
      +'/
 *KEEP,DATEQQ.
       IDATQQ =   980826
 *KEEP,TIMEQQ.
-      ITIMQQ =   1838
+      ITIMQQ =   2223
 *KEEP,VERSQQ.
-      VERSQQ = ' '
-      IVERSQ = -1
+      VERSQQ = ' 1.40/05'
+      IVERSQ =  14005
 *KEND.
      QFTITLCH=VIDQQ(5:60)
      id=mod(IDATQQ,100);  im=3*mod(IDATQQ/100,100);  iy=IDATQQ/10000;
@@ -225,7 +228,7 @@ C
       end
  
  
-*CMZ :          30/12/97  11.59.38  by  Pavel Nevski
+*CMZ :  1.40/05 30/12/97  11.59.38  by  Pavel Nevski
 *CMZ :  1.30/00 17/04/97  20.55.24  by  Pavel Nevski
 *-- Author :    Pavel Nevski   27/11/94
 *****************************************************************************
@@ -496,7 +499,7 @@ C local variables valid inside same block
 END
  
  
-*CMZ :          21/11/97  17.47.13  by  Pavel Nevski
+*CMZ :  1.40/05 21/11/97  17.47.13  by  Pavel Nevski
 *CMZ :  1.30/00 02/04/97  22.56.51  by  Pavel Nevski
 *-- Author :    Pavel Nevski   27/11/94
 *********************************************************************
@@ -580,7 +583,8 @@ C
     END
  
  
-*CMZ :          21/08/98  13.34.22  by  Pavel Nevski
+*CMZ :          26/08/98  22.18.29  by  Pavel Nevski
+*CMZ :  1.40/05 21/08/98  13.34.22  by  Pavel Nevski
 *CMZ :  1.30/00 23/04/97  18.45.29  by  Pavel Nevski
 *-- Author :    Pavel Nevski   01/04/96
 *********+*********+*********+*********+*********+*********+*********+*********+
@@ -791,7 +795,7 @@ C                                       Link to:
      character     command*32,Cword*4,C*1
      character*256 string1,string2,string3
      integer       LENOCC,CSADDR,SYSTEMF,
-                   Npar,Len1,Len2,Len3,Ip,Kp,Jp,L1,L,Lc,i,j,K,i0,j0,id,
+                   Npar,Len1,Len2,Len3,Ip,Kp,Jp,L1,L2,L,M,Lc,i,j,K,i0,j0,id,
                    id1,id2,address,JAD,IAD,Ival,Ier,Iprin/1/,Li/20/
      Character*160 source,      destin,      mname,     library
      data          source/' '/, destin/' '/, mname/' '/,library/' '/
@@ -943,8 +947,12 @@ C                                       Link to:
      Do i=2,Npar-1,2
      {  Call KUGETC(String2,Len2); Cword=String2(1:len2); Call KUGETI(IVAL)
         Do j=1,NFLAGS
-        { Check Cword==CFLAG(j); Do ID=ID1,ID2
-          { If (LQ(LKDETM-ID)>0) IQ(LQ(LKDETM-ID)+j)=IVAL; }
+        { Check Cword==CFLAG(j);
+          Do ID=ID1,ID2 { If (LQ(LKDETM-ID)>0) IQ(LQ(LKDETM-ID)+j)=IVAL; }
+          Check Cword='BACK' & Ival>=0;
+          M=10**(int(1+LOG10(Ival+0.9))/2); L1=-Ival; L2=+Ival;
+          IF M>1 { L1= - (Ival/M/10);  L2= mod(Ival,M) }
+          Prin1 L1,L2; (' pile-up in bunches ',i5,'  -trigger-',i5)
      }  }
      Do ID=ID1,ID2
      { Check LQ(LKDETM-ID)>0;
@@ -1118,7 +1126,7 @@ C                                       Link to:
   end
  
  
-*CMZ :          17/08/98  18.55.10  by  Pavel Nevski
+*CMZ :  1.40/05 17/08/98  18.55.10  by  Pavel Nevski
 *CMZ :  1.30/00 15/04/97  19.40.26  by  Pavel Nevski
 *-- Author :    Pavel Nevski   18/03/97
 ************************************************************************
@@ -1431,7 +1439,7 @@ C
 END
  
  
-*CMZ :          05/08/98  23.16.12  by  Pavel Nevski
+*CMZ :  1.40/05 05/08/98  23.16.12  by  Pavel Nevski
 *CMZ :  1.30/00 29/07/96  12.00.03  by  Pavel Nevski
 *-- Author :    R.Brun
 ***********************************************************************
@@ -1614,7 +1622,7 @@ C
       END
  
  
-*CMZ :          05/08/98  23.16.12  by  Pavel Nevski
+*CMZ :  1.40/05 05/08/98  23.16.12  by  Pavel Nevski
 *CMZ :  1.30/00 17/04/97  20.57.01  by  Pavel Nevski
 *-- Author : R. Brun
 ******************************************************************
@@ -1705,7 +1713,7 @@ C
       END
  
  
-*CMZ :          05/08/98  23.33.58  by  Pavel Nevski
+*CMZ :  1.40/05 05/08/98  23.33.58  by  Pavel Nevski
 *CMZ :  1.30/00 01/04/97  15.49.43  by  Pavel Nevski
 *CMZ :  3.21/02 29/03/94  15.41.25  by  S.Giani
 *-- Author :
@@ -1815,7 +1823,7 @@ C
       END
  
  
-*CMZ :          05/08/98  23.16.12  by  Pavel Nevski
+*CMZ :  1.40/05 05/08/98  23.16.12  by  Pavel Nevski
 *CMZ :  1.30/00 22/04/97  20.18.53  by  Pavel Nevski
 *-- Author :    Alexandre Rozanov 02.04.95
 ****************************************************************************
@@ -2047,7 +2055,7 @@ C
  END
  
  
-*CMZ :          05/08/98  23.16.12  by  Pavel Nevski
+*CMZ :  1.40/05 05/08/98  23.16.12  by  Pavel Nevski
 *CMZ :  1.30/00 10/04/96  18.46.17  by  Pavel Nevski
 *CMZU:  1.00/01 16/11/95  02.01.56  by  Pavel Nevski
 *-- Author :    P. Nevski
@@ -2098,7 +2106,7 @@ C
       END
  
  
-*CMZ :          05/08/98  23.16.12  by  Pavel Nevski
+*CMZ :  1.40/05 05/08/98  23.16.12  by  Pavel Nevski
 *CMZ :  1.30/00 07/07/96  13.08.33  by  Pavel Nevski
 *-- Author :    Pavel Nevski   07/07/96
      subroutine    G U D I G I
@@ -2406,7 +2414,7 @@ C
       END
  
  
-*CMZ :          30/01/98  13.07.52  by  Pavel Nevski
+*CMZ :  1.40/05 30/01/98  13.07.52  by  Pavel Nevski
 *CMZ :  1.30/00 20/04/97  23.19.45  by  Pavel Nevski
 *-- Author :    Pavel Nevski
 ******************************************************************
@@ -2474,7 +2482,7 @@ C
  
  
  
-*CMZ :          18/12/97  17.27.24  by  Pavel Nevski
+*CMZ :  1.40/05 18/12/97  17.27.24  by  Pavel Nevski
 *CMZ :  1.30/00 29/03/97  18.01.53  by  Pavel Nevski
 *-- Author :    Pavel Nevski   15/08/96
  
@@ -2486,7 +2494,7 @@ C
       end
  
  
-*CMZ :          01/04/98  11.36.29  by  Pavel Nevski
+*CMZ :  1.40/05 01/04/98  11.36.29  by  Pavel Nevski
 *CMZ :  1.30/00 02/04/97  18.16.37  by  Pavel Nevski
 *-- Author :    Pavel Nevski
 ************************************************************************
@@ -2606,7 +2614,7 @@ C
       END DO
       END
  
-*CMZ :          21/08/98  17.28.21  by  Pavel Nevski
+*CMZ :  1.40/05 21/08/98  17.28.21  by  Pavel Nevski
 *CMZ :  1.30/00 27/03/97  19.14.44  by  Pavel Nevski
 *-- Author :    Pavel Nevski   10/04/96
 **************************************************************************
@@ -2732,7 +2740,7 @@ C
   end
  
  
-*CMZ :          05/08/98  23.16.12  by  Pavel Nevski
+*CMZ :  1.40/05 05/08/98  23.16.12  by  Pavel Nevski
 *-- Author :    Pavel Nevski   20/03/98
 ************************************************************************
       subroutine on fault (c,nn,name)
@@ -2747,7 +2755,7 @@ C
  
  
  
-*CMZ :          05/08/98  23.16.12  by  Pavel Nevski
+*CMZ :  1.40/05 05/08/98  23.16.12  by  Pavel Nevski
 *-- Author : Pavel Nevski
 ******************************************************************
                 SUBROUTINE GUDCAY
@@ -4225,7 +4233,7 @@ C
   END
  
  
-*CMZ :          02/12/97  18.46.06  by  Pavel Nevski
+*CMZ :  1.40/05 02/12/97  18.46.06  by  Pavel Nevski
 *CMZ :  1.00/00 12/12/94  22.30.21  by  Pavel Nevski
 *-- Author :    Pavel Nevski   26/11/94
 **********************************************************************
@@ -4371,7 +4379,7 @@ Replace[;#,#=>#;] with  [{IF} [EXIST 1] {[INCR a]; %#3([COPY a])=%#1; #2,=>#3;}
  }
    END
  
-*CMZ :          05/06/97  12.19.59  by  Pavel Nevski
+*CMZ :  1.40/05 05/06/97  12.19.59  by  Pavel Nevski
 *CMZ :  1.30/00 13/03/96  21.37.15  by  Pavel Nevski
 *CMZ :  1.00/00 12/12/94  22.30.21  by  Pavel Nevski
 *-- Author :    Pavel Nevski   26/11/94
@@ -4755,7 +4763,7 @@ C
  }
   END
  
-*CMZ :          28/03/98  23.09.07  by  Pavel Nevski
+*CMZ :  1.40/05 28/03/98  23.09.07  by  Pavel Nevski
 *CMZ :  1.30/00 02/04/97  15.03.50  by  Pavel Nevski
 *CMZ :  1.00/00 04/09/95  14.29.15  by  Pavel Nevski
 *-- Author :    Pavel Nevski   26/11/94
@@ -4958,7 +4966,7 @@ C
    END
  
  
-*CMZ :          15/02/98  12.51.45  by  Pavel Nevski
+*CMZ :  1.40/05 15/02/98  12.51.45  by  Pavel Nevski
 *CMZ :  1.30/00 16/04/96  19.12.28  by  Pavel Nevski
 *CMZ :  1.00/00 02/06/95  02.20.02  by  Pavel Nevski
 *-- Author :    Pavel Nevski   26/11/94
@@ -5297,7 +5305,7 @@ C
   END
  
  
-*CMZ :          25/03/98  16.44.21  by  Pavel Nevski
+*CMZ :  1.40/05 25/03/98  16.44.21  by  Pavel Nevski
 *CMZ :  1.30/00 14/11/96  17.24.24  by  Pavel Nevski
 *CMZ :  1.00/00 06/08/95  14.00.59  by  Pavel Nevski
 *-- Author :    Pavel Nevski   26/11/94
@@ -5410,7 +5418,7 @@ C local variables valid inside same block
   {%Thetax,%Thetay,%Phiy}=90
   END
  
-*CMZ :          30/05/97  15.31.01  by  Pavel Nevski
+*CMZ :  1.40/05 30/05/97  15.31.01  by  Pavel Nevski
 *CMZ :  1.30/00 07/08/96  15.08.41  by  Pavel Nevski
 *CMZU:  1.00/01 01/12/95  02.07.10  by  Pavel Nevski
 *CMZ :  1.00/00 01/06/95  13.09.15  by  Pavel Nevski
@@ -5722,7 +5730,7 @@ C
  %Level-=1;  Iprin=max(%Iprin-%Level-1,0);  if (%level>0) return;
    END
  
-*CMZ :          26/08/98  01.18.22  by  Pavel Nevski
+*CMZ :  1.40/05 26/08/98  01.18.22  by  Pavel Nevski
 *CMZ :  1.30/00 13/05/97  14.31.40  by  Pavel Nevski
 *-- Author :    Pavel Nevski   26/11/94
 ************************************************************************
@@ -5997,7 +6005,7 @@ C
    END
  
  
-*CMZ :          04/03/98  23.44.07  by  Pavel Nevski
+*CMZ :  1.40/05 04/03/98  23.44.07  by  Pavel Nevski
 *CMZ :  1.30/00 17/04/97  17.59.21  by  Pavel Nevski
 *CMZ :  1.00/00 29/11/95  08.55.19  by  Pavel Nevski
 *-- Author :    Pavel Nevski   26/11/94
@@ -6227,7 +6235,7 @@ C
    END
  
  
-*CMZ :          09/01/98  03.41.25  by  Pavel Nevski
+*CMZ :  1.40/05 09/01/98  03.41.25  by  Pavel Nevski
 *CMZ :  1.30/00 02/04/96  20.16.48  by  Pavel Nevski
 *CMZ :  1.00/00 29/05/95  16.26.52  by  Pavel Nevski
 *-- Author :    Pavel Nevski   26/11/94
@@ -6795,7 +6803,7 @@ Do Iv=1,Nvol
 }  }  }
    END
  
-*CMZ :          05/08/98  23.16.12  by  Pavel Nevski
+*CMZ :  1.40/05 05/08/98  23.16.12  by  Pavel Nevski
 *CMZ :  1.30/00 16/03/97  14.27.55  by  Pavel Nevski
 *CMZU:  1.00/01 29/01/96  13.26.30  by  Pavel Nevski
 *-- Author :    Pavel Nevski   26/11/94
@@ -7105,7 +7113,7 @@ C
    END
  
  
-*CMZ :          08/08/97  11.42.02  by  Pavel Nevski
+*CMZ :  1.40/05 08/08/97  11.42.02  by  Pavel Nevski
 *CMZ :  1.30/00 02/04/96  14.53.21  by  Pavel Nevski
 *CMZ :  1.00/00 31/05/95  23.17.43  by  Pavel Nevski
 *-- Author :    Pavel Nevski   26/11/94
@@ -7530,7 +7538,7 @@ C
  
  
  
-*CMZ :          19/08/98  16.55.50  by  Pavel Nevski
+*CMZ :  1.40/05 19/08/98  16.55.50  by  Pavel Nevski
 *CMZ :  1.30/00 17/11/96  22.43.56  by  Pavel Nevski
 *CMZU:  1.00/01 21/12/95  22.19.56  by  Pavel Nevski
 *CMZ :  1.00/00 14/11/95  02.46.06  by  Pavel Nevski
@@ -7862,7 +7870,7 @@ END
   enddo
   end
  
-*CMZ :          27/06/98  20.48.53  by  Pavel Nevski
+*CMZ :  1.40/05 27/06/98  20.48.53  by  Pavel Nevski
 *CMZ :  1.30/00 26/04/96  19.30.43  by  Pavel Nevski
 *CMZU:  1.00/01 16/01/96  00.31.26  by  Pavel Nevski
 *CMZ :  1.00/00 25/08/95  23.30.46  by  Pavel Nevski
@@ -8094,7 +8102,7 @@ C
 :E:"<w> AgDOCWR,Cf,I1,I2,TEXT;(' AgDocWr=',i2,' at ',a,' i1,i2,T=',2i5,2x,a)";
 END;
  
-*CMZ :          06/07/98  18.52.36  by  Pavel Nevski
+*CMZ :  1.40/05 06/07/98  18.52.36  by  Pavel Nevski
 *CMZ :  1.30/00 09/02/97  21.15.43  by  Pavel Nevski
 *CMZU:  1.00/01 22/12/95  21.50.31  by  Pavel Nevski
 *CMZ :  1.00/00 15/11/95  01.03.24  by  Pavel Nevski
@@ -8322,7 +8330,7 @@ If IrBDIV==IxCONS & ID>0 & JBIT(IQ(Lk),1)==0
 END
  
  
-*CMZ :          30/07/98  14.12.43  by  Pavel Nevski
+*CMZ :  1.40/05 30/07/98  14.12.43  by  Pavel Nevski
 *CMZ :  1.30/00 15/04/97  17.02.23  by  Pavel Nevski
 *CMZ :  1.00/00 07/10/95  19.31.21  by  Pavel Nevski
 *-- Author :    Pavel Nevski   12/01/95
@@ -8510,7 +8518,7 @@ C
   End
  
  
-*CMZ :          08/12/97  13.55.36  by  Pavel Nevski
+*CMZ :  1.40/05 08/12/97  13.55.36  by  Pavel Nevski
 *CMZ :  1.30/00 23/05/96  14.03.56  by  Pavel Nevski
 *CMZ :  1.00/00 22/08/95  04.05.46  by  Pavel Nevski
 *-- Author :    Pavel Nevski   26/11/94
@@ -8796,7 +8804,7 @@ C
  
  
  
-*CMZ :          22/06/98  21.58.44  by  Pavel Nevski
+*CMZ :  1.40/05 22/06/98  21.58.44  by  Pavel Nevski
 *CMZ :  1.30/00 26/11/96  23.11.18  by  Pavel Nevski
 *-- Author :    Pavel Nevski   26/11/94
 **********************************************************************
@@ -9362,7 +9370,7 @@ C local variables valid inside same block
 END
  
  
-*CMZ :          27/08/97  14.26.21  by  Pavel Nevski
+*CMZ :  1.40/05 27/08/97  14.26.21  by  Pavel Nevski
 *CMZ :  1.00/00 06/06/95  15.09.02  by  Pavel Nevski
 *-- Author :    Pavel Nevski   07/02/95
 **********************************************************************
@@ -9779,7 +9787,7 @@ If jdu<=0  { call GFDIG1(Cset,Cdet,1,NVS,LTRA,NTRA,NBV,DIGI,Iw,Ia); Return; }
    END
  
  
-*CMZ :          24/08/98  11.03.17  by  Pavel Nevski
+*CMZ :  1.40/05 24/08/98  11.03.17  by  Pavel Nevski
 *CMZ :  1.30/00 13/05/97  14.48.21  by  Pavel Nevski
 *CMZ :  1.00/00 01/09/95  22.54.27  by  Pavel Nevski
 *-- Author : Pavel Nevski
@@ -9937,7 +9945,7 @@ common/agctrbuf/  nac,nas,iac(La),itc(La)
    END
  
  
-*CMZ :          24/04/98  16.58.32  by  Pavel Nevski
+*CMZ :  1.40/05 24/04/98  16.58.32  by  Pavel Nevski
 *CMZ :  1.30/00 13/05/97  14.48.21  by  Pavel Nevski
 *CMZ :  1.00/00 01/09/95  22.55.18  by  Pavel Nevski
 *-- Author : Pavel Nevski
@@ -10108,7 +10116,7 @@ C
     END
  
  
-*CMZ :          23/10/97  22.22.23  by  Pavel Nevski
+*CMZ :  1.40/05 23/10/97  22.22.23  by  Pavel Nevski
 *CMZ :  1.30/00 02/04/97  18.53.55  by  Pavel Nevski
 *CMZ :  1.00/00 03/06/95  12.02.49  by  Pavel Nevski
 *-- Author :    Pavel Nevski   13/12/94
@@ -10269,7 +10277,7 @@ If Link<0  " allocate a new secured link "
 End
  
  
-*CMZ :          13/03/98  22.56.27  by  Pavel Nevski
+*CMZ :  1.40/05 13/03/98  22.56.27  by  Pavel Nevski
 *CMZ :  1.30/00 01/07/96  15.35.02  by  Pavel Nevski
 *CMZ :  1.00/00 07/09/95  13.27.40  by  Pavel Nevski
 *-- Author :    Pavel Nevski   12/08/95
@@ -10369,7 +10377,7 @@ C
      Igauto=Iauto
 end
  
-*CMZ :          15/06/98  12.24.27  by  Pavel Nevski
+*CMZ :  1.40/05 15/06/98  12.24.27  by  Pavel Nevski
 *CMZ :  1.30/00 24/03/96  21.59.47  by  Pavel Nevski
 *CMZU:  1.00/01 21/01/96  20.18.19  by  Sasha Vanyashin
 *CMZ :  1.00/00 24/11/95  00.28.56  by  Pavel Nevski
@@ -10532,7 +10540,7 @@ C
   END
  
  
-*CMZ :          13/07/97  23.26.30  by  Pavel Nevski
+*CMZ :  1.40/05 13/07/97  23.26.30  by  Pavel Nevski
 *CMZ :  1.30/00 05/08/96  11.35.22  by  Pavel Nevski
 *-- Author :     Pavel Nevski
 ******************************************************************************
@@ -10563,7 +10571,7 @@ do Id=3000,4000,1000
 }  }
 *
    end
-*CMZ :          29/07/97  16.38.30  by  Pavel Nevski
+*CMZ :  1.40/05 29/07/97  16.38.30  by  Pavel Nevski
 *CMZ :  1.30/00 10/02/97  15.01.26  by  Unknown
 *-- Author :    Alexandre Rozanov 02.04.95
 ******************************************************************************
@@ -11178,7 +11186,7 @@ C
  
        END
  
-*CMZ :          16/07/97  22.01.24  by  Pavel Nevski
+*CMZ :  1.40/05 16/07/97  22.01.24  by  Pavel Nevski
 *CMZ :  1.30/00 03/05/97  16.15.42  by  Pavel Nevski
 *-- Author :    Pavel Nevski
 ************************************************************************
@@ -11339,7 +11347,7 @@ C
    END
  
  
-*CMZ :          23/08/98  23.00.42  by  Pavel Nevski
+*CMZ :  1.40/05 23/08/98  23.00.42  by  Pavel Nevski
 *-- Author :    Pavel Nevski   25/11/97
 ***************************************************************************
 *                                                                         *
@@ -11630,7 +11638,7 @@ C
 ****************************************************************************
  
  
-*CMZ :          31/03/98  19.05.30  by  Pavel Nevski
+*CMZ :  1.40/05 31/03/98  19.05.30  by  Pavel Nevski
 *-- Author :    Pavel Nevski   06/03/98
 ************************************************************************
 *                                                                      *
@@ -11743,7 +11751,7 @@ C
      end
  
  
-*CMZ :          23/08/98  21.58.55  by  Pavel Nevski
+*CMZ :  1.40/05 23/08/98  21.58.55  by  Pavel Nevski
 *-- Author :    Pavel Nevski   25/11/97
 ***************************************************************************
 *                                                                         *
@@ -11860,7 +11868,7 @@ J=1; Loop                                  " over existing banks only "
 }
 END
  
-*CMZ :          24/08/98  18.27.39  by  Pavel Nevski
+*CMZ :  1.40/05 24/08/98  18.27.39  by  Pavel Nevski
 *-- Author :    Pavel Nevski   25/03/98
 **********************************************************************
                 subroutine   a x p a r t i c l e
@@ -12025,7 +12033,7 @@ C local variables valid inside same block
     if (Idebug > 1) Call GPPART(%Code)
     if (Idebug > 2) Call GPDCAY(%Code)
  end
-*CMZ :          08/08/98  23.17.10  by  Pavel Nevski
+*CMZ :  1.40/05 08/08/98  23.17.10  by  Pavel Nevski
 *-- Author :    Pavel Nevski   03/05/98
 *************************************************************************
       SUBROUTINE  aGFVOLU (Ivol,Cvol,Cshap,numed,par,npar)
@@ -12080,7 +12088,7 @@ C
           Call Ucopy (Q(LQ(JVOLUM-IVOL)+7),par,min(50,Npar) )
        end
  
-*CMZ :          22/08/98  21.51.50  by  Pavel Nevski
+*CMZ :  1.40/05 22/08/98  21.51.50  by  Pavel Nevski
 *-- Author :    Pavel Nevski   26/11/94
 ****************************************************************************
           subroutine  ARZOUT(Idiv,Lo,CCKey,IC,opt)
@@ -12204,7 +12212,7 @@ C     - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
  
  end
  
-*CMZ :          24/08/98  20.25.33  by  Pavel Nevski
+*CMZ :  1.40/05 24/08/98  20.25.33  by  Pavel Nevski
 *CMZ :  1.30/00 29/04/97  23.23.51  by  Pavel Nevski
 *CMZU:  1.00/01 15/01/96  20.20.30  by  Pavel Nevski
 *-- Author :    L.Vacavant, A.Rozanov    14/12/94
@@ -12363,7 +12371,7 @@ Common     /AgZbuffer/  K,JRC,JCONT,CSTREAM,COPTN,CREQ,IREQ,iend,mem(100,5)
 End
  
  
-*CMZ :          20/08/98  18.01.54  by  Pavel Nevski
+*CMZ :  1.40/05 20/08/98  18.01.54  by  Pavel Nevski
 *CMZ :  1.30/00 19/03/97  21.57.11  by  Pavel Nevski
 *CMZU:  1.00/01 15/01/96  20.20.30  by  Pavel Nevski
 *-- Author :    L.Vacavant, A.Rozanov    14/12/94
@@ -12729,7 +12737,7 @@ C
      end
  
  
-*CMZ :          31/10/97  13.01.26  by  Pavel Nevski
+*CMZ :  1.40/05 31/10/97  13.01.26  by  Pavel Nevski
 *CMZ :  1.30/00 04/07/96  14.07.00  by  Pavel Nevski
 *CMZU:  1.00/01 14/01/96  22.35.50  by  Pavel Nevski
 *-- Author :    A. Rozanov  11/03/95
@@ -12852,7 +12860,7 @@ C
     END
  
  
-*CMZ :          18/08/97  11.17.47  by  Pavel Nevski
+*CMZ :  1.40/05 18/08/97  11.17.47  by  Pavel Nevski
 *CMZ :  1.30/00 16/04/97  20.01.44  by  Pavel Nevski
 *-- Author :    Pavel Nevski   01/06/96
 ******************************************************************************
@@ -13025,7 +13033,7 @@ C                                       Link to:
 end
  
  
-*CMZ :          20/08/98  22.05.53  by  Pavel Nevski
+*CMZ :  1.40/05 20/08/98  22.05.53  by  Pavel Nevski
 *-- Author :    Pavel Nevski 06/06/97
 ***************************************************************************
                 Subroutine  A G S V E R T (Vertex,NtBeam,NtTarg,UBUF,NU,Nv)
@@ -13185,7 +13193,8 @@ END
  
  
  
-*CMZ :          24/08/98  20.26.49  by  Pavel Nevski
+*CMZ :          26/08/98  21.54.47  by  Pavel Nevski
+*CMZ :  1.40/05 24/08/98  20.26.49  by  Pavel Nevski
 *CMZ :  1.30/00 21/03/97  15.15.10  by  Pavel Nevski
 *-- Author :    Pavel Nevski   27/05/96
 ************************************************************************
@@ -13288,6 +13297,10 @@ C
  
 ***************************************************************************
    subroutine AgMERGE (Iprin,IbCurrent,IbEvnt,Tbunch,Ier)
+*
+* Description: append NEXT bank to the PREVIOUS for KINE,VERT,HITS
+* Modifications:
+* PN,  26.08.98: extended BACK flag format to xxx1xxx -or- xx1xxx
 ***************************************************************************
 *KEEP,TYPING.
       IMPLICIT NONE
@@ -13379,7 +13392,7 @@ C                                       Link to:
    Common  /agcmerge/ Laref(2),Jd,jhs,jhd,jv2,jk2
    Integer            AgPointr,Iprin,IbCurrent,IbEvnt,Ier,Ib,
                       Dum(20)/20*0/,Jdu,Idu,Nv1,Nv2,Nt1,Nt2,Nh1,Nh2,
-                      Iv,Jv,It,Jt,i,j,Isel,Nw,Nw1,Nw2,L,L1,L2
+                      Iv,Jv,It,Jt,i,j,Isel,Nw,Nw1,Nw2,L,M,L1,L2
    REAL               Tbunch
 *  GEANT general definitions for SET-type banks:
    Integer            JSF,JDF,IDF,ISF,LINK,Iset,Idet
@@ -13436,8 +13449,10 @@ C
       Iset=0;  J=JHITS; If (LQ(J)>0) J=LQ(J)
       While AgPOINTR (J,Iset,Idet)==0
       {  JDU=LQ(JDF(JSET)-3); Check JDU>0; Idu=Q(JDU+9); Ib=LVBACK(Idu)
-         L = abs(ib);  L1=-L;  L2=+L                    " rule 1: t+/-(i-1)
-         IF (L>=10)  { L1= - (L/100);  L2= mod(L,10) }  " rule 2: -i1,1,+i2
+         " x1x -or- 01x / xx1xx -or- 0x1xx /  xxx1xxx -or- 0xx1xxx "
+         L = abs(ib); M=10**(int(1+LOG10(L+0.9))/2);
+                   L1=-L;  L2=+L                    " rule 1: t+/-(i-1)
+         IF M>1  { L1= - (L/M/10);  L2= mod(L,M) }  " rule 2: -i1,1,+i2
          If Ib>=0 & L1<=IBcurrent&IBcurrent<=L2
          {  Nw2=IDF(J);  JHS=JDF(J);  Nw=1+IQ(JDF(JSET)+1)+IQ(JDF(JSET)+3)
             Isel=Nw2/Nw; do i=JHS+1,JHS+Nw2,Nw
@@ -13691,7 +13706,7 @@ END
  
  
  
-*CMZ :          29/01/98  00.21.52  by  Pavel Nevski
+*CMZ :  1.40/05 29/01/98  00.21.52  by  Pavel Nevski
 *CMZ :  1.30/00 27/03/97  19.08.58  by  Pavel Nevski
 *CMZ :  1.00/00 12/01/95  23.13.14  by  Pavel Nevski
 *-- Author :    Pavel Nevski   09/01/95
@@ -13962,7 +13977,7 @@ C     - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
   END
  
  
-*CMZ :          31/07/97  17.26.28  by  Pavel Nevski
+*CMZ :  1.40/05 31/07/97  17.26.28  by  Pavel Nevski
 *CMZ :  1.30/00 16/04/97  20.30.01  by  Pavel Nevski
 *-- Author :    Pavel Nevski   01/06/96
 ***************************************************************************
@@ -14083,7 +14098,7 @@ C                                       Link to:
 End
  
  
-*CMZ :          20/08/98  23.50.30  by  Pavel Nevski
+*CMZ :  1.40/05 20/08/98  23.50.30  by  Pavel Nevski
 *CMZ :  1.30/00 12/03/97  13.19.34  by  Pavel Nevski
 *-- Author :    Pavel Nevski
 **************************************************************************
@@ -14274,7 +14289,7 @@ C                                       Link to:
       END
  
  
-*CMZ :          20/08/98  22.15.49  by  Pavel Nevski
+*CMZ :  1.40/05 20/08/98  22.15.49  by  Pavel Nevski
 *CMZ :  1.30/00 07/07/96  13.29.54  by  Pavel Nevski
 *-- Author :    Pavel Nevski   14/01/96
 ***************************************************************************
@@ -14377,7 +14392,7 @@ C                                       Link to:
       END
  
  
-*CMZ :          15/08/98  22.57.35  by  Pavel Nevski
+*CMZ :  1.40/05 15/08/98  22.57.35  by  Pavel Nevski
 *CMZ :  1.30/00 07/07/96  13.29.54  by  Pavel Nevski
 *-- Author :    Pavel Nevski   14/01/96
 ****************************************************************************
@@ -14513,7 +14528,7 @@ C                                       Link to:
  
  
  
-*CMZ :          03/06/98  12.10.44  by  Pavel Nevski
+*CMZ :  1.40/05 03/06/98  12.10.44  by  Pavel Nevski
 *CMZ :  1.30/00 02/04/97  17.34.39  by  Pavel Nevski
 *CMZU:  1.00/01 14/01/96  21.33.44  by  Pavel Nevski
 *-- Author :    A. Rozanov  11/03/95
@@ -14608,7 +14623,7 @@ END
  
  
  
-*CMZ :          13/05/98  21.57.17  by  Pavel Nevski
+*CMZ :  1.40/05 13/05/98  21.57.17  by  Pavel Nevski
 *CMZ :  1.30/00 10/07/96  10.34.36  by  Pavel Nevski
 *CMZU:  1.00/01 29/01/96  16.49.07  by  Pavel Nevski
 *-- Author :    Pavel Nevski
@@ -15277,7 +15292,7 @@ C
   }  }  }
   call GGCLOS
   End
-*CMZ :          26/08/98  17.57.31  by  Pavel Nevski
+*CMZ :  1.40/05 26/08/98  17.57.31  by  Pavel Nevski
 *CMZ :  1.30/00 02/05/97  17.21.14  by  Pavel Nevski
 *-- Author :    A. Rozanov  11/03/95
 ******************************************************************************
@@ -15494,7 +15509,7 @@ C
 END
  
  
-*CMZ :          30/07/97  16.14.22  by  Pavel Nevski
+*CMZ :  1.40/05 30/07/97  16.14.22  by  Pavel Nevski
 *CMZ :  1.30/00 02/04/97  22.56.50  by  Pavel Nevski
 *-- Author :    Pavel Nevski
 **************************************************************************
@@ -15973,7 +15988,7 @@ C
       END
  
  
-*CMZ :          11/12/97  00.29.35  by  Pavel Nevski
+*CMZ :  1.40/05 11/12/97  00.29.35  by  Pavel Nevski
 *CMZ :  1.30/00 03/04/97  13.58.50  by  Pavel Nevski
 *-- Author :    Pavel Nevski   31/03/97
 ***************************************************************************
@@ -16122,7 +16137,7 @@ C                                       Link to:
  
  
  
-*CMZ :          31/10/97  13.01.26  by  Pavel Nevski
+*CMZ :  1.40/05 31/10/97  13.01.26  by  Pavel Nevski
 *CMZ :  1.30/00 02/04/97  17.34.39  by  Pavel Nevski
 *-- Author :    A. Rozanov  11/03/95
 **********************************************************************
@@ -16256,7 +16271,7 @@ C
 END
  
  
-*CMZ :          20/08/98  18.31.05  by  Pavel Nevski
+*CMZ :  1.40/05 20/08/98  18.31.05  by  Pavel Nevski
 *-- Author :    Pavel Nevski   06/06/97
 ***************************************************************************
                 Subroutine  A G S K I N E (Plab,Iparti,Nv,UB,NB,Nt)
@@ -16368,7 +16383,7 @@ C
    END
  
  
-*CMZ :          28/07/97  20.58.07  by  Pavel Nevski
+*CMZ :  1.40/05 28/07/97  20.58.07  by  Pavel Nevski
 *-- Author :    Pavel Nevski   18/07/97
 *************************************************************************
    subroutine   A g F O P E N (li,file,ier)
@@ -16456,7 +16471,7 @@ C
  
  
  
-*CMZ :          19/07/97  12.41.07  by  Pavel Nevski
+*CMZ :  1.40/05 19/07/97  12.41.07  by  Pavel Nevski
 *-- Author :    Pavel Nevski   18/07/97
 *************************************************************************
    Subroutine   A g F R E A D (ier)
@@ -16546,7 +16561,7 @@ C
    End
  
  
-*CMZ :          02/08/98  15.13.50  by  Pavel Nevski
+*CMZ :  1.40/05 02/08/98  15.13.50  by  Pavel Nevski
 *-- Author :    Pavel Nevski   18/07/97
 *************************************************************************
    Subroutine   A g R E A D T X T (Igate)
@@ -16649,7 +16664,7 @@ C
    end
  
  
-*CMZ :          24/08/98  20.26.08  by  Pavel Nevski
+*CMZ :  1.40/05 24/08/98  20.26.08  by  Pavel Nevski
 *-- Author :    Pavel Nevski   23/04/98
 ******************************************************************
       subroutine    A G P R E A D (ier)
@@ -16828,7 +16843,7 @@ C                                       Link to:
       IEOTRI = jer
       end
  
-*CMZ :          13/07/98  10.03.02  by  Pavel Nevski
+*CMZ :  1.40/05 13/07/98  10.03.02  by  Pavel Nevski
 *-- Author :    Pavel Nevski   13/07/98
 ****************************************************************************
  
@@ -17000,7 +17015,7 @@ End;
  XFINTER=(F(K1)*(X-X2)+F(K1+1)*(X1-X))/(X1-X2)
 END
  
-*CMZ :          12/05/98  14.44.06  by  Pavel Nevski
+*CMZ :  1.40/05 12/05/98  14.44.06  by  Pavel Nevski
 *CMZ :  1.00/00 07/05/95  13.12.49  by  Pavel Nevski
 *-- Author :    Pavel Nevski
 **********************************************************************
@@ -17060,7 +17075,7 @@ END
  } While EPS>0 & ABS(OTB-Y)>ABS(EPS*OTB)
 END
  
-*CMZ :          31/10/97  12.55.37  by  Pavel Nevski
+*CMZ :  1.40/05 31/10/97  12.55.37  by  Pavel Nevski
 *CMZ :  1.00/00 06/08/95  17.16.05  by  Pavel Nevski
 *-- Author :    Pavel Nevski
 *************************************************************************
@@ -17074,7 +17089,7 @@ NXpoiss=n
 End
  
  
-*CMZ :          25/11/97  23.22.25  by  Pavel Nevski
+*CMZ :  1.40/05 25/11/97  23.22.25  by  Pavel Nevski
 *CMZ :  1.30/00 06/09/96  18.10.33  by  Pavel Nevski
 *CMZ :  1.00/00 25/08/95  00.07.49  by  Pavel Nevski
 *-- Author :    A.Rozanov   30/06/95
@@ -17178,7 +17193,7 @@ End
       END
  
  
-*CMZ :          20/11/97  22.25.45  by  Pavel Nevski
+*CMZ :  1.40/05 20/11/97  22.25.45  by  Pavel Nevski
 *CMZ :  1.30/00 11/05/96  21.53.45  by  Pavel Nevski
 *CMZ :  1.00/00 25/08/95  00.07.49  by  Pavel Nevski
 *-- Author :  Pavel Nevski
@@ -17297,7 +17312,7 @@ End
       DO I=1,L  { AMX(I)=1.E30;   AMN(I)=-1.E30 }
       End
  
-*CMZ :          12/06/98  11.36.35  by  Pavel Nevski
+*CMZ :  1.40/05 12/06/98  11.36.35  by  Pavel Nevski
 *CMZU:  1.00/01 14/01/96  17.57.22  by  Pavel Nevski
 *CMZ :  1.00/00 07/03/95  21.21.52  by  Pavel Nevski
 *-- Author :    Pavel Nevski   07/02/95
@@ -17362,7 +17377,7 @@ C
 *     Print *,'  get track fi0,a0,Pti,z0,dz=',Fi0Fit,A0Fit,PTinv,z0fit,dZdR0
     END
  
-*CMZ :          04/12/97  13.25.20  by  Pavel Nevski
+*CMZ :  1.40/05 04/12/97  13.25.20  by  Pavel Nevski
 *CMZU:  1.00/01 25/01/96  02.13.04  by  Pavel Nevski
 *CMZ :  1.00/00 28/08/95  00.45.41  by  Pavel Nevski
 *-- Author :    Pavel Nevski   11/10/93
@@ -17502,7 +17517,7 @@ C
 :E:;  Prin0 TAG; (' XNTUP: too late to introduce new TAG/PAGE ',A)
       END
  
-*CMZ :          08/11/97  18.05.57  by  Pavel Nevski
+*CMZ :  1.40/05 08/11/97  18.05.57  by  Pavel Nevski
 *CMZU:  1.30/01 17/05/97  16.47.03  by  Pavel Nevski
 *CMZ :  1.30/00 15/04/97  14.58.38  by  Pavel Nevski
 *-- Author :    Pavel Nevski   03/03/96
@@ -17831,7 +17846,7 @@ Structure AgCR { char Cset, char Cdet, int Isys, int Itype, int Npl,
    end
  
  
-*CMZ :          20/11/97  22.28.54  by  Pavel Nevski
+*CMZ :  1.40/05 20/11/97  22.28.54  by  Pavel Nevski
 *CMZ :  1.30/00 01/09/96  16.24.19  by  Pavel Nevski
 *-- Author :    Pavel Nevski   06/02/95
 ********************************************************************
@@ -19635,7 +19650,7 @@ DO n=1,NN                      " calculate gradients and derivatives matrix "
 }  }
 End
  
-*CMZ :          05/11/97  15.31.12  by  Pavel Nevski
+*CMZ :  1.40/05 05/11/97  15.31.12  by  Pavel Nevski
 *-- Author :    Pavel Nevski   04/11/97
 function sind(x);     +cde,gconst;  sind=sin(degrad*x);       end;
 function cosd(x);     +cde,gconst;  cosd=cos(degrad*x);       end;
@@ -19645,7 +19660,7 @@ function acosd(x);    +cde,gconst;  acosd=raddeg*acos(x);     end;
 function atand(x);    +cde,gconst;  atand=raddeg*atan(x);     end;
 function atan2d(x,y); +cde,gconst;  atan2d=raddeg*atan2(x,y); end;
 * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *
-*CMZ :          10/11/97  15.32.54  by  Pavel Nevski
+*CMZ :  1.40/05 10/11/97  15.32.54  by  Pavel Nevski
 *CMZ :  1.30/00 18/06/96  12.32.41  by  Pavel Nevski
 *CMZU:  1.03/00 28/10/93  12.54.58  by  M. Nessi CERN
 *-- Author :  Pavel Nevski
@@ -19659,7 +19674,7 @@ function atan2d(x,y); +cde,gconst;  atan2d=raddeg*atan2(x,y); end;
       TTAN = TAN(2*ATAN(EXP(-Y)))
 *
       END
-*CMZ :          31/01/98  14.01.41  by  Pavel Nevski
+*CMZ :  1.40/05 31/01/98  14.01.41  by  Pavel Nevski
 *-- Author :    Bill LOVE
 C----------------------------------------------------------------------
       FUNCTION  BITCH(INT,FORMAT)
@@ -19706,7 +19721,7 @@ C
         RETURN
         END
  
-*CMZ :          31/01/98  14.01.41  by  Pavel Nevski
+*CMZ :  1.40/05 31/01/98  14.01.41  by  Pavel Nevski
 *-- Author :    Bill Love
 C----------------------------------------------------------------------
       FUNCTION IFNB(STRING)
@@ -19727,7 +19742,7 @@ C----------------------------------------------------------------------
 *
       END
  
-*CMZ :          31/01/98  14.01.41  by  Pavel Nevski
+*CMZ :  1.40/05 31/01/98  14.01.41  by  Pavel Nevski
 *-- Author :    Bill Love
 C----------------------------------------------------------------------
         FUNCTION LSTRG(STRING)
@@ -19750,7 +19765,7 @@ C----------------------------------------------------------------------
 	RETURN
 	END
  
-*CMZ :          31/01/98  14.12.02  by  Pavel Nevski
+*CMZ :  1.40/05 31/01/98  14.12.02  by  Pavel Nevski
 *-- Author :    Bill Love
 C----------------------------------------------------------------------
       SUBROUTINE QIKS (MM,NN,MOVE,COMPARE)
@@ -20029,7 +20044,7 @@ Integer i1,i2,ic,jdd; Data Jdd/1/;
   }  Iadr=DDL(2,Jdd);  Leng=DDL(3,Jdd);  IOD=DDL(4,Jdd);
    END
  
-*CMZ :          23/03/98  20.56.20  by  Pavel Nevski
+*CMZ :  1.40/05 23/03/98  20.56.20  by  Pavel Nevski
 *CMZ :  1.00/00 30/06/95  13.07.15  by  Pavel Nevski
 *-- Author :    Pavel Nevski   26/11/94
 **********************************************************************
@@ -20119,7 +20134,7 @@ CHARACTER  Cname*(*);    Integer    NVL(*),Npar,Array(*),Link,Ia,Ndim;
  If (Npar>0) Call UCOPY (IQ(Link+1+Ia),Array,Npar);
    END
  
-*CMZ :          24/03/98  14.42.38  by  Pavel Nevski
+*CMZ :  1.40/05 24/03/98  14.42.38  by  Pavel Nevski
 *CMZ :  1.00/00 30/06/95  13.07.15  by  Pavel Nevski
 *-- Author :    Pavel Nevski   26/11/94
 **********************************************************************
@@ -20215,7 +20230,7 @@ CHARACTER*(*)  Cname,FORM;     Integer  NVL(*),Npar,Array(*),Link,Ia;
    Call UCOPY (Array,IQ(Link+1+Ia),Npar);  If (NVL(kk)==0) NVL(kk)=II;
    END
  
-*CMZ :          01/07/98  19.10.00  by  Pavel Nevski
+*CMZ :  1.40/05 01/07/98  19.10.00  by  Pavel Nevski
 *CMZ :  1.30/00 16/04/97  22.11.16  by  Pavel Nevski
 *CMZU:  1.00/01 21/12/95  22.17.57  by  Pavel Nevski
 *CMZ :  1.00/00 03/10/95  18.17.59  by  Pavel Nevski
@@ -21111,7 +21126,7 @@ C
    END
  
  
-*CMZ :          01/08/98  14.42.35  by  Pavel Nevski
+*CMZ :  1.40/05 01/08/98  14.42.35  by  Pavel Nevski
 *CMZ :  1.00/00 03/10/95  18.17.59  by  Pavel Nevski
 *-- Author :    R. DeWolf   15/07/91
 **********************************************************************
@@ -21192,7 +21207,7 @@ C                                       Link to:
       END
  
  
-*CMZ :          15/08/98  23.01.56  by  Pavel Nevski
+*CMZ :  1.40/05 15/08/98  23.01.56  by  Pavel Nevski
 *-- Author :    Pavel Nevski   01/08/98
 *********************************************************************
 *                                                                   *
