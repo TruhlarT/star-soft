@@ -1,7 +1,10 @@
 #!/usr/bin/csh -f
-#       $Id: group_env.csh,v 1.32 1998/07/19 01:30:40 fisyak Exp $
+#       $Id: group_env.csh,v 1.33 1998/07/22 20:16:15 wenaus Exp $
 #	Purpose:	STAR group csh setup 
 #       $Log: group_env.csh,v $
+#       Revision 1.33  1998/07/22 20:16:15  wenaus
+#       Adapt Objy setup for non-sol platforms
+#
 #       Revision 1.32  1998/07/19 01:30:40  fisyak
 #       /usr/bin/ls -> /bin/ls
 #
@@ -266,14 +269,9 @@ if ( -f $GROUP_DIR/rootenv.csh) then
   source $GROUP_DIR/rootenv.csh
 endif
 
-# Objy 5.00
-if (-f /opt/objy/objy500/setup.csh) then
-  source  /opt/objy/objy500/setup.csh
-  # BaBar
-  setenv BFROOT /star/sol/packages/BaBar
-  setenv BFSITE starbnl
-  setenv OBJYBASE $OBJY_HOME
-endif
+# Objectivity
+source $GROUP_DIR/ObjySetup.csh
+
 # Geant4
 setenv G4PROTO /star/sol/packages/geant4/prototype
 setenv RWBASE /star/sol/packages/rogue/workspaces/SOLARIS25/SUNPRO42/12s

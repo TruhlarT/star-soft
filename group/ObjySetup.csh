@@ -1,0 +1,50 @@
+#!/bin/echo You must source
+
+if ( -d /opt/objy/objy500 ) then
+  # sol location
+  setenv OBJY_HOME /opt/objy/objy500
+else
+  if ( -d /afs/rhic/oodb ) then
+    # other machines
+    setenv OBJY_HOME /afs/rhic/oodb
+  endif
+endif
+
+if ( $?OBJY_HOME ) then
+
+echo Objectivity location OBJY_HOME set to $OBJY_HOME
+
+# Variables needed by BaBar software
+setenv BFROOT /star/sol/packages/BaBar
+setenv BFSITE starbnl
+setenv OBJYBASE $OBJY_HOME
+
+setenv PATH $PATH\:$OBJY_HOME/bin
+
+if (${?LD_LIBRARY_PATH} == 1) then
+	setenv LD_LIBRARY_PATH   $LD_LIBRARY_PATH\:$OBJY_HOME/lib
+else
+	setenv LD_LIBRARY_PATH   $OBJY_HOME/lib
+endif
+
+if (${?XAPPLRESDIR} == 1) then
+	setenv XAPPLRESDIR	$XAPPLRESDIR\:$OBJY_HOME/etc/app-defaults
+else
+	setenv XAPPLRESDIR	$OBJY_HOME/etc/app-defaults
+endif
+
+if ( "$?XUSERFILESEARCHPATH" == 0 ) then
+  setenv XUSERFILESEARCHPATH "${OBJY_HOME}/etc/app-defaults/%N"
+else
+  setenv XUSERFILESEARCHPATH "${XUSERFILESEARCHPATH}:${OBJY_HOME}/etc/app-defaults/%N"
+endif
+
+if ( "$?XBMLANGPATH" == 0 ) then
+  setenv XBMLANGPATH "${OBJY_HOME}/etc/bitmaps/%N/%B"
+else
+  setenv XBMLANGPATH "${XBMLANGPATH}:${OBJY_HOME}/etc/bitmaps/%N/%B"
+endif
+
+endif
+
+#end file
