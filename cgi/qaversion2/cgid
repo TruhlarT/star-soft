@@ -182,6 +182,8 @@ if ($script_name){       #this is an allowed cgi script
     # set up the environment ala the CGI/1.1 "specification"
     #    - see http://Web.Golux.Com/coar/cgi/
     #
+    
+    printToLog("creating cgi environment variables");
 
     # start clean
     my $PATH = $ENV{PATH};
@@ -224,6 +226,7 @@ if ($script_name){       #this is an allowed cgi script
     # send ouput of QA_main.pm, putting any POST content on stdin
     #
     
+    printToLog("running script");
     local *Writer;
     local *Reader; 
     chdir $working_dir or die "cannot cd to $working_dir\n";
@@ -231,6 +234,7 @@ if ($script_name){       #this is an allowed cgi script
     Writer->autoflush(1);
     Reader->autoflush(1);
 
+    printToLog("returning output");
     print Writer $request->content();
     print $client join("", <Reader>);
 
@@ -344,7 +348,7 @@ sub translateURL {
 sub printToLog{
     my $msg = "[" . localtime() . "] " . shift();
 
-    system("echo \"$msg\" >> $log_file");
+    system("echo \"$msg\" >> $log_file.$$");
     $opt{v} && print STDERR "$msg\n";
 
 }
