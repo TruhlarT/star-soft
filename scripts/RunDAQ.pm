@@ -332,8 +332,8 @@ sub rdaq_check_entries
     my($tref);
     my(@all);
 
-    $tref = Date::Manip::DateCalc("today","-$since minutes");
-    $tref = Date::Manip::UnixDate($tref,"%Y%m%H%M%S00");
+    #$tref = Date::Manip::DateCalc("today","-$since minutes");
+    #$tref = Date::Manip::UnixDate($tref,"%Y%m%e%H%M%S");
 
     undef;
 }
@@ -387,9 +387,13 @@ sub rdaq_raw_files
     # An additional time-stamp selection will be made to minimize
     # a problem with database hand-shaking. This will affect only
     # the test runs with max file sequence = 1.
-    $tref = Date::Manip::DateCalc("today","-1 minute");
-    $tref = Date::Manip::UnixDate($tref,"%Y%m%e%H%M%S");
-
+    #$tref = Date::Manip::DateCalc("today","-1 minute");
+    #$tref = Date::Manip::UnixDate($tref,"%Y%m%e%H%M%S");
+    $sth = $obj->prepare("select FROM_UNIXTIME( UNIX_TIMESTAMP(NOW())-60 )+0");
+    $sth->execute();
+    $tref= $sth->fetchrow();
+    $sth->finish();
+    
 
     # We will select on RunStatus == 0
     $cmd  = "SELECT daqFileTag.file, daqSummary.runNumber, daqFileTag.numberOfEvents, daqFileTag.beginEvent, daqFileTag.endEvent, magField.current, magField.scaleFactor, beamInfo.yellowEnergy+beamInfo.blueEnergy, CONCAT(beamInfo.blueSpecies,beamInfo.yellowSpecies) FROM daqFileTag, daqSummary, magField, beamInfo  WHERE daqSummary.runNumber=daqFileTag.run AND daqSummary.runStatus=0 AND daqSummary.destinationID In(1,4) AND daqFileTag.file LIKE '%physics%' AND magField.runNumber=daqSummary.runNumber AND magField.entryTag=0 AND beamInfo.runNumber=daqSummary.runNumber AND beamInfo.entryTag=0";
@@ -421,6 +425,7 @@ sub rdaq_raw_files
 	#print join("|",@res)."\n";
 	push(@all,&rdaq_hack($obj,@res));
     }
+    $sth->finish();
     @all;
 }
 
