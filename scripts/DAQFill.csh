@@ -61,6 +61,7 @@ else
     if( ! -e $LOG) then
     	echo "Starting on `date`" >$LOG
     endif
+    echo "Executing ./$SCRIPT 1 $SLTIME $LOG on `date`"
     ./$SCRIPT 1 $SLTIME $LOG &
   endif
 
