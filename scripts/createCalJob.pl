@@ -26,6 +26,7 @@ my $nSetD = 0;
 my $prodPeriod = $ARGV[0];
 my $dyear = $ARGV[1];
 my $mlibVer = $ARGV[2]; 
+my $coll = "AuAu200";
 my $dPath = "/daq/" . $dyear ;  
 my $chainDir = "daq";
 
@@ -103,7 +104,7 @@ my $mySet;
 
 for ($ii=$istart; $ii< scalar(@SetD); $ii++)  { 
  
-  $sql="SELECT path, fName FROM $FileCatalogT WHERE fName LIKE '%daq' AND path = '$SetD[$ii]' AND dataStatus = 'OK' AND hpss = 'Y' ";
+  $sql="SELECT path, fName FROM $FileCatalogT WHERE fName LIKE '%daq' AND path = '$SetD[$ii]' AND dataset like '$coll%' and dataset like '%tpc%' dataStatus = 'OK' AND hpss = 'Y' ";
 
     $cursor =$dbh->prepare($sql)
      || die "Cannot prepare statement: $DBI::errstr\n";

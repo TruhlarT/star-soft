@@ -26,6 +26,7 @@ my $nSetD = 0;
 my $prodPeriod = $ARGV[0]; 
 my $chName = $ARGV[2];
 my $dyear = $ARGV[1];
+my $coll = "AuAu200";
 my $dPath = "/daq/" . $dyear ;             
 my $chainDir = "daq";
 
@@ -154,12 +155,14 @@ my $myRun;
        }
    }
 
+
+
  my $ii = 0;	    
  $istart = scalar(@SetD) - 5;
  $jobDIn_no = 0; 
  for ($ii=$istart; $ii< scalar(@SetD); $ii++)  { 
 
-  $sql="SELECT path, fName, dataset FROM $FileCatalogT WHERE fName LIKE '%daq' AND path = '$SetD[$ii]' AND dataStatus = 'OK' AND hpss = 'Y' ";
+  $sql="SELECT path, fName, dataset FROM $FileCatalogT WHERE fName LIKE '%daq' AND path = '$SetD[$ii]' AND dataset like '$coll%' and dataset like '%tpc%' AND dataStatus = 'OK' AND hpss = 'Y' ";
     $cursor =$dbh->prepare($sql)
      || die "Cannot prepare statement: $DBI::errstr\n";
            $cursor->execute;
@@ -183,6 +186,12 @@ my $myRun;
    $jobDIn_no++;
     }
  }
+
+    &StDbProdDisconnect();
+
+   &StDbDescriptorConnect();
+
+
 
 #####  start loop over input files
 my $jbset;
