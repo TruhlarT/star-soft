@@ -59,7 +59,7 @@ endif
 
 else
 
-if ( $?SILENT == 0 ) echo "Objectivity not configured, and be thankful for it!"
+#if ( $?SILENT == 0 ) echo "Objectivity not configured, and be thankful for it!"
 
 endif
 
