@@ -1,7 +1,10 @@
 #!/usr/bin/csh -f
-#       $Id: group_env.csh,v 1.80 1999/08/19 22:51:53 fisyak Exp $
+#       $Id: group_env.csh,v 1.81 1999/08/25 13:40:28 fisyak Exp $
 #	Purpose:	STAR group csh setup 
 #       $Log: group_env.csh,v $
+#       Revision 1.81  1999/08/25 13:40:28  fisyak
+#       Devorce STAF mgr from STAR mgr
+#
 #       Revision 1.80  1999/08/19 22:51:53  fisyak
 #       Devorce STAR_LIB and StAF
 #
@@ -324,7 +327,7 @@ if ($?TEXINPUTS == 0) then
 else
   setenv TEXINPUTS "${TEXINPUTS}:${GROUP_DIR}/latex/styles"
 endif
-setenv GROUPPATH "${GROUP_DIR}:${STAR_MGR}:${STAR_BIN}:${STAF_BIN}"
+setenv GROUPPATH "${GROUP_DIR}:${STAR_MGR}:${STAR_BIN}:${STAF}/mgr:${STAF_BIN}"
 if ( -x /afs/rhic/star/group/dropit) then
 # clean-up PATH
   setenv TEXINPUTS `/afs/rhic/star/group/dropit -p ${TEXINPUTS}`
@@ -333,7 +336,7 @@ if ( -x /afs/rhic/star/group/dropit) then
   setenv PATH `/afs/rhic/star/group/dropit -p ${PATH} $STAR_PATH`
   if (${?LD_LIBRARY_PATH}) setenv LD_LIBRARY_PATH `/afs/rhic/star/group/dropit -p ${LD_LIBRARY_PATH} $STAR_PATH`
 endif
-setenv PATH "/usr/afsws/bin:/usr/afsws/etc:/opt/star/bin:/usr/sue/bin:/usr/local/bin:${GROUP_DIR}:${STAR_MGR}:${STAR_BIN}:${STAF_BIN}:${PATH}"
+setenv PATH "/usr/afsws/bin:/usr/afsws/etc:/opt/star/bin:/usr/sue/bin:/usr/local/bin:${GROUP_DIR}:${STAR_MGR}:${STAR_BIN}:${STAF}/mgr:${STAF_BIN}:${PATH}"
 ## Put mysql on path if available
 if ( -d /usr/local/mysql/bin) then
   setenv PATH "${PATH}:/usr/local/mysql/bin"
