@@ -5,18 +5,28 @@
 #
 # Current target for this script
 #
-#  Linux61
-#  Linux72    build a LinuxXX AutoBuild report (one version)
-#  Linux9     
-#  Insure     Builds Insure++ compilation
+# Linux based targets:
+#   Linux61
+#   Linux72    build a LinuxXX AutoBuild report (one version)
+#   Linux9     
 #
-#  Solaris    ditto for Solaris (does cache cleaning)
-#  du         Digital Unix using hack space in 'cal' (dev only)
+#   Insure     Builds Insure++ compilation
+#   icc        Builds with icc
+#   inter      Builds as per the default target but do not perform
+#              post compilation tasks (and do not send Email if 
+#              failure)
 #
-#  Clean      Runs CleanLibs
+# Targets for Other platforms:
+#   Solaris    Ditto for Solaris (does cache cleaning)
+#   du         Digital Unix using hack space in 'cal' (dev only)
+#
+# Miscellaneous targets
+#   Clean      Runs CleanLibs under the current OS and keeps 2
+#              versions.
 #  
+#
 # Default is to run on the current platform both optimized and
-# non optimized.
+# non optimized. The
 #
 #
 
@@ -151,6 +161,9 @@ if ( -r  $GROUP_DIR/star_login.csh ) then
 
 
 		# ****** This is the default action *****
+	    case "inter":
+		# Is update mode, not checkout
+		$SCRIPTD/AutoBuild.pl -u -d >$HOME/log/AB-d-$DAY.log
 	    default
 		# Is update mode, not checkout
 		$SCRIPTD/AutoBuild.pl -u >$HOME/log/AB-$DAY.log
