@@ -30,7 +30,7 @@ sub bfcread_dstBranch{
   my $report_filename = shift;
   #--------------------------------------------------------------
 
-  my ($object, $end_of_first_event);
+  my ($object, $end_of_first_event, %bfc_hash);
   my ( %run_scalar_hash, %event_scalar_hash );
 
   tie %run_scalar_hash, "Tie::IxHash"; 
@@ -45,7 +45,7 @@ sub bfcread_dstBranch{
   # default for BfcStatus
   # 0 means no error...
 
-  $run_scalar_hash{BfcStatusError} = 0;
+  $run_scalar_hash{BfcStatus} = 0;
 
   while (<REPORT>){
     /QAInfo:/ or next; # skip lines that dont start with QAInfo
@@ -70,8 +70,12 @@ sub bfcread_dstBranch{
 
     # BfcStatus has special status
     # error!
-    if (/BfcStatus table --/){
-      $run_scalar_hash{BfcStatusError} = 1;
+    if (/BfcStatus table -- row \d+, Maker: (\w+) has istat = (\d+)/){
+      #$run_scalar_hash{BfcStatus} = 1;
+      next if defined $bfc_hash{"BfcStatus_$1"};
+      $bfc_hash{"BfcStatus_$1"} = $2;
+      $run_scalar_hash{BfcStatus}++; # just count the number of times 
+                                     # a BfcStatus error is called per event
       next;
     }
 
@@ -272,7 +276,7 @@ sub bfcread_eventBranch{
   my $report_key = shift;
   my $report_filename = shift;
 
-  return doEvents($report_key, $report_filename);
+  return QA_bfcread_dst_analysis($report_key, $report_filename);
 } 
   
 #================================================================
@@ -282,6 +286,10 @@ sub bfcread_eventBranch{
 # routine which comes next should eventually go away. Leave it around for
 # now. As of today (Feb 2, 00), these two routines are line-for-line
 # idenitical.
+
+# bum:read_eventBranch wraps around this subrouting
+# for some unknown reason (even though i did this)
+# eliminate all reference to the log
 
 sub QA_bfcread_dst_analysis{ 
 
@@ -301,7 +309,7 @@ sub QA_bfcread_dst_analysis{
   #--------------------------------------------------------------
   # get logfile
 
-  my $logfile = $QA_object_hash{$report_key}->LogReport->LogfileName;
+  #my $logfile = $QA_object_hash{$report_key}->LogReport->LogfileName;
 
   #--------------------------------------------------------------
   open REPORT, $report_filename or do{
@@ -309,10 +317,10 @@ sub QA_bfcread_dst_analysis{
     return;
   };
   #--------------------------------------------------------------
-  open LOGFILE, $logfile or do{
-    print "Cannot open logfile $logfile:$! \n";
-    return;
-  };
+  #open LOGFILE, $logfile or do{
+  #  print "Cannot open logfile $logfile:$! \n";
+  #  return;
+  #};
   #--------------------------------------------------------------
   $event = 0;
   $icount_event = 0;
@@ -345,13 +353,13 @@ sub QA_bfcread_dst_analysis{
 	};
 	
 	# if this is start of event, skip to next event in logfile
-	$report_line =~ /Reading Event/ and do{
-	  while ( $logfile_line = <LOGFILE> ){
+	#$report_line =~ /Reading Event/ and do{
+	#  while ( $logfile_line = <LOGFILE> ){
 	    #$logfile_line =~ /QAInfo/ or next;
-	    $logfile_previous_line = $logfile_line;
-	    $logfile_line =~ /Reading Event:\s+\d+\s+Type:/ and last REPORTLINE;
-	  }
-	};
+	#    $logfile_previous_line = $logfile_line;
+	#    $logfile_line =~ /Reading Event:\s+\d+\s+Type:/ and last REPORTLINE;
+	#  }
+	#};
 	
 	# does line contain scalars?
 
@@ -394,13 +402,13 @@ sub QA_bfcread_dst_analysis{
 	#---	
 	# protect against successive duplicate lines in logfile
 
-	while ($logfile_line = <LOGFILE>){
-	  last if $logfile_line ne $logfile_previous_line;
-	}
-	$logfile_previous_line = $logfile_line;
+	#while ($logfile_line = <LOGFILE>){
+	#  last if $logfile_line ne $logfile_previous_line;
+	#}
+	#$logfile_previous_line = $logfile_line;
 	#---
 
-	$logfile_line =~ s/.*Info: //;
+	#$logfile_line =~ s/.*Info: //;
 	
 	# are these the same? 
 	$string = $report_line;
@@ -422,10 +430,10 @@ sub QA_bfcread_dst_analysis{
 	# just to be safe, strip leading and trailing whitespace
 	$report_line =~ s/^\s+//;
 	$report_line =~ s/\s+$//;
-	$logfile_line =~ s/^\s+//;
-	$logfile_line =~ s/\s+$//;
+	#$logfile_line =~ s/^\s+//;
+	#$logfile_line =~ s/\s+$//;
 
-	$event_scalar_hash{$string} = ($report_line eq $logfile_line) ? "o.k." : "not_matched";
+	#$event_scalar_hash{$string} = ($report_line eq $logfile_line) ? "o.k." : "not_matched";
 	
       } # end of REPORTLINE
     }
@@ -461,7 +469,7 @@ sub QA_bfcread_dst_analysis{
 
   #--------------------------------------------------------------
   close REPORT;
-  close LOGFILE;
+  #close LOGFILE;
   #--------------------------------------------------------------
   return \%run_scalar_hash, \%event_scalar_hash;
 } 
