@@ -215,6 +215,8 @@ sub GetOfflineLogFile{
 
 sub GetMissingFiles{
   my $jobID = shift;
+  my $type  = shift; # MC or real
+
   my ($missing_files); # return the missing files as a string
   my $hist_size =  1000;
 
@@ -223,10 +225,13 @@ sub GetMissingFiles{
 		   dst  => undef, 
 		   hist => undef, 
 		   tags => undef, 
-		   runco=> undef, 
-		   geant=> undef
+		   runco=> undef 
 		  );
   
+  # check for one more component if MC
+  $comp_hash{geant} = undef if $type eq 'MC';
+
+
   # general checking
   my $query =  qq{select component 
 		  from $dbFile.$FileCatalog 
@@ -262,6 +267,19 @@ sub GetMissingFiles{
   
   return $missing_files;
 }
+#=========================================================================
+sub GetMissingFilesReal{
+  my $jobID = shift;
+
+  return GetMissingFiles($jobID, 'real');
+}
+#=========================================================================
+sub GetMissingFilesMC{
+  my $jobID = shift;
+
+  return GetMissingFiles($jobID, 'MC');
+}
+
 #=========================================================================
 # get the report_key from QASummary
 # never used
@@ -870,6 +888,20 @@ sub GetQAMacrosSummary{
   my $sth = $dbh->prepare($query);
   $sth->execute;
   return $sth->fetchall_arrayref();
+}
+#===============================================================
+# retrieve the dataset field
+# describes the job
+
+sub GetDataset{
+  my $jobID = shift;
+
+  my $query = qq{ select dataset 
+		  from $dbFile.$FileCatalog
+		  where jobID = '$jobID'
+		  limit 1 };
+
+  return $dbh->selectrow_array($query);
 }
 
 #===============================================================

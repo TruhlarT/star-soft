@@ -25,7 +25,8 @@ my %members = (
 	        _ProdSeries       => undef,
 	        _ChainName        => undef, # abbrev of the chain
 	        _EventGenDetails  => undef, # more info on the generator
-	        _CollisionType    => undef  # e.g. auau200
+	        _CollisionType    => undef, # e.g. auau200
+	        _Dataset          => undef
 	      );
 
 #==========================================================
@@ -73,6 +74,11 @@ sub _init_offline{
   $self->ChainName($chainName);
   $self->StarlibVersion($lib);
   $self->RequestedChain($chain);
+
+  # get the dataset field
+  
+  $self->Dataset(QA_db_utilities::GetDataset($self->JobID));
+
 }
 #===========================================================
 # additional init for offline real
@@ -104,13 +110,13 @@ sub offline_MC{
 
   # parse the dataset column
 
-  my ($collision, $gen, $gen_details, $event_type, $geometry) = 
-    QA_db_utilities::ParseDatasetMC($self->JobID);
+  my ($collisionType, $eventGen, $details, $eventType, $geometry, $junk)=
+    split /\//, $self->Dataset, 6;
 
-  $self->CollisionType($collision);
-  $self->EventGen($gen);
-  $self->EventGenDetails($gen_details);
-  $self->EventType($event_type);
+  $self->CollisionType($collisionType);
+  $self->EventGen($eventGen);
+  $self->EventGenDetails($details);
+  $self->EventType($eventType);
   $self->Geometry($geometry);
 
 }

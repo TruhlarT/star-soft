@@ -52,7 +52,10 @@ sub DataDisplayString{
   my $prodSeries = $self->LogReport->ProdSeries;
   my $chainName  = $self->LogReport->ChainName;
   
-  return $self->ReportKey.br.
+  return $self->ReportKey. br. br .
+         "JobID : " . $self->JobID . br.
+	 "RunID : " . $self->LogReport->RunID . br.
+	 "Dataset : " . $self->LogReport->Dataset . br .	   
          "(prodSeries: $prodSeries; chain name: $chainName)";
 }
 

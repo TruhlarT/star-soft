@@ -126,10 +126,14 @@ sub _init{
   $self->GetJobInfo();
   
   # check for missing files
+  # depends on the data class - use global DataClass_object
   # returns a string
   #
-  my $missing = QA_db_utilities::GetMissingFiles( $jobID );
-  $self->MissingFiles($missing);
+  no strict 'refs';
+
+  my $sub_missing = $gDataClass_object->GetMissingFiles; # name of the sub
+  
+  $self->MissingFiles( &$sub_missing($jobID) );
 
   # get the production output files
   #

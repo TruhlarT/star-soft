@@ -553,14 +553,14 @@ sub ControlFileNightly{
   };
   
   # determine the file name; make some abbreviations
-  $eventGen  = ".hc"     if $eventGen  eq 'hadronic_cocktail';
-  $eventGen  = ""        if $eventGen  eq 'n/a';  # for real events
-  $eventType = ".std"    if $eventType eq 'standard';
-  $eventType = ".low"    if $eventType eq 'lowdensity';
-  $eventType = ".high"   if $eventType eq 'highdensity';
+  $eventGen  = ".hc"     if $eventGen  =~ /hadronic_cocktail/;
+  $eventGen  = ""        if $eventGen  =~ /n\/a/;  # for real events
+  $eventType = ".std"    if $eventType =~ /standard/;
+  $eventType = ".low"    if $eventType =~ /lowdensity/;
+  $eventType = ".high"   if $eventType =~ /highdensity/;
   
   # name the file...
-  # e.g. test_control.[eventGen].[eventType].[geometyr]
+  # e.g. test_control.[eventGen].[eventType].[geometry].txt
 
   # BEN(4jun00):
   $self->IsDir(0);
@@ -595,7 +595,6 @@ sub ControlFileOffline{
 
 sub MacroReportFilename{
   my $self             = shift;
-  my $input_aryref     = shift;
   my $report_key       = shift;
   my $macro_name       = shift;
   my $output_data_type = shift;
@@ -690,15 +689,18 @@ sub LogScratchWWW{
 
   srand; # sets the seed
   my $id_string = int(rand(100000));
+  my $file      = "logfile_link_${id_string}";
 
-  my $scratch_WWW = $gDataClass_object->ScratchDirWWW;
-  my $link        = "$scratch_WWW/logfile_link_$id_string";
-  
-  print h3("$link", "$logfile");
+  my $scratch_WWW = $gDataClass_object->LogScratchDirWWW;
+  my $scratch_dir = $gDataClass_object->LogScratchDir;
 
-  symlink $logfile, $link or warn "Couldn't symlink";
+  my $WWWlink    = "$scratch_WWW/$file";
+  my $softlink   = "$scratch_dir/$file";
+ 
 
-  return $link;
+  symlink $logfile, $softlink or warn "Couldn't symlink";
+
+  return $WWWlink;
 }
   
 

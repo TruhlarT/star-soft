@@ -61,7 +61,8 @@ print $scriptFH "#!/usr/local/bin/tcsh\n";
 #
 
 # should make rcas (linux) friendly path
-$ENV{PATH} = $ENV{PATH} . ":.:/bin:/usr/local/bin:/usr/bin";
+$ENV{PATH} = $ENV{PATH} . 
+	":.:/bin:/usr/local/bin:/usr/bin:/usr/afsws/bin:/usr/local/lsf/bin";
 
 print $scriptFH "\n# set up the CGI environment\n";
 foreach my $env_var (keys (%ENV)){
