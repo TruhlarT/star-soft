@@ -2,7 +2,7 @@
 #
 # $Id:
 #
-# $Log: prod5PlotReq.pl 
+# $Log: mdc3PlotReq.pl 
 #
 #
 # Interactive box for production plots query
@@ -50,6 +50,7 @@ for( $ll=0; $ll<scalar(@prod_set); $ll++) {
 my @myplot =   (
                  "Memory_size",
                  "CPU_per_Event",
+                 "RealTime_per_Event",
                  "Average_NoTracks",
                  "Average_NoVertices"
                 );   
