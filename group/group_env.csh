@@ -1,7 +1,10 @@
 #!/usr/bin/csh -f
-#       $Id: group_env.csh,v 1.30 1998/07/12 23:14:03 fisyak Exp $
+#       $Id: group_env.csh,v 1.31 1998/07/19 01:26:15 fisyak Exp $
 #	Purpose:	STAR group csh setup 
 #       $Log: group_env.csh,v $
+#       Revision 1.31  1998/07/19 01:26:15  fisyak
+#       replace ls -> /usr/bin/ls to protect from user aliases
+#
 #       Revision 1.30  1998/07/12 23:14:03  fisyak
 #       fix bug in LD_LIBRARY_PATH
 #
@@ -109,7 +112,7 @@ if ( ! $?GROUP_PATH ) setenv GROUP_PATH ${STAR_ROOT}/group
 setenv GROUPPATH  $GROUP_PATH
 setenv STAR_PATH ${STAR_ROOT}/packages;      if ($ECHO) echo   "Setting up STAR_PATH = ${STAR_PATH}"
 if ($?STAR_LEVEL == 0) setenv STAR_LEVEL pro
-setenv STAR_VERSION `ls -l $STAR_PATH | grep "${STAR_LEVEL} ->" |cut -f2 -d">"`  
+setenv STAR_VERSION `/usr/bin/ls -l $STAR_PATH | grep "${STAR_LEVEL} ->" |cut -f2 -d">"`  
 if (${STAR_VERSION} == "") setenv STAR_VERSION ${STAR_LEVEL}
 if ($STAR_VERSION  == "SL98a" || $STAR_VERSION  == "SL98b") then
 setenv STAR $STAR_PATH/${STAR_LEVEL} ;         if ($ECHO) echo   "Setting up STAR      = ${STAR}"
