@@ -1,9 +1,9 @@
-#!/usr/bin/env perl
+#!/opt/star/bin/perl -w
 #
-# $Id: dbDevTestQueryPlot.pl,v 1.16 2002/10/11 14:45:26 didenko Exp $
+# $Id: dbDevTestQueryPlot.pl,v 1.17 2002/10/11 14:50:16 didenko Exp $
 #
 # $Log: dbDevTestQueryPlot.pl,v $
-# Revision 1.16  2002/10/11 14:45:26  didenko
+# Revision 1.17  2002/10/11 14:50:16  didenko
 # *** empty log message ***
 #
 # Revision 1.14  2002/01/30 17:39:55  didenko
