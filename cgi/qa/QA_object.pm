@@ -628,7 +628,7 @@ sub RunQAMacros {
       my $report_dir_www = $self->ReportDirectoryWWW;
       $link = "$report_dir_www/$macro_name.rootcrashlog";
 
-      $this_string = "<font color=red> $macro_name crashed ".
+      $this_string = "<font color=red> $macro_name CRASHED ".
       "(<a href=$link target=_blank><font color=red>logfile</font></a>); </font>";
       
       $summary_string !~ /$this_string/ and  $summary_string .= $this_string;
