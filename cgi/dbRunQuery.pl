@@ -163,7 +163,7 @@ elsif($detrSet eq "all" and $datSet ne "all" and $fldSet eq "all") {
           $dataS = ($$mRun)->dtSet;
           $mmRun = ($$mRun)->drun;
        
-     @prt = split ("-", $dataS);
+     @prt = split ("_", $dataS);
          $mfield = $prt[1];
 	  if($mfield eq  $fldSet ) {
     
