@@ -198,8 +198,13 @@ print("launching qa batch jobs....\n");
 	no strict 'refs';
 	my $sub = $gDataClass_object->ToDoKeys;
 	my @key_list = &$sub;
-	use strict 'refs';
+        use strict 'refs';
 
+print("<h4>To Do Keys:</h4>\n<pre>\n");
+        foreach my $key (@key_list){
+	    print("$key\n");
+	}
+print("</pre>\n");
 	foreach my $key (@key_list){
 print("\tsubmitting job for report key=$key");
 	    &QA_utilities::submit_batchjob("do_qa", $key);

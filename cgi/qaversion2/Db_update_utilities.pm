@@ -19,10 +19,10 @@ use strict;
 # OLDEST date
 # this is the oldest 'create time' date picked up by autoqa.
 # 
-my %oldestDate = ( nightlyReal => '2001-04-20',
-		   nightlyMC   => '2001-04-20',
-		   offlineReal => '2001-04-20',
-		   offlineMC   => '2001-05-01'
+my %oldestDate = ( nightlyReal => '2001-07-05',
+		   nightlyMC   => '2001-07-10',
+		   offlineReal => '2001-07-05',
+		   offlineMC   => '2001-07-05'
 );
 # max number of updated jobs
 my %updateLimit = ( nightlyReal => 10,
@@ -239,7 +239,7 @@ sub UpdateQANightly {
 
     return $reportKey;
   }
-  
+
   # update
   my $queryUpdate =  qq{select distinct file.jobID
 			from $dbFile.$FileCatalog as file
@@ -426,14 +426,25 @@ sub GetToDoReportKeys{
 		 where $QASum{QAdone} = 'N'
 	       };
 
+  my $oldestDate;
   if ($type eq 'real'){
     $query .= qq{and $QASum{type} = 'real'
-		};
+		}; 
+    $oldestDate = $oldestDate{'nightlyReal'};
   }
   elsif ($type eq 'MC'){
     $query .= qq{and $QASum{type} = 'MC'
 	       };
+    $oldestDate = $oldestDate{'nightlyMC'};
   }
+
+  # adapt date format to sql timestamp, then cut on oldest allowed date
+  $oldestDate =~ /^\d\d(\d\d)-(\d\d)-(\d\d)/;
+  $oldestDate = "${1}${2}${3}2359"; #last minute of oldest day
+  $query .= qq{and insertTime > \'$oldestDate\'
+	       };
+  print("query=$query<br>\n");
+
   # quick fix - make sure that the skip field is no for production.
   if ($gDataClass_object->DataClass() =~ /offline/){
     $query .= qq{and $QASum{skip} = 'N'
@@ -453,5 +464,8 @@ sub GetToDoReportKeysMC{
 sub GetToDoReportKeysReal{
   return GetToDoReportKeys('real');
 }
+
+
+
 
 
