@@ -214,7 +214,7 @@ print <<END;
           <title>Production Summary for Real Data</title>
    </head>
    <body BGCOLOR=\"#ccffff\"> 
-<h5><a href=\"http://www.star.bnl.gov/STARAFS/comp/prod/ProdSummary.html\">Production</a><br>
+<h5><a href=\"http://www.star.bnl.gov/STAR/comp/prod/ProdSummary.html\">Production</a><br>
 <a href=\"http://www.star.bnl.gov/devcgi/dbProdDAQQuery.pl\">Production Series Query </a><br>
      <h2 align=center>Production Summary for $prodSr <br> and Run Number $runNum</h2>
 <TABLE ALIGN=CENTER BORDER=5 CELLSPACING=1 CELLPADDING=2 >

@@ -1,8 +1,11 @@
 #!/usr/bin/env perl 
 #
-# $Id: swguide.pl,v 1.2 2002/01/03 04:07:46 starlib Exp $
+# $Id: swguide.pl,v 1.3 2002/01/07 20:40:18 jeromel Exp $
 #
 # $Log: swguide.pl,v $
+# Revision 1.3  2002/01/07 20:40:18  jeromel
+# /STARAFS/ -> /STAR/
+#
 # Revision 1.2  2002/01/03 04:07:46  starlib
 # replace 'src' link for lxr by 'dox' link for doxygen
 #
@@ -61,8 +64,9 @@ require SWGdbsetup;
 
 
 # Area where the files will be written
-$fpath   = "/star/starlib/doc/www/html/tmp";
+$fpath   = "/afs/rhic/star/doc/www/html/tmp";
 $CVSroot = "/afs/rhic/star/packages/repository/CVSROOT";
+$DOXPATH = $fpath."/dox/html";
 $curTime = time();
 
 &cgiSetup();
@@ -416,7 +420,7 @@ sub showPackage {
     } else {
       ### README file
       if ( -e "$theRoot/$theDir/$thePkg/README" ) {
-        $readme = "<a href=\"/STARAFS/comp/pkg/$ver/$theDir/$thePkg/README\">README</a>";
+        $readme = "<a href=\"/STAR/comp/pkg/$ver/$theDir/$thePkg/README\">README</a>";
       } else {
         $readme = "<font color=\"gray\">README</font>";
       }
@@ -434,7 +438,7 @@ sub showPackage {
         while (defined ($docf = readdir DOC)) {
           if ( $docf ne "." && $docf ne ".." && $docf ne "CVS" ) {
             # something seems to be there
-            $doc = "<a href=\"/STARAFS/comp/pkg/$ver/$theDir/$thePkg/$docLoc\">doc</a>";
+            $doc = "<a href=\"/STAR/comp/pkg/$ver/$theDir/$thePkg/$docLoc\">doc</a>";
             last;
           }
         }
@@ -443,8 +447,14 @@ sub showPackage {
     }
     ### CVS link
     $cvs = "<a href=\"/cgi-bin/cvsweb.cgi/$theDir/$thePkg\">CVS</a>";
+
     ### Source browser
-    $src = "<a href=\"http://www.star.bnl.gov/webdatanfs/dox/html/class$thePkg.html\">dox</a>";
+    if( -e "$DOXPATH/class$thePkg.html"){
+	$src = "<a href=\"http://www.star.bnl.gov/webdatanfs/dox/html/class$thePkg.html\">dox</a>";
+    } else {
+	$src = "   ";
+    }
+
     ### Try to find the owner
     $pkgOwner = "";
     for ($ia=0; $ia<@availFile; $ia++) {
@@ -746,19 +756,25 @@ sub showFiles {
                 $fillLen = 35 - $fnameLen;
                 if ( $ftype eq 'C++' ) {
                     if ( -e "/afs/rhic/star/packages/$rel/StRoot/html/$ff.html" ) {
-                        $fnameFull = "<a href=\"/STARAFS/comp/src/$rel/StRoot/html/$ff.html\">$ff</a>$ee";
+                        $fnameFull = "<a href=\"/STAR/comp/src/$rel/StRoot/html/$ff.html\">$ff</a>$ee";
                     }
                 }
 		## Prepare file extention for doxygen
 		@fnameparts = split(/\./,$fname);
 		$fnamedox = join("", join(".", @fnameparts[0..$#fnameparts-1]), "_8$fnameparts[$#fnameparts]-source.html");
+		if( -e "$DOXPATH/$fnamedox"){
+		    $fnamedox = "<a href=\"http://www.star.bnl.gov/webdatanfs/dox/html/$fnamedox\">dox</a>";
+		} else {
+		    $fnamedox = "   ";
+		}
+
                 $blank='                                              ';
                 $output .= sprintf("%s%s%s %s%-7s%s %s %s %s%s%9s%s %s %s\n",
                                    $ballUrl,$fnameFull,substr($blank,0,$fillLen),
                                    "<a href=\"/cgi-bin/cvsweb.cgi/$theDir/$thePkg/$fname?rev=$cver&content-type=text/x-cvsweb-markup\">",$cver,"</a>",
                                    $date,
                                    "<a href=\"/cgi-bin/cvsweb.cgi/$theDir/$thePkg/$fname\">CVS</a>",
-                                   "<a href=\"http://www.star.bnl.gov/webdatanfs/dox/html/$fnamedox\">dox</a>",
+                                   "$fnamedox",
                                    "<a href=\"/webdata/cvs/user/$owner/index.html#bottom\">",$owner,"</a>",
                                    $theLines,$reptag);
                 print "$output" if $debugOn;

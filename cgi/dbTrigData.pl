@@ -103,7 +103,7 @@ END
   print " <title>Production Query</title>";
   print "  </head>\n";
   print "  <body bgcolor=\"#ccffff\"> \n";
-  print "<a href=\"http://www.star.bnl.gov/STARAFS/comp/prod\"><h5>Production </h5></a>\n";
+  print "<a href=\"http://www.star.bnl.gov/STAR/comp/prod\"><h5>Production </h5></a>\n";
   print "  <h1 align=center>Production Query </h1>\n";
   print " </head>\n";
   print " <body>";

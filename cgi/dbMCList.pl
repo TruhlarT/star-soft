@@ -107,7 +107,7 @@ print $query->start_html('List of MC Datasets');
 print $query->startform(-action=>"dbMCProdSum.pl?rand=$rand");   
 
   print "  <body bgcolor=\"#ffdc9f\"> \n";
-  print "<a href=\"http://www.star.bnl.gov/STARAFS/comp/prod/index.html\"><h4>Production </h4></a>\n";
+  print "<a href=\"http://www.star.bnl.gov/STAR/comp/prod/index.html\"><h4>Production </h4></a>\n";
   print "  <h1 align=center>List of MC Datasets</h1>\n";
 
 print "<p>";

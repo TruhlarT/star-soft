@@ -65,7 +65,7 @@ print "</h4>";
  print $query->reset;
  print $query->endform;
 
- print "<a href=\"http://www.star.bnl.gov/STARAFS/comp/ofl/CvsRevision.html\"><h3>Back </h3></a>\n"; 
+ print "<a href=\"http://www.star.bnl.gov/STAR/comp/ofl/CvsRevision.html\"><h3>Back </h3></a>\n"; 
   print "<p><br>";
   print "<p><br>";
  print "  <address><a href=\"mailto:didenko\@bnl.gov\">Lidia Didenko</a></address>\n";

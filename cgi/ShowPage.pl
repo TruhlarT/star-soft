@@ -35,7 +35,7 @@ print $query->start_html('ShowPage');
  my $ii;
 
 
- $setf = "http://www.star.bnl.gov/STARAFS/comp/prod/" . $setName ;
+ $setf = "http://www.star.bnl.gov/STAR/comp/prod/" . $setName ;
 
 print $query->redirect($setf);
 
