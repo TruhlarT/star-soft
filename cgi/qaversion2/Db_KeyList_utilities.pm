@@ -334,6 +334,7 @@ sub GetOfflineKeys{
       $QAstatus_string = "sum.$QASum{QAok}='N'"   if $QAstatus eq 'not ok';
       $QAstatus_string = "sum.$QASum{QAdone}='Y'" if $QAstatus eq 'done';
       $QAstatus_string = "sum.$QASum{QAdone}='N'" if $QAstatus eq 'not done';
+      $QAstatus_string = "sum.$QASum{QAdone}='in progress'" if $QAstatus eq 'in progress';
     }
     elsif ($QAstatus eq 'warnings' or $QAstatus eq 'errors')
     { # need to join macros table
@@ -554,6 +555,7 @@ sub GetNightlyKeys{
       $QAstatus_string = "sum.$QASum{QAok}='N'"   if $QAstatus eq 'not ok';
       $QAstatus_string = "sum.$QASum{QAdone}='Y'" if $QAstatus eq 'done';
       $QAstatus_string = "sum.$QASum{QAdone}='N'" if $QAstatus eq 'not done';
+      $QAstatus_string = "sum.$QASum{QAdone}='in progress'" if $QAstatus eq 'in progress';
     }
     elsif ($QAstatus eq 'warnings' or $QAstatus eq 'errors')
     { # need to join macros table

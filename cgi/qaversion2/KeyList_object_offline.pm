@@ -93,7 +93,7 @@ sub JobPopupMenu{
   my $abbrev;
 
   # QA status now fill in errors and warnings info
-  push @{$self->{values}{QAstatus}}, ( 'ok', 'not ok', 'done', 'not done');
+  push @{$self->{values}{QAstatus}}, ( 'ok', 'not ok', 'done', 'not done','in progress');
   %{$self->{labels}{QAstatus}} = map{$_, $_} @{$self->{values}{QAstatus}};
 
   foreach my $status ('warnings', 'errors') {

@@ -173,6 +173,38 @@ sub AddMessagesToKeyList{
  
 }
 #==================================================================
+# set the general popup menus
+# i.e. job status, QA status
+
+sub FillStatusMenus{
+  my $self        = shift;
+  my @macro_names = shift;
+  
+  no strict 'refs';
+
+  # job status 
+  push @{$self->{values}{jobStatus}}, ('done', 'not done');
+  
+  # now fill in errors and warnings info
+  my $abbrev;
+  push @{$self->{values}{QAstatus}}, ( 'ok','not ok','done','not done','in progress');
+  %{$self->{labels}{QAstatus}} = map{$_, $_} @{$self->{values}{QAstatus}};
+
+  foreach my $status ('warnings', 'errors') {
+
+    push @{$self->{values}{QAstatus}}, "$status";
+    $self->{labels}{QAstatus}{$status} = "$status";
+  
+    foreach my $macro_name (@macro_names){
+      my $value = "$status;$macro_name";
+      push @{$self->{values}{QAstatus}}, $value;
+      ($abbrev = $status) =~ s/warnings/warn/ if $status eq 'warnings';
+      ($abbrev = $status) =~ s/errors/err/    if $status eq 'errors';
+      $self->{labels}{QAstatus}{$value} = "$abbrev - $macro_name";
+    }
+  }
+}
+#==================================================================
 # make a table row of popup menus
 # uses ben's clever mapping technique
 # returns an array
@@ -236,7 +268,6 @@ sub AddKeys{
 
 #==========================================================
 # resort the keys according  to creation time
-# used when including the message objects
 
 sub SortKeys{
 

@@ -164,7 +164,7 @@ sub ComposeBatchScript{
     
     # BEN(4jun2000): took out TopDir stuff....we have data_class
 
-  my $string = "#! /usr/local/bin/tcsh \n".
+  my $string = "#! /usr/local/bin/tcsh -f\n".
     "setenv GROUP_DIR /afs/rhic/rhstar/group \n".
       "setenv CERN_ROOT /cern/pro \n".
 	"setenv HOME /star/u2e/starqa \n".
@@ -196,7 +196,7 @@ sub ComposeBatchJob{
   #----------------------------------------------------------------
 
   #BEN(5jun2000):  had wrong path to ksh, try just /bin/sh
-  my $string = "#! /bin/sh \n".
+  my $string = "#! /bin/sh  \n".
     "$batchscript_filename \n";
  
   return $string;

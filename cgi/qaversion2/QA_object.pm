@@ -17,7 +17,7 @@ use QA_cgi_utilities;
 use Browser_object;
 use HiddenObject_object;
 use QA_report_io;   #check why this gives errors
-use QA_db_utilities;
+use QA_db_utilities qw(:db_globals);
 use IO_object; 
 use QA_report_object;
 use strict;
@@ -123,9 +123,8 @@ sub _init{
     QA_utilities::datetime_to_epochsec($time_temp);
 
   # has QA been done or not?
-
-  ($self->{_QADone}, $self->{_QADate}) =
-    QA_db_utilities::GetQASummary($self->qaID);
+  $self->{_QADone} = QA_db_utilities::GetFromQASum($QASum{QAdone}, $self->ReportKey);
+  $self->{_QADate} = QA_db_utilities::GetFromQASum($QASum{QAdate}, $self->ReportKey);
 
   # is data on disk? - see derived classes
   
@@ -170,6 +169,7 @@ sub DoQA{
   # unless we're just reevaluating
   unless ($run_option =~ /evaluate_only/){
     QA_db_utilities::ClearQAMacrosTable($self->qaID);
+    QA_db_utilities::FlagQAInProgress($self->qaID);
     $self->DeleteQAFiles();
   }
 
@@ -209,7 +209,7 @@ sub DoQA{
     $report_obj->EvaluateMacro();
     
     # add qa macro summary to the database
-    # returns 0 if something's bad
+    # WriteQAMacroSummary returns 0 if something's bad
     QA_db_utilities::WriteQAMacroSummary($self->qaID,$report_obj, $run_option) 
       or $qa_status=0;
     
@@ -300,11 +300,11 @@ sub QASummaryString{
   my (%seen, $summary_string);
   
 
-  if (! $self->QADone) 
+  if ($self->QADone eq 'N') 
   { 
     $summary_string = "QA not done";
   } 
-  else  # qa indeed has been done
+  elsif ( $self->QADone eq 'Y')  # qa indeed has been done
   {
     $summary_string = "QA done ".br.$self->QADate.br.br;
 
@@ -312,7 +312,6 @@ sub QASummaryString{
     my $outputFullHTML = IO_object->new("BatchLogHTML", $self->ReportKey)->Name();
     my $outputHTML     = basename($outputFullHTML);
 
-    # make a link to the batch HTML file
     # first need the WWW report directory
     my $report_dir = $self->IOReportDirectory->Name();
 
@@ -360,7 +359,8 @@ sub QASummaryString{
      }
      
    }
-  }
+  } # qa in progress
+  else { }
 
   #-------------------------------------------------------
   # check status of batch jobs: look for batch flags in report directory

@@ -369,7 +369,8 @@ sub RunMacro{
   print h4("Root macro: $macro_file\n");
   print h4("Input file: $input_file \n");
   print h4("Output file: $output_file\n");
-  
+  print h4("Starlib: $starlib_version\n");  
+
   -s $output_file and do {
     print h3("$output_file exists, macro not run.\n");
     return;
@@ -382,7 +383,7 @@ sub RunMacro{
   undef $io;
 
   print "Rootcommands = ", "\n", join ("\n",@root_commands),"\n";
-  print "Starlib = '$starlib_version'\n";  
+ 
 
   my @root_output = 
     QA_run_root::run_root( $starlib_version, $scratch_local, @root_commands);

@@ -305,20 +305,7 @@ sub GetMissingFilesMC{
 
   return GetMissingFiles($jobID, 'MC');
 }
-#----------
-# arguments : field      - this is what you want
-#             report_key - where the 'report_key' matches this
 
-sub GetFromQASum{
-  my $field      = shift;
-  my $report_key = shift;
-
-  my $query = qq{select $field 
-		 from  $dbQA.$QASum{Table} 
-	         where $QASum{report_key}='$report_key'};
-
-  return $dbh->selectrow_array($query);
-}
 #----------
 # check if files are on disk
 
@@ -489,6 +476,20 @@ sub GetAllProductionFilesNightly{
   return $dbh->selectcol_arrayref($query);
 
 }
+#----------
+# arguments : field      - this is what you want
+#             report_key - where the 'report_key' matches this
+
+sub GetFromQASum{
+  my $field      = shift;
+  my $report_key = shift;
+
+  my $query = qq{select $field 
+		 from  $dbQA.$QASum{Table} 
+	         where $QASum{report_key}='$report_key'};
+
+  return $dbh->selectrow_array($query);
+}
 #---------
 # update QAsummary
 # arguments: name of the field you want
@@ -541,7 +542,12 @@ sub ClearQAMacrosTable{
 }
 #----------
 # 
-
+sub FlagQAInProgress{
+  my $qaID = shift;
+  UpdateQASummmary($QASum{QAdone},'in progress', $qaID);
+}
+#----------
+# 
 sub WriteQASummary{
   my $qaStatus    = shift; # 0,1
   my $qaID        = shift;
@@ -716,24 +722,6 @@ sub WriteQAMacroSummary{
 		      "$outputFile</font>"); return;}
     
   return $qaStatus;
-}
-#----------
-# get overall qa summary
-
-sub GetQASummary{
-  my $qaID = shift;
-
-  # get QAdone, QAdate,  
-  my $query = qq{select $QASum{QAdone}, $QASum{QAdate}
-                 from $dbQA.$QASum{Table}
-                 where $QASum{qaID} = '$qaID' };
-
-  my ($QADone, $QADate) = $dbh->selectrow_array($query);
-  
-  $QADone = ($QADone eq 'Y') ? 1 : 0;
-
-  return ($QADone, $QADate);
-
 }
 #----------
 # get specific macro results if there are any problems with 
