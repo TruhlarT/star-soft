@@ -2,7 +2,7 @@
 %
 % StEvent - User Guide and Reference Manual -- LaTeX Source
 %
-% $Id: StEvent.tex,v 2.65 2001/10/02 16:26:08 ullrich Exp $
+% $Id: StEvent.tex,v 2.66 2001/11/07 21:35:00 ullrich Exp $
 %
 % Author: Thomas Ullrich, Nov 1999
 %
@@ -21,6 +21,9 @@
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %
 % $Log: StEvent.tex,v $
+% Revision 2.66  2001/11/07 21:35:00  ullrich
+% Added StL1Trigger.
+%
 % Revision 2.65  2001/10/02 16:26:08  ullrich
 % L3 documentation added.
 %
@@ -260,8 +263,8 @@
   \mbox{\includegraphics[width=\textwidth]{StEventTitle.eps}}
   \hfill\mbox{}\\[3cm]
   {\LARGE User Guide and Reference Manual \\[5mm] for Version 2}\\[2cm]
-  {\LARGE $ $Revision: 2.65 $ $}  \\[5mm] % replaced by cvs with current revision
-  {\LARGE $ $Date: 2001/10/02 16:26:08 $ $}  % replaced by cvs with current revision
+  {\LARGE $ $Revision: 2.66 $ $}  \\[5mm] % replaced by cvs with current revision
+  {\LARGE $ $Date: 2001/11/07 21:35:00 $ $}  % replaced by cvs with current revision
   \vfill
 \end{center}
 \cleardoublepage
@@ -2454,7 +2457,7 @@ The way to access this is shown below:
 
      if (!myEvent) {
        cout <<"No StEvent found.\n";
-       return kStWarn;	
+       return kStWarn;  
      }
 
      //
@@ -4014,6 +4017,26 @@ definition in the header file.
 \end{Entry}
 \clearpage
 
+\subsection{StL1Trigger}
+\index{StL1Trigger|textbf}
+\label{sec:StL1Trigger}
+\begin{Entry}
+\item[Summary]
+\item[Synopsis]
+    \verb+#include "StL1Trigger.h"+\\
+    \verb+class StL1Trigger;+\\
+\item[Description]
+\item[Related Classes]
+    Inherits from StTrigger.
+\item[Public\\ Constructors]
+    \verb+StL1Trigger();+\\
+    \verb+StL1Trigger(const dst_L0_Trigger_st&, const dst_L1_Trigger_st&);+\\
+\item[Public Member\\ Functions]
+    \verb+unsigned int triggerWordPrime();+\\
+    
+    \verb+void setTriggerWordPrime(unsigned int);+\\
+\end{Entry}
+\clearpage
 
 \subsection{StL3AlgorithmInfo}
 \index{StL3AlgorithmInfo|textbf}
@@ -4024,44 +4047,44 @@ definition in the header file.
     \verb+#include "StL3AlgorithmInfo.h"+\\
     \verb+class StL3AlgorithmInfo;+\\
 \item[Description] This class contains the complete information
-	which describes a running L3 trigger algorithm and the
-	algorithm results for this event.
+        which describes a running L3 trigger algorithm and the
+        algorithm results for this event.
 \item[Related Classes]
 \item[Public\\ Constructors]
     \verb+StL3AlgorithmInfo();+\\
     \verb+StL3AlgorithmInfo(Algorithm_Data*);+\\
 \item[Public Member\\ Functions]
     \verb+int id() const;+\\
-	Unique algorithm id, defined in L3 include-files.
+        Unique algorithm id, defined in L3 include-files.
 
     \verb+bool on() const;+\\
-	Returns \texttt{true}, if algorithm was running for this
-	event.
+        Returns \texttt{true}, if algorithm was running for this
+        event.
 
     \verb+bool accept() const;+\\
-	Returns \texttt{true}, if algorithm accepted this event.
+        Returns \texttt{true}, if algorithm accepted this event.
 
     \verb+bool build() const;+\\
-	Returns \texttt{true}, if algorithm built this event.
+        Returns \texttt{true}, if algorithm built this event.
 
     \verb+int numberOfProcessedEvents() const;+\\
-	Returns number of events this algorithm processed so far in
-	this run. Returns \texttt{-1}, if this is undefined.
+        Returns number of events this algorithm processed so far in
+        this run. Returns \texttt{-1}, if this is undefined.
 
     \verb+int numberOfAcceptedEvents() const;+\\
-	Returns number of events this algorithm accepted so far in
-	this run. Returns \texttt{-1}, if this is undefined.
+        Returns number of events this algorithm accepted so far in
+        this run. Returns \texttt{-1}, if this is undefined.
 
     \verb+int numberOfBuildEvents() const;+\\
-	Returns number of events this algorithm built so far in
-	this run. Returns \texttt{-1}, if this is undefined.
+        Returns number of events this algorithm built so far in
+        this run. Returns \texttt{-1}, if this is undefined.
 
     \verb+int dataSize() const;+\\
-	Returns size of \texttt{data}-array filled by the algorithm.
+        Returns size of \texttt{data}-array filled by the algorithm.
 
     \verb+float data(int index) const;+\\
-	Returns \texttt{index}-th entry of \texttt{data}-array filled
-	by the algorithm.
+        Returns \texttt{index}-th entry of \texttt{data}-array filled
+        by the algorithm.
  
     \verb+int preScale() const;+\\
     \verb+int postScale() const;+\\
@@ -4090,43 +4113,43 @@ trigger algorithm information.
     \verb+#include "StL3EventSummary.h"+\\
     \verb+class StL3EventSummary;+\\
 \item[Description] This class contains the L3 event summary
-       	information, e.g. global counters, and provides access to the trigger
-	algorithm information. Member functions allow to check the
-	event type (unbiased by L3, vertex triggered or triggered by
-	an L3 algorithm) without
-	the need to access the detailed trigger algorithm information.
+        information, e.g. global counters, and provides access to the trigger
+        algorithm information. Member functions allow to check the
+        event type (unbiased by L3, vertex triggered or triggered by
+        an L3 algorithm) without
+        the need to access the detailed trigger algorithm information.
 \item[Related Classes]
 \item[Public\\ Constructors]
     \verb+StL3EventSummary();+\\
     \verb+StL3EventSummary(Bank_L3_SUMD*);+\\
 \item[Public Member\\ Functions]
     \verb+int numberOfProcessedEvents() const;+\\
-	Returns -1, if undefined for this event.
+        Returns -1, if undefined for this event.
 
     \verb+int numberOfReconstructedEvents() const;+\\
-	Returns -1, if undefined for this event.
+        Returns -1, if undefined for this event.
 
     \verb+unsigned int numberOfTracks() const;+\\
-	Total number of tracks found by L3. Note: This is not neccesarily the
-	number tracks stored in StEvent.
+        Total number of tracks found by L3. Note: This is not neccesarily the
+        number tracks stored in StEvent.
 
     \verb+unsigned int numberOfAlgorithms() const;+\\
-	Number of L3 trigger algorithms switched on for this run.
+        Number of L3 trigger algorithms switched on for this run.
 
     \verb+bool unbiasedTrigger() const;+\\
-	Returns \texttt{true}, if this event is unbiased by L3.
+        Returns \texttt{true}, if this event is unbiased by L3.
 
     \verb+bool zVertexTrigger() const;+\\
-	Returns \texttt{true}, if this event was accepted (and built)
-	by the L3 vertex trigger.
+        Returns \texttt{true}, if this event was accepted (and built)
+        by the L3 vertex trigger.
 
     \verb+StPtrVecL3AlgorithmInfo& algorithmsAcceptingEvent();+\\
     \verb+const StPtrVecL3AlgorithmInfo& algorithmsAcceptingEvent() const;+\\
-	Returns vector of algorithms which accepted this event.
+        Returns vector of algorithms which accepted this event.
 
     \verb+StSPtrVecL3AlgorithmInfo& algorithms();+\\
     \verb+const StSPtrVecL3AlgorithmInfo& algorithms() const;+\\
-	Returns vector of all algorithms switched on for this run.
+        Returns vector of all algorithms switched on for this run.
 
     \verb+void addAlgorithm(StL3AlgorithmInfo*);+\\
     \verb+void setNumberOfTracks(int);+\\
@@ -4201,8 +4224,8 @@ trigger algorithm information.
     \verb+#include "StL3Trigger.h"+\\
     \verb+class StL3Trigger;+\\
 \item[Description] This class is the entry point to the L3 tree of \StEvent\/
-	with exactly the same structure. In addition it provides access to the L3
-	event summary class.
+        with exactly the same structure. In addition it provides access to the L3
+        event summary class.
 \item[Related Classes]
 \item[Public\\ Constructors]
     \verb+StL3Trigger();+\\
