@@ -16,7 +16,7 @@ require "/afs/rhic/star/packages/dev/mgr/dbTJobsSetup.pl";
 
 my $TOP_DIRD = "/star/rcf/test/new/";
 my @dir_year = ("year_1h", "year_2001");
-my @node_dir = ("trs_redhat61","trs_redhat61_opt", "daq_redhat61", "daq_redhat61_opt"); 
+my @node_dir = ("trs_redhat72","trs_redhat72_opt", "daq_redhat72", "daq_redhat72_opt"); 
 my @hc_dir = ("hc_lowdensity", "hc_standard", "hc_highdensity", "peripheral", "minbias", "central");
 
 my @OUT_DIR;
@@ -68,7 +68,7 @@ struct FileAttr => {
  &beginHtml();
 
 
-$sql="SELECT path, logFile, LibTag, jobStatus, NoEventDone, memUsageF, memUsageL, CPU_per_evt_sec, createTime FROM $JobStatusT where path LIKE '%test/new%' AND path LIKE '%redhat61%' AND avail = 'Y'";
+$sql="SELECT path, logFile, LibTag, jobStatus, NoEventDone, memUsageF, memUsageL, CPU_per_evt_sec, createTime FROM $JobStatusT where path LIKE '%test/new%' AND path LIKE '%redhat72%' AND avail = 'Y'";
  $cursor =$dbh->prepare($sql)
    || die "Cannot prepare statement: $DBI::errstr\n";
  $cursor->execute;
