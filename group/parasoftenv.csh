@@ -1,4 +1,4 @@
-#!/usr/local/bin/tcsh -f
+#!/usr/bin/csh -f
 
 switch ($STAR_SYS)
     case "i386_redhat8*":
