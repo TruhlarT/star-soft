@@ -141,6 +141,7 @@ if($#ARG == -1){
 
 # test all choices
 print "You chose test(s) [".join(" ",@ARG)."]\n";
+if ($#ARG == -1){ exit;}
 
 # If choice was -1, run all tests
 if ($ARG[0] eq -1){     for ($i=0 ; $i <= $#CHAINS ; $i++){ $ARG[$i] = $i;}}
