@@ -1,6 +1,6 @@
 #!/usr/bin/env perl
 #
-# $Id: swguide.pl,v 1.5 2002/01/27 00:17:35 jeromel Exp $
+# $Id: swguide.pl,v 1.6 2003/12/22 14:20:43 jeromel Exp $
 #
 ######################################################################
 #
@@ -117,7 +117,7 @@ macros, and scripts. Pointers and comments...
     <li>Only Library version <b>dev</b> provides link to the
     doxygen formatted source code.
     <li> Ball color indicates time since most recent mod:
-    <img src="/images/redball.gif">=2days, <img src="/images/greenball.gif">=2weeks, <img src="/images/blueball.gif">=2months, <img src="/images/whiteball.gif">=older
+    <img src="/STAR/images/redball.gif">=2days, <img src="/STAR//images/greenball.gif">=2weeks, <img src="/STAR/images/blueball.gif">=2months, <img src="/STAR/images/whiteball.gif">=older
 </ul>
 END
 
@@ -513,7 +513,7 @@ sub showPackage {
         } else {
             $ball="white";
         }
-        $ballUrl="<img src=\"/images/".$ball."ball.gif\">";
+        $ballUrl="<img src=\"/STAR/images/".$ball."ball.gif\">";
         ($dy, $mo, $yr) = (localtime($lastMod))[3,4,5];
         if ($yr == 69 ) {
             $dy = 0;
@@ -707,7 +707,7 @@ sub showFiles {
                 } else {
                     $ball="white";
                 }
-                $ballUrl="<img src=\"/images/".$ball."ball.gif\">";
+                $ballUrl="<img src=\"/STAR/images/".$ball."ball.gif\">";
 
                 if ( exists($okExtensions{$ee}) || ($ff =~ m/akefile/)
                      || $isScript ) {
@@ -812,6 +812,9 @@ sub DoxyCode
 
 
 # $Log: swguide.pl,v $
+# Revision 1.6  2003/12/22 14:20:43  jeromel
+# Adjustment /STAR/images
+#
 # Revision 1.5  2002/01/27 00:17:35  jeromel
 # Removed unused variables (forgot to do this as the last clean-up). Tested
 # and fine as-is.
