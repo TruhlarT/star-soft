@@ -163,7 +163,17 @@ endif
 
 
 # CERN stuff
-setenv CERN "/cern"
+if ( -e /cern ) then
+    setenv CERN "/cern"
+else 
+    # What to do now ...
+    if( -e "/afs/rhic/asis/@sys/cern" ) then
+	setenv CERN "/afs/rhic/asis/@sys/cern"
+    else
+	echo "WARNING /cern nor /afs/rhic/asis/@sys/cern exist ..."
+    endif
+endif
+if ($?CERN == 0) setenv CERN "/cern"
 if ($?CERN_LEVEL == 0) setenv CERN_LEVEL pro
 setenv CERN_ROOT "$CERN/$CERN_LEVEL"
 
