@@ -272,6 +272,18 @@ sub RunCompletionTimeAndDate{
   return $self->{RunCompletionTimeAndDate};
 }
 #========================================================
+sub NEventsProcessed{
+  my $self = shift;
+  if (@_) {$self->{NEventsProcessed} = shift }
+  return $self->{NEventsProcessed};
+}
+#========================================================
+sub NEventsNotCompleted{
+  my $self = shift;
+  if (@_) {$self->{NEventsNotCompleted} = shift }
+  return $self->{NEventsNotCompleted};
+}
+#========================================================
 sub MissingFiles{
   my $self = shift;
   if (@_) {$self->{MissingFiles} = shift }
@@ -563,13 +575,22 @@ sub ParseLogfile {
       $self->RunCompletedOk(1);
       next;
     };
-    
+
     # run completion date/time
-    $line =~ /Run is finished at Date\/Time ([0-9\/]+)/ and do{
-      $self->RunCompletionTimeAndDate($1);
-      next;
-    };
- 
+    # modified pmj 10/5/00
+
+#QAInfo:Run is finished at Date/Time 20000510/33337; Total events processed :400 and not completed: 0
+    $line =~ 
+      /Run is finished at Date\/Time ([0-9\/]+); Total events processed(\D+)(\d+) and not completed(\D+)(\d+)/ 
+	and do{
+	  $self->RunCompletionTimeAndDate($1);
+	  
+	  $self->NEventsProcessed($3);
+	  $self->NEventsNotCompleted($5);
+	  
+	  next;
+	};
+    
   }
 
   # bum - close some files
@@ -653,9 +674,24 @@ sub LogfileSummaryString {
       $self->ErrorString() and $return_string .= $self->ErrorString(); 
     }
 
-    $return_string .= " ".$self->LastEvent();
-    $self->NEvent() and $return_string .= "/".$self->NEvent();
-    $return_string .= " events done;";
+    # check for event completion info in log file pmj 10/5/00
+
+    if ( $self->NEventsProcessed() > 0 ){
+
+      $return_string .= " Events processed: ".$self->NEventsProcessed().
+	", not completed: ".$self->NEventsNotCompleted().";";
+
+    }
+    else{
+
+      # old style
+      
+      $return_string .= " ".$self->LastEvent();
+      $self->NEvent() and $return_string .= "/".$self->NEvent();
+      $return_string .= " events done;";
+    }
+
+    #---
 
     if ( $self->FirstEventRequested() and $self->LastEventRequested() ){
        $return_string .= "<br>(events requested: ".$self->FirstEventRequested().

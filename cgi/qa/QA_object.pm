@@ -625,7 +625,11 @@ sub RunQAMacros {
       # modified 6/1/00 - in case of multiple invocations of same macro (e.g. bfcread_hist_to_ps),
       # only report crash once
 
-      $this_string = "<font color=red> $macro_name crashed; </font>";
+      my $report_dir_www = $self->ReportDirectoryWWW;
+      $link = "$report_dir_www/$macro_name.rootcrashlog";
+
+      $this_string = "<font color=red> $macro_name crashed ".
+      "(<a href=$link target=_blank><font color=red>logfile</font></a>); </font>";
       
       $summary_string !~ /$this_string/ and  $summary_string .= $this_string;
 

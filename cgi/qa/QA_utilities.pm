@@ -361,6 +361,15 @@ sub get_update_dirs{
       next;
     };
     
+    # if directory is debug, don't use anything older than three days
+    # pmj 10/5/00
+
+    $age_max = 3;
+    $topdir eq $topdir_debug and -M  $logfile > $age_max and do{
+      print "In debug, skipping log file $logfile (older than $age_max days) <br> \n";
+      next;
+    };
+
     # check that run is complete
     
     open LOGFILE, $logfile or die "Cannot open logfile $logfile: $! \n";
