@@ -119,11 +119,12 @@ sub JobPopupMenu{
   push @{$self->{values}{jobStatus}}, ('done', 'not done');
 
   # -- createTime --
-  push @{$self->{values}{createTime}}, ('three_days','seven_days', 'fourteen_days');
-  
-  $self->{labels}{createTime}{three_days} = '3 days ago';
-  $self->{labels}{createTime}{seven_days} = '7 days ago';
-  $self->{labels}{createTime}{fourteen_days} = '14 days ago';
+  push @{$self->{values}{createTime}}, ('one_day', 'three_days','seven_days', 'fourteen_days');
+
+  $self->{labels}{createTime}{one_day} = 'within last 24 hours';  
+  $self->{labels}{createTime}{three_days} = 'within last 3 days';
+  $self->{labels}{createTime}{seven_days} = 'within last 7 days';
+  $self->{labels}{createTime}{fourteen_days} = 'within last 14 days';
 
   # set defaults.  unless otherwise stated, default is 'any'
   $self->{defaults}{QAstatus}  = 'done';

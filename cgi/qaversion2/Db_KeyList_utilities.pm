@@ -273,6 +273,7 @@ sub GetOfflineKeys{
       my $days;
       # cant get the stupid soft refs to work...
       
+      $days = 1  if $createTime eq 'one_day';
       $days = 3  if $createTime eq 'three_days';
       $days = 7  if $createTime eq 'seven_days';
       $days = 14 if $createTime eq 'fourteen_days';
@@ -484,6 +485,7 @@ sub GetNightlyKeys{
       my $days;
       # cant get the stupid soft refs to work...
       
+      $days = 1  if $createTime eq 'one_day';
       $days = 3  if $createTime eq 'three_days';
       $days = 7  if $createTime eq 'seven_days';
       $days = 14 if $createTime eq 'fourteen_days';
