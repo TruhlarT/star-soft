@@ -89,8 +89,13 @@ $STDERR = basename($ISTDERR);
 if( $STDOPT == 1){
     # Option 1 is to redirect to local file
     # after stealing the STD channels.
-    print "$PRGM :: Info: delayed IO mode.\n";
-    &STDtrap(0,$STDOUT,$STDERR);
+    if( defined($ISTDOUT) && defined($ISTDERR) ){
+	print "$PRGM :: Info: delayed IO mode.\n";
+	&STDtrap(0,$STDOUT,$STDERR);    
+    } else {
+	print "$PRGM :: Warning: delayed IO requested but missing ENV\n";
+	print "$PRGM :: Info: Reverting to direct IO\n";
+    }
 } else {
     # Default is to leave as-is
     print "$PRGM :: Info: direct IO mode.\n";
