@@ -1,11 +1,14 @@
 /***************************************************************************
  *
- * $Id: StQACosmicMaker.cxx,v 1.19 2000/07/14 23:18:24 snelling Exp $
+ * $Id: StQACosmicMaker.cxx,v 1.20 2000/08/18 20:34:46 snelling Exp $
  *
  * Author: Raimond Snellings, LBNL, Jun 1999
  * Description:  Maker to QA the data from the tables (hitfinding, tracking etc.)
  *
  * $Log: StQACosmicMaker.cxx,v $
+ * Revision 1.20  2000/08/18 20:34:46  snelling
+ * Added hit errors to ntuple
+ *
  * Revision 1.19  2000/07/14 23:18:24  snelling
  * Added the z-residual histograms
  *
@@ -93,7 +96,7 @@ Int_t StQACosmicMaker::Make() {
 
 void StQACosmicMaker::PrintInfo() {
   printf("**************************************************************\n");
-  printf("* $Id: StQACosmicMaker.cxx,v 1.19 2000/07/14 23:18:24 snelling Exp $\n");
+  printf("* $Id: StQACosmicMaker.cxx,v 1.20 2000/08/18 20:34:46 snelling Exp $\n");
   printf("**************************************************************\n");
 
   if (Debug()) StMaker::PrintInfo();
@@ -254,7 +257,7 @@ Int_t StQACosmicMaker::writeOutHistograms() {
 
 Int_t StQACosmicMaker::initTNtuple() {
 
-  char* ntVars = "hflag:hrow:hx:hy:hz:hq:dedx:halpha:hlambda:hdalpha:hdlambda:resy:resz:trknfit:trkp";  
+  char* ntVars = "hflag:hrow:hsector:hx:hy:hz:hdx:hdy:hdz:hq:dedx:halpha:hlambda:hdalpha:hdlambda:resy:resz:trknfit:trkp";  
   mTNtupleTPC = new TNtuple("nttpc","TPC TNtuple",ntVars);
 
   mTNtupleMorph = new TNtuple("ntmorph",
@@ -323,9 +326,13 @@ Int_t StQACosmicMaker::fillHitTNtuple() {
 
 	ntEntries[hflag]    = pttphit[i].flag;
 	ntEntries[hrow]     = (Float_t)(irowsector);
+	ntEntries[hsector]  = (Float_t)(isector);
 	ntEntries[hx]       = pttphit[i].x;
 	ntEntries[hy]       = pttphit[i].y;
 	ntEntries[hz]       = pttphit[i].z;
+	ntEntries[hdx]      = pttphit[i].dx;
+	ntEntries[hdy]      = pttphit[i].dy;
+	ntEntries[hdz]      = pttphit[i].dz;
 	ntEntries[hq]       = pttphit[i].q;
 	ntEntries[dedx]     = pttphit[i].dedx;
 	ntEntries[halpha]   = pttphit[i].alpha;
