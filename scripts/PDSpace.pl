@@ -334,9 +334,9 @@ sub GetFCRef
     my($el)=@_;
     $el =~ s/[\/ ]/_/g;
     if ( -e $OUTD."/FC$el.html"){
-	return "<A HREF=\"$WWWD/FC$el.html\"><IMG SRC=\"/icons/transfer.gif\"></A>";
+	return "<A HREF=\"$WWWD/FC$el.html\"><IMG SRC=\"$ICON\"></A>";
     } elsif ( -e $OUTD."/FC$el.txt"){
-	return "<A HREF=\"$WWWD/FC$el.txt\"><IMG SRC=\"\"></A>";
+	return "<A HREF=\"$WWWD/FC$el.txt\"><IMG SRC=\"$ICON\"></A>";
     } else {
 	return "";
     }
