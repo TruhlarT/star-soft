@@ -133,6 +133,7 @@ $sql="SELECT path, logFile, jobStatus, NoEventDone, memUsageF, memUsageL, CPU_pe
         $myCPU   = ($$eachFile)->mCPU;          
         $myCtime = ($$eachFile)->timeS;  
     next if $myPath =~ /tfs_/;
+    next if $myPath =~ /year_2a/;
 
    &printRow();
 
