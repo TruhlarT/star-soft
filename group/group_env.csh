@@ -1,5 +1,5 @@
 #!/bin/csh -f
-#       $Id: group_env.csh,v 1.170 2004/10/20 01:46:49 jeromel Exp $
+#       $Id: group_env.csh,v 1.171 2004/10/20 20:06:16 jeromel Exp $
 #	Purpose:	STAR group csh setup
 #
 #	Author:		Y.Fisyak     BNL
@@ -493,18 +493,6 @@ if ( $?JAVA_ROOT ) then
     endif
 endif
 
-
-# Support for Insure++
-if ( ! $?INSV ) then
-    setenv INSV insure-6.1-gcc-3.2
-endif
-if ( -d ${AFS_RHIC}/app/${INSV} ) then
-    set VER=`/bin/ls -ld ${AFS_RHIC}/app/${INSV}/bin* | sed "s/.*\.//"`
-    if ("$VER" != "") set VER=".$VER"
-    set path=($path ${AFS_RHIC}/app/${INSV}/bin$VER)
-    setenv LD_LIBRARY_PATH  ${LD_LIBRARY_PATH}:${AFS_RHIC}/app/${INSV}/lib$VER
-    unset VER
-endif
 
 
 # Support for Qt
