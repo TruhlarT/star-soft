@@ -58,6 +58,8 @@ sub _init{
     foreach $topdir (@topdir_data){
 
       $arg_dir =~ /$topdir/ and do{
+
+	print "topdir = $topdir \n";
 	$report_key = QA_make_reports::get_report_key($arg_dir); 
 	$this_is_data = 1;
 	last DIRTYPE

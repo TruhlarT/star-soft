@@ -77,7 +77,7 @@ sub doEvents{
   };
   #--------------------------------------------------------------
   open LOGFILE, $logfile or do{
-    "Cannot open logfile $logfile:$! \n";
+    print "Cannot open logfile $logfile:$! \n";
     return;
   };
   #--------------------------------------------------------------

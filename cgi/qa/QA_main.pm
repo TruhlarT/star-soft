@@ -41,7 +41,7 @@ print $query->header;
 # this turns off "automatic escaping", which is the default and which
 # disables HTML character sequences in labels
 #$query->autoEscape(undef);
-#-----------------------------------------------------------------------------
+#--------------------------------------------------------------------
 
 $path_info = $query->path_info;
 
@@ -50,6 +50,10 @@ $script_name = $query->script_name;
 
 $cron_job = $query->param('cron_job');
 
+#---------------------------------------------------------
+#print "path_info = $path_info, script_name = $script_name\n";
+
+#foreach $string( @INC){print "$string \n";}
 #---------------------------------------------------------
 
 if(!$cron_job){
@@ -60,7 +64,7 @@ if(!$cron_job){
     print_frameset($TITLE);
     exit 0;
   }
-  
+
   print_html_header($TITLE);
 }
 else
@@ -607,10 +611,25 @@ sub print_frameset{
   "<frameset rows=60%,40%>",
   "<frame src=$script_name/list_datasets name=list>",
   "<frame src=$script_name/display_data name=display>",
-
   "</frameset> \n";
 
     exit 0;
+}
+#===========================================================
+# Create the frameset
+sub print_frameset_test{
+
+  #print "<br> In print_frameset... <br> \n"; 
+
+  $title = shift;
+ 
+  print title("$title"),
+  frameset( {-rows=>'60%,40%'},
+	    frame( {-name=>'list', -scr=>"$script_name/list_datasets"} ),
+	    frame( {-name=>'display', -scr=>"$script_name/display_data"} )
+	 );
+
+  #exit 0;
 }
 #===========================================================
 sub print_html_header {

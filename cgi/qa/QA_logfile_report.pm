@@ -9,6 +9,7 @@ package QA_logfile_report;
 use Cwd;
 
 use File::stat;
+
 use File::Copy;
 use File::Find;
 use File::Basename;
@@ -301,10 +302,10 @@ sub parse_logfile {
 
   
   #------------------------------------------------------
-  # fix up the data directory a bit, while we have to copy them to afs
+  # fix up the data directory a bit
 
   $output_directory =~ s/\/direct//;
-#  $output_directory =~ s/\/disk00000\/star\/test/$topdir_data[0]/;
+  $output_directory =~ s/\+/\//;
 
   #--------------------------------------------------------------------------
 

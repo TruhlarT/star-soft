@@ -122,6 +122,8 @@ sub get_QA_objects{
 
   $arg eq 'update' and do{
 
+    print "Getting dirs on disk... </br> \n";
+
     @logfile_list = ();
     
     foreach $dir ( @topdir_data){

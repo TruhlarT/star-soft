@@ -21,6 +21,9 @@ sub get_report_key{
 
   @names = split /\//, $dir_string;
 
+  # protect against junk in directory string pmj 13/10/99
+  $#names < 4 and return "unknown";
+
   $filename = "";
 
   for ($i = -4; $i < 0 ; $i++ ){

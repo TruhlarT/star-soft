@@ -708,7 +708,7 @@ sub do_report_comparison {
   }
 
   #---------------------------------------------------------
-  close ASCIFILE;
+  close ASCIIFILE;
   chmod 0664, $filename_ascii;
   #---------------------------------------------------------
 
