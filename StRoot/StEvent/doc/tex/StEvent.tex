@@ -2,7 +2,7 @@
 %
 % StEvent - User Guide and Reference Manual -- LaTeX Source
 %
-% $Id: StEvent.tex,v 2.33 2000/05/22 22:04:07 ullrich Exp $
+% $Id: StEvent.tex,v 2.34 2000/05/24 15:43:38 ullrich Exp $
 %
 % Author: Thomas Ullrich, Nov 1999
 %
@@ -21,9 +21,8 @@
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %
 % $Log: StEvent.tex,v $
-% Revision 2.33  2000/05/22 22:04:07  ullrich
-% Removed StRichPixelCollection ref section and added description
-% of new RICH methods to class StEvent.
+% Revision 2.34  2000/05/24 15:43:38  ullrich
+% More on the StEventMaker (update).
 %
 % Revision 2.34  2000/05/24 15:43:38  ullrich
 % More on the StEventMaker (update).
@@ -176,8 +175,8 @@
 %
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 \newcommand{\entrylabel}[1]{\mbox{\textbf{{#1}}}\hfil}%
-  {\LARGE $ $Revision: 2.33 $ $}  \\[5mm] % replaced by cvs with current revision
-  {\LARGE $ $Date: 2000/05/22 22:04:07 $ $}  % replaced by cvs with current revision
+  {\LARGE $ $Revision: 2.34 $ $}  \\[5mm] % replaced by cvs with current revision
+  {\LARGE $ $Date: 2000/05/24 15:43:38 $ $}  % replaced by cvs with current revision
     {\renewcommand{\makelabel}{\entrylabel}%
      \setlength{\labelwidth}{90pt}%
      \setlength{\leftmargin}{\labelwidth}
@@ -185,17 +184,17 @@
       }%
     }%
   {\end{list}}
-  {\LARGE $ $Revision: 2.33 $ $}  \\[5mm] % replaced by cvs with current revision
-  {\LARGE $ $Date: 2000/05/22 22:04:07 $ $}  % replaced by cvs with current revision
+  {\LARGE $ $Revision: 2.34 $ $}  \\[5mm] % replaced by cvs with current revision
+  {\LARGE $ $Date: 2000/05/24 15:43:38 $ $}  % replaced by cvs with current revision
 {\raisebox{0pt}[1ex][0pt]{\makebox[\labelwidth][l]%
     {\parbox[t]{\labelwidth}{\hspace{0pt}\textbf{{#1}}}}}}
 \newenvironment{Entry}%
 {\renewcommand{\entrylabel}{\Entrylabel}\begin{entry}}%
-  {\LARGE $ $Revision: 2.33 $ $}  \\[5mm] % replaced by cvs with current revision
-  {\LARGE $ $Date: 2000/05/22 22:04:07 $ $}  % replaced by cvs with current revision
+  {\LARGE $ $Revision: 2.34 $ $}  \\[5mm] % replaced by cvs with current revision
+  {\LARGE $ $Date: 2000/05/24 15:43:38 $ $}  % replaced by cvs with current revision
 \begin{document}
-  {\LARGE $ $Revision: 2.33 $ $}  \\[5mm] % replaced by cvs with current revision
-  {\LARGE $ $Date: 2000/05/22 22:04:07 $ $}  % replaced by cvs with current revision
+  {\LARGE $ $Revision: 2.34 $ $}  \\[5mm] % replaced by cvs with current revision
+  {\LARGE $ $Date: 2000/05/24 15:43:38 $ $}  % replaced by cvs with current revision
 %
 %    Title page
 %
@@ -210,8 +209,8 @@
   \mbox{\includegraphics[width=\textwidth]{StEventTitle.eps}}
   \hfill\mbox{}\\[3cm]
   {\LARGE User Guide and Reference Manual \\[5mm] for Version 2}\\[2cm]
-  {\LARGE $ $Revision: 2.33 $ $}  \\[5mm] % replaced by cvs with current revision
-  {\LARGE $ $Date: 2000/05/22 22:04:07 $ $}  % replaced by cvs with current revision
+  {\LARGE $ $Revision: 2.34 $ $}  \\[5mm] % replaced by cvs with current revision
+  {\LARGE $ $Date: 2000/05/24 15:43:38 $ $}  % replaced by cvs with current revision
   \vfill
 \end{center}
 \cleardoublepage
@@ -720,8 +719,8 @@ iterators \texttt{StSPtrVecTrackNodeIterator} and
 if they iterate over structural or non-structural containers so there
 are different iterators for \texttt{StSPtrVecTrackNode} and
 \texttt{StPtrVecTrackNode} containers.
-and does all the things to make \StEvent\ nice and useful. How the DST
-gets into memory is another story and is explained in the next section
+
+We already mentioned that all containers are ordered vectors, hence
 the two methods to iterator/loop over a collection work both as well.
 (if any) and does all the things to make \StEvent\ nice and useful.
 How the DST gets into memory is another story and is explained in the next section
@@ -776,7 +775,25 @@ gets into memory is another story and is explained in the next section
     Controls if TPT tracks should be loaded (default=kFALSE).
 
 \verb+Bool_t  doPrintRunInfo;+\\
-\vfill
+    Print or do not print a dump of the current \texttt{StRun} and
+    \texttt{StRunSummary} instances (default=kFALSE).
+    
+
+\index{empty StEvent} \index{Makers and Chains} Sometimes \StEvent\ 
+need to be created even if no DST datasets or tables are available.
+Since version 2.24 of \texttt{StEventMaker.cxx} this is possible.  In
+this case an empty instance of the \texttt{StEvent} class is created,
+i.e.~everything
+is initialized to zero.\\
+Slowly but steadily, more and more ``makers'' will write directly into
+\StEvent\ and not use the detour via tables. Any maker who wants to
+access \texttt{StEvent} has to be placed behind the
+\texttt{StEventMaker} in the chain.
+
+To obtain a pointer to \StEvent\ use:
+\begin{verbatim}
+    StEvent* mEvent = (StEvent *) GetInputDS("StEvent");
+\end{verbatim}
 Needless to say that the pointer will only be valid if
 \texttt{StEventMaker} was called beforehand.  Else you get a
 \texttt{NULL} pointer.  \vfill
@@ -2856,6 +2873,8 @@ definition in the header file.
     
     \verb+UInt_t numberOfPrimaryVertices() const;+\\
     Number of primary vertices (aka event vertices).  Usually there is
+    only one but future implementations of the vertex finder will be
+    able to also detect pile-up vertices in which case you better
     check the number before dealing with the event.
     \verb+void setSummary(StEventSummary*);+\\
 
@@ -4726,7 +4745,7 @@ numberOfPoints(kTpcId) == numberOfPoints(kFtpcWestId)
     In case no hits are available on the DST this is the only piece
     of information available on the topology of the hits belonging
     to a track.\\
-    \verb+Int_t largestGap(StDetectorId id) const;+\\ \index{largest gap} \index{gap}
+    The class provides methods that allow to access information without
     detailed knowledge on how the bits are packed.   
 
     \verb+Int_t largestGap(StDetectorId id) const;+\\ 
@@ -4738,6 +4757,7 @@ numberOfPoints(kTpcId) == numberOfPoints(kFtpcWestId)
 \item[Public Member\\ Functions]
     \verb+Bool_t primaryVertexUsed() const;+\\
     Indicates wether the primary vertex was used or not.  Also used to
+    indicate that a secondary vertex constraint was used for special
     track fitting methods for decay vertices (see method variable).
 
     \index{largest gap} \index{gap}
