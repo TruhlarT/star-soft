@@ -294,28 +294,19 @@ sub QADone{
 #========================================================
 sub OnDisk{
   my $self = shift;
+
+  #----------------------------------------------------------
+  $report_key = $self->ReportKey(); 
+  $test_data_dir = $self->LogReport->OutputDirectory;
+  $on_disk = 0;
   
-  $self->{on_disk} or do{
-    $report_key = $self->ReportKey(); 
-    $test_data_dir = $self->LogReport->OutputDirectory;
-    $on_disk = 0;
-
-#    print "In QA_object::OnDisk, report key = $report_key,",
-#    " test_data_dir = $test_data_dir <br> \n";
-
-    if (defined $test_data_dir and -d $test_data_dir){ 
-      # even if same directory exists, may contain later run -> test against dir time
-      $test_report_key = QA_make_reports::get_report_key($test_data_dir); 
-      $test_report_key eq $report_key and $on_disk = 1;
-
-#    print "In QA_object::OnDisk, report key = $report_key,",
-#      " test_report_key = $test_report_key <br> \n";
-    }
-
-    $self->{on_disk} = $on_disk;
-  };
+  if (defined $test_data_dir and -d $test_data_dir){ 
+    # even if same directory exists, may contain later run -> test against dir time
+    $test_report_key = QA_make_reports::get_report_key($test_data_dir); 
+    $test_report_key eq $report_key and $on_disk = 1;
+  }
   
-  return $self->{on_disk};
+  return $on_disk;
 }
 #========================================================
 sub DataDisplayString{

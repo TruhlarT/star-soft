@@ -68,7 +68,7 @@ sub doEvents{
   #--------------------------------------------------------------
   # get logfile
 
-  my $logfile = $QA_object_hash{$report_key}->LogfileName;
+  my $logfile = $QA_object_hash{$report_key}->LogReport->LogfileName;
 
   #--------------------------------------------------------------
   open REPORT, $report_filename or do{
