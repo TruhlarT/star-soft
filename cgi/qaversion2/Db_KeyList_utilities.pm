@@ -16,6 +16,10 @@ use POSIX qw(strftime);
 use QA_db_utilities qw(:db_globals); # import db handle and tables
 
 use strict qw(vars subs);
+use vars qw($selectLimit);
+
+$selectLimit = 75; # limit in retrieving report keys
+
 1;
 #===================================================================
 # get values for dataset selection menu for offline db
@@ -207,7 +211,6 @@ sub GetOfflineKeys{
   my $createTime    = shift; # e.g. three_days
   my $dataset       = shift;
 
-  my $limit = 75; # dont want to get a million of them
 
   #---------------------------------------------------------------------
   # pmj 28/6/00 display keys with header, table formatting
@@ -357,12 +360,11 @@ sub GetOfflineKeys{
 		      $dataType_string
 		      $macro_string
 		      $QAstatus_string
-		      order by file.createTime desc
-		limit $limit };
+		limit $selectLimit };
 
   print $query if $gBrowser_object->ExpertPageFlag;
 
-  return GetReportKeys($query, $limit);
+  return GetReportKeys($query, $selectLimit);
 
 
 }
@@ -399,8 +401,6 @@ sub GetNightlyKeys{
   my $ondisk        = shift;
   my $jobStatus     = shift;
   my $createTime    = shift; 
-
-  my $limit = 75; # limit the query
 
   #---------------------------------------------------------------------
   # pmj 28/6/00 display keys with header, table formatting
@@ -566,13 +566,12 @@ sub GetNightlyKeys{
 		       $jobStatus_string
 		       $macro_string
 		       $QAstatus_string
-		       order by file.createTime
-		 limit $limit };
+		 limit $selectLimit };
   
   # for debugging
   print $query if $gBrowser_object->ExpertPageFlag;
 
-  return GetReportKeys($query, $limit);
+  return GetReportKeys($query, $selectLimit);
 
 } 
 #=======================================================================
@@ -700,20 +699,15 @@ sub remove_white_space{
 #=======================================================================
 sub GetReportKeys{
   my $query = shift;
-  my $limit = shift;
 
   my $sth = $dbh->prepare($query);
   $sth->execute();
   my $rows = $sth->rows;
-  if ($rows == $limit){
-    print h4(font({-color=>'blue'}, 
-		  "Here are the first $rows rows from the database ",
-		  "matching your query.<br>",
-		  "They are listed in descending order according to the ",
-		  "creation time of the output files. <br>",
-		  "Choose a more restrictive query for better performance.<br>"));
-  }
+
+  # used to be more stuff here
+
   return map { $_->[0] } @{$sth->fetchall_arrayref()};
+
 }
 
 #=======================================================================

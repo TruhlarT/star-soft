@@ -110,6 +110,7 @@ sub GetSelectedKeyList{
   # get the keys from QASummary table matching the selection query
   my @key_list = $self->GetSelectedKeysFromDb();
 
+
   # make the QA_objects
   QA_utilities::make_QA_objects(@key_list);
 

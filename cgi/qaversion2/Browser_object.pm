@@ -22,6 +22,7 @@ use Browser_utilities;
 use KeyList_object_offline;
 use KeyList_object_nightly;
 use KeyList_object_online;
+use Db_KeyList_utilities;
 
 use DataClass_object;
 
@@ -270,7 +271,10 @@ sub ButtonActions{
 #=================================================================
 sub DisplayDataset{
   my $self = shift;
-  
+
+  my $limit = $Db_KeyList_utilities::selectLimit;
+
+  my @selected_keys;	  
   # get out unless we're looking at messages or datasets
   return unless($gCGIquery->param('Display datasets') or
 		$gCGIquery->param('Display messages')   );
@@ -281,19 +285,28 @@ sub DisplayDataset{
   my @selected_keys;
   # are we looking for datasets?
   if ($gCGIquery->param('Display datasets')){
-    # get selected keys - also make QA_objects
-    @selected_keys = $self->KeyList->GetSelectedKeyList;
+      # get selected keys - also make QA_objects
+      @selected_keys = $self->KeyList->GetSelectedKeyList;
     
-    # no keys match query, get out
-    unless (scalar @selected_keys) {
-      print h2('No QA datasets match your query.  Try again.');
-      return;
-    }
+      my $rows = scalar @selected_keys;
+      # no keys match query, get out
+      unless ( $rows ) {
+	  print h2('No QA datasets match your query.  Try again.');
+	  return;
+      }
+      # too many matches
+      if ( $rows == $limit ){
+	  print h2(font({-color=>'red'},
+			"Over $limit rows from the database match your query.<br>",
+			"Please choose a more restrictive query.<br>"));
+	  return;
+      }
   }
-
+  
   # add the messages
   my @key_list = $self->KeyList->AddMessagesToKeyList(@selected_keys);
 
+	
   # BUM - these buttons are causing problems...
   #$self->ExpertPageFlag() 
   #  and &Browser_utilities::display_expert_page_buttons;
