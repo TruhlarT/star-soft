@@ -389,7 +389,10 @@ sub QASummaryString{
 
       if ($batch_mode =~ /LSF/){
 	
-	$summary_string .= $gCGIquery->a({-href=>"LSF_tool?jobID=$jobID",
+	my $lsfTool = "LSF_tool?jobID=$jobID";
+	my $lsfToolURL = $gCGIquery->script_name;
+	$lsfToolURL =~ s/QA_main\.pm/$lsfTool/e;
+	$summary_string .= $gCGIquery->a({-href=>$lsfToolURL,
 					  -target=>"_new"}, "LSF status");
       }
 
