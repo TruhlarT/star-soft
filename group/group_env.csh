@@ -1,5 +1,5 @@
 #!/bin/csh -f
-#       $Id: group_env.csh,v 1.161 2003/11/12 01:23:51 jeromel Exp $
+#       $Id: group_env.csh,v 1.162 2003/12/12 19:38:39 fisyak Exp $
 #	Purpose:	STAR group csh setup
 #
 #	Author:		Y.Fisyak     BNL
@@ -397,7 +397,10 @@ switch ($STAR_SYS)
       limit   coredump 0
       unlimit descriptors
       breaksw
-
+      case "alpha_dux*":
+        limit datasize unlimited	
+        limit stacksize unlimited	
+      breaksw
     default:
 	#  ====================
 	breaksw
