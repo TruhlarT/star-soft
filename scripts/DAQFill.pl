@@ -14,7 +14,7 @@ use RunDAQ;
 # Mode 1 will quit
 $mode  = 1;
 $sltime= 60;
-$file  = "";
+$file  = "";   # DAQFill.log";
 
 $mode   = shift(@ARGV) if ( @ARGV );
 $sltime = shift(@ARGV) if ( @ARGV );
@@ -23,7 +23,7 @@ $file   = shift(@ARGV) if ( @ARGV );
 
 # We add an infinit loop around so the table will be filled
 # as we go.
-&Print("$0 starting on ".localtime()."\n");
+&Print("$0 starting on ".localtime()." ($sltime)\n");
 do {
     $ctime = localtime();
     $dbObj = rdaq_open_odatabase();
@@ -34,9 +34,14 @@ do {
 	} else {
 	    #&Print("R-Database opened\n");
 
-	    # get the top run
+	    # get the top run. Note that <= 0 would get all
+	    # runs ever entered in this database.
 	    $run = $mode*rdaq_last_run($dbObj);
-	    &Print("Last Run=$run on ".localtime()."\n");
+	    $prun= &GetRun();
+
+	    if($prun ne $run){
+		&Print("Last Run=$run on ".localtime()."\n");
+	    }
 
 	    if($run >= 0){
 		# fetch new records since that run number
@@ -56,9 +61,10 @@ do {
 		&Print("Checking entries on ".localtime()."\n");
 		$mode    = 0;  # loop reset
 		@records = rdaq_raw_files($obj,$run);
+
+		&Print("Updating $#records on ".localtime()."\n");
 		rdaq_update_entries($dbObj,@records);
 
-		#rdaq_check_entries($dbObj,$sltime);
 	    }
 
 	    # close
@@ -92,3 +98,21 @@ sub Print
     }
     if($file ne ""){ close(FO);}
 }
+
+#
+# Get last recorded run in file
+#
+sub GetRun
+{
+    my($line,$rv);
+
+    $rv = "0.0";
+    if( $file ne ""){
+	$line = `tail -1 $file`;
+	if ($line =~ m/(Run=)(\d+)\.(\d+)/){
+	    $rv = "$2.$3";
+	}
+    }
+    $rv;
+}
+
