@@ -76,7 +76,7 @@ sub JobPopupMenu{
 
 }
 #========================================================
-# get the selected parameters chose by the user
+# get the selected cgi values chose by the user
 # returns an array of cgi values according to the popup menu
 # overridden
 
@@ -102,14 +102,13 @@ sub GetSelectedKeysFromDb{
 
 #========================================================
 # returns a list of keys (jobs) according to the selection
-# options selected by the client
+# options select by the client.
 # also makes the QA objects
 
 sub GetSelectedKeyList{
   my $self = shift;
 
   # get the keys from QASummary table matching the selection query
-
   my @key_list = $self->GetSelectedKeysFromDb();
 
   # make the QA_objects
@@ -202,20 +201,7 @@ sub NKeys{
   @_ and $self->{_NKeys} = shift;
   return $self->{_NKeys};
 }
-#=======================================================
-# just the selected report keys
-# not used
 
-sub SelectedKeyList{
-  my $self = shift;
-
-  no strict 'refs';
-  @_ and do{
-    my @key_list = @_;
-    $self->{_SelectedKeyListRef} = \@key_list;
-  };
-  return @{$self->{_SelectedKeyListRef}};
-}
 #=======================================================
 # an array containing active keys
 # used to include the messages keys as well

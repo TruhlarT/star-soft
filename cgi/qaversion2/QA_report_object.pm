@@ -51,6 +51,7 @@ my %members =
     _MacroComment           => undef, #
     _IOMacroReportFilename  => undef, #
     _IOEvaluationFilename   => undef, #
+    _LogReport              => undef, #
     _RunScalarsHash         => {},    #
     _EventScalarsHash       => {},    #
     _TestNameList           => {},    #
@@ -79,12 +80,12 @@ sub new{
 sub _init{
   my $self = shift;
   my $report_key = shift;
-  my $test_file  = shift;
-  my $missing    = shift;
+  my $test_file  = shift; # macro test file
+  my $log_report = shift; # Logreport_object
 
   $self->ReportKey($report_key);
   $self->TestDefinitionFile($test_file);
-  $self->MissingFiles($missing);
+  $self->LogReport($log_report);
 
 }
 
@@ -100,7 +101,7 @@ sub GetTests{
   my $report_key = $self->ReportKey;
 
   open TESTFILE, $test_definition_file 
-    or do{ "Cannot open test definition file $test_definition_file: $! \n";
+    or do{ print "Cannot open test definition file $test_definition_file: $! \n";
 	   return; };
   my @test_definition_array = <TESTFILE>;
   close TESTFILE;
@@ -229,7 +230,7 @@ sub GetTests{
 
   my $hist_ok = 1;
   if ($self->MacroName eq "bfcread_hist_to_ps"){ 
-    $hist_ok = 0 if $self->MissingFiles =~ /hist\.root/;
+    $hist_ok = 0 if $self->LogReport->MissingFiles =~ /hist\.root/;
   }
 
   if (! $hist_ok ){
@@ -257,15 +258,25 @@ sub GetTests{
 #=======================================================
 sub RunMacro{
   my $self = shift;
-  my $starlib_version   = shift;
-  my $nevent_requested  = shift;
-  my $prod_files_ref    = shift; # ref to list of all output files for job
-                                 # possible input files for macro
 
   my $report_key = $self->ReportKey;
   my $macro_file = $self->MacroFile; # fullname
   my $macro_name = $self->MacroName; # basename
   my $output_file= $self->IOMacroReportFilename->Name; # output of macro
+
+  # starlib version
+  my $starlib_version = $self->LogReport->StarlibVersion;   
+  
+  if ($starlib_version =~ /SL/){ $starlib_version =~ s/SL// }
+  else                         { $starlib_version = "dev"   }
+  
+  # how many events were requested?
+  # for offline real, event requested is meaningless
+  my $nevent_requested = $self->LogReport->NEventRequested ||
+     $self->LogReport->NEventDone;
+    
+  # get the possible input files
+  my $prod_files_ref = $self->LogReport->ProductionFileListRef;
 
   # if macro report exists, quit...   
   -s $output_file and do{
@@ -273,14 +284,13 @@ sub RunMacro{
     return;
   };
 
-
   # get the input file that matches the input data type
   # first get all the production files
   
   # find the input for macro file according to input datatype
   my $input_type = $self->InputDataType;
-  my @input_file = grep {/$input_type/} @{$prod_files_ref};
-  my $input_file = $input_file[0];  # should only be one..   
+
+  my $input_file = (grep {/$input_type/} @{$prod_files_ref})[0]; # only 1?
 
   # does it exist?        
   -e $input_file or do{  
@@ -717,11 +727,10 @@ sub Write{
 }
 
 #============== accessors, etc ==========================
-
-sub MissingFiles{
-    my $self = shift;
-    $self->{_MissingFiles} = shift if @_;
-    return $self->{_MissingFiles};
+sub LogReport{
+  my $self = shift;
+  $self->{_LogReport} = shift if @_;
+  return $self->{_LogReport};
 }
 
 sub ReportKey{

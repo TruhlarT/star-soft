@@ -15,8 +15,6 @@ use File::Copy;
 use File::Find;
 use File::Basename;
 
-use CGI qw(:cgi);
-
 use Data::Dumper;
 
 use Server_utilities;
@@ -300,7 +298,6 @@ sub DoQaDataset{
   print "<h3> Submitting batch job for QA on dataset... </h3> \n";
 
   # BEN(4jun2000):  one batchjob per key 
-
   my @key_list = $gCGIquery->param('selected_key_list');
   
   my $key;
@@ -316,7 +313,6 @@ sub RedoQaDataset{
     print "<h3> Submitting batch job to redo QA on dataset... </h3> \n";
 
   # BEN(4jun2000):  one batchjob per key 
-
   my @key_list = $gCGIquery->param('selected_key_list');
   
   my $key;

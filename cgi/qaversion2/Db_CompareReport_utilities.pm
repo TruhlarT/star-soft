@@ -46,6 +46,7 @@ sub nightly_MC{
 			file.eventType   = ? and
 			file.geometry    = ? and
 			qa.$QASum{report_key} != '$report_key'
+			order by file.createTime desc
 		        limit $limit};
 
   my ($sth, @similar_keys);

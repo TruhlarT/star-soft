@@ -103,8 +103,8 @@ sub GetGlobalMessages{
 }
 #==============================================================
 # bum
-# clean up the logfile scratch directory 
-# contains the symlinks to the logfiles
+# clean up the logfile scratch directory .
+# contains the symlinks to the logfiles .
 # delete everything older than 12 hours
 
 sub CleanUpLogScratch{

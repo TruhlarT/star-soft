@@ -34,6 +34,7 @@ use Batch_utilities;
 
 use QA_object_nightly;
 use QA_object_offline;
+use QA_object_online;
 
 use DataClass_object;
 use Db_update_utilities;
@@ -125,7 +126,7 @@ sub submit_batchjob {
   # now compose batch script, write to file
 
   my $io_batch = new IO_object("BatchScript", $id_string);
-  my $BATCH = $io_batch->Open(">", "0755");
+  my $BATCH = $io_batch->Open(">", "0755") or die "$!";
   my $batchscript_filename = $io_batch->Name();
 
   my $string = IO_utilities::ComposeBatchScript($action, $data_class, 

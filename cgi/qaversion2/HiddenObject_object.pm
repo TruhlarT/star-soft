@@ -54,8 +54,10 @@ sub _init{
     (defined $gCGIquery->param('Change Class') or
      defined $gCGIquery->param('Display datasets'));
   
-  IO_utilities::CleanUpScratch();
+  # clean up the log scratch directory for old symlinks
   IO_utilities::CleanUpLogScratch();
+  IO_utilities::CleanUpScratch();
+  
   $self->Retrieve();
 
 }

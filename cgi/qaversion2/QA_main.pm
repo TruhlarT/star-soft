@@ -14,7 +14,6 @@ use Timer_object;
 
 use QA_globals;
 use QA_db_utilities;
-use QA_object;
 
 use DataClass_object;
 

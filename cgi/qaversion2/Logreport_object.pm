@@ -14,7 +14,7 @@ package Logreport_object;
 #=========================================================
 use CGI qw/:standard :html3/;
 use QA_globals;
-use QA_db_utilities; 
+use QA_db_utilities qw(:db_globals); 
 use strict;
 use vars qw($AUTOLOAD);
 #=========================================================
@@ -26,7 +26,6 @@ my %members = ( _ReportKey           => undef, # identifies job for disk
 		_JobID               => undef, # interface with db
 		_qaID                => undef,
 		_LogfileName         => undef, # full path of the log file
-		_LogfileNameWWW      => undef, # do we need this?
 		_StarLevel           => undef, 
 		_RootLevel           => undef,
 		_StarlibVersion      => undef,
@@ -76,79 +75,52 @@ sub new{
   bless ($self, $classname);
 
   # initialize
-  $self->_init(@_) or return;
+  $self->_init(@_) or do{
+    print h3("Error in Logreport_object constructor:\n ",
+	     $self->ReportKey,"\n");
+    return;
+  };
 
   return $self;
 }
-#========================================================
+#----------
+#
 sub _init{
 
-  my $self = shift;
+  my $self       = shift;
   my $report_key = shift;
  
-  # diagnostic
   print h4("Making logfile report for $report_key...\n");
 
   # check for report key
-  #
   defined $report_key or die __PACKAGE__, " needs a report key";
 
-  # set the report key.
-  #
+  # get and set some members
   $self->ReportKey($report_key);
  
-  # get and set the jobID
-  #
-  my $jobID = QA_db_utilities::GetJobID($report_key);
-  defined $jobID or do{print h3("No jobID $jobID in db"); return};
-  $self->JobID($jobID);
-
-  # get and set the qaID
-  #
-  my $qaID = QA_db_utilities::GetQAID($report_key);
-  $self->qaID($qaID);
+  # initialize the IDs from the db
+  $self->InitIDs() or return;
 
   # get the log file
-  my $logfile = $self->GetLogFile( );  
+  my $logfile = $self->GetLogFile();  
   $self->LogfileName($logfile);
-
-  # init StWarning and StError files
-
-  $self->IOStWarningFile(IO_object->new("StWarningFile",$report_key));
-  $self->IOStErrorFile(IO_object->new("StErrorFile", $report_key));
 
   # parse the log file
   # returns an error if this doesnt exist
-  #
+  
   print "Parsing logfile...\n", br;
-  $self->ParseLogfile() or do{
-    print h3("Error in Logreport_object constructor:\n ",
-	     "for $jobID ($report_key)\n");
-    return;
-  };
+  $self->ParseLogfile() or return;
   print "...done\n" , br;
 
   # get additional job info from the db
   #
-  print "Getting additional info from db...\n" , br;
-  $self->GetJobInfo();
+  print "Getting info from db...\n" , br;
+  $self->GetJobInfo() or return;;
   print "...done\n" , br;
   
-  # check for missing files
-  # depends on the data class - use global DataClass_object
-  # returns a string
-  #
-  no strict 'refs';
-
-  my $sub_missing = $gDataClass_object->GetMissingFiles; # name of the sub
-  
-  $self->MissingFiles( &$sub_missing($jobID) );
-
-  # get the production output files
-  #
-  $self->GetProductionFiles;
+  return 1;
 }
-#=================================================================
+#----------
 # copied from perl toot
 # automatically makes accessors 
 # for 'permitted' members if they dont already exist
@@ -176,15 +148,23 @@ sub AUTOLOAD {
   $self->{"_$name"} = shift if @_;
     return $self->{"_$name"};
 }
-#========================================================
-# get the log file.  overridden in the derived classes
+#----------
+# the only reason i put this in a separate method is
+# because online reco (dst) doesnt need the jobID.
+
+sub InitIDs{
+  my $self = shift;
+
+  $self->JobID( QA_db_utilities::GetFromQASum($QASum{jobID},$self->ReportKey) );
+  $self->qaID(  QA_db_utilities::GetFromQASum($QASum{qaID},$self->ReportKey ) );
+}
+#----------
+# get log file
 
 sub GetLogFile{
-  my $self  = shift;
-
-  return;
+  my $self = shift;;
 }  
-#========================================================
+#----------
 # this method gets overriden
 
 sub ParseLogfile {
@@ -193,14 +173,14 @@ sub ParseLogfile {
   
   return;
 }
-#=========================================================
-# get production files
-# overriddne
+#----------
+# get additional info about the job from the db.
+# overridden,
 
-sub GetProductionFiles{
+sub GetJobInfo{
   my $self = shift;
 }
-#=========================================================
+#----------
 sub LogfileSummaryString {
   my $self = shift;
 
@@ -221,12 +201,12 @@ sub LogfileSummaryString {
   {
     $return_string .= font({-color=>'red'},$self->JobStatus).br.br;
     $self->{_ErrorString} and 
-      $return_string .= $self->ErrorString.br; 
+      $return_string .= "error code:" . br . $self->ErrorString.br; 
   }
 
   # how many events done (processed)?
 
-  $return_string .= "$self->{_NEventDone} evts ".br."processed".br.br;
+  $return_string .= $self->NEventDone . " evts ".br."processed".br.br;
   
   # any events skipped?
 
@@ -258,7 +238,7 @@ sub LogfileSummaryString {
   return $return_string;
 
 }
-#=========================================================
+#----------
 # 'Run details' button
 sub DisplayLogReport {
   
@@ -290,7 +270,7 @@ sub DisplayLogReport {
     Machine name = $self->{_Machine}
     Job status = $self->{_JobStatus}
   };
-
+  print "Production Files :\n",br;
   print join "\n", @{$self->{_ProductionFileListRef}};
   # error?
   defined ($self->{_ErrorString}) and

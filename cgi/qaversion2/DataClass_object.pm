@@ -61,12 +61,12 @@ my %data_class_labels_offline = (offline_real  => 'Real Data Production',
 #----
 
 my @data_class_array_online = qw ( online_raw
-				   online_dst
+				   online_reco
 				   online_debug
 				  );
 
 my %data_class_labels_online = (online_raw  => 'Raw Data',
-				online_dst  => 'DST Data',
+				online_reco => 'Reco Data',
 				online_debug => 'debug');
 
 #----
@@ -108,6 +108,11 @@ for my $attr ( qw (
 		   GetSelectedKeys
 		   GetSelectionOptions
 		   GetOldReports
+		   DataPool
+		   EventPool
+		   SummaryHistDir
+		   DataType
+		   MySQLHost
 		   dbFile
 		   FileCatalog
 		   JobStatus
@@ -151,11 +156,28 @@ sub _init{
     @data_class_array = @data_class_array_online;
     %data_class_labels = %data_class_labels_online;
     %ok_data_class = %ok_data_class_online;
+
+    # master top directory
+    $self->Home("/home/users/starqa/qa");
+
+    # mysql host
+    $self->MySQLHost("onllinux1.star.bnl.gov");
+
+    # online file system
+    $self->DataPool("/online/datapool/QA");
+    $self->EventPool("/online/evtpool/QAfifo");
+    
+
   }
   elsif ($server_type eq 'offline' ){
     @data_class_array = @data_class_array_offline;
     %data_class_labels = %data_class_labels_offline;
     %ok_data_class = %ok_data_class_offline;
+
+    # BEN(8jun2000):  changed for rcas
+    $self->Home("/star/rcf/qa");
+
+    $self->MySQLHost("duvall.star.bnl.gov");
   }
   else{
     die "DataClass_object::_init: unknown server type $server_type<br>\n";
@@ -164,10 +186,7 @@ sub _init{
   #--------------------------------------------------------
   $ok_data_class{$data_class} or die "DataClass_object::init_: unregistered data class $data_class \n";
   #--------------------------------------------------------
-  # this is master top directory, should depend upon server object
-  # BEN(8jun2000):  changed for rcas
-  $self->Home("/star/rcf/qa");
-  #--------------------------------------------------------
+
   $self->DataClass($data_class);
 
   $self->DataClassArray(\@data_class_array);
@@ -253,7 +272,7 @@ sub StandardDirectories{
   # need to make a temporary link to the logfiles
   #
   $self->LogScratchDirWWW("$topdir_WWW/scratch");
-  $self->LogScratchDir("/star/u2e/starqa/WWW/qa_db/scratch");
+  $self->LogScratchDir("/star/u2e/starqa/WWW/qa/scratch");
 
   my $batch_dir = "$topdir/batch";
   $self->BatchDir("$batch_dir");
@@ -270,7 +289,7 @@ sub offline_real{
   my $home = $self->Home();
 
   $self->TopDir("$home/offline_real");
-  $self->TopDirWWW("http://duvall.star.bnl.gov/~starqa/qa_db");
+  $self->TopDirWWW("http://duvall.star.bnl.gov/~starqa/qa");
 
   $self->StandardDirectories();
   
@@ -285,6 +304,7 @@ sub offline_real{
   $self->ProdOptions("ProdOptions");
   $self->JobRelations("jobRelations");
   $self->dbQA("prod_QA");
+  
 
   # utilities for KeyList_object
   $self->GetSelectionOptions("Db_KeyList_utilities::GetOfflineSelectionsReal");
@@ -318,7 +338,7 @@ sub offline_MC{
   my $home = $self->Home();
 
   $self->TopDir("$home/offline_MC");
-  $self->TopDirWWW("http://duvall.star.bnl.gov/~starqa/qa_db");
+  $self->TopDirWWW("http://duvall.star.bnl.gov/~starqa/qa");
 
   $self->StandardDirectories();
   
@@ -333,6 +353,7 @@ sub offline_MC{
   $self->ProdOptions("ProdOptions");
   $self->JobRelations("jobRelations");
   $self->dbQA("prod_QA");
+  
 
   # utilities for KeyList_object
   $self->GetSelectionOptions("Db_KeyList_utilities::GetOfflineSelectionsMC");
@@ -366,7 +387,7 @@ sub nightly_real{
   #------------------------------------------------------
   my $home = $self->Home();
   $self->TopDir("$home/nightly_real");
-  $self->TopDirWWW("http://duvall.star.bnl.gov/~starqa/db");
+  $self->TopDirWWW("http://duvall.star.bnl.gov/~starqa/qa");
 
   $self->StandardDirectories();
   
@@ -379,6 +400,7 @@ sub nightly_real{
   $self->FileCatalog("FilesCatalog");
   $self->JobStatus("JobStatus");
   $self->dbQA("nightly_QA");
+  
 
 
   # utilities for KeyList_object
@@ -394,7 +416,7 @@ sub nightly_real{
   # get old reports
   $self->GetOldReports("QA_db_utilities::GetOldReportsReal");
 
-  # get todo QA keys
+  # get todo QA keys 
   $self->ToDoKeys("Db_update_utilities::GetToDoReportKeysReal");
 
   # browser banner for interactive display
@@ -411,7 +433,7 @@ sub nightly_MC{
   #------------------------------------------------------
   my $home = $self->Home();
   $self->TopDir("$home/nightly_MC");
-  $self->TopDirWWW("http://duvall.star.bnl.gov/~starqa/qa_db");
+  $self->TopDirWWW("http://duvall.star.bnl.gov/~starqa/qa");
 
   $self->StandardDirectories();
   
@@ -424,7 +446,7 @@ sub nightly_MC{
   $self->FileCatalog("FilesCatalog");
   $self->JobStatus("JobStatus");
   $self->dbQA("nightly_QA");
-
+  
 
   # utilities for KeyList_object
   $self->GetSelectionOptions("Db_KeyList_utilities::GetNightlySelectionsMC");
@@ -457,7 +479,7 @@ sub debug{
   my $home = $self->Home();
 
   $self->TopDir("$home/debug");
-  $self->TopDirWWW("http://duvall.star.bnl.gov/~starqa/qa_db");
+  $self->TopDirWWW("http://duvall.star.bnl.gov/~starqa/qa");
 
   $self->StandardDirectories();
   
@@ -468,8 +490,8 @@ sub debug{
   $self->dbFile("TestJobs");
   $self->FileCatalog("FilesCatalog");
   $self->JobStatus("JobStatus");
-  $self->dbQA("nightly_QA");
-
+  $self->dbQA("debug_QA");
+ 
   # utilities for KeyList_object
   $self->GetSelectionOptions("Db_KeyList_utilities::GetNightlySelectionsMC");
   $self->GetSelectedKeys("Db_KeyList_utilities::GetNightlyKeysMC");
@@ -499,29 +521,28 @@ sub online_raw{
   @_ and my @args = @_;
   #------------------------------------------------------
   my $home = $self->Home();
-  $self->TopDir("$home/debug");
-  $self->TopDirWWW("http://duvall.star.bnl.gov/~starqa/qa_db");
+  $self->TopDir("$home/online_raw");
+  $self->TopDirWWW("http://onllinux1.star.bnl.gov/~starqa/qa");
 
   $self->StandardDirectories();
-  
-  $self->KeyList_obj("KeyList_object_nightly");
-  $self->QA_obj("QA_object_nightly");
+
+  # raw or reco
+  $self->DataType("raw");
+
+  # topdir of the summary hist files
+  $self->SummaryHistDir($self->DataPool . "/raw/summary");
+
+  $self->KeyList_obj("KeyList_object_online");
+  $self->QA_obj("QA_object_online");
   
   # database stuff
-  $self->dbFile("TestJobs");
-  $self->FileCatalog("FilesCatalog");
-  $self->JobStatus("JobStatus");
-  $self->dbQA("nightly_QA");
-
+  $self->dbQA("onlineRaw_QA");
+ 
   # utilities for KeyList_object
-  $self->GetSelectionOptions("Db_KeyList_utilities::GetNightlySelectionsReal");
-  $self->GetSelectedKeys("Db_KeyList_utilities::GetNightlyKeysReal");
+  $self->GetSelectedKeys("Db_KeyList_utilities::GetOnlineKeys");
   
   # for updating from DB
-  $self->UpdateRoutine("Db_update_utilities::UpdateQANightlyReal");
-
-  # find missing files
-  $self->GetMissingFiles("QA_db_utilities::GetMissingFilesReal");
+  $self->UpdateRoutine("Db_update_utilities::UpdateOnline");
 
   # get old reports
   $self->GetOldReports("QA_db_utilities::GetOldReportsReal");
@@ -533,34 +554,42 @@ sub online_raw{
 
 }
 #========================================================
-sub online_dst{
+sub online_reco{
 
   my $self = shift;
   @_ and my @args = @_;
   #------------------------------------------------------
   my $home = $self->Home();
-  $self->TopDir("$home/debug");
-  $self->TopDirWWW("http://duvall.star.bnl.gov/~starqa/qa_db");
+  $self->TopDir("$home/online_reco");
+  $self->TopDirWWW("http://onllinux1.star.bnl.gov/~starqa/qa");
 
   $self->StandardDirectories();
-  
-  $self->KeyList_obj("KeyList_object_nightly");
-  $self->QA_obj("QA_object_nightly");
-  
-  # database suff
-  $self->dbFile("TestJobs");
-  $self->FileCatalog("FilesCatalog");
-  $self->JobStatus("JobStatus");
-  $self->dbQA("nightly_QA");
 
+  $self->DataType('reco');
 
+  # topdir of the summary hist files
+  $self->SummaryHistDir($self->DataPool . "/reco/summary");
+
+  $self->KeyList_obj("KeyList_object_online");
+  $self->QA_obj("QA_object_online");
+  
+  # database stuff
+   $self->dbQA("onlineReco_QA");
+
+  # utilities for KeyList_object
+  $self->GetSelectedKeys("Db_KeyList_utilities::GetOnlineKeys");
+  
   # for updating from DB
-  $self->UpdateRoutine("Db_update_utilities::UpdateQANightlyReal");
+  $self->UpdateRoutine("Db_update_utilities::UpdateOnline");
+
+  # get old reports
+  $self->GetOldReports("QA_db_utilities::GetOldReportsReal");
 
   # browser banner for interactive display
   $self->BrowserBannerColor("silver");
   $self->BrowserBannerTextColor("maroon");
   $self->BrowserBannerLabel("DST Data");
+
 
 }
 #========================================================
@@ -570,27 +599,35 @@ sub online_debug{
   @_ and my @args = @_;
   #------------------------------------------------------
   my $home = $self->Home();
-  $self->TopDir("$home/debug");
-  $self->TopDirWWW("http://duvall.star.bnl.gov/~starqa/qa_db");
+  $self->TopDir("$home/online_debug");
+  $self->TopDirWWW("http://onllinux1.star.bnl.gov/~starqa/qa");
 
   $self->StandardDirectories();
-  
-  $self->KeyList_obj("KeyList_object_nightly");
-  $self->QA_obj("QA_object_nightly");
-  
-  # database suff
-  $self->dbFile("TestJobs");
-  $self->FileCatalog("FilesCatalog");
-  $self->JobStatus("JobStatus");
-  $self->dbQA("nightly_QA");
 
+  $self->DataType('reco');
 
+  # topdir of the summary hist files
+  $self->SummaryHistDir($self->DataPool . "/reco/summary");
+
+  $self->KeyList_obj("KeyList_object_online");
+  $self->QA_obj("QA_object_online");
+  
+  # database stuff
+   $self->dbQA("onlineDebug_QA");
+
+  # utilities for KeyList_object
+  $self->GetSelectedKeys("Db_KeyList_utilities::GetOnlineKeys");
+  
   # for updating from DB
-  $self->UpdateRoutine("Db_update_utilities::UpdateQANightlyReal");
+  $self->UpdateRoutine("Db_update_utilities::UpdateOnline");
+
+  # get old reports
+  $self->GetOldReports("QA_db_utilities::GetOldReportsReal");
 
   # browser banner for interactive display
   $self->BrowserBannerColor("yellow");
   $self->BrowserBannerTextColor("maroon");
   $self->BrowserBannerLabel("Online Debug");
+
 
 }

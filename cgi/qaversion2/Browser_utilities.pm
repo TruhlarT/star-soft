@@ -42,22 +42,6 @@ sub start_comment_button{
   return $string;
 
 }
-#=========================================================
-# see Browser::StartingDisplay
-
-sub start_rcas_lsf_monitor{
-  
-  my $script_name = $gCGIquery->script_name;
-
-  (my $path_name = $script_name) =~ s/\/\w+?$//;
-  
-  my $url = "http://www.star.bnl.gov$path_name/CGI_gateway?targetProgram=LSF_tool";
-
-  my $string = "<a href=$url target='monitor'>rcas/LSF monitor </a>";
-
-  return $string;
-
-}
 #==========================================================
 # see Browser_object::StartingDisplay
 
@@ -315,17 +299,12 @@ sub SwitchDataTypeMenuLite{
   # set the default
   my $default; my $count = 0;
 
-  my $current_data_class = $gDataClass_object->DataClass();
+  my $cur_data_class = $gDataClass_object->DataClass();
 
-  foreach my $data_class (@dir_values){
-    $data_class eq $current_data_class and last;
-    $count++;
-  }
-   
   #BEN(13jun2000) added javascript to reload on change of data class
   my $popup_string = $gCGIquery->popup_menu(-name   => 'data_class',
 					    -values => \@dir_values,
-					    -default=> $dir_values[$count],
+					    -default=> $cur_data_class,
 					    -labels => \%dir_labels,  
 					    -onChange => 'this.form.submit()'
 					    );

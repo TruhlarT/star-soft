@@ -15,7 +15,7 @@ use QA_globals;
 use QA_db_utilities qw(:db_globals); # import db handle and tables
 
 use strict qw(vars subs);
-
+1;
 #========================================================================
 # get values for dataset selection menu for offline db
 # argument is real or MC
@@ -23,11 +23,10 @@ use strict qw(vars subs);
 sub GetOfflineSelections{
   my $argument = shift;      # real or MC
 
+  my $now = time;
   my $hashref;               # stores all the selections
-  my $now      = time;       # what time is it?
-  my $time_sec = 14*24*3600; # 2 weeks
-
   my ($file_type, %query);
+
 
  SWITCH:{
     $argument eq 'real' and do{$file_type = 'real';   last; };
@@ -54,6 +53,7 @@ sub GetOfflineSelections{
 			   ($now-unix_timestamp(createtime))>0 and
 		           s.$QASum{type} = '$file_type'
 		     order by file.runID asc};
+
 
   # QA macros
   $query{macroName} = qq{select distinct m.$QAMacros{macroName}
@@ -113,6 +113,7 @@ sub GetOfflineSelectionsMC{
 sub GetNightlySelections{
   my $data_type = shift; # real or MC
 
+  my $now = time;
   my (%query, $file_type);
 
   # different queries for different class of data
@@ -172,15 +173,12 @@ sub GetNightlySelections{
                                 m.$QAMacros{extension}!='ps.gz'
 			  order by m.$QAMacros{macroName} asc};
 
+
   my ($hashref, $value, $sth);
 
   # get the possible values
   foreach my $field (keys %query){
-    $sth = $dbh->prepare($query{$field});
-    $sth->execute;
-    $sth->bind_col(1,\$value);
-
-    push( @{$hashref->{$field}}, $value) while ( $sth->fetch );
+    $hashref->{$field} = $dbh->selectcol_arrayref($query{$field});
   }
 
   return $hashref;
@@ -288,7 +286,7 @@ sub GetOfflineKeys{
       $days = 14 if $createTime eq 'fourteen_days';
       
       $createTime_string  = 
-	" (to_days(from_unixtime($now))-to_days(file.createTime))< $days and";
+	" (to_days(from_unixtime($now))-to_days(file.createTime))<= $days and";
     }
   }
   
@@ -373,9 +371,18 @@ sub GetOfflineKeys{
 
   print $query if $gBrowser_object->ExpertPageFlag;
 
-  my $keys_ref = $dbh->selectcol_arrayref( $query );
+  my $sth = $dbh->prepare($query);
+  $sth->execute();
+  my $rows = $sth->rows;
+  if ($rows == $limit){
+    print h3(font({-color=>'red'}, "You've selected $rows rows<br>",
+		  "Please narrow your selection for better performance<br>"));
+  }
+  return map { $_->[0] } @{$sth->fetchall_arrayref()};
+
+#  my $keys_ref = $dbh->selectcol_arrayref( $query );
   
-  return @{$keys_ref};
+#  return @{$keys_ref};
 
 }
 #=======================================================================
@@ -395,7 +402,6 @@ sub GetOfflineKeysMC{
 
   return GetOfflineKeys('MC',@selection_param);
 }
-
 			  
 #=======================================================================
 # get the QA report keys for nightly test 
@@ -490,7 +496,7 @@ sub GetNightlyKeys{
       $days = 14 if $createTime eq 'fourteen_days';
       
       $createTime_string  = 
-	" (to_days(from_unixtime($now))-to_days(file.createTime))< $days and";
+	" (to_days(from_unixtime($now))-to_days(file.createTime))<= $days and";
     }
   }
 
@@ -589,9 +595,18 @@ sub GetNightlyKeys{
   # for debugging
   print $query if $gBrowser_object->ExpertPageFlag;
 
-  my $keys_ref = $dbh->selectcol_arrayref( $query );
+  my $sth = $dbh->prepare($query);
+  $sth->execute();
+  my $rows = $sth->rows;
+  if ($rows == $limit){
+    print h3(font({-color=>'red'}, "You've selected $rows rows<br>",
+		  "Please narrow your selection for better performance<br>"));
+  }
+  return map { $_->[0] } @{$sth->fetchall_arrayref()};
 
-  return @{$keys_ref};
+#  my $keys_ref = $dbh->selectcol_arrayref( $query );
+
+#  return @{$keys_ref};
 
 } 
 #=======================================================================
@@ -610,6 +625,109 @@ sub GetNightlyKeysMC{
   my @selection_param = @_;
 
   return GetNightlyKeys('MC',@selection_param);
+}
+
+
+#=======================================================================
+# get all runID's for offline
+# sorted by creation date
+
+sub GetOnlineKeys{
+  my $QAstatus = shift;
+  my $radio    = shift; # 'runID' or 'creation date'
+  my $runID    = shift;
+  my $year     = shift;
+  my $month    = shift;
+  my $day      = shift;
+  my $detector = shift;
+
+  $day   = remove_white_space($day);
+  $month = remove_white_space($month);
+  $runID = remove_white_space($runID);
+
+  my @db_key_strings = ( "QA status = $QAstatus<br>",
+			 "radio     = $radio<br>",
+			 "runID     = $runID<br>",
+			 "year      = $year<br>",
+			 "month     = $month<br>",
+			 "day       = $day<br>"   
+		       );
+
+  PrintTableOfKeys(@db_key_strings);
+
+  my $limit    = 50;   # limit the number of jobs to return
+
+  # -- QA status -
+  my $qa_string;
+  if ($QAstatus ne 'any'){
+    $qa_string = "$QASum{QAdone} = 'Y'" if $QAstatus eq 'done';
+    $qa_string = "$QASum{QAdone} = 'N'" if $QAstatus eq 'not done';
+    $qa_string = "$QASum{QAok}   = 'Y'" if $QAstatus eq 'ok';
+    $qa_string = "$QASum{QAok}   = 'N'" if $QAstatus eq 'not ok';
+  }
+  else {$qa_string = "1>0"; } # need a dummy where clause
+  
+  # -- runID --
+  my ($runID_string, $date_string);
+
+  if ($radio eq 'runID'){
+    $runID_string = "$QASum{runID} = '$runID' and" if $runID;
+  }
+  # -- createTime--
+  elsif ($radio eq 'date'){ 
+    if (!$year){
+      print h3("You must include the year.  Sorry..."); return;
+    }
+    else{
+      $month = make_date_nice( $month );
+      $day   = make_date_nice( $day );
+      
+      # if the string is empty, use the mysql wild card
+      $month ||= "%";
+      $day   ||= "%";
+      
+      $date_string = "$QASum{createTime} like '$year-$month-$day%' and";
+    }
+  }
+  else {die "Wrong argument for the radio button"}
+  
+  # -- detector--
+  # always selected 
+  my $detector_string = "$QASum{detector} = '$detector' and";
+
+  # query...
+  
+  my $query = qq{ select $QASum{report_key}
+		  from $QASum{Table}
+		  where
+		    $runID_string
+		    $date_string
+		    $detector_string
+		    $qa_string
+		  order by $QASum{createTime} desc
+		  limit $limit};
+  print $query;
+
+  my $ref = $dbh->selectcol_arrayref($query);
+    
+  return @{$ref};
+		    
+}
+#=======================================================================
+# prepends a '0' for day or month, if the user only types in a single 
+# digit.
+
+sub make_date_nice{
+  my $number = shift;
+  my $count = $number =~ tr /0-9//;
+  return $count == 1 ? "0$number" : $number;
+}
+#=======================================================================
+# eliminate devaint white space
+
+sub remove_white_space{
+  $_[0] =~ s/\s+//g;
+  return $_[0];
 }
 #=======================================================================
 # for printing DB query keys to browser
@@ -646,4 +764,6 @@ sub PrintTableOfKeys{
 
 #=======================================================================
 1;
+
+
 

@@ -2,9 +2,9 @@
 # 
 # utilities for database interface 
 #
-#===================================================================
+#=============================================================================
 package QA_db_utilities;
-#===================================================================
+#=============================================================================
 use CGI qw/:standard :html3/;
 
 use DBI;
@@ -35,11 +35,12 @@ my @db_globals = qw($dbh
 
 
 use vars qw($dbh $dbQA $dbFile $JobStatus $ProdOptions $FileCatalog
-	    $JobRelations $QASummaryTable $QAMacrosTable %QASum %QAMacros);
+	    $JobRelations $QASummaryTable $QAMacrosTable %QASum %QAMacros
+	    $serverHost );
 
 use strict;
 1;
-#===================================================================
+#============================================================================
 
 #
 # $dbFile and $dbQA are the 'filecatalog' and 'qa' 
@@ -75,6 +76,29 @@ use strict;
 #                     index (QAdone)
 #                     
 
+# the QA summary table for online is slightly different...
+
+#         report_key  varchar(64)         not null,
+#         runID       int(11)             not null default 0,
+#         detector    varchar(10)         not null
+#         trigger     varchar(20)         not null,
+#         createTime  datetime            not null,
+#         QAdone      enum('Y','N')       not null default 'N',
+#         QAok        enum('Y','N','n/a') not null default 'n/a',
+#         QAdate      datetime            not null,
+#         controlFile varchar(128)        not null default 'n/a',
+#         insertTime timestamp(10)        not null,
+#         qaID        mediumint           not null auto_increment,
+#                     primary key (qaID),
+#                     index (QAok),
+#                     index (QAdone),
+#                     index (trigger(10)),
+#                     index (createTime),
+#                     index (runID),
+#                     index (detector(5))
+#                     
+
+
 # table : 'QAMacros'
 #          
 #          qaID       mediumint(9) not null, 
@@ -109,7 +133,13 @@ use strict;
 	 QAok         => 'QAok',
 	 QAdate       => 'QAdate',
 	 controlFile  => 'controlFile',
-	 qaID         => 'qaID'
+	 qaID         => 'qaID',
+         # the rest or only valid for online
+	 trigger      => 'trigger',
+	 runID        => 'runID',
+	 createTime   => 'createTime',
+	 detector     => 'detector'
+
 	 );
 
 # QAMacros
@@ -129,19 +159,21 @@ use strict;
 	 );
 
 
-#====================================================================
+#----------------------------------------------------------------------------
 
-my $serverHost = 'duvall.star.bnl.gov';
 my $userFile = '/star/u2e/starqa/.my.cnf';
-my %attr = (RaiseError =>1, PrintError =>0); # rely on this to catch errors
+my %attr = (RaiseError =>1, PrintError =>0, AutoCommit => 1); 
+# rely on this to catch errors
 
-#===================================================================
+# Note: ALL DBI ERRORS ARE FATAL!
+
+#----------
 # connecting to $dbQA is arbitray.  just need to connect to 
 # the mysql server
 
 sub db_connect{
 
-  SetDBVariables();
+  SetDBVariables(); # depends on the data class
 
   my $datasource =
     "DBI:mysql:$dbQA:$serverHost;mysql_read_default_file=$userFile";
@@ -154,32 +186,30 @@ sub db_connect{
 
   
 }
-#=====================================================================
-
+#----------
+#
 sub db_disconnect{
   $dbh->disconnect or die "Couldnt disconnect from $dbQA";
 }
-
-#===================================================================
+#----------
 # pmj 3/6/00 declare variables with file scope
 # the names of the operations database, the qa database
 # and the table names are set in the DataClass_object
-
+#
 sub SetDBVariables{
   
+  $serverHost     = $gDataClass_object->MySQLHost();
   $dbFile         = $gDataClass_object->dbFile(); 
   $FileCatalog    = $gDataClass_object->FileCatalog(); 
   $JobStatus      = $gDataClass_object->JobStatus(); 
   $ProdOptions    = $gDataClass_object->ProdOptions();
   $JobRelations   = $gDataClass_object->JobRelations();
   $dbQA           = $gDataClass_object->dbQA();
-  #$QASummaryTable = $gDataClass_object->QASummaryTable(); 
-  #$QAMacrosTable  = $gDataClass_object->QAMacrosTable();
 
 }
-#=====================================================================
+#----------
 # get the log file 
-
+#
 sub GetNightlyLogFile{
   my $jobID = shift;
   
@@ -189,10 +219,8 @@ sub GetNightlyLogFile{
 		 where jobID='$jobID' };
   
   return $dbh->selectrow_array($query);
-
-
 }    
-#===========================================================================
+#----------
 # get the log file for offline
 
 sub GetOfflineLogFile{
@@ -210,13 +238,12 @@ sub GetOfflineLogFile{
   # e.g. /star/rcf/disk00001/star/P00hd/sum/daq/st_physics_1166036_raw_0002.sum
   #
 
-  $logfile =~ s/\/sum/\/log/g; # change the path info
+  $logfile =~ s|/sum/|/log/|g;   # change the path info
   $logfile =~ s/\.sum$/\.log/; # change the data type 
 
   return $logfile;
 }    
-
-#=========================================================================
+#----------
 # check if the various output files exist
 # input is the jobID
 # .dst.root, .hist.root, (flag if too small), .tags.root, .runco.root
@@ -243,7 +270,6 @@ sub GetMissingFiles{
 	          where jobID='$jobID' 
 		};
 
-  # special check for hist files
 #  my $query2 = qq{select component
 #		  from $dbFile.$FileCatalog 
 #                  where jobID = '$jobID' and
@@ -253,77 +279,46 @@ sub GetMissingFiles{
   # retrieve components from output files from db
   my @output_comp = @{$dbh->selectcol_arrayref($query)};
 
-  print h4("@output_comp");
+  print h4("should exist: @component_ary");
+  print h4("found :@output_comp");
   # construct 'seen' hash - see perl cookbook
   my %seen;
   @seen{ @output_comp } = ();
 
   # find missing files
-
   foreach ( @component_ary) {
     $missing_files .= "$_.root" unless exists $seen{$_};
   } 
     
   return $missing_files;
 }
-
-#=========================================================================
+#----------
 sub GetMissingFilesReal{
   my $jobID = shift;
 
   return GetMissingFiles($jobID, 'real');
 }
-#=========================================================================
+#----------
 sub GetMissingFilesMC{
   my $jobID = shift;
 
   return GetMissingFiles($jobID, 'MC');
 }
+#----------
+# arguments : field      - this is what you want
+#             report_key - where the 'report_key' matches this
 
-#=========================================================================
-# get the report_key from QASummary
-# never used
-
-sub GetReportKey{
-  my $jobID = shift;
-  
-  my $query = qq{select $QASum{report_key}
-		 from  $dbQA.$QASum{Table}
-		 where $QASum{jobID} = '$jobID'};
-    
-  return $dbh->selectrow_array($query);
-
-}
-
-#==========================================================================
-# get the jobID according to the report key
-
-sub GetJobID{
-  my $reportkey = shift;
-
-  my $query = qq{select $QASum{jobID} 
-		 from  $dbQA.$QASum{Table} 
-	         where $QASum{report_key}='$reportkey'};
-
-  my $jobID = $dbh->selectrow_array($query);
-  
-  return $jobID;  
-}
-
-#==========================================================================
-# get the qaID according to the report key
-
-sub GetQAID{
+sub GetFromQASum{
+  my $field      = shift;
   my $report_key = shift;
-  
-  my $query = qq{select $QASum{qaID}
-		 from $dbQA.$QASum{Table}
-		 where $QASum{report_key} = '$report_key'};
+
+  my $query = qq{select $field 
+		 from  $dbQA.$QASum{Table} 
+	         where $QASum{report_key}='$report_key'};
 
   return $dbh->selectrow_array($query);
 }
-
-#========================================================================
+#----------
 # check if files are on disk
 
 sub OnDiskNightly{
@@ -338,12 +333,11 @@ sub OnDiskNightly{
 
   return defined $status ;
 }
-#========================================================================
+#----------
 # check if files are on disk
 
 sub OnDiskOffline{
   my $jobID =  shift;
- 
 
   my $query = qq{select ID 
 		   from $dbFile.$FileCatalog
@@ -354,23 +348,7 @@ sub OnDiskOffline{
 
   return defined $status;
 }
-
-
-#===================================================================
-# get the control file info for nightly test
-# event generator, event type, geometry...
-
-sub GetControlFileInfo{
-  my $jobID = shift;
-
-  my $query = qq{select eventGen, eventType, geometry
-		 from $dbFile.$FileCatalog 
-		 where jobID='$jobID' limit 1};
-  
-  return $dbh->selectrow_array( $query );
-
-}
-#===================================================================
+#----------
 # get output file of the job (dst.root) for offline and nightly
 
 sub GetOutputFileOffline{
@@ -387,7 +365,7 @@ sub GetOutputFileOffline{
   #returns the path and name
   return $dbh->selectrow_array( $query );
 }
-#===================================================================
+#----------
 # get output file of the job (dst.root) for offline and nightly
 # path and name for nightly
 
@@ -405,7 +383,7 @@ sub GetOutputFileNightly{
   #returns the path and name
   return $dbh->selectrow_array( $query );
 }
-#===================================================================
+#----------
 # returns the value from the '$field' requested from FileCatalog
 # that matches the '$jobID'
 
@@ -420,8 +398,7 @@ sub GetFromFileCatalog{
   return $dbh->selectrow_array($query);
 
 }
-
-#===================================================================
+#----------
 # returns the value from the '$field' requested from JobStatus
 # that matches the '$jobID'
 
@@ -437,8 +414,7 @@ sub GetFromJobStatus{
   return $dbh->selectrow_array($query);
 
 }
-
-#===================================================================
+#----------
 # returns the production series, chain name,
 # library version and chain options of job for offline
 
@@ -455,8 +431,7 @@ sub GetProdOptions{
 
   return $dbh->selectrow_array ($query);
 }
-
-#===================================================================
+#----------
 # returns the input file name for offline
 
 sub GetInputFnOffline{
@@ -468,8 +443,7 @@ sub GetInputFnOffline{
 
   return $dbh->selectrow_array($query);
 }
-
-#=====================================================================
+#----------
 # get the root level, star level, starlib version, and chain 
 # for nightly tests
 
@@ -482,8 +456,7 @@ sub GetStarRootInfo{
 
   return $dbh->selectrow_array($query);
 }
-
-#=====================================================================
+#----------
 # returns all production files for offline 
 
 sub GetAllProductionFilesOffline{
@@ -498,7 +471,7 @@ sub GetAllProductionFilesOffline{
   return $dbh->selectcol_arrayref($query);
 
 }
-#=====================================================================
+#----------
 # returns  all production files for nightly 
 
 sub GetAllProductionFilesNightly{
@@ -513,8 +486,24 @@ sub GetAllProductionFilesNightly{
   return $dbh->selectcol_arrayref($query);
 
 }
+#---------
+# update QAsummary
+# arguments: name of the field you want
+#            value of the field you want to update,
+#            qaID which matches the row
+#
+sub UpdateQASummary{
+  my $field = shift;
+  my $value = shift;
+  my $qaID  = shift;
 
-#=============================================================
+  my $query = qq{update $dbQA.$QASum{Table}
+		 set $field='$value'
+		 where $QASum{qaID} = '$qaID' };
+  
+  $dbh->do($query);
+}
+#----------
 # delete jobID from QASummary and remove the 
 # corresponding report directory
 
@@ -532,7 +521,7 @@ sub EraseJob{
   # rm report directory
   rmdir $report_dir or warn "Could not remove $report_dir";
 }
-#===========================================================
+#----------
 # clear the QAMacros table in db
 
 sub ClearQAMacrosTable{
@@ -547,9 +536,8 @@ sub ClearQAMacrosTable{
 
   print h4("...done\n");
 }
-
-#==============================================================
-# Write QASummary
+#----------
+# 
 
 sub WriteQASummary{
   my $qa_status    = shift; # 0,1
@@ -582,21 +570,9 @@ sub WriteQASummary{
   print h4("...done\n");
 }
 
-#==========================================================
-# write the QA macro summary into the db
-# takes in a report_object as an arg
-# writes in the following information
-#
-# jobID   
-# macro_name
-# fName
-# path
-# extension
-# size
-# createTime
-# status
-# warnings
-# errors
+#-----------
+# write the QA macro summary into the db.
+# whether it crashed, errors, warnings, etc.
 
 sub WriteQAMacroSummary{
   my $qaID      = shift; # needs the jobID from QA_object
@@ -608,6 +584,8 @@ sub WriteQAMacroSummary{
 
   # macro output info
   my $output_file = $report_obj->IOMacroReportFilename->Name;
+  $output_file =~ s/ps$/ps\.gz/; # assume ps changed to ps.gz...
+
   my $macro_name  = $report_obj->MacroName;
   my $fName       = basename($output_file);
   my $path        = dirname($output_file);
@@ -722,15 +700,15 @@ sub WriteQAMacroSummary{
   print h4("Inserting qa macro summary into db for $fName...\n");
 
   # insert
-  my $rc = $dbh->do($query);
+  my $rows = $dbh->do($query);
 
-  if ($rc) { print h4("...done\n")}
+  if ($rows += 0) { print h4("...done\n")}
   else     { print h4("<font color = red> Error. Cannot insert qa info for ",
 		      "$output_file</font>"); return;}
     
   return $qa_status;
 }
-#==============================================================
+#----------
 # get overall qa summary
 
 sub GetQASummary{
@@ -748,7 +726,7 @@ sub GetQASummary{
   return ($QADone, $QADate);
 
 }
-#==============================================================
+#----------
 # get specific macro results if there are any problems with 
 # the evaluation.  returns ref to a 2-d array
 
@@ -767,8 +745,7 @@ sub GetQAMacrosSummary{
   $sth->execute;
   return $sth->fetchall_arrayref();
 }
-
-#===============================================================
+#----------
 # parse the dataset field for offline MC
 # format: [collision]/[eventGen]/[details]/[eventType]/[geometry]/[junk]
 #         e.g. auau200/venus412/default/b0_3/year_1b/hadronic_on
@@ -790,8 +767,7 @@ sub ParseDatasetMC{
   return ($collisionType, $eventGen, $details, $eventType, $geometry);
   
 }
-
-#==============================================================
+#----------
 # parse the dataset field for offline real
 # format: [collisionType]/[geometry]/[eventType]
 
@@ -810,7 +786,7 @@ sub ParseDatasetReal{
   return split /\//, $dataset, 3;
 
 }
-#==============================================================
+#----------
 # 1. deletes the 'old' reports from the databasee
 # 2. returns the report keys so that we can delete it from disk
 
@@ -860,11 +836,11 @@ sub GetOldReports{
 
   return @old_report_keys;
 }
-#==============================================================
+#----------
 sub GetOldReportsReal{
   return GetOldReports('real');
 }
-#==============================================================
+#----------
 sub GetOldReportsMC{
   return GetOldReports('MC');
 }

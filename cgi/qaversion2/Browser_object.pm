@@ -21,6 +21,7 @@ use IO_utilities;
 use Browser_utilities;
 use KeyList_object_offline;
 use KeyList_object_nightly;
+use KeyList_object_online;
 
 use DataClass_object;
 
@@ -168,6 +169,11 @@ sub StartingDisplay{
   # job selection menu
   my $selection_string = $self->KeyList->JobPopupMenu(); 
 
+  # switch class of data menu if not in Online
+  # pmj 21/6/00 data class string moved to banner, this is no longer needed
+  #my $switch_string    = Browser_utilities::SwitchDataTypeMenu();
+
+
   # comment form?
   my $comment_string 
     = Browser_utilities::start_comment_button();
@@ -186,20 +192,13 @@ sub StartingDisplay{
     $expert_string = Browser_utilities::start_expert_default();
   }
 
-  my $rightmost_buttons_string =  "<tr> $expert_string <tr> $comment_string";
-  
-  $gServer_object->ServerType() eq "offline" and do{
-    my $button_string = Browser_utilities::start_rcas_lsf_monitor();
-    $rightmost_buttons_string .= "<tr> $button_string";
-  };
-
-
   print qq{
 	<table border=0, width=100%, valign=top, align=center>
         <tr valign=top>
 	    <td> $selection_string
 	    <td> <table border=0, valign=top, align=center>
-	      $rightmost_buttons_string
+                 <tr> $expert_string
+                 <tr> $comment_string
                  </table>
         </table>};
   #-----------------------------------------------------------------------------

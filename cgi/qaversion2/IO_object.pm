@@ -595,6 +595,24 @@ sub ControlFileOffline{
   return "$dir/control_and_test.txt";
 }
 #=====================================================================
+# dummy control file for now
+# format
+# [controlDir]/test_control.txt
+
+sub ControlFileOnline{
+  my $self   = shift;
+  my $qa_obj = shift;
+
+  my $dir      =  $self->ControlDir;
+  my $detector =  $qa_obj->LogReport->Detector;
+
+  $self->ReportErrorOnOpen(1);
+  $self->IsDir(0);
+
+  # TEST
+  return "$dir/$detector/control_and_test.txt";
+}
+#=====================================================================
 # output of the macro run
 
 sub MacroReportFilename{
@@ -713,6 +731,12 @@ sub LogScratchDir{
  
   return $gDataClass_object->LogScratchDir();
 }
+#=========================================================================
+sub SummaryHistDir{
+  my $self = shift;
 
-  
+  $self->IsDir(1);
+  $self->ReportErrorOnOpen(1);  
 
+  return $gDataClass_object->SummaryHistDir;
+}

@@ -6,7 +6,7 @@
 package Server_object;
 #========================================================
 use CGI qw/:standard :html3/;
-use CGI::Carp qw(fatalsToBrowser);
+#use CGI::Carp qw(fatalsToBrowser);
 
 use File::Basename;
 use File::Find;

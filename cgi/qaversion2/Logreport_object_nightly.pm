@@ -37,55 +37,50 @@ sub new{
 
   return $self;
 }
-#==========================================================
+#
+#----------
+#
 sub _initplus{ 
 
   my $self = shift;
 
-  # trigger info for the control file
+  # trigger info, etc
+  my $evtgen  = QA_db_utilities::GetFromFileCatalog('eventGen', $self->JobID);
+  my $evttype = QA_db_utilities::GetFromFileCatalog('eventType', $self->JobID);
+  my $geom    = QA_db_utilities::GetFromFileCatalog('geometry', $self->JobID);
 
-  my ($eventGen, $eventType, $geometry) = 
-    QA_db_utilities::GetControlFileInfo( $self->JobID );
-  
-  $self->EventGen($eventGen);
-  $self->EventType($eventType);
-  $self->Geometry($geometry);
+  $self->EventGen($evtgen);
+  $self->EventType($evttype);
+  $self->Geometry($geom);
 
 }
-#==========================================================
+#
+#----------
 # get the log file in SUPER::_init
-
+#
 sub GetLogFile{
   my $self  = shift;
 
   return QA_db_utilities::GetNightlyLogFile( $self->JobID );
 }
-#==========================================================
-# get the production files
-
-sub GetProductionFiles{
-  my $self = shift;
-  
-  my $file_ref = 
-    QA_db_utilities::GetAllProductionFilesNightly($self->JobID);
-  $self->ProductionFileListRef($file_ref);
-}
-
-#=========================================================
+#
+#----------
 # parse the logfile
-
+#
 sub ParseLogfile {
   my $self = shift;
 
-  my $logfile = $self->LogfileName(); # found in SUPER::_init
-
   # open files
-  my $fh       = FileHandle->new( $logfile, "r" ) or return;
+  my $fh = FileHandle->new( $self->LogfileName(), "r" ) or return;
   
-  print "Found logfile $logfile\n", br;
+  print "Found logfile ", $self->LogfileName(), "\n", br;
 
-  my $FH_WARN  = $self->IOStWarningFile->Open(">", "0664");
-  my $FH_ERR   = $self->IOStErrorFile->Open(">", "0664");
+  # init StWarning and StError files
+  my $io_warn = new IO_object("StWarningFile",$self->ReportKey);
+  my $io_err  = new IO_object("StErrorFile",$self->ReportKey);
+
+  my $FH_WARN  = $io_warn->Open(">", "0664");
+  my $FH_ERR   = $io_err->Open(">", "0664");
 
   my ($record_run_options);
   # read the log file
@@ -151,10 +146,10 @@ sub ParseLogfile {
   
   return 1;
 }
-
-#=========================================================
+#
+#----------
 # get more info from the db
-
+#
 sub GetJobInfo{
   my $self = shift;
 
@@ -210,6 +205,19 @@ sub GetJobInfo{
   my $jobstatus = QA_db_utilities::GetFromJobStatus('jobStatus',$jobID);
   $self->JobStatus($jobstatus);
   
+  # all the output files
+  my $file_ref = 
+    QA_db_utilities::GetAllProductionFilesNightly($self->JobID);
+  $self->ProductionFileListRef($file_ref);
 
+  # check for missing files.
+  # depends on the data class - use global DataClass_object.
+  # returns a string.
+  
+  no strict 'refs';
+  my $sub_missing = $gDataClass_object->GetMissingFiles; # name of the sub
+  $self->MissingFiles( &$sub_missing($self->JobID) );
+
+  1;
 }  
 1;

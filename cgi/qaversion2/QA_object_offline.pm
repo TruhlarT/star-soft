@@ -1,10 +1,10 @@
-#! /usr/bin/perl 
+#! /usr/bin/perl b                
 #
 # derived QA_object for offline
 #
-#========================================================
+#=============================================================================
 package QA_object_offline;
-#========================================================
+#=============================================================================
 use CGI qw(:standard :html3);
 use IO_object;
 use QA_db_utilities;
@@ -15,7 +15,7 @@ use base qw(QA_object);
 
 use strict;
 1;
-#--------------------------------------------------------
+#----------------------------------------------------------------------------
 
 sub new{
   my $classname = shift;
@@ -24,9 +24,9 @@ sub new{
   return $self;
 }
 
-#========================================================
+#----------
 # is it on disk?
-
+#
 sub InitOnDisk{
   my $self = shift;
 
@@ -34,8 +34,8 @@ sub InitOnDisk{
   $self->OnDisk($ondisk);
 }
 
-#========================================================
-
+#----------
+#
 sub InitControlFile{
   my $self = shift;
 
@@ -43,10 +43,10 @@ sub InitControlFile{
     IO_object->new("ControlFileOffline", $self);
  
 }
-#==========================================================
+#----------
 # (first column)
 # identifies the job/dataset in the browser  
-
+#
 sub DataDisplayString{
   my $self = shift;
 
@@ -64,9 +64,9 @@ sub DataDisplayString{
 }
 
 
-#========================================================
+#----------
 # create the log report object
-
+#
 sub NewLogReportObject{
   my $self = shift;
 

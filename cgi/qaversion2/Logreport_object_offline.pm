@@ -30,7 +30,7 @@ my %members = (
 	        _Dataset          => undef
 	      );
 
-#==========================================================
+#=========================================================
 # 
 sub new{
   my $classname = shift;
@@ -81,7 +81,7 @@ sub _init_offline{
   $self->Dataset(QA_db_utilities::GetFromFileCatalog('dataset',$self->JobID));
 
 }
-#===========================================================
+#=======================================================
 # additional init for offline real
 
 sub offline_real{
@@ -123,7 +123,7 @@ sub offline_MC{
 
 }
   
-#===========================================================
+#==========================================================
 # get the log file - called in SUPER::_init
 
 sub GetLogFile{
@@ -131,18 +131,8 @@ sub GetLogFile{
 
   return QA_db_utilities::GetOfflineLogFile( $self->JobID );
 }
-#===========================================================
-# get all the production files
 
-sub GetProductionFiles{
-  my $self = shift;
-
-  my $file_ref = 
-    QA_db_utilities::GetAllProductionFilesOffline($self->JobID);
-
-  $self->ProductionFileListRef($file_ref);
-}
-#===========================================================
+#==========================================================
 # parse the summary of the log file
 # also parses the separate error file which contains
 # the StError and StWarning info among other things
@@ -218,18 +208,23 @@ sub ParseLogfile{
   # deduce the error file
   (my $errorfile = $logfile) =~ s/log$/err/;
 
-  my $fh_err = FileHandle->new($errorfile, "r");
+  my $fh_error  = FileHandle->new($errorfile, "r");
 
-  if (defined $fh_err)
+  if (defined $fh_error)
   {
-    my $FH_ERR  = $self->IOStErrorFile->Open(">", "0664") or return;
-    my $FH_WARN = $self->IOStWarningFile->Open(">", "0664") or return;
 
+    # init StWarning and StError files
+    my $io_warn = new IO_object("StWarningFile",$self->ReportKey);
+    my $io_err  = new IO_object("StErrorFile",$self->ReportKey);
+    
+    my $FH_WARN  = $io_warn->Open(">", "0664");
+    my $FH_ERR   = $io_err->Open(">", "0664");
+ 
     # print to StError and StWarning file
-    while( defined( my $line = $fh_err->getline ) ){
+    while( defined( <$fh_error> )){
       
-      print $FH_ERR  $line if $line =~ /StError:/;
-      print $FH_WARN $line if $line =~ /StWarning:/;
+      print $FH_ERR  if /StError:/;
+      print $FH_WARN if /StWarning:/;
 
     }
     close $FH_ERR; close $FH_WARN;
@@ -237,7 +232,7 @@ sub ParseLogfile{
 
   return 1;
 }
-#=============================================================
+#===========================================================
 # gets some info about the job from the db
 
 sub GetJobInfo{
@@ -273,6 +268,21 @@ sub GetJobInfo{
   # job completion time
   my $donetime = QA_db_utilities::GetFromFileCatalog('createTime',$self->JobID);
   $self->JobCompletionTimeAndDate($donetime);
+
+  # all output files
+   my $file_ref = 
+    QA_db_utilities::GetAllProductionFilesOffline($self->JobID);
+
+  $self->ProductionFileListRef($file_ref);
+
+  # check for missing files.
+  # depends on the data class - use global DataClass_object.
+  # returns a string.
+  
+  no strict 'refs';
+  my $sub_missing = $gDataClass_object->GetMissingFiles; # name of the sub
+  $self->MissingFiles( &$sub_missing($self->JobID) );
+
 
 }
 1;

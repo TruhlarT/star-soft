@@ -1,6 +1,6 @@
 #! /usr/bin/perl
 # 
-# utilities for database interface for updating
+# utilities for database interface for updating new QA 'objects'
 #
 #===================================================================
 package Db_update_utilities;
@@ -12,21 +12,19 @@ use QA_globals;
 use QA_db_utilities qw(:db_globals); # import
 
 use strict;
-
-#=========================================================================
+1;
+#-------------------
 # performs 2 tasks -
 # 1. returns an array of updated reportkeys 
 # 2. update QASummary with these jobID's
 # takes an argument of either real or MC
-
+#
 sub UpdateQAOffline{
   my $data_type   = shift; # either 'real' or 'MC'
-
   my $limit       = 30;     # limit number of new jobs
   my $oldest_date; # dont retrieve anything older than this
   my $file_type;
   my $time_sec = 100*3600*24; # number of seconds in a week
-
   my $today    = strftime("%Y-%m-%d %H-%M-%S",localtime());
 
   # real or simulation?
@@ -84,11 +82,13 @@ sub UpdateQAOffline{
 
   my (@key_list);
   my $sth_update = $dbh->prepare($query_update); # find jobs to update
-  my $sth_key    = $dbh->prepare($query_key); # get the report key info
+  my $sth_key    = $dbh->prepare($query_key);    # get the report key info
   my $sth_insert = $dbh->prepare($query_insert); # insert into QASummary
 
   $sth_update->execute;
-  $sth_update->rows or return; # get out if there are no jobs to update
+  my $rows = $sth_update->rows or return; # get out if there are no jobs to update
+
+  print h3("Found $rows new jobs\n");
 
   # loop over jobs
   while ( my $jobID = $sth_update->fetchrow_array ) {
@@ -105,38 +105,36 @@ sub UpdateQAOffline{
   }	       
   return @key_list;
 }
-#========================================================================
+#-------------------
 # update for offline MC
 # wraps around UpdateQAOffline
-
+#
 sub UpdateQAOfflineMC{
 
   return UpdateQAOffline('MC');
 }
 
-#========================================================================
+#-------------------
 # update for offline real
 # wraps around UpdateQAOffline
-
+#
 sub UpdateQAOfflineReal{
 
   return UpdateQAOffline('real');
 }
 
-#=========================================================================
+#-------------------
 # performs 2 tasks -
 # 1. returns an array of updated reportkeys 
 # 2. update QASummary with these jobID's
-
+#
 sub UpdateQANightly {  
   my $data_class = shift; # 'real' or 'MC'
   
-  my $limit = 2;
-  my $oldest_date = '2000-06-23'; # dont retrieve anything older 
+  my $limit       = 1;
+  my $oldest_date = '2000-06-20'; # dont retrieve anything older 
   my ($type, $eventGen_string);
-  my $time_sec = 100*3600*24;    #number of seconds in a week
   my $today    = strftime("%Y-%m-%d %H-%M-%S",localtime());
-
 
   # real or simulation
   if ($data_class eq 'real')
@@ -198,7 +196,7 @@ sub UpdateQANightly {
   my $query_insert = qq{insert into $dbQA.$QASum{Table} 
 			set
 			  $QASum{jobID}      = ?,
-			  $QASum{report_key} = ?,
+   			  $QASum{report_key} = ?,
 			  $QASum{QAdone}     = 'N',
 			  $QASum{type}       = '$data_class',
 		          $QASum{qaID}       = NULL          
@@ -211,8 +209,10 @@ sub UpdateQANightly {
   my $sth_insert = $dbh->prepare($query_insert); # insert into QASummary 
 
   $sth_update->execute;
-  $sth_update->rows or return; # get out if there are no jobs to update
- 
+  my $rows = $sth_update->rows or return; # get out if there are no jobs to update
+
+  print h3("Found $rows new jobs\n");
+
   # loop over jobs
   while ( my $jobID = $sth_update->fetchrow_array) {
     print "found $jobID<br>\n";
@@ -237,28 +237,95 @@ sub UpdateQANightly {
   return @key_list;
 }
 
-#=========================================================================
+#-------------------
 # update nightly test MC
-
+#
 sub UpdateQANightlyMC { 
 
   return UpdateQANightly('MC');
 }
 
-#=========================================================================
+#-------------------
 # update nightly test real data
-
+#
 sub UpdateQANightlyReal { 
 
   return UpdateQANightly('real');
 }
-#=========================================================================
+#-------------------
+# update online raw
+# scan evtpool (or is the datapool?).
+#
+sub UpdateOnline{
+  my ($io, $dh, %seen, %duplicate, @histkeys, @toUpdate);
+  
+  my $count =0; # for debugging
+
+  # get the report keys from the summary hist dir
+  $io = new IO_object("SummaryHistDir") or return;
+  $dh = $io->Open;
+
+  # stripping off the file type should give us the corresponding 'report key'
+  while (defined (my $file = readdir $dh)){
+    if ( $file =~ /\.root$/){
+      (my $key = $file) =~ s/\.\w+\.root$//;
+      push @histkeys, $key unless $duplicate{$key}++;
+    }
+  }
+  undef $io;
+  
+  # now go into the QA reports directory, 
+  $io = new IO_object("TopdirReport");
+  $dh = $io->Open;
+  
+  my @QAreports  = readdir $dh;
+  undef $io;
+  
+  # put QAreports in the seen hash
+  @seen{ @QAreports } = ();
+
+  # find the keys from the histfiles not in the QAreports
+  foreach (@histkeys){
+    push @toUpdate, $_ unless exists $seen{$_};
+  }
+  # test
+  #print join "\n", @toUpdate;
+  
+  # now update the database
+
+  InsertOnlineQASum(@toUpdate);
+
+  return @toUpdate;
+}
+#-------------------
+# takes a bunch of report keys and inserts the new 'jobs' into
+# the QASummary table
+
+sub InsertOnlineQASum{
+  my @toUpdate = @_;
+
+  my $query = qq{ insert into $dbQA.$QASum{Table} set
+		    $QASum{report_key} = ?,
+		    $QASum{QAdone}     = 'N',
+		    $QASum{qaID}       = NULL         
+		  };
+
+  my $sth = $dbh->prepare($query);
+  
+  foreach my $key (@toUpdate) {
+    $sth->execute($key);
+  }
+
+}
+  
+#-------------------
 # called in QA_main
 # gets the report keys from the QATable that need to be QA-ed
-
+#
 sub GetToDoReportKeys{
   my $type = shift; # real or MC
   my (@todo_keys, $job, $type_string);
+  
 
   if ($type eq 'real'){
     $type_string = "$QASum{type} = 'real'";
@@ -269,7 +336,7 @@ sub GetToDoReportKeys{
 
   # distinct just in case
   my $query = qq{select distinct $QASum{report_key} 
-		 from $dbQA.$QASum{Table}  
+		 from $dbQA.QASum{Table}  
 		 where $QASum{QAdone} = 'N' and
 	         $type_string};
   
@@ -290,4 +357,4 @@ sub Test{ print "dbFile      = $dbFile\n",
 	        "FileCatalog = $FileCatalog\n",
 	        "JobStatus   = $JobStatus\n" }
 
-1;
+

@@ -89,7 +89,7 @@ sub _init{
   $io = IO_object->new("LogReportStorable",$report_key);
   $self->{_LogReportStorable} = $io->Name;
   
-  #------
+  #----------
   # updating entails creating the Logreport object
   # and making the report directory
 
@@ -102,18 +102,18 @@ sub _init{
       # something's wrong.  erase everything and get out
       print h3("<font color=red>Error - Erasing Job..."),br;
       QA_db_utilities::EraseJob($self->ReportKey,
-				   $self->IOReportDirectory->Name);
+				$self->IOReportDirectory->Name);
       return;
     };
   } 
   else
-  {   # just get it from file
+  {   # just get it from disk
       $self->GetLogReport or return;
   }     
-  # -------------------------------------------------
+  # ----------
   # initialize some members using logreport_object
 
-  $self->{_JobID} = $self->LogReport->JobID;
+  #$self->{_JobID} = $self->LogReport->JobID;
   $self->{_qaID}  = $self->LogReport->qaID;
   $self->{_ProductionDirectory} = $self->LogReport->OutputDirectory;
 
@@ -127,7 +127,6 @@ sub _init{
   ($self->{_QADone}, $self->{_QADate}) =
     QA_db_utilities::GetQASummary($self->qaID);
 
-  
   # is data on disk? - see derived classes
   
   $self->InitOnDisk();
@@ -149,8 +148,6 @@ sub InitOnDisk{
 
 sub InitControlFile{
   my $self = shift;
-
-  #$self->{_IOControlFile} = IO_object->new("ControlFile", $self);
  
 }
 
@@ -196,43 +193,18 @@ sub DoQA{
     # found the macro test file
     # also known as the test_definition file
     my $macro_test_file = $line;
-    print h4("Macro test file $macro_test_file\n");
-
-    # get the missing files
-    my $missing_files = $self->LogReport->MissingFiles;
+    print h4("\nMacro test file $macro_test_file\n");
 
     # create QA_report_object to run macros or do tests
     my $report_obj = QA_report_object->new($report_key,$macro_test_file,
-					   $missing_files);
+					   $self->LogReport);
 
     # get the tests and name of macro
     $report_obj->GetTests(); 
     
     # run the macro ? if evaluate_only, no
-    unless ($run_option =~ /evaluate_only/){
+    $report_obj->RunMacro() unless ($run_option =~ /evaluate_only/);
       
-      # get the starlib version
-      my $starlib_version = $self->LogReport->StarlibVersion;   
-      
-      if ($starlib_version =~ /SL/){ $starlib_version =~ s/SL// }
-      else                         { $starlib_version = "dev"   }
-      
-      # how many events were requested?
-      my $nevent_requested = $self->LogReport->NEventRequested;
-      
-      # for offline real, event requested is meaningless
-      # feed it the number of events processed
-      if (not defined $nevent_requested ){
-	$nevent_requested = $self->LogReport->NEventDone;
-      }
-      
-      # get the possible input files
-      my $prod_files_ref = $self->LogReport->ProductionFileListRef;
-      
-      # run macro
-      $report_obj->RunMacro($starlib_version, $nevent_requested,
-			    $prod_files_ref); 
-    }
     # evaluate
     $report_obj->EvaluateMacro();
     
@@ -559,7 +531,7 @@ sub ShowPsFiles{
       next;
     }
   }
-  undef $dh;
+  close $dh;
 }
 #========================================================
 # QA Details: Scalars and Tests
@@ -590,7 +562,7 @@ sub ShowScalarsAndTests{
     }
   }
   undef $dh;
-
+  
   #---------------------------------------------------------
   my %eval_hash;
 
@@ -664,27 +636,23 @@ sub ShowScalarsAndTests{
 
 sub DisplayFilesAndReports{
   my $self = shift;
-
   
   # if on disk, then show the files in the output directory
   if ( $self->OnDisk ) {
     $self->PrintProductionFiles;
   } else { 
-    print h2("<font color=orange> Not on Disk</font>\n");
+    print h2(font({-color=>'orange'}, "Not on Disk\n"));
   }
 
   print h3("Reports for ",$self->ReportKey,"\n");
 
   # make a temporary link to the log file
   if ($self->OnDisk) {
+
     my $logfile = $self->LogReport->LogfileName;
-    #my $logfile_WWW = $self->LogReport->LogfileNameWWW;
 
     if (-s $logfile){
-     
-      # random number for uniqueness
-      my $id_string = int(rand(1000000));
-
+      
       my $io = IO_object->new("LogScratchWWW",$logfile);
       my $link = $io->Name;
 
@@ -693,17 +661,20 @@ sub DisplayFilesAndReports{
     }
   }
 
-  # add error and warning files
+  # add error and warning files ( if they exist )
   my $warning_string = "StWarning file: ";
   my $error_string   = "StError file: ";
-  my $warning_file   = $self->LogReport->IOStWarningFile->Name;
-  my $error_file     = $self->LogReport->IOStErrorFile->Name;
+  my $io_warn        = new IO_object("StWarningFile",$self->ReportKey);
+  my $io_err         = new IO_object("StErrorFile",$self->ReportKey);
+
+  my $warning_file   = $io_warn->Name;
+  my $error_file     = $io_err->Name;
 
   # links to StWarning and StError files
   $self->PrintFilestring( $warning_string, basename $warning_file )
-    if -e $warning_file;
+    if -s $warning_file;
   $self->PrintFilestring( $error_string, basename $error_file )
-    if -e $error_file;
+    if -s $error_file;
 
 
   # look in report directory for more files
@@ -729,57 +700,17 @@ sub DisplayFilesAndReports{
   }
 
   closedir $dh;
-  #----------------------------------------------------------------
-  # Control and Test Files
-  # pmj moved here 21/6/00
 
-  # get links to test files  
-  print h3("<hr>Control and Macro Definition files:\n");
-  
-  my $control_file = $self->IOControlFile->Name;
-
-  # get names of directories
-  my $io = new IO_object("ControlDir");
-  my $control_dir_local = $io->Name();
-  undef $io;
-  
-  $io = new IO_object("ControlDirWWW");   
-  my $control_dir_WWW_local = $io->Name();
-  undef $io;      
-
-  # chop off the path 
-  (my $base_control = $control_file) =~ s/$control_dir_local//;
-  
-  # link to control file
-  my $control_file_WWW = "$control_dir_WWW_local/$base_control";
-  QA_cgi_utilities::make_anchor("Control file", $control_file, $control_file_WWW);
- 
-  # check if it still exists on disk
-  if ( -e $control_file ){
- 
-    my $fh = $self->IOControlFile->Open;
-    while (my $test_file = <$fh>){
-      
-      $test_file =~ /^\#/ and next; # skip comments
-      $test_file !~ /\S+/ and next; # skip blank lines
-      
-      (my $base_test = $test_file) =~ s/$control_dir_local//;
-      my $test_file_WWW = "$control_dir_WWW_local/$base_test";
-
-      # link to macro definition file
-      QA_cgi_utilities::make_anchor("Macro Definition file", $test_file, $test_file_WWW);
-    }
-    close $fh;
-  }
-  else{
-    print "Control file $control_file does not exist <br> \n";
-  }
+  # links to the control file, and the macro test files.
+  $self->ShowControlFiles();
 
   #----------------------------------------------------------------
   # print links to the ps files
 
-  print h4("Postscript files:\n"); 
+#  $self->ShowPsFiles();
 
+  print h4("Postscript files:\n"); 
+  
   foreach my $file (@ps_file){
     $self->PrintFilestring("Postscript file", $file);
   }
@@ -809,6 +740,60 @@ sub DisplayFilesAndReports{
   };
 
   print hr;
+}
+#===============================================================================
+# make links to the control file and the macro - test files
+#
+sub ShowControlFiles{
+  my $self = shift;
+
+  # Control and Test Files
+  # pmj moved here 21/6/00
+
+  # get links to test files  
+  print h3("<hr>Control and Macro Definition files:\n");
+  
+  my $control_file = $self->IOControlFile->Name;
+
+  # get names of directories
+  my $io  = new IO_object("ControlDir");
+  my $control_dir_local = $io->Name();
+  undef $io;
+  
+  $io = new IO_object("ControlDirWWW");   
+  my $control_dir_WWW_local = $io->Name();
+  undef $io;      
+
+  # chop off the path 
+  (my $base_control = $control_file) =~ s/$control_dir_local//;
+  
+  # link to control file
+  my $control_file_WWW = "$control_dir_WWW_local/$base_control";
+  QA_cgi_utilities::make_anchor("Control file", $control_file, $control_file_WWW);
+ 
+  # check if it still exists on disk
+  if ( -e $control_file )
+  {
+    my $fh = $self->IOControlFile->Open;
+   
+    while (my $test_file = <$fh>){
+      
+      $test_file =~ /^\#/ and next; # skip comments
+      $test_file !~ /\S+/ and next; # skip blank lines
+      
+      (my $base_test = $test_file) =~ s/$control_dir_local//;
+      my $test_file_WWW = "$control_dir_WWW_local/$base_test";
+
+      # link to macro definition file
+      QA_cgi_utilities::make_anchor("Macro Definition file", $test_file, 
+				    $test_file_WWW);
+    }
+    close $fh;
+  }
+  else
+  {
+    print "Control file $control_file does not exist <br> \n";
+  }
 }
 
 #===============================================================================
@@ -845,7 +830,7 @@ sub PrintFilestring{
   return;
 }
 #==========================================================
-# print the root files in the production output directory
+# print the .root files in the production output directory
 
 sub PrintProductionFiles{
 
@@ -868,7 +853,7 @@ sub PrintProductionFiles{
     push @table_rows, td([$file, $size, $time]);
   }
 
-  print h3("Files in $self->{_ProductionDirectory}");
+  print h3("Files in ",$self->ProductionDirectory);
   print table( {-border=>undef}, Tr(\@table_rows));
 
 }
@@ -893,8 +878,8 @@ sub UpdateLogReport{
   my $topdir_local = $io->Name;
   
   # tell them we're updating
-  print "<font color = red> ",
-     "Found new job($report_key) for $topdir_local database</font>\n",br;
+  print font({-color=>'red'} ,
+     "Found new job($report_key) for ",$gDataClass_object->DataClass,".\n"),br;;
   
   # make new report dir
   print h4("Making directory: $report_dir\n");
