@@ -16,11 +16,14 @@ setenv star_login_csh 1
 # ------------------------------
 # Variables subject to changes
 # ------------------------------
-setenv GROUP rhstar
+# this is kept for compatibility purposes (until I can cleared
+# out if it is really necessary or not) but is actually a 
+# soft-link to .../star/
+setenv GROUP rhstar           
 if (! $?GROUP_DIR ) then
-    # allow users to have a private copy for testing by
-    # redefining GROUP_DIR
-    setenv GROUP_DIR   "/afs/rhic/$GROUP/group"
+    # by testing this, it allows users to have a private copy 
+    # for testing purposes by redefining GROUP_DIR
+    setenv GROUP_DIR   "/afs/rhic/star/group"
 endif
 
 

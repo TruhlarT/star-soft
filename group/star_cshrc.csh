@@ -66,14 +66,14 @@ endif
 if ( -o /bin/su ) then
     if($USER == "root") then
 	# root prompt
-	alias setprompt 'set prompt="%m@%.04/# "'
+	alias setprompt 'set prompt="%s%m@%.04/# "'
     else
 	# to another user ...
-	alias setprompt 'set prompt="%m@%.04/| "'
+	alias setprompt 'set prompt="%s%m@%.04/| "'
     endif
 else
     # user
-    alias setprompt 'set prompt="%m@%.04/> "'
+    alias setprompt 'set prompt="%s%m@%.04/> "'
 endif
 
 
