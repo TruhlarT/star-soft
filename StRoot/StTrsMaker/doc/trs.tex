@@ -2,7 +2,7 @@
 %
 % TRS - User Guide and Reference Manual -- LaTeX Source 
 %
-% $Id: trs.tex,v 1.2 1999/01/24 03:32:57 lasiuk Exp $
+% $Id: trs.tex,v 1.3 1999/01/24 20:58:59 lasiuk Exp $
 %
 % Author: LaTeX template by Thomas Ullrich
 %         1st version by brian
@@ -10,8 +10,8 @@
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %
 % $Log: trs.tex,v $
-% Revision 1.2  1999/01/24 03:32:57  lasiuk
-% update of manual
+% Revision 1.3  1999/01/24 20:58:59  lasiuk
+% simple corrections
 %
 % Revision 1.2  1999/01/24 03:32:57  lasiuk
 % update of manual
@@ -105,8 +105,8 @@
   \mbox{\includegraphics[width=\textwidth]{trsTitle.eps}}
   \hfill\mbox{}\\[3cm]
   {\LARGE User Guide and Reference Manual}\\[2cm]
-  {\LARGE $ $Revision: 1.2 $ $}  \\[5mm] % replaced by cvs with current revision  
-  {\LARGE $ $Date: 1999/01/24 03:32:57 $ $}  % replaced by cvs with current revision  
+  {\LARGE $ $Revision: 1.3 $ $}  \\[5mm] % replaced by cvs with current revision  
+  {\LARGE $ $Date: 1999/01/24 20:58:59 $ $}  % replaced by cvs with current revision  
   \vfill
 \end{center}
 \cleardoublepage
@@ -263,7 +263,7 @@ significant user demand. \index{Irix} \index{AIX}
 All documentation, code, and header files of \name{TRS} are contained in
 the {\bf CVS} repository at BNL in the \comp{\$STAR/StRoot} section
 in a
-directory named \name{./St_trs_Maker}.\footnote{To be changed to: 
+directory named \name{./St\_trs\_Maker}.\footnote{To be changed to: 
         \name{StTrsMaker/}}.  
 There are several subdirectories
 in  which  the code is then distributed.  The header files as well
@@ -431,10 +431,10 @@ handling. \index{ST\_NO\_EXCEPTIONS}
   defined in CLHEP v1.2 (use of this macro is strongly discouraged).\index{ST\_OLD\_CLHEP\_SYSTEM\_OF\_UNITS}
 \item[\comp{NO\_HBOOK\_INIT}:] restricts the automatic initialization of HBOOK
   memory (SCL specific).
-\item[\comp{RWSTD\_BOUNDS\_CHECKING:] used to check that the bounds of 
+\item[\comp{RWSTD\_BOUNDS\_CHECKING}:] used to check that the bounds of 
 STL \index{STL} containers\footnote{Only for Rogue-Wave \index{Rogue-Wave} 
         implementations of the STL}
-are not exceeded.
+      are not exceeded.
 \end{description}
 
 Furthermore several platform idiosynchrocies and shortcomings must
@@ -461,7 +461,7 @@ The following macros are only used in TRS specific classes.
 
 \section{Documentation} \index{documentation} \index{class browser} \index{HTML}
 
-The documentation of \name{TRS} consists of the {\em \bfUser Guide and
+The documentation of \name{TRS} consists of the {\em \bf User Guide and
     Reference Manual} (i.e.~this document) is 
 located in \name{./StRoot/StTrsMaker/doc/tex}, and (shortly) 
 a \name{HTML} class browser in
@@ -1203,7 +1203,7 @@ The charge transporter calculates the position of the charge
 segment/electron at the z-plane of the anode/sense wire grid
 and the amount of charge that arrives.  This charge must then
 be collected and amplified on the anode wires.  In the
-current implementation (i.e.~\em FAST} the charge is simply projected
+current implementation (i.e.~{\em FAST}) the charge is simply projected
 in the z coordinate to the position of the anode/sense wire plane;
 the underlying assumption that the ionization follows the $\vec{E}$
 field lines and no distortions are visible.  This will be refined
@@ -1396,7 +1396,7 @@ the mean amplification ($\bar{q}$).  The effect of the additional parameter
 is to suppress the small amplification factors.
 As this parameter tends to zero, the Raether distribution is recovered.
 Experimentally, perfectly exponential behavior is seen at
-low to moderate gas gains (i.e.$<$10$^{4}$}, in parallel plate geometry,
+low to moderate gas gains (i.e.$<$10$^{4}$), in parallel plate geometry,
 however at gas gains above 10$^{5}$, slight deformation from
 exponential shape is observed.  This is probably
 attributable to self-saturation effects which
@@ -1628,8 +1628,9 @@ amplitude, are induced on a single pad.\footnote{More examples can
 The pulses are simply added using the principle of super-position.
 The modeling of an unrestored baseline is very
 important since the pulse height (actually the integral) of the
-signal is used as a measure of the velocity of the particle (via $\rac{dE}{dx}$
-information).  An unrestored baseline due to undershoot can result in
+signal is used as a measure of the velocity of the particle
+(via $\frac{dE}{dx}$ information).
+An unrestored baseline due to undershoot can result in
 an effective loss of charge in a high-multiplicity environment.  Conversely
 an unrestored baseline due to under-damping will result in too much
 charge being observed at large drift distances.  Both effects
