@@ -10,12 +10,11 @@ use Cwd;
 
 #my $qaPath = "/afs/rhic/star/packages/dev/cgi/qaversion2";
 my $qaPath = "/star/u2e/bnorman/cgi-bin/qa";
-my $webServer = "sol.star.bnl.gov";
+my $webServer = "duvall.star.bnl.gov";
 my $sleepCmd = "$qaPath/sleeper";
 
 # set up environment needed, eg, for cgid
 $ENV{GROUP_DIR} = "/afs/rhic/rhstar/group";
-
 
 # check for cgid running
 my $running = `ps -u starlib | grep 'cgid\$'`;

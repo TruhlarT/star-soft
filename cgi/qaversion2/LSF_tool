@@ -217,7 +217,8 @@ sub selectedJobs{
     if ($cgi->param("jobID")){ # selection params are valid (not first call)
       JOB_LOOP: foreach my $job (values %$jobs){
 	  foreach my $key (@$selectionKeys){
-	      if ($cgi->param($key) ne "any" &&
+	      if ($cgi->param($key) ne "" &&
+		  $cgi->param($key) ne "any" &&
 		  $cgi->param($key) ne $job->{$key}){
 		  next JOB_LOOP;
 	      }
@@ -354,7 +355,7 @@ sub startDocument{
     $text .= $cgi->start_html(-title => "AutoQA LSF Utility") . "\n";
 
     # start the form
-    $text .= $cgi->start_form() . "\n";
+    $text .= $cgi->start_form(-action => $cgi->script_name() ) . "\n";
 
     # print the title
     $text .= $cgi->h1("LSF Monitor for RCAS") . "\n";

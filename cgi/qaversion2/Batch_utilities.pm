@@ -29,7 +29,7 @@ my $lsfQueue = "star_cas_short";
 # $commandName should the name of a script to run as a 
 # batch job
 #
-# returns the command output
+# returns the job id prefixed by LSF or AT
 #========================================================
 sub SubmitJob
 {
@@ -76,14 +76,14 @@ sub Queue
 # $commandName should the name of a script to run as a 
 # batch job
 #
-# returns the output of the command
+# returns the lsf job id prefixed by LSF
 #========================================================
 sub SubmitLSFJob
 {
     my $cmd = shift;
 
     # user to notify on job begin and end
-    my $notifyEmail = "bnorman\@kent.edu";  
+    my $notifyEmail = "starqa\@rcf.rhic.bnl.gov";  
 
     # unique (someday, perhaps...) name of job in batch system
     my $jobName = "QATEST";
@@ -92,7 +92,11 @@ sub SubmitLSFJob
     # -B == notify on job dispatch
     my $cmdStr = 
 	"bsub -N -B -u $notifyEmail -J $jobName -q $lsfQueue \"$cmd\"";
-    return `$cmdStr`;
+    my $retStr = `$cmdStr`;
+
+    # extract job ID from output
+    $retStr =~ /^[^<]*<([^>]*)>.*$/m;
+    return "LSF" . $1;
 }
 
 #========================================================
@@ -103,14 +107,19 @@ sub SubmitLSFJob
 # $commandName should the name of a script to run as a 
 # batch job
 #
-# returns the output of the command
+# returns the at job id prefixed by AT
 #========================================================
 sub SubmitAtJob
 {
     my $cmd = shift;
 
     my $cmdStr = "at -f \"$cmd\" now";
-    return `$cmdStr`;
+    my $retStr = `$cmdStr`;
+    
+    # extract job ID from output
+    $retStr =~ /^job ([^ ]*) .*$/m;
+    return "AT" . $1;
+
 }
 
 #========================================================

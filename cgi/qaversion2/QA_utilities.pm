@@ -104,16 +104,11 @@ sub submit_batchjob {
   my $done_dir = $io->Name();
   undef $io;
 
-  # BEN(4jun2000):  Took out report_key_file (max of 1 report key now)
+  $io = new IO_object("ReportDir", $report_key);
+  my $report_dir = $io->Name();
+  undef $io;
 
-  # make file in report_key directory to flag that batch job is in progress
-  if ($report_key){
-      
-      my $io_status = new IO_object("BatchStatusReport", $id_string, $action, $report_key);
-      my $STATUS = $io_status->Open(">");
-      print $STATUS scalar localtime, "\n";
-      undef $io_status;
-  }
+  # BEN(4jun2000):  Took out report_key_file (max of 1 report key now)
 
   #-----------------------------------------------------------------------
   # open job here because we need its name in batch script...
@@ -132,7 +127,8 @@ sub submit_batchjob {
   my $string = IO_utilities::ComposeBatchScript($action, $data_class, 
 						$batchscript_filename, 
 						$job_filename, $batch_log_html,
-						$done_dir, $report_key);
+						$done_dir, $report_dir,
+						$report_key);
 
   print "<h3>My batch script is:</h3>\n<pre>\n$string\n</pre>\n";
   print $BATCH $string;
@@ -152,7 +148,17 @@ sub submit_batchjob {
   # submit batch job
  
   #BEN (2jun2000): use Batch_utilities
-  my $status = Batch_utilities::SubmitJob($job_filename);
+  my $jobID = Batch_utilities::SubmitJob($job_filename);
+
+  # make file in report_key directory to flag that batch job is in progress
+  # it contains the string (LSF|AT)jobID
+  if ($report_key){
+      
+      my $io_status = new IO_object("BatchStatusReport", $id_string, $action, $report_key);
+      my $STATUS = $io_status->Open(">");
+      print $STATUS $jobID, "\n";
+      undef $io_status;
+  }
 
   #----------------------------------------------------------------------
   # if this is an update job, copy csh file to update directory for reporting 
@@ -166,7 +172,7 @@ sub submit_batchjob {
   #----------------------------------------------------------------------
   # show queue status
 
-  print "<h4> Job submitted, status  = $status <br> </h4> \n";
+  print "<h4> Job submitted, jobID  = $jobID <br> </h4> \n";
 
   &Server_utilities::display_server_batch_queue;
 

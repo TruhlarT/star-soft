@@ -168,34 +168,38 @@ print("....done connecting to db\n");
     # update everything in the data class
     ($action eq 'update' or $action eq 'update_and_qa') and do{
 print("update-ing....\n");
-        QA_utilities::doUpdate();
+	&QA_utilities::doUpdate();
 print("....done update-ing\n");
     };
     
-    # do qa on jobs in the database
-    ($action eq 'do_qa' or $action eq 'redo_qa' or $action eq 'update_and_qa')  and do{
-print("do_qa-ing....\n");
-	# do qa on all new jobs if none specified
-	my @key_list;
-	if (!$report_key){
-	    # BUM 000625 - getting to do keys depends on the dataclass 
-	    #no strict 'refs';
-	    #my $sub = $gDataClass_object->ToDoKeys;
-	    #@key_list = &$sub;
-	    #use strict 'refs';
-	} else {
-	    @key_list = ($report_key);
-	}
+    # do qa on single job in the database
+    ($action eq 'do_qa' or $action eq 'redo_qa') and do{
+print("$action-ing....\n");
+	
+        # make sure it's on disk
+        my $qa = $gDataClass_object->QA_obj->new($report_key);
+        next if ($qa->QADone and $action ne 'redo_qa');
+	next unless $qa->OnDisk;
+	$qa->DoQA('no_tables');
+
+print("....done $action-ing\n");
+    };
+
+    # do qa on all new jobs in the database
+    ($action eq 'update_and_qa')  and do{
+print("launching qa batch jobs....\n");
+
+	# BUM 000625 - getting to do keys depends on the dataclass 
+	no strict 'refs';
+	my $sub = $gDataClass_object->ToDoKeys;
+	my @key_list = &$sub;
+	use strict 'refs';
 
 	my $key;
 	foreach $key (@key_list){
-	    # make sure they're on disk
-	    my $qa = $gDataClass_object->QA_obj->new($key);
-	    next if ($qa->QADone and $action ne 'redo_qa');
-	    next unless $qa->OnDisk;
-	    $qa->DoQA('no_tables');
+	    &QA_utilities::submit_batchjob("do_qa", $key);
 	}
-print("....done do_qa-ing\n");
+print("....done launching qa batch jobs\n");
     };
 
     # disconnect from db

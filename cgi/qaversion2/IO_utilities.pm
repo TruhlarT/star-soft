@@ -138,7 +138,8 @@ sub CleanUpScratch{
 #
 # ComposeBatchScript($action, $data_class, $batchscript_filename, 
 #                    $job_filename, 
-#                    $batch_log_html, $done_dir [, $report_key])
+#                    $batch_log_html, $done_dir,
+#                    $report_dir [, $report_key])
 # 
 # all arguments are required except $report_key, which may specify one
 # particular job to do qa on.
@@ -153,6 +154,7 @@ sub ComposeBatchScript{
   my $job_filename = shift;
   my $batch_log_html = shift;
   my $done_dir = shift;
+  my $report_dir = shift;
   my $report_key = shift;
   
   #----------------------------------------------------------------
@@ -168,14 +170,16 @@ sub ComposeBatchScript{
 	  "setenv SILENT 1 \n".
 	      "source /afs/rhic/rhstar/group/.stardev \n";
 
-  $string .= "echo \"Starting perl script...<br>\" >& $batch_log_html \n".
+  $string .= "echo \"Starting perl script...<br>\" |& tee $batch_log_html \n".
     "/opt/star/bin/perl -I$now $program batch_job $data_class $action ".
 	($report_key ? "$report_key " : "") . 
-	    ">>& $batch_log_html \n".
-      "echo \"Moving files...\" >>& $batch_log_html \n".
+	    "|& tee -a $batch_log_html \n".
+      "echo \"Moving files...\" |& tee -a $batch_log_html \n".
 	"\\mv $batchscript_filename $done_dir \n".
-	    "\\mv $batch_log_html $done_dir \n".
-	      "\\rm -f $job_filename \n";
+	    "\\cp $batch_log_html $done_dir \n".
+		"\\mv $batch_log_html $report_dir \n".
+		    "\\rm -f $job_filename \n";
+    # tee copies its stdin to the given file, tee -a appends.
   
   return $string;
 }
