@@ -447,6 +447,10 @@ sub DisplayDataset{
       my $time   = localtime($temp);
       my $text   = $QA_message_hash{$key}->MessageString;
 
+      # pmj 15/9/00 get rid of references to sol in old messages
+      $text =~ s/sol\.star\.bnl\.gov/www\.star\.bnl\.gov/g;
+      #---
+
       $data_string = "<strong>";
 
       if ( $key =~ /global/ ){
