@@ -1,7 +1,10 @@
 #!/usr/bin/csh -f
-#       $Id: group_env.csh,v 1.56 1998/12/04 17:42:43 fisyak Exp $
+#       $Id: group_env.csh,v 1.57 1998/12/17 14:29:07 fisyak Exp $
 #	Purpose:	STAR group csh setup 
 #       $Log: group_env.csh,v $
+#       Revision 1.57  1998/12/17 14:29:07  fisyak
+#       Add parasoft to MANPATH
+#
 #       Revision 1.56  1998/12/04 17:42:43  fisyak
 #       Take out SNIFF for linux -- because of hangup
 #
@@ -207,10 +210,9 @@ setenv STAR_CALIB ${STAR_ROOT}/calib;   if ($ECHO) echo   "Setting up STAR_CALIB
 setenv STAR_PROD   $STAR/prod;          if ($ECHO) echo   "Setting up STAR_PROD = ${STAR_PROD}"
 setenv CVSROOT   $STAR_PATH/repository; if ($ECHO) echo   "Setting up CVSROOT   = ${CVSROOT}"
 #if (! ${?ROOT_LEVEL}) then
-  setenv ROOT_LEVEL 2.11
-  if ($STAR_VERSION  == "SL98e") setenv ROOT_LEVEL 2.09
-  if ($STAR_VERSION  == "SL98j") setenv ROOT_LEVEL 2.13
-  if ($STAR_VERSION  == "SL98k") setenv ROOT_LEVEL 2.13
+  setenv ROOT_LEVEL 2.13
+#  if ($STAR_VERSION  == "SL98j") setenv ROOT_LEVEL 2.13
+  if ($STAR_VERSION  == "SL98l") setenv ROOT_LEVEL 2.20
 #endif
                                         if ($ECHO) echo   "Setting up ROOT_LEVEL= ${ROOT_LEVEL}"
 setenv TEXINPUTS :${GROUP_DIR}/latex/styles
@@ -230,6 +232,7 @@ else
   setenv MANPATH ${STAR_PATH}/man
 endif
 setenv PARASOFT /afs/rhic/star/packages/parasoft
+setenv MANPATH ${MANPATH}:{$PARASOFT}/man
      setenv OBJY_ARCH  ""
 switch ($STAR_SYS)
     case "rs_aix*":
@@ -368,7 +371,7 @@ if ( -f $GROUP_DIR/rootenv.csh) then
 endif
 
 # Objectivity
-if (`uname -s` == "SunOS" && `hostname` != "rcf.rhic.bnl.gov") source $GROUP_DIR/ObjySetup.csh
+if (`uname -s` == "SunOS" && `hostname` != "rcf.rhic.bnl.gov" && ! ${?OBJY_HOME} ) source $GROUP_DIR/ObjySetup.csh
 
 # Geant4
 setenv G4PROTO /star/sol/packages/geant4/prototype

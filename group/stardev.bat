@@ -20,7 +20,7 @@ if "%AFS_RHIC%".=="". set AFS_RHIC=\\sol\afs_rhic
 echo REGEDIT4 >Env.reg
 echo. >>Env.reg
 echo [HKEY_CURRENT_USER\Environment]>>Env.reg
-set StarDrive=s:
+set StarDrive=w:
 rem echo "StarDrive"="%%j">>Env.reg
 
 rem Check the network connections
@@ -31,9 +31,9 @@ rem net use %StarDrive% \\Sol\afs_rhic\star
 set STAR_LEVEL=dev
 echo "STAR_LEVEL"="%STAR_LEVEL%">>Env.reg
 
-set STAR_DIR=%StarDrive%\packages
-echo "STAR_DIR"="%StarDrive%\\packages">>Env.reg
-
+set STAR_DIR=%StarDrive%
+echo "STAR_DIR"="%StarDrive%">>Env.reg
+set STAR_MAKE_HOME=%STAR_DIR%/dev/mgr
 set GROUP_DIR=%AFS_RHIC%\star\group
 echo "GROUP_DIR"="%AFS_RHIC%\\star\\group">>Env.reg
 rem if "%STAR_SYS%".=="". if exist %GROUP_DIR%\STAR_SYS.bat call %GROUP_DIR%\STAR_SYS.bat
