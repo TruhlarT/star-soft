@@ -17,6 +17,7 @@
 #       prodtag=XXXX       
 #       qnum=XXX
 #       dropq=XXX
+#       autosub={0|1}
 #
 # By default, qnum=0 means ANY Email coming from the CRS system release
 # a new job to the queue. If this parameter is specified, only Emails
@@ -38,6 +39,7 @@ my $date_line;
 my ($sec,$min,$hour,$mday,$mon);
 my $qnum=0;
 my $drop=0;
+my $AUTOS=1;
 
 # Added J.Lauret June 11th 2001. Merged from the auto_submit.pl script.
 # Merging is necessary since we are now running SMRSH (more practical
@@ -67,12 +69,15 @@ if( -e "$HOME/readMail.conf"){
 	    if($line ne ""){
 		@items = split("=",$line);
 		if( $items[0] =~ m/prodtag/i){
-		    $prodl = $items[1];
-		} elsif ( $items[0] =~ m/qnum/i){
-		    $qnum  = $items[1];
-		} elsif ( $items[0] =~ m/dropq/i){
-		    $drop  = $items[1];
+		    $prodl   = $items[1];
+		} elsif ( $items[0] =~ m/qnum/i){   # qnum
+		    $qnum    = $items[1];
+		} elsif ( $items[0] =~ m/drop/i){   # dropq
+		    $drop    = $items[1];
+		} elsif ( $items[0] =~ m/auto/i){   # autosub
+		    $AUTOS   = $items[1];
 		}
+
 	    }
 	}
 	close(FI);
@@ -180,7 +185,13 @@ if( defined($date_line) ){
     close (OUT);
 }
 
-if ($SFLAG == 2 && $QFLAG && $SSUBM){
+# SFLAG -> The job received was indeintified as a CRS job not some
+#          other Emails.
+# QFLAG -> The queue selection passed
+# SSUBM -> AutoSub (arg2 or hard-coded value, bacward compat)
+# AUTOS -> Configuration file parameter says OK
+#
+if ($SFLAG == 2 && $QFLAG && $SSUBM && $AUTOS){
     # Now, the logic for file submission. Simple and fast ...
     opendir(JDIR,"$SOURCE/jobfiles/");
 
