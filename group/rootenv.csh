@@ -6,14 +6,24 @@ set level = `echo $ROOT_LEVEL | awk -F. '{print $1$2}'`
 
 if (! $?ROOT) setenv ROOT ${STAR_ROOT}/ROOT
 
-if ($level  >= 224)  then
-    setenv ROOTSYS ${ROOT}/${ROOT_LEVEL}
-    set root = "/.${STAR_HOST_SYS}/root"
-else
-    # not sure what that was but older version of
-    # root we can probably get rid off
-    setenv ROOTSYS ${ROOT}/${ROOT_LEVEL}/.${STAR_HOST_SYS}/root
-    set root   = ""
+if ($level  >= 305 )  then
+    # all is sorted out here actually
+    set x = "deb"
+    set p = ""
+    if ($?NODEBUG) set x = ""
+    if ($?INSURE)  set p = "I"
+    setenv ROOTSYS ${ROOT}/${ROOT_LEVEL}/.${STAR_HOST_SYS}/${p}root${x}
+
+else 
+    if ($level  >= 224 )  then
+	setenv ROOTSYS ${ROOT}/${ROOT_LEVEL}
+	set root = "/.${STAR_HOST_SYS}/root"
+    else
+	# not sure what that was but older version of
+	# root we can probably get rid off
+	setenv ROOTSYS ${ROOT}/${ROOT_LEVEL}/.${STAR_HOST_SYS}/root
+	set root   = ""
+    endif
 endif
 
 
