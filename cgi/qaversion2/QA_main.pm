@@ -1,4 +1,4 @@
-#! /usr/local/bin/perl -I/afs/rhic/star/starqa/qa01/lib
+#! /usr/local/bin/perl -I/usr/lib/perl5/site_perl/5.005/i386-linux/ -I/afs/rhic/star/starqa/qa01/lib
 
 # pmj & bjc 1/6/00
 #=========================================================
@@ -118,7 +118,8 @@ sub PrintFrameset{
 
   my $script_name = $gCGIquery->script_name;
   
-  print title($title), frameset( {-rows=>'60%,40%'}, 
+  print title($title), frameset( {-rows=>'60%,40%'},
+	"<!--", `whoami && /usr/bin/tokens`, "-->",
 	frame( {-name=>'list',    -src=>"$script_name/upper_display"} ),
 	frame( {-name=>'display', -src=>"$script_name/lower_display"} ));
 }
