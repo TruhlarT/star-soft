@@ -131,7 +131,7 @@ require Exporter;
 
 	    rdaq_file2hpss rdaq_mask2string rdaq_status_string
 	    rdaq_bits2string rdaq_trgs2string rdaq_ftype2string
-	    rdaq_toggle_debug rdaq_set_dlevel
+	    rdaq_toggle_debug rdaq_set_dlevel rdaq_scaleToString
 
 	    rdaq_set_files_where rdaq_update_entries
 
@@ -1249,6 +1249,33 @@ sub rdaq_status_string
     $str;
 }
 
+sub rdaq_scaleToString
+{
+    my($val)=@_;
+    my($stf,$frmt,$vv);
+
+    if ( defined($ROUND{"scaleFactor"}) ){
+	# preserve formatting / rounding
+	$frmt = sprintf("%%.%df",$ROUND{"scaleFactor"});
+	#print "RunDAQ DEBUG $frmt\n";	
+	$vv   = sprintf($frmt,$val);
+    } else {
+	$vv   = $val;
+    }
+
+
+    $stf = "Unknown";
+    $stf = "FieldOff"          if ($vv ==  0.0);
+    $stf = "FullField"         if ($vv ==  1.0);
+    $stf = "HalfField"         if ($vv ==  0.5);
+    $stf = "ReversedFullField" if ($vv == -1.0);
+    $stf = "ReversedHalfField" if ($vv == -0.5);
+
+    #print "RunDAQ DEBUG scale = $val -- $vv --> $stf\n";
+    $stf;
+}
+
+
 sub rdaq_trgs2string
 {
     my($val)=@_;
@@ -1311,6 +1338,7 @@ sub    rdaq_set_delay
     $DELAY = $t if ( defined($t) );
     return $DELAY;
 }
+
 
 
 1;

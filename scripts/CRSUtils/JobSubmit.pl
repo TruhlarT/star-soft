@@ -202,7 +202,7 @@ if ($ThisYear == 2002){
     # Default chain -- P2005 does not include Corr4 but Corr3
     $DCHAIN{"AuAu"}           = "P2005,svt_daq,svtD,EST,pmdRaw,Xi2,V02,Kink2,CMuDst,OShortR";
     $DCHAIN{"PPPP"}           = "P2005,ppOpt,svt_daq,svtD,EST,pmdRaw,Xi2,V02,Kink2,CMuDst,OShortR";
-    $DCHAIN{"CuCu"}           = "P2005,SCEbyE,OGridLeak,svt_daq,svtD,EST,pmdRaw,Xi2,V02,Kink2,CMuDst,OShortR";
+    $DCHAIN{"CuCu"}           = "P2005,SCEbyE,OGridLeak,svt_daq,svtD,EST,pmdRaw,Xi2,V02,Kink2,CMuDst,OShortR,OSpaceZ2";
 
     $DCALIB{"CuCu"}           = "OneSpaceCharge";
 
@@ -300,6 +300,8 @@ if ( -e $LOCKF){
     exit;
 }
 
+
+#### SET THIS TO 1 TO DEBUG NEW SCRIPTS / FEATURES
 $DEBUG = 0;
 
 
@@ -658,18 +660,24 @@ sub Submit
     #print "$SELF :: $file\n";
     @items = split(" ",$file);
     $file  = $items[0];
-    $field = $items[6];
     $coll  = $items[8];
 
     $coll  = "dAu" if ($coll eq "DeuteronAu");
 
+    # get field as string
+    $field = &rdaq_scaleToString($items[6]);
+
+    #print "$SELF :: DEBUG scale=$items[6] --> $field\n"  if ($DEBUG);
+    #print "$SELF :: DEBUG 10=$items[10] 11=$items[11]\n" if ($DEBUG);
+
     # Trigger setup string
-    $trgsn = rdaq_bits2string("TrgMask",$items[10]);
+    $trgsn = rdaq_trgs2string($items[10]);
     # Triggers  mask information
     $trgrs = rdaq_bits2string("TrgMask",$items[11]);
     # Detector setup information
     $dets  = rdaq_bits2string("DetSetMask",$items[9]);
 
+    #print "$SELF :: DEBUG 10=$trgsn 11=$trgrs\n"          if ($DEBUG);
 
     if($chain eq "" || $chain eq "none" || $chain eq "default"){
 	$chain = $DCHAIN{$coll};
@@ -711,6 +719,10 @@ sub Submit
     if ( $file =~ /pedestal/){
 	print "$SELF :: Info : Skipping $file (name matching exclusion)\n";
 	push(@SKIPPED,$file);
+	return 0;
+
+    } elsif ( $trgrs eq "unknown" || $trgrn eq "unknown"){
+	print "$SELF :: Info : Skipping $file has uknown setup or triggers sn=$trgsn ts=$trgrs\n";
 	return 0;
 
     } elsif ( $trgrs eq "pedestal" || $trgrs eq "pulser" ||
@@ -881,12 +893,17 @@ __EOF__
 	    unlink($jfile);
 	    return 0;
 	} else {
-	    if ( CRSQ_submit($jfile,$PRIORITY,$queue,$spill) ){
-		# Mark it so we can set status 1 later
-		print "$SELF :: Successful submission of $file ($queue,$spill) on ".
-		    localtime()."\n";
-		push(@OKFILES,$file);
-		return 1;
+	    if ( ! $DEBUG ){
+		if ( CRSQ_submit($jfile,$PRIORITY,$queue,$spill) ){
+		    # Mark it so we can set status 1 later
+		    print "$SELF :: Successful submission of $file ($queue,$spill) on ".
+			localtime()."\n";
+		    push(@OKFILES,$file);
+		    return 1;
+		}
+	    } else {
+		print "$SELF :: DEBUG is on, $jfile not submitted\n";
+		return 0;
 	    }
 	}
     } else {
