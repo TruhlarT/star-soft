@@ -165,12 +165,12 @@ C
 *KEEP,VIDQQ.
       CHARACTER*68 VIDQQ
       DATA VIDQQ/
-     +'@(#)Advanced Geant Inteface               C: 21/08/98  13.37.19
+     +'@(#)Advanced Geant Inteface               C: 23/08/98  23.01.24
      +'/
 *KEEP,DATEQQ.
-      IDATQQ =   980821
+      IDATQQ =   980823
 *KEEP,TIMEQQ.
-      ITIMQQ =   1337
+      ITIMQQ =   2301
 *KEEP,VERSQQ.
       VERSQQ = ' '
       IVERSQ = -1
@@ -2590,7 +2590,7 @@ C
       END DO
       END
  
-*CMZ :          07/07/98  10.26.34  by  Pavel Nevski
+*CMZ :          21/08/98  17.28.21  by  Pavel Nevski
 *CMZ :  1.30/00 27/03/97  19.14.44  by  Pavel Nevski
 *-- Author :    Pavel Nevski   10/04/96
 **************************************************************************
@@ -2660,7 +2660,9 @@ C
   If Cname='MZGAR1'
   {  L= "LQSYSR(KQT+1)" LINK;
      IF (NQCASE==1) <w> IQUEST(11),(IQ(L+i),i=-5,1)
-     (' LACK OF SPACE to push a bank,',i8,' words missing '/,
+     (' ** LACK OF SPACE to push a bank,' ,i8, ' words missing **'/,
+      ' **   increase GCBANK size with -g key and run again    **',
+      ' *********************************************************',
       ' bank ID=',i6,a6,'  NL,ND=',3i8,'  system, data=',2i12)
   }
   else If Cname='MZTABC'
@@ -11303,7 +11305,7 @@ C
    END
  
  
-*CMZ :          21/08/98  00.06.27  by  Pavel Nevski
+*CMZ :          23/08/98  23.00.42  by  Pavel Nevski
 *-- Author :    Pavel Nevski   25/11/97
 ***************************************************************************
 *                                                                         *
@@ -11322,7 +11324,7 @@ C
      integer     Iprin,i,i1,i2,il,id,ic,jl,L,Iwr,Kw/1/,Lu,Idl,Iswap/0/,Key(2)
      Integer     AgPFLAG,LENOCC,INDEX,TDM_MAP_TABLE
      Character*8 Sname, Bname, Ckey
-     Character*4 Csys, Cban
+     Character*4 Csys, Cban, Upper
      Character   Request*(*),Cdest*(*), Table*10
      Logical     opnd
      character      ccc*12000
@@ -11330,7 +11332,7 @@ C
  
      INQUIRE(FILE='detm.rz',OPENED=opnd)
      if (.not.opnd) Call Agsbegm('DOCUM',Iprin)
-     Iprin=AgPFLAG('DOCU','RECO')
+     Iprin=AgPFLAG('DOCU','PRIN')
  
      Idl = 2
      if (Index(Cdest,'idl')>0) Idl=1
@@ -11359,13 +11361,16 @@ C
      { L1doc=L
        if     Sname(1:4)='NONE' {Iswap=0}
        elseif Sname(1:4)='ENON' {Iswap=1}
-       else   { prin0 Sname; (' AgKEEPS warning : IDN coding wrong ',a)}
+       elseif Sname(1:4)='    '
+              { Iswap=0; Call UCTOH('NONE',IQ(L-5),4,4);
+                prin0; (' AgKEEPS warning: T3E documentation bug fixed')}
+       else   { prin0 Sname; (' AgKEEPS warning: IDN coding wrong ',a)  }
      }
      if (Iswap==1) call agswap(Sname)
      prin4 sname,L1Doc;  (' ==> got DocName=',a,' L1Doc=',i10);  Check L1Doc>0;
  
      Lu = 0;  Kw = Iswap
-     call agdprina(Iprin,Lu,L1doc,0,Iwr,Kw,Idl)
+     call agdprina(Iprin,Lu,L1doc,0,Iwr,Kw,Idl,upper)
  
      do il=1,IQ(L1doc-2)
         Ldoc=LQ(L1doc-il); check Ldoc>0
@@ -11373,10 +11378,12 @@ C
         if (Iswap==1) call agswap(Sname)
         Call CUTOL(Sname)
         Check csys='*' | Sname(5:4+i1)==csys(1:i1)
+        prin1 Sname; (' AgKeeps: getting doc for system ',a)
  
-        call agdprina(Iprin,Lu,Ldoc,1,Iwr,Kw,Idl)
- 
-        Ckey=Sname(5:8)//Sname(1:4); Call UCTOH(Ckey,Key,4,8)
+        call agdprina(Iprin,Lu,Ldoc,1,Iwr,Kw,Idl,upper)
+        if (sname(1:4)==' ') sname(1:4)=upper;
+        Ckey=Sname(5:8)//Sname(1:4);  Call CLTOU(Ckey);
+        Call UCTOH(Ckey,Key,4,8);     IQ(Ldoc-5)=Key(2)
         CALL aRZOUT(IXCONS,Ldoc,CKey,IC,'SN')
  
         do jl=1,IQ(Ldoc-2)
@@ -11385,12 +11392,15 @@ C
            if (Iswap==1) call agswap(Bname)
            Call CUTOL(Bname)
            Check cban='*' | Bname(5:4+i2)==cban(1:i2)
-           call agdprina(Iprin,Lu,Ldete,2,Iwr,Kw,Idl)
+           prin2 Bname; (' AgKeeps: getting doc for detector ',a)
  
+           call agdprina(Iprin,Lu,Ldete,2,Iwr,Kw,Idl,upper)
+           if (Bname(1:4)==' ') Bname(1:4)=upper;
            Table=Sname(5:8)//'_'//Bname(5:8); Call CUTOL(Table)
            if (idl==2) i=TDM_MAP_TABLE(%L(Cdest),%L(Table),%L(ccc),0,0)
  
-           Ckey=Bname(5:8)//Bname(1:4); Call UCTOH(Ckey,Key,4,8)
+           Ckey=Bname(5:8)//Bname(1:4);  Call CLTOU(Ckey);
+           Call UCTOH(Ckey,Key,4,8);     IQ(Ldete-5)=Key(2)
            CALL aRZOUT(IXCONS,Ldete,CKey,IC,'SN')
  
         enddo
@@ -11402,7 +11412,7 @@ C
  
 *************************************************************************
 *                                                                       *
-              subroutine agdprina(Iprin,Lu,L,Lev,Iwr,Kw,Idl)
+              subroutine agdprina(Iprin,Lu,L,Lev,Iwr,Kw,Idl,upper)
 *                                                                       *
 * Description: Produce a compiler readable include files for structures *
 * Decoding part is tough, for format details see 2.16 MZFORM, page 44:  *
@@ -11699,7 +11709,7 @@ C
      end
  
  
-*CMZ :          21/08/98  00.10.00  by  Pavel Nevski
+*CMZ :          23/08/98  21.58.55  by  Pavel Nevski
 *-- Author :    Pavel Nevski   25/11/97
 ***************************************************************************
 *                                                                         *
@@ -11758,7 +11768,7 @@ C     - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 *KEND.
   INTEGER       LENOCC,TDM_MAP_TABLE,Iprin,Nun(15),LK(15),IL(15),Ist(15),
                 I,J,L,K,M,N,Ia,Lc,Lp,Mj,NDD
-  Character     Cpath*80,Cdest*80,Csys*4,Table*10,Cbank*4
+  Character     Cpath*80,Cdest*80,Spec*80,Csys*4,Table*10,Cbank*4
   Character*(*) Source,Destin
   EQUIVALENCE   (L,Lpar)
   common /agcstaftabn/ ndd
@@ -11799,8 +11809,11 @@ J=1; Loop                                  " over existing banks only "
       elseif J> MJ & Csys!='DOCU'
       { Table=Csys(1:4)//'_'//Cbank;  Call CUTOL(Table);
         Call AGKEEPs(%L(Csys)//'/'//Cbank,%L(Cdest))
+ 
+*       Spec=Char(0); if (Table='hepe_gent') Spec='particle'//Char(0)
+ 
         K=1; if IQ(L-5)<0 { K=-IQ(L-5) } elseif Ndd>0 { K=IQ(L-1)/Ndd }
-        i=TDM_MAP_TABLE(%L(Cdest),%L(Table),Char(0),K,IQ(L+1))
+        i=TDM_MAP_TABLE(%L(Cdest),%L(Table),Spec,K,IQ(L+1))
         prin2 %L(Cdest),%L(Table),i,k,(Q(L+i),i=1,3)
               (' TDM_MAPing_TABLE:',2(1x,a),2i5,2x,3F8.1)
         " specific bank requested " if (m==0 & Mj==0) Break;
@@ -11813,11 +11826,44 @@ J=1; Loop                                  " over existing banks only "
 }
 END
  
-*CMZ :          29/06/98  12.56.45  by  Pavel Nevski
+*CMZ :          23/08/98  14.50.04  by  Pavel Nevski
 *-- Author :    Pavel Nevski   25/03/98
 **********************************************************************
                 subroutine   a x p a r t i c l e
+*                                                                    *
+* Description: set a new particle in geant structures                *
+*              (only if it does not already exist )                  *
 **********************************************************************
+*KEEP,TYPING.
+      IMPLICIT NONE
+*KEEP,GCBANK.
+      INTEGER IQ,LQ,NZEBRA,IXSTOR,IXDIV,IXCONS,LMAIN,LR1,JCG
+      INTEGER KWBANK,KWWORK,IWS
+      REAL GVERSN,ZVERSN,FENDQ,WS,Q
+C
+      PARAMETER (KWBANK=69000,KWWORK=5200)
+      COMMON/GCBANK/NZEBRA,GVERSN,ZVERSN,IXSTOR,IXDIV,IXCONS,FENDQ(16)
+     +             ,LMAIN,LR1,WS(KWBANK)
+      DIMENSION IQ(2),Q(2),LQ(8000),IWS(2)
+      EQUIVALENCE (Q(1),IQ(1),LQ(9)),(LQ(1),LMAIN),(IWS(1),WS(1))
+      EQUIVALENCE (JCG,JGSTAT)
+      INTEGER       JDIGI ,JDRAW ,JHEAD ,JHITS ,JKINE ,JMATE ,JPART
+     +      ,JROTM ,JRUNG ,JSET  ,JSTAK ,JGSTAT,JTMED ,JTRACK,JVERTX
+     +      ,JVOLUM,JXYZ  ,JGPAR ,JGPAR2,JSKLT
+C
+      COMMON/GCLINK/JDIGI ,JDRAW ,JHEAD ,JHITS ,JKINE ,JMATE ,JPART
+     +      ,JROTM ,JRUNG ,JSET  ,JSTAK ,JGSTAT,JTMED ,JTRACK,JVERTX
+     +      ,JVOLUM,JXYZ  ,JGPAR ,JGPAR2,JSKLT
+C
+*KEEP,GCFLAG.
+      COMMON/GCFLAG/IDEBUG,IDEMIN,IDEMAX,ITEST,IDRUN,IDEVT,IEORUN
+     +        ,IEOTRI,IEVENT,ISWIT(10),IFINIT(20),NEVENT,NRNDM(2)
+      COMMON/GCFLAX/BATCH, NOLOG
+      LOGICAL BATCH, NOLOG
+C
+      INTEGER       IDEBUG,IDEMIN,IDEMAX,ITEST,IDRUN,IDEVT,IEORUN
+     +        ,IEOTRI,IEVENT,ISWIT,IFINIT,NEVENT,NRNDM
+C
 *KEEP,AGECOM.
       CHARACTER*20 AG_MODULE,  AG_TITLE,  AG_EXNAME,   AG_PARLIST,
      +             AG_MATERIAL,AG_MIXTURE,AG_COMPONENT,AG_MEDIUM,
@@ -11909,24 +11955,37 @@ C local variables valid inside same block
 *    - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - *
  
  
-*KEEP,GCFLAG.
-      COMMON/GCFLAG/IDEBUG,IDEMIN,IDEMAX,ITEST,IDRUN,IDEVT,IEORUN
-     +        ,IEOTRI,IEVENT,ISWIT(10),IFINIT(20),NEVENT,NRNDM(2)
-      COMMON/GCFLAX/BATCH, NOLOG
-      LOGICAL BATCH, NOLOG
-C
-      INTEGER       IDEBUG,IDEMIN,IDEMAX,ITEST,IDRUN,IDEVT,IEORUN
-     +        ,IEOTRI,IEVENT,ISWIT,IFINIT,NEVENT,NRNDM
-C
 *KEND.
-    real    Sum,bratio(6)
-    Integer i
+    real       Sum,bratio(6)
+    Character  Cpart*20
+    Integer    i,JP,Jp1,Jp2,N
  
-    call gspart(%Code,%Title,%TrkTyp,%Mass,%Charge,%Tlife,0,0)
-    Sum=0;   Do i=1,6 { if (%Mode(i)>0) Sum+=%Bratio(i); }
+    If (Jpart<=0 | %code<=0) go to :n:
+    If (IQ(Jpart-2) < %code) go to :n:
+    JP=LQ(Jpart-%code);    If (JP<=0) go to :n:
+    if (Q(JP+6)!=%TrkTyp | Q(JP+7)!=%Mass)  go to :n:
+    if (Q(JP+8)!=%Charge | Q(JP+9)!=%Tlife) go to :n:
+    call UHTOC(Q(JP+1),4,Cpart,20)
+    If (Cpart==%Title)                      go to :o:
+ 
+:n: call gspart(%Code,%Title,%TrkTyp,%Mass,%Charge,%Tlife,0,0)
+ 
+:o: Sum=0;   Do i=1,6 { if (%Mode(i)>0) Sum+=%Bratio(i); }
     If Sum>0
-    {  Do i=1,6 { bratio(i)=%Bratio(i)*100.0001/Sum; }
-       call GSDK(%Code, Bratio, %Mode)
+    {  {JP,JP1,JP2,N} = 0;
+       If (Jpart>0 & %code>0) JP=LQ(JPART-%code);
+       If (Jp>0)  { JP1=LQ(Jp-1); JP2=LQ(Jp-2); }
+       If (Jp1<=0 | Jp2<=0) N=1
+ 
+       Do i=1,6
+       { check %Mode(i)>0;  bratio(i)=min(%Bratio(i)*100.0001/Sum,100);
+         if (JP1>0 & bratio(i)!=Q(JP1+i)) N=2
+*            { print *,' br ',i, bratio(i),Q(JP1+i);  N=2 }
+         if (JP2>0 & %Mode(i)!=IQ(JP2+i)) N=3
+*            { print *,' md ',i, %Mode(i),IQ(JP2+i);  N=3 }
+       }
+       if (N>0) call GSDK(%Code, Bratio, %Mode)
+*       print *,' N=',N
     }
     If (%pdg  != 0) Call SET_PDGEA(%pdg,%code)
     if (Idebug > 1) Call GPPART(%Code)
@@ -11987,7 +12046,7 @@ C
           Call Ucopy (Q(LQ(JVOLUM-IVOL)+7),par,min(50,Npar) )
        end
  
-*CMZ :          29/06/98  13.00.34  by  Pavel Nevski
+*CMZ :          22/08/98  21.51.50  by  Pavel Nevski
 *-- Author :    Pavel Nevski   26/11/94
 ****************************************************************************
           subroutine  ARZOUT(Idiv,Lo,CCKey,IC,opt)
@@ -12057,7 +12116,7 @@ C     - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
   if new(2)>20
   { diff=IQ(Lo-1)-new(2)-1; if (diff>1) Call MZPUSH(IxCONS,Lo,0,-Diff,'I') }
   else
-  { prin4 CCkey; (' ARZOUT: empty documentation bank detected for ',a); }
+  { prin1 CCkey; (' ARZOUT: empty documentation bank detected for ',a); }
  
 * take into account that IQ(L-5) are integer and may be swaped,
 * but key is ascii and should never be swapped
@@ -12065,7 +12124,7 @@ C     - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
   Ckey=CCkey(1:8)//CCkey(8:8)//CCkey(7:7)//CCkey(6:6)//CCkey(5:5)
   Call CLTOU(Ckey);   Call UCTOH(Ckey,key,4,12);
   if (key(1)!=IQ(Lo-4) | (key(2)!=IQ(Lo-5) & key(3)!=IQ(Lo-5)))
-  {  prin4 key,IQ(Lo-4),IQ(Lo-5); (' ARZOUT error: key=',3a4,' bank=',2a4)
+  {  prin1 key,IQ(Lo-4),IQ(Lo-5); (' ARZOUT error: key=',3a4,' bank=',2a4)
      IC=0; Return;
   }
  
@@ -12111,10 +12170,6 @@ C     - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
  
  end
  
- 
- 
- 
-*CMZ :  1.00/00 19/12/95  09.59.57  by  G. Poulard
 *CMZ :          20/04/98  15.46.43  by  Pavel Nevski
 *CMZ :  1.30/00 29/04/97  23.23.51  by  Pavel Nevski
 *CMZU:  1.00/01 15/01/96  20.20.30  by  Pavel Nevski
