@@ -22,8 +22,8 @@ require "/afs/rhic/star/packages/DEV/mgr/dbTJobsSetup.pl";
 
 my $TOP_DIRD = "/star/rcf/test/dev/";
 my @dir_year = ("year_1h", "year_2001");
-my @node_dir = ("trs_redhat61", "trs_redhat61_opt");
-my @node_daq = ("daq_redhat61", "daq_redhat61_opt"); 
+my @node_dir = ("trs_redhat61", "trs_redhat61_opt","trs_redhat72");
+my @node_daq = ("daq_redhat61", "daq_redhat61_opt","daq_redhat72"); 
 my @hc_dir = ("hc_lowdensity", "hc_standard", "hc_highdensity", "peripheral","pp_minbias","ppl_minbias");
 my @daq_dir = ("minbias", "central", "ppMinBias");
 
@@ -68,8 +68,8 @@ my $thistime;
  my $testDay;
  my $beforeDay;
  $iday = $dayHash{$thisday}; 
- $testDay = $Nday[$iday - 2];
- $beforeDay = $Nday[$iday - 3];
+ $testDay = $Nday[$iday - 1];
+ $beforeDay = $Nday[$iday - 2];
 
   print "Day Name: ",$thisday, " % ", "Index", $iday, "\n";
 

@@ -16,7 +16,7 @@ require "/afs/rhic/star/packages/dev/mgr/dbTJobsSetup.pl";
 
 my $TOP_DIRD = "/star/rcf/test/dev/";
 my @dir_year = ("year_1h", "year_2001");
-my @node_dir = ("trs_redhat61","trs_redhat61_opt", "daq_redhat61", "daq_redhat61_opt"); 
+my @node_dir = ("trs_redhat61","trs_redhat61_opt", "daq_redhat61", "daq_redhat61_opt","daq_redhat72","trs_redhat72"); 
 my @hc_dir = ("hc_lowdensity", "hc_standard", "hc_highdensity", "peripheral", "minbias", "central");
 
 my @OUT_DIR;
@@ -70,7 +70,7 @@ struct FileAttr => {
   my $testDay;
   my $beforeDay;
   $iday = $dayHash{$thisday}; 
- $testDay = $Nday[$iday - 2];
+ $testDay = $Nday[$iday - 1];
 
 # print "Today Date :", $thisDay, "\n";
 
@@ -79,7 +79,7 @@ struct FileAttr => {
  &beginHtml();
 
 
-$sql="SELECT path, logFile, jobStatus, NoEventDone, memUsageF, memUsageL, CPU_per_evt_sec, createTime FROM $JobStatusT where path LIKE '%$testDay%' AND path LIKE '%redhat61%' AND avail = 'Y'";
+$sql="SELECT path, logFile, jobStatus, NoEventDone, memUsageF, memUsageL, CPU_per_evt_sec, createTime FROM $JobStatusT where path LIKE '%$testDay%' AND path LIKE '%redhat%' AND avail = 'Y'";
  $cursor =$dbh->prepare($sql)
    || die "Cannot prepare statement: $DBI::errstr\n";
  $cursor->execute;
