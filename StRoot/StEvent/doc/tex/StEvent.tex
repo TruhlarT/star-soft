@@ -2,7 +2,7 @@
 %
 % StEvent - User Guide and Reference Manual -- LaTeX Source
 %
-% $Id: StEvent.tex,v 2.73 2002/04/18 23:38:30 jeromel Exp $
+% $Id: StEvent.tex,v 2.74 2003/01/28 20:50:05 ullrich Exp $
 %
 % Author: Thomas Ullrich, Nov 1999
 %
@@ -21,6 +21,9 @@
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %
 % $Log: StEvent.tex,v $
+% Revision 2.74  2003/01/28 20:50:05  ullrich
+% Added description of PHMD classes and hooks.
+%
 % Revision 2.73  2002/04/18 23:38:30  jeromel
 % Implementation of the SVT 2 tables scheme ...
 %
@@ -284,8 +287,8 @@
   \mbox{\includegraphics[width=\textwidth]{StEventTitle.eps}}
   \hfill\mbox{}\\[3cm]
   {\LARGE User Guide and Reference Manual \\[5mm] for Version 2}\\[2cm]
-  {\LARGE $ $Revision: 2.73 $ $}  \\[5mm] % replaced by cvs with current revision
-  {\LARGE $ $Date: 2002/04/18 23:38:30 $ $}  % replaced by cvs with current revision
+  {\LARGE $ $Revision: 2.74 $ $}  \\[5mm] % replaced by cvs with current revision
+  {\LARGE $ $Date: 2003/01/28 20:50:05 $ $}  % replaced by cvs with current revision
   \vfill
 \end{center}
 \cleardoublepage
@@ -438,7 +441,9 @@ enum StDetectorId           {kUnknownId,
                              kTpcSsdId,
                              kTpcSvtId,
                              kTpcSsdSvtId,
-                             kSsdSvtId};
+                             kSsdSvtId,
+                             kPhmdId,
+                             kPhmdCpvId};
 
 enum StVertexId             {kUndefinedVtxId,
                              kEventVtxId,
@@ -2322,6 +2327,10 @@ The following simple line does the job:
 \subsection{The EMC}
 \index{EMC}
 ... missing ...
+\vfill
+\subsection{The PHMD}
+\index{PHMD}
+... missing ...
 
 \subsection{The RICH}
 \index{RICH}
@@ -3455,6 +3464,9 @@ definition in the header file.
     \verb+StFpdCollection* fpdCollection();+\\
     \verb+const StFpdCollection* fpdCollection() const;+\\
 
+    \verb+StPhmdCollection* phmdCollection();+\\
+    \verb+const StPhmdCollection* phmdCollection() const;+\\
+
     \verb+StL0Trigger* l0Trigger();+\\
     \verb+const StL0Trigger* l0Trigger() const;+\\
 
@@ -3575,6 +3587,8 @@ definition in the header file.
     \verb+void setTofCollection(StTofCollection*);+\\
 
     \verb+void setFpdCollection(StFpdCollection*);+\\
+
+    \verb+void setPhmdCollection(StPhmdCollection*);+\\
 
     \verb+void setTriggerDetectorCollection(StTriggerDetectorCollection*);+\\
 
@@ -4582,6 +4596,192 @@ trigger algorithm information.
     \verb+void setNumberOfPostSamples(unsigned int);+\\
 \end{Entry}
 \clearpage
+
+\subsection{StPhmdCluster}
+\index{StPhmdCluster|textbf}
+\label{sec:StPhmdCluster}
+\begin{Entry}
+\item[Summary]
+\item[Synopsis]
+    \verb+#include "StPhmdCluster.h"+\\
+    \verb+class StPhmdCluster;+\\
+\item[Description]
+\item[Related Classes]
+\item[Public\\ Constructors]
+    \verb+StPhmdCluster(); +\\
+\item[Public Member\\ Functions]
+    \verb+int module() const;+\\
+    Module numbers run from 0 to 11.
+    
+    \verb+int numberOfCells() const;+\\
+    Return numbers of cell used in cluster.
+    
+    \verb+float eta() const;+\\
+    \verb+float phi() const;+\\
+    \verb+float energy() const;+\\
+    \verb+float sigma() const;+\\
+    \verb+int energyPid() const;+\\
+    \verb+int pid() const;+\\
+    \verb+int mcPid() const;+\\
+
+    \verb+void setModule(int);+\\
+    \verb+void setNumberOfCells(int);+\\
+    \verb+void setEta(float);+\\
+    \verb+void setPhi(float);+\\
+    \verb+void setEnergy(float);+\\
+    \verb+void setSigma(float);+\\
+    \verb+void setEnergyPid(int);+\\
+    \verb+void setPid(int);+\\
+    \verb+void setMcPid(int);+\\
+    \verb+void addHit(StPhmdHit*);+\\
+    \verb+StPtrVecPhmdHit& hit();+\\
+    \verb+const StPtrVecPhmdHit& hit() const; +\\
+\end{Entry}
+\clearpage
+
+
+\subsection{StPhmdClusterCollection}
+\index{StPhmdClusterCollection|textbf}
+\label{sec:StPhmdClusterCollection}
+\begin{Entry}
+\item[Summary]
+\item[Synopsis]
+    \verb+#include "StPhmdClusterCollection.h"+\\
+    \verb+class StPhmdClusterCollection;+\\
+\item[Description]
+\item[Related Classes]
+\item[Public\\ Constructors]
+    \verb+StPhmdClusterCollection(); +\\
+\item[Public Member\\ Functions]
+    \verb+int numberOfclusters() const; +\\
+    \verb+StSPtrVecPhmdCluster& clusters();+\\
+    \verb+const StSPtrVecPhmdCluster& clusters() const;+\\
+    \verb+void addCluster(StPhmdCluster*);+\\
+    \verb+void deleteCluster(StPhmdCluster* pc);+\\
+    Delete cluster pointed to by \texttt{pc}.
+    
+    \verb+void deleteClusters();+\\
+    Delete all clusters.
+    
+    \verb+int clusterFinderId() const;+\\
+    \verb+int clusterFinderParamVersion() const;+\\
+    \verb+void setClusterFinderId(int);+\\
+    \verb+void setClusterFinderParamVersion(int);+\\
+\end{Entry}
+\clearpage
+
+
+\subsection{StPhmdCollection}
+\index{StPhmdCollection|textbf}
+\label{sec:StPhmdCollection}
+\begin{Entry}
+\item[Summary]
+\item[Synopsis]
+    \verb+#include "StPhmdCollection.h"+\\
+    \verb+class StPhmdCollection;+\\
+\item[Description]
+\item[Related Classes]
+\item[Public\\ Constructors]
+    \verb+StPhmdCollection();+\\
+\item[Public Member\\ Functions]
+    \verb+StPhmdDetector* detector(StDetectorId);+\\
+    \verb+const StPhmdDetector* detector(StDetectorId) const;+\\
+    \verb+void setDetector(StPhmdDetector*);+\\
+\end{Entry}
+\clearpage
+
+
+\subsection{StPhmdDetector}
+\index{StPhmdDetector|textbf}
+\label{sec:StPhmdDetector}
+\begin{Entry}
+\item[Summary]
+\item[Synopsis]
+    \verb+#include "StPhmdDetector.h"+\\
+    \verb+class StPhmdDetector;+\\
+\item[Description]
+\item[Related Classes]
+\item[Public\\ Constructors]
+    \verb+StPhmdDetector();+\\
+    \verb+StPhmdDetector(StDetectorId);+\\
+\item[Public Member\\ Functions]
+    \verb+StDetectorId id() const; +\\
+    Return detector ID. Can be either \texttt{kPhmdId} or
+    for the charged particle veto \texttt{kPhmdCpvId}.
+    
+    \verb+unsigned int numberOfModules() const;+\\
+    Currently always returns 12.
+    
+    \verb+bool addHit(StPhmdHit*);+\\
+    \verb+unsigned int numberOfHits() const;+\\
+
+    \verb+StPhmdModule* module(unsigned int);+\\
+    \verb+const StPhmdModule* module(unsigned int) const;+\\
+    Module numbers run from 0-11.
+    
+    \verb+int moduleHits(unsigned int m);+\\
+    Returns number of hits in module \texttt{m}. Module
+    numbers run from 0 to 11.
+    
+    \verb+StPhmdClusterCollection* cluster();+\\
+    \verb+const StPhmdClusterCollection* cluster() const;+\\
+    \verb+void setCluster(StPhmdClusterCollection*);+\\
+    \verb+void setModule(StPhmdModule*, unsigned int m);+\\
+    Module numbers \texttt{m} runs from 0 to 11.
+\end{Entry}
+\clearpage
+
+
+\subsection{StPhmdHit}
+\index{StPhmdHit|textbf}
+\label{sec:StPhmdHit}
+\begin{Entry}
+\item[Summary]
+\item[Synopsis]
+    \verb+#include "StPhmdHit.h"+\\
+    \verb+class StPhmdHit;+\\
+\item[Description]
+\item[Related Classes]
+\item[Public\\ Constructors]
+    \verb+StPhmdHit(); +\\
+\item[Public Member\\ Functions]
+    \verb+int superModule() const; //! function for supermodule no.+\\
+    \verb+int module() ; //! function for module+\\
+    \verb+int subDetector() const; //! function for subdetector+\\
+    \verb+int row() const; //! function for row+\\
+    \verb+int column() const; //! function for col+\\
+    \verb+float energy() const; //! function for edep+\\
+    \verb+int adc() const; //! function for adc+\\
+    \verb+void setSuperModule(int);+\\
+    \verb+void setSubDetector(int);+\\
+    \verb+void setRow(int);+\\
+    \verb+void setColumn(int);+\\
+    \verb+void setEnergy(float);+\\
+    \verb+void setAdc(int);+\\
+\end{Entry}
+\clearpage
+
+
+\subsection{StPhmdModule}
+\index{StPhmdModule|textbf}
+\label{sec:StPhmdModule}
+\begin{Entry}
+\item[Summary]
+\item[Synopsis]
+    \verb+#include "StPhmdModule.h"+\\
+    \verb+class StPhmdModule;+\\
+\item[Description]
+\item[Related Classes]
+\item[Public\\ Constructors]
+    \verb+StPhmdModule(); +\\
+\item[Public Member\\ Functions]
+    \verb+unsigned int numberOfHits() const;+\\
+    \verb+StSPtrVecPhmdHit& hits();+\\
+    \verb+const StSPtrVecPhmdHit& hits() const; +\\
+\end{Entry}
+\clearpage
+
+
 
 
 \subsection{StPrimaryTrack}
