@@ -23,7 +23,7 @@ use strict;
 sub UpdateQAOffline{
   my $dataType   = shift; # either 'real' or 'MC'
 
-  my $limit      = 5;     # limit number of new jobs
+  my $limit      = 20;     # limit number of new jobs
   my $oldestDate;         # dont retrieve anything older than this
   my $fileType;
   my $today      = strftime("%Y-%m-%d %H:%M:%S",localtime());
@@ -32,12 +32,12 @@ sub UpdateQAOffline{
   if($dataType eq 'real')
   {
     $fileType = 'daq_reco';
-    $oldestDate='2000-06-20';
+    $oldestDate='2000-07-01';
   }
   elsif($dataType eq 'MC')
   {
     $fileType = 'MC_reco';  
-    $oldestDate='2000-04-01';
+    $oldestDate='2000-07-01';
   }
   else {die "Wrong argument $dataType" }
   
@@ -132,7 +132,7 @@ sub UpdateQAOfflineReal{
 sub UpdateQANightly {  
   my $dataType = shift; # 'real' or 'MC'
   
-  my $limit       = 10;
+  my $limit       = 20;
   my $oldestDate  = '2000-07-01'; # dont retrieve anything older 
   my $today       = strftime("%Y-%m-%d %H:%M:%S",localtime());
 
@@ -334,7 +334,7 @@ sub GetToDoReportKeys{
 
   # distinct just in case
   my $query = qq{select distinct $QASum{report_key} 
-		 from $dbQA.QASum{Table}  
+		 from $dbQA.$QASum{Table}  
 		 where $QASum{QAdone} = 'N' and
 	         $type_string};
   

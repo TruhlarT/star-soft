@@ -160,40 +160,8 @@ sub selectionControls{
     my $cgi = shift;
     my $jobs = shift;
     
-    #
-    # get allowed values for selection lists based on current jobs.
-    # If it doesn't appear in a current job, it won't be available.
-    #
-
-    my $fieldChoices = {}; # ref to hash of array refs
-    foreach my $key (@$selectionKeys){
-	$fieldChoices->{$key} = [];
-    }    
-
-    # temporarily add "any" job to allow no selection on a field
-    my $anyJob = {};
-    foreach my $key (@$selectionKeys){
-	$anyJob->{$key} = "any";
-    }
-    $jobs->{"any"} = $anyJob;
-
-    # collect all possible field values, including duplicates
-    foreach my $job (values %$jobs){
-	foreach my $key (@$selectionKeys){
-	    push @{ $fieldChoices->{$key} }, $job->{$key};
-	}
-    }
-    delete $jobs->{"any"};
-    
-    # remove duplicate elements from each list of field values, then sort
-    foreach my $key (@$selectionKeys){
-	removeDuplicates($fieldChoices->{$key});
-	$fieldChoices->{$key} = [sort(@{ $fieldChoices->{$key} })];
-    }
-
-    #
-    # print the selection controls
-    #
+    # get the possible choices for each field based on the current jobs
+    my $fieldChoices = getFieldChoices($cgi, $jobs);
 
     # column selection controls
     my $text = "";
@@ -230,10 +198,10 @@ sub selectedJobs{
     my @selectedJobs = ();
     my @selectedJobIDs = ();
     
-    if ($cgi->param("jobID")){ # selection params are valid (not first call)
+    if (jobsSelected($cgi)){   # jobs have been limited in some way
       JOB_LOOP: foreach my $job (values %$jobs){
 	  foreach my $key (@$selectionKeys){
-	      if ($cgi->param($key) ne "" &&
+	      if ($cgi->param($key) ne "" &&  # if no match to specified value
 		  $cgi->param($key) ne "any" &&
 		  $cgi->param($key) ne $job->{$key}){
 		  next JOB_LOOP;
@@ -242,7 +210,7 @@ sub selectedJobs{
 	  # matches all necessary criteria, add it
 	  push @selectedJobs, $job;
       }
-    }else{                     # first call, show all jobs
+    }else{                     # show all jobs
 	@selectedJobs = values %$jobs;
     }
 
@@ -415,7 +383,7 @@ sub bJobs{
     # extract fields from each line
     foreach my $line (@lines){  
 	my @fields = ($line =~ 
-	   /^(\S+)\s+(\S+)\s+(\S+)\s+(\S+)\s+(\S+)\s+(\S+)\s+(.*)\s+(.{12})/);
+	 /^(\S+)\s+(\S+)\s+(\S+)\s+(\S+)\s+(\S+)\s+(\S+)\s+(.*\S+)\s+(.{12})/);
 	my $job = {};
 
 	foreach my $key (@$selectionKeys){
@@ -452,4 +420,55 @@ sub removeDuplicates{
     return $arrayRef;
 }
 
+#
+# get allowed values for selection lists based on current jobs.
+# If it doesn't appear in a current job, it won't be available.
+# Include "any" job.
+#
 
+sub getFieldChoices{
+    my $cgi = shift;
+    my $jobs = shift;
+
+    my $fieldChoices = {}; # ref to hash of array refs
+    foreach my $key (@$selectionKeys){
+	$fieldChoices->{$key} = [];
+    }    
+
+    # temporarily add "any" job to allow no selection on a field
+    my $anyJob = {};
+    foreach my $key (@$selectionKeys){
+	$anyJob->{$key} = "any";
+    }
+    $jobs->{"any"} = $anyJob;
+
+    # collect all possible field values, including duplicates
+    foreach my $job (values %$jobs){
+	foreach my $key (@$selectionKeys){
+	    push @{ $fieldChoices->{$key} }, $job->{$key};
+	}
+    }
+    delete $jobs->{"any"};
+    
+    # remove duplicate elements from each list of field values, then sort
+    foreach my $key (@$selectionKeys){
+	removeDuplicates($fieldChoices->{$key});
+	$fieldChoices->{$key} = [sort(@{ $fieldChoices->{$key} })];
+    }
+
+    return $fieldChoices;
+}
+
+#
+# returns whether or not any jobs were selected by form params
+#
+
+sub jobsSelected{
+    my $cgi = shift;
+
+    foreach my $key (@$selectionKeys){
+	if ($cgi->param($key)){ return 1; }
+    }
+
+    return 0;
+}

@@ -115,7 +115,9 @@ sub PrintPageHeader{
   my $contact_string = $self->ContactString();
 
   # where's the documentation?  
-  my $doc_link = "http://www.star.bnl.gov/STARAFS/comp/pkg/dev/cgi/qaversion2/doc/index.html";
+  my $doc_link = $gCGIquery->script_name;
+  $doc_link =~ s/QA_main\.pm/doc\/index.html/;
+
   my $doc_string = "<a href=$doc_link target='documentation'>Documentation </a>";
 
   #---
@@ -419,7 +421,9 @@ sub ContactString{
 
   # temporary solution:
 #  my $url = "http://www.star.bnl.gov/~jacobs/contacts.html";
-  my $url = "http://www.star.bnl.gov/STARAFS/comp/pkg/dev/cgi/qaversion2/doc/contacts.html";
+  # BEN(9jul00):
+  my $url = $gCGIquery->script_name;
+  $url =~ s/QA_main\.pm/doc\/contacts.html/;
 
   my $string = "<a href=$url target = 'documentation'>Contacts </a>";
   return $string;
@@ -433,7 +437,11 @@ sub RcasLsfMonitor{
   
   #---------------------------------------------------------
   my $server_name = "sol.star.bnl.gov:8080";
-  my $url = "http://$server_name/v2/LSF_tool";
+  my $lsfTool = "LSF_tool?jobName=QATEST&expertPW=".
+      $gCGIquery->param("expert_pw");
+
+  my $url = $gCGIquery->script_name;
+  $url =~ s/QA_main\.pm/$lsfTool/e;
 
   my $string = "<a href=$url target = 'documentation'>Rcas/LSF monitor </a>";
   return $string;

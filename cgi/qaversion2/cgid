@@ -8,7 +8,9 @@
 # just like a cgi-only web server.  If given a request for a document other
 # than those allowed, it gives a HTTP 404 error message.  
 #
-# 6jul00: cgid now recognizes paths in the url, see $path_table var
+# 6jul00: cgid now recognizes paths in the url, see $script_dirs var
+# 9jul00: cgid will now retrieve html docs from any directory under
+#         those in $doc_dirs. directory listing is not allowed
 #
 # cgid makes the script think that it has been run as a normal cgi process.
 # This is accomplished by parsing the HTTP request (from a normal web browser)
@@ -38,6 +40,7 @@
 #
 # NOTE: cgid is biased to run on rcas by the path environment variable provided
 #       to the child script
+#
 
 use HTTP::Daemon;
 use Net::hostent; # OO getpeerbyaddr
@@ -58,13 +61,15 @@ my $log_file = "$log_dir/$my_name.log";
 my $afs_pw_file = "/star/rcf/qa/.starlib_CGI";
 
 # look-up table for paths (aliases)
-my $path_table = {
+my $script_dirs = {
     "/ben"   => "/star/u2e/bnorman/cgi-bin/qa",
     "/peter" => "/afs/rhic/star/users/jacobs/QA/cgi",
     "/bum"   => "/star/u2e/bum/cgi-bin/version2",
     "/v2"    => "/afs/rhic/star/packages/dev/cgi/qaversion2",
-    "pro"    => "/star/u2e/starqa/cgi-bin/pro"
+    "/pro"   => "/star/u2e/starqa/cgi-bin/pro/cgi/qaversion2"
     };
+
+my $doc_dirs = $script_dirs;  # may change in the future
 
 my %opt = ();
 getopt('p', \%opt);
@@ -86,7 +91,7 @@ my $token = `tokens`;
 
 if ($token !~ /^User/m) {   # token line in output
     print STDERR "(re)starting reauth...\n";
-    system("killall reauth; reauth 85000 starlib `cat $afs_pw_file`");
+    system("killall reauth; cat $afs_pw_file | reauth 85000 starlib");
     print STDERR "...reauth (re)started\n";
 }
 
@@ -166,13 +171,13 @@ ACCEPT_LOOP: while ($client = $daemon->accept)
 printToLog ("$0.$$ child handling request");
 
 #
-# process requests to allowed scripts and only that!
+# process requests to allowed scripts, and docs in allowed dirs.
 #
 
-my ($script_name, $working_dir) = get_script($request);
+my ($script_name, $doc_name, $working_dir) = translateURL($request);
 
-if ($script_name)
-{
+if ($script_name){       #this is an allowed cgi script
+
     #
     # send http header not provided by the cgi script
     #
@@ -249,11 +254,23 @@ if ($script_name)
 
     $client = undef;
 
-    printToLog ("$0.$$ handled request for '" . $request->url . "', exiting");
+    printToLog ("$0.$$ handled request for script'" . $request->url . 
+		"', exiting");
 
-}
-else
-{
+}elsif($doc_name){
+
+    #
+    # send http headers and document
+    #
+
+    $client->send_file_response("$working_dir/$doc_name");
+
+    $client = undef;
+
+    printToLog ("$0.$$ handled request for document'" . $request->url . 
+		"', exiting");
+
+}else{
     $client->send_error(404, "So sorry.");
     $client = undef; # close the connection
 
@@ -273,9 +290,9 @@ sub cleanup
 {
     printToLog ("$0.$$ exiting");
 
-    $client = undef; # close any http connection
-    $daemon = undef; # close socket
-    unlink $pid_file; # remove runtime pid file
+    if (defined $client) {$client = undef;} # close any http connection
+    if (defined $daemon) {$daemon = undef;} # close socket
+    if (-e $pid_file) {unlink $pid_file;}   # remove runtime pid file
 
     exit;
 } # sub cleanup
@@ -294,17 +311,36 @@ MICA
 }
 
 # gets the name of the allowed script embedded in the request, or nothing
-# if none is found.  also returns the filesystem directory of the script
+# if none is found.  also returns the filesystem directory of the script.
+# if the url does not match an allowed script but matches an existing file
+# residing in an allowed directory, return the name and directory of that
+# document
 
-sub get_script {
+sub translateURL {
 
     my $request = shift;
 
-    foreach my $script_name (@$script_names){
-	foreach my $working_dir (keys %$path_table){
-	    if ($request->url->path =~ /^$working_dir\/$script_name\b/){
-		return $script_name, $path_table->{$working_dir};
+    # first check for allowed scripts
+    foreach my $dir (keys %$script_dirs){
+	my $working_dir = $script_dirs->{$dir};
+
+	foreach my $script_name (@$script_names){
+	    if ($request->url->path =~ m{^$dir/$script_name\b}){
+		return $script_name, undef, $working_dir;
 	    }
+	}
+    }
+
+    
+    # now for existing files
+    foreach my $dir (keys %$doc_dirs){
+	my $working_dir = $script_dirs->{$dir};
+
+	$request->url->path =~ m{^$dir(.*)/([^/]*)$};
+	$working_dir = "$working_dir$1";
+
+	if ($2 && -e "$working_dir/$2"){
+	    return undef, $2, $working_dir;
 	}
     }
 
