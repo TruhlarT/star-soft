@@ -213,6 +213,7 @@ while ($morerecords)
 	my $store=$fileC->get_context("storage");
 	if( ! defined($store) ){
 	    # Impose NFS to minimize errors
+	    $store = "NFS";
 	    $fileC->set_context("storage=NFS");  
 	} else {
 	    if( $store eq "HPSS"){
@@ -222,7 +223,7 @@ while ($morerecords)
 	
 	
 	# Getting the data
-	@output = $fileC->run_query("path","filename","available","node");
+	@output = $fileC->run_query("path","filename","available","node","site");
 	
 	# Check if there are any records left
 	#print "OUTPUT: $#output batchsize $batchsize\n";
@@ -232,23 +233,26 @@ while ($morerecords)
 	# checking the availability
 	foreach (@output)
 	  { 
-	    my ($path, $fname,$available,$node) = split ("::");
+	    my ($path, $fname,$available,$node,$site) = split ("::");
 	    if (-e $path."/".$fname)
 	      {
 		 if ($debug > 0)
-		  { print "File $store://$node$_ exists\n"; }
+		  { print "File  $site.$store://$node$path/$fname exists\n"; }
 	      }
 	    else
 	    {		
 		#if ($debug>0)
 		#{
-		print "!!! File $store://$node$_ DOES NOT exist or is unavailable !\n"; 
+		print "!!! File  $site.$store://$node$path/$fname DOES NOT exist or is unavailable !\n"; 
 		#}
 		# Marking/re-marking the file as unavailable
 		$fileC->clear_context();
 		$fileC->set_context("filename=$fname");
 		$fileC->set_context("path=$path");
 		$fileC->set_context("available=$available");
+		$fileC->set_context("storage=$store");
+		$fileC->set_context("node=$node") if ($node ne "");
+		$fileC->set_context("site=$site") if ($site ne "");
 		$fileC->update_location("available",0);
 	      }
 	  }    
@@ -279,7 +283,7 @@ while ($morerecords)
 		$fileC->flush_delayed();
 	    }
 	} else {
-	    @items = $fileC->run_query("path","filename","storage","site","available");
+	    @items = $fileC->run_query("site","node","storage","path","filename","available");
 	    foreach (@items){
 		print "$_\n";
 	    }
@@ -354,8 +358,20 @@ while ($morerecords)
 	$fileC->set_context("all=1");
 	$fileC->set_delimeter("::");
 	
+
+	my $store=$fileC->get_context("storage");
+	if( ! defined($store) ){
+	    # Impose NFS to minimize errors
+	    $store = "NFS";
+	    $fileC->set_context("storage=NFS");  
+	} else {
+	    if( $store eq "HPSS"){
+		die "HPSS checking not immplemented yet\n";
+	    }
+	}
+
 	# Getting the data
-	@output = $fileC->run_query("path","filename","available");
+	@output = $fileC->run_query("path","filename","available","node","site");
 	
 	# Check if there are any records left
 	#print "OUTPUT: $#output batchsize $batchsize\n";
@@ -364,25 +380,28 @@ while ($morerecords)
 
 	# checking the availability
 	foreach (@output){
-	    my ($path, $fname, $av) = split ("::");
+	    my ($path, $fname, $av,$node, $site) = split ("::");
 	    if (-e $path."/".$fname){
 		if ($av == 0){
 		    #if ($debug > 0)
 		    #{ 
-		    print "File $_ exists\n"; 
+		    print "File $site.$store://$node$path/$fname exists\n"; 
 		    #}
 		    # Marking the file as available
 		    $fileC->clear_context();
 		    $fileC->set_context("filename=$fname");
 		    $fileC->set_context("path=$path");
 		    $fileC->set_context("available=0");
+		    $fileC->set_context("storage=$store");
+		    $fileC->set_context("node=$node") if ($node ne "");
+		    $fileC->set_context("site=$site") if ($site ne "");
 		    $fileC->update_location("available",1);
 		}
 	    } else {
 		if ($av == 1){
 		    #if ($debug>0)
 		    #{ 
-		    print "File $_ DOES NOT exist or is unavailable !\n"; 
+		    print "File $site.$store://$node$path/$fname DOES NOT exist or is unavailable !\n"; 
 		    #}
 		    # Marking the file as unavailable
 		    $fileC->clear_context();
