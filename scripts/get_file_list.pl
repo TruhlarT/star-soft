@@ -12,7 +12,8 @@
 # -keys       : the comma delimited list of keys to get from the database
 # -cond       : comma delimited list of conditions limiting the dataset
 # -onefile    : get only one location for each filename
-# -delim      : change the characters separating data from different columns (defaut "::")
+# -delim      : change the characters separating data from different 
+#               columns (defaut "::")
 # -limit      : limit the number of returne records
 # -start      : start with the n-th record of the sample
 # -debug      : maintainance option
@@ -134,7 +135,7 @@ if ($count == 0){
 sub Usage
 {
     print "Command usage:\n";
-    print "get_file_list.pl [-all|-distinct] -keys field{,field} [-cond field=value{,field=value}] [-start <start record number>] [-limit <number of output records>] [-delim <string>]\n";
+    print "% get_file_list.pl [{-all|-distinct}] -keys keyword[,keyword,...] [-cond keyword=value[,keyword=value,...]] [-start <start record number>] [-limit <number of output records>] [-delim <string>]\n";
     print "The valid keywords are: ".join(" ",$fileC->get_keyword_list())."\n";
 }
 
