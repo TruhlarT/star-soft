@@ -2,7 +2,7 @@
 %
 % StEvent - User Guide and Reference Manual -- LaTeX Source
 %
-% $Id: StEvent.tex,v 2.71 2002/01/17 02:05:31 ullrich Exp $
+% $Id: StEvent.tex,v 2.72 2002/02/25 19:56:06 ullrich Exp $
 %
 % Author: Thomas Ullrich, Nov 1999
 %
@@ -21,6 +21,9 @@
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %
 % $Log: StEvent.tex,v $
+% Revision 2.72  2002/02/25 19:56:06  ullrich
+% First update after a long time.
+%
 % Revision 2.71  2002/01/17 02:05:31  ullrich
 % Mods to StEvent reference. Added StTofCollection.
 %
@@ -278,8 +281,8 @@
   \mbox{\includegraphics[width=\textwidth]{StEventTitle.eps}}
   \hfill\mbox{}\\[3cm]
   {\LARGE User Guide and Reference Manual \\[5mm] for Version 2}\\[2cm]
-  {\LARGE $ $Revision: 2.71 $ $}  \\[5mm] % replaced by cvs with current revision
-  {\LARGE $ $Date: 2002/01/17 02:05:31 $ $}  % replaced by cvs with current revision
+  {\LARGE $ $Revision: 2.72 $ $}  \\[5mm] % replaced by cvs with current revision
+  {\LARGE $ $Date: 2002/02/25 19:56:06 $ $}  % replaced by cvs with current revision
   \vfill
 \end{center}
 \cleardoublepage
@@ -395,7 +398,10 @@ To remind you of the names and save you the time to look them up up
 every you need one they are all listed below:
 
 \begin{verbatim}
-enum StBeamDirection        {east, west};
+enum StBeamDirection        {east = 0
+                             yellow = 0,
+                             west = 1,
+                             blue = 1};
 
 enum StBeamPolarizationAxis {transverse, longitudinal};
 
@@ -3301,6 +3307,27 @@ definition in the header file.
 \end{Entry}
 \clearpage
 
+\subsection{StEmcTriggerDetector}
+\index{StEmcTriggerDetector|textbf}
+\label{sec:StEmcTriggerDetector}
+\begin{Entry}
+\item[Summary]
+\item[Synopsis]
+    \verb+#include "StEmcTriggerDetector.h"+\\
+    \verb+class StEmcTriggerDetector;+\\
+\item[Description]
+\item[Related Classes]
+\item[Public\\ Constructors]
+    \verb+StEmcTriggerDetector();+\\
+    \verb+StEmcTriggerDetector(const dst_TrgDet_st&);+\\
+\item[Public Member\\ Functions]
+    \verb+int numberOfTowers() const;+\\
+    \verb+int highTower(unsigned int) const;+\\
+    \verb+int patch(unsigned int) const;+\\
+    \verb+void setHighTower(unsigned int, int);+\\
+    \verb+void setPatch(unsigned int, int);+\\
+\end{Entry}
+\clearpage
 
 \subsection{StEvent}
 \index{StEvent|textbf}
@@ -4188,13 +4215,19 @@ definition in the header file.
     \verb+unsigned short dsmAddress() const;+\\  
     \verb+unsigned char addBits() const;+\\
     \verb+unsigned int lastDsmArraySize() const;+\\
+
     \verb+unsigned short lastDsmArray(unsigned int i);+\\
     Index texttt{i} runs from 0 to \texttt{lastDsmArraySize()-1}.
     
     \verb+unsigned int bcDataArraySize() const;+\\
     \verb+unsigned short bcDataArray(unsigned int i);+\\
     Index texttt{i} runs from 0 to \texttt{bcDataArraySize()-1}.
+
+    \verb+unsigned int bunchCrossingId7bit(int run) const;+\\
+    Takes run numbers as argument.
     
+    \verb+unsigned int bunchCrossingId() const;+\\
+
     \verb+void setMwcCtbMultiplicity(int);+\\
     \verb+void setMwcCtbDipole(int);+\\
     \verb+void setMwcCtbTopology(int);+\\
@@ -5246,6 +5279,9 @@ trigger algorithm information.
     Returns the \texttt{StRichPid} associated to a
     the particle type {\bf t}.
 
+    \verb+StRichSpectra* getRichSpectra();+\\
+    \verb+const StRichSpectra* getRichSpectra() const;+\\
+
     \verb+void setProductionVersion(int);+\\
     Label for the time which the \texttt{StRichPidTrait}
     was produced.  The default version (for OFFICIAL production)
@@ -5322,6 +5358,8 @@ trigger algorithm information.
     distance of closest approach (dca) between the
     global partner of the track and the primary vertex
     position.
+
+    \verb+void setRichSpectra(StRichSpectra*);+\\
 \end{Entry}
 \clearpage
 
@@ -5408,6 +5446,71 @@ trigger algorithm information.
 \end{Entry}
 \clearpage
 
+\subsection{StRichSpectra}
+\index{StRichSpectra|textbf}
+\label{sec:StRichSpectra}
+\begin{Entry}
+\item[Summary]
+\item[Synopsis]
+    \verb+#include "StRichSpectra.h"+\\
+    \verb+class StRichSpectra;+\\
+\item[Description]
+\item[Related Classes]
+\item[Public\\ Constructors]
+    \verb+StRichSpectra(int v=-999);+\\
+\item[Public Member\\ Functions]
+    \verb+StRichSpectra(float,float,float,float,float,float,+\\
+    \verb+float,float,int,float,int,int,+\\
+    \verb+float,float,float,float,int,float,+\\
+    \verb+float, float, float,+\\
+    \verb+int, int, int,+\\
+    \verb+int=-999);+\\
+    \verb+void setExtrapolatedPosition(float, float);+\\
+    \verb+void setExtrapolatedResidual(float, float);+\\
+    \verb+void setCorrectedExtrapolatedResidual(float, float);+\\
+    \verb+void setCherenkovAngle(float);+\\
+    \verb+void setCherenkovSigma(float);+\\
+    \verb+void setCherenkovPhotons(int);+\\
+    \verb+void setPeakAngle(float);+\\
+    \verb+void setPeakPhotons(int);+\\
+    \verb+void setTotalPhotons(int);+\\
+    \verb+void setMassSquared(float);+\\
+    \verb+void setLineIntegralRatio(float);+\\
+    \verb+void setLineIntegral(float);+\\
+    \verb+void setAlpha(float);+\\
+    \verb+void setFlag(int);+\\
+    \verb+void setReserved(float);+\\
+    \verb+void setMeanD(float pi=FLT_MAX, float k=FLT_MAX, float p=FLT_MAX);+\\
+    \verb+void setNumberOfD(int pi=-100, int k=-100, int p=-100);+\\
+    \verb+void setVersion(int);+\\
+    \verb+float getExtrapolatedX() const;+\\
+    \verb+float getExtrapolatedY() const;+\\
+    \verb+float getExtrapolatedXResidual() const;+\\
+    \verb+float getExtrapolatedYResidual() const;+\\
+    \verb+float getCorrectedExtrapolatedXResidual() const;+\\
+    \verb+float getCorrectedExtrapolatedYResidual() const;+\\
+    \verb+float getCherenkovAngle() const;+\\
+    \verb+float getCherenkovSigma() const;+\\
+    \verb+int getCherenkovPhotons() const;+\\
+    \verb+float getPeakAngle() const;+\\
+    \verb+int getPeakPhotons() const;+\\
+    \verb+int getTotalPhotons() const;+\\
+    \verb+float getMassSquared() const;+\\
+    \verb+float getLineIntegralRatio() const;+\\
+    \verb+float getLineIntegral() const;+\\
+    \verb+float getAlpha() const;+\\
+    \verb+int getFlag() const;+\\
+    \verb+float getMeanDpi() const;+\\
+    \verb+float getMeanDk() const;+\\
+    \verb+float getMeanDp() const;+\\
+    \verb+int getMeanDnpi() const;+\\
+    \verb+int getMeanDnk() const;+\\
+    \verb+int getMeanDnp() const;+\\
+    \verb+float getReserved() const;+\\
+    \verb+int getVersion() const;+\\
+\end{Entry}
+\clearpage
+
 \subsection{StRunInfo}
 \index{StRunInfo|textbf}
 \label{sec:StRunInfo}
@@ -5421,7 +5524,9 @@ trigger algorithm information.
     This class contains parameters related to the current run.
     Much of the information is redundant since some parameters
     can be obtained from the offline DB and other classes.
-        
+    Hint: If you are not sure about the beam direction you can also
+    use \texttt{blue} and \texttt{yellow} for the blue and yellow
+    ring respectively.
 \item[Public\\ Constructors]
     \verb+StRunInfo();+\\
     
@@ -5440,7 +5545,13 @@ trigger algorithm information.
     
     \verb+double centerOfMassEnergy() const;+\\
     \verb+int beamMassNumber(StBeamDirection) const;+\\
-    \verb+int beamCharge(StBeamDirection) const;+\\
+    \verb+float beamEnergy(StBeamDirection) const;+\\
+    \verb+float initialBeamIntensity(StBeamDirection) const;+\\
+    Only at beginning of run.
+    
+    \verb+float beamLifeTime(StBeamDirection) const;+\\
+    \verb+float beamFillNumber(StBeamDirection) const;+\\
+
     \verb+double magneticField() const;+\\
     Z-component of magnetic field at $(x,y,z)=(0,0,0)$.
     
@@ -5450,15 +5561,19 @@ trigger algorithm information.
     \verb+double zdcWestRate() const;+\\
     ZDC West scaler rate (counts per second) interpolated by a
     straight line between periodic online database entries.
+
     \verb+double zdcEastRate() const;+\\
     ZDC East scaler rate (counts per second) interpolated by a
     straight line between periodic online database entries.
+
     \verb+double zdcCoincidenceRate() const;+\\
     ZDC Coincidence scaler rate (counts per second) interpolated by a
     straight line between periodic online database entries.
+
     \verb+double backgroundRate() const;+\\
     Mult scaler rate (counts per second) interpolated by a straight
     line between periodic online database entries.
+
     \verb+double l0RateToRich() const;+\\
     L0 rate sent to the RICH from trigger rate (counts per second)
     interpolated by a straight line between periodic online database
@@ -5469,7 +5584,10 @@ trigger algorithm information.
     \verb+void setProductionVersion(const char*);+\\
     \verb+void setCenterOfMassEnergy(double);+\\
     \verb+void setBeamMassNumber(StBeamDirection, int);+\\
-    \verb+void setBeamCharge(StBeamDirection, int);+\\
+    \verb+void setBeamEnergy(StBeamDirection, float);+\\
+    \verb+void setInitialBeamIntensity(StBeamDirection, float);+\\
+    \verb+void setBeamLifeTime(StBeamDirection, float);+\\
+    \verb+void setBeamFillNumber(StBeamDirection, float);+\\
     \verb+void setMagneticField(double);+\\
     \verb+void setTpcDriftVelocity(StBeamDirection, double);+\\
     \verb+void setZdcWestRate(double);+\\
@@ -6665,9 +6783,10 @@ numberOfPoints(kTpcId) == numberOfPoints(kFtpcWestId)
     \verb+const StVpdTriggerDetector& vpd() const;+\\
     \verb+StZdcTriggerDetector& zdc();+\\
     \verb+const StZdcTriggerDetector& zdc() const;+\\
+    \verb+StEmcTriggerDetector& emc();+\\
+    \verb+const StEmcTriggerDetector& emc() const;+\\
 \end{Entry}
 \clearpage
-
 
 \subsection{StV0Vertex}
 \index{StV0Vertex|textbf}
