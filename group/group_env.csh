@@ -1,7 +1,10 @@
 #!/usr/bin/csh -f
-#       $Id: group_env.csh,v 1.76 1999/07/08 21:50:24 fisyak Exp $
+#       $Id: group_env.csh,v 1.77 1999/07/12 22:14:42 wenaus Exp $
 #	Purpose:	STAR group csh setup 
 #       $Log: group_env.csh,v $
+#       Revision 1.77  1999/07/12 22:14:42  wenaus
+#       Update GEANT4 env variables
+#
 #       Revision 1.76  1999/07/08 21:50:24  fisyak
 #       Add /opt/star/lib in LD_LIBRARY_PATH for all platforms
 #
@@ -470,11 +473,6 @@ endif
 # Objectivity
 if (`uname -s` == "SunOS" && `hostname` != "rcf.rhic.bnl.gov" && ! ${?OBJY_HOME} ) source $GROUP_DIR/ObjySetup.csh
 
-# Geant4
-setenv G4PROTO /star/sol/packages/geant4/prototype
-setenv RWBASE /star/sol/packages/rogue/workspaces/SOLARIS25/SUNPRO42/12s
-setenv CLHEP_BASE_DIR /opt/star
-
 # SNiFF+
 switch ($STAR_SYS)
     case "sun4*":
@@ -493,6 +491,10 @@ switch ($STAR_SYS)
 #     ====================
       breaksw
 endsw
+
+# Geant4 testing
+setenv RWBASE         /afs/rhic/usatlas/software/geant4/rogue
+setenv CLHEP_BASE_DIR /afs/rhic/usatlas/software/geant4/CLHEP/$G4SYSTEM/pro
 
 # HP Jetprint
 if ( -d /opt/hpnp ) then
