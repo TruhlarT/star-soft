@@ -1,5 +1,5 @@
 #!/bin/csh -f
-#       $Id: group_env.csh,v 1.143 2003/06/16 23:58:28 jeromel Exp $
+#       $Id: group_env.csh,v 1.144 2003/06/17 00:26:16 jeromel Exp $
 #	Purpose:	STAR group csh setup
 #
 #	Author:		Y.Fisyak     BNL
@@ -52,11 +52,8 @@ if ( ! $?OPTSTAR ) then
 	endif
     endif
 endif
-if (  $?OPTSTAR ) then
-    if ($ECHO) echo   "Setting up OPTSTAR   = ${OPTSTAR}"
-else
-    if ($ECHO) echo   "WARNING : OPTSTAR undefined"
-endif
+
+
     
 
 # Defined by Group Dir
@@ -95,8 +92,21 @@ if ($STAF_LEVEL  == "old" || $STAF_LEVEL  == "pro" || $STAF_LEVEL  == "new" || $
 endif
 
 
+
+
 # Clear this out. First block STAF, second STAR
 source ${GROUP_DIR}/STAR_SYS;
+
+# Redhat > 7.3  transition ; adding one level
+if ( ${STAR_HOST_SYS} != ${STAR_SYS} ) setenv OPTSTAR ${OPTSTAR}/${STAR_HOST_SYS}
+if (  $?OPTSTAR ) then
+    if ($ECHO) echo   "Setting up OPTSTAR   = ${OPTSTAR}"
+else
+    if ($ECHO) echo   "WARNING : OPTSTAR undefined"
+endif
+
+
+
 
 
 
