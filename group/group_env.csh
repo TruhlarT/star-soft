@@ -1,5 +1,5 @@
 #!/bin/csh -f
-#       $Id: group_env.csh,v 1.176 2004/11/25 23:29:42 jeromel Exp $
+#       $Id: group_env.csh,v 1.177 2004/11/26 00:42:40 jeromel Exp $
 #	Purpose:	STAR group csh setup
 #
 #	Author:		Y.Fisyak     BNL
@@ -54,9 +54,6 @@ if ( ! $?OPTSTAR ) then
 	# remote second
 	if ( $?XOPTSTAR ) then
 	    setenv OPTSTAR ${XOPTSTAR}
-	else
-	    # nothing found ...
-	    setenv OPTSTAR
 	endif
     endif
 endif
@@ -157,7 +154,11 @@ endif
 if (  $?OPTSTAR ) then
     if ($ECHO) echo   "Setting up OPTSTAR   = ${OPTSTAR}"
 else
-    if ($ECHO) echo   "WARNING : OPTSTAR undefined"
+    # nothing found, so set it to nothing and the login 
+    # will be able to proceed (at least, repair will be 
+    # possible)...
+    setenv OPTSTAR
+
 endif
 if (  $XOPTSTAR == "/dev/null" ) then
     if ($ECHO) echo   "WARNING : XOPTSTAR points to /dev/null (no AFS area for it)"
@@ -583,11 +584,55 @@ if ( -x ${GROUP_DIR}/dropit) then
     setenv PATH `${GROUP_DIR}/dropit -p ${PATH} GROUPPATH`
 endif
 
+
+
+
+
+
+
+
+
+
+
+
+#
+# Display this message as it is likely the environment is
+# screwed up if this happens.
+#
+if ( "$OPTSTAR" == "") then
+    if ($ECHO) then
+	    echo ""
+	    echo "          ########################################"
+	    echo "          ########################################"
+	    echo "          ##                                    ##"
+	    echo "          ## /!\  OPTSTAR is undefined  /!\     ##"
+	    echo "          ##                                    ##"
+	    echo "          ## NO local or AFS based installation ##"
+	    echo "          ##                                    ##"
+	    echo "          ## You have ONLY a PARTIALLY working  ##"
+	    echo "          ## STAR environment                   ##"
+	    echo "          ##                                    ##"
+	    echo "          ########################################"
+	    echo "          ########################################"
+	    echo ""
+
+	    # turn some echo OFF now so this message is 
+	    # not cluttered
+	    setenv SILENT 1
+    endif
+endif
+
+
+
+
 if ($ECHO) then
     echo "STAR setup on" `/bin/hostname` "by" `/bin/date` " has been completed"
     echo   "LD_LIBRARY_PATH = $LD_LIBRARY_PATH"
     unset ECHO
 endif
+
+
+
 
 #
 # Uncomment to get statistics on version used at
