@@ -75,31 +75,22 @@ while (defined $ARGV[$count])
       {
 	$cond_list = $ARGV[++$count];
 	if ($debug > 0) { print "The conditions list is $cond_list\n"; }
-      }
-    else
-      {
+    } else {
 	print "Unknown switch used: ".$ARGV[$count]."\n";
-	print "Command usage:\n";
-	print "get_file_list.pl [-all|-distinct] -keys field{,field} [-cond field=value{,field=value}] [-start <start record number>] [-limit <number of output records>] [-delim <string>]\n";
-	print "The valid keywords are: ".join(" ",$fileC->get_keyword_list())."\n";
-      }
+	&Usage();
+	exit;
+    }
     $count++;
 
   }
 
-if ($count == 0)
-  {
-	print "Command usage:\n";
-	print "get_file_list.pl [-all|-distinct] -keys field{,field} [-cond field=value{,field=value}] [-start <start record number>] [-limit <number of output records>] [-delim <string>]\n";
-	print "The valid keywords are: ".join(" ",$fileC->get_keyword_list())."\n";
-      }
-else
-  {
+if ($count == 0){
+    &usage();
+} else {
     # Setting the context based on the swiches
-    foreach (split(/,/,$cond_list))
-      {
+    foreach (split(/,/,$cond_list)) {
 	$fileC->set_context($_);
-      }
+    }
     if ($all==1)
       { $fileC->set_context("all=1"); }
     if (defined $limit)
@@ -115,13 +106,10 @@ else
     @output = $fileC->run_query(split(/,/,$field_list));
 
     # Printing the output
-    if ($onefile != 1)
-      {
+    if ($onefile != 1){
 	foreach (@output)
-	  { print "$_\n"; }
-      }
-    else
-      {	
+	{ print "$_\n"; }
+    } else {	
 	my $lastfname = "";
 	my $delimeter;
 
@@ -130,14 +118,21 @@ else
 	else
 	  { $delimeter = "::"; }
 	foreach (@output)
-	  { 
+	{ 
 	    my @fields;
 	    (@fields) = split($delimeter,$_);
 	    $fields[$#fields] = "";
 	    if (join($delimeter,(@fields)) ne $lastfname)
 	      { print "$_\n"; }
 	    $lastfname = join($delimeter,(@fields));
-	  }
-
-      }
+	}
     }
+}
+
+
+sub Usage
+{
+    print "Command usage:\n";
+    print "get_file_list.pl [-all|-distinct] -keys field{,field} [-cond field=value{,field=value}] [-start <start record number>] [-limit <number of output records>] [-delim <string>]\n";
+    print "The valid keywords are: ".join(" ",$fileC->get_keyword_list())."\n";
+}

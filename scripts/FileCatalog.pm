@@ -211,6 +211,7 @@ sub get_table_name {
   my ($mykey) = (@_);
   my ($tabname, $a, $b);
 
+  if( ! defined($mykey) ){ return;}
 
   if (exists $keywrds{$mykey})
     {
@@ -1346,6 +1347,8 @@ sub get_struct_level {
   my $count;
   my ($paramtable) = @_;
 
+  if( ! defined($paramtable) ){  return 0;}
+
   for ($count = 0; $count<($#datastruct+1); $count++) {
     my ($mtable, $stable, $cfield, $level) = split(",",$datastruct[$count]);
     if ($mtable eq $paramtable) {
@@ -1360,6 +1363,8 @@ sub get_struct_level {
 sub get_lower_level {
   my $count;
   my ($paramtable) = @_;
+
+  if( ! defined($paramtable) ){  return 0;}
 
   for ($count = 0; $count<($#datastruct+1); $count++) {
     my ($mtable, $stable, $cfield, $level) = split(",",$datastruct[$count]);
@@ -1376,6 +1381,8 @@ sub get_all_upper {
   my $count;
   my ($paramtable) = @_;
   my @lower;
+
+  if( ! defined($paramtable) ){  return 0;}
 
   for ($count = 0; $count<($#datastruct+1); $count++) {
     my ($mtable, $stable, $cfield, $level) = split(",",$datastruct[$count]);
