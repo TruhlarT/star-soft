@@ -17,7 +17,8 @@ switch ($STAR_SYS)
 	setenv G4DAWN_MULTI_WINDOW 1
 	setenv G4DAWN_HOME /afs/rhic/usatlas/software/geant4/Linux/DAWN
 	setenv DAWN_HOME /afs/rhic/usatlas/software/geant4/Linux/DAWN
-	setenv PATH $PATH:$G4DAWN_HOME
+##VP 	setenv PATH $PATH:$G4DAWN_HOME
+	setenv PATH `${GROUP_DIR}/dropit -p $PATH -p $G4DAWN_HOME`
 	breaksw
     default:
 endsw 

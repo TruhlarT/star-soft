@@ -1,4 +1,4 @@
-@echo off
+rem @echo off
 REM  Copyright (C) FineSoft 1998  Valery Fine (Faine)
 rem
 rem  Last correction:           Creation date:

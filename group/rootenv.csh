@@ -15,30 +15,39 @@ switch ($STAR_HOST_SYS)
 #  ====================
     if (! ${?SHLIB_PATH}) setenv SHLIB_PATH 
     if ( -x ${GROUP_DIR}/dropit) setenv SHLIB_PATH `${GROUP_DIR}/dropit -p "$SHLIB_PATH" ROOT`
-    setenv  SHLIB_PATH  ${ROOTSYS}${root}/lib:${SHLIB_PATH}
+##VP     setenv  SHLIB_PATH  ${ROOTSYS}${root}/lib:${SHLIB_PATH}
+    setenv SHLIB_PATH `${GROUP_DIR}/dropit -p ${ROOTSYS}${root}/lib -p ${SHLIB_PATH}`
     if ($?NODEBUG) then
-      setenv  SHLIB_PATH  ${ROOTSYS}${root}/LIB:${SHLIB_PATH}
+##VP       setenv  SHLIB_PATH  ${ROOTSYS}${root}/LIB:${SHLIB_PATH}
+      setenv SHLIB_PATH `${GROUP_DIR}/dropit -p ${ROOTSYS}${root}/LIB -p ${SHLIB_PATH}`
     endif
 	breaksw
 	default:
 #  ====================
     if (! ${?LD_LIBRARY_PATH}) setenv LD_LIBRARY_PATH 
     if ( -x ${GROUP_DIR}/dropit) setenv LD_LIBRARY_PATH `${GROUP_DIR}/dropit -p "$LD_LIBRARY_PATH" ROOT`
-    setenv LD_LIBRARY_PATH "${ROOTSYS}${root}/lib:${LD_LIBRARY_PATH}"
+##VP     setenv LD_LIBRARY_PATH "${ROOTSYS}${root}/lib:${LD_LIBRARY_PATH}"
+    setenv LD_LIBRARY_PATH `${GROUP_DIR}/dropit -p ${ROOTSYS}${root}/lib -p ${LD_LIBRARY_PATH}`
     if ($?NODEBUG) then
-      setenv LD_LIBRARY_PATH "${ROOTSYS}${root}/LIB:${LD_LIBRARY_PATH}"
+##VP       setenv LD_LIBRARY_PATH "${ROOTSYS}${root}/LIB:${LD_LIBRARY_PATH}"
+      setenv LD_LIBRARY_PATH `${GROUP_DIR}/dropit -p ${ROOTSYS}${root}/LIB -p ${LD_LIBRARY_PATH}`
     endif
 endsw
 if ( -x ${GROUP_DIR}/dropit) setenv PATH  `${GROUP_DIR}/dropit -p "$PATH" ROOT`
-setenv PATH "${ROOTSYS}/${root}/bin:${PATH}"
+##VP setenv PATH "${ROOTSYS}/${root}/bin:${PATH}"
+setenv PATH `${GROUP_DIR}/dropit -p ${ROOTSYS}/${root}/bin -p ${PATH}`
 if ($?NODEBUG) then
-  setenv PATH "${ROOTSYS}/${root}/BIN:${PATH}"
+##VP   setenv PATH "${ROOTSYS}/${root}/BIN:${PATH}"
+  setenv PATH `${GROUP_DIR}/dropit -p ${ROOTSYS}/${root}/BIN -p ${PATH}`
 endif
 if ($?MANPATH == 0) setenv MANPATH
-setenv MANPATH "${ROOTSYS}/man:${MANPATH}"
+##VP setenv MANPATH "${ROOTSYS}/man:${MANPATH}"
+setenv MANPATH `${GROUP_DIR}/dropit -p ${ROOTSYS}/man -p ${MANPATH}`
 #
 # OpenGL
 if (-e $ROOTSYS/../Mesa) setenv OPENGL $ROOTSYS/../Mesa  
 setenv CINTSYSDIR ${ROOTSYS}/cint
-#setenv PATH "${PATH}:${CINTSYSDIR}"
-setenv MANPATH "${MANPATH}:${CINTSYSDIR}/doc"
+##VP #setenv PATH "${PATH}:${CINTSYSDIR}"
+#setenv PATH `${GROUP_DIR}/dropit -p ${PATH} -p ${CINTSYSDIR}`
+##VP setenv MANPATH "${MANPATH}:${CINTSYSDIR}/doc"
+setenv MANPATH `${GROUP_DIR}/dropit -p ${MANPATH} -p ${CINTSYSDIR}/doc`

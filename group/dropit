@@ -1,6 +1,9 @@
 #!/usr/bin/env perl
-#  $Id: dropit,v 1.6 2000/07/14 13:07:09 fisyak Exp $
+#  $Id: dropit,v 1.7 2001/03/29 23:48:02 perev Exp $
 #  $Log: dropit,v $
+#  Revision 1.7  2001/03/29 23:48:02  perev
+#  HP related fixes
+#
 #  Revision 1.6  2000/07/14 13:07:09  fisyak
 #  Try to reduce dependence on NFS
 #
@@ -55,19 +58,27 @@
 my $FS=":";
 my $DS=":";
 my $string= $ENV{PATH};# print "string $string\n";
+my @string=();
 my @substring=();
-while ($#ARGV > -1) {
-  my $test = shift @ARGV;# print "test $test\n";
-  next if $test eq '-c';
-  if ($test eq '-i') {$FS = shift @ARGV; next;}      
-  if ($test eq '-d') {$DS = shift @ARGV; next;}     
-  if ($test eq '-p') {$string = shift @ARGV;  next; } 
-  if ($test =~ /^-/) {shift @ARGV; next;}           
-  push @substring, $test;# print "substring = $substring\n";
-}
+for ( my $i=0; $i<scalar(@ARGV); $i++)
+{
+  my $test = @ARGV[$i];
+###  print $i, $test, "\n";
+  if ($test =~ /^-/  && @ARGV[$i+1] =~ /^-/) {next;}    
+  if ($test eq '-c') {next;}
+  if ($test eq '-i') {$FS = @ARGV[++$i]; next;}      
+  if ($test eq '-d') {$DS = @ARGV[++$i]; next;}     
+  if ($test eq '-p') {push @string,@ARGV[++$i]; next; } 
+  if ($test =~ /^-/) {next;}    
+  push @substring, $test;
+ }
+
+if (scalar(@string)) {$string = join $FS,@string ;}
+
 my $ostring = $string;
 my @words = split $FS, $string;
 my @newwords = ();
+
 # remove words containing substring
 foreach my $word (@words) {
   foreach my $s (@substring) {if ($word =~ $s) {goto NEXT};}
@@ -81,8 +92,9 @@ foreach my $word (@newwords) {# print "word = $word\n";
 			   goto LAST if $w eq $word;}
 #  print "Check $word\n";
   if ($word =~ /lsf/ || $word =~ /scratch/) {push @words, $word; next;}
-  next if ! -d $word and $word !~ /^./;
-  push @words, $word;# print "                    add $word\n";
+  if ( (!( -d $word)) and $word !~ /^\./ ) {next;}
+  push @words, $word;
+# print "                    add $word\n";
  LAST:
 }
 $string = join $DS,@words;

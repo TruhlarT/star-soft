@@ -113,12 +113,14 @@ if ( ! $?DISPLAY ) then
 	if ( $TTYPORT == /dev/console ) then
 		setenv DISPLAY "localhost:0"
 	else if ( $?REMOTEHOST ) then
-		setenv DISPLAY "${REMOTEHOST}:0"
+##VP 		setenv DISPLAY "${REMOTEHOST}:0"
+		setenv DISPLAY `${GROUP_DIR}/dropit -p ${REMOTEHOST}:0`
 	else
 		set TTYNAME=`echo $TTYPORT |cut -c6-`
 		set REMOTEHOST=`who|grep "$TTYNAME"|awk '{print $6}'|sed 's/(//'|sed 's/)//'`
 		if ( x"$REMOTEHOST" != x ) then
-			setenv DISPLAY "${REMOTEHOST}:0"
+##VP 			setenv DISPLAY "${REMOTEHOST}:0"
+			setenv DISPLAY `${GROUP_DIR}/dropit -p ${REMOTEHOST}:0`
 		endif
 	endif
 endif
@@ -161,7 +163,7 @@ if ( ! -d $SCRATCH ) then
         mkdir $SCRATCH
         chmod 755 $SCRATCH
 endif
-if ($ECHO) echo   "Setting up SCRATCH   = $SCRATCH"
+if ($?ECHO) echo   "Setting up SCRATCH   = $SCRATCH"
 endif
 #
 # Hot news....

@@ -18,7 +18,8 @@ if ( $?OBJY_HOME ) then
 if ( ! $?OO_FD_BOOT ) setenv OO_FD_BOOT $STAR_DB/stardb/STAR
 if ( ! $?BFWORK ) setenv BFWORK /star/sol/db/StObjy
 #if ( $?SILENT == 0 ) echo Objectivity location OBJY_HOME set to $OBJY_HOME
-setenv PATH $PATH\:$BFWORK/bin/$BFARCH\:$OBJY_HOME/$OBJY_ARCH/bin
+##VP setenv PATH $PATH\:$BFWORK/bin/$BFARCH\:$OBJY_HOME/$OBJY_ARCH/bin
+setenv PATH `${GROUP_DIR}/dropit -p $PATH -p $BFWORK/bin/$BFARCH -p $OBJY_HOME/$OBJY_ARCH/bin`
 
 if ( $?BFARCH ) then
 
@@ -28,13 +29,15 @@ if ( $?BFARCH ) then
   setenv OBJYBASE $OBJY_HOME
 
   if ( -d /afs/rhic/star/packages/stardb/bin/$BFARCH ) then
-    setenv PATH $PATH\:/afs/rhic/star/packages/stardb/bin/$BFARCH\:/afs/rhic/star/packages/stardb/bin/share
+##VP     setenv PATH $PATH\:/afs/rhic/star/packages/stardb/bin/$BFARCH\:/afs/rhic/star/packages/stardb/bin/share
+    setenv PATH `${GROUP_DIR}/dropit -p $PATH -p /afs/rhic/star/packages/stardb/bin/$BFARCH -p /afs/rhic/star/packages/stardb/bin/share`
   endif
 
 endif
 
 if (${?LD_LIBRARY_PATH} == 1) then
-	setenv LD_LIBRARY_PATH   $LD_LIBRARY_PATH\:$OBJY_HOME/$OBJY_ARCH/lib
+##VP 	setenv LD_LIBRARY_PATH   $LD_LIBRARY_PATH\:$OBJY_HOME/$OBJY_ARCH/lib
+	setenv LD_LIBRARY_PATH `${GROUP_DIR}/dropit -p $LD_LIBRARY_PATH -p $OBJY_HOME/$OBJY_ARCH/lib`
 else
 	setenv LD_LIBRARY_PATH   $OBJY_HOME/$OBJY_ARCH/lib
 endif
@@ -48,13 +51,15 @@ endif
 if ( "$?XUSERFILESEARCHPATH" == 0 ) then
   setenv XUSERFILESEARCHPATH "${OBJY_HOME}/${OBJY_ARCH}/etc/app-defaults/%N"
 else
-  setenv XUSERFILESEARCHPATH "${XUSERFILESEARCHPATH}:${OBJY_HOME}/${OBJY_ARCH}/etc/app-defaults/%N"
+##VP   setenv XUSERFILESEARCHPATH "${XUSERFILESEARCHPATH}:${OBJY_HOME}/${OBJY_ARCH}/etc/app-defaults/%N"
+  setenv XUSERFILESEARCHPATH `${GROUP_DIR}/dropit -p ${XUSERFILESEARCHPATH} -p ${OBJY_HOME}/${OBJY_ARCH}/etc/app-defaults/%N`
 endif
 
 if ( "$?XBMLANGPATH" == 0 ) then
   setenv XBMLANGPATH "${OBJY_HOME}/${OBJY_ARCH}/etc/bitmaps/%N/%B"
 else
-  setenv XBMLANGPATH "${XBMLANGPATH}:${OBJY_HOME}/${OBJY_ARCH}/etc/bitmaps/%N/%B"
+##VP   setenv XBMLANGPATH "${XBMLANGPATH}:${OBJY_HOME}/${OBJY_ARCH}/etc/bitmaps/%N/%B"
+  setenv XBMLANGPATH `${GROUP_DIR}/dropit -p ${XBMLANGPATH} -p ${OBJY_HOME}/${OBJY_ARCH}/etc/bitmaps/%N/%B`
 endif
 
 else
