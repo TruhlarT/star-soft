@@ -10,35 +10,39 @@ if ($level  >= 224)  then
     setenv ROOTSYS ${ROOT}/${ROOT_LEVEL}
     set root = "/.${STAR_HOST_SYS}/root"
 else
+    # not sure what that was but older version of
+    # root we can probably get rid off
     setenv ROOTSYS ${ROOT}/${ROOT_LEVEL}/.${STAR_HOST_SYS}/root
     set root   = ""
 endif
+
+
 switch ($STAR_HOST_SYS)
     case "hp_ux102":
-    #  ====================
-    if (! ${?SHLIB_PATH}) setenv SHLIB_PATH 
-    if ( -x ${GROUP_DIR}/dropit) setenv SHLIB_PATH `${GROUP_DIR}/dropit -p "$SHLIB_PATH" ROOT`
-    ##VP     setenv  SHLIB_PATH  ${ROOTSYS}${root}/lib:${SHLIB_PATH}
-    setenv SHLIB_PATH `${GROUP_DIR}/dropit -p ${ROOTSYS}/lib -p ${SHLIB_PATH}`
-    if ($?NODEBUG) then
-    ##VP       setenv  SHLIB_PATH  ${ROOTSYS}${root}/LIB:${SHLIB_PATH}
-	setenv SHLIB_PATH `${GROUP_DIR}/dropit -p ${ROOTSYS}/LIB -p ${SHLIB_PATH}`
-    endif
-    breaksw
+	#  ====================
+	if (! ${?SHLIB_PATH}) setenv SHLIB_PATH 
+	if ( -x ${GROUP_DIR}/dropit) setenv SHLIB_PATH `${GROUP_DIR}/dropit -p "$SHLIB_PATH" ROOT`
+	##VP     setenv  SHLIB_PATH  ${ROOTSYS}${root}/lib:${SHLIB_PATH}
+	setenv SHLIB_PATH `${GROUP_DIR}/dropit -p ${ROOTSYS}/lib -p ${SHLIB_PATH}`
+	if ($?NODEBUG) then
+	##VP       setenv  SHLIB_PATH  ${ROOTSYS}${root}/LIB:${SHLIB_PATH}
+	    setenv SHLIB_PATH `${GROUP_DIR}/dropit -p ${ROOTSYS}/LIB -p ${SHLIB_PATH}`
+	endif
+	breaksw
         
     default:
-    #  ====================
-    if (! ${?LD_LIBRARY_PATH}) setenv LD_LIBRARY_PATH 
-    if ( -x ${GROUP_DIR}/dropit) setenv LD_LIBRARY_PATH `${GROUP_DIR}/dropit -p "$LD_LIBRARY_PATH" ROOT`
-    ##VP     setenv LD_LIBRARY_PATH "${ROOTSYS}${root}/lib:${LD_LIBRARY_PATH}"
-    setenv LD_LIBRARY_PATH `${GROUP_DIR}/dropit -p ${ROOTSYS}/lib -p ${LD_LIBRARY_PATH}`
-    if ($?NODEBUG) then
-	##VP       setenv LD_LIBRARY_PATH "${ROOTSYS}/LIB:${LD_LIBRARY_PATH}"
-	setenv LD_LIBRARY_PATH `${GROUP_DIR}/dropit -p ${ROOTSYS}/LIB -p ${LD_LIBRARY_PATH}`
-    endif
-    if ($?INSURE) then
-	setenv LD_LIBRARY_PATH `${GROUP_DIR}/dropit -p ${ROOTSYS}/ILIB -p ${LD_LIBRARY_PATH}`
-    endif
+	#  ====================
+	if (! ${?LD_LIBRARY_PATH}) setenv LD_LIBRARY_PATH 
+	if ( -x ${GROUP_DIR}/dropit) setenv LD_LIBRARY_PATH `${GROUP_DIR}/dropit -p "$LD_LIBRARY_PATH" ROOT`
+	##VP     setenv LD_LIBRARY_PATH "${ROOTSYS}${root}/lib:${LD_LIBRARY_PATH}"
+	setenv LD_LIBRARY_PATH `${GROUP_DIR}/dropit -p ${ROOTSYS}/lib -p ${LD_LIBRARY_PATH}`
+	if ($?NODEBUG) then
+	    ##VP       setenv LD_LIBRARY_PATH "${ROOTSYS}/LIB:${LD_LIBRARY_PATH}"
+	    setenv LD_LIBRARY_PATH `${GROUP_DIR}/dropit -p ${ROOTSYS}/LIB -p ${LD_LIBRARY_PATH}`
+	endif
+	if ($?INSURE) then
+	    setenv LD_LIBRARY_PATH `${GROUP_DIR}/dropit -p ${ROOTSYS}/ILIB -p ${LD_LIBRARY_PATH}`
+	endif
 endsw
 
 
