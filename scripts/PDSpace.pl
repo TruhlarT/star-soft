@@ -15,7 +15,7 @@ $MAX   =  6;  # for testing
 $MAX   = 27;
 $MAIN  = "/star/data";
 
-@COLORS = ("#ddeedd","#eeffee","#ddddee","#ddcccc");
+@COLORS = ("#cceecc","#ddffdd","#ccccee","#ddbbbb");
 
 
 for ( $i = $MIN ; $i <= $MAX ; $i++){
@@ -82,12 +82,19 @@ foreach $disk (@DISKS){
     $DINFO{$disk} .= "$ver;";
 }
 
+if ( defined($ARGV[0]) ){
+    open(FO,">$ARGV[0]-tmp") || die "Could not open $ARGV[0]-tmp\n";
+    $FO = FO;
+} else {
+    $FO = STDOUT;
+}
 
-print 
+print $FO 
     "<HTML>\n",
     "<HEAD><TITLE>Disk space overview</TITLE></HEAD>\n",
     "<BODY>\n",
-    "<!-- generated on ".localtime()." -->\n",
+    "<H1 ALIGN=\"center\">Disk space overview</H1>\n",
+    "<h5 align=\"center\">Generated on ".localtime()."</h5>\n",
     "<h2>Disk space overview</h2>\n",
     "Note that each disk may contain other directories than reco*/. Those ",
     "are the only ones scanned ...\n",
@@ -96,8 +103,8 @@ print
     "<P>\n";
 
 
-print "<table border=\"1\" cellspacing=\"0\" width=\"1000\">\n";
-printf 
+print $FO "<table border=\"1\" cellspacing=\"0\" width=\"1000\">\n";
+printf $FO
     "<TR bgcolor=\"orange\"><TD align=\"center\">%10s</TD><TD align=\"center\">%10s</TD><TD align=\"center\">%10s</TD><TD align=\"center\">%10s</TD><TD align=\"center\">%3s</TD><TD align=\"center\">%s</TD><TD align=\"center\">%s</TD></TR>\n",
     "Disk","Total","Used","Avail","Used %","Triggers","Libs";
 
@@ -112,7 +119,7 @@ foreach $disk (sort keys %DINFO){
     $col =  int( ($#COLORS+1) * ( $col /100.0));
     if( $col >= $#COLORS){ $col = $#COLORS;}
 
-    printf 
+    printf $FO 
 	"<TR height=\"10\" bgcolor=\"$COLORS[$col]\"><TD align=\"right\">%10s</TD><TD align=\"right\">%10d</TD><TD align=\"right\">%10d</TD><TD align=\"right\">%10d</TD><TD align=\"right\">%3s</TD><TD>%s</TD><TD align=\"right\">%s</TD></TR>\n",
 	"<i><b>$disk</b></i>",$items[0],$items[1],$items[2],$items[3],
 	$items[4],$items[5];
@@ -122,10 +129,12 @@ foreach $disk (sort keys %DINFO){
 }
 
 
-print 
+print $FO
     "</TABLE>\n",
     "</BODY>\n",
     "</HTML>\n";
 
-
+if ( defined($ARGV[0]) ){
+    rename("$ARGV[0]-tmp","$ARGV[0]");
+}
 
