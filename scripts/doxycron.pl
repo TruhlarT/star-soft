@@ -78,7 +78,7 @@ do {
 	# Treat it as option
 	if($tmp eq "-i"){ $DOTAG = 0;}
     } else {
-	$TARGETD = $tmp;
+	$TARGETD = $tmp if ($tmp);
 	$tmp     = "";
     }
 } while ($tmp ne "");
