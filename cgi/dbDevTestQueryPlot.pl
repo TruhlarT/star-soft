@@ -1,8 +1,11 @@
 #!/opt/star/bin/perl -w
 #
-# $Id: dbDevTestQueryPlot.pl,v 1.7 2001/02/16 16:22:45 liuzx Exp $
+# $Id: dbDevTestQueryPlot.pl,v 1.8 2001/02/21 22:18:50 didenko Exp $
 #
 # $Log: dbDevTestQueryPlot.pl,v $
+# Revision 1.8  2001/02/21 22:18:50  didenko
+# change gif file location
+#
 # Revision 1.7  2001/02/16 16:22:45  liuzx
 # .Format Y number format: %8.2f
 #
@@ -278,7 +281,8 @@ $graph->set_y_axis_font(gdMediumBoldFont);
 #print STDOUT $graph->plot(\@data);
 
 `rm -fr /star/starlib/doc/www/html/comp-nfs/plot*.gif`;
-my $gif = "/star/starlib/doc/www/html/comp-nfs/plot".$sec.$min.$hour.".gif";
+#my $gif = "/star/starlib/doc/www/html/comp-nfs/plot".$sec.$min.$hour.".gif";
+my $gif = "/u1/webdata/plot".$sec.$min.$hour.".gif";
 $graph->plot_to_gif("$gif",\@data);
 
 #open (GRAPH,"$gif");
