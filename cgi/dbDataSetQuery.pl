@@ -12,7 +12,7 @@
 # 
 #############################################################################
 
-require "/afs/rhic/star/packages/dev/mgr/dbCpProdSetup.pl";
+require "/afs/rhic/star/packages/scripts/dbCpProdSetup.pl";
 
 use Class::Struct;
 use CGI;
@@ -25,9 +25,12 @@ my $debugOn = 0;
 my @prodPer;
 my $myprod;
 my $nprodPer = 0;
-my @colSet = ("AuAu130", "AuAu200","tpc_laser");
-my @datSet = ("all","tpc","tpc.rich","tpc.svt","tpc.svt.rich","tpc.ftpc.rhic","tpc.svt.ftpc","tpc.svt.ftpc.rhic","tpc.svt.tof.rhic","tpc.tof.ftpc.rhic","tpc.svt.tof.ftpc.rhic");
+my @colSet = ("AuAu130", "AuAu200","laser");
+my @detSet = ("all","tpc","svt","rich","tof","ftpc","emc","fpd","pmd");
 my @trigSet  = ("all","central","minbias","medium","peripheral","mixed","physics","n/a");
+my @mfield = ("all","FullField","HalfField","FieldOff");
+my @format = ("daq","dst.root","event.root","hist.root","tags.root");
+my @locSet = ("hpss","disk");
 
 &StDbProdConnect();
 
@@ -84,42 +87,85 @@ print <<END;
 <td>
 END
 
-print "<p>";
-print "<h4 align=center>Select dataset:</h4>";
-print "<h4 align=center>";
-print $query->scrolling_list(-name=>'SetC',  
-                   -values=>\@colSet,                   
+print "</td><td>";
+print "<h3 align=center>Collision:</h3>";
+print "<h3 align=center>";
+print $query->popup_menu(-name=>'SetCl',  
+                   -values=>\@colSet,
+                   -default=>'AuAu200',                  
+                   -size=>4                              
+                   );
+print "</h3>"; 
+print "</td><td>";
+print "<h3 align=center>Detector:</h3>";
+print "<h3 align=center>";
+print $query->popup_menu(-name=>'SetDet',
+                    -values=>\@detSet,
+                    -default=>'all',
+                    -size=>4
+                    ); 
+print "</h3>";
+print "</td><td>";
+print "<h3 align=center>Trigger:</h3>";
+print "<h3 align=center>";
+print $query->popup_menu(-name=>'SetTrg',
+                    -values=>\@trigSet,
+                    -default=>'all',
+                    -size=>4
+                    ); 
+
+print "</h3>";
+print "</td> </table><center>";
+
+
+print <<END;
+<hr>
+<table BORDER=0 align=center width=99% cellspacing=3>
+<tr ALIGN=center VALIGN=CENTER NOSAVE>
+<td>
+END
+
+print "</td><td>";
+print "<h3 align=center>Magnetic Field:</h3>";
+print "<h3 align=center>";
+print $query->popup_menu(-name=>'SetField',
+                    -values=>\@mfield,
+                    -default=>'all', 
+                    -size=>4
+                    ); 
+print "</h3>";
+print "</td><td>";
+print "<h3 align=center>Format:</h3>";
+print "<h3 align=center>";
+print $query->popup_menu(-name=>'SetForm',
+                    -values=>\@format,
+                    -default=>'daq',
+                    -size=>4
+                    ); 
+print "</h3>";
+print "</td><td>";
+print "<h3 align=center>Production series:</h3>";
+print "<h3 align=center>";
+print $query->popup_menu(-name=>'SetPrd',  
+                   -values=>\@prodPer,
+                   -default=>'P01hf',                   
                    -size=>4                              
                    );  
-
-print "</td><td>";
-print "<h4 align=center>Select production series:</h4>";
-print "<h4 align=center>";
-print $query->scrolling_list(-name=>'SetP',  
-                   -values=>\@prodPer,                   
-                   -size=>4                              
-                   );                                  
- 
-print "</td><td>";
-print "<h4 align=center>Select detector set:</h4>";
-print "<h4 align=center>";
-print $query->popup_menu(-name=>'SetD',
-                    -values=>\@datSet,
-                    -size=>4
-                    ); 
-
-print "</td><td>";
-print "<h4 align=center>Select Trigger:</h4>";
-print "<h4 align=center>";
-print $query->popup_menu(-name=>'SetT',
-                    -values=>\@trigSet,
-                    -size=>4
-                    ); 
-
+print "</h3>";
 print "</td> </tr> </table><hr><center>";
 
+
+print "<h3 align=center>Location:</h3>";
+print "<h3 align=center>";
+print $query->popup_menu(-name=>'SetLc',
+                    -values=>\@locSet,
+                    -default=>hpss,
+                    -size=>2
+                    ); 
+print "</h3>";
+
  print "<p>";
- print "<p><br>"; 
+ print "<p><br><br>"; 
  print $query->submit;
  print "<P><br>", $query->reset;
  print $query->endform;

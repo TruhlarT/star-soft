@@ -8,7 +8,7 @@
 
 use CGI;
 
-require "/afs/rhic/star/packages/dev/mgr/dbCpProdSetup.pl";
+require "/afs/rhic/star/packages/scripts/dbCpProdSetup.pl";
 
 my $debugOn = 0;
 my %pair;
@@ -22,15 +22,21 @@ my $prodSr;
 my $detrSet;
 my $trgSet;
 my $colSet;
+my $fldSet;
+my $frSet;
+my $lcSet;
 
 $prSet = $query->param("prodSet");
 
 @pck = split ("%",$prSet);
 
 $colSet = $pck[0];
-$prodSr = $pck[1];
-$trgSet = $pck[2];
-$detrSet = $pck[3];
+$trgSet = $pck[1];
+$detrSet = $pck[2];
+$fldSet = $pck[3];
+$frSet  = $pck[4];
+$lcSet  = $pck[5];
+$prodSr = $pck[6];
 
 &StDbProdConnect();
 
@@ -42,31 +48,84 @@ my $dirRun = "/home/starreco/reco/" . $prodSr;
 my $mstat;
 my $mcomment;
 
-$sql = "SELECT * FROM $FileCatalogT WHERE fName like '%root' AND jobID like '%$prodSr%' ";
+if( $frSet eq "daq") {
 
+if($detrSet eq "all" and $trgSet ne "all" and $fldSet ne "all") {
 
-if ($detrSet ne "all"){
-    $sql .= "AND  dataset like '%$detrSet' ";
+$sql="SELECT * FROM $FileCatalogT WHERE runID = '$runPr' AND trigger = '$trgSet' AND dataset like '$colSet%' AND dataset like '%$fldSet%' AND fName like '%$frSet' AND site like '$lcSet%' ";
+
+}elsif ($detrSet ne "all" and $trgSet ne "all"  and $fldSet ne "all") {
+
+$sql="SELECT * FROM $FileCatalogT WHERE runID = '$runPr' AND trigger = '$trgSet' AND dataset like '%$detrSet%' AND dataset like '$colSet%' AND dataset like '%$fldSet%' AND fName like '%$frSet' AND site like '$lcSet%'"; 
+
+}elsif ($detrSet ne "all" and $trgSet eq "all" and $fldSet ne "all" ) {
+
+$sql="SELECT * FROM $FileCatalogT WHERE runID = '$runPr' AND dataset like '%$detrSet%' AND dataset like '$colSet%' AND dataset like '%$fldSet%' AND fName like '%$frSet' AND site like '$lcSet%'"; 
+
+}elsif ($detrSet eq "all" and $trgSet eq "all" and $fldSet ne "all" ) {
+
+$sql="SELECT * FROM $FileCatalogT WHERE runID = '$runPr' AND dataset like '$colSet%' AND dataset like '%$fldSet%' AND fName like '%$frSet' AND site like '$lcSet%' ";
+
+ }elsif($detrSet eq "all" and $trgSet ne "all" and $fldSet eq  "all") {
+
+$sql="SELECT * FROM $FileCatalogT WHERE runID = '$runPr' AND trigger = '$trgSet' AND dataset like '$colSet%' AND fName like '%$frSet' AND site like '$lcSet%' ";
+
+}elsif ($detrSet ne "all" and $trgSet ne "all"  and $fldSet eq "all") {
+
+$sql="SELECT * FROM $FileCatalogT WHERE runID = '$runPr' AND trigger = '$trgSet' AND dataset like '%$detrSet%' AND dataset like '$colSet%' AND fName like '%$frSet' AND site like '$lcSet%'"; 
+
+}elsif ($detrSet ne "all" and $trgSet eq "all" and $fldSet eq "all" ) {
+
+$sql="SELECT * FROM $FileCatalogT WHERE runID = '$runPr' AND dataset like '%$detrSet%' AND dataset like '$colSet%' AND fName like '%$frSet' AND site like '$lcSet%'"; 
+
+}elsif ($detrSet eq "all" and $trgSet eq "all" and $fldSet eq "all" ) {
+
+$sql="SELECT * FROM $FileCatalogT WHERE runID = '$runPr' AND dataset like '$colSet%' AND fName like '%$frSet' AND site like '$lcSet%' ";
+  }
+}else{
+
+if($detrSet eq "all" and $trgSet ne "all" and $fldSet ne "all") {
+
+$sql="SELECT * FROM $FileCatalogT WHERE runID = '$runPr' AND jobID like '%$prodSr%' AND trigger = '$trgSet' AND dataset like '$colSet%' AND dataset like '%$fldSet%' AND fName like '%$frSet' AND site like '$lcSet%' ";
+
+}elsif ($detrSet ne "all" and $trgSet ne "all"  and $fldSet ne "all") {
+
+$sql="SELECT * FROM $FileCatalogT WHERE runID = '$runPr' AND jobID like '%$prodSr%'AND trigger = '$trgSet' AND dataset like '%$detrSet%' AND dataset like '$colSet%' AND dataset like '%$fldSet%' AND fName like '%$frSet' AND site like '$lcSet%'"; 
+
+}elsif ($detrSet ne "all" and $trgSet eq "all" and $fldSet ne "all" ) {
+
+$sql="SELECT * FROM $FileCatalogT WHERE runID = '$runPr' AND jobID like '%$prodSr%' AND dataset like '%$detrSet%' AND dataset like '$colSet%' AND dataset like '%$fldSet%' AND fName like '%$frSet' AND site like '$lcSet%'"; 
+
+}elsif ($detrSet eq "all" and $trgSet eq "all" and $fldSet ne "all" ) {
+
+$sql="SELECT * FROM $FileCatalogT WHERE runID = '$runPr' AND jobID like '%$prodSr%' AND dataset like '$colSet%' AND dataset like '%$fldSet%' AND fName like '%$frSet' AND site like '$lcSet%' ";
+
+}elsif($detrSet eq "all" and $trgSet ne "all" and $fldSet eq  "all") {
+
+$sql="SELECT * FROM $FileCatalogT WHERE runID = '$runPr' AND jobID like '%$prodSr%' AND trigger = '$trgSet' AND dataset like '$colSet%' AND fName like '%$frSet' AND site like '$lcSet%' ";
+
+}elsif ($detrSet ne "all" and $trgSet ne "all"  and $fldSet eq "all") {
+
+$sql="SELECT * FROM $FileCatalogT WHERE runID = '$runPr' AND jobID like '%$prodSr%' AND trigger = '$trgSet' AND dataset like '%$detrSet%' AND dataset like '$colSet%' AND fName like '%$frSet' AND site like '$lcSet%'"; 
+
+}elsif ($detrSet ne "all" and $trgSet eq "all" and $fldSet eq "all" ) {
+
+$sql="SELECT * FROM $FileCatalogT WHERE runID = '$runPr' AND jobID like '%$prodSr%' AND dataset like '%$detrSet%' AND dataset like '$colSet%' AND fName like '%$frSet' AND site like '$lcSet%'"; 
+
+}elsif ($detrSet eq "all" and $trgSet eq "all" and $fldSet eq "all" ) {
+
+$sql="SELECT * FROM $FileCatalogT WHERE runID = '$runPr' AND jobID like '%$prodSr%' AND dataset like '$colSet%' AND fName like '%$frSet' AND site like '$lcSet%' ";
+  }
 }
-if ($trgSet ne "all"){
-    $sql .= "AND trigger = '$trgSet' ";
-}
-if ($runPr ne "all"){
-    $sql .= "AND runID = '$runPr' ";
-} else {
-    $sql .= "LIMIT 500";
-}
 
+  $cursor =$dbh->prepare($sql)
+     || die "Cannot prepare statement: $DBI::errstr\n";
+  $cursor->execute;
 
+ my $counter = 0;
 
-$cursor =$dbh->prepare($sql)
-  || die "Cannot prepare statement: $DBI::errstr\n";
-$cursor->execute;
-
-my $counter = 0;
-
-while(@fields = $cursor->fetchrow) {
-  my $cols=$cursor->{NUM_OF_FIELDS};
+ while(@fields = $cursor->fetchrow) {
+   my $cols=$cursor->{NUM_OF_FIELDS};
 
  for($i=0;$i<$cols;$i++) {
     my $fvalue=$fields[$i];
@@ -112,11 +171,8 @@ print <<END;
 <TD WIDTH=\"5%\" HEIGHT=50><B>size</B></TD>
 <TD WIDTH=\"5%\" HEIGHT=50><B>createTime</B></TD>
 <TD WIDTH=\"5%\" HEIGHT=50><B>Nevents</B></TD>
-<TD WIDTH=\"5%\" HEIGHT=50><B>NevLo</B></TD>
-<TD WIDTH=\"5%\" HEIGHT=50><B>NevHi</B></TD>
 <TD WIDTH=\"5%\" HEIGHT=50><B>type</B></TD>
 <TD WIDTH=\"5%\" HEIGHT=50><B>site</B></TD>
-<TD WIDTH=\"5%\" HEIGHT=50><B>hpss</B></TD>
 <TD WIDTH=\"5%\" HEIGHT=50><B>calib</B></TD>
 <TD WIDTH=\"5%\" HEIGHT=50><B>dataStatus</B></TD>
 <TD WIDTH=\"5%\" HEIGHT=50><B>comment</B></TD>
@@ -140,11 +196,8 @@ print <<END;
 <td>$pair{'size'}</td>
 <td>$pair{'createTime'}</td>
 <td>$pair{'Nevents'}</td>
-<td>$pair{'NevLo'}</td>
-<td>$pair{'NevHi'}</td>
 <td>$pair{'type'}</td>
 <td>$pair{'site'}</td>
-<td>$pair{'hpss'}</td>
 <td>$pair{'calib'}</td>
 <td>$pair{'dataStatus'}</td>
 <td>$mcomment</td>
