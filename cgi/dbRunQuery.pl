@@ -99,36 +99,36 @@ elsif($detrSet eq "all" and $datSet ne "all" and $fldSet eq "all") {
 
 if($detrSet eq "all" and $datSet ne "all" and $fldSet ne "all") {
 
- $sql="SELECT DISTINCT runID FROM $FileCatalogT WHERE trigger = '$datSet' AND dataset like '$colSet%' AND dataset like  '%$fldSet%' AND fName like '%$frSet' AND site like '$lctSet%' AND dataStatus = 'OK' ";
+ $sql="SELECT DISTINCT runID FROM $FileCatalogT WHERE trigger = '$datSet' AND dataset like '$colSet%' AND dataset like  '%$fldSet%' AND fName like '%$frSet' AND site like '$lctSet%' AND path like '%$dPath%' AND dataStatus = 'OK' ";
 
 }elsif($detrSet ne "all" and $datSet ne "all" and $fldSet ne "all") {
 
- $sql="SELECT DISTINCT runID FROM $FileCatalogT WHERE trigger = '$datSet' AND dataset like '%$detrSet%' AND dataset like '$colSet%' AND dataset like  '%$fldSet%' AND fName like '%$frSet' AND site like '$lctSet%' AND dataStatus = 'OK' ";
+ $sql="SELECT DISTINCT runID FROM $FileCatalogT WHERE trigger = '$datSet' AND dataset like '%$detrSet%' AND dataset like '$colSet%' AND dataset like  '%$fldSet%' AND fName like '%$frSet' AND site like '$lctSet%' AND path like '%$dPath%' AND dataStatus = 'OK' ";
 
 }elsif($detrSet ne "all" and $datSet eq "all" and $fldSet ne "all" ) {
 
- $sql="SELECT DISTINCT runID FROM $FileCatalogT WHERE dataset like '%$detrSet%' AND dataset like '$colSet%' AND dataset like '%$fldSet%' AND fName like '%$frSet' AND site like '$lctSet%' AND dataStatus = 'OK' ";
+ $sql="SELECT DISTINCT runID FROM $FileCatalogT WHERE dataset like '%$detrSet%' AND dataset like '$colSet%' AND dataset like '%$fldSet%' AND fName like '%$frSet' AND site like '$lctSet%' AND path like '%$dPath%' AND dataStatus = 'OK' ";
 
 }elsif($detrSet eq "all" and $datSet eq "all" and $fldSet ne "all" ) {
 
- $sql="SELECT DISTINCT runID FROM $FileCatalogT WHERE dataset like '$colSet%' AND dataset like '%$fldSet%' AND fName like '%$frSet' AND site like '$lctSet%' AND dataStatus = 'OK' ";
+ $sql="SELECT DISTINCT runID FROM $FileCatalogT WHERE dataset like '$colSet%' AND dataset like '%$fldSet%' AND fName like '%$frSet' AND site like '$lctSet%' AND path like '%$dPath%' AND dataStatus = 'OK' ";
 }
 
 elsif($detrSet eq "all" and $datSet ne "all" and $fldSet eq "all") {
 
- $sql="SELECT DISTINCT runID FROM $FileCatalogT WHERE trigger = '$datSet' AND dataset like '$colSet%' AND fName like '%$frSet' AND site like '$lctSet%' AND dataStatus = 'OK' ";
+ $sql="SELECT DISTINCT runID FROM $FileCatalogT WHERE trigger = '$datSet' AND dataset like '$colSet%' AND fName like '%$frSet' AND site like '$lctSet%' AND AND path like '%$dPath%' dataStatus = 'OK' ";
 
 }elsif($detrSet ne "all" and $datSet ne "all" and $fldSet eq "all") {
 
- $sql="SELECT DISTINCT runID FROM $FileCatalogT WHERE trigger = '$datSet' AND dataset like '%$detrSet%' AND dataset like '$colSet%' AND fName like '%$frSet' AND site like '$lctSet%' AND dataStatus = 'OK' ";
+ $sql="SELECT DISTINCT runID FROM $FileCatalogT WHERE trigger = '$datSet' AND dataset like '%$detrSet%' AND dataset like '$colSet%' AND fName like '%$frSet' AND site like '$lctSet%' AND path like '%$dPath%' AND dataStatus = 'OK' ";
 
 }elsif($detrSet ne "all" and $datSet eq "all" and $fldSet eq "all" ) {
 
- $sql="SELECT DISTINCT runID FROM $FileCatalogT WHERE dataset like '%$detrSet%' AND dataset like '$colSet%' AND fName like '%$frSet' AND site like '$lctSet%' AND dataStatus = 'OK' ";
+ $sql="SELECT DISTINCT runID FROM $FileCatalogT WHERE dataset like '%$detrSet%' AND dataset like '$colSet%' AND fName like '%$frSet' AND site like '$lctSet%' AND path like '%$dPath%' AND dataStatus = 'OK' ";
 
 }elsif($detrSet eq "all" and $datSet eq "all" and $fldSet eq "all" ) {
 
- $sql="SELECT DISTINCT runID FROM $FileCatalogT WHERE dataset like '$colSet%' AND fName like '%$frSet' AND site like '$lctSet%' AND dataStatus = 'OK' ";
+ $sql="SELECT DISTINCT runID FROM $FileCatalogT WHERE dataset like '$colSet%' AND fName like '%$frSet' AND site like '$lctSet%' AND path like '%$dPath%' AND dataStatus = 'OK' ";
  }
 }
 
