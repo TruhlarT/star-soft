@@ -202,7 +202,7 @@ if ($ThisYear == 2002){
     # Default chain -- P2005 does not include Corr4 but Corr3
     $DCHAIN{"AuAu"}           = "P2005,svt_daq,svtD,EST,pmdRaw,Xi2,V02,Kink2,CMuDst,OShortR";
     $DCHAIN{"PPPP"}           = "P2005,ppOpt,svt_daq,svtD,EST,pmdRaw,Xi2,V02,Kink2,CMuDst,OShortR";
-    $DCHAIN{"CuCu"}           = "P2005,OSpaceZ2,SCEbyE,OGridLeak,svt_daq,svtD,EST,pmdRaw,Xi2,V02,Kink2,CMuDst,OShortR";
+    $DCHAIN{"CuCu"}           = "P2005,SCEbyE,OGridLeak,svt_daq,svtD,EST,pmdRaw,Xi2,V02,Kink2,CMuDst,OShortR";
 
     $DCALIB{"CuCu"}           = "OneSpaceCharge";
 
@@ -750,11 +750,12 @@ sub Submit
     }
 
     # Otherwise, we do have a valid entry
-    $Hfile = rdaq_file2hpss($file,2);
+    $Hfile = rdaq_file2hpss($file,3);
     @items = split(" ",$Hfile);
 
     # No trigger information nowadays
     $m     = sprintf("%2.2d",$items[3]);
+    $dm    = $items[4];
     $jfile = join("_",$LIB,$items[2],$m,$file);
     $jfile =~ s/\..*//;
     $mfile = $file;
