@@ -4791,7 +4791,7 @@ sub print_message
     if ( $SILENT ){ return;}
     foreach $line (@lines){
 	chomp($line);
-	printf "FileCatalog :: %15.15s : %s\n",$routine,$line;
+	printf STDERR "FileCatalog :: %15.15s : %s\n",$routine,$line;
     }
     return;
 }
