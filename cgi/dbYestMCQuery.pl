@@ -14,7 +14,7 @@ use Class::Struct;
 
 require "/afs/rhic/star/packages/DEV00/mgr/dbCpProdSetup.pl";
 
-my @prodPer = ("P00he", "prod6");
+my @prodPer = ("MDC4", "P01hd");
 my $debugOn = 0;
 my $thisDay = "000000";
 my $thisday = 0;
