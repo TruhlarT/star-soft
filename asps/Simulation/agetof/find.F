@@ -1,9 +1,9 @@
 *
-* $Id: find.F,v 1.1 2003/12/23 14:54:43 fisyak Exp $
+* $Id: find.F,v 1.1.1.1 2003/12/23 14:54:43 fisyak Exp $
 *
 * $Log: find.F,v $
-* Revision 1.1  2003/12/23 14:54:43  fisyak
-* Initial revision
+* Revision 1.1.1.1  2003/12/23 14:54:43  fisyak
+* ATLAS version of mortran (geant3 => agetof)
 *
 * Revision 1.3  2001/11/28 23:58:41  nevski
 * restoring automatic definition search

@@ -1,8 +1,8 @@
 *
-* $Id: afname.F,v 1.1 2003/12/23 14:54:43 fisyak Exp $
+* $Id: afname.F,v 1.1.1.1 2003/12/23 14:54:43 fisyak Exp $
 * $Log: afname.F,v $
-* Revision 1.1  2003/12/23 14:54:43  fisyak
-* Initial revision
+* Revision 1.1.1.1  2003/12/23 14:54:43  fisyak
+* ATLAS version of mortran (geant3 => agetof)
 *
 * Revision 1.1  2001/06/25 10:16:05  carnault
 * fixing temporary fix for CMT only
