@@ -40,7 +40,7 @@
 #      rdaq_trgs2string             Return trigger Setup name
 #      rdaq_ftype2string            Return file type/flavor name
 #      rdaq_toggle_debug            Turn ON/OFF SELECT of raw data.
-#
+#      rdaq_set_dlevel              Set debug level
 #
 # DEV ONLY *** MAY BE CHANGED AT ANY POINT IN TIME ***
 #      rdaq_set_files_where         Not in its final shape.
@@ -129,7 +129,7 @@ require Exporter;
 
 	    rdaq_file2hpss rdaq_mask2string rdaq_status_string
 	    rdaq_bits2string rdaq_trgs2string rdaq_ftype2string
-	    rdaq_toggle_debug 
+	    rdaq_toggle_debug rdaq_set_dlevel
 
 	    rdaq_set_files_where rdaq_update_entries
 
@@ -171,6 +171,7 @@ $DELAY     = 60;                              # delay backward in time in second
 # only composit variables or assumed fixed values.
 #
 $DEBUG     = 1;
+$DLEVEL    = 0;
 
 # Build ddb ref here.
 $DDBREF    = "DBI:mysql:$DDBNAME:$DDBSERVER:$DDBPORT";
@@ -243,9 +244,9 @@ sub rdaq_add_entries
 		    $count++;
 		} else {
 		    if ( $sth->err == 1062){
-			&info_message("add_entries","Skipping already in $values[0]\n");
+			&info_message("add_entries",0,"Skipping already in $values[0]\n");
 		    } else {
-			&info_message("add_entries","Failed to add [$line] ".
+			&info_message("add_entries",3,"Failed to add [$line] ".
 				      $sth->err." = ".
 				      $sth->errstr."\n");
 		    }
@@ -253,7 +254,7 @@ sub rdaq_add_entries
 	    }
 	    $sth->finish();
 	} else {
-	    &info_message("add_entries","Failed to prepare sentence\n");
+	    &info_message("add_entries",3,"Failed to prepare sentence\n");
 	}
     }
     $count;
@@ -288,7 +289,7 @@ sub rdaq_update_entries
 	    }
 	    $sth->finish();
 	} else {
-	    &info_message("update_entries","prepare() failed\n");
+	    &info_message("update_entries",3,"prepare() failed\n");
 	}
     }
     $count;
@@ -493,7 +494,7 @@ sub rdaq_raw_files
 
     print "<!-- $cmd -->\n" if ($DEBUG);
     $sth  = $obj->prepare($cmd);
-    if ( ! $sth->execute() ){ &info_message("raw_files","Could not execute statement\n");}
+    if ( ! $sth->execute() ){ &info_message("raw_files",3,"Could not execute statement\n");}
     $kk=0;
     while( @res = $sth->fetchrow_array() ){
 	# Massage the results to return a non-ambiguous information
@@ -514,7 +515,7 @@ sub rdaq_raw_files
 		print "<!-- Fetched $kk records -->\n" if ($DEBUG);
 	    }
 	} else {
-	    &info_message("raw_files","Incomplete information (will skip)\n");
+	    &info_message("raw_files",3,"Incomplete information (will skip)\n");
 	}
     }
     $sth->finish();
@@ -565,10 +566,10 @@ sub rdaq_hack
     &Record_n_Fetch("FOruns","$run");
 
     if( ! defined($DETSETS{$run}) ){
-	#&info_message("hack","Checking DataSet for run $run\n");
+	#&info_message("hack",3,"Checking DataSet for run $run\n");
 	$stht->execute($run);
 	if( ! $stht ){
-	    &info_message("hack","$run cannot be evaluated. No DataSET info.\n");
+	    &info_message("hack",3,"$run cannot be evaluated. No DataSET info.\n");
 	    return undef;
 	} else {
 	    $mask = 0;
@@ -587,11 +588,11 @@ sub rdaq_hack
     # This block is for the TriggerSetup
     #
     if( ! defined($TRGSET{$run}) ){
-	#&info_message("hack","Checking TrgMask for run $run -> ");
+	#&info_message("hack",3,"Checking TrgMask for run $run -> ");
 	$mask = 0;
 	$sths->execute($run);
 	if( ! $sths ){
-	    &info_message("hack","$run cannot be evaluated. No TriggerSetup info.\n");
+	    &info_message("hack",3,"$run cannot be evaluated. No TriggerSetup info.\n");
 	    return undef;
 	} else {
 	    $mask = "";
@@ -612,11 +613,11 @@ sub rdaq_hack
     # Now, add to this all possible trigger mask
     #
     if( ! defined($TRGMASK{$run}) ){
-	#&info_message("hack","Checking TrgMask for run $run -> ");
+	#&info_message("hack",3,"Checking TrgMask for run $run -> ");
 	$mask = 0;
 	$sthl->execute($run);
 	if( ! $sthl ){
-	    &info_message("hack","$run cannot be evaluated. No TriggerLabel info.\n");
+	    &info_message("hack",3,"$run cannot be evaluated. No TriggerLabel info.\n");
 	    return undef;
 	} else {
 	    while( @items = $sthl->fetchrow_array() ){
@@ -667,7 +668,7 @@ sub rdaq_open_rdatabase
     for($i=0 ; $i <= $#REQUIRED ; $i++){
 	$sth = $obj->prepare("SELECT * FROM $REQUIRED[$i] LIMIT 1");
 	if(! $sth->execute() ){
-	    &info_message("open_database","Required Database $REQUIRED[$i] does not exists\n");
+	    &info_message("open_database",3,"Required Database $REQUIRED[$i] does not exists\n");
 	    $obj->disconnect();
 	    return 0;
 	}
@@ -786,7 +787,7 @@ sub rdaq_get_orecords
 
 	# do NOT build a querry for a 'all' keyword
 	if( ! defined($val) ){ 
-	    &info_message("get_orecords","[$el] has an undef value"); 
+	    &info_message("get_orecords",3,"[$el] has an undef value"); 
 	    next;
 	}
 	if( $el eq "Status" && $val == -1){ next;}
@@ -982,11 +983,11 @@ sub rdaq_list_field
 		if($i == $limit){ last;}
 	    }
 	} else {
-	    &info_message("list_field","Execute failed for $field\n");
+	    &info_message("list_field",3,"Execute failed for $field\n");
 	}
 	$sth->finish();
     } else {
-	&info_message("list_field","[$cmd] could no be prepared\n");
+	&info_message("list_field",3,"[$cmd] could no be prepared\n");
     }
     @all;
 }
@@ -1243,6 +1244,11 @@ sub rdaq_ftype2string
     }
 }
 
+sub rdaq_set_dlevel
+{
+    my($level)=@_;
+    $DLEVEL = $level;
+}
 
 
 #
@@ -1250,8 +1256,10 @@ sub rdaq_ftype2string
 #
 sub	info_message
 {
-    my($routine,@messages) = @_;
+    my($routine,$l,@messages) = @_;
     my($mess);
+
+    if ($l < $DLEVEL){ return;}
 
     foreach $mess (@messages){
 	printf "FastOffl :: %10.10s : %s",$routine,$mess;
