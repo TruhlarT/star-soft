@@ -44,3 +44,16 @@ Quick summary of what script does what in this directory
                 name and formatted into HTML format by insrtm.pl .
  - insrtm.pl    This script takes care of Insure++ run-time error message
                 formatting. 
+
+
+ - ChkLinks     perl wrapper to the linkcheck utility (assumed to be
+		installed in /usr/local/bin) suitable for a cronjob
+		or interractive execution. linkcheck checks for
+		Web site's broken links.
+
+ - doxygenize   Small script which reads .h class definition files
+                and adds the doxygen-like tag blocks.
+ - doxycron.pl  Script running every night, generating the doxygen
+		online documentation. Can be run by users as well
+		to double check their documentation formatting.
+		See Sofi page for more information.
