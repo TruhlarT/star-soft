@@ -30,8 +30,7 @@ $INSU::COMPDIR="/afs/.rhic/star/replicas/DEV";
 # List of excluded modules in StRoot compilation. This is a default
 # and does not preclude the SKIP_DIRS usage.
 @INSU::SKIP=("StEbyePool",
-	     "Sti","StiGui","StiMaker",
-	     "Stl3RawReaderMaker"
+	     "Sti","StiGui","StiMaker"
 	     );
 $INSU::SKIPNM="SKIP_DIRS";
 
