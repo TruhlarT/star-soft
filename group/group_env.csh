@@ -1,5 +1,5 @@
 #!/usr/bin/csh -f
-#       $Id: group_env.csh,v 1.124 2001/12/01 22:22:30 jeromel Exp $
+#       $Id: group_env.csh,v 1.125 2002/01/04 15:01:20 jeromel Exp $
 #	Purpose:	STAR group csh setup
 #
 #	Author:		Y.Fisyak     BNL
@@ -43,11 +43,12 @@ if ($?STAR_PATH == 0) setenv STAR_PATH ${STAR_ROOT}/packages;
 if ($ECHO) echo   "Setting up STAR_PATH = ${STAR_PATH}"
 
 if ($?STAR_LEVEL == 0) setenv STAR_LEVEL pro
+setenv STAR_VERSION ${STAR_LEVEL}
 if ($STAR_LEVEL  == "old" || $STAR_LEVEL  == "pro" || $STAR_LEVEL  == "new" || $STAR_LEVEL  == "dev" || $STAR_LEVEL  == ".dev") then
   # i.e. replace with link value instead
-  setenv STAR_VERSION `/bin/ls -ld $STAR_PATH/${STAR_LEVEL} |cut -f2 -d">"`
-else
-  setenv STAR_VERSION ${STAR_LEVEL}
+  if( -e $STAR_PATH/${STAR_LEVEL}) then
+   setenv STAR_VERSION `/bin/ls -ld $STAR_PATH/${STAR_LEVEL} |cut -f2 -d">"`
+  endif
 endif
 
 if ($?STAF_LEVEL == 0) then
@@ -57,10 +58,12 @@ if ($?STAF_LEVEL == 0) then
     setenv STAF_LEVEL pro
  endif
 endif
+
+setenv STAF_VERSION ${STAF_LEVEL}
 if ($STAF_LEVEL  == "old" || $STAF_LEVEL  == "pro" || $STAF_LEVEL  == "new" || $STAF_LEVEL  == "dev" || $STAF_LEVEL  == ".dev") then
-  setenv STAF_VERSION `/bin/ls -ld $STAR_PATH/StAF/${STAF_LEVEL} |cut -f2 -d">"`
-else
-  setenv STAF_VERSION ${STAF_LEVEL}
+  if( -e $STAR_PATH/StAF/${STAF_LEVEL}) then
+    setenv STAF_VERSION `/bin/ls -ld $STAR_PATH/StAF/${STAF_LEVEL} |cut -f2 -d">"`
+  endif
 endif
 
 # Clear this out. First block STAF, second STAR
