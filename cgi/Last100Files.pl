@@ -14,7 +14,7 @@ use Class::Struct;
 
 require "/afs/rhic/star/packages/scripts/dbCpProdSetup.pl";
 
-my $prodPer = "P01gk";
+my $prodPer = "P01gl";
 my $debugOn = 0;
 my $thisDay = "000000";
 my $thisday = 0;
@@ -48,7 +48,7 @@ $now = localtime;
  }   
   $thisday = $mon . $mday;
 
-$thisDay = '01'.$thisday;
+$thisDay = '02'.$thisday;
 
 # print "Today Date :", $thisDay, "\n";
 
@@ -57,7 +57,7 @@ $thisDay = '01'.$thisday;
 &beginHtml();
 
 
-$sql="SELECT dataset, path, fName, createTime, Nevents, trigger, dataStatus, comment FROM $FileCatalogT where insertTime > '$thisDay'  AND fName like '%.event.root' AND type = 'daq_reco' AND site = 'disk_rcf' ORDER by insertTime ";
+$sql="SELECT dataset, path, fName, createTime, Nevents, trigger, dataStatus, comment FROM $FileCatalogT where insertTime > '$thisDay'  AND fName like '%.event.root' AND type = 'daq_reco' AND site = 'disk_rcf' ORDER by runID, fileSeq ";
 $cursor =$dbh->prepare($sql)
   || die "Cannot prepare statement: $DBI::errstr\n";
 $cursor->execute;
