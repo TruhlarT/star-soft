@@ -1,7 +1,10 @@
 #!/usr/bin/csh -f
-#       $Id: group_env.csh,v 1.78 1999/07/12 22:18:26 wenaus Exp $
+#       $Id: group_env.csh,v 1.79 1999/07/30 21:30:44 fisyak Exp $
 #	Purpose:	STAR group csh setup 
 #       $Log: group_env.csh,v $
+#       Revision 1.79  1999/07/30 21:30:44  fisyak
+#       old(SL99b) -> root 2.21(.04)
+#
 #       Revision 1.78  1999/07/12 22:18:26  wenaus
 #       Update GEANT4 env variables
 #
@@ -236,7 +239,7 @@ if ($?SILENT == 1) set ECHO = 0;
 if ($ECHO) then
   cat /afs/rhic/star/group/small-logo 
 endif
-setenv WWW_HOME http://www.rhic.bnl.gov/STAR/star.html; 
+setenv WWW_HOME http://www.star.bnl.gov/
                                              if ($ECHO) echo   "Setting up WWW_HOME  = $WWW_HOME"
 setenv AFS       /usr/afsws
 setenv AFS_RHIC  /afs/rhic
@@ -284,12 +287,8 @@ switch ( $STAR_VERSION )
 
   case SL99a: 
   case SL99b: 
-  setenv ROOT_LEVEL 2.20
-  setenv CERN_LEVEL 99  
-  breaksw
-
   case SL99c:
-  setenv ROOT_LEVEL 2.21.07
+  setenv ROOT_LEVEL 2.21
   setenv CERN_LEVEL 99  
   breaksw
 
@@ -477,6 +476,7 @@ endif
 if (`uname -s` == "SunOS" && `hostname` != "rcf.rhic.bnl.gov" && ! ${?OBJY_HOME} ) source $GROUP_DIR/ObjySetup.csh
 
 # SNiFF+
+setenv G4SYSTEM
 switch ($STAR_SYS)
     case "sun4*":
 #     ====================
