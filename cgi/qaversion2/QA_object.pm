@@ -773,7 +773,7 @@ sub ShowScalarsAndTests{
     $flag =~ /run_scalars/ and do{
       print h3("<hr>Run-based scalars, errors and warnings:\n"); 
       print h4("Macro: $macro_name\n"); 
-      print h4("Mulitplicity class: $mult_class; track node limits = ($mult_low, $mult_high)"); 
+      print h4("Multiplicity class: $mult_class; track node limits = ($mult_low, $mult_high)"); 
       QA_report_io::show_scalars_and_test_failures($eval, $mult_class, 'run');
       last SWITCH;
     };

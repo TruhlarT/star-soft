@@ -332,6 +332,7 @@ sub QA_bfcread_dst_analysis{
   #--------------------------------------------------------------
   my $event = 0;
   my $icount_event = 0;
+  my $accepted_event = 0;
 
   my $report_previous_line = -9999999;
 
@@ -356,6 +357,7 @@ sub QA_bfcread_dst_analysis{
 	$report_line =~ /==\s+Event\s+(\d+)\s+(\S+)/ and do{
 	  $2 =~ /finish/ and last REPORT;
 	  $event = $1;
+	  $accepted_event = 0;
 	  $icount_event++;
 	  next;
 	};
@@ -397,17 +399,18 @@ sub QA_bfcread_dst_analysis{
 	  $run_statistics_hash{$name}->{mean} = -999999.;
 	  $run_statistics_hash{$name}->{rms} = -999999.;
 	};
-	
+
 	#------------------------------------------------------
 	# check whether event is within multiplicity class
 	# first scalar is always track_nodes 
 	
 	$name =~ /track_nodes/ and do{
-	  next if $value < $mult_limit_low;
-	  next if $value > $mult_limit_high;
+	  $value >= $mult_limit_low and $value < $mult_limit_high and $accepted_event = 1;
 	};
 	#------------------------------------------------------
 	
+	$accepted_event or next;
+
 	$run_statistics_hash{$name}->{n_event}++;
 	$run_statistics_hash{$name}->{sum} += $value;
 	$run_statistics_hash{$name}->{sum_sqr} += $value*$value;
