@@ -234,7 +234,7 @@ if ( ! $?star_cshrc_csh) then
 endif
 
 # Now, display the news if any 
-if ($?SILENT == 0) then
+if ($?SILENT == 0 && $?prompt) then
     if ( -f $STAR_PATH/news/motd ) cat $STAR_PATH/news/motd
     if ( -f $STAR_PATH/news/motd.$STAR_SYS ) cat $STAR_PATH/news/motd.$STAR_SYS
 endif
