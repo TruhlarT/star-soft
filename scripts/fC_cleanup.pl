@@ -30,6 +30,7 @@ my $keyw;
 my $n;
 my $confirm;
 my $allst;
+my $class;
 
 # Connection parameters
 my $user=undef;
@@ -58,6 +59,9 @@ while (defined $ARGV[$count]){
 
     } elsif ($ARGV[$count] eq "-debug"){
 	$fileC->debug_on();
+    } elsif ($ARGV[$count] eq "-class"){
+	# class of debugging
+	$fileC->message_class($ARGV[++$count]);
 
     } elsif ($ARGV[$count] eq "-ucheck"){
 	$mode = -1;
@@ -634,6 +638,7 @@ sub Usage
                          Without it, the API will only display the operation it
                          intends to perform (i.e. debug mode). It is wise to start
                          in debug mode.
+ -class XXX              Set debugging class
 ~;
 
     if( defined($sts) ){ exit;}

@@ -1,10 +1,11 @@
-#!/usr/bin/env perl 
+#!/usr/bin/env perl
+
 #
 # This is the command line utility, which allows access to the data in the
 # FileCatalog database.
 #
 # Written by Adam Kisiel, Warsaw University of Technology (2002)
-# Written J.Lauret 2002
+# Written by J.Lauret 2002-2004
 #
 # Uncodumented paramaters
 #
@@ -12,7 +13,7 @@
 #
 #use Env (OPTSTAR);
 #use lib "$OPTSTAR/lib";
-use lib "/afs/rhic/star/packages/scripts";
+use lib "/afs/rhic.bnl.gov/star/packages/scripts";
 use strict;
 use FileCatalog;
 
@@ -22,7 +23,7 @@ my $count;
 my $debug;
 
 # The state variables
-my ($all, $alls, $unique, $field_list);
+my ($all, $alls, $unique, $field_list, $class);
 my ($cond_list, $start, $limit, $delim, $onefile, $outfilename);
 my ($intent)="User";
 
@@ -41,28 +42,33 @@ $fileC->debug_off();
 $debug       = 0;
 $onefile     = 0;
 $outfilename = "";
+$class       = "";
 
 # Parse the cvommand line arguments.
 $count = 0;
 
 while (defined $ARGV[$count]){
-    if ($ARGV[$count] eq "-all")
-      {	$all = 1; }
-    elsif ($ARGV[$count] eq "-alls")
-      {	$alls = 1; }
-    elsif ($ARGV[$count] eq "-onefile")
-      { $onefile = 1; }
-    elsif ($ARGV[$count] eq "-distinct")
-      { $unique = 1; }
+    if ($ARGV[$count] eq "-all"){
+	$all = 1; 
+    } elsif ($ARGV[$count] eq "-alls") {
+	$alls = 1;
+    } elsif ($ARGV[$count] eq "-onefile"){
+	$onefile = 1; 
+    } elsif ($ARGV[$count] eq "-distinct"){
+	$unique = 1; 
 
-    elsif ($ARGV[$count] eq "-V")
-      { print "This is Version ".$fileC->Version()."\n"; exit;}
-    elsif ($ARGV[$count] eq "-debug" ||
-	   $ARGV[$count] eq "-coffee"){
+
+    } elsif ($ARGV[$count] eq "-V"){
+	print "This is Version ".$fileC->Version()."\n"; 
+	exit;
+    } elsif ($ARGV[$count] eq "-debug" ||
+	     $ARGV[$count] eq "-coffee"){
 	$fileC->debug_on();
-    }
+    } elsif ($ARGV[$count] eq "-class"){
+	# class of debugging
+	$fileC->message_class($ARGV[++$count]);
 
-    elsif ($ARGV[$count] eq "-as")
+    }elsif ($ARGV[$count] eq "-as")
       { $intent = $ARGV[++$count]; }
 
 
@@ -99,6 +105,8 @@ while (defined $ARGV[$count]){
 if ($count == 0){
     &Usage();
 } else {
+    # connect_as() in this case mandate that the rest of the
+    # the information is defined via connection schema.
     $fileC->connect_as($intent);
 
     if ($outfilename ne ""){
