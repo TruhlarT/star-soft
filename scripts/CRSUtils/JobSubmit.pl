@@ -74,11 +74,11 @@ if ($ThisYear == 2002){
     $TARGET  = "/star/data13/reco";
 
     $PHYSTP  = 1;
-    $LASERTP = 5;            # This can known only by looking into the FOFileType
+    $LASERTP = 3;            # This can known only by looking into the FOFileType
                              # or calling some extra routine from the pm. Prefer to 
                              # hard-code (that is -> faster) Sorry ...
-    @USEQ    = (4,4,1);      # queue to be used for regular mode, bypass and calib 
-    @SPILL   = (0,3,0);      # queue spill level for the 3 modes
+    @USEQ    = (4,4,2);      # queue to be used for regular mode, bypass and calib 
+    @SPILL   = (0,3,1);      # queue spill level for the 3 modes
 
     # Default production chains by species
     $DCHAIN{"AuAu"}           = "P2001a";
@@ -96,8 +96,7 @@ if ($ThisYear == 2002){
     $SCALIB{"AuAu"}           = "";
     $SCALIB{"ProtonProton"}   = "OptLaser";
 
-} elsif ($ThisYear == 2003 ||
-	 $ThisYear == 2004 ) {
+} elsif ($ThisYear == 2003 ){
     $LIB     = "dev";
     $NUMEVT  = 100;
     $TARGET  = "/star/data27/reco";
@@ -109,21 +108,36 @@ if ($ThisYear == 2002){
     @SPILL   = (0,3,1);      
     
     # Default chain
-    $DCHAIN{"AuAu"}           = "P2004,CMuDst,OShortR";
-    if ($ThisYear == 2003){
-	$DCHAIN{"dAu"}            = "dAu2003,alltrigger,est,CMuDst";
-	$DCHAIN{"ProtonProton"}   = "pp2003,alltrigger,trgd,est,CMuDst";
-    }
+    $DCHAIN{"dAu"}            = "dAu2003,alltrigger,est,CMuDst";
+    $DCHAIN{"ProtonProton"}   = "pp2003,alltrigger,trgd,est,CMuDst";
+
+    # Default pre-calib
+    #$DCALIB{"dAu"}            = "PreTpcT0";
+
+    # Default stand-alone auto-calib (works only on $LASERTP files)
+    $SCALIB{"dAu"}            = "OptLaser";
+    $SCALIB{"ProtonProton"}   = "OptLaser";
+
+} elsif ($ThisYear == 2004 ){
+    $LIB     = "dev";
+    $NUMEVT  = 100;
+    $TARGET  = "/star/data27/reco";
+
+    $LASERTP = 3;
+    $PHYSTP  = 1;
+
+    @USEQ    = (4,4,3);
+    @SPILL   = (0,3,2);      
+    
+    # Default chain
+    $DCHAIN{"AuAu"}           = "P2004,EST,CMuDst,OShortR";
+
 
     # Default pre-calib
     #$DCALIB{"dAu"}            = "PreTpcT0";
 
     # Default stand-alone auto-calib (works only on $LASERTP files)
     $SCALIB{"AuAu"}           = "OptLaser";
-    if ($ThisYear == 2003){
-	$SCALIB{"dAu"}            = "OptLaser";
-	$SCALIB{"ProtonProton"}   = "OptLaser";
-    }
 
 } else {
     print "Unknown Year $ThisYear\n";
@@ -394,6 +408,7 @@ if( $TARGET =~ m/^\// || $TARGET =~ m/\^\// ){
 
     # Default mode is submit. Target is a path
     # get the number of possible jobs per queue.
+    #print "Using $USEQ[2] $SPILL[2]\n";
     $TOT = CRSQ_getcnt($USEQ[2],$SPILL[2],$PAT,1);
 
     $time = localtime();
@@ -440,6 +455,8 @@ if( $TARGET =~ m/^\// || $TARGET =~ m/\^\// ){
 	    rdaq_close_odatabase($obj);
 	}
 	if(-e $LOCKF){  unlink($LOCKF);}
+    #} else {
+	#print "There are no slots available\n";
     }
 
 
@@ -657,7 +674,7 @@ __EOF__
 
         # Chain default
 	print FO
-	    "    executableargs=29,",
+	    "    executableargs=25,",
 	    "$LIBV,$TARGET/$LIB/$items[2]/$m,",
 	    "$NUMEVT,$chain",
 	    "\n";
