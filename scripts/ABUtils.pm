@@ -88,10 +88,15 @@ $INSU::md5seed = "";
 # LSF submit command
 $INSU::BSUB    = "/usr/local/lsf/bin/bsub";
 
-# All tests may be declared here in this array. The first element is the chain
-# the second a list of files to work on. Note that the array will be later
-# sorted so no need to try to put the chain in a different order, hoping
-# it will do something different.
+# All tests may be declared here in this array. 
+# - The first element is the chain
+#   A ";" separator may use indicating a string to use for filename 
+#   generation (if empty, will concatenate chain options)
+# - the second is a list of files to work on. 
+#
+# Note that the array will be later sorted so no need to try to put the chain 
+# in a different order, hoping it will do something different.
+#
 %INSU::TESTS=(
 	      "p00h",
 	      "/star/data03/daq/2000/09/st_physics_1248022_raw_0001.daq",
@@ -128,8 +133,18 @@ $INSU::BSUB    = "/usr/local/lsf/bin/bsub";
 
 	      # ITTF chains
 	      "ry2004 in tpc_daq tpc -tcl -tpt -PreVtx fcf Physics svtDb ITTF dst event ".
-	      "genvtx Sti Tree evout trgd debug1",
-	      "/star/data03/daq/2004/061a/st_physics_5061059_raw_3030004.daq"
+	      "genvtx Sti Tree evout trgd debug1".
+	      "; TPC based chain",
+	      "/star/data03/daq/2004/061a/st_physics_5061059_raw_3030004.daq",
+
+	      "ry2004 in tpc_daq tpc -tcl -tpt -PreVtx fcf Physics svtDb ITTF dst ".
+	      "event genvtx Sti analysis EventQA tags Tree evout  l3onl tofDat emcDY2 ".
+	      "fpd Corr2 ftpc trgd OSpaceZ OShortR Kink2 V02 Xi2 debug1".
+	      "; ITTF full chain", 
+	      "/star/data03/daq/2004/061a/st_physics_5061059_raw_3030004.daq",
+
+	      "trs,srs,y2004,tpc,l0,svt,Cdst,Kalman,tags,Tree,bbcsim,tofsim,evout,est,-xi,-v0,xi2,XiSvt,svtdEdx,SvtMatchVtx,emcY2,eefs,GeantOut,big,-dstout,CMuDst,fzin ; Full Y4 sim chain",
+	      "/star/rcf/simu/rcf1207_01_225evts.fzd"
 
 	      );
 
@@ -432,7 +447,7 @@ sub IUErrorURL
 
     if( defined($INSERRORS{$perr}) ){
 	($mode == 1?" ":$err).
-	    "<FONT SIZE=\"-1\">(<A HREF=\"$INSURL/$INSERRORS{$perr}\">learn more</A>)</FONT>";
+	    " <FONT SIZE=\"-1\">(<A HREF=\"$INSURL/$INSERRORS{$perr}\">learn more</A>)</FONT>";
     } else {
 	($mode == 1?" ":$err);
     }
