@@ -103,6 +103,7 @@ setenv SYSTYPE sysV
 # -------------------------------------
 # This is done stupidly in HEpix. I prefer
 if( ! $?X11BIN || ! $?PATH) then
+    if ( $?PATH && ! $?SAVED_PATH) setenv SAVED_PATH `echo $PATH | sed "s/:/ /"`
     if( -d /usr/openwin/bin ) then
 	# Damned open window systems
 	setenv X11BIN  "/usr/openwin/bin"
@@ -139,9 +140,9 @@ if( ! $?X11BIN || ! $?PATH) then
 
 
     if ( $USER == "root" ) then
-	set path=( $ROOTPATH $UGLOBUS)
+	set path=( $SAVED_PATH $ROOTPATH $UGLOBUS)
     else 
-	set path=( $USERPATH $UGLOBUS)
+	set path=( $USERPATH $UGLOBUS $SAVED_PATH )
     endif
     unset USERPATH
     unset ROOTPATH
