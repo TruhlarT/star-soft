@@ -77,6 +77,8 @@ sub _init{
       last DIRTYPE
     };
 
+
+
     $temp_dir = $topdir_report."/".$arg_dir;
     -d $temp_dir and do{
       $report_key = $arg_dir;
@@ -110,6 +112,7 @@ sub _init{
     $self->LogReport->OutputDirectory("$new_output_dir");
 
   };
+
   #------------------------------------------------------
   $self->QASummaryString();
   #------------------------------------------------------
@@ -250,6 +253,7 @@ sub QASummaryString{
   my $qa_summary_file = $self->QASummaryFileName;
 
   #-----------------------------------------------------
+
   if ( -s $qa_summary_file ) {
     
     open QAFILE, $qa_summary_file or die "Cannot open qa summary file $qa_summary_file: $! \n";
@@ -301,6 +305,7 @@ sub QASummaryString{
     }
   }
   closedir(DIR);
+
   #-------------------------------------------------------
   return $self->{qa_summary_string};
 }
@@ -315,14 +320,32 @@ sub OnDisk{
   my $self = shift;
 
   $report_key = $self->ReportKey(); 
-  
-  $test_data_dir = $self->LogReport->OutputDirectory;
+
+  #--------------------------------------------------------------
   $on_disk = 0;
-  
-  if (defined $test_data_dir and -d $test_data_dir){ 
-    # even if same directory exists, may contain later run -> test against dir time
-    $test_report_key = QA_make_reports::get_report_key($test_data_dir); 
-    $test_report_key eq $report_key and $on_disk = 1;
+
+  $logfile_name = $self->LogReport->LogfileName;
+ 
+  if ( -s $logfile_name ){
+    # even if same directory exists, may contain later run -> test logfile date against
+    # completion time as reported within log file - should be within 1 day of each other (takes
+    # care of finishing around midnight - rare but possible
+
+    $run_time = $self->LogReport->RunCompletionTimeAndDate;
+    $run_time_string = substr($run_time, 4, 4);
+
+    $logtime = stat($logfile_name)->mtime;
+    @time = localtime($logtime);
+    $day = $time[3];
+    $month = $time[4] + 1;
+    $day < 10 and $day = "0".$day;
+    $month < 10 and $month = "0".$month;
+    $log_time_string = $month.$day;
+    
+    $diff = abs($run_time_string - $log_time_string);
+
+    $diff < 2 and $on_disk = 1;
+
   }
 
   return  $on_disk;

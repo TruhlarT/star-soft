@@ -330,7 +330,7 @@ sub get_update_dirs{
     # too large? log files as large as 200 MB have been seen
 
     $size = -s $logfile;
-    $size > 20000000 and do {
+    $size > 50000000 and do {
       print "Logfile $logfile size=$size; Too large, skipping this run <br> \n";
       next;
     };
