@@ -116,7 +116,7 @@ if (1==1){
 # accept (in order it receives). In the new
 # Condor-based API, there is no need for this
 # shifting.
-shift @ARGV if (! defined($ENV{"CONDOR_ID"}));
+#shift @ARGV if (! defined($ENV{"CONDOR_ID"}));
 $ALLOPT       = shift @ARGV;
 $LIBRARY      = shift @ARGV;
 $DESTINATION  = shift @ARGV;
