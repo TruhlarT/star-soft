@@ -67,13 +67,13 @@
 #                          value from the one in the current context to the
 #                          one specified as an argument
 #
-#        -> bootstrap() : database maintenance procedure. Looks at the dictionary table 
-#                          and find all the records that are not referenced by the child 
+#        -> bootstrap() : database maintenance procedure. Looks at the dictionary table
+#                          and find all the records that are not referenced by the child
 #                          table. It offers an option of deleting this records.
 #
-#        -> set_delayed()  turn database operation in delay mode. A stack is built 
-#                          and execute later. This may be used in case of several 
-#                          non-correlated updates. Warning : no checks made on delayed 
+#        -> set_delayed()  turn database operation in delay mode. A stack is built
+#                          and execute later. This may be used in case of several
+#                          non-correlated updates. Warning : no checks made on delayed
 #                          commands.
 #        -> flush_delayed() flush out i.e. execute all delayed commands.
 #        -> print_delayed() print out on screen all delayed commands.
@@ -3054,7 +3054,7 @@ sub run_query {
       }
   }
 
-  
+
   #
   # This drastic change between simulation and real data prevents
   # the definition of a consistent logical name. Logical name must
@@ -3882,7 +3882,7 @@ sub update_record {
       $retv=0;
 
       # The warning is displayed for information only and mainly
-      # for dictionaries where changing values may be a real 
+      # for dictionaries where changing values may be a real
       # disaster.
       if ($utable ne "FileLocations"){
 	  $sth = $DBH->prepare($qselect);
