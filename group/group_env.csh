@@ -1,5 +1,5 @@
 #!/bin/csh -f
-#       $Id: group_env.csh,v 1.175 2004/11/25 23:27:23 jeromel Exp $
+#       $Id: group_env.csh,v 1.176 2004/11/25 23:29:42 jeromel Exp $
 #	Purpose:	STAR group csh setup
 #
 #	Author:		Y.Fisyak     BNL
@@ -12,7 +12,7 @@
 #
 #	STAR software group	1998
 #
-set ECHO = 1; 
+set ECHO = 1;
 if ($?STAR == 1)   set ECHO = 0
 if ( ! $?prompt)   set ECHO = 0
 if ($?SILENT == 1) set ECHO = 0
@@ -40,7 +40,7 @@ endif
 if ($ECHO) echo   "Setting up STAR_ROOT = ${STAR_ROOT}"
 
 
-# Define /opt/star (or equivalent) 
+# Define /opt/star (or equivalent)
 # X indicates points to the AFS reference
 if ( ! $?XOPTSTAR ) then
     # keep a reference to the AFS one
@@ -56,13 +56,13 @@ if ( ! $?OPTSTAR ) then
 	    setenv OPTSTAR ${XOPTSTAR}
 	else
 	    # nothing found ...
-	    setenv OPTSTAR 
+	    setenv OPTSTAR
 	endif
     endif
 endif
 
 
-    
+
 
 # Defined by Group Dir
 if ( ! $?GROUP_DIR )  setenv GROUP_DIR ${STAR_ROOT}/group
@@ -126,14 +126,14 @@ source ${GROUP_DIR}/STAR_SYS;
 # specific path prior to setting up $OPTSTAR . This was
 # made on purpose so the environment would revert to a
 # default $OPTSTAR in case things are not quite in place.
-# 
+#
 
 # There is a second chance to define XOPTSTAR
 if ( ! $?XOPTSTAR ) then
     if ( -e ${AFS_RHIC}/${STAR_SYS}/opt/star ) then
 	setenv XOPTSTAR ${AFS_RHIC}/${STAR_SYS}/opt/star
     else
-	# well, as good as anything else (we cannot find a 
+	# well, as good as anything else (we cannot find a
 	# global reference)
 	setenv XOPTSTAR /dev/null
     endif
@@ -236,7 +236,7 @@ if (-f $STAR/mgr/ROOT_LEVEL && -f $STAR/mgr/CERN_LEVEL) then
 else
  switch ( $STAR_VERSION )
 
-  case SL98l: 
+  case SL98l:
     setenv ROOT_LEVEL 2.20
     breaksw
 
@@ -259,7 +259,7 @@ else
     setenv CERN_LEVEL 99
     breaksw
 
-  default: 
+  default:
     setenv ROOT_LEVEL 3.02.00
 
   endsw
@@ -304,8 +304,8 @@ if ($?MANPATH == 1) then
 else
   setenv MANPATH ${STAR_PATH}/man
 endif
-  
-   
+
+
 switch ($STAR_SYS)
     case "rs_aix*":
         if ( -x ${GROUP_DIR}/dropit) setenv MANPATH `${GROUP_DIR}/dropit -p {$MANPATH} -p /usr/share/man`
@@ -431,8 +431,8 @@ switch ($STAR_SYS)
       unlimit descriptors
       breaksw
       case "alpha_dux*":
-        limit datasize unlimited	
-        limit stacksize unlimited	
+        limit datasize unlimited
+        limit stacksize unlimited
       breaksw
     default:
 	#  ====================
@@ -512,7 +512,7 @@ endif
 
 
 # ==================================================================
-# END 
+# END
 # ==================================================================
 
 
@@ -591,7 +591,7 @@ endif
 
 #
 # Uncomment to get statistics on version used at
-# login level. 
+# login level.
 #
 #set date="`date`"
 #/bin/cat >> $GROUP_DIR/statistics/star${STAR_VERSION} << EOD

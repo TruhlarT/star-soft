@@ -100,7 +100,7 @@ setenv SYSTYPE sysV
 # -------------------------------------
 # This is done stupidly in HEpix. I prefer
 if( ! $?X11BIN || ! $?PATH) then
-    if ( $?PATH && ! $?SAVED_PATH) setenv SAVED_PATH `echo $PATH | sed "s/:/ /g"`
+    if ( $?PATH && ! $?SAVED_PATH) setenv SAVED_PATH `echo $PATH | /bin/sed "s/:/ /g"`
     if( -d /usr/openwin/bin ) then
 	# Damned open window systems
 	setenv X11BIN  "/usr/openwin/bin"
@@ -186,7 +186,7 @@ unsetenv INITIALE
 
 
 # Set hostname
-setenv HOST `/bin/hostname | sed "s/\..*//"`
+setenv HOST `/bin/hostname | /bin/sed "s/\..*//"`
 
 
 # In principle, the was a if (-r) on several files here
@@ -220,7 +220,7 @@ endif
 # like 'xxx: Command not found'
 #
 set test=`which less`
-set test2=`echo $test | grep "not found"`
+set test2=`echo $test | /bin/grep "not found"`
 if ( "$test" != "" &&  "$test2" != "$test" ) then
     setenv PAGER       "less"
 else
@@ -228,7 +228,7 @@ else
 endif
 
 set test=`which pico`
-set test2=`echo $test | grep "not found"`
+set test2=`echo $test | /bin/grep "not found"`
 if ( "$test" != "" && "$test2" != "$test" ) then
     setenv EDITOR      "pico -w"
     setenv VISUAL      "pico -w"

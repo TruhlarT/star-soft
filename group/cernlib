@@ -1,7 +1,7 @@
 #!/bin/sh
 # **********************************************************************
 # * @(#) cernlib
-# * @(#) $Header: /scratch/smirnovd//star-cvs-local/soft/group/cernlib,v 1.1 2004/05/19 14:12:46 fisyak Exp $
+# * @(#) $Header: /scratch/smirnovd//star-cvs-local/soft/group/cernlib,v 1.2 2004/11/25 23:29:42 jeromel Exp $
 # *                                                                    *
 # * Attachment of CERN Libraries for link step                         *
 # *                                                                    *
@@ -34,7 +34,7 @@
  
   CERNLIB=""
  
-  liblist=`echo $* | sed -e 's/,/ /g'`
+  liblist=`echo $* | /bin/sed -e 's/,/ /g'`
   for lib in $liblist
   do
       case $lib in
@@ -42,7 +42,7 @@
            -*)  CERNLIB="$CERNLIB $lib" ; continue ;;
       esac
       lver=$gver
-      val=`echo $lib | sed -e "s?\/? ?g"`
+      val=`echo $lib | /bin/sed -e "s?\/? ?g"`
       set - $val
       [ $# -eq 2 -a $1 != "graflib" ] && lver=$2
       dir=$CERN/$lver/lib
@@ -77,9 +77,9 @@
     [ $_s -eq 0 ] && CERNLIB="$CERNLIB $CERN/$gver/lib/libpacklib_noshift.a"
   fi
 #  get system name
-  [ -d /NextAdmin ] && Msys="NeXT" || Msys=`uname -s`
+  [ -d /NextAdmin ] && Msys="NeXT" || Msys=`/bin/uname -s`
   case $Msys in
-      SunOS)    [ `uname -r | awk '{ print substr($1,1,1) }'` -ge 5 ] \
+      SunOS)    [ `/bin/uname -r | /bin/awk '{ print substr($1,1,1) }'` -ge 5 ] \
                         && Msys="SunSol"
                 ;;
           *)    ;;
@@ -117,7 +117,7 @@
 	       [ -d /usr/X11/lib ] && SYSGX11="-L/usr/X11/lib -lX11"
 	       [ -d /usr/X11R6/lib ] && SYSGX11="-L/usr/X11R6/lib -lX11"
 	       [ -d /usr/X11R6/lib ] && SYSGMOTIF="-L/usr/X11R6/lib -lXm -lXt -lXp -lXext -lX11"
-	       [ `uname -m` = ppc ] && SYSGMOTIF="$SYSGMOTIF -lSM -lICE -lXpm"
+	       [ `/bin/uname -m` = ppc ] && SYSGMOTIF="$SYSGMOTIF -lSM -lICE -lXpm"
 	       ;;
       NeXT)    SYSGX11="/usr/lib/X11/libX11.r" ;
                SYSGMOTIF="-lXm -lXt /usr/lib/X11/libX11.r" ;;
@@ -195,7 +195,7 @@
                                                 && CERNLIB="$CERNLIB -lintl"
         [ -f /lib/librt.so ] \
                                                 && CERNLIB="$CERNLIB -lrt"						
-        echo $CERNLIB | grep pawlib >/dev/null && \
+        echo $CERNLIB | /bin/grep pawlib >/dev/null && \
                CERNLIB="$CERNLIB -ldl"
  
      fi
@@ -208,13 +208,13 @@
 		CERNLIB="$CERNLIB /opt/fortran/lib/libU77.sl"
 	fi
 
-	echo $CERNLIB | grep pawlib >/dev/null && \
+	echo $CERNLIB | /bin/grep pawlib >/dev/null && \
 				      CERNLIB="$CERNLIB /usr/lib/libdld.sl"
-	echo $CERNLIB | grep packlib >/dev/null && \
+	echo $CERNLIB | /bin/grep packlib >/dev/null && \
 	       [ -f /lib/pa1.1/libm.a ] && CERNLIB="$CERNLIB /lib/pa1.1/libm.a"
      fi
      if [ "$Msys" = "AIX" ] ; then
-        echo $CERNLIB | grep pawlib >/dev/null &&   CERNLIB="$CERNLIB -lld"
+        echo $CERNLIB | /bin/grep pawlib >/dev/null &&   CERNLIB="$CERNLIB -lld"
      fi
      if [ "$Msys" = "Linux" ] ; then
         CERNLIB="$CERNLIB -lnsl -lcrypt -ldl"

@@ -43,7 +43,7 @@ if ($ARGV[0] eq "-g"){
 	    if ( defined($shs = $ENV{STAR_HOST_SYS}) ){
 		if ( -d ".$shs/share"){
 		    print "Searching for LinkDef.h files ...\n" if ($DEBUG);
-		    @all = `find .$shs/share -type f -name '*LinkDef.h'`;
+		    @all = `/usr/bin/find .$shs/share -type f -name '*LinkDef.h'`;
 		    foreach $file (@all){
 			chomp($file);
 			print "\tGot $file\n" if ($DEBUG);
@@ -92,13 +92,13 @@ if ($ARGV[0] eq "-g"){
 	$pgmf = "unknown";
 	$cmo  = $cdy = $year = $chr = $cmin = "?";
     }
-    chomp($host = `hostname`);
+    chomp($host = `/bin/hostname`);
     print "$host;CERN-$ENV{CERN_LEVEL};STAR-$VERSION;root4star-$cmo/$cdy/$year-$chr:$cmin-$pgmf\n";
 }
 
 
 #
-# Subroutine to find the version from a file
+# Subroutine to /usr/bin/find the version from a file
 #
 sub Found
 {

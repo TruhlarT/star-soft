@@ -23,7 +23,7 @@ switch ($STAR_SYS)
 	    setenv PARASOFT ${AFS_RHIC}/app/insure
 	endif
 
-	set VER=`/bin/ls -ld ${PARASOFT}/bin* | sed "s/.*\.//"`
+	set VER=`/bin/ls -ld ${PARASOFT}/bin* | /bin/sed "s/.*\.//"`
 	if ("$VER" != "") set VER=".$VER"
 	set path = ($path $PARASOFT/bin$VER)
 	setenv LD_LIBRARY_PATH  ${LD_LIBRARY_PATH}:${AFS_RHIC}/app/${INSV}/lib$VER	    

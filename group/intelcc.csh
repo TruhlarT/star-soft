@@ -1,11 +1,11 @@
 #!/bin/csh -f
 
-set pathtointel = `ls -1d /usr/intel* | tail -1`
+set pathtointel = `ls -1d /usr/intel* | /usr/bin/tail -1`
 if ( "$pathtointel" != "") then
-    set seticc=`find $pathtointel -type f   -name iccvars.csh | tail -1`
-    set setifc=`find $pathtointel -type f -name ifcvars.csh | tail -1`
-    set setifort=`find $pathtointel -type f -name ifortvars.csh | tail -1`
-    set setidb=`find $pathtointel -type f -name idbvars.csh | tail -1`
+    set seticc=`/usr/bin/find $pathtointel -type f   -name iccvars.csh | /usr/bin/tail -1`
+    set setifc=`/usr/bin/find $pathtointel -type f -name ifcvars.csh | /usr/bin/tail -1`
+    set setifort=`/usr/bin/find $pathtointel -type f -name ifortvars.csh | /usr/bin/tail -1`
+    set setidb=`/usr/bin/find $pathtointel -type f -name idbvars.csh | /usr/bin/tail -1`
     if ( -x $GROUP_DIR/dropit ) then
 	setenv PATH            `$GROUP_DIR/dropit intel`
 	setenv LD_LIBRARY_PATH `$GROUP_DIR/dropit -p $LD_LIBRARY_PATH intel`
