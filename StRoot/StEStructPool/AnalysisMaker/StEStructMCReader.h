@@ -1,6 +1,6 @@
 /*********************************************************************
  *
- *  $Id: StEStructMCReader.h,v 1.1 2004/02/26 20:05:33 chunhuih Exp $
+ *  $Id: StEStructMCReader.h,v 1.2 2004/03/02 21:35:10 chunhuih Exp $
  *
  *  Author: Chunhui Han
  *
@@ -15,6 +15,10 @@
  ********************************************************************
  *
  *  $Log: StEStructMCReader.h,v $
+ *  Revision 1.2  2004/03/02 21:35:10  chunhuih
+ *
+ *  added impact parameter information to the StEStructEvent
+ *
  *  Revision 1.1  2004/02/26 20:05:33  chunhuih
  *
  *  initial import
@@ -37,7 +41,7 @@
 #include <TROOT.h>
 #include <TChain.h>
 #include <TFile.h>
-
+#include <TH1F.h>
 class StEStructEventCuts;
 class StEStructTrackCuts;
 
@@ -85,6 +89,7 @@ class StEStructMCReader : public StEStructEventReader {
   void fillTracks(StEStructEvent *estructEvent);
   int getTotalEventCount();
   int getCharge(int);
+  const int mIPMAX;
 
  public:
   StEStructMCReader(TTree *tree=0);
