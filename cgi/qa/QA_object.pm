@@ -330,7 +330,10 @@ sub DataDisplayString{
     $starlib_version =~ /SL/ and $string .= "<br>(STARLIB version: $starlib_version; STAR level: $star_level)";
     
     $input_filename = $self->LogReport->InputFn;
-    $input_filename and $string .= "<br>(input: $input_filename)";
+
+    # pmj 10/12/99
+    ($input_fn_string = $input_filename) =~ s%/star/rcf/disk0/star/test/%%;
+    $input_filename and $string .= "<br><font size=1>(input: $input_fn_string)</font>";
 
   }
 
