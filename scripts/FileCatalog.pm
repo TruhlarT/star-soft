@@ -5,64 +5,76 @@
 #
 # Methods of class FileCatalog:
 #
-#        ->new           : create new object FileCatalog
-#        ->connect       : connect to the database FilaCatalog
-#        ->destroy       : destroy object and disconnect database FileCatalog
-#        ->set_context() : set one of the context keywords to the given operator and value
-#        ->get_context() : get a context value connected to a given keyword
-#        ->clear_context(): clear/reset the context
+#        ->new             : create new object FileCatalog
+#        ->connect         : connect to the database FilaCatalog
+#        ->destroy         : destroy object and disconnect database FileCatalog
+#        ->set_context()   : set one of the context keywords to the given
+#                            operator and value
+#        ->get_context()   : get a context value connected to a given keyword
+#        ->clear_context() : clear/reset the context
 #        ->get_keyword_list() : get the list of valid keywords
 #        ->get_delimeter() : get the current delimiting string
 #        ->set_delimeter() : set the current delimiting string
 #
-# the following methods require connect to dbtable and are meant to be used outside the module
+# the following methods require connect to dbtable and are meant to be used
+# outside the module
 #
-#        -> check_ID_for_params() : returns the database row ID from the dictionary table
-#                          connected to this keyword
+#        -> check_ID_for_params() : returns the database row ID from the
+#                          dictionary table connected to this keyword
 #
-#        -> insert_dictionary_value() : inserts the value from the context into the dictionary table
-#        -> insert_detector_configuration() : inserts the detector configuration from current context
-#
-#        -> get_current_detector_configuration() : gets the ID of a detector configuration
-#           described by the current context
-#        -> insert_run_param_info() : insert the run param record taking data from the current context
-#        -> get_current_run_param() : get the ID of a run params corresponding to the current context
-#        -> insert_file_data() : inserts file data record taking data from the current context
-#        -> get_current_file_data() : gets the ID of a file data corresponding to the current context
-#        -> insert_simulation_params() : insert the simulation parameters taking data from the
-#           current context
-#        -> get_current_simulation_params : gets the ID of a simulation params corresponding
-#           to the current contex
-#        -> insert_file_location() : insert the file location data taking data from the
-#           current context
+#        -> insert_dictionary_value() : inserts the value from the context
+#                          into the dictionary table
+#        -> get_current_detector_configuration() : gets the ID of a detector
+#                          configuration described by the current context
+#        -> insert_run_param_info() : insert the run param record taking data
+#                          from the current context
+#        -> get_current_run_param() : get the ID of a run params corresponding
+#                          to the current context
+#        -> insert_file_data() : inserts file data record taking data from
+#                          the current context
+#        -> get_current_file_data() : gets the ID of a file data corresponding
+#                          to the current context
+#        -> insert_simulation_params() : insert the simulation parameters
+#                          taking data from the current context
+#        -> get_current_simulation_params : gets the ID of a simulation params
+#                          corresponding to the current contex
+#        -> insert_file_location() : insert the file location data taking
+#                          data from the current context
 #
 #        -> get_file_location()
-#                          returns the FileLocations info in an array context. The return value
-#                          can be used as-is in a set_context() statement.
+#                          returns the FileLocations info in an array context.
+#                          The return value can be used as-is in a
+#                          set_context() statement.
 #        -> get_file_data()
-#                          returns the FileData info in an array context. The return value
-#                          can be used as-is in a set_context() statement.
+#                          returns the FileData info in an array context.
+#                          The return value can be used as-is in a
+#                          set_context() statement.
 #        -> clone_location()
-#                          actually create an instance for FileData and a copy of FileLocations
-#                          the latest to be modified with set_context() keywords.
+#                          actually create an instance for FileData and a
+#                          copy of FileLocations the latest to be modified
+#                          with set_context() keywords.
 #
 #
-#        -> run_query()   : get entries from dbtable FileCatalog according to query string
-#           defined by set_context you also give a list of fields to select form
+#        -> run_query()   : get entries from dbtable FileCatalog according to
+#                          query string defined by set_context you also give a
+#                          list of fields to select form
 #
-#        -> delete_records() : deletes the current file locations based on context. If it finds that
-#           the current file data has no file locations left, it deletes it too
-#        -> update_record() : modifies the data in the database. The field corresponding
-#           to the given keyword changes it value from the one in the current context to the
-#           one specified as an argument
+#        -> delete_records() : deletes the current file locations based on
+#                          context. If it finds that the current file data has
+#                          no file locations left, it deletes it too
+#        -> update_record() : modifies the data in the database. The field
+#                          corresponding to the given keyword changes it
+#                          value from the one in the current context to the
+#                          one specified as an argument
 #
-#        -> bootstrap() : database maintenance procedure. Looks at the dictionary table and
-#           find all the records that are not referenced by the child table. It offers an option
-#           of deleting this records.
+#        -> bootstrap() : database maintenance procedure. Looks at the dictionary table 
+#                          and find all the records that are not referenced by the child 
+#                          table. It offers an option of deleting this records.
 #
-#        -> set_delayed()  turn database operation in delay mode. A stack is built and execute
-#           later. This may be used in case of several non-correlated updates. Warning : no
-#           checks made on delayed commands.
+#        -> set_delayed()  turn database operation in delay mode. A stack is built 
+#                          and execute later. This may be used in case of several 
+#                          non-correlated updates. Warning : no checks made on delayed 
+#                          commands.
 #        -> flush_delayed() flush out i.e. execute all delayed commands.
 #        -> print_delayed() print out on screen all delayed commands.
 #
@@ -85,7 +97,7 @@ require  Exporter;
 	     set_delimeter get_delimeter
 	     set_delayed flush_delayed print_delayed
 	     add_trigger_composition
-	     
+
 	     run_query
 	     close_location
 	     delete_records update_location update_record
@@ -281,7 +293,7 @@ $keywrds{"fulls"         }    =   ",,,,,,1";  # pseudo-full information agregate
 $ksimilar{"lgnm"         }    =   "logical_name;production library runnumber runtype filename trgsetupname configuration";
 $ksimilar{"lgpth"        }    =   "logical_path;site node storage path";
 $ksimilar{"fulld"        }    =   ";production library runnumber runtype site node storage path filename events trgsetupname";
-$ksimilar{"fulls"        }    =   ";production library runnumber runtype site node storage path filename events configuration";
+$ksimilar{"fulls"        }    =   ";production library runnumber runtype site node storage path filename events configuration generator genversion genparams";
 #$ksimilar{"md5n"         }    =   "md5_name;production library trgsetupname runnumber filename";
 #$ksimilar{"md5p"         }    =   "md5_path;site node storage path";
 
@@ -323,7 +335,7 @@ $datastruct[6]  = ( "FileData"               . ",TriggerCompositions" . ",fileDa
 $datastruct[7]  = ( "RunParams"              . ",FileData"            . ",runParamID"              . ",3" . ",0");
 $datastruct[13] = ( "EventGenerators"        . ",SimulationParams"    . ",eventGeneratorID"        . ",5" . ",1");
 $datastruct[8]  = ( "RunTypes"               . ",RunParams"           . ",runTypeID"               . ",4" . ",1");
-$datastruct[9]  = ( "DetectorConfigurations" . ",RunParams"           . ",detectorConfigurationID" . ",4" . ",1");
+$datastruct[9]  = ( "DetectorConfigurations" . ",RunParams"           . ",detectorConfigurationID" . ",4" . ",0");
 $datastruct[10] = ( "CollisionTypes"         . ",RunParams"           . ",collisionTypeID"         . ",4" . ",0");
 $datastruct[11] = ( "TriggerSetups"          . ",RunParams"           . ",triggerSetupID"          . ",4" . ",1");
 $datastruct[12] = ( "SimulationParams"       . ",RunParams"           . ",simulationParamsID"      . ",4" . ",0");
@@ -505,14 +517,14 @@ sub new {
 sub _initialize
 {
     my ($self) = shift;
-    
+
     # Only way to bless it is to declare them inside
     # new(). See also use Symbol; and usage of my $bla = gensym;
     $valuset{"all"} = 0;
     $delimeter = "::";
 
     #print "self is $self \n";
-    
+
 
     #foreach my $el (sort keys %FileCatalog::){
     #	print "$el has for value $FileCatalog::{$el}\n";
@@ -525,6 +537,7 @@ sub _initialize
 	if    ( $items[1] eq "FileLocations"){  $FC::FLRELATED{$items[0]} = $items[2];} # save relat table
 	elsif ( $items[1] eq "FileData"){       $FC::FDRELATED{$items[0]} = $items[2];} # save relat table
 	if ( $items[4] eq "1"){                 $FC::ISDICT{$items[0]}    = $items[3]; # save level
+						# BTW : we can only get this printed by outside-hack var() setup
 						&print_debug("Dictionary $items[0] $FC::ISDICT{$items[0]}");
 					    }
     }
@@ -566,7 +579,7 @@ sub connect {
       } else {
 	  &die_message("connect","cannot connect to $dbname : $DBI::errstr");
       }
-  } 
+  }
 
 
 
@@ -771,11 +784,11 @@ sub IDize
 # Returns:
 # The ID value for a given keyword value
 # or 0 if no such record exists
-sub check_ID_for_params 
+sub check_ID_for_params
 {
 
     if ($_[0] =~ m/FileCatalog/) {  shift @_;}
-  
+
     my @params = @_;
     my $retid;
 
@@ -783,20 +796,19 @@ sub check_ID_for_params
 	my $fieldname;
 	my $tabname;
 	my $rest;
-	
+
 	($fieldname, $tabname, $rest) = split(",",$keywrds{$params[0]});
 	$retid = &get_id_from_dictionary($tabname, $fieldname, $valuset{$params[0]});
 	if ($retid == 0) {
 	    # *** THIS NEEDS TO BE LATER FIXED
-	    if ($tabname eq "DetectorConfigurations"){
-		$retid = &insert_collision_type();
-	    } elsif ( $FC::ISDICT{$tabname} ) {
+	    if ( $FC::ISDICT{$tabname} ) {
+		&print_debug("Since $tabname is a dict, we will auto-insert");
 		$retid = &insert_dictionary_value($params[0]);
+
 	    } else {
-		if ($DEBUG > 0) {
-		    &print_debug("check_ID_for_params::ERROR: No $params[0] with name: ".$valuset{$params[0]});
-		}
-		$retid = 0;	
+		&print_debug("Returning 0 since there are no $params[0] with value ".
+			     $valuset{$params[0]});
+		$retid = 0;
 	    }
 
 	}
@@ -806,7 +818,7 @@ sub check_ID_for_params
 	$retid = 0;
     }
     &print_debug("Returning from check_ID_params: $retid");
-    
+
     return $retid;
 }
 
@@ -892,11 +904,68 @@ sub insert_dictionary_value {
   return $retid;
 }
 
+
 #============================================
+# get the ID for the current run number
+# Returns:
+#   the ID of a runParams record,
+#   or 0 if no such record exists
+sub get_current_detector_configuration {
+
+  my ($detConfiguration,$cmd,$sth,$val);
+  my ($tabname)="DetectorConfigurations";
+  my ($field)="detectorConfigurationName";
+  my ($index)=&IDize($tabname);
+
+  if( ! $DBH){
+      &print_message("insert_detector_configuration","Not connected");
+      return 0;
+  }
+
+  # May be one or the other
+  if ( defined($valuset{"geometry"}) ){
+      $val = $valuset{"geometry"};
+  } else {
+      $val = $valuset{"configuration"};
+  }
+
+  # This routine introduces caching
+  if ( ($detConfiguration = &cached_value($tabname,$val)) == 0){
+      $cmd = "SELECT $tabname.$index from $tabname WHERE $tabname.$field='$val'";
+
+      $sth = $DBH->prepare($cmd);
+      if( ! $sth ){
+	  &die_message("get_current_detector_configuration",
+		       "Cannot prepare ddb sentence");
+      } else {
+	  if ( $sth->execute() ){
+	      $sth->bind_columns( \$val );
+
+	      if ( $sth->fetch() ) {
+		  $detConfiguration = $val;
+	      }
+	  }
+	  $sth->finish();
+      }
+
+
+      if ($detConfiguration == 0) {
+	  # There is no detector configuration with this name
+	  # we have to add it
+	  $detConfiguration = &insert_detector_configuration();
+      }
+  }
+  return $detConfiguration;
+}
+
+
 # inserts a value into a table of Detector Configurations
 # Returns:
-# The ID of an inserted value
-# or 0 if such insertion was not possible
+#   The ID of an inserted value
+#   or 0 if such insertion was not possible
+# This routine is for INTERNAL USE ONLY AND MAY BE MERGED
+# WITH THE PRECEEDING ONE.
+#
 sub insert_detector_configuration {
 
   if( ! $DBH){
@@ -904,18 +973,48 @@ sub insert_detector_configuration {
       return 0;
   }
 
-
+  my ($config);
   my ($tpcon, $svton, $emcon, $eemcon, $ftpcon, $richon, $fpdon, $tofon);
   my ($pmdon, $ssdon, $bbcon);
+  my (@dets) =("tpc","svt","emc","eemc","ftpc","rich","fpd","tof","pmd","ssd","bbc");
+  my ($el);
 
   if ( defined($valuset{"geometry"}) ){
-      $valuset{"configuration"} = $valuset{"geometry"};
+      $config = $valuset{"geometry"};
+  } else {
+      if (! defined $valuset{"configuration"}) {
+	  &print_debug("ERROR: No detector configuration/geometry name given.",
+		       "Cannot add record to the table.");
+	  return 0;
+      } else {
+	  $config = $valuset{"configuration"};
+      }
   }
-  if (! defined $valuset{"configuration"}) {
-      &print_debug("ERROR: No detector configuration/geometry name given.",
-		   "Cannot add record to the table.");
-    return 0;
+
+  #
+  # Try to guess the setup if unspecified
+  #
+  if ( defined($valuset{"configuration"}) ){
+      #print "Trying to split ".$valuset{"configuration"}."\n";
+      my @items = split(/\./,$valuset{"configuration"});
+      foreach $el (@items){
+	  if ( defined($keywrds{$el}) ){
+	      if ( ! defined($valuset{$el}) ){
+		  &print_debug("$el appears in configuration but not explicitly set. Auto-set");
+		  $valuset{$el} = 1;
+	      }
+	  }
+      }
   }
+
+
+  # Be sure of this being initialized for schema evolution
+  foreach $el (@dets){
+      if ( ! defined($valuset{$el}) ){
+	  $valuset{$el} = 0;
+      }
+  }
+
   $tpcon = ($valuset{"tpc"} == 1)  ? "1" : "0";
   $svton = ($valuset{"svt"} == 1)  ? "1" : "0";
   $emcon = ($valuset{"emc"} == 1)  ? "1" : "0";
@@ -929,22 +1028,21 @@ sub insert_detector_configuration {
   $bbcon = ($valuset{"bbc"} == 1)  ? "1" : "0";
 
 
-  my $dtinsert   = "INSERT IGNORE INTO DetectorConfigurations";
-  $dtinsert  .= "(detectorConfigurationName, dTPC, dSVT, dTOF, dEMC, dEEMC, dFPD, dFTPC, dPMD, dRICH, dSSD, dBBC)";
-  $dtinsert  .= " VALUES ('".$valuset{"configuration"}."', $tpcon , $svton , $tofon , $emcon , $eemcon, $fpdon , $ftpcon , $pmdon , $richon , $ssdon, $bbcon)";
+  my $dtinsert = "INSERT IGNORE INTO DetectorConfigurations ";
+  $dtinsert   .= "(detectorConfigurationName, dTPC, dSVT, dTOF, dEMC, dEEMC, dFPD, dFTPC, dPMD, dRICH, dSSD, dBBC)";
+  $dtinsert   .= " VALUES ('".$config."', $tpcon , $svton , $tofon , $emcon , $eemcon, $fpdon , $ftpcon , $pmdon , $richon , $ssdon, $bbcon)";
   if ($DEBUG > 0) {  &print_debug("Execute $dtinsert");}
-
 
   my $sth;
   my $retid=0;
 
   $sth = $DBH->prepare( $dtinsert );
   if( ! $sth ){
-      &print_debug("FileCatalog::insert_detector_configuration : Failed to prepare [$dtinsert]");
+      &print_debug("insert_detector_configuration : Failed to prepare [$dtinsert]");
   } else {
       if ( $sth->execute() ) {
 	  $retid = &get_last_id();
-	  if ($DEBUG > 0) { &print_debug("Returning: $retid");}
+	  &new_value("insert_detector_configuration",$retid,$config,"DetectorConfigurations");
       }
       $sth->finish();
   }
@@ -952,23 +1050,6 @@ sub insert_detector_configuration {
 }
 
 
-#============================================
-# get the ID for the current run number
-# Returns:
-# the ID of a runParams record,
-# or 0 if no such record exists
-sub get_current_detector_configuration {
-
-  my $detConfiguration;
-
-  $detConfiguration = &check_ID_for_params("configuration");
-  if ($detConfiguration == 0) {
-    # There is no detector configuration with this name
-    # we have to add it
-    $detConfiguration = &insert_detector_configuration();
-  }
-  return $detConfiguration;
-}
 
 #============================================
 # disentangle collision type parameters from the collsion type name
@@ -981,37 +1062,41 @@ sub get_current_detector_configuration {
 sub disentangle_collision_type {
 
   my ($colstring) = @_;
-  my $firstParticle = "";
-  my $secondParticle = "";
+  my ($firstParticle,$secondParticle,$el);
+  my (@particles) = ("proton", "gas", "au", "ga", "si", "p", "d", "s");
 
-  my @particles = ("proton", "gas", "au", "ga", "si", "p", "d", "s");
+  $firstParticle = $secondParticle = "";
 
-
-  if (($colstring =~ m/cosmic/) > 0)
-    {
-      $firstParticle = "cosmic";
+  if (($colstring =~ m/cosmic/) > 0){
+      # Special case for cosmic
+      $firstParticle  = "cosmic";
       $secondParticle = "cosmic";
       $colstring = "0.0";
-    }
-  else
-    {
-      foreach (@particles)
-	{
-	  if (($colstring =~ m/$_/) > 0) {
-	    $firstParticle = $_;
-	    $colstring =~ s/$_(.*)/$1/;
-	    last;
+  } elsif (($colstring =~ m/unknown/) > 0){
+      # Allow this as well
+      $firstParticle  = "unknwon";
+      $secondParticle = "unknwon";
+      $colstring = "0.0";
+
+  } else {
+      # Otherwise, cut in first/second
+      foreach $el (@particles){
+	  if (($colstring =~ m/(^$el)(.*)/) > 0) {
+	      &print_debug("Found first particle  = $el in $colstring");
+	      $firstParticle = $el;
+	      $colstring =~ s/($el)(.*)/$2/;
+	      last;
 	  }
-	}
-      foreach (@particles)
-	{
-	  if (($colstring =~ m/$_/) > 0) {
-	    $secondParticle = $_;
-	    $colstring =~ s/(.*)$_(.*)/$1$2/;
-	    last;
+      }
+      foreach $el (@particles){
+	  if (($colstring =~ m/(^.*)($el)/) > 0) {
+	      &print_debug("Found second particle = $el in $colstring");
+	      $secondParticle = $el;
+	      $colstring =~ s/(.*)($el)(.*)/$1$3/;
+	      last;
 	  }
-	}
-    }
+      }
+  }
   return ($firstParticle, $secondParticle, $colstring);
 }
 
@@ -1086,8 +1171,9 @@ sub get_collision_collection {
 	      push(@retv,$id);
 	  }
 	  if($#retv == -1){
-	      &print_message("get_collision_collection","Inserting $colstring as a new value");
-	      push(@retv,&insert_collision_type());
+	      $id = &insert_collision_type();
+	      &print_message("get_collision_collection","Inserting new CollisionTypes value [$colstring]");
+	      push(@retv,$id);
 	  }
 
 	  $sth->finish();
@@ -1116,9 +1202,13 @@ sub insert_collision_type {
   }
 
 
+
+
   $colstring = lc($colstring);
 
   ($firstParticle, $secondParticle, $energy) = &disentangle_collision_type($colstring);
+
+
 
   my $ctinsert   = "INSERT IGNORE INTO CollisionTypes ";
   $ctinsert  .= "(firstParticle, secondParticle, collisionEnergy)";
@@ -1131,7 +1221,7 @@ sub insert_collision_type {
 
   $sth = $DBH->prepare( $ctinsert );
   if( ! $sth){
-      &print_debug("FileCatalog::insert_collision_type : Failed to prepare [$ctinsert]");
+      &print_debug("insert_collision_type : Failed to prepare [$ctinsert]");
   } else {
       if ( $sth->execute() ) {
 	  $retid = &get_last_id();
@@ -1202,8 +1292,12 @@ sub insert_run_param_info {
 
   $triggerSetup     = &check_ID_for_params("trgsetupname");
   $runType          = &check_ID_for_params("runtype");
-  $detConfiguration = &check_ID_for_params("configuration");
+  $detConfiguration = &get_current_detector_configuration();
 
+
+  #
+  # Those values may fix some side effect of closing
+  #
   if (! defined $valuset{"runnumber"}) {
       if ( defined( $valuset{"rrpid"}) ){
 	  # rpid is set in clone_location() mode
@@ -1213,6 +1307,10 @@ sub insert_run_param_info {
 	  return 0;
       }
   }
+
+  #
+  # Those values will be re-tested but may be auto-set at this stage
+  #
   if (defined $valuset{"collision"}) {
       # only one value matters
       $collision = &get_collision_type($valuset{"collision"});
@@ -1222,19 +1320,32 @@ sub insert_run_param_info {
   } else {
       &print_debug("ERROR: collision not defined");
   }
+
+
+
+  #
+  # Now, there is nothing else we can do apart from rejecting insertion
+  # if invalid. There are therefore last-resort mandatory values.
+  #
   if (($triggerSetup == 0) || ($runType == 0) || ($detConfiguration == 0) || ($collision == 0)) {
       &print_message("insert_run_param_info","Missing trgsetupname, runtype or configuration",
 		     "Aborting file insertion query");
-      return 0;
+      &die_message("insert_run_param_info","trgsetupname detected as missing") if ($triggerSetup == 0);
+      &die_message("insert_run_param_info","runtype      detected as missing") if ($runType == 0);
+      &die_message("insert_run_param_info","collision    detected as missing") if ($collision == 0);
   }
+  if (! defined $valuset{"magscale"}) {
+      &die_message("insert_run_param_info","magscale not defined.");
+  }
+
+
+  #
+  # None of the above are mandatory and are subject to default values
+  #
   if (! defined $valuset{"runcomments"}) {
     $comment = "NULL";
   } else {
     $comment = "\"".$comment."\"";
-  }
-  if (! defined $valuset{"magscale"}) {
-      &print_message("insert_run_param_info","magscale not defined.");
-      return 0;
   }
   if (! defined $valuset{"magvalue"}) {
     $magvalue = "NULL";
@@ -1392,8 +1503,9 @@ sub insert_file_data {
   $sth = $DBH->prepare( $fdinsert );
   if( $sth ){
       if ($DELAY){
-	  push(@DCMD,$fdinsert);
-	  push(@DCMD,"Delayed mode chosen but operation are not 'flush'-able. Use direct update.");
+	  push(@DCMD,
+	       "# Delayed mode chosen but operation is not 'flush'-able. ".
+	       "Use direct update for ".$fdinsert);
 	  $retid = 0;
       } else {
 	  if ( $sth->execute() ) {
@@ -1457,26 +1569,32 @@ sub add_trigger_composition
 # Arg1 : a fdid
 # Arg2 : an insert/update flag (0 insert, 1 update)
 #
-sub set_trigger_composition()
+sub set_trigger_composition
 {
     my($tcfdid,$update)=@_;
 
     if( ! defined($DBH)){
-	&print_message("set_trigger_compositio","Not connected/connecting");
+	&print_message("set_trigger_compositio",
+		       "Not connected/connecting");
 	return;
     }
     if ( $FC::IDX == -1 ) {
-	if ( $valuset{"simulation"} eq '0'){
-	    &print_message("set_trigger_composition","No trigger composition set");
+	if ( defined($valuset{"simulation"}) ){
+	    if ( $valuset{"simulation"} eq '0'){
+		&print_message("set_trigger_composition",
+			       "No trigger composition set");
+	    }
 	}
 	return;
     }
     if( ! defined($tcfdid) ){
-	&die_message("set_trigger_composition","Mandatory first argument undefined");
+	&die_message("set_trigger_composition",
+		     "Mandatory first argument undefined");
     }
 
     if( $tcfdid == 0){
-	&print_message("set_trigger_composition","Preceeding operation prevents current execution");
+	&print_message("set_trigger_composition",
+		       "Preceeding operation prevents current execution");
 	return;
     }
 
@@ -1486,6 +1604,7 @@ sub set_trigger_composition()
     my($cmdd,$sthd);
     my(@all);
     my(@TrgID,@TrgCnt);
+
 
 
     #
@@ -1604,25 +1723,29 @@ sub del_trigger_composition
 
     if ($doit){
 	if ( $DELAY ){
-	    push(@DCMD,"DELETE LOW_PRIORITY FROM TriggerCompositions WHERE fileDataID=$tcfdid");
+	    push(@DCMD,
+		 "DELETE LOW_PRIORITY FROM TriggerCompositions WHERE fileDataID=$tcfdid");
 	} else {
 	    # a complete different story
 	    $cmd = "DELETE LOW_PRIORITY FROM TriggerCompositions WHERE fileDataID=?";
 	    $sth = $DBH->prepare($cmd);
 
 	    if ( ! $sth ){
-		&print_message("del_trigger_composition","Prepare failed. Bootstrap TRGC needed.");
+		&print_message("del_trigger_composition",
+			       "Prepare failed. Bootstrap TRGC needed.");
 		return;
 	    }
 	    &print_debug("Execute $cmd , $tcfdid");
 
 	    if ( ! $sth->execute($tcfdid) ){
-		&print_message("del_trigger_composition","Execute failed. Bootstrap TRGC needed.");
+		&print_message("del_trigger_composition",
+			       "Execute failed. Bootstrap TRGC needed.");
 	    }
 	    $sth->finish;
 	}
     } else {
-	&print_message("del_trigger_composition","[$tcfdid] from TriggerCompositions would be deleted");
+	&print_message("del_trigger_composition",
+		       "[$tcfdid] from TriggerCompositions would be deleted");
     }
 }
 
@@ -1650,6 +1773,10 @@ sub get_current_file_data {
       return 0;
   }
 
+  # cloned
+  if ( defined( $valuset{"rfdid"}) ){ return $valuset{"rfdid"};}
+
+  # Otherwise, must search for the ID
   $runParam   = &get_current_run_param();
   $production = &check_ID_for_params("production");
   $library    = &check_ID_for_params("library");
@@ -1743,7 +1870,8 @@ sub insert_simulation_params {
   if (! (defined $valuset{"generator"}  &&
 	 defined $valuset{"genversion"} &&
 	 defined $valuset{"genparams"})) {
-      &print_debug("Not enough parameters to insert event generator data",
+      &die_message("insert_simulation_params",
+		   "Not enough parameters to insert event generator data",
 		   "Define generator, genversion and genparams");
       return 0;
   }
@@ -1786,7 +1914,7 @@ sub insert_simulation_params {
 	  &print_debug("Execute $eginsert");
       }
       my $sth = $DBH->prepare( $eginsert );
-      
+
       if ( $sth->execute() ) {
 	  $eventGenerator = &get_last_id();
 	  if ($DEBUG > 0) {
@@ -1803,7 +1931,7 @@ sub insert_simulation_params {
       }
       $eventGenerator = $id;
   }
-  
+
   my $spinsert   = "INSERT IGNORE INTO SimulationParams ";
   $spinsert  .= "(eventGeneratorID, simulationParamComments)";
   $spinsert  .= " VALUES ($eventGenerator, $simComments)";
@@ -1854,7 +1982,8 @@ sub get_current_simulation_params {
   if (! (defined $valuset{"generator"}  &&
 	 defined $valuset{"genversion"} &&
 	 defined $valuset{"genparams"})) {
-      &print_debug("Not enough parameters to find event generator data",
+      &die_message("get_current_simulation_params",
+		   "Not enough parameters to find event generator data",
 		   "Define generator, genversion and genparams");
       return 0;
   }
@@ -2029,7 +2158,8 @@ sub insert_file_location {
 
 
   if (! defined $valuset{"path"} ) {
-      &print_message("insert_file_location","ERROR: file path not defined. Cannot add file location",
+      &print_message("insert_file_location",
+		     "ERROR: file path not defined. Cannot add file location",
 		     "Aborting File Location");
       return 0;
   } else {
@@ -2066,11 +2196,11 @@ sub insert_file_location {
       }
 
   }
-  if (! defined $valuset{"availability"}) {
-      &print_debug("WARNING: availability not defined. Using a default value");
+  if (! defined $valuset{"available"}) {
+      &print_debug("WARNING: available not defined. Using a default value");
       $availability = 1 ;
   } else {
-      $availability = $valuset{"availability"};
+      $availability = $valuset{"available"};
   }
   if (! defined $valuset{"persistent"}) {
       &print_debug("WARNING: persistent not defined. Using a default value");
@@ -2422,7 +2552,7 @@ sub run_query {
       &print_message("run_query()","method called without arguments");
       return;
   }
-  # Treatment for ugly hack to get FileLocation id number from 
+  # Treatment for ugly hack to get FileLocation id number from
   # within the module
   my $flkey;
   if ($_[0] eq "id"){
@@ -2521,17 +2651,17 @@ sub run_query {
   # so we have to revert to a rather ugly (but fast) trick. We will
   # use the %keyset later
   my ($j,@temp,@items,@setkeys);
-  
+
   for ($j=$i=0 ; $i <= $#keywords ; $i++){
       $keyw = $keywords[$i];
       &print_debug("... Checking $keyw");
-      if ( defined($keyset{$keyw}) ){ 
+      if ( defined($keyset{$keyw}) ){
 	  if ( defined($xkeys{$keyw}) ){
 	      push(@setkeys,$keyw);   # keep ordered track for later use
 	      &print_debug("    Pushing in >> ".$xkeys{$keyw}." <<");
 	      @items = split(" ",$xkeys{$keyw});
 	      push(@temp,@items);
-	      $keyset{$keyw} .= "($j,$#items"; 
+	      $keyset{$keyw} .= "($j,$#items";
 	      &print_debug("    Defined as xkeys with function ".$keyset{$keyw});
 	      #$j += ($#items+1);
 	  } else {
@@ -2540,13 +2670,13 @@ sub run_query {
 	      push(@temp,$keyw);
 	      #$j++;
 	  }
-	  $j++; # <-- not a bug 
+	  $j++; # <-- not a bug
       }
   }
   @keywords = @temp;
   undef(%xkeys);
   undef(@items);
-  undef(@temp);  
+  undef(@temp);
   undef($j);
   &print_debug("Ordered list is [".join(" ",@keywords)."]");
 
@@ -2581,7 +2711,7 @@ sub run_query {
 	  # Check if the table name is one of the dictionary ones (or
 	  # check that it is not a dictionary to be more precise)
 	  if ( defined($FC::ISDICT{$tabname}) ){
-	      my ($fieldname,$idname,$addedconstr) = 
+	      my ($fieldname,$idname,$addedconstr) =
 		  (&get_field_name($keyw),$tabname,"");
 
 	      &print_debug("Table $tabname is a dictionary");
@@ -2669,7 +2799,7 @@ sub run_query {
 			  if( index($addedconstr,"OR") != -1){
 			      $addedconstr = " ($addedconstr)";
 			  }
-			  
+
 
 			  # Add a newly constructed keyword
 			  push (@constraint, $addedconstr);
@@ -2722,7 +2852,7 @@ sub run_query {
 			  ($stab,$parent_tabname,$fld) = split(",",$el);
 		      }
 		  }
-		  
+
 		  (@retcollisions) = &get_collision_collection($valuset{$keyw});
 		  &print_debug("Returned ".join(" ",(@retcollisions))." $#retcollisions\n");
 		  if (( $#retcollisions+1 < 5) && ($#retcollisions+1 > 0)) {
@@ -2920,16 +3050,16 @@ sub run_query {
 					  $operset{$keyw},
 					  $valuset{$keyw},
 					  (&get_field_type($keyw) eq "text")?2:undef));
-
-	      #if (&get_field_type($keyw) eq "text")
-	      #{ push( @constraint, "$tabname.$fieldname ".$operset{$keyw}." '".$valuset{$keyw}."'" ); }
-	      #else
-	      #{ push( @constraint, "$tabname.$fieldname ".$operset{$keyw}." ".$valuset{$keyw} ); }
 	  }
       }
   }
 
-
+  
+  #
+  # This drastic change between simulation and real data prevents
+  # the definition of a consistent logical name. Logical name must
+  # depend on  $valuset{"simulation"}
+  #
   if (defined $valuset{"simulation"}){
       if ($valuset{"simulation"} eq "1"){
 	  push ( @constraint, "RunParams.simulationParamsID IS NOT NULL");
@@ -3008,8 +3138,8 @@ sub run_query {
 
   # Small stupidity check
   if ( $#selectunique >= 1             &&
-       ($sqlquery =~ /SUM\(.*\)/ || 
-	$sqlquery =~ /MIN\(.*\)/ || 
+       ($sqlquery =~ /SUM\(.*\)/ ||
+	$sqlquery =~ /MIN\(.*\)/ ||
 	$sqlquery =~ /MAX\(.*\)/ ||
 	$sqlquery =~ /COUNT\(.*\)/ )  &&
        $sqlquery !~ /GROUP BY/){
@@ -3099,12 +3229,12 @@ sub run_query {
 }
 
 
-# 2 examples of eval() routines 
+# 2 examples of eval() routines
 sub _logical_name
 {
     my($start,$num,@cols)=@_;
     my($lstr);
-    
+
     $lstr    = $cols[$start]."&&".join("&&",splice(@cols,$start+1,$num));
     $cols[$start] = $lstr;
     @cols;
@@ -3114,11 +3244,11 @@ sub _logical_name
 #{
 #    my($start,$num,@cols)=@_;
 #    my($lstr,$md5);
-#    
+#
 #    $md5     =  Digest::MD5->new;
 #    $md5->add($cols[$start]."&&".join("&&",splice(@cols,$start+1,$num)));
 #    $lstr    = $md5->hexdigest();
-#    
+#
 #    $cols[$start] = $lstr;
 #    @cols;
 #}
@@ -3368,25 +3498,30 @@ sub bootstrap_general
 
     # Check if this really is a dictionary table
     $refcount = 0;
-    foreach $el (@datastruct){
-	#print "$el\n";
-	($mtable, $ctable, $lfield) = split(",",$el);
-	if ($ctable eq $table){
-	    # This table is referencing another one - it is not a dictianry!
+    if ($table eq "RunParams"){
+	$childtable = "FileData";
+	$linkfield  = "RunParamID";
+    } else {
+	foreach $el (@datastruct){
+	    #print "$el\n";
+	    ($mtable, $ctable, $lfield) = split(",",$el);
+	    if ($ctable eq $table){
+		# This table is referencing another one - it is not a dictionary!
+		&print_message("bootstrap","$table is not a dictionary table !");
+		return 0;
+	    }
+	    if ($mtable eq $table){
+		$childtable = $ctable;
+		$linkfield = $lfield;
+		$refcount++;
+	    }
+	}
+	if ($refcount != 1){
+	    # This table is not referenced by any other table or referenced
+	    # by more than one - it is not a proper dictionary
 	    &print_message("bootstrap","$table is not a dictionary table !");
 	    return 0;
 	}
-	if ($mtable eq $table){
-	    $childtable = $ctable;
-	    $linkfield = $lfield;
-	    $refcount++;
-	}
-    }
-    if ($refcount != 1){
-	# This table is not referenced by any other table or referenced
-	# by more than one - it is not a proper dictionary
-	&print_message("bootstrap","$table is not a dictionary table !");
-	return 0;
     }
 
 
@@ -3490,7 +3625,7 @@ sub bootstrap_trgc {
     $sth2->bind_columns( \$id );
 
     while ( $sth2->fetch() ) {  push ( @rows2, $id );}
-    
+
     if ($delete == 1){
 	$cmdd = "DELETE LOW_PRIORITY FROM $tab2 WHERE $field2 IN (".join(" , ",(@rows2)).")";
 	if ( $DELAY ){
@@ -3687,7 +3822,8 @@ sub update_record {
 
 
   if ($utable eq ""){
-      &print_debug("ERROR: $ukeyword does not have an associated table","Cannot update");
+      &print_debug("ERROR: $ukeyword does not have an associated table",
+		   "Cannot update");
       return 0;
   }
 
@@ -3699,7 +3835,8 @@ sub update_record {
       if( defined($valuset{$ukeyword}) ){
 	  $qupdate .= " WHERE $utable.$ufield = '$valuset{$ukeyword}'";
       } else {
-	  &print_message("update_record","$ukeyword ($ufield) not set with an initial value");
+	  &print_message("update_record",
+			 "$ukeyword not set with an initial value (giving up)");
 	  return 0;
       }
 
@@ -3709,7 +3846,8 @@ sub update_record {
       if( defined($valuset{$ukeyword}) ){
 	  $qupdate .= " WHERE $utable.$ufield = $valuset{$ukeyword}";
       } else {
-	  &print_message("update_record","$ukeyword ($ufield) not set with an initial value");
+	  &print_message("update_record",
+			 "$ukeyword not set with an initial value (giving up)");
 	  return 0;
       }
 
@@ -3740,20 +3878,27 @@ sub update_record {
       return 0;
   } else {
       my ($sth,$retv,$val);
-      
-      $retv=0;
-      $sth = $DBH->prepare($qselect);
 
-      if ($sth){ 
-	  if ( $sth->execute() ){
-	      $sth->bind_columns(\$val);
-	      if ( $sth->fetch() ){
-		  &print_message("update_record","Warning ! $ukeyword=$newvalue exists in table $utable");
+      $retv=0;
+
+      # The warning is displayed for information only and mainly
+      # for dictionaries where changing values may be a real 
+      # disaster.
+      if ($utable ne "FileLocations"){
+	  $sth = $DBH->prepare($qselect);
+	  if ($sth){
+	      if ( $sth->execute() ){
+		  $sth->bind_columns(\$val);
+		  if ( $sth->fetch() ){
+		      &print_message("update_record",
+				     "Warning ! $ukeyword=$newvalue exists ".
+				     "in table $utable");
+		  }
 	      }
+	      $sth->finish();
 	  }
-	  $sth->finish();
       }
-	
+
       if($DELAY){
 	  # Delayed mode
 	  push(@DCMD,$qupdate );
@@ -3767,7 +3912,7 @@ sub update_record {
 	      $sth->finish();
 	  }
 
-		  
+
       }
       return $retv;
   }
@@ -4118,12 +4263,35 @@ sub set_silent
 
 
 #============================================
+
+sub new_value
+{
+    my($routine,$id,$val,$table)=@_;
+
+    &print_message($routine,"Inserting new value [$val] in $table") if ($id != 0);
+    $FC::KNOWNV{$table." ".$val} = $id;
+}
+
+sub cached_value
+{
+    my($tab,$val)=@_;
+    my($rv);
+
+    if ( defined($rv = $FC::KNOWNV{$tab." ".$val}) ){
+	return $rv;
+    } else {
+	return 0;
+    }
+}
+
+
+#============================================
+
 sub die_message
 {
     &print_message(@_);
     die "\n";
 }
-#============================================
 
 sub print_message
 {
@@ -4144,7 +4312,9 @@ sub print_message
 sub destroy {
   my $self = shift;
   &clear_context();
-  if ( defined($DBH) ) {
+  if ( ! defined($DBH) ) { return 0;}
+
+  if ( $DBH){
       if ( $DBH->disconnect ) {
 	  return 1;
       } else {
