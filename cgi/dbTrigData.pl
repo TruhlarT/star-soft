@@ -1,4 +1,4 @@
-#! /usr/local/bin/perl -w
+#!/usr/bin/env perl
 #
 # $Id:
 #
@@ -12,11 +12,14 @@
 # 
 #############################################################################
 
+BEGIN {
+ use CGI::Carp qw(fatalsToBrowser carpout);
+}
+
 require "/afs/rhic/star/packages/scripts/dbCpProdSetup.pl";
 
 use Class::Struct;
 use CGI;
-use CGI::Carp qw(fatalsToBrowser);
 use Mysql;
 
 #&cgiSetup();
