@@ -1610,11 +1610,17 @@ sub connect_fields {
 	      print_debug("All first descendants: ".join(" ",(@flower)));
 	  }
 	  for (my $cflow = 0; $cflow <= $#flower; $cflow++) {
-	    # Add a road going from the tree root to this field
-	    $froads{$flower[$cflow]} = $froads{$flevelfields[$fcount]}." ".get_connection($flower[$cflow], $flevelfields[$fcount]);
-	    if ($DEBUG > 0) {
-	      print_debug("Added road $froads{$flower[$cflow]}");
-	    }
+	      # Add a road going from the tree root to this field
+	      if( defined($froads{$flower[$cflow]}) ){
+		  $froads{$flower[$cflow]} = $froads{$flevelfields[$fcount]}." ".
+		      get_connection($flower[$cflow], $flevelfields[$fcount]);
+	      } else {
+		  $froads{$flower[$cflow]} = " ".
+		      get_connection($flower[$cflow], $flevelfields[$fcount]);
+	      }
+	      if ($DEBUG > 0) {
+		  print_debug("Added road $froads{$flower[$cflow]}");
+	      }
 	  }
 	}
 	for ($scount=0; $scount <= $#slevelfields ; $scount++) {
@@ -1626,7 +1632,14 @@ sub connect_fields {
 	  }
 	  for (my $cslow = 0; $cslow < $#slower+1; $cslow++) {
 	    # Add a road going from the tree root to this field
-	    $sroads{$slower[$cslow]} = $sroads{$slevelfields[$scount]}." ".get_connection($slower[$cslow], $slevelfields[$scount]);
+	      if( defined($sroads{$slower[$cslow]}) ){
+		  $sroads{$slower[$cslow]} = $sroads{$slevelfields[$scount]}." ".
+		      get_connection($slower[$cslow], $slevelfields[$scount]);
+	      } else {
+		  $sroads{$slower[$cslow]} = " ".
+		      get_connection($slower[$cslow], $slevelfields[$scount]);
+	      }
+
 	    if ($DEBUG > 0) {
 	      print_debug("Added road $sroads{$slower[$cslow]}");
 	    }
@@ -1808,9 +1821,15 @@ sub run_query {
     }
   }
 
+  # Extra debug line 
+  #if($DEBUG){
+  #    print_debug("--> order is --> ".join(" ",@select));
+  #}
+
   # Get only the unique field names
   my @selectunique;
-  foreach (sort {$a cmp $b} (@select)) {
+  #foreach (sort {$a cmp $b} (@select)) {
+  foreach ( @select ) {
       if ($DEBUG > 0) {
 	  print_debug("Adding $_");
       }
