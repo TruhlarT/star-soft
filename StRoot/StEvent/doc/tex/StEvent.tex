@@ -2,7 +2,7 @@
 %
 % StEvent - User Guide and Reference Manual -- LaTeX Source
 %
-% $Id: StEvent.tex,v 2.67 2001/11/11 01:10:57 ullrich Exp $
+% $Id: StEvent.tex,v 2.68 2001/12/01 17:34:15 ullrich Exp $
 %
 % Author: Thomas Ullrich, Nov 1999
 %
@@ -21,6 +21,9 @@
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %
 % $Log: StEvent.tex,v $
+% Revision 2.68  2001/12/01 17:34:15  ullrich
+% Added StDetectorState info.
+%
 % Revision 2.67  2001/11/11 01:10:57  ullrich
 % Added StCalibrationVertex and more on vertices.
 %
@@ -266,8 +269,8 @@
   \mbox{\includegraphics[width=\textwidth]{StEventTitle.eps}}
   \hfill\mbox{}\\[3cm]
   {\LARGE User Guide and Reference Manual \\[5mm] for Version 2}\\[2cm]
-  {\LARGE $ $Revision: 2.67 $ $}  \\[5mm] % replaced by cvs with current revision
-  {\LARGE $ $Date: 2001/11/11 01:10:57 $ $}  % replaced by cvs with current revision
+  {\LARGE $ $Revision: 2.68 $ $}  \\[5mm] % replaced by cvs with current revision
+  {\LARGE $ $Date: 2001/12/01 17:34:15 $ $}  % replaced by cvs with current revision
   \vfill
 \end{center}
 \cleardoublepage
@@ -2965,6 +2968,41 @@ definition in the header file.
 \end{Entry}
 \clearpage
 
+\subsection{StDetectorState}
+\index{StDetectorState|textbf} \index{detector state}
+\label{sec:StDetectorState}
+\begin{Entry}
+\item[Summary] Base class for detector state information.
+\item[Synopsis]
+    \verb+#include "StDetectorState.h"+\\
+    \verb+class StDetectorState;+\\
+\item[Description]
+    \texttt{StDetectorState} is a non-abstract base class to hold information
+    on the ``state'' of a detector. All concrete classes reflecting the state
+    of actual detectors need to inherit from this class in order to allow
+    storage in \texttt{StEvent}. The only data member it contains are the detector ID
+    and a Boolean to reflect the overall state (good/bad). More detailed
+    information may be added by the derived classes.
+    
+\item[Related Classes]
+\item[Public\\ Constructors]
+    \verb+StDetectorState();+\\
+    \verb+StDetectorState(StDetectorId, bool);+\\
+    
+\item[Public Member\\ Functions]
+    \verb+StDetectorId detector() const;+\\
+    Returns detector ID (see \ref{sec:Enumerations}).
+    
+    \verb+bool good() const;+\\
+    Return \texttt{true} if the overall state of the detector is good, otherwise \texttt{false}.
+    
+    \verb+bool bad() const;+\\
+    Returns the negative of \texttt{good()}.
+    
+    \verb+void setDetector(StDetectorId);+\\
+    \verb+void setGood(bool);+\\
+\end{Entry}
+\clearpage
 
 \subsection{StEmcCluster}
 \index{StEmcCluster|textbf}
@@ -3395,6 +3433,16 @@ definition in the header file.
     Of course it is now also your job to retrieve the object from the
     list. This is best done using the C++ RTTI mechanism.
     
+    \verb+StDetectorState*  detectorState(StDetectorId det);+\\
+    \verb+const StDetectorState*  detectorState(StDetectorId det) const;+\\
+    Returns pointer to detector ``state'' object referring to detector \texttt{det}.
+    For \texttt{StDetectorId} see \ref{sec:Enumerations}. Note that returned pointer
+    might point to a class derived from \texttt{StDetectorState}. In this case
+    a \texttt{dynamic\_cast} is required unless you are only interested in the overall
+    detector state which is obtained via \texttt{StDetectorState::good()}.
+    If no ``state'' object for the referring detector is available a NULL pointer
+    is returned.
+
     \verb+StPsd*  psd(StPwg pwg, int id);+\\ 
     \verb+const StPsd* psd(StPwg pwg, int id) const;+\\
     Retrieve Physics Summary Data (PSD) from physics working group \texttt{pwg}
@@ -3452,6 +3500,8 @@ definition in the header file.
 
     \verb+void addCalibrationVertex(StCalibrationVertex*);+\\
 
+    \verb+void addDetectorState(StDetectorState*);+\\
+    
     \verb+void addPsd(StPsd* psd);+\\
     Add PSD \texttt{*psd} to StEvent. This method checks if another
     PSD with identical identifiers is already stored. If so, it prints
@@ -7067,5 +7117,4 @@ private:
 
 \end{verbatim}
 }%footnotesize
-
 \end{Entry}
