@@ -1,22 +1,27 @@
 #!/usr/bin/csh -f
-setenv ROOTSYS /afs/rhic/star/ROOT/${ROOT_LEVEL}/.${STAR_HOST_SYS}/root
 set level = `echo $ROOT_LEVEL | awk -F. '{print $2}'`
-if ($level  >= 24)  setenv ROOTSYS /afs/rhic/star/ROOT/${ROOT_LEVEL}
+if ($level  >= 24)  then
+    setenv ROOTSYS /afs/rhic/star/ROOT/${ROOT_LEVEL}
+    set root = "/.${STAR_HOST_SYS}/root"
+else
+    setenv ROOTSYS /afs/rhic/star/ROOT/${ROOT_LEVEL}/.${STAR_HOST_SYS}/root
+    set root   = ""
+endif
 switch ($STAR_SYS)
     case "hp_ux102":
-    #  ====================
-if (! ${?SHLIB_PATH}) setenv SHLIB_PATH 
-if ( -x /afs/rhic/star/group/dropit) setenv SHLIB_PATH `/afs/rhic/star/group/dropit -p "$SHLIB_PATH" ROOT`
-setenv  SHLIB_PATH  $ROOTSYS/lib:${SHLIB_PATH}
-	breaksw
-    default:
 #  ====================
-if (! ${?LD_LIBRARY_PATH}) setenv LD_LIBRARY_PATH 
-if ( -x /afs/rhic/star/group/dropit) setenv LD_LIBRARY_PATH `/afs/rhic/star/group/dropit -p "$LD_LIBRARY_PATH" ROOT`
-setenv LD_LIBRARY_PATH "${ROOTSYS}/lib:${LD_LIBRARY_PATH}"
+    if (! ${?SHLIB_PATH}) setenv SHLIB_PATH 
+    if ( -x /afs/rhic/star/group/dropit) setenv SHLIB_PATH `/afs/rhic/star/group/dropit -p "$SHLIB_PATH" ROOT`
+    setenv  SHLIB_PATH  ${ROOTSYS}${root}/lib:${SHLIB_PATH}
+	breaksw
+	default:
+#  ====================
+    if (! ${?LD_LIBRARY_PATH}) setenv LD_LIBRARY_PATH 
+    if ( -x /afs/rhic/star/group/dropit) setenv LD_LIBRARY_PATH `/afs/rhic/star/group/dropit -p "$LD_LIBRARY_PATH" ROOT`
+    setenv LD_LIBRARY_PATH "${ROOTSYS}${root}/lib:${LD_LIBRARY_PATH}"
 endsw
 if ( -x /afs/rhic/star/group/dropit) setenv PATH  `/afs/rhic/star/group/dropit -p "$PATH" ROOT`
-setenv PATH "${ROOTSYS}/bin:${PATH}"
+setenv PATH "${ROOTSYS}/${root}/bin:${PATH}"
 setenv MANPATH "/afs/rhic/star/ROOT/${ROOT_LEVEL}/man:${MANPATH}"
 # On Solaris, Linux, SGI, Alpha/OSF do:
 set MACHINE = `uname -s`
