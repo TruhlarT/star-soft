@@ -13,7 +13,7 @@
 #   Creation of an empty file if insure does not report any problems.
 #   This will lead to an empty HTML file formatting instead of abort.
 #
-use lib "/afs/rhic/star/packages/scripts";
+use lib "/afs/rhic.bnl.gov/star/packages/scripts";
 use ABUtils;
 
 
@@ -29,11 +29,11 @@ $FILOUT="insure.txt";
 
 # At the end, an HTML file will be produced. This is its name
 #$FLNM="InsureComp.html";
-$FLNM="/afs/rhic/star/doc/www/comp/prod/Sanity/InsureComp.html";
+$FLNM="/afs/rhic.bnl.gov/star/doc/www/comp/prod/Sanity/InsureComp.html";
 
 # To format in HTML, this script will be used. Expected arguments are
 # RawInputFile OutputFile
-$FRMTPRGM="/afs/rhic/star/packages/scripts/inssort.pl";
+$FRMTPRGM="/afs/rhic.bnl.gov/star/packages/scripts/inssort.pl";
 
 # Loading insure environment requires this command. If does not exists,
 # this script will fail.
