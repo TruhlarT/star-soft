@@ -73,7 +73,7 @@ if (!$query){
 	    or die "could not run ssh forwarding"; 
 	
 	print "...ssh started\n";
-    } elsif ($pids[0]){                     #stop it  
+    } elsif ($pids[0] && ($kill || $destroy)){                     #stop it  
 	print "stopping ssh...\n";
 	
 	for (my $i = 0; $i <= $#pids; $i++){
@@ -101,7 +101,7 @@ if (!$query){
 	    or die "could not run cgid";
 
 	print "...cgid started\n";
-    }elsif ($pids[0]){
+    }elsif ($pids[0] && ($kill || $destroy)){
 	print "stopping cgid...\n";
 
 	for (my $i = 0; $i <= $#pids; $i++){
