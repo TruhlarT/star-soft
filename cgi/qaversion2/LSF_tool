@@ -44,12 +44,17 @@ my $cgi = new CGI;
 # don't buffer output
 $| = 1;
 
-# we need the lsf job information no matter what we're doing
-my $jobs = bJobs();  # reference to hash (by jobID) of references to hashes
-
 # print out the beginning of the document
 print startDocument($cgi);
+
+# carry out any action requested by the user and print result to new window
+print performAction($cgi);
+
 print controlButtons($cgi);
+
+# we need the lsf job information before printing the job table, but
+# we don't want to call bjobs until after actions have been performed
+my $jobs = bJobs();  # reference to hash (by jobID) of references to hashes
 
 # print out the table which includes job selection controls and
 # the selected jobs
@@ -61,9 +66,6 @@ print $cgi->table({-border=>1},
 		  selectionControls($cgi, $jobs) . "\n",
 		  selectedJobs($cgi, $jobs) . "\n"
 		  ) . "\n";
-
-# carry out any action requested by the user and print the result
-print performAction($cgi, $jobs);
 
 print endDocument($cgi);
 
@@ -77,14 +79,20 @@ sub controlButtons{
     my $cgi = shift;
 
     my $text = $cgi->submit(-name=>'action',
-			    -value=>'Refresh Job List') . "\n";
-    $text .= $cgi->submit(-name=>'action',
 			  -value=>'Details for Marked Jobs') . "\n";
     $text .= $cgi->submit(-name=>'action',
 			  -value=>'History for Marked Jobs') . "\n";
     $text .= $cgi->submit(-name=>'action',
-			  -value=>'Kill Marked Jobs') . "\n";
+			  -value=>'Suspend Marked Jobs') . "\n";
+    $text .= $cgi->submit(-name=>'action',
+			  -value=>'Resume Marked Jobs') . "\n";
+    $text .= $cgi->submit(-name=>'action',
+			  -value=>'Peek at Marked Jobs') . "\n";
 
+    $text .= $cgi->hr;  # change between job & list actions
+
+    $text .= $cgi->submit(-name=>'action',
+			    -value=>'Refresh Job List') . "\n";
     return $text;
 }
 
@@ -231,12 +239,12 @@ sub selectedJobs{
 }
 
 #
-# perform any action requested by the user and return the output
+# perform any action requested by the user and send the output to a new
+# window
 #
 
 sub performAction{
     my $cgi = shift;
-    my $jobs = shift;
 
     my $action = $cgi->param("action");
     my @markedJobIDs = $cgi->param("markedJobs");
@@ -245,23 +253,65 @@ sub performAction{
     if ($action eq "Refresh Job List"){
     }elsif($action eq "Details for Marked Jobs"){
 	foreach my $jobID (@markedJobIDs){
-	    $text .= $cgi->h3("Details for Job $jobID:") . "\n";
-	    $text .= $cgi->pre(`bjobs -l $jobID 2>&1`) . "\n";
-	    # capture stderr for appearance's sake
+	    writeToNewWindow($cgi->h3("Details_for_Job_$jobID") . "\n" .  
+			     $cgi->pre(`bjobs -l $jobID 2>&1`) . "\n");
 	}
     }elsif($action eq "History for Marked Jobs"){
 	foreach my $jobID (@markedJobIDs){
-	    $text .= $cgi->h3("Details for Job $jobID:") . "\n";
-	    $text .= $cgi->pre(`bhist -l $jobID 2>&1`) . "\n"; 
+	    writeToNewWindow($cgi->h3("History_for_Job_$jobID") . "\n" . 
+			     $cgi->pre(`bhist -l $jobID 2>&1`) . "\n");
 	}
     }elsif($action eq "Kill Marked Jobs"){
 	foreach my $jobID (@markedJobIDs){
-	    $text .= $cgi->h3("Result of Killing Job $jobID:") . "\n";
-	    $text .= $cgi->pre(`bkill $jobID 2>&1`) . "\n"; 
+	    writeToNewWindow($cgi->h3("Killing_Job_$jobID") . "\n" . 
+			     $cgi->pre(`bkill $jobID 2>&1`) . "\n");
+	}
+    }elsif($action eq "Suspend Marked Jobs"){
+	foreach my $jobID (@markedJobIDs){
+	    writeToNewWindow($cgi->h3("Suspending_Job_$jobID") . "\n" .  
+			     $cgi->pre(`bstop $jobID 2>&1`) . "\n");
+	}
+    }elsif($action eq "Resume Marked Jobs"){
+	foreach my $jobID (@markedJobIDs){
+	    writeToNewWindow($cgi->h3("Resuming_Job_$jobID") . "\n" . 
+			     $cgi->pre(`bresume $jobID 2>&1`) . "\n");
+	}
+    }elsif($action eq "Peek at Marked Jobs"){
+	foreach my $jobID (@markedJobIDs){
+	    writeToNewWindow($cgi->h3("Peeking_at_Job_$jobID") . "\n" . 
+			     $cgi->pre(`bpeek $jobID 2>&1`) . "\n");
 	}
     }
 
     return $text;
+}
+
+#
+# use javascript to open a new window
+# then write the given text there.
+#
+
+sub writeToNewWindow{
+    my $text = shift;
+
+    # fix double quotes and backslashes, should maybe do more to be safe 
+    $text =~ s/\\/\\\\/g;
+    $text =~ s/\"/\\\"/g;
+
+    print <<MICA;
+<script language="JavaScript"><!--
+
+var myWindow = window.open("", "", "toolbars=0, scrollbars=1, location=0, statusbars=1, menubars=0, resizable=1, width=600, height=200");
+
+MICA
+
+    my @lines = split("\n",$text);
+    foreach my $line (@lines){
+	print "myWindow.document.write(\"$line\\n\");\n";
+    }
+    
+    print "\n//--></script>\n";
+    
 }
 
 #
