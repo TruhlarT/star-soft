@@ -45,8 +45,8 @@ my @Sets = (
 my $prodPeriod = "prod4";
 #my @processes = ("tfs", "tss", "trs");
 
-my $disk0        =  "/disk00000";
-my $disk1        =  "/disk00001";
+my $disk0        =  "/star/rcf/disk00000";
+my $disk1        =  "/star/rcf/disk00001";
 my $topHpssSink  =  "/home/starsink/raw";
 my $topHpssReco  =  "/home/starreco/reco";
 my $topDisk0Reco =  $disk0 . "/star/starreco";
