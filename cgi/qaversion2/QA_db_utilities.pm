@@ -73,7 +73,8 @@ use strict;
 #                     index (jobID),
 #                     index (type),
 #                     index (QAok),
-#                     index (QAdone)
+#                     index (QAdone),
+#                     index (report_key)
 #                     
 
 # QASummary for offline now has one more field.

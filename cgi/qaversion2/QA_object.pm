@@ -407,7 +407,7 @@ sub QASummaryString{
     my $io_file = new IO_object("BatchScript", $id);
     my $script_name = $io_file->Name();
 
-    if( -e $script_name ){
+    if( -e $script_name and $self->QADone eq 'in progress'){
 
       local *flagFH;
       open(flagFH, "$report_dir/$file") or print "Cannot open $file\n";

@@ -547,6 +547,9 @@ sub online_raw{
   # get old reports
   $self->GetOldReports("QA_db_utilities::GetOldReportsReal");
 
+  # get todo QA keys
+  $self->ToDoKeys("Db_update_utilities::GetToDoReportKeys");
+
   # browser banner for interactive display
   $self->BrowserBannerColor("silver");
   $self->BrowserBannerTextColor("maroon");
@@ -583,7 +586,10 @@ sub online_reco{
   $self->UpdateRoutine("Db_update_utilities::UpdateOnline");
 
   # get old reports
-  $self->GetOldReports("QA_db_utilities::GetOldReportsReal");
+#  $self->GetOldReports("QA_db_utilities::GetOldReportsReal");
+
+  # get todo QA keys
+  $self->ToDoKeys("Db_update_utilities::GetToDoReportKeys");
 
   # browser banner for interactive display
   $self->BrowserBannerColor("silver");
@@ -622,7 +628,10 @@ sub online_debug{
   $self->UpdateRoutine("Db_update_utilities::UpdateOnline");
 
   # get old reports
-  $self->GetOldReports("QA_db_utilities::GetOldReportsReal");
+#  $self->GetOldReports("QA_db_utilities::GetOldReportsReal");
+
+  # get todo QA keys
+  $self->ToDoKeys("Db_update_utilities::GetToDoReportKeys");
 
   # browser banner for interactive display
   $self->BrowserBannerColor("yellow");
