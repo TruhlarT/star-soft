@@ -2,7 +2,7 @@
 %
 % StEvent - User Guide and Reference Manual -- LaTeX Source
 %
-% $Id: StEvent.tex,v 2.43 2000/08/17 01:18:02 ullrich Exp $
+% $Id: StEvent.tex,v 2.45 2000/08/23 03:14:07 ullrich Exp $
 %
 % Author: Thomas Ullrich, Nov 1999
 %
@@ -21,8 +21,12 @@
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %
 % $Log: StEvent.tex,v $
-% Revision 2.43  2000/08/17 01:18:02  ullrich
-% Fixed wrong description of StZtbTriggerDetector::adc().
+% Revision 2.45  2000/08/23 03:14:07  ullrich
+% Improved (corrected) explanation of return value
+% of chi2 methods of StVertex and StTrackFitTraits.
+%
+% Revision 2.49  2000/10/16 17:08:12  ullrich
+% Added more description for StEventScavenger.
 %
 % Revision 2.48  2000/10/13 19:21:02  ullrich
 % Added new chapter on how to wrire miniDSTs using StEvent.
@@ -196,8 +200,8 @@
   {\end{entry}}
 
 \begin{document}
-  {\LARGE $ $Revision: 2.43 $ $}  \\[5mm] % replaced by cvs with current revision
-  {\LARGE $ $Date: 2000/08/17 01:18:02 $ $}  % replaced by cvs with current revision
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %
 %    Title page
 %
@@ -212,8 +216,8 @@
   \mbox{\includegraphics[width=\textwidth]{StEventTitle.eps}}
   \hfill\mbox{}\\[3cm]
   {\LARGE User Guide and Reference Manual \\[5mm] for Version 2}\\[2cm]
-  {\LARGE $ $Revision: 2.43 $ $}  \\[5mm] % replaced by cvs with current revision
-  {\LARGE $ $Date: 2000/08/17 01:18:02 $ $}  % replaced by cvs with current revision
+  {\LARGE $ $Revision: 2.45 $ $}  \\[5mm] % replaced by cvs with current revision
+  {\LARGE $ $Date: 2000/08/23 03:14:07 $ $}  % replaced by cvs with current revision
   \vfill
 \end{center}
 \cleardoublepage
@@ -319,7 +323,7 @@ code more readable. All enumerations used in \StEvent\ are defined in
 \texttt{StEnumerations.h}.  For users convenience some non-\StEvent\
 header files as \texttt{StDetectorId.h}, \texttt{StVertexId.h} and
 \texttt{StTrackMethod.h} are also included therein.
-enum StTrackType            {global, primary, secondary};
+\begin{figure}[htb]
     \begin{center}
         \includegraphics[width=0.45\textheight]{cartoon2.eps}
         \caption{Strong typing avoids mixing abstractions.}
@@ -760,7 +764,10 @@ this is your concern.
 \texttt{StEventMaker}.  This maker reads DST tables stored in memory
 and does all the things to make \StEvent\ nice and useful. How the DST
 gets into memory is another story and is explained in the next section
-    \verb+Bool_t  doPrintRunInfo;+\\
+(\ref{sec:doEvents}).  In principle all you have to do is to make sure
+that \texttt{StEventMaker} is in the chain and called at the right
+place and at the right time.  The only public data member and the two
+methods you should be aware of are:
 \begin{Entry}
     
 \item[Public Data\\ Member]
@@ -1493,6 +1500,20 @@ them by value or by pointer. There are:
     not specified. All we know is that we get an object which tells us
     something about the identity of the track.  \texttt{StPidTraits}
     is an abstract class. The concrete classes are
+    \texttt{StDedxPidTraits}, \texttt{StRichPidTraits}, and
+    \texttt{StTofPidTraits}. The latter two are not implemented yet.
+    This part is a bit complicated and that's why it got its own
+    section (see \ref{sec:pidTraits} below).
+    
+\item[StTrackTopologyMap] \index{StTrackTopologyMap} The STAR
+    detectors produces all together almost a million hits. In order to
+    keep the DST size at a moderate level all cannot get stored,
+    probably none on the long term. There are however many reasons to
+    keep a minimum level of information about the hits used to fit the
+    tracks. This minimum level is contained in
+    \texttt{StTrackTopologyMap}. For more check out the reference
+    manual.
+    
 \end{description}
 
 \subsubsection{TPT Tracks}
@@ -1985,8 +2006,8 @@ information on the number of pads and pixels used to compose the hit.
 See \ref{sec:StTpcHit} for details.
 \begin{figure}[htb]
     \begin{center}
-const int isec = 3;
-const int irow = 24;
+        \includegraphics{tpc.eps}
+        \caption{Class diagrams of the TPC hit storage scheme: sector/padrow.}
         \label{fig:tpc}
     \end{center}
 \end{figure}
@@ -2102,9 +2123,9 @@ collection (\texttt{StSvtHitCollection}) contains 3 barrel
 collections.  Each barrel collection
 (\texttt{StSvtBarrelHitCollection}) contains up to 16 ladder
 collections and each (\texttt{StSvtLadderHitCollection}) contains up
-const int ibarrel  = 1;
-const int iladder  = 10;
-const int iwafer   = 3;
+to 7 wafer collection (\texttt{StSvtWaferHitCollection}). The latter
+finally contains the hits.  With other words, the hits are stored per
+wafer.  Each of the shown classes provide a method
 (\texttt{numberOfHits()}) to return the number of hits stored in the
 referring subcomponent. 
 \begin{figure}[htb]
@@ -3353,7 +3374,10 @@ definition in the header file.
 \subsection{StGlobalTrack}
 \index{StGlobalTrack|textbf}
 \label{sec:StGlobalTrack}
+\begin{Entry}
+\item[Summary]
 \item[Synopsis]
+    \verb+#include "StGlobalTrack.h"+\\
     \verb+class StGlobalTrack;+\\
 \item[Description]
 \item[Related Classes] \texttt{StGlobalTrack} is derived from
@@ -3751,7 +3775,10 @@ definition in the header file.
 
 \subsection{StPrimaryTrack}
 \index{StPrimaryTrack|textbf}
+\label{sec:StPrimaryTrack}
+\begin{Entry}
 \item[Summary]
+\item[Synopsis]
     \verb+#include "StPrimaryTrack.h"+\\
     \verb+class StPrimaryTrack;+\\
 \item[Description]
@@ -4922,6 +4949,34 @@ definition in the header file.
     \verb+Float_t chrg_tpc_in[24];+\\
     Total charge deposition in inner TPC sectors.
     
+    \verb+Float_t chrg_tpc_out[24];+\\
+    Total charge deposition in outer TPC sectors.
+    
+    \verb+Float_t hit_frac_tpc[2];+\\
+    Fraction of hits used in TPC, tan(dip angle) $< 0$ $(\ge 0)$.
+    
+    \verb+Float_t avg_trkL_tpc[2];+\\
+    Average track length (cm) \\ or average number of assigned,
+    tan(dip angle) $< 0$ $(\ge 0)$.
+    
+    \verb+Float_t res_drf_tpc[2];+\\
+    Average residuals, drift direction, \\ or average chisq(2) of fit,
+    tan(dip angle) $< 0$ $(\ge 0)$.
+\end{Entry}
+\clearpage
+
+\subsection{StTptTrack}
+\index{StTptTrack|textbf}
+\label{sec:StTptTrack}
+\begin{Entry}
+\item[Summary]
+\item[Synopsis] TPC tracks as generated by the ``tpt'' tracker.
+    \verb+#include "StTptTrack.h"+\\
+    \verb+class StTptTrack;+\\
+\item[Description] \texttt{StTptTrack} is created using the original
+     tracks generated in the \texttt{tpt} tracker. This is a pure TPC track.
+     Use for debugging purposes only.
+
 \item[Related Classes] \texttt{StTptTrack} is derived from
     \texttt{StTrack}. See there for more info.
     
@@ -5147,10 +5202,15 @@ numberOfPoints(kTpcId) == numberOfPoints(kFtpcWestId)
     \verb+StTrackFitTraits(UShort_t, UShort_t, Float_t[2], Float_t[15]);+\\
     \verb+StTrackFitTraits(const dst_track_st&);+\\
 \item[Public Member\\ Functions]
-    Depending on the fitting method there is one or two
-    $\chi^2$ values. If a real 3D fit is performed the
-    second $\chi^2$ is undefined.
     
+    \verb+UShort_t numberOfFitPoints() const;+\\
+    Total number of points used for the fit, i.e. summing the
+    hits in all detectors the track crossed.
+    
+    \verb+UShort_t numberOfFitPoints(StDetectorId id) const;+\\
+    Number of points in detector \texttt{id} used for the fit.
+    
+    \verb+StParticleDefinition* pidHypothesis() const;+\\
     PID hypothesis used for the fit. This variable is only
     useful if the fitting algorithms takes energy loss and
     multiple scattering into account.
@@ -5446,6 +5506,7 @@ numberOfPoints(kTpcId) == numberOfPoints(kFtpcWestId)
 \subsection{StVertex}
 \index{StVertex|textbf}
 \label{sec:StVertex}
+\begin{Entry}
 \item[Summary]
 \item[Synopsis]
     \verb+#include "StVertex.h"+\\
