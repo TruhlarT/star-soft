@@ -1,7 +1,10 @@
 #!/usr/bin/csh -f
-#       $Id: group_env.csh,v 1.47 1998/09/10 02:00:24 fisyak Exp $
+#       $Id: group_env.csh,v 1.48 1998/09/18 16:30:47 fisyak Exp $
 #	Purpose:	STAR group csh setup 
 #       $Log: group_env.csh,v $
+#       Revision 1.48  1998/09/18 16:30:47  fisyak
+#       Replace afs path
+#
 #       Revision 1.47  1998/09/10 02:00:24  fisyak
 #       Add protection for undefined STAR_SYS
 #
@@ -184,10 +187,10 @@ setenv STAR_CALIB ${STAR_ROOT}/calib;   if ($ECHO) echo   "Setting up STAR_CALIB
 setenv STAR_PROD   $STAR/prod;          if ($ECHO) echo   "Setting up STAR_PROD = ${STAR_PROD}"
 setenv CVSROOT   $STAR_PATH/repository; if ($ECHO) echo   "Setting up CVSROOT   = ${CVSROOT}"
 #if (! ${?ROOT_LEVEL}) then
-  if ($STAR_VERSION  == "SL98g" || $STAR_VERSION  == "SL98h" ) then
-    setenv ROOT_LEVEL 2.11
-  else
+  if ($STAR_VERSION  == "SL98e") then
     setenv ROOT_LEVEL 2.09
+  else
+    setenv ROOT_LEVEL 2.11
   endif
 #endif
                                         if ($ECHO) echo   "Setting up ROOT_LEVEL= ${ROOT_LEVEL}"
