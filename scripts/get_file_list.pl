@@ -4,18 +4,12 @@
 # FileCatalog database.
 #
 # Written by Adam Kisiel, Warsaw University of Technology (2002)
-# for the STAR Experiment.
-
-# The command line parameters are: 
-# -all        : get all the records from the database, even duplicates (default - faster)
-# -distinct   : get only one location (the persistent one) for each file (opposite to -all)
-# -keys       : the comma delimited list of keys to get from the database
-# -cond       : comma delimited list of conditions limiting the dataset
-# -onefile    : get only one location for each filename
-# -delim      : change the characters separating data from different columns (defaut "::")
-# -limit      : limit the number of returne records
-# -start      : start with the n-th record of the sample
+# Modified J.Lauret
+#
+# Uncodumented paramaters
+#
 # -debug      : maintainance option
+#
 
 use lib "/afs/rhic/star/packages/scripts";
 use strict;
@@ -27,21 +21,22 @@ my $count;
 my $debug;
 
 # The state variables
-my ($all, $field_list, $cond_list, $start, $limit, $delim, $onefile, $outfilename, $OUTHANDLE);
+my ($all, $unique, $field_list, $cond_list, $start, $limit, $delim, $onefile, $outfilename, $OUTHANDLE);
 
 # Load the modules to store the data into a new database
 my $fileC = FileCatalog->new;
 $fileC->connect;
 
 # Set the defaults for he state values
-$all = 1;
-$field_list = "";
-$cond_list = "";
+$all         = 0;
+$unique      = 0;
+$field_list  = "";
+$cond_list   = "";
 $fileC->debug_off();
-$debug = 0;
-$onefile = 0;
+$debug       = 0;
+$onefile     = 0;
 $outfilename = "";
-$OUTHANDLE = 200;
+$OUTHANDLE   = 200;
 
 # Parse the cvommand line arguments.
 $count = 0;
@@ -54,10 +49,10 @@ $count = 0;
 while (defined $ARGV[$count]){
     if ($ARGV[$count] eq "-all")
       {	$all = 1; }
-    elsif ($ARGV[$count] eq "-distinct")
-      { $all = 0; }
     elsif ($ARGV[$count] eq "-onefile")
       { $onefile = 1; }
+    elsif ($ARGV[$count] eq "-distinct")
+      { $unique = 1; }
     elsif ($ARGV[$count] eq "-debug"){
 	$fileC->debug_on();
     }
@@ -102,16 +97,16 @@ if ($count == 0){
     foreach (split(/,/,$cond_list)){
 	$fileC->set_context($_);
     }
-    if ($all==1)
-      { $fileC->set_context("nounique=1"); }
-    if (defined $limit)
-      { $fileC->set_context("limit=$limit"); }
-    if (defined $start)
-      { $fileC->set_context("start=$start"); }
-    if (defined $delim)
-      {	$fileC->set_delimeter($delim); }
-    if ($onefile > 0)
-      {	$field_list .= ",grp(filename),orda(persistent)"; }
+    if ($all==1){          $fileC->set_context("all=1");   }
+    if (defined $limit){   $fileC->set_context("limit=$limit"); }
+    if (defined $start){   $fileC->set_context("start=$start"); }
+    if (defined $delim){   $fileC->set_delimeter($delim); }
+    if ($unique==0){       $fileC->set_context("nounique=1");}
+
+
+    if ($onefile > 0){	   
+	$field_list .= ",grp(filename),orda(persistent)"; 
+    }
 
     # Getting the data
     @output = $fileC->run_query(split(/,/,$field_list));
@@ -147,8 +142,34 @@ if ($count == 0){
 
 sub Usage
 {
-    print "Command usage:\n";
-    print "% get_file_list.pl [-all] [-distinct] -keys field{,field} [-cond field=value{,field=value}] [-start <start record number>] [-limit <number of output records>] [-delim <string>] [-onefile] [-o <output filename>]\n";
-    print "The valid keywords are: ".join(" ",$fileC->get_keyword_list())."\n";
+    print qq~
+Command usage:
+ % get_file_list.pl [qualifiers] -keys field{,field} [-cond field=value{,field=value}] 
+
+ where the qualifiers may be
+ -all                               use all entries regardless of availability flag
+ -onefile                           returns only one location
+ -distinct                          get only one value for a key-set (not the default 
+                                    which is faster). 
+ -delim <string>                    sets the default delimeter in between keys
+ -limit <number of output records>  limits the number of returned values (0 for all)
+ -start <start record number>       start at the n-th record of the sample
+ -o <output filename>               redirects results to an ouput file (use STDOUT)
+
+ Fields appearing in -keys and/or -cond may be amongst the following
+     ~;
+
+ print join(" ",$fileC->get_keyword_list())."\n\n";
+
 }
+
+
+
+
+
+
+
+
+
+
 
