@@ -1,5 +1,5 @@
 #!/bin/csh -f
-#       $Id: group_env.csh,v 1.168 2004/10/15 04:48:48 jeromel Exp $
+#       $Id: group_env.csh,v 1.169 2004/10/18 22:01:22 jeromel Exp $
 #	Purpose:	STAR group csh setup
 #
 #	Author:		Y.Fisyak     BNL
@@ -469,6 +469,13 @@ if ( ! $?JAVA_ROOT ) then
 	set a = `/bin/ls /usr/java | tail -1`
 	if ( "$a" != "") then
 	    setenv JAVA_ROOT /usr/java/$a
+	endif
+    else
+	if ( -d /opt/VDT ) then
+	    set a = `/bin/ls /opt/VDT | grep -e jdk -e j2sdk | tail -1`
+	    if ( "$a" != "") then
+		setenv JAVA_ROOT /opt/VDT/$a
+	    endif
 	endif
     endif
 endif
