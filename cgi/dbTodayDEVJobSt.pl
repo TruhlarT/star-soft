@@ -15,13 +15,13 @@ use Class::Struct;
 require "/afs/rhic/star/packages/dev/mgr/dbTJobsSetup.pl";
 
 my $TOP_DIRD = "/star/rcf/test/dev/";
-my @dir_year = ("year_1h", "year_2b");
+my @dir_year = ("year_1h", "year_2001");
 my @node_dir = ("trs_redhat61","trs_redhat61_opt", "daq_redhat61", "daq_redhat61_opt"); 
 my @hc_dir = ("hc_lowdensity", "hc_standard", "hc_highdensity", "peripheral", "minbias", "central");
 
 my @OUT_DIR;
 my @OUTD_DIR;
-my @Nday = ("Mon","Tue","Wed","Thu","Fri");
+my @Nday = ("Mon","Tue","Wed","Thu","Fri", "Sat","Sun");
 
 
 my %dayHash = (
@@ -29,7 +29,9 @@ my %dayHash = (
                  "Tue" => 2, 
                  "Wed" => 3, 
                  "Thu" => 4, 
-                 "Fri" => 5, 
+                 "Fri" => 5,
+                 "Sat" => 6,
+                 "Sun" => 7 
                  );
 
 my $min;
@@ -68,14 +70,7 @@ struct FileAttr => {
   my $testDay;
   my $beforeDay;
   $iday = $dayHash{$thisday}; 
-  if($thisday eq "Mon") {
-  $testDay = "Fri";
- }else{
  $testDay = $Nday[$iday - 2];
- } 
- if($thisday eq "Sat" or $thisday eq "Sun" ){
- $testDay = "Fri";
- } 
 
 # print "Today Date :", $thisDay, "\n";
 
