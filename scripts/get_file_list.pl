@@ -4,7 +4,7 @@
 # FileCatalog database.
 #
 # Written by Adam Kisiel, Warsaw University of Technology (2002)
-# Modified J.Lauret
+# Written J.Lauret 2002
 #
 # Uncodumented paramaters
 #
@@ -43,7 +43,7 @@ $count = 0;
 #  {
 #    print "Argument $count: $_\n";
 #    $count++;
-#    
+#
 #  }
 while (defined $ARGV[$count]){
     if ($ARGV[$count] eq "-all")
@@ -92,7 +92,7 @@ if ($count == 0){
 	open (STDOUT, ">$outfilename") || die "Cannot redirect output to file $outfilename";
     }
 
-    # Setting the context based on the swiches
+    # Setting the context based on the switches
     foreach (split(/,/,$cond_list)){
 	$fileC->set_context($_);
     }
@@ -103,8 +103,8 @@ if ($count == 0){
     if ($unique==0){       $fileC->set_context("nounique=1");}
 
 
-    if ($onefile > 0){	   
-	$field_list .= ",grp(filename),orda(persistent)"; 
+    if ($onefile > 0){
+	$field_list .= ",grp(filename)";  # ,orda(persistent)"; <-- great idea but returns persistent
     }
 
     # Getting the data
@@ -117,7 +117,7 @@ if ($count == 0){
 	  { print "$_\n"; }
     }
     else
-    {	
+    {
 	my $lastfname = "";
 	my $delimeter;
 
@@ -126,7 +126,7 @@ if ($count == 0){
 	else
 	  { $delimeter = "::"; }
 	foreach (@output)
-	  { 
+	  {
 	    my @fields;
 	    (@fields) = split($delimeter,$_);
 	    $fields[$#fields] = "";
@@ -144,13 +144,13 @@ sub Usage
 {
     print qq~
 Command usage:
- % get_file_list.pl [qualifiers] -keys field{,field} [-cond field=value{,field=value}] 
+ % get_file_list.pl [qualifiers] -keys field{,field} [-cond field=value{,field=value}]
 
  where the qualifiers may be
  -all                               use all entries regardless of availability flag
  -onefile                           returns only one location (not the default)
- -distinct                          get only one value for a key-set (not the default 
-                                    which is faster). 
+ -distinct                          get only one value for a key-set (not the default
+                                    which is faster).
  -delim <string>                    sets the default delimeter in between keys
  -limit <number of output records>  limits the number of returned values (0 for all)
  -start <start record number>       start at the n-th record of the sample
