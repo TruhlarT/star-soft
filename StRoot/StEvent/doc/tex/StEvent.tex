@@ -2,7 +2,7 @@
 %
 % StEvent - User Guide and Reference Manual -- LaTeX Source
 %
-% $Id: StEvent.tex,v 2.75 2003/01/30 18:48:10 ullrich Exp $
+% $Id: StEvent.tex,v 2.76 2003/04/16 17:26:03 ullrich Exp $
 %
 % Author: Thomas Ullrich, Nov 1999
 %
@@ -21,6 +21,10 @@
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %
 % $Log: StEvent.tex,v $
+% Revision 2.76  2003/04/16 17:26:03  ullrich
+% Added References for StTriggerId and referring collections
+% as well as StTriggerData and StTriggerData2003.
+%
 % Revision 2.75  2003/01/30 18:48:10  ullrich
 % Added references for StTriggerId and StTriggerIdCollections.
 %
@@ -290,8 +294,8 @@
   \mbox{\includegraphics[width=\textwidth]{StEventTitle.eps}}
   \hfill\mbox{}\\[3cm]
   {\LARGE User Guide and Reference Manual \\[5mm] for Version 2}\\[2cm]
-  {\LARGE $ $Revision: 2.75 $ $}  \\[5mm] % replaced by cvs with current revision
-  {\LARGE $ $Date: 2003/01/30 18:48:10 $ $}  % replaced by cvs with current revision
+  {\LARGE $ $Revision: 2.76 $ $}  \\[5mm] % replaced by cvs with current revision
+  {\LARGE $ $Date: 2003/04/16 17:26:03 $ $}  % replaced by cvs with current revision
   \vfill
 \end{center}
 \cleardoublepage
@@ -3480,6 +3484,17 @@ definition in the header file.
     \verb+const StTriggerDetectorCollection* triggerDetectorCollection() const;+\\
     Returns pointer to the current trigger detector collection.
     Trigger detectors are CTB, ZDC, VPD, and MWC.
+
+    \verb+StTriggerIdCollection* triggerIdCollection();+\\
+    \verb+const StTriggerIdCollection* triggerIdCollection() const;+\\
+    Contains trigger IDs (summaries) starting at RUN III (2003).
+    
+    \verb+StTriggerData* triggerData();+\\
+    \verb+const StTriggerData* triggerData() const;+\\
+    Contains all trigger information. Implemented for Run III (2003).
+
+    \verb+StTriggerDetectorCollection* triggerDetectorCollection();+\\
+    \verb+const StTriggerDetectorCollection* triggerDetectorCollection() const;+\\
     
     \verb+StSPtrVecTrackDetectorInfo& trackDetectorInfo();+\\
     \verb+const StSPtrVecTrackDetectorInfo& trackDetectorInfo() const;+\\
@@ -3594,6 +3609,10 @@ definition in the header file.
     \verb+void setPhmdCollection(StPhmdCollection*);+\\
 
     \verb+void setTriggerDetectorCollection(StTriggerDetectorCollection*);+\\
+
+    \verb+void setTriggerIdCollection(StTriggerIdCollection*);+\\
+
+    \verb+void setTriggerData(StTriggerData*);+\\
 
     \verb+void setL0Trigger(StL0Trigger*);+\\
     
@@ -6966,6 +6985,164 @@ numberOfPoints(kTpcId) == numberOfPoints(kFtpcWestId)
  \end{Entry}
  \clearpage
 
+\subsection{StTriggerData}
+\index{StTriggerData|textbf}
+\label{sec:StTriggerData}
+\begin{Entry}
+\item[Summary] Abstract base class to serve as interface for all trigger data starting Run III (2003). 
+\item[Synopsis]
+    \verb+#include "StTriggerData.h"+\\
+    \verb+class StTriggerData;+\\
+\item[Description]
+\item[Related Classes] StTriggerData2003
+\item[Public\\ Constructors]
+    \verb+StTriggerData();+\\
+\item[Public Member\\ Functions]
+    \verb+virtual void dump() const = 0;+\\
+    Dump data as text on screen.
+    
+    \verb+virtual int year() const;+\\
+    Year of the data.
+    
+    \verb+virtual unsigned int version() const = 0;+\\
+    TrgDataType Version Number. 
+
+    \verb+virtual unsigned int numberOfPreXing() const = 0;+\\
+    Number of pre-xing data for detectors.
+    
+    \verb+virtual unsigned int numberOfPostXing() const = 0;+\\
+    Number of pre-xing data for detectors.
+     
+    \verb+virtual unsigned int token() const = 0;+\\
+    \verb+virtual unsigned int triggerWord() const = 0;+\\
+    \verb+virtual unsigned int actionWord() const = 0; +\\
+    \verb+virtual unsigned int busyStatus() const;+\\
+    \verb+virtual unsigned int bunchId48Bit() const;+\\
+    \verb+virtual unsigned int bunchId7Bit() const;+\\
+    \verb+virtual unsigned int spinBit() const;+\\
+    \verb+virtual unsigned short tcuBits() const;+\\
+    \verb+virtual unsigned short lastDSM(int channel) const;+\\
+    \verb+virtual unsigned short vertexDSM(int channel) const;+\\
+    \verb+virtual unsigned short ctbLayer1DSM(int channel) const;+\\
+    \verb+virtual unsigned short ctbLayer2DSM(int channel) const;+\\
+    \verb+virtual unsigned short emcLayer2DSM(int channel) const;+\\
+    \verb+virtual unsigned short fpdLayer2DSM(int channel) const;+\\
+    \verb+virtual unsigned short ctb(int pmt, int prepost=0) const;+\\
+    
+    \verb+virtual unsigned short+\\
+    \verb+mwc(int sector, int prepost=0) const;+\\
+
+    \verb+virtual unsigned short+\\
+    \verb+zdcUnAttenuated(int eastwest, int prepost=0) const;+\\
+
+    \verb+virtual unsigned short+\\
+    \verb+zdcAttenuated(int eastwest, int prepost=0) const;+\\
+
+    \verb+virtual unsigned short+\\
+    \verb+zdcADC(int eastwest, int pmt, int prepost=0) const;+\\
+
+    \verb+virtual unsigned short+\\
+    \verb+zdcTDC(int eastwest, int prepost=0) const;+\\
+
+    \verb+virtual unsigned short+\\
+    \verb+bemcHighTower(int eta, int phi, int prepost=0) const;+\\
+
+    \verb+virtual unsigned short+\\
+    \verb+bemcJetPatch (int eta, int phi, int prepost=0) const;+\\
+
+    \verb+virtual unsigned short+\\
+    \verb+eemcHighTower(int eta, int phi, int prepost=0) const;+\\
+
+    \verb+virtual unsigned short+\\
+    \verb+eemcJetPatch (int eta, int phi, int prepost=0) const;+\\
+
+    \verb+virtual unsigned short+\\
+    \verb+bbcADC(int eastwest, int pmt, int prepost=0) const;+\\
+
+    \verb+virtual unsigned short+\\
+    \verb+bbcTDC(int eastwest, int pmt, int prepost=0) const;+\\
+
+    \verb+virtual unsigned short+\\
+    \verb+bbcADCSum(int eastwest, int prepost=0) const;+\\
+
+    \verb+virtual unsigned short+\\
+    \verb+bbcADCSumLargeTile(int eastwest, int prepost=0) const;+\\
+
+    \verb+virtual unsigned short+\\
+    \verb+bbcEarliestTDC(int eastwest, int prepost=0) const;+\\
+
+    \verb+virtual unsigned short bbcTimeDifference() const;+\\
+
+    \verb+virtual unsigned short+\\
+    \verb+fpd(int eastwest, int module, int pmt, int prepost=0) const; +\\
+
+    \verb+virtual unsigned short+\\
+    \verb+fpdSum(int eastwest, int module) const;+\\
+
+    \verb+virtual char* getTriggerStructure() = 0;+\\
+\end{Entry}
+\clearpage
+
+
+\subsection{StTriggerData2003}
+\index{StTriggerData2003|textbf}
+\label{sec:StTriggerData2003}
+\begin{Entry}
+\item[Summary] Concrete class (inheriting from \texttt{StTriggerData}) that contains
+    the trigger data information for Run III in 2003. 
+\item[Synopsis]
+    \verb+#include "StTriggerData2003.h"+\\
+    \verb+class StTriggerData2003;+\\
+\item[Description] Users should not use this class but rather go through the
+    abstract interface class \texttt{StTriggerData}. Not all methods are listed here.
+    Those inherited but not overwritten are only listed in the base class (see \ref{sec:StTriggerData}).
+\item[Related Classes] Inherits from \texttt{StTriggerData}.
+\item[Public\\ Constructors]
+    \verb+StTriggerData2003();+\\
+    \verb+StTriggerData2003(char*);+\\
+    \verb+StTriggerData2003(TrgDataType2003*);+\\
+    \verb+void dump() const;+\\
+    \verb+unsigned int version() const; +\\
+    \verb+unsigned int numberOfPreXing() const; +\\
+    \verb+unsigned int numberOfPostXing() const; +\\
+    \verb+unsigned int token() const;+\\
+    \verb+unsigned int triggerWord() const;+\\
+    \verb+unsigned int actionWord() const; +\\
+    \verb+unsigned int bunchId48Bit() const;+\\
+    \verb+unsigned int bunchId7Bit() const;+\\
+    \verb+unsigned int spinBit() const;+\\
+    \verb+unsigned short ctb(int pmt, int prepost=0) const;+\\
+    \verb+unsigned short mwc(int pmt, int prepost=0) const;+\\
+
+    \verb+unsigned short+\\
+    \verb+bbcADC(int eastwest, int pmt, int prepost=0) const;+\\
+
+    \verb+unsigned short+\\
+    \verb+bbcTDC(int eastwest, int pmt, int prepost=0) const;+\\
+
+    \verb+unsigned short+\\
+    \verb+bbcADCSum(int eastwest, int prepost=0) const;+\\
+
+    \verb+unsigned short+\\
+    \verb+bbcADCSumLargeTile(int eastwest, int prepost=0) const;+\\
+
+    \verb+unsigned short+\\
+    \verb+bbcEarliestTDC(int eastwest, int prepost=0) const;+\\
+
+    \verb+unsigned short+\\
+    \verb+bbcTimeDifference() const;+\\
+
+    \verb+unsigned short+\\
+    \verb+fpd(int eastwest, int module, int pmt, int prepost=0) const; +\\
+
+    \verb+unsigned short+\\
+    \verb+fpdSum(int eastwest, int module) const;+\\
+    
+    \verb+char* getTriggerStructure();+\\
+    \verb+TrgDataType2003* getTriggerStructure2003(); +\\
+    Experts only.
+\end{Entry}
+\clearpage 
 
 \subsection{StTriggerDetectorCollection}
 \index{StTriggerDetectorCollection|textbf}
