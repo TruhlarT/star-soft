@@ -46,8 +46,14 @@ if ( -r  $GROUP_DIR/star_login.csh ) then
 
 	# The extra sed is because Solaris does not like the brakets
 	# in the string, although we doubel quote it.
-	set TEST=`tokens | grep afs@rhic | sed "s/\[.*//"`
-	if( "$TEST" == "") then
+	if ( -e $HOME/bin/token.csh) then
+	    $HOME/bin/token.csh
+	    set STATUS=$status
+	else
+	    set STATUS=1
+	endif
+
+	if ($STATUS != 0) then
 	    if ( ! -e /tmp/AutoBuild.info) then
 		date >/tmp/AutoBuild.info
 	    endif
@@ -77,6 +83,7 @@ if ( -r  $GROUP_DIR/star_login.csh ) then
 		breaksw
 
 	    case "Insure":
+		starver .IDEV
 		cd $STAR
 		$SCRIPTD/insbld.pl -c -s >$HOME/log/IN-$DAY.log
 		mgr/CleanLibs IOBJ 1
