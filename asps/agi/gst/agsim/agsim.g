@@ -165,12 +165,12 @@ C
 *KEEP,VIDQQ.
       CHARACTER*68 VIDQQ
       DATA VIDQQ/
-     +'@(#)Advanced Geant Inteface               C: 05/08/98  23.53.53
+     +'@(#)Advanced Geant Inteface               C: 08/08/98  23.37.20
      +'/
 *KEEP,DATEQQ.
-      IDATQQ =   980805
+      IDATQQ =   980808
 *KEEP,TIMEQQ.
-      ITIMQQ =   2353
+      ITIMQQ =   2337
 *KEEP,VERSQQ.
       VERSQQ = ' '
       IVERSQ = -1
@@ -11933,7 +11933,7 @@ C
     if (Idebug > 1) Call GPPART(%Code)
     if (Idebug > 2) Call GPDCAY(%Code)
  end
-*CMZ :          03/05/98  21.09.43  by  Pavel Nevski
+*CMZ :          08/08/98  23.17.10  by  Pavel Nevski
 *-- Author :    Pavel Nevski   03/05/98
 *************************************************************************
       SUBROUTINE  aGFVOLU (Ivol,Cvol,Cshap,numed,par,npar)
@@ -11962,13 +11962,22 @@ C
      +      ,JROTM ,JRUNG ,JSET  ,JSTAK ,JGSTAT,JTMED ,JTRACK,JVERTX
      +      ,JVOLUM,JXYZ  ,JGPAR ,JGPAR2,JSKLT
 C
+*KEEP,GCUNIT.
+      COMMON/GCUNIT/LIN,LOUT,NUNITS,LUNITS(5)
+      INTEGER LIN,LOUT,NUNITS,LUNITS
+      COMMON/GCMAIL/CHMAIL
+      CHARACTER*132 CHMAIL
+C
 *KEND.
-      integer   Ivol,numed,npar
+      integer   Ivol,numed,npar,nv
 *     integher  Ishap
       character Cvol*4,Cshap*4
       real      par(*)
  
 *         make GFVOLU call... ? => CVOL,CSHAP
+          Nv=-1;  npar=0;  numed=0;
+          If (JVOLUM>0) Nv=IQ(JVOLUM-1)
+          if (Ivol<1 | Ivol>Nv)  Return
           Call GFVOLU (Ivol,CVOL,CSHAP)
 *         Call UHTOC   (IQ(JVOLUM+IVOL),4,Cvol,4)
 *         Ishap     = Q(LQ(JVOLUM-IVOL)+2)
@@ -13055,7 +13064,7 @@ END
  
  
  
-*CMZ :          23/04/98  14.13.01  by  Pavel Nevski
+*CMZ :          08/08/98  23.14.38  by  Pavel Nevski
 *CMZ :  1.30/00 21/03/97  15.15.10  by  Pavel Nevski
 *-- Author :    Pavel Nevski   27/05/96
 ************************************************************************
@@ -13285,8 +13294,10 @@ C
 *                        adjust track-vertex cross references
    do iv=Nv1+1,Nvertx
    {  jv=LQ(JVERTX-iv); check jv>0;   "ToF"  Q(jv+4)+=Tbunch;
-      do i=5,7+nint(Q(jv+7))          " update track numbers in vertices "
-      {  check i!=7;  j=jv+i; if (Q(j)>0) Q(j)+=Nt1; If (Q(j)>Ntrack) Q(j)=0; }
+ 
+      if (Q(jv+5)>0) Q(jv+5)+=Nt1     " only for geant produced tracks   "
+      do i=8,7+nint(Q(jv+7))          " update track numbers in vertices "
+      {               j=jv+i; if (Q(j)>0) Q(j)+=Nt1; If (Q(j)>Ntrack) Q(j)=0; }
    }
    do it=Nt1+1,Ntrack
    {  jt=LQ(JKINE-it);  check jt>0;
