@@ -16,6 +16,9 @@
 
 /* 
 $Log: StTGeant3.cxx,v $
+Revision 1.3  2005/03/09 18:35:35  perev
+Regular update
+
 Revision 1.2  2004/07/22 18:09:19  perev
 WITHROOT + WITHG3 + WITHBOTH are obsolete
 
@@ -175,6 +178,7 @@ Cleanup of code
 #include "THIGZ.h"
 #include "StTGeant3gu.h"
 #include "G3Bridge.h"
+#include "G3Z.h"
 
 #ifndef WIN32 
 # define g3zebra  g3zebra_ 
@@ -853,6 +857,7 @@ void StTGeant3::LoadAddress()
    fZq       = (float*)fZiq; 
    fgGctrack = fGctrak;
    fgGcvolu = fGcvolu;
+   Z_t::Init(fZiq+1);
 } 
 
 //_____________________________________________________________________________
@@ -1013,7 +1018,106 @@ Int_t StTGeant3::CurrentVolOffID(Int_t off, Int_t &copy) const
   }
   return 0;
 }
+//_____________________________________________________________________________
+Int_t StTGeant3::CurrentVolOffID(Int_t off, Int_t &copy, Int_t &idx, Int_t &ndx) const
+{
+  copy = 0; idx = 0; ndx=0;
+  int lv, iv;
+  if (Mode()&kWithG3){
+    if( (lv=fGcvolu->nlevel-off-1) < 0 ) return 0;
+    copy =fGcvolu->number[lv];          
+    iv   =fGcvolu->lvolum[lv];    
+    if (!lv) return iv;
+    JFan_t *Jfun = (JFan_t*)Z_t::ZObj(fGclink->jvolum);
+    int ivm = fGcvolu->number[lv-1];
+    JVolu_t *Jmoth = (JVolu_t*)Jfun->GetObj(ivm);
+    assert(Jmoth);
+    ndx = abs((int)Jmoth->NIN);
+    idx = copy;
+    if (Jmoth->GetJDiv()) return iv;
+    for (int i=1;i<=ndx;i++) {
+      JPos_t *Jpos = Jmoth->GetJPos(i);
+      if (iv   != (int)Jpos->IVO) continue;
+      if (copy != (int)Jpos->NR ) continue;
+      idx = i; return iv;
+    }
+    assert(0);
+  } else {
+    lv = gGeoManager->GetLevel();
+    if (off<0 || off>lv) return 0;
+    TGeoNode *node = gGeoManager->GetMother(off);
+    if (!node) return 0;
+    copy = node->GetNumber();
+    iv   = node->GetVolume()->GetNumber();
+    TGeoVolume *moth = node->GetMotherVolume();   
+    if (!moth) return iv;
+    ndx = moth->GetNdaughters();
+    idx = moth->GetIndex(node)+1;
+    return iv;
+  }
+}
+//_____________________________________________________________________________
+StMCPath StTGeant3::CurrentPath() const
+{
+   StMCPath P;
+   Int_t iv,copy,idx,ndx;
+   int nlev = GetLevel();
+   for (int off=0;off<nlev;off++) {
+     iv = CurrentVolOffID(off,copy,idx,ndx);
+     P.SetLevel(nlev-off-1,iv,copy,idx,ndx);
+   }
+   return P;
+}	
+//_____________________________________________________________________________
+ULong64_t StTGeant3::CurrentPathID() const
+{
+   ULong64_t U = 0;
+   Int_t iv,copy,idx,ndx,nbbits=0;
+   for (int off=0;1;off++) {
+     iv = CurrentVolOffID(off,copy,idx,ndx);
+     if(!ndx) break;
+     int n2dx=2,nbits=1; for (;n2dx-1<ndx; n2dx*=2,nbits++){}
+     U <<= nbits;  U|=idx; nbbits+=nbits;
+     if (nbbits> 32) printf("off=%d iv,copy,idx,ndx,nbb = %d %d %d %d %d\n",off,iv,copy,idx,ndx,nbbits);
+     Assert(nbbits<=64);
+   }
+   return U;
+}	
 
+//_____________________________________________________________________________
+Int_t StTGeant3::SetCurrentPath(ULong64_t P)
+{
+  int iv,copy,ndx,idx,n2dx,nbits;
+  if (Mode()&kWithG3){
+    int LNAM[100],LNUM[100],NLEV;
+    JFan_t *fan = (JFan_t*)Z_t::ZObj(fGclink->jvolum);
+    JVolu_t *Jvolu = (JVolu_t*)fan->GetObj(1);
+    ndx = (int)Jvolu->NIN;
+    for (NLEV=0;;NLEV++)
+    {
+      for (n2dx=2,nbits=1;n2dx-1<ndx; n2dx*=2,nbits++){}
+      idx = P&(n2dx-1); P <<=nbits;
+      if (!idx) break;
+      iv = Jvolu->SubVoluID(idx,copy);
+      LNAM[NLEV]=fan->iDat[iv];
+      LNUM[NLEV]=copy;
+      Jvolu = (JVolu_t*)fan->GetObj(idx);
+    }
+    return Glvolu(NLEV,LNAM,LNUM);
+
+  } else {
+    gGeoManager->CdTop();
+    while(1) {
+       TGeoVolume *vol = gGeoManager->GetCurrentVolume();
+       ndx = vol->GetNdaughters();
+       for (n2dx=2,nbits=1;n2dx-1<ndx; n2dx*=2,nbits++){}
+       idx = P&(n2dx-1); P <<=nbits;
+       if (!idx) break;
+       gGeoManager->CdDown(idx-1);
+    }
+    return 0;
+  }
+}	
 //_____________________________________________________________________________
 const char* StTGeant3::CurrentVolName() const
 {
@@ -1427,6 +1531,7 @@ void StTGeant3::DefineParticles()
     */
 //
     AddParticlesToPdgDataBase();
+
 }
 
 //_____________________________________________________________________________
@@ -1499,7 +1604,7 @@ const char* StTGeant3::VolName(Int_t id) const
 }
 
 //_____________________________________________________________________________
-void    StTGeant3::SetCut(const char* cutName, Double_t cutValue)
+Bool_t    StTGeant3::SetCut(const char* cutName, Double_t cutValue)
 {
   //
   // Set transport cuts for particles
@@ -1526,11 +1631,13 @@ void    StTGeant3::SetCut(const char* cutName, Double_t cutValue)
     fGccuts->ppcutm=cutValue; 
   else if(!strcmp(cutName,"TOFMAX")) 
     fGccuts->tofmax=cutValue; 
-  else Warning("SetCut","Cut %s not implemented\n",cutName);
+  else { Warning("SetCut","Cut %s not implemented\n",cutName);
+      return 1;}
+  return 0;
 }
 
 //_____________________________________________________________________________
-void    StTGeant3::SetProcess(const char* flagName, Int_t flagValue)
+Bool_t StTGeant3::SetProcess(const char* flagName, Int_t flagValue)
 {
   //
   // Set thresholds for different processes
@@ -1568,10 +1675,11 @@ void    StTGeant3::SetProcess(const char* flagName, Int_t flagValue)
   else if(!strcmp(flagName,"CKOV"))
     fGctlit->itckov = flagValue;
   else  Warning("SetFlag","Flag %s not implemented\n",flagName);
+  return 0;
 }
  
  //_____________________________________________________________________________
-void StTGeant3::DefineParticle(Int_t pdg, const char* name, TMCParticleType type,
+Bool_t StTGeant3::DefineParticle(Int_t pdg, const char* name, TMCParticleType type,
                     Double_t mass, Double_t charge, Double_t lifetime)
 {
 // 
@@ -1584,14 +1692,14 @@ void StTGeant3::DefineParticle(Int_t pdg, const char* name, TMCParticleType type
   // in StTGeant3
   if (IdFromPDG(pdg) > 0) {
     Error("SetParticle", "Particle already exists.");
-    return;
+    return 0;
   }  
 
   // Check if particle type is known to Geant3
   Int_t itrtyp = TransportMethod(type);
   if (itrtyp < 0) {
     Error("SetParticle", "Unknown particle transport.");
-    return;
+    return 0;
   }
 
   // Add particle to Geant3  
@@ -1604,10 +1712,11 @@ void StTGeant3::DefineParticle(Int_t pdg, const char* name, TMCParticleType type
       ->AddParticle(name, name, mass, kTRUE, 0, charge*3, 
                     ParticleClass(type).Data(), pdg);
   fPDGCode[fNPDGCodes++] = pdg;
+  return 0;
 }
 
 //_____________________________________________________________________________
-void  StTGeant3::DefineIon(const char* name, Int_t Z, Int_t A, Int_t Q, 
+Bool_t  StTGeant3::DefineIon(const char* name, Int_t Z, Int_t A, Int_t Q, 
                          Double_t excEnergy, Double_t mass)
 {
 //
@@ -1636,6 +1745,7 @@ void  StTGeant3::DefineIon(const char* name, Int_t Z, Int_t A, Int_t Q,
   
   // Call DefineParticle now
   DefineParticle(pdg, name, partType, mass, charge, lifetime);
+  return 0;
 }		       
 
 //_____________________________________________________________________________
@@ -2467,6 +2577,12 @@ void  StTGeant3::SetRootGeometry()
   fImportRootGeometry = kTRUE;
 }  			
 
+//_____________________________________________________________________________
+Int_t StTGeant3::GetLevel() const
+{
+  if (Mode()&kWithG3) return fGcvolu->nlevel; 
+  else                return gGeoManager->GetLevel();  
+}      
 //_____________________________________________________________________________
 const char *StTGeant3::GetPath()
 {
@@ -3405,17 +3521,12 @@ void  StTGeant3::Gdtom(Double_t *xd, Double_t *xm, Int_t iflag)
   //
   
   if (Mode()&kWithG3){
-    Float_t* fxd = CreateFloatArray(xd, 3);
-    Float_t* fxm = CreateFloatArray(xm, 3);
-
+    Float_t fxd[3],fxm[3];
+    for (int i=0; i<3; i++) {fxd[i] = xd [i];}
     Gdtom(fxd, fxm, iflag) ;
 
-    for (Int_t i=0; i<3; i++) {
-       xd[i] = fxd[i]; xm[i] = fxm[i]; 
-    }
+    for (int i=0; i<3; i++) {xm [i] = fxm[i];}
 
-    delete [] fxd;
-    delete [] fxm;
   } else {
      if (iflag == 1) gGeoManager->LocalToMaster(xd,xm);
      else            gGeoManager->LocalToMasterVect(xd,xm);
@@ -3502,19 +3613,15 @@ void  StTGeant3::Gmtod(Double_t *xm, Double_t *xd, Int_t iflag)
   //           IFLAG=2  convert direction cosinus
   //
 
-  
+
   if (Mode()&kWithG3){
-    Float_t* fxm = CreateFloatArray(xm, 3);
-    Float_t* fxd = CreateFloatArray(xd, 3);
+    Float_t fxm[3],fxd[3];
+    for (int i=0; i<3; i++) {fxm[i]=(Float_t)xm[i];}
 
     Gmtod(fxm, fxd, iflag) ;
 
-    for (Int_t i=0; i<3; i++) {
-       xm[i] = fxm[i]; xd[i] = fxd[i];  
-    }
+    for (int i=0; i<3; i++) {xd[i] = fxd[i];}
 
-    delete [] fxm;
-    delete [] fxd;
   } else {   
     if (iflag == 1)  gGeoManager->MasterToLocal    (xm,xd);
     else             gGeoManager->MasterToLocalVect(xm,xd);
@@ -5645,7 +5752,7 @@ void StTGeant3::Init()
 }
 
 //____________________________________________________________________________
-void StTGeant3::ProcessRun(Int_t nevent)
+Bool_t StTGeant3::ProcessRun(Int_t nevent)
 {
   //
   // Process the run
@@ -5660,6 +5767,7 @@ void StTGeant3::ProcessRun(Int_t nevent)
      ProcessEvent();
      fApplication->FinishEvent();
   }
+   return 0;
 }
 
 //_____________________________________________________________________________
@@ -5780,27 +5888,6 @@ Float_t* StTGeant3::CreateFloatArray(Double_t* array, Int_t size) const
   return floatArray;
 }
 
-
-//_____________________________________________________________________________
-void StTGeant3::Streamer(TBuffer &R__b)
-{
-  //
-  // Stream an object of class StTGeant3.
-  //
-  if (R__b.IsReading()) {
-    Version_t R__v = R__b.ReadVersion(); if (R__v) { }
-    TVirtualMC::Streamer(R__b);
-    R__b >> fNextVol;
-    R__b >> fNPDGCodes;
-    R__b.ReadStaticArray(fPDGCode);
-  } else {
-    R__b.WriteVersion(StTGeant3::IsA());
-    TVirtualMC::Streamer(R__b);
-    R__b << fNextVol;
-    R__b << fNPDGCodes;
-    R__b.WriteArray(fPDGCode, fNPDGCodes);
-  }
-}
 
 //_____________________________________________________________________________
 //
