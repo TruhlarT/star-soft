@@ -65,9 +65,14 @@
 #
 
 $TARGETD = "/afs/rhic/star/doc/www/html/tmp";        # Working directory
-$INDEXD  = "/afs/rhic/star/packages/dev/StRoot";     # Dir to scan
-$PROJECT = "StRoot";                                 # Project name
-$SUBDIR  = "";                                       # Sub-dir for output
+$INDEXD  = "/afs/rhic/star/packages/dev/StRoot";
+$PROJECT = "StRoot";
+$SUBDIR  = " ";
+
+#$INDEXD  = "/afs/rhic/star/packages/dev/include,/afs/rhic/star/packages/dev/StRoot";     
+                                                     # Dir to scan
+#$PROJECT = "include,StRoot";                         # Project name(s)
+#$SUBDIR  = "include, ";                              # Sub-dir for output(s)
 
 
 # Eventually replace by @ARGV
@@ -83,10 +88,13 @@ do {
     }
 } while ($tmp ne "");
 
-$INDEXD  = shift(@ARGV) if ( @ARGV );
-$PROJECT = shift(@ARGV) if ( @ARGV );
-$SUBDIR  = shift(@ARGV) if ( @ARGV );
-
+if ( @ARGV ){
+    $INDEXD  = shift(@ARGV);
+    if ( @ARGV ){  $PROJECT = shift(@ARGV); }
+    else        {  $PROJECT = "StRoot";}
+    if ( @ARGV ){  $SUBDIR  = shift(@ARGV); }
+    else        {  $SUBDIR  = " ";}
+}
 
 # -------------------------------------------------------------------------
 $TMPDIR  = "/tmp";                                   # temp dir on cron node
@@ -123,23 +131,6 @@ if( ! -e $DOXYGEN){
     print "Boomer ! Required $DOXYGEN is missing. Please, install.\n";
     exit;
 } 
-if( ! -d "$TARGETD/dox"){
-    if( ! mkdir("$TARGETD/dox",0777) ){
-	print "Dooo  !! Directory $TARGETD/dox cannot be created.\n";
-	exit;
-    } else {
-	print "Created $TARGETD/dox\n";
-    }
-}
-if( ! -e "$TARGETD/dox/$PROJECT.cfg"){
-    if( ! &CfgCreate("$TARGETD/dox/$PROJECT.cfg") ){
-	print "Huuuu !! Missing config file $TARGETD/dox/$PROJECT.cfg ".
-	    "and cannot create it ..\n";
-	exit;
-    } else {
-	print "Created $TARGETD/dox/$PROJECT.cfg\n";
-    }
-}
 
 
 # -------------------------------------------------------------------
@@ -147,285 +138,412 @@ if( ! -e "$TARGETD/dox/$PROJECT.cfg"){
 # from which several keywords will be auto-replaced by values
 # based on passed parameters.
 # -------------------------------------------------------------------
-$tmpf = $TMPDIR."/doxygen$>-$$";
-open(FI,"$TARGETD/dox/$PROJECT.cfg");
-open(FO,">$tmpf.cfg");
 
-$GENERATE_HTML = 0;
-$GENERATE_LATX = 0;
-$GENERATE_MAN  = 0;
-
-while ( defined($line = <FI>) ){
-    chomp($line);
-    if($line =~ m/(OUTPUT_DIRECTORY.*=\s+)(.*)/){
-	# We add an extra level so we can do some cleanup
-	# in between.
-	$line = "OUTPUT_DIRECTORY       = $TARGETD/dox$SUBDIR/tmp$$";
-
-    } elsif ($line =~ m/(PROJECT_NAME.*=\s+\")(.*)(\")/){
-	if($2 ne $PROJECT){
-	    $line = "PROJECT_NAME           = \"$PROJECT\"";
-	}
-
-    } elsif ($line =~ m/(INPUT.*=\s+)(.*)/){
-	if($2 ne $INDEXD){
-	    $line = "INPUT                  = $INDEXD";
-	}
-
-    } elsif ($line =~ m/(EXAMPLE_PATH.*=\s+)(.*)/){
-	# This is dynamic
-	$expath = join(" ",glob("$INDEXD/*/examples/"));
-	$line = "EXAMPLE_PATH           = $expath";
-
-    } elsif ($line =~ m/(STRIP_FROM_PATH.*=\s+)(.*)/){
-	$line = "STRIP_FROM_PATH        = $INDEXD/";
-	
+@PROJECTS = split(",",$PROJECT); #print "Splitting $#PROJECTS from $PROJECT\n";
+@INDEXD   = split(",",$INDEXD);  #print "Splitting $#INDEXD from $INDEXD\n";
+@SUBDIR   = split(",",$SUBDIR);  #print "Splitting $#SUBDIR from $SUBDIR\n";
 
 
-    } elsif ($line =~ m/(GENERATE_HTML.*=\s+)(YES)/){
-	$GENERATE_HTML = 1;
-    } elsif ($line =~ m/(GENERATE_LATEX.*=\s+)(YES)/){
-	$GENERATE_LATX = 1;
-    } elsif ($line =~ m/(GENERATE_MAN.*=\s+)(YES)/){
-	$GENERATE_MAN  = 1;
-    } elsif ($line =~ m/(HTML_OUTPUT.*=\s+)(.*)/ && $GENERATE_HTML){
-	if( $2 eq ""){
-	    push(@DIRS,"html");
-	} else {
-	    push(@DIRS,$2);
-	}
-    } elsif ($line =~ m/(LATEX_OUTPUT.*=\s+)(.*)/ && $GENERATE_LATX){
-	if( $2 eq ""){
-	    push(@DIRS,"latex");
-	} else {
-	    push(@DIRS,$2);
-	}
-    } elsif ($line =~ m/(MAN_OUTPUT.*=\s+)(.*)/ && $GENERATE_MAN){
-	if( $2 eq ""){
-	    push(@DIRS,"man");
-	} else {
-	    push(@DIRS,$2);
-	}
-
-
-
-	#### CGI setup
-    } elsif ($line =~ m/(CGI_NAME.*=\s+)(.*)/){
-	$line = "CGI_NAME               = search.cgi";
-
-    } elsif ($line =~ m/(CGI_URL.*=\s+)(.*)/){
-	$line = "CGI_URL                = $HTTPD/cgi-bin/dox$SUBDIR";
-
-
-
-	#### URL setup for search
-    } elsif ($line =~ m/(DOC_URL.*=\s+)(.*)/){
-	$line = "DOC_URL                = $HTTPD/$URLPATH/dox$SUBDIR/html";
-
-    } elsif ($line =~ m/(DOC_ABSPATH.*=\s+)(.*)/){
-	$line = "DOC_ABSPATH            = $TARGETD/dox$SUBDIR/html";
-
-    } elsif ($line =~ m/(BIN_ABSPATH.*=\s+)(.*)/){
-	$line = "BIN_ABSPATH            = $BINPATH";
-
-    }
-    print FO "$line\n";
-}
-close(FI);
-close(FO);
-chmod(0600,"$tmpf.cfg");
-
-
-
-
-# -------------------------------------------------------------------
-# Create temporary sub-directories in target tree if necassary
-# -------------------------------------------------------------------
-if( ! -d "$TARGETD/dox$SUBDIR"){
-    print "Creating to structure  $TARGETD/dox$SUBDIR\n";
-    if( ! mkdir("$TARGETD/dox$SUBDIR",0777) ){
-	print "Cannot create $TARGETD/dox$SUBDIR\n";
-	exit;
-    }
-}
-if( ! -d "$TARGETD/dox$SUBDIR/tmp$$"){
-    print "Creating temporary dir $TARGETD/dox$SUBDIR/tmp$$\n";
-    if (! mkdir("$TARGETD/dox$SUBDIR/tmp$$",0777) ){
-	print "Cannot create $TARGETD/dox$SUBDIR/tmp$$\n";
-	exit;
-    }
-
-}
-
-
-
-# -------------------------------------------------------------------
-# Now, start using this file but also redirect all
-# resulting output of doxygen to a temp file
-# -------------------------------------------------------------------
-if( -e "$tmpf.cfg"){
-    print "Running $DOXYGEN now ".localtime()."\n";
-    system("cd $TMPDIR ; $DOXYGEN $tmpf.cfg >&$tmpf.log");
-    if( -d "$TARGETD/dox$SUBDIR/tmp$$/html" && $DOTAG){
-	print "Running $DOXYTAG now ".localtime()."\n";
-	system("cd $TARGETD/dox$SUBDIR/tmp$$/html ; ".
-	       "$DOXYTAG -s search.idx >&/dev/null");
-    } else {
-	print "Missing tmp$$/html directory\n";
-    }
-    #unlink("$tmpf.cfg");
-} else {
-    print "Action did not create a temporary configuration file\n";
+if ($#PROJECTS != $#INDEXD || $#PROJECTS != $#SUBDIR){ 
+    print 
+	"Missmatch in number of projects, directories and subdir ",
+	"$#PROJECTS $#INDEXD $#SUBDIR\n";
     exit;
 }
 
+$listidx = "";
 
+for ($kk=0 ; $kk <= $#PROJECTS ; $kk++){
+    $PROJECT = $PROJECTS[$kk];
+    $INDEXD  = $INDEXD[$kk];
+    $SUBDIR  = $SUBDIR[$kk];   $SUBDIR =~ s/\s*/$1/g; 
 
-# -------------------------------------------------------------------
-# Check if the expected sub-directories were created and
-# move them to target destination.
-# -------------------------------------------------------------------
-foreach $dir (@DIRS){
-    if( -d "$TARGETD/dox$SUBDIR/tmp$$/$dir"){
-	# Rename the tmp-directories to target-directories
-	# Take care of the old one first
-	if( -d "$TARGETD/dox$SUBDIR/$dir"){
-	    if( -d "$TARGETD/dox$SUBDIR/$dir.old"){
-		#print "Removing old $TARGETD/dox/$SUBDIR/$dir.old\n";
-		system("rm -fr $TARGETD/dox$SUBDIR/$dir.old");
-	    }
-	    #print "Renaming current $TARGETD/dox/$SUBDIR/$dir\n";
-	    rename("$TARGETD/dox$SUBDIR/$dir",
-		   "$TARGETD/dox$SUBDIR/$dir.old");
-	}
-	# Rename tmp -> final destination
-	print "Installing created $TARGETD/dox$SUBDIR/$dir\n";
-	rename("$TARGETD/dox$SUBDIR/tmp$$/$dir",
-	       "$TARGETD/dox$SUBDIR/$dir");
+    print "Starting with project=$PROJECT\n";
+
+    $tmpf = $TMPDIR."/doxygen$SUBDIR$>-$$";
+    undef(@DIRS);
+    undef(@HEAD);
+    undef(@TAIL);
+    undef(%ERRORS);
+
+    $OTHERIDX= "";
+    if ($SUBDIR ne "") {
+	$IDXNAME = $SUBDIR.".tag";
+	$listidx.= "$TARGETD/dox/$SUBDIR/html/$IDXNAME ";
+	$SUBDIR  = "/$SUBDIR";
+
     } else {
-	print "Warning :: $dir not found\n";
+	chop($listidx);
+	print "\tChecking possibly created [$listidx]\n";
+	foreach $idx ( (split(" ",$listidx) ) ){
+	    if ( ! -e $idx){   print "\t\tCould not find $idx\n";}
+	    else {             $OTHERIDX .= "$idx ";}
+	}
+	chop($OTHERIDX);
+
+	$IDXNAME = "index.tag";
+	$listidx = "";
+
     }
-}
-if( -d "$TARGETD/dox$SUBDIR/tmp$$"){
-    rmdir("$TARGETD/dox$SUBDIR/tmp$$");
-}
 
 
-# -------------------------------------------------------------------
-# Guess what ? We have a few interresting comments/warning
-# generated from that pass. Parse it now ... and re-generate
-# the index.html as we see fit. This is kinda' home-made but
-# this entire block may be disabled.
-# -------------------------------------------------------------------
-if( 1==1 ){
-    print "Scanning for errors/warnings\n";
-    open(FI,"$tmpf.log");
-    while ( defined($line=<FI>) ){
-	if($line =~ m/(Error\:)(.*)/){
-	    $el = "Errors";
-	    if( defined($ERRORS{$el}) ){
-		$ERRORS{$el} .= ";$line";
+    # Directory check needs to be here now
+    if( ! -d "$TARGETD/dox"){
+	if( ! mkdir("$TARGETD/dox",0777) ){
+	    print "\tDooo  !! Directory $TARGETD/dox cannot be created.\n";
+	    exit;
+	} else {
+	    print "\tCreated $TARGETD/dox\n";
+	}
+    }
+    if( ! -e "$TARGETD/dox/$PROJECT.cfg"){
+	if( ! &CfgCreate("$TARGETD/dox/$PROJECT.cfg") ){
+	    print 
+		"\tHuuuu !! Missing config file $TARGETD/dox/$PROJECT.cfg ",
+		"and cannot create it ..\n";
+	    exit;
+	} else {
+	    print "\tCreated $TARGETD/dox/$PROJECT.cfg\n";
+	}
+    }
+
+    print "\tGenerating $tmpf.cfg file from $TARGETD/dox/$PROJECT.cfg\n";
+    open(FI,"$TARGETD/dox/$PROJECT.cfg");
+    open(FO,">$tmpf.cfg");
+
+    $GENERATE_HTML = 0;
+    $GENERATE_LATX = 0;
+    $GENERATE_MAN  = 0;
+
+    while ( defined($line = <FI>) ){
+	chomp($line);
+	if($line =~ m/(OUTPUT_DIRECTORY.*=\s+)(.*)/){
+	    # We add an extra level so we can do some cleanup
+	    # in between.
+	    $line = "OUTPUT_DIRECTORY       = $TARGETD/dox$SUBDIR/tmp$$";
+	    
+	} elsif ($line =~ m/(PROJECT_NAME.*=\s+\")(.*)(\")/){
+	    if($2 ne $PROJECT){
+		$line = "PROJECT_NAME           = \"$PROJECT\"";
+	    }
+	    
+
+	} elsif ($line =~ m/(INPUT.*=\s+)(.*)/){
+	    if($2 ne $INDEXD){
+		$line = "INPUT                  = $INDEXD";
+	    }
+
+
+	} elsif ($line =~ m/(EXAMPLE_PATH.*=\s+)(.*)/){
+	    # This is dynamic
+	    $expath = join(" ",glob("$INDEXD/*/examples/"));
+	    $line = "EXAMPLE_PATH           = $expath";
+	    
+	} elsif ($line =~ m/(STRIP_FROM_PATH.*=\s+)(.*)/){
+	    $line = "STRIP_FROM_PATH        = $INDEXD/";
+	    
+
+
+	} elsif ($line =~ m/(GENERATE_TAGFILE.*=\s+)(.*)/){
+	    if($2 ne $IDXNAME){
+		$line = "GENERATE_TAGFILE       = $IDXNAME";
+	    }
+	} elsif ($line =~ m/(TAGFILES.*=\s+)(.*)/){
+	    if($2 ne $OTHERIDX){
+		$line = "TAGFILES               = $OTHERIDX";
+	    }
+
+
+	} elsif ($line =~ m/(EXTRACT_ALL.*=\s+)(.*)/){
+	    if ( $2 eq "NO" && $SUBDIR ne ""){
+		$line = "EXTRACT_ALL            = YES";
 	    } else {
-		$ERRORS{$el}  = "$line";
+		$line = "EXTRACT_ALL            = $2";
 	    }
-	} elsif($line =~ m/(.*)(:\d+\s+)(Warning:)(.*)/){
-	    # I separated it because it may become a ';' list
-	    # in the pattern. So far, only saw 'Warning'.
-	    $el = $1; $val = "$2$3$4";
-	    $el =~ s/$INDEXD\///g;
-	    if( defined($ERRORS{$el}) ){
-		$ERRORS{$el} .= ";$val";
+	    
+	} elsif ($line =~ m/(GENERATE_HTML.*=\s+)(YES)/){
+	    $GENERATE_HTML = 1;
+	} elsif ($line =~ m/(GENERATE_LATEX.*=\s+)(YES)/){
+	    $GENERATE_LATX = 1;
+	} elsif ($line =~ m/(GENERATE_MAN.*=\s+)(YES)/){
+	    $GENERATE_MAN  = 1;
+	} elsif ($line =~ m/(HTML_OUTPUT.*=\s+)(.*)/ && $GENERATE_HTML){
+	    if( $2 eq ""){
+		push(@DIRS,"html");
 	    } else {
-		$ERRORS{$el}  = "$val";
+		push(@DIRS,$2);
 	    }
-	    if($line =~ /no matching file member found for/ ||
-	       $line =~ /no matching class member found for/){
-		chomp($ERRORS{$el} .= <FI>);
+	} elsif ($line =~ m/(LATEX_OUTPUT.*=\s+)(.*)/ && $GENERATE_LATX){
+	    if( $2 eq ""){
+		push(@DIRS,"latex");
+	    } else {
+		push(@DIRS,$2);
 	    }
+	} elsif ($line =~ m/(MAN_OUTPUT.*=\s+)(.*)/ && $GENERATE_MAN){
+	    if( $2 eq ""){
+		push(@DIRS,"man");
+	    } else {
+		push(@DIRS,$2);
+	    }
+
+
+
+	    #### CGI setup
+	} elsif ($line =~ m/(CGI_NAME.*=\s+)(.*)/){
+	    $line = "CGI_NAME               = search.cgi";
+	    
+	} elsif ($line =~ m/(CGI_URL.*=\s+)(.*)/){
+	    $line = "CGI_URL                = $HTTPD/cgi-bin/dox$SUBDIR";
+
+
+
+	    #### URL setup for search
+	} elsif ($line =~ m/(DOC_URL.*=\s+)(.*)/){
+	    $line = "DOC_URL                = $HTTPD/$URLPATH/dox$SUBDIR/html";
+
+	} elsif ($line =~ m/(DOC_ABSPATH.*=\s+)(.*)/){
+	    $line = "DOC_ABSPATH            = $TARGETD/dox$SUBDIR/html";
+
+	} elsif ($line =~ m/(BIN_ABSPATH.*=\s+)(.*)/){
+	    $line = "BIN_ABSPATH            = $BINPATH";
+
+	}
+	print FO "$line\n";
+    }
+    close(FI);
+    close(FO);
+    chmod(0600,"$tmpf.cfg");
+
+
+
+
+    # -------------------------------------------------------------------
+    # Create temporary sub-directories in target tree if necassary
+    # -------------------------------------------------------------------
+    if( ! -d "$TARGETD/dox$SUBDIR"){
+	print "\tCreating structure $TARGETD/dox$SUBDIR\n";
+	if( ! mkdir("$TARGETD/dox$SUBDIR",0777) ){
+	    print "\t\tCannot create $TARGETD/dox$SUBDIR\n";
+	    exit;
+	}
+    }
+    if( ! -d "$TARGETD/dox$SUBDIR/tmp$$"){
+	print "\tCreating temporary dir $TARGETD/dox$SUBDIR/tmp$$\n";
+	if (! mkdir("$TARGETD/dox$SUBDIR/tmp$$",0777) ){
+	    print "\t\tCannot create $TARGETD/dox$SUBDIR/tmp$$\n";
+	    exit;
 	}
 	
     }
-    close(FI);
 
-    if( -d "$TARGETD/dox$SUBDIR/html"){
-	print "Reading template file\n";
-	open(FI,"$TARGETD/dox$SUBDIR/html/index.html");
-	$tmp = 0;
-	while ( defined($line = <FI>) ){
-	    chomp($line);
-	    if( $line =~ /<p>/){
-		$tmp = 1;
-	    } elsif ($line =~ /<hr><h1>.*/){
-		# Ignore it
-	    } else {
-		if($tmp==1){
-		    push(@TAIL,$line);
-		} elsif ($tmp == 0) {
-		    push(@HEAD,$line);
+
+
+    # -------------------------------------------------------------------
+    # Now, start using this file but also redirect all
+    # resulting output of doxygen to a temp file
+    # -------------------------------------------------------------------
+    if( -e "$tmpf.cfg"){
+	print "\tRunning $DOXYGEN now ".localtime()."\n";
+	system("cd $TMPDIR ; $DOXYGEN $tmpf.cfg >&$tmpf.log");
+	if( -d "$TARGETD/dox$SUBDIR/tmp$$/html" && $DOTAG){
+	    print "\tRunning $DOXYTAG now ".localtime()."\n";
+	    system("cd $TARGETD/dox$SUBDIR/tmp$$/html ; ".
+		   "$DOXYTAG -s search.idx >&/dev/null");
+	    if ( ! -e "$TARGETD/dox$SUBDIR/tmp$$/html/$IDXNAME"){
+		print "\t\tDoxygen did not generate $IDXNAME . Trying with $DOXYTAG\n";
+		system("cd $TARGETD/dox$SUBDIR/tmp$$/html ; ".
+		       "$DOXYTAG -t $IDXNAME >&/dev/null");
+	    }
+	} else {
+	    print "\t\tMissing tmp$$/html directory\n";
+	}
+	#unlink("$tmpf.cfg");
+    } else {
+	print "\tAction did not create a temporary configuration file\n";
+	exit;
+    }
+
+
+
+    # -------------------------------------------------------------------
+    # Check if the expected sub-directories were created and
+    # move them to target destination.
+    # -------------------------------------------------------------------
+    foreach $dir (@DIRS){
+	if( -d "$TARGETD/dox$SUBDIR/tmp$$/$dir"){
+	    # Rename the tmp-directories to target-directories
+	    # Take care of the old one first
+	    if( -d "$TARGETD/dox$SUBDIR/$dir"){
+		if( -d "$TARGETD/dox$SUBDIR/$dir.old"){
+		    #print "Removing old $TARGETD/dox/$SUBDIR/$dir.old\n";
+		    system("rm -fr $TARGETD/dox$SUBDIR/$dir.old");
+		}
+		#print "Renaming current $TARGETD/dox/$SUBDIR/$dir\n";
+		rename("$TARGETD/dox$SUBDIR/$dir",
+		       "$TARGETD/dox$SUBDIR/$dir.old");
+	    }
+	    # Rename tmp -> final destination
+	    print "\tInstalling created $TARGETD/dox$SUBDIR/$dir\n";
+	    rename("$TARGETD/dox$SUBDIR/tmp$$/$dir",
+		   "$TARGETD/dox$SUBDIR/$dir");
+	} else {
+	    print "Warning :: $dir not found\n";
+	}
+    }
+
+    print "\tCleaning\n";
+
+    system("cp -f $tmpf.cfg $TARGETD/dox$SUBDIR/html/doxygen.cfg");
+    if ( -e "$TARGETD/dox$SUBDIR/html/doxygen.cfg" ){
+	print "\t\tCopying config file OK ($TARGETD/dox$SUBDIR/html/doxygen.cfg)\n";
+    } else {
+	print "\t\tERROR Failed to copy config file to $TARGETD/dox$SUBDIR/html/\n";
+    }
+    if( -d "$TARGETD/dox$SUBDIR/tmp$$"){
+	if ( ! rmdir("$TARGETD/dox$SUBDIR/tmp$$") ){
+	    print "\t\tERROR Directory removal failed\n";
+	} else {
+	    print "\t\tCleaning temp directory OK\n";
+	}
+    }
+
+
+    # -------------------------------------------------------------------
+    # Guess what ? We have a few interresting comments/warning
+    # generated from that pass. Parse it now ... and re-generate
+    # the index.html as we see fit. This is kinda' home-made but
+    # this entire block may be disabled.
+    # -------------------------------------------------------------------
+    if( 1==1 ){
+	print "\tScanning for errors/warnings\n";
+	open(FI,"$tmpf.log");
+	while ( defined($line=<FI>) ){
+	    if($line =~ m/(Error\:)(.*)/){
+		$el = "Errors";
+		if( defined($ERRORS{$el}) ){
+		    $ERRORS{$el} .= ";$line";
+		} else {
+		    $ERRORS{$el}  = "$line";
+		}
+	    } elsif($line =~ m/(.*)(:\d+\s+)(Warning:)(.*)/){
+		# I separated it because it may become a ';' list
+		# in the pattern. So far, only saw 'Warning'.
+		$el = $1; $val = "$2$3$4";
+		$el =~ s/$INDEXD\///g;
+		if( defined($ERRORS{$el}) ){
+		    $ERRORS{$el} .= ";$val";
+		} else {
+		    $ERRORS{$el}  = "$val";
+		}
+		if($line =~ /no matching file member found for/ ||
+		   $line =~ /no matching class member found for/){
+		    chomp($ERRORS{$el} .= <FI>);
 		}
 	    }
+	
 	}
 	close(FI);
-
-
-	print "Now printing out the errors\n";
-	open(FO,">$TARGETD/dox$SUBDIR/html/doxycron-errors.html");
-
-	# start with a reference list
-	foreach $line (@HEAD){ print FO "$line\n";}
-	print FO
-	    "<hr><h1>Runtime Warning/Errors</h1>\n",
-	    "<tt>EXAMPLE_PATH</tt> was determined to be <tt>$expath</tt>\n",
-	    "<p><table border=\"0\" cellspacing=\"1\">\n<tr>\n";
-	$i = 0;
-	foreach $line (sort keys %ERRORS){
-	    $ref = &GetRef($line);
-	    if($i % 4 == 0){ 
-		print FO "</tr>\n<tr>\n";
-		$i = 0;
+	
+	print "\tHTML handling\n";
+	if( -d "$TARGETD/dox$SUBDIR/html"){
+	    print "\t\tReading index.html template file\n";
+	    open(FI,"$TARGETD/dox$SUBDIR/html/index.html");
+	    $tmp = 0;
+	    while ( defined($line = <FI>) ){
+		chomp($line);
+		if( $line =~ /<p>/){
+		    $tmp = 1;
+		} elsif ($line =~ /<hr><h1>.*/){
+		    # Ignore it
+		} else {
+		    if($tmp==1){
+			push(@TAIL,$line);
+		    } elsif ($tmp == 0) {
+			push(@HEAD,$line);
+		    }
+		}
 	    }
-	    print FO "<td><a href=\"#$ref\">$line</a></td>\n";
-	    $i++;
-	}
-	while ($i < 4){ print FO "<td>&nbsp;</td>"; $i++;}
-	if($i == 4){    print FO "</tr>\n";}
-	print FO "</table>\n";
+	    close(FI);
 
-	# Now dislay the errors
-	foreach $line (sort keys %ERRORS){
-	    $ref = &GetRef($line);
-	    print FO "<p><a name=\"$ref\"></a>$line\n<blockquote><pre>\n";
-	    @items = split(/;/,$ERRORS{$line});
-	    foreach $tmp (@items){
-		print FO "$tmp\n";
+
+	    print "\t\tGenerating list of run-time errors\n";
+	    open(FO,">$TARGETD/dox$SUBDIR/html/doxycron-errors.html");
+
+	    # start with a reference list
+	    foreach $line (@HEAD){ print FO "$line\n";}
+	    print FO
+		"<hr><h1>Runtime Warning/Errors</h1>\n",
+		"<tt>EXAMPLE_PATH</tt> was determined to be <tt>$expath</tt>\n",
+		"<p><table border=\"0\" cellspacing=\"1\">\n<tr>\n";
+	    $i = 0;
+	    foreach $line (sort keys %ERRORS){
+		$ref = &GetRef($line);
+		if($i % 4 == 0){ 
+		    print FO "</tr>\n<tr>\n";
+		    $i = 0;
+		}
+		print FO "<td><a href=\"#$ref\">$line</a></td>\n";
+		$i++;
 	    }
-	    print FO "</pre></blockquote>\n";
+	    while ($i < 4){ print FO "<td>&nbsp;</td>"; $i++;}
+	    if($i == 4){    print FO "</tr>\n";}
+	    print FO "</table>\n";
+
+	    # Now dislay the errors
+	    foreach $line (sort keys %ERRORS){
+		$ref = &GetRef($line);
+		print FO "<p><a name=\"$ref\"></a>$line\n<blockquote><pre>\n";
+		@items = split(/;/,$ERRORS{$line});
+		foreach $tmp (@items){
+		    print FO "$tmp\n";
+		}
+		print FO "</pre></blockquote>\n";
+	    }
+	    foreach $line (@TAIL){ print FO "$line\n";}
+	    close(FO);
+
+
+	    #
+	    # Re-write the index file
+	    #
+	    print "\t\tRe-writing index.html\n";
+	    open(FO,">$TARGETD/dox$SUBDIR/html/index.html");
+	    foreach $line (@HEAD){ print FO "$line\n";}
+	    print FO 
+		"<hr><h1>$PROJECT Documentation</h1>\n",
+		"<p>\n",
+		"<ul>",
+		"<li><a href=\"doxycron-errors.html\">Runtime warnings</a>",
+		"<li><a href=\"/STAR/comp/sofi/doxygen/\">User documentation</a>";
+
+	    @refs = split(" ",$OTHERIDX);
+	    if ($#refs != -1){
+		print FO 
+		    "<li>Cross reference list\n",
+		    "    <!-- ".join(" ",@refs)." -->\n",
+		    "    <ol>\n";
+		foreach $ref (@refs){
+		    $ref =~ s/$TARGETD\/dox\///;
+		    $ref =~ s/(.*)(\/html.*)/$1/;
+		    print "\t\t\tFound cross reference $ref\n";
+		    print FO "    <li><a href=\"../$ref/html/index.html\">$ref</a>\n";
+		}
+		print FO 
+		    "    </ol>\n";
+	    } 
+
+	    print FO "</ul>\n";
+
+	    foreach $line (@TAIL){ print FO "$line\n";}
+	    close(FO);
 	}
-	foreach $line (@TAIL){ print FO "$line\n";}
-	close(FO);
-
-
-	#
-	# Re-write the index file
-	#
-	open(FO,">$TARGETD/dox$SUBDIR/html/index.html");
-	foreach $line (@HEAD){ print FO "$line\n";}
-	print FO 
-	    "<hr><h1>$PROJECT Documentation</h1>\n",
-	    "<p>\n",
-	    "<ul>",
-	    "<li><a href=\"doxycron-errors.html\">Runtime warnings</a>",
-	    "<li><a href=\"/STAR/comp/sofi/doxygen/\">User documentation</a>",
-	    "</ul>\n";
-
-	foreach $line (@TAIL){ print FO "$line\n";}
-	close(FO);
     }
+
+
+    # delete the log now
+    print "\tRemoving log file\n";
+    unlink("$tmpf.log");
 }
-
-
-# delete the log now
-unlink("$tmpf.log");
 
 
 # File to Ref
@@ -471,7 +589,7 @@ sub CfgCreate
 # The PROJECT_NAME tag is a single word (or a sequence of words surrounded 
 # by quotes) that should identify the project.
 
-PROJECT_NAME           = "StRoot"
+PROJECT_NAME           = "Auto->\$PROJECT"
 
 # The PROJECT_NUMBER tag can be used to enter a project or revision number. 
 # This could be handy for archiving the generated documentation or 
@@ -1162,12 +1280,12 @@ SKIP_FUNCTION_MACROS   = YES
 
 # The TAGFILES tag can be used to specify one or more tagfiles.
 
-TAGFILES               = 
+TAGFILES               = Auto->\$OTHERIDX
 
 # When a file name is specified after GENERATE_TAGFILE, doxygen will create 
 # a tag file that is based on the input files it reads.
 
-GENERATE_TAGFILE       = index.tag
+GENERATE_TAGFILE       = Auto->\$IDXNAME
 
 # If the ALLEXTERNALS tag is set to YES all external classes will be listed 
 # in the class index. If set to NO only the inherited external classes 
