@@ -9,9 +9,8 @@
 #
 # prodSumm.pl
 #
-# Wensheng Deng 9/99
 #
-# Update database 'operation' table and web current-production-summary table
+# Create database 'operation' table and web current-production-summary table
 #
 # Usage: prodSumm.pl
 #
@@ -584,16 +583,9 @@ sub sum_info  {
 
 my ($jb_sum,$useless) = @_;   
 my $sum_line ;
-#my $job_status;                     # job status 
+
 my @word_sum;
-#my $lb_tag;                         # lib tag
-#my $lb_ver;                         # lib version
-#my $no_track = 0;                   # everage No. tracks 
-#my $no_vertx = 0;                   # everage No. verteces  
-#my $no_events_complete = 0;         # No. events done 
-#my $pr_chain;                       # chain to run
-#my $mem_size = 0;                   # max memory size 
-#my $cpu_event = 0;                  # cpu per event 
+
  
 my @output = `more $jb_sum`; 
   foreach my $sum_line (@output) {
