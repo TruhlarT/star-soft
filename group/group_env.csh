@@ -1,7 +1,10 @@
 #!/usr/bin/csh -f
-#       $Id: group_env.csh,v 1.45 1998/08/23 18:47:02 fisyak Exp $
+#       $Id: group_env.csh,v 1.46 1998/08/27 01:29:02 fisyak Exp $
 #	Purpose:	STAR group csh setup 
 #       $Log: group_env.csh,v $
+#       Revision 1.46  1998/08/27 01:29:02  fisyak
+#       Add  root 2/11 for development version (SL98g)
+#
 #       Revision 1.45  1998/08/23 18:47:02  fisyak
 #       No debug name of libraries is LIB
 #
@@ -176,6 +179,14 @@ setenv STAR_PARAMS ${STAR}/params;      if ($ECHO) echo   "Setting up STAR_PARAM
 setenv STAR_CALIB ${STAR_ROOT}/calib;   if ($ECHO) echo   "Setting up STAR_CALIB= ${STAR_CALIB}"
 setenv STAR_PROD   $STAR/prod;          if ($ECHO) echo   "Setting up STAR_PROD = ${STAR_PROD}"
 setenv CVSROOT   $STAR_PATH/repository; if ($ECHO) echo   "Setting up CVSROOT   = ${CVSROOT}"
+#if (! ${?ROOT_LEVEL}) then
+  if ($STAR_VERSION  == "SL98g") then
+    setenv ROOT_LEVEL 2.11
+  else
+    setenv ROOT_LEVEL 2.09
+  endif
+#endif
+                                        if ($ECHO) echo   "Setting up ROOT_LEVEL= ${ROOT_LEVEL}"
 setenv TEXINPUTS :${GROUP_DIR}/latex/styles
 setenv GROUPPATH "${GROUP_DIR}:${STAR_MGR}:${STAR_BIN}"
 if ( -x /afs/rhic/star/group/dropit) then
