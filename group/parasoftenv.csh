@@ -1,6 +1,7 @@
 #! /usr/local/bin/tcsh -f
 switch ($STAR_SYS)
-    case "i386_redhat61":
+    case "i386_redhat6*":
+    case "i386_linux2*":
 	#setenv PARASOFT /usr/local/app/parasoft
 	setenv PARASOFT /afs/rhic/app/insure-5.2
 	setenv LD_LIBRARY_PATH `${GROUP_DIR}/dropit -p ${LD_LIBRARY_PATH} -p {$PARASOFT}/lib.linux2`
