@@ -4,7 +4,7 @@
 # This scripts take an input file as sole argument
 # and output result in HTML format to STDOUT
 #
-use lib "/afs/rhic/star/packages/scripts/";
+use lib "/afs/rhic.bnl.gov/star/packages/scripts/";
 use ABUtils;
 
 
