@@ -162,7 +162,12 @@ elsif($detrSet eq "all" and $datSet ne "all" and $fldSet eq "all") {
       foreach my $mRun (@rSet)  {
           $dataS = ($$mRun)->dtSet;
           $mmRun = ($$mRun)->drun;
-       
+	  if( $fldSet eq "all") {
+         
+         $runSet[$nrunSet] = $mmRun;
+         $nrunSet++;    
+
+       }else{
      @prt = split ("_", $dataS);
          $mfield = $prt[1];
 	  if($mfield eq  $fldSet ) {
@@ -171,6 +176,7 @@ elsif($detrSet eq "all" and $datSet ne "all" and $fldSet eq "all") {
         $nrunSet++;
            }
 	}
+         
 
 if($nrunSet == 0) {
   $runSet[0] = "no data";
