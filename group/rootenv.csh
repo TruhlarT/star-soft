@@ -15,7 +15,7 @@ if ($level  >= 305 )  then
 
     set ROOTBASE = "${ROOT}/${ROOT_LEVEL}/.${STAR_HOST_SYS}"
 
-    if ( ! $?ROOTSYS ) then
+    if ( ! $?ROOTSYS || ! -e ${ROOT}/${ROOT_LEVEL}/.${STAR_HOST_SYS}/${p}root${x} ) then
 	# We set "a" default
 	setenv ROOTSYS ${ROOT}/${ROOT_LEVEL}/.${STAR_HOST_SYS}/rootdeb
     else
