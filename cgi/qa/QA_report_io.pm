@@ -716,20 +716,11 @@ sub do_report_comparison {
 #===================================================================
 sub reduced_key{
 
-  my $report_key = shift;
+  my $value = shift;
 
-  my @essence = split /\./, $report_key;
-  $essence[1] =~ s/\_.*//;
-#  return $essence[0]."_".$essence[1]."_".$essence[3];
-
-  $value = 0;
-
-  if ( $essence[0] eq "dev" ){
-    $value = $essence[1]."_".$essence[3];
-  }  
-  elsif ( $essence[0] eq "new" ){
-    $value = $essence[1]."_".$essence[2];
-  }
+  $value =~ s/_Solaris|_Linux//;
+  $value =~ s/(Sun|Mon|Tue|Wed|Thu|Fri|Sat)\.//;
+  $value =~ s/\.[0-9]+$//;
 
   return $value;
 
