@@ -1,11 +1,14 @@
 #
-#	$Id: group_cshrc,v 1.1 1998/03/23 02:29:15 fisyak Exp $
+#	$Id: group_cshrc,v 1.2 1998/03/26 16:41:33 fisyak Exp $
 #	Purpose:	STAR group csh setup 
 #	$Log: group_cshrc,v $
+#	Revision 1.2  1998/03/26 16:41:33  fisyak
+#	Add STAR_LEVELS
+#	
 #	Revision 1.1  1998/03/23 02:29:15  fisyak
 #	Fix group start-up
-#	
+#
 # clean-up PATH
-  setenv MANPATH `dropit -p $MANPATH`
-  setenv PATH `dropit GROUPPATH`
+  setenv MANPATH `/afs/rhic/star/group/dropit -p $MANPATH`
+  setenv PATH `/afs/rhic/star/group/dropit GROUPPATH`
 #

@@ -1,6 +1,9 @@
 #!/bin/sh
-#  $Id: dropit,v 1.1 1998/03/23 02:29:14 fisyak Exp $
+#  $Id: dropit,v 1.2 1998/03/26 16:41:31 fisyak Exp $
 #  $Log: dropit,v $
+#  Revision 1.2  1998/03/26 16:41:31  fisyak
+#  Add STAR_LEVELS
+#
 #  Revision 1.1  1998/03/23 02:29:14  fisyak
 #  Fix group start-up
 #
@@ -45,13 +48,13 @@ while test $# -gt 0
 do
   case $1 in
         -c);;     
-        -i) shift; FS=$1;;            #input_delimiter
-        -d) shift; DS=$1;;            #output_delimiter
-        -p) shift; string=$1;;        #string  
-        -*) shift;;
-         *)        substring=$1;;     #substring
+        -i) test $# -gt 0 && shift; FS=$1;;            #input_delimiter
+        -d) test $# -gt 0 && shift; DS=$1;;            #output_delimiter
+        -p) test $# -gt 0 && shift; string=$1;;        #string  
+        -*) test $# -gt 0 && shift;;
+         *)                         substring=$1;;     #substring
   esac
-  shift
+  test $# -gt 0 && shift
 done 
 # Search AWK command
 #--------------------

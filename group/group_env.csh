@@ -1,6 +1,9 @@
-#       $Id: group_env.csh,v 1.4 1998/03/24 00:04:09 fisyak Exp $
+#       $Id: group_env.csh,v 1.5 1998/03/26 16:41:34 fisyak Exp $
 #	Purpose:	STAR group csh setup 
 #       $Log: group_env.csh,v $
+#       Revision 1.5  1998/03/26 16:41:34  fisyak
+#       Add STAR_LEVELS
+#
 #       Revision 1.4  1998/03/24 00:04:09  fisyak
 #       fix PATH
 #
@@ -50,7 +53,8 @@ setenv STAR_CALIB ${STAR_ROOT}/calib;        if ($ECHO) echo   "Setting up STAR_
 setenv CVSROOT   $STAR_PATH/repository;      if ($ECHO) echo   "Setting up CVSROOT   = ${CVSROOT}"
 setenv TEXINPUTS :${GROUP_DIR}/latex/styles
 setenv GROUPPATH "${GROUP_DIR}:${STAR_MGR}:${STAR_BIN}"
-setenv PATH /usr/afsws/bin:/usr/afsws/etc:/opt/rhic/bin:/usr/local/bin:${GROUP_DIR}:${STAR_MGR}:${STAR_BIN}:${PATH}
+setenv PATH "/usr/afsws/bin:/usr/afsws/etc:/opt/rhic/bin:/usr/local/bin:${GROUP_DIR}:${STAR_MGR}:${STAR_BIN}:${PATH}"
+#set path=( /usr/afsws/bin /usr/afsws/etc /opt/rhic/bin /usr/local/bin $GROUP_DIR $STAR_MGR $STAR_BIN $path )
 setenv MANPATH ${MANPATH}:${STAR_PATH}/man
 setenv STAR_LD_LIBRARY_PATH ""
 switch ($STAR_SYS)
@@ -69,20 +73,23 @@ switch ($STAR_SYS)
 	setenv CERN ${AFS_RHIC}/asis/hp_ux102/cern
 	setenv CERN_LEVEL new
 	setenv CERN_ROOT $CERN/$CERN_LEVEL
-        setenv PATH `/afs/rhic/star/group/dropit cern`:$CERN_ROOT/bin
+        set path = ( $CERN_ROOT/bin $path )
+        echo hp_ux102 PATH = $PATH
       endif
     breaksw
     case "sgi_5*":
 #  ====================
-      if ($?CERN == 0 || $CERN == "/cern") then
-	setenv CERN ${AFS_RHIC}/asis/sgi_52/cern
-	setenv CERN_LEVEL pro
-	setenv CERN_ROOT $CERN/$CERN_LEVEL
-        setenv PATH `/afs/rhic/star/group/dropit cern`:$CERN_ROOT/bin
-      endif
+#     if ($?CERN == 0 || $CERN == "/cern") then
+#	setenv CERN ${AFS_RHIC}/asis/sgi_52/cern
+#	setenv CERN_LEVEL pro
+#	setenv CERN_ROOT $CERN/$CERN_LEVEL
+#	setenv PATH `/afs/rhic/star/group/dropit cern`:$CERN_ROOT/bin
+#     endif
     breaksw
     case "sgi_6*":
 #  ====================
+        setenv CERN_LEVEL pro
+        setenv CERN_ROOT  /cern/pro
     breaksw
     case "i386_linux2":
 #  ====================
@@ -111,9 +118,9 @@ else
 setenv LD_LIBRARY_PATH "$STAR_LD_LIBRARY_PATH":"$LD_LIBRARY_PATH"
 endif
 setenv LD_LIBRARY_PATH `/afs/rhic/star/group/dropit -p ${LD_LIBRARY_PATH}`
-if ( -e /usr/ccs/bin/ld ) set PATH = ( $PATH':'/usr/ccs/bin':'/usr/ccs/lib )
-  setenv PATH `/afs/rhic/star/group/dropit`
-  setenv MANPATH `/afs/rhic/star/group/dropit -p ${MANPATH}`
+if ( -e /usr/ccs/bin/ld ) set path = ( $path /usr/ccs/bin /usr/ccs/lib )
+#  setenv PATH `/afs/rhic/star/group/dropit`
+#  setenv MANPATH `/afs/rhic/star/group/dropit -p ${MANPATH}`
 # We need this aliases even during BATCH
 if (-r $GROUP_DIR/group_aliases.csh) source $GROUP_DIR/group_aliases.csh
 #
@@ -139,16 +146,19 @@ if ($ECHO) echo   "Setting up SCRATCH   = $SCRATCH"
 endif
 #if ( -e $STAR/mgr/init_star.csh) source $STAR/mgr/init_star.csh
 if ($ECHO) echo   "STAR library version "$STAR_VERSION" has been initiated with `which staf`"
+if ($ECHO) echo   "CERNLIB version "$CERN_LEVEL" has been initiated with CERN_ROOT="${CERN_ROOT}
 #
 # HP Jetprint
 if ( -d /opt/hpnp ) then
   if ($ECHO) echo   "Paths set up for HP Jetprint"
   setenv MANPATH "$MANPATH":/opt/hpnp/man
-  set PATH = ( $PATH':'/opt/hpnp/bin':'/opt/hpnp/admin )
+# set PATH = ( $PATH':'/opt/hpnp/bin':'/opt/hpnp/admin )
+  set path = ( $path /opt/hpnp/bin /opt/hpnp/admin )
 endif
 # clean-up PATH
-  setenv MANPATH `/afs/rhic/star/group/dropit -p ${MANPATH}`
-  setenv PATH `/afs/rhic/star/group/dropit GROUPPATH`
+# setenv MANPATH `/afs/rhic/star/group/dropit -p ${MANPATH}`
+# setenv PATH `/afs/rhic/star/group/dropit GROUPPATH`
 #
 unset ECHO
 #END
+
