@@ -1129,7 +1129,10 @@ sub  updateJSTable {
 
 my $Anflag = 0;
 my $runflag = 0;
+my $mCPUbfc = 0;
+my $mRealTbfc = 0;
 
+ 
    foreach my $line (@logfile) {
        chop $line ;
         $num_line++; 
@@ -1260,16 +1263,22 @@ my $runflag = 0;
 
 
 ##### get CPU and Real Time per event
-      
+
  if ($EvCom != 0) {
     @cpu_output = `tail -1000 $fl_log`;
-     
+ 
   foreach $end_line (@cpu_output){
           chop $end_line;
-   if ($end_line =~ /QAInfo: Total: bfc/ and $end_line =~ /Cpu Time/) {
+   if ($end_line =~ /QAInfo: Chain/ and $end_line =~ /StBFChain::bfc/) {
      @part = split (" ", $end_line); 
-     $mCPU = $part[12]/$EvCom;
-     $mRealT = $part[7]/$EvCom;
+      $mCPUbfc = $part[4];
+      $mRealTbfc = $part[6];
+      $mCPUbfc = substr($mCPUbfc,1) + 0;
+      $mRealTbfc = substr($mRealTbfc,1) + 0;
+#    print "CPU ", $mCPUbfc,"   %   ", $mRealTbfc, "\n";
+     $mCPU = $mCPUbfc/$EvCom;
+     $mRealT = $mRealTbfc/$EvCom;
+    
    }else{
     next;
       }
