@@ -90,7 +90,7 @@ $SUBDIR  = shift(@ARGV) if ( @ARGV );
 
 # -------------------------------------------------------------------------
 $TMPDIR  = "/tmp";                                   # temp dir on cron node
-$BINPATH = "/usr/bin/";                              # path to bin for 
+$BINPATH = "/opt/star/bin/";                         # path to bin for 
                                                      # doxy-progs on Web server
 $DOXYGEN = "doxygen";                                # exe names on local node
 $DOXYTAG = "doxytag";                                # can be full path or not.
