@@ -198,6 +198,16 @@ while ( defined($logname = readdir(LOGDIR)) ){
 		    }
 		}
 		undef(@log_errs2);
+
+		my $tmp = "";
+		@log_errs2 = `tail -5000 $fullname | grep 'Done with Event'`;
+		foreach $logerr (@log_errs2){
+		    if($logerr =~ m/(\d+)(\/run)/){
+			$tmp = $1;
+		    }
+		}
+		if($tmp ne ""){  $err = "After $tmp events $err\n";}
+		undef(@log_errs2);
 		
 		@log_errs1 = `tail -5 $err_file`;
 		foreach $logerr (@log_errs1){
@@ -211,7 +221,7 @@ while ( defined($logname = readdir(LOGDIR)) ){
 		if($DEBUG){
 		    print "$err\n";
 		} else {
-		    if($err ne ""){ print "error type 2 in $logname\n";}
+		    if($err ne ""){ print "error type 2 [$err] in $logname\n";}
 		}
 	    } #else fsize/minsize compare
 
@@ -285,7 +295,7 @@ sub define_err
     my ($errname,$logerr) = @_;
     if( $logerr =~ m/$errname/ ){
 	chomp($errname);
-	$err .= "$errname | ";
+	$err .= " $errname |";
 	print "$err";
     }
 }
