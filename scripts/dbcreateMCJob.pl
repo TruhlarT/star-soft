@@ -222,7 +222,7 @@ my $SUM_DIR = "/star/rcf/prodlog/" . $prodPeriod . "/log/trs";
     if (-f $jb_hold)     {$jb_fstat = 0};  
      if($jb_fstat eq 1)  {
 
-    if($nfiles < 10 ) {
+#    if($nfiles < 10 ) {
          &create_jobs($jfile, $jset, $mchain, $mlibVer, $JOB_DIR, $prodDisk); 
      $nfiles++;
         print "JOB ID = " ,$mjobID, "\n";
@@ -230,16 +230,15 @@ my $SUM_DIR = "/star/rcf/prodlog/" . $prodPeriod . "/log/trs";
 ###  fill  JobStatus table
        print "filling JobStatus table\n";
  
-#      &fillJSTable();   
+      &fillJSTable();   
 
 ###  fill  jobRelations table
         print "filling jobRelations table\n";
-#       &fillJRelTable();
-      }
+       &fillJRelTable();
+#      }
       }
      }  
    }
-#}
 
 ###delete from $JobStatusT inserted JobID
 
@@ -309,7 +308,6 @@ my $SUM_DIR = "/star/rcf/prodlog/" . $prodPeriod . "/log/trs";
   $logDir = $JOB_LOG; 
    $job_set = $Jset;
   $job_set =~ s/\//_/g;
-# $jlibVer = "SL02e";
 ## print $job_set, "\n";
  my $exArg = "13,".$jlibVer ."," .$dataDisk . ",-1," . $fchain;
 
