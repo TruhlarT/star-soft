@@ -1,7 +1,10 @@
 #!/usr/bin/csh -f
-#       $Id: group_env.csh,v 1.92 1999/11/30 21:11:45 fisyak Exp $
+#       $Id: group_env.csh,v 1.93 1999/12/27 15:55:43 fisyak Exp $
 #	Purpose:	STAR group csh setup 
 #       $Log: group_env.csh,v $
+#       Revision 1.93  1999/12/27 15:55:43  fisyak
+#       Fix CC5 PATH
+#
 #       Revision 1.92  1999/11/30 21:11:45  fisyak
 #       Put /opt/star/bin up front
 #
@@ -316,6 +319,7 @@ else
   if ($?MINE_lib) unsetenv MINE_lib
 endif
 setenv STAR_BIN  $STAR/.${STAR_HOST_SYS}/bin  ; if ($ECHO) echo   "Setting up STAR_BIN  = ${STAR_BIN}"
+setenv MY_BIN          .${STAR_HOST_SYS}/bin 
 setenv STAR_MGR $STAR/mgr
 setenv STAR_SCRIPTS $STAR/scripts
 setenv STAR_CGI $STAR/cgi
@@ -360,7 +364,7 @@ endsw
 endif
 setenv CERN_ROOT  $CERN/$CERN_LEVEL
 if ($ECHO) echo   "Setting up ROOT_LEVEL= ${ROOT_LEVEL}"
-setenv GROUPPATH "${GROUP_DIR}:${STAR_MGR}:${STAR_SCRIPTS}:${STAR_BIN}:${STAF}/mgr:${STAF_BIN}"
+setenv GROUPPATH "${GROUP_DIR}:${STAR_MGR}:${STAR_SCRIPTS}:${STAR_CGI}:${MY_BIN}:${STAR_BIN}:${STAF}/mgr:${STAF_BIN}"
 if ( -x /afs/rhic/star/group/dropit) then
 # clean-up PATH
   setenv MANPATH `/afs/rhic/star/group/dropit -p ${MANPATH}`
@@ -369,7 +373,7 @@ if ( -x /afs/rhic/star/group/dropit) then
   if (${?LD_LIBRARY_PATH}) setenv LD_LIBRARY_PATH `/afs/rhic/star/group/dropit -p ${LD_LIBRARY_PATH} $STAR_PATH`
   if (${?SHLIB_PATH})      setenv SHLIB_PATH      `/afs/rhic/star/group/dropit -p ${SHLIB_PATH} $STAR_PATH`
 endif
-setenv PATH "/usr/afsws/bin:/usr/afsws/etc:/opt/star/bin:/usr/sue/bin:/usr/local/bin:${GROUP_DIR}:${STAR_MGR}:${STAR_SCRIPTS}:${STAR_CGI}:${STAR_BIN}:${STAF}/mgr:${STAF_BIN}:${PATH}"
+setenv PATH "${GROUPPATH}:/usr/afsws/bin:/usr/afsws/etc:/opt/star/bin:/usr/sue/bin:/usr/local/bin:${PATH}"
 ## Put mysql on path if available
 if ( -d /usr/local/mysql/bin) then
   setenv PATH "${PATH}:/usr/local/mysql/bin"
@@ -418,17 +422,8 @@ switch ($STAR_SYS)
        setenv MANPATH "$MANPATH":$PGI/man
        setenv LM_LICENSE_FILE $PGI/license.dat
        alias pgman 'man -M $PGI/man'
-#       if ("`echo $STAR_VERSION | cut -c3-4`" != "99") then
-#           setenv CERN_LEVEL pgf98
-#       endif
      endif
      set path = ($path  /usr/local/bin/ddd)
-#                                            /usr/local/DQS318/bin )
-#     if ( -x /usr/local/DQS32/bin/qstat32) then
-#       set path = ($path /usr/local/DQS32/bin )
-#       setenv  MANPATH "$MANPATH":/usr/local/DQS32/man
-#     endif
-#    set path = ($path  /usr/local/bin/ddd /usr/local/DQS318/bin )
      set path = ($path $PARASOFT/bin.linux)
      if (! ${?LD_LIBRARY_PATH}) setenv LD_LIBRARY_PATH 
      setenv LD_LIBRARY_PATH "/usr/lib:${PARASOFT}/lib.linux:/usr/local/lib:${LD_LIBRARY_PATH}"
@@ -446,9 +441,26 @@ switch ($STAR_SYS)
 #  ====================
       if (! ${?LD_LIBRARY_PATH}) setenv LD_LIBRARY_PATH
       setenv LD_LIBRARY_PATH "/usr/openwin/lib:/usr/dt/lib:/usr/local/lib:${PARASOFT}/lib.solaris:/afs/rhic/star/packages/ObjectSpace/2.0m/lib:${LD_LIBRARY_PATH}"
-      setenv LD_LIBRARY_PATH "/opt/SUNWspro/lib:${LD_LIBRARY_PATH}"
-      setenv PATH "/opt/SUNWspro/bin:$PATH"
-      setenv MANPATH "/opt/SUNWspro/man:$MANPATH"
+      if ("${STAR_HOST_SYS}" == "sun4x_56_CC5") then
+        setenv LD_LIBRARY_PATH "${LD_LIBRARY_PATH}:/opt/WS5.0/lib:/opt/WS5.0/SC5.0/lib"
+        setenv PATH "/opt/WS5.0/bin:${PATH}"
+	setenv MANPATH "/opt/WS5.0/man:${MANPATH}"
+        if ( -x /afs/rhic/star/group/dropit) then
+          setenv PATH `/afs/rhic/star/group/dropit SUNWspro`
+          setenv LD_LIBRARY_PATH `/afs/rhic/star/group/dropit -p $LD_LIBRARY_PATH SUNWspro`
+        endif
+      else
+        if ( -x /afs/rhic/star/group/dropit) then
+          setenv PATH `/afs/rhic/star/group/dropit WS5.0`
+          setenv PATH `/afs/rhic/star/group/dropit CC5`
+          setenv LD_LIBRARY_PATH `/afs/rhic/star/group/dropit -p $LD_LIBRARY_PATH 5.0`
+          setenv LD_LIBRARY_PATH `/afs/rhic/star/group/dropit -p $LD_LIBRARY_PATH CC5`
+        endif
+        setenv LD_LIBRARY_PATH "/opt/SUNWspro/lib:${LD_LIBRARY_PATH}"
+        setenv PATH "/opt/SUNWspro/bin:$PATH"
+        setenv MANPATH "/opt/SUNWspro/man:$MANPATH"
+      endif
+
      if (${?MINE_lib} && ${?STAR_lib}) then
        setenv LD_LIBRARY_PATH "${MINE_lib}:${STAR_lib}:${MINE_LIB}:${STAR_LIB}:${STAF_LIB}:${LD_LIBRARY_PATH}"
      else
@@ -460,28 +472,6 @@ switch ($STAR_SYS)
       setenv OBJY_ARCH solaris4
       limit coredump 0
       unlimit descriptors
-      if (${?MINE_lib} && ${?STAR_lib}) then
-        setenv LD_LIBRARY_PATH "${MINE_lib}:${STAR_lib}:${MINE_LIB}:${STAR_LIB}:${STAF_LIB}:${LD_LIBRARY_PATH}"
-      else
-        setenv LD_LIBRARY_PATH "${MINE_LIB}:${STAR_LIB}:${STAF_LIB}:${LD_LIBRARY_PATH}"
-      endif
-      if ("${STAR_HOST_SYS}" == "sun4x_56_CC5" || "${STAR_HOST_SYS}" == "sun4x_56_CC5C") then
-        setenv LD_LIBRARY_PATH "/opt/WS5.0/lib:/opt/WS5.0/SC5.0/lib"
-        setenv PATH "/opt/WS5.0/bin:${PATH}"
-	setenv MANPATH "/opt/WS5.0/man:${MANPATH}"
-        if ( -x /afs/rhic/star/group/dropit) then
-          setenv PATH `/afs/rhic/star/group/dropit SUNWspro`
-          setenv PATH `/afs/rhic/star/group/dropit SUNWspro`
-          setenv LD_LIBRARY_PATH `/afs/rhic/star/group/dropit -p $LD_LIBRARY_PATH SUNWspro`
-        endif
-      else
-        if ( -x /afs/rhic/star/group/dropit) then
-          setenv PATH `/afs/rhic/star/group/dropit WS5.0`
-          setenv PATH `/afs/rhic/star/group/dropit CC5`
-          setenv LD_LIBRARY_PATH `/afs/rhic/star/group/dropit -p $LD_LIBRARY_PATH 5.0`
-          setenv LD_LIBRARY_PATH `/afs/rhic/star/group/dropit -p $LD_LIBRARY_PATH CC5`
-        endif
-      endif
     breaksw 
     default:
 #  ====================
