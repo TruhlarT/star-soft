@@ -2,7 +2,7 @@
 %
 % StEvent - User Guide and Reference Manual -- LaTeX Source
 %
-% $Id: StEvent.tex,v 2.57 2001/04/05 04:35:25 ullrich Exp $
+% $Id: StEvent.tex,v 2.58 2001/07/12 22:57:04 ullrich Exp $
 %
 % Author: Thomas Ullrich, Nov 1999
 %
@@ -21,6 +21,9 @@
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %
 % $Log: StEvent.tex,v $
+% Revision 2.58  2001/07/12 22:57:04  ullrich
+% Added changes to StZdcTriggerDetector.
+%
 % Revision 2.57  2001/04/05 04:35:25  ullrich
 % Replaced basic ROOT datatypes and more descriptions.
 %
@@ -236,8 +239,8 @@
   \mbox{\includegraphics[width=\textwidth]{StEventTitle.eps}}
   \hfill\mbox{}\\[3cm]
   {\LARGE User Guide and Reference Manual \\[5mm] for Version 2}\\[2cm]
-  {\LARGE $ $Revision: 2.57 $ $}  \\[5mm] % replaced by cvs with current revision
-  {\LARGE $ $Date: 2001/04/05 04:35:25 $ $}  % replaced by cvs with current revision
+  {\LARGE $ $Revision: 2.58 $ $}  \\[5mm] % replaced by cvs with current revision
+  {\LARGE $ $Date: 2001/07/12 22:57:04 $ $}  % replaced by cvs with current revision
   \vfill
 \end{center}
 \cleardoublepage
@@ -6416,11 +6419,15 @@ numberOfPoints(kTpcId) == numberOfPoints(kFtpcWestId)
     
     \verb+float adcSum() const;+\\
     Total ZDC sum.
+
+    \verb+float vertexZ() const;+\\
+    Returns z position of vertex obtained from ZDC timing information.
     
     \verb+void setAdc(unsigned int, float);+\\
     \verb+void setTdc(unsigned int, float);+\\
     \verb+void setAdcSum(StBeamDirection, float);+\\
     \verb+void setAdcSum(float);+\\
+    \verb+void setVertexZ(float);+\\
 \end{Entry}
 \clearpage
 
