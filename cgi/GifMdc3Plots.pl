@@ -182,7 +182,7 @@ foreach $prodAddr (@prodInfo) {
     $mRTEvt =  ($$prodAddr)->rtEvt;
     $mAveTrks = ($$prodAddr)->aveTrks;
     $mAveVtxs = ($$prodAddr)->aveVtxs;
-      next if ($mCPUEvt eq 0); 
+     if ($mCPUEvt ne 0)  { 
   $mflName = basename("$mflName", ".sum");
 
   if ($datProd ne 0) {
@@ -213,7 +213,8 @@ foreach $prodAddr (@prodInfo) {
 # print $aflName[$ii], $aMemSize[$ii], "\n";
     $ii++;
     }
-  }
+  } 
+ }
 #close (STDOUT);
 &StDbProdDisconnect();
 #========================================================================================
@@ -230,6 +231,7 @@ $xLabelSkip = 4 if( scalar(@aflName) > 40 );
 $xLabelSkip = 8 if( scalar(@aflName) > 80 );
 $xLabelSkip = 10 if( scalar(@aflName) > 100);
 $xLabelSkip = 20 if( scalar(@aflName) > 200);
+$xLabelSkip = 30 if( scalar(@aflName) > 300);
 
 my $qr = new CGI;
 
