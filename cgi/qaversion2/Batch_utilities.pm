@@ -1,4 +1,4 @@
-#! /usr/bin/perl -w
+#! /opt/star/bin/perl -w
 
 # Contains utility methods for using the LSF and at
 # batch systems

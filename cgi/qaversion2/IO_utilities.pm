@@ -1,4 +1,4 @@
-#! /usr/bin/perl -w
+#! /opt/star/bin/perl -w
 
 # contains miscellaneous utilities that do I/O but not supported by
 # IO_object .

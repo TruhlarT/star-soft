@@ -1,4 +1,4 @@
-#! /usr/bin/perl
+#! /opt/star/bin/perl
 
 # class to encapsulate all disk I/O
 

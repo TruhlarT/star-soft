@@ -1,4 +1,4 @@
-#! /usr/bin/perl 
+#! /opt/star/bin/perl 
 #
 # derived QA_object for offline
 #

@@ -1,4 +1,4 @@
-#! /usr/bin/perl
+#! /opt/star/bin/perl
 
 # class for doing timing
 

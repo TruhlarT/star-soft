@@ -1,4 +1,4 @@
-#! /usr/bin/perl 
+#! /opt/star/bin/perl 
 #
 # general object to contain pushbuttons
 #

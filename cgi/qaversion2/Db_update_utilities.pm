@@ -1,4 +1,4 @@
-#! /usr/bin/perl
+#! /opt/star/bin/perl
 # 
 # utilities for database interface for updating new QA 'objects'
 #

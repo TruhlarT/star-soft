@@ -1,4 +1,4 @@
-#! /usr/bin/perl
+#! /opt/star/bin/perl
 # 
 # utilities for the database and comparing similar datasets
 #

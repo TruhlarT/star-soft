@@ -1,4 +1,4 @@
-#! /usr/bin/perl 
+#! /opt/star/bin/perl 
 
 # first try at a QA object
 # pmj 29/7/99

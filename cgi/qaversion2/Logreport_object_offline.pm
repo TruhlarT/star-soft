@@ -1,4 +1,4 @@
-#! /usr/bin/perl
+#! /opt/star/bin/perl
 #
 # derived Logreport_object for offline 
 # this is a kluge.

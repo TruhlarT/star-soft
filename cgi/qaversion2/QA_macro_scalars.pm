@@ -1,5 +1,5 @@
 
-#! /usr/bin/perl -w
+#! /opt/star/bin/perl -w
 
 # contains a subroutine for each QA macro
 # input is report filename, output is hash whose keys are scalar names

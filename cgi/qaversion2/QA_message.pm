@@ -1,4 +1,4 @@
-#! /usr/bin/perl
+#! /opt/star/bin/perl
 # pmj 22/12/99
 #========================================================
 package QA_message;

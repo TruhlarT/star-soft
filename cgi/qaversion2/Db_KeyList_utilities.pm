@@ -1,4 +1,4 @@
-#! /usr/bin/perl
+#! /opt/star/bin/perl
 # 
 # utilities for the KeyList_object.
 # extracts the relevant information from the database

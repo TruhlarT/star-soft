@@ -1,4 +1,4 @@
-#! /usr/bin/perl
+#! /opt/star/bin/perl
 #
 # derived from QA_object.  runs and tests the macros
 #

@@ -1,4 +1,4 @@
-#! /usr/bin/perl
+#! /opt/star/bin/perl
 #
 # Class that takes care of 
 # 1. extracting the relevant keys from the db as chosen by the user

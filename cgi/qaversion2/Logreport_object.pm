@@ -1,4 +1,4 @@
-#! /usr/bin/perl -w
+#! /opt/star/bin/perl -w
 #
 # general object to retrieve basic information about the job.
 # the information is gathered from 

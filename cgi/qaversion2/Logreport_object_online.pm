@@ -1,4 +1,4 @@
-#! /usr/bin/perl 
+#! /opt/star/bin/perl 
 #
 # Logreport object for online raw.
 # Pretty much completely different from the other Logreports...

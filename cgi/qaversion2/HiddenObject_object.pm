@@ -1,4 +1,4 @@
-#! /usr/bin/perl
+#! /opt/star/bin/perl
 
 # class to hide objects between invocations of cgi script
 # used to be handled by QA_utilities::hidden_field_string
