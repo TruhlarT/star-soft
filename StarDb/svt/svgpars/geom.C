@@ -3056,7 +3056,7 @@ memset(&row,0,tableSet->GetRowSize());
     row.layer	 =          6; // Layer number wafer is on. ;
     row.num_chip	 =          7; // Chip number within ladder ;
     row.d[0]	 =  0.382683; // drift direction ;
-    row.d[1]	 =    =0.92388;
+    row.d[1]	 =    -0.92388;
     row.d[2]	 =          0;
     row.n[0]	 =    0.92388; // coord of unit vector normal to wafer ;
     row.n[1]	 =   0.382683;
