@@ -15,7 +15,7 @@
 use CGI;
 
 require "/afs/rhic/star/packages/DEV00/mgr/dbCpProdSetup.pl";
-#require "/afs/rhic/star/packages/DEV00/mgr/dbDescriptorSetup.pl";
+require "/afs/rhic/star/packages/DEV00/mgr/dbDescriptorSetup.pl";
 
 use File::Find;
 use Class::Struct;
@@ -78,7 +78,7 @@ my $prodSer = "P00hm" ;
 
 #####  connect to RunLog DB
 
-# &StDbDescriptorConnect();
+ &StDbDescriptorConnect();
 
 my $mmRun;
 my @runSet;
@@ -96,7 +96,7 @@ my $nrunSet = 0;
         for($i=0;$i<$cols;$i++) {
            my $fvalue=$fields[$i];
            my $fname=$cursor->{NAME}->[$i];
-        print "$fname = $fvalue\n" ;
+#        print "$fname = $fvalue\n" ;
        
          $mmRun = $fvalue     if( $fname eq 'runNumber'); 
          }
@@ -104,7 +104,7 @@ my $nrunSet = 0;
         $nrunSet++;
  }
 
-# &StDbDescriptorDisconnect();      
+ &StDbDescriptorDisconnect();      
 
 &StDbProdConnect();
 
@@ -364,7 +364,7 @@ print <<END;
           <title>Production Summary for Real Data</title>
    </head>
    <body BGCOLOR=\"#ccffff\"> 
-     <h1 align=center>Production Summary for period P00hi</h1>
+     <h1 align=center>Production Summary for period P00hm</h1>
 <TABLE ALIGN=CENTER BORDER=5 CELLSPACING=1 CELLPADDING=2 >
 <TR>
 <TD ALIGN=CENTER WIDTH=\"30%\" HEIGHT=100><B>MONTH/YEAR</B></TD>
