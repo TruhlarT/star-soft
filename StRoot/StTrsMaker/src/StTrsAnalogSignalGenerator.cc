@@ -1,6 +1,6 @@
 /***************************************************************************
  *
- * $Id: StTrsAnalogSignalGenerator.cc,v 1.11 2000/07/30 02:47:04 long Exp $
+ * $Id: StTrsAnalogSignalGenerator.cc,v 1.12 2003/09/02 17:59:19 perev Exp $
  *
  * Author: brian Nov 3, 1998 
  ***************************************************************************
@@ -10,6 +10,9 @@
  ***************************************************************************
  *
  * $Log: StTrsAnalogSignalGenerator.cc,v $
+ * Revision 1.12  2003/09/02 17:59:19  perev
+ * gcc 3.2 updates + WarnOff
+ *
  * Revision 1.11  2000/07/30 02:47:04  long
  *  mDeltaPad(0)---> mDeltaPad(2)
  *
@@ -116,5 +119,5 @@ void StTrsAnalogSignalGenerator::fractionSampled()
     double to = 1.5*nanosecond;
     double tmax = 62500.*nanosecond;
     
-    mFractionSampled = log(1+mSigma1/to)/log(1+tmax/to);
+    mFractionSampled = ::log(1+mSigma1/to)/::log(1+tmax/to);
 }

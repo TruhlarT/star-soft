@@ -1,11 +1,14 @@
 /***************************************************************************
  *
- * $Id: StQACosmicMaker.cxx,v 1.20 2000/08/18 20:34:46 snelling Exp $
+ * $Id: StQACosmicMaker.cxx,v 1.21 2003/09/02 17:58:50 perev Exp $
  *
  * Author: Raimond Snellings, LBNL, Jun 1999
  * Description:  Maker to QA the data from the tables (hitfinding, tracking etc.)
  *
  * $Log: StQACosmicMaker.cxx,v $
+ * Revision 1.21  2003/09/02 17:58:50  perev
+ * gcc 3.2 updates + WarnOff
+ *
  * Revision 1.20  2000/08/18 20:34:46  snelling
  * Added hit errors to ntuple
  *
@@ -31,7 +34,7 @@
  * Made writing histograms default
  *
  **************************************************************************/
-#include <iostream.h>
+#include <Stiostream.h>
 #include <stdlib.h>
 #include <math.h>
 #include "StQACosmicMaker.h"
@@ -96,7 +99,7 @@ Int_t StQACosmicMaker::Make() {
 
 void StQACosmicMaker::PrintInfo() {
   printf("**************************************************************\n");
-  printf("* $Id: StQACosmicMaker.cxx,v 1.20 2000/08/18 20:34:46 snelling Exp $\n");
+  printf("* $Id: StQACosmicMaker.cxx,v 1.21 2003/09/02 17:58:50 perev Exp $\n");
   printf("**************************************************************\n");
 
   if (Debug()) StMaker::PrintInfo();
@@ -285,7 +288,7 @@ Int_t StQACosmicMaker::fillTrackTNtuple() {
 
   for (Int_t i=0; i<phtrk->GetNRows();i++) {
 
-    Float_t trkcalcp = sqrt((pttrk[i].tanl * pttrk[i].tanl + 1.) /
+    Float_t trkcalcp = ::sqrt((pttrk[i].tanl * pttrk[i].tanl + 1.) /
 			    (pttrk[i].invp * pttrk[i].invp));
     if (Debug()) {cout << "track momentum" << trkcalcp << endl;}
     
@@ -315,7 +318,7 @@ Int_t StQACosmicMaker::fillHitTNtuple() {
     if (irow_trk >= 0 && irow_res >= 0) {
       if (pttrk[irow_trk].flag >= 0) {
 	// calculate total momentum of the track where the hit belongs to
-	Float_t trkcalcp = sqrt((pttrk[irow_trk].tanl * pttrk[irow_trk].tanl + 1.) /
+	Float_t trkcalcp = ::sqrt((pttrk[irow_trk].tanl * pttrk[irow_trk].tanl + 1.) /
 				(pttrk[irow_trk].invp * pttrk[irow_trk].invp));
 	if (Debug()) {cout << "track momentum" << trkcalcp << endl;}
 	if (Debug()) {cout << "z residual" << ptres[irow_res].resz << endl;}
@@ -1714,7 +1717,7 @@ Int_t StQACosmicMaker::fillResHistograms() {
     if (ptres[irow_res].resy != 0. && pttphit[i].alpha != 0. && irow_trk >= 0) {
       if (pttrk[irow_trk].flag >= 0) {
 	// calculate total momentum of the track where the hit belongs to
-	Float_t trkcalcp = sqrt((pttrk[irow_trk].tanl * pttrk[irow_trk].tanl + 1) /
+	Float_t trkcalcp = ::sqrt((pttrk[irow_trk].tanl * pttrk[irow_trk].tanl + 1) /
 				(pttrk[irow_trk].invp * pttrk[irow_trk].invp));
 
 	//  no specific sector selected 
@@ -3782,7 +3785,7 @@ Int_t StQACosmicMaker::fillChargeHistograms() {
     if (pttphit[i].q != 0. && irow_trk >= 0) {
       if (pttrk[irow_trk].flag >= 0) {
 	// calculate total momentum of the track where the hit belongs to
-	Float_t trkcalcp = sqrt((pttrk[irow_trk].tanl * pttrk[irow_trk].tanl + 1) /
+	Float_t trkcalcp = ::sqrt((pttrk[irow_trk].tanl * pttrk[irow_trk].tanl + 1) /
 				(pttrk[irow_trk].invp * pttrk[irow_trk].invp));
 	
 	if (Debug()) {
@@ -4004,7 +4007,7 @@ Int_t StQACosmicMaker::fillClusHistograms() {
     if (irow_trk >= 0) {
       if (pttrk[irow_trk].flag >= 0) {
 	// calculate total momentum of the track where the hit belongs to
-	Float_t trkcalcp = sqrt((pttrk[irow_trk].tanl * pttrk[irow_trk].tanl + 1) /
+	Float_t trkcalcp = ::sqrt((pttrk[irow_trk].tanl * pttrk[irow_trk].tanl + 1) /
 				(pttrk[irow_trk].invp * pttrk[irow_trk].invp));
 	
 	//  no specific sector selected 
@@ -4299,7 +4302,7 @@ Int_t StQACosmicMaker::fillMorphHistograms() {
     if ( irow_trk >= 0 && irow_morph >= 0 ) {
       if (pttrk[irow_trk].flag >= 0) {
 	// calculate total momentum of the track where the hit belongs to
-	Float_t trkcalcp = sqrt((pttrk[irow_trk].tanl * pttrk[irow_trk].tanl + 1) /
+	Float_t trkcalcp = ::sqrt((pttrk[irow_trk].tanl * pttrk[irow_trk].tanl + 1) /
 				(pttrk[irow_trk].invp * pttrk[irow_trk].invp));
 	
 	//  no specific sector selected 
