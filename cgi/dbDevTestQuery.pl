@@ -1,8 +1,11 @@
 #!/opt/star/bin/perl -w
 #
-# $Id: dbDevTestQuery.pl,v 1.6 2001/04/02 18:02:02 didenko Exp $
+# $Id: dbDevTestQuery.pl,v 1.7 2001/07/10 20:14:36 didenko Exp $
 #
 # $Log: dbDevTestQuery.pl,v $
+# Revision 1.7  2001/07/10 20:14:36  didenko
+# updated dataset
+#
 # Revision 1.6  2001/04/02 18:02:02  didenko
 # update directories
 #
@@ -39,6 +42,8 @@ my @prod_set = (
 		"trs_redhat61/year_2001/hc_lowdensity",
 		"trs_redhat61/year_2001/hc_standard",
 		"trs_redhat61/year_2001/hc_highdensity",
+                "trs_redhat61/year_2001/pp_minbias",
+                "trs_redhat61/year_2001/ppl_minbias",
 		"daq_redhat61/year_1h/minbias",
 		"daq_redhat61/year_1h/central",
 		);
