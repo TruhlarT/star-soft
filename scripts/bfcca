@@ -51,15 +51,11 @@ $PRGM    = "bfcca";                # this program logical name
 
 
 # This is for debugging purposes
-#print "Dumping passed values at startup time\n";
-#for($i=0 ; $i <= $#ARGV ; $i++){
-#  print "$i -> $ARGV[$i]\n";
-#}
 #foreach $el (keys %ENV){
 #   print "$el -> $ENV{$el}\n";
 #}
 #print "We are now in business ...\n";
-#print `ls -l`;
+
 
 
 # The first element of the argument list
@@ -72,12 +68,17 @@ $DESTINATION = shift @ARGV;
 $NUMEVT      = shift @ARGV;
 $CHAINOPT    = join(" ",@ARGV);
 
+
+
+
+
+# --- Parse inputs and options ------------------------------------
 #
 # The CRS software sets up environment variables
 # according to the job description file. If a file
 # is of type HPSS, the ACTUAL_XXX would refer to
 # the file as restored on local disk while the XXX
-# would refere to the initial file name (as per in HPSS)
+# would refer to the initial file name (as per in HPSS)
 #
 for($i =0 ; ; $i++){
     eval('$in = $ENV{"ACTUAL_INPUT$i"}');
@@ -99,19 +100,39 @@ $INPUTFILE  = shift @INPUTS;
 $CINPUTFILE = shift @CINPUTS;
 
 
+
+
+
 #
-# Other input files may be options
+# Other input files may be options.
+# - If an input file contains the string StarDb, calibration
+#   directory is soft linked to the current directory.
+# - If the file name contains StarDb and its name is 
+#   one of the above pattern. In both case, the file
+#   is assumed to contain the chain option.
 #
+#   Pre* : calibration is processed, run goes after.
+#   Opt* : calibration pass is done, then we leave.
+#
+$copt = "";
+$cdir = "";
 foreach $file (@CINPUTS){
     if( $file =~ /StarDb/){
 	# Calibration run enabled. Create soft link.
-	$file = dirname($file);
-	symlink($file,"StarDb");
+	$copt = basename($file);
+	$cdir = dirname($file);
+	symlink($cdir,"StarDb");
+	# make default option "" unless the pattern
+	# matches what is in the help list above.
+	if($copt !~ m/Pre/ && $copt !~ m/Opt/){ $copt = "";}
     }
-    #} elsif etc ...
 }
 
 
+
+
+# --- Parse outputs -----------------------------------------------
+#
 # The number of output files is unknown but we can evaluate
 # this. This loop may also be used for
 for($i =0 ; ; $i++){
@@ -125,14 +146,19 @@ for($i =0 ; ; $i++){
 
 
 
+
+
+# --- Other ENV variables we may use ------------------------------
+#
 # Take this as well for later use.
+$MYSELF= $ENV{"CRS_JOB_FILE"};
 $JOB_ID= $ENV{"CRS_JOB_ID"};
 $PWD   = $ENV{"PWD"};
 
 
 
-#
-# Fix default values, check sanity
+
+# --- Fix default values, check sanity ----------------------------
 #
 # num events default value
 if( $NUMEVT <= 0){ $NUMEVT = 10000;}
@@ -164,6 +190,8 @@ if($INPUTFILE eq ""){
 
 
 
+# --- Display information -----------------------------------------
+#
 print "Our job ID                       $JOB_ID\n";
 print "Out working directory            $PWD\n";
 print "The chain will run from library  $LIBRARY\n";
@@ -174,9 +202,18 @@ print "The chain will run over file     $INPUTFILE\n";
 print "This file is stored as           $CINPUTFILE\n";
 print "Outputs initial will be          ".join(" ",@COUTPUTS)."\n";
 print "Outputs final will be            ".join(" ",@OUTPUTS)."\n";
+if($copt ne "" ){
+    print "Calibration pass will be done\n";
+}
 
 
 
+
+
+
+
+# --- Create script, run, check outputs, move to target  ----------
+#
 # Now, we are ready to go ... What we will do is to create
 # a local csh file containing all of the required commands
 # and loading. Peffered shell will be csh (available on ALL
@@ -184,6 +221,7 @@ print "Outputs final will be            ".join(" ",@OUTPUTS)."\n";
 if ( ! open(FO,">$PWD/$JOB_ID.csh") ){
     print STDERR "$PRGM :: Failure to open a temporary file $!\n";
 } else {
+
     # Note that we will be able to dup STDOUT STDERR to a file later
     # (and if required) as well as writing handler routine to prevent
     # from a crash.
@@ -193,13 +231,36 @@ if ( ! open(FO,">$PWD/$JOB_ID.csh") ){
 	"source \$GROUP_DIR/star_login.csh\n",       # load basic login env
 	"unset noclobber\n",                         # over-write
 	"$CHVER\n",                                  # load chosen library env
-	"echo \"Executing \`which root4star\`\"\n",  # some info/debug message
-	"root4star -b -q 'bfc.C($NUMEVT,\"$CHAINOPT\",\"$CINPUTFILE\")'\n";
-	
-	
+	"echo \"$PRGM :: Using \`which root4star\`\"\n";  # some info/debug message
 
+
+
+    # Pre-process the calibration run first if necessary
+    if($copt ne "" ){
+	# the file contains the calibration pass chain options
+	chomp($chainopt = `cat $cdir/$copt`);
+	print FO
+	    "echo \"$PRGM :: Calibration pass is starting on \`date\`\"\n",
+	    "echo \"\"\n",
+	    "root4star -b -q 'bfc.C(10000,\"$chainopt\",\"$CINPUTFILE\")'\n",
+	    "echo \"$PRGM :: Calibration is done on \`date\`\"\n";
+    }
+
+
+
+    # Also process the regular run but only if calib-only was not requested
+    if($copt !~ m/Opt/){
+	print FO
+	    "echo \"$PRGM :: Reco run is starting on \`date\`\"\n",
+	    "echo \"\"\n",
+	    "setenv StarEndMakerShell\n",            # Option to outpu memory consumption
+	    "root4star -b -q 'bfc.C($NUMEVT,\"$CHAINOPT\",\"$CINPUTFILE\")'\n";
+    }
     close(FO);
     chmod(0755,"$PWD/$JOB_ID.csh");
+
+
+
 
 
     &List("Our working directory contains","We will now start to run ...");
@@ -207,15 +268,16 @@ if ( ! open(FO,">$PWD/$JOB_ID.csh") ){
     system("$PWD/$JOB_ID.csh");
    
     # after this, we may have crashed or not
-    if($! == 0){
+    if($? == 0){
 	print "$PRGM :: Info: The chain as completed without failure\n";
     } else {
-	print STDERR "$PRGM :: Error: chain stopped with status [$!]\n";
+	print STDERR "$PRGM :: Error: chain stopped with status $? [$!]\n";
     }
-   
     &List("The directory content is now ...");
 
     
+
+
    
     # But please, do not stop there but move the output if required
     # Required means that the option was HPSS, UNIX option means
@@ -285,6 +347,13 @@ if ( ! open(FO,">$PWD/$JOB_ID.csh") ){
 
 
 
+
+
+
+
+# -=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
+# Subroutines
+# -=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
 #
 # Subroutine to check and create path. mkpath()
 # in the perl module does not return the failure
