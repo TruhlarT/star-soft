@@ -1,7 +1,10 @@
 #!/usr/bin/csh -f
-#       $Id: group_env.csh,v 1.97 2000/03/16 20:41:07 fisyak Exp $
+#       $Id: group_env.csh,v 1.98 2000/04/18 01:25:50 fisyak Exp $
 #	Purpose:	STAR group csh setup 
 #       $Log: group_env.csh,v $
+#       Revision 1.98  2000/04/18 01:25:50  fisyak
+#       remove extra {} in LD_LIBRARY_PATH
+#
 #       Revision 1.97  2000/03/16 20:41:07  fisyak
 #       Allow to redefine STAR_PATH
 #
@@ -337,7 +340,7 @@ setenv STAR_SCRIPTS $STAR/scripts
 setenv STAR_CGI $STAR/cgi
 setenv STAR_PAMS $STAR/pams;                 if ($ECHO) echo   "Setting up STAR_PAMS = ${STAR_PAMS}"
 setenv STAR_DATA ${STAR_ROOT}/data;          if ($ECHO) echo   "Setting up STAR_DATA = ${STAR_DATA}"
-if ( ! $?STAR_DB ) setenv STAR_DB /star/sol/db;                 if ($ECHO) echo   "Setting up STAR_DB   = ${STAR_DB}"
+if ( $?STAR_DB == 0) setenv STAR_DB /star/sol/db;                 if ($ECHO) echo   "Setting up STAR_DB   = ${STAR_DB}"
 setenv STAR_PARAMS ${STAR}/params;      if ($ECHO) echo   "Setting up STAR_PARAMS= ${STAR_PARAMS}"
 setenv STAR_CALIB ${STAR_ROOT}/calib;   if ($ECHO) echo   "Setting up STAR_CALIB= ${STAR_CALIB}"
 setenv STAR_PROD   $STAR/prod;          if ($ECHO) echo   "Setting up STAR_PROD = ${STAR_PROD}"
@@ -382,8 +385,8 @@ if ( -x /afs/rhic/star/group/dropit) then
   setenv MANPATH `/afs/rhic/star/group/dropit -p ${MANPATH}`
   setenv PATH `/afs/rhic/star/group/dropit -p ${PATH} GROUPPATH`
   setenv PATH `/afs/rhic/star/group/dropit -p ${PATH} $STAR_PATH`
-  if (${?LD_LIBRARY_PATH}) setenv LD_LIBRARY_PATH `/afs/rhic/star/group/dropit -p ${LD_LIBRARY_PATH} $STAR_PATH`
-  if (${?SHLIB_PATH})      setenv SHLIB_PATH      `/afs/rhic/star/group/dropit -p ${SHLIB_PATH} $STAR_PATH`
+  if ($?LD_LIBRARY_PATH == 1) setenv LD_LIBRARY_PATH `/afs/rhic/star/group/dropit -p ${LD_LIBRARY_PATH} $STAR_PATH`
+  if ($?SHLIB_PATH == 1)      setenv SHLIB_PATH      `/afs/rhic/star/group/dropit -p ${SHLIB_PATH} $STAR_PATH`
 endif
 setenv PATH "${GROUPPATH}:/usr/afsws/bin:/usr/afsws/etc:/opt/star/bin:/usr/sue/bin:/usr/local/bin:${PATH}"
 ## Put mysql on path if available
@@ -409,9 +412,9 @@ switch ($STAR_SYS)
     breaksw
     case "hp_ux102":
 #  ====================
-      if (! ${?SHLIB_PATH}) setenv SHLIB_PATH
+      if ($?SHLIB_PATH == 0) setenv SHLIB_PATH
       if ( -x /afs/rhic/star/group/dropit) setenv SHLIB_PATH `/afs/rhic/star/group/dropit -p ${SHLIB_PATH} $STAR_PATH`
-      if (${?MINE_lib} && ${?STAR_lib}) then
+      if ($?MINE_lib == 1 && $?STAR_lib == 1) then
         setenv SHLIB_PATH ${MINE_lib}:${STAR_lib}:${MINE_LIB}:${STAR_LIB}:${STAF_LIB}:${SHLIB_PATH}
       else
 	if ( -x /afs/rhic/star/group/dropit) setenv SHLIB_PATH `/afs/rhic/star/group/dropit -p ${SHLIB_PATH} .${STAR_HOST_SYS}/LIB`
@@ -438,8 +441,8 @@ switch ($STAR_SYS)
        
      endif
      set path = ($path  /usr/local/bin/ddd)
-     if (! ${?LD_LIBRARY_PATH}) setenv LD_LIBRARY_PATH 
-     if (${?MINE_lib} && ${?STAR_lib}) then
+     if ($?LD_LIBRARY_PATH == 0) setenv LD_LIBRARY_PATH 
+     if ($?MINE_lib == 1 && $?STAR_lib == 1) then
        setenv LD_LIBRARY_PATH "${MINE_lib}:${STAR_lib}:${MINE_LIB}:${STAR_LIB}:${STAF_LIB}:${LD_LIBRARY_PATH}"
      else
        if ( -x /afs/rhic/star/group/dropit) setenv LD_LIBRARY_PATH `/afs/rhic/star/group/dropit -p ${LD_LIBRARY_PATH} .${STAR_HOST_SYS}/LIB`
@@ -452,7 +455,7 @@ switch ($STAR_SYS)
     breaksw
     case "sun4*":
 #  ====================
-      if (! ${?LD_LIBRARY_PATH}) setenv LD_LIBRARY_PATH
+      if ($?LD_LIBRARY_PATH == 0) setenv LD_LIBRARY_PATH
       setenv LD_LIBRARY_PATH "/usr/openwin/lib:/usr/dt/lib:/usr/local/lib:/afs/rhic/star/packages/ObjectSpace/2.0m/lib:${LD_LIBRARY_PATH}"
       if ("${STAR_HOST_SYS}" == "sun4x_56_CC5") then
         setenv LD_LIBRARY_PATH "${LD_LIBRARY_PATH}:/opt/WS5.0/lib:/opt/WS5.0/SC5.0/lib"
@@ -474,7 +477,7 @@ switch ($STAR_SYS)
         setenv MANPATH "/opt/SUNWspro/man:$MANPATH"
       endif
 
-     if (${?MINE_lib} && ${?STAR_lib}) then
+     if ($?MINE_lib == 1 && $?STAR_lib == 1) then
        setenv LD_LIBRARY_PATH "${MINE_lib}:${STAR_lib}:${MINE_LIB}:${STAR_LIB}:${STAF_LIB}:${LD_LIBRARY_PATH}"
      else
        setenv LD_LIBRARY_PATH "${MINE_LIB}:${STAR_LIB}:${STAF_LIB}:${LD_LIBRARY_PATH}"

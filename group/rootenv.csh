@@ -43,3 +43,6 @@ switch ($MACHINE)
 #
 # OpenGL
 if (-e $ROOTSYS/../Mesa) setenv OPENGL $ROOTSYS/../Mesa  
+setenv CINTSYSDIR ${ROOTSYS}/cint
+setenv PATH "${PATH}:${CINTSYSDIR}"
+setenv MANPATH "${MANPATH}:${CINTSYSDIR}/doc"
