@@ -1,7 +1,10 @@
 #!/usr/bin/csh -f
-#       $Id: group_env.csh,v 1.91 1999/11/30 02:00:42 fisyak Exp $
+#       $Id: group_env.csh,v 1.92 1999/11/30 21:11:45 fisyak Exp $
 #	Purpose:	STAR group csh setup 
 #       $Log: group_env.csh,v $
+#       Revision 1.92  1999/11/30 21:11:45  fisyak
+#       Put /opt/star/bin up front
+#
 #       Revision 1.91  1999/11/30 02:00:42  fisyak
 #       Fix path for Solaris
 #
@@ -564,6 +567,7 @@ if ("$CERN_LEVEL" != "pro") then
   setenv PATH  `/afs/rhic/star/group/dropit cern`
   setenv PATH  "${PATH}:${CERN_ROOT}/bin"
 endif 
+setenv PATH "/opt/star/bin:${PATH}"
 switch ($STAR_SYS)
     case "hp_ux102":
 #  ====================
