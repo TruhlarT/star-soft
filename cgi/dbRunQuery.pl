@@ -47,7 +47,7 @@ $colSet = $collSet;
 $dPath = "/2001/";
 }
 
-my @joinSet = ( $colSet. "%" .$datSet . "%" . $detrSet . "%" .$fldSet . "%" . $frSet . "%" . $lctSet. "%" .$prodSr );
+my @joinSet = ( $colSet. "%" .$datSet . "%" . $detrSet . "%" .$fldSet . "%" . $frSet . "%" . $lctSet. "%" .$prodSr. "%". $dPath );
 
 
 #####  connect to operation DB

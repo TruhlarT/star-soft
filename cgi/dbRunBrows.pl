@@ -25,6 +25,7 @@ my $colSet;
 my $fldSet;
 my $frSet;
 my $lcSet;
+my $hPath;
 
 $prSet = $query->param("prodSet");
 
@@ -37,6 +38,7 @@ $fldSet = $pck[3];
 $frSet  = $pck[4];
 $lcSet  = $pck[5];
 $prodSr = $pck[6];
+$hPath = $pck[7];
 
 &StDbProdConnect();
 
@@ -52,69 +54,69 @@ if( $frSet eq "daq") {
 
 if($detrSet eq "all" and $trgSet ne "all" and $fldSet ne "all") {
 
-$sql="SELECT * FROM $FileCatalogT WHERE runID = '$runPr' AND trigger = '$trgSet' AND dataset like '$colSet%' AND dataset like '%$fldSet%' AND fName like '%$frSet' AND site like '$lcSet%' order by fileSeq ";
+$sql="SELECT * FROM $FileCatalogT WHERE runID = '$runPr' AND trigger = '$trgSet' AND dataset like '$colSet%' AND path like '%$hPath%' AND dataset like '%$fldSet%' AND fName like '%$frSet' AND site like '$lcSet%' order by fileSeq ";
 
 }elsif ($detrSet ne "all" and $trgSet ne "all"  and $fldSet ne "all") {
 
-$sql="SELECT * FROM $FileCatalogT WHERE runID = '$runPr' AND trigger = '$trgSet' AND dataset like '%$detrSet%' AND dataset like '$colSet%' AND dataset like '%$fldSet%' AND fName like '%$frSet' AND site like '$lcSet%' order by fileSeq "; 
+$sql="SELECT * FROM $FileCatalogT WHERE runID = '$runPr' AND trigger = '$trgSet' AND dataset like '%$detrSet%' AND dataset like '$colSet%' AND path like '%$hPath%' AND dataset like '%$fldSet%' AND fName like '%$frSet' AND site like '$lcSet%' order by fileSeq "; 
 
 }elsif ($detrSet ne "all" and $trgSet eq "all" and $fldSet ne "all" ) {
 
-$sql="SELECT * FROM $FileCatalogT WHERE runID = '$runPr' AND dataset like '%$detrSet%' AND dataset like '$colSet%' AND dataset like '%$fldSet%' AND fName like '%$frSet' AND site like '$lcSet%' order by fileSeq "; 
+$sql="SELECT * FROM $FileCatalogT WHERE runID = '$runPr' AND dataset like '%$detrSet%' AND dataset like '$colSet%' AND dataset like '%$fldSet%' AND path like '%$hPath%' AND fName like '%$frSet' AND site like '$lcSet%' order by fileSeq "; 
 
 }elsif ($detrSet eq "all" and $trgSet eq "all" and $fldSet ne "all" ) {
 
-$sql="SELECT * FROM $FileCatalogT WHERE runID = '$runPr' AND dataset like '$colSet%' AND dataset like '%$fldSet%' AND fName like '%$frSet' AND site like '$lcSet%' order by fileSeq ";
+$sql="SELECT * FROM $FileCatalogT WHERE runID = '$runPr' AND dataset like '$colSet%' AND path like '%$hPath%' AND dataset like '%$fldSet%' AND fName like '%$frSet' AND site like '$lcSet%' order by fileSeq ";
 
  }elsif($detrSet eq "all" and $trgSet ne "all" and $fldSet eq  "all") {
 
-$sql="SELECT * FROM $FileCatalogT WHERE runID = '$runPr' AND trigger = '$trgSet' AND dataset like '$colSet%' AND fName like '%$frSet' AND site like '$lcSet%' order by fileSeq ";
+$sql="SELECT * FROM $FileCatalogT WHERE runID = '$runPr' AND trigger = '$trgSet' AND dataset like '$colSet%' AND path like '%$hPath%' AND fName like '%$frSet' AND site like '$lcSet%' order by fileSeq ";
 
 }elsif ($detrSet ne "all" and $trgSet ne "all"  and $fldSet eq "all") {
 
-$sql="SELECT * FROM $FileCatalogT WHERE runID = '$runPr' AND trigger = '$trgSet' AND dataset like '%$detrSet%' AND dataset like '$colSet%' AND fName like '%$frSet' AND site like '$lcSet%' order by fileSeq "; 
+$sql="SELECT * FROM $FileCatalogT WHERE runID = '$runPr' AND trigger = '$trgSet' AND dataset like '%$detrSet%' AND dataset like '$colSet%' AND path like '%$hPath%' AND fName like '%$frSet' AND site like '$lcSet%' order by fileSeq "; 
 
 }elsif ($detrSet ne "all" and $trgSet eq "all" and $fldSet eq "all" ) {
 
-$sql="SELECT * FROM $FileCatalogT WHERE runID = '$runPr' AND dataset like '%$detrSet%' AND dataset like '$colSet%' AND fName like '%$frSet' AND site like '$lcSet%' order by fileSeq "; 
+$sql="SELECT * FROM $FileCatalogT WHERE runID = '$runPr' AND dataset like '%$detrSet%' AND dataset like '$colSet%' AND path like '%$hPath%' AND fName like '%$frSet' AND site like '$lcSet%' order by fileSeq "; 
 
 }elsif ($detrSet eq "all" and $trgSet eq "all" and $fldSet eq "all" ) {
 
-$sql="SELECT * FROM $FileCatalogT WHERE runID = '$runPr' AND dataset like '$colSet%' AND fName like '%$frSet' AND site like '$lcSet%' order by fileSeq ";
+$sql="SELECT * FROM $FileCatalogT WHERE runID = '$runPr' AND dataset like '$colSet%' AND path like '%$hPath%' AND fName like '%$frSet' AND site like '$lcSet%' order by fileSeq ";
   }
 }else{
 
 if($detrSet eq "all" and $trgSet ne "all" and $fldSet ne "all") {
 
-$sql="SELECT * FROM $FileCatalogT WHERE runID = '$runPr' AND jobID like '%$prodSr%' AND trigger = '$trgSet' AND dataset like '$colSet%' AND dataset like '%$fldSet%' AND fName like '%$frSet' AND site like '$lcSet%' order by fileSeq  ";
+$sql="SELECT * FROM $FileCatalogT WHERE runID = '$runPr' AND jobID like '%$prodSr%' AND trigger = '$trgSet' AND dataset like '$colSet%' AND path like '%$hPath%' AND dataset like '%$fldSet%' AND fName like '%$frSet' AND site like '$lcSet%' order by fileSeq  ";
 
 }elsif ($detrSet ne "all" and $trgSet ne "all"  and $fldSet ne "all") {
 
-$sql="SELECT * FROM $FileCatalogT WHERE runID = '$runPr' AND jobID like '%$prodSr%'AND trigger = '$trgSet' AND dataset like '%$detrSet%' AND dataset like '$colSet%' AND dataset like '%$fldSet%' AND fName like '%$frSet' AND site like '$lcSet%'order by fileSeq "; 
+$sql="SELECT * FROM $FileCatalogT WHERE runID = '$runPr' AND jobID like '%$prodSr%'AND trigger = '$trgSet' AND dataset like '%$detrSet%' AND dataset like '$colSet%' AND path like '%$hPath%' AND dataset like '%$fldSet%' AND fName like '%$frSet' AND site like '$lcSet%'order by fileSeq "; 
 
 }elsif ($detrSet ne "all" and $trgSet eq "all" and $fldSet ne "all" ) {
 
-$sql="SELECT * FROM $FileCatalogT WHERE runID = '$runPr' AND jobID like '%$prodSr%' AND dataset like '%$detrSet%' AND dataset like '$colSet%' AND dataset like '%$fldSet%' AND fName like '%$frSet' AND site like '$lcSet%' order by fileSeq "; 
+$sql="SELECT * FROM $FileCatalogT WHERE runID = '$runPr' AND jobID like '%$prodSr%' AND dataset like '%$detrSet%' AND dataset like '$colSet%' AND path like '%$hPath%' AND dataset like '%$fldSet%' AND fName like '%$frSet' AND site like '$lcSet%' order by fileSeq "; 
 
 }elsif ($detrSet eq "all" and $trgSet eq "all" and $fldSet ne "all" ) {
 
-$sql="SELECT * FROM $FileCatalogT WHERE runID = '$runPr' AND jobID like '%$prodSr%' AND dataset like '$colSet%' AND dataset like '%$fldSet%' AND fName like '%$frSet' AND site like '$lcSet%' order by fileSeq ";
+$sql="SELECT * FROM $FileCatalogT WHERE runID = '$runPr' AND jobID like '%$prodSr%' AND dataset like '$colSet%' AND path like '%$hPath%' AND dataset like '%$fldSet%' AND fName like '%$frSet' AND site like '$lcSet%' order by fileSeq ";
 
 }elsif($detrSet eq "all" and $trgSet ne "all" and $fldSet eq  "all") {
 
-$sql="SELECT * FROM $FileCatalogT WHERE runID = '$runPr' AND jobID like '%$prodSr%' AND trigger = '$trgSet' AND dataset like '$colSet%' AND fName like '%$frSet' AND site like '$lcSet%' order by fileSeq ";
+$sql="SELECT * FROM $FileCatalogT WHERE runID = '$runPr' AND jobID like '%$prodSr%' AND trigger = '$trgSet' AND dataset like '$colSet%' AND path like '%$hPath%' AND fName like '%$frSet' AND site like '$lcSet%' order by fileSeq ";
 
 }elsif ($detrSet ne "all" and $trgSet ne "all"  and $fldSet eq "all") {
 
-$sql="SELECT * FROM $FileCatalogT WHERE runID = '$runPr' AND jobID like '%$prodSr%' AND trigger = '$trgSet' AND dataset like '%$detrSet%' AND dataset like '$colSet%' AND fName like '%$frSet' AND site like '$lcSet%' order by fileSeq "; 
+$sql="SELECT * FROM $FileCatalogT WHERE runID = '$runPr' AND jobID like '%$prodSr%' AND trigger = '$trgSet' AND dataset like '%$detrSet%' AND dataset like '$colSet%' AND path like '%$hPath%' AND fName like '%$frSet' AND site like '$lcSet%' order by fileSeq "; 
 
 }elsif ($detrSet ne "all" and $trgSet eq "all" and $fldSet eq "all" ) {
 
-$sql="SELECT * FROM $FileCatalogT WHERE runID = '$runPr' AND jobID like '%$prodSr%' AND dataset like '%$detrSet%' AND dataset like '$colSet%' AND fName like '%$frSet' AND site like '$lcSet%' order by fileSeq  "; 
+$sql="SELECT * FROM $FileCatalogT WHERE runID = '$runPr' AND jobID like '%$prodSr%' AND dataset like '%$detrSet%' AND dataset like '$colSet%' AND path like '%$hPath%' AND fName like '%$frSet' AND site like '$lcSet%' order by fileSeq  "; 
 
 }elsif ($detrSet eq "all" and $trgSet eq "all" and $fldSet eq "all" ) {
 
-$sql="SELECT * FROM $FileCatalogT WHERE runID = '$runPr' AND jobID like '%$prodSr%' AND dataset like '$colSet%' AND fName like '%$frSet' AND site like '$lcSet%' order by fileSeq ";
+$sql="SELECT * FROM $FileCatalogT WHERE runID = '$runPr' AND jobID like '%$prodSr%' AND dataset like '$colSet%' AND path like '%$hPath%' AND fName like '%$frSet' AND site like '$lcSet%' order by fileSeq ";
   }
 }
 
