@@ -23,23 +23,6 @@ endsw
 if ( -x /afs/rhic/star/group/dropit) setenv PATH  `/afs/rhic/star/group/dropit -p "$PATH" ROOT`
 setenv PATH "${ROOTSYS}/${root}/bin:${PATH}"
 setenv MANPATH "/afs/rhic/star/ROOT/${ROOT_LEVEL}/man:${MANPATH}"
-# On Solaris, Linux, SGI, Alpha/OSF do:
-set MACHINE = `uname -s`
-
-switch ($MACHINE)
-#    setenv LD_LIBRARY_PATH "${LD_LIBRARY_PATH}"
-    case SunOS:
-    setenv LD_LIBRARY_PATH ${LD_LIBRARY_PATH}:/usr/dt/lib:/usr/openwin/lib:/usr/ccs/lib:/usr/ucblib
-    breaksw
-    case Linux:
-    setenv LD_LIBRARY_PATH ${LD_LIBRARY_PATH}:/usr/lib:/usr/local/lib
-    breaksw
-    case HP-UX:
-    breaksw
-    default:
-    if ($?SILENT == 0) echo " Unimplemented platform $MACHINE"
-    exit   
-  endsw
 #
 # OpenGL
 if (-e $ROOTSYS/../Mesa) setenv OPENGL $ROOTSYS/../Mesa  
