@@ -11,6 +11,8 @@ use CGI qw/:standard :html3/;
 use Time::Local;
 use QA_globals;
 use QA_db_utilities qw(:db_globals); # import
+use lib "/afs/rhic/star/packages/scripts"; # RunDaq.pm lives here
+use RunDAQ;
 
 use strict;
 use vars qw(%oldestDay);
@@ -44,6 +46,8 @@ my %updateLimit = ( nightly_real => 10,
 );
 # for real offline 
 my $oldestRun = 2202000;
+# for offline fast
+#my $oldestFastRun = 2300000;
 my $debug = 0;
 
 #-------------------
@@ -275,9 +279,8 @@ sub UpdateQAOfflineFast{
   my $sthResetQAdone = $dbh->prepare($queryResetQAdone);
   my $sthSetSkip = $dbh->prepare($querySetSkip);
 
-  print "executing\n",$queryUpdate,"\n";
   $sthUpdate->execute();
-  print "done\n";
+
   
   # Note: what DAQInfo calls 'file' autoQA calls 'jobID'
  
@@ -306,6 +309,13 @@ sub UpdateQAOfflineFast{
       last JOB;
     }
   }
+
+  # connect to the daqinfo table
+  my $hh = rdaq_open_odatabase() or do{
+    print "Cannot connect to operation db\n";
+    return;
+  };
+
   # loop over runID, jobID
   my $countRun=0; my $countJob=0; my $count=0;
   foreach my $runID ( keys %runhash ){
@@ -322,8 +332,12 @@ sub UpdateQAOfflineFast{
 	$sthKey->execute($jobID);
 	print "inserting...";
 	$stat = $sthInsert->execute($jobID,$report_key,$skip) if !$debug;
-	if($stat) { print "done<br>\n"; }
-	else { print "Cannot insert<br>\n";}
+	if($stat) { 
+	  print "done<br>\n";
+	}
+	else { 
+	  print "Cannot insert<br>\n";
+	}
       }
       else{ # already exists, but probably reproduction
 	print "Already exists but qa is done.  Will reset qa done to No...";
@@ -336,13 +350,24 @@ sub UpdateQAOfflineFast{
 	}
 	if($stat){ $stat = $sthSetSkip->execute($skip,$jobID) if !$debug; }
       }
-      if($stat) { push @keyList,$report_key; }
+      if($stat) { 
+	# set qadone in the DAQInfo table for skip so we dont
+	# pick up this file again.
+	if($skip eq 'Y' and !$debug){
+	  rdaq_set_files($hh,3,$jobID) or 
+	    print "Uh oh.  could not set qa done in daq info table\n";
+	}
+	push @keyList,$report_key; 
+      }
       
       print "$runID, $report_key, skip=$skip, stat=$stat\n" if $debug;
 
     }
   }
   print "Found $count new jobs<br>\n";
+
+  rdaq_close_odatabase($hh);
+
   return @keyList;
 }
 
