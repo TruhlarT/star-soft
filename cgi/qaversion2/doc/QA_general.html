@@ -24,10 +24,14 @@ July 7, 2000<br>
 
 <li> <a href="#introduction">Introduction</a>
 <ol>
-<li> <a href="#what_is_qa">What is QA?</a>
-<li> <a href="#kinds_of_qa">Varieties of QA in STAR?</a>
+<li> <a href="#what_is_qa">What is QA in STAR?</a>
+<li> <a href="#kinds_of_qa">Varieties of QA in STAR</a>
 <li> <a href="#overview">Overview of autoQA framework</a>
-<li> <a href="#mod_history">Modification History</a>
+
+<!-- 
+<li> <a href="#mod_history">Modification History</a> 
+-->
+
 </ol>
 
 <li> <a href="#database_content">Database Content and Operations</a>
@@ -121,49 +125,43 @@ entailing an enormous amount of tedious repetition. This process must
 be automated to a very high degree, for reasons both of reliability
 and finite capacity of even the most dedicated grad student to do
 boring but important things. The web pages you are looking at are part
-of an automated framework for QA and testing.
-
+of an automated framework for QA and testing, called <font
+color=red>autoQA</font>.
 
 <h4><li><a name=kinds_of_qa> Varieties of QA in STAR</a></h4>
 
 The focus of the QA activities until summer 2000 has been on Offline
 DST production for the DEV branch of the library. With the inception
-of data taking, the scope of QA has broadened considerably, to
-encompass large scale Offline DST production of both real and MC data
-under the PRO branch of the library, together with Online monitoring
-of both raw data and DST data produced on the Online processor
-farm. There are in fact two different servers running QA processes:
+of data taking, the scope of QA has broadened considerably.  There are
+in fact two different servers running autoQA processes:
 
 <ul>
 
-<li><a href="http://www.star.bnl.gov:8080/v2/QA_main.pm">Offline QA</a>. 
-<li><a href="http://onllinux1.star.bnl.gov/AutoQA/QA_main.pm">Online QA</a>. 
+<li><a href="http://www.star.bnl.gov:8080/v2/QA_main.pm">Offline
+QA</a>. This web page accesses QA results for all the varieties of
+Offline DST production: 
 
-<li> Validation of nightly and weekly prototype production runs of a
-limited number of events, and approval of library version migration
-dev->new and new->pro based upon the results.
+<ul>
+<li>Nightly tests of real and Monte Carlo data (almost always using
+the DEV and NEW branches of the library). This is used principally for
+the validation of migration of library versions
 
-<li> Validation of large scale production running in new and
-pro. Every event on every STAR DST should be subject to QA in a timely
-fashion, in order to catch errors or unexpected changes in production
-quickly.
-
-<li> Maintenance of a framework for users who contribute code to the DST
-production to test and validate their code privately in the same
-environment that is used for 1. and 2.
+<li>Large scale production of real and Monte Carlo data (almost always
+using the PRO branch of the library). This is used to monitor the
+stability of DSTs for physics.
  
 </ul>
 
-Currently, only the first point (nightly and weekly prototype testing)
-is addressed by the Automated Offline Software QA framework. The
-second point, the QA of large scale production, still requires
-discussion about data organization and access, and what the actual
-large scale QA tasks should be. The third point, providing a similar
-environment for users in a private area, will be available soon.
+<li><a href="http://onllinux1.star.bnl.gov/AutoQA/QA_main.pm">Online
+QA</a>. This web page accesses QA results for data in the Online event
+pool, both raw data and DST production that is run on the Online
+processors.
+ 
+</ul>
 
-<h4><li><a name=overview> Overview </a></h4>
+<h4><li><a name=overview> Overview of autoQA framework</a></h4>
 
-The Offline Software QA framework consists of a set of <a
+The autoQA framework consists of a set of <a
 href="#perl_comments">CGI scripts written in PERL</a>, which
 perform the following tasks:
 
@@ -1099,7 +1097,7 @@ check boxes, allowing more targeted comparison to meaningful reference runs.
     <address><a href="mailto:pmjacobs@lbl.gov">webmaster</a></address>
     <!-- Created: Wed May  6 11:37:01 EDT 1998 -->
 <!-- hhmts start -->
-Last modified: Fri Jul  7 00:13:51 EDT 2000
+Last modified: Fri Jul  7 23:17:36 EDT 2000
 <!-- hhmts end -->
 <!--===============================================================-->
 </body>
