@@ -47,14 +47,14 @@ sub _init{
   
   #BEN(6jun2000): get hostname from /bin/hostname because we can't see
   # $gCGIquery in batch mode
-  my $hostname = `/bin/hostname`;
+  my $hostname =  `/bin/hostname`;
   chop $hostname;
   $self->ServerName($hostname);
 
   # offline
   if ( $self->ServerName eq "www.star.bnl.gov" ||
        $self->ServerName eq "connery.star.bnl.gov" ||
-       $self->ServerName =~ /rcas/ ||
+       $self->ServerName =~ /rcas|AFS/ ||
        $self->ServerName =~ /play/ ){
     $self->ServerType("offline");
   } # online
@@ -62,7 +62,7 @@ sub _init{
     $self->ServerType("online");
   }
   else{
-    $self->ServerType("Unknown");
+    $self->ServerType("offline");
   }
 
 }
