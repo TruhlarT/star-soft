@@ -100,11 +100,11 @@ my $mySet;
       }
 
  my $ii = 0;        
- my $istart = scalar(@SetD) - 4;
+ my $istart = scalar(@SetD) - 2;
 
 for ($ii=$istart; $ii< scalar(@SetD); $ii++)  { 
  
-  $sql="SELECT path, fName FROM $FileCatalogT WHERE fName LIKE '%daq' AND path = '$SetD[$ii]' AND dataset like '$coll%' AND dataset like '%tpc%' AND dataStatus = 'OK' AND hpss = 'Y' ";
+ $sql="SELECT path, fName FROM $FileCatalogT WHERE fName LIKE '%daq' AND path = '$SetD[$ii]' AND dataset like '$coll%' AND dataset like '%tpc%' AND dataStatus = 'OK' AND hpss = 'Y' ";
 
     $cursor =$dbh->prepare($sql)
      || die "Cannot prepare statement: $DBI::errstr\n";
@@ -155,7 +155,7 @@ my $jb_hold;
      if (-f $jb_hold)     {$jb_fstat = 0};
  
       if($jb_fstat == 1 )  { 
-	if ( $jfile =~ /raw_000/ ||  $jfile =~ /raw_010/ || $jfile =~ /raw_020/ || $jfile =~ /raw_030/ || $jfile =~ /raw_030/ ) {
+	if ( $jfile =~ /raw_000/ || $jfile =~ /raw_005/ || $jfile =~ /raw_010/ || $jfile =~ /raw_020/ || $jfile =~ /raw_030/ || $jfile =~ /raw_030/ ) {
 
           &create_jobs($jfile, $jbset, $mchain, $mlibVer, $JOB_DIR); 
 
