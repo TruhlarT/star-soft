@@ -14,7 +14,7 @@ use Class::Struct;
 
 require "/afs/rhic/star/packages/scripts/dbCpProdSetup.pl";
 
-my $prodPer = "P01gk";
+my $prodPer = "P01gl";
 my $debugOn = 0;
 my $thisDay = "000000";
 my $thisday = 0;
@@ -49,7 +49,7 @@ $now = localtime;
  }   
   $thisday = $mon . $mday;
 
-$thisDay = '01'.$thisday;
+$thisDay = '02'.$thisday;
 
 # print "Today Date :", $thisDay, "\n";
 
