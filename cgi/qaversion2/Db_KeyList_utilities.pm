@@ -577,9 +577,9 @@ sub ProcessQAStatusQuery{
       $QAstatus_string = "sum.$QASum{QAdone}='N'" if $QAstatus eq 'not done';
       $QAstatus_string = "sum.$QASum{QAdone}='in progress'" if $QAstatus eq 'in progress';
       $QAstatus_string = "sum.$QASum{QAdone}='Y' and sum.$QASum{QAanalyzed}='Y' "
-	if $QAstatus eq 'analyzed';
+	if $QAstatus eq 'analyzed by shift';
       $QAstatus_string = "sum.$QASum{QAdone}='Y' and sum.$QASum{QAanalyzed}='N' "
-	if $QAstatus eq 'not analyzed';
+	if $QAstatus eq 'not analyzed by shift';
       
     }
     elsif ($QAstatus eq 'warnings' or $QAstatus eq 'errors')
