@@ -239,6 +239,7 @@ $keywrds{"fileseq"       }    =   "fileSeq"                   .",FileData"      
 $keywrds{"stream"        }    =   "fileStream"                .",FileData"               .",1" .",num"  .",0" .",1" .",1";
 $keywrds{"filecomment"   }    =   "fileDataComments"          .",FileData"               .",0" .",text" .",0" .",1" .",1";
 $keywrds{"events"        }    =   "numEntries"                .",FileData"               .",1" .",num"  .",0" .",1" .",1";
+$keywrds{"md5sum"        }    =   "md5sum"                    .",FileData"               .",1" .",text" .",0" .",1" .",1";
 $keywrds{"size"          }    =   "fsize"                     .",FileLocations"          .",1" .",num"  .",0" .",1" .",1";
 $keywrds{"owner"         }    =   "owner"                     .",FileLocations"          .",0" .",text" .",0" .",1" .",1";
 $keywrds{"protection"    }    =   "protection"                .",FileLocations"          .",0" .",text" .",0" .",1" .",1";
@@ -3079,7 +3080,7 @@ sub run_query {
 
 
   if ( $floc > 0 && defined($valuset{"all"}) ){
-    if ( $valuset{"all"} == 0 ){
+    if ( $valuset{"all"} == 0 && ! defined($valuset{"available"}) ){
 	push ( @constraint, "FileLocations.availability > 0");
     }
   }
