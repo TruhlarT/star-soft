@@ -425,20 +425,17 @@ sub DisplayDataset{
       my $time   = localtime($temp);
       my $text   = $QA_message_hash{$key}->MessageString;
 
-# pmj 23/8/00 take out message key      
+      $data_string = "<strong>";
+
       if ( $key =~ /global/ ){
-#	$data_string = "<strong>Global comment</strong> ". 
-#                       "(<font size=1>Message key: $key</font>):" .
-#	               " Author $author; Date $time; ";
-	$data_string = "<strong>Global comment</strong> ". 
+
+	$data_string .= "Global comment<br> ". 
 	               " Author $author; Date $time; ";
       }
       else{
 	($temp = $key) =~ s/\.msg//;
-#	$data_string = "<strong>Comment for run $temp </strong> " .
-#	               "(<font size=1>Message key: $key</font>):" .
-#	               "Author $author;";
-	$data_string = "<strong>Comment for run $temp </strong> " .
+
+	$data_string .= "Comment for job $temp <br> " .
 	               "Author $author; ";
 	# more info for offline real
 	if ($gDataClass_object->DataClass() =~ /offline_real/){
@@ -451,7 +448,7 @@ sub DisplayDataset{
 
       }
   
-      $data_string .= "<br>$text";
+      $data_string .= "</strong><br>$text";
       
       # check whether add and edit of comments is enabled
       $gCGIquery->param('enable_add_edit_comments') 
