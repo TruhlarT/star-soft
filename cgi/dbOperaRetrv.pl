@@ -67,6 +67,7 @@ print <<END;
 <TR>
 <TR ALIGN=CENTER VALIGN=CENTER>
 <TD WIDTH=\"20%\" HEIGHT=50><B>GeantFile</B></TD>
+<TD WIDTH=\"10%\" HEIGHT=50><B>Geant_size</B></TD>
 <TD WIDTH=\"10%\" HEIGHT=50><B>Produced_date</B></TD>
 <TD WIDTH=\"10%\" HEIGHT=50><B>Chain</B></TD>
 <TD WIDTH=\"10%\" HEIGHT=50><B>JobStatus</B></TD>
@@ -80,6 +81,7 @@ print <<END;
 <TD WIDTH=\"10%\" HEIGHT=50><B>HPSS_hist_date</B></TD>
 <TD WIDTH=\"10%\" HEIGHT=50><B>HPSS_hist_size</B></TD>
 <TD WIDTH=\"10%\" HEIGHT=50><B>Sum_File</B></TD>
+<TD WIDTH=\"10%\" HEIGHT=50><B>Jobfile</B></TD>
 <TD WIDTH=\"10%\" HEIGHT=50><B>Lib_tag</B></TD>
 <TD WIDTH=\"10%\" HEIGHT=50><B>Mem_size<br>(MB)</B></TD>
 <TD WIDTH=\"10%\" HEIGHT=50><B>CPU_per_event<br>(secend)</B></TD>
@@ -96,6 +98,7 @@ sub printRow {
 print <<END;
 <TR ALIGN=CENTER VALIGN=CENTER>
 <td>$pair{'GeantFile'}</td>
+<td>$pair{'Geant_size'}</td>
 <td>$pair{'Produced_date'}</td>
 <td>$pair{'Chain'}</td>
 <td>$pair{'JobStatus'}</td>
@@ -109,6 +112,7 @@ print <<END;
 <td>$pair{'HPSS_hist_date'}</td>
 <td>$pair{'HPSS_hist_size'}</td>
 <td>$pair{'Sum_File'}</td>
+<td>$pair{'Jobfile'}</td>
 <td>$pair{'Lib_tag'}</td>
 <td>$pair{'Mem_size_MB'}</td>
 <td>$pair{'CPU_per_evt_sec'}</td>
