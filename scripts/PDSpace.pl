@@ -70,6 +70,7 @@ foreach $disk (@DISKS){
 	    push (@TRGS,$tmp);
 	    @vers = glob("$trg/*/*");
 	    foreach $ver (@vers){
+		if (! -d $ver && ! -l $ver){ next;}
 		#print "\tFound $ver\n";
 		$ver =~ s/.*\///;
 		$LIBS{$ver} = 1;
