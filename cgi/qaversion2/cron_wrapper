@@ -18,6 +18,6 @@ cd $1
 shift
 
 # run program w/args
-$argv
+./$argv
 
 
