@@ -1,4 +1,4 @@
-ttp#! /usr/bin/perl
+#! /usr/bin/perl
 
 # pmj 18/5/00
 
