@@ -73,7 +73,7 @@ if( $mday < 10) { $mday = '0'.$mday };
 
 
  $thisday = $year."-".$mon."-".$mday; 
- $thisday = "2004-05-18";
+# $thisday = "2004-06-01";
 # $today = $thisday;
  print $thisday, "\n";
 $outname = "mail" . "_" .$thisday . "_" . "out";
