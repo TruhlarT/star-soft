@@ -763,12 +763,13 @@ sub DisplayFilesAndReports{
     my $logfile = $self->LogReport->LogfileName;
 
     if (-s $logfile){
-      
-      my $io = IO_object->new("LogScratchWWW",$logfile);
-      my $link = $io->Name;
+      # this doesnt work anymore jul 30 2000
+      #my $io = IO_object->new("LogScratchWWW",$logfile);
+      #my $link = $io->Name;
+      my $link = IO_object->new("LogfileWWW", $logfile)->Name(); 
 
       my $string = "Logfile (created:" . localtime(stat($logfile)->mtime) . ")";
-      QA_cgi_utilities::make_anchor($string, $logfile, $link); 
+      QA_cgi_utilities::make_anchor($string, $logfile, $link);
     }
   }
 

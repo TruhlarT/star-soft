@@ -708,6 +708,7 @@ sub StErrorFile{
 } 
 #=====================================================================
 # temporary soft link to the log file to view it over the web
+# obsolete - doesnt work anymore? jul 30 2000
 
 sub LogScratchWWW{
   my $self    = shift;
@@ -730,6 +731,7 @@ sub LogScratchWWW{
 }
 #======================================================================
 # scratch directory that contains the links to the log file
+# obsolete - see above.
 
 sub LogScratchDir{
   my $self = shift;
@@ -738,6 +740,14 @@ sub LogScratchDir{
   $self->ReportErrorOnOpen(1);  
  
   return $gDataClass_object->LogScratchDir();
+}
+#======================================================================
+# 
+sub LogfileWWW{
+  my $self = shift;
+  my $logfile = shift;
+
+  return $gDataClass_object->LogfileWWW() . "/$logfile";
 }
 #=========================================================================
 sub SummaryHistDir{

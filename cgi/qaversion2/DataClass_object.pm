@@ -103,6 +103,7 @@ for my $attr ( qw (
 		   BatchDirWWW
 		   LogScratchDirWWW
 		   LogScratchDir
+		   LogfileWWW
 		   KeyList_obj
 		   QA_obj
 		   GetSelectedKeys
@@ -270,9 +271,12 @@ sub StandardDirectories{
   $self->BatchDirWWW("$topdir_WWW/batch_dir_$data_class");
 
   # need to make a temporary link to the logfiles
-  #
+  # obsolete - jul 30 2000
   $self->LogScratchDirWWW("$topdir_WWW/scratch");
   $self->LogScratchDir("/star/u2e/starqa/WWW/qa/scratch");
+
+  # logfile_WWW is a soft link to '/' ...
+  $self->LogfileWWW("$topdir_WWW/logfile_WWW");
 
   my $batch_dir = "$topdir/batch";
   $self->BatchDir("$batch_dir");
