@@ -326,11 +326,16 @@ sub QASummaryString{
       
      $status eq "crashed" and $show_log_link = 1;
 
+     # sometimes, the macro summary is inserted twice
+     # for some reason.  let's always suppress duplications...
+
+     next if $seen{$macro}++;
+
      # crashed or not run?
-     if (($status eq "crashed" or $status eq "not run") and !$seen{$macro})
+     if (($status eq "crashed" or $status eq "not run"))
      {
        $summary_string .= "$macro <font color=red> $status;</font>".br;
-       $seen{$macro}++;
+       #$seen{$macro}++;
      }
      # no tests?
      elsif ($warnings eq 'n/a') {} # do nothing

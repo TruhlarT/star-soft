@@ -200,8 +200,8 @@ print("launching qa batch jobs....\n");
 	my @key_list = &$sub;
 	use strict 'refs';
 
-	my $key;
-	foreach $key (@key_list){
+	foreach my $key (@key_list){
+print("\tsubmitting job for report key=$key");
 	    &QA_utilities::submit_batchjob("do_qa", $key);
 	}
 print("....done launching qa batch jobs\n");

@@ -159,8 +159,9 @@ sub submit_batchjob {
   # to create a QA object just for this, but i don't see a better way to
   # get the qaID
   # BUM - added the defined report_key requirement
+  my $qaID;
   if (defined $report_key) {
-    my $qaID = QA_db_utilities::GetFromQASum('qaID',$report_key);
+    $qaID = QA_db_utilities::GetFromQASum('qaID',$report_key);
     QA_db_utilities::FlagQAInProgress($qaID);
   }
 
@@ -186,7 +187,8 @@ sub submit_batchjob {
   #----------------------------------------------------------------------
   # show queue status
 
-  print "<h4> Job submitted, jobID  = $jobID <br> </h4> \n";
+  print "<h4> Job submitted, jobID  = $jobID, ",
+  "qaID = $qaID,report key = $report_key <br> </h4> \n";
 
   &Server_utilities::display_server_batch_queue;
 

@@ -135,6 +135,25 @@ sub CleanUpScratch{
 
   undef $io_dir;
 }
+
+#==============================================================
+# BEN(28jun2001):
+#
+# <rant>
+#  Written under duress.  This AFS communication is something 
+#  that was tried last year without success, but the powers
+#  that be seem to think it is a good idea.  I, personally,
+#  think that it is asinine.  Once again, security triumphs
+#  over utility.
+# </rant>
+#
+# ComposeParameterFile($action, $data_class, $batchscript_filename, 
+#                    $job_filename, $batch_log_html_temp,
+#                    $batch_log_html, $done_dir,
+#                    $report_dir [, $report_key])
+#
+# This composes a parameter file 
+
 #==============================================================
 # BEN(4jun2000):
 #

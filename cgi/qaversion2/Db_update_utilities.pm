@@ -14,6 +14,17 @@ use QA_db_utilities qw(:db_globals); # import
 
 use strict;
 1;
+
+#--------------------------------------------------------------------
+# OLDEST date
+# this is the oldest 'create time' date picked up by autoqa.
+# 
+my %oldestDate = ( nightlyReal => '2001-04-20',
+		   nightlyMC   => '2001-04-20',
+		   offlineReal => '2001-04-20',
+		   offlineMC   => '2001-04-30'
+);
+
 #-------------------
 # performs 2 tasks -
 # 1. returns an array of updated reportkeys 
@@ -23,7 +34,7 @@ use strict;
 sub UpdateQAOffline{
   my $dataType   = shift; # either 'real' or 'MC'
 
-  my $limit      = 100;     # limit number of new jobs
+  my $limit      = 10;     # limit number of new jobs
   my $oldestDate;         # dont retrieve anything older than this
   my $fileType;           # daq_reco or MC_reco
   my $today      = strftime("%Y-%m-%d %H:%M:%S",localtime());
@@ -32,12 +43,12 @@ sub UpdateQAOffline{
   if($dataType eq 'real')
   {
     $fileType = 'daq_reco';
-    $oldestDate='2000-07-01';
+    $oldestDate= $oldestDate{'offlineReal'};
   }
   elsif($dataType eq 'MC')
   {
     $fileType = 'MC_reco';  
-    $oldestDate='2000-07-01';
+    $oldestDate=$oldestDate{'offlineMC'};
   }
   else {die "Wrong argument $dataType" }
   
@@ -167,7 +178,7 @@ sub UpdateQANightly {
   my $dataType = shift; # 'real' or 'MC'
   
   my $limit       = 20;            # limit number of new jobs
-  my $oldestDate  = '2000-07-01'; # dont retrieve anything older 
+  my $oldestDate; # dont retrieve anything older 
   my $today       = strftime("%Y-%m-%d %H:%M:%S",localtime());
 
   my ($type, $eventGen_string);
@@ -178,6 +189,7 @@ sub UpdateQANightly {
 			  (file.eventGen = 'daq' or
                            file.eventGen = 'cosmics') and
 			 };
+    $oldestDate = $oldestDate{'nightlyReal'};
   }
   elsif ($dataType eq 'MC')
   {
@@ -185,6 +197,7 @@ sub UpdateQANightly {
 			  file.eventGen != 'daq' and
 			  file.eventGen != 'cosmics' and
 			};
+    $oldestDate = $oldestDate{'nightlyMC'};
   }
   else { die "Incorrect argument $dataType"; }
 
@@ -253,6 +266,13 @@ sub UpdateQANightly {
 
   print h3("Found $rows new jobs\n");
 
+  # somtimes jobIDs are duplicated in the database.
+  # they can either be intentional (two jobs run on the same day)
+  # or database errors.
+  # @addLabel is the postfixes to these duplications.
+
+  my @addLabel = ('a','b','c','d','e','f','g');
+
   # loop over jobs
   while ( my $jobID = $sthUpdate->fetchrow_array) {
     $sthKey->execute($jobID);
@@ -263,8 +283,23 @@ sub UpdateQANightly {
     # check if the report key is unique
     $sthCheck->execute($reportKey);
     my $found = $sthCheck->fetchrow_array;
-    # not unique, add a 'b'.  if this is not unique, we're in trouble
-    $found and $reportKey .= 'b'; 
+ 
+    # apparently not unique
+    if($found){
+	my $label;
+	foreach $label (@addLabel){
+	    my $trialKey = $reportKey . $label;
+	    $sthCheck->execute($trialKey);
+	    my $foundAgain = $sthCheck->fetchrow_array;
+    
+	    if(!$foundAgain){ # new reportkey
+		last;
+	    }
+	}
+	# set the report key w/ additional label
+	$reportKey .= $label;
+    }
+        
 
     # save keys
     push @keyList, $reportKey;

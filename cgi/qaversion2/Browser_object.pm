@@ -144,7 +144,6 @@ sub PrintPageHeader{
 
   #---
 
-    
   # this is the header
 
   print qq{
