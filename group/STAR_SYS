@@ -1,5 +1,8 @@
 #!/bin/csh
 #  $Log: STAR_SYS,v $
+#  Revision 1.24  2000/03/08 16:06:51  fisyak
+#  Leave CC4 as default only for old
+#
 #  Revision 1.23  2000/02/24 00:24:38  fisyak
 #  Keep CC4 default for old/pro and new(for time being)
 #
@@ -80,7 +83,7 @@
 #
 #  Revision 1.1.1.1  1997/12/31 14:35:23  fisyak
 #
-#             Last modification $Date: 2000/02/24 00:24:38 $ 
+#             Last modification $Date: 2000/03/08 16:06:51 $ 
 #
 # Determine STAR_SYS variable.
 #
@@ -179,7 +182,7 @@ if ($?USE_EGCS == 1 && "${STAR_SYS}" == "i386_redhat51") setenv STAR_HOST_SYS i3
 if ($?USE_EGCS == 1 && "${STAR_SYS}" == "i386_redhat60") setenv STAR_HOST_SYS i386_redhat60egcs
 if ($?USE_KCC  == 1 && "${STAR_SYS}" == "i386_redhat60") setenv STAR_HOST_SYS i386_redhat60kcc
 if ("${STAR_SYS}" == "sun4x_56") then
-    if ($STAR_LEVEL  == "old" || $STAR_LEVEL  == "pro" || $STAR_LEVEL  == "new") then
+    if ($STAR_LEVEL  == "old") then
 	if ($?USE_CC4  == 1 && $?USE_CC5  == 1) unsetenv USE_CC5
 	if ($?USE_CC5  == 0 && "${STAR_SYS}" == "sun4x_56") setenv USE_CC4 "YES"
     else
@@ -188,4 +191,3 @@ if ("${STAR_SYS}" == "sun4x_56") then
     endif
     if ($?USE_CC5  == 1) setenv STAR_HOST_SYS sun4x_56_CC5
 endif
-
