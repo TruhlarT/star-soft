@@ -47,7 +47,7 @@ $CMPLCMD="cons INSURE=yes";
 $DIRPAT="IOBJ";
 # the object file extension (may be sustem/make dependant)
 $FIND="/usr/bin/find";
-$GREP="/usr/bin/grep";
+$GREP="/bin/grep";
 $OBJ=".o";
 
 # Not used for now
