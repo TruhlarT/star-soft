@@ -654,6 +654,13 @@ sub DisplayFilesAndReports{
   $logfile = $self->LogReport->LogfileName;
   $logfile_WWW = $self->LogReport->LogfileNameWWW;
 
+  # bum - add error and warning files
+  my $warning_file = $self->LogReport->WarningFile;
+  my $error_file = $self->LogReport->ErrorFile;
+  my $warning_string = "StError file: ";
+  my $error_string = "StWarning file: ";
+
+
   if (-s $logfile){
 
     $logfile_WWW and do{
@@ -662,8 +669,10 @@ sub DisplayFilesAndReports{
       $string = "Logfile $time_string";
       QA_cgi_utilities::make_anchor($string, $logfile, $logfile_WWW);
     };
-
   }
+
+  $self->PrintFilestring( $warning_string, basename $warning_file );
+  $self->PrintFilestring( $error_string, basename $error_file );  
 
   #---
   # look in report directory

@@ -22,6 +22,8 @@ use Storable;
 use QA_cgi_utilities;
 use QA_globals;
 
+use QA_make_reports; # bum
+
 #=========================================================
 1.;
 #========================================================
@@ -75,6 +77,15 @@ sub _init{
       "logfile not found in directory $production_dir </h4> \n";
       return;
     };
+
+    # bum -initialize warning and error files
+    my $report_key = QA_make_reports::get_report_key($production_dir);
+    my $warning_file = "$topdir_report/$report_key/warning.txt";
+    my $error_file = "$topdir_report/$report_key/error.txt";
+    
+    $self->WarningFile($warning_file);
+    $self->ErrorFile($error_file);
+
 
     # get the info from the log file, build logfile report object
     
@@ -266,6 +277,22 @@ sub MissingFiles{
   if (@_) {$self->{MissingFiles} = shift }
   return $self->{MissingFiles};
 }
+#========================================================
+# bum - file for StWarning in the log file
+
+sub WarningFile{
+  my $self = shift;
+  if (@_) {$self->{WarningFile} = shift }
+  return $self->{WarningFile};
+}
+#========================================================
+# bum - file for StError in the log file
+
+sub ErrorFile{
+  my $self = shift;
+  if (@_) {$self->{ErrorFile} = shift }
+  return $self->{ErrorFile};
+}
 #=========================================================
 #=== bum, memory usage stuff, 25/1/00 ====================
 #=========================================================
@@ -312,6 +339,13 @@ sub ParseLogfile {
   @logfile = <LOGFILE>;
   close LOGFILE;
 
+  # initialize WarningFile, ErrorFile and open them
+  my $warning_file = $self->WarningFile;
+  my $error_file = $self->ErrorFile;
+
+  open (WARN, ">$warning_file") or die "cannot open $warning_file: $!";
+  open (ERR, ">$error_file") or die "cannot open $error_file: $!";
+
   #----------------------------------------------------------
   # bum, memory stuff
   my ($count, @list);
@@ -322,7 +356,7 @@ sub ParseLogfile {
  
   foreach $line (@logfile) {
     
-    next unless $line =~ /^QAInfo:/;
+    next unless $line =~ /^QAInfo:|^StWarning:|^StError/;
     
     # get STAR and ROOT levels
     $line =~ /STAR_LEVEL\W+(\w+) and ROOT_LEVEL\W+([0-9\.]+)/ and do{
@@ -338,7 +372,7 @@ sub ParseLogfile {
     };
     
     # start recording of run options
-    $line =~ /Requested chain [\w ]*is\W+([\w ]+)/ and do{
+    $line =~ /Requested chain is\W+([\w ]+)/ and do{
       $record_run_options = 1;
       $self->RunOptions("\n");
       $self->RequestedChain($1);
@@ -420,8 +454,17 @@ sub ParseLogfile {
 	#fill array
 	$list[$count] =~ /(\d+)/ and $self->MemoryArray($1);
     }
-    #------------------------------------------------------
     
+    #---------- bum - StWarning and StError----------------
+    
+    print WARN $line if ($line =~ /StWarning:/);
+    print ERR $line if ($line =~ /StError:/); 
+
+    #-------------------------------------------------------
+
+
+
+
     # CVS tags
 # not currently of interest   pmj 21/1/00
 #    $line =~ /with Tag (.*)/ and do{
@@ -529,6 +572,9 @@ sub ParseLogfile {
  
   }
 
+  # bum - close some files
+  close WARN; close ERR;
+
   #--------------------------------------------------------------------------
   # fill these in in case of crash
 
@@ -578,10 +624,14 @@ sub ParseLogfile {
   find ( \&QA_cgi_utilities::get_root_runco_file, $this_dir);
   defined $global_root_runco_file or $missing_files .= " .runco.root"; 
 
-  # bum 9/3/00 -added check for geant.root
-  undef $global_root_geant_file;
-  find ( \&QA_cgi_utilities::get_root_geant_file, $this_dir);
-  defined $global_root_geant_file or $missing_files .= " .geant.root";
+ # bum 9/3/00 -added check for geant.root
+   undef $global_root_geant_file;
+   find ( \&QA_cgi_utilities::get_root_geant_file, $this_dir);
+   defined $global_root_geant_file or $missing_files .= " .geant.root";
+
+ # mark it as red
+   $missing_files = "<font color=red> $missing_files </font>";
+
 
 #----
 
@@ -623,8 +673,7 @@ sub LogfileSummaryString {
     $return_string .= "Log file could not be parsed";
   }
 
-  $self->MissingFiles() and $return_string .=
-    "<br><font color=red>missing files: ".$self->MissingFiles()."</font>";
+  $self->MissingFiles() and $return_string .="<br>missing files: ".$self->MissingFiles();
   
   return $return_string;
 }
