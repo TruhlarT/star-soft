@@ -69,7 +69,7 @@ sub DataDisplayString{
               "/dbRunData.pm?runnumber='$runID'";
   }
   else {
-    $link  = "http://ch2linux.star.bnl.gov/RunLogBrowser" .
+    $link  = "http://online.star.bnl.gov/RunLog2001" .
              "/Summary.php3?run=$runID";
   }
  
