@@ -38,7 +38,13 @@ my $lctSet  =  $query->param('SetLc');
 
 my $colSet;
 
-my @joinSet = ( $collSet. "%" .$datSet . "%" . $detrSet . "%" .$fldSet . "%" . $frSet . "%" . $lctSet. "%" .$prodSr );
+if ($collSet eq "AuAu130") {
+ $colSet = "AuAu1";
+}else {
+$colSet = $collSet;
+}
+
+my @joinSet = ( $colSet. "%" .$datSet . "%" . $detrSet . "%" .$fldSet . "%" . $frSet . "%" . $lctSet. "%" .$prodSr );
 
 
 #####  connect to operation DB
