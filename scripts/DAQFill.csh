@@ -38,16 +38,18 @@ if ( "$1" == "Clean") then
     kill -9 $TEST
   endif
 
-else if ( "$1" == "Update") then
-  # Run the script in update mode i.e. fetch intermediate records
+else if ( "$1" == "Insert") then
+  # Run the script in Insert mode i.e. fetch intermediate records
   # we may have missed. Sleep time is irrelevant in this mode.
   cd $PATH
   ./$SCRIPT 0 $SLTIME
 
-else if ( "$1" == "Purge") then
-  # Purge mode will bootstrap the entries entered since some
+else if ( "$1" == "Update") then
+  # This mode will bootstrap the entries entered since some
   # period of time and remove the ones which have been marked
-  # bad as a post-action.
+  # improperly evaluated. This happens from time to time (meaning
+  # the improper entries) and the cause is null return value
+  # from the SQL querry.  
   cd $PATH
   ./$SCRIPT -1 $SLTIME
 
@@ -59,7 +61,7 @@ else
     if( ! -e $LOG) then
     	echo "Starting on `date`" >$LOG
     endif
-    ./$SCRIPT 1 $SLTIME >>$LOG
+    ./$SCRIPT 1 $SLTIME $LOG &
   endif
 
 endif
