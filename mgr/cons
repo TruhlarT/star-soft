@@ -26,14 +26,14 @@ use Cwd;
 # Regression tests keep the code honest by checking for warnings
 # and "use strict" failures.
 
-# $Id: cons,v 1.74 2001/01/02 16:00:52 fisyak Exp $
+# $Id: cons,v 1.75 2001/01/02 16:04:04 fisyak Exp $
 
 use vars qw( $ver_num $ver_rev $version );
 
 $ver_num = "2.3";
 $ver_rev = ".0";
 $version = sprintf "This is Cons %s%s " .
-	    '($Id: cons,v 1.74 2001/01/02 16:00:52 fisyak Exp $)'. "\n",
+	    '($Id: cons,v 1.75 2001/01/02 16:04:04 fisyak Exp $)'. "\n",
 	    $ver_num, $ver_rev;
 
 # Cons: A Software Construction Tool.
@@ -1530,7 +1530,7 @@ sub _Objects {
 #yf    my($suffix) = $env->{SUFOBJ};
 #yf    map($env->_Object($_, $_->{dir}->lookupfile($_->base_suf($suffix))),
 #yf        map($dir::cwd->lookupfile($env->_subst($_)), grep(defined $_, @_)));
-       map($env->_Object($_, $_->{dir}->lookupfile($_->base_suf($env->{OBJMAP}{$_->suffix})))),
+       map($env->_Object($_, $_->{dir}->lookupfile($_->base_suf($env->{OBJMAP}{$_->suffix}))),
            map($dir::cwd->lookupfile($env->_subst($_)), grep(defined $_, @_)));
 }
 
