@@ -2,7 +2,7 @@
 #
 # $Id:
 #
-# $Log: GifProd5Plots.pl
+# $Log: GifMdc3Plots.pl
 # 
 # L.Didenko
 # Script to create plots for production operation
@@ -32,7 +32,8 @@ my %plotHash = (
              Memory_size => 'mem_size_MB', 
              CPU_per_Event => 'CPU_per_evt_sec',
              Average_NoTracks => 'avg_no_tracks',
-             Average_NoVertices => 'avg_no_vertex'   
+             Average_NoVertices => 'avg_no_vertex',   
+             RealTime_per_Event => 'RealTime_per_evt'
 );
   
  $set1   =  $query->param('set1');
@@ -62,6 +63,7 @@ struct Products => {
     dset     => '$',
     memSize   => '$',
     cpuEvt    => '$', 
+    rtEvt     => '$',
     aveTrks   => '$',
     aveVtxs   => '$',
 };
@@ -104,7 +106,8 @@ $sql="SELECT sumFileName,jobfileName, jobStatus, mem_size_MB, CPU_per_evt_sec, a
         ($$prodAddr)->dset($fvalue)   if($fname eq 'jobfileName'); 
         ($$prodAddr)->memSize($fvalue) if( $fname eq 'mem_size_MB');
         ($$prodAddr)->cpuEvt($fvalue) if( $fname eq 'CPU_per_evt_sec');
-        ($$prodAddr)->aveTrks($fvalue) if( $fname eq 'avg_no_tracks');
+        ($$prodAddr)->rtEvt($fvalue) if( $fname eq 'RealTime_per_evt');
+        ($$prodAddr)->aveTrks($fvalue) if( $fname eq 'avg_no_tracks'); 
         ($$prodAddr)->aveVtxs($fvalue) if( $fname eq 'avg_no_vertex');   
         $mjobSt = $fvalue if ( $fname eq 'jobStatus');       
   
@@ -154,6 +157,7 @@ my $mflName = "n\/a";
 my $mDbId = "n\/a";
 my $mMemSize = 0;
 my $mCPUEvt = 0;
+my $mRTEvt = 0;
 my $mAveTrks = 0;
 my $mAveVtxs = 0;
 
@@ -161,6 +165,7 @@ my @aflName;
 my @aDbId;
 my @aMemSize;
 my @aCPUEvt;
+my @aRTEvt;
 my @aAveTrks;
 my @aAveVtxs;
 my $fileAddr;
@@ -174,6 +179,7 @@ foreach $prodAddr (@prodInfo) {
     $msetnm  = ($$prodAddr)->dset; 
     $mMemSize = ($$prodAddr)->memSize;
     $mCPUEvt  = ($$prodAddr)->cpuEvt;
+    $mRTEvt =  ($$prodAddr)->rtEvt;
     $mAveTrks = ($$prodAddr)->aveTrks;
     $mAveVtxs = ($$prodAddr)->aveVtxs;
 
@@ -189,6 +195,7 @@ foreach $prodAddr (@prodInfo) {
       $aflName[$ii] = $mflName;
       $aMemSize[$ii] = $mMemSize;
       $aCPUEvt[$ii] = $mCPUEvt;
+      $aRTEvt[$ii] = $mRTEvt;
       $aAveTrks[$ii] = $mAveTrks;
       $aAveVtxs[$ii] = $mAveVtxs;      
       $ii++;      
@@ -200,6 +207,7 @@ foreach $prodAddr (@prodInfo) {
       $aflName[$ii] = $mflName;
       $aMemSize[$ii] = $mMemSize;
       $aCPUEvt[$ii] = $mCPUEvt;
+      $aRTEvt[$ii] = $mRTEvt;
       $aAveTrks[$ii] = $mAveTrks;
       $aAveVtxs[$ii] = $mAveVtxs;      
 # print $aflName[$ii], $aMemSize[$ii], "\n";
@@ -283,6 +291,38 @@ $graph->set_y_axis_font(gdMediumBoldFont);
 print $graph->plot(\@data);
 
 }
+##### Average Real Time per Event
+
+elsif($plotVal eq "RealTime_per_Event") {
+
+ my @data = (\@aflName, \@aRTEvt);
+
+$xLabelsVertical = 1;
+
+print $qr->header(-type => "image/gif");
+
+$graph = new GIFgraph::linespoints(650,560);
+
+$graph->set(x_label => "",
+            y_label => "Real Time per event(seconds)", 
+            title   => "$set1",
+            markers => \@markerList,
+            line_width => $lineWidth,
+            x_label_skip => $xLabelSkip,
+            y_min_value => 0,
+            y_max_value => 1400,
+ x_labels_vertical =>$xLabelsVertical
+);
+
+$graph->set_title_font(gdMediumBoldFont);
+$graph->set_x_label_font(gdMediumBoldFont);
+$graph->set_y_label_font(gdMediumBoldFont);
+$graph->set_x_axis_font(gdMediumBoldFont);
+$graph->set_y_axis_font(gdMediumBoldFont);
+print $graph->plot(\@data);
+
+}
+
 
 ##### Average number of tracks
 
