@@ -264,10 +264,13 @@ sub GetOfflineKeys{
 
   my $limit = 50; # dont want to get a million of them
 
-  print "data_type = $data_type<br>",
-        "prodOptions = $prodOptions<br>",
-        "runID       = $runID<br>",
-        "jobStatus   = $jobStatus<br>";
+  print h4("data_type = $data_type<br>",
+	   "prodOptions = $prodOptions<br>",
+	   "runID       = $runID<br>",
+	   "jobStatus   = $jobStatus<br>",
+	   "QAstatus_arg= $QAstatus_arg<br>",
+	   "createTime  = $createTime<br>",
+	   "dataset     = $dataset<br>");
 
 
 
@@ -407,7 +410,7 @@ sub GetOfflineKeys{
 		      $QAstatus_string
 		limit $limit };
 
-  print $query; # debugging
+  print $query if $gBrowser_object->ExpertPageFlag;
 
   my $sth = $dbh->prepare( $query );
   $sth->execute;
@@ -608,7 +611,8 @@ sub GetNightlyKeys{
 		       $QAstatus_string
 		 limit $limit };
   
-  print $query;
+  # for debugging
+  print $query if $gBrowser_object->ExpertPageFlag;
 
   my $sth = $dbh->prepare( $query );
   $sth->execute;

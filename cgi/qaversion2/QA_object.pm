@@ -834,7 +834,7 @@ sub UpdateLogReport{
      "Found new job($report_key) for $topdir_local database</font>\n",br;
   
   # make new report dir
-  print h3("Making directory: $report_dir\n"),br;
+  print h4("Making directory: $report_dir\n"),br;
   mkdir $report_dir, 0775;
 
   # create Logreport_object_offline, nightly, or online, etc

@@ -574,8 +574,10 @@ sub ControlFileNightly{
 # [controlDir]/[prodSeries]/test_control.txt
 
 sub ControlFileOffline{
-  my $self = shift;
+  my $self   = shift;
   my $qa_obj = shift;
+
+  $self->ReportErrorOnOpen(1);
 
   my $prodSeries = $qa_obj->LogReport->ProdSeries;
 
@@ -586,6 +588,8 @@ sub ControlFileOffline{
     #print "Control dir $dir not found, using default... <br> \n";
     $dir = $self->ControlDir()."/default";
   };
+  
+  $self->IsDir(0);
 
   # TEST
   return "$dir/control_and_test.txt";

@@ -66,21 +66,20 @@ sub JobPopupMenu{
   }
   # runID
   my (@runID_values, %runID_labels);
-  @runID_values = @{$select_ref->{runID}} if
-    defined $select_ref->{runID};
-  
-  %runID_labels = map {$_, $_} @runID_values;
+  @runID_values = @{$select_ref->{runID}};
 
   
   # QA status (errors, warnings, ok)
   my @macro_names = @{$select_ref->{macroName}};
 
   # QA status now fill in errors and warnings info
-  my @status_values = ('ok','not_ok','done', 'not_done');
-  my %status_labels = (ok       => 'ok',
+  my @status_values = ('any','ok','not_ok','done', 'not_done');
+  my %status_labels = (
+		       any      => 'any',
+		       ok       => 'ok',
 		       not_ok   => 'not ok',
 		       done     => 'done',
-		       not_done => 'not_done'
+		       not_done => 'not done'
 		       );
 
   push @status_values, 'warnings';$status_labels{warnings} = 'warnings';
@@ -104,17 +103,17 @@ sub JobPopupMenu{
     
   # make it cleaner
   foreach my $element (@dataset_values){
-    (my $clean_element = $element) =~ s/\///;
-    $dataset_labels{$element} = $clean_element;
+#    (my $clean_element = $element) =~ s/\// /g;
+    $dataset_labels{$element} = $element;
   }
   
   # job status 
   my (@jobStatus_values, %jobStatus_labels);
   
-  @jobStatus_values = ('done','not_done');
-
-  $jobStatus_labels{done} = 'done';
-  $jobStatus_labels{not_done} = 'not_done';
+  @jobStatus_values = ('any', 'done','not_done');
+  %jobStatus_labels = ( any      => 'any',
+			done     => 'done',
+			not_done => 'not done' );
 
   # createTime
   my (@createTime_values, %createTime_labels);
@@ -129,8 +128,6 @@ sub JobPopupMenu{
 
   unshift @prodOptions_values, 'any'; $prodOptions_labels{any} = 'any';
   unshift @runID_values, 'any';       $runID_labels{any} = 'any';
-  unshift @status_values, 'any';      $status_labels{any} = 'any';
-  unshift @jobStatus_values, 'any';   $jobStatus_labels{any} = 'any';
   unshift @createTime_values, 'any';  $createTime_labels{any} = 'any';
   unshift @dataset_values, 'any';     $dataset_labels{any} = 'any';
 
@@ -147,8 +144,7 @@ sub JobPopupMenu{
     b('runID').br.
       $gCGIquery->popup_menu(-name    => 'select_runID',
 			 -values  => \@runID_values,
-			 -default => $runID_values[0],
-			 -labels  => \%runID_labels);
+			 -default => $runID_values[0] );
 
   my $QAstatus_string = 
     b('QA status').br.
