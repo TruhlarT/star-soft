@@ -213,6 +213,11 @@ END
 
  print "</body>";
  print "</html>";
+
+
+if($query->param) {
+  dbRunBrows($query);
+}
   
 print $query->end_html; 
 
