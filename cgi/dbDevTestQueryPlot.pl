@@ -1,9 +1,12 @@
 #!/usr/local/bin/perl
 #!/usr/bin/env perl 
 #
-# $Id: dbDevTestQueryPlot.pl,v 1.21 2004/12/20 21:35:55 didenko Exp $
+# $Id: dbDevTestQueryPlot.pl,v 1.22 2004/12/20 22:28:58 didenko Exp $
 #
 # $Log: dbDevTestQueryPlot.pl,v $
+# Revision 1.22  2004/12/20 22:28:58  didenko
+# more directories to query
+#
 # Revision 1.21  2004/12/20 21:35:55  didenko
 # comment print
 #
@@ -132,9 +135,9 @@ while($n_weeks >= 0) {
 	$path =~ s(/)(%)g;
 
 	if ($n_weeks == 0) {
-	    $sql="SELECT path, $mplotVal FROM JobStatus WHERE path LIKE \"%$path%\" AND avail='Y' AND jobStatus=\"Done\" AND (TO_DAYS(\"$nowdate\") -TO_DAYS(createTime)) < $day_diff ORDER by createTime DESC LIMIT 2";
+	    $sql="SELECT path, $mplotVal FROM JobStatus WHERE path LIKE \"%$path%\" AND avail='Y' AND jobStatus=\"Done\" AND (TO_DAYS(\"$nowdate\") -TO_DAYS(createTime)) < $day_diff ORDER by createTime DESC LIMIT 4";
 	} else {
-	    $sql="SELECT path, $mplotVal FROM JobStatus WHERE path LIKE \"%$path%\" AND jobStatus=\"Done\" AND (TO_DAYS(\"$nowdate\") -TO_DAYS(createTime)) < $day_diff AND (TO_DAYS(\"$nowdate\") -TO_DAYS(createTime)) > $day_diff1 ORDER by createTime DESC LIMIT 2";
+	    $sql="SELECT path, $mplotVal FROM JobStatus WHERE path LIKE \"%$path%\" AND jobStatus=\"Done\" AND (TO_DAYS(\"$nowdate\") -TO_DAYS(createTime)) < $day_diff AND (TO_DAYS(\"$nowdate\") -TO_DAYS(createTime)) > $day_diff1 ORDER by createTime DESC LIMIT 4";
 	}
 
 	$cursor = $dbh->prepare($sql) || die "Cannot prepare statement: $dbh->errstr\n";
