@@ -1,6 +1,6 @@
 #!/usr/bin/env perl
 
-# $Id: AutoBuild.pl,v 1.18 2004/03/17 21:55:24 jeromel Exp $
+# $Id: AutoBuild.pl,v 1.19 2004/04/03 23:31:02 jeromel Exp $
 # This script was written to perform an automatic compilation
 # with cvs co and write some html page related to it afterward.
 # Written J.Lauret Apr 6 2001
@@ -525,11 +525,13 @@ sub Exit()
     if($sts != 0){
 	# Send Emails to the list of managers if the compilation
 	# failed. We do NOT want to be influcenced by anything else
-	@email  = IUManagers();
-	foreach $tmp (@email){
-	    system("echo \"Last error is $ERRSTR\nFor more information, ".
-		   "check ".IUHtmlRef()."/$FLNM.html\" ".
-		   "| Mail -s \"AutoBuild: Action failed\" $tmp");
+	if ( ! $DEBUG){
+	    @email  = IUManagers();
+	    foreach $tmp (@email){
+		system("echo \"Last error is $ERRSTR\nFor more information, ".
+		       "check ".IUHtmlRef()."/$FLNM.html\" ".
+		       "| Mail -s \"AutoBuild: Action failed\" $tmp");
+	    }
 	}
 	exit(1);
     } else {
