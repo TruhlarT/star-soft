@@ -59,7 +59,7 @@ for($i=0 ; $i <= $#ARGV ; $i++){
 	    exit;
 
 
-	} elsif ($arg eq "-prof"){
+	} elsif (lc($arg) eq "-prof"){
 	    # Turn on profiling instead
 	    $PROF = 1;
 	}

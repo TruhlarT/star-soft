@@ -109,7 +109,7 @@ $INSU::BSUB = "/usr/local/lsf/bin/bsub";
 	      "dau2003 est beamLine CMuDst",
 	      "/star/rcf/test/daq/2003/041/st_physics_4041002_raw_0020001.daq",
 
-	      "pp2003 eemcD alltrigger trgd est CMuDst",
+	      "pp2003 eemcD alltrigger trgd",
 	      "/star/data03/daq/2003/111/st_physics_4111036_raw_0030004.daq"
 
 	      );
