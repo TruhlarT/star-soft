@@ -36,7 +36,7 @@ do {
 
 	    # get the top run
 	    $run = $mode*rdaq_last_run($dbObj);
-	    &Print("Last Run=$run\n");
+	    &Print("Last Run=$run on ".localtime()."\n");
 
 	    if($run >= 0){
 		# fetch new records since that run number
