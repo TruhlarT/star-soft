@@ -1,6 +1,9 @@
 #!/usr/bin/env perl
-#  $Id: dropit,v 1.4 2000/05/15 21:10:38 fisyak Exp $
+#  $Id: dropit,v 1.5 2000/06/16 18:34:04 fisyak Exp $
 #  $Log: dropit,v $
+#  Revision 1.5  2000/06/16 18:34:04  fisyak
+#  Remove nonexisting directories from path
+#
 #  Revision 1.4  2000/05/15 21:10:38  fisyak
 #  Change /opt/star/bin to /usr/bin/env perl
 #
@@ -73,7 +76,9 @@ foreach my $word (@words) {
 foreach my $word (@newwords) {# print "word = $word\n";
   foreach my $w (@words) {# print "word $word and w = $w\n";
 			   goto LAST if $w eq $word;}
-  push @words, $word;# print "add $word\n";
+#  print "Check $word\n";
+  next if ! -d $word and $word !~ /^./;
+  push @words, $word;# print "                    add $word\n";
  LAST:
 }
 $string = join $DS,@words;
