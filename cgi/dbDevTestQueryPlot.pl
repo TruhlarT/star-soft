@@ -1,11 +1,11 @@
 #!/usr/local/bin/perl
 #!/usr/bin/env perl 
 #
-# $Id: dbDevTestQueryPlot.pl,v 1.27 2005/01/10 17:50:53 didenko Exp $
+# $Id: dbDevTestQueryPlot.pl,v 1.28 2005/01/10 17:55:33 didenko Exp $
 #
 # $Log: dbDevTestQueryPlot.pl,v $
-# Revision 1.27  2005/01/10 17:50:53  didenko
-# initial
+# Revision 1.28  2005/01/10 17:55:33  didenko
+# array initial
 #
 # Revision 1.23  2005/01/10 15:28:47  didenko
 # updated for ITTF test
@@ -95,14 +95,14 @@ my @point8 = ();
 
 my @Nday;
 for($i=0;$i<7*$weeks;$i++) {
-    $point0[$i]=0;
-    $point1[$i]=0;
-    $point2[$i]=0;
-    $point3[$i]=0;
-    $point4[$i]=0;
-    $point5[$i]=0;
-    $point6[$i]=0;
-    $point7[$i]=0;
+    $point0[$i]=undef;
+    $point1[$i]=undef;
+    $point2[$i]=undef;
+    $point3[$i]=undef;
+    $point4[$i]=undef;
+    $point5[$i]=undef;
+    $point6[$i]=undef;
+    $point7[$i]=undef;
     $Nday[$i] = undef;
 }
 
@@ -155,9 +155,9 @@ while($n_weeks >= 0) {
 	$path =~ s(/)(%)g;
 
 	if ($n_weeks == 0) {
-	    $sql="SELECT path, $mplotVal FROM JobStatus WHERE path LIKE \"%$path%\" AND avail='Y' AND jobStatus=\"Done\" AND (TO_DAYS(\"$nowdate\") -TO_DAYS(createTime)) < $day_diff ORDER by createTime DESC LIMIT 6";
+	    $sql="SELECT path, $mplotVal FROM JobStatus WHERE path LIKE \"%$path%\" AND avail='Y' AND jobStatus=\"Done\" AND (TO_DAYS(\"$nowdate\") -TO_DAYS(createTime)) < $day_diff ORDER by createTime DESC LIMIT 5";
 	} else {
-	    $sql="SELECT path, $mplotVal FROM JobStatus WHERE path LIKE \"%$path%\" AND jobStatus=\"Done\" AND (TO_DAYS(\"$nowdate\") -TO_DAYS(createTime)) < $day_diff AND (TO_DAYS(\"$nowdate\") -TO_DAYS(createTime)) > $day_diff1 ORDER by createTime DESC LIMIT 6";
+	    $sql="SELECT path, $mplotVal FROM JobStatus WHERE path LIKE \"%$path%\" AND jobStatus=\"Done\" AND (TO_DAYS(\"$nowdate\") -TO_DAYS(createTime)) < $day_diff AND (TO_DAYS(\"$nowdate\") -TO_DAYS(createTime)) > $day_diff1 ORDER by createTime DESC LIMIT 5";
 	}
 
 	$cursor = $dbh->prepare($sql) || die "Cannot prepare statement: $dbh->errstr\n";
@@ -215,7 +215,7 @@ while($n_weeks >= 0) {
 		    }
 		}
 
-	    } else {
+	    }elsif($fields[0] =~ /sl302/) {
 		$point0[$d_week+7*$rn_weeks] = $fields[1];
 		if ($point0[$d_week+7*$rn_weeks] > $max_y) {
 		    $max_y = $point0[$d_week+7*$rn_weeks];
