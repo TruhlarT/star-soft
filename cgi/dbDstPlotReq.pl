@@ -128,7 +128,7 @@ $cursor =$dbh->prepare($sql)
 my $ik = 2;
         $eachEvtType[0] = "all";
         $eachEvtType[1] = $evtType[0];
-     for( $ll=0; $ll< $nevtType; $ll++) {
+     for( $ll=1; $ll< $nevtType; $ll++) {
        if( !($evtType[$ll] eq $evtType[$ll-1]))  {
              $eachEvtType[$ik] = $evtType[$ll];
               $ik++;
