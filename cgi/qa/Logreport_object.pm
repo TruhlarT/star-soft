@@ -588,7 +588,7 @@ sub ParseLogfile {
 
   $this_dir = dirname($logfile_name);
 
-  $missing_files = "";
+  $missing_files = undef;
   
   undef $global_root_dst_file;
   find ( \&QA_cgi_utilities::get_root_dst_file, $this_dir);
@@ -629,15 +629,9 @@ sub ParseLogfile {
    find ( \&QA_cgi_utilities::get_root_geant_file, $this_dir);
    defined $global_root_geant_file or $missing_files .= " .geant.root";
 
- # mark it as red
-   $missing_files = "<font color=red> $missing_files </font>";
 
 
 #----
-
-  if ($missing_files  eq ""){
-    undef $missing_files;
-  }
 
   $self->MissingFiles($missing_files);
   
@@ -673,7 +667,9 @@ sub LogfileSummaryString {
     $return_string .= "Log file could not be parsed";
   }
 
-  $self->MissingFiles() and $return_string .="<br>missing files: ".$self->MissingFiles();
+  $self->MissingFiles() and $return_string .=
+    "<br>missing files:<font color=red> ".
+      $self->MissingFiles()."</font>";
   
   return $return_string;
 }
