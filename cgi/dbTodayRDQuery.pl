@@ -35,10 +35,13 @@ $now = localtime;
 ($sec,$min,$hour,$mday,$mon,$year) = localtime;
 
  $mon += 1;
-foreach my $int ( $mon,$mday ){
-#  $int < 10 and $int = '0'.$int;
-   $thisday .= $int;
-}
+  if ($mday < 10) {
+  $mday = '0'.$mday;
+ } 
+  if ($mon < 10) {
+  $mon = '0'.$mon;
+ }   
+  $thisday = $mon . $mday;
 
 $thisDay = '00'.$thisday;
 
