@@ -704,13 +704,13 @@ foreach  $eachOutNDir (@OUT_DIR) {
       }
 
      elsif($EvTp eq "AuAuMinBias") {
-        $EvReq = 500;
+        $EvReq = 100;
       }
      elsif($EvTp eq "AuAu_prodHigh") {
-        $EvReq = 335;
+        $EvReq = 100;
       }
      elsif($EvTp eq "AuAu_prodLow") {
-        $EvReq = 332;
+        $EvReq = 100;
       }
 #       else {
 #      @prt = split(/\./,$bsname);
@@ -738,7 +738,7 @@ foreach  $eachOutNDir (@OUT_DIR) {
          $EvReq = 500;
  }
      elsif($EvTp eq "auau_minbias") {          
-         $EvReq = 225;
+         $EvReq = 100;
  }
      
       if( $bsname =~ /hc_highdensity/) {
