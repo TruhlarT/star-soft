@@ -11,7 +11,10 @@ switch ($STAR_SYS)
 	if ( -x $GROUP_DIR/dropit) then
 	    setenv LD_LIBRARY_PATH `${GROUP_DIR}/dropit -p ${LD_LIBRARY_PATH} -p {$PARASOFT}/lib.linux2`
 	    setenv PATH `${GROUP_DIR}/dropit parasoft insure`
-	    setenv MANPATH `${GROUP_DIR}/dropit -p ${MANPATH} -p {$PARASOFT}/man`
+	    if ( -e {$PARASOFT}/man ) then
+		# no manpages starting from 4.2
+		setenv MANPATH `${GROUP_DIR}/dropit -p ${MANPATH} -p {$PARASOFT}/man`
+	    endif
 	endif
 	set path = ($path $PARASOFT/bin.linux2)
 	breaksw	
