@@ -360,7 +360,7 @@ sub offline_fast{
   $self->UpdateRoutine("Db_update_utilities::UpdateQAOfflineFast");
 
   # get old reports
-  $self->GetOldReports("QA_db_utilities::GetOldReports");
+  $self->GetOldReports("QA_db_utilities::GetOldReportsReal");
 
   # get todo QA keys
   $self->ToDoKeys("Db_update_utilities::GetToDoReportKeys");

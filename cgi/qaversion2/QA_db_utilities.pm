@@ -786,21 +786,32 @@ sub GetQAMacrosSummary{
 sub GetOldReports{
   my $data_type = shift; # MC or real
 
-  my $old_time  = 5;   # number of days
+  my $old_time  = shift || 5;   # number of days
   my $now       = time;  # current date in epoch seconds
   my @old_report_keys;
 
-  # determine which reports are old from th e FileCatalog.createTime
-  my $query_old = qq{ select distinct qa.$QASum{report_key},
-			     qa.$QASum{qaID}
-		      from $dbQA.$QASum{Table} as qa,
-		           $dbFile.$FileCatalog as file  
-		      where  
-			qa.$QASum{jobID} = file.jobID and
-			(to_days(from_unixtime($now)) -
-			 to_days(file.createTime)) > $old_time and
-			qa.$QASum{type} = '$data_type'
-		      };
+  print "GetOldReports($data_type, $old_time)\n";
+
+  # determine which reports are old from the FileCatalog.createTime
+#  my $query_old = qq{ select distinct qa.$QASum{report_key}, qa.$QASum{qaID}
+#		      from $dbQA.$QASum{Table} as qa,
+#		      $dbFile.$FileCatalog as file  
+#			  where  
+#			      qa.$QASum{jobID} = file.jobID and
+#			(to_days(from_unixtime($now)) -
+#			 to_days(file.createTime)) > $old_time and
+#			qa.$QASum{type} = '$data_type'
+#		      };
+
+  # determine which reports are old from the QA insert time
+  my $query_old = qq{ select distinct qa.$QASum{report_key}, qa.$QASum{qaID}
+		      from $dbQA.$QASum{Table} as qa
+			  where 
+			      (to_days(from_unixtime($now)) -
+			       to_days(qa.insertTime)) > $old_time and
+				   qa.$QASum{type} = '$data_type'
+				   };
+
   # delete from QASummary
   my $query_delete_sum = qq{ delete from $QASum{Table} 
 			     where $QASum{report_key} = ? };
@@ -819,10 +830,10 @@ sub GetOldReports{
     push @old_report_keys, $report_key; # save it
 
     print h4("Deleting $report_key from $QASum{Table} ...\n");
-    #$sth_delete_sum->execute($report_key);  # delete it
+    $sth_delete_sum->execute($report_key);  # delete it
 
     print h4("Deleting $report_key from $QAMacros{Table} ...\n");
-    #$sth_delete_macro->execute($qaID);
+    $sth_delete_macro->execute($qaID);
 
     print h4("... done<br>\n");
   }
@@ -831,11 +842,11 @@ sub GetOldReports{
 }
 #----------
 sub GetOldReportsReal{
-  return GetOldReports('real');
+  return GetOldReports('real', shift);
 }
 #----------
 sub GetOldReportsMC{
-  return GetOldReports('MC');
+  return GetOldReports('MC', shift);
 }
 
     
