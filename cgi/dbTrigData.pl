@@ -28,7 +28,7 @@ my $myprod;
 
 my @detSet = ("all","tpc","svt","rich","tof","ftpc","emc","fpd","pmd");
 my @trigSet  = ("all","central","minbias","medium","peripheral","mixed","physics");
-my @mfield = ("all","FullField","HalfField","FieldOff");
+my @mfield = ("all","HalfField","ReversedFullField","ReversedHalfField","FieldOff");
 
 &StDbProdConnect();
 

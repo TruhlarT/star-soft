@@ -28,7 +28,7 @@ my $nprodPer = 0;
 my @colSet = ("AuAu130", "AuAu200","laser");
 my @detSet = ("all","tpc","svt","rich","tof","ftpc","emc","fpd","pmd");
 my @trigSet  = ("all","central","minbias","medium","peripheral","mixed","physics","n/a");
-my @mfield = ("all","FullField","HalfField","FieldOff");
+my @mfield = ("all","HalfField","ReversedFullField","ReversedHalfField","FieldOff");
 my @format = ("daq","dst.root","event.root","hist.root","tags.root");
 my @locSet = ("hpss","disk");
 
