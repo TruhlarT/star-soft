@@ -1,7 +1,10 @@
 #!/usr/bin/csh -f
-#       $Id: group_env.csh,v 1.89 1999/11/23 15:12:06 fisyak Exp $
+#       $Id: group_env.csh,v 1.90 1999/11/29 18:11:17 fisyak Exp $
 #	Purpose:	STAR group csh setup 
 #       $Log: group_env.csh,v $
+#       Revision 1.90  1999/11/29 18:11:17  fisyak
+#       Add LIB to LD_LIBRARY_PATH for non debug
+#
 #       Revision 1.89  1999/11/23 15:12:06  fisyak
 #       Add man path for CC5 and clean up for it
 #
@@ -293,16 +296,18 @@ else
   setenv STAF_VERSION ${STAF_LEVEL}
 endif
 source ${GROUP_DIR}/STAR_SYS; 
-setenv STAR $STAR_PATH/${STAR_VERSION} ;        if ($ECHO) echo   "Setting up STAR      = ${STAR}"
-setenv STAF $STAR_PATH/StAF/${STAF_VERSION} ;   if ($ECHO) echo   "Setting up STAF      = ${STAF}"
-setenv STAF_LIB  $STAF/.${STAR_HOST_SYS}/lib  ; if ($ECHO) echo   "Setting up STAF_LIB  = ${STAF_LIB}"
-setenv STAF_BIN  $STAF/.${STAR_HOST_SYS}/bin  ; if ($ECHO) echo   "Setting up STAF_BIN  = ${STAF_BIN}"
-if ($?NODEBUG == 0) then
- setenv STAR_LIB  $STAR/.${STAR_HOST_SYS}/lib;  if ($ECHO) echo   "Setting up STAR_LIB  = ${STAR_LIB}"
- setenv MINE_LIB        .${STAR_HOST_SYS}/lib;
-else
-  setenv STAR_LIB  $STAR/.${STAR_HOST_SYS}/LIB; if ($ECHO) echo   "Setting up STAR_LIB  = ${STAR_LIB}"
-  setenv MINE_LIB        .${STAR_HOST_SYS}/LIB;
+setenv STAR $STAR_PATH/${STAR_VERSION};         if ($ECHO) echo   "Setting up STAR      = ${STAR}"
+setenv STAF $STAR_PATH/StAF/${STAF_VERSION};    if ($ECHO) echo   "Setting up STAF      = ${STAF}"
+setenv STAF_LIB  $STAF/.${STAR_HOST_SYS}/lib;   if ($ECHO) echo   "Setting up STAF_LIB  = ${STAF_LIB}"
+setenv STAF_BIN  $STAF/.${STAR_HOST_SYS}/bin;   if ($ECHO) echo   "Setting up STAF_BIN  = ${STAF_BIN}"
+setenv STAR_LIB  $STAR/.${STAR_HOST_SYS}/lib;   if ($ECHO) echo   "Setting up STAR_LIB  = ${STAR_LIB}"
+setenv MINE_LIB        .${STAR_HOST_SYS}/lib;
+if ($?NODEBUG) then
+  setenv STAR_lib  $STAR/.${STAR_HOST_SYS}/LIB; if ($ECHO) echo   "Setting up STAR_lib  = ${STAR_lib}"
+  setenv MINE_lib        .${STAR_HOST_SYS}/LIB;
+else 
+  if ($?STAR_lib) unsetenv STAR_lib
+  if ($?MINE_lib) unsetenv MINE_lib
 endif
 setenv STAR_BIN  $STAR/.${STAR_HOST_SYS}/bin  ; if ($ECHO) echo   "Setting up STAR_BIN  = ${STAR_BIN}"
 setenv STAR_MGR $STAR/mgr
@@ -356,6 +361,7 @@ if ( -x /afs/rhic/star/group/dropit) then
   setenv PATH `/afs/rhic/star/group/dropit -p ${PATH} GROUPPATH`
   setenv PATH `/afs/rhic/star/group/dropit -p ${PATH} $STAR_PATH`
   if (${?LD_LIBRARY_PATH}) setenv LD_LIBRARY_PATH `/afs/rhic/star/group/dropit -p ${LD_LIBRARY_PATH} $STAR_PATH`
+  if (${?SHLIB_PATH})      setenv SHLIB_PATH      `/afs/rhic/star/group/dropit -p ${SHLIB_PATH} $STAR_PATH`
 endif
 setenv PATH "/usr/afsws/bin:/usr/afsws/etc:/opt/star/bin:/usr/sue/bin:/usr/local/bin:${GROUP_DIR}:${STAR_MGR}:${STAR_SCRIPTS}:${STAR_CGI}:${STAR_BIN}:${STAF}/mgr:${STAF_BIN}:${PATH}"
 ## Put mysql on path if available
@@ -386,7 +392,12 @@ switch ($STAR_SYS)
 #  ====================
       if (! ${?SHLIB_PATH}) setenv SHLIB_PATH
       if ( -x /afs/rhic/star/group/dropit) setenv SHLIB_PATH `/afs/rhic/star/group/dropit -p ${SHLIB_PATH} $STAR_PATH`
-      setenv SHLIB_PATH ${SHLIB_PATH}:${MINE_LIB}:${STAR_LIB}:${STAF_LIB}
+      if (${?MINE_lib} && ${?STAR_lib}) then
+        setenv SHLIB_PATH ${MINE_lib}:${STAR_lib}:${MINE_LIB}:${STAR_LIB}:${STAF_LIB}:${SHLIB_PATH}
+      else
+	if ( -x /afs/rhic/star/group/dropit) setenv SHLIB_PATH `/afs/rhic/star/group/dropit -p ${SHLIB_PATH} .${STAR_HOST_SYS}/LIB`
+        setenv SHLIB_PATH ${MINE_LIB}:${STAR_LIB}:${STAF_LIB}:${SHLIB_PATH}
+      endif
       setenv LD_LIBRARY_PATH ${SHLIB_PATH}
       setenv BFARCH hp_ux102
       limit coredumpsize 0
@@ -414,7 +425,13 @@ switch ($STAR_SYS)
 #    set path = ($path  /usr/local/bin/ddd /usr/local/DQS318/bin )
      set path = ($path $PARASOFT/bin.linux)
      if (! ${?LD_LIBRARY_PATH}) setenv LD_LIBRARY_PATH 
-     setenv LD_LIBRARY_PATH "/usr/lib:${PARASOFT}/lib.linux:/usr/local/lib:${MINE_LIB}:${STAR_LIB}:${STAF_LIB}:${LD_LIBRARY_PATH}"
+     setenv LD_LIBRARY_PATH "/usr/lib:${PARASOFT}/lib.linux:/usr/local/lib:${LD_LIBRARY_PATH}"
+     if (${?MINE_lib} && ${?STAR_lib}) then
+       setenv LD_LIBRARY_PATH "${MINE_lib}:${STAR_lib}:${MINE_LIB}:${STAR_LIB}:${STAF_LIB}:${LD_LIBRARY_PATH}"
+     else
+       if ( -x /afs/rhic/star/group/dropit) setenv LD_LIBRARY_PATH `/afs/rhic/star/group/dropit -p ${LD_LIBRARY_PATH} .${STAR_HOST_SYS}/LIB`
+       setenv LD_LIBRARY_PATH "${MINE_LIB}:${STAR_LIB}:${STAF_LIB}:${LD_LIBRARY_PATH}"
+     endif
      limit coredump 0
      setenv BFARCH Linux2
      setenv OBJY_ARCH linux86
@@ -422,15 +439,26 @@ switch ($STAR_SYS)
     case "sun4*":
 #  ====================
       if (! ${?LD_LIBRARY_PATH}) setenv LD_LIBRARY_PATH
-      setenv LD_LIBRARY_PATH "/opt/SUNWspro/lib:/usr/openwin/lib:/usr/dt/lib:/usr/local/lib:${PARASOFT}/lib.solaris:/afs/rhic/star/packages/ObjectSpace/2.0m/lib:${MINE_LIB}:${STAR_LIB}:${STAF_LIB}:${LD_LIBRARY_PATH}"
-	set path = ($path $PARASOFT/bin.solaris)
+      setenv LD_LIBRARY_PATH "/opt/SUNWspro/lib:/usr/openwin/lib:/usr/dt/lib:/usr/local/lib:${PARASOFT}/lib.solaris:/afs/rhic/star/packages/ObjectSpace/2.0m/lib:${LD_LIBRARY_PATH}"
+     if (${?MINE_lib} && ${?STAR_lib}) then
+       setenv LD_LIBRARY_PATH "${MINE_lib}:${STAR_lib}:${MINE_LIB}:${STAR_LIB}:${STAF_LIB}:${LD_LIBRARY_PATH}"
+     else
+       setenv LD_LIBRARY_PATH "${MINE_LIB}:${STAR_LIB}:${STAF_LIB}:${LD_LIBRARY_PATH}"
+     endif
+      set path = ($path $PARASOFT/bin.solaris)
       setenv BFARCH SunOS5
       if ("${STAR_HOST_SYS}" == "sun4x_56_CC5") setenv BFARCH SunOS5_CC5
       setenv OBJY_ARCH solaris4
       limit coredump 0
       unlimit descriptors
       if ("${STAR_HOST_SYS}" == "sun4x_56_CC5" || "${STAR_HOST_SYS}" == "sun4x_56_CC5C") then
-        setenv LD_LIBRARY_PATH "/opt/WS5.0/lib:/opt/WS5.0/SC5.0/lib:/usr/openwin/lib:/usr/dt/lib:/usr/local/lib:${PARASOFT}/lib.solaris:/afs/rhic/star/packages/ObjectSpace/2.0m/lib:${MINE_LIB}:${STAR_LIB}:${STAF_LIB}:${LD_LIBRARY_PATH}"
+        setenv LD_LIBRARY_PATH "/opt/WS5.0/lib:/opt/WS5.0/SC5.0/lib:/usr/openwin/lib:/usr/dt/lib:/usr/local/lib:${PARASOFT}/lib.solaris:/afs/rhic/star/packages/ObjectSpace/2.0m/lib:${LD_LIBRARY_PATH}"
+     if (${?MINE_lib} && ${?STAR_lib}) then
+       setenv LD_LIBRARY_PATH "${MINE_lib}:${STAR_lib}:${MINE_LIB}:${STAR_LIB}:${STAF_LIB}:${LD_LIBRARY_PATH}"
+     else
+       setenv LD_LIBRARY_PATH "${MINE_LIB}:${STAR_LIB}:${STAF_LIB}:${LD_LIBRARY_PATH}"
+     endif
+
         setenv PATH "/opt/WS5.0/bin:${PATH}"
 	setenv MANPATH "/opt/WS5.0/man:${MANPATH}"
       else
@@ -442,12 +470,6 @@ switch ($STAR_SYS)
         endif
       endif
     breaksw 
-    case "sunx86_55":
-#  ====================
-        if (! ${?LD_LIBRARY_PATH}) setenv LD_LIBRARY_PATH
-        setenv LD_LIBRARY_PATH "${MINE_LIB}:${STAR_LIB}:${STAF_LIB}:${LD_LIBRARY_PATH}"
-        limit coredump 0
-    breaksw
     default:
 #  ====================
     breaksw
@@ -540,11 +562,6 @@ switch ($STAR_SYS)
     setenv SHLIB_PATH "${SHLIB_PATH}:/opt/star/lib/mysql"
   endif
   setenv SHLIB_PATH `/afs/rhic/star/group/dropit -p "$SHLIB_PATH"`
-    breaksw
-    case "sgi_64":
-#  ====================
-  setenv LD_LIBRARYN32_PATH "${LD_LIBRARYN32_PATH}:/opt/star/lib"
-  setenv LD_LIBRARYN32_PATH `/afs/rhic/star/group/dropit -p "$LD_LIBRARYN32_PATH"`
     breaksw
     default:
 #  ====================
