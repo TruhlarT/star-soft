@@ -170,7 +170,7 @@ $DELAY     = 60;                              # delay backward in time in second
 # There should be NO OTHER configuration below this line but
 # only composit variables or assumed fixed values.
 #
-$DEBUG     = 1;
+$DEBUG     = 0;
 
 # Build ddb ref here.
 $DDBREF    = "DBI:mysql:$DDBNAME:$DDBSERVER:$DDBPORT";
