@@ -1,4 +1,4 @@
-#!/opt/star/bin/perl -w
+#!/usr/bin/env perl
 
 #
 # This script will fetch records fron the o-database
@@ -37,7 +37,14 @@
 # Default are currently
 #    dev, 20, /star/data19/reco
 #
-#
+# Note that the presence of a file named FastOff.quit will
+# make this script to quit without any processing. This
+# script itself handles clashes between multiple execution
+# via  afile named FastOff.lock . This latest file, if created
+# by hand, it may be automatically deleted if older than
+# some arbitrary time. TO stop FastOffline, you should then
+# use the FastOff.quit file mechanism instead.
+# 
 # History
 #  Fri Jul 27. dammit !! Did not take into account that
 #              'staged' and 'staging' jobs are not showed
@@ -66,6 +73,10 @@ use RunDAQ;
 use CRSQueues;
 
 $ThisYear = 2004;
+
+#
+$SELF =  $0;
+$SELF =~ s/.*\///;
 
 # default values global (unless overwritten)
 $EXPRESS = 0;
@@ -170,6 +181,7 @@ $SPATH ="/afs/rhic/star/packages/scripts";
 # return number of slots to $MAXCNT.
 $SCRATCH = ".";
 $LOCKF   = "FastOff.lock";
+$QUITF   = "FastOff.quit";
 $CONFF   = "JobSubmit$LIB.lis";
 $PRIORITY= 100;              # default queue priority
 $SLEEPT  = 10;               # sleep time between submit
@@ -177,6 +189,11 @@ $MAXCNT  = 20;               # max job to send in a pass
 $RATIO   = 2;                # time drop down for mode + (2=twice faster)
 
 
+# Check if the quit file is present
+if ( -e $QUITF){
+    print "$SELF :: $QUITF detected I have been asked to skip processing\n";
+    exit;
+}
 
 # be sure to turn it ON
 if (rdaq_toggle_debug()){ rdaq_toggle_debug();}
@@ -210,6 +227,20 @@ $LIBV = $LIB;
 if($LIB eq "cal"){ $LIB = "dev";}
 
 $PAT = "$LIB"."_*_st_*";
+
+# lock file mechanism prevents multiple execution of this
+# script. However, prevent from crash and left over lock
+# file. Notethat TARGET=1 also remove the LOCK file.
+if ( -e $LOCKF){
+    $date = time()-(stat($LOCKF))[9];
+    if ($date > 3600){
+	print "$SELF :: removing $LOCKF (older than 3600 seconds)\n";
+	unlink($LOCKF);
+    } else {
+	print "$SELF :: $LOCKF present. Skipping pass using target=$TARGET\n";
+    }
+    exit;
+}
 
 
 # Now go ...
@@ -269,11 +300,14 @@ if( $TARGET =~ m/^\// || $TARGET =~ m/\^\// ){
 		print "Checking ".($#files+1)." jobs\n";
 		undef(@OKFILES);             # will be filled by Submit
 		undef(@SKIPPED);
+		$kk = $TOT;
 		foreach $file (@files){
 		    sleep($SLEEPT) if &Submit(0,$USEQ[0],$SPILL[0],
 					      $file,$CHAIN);
 		    $MAXCNT--;
+		    $kk--;
 		    last if ($MAXCNT == 0);
+		    last if ($kk     == 0);
 		}
 		rdaq_set_files($obj,1,@OKFILES);
 		rdaq_set_files($obj,4,@SKIPPED);
