@@ -142,7 +142,9 @@ production and test runs, together with a performance summary of each
 run: what was run, completed successfully or not, run time errors and
 diagnostics, memory and cpu usage, etc. New runs are added to the
 database by a scan of the disk volumes where test and production data
-reside ( as of 13/9/99 this is restricted to /disk00000/star/test/).
+reside ( as of 13/9/99 this is restricted to
+/disk00000/star/test/). This is currently (28/9/99) scheduled to
+happen automatically every eight hours.
 
 <li><font color=red>Automated QA:</font> Run a set of standard QA ROOT
 macros on the output data of the run, report the results, and
@@ -324,6 +326,10 @@ your favourite UNIX manual). Date and time of the last update are given
 in the upper panel, under the "Display selected dataset" button. If an
 update job is in progress, blue text will indicate that immediately
 below this message.
+
+<p>
+<font color=red> As of 28/9/99, the updates will be done automatically
+every eight hours (and midnight, 8 a.m. and 4 p.m.).</font>
 
 <p> The updating process examines all directories in a specified disk
 area to find and catalogue production runs that have completed since
@@ -1054,7 +1060,7 @@ scripts in afs area cannot be run.
     <address><a href="mailto:pmjacobs@lbl.gov">webmaster</a></address>
     <!-- Created: Wed May  6 11:37:01 EDT 1998 -->
 <!-- hhmts start -->
-Last modified: Tue Sep 28 20:51:38 EDT 1999
+Last modified: Tue Sep 28 20:59:08 EDT 1999
 <!-- hhmts end -->
 <!--===============================================================-->
 </body>
