@@ -418,8 +418,8 @@ my @files;
        $timeS = sprintf ("%4.4d-%2.2d-%2.2d %2.2d:%2.2d:00",
                        $fullyear,$mo,$dy,$hr,$min);    
 
-           if( $ltime > 1200 && $ltime < 518000 ){         
-#          if( $ltime > 1200) { 
+           if( $ltime > 600 && $ltime < 518400 ){         
+#          if( $ltime > 600 ) { 
 #   print "Log time: ", $ltime, "\n";
 #   print $fullname, "\n";
         &logInfo("$fullname", "$platf");
@@ -469,7 +469,7 @@ my @files;
           $newAvail = "N";
   print  "Changing availability for test files", "\n";
   print  "files to be updated:", $pvjbId, " % ",$pvpath, " % ",$pvTime, " % ",$newAvail, "\n"; 
-     &updateJSTable();
+    &updateJSTable();
 
       $mavail = 'Y';
       $myID = 100000000 + $new_id;
@@ -479,7 +479,7 @@ my @files;
 
   print  "Filling JobStatus with DEV log files for testDay and beforeDay\n";
   print  "files to be inserted:", $mjID, " % ",$mpath, " % ",$timeS , " % ", $memFst," % ",$memLst," % ", $mavail, "\n";  
-      &fillJSTable();
+     &fillJSTable();
 
    }else{
    }  
@@ -696,8 +696,8 @@ foreach  $eachOutNDir (@OUT_DIR) {
        if ( -f $lgFile) {
           ($size, $mTime) = (stat($lgFile))[7, 9];
             $ltime = $now - $mTime;
-           if( $ltime > 1200 && $ltime < 518000 ){         
-#            if( $ltime > 1200) { 
+#           if( $ltime > 1200 && $ltime < 518000 ){         
+            if( $ltime > 1200) { 
 	     foreach my $eachLogFile (@testJobStFiles) {
 
                $jpath   = ($$eachLogFile)->pth; 
@@ -1100,6 +1100,7 @@ sub  updateJSTable {
  my $no_knvertices;
  my $no_prtracks;
  my @word_tr;
+ my @nmb;
  my $i;
  my @part;
  my @size_line;
@@ -1160,12 +1161,13 @@ my $mRealTbfc = 0;
     }
 #   get chain option
 	  if($runflag == 1) {
-       if ( $line =~ /QAInfo: Requested chain bfc is/)  {
+	      if ( $line =~ /Processing bfc.C/)   {
          if( $Anflag == 0 ) {
-         @part = split /:/, $line ;
-         $mchain = $part[2]; 
+         @part = split /"/, $line ;
+         $mchain = $part[1]; 
          $mchain =~ s/ /_/g;  
-     }else{
+#   print  $mchain, "\n";
+    }else{
        next;
         }
        }
@@ -1177,7 +1179,6 @@ my $mRealTbfc = 0;
 
 #  get memory size
       if ($num_line > 200){
-#      if( $line =~ /EndMaker/ and $line =~ /root4sta/){
 	if( $line =~ /EndMaker/ and $line =~ /total/ ) {
         @size_line = split(" ",$line); 
 
@@ -1194,26 +1195,31 @@ my $mRealTbfc = 0;
       if ($line =~ /QAInfo: StAnalysisMaker/ && $Anflag == 0 ) {
             my  $string = $logfile[$num_line];
               @word_tr = split /:/,$string;
-              $no_tracks = $word_tr[2];
+              @nmb =  split /</,$word_tr[2];
+              $no_tracks = $nmb[0];
               $tot_tracks += $no_tracks; 
-#              print $word_tr[2], $no_tracks, "\n";
               $string = $logfile[$num_line + 1];
               @word_tr = split /:/,$string;
-              $no_prtracks = $word_tr[2]; 
+              @nmb =  split /</,$word_tr[2];
+              $no_prtracks = $nmb[0];
               $tot_prtracks += $no_prtracks;
               $string = $logfile[$num_line + 2];
               @word_tr = split /:/,$string;
-              $no_vertices = $word_tr[2]; 
+              @nmb =  split /</,$word_tr[2];
+              $no_vertices = $nmb[0];              
               $tot_vertices += $no_vertices;
               $string = $logfile[$num_line + 3];
               @word_tr = split /:/,$string;
-              $no_xivertices = $word_tr[2]; 
+              @nmb =  split /</,$word_tr[2];
+              $no_xivertices = $nmb[0];
               $tot_xivertices += $no_xivertices;
               $string = $logfile[$num_line + 4];
               @word_tr = split /:/,$string;
-              $no_knvertices = $word_tr[2]; 
+              @nmb =  split /</,$word_tr[2];
+              $no_knvertices = $nmb[0];
               $tot_knvertices += $no_knvertices;
            
+#   print $no_tracks, "  ",$no_prtracks, "  ",$no_vertices,"  ",$no_xivertices, "\n";
   }   
 #  check if job crashed due to break_buss_error
       if($line =~ /bus error/) {
@@ -1271,8 +1277,8 @@ my $mRealTbfc = 0;
           chop $end_line;
    if ($end_line =~ /QAInfo: Chain/ and $end_line =~ /StBFChain::bfc/) {
      @part = split (" ", $end_line); 
-      $mCPUbfc = $part[4];
-      $mRealTbfc = $part[6];
+      $mCPUbfc = $part[6];
+      $mRealTbfc = $part[4];
       $mCPUbfc = substr($mCPUbfc,1) + 0;
       $mRealTbfc = substr($mRealTbfc,1) + 0;
 #    print "CPU ", $mCPUbfc,"   %   ", $mRealTbfc, "\n";
