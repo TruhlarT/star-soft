@@ -43,7 +43,8 @@ sub QA_bfcread_dst_tables{
   while (<REPORT>){
     /QAInfo: ([\w_]+)\s+(\d+)/ and do{
       $run_scalar_hash{$1} = $2;
-  };
+    };
+  }
 
   close REPORT;
 
