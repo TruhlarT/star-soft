@@ -9,7 +9,7 @@
 
 use Mysql;
 
-require "/afs/rhic/star/packages/scripts/dbCpProdSetup.pl";
+ require "/afs/rhic/star/packages/scripts/dbCpProdSetup.pl";
 
 my @maifile;
 my $mail_line;
@@ -24,6 +24,8 @@ my %nodeStCount = ();
 my %nodeAbCount = ();
 my %nodeDnCount = ();
 my %nodeFNFCount = ();
+my %nodeQuFaCount = ();
+
 my $outname;
 my $outfile;
 
@@ -32,6 +34,8 @@ my @ndAbCount;
 my @ndStCount; 
 my @ndDnCount;
 my @ndFNFCount;
+my @ndQuFaCount;
+
 my @nodeList = (
                 "rcrs6001.rcf.bnl.gov",
                 "rcrs6002.rcf.bnl.gov",
@@ -162,15 +166,6 @@ my @nodeList = (
 
 my $eachNode;
 
- for ( $ll = 0; $ll <= scalar(@nodeList); $ll++) {   
- 
-       $ndCrCount[$ll]  = 0;
-       $ndAbCount[$ll]  = 0;
-       $ndStCount[$ll]  = 0;
-       $ndDnCount[$ll]  = 0;
-       $ndFNFCount[$ll] = 0;
-     };
-
 my %nodeHash = (
                 "rcrs6001.rcf.bnl.gov" => 0,
                 "rcrs6002.rcf.bnl.gov" => 1, 
@@ -299,35 +294,57 @@ my %nodeHash = (
                                 "n/a" => 124, 
 );               
 
-my $year;
+my $today;
 
-($sec,$min,$hour,$mday,$mon,$yr) = localtime;
+($sec,$min,$hour,$mday,$mon) = localtime;
 
- $year = 1900 + $yr;
+my $year = "2002";
    $mon++;
 if( $mon < 10) { $mon = '0'.$mon };
 if( $mday < 10) { $mday = '0'.$mday };
 
  $thisday = $year."-".$mon."-".$mday; 
+ $today = $thisday
 
 print "Time stamp  ", $thisday, "\n";
+
 $outname = "mail" . "_" .$thisday . "_" . "out";
-$outfile = "/star/u/starreco/" . $outname;
+ 
+ $outfile = "/star/u/starreco/" . $outname;
 
 open (MAILFILE, $outfile ) or die "cannot open $outfile: $!\n";
 
-
  @mailfile = <MAILFILE>;
+
+  for ( $ll = 0; $ll <= scalar(@nodeList); $ll++) {   
+ 
+       $ndCrCount[$ll]  = 0;
+       $ndAbCount[$ll]  = 0;
+       $ndStCount[$ll]  = 0;
+       $ndDnCount[$ll]  = 0;
+       $ndFNFCount[$ll] = 0;
+       $ndQuFaCount[$ll] = 0;
+     };
+
+   &StDbProdConnect();
 
   foreach $mail_line (@mailfile) {
      chop $mail_line ;
+    $jbStat = "n/a";
      if ($mail_line =~ /JobInfo/ ) {
       @wrd = split ("%", $mail_line);
       $nodeID = $wrd[2];
-      $jbStat = $wrd[1];
-      chop $nodeID;
+      if( $nodeID =~ /rcrs/) {
+     chop $nodeID;
       $nodeID =~ s/^\ *//g;
-      if(!defined($nodeID)) {$nodeID = "n/a"};       
+   }else {
+      $nodeID = "n/a";
+   }
+      $jbStat = $wrd[1];
+      if(! $jbStat ) {$jbStat = "n/a"};
+
+#  print $nodeID,"  ", $jbStat, "\n";
+
       $ii = $nodeHash{$nodeID};
 
       if ($jbStat =~ /crashed/) {
@@ -344,6 +361,9 @@ open (MAILFILE, $outfile ) or die "cannot open $outfile: $!\n";
      elsif ($jbStat =~ /file not found/) {
          $ndFNFCount[$ii]++;
      }
+      elsif ($jbStat =~ /queuing failed/) {
+         $ndQuFaCount[$ii]++;
+       }
      elsif ($jbStat =~ /done/) {
          $ndDnCount[$ii]++;
        }
@@ -352,7 +372,8 @@ open (MAILFILE, $outfile ) or die "cannot open $outfile: $!\n";
  
 close (MAILFILE);
 
-  &StDbProdConnect();
+ my $dbnode = "none";
+ my $dbDate = "none";
 
 for ($ll = 0; $ll < scalar(@nodeList); $ll++) {
       $mynode = $nodeList[$ll];
@@ -361,10 +382,38 @@ for ($ll = 0; $ll < scalar(@nodeList); $ll++) {
       $nodeStCount{$mynode} = $ndStCount[$ll]; 
       $nodeDnCount{$mynode} = $ndDnCount[$ll];       
       $nodeFNFCount{$mynode} = $ndFNFCount[$ll];
+      $nodeQuFaCount{$mynode} = $ndQuFaCount[$ll];      
 
-# print $mynode,"  %  ",$nodeCrCount{$mynode}, "  %  ",$nodeAbCount{$mynode}, "  %  ",$nodeStCount{$mynode}, "  %  ",$nodeDnCount{$mynode}, "  %  ",$nodeFNFCount{$mynode}, "\n";
+      $dbnode = "none";
+      $dbDate = "none";
+      
+  $sql="SELECT nodeName, mdate FROM $crsStatusT WHERE nodeName = '$mynode' AND mdate = '$thisday' ;    
 
+       $cursor =$dbh->prepare($sql)
+   || die "Cannot prepare statement: $DBI::errstr\n";
+           $cursor->execute;
+ 
+   while(@fields = $cursor->fetchrow) {
+     my $cols=$cursor->{NUM_OF_FIELDS};
+  
+   for($i=0;$i<$cols;$i++) {
+     my $fvalue=$fields[$i];
+       my $fname=$cursor->{NAME}->[$i];
+       print "$fname = $fvalue\n" if $debugOn;
+
+       $dbnode = $fvalue     if( $fname eq 'nodeName');
+       $dbDate = $fvalue     if( $fname eq 'mdate');
+     }
+   }      
+ 
+     if( $dbnode eq "none" and $dbDate eq "none" ) {
+#   print "Filling new entries  ",$thisday,"  %  ",$mynode,"  %  ",$nodeCrCount{$mynode}, "  %  ",$nodeAbCount{$mynode}, "  %  ",$nodeStCount{$mynode}, "  %  ",$nodeDnCount{$mynode}, "  %  ",$nodeFNFCount{$mynode},"  %  ", $nodeQuFaCount{$mynode}, "\n";
+
+  &fillTable();
+     }else{
+#   print "Updated  ",$thisday,"  %  ",$mynode,"  %  ",$nodeCrCount{$mynode}, "  %  ",$nodeAbCount{$mynode}, "  %  ",$nodeStCount{$mynode}, "  %  ",$nodeDnCount{$mynode}, "  %  ",$nodeFNFCount{$mynode},"  %  ", $nodeQuFaCount{$mynode}, "\n";
   &updateTable(); 
+   }
  }     
  
    &StDbProdDisconnect();
@@ -375,13 +424,15 @@ exit;
 
   sub fillTable {
 
- $sql="insert into $nodeStatusT set ";
+ $sql="insert into $crsStatusT set ";
  $sql.="nodeName='$mynode',";
  $sql.="crashedJobs='$nodeCrCount{$mynode}',";
  $sql.="abortedJobs='$nodeAbCount{$mynode}',"; 
  $sql.="stagingFailed='$nodeStCount{$mynode}',";
  $sql.="doneJobs='$nodeDnCount{$mynode}',";
- $sql.="fileNotFound='$nodeFNFCount{$mynode}' ";
+ $sql.="fileNotFound='$nodeFNFCount{$mynode}',";
+ $sql.="queuingFailed='$nodeQuFaCount{$mynode}',";
+ $sql.="mdate='$thisday' "; 
     print "$sql\n" if $debugOn;
    $rv = $dbh->do($sql) || die $dbh->errstr;
    }
@@ -390,13 +441,14 @@ exit;
 
   sub updateTable {
 
- $sql="update $nodeStatusT set ";
+ $sql="update $crsStatusT set ";
  $sql.="crashedJobs='$nodeCrCount{$mynode}',";
  $sql.="abortedJobs='$nodeAbCount{$mynode}',"; 
  $sql.="stagingFailed='$nodeStCount{$mynode}',";
  $sql.="doneJobs='$nodeDnCount{$mynode}',";
- $sql.="fileNotFound='$nodeFNFCount{$mynode}' ";
- $sql.=" WHERE nodeName = '$mynode' ";
+ $sql.="fileNotFound='$nodeFNFCount{$mynode}',";
+ $sql.="queuingFailed='$nodeQuFaCount{$mynode}' ";
+ $sql.=" WHERE nodeName = '$mynode' AND  mdate = '$thisday' ";
     print "$sql\n" if $debugOn;
    $rv = $dbh->do($sql) || die $dbh->errstr;
    }
