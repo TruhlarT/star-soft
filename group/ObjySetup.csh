@@ -2,7 +2,9 @@
 
 if ( -d /opt/objy/objy500 ) then
   # sol location
-  setenv OBJY_HOME /opt/objy/objy500
+    #  setenv OBJY_HOME /opt/objy/objy500
+  # use same location as elsewhere
+    setenv OBJY_HOME /afs/rhic/oodb
 else
   if ( -d /afs/rhic/oodb ) then
     # other machines
