@@ -75,7 +75,7 @@ $SUB   = "reco";
 # Argument pick-up
 $kk    = 0;
 $FO    = STDERR;
-
+$|     = 1;
 
 for ($i=0 ; $i <= $#ARGV ; $i++){
     # Support "-XXX" options
@@ -85,7 +85,7 @@ for ($i=0 ; $i <= $#ARGV ; $i++){
 	    # Make the file new all the time
 	    unlink($ARGV[$i+1]);
 	}
-	if ( open(FO,">$FLNM") ){
+	if ( open(FO,">$FLNM.tmp") ){
 	    $i++;
 	    $FO = FO;
 	}
@@ -161,7 +161,10 @@ else {                   print "Password for $user : ";
 #
 # Now connect
 #
-$fC->connect($user,$passwd,$port,$host,$db);
+if ( ! $fC->connect($user,$passwd,$port,$host,$db) ){
+    &Stream("Error: Could not connect to $host $db using $user (passwd=OK)");
+    goto FINAL_EXIT;
+}
 
 #$fC->debug_off();
 
@@ -219,7 +222,7 @@ foreach  $file (@ALL){
 
     if ($#all == -1){
 	$unkn++;
-	&Stream("Warning : File not found as storage=HPSS -- $path/$file\n");
+	&Stream("Warning : File not found as storage=HPSS -- $path/$file");
 
     } else {
 	$mess = "Found ".($#all+1)." records for [$file] ";
@@ -227,7 +230,7 @@ foreach  $file (@ALL){
 	@stat   = stat("$path/$file");
 
 	if ($#stat == -1){  
-	    &Stream("Error : stat () failed -- $path/$file \n");
+	    &Stream("Error : stat () failed -- $path/$file");
 	    next;
 	}
 
@@ -271,7 +274,7 @@ foreach  $file (@ALL){
 		}
 		
 		if ( ! $fC->insert_file_location() ){
-		    &Stream("Error : Attempt to insert new location [$path] failed\n");
+		    &Stream("Error : Attempt to insert new location [$path] failed");
 		    $failed++;
 		} else {
 		    $new++;
@@ -299,12 +302,16 @@ FINAL_EXIT:
 	if ($FO ne STDERR){ 
 	    print $FO "Scan done on ".localtime()."\n";
 	    close($FO);
+	    unlink("$FLNM") if ( -e "$FLNM");
+	    rename("$FLNM.tmp","$FLNM");
 	}
     } else {
-	# if nothing was output, delete file
+	# if nothing was output, delete ALL files (especially if they
+	# were old)
 	if ($FO ne STDERR){ 
 	    close($FO);
-	    unlink($FLNM);
+	    unlink("$FLNM.tmp") if ( -e "$FLNM.tmp");
+	    unlink("$FLNM")     if ( -e "$FLNM");
 	}
     }
 
