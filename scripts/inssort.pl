@@ -72,7 +72,7 @@ foreach $line (sort keys %CODE){
     $ref    = IUGetRef($items[0]);
     $docref = IUErrorURL($items[1],1);
     print $FO 
-	"<LI><A NAME=\"$ref\"><B>$line</B></A>",$docref,
+	"<LI><A NAME=\"$ref\"><B>$line</B></A>",$docref,"\n",
 	"<PRE>$CODE{$line}</PRE>\n";
 }
 print $FO "</OL>\n".IUtrail();

@@ -268,9 +268,11 @@ sub IUl2pre
 	$line =~ s/>/&gt;/g;
 	if($line =~ m/\serror\s/i){
 	    if( defined($flag) ){
-		"$flag<b>$line</b>";
+		#"$flag<b>$line</b>";
+		"$flag $line ";
 	    } else {
-		"<b>$line</b>";
+		#"<b>$line</b>";
+		"$line";
 	    }
 	} else {
 	    $line;
