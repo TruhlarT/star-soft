@@ -19,15 +19,15 @@ use strict;
 # OLDEST date
 # this is the oldest 'create time' date picked up by autoqa.
 # 
-my %oldestDate = ( nightlyReal => '2001-07-05',
-		   nightlyMC   => '2001-07-10',
+my %oldestDate = ( nightlyReal => '2001-08-20',
+		   nightlyMC   => '2001-08-20',
 		   offlineReal => '2001-07-20',
 		   offlineMC   => '2001-07-20',
 		   offlineFast => undef
 );
 # max number of updated jobs
 my %updateLimit = ( nightlyReal => 10,
-		    nightlyMC   => 10,
+		    nightlyMC   => 20,
 		    offlineReal => 50,
 		    offlineMC   => 10,
 		    offlineFast => 10
