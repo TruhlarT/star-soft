@@ -530,7 +530,7 @@ sub get_logfile_report{
 
     # done with cvs tags?
     $record_tags and do{
-      if($_ !~ /\$Name:  $record_tags = 0;}
+      if($_ !~ /Name/){$record_tags = 0;}
     };
     
     $record_tags and do {
