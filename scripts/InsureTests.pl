@@ -11,7 +11,7 @@
 # History
 #  Apr 13 2001 ; JL added real events chain.
 #
-use lib "/star/u/jeromel/scripts";
+use lib "/afs/rhic/star/packages/scripts";
 use ABUtils;
 
 
