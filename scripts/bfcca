@@ -7,7 +7,7 @@
 # many chains, any destinations, with any library version.
 #
 # This one script may therefore handle multiple production.
-# 
+#
 # Written J.Lauret July 2001.
 # Please, follow comments for more information ...
 #
@@ -41,14 +41,14 @@ use File::Basename;
 use File::Copy;
 
 # First of all, turn IO autoflush
-$|       = 1; 
+$|       = 1;
 
 
 # Some default hardwired values
 $HPSSBASE= "/home/starreco";       # base HPSS path
 $NTRIES  = 720;                    # number of tries -1 means infinit tries
 $SLPTIME = 120;                    # sleep time in sec between mkpath attempts
-$PRGM    = "bfcca";                # this program logical name 
+$PRGM    = "bfcca";                # this program logical name
 
 
 # This is for debugging purposes
@@ -64,11 +64,15 @@ $PRGM    = "bfcca";                # this program logical name
 # 0. Afterward, this script accept (in order
 # it receives)
 shift @ARGV;
-$STDOPT      = shift @ARGV;
+$ALLOPT      = shift @ARGV;
 $LIBRARY     = shift @ARGV;
 $DESTINATION = shift @ARGV;
 $NUMEVT      = shift @ARGV;
 $CHAINOPT    = join(" ",@ARGV);
+
+# Option bitmask
+$STDOPT = $ALLOPT & 3; # i.e. 011
+$OPTOPT = $ALLOPT & 4; # i.e. 100
 
 
 # --- ENV variables we may use       ------------------------------
@@ -86,12 +90,13 @@ $ISTDERR= $ENV{"STD_ERR"};
 $STDOUT = basename($ISTDOUT);
 $STDERR = basename($ISTDERR);
 
+
 if( $STDOPT == 1){
     # Option 1 is to redirect to local file
     # after stealing the STD channels.
     if( defined($ISTDOUT) && defined($ISTDERR) ){
 	print "$PRGM :: Info: delayed IO mode.\n";
-	&STDtrap(0,$STDOUT,$STDERR);    
+	&STDtrap(0,$STDOUT,$STDERR);
     } else {
 	print "$PRGM :: Warning: delayed IO requested but missing ENV\n";
 	print "$PRGM :: Info: Reverting to direct IO\n";
@@ -118,9 +123,9 @@ for($i =0 ; ; $i++){
     if( ! defined($in) ){ last;}
     eval('$cin = $ENV{"INPUT$i"}');
     if( ! defined($cin) ){ last;}
-    push(@CINPUTS,$cin);	
-    push(@INPUTS,$in);	
-} 
+    push(@CINPUTS,$cin);
+    push(@INPUTS,$in);
+}
 
 
 # The first one is used as our input stream, the rest are
@@ -140,7 +145,7 @@ $CINPUTFILE = shift @CINPUTS;
 # Other input files may be options.
 # - If an input file contains the string StarDb, calibration
 #   directory is soft linked to the current directory.
-# - If the file name contains StarDb and its name is 
+# - If the file name contains StarDb and its name is
 #   one of the above pattern. In both case, the file
 #   is assumed to contain the chain option.
 #
@@ -170,11 +175,11 @@ foreach $file (@CINPUTS){
 # this. This loop may also be used for
 for($i =0 ; ; $i++){
     eval('$cout  = $ENV{"OUTPUT$i"}');
-    if( ! defined($cout)  ){ last;}      
+    if( ! defined($cout)  ){ last;}
     eval('$out = $ENV{"ACTUAL_OUTPUT$i"}');
     if( ! defined($out) ){ last;}
     push(@COUTPUTS,$cout);
-    push(@OUTPUTS,$out);	
+    push(@OUTPUTS,$out);
     # Well, some jobs have it created at startup, some don't
     # causing a final staging failure. Therefore, do not trust
     # the CRS pre-job and do it ourselves.
@@ -185,7 +190,7 @@ for($i =0 ; ; $i++){
 	    symlink($cout,$tmp);
 	}
     }
-} 
+}
 
 
 
@@ -198,7 +203,7 @@ for($i =0 ; ; $i++){
 # num events default value
 if( $NUMEVT <= 0){ $NUMEVT = 10000;}
 # Simplify library version change (commodity)
-if($LIBRARY =~ m/dev/i || $LIBRARY =~ m/new/i || 
+if($LIBRARY =~ m/dev/i || $LIBRARY =~ m/new/i ||
    $LIBRARY =~ m/pro/i || $LIBRARY =~ m/old/i){
    $CHVER = "star".lc($LIBRARY);
 } else {
@@ -241,6 +246,11 @@ print "Outputs final will be            ".join(" ",@OUTPUTS)."\n";
 if($copt ne "" ){
     print "Calibration pass will be done\n";
 }
+if ($OPTOPT){
+    print "The chain will run in Optimized mode\n";
+} else {
+    print "The chain will run in NON-Optimized mode\n";
+}
 
 
 
@@ -261,11 +271,14 @@ if ( ! open(FO,">$PWD/$JOB_ID.csh") ){
     # Note that we will be able to dup STDOUT STDERR to a file later
     # (and if required) as well as writing handler routine to prevent
     # from a crash.
-    print FO 
+    print FO
 	"#!/bin/csh\n",
 	"setenv GROUP_DIR /afs/rhic/rhstar/group\n", # default GROUP_DIR
 	"source \$GROUP_DIR/star_login.csh\n",       # load basic login env
-	"unset noclobber\n",                         # over-write
+	"unset noclobber\n";                         # over-write
+    print FO
+	"setenv NODEBUG yes\n" if($OPTOPT);          # STAR soft specific env
+    print FO
 	"$CHVER\n",                                  # load chosen library env
 	"echo \"$PRGM :: Using \`which root4star\`\"\n";  # some info/debug message
 
@@ -302,7 +315,7 @@ if ( ! open(FO,">$PWD/$JOB_ID.csh") ){
     &List("Our working directory contains","We will now start to run ...");
 
     system("$PWD/$JOB_ID.csh");
-   
+
     # after this, we may have crashed or not
     if($? == 0){
 	print "$PRGM :: Info: The chain as completed without failure\n";
@@ -311,10 +324,10 @@ if ( ! open(FO,">$PWD/$JOB_ID.csh") ){
     }
     &List("The directory content is now ...");
 
-    
 
 
-   
+
+
     # But please, do not stop there but move the output if required
     # Required means that the option was HPSS, UNIX option means
     # that it will be written over NFS so we do not need to move the
@@ -326,31 +339,31 @@ if ( ! open(FO,">$PWD/$JOB_ID.csh") ){
 	if( -e $cfile){
 	    $file  = $OUTPUTS[$i];
 	    $ffile = "";
-	
+
 	    if( $file ne $cfile){
 		# Massage the substitution. This is a HPSS file
 		# cloned/copied to a disk as well.
-		$ffile = $file;              
+		$ffile = $file;
 		$ffile =~ s|$HPSSBASE|$DESTINATION|;
 	    } elsif ( dirname($file) eq "."){
-		# This is a file left on the local disk we want 
+		# This is a file left on the local disk we want
 		# to move now.
 		$ffile = $file;
 		$ffile =~ s|./|$DESTINATION/|;
-	    } 
-      
-      
+	    }
+
+
 	    # OK to copy -> $ffile is defined
 	    if( $ffile ne ""){
 		&FileCopy($cfile,$ffile);
 	    } else {
 		print "$PRGM :: Info: $file is at its final destination\n";
 	    }
-	
+
 	} else {
 	    # Oups ! The output file was not found
 	    print "$PRGM :: Warning: action did not produce expected $cfile\n";
-	}	
+	}
     }
     print "$PRGM :: Info: All output checked. Done.\n";
 
@@ -381,10 +394,10 @@ sub MkPath
 {
     my($dir,$level)=@_;
     my(@items,$tmp,$el,$i);
-   
+
     # default
     if( ! defined($level) ){ $level = 0;}
-   
+
     @items = split("/",$dir);
     shift(@items);               # strip first blank space
     $tmp = "";
@@ -398,10 +411,10 @@ sub MkPath
 	    # be executed which means that we will go into an infinit
 	    # loop until the disk is available.
 	    #
-	    if (-f $tmp){  
-		# Oupses !! File exists with same name than directory. 
+	    if (-f $tmp){
+		# Oupses !! File exists with same name than directory.
 		# This is a no-no in Uglix-land.
-		print STDERR 
+		print STDERR
 		    "$PRGM :: Error: Cannot create dir $tmp. ",
 		    "File exists with the same name.\n";
 		return -1;
@@ -413,7 +426,7 @@ sub MkPath
 	    # before a /star/dataXX directory ...
 	    if ($i >= $level){
 		if( ! mkdir($tmp,0773) ){
-		    print STDERR 
+		    print STDERR
 			"$PRGM :: Error: Failed to create $tmp [$!]\n";
 		    return -2;
 		}
@@ -437,7 +450,7 @@ sub List
     print "\n";
     print "$PRGM :: Info: $smess\n" if ( defined($smess) );
     print `ls -l`;
-    print "$PRGM :: Info: $emess\n" if ( defined($emess) );    
+    print "$PRGM :: Info: $emess\n" if ( defined($emess) );
     for($i=0 ; $i < 45 ; $i++){ print "-=";}
     print "\n";
 }
@@ -452,16 +465,16 @@ sub FileCopy
     my($tdir);
     my($k);
 
-    $tdir = dirname($target); 
+    $tdir = dirname($target);
     $k    = 0;
-    
+
   CREATE_DIR:
     # create directory all the way up but also, try multiple times
     # if it fails.
     if( &MkPath($tdir,2) != 1){
 	print "$PRGM :: Info: Failed to create $tdir on ".localtime()."\n";
 	$k++;
-	if($k != $NTRIES){ 
+	if($k != $NTRIES){
 	    sleep($SLPTIME);
 	    goto CREATE_DIR;
 	} else {
@@ -471,11 +484,11 @@ sub FileCopy
 
     # if the final file already exists, remove it first
     if( -e $target){ unlink($target);}
-	
+
     # Informative message
     print "$PRGM :: Info: Copying $flnm -> $target\n";
     copy($flnm,$target);
-    
+
     # Double check this
     if( ! -e $target){
 	print "$PRGM :: Warning: Action did not create $target\n";
