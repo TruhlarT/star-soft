@@ -2,7 +2,7 @@
 
 /**********************************************************************
  *
- * $Id: ebyeDST2Ntuple.C,v 1.1 2000/08/01 13:57:56 jgreid Exp $
+ * $Id: ebyeDST2Ntuple.C,v 1.1.1.1 2000/08/01 13:57:56 jgreid Exp $
  *
  * Author: Jeff Reid, UW, July 2000
  *
@@ -19,8 +19,8 @@
  **********************************************************************
  *
  * $Log: ebyeDST2Ntuple.C,v $
- * Revision 1.1  2000/08/01 13:57:56  jgreid
- * Initial revision
+ * Revision 1.1.1.1  2000/08/01 13:57:56  jgreid
+ * EbyE DST creation and access tools
  *
  *
  **********************************************************************/

@@ -1,6 +1,6 @@
 /**********************************************************************
  *
- * $Id: StEbyeTrack.h,v 1.1 2000/08/01 13:57:55 jgreid Exp $
+ * $Id: StEbyeTrack.h,v 1.1.1.1 2000/08/01 13:57:55 jgreid Exp $
  *
  * Author: Jeff Reid, UW, July 2000
  *         incorporates elements of code by
@@ -14,8 +14,8 @@
  **********************************************************************
  *
  * $Log: StEbyeTrack.h,v $
- * Revision 1.1  2000/08/01 13:57:55  jgreid
- * Initial revision
+ * Revision 1.1.1.1  2000/08/01 13:57:55  jgreid
+ * EbyE DST creation and access tools
  *
  *
  *********************************************************************/

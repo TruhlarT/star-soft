@@ -1,6 +1,6 @@
 /**********************************************************************
  *
- * $Id: StEbyeDSTMaker.h,v 1.1 2000/08/01 13:57:55 jgreid Exp $
+ * $Id: StEbyeDSTMaker.h,v 1.1.1.1 2000/08/01 13:57:55 jgreid Exp $
  *
  * Author: Jeff Reid, UW, July 2000
  *         incorporates elements of code by
@@ -19,8 +19,8 @@
  **********************************************************************
  *
  * $Log: StEbyeDSTMaker.h,v $
- * Revision 1.1  2000/08/01 13:57:55  jgreid
- * Initial revision
+ * Revision 1.1.1.1  2000/08/01 13:57:55  jgreid
+ * EbyE DST creation and access tools
  *
  *
  *********************************************************************/
@@ -59,7 +59,7 @@ public:
   void SetFilename(const Char_t* name="EbyeDST.root");
 
   virtual const char *GetCVS() const
-  {static const char cvs[]="Tag $Name:  $ $Id: StEbyeDSTMaker.h,v 1.1 2000/08/01 13:57:55 jgreid Exp $ built "__DATE__" "__TIME__ ; return cvs;}
+  {static const char cvs[]="Tag $Name:  $ $Id: StEbyeDSTMaker.h,v 1.1.1.1 2000/08/01 13:57:55 jgreid Exp $ built "__DATE__" "__TIME__ ; return cvs;}
 
   ClassDef(StEbyeDSTMaker, 1)
 };
