@@ -4,10 +4,7 @@
 # Written J.Lauret to add documentation
 # in doxygen format from old block documentation.
 #
-# Does, class, struct and enum although I have not
-# understood yet how to manage to display the enum
-# lists ... The format seems correct, but doxygen wants
-# something else (like the enum to be in the same class?)
+# Does, class, struct, enum and def's
 #
 
 foreach $file (@ARGV){
@@ -19,14 +16,16 @@ foreach $file (@ARGV){
 	$class  = "";
 	$format =  1;
 	$flag   =  0;
-	
+	$bsfile =  0;
 	while( defined($line = <FI>) ){
 	    chomp($line);
-	    if($line =~ /(\\class|\\struct|\\enum)/i){
+	    if($line =~ /(\\class|\\struct|\\enum|\\def)/i){
 		# Oupsi ! Already doxygenized
 		#print "$line\n";
 		$format = 0;
 		last;
+	    } elsif ($line   =~ /(struct|enum|^\#define\s+\w+)(\s+.*)/){
+		$bsfile = 1;
 	    } elsif ($line =~ /(Author:\s+)(.*)/ ){
 		$author = $2;
 	    } elsif ($line =~ /Description:/){
@@ -48,17 +47,23 @@ foreach $file (@ARGV){
 	if( $format ){
 	    print "\n";
 
+	    $flnm = $file; $flnm =~ s/.*\///g;
 	    open(FI,"$file");
 	    open(FO,">$file-tmp");
 	    $enum = 0;
 
+	    if ($bsfile){
+		print FO
+		    "/*!\n",
+		    " * \\file $flnm\n",
+		    " */\n";
+	    }
+
 	    # Dump class def at the top
 	    if($class ne ""){
 		print " Class  = $class\n";
-
-		print FO 
-		    "/*!\n",
-		    " * \\class $class\n";
+		print FO "/*!\n";
+		print FO " * \\class $class\n";
 		if($author ne ""){
 		    print " Author = $author\n";
 		    print FO
@@ -80,18 +85,26 @@ foreach $file (@ARGV){
 	    while ( defined($line = <FI>) ){
 		if ($line =~ /(struct\s+)(.*)/){
 		    print " Found struct $2\n";
-		    print FO 
+		    print FO
 			"/*!\n",
 			" * \\struct $2\n",
 			" */\n";
 		} elsif ($line =~ /(^enum\s+)(.*\s+)(\{.*)/){
-		    print " Found enum $2\n";
-		    print FO 
+		    print FO
 			"/*!\n",
 			" * \\enum $2\n",
-			" */\n";		    
-		    $enum = 1 if ($line !~ /\}/);
-		} 
+			" */\n";
+		    if ($line !~ /\}/){
+			print " Found enum $2\n";
+			$enum = 1 ;
+		    } else {
+			chomp($tmp = $line);
+			print " *** 1 line enum list [$tmp] will NOT be parsed\n";
+		    }
+		} elsif ($line =~ /(^\#define\s+)(\w+)(\s+\w+)/){
+		    print " Found #define $2\n";
+		    print FO "/*! \def $2 */\n";
+		}
 
 		# enumeration needs some extra comments to have the
 		# enum members listed.
@@ -112,7 +125,7 @@ foreach $file (@ARGV){
 		    }
 		}
 
-		# print line or modified line	
+		# print line or modified line
 		print FO "$line";
 	    }
 	    close(FI);
