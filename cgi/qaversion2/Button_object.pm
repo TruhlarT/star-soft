@@ -780,7 +780,7 @@ sub SetQAAnalyzed{
 
   #print "reportKey=$reportKey, value=$value<br><br>qaID=$qaID";
 
-  if($gCGIquery->param('analyzed_pw') eq 'qaexpert'){
+  if($gCGIquery->param('analyzed_pw') eq 'qashift'){
     
     my $stat = QA_db_utilities::FlagQAAnalyzed($qaID,$value);
 
