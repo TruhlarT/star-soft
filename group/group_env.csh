@@ -1,6 +1,9 @@
-#       $Id: group_env.csh,v 1.5 1998/03/26 16:41:34 fisyak Exp $
+#       $Id: group_env.csh,v 1.6 1998/04/04 14:47:22 fisyak Exp $
 #	Purpose:	STAR group csh setup 
 #       $Log: group_env.csh,v $
+#       Revision 1.6  1998/04/04 14:47:22  fisyak
+#       Add clean PATH
+#
 #       Revision 1.5  1998/03/26 16:41:34  fisyak
 #       Add STAR_LEVELS
 #
@@ -41,6 +44,8 @@ setenv VERSION_STAR $STAR_VERSION
 setenv STAR $STAR_PATH/${STAR_LEVEL} ;       if ($ECHO) echo   "Setting up STAR      = ${STAR}"
 setenv STAR_MGR $STAR/mgr
 source ${GROUP_DIR}/STAR_SYS;    
+setenv SYS_STAR ${STAR_SYS}
+setenv SYS_HOST_STAR ${STAR_HOST_SYS}
 setenv STAR_LIB  $STAR/lib/${STAR_HOST_SYS}; if ($ECHO) echo   "Setting up STAR_LIB  = ${STAR_LIB}"
 setenv LIB_STAR  ${STAR_LIB}
 #setenv STAR_BIN  $STAR/bin/${STAR_HOST_SYS}; if ($ECHO) echo   "Setting up STAR_BIN  = ${STAR_BIN}"
@@ -53,7 +58,7 @@ setenv STAR_CALIB ${STAR_ROOT}/calib;        if ($ECHO) echo   "Setting up STAR_
 setenv CVSROOT   $STAR_PATH/repository;      if ($ECHO) echo   "Setting up CVSROOT   = ${CVSROOT}"
 setenv TEXINPUTS :${GROUP_DIR}/latex/styles
 setenv GROUPPATH "${GROUP_DIR}:${STAR_MGR}:${STAR_BIN}"
-setenv PATH "/usr/afsws/bin:/usr/afsws/etc:/opt/rhic/bin:/usr/local/bin:${GROUP_DIR}:${STAR_MGR}:${STAR_BIN}:${PATH}"
+setenv PATH "/usr/afsws/bin:/usr/afsws/etc:/opt/rhic/bin:/usr/sue/bin:/usr/local/bin:${GROUP_DIR}:${STAR_MGR}:${STAR_BIN}:${PATH}"
 #set path=( /usr/afsws/bin /usr/afsws/etc /opt/rhic/bin /usr/local/bin $GROUP_DIR $STAR_MGR $STAR_BIN $path )
 setenv MANPATH ${MANPATH}:${STAR_PATH}/man
 setenv STAR_LD_LIBRARY_PATH ""
@@ -100,6 +105,7 @@ switch ($STAR_SYS)
        setenv LM_LICENSE_FILE $PGI/license.dat
        alias pgman 'man -M $PGI/man'
      endif
+     set path = ( $path /afs/rhic/asis/i386_linux2/usr.local/Acrobat3/bin/afs/rhic/asis/i386_linux2/usr.local/bin   )
     breaksw
     case "sun4*":
 #  ====================
@@ -107,6 +113,8 @@ switch ($STAR_SYS)
     breaksw 
     case "sunx86_55":
 #  ====================
+#	setenv CERN_LEVEL pro
+#	setenv CERN_ROOT $CERN/$CERN_LEVEL
     breaksw
     default:
 #  ====================
@@ -144,9 +152,10 @@ if ( ! -d $SCRATCH ) then
 endif
 if ($ECHO) echo   "Setting up SCRATCH   = $SCRATCH"
 endif
-#if ( -e $STAR/mgr/init_star.csh) source $STAR/mgr/init_star.csh
 if ($ECHO) echo   "STAR library version "$STAR_VERSION" has been initiated with `which staf`"
+if ($?CERN_ROOT == 1 ) then
 if ($ECHO) echo   "CERNLIB version "$CERN_LEVEL" has been initiated with CERN_ROOT="${CERN_ROOT}
+endif
 #
 # HP Jetprint
 if ( -d /opt/hpnp ) then
@@ -155,10 +164,11 @@ if ( -d /opt/hpnp ) then
 # set PATH = ( $PATH':'/opt/hpnp/bin':'/opt/hpnp/admin )
   set path = ( $path /opt/hpnp/bin /opt/hpnp/admin )
 endif
+if ( -x /afs/rhic/star/group/dropit) then
 # clean-up PATH
-# setenv MANPATH `/afs/rhic/star/group/dropit -p ${MANPATH}`
-# setenv PATH `/afs/rhic/star/group/dropit GROUPPATH`
-#
+ setenv MANPATH `/afs/rhic/star/group/dropit -p ${MANPATH}`
+ setenv PATH `/afs/rhic/star/group/dropit GROUPPATH`
+endif
 unset ECHO
 #END
 
