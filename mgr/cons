@@ -29,7 +29,7 @@ use Cwd;
 
 use vars qw( $CVS_id $CVS_ver $ver_num $ver_rev $version );
 
-$CVS_id = '$Id: cons,v 1.84 2001/12/11 15:45:35 fisyak Exp $ ';
+$CVS_id = '$Id: cons,v 1.85 2003/02/11 21:50:13 jeromel Exp $ ';
 $CVS_ver = (split(/\s+/, $CVS_id))[2];
 
 $ver_num = "2.3";
@@ -1215,7 +1215,12 @@ sub wanted_inc {
 	/^hold$/ ||
 	/^wrk$/)
      ) {$File::Find::prune = 1; return;}
-  if ( /^.*\.h$/|| /^.*\.hh$/ || /^.*\.inc$/  || /^.*\.hpp$/) {# print " $File::Find::name\n"; 
+  if ( /^.*\.h$/|| /^.*\.hh$/ || 
+       /^.*\.inc$/            || 
+       /^.*\.hpp$/            ||
+       /^.*\.icc$/            ||  
+       /^.*\.tpp$/
+       ) {# print " $File::Find::name\n"; 
       push @main::search_files,  $File::Find::name;
   }
 }
@@ -3850,10 +3855,10 @@ sub install {
       $dir_prefix = File::Basename::dirname($tp);
       $dir_prefix .= $dir::SEPARATOR;
       if ($main::_WIN32) {
-	$dir_prefix =~ s#[\w|\.|\+]*$dir::MATCH_SEPARATOR#\.\.$dir::MATCH_SEPARATOR#g;
+	$dir_prefix =~ s#[\w|\.|\+|\-]*$dir::MATCH_SEPARATOR#\.\.$dir::MATCH_SEPARATOR#g;
       }
       else {
-	$dir_prefix =~ s#[\w|\.|\+]*$dir::SEPARATOR#\.\.$dir::SEPARATOR#g;
+	$dir_prefix =~ s#[\w|\.|\+|\-]*$dir::SEPARATOR#\.\.$dir::SEPARATOR#g;
       }
     }
     my $lsp = $dir_prefix . $sp;
