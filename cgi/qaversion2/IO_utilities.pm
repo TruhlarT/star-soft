@@ -177,7 +177,7 @@ sub ComposeBatchScript{
       "echo \"Moving files...\" |& tee -a $batch_log_html \n".
 	"\\mv $batchscript_filename $done_dir \n".
 	    "\\cp $batch_log_html $done_dir \n".
-		"\\mv $batch_log_html $report_dir \n".
+		"\\mv $batch_log_html $report_dir/qa_output.html \n".
 		    "\\rm -f $job_filename \n";
     # tee copies its stdin to the given file, tee -a appends.
   
