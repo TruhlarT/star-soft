@@ -171,12 +171,12 @@ C
 *KEEP,VIDQQ.
       CHARACTER*68 VIDQQ
       DATA VIDQQ/
-     +'@(#)* Advanced Geant Inteface   1.40/05   C: 19/10/98  21.14.54
+     +'@(#)* Advanced Geant Inteface   1.40/05   C: 30/10/98  21.52.14
      +'/
 *KEEP,DATEQQ.
-      IDATQQ =   981019
+      IDATQQ =   981030
 *KEEP,TIMEQQ.
-      ITIMQQ =   2114
+      ITIMQQ =   2152
 *KEEP,VERSQQ.
       VERSQQ = ' 1.40/05'
       IVERSQ =  14005
@@ -2448,7 +2448,7 @@ C
       END
  
  
-*CMZ :          19/10/98  12.26.26  by  Pavel Nevski
+*CMZ :          27/10/98  10.12.45  by  Pavel Nevski
 *CMZ :  1.40/05 30/01/98  13.07.52  by  Pavel Nevski
 *CMZ :  1.30/00 20/04/97  23.19.45  by  Pavel Nevski
 *-- Author :    Pavel Nevski
@@ -2521,9 +2521,12 @@ C
         print *,' RG32 has been replaced by RANNOR, set seed using G/CONT/RNDM'
       end
 *
- 
- 
- 
+      subroutine RNPSSN (amu,N,ier)
+      logical first/.true./
+       if (first) print *,' ******* RNPSSN has been replaced by POISSN *******'
+       first=.false.
+       call POISSN(amu,N,ier)
+      end
 *CMZ :  1.40/05 18/12/97  17.27.24  by  Pavel Nevski
 *CMZ :  1.30/00 29/03/97  18.01.53  by  Pavel Nevski
 *-- Author :    Pavel Nevski   15/08/96
@@ -7608,7 +7611,7 @@ C
  
  
  
-*CMZ :          11/09/98  00.07.37  by  Pavel Nevski
+*CMZ :          23/10/98  21.02.06  by  Pavel Nevski
 *CMZ :  1.40/05 19/08/98  16.55.50  by  Pavel Nevski
 *CMZ :  1.30/00 17/11/96  22.43.56  by  Pavel Nevski
 *CMZ :  1.00/00 14/11/95  02.46.06  by  Pavel Nevski
@@ -7633,6 +7636,8 @@ C
 * - Flag controls the I/O format, Link - access methode              *
 * Modifications:                                                     *
 * 16/04/96 PN: flag list changed as in AsFLAGS                       *
+* 23.10.98 PN: save and restore rz CWD before saving documentation.  *
+*          RZPURG cannot be used here because the CWD may be HBOOK.  *
 **********************************************************************
 REPLACE [ERR#{#}] with _
         [; IF (#1) {<W>%L(Module),Bank; (10x,'AgDOCUM error in module ',A,
@@ -7829,7 +7834,7 @@ Check Flag==0;   Flag=JOX;
 * - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - *
 * - - - - -   new bank: make sure that detector documentation exists  - - - - *
 * - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - *
-Dbanu=' '; Dbank=' '; CALL RZCDIR(CWD,'R')
+Dbanu=' '; Dbank=' '; CALL RZCDIR(CWD,'R')   " save rz-CWD "
 If Start & Istat==0
 { "-------------------      level 1  - main DETM bank    -------------------"
   Call AsBDETE(Dmodu,ID);     Err Id<=0  {detector does not exist in DETM bank}
@@ -7920,8 +7925,7 @@ If Istat==0 & L2Doc>0
      { if IQ(Ldoc-1)==IQ(L1-1)
        { do i=1,IQ(Ldoc-1) { if (IQ(Ldoc+i)!=IQ(L1+i)) go to :P:; }
          call MzDROP (IxSTOR,LQ(Ldoc),' ')
-     } }
-     :p: call RZPURG (1);
+     } } :p:
    }
    else { <W> Ddoc; (' AGDOCUM: problems writing out doc for ',a) }
 }
@@ -7935,7 +7939,7 @@ goto :e:
              10x,'***     delete it and try to run again     ***'/,
              10x,'**********************************************');
 "no doc mode" {L1Doc,L2Doc,Ldoc}=0; Istat=-100
-:e: if (CWD!=' ') Call RZCDIR(CWD,' ')
+:e: if (CWD!=' ') Call RZCDIR(CWD,' ')  " restore CWD"
 END
  
   subroutine AHTOC(iw,n,c,m)
@@ -12584,7 +12588,7 @@ Common     /AgZbuffer/  K,JRC,JCONT,CSTREAM,COPTN,CREQ,IREQ,iend,mem(100,5)
 End
  
  
-*CMZ :          28/09/98  22.40.48  by  Pavel Nevski
+*CMZ :          26/10/98  22.56.01  by  Pavel Nevski
 *CMZ :  1.40/05 27/08/98  20.38.58  by  Pavel Nevski
 *CMZ :  1.30/00 19/03/97  21.57.11  by  Pavel Nevski
 *CMZU:  1.00/01 15/01/96  20.20.30  by  Pavel Nevski
@@ -12599,6 +12603,7 @@ End
 * - On entry, SOR/EOR and EOF (ier<5) are skipped to read a multi-file input *
 * - To read the last event, EOR (ier=2) is not returned as an error on exit  *
 * - i/o errors are considered as zebra EOF (ier=3), event is tagged IEOTRI=1 *
+* PN, 26.10.98 - bug fix: the whole KINE/VERT chain expanded to 2 words      *
 *                                                                            *
 ******************************************************************************
 *KEEP,TYPING.
@@ -12847,8 +12852,10 @@ C                                       Link to:
      IF Ier#0 { <W> Ier,head; (' AgZREAD error ',i5,' entering ',A); break; }
   }
 *
-  If (JKINE>0  & IQ(JKINE-1)==1 ) Call MZPUSH(IxDIV,JKINE, 0,1,'I')
-  If (JVERTX>0 & IQ(JVERTX-1)==1) Call MZPUSH(IxDIV,JVERTX,0,1,'I')
+  LKKIN2=JKINE;   while (LKKIN2>0)
+  { If (IQ(LKKIN2-1)==1) Call MZPUSH(IxDIV,LKKIN2, 0,1,'I'); LKKIN2=LQ(LKKIN2)}
+  LKVER2=JVERTX;  while (LKVER2>0)
+  { If (IQ(LKVER2-1)==1) Call MZPUSH(IxDIV,LKVER2, 0,1,'I'); LKVER2=LQ(LKVER2)}
 *
   CHEAD(iu)=HEAD; Kevent(iu)+=1;
   If Stream=='P' & ier==0
@@ -13415,7 +13422,7 @@ END
  
  
  
-*CMZ :          28/09/98  22.17.24  by  Pavel Nevski
+*CMZ :          30/10/98  21.51.34  by  Pavel Nevski
 *CMZ :  1.40/05 27/08/98  19.50.28  by  Pavel Nevski
 *CMZ :  1.40/05 24/08/98  20.26.49  by  Pavel Nevski
 *CMZ :  1.30/00 21/03/97  15.15.10  by  Pavel Nevski
@@ -13650,6 +13657,7 @@ C
    Call MZLINT(IXSTOR,'AgCMERGE',Laref,Jd,Jk2)
    Call AgMER(Iprin,JVERTX,+1,Nv1,Nv2);  Nvertx=Nv1+Nv2;
    Call AgMER(Iprin,JKINE, +1,Nt1,Nt2);  Ntrack=Nt1+Nt2;
+   prin3 Nvertx, Ntrack; (' AgMERGE: merged ',i6,' vertices,',i7,' tracks.')
 *
 *                        adjust track-vertex cross references
    do iv=Nv1+1,Nvertx
@@ -13764,6 +13772,12 @@ C
       INTEGER      NMATE ,NVOLUM,NROTM,NTMED,NTMULT,NTRACK,NPART
      +            ,NSTMAX,NVERTX,NHEAD,NBIT ,NALIVE,NTMSTO
 C
+*KEEP,GCUNIT.
+      COMMON/GCUNIT/LIN,LOUT,NUNITS,LUNITS(5)
+      INTEGER LIN,LOUT,NUNITS,LUNITS
+      COMMON/GCMAIL/CHMAIL
+      CHARACTER*132 CHMAIL
+C
 *KEND.
    Integer Iprin,N1,N2,M1,M2,jj,jv,i,k,ier
  
@@ -13775,6 +13789,7 @@ C
    Check k==1;  If N1>0 & N2>0
    { If N1+N2-M1<64000
      { Call agpush(Iprin,Jj,N1+N2-M1,1,Ier);  check Ier==0;
+       prin4 N1,M1,N2,M2; (' AgMER: N1,M1=',2i7,'  N2,M2=',2i7);
        DO I=1,N2-M2
        { JV=LQ(LQ(Jj)-I); Check JV>0; Call ZSHUNT(IXSTOR,JV,Jj,-(N1-M1+I),1) }
        Call MZDROP(IXSTOR,LQ(Jj),'L');  IQ(Jj+1)=N1+N2;
@@ -13863,6 +13878,12 @@ C
       NLOLD = IQ(LINK-3)
       NDOLD = IQ(LINK-1)
       check (NDATA>NDOLD | NLINK>NLOLD)
+      if NLINK>64000
+      {  <W> MBANK,NLOLD,NLINK
+         (' AgPUSH ERROR pushing bank ',A4,' from ', i8,' to ', i8,' links '/,
+          ' ****** too many links requested, ZEBRA is limited to 64K ******')
+         ier=Nlink; return
+      }
       NNEW  = 100+max(NDOLD,NDATA)+max(NLOLD,NLINK)
       Call MZNEED(IXDIV,NNEW,'G');  NLEFT=IQUEST(11) " after request "
       prin5  MBANK,NLOLD,NDOLD,NLINK,NDATA,NLEFT
@@ -13876,6 +13897,7 @@ C
       }
       NLNEED=max(NLINK-NLOLD,0); If (NLNeed>0 & NLeft>1000)  NLNeed+=100;
       NDNEED=max(NDATA-NDOLD,0); If (NDNeed>0 & NLeft>10000) NDNeed+=5000;
+      NLNEED=min(NLNEED,64000-NLOLD)
       Call MZPUSH(IXDIV,LINK,NLNEED,NDNEED,'I')
       IF IQUEST(1) != 0
       {  prin0  MBANK,ABS(NLEFT),NNEW
@@ -13890,7 +13912,7 @@ C
                   FUNCTION AGPOINTR(LINK,IS,ID)
 *                                                                      *
 * Description :                                                        *
-*        give the address of a next HIT/DIGI bank in GEANT             *
+*        give the address of a gnext HIT/DIGI bank in GEANT             *
 * Arguments   :                                                        *
 *        LINK  (in)  - link to the top level bank (i.e HITS,HIT2 etc)  *
 *        IS,ID (out) - Geant Iset/Idet of the next non-empty bank      *
