@@ -27,16 +27,34 @@ use File::Find;
 my $debugOn = 0;
 
 
-my @prodSet = (
-                "P00hd",
-                "P00hd_1",
-                "P00he",
-                "P00hg",
-                "P00hi",
-                "P00hm",
-); 
+my @prodPer; 
+my $nprodPer = 0;
+my $myprod;
 
-#####  connect to RunLog DB
+
+&StDbProdConnect();
+
+$sql="SELECT DISTINCT prodSeries FROM JobStatus where prodSeries like 'P0%'";
+
+   $cursor =$dbh->prepare($sql)
+      || die "Cannot prepare statement: $DBI::errstr\n";
+   $cursor->execute;
+
+    while(@fields = $cursor->fetchrow) {
+      my $cols=$cursor->{NUM_OF_FIELDS};
+
+    for($i=0;$i<$cols;$i++) {
+       my $fvalue=$fields[$i];
+       my $fname=$cursor->{NAME}->[$i];
+       print "$fname = $fvalue\n" if $debugOn;
+   
+       $myprod = $fvalue  if($fname eq 'prodSeries'); 
+    }
+       $prodPer[$nprodPer] = $myprod;
+       $nprodPer++;
+    }
+
+&StDbProdDisconnect();
 
 
 $query = new CGI;
@@ -75,7 +93,7 @@ print "<p>";
 print "<h2 align=center>Select production series:</h2>";
 print "<h4 align=center>";
 print $query->scrolling_list(-name=>'set1',
-                   -values=>\@prodSet,
+                   -values=>\@prodPer,
                    -size=>4
                    ); 
 
