@@ -9,10 +9,12 @@ use CGI::Carp qw(fatalsToBrowser);
 
 my $debugOn = 0;
 
-my @collision = ( "all","auau100", "auau200", "auau130", "auau128", "augas100", "pau200", "pp200");
+my @collision = ( "all","auau100", "auau200", "auau130", "auau128", "augas100", "pau200", "pp200","dAu200");
 my @evtGen  = ("all","hijing", "hijet", "mevsim", "venus", "nexus", "vni", "two_photon", "hbt", "rqmd", "single", "starlight", "strongcp", "pythia", "hemicosm");
 
-my @geoYear = ("all","year_1b", "year_1h", "year_1e", "year_1s", "complete", "year_1a", "year1a", "year2001", "year_2a", "year2a");
+my @geoYear = ("all","year_1b", "year_1h", "year_1e", "year_1s", "complete", "year_1a", "year1a", "year2001", "year2003", "year_2a", "year2a");
+
+my @ftype = ("fzd","root");
 
 $query = new CGI;
 
@@ -54,6 +56,12 @@ print $query->scrolling_list(-name=>'gYear',
 			     -values=>\@geoYear,
 			     -size =>8); 
 
+print "</td><td>";
+print "<h3 align=center> Select format:</h3>";
+print "<h4 align=center>";
+print $query->scrolling_list(-name=>'fform',
+			     -values=>\@ftype,
+			     -size =>8); 
 
 print "</td> </tr> </table><hr><center>";
 
