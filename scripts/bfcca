@@ -28,6 +28,11 @@
 #   LibraryVersion can be one of new, dev, old, pro or a version
 #                  understood by 'starver'
 #   Destination    is a disk-path used for file copy.
+#                  The syntax may now be either something like
+#                  /star/data32            or
+#                  /star/data+32-45        which specifies a range or even
+#                  /star/data+32-45/reco   also valid
+#
 #   Numevt         the number of events to process. -1 or 0 means
 #                  a large number. Syntax like XX-YY means between
 #                  XXand YY and passes 2 consecutive arguments 
@@ -447,7 +452,10 @@ if($#FCINPUTS != -1){
     print "Secondary inputs (CRS name)      ".join(" ",@FCINPUTS)."\n";
     print "Secondary inputs (actual name)   ".join(" ",@FINPUTS)."\n";
 }
-print "The output destination will be   $DESTINATION\n";
+print "The output destination will be   $DESTINATION ";
+if ( $DESTINATION =~ m/\+/){ print "(range)\n";}
+else                       { print "\n";}
+
 print "Outputs initial will be          ".join(" ",@COUTPUTS)."\n";
 print "Outputs final will be            ".join(" ",@OUTPUTS)."\n";
 if ( $GENERICO ne ""){
@@ -591,7 +599,21 @@ if ( ! open(FO,">$PWD/$JOB_ID.csh") ){
     &List("The directory content is now ...");
 
 
+    # RDESTINATION resolve
+    if ($DESTINATION =~ m/(.*)(\+)(\d+)(-)(\d+)(.*)/){
+	# We have to chose amongst a range of disks. Only one
+	# destination will be picked. A common threshold of 
+	# 1% left-over space will be applied
+	$base  = $1;
+	$start = $3;
+	$end   = $5;
+	$xtra  = $6;
+	$RDESTINATION = &GetAvailableDisk($base,$start,$end).$xtra;
 
+    } else {
+	$RDESTINATION = $DESTINATION;
+    }
+ 
 
 
     # But please, do not stop there but move the output if required
@@ -630,19 +652,19 @@ if ( ! open(FO,">$PWD/$JOB_ID.csh") ){
 	    if( $file ne $cfile){
 		# Massage the substitution. This is a HPSS file
 		# cloned/copied to a disk as well.
-		if( $DESTINATION eq "." || $DESTINATION eq "./"){
+		if( $RDESTINATION eq "." || $RDESTINATION eq "./"){
 		    # will ignore those i.e. save in HPSS only.
 		    $ffile = $cfile;
 		} else {
 		    # do copy by doing path substitution
 		    $ffile = $file;
-		    $ffile =~ s|$HPSSBASE|$DESTINATION|;
+		    $ffile =~ s|$HPSSBASE|$RDESTINATION|;
 		}
 	    } elsif ( dirname($file) eq "."){
 		# This is a file left on the local disk we want
 		# to move now.
 		$ffile = $file;
-		$ffile =~ s|./|$DESTINATION/|;
+		$ffile =~ s|./|$RDESTINATION/|;
 	    } else {
 		# Last case is that the directory name is
 		# not "." and the file is of type=UNIX.
@@ -939,3 +961,62 @@ sub  MD5sum
 
     $sts;
 }
+
+
+#
+# Only selects based on %tage but has logic to make
+# any selection like on available remaining space.
+#
+sub GetAvailableDisk
+{
+    my($base,$start,$end)=@_;
+    my($i,$tota,$used,$avai,$prct);
+    my(@CANDIDATES,%SIZESORTED,$pos);
+    
+    for ($i=$start ; $i < $end ; $i++){
+	if ( ! -e "$base$i"){ next;}      # protect against user typo
+	chomp($res = `df -k $base$i | grep % | grep '/'`);
+
+	#print "DEBUG $base$i --> $res\n";
+
+	$res   =~ s/^\s*(.*?)\s*$/$1/;
+	if ($res eq ""){  next;}          # no info on disk (may be un-mounted)
+	$res   =~ s/\s+/ /g;
+
+	@items =  split(" ",$res);
+	if ($#items < 5){
+	    $tota = $items[0];
+	    $used = $items[1];
+	    $avai = $items[2];
+	    $prct = $items[3];
+	} else {
+	    $tota = $items[1];
+	    $used = $items[2];
+	    $avai = $items[3];
+	    $prct = $items[4];
+	}
+	$prct =~ s/%//;
+	#print "DEBUG $base$i $tota $used $avai $prct\n";
+
+	if ($prct <= 98){  
+	    push(@CANDIDATES,"$base$i");
+	    $SIZESORTED{"$base$i"} = $avai;
+	}
+    }
+
+
+    # Well, there may be no candidates. If so, pick the
+    # largest disk.
+    if ($#CANDIDATES == -1){
+	print "$PRGM :: Warning: switched to biggest available space algorithm (all full)\n";
+	@CANDIDATES = sort { $SIZESORTED{$b} <=> $SIZESORTED{$a} } keys %SIZESORTED;
+	$pos = 0;
+    } else {
+	# Chose one randomly
+	$pos = int(rand($#CANDIDATES));
+    }
+
+
+    return $CANDIDATES[$pos];
+}
+
