@@ -47,7 +47,7 @@ $now = localtime;
 
 $thisDay = '00'.$thisday;
 
-# print "Today Date :", $thisDay, "\n";
+ print "Today Date :", $thisDay, "\n";
 
 &StDbProdConnect();
 
