@@ -301,7 +301,7 @@ while ($morerecords)
 	}
 	if ($confirm){
 	    # we have shifted records
-	    $start += ($batchsize - $#items) if ($#items <= $batchsize);
+	    $start += ($batchsize - $#items -1) if ($#items < $batchsize);
 	} else {
 	    $start += $batchsize;
 	    print "Use -doit to confirm deletion\n";
