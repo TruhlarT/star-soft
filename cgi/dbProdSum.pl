@@ -50,11 +50,12 @@ my $dPath = "/2000/";
 if ($prodSer =~ /^P01/) {
   $dPath = "/2001/";
 }
-if ($prodSer eq "P01he") {
+if ($prodSer eq "P01he" or $prodSer eq "P01hi" ) {
   $dPath = "/2000/";
 }
 if($colSet eq "AuAu130") {
   $colls = "AuAu1";
+  $dPath = "/2000/";
 }elsif($colSet eq "AuAu200") {
   $colls = "AuAu200";
 }

@@ -27,8 +27,8 @@ my $nprodPer = 0;
 my $myprod;
 
 my @detSet = ("all","tpc","svt","rich","tof","ftpc","emc","fpd","pmd");
-my @trigSet  = ("all","central","minbias","medium","peripheral","mixed","physics");
-my @mfield = ("all","HalfField","ReversedFullField","ReversedHalfField","FieldOff");
+my @trigSet  = ("all","central","minbias","medium","peripheral","mixed","physics","MinBias","MinBiasVertex","ProductionMinBias","productionCentral");
+my @mfield = ("all","HalfField","FullField","ReversedFullField","ReversedHalfField","FieldOff");
 my @collis = ("AuAu200", "AuAu130");
 my @trigSet;
 my $ntrigSet = 0;
