@@ -1,63 +1,61 @@
 #!/opt/star/bin/perl -w
 
-#
-# This script scans a disk given as the first argument
-# checks all files and update the database with a file
-# location new netry if it finds the same entry as
-# storage = HPPS.
-#
-# It uses the clone_location() method to update the 
-# database with that entry and is a very good example
-# of how to do this ...
-#
-# ***
-#  This is REALLY a spider ... It is used to post-scan 
-#  disk and catch entries which may be missing. 
-#  
-#  Only clones (if there is no similar entries in the db,
-#  it won't add it).
-# ***
-#
-# BEWARE : 
-#  (1) $SITE and $HPSSD are global variables
-#  (2) There is an hidden logic based on $path !~ /\/star\/data/
-#      to recognized if the storage is local or NFS.
-#
-
-use lib "/afs/rhic/star/packages/scripts";
-#use lib "/star/u/jeromel/work/ddb";
+use lib "/afs/rhic.star.bnl.gov/star/packages/scripts";
 use FileCatalog;
 use Date::Manip;
 
-
 if ($#ARGV == -1){
+
     print qq~
+
  Syntax is
   % DBUpdate.pl BasePath [fileExtension] [RelPathOverwrite] [Substitute]
-    [user] [password]
+     [user] [password]
+
+ Purpose
+   This script scans a disk given as the first argument
+   checks all files and update the database with a file
+   location new netry if it finds the same entry as
+   storage = HPSS.
+
+   It uses the clone_location() method to update the 
+   database with that entry and is a very good example
+   of how to do this ...
+
+   This is REALLY a spider ... It is used to post-scan 
+   disk and catch entries which may be missing. 
+  
+   Only clones (if there is no similar entries in the db,
+   it will not add it).
+
 
  Arguments are
    ARGV0   the base path of a disk to scan (default /star/data06)
    ARGV1   the filetype (default .MuDst.root ). If null, it will
-           search for all files.
+           search for all files 
    ARGV2   this scripts limits it to a sub-directory "reco" starting
            from ARGV0. Use this argument to overwrite.
    ARGV3   A base path substitution for find the entry in HPSS
            Default is /home/starreco .
 
    ARGV4   a user name (default FC_admin)
-   ARGV5   a password (default is guessed)
-
+   ARGV5   a password (default will be to use the 
+           get_connection() method as a guess try)
+           
 
  Examples
   % DBUpdate.pl /star/data27
   % DBUpdate.pl /star/data27 ""
   % DBUpdate.pl /star/data03 .daq daq /home/starsink/raw
 
- ~;
+~;
     exit;
 }
 
+# BEWARE : 
+#  (1) $SITE and $HPSSD are global variables
+#  (2) There is an hidden logic based on $path !~ /\/star\/data/
+#      to recognized if the storage is local or NFS.
 
 $SITE  = "BNL";
 $HPSSD = "/home/starreco";
@@ -249,10 +247,10 @@ foreach  $file (@ALL){
 $fC->destroy();
 
 print 
-    "Unkown = $unkn\n",
-    "Old    = $old\n",
-    "New    = $new\n",
-    "Failed = $failed\n";
+    "Unknown = $unkn\n",
+    "Old     = $old\n",
+    "New     = $new\n",
+    "Failed  = $failed\n";
 
 
 
