@@ -36,7 +36,12 @@ $flag  = 1;
 while( defined($line = <FI>) ){
     chomp($line);
 
-    if ($line =~ m/(==\d+==)(.*)/){
+    if ($line =~ m/(VG_\()(.*)(\):)(.*)/){
+	do {
+	    push(@FATAL,$line);
+	} while (defined($line = <FI> ) );
+
+    } elsif ($line =~ m/(==\d+==)(.*)/){
 	# a valgrind message was found
 	$problem = $2;
 	$problem =~ s/^\s*(.*?)\s*$/$1/;
@@ -130,6 +135,7 @@ print $FO IUhead("Valgrind run-time messages");
      "Problems by type",
      "Detailed valgrind dumps");
 
+
 # dump menu with auto-references
 print $FO "<UL>\n";
 for ($k=0 ; $k <= $#MENU ; $k++){
@@ -138,6 +144,20 @@ for ($k=0 ; $k <= $#MENU ; $k++){
 print $FO "</UL>\n";
 $k = -1;
 
+if ($#FATAL != -1){
+    print $FO 
+	"<H2>Untreated parsing</H2>\n",
+	"A fatal error occured and baborted parsing. ",
+	"This job is incomplete.\n",
+	"<BR>\n",
+	"<PRE>\n";
+
+    foreach  $line (@FATAL){
+	chomp($line);
+	print $FO "$line\n";
+    }
+    print $FO "</PRE>\n";
+}
 
 # By routine
 $k++;
