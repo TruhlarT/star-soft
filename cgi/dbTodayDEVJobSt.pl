@@ -15,7 +15,7 @@ use Class::Struct;
 require "/afs/rhic/star/packages/dev/mgr/dbTJobsSetup.pl";
 
 my $TOP_DIRD = "/star/rcf/test/dev/";
-my @dir_year = ("year_1h", "year_2001","year_2003");
+my @dir_year = ("year_1h", "year_2001","year_2003", "2004");
 my @node_dir = ("trs_redhat72","trs_redhat72_opt", "daq_redhat72", "daq_redhat72_opt"); 
 my @hc_dir = ("hc_lowdensity", "hc_standard", "hc_highdensity", "peripheral", "minbias", "central","embedding","dau_minbias","pp_minbias");
 
@@ -144,6 +144,7 @@ my @prt;
     $cdate = $prt[0]; 
     next if $myPath =~ /tfs_/;
     next if $myPath =~ /year_2a/;
+    next if $myPath =~ /embedding/;
 
    &printRow();
 

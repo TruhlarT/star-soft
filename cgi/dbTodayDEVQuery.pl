@@ -15,7 +15,7 @@ use Class::Struct;
 require "/afs/rhic/star/packages/scripts/dbTJobsSetup.pl";
 
 my $TOP_DIRD = "/star/rcf/test/dev/";
-my @dir_year = ("year_1h", "year_2001");
+my @dir_year = ("year_1h", "year_2001", "year_2003","year_2004");
 my @node_dir = ("trs_redhat72","trs_redhat72_opt","daq_redhat72", "daq_redhat72_opt" ); 
 my @hc_dir = ("hc_lowdensity", "hc_standard", "hc_highdensity", "peripheral", "minbias","pp_minbias","ppl_minbias");
 
@@ -122,7 +122,7 @@ $sql="SELECT path, fName, NoEventDone, NoEventSkip, createTime FROM $FilesCatalo
         $myEvtS  = ($$eachFile)->noEvtS; 
         $myCtime = ($$eachFile)->timeS;  
     next if $myPath =~ /tfs_/;
-    next if $myPath =~ /year_2a/;
+    next if $myPath =~ /year_2a/; 
 
    &printRow();
 
