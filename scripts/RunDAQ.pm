@@ -388,7 +388,7 @@ sub rdaq_raw_files
     # a problem with database hand-shaking. This will affect only
     # the test runs with max file sequence = 1.
     $tref = Date::Manip::DateCalc("today","-1 minute");
-    $tref = Date::Manip::UnixDate($tref,"%Y%m%H%M%S00");
+    $tref = Date::Manip::UnixDate($tref,"%Y%m%e%H%M%S");
 
 
     # We will select on RunStatus == 0
