@@ -1,8 +1,11 @@
 #!/opt/star/bin/perl
 #
-# $Id: cas.pl,v 1.2 1999/10/07 15:21:11 wenaus Exp $
+# $Id: cas.pl,v 1.3 1999/11/22 18:19:13 wenaus Exp $
 #
 # $Log: cas.pl,v $
+# Revision 1.3  1999/11/22 18:19:13  wenaus
+# remove rmods03
+#
 # Revision 1.2  1999/10/07 15:21:11  wenaus
 # Use wide ps output
 #
@@ -91,7 +94,6 @@ close (FILE);
           'rcas0226.rcf.bnl.local' => '/dev/sda4',
           'rcas0227.rcf.bnl.local' => '/dev/sda4',
           'duvall.star.bnl.gov' => '/dev/hda3',
-          'rmds03.rhic.bnl.gov' => 'Solaris',
           'rsun00.rhic.bnl.gov' => 'Solaris',
           'sol.star.bnl.gov' => 'Solaris',
         );
