@@ -63,7 +63,6 @@ my $thistime;
     print ("time is : ",  $thistime, "\n"); 
 
    my $ii = 0;
-
  my $iday;
  my $testDay;
  my $beforeDay;
@@ -73,6 +72,7 @@ my $thistime;
 
   print "Day Name: ",$thisday, " % ", "Index", $iday, "\n";
 
+ 
 ##### setup output directories for DEV with thisDay
 
 for ($i = 0; $i < scalar(@node_dir) - 1; $i++) {
@@ -113,6 +113,8 @@ my $jj = 0;
    print "Output Dir for DEV :", $OUT_DIR[$ii], "\n";
         $ii++;
    } 
+  }
+  for ($i = 0; $i < scalar(@node_daq); $i++) {   
    for ($ik = 5; $ik < 9; $ik++) { 
     $OUT_DIR[$ii] = $TOP_DIRD . $node_daq[$i] . "/" . $testDay . "/". $dir_year[3] . "/" . $daq_dir[$ik];
    print "Output Dir for DEV :", $OUT_DIR[$ii], "\n";
@@ -121,18 +123,11 @@ my $jj = 0;
  
  }
 
-   for ($ik = 5; $ik < 9; $ik++) { 
-    $OUT_DIR[$ii] = $TOP_DIRD . $node_daq[2] . "/" . $testDay . "/". $dir_year[3] . "/" . $daq_dir[$ik];
-   print "Output Dir for DEV :", $OUT_DIR[$ii], "\n";
-        $ii++;
-}
 
     for ($i = 3; $i < 5; $i++) {
-#   for ($ik = 5; $ik < 8; $ik++) { 
     $OUT_DIR[$ii] = $TOP_DIRD . $node_daq[$i] . "/" . $testDay . "/". $dir_year[2] . "/" . $daq_dir[4];
    print "Output Dir for DEV :", $OUT_DIR[$ii], "\n";
         $ii++;
-#    }
    }
 
 
@@ -180,6 +175,9 @@ $jj = 0;
    print "Output Dir for DEV :", $OUT_DIR[$ii], "\n";
         $ii++;
    } 
+  }
+
+  for ($i = 0; $i < scalar(@node_daq); $i++) {   
    for ($ik = 5; $ik < 9; $ik++) { 
     $OUT_DIR[$ii] = $TOP_DIRD . $node_daq[$i] . "/" . $beforeDay . "/". $dir_year[3] . "/" . $daq_dir[$ik];
    print "Output Dir for DEV :", $OUT_DIR[$ii], "\n";
@@ -187,18 +185,11 @@ $jj = 0;
    } 
 
   }
-    for ($ik = 5; $ik < 9; $ik++) { 
-    $OUT_DIR[$ii] = $TOP_DIRD . $node_daq[2] . "/" . $beforeDay . "/". $dir_year[3] . "/" . $daq_dir[$ik];
-   print "Output Dir for DEV :", $OUT_DIR[$ii], "\n";
-        $ii++;
-}
 
       for ($i = 3; $i < 5; $i++) {
-#   for ($ik = 5; $ik < 8; $ik++) { 
     $OUT_DIR[$ii] = $TOP_DIRD . $node_daq[$i] . "/" . $beforeDay . "/". $dir_year[2] . "/" . $daq_dir[4];
    print "Output Dir for DEV :", $OUT_DIR[$ii], "\n";
         $ii++;
-#    }
    }
 
 
