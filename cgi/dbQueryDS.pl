@@ -97,6 +97,7 @@ while(@fields = $cursor->fetchrow) {
   }
      $prodNext = $prodPer[$ll];
      $pair{$mSet} =  $pair{$mSet} . " : " . $prodNext ;
+#     $pair{$mSet} = $prodPer[$ll]; 
   } 
 
  }
