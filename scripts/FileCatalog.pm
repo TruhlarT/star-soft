@@ -42,8 +42,6 @@
 #        -> clone_location()
 #                          actually create an instance for FileData and a copy of FileLocations
 #                          the latest to be modified with set_context() keywords. Warning :
-#        -> clone_end()    End the cloning. You will NOT be able to update FileData until
-#                          is called.
 #                          
 #
 #        -> run_query()   : get entries from dbtable FileCatalog according to query string
@@ -84,6 +82,7 @@ no strict "refs";
 # define to print debug information
 my $DEBUG     = 0;
 my $DELAY     = 0;
+my $SILENT    = 0;
 my @DCMD;
 
 # db information
@@ -2451,7 +2450,12 @@ sub delete_records {
 
       $sth = $DBH->prepare( $cmd );
       if( $doit ){
-	  $rc = $sth->execute();
+	  if( $DELAY ){
+	      $rc = 1;
+	      push(@DCMD,$cmd);
+	  } else {
+	      $rc = $sth->execute();
+	  }
       } else {
 	  &print_message("delete_record","id=$ids[0] from FileLocation would be deleted");
 	  $rc = 1;
@@ -2467,6 +2471,8 @@ sub delete_records {
 	      $cmd .= " AND FileLocations.fileLocationID <> $ids[0]";
 	  }
 	  $stq     = $DBH->prepare( $cmd );
+
+
 	  if ( ! $stq->execute() ){
 	      &print_debug("Execution failed [$cmd]");
 	  }
@@ -2474,22 +2480,32 @@ sub delete_records {
 
 	  if ($stq->rows == 0){
 	      # This file data has no file locations - delete it (and its trigger compositions)
-	      $sth2 = $DBH->prepare("DELETE FROM FileData WHERE fileDataID = $ids[1]");
-	      if ($doit){
-		  $sth2->execute();
-	      } else {
-		  &print_message("delete_record","id=$ids[1] from FileData would be deleted");
-	      }
-	      $sth2->finish();
+	      $cmd  = "DELETE FROM FileData WHERE fileDataID = $ids[1]";
+	      $sth2 = $DBH->prepare($cmd);
 
-	      $sth2 = $DBH->prepare("DELETE FROM TriggerCompositions WHERE fileDataID = $ids[1]");
-	      if ($doit){
-		  $sth2->execute();
-	      } else {
-		  &print_message("delete_record","... as well as TriggerCompositions entry");
+		  if ($doit){
+		      if ( $DELAY ){
+			  push(@DCMD,$cmd);
+		      } else {
+			  $sth2->execute();
+		      }
+		  } else {
+		      &print_message("delete_record","id=$ids[1] from FileData would be deleted");
+		  }
+		  $sth2->finish();
+
+		  $sth2 = $DBH->prepare("DELETE FROM TriggerCompositions WHERE fileDataID = $ids[1]");
+		  if ($doit){
+		      if ( $DELAY ){
+			  push(@DCMD,$cmd);
+		      } else {
+			  $sth2->execute();
+		      }
+		  } else {
+		      &print_message("delete_record","... as well as TriggerCompositions entry");
+		  }
+		  $sth2->finish();
 	      }
-	      $sth2->finish();
-	  }
 	  $stq->finish();
       }
       $sth->finish();
@@ -2903,6 +2919,8 @@ sub print_delayed
 	# ready for a piping to cmdline mysql
 	print "$cmd;\n";
     }
+    undef(@DCMD);
+    $DELAY = 0;
 }
 
 
@@ -3122,6 +3140,17 @@ sub print_debug
     }
 }
 
+sub set_silent
+{
+    if ($_[0] =~ m/FileCatalog/) {
+	shift @_;
+    }
+    my($mode)=@_;
+
+    $SILENT = $mode & 1;
+    $SILENT;
+}
+
 
 #============================================
 
@@ -3129,6 +3158,8 @@ sub print_message
 {
     my($routine,@lines)=@_;
     my($line);
+
+    if ( $SILENT ){ return;}
     foreach $line (@lines){
 	chomp($line);
 	print "$dbname :: $routine : $line\n";
