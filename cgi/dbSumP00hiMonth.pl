@@ -210,7 +210,7 @@ my @hpssDstFiles;
    
    }
 
-
+}
 
   foreach my $onfile (@OnlFiles) {
 
