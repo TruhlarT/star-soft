@@ -1,5 +1,5 @@
 #!/bin/csh -f
-#       $Id: group_env.csh,v 1.171 2004/10/20 20:06:16 jeromel Exp $
+#       $Id: group_env.csh,v 1.172 2004/10/28 21:40:12 jeromel Exp $
 #	Purpose:	STAR group csh setup
 #
 #	Author:		Y.Fisyak     BNL
@@ -338,7 +338,7 @@ switch ($STAR_SYS)
 	endif
       endif
       if ( $?PGI ) then
-       if ( ! -d $PGI/linux86/bin) then
+       if ( ! -d $PGI/linux86/bin && -e $PGI/linux86 ) then
 	    set version=`/bin/ls  $PGI/linux86/ | tail -1`
 	    setenv PGI_V linux86/$version
        else
