@@ -65,7 +65,7 @@ print <<END;
 <TABLE BORDER=5 CELLSPACING=1 CELLPADDING=2 >
 <TR>
 <TR ALIGN=CENTER VALIGN=CENTER>
-<TD WIDTH=\"20%\" HEIGHT=50><B>jobID</B></TD>
+<TD WIDTH=\"10%\" HEIGHT=50><B>jobID</B></TD>
 <TD WIDTH=\"10%\" HEIGHT=50><B>runID</B></TD>
 <TD WIDTH=\"10%\" HEIGHT=50><B>fileSeq</B></TD>
 <TD WIDTH=\"10%\" HEIGHT=50><B>fName</B></TD>
@@ -81,6 +81,7 @@ print <<END;
 <TD WIDTH=\"10%\" HEIGHT=50><B>hpss</B></TD>
 <TD WIDTH=\"10%\" HEIGHT=50><B>calib</B></TD>
 <TD WIDTH=\"10%\" HEIGHT=50><B>dataStatus</B></TD>
+<TD WIDTH=\"10%\" HEIGHT=50><B>comment</B></TD>
 </TR>
 
 END
@@ -107,6 +108,7 @@ print <<END;
 <td>$pair{'hpss'}</td>
 <td>$pair{'calib'}</td>
 <td>$pair{'dataStatus'}</td>
+<td>$pair{'comment'}</td>
 </tr>
 END
 
