@@ -1,5 +1,5 @@
 #!/bin/csh -f
-#       $Id: group_env.csh,v 1.154 2003/09/16 17:49:13 jeromel Exp $
+#       $Id: group_env.csh,v 1.155 2003/09/22 00:45:25 jeromel Exp $
 #	Purpose:	STAR group csh setup
 #
 #	Author:		Y.Fisyak     BNL
@@ -400,7 +400,7 @@ if ( ! $?JAVA_ROOT ) then
 endif
 if ( $?JAVA_ROOT ) then
     if ( -d $JAVA_ROOT/ ) then
-	set path=($JAVA_ROOT/bin $path)
+	set path=($path $JAVA_ROOT/bin)
 	setenv MANPATH ${MANPATH}:$JAVA_ROOT/man
 	#CLASSPATH anyone ??
     endif
@@ -427,6 +427,9 @@ if ( -d $OPTSTAR/qt ) then
     setenv MANPATH ${MANPATH}:$QTDIR/man
     setenv LD_LIBRARY_PATH ${LD_LIBRARY_PATH}:$QTDIR/lib
 endif
+
+
+
 
 # ==================================================================
 # END 
