@@ -197,34 +197,30 @@ sub bfcread_tagsBranch{
   };
   #------------------------------------------------
   while ( <REPORT> ) {
-    # find table names
-    if ( /table\#,name:\s+(\d+),\s+(\w+)/ ) {
-      next if exists $temp_hash{$2};
-      $temp_hash{$2} = $1;
+    /QAInfo:/ or next; 
+
+    # get the number of tags for each leaf
+    if (/dimensions\(tags\) = (\d+)\s+(\d+)/){
+      $run_scalar_hash{"leaf_$1"} = $2;
       next;
     }
 
-    if ( /total\s+\#\s+(events).*?(\d+)/ ) {
-      $run_scalar_hash{$1} = $2;
+    # total # events
+    if (/total \# events = (\d+)/){
+      $run_scalar_hash{'tot_num_events'} = $1;
       next;
-    }
-    
-    if ( /tables\/event\s+=\s+(\d+)/ ) {
-      $key = "tables_per_evt";
-      $run_scalar_hash{$key} = $1;
-      next;
-    }
-      
-    if ( /table\s+(\d+)\s+had\s+(\d+)/ ) {
-      foreach ( keys %temp_hash ) {
-	  $run_scalar_hash{$_} = $2 if $1 eq $temp_hash{$_};
-	}
     }
 
-    if ( /(avg.*?)\s+=\s+(-?[\d+\.]+(?:e\+(\d+))?)/ ) {
-      $key = $1; $value = $2;
-      $key =~ s/\.//g; $key =~ s/\s+/_/g; 
-      $run_scalar_hash{$key}=$value;
+    # tot num of leaves
+    if (/tot num leaves = (\d+)/){
+      $run_scalar_hash{'tot_num_leaves'} = $1;
+      next;
+    }
+
+    # tot num of tags
+    if (/tot num tags = (\d+)/){
+      $run_scalar_hash{'tot_num_tags'} = $1;
+      next;
     }
   }
 
@@ -234,6 +230,15 @@ sub bfcread_tagsBranch{
 
   return \%run_scalar_hash, \%event_scalar_hash;
 } 
+#================================================================
+sub bfcread_eventBranch{
+
+  my $report_key = shift;
+  my $report_filename = shift;
+
+  return doEvents($report_key, $report_filename);
+} 
+  
 #================================================================
 
 # pmj 2/2/00: QA_bfcread_dst_analysis is a new macro written by Kathy
