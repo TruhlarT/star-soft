@@ -1,5 +1,8 @@
 #!/bin/csh
 #  $Log: STAR_SYS,v $
+#  Revision 1.18  1999/11/04 15:36:45  fisyak
+#  Add check for /bin/sys for Purdue
+#
 #  Revision 1.17  1999/10/08 18:12:29  fisyak
 #  Take out TEXINPUTS from the list of environment variable, add Linux egcs platform
 #
@@ -65,12 +68,16 @@
 #
 #  Revision 1.1.1.1  1997/12/31 14:35:23  fisyak
 #
-#             Last modification $Date: 1999/10/08 18:12:29 $ 
+#             Last modification $Date: 1999/11/04 15:36:45 $ 
 #
 # Determine STAR_SYS variable.
 #
 setenv STAR_SYS ""
-if (-e /usr/afsws/bin/sys)       setenv STAR_SYS `/usr/afsws/bin/sys`
+if (-e /usr/afsws/bin/sys)  then
+     setenv STAR_SYS `/usr/afsws/bin/sys`
+else
+    if (-e /bin/sys) setenv STAR_SYS `/bin/sys`
+endif
 if ("${STAR_SYS}" == "i386_linux22") then
     set redhat = "5.2";
     setenv STAR_SYS i386_redhat51
