@@ -27,6 +27,8 @@
 # 
 #   Potentially dammaging mode of operation
 #   ---------------------------------------
+#   -modif keyword=value
+#              alter value of the location table.
 #   -alter keyword=value    
 #              alter keyword value for entry ** DANGEROUS **
 #
@@ -45,6 +47,7 @@
 #   -fdata   : check the FileData for orphan records
 #   -floc    : check the FileLocations for orphan records
 #   -trgc    : check the TriggerCompositions table
+#   -boots X : bootstrap keyword X
 #
 # other options
 #   -cond    : conditions to limit the records processed 
@@ -76,6 +79,7 @@ my $dodel;
 my $kwrd="";
 my $newval=undef;
 my $user="";
+my $keyw;
 
 # Load the modules
 my $fileC = FileCatalog->new;
@@ -128,8 +132,8 @@ while (defined $ARGV[$count]){
 	$mode  = 3; 
 	$state = $ARGV[++$count];
 
-    } elsif ($ARGV[$count] eq "-alter"){
-	$mode = 4;
+    } elsif ($ARGV[$count] eq "-alter" || $ARGV[$count] eq "-modif"){
+	$mode = ($ARGV[$count] eq "-alter")?4:-4;
 	($kwrd,$newval) = split("=",$ARGV[++$count]);
 
     } elsif ($ARGV[$count] eq "-recheck"){
@@ -140,6 +144,10 @@ while (defined $ARGV[$count]){
 	$mode = 7;
     } elsif ($ARGV[$count] eq "-trgc"){
 	$mode = 8;
+    } elsif ($ARGV[$count] eq "-boots"){
+	$mode = 9;
+	$keyw = $ARGV[++$count];
+
     } elsif ($ARGV[$count] eq "-cond"){
 	$cond_list = $ARGV[++$count];
 	if ($debug > 0) { print "The conditions list is $cond_list\n"; }
@@ -291,7 +299,16 @@ while ($morerecords)
 	    }
 	}
 
-	if (($#items +1) == $batchsize){ $morerecords = 1; }
+	if (($#items +1) == $batchsize){ 
+	    $morerecords = 1; 
+	} else {
+	    my(@rows);
+	    print "Running post-deletion bootstrap\n";
+	    $fileC->set_context("limit=100000000");
+	    @rows = $fileC->bootstrap("runnumber",1);     print "Runnumber cleaned @rows\n" if (@rows);
+	    @rows = $fileC->bootstrap("collision",1);     print "Collision cleaned @rows\n" if (@rows);
+	    @rows = $fileC->bootstrap("configuration",1); print "Configuration cleaned @rows\n" if (@rows);
+	}
 
 
     } elsif ( $mode == 3 ){
@@ -316,12 +333,14 @@ while ($morerecords)
 	    $fileC->set_context("available=1");
 	    $fileC->update_location("available",0);
 	} else {
-	    print "You specified an incorrect state: $state\n";
-	    print "Please use a correct state: 'on' or 'off'\n"; 
+	    $fileC->set_context("available=1");	    
+	    $fileC->update_location("available",$state);
+	    #print "You specified an incorrect state: $state\n";
+	    #print "Please use a correct state: 'on' or 'off'\n"; 
 	}
 
 
-    } elsif ($mode == 4){
+    } elsif ( $mode*$mode == 16){
 	if ($kwrd ne ""){
 	    if( ! defined($newval) ){
 		die "  You must specify a new value\n";
@@ -334,20 +353,28 @@ while ($morerecords)
 
 
 	# In this mode, we change the record content
-	$fileC->set_context("limit=0");
-	my (@output) = $fileC->run_query("path","filename","$kwrd");
-	my (@items);
+	#$fileC->set_context("limit=0");
+	#my (@output) = $fileC->run_query("path","filename","$kwrd");
+	#my (@items);
+
+	#foreach (@output){
+	#    @items = split("::");
+	#    #print "---> ".join(" ",@items)."\n";
+	#    $fileC->set_context("path=$items[0]","filename=$items[1]");
+	#    $fileC->set_context("$kwrd=$items[2]");
+	#    $fileC->update_location($kwrd,$newval,1);
+	#    #print "<-- \n";
+	#}
 
 	$fileC->set_delayed();
-	foreach (@output){
-	    @items = split("::");
-	    #print "---> ".join(" ",@items)."\n";
-	    $fileC->set_context("path=$items[0]","filename=$items[1]");
-	    $fileC->set_context("$kwrd=$items[2]");
+	if ($mode == 4){
+	    $fileC->update_record($kwrd,"$newval",1);
+	} else {
 	    $fileC->update_location($kwrd,$newval,1);
-	    #print "<-- \n";
 	}
 	$fileC->print_delayed();
+
+	
 
 
     } elsif ($mode == 5){
@@ -442,6 +469,13 @@ while ($morerecords)
 	my @rows;
 	$fileC->set_context("limit=100000000");
 	@rows = $fileC->bootstrap("tctwid",$dodel);
+	print "Returned IDs $#rows: @rows\n";
+    }
+    elsif ($mode == 9)
+    {
+	my @rows;
+	$fileC->set_context("limit=100000000");
+	@rows = $fileC->bootstrap($keyw,$dodel);
 	print "Returned IDs $#rows: @rows\n";
     }
     $start += $batchsize;
