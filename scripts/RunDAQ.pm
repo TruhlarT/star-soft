@@ -152,7 +152,7 @@ $dbtable   = "DAQInfo";
 $dbname    = "operation";
 
 $HPSSBASE  = "/home/starsink/raw/daq";        # base path for HPSS file loc.
-
+$DELAY     = 60;                              # delay backward in time in seconds
 
 # Required tables on $DDBSERVER
 # List for Year2
@@ -445,7 +445,7 @@ sub rdaq_raw_files
     # the test runs with max file sequence = 1.
     #$tref = Date::Manip::DateCalc("today","-1 minute");
     #$tref = Date::Manip::UnixDate($tref,"%Y%m%e%H%M%S");
-    $sth = $obj->prepare("select FROM_UNIXTIME( UNIX_TIMESTAMP(NOW())-60 )+0");
+    $sth = $obj->prepare("select FROM_UNIXTIME( UNIX_TIMESTAMP(NOW()) - $DELAY )+0");
     $sth->execute();
     $tref= $sth->fetchrow();
     $sth->finish();
@@ -1231,6 +1231,16 @@ sub	info_message
 
 
 sub    rdaq_toggle_debug { $DEBUG = ! $DEBUG;}
+
+#
+# New method to set delay
+# 
+sub    rdaq_set_delay    
+{ 
+    my($t)=@_;
+    $DELAY = $t if ( defined($t) );
+    return $DELAY;
+}
 
 
 1;
