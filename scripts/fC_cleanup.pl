@@ -29,11 +29,16 @@ my $keyw;
 my $n;
 my $confirm;
 my $allst;
+
+# Connection parameters
 my $user=undef;
 my $passwd=undef;
+my $host=undef;
+my $port=undef;
+my $db=undef;
 
 # Load the modules
-my $fileC = FileCatalog->new;
+my $fileC = FileCatalog->new();
 
 
 # Turn off module debugging and script debugging
@@ -66,6 +71,10 @@ while (defined $ARGV[$count]){
 	$user      = $ARGV[++$count];
     } elsif ($ARGV[$count] eq "-p"){
 	$passwd    = $ARGV[++$count];
+    } elsif ($ARGV[$count] eq "-h"){
+	$host      = $ARGV[++$count];
+    } elsif ($ARGV[$count] eq "-P"){
+	$port      = $ARGV[++$count];
 
 
     } elsif ($ARGV[$count] eq "-delete"){
@@ -124,26 +133,41 @@ while (defined $ARGV[$count]){
 	exit;
     }
     $count++;
-  }
-
-if ($count == 0){
-    &Usage();
-    exit;
 }
 
-if ( ! defined($user) && ! defined($passwd) ){
-    ($user,$passwd) = $fileC->get_connection("Admin");
-}    
+if ($count == 0){  &Usage(1);}
 
 
-if ( ! defined($user) ){
-    print "Password FC_admin : ";
+
+# Get connection fills the blanks while reading from XML
+# However, USER/PASSWORD presence are re-checked
+my ($USER,$PASSWD,$PORT,$HOST,$DB) = $fileC->get_connection("Admin");
+$user   = $USER   if ( defined($USER)   && ! defined($user) );
+$passwd = $PASSWD if ( defined($PASSWD) && ! defined($passwd) );
+$port   = $PORT   if ( defined($PORT)   && ! defined($port) );
+$host   = $HOST   if ( defined($HOST)   && ! defined($host) );
+$db     = $DB     if ( defined($DB)     && ! defined($db)   );
+
+
+if ( $user eq "" ){ 
+    # get it from command line
+    print "Username for FileCatalog : ";
+    chomp($user = <STDIN>);
+}
+if ( $passwd eq "" ){ 
+    # get it from command line
+    print "Password for $user : ";
     chomp($passwd = <STDIN>);
-    $fileC->connect_as("Admin","FC_admin",$passwd);
-} else {
-    # defined, values from get_connection() were returned
-    $fileC->connect_as("Admin",$user,$passwd);
 }
+
+
+
+#
+# Now connect
+#
+$fileC->connect($user,$passwd,$port,$host,$db);
+
+
 
 
 
@@ -247,7 +271,7 @@ while ($morerecords)
 		}
 	    } else {
 		if ($mode == 1){
-		    # and ! Exists($path/$file) that is ...
+		    # and ! Exist($path/$file) that is ...
 		    print "File  $site.$store://$node$path/$fname DOES NOT exist or is unavailable !\n";
                     # mark it un-available
 		    $fileC->update_location("available",0,$confirm);
@@ -519,6 +543,8 @@ sub FullBootstrap
 
 sub Usage
 {
+    my($sts)=@_;
+
     print qq~
  Usage: fC_cleanup [option]  [-cond field=value{,filed=value}]
 
@@ -589,6 +615,8 @@ sub Usage
                          intends to perform (i.e. debug mode). It is wise to start 
                          in debug mode.
 ~;
+
+    if( defined($sts) ){ exit;}
 
 }
 
