@@ -117,7 +117,7 @@ $topdir_report_old = "$home/reports_old";
 #===========messages=========================================================
 $message_dir = "$home/messages";
 $deleted_message_dir = "$message_dir/deleted_messages";
-%QA_message_hash = undef;
+#%QA_message_hash = ();
 
 #note: dev, new, cosmics share the same control, batch, update dirs
 #=====================dev===================================================
