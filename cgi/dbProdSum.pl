@@ -78,6 +78,16 @@ if($colSet eq "AuAu130") {
  my $TevtHpSize = 0;
  my $TMuHpSize = 0;
  my $TemcHpSize = 0;
+ my $TNevPrimVtx = 0;
+ my $TNevHadrMinb = 0;
+ my $TNevHadrCent = 0;
+ my $TNevHiMult = 0;
+ my $TNevHiMultZDC = 0;
+ my $TNevUPCMinb = 0;
+ my $TNevTOPO = 0;
+ my $TNevTOPOeff = 0;
+ my $TNevTOPOZDC = 0;
+ my $TNevLaser = 0;
 
  my $topHpss = "/home/starreco/reco";
 
@@ -240,7 +250,6 @@ if ($trigD eq "all" and $fieldM eq "all" and $detSet eq "all") {
    
    }
 
-
   foreach my $onfile (@OnlFiles) {
 
      $dqfile = ($$onfile)->flName;
@@ -259,14 +268,49 @@ if ($trigD eq "all" and $fieldM eq "all" and $detSet eq "all") {
     $TMuHpSize = int($MuHpSize/1024/1024/1024); 
     $TemcHpSize = int($emcHpSize/1024/1024/1024);       
 
+ if($colSet eq "AuAu200") {
+
+   $sql="SELECT sum(NevPrimVtx), sum(NevHadrMinb), sum(NevHadrCent), sum(NevHiMult), sum(NevHiMultZDC), sum(NevUPCMinb), sum(NevTOPO), sum(NevTOPOZDC), sum(NevTOPOeff) from TriggerEvents where triggerSetup = '$trigD' and prodSeries = '$prodSer' ;
+
+      $cursor =$dbh->prepare($sql)
+      || die "Cannot prepare statement: $DBI::errstr\n";
+   $cursor->execute;
+
+   while(@fields = $cursor->fetchrow) {
+     my $cols=$cursor->{NUM_OF_FIELDS}; 
+     for($i=0;$i<$cols;$i++) {
+       my $fvalue=$fields[$i];
+       my $fname=$cursor->{NAME}->[$i];
+       print "$fname = $fvalue\n" if $debugOn;
+
+       $TNevPrimVtx  = $fvalue    if( $fname eq 'sum(NevPrimVtx)');
+       $TNevHadrMinb = $fvalue    if( $fname eq 'sum(NevHadrMinb)');
+       $TNevHadrCent = $fvalue    if( $fname eq 'sum(NevHadrCent)');
+       $TNevHiMult   = $fvalue    if( $fname eq 'sum(NevHiMult)');
+       $TNevHiMultZDC = $fvalue   if( $fname eq 'sum(NevHiMultZDC)');
+       $TNevUPCMinb   = $fvalue   if( $fname eq 'sum(NevUPCMinb)');
+       $TNevTOPO      = $fvalue   if( $fname eq 'sum(NevTOPO)' );
+       $TNevTOPOZDC   = $fvalue   if( $fname eq 'sum(NevTOPOZDC)');
+       $TNevTOPOeff   = $fvalue   if( $fname eq 'sum(NevTOPOeff)');  
+
+  }
+ }
+}
+
+ &StDbProdDisconnect();
+
 &cgiSetup();
 &beginHtml();
 
  &printTotal(); 
-&begin2Html();
+
+ if($colSet eq "AuAu200") {
+
+ &begin2Html();
+}
+ &printTrigSum();
 
 #####  finished with database
- &StDbProdDisconnect();
   
   &endHtml();
 
@@ -290,6 +334,27 @@ END
 }
 
 ######################
+
+ sub printTrigSum {
+
+print <<END;
+<TR ALIGN=CENTER HEIGHT=80 bgcolor=lightblue>
+<td HEIGHT=80><h3>$TNevPrimVtx</h3></td>
+<td HEIGHT=80><h3>$TNevHadrMinb</h3></td>
+<td HEIGHT=80><h3>$TNevHadrCent</h3></td>
+<td HEIGHT=80><h3>$TNevHiMult</h3></td>
+<td HEIGHT=80><h3>$TNevHiMultZDC</h3></td>
+<td HEIGHT=80><h3>$TNevUPCMinb</h3></td>
+<td HEIGHT=80><h3>$TNevTOPO</h3></td>
+<td HEIGHT=80><h3>$TNevTOPOZDCT</h3></td>
+<td HEIGHT=80><h3>$TNevTOPOeff</h3></td>
+</TR>
+END
+
+}
+
+######################
+
 sub beginHtml {
 
 print <<END;
@@ -329,8 +394,8 @@ print <<END;
    <body BGCOLOR=\"#ccffff\"> 
 <TABLE ALIGN=CENTER BORDER=5 CELLSPACING=1 CELLPADDING=2 >
 <TR>
-<TD ALIGN=CENTER WIDTH=\"20%\" HEIGHT=100><B>Events<br> with primary vertex</B></TD>
-<TD ALIGN=CENTER WIDTH=\"20%\" HEIGHT=100><B>Hadronic MinBias</B></TD>
+<TD ALIGN=CENTER WIDTH=\"10%\" HEIGHT=100><B>Events<br> with primary vertex</B></TD>
+<TD ALIGN=CENTER WIDTH=\"10%\" HEIGHT=100><B>Hadronic MinBias</B></TD>
 <TD ALIGN=CENTER WIDTH=\"10%\" HEIGHT=100><B>Hadronic Central</B></TD>
 <TD ALIGN=CENTER WIDTH=\"10%\" HEIGHT=100><B>Hi-mult</B></TD>
 <TD ALIGN=CENTER WIDTH=\"10%\" HEIGHT=100><B>Hi-mult & ZDC </B></TD>
@@ -338,7 +403,6 @@ print <<END;
 <TD ALIGN=CENTER WIDTH=\"10%\" HEIGHT=100><B>TOPO</B></TD>
 <TD ALIGN=CENTER WIDTH=\"10%\" HEIGHT=100><B>TOPO & ZDC</B></TD>
 <TD ALIGN=CENTER WIDTH=\"10%\" HEIGHT=100><B>TOPOeff</B></TD>
-<TD ALIGN=CENTER WIDTH=\"10%\" HEIGHT=100><B>Laser Events</B></TD>
 </TR> 
 
    </head>
