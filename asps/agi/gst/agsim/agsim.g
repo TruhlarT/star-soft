@@ -163,12 +163,12 @@ C
 *KEEP,VIDQQ.
       CHARACTER*68 VIDQQ
       DATA VIDQQ/
-     +'@(#)Advanced Geant Inteface               C: 02/06/98  12.51.35
+     +'@(#)Advanced Geant Inteface               C: 12/06/98  11.37.48
      +'/
 *KEEP,DATEQQ.
-      IDATQQ =   980602
+      IDATQQ =   980612
 *KEEP,TIMEQQ.
-      ITIMQQ =   1251
+      ITIMQQ =   1137
 *KEEP,VERSQQ.
       VERSQQ = ' '
       IVERSQ = -1
@@ -572,7 +572,7 @@ C
     END
  
  
-*CMZ :          02/06/98  11.32.04  by  Pavel Nevski
+*CMZ :          08/06/98  21.29.29  by  Pavel Nevski
 *CMZ :  1.30/00 23/04/97  18.45.29  by  Pavel Nevski
 *-- Author :    Pavel Nevski   01/04/96
 *********+*********+*********+*********+*********+*********+*********+*********+
@@ -1027,7 +1027,7 @@ C                                       Link to:
      If LENOCC(Source)+LENOCC(Destin)==0
      {  Call CSRMSL(String1(1:L));         CALL PAWCS;
         II(4)=0;
-        Ier = SystemF('make '//string1(1:L)//'.sl')
+        IQUEST(1) = SystemF('make '//string1(1:L)//'.sl')
         CALL  PAWFCA(string1(1:L)//'.csl',L+4,JAD,Idebug)
         Prin1  'make '//string1(1:L)//'.sl';  ('gexec: ',a)
      }
@@ -1038,7 +1038,7 @@ C                                       Link to:
                     ' INP_DIR='//%L(Source)//'/'//%L(string1)//_
                     ' '//%L(library)
                     ('gexec: ',a)
-        Ier=SystemF('gmake '//%L(mname)//                      _
+        IQUEST(1)=SystemF('gmake '//%L(mname)//                _
                     ' INP_DIR='//%L(Source)//'/'//%L(string1)//_
                     ' '//%L(library))
         CALL PAWFCA('sl/'//string1(K:L)//'.csl',L-K+8,JAD,Idebug)
@@ -1076,6 +1076,10 @@ C                                       Link to:
   Else If Command=='TABLES'
   {   Call KuGetS (string1,len1); Call KuGetS (string2,len2);
       Call AGSTRUT(string1(1:len1), string2(1:len2));
+  }
+  Else If Command=='TABCLEAR'
+  {   Call KuGetS (string1,len1);
+      Call TDM_CLEAR_ALL(string1(1:len1)//char(0))
   }
   Else If Command=='ONFAULT'
   {   Call KugetC  (String1,len1); Call KugetI (L1);
@@ -1539,6 +1543,7 @@ C
       END
  
  
+*CMZ :          05/06/98  12.12.46  by  Pavel Nevski
 *CMZ :  1.30/00 17/04/97  20.57.01  by  Pavel Nevski
 *-- Author : R. Brun
 ******************************************************************
@@ -1555,6 +1560,22 @@ C
 C
       INTEGER       IDEBUG,IDEMIN,IDEMAX,ITEST,IDRUN,IDEVT,IEORUN
      +        ,IEOTRI,IEVENT,ISWIT,IFINIT,NEVENT,NRNDM
+C
+*KEEP,GCTRAK.
+      INTEGER NMEC,LMEC,NAMEC,NSTEP ,MAXNST,IGNEXT,INWVOL,ISTOP,MAXMEC
+     + ,IGAUTO,IEKBIN,ILOSL, IMULL,INGOTO,NLDOWN,NLEVIN,NLVSAV,ISTORY
+     + ,MAXME1,NAMEC1
+      REAL  VECT,GETOT,GEKIN,VOUT,DESTEP,DESTEL,SAFETY,SLENG ,STEP
+     + ,SNEXT,SFIELD,TOFG  ,GEKRAT,UPWGHT
+      REAL POLAR
+      PARAMETER (MAXMEC=30)
+      COMMON/GCTRAK/VECT(7),GETOT,GEKIN,VOUT(7),NMEC,LMEC(MAXMEC)
+     + ,NAMEC(MAXMEC),NSTEP ,MAXNST,DESTEP,DESTEL,SAFETY,SLENG
+     + ,STEP  ,SNEXT ,SFIELD,TOFG  ,GEKRAT,UPWGHT,IGNEXT,INWVOL
+     + ,ISTOP ,IGAUTO,IEKBIN, ILOSL, IMULL,INGOTO,NLDOWN,NLEVIN
+     + ,NLVSAV,ISTORY
+      PARAMETER (MAXME1=30)
+      COMMON/GCTPOL/POLAR(3), NAMEC1(MAXME1)
 C
 *KEEP,agckine.
 *    AGI general data card information
@@ -1604,8 +1625,9 @@ C
          address = CsADDR ('AGUTRAK')
      endif
 *
+     Istop = 0
      if (address>0) CALL CsJCAL (address,0)
-     CALL GTRACK
+     If (Istop==0)  CALL GTRACK
 *
       END
  
@@ -2505,7 +2527,7 @@ C
       END DO
       END
  
-*CMZ :          05/12/97  18.00.22  by  Pavel Nevski
+*CMZ :          03/06/98  12.01.39  by  Pavel Nevski
 *CMZ :  1.30/00 27/03/97  19.14.44  by  Pavel Nevski
 *-- Author :    Pavel Nevski   10/04/96
 **************************************************************************
@@ -2593,20 +2615,31 @@ C
     If (NQCASE==3) print *,' access permision fault, e.g. write protected  '
     If (NQCASE==4) print *,' access to the file was not declared by FZFILE '
   }
-  else
- {  Print *,' JVOLUM,NVOLUM =',JVOLUM,Nvolum
-    If 0<Jvolum&Jvolum<Nzebra
-  { If (IQ(Jvolum-1)!=Nvolum) print *,' real VOLU bank length=',IQ(Jvolum-1) }
-  else
-  { print *,' JVOLUM points outside reasonable area '}
- 
-  Print *,' JGPAR,NLEVEL  =',JGPAR,NLEVEL
-  If (0<JGpar & JGpar<Nzebra)
-  { print *,' real GPAR bank data/link length=',(IQ(JGPAR-i),i=1,3)
-    "If (IQ(JGPAR-1)<=0)" JGpar=0
+  else If Cname='MZLIFT'
+  { print *,' MZLIFT Cannot mount a new bank possibly because of '
+    If (NQCASE==1) print *,'   faulty bank parameters '
+    If (NQCASE==2) print *,'   invalid supporting link'
+    If (NQCASE==3) print *,'   bank at LSUP has too few structural links'
+    If (NQCASE==4) print *,'   invalid next link '
+    If (NQCASE==5) print *,'   non-existing I/O characteristic'
+    If (NQCASE==6) print *,'   invalid I/O parameter'
+    If (NQCASE==7) print *,'   attempt to lift bank in a wrong division'
+    If (NQCASE==8) print *,'   attempt to connect the new bank inside a bank'
   }
-  print *,' that is all for the moment, Have you done GGCLOS ? '
- }
+  else
+  { Print *,' JVOLUM,NVOLUM =',JVOLUM,Nvolum
+    If 0<Jvolum&Jvolum<Nzebra
+    { If (IQ(Jvolum-1)!=Nvolum) print *,' real VOLU bank length=',IQ(Jvolum-1)}
+    else
+    { print *,' JVOLUM points outside reasonable area '}
+ 
+    Print *,' JGPAR,NLEVEL  =',JGPAR,NLEVEL
+    If (0<JGpar & JGpar<Nzebra)
+    { print *,' real GPAR bank data/link length=',(IQ(JGPAR-i),i=1,3)
+      "If (IQ(JGPAR-1)<=0)" JGpar=0
+    }
+    print *,' that is all for the moment, Have you done GGCLOS ? '
+  }
   <w> (IQUEST(i),i= 1,10); (' Iquest=',10i9)
   <w> (IQUEST(i),i=11,20); (' Iquest=',10i9)
   NQCASE=0
@@ -8107,7 +8140,7 @@ C
 :E:"<w> AgDOCWR,Cf,I1,I2,TEXT;(' AgDocWr=',i2,' at ',a,' i1,i2,T=',2i5,2x,a)";
 END;
  
-*CMZ :          01/06/98  20.51.55  by  Pavel Nevski
+*CMZ :          24/04/98  21.24.51  by  Pavel Nevski
 *CMZ :  1.30/00 09/02/97  21.15.43  by  Pavel Nevski
 *CMZU:  1.00/01 22/12/95  21.50.31  by  Pavel Nevski
 *CMZ :  1.00/00 15/11/95  01.03.24  by  Pavel Nevski
@@ -8311,7 +8344,7 @@ If IrBDIV==IxCONS & ID>0 & JBIT(IQ(Lk),1)==0
    LP=LQ(LKDETM-ID); Ns=IQ(LP-2); Call UCTOH('DETP',Iname,4,4);
    Do IL=1,Ns
    {  JP=LQ(LP-IL);  Check JP>0;  Check IQ(JP-4)=Iname;  L=IQ(JP-1);
-          <w> bank; (' detp bank found for bank ',a4)
+      "   <w> bank; (' detp bank found for bank ',a4)         "
       "  if bank was selected with ISEQ, transmit it as value "
       La=IQ(Lk-1); Lc=IQ(lk-5);  Val=Value;
       if (Lc<0)    La=IQ(lk-1)/abs(Lc)
@@ -11298,7 +11331,7 @@ C
    END
  
  
-*CMZ :          03/05/98  16.30.24  by  Pavel Nevski
+*CMZ :          08/06/98  22.08.04  by  Pavel Nevski
 *-- Author :    Pavel Nevski   25/11/97
 *************************************************************************
 *                                                                       *
@@ -11324,16 +11357,16 @@ C
  
      Call Agsbegm('DOCUM',Iprin); Call AsbDETE('DOCU',Id); Iprin=Idebug
  
-     Idl = 0
-     if (Index(Cdest,'idl')>0) Idl=1
-     if (Index(Cdest,'dui')>0) Idl=2
+     Idl = 2
+     if (Cdest=='def') Idl=0
+     if (Cdest=='idl') Idl=1
  
 *  request a la UNIX: sys/bank
      Iwr = 0
      i2=lenocc(request);    i1=index(request,'/');  if (i1<=0) i1=i2+1
      Csys='*'; if (i1>2)    Csys=request(1:i1-1);   if (i2>0)  Iwr=1
      Cban='*'; if (i1<i2) { Cban=request(i1+1:i2);             Iwr=2 }
-     prin2 csys,cban,i1,i2,iwr,idl;(' in agkeep csys=',a,' cban=',a,' iwr=',4i2)
+     prin3 csys,cban,i1,i2,iwr,idl;(' in agkeep csys=',a,' cban=',a,' iwr=',4i2)
  
      i1=Lenocc(Csys);       Call CUTOL(Csys);
      i2=Lenocc(Cban);       Call CUTOL(Cban);
@@ -11660,7 +11693,7 @@ C
      end
  
  
-*CMZ :          24/05/98  13.52.51  by  Pavel Nevski
+*CMZ :          08/06/98  21.48.20  by  Pavel Nevski
 *-- Author :    Pavel Nevski   25/11/97
 ***************************************************************************
 *                                                                         *
@@ -11669,8 +11702,9 @@ C
 * Description: Given a path, dump the whole structure below into STAF     *
 *     request a la UNIX: sys/bank - very combersome for the moment :      *
 *     'standard' path form is [/DETM/]sys..., * at the end means 'all'    *
-*     RECB alternative form is /RECB/....bank*sys
-*                                                                         *
+*     RECB etc alternative form is /RECB/....bank@sys                     *
+*          meaning 'take documentation from sys'                          *
+*     Only existing banks are dumped, alternative is commented out now    *
 ***************************************************************************
 *KEEP,TYPING.
       IMPLICIT NONE
@@ -11744,13 +11778,13 @@ C   - combined DETM + Reconstruction bank access variables - AGI version
   Call CLTOU(Cpath);
  
   Cdest='/dui/Run'; if (Cpath(2:5)!='DETM') Cdest='/dui/Event';
-  if (Lenocc(Destin)>0) Cdest='/dui/'//Destin;
+  if (Lenocc(Destin)>0) Cdest=Destin;
  
 * Csys - prefix for AgKeeps
   Lc=Lenocc(Cpath); n=Index(Cpath,'@');  Csys=' ';
   if (Cpath(1:6)=='/DETM/' & Lc>=10) Csys=Cpath(7:Lc)
   if (0<n&n<Lc)  { Csys=Cpath(n+1:Lc); Lc=n-1 }
-  Mj=2; if (Lenocc(Csys)>0) { Call Agkeeps(Csys,Cdest); Mj=0; }
+  Mj=2; if (Lenocc(Csys)>0) { Mj=0; "Call Agkeeps(Csys,Cdest);" }
 *
 * Rebank path does not accept / or /_* at the end, truncate:
   m=Index(Cpath(1:Lc),'*'); Lp=Lc;
@@ -11765,17 +11799,17 @@ C   - combined DETM + Reconstruction bank access variables - AGI version
   if L<=0 { <w> %L(Cpath); (' AGSTRU: Data source ',a,' not found '); Return; }
 *
 *
-J=1; Loop
+J=1; Loop                                  " over existing banks only "
 {  If L>0
    {  Call UHTOC(IQ(L-4),4,CBank,4);
-      if     J==MJ
-      { Csys=Cbank; If (Csys!='DOCU') Call AGKEEPs(%L(Csys),%L(Cdest)) }
+      if     J==MJ      { Csys=Cbank; "Call Agkeeps(Csys,Cdest);" }
       elseif J> MJ & Csys!='DOCU'
       { Table=Csys(1:4)//'_'//Cbank;  Call CUTOL(Table);
+        Call AGKEEPs(%L(Csys)//'/'//Cbank,%L(Cdest))
         K=1; if (IQ(L-5)<0) K=-IQ(L-5)
         i=TDM_MAP_TABLE(%L(Cdest),%L(Table),'\000',K,IQ(L+1))
         prin2 %L(Cdest),%L(Table),i,k,(Q(L+i),i=1,3)
-              (' TDM_MAP_TABLE:',2(1x,a),2i5,3F8.1)
+              (' TDM_MAPing_TABLE:',2(1x,a),2i5,2x,3F8.1)
         " specific bank requested " if (m==0 & Mj==0) Break;
       } Lk(j)=L;  IL(j)=0;
    }
@@ -14192,7 +14226,7 @@ C                                       Link to:
  
  
  
-*CMZ :          14/08/97  15.27.58  by  Pavel Nevski
+*CMZ :          03/06/98  12.10.44  by  Pavel Nevski
 *CMZ :  1.30/00 02/04/97  17.34.39  by  Pavel Nevski
 *CMZU:  1.00/01 14/01/96  21.33.44  by  Pavel Nevski
 *-- Author :    A. Rozanov  11/03/95
@@ -14270,7 +14304,8 @@ C
      Irc+=1; Check  EtaMin <=Eta & Eta<= EtaMax
 *
 *    atan2 require (y,x) or (sin,cos):
-     phi   = atan2(pmom(2),pmom(1));    if ( phi < 0 ) phi=phi+TwoPi
+     phi   = 0;  if (pt  > 0) phi=atan2(pmom(2),pmom(1))
+                 if (phi < 0) phi=phi+TwoPi
      Irc+=1; Check  PhiMin <=Phi & Phi<= PhiMax
      Irc+=1; Check  Zmin<=vert(3)&vert(3)<=Zmax
   else
@@ -16769,7 +16804,7 @@ End
       DO I=1,L  { AMX(I)=1.E30;   AMN(I)=-1.E30 }
       End
  
-*CMZ :          28/03/98  23.53.39  by  Pavel Nevski
+*CMZ :          12/06/98  11.36.35  by  Pavel Nevski
 *CMZU:  1.00/01 14/01/96  17.57.22  by  Pavel Nevski
 *CMZ :  1.00/00 07/03/95  21.21.52  by  Pavel Nevski
 *-- Author :    Pavel Nevski   07/02/95
@@ -16831,7 +16866,7 @@ C
       Xbrem  = 0
       Rbrem  = 200
       Rshow  = Rcal
-      Print *,'  get track fi0,a0,Pti,z0,dz=',Fi0Fit,A0Fit,PTinv,z0fit,dZdR0
+*     Print *,'  get track fi0,a0,Pti,z0,dz=',Fi0Fit,A0Fit,PTinv,z0fit,dZdR0
     END
  
 *CMZ :          04/12/97  13.25.20  by  Pavel Nevski
