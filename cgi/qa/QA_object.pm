@@ -657,8 +657,8 @@ sub DisplayFilesAndReports{
   # bum - add error and warning files
   my $warning_file = $self->LogReport->WarningFile;
   my $error_file = $self->LogReport->ErrorFile;
-  my $warning_string = "StError file: ";
-  my $error_string = "StWarning file: ";
+  my $warning_string = "StWarning file: ";
+  my $error_string = "StError file: ";
 
 
   if (-s $logfile){
