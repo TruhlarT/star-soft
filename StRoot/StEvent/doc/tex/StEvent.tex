@@ -2,7 +2,7 @@
 %
 % StEvent - User Guide and Reference Manual -- LaTeX Source
 %
-% $Id: StEvent.tex,v 2.74 2003/01/28 20:50:05 ullrich Exp $
+% $Id: StEvent.tex,v 2.75 2003/01/30 18:48:10 ullrich Exp $
 %
 % Author: Thomas Ullrich, Nov 1999
 %
@@ -21,6 +21,9 @@
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %
 % $Log: StEvent.tex,v $
+% Revision 2.75  2003/01/30 18:48:10  ullrich
+% Added references for StTriggerId and StTriggerIdCollections.
+%
 % Revision 2.74  2003/01/28 20:50:05  ullrich
 % Added description of PHMD classes and hooks.
 %
@@ -287,8 +290,8 @@
   \mbox{\includegraphics[width=\textwidth]{StEventTitle.eps}}
   \hfill\mbox{}\\[3cm]
   {\LARGE User Guide and Reference Manual \\[5mm] for Version 2}\\[2cm]
-  {\LARGE $ $Revision: 2.74 $ $}  \\[5mm] % replaced by cvs with current revision
-  {\LARGE $ $Date: 2003/01/28 20:50:05 $ $}  % replaced by cvs with current revision
+  {\LARGE $ $Revision: 2.75 $ $}  \\[5mm] % replaced by cvs with current revision
+  {\LARGE $ $Date: 2003/01/30 18:48:10 $ $}  % replaced by cvs with current revision
   \vfill
 \end{center}
 \cleardoublepage
@@ -6991,6 +6994,57 @@ numberOfPoints(kTpcId) == numberOfPoints(kFtpcWestId)
     \verb+const StZdcTriggerDetector& zdc() const;+\\
     \verb+StEmcTriggerDetector& emc();+\\
     \verb+const StEmcTriggerDetector& emc() const;+\\
+\end{Entry}
+\clearpage
+
+\subsection{StTriggerId}
+\index{StTriggerId|textbf}
+\label{sec:StTriggerId}
+\begin{Entry}
+\item[Summary] 
+\item[Synopsis]
+    \verb+#include "StTriggerId.h"+\\
+    \verb+class StTriggerId;+\\
+\item[Description]
+\item[Related Classes]
+\item[Public\\ Constructors]
+    \verb+StTriggerId();+\\
+\item[Public Member\\ Functions]
+    \verb+unsigned int mask() const;+\\
+    \verb+bool isTrigger(unsigned int id) const;+\\
+    \verb+unsigned int version(unsigned int id) const;+\\
+    \verb+unsigned int nameVersion(unsigned int id) const;+\\
+    \verb+unsigned int thresholdVersion(unsigned int id) const;+\\
+    \verb+unsigned int prescaleVersion(unsigned int id) const; +\\
+    \verb+vector<unsigned int> triggerIds() const; +\\
+    \verb+void setMask(unsigned int);+\\
+    \verb+void addTrigger(unsigned int, unsigned int,+\\
+    \verb+unsigned int, unsigned int, unsigned int);+\\
+\end{Entry}
+\clearpage
+
+\subsection{StTriggerIdCollection}
+\index{StTriggerIdCollection|textbf}
+\label{sec:StTriggerIdCollection}
+\begin{Entry}
+\item[Summary] Collection that holds all relevant trigger information starting RunIII (2003).
+\item[Synopsis]
+    \verb+#include "StTriggerIdCollection.h"+\\
+    \verb+class StTriggerIdCollection;+\\
+\item[Description]
+\item[Related Classes]
+\item[Public\\ Constructors]
+    \verb+StTriggerIdCollection();+\\
+\item[Public Member\\ Functions]
+    \verb+const StTriggerId* nominal() const;+\\
+    \verb+const StTriggerId* l1() const;+\\
+    \verb+const StTriggerId* l2() const;+\\
+    \verb+const StTriggerId* l3() const;+\\
+    
+    \verb+void setL1(StTriggerId*);+\\
+    \verb+void setL2(StTriggerId*);+\\
+    \verb+void setL3(StTriggerId*);+\\
+    \verb+void setNominal(StTriggerId*);+\\
 \end{Entry}
 \clearpage
 
