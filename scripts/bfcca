@@ -83,6 +83,7 @@ use Digest::MD5;
 # First of all, turn IO autoflush
 $|       = 1;
 
+$DEBUG   = 0;
 
 # Some default hardwired values
 $AFS_RHIC= "/afs/rhic.bnl.gov";    # path to AFS head
@@ -98,7 +99,7 @@ $SOFFTOL = 0.02;                   # Size offset tolerance (2%)
 $MAXFILL = 97;                     # Maximum disk occupency in %tage for free space algo
 
 # This is for debugging purposes
-if (1==1){
+if ($DEBUG){
     print "ENV variables debugging is ON -->\n";
     foreach $el (keys %ENV){
 	print "Env [$el] -> Value = [$ENV{$el}]\n";
@@ -595,7 +596,7 @@ if ( ! open(FO,">$PWD/$JOB_ID.csh") ){
     # Hack for interractive debugging
     #if ( defined($ENV{BFCC_EXIT}) ){
 	print "-=-=-=- Generated script content follows -=-=-=-\n";
-	system("cat $PWD/$JOB_ID.csh");
+	system("/bin/cat $PWD/$JOB_ID.csh");
     #	exit;
     #}
 
