@@ -2,8 +2,8 @@
 #
 ###################################
 
-require "$DbScripts/dbSubs/defineTableSQL.pl";
-require "$DbScripts/dbSubs/prepSQLElement.pl";
+require "dbSubs/defineTableSQL.pl";
+require "dbSubs/prepSQLElement.pl";
 
 
 sub checkForTable(){

@@ -1,6 +1,6 @@
 #!/usr/bin/perl -w
 #
-# $Id: dbTableCheck.pl,v 1.3 2003/01/09 20:30:41 porter Exp $
+# $Id: dbTableCheck.pl,v 1.4 2003/01/31 02:14:42 porter Exp $
 #
 # Author: R. Jeff Porter
 #
@@ -11,6 +11,12 @@
 #****************************************************************************
 # 
 # $Log: dbTableCheck.pl,v $
+# Revision 1.4  2003/01/31 02:14:42  porter
+# got rid of a couple of opsolete files and got rid of environment variable
+# STDB_ADMIN
+# And fixed bug when adding new schema which is a combination of several old
+# sets of schema. It now always updates schema if different then last one
+#
 # Revision 1.3  2003/01/09 20:30:41  porter
 # upgrade of db table structure scripts
 #
@@ -22,9 +28,7 @@
 
 use DBI;
 
-$DbScripts=$ENV{"STDB_ADMIN"};
-if(!$DbScripts){ $DbScripts=$ENV{"STAR"}."/scripts"; }
-require "$DbScripts/dbSubs/evalSchema.pl";
+require "dbSubs/evalSchema.pl";
 
 sub dbTableCheck(){
 

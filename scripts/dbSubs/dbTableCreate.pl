@@ -1,6 +1,6 @@
 #!/usr/bin/perl -w
 #
-# $Id: dbTableCreate.pl,v 1.3 2003/01/09 20:30:41 porter Exp $
+# $Id: dbTableCreate.pl,v 1.4 2003/01/31 02:14:42 porter Exp $
 #
 # Author: R. Jeff Porter
 #
@@ -12,6 +12,12 @@
 #****************************************************************************
 # 
 # $Log: dbTableCreate.pl,v $
+# Revision 1.4  2003/01/31 02:14:42  porter
+# got rid of a couple of opsolete files and got rid of environment variable
+# STDB_ADMIN
+# And fixed bug when adding new schema which is a combination of several old
+# sets of schema. It now always updates schema if different then last one
+#
 # Revision 1.3  2003/01/09 20:30:41  porter
 # upgrade of db table structure scripts
 #
@@ -23,11 +29,7 @@
 
 use DBI;
 
-$DbScripts=$ENV{"STDB_ADMIN"};
-
-if(!$DbScripts){ $DbScripts=$ENV{"STAR"}."/scripts"; }
-
-require "$DbScripts/dbSubs/dbStoreTables.pl";
+require "dbSubs/dbStoreTables.pl";
 
 sub dbTableCreate(){
 
@@ -129,7 +131,6 @@ $dbh = DBI->connect("DBI:mysql:$dbname:$dbhostname",$dbuser,$dbpass)
   print "StoreTable is ",$storeTable,"\n";
   @tmpTable=split(",",$storeTable);
   for($k=0;$k<=$#tmpTable;$k++){
-#  if($storeTable){
     my $mstoreTable=$tmpTable[$k];
   print "StoreTable is ",$mstoreTable,"\n";
       if(checkForTable($mstoreTable)){
@@ -168,6 +169,9 @@ sub addStructure {
 #
 # routine to check schema with that in the database
 #
+# --> now only check for the last schema - if it is not
+# the same, create a new schema
+#
 #####################################################
 
 sub addSchema {
@@ -193,7 +197,7 @@ sub addSchema {
     if($sid!=1){ #check for old schema's
 
 #-> get the list of distinct schemas for this structure
-       my $qlist=qq{ select distinct schemaID from schema } . 
+       my $qlist=qq{ select max(schemaID) from schema } . 
                  qq{ where structName='$tn'};
        my $scitr=$dbh->prepare($qlist);
 
