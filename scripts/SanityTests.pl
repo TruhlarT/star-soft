@@ -187,7 +187,7 @@ foreach $choice (@ARG){
 	    "cd $SRCDIR/$dir\n",
 	    "\n",
 	    "# Display result\n",
-	    IUCheckFile(3,"$DESTDIR/Ins-$dir-$i.html"),
+	    IUCheckFile(3,($PROF?"$DESTDIR/Prof-$dir-$i.html":"$DESTDIR/Ins-$dir-$i.html")),
 	    "set ROOT4STAR=`which root4star`\n",
 	    "echo \"Path   = \$PATH\"\n",
 	    "echo \"LDPath = \$LD_LIBRARY_PATH\"\n",
