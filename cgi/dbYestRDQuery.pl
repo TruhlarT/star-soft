@@ -79,7 +79,7 @@ while(@fields = $cursor->fetchrow) {
     ($$fObjAdr)->timeS($fvalue)   if($fname eq 'createTime');
     ($$fObjAdr)->Nevts($fvalue)   if($fname eq 'Nevents');
     ($$fObjAdr)->dataSt($fvalue)  if($fname eq 'dataStatus');
-    ($$fObjAdr)->com($fvalue)     if($fname eq 'comment')
+    ($$fObjAdr)->com($fvalue)     if($fname eq 'comment');
     ($$fObjAdr)->trig($fvalue)    if($fname eq 'trigger'); 
 }
        $dbFiles[$ndbFiles] = $fObjAdr;
