@@ -60,7 +60,7 @@ do {
 	    } else {
 		&Print("Checking entries on ".localtime()."\n");
 		$mode    = 0;  # loop reset
-		@records = rdaq_raw_files($obj,$run);
+		@records = rdaq_raw_files($obj,-$run);
 
 		&Print("Updating $#records on ".localtime()."\n");
 		rdaq_update_entries($dbObj,@records);
