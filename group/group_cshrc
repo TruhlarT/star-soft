@@ -1,7 +1,10 @@
 #
-#	$Id: group_cshrc,v 1.4 2001/05/15 00:36:08 jeromel Exp $
+#	$Id: group_cshrc,v 1.5 2004/01/09 19:25:07 jeromel Exp $
 #	Purpose:	STAR group csh setup 
 #	$Log: group_cshrc,v $
+#	Revision 1.5  2004/01/09 19:25:07  jeromel
+#	One step further toward turning this off
+#	
 #	Revision 1.4  2001/05/15 00:36:08  jeromel
 #	Comments added. This file may be obsolete.
 #	
@@ -23,6 +26,8 @@
 # J.Lauret May 14th 2001
 #
 #
-  setenv MANPATH `/afs/rhic/star/group/dropit -p $MANPATH`
-  setenv PATH `/afs/rhic/star/group/dropit GROUPPATH`
+#  setenv MANPATH `/afs/rhic/star/group/dropit -p $MANPATH`
+#  setenv PATH `/afs/rhic/star/group/dropit GROUPPATH`
 #
+
+echo "$0 This file is obsolete. Please update"
