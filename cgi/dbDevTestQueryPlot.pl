@@ -1,9 +1,13 @@
 #!/opt/star/bin/perl 
 #-w
 #
-# $Id: dbDevTestQueryPlot.pl,v 1.3 2001/02/14 19:58:19 liuzx Exp $
+# $Id: dbDevTestQueryPlot.pl,v 1.4 2001/02/14 23:16:39 liuzx Exp $
 #
 # $Log: dbDevTestQueryPlot.pl,v $
+# Revision 1.4  2001/02/14 23:16:39  liuzx
+# .Update for description of MemUsage
+# .Update for 0 value's meaning
+#
 # Revision 1.3  2001/02/14 19:58:19  liuzx
 # Modify the min_y and skip no data now!
 #
@@ -174,8 +178,10 @@ for ($d_week = 0; $d_week <=4; $d_week++) {
 
 &StDbTJobsDisconnect();
 
+$xlable = "";
 if( $min_y == 0) {
     $min_y = 10;
+    $xlabel = "(0 value means job failed)"
 }
 
 if ($plotVal eq "MemUsage") {
@@ -184,6 +190,7 @@ if ($plotVal eq "MemUsage") {
     $legend[1] = "MemUsgaeL";
     $legend[2] = "MemUsgaeF(opt)";
     $legend[3] = "MemUsageL(opt)";
+    $mplotVal="MemUsageFirstEvent,MemUsageLastEvent";
 } else {
     @data = (\@Nday, \@point0, \@point2);
     $legend[0] = "$plotVal";
@@ -195,12 +202,14 @@ print STDOUT $query->header(-type => 'image/gif');
 
 $graph = new GIFgraph::linespoints(600,500);
 
-$graph->set(x_label => "",
-            y_label => "$mplotVal",
+$graph->set(x_label => "$xlabel",
+            #y_label => "$mplotVal",
+	    x_label_position => 0.5,
             title   => "$set1"." ($mplotVal)",
 	    y_tick_number => 10,
             y_min_value => $min_y - 10,
             y_max_value => $max_y + 10,
+	    labelclr => "lred"
 	    );
 
 $graph->set_legend(@legend);
