@@ -140,12 +140,10 @@ if ($ThisYear == 2002){
     $SCALIB{"dAu"}            = "OptLaser";
     $SCALIB{"ProtonProton"}   = "OptLaser";
 
-} elsif ( $ThisYear == 2004 ||
-	  $ThisYear == 2005
-	 ){
+} elsif ( $ThisYear == 2004 ){
     $LIB     = "dev";
     $NUMEVT  = 100;
-    $TARGET  = "/star/data08/reco";
+    $TARGET  = "/star/data27/reco";
 
     $LASERTP =  3;
     $PHYSTP  =  1;
@@ -159,7 +157,6 @@ if ($ThisYear == 2002){
     # Default chain
     $DCHAIN{"AuAu"}           = "P2004,svt_daq,svtD,EST,eemcD,OShortR,-OSpaceZ,OSpaceZ2,Xi2,V02,Kink2,CMuDst";
     $DCHAIN{"PPPP"}           = "P2004,ppOpt,svt_daq,svtD,EST,eemcD,OShortR,-OSpaceZ,OSpaceZ2,Xi2,V02,Kink2,CMuDst";
-    $DCHAIN{"CuCu"}           = "P2004,svt_daq,svtD,EST,eemcD,OShortR,-OSpaceZ,OSpaceZ2,Xi2,V02,Kink2,CMuDst";
 
     # Default pre-calib
     #$DCALIB{"dAu"}            = "PreTpcT0";
@@ -167,7 +164,31 @@ if ($ThisYear == 2002){
     # Default stand-alone auto-calib (works only on $LASERTP files)
     $SCALIB{"AuAu"}           = "OptLaser";
     $SCALIB{"PPPP"}           = "OptLaser";
+
+} elsif ( $ThisYear == 2005 ){
+    $LIB     = "dev";
+    $NUMEVT  = 100;
+    $TARGET  = "/star/data08/reco";   # This is ONLY a default value. 
+                                      # Overwritten by ARGV (see crontab)
+    $LASERTP =  4;
+    $PHYSTP  =  1;
+    $PHYSTP2 =  6;    # just comment them if you want them disabled
+    $EXPRESS =  0;     
+    $ZEROBIAS=  0;
+
+    @USEQ    = (4,4,3);
+    @SPILL   = (0,3,2);
+
+    # Default chain
+    $DCHAIN{"AuAu"}           = "P2004,svt_daq,svtD,EST,eemcD,OShortR,-OSpaceZ,OSpaceZ2,Xi2,V02,Kink2,CMuDst";
+    $DCHAIN{"PPPP"}           = "P2004,ppOpt,svt_daq,svtD,EST,eemcD,OShortR,-OSpaceZ,OSpaceZ2,Xi2,V02,Kink2,CMuDst";
+    $DCHAIN{"CuCu"}           = "P2004,svt_daq,svtD,EST,eemcD,OShortR,-OSpaceZ,OSpaceZ2,Xi2,V02,Kink2,CMuDst";
+
+    # Default stand-alone auto-calib (works only on $LASERTP files)
+    $SCALIB{"AuAu"}           = "OptLaser";
+    $SCALIB{"PPPP"}           = "OptLaser";
     $SCALIB{"CuCu"}           = "OptLaser";
+
 
 } else {
     print "$SELF :: Unknown Year $ThisYear\n";
