@@ -104,7 +104,7 @@
       IF (IDEBUG>2) IPRIN=-1
       CALL MZEBRA  (IPRIN)
       CALL GZEBRA  (NWGEAN)         ! store 0 - geant
-#ifdef __ROOT__ */
+#ifdef __ROOT__ 
       IF (NWPAW .gt. 0) CALL HLIMIT(-NWPAW)
 #else 
       CALL MZPAW   (NWPAW,' ')      ! store 1 - pawc
@@ -117,7 +117,7 @@
 #endif 
       if (G) CALL GINTRI            ! Geant MENUs and COMMANDs
 *
-#ifndef __ROOT__ */
+#ifndef __ROOT__ 
       IF (IWTYP.EQ.999) THEN        ! motif zebra browser
          CALL PMINIT                ! Paw-Motif
          CALL GBROWS                ! Geant Browser
@@ -147,7 +147,7 @@
       CALL TIMEL  (TIMINT)
  
 
-#ifndef __ROOT__ */
+#ifndef __ROOT__ 
 
       if (PROG(I:N)!='staf' | Version!=' '&Version!='staf') Call AgVERSION
       if (G) Call KUEXEC('ROOT /GEANT')
@@ -268,7 +268,7 @@ C
       Call AgDummy
 *
 END
-#endif /* __ROOT__ 
+#endif /* __ROOT__ */ 
 *CMZ :  2.00/03 22/03/2000  04.08.40  by  Pavel Nevski
 *CMZ :  2.00/02 10/01/2000  14.32.42  by  Pavel Nevski
 *CMZ :  2.00/00 01/07/99  17.36.38  by  Pavel Nevski
