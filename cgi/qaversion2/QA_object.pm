@@ -755,7 +755,7 @@ sub ShowScalarsAndTests{
 
   my $title;
 
-  if (  $gDataClass_object->DataClass =~ /real/ ){
+  if (  $gDataClass_object->DataClass =~ /offline_real/ ){
     $title = "QA Scalars for Run ID ".
       $self->LogReport->RunID.", File Seq ".$self->LogReport->FileSeq;
   }
