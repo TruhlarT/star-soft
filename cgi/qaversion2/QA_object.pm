@@ -100,7 +100,7 @@ sub _init{
     # create logreport obj
     $self->UpdateLogReport() or do{  
       # something's wrong.  erase everything and get out
-      print h3("<font color=red>Error - Erasing Job..."),br;
+      print h3("<font color=red>Error - Erasing Job...</font>"),br;
       QA_db_utilities::EraseJob($self->ReportKey,
 				$self->IOReportDirectory->Name);
       return;

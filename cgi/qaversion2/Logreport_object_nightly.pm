@@ -73,8 +73,11 @@ sub ParseLogfile {
   my $self = shift;
 
   # open files
-  my $fh = FileHandle->new( $self->LogfileName(), "r" ) or return;
-  
+  my $fh = FileHandle->new( $self->LogfileName(), "r" ) or 
+    do{
+      print "Trouble opening file = ", $self->LogfileName(), " $!\n";
+      return;
+    };
   print "Found logfile ", $self->LogfileName(), "\n", br;
 
   # init StWarning and StError files

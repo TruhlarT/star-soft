@@ -297,7 +297,6 @@ sub UpdateQANightly {
     
     # get the report key
     my $reportKey = make_report_key( $sthKey->fetchrow_array);
-    print h4($reportKey,"\n");
 
     # check if the report key is unique
     $sthCheck->execute($reportKey);

@@ -230,7 +230,7 @@ sub GetAllDefaultReferences{
     my $sthRef = $dbh->prepare($queryRef);
     $sthRef->execute();
 
-    while (my $report_key = $sthRef->fetchrow_array()){
+    while (my ($report_key) = $sthRef->fetchrow_array()){
       push @{$refHash{$key}}, $report_key;
     }
   }

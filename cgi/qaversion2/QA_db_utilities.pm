@@ -272,7 +272,7 @@ sub GetSmallFiles{
   my $sth = $dbh->prepare($query);
   $sth->execute();
 
-  while (my $component = $sth->fetchrow_array()){
+  while (my ($component) = $sth->fetchrow_array()){
     $smallstring .= "$component.root<br>";
   }
   
@@ -744,7 +744,7 @@ sub WriteQAMacroSummary{
   my $rows = $dbh->do($query);
 
   # 0 rows affected is ok.  $rows = undef is bad.
-  if ($rows) { print h4("...done\n")}
+  if (defined $rows) { print h4("...done\n")}
   else     { print h4("<font color = red> Error. Cannot insert qa info for ",
 		      "$outputFile</font>"); return;}
     
