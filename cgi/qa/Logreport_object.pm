@@ -411,6 +411,8 @@ sub ParseLogfile {
   $divider = "-" x 80;
   $divider .= "\n";
  
+  $done_with_event_flag = 0;
+
   foreach $line (@end_lines) {
 
     # look for segmentation violation
@@ -424,6 +426,7 @@ sub ParseLogfile {
     # this one valid from 99h pmj 14/9/99
     # get last event number
     $line =~ /QAInfo: Done with Event\s+\[no\.\s+(\d+)\/run\s+(\d+)\/evt\.\s+(\d+)\/sta\s+(\d+)/ and do{
+      $done_with_event_flag = 1;
       $self->LastEvent($1);
       $self->ReturnCodeLastEvent($4);
       next;
@@ -471,10 +474,11 @@ sub ParseLogfile {
   #--------------------------------------------------------------------------
   # fill these in in case of crash
 
-  $self->LastEvent or $self->LastEvent(0);
-  $self->ReturnCodeLastEvent or $self->ReturnCodeLastEvent(-999);
-  $self->RunCompletionTimeAndDate or $self->RunCompletionTimeAndDate(-999);
-
+  $done_with_event_flag or do{
+    $self->LastEvent(0);
+    $self->ReturnCodeLastEvent(-999);
+    $self->RunCompletionTimeAndDate(-999);
+  };
   #--------------------------------------------------------------------------
   # now check if expected files have been created
 
