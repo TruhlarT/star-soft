@@ -134,6 +134,22 @@ while ( defined($logname = readdir(LOGDIR)) ){
 
 	# laps time has to be at minimum min_time
 	if($deltatime > $min_time ){
+	    # Take care of compression side effect i.e., the first
+	    # time around, the .parsed file is .log.parsed while
+	    # after compression, the file will be .log.gz.parsed
+	    # We do not know a-priori what it will be ... So,
+	    # delete the old one.
+	    my $tmpname = $shortname;
+	    $tmpname =~ s/\.gz//;
+	    if( $tmpname ne $shortname){
+		if( -e "$log_dir/$tmpname.parsed"){
+		    print
+			"Deleting (compressed version exists) ",
+			"$tmpname.parsed\n";
+		    unlink("$log_dir/$tmpname.parsed");
+		}
+	    }
+
 	    if ( -e "$log_dir/$shortname.parsed"){
 		# if a .parsed file exists, then skip it UNLESS
 		# the log file is more recent than the .parsed file.
@@ -147,7 +163,7 @@ while ( defined($logname = readdir(LOGDIR)) ){
 		 # after max_time, and only after, we create a .parsed
 		 # file has a mark that we do NOT want to go through
 		 # this log file again. However, the logic is such that
-		 # if a run is started again, the .parsed file would be 
+		 # if a run is started again, the .parsed file would be
 		 # deleted and the related log file would be treated as
 		 # a new one.
 		 if ( open(FO,">$log_dir/$shortname.parsed") ){
@@ -156,15 +172,8 @@ while ( defined($logname = readdir(LOGDIR)) ){
 		     chmod(0775,"$log_dir/$shortname.parsed");
 		 }
 
-		 # Take care of compression side effect
-		 my $tmpname = $shortname;
-		 $tmpname =~ s/\.gz//;
-		 if( -e "$log_dir/$tmpname"){ 
-		     print "Deleting (compressed version exists) $tmpname \n";
-		     unlink("$log_dir/$tmpname");
-		 }
 	     }
-	    
+
 
 
 	    # search for a file with similar name
@@ -233,11 +242,11 @@ while ( defined($logname = readdir(LOGDIR)) ){
 			$tmp = $1;
 		    }
 		}
-		if($tmp ne "" && $err ne ""){  
+		if($tmp ne "" && $err ne ""){
 		    $err = "After $tmp events $err\n";
 		}
 		undef(@log_errs2);
-		
+
 		$cmd = &ZSHandle($err_file,"tail -5");
 		@log_errs1 = `$cmd`;
 		foreach $logerr (@log_errs1){
@@ -261,8 +270,9 @@ while ( defined($logname = readdir(LOGDIR)) ){
 		    or die "cannot execute sth3\n";
 		#print $sth3->fetchrow_array()."\n";
 		if ( ($id, $mtime) = $sth3->fetchrow_array() ){
-		    print "\nold mtime : $mtime\n";
-		    print "\nnew mtime : $fc[9]\n";
+		    print
+			"old mtime : $mtime\n",
+			"new mtime : $fc[9]\n";
 		    if ( $mtime != $fc[9] ){
 			#update record
 			print "Updated $shortname\n";
@@ -270,9 +280,10 @@ while ( defined($logname = readdir(LOGDIR)) ){
 		    }
 		} else {
 		    #insert record
-		    print "\n Inserted $shortname\n";
+		    print "Inserted $shortname\n";
 		    $sth1->execute($ProdTag, $Trigger, $shortname, $c_time, $fc[9], $err);
 		}
+		print "----\n";
 	    } #if $err
 	    if ($DEBUG){ print "\n==============================\n";}
 	} #if modtime/min_time
@@ -332,7 +343,7 @@ sub define_trigger {
 
 #=======================================
 
-sub define_err 
+sub define_err
 {
     my ($errname,$logerr) = @_;
     if( $logerr =~ m/$errname/ ){
