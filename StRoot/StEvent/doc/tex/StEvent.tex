@@ -2,7 +2,7 @@
 %
 % StEvent - User Guide and Reference Manual -- LaTeX Source
 %
-% $Id: StEvent.tex,v 2.53 2000/12/11 21:35:16 ullrich Exp $
+% $Id: StEvent.tex,v 2.54 2000/12/21 23:58:48 ullrich Exp $
 %
 % Author: Thomas Ullrich, Nov 1999
 %
@@ -21,6 +21,9 @@
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %
 % $Log: StEvent.tex,v $
+% Revision 2.54  2000/12/21 23:58:48  ullrich
+% Added class StTofSlat and StTofHit to ref section.
+%
 % Revision 2.53  2000/12/11 21:35:16  ullrich
 % Add minor changes to text.
 %
@@ -224,8 +227,8 @@
   \mbox{\includegraphics[width=\textwidth]{StEventTitle.eps}}
   \hfill\mbox{}\\[3cm]
   {\LARGE User Guide and Reference Manual \\[5mm] for Version 2}\\[2cm]
-  {\LARGE $ $Revision: 2.53 $ $}  \\[5mm] % replaced by cvs with current revision
-  {\LARGE $ $Date: 2000/12/11 21:35:16 $ $}  % replaced by cvs with current revision
+  {\LARGE $ $Revision: 2.54 $ $}  \\[5mm] % replaced by cvs with current revision
+  {\LARGE $ $Date: 2000/12/21 23:58:48 $ $}  % replaced by cvs with current revision
   \vfill
 \end{center}
 \cleardoublepage
@@ -2850,6 +2853,9 @@ definition in the header file.
     
     \verb+Float_t mean() const;+\\
     The derived dE/dx value.
+
+    \verb+Float_t length() const;+\\
+    Track length used in dE/dx calculations.
     
     \verb+Float_t errorOnMean() const;+\\
     Returns the error on the dE/dx value.
@@ -5111,6 +5117,55 @@ definition in the header file.
 \end{Entry}
 \clearpage
 
+\subsection{StTofHit}
+\index{StTofHit|textbf}
+\label{sec:StTofHit}
+\begin{Entry}
+\item[Summary]
+\item[Synopsis]
+    \verb+#include "StTofHit.h"+\\
+    \verb+class StTofHit;+\\
+\item[Description]
+\item[Related Classes]
+\item[Public\\ Constructors]
+    \verb+StTofHit();+\\
+\item[Public Member\\ Functions]
+    \verb+UShort_t slatIndex() const;+\\
+    \verb+UShort_t numberOfMips() const;+\\
+    \verb+Float_t flightTime() const;+\\
+    \verb+void setSlatIndex(UShort_t);+\\
+    \verb+void setNumberOfMips(UShort_t);+\\
+    \verb+void setFlightTime(Float_t);+\\
+\item[Public Operators]
+    \verb+ostream& operator<<(ostream&, const StTofHit&);+\\
+\end{Entry}
+\clearpage
+
+\subsection{StTofSlat}
+\index{StTofSlat|textbf}
+\label{sec:StTofSlat}
+\begin{Entry}
+\item[Summary]
+\item[Synopsis]
+    \verb+#include "StTofSlat.h"+\\
+    \verb+class StTofSlat;+\\
+\item[Description]
+\item[Related Classes]
+\item[Public\\ Constructors]
+    \verb+StTofSlat();+\\
+    \verb+StTofSlat(UShort_t, UShort_t, UShort_t);+\\
+\item[Public Member\\ Operators]
+    \verb+Int_t operator==(const StTofSlat&) const;+\\
+    \verb+Int_t operator!=(const StTofSlat&) const;+\\
+\item[Public Member\\ Functions]
+    \verb+UShort_t slatIndex() const;+\\
+    \verb+UShort_t adc() const;+\\
+    \verb+UShort_t tdc() const;+\\
+    \verb+void setSlatIndex(UShort_t);+\\
+    \verb+void setAdc(UShort_t);+\\
+    \verb+void setTdc(UShort_t);+\\
+\end{Entry}
+\clearpage
 
 \subsection{StTpcDedxPidAlgorithm}
 \index{StTpcDedxPidAlgorithm|textbf}
