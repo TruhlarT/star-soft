@@ -87,6 +87,10 @@ sub _init{
   $self->TestDefinitionFile($test_file);
   $self->LogReport($log_report);
 
+  # pmj 27/8/00: default is no Multiplicity classes unless explicitly set in new evaluation
+  # this is necessary to handle old data
+  $self->MultClassesActive(0);
+
 }
 
 #=========================================================
@@ -522,29 +526,40 @@ sub Evaluate{
   #-----------------------------------------------------------
   $self->EvaluationFilename($io->Name);
   #-----------------------------------------------------------
-  
+  # set switch to indicate that multiplicity classes are active - this allows
+  # detection of whether QA was run before or after this feature was put in
+
+  $self->MultClassesActive(1);
+
+  my @mult_class_labels = $self->MultClassLabels();
+
   my $macro_with_package = "QA_macro_scalars::$macro_name";
-  my ($run_scalar_hashref, $event_scalar_hashref) 
-    = &$macro_with_package($report_key,$report_name);
 
- 
-  $self->EventScalarsHash($event_scalar_hashref);
-  $self->RunScalarsHash($run_scalar_hashref);
-  
- 
-  #-----------------------------------------------------------
-  # run-wise tests
-  $self->DoTests($run_scalar_hashref, 'run');
+  foreach my $mult_label ( @mult_class_labels ){
 
-  # event-wise tests
-  $self->DoTests($event_scalar_hashref, 'event');
-  #-----------------------------------------------------------
+    my @mult_class_limits = $self->MultClassLimits($mult_label);
+
+    my ($run_scalar_hashref, $event_scalar_hashref) 
+      = &$macro_with_package($report_key,$report_name, $mult_label, @mult_class_limits);
+    
+    $self->EventScalarsHash($mult_label, $event_scalar_hashref);
+    $self->RunScalarsHash($mult_label, $run_scalar_hashref);
+ 
+    #-----------------------------------------------------------
+    # run-wise tests
+    $self->DoTests($mult_label, $run_scalar_hashref, 'run');
+    
+    # event-wise tests
+    $self->DoTests($mult_label, $event_scalar_hashref, 'event');
+
+  }
 
 }
 #========================================================================
 sub DoTests{
 
   my $self = shift;
+  my $mult_label = shift;
   my $scalar_ref = shift;
 
   # test types are 'run' and 'event' (run-wise and event-wise tests)
@@ -728,6 +743,70 @@ sub Write{
   }
 
 }
+#=======================================================
+# return multiplicity class labels appropriate to this class of data
+# pmj 26/8/00
+
+sub MultClassLabels{
+  my $self = shift;
+
+  my @labels = ("none");
+  
+  if ($self->MultClassesActive()){
+    if ($gDataClass_object->DataClass() =~ /real/){
+      @labels = MultClassLabelsReal();
+    }
+    else{
+      @labels = MultClassLabelsMc();
+    }
+  }
+
+  return @labels;
+}
+#=======================================================
+sub MultClassesActive{
+  my $self = shift;
+  @_ and $self->{_MultClassesActive} = shift;
+  return $self->{_MultClassesActive};
+}
+#=======================================================
+sub MultClassLabelsReal{
+  my $self = shift;
+  return  ("lm", "mm", "hm");
+}
+#=======================================================
+sub MultClassLabelsMc{
+  my $self = shift;
+  return  ("mc");
+}
+#=======================================================
+# return multiplicity class limits
+# pmj 26/8/00
+
+sub MultClassLimits{
+  my $self = shift;
+  my $label = shift;
+  
+  my $large = 10000;
+
+  my @limits = (0, $large);
+
+  if ($gDataClass_object->DataClass() =~ /real/){
+
+    if ( $label eq "lm" ){
+      @limits = (50, 500);
+    }
+    elsif ( $label eq "mm" ){
+      @limits = (500, 2500);
+    }
+    elsif ( $label eq "hm" ){
+      @limits = (2500, $large);
+    }
+
+  }
+
+  return @limits;
+}
 
 #============== accessors, etc ==========================
 sub LogReport{
@@ -854,23 +933,33 @@ sub MacroComment{
 
 sub RunScalarsHash{
   my $self = shift;
+  my $mult_label = shift;
+
+  # pmj 27/8/00: old style, prior to multiplicity classes
+  $mult_label eq 'none' and return \%{$self->{_RunScalarsHash}};
+
   if (@_) { my $hash_ref = shift;	    
-	    tie %{$self->{_RunScalarsHash}}, "Tie::IxHash"; 
-	    %{$self->{_RunScalarsHash}} = %$hash_ref;
+	    tie %{$self->{$mult_label}->{_RunScalarsHash}}, "Tie::IxHash"; 
+	    %{$self->{$mult_label}->{_RunScalarsHash}} = %$hash_ref;
 	  }
 
-  return \%{$self->{_RunScalarsHash}};
+  return \%{$self->{$mult_label}->{_RunScalarsHash}};
 }
 #--------------------------------------------------------
 
 sub EventScalarsHash{
   my $self = shift;
+  my $mult_label = shift;
+
+  # pmj 27/8/00: old style, prior to multiplicity classes
+  $mult_label eq 'none' and return \%{$self->{_EventScalarsHash}};
+
   if (@_) { my $hash_ref = shift;
-	    tie %{$self->{_EventScalarsHash}}, "Tie::IxHash"; 
-	    %{$self->{_EventScalarsHash}} = %$hash_ref;
+	    tie %{$self->{$mult_label}->{_EventScalarsHash}}, "Tie::IxHash"; 
+	    %{$self->{$mult_label}->{_EventScalarsHash}} = %$hash_ref;
 	  }
 
-  return \%{$self->{_EventScalarsHash}};
+  return \%{$self->{$mult_label}->{_EventScalarsHash}};
 }
 #--------------------------------------------------------
 

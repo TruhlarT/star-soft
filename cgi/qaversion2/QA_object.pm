@@ -561,24 +561,38 @@ sub ShowQA{
   #--------------------------------------------------------
 
   $self->ShowPsFiles();
-#  $self->ShowScalarsAndTests();
 
   #--------------------------------------------------------
-  # pmj 24/6/00
-  # new buttons to display scalars and reports in a new browser window
+  # pmj 26/8/00: New logic for presenting scalars and tests:
+  # generate one button per table here so user gets overview and
+  # only selected table gets displayed in secondary window
 
-  my $button_ref = Button_object->new('ViewScalarsAndTests', 'Scalars And Tests', 
-				   $report_key);
-  my $button_string .= $button_ref->SubmitString;
+  my $button_string_runscalars = $self->MultClassButtonString('ViewScalarsAndTests', 'run_scalars');
 
+  #---
+  # expert page - show event-wise scalars and all tests
+
+  my $expert_page = $gBrowser_object->ExpertPageFlag; 
+  my $button_string_evtscalars_tests;
+
+  $expert_page and
+    $button_string_evtscalars_tests = $self->MultClassButtonString('ViewScalarsAndTests', 'evtscalars_tests');
+  #---
   
-  my $script_name   = $gCGIquery->script_name;
   my $hidden_string = $gBrowser_object->Hidden->Parameters;
-
+  
   print $gCGIquery->startform(-TARGET=>"ScalarsAndTests"); 
+  
+  print h3("<hr>Run-averaged Scalars: \n"); 
 
-  print h3("<hr>Scalars and Tests: \n"); 
-  print "View in separate browser window: $button_string.$hidden_string";
+  print "$button_string_runscalars";
+
+  if ($expert_page){
+    print h3("<hr>Event-wise Scalars and All Tests: \n"); 
+    print "$button_string_evtscalars_tests";
+  }
+
+  print $hidden_string;
   print $gCGIquery->endform;
 }
 #========================================================
@@ -639,6 +653,19 @@ sub order_ps_files{
 sub ShowScalarsAndTests{
   my $self = shift;
 
+  my $file = shift;
+  my $macro_name  = shift;
+  my $mult_class = shift;
+
+  my $flag = shift;
+  #---------------------------------------------------------
+
+  my $ref = retrieve($file) or die "Cannot retrieve $file: $!";
+  my $eval = $$ref;
+
+  my ($mult_low, $mult_high) = $eval->MultClassLimits($mult_class);
+
+  #---------------------------------------------------------
   my $report_key = $self->ReportKey;
   my $report_dir = $self->IOReportDirectory->Name;
   #---------------------------------------------------------
@@ -646,100 +673,44 @@ sub ShowScalarsAndTests{
 
   my $title;
 
-  if (  $gDataClass_object->DataClass =~ /offline/ ){
-    $title = "QA Scalars and Tests for Run ID ".
+  if (  $gDataClass_object->DataClass =~ /real/ ){
+    $title = "QA Scalars for Run ID ".
       $self->LogReport->RunID.", File Seq ".$self->LogReport->FileSeq;
   }
   else{
-    $title = "QA Scalars and Tests for $report_key"; 
+    $title = "QA Scalars for $report_key"; 
   }
 
   print h2($title);
-
-  #---------------------------------------------------------
-  # open the report directory, get evaluation files
-  
-  my $dh = $self->IOReportDirectory->Open;
-  
-  my @evalfile_list;
-
-  while (my $file = readdir $dh){
-    $file =~ /^\./ and next;
-
-    # save evaluation files
-    if ($file =~ /evaluation$/) {
-      push @evalfile_list, "$report_dir/$file"; 
-      next;
-    }
-  }
-  undef $dh;
-  
-  #---------------------------------------------------------
-  my %eval_hash;
-
-  # retrieve evaluation from storage
-  foreach my $file (@evalfile_list) {
-
-    (my $macro_name = basename($file) ) =~ s/\.evaluation//;
-
-    my $ref = retrieve($file) or die "Cannot retrieve $file: $!";
-    $eval_hash{$macro_name} = $$ref;
-  
-  }
   
   #---------------------------------------------------------
   # display run-based scalars, errors and warnings
 
-  print h3("<hr>Run-based scalars, errors and warnings:\n"); 
+ SWITCH: {
 
-  foreach my $macro_name (keys %eval_hash){
+    $flag =~ /run_scalars/ and do{
+      print h3("<hr>Run-based scalars, errors and warnings:\n"); 
+      print h4("Macro: $macro_name\n"); 
+      print h4("Mulitplicity class: $mult_class; track node limits = ($mult_low, $mult_high)"); 
+      QA_report_io::show_scalars_and_test_failures($eval, $mult_class, 'run');
+      last SWITCH;
+    };
 
-    my $eval = $eval_hash{$macro_name};
-    print h4("Macro: $macro_name\n"); 
-    
-    QA_report_io::show_scalars_and_test_failures($eval, 'run');
+    $flag =~ /evtscalars_tests/ and do{
+
+      print h3("<hr>Event-based errors and warnings:\n"); 
+      print "<h4> Macro: $macro_name </h4> \n"; 
+      print h4("Mulitplicity class: $mult_class; track node limits = ($mult_low, $mult_high)"); 
+      QA_report_io::show_scalars_and_test_failures($eval, $mult_class, 'event');
+      
+      print h3("<hr>Run-based tests (all entries):\n"); 
+      print "<h4> Macro: $macro_name </h4> \n"; 
+      print h4("Mulitplicity class: $mult_class; track node limits = ($mult_low, $mult_high)"); 
+      QA_report_io::show_all_tests($eval, $mult_class, 'run');
+
+      last SWITCH;
+    };
   }
-
-  #---------------------------------------------------------
-  # display event-based scalars, errors and warnings
-
-  print h3("<hr>Event-based errors and warnings:\n"); 
-  foreach my $macro_name (keys %eval_hash){
-
-    my $eval = $eval_hash{$macro_name};
-    print "<h4> Macro: $macro_name </h4> \n"; 
-    
-    QA_report_io::show_scalars_and_test_failures($eval, 'event');
-  }
-
-  #---------------------------------------------------------
-  # display run-based tests
-
-  print h3("<hr>Run-based tests (all entries):\n"); 
-
-  foreach my $macro_name (keys %eval_hash){
-
-    my $eval = $eval_hash{$macro_name};
-    print "<h4> Macro: $macro_name </h4> \n"; 
-
-    QA_report_io::show_all_tests($eval, 'run');
-
-  }
-  #---------------------------------------------------------
-  # display event-based tests
-
-  # disabled because display too long for many events and in any case not very useful
-  # pmj 11/11/99
-
-  #print "<hr><h3> Event-based tests (all entries): </h3>\n"; 
-  #
-  # foreach $macro_name (keys %eval_hash){
-  #
-  #   $eval = $eval_hash{$macro_name};
-  #  print "<h4> Macro: $macro_name </h4> \n"; 
-  #
-  #   show_all_tests($eval, 'event');
-  #}
 }
 
 #============================================================================
@@ -1049,6 +1020,109 @@ sub GetLogReport{
   }
   
 }
+#=========================================================
+sub EvaluationFileList{
+
+  my $self = shift;
+
+  my $report_dir = $self->IOReportDirectory->Name;
+
+  # open the report directory, get evaluation files
+  my $dh = $self->IOReportDirectory->Open;
+  my @evalfile_list;
+
+  while (my $file = readdir $dh){
+    $file =~ /^\./ and next;
+    # save evaluation files
+    if ($file =~ /evaluation$/) {
+      push @evalfile_list, "$report_dir/$file"; 
+      next;
+    }
+  }
+  undef $dh;
+  return @evalfile_list;
+}
+#=========================================================
+sub MultClassLabels{
+
+  my $self = shift;
+
+  exists $self->{_MultClassLabels} or do{
+
+    my @evalfile_list = $self->EvaluationFileList();
+    
+    # look at one evaluation file to extract multiplcity classes
+    my $file = $evalfile_list[0];
+    my $ref = retrieve($file) or die "Cannot retrieve $file: $!";
+    my $eval = $$ref;
+    @{$self->{_MultClassLabels}} = $eval->MultClassLabels();
+
+  };
+
+  return @{$self->{_MultClassLabels}};
+}
+#=========================================================
+sub MultClassLimits{
+
+  my $self = shift;
+  my $mult_class = shift;
+  
+  exists $self->{_MultClassLimits}->{$mult_class} or do{
+
+    my @evalfile_list = $self->EvaluationFileList();
+    
+    # look at one evaluation file to extract multiplcity classes
+    my $file = $evalfile_list[0];
+    my $ref = retrieve($file) or die "Cannot retrieve $file: $!";
+    my $eval = $$ref;
+
+    my ($low, $high) = $eval->MultClassLimits($mult_class);
+
+    @{$self->{_MultClassLimits}->{$mult_class}} = ($low, $high);
+  };
+
+  return @{$self->{_MultClassLimits}->{$mult_class}};
+}
+#=========================================================
+sub MultClassButtonString{
+
+  # returns string for printing buttons for all available macros and multiplicity classes
+
+  my $self = shift;
+  my $ButtonSub = shift;
+  @_ and my @args = @_;
+
+  #-----------------------------------------------------------
+  my $button_string;
+  my $report_key = $self->ReportKey;
+  #-----------------------------------------------------------
+
+  my @evalfile_list = $self->EvaluationFileList();
+
+  my @mult_class_list = $self->MultClassLabels();
+
+  foreach my $mult_class (@mult_class_list){
+    my ($low, $high) =  $self->MultClassLimits($mult_class);
+    $button_string .= "Multiplicity class: $mult_class; track node limits ($low, $high)<br>\n";
+  }
+
+  foreach my $file (@evalfile_list) {
+    (my $macro_name = basename($file) ) =~ s/\.evaluation//;
+    $button_string .= "<br>";
+    foreach my $mult_class (@mult_class_list){
+      my $button_label = "$macro_name";
+      $mult_class ne 'none' and $mult_class ne 'mc' and $button_label .= " $mult_class";
+
+      my $button_ref = Button_object->new( $ButtonSub, $button_label, 
+					   $report_key, $file, $macro_name, $mult_class, @args);
+      $button_string .= $button_ref->SubmitString;
+    }
+  }
+
+  return $button_string;
+
+}
+
 #=========================================================
 # -------------- hard coded accessors  -------------------
 

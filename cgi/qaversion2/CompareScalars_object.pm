@@ -47,56 +47,34 @@ sub _init{
   my $ref_matched_keys_ordered = shift;
   my $ref_match_key_label_hash = shift;
 
+  # pmj 27/8/00
+  my $macro_name = shift;
+  my $mult_class = shift;
+
   #--------------------------------------------------------
   $self->ReportKey($report_key);
-
+  $self->MacroName($macro_name);
+  $self->MultiplicityClass($mult_class);
+  #--------------------------------------------------------
   my @matched_keys_ordered = @$ref_matched_keys_ordered;
   $self->MatchedKeysOrdered(@matched_keys_ordered);
 
   $self->MatchedKeyLabelHashRef($ref_match_key_label_hash);
-
-  #--------------------------------------------------------
-  # get list of evaluation files created for this report key
-  my @file_list;
-
-  my $io = new IO_object('ReportDir', $report_key);
-  my $dh = $io->Open();
-  while ( defined ( my $file = readdir $dh ) ){
-    $file =~ /\.evaluation/ and push @file_list, $file;
-  }
-  undef $io;
   #--------------------------------------------------------
 
-  # For scalars defined for this report key, get their values for matching report keys
-
-  my @macro_list;
-
-  foreach my $file ( @file_list) {
-
-    (my $macro_name = basename($file) ) =~ s/\.evaluation//;
-    push @macro_list, $macro_name;
-
-    my $this_hash_ref = $self->GetRunScalarHash($report_key, $macro_name); 
-    my %this_hash = %$this_hash_ref;
-
-    foreach my $match_key ( @matched_keys_ordered ){
-
-      my $match_hash_ref = $self->GetRunScalarHash($match_key, $macro_name);
-      my %match_hash = %$match_hash_ref;
-
-      foreach my $scalar ( keys %this_hash ){
-
-	my $value = $match_hash{$scalar};
-#	defined ( $value ) or $value = "undef";
-
-	$self->MatchScalarValues($macro_name, $match_key, $scalar, $value);
-      }
+  my $this_hash_ref = $self->GetRunScalarHash();
+  my %this_hash = %$this_hash_ref;
+  
+  foreach my $match_key ( @matched_keys_ordered ){
+    
+    my $match_hash_ref = $self->GetRunScalarHash($match_key);
+    my %match_hash = %$match_hash_ref;
+    
+    foreach my $scalar ( keys %this_hash ){
+      my $value = $match_hash{$scalar};
+      $self->MatchScalarValues($match_key, $scalar, $value);
     }
   }
-  #----------------------------------------------------------------
-
-  $self->MacroList(@macro_list);
-
 }
 #=======================================================================
 sub GetTableRows{
@@ -104,9 +82,9 @@ sub GetTableRows{
   # returns table rows (differential and absolute) for one macro
 
   my $self = shift;
-  my $macro = shift;
 
   #---------------------------------------------------------------------
+  my $macro = $self->MacroName();
   my $report_key = $self->ReportKey();
   my @matched_keys_ordered = $self->MatchedKeysOrdered();
 
@@ -186,9 +164,9 @@ sub GetAsciiStrings{
   # returns table rows in ascii strings (differential and absolute) for one macro
 
   my $self = shift;
-  my $macro = shift;
 
   #---------------------------------------------------------------------
+  my $macro = $self->MacroName();
   my $report_key = $self->ReportKey();
   my @matched_keys_ordered = $self->MatchedKeysOrdered();
 
@@ -276,27 +254,26 @@ sub GetAsciiStrings{
 #========================================================
 sub ReportKey{
   my $self = shift;
-  @_ and $self->{_Report_Key} = shift;
-  return $self->{_Report_Key};
+  @_ and $self->{_ReportKey} = shift;
+  return $self->{_ReportKey};
+}
+#========================================================
+sub MacroName{
+  my $self = shift;
+  @_ and $self->{_MacroName} = shift;
+  return $self->{_MacroName};
+}
+#========================================================
+sub MultiplicityClass{
+  my $self = shift;
+  @_ and $self->{_MultiplicityClass} = shift;
+  return $self->{_MultiplicityClass};
 }
 #========================================================
 sub MatchedKeyLabelHashRef{
   my $self = shift;
   @_ and $self->{_MatchedKeyLabelHashRef} = shift;
   return $self->{_MatchedKeyLabelHashRef};
-}
-#========================================================
-sub MacroList{
-  my $self = shift;
-
-  @_ and do{
-    my @array = @_;
-    $self->{_MacroList} = \@array;
-  };
-
-  my $ref = $self->{_MacroList};
-  my @array = @$ref;
-  return @array;
 }
 #========================================================
 sub MatchedKeysOrdered{
@@ -315,35 +292,41 @@ sub MatchedKeysOrdered{
 sub MatchScalarValues{
   my $self = shift;
 
-  my $macro_name = shift;
   my $match_key = shift;
   my $scalar = shift;
 
   @_ and do{
     my $value = shift;
 
-    $self->{_MatchScalarValues}->{$macro_name}->{$match_key}->{$scalar}->{_value} = $value;
-    $value ne "undef" and $self->{_MatchScalarValues}->{$macro_name}->{$match_key}->{_count}++;
+    $self->{_MatchScalarValues}->{$match_key}->{$scalar}->{_value} = $value;
+    $value ne "undef" and $self->{_MatchScalarValues}->{$match_key}->{_count}++;
   };
   
-  return $self->{_MatchScalarValues}->{$macro_name}->{$match_key}->{$scalar}->{_value};
+  return $self->{_MatchScalarValues}->{$match_key}->{$scalar}->{_value};
 }
 #=====================================================================
 sub CountDefinedScalars{
   my $self = shift;
-  my $macro_name = shift;
   my $match_key = shift;
 
-  return $self->{_MatchScalarValues}->{$macro_name}->{$match_key}->{_count}++;
+  return $self->{_MatchScalarValues}->{$match_key}->{_count}++;
 }  
 #========================================================
-
 sub GetRunScalarHash{
 
   my $self = shift;
-  my $report_key = shift;
-  my $macro_name = shift;
 
+  # if there is an argument this is a foreign key, otherwise return hash for ReportKey
+  my $report_key;
+  if(@_){
+    $report_key = shift;
+  }
+  else{
+    $report_key = $self->ReportKey();
+  }
+  #----------------------------------------------------------------------
+  my $macro_name = $self->MacroName();
+  my $mult_class = $self->MultiplicityClass();
   #----------------------------------------------------------------------
   tie my %run_scalars, "Tie::IxHash"; 
   %run_scalars = ();
@@ -351,23 +334,17 @@ sub GetRunScalarHash{
   my $io = new IO_object('EvaluationFilename', $report_key, $macro_name);
   my $filename = $io->Name();
   undef $io;
-  #-----------------------------------------------------------------------
 
-  if (-s $filename){
-
+  -s $filename and do{
     my $ref = retrieve($filename) or print "Cannot retrieve file $filename:$! \n";
-    %run_scalars = %{$$ref->RunScalarsHash};
-
-  }
+    %run_scalars = %{$$ref->RunScalarsHash($mult_class)};
+  };
   #---------------------- -------------------------------------------------
   # flag values which are not numerical
-
   foreach my $key ( keys %run_scalars){
     $run_scalars{$key} =~ /\d+/ or $run_scalars{$key} = "undef";
   }
-
   #-----------------------------------------------------------------------
   return \%run_scalars;  
-
 }
 

@@ -21,6 +21,8 @@ use Data::Dumper;
 use QA_globals;
 use QA_cgi_utilities;
 
+use strict;
+
 #=========================================================
 1.;
 #=========================================================
@@ -276,7 +278,16 @@ sub bfcread_eventBranch{
   my $report_key = shift;
   my $report_filename = shift;
 
-  return QA_bfcread_dst_analysis($report_key, $report_filename);
+
+# pmj 26/8/00 added multiplicity class label as third argument
+# currently can be "mc" for Monte Carlo, "lm", "mm", "hm" for real data
+
+  my $mult_class_label = shift;
+  my $mult_limit_low = shift;
+  my $mult_limit_high = shift;
+
+  return QA_bfcread_dst_analysis($report_key, $report_filename,
+				 $mult_class_label,$mult_limit_low, $mult_limit_high);
 } 
   
 #================================================================
@@ -296,20 +307,22 @@ sub QA_bfcread_dst_analysis{
   my $report_key = shift;
   my $report_filename = shift;
 
-  #--------------------------------------------------------------
-  tie %run_scalar_hash, "Tie::IxHash"; 
-  tie %event_scalar_hash, "Tie::IxHash"; 
+# pmj 26/8/00 added multiplicity class label as third argument
+# currently can be "mc" for Monte Carlo, "lm", "mm", "hm" for real data
 
+  my $mult_class_label = shift;
+  my $mult_limit_low = shift;
+  my $mult_limit_high = shift;
+
+  #--------------------------------------------------------------
+  tie my %run_scalar_hash, "Tie::IxHash"; 
+  tie my %event_scalar_hash, "Tie::IxHash"; 
+  
   %run_scalar_hash = ();
   %event_scalar_hash = ();
 
-  tie %run_statistics_hash, "Tie::IxHash"; 
+  tie my %run_statistics_hash, "Tie::IxHash"; 
   %run_statistics_hash = ();
-
-  #--------------------------------------------------------------
-  # get logfile
-
-  #my $logfile = $QA_object_hash{$report_key}->LogReport->LogfileName;
 
   #--------------------------------------------------------------
   open REPORT, $report_filename or do{
@@ -317,19 +330,14 @@ sub QA_bfcread_dst_analysis{
     return;
   };
   #--------------------------------------------------------------
-  #open LOGFILE, $logfile or do{
-  #  print "Cannot open logfile $logfile:$! \n";
-  #  return;
-  #};
-  #--------------------------------------------------------------
-  $event = 0;
-  $icount_event = 0;
+  my $event = 0;
+  my $icount_event = 0;
 
-  $report_previous_line = -9999999;
+  my $report_previous_line = -9999999;
 
  REPORT: {
 
-    while ( $report_line = <REPORT> ){
+    while ( my $report_line = <REPORT> ){
 
       #---	
       # protect against successive duplicate lines in report file
@@ -365,6 +373,7 @@ sub QA_bfcread_dst_analysis{
 
 	$report_line =~ /\# (.*):\s+(\d+)/ or next REPORTLINE;
 
+
 	#-- accumulate run-wise quantities
 	
 	my $name = $1;
@@ -372,7 +381,13 @@ sub QA_bfcread_dst_analysis{
 	
 	# change multiple blanks to single underscore
 	$name =~ s/ +/_/g;
-	
+
+	# pmj 26/8/00
+	# add multiplicity class to scalar name for real data, skip this for MC
+	if ( $mult_class_label ne "mc"){
+	  $name .= "_".$mult_class_label;
+	}
+
 	$icount_event == 1 and do{
 	  $run_statistics_hash{$name}->{n_event} = 0;
 	  $run_statistics_hash{$name}->{min} = 999999.;
@@ -382,6 +397,16 @@ sub QA_bfcread_dst_analysis{
 	  $run_statistics_hash{$name}->{mean} = -999999.;
 	  $run_statistics_hash{$name}->{rms} = -999999.;
 	};
+	
+	#------------------------------------------------------
+	# check whether event is within multiplicity class
+	# first scalar is always track_nodes 
+	
+	$name =~ /track_nodes/ and do{
+	  next if $value < $mult_limit_low;
+	  next if $value > $mult_limit_high;
+	};
+	#------------------------------------------------------
 	
 	$run_statistics_hash{$name}->{n_event}++;
 	$run_statistics_hash{$name}->{sum} += $value;
@@ -411,7 +436,7 @@ sub QA_bfcread_dst_analysis{
 	#$logfile_line =~ s/.*Info: //;
 	
 	# are these the same? 
-	$string = $report_line;
+	my $string = $report_line;
 
 	# special processing for primary vertex
 	$string =~ /primary vertex/ and $string =~ s/:\s+\(.*\)//;	
@@ -442,25 +467,30 @@ sub QA_bfcread_dst_analysis{
   #--------------------------------------------------------------
   # calculate run-wise quantities
 
-  foreach $name ( keys %run_statistics_hash){
+  foreach my $name ( keys %run_statistics_hash){
 
     my $n_event = $run_statistics_hash{$name}->{n_event};
     $n_event and do{
-      $mean = $run_statistics_hash{$name}->{sum} / $n_event;
-      $mean_sq = $run_statistics_hash{$name}->{sum_sqr} / $n_event;
+      my $mean = $run_statistics_hash{$name}->{sum} / $n_event;
+      my $mean_sq = $run_statistics_hash{$name}->{sum_sqr} / $n_event;
       
       $run_statistics_hash{$name}->{mean} = $mean;
 
-      $arg = $mean_sq - ($mean*$mean);
+      my $arg = $mean_sq - ($mean*$mean);
       $arg >= 0 and $run_statistics_hash{$name}->{rms} = sqrt( $arg );
     };
   }
 
   # now copy to run_scalar_hash, which is flat structure (without sub-hashes)
-  $run_scalar_hash{n_event} = $run_statistics_hash{track_nodes}->{n_event};
 
-  foreach $name ( keys %run_statistics_hash){
-    foreach $field ( 'mean', 'rms', 'min', 'max' ){
+  foreach my $name ( keys %run_statistics_hash){
+
+    $name =~ /track_nodes(_\w+)/ and do{
+      my $temp = "n_event".$1;
+      $run_scalar_hash{$temp} = $run_statistics_hash{$name}->{n_event};
+    };
+
+    foreach my $field ( 'mean', 'rms', 'min', 'max' ){
       my $value = (int ( 100 * $run_statistics_hash{$name}->{$field})) / 100;
       my $string = $name."_".$field;
       defined($value) and $run_scalar_hash{$string} = $value;
@@ -480,13 +510,13 @@ sub doEvents{
   my $report_filename = shift;
 
   #--------------------------------------------------------------
-  tie %run_scalar_hash, "Tie::IxHash"; 
-  tie %event_scalar_hash, "Tie::IxHash"; 
+  tie my %run_scalar_hash, "Tie::IxHash"; 
+  tie my %event_scalar_hash, "Tie::IxHash"; 
 
   %run_scalar_hash = ();
   %event_scalar_hash = ();
 
-  tie %run_statistics_hash, "Tie::IxHash"; 
+  tie my %run_statistics_hash, "Tie::IxHash"; 
   %run_statistics_hash = ();
 
   #--------------------------------------------------------------
@@ -505,14 +535,15 @@ sub doEvents{
     return;
   };
   #--------------------------------------------------------------
-  $event = 0;
-  $icount_event = 0;
+  my $event = 0;
+  my $icount_event = 0;
 
-  $report_previous_line = -9999999;
+  my $report_previous_line = -9999999;
+  my $logfile_previous_line;
 
  REPORT: {
 
-    while ( $report_line = <REPORT> ){
+    while ( my $report_line = <REPORT> ){
 
       #---	
       # protect against successive duplicate lines in report file
@@ -537,7 +568,7 @@ sub doEvents{
 	
 	# if this is start of event, skip to next event in logfile
 	$report_line =~ /Reading Event/ and do{
-	  while ( $logfile_line = <LOGFILE> ){
+	  while ( my $logfile_line = <LOGFILE> ){
 	    #$logfile_line =~ /QAInfo/ or next;
 	    $logfile_previous_line = $logfile_line;
 	    $logfile_line =~ /Reading Event:\s+\d+\s+Type:/ and last REPORTLINE;
@@ -585,6 +616,8 @@ sub doEvents{
 	#---	
 	# protect against successive duplicate lines in logfile
 
+	my $logfile_line;
+
 	while ($logfile_line = <LOGFILE>){
 	  last if $logfile_line ne $logfile_previous_line;
 	}
@@ -594,7 +627,7 @@ sub doEvents{
 	$logfile_line =~ s/.*Info: //;
 	
 	# are these the same? 
-	$string = $report_line;
+	my $string = $report_line;
 
 	# special processing for primary vertex
 	$string =~ /primary vertex/ and $string =~ s/:\s+\(.*\)//;	
@@ -625,16 +658,16 @@ sub doEvents{
   #--------------------------------------------------------------
   # calculate run-wise quantities
 
-  foreach $name ( keys %run_statistics_hash){
+  foreach my $name ( keys %run_statistics_hash){
 
     my $n_event = $run_statistics_hash{$name}->{n_event};
     $n_event and do{
-      $mean = $run_statistics_hash{$name}->{sum} / $n_event;
-      $mean_sq = $run_statistics_hash{$name}->{sum_sqr} / $n_event;
+      my $mean = $run_statistics_hash{$name}->{sum} / $n_event;
+      my $mean_sq = $run_statistics_hash{$name}->{sum_sqr} / $n_event;
       
       $run_statistics_hash{$name}->{mean} = $mean;
 
-      $arg = $mean_sq - ($mean*$mean);
+      my $arg = $mean_sq - ($mean*$mean);
       $arg >= 0 and $run_statistics_hash{$name}->{rms} = sqrt( $arg );
     };
   }
@@ -642,8 +675,8 @@ sub doEvents{
   # now copy to run_scalar_hash, which is flat structure (without sub-hashes)
   $run_scalar_hash{n_event} = $run_statistics_hash{track_nodes}->{n_event};
 
-  foreach $name ( keys %run_statistics_hash){
-    foreach $field ( 'mean', 'rms', 'min', 'max' ){
+  foreach my $name ( keys %run_statistics_hash){
+    foreach my $field ( 'mean', 'rms', 'min', 'max' ){
       my $value = (int ( 100 * $run_statistics_hash{$name}->{$field})) / 100;
       my $string = $name."_".$field;
       defined($value) and $run_scalar_hash{$string} = $value;

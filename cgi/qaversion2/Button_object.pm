@@ -49,11 +49,15 @@ sub _init{
   $button_value = shift;
   @_ and $report_key = shift;
 
+  # pmj 26/8/00 save rest of arguments
+  @_ and @args = @_;
+
   #-------------------------------------------------
 
   $self->MethodName($method_name);
   $self->ButtonValue($button_value);
   $report_key and $self->ReportKey($report_key);
+  @args and $self->Args(@args);
 
   # generate a unique name for the button, put reference to this
   #object into a hash that persists over multiple calls to script
@@ -88,6 +92,13 @@ sub ButtonName{
 
     $report_key = $self->ReportKey;
     $report_key and $name .= "\.$report_key";
+
+    # add arguments to name, if any
+    my @args = $self->Args();
+    @args and do{
+      my $string = join '_', @args;
+      $name .= $string;
+    };
     $self->{ButtonName} = $name;
 
   };
@@ -99,6 +110,12 @@ sub ReportKey{
   my $self = shift;
   @_ and $self->{ReportKey} = shift;
   return $self->{ReportKey};
+}
+#========================================================
+sub Args{
+  my $self = shift;
+  @_ and @{$self->{Args}} = @_;
+  return @{$self->{Args}};
 }
 #========================================================
 sub SubmitString{
@@ -345,7 +362,9 @@ sub ViewScalarsAndTests{
   my $report_key = $self->ReportKey;
   #-------------------------------------------------------
 
-  $QA_object_hash{$report_key}->ShowScalarsAndTests;
+  my ($file, $macro_name, $mult_class, $flag) = $self->Args();
+
+  $QA_object_hash{$report_key}->ShowScalarsAndTests($file, $macro_name, $mult_class, $flag);
 }
 #========================================================
 sub FilesAndReports{
@@ -397,24 +416,26 @@ sub SetupCompareReport{
   
 }
 #========================================================
-sub SelectMutipleReports{
+sub SelectMultipleReports{
 
   my $self = shift;
   my $report_key = $self->ReportKey;
 
   #-------------------------------------------------------
   my $ref = $QA_object_hash{$report_key}->CompareReport_obj();
-  $ref->SelectMutipleReports();
+  $ref->SelectMultipleReports();
 }
 #========================================================
-sub DoCompareMutipleReports{
+sub DoCompareMultipleReports{
 
   my $self = shift;
   my $report_key = $self->ReportKey;
 
   #-------------------------------------------------------
+  my ($file, $macro_name, $mult_class) = $self->Args();
+
   my $ref = $QA_object_hash{$report_key}->CompareReport_obj();
-  $ref->CompareMutipleReports();
+  $ref->CompareMultipleReports($file, $macro_name, $mult_class);
 }
 #========================================================
 sub DoCompareToReference{

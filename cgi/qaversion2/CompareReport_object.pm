@@ -64,7 +64,7 @@ sub InitialDisplay{
   #---------------------------------------------------------
   my $report_key = $self->ReportKey();
 
-  my $button_ref = Button_object->new('SelectMutipleReports', 'Compare to Multiple Reports', $report_key);
+  my $button_ref = Button_object->new('SelectMultipleReports', 'Compare to Multiple Reports', $report_key);
   my $button_string = $button_ref->SubmitString;
 
   $button_ref = Button_object->new('DoCompareToReference', 'Compare to Reference', $report_key);
@@ -78,7 +78,7 @@ sub InitialDisplay{
   print $gCGIquery->endform;
 }
 #========================================================
-sub SelectMutipleReports{
+sub SelectMultipleReports{
 
   my $self = shift;
   #--------------------------------------------------------
@@ -88,25 +88,26 @@ sub SelectMutipleReports{
   print $gCGIquery->startform(-action=>"$script_name/lower_display", -TARGET=>"ScalarsAndTests"); 
   #---------------------------------------------------------
   my $report_key = $self->ReportKey();
-  my $button_ref = Button_object->new('DoCompareMutipleReports', 'Do Comparison', $report_key);
-  my $button_string = $button_ref->SubmitString;
 
-  print "<strong> Select comparison runs from following list, then </strong>",
-  "$button_string.<br> \n";
+  print "<h3> Select comparison runs from following list, then push button for macro and multiplicity class</h3>";
 
-  print "<br>(multiple selections allowed; more than 6-8 do not display or print well) <br> \n";
+  my $button_string = $QA_object_hash{$report_key}->MultClassButtonString('DoCompareMultipleReports');
+  print "$button_string.<br> \n";
 
+  #---------------------------------------------------------
+  print "<br>(multiple file selections allowed; more than 6-8 do not display or print well) <br> \n";
+  
   #---------------------------------------------------------
   # get time-ordered set of keys, dependent upon data class
   
   my $data_class = $gDataClass_object->DataClass();
   my $function = "Db_CompareReport_utilities::$data_class";
-
+  
   no strict 'refs';
   my @matched_keys_ordered = &$function($report_key);
-
+  
   use strict 'refs';
-
+  
   # BUM 000625
   # it's possible that no key in the %QA_object_hash corresponds
   # to a matched_key.  this creates the QA_object if it doesnt already
@@ -152,9 +153,14 @@ sub SelectMutipleReports{
 
 }
 #========================================================
-sub CompareMutipleReports{
+sub CompareMultipleReports{
 
   my $self = shift;
+
+  my $file = shift;
+  my $macro_name = shift;
+  my $mult_class = shift;
+
   #--------------------------------------------------------
   my $report_key = $self->ReportKey();
   #---------------------------------------------------------
@@ -171,11 +177,18 @@ sub CompareMutipleReports{
     my $production_dirname = $QA_object_hash{$report_key}->ProductionDirectory;
     $title = "Comparison of similar runs to $production_dirname ($report_key)";
   }
-  
+  #---------------------------------------------------------
   print "<h2> $title </h2> \n"; 
+  print "<h3> Macro: $macro_name</h3>";
+  #---------------------------------------------------------
+  my ($low, $high) = $QA_object_hash{$report_key}->MultClassLimits($mult_class);
+  my $string = "Multiplicity class: $mult_class; track node limits ($low, $high)";
+
+  print "<h4>$string</h4>\n";
+
   #---------------------------------------------------------
   my @matched_keys_ordered = &CompareReport_utilities::GetComparisonKeys;
-  #---------------------------------------------------------
+
   my ($ref_file_table_rows, $ref_match_label_hash, $ascii_string_file_table) = 
     CompareReport_utilities::BuildFileTable($report_key, @matched_keys_ordered);
   #---------------------------------------------------------
@@ -189,7 +202,7 @@ sub CompareMutipleReports{
   #---------------------------------------------------------
   # generate comparison object
   $CompareScalars_object = 
-    new CompareScalars_object($report_key, \@matched_keys_ordered, $ref_match_label_hash);
+    new CompareScalars_object($report_key, \@matched_keys_ordered, $ref_match_label_hash, $macro_name, $mult_class);
   #---------------------------------------------------------
   $self->PrintTables();
   #---------------------------------------------------------
@@ -243,21 +256,18 @@ sub PrintTables{
   my $self = shift;
   #--------------------------------------------------------
 
-  my @macro_list = $CompareScalars_object->MacroList();
+  my $macro = $CompareScalars_object->MacroName();
 
-  foreach my $macro (@macro_list){
-
-   my ($ref_table_rows_difference, $ref_table_rows_absolute) = $CompareScalars_object->GetTableRows($macro);
-
-   print "<hr> \n";
-   print "<h3> Macro: $macro </h3> \n";
-   
-   print "<h4> Differences relative to this run </h4> \n";
-   print table( {-border=>undef}, Tr($ref_table_rows_difference) );
-   
-   print "<h4> Absolute values </h4> \n";
-   print table( {-border=>undef}, Tr($ref_table_rows_absolute) );
- }
+  my ($ref_table_rows_difference, $ref_table_rows_absolute) = $CompareScalars_object->GetTableRows();
+  
+  print "<hr> \n";
+  print "<h3> Macro: $macro </h3> \n";
+  
+  print "<h4> Differences relative to this run </h4> \n";
+  print table( {-border=>undef}, Tr($ref_table_rows_difference) );
+  
+  print "<h4> Absolute values </h4> \n";
+  print table( {-border=>undef}, Tr($ref_table_rows_absolute) );
 }
 #===================================================================
 sub MakeAsciiReport{
@@ -296,20 +306,16 @@ sub MakeAsciiReport{
   print $dh "*" x 80, "\n";
   #---------------------------------------------------------
 
-  my @macro_list = $CompareScalars_object->MacroList();
+  my $macro = $CompareScalars_object->MacroName();
 
-  foreach my $macro (@macro_list){
-
-   my ($string_difference, $string_absolute) = $CompareScalars_object->GetAsciiStrings($macro);
-
-    print $dh "Macro: $macro \n";
-
-    print $dh "\nDifferences relative to this run\n$string_difference\n";
-    print $dh "\nAbsolute values\n$string_absolute\n";
-
-    print $dh "*" x 80, "\n";
-
-  }
+  my ($string_difference, $string_absolute) = $CompareScalars_object->GetAsciiStrings();
+  
+  print $dh "Macro: $macro \n";
+  
+  print $dh "\nDifferences relative to this run\n$string_difference\n";
+  print $dh "\nAbsolute values\n$string_absolute\n";
+  
+  print $dh "*" x 80, "\n";
 
   #---------------------------------------------------------
   undef $io;
