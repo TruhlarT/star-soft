@@ -30,6 +30,11 @@ my @detSet = ("all","tpc","svt","rich","tof","ftpc","emc","fpd","pmd");
 my @trigSet  = ("all","central","minbias","medium","peripheral","mixed","physics");
 my @mfield = ("all","HalfField","ReversedFullField","ReversedHalfField","FieldOff");
 my @collis = ("AuAu200", "AuAu130");
+my @trigSet;
+my $ntrigSet = 0;
+my $mytrig;
+$trigSet[0] = "all";
+$ntrigSet = 1;
 
 &StDbProdConnect();
 
@@ -52,6 +57,28 @@ $sql="SELECT DISTINCT prodSeries FROM JobStatus WHERE prodSeries like 'P0%'";
         $prodPer[$nprodPer] = $myprod;
         $nprodPer++;
       }
+
+
+$sql="SELECT DISTINCT trigger FROM FileCatalog where fName like '%daq' ";
+
+   $cursor =$dbh->prepare($sql)
+      || die "Cannot prepare statement: $DBI::errstr\n";
+   $cursor->execute;
+
+    while(@fields = $cursor->fetchrow) {
+      my $cols=$cursor->{NUM_OF_FIELDS};
+
+    for($i=0;$i<$cols;$i++) {
+       my $fvalue=$fields[$i];
+       my $fname=$cursor->{NAME}->[$i];
+       print "$fname = $fvalue\n" if $debugOn;
+   
+       $mytrig = $fvalue  if($fname eq 'trigger'); 
+    }
+       $trigSet[$ntrigSet] = $mytrig;
+       $ntrigSet++;
+    }
+
 
 &StDbProdDisconnect();
 
