@@ -158,9 +158,9 @@ my $myRun;
 
 
  my $ii = 0;	    
- $istart = scalar(@SetD) - 6;
+ $istart = scalar(@SetD) - 3;
  $jobDIn_no = 0; 
- my $ifin = scalar(@SetD) - 1;
+ my $ifin = scalar(@SetD) - 2;
  for ($ii=$istart; $ii< scalar(@SetD); $ii++)  { 
 #  for ($ii=$istart; $ii< $ifin ; $ii++)  {
 
@@ -313,7 +313,7 @@ my $chain;
  my $inFile;
  my $logDir;
  my @pts;
- my $dataDisk = "/star/data21/test2001/";
+ my $dataDisk = "/star/data19/test2001/";
 
     @pts = split ("_",$Jset);
     $Jsetr = $pts[1] . "/" .$pts[2];
@@ -335,9 +335,8 @@ my $chain;
       my $hpss_dst_file1 = $gfile . ".hist.root";
       my $hpss_dst_file2 = $gfile . ".tags.root";
       my $hpss_dst_file3 = $gfile . ".runco.root";
-#  if ( $gfile =~ /raw_0001/) {
       my $hpss_dst_file4 = $gfile . ".dst.root";
-#    }
+
       my $executable     = "/afs/rhic/star/packages/scripts/bfcca";
       my $executableargs = $exArg; 
       my $log_dir       = $logDir;
@@ -356,11 +355,11 @@ my $chain;
        print JOB_FILE "      inputdir[1]=/star/data20/reco/StarDb\n";
        print JOB_FILE "      inputfile[1]=DUMMY\n";
        print JOB_FILE "#output\n";
-#     if ( $gfile =~ /raw_0001/) {
+     if ( $gfile =~ /raw_0010/) {
        print JOB_FILE "      outputnumstreams=5\n";
-#     }else{
-#       print JOB_FILE "      outputnumstreams=4\n";
-#     }     
+     }else{
+       print JOB_FILE "      outputnumstreams=4\n";
+     }     
        print JOB_FILE "#output stream \n";
        print JOB_FILE "      outputstreamtype[0]=HPSS\n";
        print JOB_FILE "      outputdir[0]=$hpss_dst_dir\n";
@@ -374,12 +373,12 @@ my $chain;
        print JOB_FILE "      outputstreamtype[3]=HPSS\n";
        print JOB_FILE "      outputdir[3]=$hpss_dst_dir\n";
        print JOB_FILE "      outputfile[3]=$hpss_dst_file3\n";
-#     if ( $gfile =~ /raw_0001/) {     
+     if ( $gfile =~ /raw_0010/) {     
        print JOB_FILE "      outputstreamtype[4]=HPSS\n";
        print JOB_FILE "      outputdir[4]=$hpss_dst_dir\n";
        print JOB_FILE "      outputfile[4]=$hpss_dst_file4\n";
-#     }else{
-#     } 
+     }else{
+     } 
        print JOB_FILE "#standard out -- Should be five outputs\n";
        print JOB_FILE "      stdoutdir=$log_dir\n";
        print JOB_FILE "      stdout=$log_name\n";

@@ -147,7 +147,7 @@ my $jb_hold;
      $jb_fstat = 1;
      $jb_news = $JOB_DIR . "/cal_jobs/" . $mjobFname;
      $jb_archive = $JOB_DIR . "/archive/" . $mjobFname;
-     $jb_jobfile = $JOB_DIR . "/jobfiles/" . $mjobFname;
+     $jb_jobfile = $JOB_DIR . "/cjobfiles/" . $mjobFname;
      $jb_hold = $JOB_DIR . "/job_hold/" . $mjobFname;
      if (-f $jb_news)     {$jb_fstat = 0};
      if (-f $jb_archive)  {$jb_fstat = 0};
