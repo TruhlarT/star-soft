@@ -48,9 +48,12 @@ my $thistime;
 struct FileAttr => {
         flname  => '$', 
          fpath  => '$',
+         jobSt  => '$',
          timeS  => '$',
-         noEvtD => '$',
-         noEvtS => '$', 
+        noEvtD  => '$',
+          memF  => '$',
+          memL  => '$',
+          mCPU  => '$', 
 		  };
 
 &cgiSetup();
@@ -81,7 +84,7 @@ struct FileAttr => {
  &beginHtml();
 
 
-$sql="SELECT path, fName, NoEventDone, NoEventSkip, createTime FROM $FilesCatalogT where path LIKE '%$testDay%' AND avail = 'Y'";
+$sql="SELECT path, logFile, jobStatus, NoEventDone, memUsageF, memUsageL, CPU_per_evt_sec, createTime FROM $JobStatusT where path LIKE '%$testDay%' AND avail = 'Y'";
  $cursor =$dbh->prepare($sql)
    || die "Cannot prepare statement: $DBI::errstr\n";
  $cursor->execute;
@@ -97,20 +100,26 @@ $sql="SELECT path, fName, NoEventDone, NoEventSkip, createTime FROM $FilesCatalo
 #     print "$fname = $fvalue\n" ;
 
      ($$fObjAdr)->fpath($fvalue)   if($fname eq 'path'); 
-     ($$fObjAdr)->flname($fvalue)  if($fname eq 'fName');
+     ($$fObjAdr)->flname($fvalue)  if($fname eq 'logFile');
      ($$fObjAdr)->noEvtD($fvalue)  if($fname eq 'NoEventDone');
-     ($$fObjAdr)->noEvtS($fvalue)  if($fname eq 'NoEventSkip'); 
+     ($$fObjAdr)->jobSt($fvalue)   if($fname eq 'jobStatus');
+     ($$fObjAdr)->memF($fvalue)    if($fname eq 'memUsageF');
+     ($$fObjAdr)->memL($fvalue)    if($fname eq 'memUsageL');
+     ($$fObjAdr)->mCPU($fvalue)    if($fname eq 'CPU_per_evt_sec');
      ($$fObjAdr)->timeS($fvalue)   if($fname eq 'createTime');
-  }
+ }
         $dbFiles[$ndbFiles] = $fObjAdr;
         $ndbFiles++; 
       
-   }
-
+  }
+ 
  my $myFile;
  my $myPath;
  my $myEvtD;
- my $myEvtS;
+ my $myJobS;
+ my $myMemF;
+ my $myMemL;
+ my $myCPU;
  my $myCtime;
 
   foreach $eachFile (@dbFiles) {
@@ -118,7 +127,10 @@ $sql="SELECT path, fName, NoEventDone, NoEventSkip, createTime FROM $FilesCatalo
         $myFile  = ($$eachFile)->flname;
         $myPath  = ($$eachFile)->fpath;
         $myEvtD  = ($$eachFile)->noEvtD;
-        $myEvtS  = ($$eachFile)->noEvtS; 
+        $myJobS  = ($$eachFile)->jobSt; 
+        $myMemF  = ($$eachFile)->memF; 
+        $myMemL  = ($$eachFile)->memL; 
+        $myCPU   = ($$eachFile)->mCPU;          
         $myCtime = ($$eachFile)->timeS;  
 
    &printRow();
@@ -134,32 +146,38 @@ sub beginHtml {
 print <<END;
   <html>
    <head>
-          <title>List of Files Inserted into FileCatalog Today</title>
+          <title>Status of Nightly Test Jobs Produced Last Night</title>
    </head>
    <body BGCOLOR=\"#ccffff\"> 
-     <h1 align=center>List of Nightly Test Reco Files Produced Last Night</h1>
+     <h1 align=center>Status of Nightly Test Jobs Produced Last Night</h1>
 <TABLE ALIGN=CENTER BORDER=5 CELLSPACING=1 CELLPADDING=2 >
 <TR>
-<TD ALIGN=CENTER WIDTH=\"30%\" HEIGHT=50><B>Path</B></TD>
-<TD ALIGN=CENTER WIDTH=\"20%\" HEIGHT=50><B>Name of File</B></TD>
+<TD ALIGN=CENTER WIDTH=\"20%\" HEIGHT=50><B>Path</B></TD>
+<TD ALIGN=CENTER WIDTH=\"20%\" HEIGHT=50><B>Log File Name</B></TD>
+<TD ALIGN=CENTER WIDTH=\"10%\" HEIGHT=50><B>Job Status</B></TD>
 <TD ALIGN=CENTER WIDTH=\"10%\" HEIGHT=50><B>Number of Events<br>Done</B></TD>
-<TD ALIGN=CENTER WIDTH=\"10%\" HEIGHT=50><B>Number of Events<br>Skiped</B></TD>
-<TD ALIGN=CENTER WIDTH=\"20%\" HEIGHT=50><B>Create Date</B></TD>
+<TD ALIGN=CENTER WIDTH=\"10%\" HEIGHT=50><B>Memory Usage<br>for First Event</B></TD>
+<TD ALIGN=CENTER WIDTH=\"10%\" HEIGHT=50><B>Memory Usage<br>for Last Event </B></TD>
+<TD ALIGN=CENTER WIDTH=\"10%\" HEIGHT=50><B>CPU per Event</B></TD>
+<TD ALIGN=CENTER WIDTH=\"10%\" HEIGHT=50><B>Create Date</B></TD>
 </TR> 
    </head>
     <body>
 END
 }
 
-###############
+############### 
 sub printRow {
 
 print <<END;
 <TR ALIGN=CENTER>
 <td>$myPath</td>
 <td>$myFile</td>
+<td>$myJobS</td>
 <td>$myEvtD</td>
-<td>$myEvtS</td>
+<td>$myMemF</td>
+<td>$myMemL</td>
+<td>$myCPU</td>
 <td>$myCtime</td>
 </TR>
 END
