@@ -1,9 +1,9 @@
 #!/usr/bin/env csh 
 #if ($#argv > 0) setenv ROOT_LEVEL $1
 if ($?STAR_HOST_SYS == 0) setenv STAR_HOST_SYS `sys`
-set level = `echo $ROOT_LEVEL | awk -F. '{print $2}'`
+set level = `echo $ROOT_LEVEL | awk -F. '{print $1$2}'`
 if ($?ROOT == 0) setenv ROOT ${STAR_ROOT}/ROOT
-if ($level  >= 24)  then
+if ($level  >= 224)  then
     setenv ROOTSYS ${ROOT}/${ROOT_LEVEL}
     set root = "/.${STAR_HOST_SYS}/root"
 else
