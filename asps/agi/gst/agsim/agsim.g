@@ -23717,8 +23717,12 @@ C   - combined DETM + Reconstruction bank access variables - AGI version
       Logical          First/.true./
 *
    If (First) then
-       First=.false.
+       if (NZEBRA<=0) then
+         print *,' RBPUSH: ZEBRA is not initialised yet '
+         return
+       endif
        Call MZLINK(IxStor,'RBSTACK',IP1STACK,IP1STACK,IEND)
+       First=.false.
    endif
 *
    If (Nbp<20) then
