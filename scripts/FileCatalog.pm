@@ -119,7 +119,7 @@ require  Exporter;
 
 
 use vars qw($VERSION);
-$VERSION   =   "V01.265";
+$VERSION   =   "V01.270";
 
 # The hashes that hold a current context
 my %optoperset;
@@ -188,6 +188,8 @@ $keywrds{"fdid"          }    =   "fileDataID"                .",FileData"      
 $keywrds{"rfdid"         }    =   "fileDataID"                .",FileLocations"          .",0" .",num"  .",0" .",1" .",0";
 $keywrds{"pcid"          }    =   "productionConditionID"     .",ProductionConditions"   .",0" .",num"  .",0" .",0" .",0";
 $keywrds{"rpcid"         }    =   "productionConditionID"     .",FileData"               .",0" .",num"  .",0" .",1" .",0";
+$keywrds{"rfpid"         }    =   "filePathID"                .",FileLocations"          .",0" .",num"  .",0" .",1" .",0";
+$keywrds{"fpid"          }    =   "filePathID"                .",FilePaths"              .",0" .",num"  .",0" .",0" .",0";
 $keywrds{"rpid"          }    =   "runParamID"                .",RunParams"              .",0" .",num"  .",0" .",0" .",0";
 $keywrds{"rrpid"         }    =   "runParamID"                .",FileData"               .",0" .",num"  .",0" .",1" .",0";
 $keywrds{"trgid"         }    =   "triggerSetupID"            .",TriggerSetups"          .",0" .",num"  .",0" .",0" .",0";
@@ -264,12 +266,17 @@ $keywrds{"persistent"    }    =   "persistent"                .",FileLocations" 
 $keywrds{"sanity"        }    =   "sanity"                    .",FileLocations"          .",0" .",num"  .",0" .",1" .",1";
 $keywrds{"createtime"    }    =   "createTime"                .",FileLocations"          .",0" .",date" .",0" .",1" .",1";
 $keywrds{"inserttime"    }    =   "insertTime"                .",FileLocations"          .",0" .",date" .",0" .",1" .",1";
-$keywrds{"path"          }    =   "filePath"                  .",FileLocations"          .",1" .",text" .",0" .",1" .",1";
 $keywrds{"simcomment"    }    =   "simulationParamComments"   .",SimulationParams"       .",0" .",text" .",0" .",1" .",1";
 $keywrds{"generator"     }    =   "eventGeneratorName"        .",EventGenerators"        .",1" .",text" .",0" .",1" .",1";
 $keywrds{"genversion"    }    =   "eventGeneratorVersion"     .",EventGenerators"        .",1" .",text" .",0" .",1" .",1";
 $keywrds{"gencomment"    }    =   "eventGeneratorComment"     .",EventGenerators"        .",0" .",text" .",0" .",1" .",1";
 $keywrds{"genparams"     }    =   "eventGeneratorParams"      .",EventGenerators"        .",1" .",text" .",0" .",1" .",1";
+
+# Path related keywords apart from index -- NEW
+$keywrds{"path"          }    =   "filePath"                  .",FileLocations"          .",1" .",text" .",0" .",1" .",1";
+$keywrds{"Xpath"         }    =   "filePathName"              .",FilePaths"              .",1" .",text" .",0" .",0". ",0";
+$keywrds{"pathcnt"       }    =   "filePathCount"             .",FilePaths"              .",0" .",num"  .",0" .",0". ",1";
+
 
 # The detector configuration can be extended as needed
 # > alter table DetectorConfigurations ADD dEEMC TINYINT AFTER dEMC;
@@ -359,6 +366,8 @@ $datastruct[11] = ( "TriggerSetups"          . ",RunParams"           . ",trigge
 $datastruct[12] = ( "SimulationParams"       . ",RunParams"           . ",simulationParamsID"      . ",4" . ",0");
 $datastruct[14] = ( "FileLocations"          . ","                    . ","                        . ",1" . ",0");
 $datastruct[15] = ( "TriggerCompositions"    . ","                    . ","                        . ",1" . ",0");
+$datastruct[16] = ( "FilePaths"              . ",FileLocations"       . ",filePathID"              . ",2" . ",1");
+
 
 #%FC::FLRELATED;
 #%FC::FDRELATED;
@@ -1076,7 +1085,7 @@ sub get_id_from_dictionary {
   my $id;
   my $sqlquery;
 
-  $idname = &IDize("get_id_from_dictionary",$idname);
+  $idname = &_IDize("get_id_from_dictionary",$idname);
   $id     = 0;
 
   $sqlquery = "SELECT $idname FROM $params[0] WHERE UPPER($params[1]) = UPPER(\"$params[2]\")";
@@ -1100,23 +1109,133 @@ sub get_id_from_dictionary {
   return $id;
 }
 
+
+# get val for consistency (both can be merged with a private routine)
+sub get_value_from_dictionary {
+  if ($_[0] =~ m/FileCatalog/) {
+    shift @_;
+  }
+  if( ! defined($DBH)){
+      &print_message("get_id_from_dictionary","Not connected/connecting");
+      return 0;
+  }
+
+  my @params  = @_;
+  my $valname = $params[0];
+  my $sth;
+  my $id;
+  my $sqlquery;
+
+  $valname  = &_Nameize("get_value_from_dictionary",$valname);
+  $id       = 0;
+
+  $sqlquery = "SELECT $valname FROM $params[0] WHERE UPPER($params[1]) = $params[2]";
+  if ($DEBUG > 0) {  &print_debug("Executing: $sqlquery");}
+  $sth = $DBH->prepare($sqlquery);
+
+  if( ! $sth){
+      &print_debug("FileCatalog:: get_id_from_dictionary : Failed to prepare [$sqlquery]");
+  } else {
+      my( $val );
+
+      if ( $sth->execute() ){
+	  $sth->bind_columns( \$val );
+
+	  if ( $sth->fetch() ) {
+	      $sth->finish();
+	      $id = $val;
+	  }
+      }
+  }
+  return $id;
+}
+
+
+#
+# Used several places so, made a few utility routine
+#
+sub _IDize {    return &_GlobIzer("ID",@_);   }
+sub _Nameize {  return &_GlobIzer("Name",@_); }
+sub _Countize { return &_GlobIzer("Count",@_); }
+
 #
 # Used several places so, made a utility routine
 #
-sub IDize
+sub _GlobIzer
 {
-    my($fac,$idname)=@_;
+    my($postfix,$fac,$idname)=@_;
     my($tmp)=$idname;
 
     #chop($idname);
     #if ( substr($idname,length($idname),1) eq "s"){ chop($idname);}
     #$tmp =~ s/s$//; if ( $idname ne $tmp){ print "Got something different $idname $fac\n";}
+
+    # remove trailing "s" from table name, capitalize
+    # postfix and we are done.
     $idname =~ s/s$//;
     $idname = lcfirst($idname);
-    $idname.="ID";
+    $idname.= $postfix;
     #print "$idname\n";
     $idname;
 }
+
+
+# This was added to handle backward compatible path
+# scheme
+sub get_path_name_and_ID
+{
+    my ($path,$pathID);
+
+    if ( ! defined($valuset{"rfpid"}) ){ $valuset{"rfpid"} = 0;}
+
+    if ( defined($valuset{"path"}) && ! defined($valuset{"Xpath"}) ){
+	# transfer path -> Xpath
+	$path  = $valuset{"Xpath"} = $valuset{"path"};
+
+    } elsif ( ! defined($valuset{"path"}) && defined($valuset{"Xpath"}) ){
+	# transfer Xpath -> path
+	$path  = $valuset{"path"}  = $valuset{"Xpath"};
+
+    } elsif ( $valuset{"rfpid"} != 0 ){
+	# clone mode, possibly a non-zero rfpid, we need to recover the name
+	my ($fieldname, $tabname, $rest) = split(",",$keywrds{"Xpath"});
+	$pathID = $valuset{"rfpid"};
+	$path   = &get_value_from_dictionary($tabname, $fieldname, $pathID);
+
+    } else {
+	# no known method to recover the information
+	&die_message("get_path_name_and_ID", "None of Path / Xpath / rfpid defined");
+    }
+
+    # any mode has set Xpath
+    $pathID       = &check_ID_for_params("Xpath");
+
+    #print "### --> $path $pathID\n";
+
+    return ('"'.$path.'"',$pathID);
+}
+
+
+
+# "'".$valuset{"path"}."'";         # backward compatibility, recover this
+#      $filePathID  = &check_ID_for_params("path");     # new field and require version 1.270+
+#
+#      if ( $filePathID == 0){ 
+#	  $filePathID = $valuset{"rfpid"};  # transfer the cloned value rfpid into filePathID
+#
+#	  my ($fieldname, $tabname, $rest) = split(",",$keywrds{"Xpath"});
+#	  $filePath   = &get_value_from_dictionary($tabname, $fieldname, $filePathID);
+#
+#	  die "Security abort :: \$filePathID was 0, rfpid defined, returned value $filePath\n";
+#      }
+#
+#      if (  $valuset{"rfpid"} != 0){
+#	  # we do have a previously set index and it is non-null
+#	  # we need to set both path and pathID accordingly
+#	  my ($fieldnameo, $tabnameo, $resto) = split(",",$keywrds{"fpid"});
+#
+#      }   
+
 
 #============================================
 # Check if there is a record with a given value
@@ -1257,7 +1376,7 @@ sub get_current_detector_configuration {
   my ($detConfiguration,$cmd,$sth,$val);
   my ($tabname)="DetectorConfigurations";
   my ($field)="detectorConfigurationName";
-  my ($index)=&IDize("get_current_detector_configuration",$tabname);
+  my ($index)=&_IDize("get_current_detector_configuration",$tabname);
 
   if( ! $DBH){
       &print_message("insert_detector_configuration","Not connected");
@@ -2471,6 +2590,7 @@ sub insert_file_location {
   my $storageType;
   my $storageSite;
   my $filePath;
+  my $filePathID;
   my $createTime;
   my $owner;
   my $fsize;
@@ -2510,14 +2630,29 @@ sub insert_file_location {
   }
 
 
-  if (! defined $valuset{"path"} ) {
+  #if (! defined $valuset{"path"} ) {
+  #    &print_message("insert_file_location",
+  #		     "ERROR: file path not defined. Cannot add file location",
+  #		     "Aborting File Location");
+  #    return 0;
+  #} else {
+  #    $filePath = "'".$valuset{"path"}."'";
+  #}
+  if (! defined $valuset{"path"} && ! defined($valuset{"rfpid"}) ) {
       &print_message("insert_file_location",
 		     "ERROR: file path not defined. Cannot add file location",
 		     "Aborting File Location");
       return 0;
   } else {
-      $filePath = "'".$valuset{"path"}."'";
+      # ***
+      # *** backward compatibility support around this (some line should be dropped later)
+      # *** at the end, we have a path and pathID for filling
+      # ***
+      ($filePath,$filePathID)  = &get_path_name_and_ID();
   }
+
+
+
   if (! defined $valuset{"createtime"}) {
       &print_debug("WARNING: createtime not defined. Using a default value");
       $createTime = "NULL";
@@ -2581,8 +2716,8 @@ sub insert_file_location {
   my $flinchk    = "SELECT fileLocationID from FileLocations WHERE ";
   my $flinsert   = "INSERT IGNORE INTO FileLocations ";
 
-  $flinsert  .= "(fileLocationID, fileDataID, storageTypeID, filePath, createTime, insertTime, owner, fsize, storageSiteID, protection, nodeName, availability, persistent, sanity)";
-  $flinsert  .= " VALUES (NULL, $fileData, $storageType, $filePath, $createTime, NULL, $owner, $fsize, $storageSite, $protection, $nodeName, $availability, $persistent, $sanity)";
+  $flinsert  .= "(fileLocationID, fileDataID, storageTypeID, filePath, filePathID, createTime, insertTime, owner, fsize, storageSiteID, protection, nodeName, availability, persistent, sanity)";
+  $flinsert  .= " VALUES (NULL, $fileData, $storageType, $filePath, $filePathID, $createTime, NULL, $owner, $fsize, $storageSite, $protection, $nodeName, $availability, $persistent, $sanity)";
 
   # NONE of the NULL value should appear below otherwise, one keeps adding
   # entry over and over ... protection and woner are irrelevant here and
@@ -3092,7 +3227,7 @@ sub run_query {
 		  (&get_field_name($keyw),$tabname,"");
 
 	      &print_debug("Table $tabname is a dictionary");
-	      $idname = &IDize("run_query",$idname);
+	      $idname = &_IDize("run_query",$idname);
 
 	      # Find which table this one is connecting to
 	      my $parent_tabname;
@@ -4450,7 +4585,7 @@ sub update_record {
 		      # id is selected in whereclause as this would
 		      # select a unique record
 		      #print "--\n";
-		      my $tmp= $utable.".".&IDize("update_record",$utable);
+		      my $tmp= $utable.".".&_IDize("update_record",$utable);
 		      #print "$tmp $whereclause\n";
 		      if ( index($whereclause,$tmp) == - 1){
 			  &print_message("update_record",
@@ -4681,7 +4816,7 @@ sub update_location {
       # Patch ... The above logic is true only for
       # tables like FileData/FileLocation but not true for others
       my $uid    = &get_id_from_dictionary($utable,$ufield,$newvalue);
-      $ukeyword  = &IDize("update_location",$utable);
+      $ukeyword  = &_IDize("update_location",$utable);
       #$qselect = "SELECT $ukeyword FROM $mtable WHERE $ukeyword=$uid";
       $qdelete = "DELETE LOW_PRIORITY FROM $mtable " ;
       $qupdate = "UPDATE LOW_PRIORITY $mtable SET $ukeyword=$uid ";
@@ -4750,8 +4885,8 @@ sub update_location {
 
       if (! $doit){
 	  #$tmp = $qselect; $tmp =~ s/\?/$flid/;  &print_message("update_location","$tmp");
-	  $tmp = $qupdate; $tmp =~ s/\?/$flid/;  &print_message("update_location","$tmp");
-	  $tmp = $qdelete; $tmp =~ s/\?/$flid/;  &print_message("update_location","($tmp)");
+	  $tmp = $qupdate; $tmp =~ s/\?/$flid/;  &print_message("update_location","would try      $tmp");
+	  $tmp = $qdelete; $tmp =~ s/\?/$flid/;  &print_message("update_location","if duplicate  ($tmp)");
 
       } else {
 	  if( $DELAY){
@@ -4790,7 +4925,8 @@ sub update_location {
 					 "(would lead to duplicate)");
 		      }
 		  } else {
-		      &print_debug("Update of $mtable failed ".$DBH->err." ".$DBH->errstr);
+		      &print_debug("Update of $mtable failed error=".$DBH->err." >> ".$DBH->errstr);
+		      #&print_debug("STH was $qupdate");
 		  }
 	      }
 	  }
