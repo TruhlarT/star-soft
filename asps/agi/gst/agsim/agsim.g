@@ -2415,7 +2415,10 @@ C
 *
 *    make it possible to replace field routine between events
       IF (IEVENT != IEVOLD) THEN
-         address=CsADDR ('AGUFLD')
+         address=CsADDR ('LOVEFIELD')
+	 if (address=0) then
+           address=CsADDR ('AGUFLD')
+	 endif
          IEVOLD=IEVENT
       endif
 *
