@@ -1,6 +1,6 @@
 #!/usr/bin/env perl
 
-# $Id: AutoBuild.pl,v 1.12 2003/08/28 21:36:48 jeromel Exp $
+# $Id: AutoBuild.pl,v 1.13 2003/09/27 18:36:40 jeromel Exp $
 # This script was written to perform an automatic compilation
 # with cvs co and write some html page related to it afterward.
 # Written J.Lauret Apr 6 2001
@@ -250,7 +250,7 @@ if($#UPDATES != -1){
 	    print $FILO "   For $dir ...\n"; 
 	    $tmp = $dir;
 	}
-	push(@REPORT," <LI><TT>$line</TT>");
+	push(@REPORT," <LI><TT>".&IUCVSRef($line)."</TT>");
 	print $FILO "     $line\n";
     }
     push(@REPORT," </OL>") if($tmp ne "");
