@@ -163,13 +163,13 @@ print <<END;
 <TR>
 <TD ALIGN=CENTER WIDTH=\"20%\" HEIGHT=50><B>Path</B></TD>
 <TD ALIGN=CENTER WIDTH=\"10%\" HEIGHT=50><B>Log File Name</B></TD>
-<TD ALIGN=CENTER WIDTH=\"10%\" HEIGHT=50><B>Chain Option</B></TD>
+<TD ALIGN=CENTER WIDTH=\"20%\" HEIGHT=50><B>Chain Option</B></TD>
 <TD ALIGN=CENTER WIDTH=\"10%\" HEIGHT=50><B>Job Status</B></TD>
-<TD ALIGN=CENTER WIDTH=\"10%\" HEIGHT=50><B>Number of Events<br>Done</B></TD>
-<TD ALIGN=CENTER WIDTH=\"10%\" HEIGHT=50><B>Memory Usage<br>for First Event</B></TD>
-<TD ALIGN=CENTER WIDTH=\"10%\" HEIGHT=50><B>Memory Usage<br>for Last Event </B></TD>
-<TD ALIGN=CENTER WIDTH=\"10%\" HEIGHT=50><B>CPU per Event</B></TD>
-<TD ALIGN=CENTER WIDTH=\"10%\" HEIGHT=50><B>Create Date</B></TD>
+<TD ALIGN=CENTER WIDTH=\"5%\" HEIGHT=50><B>Number of Events<br>Done</B></TD>
+<TD ALIGN=CENTER WIDTH=\"5%\" HEIGHT=50><B>Memory Usage<br>for First Event</B></TD>
+<TD ALIGN=CENTER WIDTH=\"5%\" HEIGHT=50><B>Memory Usage<br>for Last Event </B></TD>
+<TD ALIGN=CENTER WIDTH=\"5%\" HEIGHT=50><B>CPU per Event</B></TD>
+<TD ALIGN=CENTER WIDTH=\"20%\" HEIGHT=50><B>Create Date</B></TD>
 </TR> 
    </head>
     <body>
@@ -180,7 +180,7 @@ END
 sub printRow {
 
 print <<END;
-<TR ALIGN=LEFT>
+<TR ALIGN=CENTER>
 <td>$myPath</td>
 <td>$myFile</td>
 <td>$mychain</td>
