@@ -1,0 +1,155 @@
+#!/usr/local/bin/perl -w
+
+#                      Block limits                      File limits
+#User           used   soft   hard    timeleft    used   soft   hard     timeleft
+#
+# -d        debug
+# -o ofile  output to ofile
+# -html     format in html
+# arg1      path/volume to inspect
+#
+# This script uses $REPQUOTA , a Solaris program. 
+#
+# Configurable
+$REPQUOTA = "/usr/lib/fs/vxfs/vxrepquota";
+
+
+
+# Parse arguments -- Do not change
+if ( ! -x $REPQUOTA){  die "Missing $REPQUOTA\n";}
+
+
+
+$PATH = "";
+$FLNM = "";
+for ($i=0; $i <= $#ARGV ; $i++){
+    $arg = $ARGV[$i];
+    if( substr($arg,0,1) eq "-"){
+        # an option
+        $HTML = 1           if ($arg eq "-html");
+        $FLNM = $ARGV[$i+1] if ($arg eq "-o");
+        $DEBUG= 1           if ($arg eq "-d");
+    } else {
+        $PATH = $arg;
+    }
+}
+
+
+if( $PATH eq "" ){  die "Arg1 must be a path/partition\n";}
+if( $FLNM ne "" ){
+    open(FO,">$FLNM.new") || die "Cannot open $FLNM.new\n";
+    $FO = FO;
+} else {
+    $FO = STDOUT;
+}
+
+print "Calculating partition space $PATH\n" if($DEBUG);
+@all  = `df -k $PATH`;
+foreach $line (@all){
+    if( $line =~ /\%/ && $line !~ /system/){
+        $line =~ s/\s+/ /g;
+        $line =~ s/^\s*(.*?)\s*$/$1/;
+        #print "--> $line\n";
+        @items= split(" ",$line);
+        #print join(",",@items)."\n";
+
+        # because of leading space, we will always
+        # have the elements at the proper place.
+        if($#items > 4){ $offset = 1;}
+        else           { $offset = 0;}
+	#print "Offset $offset\n";
+
+        $tots = $items[0+$offset];
+        $totu = $items[1+$offset];
+        $totf = $items[2+$offset];
+        $prct = $items[3+$offset];
+    }
+}
+
+print "Looking at individual space now ...\n" if ($DEBUG);
+$TOT = 0;
+
+open(STDERR,">/dev/null");    # trash STDERR
+@all = `$REPQUOTA -v $PATH`;
+close(STDERR);
+
+foreach $line (@all){
+    $line =~ s/^\s*(.*?)\s*$/$1/;
+    $line =~ s/\s+/ /g;
+    @el   = split(" ",$line);
+    if( $#el < 3){ next;}
+    if( $el[2] =~ /\d+/){
+	if( $el[2] != 0){
+	    #print "$line\n";
+	    $HOGS{$el[0]} = $el[2];   # total space
+	    $TOT += $el[2];
+	}
+    }
+}
+
+
+# Format result
+if($HTML){
+    $TD = "td align=\"right\"";
+    print $FO
+	"<!-- Generated on ".localtime()." -->\n",
+        "<h2>Path $PATH</h2>\n",
+        "Partition info (kBytes)\n",
+        "<table border=0>",
+        "<tr><td>Total Usable</td><$TD>$tots</td>\n",
+        "<tr><td>Total Used</td><$TD>$totu</td>\n",
+        "<tr><td>Free Space</td><$TD>$totf</td>\n",
+        "<tr><td>Occupency</td><$TD>$prct</td>\n",
+        "</table><p>\n";
+
+    print $FO
+        "<table border=1>\n",
+        "<tr><$TD>Dir/User</td><$TD>kBytes</td><$TD>%tage</td></tr>\n";
+} else {
+    # Regular text formatting
+    print $FO
+        "Path $PATH\n",
+        "Partition info (kBytes)\n",
+        "     TotalUsable : $tots\n",
+        "     TotalUsed   : $totu\n",
+        "     Free space  : $totf\n",
+        "     Occupency   : $prct\n";
+
+    printf $FO "%10.10s %15s  %s %s\n","Dir/User","kBytes","%tageRel","%tageTot";
+    print $FO "------------------------------------------------\n";
+}
+
+
+#print "tots = $tots\n"; 
+foreach $user (sort  { $HOGS{$b} <=> $HOGS{$a} } keys %HOGS){
+    $val1 = ($HOGS{$user}/$TOT)*100;
+    $val2 = ($HOGS{$user}/$tots)*100;
+
+    #print "$HOGS{$user}/$tots\n";
+
+    if ($val1 < 10){ 
+        $val1 = sprintf("0%2.2f",$val1);
+    } else {
+        $val1 = sprintf("%2.2f",$val1);
+    }
+    if ($val2 < 10){ 
+        $val2 = sprintf("0%2.2f",$val2);
+    } else {
+        $val2 = sprintf("%2.2f",$val2);
+    }
+    #print "$user $val1 $val2\n";
+
+    if($HTML){
+        print $FO 
+            "<tr><$TD>$user</td><$TD>$HOGS{$user}</td>",
+            "<$TD>$val1</td><$TD>$val2</td></tr>\n";
+    } else {
+        printf $FO "%10.10s %15d  %s %%  %s %%\n",$user,$HOGS{$user},$val1,$val2;
+    }
+}
+
+print $FO "</table>\n" if($HTML);
+if($FO ne STDOUT){ 
+    close(FO);
+    rename("$FLNM.new","$FLNM");
+}
