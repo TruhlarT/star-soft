@@ -1,6 +1,6 @@
 #!/usr/bin/env perl
 
-# $Id: AutoBuild.pl,v 1.25 2004/10/28 19:48:36 jeromel Exp $
+# $Id: AutoBuild.pl,v 1.26 2005/01/27 18:41:55 jeromel Exp $
 # This script was written to perform an automatic compilation
 # with cvs co and write some html page related to it afterward.
 # Written J.Lauret Apr 6 2001
@@ -698,7 +698,7 @@ sub DumpContent
     my($FO,$flnm)=@_;
     my($line);
 
-    if ( open(FIDC,$flnm) ){
+    if ( open(FIDC,">$flnm") ){
 	print $FO "# begin content of $flnm --------------------->\n";
 	while ( defined($line = <FIDC>) ){  print $FO $line;}
 	print $FO "# <-------------- end content of $flnm\n";
@@ -717,7 +717,6 @@ sub Exit()
 {
     my($sts)=@_;
     my($tmp);
-    my(@email);
 
     # Delete the lock file
     IULockDelete();
@@ -744,14 +743,9 @@ sub Exit()
     if($sts != 0){
 	# Send Emails to the list of managers if the compilation
 	# failed. We do NOT want to be influcenced by anything else
-	if ( $NOTIFY ){
-	    @email  = IUManagers();
-	    foreach $tmp (@email){
-		system("echo \"Last error is $ERRSTR\nFor more information, ".
-		       "check ".IUHtmlRef()."/$FLNM.html\" ".
-		       "| Mail -s \"AutoBuild: Action failed\" $tmp");
-	    }
-	}
+	&SendMessage("AutoBuild: Action failed",
+		     "Last error is $ERRSTR\nFor more information,".
+		     "check ".IUHtmlRef()."/$FLNM.html");
 	exit(1);
     } else {
 	# Release the volume now
@@ -766,6 +760,20 @@ sub Exit()
 }
 
 
+# Send Email to managers
+sub SendMessage
+{
+    my($subject,$boddy)=@_;
+    my(@email,$tmp);
+
+    if ( $NOTIFY ){
+	@email  = IUManagers();
+
+	foreach $tmp (@email){
+	    system("echo \"$boddy\" | Mail -s \"$subject\" $tmp");
+	}
+    }
+}
 
 
 # Output report to HTML file.
@@ -801,6 +809,8 @@ sub ReportToHtml
     if( open(FO,">$flnm.html") ){
 	$fo = FO;
     } else {
+	&SendMessage("AutoBuild: Problem writting $flnm",
+		     "Action is incomplete, results dumped to ".($FILO==STDOUT?"STDOUT":$FILO));
 	$fo = STDOUT;
     }
 
