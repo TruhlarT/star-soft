@@ -1,8 +1,13 @@
 #!/opt/star/bin/perl
 #
-# $Id: cas.pl,v 1.3 1999/11/22 18:19:13 wenaus Exp $
+# $Id: cas.pl,v 1.4 2002/02/27 00:54:54 jeromel Exp $
 #
 # $Log: cas.pl,v $
+# Revision 1.4  2002/02/27 00:54:54  jeromel
+# Those are old scripts (probably obsolete) in which I have updated the
+# output path to reflect the newer directory structure tree (comp-nfs
+# business).
+#
 # Revision 1.3  1999/11/22 18:19:13  wenaus
 # remove rmods03
 #
@@ -25,7 +30,7 @@
 # Usage: cas.pl in cron jobs
 #
 
-$htmlFile = '/star/starlib/doc/www/html/comp-nfs/casusage.html';
+$htmlFile = '/star/starlib/doc/www/html/tmp/casusage.html';
 
 if ( $ARGV[0] ne '' ) {
     $debugOn = 1;
