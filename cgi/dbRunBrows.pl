@@ -42,22 +42,20 @@ my $dirRun = "/home/starreco/reco/" . $prodSr;
 my $mstat;
 my $mcomment;
 
-if($detrSet eq "all" and $trgSet ne "all" ) {
+$sql = "SELECT * FROM $FileCatalogT WHERE fName like '%root' AND jobID like '%$prodSr%' ";
 
-$sql="SELECT * FROM $FileCatalogT WHERE runID = '$runPr' AND jobID like '%$prodSr%' AND trigger = '$trgSet' AND dataset like '$colSet%' AND fName like '%root' ";
-
-}elsif ($detrSet ne "all" and $trgSet ne "all" ) {
-
-$sql="SELECT * FROM $FileCatalogT WHERE runID = '$runPr' AND jobID like '%$prodSr%' AND trigger = '$trgSet' AND dataset like '%$detrSet' AND dataset like '$colSet%' AND fName like '%root' "; 
-
-}elsif ($detrSet ne "all" and $trgSet eq "all" ) {
-
-$sql="SELECT * FROM $FileCatalogT WHERE runID = '$runPr' AND jobID like '%$prodSr%' AND dataset like '%$detrSet' AND dataset like '$colSet%' AND fName like '%root' "; 
-
-}elsif ($detrSet eq "all" and $trgSet eq "all" ) {
-
-$sql="SELECT * FROM $FileCatalogT WHERE runID = '$runPr' AND jobID like '%$prodSr%' AND dataset like '$colSet%' AND fName like '%root' ";
+if ($runPr ne "all"){
+    $sql .= "AND runID = '$runPr'";
 }
+if ($detrSet ne "all"){
+    $sql .= "AND  dataset like '%$detrSet' ";
+}
+if ($trgSet ne "all"){
+    $sql .= "AND trigger = '$trgSet' ";
+}
+
+
+
 
 $cursor =$dbh->prepare($sql)
   || die "Cannot prepare statement: $DBI::errstr\n";
