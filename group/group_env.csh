@@ -1,5 +1,5 @@
 #!/usr/bin/csh -f
-#       $Id: group_env.csh,v 1.129 2002/04/12 02:28:18 jeromel Exp $
+#       $Id: group_env.csh,v 1.130 2002/05/21 00:47:00 jeromel Exp $
 #	Purpose:	STAR group csh setup
 #
 #	Author:		Y.Fisyak     BNL
@@ -23,6 +23,7 @@ if ($ECHO) echo   "Setting up WWW_HOME  = $WWW_HOME"
 setenv AFS       /usr/afsws
 setenv AFS_RHIC  /afs/rhic
 
+
 if (! $?STAR_ROOT) then
     setenv STAR_ROOT ${AFS_RHIC}/star;
 endif
@@ -42,7 +43,10 @@ setenv GROUPPATH  $GROUP_PATH
 if ($?STAR_PATH == 0) setenv STAR_PATH ${STAR_ROOT}/packages;
 if ($ECHO) echo   "Setting up STAR_PATH = ${STAR_PATH}"
 
+
+# Default value
 if ($?STAR_LEVEL == 0) setenv STAR_LEVEL pro
+
 setenv STAR_VERSION ${STAR_LEVEL}
 if ($STAR_LEVEL  == "old" || $STAR_LEVEL  == "pro" || $STAR_LEVEL  == "new" || $STAR_LEVEL  == "dev" || $STAR_LEVEL  == ".dev") then
   # i.e. replace with link value instead
@@ -66,8 +70,12 @@ if ($STAF_LEVEL  == "old" || $STAF_LEVEL  == "pro" || $STAF_LEVEL  == "new" || $
   endif
 endif
 
+
 # Clear this out. First block STAF, second STAR
 source ${GROUP_DIR}/STAR_SYS;
+
+
+
 # STAF
 setenv STAF $STAR_PATH/StAF/${STAF_VERSION};    if ($ECHO) echo   "Setting up STAF      = ${STAF}"
 setenv STAF_LIB  $STAF/.${STAR_HOST_SYS}/lib;   if ($ECHO) echo   "Setting up STAF_LIB  = ${STAF_LIB}"
@@ -262,10 +270,12 @@ switch ($STAR_SYS)
 
       if ($?LD_LIBRARY_PATH == 0) setenv LD_LIBRARY_PATH
       setenv LD_LIBRARY_PATH `${GROUP_DIR}/dropit -p /usr/openwin/lib -p /usr/dt/lib -p /usr/local/lib -p ${LD_LIBRARY_PATH}`
+      if (! $?SUNOPT) setenv SUNOPT /opt
+
       if ("${STAR_HOST_SYS}" == "sun4x_56_CC5" || "${STAR_HOST_SYS}" == "sun4x_58" ) then
-        setenv LD_LIBRARY_PATH `${GROUP_DIR}/dropit -p ${LD_LIBRARY_PATH} -p /opt/$SUNWS/lib -p /opt/$SUNWS/SC$WSVERS/lib -p /opt/$SUNWS/WS$WSMVER/lib`
-        setenv PATH `${GROUP_DIR}/dropit -p /opt/$SUNWS/bin -p ${PATH}`
-	setenv MANPATH `${GROUP_DIR}/dropit -p /opt/$SUNWS/man -p ${MANPATH}`
+        setenv LD_LIBRARY_PATH `${GROUP_DIR}/dropit -p ${LD_LIBRARY_PATH} -p $SUNOPT/$SUNWS/lib -p $SUNOPT/$SUNWS/SC$WSVERS/lib -p $SUNOPT/$SUNWS/WS$WSMVER/lib`
+        setenv PATH `${GROUP_DIR}/dropit -p $SUNOPT/$SUNWS/bin -p ${PATH}`
+	setenv MANPATH `${GROUP_DIR}/dropit -p $SUNOPT/$SUNWS/man -p ${MANPATH}`
         if ( -x ${GROUP_DIR}/dropit) then
           setenv PATH `${GROUP_DIR}/dropit SUNWspro ObjectSpace`
           setenv LD_LIBRARY_PATH `${GROUP_DIR}/dropit -p $LD_LIBRARY_PATH SUNWspro`
@@ -278,9 +288,9 @@ switch ($STAR_SYS)
           setenv LD_LIBRARY_PATH `${GROUP_DIR}/dropit -p $LD_LIBRARY_PATH CC$WSMVER`
         endif
 
-        setenv LD_LIBRARY_PATH `${GROUP_DIR}/dropit -p /opt/SUNWspro/lib -p ${LD_LIBRARY_PATH} -p ${STAR_PATH}/ObjectSpace/2.0m/lib`
-        setenv PATH `${GROUP_DIR}/dropit -p /opt/SUNWspro/bin -p $PATH`
-        setenv MANPATH `${GROUP_DIR}/dropit -p /opt/SUNWspro/man -p $MANPATH`
+        setenv LD_LIBRARY_PATH `${GROUP_DIR}/dropit -p $SUNOPT/SUNWspro/lib -p ${LD_LIBRARY_PATH} -p ${STAR_PATH}/ObjectSpace/2.0m/lib`
+        setenv PATH `${GROUP_DIR}/dropit -p $SUNOPT/SUNWspro/bin -p $PATH`
+        setenv MANPATH `${GROUP_DIR}/dropit -p $SUNOPT/SUNWspro/man -p $MANPATH`
       endif
 
      if ($?MINE_lib == 1 && $?STAR_lib == 1) then
