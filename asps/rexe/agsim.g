@@ -1593,7 +1593,7 @@ C
       if (address != 0) then
          CALL CsJCAL (address,2,VECT,Field)
       Else
-         Field={0.,0.,0.}
+         Field={0.,0.,5.}
       Endif
 *
       END
