@@ -1,6 +1,6 @@
 #!/opt/star/bin/perl -w
 
-# $Id: AutoBuild.pl,v 1.9 2002/02/21 22:44:37 jeromel Exp $
+# $Id: AutoBuild.pl,v 1.10 2002/05/24 06:29:33 jeromel Exp $
 # This script was written to perform an automatic compilation
 # with cvs co and write some html page related to it afterward.
 # Written J.Lauret Apr 6 2001
@@ -263,7 +263,7 @@ if($#MERGED != -1){
 	" - List of un-comitted code will follow ...\n";
     push(@REPORT,"%%REF%%<H2>List of code found with conflicting cvs version.</H2>");
     push(@REPORT,"Those re codes modified on disk and NOT commited ");
-    push(@REPORT,"in the repository. This may be a mistakeor an experimenatl ");
+    push(@REPORT,"in the repository. This may be a mistake or an experimental ");
     push(@REPORT,"version. Please, <U>delete or commit</U> them now !! ");
     push(@REPORT,"<UL>");
     foreach $line (@MERGED){

@@ -44,6 +44,7 @@ if ( -r  $GROUP_DIR/star_login.csh ) then
 	    case "Insure":
 		cd $STAR
 		$SCRIPTD/insbld.pl -c -s >$HOME/log/IN-$DAY.log
+		mgr/CleanLibs IOBJ 1
 		breaksw
 
 

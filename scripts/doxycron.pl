@@ -112,10 +112,10 @@ $URLPATH = "webdatanfs";                             # Base URL path
 # -------------------------------------------------------------------
 # Sanity checks
 # -------------------------------------------------------------------
-if ( -e "$BINCRON/$DOXYGEN"){    chomp($DOXYGEN=`which $DOXYGEN`);
-} else {                               $DOXYGEN= "$BINCRON/$DOXYGEN";}
-if ( -e "$BINCRON/$DOXYTAG"){    chomp($DOXYTAG=`which $DOXYTAG`);
-} else {                               $DOXYTAG= "$BINCRON/$DOXYTAG";}
+if ( ! -e "$BINCRON/$DOXYGEN"){    chomp($DOXYGEN=`which $DOXYGEN`);
+} else {                                 $DOXYGEN= "$BINCRON/$DOXYGEN";}
+if ( ! -e "$BINCRON/$DOXYTAG"){    chomp($DOXYTAG=`which $DOXYTAG`);
+} else {                                 $DOXYTAG= "$BINCRON/$DOXYTAG";}
 
 
 # RE-check now

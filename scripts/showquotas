@@ -35,7 +35,16 @@ for ($i=0; $i <= $#ARGV ; $i++){
 }
 
 
-if( $PATH eq "" ){  die "Arg1 must be a path/partition\n";}
+if( $PATH eq "" ){
+    print 
+	"Syntax is : \n",
+	"  % showquotas partition [-html] [-o ofile] [-d]\n",
+	"\n",
+	"'partition' is a mandatory argument\n";
+    die "\n";
+}
+
+# Check open channel
 if( $FLNM ne "" ){
     open(FO,">$FLNM.new") || die "Cannot open $FLNM.new\n";
     $FO = FO;

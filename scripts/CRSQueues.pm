@@ -6,7 +6,7 @@
 
 use Carp;
 
-package CRSQueues2;
+package CRSQueues;
 require 5.000;
 require Exporter;
 @ISA = qw(Exporter);
