@@ -1,4 +1,4 @@
-*CMZ :          28/03/98  23.02.12  by  Pavel Nevski
+*CMZ :          30/04/98  00.45.04  by  Pavel Nevski
 *-- Author :    Pavel Nevski
 *****************************************************************************
 *                                                                           *
@@ -48,6 +48,7 @@ C
       VERSION = '       '
 *     VERSION = PROG(I:N)
       FATCAT = ' '
+      if (PROG(I:N)=='atlsim') CALL REBANKM(-1)
 *
       do J=1,999
       {  CALL GETARG(J,comd);  Call CUTOL(comd)
@@ -91,7 +92,7 @@ C
  
       CALL PAWINT1 (PROG(I:N),BATCHF,PAWLOGF)
       CALL PAWINT2 (0,'+?',AgPAWE,IWTYP)  ! type of PAW, HBOOK, command
-      CALL FMLOGL (-3)
+      CALL FMLOGL  (-3)
       IF (LENOCC(FATCAT)>0) CALL FMSTRT(62,63,%L(FATCAT),Irc)
  
       if (G) CALL GINTRI            ! Geant MENUs and COMMANDs
@@ -110,8 +111,8 @@ C
       if (G) CALL GDINIT            ! Initialise Drawing pkg
       CALL TIMEL  (TIMINT)
  
-      if (G) { Call AgVERSION; CALL KUEXEC('ROOT /GEANT') }
-      if (S) { call staf_start }
+      if (G) { Call AgVERSION;  CALL KUEXEC('ROOT /GEANT') }
+      if (S) { call staf_start; }
 ****>
       CALL KUEXEC  ('SET/PROMPT '''//PROG(I:N)//' >''')
 *
@@ -162,12 +163,12 @@ C
 *KEEP,VIDQQ.
       CHARACTER*68 VIDQQ
       DATA VIDQQ/
-     +'@(#)Advanced Geant Inteface               C: 13/04/98  13.47.32
+     +'@(#)Advanced Geant Inteface               C: 02/06/98  12.51.35
      +'/
 *KEEP,DATEQQ.
-      IDATQQ =   980413
+      IDATQQ =   980602
 *KEEP,TIMEQQ.
-      ITIMQQ =   1347
+      ITIMQQ =   1251
 *KEEP,VERSQQ.
       VERSQQ = ' '
       IVERSQ = -1
@@ -347,7 +348,8 @@ C                                       Link to:
      +             AG_IRESER,AG_LSTACK,AG_NWUHIT,AG_NWUVOL,AG_MAGIC,
      +             AG_LDETU,AG_NPDIV,AG_NZ,AG_IGEOM,AG_IDEBU,AG_IGRAP,
      +             AG_IHIST,AG_IMFLD,AG_SERIAL,AG_STANDALONE,AG_ISIMU,
-     +             AG_CODE,AG_TRKTYP,AG_ECODE,AG_MODE,AG_ENDSAVE,IPRIN
+     +             AG_CODE,AG_TRKTYP,AG_ECODE,AG_MODE,AG_PDG,
+     +             AG_ENDSAVE,IPRIN
       REAL         AG_FIELDM,AG_TMAXFD,AG_STEMAX,AG_DEEMAX,AG_EPSIL,
      +             AG_STMIN,AG_DENS,AG_RADL,AG_ABSL,AG_THETAX,AG_THETAY,
      +             AG_THETAZ,AG_ALFAX,AG_ALFAY,AG_ALFAZ,AG_PHIX,AG_PHIY,
@@ -402,7 +404,7 @@ C Inherited variables saved during internal calls
      +              AG_RESET2,
      +              AG_KONLY,   AG_ORT,     AG_MARK
       COMMON/AGCPART/AG_code,AG_trktyp,AG_mass,AG_charge,AG_tlife,
-     +                       AG_bratio(6),AG_mode(6),AG_ecode
+     +                       AG_bratio(6),AG_mode(6),AG_pdg,AG_ecode
 C local variables valid inside same block
       COMMON/AGCLOCA/AG_BEGSCR, AG_UBUF(100), AG_PAR(100),
      +              AG_AA(20),  AG_ZZ(20),    AG_WW(20),   AG_NWBUF,
@@ -570,7 +572,7 @@ C
     END
  
  
-*CMZ :          31/03/98  19.06.08  by  Pavel Nevski
+*CMZ :          02/06/98  11.32.04  by  Pavel Nevski
 *CMZ :  1.30/00 23/04/97  18.45.29  by  Pavel Nevski
 *-- Author :    Pavel Nevski   01/04/96
 *********+*********+*********+*********+*********+*********+*********+*********+
@@ -778,9 +780,9 @@ C                                       Link to:
 *KEND.
      character     command*32,Cword*4,C*1
      character*256 string1,string2,string3
-     integer       LENOCC,CSADDR,SYSTEMF,Npar,Len1,Len2,Len3,Ip,Kp,Jp,
-                   L1,L,i,j,K,i0,j0,id,id1,id2,address,JAD,IAD,Ival,Ier,
-                   Iprin/1/,Li/20/
+     integer       LENOCC,CSADDR,SYSTEMF,
+                   Npar,Len1,Len2,Len3,Ip,Kp,Jp,L1,L,i,j,K,i0,j0,id,
+                   id1,id2,address,JAD,IAD,Ival,Ier,Iprin/1/,Li/20/
      Character*160 source,      destin,      mname,     library
      data          source/' '/, destin/' '/, mname/' '/,library/' '/
      Real          PAR(1000),Rval,dummy1,dummy2
@@ -826,7 +828,7 @@ C                                       Link to:
         IF (Index(String1(1:len1),'O')>0)  Call AGZWRITE('O',ier)
      }
      If (Index(String3(1:Len3),'S')>0 | String3(1:1)='*') _
-                                      Call AGKEEPS('*','def')
+                                      Call AGKEEPS(' ','def')
   }
   else If Command=='GHIST' | Command=='HFILE'
   {  " open a histigram file
@@ -1017,15 +1019,17 @@ C                                       Link to:
   {  * PN, 04.03.98:  make it case sensitive
      Call KuGetS(string1,len1); " Call CUTOL(string1(1:Len1)) "
      If (Npar>1) Call KuGetS(Library,len2)
-     L=0; K=1; DO i=1,Len1
-     { if (string1(i:i)=='/') K=i+1; if (string1(i:i)=='.') break; L=i; }
- 
+     L=Len1; K=1; DO i=1,Len1
+     { if (string1(i:i)=='/') { K=i+1; L=Len1 };
+       if (string1(i:i)=='.')   L=i-1
+     }
 *    call to csrmsl is needed to free the sl file before compilation
      If LENOCC(Source)+LENOCC(Destin)==0
      {  Call CSRMSL(String1(1:L));         CALL PAWCS;
         II(4)=0;
-        Ier=SystemF('make '//string1(1:L)//'.sl')
-        CALL PAWFCA(string1(1:L)//'.csl',L+4,JAD,Idebug)
+        Ier = SystemF('make '//string1(1:L)//'.sl')
+        CALL  PAWFCA(string1(1:L)//'.csl',L+4,JAD,Idebug)
+        Prin1  'make '//string1(1:L)//'.sl';  ('gexec: ',a)
      }
      else
      {  Call CSRMSL('sl/'//String1(K:L));  CALL PAWCS;
@@ -1039,8 +1043,15 @@ C                                       Link to:
                     ' '//%L(library))
         CALL PAWFCA('sl/'//string1(K:L)//'.csl',L-K+8,JAD,Idebug)
      }
-     IAD=CsADDR(string1(K:L)//'_init'); if (IAD!=0) JAD=IAD
-     IF (JAD>0) CALL CSJCAL(JAD,0,0)
+ 
+     if (JAD!=0) Call Ami_Module_Register (string1(K:L))
+     IAD=CsADDR(string1(K:L)//'_init')
+     IF      IAD!=0       " staf module - init and possibly start it "
+     {  CALL CSJCAL(IAD,0,0)
+        IAD=CsADDR(string1(K:L)//'_start')
+        if (IAD!=0) CALL CSJCAL(IAD,0,0)
+     }
+     else if JAD!=0    { CALL CSJCAL(JAD,0,0) }
   }
   Else If Command=='GMAKE'
   {  Call KuGetS(source,len1)
@@ -2763,96 +2774,6 @@ C
  
  
  
-*CMZ :          26/03/98  11.40.53  by  Pavel Nevski
-*CMZ :  1.30/00 16/09/96  23.24.54  by  Pavel Nevski
-*-- Author :    Pavel Nevski
-      SUBROUTINE GTNEXT
-*KEEP,TYPING.
-      IMPLICIT NONE
-*KEEP,GCFLAG.
-      COMMON/GCFLAG/IDEBUG,IDEMIN,IDEMAX,ITEST,IDRUN,IDEVT,IEORUN
-     +        ,IEOTRI,IEVENT,ISWIT(10),IFINIT(20),NEVENT,NRNDM(2)
-      COMMON/GCFLAX/BATCH, NOLOG
-      LOGICAL BATCH, NOLOG
-C
-      INTEGER       IDEBUG,IDEMIN,IDEMAX,ITEST,IDRUN,IDEVT,IEORUN
-     +        ,IEOTRI,IEVENT,ISWIT,IFINIT,NEVENT,NRNDM
-C
-*KEEP,GCVOLU.
-      COMMON/GCVOLU/NLEVEL,NAMES(15),NUMBER(15),
-     +LVOLUM(15),LINDEX(15),INFROM,NLEVMX,NLDEV(15),LINMX(15),
-     +GTRAN(3,15),GRMAT(10,15),GONLY(15),GLX(3)
-C
-      INTEGER NLEVEL,NAMES,NUMBER,LVOLUM,LINDEX,INFROM,NLEVMX,
-     +        NLDEV,LINMX
-      REAL GTRAN,GRMAT,GONLY,GLX
-*KEND.
-      INTEGER IFL/-1/,IDEVT0/-1/,IAD/0/,CSADDR
- 
-      If (Idevt.NE.Idevt0) then
-         Iad=CSADDR('AGTNEXT')
-         Idevt0=Idevt
-      endif
-*                                   message
-      IF (ISWIT(10).NE.IFL) then
-         IFL=ISWIT(10)
-         IF (IFL.EQ.0) PRINT *,' *** GTNEXT: 3.21 tracking logic *** '
-         IF (IFL.EQ.1) PRINT *,' *** GTNEXT: soft tracking logic *** '
-         IF (IFL.EQ.2) PRINT *,' *** GTNEXT: 3.15 tracking logic *** '
-      endif
-*
-      if (Iad.NE.0) then
-         Call CSJCAL (Iad,0,0,0)
-      else If (IFL.EQ.1 .and. GONLY(NLEVEL).EQ.0 .OR. IFL.GE.2) Then
-         CALL GTNEX2      !  3.15
-      else
-         CALL GTNEX1      !  3.21
-      endif
-*
-      END
-*CMZ :          26/03/98  12.03.41  by  Pavel Nevski
-*-- Author :    Pavel Nevski
-      SUBROUTINE GTMEDI (X, NUMED)
-*KEEP,TYPING.
-      IMPLICIT NONE
-*KEEP,GCFLAG.
-      COMMON/GCFLAG/IDEBUG,IDEMIN,IDEMAX,ITEST,IDRUN,IDEVT,IEORUN
-     +        ,IEOTRI,IEVENT,ISWIT(10),IFINIT(20),NEVENT,NRNDM(2)
-      COMMON/GCFLAX/BATCH, NOLOG
-      LOGICAL BATCH, NOLOG
-C
-      INTEGER       IDEBUG,IDEMIN,IDEMAX,ITEST,IDRUN,IDEVT,IEORUN
-     +        ,IEOTRI,IEVENT,ISWIT,IFINIT,NEVENT,NRNDM
-C
-*KEEP,GCVOLU.
-      COMMON/GCVOLU/NLEVEL,NAMES(15),NUMBER(15),
-     +LVOLUM(15),LINDEX(15),INFROM,NLEVMX,NLDEV(15),LINMX(15),
-     +GTRAN(3,15),GRMAT(10,15),GONLY(15),GLX(3)
-C
-      INTEGER NLEVEL,NAMES,NUMBER,LVOLUM,LINDEX,INFROM,NLEVMX,
-     +        NLDEV,LINMX
-      REAL GTRAN,GRMAT,GONLY,GLX
-*KEND.
-      INTEGER IFL/-1/,IDEVT0/-1/,IAD/0/,CSADDR,NUMED
-      REAL    X(3)
- 
-      If (Idevt.NE.Idevt0) then
-         Iad=CSADDR('AGTMEDI')
-         Idevt0=Idevt
-      endif
-*                           no  message
-      IF (ISWIT(10).NE.IFL) IFL=ISWIT(10)
-*
-      if (Iad.NE.0) then
-         Call CSJCAL (Iad,2,X,NUMED)
-      else If (IFL.EQ.1 .and. GONLY(NLEVEL).EQ.0 .OR. IFL.GE.2) Then
-         CALL GTMED2  (X,NUMED)    !  3.15
-      else
-         CALL GTMED1  (X,NUMED)    !  3.21
-      endif
-*
-      END
- 
 *CMZ :  1.30/00 16/07/96  23.30.40  by  Pavel Nevski
 *CMZ :  1.00/00 12/04/95  19.53.08  by  Pavel Nevski
 *-- Author :    Pavel Nevski   26/11/94
@@ -2881,7 +2802,8 @@ C
      +             AG_IRESER,AG_LSTACK,AG_NWUHIT,AG_NWUVOL,AG_MAGIC,
      +             AG_LDETU,AG_NPDIV,AG_NZ,AG_IGEOM,AG_IDEBU,AG_IGRAP,
      +             AG_IHIST,AG_IMFLD,AG_SERIAL,AG_STANDALONE,AG_ISIMU,
-     +             AG_CODE,AG_TRKTYP,AG_ECODE,AG_MODE,AG_ENDSAVE,IPRIN
+     +             AG_CODE,AG_TRKTYP,AG_ECODE,AG_MODE,AG_PDG,
+     +             AG_ENDSAVE,IPRIN
       REAL         AG_FIELDM,AG_TMAXFD,AG_STEMAX,AG_DEEMAX,AG_EPSIL,
      +             AG_STMIN,AG_DENS,AG_RADL,AG_ABSL,AG_THETAX,AG_THETAY,
      +             AG_THETAZ,AG_ALFAX,AG_ALFAY,AG_ALFAZ,AG_PHIX,AG_PHIY,
@@ -2936,7 +2858,7 @@ C Inherited variables saved during internal calls
      +              AG_RESET2,
      +              AG_KONLY,   AG_ORT,     AG_MARK
       COMMON/AGCPART/AG_code,AG_trktyp,AG_mass,AG_charge,AG_tlife,
-     +                       AG_bratio(6),AG_mode(6),AG_ecode
+     +                       AG_bratio(6),AG_mode(6),AG_pdg,AG_ecode
 C local variables valid inside same block
       COMMON/AGCLOCA/AG_BEGSCR, AG_UBUF(100), AG_PAR(100),
      +              AG_AA(20),  AG_ZZ(20),    AG_WW(20),   AG_NWBUF,
@@ -2997,7 +2919,8 @@ C
      +             AG_IRESER,AG_LSTACK,AG_NWUHIT,AG_NWUVOL,AG_MAGIC,
      +             AG_LDETU,AG_NPDIV,AG_NZ,AG_IGEOM,AG_IDEBU,AG_IGRAP,
      +             AG_IHIST,AG_IMFLD,AG_SERIAL,AG_STANDALONE,AG_ISIMU,
-     +             AG_CODE,AG_TRKTYP,AG_ECODE,AG_MODE,AG_ENDSAVE,IPRIN
+     +             AG_CODE,AG_TRKTYP,AG_ECODE,AG_MODE,AG_PDG,
+     +             AG_ENDSAVE,IPRIN
       REAL         AG_FIELDM,AG_TMAXFD,AG_STEMAX,AG_DEEMAX,AG_EPSIL,
      +             AG_STMIN,AG_DENS,AG_RADL,AG_ABSL,AG_THETAX,AG_THETAY,
      +             AG_THETAZ,AG_ALFAX,AG_ALFAY,AG_ALFAZ,AG_PHIX,AG_PHIY,
@@ -3052,7 +2975,7 @@ C Inherited variables saved during internal calls
      +              AG_RESET2,
      +              AG_KONLY,   AG_ORT,     AG_MARK
       COMMON/AGCPART/AG_code,AG_trktyp,AG_mass,AG_charge,AG_tlife,
-     +                       AG_bratio(6),AG_mode(6),AG_ecode
+     +                       AG_bratio(6),AG_mode(6),AG_pdg,AG_ecode
 C local variables valid inside same block
       COMMON/AGCLOCA/AG_BEGSCR, AG_UBUF(100), AG_PAR(100),
      +              AG_AA(20),  AG_ZZ(20),    AG_WW(20),   AG_NWBUF,
@@ -3152,7 +3075,8 @@ C
      +             AG_IRESER,AG_LSTACK,AG_NWUHIT,AG_NWUVOL,AG_MAGIC,
      +             AG_LDETU,AG_NPDIV,AG_NZ,AG_IGEOM,AG_IDEBU,AG_IGRAP,
      +             AG_IHIST,AG_IMFLD,AG_SERIAL,AG_STANDALONE,AG_ISIMU,
-     +             AG_CODE,AG_TRKTYP,AG_ECODE,AG_MODE,AG_ENDSAVE,IPRIN
+     +             AG_CODE,AG_TRKTYP,AG_ECODE,AG_MODE,AG_PDG,
+     +             AG_ENDSAVE,IPRIN
       REAL         AG_FIELDM,AG_TMAXFD,AG_STEMAX,AG_DEEMAX,AG_EPSIL,
      +             AG_STMIN,AG_DENS,AG_RADL,AG_ABSL,AG_THETAX,AG_THETAY,
      +             AG_THETAZ,AG_ALFAX,AG_ALFAY,AG_ALFAZ,AG_PHIX,AG_PHIY,
@@ -3207,7 +3131,7 @@ C Inherited variables saved during internal calls
      +              AG_RESET2,
      +              AG_KONLY,   AG_ORT,     AG_MARK
       COMMON/AGCPART/AG_code,AG_trktyp,AG_mass,AG_charge,AG_tlife,
-     +                       AG_bratio(6),AG_mode(6),AG_ecode
+     +                       AG_bratio(6),AG_mode(6),AG_pdg,AG_ecode
 C local variables valid inside same block
       COMMON/AGCLOCA/AG_BEGSCR, AG_UBUF(100), AG_PAR(100),
      +              AG_AA(20),  AG_ZZ(20),    AG_WW(20),   AG_NWBUF,
@@ -3307,7 +3231,8 @@ C
      +             AG_IRESER,AG_LSTACK,AG_NWUHIT,AG_NWUVOL,AG_MAGIC,
      +             AG_LDETU,AG_NPDIV,AG_NZ,AG_IGEOM,AG_IDEBU,AG_IGRAP,
      +             AG_IHIST,AG_IMFLD,AG_SERIAL,AG_STANDALONE,AG_ISIMU,
-     +             AG_CODE,AG_TRKTYP,AG_ECODE,AG_MODE,AG_ENDSAVE,IPRIN
+     +             AG_CODE,AG_TRKTYP,AG_ECODE,AG_MODE,AG_PDG,
+     +             AG_ENDSAVE,IPRIN
       REAL         AG_FIELDM,AG_TMAXFD,AG_STEMAX,AG_DEEMAX,AG_EPSIL,
      +             AG_STMIN,AG_DENS,AG_RADL,AG_ABSL,AG_THETAX,AG_THETAY,
      +             AG_THETAZ,AG_ALFAX,AG_ALFAY,AG_ALFAZ,AG_PHIX,AG_PHIY,
@@ -3362,7 +3287,7 @@ C Inherited variables saved during internal calls
      +              AG_RESET2,
      +              AG_KONLY,   AG_ORT,     AG_MARK
       COMMON/AGCPART/AG_code,AG_trktyp,AG_mass,AG_charge,AG_tlife,
-     +                       AG_bratio(6),AG_mode(6),AG_ecode
+     +                       AG_bratio(6),AG_mode(6),AG_pdg,AG_ecode
 C local variables valid inside same block
       COMMON/AGCLOCA/AG_BEGSCR, AG_UBUF(100), AG_PAR(100),
      +              AG_AA(20),  AG_ZZ(20),    AG_WW(20),   AG_NWBUF,
@@ -3462,7 +3387,8 @@ C
      +             AG_IRESER,AG_LSTACK,AG_NWUHIT,AG_NWUVOL,AG_MAGIC,
      +             AG_LDETU,AG_NPDIV,AG_NZ,AG_IGEOM,AG_IDEBU,AG_IGRAP,
      +             AG_IHIST,AG_IMFLD,AG_SERIAL,AG_STANDALONE,AG_ISIMU,
-     +             AG_CODE,AG_TRKTYP,AG_ECODE,AG_MODE,AG_ENDSAVE,IPRIN
+     +             AG_CODE,AG_TRKTYP,AG_ECODE,AG_MODE,AG_PDG,
+     +             AG_ENDSAVE,IPRIN
       REAL         AG_FIELDM,AG_TMAXFD,AG_STEMAX,AG_DEEMAX,AG_EPSIL,
      +             AG_STMIN,AG_DENS,AG_RADL,AG_ABSL,AG_THETAX,AG_THETAY,
      +             AG_THETAZ,AG_ALFAX,AG_ALFAY,AG_ALFAZ,AG_PHIX,AG_PHIY,
@@ -3517,7 +3443,7 @@ C Inherited variables saved during internal calls
      +              AG_RESET2,
      +              AG_KONLY,   AG_ORT,     AG_MARK
       COMMON/AGCPART/AG_code,AG_trktyp,AG_mass,AG_charge,AG_tlife,
-     +                       AG_bratio(6),AG_mode(6),AG_ecode
+     +                       AG_bratio(6),AG_mode(6),AG_pdg,AG_ecode
 C local variables valid inside same block
       COMMON/AGCLOCA/AG_BEGSCR, AG_UBUF(100), AG_PAR(100),
      +              AG_AA(20),  AG_ZZ(20),    AG_WW(20),   AG_NWBUF,
@@ -3574,7 +3500,8 @@ C local variables valid inside same block
      +             AG_IRESER,AG_LSTACK,AG_NWUHIT,AG_NWUVOL,AG_MAGIC,
      +             AG_LDETU,AG_NPDIV,AG_NZ,AG_IGEOM,AG_IDEBU,AG_IGRAP,
      +             AG_IHIST,AG_IMFLD,AG_SERIAL,AG_STANDALONE,AG_ISIMU,
-     +             AG_CODE,AG_TRKTYP,AG_ECODE,AG_MODE,AG_ENDSAVE,IPRIN
+     +             AG_CODE,AG_TRKTYP,AG_ECODE,AG_MODE,AG_PDG,
+     +             AG_ENDSAVE,IPRIN
       REAL         AG_FIELDM,AG_TMAXFD,AG_STEMAX,AG_DEEMAX,AG_EPSIL,
      +             AG_STMIN,AG_DENS,AG_RADL,AG_ABSL,AG_THETAX,AG_THETAY,
      +             AG_THETAZ,AG_ALFAX,AG_ALFAY,AG_ALFAZ,AG_PHIX,AG_PHIY,
@@ -3629,7 +3556,7 @@ C Inherited variables saved during internal calls
      +              AG_RESET2,
      +              AG_KONLY,   AG_ORT,     AG_MARK
       COMMON/AGCPART/AG_code,AG_trktyp,AG_mass,AG_charge,AG_tlife,
-     +                       AG_bratio(6),AG_mode(6),AG_ecode
+     +                       AG_bratio(6),AG_mode(6),AG_pdg,AG_ecode
 C local variables valid inside same block
       COMMON/AGCLOCA/AG_BEGSCR, AG_UBUF(100), AG_PAR(100),
      +              AG_AA(20),  AG_ZZ(20),    AG_WW(20),   AG_NWBUF,
@@ -3701,7 +3628,8 @@ C
      +             AG_IRESER,AG_LSTACK,AG_NWUHIT,AG_NWUVOL,AG_MAGIC,
      +             AG_LDETU,AG_NPDIV,AG_NZ,AG_IGEOM,AG_IDEBU,AG_IGRAP,
      +             AG_IHIST,AG_IMFLD,AG_SERIAL,AG_STANDALONE,AG_ISIMU,
-     +             AG_CODE,AG_TRKTYP,AG_ECODE,AG_MODE,AG_ENDSAVE,IPRIN
+     +             AG_CODE,AG_TRKTYP,AG_ECODE,AG_MODE,AG_PDG,
+     +             AG_ENDSAVE,IPRIN
       REAL         AG_FIELDM,AG_TMAXFD,AG_STEMAX,AG_DEEMAX,AG_EPSIL,
      +             AG_STMIN,AG_DENS,AG_RADL,AG_ABSL,AG_THETAX,AG_THETAY,
      +             AG_THETAZ,AG_ALFAX,AG_ALFAY,AG_ALFAZ,AG_PHIX,AG_PHIY,
@@ -3756,7 +3684,7 @@ C Inherited variables saved during internal calls
      +              AG_RESET2,
      +              AG_KONLY,   AG_ORT,     AG_MARK
       COMMON/AGCPART/AG_code,AG_trktyp,AG_mass,AG_charge,AG_tlife,
-     +                       AG_bratio(6),AG_mode(6),AG_ecode
+     +                       AG_bratio(6),AG_mode(6),AG_pdg,AG_ecode
 C local variables valid inside same block
       COMMON/AGCLOCA/AG_BEGSCR, AG_UBUF(100), AG_PAR(100),
      +              AG_AA(20),  AG_ZZ(20),    AG_WW(20),   AG_NWBUF,
@@ -3893,7 +3821,8 @@ C
      +             AG_IRESER,AG_LSTACK,AG_NWUHIT,AG_NWUVOL,AG_MAGIC,
      +             AG_LDETU,AG_NPDIV,AG_NZ,AG_IGEOM,AG_IDEBU,AG_IGRAP,
      +             AG_IHIST,AG_IMFLD,AG_SERIAL,AG_STANDALONE,AG_ISIMU,
-     +             AG_CODE,AG_TRKTYP,AG_ECODE,AG_MODE,AG_ENDSAVE,IPRIN
+     +             AG_CODE,AG_TRKTYP,AG_ECODE,AG_MODE,AG_PDG,
+     +             AG_ENDSAVE,IPRIN
       REAL         AG_FIELDM,AG_TMAXFD,AG_STEMAX,AG_DEEMAX,AG_EPSIL,
      +             AG_STMIN,AG_DENS,AG_RADL,AG_ABSL,AG_THETAX,AG_THETAY,
      +             AG_THETAZ,AG_ALFAX,AG_ALFAY,AG_ALFAZ,AG_PHIX,AG_PHIY,
@@ -3948,7 +3877,7 @@ C Inherited variables saved during internal calls
      +              AG_RESET2,
      +              AG_KONLY,   AG_ORT,     AG_MARK
       COMMON/AGCPART/AG_code,AG_trktyp,AG_mass,AG_charge,AG_tlife,
-     +                       AG_bratio(6),AG_mode(6),AG_ecode
+     +                       AG_bratio(6),AG_mode(6),AG_pdg,AG_ecode
 C local variables valid inside same block
       COMMON/AGCLOCA/AG_BEGSCR, AG_UBUF(100), AG_PAR(100),
      +              AG_AA(20),  AG_ZZ(20),    AG_WW(20),   AG_NWBUF,
@@ -4096,7 +4025,8 @@ JATTF(Jj) = Jj+int(Q(Jj+5))+6
      +             AG_IRESER,AG_LSTACK,AG_NWUHIT,AG_NWUVOL,AG_MAGIC,
      +             AG_LDETU,AG_NPDIV,AG_NZ,AG_IGEOM,AG_IDEBU,AG_IGRAP,
      +             AG_IHIST,AG_IMFLD,AG_SERIAL,AG_STANDALONE,AG_ISIMU,
-     +             AG_CODE,AG_TRKTYP,AG_ECODE,AG_MODE,AG_ENDSAVE,IPRIN
+     +             AG_CODE,AG_TRKTYP,AG_ECODE,AG_MODE,AG_PDG,
+     +             AG_ENDSAVE,IPRIN
       REAL         AG_FIELDM,AG_TMAXFD,AG_STEMAX,AG_DEEMAX,AG_EPSIL,
      +             AG_STMIN,AG_DENS,AG_RADL,AG_ABSL,AG_THETAX,AG_THETAY,
      +             AG_THETAZ,AG_ALFAX,AG_ALFAY,AG_ALFAZ,AG_PHIX,AG_PHIY,
@@ -4151,7 +4081,7 @@ C Inherited variables saved during internal calls
      +              AG_RESET2,
      +              AG_KONLY,   AG_ORT,     AG_MARK
       COMMON/AGCPART/AG_code,AG_trktyp,AG_mass,AG_charge,AG_tlife,
-     +                       AG_bratio(6),AG_mode(6),AG_ecode
+     +                       AG_bratio(6),AG_mode(6),AG_pdg,AG_ecode
 C local variables valid inside same block
       COMMON/AGCLOCA/AG_BEGSCR, AG_UBUF(100), AG_PAR(100),
      +              AG_AA(20),  AG_ZZ(20),    AG_WW(20),   AG_NWBUF,
@@ -4275,7 +4205,8 @@ C
      +             AG_IRESER,AG_LSTACK,AG_NWUHIT,AG_NWUVOL,AG_MAGIC,
      +             AG_LDETU,AG_NPDIV,AG_NZ,AG_IGEOM,AG_IDEBU,AG_IGRAP,
      +             AG_IHIST,AG_IMFLD,AG_SERIAL,AG_STANDALONE,AG_ISIMU,
-     +             AG_CODE,AG_TRKTYP,AG_ECODE,AG_MODE,AG_ENDSAVE,IPRIN
+     +             AG_CODE,AG_TRKTYP,AG_ECODE,AG_MODE,AG_PDG,
+     +             AG_ENDSAVE,IPRIN
       REAL         AG_FIELDM,AG_TMAXFD,AG_STEMAX,AG_DEEMAX,AG_EPSIL,
      +             AG_STMIN,AG_DENS,AG_RADL,AG_ABSL,AG_THETAX,AG_THETAY,
      +             AG_THETAZ,AG_ALFAX,AG_ALFAY,AG_ALFAZ,AG_PHIX,AG_PHIY,
@@ -4330,7 +4261,7 @@ C Inherited variables saved during internal calls
      +              AG_RESET2,
      +              AG_KONLY,   AG_ORT,     AG_MARK
       COMMON/AGCPART/AG_code,AG_trktyp,AG_mass,AG_charge,AG_tlife,
-     +                       AG_bratio(6),AG_mode(6),AG_ecode
+     +                       AG_bratio(6),AG_mode(6),AG_pdg,AG_ecode
 C local variables valid inside same block
       COMMON/AGCLOCA/AG_BEGSCR, AG_UBUF(100), AG_PAR(100),
      +              AG_AA(20),  AG_ZZ(20),    AG_WW(20),   AG_NWBUF,
@@ -4419,7 +4350,8 @@ Replace[;#,#=>#;] with  [{IF} [EXIST 1] {[INCR a]; %#3([COPY a])=%#1; #2,=>#3;}
      +             AG_IRESER,AG_LSTACK,AG_NWUHIT,AG_NWUVOL,AG_MAGIC,
      +             AG_LDETU,AG_NPDIV,AG_NZ,AG_IGEOM,AG_IDEBU,AG_IGRAP,
      +             AG_IHIST,AG_IMFLD,AG_SERIAL,AG_STANDALONE,AG_ISIMU,
-     +             AG_CODE,AG_TRKTYP,AG_ECODE,AG_MODE,AG_ENDSAVE,IPRIN
+     +             AG_CODE,AG_TRKTYP,AG_ECODE,AG_MODE,AG_PDG,
+     +             AG_ENDSAVE,IPRIN
       REAL         AG_FIELDM,AG_TMAXFD,AG_STEMAX,AG_DEEMAX,AG_EPSIL,
      +             AG_STMIN,AG_DENS,AG_RADL,AG_ABSL,AG_THETAX,AG_THETAY,
      +             AG_THETAZ,AG_ALFAX,AG_ALFAY,AG_ALFAZ,AG_PHIX,AG_PHIY,
@@ -4474,7 +4406,7 @@ C Inherited variables saved during internal calls
      +              AG_RESET2,
      +              AG_KONLY,   AG_ORT,     AG_MARK
       COMMON/AGCPART/AG_code,AG_trktyp,AG_mass,AG_charge,AG_tlife,
-     +                       AG_bratio(6),AG_mode(6),AG_ecode
+     +                       AG_bratio(6),AG_mode(6),AG_pdg,AG_ecode
 C local variables valid inside same block
       COMMON/AGCLOCA/AG_BEGSCR, AG_UBUF(100), AG_PAR(100),
      +              AG_AA(20),  AG_ZZ(20),    AG_WW(20),   AG_NWBUF,
@@ -4653,7 +4585,8 @@ C
      +             AG_IRESER,AG_LSTACK,AG_NWUHIT,AG_NWUVOL,AG_MAGIC,
      +             AG_LDETU,AG_NPDIV,AG_NZ,AG_IGEOM,AG_IDEBU,AG_IGRAP,
      +             AG_IHIST,AG_IMFLD,AG_SERIAL,AG_STANDALONE,AG_ISIMU,
-     +             AG_CODE,AG_TRKTYP,AG_ECODE,AG_MODE,AG_ENDSAVE,IPRIN
+     +             AG_CODE,AG_TRKTYP,AG_ECODE,AG_MODE,AG_PDG,
+     +             AG_ENDSAVE,IPRIN
       REAL         AG_FIELDM,AG_TMAXFD,AG_STEMAX,AG_DEEMAX,AG_EPSIL,
      +             AG_STMIN,AG_DENS,AG_RADL,AG_ABSL,AG_THETAX,AG_THETAY,
      +             AG_THETAZ,AG_ALFAX,AG_ALFAY,AG_ALFAZ,AG_PHIX,AG_PHIY,
@@ -4708,7 +4641,7 @@ C Inherited variables saved during internal calls
      +              AG_RESET2,
      +              AG_KONLY,   AG_ORT,     AG_MARK
       COMMON/AGCPART/AG_code,AG_trktyp,AG_mass,AG_charge,AG_tlife,
-     +                       AG_bratio(6),AG_mode(6),AG_ecode
+     +                       AG_bratio(6),AG_mode(6),AG_pdg,AG_ecode
 C local variables valid inside same block
       COMMON/AGCLOCA/AG_BEGSCR, AG_UBUF(100), AG_PAR(100),
      +              AG_AA(20),  AG_ZZ(20),    AG_WW(20),   AG_NWBUF,
@@ -4814,7 +4747,8 @@ C
      +             AG_IRESER,AG_LSTACK,AG_NWUHIT,AG_NWUVOL,AG_MAGIC,
      +             AG_LDETU,AG_NPDIV,AG_NZ,AG_IGEOM,AG_IDEBU,AG_IGRAP,
      +             AG_IHIST,AG_IMFLD,AG_SERIAL,AG_STANDALONE,AG_ISIMU,
-     +             AG_CODE,AG_TRKTYP,AG_ECODE,AG_MODE,AG_ENDSAVE,IPRIN
+     +             AG_CODE,AG_TRKTYP,AG_ECODE,AG_MODE,AG_PDG,
+     +             AG_ENDSAVE,IPRIN
       REAL         AG_FIELDM,AG_TMAXFD,AG_STEMAX,AG_DEEMAX,AG_EPSIL,
      +             AG_STMIN,AG_DENS,AG_RADL,AG_ABSL,AG_THETAX,AG_THETAY,
      +             AG_THETAZ,AG_ALFAX,AG_ALFAY,AG_ALFAZ,AG_PHIX,AG_PHIY,
@@ -4869,7 +4803,7 @@ C Inherited variables saved during internal calls
      +              AG_RESET2,
      +              AG_KONLY,   AG_ORT,     AG_MARK
       COMMON/AGCPART/AG_code,AG_trktyp,AG_mass,AG_charge,AG_tlife,
-     +                       AG_bratio(6),AG_mode(6),AG_ecode
+     +                       AG_bratio(6),AG_mode(6),AG_pdg,AG_ecode
 C local variables valid inside same block
       COMMON/AGCLOCA/AG_BEGSCR, AG_UBUF(100), AG_PAR(100),
      +              AG_AA(20),  AG_ZZ(20),    AG_WW(20),   AG_NWBUF,
@@ -5014,7 +4948,8 @@ C
      +             AG_IRESER,AG_LSTACK,AG_NWUHIT,AG_NWUVOL,AG_MAGIC,
      +             AG_LDETU,AG_NPDIV,AG_NZ,AG_IGEOM,AG_IDEBU,AG_IGRAP,
      +             AG_IHIST,AG_IMFLD,AG_SERIAL,AG_STANDALONE,AG_ISIMU,
-     +             AG_CODE,AG_TRKTYP,AG_ECODE,AG_MODE,AG_ENDSAVE,IPRIN
+     +             AG_CODE,AG_TRKTYP,AG_ECODE,AG_MODE,AG_PDG,
+     +             AG_ENDSAVE,IPRIN
       REAL         AG_FIELDM,AG_TMAXFD,AG_STEMAX,AG_DEEMAX,AG_EPSIL,
      +             AG_STMIN,AG_DENS,AG_RADL,AG_ABSL,AG_THETAX,AG_THETAY,
      +             AG_THETAZ,AG_ALFAX,AG_ALFAY,AG_ALFAZ,AG_PHIX,AG_PHIY,
@@ -5069,7 +5004,7 @@ C Inherited variables saved during internal calls
      +              AG_RESET2,
      +              AG_KONLY,   AG_ORT,     AG_MARK
       COMMON/AGCPART/AG_code,AG_trktyp,AG_mass,AG_charge,AG_tlife,
-     +                       AG_bratio(6),AG_mode(6),AG_ecode
+     +                       AG_bratio(6),AG_mode(6),AG_pdg,AG_ecode
 C local variables valid inside same block
       COMMON/AGCLOCA/AG_BEGSCR, AG_UBUF(100), AG_PAR(100),
      +              AG_AA(20),  AG_ZZ(20),    AG_WW(20),   AG_NWBUF,
@@ -5197,7 +5132,8 @@ C
      +             AG_IRESER,AG_LSTACK,AG_NWUHIT,AG_NWUVOL,AG_MAGIC,
      +             AG_LDETU,AG_NPDIV,AG_NZ,AG_IGEOM,AG_IDEBU,AG_IGRAP,
      +             AG_IHIST,AG_IMFLD,AG_SERIAL,AG_STANDALONE,AG_ISIMU,
-     +             AG_CODE,AG_TRKTYP,AG_ECODE,AG_MODE,AG_ENDSAVE,IPRIN
+     +             AG_CODE,AG_TRKTYP,AG_ECODE,AG_MODE,AG_PDG,
+     +             AG_ENDSAVE,IPRIN
       REAL         AG_FIELDM,AG_TMAXFD,AG_STEMAX,AG_DEEMAX,AG_EPSIL,
      +             AG_STMIN,AG_DENS,AG_RADL,AG_ABSL,AG_THETAX,AG_THETAY,
      +             AG_THETAZ,AG_ALFAX,AG_ALFAY,AG_ALFAZ,AG_PHIX,AG_PHIY,
@@ -5252,7 +5188,7 @@ C Inherited variables saved during internal calls
      +              AG_RESET2,
      +              AG_KONLY,   AG_ORT,     AG_MARK
       COMMON/AGCPART/AG_code,AG_trktyp,AG_mass,AG_charge,AG_tlife,
-     +                       AG_bratio(6),AG_mode(6),AG_ecode
+     +                       AG_bratio(6),AG_mode(6),AG_pdg,AG_ecode
 C local variables valid inside same block
       COMMON/AGCLOCA/AG_BEGSCR, AG_UBUF(100), AG_PAR(100),
      +              AG_AA(20),  AG_ZZ(20),    AG_WW(20),   AG_NWBUF,
@@ -5341,7 +5277,8 @@ C
      +             AG_IRESER,AG_LSTACK,AG_NWUHIT,AG_NWUVOL,AG_MAGIC,
      +             AG_LDETU,AG_NPDIV,AG_NZ,AG_IGEOM,AG_IDEBU,AG_IGRAP,
      +             AG_IHIST,AG_IMFLD,AG_SERIAL,AG_STANDALONE,AG_ISIMU,
-     +             AG_CODE,AG_TRKTYP,AG_ECODE,AG_MODE,AG_ENDSAVE,IPRIN
+     +             AG_CODE,AG_TRKTYP,AG_ECODE,AG_MODE,AG_PDG,
+     +             AG_ENDSAVE,IPRIN
       REAL         AG_FIELDM,AG_TMAXFD,AG_STEMAX,AG_DEEMAX,AG_EPSIL,
      +             AG_STMIN,AG_DENS,AG_RADL,AG_ABSL,AG_THETAX,AG_THETAY,
      +             AG_THETAZ,AG_ALFAX,AG_ALFAY,AG_ALFAZ,AG_PHIX,AG_PHIY,
@@ -5396,7 +5333,7 @@ C Inherited variables saved during internal calls
      +              AG_RESET2,
      +              AG_KONLY,   AG_ORT,     AG_MARK
       COMMON/AGCPART/AG_code,AG_trktyp,AG_mass,AG_charge,AG_tlife,
-     +                       AG_bratio(6),AG_mode(6),AG_ecode
+     +                       AG_bratio(6),AG_mode(6),AG_pdg,AG_ecode
 C local variables valid inside same block
       COMMON/AGCLOCA/AG_BEGSCR, AG_UBUF(100), AG_PAR(100),
      +              AG_AA(20),  AG_ZZ(20),    AG_WW(20),   AG_NWBUF,
@@ -5453,7 +5390,8 @@ C local variables valid inside same block
      +             AG_IRESER,AG_LSTACK,AG_NWUHIT,AG_NWUVOL,AG_MAGIC,
      +             AG_LDETU,AG_NPDIV,AG_NZ,AG_IGEOM,AG_IDEBU,AG_IGRAP,
      +             AG_IHIST,AG_IMFLD,AG_SERIAL,AG_STANDALONE,AG_ISIMU,
-     +             AG_CODE,AG_TRKTYP,AG_ECODE,AG_MODE,AG_ENDSAVE,IPRIN
+     +             AG_CODE,AG_TRKTYP,AG_ECODE,AG_MODE,AG_PDG,
+     +             AG_ENDSAVE,IPRIN
       REAL         AG_FIELDM,AG_TMAXFD,AG_STEMAX,AG_DEEMAX,AG_EPSIL,
      +             AG_STMIN,AG_DENS,AG_RADL,AG_ABSL,AG_THETAX,AG_THETAY,
      +             AG_THETAZ,AG_ALFAX,AG_ALFAY,AG_ALFAZ,AG_PHIX,AG_PHIY,
@@ -5508,7 +5446,7 @@ C Inherited variables saved during internal calls
      +              AG_RESET2,
      +              AG_KONLY,   AG_ORT,     AG_MARK
       COMMON/AGCPART/AG_code,AG_trktyp,AG_mass,AG_charge,AG_tlife,
-     +                       AG_bratio(6),AG_mode(6),AG_ecode
+     +                       AG_bratio(6),AG_mode(6),AG_pdg,AG_ecode
 C local variables valid inside same block
       COMMON/AGCLOCA/AG_BEGSCR, AG_UBUF(100), AG_PAR(100),
      +              AG_AA(20),  AG_ZZ(20),    AG_WW(20),   AG_NWBUF,
@@ -5644,7 +5582,8 @@ C                                       Link to:
      +             AG_IRESER,AG_LSTACK,AG_NWUHIT,AG_NWUVOL,AG_MAGIC,
      +             AG_LDETU,AG_NPDIV,AG_NZ,AG_IGEOM,AG_IDEBU,AG_IGRAP,
      +             AG_IHIST,AG_IMFLD,AG_SERIAL,AG_STANDALONE,AG_ISIMU,
-     +             AG_CODE,AG_TRKTYP,AG_ECODE,AG_MODE,AG_ENDSAVE,IPRIN
+     +             AG_CODE,AG_TRKTYP,AG_ECODE,AG_MODE,AG_PDG,
+     +             AG_ENDSAVE,IPRIN
       REAL         AG_FIELDM,AG_TMAXFD,AG_STEMAX,AG_DEEMAX,AG_EPSIL,
      +             AG_STMIN,AG_DENS,AG_RADL,AG_ABSL,AG_THETAX,AG_THETAY,
      +             AG_THETAZ,AG_ALFAX,AG_ALFAY,AG_ALFAZ,AG_PHIX,AG_PHIY,
@@ -5699,7 +5638,7 @@ C Inherited variables saved during internal calls
      +              AG_RESET2,
      +              AG_KONLY,   AG_ORT,     AG_MARK
       COMMON/AGCPART/AG_code,AG_trktyp,AG_mass,AG_charge,AG_tlife,
-     +                       AG_bratio(6),AG_mode(6),AG_ecode
+     +                       AG_bratio(6),AG_mode(6),AG_pdg,AG_ecode
 C local variables valid inside same block
       COMMON/AGCLOCA/AG_BEGSCR, AG_UBUF(100), AG_PAR(100),
      +              AG_AA(20),  AG_ZZ(20),    AG_WW(20),   AG_NWBUF,
@@ -5765,7 +5704,8 @@ C
      +             AG_IRESER,AG_LSTACK,AG_NWUHIT,AG_NWUVOL,AG_MAGIC,
      +             AG_LDETU,AG_NPDIV,AG_NZ,AG_IGEOM,AG_IDEBU,AG_IGRAP,
      +             AG_IHIST,AG_IMFLD,AG_SERIAL,AG_STANDALONE,AG_ISIMU,
-     +             AG_CODE,AG_TRKTYP,AG_ECODE,AG_MODE,AG_ENDSAVE,IPRIN
+     +             AG_CODE,AG_TRKTYP,AG_ECODE,AG_MODE,AG_PDG,
+     +             AG_ENDSAVE,IPRIN
       REAL         AG_FIELDM,AG_TMAXFD,AG_STEMAX,AG_DEEMAX,AG_EPSIL,
      +             AG_STMIN,AG_DENS,AG_RADL,AG_ABSL,AG_THETAX,AG_THETAY,
      +             AG_THETAZ,AG_ALFAX,AG_ALFAY,AG_ALFAZ,AG_PHIX,AG_PHIY,
@@ -5820,7 +5760,7 @@ C Inherited variables saved during internal calls
      +              AG_RESET2,
      +              AG_KONLY,   AG_ORT,     AG_MARK
       COMMON/AGCPART/AG_code,AG_trktyp,AG_mass,AG_charge,AG_tlife,
-     +                       AG_bratio(6),AG_mode(6),AG_ecode
+     +                       AG_bratio(6),AG_mode(6),AG_pdg,AG_ecode
 C local variables valid inside same block
       COMMON/AGCLOCA/AG_BEGSCR, AG_UBUF(100), AG_PAR(100),
      +              AG_AA(20),  AG_ZZ(20),    AG_WW(20),   AG_NWBUF,
@@ -6029,7 +5969,8 @@ C
      +             AG_IRESER,AG_LSTACK,AG_NWUHIT,AG_NWUVOL,AG_MAGIC,
      +             AG_LDETU,AG_NPDIV,AG_NZ,AG_IGEOM,AG_IDEBU,AG_IGRAP,
      +             AG_IHIST,AG_IMFLD,AG_SERIAL,AG_STANDALONE,AG_ISIMU,
-     +             AG_CODE,AG_TRKTYP,AG_ECODE,AG_MODE,AG_ENDSAVE,IPRIN
+     +             AG_CODE,AG_TRKTYP,AG_ECODE,AG_MODE,AG_PDG,
+     +             AG_ENDSAVE,IPRIN
       REAL         AG_FIELDM,AG_TMAXFD,AG_STEMAX,AG_DEEMAX,AG_EPSIL,
      +             AG_STMIN,AG_DENS,AG_RADL,AG_ABSL,AG_THETAX,AG_THETAY,
      +             AG_THETAZ,AG_ALFAX,AG_ALFAY,AG_ALFAZ,AG_PHIX,AG_PHIY,
@@ -6084,7 +6025,7 @@ C Inherited variables saved during internal calls
      +              AG_RESET2,
      +              AG_KONLY,   AG_ORT,     AG_MARK
       COMMON/AGCPART/AG_code,AG_trktyp,AG_mass,AG_charge,AG_tlife,
-     +                       AG_bratio(6),AG_mode(6),AG_ecode
+     +                       AG_bratio(6),AG_mode(6),AG_pdg,AG_ecode
 C local variables valid inside same block
       COMMON/AGCLOCA/AG_BEGSCR, AG_UBUF(100), AG_PAR(100),
      +              AG_AA(20),  AG_ZZ(20),    AG_WW(20),   AG_NWBUF,
@@ -6596,7 +6537,8 @@ C
      +             AG_IRESER,AG_LSTACK,AG_NWUHIT,AG_NWUVOL,AG_MAGIC,
      +             AG_LDETU,AG_NPDIV,AG_NZ,AG_IGEOM,AG_IDEBU,AG_IGRAP,
      +             AG_IHIST,AG_IMFLD,AG_SERIAL,AG_STANDALONE,AG_ISIMU,
-     +             AG_CODE,AG_TRKTYP,AG_ECODE,AG_MODE,AG_ENDSAVE,IPRIN
+     +             AG_CODE,AG_TRKTYP,AG_ECODE,AG_MODE,AG_PDG,
+     +             AG_ENDSAVE,IPRIN
       REAL         AG_FIELDM,AG_TMAXFD,AG_STEMAX,AG_DEEMAX,AG_EPSIL,
      +             AG_STMIN,AG_DENS,AG_RADL,AG_ABSL,AG_THETAX,AG_THETAY,
      +             AG_THETAZ,AG_ALFAX,AG_ALFAY,AG_ALFAZ,AG_PHIX,AG_PHIY,
@@ -6651,7 +6593,7 @@ C Inherited variables saved during internal calls
      +              AG_RESET2,
      +              AG_KONLY,   AG_ORT,     AG_MARK
       COMMON/AGCPART/AG_code,AG_trktyp,AG_mass,AG_charge,AG_tlife,
-     +                       AG_bratio(6),AG_mode(6),AG_ecode
+     +                       AG_bratio(6),AG_mode(6),AG_pdg,AG_ecode
 C local variables valid inside same block
       COMMON/AGCLOCA/AG_BEGSCR, AG_UBUF(100), AG_PAR(100),
      +              AG_AA(20),  AG_ZZ(20),    AG_WW(20),   AG_NWBUF,
@@ -7531,7 +7473,7 @@ C
  
  
  
-*CMZ :          24/03/98  10.02.36  by  Pavel Nevski
+*CMZ :          30/04/98  14.43.32  by  Pavel Nevski
 *CMZ :  1.30/00 17/11/96  22.43.56  by  Pavel Nevski
 *CMZU:  1.00/01 21/12/95  22.19.56  by  Pavel Nevski
 *CMZ :  1.00/00 14/11/95  02.46.06  by  Pavel Nevski
@@ -7590,6 +7532,15 @@ C
       COMMON/GCMAIL/CHMAIL
       CHARACTER*132 CHMAIL
 C
+*KEEP,GCFLAG.
+      COMMON/GCFLAG/IDEBUG,IDEMIN,IDEMAX,ITEST,IDRUN,IDEVT,IEORUN
+     +        ,IEOTRI,IEVENT,ISWIT(10),IFINIT(20),NEVENT,NRNDM(2)
+      COMMON/GCFLAX/BATCH, NOLOG
+      LOGICAL BATCH, NOLOG
+C
+      INTEGER       IDEBUG,IDEMIN,IDEMAX,ITEST,IDRUN,IDEVT,IEORUN
+     +        ,IEOTRI,IEVENT,ISWIT,IFINIT,NEVENT,NRNDM
+C
 *KEEP,SCLINK.
 C SLUG link area :    Permanent Links for SLUG:
       INTEGER         LKSLUG,NSLINK
@@ -7642,10 +7593,9 @@ C   - combined DETM + Reconstruction bank access variables - AGI version
       INTEGER           LU,BIG,MM,INAM,II,KK,IADR,LENG,IOD,IOX,IrbDIV,
      >                  LDD,NDDMAX,NDD,DDL,NFR,FRTAB,IrMode
       PARAMETER         (LDD=5,NDDMAX=100,MM=2,BIG=99999)
-      COMMON /RBXBANK/  LU, CNAM,II,KK,IADR,LENG,IOD,IOX,IrbDIV
+      COMMON /RBXBANK/  LU, CNAM,II,KK,IADR,LENG,IOD,IOX,IrbDIV,IrMode
       COMMON /RBXLIST/  NDD,DDL(LDD,NDDMAX)
       COMMON /RBXFORM/  NFR,FRTAB(NDDMAX)
-      COMMON /RBCBANK/  IrMode
       EQUIVALENCE       (CNAM,INAM)
 *
 *KEND.
@@ -7654,9 +7604,9 @@ Integer       LENOCC,OK,Lb,LL,LL1,LvL,ns1,ns2,Need,Ndm,i,j,k,l,M/1000000/,
               map(2,LL1),num(Lb),key(3),ID/0/,Iform/0/,Jform/0/,Istat/0/
 Character*(*) Module,MTitle,Author,Created,Bank,Bpath,Btit,
               Names(LL1),Comment(LL1)
-Character*12  Ddoc
+Character*12  Ddoc,nam
 Character*4   Ctop,Cbank,C1,C2
-Character*8   Flags(15),Dmodule,Dmodu,Dbank,Dbanu,Dup,Ddef,Bname,nam,dash/'-'/
+Character*8   Flags(15),Dmodule,Dmodu,Dbank,Dbanu,Dup,Ddef,Bname,dash/'-'/
 Character*24  Descr(15),Tshort
 Character     Cform*80,Cforn*80,C*1
 Parameter     (OK=0)
@@ -7735,7 +7685,7 @@ DO i=1,LL1
    { L1=-L1;    if L1<M { Call Ucopy(Par(L1),L1,1)} else { L1=nint(Par(L1-M))}}
    L2=map(2,i); If L2<0
    { L2=-L2;    if L2<M { Call Ucopy(Par(L2),L2,1)} else { L2=nint(Par(L2-M))}}
-   L=Lenocc(Names(i));  Nam=Names(i)(3:L)//'xxxx';  Nam(5:5)='*';
+   L=Lenocc(Names(i));  Nam=Names(i)(3:L)//'xxxx';  Nam(5:)='*';
    C=Names(i)(1:1); If C=='I' {IOX=2} else If C=='H' {IOX=5} else {IOX=3}
    swap(LkArP2,LkArP3)
    CALL ReBANK (Nam,1,2+L1*L2+3,Lk,Ia)
@@ -7788,7 +7738,7 @@ If Start
   } } }
   Err IQuest(1)#0|L2Doc<=0|L1Doc<0{cannot find top level documentation banks}
 }
-"---   level 3/4  -  the bank itself: all documentation is lenear in DETE  ---"
+"---   level 3/4  -  the bank itself: all documentation is linear in DETE  ---"
 Ldoc=0; Lkdoc=0;
 If L2Doc>0
 {  * first, update links in upper level bank
@@ -7818,7 +7768,11 @@ If L2Doc>0
    Err LDoc<=0 | Iquest(1)#0 { Can not create documentation bank }
    DO i=1,LL1
    {  k=1; if (map(1,i)>0 & map(2,i)>0) k=map(1,i)*map(2,i)
-      L=Lenocc(Names(i));   Nam=Names(i)(3:L)
+      L=Lenocc(Names(i));   Nam=Names(i)(3:L);  if IDEBUG>0&L>10
+      { <W>%L(Module),Bank,Names(i)(3:L);
+       (' AgDOCUM/DZDOC warning in module ',a,', bank ',a,', variable ',a,':'/,
+        ' -name too long, will be trucated in documentation and include files')
+      }
       Call AgDOCBA(Ldoc,Ddoc,Tshort,Author,Created,cform,0,-k,Nam,Comment(i),X)
    }
    If X==0 & Ldoc>0
@@ -7938,7 +7892,7 @@ C     - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
  end
  
  
-*CMZ :          16/03/98  03.34.50  by  Pavel Nevski
+*CMZ :          30/04/98  15.29.51  by  Pavel Nevski
 *CMZ :  1.30/00 26/04/96  19.30.43  by  Pavel Nevski
 *CMZU:  1.00/01 16/01/96  00.31.26  by  Pavel Nevski
 *CMZ :  1.00/00 25/08/95  23.30.46  by  Pavel Nevski
@@ -7978,7 +7932,7 @@ C
       CHARACTER*132 CHMAIL
 C
 *KEND.
-Character*(*) Bank,Tit,au,ve,io,Cvar(*),Comment(*),NN*4,Cbuf*80;
+Character*(*) Bank,Tit,au,ve,io,Cvar(*),Comment(*),NN*4,Cv*8,Cbuf*80;
 Integer       AgDocRd,AgDocWr,Lenocc,Link,NL,ND,Lb,key(2),
               i,j,k,L,Lk,N,N0,ioff,M,ok;
 Parameter      (ok=0);
@@ -8022,8 +7976,8 @@ do k=NL+1,NL+abs(ND)                    "    data can be doubled   "
    if    AgDocRd(Link,'Data','. . . next free place . . . ',N,ioff,L)>Ok
    { If  Lk=0  { N0+=1; write(NN,'(i3)') N0; }  else  { N0=1; NN=' '; }
      if (AgDocRd(Link,'nd',' ', M,Ioff,L)=Ok)    IQ(Link+Ioff+3)=N+1;
-     Cbuf = Cvar(j)(1:8)//'- '//Comment(j)(1:Lk)//NN
-     i    = AgDocWr(Link,'Data',N+1,0,Cbuf)
+     Cv = Cvar(j);  Cbuf = Cv//' - '//Comment(j)(1:Lk)//NN
+     i  = AgDocWr(Link,'Data',N+1,0,Cbuf)
 }  }
 END
  
@@ -8153,7 +8107,7 @@ C
 :E:"<w> AgDOCWR,Cf,I1,I2,TEXT;(' AgDocWr=',i2,' at ',a,' i1,i2,T=',2i5,2x,a)";
 END;
  
-*CMZ :          22/03/98  21.33.38  by  Pavel Nevski
+*CMZ :          01/06/98  20.51.55  by  Pavel Nevski
 *CMZ :  1.30/00 09/02/97  21.15.43  by  Pavel Nevski
 *CMZU:  1.00/01 22/12/95  21.50.31  by  Pavel Nevski
 *CMZ :  1.00/00 15/11/95  01.03.24  by  Pavel Nevski
@@ -8253,10 +8207,9 @@ C   - combined DETM + Reconstruction bank access variables - AGI version
       INTEGER           LU,BIG,MM,INAM,II,KK,IADR,LENG,IOD,IOX,IrbDIV,
      >                  LDD,NDDMAX,NDD,DDL,NFR,FRTAB,IrMode
       PARAMETER         (LDD=5,NDDMAX=100,MM=2,BIG=99999)
-      COMMON /RBXBANK/  LU, CNAM,II,KK,IADR,LENG,IOD,IOX,IrbDIV
+      COMMON /RBXBANK/  LU, CNAM,II,KK,IADR,LENG,IOD,IOX,IrbDIV,IrMode
       COMMON /RBXLIST/  NDD,DDL(LDD,NDDMAX)
       COMMON /RBXFORM/  NFR,FRTAB(NDDMAX)
-      COMMON /RBCBANK/  IrMode
       EQUIVALENCE       (CNAM,INAM)
 *
 *KEND.
@@ -8342,10 +8295,10 @@ else
     " If (LkArP3!=Lk)  print *,' popalsia gad ',LkArP3,Lk; "
    Lk=LkArP3;  Call MZIOTC (IxStor,Lk,Nch,Bform);
    If Cform!=Bform & Cform!=Bform(2:) & Cforn!=Bform
-   {    print *,' wrong bank ',Cbank,' : '
-        print *,' required format is = ',cform(1:Lenocc(cform)),'***'
-        print *,' found bank format  = ',bform(1:Nch),          '***'
-        Err Nch>=0 {Bank formats are not the same}
+   {  print *,' wrong bank ',Cbank,' : '
+      print *,' required format is = ',cform(1:Lenocc(cform)),'***'
+      print *,' found bank format  = ',bform(1:Nch),          '***'
+      Err Nch>=0 {Bank formats are not the same}
    }
    "    force link to be secured for banks with dymanic arrays  "
    IDYN=0; Do I=1,LL1 { If (map(1,i)<0 | MAP(2,I)<0) IDYN=1; }
@@ -8358,7 +8311,7 @@ If IrBDIV==IxCONS & ID>0 & JBIT(IQ(Lk),1)==0
    LP=LQ(LKDETM-ID); Ns=IQ(LP-2); Call UCTOH('DETP',Iname,4,4);
    Do IL=1,Ns
    {  JP=LQ(LP-IL);  Check JP>0;  Check IQ(JP-4)=Iname;  L=IQ(JP-1);
-      "   <w> bank; (' detp bank found for bank ',a4)         "
+          <w> bank; (' detp bank found for bank ',a4)
       "  if bank was selected with ISEQ, transmit it as value "
       La=IQ(Lk-1); Lc=IQ(lk-5);  Val=Value;
       if (Lc<0)    La=IQ(lk-1)/abs(Lc)
@@ -8381,7 +8334,7 @@ If IrBDIV==IxCONS & ID>0 & JBIT(IQ(Lk),1)==0
 END
  
  
-*CMZ :          23/07/97  01.10.41  by  Pavel Nevski
+*CMZ :          02/06/98  12.51.16  by  Pavel Nevski
 *CMZ :  1.30/00 15/04/97  17.02.23  by  Pavel Nevski
 *CMZ :  1.00/00 07/10/95  19.31.21  by  Pavel Nevski
 *-- Author :    Pavel Nevski   12/01/95
@@ -8468,7 +8421,7 @@ While i2<Lbuf
                                  C=line(jv+Lv-2:jv+Lv-2)
       debug ' ...now for ',names(n)(3:lv),' in ',line(Iv+1:LT),' iv,lt,jv,C=',
       iv,lt,jv,C
-      Ia1=Ia;   If (jv>0 & (C=='('|C==EQ)) break;
+      Ia1=Ia;   If (jv==iv+1 & (C=='('|C==EQ)) break;     " 2.06.98: was jv>0 "
       Ia=Ia1+1; If (Map(1,N)>0&Map(2,N)>0) Ia=Ia1+Map(1,N)*Map(2,N)
    }
 * variable name should imediatly follow - otherwise it may be another bank name
@@ -8681,7 +8634,8 @@ If Cdet(1:4)=='flag' " really OO action - only ASBDETE has access to defaults "
      +             AG_IRESER,AG_LSTACK,AG_NWUHIT,AG_NWUVOL,AG_MAGIC,
      +             AG_LDETU,AG_NPDIV,AG_NZ,AG_IGEOM,AG_IDEBU,AG_IGRAP,
      +             AG_IHIST,AG_IMFLD,AG_SERIAL,AG_STANDALONE,AG_ISIMU,
-     +             AG_CODE,AG_TRKTYP,AG_ECODE,AG_MODE,AG_ENDSAVE,IPRIN
+     +             AG_CODE,AG_TRKTYP,AG_ECODE,AG_MODE,AG_PDG,
+     +             AG_ENDSAVE,IPRIN
       REAL         AG_FIELDM,AG_TMAXFD,AG_STEMAX,AG_DEEMAX,AG_EPSIL,
      +             AG_STMIN,AG_DENS,AG_RADL,AG_ABSL,AG_THETAX,AG_THETAY,
      +             AG_THETAZ,AG_ALFAX,AG_ALFAY,AG_ALFAZ,AG_PHIX,AG_PHIY,
@@ -8736,7 +8690,7 @@ C Inherited variables saved during internal calls
      +              AG_RESET2,
      +              AG_KONLY,   AG_ORT,     AG_MARK
       COMMON/AGCPART/AG_code,AG_trktyp,AG_mass,AG_charge,AG_tlife,
-     +                       AG_bratio(6),AG_mode(6),AG_ecode
+     +                       AG_bratio(6),AG_mode(6),AG_pdg,AG_ecode
 C local variables valid inside same block
       COMMON/AGCLOCA/AG_BEGSCR, AG_UBUF(100), AG_PAR(100),
      +              AG_AA(20),  AG_ZZ(20),    AG_WW(20),   AG_NWBUF,
@@ -8907,7 +8861,8 @@ C                                       Link to:
      +             AG_IRESER,AG_LSTACK,AG_NWUHIT,AG_NWUVOL,AG_MAGIC,
      +             AG_LDETU,AG_NPDIV,AG_NZ,AG_IGEOM,AG_IDEBU,AG_IGRAP,
      +             AG_IHIST,AG_IMFLD,AG_SERIAL,AG_STANDALONE,AG_ISIMU,
-     +             AG_CODE,AG_TRKTYP,AG_ECODE,AG_MODE,AG_ENDSAVE,IPRIN
+     +             AG_CODE,AG_TRKTYP,AG_ECODE,AG_MODE,AG_PDG,
+     +             AG_ENDSAVE,IPRIN
       REAL         AG_FIELDM,AG_TMAXFD,AG_STEMAX,AG_DEEMAX,AG_EPSIL,
      +             AG_STMIN,AG_DENS,AG_RADL,AG_ABSL,AG_THETAX,AG_THETAY,
      +             AG_THETAZ,AG_ALFAX,AG_ALFAY,AG_ALFAZ,AG_PHIX,AG_PHIY,
@@ -8962,7 +8917,7 @@ C Inherited variables saved during internal calls
      +              AG_RESET2,
      +              AG_KONLY,   AG_ORT,     AG_MARK
       COMMON/AGCPART/AG_code,AG_trktyp,AG_mass,AG_charge,AG_tlife,
-     +                       AG_bratio(6),AG_mode(6),AG_ecode
+     +                       AG_bratio(6),AG_mode(6),AG_pdg,AG_ecode
 C local variables valid inside same block
       COMMON/AGCLOCA/AG_BEGSCR, AG_UBUF(100), AG_PAR(100),
      +              AG_AA(20),  AG_ZZ(20),    AG_WW(20),   AG_NWBUF,
@@ -9290,7 +9245,8 @@ C
      +             AG_IRESER,AG_LSTACK,AG_NWUHIT,AG_NWUVOL,AG_MAGIC,
      +             AG_LDETU,AG_NPDIV,AG_NZ,AG_IGEOM,AG_IDEBU,AG_IGRAP,
      +             AG_IHIST,AG_IMFLD,AG_SERIAL,AG_STANDALONE,AG_ISIMU,
-     +             AG_CODE,AG_TRKTYP,AG_ECODE,AG_MODE,AG_ENDSAVE,IPRIN
+     +             AG_CODE,AG_TRKTYP,AG_ECODE,AG_MODE,AG_PDG,
+     +             AG_ENDSAVE,IPRIN
       REAL         AG_FIELDM,AG_TMAXFD,AG_STEMAX,AG_DEEMAX,AG_EPSIL,
      +             AG_STMIN,AG_DENS,AG_RADL,AG_ABSL,AG_THETAX,AG_THETAY,
      +             AG_THETAZ,AG_ALFAX,AG_ALFAY,AG_ALFAZ,AG_PHIX,AG_PHIY,
@@ -9345,7 +9301,7 @@ C Inherited variables saved during internal calls
      +              AG_RESET2,
      +              AG_KONLY,   AG_ORT,     AG_MARK
       COMMON/AGCPART/AG_code,AG_trktyp,AG_mass,AG_charge,AG_tlife,
-     +                       AG_bratio(6),AG_mode(6),AG_ecode
+     +                       AG_bratio(6),AG_mode(6),AG_pdg,AG_ecode
 C local variables valid inside same block
       COMMON/AGCLOCA/AG_BEGSCR, AG_UBUF(100), AG_PAR(100),
      +              AG_AA(20),  AG_ZZ(20),    AG_WW(20),   AG_NWBUF,
@@ -9497,7 +9453,8 @@ C
      +             AG_IRESER,AG_LSTACK,AG_NWUHIT,AG_NWUVOL,AG_MAGIC,
      +             AG_LDETU,AG_NPDIV,AG_NZ,AG_IGEOM,AG_IDEBU,AG_IGRAP,
      +             AG_IHIST,AG_IMFLD,AG_SERIAL,AG_STANDALONE,AG_ISIMU,
-     +             AG_CODE,AG_TRKTYP,AG_ECODE,AG_MODE,AG_ENDSAVE,IPRIN
+     +             AG_CODE,AG_TRKTYP,AG_ECODE,AG_MODE,AG_PDG,
+     +             AG_ENDSAVE,IPRIN
       REAL         AG_FIELDM,AG_TMAXFD,AG_STEMAX,AG_DEEMAX,AG_EPSIL,
      +             AG_STMIN,AG_DENS,AG_RADL,AG_ABSL,AG_THETAX,AG_THETAY,
      +             AG_THETAZ,AG_ALFAX,AG_ALFAY,AG_ALFAZ,AG_PHIX,AG_PHIY,
@@ -9552,7 +9509,7 @@ C Inherited variables saved during internal calls
      +              AG_RESET2,
      +              AG_KONLY,   AG_ORT,     AG_MARK
       COMMON/AGCPART/AG_code,AG_trktyp,AG_mass,AG_charge,AG_tlife,
-     +                       AG_bratio(6),AG_mode(6),AG_ecode
+     +                       AG_bratio(6),AG_mode(6),AG_pdg,AG_ecode
 C local variables valid inside same block
       COMMON/AGCLOCA/AG_BEGSCR, AG_UBUF(100), AG_PAR(100),
      +              AG_AA(20),  AG_ZZ(20),    AG_WW(20),   AG_NWBUF,
@@ -9795,7 +9752,7 @@ If jdu<=0  { call GFDIG1(Cset,Cdet,1,NVS,LTRA,NTRA,NBV,DIGI,Iw,Ia); Return; }
    END
  
  
-*CMZ :          02/04/98  20.49.02  by  Pavel Nevski
+*CMZ :          24/04/98  16.58.32  by  Pavel Nevski
 *CMZ :  1.30/00 13/05/97  14.48.21  by  Pavel Nevski
 *CMZ :  1.00/00 01/09/95  22.54.27  by  Pavel Nevski
 *-- Author : Pavel Nevski
@@ -9871,8 +9828,10 @@ C
 *     - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 *KEND.
 Character*(*)    Cdet,Cset;   Integer Lp,Lt;  Parameter (Lp=20,Lt=100);
-Integer          AgFDIG0,LgKINE,JBYT,MSBYT,LENOCC,ICDECI,NVL(Lp),ISC(Lp),Itr,
-                 Iset,Idet,X,Nv,Nr,Nb,Ja,i,j,k,L,Na,Ma,Jv,Jk,Nk,Ih,JH,Mbm,Ier
+Integer          AgFDIG0,JBYT,MSBYT,LENOCC,ICDECI,NVL(Lp),ISC(Lp),Itr,
+                 Iset,Idet,X,Nv,Nr,Nb,Ja,i,j,k,L,Na,Ma,Jv,Nk,Ih,JH,Mbm,Ier
+integer          nac,nas,iac,itc,jtr
+common/agctrbuf/ nac,nas,iac(50000),itc(50000)
 *
    Cs=Cset;  Cd=Cdet;  {AgFDIG0,Iv,Ia}=-1;  {Iset,Idet,Jdu}=0;
    CALL MZLINT (IXSTOR,'AGCRDIG',IWA,JS,JDU);
@@ -9896,7 +9855,20 @@ Integer          AgFDIG0,LgKINE,JBYT,MSBYT,LENOCC,ICDECI,NVL(Lp),ISC(Lp),Itr,
    Nr=0;  if (LENOCC(Cdet)>=6)  Nr=ICDECI(Cdet,5,6);   Nvb=min(Nvb+Nr,Nv);
    Call VZERO(NVL,Lp);          Mb=0; i=Nc1; while i>0 {i/=2; Mb+=1;};
    If Mb>1  { Mbm=2**(32-Mb) } else { Mbm=2 000 000 000 "big positive" }
-   Do Ih=1,Nc1 { If (IQ(JXD+(Ih-1)*Nw+1)>=Mbm) Break; Last=Ih }
+*
+   Ier=0; last=Nc1+1; jtr=-1; Nac=0
+   do ih=1,Nc1
+   {  j=JXD+(Ih-1)*Nw+1; itr=IQ(J);
+      If itr>Ntrack & ier<=Idebug
+      { ier+=1; <w> Cset,Cdet,itr;(' AgFDIG0 error in',2a5,': bad ITRA=',i12)}
+      if jtr!=itr { Nac+=1; jtr=itr; }
+   }
+   nas=Nac/Mbm+1; jtr=-1; Nac=0
+   do ih=1,Nc1
+   {  j=JXD+(Ih-1)*Nw+1; itr=IQ(J);
+      if jtr!=itr { nac+=1; iac(nac)=ih; itc(nac)=itr; jtr =itr; }
+      IQ(J)=(nac-1)/nas
+   }  iac(nac+1)=Nc1+1
 *
    "       ----------      associate hits in chains     ---------    "
    call VZERO(Ibuf,Lbuf); Na=1; Ma=0; ISC(1)=1; ier=0;
@@ -9909,19 +9881,7 @@ Integer          AgFDIG0,LgKINE,JBYT,MSBYT,LENOCC,ICDECI,NVL(Lp),ISC(Lp),Itr,
          Ia=1; do i=1,Jv { Ja=Ia+ISC(i); Ia=IBuf(Ja);}  Ma=max(Ma,Ja);
          If Jv<Nvb { IBuf(Ja)=max(Ia,ISC(Jv+1)); }
          else
-         { " chitting:  replace track numbers by vertex numbers "
-             Itr=IQ(J);
-             If itr>Ntrack & ier<=Idebug
-             { ier+=1; <w> Cset,Cdet,itr;
-               (' AgFDIG0 error for',2(1x,a4),': bad ITRA=',i12)
-             }
-             If (itr>0&ih>Last) Itr=Q(LgKINE(JK,Itr)+6)
-             If Itr>=Mbm & ier<=Idebug
-             { ier+=1; <w> Cset,Cdet;
-               (' AgFDIG0 for',2(1x,a4),': sometime chitting does not help')
-             }
-             IQ(J)=MSBYT(Ia,Itr,33-Mb,Mb); IBuf(Ja)=Ih
-             }
+         {   itr=IQ(J);  IQ(J)=MSBYT(Ia,Itr,33-Mb,Mb);  IBuf(Ja)=Ih; }
       }  If (Jv=1) Ibuf(1)=Ma-1;
       *
       Ja=Ma+1;  "expand array"  While Ibuf(Na)>0 & Na<Ma & Jv<Nvb
@@ -9941,9 +9901,7 @@ Integer          AgFDIG0,LgKINE,JBYT,MSBYT,LENOCC,ICDECI,NVL(Lp),ISC(Lp),Itr,
    END
  
  
- 
- 
- 
+*CMZ :          24/04/98  16.58.32  by  Pavel Nevski
 *CMZ :  1.30/00 13/05/97  14.48.21  by  Pavel Nevski
 *CMZ :  1.00/00 01/09/95  22.55.18  by  Pavel Nevski
 *-- Author : Pavel Nevski
@@ -10013,8 +9971,10 @@ C
       COMMON /AGCHITV/ Iprin,Nvb,Nw,Last,Mb,Nc1,Nc2,Iv,Ia,cs,cd
 *     - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 *KEND.
+integer           nac,nas,iac,itc,jtr
+common /agctrbuf/ nac,nas,iac(50000),itc(50000)
                  Integer Lp; Parameter (Lp=20);
-Integer          AgFDIG1,ISC(*),NVL(Lp),JBYT,Nhit,LTRA,ja,Itr,Lev
+Integer          AgFDIG1,ISC(*),NVL(Lp),JBYT,Nhit,LTRA,ja,Itr,Lev,i
 Real             HITS(*);
 Save             NVL;
 *
@@ -10032,7 +9992,10 @@ If Iv>=0     " Iv - the last changed level is saved in the AGCHIT common     "
    "   getting a hit in the selected element and the address of the next "
    Ja=JXD+Nw*(Ia-1)+1;   call  AgGETDIG (JD,Ja,ISC,HITS);
    "   get track number, check for the track overlap, clear track number "
-   Itr=JBYT(IQ(ja),1,32-Mb);  If (Itr>0 & Ia>Last) Itr=Q(LQ(Jvertx-Itr)+8)
+ 
+   jtr=JBYT(IQ(ja),1,32-Mb)*nas;
+   do i=1,nas { itr=itc(jtr+i); if (iac(jtr+i+1)>Ia) break; }
+*
    If (Nhit=0) LTRA=ITR;      If (LTRA#ITR) LTRA=-ITR
    Ia=JBYT(IQ(ja),33-Mb,Mb);  IQ(Ja)=Itr
                               * * *
@@ -10423,10 +10386,9 @@ C   - combined DETM + Reconstruction bank access variables - AGI version
       INTEGER           LU,BIG,MM,INAM,II,KK,IADR,LENG,IOD,IOX,IrbDIV,
      >                  LDD,NDDMAX,NDD,DDL,NFR,FRTAB,IrMode
       PARAMETER         (LDD=5,NDDMAX=100,MM=2,BIG=99999)
-      COMMON /RBXBANK/  LU, CNAM,II,KK,IADR,LENG,IOD,IOX,IrbDIV
+      COMMON /RBXBANK/  LU, CNAM,II,KK,IADR,LENG,IOD,IOX,IrbDIV,IrMode
       COMMON /RBXLIST/  NDD,DDL(LDD,NDDMAX)
       COMMON /RBXFORM/  NFR,FRTAB(NDDMAX)
-      COMMON /RBCBANK/  IrMode
       EQUIVALENCE       (CNAM,INAM)
 *
 *KEND.
@@ -11336,7 +11298,7 @@ C
    END
  
  
-*CMZ :          25/03/98  09.51.57  by  Pavel Nevski
+*CMZ :          03/05/98  16.30.24  by  Pavel Nevski
 *-- Author :    Pavel Nevski   25/11/97
 *************************************************************************
 *                                                                       *
@@ -11352,7 +11314,7 @@ C
 *************************************************************************
 +include,TYPING,GCBANK,SCLINK,GCUNIT,GCFLAG,AGCDOCL.
      integer     Iprin,i,i1,i2,il,id,ic,jl,L,L1,L2,Iwr,Kw/1/,Lu,Idl,Key(2)
-     Integer     LENOCC,INDEX,STafTab
+     Integer     LENOCC,INDEX,TDM_MAP_TABLE
      Character*8 Sname, Bname, Ckey
      Character*4 Csys, Cban
      Character   Request*(*),Cdest*(*), Table*10
@@ -11399,7 +11361,7 @@ C
            call agdprina(Iprin,Lu,L2,2,Iwr,Kw,Idl)
  
            Table=Sname(5:8)//'_'//Bname(5:8); Call CUTOL(Table)
-           if (idl==2) i=StafTab(%L(Cdest),%L(Table),%L(ccc),0,0)
+           if (idl==2) i=TDM_MAP_TABLE(%L(Cdest),%L(Table),%L(ccc),0,0)
  
            Key(1)=IQ(L2-4);  Key(2)=IQ(L2-5);  Call UHTOC(Key,4,Ckey,8)
            CALL aRZOUT(IXCONS,L2,CKey,IC,'SN')
@@ -11423,7 +11385,7 @@ C
 *************************************************************************
 +include,TYPING,GCBANK,SCLINK,GCUNIT,AGCDOCL,QUEST.
    Integer      INDEX,LENOCC,NwDESC,Nwhead,NwGEN,Nwlink,Nwdata,Idl,lu,nc,MM
-   Integer      Lev,Iwr,Kw,Iprin,i,j,k,l,m,n,is,nd,Nw,iw,iv,i1,j1,P,nn(3)
+   Integer      Lev,Iwr,Kw,Iprin,i,j,k,l,m,n,is,nd,Nw,iw,iv,i1,j1,P,nn(3),x
    Integer      mask(9)/1,1024,16384,8192,9216,10240,15361,19456,17410/
    Character*2  ask (9)/'ba','au','ve','nd','nl','ns','up','io','dd'/
    character*1  Let,T,Sec(0:8)/'*','B','I','F','D','H','*','S','*'/
@@ -11533,6 +11495,8 @@ C
  
          if Idl==0
          {  T=','; if (text==' ') T='}'
+            " hash in comments creates problems for AGI parser "
+             do x=9,80  { if (texto(x:x)=='#') texto(x:x)='N' }
             if (ND==1) output typo,%L(varo),blan(N:),texto(9:),T
                     (4x,a4,1x,2a,' " ',a42,' " ',a)
             if (ND >1) output typo,%L(varo),CN(K:M),blan(M-K+N+3:),texto(9:),T
@@ -11568,7 +11532,7 @@ C
 ****************************************************************************
  
   character   format*(*),type*8,List*14/'0123456789-IFH'/
-  integer     Lenocc,idl,L,i,k,n,num,big/9999999/
+  integer     Lenocc,idl,L,i/0/,k,n,num,big/9999999/
  
      L=Lenocc(format);  if (num==0) i=0;  N=0;
      Do i=i+1,L
@@ -11581,38 +11545,6 @@ C
      else        { type ='float'; if (format(i:i)=='I') type='long'; }
      if (format(i:i)=='H') type='char'
      end
- 
- 
- 
- 
- 
- 
- 
- 
- 
- 
- 
- 
- 
- 
- 
- 
- 
- 
- 
- 
- 
- 
- 
- 
- 
- 
- 
- 
- 
- 
- 
- 
  
  
 *CMZ :          31/03/98  19.05.30  by  Pavel Nevski
@@ -11728,7 +11660,7 @@ C
      end
  
  
-*CMZ :          25/03/98  09.49.54  by  Pavel Nevski
+*CMZ :          24/05/98  13.52.51  by  Pavel Nevski
 *-- Author :    Pavel Nevski   25/11/97
 ***************************************************************************
 *                                                                         *
@@ -11788,17 +11720,16 @@ C   - combined DETM + Reconstruction bank access variables - AGI version
       INTEGER           LU,BIG,MM,INAM,II,KK,IADR,LENG,IOD,IOX,IrbDIV,
      >                  LDD,NDDMAX,NDD,DDL,NFR,FRTAB,IrMode
       PARAMETER         (LDD=5,NDDMAX=100,MM=2,BIG=99999)
-      COMMON /RBXBANK/  LU, CNAM,II,KK,IADR,LENG,IOD,IOX,IrbDIV
+      COMMON /RBXBANK/  LU, CNAM,II,KK,IADR,LENG,IOD,IOX,IrbDIV,IrMode
       COMMON /RBXLIST/  NDD,DDL(LDD,NDDMAX)
       COMMON /RBXFORM/  NFR,FRTAB(NDDMAX)
-      COMMON /RBCBANK/  IrMode
       EQUIVALENCE       (CNAM,INAM)
 *
 *KEEP,QUEST.
       INTEGER      IQUEST
       COMMON/QUEST/IQUEST(100)
 *KEND.
-  INTEGER       LENOCC,StafTab,Iprin,Nun(15),LK(15),IL(15),
+  INTEGER       LENOCC,TDM_MAP_TABLE,Iprin,Nun(15),LK(15),IL(15),
                 I,J,L,K,M,N,Ia,Lc,Lp,Mj
   Character     Cpath*80,Cdest*80,Csys*80,Table*10,Cbank*4
   Character*(*) Source,Destin
@@ -11806,7 +11737,10 @@ C   - combined DETM + Reconstruction bank access variables - AGI version
 *
 * reduce to the standard path and dest:
   Iprin=Idebug;         Cpath=Source;
-  if (Cpath(1:1)!='/')  Cpath='/DETM/'//Source;
+  if (Cpath(1:1)!='/')
+  { If Lenocc(Source)==4 { Cpath='/DETM/'//Source(1:4)//'/*'; }
+    else                 { Cpath='/DETM/'//Source;            }
+  }
   Call CLTOU(Cpath);
  
   Cdest='/dui/Run'; if (Cpath(2:5)!='DETM') Cdest='/dui/Event';
@@ -11818,7 +11752,7 @@ C   - combined DETM + Reconstruction bank access variables - AGI version
   if (0<n&n<Lc)  { Csys=Cpath(n+1:Lc); Lc=n-1 }
   Mj=2; if (Lenocc(Csys)>0) { Call Agkeeps(Csys,Cdest); Mj=0; }
 *
-* Rebank path does not accept / or /* at the end, truncate:
+* Rebank path does not accept / or /_* at the end, truncate:
   m=Index(Cpath(1:Lc),'*'); Lp=Lc;
   if (m>0) Lp=min(Lp,m-1);  if (Cpath(Lp:Lp)='/') { Lp-=1; m=-1 }
   do i=1,Lp/5 { Nun(i)=1 }; Nun(Lp/5)=0;
@@ -11839,9 +11773,9 @@ J=1; Loop
       elseif J> MJ & Csys!='DOCU'
       { Table=Csys(1:4)//'_'//Cbank;  Call CUTOL(Table);
         K=1; if (IQ(L-5)<0) K=-IQ(L-5)
-        i=StafTab(%L(Cdest),%L(Table),'\000',K,IQ(L+1))
+        i=TDM_MAP_TABLE(%L(Cdest),%L(Table),'\000',K,IQ(L+1))
         prin2 %L(Cdest),%L(Table),i,k,(Q(L+i),i=1,3)
-              (' StafTab:',2(1x,a),2i5,3F8.1)
+              (' TDM_MAP_TABLE:',2(1x,a),2i5,3F8.1)
         " specific bank requested " if (m==0 & Mj==0) Break;
       } Lk(j)=L;  IL(j)=0;
    }
@@ -11851,7 +11785,7 @@ J=1; Loop
 }
 END
  
-*CMZ :          25/03/98  16.16.21  by  Pavel Nevski
+*CMZ :          13/05/98  20.43.24  by  Pavel Nevski
 *-- Author :    Pavel Nevski   25/03/98
 **********************************************************************
                 subroutine   a x p a r t i c l e
@@ -11872,7 +11806,8 @@ END
      +             AG_IRESER,AG_LSTACK,AG_NWUHIT,AG_NWUVOL,AG_MAGIC,
      +             AG_LDETU,AG_NPDIV,AG_NZ,AG_IGEOM,AG_IDEBU,AG_IGRAP,
      +             AG_IHIST,AG_IMFLD,AG_SERIAL,AG_STANDALONE,AG_ISIMU,
-     +             AG_CODE,AG_TRKTYP,AG_ECODE,AG_MODE,AG_ENDSAVE,IPRIN
+     +             AG_CODE,AG_TRKTYP,AG_ECODE,AG_MODE,AG_PDG,
+     +             AG_ENDSAVE,IPRIN
       REAL         AG_FIELDM,AG_TMAXFD,AG_STEMAX,AG_DEEMAX,AG_EPSIL,
      +             AG_STMIN,AG_DENS,AG_RADL,AG_ABSL,AG_THETAX,AG_THETAY,
      +             AG_THETAZ,AG_ALFAX,AG_ALFAY,AG_ALFAZ,AG_PHIX,AG_PHIY,
@@ -11927,7 +11862,7 @@ C Inherited variables saved during internal calls
      +              AG_RESET2,
      +              AG_KONLY,   AG_ORT,     AG_MARK
       COMMON/AGCPART/AG_code,AG_trktyp,AG_mass,AG_charge,AG_tlife,
-     +                       AG_bratio(6),AG_mode(6),AG_ecode
+     +                       AG_bratio(6),AG_mode(6),AG_pdg,AG_ecode
 C local variables valid inside same block
       COMMON/AGCLOCA/AG_BEGSCR, AG_UBUF(100), AG_PAR(100),
      +              AG_AA(20),  AG_ZZ(20),    AG_WW(20),   AG_NWBUF,
@@ -11958,9 +11893,57 @@ C
 *KEND.
     call gspart(%Code,%Title,%TrkTyp,%Mass,%Charge,%Tlife,0,0)
     if (%Mode(1)>0) call GSDK(%Code,%Bratio,%Mode)
-    if (Idebug>1) Call GPPART(%Code)
-    if (Idebug>2) Call GPDCAY(%Code)
+    If (%pdg  != 0) Call SET_PDGEA(%pdg,%code)
+    if (Idebug > 1) Call GPPART(%Code)
+    if (Idebug > 2) Call GPDCAY(%Code)
  end
+*CMZ :          03/05/98  21.09.43  by  Pavel Nevski
+*-- Author :    Pavel Nevski   03/05/98
+*************************************************************************
+      SUBROUTINE  aGFVOLU (Ivol,Cvol,Cshap,numed,par,npar)
+*
+* description: extract parameters of a give geant volume
+*
+*************************************************************************
+*KEEP,TYPING.
+      IMPLICIT NONE
+*KEEP,GCBANK.
+      INTEGER IQ,LQ,NZEBRA,IXSTOR,IXDIV,IXCONS,LMAIN,LR1,JCG
+      INTEGER KWBANK,KWWORK,IWS
+      REAL GVERSN,ZVERSN,FENDQ,WS,Q
+C
+      PARAMETER (KWBANK=69000,KWWORK=5200)
+      COMMON/GCBANK/NZEBRA,GVERSN,ZVERSN,IXSTOR,IXDIV,IXCONS,FENDQ(16)
+     +             ,LMAIN,LR1,WS(KWBANK)
+      DIMENSION IQ(2),Q(2),LQ(8000),IWS(2)
+      EQUIVALENCE (Q(1),IQ(1),LQ(9)),(LQ(1),LMAIN),(IWS(1),WS(1))
+      EQUIVALENCE (JCG,JGSTAT)
+      INTEGER       JDIGI ,JDRAW ,JHEAD ,JHITS ,JKINE ,JMATE ,JPART
+     +      ,JROTM ,JRUNG ,JSET  ,JSTAK ,JGSTAT,JTMED ,JTRACK,JVERTX
+     +      ,JVOLUM,JXYZ  ,JGPAR ,JGPAR2,JSKLT
+C
+      COMMON/GCLINK/JDIGI ,JDRAW ,JHEAD ,JHITS ,JKINE ,JMATE ,JPART
+     +      ,JROTM ,JRUNG ,JSET  ,JSTAK ,JGSTAT,JTMED ,JTRACK,JVERTX
+     +      ,JVOLUM,JXYZ  ,JGPAR ,JGPAR2,JSKLT
+C
+*KEND.
+      integer   Ivol,numed,npar
+*     integher  Ishap
+      character Cvol*4,Cshap*4
+      real      par(*)
+ 
+*         make GFVOLU call... ? => CVOL,CSHAP
+          Call GFVOLU (Ivol,CVOL,CSHAP)
+*         Call UHTOC   (IQ(JVOLUM+IVOL),4,Cvol,4)
+*         Ishap     = Q(LQ(JVOLUM-IVOL)+2)
+*         Cshap     = Cshapes(Ishap)
+          Numed     = Q(LQ(JVOLUM-IVOL)+4)
+          Npar      = Q(LQ(JVOLUM-IVOL)+5)
+*         Numat     = Q(LQ(JTMED-Numed)+6)
+          Call Ucopy (Q(LQ(JVOLUM-IVOL)+7),par,min(50,Npar) )
+       end
+ 
+*CMZ :          20/04/98  15.46.43  by  Pavel Nevski
 *CMZ :  1.30/00 29/04/97  23.23.51  by  Pavel Nevski
 *CMZU:  1.00/01 15/01/96  20.20.30  by  Pavel Nevski
 *-- Author :    L.Vacavant, A.Rozanov    14/12/94
@@ -11970,6 +11953,9 @@ C
 *                                                                            *
 * Description: (re)open a file with events in GENZ format-via Fatmen or GENZ *
 *   After a succesful open, K keeps track of what should be closed next call *
+* Modifications:                                                             *
+* PN 20.04.98  - automatic record length correction                          *
+*              - stream is saved in mem stack                                *
 ******************************************************************************
 *KEEP,TYPING.
       IMPLICIT NONE
@@ -12052,15 +12038,16 @@ C
 *
 *KEND.
 Character  Stream*(*),Name*(*),Copt*(*),FName*255/' '/,IOFILE*8,
-           CREQ*256,COPTN*20,FZOP*4
+           CREQ*256,COPTN*20,CSTREAM*8,FZOP*4
 Integer    LOCF,Npar,Ipar(*),KEYS(10),LENOCC,Nfound,Jcont,Unit,
-           Ier,Irc,Jrc,K,Lc,iend,mem,iu,IREQ,ko,LREC
-Common     /AgZbuffer/  K,JRC,JCONT,CREQ,COPTN,IREQ,iend,mem(100,5)
+           Ier,Irc,Jrc,K,Lc,iend,mem,iu,IREQ,ko,LREC,L,NUH,HEAD(400)
+Common     /AgZbuffer/  K,JRC,JCONT,CSTREAM,COPTN,CREQ,IREQ,iend,mem(100,5)
 *
 *  extract requested unit record
    If      INDEX(Stream,'B')>0 { iu=2; IBack = -1; IBackOld = 0; }
    else If INDEX(Stream,'O')>0 { iu=3; Ioutp = -1; IOutpOld = 0; }
    else                        { iu=1; IKine = -1; IKineOld = 0; }
+   if (LocF(iend)-LocF(K)>=100) Stop ' AGZOPEN: insufficient  buffrer length '
    Call UCOPY(mem(1,iu),K,LocF(iend)-LocF(K));
    Unit=20+iu;  write (IOFILE,'(6hIOFILE,i2)') Unit;
  
@@ -12068,33 +12055,34 @@ Common     /AgZbuffer/  K,JRC,JCONT,CREQ,COPTN,IREQ,iend,mem(100,5)
    If  K==1   { Call FMCLOS(FName,IOFILE,0,'DE',Irc);  IF (Jrc==0) Jcont=0;  }
    elseIf K>0 { if iu<=2 {Call FZENDI(Unit,'TX')}else{Call FZENDO(Unit,'TX')}}
 *
-   If Name!=' '  { CREQ=Name; COPTN=COPT; IREQ=1; }
-   else          { if (iu!=2) IREQ-=1;            }
+   If Name!=' '  { CREQ=Name; COPTN=COPT; CSTREAM=Stream; IREQ=1; }
+   else          { if (iu!=2) IREQ-=1;                            }
    LC=LENOCC(CREQ);  FName=' ';  Nfound=0;  Ier=-1;  Ko=K;  K=0;
    LREC=8100;        If (Index(Stream,'Z')>0) LREC=0
    If Index(Stream,'F')>0
    {  Print *,'* AGZOPEN trying to get tape from FATMEN catalog *'
       CALL FMLOGL(-2); Call FMLFIL(CREQ(1:LC),FName,KEYS,NFound,1,JCont,JRC)
-      If NFound>0 & Jrc<=0                       " fatmen request manager "
+      If NFound>0 & Jrc<=0                    "   fatmen request manager    "
       {  K=1;  IQUEST(10)=3;                  "inhibit tape label processing"
          Call FMFILE(Unit,FName,'FN',Irc);      ier=0;  If (Irc>1) ier=irc
    }  }
-   else If iu<=2 & IREQ>0                         " direct  file  request  "
+   else If iu<=2 & IREQ>0                     "   direct  file  request     "
    { " first try the variable record length format, then the fix length one "
-      Print *,' ANZOPEN opening file ',CREQ(1:LC);
+      :R: Print *,' ANZOPEN opening file ',CREQ(1:LC);
       If Index(Stream,'L')>0
       {  Fzop='XI';  K=2;  OPEN (Unit,FILE=CREQ,Iostat=Ier,
                            STATUS='OLD',FORM='UNFORMATTED',RECL=8100) }
       else
       {  Fzop='XIL'; K=3;  CALL CFOPEN(IQUEST,0,0,'r ',0,CREQ,ier)    }
       IF Ier==0
-      { :R: Call FZFILE(Unit,LREC,Fzop);  Ier=Iquest(1); K=3;
-         If ier==202
-         { print *,' Block size wrong: Expected ',IQUEST(14),
-                                       ', Found ',IQUEST(15)
-           LREC=IQUEST(15); print *,' LREC forced to ',LREC; GoTo :R:
-      }  }
-   }
+      { Call FZFILE(Unit,LREC,Fzop); CALL FZLOGL(Unit,-2)
+        * automatic record length detection
+        NUH=400;  Call FZIN  (Unit,IxDiv,L,2,'S',NUH,HEAD)
+        If Iquest(1)==-4 & Iquest(12)==202
+        {  LREC=IQUEST(15); print *,' AGZOPEN: LREC corrected to',LREC
+           Call FZENDI(Unit,'TXQ');  GoTo :R:
+        }  Call FZENDI(Unit,'IQ')
+   }  }
    else If iu==3 & IREQ>0
    {  CALL CFOPEN(IQUEST,0,LREC,'w ',0,CREQ,ier);          K=3;
       IF Ier==0 { Call FZFILE(Unit,LREC,'XOL');  Ier=Iquest(1); }
@@ -12112,7 +12100,7 @@ Common     /AgZbuffer/  K,JRC,JCONT,CREQ,COPTN,IREQ,iend,mem(100,5)
 End
  
  
-*CMZ :          24/11/97  23.53.13  by  Pavel Nevski
+*CMZ :          22/04/98  22.10.55  by  Pavel Nevski
 *CMZ :  1.30/00 19/03/97  21.57.11  by  Pavel Nevski
 *CMZU:  1.00/01 15/01/96  20.20.30  by  Pavel Nevski
 *-- Author :    L.Vacavant, A.Rozanov    14/12/94
@@ -12247,17 +12235,20 @@ C                                       Link to:
 *    - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 *
 *KEND.
-   Integer      ISLFLAG,i,ier,iprin,jvol,Ldata,Lk,N,NP,NT,IdZ/0/,IdG/0/
-   Integer      NHSETS,NDSETS,NSECT,NDETM,NSET,JOCRUN,JOCEVT,IGEN,NTRA
-   Integer      CSADDR,Iadr,iu,jb,none,Idev
+   Integer      ISLFLAG,i,ier,iprin,jvol,Ldata,Lk,N,NP,NT,NS,IdZ/0/,IdG/0/
+   Integer      NHSETS,NDSETS,NSECT,NDETM,NSET,JOCRUN,JOCEVT,IGEN,NTRA,M
+   Integer      LOCF,INDEX,CSADDR,Iadr,iu,jb,none,Idev
    Integer      Lun/21/,Lhead/0/,ifl/0/,nw/0/,Lsup,Iev/0/,Ihead(400)/400*0/
    Character    Stream*(*),HEAD*4,CHEAD(2)*4/2*' '/,Chopt*8/'*'/,IDH*4
-   Logical      Done/.true./
+   Logical      Trig,Done/.true./
 *  tentative guess for standard GFOUT data
    Character*4  Gsets(23)/'PART','MATE','TMED','VOLU','ROTM','SETS','DRAW',
                           'RUNG',  'a', 'a', 'a', 'a', 'a', 'a', 'a', 'a' ,
                           'HEAD','VERT','KINE','JXYZ','HITS','DIGI','SCAN'/
    Character*4  Esets(3) /'CODE','RUN ','EVEN'/
+   Character    CREQ*256,COPTN*20,CSTREAM*8
+   Integer      K,Jrc,Jcont,IREQ,iend,mem
+   Common       /AgZbuffer/ K,JRC,JCONT,CSTREAM,COPTN,CREQ,IREQ,iend,mem(100,5)
 *
   Replace [INP(#,#,#,#,#)] with [
     CHECK (Index(Chopt,'#1')>0 | Index(Chopt,'*')>0);   Nt=Nt+1;
@@ -12267,7 +12258,7 @@ C                                       Link to:
                Call FZIN(LUN,#2,jb,0,'A',Nhead,Ihead); jb=LQ(jb) }
     Ier=Iquest(1);  Nw=Iquest(14);  CHECK jb>0;  Call UHTOC(IQ(jb-4),4,IDH,4);
     IF (IDH!=HEAD&IDEBUG>0) print *,' AGZREAD got ',IDH,' instead of ',HEAD;
-    IQ(jb-5)=iu;  #4=IQ(jb+(#5));
+    Ns=Ns+1; IQ(jb-5)=iu;  #4=IQ(jb+(#5));
     IF (#5==-2&Ier==0) { DO I=1,IQ(jb-2) { IF (LQ(jb-I)>0) #4=I; }}
     PRIN2 '#3','#4',#4,Nw; (' AGZREAD: read',2(2x,a6),' = ',i6,'  Leng = ',i8)
   ]
@@ -12279,7 +12270,9 @@ C                                       Link to:
                              iu=1;  Chopt=CoptKine;
     If index(stream,'B')>0 { iu=2;  Chopt=CoptBack; }
     If index(stream,'S')>0 {        Chopt=' ';      }
-    Lun=20+iu;  HEAD=CHEAD(iu);  jvol=JVOLUM; Np=0; Nt=0;
+    Call Ucopy(mem(1,iu),K,LocF(Iend)-LocF(k))
+    M=5;  If (INDEX(CSTREAM,'1')>0) M=2
+    Lun=20+iu;  HEAD=CHEAD(iu);  jvol=JVOLUM; Np=0; Nt=0; Ns=0;
     Done=.false.;  If (Kevent(iu)==0) Done=.true.
 *
   Loop
@@ -12290,18 +12283,21 @@ C                                       Link to:
                If (IQUEST(11)==-4 & IQUEST(12)==202) <w> IQUEST(14),IQUEST(15)
                   (10x,'Expected block size',i6,', found on input',i6); Next;}
         If Ier==1 { prin1 ifl; (' zebra sor, run ',i6); Iev=0; IDz=Ifl; Next;}
-        If Ier==2 { prin1 ifl; (' zebra eor, run ',i6); Ier=0; ifl=1;
-                                                       Kevent(iu)+=1;  Break;}
-        If Ier>=3 { prin1 Ier,ifl; (' zebra err, run ',2i6);           Break;}
-        If      Lhead=1 & Ifl=0 { i=IHEAD(1); If (1<=i&i<=22) HEAD=Gsets(i); }
-        else If Lhead=2 & Ifl>0 { HEAD='RUNG'; if(Kevent(iu)>0) HEAD='HEAD'; }
-        else If Lhead=1 & Ifl>0 { i=IHEAD(1); IF (1<=i&i<=3)  HEAD=Esets(i); }
+        If Ier> 1 { prin1 ier,ifl; (' zebra err, run ',2i6); If (Ier<M) Next;
+                                       Ier=0;  ifl=1;  Kevent(iu)+=1;  break;}
+        If      Lhead=1 & Ifl=0 { i=IHEAD(1);  If(1<=i&i<=22) HEAD=Gsets(i); }
+        else If Lhead=2 & Ifl>0 { HEAD='RUNG'; If(Kevent(iu)>0) HEAD='HEAD'; }
+        else If Lhead=1 & Ifl>0 { i=IHEAD(1);  IF(1<=i&i<=3)  HEAD=Esets(i); }
         else If LHead==3 & Ihead(1)+IHEAD(2)+Ihead(3)==0      { HEAD='RAWD'; }
         else If Lhead>2 {"atlas genz format" Call UHTOC(Ihead(3),4,HEAD,4);  }
-        if ifl>0  { prin2 kevent(iu),Lun,IHEAD(1),HEAD
-                    (' AGZREAD: event',i8,' on unit',i4,' ended by',i8,A6)
-                    If ((HEAD!='RUNG'|Nt>0)&HEAD!='CODE'&HEAD!='RUN') Break;
-                  }
+        Trig=Ifl.gt.0
+        If ( " new eor " HEAD=='HEAD' & Ns==0 & Nt>0 & Kevent(iu)>0 _
+           | HEAD=='RUNG' & Nt==0 | HEAD=='CODE' | HEAD=='RUN') Trig=.false.
+        If Trig
+        { prin2 kevent(iu),Lun,IHEAD(1),IHEAD(2),HEAD
+          (' AGZREAD: event',i8,' on unit',i4,' ended by',2i6,A6)
+          Break;
+        }
      }  Done=.true.
 *
      If (iu==1 & Head=='HEAD' & JHEAD>0) Call MZDROP(IxDIV,JHEAD,' ')
@@ -12893,7 +12889,7 @@ END
  
  
  
-*CMZ :          27/11/97  16.36.28  by  Pavel Nevski
+*CMZ :          23/04/98  14.13.01  by  Pavel Nevski
 *CMZ :  1.30/00 21/03/97  15.15.10  by  Pavel Nevski
 *-- Author :    Pavel Nevski   27/05/96
 ************************************************************************
@@ -13115,6 +13111,7 @@ C
    "data" ISF(LINK) = IQ(LINK+Iset);  IDF(LINK) = IQ(LQ(LINK-Iset)+Idet)
 *  - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 *
+   Prin2; ('*****  AgMERGE *****')
    Call MZLINT(IXSTOR,'AgCMERGE',Laref,Jd,Jk2)
    Call AgMER(Iprin,JVERTX,+1,Nv1,Nv2);  Nvertx=Nv1+Nv2;
    Call AgMER(Iprin,JKINE, +1,Nt1,Nt2);  Ntrack=Nt1+Nt2;
@@ -14287,6 +14284,7 @@ END
  
  
  
+*CMZ :          13/05/98  21.57.17  by  Pavel Nevski
 *CMZ :  1.30/00 10/07/96  10.34.36  by  Pavel Nevski
 *CMZU:  1.00/01 29/01/96  16.49.07  by  Pavel Nevski
 *-- Author :    Pavel Nevski
@@ -14294,18 +14292,29 @@ END
                 SUBROUTINE   A P D G 2 G E A  (IDIN,IDOUT)
 * For a given PDG particle code in IDIN, returns GEANT particle ID in IDOUT
 *----------------------------------------------------------------------------
-      INTEGER    NPARTC
-      PARAMETER (NPARTC = 52)
-      INTEGER IDGEA(0:NPARTC),IDPDG(0:NPARTC),IDMAX,IGMAX
+      INTEGER    NPARTC,      NPARTM,    NPART,  I
+      PARAMETER (NPARTC = 52, NPARTM = 100)
+      INTEGER    IDGEA(0:NPARTM),IDPDG(0:NPARTM),IDMAX,IGMAX
+      DATA       NPART/NPARTC/
 *
 * In rough order of multiplicity: gamma,pi+,pi-,pi0,etc
-  DATA IDGEA /   0,    1,    8,    9,    7,   10,   11,  12,   16,   17,
+*                -   gamma  pi+   pi-   pi0   K0L   K+   K-    K0S   Eta
+*               prot  neut  ~p    ~n    e+    e-   nu_e ~nu_e  mu+   mu-
+*              lamda sigm+ sigm0 sigm-  xi0   xi- omeg-
+*           ~: lamda sigm- sigm0 sigm+  xi0   xi+ omeg+
+*              tau+  tau-    D+    D-    D0  ~D0   DS+   DS-  LamC+
+*                W+    W-    Z0   nu_m ~nu_m nu_t ~nu_t
+*
+  DATA (IDGEA(I),I=0,NPARTC) _
+             /   0,    1,    8,    9,    7,   10,   11,  12,   16,   17,
                 14,   13,   15,   25,    2,    3,   4,    4,    5,    6,
                 18,   19,   20,   21,   22,   23,  24,
                 26,   27,   28,   29,   30,   31,  32,
                 33,   34,   35,   36,   37,   38,  39,   40,   41,
                 42,   43,   44,    4,    4,    4,   4,   48,   48,   48/
-  DATA IDPDG /   0,   22,  211, -211,  111,  130,  321, -321, 310,  221,
+*
+  DATA (IDPDG(I),I=0,NPARTC) _
+            /    0,   22,  211, -211,  111,  130,  321, -321, 310,  221,
               2212, 2112,-2212,-2112,  -11,   11,  -12,  12,  -13,   13,
               3122, 3222, 3212, 3112, 3322, 3312, 3334,
              -3122,-3222,-3212,-3112,-3322,-3312,-3334,
@@ -14313,14 +14322,30 @@ END
                 24,  -24,   23,  -14,   14,  -16,   16,   71,   72,  75/
   DATA IDMAX/4122/,IGMAX/50/
 *
+*     attention:  (1) is meaningful for arrays starting from (0)
+*
       Entry  PDG2GE   (IDIN,IDOUT)
       IDOUT = 0
-      IF (abs(IDIN)<=IDMAX) IDOUT = IDGEA(IUCOMP(IDIN,IDPDG(1),NPARTC))
+      IF (abs(IDIN)<=IDMAX) IDOUT = IDGEA(IUCOMP(IDIN,IDPDG(1),NPART))
       return
 *
       Entry  AGEA2PDG (IDIN,IDOUT)
       IDOUT = 0
-      IF (abs(IDIN)<=IDMAX) IDOUT = IDPDG(IUCOMP(IDIN,IDGEA(1),NPARTC))
+      IF (abs(IDIN)<=IDMAX) IDOUT = IDPDG(IUCOMP(IDIN,IDGEA(1),NPART))
+      return
+*
+      Entry  SET_PDGEA (IDIN,IDOUT)
+      I=0;  IF (0<abs(IDIN)&abs(IDIN)<=IDMAX) I=IUCOMP(IDIN,IDPDG(1),NPART)
+      IF ( I>0) Then
+         If ( IDGEA(I)!=IDOUT ) print *,
+            ' SET_PDGEA warning:  particle PDG code ',IDIN,
+            ' known to geant as ',IDGEA(I),' is redefined as ',IDOUT
+         IDGEA(I)  = IDOUT
+         return
+      ENDIF
+      NPART=min(NPART+1,NPARTM)
+      IDPDG(NPART) = IDIN;    IDMAX=max(IDMAX,abs(IDIN))
+      IDGEA(NPART) = IDOUT;   IGMAX=max(IGMAX,abs(IDOUT))
       return
 *
   END
@@ -14928,7 +14953,7 @@ C
   }  }  }
   call GGCLOS
   End
-*CMZ :          14/08/97  15.35.55  by  Pavel Nevski
+*CMZ :          23/04/98  17.12.21  by  Pavel Nevski
 *CMZ :  1.30/00 02/05/97  17.21.14  by  Pavel Nevski
 *-- Author :    A. Rozanov  11/03/95
 ******************************************************************************
@@ -15091,9 +15116,9 @@ C
       endif
 *
       Ier   = 0
-      If (Idebug>0)     Itest=max(Itest,1)
+*     If (Idebug>0)     Itest=max(Itest,1)
       If  IKINE >0      { Do iev=1,IKINE { Call AgSPkine } }
-      If (IKineOld==-1) call AgZread ('P',ier)
+      If (IKineOld==-1) call AgPread (ier)
       If (IKINEold==-2) call AgNTread(ier)
       If (IKINEold<=-3) call AgFread (ier)
       If (IKINEold<=-4) {J=CsADDR('AGUSREAD'); If (J>0) Call CSjCAL(J,1,Ier)}
@@ -15101,8 +15126,8 @@ C
 *
       If  ier!=0  { Ikineold=0; Ieotri=1; Iquest(1)=Ier; Return; }
 *
-      If NtoSKIP>0 & IDEBUG>0
-      { <w> Ievent,Idevt; (' AGZKINE event ',2i7,' is skipped ')
+      If NtoSKIP>0
+      { if (IDEBUG>0) <w> Ievent,Idevt; (' AGZKINE event ',2i7,' is skipped ')
         NtoSKip-=1; Ieotri=1; Return;
       }
 *
@@ -16176,7 +16201,7 @@ C
    End
  
  
-*CMZ :          21/11/97  01.26.41  by  Pavel Nevski
+*CMZ :          20/05/98  06.18.54  by  Pavel Nevski
 *-- Author :    Pavel Nevski   18/07/97
 *************************************************************************
    Subroutine   A g R E A D T X T (Igate)
@@ -16186,11 +16211,17 @@ Replace [READ[DIGIT](#)#;] with [READ(#2,ERR=:E:)#3;IF(Idebug>=#1)<W>#3;]
 *************************************************************************
    implicit      none
    character*120 line
-   integer       li,Ieven,Ntrac,Nvert,itr,ivt,nv,nt,Igate,i,
-                 LabelTr,LabelVx,ge_pid,eg_pid,StartVx,StopVx,
+   integer       LENOCC,li,Ieven,Ntrac,Nvert,itr,ivt,nv,nt,Igate,i,
+                 LabelTr,LabelVx,ge_pid,StartVx,StopVx,
                  eg_proc,parent
    Real          version,east_z,east_a,west_z,west_a,sqrts,b_max,
                  PP(3),vert(4),UBUF(10),a,b
+*
+   integer       istat,eg_pid,moth,daut,num(5)
+   data          num/1,1,0,0,0/
+   character     Cform*8 /'/6I 9F'/
+   Real          phep,vhep
+   common/GHEPEVT/ istat,eg_pid,moth(2),daut(2),phep(5),vhep(4)
 *
 *KEEP,GCUNIT.
       COMMON/GCUNIT/LIN,LOUT,NUNITS,LUNITS(5)
@@ -16238,22 +16269,117 @@ C
      read5 (line(8:),*) Vert,LabelVx,eg_proc,parent; (16x,'VERTEX:',4F10.6,3i6)
      ivt += 1;  call AgSVERT(vert,-LabelVx,-Igate,Ubuf,0,nv)
    }
-   else If Index(Line,'event')>0 & itr+ivt==0       " old format "
-   { i=Index(Line,'event');  Line(i:i+6)='  ';
-     read1 (line,*) Ntrac,Ieven;  (' AgReadOld: ',i8,' event# ',i6)
-     call VZERO(vert,4);  call AgSVERT(vert,-1,-Igate,Ubuf,0,nv)
+   else If Line(1:6)=='HEPEVT' & itr+ivt==0
+   { *             HEPEVT text format
+     read1 (line(8:),*) Ntrac,Ieven; (' gstar_Read HEPEVT:',i8,' event#',i6)
+ 
      do itr=1,Ntrac
-        read5 (li,*) ge_pid,PP; (16x,i6,3F8.3)
-        call AgSKINE(PP,ge_pid,nv,Ubuf,0,nt)
-     enddo
-     break
+     {  read5(li,*) istat,eg_pid,moth,daut,phep,vhep; (6i5,5F8.2,4F9.3)
+        num(3)=0;   If (itr==1) num(3)=1
+        Call RbSTORE ('/EVNT/GENE/GENT*',num,Cform,15,istat)
+        check Istat==1;       Call apdg2gea (eg_pid, ge_pid)
+	if ge_pid<=0
+        {  if (Idebug>1) <W> eg_pid;(' gstar_read HEPEVT unknown particle',i6);
+           ge_pid = 1000000+eg_pid
+        }
+        Call AgSVERT ( vhep,   0,  -Igate,   0.,       0, nv);
+        Call AgSKINE ( phep,  ge_pid,  nv, float(itr), 0, nt);
+     }  Break
    }
+   else If Index(Line,'event')>0 & itr+ivt==0
+   { *              OLD text format
+     i=Index(Line,'event');  line(i:i+6)='  ';
+     read1 (line,*) Ntrac,Ieven; (' gstar_ReadOld: ',i8,' event# ',i6)
+     call VZERO(vert,4); call AgSVERT(vert,-1,-Igate,Ubuf,0,nv)
+     do itr=1,Ntrac
+     {  read5 (li,*) ge_pid,PP; (16x,i6,3F8.3)
+        call AgSKINE(PP,ge_pid,nv,Ubuf,0,nt)
+     }  break
+   }
+   else If LENOCC(Line)>0
+   { <w> line(1:LENOCC(Line)); (' unknown line : ',a); }
  } return
 *
 :e:<w> line; (' AgReadTXT error in line '/1x,a);  Igate=-1
    end
  
  
+*CMZ :          23/04/98  18.26.41  by  Pavel Nevski
+*-- Author :    Pavel Nevski   23/04/98
+******************************************************************
+      subroutine    A G P R E A D
+* description: read and possible re-assembly splitted subevents  *
+******************************************************************
+*KEEP,TYPING.
+      IMPLICIT NONE
+*KEEP,GCUNIT.
+      COMMON/GCUNIT/LIN,LOUT,NUNITS,LUNITS(5)
+      INTEGER LIN,LOUT,NUNITS,LUNITS
+      COMMON/GCMAIL/CHMAIL
+      CHARACTER*132 CHMAIL
+C
+*KEEP,GCBANK.
+      INTEGER IQ,LQ,NZEBRA,IXSTOR,IXDIV,IXCONS,LMAIN,LR1,JCG
+      INTEGER KWBANK,KWWORK,IWS
+      REAL GVERSN,ZVERSN,FENDQ,WS,Q
+C
+      PARAMETER (KWBANK=69000,KWWORK=5200)
+      COMMON/GCBANK/NZEBRA,GVERSN,ZVERSN,IXSTOR,IXDIV,IXCONS,FENDQ(16)
+     +             ,LMAIN,LR1,WS(KWBANK)
+      DIMENSION IQ(2),Q(2),LQ(8000),IWS(2)
+      EQUIVALENCE (Q(1),IQ(1),LQ(9)),(LQ(1),LMAIN),(IWS(1),WS(1))
+      EQUIVALENCE (JCG,JGSTAT)
+      INTEGER       JDIGI ,JDRAW ,JHEAD ,JHITS ,JKINE ,JMATE ,JPART
+     +      ,JROTM ,JRUNG ,JSET  ,JSTAK ,JGSTAT,JTMED ,JTRACK,JVERTX
+     +      ,JVOLUM,JXYZ  ,JGPAR ,JGPAR2,JSKLT
+C
+      COMMON/GCLINK/JDIGI ,JDRAW ,JHEAD ,JHITS ,JKINE ,JMATE ,JPART
+     +      ,JROTM ,JRUNG ,JSET  ,JSTAK ,JGSTAT,JTMED ,JTRACK,JVERTX
+     +      ,JVOLUM,JXYZ  ,JGPAR ,JGPAR2,JSKLT
+C
+*KEEP,GCNUM.
+      COMMON/GCNUM/NMATE ,NVOLUM,NROTM,NTMED,NTMULT,NTRACK,NPART
+     +            ,NSTMAX,NVERTX,NHEAD,NBIT
+      COMMON /GCNUMX/ NALIVE,NTMSTO
+C
+      INTEGER      NMATE ,NVOLUM,NROTM,NTMED,NTMULT,NTRACK,NPART
+     +            ,NSTMAX,NVERTX,NHEAD,NBIT ,NALIVE,NTMSTO
+C
+*KEEP,GCFLAG.
+      COMMON/GCFLAG/IDEBUG,IDEMIN,IDEMAX,ITEST,IDRUN,IDEVT,IEORUN
+     +        ,IEOTRI,IEVENT,ISWIT(10),IFINIT(20),NEVENT,NRNDM(2)
+      COMMON/GCFLAX/BATCH, NOLOG
+      LOGICAL BATCH, NOLOG
+C
+      INTEGER       IDEBUG,IDEMIN,IDEMAX,ITEST,IDRUN,IDEVT,IEORUN
+     +        ,IEOTRI,IEVENT,ISWIT,IFINIT,NEVENT,NRNDM
+C
+*KEND.
+   Integer ISLFLAG,IsubEv,Iprin,IbEvnt,ier,i,IHEAD(10)
+*
+   IbEvnt = 0; IsubEv = 0
+   call AgZread ('P',ier)
+   Iprin = ISLFLAG('INPU','PRIN')
+   if (Ier!=0 | JHEAD<=0) go to :er:
+   call UCOPY(IQ(JHEAD+1),IHEAD,10)
+ 
+* appending
+    While (IQ(JHEAD+5)>IQ(JHEAD+6)) & Ier==0
+    { call AgZread ('P',ier); IsubEv+=1;
+      if (ier!=0 | JHEAD<=0) go to :er:
+ 
+      prin2 Isubev,(IQ(JHEAD+i),i=1,10)
+      (' AGPREAD: appending subevent',i3,' HEADER =',2i5,2i10,6i4)
+ 
+      IbEvnt = IQ(JHEAD+6)
+      call AgMERGE (Iprin,0,IbEvnt,0.,Ier)
+      Call Ucopy(IHEAD,IQ(JHEAD+1),4)
+    }
+    Return
+:er:; prin1 ier,Isubev,IbEvnt;
+      (' AGPREAD: error',i3,' in subevent =',2i6)
+      ier=9
+ end
 *CMZ :  1.00/00 30/06/95  13.09.22  by  Pavel Nevski
 *-- Author :     Pavel Nevski
     subroutine   M Y F I L L (tt,Ix,Iy);
@@ -16346,6 +16472,7 @@ End;
  XFINTER=(F(K1)*(X-X2)+F(K1+1)*(X1-X))/(X1-X2)
 END
  
+*CMZ :          12/05/98  14.44.06  by  Pavel Nevski
 *CMZ :  1.00/00 07/05/95  13.12.49  by  Pavel Nevski
 *-- Author :    Pavel Nevski
 **********************************************************************
@@ -16364,6 +16491,44 @@ END
  {  Y=OTB; OTB=0; D=(B-A)*.5/N;
     DO I=1,N  { DO K=1,M  { OTB+=W(K)*EXT(A+D*(2*I-1+U(K)))*D; } }
     XGINT=OTB;  N=2*N;  IF N>100000 { Print *,'XGINT Divergence !!!'; Return;}
+ } While EPS>0 & ABS(OTB-Y)>ABS(EPS*OTB)
+END
+ 
+**********************************************************************
+      function    X G I N T 1   (EXT,A,B,EPS)
+*   Description:  famous integration procedure                       *
+**********************************************************************
+  Implicit None
+  External EXT
+  Integer  M,N,I,K
+  Real     XGINT1,A,B,Eps,OTB,Y,W(4),U(4),D,Ext
+  DATA     M/4/,
+  U/-.8611363,-.3399810, .3399810 ,.8611363/,
+  W/ .3478548, .6521452, .6521452, .3478548/
+ 
+ N=10;  OTB=0;  Loop
+ {  Y=OTB; OTB=0; D=(B-A)*.5/N;
+    DO I=1,N  { DO K=1,M  { OTB+=W(K)*EXT(A+D*(2*I-1+U(K)))*D; } }
+    XGINT1=OTB;  N=2*N;  IF N>100000 { Print *,'XGINT1 Divergence !!!'; Return}
+ } While EPS>0 & ABS(OTB-Y)>ABS(EPS*OTB)
+END
+ 
+**********************************************************************
+      function    X G I N T 2   (EXT,A,B,EPS)
+*   Description:  famous integration procedure                       *
+**********************************************************************
+  Implicit None
+  External EXT
+  Integer  M,N,I,K
+  Real     XGINT2,A,B,Eps,OTB,Y,W(4),U(4),D,Ext
+  DATA     M/4/,
+  U/-.8611363,-.3399810, .3399810 ,.8611363/,
+  W/ .3478548, .6521452, .6521452, .3478548/
+ 
+ N=10;  OTB=0;  Loop
+ {  Y=OTB; OTB=0; D=(B-A)*.5/N;
+    DO I=1,N  { DO K=1,M  { OTB+=W(K)*EXT(A+D*(2*I-1+U(K)))*D; } }
+    XGINT2=OTB;  N=2*N;  IF N>100000 { Print *,'XGINT2 Divergence !!!'; Return}
  } While EPS>0 & ABS(OTB-Y)>ABS(EPS*OTB)
 END
  
@@ -19288,10 +19453,9 @@ C   - combined DETM + Reconstruction bank access variables - AGI version
       INTEGER           LU,BIG,MM,INAM,II,KK,IADR,LENG,IOD,IOX,IrbDIV,
      >                  LDD,NDDMAX,NDD,DDL,NFR,FRTAB,IrMode
       PARAMETER         (LDD=5,NDDMAX=100,MM=2,BIG=99999)
-      COMMON /RBXBANK/  LU, CNAM,II,KK,IADR,LENG,IOD,IOX,IrbDIV
+      COMMON /RBXBANK/  LU, CNAM,II,KK,IADR,LENG,IOD,IOX,IrbDIV,IrMode
       COMMON /RBXLIST/  NDD,DDL(LDD,NDDMAX)
       COMMON /RBXFORM/  NFR,FRTAB(NDDMAX)
-      COMMON /RBCBANK/  IrMode
       EQUIVALENCE       (CNAM,INAM)
 *
 *KEND.
@@ -19317,10 +19481,9 @@ C   - combined DETM + Reconstruction bank access variables - AGI version
       INTEGER           LU,BIG,MM,INAM,II,KK,IADR,LENG,IOD,IOX,IrbDIV,
      >                  LDD,NDDMAX,NDD,DDL,NFR,FRTAB,IrMode
       PARAMETER         (LDD=5,NDDMAX=100,MM=2,BIG=99999)
-      COMMON /RBXBANK/  LU, CNAM,II,KK,IADR,LENG,IOD,IOX,IrbDIV
+      COMMON /RBXBANK/  LU, CNAM,II,KK,IADR,LENG,IOD,IOX,IrbDIV,IrMode
       COMMON /RBXLIST/  NDD,DDL(LDD,NDDMAX)
       COMMON /RBXFORM/  NFR,FRTAB(NDDMAX)
-      COMMON /RBCBANK/  IrMode
       EQUIVALENCE       (CNAM,INAM)
 *
 *KEND.
@@ -19410,10 +19573,9 @@ C   - combined DETM + Reconstruction bank access variables - AGI version
       INTEGER           LU,BIG,MM,INAM,II,KK,IADR,LENG,IOD,IOX,IrbDIV,
      >                  LDD,NDDMAX,NDD,DDL,NFR,FRTAB,IrMode
       PARAMETER         (LDD=5,NDDMAX=100,MM=2,BIG=99999)
-      COMMON /RBXBANK/  LU, CNAM,II,KK,IADR,LENG,IOD,IOX,IrbDIV
+      COMMON /RBXBANK/  LU, CNAM,II,KK,IADR,LENG,IOD,IOX,IrbDIV,IrMode
       COMMON /RBXLIST/  NDD,DDL(LDD,NDDMAX)
       COMMON /RBXFORM/  NFR,FRTAB(NDDMAX)
-      COMMON /RBCBANK/  IrMode
       EQUIVALENCE       (CNAM,INAM)
 *
 *KEND.
@@ -19503,10 +19665,9 @@ C   - combined DETM + Reconstruction bank access variables - AGI version
       INTEGER           LU,BIG,MM,INAM,II,KK,IADR,LENG,IOD,IOX,IrbDIV,
      >                  LDD,NDDMAX,NDD,DDL,NFR,FRTAB,IrMode
       PARAMETER         (LDD=5,NDDMAX=100,MM=2,BIG=99999)
-      COMMON /RBXBANK/  LU, CNAM,II,KK,IADR,LENG,IOD,IOX,IrbDIV
+      COMMON /RBXBANK/  LU, CNAM,II,KK,IADR,LENG,IOD,IOX,IrbDIV,IrMode
       COMMON /RBXLIST/  NDD,DDL(LDD,NDDMAX)
       COMMON /RBXFORM/  NFR,FRTAB(NDDMAX)
-      COMMON /RBCBANK/  IrMode
       EQUIVALENCE       (CNAM,INAM)
 *
 *KEND.
@@ -19524,7 +19685,7 @@ CHARACTER*(*)  Cname,FORM;     Integer  NVL(*),Npar,Array(*),Link,Ia;
    Call UCOPY (Array,IQ(Link+1+Ia),Npar);  If (NVL(kk)==0) NVL(kk)=II;
    END
  
-*CMZ :          06/04/98  15.27.51  by  Pavel Nevski
+*CMZ :          27/04/98  21.52.32  by  Pavel Nevski
 *CMZ :  1.30/00 16/04/97  22.11.16  by  Pavel Nevski
 *CMZU:  1.00/01 21/12/95  22.17.57  by  Pavel Nevski
 *CMZ :  1.00/00 03/10/95  18.17.59  by  Pavel Nevski
@@ -19610,10 +19771,9 @@ C   - combined DETM + Reconstruction bank access variables - AGI version
       INTEGER           LU,BIG,MM,INAM,II,KK,IADR,LENG,IOD,IOX,IrbDIV,
      >                  LDD,NDDMAX,NDD,DDL,NFR,FRTAB,IrMode
       PARAMETER         (LDD=5,NDDMAX=100,MM=2,BIG=99999)
-      COMMON /RBXBANK/  LU, CNAM,II,KK,IADR,LENG,IOD,IOX,IrbDIV
+      COMMON /RBXBANK/  LU, CNAM,II,KK,IADR,LENG,IOD,IOX,IrbDIV,IrMode
       COMMON /RBXLIST/  NDD,DDL(LDD,NDDMAX)
       COMMON /RBXFORM/  NFR,FRTAB(NDDMAX)
-      COMMON /RBCBANK/  IrMode
       EQUIVALENCE       (CNAM,INAM)
 *
 *KEND.
@@ -19662,14 +19822,14 @@ Lm=LENOCC(Cname);  Check Lm>=J+3;
                                    "   Find structural link   "
   :Check_link: Do IL=1,NS
   {  Link=LQ(LinkUp-IL);   If Link==0 { JL=min(IL,JL); Next; }
-     Check Inam==IQ(Link-4);     JL=IL
+     Check Inam==IQ(Link-4);   JL=IL
      :Linear_search: do II=2,NV+1
      { NV1=IQ(Link-5);  If (NV1==NV) Break;  If (NV1> NV) GOTO :new_bank:
 ***
      * on CHAIN entry: last item, no links, no next bank - group them together.
      * IrMode -1 prevents grouping, 0 - allows only on append, 1 - go wild:
        if IrMode>=0 & ii==2 & Del=='*' & LQ(Link-1)==0 & LQ(Link)==0
-       { If (Nv==Big | IrMode>0)
+       { If (Nv==Big | IrMode>0 | Nv1<0 )
          {  Nd=IQ(Link-1);  Del='.';  kk-=1;  Break :Search_level:; }
        }
 ***
@@ -19690,7 +19850,9 @@ Lm=LENOCC(Cname);  Check Lm>=J+3;
   Leng=Iabs(Npar);  If (Leng==BIG) Call RBFIND;
   Ia=0;  Ie=Leng;
   If Del=='.'
-  {  kk+=1; Ia=Nd; If (NVL(kk)>0) Ia=Leng*(NVL(kk)-1); Ie=Ia+Leng; II=Ie/Leng;
+  {  kk+=1;
+     Ia=0; If (Npar>0) Ia=Nd; If (NVL(kk)>0) Ia=Leng*(NVL(kk)-1);
+     Ie=Ia+Leng; II=Ie/Leng;  If (Npar<=0 & Ie>IQ(Link-1)) Link=0;
      "print *,' Packing kk,NVL,leng,ia,ie,ii = ',Cnam,kk,NVL(kk),leng,ia,ie,ii"
   }
   If Npar>0 & Link>0
@@ -19701,7 +19863,21 @@ Lm=LENOCC(Cname);  Check Lm>=J+3;
   IQUEST(1)=0
 END
  
- 
+subroutine REBANKM(i)
+*KEEP,RBBANK.
+C   - combined DETM + Reconstruction bank access variables - AGI version
+      CHARACTER         CNAM*4
+      INTEGER           LU,BIG,MM,INAM,II,KK,IADR,LENG,IOD,IOX,IrbDIV,
+     >                  LDD,NDDMAX,NDD,DDL,NFR,FRTAB,IrMode
+      PARAMETER         (LDD=5,NDDMAX=100,MM=2,BIG=99999)
+      COMMON /RBXBANK/  LU, CNAM,II,KK,IADR,LENG,IOD,IOX,IrbDIV,IrMode
+      COMMON /RBXLIST/  NDD,DDL(LDD,NDDMAX)
+      COMMON /RBXFORM/  NFR,FRTAB(NDDMAX)
+      EQUIVALENCE       (CNAM,INAM)
+*
+*KEND.
+   IrMode=i
+end
 *CMZ :  1.00/00 07/09/95  19.44.56  by  Pavel Nevski
 *-- Author :    Pavel Nevski
 ********************************************************************
@@ -19736,10 +19912,9 @@ C   - combined DETM + Reconstruction bank access variables - AGI version
       INTEGER           LU,BIG,MM,INAM,II,KK,IADR,LENG,IOD,IOX,IrbDIV,
      >                  LDD,NDDMAX,NDD,DDL,NFR,FRTAB,IrMode
       PARAMETER         (LDD=5,NDDMAX=100,MM=2,BIG=99999)
-      COMMON /RBXBANK/  LU, CNAM,II,KK,IADR,LENG,IOD,IOX,IrbDIV
+      COMMON /RBXBANK/  LU, CNAM,II,KK,IADR,LENG,IOD,IOX,IrbDIV,IrMode
       COMMON /RBXLIST/  NDD,DDL(LDD,NDDMAX)
       COMMON /RBXFORM/  NFR,FRTAB(NDDMAX)
-      COMMON /RBCBANK/  IrMode
       EQUIVALENCE       (CNAM,INAM)
 *
 *KEND.
@@ -19807,10 +19982,9 @@ C   - combined DETM + Reconstruction bank access variables - AGI version
       INTEGER           LU,BIG,MM,INAM,II,KK,IADR,LENG,IOD,IOX,IrbDIV,
      >                  LDD,NDDMAX,NDD,DDL,NFR,FRTAB,IrMode
       PARAMETER         (LDD=5,NDDMAX=100,MM=2,BIG=99999)
-      COMMON /RBXBANK/  LU, CNAM,II,KK,IADR,LENG,IOD,IOX,IrbDIV
+      COMMON /RBXBANK/  LU, CNAM,II,KK,IADR,LENG,IOD,IOX,IrbDIV,IrMode
       COMMON /RBXLIST/  NDD,DDL(LDD,NDDMAX)
       COMMON /RBXFORM/  NFR,FRTAB(NDDMAX)
-      COMMON /RBCBANK/  IrMode
       EQUIVALENCE       (CNAM,INAM)
 *
 *KEND.
@@ -19871,10 +20045,9 @@ C   - combined DETM + Reconstruction bank access variables - AGI version
       INTEGER           LU,BIG,MM,INAM,II,KK,IADR,LENG,IOD,IOX,IrbDIV,
      >                  LDD,NDDMAX,NDD,DDL,NFR,FRTAB,IrMode
       PARAMETER         (LDD=5,NDDMAX=100,MM=2,BIG=99999)
-      COMMON /RBXBANK/  LU, CNAM,II,KK,IADR,LENG,IOD,IOX,IrbDIV
+      COMMON /RBXBANK/  LU, CNAM,II,KK,IADR,LENG,IOD,IOX,IrbDIV,IrMode
       COMMON /RBXLIST/  NDD,DDL(LDD,NDDMAX)
       COMMON /RBXFORM/  NFR,FRTAB(NDDMAX)
-      COMMON /RBCBANK/  IrMode
       EQUIVALENCE       (CNAM,INAM)
 *
 *KEND.
@@ -19929,10 +20102,9 @@ C   - combined DETM + Reconstruction bank access variables - AGI version
       INTEGER           LU,BIG,MM,INAM,II,KK,IADR,LENG,IOD,IOX,IrbDIV,
      >                  LDD,NDDMAX,NDD,DDL,NFR,FRTAB,IrMode
       PARAMETER         (LDD=5,NDDMAX=100,MM=2,BIG=99999)
-      COMMON /RBXBANK/  LU, CNAM,II,KK,IADR,LENG,IOD,IOX,IrbDIV
+      COMMON /RBXBANK/  LU, CNAM,II,KK,IADR,LENG,IOD,IOX,IrbDIV,IrMode
       COMMON /RBXLIST/  NDD,DDL(LDD,NDDMAX)
       COMMON /RBXFORM/  NFR,FRTAB(NDDMAX)
-      COMMON /RBCBANK/  IrMode
       EQUIVALENCE       (CNAM,INAM)
 *
 *KEND.
@@ -20027,10 +20199,9 @@ C   - combined DETM + Reconstruction bank access variables - AGI version
       INTEGER           LU,BIG,MM,INAM,II,KK,IADR,LENG,IOD,IOX,IrbDIV,
      >                  LDD,NDDMAX,NDD,DDL,NFR,FRTAB,IrMode
       PARAMETER         (LDD=5,NDDMAX=100,MM=2,BIG=99999)
-      COMMON /RBXBANK/  LU, CNAM,II,KK,IADR,LENG,IOD,IOX,IrbDIV
+      COMMON /RBXBANK/  LU, CNAM,II,KK,IADR,LENG,IOD,IOX,IrbDIV,IrMode
       COMMON /RBXLIST/  NDD,DDL(LDD,NDDMAX)
       COMMON /RBXFORM/  NFR,FRTAB(NDDMAX)
-      COMMON /RBCBANK/  IrMode
       EQUIVALENCE       (CNAM,INAM)
 *
 *KEND.
@@ -20131,10 +20302,9 @@ C   - combined DETM + Reconstruction bank access variables - AGI version
       INTEGER           LU,BIG,MM,INAM,II,KK,IADR,LENG,IOD,IOX,IrbDIV,
      >                  LDD,NDDMAX,NDD,DDL,NFR,FRTAB,IrMode
       PARAMETER         (LDD=5,NDDMAX=100,MM=2,BIG=99999)
-      COMMON /RBXBANK/  LU, CNAM,II,KK,IADR,LENG,IOD,IOX,IrbDIV
+      COMMON /RBXBANK/  LU, CNAM,II,KK,IADR,LENG,IOD,IOX,IrbDIV,IrMode
       COMMON /RBXLIST/  NDD,DDL(LDD,NDDMAX)
       COMMON /RBXFORM/  NFR,FRTAB(NDDMAX)
-      COMMON /RBCBANK/  IrMode
       EQUIVALENCE       (CNAM,INAM)
 *
 *KEND.
