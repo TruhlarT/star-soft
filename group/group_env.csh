@@ -1,5 +1,5 @@
 #!/bin/csh -f
-#       $Id: group_env.csh,v 1.167 2004/08/25 20:30:20 jeromel Exp $
+#       $Id: group_env.csh,v 1.168 2004/10/15 04:48:48 jeromel Exp $
 #	Purpose:	STAR group csh setup
 #
 #	Author:		Y.Fisyak     BNL
@@ -474,7 +474,7 @@ if ( ! $?JAVA_ROOT ) then
 endif
 if ( $?JAVA_ROOT ) then
     if ( -d $JAVA_ROOT/ ) then
-	set path=($path $JAVA_ROOT/bin)
+	set path=($JAVA_ROOT/bin $path)
 	setenv MANPATH ${MANPATH}:$JAVA_ROOT/man
 	#CLASSPATH anyone ??
     endif
