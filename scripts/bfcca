@@ -30,7 +30,7 @@
 #   Destination    is a disk-path used for file copy.
 #   Numevt         the number of events to process. -1 or 0 means
 #                  a large number. Syntax like XX-YY means between
-#                  XXand YY and passes 2 consecutive arguments
+#                  XXand YY and passes 2 consecutive arguments 
 #                  as-is.
 #
 #   Options        as many comma separated options. They will all
@@ -46,10 +46,10 @@
 #
 #    "+"           The next argument is a periodicity then a script name.
 #                  What it will do is call the script with all of the other
-#                  argument but the last which will be replaced by the input
-#                  given as per the job description. In other words, it
-#                  will loop on all inputs and call the script separatly
-#                  for each call. The periodicity is used to take one input
+#                  argument but the last which will be replaced by the input 
+#                  given as per the job description. In other words, it 
+#                  will loop on all inputs and call the script separatly 
+#                  for each call. The periodicity is used to take one input 
 #                  every 'period'.
 #
 #    "@"           Same as "/" with one extra argument, a generic output filename
@@ -103,9 +103,9 @@ if (1==1){
 
 # The first element of the argument list
 # is rather of unknown usage. It is always
-# 0 with the old API. Afterward, this script
+# 0 with the old API. Afterward, this script 
 # accept (in order it receives). In the new
-# Condor-based API, there is no need for this
+# Condor-based API, there is no need for this 
 # shifting.
 shift @ARGV if (! defined($ENV{"CONDOR_ID"}));
 $ALLOPT       = shift @ARGV;
@@ -123,10 +123,10 @@ if( $CHAINOPT eq "/" ){
     $MULTIIN  = 1;
 
 } elsif ( $CHAINOPT eq "@"){
-    # In this mode, there cannot be Multi mode ... since we
+    # In this mode, there cannot be Multi mode ... since we 
     # have only one filename. We may re-adress this later.
     $BFC      = shift @ARGV;
-    $GENERICO = shift @ARGV;
+    $GENERICO = shift @ARGV; 
     $CHAINOPT = " ".join(" ",@ARGV);
     $MULTIIN  = 0;
 
@@ -240,8 +240,10 @@ if($MULTIIN){
 #   one of the above pattern. In both case, the file
 #   is assumed to contain the chain option.
 #
-#   Pre* : calibration is processed, run goes after.
-#   Opt* : calibration pass is done, then we leave.
+#   One* : calibration is processed, run goes after (local directory)
+#   Pre* : calibration is processed, run goes after (remote soft-link)
+#   Opt* : calibration pass is done, then we leave (remote soft-link)
+#   
 #
 $copt = "";
 $cdir = "";
@@ -252,10 +254,21 @@ for ($i=0 ; $i <= $#CINPUTS ; $i++){
 	# Calibration run enabled. Create soft link.
 	$copt = basename($file);
 	$cdir = dirname($file);
-	symlink($cdir,"StarDb");
+
+	if ($copt =~ m/One/){
+	    # Make local directory 
+	    mkdir("StarDb",0755);
+	} else {
+	    # Create directory to remote directory
+	    symlink($cdir,"StarDb");
+	}
 	# make default option "" unless the pattern
 	# matches what is in the help list above.
-	if($copt !~ m/Pre/ && $copt !~ m/Opt/){ $copt = "";}
+	if($copt !~ m/Pre/ && 
+	   $copt !~ m/Opt/ &&
+	   $copt !~ m/One/    ){ 
+	    $copt = "";
+	}
     } else {
 	# Those are "other" inputs. Treat it as output i.e. make
 	# soft-links
@@ -520,7 +533,7 @@ if ( ! open(FO,">$PWD/$JOB_ID.csh") ){
 		    push(@arg,$_);
 		}
 	    }
-	    # Separate mode "/", "+"
+	    # Separate mode "/", "+" 
 	    if( $CHAINOPT eq "+"){
 		# mode "+" loops over inputs, put back primary input in
 		print "Generating job with periodicity $PERIOD $#FCINPUTS\n";
@@ -545,14 +558,14 @@ if ( ! open(FO,">$PWD/$JOB_ID.csh") ){
 
 
     # Hack for interractive debugging
-    #if ( defined($ENV{BFCC_EXIT}) ){
+    #if ( defined($ENV{BFCC_EXIT}) ){ 
 	print "-=-=-=- Generated script content follows -=-=-=-\n";
 	system("cat $PWD/$JOB_ID.csh");
     #	exit;
     #}
 
     #
-    # Real stuff we need to do
+    # Real stuff we need to do 
     #
     &List("Our working directory contains","We will now start to run ...");
 
@@ -819,9 +832,9 @@ sub FileCopy
     if ($#fstat == -1){
 	print "$PRGM :: Error: stat() failed for $target\n";
     } else {
-	# do not perform an 'exact file size match' check as FS may have
-	# side effects preventing from exact comparison. In principle,
-	# MD5sum is much much safer but is also expensive (has to read
+	# do not perform an 'exact file size match' check as FS may have 
+	# side effects preventing from exact comparison. In principle, 
+	# MD5sum is much much safer but is also expensive (has to read 
 	# the file's content).
 	if ( $stat[7] != 0){
 	    $szd = abs(($fstat[7]-$stat[7])/$stat[7]);
@@ -836,7 +849,7 @@ sub FileCopy
 		#	sleep($SLPTIME);
 		#	goto COPY_FILE;
 		#} else {
-		#	print STDERR "$PRGM :: Error: Failed to copy $flnm -> $target
+		#	print STDERR "$PRGM :: Error: Failed to copy $flnm -> $target 
 		#                     (size missmatches)\n";
 		#}
 	    }
@@ -910,7 +923,7 @@ sub  MD5sum
 {
     my($file)=@_;
     my($ctx,$sts);
-
+    
     if ( open(MD5F,$file) ){
 	binmode(MD5F);
 	$sts = Digest::MD5->new->addfile(*MD5F)->hexdigest();
