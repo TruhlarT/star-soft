@@ -2,7 +2,7 @@
 %
 % StEvent - User Guide and Reference Manual -- LaTeX Source
 %
-% $Id: StEvent.tex,v 2.68 2001/12/01 17:34:15 ullrich Exp $
+% $Id: StEvent.tex,v 2.69 2001/12/02 19:43:12 ullrich Exp $
 %
 % Author: Thomas Ullrich, Nov 1999
 %
@@ -21,6 +21,9 @@
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %
 % $Log: StEvent.tex,v $
+% Revision 2.69  2001/12/02 19:43:12  ullrich
+% Added info on latest StRunInfo modifications.
+%
 % Revision 2.68  2001/12/01 17:34:15  ullrich
 % Added StDetectorState info.
 %
@@ -269,8 +272,8 @@
   \mbox{\includegraphics[width=\textwidth]{StEventTitle.eps}}
   \hfill\mbox{}\\[3cm]
   {\LARGE User Guide and Reference Manual \\[5mm] for Version 2}\\[2cm]
-  {\LARGE $ $Revision: 2.68 $ $}  \\[5mm] % replaced by cvs with current revision
-  {\LARGE $ $Date: 2001/12/01 17:34:15 $ $}  % replaced by cvs with current revision
+  {\LARGE $ $Revision: 2.69 $ $}  \\[5mm] % replaced by cvs with current revision
+  {\LARGE $ $Date: 2001/12/02 19:43:12 $ $}  % replaced by cvs with current revision
   \vfill
 \end{center}
 \cleardoublepage
@@ -5352,6 +5355,23 @@ trigger algorithm information.
     \verb+double tpcDriftVelocity(StBeamDirection) const;+\\
     TPC drift velocity as obtained from the DB.
     
+    \verb+double zdcWestRate() const;+\\
+    ZDC West scaler rate (counts per second) interpolated by a
+    straight line between periodic online database entries.
+    \verb+double zdcEastRate() const;+\\
+    ZDC East scaler rate (counts per second) interpolated by a
+    straight line between periodic online database entries.
+    \verb+double zdcCoincidenceRate() const;+\\
+    ZDC Coincidence scaler rate (counts per second) interpolated by a
+    straight line between periodic online database entries.
+    \verb+double backgroundRate() const;+\\
+    Mult scaler rate (counts per second) interpolated by a straight
+    line between periodic online database entries.
+    \verb+double l0RateToRich() const;+\\
+    L0 rate sent to the RICH from trigger rate (counts per second)
+    interpolated by a straight line between periodic online database
+    entries.
+
     \verb+void setRunId(int);+\\
     \verb+void setProductionTime(time_t);+\\
     \verb+void setProductionVersion(const char*);+\\
@@ -5360,6 +5380,11 @@ trigger algorithm information.
     \verb+void setBeamCharge(StBeamDirection, int);+\\
     \verb+void setMagneticField(double);+\\
     \verb+void setTpcDriftVelocity(StBeamDirection, double);+\\
+    \verb+void setZdcWestRate(double);+\\
+    \verb+void setZdcEastRate(double);+\\
+    \verb+void setZdcCoincidenceRate(double);+\\
+    \verb+void setBackgroundRate(double);+\\
+    \verb+void setL0RateToRich(double); +\\
 \end{Entry}
 \clearpage
 
@@ -7118,3 +7143,4 @@ private:
 \end{verbatim}
 }%footnotesize
 \end{Entry}
+\bye
