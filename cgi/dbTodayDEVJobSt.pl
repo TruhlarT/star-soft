@@ -15,9 +15,9 @@ use Class::Struct;
 require "/afs/rhic/star/packages/dev/mgr/dbTJobsSetup.pl";
 
 my $TOP_DIRD = "/star/rcf/test/dev/";
-my @dir_year = ("year_1h", "year_2001");
+my @dir_year = ("year_1h", "year_2001","year_2003");
 my @node_dir = ("trs_redhat72","trs_redhat72_opt", "daq_redhat72", "daq_redhat72_opt"); 
-my @hc_dir = ("hc_lowdensity", "hc_standard", "hc_highdensity", "peripheral", "minbias", "central","embedding");
+my @hc_dir = ("hc_lowdensity", "hc_standard", "hc_highdensity", "peripheral", "minbias", "central","embedding","dau_minbias","pp_minbias");
 
 my @OUT_DIR;
 my @OUTD_DIR;
@@ -56,6 +56,7 @@ struct FileAttr => {
           memF  => '$',
           memL  => '$',
           mCPU  => '$', 
+         chOpt  => '$',
 		  };
 
 &cgiSetup();
@@ -65,7 +66,7 @@ struct FileAttr => {
     $thisday = (Sun,Mon,Tue,Wed,Thu,Fri,Sat)[(localtime)[6]];
 
   my $ii = 0;
- 
+  my $mdate = $year."-".$mon."-".$mday;
   my $iday;
   my $testDay;
   my $beforeDay;
@@ -79,7 +80,7 @@ struct FileAttr => {
  &beginHtml();
 
 
-$sql="SELECT path, logFile, jobStatus, NoEventDone, memUsageF, memUsageL, CPU_per_evt_sec, createTime FROM $JobStatusT where path LIKE '%$testDay%' AND path LIKE '%redhat%' AND avail = 'Y'";
+$sql="SELECT path, logFile, jobStatus, NoEventDone, chainOpt, memUsageF, memUsageL, CPU_per_evt_sec, createTime FROM $JobStatusT where path LIKE '%$testDay%' AND path LIKE '%redhat%' AND avail = 'Y' AND createTime like '$mdate%' ";
  $cursor =$dbh->prepare($sql)
    || die "Cannot prepare statement: $DBI::errstr\n";
  $cursor->execute;
@@ -102,6 +103,7 @@ $sql="SELECT path, logFile, jobStatus, NoEventDone, memUsageF, memUsageL, CPU_pe
      ($$fObjAdr)->memL($fvalue)    if($fname eq 'memUsageL');
      ($$fObjAdr)->mCPU($fvalue)    if($fname eq 'CPU_per_evt_sec');
      ($$fObjAdr)->timeS($fvalue)   if($fname eq 'createTime');
+     ($$fObjAdr)->chOpt($fvalue)   if($fname eq 'chainOpt');
  }
         $dbFiles[$ndbFiles] = $fObjAdr;
         $ndbFiles++; 
@@ -116,6 +118,7 @@ $sql="SELECT path, logFile, jobStatus, NoEventDone, memUsageF, memUsageL, CPU_pe
  my $myMemL;
  my $myCPU;
  my $myCtime;
+ my $mychain;
 
   foreach $eachFile (@dbFiles) {
 
@@ -127,6 +130,8 @@ $sql="SELECT path, logFile, jobStatus, NoEventDone, memUsageF, memUsageL, CPU_pe
         $myMemL  = ($$eachFile)->memL; 
         $myCPU   = ($$eachFile)->mCPU;          
         $myCtime = ($$eachFile)->timeS;  
+        $mychain = ($$eachFile)->chOpt;
+
     next if $myPath =~ /tfs_/;
     next if $myPath =~ /year_2a/;
 
@@ -150,7 +155,8 @@ print <<END;
 <TABLE ALIGN=CENTER BORDER=5 CELLSPACING=1 CELLPADDING=2 >
 <TR>
 <TD ALIGN=CENTER WIDTH=\"20%\" HEIGHT=50><B>Path</B></TD>
-<TD ALIGN=CENTER WIDTH=\"20%\" HEIGHT=50><B>Log File Name</B></TD>
+<TD ALIGN=CENTER WIDTH=\"10%\" HEIGHT=50><B>Log File Name</B></TD>
+<TD ALIGN=CENTER WIDTH=\"10%\" HEIGHT=50><B>Chain Option</B></TD>
 <TD ALIGN=CENTER WIDTH=\"10%\" HEIGHT=50><B>Job Status</B></TD>
 <TD ALIGN=CENTER WIDTH=\"10%\" HEIGHT=50><B>Number of Events<br>Done</B></TD>
 <TD ALIGN=CENTER WIDTH=\"10%\" HEIGHT=50><B>Memory Usage<br>for First Event</B></TD>
@@ -170,6 +176,7 @@ print <<END;
 <TR ALIGN=CENTER>
 <td>$myPath</td>
 <td>$myFile</td>
+<td>$mychain</td>
 <td>$myJobS</td>
 <td>$myEvtD</td>
 <td>$myMemF</td>
@@ -204,3 +211,7 @@ sub cgiSetup {
     $q=new CGI;
     if ( exists($ENV{'QUERY_STRING'}) ) { print $q->header };
 }
+
+
+
+
