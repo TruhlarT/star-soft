@@ -1,4 +1,4 @@
-*CMZ :          07/09/98  18.35.37  by  Pavel Nevski
+*CMZ :          24/09/98  01.12.46  by  Pavel Nevski
 *CMZ :  1.40/05 26/08/98  22.10.06  by  Pavel Nevski
 *CMZ :  1.40/05 13/07/98  10.50.50  by  Pavel Nevski
 *-- Author :    Pavel Nevski
@@ -36,6 +36,7 @@ C
       INTEGER           ICSDEBUG
       COMMON /CSDEBUG/  ICSDEBUG
       LOGICAL           S,G
+      EXTERNAL          AgKUSER
  
 *     ON REAL UNDERFLOW IGNORE
 *
@@ -123,6 +124,7 @@ C
       CALL PAWINT4 (PAWLOGF)
       BATCH = LENOCC(BATCHF).gt.0
       IF (BATCH) CALL PAWINT4(BATCHF)
+      CALL KUSER (AgKUSER)
 *
       Call AgPAWQ
 ****>
@@ -145,6 +147,8 @@ C
       entry       AgPAWE
       end
 *
+      subroutine AGKUSER
+      end
  
  
 *CMZ :          07/09/98  19.02.49  by  Pavel Nevski
@@ -167,12 +171,12 @@ C
 *KEEP,VIDQQ.
       CHARACTER*68 VIDQQ
       DATA VIDQQ/
-     +'@(#)* Advanced Geant Inteface   1.40/05   C: 23/09/98  00.12.21
+     +'@(#)* Advanced Geant Inteface   1.40/05   C: 24/09/98  01.22.40
      +'/
 *KEEP,DATEQQ.
-      IDATQQ =   980923
+      IDATQQ =   980924
 *KEEP,TIMEQQ.
-      ITIMQQ =     12
+      ITIMQQ =    122
 *KEEP,VERSQQ.
       VERSQQ = ' 1.40/05'
       IVERSQ =  14005
@@ -2522,7 +2526,7 @@ C
       end
  
  
-*CMZ :          23/09/98  00.12.13  by  Pavel Nevski
+*CMZ :          24/09/98  01.22.21  by  Pavel Nevski
 *CMZ :  1.40/05 01/04/98  11.36.29  by  Pavel Nevski
 *CMZ :  1.30/00 02/04/97  18.16.37  by  Pavel Nevski
 *-- Author :    Pavel Nevski
@@ -2532,32 +2536,36 @@ C
 *                                                                      *
 * Description: dispatch an abnormal situation (arithmetics or ZEBRA)   *
 ************************************************************************
-      Implicit NONE
-      Integer  Lenocc,AgPHASE,IgPAW,IwTYP,Npar,Nerr/0/
+      Implicit   NONE
+      Integer    Lenocc,AgPHASE,AgIPAW,IwTYP,Nerr/0/
       Common /AgCPHASE/ AgPHASE
-      Common /AgCIPAW/  IgPAW,IwTYP
-      character*32 command,commando/' '/
+      Common /AgCIPAW/  AgIPAW,IwTyp
+      character*255     cmdlin
+      common /kcparc/   cmdlin
+      character*32      command,commando/' '/
 *
-      call kupatl (command,npar)
-      print *,' ***** command ',%L(command),' interrupted *****'
-      if (command=='QUIT' | command=='EXIT') STOP 'IN TRACEQ'
+*    first, protect against infinite break loops - they are dangerous
       if (command==commando) then
          nerr=nerr+1
-         if (nerr>10)    STOP 'IN TRACEQ'
-      else
-         nerr=0
-         commando=command
+         if (nerr>10)    STOP 'IN TRACEQ - too many consequantive entries'
       endif
+*
+      print *,'*** Last Kuip command was: ',%L(cmdlin),' ***'
+      if (command=='QUIT' | command=='EXIT') STOP 'IN TRACEQ forced exit'
+ 
+      if (commando!=command) nerr=0
+          commando =command
  
       call traceqc
       If AgPHASE>0                                 " in event loop  "
       {  call qnexte; print *,' in traceq: qnexte exit' }
-      ELSE IF IgPAW>0                              " single command "
+      ELSE IF AgIPAW>0                              " single command "
       {  call kusibr; print *,' in traceq: kusibr exit' }
 *
-      print *,' Abnormal break recovery - only limited functionality'
+      Print *,' Abnormal break recovery - neither Phase nor Ipaw set '
+      Print *,' Only limited functionality is expected before crash  '
       CALL   AGPAWQ
-      STOP ' TRACEQ '
+      STOP ' TRACEQ exit from AGPAWQ reached '
  
       END
  
