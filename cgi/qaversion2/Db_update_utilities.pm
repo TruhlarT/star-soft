@@ -40,7 +40,7 @@ my %oldestDate = ( nightly_real => '2001-08-20',
 # max number of updated jobs
 my %updateLimit = ( nightly_real => 10,
 		    nightly_MC   => 50,
-		    offline_real => 200,
+		    offline_real => 10,
 		    offline_MC   => 10,
 		    offline_fast => 10
 );
