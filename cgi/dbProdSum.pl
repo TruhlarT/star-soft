@@ -53,12 +53,7 @@ if ($prodSer =~ /^P01/) {
 if ($prodSer eq "P01he") {
   $dPath = "/2000/";
 }
-
-if($colSet eq "AuAu130") {
-  $colls = "AuAu1";
-}elsif($colSet eq "AuAu200") {
-  $colls = "AuAu200";
-}
+ $colls = $colSet;
 
 #####  Find sets in DataSet table
 
