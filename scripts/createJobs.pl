@@ -158,9 +158,11 @@ my $myRun;
 
 
  my $ii = 0;	    
- $istart = scalar(@SetD) - 5;
+ $istart = scalar(@SetD) - 4;
  $jobDIn_no = 0; 
- for ($ii=$istart; $ii< scalar(@SetD); $ii++)  { 
+ my $ifin = scalar(@SetD) - 3;
+# for ($ii=$istart; $ii< scalar(@SetD); $ii++)  { 
+  for ($ii=$istart; $ii< $ifin ; $ii++)  {
 
   $sql="SELECT path, fName, dataset FROM $FileCatalogT WHERE fName LIKE '%daq' AND path = '$SetD[$ii]' AND dataset like '$coll%' and dataset like '%tpc%' AND dataStatus = 'OK' AND hpss = 'Y' ";
     $cursor =$dbh->prepare($sql)
@@ -186,11 +188,6 @@ my $myRun;
    $jobDIn_no++;
     }
  }
-
-    &StDbProdDisconnect();
-
-   &StDbDescriptorConnect();
-
 
 
 #####  start loop over input files
@@ -316,12 +313,15 @@ my $chain;
  my $inFile;
  my $logDir;
  my @pts;
+ my $dataDisk = "/star/data21/test2001/";
 
     @pts = split ("_",$Jset);
     $Jsetr = $pts[1] . "/" .$pts[2];
     $Jsetd = $prodPeriod . "/" . $Jsetr;     
     $inFile =  $gfile . ".daq";
     $logDir = $JOB_LOG;   
+
+ my $exArg = "1,".$jlibVer ."," .$dataDisk . $Jsetd .",-1," . $fchain .",debug1";
 
 ##### print $job_set, "\n";
  
@@ -338,8 +338,8 @@ my $chain;
 #  if ( $gfile =~ /raw_0001/) {
       my $hpss_dst_file4 = $gfile . ".dst.root";
 #    }
-      my $executable     = "/afs/rhic/star/packages/" . $jlibVer . "/mgr/bfc.csh";
-      my $executableargs = $fchain; 
+      my $executable     = "/afs/rhic/star/packages/scripts/bfcca";
+      my $executableargs = $exArg; 
       my $log_dir       = $logDir;
       my $log_name      = $gfile . ".log";
       my $err_log       = $gfile . ".err";
@@ -348,10 +348,13 @@ my $chain;
 
 
        print JOB_FILE "#input\n";
-       print JOB_FILE "      inputnumstreams=1\n";
+       print JOB_FILE "      inputnumstreams=2\n";
        print JOB_FILE "      inputstreamtype[0]=HPSS\n";
        print JOB_FILE "      inputdir[0]=$hpss_raw_dir\n";
        print JOB_FILE "      inputfile[0]=$hpss_raw_file\n";
+       print JOB_FILE "      inputstreamtype[1]=UNIX\n";
+       print JOB_FILE "      inputdir[1]=/star/data20/reco/StarDb\n";
+       print JOB_FILE "      inputfile[1]=DUMMY\n";
        print JOB_FILE "#output\n";
 #     if ( $gfile =~ /raw_0001/) {
        print JOB_FILE "      outputnumstreams=5\n";
