@@ -2,7 +2,7 @@
 %
 % StEvent - User Guide and Reference Manual -- LaTeX Source
 %
-% $Id: StEvent.tex,v 2.32 2000/05/17 17:20:01 ullrich Exp $
+% $Id: StEvent.tex,v 2.33 2000/05/22 22:04:07 ullrich Exp $
 %
 % Author: Thomas Ullrich, Nov 1999
 %
@@ -21,8 +21,9 @@
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %
 % $Log: StEvent.tex,v $
-% Revision 2.32  2000/05/17 17:20:01  ullrich
-% Updates and improved description of StTrackTopologyMap.
+% Revision 2.33  2000/05/22 22:04:07  ullrich
+% Removed StRichPixelCollection ref section and added description
+% of new RICH methods to class StEvent.
 %
 % Revision 2.34  2000/05/24 15:43:38  ullrich
 % More on the StEventMaker (update).
@@ -175,8 +176,8 @@
 %
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 \newcommand{\entrylabel}[1]{\mbox{\textbf{{#1}}}\hfil}%
-  {\LARGE $ $Revision: 2.32 $ $}  \\[5mm] % replaced by cvs with current revision
-  {\LARGE $ $Date: 2000/05/17 17:20:01 $ $}  % replaced by cvs with current revision
+  {\LARGE $ $Revision: 2.33 $ $}  \\[5mm] % replaced by cvs with current revision
+  {\LARGE $ $Date: 2000/05/22 22:04:07 $ $}  % replaced by cvs with current revision
     {\renewcommand{\makelabel}{\entrylabel}%
      \setlength{\labelwidth}{90pt}%
      \setlength{\leftmargin}{\labelwidth}
@@ -184,17 +185,17 @@
       }%
     }%
   {\end{list}}
-  {\LARGE $ $Revision: 2.32 $ $}  \\[5mm] % replaced by cvs with current revision
-  {\LARGE $ $Date: 2000/05/17 17:20:01 $ $}  % replaced by cvs with current revision
+  {\LARGE $ $Revision: 2.33 $ $}  \\[5mm] % replaced by cvs with current revision
+  {\LARGE $ $Date: 2000/05/22 22:04:07 $ $}  % replaced by cvs with current revision
 {\raisebox{0pt}[1ex][0pt]{\makebox[\labelwidth][l]%
     {\parbox[t]{\labelwidth}{\hspace{0pt}\textbf{{#1}}}}}}
 \newenvironment{Entry}%
 {\renewcommand{\entrylabel}{\Entrylabel}\begin{entry}}%
-  {\LARGE $ $Revision: 2.32 $ $}  \\[5mm] % replaced by cvs with current revision
-  {\LARGE $ $Date: 2000/05/17 17:20:01 $ $}  % replaced by cvs with current revision
+  {\LARGE $ $Revision: 2.33 $ $}  \\[5mm] % replaced by cvs with current revision
+  {\LARGE $ $Date: 2000/05/22 22:04:07 $ $}  % replaced by cvs with current revision
 \begin{document}
-  {\LARGE $ $Revision: 2.32 $ $}  \\[5mm] % replaced by cvs with current revision
-  {\LARGE $ $Date: 2000/05/17 17:20:01 $ $}  % replaced by cvs with current revision
+  {\LARGE $ $Revision: 2.33 $ $}  \\[5mm] % replaced by cvs with current revision
+  {\LARGE $ $Date: 2000/05/22 22:04:07 $ $}  % replaced by cvs with current revision
 %
 %    Title page
 %
@@ -209,8 +210,8 @@
   \mbox{\includegraphics[width=\textwidth]{StEventTitle.eps}}
   \hfill\mbox{}\\[3cm]
   {\LARGE User Guide and Reference Manual \\[5mm] for Version 2}\\[2cm]
-  {\LARGE $ $Revision: 2.32 $ $}  \\[5mm] % replaced by cvs with current revision
-  {\LARGE $ $Date: 2000/05/17 17:20:01 $ $}  % replaced by cvs with current revision
+  {\LARGE $ $Revision: 2.33 $ $}  \\[5mm] % replaced by cvs with current revision
+  {\LARGE $ $Date: 2000/05/22 22:04:07 $ $}  % replaced by cvs with current revision
   \vfill
 \end{center}
 \cleardoublepage
@@ -2789,6 +2790,12 @@ definition in the header file.
     \verb+ULong_t bunchCrossingNumber(Uint_t i) const;+\\       
     Returns the bunch crossing numbers, i.e.~two 32 bit words.
     \texttt{i = 0} returns the lower and \texttt{i = 1} the upper number.
+
+    \verb+StEventSummary* summary();+\\
+    \verb+const StEventSummary* summary() const;+\\
+    Returns pointer to the event summary with many useful information
+    for QA/QC and event characterization.
+
     \verb+StEventInfo* info();+\\
     \verb+StEmcCollection* emcCollection();+\\
     \verb+const StEmcCollection* emcCollection() const;+\\
@@ -2853,6 +2860,12 @@ definition in the header file.
     \verb+void setSummary(StEventSummary*);+\\
 
     
+    \verb+StPrimaryVertex* primaryVertex(UInt_t i = 0);+\\
+    \verb+const StPrimaryVertex* primaryVertex(UInt_t i = 0) const;+\\
+    Returns pointer to the \texttt{i}'th primary vertex.  Since in
+    most of the cases there is only one primary vertex \texttt{i}
+    defaults to the first (\texttt{i=0}).\\
+    The primary vertices are ordered according to the number of daughters
     (i.e.~primary tracks) they hold. The first in the list is always the
     \verb+void setSsdHitCollection(StSsdHitCollection*);+\\
 
@@ -3633,28 +3646,6 @@ definition in the header file.
     \verb+Int_t operator!=(const StRichMCPixel&) const;+\\
     \verb+UShort_t contributions() const;+\\
     Adds information to the Monte Carlo list.
-
-
-
-\subsection{StRichPixelCollection}
-\index{StRichPixelCollection|textbf}
-\label{sec:StRichPixelCollection}
-\begin{Entry}
-\item[Summary]
-\item[Synopsis]
-    \verb+#include "StRichPixelCollection.h"+\\
-    \verb+class StRichPixelCollection;+\\
-\item[Description]
-\item[Related Classes]
-\item[Public\\ Constructors]
-    \verb+StRichPixelCollection();+\\
-    \verb+StRichPixelCollection(dst_rch_pixel_st*, int);+\\
-\item[Public Member\\ Functions]
-    \verb+StRichPixel pixel(unsigned int) const; // return a pixel+\\
-    \verb+unsigned int size() const; // STL size of container+\\
-    \verb+unsigned int numberOfPixels() const;+\\
-\end{Entry}
-\clearpage
 
     \verb+Int_t operator==(const StRichPidTraits&) const;+\\
     \verb+const StSPtrVecRichPid getAllPids() const;+\\
