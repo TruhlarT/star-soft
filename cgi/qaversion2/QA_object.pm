@@ -58,7 +58,7 @@ sub new{
   bless ($self, $classname);
 
   # initialize
-  $self->_init(@_);
+  $self->_init(@_) or return;
 
   # tag new object for hidden
   $gBrowser_object and $gBrowser_object->Hidden->NewQAObject(1);
