@@ -89,7 +89,7 @@ print "<h2 align=center>Select production series:</h2>";
 print "<h4 align=center>";
 print $query->scrolling_list(-name=>'set1',
                    -values=>\@prodPer,
-                   -size=>4
+                   -size=>8
                    ); 
 
 
