@@ -17,7 +17,7 @@ use Exporter;
 	   IULoad JPLoad
 	   IURTFormat JPRFFormat
 	   JPRExec
-	   IUTests IUTestDir IUListRoutine IUErrorURL
+	   IUTests IUTestDir IUListRoutine IUErrorURL IUCVSRef
 	   IUQueue IUSubmit
 	   IUCheckFile IUMoveFile
 	   IUReleaseFile IUManagers IUCompDir
@@ -132,6 +132,7 @@ $INSU::JPEXEC  ="/afs/rhic/star/packages/dev/.\@sys/BIN/jprof";
 $INSU::HTMLREPD="/afs/rhic/star/doc/www/comp/prod/Sanity";       # final direcory
 $INSU::HTMLREF="http://www.star.bnl.gov/STAR/comp/prod/Sanity";  # URL
 $INSU::HTMLPUBD="/afs/rhic/star/doc/www/html/tmp/pub/Sanity";    # public dir (temp)
+$INSU::CVSWEB="http://www.star.bnl.gov/cgi-bin/cvsweb.cgi";      # CVS web utility
 
 
 # variables subject to export. So far, we will be using
@@ -140,69 +141,68 @@ $INSU::HTMLPUBD="/afs/rhic/star/doc/www/html/tmp/pub/Sanity";    # public dir (t
 $INSU::BODYATTR="bgcolor=cornsilk text=black link=navy vlink=maroon alink=tomato";
 # HTML font declaration
 $INSU::FONT="<basefont face=\"verdana,arial,helvetica,sans-serif\">";
-$INSURL="http://www.parasoft.com/products/insure/manuals/v5_2/unix/ref/";
+$INSURL="http://www.star.bnl.gov/STAR/comp/sofi/Insure/manuals/";
 %INSERRORS=(
 	    # the above list was generated dumping and parsing the main
 	    # insure++ index.htm page. Script used is named format_insure.pl
-        "ALLOC_CONFLICT","err_aloc.htm",
-        "BAD_CAST","err_badc.htm",
-        "BAD_DECL","err_badd.htm",
-        "BAD_FORMAT","err_badf.htm",
-        "BAD_INTERFACE","err_badi.htm",
-        "BAD_PARM","err_badp.htm",
-        "COPY_BAD_RANGE","err_cp_b.htm",
-        "COPY_DANGLING","err_cp_d.htm",
-        "COPY_UNINIT_PTR","err_cp_u.htm",
-        "COPY_WILD","err_cp_w.htm",
-        "DEAD_CODE","err_dcod.htm",
-        "DELETE_MISMATCH","err_delm.htm",
-        "EXPR_BAD_RANGE","err_expr.htm",
-        "EXPR_DANGLING","err_expd.htm",
-        "EXPR_NULL","err_expn.htm",
-        "EXPR_UNINIT_PTR","err_expu.htm",
-        "EXPR_UNRELATED_PTRCMP","err_expp.htm",
-        "EXPR_UNRELATED_PTRDIFF","err_expf.htm",
-        "EXPR_WILD","err_expw.htm",
-        "FREE_BODY","err_freb.htm",
-        "FREE_DANGLING","err_fred.htm",
-        "FREE_GLOBAL","err_freg.htm",
-        "FREE_LOCAL","err_frel.htm",
-        "FREE_NULL","err_fren.htm",
-        "FREE_UNINIT_PTR","err_freu.htm",
-        "FREE_WILD","err_frew.htm",
-        "FUNC_BAD","err_fncb.htm",
-        "FUNC_NULL","err_fncn.htm",
-        "FUNC_UNINIT_PTR","err_fncu.htm",
-        "INSIGHT_ERROR","err_inse.htm",
-        "INSIGHT_WARNING","err_insw.htm",
-        "LEAK_ASSIGN","err_leka.htm",
-        "LEAK_FREE","err_lekf.htm",
-        "LEAK_RETURN","err_lekr.htm",
-        "LEAK_SCOPE","err_leks.htm",
-        "PARM_BAD_RANGE","err_prmb.htm",
-        "PARM_DANGLING","err_prmd.htm",
-        "PARM_NULL","err_prmn.htm",
-        "PARM_UNINIT_PTR","err_prmu.htm",
-        "PARM_WILD","err_prmw.htm",
-        "READ_BAD_INDEX","err_redb.htm",
-        "READ_DANGLING","err_redd.htm",
-        "READ_NULL","err_redn.htm",
-        "READ_OVERFLOW","err_redo.htm",
-        "READ_UNINIT_MEM","err_redm.htm",
-        "READ_UNINIT_PTR","err_redp.htm",
-        "READ_WILD","err_redw.htm",
-        "RETURN_DANGLING","err_retd.htm",
-        "RETURN_FAILURE","err_retf.htm",
-        "RETURN_INCONSISTENT","err_reti.htm",
-        "UNUSED_VAR","err_unus.htm",
-        "USER_ERROR","err_user.htm",
-        "VIRTUAL_BAD","err_vbad.htm",
-        "WRITE_BAD_INDEX","err_wrtb.htm",
-        "WRITE_DANGLING","err_wrtd.htm",
-        "WRITE_NULL","err_wrtn.htm",
-        "WRITE_OVERFLOW","err_wrto.htm",
-        "WRITE_UNINIT_PTR","err_wrtu.htm",
-        "WRITE_WILD","err_wrtw.htm"
+        "ALLOC_CONFLICT","err_allo.htm#69",
+        "BAD_CAST","err_badc.htm#4301",
+        "BAD_DECL","err_badd.htm#175",
+        "BAD_FORMAT","err_badf.htm#1558",
+        "BAD_INTERFACE","err_badi.htm#117",
+        "BAD_PARM","err_badp.htm#234",
+        "COPY_BAD_RANGE","err_copy.htm#48",
+        "COPY_DANGLING","err_copa.htm#51",
+        "COPY_UNINIT_PTR","err_copb.htm#1240",
+        "COPY_WILD","err_copc.htm#33",
+        "DEAD_CODE","err_dead.htm#69",
+        "DELETE_MISMATCH","err_delm.htm#25",
+        "EXPR_BAD_RANGE","err_expr.htm#104",
+        "EXPR_DANGLING","err_expa.htm#113",
+        "EXPR_NULL","err_expb.htm#122",
+        "EXPR_UNINIT_PTR","err_expc.htm#89",
+        "EXPR_UNRELATED_ PTRCMP","err_expd.htm#134",
+        "EXPR_UNRELATED_ PTRDIFF","err_expe.htm#847",
+        "EXPR_WILD","err_expf.htm#65",
+        "FREE_BODY","err_free.htm#132",
+        "FREE_DANGLING","err_frea.htm#140",
+        "FREE_GLOBAL","err_freb.htm#152",
+        "FREE_LOCAL","err_frec.htm#165",
+        "FREE_UNINIT_PTR","err_fred.htm#192",
+        "FREE_WILD","err_fref.htm#61",
+        "FUNC_BAD","err_func.htm#62",
+        "FUNC_NULL","err_funa.htm#70",
+        "FUNC_UNINIT_PTR","err_funb.htm#80",
+        "INSURE_ERROR","err_insu.htm#41",
+        "INSURE_WARNING","err_insa.htm#67",
+        "LEAK_ASSIGN","err_leak.htm#80",
+        "LEAK_FREE","err_leaa.htm#92",
+        "LEAK_RETURN","err_leab.htm#108",
+        "LEAK_SCOPE","err_leac.htm#119",
+        "PARM_BAD_RANGE","err_parm.htm#73",
+        "PARM_DANGLING","err_para.htm#95",
+        "PARM_NULL","err_parb.htm#109",
+        "PARM_UNINIT_PTR","err_parc.htm#137",
+        "PARM_WILD","err_pard.htm#47",
+        "READ_BAD_INDEX","err_read.htm#198",
+        "READ_DANGLING","err_reaa.htm#207",
+        "READ_NULL","err_reab.htm#212",
+        "READ_OVERFLOW","err_reac.htm#224",
+        "READ_UNINIT_MEM","err_reae.htm#98",
+        "READ_UNINIT_PTR","err_reaf.htm#233",
+        "READ_WILD","err_reag.htm#71",
+        "RETURN_DANGLING","err_retu.htm#94",
+        "RETURN_FAILURE","err_reta.htm#140",
+        "RETURN_INCONSISTENT","err_retb.htm#104",
+        "UNUSED_VAR","err_unus.htm#58",
+        "USER_ERROR","err_user.htm#151",
+        "VIRTUAL_BAD","err_virt.htm#60",
+        "WRITE_BAD_INDEX","err_writ.htm#112",
+        "WRITE_DANGLING","err_wria.htm#123",
+        "WRITE_NULL","err_wrib.htm#131",
+        "WRITE_OVERFLOW","err_wric.htm#140",
+        "WRITE_UNINIT_PTR","err_wrid.htm#150",
+        "WRITE_WILD","err_wrie.htm#66"
 	    );
 
 
@@ -367,14 +367,39 @@ sub IUIfAnyMatchExclude
 # Returns a URL reference for the error message
 sub IUErrorURL
 {
-    my($err)=@_;
+    my($err,$mode)=@_;
+    my($perr);
 
-    if( defined($INSERRORS{$err}) ){
-	"$err <FONT SIZE=\"-1\"><A HREF=\"$INSURL/$INSERRORS{$err}\">(learn more)</A></FONT>";
+    if ( ! defined($mode) ){  $mode = 0;}
+
+    if ( $err =~ /(\w+)(\(.*\))/){
+	# some errors will come here like BAD_FORMAT(other)
+	# and we need the reference to BAD_FORMAT only
+	$perr = $1;
     } else {
-	$err;
+	$perr = $err;
+    }
+
+    if( defined($INSERRORS{$perr}) ){
+	($mode == 1?" ":$err).
+	    "<FONT SIZE=\"-1\">(<A HREF=\"$INSURL/$INSERRORS{$err}\">learn more</A>)</FONT>";
+    } else {
+	if ( $mode == 1){
+	    "";
+	} else {
+	    $err;
+	}
     }
 }
+
+# Returns a formatted reference / string relating to CVS web
+sub IUCVSRef
+{
+    my($file)=@_;
+    "<A HREF=\"$INSU::CVSWEB/$file\">$file</A>";
+}
+
+
 
 # Returns the compilation directory
 sub IUCompDir
