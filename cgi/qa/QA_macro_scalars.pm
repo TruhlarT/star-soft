@@ -23,13 +23,13 @@ use QA_cgi_utilities;
 #=========================================================
 1.;
 #=========================================================
-sub QA_bfcread_dst_tables{ 
+sub bfcread_dstBranch{ 
 
   my $report_key = shift;
   my $report_filename = shift;
   #--------------------------------------------------------------
 
-  my ( %temp_hash, $key, $value );
+  my (%temp_hash, $temp_object, $end_of_first_event);
   my ( %run_scalar_hash, %event_scalar_hash );
 
   tie %temp_hash, "Tie::IxHash";
@@ -43,20 +43,72 @@ sub QA_bfcread_dst_tables{
   };
   #--------------------------------------------------------------
   while (<REPORT>){
-    /QAInfo: ([\w_]+)\s+(\d+)/ and do{
-      # only loop through once
-      next if exists $temp_hash{$1};
-      $temp_hash{$1} = $2;
-    };
-    # now checks for events and tables_per_event
-    /QAInfo:\s+total \# (events) read\s+=\s+(\d+)/ and
-      $run_scalar_hash{$1} = $2;
-
-    /QAInfo:\s+\# (tables).*?=\s+(\d+)/ and 
-      $run_scalar_hash{$1._per_evt} = $2;
+    /QAInfo:/ or next; # skip lines that dont start with QAInfo
     
-  }
-  # add the tables now
+    if (/found object: (\w+)/){ # found an object?
+      # only store first event
+      next if $end_of_first_event;
+      $temp_object = $1;
+      # num of rows found in next line
+      $temp_hash{$temp_object} = undef;
+      next;
+    }
+    
+    if (/table with \#rows = (\d+)/){ # fill in the # of rows
+      # only store first event
+      next if $end_of_first_event;
+      # get # rows
+      $temp_hash{$temp_object} = $1;
+      next;
+    }
+
+    if (/event \# 1,.*?= (\d+).*?= (\d+)/){ # objects, tables in evt1
+      $run_scalar_hash{'tables_in_first_event'} = $2;
+      $run_scalar_hash{'objects_in_first_event'} = $1;
+      $end_of_first_event = 1;
+      next;
+    }
+
+    # now we're at the end
+
+    if (/Make called\s+= (\d+)/){ # times Make is called
+      $run_scalar_hash{'make_called'} = $1;
+      next;
+    }
+
+    if (/events read\s+= (\d+)/){ # events read
+      $run_scalar_hash{'events_read'} = $1;
+      next;
+    }
+
+    if (/events with.*?= (\d+)/){ # events with dst
+      $run_scalar_hash{'events_with_dst'} = $1;
+      next;
+    }
+
+    if (/with objects\s+= (\d+)/){ # events with objects
+      $run_scalar_hash{'events_with_objects'} = $1;
+      next;
+    }
+
+    if (/with tables\s+= (\d+)/){ # events with tables
+      $run_scalar_hash{'events_with_tables'} = $1;
+      next;
+    }
+
+    if (/tables per event\s+= (\d+)/){ # avg tables per event
+      $run_scalar_hash{'tables_per_event'} = $1;
+      next;
+    }
+
+    if (/objects per event\s+= (\d+)/){ # avg objects per event
+      $run_scalar_hash{'objects_per_event'} = $1;
+      next;
+    }
+
+  } # end of while
+
+  # add the objects now
   while( ($key, $value) = each %temp_hash ) {
     $run_scalar_hash{$key} = $value;
   }
@@ -65,6 +117,7 @@ sub QA_bfcread_dst_tables{
 
   #--------------------------------------------------------------
   return \%run_scalar_hash, \%event_scalar_hash;
+  
 } 
 #================================================================
 # bum macro 
@@ -108,69 +161,21 @@ sub bfcread_runcoBranch{
   return \%run_scalar_hash, \%event_scalar_hash;
 } 
 #================================================================
+sub QA_bfcread_dst_tables{
+
+  my $report_key = shift;
+  my $report_filename = shift;
+
+  return bfcread_dstBranch($report_key, $report_filename);
+}
+#================================================================
 sub bfcread_geantBranch{
   
   my $report_key = shift;
   my $report_filename = shift;
-  
-  my (%run_scalar_hash, %event_scalar_hash );
-  my (%table, $min, $max, $avg);
-  my ($sum1, $sum2, $events, $value);
+  #--------------------------------------------------------------
 
-  tie %table, "Tie::IxHash";
-  tie %run_scalar_hash, "Tie::IxHash";
-  tie %event_scalar_hash, "Tie::IxHash";
-
-  open REPORT, $report_filename or do{
-    print "Cannot open report $report_filename \n";
-    return; 
-  };
-
-  #------------------------------------------------
-  while ( <REPORT> ) {
-    if ( /Name\s+=\s+([\w_]+).*?(\d+)/ ) {
-      push( @{$table{$1}}, $2 );
-    }
-
-    if ( /(events) read\s+=\s+(\d+)/ ) {
-      $run_scalar_hash{$1} = $2;
-    }
-
-    if ( /(tables) per event\s+=\s+(\d+)/ ) {
-      $run_scalar_hash{$1._per_evt} = $2;
-    }
-  }
-
-  #-------------------------------------------------
-
-  $events = $run_scalar_hash{events};
-
-  !$events and print "No events in bfcread_geantBranch!\n" and return;
-
-  # find the min, max, avg, sigma for tables
-  
-  foreach $key ( keys %table ) {
-    # find min max
-    ($min, $max) =  (sort { $a <=> $b } @{$table{$key}})[0,-1];
-    $run_scalar_hash{$key._min} = $min;
-    $run_scalar_hash{$key._max} = $max;
-    $sum1 = 0;  $sum2=0;
-
-    foreach $value ( @{$table{$key}} ) {
-      $sum1 += $value;           # to calculate <x>
-      $sum2 += ($value*$value);  # to calculate <x^2>
-    }
-   
-    # calculate avg, sigma
-
-    $avg = $sum1/$events;
-    $run_scalar_hash{$key._avg}   = $avg;
-    $run_scalar_hash{$key._sigma} = int sqrt( ($sum2/$events) - $avg*$avg ) ;
-  }
-
-  close REPORT;
-
-  return \%run_scalar_hash, \%event_scalar_hash;
+  return bfcread_dstBranch($report_key, $report_filename);
 } 
 #================================================================
 sub bfcread_tagsBranch{
