@@ -189,9 +189,40 @@ endif
 
 
 # ** GROUP LOGIN ***> should be merged as well
-if( -r $GROUP_DIR/group_login.csh && $?term ) then
-    source $GROUP_DIR/group_login.csh
+#if( -r $GROUP_DIR/group_login.csh && $?term ) then
+#    source $GROUP_DIR/group_login.csh
+#endif
+# MERGED now
+
+# Set default mask
+umask 022
+# Some systems the user doesn't own his tty device 
+set ttydev=`tty`
+if ("$ttydev" != "") then
+    /bin/chmod 622 $ttydev >& /dev/null
 endif
+
+# Prepare the scratch disk if not present
+if ($?SCRATCH == 0) then
+    if ( -w /scr20 ) then
+	setenv SCRATCH /scr20/$LOGNAME
+    else if ( -w /scr21 ) then
+	setenv SCRATCH /scr21/$LOGNAME
+    else if ( -w /scr22 ) then
+	setenv SCRATCH /scr22/$LOGNAME
+    else if ( -w /scratch ) then
+	setenv SCRATCH /scratch/$LOGNAME
+    else 
+	# echo No scratch directory available. Using /tmp/$USER ...
+	setenv SCRATCH /tmp/$LOGNAME
+    endif
+    if ( ! -d $SCRATCH ) then
+	mkdir $SCRATCH
+	chmod 755 $SCRATCH
+    endif
+    if ($?ECHO) echo   "Setting up SCRATCH   = $SCRATCH"
+endif
+# <** GROUP LOGIN ENDS. Some parts moved.
 
 
 # The last part is executed in case
@@ -202,6 +233,11 @@ if ( ! $?star_cshrc_csh) then
     endif
 endif
 
+# Now, display the news if any 
+if ($?SILENT == 0) then
+    if ( -f $STAR_PATH/news/motd ) cat $STAR_PATH/news/motd
+    if ( -f $STAR_PATH/news/motd.$STAR_SYS ) cat $STAR_PATH/news/motd.$STAR_SYS
+endif
 
 
 
