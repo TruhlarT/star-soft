@@ -89,6 +89,22 @@ switch ($pkg)
       setenv LD_LIBRARY_PATH `dropit -p $LD_LIBRARY_PATH LIB`
       starver $STAR_LEVEL
       breaksw
+
+    case "gcc":
+      setenv PATH `dropit alt`
+      setenv LD_LIBRARY_PATH `dropit -p $LD_LIBRARY_PATH /opt/star/alt`
+
+      if ( $version != 0 ) then
+        set TEST=`ls -ld /opt/star/alt/lib/gcc-lib/*/$version/`
+        if ("$TEST" == "") then
+	  echo "There are no alternate installation of gcc with version $version in /opt/star/alt"
+        else
+	  setenv PATH /opt/star/alt/bin:$PATH
+	  setenv LD_LIBRARY_PATH /opt/star/alt/lib:$LD_LIBRARY_PATH
+        endif
+      endif
+      breaksw
+
     default:
 	echo "Setup for $pkg is not defined"
       breaksw
