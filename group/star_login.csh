@@ -149,6 +149,7 @@ setenv LESSCHARSET latin1
 setenv WWW_HOME    "http://www.rhic.bnl.gov"
 setenv NNTPSERVER  "news.rhic.bnl.gov"
 setenv http_proxy  "http://squid1.sec.bnl.local:3128/"
+setenv ftp_proxy   "http://192.168.1.3:3128"
 setenv PRINT_CMD   "xprint"
 
 # The folowing instruction also appears in the
