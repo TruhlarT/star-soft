@@ -19,9 +19,10 @@ use strict;
 # takes an argument of either real or MC
 
 sub UpdateQAOffline{
-  my $data_type = shift; # either 'real' or 'MC'
+  my $data_type   = shift; # either 'real' or 'MC'
                          # only used in $query_update
-  my $limit = 5; # limit number of new jobs
+  my $limit       = 5; # limit number of new jobs
+  my $oldest_date = '2000-01-01'; # dont retrieve anything older than this
   my ($file_type);
 
   # real or simulation?
@@ -59,8 +60,9 @@ sub UpdateQAOffline{
 			  file.type = '$file_type' and
 			  unix_timestamp(file.createTime) < $now and
 			  qa.$QASum{jobID} is NULL and
-			  file.hpss = 'N' 
-			order by file.createTime desc
+			  file.hpss = 'N' and
+			  file.createTime > $oldest_date
+			  
 			limit $limit};
 
 
@@ -85,7 +87,7 @@ sub UpdateQAOffline{
     $sth_key->execute($jobID);
     
     # get report key
-    my $report_key = $sth_key->fetchrow_array;
+    my $report_key = make_report_key($sth_key->fetchrow_array);
     
     # save report_key
     push @key_list, $report_key;
@@ -174,7 +176,6 @@ sub UpdateQANightly {
 			  unix_timestamp(file.createTime) < $now and
 			  file.jobID != 'n/a' and 
 			qa.$QASum{jobID} is NULL
-			order by file.createTime desc
 			limit $limit};
   
   # check if the report_key is unique

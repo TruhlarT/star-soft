@@ -615,7 +615,6 @@ sub doUpdate{
 # makes QA_objects that are not in the db and creates an logfile
 # Note the switch statement for determining the class of data!
 
-
 sub update_QA_objects{
   my @key_list = @_;
   

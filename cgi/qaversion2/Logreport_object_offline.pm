@@ -32,7 +32,7 @@ my %members = (
 # 
 sub new{
   my $classname = shift;
-  my $self      = $classname->SUPER::new(@_);  
+  my $self      = $classname->SUPER::new(@_) or return;  
 
   defined $self or return; # get out if something went wrong
 
@@ -45,7 +45,21 @@ sub new{
     @{$self}{keys %members} = values %members;
   }
 
-  # ---
+  $self->_init_offline();
+ 
+  # depend on the DataClass_object to detemine which sub to call
+  # DataClass should be 'offline_real' or 'offline_MC'
+
+  my $init_dataclass = $gDataClass_object->DataClass;
+
+  $self->$init_dataclass(); # even more initialization
+
+  return $self;
+}
+#===========================================================
+sub _init_offline{
+  my $self = shift;
+
   # runID ?
   my $runID = QA_db_utilities::GetRunID($self->JobID);
   $self->RunID($runID);
@@ -59,15 +73,6 @@ sub new{
   $self->ChainName($chainName);
   $self->StarlibVersion($lib);
   $self->RequestedChain($chain);
-
-  # depend on the DataClass_object to detemine which init to call
-  # DataClass should be 'offline_real' or 'offline_MC'
-
-  my $init = $gDataClass_object->DataClass;
-
-  $self->$init(); # more initialization
-
-  return $self;
 }
 #===========================================================
 # additional init for offline real
@@ -89,7 +94,6 @@ sub offline_real{
 
   # parse the dataset column
   
-
 }
 
 #===========================================================
@@ -132,19 +136,24 @@ sub GetProductionFiles{
 }
 #===========================================================
 # parse the summary of the log file
+# also parses the separate error file which contains
+# the StError and StWarning info among other things
 
 sub ParseLogfile{
   my $self = shift;
 
   my $logfile = $self->LogfileName; # found in SUPER::_init
 
-  # open
-  my $fh = FileHandle->new( $logfile, "r" )
-    or die "Cannot open $logfile: $!";
+  # change the logfile to the summary of the log file
+
+  (my $sumfile = $logfile) =~ s/\/log/\/sum/g; # change the path
+  $sumfile =~ s/\.log$/\.sum/;                 # change extension
+
+  my $fh_sum = FileHandle->new( $sumfile, "r" ) or return;
 
   # read the log file (actually summary of the log file)
   
-  while (defined (my $line = $fh->getline )) {
+  while (defined (my $line = $fh_sum->getline )) {
 
     # start time  
     if ($line =~ /Starting job execution at (.*?)on/){
@@ -196,6 +205,27 @@ sub ParseLogfile{
     }
   }
   
+  # deduce the error file
+  (my $errorfile = $logfile) =~ s/\/log$/err/;
+
+  my $fh_err = FileHandle->new($errorfile, "r");
+
+  if (defined $fh_err)
+  {
+    my $FH_ERR  = $self->IOStErrorFile->Open(">", "0664");
+    my $FH_WARN = $self->IOStWarningFile->Open(">", "0664");
+
+    # print to StError and StWarning file
+    while( defined( my $line = $fh_err->getline ) ){
+      
+      print $FH_ERR  $line if $line =~ /^StError:/;
+      print $FH_WARN $line if $line =~ /^StWarning:/;
+
+    }
+    close $FH_ERR; close $FH_WARN;
+  } 
+
+  return 1;
 }
 #=============================================================
 # gets some info about the job from the db

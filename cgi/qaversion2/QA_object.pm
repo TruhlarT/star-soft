@@ -181,7 +181,7 @@ sub DoQA{
   # determines which macro and tests to run
   
   my $control_file = $self->IOControlFile->Name;
-  my $fh = $self->IOControlFile->Open();
+  my $fh           = $self->IOControlFile->Open();
 
   print h2("<hr>QA for report key $report_key\n");
   print "The time is " . localtime(). "\n". br;
@@ -642,18 +642,12 @@ sub ShowQA{
   #}
 }
 
-#================================================================================
+#============================================================================
 # 'Files and reports' button
 
 sub DisplayFilesAndReports{
-
   my $self = shift;
 
-  # add error and warning files
-  my $warning_string = "StWarning file: ";
-  my $error_string = "StError file: ";
-  my $warning_file = $self->LogReport->WarningFile;
-  my $error_file   = $self->LogReport->ErrorFile;
   
   # if on disk, then show the files in the output directory
   if ( $self->OnDisk ) {
@@ -662,23 +656,32 @@ sub DisplayFilesAndReports{
     print h2("<font color=orange> Not on Disk</font>\n");
   }
 
-  print h3("Reports for $self->{_ReportKey}\n");
+  print h3("Reports for ",$self->ReportKey,"\n");
 
+  # make a temporary link to the log file
   if ($self->OnDisk) {
     my $logfile = $self->LogReport->LogfileName;
-    my $logfile_WWW = $self->LogReport->LogfileNameWWW;
+    #my $logfile_WWW = $self->LogReport->LogfileNameWWW;
 
-    # make link to the log file
     if (-s $logfile){
-      
-      $logfile_WWW and do{
-	my $time = stat($logfile)->mtime;
-	my $time_string = " (created:".localtime($time).")";
-	my $string = "Logfile $time_string";
-	QA_cgi_utilities::make_anchor($string, $logfile, $logfile_WWW);
-      };
+     
+      # random number for uniqueness
+      my $id_string = int(rand(1000000));
+
+      my $io = IO_object->new("LogScratchWWW",$logfile);
+      my $link = $io->Name;
+
+      my $string = "Logfile (created:" . localtime(stat($logfile)->mtime) . ")";
+      QA_cgi_utilities::make_anchor($string, $logfile, $link); 
     }
   }
+
+  # add error and warning files
+  my $warning_string = "StWarning file: ";
+  my $error_string   = "StError file: ";
+  my $warning_file   = $self->LogReport->IOStWarningFile->Name;
+  my $error_file     = $self->LogReport->IOStErrorFile->Name;
+
   # links to StWarning and StError files
   $self->PrintFilestring( $warning_string, basename $warning_file )
     if -e $warning_file;
@@ -718,6 +721,10 @@ sub DisplayFilesAndReports{
     $self->PrintFilestring("Postscript file", $file);
   }
 
+  # links to output of the macros
+  foreach my $file (@report){  
+    $self->PrintFilestring("Report", $file);
+  }
   #----------------------------------------------------------------
   # these are for experts only
 
@@ -727,10 +734,6 @@ sub DisplayFilesAndReports{
     print h4("Other files:\n"); 
     
     $logfile and $self->PrintFilestring("Logfile report", $logfile);
-    
-    foreach my $file (@report){  
-      $self->PrintFilestring("Report", $file);
-    }
     
     foreach my $file (@evaluation){  
       $self->PrintFilestring("Evaluation", $file);
@@ -742,7 +745,7 @@ sub DisplayFilesAndReports{
     
   };
 
-  print "<hr>";
+  print hr;
 }
 
 #===============================================================================
@@ -850,7 +853,7 @@ sub UpdateLogReport{
   # ok?
   if ( -e $filename )
   {
-    print h4(" ... done\n"); chmod 0664, $filename; return 1;
+    print h4(" ... done\n"); chmod 0664, $filename; 
   } 
   else 
   {
@@ -878,8 +881,8 @@ sub GetLogReport{
   else
   {
     print h3("<font color=red>Cannot find $filename<br>\n",
-	     "It's possible that the db has been updated,\n",
-	     "but the logfile has not been parsed</font>"); 
+	     "It's possible that the db has been updated, ",
+	     "but the logfile has not been parsed</font>\n"); 
     return; 
   }
   

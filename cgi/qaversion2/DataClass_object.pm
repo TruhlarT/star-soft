@@ -101,6 +101,7 @@ for my $attr ( qw (
 		   TopDirReportWWW
 		   ControlDirWWW
 		   BatchDirWWW
+		   ScratchDirWWW
 		   KeyList_obj
 		   QA_obj
 		   GetSelectedKeys
@@ -243,6 +244,10 @@ sub StandardDirectories{
   $self->TopDirReportWWW("$topdir_WWW/report_dir_$data_class");
   $self->ControlDirWWW("$topdir_WWW/control_dir_$data_class");
   $self->BatchDirWWW("$topdir_WWW/batch_dir_$data_class");
+
+  # need to make a temporary link to the logfiles
+  #
+  $self->ScratchDirWWW("$topdir_WWW/scratch");
 
   my $batch_dir = "$topdir/batch";
   $self->BatchDir("$batch_dir");

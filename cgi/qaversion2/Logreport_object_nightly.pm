@@ -20,7 +20,7 @@ my %members = ();
 #==========================================================
 sub new{
   my $classname = shift;
-  my $self      = $classname->SUPER::new(@_);  
+  my $self      = $classname->SUPER::new(@_) or return;  
 
   if (defined %members){
     # using SUPER::AUTOLOAD
@@ -78,9 +78,10 @@ sub ParseLogfile {
 
   my $logfile = $self->LogfileName(); # found in SUPER::_init
 
-  # open
-  my $fh = FileHandle->new( $logfile, "r" )
-    or die "Cannot open $logfile: $!";
+  # open files
+  my $fh       = FileHandle->new( $logfile, "r" ) or return;
+  my $FH_WARN  = $self->IOStWarningFile->Open(">", "0664");
+  my $FH_ERR   = $self->IOStErrorFile->Open(">", "0664");
 
   my ($record_run_options);
   # read the log file
@@ -134,7 +135,17 @@ sub ParseLogfile {
 
       next;
     };
+
+    # StError ?
+    print $FH_ERR $line  if $line =~ /^StError:/;
+
+    # StWarning ?    
+    print $FH_WARN $line if $line =~ /^StWarning:/;
   }
+
+  close $FH_ERR;  close $FH_WARN;
+  
+  return 1;
 }
 
 #=========================================================

@@ -17,6 +17,8 @@ use CGI qw/:standard :html3/;
 use File::Basename;
 use File::Find;
 use File::stat;
+use FileHandle;
+use DirHandle;
 use Cwd;
 
 use Storable;
@@ -131,6 +133,9 @@ sub Open{
 
   #------------------------------------------------------------
   # check if directory, otherwise assume it is a file
+  # bum - need a unique filehandle FH
+  
+  local *FH;
 
   if ( $self->IsDir() ){
 
@@ -165,6 +170,7 @@ sub Open{
     };
     
     $self->FileHandle(*FH);
+
     #---
     if (defined $disk_access_mode){
 	print "doing chmod $disk_access_mode $filename\n";
@@ -181,7 +187,7 @@ sub Open{
 sub DESTROY{
 
   # do proper cleanup when object goes out of scope
-
+  
   my $self = shift;
 
   #------------------------------------------------------
@@ -433,7 +439,6 @@ sub TopdirReportOld{
   return $gDataClass_object->TopDirReportOld();
 }
 #===================================================================
-# YES
 sub ReportDir{
   my $self = shift;
   my $report_key = shift;
@@ -444,7 +449,6 @@ sub ReportDir{
   return $dir;
 }
 #===================================================================
-#YES
 
 sub ReportDirWWW{
   my $self = shift;
@@ -456,7 +460,6 @@ sub ReportDirWWW{
   return $dir;
 }
 #===================================================================
-#YES
 
 sub ProductionDir{
   my $self      = shift;
@@ -468,7 +471,6 @@ sub ProductionDir{
   return $dir;
 }
 #===================================================================
-#YES
 # this is a perl Storable.  dont call any open methods
 
 sub LogReportStorable{
@@ -593,7 +595,6 @@ sub ControlFileOffline{
 
 sub MacroReportFilename{
   my $self             = shift;
-  my $input_aryref     = shift;
   my $report_key       = shift;
   my $macro_name       = shift;
   my $output_data_type = shift;
@@ -613,7 +614,9 @@ sub MacroReportFilename{
   # else just use the macro name and the file type (+data extension)
   else{
     $filetype = $output_data_ext.$filetype;
+#    print "In IO_object: filetype = '$filetype'\n";
     $filename = $macro_name.$filetype;
+#    print "In IO_object: filename = '$filename'\n";
   }
   # need to get the report dir
   my $io = IO_object->new("ReportDir",$report_key);
@@ -629,7 +632,7 @@ sub EvaluationFilename{
   my $report_key = shift;
   my $macro_name = shift;
 
-  my $filename = $macro_name.".evaluation";
+  my $filename = "$macro_name.evaluation";
 
   my $io = IO_object->new("ReportDir",$report_key);
   my $report_dir = $io->Name;
@@ -651,6 +654,8 @@ sub StWarningFile{
   my $self       = shift;
   my $report_key = shift;
 
+  $self->ReportErrorOnOpen(1);
+
   # report dir
   my $io = IO_object->new("ReportDir", $report_key);
   my $report_dir = $io->Name;
@@ -667,6 +672,8 @@ sub StErrorFile{
   my $self       = shift;
   my $report_key = shift;
 
+  $self->ReportErrorOnOpen(1);
+
   # report dir
   my $io = IO_object->new("ReportDir", $report_key);
   my $report_dir = $io->Name;
@@ -675,3 +682,25 @@ sub StErrorFile{
 
   return "$report_dir/StError.txt";
 } 
+#=====================================================================
+# temporary soft link to the log file to view it over the web
+
+sub LogScratchWWW{
+  my $self    = shift;
+  my $logfile = shift;
+
+  srand; # sets the seed
+  my $id_string = int(rand(100000));
+
+  my $scratch_WWW = $gDataClass_object->ScratchDirWWW;
+  my $link        = "$scratch_WWW/logfile_link_$id_string";
+  
+  print h3("$link", "$logfile");
+
+  symlink $logfile, $link or warn "Couldn't symlink";
+
+  return $link;
+}
+  
+
+  

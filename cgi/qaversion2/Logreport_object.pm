@@ -81,6 +81,9 @@ sub _init{
   my $self = shift;
   my $report_key = shift;
  
+  # diagnostic
+  print h4("Making logfile report for $report_key...\n");
+
   # check for report key
   #
   defined $report_key or die __PACKAGE__, " needs a report key";
@@ -92,32 +95,17 @@ sub _init{
   # get and set the jobID
   #
   my $jobID = QA_db_utilities::GetJobID($report_key);
-
   defined $jobID or do{print h3("No jobID $jobID in db"); return};
-
   $self->JobID($jobID);
 
   # get and set the qaID
   #
   my $qaID = QA_db_utilities::GetQAID($report_key);
-
   $self->qaID($qaID);
 
   # get the log file
   my $logfile = $self->GetLogFile( );  
-
-  # check for the log file's existence
-  if ( -e $logfile )
-  {
-    print h4("Making logfile report for $report_key...\n");
-    $self->LogfileName($logfile);
-  }
-  else
-  {
-    print h3("Error in Logreport_object constructor:\n "),
-    h3("logfile $logfile not found for $jobID ($report_key)\n");
-    return;
-  }
+  $self->LogfileName($logfile);
 
   # init StWarning and StError files
 
@@ -125,8 +113,13 @@ sub _init{
   $self->IOStErrorFile(IO_object->new("StErrorFile", $report_key));
 
   # parse the log file
+  # returns an error if this doesnt exist
   #
-  $self->ParseLogfile();
+  $self->ParseLogfile() or do{
+    print h3("Error in Logreport_object constructor:\n ",
+	     "logfile $logfile not found for $jobID ($report_key)\n");
+    return;
+  };
 
   # get additional job info from the db
   #
@@ -138,7 +131,7 @@ sub _init{
   my $missing = QA_db_utilities::GetMissingFiles( $jobID );
   $self->MissingFiles($missing);
 
-  # get the production files
+  # get the production output files
   #
   $self->GetProductionFiles;
 }

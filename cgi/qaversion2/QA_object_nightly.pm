@@ -31,7 +31,7 @@ sub InitOnDisk{
 
   my $ondisk = QA_db_utilities::OnDiskNightly($self->JobID);
   $self->OnDisk($ondisk);
-
+ 
 
 }
 
@@ -50,12 +50,15 @@ sub InitControlFile{
 sub DataDisplayString{
   my $self = shift;
 
+  my $jobID           = $self->JobID;
   my $string          = $self->ReportKey;     
   my $starlib_version = $self->LogReport->StarlibVersion;
   my $star_level      = $self->LogReport->StarLevel;
   
   $string .= 
-      "<br>(STARLIB version: $starlib_version; STAR level: $star_level)";
+    "<br>JobID = $jobID".
+    "<br>(STARLIB version: $starlib_version; STAR level: $star_level)";
+      
     
   #my $input_filename = $self->LogReport->InputFn;
 

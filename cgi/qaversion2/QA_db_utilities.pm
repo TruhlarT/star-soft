@@ -195,10 +195,16 @@ sub GetOfflineLogFile{
 		 from $dbFile.$JobStatus  
 		 where jobID='$jobID' };
   
-  return $dbh->selectrow_array($query);
+  my $logfile = $dbh->selectrow_array($query);
    
   # change to the actual logfile
-  #$logfile =~ s/sum/log/g;
+  # e.g. /star/rcf/disk00001/star/P00hd/sum/daq/st_physics_1166036_raw_0002.sum
+  #
+
+  $logfile =~ s/\/sum/\/log/g; # change the path info
+  $logfile =~ s/\.sum$/\.log/; # change the data type 
+
+  return $logfile;
 }    
 
 #=========================================================================
@@ -653,9 +659,12 @@ sub ClearQAMacrosTable{
 
 sub WriteQASummary{
   my $qa_status    = shift; # 0,1
-  my $qaID        = shift;
+  my $qaID         = shift;
   my $control_file = shift;
 
+  # the control file may be a symlink
+  $control_file = readlink $control_file || $control_file;
+  
   # qa ok?
   my $QAok = $qa_status ? 'Y' : 'N';
   
