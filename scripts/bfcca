@@ -47,7 +47,6 @@ $|       = 1;
 $HPSSBASE= "/home/starreco";       # base HPSS path
 $NTRIES  = 10;                     # number of tries
 $SLPTIME = 60;                     # sleep time in sec between mkpath
-$MASK    = "0773";                 # default mask for dir creation.
 $PRGM    = "bfcca";                # this program logical name 
 
 
@@ -100,6 +99,17 @@ $INPUTFILE  = shift @INPUTS;
 $CINPUTFILE = shift @CINPUTS;
 
 
+#
+# Other input files may be options
+#
+foreach $file (@CINPUTS){
+    if( $file =~ /StarDb/){
+	# Calibration run enabled. Create soft link.
+	$file = dirname($file);
+	symlink($file,"StarDb");
+    }
+    #} elsif etc ...
+}
 
 
 # The number of output files is unknown but we can evaluate
@@ -152,6 +162,8 @@ if($INPUTFILE eq ""){
 }
 
 
+
+
 print "Our job ID                       $JOB_ID\n";
 print "Out working directory            $PWD\n";
 print "The chain will run from library  $LIBRARY\n";
@@ -189,9 +201,11 @@ if ( ! open(FO,">$PWD/$JOB_ID.csh") ){
     close(FO);
     chmod(0755,"$PWD/$JOB_ID.csh");
 
+    print "-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=--=-=-=-=-=-=-=-=-=-=-\n";
     print "$PRGM :: Info: Our working directory contains\n";
     print `ls -l`;
     print "$PRGM :: Info: We will now start to run ...\n";
+    print "-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=--=-=-=-=-=-=-=-=-=-=-\n";
 
     system("$PWD/$JOB_ID.csh");
    
@@ -305,8 +319,8 @@ sub MkPath
 	    # in case of disk unmount. For example, level = 2 will prevent creation
 	    # before a /star/dataXX directory ...
 	    if($i >= $level){
-		if( ! mkdir($tmp,"$MASK") ){
-		    print STDERR "$PRGM :: Error: Failed to create $tmp\n";
+		if( ! mkdir($tmp,0773) ){
+		    print STDERR "$PRGM :: Error: Failed to create $tmp [$!]\n";
 		    return -2;
 		}
 	    }
