@@ -1,6 +1,6 @@
  /***************************************************************************
  *
- * $Id: StSvtHybridStat.cc,v 1.1 2000/03/10 14:26:21 munhoz Exp $
+ * $Id: StSvtHybridStat.cc,v 1.2 2000/08/23 12:48:44 munhoz Exp $
  *
  * Author: Marcelo Munhoz
  ***************************************************************************
@@ -10,8 +10,11 @@
  ***************************************************************************
  *
  * $Log: StSvtHybridStat.cc,v $
- * Revision 1.1  2000/03/10 14:26:21  munhoz
- * Initial revision
+ * Revision 1.2  2000/08/23 12:48:44  munhoz
+ * add reset method
+ *
+ * Revision 1.1.1.1  2000/03/10 14:26:21  munhoz
+ * SVT Class Library
  *
  **************************************************************************/
 ////////////////////////////////////////////////////////////////////////////
@@ -157,7 +160,10 @@ void StSvtHybridStat::fillMomAllPixels(int x)
 
 void StSvtHybridStat::reset()
 {
-  m0 = NULL;
-  m1 = NULL;
-  m2 = NULL;
+  if (m0)
+    m0->reset();
+  if (m1)
+    m1->reset();
+  if (m2)
+    m2->reset();
 }
