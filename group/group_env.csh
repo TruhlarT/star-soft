@@ -1,7 +1,10 @@
 #!/usr/bin/csh -f
-#       $Id: group_env.csh,v 1.27 1998/07/10 14:06:42 fisyak Exp $
+#       $Id: group_env.csh,v 1.28 1998/07/10 21:18:40 fisyak Exp $
 #	Purpose:	STAR group csh setup 
 #       $Log: group_env.csh,v $
+#       Revision 1.28  1998/07/10 21:18:40  fisyak
+#       Fix NODEBUG flug for SL98c and SL98e
+#
 #       Revision 1.27  1998/07/10 14:06:42  fisyak
 #       Keep for SL98a and SL98b the old version convention
 #
@@ -110,11 +113,13 @@ endif
 setenv STAR_MGR $STAR/mgr
 source ${GROUP_DIR}/STAR_SYS; 
 setenv STAF_LIB  $STAR/asps/../.${STAR_HOST_SYS}/lib  ; if ($ECHO) echo   "Setting up STAF_LIB  = ${STAF_LIB}"
-if ($STAR_VERSION == "SL98d" || $STAR_VERSION == "SL98c") then
-if ($STAR_VERSION == "SL98d" && $?NODEBUG == 0) then
+if ($STAR_VERSION == "SL98d" || $STAR_VERSION == "SL98c" || $STAR_VERSION == "SL98e") then
+if ($?NODEBUG == 0) then
 setenv STAR_LIB  $STAR/.${STAR_HOST_SYS}/lib; if ($ECHO) echo   "Setting up STAR_LIB  = ${STAR_LIB}"
 else
 setenv STAR_LIB  $STAR/.${STAR_HOST_SYS}/nodeb; if ($ECHO) echo   "Setting up STAR_LIB  = ${STAR_LIB}"
+else
+setenv STAR_LIB  $STAR/${STAR_HOST_SYS}/lib; if ($ECHO) echo   "Setting up STAR_LIB  = ${STAR_LIB}"
 endif
 setenv STAR_BIN  $STAR/asps/../.${STAR_HOST_SYS}/bin  ; if ($ECHO) echo   "Setting up STAR_BIN  = ${STAR_BIN}"
 else   
