@@ -676,6 +676,9 @@ foreach  $eachOutNDir (@OUT_DIR) {
      elsif($EvTp eq "AuAu_prodHigh") {
         $EvReq = 335;
       }
+     elsif($EvTp eq "AuAu_prodLow") {
+        $EvReq = 332;
+      }
 #       else {
 #      @prt = split(/\./,$bsname);
 #      $evR = $prt[1];
