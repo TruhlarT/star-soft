@@ -1,4 +1,4 @@
-*CMZ :          04/01/2000  15.40.50  by  Pavel Nevski
+*CMZ :          04/01/2000  18.54.31  by  Pavel Nevski
 *CMZ :  2.00/00 12/12/99  02.16.23  by  Pavel Nevski
 *CMZ :  1.40/05 26/08/98  22.10.06  by  Pavel Nevski
 *CMZ :  1.40/05 13/07/98  10.50.50  by  Pavel Nevski
@@ -171,19 +171,10 @@ C
 ****>
       if (S) call staf_stop
       WRITE(*,'(/1x,a)') 'Exiting from '//PROG(I:N)
-      call azunit(idebug)
       if (G) Call UGLAST
       CALL PAEXIT
       :return:
       END
-
-      subroutine azunit(idebug)
-*KEEP,ZUNIT.
-      COMMON /ZUNIT/ IQREAD,IQPRNT,IQPR2,IQLOG,IQPNCH,IQTTIN,IQTYPE
-      COMMON /ZUNITZ/IQDLUN,IQFLUN,IQHLUN,  NQUSED
-*KEND.
-      IF (IDEBUG==0) IQLOG=0
-      end
 
       subroutine  AgPAWQ
       COMMON /AgCIPAW/  AgIPAW,IwTyp
@@ -796,6 +787,7 @@ C local variables valid inside same block
 END
 
 #endif /* __ROOT__ */
+*CMZ :          04/01/2000  18.56.43  by  Pavel Nevski
 *CMZ :  2.00/00 09/09/99  19.32.47  by  Pavel Nevski
 *CMZ :  1.40/05 21/11/97  17.47.13  by  Pavel Nevski
 *CMZ :  1.30/00 02/04/97  22.56.51  by  Pavel Nevski
@@ -804,9 +796,8 @@ END
                 Subroutine   U G L A S T
 * Modifications:
 * PN,  03.09.98: terminate spool output.
+*      03.01.00: supress memory usage table if no debug
 *********************************************************************
-*KEEP,TYPING.
-      IMPLICIT NONE
 *KEEP,GCUNIT.
       COMMON/GCUNIT/LIN,LOUT,NUNITS,LUNITS(5)
       INTEGER LIN,LOUT,NUNITS,LUNITS
@@ -863,6 +854,9 @@ C
 *
 *    - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 *
+*KEEP,ZUNIT.
+      COMMON /ZUNIT/ IQREAD,IQPRNT,IQPR2,IQLOG,IQPNCH,IQTTIN,IQTYPE
+      COMMON /ZUNITZ/IQDLUN,IQFLUN,IQHLUN,  NQUSED
 *KEND.
     Integer      LENOCC,ICYCLE
     Character*80 CTOP
@@ -879,6 +873,7 @@ C
       CLOSE (IUHIST);    IUHIST=0
     }
     * Call RZCLOS(' ','A')
+    IF (IDEBUG<2) IQLOG=0
     Call GLAST
     " STOP "
     END
@@ -12380,7 +12375,7 @@ C
      end
 
 
-*CMZ :          03/01/2000  23.25.39  by  Pavel Nevski
+*CMZ :          04/01/2000  18.59.23  by  Pavel Nevski
 *CMZ :  2.00/00 25/01/99  11.29.36  by  Pavel Nevski
 *CMZ :  1.40/05 31/03/98  19.05.30  by  Pavel Nevski
 *-- Author :    Pavel Nevski   06/03/98
@@ -12492,6 +12487,7 @@ C
               IF (LQ(JMA-J)>0) CALL MZDROP(IXCONS,LQ(JMA-J),'L')
      }  }  }
      Ival=Lout;  If (Idebug==0) Lout=0;
+                 If (Idebug==1) Lout=99;
      Call GPHYSI
      Lout=Ival
      end
@@ -15407,7 +15403,7 @@ C     - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
   END
 
 
-*CMZ :          04/01/2000  17.15.48  by  Pavel Nevski
+*CMZ :          04/01/2000  18.49.33  by  Pavel Nevski
 *CMZ :  2.00/00 28/09/98  00.14.17  by  Pavel Nevski
 *CMZ :  1.40/05 31/07/97  17.26.28  by  Pavel Nevski
 *CMZ :  1.30/00 16/04/97  20.30.01  by  Pavel Nevski
@@ -15493,10 +15489,10 @@ C                                       Link to:
       EQUIVALENCE (LKSLUG(26),LKGENE)  ! old slug ZEBRA generator structure
 *KEND.
     Character  chopt*(*),key*1,name*4,Var*(*)
-    Integer    LUN,IEV,J,K1,K2, Is,Ier,n1,nw,mw,INDEX,Nob,
-               Iprin/3/,IOH(3)/0,0,0/,LH/3/,IHEAD(10)
+    Integer    ISLFLAG,INDEX,LUN,IEV,J,K1,K2,Is,Ier,n1,nw,mw,
+               Nob/0/,Iprin,IOH(3)/0,0,0/,LH/3/,IHEAD(10)
 *
-    Iprin=Idebug
+    Iprin=max(ISLFLAG('OUTP','PRIN'),Idebug)
     If (IOH(1)==0) Call MZIOCH(IOH,3,'2I 1H -I')
     Check J>0 & Ier==0 & Index(Chopt,key)+Index(Chopt,'*')+Index(Key,'*')>0
     Call UCTOH(name,IHEAD(3),4,4);  IHEAD(1)=K2;  IHEAD(2)=0
@@ -15517,12 +15513,12 @@ C                                       Link to:
             }
       Is=1; IHEAD(1)=IEV; IHEAD(2)=Nob; IEV=-1;
     }
+    check Nob>=-1;   Nob-=1  " donwcount objects done "
 *   ----------Zebra(1994), p.107-----------
-    if (Nob>0) Call FZOUT(LUN,0,J,Is,'L',IOH,LH,Ihead)
+    Call FZOUT(LUN,0,J,Is,'L',IOH,LH,Ihead)
 *   ---------------------------------------
-    if (iev<0) Nob-=1  " donwcount objects done "
     Ier=Iquest(1);  nw=Iquest(11); Mw=Iquest(14)
-    PRIN3 Is,Name,var,N1,nw; (' AGZout :',i3,2(2x,a6),'=',i6,'  Leng=',i8)
+    PRIN3 Is,Nob,Name,var,N1,nw;(' AGZout :',2i3,2(2x,a6),'=',i6,'  Leng=',i8)
     Check Ier!=0; print *,' AgZOUT error ier=',ier,' after ',Mw,'Mw written'
     If (Ier==+1)  print *,' software EOT set by FZLIMIT reached '
     If (Ier==-1)  print *,' attempt to write after End-Of-Data  '
