@@ -21,10 +21,10 @@ require "/afs/rhic/star/packages/DEV/mgr/dbTJobsSetup.pl";
 #require "dbTJobsSetup.pl";
 
 my $TOP_DIRD = "/star/rcf/test/dev/";
-my @dir_year = ("year_2001","year_1h");
+my @dir_year = ("year_2001","year_1h","year_2003");
 my @node_dir = ("trs_redhat72", "trs_redhat72_opt");
 my @node_daq = ("daq_redhat72", "daq_redhat72_opt"); 
-my @hc_dir = ("hc_lowdensity", "hc_standard", "hc_highdensity", "peripheral","pp_minbias","ppl_minbias");
+my @hc_dir = ("hc_lowdensity", "hc_standard", "hc_highdensity", "peripheral","pp_minbias","ppl_minbias","dau_minbias");
 my @daq_dir = ("minbias", "central", "ppMinBias","embedding");
 
 my @OUT_DIR;
@@ -83,6 +83,8 @@ for ($i = 0; $i < scalar(@node_dir); $i++) {
   }
   $OUT_DIR[$ii] = $TOP_DIRD . $node_dir[$i] . "/" . $testDay . "/". $dir_year[1] . "/" . $hc_dir[1]; 
     $ii++; 
+  $OUT_DIR[$ii] = $TOP_DIRD . $node_dir[$i] . "/" . $testDay . "/". $dir_year[2] . "/" . $hc_dir[6];
+    $ii++;
 }
 
 
@@ -105,6 +107,9 @@ for ($i = 0; $i < scalar(@node_dir); $i++) {
   }
   $OUT_DIR[$ii] = $TOP_DIRD . $node_dir[$i] . "/" . $beforeDay . "/". $dir_year[1] . "/" . $hc_dir[1]; 
     $ii++; 
+  $OUT_DIR[$ii] = $TOP_DIRD . $node_dir[$i] . "/" . $beforeDay . "/". $dir_year[2] . "/" . $hc_dir[6];
+   $ii++;
+
 }
 
 $jj = 0;
