@@ -424,8 +424,11 @@ sub ParseLogfile {
     next unless $line =~ /^QAInfo:/;
 
     # this one valid from 99h pmj 14/9/99
+
+    # added ".*" between evt and sta to accomodate new Date.Time field pmj 11/1/00
+
     # get last event number
-    $line =~ /QAInfo: Done with Event\s+\[no\.\s+(\d+)\/run\s+(\d+)\/evt\.\s+(\d+)\/sta\s+(\d+)/ and do{
+    $line =~ /QAInfo: Done with Event\s+\[no\.\s+(\d+)\/run\s+(\d+)\/evt\.\s+(\d+).*\/sta\s+(\d+)/ and do{
       $done_with_event_flag = 1;
       $self->LastEvent($1);
       $self->ReturnCodeLastEvent($4);
