@@ -17,8 +17,13 @@
 #    executableargs=STDOpt,LibraryVersion,Destination,NumEvt,options...
 #
 #  where
-#   STDopt         0 regular (immediate/un-buffered)
-#                  1 delayed STD-IO
+#   ALLOpt         Bit-wise option setup.
+#                  Bit 1-2  0 regular (immediate/un-buffered)
+#                           1 delayed STD-IO
+#                  Bit 3    0 non-optimized
+#                           1 optimized
+#                  Bit 4      enables/disables compressed STDOUT
+#  
 #   LibraryVersion can be one of new, dev, old, pro or a version
 #                  understood by 'starver'
 #   Destination    is a disk-path used for file copy.
@@ -39,6 +44,7 @@
 
 use File::Basename;
 use File::Copy;
+use Sys::Hostname;
 
 # First of all, turn IO autoflush
 $|       = 1;
@@ -70,9 +76,10 @@ $DESTINATION = shift @ARGV;
 $NUMEVT      = shift @ARGV;
 $CHAINOPT    = join(" ",@ARGV);
 
-# Option bitmask
-$STDOPT = $ALLOPT & 3; # i.e. 011
-$OPTOPT = $ALLOPT & 4; # i.e. 100
+# --- Option bitmask ----------------------------------------------
+$STDOPT = $ALLOPT & 3; # i.e.  011, on 2 bits for future extensions
+$OPTOPT = $ALLOPT & 4; # i.e.  100
+$COMPRS = $ALLOPT & 8; # i.e. 1000
 
 
 # --- ENV variables we may use       ------------------------------
@@ -106,7 +113,6 @@ if( $STDOPT == 1){
     print "$PRGM :: Info: direct IO mode.\n";
 }
 #print "$PRGM :: debug : $STDOPT $ISTDOUT $STDOUT $ISTDERR $STDERR\n";
-
 
 
 
@@ -227,30 +233,61 @@ if($INPUTFILE eq ""){
     }
 }
 
+# Feature test
+$GZIP = "";
+if ($COMPRS){
+    foreach $file ( ("/bin/gzip","/usr/bin/gzip","/usr/local/bin/gzip") ){
+	if( -x $file){ 
+	    $GZIP = $file; 
+	    last;
+	}
+    }
+    if($GZIP eq ""){
+	print STDERR "$PRGM :: Warning: Compress feature cannot be used. Missing gzip\n";
+	$COMPRS = 0;
+    }
+}
+
+$CPUSPD = "unkown";
+if( -r "/proc/cpuinfo"){
+    open(FI,"/proc/cpuinfo");
+    while( defined($line = <FI>) ){
+	if($line =~ m/(cpu MHz.*:)(.*)/){
+	    $CPUSPD = $2;
+	    $CPUSPD =~ s/^\s*(.*?)\s*$/$1/;
+	    last;
+	}
+    }
+    close(FI);
+}
+
+
 
 
 
 # --- Display information -----------------------------------------
 #
-print "Job is starting on              ".localtime()."\n";
-print "Our job ID                       $JOB_ID\n";
-print "Out working directory            $PWD\n";
-print "The chain will run from library  $LIBRARY\n";
-print "The chain will run with options  $CHAINOPT\n";
+print "Job is starting on               ".localtime()."\n";
+print "We are running on                ".hostname()."\n";
+print "CPU speed                        $CPUSPD MHz\n";
+print "Our job ID is                    $JOB_ID\n";
+print "Our working directory            $PWD\n";
+print "We will run from library version $LIBRARY\n";
+print "Main processing chain options    $CHAINOPT\n"    if($copt !~ m/Opt/);
+print "Calibration pass using           $cdir/$copt\n"  if($copt ne "" );
 print "The output destination will be   $DESTINATION\n";
 print "The number of events would be    $NUMEVT\n";
 print "The chain will run over file     $INPUTFILE\n";
 print "This file is stored as           $CINPUTFILE\n";
 print "Outputs initial will be          ".join(" ",@COUTPUTS)."\n";
 print "Outputs final will be            ".join(" ",@OUTPUTS)."\n";
-if($copt ne "" ){
-    print "Calibration pass will be done\n";
+print "Running condition                ".($OPTOPT?"Optimized":"Non-Optimized")."\n";
+
+
+if ($COMPRS){ 
+    print "Output Compression was required, will use $GZIP\n";
 }
-if ($OPTOPT){
-    print "The chain will run in Optimized mode\n";
-} else {
-    print "The chain will run in NON-Optimized mode\n";
-}
+
 
 
 
@@ -314,13 +351,18 @@ if ( ! open(FO,">$PWD/$JOB_ID.csh") ){
 
     &List("Our working directory contains","We will now start to run ...");
 
+    $elaps  = time();
     system("$PWD/$JOB_ID.csh");
+    $status = $?;
+    $elaps  = time() - $elaps;
+
+
 
     # after this, we may have crashed or not
-    if($? == 0){
+    if($status == 0){
 	print "$PRGM :: Info: The chain as completed without failure\n";
     } else {
-	print STDERR "$PRGM :: Error: chain stopped with status $? [$!]\n";
+	print STDERR "$PRGM :: Error: chain stopped with status $status\n";
     }
     &List("The directory content is now ...");
 
@@ -353,8 +395,8 @@ if ( ! open(FO,">$PWD/$JOB_ID.csh") ){
 	    }
 
 
-	    # OK to copy -> $ffile is defined
-	    if( $ffile ne ""){
+	    # OK to copy $cfile -> $ffile is defined
+	    if( $ffile ne $cfile){
 		&FileCopy($cfile,$ffile);
 	    } else {
 		print "$PRGM :: Info: $file is at its final destination\n";
@@ -365,7 +407,11 @@ if ( ! open(FO,">$PWD/$JOB_ID.csh") ){
 	    print "$PRGM :: Warning: action did not produce expected $cfile\n";
 	}
     }
-    print "$PRGM :: Info: All output checked. Done.\n";
+    print "$PRGM :: Info: All output checked. Done\n";
+    if( $CPUSPD ne "unkown"){
+	print "$PRGM :: Info: Chain done in $elaps seconds, Time/CPUSpeed= ".($elaps/$CPUSPD)."\n";
+    }
+
 
     # Take care of STD.
     if( $STDOPT == 1){
@@ -485,13 +531,27 @@ sub FileCopy
     # if the final file already exists, remove it first
     if( -e $target){ unlink($target);}
 
-    # Informative message
-    print "$PRGM :: Info: Copying $flnm -> $target\n";
+
+    # Compression treatment will be done using gzip, not a perl
+    # module.
+    if($COMPRS && $flnm eq $STDOUT){ 
+	system("$GZIP $flnm");
+	if( -e $flnm.".gz"){
+	    $flnm   .= ".gz";
+	    $target .= ".gz";
+	}
+	print "$PRGM :: Info: Copying $flnm.gz -> $target.gz\n";
+    } else {
+	# Informative message
+	print "$PRGM :: Info: Copying $flnm -> $target\n";
+    }
+
+    # Copy now
     copy($flnm,$target);
 
     # Double check this
     if( ! -e $target){
-	print "$PRGM :: Warning: Action did not create $target\n";
+	print STDERR "$PRGM :: Warning: Action did not create $target\n";
     }
 }
 
@@ -510,7 +570,7 @@ sub STDtrap
 {
     my($mode,$outf,$errf)=@_;
 
-    # Open append or create
+    # Open create or append 
     if ($mode == 0 || $mode == 1){
 	# dup and auto-flush
 	open(SAVEERR,">&STDERR");
