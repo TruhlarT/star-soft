@@ -1,6 +1,6 @@
 /***************************************************************************
  *
- * $Id: summarizeEvent.cc,v 1.12 1999/11/04 21:02:27 ullrich Exp $
+ * $Id: summarizeEvent.cc,v 2.1 1999/11/16 12:28:44 ullrich Exp $
  *
  * Author: Torre Wenaus, BNL,
  *         Thomas Ullrich, Nov 1999
@@ -14,11 +14,8 @@
  ***************************************************************************
  *
  * $Log: summarizeEvent.cc,v $
- * Revision 1.12  1999/11/04 21:02:27  ullrich
- * Revision for new StEvent
- *
- * Revision 1.12  1999/11/04 21:02:27  ullrich
- * Revision for new StEvent
+ * Revision 2.1  1999/11/16 12:28:44  ullrich
+ * Corrected typo and added print-out of number of primary tracks.
  *
  * Revision 2.1  1999/11/16 12:28:44  ullrich
  * Corrected typo and added print-out of number of primary tracks.
@@ -30,7 +27,7 @@
 #include "StEventTypes.h"
 #include "StMessMgr.h"
 
-static const char rcsid[] = "$Id: summarizeEvent.cc,v 1.12 1999/11/04 21:02:27 ullrich Exp $";
+static const char rcsid[] = "$Id: summarizeEvent.cc,v 2.1 1999/11/16 12:28:44 ullrich Exp $";
 
 void
 summarizeEvent(StEvent& event, Int_t &nevents)
@@ -39,6 +36,12 @@ summarizeEvent(StEvent& event, Int_t &nevents)
     gMessMgr->QAInfo() << "StAnalysisMaker,  Reading Event: " << nevents
 		       << "  Type: " << event.type()
 		       << "  Run: " << event.runId() << endm;
+    
+    gMessMgr->QAInfo() << "# track nodes:         "
+		       << event.trackNodes().size() << endm;
+
+    int nprimary = 0;
+    if (event.primaryVertex())
 	nprimary = event.primaryVertex()->numberOfDaughters();
     gMessMgr->QAInfo() << "# primary tracks:         "
 		       << nprimary << endm;
