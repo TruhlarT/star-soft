@@ -1367,7 +1367,7 @@ my $mRealTbfc = 0;
    if ($end_line =~ /QAInfo:Chain/ and $end_line =~ /StBFChain::bfc/) {
 
 #    if ( $end_line =~ /StBFChain::bfc/) {  
-  print $end_line, "\n";
+#  print $end_line, "\n";
      @part = split (" ", $end_line); 
       $mCPUbfc = $part[6];
       $mRealTbfc = $part[4];
