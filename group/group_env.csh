@@ -1,7 +1,10 @@
 #!/usr/bin/csh -f
-#       $Id: group_env.csh,v 1.84 1999/09/15 20:54:18 wenaus Exp $
+#       $Id: group_env.csh,v 1.85 1999/10/08 18:12:30 fisyak Exp $
 #	Purpose:	STAR group csh setup 
 #       $Log: group_env.csh,v $
+#       Revision 1.85  1999/10/08 18:12:30  fisyak
+#       Take out TEXINPUTS from the list of environment variable, add Linux egcs platform
+#
 #       Revision 1.84  1999/09/15 20:54:18  wenaus
 #       Add scripts area to path
 #
@@ -332,15 +335,9 @@ switch ( $STAR_VERSION )
 endsw
 endif
 if ($ECHO) echo   "Setting up ROOT_LEVEL= ${ROOT_LEVEL}"
-if ($?TEXINPUTS == 0) then
-  setenv TEXINPUTS "${GROUP_DIR}/latex/styles"
-else
-  setenv TEXINPUTS "${TEXINPUTS}:${GROUP_DIR}/latex/styles"
-endif
 setenv GROUPPATH "${GROUP_DIR}:${STAR_MGR}:${STAR_SCRIPTS}:${STAR_BIN}:${STAF}/mgr:${STAF_BIN}"
 if ( -x /afs/rhic/star/group/dropit) then
 # clean-up PATH
-  setenv TEXINPUTS `/afs/rhic/star/group/dropit -p ${TEXINPUTS}`
   setenv MANPATH `/afs/rhic/star/group/dropit -p ${MANPATH}`
   setenv PATH `/afs/rhic/star/group/dropit -p ${PATH} GROUPPATH`
   setenv PATH `/afs/rhic/star/group/dropit -p ${PATH} $STAR_PATH`
