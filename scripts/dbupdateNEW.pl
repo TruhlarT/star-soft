@@ -1060,7 +1060,7 @@ my $mRealTbfc = 0;
          if( $Anflag == 0 ) {
          @part = split /"/, $line ;
          $mchain = $part[1]; 
-         $mchain =~ s/ /_/g;  
+         $mchain =~ s/ /,/g;  
 #   print  $mchain, "\n";
     }else{
        next;
