@@ -1,7 +1,10 @@
 #!/usr/bin/csh -f
-#       $Id: group_env.csh,v 1.33 1998/07/22 20:16:15 wenaus Exp $
+#       $Id: group_env.csh,v 1.34 1998/07/22 20:40:55 wenaus Exp $
 #	Purpose:	STAR group csh setup 
 #       $Log: group_env.csh,v $
+#       Revision 1.34  1998/07/22 20:40:55  wenaus
+#       Set BaBar BFARCH for appropriate platforms
+#
 #       Revision 1.33  1998/07/22 20:16:15  wenaus
 #       Adapt Objy setup for non-sol platforms
 #
@@ -219,12 +222,14 @@ switch ($STAR_SYS)
      if (! ${?LD_LIBRARY_PATH}) setenv LD_LIBRARY_PATH 
      setenv LD_LIBRARY_PATH "/usr/lib:${PARASOFT}/lib.linux:/usr/local/lib:${STAF_LIB}:${LD_LIBRARY_PATH}"
         limit coredump 0
+     setenv BFARCH Linux
     breaksw
     case "sun4*":
 #  ====================
       if (! ${?LD_LIBRARY_PATH}) setenv LD_LIBRARY_PATH
       setenv LD_LIBRARY_PATH "/opt/SUNWspro/lib:/usr/openwin/lib:/usr/dt/lib:/usr/local/lib:${PARASOFT}/lib.solaris:${STAF_LIB}:${LD_LIBRARY_PATH}"
-	set path = ($path $PARASOFT/bin.solaris)
+      set path = ($path $PARASOFT/bin.solaris)
+      setenv BFARCH SunOS5
     breaksw 
     case "sunx86_55":
 #  ====================
