@@ -1,4 +1,5 @@
 #!/usr/bin/env perl
+#ifdef __YF__
 #use strict;
 use Env; 
 use English;
@@ -14,6 +15,7 @@ use Sys::Hostname;
 use Cwd;
 # Cons: A Software Construction Tool.
 # Bob Sidebotham (rns@fore.com), FORE Systems, 1996.
+#endif /* __YF__ */
 
 # NOTE:  Cons intentionally does not use the "perl -w" option or
 # "use strict."  Because Cons "configuration files" are actually
@@ -23,13 +25,20 @@ use Cwd;
 # on them?  Probably.  But we want people to use Cons to get work
 # done, not force everyone to become a Perl guru to use it, so we
 # don't insist.
+#ifndef __YF__
+#
+#endif /* ! __YF__ */
 # That said, Cons' code is both "perl -w" and "use strict" clean.
 # Regression tests keep the code honest by checking for warnings
 # and "use strict" failures.
 
 use vars qw( $CVS_id $CVS_ver $ver_num $ver_rev $version );
 
-$CVS_id = '$Id: cons,v 1.87 2003/06/26 19:12:56 jeromel Exp $ ';
+#ifndef __YF__
+#$CVS_id = '$Id: cons,v 1.88 2004/01/15 00:11:53 fisyak Exp $ ';
+#else /* __YF__ */
+$CVS_id = '$Id: cons,v 1.88 2004/01/15 00:11:53 fisyak Exp $ ';
+#endif /* __YF__ */
 $CVS_ver = (split(/\s+/, $CVS_id))[2];
 
 $ver_num = "2.3";
@@ -60,7 +69,9 @@ require 5.003;
 use integer;
 use Cwd;
 use File::Copy;
+#ifdef __YF__
 my $errors = 0;
+#endif /* __YF__ */
 
 use vars qw( $_WIN32 $_a $_exe $_o $_so );
 
@@ -109,21 +120,40 @@ $| = 1;
 srand(time . $$); # this works better than time ^ $$ in perlfunc manpage.
 
 $usage = q(
+#ifndef __YF__
+#Usage: cons <arguments> -- <construct-args>
+#else /* __YF__ */
 Usage: cons [arguments] -- [construct-args]
+#endif /* __YF__ */
 
 Arguments can be any of the following, in any order:
 
+#ifndef __YF__
+#  <targets>	Build the specified targets. If <target> is a directory
+#else /* __YF__ */
   [targets]	Build the specified targets. If [target] is a directory
+#endif /* __YF__ */
 		recursively build everything within that directory.
 
+#ifndef __YF__
+#  +<pattern>	Limit the cons scripts considered to just those that
+#		match <pattern>. Multiple + arguments are accepted.
+#else /* __YF__ */
   +[pattern]	Limit the cons scripts considered to just those that
 		match [pattern]. Multiple + arguments are accepted.
+#endif /* __YF__ */
 
+#ifndef __YF__
+#  <name>=<val>	Sets <name> to value <val> in the ARG hash passed to the
+#else /* __YF__ */
   [name]=[val]	Sets [name] to value [val] in the ARG hash passed to the
+#endif /* __YF__ */
 		top-level Construct file.
 
+#ifdef __YF__
   -c [file]     Set standard Conscript to file
 
+#endif /* __YF__ */
   -cc           Show command that would have been executed, when
 		retrieving from cache. No indication that the file
 		has been retrieved is given; this is useful for
@@ -143,13 +173,22 @@ Arguments can be any of the following, in any order:
 
   -d            Enable dependency debugging.
 
+#ifndef __YF__
+#  -f <file>	Use the specified file instead of "Construct" (but first
+#		change to containing directory of <file>).
+#else /* __YF__ */
   -g            Enable Construct/Conscript debug print out
 
   -f [file]	Use the specified file instead of "Construct" (but first
 		change to containing directory of [file]).
+#endif /* __YF__ */
 
+#ifndef __YF__
+#  -h            Show a help message local to the current build if
+#else /* __YF__ */
   -i            Don\'t force to search for include file in default include directory
   -lh           Show a help message local to the current build if
+#endif /* __YF__ */
 		one such is defined,  and exit.
 
   -k		Keep going as far as possible after errors.
@@ -164,13 +203,23 @@ Arguments can be any of the following, in any order:
 		1: quiet about Installing and Removing targets
 		2: quiet about build commands, up-to-date targets
 
+#ifndef __YF__
+#  -r		Remove construction products associated with <targets>
+#else /* __YF__ */
   -r		Remove construction products associated with [targets]
+#endif /* __YF__ */
 
+#ifndef __YF__
+#  -R <repos>	Search for files in <repos>.  Multiple -R <repos>
+#else /* __YF__ */
   -R [repos]	Search for files in [repos].  Multiple -R [repos]
+#endif /* __YF__ */
 		directories are searched in the order specified.
 
+#ifdef __YF__
   -noR 	        Do not search for files in repositories.
 
+#endif /* __YF__ */
   -S <pkg>	Use package sig::<pkg> to calculate file signatures.
 		Currently supported values are "md5" for MD5
 		signatures (the default) and "md5::debug" for MD5
@@ -187,8 +236,10 @@ Arguments can be any of the following, in any order:
   -wf <file>    Write all filenames considered into <file>.
 
   -x		Show this message and exit.
+#ifdef __YF__
   -h		Show this message and exit.
 
+#endif /* __YF__ */
 
 
    Please report any suggestions through the cons-discuss@gnu.org mailing
@@ -210,9 +261,11 @@ Arguments can be any of the following, in any order:
 
 );
 
+#ifdef __YF__
 # stash the path to cons.
 #$param::conspath = $0;  # commentted
 
+#endif /* __YF__ */
 # Simplify program name, if it is a path.
 {
     my ($vol, $dir, $file) = File::Spec->splitpath(File::Spec->canonpath($0));
@@ -221,6 +274,9 @@ Arguments can be any of the following, in any order:
 
 # Default parameters.
 $param::topfile = 'Construct';	# Top-level construction file.
+#ifdef __YF__
+@param::include = ();
+@param::exclude = ();
 if ( -e "mgr/Construct"){
     # Local construction file
     $ENV{ConstructLocation} = "mgr/";
@@ -231,7 +287,8 @@ if ( -e "mgr/Construct"){
     $param::defaultConstruct = $STAR . "/mgr/Construct";	
 }
 $param::defaultConscript = "";	# Default construction file.
-$param::defaultInclude   = 1;   # Force to use default include path
+$param::defaultInclude   = "^include\$";  # Force to use default include path
+#endif /* __YF__ */
 $param::install = 1;		# Show installations
 $param::build = 1;		# Build targets
 ### $param::show = 1;		# Show building of targets.
@@ -243,13 +300,24 @@ $param::rep_sig_times_ok = 1;	# Repository .consign times are in sync
 				#   w/files.
 $param::conscript_chdir = 0;	# Change dir to Conscript directory
 $param::quiet = 0;		# should we show the command being executed.
+#ifndef __YF__
+
+#else /* __YF__ */
 $param::debug = 0;		# should we print out debug information
 $param::noRepository = 0;       # should we use sources from repository
 $param::keep  = 0;
+#endif /* __YF__ */
 @param::defaults = ();
+#ifndef __YF__
+
+#endif /* ! __YF__ */
 #
 $indent = '';
+#ifndef __YF__
+
+#else /* __YF__ */
 @main::search_files = ();
+#endif /* __YF__ */
 # Display a command while executing or otherwise. This
 # should be called by command builder action methods.
 sub showcom {
@@ -280,7 +348,12 @@ sub showcom {
      'PERL'	    => $^X,
 );
 
-%param::styles =
+#ifndef __YF__
+#%param::rulesets =
+#else /* __YF__ */
+#%param::styles =
+#endif /* __YF__ */
+%param::rulesets =
     (
      # Defaults for Win32.
      # Defined for VC++ 6.0 by Greg Spencer <greg_spencer@acm.org>
@@ -338,7 +411,11 @@ sub showcom {
      );
 
 # Set the rules based on the platform.
-script::DefaultRules($_WIN32 ? 'msvc' : 'unix');
+#ifndef __YF__
+script::DefaultRules(script::RuleSet($_WIN32 ? 'msvc' : 'unix'));
+#else /* __YF__ */
+#script::DefaultRules($_WIN32 ? 'msvc' : 'unix');
+#endif /* __YF__ */
 
 # Handle command line arguments.
 while (@ARGV) {
@@ -346,6 +423,7 @@ while (@ARGV) {
     last if /^--$/;		# Argument passing to Construct.
     &option, next			if s/^-//;
     push (@param::include, $_), next	if s/^\+//;
+    push (@param::exclude, $_), next	if s/^\!//;
     &equate, next			if /=/;
     push (@targets, $_), next;
 }
@@ -357,7 +435,11 @@ sub option {
 		    'cr' =>   sub { $param::random = 1; },
 		    'cs' =>   sub { $param::cachesync = 1; },
 		    'd' =>    sub { $param::depends = 1; },
+#ifndef __YF__
+#		    'h' =>    sub { $param::localhelp = 1; },
+#else /* __YF__ */
 		    'lh' =>   sub { $param::localhelp = 1; },
+#endif /* __YF__ */
 		    'k' =>    sub { $param::kflag = 1; },
 		    'p' =>    sub { $param::pflag = 1;
 				    $param::build = 0; },
@@ -375,10 +457,12 @@ sub option {
 		    'v' =>    sub { print($version); },
 		    'V' =>    sub { print($version), exit(0); },
 		    'x' =>    sub { print($usage), exit 0; },
+#ifdef __YF__
 		    'h' =>    sub { print($usage), exit 0; },
                     'i' =>    sub { $param::defaultInclude = 0;},
                     'g' =>    sub { $param::debug =1;},
                     'noR' =>  sub { $param::noRepository = 1; },
+#endif /* __YF__ */
 		);
 
     my %opt_arg = (
@@ -387,7 +471,9 @@ sub option {
 		    'R' =>    sub { script::Repository($_[0]); },
 		    'S' =>    sub { $param::sigpro = $_[0]; },
 		    'wf' =>   sub { $param::depfile = $_[0]; },
+#ifdef __YF__
                     'c' =>    sub { $param::defaultConscript = $_[0]; },
+#endif /* __YF__ */
 		);
 
     if (defined $opt{$_}) {
@@ -524,6 +610,7 @@ package main;
 use vars qw( %priority $errors );
 
 # Check script inclusion regexps
+#ifdef __YF__
 my $pwd = cwd();# print "Pwd = $pwd\n"; 
 my $Rpwd = $pwd;
 if ($pwd =~ /ROOT/) {
@@ -542,6 +629,7 @@ if ($Rpwd ne $pwd) {
     print "------------->add $Lpwd to targets\n";
   }
 }
+#endif /* __YF__ */
 my $re;
 for $re (@param::include) {
     if (! defined eval {"" =~ /$re/}) {
@@ -550,7 +638,15 @@ for $re (@param::include) {
 	die("$0: error in regexp $err");
     }
 }
-
+#ifdef __YF__
+for $re (@param::exclude) {
+    if (! defined eval {"" =~ /$re/}) {
+	my($err) = $@;
+	$err =~ s/in regexp at .*$//;
+	die("$0: error in regexp $err");
+    }
+}
+#endif /* __YF__ */
 # Read the top-level construct file and its included scripts.
 doscripts($param::topfile);
 
@@ -564,10 +660,13 @@ doscripts($param::topfile);
 
 $errors = 0;
 
+#ifdef __YF__
 # Make sure the targets make sense in the current dir
 # if we specified a Construct file, or we traversed from a directory.
 @targets = dir::relocate_targets($param::start_dir, @targets) if $param::start_dir;
+#yf @targets = dir::relocate_targets($param::start_dir, @targets) if $param::start_dir;
 
+#endif /* __YF__ */
 # Build the supplied target patterns.
 my $tgt;
 for $tgt (map($dir::top->lookup($_), @targets)) {
@@ -628,8 +727,12 @@ sub buildtarget {
 	    my($members) = $tgt->{member};
 	    my $entry;
 	    for $entry (sort keys %$members) {
+#ifndef __YF__
+		next if $entry eq $dir::CURDIR || $entry eq $dir::UPDIR;
+#else /* __YF__ */
 #yf 		next if $entry eq $dir::CURDIR || $entry eq $dir::UPDIR;
-		next if $entry eq $dir::CURDIR || $entry eq $dir::UPDIR or $entry eq '.consign'; # ignore hidden files
+#yf2		next if $entry eq $dir::CURDIR || $entry eq $dir::UPDIR or $entry eq '.consign'; # ignore hidden files
+#endif /* __YF__ */
 		my($tgt) = $members->{$entry};
 		next if ref($tgt) ne "dir" && !exists($tgt->{builder});
 		my($stat) = buildtarget($members->{$entry});
@@ -671,7 +774,9 @@ sub buildtarget {
 	if (-f $path) {
 	    if (unlink($path)) {
 		print("Removed $path\n") if ($param::quiet < 1);
+#ifdef __YF__
 #		ClearPath($path);
+#endif /* __YF__ */
 	    } else {
 		warn("$0: couldn't remove $path\n");
 	    }
@@ -680,6 +785,9 @@ sub buildtarget {
 
     return "none";
 }
+#ifndef __YF__
+
+#else /* __YF__ */
 #sub ClearPath($) {
 #  my $path = $_[0];
 #  my $isEmpty = 1;
@@ -705,6 +813,7 @@ sub buildtarget {
 #    }
 #  }
 #}
+#endif /* __YF__ */
 package NameSpace;
 
 # Return a hash that maps the name of symbols in a namespace to an
@@ -764,8 +873,10 @@ sub restore {
 # main package by cons), these are all invoked by user scripts.
 package script;
 
-use vars qw( @ISA @EXPORT $ARG $caller_dir_path );
+#ifdef __YF__
+#yf use vars qw( @ISA @EXPORT $ARG $caller_dir_path );
 
+#endif /* __YF__ */
 use vars qw( $ARG $caller_dir_path %special_var );
 
 BEGIN {
@@ -782,7 +893,7 @@ sub main::doscripts {
     Build($script);
     # Now set up the includes/excludes (after the Construct file is read).
     $param::include = join('|', @param::include);
-
+    $param::exclude = join('|', @param::exclude);
     # Save the original variable names from the script package.
     # These will stay intact, but any other "script::" variables
     # defined in a Conscript file will get saved, deleted,
@@ -793,6 +904,7 @@ sub main::doscripts {
     my(@scripts) = pop(@priv::scripts);
     while ($priv::self = shift(@scripts)) {
 	my($path) = $priv::self->{script}->rsrcpath;
+#ifdef __YF__
 	$dir::cwd = $priv::self->{script}->{dir};
 	if (!-f $path) {
 	  (my $p = $path) =~ s#.*/##g; 
@@ -800,6 +912,7 @@ sub main::doscripts {
 	  if ($p eq "Construct")  {$path = $param::defaultConstruct;}
 	  if ($p eq "Conscript")  {$path = $param::defaultConscript;}
 	}
+#endif /* __YF__ */
 	if (-f $path) {
 	    $dir::cwd = $priv::self->{script}->{dir};
 	    # Handle chdir to the Conscript file directory, if necessary.
@@ -974,6 +1087,7 @@ sub Build {
     my $file;
     for $file (@files) {
 	next if $param::include && $file->path !~ /$param::include/o;
+	next if $param::exclude && $file->path =~ /$param::exclude/o;
 	my($self) = {'script' => $file,
 		     'parent' => $priv::self,
 		     'imports' => \%imports};
@@ -1004,15 +1118,36 @@ sub Help {
 # For windows platforms which use unix tool sets, the msvc defaults may
 # not be useful. Also, in the future, other platforms (Mac?) may have the
 # same problem.
-sub DefaultRules {
+#ifndef __YF__
+sub RuleSet {
+#else /* __YF__ */
+#sub DefaultRules {
+#endif /* __YF__ */
     my $style = shift;
-    my @styles = sort keys %param::styles;
+#ifndef __YF__
+    my @rulesets = sort keys %param::rulesets;
+#else /* __YF__ */
+#    my @styles = sort keys %param::styles;
+#endif /* __YF__ */
     die "Unknown style for rules: $style.\n" .
-	"Supported rules are: (" . join(" ", @styles) . ")"
-	    unless eval(join("||", map("\$style eq '$_'", @styles)));
+#ifndef __YF__
+	"Supported rules are: (" . join(" ", @rulesets) . ")"
+	    unless eval(join("||", map("\$style eq '$_'", @rulesets)));
+    return @param::base, @{$param::rulesets{$style}};
+}
+
+sub DefaultRules {
+#else /* __YF__ */
+#	"Supported rules are: (" . join(" ", @styles) . ")"
+#	    unless eval(join("||", map("\$style eq '$_'", @styles)));
+#endif /* __YF__ */
     @param::defaults = ();
-    my $pref = $param::styles{$style};
-    push @param::defaults, @param::base, @$pref;
+#ifndef __YF__
+    push @param::defaults, @_;
+#else /* __YF__ */
+#    my $pref = $param::styles{$style};
+#    push @param::defaults, @param::base, @$pref;
+#endif /* __YF__ */
 }
 
 # Return the build name(s) of a file or file list.
@@ -1063,7 +1198,11 @@ sub SourcePath {
 # cache file--not recommended).
 sub UseCache($@) {
     my($dir, @args) = @_;
+#ifndef __YF__
+    # NOTE: it's important to process arguments here regardless of whether
+#else /* __YF__ */
     # NOTE: it\'s important to process arguments here regardless of whether
+#endif /* __YF__ */
     # the cache is disabled temporarily, since the mixtargets option affects
     # the salt for derived signatures.
     for (@args) {
@@ -1106,6 +1245,7 @@ sub Salt($) {
     # in either order without changing the signature calculation.
     $param::salt .= $_[0];
 }
+#ifdef __YF__
 sub find_sources {
   @main::search_files   = ();
   if (-d $_[0]) {
@@ -1171,8 +1311,10 @@ sub wanted {
       /^.*\.c$/       ||
       /^.*\.cc$/      ||
       /^.*\.cxx$/     ||
+      /^.*\.cpp$/     ||
       /^.*\.g$/       ||
-      /^.*\.cdf$/       ||
+      /^.*\.age$/     || #for STAR      /^.*\.f$/       ||
+      /^.*\.cdf$/     ||
       /^.*\.F$/) {# print " $File::Find::name\n";
     push @main::search_files,  $File::Find::name; 
   }
@@ -1208,7 +1350,7 @@ sub wanted_idlM {
 }
 #________________________________________
 sub wanted_inc {
-  #  print "wanted ",$_,"\n";
+#    print "wanted ",$_,"\n";
   my ($dev,$ino,$mode,$nlink,$uid,$gid) = lstat($_);
   if ( -d _ &&
        (/^CVS$/ ||
@@ -1224,11 +1366,11 @@ sub wanted_inc {
 	/^wrk$/)
      ) {$File::Find::prune = 1; return;}
   if ( /^.*\.h$/|| /^.*\.hh$/ || 
-       /^.*\.inc$/            || 
-       /^.*\.hpp$/            ||
-       /^.*\.icc$/            ||  
-       /^.*\.tpp$/
-       ) {# print " $File::Find::name\n"; 
+       /^.*\.inc$/  || 
+       /^.*\.hpp$/ ||  
+       /^.*\.icpp$/ ||  
+       /^.*\.icc$/ ||  
+       /^.*\.tpp$/) {# print " $File::Find::name\n"; 
       push @main::search_files,  $File::Find::name;
   }
 }
@@ -1364,18 +1506,24 @@ sub cutdir($$) {
   }
   return $file;
 }
+#endif /* __YF__ */
 
 # Mark files (or directories) to not be removed before building.
 sub Precious {
     map($_->{precious} = 1, map($dir::cwd->lookup($_), @_));
 }
+#ifdef __YF__
 # Mark files (or directories) to not be kept before building.
 sub Keep {
   if ($param::keep) {
     map($_->{keep} = 1, map($dir::cwd->lookup($_), @_));
   }
 }
+#endif /* __YF__ */
 
+#ifndef __YF__
+#
+#endif /* ! __YF__ */
 # These methods are callable from Conscript files, via a cons
 # object. Procs beginning with _ are intended for internal use.
 package cons;
@@ -1512,7 +1660,11 @@ sub InstallAs {
 }
 
 # Installation in a local build directory,
+#ifndef __YF__
+# copying from the repository if it's already built there.
+#else /* __YF__ */
 # copying from the repository if it\'s already built there.
+#endif /* __YF__ */
 # Functionally equivalent to:
 #	Install $env $dir, $file;
 #	Local "$dir/$file";
@@ -1543,8 +1695,13 @@ sub _Objects {
 }
 
 # Called with an object and source reference.  If no object reference
+#ifndef __YF__
+# is supplied, then the object file is determined implicitly from the
+# source file's extension. Sets up the appropriate rules for creating
+#else /* __YF__ */
 # is supplied, then the object file is determined implicitly from theb
 # source file\'s extension. Sets up the appropriate rules for creating
+#endif /* __YF__ */
 # the object from the source.  Returns the object reference.
 sub _Object {
     my($env, $src, $obj) = @_;
@@ -1584,7 +1741,11 @@ sub LinkedModule {
     my($env) = shift;
     my($tgt) = $dir::cwd->lookupfile($env->_subst(shift));
     my($progenv) = $env->_resolve($tgt);
+#ifndef __YF__
 #    $tgt->bind(find build::command::linkedmodule
+#else /* __YF__ */
+#    $tgt->bind(find build::command::linkedmodule
+#endif /* __YF__ */
     $tgt->bind(find build::command::link
 	       ($progenv, $progenv->{LINKMODULECOM}),
 	       $env->_Objects(@_));
@@ -1646,7 +1807,11 @@ sub QuickScan {
     $dir::cwd->lookup($env->_subst($file))->{'srcscan',$env} =
 	find scan::quickscan($code, $env, $env->_subst($path));
 }
+#ifndef __YF__
+#
+#else /* __YF__ */
 
+#endif /* __YF__ */
 # Generic builder module. Just a few default methods.  Every derivable
 # file must have a builder object of some sort attached.  Usually
 # builder objects are shared.
@@ -1673,7 +1838,11 @@ sub scriptsig { () }
 # Not compatible with any other builder, by default.
 sub compatible { 0 }
 
+#ifndef __YF__
+#
+#else /* __YF__ */
 
+#endif /* __YF__ */
 # Builder module for the Install command.
 package build::install;
 
@@ -1697,7 +1866,11 @@ sub action {
     return 1;
 }
 
+#ifndef __YF__
+#
+#else /* __YF__ */
 
+#endif /* __YF__ */
 # Builder module for generic UNIX commands.
 package build::command;
 
@@ -1747,7 +1920,11 @@ sub scriptsig {
     $_[0]->{act}->scriptsig
 }
 
+#ifndef __YF__
+#
+#else /* __YF__ */
 
+#endif /* __YF__ */
 # Create a linked module.
 package build::command::link;
 
@@ -1774,7 +1951,9 @@ sub find {
 	    # if we're not using repositories, the directory exists,
 	    # or it's Linked to a source directory (that is, it *will*
 	    # exist by the time the link occurs).
+#ifdef __YF__
 	    next if $dpath eq "."; # remove local directory 
+#endif /* __YF__ */
 	    $ldirs .= " ".$env->{LIBDIRPREFIX}.$dpath.$env->{LIBDIRSUFFIX}
 			if ! @param::rpath || -d $dpath || $dir->is_linked;
 	    next if File::Spec->file_name_is_absolute($dpath);
@@ -1895,6 +2074,7 @@ use vars qw( @ISA );
 
 BEGIN { @ISA = qw(build::command) }
 
+#ifdef __YF__
 # Find an appropriate linker.
 sub find {
   build::command::link::find(@_);
@@ -1910,13 +2090,18 @@ use vars qw( @ISA );
 
 BEGIN { @ISA = qw(build::command) }
 
+#endif /* __YF__ */
 # Always compatible with other such builders, so the user
 # can define a single linked module from multiple places.
 sub compatible {
     my($self, $other) = @_;
     ref($other) eq "build::command::linkedmodule";
 }
+#ifndef __YF__
+#
+#else /* __YF__ */
 
+#endif /* __YF__ */
 # Builder for a C module
 package build::command::cc;
 
@@ -1941,6 +2126,9 @@ sub includes {
     my($self, $tgt) = @_;
     $self->{scanner}->includes($tgt, $tgt->{sources}[0]);
 }
+#ifndef __YF__
+#
+#else /* __YF__ */
 #________________________________________________________________________________
 #________________________________________________________________________________
 # Builder for a kuip module
@@ -2004,7 +2192,7 @@ BEGIN { @ISA = qw(build::command) }
 sub find {
     $_[1]->{_fc} || do {
 	my($class, $env) = @_;
-	my($cscanner) = find scan::cpp($env->{_cwd}, $env->{CPPPATH});
+	my($cscanner) = find scan::cpp($env->{_cwd}, $env->{FCPATH});
 	$env->{_IFLAGS} = "%(" . $cscanner->iflags($env) . "%)";
 	my($self) = find build::command($env, $env->{FCCOM});
 	$self->{scanner} = $cscanner;
@@ -2029,11 +2217,30 @@ BEGIN { @ISA = qw(build::command) }
 sub find {
     $_[1]->{_geant3} || do {
 	my($class, $env) = @_;
-	my($cscanner) = find scan::cpp($env->{_cwd}, $env->{CPPPATH});
+	my($cscanner) = find scan::cpp($env->{_cwd}, $env->{FCPATH});
 	$env->{_IFLAGS} = "%(" . $cscanner->iflags($env) . "%)";
 	my($self) = find build::command($env, $env->{GEANT3COM});
 	$self->{scanner} = $cscanner;
 	bless $env->{_geant3} = $self;
+    }
+}
+#________________________________________________________________________________
+# Builder for a agetof module
+package build::command::agetof;
+
+use vars qw( @ISA );
+
+BEGIN { @ISA = qw(build::command) }
+
+#________________________________________
+sub find {
+    $_[1]->{_agetof} || do {
+	my($class, $env) = @_;
+	my($cscanner) = find scan::cpp($env->{_cwd}, $env->{FCPATH});
+	$env->{_IFLAGS} = "%(" . $cscanner->iflags($env) . "%)";
+	my($self) = find build::command($env, $env->{AGETOFCOM});
+	$self->{scanner} = $cscanner;
+	bless $env->{_agetof} = $self;
     }
 }
 #________________________________________
@@ -2043,6 +2250,7 @@ sub includes {
     $self->{scanner}->includes($tgt, $tgt->{sources}[0]);
 }
 
+#endif /* __YF__ */
 # Builder for a C++ module
 package build::command::cxx;
 
@@ -2067,6 +2275,9 @@ sub includes {
     my($self, $tgt) = @_;
     $self->{scanner}->includes($tgt, $tgt->{sources}[0]);
 }
+#ifndef __YF__
+#
+#endif /* ! __YF__ */
 # Builder for a user command (cons::Command).  We assume that a user
 # command might be built and implement the appropriate dependencies on
 # the command itself (actually, just on the first word of the command
@@ -2121,6 +2332,9 @@ sub includes {
     return $self->{_comsig} . $sig
 }
 
+#ifndef __YF__
+#
+#endif /* ! __YF__ */
 # Builder for a library module (archive).
 # We assume that a user command might be built and implement the
 # appropriate dependencies on the command itself.
@@ -2141,7 +2355,11 @@ sub compatible {
     my($self, $other) = @_;
     ref($other) eq "build::command::library";
 }
+#ifndef __YF__
+#
+#else /* __YF__ */
 
+#endif /* __YF__ */
 # A multi-target builder.
 # This allows multiple targets to be associated with a single build
 # script, without forcing all the code to be aware of multiple targets.
@@ -2212,6 +2430,9 @@ sub action {
     # Status of action.
     $self->{built};
 }
+#ifndef __YF__
+#
+#endif /* ! __YF__ */
 package action;
 
 sub new {
@@ -2410,6 +2631,9 @@ sub getcoms {
 # Build the target using the previously specified commands.
 sub execute {
     my($self, $env, $tgt, $package) = @_;
+#ifndef __YF__
+
+#endif /* ! __YF__ */
     if ($param::build) {
 	futil::mkdir($tgt->{dir});
 	unlink($tgt->path) if ! $tgt->precious;
@@ -2458,6 +2682,7 @@ sub execute {
     }
 
     # success.
+#ifdef __YF__
     if ($tgt->keep && !$main::_WIN32) {
 # use ->keep to keep versioning
       my $vers = 0;
@@ -2479,6 +2704,7 @@ sub execute {
       rename $file, $dir . "/" . $newfile or die "Can't rename $file to $newfile";
       symlink($newfile,$file);
     }
+#endif /* __YF__ */
     return 1;
 }
 
@@ -2625,6 +2851,9 @@ sub commands {
     return ();
 }
 
+#ifndef __YF__
+#
+#endif /* ! __YF__ */
 # Generic scanning module.
 package scan;
 
@@ -2656,7 +2885,11 @@ sub includes {
     'sig'->collect(sort values %files)
 }
 
+#ifndef __YF__
+#
+#else /* __YF__ */
 
+#endif /* __YF__ */
 # A simple scanner. This is used by the QuickScanfunction, to setup
 # one-time target and environment-independent scanning for a source
 # file. Only used for commands run by the Command method.
@@ -2708,7 +2941,11 @@ sub scan {
     @files
 }
 
+#ifndef __YF__
+#
+#else /* __YF__ */
 
+#endif /* __YF__ */
 # CPP (C preprocessor) scanning module
 package scan::cpp;
 
@@ -2752,7 +2989,9 @@ sub scan {
 	return () unless open(SCAN, $file->rpath);
 	while (<SCAN>) {
 	    next unless /^\s*#/;
+#ifdef __YF__
 	  $_ =~ s/\/\/.*$//g; # remove c++ comments '//' yf
+#endif /* __YF__ */
 	    if (/^\s*#\s*include\s*([<"])(.*?)[>"]/) {
 		if ($1 eq "<") {
 		    push(@anglenames, $2);
@@ -2785,27 +3024,39 @@ sub scan {
     }
 
     for $name (@$quotes) {
-      my $include_standard = "";
+#ifndef __YF__
+#	my $dir;
+#	for $dir(@longpath) {
+#	    my($include) = $dir->lookup_accessible($name);
+#	    if ($include) {
+#		push(@includes, $include) unless $include->ignore;
+#		last;
+#	    }
+#else /* __YF__ */
       my $dir;
       my $default_include  = "";
-	for $dir(@longpath) {
-	    my($include) = $dir->lookup_accessible($name);
-	    if ($include) {
-	      if ($dir->path =~ /^include$/) {
-		$default_include = $include;
-	      }
-	      if ($include->accessible) {
-		push(@includes, $include) unless $include->ignore;
-		$default_include = "";
-		last;
-	      }
+      for $dir(@longpath) {
+	my($include) = $dir->lookup_accessible($name);
+#	my($include) = $dir->lookupfile($name);
+	if ($include) {
+	  if ($dir->path =~ $param::defaultInclude) {
+	    if (! $param::ignore || $param::ignore !~ $name) {
+	      $default_include = $include;
 	    }
 	  }
-      if ($param::defaultInclude && $default_include) { 
-	  if (!$default_include->ignore) {
-	    push @includes, $default_include;
+	  if ($include->accessible) {
+	    push(@includes, $include) unless $include->ignore;
+	    $default_include = "";
+	    last;
 	  }
+#endif /* __YF__ */
+	}
+#ifdef __YF__
       }
+      if ($default_include && !$default_include->ignore) {
+	push @includes, $default_include;
+      }
+#endif /* __YF__ */
     }
 
     return @includes
@@ -2843,6 +3094,9 @@ sub iflags {
     }
     $iflags
 }
+#ifndef __YF__
+#
+#endif /* ! __YF__ */
 package File::Spec;
 
 use vars qw( $_SEP $_MATCH_SEP $_MATCH_VOL );
@@ -2968,6 +3222,9 @@ sub updir {
 sub case_tolerant {
     return $main::_WIN32;
 }
+#ifndef __YF__
+#
+#endif /* ! __YF__ */
 # Directory and file handling. Files/dirs are represented by objects.
 # Other packages are welcome to add component-specific attributes.
 package dir;
@@ -3358,6 +3615,9 @@ sub init {
     $cwd_vol = '' if ! defined $cwd_vol;
     $cwd_vol = uc($cwd_vol) if File::Spec->case_tolerant;
 }
+#ifndef __YF__
+#
+#endif /* ! __YF__ */
 package file;
 
 use vars qw( @ISA $level );
@@ -3417,10 +3677,12 @@ sub lfile {
 sub precious {
     return $_[0]->{precious};
 }
+#ifdef __YF__
 # returns the "keep" status of this file.
 sub keep {
     return $_[0]->{keep};
 }
+#endif /* __YF__ */
 
 # "Erase" reference to a Repository file,
 # making this a completely local file object
@@ -3430,7 +3692,11 @@ sub no_rfile {
 }
 
 # Return a path to the first existing file under a Repository directory,
+#ifndef __YF__
+# implicitly returning the current file's path if there isn't a
+#else /* __YF__ */
 # implicitly returning the current file\'s path if there isn't a
+#endif /* __YF__ */
 # same-named file under a Repository directory.
 sub rpath {
     $_[0]->{rpath} ||
@@ -3438,7 +3704,11 @@ sub rpath {
 }
 
 # Return a path to the first linked srcpath file under a Repositoy
+#ifndef __YF__
+# directory, implicitly returning the current file's srcpath if there
+#else /* __YF__ */
 # directory, implicitly returning the current file\'s srcpath if there
+#endif /* __YF__ */
 # isn't a same-named file under a Repository directory.
 sub rsrcpath {
     return $_[0]->{rsrcpath} if exists $_[0]->{rsrcpath};
@@ -3495,11 +3765,19 @@ sub source_exists {
 	    }
 	}
 	# There was no source file in any Linked directory
+#ifndef __YF__
+	# under any Repository.  If there's one in the local
+#else /* __YF__ */
 	# under any Repository.  If there\'s one in the local
+#endif /* __YF__ */
 	# build directory, it no longer belongs there.
 	if ($mtime) {
+#ifndef __YF__
+#	    unlink($path) || die("$0: couldn't unlink $path ($!)\n");
+#else /* __YF__ */
 #yf	    unlink($path) || die("$0: couldn't unlink $path ($!)\n");
 	  return $self->{source_exists} = 1;
+#endif /* __YF__ */
 	}
 	return $self->{source_exists} = '';
     } else {
@@ -3576,9 +3854,13 @@ sub accessible {
 sub ignore {
     return 0 if !$param::ignore;
     return $_[0]->{ignore} if exists $_[0]->{ignore};
+#ifndef __YF__
+#    $_[0]->{ignore} = $_[0]->path =~ /$param::ignore/o;
+#else /* __YF__ */
 #yf    $_[0]->{ignore} = $_[0]->path =~ /$param::ignore/o;
     return 0 if $_[0]->path =~ /\+/;
     $_[0]->{ignore} = 1 if $param::ignore =~ $_[0]->path;
+#endif /* __YF__ */
 }
 
 # Build the file, if necessary.
@@ -3840,6 +4122,9 @@ sub stored {
     }
     return $_[0]->{stored};
 }
+#ifndef __YF__
+#
+#endif /* ! __YF__ */
 # Generic entry (file or directory) handling.
 # This is an empty subclass for nodes that haven't
 # quite decided whether they're files or dirs.
@@ -3849,6 +4134,9 @@ package entry;
 use vars qw( @ISA );
 
 BEGIN { @ISA = qw(file) }
+#ifndef __YF__
+#
+#endif /* ! __YF__ */
 # File utilities
 package futil;
 
@@ -3858,6 +4146,7 @@ package futil;
 sub install {
     my($sp, $tgt) = @_;
     my($tp) = $tgt->path;
+#ifdef __YF__
     my $dir_prefix = "";
     if ($sp !~ /^$dir::MATCH_SEPARATOR/) {
       $dir_prefix = File::Basename::dirname($tp);
@@ -3870,16 +4159,25 @@ sub install {
       }
     }
     my $lsp = $dir_prefix . $sp;
+#endif /* __YF__ */
     return 1 if $tp eq $sp;
+#ifndef __YF__
+#    return 1 if eval { link($sp, $tp) };
+#else /* __YF__ */
 #    return 1 if eval { symlink($lsp, $tp) };
+#endif /* __YF__ */
     unlink($tp);
     if (! futil::mkdir($tgt->{dir})) {
 	return undef;
     }
+#ifndef __YF__
+#    return 1 if eval { link($sp, $tp) };
+#else /* __YF__ */
 #    return 1 if eval { link($sp, $tp) };
     if (!$main::_WIN32) {
       return 1 if eval { symlink($lsp, $tp) }; #yf 
     }
+#endif /* __YF__ */
     futil::copy($sp, $tp);
 }
 
@@ -3924,13 +4222,20 @@ sub mkdir {
 	return undef;
     }
     my($path) = $_[0]->path;
+#ifndef __YF__
+#    if (!-d $path && !mkdir($path, 0777)) {
+#else /* __YF__ */
     if (!-d $path && !mkdir($path, 0755)) {#yf
+#endif /* __YF__ */
 	warn qq($0: can't create directory $path ($!).\n); #'
 	return undef;
     }
     $_[0]->{'exists'} = 1;
 }
 
+#ifndef __YF__
+#
+#endif /* ! __YF__ */
 # Signature package.
 package sig::hash;
 
@@ -4003,6 +4308,9 @@ sub END {
     }
 }
 
+#ifndef __YF__
+#
+#endif /* ! __YF__ */
 # Derived file caching.
 package cache;
 
@@ -4059,6 +4367,9 @@ sub out {
     }
 }
 
+#ifndef __YF__
+#
+#endif /* ! __YF__ */
 # Generic signature handling package.
 # This handles the higher-layer distinction between content and build
 # signatures, relying on an underlying calculation package like
@@ -4222,6 +4533,9 @@ sub fetch {
     $file->{'bsig'} = '' if $file->{'bsig'} eq '-';
     return $sig ne '';
 }
+#ifndef __YF__
+#
+#endif /* ! __YF__ */
 # MD5-based signature package.
 package sig::md5;
 
@@ -4290,6 +4604,9 @@ sub cmdsig {
     my($self, $sig) = @_;
     return $sig
 }
+#ifndef __YF__
+#
+#endif /* ! __YF__ */
 # Generic debug package for signature calculation.
 # Because of the way we're called by sig::select() and then use
 # the specified value to set up @ISA, this package is essentially a
@@ -4351,10 +4668,12 @@ Cons - A Software Construction System
 
 =head1 DESCRIPTION
 
-A guide and reference for version 2.1.3
-
-by Bob Sidebotham, et al. F<cons-discuss@gnu.org>
-
+#ifdef __YF__
+#A guide and reference for version 2.1.3
+#
+#by Bob Sidebotham, et al. F<cons-discuss@gnu.org>
+#
+#endif /* __YF__ */
 A guide and reference for version 2.3.1
 
 Copyright (c) 1996-2001 Free Software Foundation, Inc.
@@ -4780,10 +5099,6 @@ All the imported variables are automatically re-exported, so the sequence:
 
   Import qw ( env INCLUDE );
   Build qw ( beneath-me/Conscript );
-
-will supply both C<$ENV> and C<$INCLUDE> to the subsidiary file. If only
-C<$ENV> is to be exported, then the following will suffice:
-
 
 will supply both C<$env> and C<$INCLUDE> to the subsidiary file. If only
 C<$env> is to be exported, then the following will suffice:
@@ -6167,8 +6482,6 @@ your own execution path, in your top-level F<Construct> file (or perhaps by
 importing an appropriate construction package with the Perl C<use>
 command). The default variables are intended to get you off the ground.
 
-=head2 Interpolating construction variables
-
 =head2 Expanding variables in construction commands
 
 Within a construction command, construction variables will be expanded
@@ -6769,26 +7082,94 @@ specifies that both the F<foo> and F<bar> files depend on the listed
 input files.
 
 
-=head2 The C<DefaultRules> method
+#ifndef __YF__
+=head2 The C<RuleSet> method
 
-The C<DefaultRules> method sets the default rules for building various
-components to one of its supported rule sets.
+The C<RuleSet> method returns the construction variables for building
+various components with one of the rule sets supported by Cons.  The
+currently supported rule sets are:
 
-The currently supported rule sets are 'msvc' or 'unix'. The former
-sets the rules to be compliant with MS VC++ compiler suite and the
-latter is a generic rule set applicable to most UNIX-like systems.
+=over 4
 
-Since cons configures the defaults to be what it deems most
-appropriate for a given platform (i.e. 'msvc' for Win32 platforms and
-'unix' for the rest), the C<DefaultRules> method can provide a build
-environment which chiefly uses a UNIX-like toolset (like cygwin) on a
-Windows platform:
+=item msvc
 
-    DefaultRules 'unix';
-    $env = new cons();
+Rules for the Microsoft Visual C++ compiler suite.
+
+=item unix
+
+Generic rules for most UNIX-like compiler suites.
+
+=back
+
+On systems with more than one available compiler suite, this allows you
+to easily create side-by-side environments for building software with
+multiple tools:
+
+    $msvcenv = new cons(RuleSet("msvc"));
+    $cygnusenv = new cons(RuleSet("unix"));
 
 In the future, this could also be extended to other platforms that
 have different default rule sets.
+
+
+#endif /* ! __YF__ */
+=head2 The C<DefaultRules> method
+
+#ifndef __YF__
+The C<DefaultRules> method sets the default construction variables that
+will be returned by the C<new> method to the specified arguments:
+
+  DefaultRules(CC     => 'gcc',
+	       CFLAGS => '',
+	       CCCOM  => '%CC %CFLAGS %_IFLAGS -c %< -o %>');
+  $env = new cons();
+  # $env now contains *only* the CC, CFLAGS,
+  # and CCCOM construction variables
+#else /* __YF__ */
+#The C<DefaultRules> method sets the default rules for building various
+#components to one of its supported rule sets.
+#endif /* __YF__ */
+
+#ifndef __YF__
+Combined with the C<RuleSet> method, this also provides an easy way
+to set explicitly the default build environment to use some supported
+toolset other than the Cons defaults:
+#else /* __YF__ */
+#The currently supported rule sets are 'msvc' or 'unix'. The former
+#sets the rules to be compliant with MS VC++ compiler suite and the
+#latter is a generic rule set applicable to most UNIX-like systems.
+
+#Since cons configures the defaults to be what it deems most
+#appropriate for a given platform (i.e. 'msvc' for Win32 platforms and
+#'unix' for the rest), the C<DefaultRules> method can provide a build
+#environment which chiefly uses a UNIX-like toolset (like cygwin) on a
+#Windows platform:
+#endif /* __YF__ */
+
+#ifndef __YF__
+    # use a UNIX-like tool suite (like cygwin) on Win32
+    DefaultRules(RuleSet('unix'));
+#else /* __YF__ */
+#    DefaultRules 'unix';
+#endif /* __YF__ */
+    $env = new cons();
+
+#ifndef __YF__
+Note that the C<DefaultRules> method completely replaces the default
+construction environment with the specified arguments, it does not
+simply override the existing defaults.  To override one or more
+variables in a supported C<RuleSet>, append the variables and values:
+
+  DefaultRules(RuleSet('unix'), CFLAGS => '-O3');
+  $env1 = new cons();
+  $env2 = new cons();
+  # both $env1 and $env2 have 'unix' defaults
+  # with CFLAGS set to '-O3'
+
+#else /* __YF__ */
+#In the future, this could also be extended to other platforms that
+#have different default rule sets.
+#endif /* __YF__ */
 
 =head2 The C<Ignore> method
 
