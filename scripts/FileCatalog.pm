@@ -53,7 +53,7 @@ my $debug = 1;
 # db information
 my $dbname    =   "FileCatalog"; 
 my $dbhost    =   "duvall.star.bnl.gov";                    
-my $dbuser    =   "FC_admin";
+my $dbuser    =   "FC_user";
 my $dbsource  =   "DBI:mysql:$dbname:$dbhost";
 my $DBH;
 my $sth;
@@ -306,7 +306,14 @@ sub new {
 #============================================
 sub connect {
   my $self  = shift;
-  $DBH = DBI->connect($dbsource,$dbuser,"Kisiel") || die "cannot connect to $dbname : $DBI::errstr\n";
+  my ($user,$passwd) = @_;
+
+  if( ! defined($user) )  { $user   = $dbuser;}
+  if( ! defined($passwd) ){ $passwd = "FCatalog";}
+ 
+
+  $DBH = DBI->connect($dbsource,$user,$passwd) || 
+      die "cannot connect to $dbname : $DBI::errstr\n";
   if ( !defined($DBH) ) {
     return 0;
   }
