@@ -1,6 +1,6 @@
 #!/usr/bin/env perl
 #
-# $Id: swguide.pl,v 1.4 2002/01/26 23:34:44 jeromel Exp $
+# $Id: swguide.pl,v 1.5 2002/01/27 00:17:35 jeromel Exp $
 #
 ######################################################################
 #
@@ -186,6 +186,7 @@ $root = $STAR;
 $rel = readlink("/afs/rhic/star/packages/$ver");
 ($f, $d, $e) = fileparse($rel);
 $rel = $f;
+undef($d);
 
 $ddevVer= (fileparse(readlink("/afs/rhic/star/packages/.dev")))[0];
 $devVer = (fileparse(readlink("/afs/rhic/star/packages/dev")))[0];
@@ -383,7 +384,6 @@ sub showPackage {
     }
     print "flag $showFlag $theRoot $theDir $thePkg<br>\n" if $debugOn;
     $pkgLine = "";
-    $nsl = 0;
     if ( $thePkg eq 'inc' || $thePkg eq 'kumac' ) {
       $readme = "      ";
       $doc = "   ";
@@ -537,8 +537,8 @@ sub showPackage {
 		    $filecount,$linecount,$mo+1,$dy,$yr,$sinceMod,$thePamUrl);
     } else {
         $pkgLine = 
-	    sprintf("%s%-30s%s %-6s %-3s %s %s\n",
-		    $pkgUrl,$theDir."/".$thePkg,"</a>",$readme,$doc,$cvs,$src);
+	    sprintf("%s%-30s%s %-6s %-3s %s\n",
+		    $pkgUrl,$theDir."/".$thePkg,"</a>",$readme,$doc,$cvs);
     }
 
     if ( $showFlag >= 0 ) { print $pkgLine; }
@@ -573,7 +573,6 @@ sub showFiles {
     if ( $theSubDir ne "" ) { $thePkg .= "/".$theSubDir; }
     ### Files
     $lines = 0;
-    $subdirs = "";
     open(ENTRIES, "<$theRoot/$theDir/$thePkg/CVS/Entries");
     while (<ENTRIES>) {
         $line = $_;
@@ -624,9 +623,7 @@ sub showFiles {
             }
             # stat
             $fullname = "$theRoot/$theDir/$thePkg/$fname";
-            ($fmode, $uid, $gid, $filesize, 
-             $readTime, $writeTime, $cTime) =
-                 (stat($fullname))[2,4,5,7,8,9,10];
+            $writeTime = (stat($fullname))[9];
 
             $count = 0;
             $showLines = 0;
@@ -815,6 +812,10 @@ sub DoxyCode
 
 
 # $Log: swguide.pl,v $
+# Revision 1.5  2002/01/27 00:17:35  jeromel
+# Removed unused variables (forgot to do this as the last clean-up). Tested
+# and fine as-is.
+#
 # Revision 1.4  2002/01/26 23:34:44  jeromel
 # Modified to use doxygen instead of lxr, fixed a Y2000 bug in date and diverse
 # formatting issues.
