@@ -1,5 +1,5 @@
 #!/bin/csh -f
-#       $Id: group_env.csh,v 1.166 2004/08/14 18:19:07 jeromel Exp $
+#       $Id: group_env.csh,v 1.167 2004/08/25 20:30:20 jeromel Exp $
 #	Purpose:	STAR group csh setup
 #
 #	Author:		Y.Fisyak     BNL
@@ -330,13 +330,15 @@ switch ($STAR_SYS)
       # make sure that afws in the path
       if (! -d /usr/afsws/bin) setenv PATH `${GROUP_DIR}/dropit -p $PATH -p ${AFS_RHIC}/i386_redhat50/usr/afsws/bin`
 
+
+      # PGI compiler
       if ( ! $?PGI) then
 	if ( -d /usr/pgi ) then
 	    setenv PGI /usr/pgi
 	endif
       endif
       if ( $?PGI ) then
-       if ( ! -d $PGI/bin) then
+       if ( ! -d $PGI/linux86/bin) then
 	    set version=`/bin/ls  $PGI/linux86/ | tail -1`
 	    setenv PGI_V linux86/$version
        else
@@ -353,13 +355,18 @@ switch ($STAR_SYS)
        setenv LM_LICENSE_FILE $PGI/license.dat
       endif
 
+
+      # This is no longer used right ??
       if (-d /usr/local/KAI/KCC.flex-3.4f-1/KCC_BASE) then
        setenv KAI /usr/local/KAI/KCC.flex-3.4f-1/KCC_BASE
        setenv PATH `${GROUP_DIR}/dropit -p $KAI/bin -p $PATH`
-
       endif
+
       setenv PATH  `${GROUP_DIR}/dropit -p $PATH  -p /usr/local/bin/ddd`
       if ($?LD_LIBRARY_PATH == 0) setenv LD_LIBRARY_PATH
+
+
+      # Final path adjustement
       if ($?MINE_lib == 1 && $?STAR_lib == 1) then
        setenv LD_LIBRARY_PATH `${GROUP_DIR}/dropit -p ${MINE_lib} -p ${MINE_LIB} -p ${STAR_lib} -p ${STAR_LIB} -p ${STAF_LIB} -p ${LD_LIBRARY_PATH}`
       else
