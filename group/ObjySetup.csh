@@ -1,13 +1,12 @@
-#!/bin/echo You must source
+#!/bin/echo You must source
 
 if ( -d /afs/rhic/oodb/solaris4/bin ) then
   switch ($STAR_SYS)
     case "i386_*":
-      setenv OBJY_HOME /afs/rhic/oodb
+      setenv OBJY_HOME /afs/rhic/oodb/v_5.1
     breaksw
     case "sun4*":
-#      setenv OBJY_HOME /afs/rhic/oodb/v_5.1
-      setenv OBJY_HOME /afs/rhic/oodb
+      setenv OBJY_HOME /afs/rhic/oodb/v_5.1
     breaksw
     default:
     breaksw
@@ -62,7 +61,7 @@ endif
 
 else
 
-if ( $?SILENT == 0 ) echo Objectivity not configured, software not accessible
+if ( $?SILENT == 0 ) echo "Objectivity not configured, and be thankful for it!"
 
 endif
 
