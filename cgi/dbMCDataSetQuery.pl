@@ -12,7 +12,7 @@ my $debugOn = 0;
 my @collision = ( "all","auau100", "auau200", "auau130", "auau128", "augas100", "pau200", "pp200","dAu200");
 my @evtGen  = ("all","hijing", "hijet", "mevsim", "venus", "nexus", "vni", "two_photon", "hbt", "rqmd", "single", "starlight", "strongcp", "pythia", "hemicosm");
 
-my @geoYear = ("all","year_1b", "year_1h", "year_1e", "year_1s", "complete", "year_1a", "year1a", "year2001", "year2003", "year2003x","year_2a", "year2a");
+my @geoYear = ("all","year_1b", "year_1h", "year_1e", "year_1s", "complete", "year_1a", "year1a", "year2001", "year2003", "y2003x","year_2a", "year2a");
 
 my @ftype = ("fzd","root");
 
