@@ -1,6 +1,9 @@
-#       $Id: group_env.csh,v 1.3 1998/03/23 02:29:15 fisyak Exp $
+#       $Id: group_env.csh,v 1.4 1998/03/24 00:04:09 fisyak Exp $
 #	Purpose:	STAR group csh setup 
 #       $Log: group_env.csh,v $
+#       Revision 1.4  1998/03/24 00:04:09  fisyak
+#       fix PATH
+#
 #       Revision 1.3  1998/03/23 02:29:15  fisyak
 #       Fix group start-up
 #
@@ -47,7 +50,7 @@ setenv STAR_CALIB ${STAR_ROOT}/calib;        if ($ECHO) echo   "Setting up STAR_
 setenv CVSROOT   $STAR_PATH/repository;      if ($ECHO) echo   "Setting up CVSROOT   = ${CVSROOT}"
 setenv TEXINPUTS :${GROUP_DIR}/latex/styles
 setenv GROUPPATH "${GROUP_DIR}:${STAR_MGR}:${STAR_BIN}"
-setenv PATH "/usr/afsws/bin:/usr/afsws/etc:/opt/rhic/bin:/usr/local/bin:${GROUPPATH}:${PATH}"
+setenv PATH /usr/afsws/bin:/usr/afsws/etc:/opt/rhic/bin:/usr/local/bin:${GROUP_DIR}:${STAR_MGR}:${STAR_BIN}:${PATH}
 setenv MANPATH ${MANPATH}:${STAR_PATH}/man
 setenv STAR_LD_LIBRARY_PATH ""
 switch ($STAR_SYS)
@@ -66,7 +69,7 @@ switch ($STAR_SYS)
 	setenv CERN ${AFS_RHIC}/asis/hp_ux102/cern
 	setenv CERN_LEVEL new
 	setenv CERN_ROOT $CERN/$CERN_LEVEL
-        setenv PATH `/afs/rhic/star/group/dropit -p ${PATH} cern`:$CERN_ROOT/bin
+        setenv PATH `/afs/rhic/star/group/dropit cern`:$CERN_ROOT/bin
       endif
     breaksw
     case "sgi_5*":
@@ -75,7 +78,7 @@ switch ($STAR_SYS)
 	setenv CERN ${AFS_RHIC}/asis/sgi_52/cern
 	setenv CERN_LEVEL pro
 	setenv CERN_ROOT $CERN/$CERN_LEVEL
-        setenv PATH `/afs/rhic/star/group/dropit -p ${PATH} cern`:$CERN_ROOT/bin
+        setenv PATH `/afs/rhic/star/group/dropit cern`:$CERN_ROOT/bin
       endif
     breaksw
     case "sgi_6*":
@@ -109,7 +112,7 @@ setenv LD_LIBRARY_PATH "$STAR_LD_LIBRARY_PATH":"$LD_LIBRARY_PATH"
 endif
 setenv LD_LIBRARY_PATH `/afs/rhic/star/group/dropit -p ${LD_LIBRARY_PATH}`
 if ( -e /usr/ccs/bin/ld ) set PATH = ( $PATH':'/usr/ccs/bin':'/usr/ccs/lib )
-  setenv PATH `/afs/rhic/star/group/dropit -p ${PATH}`
+  setenv PATH `/afs/rhic/star/group/dropit`
   setenv MANPATH `/afs/rhic/star/group/dropit -p ${MANPATH}`
 # We need this aliases even during BATCH
 if (-r $GROUP_DIR/group_aliases.csh) source $GROUP_DIR/group_aliases.csh
@@ -145,7 +148,7 @@ if ( -d /opt/hpnp ) then
 endif
 # clean-up PATH
   setenv MANPATH `/afs/rhic/star/group/dropit -p ${MANPATH}`
-  setenv PATH `/afs/rhic/star/group/dropit -p ${PATH} GROUPPATH`
+  setenv PATH `/afs/rhic/star/group/dropit GROUPPATH`
 #
 unset ECHO
 #END
