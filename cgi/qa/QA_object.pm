@@ -880,6 +880,12 @@ sub LogReport{
       # log report doesn't exist, create new object and write it to disk
       $production_dir = shift;
       $logreport_ref = Logreport_object->new($production_dir, 'data');
+      
+      #--bum, memory usage stuff 25/1/00 ---
+      my $report_dir = $self->ReportDirectory;
+      $logreport_ref->MemoryFile($report_dir);
+      $logreport_ref->WriteMemoryFile;
+      #--------------------------------------       
 
       print "<h4> Writing Logreport object to $filename... </h4> \n";
       store( $logreport_ref, $filename) or die "<h4> Cannot write $filename: $! </h4> \n";

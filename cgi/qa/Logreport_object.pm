@@ -267,6 +267,38 @@ sub MissingFiles{
   return $self->{MissingFiles};
 }
 #=========================================================
+#=== bum, memory usage stuff, 25/1/00 ====================
+#=========================================================
+#===========beware, returns a reference =================
+sub MemoryArray{
+  my $self = shift;
+  if (@_) {
+     push @{$self->{memory}->{array}}, shift;
+  }
+  return $self->{memory}->{array};
+}
+#========================================================
+#====== initialized in QA_object=========================
+sub MemoryFile{
+  my $self = shift;
+  @_ and do{
+      my $report_dir = shift;
+      $self->{memory}->{file}= $report_dir . "/memory.log";
+  };
+  return $self->{memory}->{file};
+}
+#========================================================
+#====this is called in the QA_object LogReport  =========
+#====the name of the txt file is $report_dir/memory.log=====
+#========================================================
+sub WriteMemoryFile{
+  my $self = shift;
+  my $mem_file = $self->MemoryFile;
+  open MEMFILE, ">$mem_file" or die "Cannot open $mem_file: $!\n";
+    print MEMFILE join "\n", @{$self->MemoryArray};
+  close MEMFILE;
+}
+#=========================================================
 sub ParseLogfile {
 
   my $self = shift;
@@ -281,7 +313,9 @@ sub ParseLogfile {
   close LOGFILE;
 
   #----------------------------------------------------------
-  
+  # bum, memory stuff
+  my ($count, @list);
+
   # parse beginning of file
   
   $record_run_options = 0;
@@ -373,6 +407,17 @@ sub ParseLogfile {
       $self->OutputDirectory($output_directory);
       next;
     };
+    #---------- added memory usage stuff, bum 25/1/00 ----- 
+    if ($line =~ /tree:\s+endmaker/i) {
+	@list = split /\s+/, $line;
+	$line =~ /SIZE/i and do {
+	    $count=0;
+	    foreach (@list) {last if /SIZE/i; $count++;}
+	    next;
+	};
+	$list[$count] =~ /(\d+)/ and $self->MemoryArray($1);
+    }
+    #------------------------------------------------------
     
     # CVS tags
 # not currently of interest   pmj 21/1/00

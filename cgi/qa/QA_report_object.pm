@@ -296,7 +296,18 @@ sub RunMacro{
     print "<h4> File with type $global_input_data_type not found in directory $production_dir </h4> \n";
     return;
   };
-  
+  #--------------------------------------------------------------------------
+  # bum, change global_input_file name if $macro_name eq MemoryUsage
+  # add numerical arguements, 25/1/00
+  if ($macro_name eq 'MemoryUsage') {
+    my $input = $QA_object_hash{$report_key}->LogReport->MemoryFile;
+    -e $input or do{
+	print "<h3> Cannot find memory file</h3>";
+	return;
+    };
+    $global_filename = $input;
+  }
+
   #--------------------------------------------------------------------------------------------
   # get output file name
 
@@ -386,15 +397,18 @@ sub RunMacro{
     
     # if output file is postscript, gzip it
     $output_file =~ /\.ps$/ and do{
-      print "<H4> gzipping file $output_file... </H4> \n";
+     #bum, dont do if MemoryUsage
+     unless ($macro_name eq 'MemoryUsage'){
+       print "<H4> gzipping file $output_file... </H4> \n";
 
-      # kill gzipped file if it exists
-      $temp = "$output_file\.gz";
-      -e $temp and unlink ($temp);
+       # kill gzipped file if it exists
+       $temp = "$output_file\.gz";
+       -e $temp and unlink ($temp);
 
-      chmod 0666, $output_file;
-      $status = system("/usr/local/bin/gzip $output_file");
-      $output_file .= ".gz";
+       chmod 0666, $output_file;
+       $status = system("/usr/local/bin/gzip $output_file");
+       $output_file .= ".gz";
+     }
       last OUTPUT;
     };
     
