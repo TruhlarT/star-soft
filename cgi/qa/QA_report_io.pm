@@ -744,9 +744,22 @@ sub reduced_key{
   $value =~ s/(Sun|Mon|Tue|Wed|Thu|Fri|Sat)\.//;
   $value =~ s/\.[0-9]+$//;
 
-  # if not hc, then this is venus
-  $value =~ /hc/ or $value .= "\.venus";
 
+ TYPE:{
+    
+    $value =~ /hc/ and do{
+      last TYPE;
+    };
+    
+    $value =~ /cosmics/ and do{
+      $value = "cosmics";
+      last TYPE;
+    };
+    
+    $value .= "\.venus";
+    
+  }
+  
   return $value;
 
 }
