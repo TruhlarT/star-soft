@@ -367,7 +367,7 @@ sub ServerLogFile{
   return  "/usr/local/apache/var/log/error_log";
 }
 #===================================================================
-sub BatchLogHTMLTemp{
+sub TempLogHTML{
   my $self = shift;
   my $id_string = shift;
 

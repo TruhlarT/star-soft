@@ -38,11 +38,11 @@ sub SubmitJob
 
     if ($batchType eq "AT")
     {
-	return SubmitAtJob($cmd);
+	return "AT" . SubmitAtJob($cmd);
     }
     elsif ($batchType eq "LSF")
     {
-	return SubmitLSFJob($cmd);
+	return "LSF" . SubmitLSFJob($cmd);
     }
 }
 
@@ -76,7 +76,7 @@ sub Queue
 # $commandName should the name of a script to run as a 
 # batch job
 #
-# returns the lsf job id prefixed by LSF
+# returns the lsf job id
 #========================================================
 sub SubmitLSFJob
 {
@@ -96,7 +96,7 @@ sub SubmitLSFJob
 
     # extract job ID from output
     $retStr =~ /^[^<]*<([^>]*)>.*$/m;
-    return "LSF" . $1;
+    return $1;
 }
 
 #========================================================
@@ -107,18 +107,19 @@ sub SubmitLSFJob
 # $commandName should the name of a script to run as a 
 # batch job
 #
-# returns the at job id prefixed by AT
+# returns the at job id
 #========================================================
 sub SubmitAtJob
 {
     my $cmd = shift;
 
     my $cmdStr = "at -f \"$cmd\" now";
-    my $retStr = `$cmdStr`;
-    
+    my $retStr = `$cmdStr 2>&1`;
+    # print "'$cmdStr'->'$retStr'";
+
     # extract job ID from output
     $retStr =~ /^job ([^ ]*) .*$/m;
-    return "AT" . $1;
+    return $1;
 
 }
 

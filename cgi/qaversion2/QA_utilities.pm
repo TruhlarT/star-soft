@@ -96,8 +96,8 @@ sub submit_batchjob {
   srand;
   my $id_string = int(rand(1000000));
 
-  my $io = new IO_object("BatchLogHTMLTemp", $id_string);
-  my $batch_log_html_temp = $io->Name();
+  my $io = new IO_object("TempLogHTML", $id_string);
+  my $temp_log_html = $io->Name();
   undef $io;
 
   $io = new IO_object("BatchLogHTML", $report_key);
@@ -131,7 +131,7 @@ sub submit_batchjob {
   my $string = IO_utilities::ComposeBatchScript($action, $data_class, 
 						$batchscript_filename, 
 						$job_filename, 
-						$batch_log_html_temp,
+						$temp_log_html,
 						$batch_log_html,
 						$done_dir, $report_dir,
 						$report_key);

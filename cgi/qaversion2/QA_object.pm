@@ -401,7 +401,7 @@ sub QASummaryString{
       close flagFH;
       
       $summary_string .= "<br><font color=blue>".
-	                 "Batch job $action in progress</font>";
+	                 "$batch_mode batch job $action in progress</font>";
       
     }
     else{

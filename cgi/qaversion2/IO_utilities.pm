@@ -152,7 +152,7 @@ sub ComposeBatchScript{
     my $data_class = shift;
     my $batchscript_filename = shift;
   my $job_filename = shift;
-  my $batch_log_html_temp = shift;
+  my $temp_log_html = shift;
   my $batch_log_html = shift;
   my $done_dir = shift;
   my $report_dir = shift;
@@ -168,21 +168,21 @@ sub ComposeBatchScript{
     "setenv GROUP_DIR /afs/rhic/rhstar/group \n".
       "setenv CERN_ROOT /cern/pro \n".
 	"setenv HOME /star/u2e/starqa \n".
-	  "setenv SILENT 1 \n".
-	      "source /afs/rhic/rhstar/group/.stardev \n";
+	    "setenv SILENT 1 \n".
+		"source /afs/rhic/rhstar/group/.stardev \n";
 
   $string .= 
-      "echo \"Starting perl script...<br>\" |& tee $batch_log_html_temp \n".
-#      "echo \"Environment:<br>\\n<pre>\" |& tee -a $batch_log_html_temp \n".
-#      "setenv |& tee -a $batch_log_html_temp \n".
-#      "echo \"</pre>\" |& tee -a $batch_log_html_temp \n".
+      "echo \"Starting perl script...<br>\" |& tee $temp_log_html \n".
+#      "echo \"Environment:<br>\\n<pre>\" |& tee -a $temp_log_html \n".
+#      "setenv |& tee -a $temp_log_html \n".
+#      "echo \"</pre>\" |& tee -a $temp_log_html \n".
     "/opt/star/bin/perl -I$now $program batch_job $data_class $action ".
 	($report_key ? "$report_key " : "") . 
-	    "|& tee -a $batch_log_html_temp \n".
-      "echo \"Moving files...\" |& tee -a $batch_log_html_temp \n".
+	    "|& tee -a $temp_log_html \n".
+      "echo \"Moving files...\" |& tee -a $temp_log_html \n".
 	"\\mv $batchscript_filename $done_dir \n".
-	    "\\cp $batch_log_html_temp $done_dir \n".
-		"\\mv $batch_log_html_temp $batch_log_html \n".
+	    "\\cp $temp_log_html $done_dir \n".
+		"\\mv $temp_log_html $batch_log_html \n".
 		    "\\rm -f $job_filename \n";
     # tee copies its stdin to the given file, tee -a appends.
   
