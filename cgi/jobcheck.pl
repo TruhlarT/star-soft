@@ -17,8 +17,8 @@
 
 use CGI;
 
-$newHomeDir = "/disk00000/star/test/new";
-$devHomeDir = "/disk00000/star/test/dev";
+$newHomeDir = "/star/rcf/disk00000/star/test/new";
+$devHomeDir = "/star/rcf/disk00000/star/test/dev";
 
 @tpcOsChoice = (
 		"tfs_Linux",
