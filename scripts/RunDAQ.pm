@@ -170,7 +170,7 @@ $DELAY     = 60;                              # delay backward in time in second
 # There should be NO OTHER configuration below this line but
 # only composit variables or assumed fixed values.
 #
-$DEBUG     = 0;
+$DEBUG     = 1;
 
 # Build ddb ref here.
 $DDBREF    = "DBI:mysql:$DDBNAME:$DDBSERVER:$DDBPORT";
@@ -242,8 +242,13 @@ sub rdaq_add_entries
 		if ($sth->execute(@values)){
 		    $count++;
 		} else {
-		    &info_message("add_entries","Failed to add [$line] ".
-				  $sth->errstr."\n");
+		    if ( $sth->err == 1062){
+			&info_message("add_entries","Skipping already in $values[0]\n");
+		    } else {
+			&info_message("add_entries","Failed to add [$line] ".
+				      $sth->err." = ".
+				      $sth->errstr."\n");
+		    }
 		}
 	    }
 	    $sth->finish();
@@ -484,7 +489,7 @@ sub rdaq_raw_files
 	$cmd .= " LIMIT $limit";
     }
 
-    print "$cmd\n" if ($DEBUG);
+    print "<!-- $cmd -->\n" if ($DEBUG);
     $sth  = $obj->prepare($cmd);
     if ( ! $sth->execute() ){ &info_message("raw_files","Could not execute statement\n");}
     $kk=0;
