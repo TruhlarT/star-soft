@@ -116,6 +116,7 @@ for my $attr ( qw (
 		   dbQA
 		   GetMissingFiles
 		   UpdateRoutine
+		   ToDoKeys
 		   BrowserBannerColor
 		   BrowserBannerLabel
 		   DataClassArray
@@ -297,6 +298,9 @@ sub offline_real{
   # get old reports
   $self->GetOldReports("QA_db_utilities::GetOldReportsReal");
 
+  # get todo QA keys
+  $self->ToDoKeys("Db_update_utilities::GetToDoReportKeysReal");
+
   # browser banner for interactive display
   $self->BrowserBannerColor("red");
   $self->BrowserBannerLabel("Real Data Production");
@@ -340,6 +344,9 @@ sub offline_MC{
 
   # get old reports
   $self->GetOldReports("QA_db_utilities::GetOldReportsMC");
+  
+  # get todo QA keys
+  $self->ToDoKeys("Db_update_utilities::GetToDoReportKeysMC");
 
   # browser banner for interactive display
   $self->BrowserBannerColor("red");
@@ -384,6 +391,9 @@ sub nightly_real{
   # get old reports
   $self->GetOldReports("QA_db_utilities::GetOldReportsReal");
 
+  # get todo QA keys
+  $self->ToDoKeys("Db_update_utilities::GetToDoReportKeysReal");
+
   # browser banner for interactive display
   $self->BrowserBannerColor("red");
   $self->BrowserBannerLabel("Real Data Nightly Tests");
@@ -425,6 +435,9 @@ sub nightly_MC{
   # get old reports
   $self->GetOldReports("QA_db_utilities::GetOldReportsMC");
 
+  # get todo QA keys
+  $self->ToDoKeys("Db_update_utilities::GetToDoReportKeysMC");
+
   # browser banner for interactive display
   $self->BrowserBannerColor("red");
   $self->BrowserBannerLabel("MC Data Nightly Tests");
@@ -464,6 +477,9 @@ sub debug{
 
   # get old reports
   $self->GetOldReports("QA_db_utilities::GetOldReportsMC");
+
+  # get todo QA keys
+  $self->ToDoKeys("Db_update_utilities::GetToDoReportKeysMC");
 
   # browser banner for interactive display
   $self->BrowserBannerColor("yellow");

@@ -100,7 +100,8 @@ sub GetTests{
   my $report_key = $self->ReportKey;
 
   open TESTFILE, $test_definition_file 
-    or die "Cannot open test definition file $test_definition_file: $! \n";
+    or do{ "Cannot open test definition file $test_definition_file: $! \n";
+	   return; };
   my @test_definition_array = <TESTFILE>;
   close TESTFILE;
   

@@ -230,7 +230,7 @@ sub GetMissingFiles{
   my $hist_size =  1000;
 
   # these are the file components we're looking for
-  my @component_ary = ('dst','hist','tags','runco');
+  my @component_ary = ('dst','hist','tags','runco','test');
   
   my $ondisk_string;
 
@@ -719,7 +719,7 @@ sub WriteQAMacroSummary{
 	   $QAMacros{ID}         = NULL 
 	 };
   }
-  print h4("Inserting qa macro summary into db for $macro_name...\n");
+  print h4("Inserting qa macro summary into db for $fName...\n");
 
   # insert
   my $rc = $dbh->do($query);
@@ -811,18 +811,19 @@ sub ParseDatasetReal{
 
 }
 #==============================================================
-# 1. deletes the 'old' reports from the database
+# 1. deletes the 'old' reports from the databasee
 # 2. returns the report keys so that we can delete it from disk
 
 sub GetOldReports{
   my $data_type = shift; # MC or real
 
-  my $old_time  = 100;   # number of days
+  my $old_time  = 5;   # number of days
   my $now       = time;  # current date in epoch seconds
   my @old_report_keys;
 
-  # determine which reports are old from the FileCatalog.createTime
-  my $query_old = qq{ select distinct qa.$QASum{report_key} 
+  # determine which reports are old from th e FileCatalog.createTime
+  my $query_old = qq{ select distinct qa.$QASum{report_key},
+			     qa.$QASum{qaID}
 		      from $dbQA.$QASum{Table} as qa,
 		           $dbFile.$FileCatalog as file  
 		      where  
@@ -831,21 +832,28 @@ sub GetOldReports{
 			 to_days(file.createTime)) > $old_time and
 			qa.$QASum{type} = '$data_type'
 		      };
+  # delete from QASummary
+  my $query_delete_sum = qq{ delete from $QASum{Table} 
+			     where $QASum{report_key} = ? };
 
-  my $query_delete = qq{ delete from $QASum{Table} 
-			 where $QASum{report_key} = ? };
+  # delete from QAMacros
+  my $query_delete_macro = qq{ delete from $QAMacros{Table}
+			       where $QAMacros{qaID} = ? };
 
-  my $sth_old    = $dbh->prepare($query_old);
-  my $sth_delete = $dbh->prepare($query_delete);
- 
+  my $sth_old          = $dbh->prepare($query_old);
+  my $sth_delete_sum   = $dbh->prepare($query_delete_sum);
+  my $sth_delete_macro = $dbh->prepare($query_delete_macro);
+
   $sth_old->execute;
 
-  while(my $report_key = $sth_old->fetchrow_array){
+  while(my ($report_key, $qaID) = $sth_old->fetchrow_array){
     push @old_report_keys, $report_key; # save it
 
-    print h4("Deleting $report_key from the database ...<br>\n");
+    print h4("Deleting $report_key from $QASum{Table} ...\n");
+    #$sth_delete_sum->execute($report_key);  # delete it
 
-    #$sth_delete->execute($report_key);  # delete it
+    print h4("Deleting $report_key from $QAMacros{Table} ...\n");
+    #$sth_delete_macro->execute($qaID);
 
     print h4("... done<br>\n");
   }

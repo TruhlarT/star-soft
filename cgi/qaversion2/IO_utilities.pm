@@ -234,10 +234,10 @@ sub move_old_reports{
     my $name_move = "$dir_name_old/$report_key";
 
     print "cp -rp $name $name_move <br> \n";
-    system ("cp -rp $name $name_move");
+    #system ("cp -rp $name $name_move");
 
     print "\\rm -rf $name <br> \n";
-    system ("\\rm -rf $name");
+    #system ("\\rm -rf $name");
   }
 }
 

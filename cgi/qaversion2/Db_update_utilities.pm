@@ -81,18 +81,16 @@ sub UpdateQAOffline{
 			  $QASum{qaID}        = NULL
 			};
 
-  my (@key_list, $jobID);
+  my (@key_list);
   my $sth_update = $dbh->prepare($query_update); # find jobs to update
   my $sth_key    = $dbh->prepare($query_key); # get the report key info
   my $sth_insert = $dbh->prepare($query_insert); # insert into QASummary
 
-  my $rc = $sth_update->execute;
-  $rc += 0 or return; # get out if there are no jobs to update
-
-  $sth_update->bind_col(1,\$jobID);
+  $sth_update->execute;
+  $sth_update->rows or return; # get out if there are no jobs to update
 
   # loop over jobs
-  while ( $sth_update->fetch ) {
+  while ( my $jobID = $sth_update->fetchrow_array ) {
     $sth_key->execute($jobID);
     
     # get report key
@@ -132,8 +130,8 @@ sub UpdateQAOfflineReal{
 sub UpdateQANightly {  
   my $data_class = shift; # 'real' or 'MC'
   
-  my $limit = 1;
-  my $oldest_date = '2000-06-20'; # dont retrieve anything older 
+  my $limit = 2;
+  my $oldest_date = '2000-06-23'; # dont retrieve anything older 
   my ($type, $eventGen_string);
   my $time_sec = 100*3600*24;    #number of seconds in a week
   my $now      = time;           #current time in epoch sec
@@ -203,20 +201,19 @@ sub UpdateQANightly {
 			  $QASum{type}       = '$data_class',
 		          $QASum{qaID}       = NULL          
 			};
-  my (@key_list, $jobID);
+  my (@key_list);
 
   my $sth_update = $dbh->prepare($query_update); # find jobs to update
   my $sth_key    = $dbh->prepare($query_key);    # get report key info
   my $sth_check  = $dbh->prepare($query_check);  # check for uniqueness
   my $sth_insert = $dbh->prepare($query_insert); # insert into QASummary 
 
-  my $rc = $sth_update->execute;
-  $rc += 0 or return; # get out if there are no jobs to update
-
-  $sth_update->bind_col(1,\$jobID);
+  $sth_update->execute;
+  $sth_update->rows or return; # get out if there are no jobs to update
  
   # loop over jobs
-  while ( $sth_update->fetch) {
+  while ( my $jobID = $sth_update->fetchrow_array) {
+    print "found $jobID<br>\n";
     $sth_key->execute($jobID);
     
     # get the report key
@@ -257,19 +254,35 @@ sub UpdateQANightlyReal {
 # called in QA_main
 # gets the report keys from the QATable that need to be QA-ed
 
-sub db_GetToDoReportKeys{
-  my (@todo_keys, $job);
+sub GetToDoReportKeys{
+  my $type = shift; # real or MC
+  my (@todo_keys, $job, $type_string);
+
+  if ($type eq 'real'){
+    $type_string = "$QASum{type} = 'real'";
+  }
+  elsif ($type eq 'MC'){
+    $type_string = "$QASum{type} = 'MC'";
+  }
 
   # distinct just in case
   my $query = qq{select distinct $QASum{report_key} 
 		 from $dbQA.$QASum{Table}  
-		 where $QASum{QAdone} = 'N'};
+		 where $QASum{QAdone} = 'N' and
+	         $type_string};
   
   my $todo_keys_ref = $dbh->selectcol_arrayref($query);
 
   return @{$todo_keys_ref};
 }
-
+#---------------------------
+sub GetToDoReportKeysMC{
+  return GetToDoReportKeys('MC');
+}
+#---------------------------
+sub GetToDoReportKeysReal{
+  return GetToDoReportKeys('real');
+}
 
 sub Test{ print "dbFile      = $dbFile\n",
 	        "FileCatalog = $FileCatalog\n",

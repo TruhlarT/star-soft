@@ -178,7 +178,11 @@ print("do_qa-ing....\n");
 	# do qa on all new jobs if none specified
 	my @key_list;
 	if (!$report_key){
-	    @key_list = Db_update_utilities::db_GetToDoReportKeys();
+	    # BUM 000625 - getting to do keys depends on the dataclass 
+	    no strict 'refs';
+	    my $sub = $gDataClass_object->ToDoKeys;
+	    @key_list = &$sub;
+	    use strict 'refs';
 	} else {
 	    @key_list = ($report_key);
 	}
