@@ -170,7 +170,7 @@ $DELAY     = 60;                              # delay backward in time in second
 # There should be NO OTHER configuration below this line but
 # only composit variables or assumed fixed values.
 #
-$DEBUG     = 0;
+$DEBUG     = 1;
 
 # Build ddb ref here.
 $DDBREF    = "DBI:mysql:$DDBNAME:$DDBSERVER:$DDBPORT";
@@ -430,7 +430,7 @@ sub rdaq_raw_files
 {
     my($obj,$from,$limit)=@_;
     my($sth,$cmd);
-    my(@all,@res);
+    my(@all,@res,$tres);
     my($tref,$kk);
 
     if(!$obj){ return 0;}
@@ -453,10 +453,14 @@ sub rdaq_raw_files
 
     # We will select on RunStatus == 0
     # Year2
+    #$rval  = 9;
     #$cmd  = "SELECT daqFileTag.file, daqSummary.runNumber, daqFileTag.numberOfEvents, daqFileTag.beginEvent, daqFileTag.endEvent, magField.current, magField.scaleFactor, beamInfo.yellowEnergy+beamInfo.blueEnergy, CONCAT(beamInfo.blueSpecies,beamInfo.yellowSpecies) FROM daqFileTag, daqSummary, magField, beamInfo  WHERE daqSummary.runNumber=daqFileTag.run AND daqSummary.runStatus=0 AND daqSummary.destinationID In(1,2,4) AND magField.runNumber=daqSummary.runNumber AND magField.entryTag=0 AND beamInfo.runNumber=daqSummary.runNumber AND beamInfo.entryTag=0";
     # One more table runStatus, daqSummary.runStatus=0 gone, entryTag=5 for hardwired values
+    $rval  = 9;
     $cmd   = "SELECT daqFileTag.file, daqSummary.runNumber, daqFileTag.numberOfEvents,daqFileTag.beginEvent, daqFileTag.endEvent, magField.current,magField.scaleFactor, beamInfo.yellowEnergy+beamInfo.blueEnergy,CONCAT(beamInfo.blueSpecies,beamInfo.yellowSpecies) FROM daqFileTag,daqSummary, magField, beamInfo,runStatus WHERE daqSummary.runNumber=daqFileTag.run AND daqSummary.destinationID In(1,2,4) AND runStatus.runNumber=daqFileTag.run and runStatus.rtsStatus=0 AND magField.runNumber=daqSummary.runNumber AND magField.entryTag In (0,5) AND beamInfo.runNumber=daqSummary.runNumber AND beamInfo.entryTag In (0,5)";
- 
+    
+
+
 
     # Optional arguments
     if( $from ne ""){
@@ -464,8 +468,10 @@ sub rdaq_raw_files
 	if( index($from,"\.") != -1){
 	    # recent format returns file sequence
 	    @res = split(/\./,$from);
-	    $cmd .= " AND (daqSummary.runNumber > $res[0] OR ".
-		" (daqSummary.runNumber=$res[0] AND daqFileTag.fileSequence > $res[1]))";
+	    #$cmd .= " AND (daqSummary.runNumber > $res[0] OR ".
+	    #" (daqSummary.runNumber=$res[0] AND daqFileTag.fileSequence > $res[1]))";
+	    # Changed for Year4 -- FileSequence is complex ....
+	    $cmd .= " AND (daqSummary.runNumber >= $res[0]) ";
 	} elsif ( $from =~ /=/){
 	    $cmd .=  " AND daqSummary.runNumber $from";
 	} else {
@@ -480,17 +486,28 @@ sub rdaq_raw_files
 
     print "$cmd\n" if ($DEBUG);
     $sth  = $obj->prepare($cmd);
-    $sth->execute();
+    if ( ! $sth->execute() ){ &info_message("raw_files","Could not execute statement\n");}
     $kk=0;
     while( @res = $sth->fetchrow_array() ){
 	# Massage the results to return a non-ambiguous information
 	# We are still lacking
-	push(@all,&rdaq_hack($obj,@res));
-	$kk++;
-	if( $kk % 10000 == 0){ 
-	    # always output debug lines in HTML comment format
-	    # since this may be used in a CGI.
-	    print "<!-- Fetched $kk records -->\n" if ($DEBUG);
+	if ( ($#res+1) != $rval){ 
+	    die "Database has all fields but some are empty ".($#res+1)." received, expected $rval\n";
+	}
+	#for ($ii = 0 ; $ii <= $#res ; $ii++){ 
+	#    print "$ii --> $res[$ii]\n";
+	#}
+	$tres = &rdaq_hack($obj,@res);
+	if ( defined($tres) ){
+	    push(@all,$tres);
+	    $kk++;
+	    if( $kk % 10000 == 0){ 
+		# always output debug lines in HTML comment format
+		# since this may be used in a CGI.
+		print "<!-- Fetched $kk records -->\n" if ($DEBUG);
+	    }
+	} else {
+	    &info_message("raw_files","Incomplete information (will skip)\n");
 	}
     }
     $sth->finish();
@@ -545,6 +562,7 @@ sub rdaq_hack
 	$stht->execute($run);
 	if( ! $stht ){
 	    &info_message("hack","$run cannot be evaluated. No DataSET info.\n");
+	    return undef;
 	} else {
 	    $mask = 0;
 	    while( defined($line = $stht->fetchrow() ) ){
@@ -567,7 +585,7 @@ sub rdaq_hack
 	$sths->execute($run);
 	if( ! $sths ){
 	    &info_message("hack","$run cannot be evaluated. No TriggerSetup info.\n");
-	    $mask = 0;
+	    return undef;
 	} else {
 	    $mask = "";
 	    while( defined($line = $sths->fetchrow()) ){
@@ -592,7 +610,7 @@ sub rdaq_hack
 	$sthl->execute($run);
 	if( ! $sthl ){
 	    &info_message("hack","$run cannot be evaluated. No TriggerLabel info.\n");
-	    $mask = 0;
+	    return undef;
 	} else {
 	    while( @items = $sthl->fetchrow_array() ){
 		if($items[1] != 0){
@@ -609,13 +627,14 @@ sub rdaq_hack
     # to check this run as we go, we want them ...
     push(@res,$mask);
 
+
     # File name is the first field 0
     if( $res[0] =~ m/(st_)(\w+)(_\d+_raw)/ ){
 	push(@res,&Record_n_Fetch("FOFileType",$2));
     } else {
 	push(@res,0);
     }
-    
+    #print "Returing from rdaq_hack() with ".($#res+1)." values\n" if($DEBUG);
     return join(" ",@res);
 }
 
