@@ -57,7 +57,7 @@ endif
 
 # CHECK FOR LOGIN PERMISSION                          
 if ( -f /etc/nologin &&  $USER != root  ) then  
-   echo "Sorry but this system is under maintenance. No logins ..."
+   echo "$self :: Sorry but this system is under maintenance. No logins ..."
    /bin/cat /etc/nologin
    /bin/sleep 5
    exec "echo"
@@ -98,6 +98,8 @@ setenv SYSTYPE sysV
 # -------------------------------------
 # path path and more paths ...
 # -------------------------------------
+if ( $?DECHO ) echo "$self :: Setting X11 and other path setup"
+
 # This is done stupidly in HEpix. I prefer
 if( ! $?X11BIN || ! $?PATH) then
     if ( $?PATH && ! $?SAVED_PATH) setenv SAVED_PATH `echo $PATH | /bin/sed "s/:/ /g"`
@@ -149,6 +151,8 @@ endif
 
 
 # Default manpath
+if ( $?DECHO ) echo "$self :: Setting basic manpath"
+
 if ( -r "/etc/man.config" ) then
    setenv SYSMAN `/bin/awk 'BEGIN{fi=1}/^MANPATH[\t ]/{if(fi==1){printf("%s",$2);fi=0}else{printf(":%s",$2)}}END{printf"\n"}' /etc/man.config`
 else
@@ -162,6 +166,8 @@ setenv LESSCHARSET latin1
 
 
 # CERN stuff
+if ( $?DECHO ) echo "$self :: Checking CERN stuff"
+
 if ( -e /cern ) then
     setenv CERN "/cern"
 else 
@@ -307,5 +313,12 @@ if( -r $GROUP_DIR/site_post_setup.csh ) then
 endif
 
 
-
-
+#
+# Re-check this and restore if all was wipped out
+#
+if ( "$PATH" == "" && $?SAVED_PATH) then
+    # Something went wrong
+    if ( $?DECHO )  echo "$self :: Something went wrong (probably dropit). Restoring initial PATH"
+    set path=($SAVED_PATH)
+    unsetenv star_login_csh
+endif

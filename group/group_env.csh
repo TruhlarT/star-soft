@@ -1,5 +1,5 @@
 #!/bin/csh -f
-#       $Id: group_env.csh,v 1.179 2004/12/15 15:12:00 jeromel Exp $
+#       $Id: group_env.csh,v 1.180 2005/03/17 23:23:40 jeromel Exp $
 #	Purpose:	STAR group csh setup
 #
 #	Author:		Y.Fisyak     BNL
@@ -17,11 +17,9 @@ if ($?STAR == 1)   set ECHO = 0
 if ( ! $?prompt)   set ECHO = 0
 if ($?SILENT == 1) set ECHO = 0
 
-
 # This variable was added for the ECHOD debug mode
-#set ECHO = 1
-#set Self=`echo $0 | sed "s/.*\///g"`
-#echo "$Self :: Receiving STAR_LEVEL $STAR_LEVEL"
+set self="group_env"
+if ( $?DECHO ) echo "$self :: Receiving STAR_LEVEL $STAR_LEVEL"
 
 
 setenv WWW_HOME http://www.star.bnl.gov/
@@ -60,6 +58,7 @@ endif
 
 
 
+if ( $?DECHO) echo "$self :: Definiting GROUP_DIR GROUP_PATH STAR_PATH"
 
 # Defined by Group Dir
 if ( ! $?GROUP_DIR )  setenv GROUP_DIR ${STAR_ROOT}/group
@@ -73,6 +72,8 @@ if ($ECHO) echo   "Setting up STAR_PATH = ${STAR_PATH}"
 
 # Default value (some if not already defined)
 if ($?STAR_LEVEL == 0) setenv STAR_LEVEL pro
+
+if ( $?DECHO) echo "$self :: Setting STAR_VERSION"
 
 setenv STAR_VERSION ${STAR_LEVEL}
 if ($STAR_LEVEL  == "old" || $STAR_LEVEL  == "pro" || $STAR_LEVEL  == "new" || $STAR_LEVEL  == "dev" || $STAR_LEVEL  == ".dev") then
@@ -90,6 +91,9 @@ if ($STAR_LEVEL  == "old" || $STAR_LEVEL  == "pro" || $STAR_LEVEL  == "new" || $
     endif
   endif
 endif
+
+
+if ( $?DECHO) echo "$self :: Setting STAF_VERSION"
 
 if ($?STAF_LEVEL == 0) then
  if ( -e $STAR_PATH/StAF/${STAR_LEVEL}) then
@@ -116,6 +120,7 @@ endif
 
 
 # Clear this out. First block STAF, second STAR
+if ( $?DECHO) echo "$self :: Executing STAR_SYS"
 source ${GROUP_DIR}/STAR_SYS;
 
 #
@@ -126,6 +131,7 @@ source ${GROUP_DIR}/STAR_SYS;
 #
 
 # There is a second chance to define XOPTSTAR
+if ( $?DECHO) echo "$self :: Checking  XOPTSTAR "
 if ( ! $?XOPTSTAR ) then
     if ( -e ${AFS_RHIC}/${STAR_SYS}/opt/star ) then
 	setenv XOPTSTAR ${AFS_RHIC}/${STAR_SYS}/opt/star
@@ -222,7 +228,7 @@ setenv STAR_PAMS $STAR/pams;            if ($ECHO) echo   "Setting up STAR_PAMS 
 setenv STAR_DATA ${STAR_ROOT}/data;     if ($ECHO) echo   "Setting up STAR_DATA = ${STAR_DATA}"
 setenv CVSROOT   $STAR_PATH/repository; if ($ECHO) echo   "Setting up CVSROOT   = ${CVSROOT}"
 
-
+if ( $?DECHO ) echo "$self :: ROOT_LEVEL and CERN_LEVEL"
 if (-f $STAR/mgr/ROOT_LEVEL && -f $STAR/mgr/CERN_LEVEL) then
   setenv ROOT_LEVEL `/bin/cat $STAR/mgr/ROOT_LEVEL`
   setenv CERN_LEVEL `/bin/cat $STAR/mgr/CERN_LEVEL`
@@ -269,6 +275,7 @@ endif
 setenv CERN_ROOT  $CERN/$CERN_LEVEL
 if ($ECHO) echo   "Setting up ROOT_LEVEL= ${ROOT_LEVEL}"
 
+if ( $?DECHO ) echo "$self :: Paths alter for STAR_MGR, STAR_SCRIPTS STAR_CGI etc ..."
 if ( -x ${GROUP_DIR}/dropit) then
     setenv GROUPPATH `${GROUP_DIR}/dropit -p ${GROUP_DIR} -p mgr -p ${STAR_MGR} -p ${STAR_SCRIPTS} -p ${STAR_CGI} -p ${MY_BIN} -p ${STAR_BIN} -p ${STAF}/mgr -p ${STAF_BIN}`
     setenv PATH `${GROUP_DIR}/dropit -p ${OPTSTAR}/bin -p $PATH`
@@ -279,10 +286,12 @@ endif
 
 
 # ROOT
+if ( $?DECHO ) echo "$self :: Conditional exec of rootenv.csh"
 if ( -f $GROUP_DIR/rootenv.csh) then
   source $GROUP_DIR/rootenv.csh
 endif
 
+if ( $?DECHO ) echo "$self :: Re-adjusting xxPATH for OPTSTAR and STAR_PATH"
 if ( -x ${GROUP_DIR}/dropit) then
   # clean-up PATH
   setenv MANPATH `${GROUP_DIR}/dropit -p ${OPTSTAR}/man -p ${MANPATH}`
@@ -307,6 +316,7 @@ else
 endif
 
 
+if ( $?DECHO ) echo "$self :: OS Specific tasks. Our OS=$STAR_SYS"
 switch ($STAR_SYS)
     case "rs_aix*":
         if ( -x ${GROUP_DIR}/dropit) setenv MANPATH `${GROUP_DIR}/dropit -p {$MANPATH} -p /usr/share/man`
@@ -444,6 +454,7 @@ endsw
 # ==================================================================
 # Extra package support
 # ==================================================================
+if ( $?DECHO ) echo "$self :: Extraneous packages check"
 
 # Support for LSF
 if ( -d /usr/local/lsf/bin && ! $?LSF_ENVDIR ) then
@@ -516,7 +527,7 @@ endif
 # END
 # ==================================================================
 
-
+if ( $?DECHO ) echo "$self :: Final touch ..."
 
 # We need this aliases even during BATCH
 if (-r $GROUP_DIR/group_aliases.csh) source $GROUP_DIR/group_aliases.csh
@@ -555,6 +566,7 @@ setenv PATH `${GROUP_DIR}/dropit -p $HOME/bin -p $HOME/bin/.$STAR_HOST_SYS -p $P
 
 
 # clean-up PATH
+if ( $?DECHO ) echo "$self :: Paths cleanup ..."
 #if ( -d /cern/../usr.local/lib) setenv LD_LIBRARY_PATH ${LD_LIBRARY_PATH}:/cern/../usr.local/lib
 if ( -x ${GROUP_DIR}/dropit) then
     if ("$CERN_LEVEL" != "pro") then
