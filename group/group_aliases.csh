@@ -1,5 +1,8 @@
-# $Id: group_aliases.csh,v 1.10 2000/02/16 14:21:11 fisyak Exp $
+# $Id: group_aliases.csh,v 1.11 2000/02/17 00:40:33 fisyak Exp $
 # $Log: group_aliases.csh,v $
+# Revision 1.11  2000/02/17 00:40:33  fisyak
+# Add starsetup alias
+#
 # Revision 1.10  2000/02/16 14:21:11  fisyak
 # Move objy root parasoft sniff g4 initialization to setup
 #
@@ -24,6 +27,7 @@ alias star.dev   'source ${GROUP_DIR}/star.dev'
 alias star..dev  'source ${GROUP_DIR}/star..dev'
 alias starver    'source ${GROUP_DIR}/.starver'
 alias setup      'source ${GROUP_DIR}/setup'
+alias starsetup  'source ${GROUP_DIR}/setup'
 if ($?SILENT == 1) then
   alias makes      "gmake --silent -f $STAR/mgr/MakePam.mk"
   alias makel      "gmake --silent -f $STAR/mgr/Makeloop.mk"
