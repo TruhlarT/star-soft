@@ -2,7 +2,7 @@
 %
 % StEvent - User Guide and Reference Manual -- LaTeX Source
 %
-% $Id: StEvent.tex,v 2.61 2001/09/19 03:49:13 ullrich Exp $
+% $Id: StEvent.tex,v 2.62 2001/09/19 04:57:15 ullrich Exp $
 %
 % Author: Thomas Ullrich, Nov 1999
 %
@@ -21,6 +21,9 @@
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %
 % $Log: StEvent.tex,v $
+% Revision 2.62  2001/09/19 04:57:15  ullrich
+% Updated StEventInfo.
+%
 % Revision 2.61  2001/09/19 03:49:13  ullrich
 % Removed StRun and StRunSummary. Added StRunInfo.
 %
@@ -248,8 +251,8 @@
   \mbox{\includegraphics[width=\textwidth]{StEventTitle.eps}}
   \hfill\mbox{}\\[3cm]
   {\LARGE User Guide and Reference Manual \\[5mm] for Version 2}\\[2cm]
-  {\LARGE $ $Revision: 2.61 $ $}  \\[5mm] % replaced by cvs with current revision
-  {\LARGE $ $Date: 2001/09/19 03:49:13 $ $}  % replaced by cvs with current revision
+  {\LARGE $ $Revision: 2.62 $ $}  \\[5mm] % replaced by cvs with current revision
+  {\LARGE $ $Date: 2001/09/19 04:57:15 $ $}  % replaced by cvs with current revision
   \vfill
 \end{center}
 \cleardoublepage
@@ -3135,7 +3138,7 @@ definition in the header file.
     \verb+const StEventInfo* info() const;+\\
     Returns a pointer to the one and only instance of \texttt{StEventInfo}.
     \texttt{StEventInfo} provides no additional information but is solely
-    used to hold the header data. All info can be directlyobtained  from
+    used to hold the header data. Some info can also be directly obtained  from
     StEvent. See also \ref{sec:StEventInfo}.
     \index{StEventInfo}
 
@@ -3314,11 +3317,14 @@ definition in the header file.
 \item[Synopsis]
     \verb+#include "StEventInfo.h"+\\
     \verb+class StEventInfo;+\\
-
-\item[Description] Please note that the information this class provides
-    is already accessible directly through the \texttt{StEvent} class
-    itself. This class is only used hold this information within
-    \texttt{StEvent}. For more information see \ref{sec:StEvent}.
+    
+\item[Description]
+    Please note that some information this class
+    provides is already accessible directly through the
+    \texttt{StEvent} class itself. This class is used hold general
+    event related information within \texttt{StEvent} such as event
+    and run number, event size, and the time the event was recorded.
+    For more information see \ref{sec:StEvent}.
 
 \item[Related Classes]
 \item[Public\\ Constructors]
@@ -3330,6 +3336,7 @@ definition in the header file.
     \verb+int runId() const;+\\
     \verb+int time() const;+\\
     \verb+unsigned int triggerMask() const;+\\
+    \verb+unsigned int eventSize() const;+\\
 
     \verb+unsigned int bunchCrossingNumber(Uint_t i) const;+\\
     Returns the bunch crossing numbers, i.e.~two 32 bit words.
@@ -3341,6 +3348,7 @@ definition in the header file.
     \verb+void setTime(int);+\\
     \verb+void setTriggerMask(unsigned int);+\\
     \verb+void setBunchCrossingNumber(unsigned int, unsigned int);+\\
+    \verb+void setEventSize();+\\
 \end{Entry}
 \clearpage
 
