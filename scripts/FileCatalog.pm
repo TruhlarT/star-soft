@@ -365,6 +365,7 @@ $operators[8] = "[]";
 $operators[9] = ">";
 $operators[10]= "<";
 $operators[11]= "~";
+$operators[12]= "%";
 
 
 # The possible aggregate values
@@ -2926,6 +2927,12 @@ sub run_query {
 					  "NOT BETWEEN",
 					  $valuset{$keyw},
 					  4);
+
+	      } elsif ($operset{$keyw} eq "%"){
+		  $sqlquery .= &TreatLOps("$fieldname",
+					  "MOD",
+					  $valuset{$keyw},
+					  4);
 		  
 
 	      } else {
@@ -3232,6 +3239,12 @@ sub run_query {
 					    "NOT BETWEEN",
 					    $valuset{$keyw},
 					    4));
+	  } elsif ($operset{$keyw} eq "%"){
+	      push( @constraint, &TreatLOps("$tabname.$fieldname",
+					    "MOD",
+					    $valuset{$keyw},
+					    4));
+		  
 	  } else {
 	      push(@constraint,&TreatLOps("$tabname.$fieldname",
 					  $operset{$keyw},
@@ -3480,6 +3493,11 @@ sub TreatLOps
 	    }
 	    $ival = "'".$Val[0]."' and '".$Val[1]."'";
 	    undef(@Val);
+
+	} elsif ( $op =~ /MOD/){
+	    $ival  = "NOT MOD($fldnam,$ival)";
+	    $fldnam= "";
+	    $op    = "";
 	}
 
 	push(@Val,$ival);
