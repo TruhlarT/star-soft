@@ -7,6 +7,7 @@ package Db_update_utilities;
 #===================================================================
 use DBI;
 use POSIX qw(strftime);
+use CGI qw/:standard :html3/;
 use Time::Local;
 use QA_globals;
 use QA_db_utilities qw(:db_globals); # import
@@ -21,11 +22,11 @@ use strict;
 #
 sub UpdateQAOffline{
   my $data_type   = shift; # either 'real' or 'MC'
-  my $limit       = 30;     # limit number of new jobs
+  my $limit       = 10;     # limit number of new jobs
   my $oldest_date; # dont retrieve anything older than this
   my $file_type;
   my $time_sec = 100*3600*24; # number of seconds in a week
-  my $today    = strftime("%Y-%m-%d %H-%M-%S",localtime());
+  my $today    = strftime("%Y-%m-%d %H:%M:%S",localtime());
 
   # real or simulation?
   if($data_type eq 'real')
@@ -85,8 +86,9 @@ sub UpdateQAOffline{
   my $sth_key    = $dbh->prepare($query_key);    # get the report key info
   my $sth_insert = $dbh->prepare($query_insert); # insert into QASummary
 
+print $query_update,"\n";
   $sth_update->execute;
-  my $rows = $sth_update->rows or return; # get out if there are no jobs to update
+  my $rows = $sth_update->rows or return; # get out if there are no jobs
 
   print h3("Found $rows new jobs\n");
 
@@ -132,9 +134,9 @@ sub UpdateQANightly {
   my $data_class = shift; # 'real' or 'MC'
   
   my $limit       = 1;
-  my $oldest_date = '2000-06-20'; # dont retrieve anything older 
+  my $oldest_date = '2000-06-25'; # dont retrieve anything older 
   my ($type, $eventGen_string);
-  my $today    = strftime("%Y-%m-%d %H-%M-%S",localtime());
+  my $today    = strftime("%Y-%m-%d %H:%M:%S",localtime());
 
   # real or simulation
   if ($data_class eq 'real')
@@ -202,7 +204,7 @@ sub UpdateQANightly {
 		          $QASum{qaID}       = NULL          
 			};
   my (@key_list);
-
+print $query_update,"\n";
   my $sth_update = $dbh->prepare($query_update); # find jobs to update
   my $sth_key    = $dbh->prepare($query_key);    # get report key info
   my $sth_check  = $dbh->prepare($query_check);  # check for uniqueness
@@ -215,7 +217,6 @@ sub UpdateQANightly {
 
   # loop over jobs
   while ( my $jobID = $sth_update->fetchrow_array) {
-    print "found $jobID<br>\n";
     $sth_key->execute($jobID);
     
     # get the report key

@@ -257,7 +257,7 @@ sub GetMissingFiles{
   my $hist_size =  1000;
 
   # these are the file components we're looking for
-  my @component_ary = ('dst','hist','tags','runco','test');
+  my @component_ary = ('dst','hist','tags','runco');
   
   my $ondisk_string;
 
@@ -279,8 +279,6 @@ sub GetMissingFiles{
   # retrieve components from output files from db
   my @output_comp = @{$dbh->selectcol_arrayref($query)};
 
-  print h4("should exist: @component_ary");
-  print h4("found :@output_comp");
   # construct 'seen' hash - see perl cookbook
   my %seen;
   @seen{ @output_comp } = ();
@@ -593,6 +591,12 @@ sub WriteQAMacroSummary{
 
   my ($size, $createTime_epoch, $createTime);
 
+  # get out if evaluate only and no test were defined
+  if ($option =~ /evaluate_only/ and $report_obj->NTests==0){
+    print h4("No tests were defined\n");
+    return;
+  }
+
   # check that the output file exists
   
   if ( -e $output_file) 
@@ -667,7 +671,7 @@ sub WriteQAMacroSummary{
   }
  
   # only re-evaluating, update table
-  if ($option eq 'evaluate_only' )
+  if ($option =~ /evaluate_only/ )
   {
     $query = 
       qq{update $dbQA.$QAMacros{Table}

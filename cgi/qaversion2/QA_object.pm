@@ -877,10 +877,9 @@ sub UpdateLogReport{
   my $io = new IO_object("TopDir");
   my $topdir_local = $io->Name;
   
-  # tell them we're updating
   print font({-color=>'red'} ,
      "Found new job($report_key) for ",$gDataClass_object->DataClass,".\n"),br;;
-  
+
   # make new report dir
   print h4("Making directory: $report_dir\n");
   mkdir $report_dir, 0775;

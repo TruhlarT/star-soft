@@ -283,6 +283,6 @@ sub GetJobInfo{
   my $sub_missing = $gDataClass_object->GetMissingFiles; # name of the sub
   $self->MissingFiles( &$sub_missing($self->JobID) );
 
-
+  return 1;
 }
 1;

@@ -29,7 +29,7 @@ sub new{
 sub InitOnDisk{
   my $self = shift;
 
-  my $ondisk = QA_db_utilities::OnDiskNightly($self->JobID);
+  my $ondisk = QA_db_utilities::OnDiskNightly($self->LogReport->JobID);
   $self->OnDisk($ondisk);
  
 }

@@ -111,14 +111,17 @@ sub Parameters{
   
   my $string = $gCGIquery->hidden('selected_key_string').
     $gCGIquery->hidden('dataset_array_previous').
-      $gCGIquery->hidden('selected_key_list').
 	$gCGIquery->hidden('expert_pw').
 	  $gCGIquery->hidden('display_env_var').
 	    $gCGIquery->hidden('enable_add_edit_comments').
 	      $gCGIquery->hidden('save_object_hash_scratch_file').
 		$gCGIquery->hidden('data_class');
 
-  return $string;
+  # the select_key_list line may be too long for CGI_gateway to handle?
+
+  my $hidden_key_string = join("\n", $gCGIquery->hidden('selected_key_list'));
+  
+  return $string.$hidden_key_string;
 }
 #===================================================================
 # store persistent hashes
@@ -172,7 +175,7 @@ sub Store{
 sub NewQAObject{
   my $self = shift;
   @_ and $self->{_NewQAObject} = shift;
-  return  $self->{_NewQAObject};
+  return $self->{_NewQAObject};
 }
 #======================================================================='
 sub NewButtonObject{
@@ -180,7 +183,7 @@ sub NewButtonObject{
   @_ and $self->{_NewButtonObject} = shift;
   return  $self->{_NewButtonObject};
 }
-#======================================================================='
+#======================================================================='  
 sub NewMessage{
   my $self = shift;
   @_ and $self->{_NewMessage} = shift;

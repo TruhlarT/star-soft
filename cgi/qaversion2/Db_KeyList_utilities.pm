@@ -604,8 +604,8 @@ sub GetNightlyKeys{
   }
   return map { $_->[0] } @{$sth->fetchall_arrayref()};
 
-#  my $keys_ref = $dbh->selectcol_arrayref( $query );
 
+#  my $keys_ref = $dbh->selectcol_arrayref( $query );
 #  return @{$keys_ref};
 
 } 

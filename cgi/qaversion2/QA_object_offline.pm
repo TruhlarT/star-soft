@@ -30,7 +30,7 @@ sub new{
 sub InitOnDisk{
   my $self = shift;
 
-  my $ondisk = QA_db_utilities::OnDiskOffline($self->JobID);
+  my $ondisk = QA_db_utilities::OnDiskOffline($self->LogReport->JobID);
   $self->OnDisk($ondisk);
 }
 
@@ -57,7 +57,7 @@ sub DataDisplayString{
     if $gBrowser_object->ExpertPageFlag;
 
   return $report_key_string .
-         "JobID : " . $self->JobID . br.
+         "JobID : " . $self->LogReport->JobID . br.
 	 "RunID : " . $self->LogReport->RunID . br.
 	 "Dataset : " . $self->LogReport->Dataset . br .	   
          "(prodSeries: $prodSeries; chain name: $chainName)";

@@ -15,6 +15,8 @@ package Logreport_object;
 use CGI qw/:standard :html3/;
 use QA_globals;
 use QA_db_utilities qw(:db_globals); 
+use Data::Dumper;
+
 use strict;
 use vars qw($AUTOLOAD);
 #=========================================================
@@ -201,7 +203,7 @@ sub LogfileSummaryString {
   {
     $return_string .= font({-color=>'red'},$self->JobStatus).br.br;
     $self->{_ErrorString} and 
-      $return_string .= "error code:" . br . $self->ErrorString.br; 
+      $return_string .= "error code:" . br . $self->ErrorString.br.br; 
   }
 
   # how many events done (processed)?
@@ -235,7 +237,7 @@ sub LogfileSummaryString {
     "missing files: ".br.
     font({-color=>'red'}, $self->MissingFiles);
   
-  return $return_string;
+  return $return_string . "\n";
 
 }
 #----------
@@ -247,7 +249,7 @@ sub DisplayLogReport {
   my $divider = "*" x 100 . "\n";
   my $var;
 
- 
+  print Dumper $self;
   print qq{
     $divider 
     <br> Report for logfile $self->{_LogfileName} <br> 
@@ -270,8 +272,10 @@ sub DisplayLogReport {
     Machine name = $self->{_Machine}
     Job status = $self->{_JobStatus}
   };
-  print "Production Files :\n",br;
+  print "Production Files :\n";
+
   print join "\n", @{$self->{_ProductionFileListRef}};
+  print "\n";
   # error?
   defined ($self->{_ErrorString}) and
     print "Error found: $self->{_ErrorString}\n";

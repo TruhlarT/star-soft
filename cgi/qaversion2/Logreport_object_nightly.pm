@@ -7,13 +7,14 @@ package Logreport_object_nightly;
 #==========================================================
 use CGI qw/:standard :html3/;
 
+use IO_object;
 use QA_globals;
 use QA_db_utilities;
 use FileHandle;
 
 use strict;
 use base qw(Logreport_object); 
-#==========================================================
+#=======================================================o===
 # more members
 
 my %members = ();

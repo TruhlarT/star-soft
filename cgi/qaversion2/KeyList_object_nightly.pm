@@ -66,6 +66,12 @@ sub JobPopupMenu{
   
   %{$self->{values}} = map {$_, ['any']} @{$self->{select_fields}};
 
+  # possible labels for each selection field
+  # ref of hash of refs to hashes
+  # not all values need labels...
+  $self->{labels} = undef; 
+
+
   # get some selection values from the database
   my $select_ref = $self->GetSelectionOptions();
   

@@ -118,9 +118,10 @@ sub GetSelectedKeyList{
   $self->KeyList( $self->SortKeys(@key_list) );
 
   # pass on the selected key list as hidden values
-  # in order to do qa on whole dataset
+  # in order to do qa on whole dataset.
 
-  $gCGIquery->param('selected_key_list', @key_list);
+  # it's currently crapping out
+#  $gCGIquery->param('selected_key_list', @key_list);
 
 
   return @key_list;

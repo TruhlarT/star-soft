@@ -277,11 +277,10 @@ sub DisplayDataset{
   # add the messages
   my @key_list = $self->KeyList->AddMessagesToKeyList(@selected_keys);
 
-  # print header...
-  #print h2("Dataset selection: $selection_string");  
 
-  $self->ExpertPageFlag() 
-    and &Browser_utilities::display_expert_page_buttons;
+  # BUM - these buttons are causing problems...
+  #$self->ExpertPageFlag() 
+  #  and &Browser_utilities::display_expert_page_buttons;
  
   $gCGIquery->param('enable_add_edit_comments') 
     and  &Browser_utilities::display_comment_buttons;
@@ -346,7 +345,7 @@ sub DisplayDataset{
       
       push(@table_rows, td( [$data_string, $creation_string, 
 			     $run_summary_string, 
-			     $qa_summary_string, $button_string] ) );
+			     $qa_summary_string, $button_string] ), "\n" );
     }
     
   }

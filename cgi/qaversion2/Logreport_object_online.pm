@@ -14,7 +14,6 @@ use QA_globals;
 use QA_db_utilities qw(:db_globals); 
 use QA_cgi_utilities;
 use IO_object;
-use Online_utilities;
 
 use Data::Dumper;
 use FileHandle;
