@@ -1,5 +1,9 @@
+   if ( -x /afs/rhic/star/group/dropit) then
+     setenv LD_LIBRARY_PATH `/afs/rhic/star/group/dropit -p "$LD_LIBRARY_PATH" ROOT`
+     setenv PATH            `/afs/rhic/star/group/dropit ROOT`
+   endif
    setenv ROOTSYS /afs/rhic/opt/rhic/ROOT2
-#   if ( -x $STAR_PATH/ROOT/root/bin/root ) setenv ROOTSYS $STAR_PATH/ROOT/root
+   if ( -x $STAR_PATH/ROOT2.08/root/bin/root ) setenv ROOTSYS $STAR_PATH/ROOT2.08/root
 #   if ( ! -e $ROOTSYS) setenv ROOTSYS /afs/rhic/opt/rhic/root
 #   if ( ! -e $ROOTSYS) setenv ROOTSYS /afs/rhic/sunx86_55/opt/rhic/ROOT2
 

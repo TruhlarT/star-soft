@@ -1,6 +1,9 @@
-#       $Id: group_env.csh,v 1.14 1998/06/12 15:45:32 fisyak Exp $
+#       $Id: group_env.csh,v 1.15 1998/06/14 19:48:00 fisyak Exp $
 #	Purpose:	STAR group csh setup 
 #       $Log: group_env.csh,v $
+#       Revision 1.15  1998/06/14 19:48:00  fisyak
+#       Add crean up of ROOT path
+#
 #       Revision 1.14  1998/06/12 15:45:32  fisyak
 #       Resotore dev environment
 #
@@ -134,10 +137,12 @@ switch ($STAR_SYS)
        setenv MANPATH "$MANPATH":$PGI/man
        setenv LM_LICENSE_FILE $PGI/license.dat
        alias pgman 'man -M $PGI/man'
+       setenv CERN_LEVEL pgf98
+       setenv CERN_ROOT  $CERN/$CERN_LEVEL
      endif
-     set path = (/usr/bin $path /afs/rhic/asis/i386_linux2/usr.local/Acrobat3/bin /afs/rhic/asis/i386_linux2/usr.local/bin  /usr/local/bin/ddd )
+     set path = (/usr/bin $path  /usr/local/bin/ddd )
      set path = ($path $PARASOFT/bin.linux)
-     setenv STAR_LD_LIBRARY_PATH ${PARASOFT}/lib.linux:/usr/local/lib
+     setenv STAR_LD_LIBRARY_PATH /usr/lib:${PARASOFT}/lib.linux:/usr/local/lib
         limit coredump 0
     breaksw
     case "sun4*":
