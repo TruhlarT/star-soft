@@ -4,12 +4,15 @@
 
 # Methods of class FileCatalog:
 
-#        ->new            : create new object FileCatalog
-#        ->connect        : connect to the database FilaCatalog
-#        ->destroy        : destroy object and disconnect database FileCatalog
-#        ->set_context()  : set one of the context keywords to the given operator and value
-#        ->get_context()  : get a context value connected to a given keyword
+#        ->new           : create new object FileCatalog
+#        ->connect       : connect to the database FilaCatalog
+#        ->destroy       : destroy object and disconnect database FileCatalog
+#        ->set_context() : set one of the context keywords to the given operator and value
+#        ->get_context() : get a context value connected to a given keyword
 #        ->clear_context(): clear/reset the context
+#        ->get_keyword_list() : get the list of valid keywords
+#        ->get_delimeter() : get the current delimiting string
+#        ->set_delimeter() : set the current delimiting string
 
 # the following methods require connect to dbtable and are meant to be used outside the module
 
@@ -43,8 +46,6 @@ $VERSION   =   0.01;
 
 use DBI;
 use strict;
-        
-
 
 # define to print debug information
 my $debug = 1;
@@ -94,8 +95,8 @@ $keywrds{"filecomment"   }    =   "fileDataComments"          .",FileData"      
 $keywrds{"owner"         }    =   "owner"                     .",FileLocations"          .",0" .",text" .",0" .",1";
 $keywrds{"protection"    }    =   "protection"                .",FileLocations"          .",0" .",text" .",0" .",1";
 $keywrds{"node"          }    =   "nodeName"                  .",FileLocations"          .",0" .",text" .",0" .",1";
-$keywrds{"available"     }    =   "availability"              .",FileLocations"          .",0" .",num"  .",0" .",1";
-$keywrds{"persistent"    }    =   "persistent"                .",FileLocations"          .",0" .",num"  .",0" .",1";
+$keywrds{"available"     }    =   "availability"              .",FileLocations"          .",0" .",text" .",0" .",1";
+$keywrds{"persistent"    }    =   "persistent"                .",FileLocations"          .",0" .",text" .",0" .",1";
 $keywrds{"sanity"        }    =   "sanity"                    .",FileLocations"          .",0" .",num"  .",0" .",1";
 $keywrds{"createtime"    }    =   "createTime"                .",FileLocations"          .",0" .",date" .",0" .",1";
 $keywrds{"inserttime"    }    =   "insertTime"                .",FileLocations"          .",0" .",date" .",0" .",1";
@@ -121,9 +122,13 @@ $keywrds{"nounique"      }    =   ",,,,,";
 $keywrds{"noround"       }    =   ",,,,,";
 $keywrds{"startrecord"   }    =   ",,,,,";
 $keywrds{"limit"         }    =   ",,,,,";
+$keywrds{"all"           }    =   ",,,,,";
 
 # Fields that need to be rounded when selecting from the database
 my $roundfields = "magFieldValue,2 collisionEnergy,0";
+
+# The delimeter to sperate fields at output
+my $delimeter = "::";
 
 # The hashes that hold a current context
 my %operset;
@@ -172,6 +177,16 @@ $operators[7] = ">";
 $operators[8] = "<";
 $operators[9] = "~";
 
+# The possible aggregate values
+my @aggregates;
+$aggregates[0] = "sum";
+$aggregates[1] = "avg";
+$aggregates[2] = "min";
+$aggregates[3] = "max";
+$aggregates[4] = "grp";
+$aggregates[5] = "orda";
+$aggregates[6] = "ordd";
+
 #============================================
 # parse keywrds - get the field name for the given keyword
 # Parameters:
@@ -192,10 +207,50 @@ sub get_field_name {
 # Returns:
 # table name for a given context keyword
 sub get_table_name {
+  my ($mykey) = (@_);
+  my ($tabname, $a, $b);
+
+
+  if (exists $keywrds{$mykey})
+    {
+      ($a,$tabname,$b) = split(",",$keywrds{$mykey});
+    }
+  else
+    {
+      print "Using non-existent key: $mykey !!!!!!!\n";
+    }
+  return $tabname;
+
+}
+
+#============================================
+# get the list o valid keywords
+# Returns:
+# the list of valid keyowrds to use in FileCatalog queries
+sub get_keyword_list {
+
+  return (keys %keywrds);
+}
+
+#============================================
+# change the deleimiting string between output fields
+# Parameters:
+# new deliemiting string
+sub set_delimeter {
+  if ($_[0] =~ m/FileCatalog/) {
+    shift @_;
+  }
   my @params = @_;
 
-  my ($fieldname, $tabname, $rest) = split(",",$keywrds{$params[0]});
-  return $tabname;
+  $delimeter = $params[0];
+}
+
+#============================================
+# get the current delimiting string
+# Returns:
+# current delimiting string
+sub get_delimeter {
+  return $delimeter;
 }
 
 #============================================
@@ -231,15 +286,18 @@ sub new {
   my $self  = {};
   $self->{values} = [];
   $self->{entries} = undef;
+  
+  $delimeter = "::";
+  $valuset{"all"} = 0;
 
   # Only way to bless it is to declare them inside
   # new(). See also use Symbol; and usage of my $bla = gensym;
   #my %operset=
   #my %valuset=
 
-  bless($self, $class);
-  bless(\%valuset, $class);
-  bless(\%operset, $class);
+  bless($self);
+  bless(\%valuset, "FileCatlog");
+  bless(\%operset, "FileCatlog");
 
   return $self;
 }
@@ -277,7 +335,7 @@ sub disentangle_param {
     {
       ($keyword, $value) = $params =~ m/(.*)$_(.*)/;
       $operator = $_;
-      last if ($keyword and $value);
+      last if (defined $keyword and defined $value);
       $operator = "";
     }
   if ($debug > 0) {
@@ -310,7 +368,7 @@ sub set_context {
   # Chop spaces from the key name and value;
   $keyw =~ y/ //d;
   if ($valu =~ m/.*[\"\'].*[\"\'].*/) {
-    $valu =~ s/.*[\"\'](.*)[\"\'].*/\1/;
+    $valu =~ s/.*[\"\'](.*)[\"\'].*/$1/;
   } else {
     $valu =~ s/ //g;
   }
@@ -557,7 +615,7 @@ sub disentangle_collision_type {
   my $firstParticle = "";
   my $secondParticle = "";
 
-  my @particles = ("gas", "au", "ga", "si", "p", "s");
+  my @particles = ("proton", "gas", "au", "ga", "si", "p", "s");
 
 
   if (($colstring =~ m/cosmic/) > 0)
@@ -572,7 +630,7 @@ sub disentangle_collision_type {
 	{
 	  if (($colstring =~ m/$_/) > 0) {
 	    $firstParticle = $_;
-	    $colstring =~ s/$_(.*)/\1/;
+	    $colstring =~ s/$_(.*)/$1/;
 	    last;
 	  }      
 	}
@@ -580,7 +638,7 @@ sub disentangle_collision_type {
 	{
 	  if (($colstring =~ m/$_/) > 0) {
 	    $secondParticle = $_;
-	    $colstring =~ s/(.*)$_(.*)/\1\2/;
+	    $colstring =~ s/(.*)$_(.*)/$1$2/;
 	    last;
 	  }
 	}
@@ -651,8 +709,6 @@ sub insert_collision_type {
   $colstring = lc($colstring);
 
   ($firstParticle, $secondParticle, $energy) = disentangle_collision_type($colstring);
-  
-  my $ctinsert;
   
   my $ctinsert   = "INSERT INTO CollisionTypes ";
   $ctinsert  .= "(firstParticle, secondParticle, collisionEnergy)";
@@ -897,8 +953,6 @@ sub insert_file_data {
     }
   }
 
-  my $fdinsert;
-  
   # Prepare the SQL query and execute it
   my $fdinsert   = "INSERT INTO FileData ";
   $fdinsert  .= "(runParamID, fileName, productionConditionID, fileTypeID, size, fileDataComments, fileSeq)";
@@ -980,7 +1034,7 @@ sub get_current_file_data {
     $sqlquery .= " fileTypeID = $fileType AND ";
   }
   if (defined $sqlquery) {
-    $sqlquery =~ s/(.*)AND $/\1/g;
+    $sqlquery =~ s/(.*)AND $/$1/g;
   } else {
     if ($debug > 0) {
       print "No parameters set to identify File Data\n";
@@ -1095,7 +1149,7 @@ sub insert_simulation_params {
   if ($debug > 0) {
     print "Execute $spinsert\n";
   }
-  my $sth = $DBH->prepare( $spinsert );
+  $sth = $DBH->prepare( $spinsert );
   if ( $sth->execute() ) {
     my $retid = get_last_id();
     if ($debug > 0) {
@@ -1232,7 +1286,7 @@ sub insert_file_location {
     if ($debug > 0) {
       print "WARNING:  not defined. Using a default value\n";
     }
-    $availability = 1;
+    $availability = 1 ;
   } else {
     $availability = $valuset{"availability"};
   }
@@ -1240,7 +1294,7 @@ sub insert_file_location {
     if ($debug > 0) {
       print "WARNING:  not defined. Using a default value\n";
     }
-    $persistent = 0;
+    $persistent = 0 ;
   } else {
     $persistent = $valuset{"persistent"};
   }
@@ -1254,11 +1308,9 @@ sub insert_file_location {
   }
 
 
-  my $flinsert;
-  
   my $flinsert   = "INSERT INTO FileLocations ";
   $flinsert  .= "(fileLocationID, fileDataID, storageTypeID, filePath, createTime, insertTime, owner, storageSiteID, protection, nodeName, availability, persistent, sanity)";
-  $flinsert  .= " VALUES (NULL, $fileData, $storageType, $filePath, $createTime, NULL, $owner, $storageSite, $protection, $nodeName, $availability, $persistent, $sanity)";
+  $flinsert  .= " VALUES (NULL, $fileData, $storageType, $filePath, $createTime, NULL, $owner, $storageSite, $protection, $nodeName, $availability, '$persistent', $sanity)";
   if ($debug > 0) {
     print "Execute $flinsert\n";
   }
@@ -1353,10 +1405,10 @@ sub get_intersect {
   my (@first, @second);
 
   for ($count = 1; $count<$params[0]+2; $count++) {
-    @first[$count-1] = $params[$count];
+    $first[$count-1] = $params[$count];
   }
   for ($count=$params[0]+2; $count < $#params+1; $count++) {
-    @second[$count-$params[0]-2] = $params[$count];
+    $second[$count-$params[0]-2] = $params[$count];
   }
   if ($debug > 0) {
     print "First set: ".join(" ", (@first))."\n";
@@ -1506,13 +1558,48 @@ sub connect_fields {
 sub run_query {
   if ($_[0] =~ m/FileCatalog/) {
     shift @_;
-  }
-  ;
+  };
+
+  my %functions;
+  my $count;
+  my $grouping = "";
+
   my (@keywords)  = (@_);
 
+  $count = 0;
+  # Check the validity of the keywords
+  foreach(@keywords)
+    {
+      #First check if it is a request for an agregate value
+      my $afun;
+      my ($aggr, $keyw);
+
+      $_ =~ y/ //d;
+
+      foreach $afun (@aggregates)
+	{
+	  ($aggr, $keyw) = $_ =~ m/($afun)\((.*)\)/;
+	  last if (defined $aggr and defined $keyw);
+	}
+      if (defined $keyw)
+	{ 
+	  if ($debug > 0) 
+	    { print "Found aggregate function |$aggr| on keyword |$keyw|\n"; }
+	  # If it is - save the function, and store only the bare keyword
+	  $functions{$keyw} = $aggr;
+	  $keywords[$count] = $keyw;
+	}
+      if (not defined ($keywrds{$_}))
+	{
+	  print "Wrong keyword: $_\n";
+	  return 0;
+	}
+      $count++;
+    }
+  
   my @connections;
   my @from;
-  my $count;
+
   push (@from, get_table_name($keywords[0]));
   for ($count=1; $count<$#keywords+1; $count++) {      
     push (@connections, (connect_fields($keywords[0], $keywords[$count])));
@@ -1538,6 +1625,7 @@ sub run_query {
       push (@connections, (connect_fields($keywords[0], "runnumber")));
       push (@from, "RunParams");
     }
+
   # Fill the table of connections
   my $connections = join(" ",(@connections));
   my @toquery;
@@ -1556,9 +1644,33 @@ sub run_query {
     if ($debug > 0) {
       print "Adding keyword: $_<br>\n";
     }
-    if ($_ ne "collision") {
+    if (defined $functions{$_})
+      {
+	if ($functions{$_} eq "grp")
+	  {
+	    $grouping .= " GROUP BY ".get_field_name($_)." ";
+	    push (@select, get_field_name($_));
+	  }
+	elsif ($functions{$_} eq "orda")
+	  {
+	    $grouping .= " ORDER BY ".get_field_name($_)." ASC ";
+	    push (@select, get_field_name($_));
+	  }
+	elsif ($functions{$_} eq "ordd")
+	  {
+	    $grouping .= " ORDER BY ".get_field_name($_)." DESC ";
+	    push (@select, get_field_name($_));
+	  }
+	else
+	  {
+	    push (@select, $functions{$_}."(".get_field_name($_).")");
+	  }
+      }
+    elsif ($_ ne "collision") {
       push (@select, get_field_name($_));
-    } else {
+    } 
+    else
+    {
       push (@select, "CONCAT( firstParticle, secondParticle, collisionEnergy )");
     }
   }
@@ -1633,6 +1745,18 @@ sub run_query {
 	}
     }
 
+  # Check to see if we are getting info from the FileLocations table
+  # if so, and "all" keyword is not set - get only the records
+  # with non-zero availability
+  my $floc = join(" ",(@fromunique)) =~ m/FileLocations/;
+
+  if ($debug > 0)
+    { print "Checking for FileLocations ".(join(" ",@fromunique))." $floc\n"; }
+  if (($floc > 0) && defined ($valuset{"all"}) && ($valuset{"all"} == 0 ))
+    {
+      push ( @constraint, "FileLocations.availability > 0");
+    }
+
   my $constraint = join(" AND ",@constraint);
 
   # Build the actual query string
@@ -1650,6 +1774,8 @@ sub run_query {
   elsif ($constraint ne "") {
     $sqlquery .= " WHERE $constraint";
   }
+
+  $sqlquery .= $grouping;
 
   my ($offset, $limit);
 
@@ -1678,7 +1804,7 @@ sub run_query {
   my $rescount = 0;
 
   while ( @cols = $sth->fetchrow_array() ) {
-    @result[$rescount++] = join("::", (@cols));
+    $result[$rescount++] = join($delimeter, (@cols));
   }
   return (@result);
 }
@@ -1859,7 +1985,7 @@ sub bootstrap {
 #============================================
 # Updates the field coresponding to a given keyowrd
 # with a new value, replaces the value in the current
-# context. The value of the keyword to be modified,
+# context.The value of the keyword to be modified,
 # MUST appear in a previous set_context() statement.
 # This is a limitation which has been chosen in
 # order to also treat changing values in dictionaries.
@@ -1948,6 +2074,16 @@ sub get_context {
 
 #============================================
 sub set_field {
+}
+
+#============================================
+sub debug_on {
+  $debug = 1;
+}
+
+#============================================
+sub debug_off {
+  $debug = 0;
 }
 
 #============================================
