@@ -30,7 +30,7 @@ use Cwd;
 
 use vars qw( $CVS_id $CVS_ver $ver_num $ver_rev $version );
 
-$CVS_id = '$Id: cons,v 1.96 2004/04/22 13:48:16 fisyak Exp $ ';
+$CVS_id = '$Id: cons,v 1.97 2005/01/06 17:41:45 jeromel Exp $ ';
 $CVS_ver = (split(/\s+/, $CVS_id))[2];
 
 $ver_num = "2.3";
@@ -674,6 +674,7 @@ sub buildtarget {
 	}
     }
     if ($param::build) {
+	#print((' ' x $level),"Building dependencies for ",$tgt->path,"\n") if $param::depends;
 	return build $tgt;
     } elsif ($param::pflag || $param::wflag || $param::aflag) {
 	if ($tgt->{builder}) {
@@ -4353,11 +4354,23 @@ sub collect {
 sub srcsig {
     my($self, $path) = @_;
     $md5->reset();
-    open(FILE, $path) || return '';
-    binmode(FILE);
-    $md5->addfile(\*FILE);
-    close(FILE);
-    unpack("H*", $md5->digest());
+    #print "DEBUG:: Opening [$path]\n";
+    if ( ! -d $path ){
+	open(FILE, $path) || return '';
+	binmode(FILE);
+	$md5->addfile(\*FILE);
+	close(FILE);
+	unpack("H*", $md5->digest());
+    } else {
+	if ($param::quiet < 1){
+	    print  
+		"***************************************************************\n",
+		" WARNING from $0 \n",
+		"   [$path] found as an include dependency but is also a directory.\n",
+		"   Until renamed, the include-dependency will not be checked.\n",
+		"***************************************************************\n";
+	}
+    }
 }
 
 # Compute the signature of a command string.
