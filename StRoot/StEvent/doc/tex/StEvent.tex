@@ -2,7 +2,7 @@
 %
 % StEvent - User Guide and Reference Manual -- LaTeX Source
 %
-% $Id: StEvent.tex,v 2.35 2000/05/31 14:26:26 lasiuk Exp $
+% $Id: StEvent.tex,v 2.36 2000/06/01 16:46:23 ullrich Exp $
 %
 % Author: Thomas Ullrich, Nov 1999
 %
@@ -21,8 +21,8 @@
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %
 % $Log: StEvent.tex,v $
-% Revision 2.35  2000/05/31 14:26:26  lasiuk
-% Add RICH classes and descriptions
+% Revision 2.36  2000/06/01 16:46:23  ullrich
+% Mods (add text) in StTrack and StTrackDetectorInfo.
 %
 % Revision 2.45  2000/08/23 03:14:07  ullrich
 % Improved (corrected) explanation of return value
@@ -177,17 +177,17 @@
       }%
     }%
   {\end{list}}
-  {\LARGE $ $Revision: 2.35 $ $}  \\[5mm] % replaced by cvs with current revision
-  {\LARGE $ $Date: 2000/05/31 14:26:26 $ $}  % replaced by cvs with current revision
+  {\LARGE $ $Revision: 2.36 $ $}  \\[5mm] % replaced by cvs with current revision
+  {\LARGE $ $Date: 2000/06/01 16:46:23 $ $}  % replaced by cvs with current revision
 {\raisebox{0pt}[1ex][0pt]{\makebox[\labelwidth][l]%
     {\parbox[t]{\labelwidth}{\hspace{0pt}\textbf{{#1}}}}}}
 \newenvironment{Entry}%
 {\renewcommand{\entrylabel}{\Entrylabel}\begin{entry}}%
-  {\LARGE $ $Revision: 2.35 $ $}  \\[5mm] % replaced by cvs with current revision
-  {\LARGE $ $Date: 2000/05/31 14:26:26 $ $}  % replaced by cvs with current revision
+  {\LARGE $ $Revision: 2.36 $ $}  \\[5mm] % replaced by cvs with current revision
+  {\LARGE $ $Date: 2000/06/01 16:46:23 $ $}  % replaced by cvs with current revision
 \begin{document}
-  {\LARGE $ $Revision: 2.35 $ $}  \\[5mm] % replaced by cvs with current revision
-  {\LARGE $ $Date: 2000/05/31 14:26:26 $ $}  % replaced by cvs with current revision
+  {\LARGE $ $Revision: 2.36 $ $}  \\[5mm] % replaced by cvs with current revision
+  {\LARGE $ $Date: 2000/06/01 16:46:23 $ $}  % replaced by cvs with current revision
 %
 %    Title page
 %
@@ -202,8 +202,8 @@
   \mbox{\includegraphics[width=\textwidth]{StEventTitle.eps}}
   \hfill\mbox{}\\[3cm]
   {\LARGE User Guide and Reference Manual \\[5mm] for Version 2}\\[2cm]
-  {\LARGE $ $Revision: 2.35 $ $}  \\[5mm] % replaced by cvs with current revision
-  {\LARGE $ $Date: 2000/05/31 14:26:26 $ $}  % replaced by cvs with current revision
+  {\LARGE $ $Revision: 2.36 $ $}  \\[5mm] % replaced by cvs with current revision
+  {\LARGE $ $Date: 2000/06/01 16:46:23 $ $}  % replaced by cvs with current revision
   \vfill
 \end{center}
 \cleardoublepage
@@ -4856,89 +4856,17 @@ definition in the header file.
 \clearpage
 
 \subsection{StTrack}
-    Track quality control flag. Below is a detailed explanation
-    provided by Helen Caines.
-    \index{track quality flag}\index{iflag}\index{flag() in StTrack}
-    
-    The most important point is: flag() $>$ 0 is good flag() $<$ 0 is
-    bad.
-    
-    flag() = \texttt{xyy}, where \texttt{x} indicates the detectors
-    included in the fit and \texttt{yy} indicates the status of the
-    fit. Positive iflag() return values are good fits, negative values
-    are bad fits.
-  
-    The first digit indicates which detectors were used in the refit:
-    \begin{description}
-    \item[x=1] TPC only 
-    \item[x=2] SVT only 
-    \item[x=3] TPC + primary vertex 
-    \item[x=4] SVT + primary vertex 
-    \item[x=5] SVT+TPC 
-    \item[x=6] SVT+TPC+primary vertex 
-    \item[x=7] FTPC only 
-    \end{description} 
-
-    If a refit is performed by egr then the last two digits are as follows.
-
-    The last two digits indicate the status of the refit:
-    \begin{description}
-    \item[+x01] good track 
-    \item[-x01] Bad fit, outlier removal eliminated too many points 
-    \item[-x02] Bad fit, not enough points to fit 
-    \item[-x03] Bad fit, too many fit iterations 
-    \item[-x04] Bad Fit, too many outlier removal iterations 
-    \item[-x06] Bad fit, outlier could not be identified 
-    \item[-x10] Bad fit, not enough points to start 
-    \end{description} 
-
-    If no refit is performed by \texttt{egr} then the return value of flag()
-    is defined as follows: 
-
-    TPC only tracks:\\
-    \texttt{sign(1,tpc\_track.flag)*100+tpc\_track.flag}
-
-    where 
-  
-    \begin{description}
-    \item[-x01] Bad fit, outlier removal eliminated too many points 
-    \item[-x02] Bad fit, not enough points to fit 
-    \item[-x03] Bad fit, too many fit iterations 
-    \item[-x04] Bad Fit, too many outlier removal iterations 
-    \item[-x06] Bad fit, outlier could not be identified 
-    \item[-x10] Bad fit, not enough points to start 
-    \end{description} 
-
-       and a good track has\\ 
-           \texttt{yy = ipass+10*int(what+1.0) }
-
-     where \texttt{ipass} indicated which pass through the TPC tracking the track
-     was identified on and what identifies which pass through the segment formation
-     routines the track was formed   
-
-     SVT only tracks:\\ 
-     \texttt{sign(1,svt\_track.flag)*200.+svt\_track.flag}
-
-     where
-     \begin{verbatim}
-     svt_track.flag = 1 good fit from primary track fit 
-                    = 2 good fit from secondary track fit 
-                    = 0 bad track 
-     \end{verbatim}
+\index{StTrack|textbf}
+\label{sec:StTrack}
+\begin{Entry}
+\item[Summary]
+\item[Synopsis]
+    \verb+#include "StTrack.h"+\\
+    \verb+class StTrack;+\\
+\item[Description]
+\item[Related Classes]
+\item[Public\\ Constructors]
     \verb+StTrack();+\\
-     Matched SVT and TPC tracks:\\ 
-     \texttt{svt\_track.flag*10+sign(1,tpc\_track.flag)*500+tpc\_track.flag}
-
-     FTPC only tracks:
-     \begin{description}
-     \item[x01] good primary track 
-     \item[x02] good v0 track 
-     \end{description} 
-     
-     In all cases: 
-     if $|q| \ne 1$ then flag() returns -1*(flag()+20)\\ 
-     if $|1/p_\perp| \ge 999999$ then flag() returns -x99 
-
     \verb+StTrack(const dst_track_st&);+\\
     \verb+StTrack(const StTrack&);+\\
     \verb+StTrack& operator=(const StTrack&);+\\
@@ -4993,18 +4921,39 @@ definition in the header file.
     \verb+const StTrackTopologyMap& topologyMap() const;+\\
 
     \verb+StTrackGeometry* geometry();+\\
-\item[Summary]
+    \verb+const StTrackGeometry* geometry() const;+\\
+    Returns pointer to track geometry, i.e. the track parameters.
     If you need curvature, angles or the momentum go there.
     
     \verb+StTrackDetectorInfo* detectorInfo();+\\
-\item[Description]
+    \verb+const StTrackDetectorInfo* detectorInfo() const;+\\
+    \verb+const StTrackFitTraits& fitTraits() const;+\\
+    \verb+const StSPtrVecTrackPidTraits& pidTraits() const;+\\
+    \verb+StSPtrVecTrackPidTraits& pidTraits();+\\
+    \verb+StPtrVecTrackPidTraits pidTraits(StDetectorId) const;+\\
+    \verb+const StParticleDefinition* pidTraits(StPidAlgorithm&) const;+\\
+    \verb+StTrackNode* node();+\\
+    \verb+const StTrackNode* node() const;+\\
+    \verb+void setFlag(Short_t);+\\
+    \verb+void setEncodedMethod(UShort_t);+\\
+    \verb+void setImpactParameter(Float_t);+\\
+    \verb+void setLength(Float_t);+\\
+    \verb+void setTopologyMap(const StTrackTopologyMap&);+\\
+    \verb+void setGeometry(StTrackGeometry*);+\\
+    \verb+void setFitTraits(const StTrackFitTraits&);+\\
+    \verb+void addPidTraits(StTrackPidTraits*);+\\
+    \verb+void setDetectorInfo(StTrackDetectorInfo*);+\\
     \verb+void setNode(StTrackNode*);+\\
 \end{Entry}
 \clearpage
 
+
 \subsection{StTrackDetectorInfo}
 \index{StTrackDetectorInfo|textbf}
+\label{sec:StTrackDetectorInfo}
+\begin{Entry}
 \item[Summary] Information on hits/points associated with a track.
+    
 \item[Synopsis]
     \verb+#include "StTrackDetectorInfo.h"+\\
     \verb+class StTrackDetectorInfo;+\\
@@ -5025,7 +4974,18 @@ definition in the header file.
     is the only source left to get more detailed info on hits.
     
     
-    use \texttt{numberOfReferencedPoints()} (see below).
+\item[Related Classes]
+\item[Public\\ Constructors]
+    \verb+StTrackDetectorInfo();+\\
+    \verb+StTrackDetectorInfo(const dst_track_st&);+\\
+    
+\item[Public Member\\ Functions]
+    \verb+const StThreeVectorF& firstPoint() const;+\\
+    First point on the track.
+    
+    \verb+const StThreeVectorF& lastPoint() const;+\\
+    Last point on the track.
+    
     \verb+UShort_t numberOfPoints() const;+\\
     Returns the number of points assigned to the the track during
     reconstruction (\emph{all} detectors).  This number might or might
@@ -5043,6 +5003,7 @@ definition in the header file.
     reflect the number of hits actually referenced by this class, i.e.
     it is not affected by calls to \texttt{addHit()} or
     \texttt{removeHit()}.  Even if hits are not loaded, and thus no
+    references to hits exist, this method will return the proper
     values. If you want to know the number of hits actually referenced
     use \texttt{numberOfReferencedPoints()} (see below).\\
     Because of the packing scheme of the variable used to store
