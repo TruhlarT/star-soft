@@ -13,56 +13,65 @@ use Db_KeyList_utilities;
 use Browser_object;
 
 use strict;
+
 use base qw(KeyList_object);
-#--------------------------------------------------------
 1;
+
 #========================================================
+# more members
+
+my %members = ( # cgi parameter names 
+	       select_fields => [ 'eventGen',
+				  'LibLevel',
+				  'platform',
+				  'eventType',
+				  'geometry',
+				  'QAstatus',
+				  'onDisk',
+				  'jobStatus',
+				  'createTime',
+				  'QAdoneTime'
+				],
+	       # labels for user
+	       select_labels => { eventGen  => 'event gen',
+				  LibLevel  => 'library',
+				  platform  => 'platform',
+				  eventType => 'event type',
+				  geometry  => 'geometry',
+				  onDisk    => 'on disk',
+				  QAstatus  => 'QA status',
+				  jobStatus => 'prod job status',
+				  createTime=> 'prod job create time',
+				  QAdoneTime=> 'QA done time'
+				}
+	      );
+
+#========================================================
+
 sub new{
-  my $classname = shift;
+  my $proto     = shift;
+  my $classname = ref($proto) || $proto;
   my $self      = $classname->SUPER::new(@_);
 
-  #$classname eq __PACKAGE__ and 
-  #  die __PACKAGE__, " is virtual";
+  # addmore members
+  @{$self}{keys %members} = values %members;
+
+  $classname eq __PACKAGE__ and 
+    die __PACKAGE__, " is virtual";
+
+  bless($self,$classname);
 
   return $self;
 }
 
-#========================================================
+#----------
 # popup menu for selecting jobs
 
 sub JobPopupMenu{
   my $self = shift;
 
   no strict 'refs';
-
-  # using 'map' technique in the cgi forms - originated by ben norman
-
-  # possible criteria to select on 
-  # these are the cgi parameter names
-  $self->{select_fields} = [ 'eventGen',
-			     'LibLevel',
-			     'platform',
-			     'eventType',
-			     'geometry',
-			     'QAstatus',
-			     'onDisk',
-			     'jobStatus',
-			     'createTime',
-			     'QAdoneTime'
-			   ];
-  # selection labels for the user
-  $self->{select_labels} = { eventGen  => 'event gen',
-			     LibLevel  => 'library',
-			     platform  => 'platform',
-			     eventType => 'event type',
-			     geometry  => 'geometry',
-			     onDisk    => 'on disk',
-			     QAstatus  => 'QA status',
-			     jobStatus => 'prod job status',
-			     createTime=> 'prod job create time',
-			     QAdoneTime=> 'QA done time'
-			   };
-
+  
   # possible values for each selection field
   # ref of hash of refs to arrays
   
@@ -155,16 +164,85 @@ sub JobPopupMenu{
   return $select_data_string;
 
 }
-#========================================================
-# get the selected parameter values chose by the user
-# returns an array of cgi values according to the popup menu
 
-sub SelectedParameters{
+1;
+#================================================================
+#
+# nightly_MC
+#
+package KeyList_object_nightly_MC;
+use base qw(KeyList_object_nightly);
+
+sub new{
+  my $proto     = shift;
+  my $classname = ref($proto) || $proto;
+  my $self      = $classname->SUPER::new(@_);
+
+  bless($self,$classname);
+
+  return $self;
+}
+
+#----------
+
+sub GetSelectionOptions{
+  my $self = shift;
+  
+  my $menuRef = $self->GetSelectionOptionsStorable();
+
+  if(!defined $menuRef){
+    return Db_KeyList_utilities::GetNightlySelectionsMC();
+  }
+}
+
+#----------
+
+sub GetSelectedKeysFromDb{
   my $self = shift;
 
-  return map { $gCGIquery->param($_) } @{$self->{select_fields}};
-
+  return 
+    Db_KeyList_utilities::GetNightlyKeysMC($self->SelectedParameters());
 
 }
- 
+
 1;
+#==================================================================
+#
+# nightly_real
+#
+
+package KeyList_object_nightly_real;
+use base  qw(KeyList_object_nightly);
+
+sub new{
+  my $proto     = shift;
+  my $classname = ref($proto) || $proto;
+  my $self      = $classname->SUPER::new(@_);
+
+  bless($self,$classname);
+
+  return $self;
+}
+
+#----------
+
+sub GetSelectionOptions{
+  my $self = shift;
+  
+  my $menuRef = $self->GetSelectionOptionsStorable();
+
+  if(!defined $menuRef){
+    return Db_KeyList_utilities::GetNightlySelectionsReal();
+  }
+}
+#----------
+sub GetSelectedKeysFromDb{
+  my $self = shift;
+
+  return 
+    Db_KeyList_utilities::GetNightlyKeysReal($self->SelectedParameters());
+
+}
+
+1;
+

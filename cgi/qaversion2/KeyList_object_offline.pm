@@ -16,51 +16,57 @@ use Browser_object;
 use base qw(KeyList_object);
 
 use strict;
-#--------------------------------------------------------
 1;
 #========================================================
+
+my %members = (
+	       # possible selection fields (i.e. popup menus)
+	       select_fields => [ 
+				 'prodOptions',
+				 'runID',
+				 'QAstatus',
+				 'jobStatus',
+				 'createTime',
+				 'dataset',
+				 'QAdoneTime'
+				],
+	       
+	       # selection labels for the user
+	       select_labels => {
+				 prodOptions => 'prod options',
+				 runID       => 'runID',
+				 QAstatus    => 'QA status',
+				 jobStatus   => 'prod job status',
+				 createTime  => 'prod job create time',
+				 dataset     => 'dataset',
+				 QAdoneTime  => 'QA done time'
+				}
+	      );
+#========================================================
 sub new{
-  my $classname = shift;
+  my $proto     = shift;
+  my $classname = ref($proto) || $proto;
   my $self      = $classname->SUPER::new(@_);
+
+  # addmore members
+  @{$self}{keys %members} = values %members;
 
   #$classname eq __PACKAGE__ and 
   #  die __PACKAGE__, " is virtual";
+  bless($self,$classname);
 
   return $self;
 }
 
 
-#========================================================
+#----------
 # popup menu for selecting jobs
 #
-
 
 sub JobPopupMenu{
   my $self = shift;
 
   no strict 'refs';
-
-  # possible selection fields (i.e. popup menus)
-  $self->{select_fields} = [ 
-			    'prodOptions',
-			    'runID',
-			    'QAstatus',
-			    'jobStatus',
-			    'createTime',
-			    'dataset',
-			    'QAdoneTime'
-			   ];
-
-  # selection labels for the user
-  $self->{select_labels} = {
-			    prodOptions => 'prod options',
-			    runID       => 'runID',
-			    QAstatus    => 'QA status',
-			    jobStatus   => 'prod job status',
-			    createTime  => 'prod job create time',
-			    dataset     => 'dataset',
-			    QAdoneTime  => 'QA done time'
-			   };
 
   # possible values for each selection field
   # ref of hash of refs to arrays
@@ -154,17 +160,84 @@ sub JobPopupMenu{
   return $select_data_string;
 
 }
-#========================================================
-# get the selected parameters chose by the user
-# returns an array of cgi values according to the popup menu
-# the order of the select_fields is important for database query.
 
-sub SelectedParameters{
-  my $self = shift;
+1;
+#================================================================
+#
+# offline_MC
+#
+package KeyList_object_offline_MC;
+use base qw(KeyList_object_offline);
 
-  return map { $gCGIquery->param($_) } @{$self->{select_fields}};
+sub new{
+  my $proto     = shift;
+  my $classname = ref($proto) || $proto;
+  my $self      = $classname->SUPER::new(@_);
 
+  bless($self,$classname);
+
+  return $self;
 }
 
+#----------
 
+sub GetSelectionOptions{
+  my $self = shift;
+  
+  my $menuRef = $self->GetSelectionOptionsStorable();
+
+  if(!defined $menuRef){
+    return Db_KeyList_utilities::GetOfflineSelectionsMC();
+  }
+}
+
+#----------
+
+sub GetSelectedKeysFromDb{
+  my $self = shift;
+
+  return 
+    Db_KeyList_utilities::GetOfflineKeysMC($self->SelectedParameters());
+
+}
+1;
+#==================================================================
+#
+# offline_real
+#
+
+package KeyList_object_offline_real;
+use base  qw(KeyList_object_offline);
+
+sub new{
+  my $proto     = shift;
+  my $classname = ref($proto) || $proto;
+  my $self      = $classname->SUPER::new(@_);
+
+  bless($self,$classname);
+
+  return $self;
+}
+
+#----------
+
+sub GetSelectionOptions{
+  my $self = shift;
+  
+  my $menuRef = $self->GetSelectionOptionsStorable();
+
+  if(!defined $menuRef){
+    return Db_KeyList_utilities::GetOfflineSelectionsReal();
+  }
+}
+
+#----------
+
+sub GetSelectedKeysFromDb{
+  my $self = shift;
+
+  return 
+    Db_KeyList_utilities::GetOfflineKeysReal($self->SelectedParameters());
+
+}
 1;

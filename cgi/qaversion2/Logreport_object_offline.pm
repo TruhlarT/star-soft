@@ -40,6 +40,9 @@ sub new{
 
   defined $self or return; # get out if something went wrong
 
+   $classname eq __PACKAGE__ and 
+    die __PACKAGE__, " is virtual";
+
   if (defined %members){
     # using SUPER::AUTOLOAD
     foreach my $element (keys %members) {
@@ -51,16 +54,10 @@ sub new{
 
   $self->_init_offline();
  
-  # depend on the DataClass_object to detemine which sub to call
-  # DataClass should be 'offline_real' or 'offline_MC'
-
-  my $init_dataclass = $gDataClass_object->DataClass;
-
-  $self->$init_dataclass(); # even more initialization
-
   return $self;
 }
-#===========================================================
+
+#----------
 sub _init_offline{
   my $self = shift;
 
@@ -81,49 +78,8 @@ sub _init_offline{
   $self->RequestedChain($chain);
 
 }
-#=======================================================
-# additional init for offline real
-
-sub offline_real{
   
-  my $self = shift;
-  
-  # first and last event done (processed)
-  my $lo = QA_db_utilities::GetFromFileCatalog('NevLo',$self->JobID);
-  my $hi = QA_db_utilities::GetFromFileCatalog('NevHi', $self->JobID);
-
-  $self->FirstEventDone($lo);
-  $self->LastEventDone($hi); 
-
-  # kill the NEventRequested field
-  # this doesnt make sense for offline real data
-  
-  $self->NEventRequested(undef);
-
-  # parse the dataset column
-  
-}
-
-#===========================================================
-# additional init for offline MC
-
-sub offline_MC{
-  my $self = shift;
-
-  # parse the dataset column
-
-  my ($collisionType, $eventGen, $details, $eventType, $geometry, $junk)=
-    split /\//, $self->Dataset, 6;
-
-  $self->CollisionType($collisionType);
-  $self->EventGen($eventGen);
-  $self->EventGenDetails($details);
-  $self->EventType($eventType);
-  $self->Geometry($geometry);
-
-}
-  
-#==========================================================
+#----------
 # get the log file - called in SUPER::_init
 
 sub GetLogFile{
@@ -132,7 +88,7 @@ sub GetLogFile{
   return QA_db_utilities::GetOfflineLogFile( $self->JobID );
 }
 
-#==========================================================
+#----------
 # parse the summary of the log file
 # also parses the separate error file which contains
 # the StError and StWarning info among other things
@@ -231,7 +187,7 @@ sub ParseLogfile{
 
   return 1;
 }
-#===========================================================
+#----------
 # gets some info about the job from the db
 
 sub GetJobInfo{
@@ -268,18 +224,109 @@ sub GetJobInfo{
   @files = map{ $self->OutputDirectory . "/$_" } @files;
   $self->ProductionFileListRef(\@files);
 
-
-  # check for missing files.
-  # depends on the data class - use global DataClass_object.
-  # returns a string.
-  
-  no strict 'refs';
-  my $sub_missing = $gDataClass_object->GetMissingFiles; # name of the sub
-  $self->MissingFiles( &$sub_missing($self->JobID) );
+  $self->MissingFiles( $self->GetMissingFiles($self->JobID) );
 
   # backwards compatibility
   $self->{_SmallFiles} = QA_db_utilities::GetSmallFilesOffline($self->JobID);
   
   return 1;
 }
+1;
+#===========================================================
+#
+# offline_MC
+#
+package Logreport_object_offline_MC;
+use base qw(Logreport_object_offline);
+
+sub new{
+  my $classname = shift;
+  my $self      = $classname->SUPER::new(@_);  
+  #bless($self,$classname);
+
+  $self->offline_MC();
+
+  return $self;
+}
+#----------
+
+sub GetMissingFiles{
+  my $self  =  shift;
+  my $jobID =  shift;
+
+  return QA_db_utilities::GetMissingFilesMC($jobID);
+
+}
+
+#----------
+# additional init for offline MC
+
+sub offline_MC{
+  my $self = shift;
+
+  # parse the dataset column
+
+  my ($collisionType, $eventGen, $details, $eventType, $geometry, $junk)=
+    split /\//, $self->Dataset, 6;
+
+  $self->CollisionType($collisionType);
+  $self->EventGen($eventGen);
+  $self->EventGenDetails($details);
+  $self->EventType($eventType);
+  $self->Geometry($geometry);
+
+}
+
+1;
+#=============================================================
+#
+# offline_real
+#
+
+package Logreport_object_offline_real;
+use base qw(Logreport_object_offline);
+
+sub new{
+  my $classname = shift;
+  my $self      = $classname->SUPER::new(@_);  
+  #bless($self,$classname);
+
+  $self->offline_real();
+
+  return $self;
+}
+
+#----------
+
+sub GetMissingFiles{
+  my $self  =  shift;
+  my $jobID =  shift;
+
+  return QA_db_utilities::GetMissingFilesReal($jobID);
+
+}
+
+#----------
+# additional init for offline real
+
+sub offline_real{
+  
+  my $self = shift;
+  
+  # first and last event done (processed)
+  my $lo = QA_db_utilities::GetFromFileCatalog('NevLo',$self->JobID);
+  my $hi = QA_db_utilities::GetFromFileCatalog('NevHi', $self->JobID);
+
+  $self->FirstEventDone($lo);
+  $self->LastEventDone($hi); 
+
+  # kill the NEventRequested field
+  # this doesnt make sense for offline real data
+  
+  $self->NEventRequested(undef);
+
+  # parse the dataset column
+  
+}
+
 1;

@@ -24,6 +24,9 @@ sub new{
   my $classname = shift;
   my $self      = $classname->SUPER::new(@_) or return;  
 
+  $classname eq __PACKAGE__ and 
+    die __PACKAGE__, " is virtual";
+
   if (defined %members){
     # using SUPER::AUTOLOAD
     foreach my $element (keys %members) {    
@@ -58,7 +61,7 @@ sub _initplus{
 }
 #
 #----------
-# get the log file in SUPER::_init
+# 
 #
 sub GetLogFile{
   my $self  = shift;
@@ -201,15 +204,63 @@ sub GetJobInfo{
   @files = map{ $self->OutputDirectory . "/$_" } @files;
   $self->ProductionFileListRef(\@files);
 
-  # check for missing files.
-  # depends on the data class - use global DataClass_object.
-  # returns a string.
-  
-  no strict 'refs';
-  my $sub_missing = $gDataClass_object->GetMissingFiles; # name of the sub
-  $self->MissingFiles( &$sub_missing($self->JobID) );
+  $self->MissingFiles( $self->GetMissingFiles($self->JobID) );
 
   $self->{_SmallFiles} = QA_db_utilities::GetSmallFilesNightly($self->JobID);
   1;
 }  
+1;
+#===========================================================
+#
+# nightly_MC
+#
+package Logreport_object_nightly_MC;
+use base qw(Logreport_object_nightly);
+
+sub new{
+  my $classname = shift;
+  my $self      = $classname->SUPER::new(@_);  
+  #bless($self,$classname);
+
+  return $self;
+}
+
+#----------
+
+sub GetMissingFiles{
+  my $self  =  shift;
+  my $jobID =  shift;
+
+  return QA_db_utilities::GetMissingFilesMC($jobID);
+
+}
+
+
+1;
+#=============================================================
+#
+# nightly_real
+#
+
+package Logreport_object_nightly_real;
+use base qw(Logreport_object_nightly);
+
+sub new{
+  my $classname = shift;
+  my $self      = $classname->SUPER::new(@_);  
+  #bless($self,$classname);
+
+  return $self;
+}
+
+#----------
+
+sub GetMissingFiles{
+  my $self  =  shift;
+  my $jobID =  shift;
+
+  return QA_db_utilities::GetMissingFilesReal($jobID);
+
+}
+
 1;

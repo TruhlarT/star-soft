@@ -63,7 +63,7 @@ use strict;
 #         jobID       varchar(64)         not null,
 #         report_key  varchar(64)         not null,
 #         type        varchar(20)         not null,
-#         QAanalyzed  enum('Y','Y')       not null default 'N',
+#         QAanalyzed  enum('Y','N')       not null default 'N',
 #         QAdone      enum('Y','N')       not null default 'N',
 #         QAok        enum('Y','N','n/a') not null default 'n/a',
 #         QAdate      datetime            not null,
@@ -79,7 +79,7 @@ use strict;
 #                     index (report_key)
 #                     
 
-# QASummary for offline now has two more fields
+# QASummary for prod now has two more fields
 #         redone      smallint            not null default 0
 #         skip        enum('Y','N')       not null default 'Y'
 
@@ -301,7 +301,7 @@ sub GetMissingFiles{
   my $hist_size =  1000;
 
   # these are the file components we're looking for
-  my @componentAry = qw(dst hist tags runco);
+  my @componentAry = qw(event hist tags runco);
 
   # check for one more component 
   push @componentAry, 'geant' if $type eq 'MC';
@@ -313,6 +313,7 @@ sub GetMissingFiles{
   }
   elsif($gDataClass_object->DataClass() =~ /nightly|debug/){
     @outputComp = GetFromFileOnDiskNightly('component',$jobID);
+    push @componentAry, 'dst';
   }
 
   # construct 'seen' hash - see perl cookbook
@@ -584,7 +585,7 @@ sub WriteQASummary{
   $controlFile = readlink $controlFile || $controlFile;
   
   # qa ok?
-  my $QAok = $qaStatus ? 'Y' : 'N';
+  my $QAok = ($qaStatus>0) ? 'Y' : 'N';
   
   # get current date
   my ($sec, $min, $hour, $day, $month, $year) = localtime;
@@ -599,11 +600,13 @@ sub WriteQASummary{
 		$QASum{controlFile} = '$controlFile'
 	      where $QASum{qaID} ='$qaID'};
 
-  print h4("Writing overall QA summary into db...\n");
+  print h4("<font color=blue>",
+	   "Writing overall QA summary into db...\n",
+	   "<br>QAok is $QAok</font>\n");
 
   $dbh->do($query) or die "$query";
 
-  print h4("...done\n");
+  print h4("<font color=blue>...done</font>\n");
 }
 
 #-----------
@@ -632,7 +635,7 @@ sub WriteQAMacroSummary{
   # get out if evaluate only and no test were defined
   if ($option =~ /evaluate_only/ and $report_obj->NTests==0){
     print h4("No tests were defined\n");
-    return;
+    return 1;
   }
 
   # check that the output file exists
@@ -740,13 +743,18 @@ sub WriteQAMacroSummary{
 	 };
   }
 
-  print h4("Inserting qa macro summary into db for $fName ($macroName)...\n");
+  my $statusTitle = $qaStatus ? "good" : "bad";
+  print h4("<font color=blue>",
+	   "Inserting qa macro summary into db for $fName ($macroName)...",
+	   "<br>qa status is $statusTitle",
+	   "</font>\n");
 
+  
   # insert
   my $rows = $dbh->do($query);
 
   # 0 rows affected is ok.  $rows = undef is bad.
-  if (defined $rows) { print h4("...done\n")}
+  if (defined $rows) { print h4("<font color=blue>...done</font>\n")}
   else     { print h4("<font color = red> Error. Cannot insert qa info for ",
 		      "$outputFile</font>"); return;}
     

@@ -32,7 +32,8 @@ my %members = ( _SelectionRef       => undef,
 # used from browser
 
 sub new{
-  my $classname = shift;
+  my $proto = shift;
+  my $classname = ref($proto) || $proto;
 
   $classname eq __PACKAGE__ and 
     die __PACKAGE__, " should not be instantiated\n";
@@ -49,7 +50,6 @@ sub new{
 #========================================================
 sub _init{
   my $self = shift;
-   
 }
 #========================================================
 # get the possible values for various fields from disk
@@ -59,20 +59,27 @@ sub _init{
 sub GetSelectionOptions{
   my $self = shift;
 
+  print "Defined in derived classes\n";
+}
+#========================================================
+# for quicker service, try getting the menu options from disk
+
+sub GetSelectionOptionsStorable{
+  my $self = shift;
+
   my $menuRef;
   # first check the disk
   my $storable = IO_object->new("MenuStorable")->Name();
   eval {
     $menuRef = retrieve($storable);
   };
-  no strict 'refs';
-  # else get it from the db
-  if ($@ || !defined $menuRef) {
-    $menuRef = &{$gDataClass_object->GetSelectionOptions};
+  if(($@ || !defined $menuRef)){
+    print "Warning: Cannot retrieve $storable<br>\n";
   }
   return $menuRef;
-
 }
+
+
 #========================================================
 # popup menu for selecting jobs
 # overridden
@@ -83,10 +90,12 @@ sub JobPopupMenu{
 }
 #========================================================
 # returns an array of cgi values according to the popup menu
-# overridden
+# 
 
 sub SelectedParameters{
   my $self = shift;
+
+  return map { $gCGIquery->param($_) } @{$self->{select_fields}};
 }
 
 #========================================================
@@ -96,13 +105,7 @@ sub SelectedParameters{
 sub GetSelectedKeysFromDb{
   my $self = shift;
 
-  # uses the global DataClass_object to determine the sub
-  # to run depending on the data class
-  no strict 'refs';
-
-  my $sub_getselectedkeys = $gDataClass_object->GetSelectedKeys;
-
-  return &$sub_getselectedkeys($self->SelectedParameters);
+  print "blah\n";
 }
 
 #========================================================
@@ -116,7 +119,7 @@ sub GetSelectedKeyList{
   # get the keys from QASummary table matching the selection query
   my @key_list = $self->GetSelectedKeysFromDb();
 
-  print "\@key_list=".@key_list."<br>\n";
+  #print "\@key_list=".@key_list."<br>\n";
   # dont make the QA_objects if too many rows are returned.
   my $limit = $Db_KeyList_utilities::selectLimit;
 
@@ -269,7 +272,7 @@ sub GetRowOfMenus{
   my @select_fields = @_;
  
   return map{
-              b( $self->{select_labels}{$_} ).br.
+              b( $self->{select_labels}->{$_} ).br.
 	      $gCGIquery->popup_menu(
 				     -name    => $_,
 				     -values  => $self->{values}{$_},

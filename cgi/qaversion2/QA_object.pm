@@ -47,7 +47,8 @@ my %members =
 #========================================================
 # 
 sub new{
-  my $classname = shift;
+  my $proto = shift;
+  my $classname = ref($proto) || $proto;
 
   # this object should never be created
   $classname eq __PACKAGE__ and
@@ -221,9 +222,10 @@ sub DoQA{
     # add qa macro summary to the database.
     # WriteQAMacroSummary returns 0 if something's bad
     
-    $qa_status = 
+    my $macroStatus = 
       QA_db_utilities::WriteQAMacroSummary($self->qaID,$report_obj, 
 					   $run_option);
+    $qa_status = 0 if !$macroStatus;
        
   }
   close $fh;

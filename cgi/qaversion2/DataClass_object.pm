@@ -106,8 +106,6 @@ for my $attr ( qw (
 		   LogfileWWW
 		   KeyList_obj
 		   QA_obj
-		   GetSelectedKeys
-		   GetSelectionOptions
 		   GetOldReports
 		   DataPool
 		   EventPool
@@ -120,7 +118,6 @@ for my $attr ( qw (
 		   ProdOptions
 		   JobRelations
 		   dbQA
-		   GetMissingFiles
 		   UpdateRoutine
 		   ToDoKeys
 		   BrowserBannerColor
@@ -298,8 +295,8 @@ sub offline_real{
   $self->StandardDirectories();
   
   # objects to create
-  $self->KeyList_obj("KeyList_object_offline");
-  $self->QA_obj("QA_object_offline");
+  $self->KeyList_obj("KeyList_object_offline_real");
+  $self->QA_obj("QA_object_offline_real");
 
   # database stuff
   $self->dbFile("operation");
@@ -309,16 +306,8 @@ sub offline_real{
   $self->JobRelations("jobRelations");
   $self->dbQA("prod_QA");
   
-
-  # utilities for KeyList_object
-  $self->GetSelectionOptions("Db_KeyList_utilities::GetOfflineSelectionsReal");
-  $self->GetSelectedKeys("Db_KeyList_utilities::GetOfflineKeysReal");  
-
   # for updating from DB
   $self->UpdateRoutine("Db_update_utilities::UpdateQAOfflineReal");
-
-  # find missing files
-  $self->GetMissingFiles("QA_db_utilities::GetMissingFilesReal");
 
   # get old reports
   $self->GetOldReports("QA_db_utilities::GetOldReportsReal");
@@ -347,8 +336,8 @@ sub offline_MC{
   $self->StandardDirectories();
   
   # objects to create
-  $self->KeyList_obj("KeyList_object_offline");
-  $self->QA_obj("QA_object_offline");
+  $self->KeyList_obj("KeyList_object_offline_MC");
+  $self->QA_obj("QA_object_offline_MC");
   
   # database stuff
   $self->dbFile("operation");
@@ -357,17 +346,9 @@ sub offline_MC{
   $self->ProdOptions("ProdOptions");
   $self->JobRelations("jobRelations");
   $self->dbQA("prod_QA");
-  
-
-  # utilities for KeyList_object
-  $self->GetSelectionOptions("Db_KeyList_utilities::GetOfflineSelectionsMC");
-  $self->GetSelectedKeys("Db_KeyList_utilities::GetOfflineKeysMC");
-  
+    
   # for updating from DB
   $self->UpdateRoutine("Db_update_utilities::UpdateQAOfflineMC");
-
-  # find missing files
-  $self->GetMissingFiles("QA_db_utilities::GetMissingFilesMC");
 
   # get old reports
   $self->GetOldReports("QA_db_utilities::GetOldReportsMC");
@@ -396,8 +377,8 @@ sub nightly_real{
   $self->StandardDirectories();
   
   # objects to create
-  $self->KeyList_obj("KeyList_object_nightly");
-  $self->QA_obj("QA_object_nightly");
+  $self->KeyList_obj("KeyList_object_nightly_real");
+  $self->QA_obj("QA_object_nightly_real");
   
   # database stuff
   $self->dbFile("TestJobs");
@@ -405,17 +386,9 @@ sub nightly_real{
   $self->JobStatus("JobStatus");
   $self->dbQA("nightly_QA");
   
-
-
-  # utilities for KeyList_object
-  $self->GetSelectionOptions("Db_KeyList_utilities::GetNightlySelectionsReal");
-  $self->GetSelectedKeys("Db_KeyList_utilities::GetNightlyKeysReal");
-  
   # for updating from DB
   $self->UpdateRoutine("Db_update_utilities::UpdateQANightlyReal");
 
-  # find missing files
-  $self->GetMissingFiles("QA_db_utilities::GetMissingFilesReal");
 
   # get old reports
   $self->GetOldReports("QA_db_utilities::GetOldReportsReal");
@@ -442,8 +415,8 @@ sub nightly_MC{
   $self->StandardDirectories();
   
   # objects to create
-  $self->KeyList_obj("KeyList_object_nightly");
-  $self->QA_obj("QA_object_nightly");
+  $self->KeyList_obj("KeyList_object_nightly_MC");
+  $self->QA_obj("QA_object_nightly_MC");
   
   # database stuff
   $self->dbFile("TestJobs");
@@ -451,16 +424,9 @@ sub nightly_MC{
   $self->JobStatus("JobStatus");
   $self->dbQA("nightly_QA");
   
-
-  # utilities for KeyList_object
-  $self->GetSelectionOptions("Db_KeyList_utilities::GetNightlySelectionsMC");
-  $self->GetSelectedKeys("Db_KeyList_utilities::GetNightlyKeysMC");
-
   # for updating from DB
   $self->UpdateRoutine("Db_update_utilities::UpdateQANightlyMC");
 
-  # find missing files
-  $self->GetMissingFiles("QA_db_utilities::GetMissingFilesMC");
 
   # get old reports
   $self->GetOldReports("QA_db_utilities::GetOldReportsMC");
@@ -487,8 +453,8 @@ sub debug{
 
   $self->StandardDirectories();
   
-  $self->KeyList_obj("KeyList_object_nightly");
-  $self->QA_obj("QA_object_nightly");
+  $self->KeyList_obj("KeyList_object_nightly_MC");
+  $self->QA_obj("QA_object_nightly_MC");
   
   # database stuff
   $self->dbFile("TestJobs");
@@ -496,15 +462,10 @@ sub debug{
   $self->JobStatus("JobStatus");
   $self->dbQA("debug_QA");
  
-  # utilities for KeyList_object
-  $self->GetSelectionOptions("Db_KeyList_utilities::GetNightlySelectionsMC");
-  $self->GetSelectedKeys("Db_KeyList_utilities::GetNightlyKeysMC");
 
   # for updating from DB
   $self->UpdateRoutine("Db_update_utilities::UpdateQANightlyMC");
 
-  # find missing files
-  $self->GetMissingFiles("QA_db_utilities::GetMissingFilesMC");
 
   # get old reports
   $self->GetOldReports("QA_db_utilities::GetOldReportsMC");

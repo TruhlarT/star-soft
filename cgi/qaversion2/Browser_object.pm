@@ -55,10 +55,12 @@ sub _init{
   $self->ServerType($server_type);
 
   # uses 2 classes
-  my $KeyList_obj = $gDataClass_object->KeyList_obj();
-
-  $self->{_KeyList} = new $KeyList_obj; # depends on type of data
+  no strict 'refs';
+  $self->{_KeyList} = 
+    $gDataClass_object->KeyList_obj->new(); # depends on type of data
   $self->{_Hidden}  = new HiddenObject_object;
+
+  
 
   # pmj 7/9/00 generate user reference filename
   my $io = new IO_object("UserReferenceFile");
@@ -172,6 +174,8 @@ sub ExpertPageFlag{
 sub StartingDisplay{
   my $self = shift;
 
+  # test 
+  
   # job selection menu
   my $selection_string = $self->KeyList->JobPopupMenu(); 
 
@@ -395,8 +399,9 @@ sub DisplayDataset{
     my $previous_button = Browser_utilities::SubmitButton('Previous subset')
       unless $is_first_subset;
 	  
-    my $popup    = Browser_utilities::SelectSubsetMenu($subset_len,$n_subset,$rows, 
-						       $current_subset);
+    my $popup    
+      = Browser_utilities::SelectSubsetMenu($subset_len,$n_subset,$rows, 
+					    $current_subset);
 
     my $first_row = ($current_subset-1)*$subset_len + 1;
     my $last_row;
@@ -408,7 +413,7 @@ sub DisplayDataset{
     }
     
     @selected_keys = splice(@all_selected_keys,
-			       ($current_subset-1)*$subset_len, $subset_len);
+			    ($current_subset-1)*$subset_len, $subset_len);
 
     my $row_ref = td([ $previous_button, $popup, $more_button]);
     print "<center>",

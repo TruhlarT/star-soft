@@ -18,8 +18,12 @@ use strict;
 #----------------------------------------------------------------------------
 
 sub new{
-  my $classname = shift;
+  my $proto = shift;
+  my $classname = ref($proto) || $proto;
   my $self      = $classname->SUPER::new(@_);  
+
+  $classname eq __PACKAGE__ and 
+    die __PACKAGE__, " is virtual";
 
   return $self;
 }
@@ -91,3 +95,52 @@ sub NewLogReportObject{
   return Logreport_object_offline->new($self->ReportKey);
 }
 1;
+
+#===========================================================
+#
+# offline_MC
+#
+package QA_object_offline_MC;
+use base qw(QA_object_offline);
+
+sub new{
+  my $proto = shift;
+  my $classname = ref($proto) || $proto;
+  my $self      = $classname->SUPER::new(@_);  
+  #bless($self,$classname);
+
+  return $self;
+}
+#----------
+# create the log report object
+#
+sub NewLogReportObject{
+  my $self = shift;
+
+  return Logreport_object_offline_MC->new($self->ReportKey);
+}
+#=============================================================
+#
+# offline_real
+#
+
+package QA_object_offline_real;
+use base qw(QA_object_offline);
+
+sub new{
+  my $proto = shift;
+  my $classname = ref($proto) || $proto;
+  my $self      = $classname->SUPER::new(@_);  
+  #bless($self,$classname);
+
+  return $self;
+}
+
+#----------
+# create the log report object
+#
+sub NewLogReportObject{
+  my $self = shift;
+
+  return Logreport_object_offline_real->new($self->ReportKey);
+}

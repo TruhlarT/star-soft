@@ -18,8 +18,14 @@ use strict;
 #-----------------------------------------------------------------------------
 
 sub new{
-  my $classname = shift;
-  my $self      = $classname->SUPER::new(@_);  
+  my $proto = shift;
+  my $classname = ref($proto) || $proto;
+
+  $classname eq __PACKAGE__ and 
+    die __PACKAGE__, " is virtual";
+
+  my $self = $classname->SUPER::new(@_);  
+  #bless($self,$classname);
 
   return $self;
 }
@@ -59,7 +65,7 @@ sub DataDisplayString{
     $self->ReportKey . br . br .
     $jobID_string .
     $self->LogReport->OutputDirectory .br.
-    "(STARLIB version: $starlib_version; STAR level: $star_level)";
+    "(STARLIB version: $starlib_version; STAR level: $star_level)\n";
       
     
   #my $input_filename = $self->LogReport->InputFn;
@@ -72,12 +78,58 @@ sub DataDisplayString{
 
 }
 
+
+1;
+
+#===========================================================
+#
+# nightly_MC
+#
+package QA_object_nightly_MC;
+use base qw(QA_object_nightly);
+
+sub new{
+  my $proto = shift;
+  my $classname = ref($proto) || $proto;
+
+  my $self      = $classname->SUPER::new(@_);  
+  #bless($self,$classname);
+
+  return $self;
+}
 #----------
 # create the log report object
 #
 sub NewLogReportObject{
   my $self = shift;
 
-  return Logreport_object_nightly->new($self->ReportKey);
+  return Logreport_object_nightly_MC->new($self->ReportKey);
+}
+1;
+#=============================================================
+#
+# nightly_real
+#
+
+package QA_object_nightly_real;
+use base qw(QA_object_nightly);
+
+sub new{
+  my $proto = shift;
+  my $classname = ref($proto) || $proto;
+
+  my $self      = $classname->SUPER::new(@_);  
+  #bless($self,$classname);
+
+  return $self;
+}
+
+#----------
+# create the log report object
+#
+sub NewLogReportObject{
+  my $self = shift;
+
+  return Logreport_object_nightly_real->new($self->ReportKey);
 }
 1;

@@ -170,10 +170,7 @@ sub GetLogFile{
 # this method gets overriden
 
 sub ParseLogfile {
-
   my $self = shift;
-  
-  return;
 }
 #----------
 # get additional info about the job from the db.
@@ -295,4 +292,11 @@ sub DisplayLogReport {
   print "$divider </pre>\n";
 
 }
+#----------
+
+sub GetMissingFiles{
+  my $self=shift;
+  
+}
+
 1;
