@@ -1,4 +1,4 @@
-#! /opt/star/bin/perl -w
+#!/usr/bin/env perl
 #
 #  $Id:
 #
