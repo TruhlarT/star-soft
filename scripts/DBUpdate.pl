@@ -9,8 +9,11 @@ if ($#ARGV == -1){
     print qq~
 
  Syntax is
-  % DBUpdate.pl BasePath [fileExtension] [RelPathOverwrite] [Substitute]
+  % DBUpdate.pl [options] BasePath [fileExtension] [RelPathOverwrite] [Substitute]
      [user] [password]
+
+ Options are
+   -o outputFile      redirect output to file outputFile
 
  Purpose
    This script scans a disk given as the first argument
@@ -73,6 +76,7 @@ $SUB   = "reco";
 $kk    = 0;
 $FO    = STDERR;
 
+
 for ($i=0 ; $i <= $#ARGV ; $i++){
     # Support "-XXX" options
     if ($ARGV[$i] eq "-o"){
@@ -85,6 +89,7 @@ for ($i=0 ; $i <= $#ARGV ; $i++){
 	    $i++;
 	    $FO = FO;
 	}
+
     } else {
 	# ... as well as previous syntax
 	$kk++;
@@ -176,6 +181,9 @@ chomp($NODE    = `hostname`);
 foreach  $file (@ALL){
     chomp($file);
 
+    # Skip some known pattern
+    if ( $file =~ m/reco\/StarDb/){  next;}
+
     # We need to parse the information we can 
     # save in the ddb
     $file =~ m/(.*\/)(.*)/;
@@ -211,7 +219,7 @@ foreach  $file (@ALL){
 
     if ($#all == -1){
 	$unkn++;
-	&Stream("Warning : File not found in HPSS -- $path/$file\n");
+	&Stream("Warning : File not found as storage=HPSS -- $path/$file\n");
 
     } else {
 	$mess = "Found ".($#all+1)." records for [$file] ";
@@ -281,13 +289,15 @@ FINAL_EXIT:
     if ($LOUT){
 	print "Have lines, closing summary\n";
 	print $FO 
-	    "$SELF :: Info : ",
-	    "Unknown = $unkn\n",
-	    "Old     = $old\n",
-	    "New     = $new\n",
-	    "Failed  = $failed\n";
+	    "$SELF :: Info :\n",
+	    ($unkn  !=0 ? "\tUnknown = $unkn ".sprintf("%2.2f%%",100*$unkn/($new+$old))."\n": ""),
+	    ($old   !=0 ? "\tOld     = $old\n"   : ""),
+	    ($new   !=0 ? "\tNew     = $new\n"   : ""),
+	    ($failed!=0 ? "\tFailed  = $failed\n": "");
+	    
 	# Check if we have opened a file
 	if ($FO ne STDERR){ 
+	    print $FO "Scan done on ".localtime()."\n";
 	    close($FO);
 	}
     } else {
@@ -309,6 +319,7 @@ sub Stream
 
     foreach $line (@lines){
 	$LOUT++;
+	chomp($line);
 	print $FO "$SELF :: $line\n";
     }
 }
