@@ -1,6 +1,6 @@
 #!/usr/bin/perl 
 #
-# $Id: dbMakeFiles.pl,v 1.4 2003/01/09 20:30:27 porter Exp $
+# $Id: dbMakeFiles.pl,v 1.5 2003/01/31 02:13:35 porter Exp $
 #
 # Author: R. Jeff Porter
 #
@@ -14,6 +14,10 @@
 #****************************************************************************
 # 
 # $Log: dbMakeFiles.pl,v $
+# Revision 1.5  2003/01/31 02:13:35  porter
+# got rid of a couple of opsolete files and got rid of environment variable
+# STDB_ADMIN
+#
 # Revision 1.4  2003/01/09 20:30:27  porter
 # upgrade of db table structure scripts
 #
@@ -29,9 +33,9 @@
 use Getopt::Std;
 
 #--> choose which scripts to run <--
-$DbScripts=$ENV{"STDB_ADMIN"};
-if(!$DbScripts){ $DbScripts=$ENV{"STAR"}."/scripts"; }
-require "$DbScripts/dbSubs/dbTableCheck.pl";
+use FindBin;
+use lib "$FindBin::Bin";
+require "dbSubs/dbTableCheck.pl";
 
 getopts('n:d:i:s:o:c:gh');
 

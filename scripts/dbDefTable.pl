@@ -1,6 +1,6 @@
 #!/usr/bin/perl 
 #
-# $Id: dbDefTable.pl,v 1.3 2003/01/09 20:30:26 porter Exp $
+# $Id: dbDefTable.pl,v 1.4 2003/01/31 02:13:35 porter Exp $
 #
 # Author: R. Jeff Porter
 #
@@ -15,6 +15,10 @@
 #****************************************************************************
 # 
 # $Log: dbDefTable.pl,v $
+# Revision 1.4  2003/01/31 02:13:35  porter
+# got rid of a couple of opsolete files and got rid of environment variable
+# STDB_ADMIN
+#
 # Revision 1.3  2003/01/09 20:30:26  porter
 # upgrade of db table structure scripts
 #
@@ -26,12 +30,10 @@
 
 use Getopt::Std;
 
-$DbScripts=$ENV{"STDB_ADMIN"};
-
-if(!$DbScripts){ $DbScripts=$ENV{"STAR"}."/scripts"; }
-
-require "$DbScripts/dbSubs/parseXmlTable.pl";
-require "$DbScripts/dbSubs/dbTableCreate.pl";
+use FindBin;
+use lib "$FindBin::Bin";
+require "dbSubs/parseXmlTable.pl";
+require "dbSubs/dbTableCreate.pl";
 
 getopts('f:d:s:p:n:cegh');
 
