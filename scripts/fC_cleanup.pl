@@ -4,29 +4,39 @@
 # of te FileCatalog database
 #
 # Written by Adam Kisiel, Warsaw University of Technology (2002)
-# for the STAR Experiment.
-
-# The command line parameters are: 
-#   The modes of operation:
+# Modified by J.Lauret, BNL
 #
+# The command line parameters are: 
+#   General modes of operation (status check)
+#   -----------------------------------------
 #   -status  : show the availability status of each file
 #
 #   -check   : check the availability status of each file
 #              and then compare it to reality, set availability
-#              to 0 if not present.
+#              to 0 if not present. 
 #
 #   -recheck : get the file list, and check if they really exist - 
 #              if not, mark them as unavailable if yes - remark them 
 #              as available
 #
-#   -delete  : if the file is marked unavailable, recheck it
-#              and if still not there - delete from database
-#              WARNING!!! The delete operation is irreversible!
-#
 #   -mark    : mark given files as (un)available - no checking
 #              keywords {on|off}
 #
-#   -clean   : delete records failing the bootstrap
+# 
+#   Potentially dammaging mode of operation
+#   ---------------------------------------
+#   -alter keyword=value    
+#              alter keyword value for entry ** DANGEROUS **
+#   -delete/-cdelete
+#              -cdelete (check) only displays what it will delete
+#              based on context.
+#              If the file is marked unavailable, recheck it
+#              and if still not there - delete from database
+#              WARNING!!! The delete operation is irreversible!
+#
+#   Integrety check operations
+#   ---------------------------
+#   -clean   : delete records failing the bootstrap (pertinent to above params)
 #   -fdata   : check the FileData for orphan records
 #   -floc    : check the FileLocations for orphan records
 #   -trgc    : check the TriggerCompositions table
@@ -36,8 +46,7 @@
 #              You REALLY shouldn't use this script on the 
 #              whole database at once!
 
-#use lib "/afs/rhic/star/packages/scripts";
-use lib "/star/u/jeromel/work/ddb";
+use lib "/afs/rhic/star/packages/scripts";
 use strict;
 use FileCatalog;
 
@@ -45,6 +54,7 @@ my @output;
 my $i;
 my $count;
 my $debug;
+my $doit;
 
 # Control variables
 # The size of a batch to process at once.
@@ -64,7 +74,6 @@ my $fileC = FileCatalog->new;
 # Turn off module debugging and script debugging
 $fileC->debug_off();
 $debug = 1;
-
 $dodel = 0;
 
 # Parse the cvommand line arguments.
@@ -84,6 +93,11 @@ while (defined $ARGV[$count]){
 
     } elsif ($ARGV[$count] eq "-delete"){
 	$mode = 2; 
+	$doit = 1;
+    } elsif ($ARGV[$count] eq "-cdelete"){
+	$mode = 2; 
+	$doit = 0;
+
     } elsif ($ARGV[$count] eq "-clean"){
 	$dodel = 1; 
     } elsif ($ARGV[$count] eq "-mark"){
@@ -172,7 +186,7 @@ while ($morerecords)
 	$fileC->set_delimeter("::");
 	
 	# Getting the data
-	@output = $fileC->run_query("path","filename");
+	@output = $fileC->run_query("path","filename","available");
 	
 	# Check if there are any records left
 	#print "OUTPUT: $#output batchsize $batchsize\n";
@@ -182,7 +196,7 @@ while ($morerecords)
 	# checking the availability
 	foreach (@output)
 	  { 
-	    my ($path, $fname) = split ("::");
+	    my ($path, $fname,$available) = split ("::");
 	    if (-e $path."/".$fname)
 	      {
 		 if ($debug > 0)
@@ -198,28 +212,33 @@ while ($morerecords)
 		$fileC->clear_context();
 		$fileC->set_context("filename=$fname");
 		$fileC->set_context("path=$path");
-		$fileC->set_context("available=1");
+		$fileC->set_context("available=$available");
 		$fileC->update_location("available",0);
 	      }
 	  }    
 
     } elsif ($mode == 2){
-	# Delete records
+	# Delete records. Note that this function is EXTREMELY
+	# dangerous now since any record can be deleted based
+	# on context.
 	my($rec,@items);
 
-	$fileC->set_context("limit=0");
+	$fileC->set_context("limit=$batchsize");
 	$fileC->set_context("startrecord=$start");
 	$fileC->set_context("available=0");
 	$fileC->set_delimeter("::");
 
-	@output = $fileC->run_query("path","filename","storage","site");
-
-	foreach $rec (@output){
-	    @items = split("::",$rec);
-	    $fileC->set_context("path=$items[0]","filename=$items[1]",
-				"storage=$items[2]","site=$items[3]");
-	    $fileC->delete_record();
+	# 
+	if( $doit ){
+	    @items = $fileC->delete_records($doit);
+	} else {
+	    @items = $fileC->run_query("path","filename","storage","site","available");
+	    foreach (@items){
+		print "$_\n";
+	    }
 	}
+
+	if (($#items +1) == $batchsize){ $morerecords = 1; }
 
 
     } elsif ( $mode == 3 ){
@@ -374,10 +393,12 @@ sub Usage
  where option is one of
  -status                 show availability
  -check                  check availability/set to 0 if not found
- -delete                 delete records with availability=0
- -mark {on|off}          mark selected files availability
- -alter keyword=value    alter keyword value for entry ** DANGEROUS **
  -recheck                check unavailable files and adjust if necessary
+ -mark {on|off}          mark selected files availability
+
+ -delete/-cdelete        delete records with availability=0 (current context applies)
+ -alter keyword=value    alter keyword value for entry ** DANGEROUS **
+
 
  -clean                  delete records in found 'verify' operations
  -floc                   verify the location table sanity
