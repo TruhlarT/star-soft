@@ -7,18 +7,18 @@
 # for the STAR Experiment.
 
 # The command line parameters are: 
-# -all        : get all the file names from the database
-# -distinct   : get only one location (the persistent one) for each file
+# -all        : get all the records from the database, even duplicates (default - faster)
+# -distinct   : get only one location (the persistent one) for each file (opposite to -all)
 # -keys       : the comma delimited list of keys to get from the database
 # -cond       : comma delimited list of conditions limiting the dataset
 # -onefile    : get only one location for each filename
-# -delim      : change the characters separating data from different 
-#               columns (defaut "::")
+# -delim      : change the characters separating data from different columns (defaut "::")
 # -limit      : limit the number of returne records
 # -start      : start with the n-th record of the sample
 # -debug      : maintainance option
 
 use lib "/afs/rhic/star/packages/scripts";
+#use lib "/star/u/jeromel/work/ddb";
 use strict;
 use FileCatalog;
 
@@ -28,19 +28,21 @@ my $count;
 my $debug;
 
 # The state variables
-my ($all, $field_list, $cond_list, $start, $limit, $delim, $onefile);
+my ($all, $field_list, $cond_list, $start, $limit, $delim, $onefile, $outfilename, $OUTHANDLE);
 
 # Load the modules to store the data into a new database
 my $fileC = FileCatalog->new;
 $fileC->connect;
 
 # Set the defaults for he state values
-$all = 0;
+$all = 1;
 $field_list = "";
 $cond_list = "";
 $fileC->debug_off();
-$debug = 1;
+$debug = 0;
 $onefile = 0;
+$outfilename = "";
+$OUTHANDLE = 200;
 
 # Parse the cvommand line arguments.
 $count = 0;
@@ -50,8 +52,7 @@ $count = 0;
 #    $count++;
 #    
 #  }
-while (defined $ARGV[$count])
-  {
+while (defined $ARGV[$count]){
     if ($ARGV[$count] eq "-all")
       {	$all = 1; }
     elsif ($ARGV[$count] eq "-distinct")
@@ -76,24 +77,34 @@ while (defined $ARGV[$count])
       {
 	$cond_list = $ARGV[++$count];
 	if ($debug > 0) { print "The conditions list is $cond_list\n"; }
-    } else {
+      }
+    elsif ($ARGV[$count] eq "-o")
+    {
+	$outfilename = $ARGV[++$count];
+    }
+    else
+    {
+
 	print "Unknown switch used: ".$ARGV[$count]."\n";
 	&Usage();
 	exit;
     }
     $count++;
-
-  }
+}
 
 if ($count == 0){
     &Usage();
 } else {
+    if ($outfilename ne ""){
+	open (STDOUT, '>', $outfilename) || die "Cannot redirect output to file $outfilename";
+    }
+
     # Setting the context based on the swiches
-    foreach (split(/,/,$cond_list)) {
+    foreach (split(/,/,$cond_list)){
 	$fileC->set_context($_);
     }
     if ($all==1)
-      { $fileC->set_context("all=1"); }
+      { $fileC->set_context("nounique=1"); }
     if (defined $limit)
       { $fileC->set_context("limit=$limit"); }
     if (defined $start)
@@ -107,10 +118,13 @@ if ($count == 0){
     @output = $fileC->run_query(split(/,/,$field_list));
 
     # Printing the output
-    if ($onefile != 1){
+    if ($onefile != 1)
+      {
 	foreach (@output)
-	{ print "$_\n"; }
-    } else {	
+	  { print "$_\n"; }
+    }
+    else
+    {	
 	my $lastfname = "";
 	my $delimeter;
 
@@ -119,15 +133,15 @@ if ($count == 0){
 	else
 	  { $delimeter = "::"; }
 	foreach (@output)
-	{ 
+	  { 
 	    my @fields;
 	    (@fields) = split($delimeter,$_);
-	    undef($fields[$#fields]);
-	    $#fields--;
+	    $fields[$#fields] = "";
 	    if (join($delimeter,(@fields)) ne $lastfname)
-	      { print join($delimeter,(@fields))."\n"; }
+	      { print "$_\n"; }
 	    $lastfname = join($delimeter,(@fields));
-	}
+	  }
+
     }
 }
 
@@ -135,24 +149,7 @@ if ($count == 0){
 sub Usage
 {
     print "Command usage:\n";
-    print "% get_file_list.pl [{-all|-distinct}] -keys keyword[,keyword,...] [-cond keyword=value[,keyword=value,...]] [-start <start record number>] [-limit <number of output records>] [-delim <string>]\n";
+    print "% get_file_list.pl [-all] [-distinct] -keys field{,field} [-cond field=value{,field=value}] [-start <start record number>] [-limit <number of output records>] [-delim <string>] [-onefile] [-o <output filename>]\n";
     print "The valid keywords are: ".join(" ",$fileC->get_keyword_list())."\n";
 }
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 
