@@ -1,10 +1,17 @@
-#!/usr/local/bin/tcsh -f
+#!/usr/local/bin/perl
 #
-# STAR_LEVELS.csh - C-Shell script to display STAR levels as string.
+# STAR_LEVELS - Perl script to display STAR levels as string.
 # Usage: STAR_LEVELS
 #
-set pgmf = `which root4star`; 
-set pgm = `ls -al $pgmf | cut -c42-120 |sed -e 's/ /_/g ; s,/afs/rhic/star/packages/,,g ; s,/bin/root4star,,g'`
-
-echo " "`hostname`";"CERN-$CERN_LEVEL\;STAR-$STAR_LEVEL\;root4star-${pgm}\;`date +%d_%h_%y`|sed -e 's/ //g'
+# T. Wenaus
 #
+$pgmf = `which root4star`; 
+chomp $pgmf;
+$createTime = (stat($pgmf))[10];
+($cmin,$chr,$cdy,$cmo,$cyr) = (localtime($createTime))[1,2,3,4,5];
+$cmo = $cmo +1;
+$pgmf =~ s,/afs/rhic/star/packages/,,g;
+$pgmf =~ s,/bin/root4star,,g;
+$host = `hostname`;
+chomp $host;
+print "$host;CERN-$ENV{CERN_LEVEL};STAR-$ENV{STAR_LEVEL};root4star-$cmo/$cdy/$cyr-$chr:$cmin-$pgmf\n";
