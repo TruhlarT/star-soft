@@ -1,6 +1,6 @@
 #!/opt/star/bin/perl 
 #
-# $Id: dbDefConfig.pl,v 1.1 2000/04/28 14:08:03 porter Exp $
+# $Id: dbDefConfig.pl,v 1.2 2001/02/16 22:11:22 porter Exp $
 #
 # Author: R. Jeff Porter
 #
@@ -15,6 +15,9 @@
 #****************************************************************************
 # 
 # $Log: dbDefConfig.pl,v $
+# Revision 1.2  2001/02/16 22:11:22  porter
+# modified for new low-level table structures
+#
 # Revision 1.1  2000/04/28 14:08:03  porter
 # management perl scripts for db-structure accessible from StDbLib
 #
@@ -50,13 +53,14 @@ print $inputFile, " ", $inputDbName, " \n";
 ##########################################
 
 $dbName='';
-@nodeName;
-@nodeVersion;
-@nodeID;
-@nodeParent;
+@nodeName=();
+@nodeVersion=();
+@nodeID=();
+@nodeParent=();
 $configID=0;
 $thisNodeType;
-@actionWord;
+@actionWord=();
+@nodeComment=();
 
 #########################################
 #
@@ -65,6 +69,7 @@ $thisNodeType;
 #
 #########################################
 
+#--- parse the xml file 
 parse_Config(fileName=>$inputFile,DEBUG=>$debug);
 
 #--------- check database name --------------------------
@@ -128,11 +133,11 @@ $sth->finish;
 #------------------------------------------------------------------------
 
 $query=qq{Select ID from NodeRelation } .
-       qq{ where ParentID=? AND NodeID=? AND ConfigID=?};
+       qq{ where ParentID=? AND NodeID=? AND BranchID=? AND ConfigID=?};
 $sthQ=$dbh->prepare($query);
 
 $insert=qq{Insert into NodeRelation } .
-        qq{ set ParentID=?, NodeID=?, ConfigID=?};
+        qq{ set ParentID=?, NodeID=?, BranchID=?, ConfigID=?};
 $sthI=$dbh->prepare($insert);
 
 $delete=qq{Delete from NodeRelation } .
@@ -146,6 +151,9 @@ $sthL=$dbh->prepare($log);
 #-------------------------------------------------------------------------
 
 $rowID=0;
+my @branchID;
+$#branchID=$#nodeName;
+for($k=0;$k<=$#branchID;$k++){$branchID[$k]=0;};
 for($k=1;$k<=$#nodeName;$k++){
 
     if($debug){
@@ -160,30 +168,20 @@ for($k=1;$k<=$#nodeName;$k++){
   }
 
 #-------- check this node-Relation ---------
-  $sthQ->execute($nodeID[$nodeParent[$k]],$nodeID[$k],$configID);
+  $sthQ->execute($nodeID[$nodeParent[$k]],$nodeID[$k],$branchID[$nodeParent[$k]],$configID);
   $rowID=$sthQ->fetchrow_array;
 
 #-------- See what to do & do it -----------
   if($actionWord[$k]=~m/add/){ # ------ add nodeRelation --------
 
-      if( !$rowID ) {
-        $sthI->execute($nodeID[$nodeParent[$k]],$nodeID[$k],$configID);
-        $sthQ->execute($nodeID[$nodeParent[$k]],$nodeID[$k],$configID);
-        if((($rowID)=$sthQ->fetchrow_array)){
-           $sthL->execute($nodeID[$nodeParent[$k]],$nodeID[$k],$configID,$actionWord[$k],$nodeComment);
-        }
-      } else {
-        print "Node=",$nodeName[$k]," of Parent=",$nodeName[$nodeParent[$k]];
-        print " Already in database for configID=",$configID,"\n";
-      }
+        $sthI->execute($nodeID[$nodeParent[$k]],$nodeID[$k],$branchID[$nodeParent[$k]],$configID);
+        $sthQ->execute($nodeID[$nodeParent[$k]],$nodeID[$k],$branchID[$nodeParent[$k]],$configID);
+        $branchID[$k]=$sthQ->fetchrow_array;
         
   } else { # ---------- delete nodeRelation -------------------
 
     if( $rowID ){
        $rv=$sthD->execute($rowID);
-       if($rv==1){
-           $sthL->execute($nodeID[$nodeParent[$k]],$nodeID[$k],$configID,$actionWord[$k],$nodeComment[$k]);
-       }
     } else {
         print "Node=",$nodeName[$k]," of Parent=",$nodeName[$nodeParent[$k]];
         print " Is not part of Configuration, configID=",$configID,"\n";

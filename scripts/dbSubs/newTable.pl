@@ -1,6 +1,6 @@
 #!/opt/star/bin/perl -w
 #
-# $Id: newTable.pl,v 1.1 2000/04/28 14:08:22 porter Exp $
+# $Id: newTable.pl,v 1.2 2001/02/16 22:11:38 porter Exp $
 #
 # Author: R. Jeff Porter
 #
@@ -11,11 +11,14 @@
 #****************************************************************************
 # 
 # $Log: newTable.pl,v $
+# Revision 1.2  2001/02/16 22:11:38  porter
+# modified for new low-level table structures
+#
 # Revision 1.1  2000/04/28 14:08:22  porter
 # management perl scripts for db-structure accessible from StDbLib
 #
 #
-#
+## 
 #####################################
 
 use DBI;
@@ -51,7 +54,7 @@ for($i=0;$i<=$#elements;$i++){
         $storeType="ascii";
     }
         $ii=$i+1;
-        $statement="INSERT schema SET name='".$elements[$i]."', type='".$etypes[$i]."', length='".$elengths[$i]."', schemaID=1, Comment='".$ecomments[$i]."', storeType='".$storeType."', structName='".$tableName."', structID=".$structID.", position=".$ii;
+        $statement="INSERT schema SET name='".$elements[$i]."', type='".$etypes[$i]."', length='".$elengths[$i]."', schemaID=1, Comment='".$ecomments[$i]."', storeType='".$storeType."', structName='".$tableName."', structID=".$structID.", position=".$ii.", units='".$eunits."'";
     if($debug){print $statement, " \n";}
         $sth=$dbh->prepare($statement);
         $sth->execute;
@@ -66,7 +69,18 @@ for($i=0;$i<=$#elements;$i++){
 #
 #####################################################
 
-        $dbData="(dataID int not null auto_increment, entryTime timestamp";
+#    $dbData=qq{ \(dataID int not null auto_increment, 
+#                  entryTime timestamp";
+
+my $dbData= qq{ (dataID int(11) DEFAULT '0' NOT NULL auto_increment,} .
+ qq{ entryTime timestamp(14),} .
+ qq{ nodeID int(11) NOT NULL,} .
+ qq{ elementID smallint(6) DEFAULT '0' NOT NULL,} .
+ qq{ beginTime datetime DEFAULT '1969-12-31 19:00:00' NOT NULL,} .
+ qq{ flavor char(8) DEFAULT 'ofl' NOT NULL,} .
+ qq{ numRows smallint(6) DEFAULT '1' NOT NULL,} .
+ qq{ schemaID int(11) DEFAULT '1' NOT NULL, } .
+ qq{ deactive int(10) unsigned DEFAULT '0' NOT NULL };
 
 ##########################################
 #
@@ -89,7 +103,7 @@ for($i=0;$i<=$#elements;$i++){
 #            }
 
             if($btest=~m/\,/){  # multi-dimensions
-                $ttest="blob";
+                $ttest="longblob";
             } elsif(!($ttest=~m/char/) && ($btest>1) && ($btest<=60)){
                 $ttest="mediumtext";
             } elsif($btest==1){
@@ -104,14 +118,18 @@ for($i=0;$i<=$#elements;$i++){
                     $ttest="mediumtext";
                 }
             } elsif($btest>60){
-                $ttest="blob";
+                $ttest="longblob";
             }
 
            $dbData=join(" ",$dbData,$ttest);
         }
 
-        $dbData=join(", ",$dbData," Key (dataID))");
+#        $dbData=join(", ",$dbData," Key (dataID), )");
 
+ my    $indexString=qq{ Key (dataID), KEY entryTime (entryTime), } .
+	 qq{ PRIMARY KEY (nodeID,beginTime,flavor,elementID,deactive) )};
+
+	$dbData=join(", ",$dbData,$indexString);
 ##################
 #
 # print out query

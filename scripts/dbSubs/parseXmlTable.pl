@@ -1,6 +1,6 @@
 #!/opt/star/bin/perl -w
 #
-# $Id: parseXmlTable.pl,v 1.1 2000/04/28 14:08:22 porter Exp $
+# $Id: parseXmlTable.pl,v 1.2 2001/02/16 22:11:38 porter Exp $
 #
 # Author: R. Jeff Porter
 #
@@ -11,6 +11,9 @@
 #****************************************************************************
 # 
 # $Log: parseXmlTable.pl,v $
+# Revision 1.2  2001/02/16 22:11:38  porter
+# modified for new low-level table structures
+#
 # Revision 1.1  2000/04/28 14:08:22  porter
 # management perl scripts for db-structure accessible from StDbLib
 #
@@ -181,6 +184,8 @@ sub handle_char {
              $evalues[$#evalues]='';
              $#ecomments++;
              $ecomments[$#ecomments]='';
+             $#eunits++;
+             $eunits[$#eunits]='';
              if($commentFlag){$commentFlag=0;} # reset flag if no table comment
 
             }
@@ -194,6 +199,10 @@ sub handle_char {
             } else {
              $elengths[$#elengths]=$element;
             }
+        }
+
+        if($currentElement eq 'units'){
+              $eunits[$#eunits]=$element;
         }
 
         if($currentElement eq 'value'){

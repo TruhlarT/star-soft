@@ -1,6 +1,6 @@
 #!/opt/star/bin/perl -w
 #
-# $Id: parseXmlConfig.pl,v 1.1 2000/04/28 14:08:22 porter Exp $
+# $Id: parseXmlConfig.pl,v 1.2 2001/02/16 22:11:38 porter Exp $
 #
 # Author: R. Jeff Porter
 #
@@ -11,6 +11,9 @@
 #****************************************************************************
 # 
 # $Log: parseXmlConfig.pl,v $
+# Revision 1.2  2001/02/16 22:11:38  porter
+# modified for new low-level table structures
+#
 # Revision 1.1  2000/04/28 14:08:22  porter
 # management perl scripts for db-structure accessible from StDbLib
 #
@@ -28,10 +31,11 @@ sub parse_Config {
               );
 
   if($args{DEBUG}){
-  print $args{fileName}, "\n";
+  print "In parseXmlConfig with input file=".$args{fileName}, "\n";
 }
 
   $filename = $args{fileName};
+
 
 %colormap = (
              directory => "navy",
@@ -40,8 +44,8 @@ sub parse_Config {
 
 
 $fullpath = '';
-@currentElement = '';
-$content=" ";
+my @currentElement = ();
+$content='';
 $p1 = new XML::Parser(Handlers => {Start => \&handle_start,
                                      End   => \&handle_end,
                                    Char  => \&handle_char});
@@ -51,7 +55,7 @@ $p1 = new XML::Parser(Handlers => {Start => \&handle_start,
   $depth = 0;
   $dec=0;
   $node=0;
-  @currentParent;
+  @currentParent=();
   $thisParent=0;
   
 $p1->parsefile($filename);
@@ -61,12 +65,14 @@ $p1->parsefile($filename);
 
 ######################
 sub handle_start {
-    local ($expat, $element) = @_;
+#    local ($expat, $element) = @_;
+    my ($expat, $element) = @_;
+#    print "c-start ",$element,"\n";
     $element =~ s/[\s\n]*//g;    
     $currentElement = $element;
-#    print "c-start ",$element,"\n";
     if($currentElement eq 'dbNode'){ 
         $depth++;
+#        print $node," c-start check ",$element," depth=",$depth,"\n";
       if($dec<1){
            
 #        print $node," c-start check ",$element," depth=",$depth,"\n";
@@ -85,7 +91,8 @@ sub handle_start {
 
 ######################
 sub handle_end {
-    local ($expat, $element) = @_;
+#    local ($expat, $element) = @_;
+    my ($expat, $element) = @_;
     $currentElement = $element;
 #    print "c-end ",$element,"\n";
     if($currentElement eq 'dbNode'){
@@ -102,10 +109,14 @@ sub handle_end {
 ######################
 sub handle_char {
 # Here's where the variables are loaded Keyed by "currentElement"
-   local ($expat, $element) = @_;
+#   local ($expat, $element) = @_;
+   my ($expat, $element) = @_;
 
+#       print "Element -1 = ",$element," \n";
    if(!($currentElement eq 'comment')){
+#       print "Element 0 = ",$element;
      $element =~ s/[\s\n]*//g;
+#       print " Element 1 = ",$element, "\n";
      }
     if ( $element ne '') {
         if ( $currentElement eq 'StarDataBase' ) {
@@ -114,7 +125,7 @@ sub handle_char {
         if ( $currentElement eq 'dbNode' && $startKey){
             $#nodeName++;
 #           print "Current element = ",$#nodeName," ",$element," ",$node," parent= ",$thisParent,"\n";
-            $node=$#nodeDepth=$#nodeVersion=$#nodeParent=$#nodeName;
+            $node=$#nodeDepth=$#nodeVersion=$#nodeParent=$#actionWord=$#nodeComment=$#nodeName;
             $nodeParent[$node]=$thisParent;
             $nodeName[$node]=$element;
             $nodeVersion[$node]="default";
@@ -128,9 +139,9 @@ sub handle_char {
             $nodeVersion[$node] = $element;
         }
         if ( $currentElement eq 'action' ){
-            print "In action ",$nodeName[$node]," ",$node,"\n";
+#            print "In action ",$nodeName[$node]," ",$node,"\n";
             if($element eq 'delete'){
-            print "In delete action ",$nodeName[$node]," ",$node,"\n";
+#            print "In delete action ",$nodeName[$node]," ",$node,"\n";
                  #--- assume 'add' unless it is really 'delete' ----#
                 $actionWord[$node]=$element;
             }

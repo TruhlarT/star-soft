@@ -1,6 +1,6 @@
 #!/opt/star/bin/perl -w
 #
-# $Id: parseXmlNode.pl,v 1.1 2000/04/28 14:08:22 porter Exp $
+# $Id: parseXmlNode.pl,v 1.2 2001/02/16 22:11:38 porter Exp $
 #
 # Author: R. Jeff Porter
 #
@@ -11,6 +11,9 @@
 #****************************************************************************
 # 
 # $Log: parseXmlNode.pl,v $
+# Revision 1.2  2001/02/16 22:11:38  porter
+# modified for new low-level table structures
+#
 # Revision 1.1  2000/04/28 14:08:22  porter
 # management perl scripts for db-structure accessible from StDbLib
 #
@@ -91,6 +94,8 @@ sub handle_char {
             $nodeElementIDs[$i]="None";
             $nodeVersion[$i]="default";
             $nodeComment[$i]='';
+            $nodeIndexName[$i]="None";
+            $nodeIndexVal[$i]=0;
         }
 
         if ( $currentElement eq 'StDbTable') {
@@ -119,6 +124,12 @@ sub handle_char {
             $nodeComment[$i]=$element;
           #  print "ElementComment = ",$element,"\n";
         }
+        if ( $currentElement eq 'indexName'){
+	    $nodeIndexName[$i]=$element;
+	}
+        if ( $currentElement eq 'indexVal'){
+	    $nodeIndexVal[$i]=$element;
+	}
   
         if ( $currentElement eq 'type') {
             $nodeType[$i]=$element;

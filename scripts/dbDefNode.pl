@@ -1,6 +1,6 @@
 #!/opt/star/bin/perl 
 #
-# $Id: dbDefNode.pl,v 1.1 2000/04/28 14:08:03 porter Exp $
+# $Id: dbDefNode.pl,v 1.2 2001/02/16 22:11:22 porter Exp $
 #
 # Author: R. Jeff Porter
 #***************************************************************************
@@ -13,6 +13,9 @@
 #****************************************************************************
 # 
 # $Log: dbDefNode.pl,v $
+# Revision 1.2  2001/02/16 22:11:22  porter
+# modified for new low-level table structures
+#
 # Revision 1.1  2000/04/28 14:08:03  porter
 # management perl scripts for db-structure accessible from StDbLib
 #
@@ -56,6 +59,8 @@ $tableName='';
 @nodeBinary;
 @nElements;
 @nodeComment;
+@nodeIndexName;
+@nodeIndexVal;
 $nNodeIDs=0;
 
 #########################################
@@ -130,7 +135,7 @@ for($i=0;$i<=$#nodeName;$i++){
 
    if(!$skip){ 
 
-$query="Insert into Nodes set name='".$nodeName[$i]."', versionKey='".$nodeVersion[$i]."', NodeType='".$nodeType[$i]."', structName='".$nodeStruct[$i]."'".$tableInfo.", elementID='".$nodeElementIDs[$i]."', Comment='".$nodeComment[$i]."'";
+$query="Insert into Nodes set name='".$nodeName[$i]."', versionKey='".$nodeVersion[$i]."', NodeType='".$nodeType[$i]."', structName='".$nodeStruct[$i]."'".$tableInfo.", elementID='".$nodeElementIDs[$i]."', Comment='".$nodeComment[$i]."'".", indexName='".$nodeIndexName[$i]."', indexVal='".$nodeIndexVal[$i]."'";
 
   if($debug){ print $query,"\n";}
 
