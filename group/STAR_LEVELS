@@ -54,10 +54,11 @@ if ($ARGV[0] eq "-g"){
 	}
 
 	if ($version ne ""){
-	    if ($version ne $ENV{STAR_LEVEL} && 
-		($version ne "adev" && $ENV{STAR_LEVEL} ne "dev") ){
-		print "Wrong STAR environment\n";
-	    }
+	    if ($version ne $ENV{STAR_LEVEL}){
+		if ($version ne "adev" || $ENV{STAR_LEVEL} ne "dev") {
+		    print "Missmatching STAR environment (now in ".$ENV{STAR_LEVEL}.")\n";
+		}
+	    } 
 	    print "$version was the version this code was previously compiled in ...\n";
 	} else {
 	    print STDERR "Could not guess the library version you compiled your code in\n";
