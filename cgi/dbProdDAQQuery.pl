@@ -57,7 +57,7 @@ END
   print " <title>Production Summary</title>";
   print "  </head>\n";
   print "  <body bgcolor=\"#ffdc9f\"> \n";
-  print "  <h1 align=center>Production Series Querry </h1>\n";
+  print "  <h1 align=center>Production Series Query </h1>\n";
   print " </head>\n";
   print " <body>";
 
