@@ -122,32 +122,37 @@ sub offline_real{
   # first get the prodSeries and chainName
   # according to the report key
 
-  my $query_info = qq{select prod.prodSeries, file.geometry
-		      from $dbQA.$QASum{Table} as qa,
-			   $dbFile.$JobStatus as job
+  my $query_info = qq{select job.prodSeries, job.chainName, file.dataset
+		      from $dbQA.$QASum{Table}  as qa,
+			   $dbFile.$JobStatus   as job,
+			   $dbFile.$FileCatalog as file
 		      where qa.$QASum{report_key} = '$report_key' and
+			    qa.$QASum{jobID}      = file.jobID    and
 			    qa.$QASum{jobID}      = job.jobID 
-			    limit 1 };
+			    limit 1} ;
 
   # then find similar jobs- return the report keys
   
   my $query_sim = qq{select distinct qa.report_key
 		     from $dbQA.$QASum{Table} as qa,
-		          $dbFile.$JobStatus as job
+		          $dbFile.$JobStatus as job,
+		          $dbFile.$FileCatalog as file
 		     where 
 			qa.$QASum{jobID} = job.jobID and
+			qa.$QASum{jobID} = file.jobID and
 			job.prodSeries   = ? and
 			job.chainName    = ? and
+			file.dataset     = ? and
 			qa.$QASum{report_key} != '$report_key'
 		        limit $limit};
 
   my ($sth, @similar_keys);
 
-  my ($prodSeries, $chainName) = $dbh->selectrow_array($query_info);
+  my ($prodSeries, $chainName, $dataset) = $dbh->selectrow_array($query_info);
 
-  $sth = $dbh->prepare($query_sim );
+  $sth = $dbh->prepare( $query_sim );
   
-  $sth->execute($prodSeries, $chainName);
+  $sth->execute($prodSeries, $chainName, $dataset);
 
   while (my $report_key = $sth->fetchrow_array){
     push @similar_keys, $report_key;

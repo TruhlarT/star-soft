@@ -683,23 +683,30 @@ sub StErrorFile{
   return "$report_dir/StError.txt";
 } 
 #=====================================================================
-# temporary soft link to the log file to view it over the web
+# creates temporary soft link to the log file to view it over the web
+# returns the WWW link
 
 sub LogScratchWWW{
   my $self    = shift;
   my $logfile = shift;
 
   srand; # sets the seed
-  my $id_string = int(rand(100000));
+  my $id_string = int(rand(1000000));
 
-  my $scratch_WWW = $gDataClass_object->ScratchDirWWW;
-  my $link        = "$scratch_WWW/logfile_link_$id_string";
-  
-  print h3("$link", "$logfile");
+  my $scratch_WWW     = $gDataClass_object->LogScratchDirWWW;
+  my $scratch_log_dir = $gDataClass_object->LogScratchDir;
+  my $base_link       = "logfile_link_${id_string}";  
 
-  symlink $logfile, $link or warn "Couldn't symlink";
+  # http link
+  my $WWW_link        = "$scratch_WWW/$base_link";
+  # full soft link on disk
+  my $soft_link       = "$scratch_log_dir/$base_link";
 
-  return $link;
+  # make the soft link
+  #
+  symlink $logfile, $soft_link or warn "Couldn't symlink";
+
+  return $WWW_link;
 }
   
 

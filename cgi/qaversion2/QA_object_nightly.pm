@@ -50,14 +50,12 @@ sub InitControlFile{
 sub DataDisplayString{
   my $self = shift;
 
-  my $jobID           = $self->JobID;
-  my $string          = $self->ReportKey;     
   my $starlib_version = $self->LogReport->StarlibVersion;
   my $star_level      = $self->LogReport->StarLevel;
   
-  $string .= 
-    "<br>JobID = $jobID".
-    "<br>(STARLIB version: $starlib_version; STAR level: $star_level)";
+  return $self->ReportKey . br . br .
+         "JobID : " . $self->JobID . br .
+	 "(STARLIB version: $starlib_version; STAR level: $star_level)";
       
     
   #my $input_filename = $self->LogReport->InputFn;
@@ -68,7 +66,6 @@ sub DataDisplayString{
   #$input_filename =~ s%/star/rcf/disk0/star/test/|/star/rcf/simu/%%;
   #$string .= "<br><font size=1>(input: $input_filename)</font>";
 
-  return $string;
 }
 
 #========================================================

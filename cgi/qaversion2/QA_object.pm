@@ -665,14 +665,11 @@ sub DisplayFilesAndReports{
 
     if (-s $logfile){
      
-      # random number for uniqueness
-      my $id_string = int(rand(1000000));
-
       my $io = IO_object->new("LogScratchWWW",$logfile);
-      my $link = $io->Name;
+      my $WWWlink = $io->Name;
 
       my $string = "Logfile (created:" . localtime(stat($logfile)->mtime) . ")";
-      QA_cgi_utilities::make_anchor($string, $logfile, $link); 
+      QA_cgi_utilities::make_anchor($string, $logfile, $WWWlink); 
     }
   }
 

@@ -101,11 +101,13 @@ for my $attr ( qw (
 		   TopDirReportWWW
 		   ControlDirWWW
 		   BatchDirWWW
-		   ScratchDirWWW
+		   LogScratchDirWWW
+		   LogScratchDir
 		   KeyList_obj
 		   QA_obj
 		   GetSelectedKeys
 		   GetSelectionOptions
+		   GetMissingFiles
 		   dbFile
 		   FileCatalog
 		   JobStatus
@@ -247,7 +249,8 @@ sub StandardDirectories{
 
   # need to make a temporary link to the logfiles
   #
-  $self->ScratchDirWWW("$topdir_WWW/scratch");
+  $self->LogScratchDirWWW("$topdir_WWW/scratch");
+  $self->LogScratchDir("/star/u2e/bum/WWW/scratch");
 
   my $batch_dir = "$topdir/batch";
   $self->BatchDir("$batch_dir");
@@ -287,6 +290,9 @@ sub offline_real{
   # for updating from DB
   $self->UpdateRoutine("Db_update_utilities::UpdateQAOfflineReal");
 
+  # get missing files
+  $self->GetMissingFiles("QA_db_utilities::GetMissingFilesReal");
+
   # browser banner for interactive display
   $self->BrowserBannerColor("red");
   $self->BrowserBannerLabel("Real Data Production");
@@ -325,6 +331,9 @@ sub offline_MC{
   # for updating from DB
   $self->UpdateRoutine("Db_update_utilities::UpdateQAOfflineMC");
 
+  # get missing files
+  $self->GetMissingFiles("QA_db_utilities::GetMissingFilesMC");
+
   # browser banner for interactive display
   $self->BrowserBannerColor("red");
   $self->BrowserBannerLabel("MC Data Production");
@@ -362,6 +371,9 @@ sub nightly_real{
   # for updating from DB
   $self->UpdateRoutine("Db_update_utilities::UpdateQANightlyReal");
 
+  # get missing files
+  $self->GetMissingFiles("QA_db_utilities::GetMissingFilesReal");
+
   # browser banner for interactive display
   $self->BrowserBannerColor("red");
   $self->BrowserBannerLabel("Real Data Nightly Tests");
@@ -397,6 +409,9 @@ sub nightly_MC{
   # for updating from DB
   $self->UpdateRoutine("Db_update_utilities::UpdateQANightlyMC");
 
+  # get missing files
+  $self->GetMissingFiles("QA_db_utilities::GetMissingFilesMC");
+
   # browser banner for interactive display
   $self->BrowserBannerColor("red");
   $self->BrowserBannerLabel("MC Data Nightly Tests");
@@ -430,6 +445,9 @@ sub debug{
 
   # for updating from DB
   $self->UpdateRoutine("Db_update_utilities::UpdateQANightlyMC");
+
+  # get missing files
+  $self->GetMissingFiles("QA_db_utilities::GetMissingFilesMC");
 
   # browser banner for interactive display
   $self->BrowserBannerColor("yellow");

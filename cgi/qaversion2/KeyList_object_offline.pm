@@ -184,7 +184,7 @@ sub JobPopupMenu{
   my (@table_rows);
 
   $table_rows[0] = td( [h3('Select dataset:')]);
-  push @table_rows, td( [$prodOptions_string, $runID_string, $dataset_string ]);
+  push @table_rows, td( [$prodOptions_string, $runID_string, $dataset_string]);
   push @table_rows, td( [$QAstatus_string, $jobStatus_string, $createTime_string ]);
   push @table_rows, td( [$submit_string] );
 
