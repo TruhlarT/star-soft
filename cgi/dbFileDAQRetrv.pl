@@ -35,6 +35,7 @@ $cursor =$dbh->prepare($sql)
 $cursor->execute;
 
 my $counter = 0;
+$pair{'comment'} = "no";
 while(@fields = $cursor->fetchrow) {
   my $cols=$cursor->{NUM_OF_FIELDS};
 
@@ -45,7 +46,7 @@ while(@fields = $cursor->fetchrow) {
     $pair{$fname} = $fvalue;
    
   }
-  if (! defined $pair{'comment'} ) {
+  if (!defined $pair{'comment'} ) {
     $pair{'comment'} = "no";
   }
 &printRow();
