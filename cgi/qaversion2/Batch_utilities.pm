@@ -90,9 +90,9 @@ sub SubmitLSFJob
 
     # -N == notify on job completion  }___taken out for now
     # -B == notify on job dispatch    }
-    my $cmdStr = 
-	"bsub -N -u $notifyEmail -J $jobName -q $lsfQueue \"$cmd\"";
-    #my $cmdStr = "bsub -J $jobName -q $lsfQueue \"$cmd\"";
+    #my $cmdStr = 
+	#"bsub -B -N -u $notifyEmail -J $jobName -q $lsfQueue \"$cmd\"";
+    my $cmdStr = "bsub -J $jobName -q $lsfQueue \"$cmd\"";
     my $retStr = `$cmdStr 2>&1`;   # /bin/sh is bash; need bash redirection
 
     # extract job ID from output
