@@ -721,7 +721,7 @@ sub make_date_nice{
 # also removes unfriendly single quotes
 
 sub remove_white_space{
-  $_[0] =~ s/\s+//g;
+  $_[0] =~ s/\s//g;
   $_[0] =~ s/'//g;
   return $_[0];
 }

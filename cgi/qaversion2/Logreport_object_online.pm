@@ -171,20 +171,23 @@ sub ParseInfoFile{
     # i'm only interest in the first and last values so
     # keep in arrays for simplicity
  
-    if ($line =~ /(\d+)\s+(\d+)/){
+    if ($line =~ /0*(\d+)run\S+\s+(.*)/){
       push @index_ary, $1;
-      push @daqtime_ary, $2;
+      (my $time = $2) =~ s/\s*$//;
+      push @daqtime_ary, $time;
       next;
     }
   }
+  # just in case we couldnt find the starlib version, set default to new
+  $self->{_StarlibVersion} = "new";
 
   # first and last events and their corresponding received times
-  $self->FirstEvent(pop @index_ary);
-  $self->FirstEventReceivedTime(pop @daqtime_ary);
+  $self->FirstEvent(shift @index_ary);
+  $self->FirstEventReceivedTime(shift @daqtime_ary);
 
   # be careful if only one event
-  my $lastevent = shift @index_ary   || $self->FirstEvent;
-  my $lasttime  = shift @daqtime_ary || $self->FirstEventReceivedTime;
+  my $lastevent = pop @index_ary   || $self->FirstEvent;
+  my $lasttime  = pop @daqtime_ary || $self->FirstEventReceivedTime;
 
   $self->LastEvent($lastevent);
   $self->LastEventReceivedTime($lasttime);
@@ -237,8 +240,7 @@ sub InsertIntoDb(){
   my $self = shift;
   
   # daq time of last event
-  my $epoch_sec = $self->LastEventReceivedTime;;
-  my $dateTime  = strftime("%Y-%m-%d %H:%M:%S",localtime($epoch_sec));
+  my $dateTime = $self->JobCompletionTimeAndDate;
   QA_db_utilities::UpdateQASummary($QASum{createTime}, $dateTime,$self->qaID);
 
   # run ID
@@ -261,12 +263,8 @@ sub InsertIntoDb(){
 sub LogfileSummaryString{
   my $self = shift;
 
-  my $daq_epoch = $self->LastEventReceivedTime;
-  my $daq_date  = strftime("%Y-%m-%d %H:%M:%S",localtime($daq_epoch));
-
-  my $string = "Last evt received ; " . br . $daq_date . br . br .
-               "Events: (" . $self->FirstEvent . "-" . $self->LastEvent . ")".
-               "\n";
+  return 
+	 "Events: (" . $self->FirstEvent . "-" . $self->LastEvent . ")". "\n";
   
 }  
 #----------

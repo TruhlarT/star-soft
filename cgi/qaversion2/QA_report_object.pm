@@ -268,8 +268,9 @@ sub RunMacro{
   # starlib version
   my $starlib_version = $self->LogReport->StarlibVersion;   
   
-  if ($starlib_version =~ /SL/){ $starlib_version =~ s/SL// }
-  else                         { $starlib_version = "dev"   }
+  if ($starlib_version =~ /SL/)     { $starlib_version =~ s/SL// }
+  elsif ($starlib_version eq "new" || $starlib_version eq "pro" ) { }
+  else                              { $starlib_version eq "dev" }
   
   # how many events were requested?
   # for offline real, event requested is meaningless
@@ -382,7 +383,7 @@ sub RunMacro{
   my $scratch_local = $io->Name();
   undef $io;
 
-  print "Rootcommands = ", "\n", join ("\n",@root_commands),"\n";
+  print "Rootcommands = ", "\n", join ("\n",@root_commands), "\n";
  
 
   my @root_output = 

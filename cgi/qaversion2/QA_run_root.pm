@@ -17,7 +17,7 @@ sub run_root{
 #		  ".L read_bfc_hist_list.C",
 #		  "Example_pmj()",
 #		  ".q");
-# run_root($starlib_version, $scratch, $root_logfile, @root_commands);
+# run_root($starlib_version, $scratch, @root_commands);
 
 #-------------------------------------------------------------------
 
@@ -35,10 +35,11 @@ sub run_root{
   open (SCRIPT, "> $script") or die "Cannot open $script: $!\n";
 
   # write to script
-  print SCRIPT "#! /usr/local/bin/tcsh\n",
+  print SCRIPT "#! /usr/local/bin/tcsh -f\n",
   "setenv GROUP_DIR /afs/rhic/rhstar/group\n",
   "setenv CERN_ROOT /cern/pro\n",
   "setenv HOME /star/u2e/starqa\n";
+
 #---
 
 # pmj 9/2/00: There is currently a problem setting any environment other than 
@@ -51,17 +52,23 @@ sub run_root{
 # Try again with new...
 
   if ($starlib_version eq "dev" ){
-    print SCRIPT "source /afs/rhic/rhstar/group/.stardev \n";
+      print SCRIPT "source /afs/rhic/rhstar/group/.stardev \n";
+  }
+  elsif ($starlib_version eq "new" ){
+      print SCRIPT "source /afs/rhic/rhstar/group/.starnew \n";
+  }
+  elsif ($starlib_version eq "pro" ){
+      print SCRIPT "source /afs/rhic/rhstar/group/.starpro \n";
   }
   else{
-    print SCRIPT "source /afs/rhic/rhstar/group/.starver ".$starlib_version."\n";
+      print SCRIPT "source /afs/rhic/rhstar/group/.starver ".$starlib_version."\n";
   }
 
 #    print SCRIPT "source /afs/rhic/rhstar/group/.stardev \n";
 
 #----
 
-  print SCRIPT "root4star -b<<END \n";
+  print SCRIPT "/afs/rhic/star/packages/DEV00/.i386_redhat61/bin/root4star -b <<END >>& /tmp/starlib/biteme \n";
 
   foreach $command (@commands){
     print SCRIPT $command."\n";
@@ -72,18 +79,20 @@ sub run_root{
   close SCRIPT;
   
   chmod 0755, $script;
-  
+
   # pipe both STDOUT and STDERR (see PERL Cookbook 16.7)
-  open ROOTLOG, "$script 2>&1 |"  or die "can't fork: $!";
-  @root_log = ();
+#  open ROOTLOG, "$script 2>&1 |"  or die "can't fork: $!";
+#  @root_log = ();
 
-  while ($line = <ROOTLOG>){
-    push @root_log, $line;
-  }
+#  while ($line = <ROOTLOG>){
+#    push @root_log, $line;
+#  }
   
-  close ROOTLOG;
+#  close ROOTLOG;
 
-  return @root_log;
+  $root_log = `$script  2>&1`;
+
+#  print "root_log = [$root_log]\n";
+  return split("\n",$root_log);
 
 }
-
