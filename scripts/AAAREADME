@@ -20,3 +20,27 @@ Quick summary of what script does what in this directory
                 should accomodate for all kind of option, chain, 
                 multiple production from the same library version 
                 etc ...
+
+ - ABUtils.pm   Per module controlling the entire set of compilation, 
+                Insure compilation, HTML formatting of the results and
+                test run + run-time output formatting. Changing this 
+                module without understanding what it does may cause a
+                complete collapse of all the other scripts. However, all
+                output directories and setup are there so a single file
+                change will update it all.
+ - AutoBuild.csh cronjob oriented Wrapper script to ...
+ - AutoBuild.pl Script managing library compilation. Use -h for help.
+                There are numerous possible options, some of which are
+                for library compilation debugging only. Noet that the 
+                wrapper uses the '-u' option as a default.
+ - insbld.pl    This script takes care of Insure++ compilation ONLY. Note
+                that unlike AutoBuild.pl, this script is meant for anyboddy
+                who wants to compile with Insure.
+ - inssort.pl   Sort Insure++ compilation warning list and output an html.
+                This script is called by insbld.pl . It was left separate
+                to allow users to format their own insure compilaton results.
+ - InsureTests.pl This script displays a list of possible Insure test runs.
+                Results are automatically piped to a unique text based file
+                name and formatted into HTML format by insrun.pl .
+ - insrun.pl    This script takes care of Insure++ run-time error message
+                formatting. 
