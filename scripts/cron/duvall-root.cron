@@ -35,4 +35,4 @@
 #     should not contain blank lines.
 #
 MAILTO=wenaus@bnl.gov
-13 3            * * *   /afs/rhic/star/packages/dev/scripts/cron/manage-duvall-root.csh
+13 3            * * *   /afs/rhic/star/packages/scripts/cron/manage-duvall-root.csh
