@@ -1,0 +1,11 @@
+#!/usr/local/bin/perl
+
+foreach $arg (@ARGV){
+    push(@FILES,glob($arg));
+}
+
+$d = 0;
+foreach $file (@FILES){
+    if( ! unlink($file) ){  print "Could not delete $file\n";}
+    else                 {  $d++;}
+}

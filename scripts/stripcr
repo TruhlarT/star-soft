@@ -1,0 +1,35 @@
+#!/usr/local/bin/perl
+
+
+# This script strips explicit CR characters at the end of
+# a plain ASCII file and also removes trailing spaces.
+# Written J.Lauret 1996.
+
+
+ if( ! defined($ARGV[0]) ){
+     die "Syntax : stripcr Infile [OutFile]\n";
+ }
+ if($ARGV[1] eq ""){
+     $ARGV[1] = $ARGV[0];
+ }
+
+ open(FI,"$ARGV[0]") || die "Could not open [$ARGV[0]]\n";
+ open(FO,">$ARGV[1]-tmp")|| die "Could not open [$ARGV[1]-tmp]\n";
+
+ while (<FI>){
+       chomp($line = $_);
+       $c	   = substr($line,length($line)-1,1);
+       # ^M character.
+       if( ord($c) == 13 ){
+	   chop($line);
+       }
+       # trim trailing in any case
+       $line =~ s/^(.*?)\s*$/$1/;
+       print FO "$line\n";
+ }
+ close(FI);
+ close(FO);
+ @prop = stat($ARGV[0]);
+ rename("$ARGV[1]-tmp","$ARGV[1]");
+ chmod($prop[2],$ARGV[1]);
+
