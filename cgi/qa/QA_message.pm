@@ -33,6 +33,8 @@ sub new{
   # initialize
   $self->_init(@_);
 
+  $new_Message_object = 1;
+
   return $self;
 }
 #========================================================

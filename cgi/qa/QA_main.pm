@@ -50,6 +50,12 @@ print $query->header;
 &QA_utilities::print_timing(0.,0.);
 
 #-------------------------------------------------------------------------
+# initialize some flags
+$new_QA_object = 0; 
+$new_Button_object = 0;
+$new_Message = 0;
+
+#-------------------------------------------------------------------------
 $path_info = $query->path_info;
 
 $TITLE = 'Offline Software QA';
@@ -125,9 +131,6 @@ sub upper_display{
 #==========================================================================
 sub lower_display{
 
-  #-------------------------------------------------------------------------
-  my $string = &QA_utilities::hidden_field_string;
-  print "$string";
   #-------------------------------------------------------------------------
   #print "In lower_display, here are query values: <br> \n";
   #print $query->dump;
@@ -217,7 +220,7 @@ sub starting_display {
   push @selection_list, @temp;
 
   #-----------------------------------------------------------
-  $hidden_string = &QA_utilities::hidden_field_string;
+  $hidden_string = &QA_utilities::hidden_field_string('DontWriteFile');
 
   $select_data_string= "<H3>Select datasets:</H3>".
     $query->startform(-action=>"$script_name/upper_display", -TARGET=>"list").

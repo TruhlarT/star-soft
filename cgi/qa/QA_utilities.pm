@@ -85,14 +85,6 @@ sub get_QA_objects{
     }
     else {
 
-      # quick upload for testing
-#      print "Using quick-upload test.qa_hash <br> \n";
-#      $Save_object_hash_scratch_file = "$scratch/test.qa_hash";    
-#      my $ref = retrieve($Save_object_hash_scratch_file);
-#      %Save_object_hash = %$ref;
-#      %QA_object_hash = %{$Save_object_hash{QA_object_hash}};
-#      %Button_object_hash = %{$Save_object_hash{Button_object_hash}};
-
       %QA_object_hash = ();
       %Button_object_hash = ();
       %QA_message_hash = ();
@@ -104,7 +96,7 @@ sub get_QA_objects{
       my $id_string = int(rand(1000000)); 
       $Save_object_hash_scratch_file ="$scratch/temp_$id_string.persistent_hash";
       $query->param('save_object_hash_scratch_file', $Save_object_hash_scratch_file);
-      &hidden_field_string;
+#      &hidden_field_string;
       
     }
 
@@ -415,26 +407,43 @@ sub get_update_dirs_save{
 #===================================================================
 sub hidden_field_string{
   
+  @_ and my $arg = shift;
+  
+  #-----------------------------------------------------------------
+  
   $string = $query->hidden('selected_key_string').
-	$query->hidden('dataset_array_previous').
-	  $query->hidden('selected_key_list').
-	    $query->hidden('expert_pw').
-	      $query->hidden('display_env_var').
-		$query->hidden('enable_add_edit_comments').
-		  $query->hidden('save_object_hash_scratch_file');
+    $query->hidden('dataset_array_previous').
+      $query->hidden('selected_key_list').
+	$query->hidden('expert_pw').
+	  $query->hidden('display_env_var').
+	    $query->hidden('enable_add_edit_comments').
+	      $query->hidden('save_object_hash_scratch_file');
   
   #------------------------------------------------------------  
-  # store persistent hashes
+  # store persistent hashes if this hasn't been done since script was
+  # invoked or a new object has been created
   
-  $filename = $Save_object_hash_scratch_file;
+  $save_filename = $Save_object_hash_scratch_file;
   
-  $Save_object_hash{QA_object_hash} = \%QA_object_hash;
-  $Save_object_hash{Button_object_hash} = \%Button_object_hash;
-  $Save_object_hash{QA_message_hash} = \%QA_message_hash;
+#  &print_traceback_hidden($save_filename);
   
-  store(\%Save_object_hash, $filename ) or print "<h4> Cannot write $filename: $! </h4> \n";
+ SAVEOBJECTS: {
+    
+    $arg eq 'DontWriteFile' and last SAVEOBJECTS;
+    
+    ( (-s $save_filename) and ($new_QA_object == 0) and 
+      ($new_Button_object == 0) and ($new_Message == 0) ) and last SAVEOBJECTS;
+    
+#    print "Printing temp file $save_filename <br> \n";
+    
+    $Save_object_hash{QA_object_hash} = \%QA_object_hash;
+    $Save_object_hash{Button_object_hash} = \%Button_object_hash;
+    $Save_object_hash{QA_message_hash} = \%QA_message_hash;
+    
+    store(\%Save_object_hash, $save_filename ) or print "<h4> Cannot write $save_filename: $! </h4> \n";
+  };
 
-#----------------------------------------------------------------
+  #----------------------------------------------------------------
   return $string;
 }
 #===========================================================
@@ -513,6 +522,30 @@ sub print_traceback{
   while ( ($package, $filename, $line, $sub, $hasargs, $wantarray) = caller($i++) ){
     print "from $package::$filename, line $line, subroutine $sub <br> \n";
   }
+
+  print "=" x 80, "<br> \n";
+
+}
+#=======================================================================
+sub print_traceback_hidden{
+
+  my $save_filename = shift;
+
+  print "=" x 80, "\n<br> print_traceback_hidden called <br> \n";
+
+  $i = 0;
+  while ( ($package, $filename, $line, $sub, $hasargs, $wantarray) = caller($i++) ){
+    print "from $package::$filename, line $line, subroutine $sub <br> \n";
+  }
+
+  if ( -s $save_filename ){
+    print "$save_filename exists <br> \n";
+  }
+  else{
+    print "$save_filename doesnt exist <br> \n";
+  }
+  
+  print "new QAobj: $new_QA_object; new ButtonObj:$new_Button_object; new Msg:$new_Message <br> \n";
 
   print "=" x 80, "<br> \n";
 

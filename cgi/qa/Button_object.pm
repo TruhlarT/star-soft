@@ -33,6 +33,8 @@ sub new{
   # initialize
   $self->_init(@_);
 
+  $new_Button_object = 1;
+
   return $self;
 }
 #========================================================
