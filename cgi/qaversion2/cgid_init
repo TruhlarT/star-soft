@@ -25,12 +25,12 @@ use Cwd;
 use FileHandle;
 use Getopt::Std;
 
-my $qaPath = "/star/u2e/starqa/pro";  # run pro version
+my $qaPath = "/star/u/starqa/pro";  # run pro version
 #my $qaPath = "/afs/rhic/star/packages/DEV/cgi/qaversion2";  # run dev version
 #my $qaPath = "/star/u2e/bnorman/cgi-bin/qa";
 my $webServer = "connery.star.bnl.gov";
-my $sleepCmd = "/star/rcf/qa/.sleeper";
-my $afsPwFile = "/star/rcf/qa/.starlib_CGI";
+my $sleepCmd = "/afs/rhic/star/users/starlib/.sleeper";
+my $afsPwFile = "/afs/rhic/star/users/starlib/.starlib_CGI";
 
 # get options
 my %opt;
