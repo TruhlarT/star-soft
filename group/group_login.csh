@@ -137,10 +137,15 @@ endif
 
 #
 # Common terminal characteristics
+# Modified J.L. May 21st
 #
-stty intr '^c'	# set interrupt key to <ctrl-c>
-stty kill '^x'	# set kill key to <ctrl-x>
-stty echoe			# erase ERASEd characters
+if($?term) then
+    stty intr '^c'	# set interrupt key to <ctrl-c>
+    stty kill '^x'	# set kill key to <ctrl-x>
+    stty echoe		# erase ERASEd characters
+endif
+
+
 #echo "Terminal Type is $TERM"
 #
 # Some systems the user doesn't own his tty device ( Sun OpenWindows) so
