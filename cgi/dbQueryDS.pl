@@ -61,7 +61,7 @@ for ($ll=0;$ll<scalar(@prodPer);$ll++) {
 
  $prod = "_" . $prodPer[$ll] . "_";
  $prodSeq = " ";
-$sql="SELECT DISTINCT dataset FROM $FileCatalogT where jobID like '%$prod%' AND dataset <> 'n/a' ";
+$sql="SELECT DISTINCT dataset FROM $FileCatalogT where jobID like '%$prod%' AND dataset <> 'n/a' AND type = 'MC_reco' ";
 $cursor =$dbh->prepare($sql)
   || die "Cannot prepare statement: $DBI::errstr\n";
 $cursor->execute;
