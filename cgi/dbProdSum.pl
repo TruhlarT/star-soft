@@ -14,7 +14,7 @@
 
 use CGI;
 
-require "/afs/rhic/star/packages/dev/mgr/dbCpProdSetup.pl";
+require "/afs/rhic/star/packages/DEV/mgr/dbCpProdSetup.pl";
 
 use File::Find;
 use Class::Struct;
@@ -113,10 +113,10 @@ if ($trigD eq "all") {
       $dhfile = ($$dsfile)->flName; 
       $dhpath = ($$dsfile)->fpath;
      if ($dhfile =~ /dst.root/) {
-        $dstHpEvts  += ($$dsfile)->Nevts; 
         $dstHpSize  += ($$dsfile)->hpsize;
    }elsif($dhfile =~ /event.root/) {
-        $evtHpSize  += ($$dsfile)->hpsize;    
+        $evtHpSize  += ($$dsfile)->hpsize;
+        $dstHpEvts  += ($$dsfile)->Nevts;   
   }else{
    next;
  }
