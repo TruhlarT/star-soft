@@ -21,7 +21,7 @@ $set = $q->param("set");
 
 &beginHtml();
 
-$sql="SELECT * FROM $cpFileCatalogT WHERE dataset = '$set'";
+$sql="SELECT * FROM $FilesCatalogTestT WHERE dataset = '$set'";
 $cursor =$dbh->prepare($sql)
   || die "Cannot prepare statement: $DBI::errstr\n";
 $cursor->execute;
