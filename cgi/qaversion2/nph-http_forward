@@ -12,9 +12,9 @@
 # Example:
 #
 # URL on sol:8080/rcas6006:8080 (cgid, from bnl.gov only):  
-#      http://sol.star.bnl.gov:8080/<dir>/<script>
+#     http://sol.star.bnl.gov:8080/<dir>/<script>
 # URL on sol:80 (regular apache web server, from anywhere):
-#      http://sol.star.bnl.gov/devcgi/qaversion2/nph-http_forward?<dir>/<script>
+#     http://sol.star.bnl.gov/devcgi/qaversion2/nph-http_forward?<dir>/<script>
 #
 # Anyone with a better solution is encouraged to implement it.
 
@@ -25,6 +25,11 @@ use LWP::UserAgent;
 my $serverName = 'localhost';
 my $port = 8080;
 my $userAgent = new LWP::UserAgent;
+
+# ben debugging - invoke with nph-http_forward/DEBUG/<port>?<query string>
+my $DEBUG = 0;
+($ENV{PATH_INFO} =~ /DEBUG/) && ($DEBUG = 1);
+($ENV{PATH_INFO} =~ /(\d+)/) && ($port = $1);
 
 #
 # compose the http request and all components
@@ -41,6 +46,8 @@ if ($ENV{'CONTENT_ENCODING'}){
 if ($ENV{'CONTENT_LENGTH'}){
     $headers->content_length($ENV{'CONTENT_LENGTH'});
 }
+# debug header
+$headers->header("X-AutoQA-Debug" => $DEBUG);
 
 my $content = join("", <STDIN>);
 
@@ -58,23 +65,38 @@ $basePath =~ s|/[^/]*$||;
 
 # 
 # send the request via the user agent and read back the response
+# BEN(14/9/00): Try again up to 5 times on error.
 #
 
-my $response = $userAgent->request($request)->as_string;
+my $responseObject = $userAgent->request($request);
+
+if ($DEBUG){
+    for (my $i = 0; $i < 10 && $responseObject->code() eq '200'; $i++){
+	print "retrying....$i<br>\n";
+	$responseObject = $userAgent->request($request);
+    }
+}else{
+    for (my $i = 0; $i < 10 && $responseObject->code() ne '200'; $i++){
+	print "retrying....$i<br>\n";
+	$responseObject = $userAgent->request($request);
+    }
+}
 
 #
 # parse the links inside html tags to make them point back to 
 # nph-http_forward
 #
 
+my $response = $responseObject->as_string();
+
 # picks up urls (in FORM or A tags, eg) starting with /pro, /v2, etc
 $response =~ s{(<[^<]*)(/pro/|/v2/|/ben/|/bum/|/peter/)([^>]*>)}
-              {$1/devcgi/qaversion2/nph-http_forward?$2$3}gs;
+              {$1/devcgi/qaversion2/nph-ben?$2$3}gs;
 # picks up urls in A tags without a starting '/'; ignores "mailto:", etc.
 # note that this expects quotes around the url!
 $response =~ 
     s{(<[^<]*)([hH][rR][eE][fF]\s*=\s*[\"\'])([^/][^:\'\"]+)([\"\'][^>]*>)}
-     {$1$2/devcgi/qaversion2/nph-http_forward?$basePath/$3$4}gs;
+     {$1$2/devcgi/qaversion2/nph-ben?$basePath/$3$4}gs;
 
 print $response;
 
