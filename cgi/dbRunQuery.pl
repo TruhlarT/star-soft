@@ -176,7 +176,7 @@ elsif($detrSet eq "all" and $datSet ne "all" and $fldSet eq "all") {
         $nrunSet++;
            }
 	}
-         
+   }      
 
 if($nrunSet == 0) {
   $runSet[0] = "no data";
