@@ -25,6 +25,9 @@ my %nodeAbCount = ();
 my %nodeDnCount = ();
 my %nodeFNFCount = ();
 my %nodeQuFaCount = ();
+my %nodeTrFaCount = ();
+my %nodeMsFaCount = ();
+my %nodeDbFaCount = ();
 
 my $outname;
 my $outfile;
@@ -35,7 +38,10 @@ my @ndStCount;
 my @ndDnCount;
 my @ndFNFCount;
 my @ndQuFaCount;
-
+my @ndTrFaCount;
+my @ndMsFaCount;
+my @ndDbFaCount;
+ 
 my @nodeList = (
                 "rcrs6001.rcf.bnl.gov",
                 "rcrs6002.rcf.bnl.gov",
@@ -324,6 +330,9 @@ open (MAILFILE, $outfile ) or die "cannot open $outfile: $!\n";
        $ndDnCount[$ll]  = 0;
        $ndFNFCount[$ll] = 0;
        $ndQuFaCount[$ll] = 0;
+       $ndTrFaCount[$ll] = 0;
+       $ndMsFaCount[$ll] = 0;
+       $ndDbFaCount[$ii] = 0;
      };
 
    &StDbProdConnect();
@@ -364,6 +373,15 @@ open (MAILFILE, $outfile ) or die "cannot open $outfile: $!\n";
       elsif ($jbStat =~ /queuing failed/) {
          $ndQuFaCount[$ii]++;
        }
+      elsif ($jbStat =~ /transfer failed/) {
+         $ndTrFaCount[$ii]++;
+       }
+      elsif ($jbStat =~ /msg. failed/) {
+         $ndMsFaCount[$ii]++;
+       }
+      elsif ($jbStat =~ /db failed/) {
+         $ndDbFaCount[$ii]++;
+       }
      elsif ($jbStat =~ /done/) {
          $ndDnCount[$ii]++;
        }
@@ -383,6 +401,9 @@ for ($ll = 0; $ll < scalar(@nodeList); $ll++) {
       $nodeDnCount{$mynode} = $ndDnCount[$ll];       
       $nodeFNFCount{$mynode} = $ndFNFCount[$ll];
       $nodeQuFaCount{$mynode} = $ndQuFaCount[$ll];      
+      $nodeTrFaCount{$mynode} = $ndTrFaCount[$ll];  
+      $nodeMsFaCount{$mynode} = $ndMsFaCount[$ll];  
+      $nodeDbFaCount{$mynode} = $ndDbFaCount[$ll];       
 
       $dbnode = "none";
       $dbDate = "none";

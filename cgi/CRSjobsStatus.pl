@@ -37,7 +37,10 @@ my $njobsCount = 0;
          staging => '$',
          donejob => '$',
          nofile  => '$',
-         qufail  => '$'
+         qufail  => '$',
+         trfail  => '$',
+         msfail  => '$',
+         dbfail  => '$',
 };
 
 my $TotAbCount = 0;
@@ -46,6 +49,10 @@ my $TotCrCount = 0;
 my $TotStCount = 0;
 my $TotFNFCount = 0;
 my $TotQuFaCount = 0;
+my $TotTrFaCount = 0;
+my $TotMsFaCount = 0;
+my $TotDbFaCount = 0;
+
 my $thisday;
 my $year;
 
@@ -87,10 +94,10 @@ my $nnode = 0;
  if( $ldate eq $hdate) {
    $thisday =  $hdate ;
 
- $sql="SELECT  nodeName, crashedJobs, abortedJobs, stagingFailed, doneJobs, fileNotFound, queuingFailed from $crsStatusT where mdate = '$thisday'" ;
+ $sql="SELECT  nodeName, crashedJobs, abortedJobs, stagingFailed, doneJobs, fileNotFound, queuingFailed transferFailed, msgFailed, dbFailed from $crsStatusT where mdate = '$thisday'" ;
  }else{
  
- $sql="SELECT  nodeName, crashedJobs, abortedJobs, stagingFailed, doneJobs, fileNotFound, queuingFailed from $crsStatusT where mdate >= '$ldate' and mdate <= '$hdate' " ;
+ $sql="SELECT  nodeName, crashedJobs, abortedJobs, stagingFailed, doneJobs, fileNotFound, queuingFailed, transferFailed, msgFailed, dbFailed from $crsStatusT where mdate >= '$ldate' and mdate <= '$hdate' " ;
  }
 
       $cursor =$dbh->prepare($sql)
@@ -113,6 +120,9 @@ my $nnode = 0;
         ($$fObjAdr)->donejob($fvalue)  if( $fname eq 'doneJobs'); 
         ($$fObjAdr)->nofile($fvalue)   if( $fname eq 'fileNotFound');
         ($$fObjAdr)->qufail($fvalue)   if( $fname eq 'queuingFailed');
+        ($$fObjAdr)->trfail($fvalue)   if( $fname eq 'transferFailed');
+        ($$fObjAdr)->msfail($fvalue)   if( $fname eq 'msgFailed');
+        ($$fObjAdr)->dbfail($fvalue)   if( $fname eq 'dbFailed');       
       }
         
         $jobsCount[$njobsCount] = $fObjAdr;
@@ -126,6 +136,9 @@ my %NodeSumSt = ();
 my %NodeSumDn = ();
 my %NodeSumFNF = ();
 my %NodeSumQuFa = ();
+my %NodeSumTrFa = ();
+my %NodeSumMsFa = ();
+my %NodeSumDbFa = ();
 
 &cgiSetup();
 
@@ -139,9 +152,13 @@ my %NodeSumQuFa = ();
       $NodeSumDn{$mynode} += ($$eachNode)->donejob;       
       $NodeSumFNF{$mynode} += ($$eachNode)->nofile;
       $NodeSumQuFa{$mynode} += ($$eachNode)->qufail;
+      $NodeSumTrFa{$mynode} += ($$eachNode)->trfail;
+      $NodeSumMsFa{$mynode} += ($$eachNode)->msfail;
+      $NodeSumDbFa{$mynode} += ($$eachNode)->dbfail;  
+
  }
 
-  for ($ii = 0; $ii < 6; $ii++)  {
+  for ($ii = 0; $ii < 9; $ii++)  {
    $nodeCount[$ii] = 0;
  }
 
@@ -161,6 +178,10 @@ my %NodeSumQuFa = ();
       $nodeCount[3] = $NodeSumDn{$dnode};       
       $nodeCount[4] = $NodeSumFNF{$dnode};
       $nodeCount[5] = $NodeSumQuFa{$dnode};
+      $nodeCount[6] = $NodeSumTrFa{$dnode};
+      $nodeCount[7] = $NodeSumMsFa{$dnode};
+      $nodeCount[8] = $NodeSumDbFa{$dnode};
+
      
       $TotCrCount += $nodeCount[0];
       $TotAbCount += $nodeCount[1];
@@ -168,6 +189,9 @@ my %NodeSumQuFa = ();
       $TotDnCount += $nodeCount[3];
       $TotFNFCount += $nodeCount[4];
       $TotQuFaCount += $nodeCount[5];
+      $TotTrFaCount += $nodeCount[6];
+      $TotMsFaCount += $nodeCount[7];
+      $TotDbFaCount += $nodeCount[8];
 
 print <<END;
 <TR ALIGN=CENTER>
@@ -217,6 +241,9 @@ print <<END;
  <TD ALIGN=CENTER WIDTH= 100  HEIGHT=80><B>Number of Jobs <br>Done</B></TD>
  <TD ALIGN=CENTER WIDTH= 100  HEIGHT=80><B>Number of Jobs <br>with file notfound</B></TD>
  <TD ALIGN=CENTER WIDTH= 100  HEIGHT=80><B>Number of Jobs <br>with queuing failed</B></TD> 
+ <TD ALIGN=CENTER WIDTH= 100  HEIGHT=80><B>Number of Jobs <br>with transfer failed</B></TD> 
+ <TD ALIGN=CENTER WIDTH= 100  HEIGHT=80><B>Number of Jobs <br>with msg. failed</B></TD> 
+ <TD ALIGN=CENTER WIDTH= 100  HEIGHT=80><B>Number of Jobs <br>with db failed</B></TD> 
  </TR> 
     </head>
       <body>
@@ -236,6 +263,9 @@ print <<END;
 <td>$TotDnCount</td>
 <td>$TotFNFCount</td>
 <td>$TotQuFaCount</td>
+<td>$TotTrFaCount</td>
+<td>$TotMsFaCount</td>
+<td>$TotDbFaCount</td>
 </TR>
 END
 
@@ -254,6 +284,9 @@ print <<END;
 <td>$nodeCount[3]</td>
 <td>$nodeCount[4]</td>
 <td>$nodeCount[5]</td>
+<td>$nodeCount[6]</td>
+<td>$nodeCount[7]</td>
+<td>$nodeCount[8]</td>
 </TR>
 END
 
