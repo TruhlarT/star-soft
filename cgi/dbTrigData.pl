@@ -12,7 +12,7 @@
 # 
 #############################################################################
 
-require "/afs/rhic/star/packages/dev/mgr/dbCpProdSetup.pl";
+require "/afs/rhic/star/packages/scripts/dbCpProdSetup.pl";
 
 use Class::Struct;
 use CGI;
@@ -26,8 +26,9 @@ my @prodPer;
 my $nprodPer = 0;
 my $myprod;
 
-#my @datSet = ("all","tpc","tpc.rich","tpc.svt.rich");
+my @detSet = ("all","tpc","svt","rich","tof","ftpc","emc","fpd","pmd");
 my @trigSet  = ("all","central","minbias","medium","peripheral","mixed","physics");
+my @mfield = ("all","FullField","HalfField","FieldOff");
 
 &StDbProdConnect();
 
@@ -80,33 +81,45 @@ END
 
 
 print <<END;
-</SELECT><br>
-<br>
+<hr>
+<table BORDER=0 align=center width=99% cellspacing=3>
+<tr ALIGN=center VALIGN=CENTER NOSAVE>
+<td>
 END
 
-print "<p>";
+print "</td><td>";
 print "<h3 align=center>Production series:</h3>";
-print "<h4 align=center>";
+print "<h3 align=center>";
 print $query->scrolling_list(-name=>'SetP',  
                    -values=>\@prodPer,                   
                    -size=>4                              
                    );                                  
  
-
- print "<p>";
- print "<h3 align=center>Datasets:</h3>";
- print "<h4 align=center>";
+ print "</h3>";
+ print "</td><td>";
+ print "<h3 align=center>Detectors:</h3>";
+ print "<h3 align=center>";
  print $query->popup_menu(-name=>'SetT',
                     -values=>\@trigSet,
+                    -default=>'all', 
                     -size=>4
                     ); 
-print <<END;
-</SELECT><br>
-<br>
-END
+
+ print "</h3>";
+ print "</td><td>";
+ print "<h3 align=center>Magnetic Field:</h3>";
+ print "<h3 align=center>";
+ print $query->popup_menu(-name=>'SetF',
+                    -values=>\@mfield,
+                    -default=>'all', 
+                    -size=>4
+                    ); 
+
+print "</h3>";
+print "</td> </table><hr><center>";
 
  print "<p>";
- print "<p><br>"; 
+ print "<p><br><br>"; 
  print $query->submit;
  print "<P><br>", $query->reset;
  print $query->endform;
@@ -121,7 +134,6 @@ END
 if($query->param) {
   dbProdSum($query);
 }
-#print $query->delete_all;
 print $query->end_html; 
 
 
