@@ -25,7 +25,7 @@ my @dir_year = ("year_2001", "year_1h", "year_2003");
 my @node_dir = ("trs_redhat72", "trs_redhat72_opt");
 my @node_daq = ("daq_redhat72", "daq_redhat72_opt"); 
 my @hc_dir = ("hc_lowdensity", "hc_standard", "hc_highdensity", "peripheral","pp_minbias","ppl_minbias","dau_minbias");
-my @daq_dir = ("minbias", "central", "ppMinBias","embedding", "dAuMinBias");
+my @daq_dir = ("minbias", "central", "embedding", "ppMinBias", "dAuMinBias" );
 
 my @OUT_DIR;
 my @OUTD_DIR;
@@ -76,7 +76,7 @@ my $thistime;
 ##### setup output directories for DEV with thisDay
 
 for ($i = 0; $i < scalar(@node_dir); $i++) {
-      for ($ll = 0; $ll < scalar(@hc_dir); $ll++) {
+      for ($ll = 0; $ll < scalar(@hc_dir) - 1; $ll++) {
    $OUT_DIR[$ii] = $TOP_DIRD . $node_dir[$i] . "/" . $testDay . "/". $dir_year[0] . "/" . $hc_dir[$ll];
     print "Output Dir for DEV :", $OUT_DIR[$ii], "\n";
         $ii++;
@@ -99,16 +99,17 @@ for ($i = 0; $i < scalar(@node_daq); $i++) {
    print "Output Dir for DEV :", $OUT_DIR[$ii], "\n";
         $ii++;
       }
-    $OUT_DIR[$ii] = $TOP_DIRD . $node_daq[$i] . "/" . $testDay . "/". $dir_year[2] . "/" . $daq_dir[4];
+    for ($ik = 3; $ik < 5; $ik++) { 
+    $OUT_DIR[$ii] = $TOP_DIRD . $node_daq[$i] . "/" . $testDay . "/". $dir_year[2] . "/" . $daq_dir[$ik];
    print "Output Dir for DEV :", $OUT_DIR[$ii], "\n";
         $ii++;
-    
+   } 
  }
 
 ##### setup output directories for DEV with beforeDay
 
 for ($i = 0; $i < scalar(@node_dir); $i++) {
-      for ($ll = 0; $ll < scalar(@hc_dir); $ll++) {
+      for ($ll = 0; $ll < scalar(@hc_dir) - 1; $ll++) {
    $OUT_DIR[$ii] = $TOP_DIRD . $node_dir[$i] . "/" . $beforeDay . "/". $dir_year[0] . "/" . $hc_dir[$ll];
     print "Output Dir for DEV :", $OUT_DIR[$ii], "\n";
         $ii++;
@@ -129,9 +130,11 @@ for ($i = 0; $i < scalar(@node_daq); $i++) {
     print "Output Dir for DEV :", $OUT_DIR[$ii], "\n";
         $ii++;
       }
-   $OUT_DIR[$ii] = $TOP_DIRD . $node_daq[$i] . "/" . $beforeDay . "/". $dir_year[2] . "/" . $daq_dir[4];
-    print "Output Dir for DEV :", $OUT_DIR[$ii], "\n";
+    for ($ik = 3; $ik < 5; $ik++) { 
+    $OUT_DIR[$ii] = $TOP_DIRD . $node_daq[$i] . "/" . $beforeDay . "/". $dir_year[2] . "/" . $daq_dir[$ik];
+   print "Output Dir for DEV :", $OUT_DIR[$ii], "\n";
         $ii++;
+   } 
   }
 
 struct FileAttr => {
@@ -1112,8 +1115,9 @@ sub  updateJSTable {
     $memLst = 0; 
     $EvSkip = 0;
     $EvCom = 0;
+@maker_size = ();
 #---------------------------------------------------------
-
+maker_size
   open (LOGFILE, $fl_log ) or die "cannot open $fl_log: $!\n";
 
    my @logfile = <LOGFILE>;
@@ -1172,8 +1176,8 @@ my $runflag = 0;
           $mymaker = $size_line[3];
         @memSize = split("=",$size_line[6]);
         if( $mymaker eq "outputStream:"){
-          $maker_size[$no_event + 1] = $memSize[1];
-#          print "outputStream size:",$maker_size[$no_event + 1], "\n";  
+          $maker_size[$no_event] = $memSize[1];
+#          print "outputStream size:",$maker_size[$no_event], "\n";  
        }
       }
     }
