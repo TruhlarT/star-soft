@@ -132,7 +132,7 @@ my $SILENT    =  0;
 my @DCMD;
 
 # db information
-my $dbname    =   "FileCatalog";
+my $dbname    =   "FileCatalog_BNL";
 my $dbhost    =   "duvall.star.bnl.gov";
 my $dbport    =   "";
 my $dbuser    =   "FC_user";
@@ -547,11 +547,115 @@ sub _initialize
 
 }
 
+#
+# Read configuration file if any
+# This routine is internal.
+#
+sub _ReadConfig
+{
+    my($intent)=@_;
+    my($config,$line,$ok,$scope);
+    my(%EL);                        # ($host,$db,$port,$user,$passwd);
+    $config = "";
 
-#============================================
+    foreach $scope ( (".",
+		      $ENV{HOME},
+		      $ENV{SCATALOG},
+		      $ENV{STAR}."StDb/servers",
+		      ) ){
+	if ( -e $scope."/Catalog.xml" ){ 
+	    $config = $scope."/Catalog.xml";
+	    last;
+	}
+    }
+
+
+    if ($config ne ""){
+	&print_message("ReadConfig","Searching for $intent in $config");
+	open(FI,$config);
+
+	#
+	# This is low-key XML parsing. Already a better parsing
+	# would be to regexp =~ s/blablafound// to allow one
+	# line. Better even to use XML::Parser but this module
+	# is meant to be as indenpendant as possible from extraneous
+	# perl layers. We skip entireley the header ...
+	#
+	while( defined($line = <FI>) ){
+	    chomp($line); 
+	    if ($line =~ /\<SCATALOG.*\>/i){           $ok = 1;}
+	    if ($line =~ /\<\/SCATALOG\>/i){           $ok = 0;}
+	    if ($line =~ /(\<SERVER)(.*\>)/i && $ok ){
+		$scope = $2;
+		if ($scope =~ m/$intent/){            
+		    $ok |= 0x2;
+		}
+	    }
+
+	    if ($line =~ /\<\/SERVER\>/i){            
+		if (! ($ok && 0x2) ){
+		    &print_message("ReadConfig","Parsing error. Check syntax");
+		} else {
+		    $ok &= 0x1; # i.e. remove bit 2
+		}
+	    }
+
+	    if ($ok && 0x2){
+		# Parsing of the block of interrest
+		# Host specific information. Note that we do not
+		# assemble things as a tree so, one value possible
+		# so far ... and the latest/
+		if ($line =~ /\<HOST/i){
+		    &print_debug("XML :: $line");
+		    if ( $line=~ m/(NAME=)(.*)(DBNAME=)(.* )(.*)/){
+			$EL{HOST} = $2;
+			$EL{DB}   = $4;
+			$EL{PORT} = $5;
+			if ($EL{PORT} =~ m/(PORT=)(.*)/){
+			    $EL{PORT} = $2;
+			}
+		    }
+		}
+		if ( $line =~ m/\<ACCESS/){
+		    if ( $line =~ m/(USER=)(.*)(PASS=)(.*)/ ){
+			$EL{USER} = $2;
+			$EL{PASS} = $4;
+		    }
+		}
+	    }
+	}
+	close(FI);
+	foreach $ok (keys %EL){
+	    $EL{$ok} =~ s/[\"\/\>]//g;
+	    $EL{$ok} =~ s/^(.*?)\s*$/$1/;
+	    &print_debug("XML :: Got $ok [$EL{$ok}]\n");
+	    if ($EL{$ok} eq ""){ $EL{$ok} = undef;}
+	}
+    }
+    return ($EL{HOST},$EL{DB},$EL{PORT},$EL{USER},$EL{PASS});
+}
+
+
+
+#=================================================
+# This routine has been added later and interfaces
+# with the XML description.
+sub connect_as
+{
+    my($self)= shift;
+    my($intent)= @_;
+    my($host,$db,$port,$user,$passwd);
+
+    # We will read a configuration file in XML if
+    # any
+    ($host,$db,$port,$user,$passwd) = &_ReadConfig($intent);
+    return &connect("FileCatalog",$user,$passwd,$port,$host,$db);
+}
+
+
 sub connect {
   my $self  = shift;
-  my ($user,$passwd,$port) = @_;
+  my ($user,$passwd,$port,$host,$db) = @_;
   my ($sth,$count);
   my ($tries);
   my ($dbref);
@@ -559,9 +663,11 @@ sub connect {
   if( ! defined($user) )   { $user   = $dbuser;}
   if( ! defined($passwd) ) { $passwd = $dbpass;}
   if( ! defined($port) )   { $port   = $dbport;}
+  if( ! defined($host) )   { $host   = $dbhost;}
+  if( ! defined($db) )     { $db     = $dbname;}
 
   # Build connect
-  $dbref  =   "DBI:mysql:$dbname:$dbhost";
+  $dbref  =   "DBI:mysql:$db:$host";
   if ( $port ne ""){ $dbref .= ":$port";}
 
   # Make it more permissive. Simultaneous connections
@@ -574,9 +680,10 @@ sub connect {
 		      { PrintError => 0,
 			RaiseError => 0, AutoCommit => 1 }
 		      );
-  if (! $DBH ){
+  if (! $DBH ){ 
+      &die_message("connect","Incorrect password") if ($DBI::err == 1045);
       if ( $tries < $NCTRY ){
-	  &print_message("connect","Connection failed. Retry in $NCSLP secondes");
+	  &print_message("connect","Connection failed $DBI::errstr . Retry in $NCSLP secondes");
 	  sleep($NCSLP);
 	  goto CONNECT_TRY;
       } else {
@@ -4368,7 +4475,7 @@ sub print_message
     if ( $SILENT ){ return;}
     foreach $line (@lines){
 	chomp($line);
-	printf "$dbname :: %15.15s : %s\n",$routine,$line;
+	printf "FileCatalog :: %15.15s : %s\n",$routine,$line;
     }
     return;
 }
