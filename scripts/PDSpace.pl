@@ -10,12 +10,12 @@
 #
 # List of disks will be by numbers
 #
-$MIN   =  5;
+$MIN   =  4;
 $MAX   =  6;  # for testing
 $MAX   = 27;
 $MAIN  = "/star/data";
 
-@COLORS = ("#cceecc","#ddffdd","#ccccee","#ddbbbb");
+@COLORS = ("#FFFACD","#C1FFC1","#7FFFD4","#00DEFF","#87CEFA","#ccccee","#D8BFD8","#FF69B4");
 
 
 for ( $i = $MIN ; $i <= $MAX ; $i++){
@@ -62,7 +62,7 @@ foreach $disk (@DISKS){
 	}
 
     }
-    
+
 
     $DINFO{$disk} = "$tota;$used;$avai;$prct;";
     $trg = " ";
@@ -89,7 +89,7 @@ if ( defined($ARGV[0]) ){
     $FO = STDOUT;
 }
 
-print $FO 
+print $FO
     "<HTML>\n",
     "<HEAD><TITLE>Disk space overview</TITLE></HEAD>\n",
     "<BODY>\n",
@@ -100,10 +100,20 @@ print $FO
     "are the only ones scanned ...\n",
     "The reported structure reflects a tree assumed to be of the form ",
     " Trigger/Field/Production.\n",
-    "<P>\n";
+    "<P>\n",
+    "<table border=\"0\">\n<TR><td>Color Scale</TD>\n";
 
+for ($i=0 ; $i <= $#COLORS ; $i++){
+    $low  = int(100*$i/($#COLORS+1));
+    $high = int(100*($i+1)/($#COLORS+1));
+    print $FO "\t<TD BGCOLOR=\"$COLORS[$i]\">$low - $high</TD>\n";
+}
 
-print $FO "<table border=\"1\" cellspacing=\"0\" width=\"1000\">\n";
+print $FO 
+    "</TR>\n</TABLE>\n",
+    "<P>\n",
+    "<table border=\"1\" cellspacing=\"0\" width=\"1000\">\n";
+
 printf $FO
     "<TR bgcolor=\"orange\"><TD align=\"center\">%10s</TD><TD align=\"center\">%10s</TD><TD align=\"center\">%10s</TD><TD align=\"center\">%10s</TD><TD align=\"center\">%3s</TD><TD align=\"center\">%s</TD><TD align=\"center\">%s</TD></TR>\n",
     "Disk","Total","Used","Avail","Used %","Triggers","Libs";
@@ -114,13 +124,19 @@ foreach $disk (sort keys %DINFO){
     $items[4] =~ s/\s/&nbsp; /;
     $items[5] =~ s/\s/&nbsp; /;
 
-    $col =  $items[3];
-    $col =~ s/%//;
-    $col =  int( ($#COLORS+1) * ( $col /100.0));
-    if( $col >= $#COLORS){ $col = $#COLORS;}
-
-    printf $FO 
-	"<TR height=\"10\" bgcolor=\"$COLORS[$col]\"><TD align=\"right\">%10s</TD><TD align=\"right\">%10d</TD><TD align=\"right\">%10d</TD><TD align=\"right\">%10d</TD><TD align=\"right\">%3s</TD><TD>%s</TD><TD align=\"right\">%s</TD></TR>\n",
+    $icol =  $items[3];
+    $icol =~ s/%//;
+    #print "$icol ";
+    $col =  int( ($#COLORS+1) * ( $icol /100.0));
+    #print "$col ";
+    if( $icol >= 99 ){
+	$col = "red";
+    } else {
+	$col = $COLORS[$col];
+    }
+    #print "$col\n";
+    printf $FO
+	"<TR height=\"10\" bgcolor=\"$col\"><TD align=\"right\">%10s</TD><TD align=\"right\">%10d</TD><TD align=\"right\">%10d</TD><TD align=\"right\">%10d</TD><TD align=\"right\">%3s</TD><TD>%s</TD><TD align=\"right\">%s</TD></TR>\n",
 	"<i><b>$disk</b></i>",$items[0],$items[1],$items[2],$items[3],
 	$items[4],$items[5];
 
