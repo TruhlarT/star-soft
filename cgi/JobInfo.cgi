@@ -1,4 +1,4 @@
-#!/opt/star/bin/perl -w
+#!/usr/bin/env perl
 #JobInfo2.cgi
 
 #Version 2
