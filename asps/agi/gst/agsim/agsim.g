@@ -11880,7 +11880,6 @@ C
 ***************************************************************************
 *                                                                         *
                 subroutine  A G K E E P S (Request,Cdest)
-#ifndef __ROOT__
 *                                                                         *
 * Description:                                                            *
 * produce include files and update the documentation database             *
@@ -11900,6 +11899,7 @@ C
      Logical     opnd
      character           cccc*12000
      common /agcstaftab/ cccc
+#ifndef __ROOT__
  
      INQUIRE(FILE='detm.rz',OPENED=opnd)
      if (.not.opnd) Call Agsbegm('DOCUM',Iprin)
