@@ -30,6 +30,6 @@
 #     should not contain blank lines.
 #
 #### Update HPSS DAQ files in DB
-45 *	* * *	/afs/rhic/star/packages/dev/scripts/cron/dbrunhpss.pl
+45 *	* * *	/afs/rhic/star/packages/dev/mgr/dbrunhpss.pl
 #### Regenerate the simu file catalog
 30 3    * * *   /usr/local/bin/tcsh /star/u2d/wenaus/datadb/dbcreate.csh
