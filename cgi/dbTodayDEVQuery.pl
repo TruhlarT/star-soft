@@ -82,7 +82,7 @@ struct FileAttr => {
  &beginHtml();
 
 
-$sql="SELECT path, fName, NoEventDone, NoEventSkip, createTime FROM $FilesCatalogT where path LIKE '%$testDay%' AND path like '%redhat72%' AND avail = 'Y' AND createTime like '$mdate%' ";
+$sql="SELECT path, fName, NoEventDone, NoEventSkip, createTime FROM $FilesCatalogT where path LIKE '%$testDay%' AND avail = 'Y' AND createTime like '$mdate%' ";
  $cursor =$dbh->prepare($sql)
    || die "Cannot prepare statement: $DBI::errstr\n";
  $cursor->execute;
