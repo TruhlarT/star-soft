@@ -1,5 +1,5 @@
 #!/bin/csh -f
-#       $Id: group_env.csh,v 1.151 2003/08/07 22:47:54 jeromel Exp $
+#       $Id: group_env.csh,v 1.152 2003/08/08 16:41:50 jeromel Exp $
 #	Purpose:	STAR group csh setup
 #
 #	Author:		Y.Fisyak     BNL
@@ -392,18 +392,19 @@ endif
 if ( ! $?JAVA_ROOT ) then
     # Search for a default path
     if ( -d /usr/java ) then
-	set a = `/bin/ls /usr/java | tail -n 1`
+	set a = `/bin/ls /usr/java | tail -1`
 	if ( "$a" != "") then
 	    setenv JAVA_ROOT /usr/java/$a
 	endif
     endif
 endif
-if ( -d $JAVA_ROOT/ ) then
-    set path=($JAVA_ROOT/bin $path)
-    setenv MANPATH ${MANPATH}:$JAVA_ROOT/man
-    #CLASSPATH anyone ??
+if ( $?JAVA_ROOT ) then
+    if ( -d $JAVA_ROOT/ ) then
+	set path=($JAVA_ROOT/bin $path)
+	setenv MANPATH ${MANPATH}:$JAVA_ROOT/man
+	#CLASSPATH anyone ??
+    endif
 endif
-
 
 
 # Support for Insure++
