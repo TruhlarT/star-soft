@@ -975,7 +975,7 @@ sub GetAvailableDisk
     
     for ($i=$start ; $i < $end ; $i++){
 	if ( ! -e "$base$i"){ next;}      # protect against user typo
-	chomp($res = `df -k $base$i | grep % | grep '/'`);
+	chomp($res = `/bin/df -k $base$i | /bin/grep % | /bin/grep '/'`);
 
 	#print "DEBUG $base$i --> $res\n";
 
@@ -1013,7 +1013,7 @@ sub GetAvailableDisk
 	$pos = 0;
     } else {
 	# Chose one randomly
-	$pos = int(rand($#CANDIDATES));
+	$pos = int(rand($#CANDIDATES+1));
     }
 
 
