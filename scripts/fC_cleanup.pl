@@ -36,7 +36,8 @@
 #              You REALLY shouldn't use this script on the 
 #              whole database at once!
 
-use lib "/afs/rhic/star/packages/scripts";
+#use lib "/afs/rhic/star/packages/scripts";
+use lib "/star/u/jeromel/work/ddb";
 use strict;
 use FileCatalog;
 
@@ -62,7 +63,7 @@ my $fileC = FileCatalog->new;
 
 # Turn off module debugging and script debugging
 $fileC->debug_off();
-$debug=1;
+$debug = 1;
 
 $dodel = 0;
 
@@ -77,6 +78,9 @@ while (defined $ARGV[$count]){
 
     } elsif ($ARGV[$count] eq "-check"){
 	$mode = 1; 
+
+    } elsif ($ARGV[$count] eq "-nodebug"){
+	$debug = 0; 
 
     } elsif ($ARGV[$count] eq "-delete"){
 	$mode = 2; 
@@ -160,6 +164,7 @@ while ($morerecords)
       # Second mode of operation - get the file list, select the available ones
       # and check if they really exist - if not, mark them as unavailable
       {
+	print "Checking $start (+$batchsize) ".localtime()."\n"; 
 	$fileC->set_context("limit=$batchsize");
 	$fileC->set_context("startrecord=$start");
 	$fileC->set_context("available>0");
@@ -170,7 +175,7 @@ while ($morerecords)
 	@output = $fileC->run_query("path","filename");
 	
 	# Check if there are any records left
-	print "OUTPUT: $#output batchsize $batchsize\n";
+	#print "OUTPUT: $#output batchsize $batchsize\n";
 	if (($#output +1) == $batchsize)
 	  { $morerecords = 1; }
 
@@ -180,14 +185,16 @@ while ($morerecords)
 	    my ($path, $fname) = split ("::");
 	    if (-e $path."/".$fname)
 	      {
-		if ($debug > 0)
+		 if ($debug > 0)
 		  { print "File $_ exists\n"; }
 	      }
 	    else
-	      {		
-		if ($debug>0)
-		  { print "!!! File $_ DOES NOT exist or is unavailable!!!\n"; }
-		# Marking the file as unavailable
+	    {		
+		#if ($debug>0)
+		#{
+		print "!!! File $_ DOES NOT exist or is unavailable !\n"; 
+		#}
+		# Marking/re-marking the file as unavailable
 		$fileC->clear_context();
 		$fileC->set_context("filename=$fname");
 		$fileC->set_context("path=$path");
@@ -311,8 +318,10 @@ while ($morerecords)
 	      {		
 		if ($av == 1)
 		  {
-		    if ($debug>0)
-		      { print "!!! File $_ DOES NOT exist or is unavailable!!!\n"; }
+		    #if ($debug>0)
+		    #{ 
+		      print "File $_ DOES NOT exist or is unavailable !\n"; 
+		    #}
 		    # Marking the file as unavailable
 		    $fileC->clear_context();
 		    $fileC->set_context("filename=$fname");
