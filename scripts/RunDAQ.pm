@@ -99,6 +99,7 @@
 # 13 | EntryDate   | timestamp(14)       | YES  |     | NULL    |       |
 # 14 | DiskLoc     | int(11)             | YES  |     | 0       |       |
 # 15 | Status      | int(11)             | YES  |     | 0       |       |
+# 16 | Oper        | int(11)             | YES  |     | 0       |       |
 #    +-------------+---------------------+------+-----+---------+-------+
 #
 #
@@ -125,7 +126,8 @@ require Exporter;
 	    rdaq_last_run
 
 	    rdaq_get_files rdaq_get_ffiles rdaq_get_orecords
-	    rdaq_set_files
+	    rdaq_set_files rdaq_set_files_where
+	    rdaq_set_operation rdaq_set_operation_where
 
 	    rdaq_file2hpss rdaq_mask2string rdaq_status_string
 	    rdaq_bits2string rdaq_trgs2string rdaq_ftype2string
@@ -456,7 +458,7 @@ sub rdaq_raw_files
     $sth->execute();
     $tref= $sth->fetchrow();
     $sth->finish();
-    
+
 
     # We will select on RunStatus == 0
     # Year2
@@ -465,7 +467,7 @@ sub rdaq_raw_files
     # One more table runStatus, daqSummary.runStatus=0 gone, entryTag=5 for hardwired values
     $rval  = 9;
     $cmd   = "SELECT daqFileTag.file, daqSummary.runNumber, daqFileTag.numberOfEvents,daqFileTag.beginEvent, daqFileTag.endEvent, magField.current,magField.scaleFactor, beamInfo.yellowEnergy+beamInfo.blueEnergy,CONCAT(beamInfo.blueSpecies,beamInfo.yellowSpecies) FROM daqFileTag,daqSummary, magField, beamInfo,runStatus WHERE daqSummary.runNumber=daqFileTag.run AND daqSummary.destinationID In(1,2,4) AND runStatus.runNumber=daqFileTag.run and runStatus.rtsStatus=0 AND magField.runNumber=daqSummary.runNumber AND magField.entryTag In (0,5) AND beamInfo.runNumber=daqSummary.runNumber AND beamInfo.entryTag In (0,5)";
-    
+
 
 
 
@@ -488,9 +490,9 @@ sub rdaq_raw_files
 	$cmd .= " AND daqFileTag.entryTime <= $tref";
     }
     # limit can be a string litteral like 10,100
-    if($llimit != -1){  
+    if($llimit != -1){
 	$cmd .= " LIMIT $limit";
-    } 
+    }
 
     print "<!-- $cmd -->\n" if ($DEBUG);
     $sth  = $obj->prepare($cmd);
@@ -499,17 +501,17 @@ sub rdaq_raw_files
     while( @res = $sth->fetchrow_array() ){
 	# Massage the results to return a non-ambiguous information
 	# We are still lacking
-	if ( ($#res+1) != $rval){ 
+	if ( ($#res+1) != $rval){
 	    die "Database has all fields but some are empty ".($#res+1)." received, expected $rval\n";
 	}
-	#for ($ii = 0 ; $ii <= $#res ; $ii++){ 
+	#for ($ii = 0 ; $ii <= $#res ; $ii++){
 	#    print "$ii --> $res[$ii]\n";
 	#}
 	$tres = &rdaq_hack($obj,@res);
 	if ( defined($tres) ){
 	    push(@all,$tres);
 	    $kk++;
-	    if( $kk % 10000 == 0){ 
+	    if( $kk % 10000 == 0){
 		# always output debug lines in HTML comment format
 		# since this may be used in a CGI.
 		print "<!-- Fetched $kk records -->\n" if ($DEBUG);
@@ -598,7 +600,7 @@ sub rdaq_hack
 	    $mask = "";
 	    while( defined($line = $sths->fetchrow()) ){
 		$mask .= $line.".";
-	    } 
+	    }
 	    chop($mask);
 	    $mask = &Record_n_Fetch("FOTriggerSetup",$mask);
 	}
@@ -786,12 +788,13 @@ sub rdaq_get_orecords
 	$val = $$Conds{$el};
 
 	# do NOT build a querry for a 'all' keyword
-	if( ! defined($val) ){ 
-	    &info_message("get_orecords",3,"[$el] has an undef value"); 
+	if( ! defined($val) ){
+	    &info_message("get_orecords",3,"[$el] has an undef value");
 	    next;
 	}
 	if( $el eq "Status" && $val == -1){ next;}
-	
+	if( $el eq "Oper"   && $val == -1){ next;}
+
 
 	# Sort out possible comparison operators
 	$test= substr($val,0,1);
@@ -851,7 +854,7 @@ sub rdaq_get_orecords
 
     }
 
-    # order 
+    # order
     $cmd .= " ORDER BY runNumber DESC, file DESC";
     if( $limit > 0){
 	# allow for float argument, integerize
@@ -887,29 +890,49 @@ sub rdaq_get_orecords
 }
 
 
+
+
 # This method is a backward support for the preceeding method
 # which allowed setting status without condition. Now, we
 # also support WHERE Status= cases.
 sub rdaq_set_files
 {
     my($obj,$status,@files)=@_;
-    return rdaq_set_files_where($obj,$status,-1,@files);
+    return &rdaq_set_files_where($obj,$status,-1,@files);
 }
-
-
 # Set the status for a list of files
 sub rdaq_set_files_where
 {
     my($obj,$status,$stscond,@files)=@_;
+    return &__set_files_where($obj,"Status",$status,$stscond,@files);
+}
+
+# Set operation flag
+sub rdaq_set_operation
+{
+    my($obj,$opflag,@files)=@_;
+    return &rdaq_set_operation_where($obj,$opflag,-1,@files);
+}
+sub rdaq_set_operation_where
+{
+    my($obj,$opflag,$stscond,@files)=@_;
+    return &__set_files_where($obj,"Oper",$opflag,$stscond,@files);
+}
+
+
+# Common interface
+sub __set_files_where
+{
+    my($obj,$field,$status,$stscond,@files)=@_;
     my($sth,$success,$cmd);
     my(@items);
 
     if(!$obj){ return 0;}
 
     $success = 0;
-    $cmd = "UPDATE $dbtable SET Status=$status WHERE file=? ";
+    $cmd = "UPDATE $dbtable SET $field=$status WHERE file=? ";
     if ($stscond != -1){
-	$cmd .= " AND Status=$stscond";
+	$cmd .= " AND $field=$stscond";
     }
 
     $sth = $obj->prepare($cmd);
@@ -925,6 +948,9 @@ sub rdaq_set_files_where
     }
     $success;
 }
+
+
+
 
 #
 # Returns all possible values for a given field
@@ -1086,7 +1112,7 @@ sub GetRecord
 	$sth = $obj->prepare("SELECT $tbl.Label FROM $tbl ".
 			      "WHERE $tbl.id=?");
 	if($sth){
-	    $sth->execute($el);  
+	    $sth->execute($el);
 	    if( defined($val = $sth->fetchrow()) ){
 		$RFETCHED{"$tbl-$el"} = $val;
 		$rv = $val;
@@ -1267,17 +1293,17 @@ sub	info_message
 }
 
 
-sub    rdaq_toggle_debug 
-{ 
-    $DEBUG = ! $DEBUG; 
+sub    rdaq_toggle_debug
+{
+    $DEBUG = ! $DEBUG;
     return DEBUG;
 }
 
 #
 # New method to set delay
-# 
-sub    rdaq_set_delay    
-{ 
+#
+sub    rdaq_set_delay
+{
     my($t)=@_;
     $DELAY = $t if ( defined($t) );
     return $DELAY;
@@ -1289,7 +1315,7 @@ sub    rdaq_set_delay
 #
 # Dec 2001
 #  Changed the meaning of TriggerSetup from trgSetupName to
-#  glbSetupName. Seemed more appropriate and what people are 
+#  glbSetupName. Seemed more appropriate and what people are
 #  accustom too. Added rdaq_trgs2string() interface.
 #  Also improved speed in runNumber get_list_field by using
 #  THREAD arrays. Only 1239 entries to scan for runNumber for
