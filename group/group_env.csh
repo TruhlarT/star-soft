@@ -1,7 +1,10 @@
 #!/usr/bin/csh -f
-#       $Id: group_env.csh,v 1.28 1998/07/10 21:18:40 fisyak Exp $
+#       $Id: group_env.csh,v 1.29 1998/07/11 00:59:14 fisyak Exp $
 #	Purpose:	STAR group csh setup 
 #       $Log: group_env.csh,v $
+#       Revision 1.29  1998/07/11 00:59:14  fisyak
+#       add cern/LEVEL/bin to path
+#
 #       Revision 1.28  1998/07/10 21:18:40  fisyak
 #       Fix NODEBUG flug for SL98c and SL98e
 #
@@ -273,7 +276,7 @@ if ( -d /opt/hpnp ) then
 # set PATH = ( $PATH':'/opt/hpnp/bin':'/opt/hpnp/admin )
   set path = ( $path /opt/hpnp/bin /opt/hpnp/admin )
 endif
-set path = (. $HOME/bin $HOME/bin/.$STAR_SYS $path $CERN_ROOT/mgr)
+set path = (. $HOME/bin $HOME/bin/.$STAR_SYS $path $CERN_ROOT/bin $CERN_ROOT/mgr)
 if ( -x /afs/rhic/star/group/dropit) then
 # clean-up PATH
 switch ($STAR_SYS)
