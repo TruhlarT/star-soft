@@ -274,8 +274,13 @@ sub RunMacro{
   
   if ($starlib_version =~ /SL/)     { $starlib_version =~ s/SL// }
   elsif ($starlib_version eq "new" || $starlib_version eq "pro" ) { }
-  else                              { $starlib_version eq "dev" }
+  else                              { $starlib_version = "dev" }
   
+  # ad hoc fix 09/05/2000
+  if ($macro_name eq 'bfcread_hist_to_ps'){
+    $starlib_version = 'dev';
+  }
+
   # how many events were requested?
   # for offline real, event requested is meaningless
   my $nevent_requested = $self->LogReport->NEventRequested ||
@@ -433,7 +438,8 @@ sub GZipIt{
   # then it also writes out files of the form "StEventLM.ps", for 
   # low multiplicity, etc.
 
-  if ($self->MacroName eq 'bfcread_dst_EventQAhist'){
+  if ($self->MacroName eq 'bfcread_dst_EventQAhist' &&
+      $gDataClass_object->DataClass() =~ /real/ ){
     # strip off .ps
     (my $label = basename $outputFile) =~ s/\.ps$//;
 
