@@ -90,6 +90,12 @@ sub bfcread_dstBranch{
       next;
     }
 
+    # events with dataset
+    if (/events with \w+ dataset = (\d+)/){
+      $run_scalar_hash{'events_with_dataset'} = $1;
+      next;
+    }
+
     if (/with tables\s+= (\d+)/){ # num events with tables
       $run_scalar_hash{'events_with_tables'} = $1;
       next;
@@ -114,13 +120,13 @@ sub bfcread_dstBranch{
 
     # avg Bfc tables per event
     if (/Bfc tables per event\s+= ([\d\.]+)/){ 
-      $run_scalar_hash{'avg_bfc_tables_per_event'} = $1;
+      $run_scalar_hash{'avg_Bfc_tables_per_event'} = $1;
       next;
     }
 
     # avg Bfc objects per event
     if (/Bfc objects per event\s+= ([\d\.]+)/){ 
-      $run_scalar_hash{'avg_bfc_objects_per_event'} = $1;
+      $run_scalar_hash{'avg_Bfc_objects_per_event'} = $1;
       next;
     }
     
