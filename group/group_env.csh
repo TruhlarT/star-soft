@@ -1,5 +1,5 @@
 #!/usr/bin/csh -f
-#       $Id: group_env.csh,v 1.127 2002/04/01 21:15:10 jeromel Exp $
+#       $Id: group_env.csh,v 1.128 2002/04/01 21:16:45 jeromel Exp $
 #	Purpose:	STAR group csh setup
 #
 #	Author:		Y.Fisyak     BNL
@@ -314,11 +314,11 @@ endif
 
 # Support for JAVA/JDK
 set JDK=j2sdk1.4.0
-if ( -d /usr/java/$JDK ){
+if ( -d /usr/java/$JDK ) then
     set path=(/usr/java/$JDK/bin $path)
     setenv MANPATH ${MANPATH}:/usr/java/$JDK/man
     #CLASSPATH anyone ??
-}
+endif
 
 # We need this aliases even during BATCH
 if (-r $GROUP_DIR/group_aliases.csh) source $GROUP_DIR/group_aliases.csh
