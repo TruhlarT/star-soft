@@ -7,8 +7,10 @@
 # From a cron job, you should not use the "-v" flag, which prints debugging
 # info.
 #
-# cgid_init also allows the user to shut down cgid and the ssh forwarding in
-# one step, with "cgid_init -k".  
+# cgid_init also allows the user to shut down cgid 
+# and the ssh forwarding gently in
+# one step, with "cgid_init -k".  If this doesn't work, try "cgid_init -d"
+# (destroy) for a hard kill (kill -9).
 #
 # "cgid_init -q" takes no action, but
 # shows the pid of ssh & cgid, or 0 if not running (implies "-v")
@@ -32,6 +34,7 @@ my $afsPwFile = "/star/rcf/qa/.starlib_CGI";
 my %opt = ();
 getopt('', \%opt);
 my $kill = $opt{k};
+my $destroy = $opt{d};
 my $query = $opt{q};
 my $verbose = $opt{v} || $query;
 
@@ -60,19 +63,24 @@ if ($token !~ /^User/m) {   # token line in output
 my $pid = getPID("root", "8080");
 $verbose && print "ssh pid = $pid\n";
 if (!$query){
-    if (!$pid && !$kill ){             #start it
+    if (!$pid && !$kill && !$destroy){             #start it
 	print "starting ssh...\n";
 	
 	system("ssh -x -f -R 8080:localhost:8080 $webServer $sleepCmd")
 	    or die "could not run ssh forwarding"; 
 	
 	print "...ssh started\n";
-    } elsif ($pid && $kill){           #stop it
+    } elsif ($pid){                     #stop it  
 	print "stopping ssh...\n";
 	
-	system("kill $pid") 
-	    or die "could not kill ssh forwarding";
-	
+	if($kill){ 
+	    system("kill $pid") 
+		or die "could not kill ssh forwarding";
+	}elsif($destroy){
+	    system("kill -9 $pid") 
+		or die "could not kill ssh forwarding";
+	}
+
 	print "...ssh stopped\n";
     }
 }
@@ -81,7 +89,7 @@ if (!$query){
 $pid = getPID("starlib","./cgid\$"); 
 $verbose && print "cgid pid = $pid\n";
 if (!$query){
-    if (!$pid && !$kill){
+    if (!$pid && !$kill && !$destroy){
 	chdir $qaPath or die "cannot chdir to $qaPath\n";
 	print "starting cgid in " . getcwd() . "...\n";
 	
@@ -89,12 +97,17 @@ if (!$query){
 	    or die "could not run cgid";
 
 	print "...cgid started\n";
-    }elsif ($pid && $kill){
+    }elsif ($pid){
 	print "stopping cgid...\n";
 	
-	system("kill -INT $pid")
-	    or die "could not kill cgid";
-	
+	if($kill){
+	    system("kill -INT $pid")
+		or die "could not kill cgid";
+	}elsif($destroy){
+	    system("kill -9 $pid")
+		or die "could not kill cgid";
+	}
+
 	print "...cgid stopped\n";
     }
 }
