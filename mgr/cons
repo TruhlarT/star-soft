@@ -26,14 +26,14 @@ use Cwd;
 # Regression tests keep the code honest by checking for warnings
 # and "use strict" failures.
 
-# $Id: cons,v 1.72 2000/12/18 14:03:11 fisyak Exp $
+# $Id: cons,v 1.73 2000/12/19 20:25:16 fisyak Exp $
 
 use vars qw( $ver_num $ver_rev $version );
 
 $ver_num = "2.3";
 $ver_rev = ".0";
 $version = sprintf "This is Cons %s%s " .
-	    '($Id: cons,v 1.72 2000/12/18 14:03:11 fisyak Exp $)'. "\n",
+	    '($Id: cons,v 1.73 2000/12/19 20:25:16 fisyak Exp $)'. "\n",
 	    $ver_num, $ver_rev;
 
 # Cons: A Software Construction Tool.
@@ -956,7 +956,7 @@ sub Export {
 sub Import {
     my(@illegal) = grep($special_var{$_}, @_);
     if (@illegal) {
-	die qq($0: cannot Import special Perl variables: @illegal\n");
+	die qq($0: cannot Import special Perl variables: @illegal\n);
     }
     my($parent) = $priv::self->{parent};
     my($imports) = $priv::self->{imports};
@@ -5504,14 +5504,11 @@ time.  Cons will still delete the files when the C<-r> flag is specified.
 
 =head2 The C<Keep> method
 
-The C<Keep> method asks cons not to keep the old specified file or
-list of files wiht time tag before building them again.  It is invoked as:
+The C<Keep> method asks cons not to keep the old specified file or 
+list of files with time tag before building them again.  It is invoked as:
 
   Keep <files>;
 
-This is especially useful for allowing incremental updates to libraries
-or debug information files which are updated rather than rebuilt anew each
-time.  Cons will still delete the files when the C<-r> flag is specified.
 
 =head2 The C<AfterBuild> method
 
