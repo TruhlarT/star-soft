@@ -17,7 +17,7 @@ my $setShrLin = ();
 my $Wdir = "/afs/rhic/star/doc/www/comp/prod/";
 opendir DIR, $Wdir or die "Cannot open directory $Wdir <br> \n";
 while( defined ( $file = readdir(DIR) ) ){
-  $file =~ /dev.i386_redhat61/ and push @setShr_Lin, $file;
+  $file =~ /dev.i386_redhat/ and push @setShr_Lin, $file;
 }
 
 # sort chronologically
