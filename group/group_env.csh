@@ -1,7 +1,10 @@
 #!/usr/bin/csh -f
-#       $Id: group_env.csh,v 1.26 1998/07/10 13:49:28 fisyak Exp $
+#       $Id: group_env.csh,v 1.27 1998/07/10 14:06:42 fisyak Exp $
 #	Purpose:	STAR group csh setup 
 #       $Log: group_env.csh,v $
+#       Revision 1.27  1998/07/10 14:06:42  fisyak
+#       Keep for SL98a and SL98b the old version convention
+#
 #       Revision 1.26  1998/07/10 13:49:28  fisyak
 #       Add cleaning of STAR_PATH
 #
@@ -99,12 +102,16 @@ setenv STAR_PATH ${STAR_ROOT}/packages;      if ($ECHO) echo   "Setting up STAR_
 if ($?STAR_LEVEL == 0) setenv STAR_LEVEL pro
 setenv STAR_VERSION `ls -l $STAR_PATH | grep "${STAR_LEVEL} ->" |cut -f2 -d">"`  
 if (${STAR_VERSION} == "") setenv STAR_VERSION ${STAR_LEVEL}
+if ($STAR_VERSION  == "SL98a" || $STAR_VERSION  == "SL98b") then
+setenv STAR $STAR_PATH/${STAR_LEVEL} ;         if ($ECHO) echo   "Setting up STAR      = ${STAR}"
+else  
 setenv STAR $STAR_PATH/${STAR_VERSION} ;       if ($ECHO) echo   "Setting up STAR      = ${STAR}"
+endif
 setenv STAR_MGR $STAR/mgr
 source ${GROUP_DIR}/STAR_SYS; 
 setenv STAF_LIB  $STAR/asps/../.${STAR_HOST_SYS}/lib  ; if ($ECHO) echo   "Setting up STAF_LIB  = ${STAF_LIB}"
-if ($STAR_VERSION == "98d" || $STAR_VERSION == "98c") then
-if ($STAR_VERSION == "98d" && $?NODEBUG == 0) then
+if ($STAR_VERSION == "SL98d" || $STAR_VERSION == "SL98c") then
+if ($STAR_VERSION == "SL98d" && $?NODEBUG == 0) then
 setenv STAR_LIB  $STAR/.${STAR_HOST_SYS}/lib; if ($ECHO) echo   "Setting up STAR_LIB  = ${STAR_LIB}"
 else
 setenv STAR_LIB  $STAR/.${STAR_HOST_SYS}/nodeb; if ($ECHO) echo   "Setting up STAR_LIB  = ${STAR_LIB}"
