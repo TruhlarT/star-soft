@@ -69,9 +69,15 @@ if($colSet eq "AuAu130") {
  my $daqHpSize = 0;
  my $dstHpSize = 0;
  my $evtHpSize = 0;
+ my $MuHpSize = 0;
+ my $MuHpEvts = 0;
+ my $emcHpSize = 0;
+ my $emcHpEvts = 0;
  my $TdaqHpSize = 0;
  my $TdstHpSize = 0;
  my $TevtHpSize = 0;
+ my $TMuHpSize = 0;
+ my $TemcHpSize = 0;
 
  my $topHpss = "/home/starreco/reco";
 
@@ -159,11 +165,17 @@ if ($trigD eq "all" and $fieldM eq "all"  and $detSet eq "all" ) {
 
       $dhfile = ($$dsfile)->flName; 
       $dhpath = ($$dsfile)->fpath;
-     if ($dhfile =~ /dst.root/) {
+     if ($dhfile =~ /.dst.root/) {
         $dstHpSize  += ($$dsfile)->hpsize;
-   }elsif($dhfile =~ /event.root/) {
+   }elsif($dhfile =~ /.event.root/) {
         $evtHpSize  += ($$dsfile)->hpsize;
-        $dstHpEvts  += ($$dsfile)->Nevts;   
+        $dstHpEvts  += ($$dsfile)->Nevts;  
+   }elsif($dhfile =~ /.MuDst.root/) {
+        $MuHpSize  += ($$dsfile)->hpsize;
+        $MuHpEvts  += ($$dsfile)->Nevts;   
+   }elsif($dhfile =~ /.emcEvent.root/) {
+        $emcHpSize  += ($$dsfile)->hpsize;
+        $emcHpEvts  += ($$dsfile)->Nevts;   
   }else{
    next;
  }
@@ -243,7 +255,9 @@ if ($trigD eq "all" and $fieldM eq "all" and $detSet eq "all") {
 
     $TdaqHpSize = int($daqHpSize/1024/1024/1024);
     $TevtHpSize = int($evtHpSize/1024/1024/1024);
-    $TdstHpSize = int($dstHpSize/1024/1024/1024);        
+    $TdstHpSize = int($dstHpSize/1024/1024/1024);
+    $TMuHpSize = int($MuHpSize/1024/1024/1024); 
+    $TemcHpSize = int($emcHpSize/1024/1024/1024);       
 
 &cgiSetup();
 &beginHtml();
@@ -265,7 +279,10 @@ print <<END;
 <td HEIGHT=80><h3>$daqHpEvts</h3></td>
 <td HEIGHT=80><h3>$TdstHpSize</h3></td>
 <td HEIGHT=80><h3>$TevtHpSize</h3></td>
+<td HEIGHT=80><h3>$TMuHpSize</h3></td>
+<td HEIGHT=80><h3>$TemcHpSize</h3></td>
 <td HEIGHT=80><h3>$dstHpEvts</h3></td>
+<td HEIGHT=80><h3>$MuHpEvts</h3></td>
 </TR>
 END
 
@@ -286,9 +303,12 @@ print <<END;
 <TR>
 <TD ALIGN=CENTER WIDTH=\"20%\" HEIGHT=100><B>Size(GB) of DAQ files</B></TD>
 <TD ALIGN=CENTER WIDTH=\"20%\" HEIGHT=100><B>Number of Events<br>in DAQ files</B></TD>
-<TD ALIGN=CENTER WIDTH=\"20%\" HEIGHT=100><B>Size(GB) of dst.root files</B></TD>
-<TD ALIGN=CENTER WIDTH=\"20%\" HEIGHT=100><B>Size(GB) of event.root files</B></TD>
-<TD ALIGN=CENTER WIDTH=\"20%\" HEIGHT=100><B>Number of Events<br>in DST</B></TD>
+<TD ALIGN=CENTER WIDTH=\"10%\" HEIGHT=100><B>Size(GB) of dst.root files</B></TD>
+<TD ALIGN=CENTER WIDTH=\"10%\" HEIGHT=100><B>Size(GB) of event.root files</B></TD>
+<TD ALIGN=CENTER WIDTH=\"10%\" HEIGHT=100><B>Size(GB) of MuDst.root files</B></TD>
+<TD ALIGN=CENTER WIDTH=\"10%\" HEIGHT=100><B>Size(GB) of emcEvent.root files</B></TD>
+<TD ALIGN=CENTER WIDTH=\"10%\" HEIGHT=100><B>Number of Events<br>in event.root file</B></TD>
+<TD ALIGN=CENTER WIDTH=\"10%\" HEIGHT=100><B>Number of Events<br>in MuDst.root file</B></TD>
 </TR> 
    </head>
     <body>
