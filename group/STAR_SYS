@@ -1,5 +1,8 @@
 #!/bin/csh
 #  $Log: STAR_SYS,v $
+#  Revision 1.20  2000/01/26 17:29:05  fisyak
+#  Add arla afs
+#
 #  Revision 1.19  2000/01/21 23:01:26  fisyak
 #  Add RedHat 6.1
 #
@@ -71,23 +74,30 @@
 #
 #  Revision 1.1.1.1  1997/12/31 14:35:23  fisyak
 #
-#             Last modification $Date: 2000/01/21 23:01:26 $ 
+#             Last modification $Date: 2000/01/26 17:29:05 $ 
 #
 # Determine STAR_SYS variable.
 #
 setenv STAR_SYS ""
-if (-e /usr/afsws/bin/sys)  then
-     setenv STAR_SYS `/usr/afsws/bin/sys`
+if (-e /usr/arla/bin/fs) then
+    setenv STAR_SYS `/usr/arla/bin/fs sysname | awk -F\' '{print $2}'`
+#    echo $STAR_SYS
 else
+  if (-e /usr/afsws/bin/fs)  then
+#     setenv STAR_SYS `/usr/afsws/bin/sys`
+    setenv STAR_SYS `/usr/afsws/bin/fs sysname | awk -F\' '{print $2}'`
+  else
     if (-e /bin/sys) setenv STAR_SYS `/bin/sys`
+  endif
 endif
-if ("${STAR_SYS}" == "i386_linux22") then
+if ("${STAR_SYS}" == "i386_linux22" || "${STAR_SYS}" == "i386_linux2") then
     set redhat = "5.2";
     setenv STAR_SYS i386_redhat51
     if (-f /etc/redhat-release) set redhat = `awk '{print $5}' /etc/redhat-release`
     if ("$redhat" == "6.0") setenv STAR_SYS "i386_redhat60"
     if ("$redhat" == "6.1") setenv STAR_SYS "i386_redhat61"
 endif
+if ("$STAR_SYS" == "i386_linux61") setenv STAR_SYS "i386_redhat61"
 if ("$STAR_SYS" == "i386_linux22"|| "$STAR_SYS" == "i386_redhat50" || \
     "$STAR_SYS" == "i386_linux2" || "$STAR_SYS" == "i386_linux3") setenv STAR_SYS "i386_redhat51"
 if (${STAR_SYS} == "") then
