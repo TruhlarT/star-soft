@@ -83,8 +83,10 @@ if ( -r  $GROUP_DIR/star_login.csh ) then
 		mgr/CleanLibs OBJ 2 | grep Delete  >$HOME/log/CleanLibs.log
 		breaksw
 
-	    case "Insure":
+	    case "Insure2":
 		starver .IDEV
+
+	    case "Insure":
 		cd $STAR
 		$SCRIPTD/insbld.pl -c -s >$HOME/log/IN-$DAY.log
 		mgr/CleanLibs IOBJ 1
