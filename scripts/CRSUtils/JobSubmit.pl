@@ -100,6 +100,8 @@ $MAXEVT  = 0;
 # regular mode.
 $THROTTLE = 2;
 
+# Do not change this value. Set by year, this is the default.
+$TREEMODE = 0;
 
 
 # Default values Year2 data
@@ -179,9 +181,12 @@ if ($ThisYear == 2002){
     $SCALIB{"PPPP"}           = "OptLaser";
 
 } elsif ( $ThisYear == 2005 ){
+    $TREEMODE= 1;
     $LIB     = "dev";
+
     $NUMEVT  = 100;
     #$MAXEVT  = 250;
+
     $TARGET  = "/star/data08/reco";   # This is ONLY a default value.
                                       # Overwritten by ARGV (see crontab)
     $LASERTP =  4;
@@ -767,13 +772,19 @@ sub Submit
 
     # PATH are different depending on HPSS storage or local
     # Mode for UNIX is a Fast-local buffering.
+    if ( $TREEMODE == 0){
+	$XXX = "$LIB/$items[2]/$m";
+    } else {
+	$XXX = "$trgsn/$field/$LIB/$items[2]/$dm";
+    }
+
     if ($HPSS){
-	$SCRATCH     = "/home/starreco/reco/$LIB/$items[2]/$m";
+	$SCRATCH     = "/home/starreco/reco/$XXX";
 	$destination = "$TARGET";  $destination =~ s/\/reco//;
 	$stagedon    = "HPSS";
     } else {
 	$SCRATCH     = ".";
-	$destination = "$TARGET/$LIB/$items[2]/$m";
+	$destination = "$TARGET/$XXX";
 	$stagedon    = "UNIX";
     }
 

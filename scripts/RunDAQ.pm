@@ -1175,6 +1175,7 @@ sub rdaq_bits2string
 # Mode 0 -> return 'path/file' (default)
 # Mode 1 -> return 'path file' (i.e. with space)
 # Mode 2 -> return 'path file year month'
+# Mode 3 -> return 'path file year month DayOfYear'
 #           month is calculated.
 #
 # May implement other modes ...
@@ -1217,9 +1218,11 @@ sub rdaq_file2hpss
 	# the default option is to store by day-of-year
 	if($mode==1){
 	    "$HPSSBASE/$y/$dm $file";
-	} elsif ($mode == 2){
+	} elsif ($mode == 2 || $mode == 3){
 	    @items = Date::Manip::Date_NthDayOfYear($y,$dm);
-	    "$HPSSBASE/$y/$dm $file $y $items[1]";
+	    ($mode == 2)?
+		"$HPSSBASE/$y/$dm $file $y $items[1]":
+		"$HPSSBASE/$y/$dm $file $y $items[1] $dm";
 	} else {
 	    "$HPSSBASE/$y/$dm/$file";
 	}
