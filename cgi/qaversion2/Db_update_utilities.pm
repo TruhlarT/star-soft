@@ -45,7 +45,7 @@ my %updateLimit = ( nightly_real => 10,
 		    offline_fast => 10
 );
 # for real offline 
-my $oldestRun = 2202000;
+my $oldestRun = 1000000;
 # for offline fast
 #my $oldestFastRun = 2300000;
 my $debug = 0;
