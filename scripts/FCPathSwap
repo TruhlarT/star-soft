@@ -89,7 +89,7 @@ $fC->Require("V01.260");
 
 
 if ($fC){
-    chomp($NODE = `hostname`);
+    chomp($NODE = `/bin/hostname`);
     if ( ! $fC->connect_as("Admin") ){
 	print STDERR "$PRGM :: Error: Could not connect to db as [Admin]\n";
 	exit;
@@ -159,10 +159,10 @@ if ($fC){
 	    $newpath =~ s/$ARGV[0]/$ARGV[1]/;
 
 	    if ($DOIT){
-		if ("$path/$file" ne "$newpath/$file"){
+		if ("$path/$file" ne "$newpath/$file" && ! -l "$path/$file"){
 		    if ( &FileCopy("$path/$file","$newpath/$file") ){
 			if ( &Clone($path,$file,$newpath) ){
-			    if ( &Delete($path,$file) ){
+			    if ( &Mark($path,$file) ){
 				if ( $SMOOTH){
 				    if ( symlink("$newpath/$file","$path/$file") ){
 					print "$PRGM :: Info   : symlink $path/$file\n";
@@ -214,18 +214,39 @@ sub Context
     }
 }
 
-# Delete file and record
-sub Delete
+
+
+#
+# Delete file and record or mark it un-available
+#
+sub Delete {
+    my($path,$file)=@_;
+    return &DeleteOrMark(0,$path,$file);
+}
+sub Mark {
+    my($path,$file)=@_;
+    return &DeleteOrMark(1,$path,$file);
+}
+
+sub DeleteOrMark
 {
-    my($path,$file) = @_;
+    my($mode,$path,$file) = @_;
+    my(@items,$n,$cond);
 
     &Context($path,$file);
 
-    $fC->set_delayed();
-    @items = $fC->delete_records(1);
+    if ($mode == 0){
+	$fC->set_delayed();
+	@items = $fC->delete_records(1);
+	$cond  = ($#items != 0);
 
-    if ($#items != 0){
-	$fC->unset_delayed();
+    } else {
+	$n = $fC->update_location("available",0);
+	$cond = ($n > 1);
+    }
+
+    if ($cond){ 
+	$fC->unset_delayed() if ($mode ==0);
 	print STDERR "$PRGM :: Warning: More than one record at Delete() for $path/$file\n";
 	return 0;
     } else {
@@ -234,17 +255,19 @@ sub Delete
 		print STDERR "$PRGM :: Error: Could not rm -f $path/$file\n";
 		return 0;
 	    }
-	} 
-	# OK, finally, delete
-	if ( $fC->flush_delayed() ){
-	    foreach (@items){
-		print "$PRGM :: Info   : Deleted $_\n";
-	    }
-	} else {
-	    print STDERR "$PRGM :: Error: Problemo\n";
-	    die "\n";  # better stop or we will leave something inconsistent
 	}
-	$fC->unset_delayed();	
+	if ($mode == 0){
+	    # OK, finally, delete
+	    if ( $fC->flush_delayed() ){
+		foreach (@items){
+		    print "$PRGM :: Info   : Deleted $_\n";
+		}
+	    } else {
+		print STDERR "$PRGM :: Error: Problemo\n";
+		die "\n";  # better stop or we will leave something inconsistent
+	    }
+	    $fC->unset_delayed();	
+	}
     }
     return 1;
 }
