@@ -1,7 +1,10 @@
 #!/usr/bin/csh -f
-#       $Id: group_env.csh,v 1.39 1998/07/26 06:50:41 wenaus Exp $
+#       $Id: group_env.csh,v 1.40 1998/07/27 20:23:58 fisyak Exp $
 #	Purpose:	STAR group csh setup 
 #       $Log: group_env.csh,v $
+#       Revision 1.40  1998/07/27 20:23:58  fisyak
+#       Add sgi as unsupport OBJY platform
+#
 #       Revision 1.39  1998/07/26 06:50:41  wenaus
 #       Fix Objy paths for rsun00
 #
@@ -170,6 +173,7 @@ else
   setenv MANPATH ${STAR_PATH}/man
 endif
 setenv PARASOFT /afs/rhic/star/packages/parasoft
+     setenv OBJY_ARCH  ""
 switch ($STAR_SYS)
     case "rs_aix*":
 #  ====================
