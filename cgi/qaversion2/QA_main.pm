@@ -65,22 +65,25 @@ $gServer_object = new Server_object;
 my $server_type = $gServer_object->ServerType;
 #---------------------------------------------------------
 # set data class
+my $offline_default = "nightly_MC";
+my $online_default  = "online_raw";
 
 my $data_class;
 if ( $server_type eq 'offline' ){
-  $data_class = $gCGIquery->param('data_class') || $data_class_default;
+  $data_class = $gCGIquery->param('data_class') || $offline_default;
 }
-elsif( $server_type eq 'offline' ){
-  $data_class = "online";
+elsif( $server_type eq 'online' ){
+  $data_class = $gCGIquery->param('data_class') || $offline_default;
 }
 else{
   $data_class = "unknown";
 }
 
 # global
+# this class sets all the variables which depend on the data class
 $gDataClass_object = new DataClass_object($data_class);
 
-print Dumper $gDataClass_object;
+#print Dumper $gDataClass_object;
 #---------------------------------------------------------
 
 # connect to db
