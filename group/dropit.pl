@@ -1,12 +1,11 @@
-# 
-# This script is csh wrapped and SHOULD NOT BE CALLED
-# directly. See rational in the dropit wrapper script.
-#
-#
-#  $Id: dropit.pl,v 1.1 2003/02/25 02:11:41 jeromel Exp $
+#!/usr/bin/env perl
+#  $Id: dropit.pl,v 1.2 2004/11/25 23:11:09 jeromel Exp $
 #  $Log: dropit.pl,v $
-#  Revision 1.1  2003/02/25 02:11:41  jeromel
-#  Perl section of dropit
+#  Revision 1.2  2004/11/25 23:11:09  jeromel
+#  Added a csh version to dropit command and copied dropit -> dropit.csh
+#
+#  Revision 1.10  2003/06/24 17:27:54  jeromel
+#  Restored the perl version for now ...
 #
 #  Revision 1.8  2001/04/13 13:32:24  jeromel
 #  ROOT excluded from drop candidate.
@@ -65,6 +64,7 @@
 #                       causes the field to be omitted
 #
 #
+
 my $FS=":";
 my $DS=":";
 my $string= $ENV{PATH};# print "string $string\n";
@@ -73,7 +73,7 @@ my @substring=();
 for ( my $i=0; $i<scalar(@ARGV); $i++)
 {
   my $test = @ARGV[$i];
-###  print $i, $test, "\n";
+  ##print $i, $test, "\n";
   if ($test =~ /^-/  && @ARGV[$i+1] =~ /^-/) {next;}    
   if ($test eq '-c') {next;}
   if ($test eq '-i') {$FS = @ARGV[++$i]; next;}      
@@ -103,17 +103,18 @@ foreach my $word (@newwords) {# print "word = $word\n";
       goto LAST if $w eq $word;
   }
   #  print "Check $word\n";
-  if ($word =~ /lsf/ || $word =~ /scratch/ || $word =~ /ROOT/){
+  #$word =~ /lsf/ || 
+  if ($word =~ /scratch/ || $word =~ /ROOT/){
       push @words, $word; 
       next;
   }
   if ( (!( -d $word)) and $word !~ /^\./ ) {next;}
+  if ( $0 =~ m/$word/ ){ next;}
+
   push @words, $word;
-# print "                    add $word\n";
+  # print "                    add $word\n";
  LAST:
 }
 $string = join $DS,@words;
 if ($string) {print "$string\n";}
 else         {print "$ostring\n";}
-
-
