@@ -32,6 +32,8 @@
 #        -> get_current_detector_configuration() : gets the ID of a detector
 #                          configuration described by the current context. If
 #                          does not exists, return an existing ID (or 0)
+#        -> get_prodlib_version_ID (internal)
+#
 #        -> insert_run_param_info() : insert the run param record taking data
 #                          from the current context
 #        -> get_current_run_param() : get the ID of a run params corresponding
@@ -121,7 +123,7 @@ require  Exporter;
 
 
 use vars qw($VERSION);
-$VERSION   =   "V01.291";
+$VERSION   =   "V01.295";
 
 # The hashes that hold a current context
 my %optoperset;
@@ -288,7 +290,7 @@ $keywrds{"genparams"     }    =   "eventGeneratorParams"      .",EventGenerators
 # Path related keywords apart from index -- NEW
 #$keywrds{"path"          }    =   "filePath"                  .",FileLocations"          .",1" .",text" .",0" .",1" .",1";
 #$keywrds{"Xpath"         }    =   "filePathName"              .",FilePaths"              .",0" .",text" .",0" .",0". ",0";
-$keywrds{"path"          }    =   "filePathName"              .",FilePaths"              .",1" .",text" .",0" .",0". ",0";
+$keywrds{"path"          }    =   "filePathName"              .",FilePaths"              .",1" .",text" .",0" .",0". ",1";
 
 # Node related keywords -- NEW
 #$keywrds{"node"          }    =   "nodeName"                  .",FileLocations"          .",0" .",text" .",0" .",1" .",1";
@@ -367,6 +369,7 @@ my $delimeter = "::";
 # is a collection' table.
 #
 # Note : TriggerCompositions is NOT a dictionnary comparing to FileData
+#        so is not a level 3 but 2.
 #
 
 my @datastruct;
@@ -376,7 +379,7 @@ $datastruct[2]  = ( "FileData"               . ",FileLocations"       . ",fileDa
 $datastruct[3]  = ( "FilePaths"              . ",FileLocations"       . ",filePathID"              . ",2" . ",1");
 $datastruct[4]  = ( "Hosts"                  . ",FileLocations"       . ",hostID"                  . ",2" . ",1");
 $datastruct[5]  = ( "TriggerWords"           . ",TriggerCompositions" . ",triggerWordID"           . ",2" . ",1");
-$datastruct[6]  = ( "FileData"               . ",TriggerCompositions" . ",fileDataID"              . ",2" . ",0");
+$datastruct[6]  = ( "FileData"               . ",TriggerCompositions" . ",fileDataID"              . ",2" . ",0"); 
 $datastruct[7]  = ( "ProductionConditions"   . ",FileData"            . ",productionConditionID"   . ",3" . ",1");
 $datastruct[8]  = ( "FileTypes"              . ",FileData"            . ",fileTypeID"              . ",3" . ",1");
 $datastruct[9]  = ( "RunParams"              . ",FileData"            . ",runParamID"              . ",3" . ",0");
@@ -1451,6 +1454,70 @@ sub insert_dictionary_value {
   return $retid;
 }
 
+sub get_prodlib_version_ID {
+
+    if( ! $DBH){
+	&print_message("insert_detector_configuration","Not connected");
+	return 0;
+    }
+
+    if ( defined($valuset{"library"}) &&   defined($valuset{"production"})){
+	# Both are defined, we can check if the combo is in the table
+	# and insert if necessary.
+	my($id,$cmd1,$sth1);
+	my($fldnm1, $fldnm2, $tabname, $rest);
+	my($prod,$lib);
+
+	($prod,$lib)               = ($valuset{"production"},$valuset{"library"});
+	($fldnm1, $tabname, $rest) = split(",",$keywrds{"production"});
+	($fldnm2, $tabname, $rest) = split(",",$keywrds{"library"});
+
+
+	# fetch if exists
+	$cmd1 = "SELECT ".&_IDize("get_prolib_version_ID",$tabname)." FROM $tabname WHERE $fldnm1=? AND $fldnm2=?";
+	#print "$cmd1\n";
+	$sth1 = $DBH->prepare($cmd1);
+	if ( ! $sth1 ){  &die_message("get_prodlib_version_ID","Prepare statements 1 failed");}
+	if ( $sth1->execute($prod,$lib) ){
+	    $sth1->bind_columns( \$id ); 
+	    if ($sth1->rows == 0) {
+		# then insert
+		my($cmd2,$sth2);
+
+		$cmd2  = "INSERT IGNORE INTO $tabname ($fldnm1, $fldnm2, ".&_IDatize("",$tabname).", ".&_Creatorize("",$tabname).") ";
+		$cmd2 .= "VALUES('".$prod."', '".$lib." ', NOW()+0, '".&_GetLogin()."')";
+		#print "$cmd2\n";
+		$sth2  = $DBH->prepare($cmd2);
+		if ( $sth2->execute() ){ 
+		    &print_debug("get_prodlib_version_ID","Inserted $prod,$lib");
+		    $id = &get_last_id();
+		} else {
+		    &print_message("get_prodlib_version_ID","Failed to insert $prod,$lib".$DBH->errstr);
+		}
+		$sth2->finish(); 
+
+	    } elsif ($sth1->rows > 1) {
+		&die_message("get_prodlib_version_ID","Self consistency check failed",
+			     "More than one combination production/library found");
+	    } else {
+		# Fecth the unique value (it is bound to the $id)
+		$sth1->fetch();
+	    }
+	    $sth1->finish();
+	    return $id;
+	}
+
+    } elsif ( defined($valuset{"library"})  ){
+	# One parameter exists. Treat it as a dictionnary (may be null)
+	return &check_ID_for_params("library");
+    } elsif ( defined($valuset{"production"})  ){
+	# One parameter exists. Treat it as a dictionnary (may be null)
+	return &check_ID_for_params("production");
+    } else {
+	&die_message("get_prodlib_version_ID","None of production/library defined");
+    }
+}
+
 
 #============================================
 # get the ID for the current run number
@@ -2051,8 +2118,12 @@ sub insert_file_data {
       return 0;
   }
 
-  $production = &check_ID_for_params("production"); # production
-  $library    = &check_ID_for_params("library");    # and library are dependent
+
+  #$production = &check_ID_for_params("production"); 
+  #$library    = &check_ID_for_params("library");    
+  # production and library are dependent -- Logic had to change
+  $library    = &get_prodlib_version_ID();
+  $production = $library;
   $fileType   = &check_ID_for_params("filetype");
 
   # cloning has side effects. we must delete the content if replaced
@@ -2399,9 +2470,13 @@ sub get_current_file_data {
 
   # Otherwise, must search for the ID
   $runParam   = &get_current_run_param();
-  $production = &check_ID_for_params("production");
-  $library    = &check_ID_for_params("library");
   $fileType   = &check_ID_for_params("filetype");
+
+  #$production = &check_ID_for_params("production");
+  #$library    = &check_ID_for_params("library");
+  $library    = &get_prodlib_version_ID();
+  $production = $library;
+
 
   #print "In get_current_file_data $runParam $production $library $fileType\n";
 
@@ -3112,7 +3187,7 @@ sub connect_fields {
 
   # If not the same table - look again
   if ( $stable ne $ftable) {
-    &print_debug("connect_fields","Looking for downward connections");
+    &print_debug("connect_fields","\tLooking for downward connections");
     my @upconnections;
     # look upward in table structure
     while (($stable ne $ftable) && ($slevel != 1)) {
@@ -3126,6 +3201,8 @@ sub connect_fields {
       $ftable = $ttable;
     }
     push (@connections, @upconnections);
+    &print_debug("connect_fields","\tNow adding ".join("/",@upconnections));
+
     if ( $stable ne $ftable) {
       &print_debug("connect_fields","Looking for upward connections");
 
@@ -3394,7 +3471,7 @@ sub run_query {
 	  # - The first one is simple, the table is in use, optional context is set
 	  # - The second/third implies that if there is a cross dependence FileData/FileLocations
 	  #   in the keyword list, there WILL be a JOIN on FileData/FileLocations and therefore,
-	  #   it is also a canidate for adding the optionally context on the query stack.
+	  #   it is also a candidate for adding the optionally context on the query stack.
 	  if ( ( defined($TableUSED{$tabname}) )                                         ||
 	       ( defined($TableUSED{FileData}) && defined($XTableUSED{FileLocations}) )  ||
 	       ( defined($TableUSED{FileLocations}) && defined($XTableUSED{FileData}) )  ){
@@ -3411,9 +3488,24 @@ sub run_query {
 	  }
       }
   }
-  # destructor
+
+  # make a rapid scan of the condition table now and check for the
+  # tables we would be adding. This is mainly later to check the
+  # case of querry values from table X with condition with table X
+  # only.
+  foreach $keyw (keys %valuset){
+      my ($tabname) = &get_table_name($keyw);
+      if ($tabname eq ""){ next;}
+      $TableUSED{$tabname} = 1;
+  }
+  my @XUSEDTables= keys %TableUSED;
+
+
+
+  # destructor (don't need them anymore)
   undef(%XTableUSED);
   undef(%TableUSED);
+
 
 
   #
@@ -3465,10 +3557,13 @@ sub run_query {
 		      }
 		  }
 	      #} else {
-		  # Only one table is used (table info within table cond)
-		#  $parent_tabname = $USEDTables[0];
+	          if ( $#XUSEDTables == 0){
+		      # Only one table is used (table info within same table cond)
+		      &print_debug("run_query",
+				   "\t++TBC $idname relates to [$parent_tabname] but one table only $#XUSEDTables");
+		      $parent_tabname = $XUSEDTables[0];
+		  }
 	      #}
-
 
 	      my $sqlquery = "SELECT $idname FROM $tabname WHERE ";
 
@@ -3653,12 +3748,14 @@ sub run_query {
       }
   }
 
-  #&print_debug("run_query","Pushing in FROM ".&get_table_name($keywords[0])." $#keywords ");
+  &print_debug("run_query","Pushing in FROM ".
+	       join("/",@from)." ".&get_table_name($keywords[0])." $#keywords ".
+	       join("/",@keywords));
   push (@from, &get_table_name($keywords[0]));
 
   for ($count=1; $count<$#keywords+1; $count++) {
-      #&print_debug("run_query","\t. Connecting $keywords[0] $keywords[$count] ".
-      #&connect_fields($keywords[0], $keywords[$count]));
+      &print_debug("run_query","\t. Connecting $keywords[0] $keywords[$count] ".
+		   &connect_fields($keywords[0], $keywords[$count]));
       push (@connections, (&connect_fields($keywords[0], $keywords[$count])));
       push (@from, &get_table_name($keywords[$count]));
   }
@@ -3683,7 +3780,7 @@ sub run_query {
   # Fill the table of connections
   my $connections = join(" ",(@connections));
   my @toquery;
-  foreach my $el (sort (split(" ",$connections))) {
+  foreach my $el (sort {$a <=> $b} (split(" ",$connections))) {
     if ((not $toquery[$#toquery]) || ($toquery[$#toquery] != $el)) {
       push (@toquery, $el);
     }
@@ -3734,18 +3831,23 @@ sub run_query {
 
   # Build the FROM and WHERE parts of the query
   # using thew connection list
-  &print_debug("run_query","Toquery table contains idx ".join("/",@toquery));
-  &print_debug("run_query","Select  table contains val ".join("/",@select));
-  &print_debug("run_query","Grouping is now            ".$grouping);
+  &print_debug("run_query","Summary at this stage");
+  &print_debug("run_query","\tTables are so far          ".join("/",@from));
+  &print_debug("run_query","\tToquery table contains idx ".join("/",@toquery));
+  &print_debug("run_query","\tSelect  table contains val ".join("/",@select));
+  &print_debug("run_query","\tGrouping is now            ".$grouping);
+
 
   my $where="";
+  &print_debug("run_query","Calculating where");
   foreach my $el (@toquery) {
       my ($mtable, $stable, $field, $level) = split(",",$datastruct[$el]);
-      &print_debug("run_query","\tGot $mtable/$stable/$field/$level from $datastruct[$el]");
+      &print_debug("run_query","\tFor $el Got $mtable/$stable/$field/$level from $datastruct[$el]");
       if (($mtable eq "FileData") && ($stable eq "FileLocations")){
 	  next;
       }
       &print_debug("run_query","\tTable $mtable is not one of FileData/FileLocations");
+
       push (@from, $mtable);
       push (@from, $stable);
       if (not $where) {
@@ -3755,7 +3857,7 @@ sub run_query {
       }
   }
   my $toquery = join(" ",(@from));
-  &print_debug("run_query","Table list $toquery ; [$where]");
+  &print_debug("run_query","<Table list 1> $toquery ; [$where]");
 
 
 
@@ -3767,7 +3869,7 @@ sub run_query {
 	  push (@fromunique, $el);
       }
   }
-  &print_debug("run_query","Table list $toquery ; [$where]");
+  &print_debug("run_query","<Table list 2> $toquery ; [$where]");
 
 
   # Extra debug line
