@@ -13,6 +13,7 @@ endif
 if ( $?OBJY_HOME ) then
 
 echo Objectivity location OBJY_HOME set to $OBJY_HOME
+setenv PATH $PATH\:$OBJY_HOME/$OBJY_ARCH/bin
 
 if ( $?BFARCH ) then
 
@@ -21,7 +22,6 @@ if ( $?BFARCH ) then
   setenv BFSITE starbnl
   setenv OBJYBASE $OBJY_HOME
 
-  setenv PATH $PATH\:$OBJY_HOME/$OBJY_ARCH/bin
   if ( -d $STAR_DB/bin/$BFARCH ) then
     setenv PATH $PATH\:$STAR_DB/bin/$BFARCH\:$STAR_DB/bin/share
   endif
