@@ -38,9 +38,16 @@ sub run_root{
   print SCRIPT "#! /usr/local/bin/tcsh\n",
   "setenv GROUP_DIR /afs/rhic/rhstar/group\n",
   "setenv CERN_ROOT /cern/pro\n",
-  "setenv HOME /star/u2/jacobs\n",
-  "source /afs/rhic/rhstar/group/.starver ".$starlib_version."\n",
-  "root4star -b<<END \n";
+  "setenv HOME /star/u2/jacobs\n";
+
+  if ($starlib_version eq "dev" ){
+    print SCRIPT "source /afs/rhic/rhstar/group/.stardev \n";
+  }
+  else{
+    print SCRIPT "source /afs/rhic/rhstar/group/.starver ".$starlib_version."\n";
+  }
+
+  print SCRIPT "root4star -b<<END \n";
 
   foreach $command (@commands){
     print SCRIPT $command."\n";

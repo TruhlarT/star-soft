@@ -271,7 +271,13 @@ sub RunMacro{
 
   #--------------------------------------------------------------------------------------------
   my $starlib_version = $QA_object_hash{$report_key}->LogReport->StarlibVersion;
-  $starlib_version =~ s/SL//;
+
+  if ($starlib_version =~ /SL/){
+    $starlib_version =~ s/SL//;
+  }
+  else{
+    $starlib_version = "dev";
+  }
 
   # Sl99h is screwed up - use 99i instead  pmj 13/11/99
 #  $starlib_version eq "99h" and $starlib_version = "99i";

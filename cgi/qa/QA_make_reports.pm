@@ -72,6 +72,8 @@ sub get_report_key{
     $day = $time[3];
     $month = $time[4] + 1;
     $year = $time[5];
+
+    $year > 99 and $year = $year - 100;
     
     $day < 10 and $day = "0".$day;
     $month < 10 and $month = "0".$month;

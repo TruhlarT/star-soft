@@ -415,7 +415,7 @@ sub ParseLogfile {
 
     # look for segmentation violation
     $line =~ /segmentation violation/ and do {
-      $self->ErrorString("segmentation violation");
+      $self->ErrorString("segmentation violation;");
       next ;
     };
 
@@ -467,6 +467,13 @@ sub ParseLogfile {
     };
  
   }
+
+  #--------------------------------------------------------------------------
+  # fill these in in case of crash
+
+  $self->LastEvent or $self->LastEvent(0);
+  $self->ReturnCodeLastEvent or $self->ReturnCodeLastEvent(-999);
+  $self->RunCompletionTimeAndDate or $self->RunCompletionTimeAndDate(-999);
 
   #--------------------------------------------------------------------------
   # now check if expected files have been created
@@ -521,7 +528,7 @@ sub LogfileSummaryString {
       $self->ErrorString() and $return_string .= $self->ErrorString(); 
     }
 
-    $return_string .= $self->LastEvent();
+    $return_string .= " ".$self->LastEvent();
     $self->NEvent() and $return_string .= "/".$self->NEvent();
     $return_string .= " events done;";
 
@@ -725,7 +732,7 @@ sub FillObjectFromTxt{
     #---
     
     /segmentation violation\?: (\d+)/ and do {
-      $self->ErrorString("segmentation_violation");
+      $self->ErrorString("segmentation_violation;");
       next;
     };
     

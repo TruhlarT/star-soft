@@ -162,7 +162,11 @@ sub ControlFile{
       $control_file = "unknown";
       
       my $dir = "$control_dir/$starlib_version";
-      -d $dir or $dir = "$control_dir/default";
+      -d $dir or do{
+	print "Control dir $dir not found, using default... <br> \n";
+	$dir = "$control_dir/default";
+      };
+
       -d $dir or last CONTROLFILE;
 
       my $filestring = "$dir/test_control";
@@ -336,7 +340,7 @@ sub DataDisplayString{
     
     $starlib_version = $self->LogReport->StarlibVersion;
     $star_level = $self->LogReport->StarLevel;
-    $starlib_version =~ /SL/ and $string .= "<br>(STARLIB version: $starlib_version; STAR level: $star_level)";
+    $starlib_version =~ /SL|DEV/ and $string .= "<br>(STARLIB version: $starlib_version; STAR level: $star_level)";
     
     $input_filename = $self->LogReport->InputFn;
 
@@ -573,7 +577,14 @@ sub RunQAMacros {
     $rootcrashlog = "$report_dir/$macro_name.rootcrashlog";
 
     if (-s $rootcrashlog){
-      $summary_string .= "<font color=red> $macro_name crashed; </font>" ;
+
+      # modified 6/1/00 - in case of multiple invocations of same macro (e.g. bfcread_hist_to_ps),
+      # only report crash once
+
+      $this_string = "<font color=red> $macro_name crashed; </font>";
+      
+      $summary_string !~ /$this_string/ and  $summary_string .= $this_string;
+
     }
     else{		  
       $summary_string .= $macro_object->SummaryString;

@@ -27,7 +27,6 @@ use QA_server_utilities;
 use QA_object;
 use QA_globals;
 
-use QA_display_reports;
 use QA_make_reports;
 
 use Button_object;
