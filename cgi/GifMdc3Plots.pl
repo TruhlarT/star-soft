@@ -182,7 +182,7 @@ foreach $prodAddr (@prodInfo) {
     $mRTEvt =  ($$prodAddr)->rtEvt;
     $mAveTrks = ($$prodAddr)->aveTrks;
     $mAveVtxs = ($$prodAddr)->aveVtxs;
-     if ($mCPUEvt ne 0)  { 
+     if ($mCPUEvt != 0)  { 
   $mflName = basename("$mflName", ".sum");
 
   if ($datProd ne 0) {
