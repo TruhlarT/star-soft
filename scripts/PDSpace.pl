@@ -20,12 +20,15 @@ $MAX   =  6;                                             # for testing
 $MAX   = 50;                                             # Upper number ; can be as high
 $MAIN  = "/star/data";                                   # default base path
 
+
 # Static configuration
-$OUTD  = "/afs/rhic.bnl.gov/star/doc/www/html/tmp/pub/Spider";  # this will be used for Catalog hand-shake
-$WWWD  = "/webdatanfs/pub/";                             # Web equivalent
-$ICON  = "/icons/transfer.gif";                          # Icon to display
-$DINFO = "(check 'nova' Spiders)";                       # Many tools may be used for indexing
-                                                         # display info about which one.
+$OUTD  = "/afs/rhic.bnl.gov/star/doc/www/html/tmp/pub/Spider"; # this will be used for Catalog hand-shake
+$ICON1 = "/icons/transfer.gif";                                # Icon to display for indexer result
+$ICON2 = "/STAR/images/Spider1.jpg";                           # Icon to display for spider result
+$DINFO = "(check 'nova' Spiders)";                             # Many tools may be used for indexing
+                                                               # display info about which one.
+
+$SpiderControl = "/cgi-bin/starreco/SpiderControl.cgi";        # a CGI controling the spiders
 
 
 @COLORS = ("#FFFACD","#C1FFC1","#7FFFD4","#00DEFF","#87CEFA","#ccccee","#D8BFD8","#FF69B4");
@@ -37,10 +40,13 @@ $BREAK{"03"} =  "Reserved Usage Space Area";
 $BREAK{"06"} =  "Production Disks / Assigned TEMPORARY space for Projects";  
 $BREAK{"08"} =  "Production Disks";  
 
+# Exclude those (alias, un-usable etc ...)
+$DEXCLUDE{"46"} = 1;
+
 
 # Standard header style
 $TD  = "<TD BGCOLOR=\"black\" align=\"center\"><FONT FACE=\"Arial, Helvetica\"><FONT COLOR=\"white\"><B>";
-$ETD = "</FONT></B></FONT></TD>";
+$ETD = "</FONT></B></FONT></TD>\n\t";
 
 
 
@@ -198,31 +204,34 @@ foreach $disk (sort keys %DINFO){
 
     #print "$col\n";
     $disk =~ m/(\d+)/;
+
+    if ( defined($DEXCLUDE{$1} ) ){  next;}
     if ( defined($BREAK{$1}) ){
 	printf $FO 
 	    "<TR BGCOLOR=\"#333333\"><TD ALIGN=\"center\" COLSPAN=\"7\">".
 	    "<FONT COLOR=\"white\"><B>$BREAK{$1}</B></FONT></TD></TR>\n";
     }
-    $FCRef = &GetFCRef($disk);
+
+    $FCRef = &GetFCRef("FC",$ICON1,$disk);
     printf $FO
 	"<TR bgcolor=\"$col\">\n".
-	"  <TD align=\"right\"><A NAME=\"%s\">%10s</A>%s</TD>\n".
+	"  <TD align=\"right\"><A NAME=\"%s\">%10s</A></TD>\n".
 	"  <TD align=\"right\">%11s</TD>\n".
 	"  <TD align=\"right\">%11s</TD>\n".
 	"  <TD align=\"right\">%11s</TD>\n".
 	"  <TD align=\"right\">%3s</TD>\n".
 	"  <TD>%s</TD>\n".
-	"  <TD align=\"right\">%s</TD>\n".
+	"  <TD align=\"right\">%s%s%s</TD>\n".
 	"</TR>\n",
-	&GetRef($disk),"<i><b>$disk</b></i>",$FCRef,$items[0],$items[1],$items[2],
-	$items[3],$items[4],$items[5];
+	&GetRef($disk),"<i><b>$disk</b></i>",$items[0],$items[1],$items[2],
+	$items[3],$items[4],$FCRef,(($FCRef eq "")?"":"<BR>"),$items[5];
 
     $totals[0] += $items[0];
     $totals[1] += $items[1];
     $totals[2] += $items[2];
 
     if ( $FCRef ne ""){
-	push(@FCRefs,$FCRef);
+	push(@FCRefs,$FCRef." $disk ");
     }
 
     #$col++;
@@ -242,11 +251,69 @@ print $FO
 if ($#FCRefs == -1){
     print $FO "<I>Catalog is up-to-date or indexing daemon are down $DINFO.</I>\n";
 } else {
-    print $FO "<UL>\n";
+    print $FO 
+	"<TABLE ALIGN=\"center\" CELLSPACING=\"0\"  BORDER=\"0\">\n",
+	"  <TR>\n".
+	"      $TD Disk    $ETD\n".
+	"      $TD Indexer $ETD\n".
+	"      $TD Spider  $ETD\n".
+	"      <TD> &nbsp  </TD>\n".
+	"      $TD Disk    $ETD\n".
+	"      $TD Indexer $ETD\n".
+	"      $TD Spider  $ETD\n".
+	"      <TD> &nbsp  </TD>\n".
+	"      $TD Disk    $ETD\n".
+	"      $TD Indexer $ETD\n".
+	"      $TD Spider  $ETD\n".
+	"</TR>\n";
+
+    $ii = 0;
     foreach $line (@FCRefs){
-	print $FO "<LI>$line\n";
+	$line  =~ m/(.*>\s+)(.*)(\s+)/;
+	($ind,$disk) = ($1,$2);
+	$refdisk = $disk;
+	$refdisk =~ s/\//_/g;
+
+	$FCRef = &GetFCRef("SD",$ICON2,$disk);
+	if ( $FCRef ne ""){
+	    $Info  = "<A HREF=\"$SpiderControl?disk=$refdisk&action=OFF\">$FCRef</A>";	    
+	} else {
+	    $Info  = "<A HREF=\"$SpiderControl?disk=$refdisk&action=ON\"><i>off</i></A>";
+	}
+	$ind = "<A HREF=\"$SpiderControl?disk=$refdisk&action=view\"><i>$ind</i></A>";
+
+	if ($ii % 3 == 0){ print $FO "<TR>\n";}
+	print $FO 
+	    "    <!-- $ii -->\n".
+	    "    <TD BGCOLOR=\"#DDDDDD\">$disk</TD>\n".
+	    "    <TD BGCOLOR=\"#EFEFEF\" ALIGN=\"middle\">$ind</TD>\n".
+	    "    <TD BGCOLOR=\"#EFEFEF\" ALIGN=\"middle\">$Info</TD>\n";
+
+	if (($ii+1) % 3 == 0){ 
+	    print $FO "</TR>\n";
+	} else {
+	    print $FO "    <TD>&nbsp;</TD>\n";
+	}
+	$ii++;
     }
-    print $FO "</UL>\n";
+    if ($ii % 3 == 0){ 
+	for ($ii=0 ; $ii < 2 ; $ii++){
+	    print $FO 
+		"    <TD>&nbsp;</TD>\n".
+		"    <TD>&nbsp;</TD>\n".
+		"    <TD>&nbsp;</TD>\n".
+		"    <TD>&nbsp;</TD>\n";
+	}
+	print $FO "</TR>\n";
+    } elsif ($ii % 2 == 0){ 
+	print $FO 
+	    "    <TD>&nbsp;</TD>\n".
+	    "    <TD>&nbsp;</TD>\n".
+	    "    <TD>&nbsp;</TD>\n".
+	    "    <TD>&nbsp;</TD>\n".
+	    "</TR>\n";
+    }
+    print $FO "</TABLE>\n";
 }
 
 
@@ -331,13 +398,13 @@ sub GetRef
 
 sub GetFCRef
 {
-    my($el)=@_;
+    my($What,$Icon,$el)=@_;
     $el =~ s/[\/ ]/_/g;
-    if ( -e $OUTD."/FC$el.html"){
-	return "<A HREF=\"$WWWD/FC$el.html\"><IMG SRC=\"$ICON\"></A>";
-    } elsif ( -e $OUTD."/FC$el.txt"){
-	return "<A HREF=\"$WWWD/FC$el.txt\"><IMG SRC=\"$ICON\"></A>";
-    } else {
-	return "";
-    }
+    if ( -e $OUTD."/$What$el.txt"){
+	return 
+	    "<IMG BORDER=\"0\" ALT=\"+\" SRC=\"$Icon\" WIDTH=\"25\" HEIGHT=\"25\">";
+    } 
+    return "";
+
 }
+
