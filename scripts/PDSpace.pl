@@ -12,7 +12,7 @@
 #
 $MIN   =  1;  # 4
 $MAX   =  6;  # for testing
-$MAX   = 32;
+$MAX   = 35;
 $MAIN  = "/star/data";
 
 @COLORS = ("#FFFACD","#C1FFC1","#7FFFD4","#00DEFF","#87CEFA","#ccccee","#D8BFD8","#FF69B4");
@@ -30,7 +30,8 @@ for ( $i = $MIN ; $i <= $MAX ; $i++){
 }
 
 foreach $disk (@DISKS){
-    if ( ! -d "$disk/." ){ 
+    if ( ! -e "$disk" && ! -e "$disk/."){  next;}  # -l may be a unmounted disk
+    if ( ! -d "$disk/." ){                         # this is definitly not mounted
 	$DINFO{$disk} = "?;?;?;?;".
 	    "<BLINK><B><FONT COLOR=#FF0000>Offline or bad mount point".
 		"</FONT></B></BLINK>; ";
