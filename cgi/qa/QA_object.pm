@@ -403,7 +403,7 @@ sub ButtonString{
 				   $report_key);
   $button_string .= $button_ref->SubmitString;
 
-  $query->param('display_env_var') and do{
+  $query->param('display_env_var') and $self->OnDisk and do{
     $button_ref = Button_object->new('RunDSV', 'Run DSV', $report_key);
     $button_string .= $button_ref->SubmitString;
   };
