@@ -2452,13 +2452,19 @@ sub bootstrap {
 	  # We do a bootstapping with delete
 	  my $dcdelete;
 	  $dcdelete = "DELETE FROM $table WHERE $linkfield IN (".join(" , ",(@rows)).")";
-	  if ($DEBUG > 0) { &print_debug("Executing $dcdelete"); }
-	  my $stfdd = $DBH->prepare($dcdelete);
-	  if ($stfdd){
-	      $stfdd->execute();
+	  if ( $DELAY ){
+	      push(@DCMD,$dcdelete);
 	  } else {
-	      &print_debug("FileCatalog::bootstrap : Failed to prepare [$dcdelete]",
+	      &print_debug("Executing $dcdelete"); 
+
+	      my $stfdd = $DBH->prepare($dcdelete);
+	      if ($stfdd){
+		  $stfdd->execute();
+		  $stfdd->fisnih();
+	      } else {
+		  &print_debug("FileCatalog::bootstrap : Failed to prepare [$dcdelete]",
 			   " Record in $table will not be deleted");
+	      }
 	  }
       }
       return (@rows);
@@ -2510,15 +2516,18 @@ sub bootstrap_trgc {
 	  # We do a bootstapping with delete
 	  my $dcdelete;
 	  $dcdelete = "DELETE FROM $table WHERE $table.fileDataID IN (".join(" , ",(@rows)).")";
-
-	  &print_debug("Executing $dcdelete");
-	  my $stfdd = $DBH->prepare($dcdelete);
-	  if ($stfdd){
-	      $stfdd->execute();
-	      $stfdd->finish();
+	  if ( $DELAY ){
+	      push(@DCMD,$dcdelete);
 	  } else {
-	      &print_debug("FileCatalog::bootstrap_data : Failed to prepare [$dcdelete]",
-			   " Records in $table will not be deleted");
+	      &print_debug("Executing $dcdelete");
+	      my $stfdd = $DBH->prepare($dcdelete);
+	      if ($stfdd){
+		  $stfdd->execute();
+		  $stfdd->finish();
+	      } else {
+		  &print_debug("FileCatalog::bootstrap_data : Failed to prepare [$dcdelete]",
+			       " Records in $table will not be deleted");
+	      }
 	  }
       }
       $stq->finish();
@@ -2580,21 +2589,25 @@ sub bootstrap_data {
 	  # We do a bootstapping with delete
 	  my $dcdelete;
 	  if ($table eq "FileData")
-	    {	  
+	  {	  
 	      $dcdelete = "DELETE FROM $table WHERE $table.fileDataID IN (".join(" , ",(@rows)).")";
-	    }
+	  }
 	  elsif ($table eq "FileLocations")
-	    {
+	  {
 	      $dcdelete = "DELETE FROM $table WHERE $table.fileLocationID IN (".join(" , ",(@rows)).")";
-	    }
-	  if ($DEBUG > 0) { &print_debug("Executing $dcdelete"); }
-	  my $stfdd = $DBH->prepare($dcdelete);
-	  if ($stfdd){
-	      $stfdd->execute();
-	      $stfdd->finish();
+	  }
+	  if ( $DELAY ){
+	      push(@DCMD,$dcdelete);
 	  } else {
-	      &print_debug("FileCatalog::bootstrap_data : Failed to prepare [$dcdelete]",
-			   " Records in $table will not be deleted");
+	      if ($DEBUG > 0) { &print_debug("Executing $dcdelete"); }
+	      my $stfdd = $DBH->prepare($dcdelete);
+	      if ($stfdd){
+		  $stfdd->execute();
+		  $stfdd->finish();
+	      } else {
+		  &print_debug("FileCatalog::bootstrap_data : Failed to prepare [$dcdelete]",
+			       " Records in $table will not be deleted");
+	      }
 	  }
       }
       $stq->finish();
