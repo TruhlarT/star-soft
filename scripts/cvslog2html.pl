@@ -58,7 +58,18 @@ while (<COMMITLOG>) {
       $moduleLine = <COMMITLOG>;
       @fields = split(/ /,$moduleLine);
       $module = $fields[2];
-      $module =~ s/\/afs\/rhic\/star\/packages\/repository\///;
+      $modulex= " ";
+      if ( $module =~ /rhic\.bnl\.gov/ ){
+	  $module =~ s/\/afs\/rhic\.bnl\.gov\/star\/packages\/repository\///;
+      } else {
+	  $module =~ s/\/afs\/rhic\/star\/packages\/repository\///;
+      }
+      # if still remains, user has done something he should not do ...
+      if ( $module =~ m/(\/afs.*\/repository\/)(.*)/){
+	  ($modulex,$module)= ($1,$2);
+	  $modulex = "<font color=\"red\">$modulex</font>";
+      }
+
       chomp $module;
       # Now get the log message
       if (exists($commitUsers{"$uname"})) {
@@ -88,7 +99,7 @@ while (<COMMITLOG>) {
 	    ~;
     };
     print USERFILE qq~
-      <br><b>Commit to <a href="$cvsUrl/$module/">$module</a> 
+      <br><b>Commit to <a href="$cvsUrl/$module/">$module</a> $modulex
       at $commitTime</b><br>&nbsp;&nbsp;
       ~;
 
@@ -183,11 +194,13 @@ foreach $cuser (sort keys %commitUsers) {
     close USERFILE; 
 }
 
+#<a href="mailto:wenaus\@bnl.gov">Torre Wenaus</a>
+
 print USERCOMMITS  qq~
 </table>
 <font size=-1>
 Commits since $firstTime <br>
-<a href="mailto:wenaus\@bnl.gov">Torre Wenaus</a>
+J&eacute;r&ocirc;me Lauret
 </font>
 </body></html>
     ~;
@@ -229,26 +242,32 @@ name to browse that module\'s CVS area.
   <td align=center><b> Date </b></td></tr>
     ~;
 
-$modA[$iCommit] = $module;
+$modA[$iCommit]  = $module;
 $userA[$iCommit] = $uname;
 $timeA[$iCommit] = $commitTime;
 $iFirstIndex = $iCommit - 500;
 if ($iFirstIndex < 1) { $iFirstIndex = 1; }
 for ( $i=$iCommit; $i>=$iFirstIndex; $i--) {
     if($userA[$i] =~ /CVS:/ || $userA[$i] eq ""){ next;}
+    if ( ! defined($modA[$i]) || ! defined($timeA[$i]) ){   
+	$x = "&nbsp;";
+    } else {
+	$x = "";
+    }
     print COMMITHISTORY qq~
     <tr bgcolor=whitesmoke>
-        <td>&nbsp; <a href="user/$userA[$i]/index.html#bottom">$userA[$i]</a> &nbsp;</td>
-        <td>&nbsp; <a href="$cvsUrl/$modA[$i]/?sortby=date">$modA[$i]</a> &nbsp;</td>
-        <td align=center>$timeA[$i]</td>
+        <td>&nbsp; <a href="user/$userA[$i]/index.html#bottom">$userA[$i]</a></td>
+        <td>&nbsp; <a href="$cvsUrl/$modA[$i]/?sortby=date">$modA[$i]</a> $x </td>
+        <td align=center>$timeA[$i] $x</td>
     </tr>
 	~;
 
 }
 
+#<font size=-1><a href="mailto:wenaus\@bnl.gov">Torre Wenaus</a></font>
 print COMMITHISTORY qq~
 </table>
-<font size=-1><a href="mailto:wenaus\@bnl.gov">Torre Wenaus</a></font>
+<font size=-1>J&eacute;r&ocirc;me Lauret</a></font>
 </body></html>
     ~;
 close COMMITHISTORY;
