@@ -66,7 +66,7 @@ foreach $disk (@DISKS){
     }
 
 
-    chomp($res = `df -k $disk | grep % | grep '/'`);
+    chomp($res = `/bin/df -k $disk | /bin/grep % | /bin/grep '/'`);
     $res   =~ s/^\s*(.*?)\s*$/$1/;
     $res   =~ s/\s+/ /g;
     @items =  split(" ",$res);
@@ -123,7 +123,7 @@ foreach $disk (@DISKS){
 	$trg .= "$tmp ";
     }
     if ( -e "$disk/AAAREADME"){
-	@all = `cat $disk/AAAREADME`;
+	@all = `/bin/cat $disk/AAAREADME`;
 	$DINFO{$disk} .= "<B><PRE>".join("",@all)."</PRE></B>";
     }
     $DINFO{$disk} .= "$trg;";
@@ -399,10 +399,18 @@ sub GetRef
 sub GetFCRef
 {
     my($What,$Icon,$el)=@_;
+    my($x);
+
     $el =~ s/[\/ ]/_/g;
+
     if ( -e $OUTD."/$What$el.txt"){
+	if ( $What eq "FC"){
+	    chomp($x = `/bin/grep Unknown $OUTD/$What$el.txt | /bin/sed "s/Unknown.*=//"`);
+	    $x = "<BR><FONT SIZE=\"-1\"><TT>$x</TT></FONT>";
+	}
+
 	return 
-	    "<IMG BORDER=\"0\" ALT=\"+\" SRC=\"$Icon\" WIDTH=\"25\" HEIGHT=\"25\">";
+	    "<IMG BORDER=\"0\" ALT=\"+\" SRC=\"$Icon\" WIDTH=\"25\" HEIGHT=\"25\">$x";
     } 
     return "";
 
