@@ -52,14 +52,14 @@ $PRGM    = "bfcca";                # this program logical name
 
 
 # This is for debugging purposes
-print "Dumping passed values at startup time\n";
-for($i=0 ; $i <= $#ARGV ; $i++){
-  print "$i -> $ARGV[$i]\n";
-}
-foreach $el (keys %ENV){
-   print "$el -> $ENV{$el}\n";
-}
-print "We are now in business ...\n";
+#print "Dumping passed values at startup time\n";
+#for($i=0 ; $i <= $#ARGV ; $i++){
+#  print "$i -> $ARGV[$i]\n";
+#}
+#foreach $el (keys %ENV){
+#   print "$el -> $ENV{$el}\n";
+#}
+#print "We are now in business ...\n";
 
 
 # The first element of the argument list
@@ -131,6 +131,7 @@ if($LIBRARY =~ m/dev/i || $LIBRARY =~ m/new/i ||
 
 
 print "Our job ID                       $JOB_ID\n";
+print "Out working directory            $PWD\n";
 print "The chain will run from library  $LIBRARY\n";
 print "The chain will run with options  $CHAINOPT\n";
 print "The output destination will be   $DESTINATION\n";
@@ -159,9 +160,8 @@ if ( ! open(FO,">$PWD/$JOB_ID.csh") ){
 	"setenv GROUP_DIR /afs/rhic/rhstar/group\n", # default GROUP_DIR
 	"source \$GROUP_DIR/star_login.csh\n",       # load basic login env
 	"$CHVER\n",                                  # load chosen library env
-	"echo \"Hello World\" >$OUTPUTS[0]\n",       # test 
 	"echo \"Executing \`which root4star\`\"\n",  # some info/debug message
-	"# root4star -b -q 'bfc.C(\"$NUMEVT\",\"$CHAINOPT\",\"$INPUTFILE\")'\n";
+	"root4star -b -q 'bfc.C($NUMEVT,\"$CHAINOPT\",\"$INPUTFILE\")'\n";
 	
 	
 
