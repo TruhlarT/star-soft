@@ -60,7 +60,8 @@ if ( -r  $GROUP_DIR/star_login.csh ) then
 	    switch ("$1")
 	    case "Clean":
 		cd $STAR
-		mgr/CleanLibs | grep Delete  >$HOME/log/CleanLibs.log
+		mgr/CleanLibs obj 2 | grep Delete  >$HOME/log/CleanLibs.log
+		mgr/CleanLibs OBJ 2 | grep Delete  >$HOME/log/CleanLibs.log
 		breaksw
 
 	    case "Insure":
@@ -81,7 +82,7 @@ if ( -r  $GROUP_DIR/star_login.csh ) then
 		endif
 		cd $LPATH
 		echo "Cleaning older libraries"
-		mgr/CleanLibs
+		mgr/CleanLibs obj 1
 		breaksw
 
 	    case "Solaris":
@@ -96,7 +97,7 @@ if ( -r  $GROUP_DIR/star_login.csh ) then
 		echo "Cleaning up C++ demangling cache"
 		/usr/bin/find . -type d -name SunWS_cache -exec rm -fr {} \;
 		echo "Cleaning older libraries"
-		mgr/CleanLibs
+		mgr/CleanLibs obj 1
 		breaksw
 
 	    case "Linux61":
@@ -111,7 +112,7 @@ if ( -r  $GROUP_DIR/star_login.csh ) then
 		cd $LPATH
 		echo "Cleaning older libraries"
 		mgr/CleanLibs obj 1
-		echo "Cleaning emacs crap"
+		echo "Cleaning emacs flc files"
 		/usr/bin/find StRoot/ -name '*.flc' -exec rm -f {} \;
 		breaksw
 
