@@ -1614,7 +1614,7 @@ Real         HITS(*)
  
  
 +DECK,AgDOCUM,T=geant. =========================================================
-*CMZ :          24/03/98  10.02.36  by  Pavel Nevski
+*CMZ :          30/04/98  14.43.32  by  Pavel Nevski
 *CMZ :  1.30/00 17/11/96  22.43.56  by  Pavel Nevski
 *CMZU:  1.00/01 21/12/95  22.19.56  by  Pavel Nevski
 *CMZ :  1.00/00 14/11/95  02.46.06  by  Pavel Nevski
@@ -1646,15 +1646,15 @@ REPLACE [ERR#{#}] with _
                      "no doc mode" {L1Doc,L2Doc,Ldoc}=0;  Return   }; ]
 REPLACE [SWAP(#,#)] with [;iw=#1;#1=#2;#2=iw;]
 * - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-+CDE,TYPING,GCBANK,GCUNIT,SCLINK,AGCDOCL,QUEST,RBBANK.
++CDE,TYPING,GCBANK,GCUNIT,GCFLAG,SCLINK,AGCDOCL,QUEST,RBBANK.
 Integer       LENOCC,OK,Lb,LL,LL1,LvL,ns1,ns2,Need,Ndm,i,j,k,l,M/1000000/,
               Idat,Itim,Link,Ia,Lk,L1,L2,Flag,IDYN,INEW,JOX,iw,idd/0/,X,IC,
               map(2,LL1),num(Lb),key(3),ID/0/,Iform/0/,Jform/0/,Istat/0/
 Character*(*) Module,MTitle,Author,Created,Bank,Bpath,Btit,
               Names(LL1),Comment(LL1)
-Character*12  Ddoc
+Character*12  Ddoc,nam
 Character*4   Ctop,Cbank,C1,C2
-Character*8   Flags(15),Dmodule,Dmodu,Dbank,Dbanu,Dup,Ddef,Bname,nam,dash/'-'/
+Character*8   Flags(15),Dmodule,Dmodu,Dbank,Dbanu,Dup,Ddef,Bname,dash/'-'/
 Character*24  Descr(15),Tshort
 Character     Cform*80,Cforn*80,C*1
 Parameter     (OK=0)
@@ -1733,7 +1733,7 @@ DO i=1,LL1
    { L1=-L1;    if L1<M { Call Ucopy(Par(L1),L1,1)} else { L1=nint(Par(L1-M))}}
    L2=map(2,i); If L2<0
    { L2=-L2;    if L2<M { Call Ucopy(Par(L2),L2,1)} else { L2=nint(Par(L2-M))}}
-   L=Lenocc(Names(i));  Nam=Names(i)(3:L)//'xxxx';  Nam(5:5)='*';
+   L=Lenocc(Names(i));  Nam=Names(i)(3:L)//'xxxx';  Nam(5:)='*';
    C=Names(i)(1:1); If C=='I' {IOX=2} else If C=='H' {IOX=5} else {IOX=3}
    swap(LkArP2,LkArP3)
    CALL ReBANK (Nam,1,2+L1*L2+3,Lk,Ia)
@@ -1786,7 +1786,7 @@ If Start
   } } }
   Err IQuest(1)#0|L2Doc<=0|L1Doc<0{cannot find top level documentation banks}
 }
-"---   level 3/4  -  the bank itself: all documentation is lenear in DETE  ---"
+"---   level 3/4  -  the bank itself: all documentation is linear in DETE  ---"
 Ldoc=0; Lkdoc=0;
 If L2Doc>0
 {  * first, update links in upper level bank
@@ -1816,7 +1816,11 @@ If L2Doc>0
    Err LDoc<=0 | Iquest(1)#0 { Can not create documentation bank }
    DO i=1,LL1
    {  k=1; if (map(1,i)>0 & map(2,i)>0) k=map(1,i)*map(2,i)
-      L=Lenocc(Names(i));   Nam=Names(i)(3:L)
+      L=Lenocc(Names(i));   Nam=Names(i)(3:L);  if IDEBUG>0&L>10
+      { <W>%L(Module),Bank,Names(i)(3:L);
+       (' AgDOCUM/DZDOC warning in module ',a,', bank ',a,', variable ',a,':'/,
+        ' -name too long, will be trucated in documentation and include files')
+      }
       Call AgDOCBA(Ldoc,Ddoc,Tshort,Author,Created,cform,0,-k,Nam,Comment(i),X)
    }
    If X==0 & Ldoc>0
@@ -1892,7 +1896,7 @@ END
  
  
 +DECK,AgDOCBA,T=geant. ---------------------------------------------------------
-*CMZ :          16/03/98  03.34.50  by  Pavel Nevski
+*CMZ :          30/04/98  15.29.51  by  Pavel Nevski
 *CMZ :  1.30/00 26/04/96  19.30.43  by  Pavel Nevski
 *CMZU:  1.00/01 16/01/96  00.31.26  by  Pavel Nevski
 *CMZ :  1.00/00 25/08/95  23.30.46  by  Pavel Nevski
@@ -1905,7 +1909,7 @@ END
 *  Description:  fill a documentation bank                           *
 **********************************************************************
 +CDE,TYPING,GCBANK,GCUNIT.
-Character*(*) Bank,Tit,au,ve,io,Cvar(*),Comment(*),NN*4,Cbuf*80;
+Character*(*) Bank,Tit,au,ve,io,Cvar(*),Comment(*),NN*4,Cv*8,Cbuf*80;
 Integer       AgDocRd,AgDocWr,Lenocc,Link,NL,ND,Lb,key(2),
               i,j,k,L,Lk,N,N0,ioff,M,ok;
 Parameter      (ok=0);
@@ -1949,8 +1953,8 @@ do k=NL+1,NL+abs(ND)                    "    data can be doubled   "
    if    AgDocRd(Link,'Data','. . . next free place . . . ',N,ioff,L)>Ok
    { If  Lk=0  { N0+=1; write(NN,'(i3)') N0; }  else  { N0=1; NN=' '; }
      if (AgDocRd(Link,'nd',' ', M,Ioff,L)=Ok)    IQ(Link+Ioff+3)=N+1;
-     Cbuf = Cvar(j)(1:8)//'- '//Comment(j)(1:Lk)//NN
-     i    = AgDocWr(Link,'Data',N+1,0,Cbuf)
+     Cv = Cvar(j);  Cbuf = Cv//' - '//Comment(j)(1:Lk)//NN
+     i  = AgDocWr(Link,'Data',N+1,0,Cbuf)
 }  }
 END
  
@@ -2029,7 +2033,7 @@ END;
 END;
  
 +DECK,AgDGETP,T=geant. ---------------------------------------------------------
-*CMZ :          22/03/98  21.33.38  by  Pavel Nevski
+*CMZ :          24/04/98  21.24.51  by  Pavel Nevski
 *CMZ :  1.30/00 09/02/97  21.15.43  by  Pavel Nevski
 *CMZU:  1.00/01 22/12/95  21.50.31  by  Pavel Nevski
 *CMZ :  1.00/00 15/11/95  01.03.24  by  Pavel Nevski
@@ -2132,10 +2136,10 @@ else
     " If (LkArP3!=Lk)  print *,' popalsia gad ',LkArP3,Lk; "
    Lk=LkArP3;  Call MZIOTC (IxStor,Lk,Nch,Bform);
    If Cform!=Bform & Cform!=Bform(2:) & Cforn!=Bform
-   {    print *,' wrong bank ',Cbank,' : '
-        print *,' required format is = ',cform(1:Lenocc(cform)),'***'
-        print *,' found bank format  = ',bform(1:Nch),          '***'
-        Err Nch>=0 {Bank formats are not the same}
+   {  print *,' wrong bank ',Cbank,' : '
+      print *,' required format is = ',cform(1:Lenocc(cform)),'***'
+      print *,' found bank format  = ',bform(1:Nch),          '***'
+      Err Nch>=0 {Bank formats are not the same}
    }
    "    force link to be secured for banks with dymanic arrays  "
    IDYN=0; Do I=1,LL1 { If (map(1,i)<0 | MAP(2,I)<0) IDYN=1; }
@@ -2745,7 +2749,7 @@ If jdu<=0  { call GFDIG1(Cset,Cdet,1,NVS,LTRA,NTRA,NBV,DIGI,Iw,Ia); Return; }
  
  
 +DECK,agfdig0,T=geant. -------------------------------------------------------
-*CMZ :          02/04/98  20.49.02  by  Pavel Nevski
+*CMZ :          24/04/98  16.58.32  by  Pavel Nevski
 *CMZ :  1.30/00 13/05/97  14.48.21  by  Pavel Nevski
 *CMZ :  1.00/00 01/09/95  22.54.27  by  Pavel Nevski
 *-- Author : Pavel Nevski
@@ -2763,8 +2767,10 @@ If jdu<=0  { call GFDIG1(Cset,Cdet,1,NVS,LTRA,NTRA,NBV,DIGI,Iw,Ia); Return; }
  Replace [;#?;]   With   [; IF #1 {" Take next word " K=1; Nk+=1; } ]
 +CDE,TYPING,GCBANK,GCUNIT,GCNUM,GCFLAG,AGCBUFF,AGCRDIG.
 Character*(*)    Cdet,Cset;   Integer Lp,Lt;  Parameter (Lp=20,Lt=100);
-Integer          AgFDIG0,LgKINE,JBYT,MSBYT,LENOCC,ICDECI,NVL(Lp),ISC(Lp),Itr,
-                 Iset,Idet,X,Nv,Nr,Nb,Ja,i,j,k,L,Na,Ma,Jv,Jk,Nk,Ih,JH,Mbm,Ier
+Integer          AgFDIG0,JBYT,MSBYT,LENOCC,ICDECI,NVL(Lp),ISC(Lp),Itr,
+                 Iset,Idet,X,Nv,Nr,Nb,Ja,i,j,k,L,Na,Ma,Jv,Nk,Ih,JH,Mbm,Ier
+integer          nac,nas,iac,itc,jtr
+common/agctrbuf/ nac,nas,iac(50000),itc(50000)
 *
    Cs=Cset;  Cd=Cdet;  {AgFDIG0,Iv,Ia}=-1;  {Iset,Idet,Jdu}=0;
    CALL MZLINT (IXSTOR,'AGCRDIG',IWA,JS,JDU);
@@ -2788,7 +2794,20 @@ Integer          AgFDIG0,LgKINE,JBYT,MSBYT,LENOCC,ICDECI,NVL(Lp),ISC(Lp),Itr,
    Nr=0;  if (LENOCC(Cdet)>=6)  Nr=ICDECI(Cdet,5,6);   Nvb=min(Nvb+Nr,Nv);
    Call VZERO(NVL,Lp);          Mb=0; i=Nc1; while i>0 {i/=2; Mb+=1;};
    If Mb>1  { Mbm=2**(32-Mb) } else { Mbm=2 000 000 000 "big positive" }
-   Do Ih=1,Nc1 { If (IQ(JXD+(Ih-1)*Nw+1)>=Mbm) Break; Last=Ih }
+*
+   Ier=0; last=Nc1+1; jtr=-1; Nac=0
+   do ih=1,Nc1
+   {  j=JXD+(Ih-1)*Nw+1; itr=IQ(J);
+      If itr>Ntrack & ier<=Idebug
+      { ier+=1; <w> Cset,Cdet,itr;(' AgFDIG0 error in',2a5,': bad ITRA=',i12)}
+      if jtr!=itr { Nac+=1; jtr=itr; }
+   }
+   nas=Nac/Mbm+1; jtr=-1; Nac=0
+   do ih=1,Nc1
+   {  j=JXD+(Ih-1)*Nw+1; itr=IQ(J);
+      if jtr!=itr { nac+=1; iac(nac)=ih; itc(nac)=itr; jtr =itr; }
+      IQ(J)=(nac-1)/nas
+   }  iac(nac+1)=Nc1+1
 *
    "       ----------      associate hits in chains     ---------    "
    call VZERO(Ibuf,Lbuf); Na=1; Ma=0; ISC(1)=1; ier=0;
@@ -2801,19 +2820,7 @@ Integer          AgFDIG0,LgKINE,JBYT,MSBYT,LENOCC,ICDECI,NVL(Lp),ISC(Lp),Itr,
          Ia=1; do i=1,Jv { Ja=Ia+ISC(i); Ia=IBuf(Ja);}  Ma=max(Ma,Ja);
          If Jv<Nvb { IBuf(Ja)=max(Ia,ISC(Jv+1)); }
          else
-         { " chitting:  replace track numbers by vertex numbers "
-             Itr=IQ(J);
-             If itr>Ntrack & ier<=Idebug
-             { ier+=1; <w> Cset,Cdet,itr;
-               (' AgFDIG0 error for',2(1x,a4),': bad ITRA=',i12)
-             }
-             If (itr>0&ih>Last) Itr=Q(LgKINE(JK,Itr)+6)
-             If Itr>=Mbm & ier<=Idebug
-             { ier+=1; <w> Cset,Cdet;
-               (' AgFDIG0 for',2(1x,a4),': sometime chitting does not help')
-             }
-             IQ(J)=MSBYT(Ia,Itr,33-Mb,Mb); IBuf(Ja)=Ih
-             }
+         {   itr=IQ(J);  IQ(J)=MSBYT(Ia,Itr,33-Mb,Mb);  IBuf(Ja)=Ih; }
       }  If (Jv=1) Ibuf(1)=Ma-1;
       *
       Ja=Ma+1;  "expand array"  While Ibuf(Na)>0 & Na<Ma & Jv<Nvb
@@ -2833,10 +2840,8 @@ Integer          AgFDIG0,LgKINE,JBYT,MSBYT,LENOCC,ICDECI,NVL(Lp),ISC(Lp),Itr,
    END
  
  
- 
- 
- 
 +DECK,agfdig1,T=geant. -------------------------------------------------------
+*CMZ :          24/04/98  16.58.32  by  Pavel Nevski
 *CMZ :  1.30/00 13/05/97  14.48.21  by  Pavel Nevski
 *CMZ :  1.00/00 01/09/95  22.55.18  by  Pavel Nevski
 *-- Author : Pavel Nevski
@@ -2849,8 +2854,10 @@ Integer          AgFDIG0,LgKINE,JBYT,MSBYT,LENOCC,ICDECI,NVL(Lp),ISC(Lp),Itr,
 **********************************************************************
  Replace [;#?;]   With   [; IF #1 {" Take next word " K=1; Nk+=1; } ]
 +CDE,TYPING,GCBANK,GCUNIT,GCVOLU,GCNUM,AGCBUFF,AGCRDIG.
+integer           nac,nas,iac,itc,jtr
+common /agctrbuf/ nac,nas,iac(50000),itc(50000)
                  Integer Lp; Parameter (Lp=20);
-Integer          AgFDIG1,ISC(*),NVL(Lp),JBYT,Nhit,LTRA,ja,Itr,Lev
+Integer          AgFDIG1,ISC(*),NVL(Lp),JBYT,Nhit,LTRA,ja,Itr,Lev,i
 Real             HITS(*);
 Save             NVL;
 *
@@ -2868,7 +2875,10 @@ If Iv>=0     " Iv - the last changed level is saved in the AGCHIT common     "
    "   getting a hit in the selected element and the address of the next "
    Ja=JXD+Nw*(Ia-1)+1;   call  AgGETDIG (JD,Ja,ISC,HITS);
    "   get track number, check for the track overlap, clear track number "
-   Itr=JBYT(IQ(ja),1,32-Mb);  If (Itr>0 & Ia>Last) Itr=Q(LQ(Jvertx-Itr)+8)
+ 
+   jtr=JBYT(IQ(ja),1,32-Mb)*nas;
+   do i=1,nas { itr=itc(jtr+i); if (iac(jtr+i+1)>Ia) break; }
+*
    If (Nhit=0) LTRA=ITR;      If (LTRA#ITR) LTRA=-ITR
    Ia=JBYT(IQ(ja),33-Mb,Mb);  IQ(Ja)=Itr
                               * * *
@@ -3561,7 +3571,7 @@ end
  
  
 +DECK,agkeeps,T=geant.
-*CMZ :          25/03/98  09.51.57  by  Pavel Nevski
+*CMZ :          30/04/98  18.14.53  by  Pavel Nevski
 *-- Author :    Pavel Nevski   25/11/97
 *************************************************************************
 *                                                                       *
@@ -3648,7 +3658,7 @@ end
 *************************************************************************
 +include,TYPING,GCBANK,SCLINK,GCUNIT,AGCDOCL,QUEST.
    Integer      INDEX,LENOCC,NwDESC,Nwhead,NwGEN,Nwlink,Nwdata,Idl,lu,nc,MM
-   Integer      Lev,Iwr,Kw,Iprin,i,j,k,l,m,n,is,nd,Nw,iw,iv,i1,j1,P,nn(3)
+   Integer      Lev,Iwr,Kw,Iprin,i,j,k,l,m,n,is,nd,Nw,iw,iv,i1,j1,P,nn(3),x
    Integer      mask(9)/1,1024,16384,8192,9216,10240,15361,19456,17410/
    Character*2  ask (9)/'ba','au','ve','nd','nl','ns','up','io','dd'/
    character*1  Let,T,Sec(0:8)/'*','B','I','F','D','H','*','S','*'/
@@ -3758,6 +3768,8 @@ end
  
          if Idl==0
          {  T=','; if (text==' ') T='}'
+            " hash in comments creates problems for AGI parser "
+             do x=9,80  { if (texto(x:x)=='#') texto(x:x)='N' }
             if (ND==1) output typo,%L(varo),blan(N:),texto(9:),T
                     (4x,a4,1x,2a,' " ',a42,' " ',a)
             if (ND >1) output typo,%L(varo),CN(K:M),blan(M-K+N+3:),texto(9:),T
@@ -3793,7 +3805,7 @@ end
 ****************************************************************************
  
   character   format*(*),type*8,List*14/'0123456789-IFH'/
-  integer     Lenocc,idl,L,i,k,n,num,big/9999999/
+  integer     Lenocc,idl,L,i/0/,k,n,num,big/9999999/
  
      L=Lenocc(format);  if (num==0) i=0;  N=0;
      Do i=i+1,L
@@ -3884,7 +3896,7 @@ end
  
  
 +DECK,agstrut,T=geant.
-*CMZ :          25/03/98  09.49.54  by  Pavel Nevski
+*CMZ :          24/04/98  21.35.32  by  Pavel Nevski
 *-- Author :    Pavel Nevski   25/11/97
 ***************************************************************************
 *                                                                         *
@@ -3905,7 +3917,10 @@ end
 *
 * reduce to the standard path and dest:
   Iprin=Idebug;         Cpath=Source;
-  if (Cpath(1:1)!='/')  Cpath='/DETM/'//Source;
+  if (Cpath(1:1)!='/')
+  { If Lenocc(Source)==4 { Cpath='/DETM/'//Source(1:4)//'/*'; }
+    else                 { Cpath='/DETM/'//Source;            }
+  }
   Call CLTOU(Cpath);
  
   Cdest='/dui/Run'; if (Cpath(2:5)!='DETM') Cdest='/dui/Event';
@@ -4878,7 +4893,7 @@ C local variables valid inside same block
  
  
 +KEEP,RBBANK. ------------------------------------------------------------------
-*CMZ :          22/03/98  21.52.54  by  Pavel Nevski
+*CMZ :          27/04/98  21.45.57  by  Pavel Nevski
 *CMZ :  1.30/00 02/04/97  18.53.56  by  Pavel Nevski
 *CMZ :  1.00/00 07/03/95  21.11.16  by  Pavel Nevski
 *-- Author :  by Pavel Nevski
@@ -4887,10 +4902,9 @@ C   - combined DETM + Reconstruction bank access variables - AGI version
       INTEGER           LU,BIG,MM,INAM,II,KK,IADR,LENG,IOD,IOX,IrbDIV,
      >                  LDD,NDDMAX,NDD,DDL,NFR,FRTAB,IrMode
       PARAMETER         (LDD=5,NDDMAX=100,MM=2,BIG=99999)
-      COMMON /RBXBANK/  LU, CNAM,II,KK,IADR,LENG,IOD,IOX,IrbDIV
+      COMMON /RBXBANK/  LU, CNAM,II,KK,IADR,LENG,IOD,IOX,IrbDIV,IrMode
       COMMON /RBXLIST/  NDD,DDL(LDD,NDDMAX)
       COMMON /RBXFORM/  NFR,FRTAB(NDDMAX)
-      COMMON /RBCBANK/  IrMode
       EQUIVALENCE       (CNAM,INAM)
 *
 +PATCH,REBANK. ================================================================
@@ -4985,7 +4999,7 @@ CHARACTER*(*)  Cname,FORM;     Integer  NVL(*),Npar,Array(*),Link,Ia;
    END
  
 +DECK,REBANK,T=geant. ----------------------------------------------------------
-*CMZ :          06/04/98  15.27.51  by  Pavel Nevski
+*CMZ :          27/04/98  21.52.32  by  Pavel Nevski
 *CMZ :  1.30/00 16/04/97  22.11.16  by  Pavel Nevski
 *CMZU:  1.00/01 21/12/95  22.17.57  by  Pavel Nevski
 *CMZ :  1.00/00 03/10/95  18.17.59  by  Pavel Nevski
@@ -5053,14 +5067,14 @@ Lm=LENOCC(Cname);  Check Lm>=J+3;
                                    "   Find structural link   "
   :Check_link: Do IL=1,NS
   {  Link=LQ(LinkUp-IL);   If Link==0 { JL=min(IL,JL); Next; }
-     Check Inam==IQ(Link-4);     JL=IL
+     Check Inam==IQ(Link-4);   JL=IL
      :Linear_search: do II=2,NV+1
      { NV1=IQ(Link-5);  If (NV1==NV) Break;  If (NV1> NV) GOTO :new_bank:
 ***
      * on CHAIN entry: last item, no links, no next bank - group them together.
      * IrMode -1 prevents grouping, 0 - allows only on append, 1 - go wild:
        if IrMode>=0 & ii==2 & Del=='*' & LQ(Link-1)==0 & LQ(Link)==0
-       { If (Nv==Big | IrMode>0)
+       { If (Nv==Big | IrMode>0 | Nv1<0 )
          {  Nd=IQ(Link-1);  Del='.';  kk-=1;  Break :Search_level:; }
        }
 ***
@@ -5081,7 +5095,9 @@ Lm=LENOCC(Cname);  Check Lm>=J+3;
   Leng=Iabs(Npar);  If (Leng==BIG) Call RBFIND;
   Ia=0;  Ie=Leng;
   If Del=='.'
-  {  kk+=1; Ia=Nd; If (NVL(kk)>0) Ia=Leng*(NVL(kk)-1); Ie=Ia+Leng; II=Ie/Leng;
+  {  kk+=1;
+     Ia=0; If (Npar>0) Ia=Nd; If (NVL(kk)>0) Ia=Leng*(NVL(kk)-1);
+     Ie=Ia+Leng; II=Ie/Leng;  If (Npar<=0 & Ie>IQ(Link-1)) Link=0;
      "print *,' Packing kk,NVL,leng,ia,ie,ii = ',Cnam,kk,NVL(kk),leng,ia,ie,ii"
   }
   If Npar>0 & Link>0
@@ -5092,7 +5108,10 @@ Lm=LENOCC(Cname);  Check Lm>=J+3;
   IQUEST(1)=0
 END
  
- 
+subroutine REBANKM(i)
++cde,RBBANK.
+   IrMode=i
+end
 +DECK,RBDEF,T=geant.
 *CMZ :  1.00/00 07/09/95  19.44.56  by  Pavel Nevski
 *-- Author :    Pavel Nevski
@@ -7433,7 +7452,7 @@ C------------------------------------------------------------------
 99999 RETURN
       END
 +DECK,cccard.
-*CMZ :          13/12/97  08.40.14  by  Pavel Nevski
+*CMZ :          30/04/98  15.39.15  by  Pavel Nevski
 *-- Author :
 C------------------------------------------------------------------
       SUBROUTINE CCCARD(K)
@@ -7465,6 +7484,7 @@ C------------------------------------------------------------------
          GOTO 99999
       END IF
       CL='   '
+      C1='   '
       K0=0
       K1=0
       K2=0
@@ -7514,8 +7534,8 @@ C------------------------------------------------------------------
 270   OPEN (O(9),FILE='../inc/'//PILE(1:M)//'.inc',STATUS='OLD',FORM='FO
      *RMATTED',ERR=180)
       GOTO 99999
-180   IF (CC.NE.'[]') WRITE(O(58),*)
-     *   ' *WARNING! INCLUDE FILE NOT FOUND: ',CL(1:K0)
+180   IF (CC.NE.'[]')WRITE(O(58),*)'*WARNING! INCLUDE FILE NOT FOUND: '
+     *,CL(1:K0)
       O(9)=O(O(50))
       O(50)=O(50)-1
 C (WARN I T1,TMX);
@@ -7644,9 +7664,8 @@ C+SELF.
       CALLNXTCRD
 99999 RETURN
       END
-+DECK,RAW.
-*CMZ :          25/03/98  16.10.20  by  Pavel Nevski
-*CMZ :  1.00/00 19/09/95  15.17.28  by  Pavel Nevski
++DECK,raw.
+*CMZ :          30/04/98  06.06.00  by  Pavel Nevski
 *-- Author :
 C------------------------------------------------------------------
       SUBROUTINE RAW
@@ -7662,38 +7681,38 @@ C------------------------------------------------------------------
      *1,0,38,107,1,1,0,46,107,24,0/
       DATA (BOO2(K),K=0,26)/26,24,24,24,24,8,0,3,-1,107,0,0,0,-2,107,0,
      *0,0,-1,107,0,0,0,-2,107,24,0/
- 
-1     CALLRW(0,O(9),769,769+114)
-      if (o(769).ne.ichar('0')) go to 1
-C      CALLRW(23,O(56),405,405+21)
-C      CALLRW(23,O(57),405,405+21)
-CMAKE INPUT AND OUTPUT SAME
-      DO 21 K = 769,868
-         O(K-100)=O(K)
+20    IF(O(769).EQ.ICHAR('0 '))GOTO21
+         CALLRW(0,O(9),769,769+114)
+      GOTO 20
 21    CONTINUE
-      DO 31 K = 1,100
+C  wN M(R1,R1+21);  wN F(R1,R1+21);
+CMAKE INPUT AND OUTPUT SAME
+      DO 31 K = 769,868
+         O(K-100)=O(K)
+31    CONTINUE
+      DO 41 K = 1,100
          J=O(669+K-1)
          O(969+J) = K-1
-31    CONTINUE
+41    CONTINUE
       O(31)=4
       O(34)=4175
-      DO 41 K = 1,10
+      DO 51 K = 1,10
          O(K+100)=K+100
          O(K+110)=K+110
          O(100-K)=-K
-41    CONTINUE
+51    CONTINUE
 C              BLANK BAT BLB TRM LPR RPR LSB RSB LCB RCB
       CALLDUMDUM(76, 47, 81, 80, 79, 38, 46, 78, 84, 85, 86)
       O(86)=48
       O(87)=82
-      DO 51 K = 0,5
+      DO 61 K = 0,5
          BOO1(K) = BOO1(K)+K1
          BOO2(K) = BOO2(K)+K1+100
-51    CONTINUE
-      DO 61 K = 0,26
+61    CONTINUE
+      DO 71 K = 0,26
          O(K+K1) = BOO1(K)
          O(K+100+K1) = BOO2(K)
-61    CONTINUE
+71    CONTINUE
       CALLDEFINE(K1+8)
       CALLDEFINE(K1+108)
       P(46)=101
@@ -7872,7 +7891,7 @@ C ARGUMENTS are: Input string, Output string, Output lengt=
       END
  
 +DECK,geant3,T=text.
-*CMZ :          06/04/98  13.26.55  by  Pavel Nevski
+*CMZ :          28/04/98  18.01.45  by  Pavel Nevski
 *CMZ :  1.30/00 15/04/97  17.15.59  by  Pavel Nevski
 *-- Author :    PN
 C_geant3_UNIX_compiler..v....3....v....4....v....5....v....6....v....7....v....8....v....9....v....100..v....110..v
@@ -8200,19 +8219,20 @@ C_geant3_UNIX_compiler..v....3....v....4....v....5....v....6....v....7....v....8
                                [INCR Q]; _[COPY Q]_#1.#2={#4,}; [SETR Q=0]]
  
 "-------------------    g e a n t 3   d e f i n i t i o n s   -----------------------"
-  Replace [;MODULE [6SYS] #;] with
-          [;SUBROUTINE #1;" #1 #2";    Implicit None;
-            Character*20 Module/'#1'/; Character*80 Mcomment/'#2'/;
-            Character*60 Bank_Title/'*'/;
+  Replace [;MODULE [GENAME]#;] with
+          [;SUBROUTINE #1;  {IF} [EXIST 2] {" #1 #2"};  Implicit None;
+            Character Module*20,Mcomment*80,Bank_Title*60;
+            Data      Module/'#1'/,         Bank_Title/'*'/;
+            {IF} [EXIST 2] {Data Mcomment/'#2'/;}
+            {ELSE}         {Data Mcomment/'uncommented'/;}
             Logical FIRST; Data FIRST/.true./; Save FIRST;
             Integer JUMPAD; External JUMPAD;
             Integer Ok; Parameter (Ok=0);
-            Integer %i/0/,%j/0/;  Save %i,%j;
+            Integer %i,%j;  Save %i,%j;  Data %i/0/,%j/0/;
             [SETR M=1][SETR N=2][SETR V=0][SETR W=0][SETR O=0][SETR U=0]
             [SETR Q=0][SETR B=0][SETR A=0] ]
   Replace [;*#;] with ["* #1";]
   Replace [;BEGIN;] with [;"*"; CALL AgSBEGM(Module,Iprin); IF(Iprin<0) RETURN;]
- 
  " Geant3 OPERATOR definition - skip assignements before and keep them in PARLIST "
   REPLACE [;[GSYS0]#{#,#}#;]   WITH
           [ {IF}[EXIST 3]  {[INCR O]; IF (#2==[COPY O]) { #1 #3 #5; }; #1 #2{#4,}#5;}
@@ -8245,7 +8265,8 @@ C_geant3_UNIX_compiler..v....3....v....4....v....5....v....6....v....7....v....8
 " --------------------------------------------------------------------------------"
 Replace [;STRUCTURE#{#}]     with  [;STRUCTURE#1{#2,}]
 Replace [;STRUCTURE#{#,#}]   with
-   [;{IF}[EXIST 2] { {IF}'#2'='REAL SYSTEM ( 2)' {[SETR N=0]}
+   [;{IF}[EXIST 2] { {IF}'#2'='REAL SYSTEM(2)'   {[SETR N=0]}
+                     {IF}'#2'='REAL SYSTEM ( 2)' {[SETR N=0]}
                      [INCR N] [INCR W] [SETR X=[COPY N]]
     "-" ^stv{#1,#2}; STRUCTURE #1{#3,}} {ELSE}
    {"-" Integer   Len_#1,Llen_#1,Link_#1;
@@ -8620,10 +8641,10 @@ Replace [+CDE,ASFLAGS] with [" names and order of control flags ";
 ]
 Replace[+CDE,RBBANK] with [;" - Reconstruction bank access variables "
   Character  Cnam*4;
-  Integer    Lu,BIG,MM,Inam,II,KK,Iadr,Leng,IrbDIV,
+  Integer    Lu,BIG,MM,Inam,II,KK,Iadr,Leng,IrbDIV,IrMode,
              IOD,IOX,LDD,NDDmax,Ndd,DDL,Nfr,FrTab;
   Parameter (LDD=5, NDDmax=100);
-  COMMON /RBXBANK/  Lu, Cnam,II,KK,Iadr,Leng,IOD,IOX,IrbDIV
+  COMMON /RBXBANK/  Lu, Cnam,II,KK,Iadr,Leng,IOD,IOX,IrbDIV,IrMode
          /RBXLIST/  Ndd,DDL(LDD,NDDmax)  /RBXFORM/  Nfr,FrTab(NDDmax);
   Equivalence (Cnam,Inam);   Data  BIG /99999/,MM/2/;
 ];
@@ -8814,15 +8835,16 @@ Replace[PRIN[DIGIT]]  With [{IF} '#1'='0' {;<W>} {ELSE} {; IF (Iprin>=#1) <W>}]
 Replace[%] with [ag_];
 Replace[;%[IDENT]={#}] with [;$#1={#2};]
 Replace[%L(#)] with [#1(1:Lenocc(#1))]
+REPLACE[! #;] with [" #1";]
+" REPLACE[;;] with [;]  -  this also kills comment lines "
 ;
-!COMMENTS; !INDENT F3; !INDENT C3; !INDENT M3; !NODEFINE; !TRACE0;
+!INDENT F3; !INDENT C3; !INDENT M3; !NODEFINE; !TRACE0;
 !RECOVER;  !DEFAULT 4; !BLACK;     !MODE 0;    !UPLOW;
 %B80     - Lrecl in G-input
 %C81     - significant columns  should be < 132
 %Q1      - stop comments at the end of each line
-REPLACE  [! #;] with [" #1";]
-REPLACE  [;;]   with [;]
 %INCLUDE [detmsys.def]
+!COMMENTS;
 %S1  - number fortran file with source line numbers
 %U7  - read file.g
 ;;
@@ -8840,8 +8862,8 @@ replace [CHARACTER*# #/#/#;]  with [CHARACTER*#1 #2 #4; AADATA #2/#3/;]
 replace [CHARACTER   #/#/#;]  with [CHARACTER    #1 #3; AADATA #1/#2/;]
 +SELF.
  
-+DECK,nxtcrd.
-*CMZ :          06/11/97  12.14.26  by  Pavel Nevski
++DECK,NXTCRD.
+*CMZ :          30/04/98  06.39.37  by  Pavel Nevski
 *-- Author :
 C------------------------------------------------------------------
       SUBROUTINE NXTCRD
@@ -8850,43 +8872,65 @@ C------------------------------------------------------------------
       COMMON /NAMO/O
       DATA LL/0/,KEEP/0/
       INTEGER FS(8)/8*0/
-      CHARACTER*8 CF/'    '/
+      CHARACTER*8 CF/'   '/
+      DATA SS/0/,FRC/0/
       O(62)=0
       IF(O(52).EQ.2) CALLMESAGE(16,1,0,0)
       IBK=ICHAR('   ')
-20    IF (O(52).EQ.1) THEN
-         O(52)=0
-         O(9)=O(O(50))
-         O(50)=O(50)-1
-         CALLMESAGE(13,4,U,U)
-         IF (O(9).EQ.0) THEN
-            O(52)=2
-            O(15)=1
-            O(12)=O(43)
-            O(O(12))=O(79)
+20    IF (SS.EQ.0) THEN
+         IF (O(52).EQ.1) THEN
+            O(52)=0
+            O(9)=O(O(50))
+            O(50)=O(50)-1
+            CALLMESAGE(13,4,U,U)
+            IF (O(9).EQ.0) THEN
+               O(52)=2
+               O(15)=1
+               O(12)=O(43)
+               O(O(12))=O(79)
+               GOTO 99999
+            END IF
+         END IF
+         CALLRW(0,O(9),405,O(38))
+         IF (O(52).EQ.1) THEN
+            O(12)=537
+            O(237)=O(76)
+            DO 31 T = 537,O(43)
+               O(T)=47
+31          CONTINUE
+            IF (O(15).EQ.0 .AND. KEEP.GT.0 .AND. O(55).EQ.85) THEN
+               KEEP=KEEP-1
+               O(537)=86
+               LL=0
+               FRC=0
+               GOTO40
+            END IF
+            GOTO20
+         END IF
+C       this is a BREAK-LINE condition only   -  insert a ';;' line and
+C   wait
+         F1=O(969+O(405))
+         F2=O(969+O(405+1))
+         IF (FRC.EQ.0 .AND. ( F1.EQ.45.OR.F1.EQ.80.OR. (F1.EQ.83.OR.F1.
+     *   EQ.12.OR.F1.EQ.54 ) .AND. (37.LE.F2).AND.(F2.LE.50))) THEN
+            O(12)=537
+            O(237)=O(76)
+            DO 51 T = 538,O(43)
+               O(T)=47
+51          CONTINUE
+            O(537)=O(79)
+            O(538)=O(79)
+            SS=1
             GOTO 99999
          END IF
       END IF
-      CALLRW(0,O(9),405,O(38))
-      IF (O(52).EQ.1) THEN
-         O(12)=537
-         DO 31 T = 537,O(43)
-            O(T)=47
-31       CONTINUE
-         IF (O(15).EQ.0 .AND. KEEP.GT.0 .AND. O(55).EQ.85) THEN
-            KEEP=KEEP-1
-            O(537)=86
-            LL=0
-            GOTO40
-         END IF
-         GOTO20
-      END IF
+      SS=0
 C Shift line to D positions to generate ';'(TRM) automatically
       D=MAX(O(43)-O(36),0)
-      IF (O(969+O(405)).EQ.50 .OR. O(15).GT.0) D=0
-      DO 51 K = 537,537+D
+      IF (O(969+O(405)).EQ.50.OR. O(15).GT.0) D=0
+      DO 61 K = 537,537+D
          O(K)=47
-51    CONTINUE
+61    CONTINUE
       BF=537-405+D
       R2=405
       TF=0
@@ -8894,7 +8938,7 @@ C Shift line to D positions to generate ';'(TRM) automatically
       CALLVZERO(FS,8)
       CF='  '
 C convert to internal code and get first four letters in capital (FS)
-      DO 61 K = 405,O(38)
+      DO 71 K = 405,O(38)
          T=O(969+O(K))
          O(K+BF)=T
          IF (O(K).NE.IBK) THEN
@@ -8906,68 +8950,64 @@ C convert to internal code and get first four letters in capital (FS)
 C      TF is the 6th symbol
             IF (MF.EQ.1 .AND. K-405.EQ.5) TF=T
          END IF
-61    CONTINUE
+71    CONTINUE
 C+SEQN;
       O(12)=537
       O(237)=O(76)
       CALLCLTOU(CF)
+      FRC=0
 Cprevious last symbol
       LO=LL
 C new last symbol
       TL=R2+BF
+C pure comment line
       LL=O(TL)
-C Recognize comment line
+      IF (O(538).EQ.45.OR.O(538).EQ.80.OR.(O(538).EQ.83.OR.O(538).EQ.12.
+     *OR.O(538).EQ.54 ) .AND. (37.LE.O(538+1)).AND.(O(538+1).LE.50))
+     *THEN
+         FRC=1
+         O(12)=O(43)
+         LL=1
+         IF(O(25).EQ.0)GOTO20
+         GOTO40
+      END IF
       IF (D.GT.0) THEN
-         IF (O(538).EQ.45 .OR. (O(538).EQ.83 .OR. O(538).EQ.12 .OR. O(
-     *   538).EQ.54 ) .AND. (37.LE.O(538+1)).AND.(O(538+1).LE.50)) THEN
-            O(537)=O(79)
+C    Recognize complex continuation lines
+C    first, remove the explicit continuation sign from the current line
+         IF ( O(TL).EQ.37 .OR. O(TL).EQ.93 ) O(TL)=47
+C    possible continuations: $_(,.=-+/*) ... <>|&^?\
+         O(537)=O(79)
+C   FORTRAN continuation (6th symbol): ,.=-+ >|& or </* preceeded by ,.=
+C   -+
+C   F
+         IF (TF.GT.35) THEN
+            IF (((39.LE.TF).AND.(TF.LE.43)) .OR. (88.LE.TF).AND.(TF.LE.
+     *      90)) THEN
+               O(537)=47
+               O(537+6)=47
+C         F
+            ELSE IF ((((44.LE.TF).AND.(TF.LE.45)).OR.TF.EQ.87) .AND. (
+     *      39.LE.LO).AND.(LO.LE.45)) THEN
+               O(537)=47
+               O(537+6)=47
+            END IF
+         END IF
+C   MORTRAN continuation: line ends with =-+,_\; or starts with { or ELS
+C   E after }
+         IF (LO.GT.35.OR.FS(1).EQ.78) THEN
+            IF (((41.LE.LO).AND.(LO.LE.43)).OR.(LO.EQ.37.OR.LO.EQ.93.OR.
+     *      LO.EQ.39.OR.LO.EQ.79.OR.FS(1).EQ.78).OR. (LO.EQ.84.AND.CF(1:
+     *      4).EQ.'ELSE')) THEN
+               O(537)=47
+            END IF
+C    Recognize 'free-stile' comment line starting with * not in a first
+C   position
+         END IF
+         IF (( O(537).EQ.O(79) .OR. LO.EQ.O(79) ) .AND. FS(1).EQ.45)
+     *   THEN
             O(538)=82
             O(TL+1)=82
-C      first, remove the explicit continuation sign from the current lin
-C      e
             LL=47
-         ELSE
-            IF ( O(TL).EQ.37 .OR. O(TL).EQ.93 ) O(TL)=47
-C       possible continuations: $_(,.=-+/*) ... <>|&^?\
-            O(537)=O(79)
-C      FORTRAN continuation (6th symbol): ,.=-+ >|& or </* preceeded by
-C      ,.=-+
-C      F
-            IF (TF.GT.35) THEN
-               IF (((39.LE.TF).AND.(TF.LE.43)) .OR. (88.LE.TF).AND.(TF.
-     *         LE.90)) THEN
-                  O(537)=47
-                  O(537+6)=47
-C            F
-               ELSE IF ((((44.LE.TF).AND.(TF.LE.45)).OR.TF.EQ.87) .AND.
-     *         (39.LE.LO).AND.(LO.LE.45)) THEN
-                  O(537)=47
-                  O(537+6)=47
-               END IF
-            END IF
-C      MORTRAN continuation: line ends with =-+,_\; or starts with { or
-C      ELSE after }
-            IF (LO.GT.35.OR.FS(1).EQ.78) THEN
-               IF (((41.LE.LO).AND.(LO.LE.43)).OR.(LO.EQ.37.OR.LO.EQ.93.
-     *         OR.LO.EQ.39.OR.LO.EQ.79.OR.FS(1).EQ.78).OR. (LO.EQ.84.
-     *         AND.CF(1:4).EQ.'ELSE')) THEN
-                  O(537)=47
-               END IF
-C       Recognize comment line
-            END IF
-            IF (O(537).EQ.O(79) .OR. LO.EQ.O(79)) THEN
-               IF (FS(1).EQ.45) THEN
-                  O(538)=82
-                  O(TL+1)=82
-                  LL=47
-               END IF
-               IF (O(538).EQ.12 .AND. (37.LE.O(538+1)).AND.(O(538+1).LE.
-     *         50)) THEN
-                  O(538)=82
-                  O(TL+1)=82
-                  LL=47
-               END IF
-            END IF
          END IF
       END IF
       IF (O(537).EQ.50) THEN
@@ -9016,64 +9056,64 @@ C       FRT=1
          END IF
       END IF
 40    IF (O(21).EQ.1) THEN
-         DO 71 J = 238,254
+         DO 81 J = 238,254
             O(J)=O(76)
-71       CONTINUE
+81       CONTINUE
          IF (O(30).EQ.1) THEN
             J=LLONG(238,O(19),10,0)
          ELSE IF (O(30).EQ.2) THEN
-            DO 81 J = 1,8
+            DO 91 J = 1,8
                O(237+J)=O(O(43)+J)
-81          CONTINUE
+91          CONTINUE
          END IF
-         IF (O(68).NE.0)O(247)=33
+         IF (O(68).NE.0) O(247)=33
          O(249)=O(55)
-C   IF (QCHR==) print *,' Geant Warning: literal expression not closed i
-C   n line '
          J=LLONG(250,O(11),10,0)
+         IF (O(55).EQ.48) PRINT *,' Geant Warning: literal expression no
+     *t closed in line '
          IF (O(53).EQ.0) THEN
             W=254
 C      NMX
-            DO 91 K = 1,R2-405+D
+            DO 101 K = 1,R2-405+D
                W=W+1
                O(W)=O(536+K)
-91          CONTINUE
+101         CONTINUE
             CALLRW(18,O(56),237,W)
          ELSE
             I=MOD(MAX0(O(53)*O(11),0),90)
             L=537
             M=O(43)
-100         IF(O(L).NE.O(76).OR.L.EQ.M)GOTO101
+110         IF(O(L).NE.O(76).OR.L.EQ.M)GOTO111
                L=L+1
-            GOTO 100
-101         CONTINUE
-110         IF(O(M).NE.O(76).OR.L.EQ.M)GOTO111
-               M=M-1
             GOTO 110
 111         CONTINUE
-120         CONTINUE
+120         IF(O(M).NE.O(76).OR.L.EQ.M)GOTO121
+               M=M-1
+            GOTO 120
+121         CONTINUE
+130         CONTINUE
                W=255
-               DO 131 Y = 1,I
+               DO 141 Y = 1,I
                   O(W)=O(76)
                   W=W+1
-131            CONTINUE
-140            IF(W.GT.368 .OR. L.GT.M)GOTO141
+141            CONTINUE
+150            IF(W.GT.368 .OR. L.GT.M)GOTO151
                   O(W)=O(L)
                   W=W+1
                   L=L+1
-               GOTO 140
-141            CONTINUE
-               CALLRW(18,O(56),237,W-1)
-               IF(L.GT.M)GOTO121
-               DO 151 K = 237,255
-                  O(K)=O(76)
+               GOTO 150
 151            CONTINUE
-            GOTO 120
-121         CONTINUE
+               CALLRW(18,O(56),237,W-1)
+               IF(L.GT.M)GOTO131
+               DO 161 K = 237,255
+                  O(K)=O(76)
+161            CONTINUE
+            GOTO 130
+131         CONTINUE
          END IF
       END IF
       IF (O(15).EQ.1 .AND. O(537).NE.50 .AND. O(537).NE.83 .AND. O(537).
-     *NE.79) THEN
+     *NE.79 .OR. FRC.EQ.1) THEN
          CALLRW(23,O(57),405,R2)
          GOTO20
       END IF
@@ -13157,7 +13197,8 @@ C
  999  END
  
  
-+DECK,gtnex1.
++DECK,gtnex1,if=GTEST.
+*CMZ :          22/04/98  12.51.03  by  Pavel Nevski
 *CMZ :  1.30/00 09/09/96  22.04.42  by  Pavel Nevski
 *CMZ :  3.21/04 21/03/95  16.13.08  by  S.Giani
 *-- Author :
@@ -14117,7 +14158,8 @@ CCC
 *                                                             END GTNEXT
       END
  
-+DECK,GTNEX2.
++DECK,GTNEX2,if=GTEST.
+*CMZ :          22/04/98  12.51.03  by  Pavel Nevski
 *CMZ :  1.30/00 18/09/96  20.43.59  by  Pavel Nevski
 *CMZ :  3.21/02 29/03/94  15.41.24  by  S.Giani
 *-- Author :
@@ -14881,7 +14923,8 @@ CCC
       IF(JGSTAT.NE.0) CALL GFSTAT(3)
 *                                                             END GTNEXT
       END
-+DECK,GINVO1.
++DECK,GINVO1,if=GTEST.
+*CMZ :          22/04/98  12.49.58  by  Pavel Nevski
 *CMZ :  1.30/00 18/09/96  19.58.23  by  Pavel Nevski
 *CMZ :  3.21/02 03/07/94  17.14.15  by  S.Giani
 *-- Author :
@@ -15282,7 +15325,8 @@ C*****  End of Code Expanded From Routine:  GTRNSF
 *                                                             END GINVOL
   999 IF(JGSTAT.NE.0) CALL GFSTAT(ISAME)
       END
-+DECK,GINVO2.
++DECK,GINVO2,if=GTEST.
+*CMZ :          22/04/98  12.49.58  by  Pavel Nevski
 *CMZ :  1.30/00 18/09/96  19.59.25  by  Pavel Nevski
 *CMZ :  3.21/02 29/03/94  15.41.24  by  S.Giani
 *-- Author :
@@ -21857,8 +21901,8 @@ C
  
  
  
-+DECK,GTMED1,IF=-OLD.
-*CMZ :          26/03/98  12.57.30  by  Pavel Nevski
++DECK,GTMED1,IF=GTEST.
+*CMZ :          22/04/98  12.47.21  by  Pavel Nevski
 *CMZ :  3.21/02 29/03/94  15.22.08  by  S.Giani
 *-- Author :
       SUBROUTINE GTMED1 (X, NUMED)
@@ -22370,8 +22414,8 @@ C*****  End of Code Expanded From Routine:  GTRNSF
 *                                                             END GTMEDI
   999 IF(JGSTAT.NE.0) CALL GFSTAT(4)
       END
-+DECK,GTMED2.  IF=OLD.
-*CMZ :          26/03/98  12.40.25  by  Pavel Nevski
++DECK,GTMED2,IF=GTEST.
+*CMZ :          22/04/98  12.47.42  by  Pavel Nevski
 *CMZ :  3.21/02 29/03/94  15.41.24  by  S.Giani
 *-- Author :
       SUBROUTINE GTMED2 (X, NUMED)
@@ -23435,6 +23479,519 @@ C.    ------------------------------------------------------------------
 *                                                             END GGCLOS
   999 END
  
++DECK,GFIN,IF=GFIN.
+*CMZ :          22/04/98  23.04.13  by  Pavel Nevski
+*CMZ :  3.21/02 29/03/94  15.41.20  by  S.Giani
+*-- Author :
+      SUBROUTINE GFIN(LUN,CHOBJ,NKEYS,IDVERS,CHOPT,IER)
+C.
+C.    ******************************************************************
+C.    *                                                                *
+C.    *       Routine to read GEANT object(s) fromin the FZ file       *
+C.    *       The data structures from disk are read in memory         *
+C.    *                                                                *
+C.    *       LUN    Logical unit                                      *
+C.    *                                                                *
+C.    *       CHOBJ  The type of data structure to be read:            *
+C.    *              MATE material                                     *
+C.    *              TMED tracking medium                              *
+C.    *              VOLU volumes                                      *
+C.    *              ROTM rotation matrix                              *
+C.    *              SETS detector set                                 *
+C.    *              PART particle                                     *
+C.    *              SCAN geometry                                     *
+C.    *              INIT read all above                               *
+C.    *              KINE this keyword will trigger the read of        *
+C.    *                   KINE and VERT unless the flag 'S' is set     *
+C.    *              DIGI digitisation                                 *
+C.    *              DRAW drawing                                      *
+C.    *              HEAD event header                                 *
+C.    *              HITS hits                                         *
+C.    *              RUNG run                                          *
+C.    *              STAK particle temporary stack                     *
+C.    *              STAT volume statistic                             *
+C.    *              VERT vertex                                       *
+C.    *              JXYZ track points                                 *
+C.    *              TRIG this keyword will trigger the read of        *
+C.    *                   DIGI, HEAD, HITS, KINE, VERT abd JXYZ        *
+C.    *                   unless the 'S' flag is set                   *
+C.    *                                                                *
+C.    *       NKEYS  number of keys in vector CHOBJ                    *
+C.    *                                                                *
+C.    *       IDVERS version of the data structure to be read in       *
+C.    *                                                                *
+C.    *       CHOPT  List of options                                   *
+C.    *                   'I'      read only initialisation data       *
+C.    *                            structures                          *
+C.    *                   'K'      read only KINE and TRIG data        *
+C.    *                            structures                          *
+C.    *                   'T'      read only DIGI, HEAD, HITS, KINE,   *
+C.    *                            VERT and JXYZ data structures       *
+C.    *              even if other keys are specified in CHOBJ         *
+C.    *                                                                *
+C.    *                   'S'       interpret KINE to mean only        *
+C.    *                             KINE and TRIG and INIT to mean     *
+C.    *                             nothing                            *
+C.    *                   'Q'       quiet option, no message is        *
+C.    *                             printed                            *
+C.    *                                                                *
+C.    *       IER    error flag. <0 ZEBRA error flag as returned in    *
+C.    *                             IQUEST(1)                          *
+C.    *                           0 read completed successfully        *
+C.    *                          >0 if only IER structures read in     *
+C.    *                                                                *
+C.    *    The FZ data base has been created via GOPEN/GFOUT           *
+C.    *                                                                *
+C.    *                                                                *
+C.    *      Example.                                                  *
+C.    *                                                                *
+C.    *      CALL GOPEN(1,'I',1024,IER)                                *
+C.    *      CALL GFIN (1,'VOLU',1,0,' ',IER)                          *
+C.    *      CALL GFIN (1,'MATE',1,0,' ',IER)                          *
+C.    *      CALL GFIN (1,'TMED',1,0,' ',IER)                          *
+C.    *      CALL GFIN (1,'ROTM',1,0,' ',IER)                          *
+C.    *      CALL GFIN (1,'PART',1,0,' ',IER)                          *
+C.    *      CALL GFIN (1,'SCAN',1,0,' ',IER)                          *
+C.    *      CALL GFIN (1,'SETS',1,0,' ',IER)                          *
+C.    *                                                                *
+C.    *    ==>Called by : <USER> ,GOPEN                                *
+C.    *       Author    F.Carminati *******                            *
+C.    *                                                                *
+C.    ******************************************************************
+C.
++SEQ,GCBANK.
++SEQ,GCFLAG.
++SEQ,GCONSP.
++SEQ,GCNUM.
++SEQ,GCCUTS.
++SEQ,GCSCAL.
++SEQ,GCDRAW.
++SEQ,GCVOLU.
++SEQ,GCUNIT.
++SEQ,GCTIME
+*      COMMON/GCLINK/JDIGI ,JDRAW ,JHEAD ,JHITS ,JKINE ,JMATE ,JPART
+*     +      ,JROTM ,JRUNG ,JSET  ,JSTAK ,JGSTAT,JTMED ,JTRACK,JVERTX
+*     +      ,JVOLUM,JXYZ  ,JGPAR ,JGPAR2,JSKLT
+      COMMON/QUEST/IQUEST(100)
+      PARAMETER (NLINIT=9,NLKINE=2,NLTRIG=6,NMKEY=22)
+      DIMENSION JNAMES(20),LINIT(NLINIT),LKINE(NLKINE)
+      DIMENSION LTRIG(NLTRIG),IXD(NMKEY)
+      DIMENSION LINK(NMKEY),IVERSI(NMKEY),LDIV(2),IRESUL(NMKEY)
+      DIMENSION IDOLD(8), IDNEW(8), VEROLD(8), VERNEW(8)
+      DIMENSION IUHEAD(2),ITRAN(23)
+      EQUIVALENCE (JNAMES(1),JDIGI)
+      CHARACTER*4 KNAMES(NMKEY),CHOBJ(*)
+      CHARACTER*(*) CHOPT
+      DATA KNAMES/'DIGI','DRAW','HEAD','HITS','KINE','MATE','PART',
+     +     'ROTM','RUNG','SETS','STAK','STAT','TMED','NULL','VERT',
+     +     'VOLU','JXYZ','NULL','NULL','NULL','SCAN','NULL'/
+      DATA ITRAN/7,6,13,16,8,10,2,9,8*0,3,15,5,17,4,1,21/
+      DATA IXD/2,1,2,2,2,8*1,2,2,1,2,3*0,1,0/
+      DATA LINIT/2,6,7,8,9,10,13,16,21/
+      DATA LKINE/5,15/
+      DATA LTRIG/1,3,4,5,15,17/
+      DATA IDNEW / 8*0 /
+      DATA VERNEW / 8*0. /
+      DATA INEXT  /0/
+C.
+C.    ------------------------------------------------------------------
+C.
+      IQUEST(1)=0
+      LDIV(1)  =IXCONS
+      LDIV(2)  =IXDIV
+      KVOL=JVOLUM
+      IER=0
+*
+      IOPTI=INDEX(CHOPT,'i')+INDEX(CHOPT,'I')
+      IOPTT=INDEX(CHOPT,'t')+INDEX(CHOPT,'T')
+      IOPTK=INDEX(CHOPT,'k')+INDEX(CHOPT,'K')
+      IOPTS=INDEX(CHOPT,'s')+INDEX(CHOPT,'S')
+      IOPTQ=INDEX(CHOPT,'q')+INDEX(CHOPT,'Q')
+*
+*     Save old JRUNG dates and versions
+      IF(JRUNG.GT.0) THEN
+         DO 10 J=1,8
+            IDOLD(J) = IQ(JRUNG+10+J)
+            VEROLD(J) = Q(JRUNG+20+J)
+   10    CONTINUE
+      ENDIF
+*
+      NLINK=0
+      DO 100 JKEY=1,NKEYS
+         IF(IOPTS.EQ.0) THEN
+         IF(CHOBJ(JKEY).EQ.'INIT') THEN
+            DO 30 J=1, NLINIT
+               DO 20  MLINK=1,NLINK
+                  IF(LINK(MLINK).EQ.LINIT(J)) GO TO 30
+   20          CONTINUE
+               NLINK=NLINK+1
+               LINK(NLINK)=LINIT(J)
+   30       CONTINUE
+            GO TO 100
+         ELSEIF(CHOBJ(JKEY).EQ.'TRIG') THEN
+            DO 50 J=1, NLTRIG
+               DO 40  MLINK=1,NLINK
+                  IF(LINK(MLINK).EQ.LTRIG(J)) GO TO 50
+   40          CONTINUE
+               NLINK=NLINK+1
+               LINK(NLINK)=LTRIG(J)
+   50       CONTINUE
+            GO TO 100
+         ELSEIF(CHOBJ(JKEY).EQ.'KINE') THEN
+            DO 70 J=1, NLKINE
+               DO 60  MLINK=1,NLINK
+                  IF(LINK(MLINK).EQ.LKINE(J)) GO TO 70
+   60          CONTINUE
+               NLINK=NLINK+1
+               LINK(NLINK)=LKINE(J)
+   70       CONTINUE
+            GO TO 100
+         ENDIF
+         ENDIF
+            DO 90 J=1,NMKEY
+               IF(CHOBJ(JKEY).EQ.KNAMES(J)) THEN
+                  DO 80 MLINK=1,NLINK
+                     IF(LINK(MLINK).EQ.J) GO TO 100
+   80             CONTINUE
+                  NLINK=NLINK+1
+                  LINK(NLINK)=J
+                  GO TO 100
+               ENDIF
+   90       CONTINUE
+            WRITE(CHMAIL,10300) CHOBJ(JKEY)
+            IF(IOPTQ.EQ.0) CALL GMAIL(0,0)
+  100 CONTINUE
+*
+      IF(IOPTI.GT.0) THEN
+         DO 120 J=1, NLINK
+            DO 110 K=1, NLINIT
+               IF(LINK(J).EQ.LINIT(K)) GO TO 120
+  110       CONTINUE
+            WRITE(CHMAIL,10000) KNAMES(LINK(J))
+            IF(IOPTQ.EQ.0) CALL GMAIL(0,0)
+            LINK(J)=0
+  120    CONTINUE
+      ELSEIF(IOPTK.GT.0) THEN
+         DO 140 J=1, NLINK
+            DO 130 K=1, NLKINE
+               IF(LINK(J).EQ.LKINE(K)) GO TO 140
+  130       CONTINUE
+            WRITE(CHMAIL,10100) KNAMES(LINK(J))
+            IF(IOPTQ.EQ.0) CALL GMAIL(0,0)
+            LINK(J)=0
+  140    CONTINUE
+      ELSEIF(IOPTT.GT.0) THEN
+         DO 160 J=1, NLINK
+            DO 150 K=1, NLTRIG
+               IF(LINK(J).EQ.LTRIG(K)) GO TO 160
+  150       CONTINUE
+            WRITE(CHMAIL,10200) KNAMES(LINK(J))
+            IF(IOPTQ.EQ.0) CALL GMAIL(0,0)
+            LINK(J)=0
+  160    CONTINUE
+      ENDIF
+      IOFF=0
+      DO 170 J=1, NLINK
+         IF(LINK(J).EQ.0) THEN
+            IOFF=IOFF-1
+         ELSE
+            LINK(J+IOFF)=LINK(J)
+         ENDIF
+  170 CONTINUE
+      NLINK=NLINK+IOFF
+      NPOS=0
+      DO 171 JL=1,NLINK
+         IF(LINK(JL).EQ.9.OR.LINK(JL).EQ.3) THEN
+            NPOS=JL
+            GOTO 172
+         ENDIF
+  171 CONTINUE
+  172 CONTINUE
+*
+      IF(NLINK.LE.0) THEN
+         WRITE(CHMAIL,10400)
+         IF(IOPTQ.EQ.0) CALL GMAIL(0,0)
+         IER=-1
+         GOTO 999
+      ENDIF
+*
+      IF(IOPTI+IOPTK+IOPTT.EQ.0) THEN
+*
+*        We have to choose which event header to read, JRUNG or JHEAD
+*        If the banks list contains banks depending from both headers,
+*        the result is unpredictable. Error message to be inserted later.
+         DO 168 J=1, NLINK
+            DO 161 L=1, NLINIT
+               IF(LINK(J).EQ.LINIT(L)) THEN
+                  IOPTI=-1
+                  GOTO 169
+               ENDIF
+  161       CONTINUE
+            DO 162 L=1, NLKINE
+               IF(LINK(J).EQ.LKINE(L)) THEN
+                  IOPTK=-1
+                  GOTO 169
+               ENDIF
+  162       CONTINUE
+            DO 163 L=1, NLTRIG
+               IF(LINK(J).EQ.LTRIG(L)) THEN
+                  IOPTT=-1
+                  GOTO 169
+               ENDIF
+  163       CONTINUE
+  168    CONTINUE
+  169    CONTINUE
+      ENDIF
+*
+      DO 180 J=1, NLINK
+         IVERSI(J)=0
+         IRESUL(J)=0
+  180 CONTINUE
+*
+*               Go for next start of event data structure
+  190 IF(IOPTI.NE.0) THEN
+         IF(JRUNG.NE.0)CALL MZDROP(IXCONS,JRUNG,' ')
+         NUH=2
+         CALL FZIN(LUN,IXCONS,JRUNG,1,'E',NUH,IUHEAD)
+         IF(IQUEST(1).GE.2) THEN
+            IER = -IQUEST(1)
+            GO TO 240
+         ENDIF
+         IF(NPOS.NE.0) THEN
+            IVERSI(NPOS)=IUHEAD(1)
+            IRESUL(NPOS)=1
+         ENDIF
+      ELSEIF(IOPTT+IOPTK.NE.0) THEN
+         IF(JHEAD.NE.0)CALL MZDROP(IXDIV,JHEAD,' ')
+         NUH=2
+         if (inext.eq.0) CALL FZIN(LUN,IXDIV,JHEAD,1,'E',NUH,IUHEAD)
+         if (inext.ne.0) CALL FZIN(LUN,IXDIV,JHEAD,1,'A',NUH,IUHEAD)
+         inext=0
+         IF(IQUEST(1).GE.2) THEN
+            IER = -IQUEST(1)
+            GO TO 240
+         ENDIF
+         IF(NPOS.NE.0) THEN
+            IVERSI(NPOS)=IUHEAD(1)
+            IRESUL(NPOS)=1
+         ENDIF
+      ENDIF
+*
+      IVERIN = IUHEAD(1)
+      IF(IDVERS.NE.0.AND.IDVERS.NE.IVERIN) THEN
+         DO 200 I=1,NLINK
+            LINK(I)=-ABS(LINK(I))
+  200    CONTINUE
+         GOTO 190
+      ELSE
+         IF (IDVERS .EQ. 0) IDVERS = IVERIN
+         DO 210 I=1,NLINK
+            LINK(I)= ABS(LINK(I))
+  210    CONTINUE
+      ENDIF
+      NK   = IUHEAD(2)
+      IF(NK.GT.10) THEN
+         WRITE(CHMAIL,11100) NK
+         IF(IOPTQ.EQ.0) CALL GMAIL(0,0)
+         IER=-1
+         GO TO 999
+      ENDIF
+      DO 230 IK=1,NK
+C
+C              Read next header
+C
+         NUH=2
+         CALL FZIN(LUN,0,0,0,'S',NUH,IUHEAD)
+ 
+         IF(IQUEST(1).GT.2)GO TO 320
+         IF(IQUEST(1).GT.0)GO TO 240
+C-
+           if (IQUEST(1).EQ.0.AND.IQUEST(11).GT.0) then
+*            next event
+             INEXT=1
+             goto 240
+           endif
+C-
+         IKEY=ITRAN(IUHEAD(1))
+         DO 220 I=1,NLINK
+            NKEY=LINK(I)
+            IF(IKEY.EQ.NKEY)THEN
+               IDIV=LDIV(IXD(NKEY))
+               IF(NKEY.LE.20)THEN
+                  IF(JNAMES(NKEY).NE.0)THEN
+                     CALL MZDROP(IDIV,JNAMES(NKEY),'L')
+                     JNAMES(NKEY)=0
+                  ENDIF
+                  CALL FZIN(LUN,IDIV,JNAMES(NKEY),1,'A',NUH,IUHEAD)
+               ELSE
+                  NKL=NKEY-20
+                  IF(ISLINK(NKL).NE.0)THEN
+                     CALL MZDROP(IDIV,ISLINK(NKL),'L')
+                     ISLINK(NKL)=0
+                  ENDIF
+                  CALL FZIN(LUN,IDIV,ISLINK(NKL),1,'A',NUH,IUHEAD)
+               ENDIF
+               IF(IQUEST(1).LE.2.AND.IQUEST(1).GE.0) THEN
+                  IVERSI(I)=IVERIN
+                  IRESUL(I)=1
+                  GOTO 230
+               ELSE
+                  GOTO 320
+               ENDIF
+            ENDIF
+  220    CONTINUE
+  230 CONTINUE
+*
+  240 NIN=0
+      DO 250 I=1,NLINK
+         IF(IRESUL(I).EQ.1) THEN
+            WRITE(CHMAIL,10500) KNAMES(LINK(I)), IVERSI(I)
+            IF(IOPTQ.EQ.0) CALL GMAIL(0,0)
+            NIN=NIN+1
+         ELSEIF(LINK(I).GT.0) THEN
+            WRITE(CHMAIL,10600) KNAMES(LINK(I))
+            IF(IOPTQ.EQ.0) CALL GMAIL(0,0)
+         ELSEIF(LINK(I).LT.0) THEN
+            WRITE(CHMAIL,10700) KNAMES(-LINK(I)), IDVERS
+            IF(IOPTQ.EQ.0) CALL GMAIL(0,0)
+         ENDIF
+  250 CONTINUE
+*
+      IF(NIN.EQ.0) THEN
+         WRITE(CHMAIL,10800)
+         IF(IOPTQ.EQ.0) CALL GMAIL(0,0)
+         IF(IER.GE.0) IER=-1
+         GOTO 999
+      ELSEIF(NIN.LT.NLINK) THEN
+         IER=NIN
+      ENDIF
+*
+      IF(KVOL.NE.JVOLUM)THEN
+         NVOLUM=IQ(JVOLUM-1)
+         CALL MZGARB(IXCONS,0)
+         CALL GGDVLP
+         CALL GGNLEV
+      ENDIF
+*
+      IF(JVOLUM.GT.0) THEN
+         NLEVEL=0
+         NVOLUM=0
+         DO 260 J=1, IQ(JVOLUM-2)
+            IF(LQ(JVOLUM-J).EQ.0) GOTO 270
+            NVOLUM=NVOLUM+1
+  260    CONTINUE
+  270    CONTINUE
+      ENDIF
+*
+      IF(JTMED.NE.0 )THEN
+         CALL UCOPY(Q(JTMED+1),CUTGAM,10)
+         NTMED=IQ(JTMED-2)
+      ENDIF
+*
+      IF(JPART.NE.0 ) NPART = IQ(JPART-2)
+      IF(JVERTX.NE.0) NVERTX = IQ(JVERTX+1)
+      IF(JKINE.NE.0) NTRACK = IQ(JKINE+1)
+      IF(JMATE.NE.0 ) NMATE = IQ(JMATE-2)
+      IF(JROTM.NE.0 ) NROTM = IQ(JROTM-2)
+      IF(JDRAW.GT.0 ) THEN
+         NKVIEW = IQ(JDRAW-2)
+      ELSE
+         NKVIEW = 0
+C
+C             Book JDRAW structure for view banks
+C
+         CALL MZBOOK(IXCONS,JDRAW,JDRAW,1,'DRAW',0,0,0,3,0)
+      ENDIF
+ 
+C
+      IF(JHEAD.GT.0)THEN
+         IDRUN=IQ(JHEAD+1)
+         IDEVT=IQ(JHEAD+2)
+      ENDIF
+      IF(JRUNG.GT.0) THEN
+*
+*             Here we deal with version numbers If JRUNG has been read in,
+*             then save the version numbers of the new JRUNG and restore
+*             the current version number for KINE, HITS and DIGI
+         DO 300 J=1, NLINK
+            IF(IVERSI(J).GT.0) THEN
+               NKEY = ABS(LINK(J))
+               IF(KNAMES(NKEY).EQ.'RUNG') THEN
+                  DO 280 I=1,8
+                     IDNEW(I) = IQ(JRUNG+10+I)
+                     VERNEW(I) = Q(JRUNG+20+I)
+  280             CONTINUE
+*
+*             And we put back the old version numbers because,
+*             in principle, KINE, HITS and DIGI have not be read in
+                  DO 290 I=3,8
+                     IQ(JRUNG+10+I) = IDOLD(I)
+                     Q(JRUNG+20+I) = VEROLD(I)
+  290             CONTINUE
+               ENDIF
+            ENDIF
+  300    CONTINUE
+*
+*            And here we do it again for KINE, HITS and DIGI
+         DO 310 J=1, NLINK
+            IF(IVERSI(J).GT.0) THEN
+               NKEY = ABS(LINK(J))
+               IF(KNAMES(NKEY).EQ.'KINE') THEN
+                  IF(IDNEW(3).GT.0) THEN
+                     IQ(JRUNG+13) = IDNEW(3)
+                     IQ(JRUNG+14) = IDNEW(4)
+                     Q(JRUNG+23) = VERNEW(3)
+                     Q(JRUNG+24) = VERNEW(4)
+                  ENDIF
+               ELSEIF(KNAMES(NKEY).EQ.'HITS') THEN
+                  IF(IDNEW(5).GT.0) THEN
+                     IQ(JRUNG+15) = IDNEW(5)
+                     IQ(JRUNG+16) = IDNEW(6)
+                     Q(JRUNG+25) = VERNEW(5)
+                     Q(JRUNG+26) = VERNEW(6)
+                  ENDIF
+               ELSEIF(KNAMES(NKEY).EQ.'DIGI') THEN
+                  IF(IDNEW(7).GT.0) THEN
+                     IQ(JRUNG+17) = IDNEW(7)
+                     IQ(JRUNG+18) = IDNEW(8)
+                     Q(JRUNG+27) = VERNEW(7)
+                     Q(JRUNG+28) = VERNEW(8)
+                  ENDIF
+               ELSEIF(KNAMES(NKEY).EQ.'MATE'.OR. KNAMES(NKEY) .EQ.'TMED'
+     +         ) THEN
+                  IF(VERNEW(1).NE.0) THEN
+*                We know which version number we are reading
+                     IF(VERNEW(1).LT.GVERSN) THEN
+                        WRITE(CHMAIL,10900) KNAMES(NKEY),VERNEW(1),
+     +                  GVERSN
+                        IF(IOPTQ.EQ.0) CALL GMAIL(0,0)
+                        WRITE(CHMAIL,11000)
+                        IF(IOPTQ.EQ.0) CALL GMAIL(0,0)
+                     ENDIF
+                  ENDIF
+               ENDIF
+            ENDIF
+  310    CONTINUE
+      ENDIF
+  320 CONTINUE
+*
+10000 FORMAT(' *** GFIN *** Key ',A4,' ignored for initialization')
+10100 FORMAT(' *** GFIN *** Key ',A4,' ignored for kinematics')
+10200 FORMAT(' *** GFIN *** Key ',A4,' ignored for trigger')
+10300 FORMAT(' *** GFIN *** Unknown key ',A4)
+10400 FORMAT(' *** GFIN *** No valid key given')
+10500 FORMAT(' *** GFIN *** Data structure ',A4,' version ',I10,
+     +       ' successfully read in ')
+10600 FORMAT(' *** GFIN *** Data structure ',A4,' was not found')
+10700 FORMAT(' *** GFIN *** Data structure ',A4,' version ',I10,
+     +       ' was not found')
+10800 FORMAT(' *** GFIN *** Nothing found to read !')
+10900 FORMAT(' *** GFIN *** ',A4,' data structure ',
+     +       'version ',F6.4,' current version is ',F6.4)
+11000 FORMAT('              Please call subroutine GPHYSI before ',
+     +       'tracking')
+11100 FORMAT(' *** GFIN ***  Illegal number of links ',I10)
+  999 END
 +PATCH,DZDOC. =================================================================
 *CMZ :  1.00/01 02/02/96  12.36.40  by  G. Poulard
 +DECK,DZE2HT. ----------------------------------------------------------------
@@ -30632,7 +31189,7 @@ C     RZfile always with Exchange mode for LINUX
 +PATCH,MAIN. ==================================================================
 *CMZ :  1.00/01 27/10/94  01.44.00  by  Pavel Nevski
 +DECK,agmain,T=GEANT.  ------------------------------------------------------
-*CMZ :          28/03/98  23.02.12  by  Pavel Nevski
+*CMZ :          30/04/98  00.45.04  by  Pavel Nevski
 *-- Author :    Pavel Nevski
 *****************************************************************************
 *                                                                           *
@@ -30666,6 +31223,7 @@ C     RZfile always with Exchange mode for LINUX
       VERSION = '       '
 *     VERSION = PROG(I:N)
       FATCAT = ' '
+      if (PROG(I:N)=='atlsim') CALL REBANKM(-1)
 *
       do J=1,999
       {  CALL GETARG(J,comd);  Call CUTOL(comd)
@@ -30709,7 +31267,7 @@ C     RZfile always with Exchange mode for LINUX
  
       CALL PAWINT1 (PROG(I:N),BATCHF,PAWLOGF)
       CALL PAWINT2 (0,'+?',AgPAWE,IWTYP)  ! type of PAW, HBOOK, command
-      CALL FMLOGL (-3)
+      CALL FMLOGL  (-3)
       IF (LENOCC(FATCAT)>0) CALL FMSTRT(62,63,%L(FATCAT),Irc)
  
       if (G) CALL GINTRI            ! Geant MENUs and COMMANDs
@@ -30728,8 +31286,8 @@ C     RZfile always with Exchange mode for LINUX
       if (G) CALL GDINIT            ! Initialise Drawing pkg
       CALL TIMEL  (TIMINT)
  
-      if (G) { Call AgVERSION; CALL KUEXEC('ROOT /GEANT') }
-      if (S) { call staf_start }
+      if (G) { Call AgVERSION;  CALL KUEXEC('ROOT /GEANT') }
+      if (S) { call staf_start; }
 ****>
       CALL KUEXEC  ('SET/PROMPT '''//PROG(I:N)//' >''')
 *
@@ -30889,7 +31447,7 @@ END
  
  
 +DECK,agxinit,T=kuip.
-*CMZ :          30/03/98  15.11.22  by  Pavel Nevski
+*CMZ :          30/04/98  13.16.13  by  Pavel Nevski
 *CMZ :  1.30/00 19/04/97  15.44.40  by  Pavel Nevski
 *-- Author :    Pavel Nevski   01/04/96
 ******************************************************************************
@@ -31254,7 +31812,7 @@ Sets: list of data sets to be read or written:
  D - DIGI banks,
  R - reconstruction banks,
  S - data structure description (both include files and rz-database) is
-     updated automatically as it is done with the STRUCTURES commands,
+     updated automatically as it is done with the default STRUCTURES commands,
  * - all above (default).
  
 Note that GEANT simulations are allowed ONLY if the input does not contain
@@ -31308,16 +31866,30 @@ are updated upon read.
 >Command REBANK
 >Guidance
  
-Bank access mechanism is implemeted as it is described in Atlas note
-SOFT-NO-002. The only correction to the note is the call to the REBANK
-itself, which now has an additional parameter Ia:
+Bank access mechanism is implemeted as it is described in the
+Atlas note SOFT-NO-002. The only correction to the note is the call
+to the REBANK itself, which now has an additional parameter Ia:
  
           call REBANK (Path,IDN,Npar,Link*,Ia*)
  
 The returned value of Ia contains the displacement in the bank,
 for a single raw request. Remember that this routine is not intended
-for general usage and should be avoided - use FILL/USE operators
+for general usage and should be avoided - use FILL/USE operators or
 RBSTORE/RBCOPY, RBGET/RBPUT routines instead.
+*-----------------------------------------------------------------------------
+>Command FILL
+>Guidance
+ 
+FILL operatore is fully described in the AGI manual (Atlas note SOFT-NO-14).
+Here we provide some additional details and helpful hints.
+ 
+ Although names of the variables in AGI structures are limited to 12
+characters, DZDOC suports only 8 characters in the documentation.
+That means that in the structure defintion, produced by AGI (see also
+STRUCTURES and TABLES commands), all names will be TRUNCATED to 8 symbols.
+To avoid this complification, user is advised to use in structures
+variable names not longer than 8 charactes.
+ 
 >Action AGXUSER
 *-----------------------------------------------------------------------------
 >Command USE
@@ -31416,13 +31988,19 @@ Produce a definition file with data structure description and
 update the documentation database (detm.rz) in accordance with the
 structures currenly loaded in the program.
  
+System name argument is interpreted in the same way as the argument in
+the UNIX 'ls' command, for example:
+ - no name at all produces a single output file (detmsys) with all structure descriptions in it;
+ - '*' produces a set of system-based output files (*sys) with its related structure description;
+ - sys/name produces a single structure definition.
+ 
 Type of the output may be
  
-  def   - AGI preprocessor input file,
+  def   - AGI preprocessor input file (default),
   idl   - CORBA interface definitions language,
   other - internal table format
  
-This output may automatically be read by the AGI parser so that user
+The detmsys.def output may be automatically read by the AGI parser so that user
 can get access to structure description with +cde or +include statements.
 CORBA idl file should be processed by STIC compiler to produce .inc and .h
 files. Internal definition file is directly fed to table access module.
@@ -31439,7 +32017,7 @@ dataset  'output directory'                               C  D=' '
 Makes AGI structures, which belong to a particular AGI system, visible as
 StaF tables in the requested dataset. Apropriate STAF table descriptions
 is derived from AGI description and actual table adresses are mapped to AGI
-structures. Default value is "*" which means "all system".
+structures. Default value means "all system".
 A subset of structures can also be convertes into tables
 by defining the path to them.
  
@@ -31734,7 +32312,7 @@ delta-electron production in detector itself.
  
  
 +DECK,agxuser,T=geant. --------------------------------------------------------
-*CMZ :          31/03/98  19.06.08  by  Pavel Nevski
+*CMZ :          24/04/98  21.26.23  by  Pavel Nevski
 *CMZ :  1.30/00 23/04/97  18.45.29  by  Pavel Nevski
 *-- Author :    Pavel Nevski   01/04/96
 *********+*********+*********+*********+*********+*********+*********+*********+
@@ -31794,7 +32372,7 @@ delta-electron production in detector itself.
         IF (Index(String1(1:len1),'O')>0)  Call AGZWRITE('O',ier)
      }
      If (Index(String3(1:Len3),'S')>0 | String3(1:1)='*') _
-                                      Call AGKEEPS('*','def')
+                                      Call AGKEEPS(' ','def')
   }
   else If Command=='GHIST' | Command=='HFILE'
   {  " open a histigram file
@@ -33444,7 +34022,7 @@ int getarg_ (int *k, char *args, int n)
        call agmain
        end
 +DECK,astaf,T=CC. -----------------------------------------------------------
-/*CMZ :          14/03/98  22.05.30  by  Pavel Nevski*/
+/*CMZ :          30/04/98  00.46.40  by  Pavel Nevski*/
 /*-- Author :    Pavel Nevski   28/11/97*/
 /*****************************************************/
 /*               S T A F   i n t e r f a c e         */
@@ -33498,6 +34076,8 @@ extern "C" void staf_stop_ ()  {
  
 /*---------------------------------------------------------------------*/
  
+extern "C" int dsTypeSpecifier(char**, int*, int);
+ 
 extern "C" int staftab_(char* path, char* name, char* spec, long* l,
                         char* data, int lp, int ln, int ls)
 {
@@ -33540,6 +34120,107 @@ extern "C" int staftab_(char* path, char* name, char* spec, long* l,
 #endif
   return 0;
 }
+ 
+#ifdef STAF
+ 
+extern "C" int ami_callf_(char* name,int* n, char* tables, int ln, int lt)
+ 
+{ amiInvoker*    invoker;
+  FNC_PTR_T      myPamFtn;
+  long           myRank;
+  tdmTable*      t[40];
+  TABLE_HEAD_ST* h[40];
+  char*          d[40];
+  int            i,status;
+ 
+  if (!(invoker=ami->findInvoker(name))) return 0;
+  myRank   = invoker->rank();
+  myPamFtn = invoker->pFunction();
+  for (i=0;i<*n;i++)
+   {  t[i]=tdm->findTable(tables+i*lt);   if (!t[i]) return 0;
+      if (!t[i]->cvtTasStructs(h[i],d[i]))  return 0;
+      /* printf(" table found %20s \n",h[i]->name); */
+   }
+   status = ami_pamSwitch(myRank, myPamFtn, h, d);
+   if (status) { for (i=0;i<*n;i++)  { t[i]->rowCount(h[i]->nok); }}
+   return status;
+}
+ 
+extern "C" int ami_call_ (char* name, int* n, char* tables, int ln, int lt)
+ 
+{   int i; char* ctab[40];
+    for (i=0;i<*n;i++)
+    { ctab[i]=tables+i*lt; /* printf(" i,ctab = %d %s \n",i,ctab[i]); */ }
+    return ami_call (name, *n, (char**) ctab);
+}
+ 
+extern "C" int tdm_table_ (char* name, char* spec, int* n, int ln, int ls)
+{ int i;  char* s;
+  /* skip spaces */  s=spec; while (*s==' ') { s++; }
+  /*
+     printf(" name = %s \n",name);
+     printf(" spec = %s \n",spec);
+     printf(" n    = %d \n",*n);    */
+     i = tdm_newtable (name, s, *n);
+     if (i) tdmtable_maxrowcount(name, *n);
+     return i;
+}
+ 
+extern "C" int tabspec_(TABLE_HEAD_ST* pTab, char* c)
+ 
+{ char *pSpec;
+/*
+  printf(" dataset name = %20s \n",pTab->name);
+  printf("         type = %20s \n",pTab->type);
+  printf("         maxl = %d \n",pTab->maxlen);
+  printf("         nok  = %d \n",pTab->nok);
+  printf("         rbyte= %d \n",pTab->rbytes);
+  printf("         ds_p = %d \n",pTab->dsl_pointer);
+  printf("         dd_p = %d \n",pTab->data_pointer);
+*/
+  if (!dsTableTypeSpecifier(&pSpec,(ds_dataset_t*)pTab->dsl_pointer)) return 0;
+       strcpy(c,pSpec); return strlen(pSpec)+1;
+}
+ 
+extern "C" int tabcolcount_(TABLE_HEAD_ST* pTab)
+ 
+{ unsigned ccount;
+  if (!dsTableColumnCount(&ccount, (ds_dataset_t*)pTab->dsl_pointer)) return 0;
+  return (int) ccount;
+}
+ 
+extern "C" int tabcolname_(TABLE_HEAD_ST* pTab,int* k,char* c,char* d,
+                                unsigned* l, unsigned* e, unsigned* m)
+{ char *cc; char *dd;
+  if (!dsColumnName     (&cc, (ds_dataset_t*) pTab->dsl_pointer,*k)
+   || !dsColumnTypeName (&dd, (ds_dataset_t*) pTab->dsl_pointer,*k)
+   || !dsColumnSize     (l  , (ds_dataset_t*) pTab->dsl_pointer,*k)
+   || !dsColumnElcount  (e  , (ds_dataset_t*) pTab->dsl_pointer,*k)
+   || !dsColumnDimCount (m  , (ds_dataset_t*) pTab->dsl_pointer,*k))  return 0;
+ 
+  strcpy(d,dd);
+  strcpy(c,cc);
+  return strlen(cc)+1;
+}
+ 
+extern "C" int tabspeci_(char* c, int lc)
+{ char *pSpec; int i,lspec=0;
+  for (i=1;;i++)
+  { if (!dsTypeSpecifier(&pSpec, &lspec, i)) return 0;
+    if (strstr(pSpec,c)) return i;
+  }
+}
+ 
+ 
+#ifdef     DS_ADVANCED_try
+int tabspeci_(int* i,char* c)
+{ DS_TYPE_T *pType;
+  if (!dsTypePtr(&pType, *i)) return 0;
+       strcpy(c,pType->name); return strlen(pType->name)+1;
+}
+#endif
+ 
+#endif
  
  
 +DECK,sldetn,T=geant.
@@ -33693,8 +34374,8 @@ extern "C" int staftab_(char* path, char* name, char* spec, long* l,
  
  
  
-+DECK,gtnext,T=geant.
-*CMZ :          26/03/98  11.40.53  by  Pavel Nevski
++DECK,gtnext,T=geant,if=GTEST.
+*CMZ :          22/04/98  12.45.02  by  Pavel Nevski
 *CMZ :  1.30/00 16/09/96  23.24.54  by  Pavel Nevski
 *-- Author :    Pavel Nevski
       SUBROUTINE GTNEXT
@@ -33722,8 +34403,8 @@ extern "C" int staftab_(char* path, char* name, char* spec, long* l,
       endif
 *
       END
-+DECK,GTMEDI,T=geant.
-*CMZ :          26/03/98  12.03.41  by  Pavel Nevski
++DECK,GTMEDI,T=geant,if=GTEST.
+*CMZ :          22/04/98  12.45.53  by  Pavel Nevski
 *-- Author :    Pavel Nevski
       SUBROUTINE GTMEDI (X, NUMED)
 +CDE,TYPING,GCFLAG,GCVOLU.
@@ -37682,7 +38363,7 @@ static void * findMain(void)
  
  
 +DECK,CS_HLSHL,T=XCC,IF=-HPUX. ===============================================
-/*CMZ :          05/11/97  15.53.29  by  Pavel Nevski*/
+/*CMZ :          22/04/98  12.54.47  by  Pavel Nevski*/
 /*-- Author : Vladimir Berejnoi*/
 +SELF,IF=ALPHA_OSF.
 #define  ALPHA_OSF
@@ -37698,7 +38379,7 @@ static void * findMain(void)
 #ifndef RTLD_GLOBAL
 #define RTLD_GLOBAL	0x100	/* allow symbols to be global */
 #endif
-#define RTLD_NOW_CONST (RTLD_NOW || RTLD_GLOBAL)
+#define RTLD_NOW_CONST (RTLD_NOW | RTLD_GLOBAL)
  
 /****************************************************************************/
  
@@ -38015,7 +38696,7 @@ End
  
  
 +DECK,AgZread,T=geant. --------------------------------------------------------
-*CMZ :          20/04/98  19.19.30  by  Pavel Nevski
+*CMZ :          22/04/98  22.10.55  by  Pavel Nevski
 *CMZ :  1.30/00 19/03/97  21.57.11  by  Pavel Nevski
 *CMZU:  1.00/01 15/01/96  20.20.30  by  Pavel Nevski
 *-- Author :    L.Vacavant, A.Rozanov    14/12/94
@@ -38086,8 +38767,8 @@ End
         If ( " new eor " HEAD=='HEAD' & Ns==0 & Nt>0 & Kevent(iu)>0 _
            | HEAD=='RUNG' & Nt==0 | HEAD=='CODE' | HEAD=='RUN') Trig=.false.
         If Trig
-        { prin2 kevent(iu),Lun,IHEAD(1),HEAD
-          (' AGZREAD: event',i8,' on unit',i4,' ended by',i8,A6)
+        { prin2 kevent(iu),Lun,IHEAD(1),IHEAD(2),HEAD
+          (' AGZREAD: event',i8,' on unit',i4,' ended by',2i6,A6)
           Break;
         }
      }  Done=.true.
@@ -38339,7 +39020,7 @@ END
  
  
 +DECK,AgZback,T=geant. --------------------------------------------------------
-*CMZ :          27/11/97  16.36.28  by  Pavel Nevski
+*CMZ :          23/04/98  14.13.01  by  Pavel Nevski
 *CMZ :  1.30/00 21/03/97  15.15.10  by  Pavel Nevski
 *-- Author :    Pavel Nevski   27/05/96
 ************************************************************************
@@ -38399,6 +39080,7 @@ END
    "data" ISF(LINK) = IQ(LINK+Iset);  IDF(LINK) = IQ(LQ(LINK-Iset)+Idet)
 *  - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 *
+   Prin2; ('*****  AgMERGE *****')
    Call MZLINT(IXSTOR,'AgCMERGE',Laref,Jd,Jk2)
    Call AgMER(Iprin,JVERTX,+1,Nv1,Nv2);  Nvertx=Nv1+Nv2;
    Call AgMER(Iprin,JKINE, +1,Nt1,Nt2);  Ntrack=Nt1+Nt2;
@@ -39465,7 +40147,7 @@ End
   call GGCLOS
   End
 +DECK,AgZkine,T=geant. ---------------------------------------------------------
-*CMZ :          20/04/98  19.49.51  by  Pavel Nevski
+*CMZ :          23/04/98  17.12.21  by  Pavel Nevski
 *CMZ :  1.30/00 02/05/97  17.21.14  by  Pavel Nevski
 *-- Author :    A. Rozanov  11/03/95
 ******************************************************************************
@@ -39530,7 +40212,7 @@ End
       Ier   = 0
 *     If (Idebug>0)     Itest=max(Itest,1)
       If  IKINE >0      { Do iev=1,IKINE { Call AgSPkine } }
-      If (IKineOld==-1) call AgZread ('P',ier)
+      If (IKineOld==-1) call AgPread (ier)
       If (IKINEold==-2) call AgNTread(ier)
       If (IKINEold<=-3) call AgFread (ier)
       If (IKINEold<=-4) {J=CsADDR('AGUSREAD'); If (J>0) Call CSjCAL(J,1,Ier)}
@@ -40115,6 +40797,39 @@ Replace [READ[DIGIT](#)#;] with [READ(#2,ERR=:E:)#3;IF(Idebug>=#1)<W>#3;]
    end
  
  
++DECK,agpread,T=geant.
+*CMZ :          23/04/98  18.26.41  by  Pavel Nevski
+*-- Author :    Pavel Nevski   23/04/98
+******************************************************************
+      subroutine    A G P R E A D
+* description: read and possible re-assembly splitted subevents  *
+******************************************************************
++cde,typing,gcunit,gcbank,gcnum,gcflag.
+   Integer ISLFLAG,IsubEv,Iprin,IbEvnt,ier,i,IHEAD(10)
+*
+   IbEvnt = 0; IsubEv = 0
+   call AgZread ('P',ier)
+   Iprin = ISLFLAG('INPU','PRIN')
+   if (Ier!=0 | JHEAD<=0) go to :er:
+   call UCOPY(IQ(JHEAD+1),IHEAD,10)
+ 
+* appending
+    While (IQ(JHEAD+5)>IQ(JHEAD+6)) & Ier==0
+    { call AgZread ('P',ier); IsubEv+=1;
+      if (ier!=0 | JHEAD<=0) go to :er:
+ 
+      prin2 Isubev,(IQ(JHEAD+i),i=1,10)
+      (' AGPREAD: appending subevent',i3,' HEADER =',2i5,2i10,6i4)
+ 
+      IbEvnt = IQ(JHEAD+6)
+      call AgMERGE (Iprin,0,IbEvnt,0.,Ier)
+      Call Ucopy(IHEAD,IQ(JHEAD+1),4)
+    }
+    Return
+:er:; prin1 ier,Isubev,IbEvnt;
+      (' AGPREAD: error',i3,' in subevent =',2i6)
+      ier=9
+ end
 +PATCH,GENZ. ==================================================================
 *CMZ :  1.30/00 25/11/96  22.13.58  by  Pavel Nevski
 +deck,zebcom,T=geant. ---------------------------------------------------------
@@ -40484,7 +41199,7 @@ shell make [1].sl
 call  [1].csl
 exitm
 +DECK,makefile,T=TEXT.
-*CMZ :          25/03/98  19.38.27  by  Pavel Nevski
+*CMZ :          30/04/98  13.17.33  by  Pavel Nevski
 *-- Author :    Pavel Nevski   13/07/97
 CMDS  = atlsim starsim gstar staf staf+ staf++ staf+++
 SIZE  = 1 2 4 6 8 10 12 14 16 18 20 22 24 28 32 34 36
@@ -40545,8 +41260,8 @@ LIBSL =
 +ELSEIF,HPUX. -----------------------------------------------------------------
 SHELL = /bin/ksh
 GEA   = fort77 +ppu  -K -g  -w
-FOR   = fort77 +ppu  +T -g
-FSL   = fort77 +ppu  +T -g +z
+FOR   = fort77 +ppu  +T -g    +DAportable
+FSL   = fort77 +ppu  +T -g +z +DAportable
 # in optimized version all tracing is lost !
 # FSL = fort77 +ppu  +T    +z +O2
 CC    = cc        +z -Aa   -D_HPUX_SOURCE
