@@ -86,11 +86,16 @@ sub controlButtons{
     $text .= $cgi->submit(-name=>'action',
 			  -value=>'History for Marked Jobs') . "\n";
     $text .= $cgi->submit(-name=>'action',
+			  -value=>'Peek at Marked Jobs') . "\n";
+
+    $text .= $cgi->br; # change between view & modify job actions
+
+    $text .= $cgi->submit(-name=>'action',
 			  -value=>'Suspend Marked Jobs') . "\n";
     $text .= $cgi->submit(-name=>'action',
 			  -value=>'Resume Marked Jobs') . "\n";
     $text .= $cgi->submit(-name=>'action',
-			  -value=>'Peek at Marked Jobs') . "\n";
+			  -value=>'Kill Marked Jobs') . "\n";
 
     $text .= $cgi->hr;  # change between job & list actions
 
