@@ -1876,7 +1876,7 @@ sub run_query {
 	    }
 	    $addedconstr .= " ) ";
 	    # Add a newly constructed keyword
-	    push (@constraint, $addedconstr);
+	    push (@constraint, $addedconstr) if ($addedconstr !~ m/\(\s+\)/);
 	    # Remove the condition - we already take care of it
 	    delete $valuset{$_};
 	    # But remember to add the the parent table
@@ -2105,13 +2105,13 @@ sub run_query {
 
   $sqlquery .= join(" , ",(@selectunique))." FROM ".join(" , ",(@fromunique));
 
-  if (defined $where) {
+  &print_debug("where clause [$where] constraint [$constraint]");
+  if ( defined($where) ) {
     $sqlquery .=" WHERE $where";
     if ($constraint ne "") {
       $sqlquery .= " AND $constraint";
     }
-  }
-  elsif ($constraint ne "") {
+  } elsif ($constraint ne "") {
     $sqlquery .= " WHERE $constraint";
   }
 
