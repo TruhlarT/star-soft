@@ -1,5 +1,5 @@
 #!/usr/bin/csh -f
-#       $Id: group_env.csh,v 1.118 2001/04/24 15:13:05 jeromel Exp $
+#       $Id: group_env.csh,v 1.119 2001/05/26 01:40:05 jeromel Exp $
 #	Purpose:	STAR group csh setup
 #
 #	Author:		Y.Fisyak     BNL
@@ -102,11 +102,7 @@ setenv STAR_SCRIPTS $STAR/scripts
 setenv STAR_CGI $STAR/cgi
 setenv STAR_PAMS $STAR/pams;            if ($ECHO) echo   "Setting up STAR_PAMS = ${STAR_PAMS}"
 setenv STAR_DATA ${STAR_ROOT}/data;     if ($ECHO) echo   "Setting up STAR_DATA = ${STAR_DATA}"
-if ( $?STAR_DB == 0) setenv STAR_DB /star/sol/db
-                                        if ($ECHO) echo   "Setting up STAR_DB   = ${STAR_DB}"
-setenv STAR_PARAMS ${STAR}/params;      if ($ECHO) echo   "Setting up STAR_PARAMS= ${STAR_PARAMS}"
 setenv STAR_CALIB ${STAR_ROOT}/calib;   if ($ECHO) echo   "Setting up STAR_CALIB= ${STAR_CALIB}"
-setenv STAR_PROD   $STAR/prod;          if ($ECHO) echo   "Setting up STAR_PROD = ${STAR_PROD}"
 setenv CVSROOT   $STAR_PATH/repository; if ($ECHO) echo   "Setting up CVSROOT   = ${CVSROOT}"
 
 if (-f $STAR/mgr/ROOT_LEVEL && -f $STAR/mgr/CERN_LEVEL) then
@@ -323,7 +319,6 @@ if ( ! -d $SCRATCH ) then
 endif
 if ($ECHO) echo   "Setting up SCRATCH   = $SCRATCH"
 endif
-if ($ECHO) echo   "STAR library version "$STAR_VERSION" has been initiated with `which staf`"
 if ($?CERN_ROOT == 1 ) then
 if ($ECHO) echo   "CERNLIB version "$CERN_LEVEL" has been initiated with CERN_ROOT="${CERN_ROOT}
 endif
