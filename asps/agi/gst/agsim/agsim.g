@@ -165,12 +165,12 @@ C
 *KEEP,VIDQQ.
       CHARACTER*68 VIDQQ
       DATA VIDQQ/
-     +'@(#)Advanced Geant Inteface               C: 28/07/98  17.27.33
+     +'@(#)Advanced Geant Inteface               C: 02/08/98  15.07.04
      +'/
 *KEEP,DATEQQ.
-      IDATQQ =   980728
+      IDATQQ =   980802
 *KEEP,TIMEQQ.
-      ITIMQQ =   1727
+      ITIMQQ =   1507
 *KEEP,VERSQQ.
       VERSQQ = ' '
       IVERSQ = -1
@@ -576,7 +576,7 @@ C
     END
  
  
-*CMZ :          08/07/98  11.17.31  by  Pavel Nevski
+*CMZ :          02/08/98  15.06.54  by  Pavel Nevski
 *CMZ :  1.30/00 23/04/97  18.45.29  by  Pavel Nevski
 *-- Author :    Pavel Nevski   01/04/96
 *********+*********+*********+*********+*********+*********+*********+*********+
@@ -843,6 +843,12 @@ C                                       Link to:
      prin1 %L(CDHIST),%L(CFHIST),IUHIST
      (' Creating RZ-directory ',a,' for histogram file ',a,' on unit ',i3)
   }
+  Else If Command=='GRFILE'
+  {   Call KugetS (String1,len1)
+      Call KUGETC (String2,len2)
+      Call KUGETI (ID)
+      call agrfile(ID,String1(1:len1),String2(1:len2))
+  }
   else If Command=='ACTIONS'
   {  Call KUGETC(string1,len1);  CRunType=string1(1:len1)
      prin1 CrunType; (' Allowed actions: ',a)
@@ -967,6 +973,7 @@ C                                       Link to:
          prin2 C,string2(1:len2),len2; (' DETP input: ',a,' = ',a,i6)
          If (Len3>0) goto :more:
       }  Call AsLSETBA(CWORD,'DETP',j-1,PAR)
+      if (id>0) Call MZFLAG(IxCons,LQ(LkDetm-id),1,'Z')
   }
   Else If Command=='GFLAG' | Command=='GSFLAG'
   {" all possible subsystem control flags "
@@ -2657,80 +2664,6 @@ C
   NQCASE=0
   end
  
- 
-*CMZ :          06/01/98  13.08.02  by  Pavel Nevski
-*CMZ :  1.30/00 15/07/96  15.54.59  by  Pavel Nevski
-*-- Author :    P.Nevski    20/01/94
-***************************************************************************
-                SUBROUTINE   S L D E T N (CHDET,IDET)
-***************************************************************************
-*KEEP,TYPING.
-      IMPLICIT NONE
-*KEEP,GCBANK.
-      INTEGER IQ,LQ,NZEBRA,IXSTOR,IXDIV,IXCONS,LMAIN,LR1,JCG
-      INTEGER KWBANK,KWWORK,IWS
-      REAL GVERSN,ZVERSN,FENDQ,WS,Q
-C
-      PARAMETER (KWBANK=69000,KWWORK=5200)
-      COMMON/GCBANK/NZEBRA,GVERSN,ZVERSN,IXSTOR,IXDIV,IXCONS,FENDQ(16)
-     +             ,LMAIN,LR1,WS(KWBANK)
-      DIMENSION IQ(2),Q(2),LQ(8000),IWS(2)
-      EQUIVALENCE (Q(1),IQ(1),LQ(9)),(LQ(1),LMAIN),(IWS(1),WS(1))
-      EQUIVALENCE (JCG,JGSTAT)
-      INTEGER       JDIGI ,JDRAW ,JHEAD ,JHITS ,JKINE ,JMATE ,JPART
-     +      ,JROTM ,JRUNG ,JSET  ,JSTAK ,JGSTAT,JTMED ,JTRACK,JVERTX
-     +      ,JVOLUM,JXYZ  ,JGPAR ,JGPAR2,JSKLT
-C
-      COMMON/GCLINK/JDIGI ,JDRAW ,JHEAD ,JHITS ,JKINE ,JMATE ,JPART
-     +      ,JROTM ,JRUNG ,JSET  ,JSTAK ,JGSTAT,JTMED ,JTRACK,JVERTX
-     +      ,JVOLUM,JXYZ  ,JGPAR ,JGPAR2,JSKLT
-C
-*KEEP,SCLINK.
-C SLUG link area :    Permanent Links for SLUG:
-      INTEGER         LKSLUG,NSLINK
-      PARAMETER       (NSLINK=40)
-      COMMON /SCLINK/ LKSLUG(NSLINK)
-C The following names are equivalenced to LKSLUG.
-C The equivalence name is the one used in SLINIB.
-      INTEGER LKGLOB,LKDETM,LKTFLM,LKTFLT,LKAMOD,LKAGEV,LKAMCH,LKADIG,
-     +        LKMAPP,LKMFLD,LKRUNT,LKEVNT,LKARAW,LKATRI,LKAPRE,LKARP1,
-     +        LKARP2,LKARP3,LKDSTD,LKRUN2,LKEVN2,LKVER2,LKKIN2,LKHIT2,
-     +        LKGENE
-C                                       Link to:
-      EQUIVALENCE (LKSLUG(1),LKGLOB)   ! top of temporary HEPEVT Zebra tree
-      EQUIVALENCE (LKSLUG(2),LKDETM)   ! top of subdetector structure
-      EQUIVALENCE (LKSLUG(3),LKTFLM)   ! permanent track filter structure
-      EQUIVALENCE (LKSLUG(4),LKTFLT)   ! temporary track filter structure
-      EQUIVALENCE (LKSLUG(5),LKAMOD)   ! MODule parameters (Dont know this)
-      EQUIVALENCE (LKSLUG(6),LKAGEV)   ! Link to general event structure
-      EQUIVALENCE (LKSLUG(7),LKAMCH)   ! MonteCarlo Hits ( not GEANT I guess)
-      EQUIVALENCE (LKSLUG(8),LKADIG)   ! DIGitized hits (again not GEANT...?)
-      EQUIVALENCE (LKSLUG(9),LKMAPP)   ! map structure
-      EQUIVALENCE (LKSLUG(10),LKMFLD)  ! magnetic field banks
-      EQUIVALENCE (LKSLUG(11),LKRUNT)  ! run tree bank (vertical structure)
-      EQUIVALENCE (LKSLUG(12),LKEVNT)  ! event tree bank (vertical struct)
-      EQUIVALENCE (LKSLUG(13),LKARAW)  ! raw data structure
-      EQUIVALENCE (LKSLUG(14),LKATRI)  ! trigger banks
-      EQUIVALENCE (LKSLUG(15),LKAPRE)  ! preprocessed hits
-      EQUIVALENCE (LKSLUG(16),LKARP1)  ! reconstuction phase 1 banks
-      EQUIVALENCE (LKSLUG(17),LKARP2)  ! reconstuction phase 2 banks
-      EQUIVALENCE (LKSLUG(18),LKARP3)  ! reconstuction phase 3 banks
-      EQUIVALENCE (LKSLUG(19),LKDSTD)  ! DST data banks
-      EQUIVALENCE (LKSLUG(20),LKRUN2)  ! run tree bank for secondary run
-      EQUIVALENCE (LKSLUG(21),LKEVN2)  ! event tree bank for secondary events
-      EQUIVALENCE (LKSLUG(22),LKVER2)  ! secondary GEANT VERT bank
-      EQUIVALENCE (LKSLUG(23),LKKIN2)  ! secondary GEANT KINE bank
-      EQUIVALENCE (LKSLUG(24),LKHIT2)  ! secondary GEANT HITS bank
-      EQUIVALENCE (LKSLUG(26),LKGENE)  ! old slug ZEBRA generator structure
-*KEND.
-      INTEGER      IDET
-      CHARACTER*4  CHDET
-*
-      IDET    = -1;    check LkDETM>0
-      CALL GLOOK(CHDET,IQ(LkDETM+1),IQ(LkDETM-1),Idet)
-      check Idet>0;    If   (LQ(LkDETM-Idet)<=0) Idet = 0
-*
-      END
  
 *CMZ :          13/07/98  20.17.07  by  Pavel Nevski
 *-- Author :    Pavel Nevski   20/03/98
@@ -8309,7 +8242,7 @@ If IrBDIV==IxCONS & ID>0 & JBIT(IQ(Lk),1)==0
 END
  
  
-*CMZ :          01/07/98  23.32.45  by  Pavel Nevski
+*CMZ :          30/07/98  14.12.43  by  Pavel Nevski
 *CMZ :  1.30/00 15/04/97  17.02.23  by  Pavel Nevski
 *CMZ :  1.00/00 07/10/95  19.31.21  by  Pavel Nevski
 *-- Author :    Pavel Nevski   12/01/95
@@ -8345,16 +8278,27 @@ C
 Integer       ND,NE,NF,NG,NUM,   Dummy;     Real Anum(2);
 Common/slate/ ND,NE,NF,NG,NUM(2),Dummy(34);
 Equivalence              (num,                   anum);
-Integer       LL,LL1,LBUF,LENOCC,ICLOCU,ICFIND,Isel,i,j,N,ia,ib,map(2,LL1),
-              ie,iv,ii,i0,i1,i2,Lt,Lb,Lv,jv,kv,ind,jb,kb,ia1
-Character     Name*(*),Names(LL1)*(*),Bank*4,
-              Line*80,Cline*80,C*1,EQ*1/'='/,CRind*4
-Real          Value,Rind,vars(LL),Buf(Lbuf),Blank/-989898.e-17/
-Equivalence   (Rind,Crind)
+Integer       LL,LL1,LBUF,LENOCC,ICLOCU,ICFIND,Isel,i,j,K,M,N,ia,ib,map(2,LL1),
+              ie,iv,ii,i0,i1,i2,Lt,Lb,Lv,jv,kv,ind,jb,kb,ia1,Irind,Ivalue,ift
+Character     Name*(*),Names(LL1)*(*),Bank*4,Cn*1,
+              Line*80,Cline*80,C*1,EQ*1/'='/,CRind*4,Cvalue*4
+Real          Value,Rind,Rvalue,vars(LL),Buf(Lbuf),Blank/-989898.e-17/
+Equivalence   (Rind,Irind,Crind),(Rvalue,Ivalue,Cvalue)
 Replace[ERR(#)]  with [;<W>;(' AgDatCar error : ','#1'); Isel=0; Ia=0; NEXT;]
 Replace[DEBUG#;] with [;IF (IDEBUG>=7) print *,#1;]
  
-{i1,i2,Ia,Isel}=0
+{i1,i2,Ia,Isel}=0;
+ 
+do N=1,LL1                 " find reference variable and bank format"
+{  if (name==Names(N)(3:)) M=N
+   Ia+=1; If (Map(1,N)>0&Map(2,N)>0) Ia+=Map(1,N)*Map(2,N)-1
+}  Ift=LL-Ia+1;  Ia=0;
+* take care of IDN selector - it is passed as a real number
+  Cn='R'; if (M>0) Cn=Names(M);
+ 
+Call UCOPY(Value,Rvalue,1);
+debug ' checking item ',bank,'.',name,': ft=',ift,' M=',M,' c=',Cn
+ 
 While i2<Lbuf
 {  " get new field " i0=i2;  Call AgDatAdr(Buf,i1,i2,Lbuf);
    if Isel>0 & Ia>0      " fill the previous address field with data "
@@ -8385,20 +8329,19 @@ While i2<Lbuf
    Lb=Lenocc(Bank);  Lt=Lenocc(Line(1:Lt));   Iv=0 "- already used characters "
 *
    Jb=ICLOCU(Bank,Lb,CLine,1,LT);              " look for this bank reference "
-   debug ' looking for ',bank,' in ',line(1:lt),' LT,JB=',lt,jb
+   debug ' looking for item ',bank,'.',name,' in ',line(1:lt),' LT,JB=',lt,jb
    if jb>0
    {  ib=jb+lb; C=Line(ib:ib);  Rind=blank;   Iv=ib;  Isel=1; Ia=0;
       if C='('                                 " check for index in brackets  "
       {  kb=ICFIND(')',Line,ib,Lt); if kb<=0 {err(no closing bracket)};
          ia=0; ie=index(line(ib+1:kb-1),'=')
- 
          if ie>0
          {  while Line(ib+1:ib+1)==' ' {ib+=1; ie-=1;}
-            Ia=3;  do N=1,LL1                 " find reference variable "
-            {  if (CLine(ib+1:ib+ie-1)==Names(N)(3:1+ie)) Break
+            Ia=ift;  do N=1,LL1                 " find reference variable "
+            {  K=N;  if (CLine(ib+1:ib+ie-1)==Names(N)(3:)) Break;  K=0;
                Ia+=1; If (Map(1,N)>0&Map(2,N)>0) Ia+=Map(1,N)*Map(2,N)-1
-            }  debug 'name,line,ib,ie,ia=',%L(name),line(ib:kb),ib,ie,ia
-            ib=ib+ie
+            }  ib=ib+ie
+            debug ' ...name=',%L(name),' line,ib,ie,ia=',line(ib:kb),ib,ie,ia
          }
          Iv=kb+1; call CKRACK(Line,ib+1,kb-1,-1);
          if Nf=2 {Rind=NUM(1)}  else if Nf>2 {Rind=Anum(1)}
@@ -8408,12 +8351,18 @@ While i2<Lbuf
       {  if ib#Lt {err(equal sign is not the last one)}
          Rind=Buf(i2+1);  Iv=Lt+1;
       }                                        " there was a selection done   "
-      if ia==0 { If (Rind!=blank & Rind!=value)    Isel=0 }
-      else     { If (Rind!=blank & Rind!=Vars(ia)) Isel=0 }
-      ia=0
+      If Rind!=blank
+      { Cn='R'; Rvalue=blank;
+        if ia==0    { If (M>0) Cn=Names(M); Call Ucopy(Value,Rvalue,1)    }
+        else if K>0 {          Cn=Names(K); Call Ucopy(Vars(ia),Rvalue,1) }
+        else        { Isel=0 }
+        If (Cn=='I' & Rind!=Ivalue)  Isel=0
+        If (Cn=='R' & Rind!=Rvalue)  Isel=0
+        If (Cn=='H' & CRind!=Cvalue) Isel=0
+      } ia=0
    }  If (Isel=0 | Iv>Lt) Next
 *
-   Ia=3; jv=0; do N=1,LL1                      " now check variable reference "
+   Ia=Ift; jv=0; do N=1,LL1                      " now check variable reference "
    {  Lv=Lenocc(Names(N));       Jv=ICLOCU(Names(N)(3:Lv),Lv-2,CLine,Iv+1,LT)
                                  C=line(jv+Lv-2:jv+Lv-2)
       debug ' ...now for ',names(n)(3:lv),' in ',line(Iv+1:LT),' iv,lt,jv,C=',
@@ -20838,6 +20787,7 @@ C
    END
  
  
+*CMZ :          01/08/98  14.42.35  by  Pavel Nevski
 *CMZ :  1.00/00 03/10/95  18.17.59  by  Pavel Nevski
 *-- Author :    R. DeWolf   15/07/91
 **********************************************************************
@@ -20908,8 +20858,107 @@ C                                       Link to:
 *KEND.
       CHARACTER*(*) CHDET
       INTEGER       IDET
-                    IDET=0
-      IF (LKDETM>0) CALL GLOOK(CHDET,IQ(LKDETM+1),IQ(LKDETM-1),IDET)
+ 
+      ENTRY   SLDETN (CHDET,IDET)
+*
+      IDET = -1;      check LkDETM>0
+      CALL GLOOK(CHDET,IQ(LkDETM+1),IQ(LkDETM-1),Idet)
+      check Idet>0;   If (LQ(LkDETM-Idet)<=0) Idet = 0
+*
       END
+ 
+ 
+*CMZ :          02/08/98  09.36.16  by  Pavel Nevski
+*-- Author :    Pavel Nevski   01/08/98
+*********************************************************************
+*                                                                   *
+    subroutine  AgDETP add (Cpar,p,N)
+*                                                                   *
+* Description: compose a DETP command from the code:                *
+*   - new selects a subsystem and drops the old DETP bank           *
+*   - add appends the parameter description and its values          *
+*********************************************************************
+*KEEP,TYPING.
+      IMPLICIT NONE
+*KEEP,GCBANK.
+      INTEGER IQ,LQ,NZEBRA,IXSTOR,IXDIV,IXCONS,LMAIN,LR1,JCG
+      INTEGER KWBANK,KWWORK,IWS
+      REAL GVERSN,ZVERSN,FENDQ,WS,Q
+C
+      PARAMETER (KWBANK=69000,KWWORK=5200)
+      COMMON/GCBANK/NZEBRA,GVERSN,ZVERSN,IXSTOR,IXDIV,IXCONS,FENDQ(16)
+     +             ,LMAIN,LR1,WS(KWBANK)
+      DIMENSION IQ(2),Q(2),LQ(8000),IWS(2)
+      EQUIVALENCE (Q(1),IQ(1),LQ(9)),(LQ(1),LMAIN),(IWS(1),WS(1))
+      EQUIVALENCE (JCG,JGSTAT)
+      INTEGER       JDIGI ,JDRAW ,JHEAD ,JHITS ,JKINE ,JMATE ,JPART
+     +      ,JROTM ,JRUNG ,JSET  ,JSTAK ,JGSTAT,JTMED ,JTRACK,JVERTX
+     +      ,JVOLUM,JXYZ  ,JGPAR ,JGPAR2,JSKLT
+C
+      COMMON/GCLINK/JDIGI ,JDRAW ,JHEAD ,JHITS ,JKINE ,JMATE ,JPART
+     +      ,JROTM ,JRUNG ,JSET  ,JSTAK ,JGSTAT,JTMED ,JTRACK,JVERTX
+     +      ,JVOLUM,JXYZ  ,JGPAR ,JGPAR2,JSKLT
+C
+*KEEP,SCLINK.
+C SLUG link area :    Permanent Links for SLUG:
+      INTEGER         LKSLUG,NSLINK
+      PARAMETER       (NSLINK=40)
+      COMMON /SCLINK/ LKSLUG(NSLINK)
+C The following names are equivalenced to LKSLUG.
+C The equivalence name is the one used in SLINIB.
+      INTEGER LKGLOB,LKDETM,LKTFLM,LKTFLT,LKAMOD,LKAGEV,LKAMCH,LKADIG,
+     +        LKMAPP,LKMFLD,LKRUNT,LKEVNT,LKARAW,LKATRI,LKAPRE,LKARP1,
+     +        LKARP2,LKARP3,LKDSTD,LKRUN2,LKEVN2,LKVER2,LKKIN2,LKHIT2,
+     +        LKGENE
+C                                       Link to:
+      EQUIVALENCE (LKSLUG(1),LKGLOB)   ! top of temporary HEPEVT Zebra tree
+      EQUIVALENCE (LKSLUG(2),LKDETM)   ! top of subdetector structure
+      EQUIVALENCE (LKSLUG(3),LKTFLM)   ! permanent track filter structure
+      EQUIVALENCE (LKSLUG(4),LKTFLT)   ! temporary track filter structure
+      EQUIVALENCE (LKSLUG(5),LKAMOD)   ! MODule parameters (Dont know this)
+      EQUIVALENCE (LKSLUG(6),LKAGEV)   ! Link to general event structure
+      EQUIVALENCE (LKSLUG(7),LKAMCH)   ! MonteCarlo Hits ( not GEANT I guess)
+      EQUIVALENCE (LKSLUG(8),LKADIG)   ! DIGitized hits (again not GEANT...?)
+      EQUIVALENCE (LKSLUG(9),LKMAPP)   ! map structure
+      EQUIVALENCE (LKSLUG(10),LKMFLD)  ! magnetic field banks
+      EQUIVALENCE (LKSLUG(11),LKRUNT)  ! run tree bank (vertical structure)
+      EQUIVALENCE (LKSLUG(12),LKEVNT)  ! event tree bank (vertical struct)
+      EQUIVALENCE (LKSLUG(13),LKARAW)  ! raw data structure
+      EQUIVALENCE (LKSLUG(14),LKATRI)  ! trigger banks
+      EQUIVALENCE (LKSLUG(15),LKAPRE)  ! preprocessed hits
+      EQUIVALENCE (LKSLUG(16),LKARP1)  ! reconstuction phase 1 banks
+      EQUIVALENCE (LKSLUG(17),LKARP2)  ! reconstuction phase 2 banks
+      EQUIVALENCE (LKSLUG(18),LKARP3)  ! reconstuction phase 3 banks
+      EQUIVALENCE (LKSLUG(19),LKDSTD)  ! DST data banks
+      EQUIVALENCE (LKSLUG(20),LKRUN2)  ! run tree bank for secondary run
+      EQUIVALENCE (LKSLUG(21),LKEVN2)  ! event tree bank for secondary events
+      EQUIVALENCE (LKSLUG(22),LKVER2)  ! secondary GEANT VERT bank
+      EQUIVALENCE (LKSLUG(23),LKKIN2)  ! secondary GEANT KINE bank
+      EQUIVALENCE (LKSLUG(24),LKHIT2)  ! secondary GEANT HITS bank
+      EQUIVALENCE (LKSLUG(26),LKGENE)  ! old slug ZEBRA generator structure
+*KEND.
+   Character   Cpar*(*),EQ*1/'='/,Cd*4/'none'/
+   Integer     LENOCC,Par(1000),p(N),N,L,I,J,LL,Id/0/,Ld
+   Real        R
+   Equivalence (R,I)
+*
+    Call ASLGETBA (Cd,'DETP',1000,LL,Par)
+    L=Lenocc(Cpar)
+    If id<=0
+    {  print *,' AgDETP error: system undefined ',Cd,': ',cpar,p }
+    else
+    {  Call UCTOH (Cpar,Par(LL+1),4,L);  LL+=(L+3)/4;
+       do j=1,N
+       {  I=p(j); if (abs(I)<10000) R=p(j);  LL+=1; Par(LL)=I; }
+       Call ASLSETBA (Cd,'DETP',LL,Par)
+    }
+    return
+*
+    entry AgDETP new (Cpar)
+    Cd=Cpar;  Call CLTOU(cd);  Call ASBDETE (Cd,id);  Check Id>0
+    Call ASLDETBA (Cd,'DETP',1,Ld);  If (Ld>0) Call MZDROP (IxCons,Ld,' ')
+    Call MZFLAG(IxCons,LQ(LkDetm-id),1,'Z')
+*
+   end
  
  
