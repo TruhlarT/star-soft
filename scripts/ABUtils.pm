@@ -62,6 +62,8 @@ $INSU::RELFLNM=".log/afs.release";
 # ------------------------------------------
 # --- Tests and running section
 # ------------------------------------------
+$INSU::QUEUE="star_cas_prod";
+
 # Command to issue to load the Insure environment
 $INSU::INSLOAD="setenv INSURE yes ; unsetenv NODEBUG ; staradev";
 $INSU::JPRLOAD="staradev";
