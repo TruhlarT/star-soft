@@ -1,4 +1,5 @@
-#!/opt/star/bin/perl -w
+#!/usr/local/bin/perl
+#!/usr/bin/env perl 
 #
 # $Id:
 #
@@ -13,9 +14,12 @@ require "/afs/rhic/star/packages/scripts/dbCpProdSetup.pl";
 use CGI;
 use GIFgraph::linespoints;
 use GD;
-use CGI::Carp qw(fatalsToBrowser);
 use Class::Struct;
 use File::Basename;
+
+BEGIN {
+ use CGI::Carp qw(fatalsToBrowser carpout);
+}
 
 
  my ($query) = @_;
