@@ -1,7 +1,10 @@
 #!/usr/bin/csh -f
-#       $Id: group_env.csh,v 1.44 1998/08/11 13:41:20 fisyak Exp $
+#       $Id: group_env.csh,v 1.45 1998/08/23 18:47:02 fisyak Exp $
 #	Purpose:	STAR group csh setup 
 #       $Log: group_env.csh,v $
+#       Revision 1.45  1998/08/23 18:47:02  fisyak
+#       No debug name of libraries is LIB
+#
 #       Revision 1.44  1998/08/11 13:41:20  fisyak
 #       remove user lib directory from LD_LIBRARY_PATH
 #
@@ -161,7 +164,7 @@ else
   if ($?NODEBUG == 0) then
     setenv STAR_LIB  $STAR/.${STAR_HOST_SYS}/lib; if ($ECHO) echo   "Setting up STAR_LIB  = ${STAR_LIB}"
   else
-    setenv STAR_LIB  $STAR/.${STAR_HOST_SYS}/nodeb; if ($ECHO) echo   "Setting up STAR_LIB  = ${STAR_LIB}"
+    setenv STAR_LIB  $STAR/.${STAR_HOST_SYS}/LIB; if ($ECHO) echo   "Setting up STAR_LIB  = ${STAR_LIB}"
   endif
 endif
 setenv STAR_BIN  $STAR/asps/../.${STAR_HOST_SYS}/bin  ; if ($ECHO) echo   "Setting up STAR_BIN  = ${STAR_BIN}"
