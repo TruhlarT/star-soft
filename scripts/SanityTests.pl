@@ -13,6 +13,9 @@
 #  Apr 13 2001 ; JL added real events chain.
 #  Feb  1 2002 ; JL added profiling support
 #
+# Note that the curent version does everything within one
+# script so we are only a few steps away from being able 
+# to submit the tests in batch ...
 #
 use lib "/afs/rhic/star/packages/scripts";
 use ABUtils;
@@ -26,6 +29,9 @@ use ABUtils;
 %TESTS=IUTests();
 $SRCDIR=IUTestDir();
 
+# Number of events ton run in mode
+$NEVT[0]=2;    # Insure mode
+$NEVT[1]=10;   # Jprofile
 
 
 # ------ No Changes below this line -------------------------------------
@@ -50,6 +56,8 @@ for($i=0 ; $i <= $#ARGV ; $i++){
 		}
 	    }
 	    exit;
+
+
 	} elsif ($arg eq "-prof"){
 	    # Turn on profiling instead
 	    $PROF = 1;
@@ -59,6 +67,9 @@ for($i=0 ; $i <= $#ARGV ; $i++){
     }
 }
 undef(@ARGV);
+
+
+
 
 
 # Sort array now, transfer i into another associative array.
@@ -121,21 +132,31 @@ foreach $choice (@ARG){
 	print " - Changing directory to $dir\n";
 	if( ! chdir($dir) ){ die "Could not change directory to $dir\n";}
 
-	$script = "script$i.csh";
-	if( -e $script){ unlink($script);}
 
-	# ********* MODIFY THIS IF NECESSARY ************
-	IUresource("$SRCDIR/$dir/insure$i.log"," - creating .psrc file") if (! $PROF);
+	# Pre-script creation tasks/open file
+	if ($PROF){
+	    $script = "Pscript$i.csh";
+	} else {
+	    IUresource("$SRCDIR/$dir/insure$i.log"," - creating .psrc file");
+	    $script = "Iscript$i.csh";
+	}
 	print " - Creating a script file\n";
-	open(FO,">script$i.csh") || die "Could not open file for write\n";
+	if( -e $script){ unlink($script);}
+	open(FO,">$script") || die "Could not open file for write\n";
+
+
+	# Generate the script now
 	print FO 
 	    "#\!/bin/csh\n",
 	    "# Script created on ".localtime()."\n",
 	    "# by $0. Written J.Lauret\n",
 	    "source ~/.cshrc\n";
 
-	print FO
-	    IULoad()."\n" if(! $PROF);
+	if($PROF){
+	    print FO JPLoad()."\n" ;  # Command to load the Profiling env
+	} else {
+	    print FO IULoad()."\n" ;  # command to load the Insure env
+	}
 
 	print FO
 	    "cd $SRCDIR/$dir\n",
@@ -149,18 +170,26 @@ foreach $choice (@ARG){
 	    "echo \"CDir   = \" `pwd`\n",
 	    "\n",
 	    "setenv StarEndMakerShell\n",
+	    "unset noclobber\n",
 	    "rm -f *.root\n",
 	    "\n";
+
 	if($PROF){
 	    print FO 
 		"rm -f *.C\n",
 		"echo 'gSystem->Setenv(\"JPROF_FLAGS\", \"JP_START JP_PERIOD=0.001\");' >tmp.C\n",
 		"echo 'gSystem->Load(\"libJprof\");'      >>tmp.C\n",
-		"echo '.x bfc.C(10,\"$chain\",\"$file\");' >>tmp.C\n",
-		"\$ROOT4STAR -b < tmp.C\n";
+		"echo '.x bfc.C($NEVT[1],\"$chain\",\"$file\");' >>tmp.C\n",
+		"\$ROOT4STAR -b < tmp.C\n",
+		"\n",
+		"if ( -f ../Prof-$dir-$i.html) rm -f ../Prof-$dir-$i.html\n",
+		JPRFFormat()." \$ROOT4STAR jprof-log >../Prof-$dir-$i.html\n";
 	} else {
 	    print FO 
-		"\$ROOT4STAR -b -q 'bfc.C(2,\"$chain\",\"$file\")'\n";
+		"\$ROOT4STAR -b -q 'bfc.C($NEVT[0],\"$chain\",\"$file\")'\n",
+		"\n",
+		"if ( -f $SRCDIR/Ins-$dir-$i.html) rm -f $SRCDIR/Ins-$dir-$i.html\n",
+		IURTFormat()." $SRCDIR/$dir/insure$i.log >$SRCDIR/Ins-$dir-$i.html\n";
 	}
 
 	close(FO);
@@ -169,13 +198,6 @@ foreach $choice (@ARG){
 	print " - Running it now\n";
 	system("$SRCDIR/$dir/$script"); # we can also trapped the returned error
 
-	if($PROF){
-	    if( -e "$SRCDIR/Prof-$dir-$i.html"){ unlink("$SRCDIR/Prof-$dir-$i.html");}
-	    system(JPFormat()." \$ROOT4STAR jprof-log >../Prof-$dir-$i.html");
-	} else {
-	    if( -e "$SRCDIR/Ins-$dir-$i.html"){     unlink("$SRCDIR/Ins-$dir-$i.html");}
-	    system(IUJPFormat()." $SRCDIR/$dir/insure$i.log >$SRCDIR/Ins-$dir-$i.html");
-	}
     }
 }
 
