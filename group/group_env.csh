@@ -1,5 +1,5 @@
 #!/usr/bin/csh -f
-#       $Id: group_env.csh,v 1.114 2001/04/02 18:43:55 jeromel Exp $
+#       $Id: group_env.csh,v 1.115 2001/04/05 21:05:52 jeromel Exp $
 #	Purpose:	STAR group csh setup 
 #
 #	Author:		Y.Fisyak     BNL
@@ -263,7 +263,7 @@ endsw
 if ( -e /usr/local/lib/libMesaGL.so && -e /usr/X11R6/lib/libXmu.so) then
     setenv OPENGL /usr/local
 endif
-if ( -e /usr/ccs/bin/ld ) setenv PATH `${GROUP_DIR}/dropit -p $PATH /usr/ccs/bin -p /usr/ccs/lib`
+#if ( -e /usr/ccs/bin/ld ) setenv PATH `${GROUP_DIR}/dropit -p $PATH /usr/ccs/bin -p /usr/ccs/lib`
 if ( -d /usr/local/lsf/bin ) then
   if ( -x ${GROUP_DIR}/dropit) setenv PATH  `${GROUP_DIR}/dropit lsf`
   setenv LSF_ENVDIR /usr/local/lsf/mnt/conf
