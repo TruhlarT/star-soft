@@ -1,4 +1,4 @@
-#! /usr/local/bin/perl -w
+#!/usr/bin/env perl
 #
 # $Id:
 #
@@ -12,11 +12,14 @@
 # 
 ################################################################################################
 
+BEGIN {
+ use CGI::Carp qw(fatalsToBrowser carpout);
+}
+
 use CGI;
+use Class::Struct;
 
 require "/afs/rhic/star/packages/scripts/dbCpProdSetup.pl";
-
-use Class::Struct;
 
 my $debugOn=0;
 
@@ -41,7 +44,7 @@ my $myprod;
 my $jobFile = $mcSet;
    $jobFile =~ s/\//_/g;
 
-$sql="SELECT DISTINCT prodSeries FROM JobStatus where jobfileName like '$jobFile%' ";
+$sql="SELECT DISTINCT prodSeries FROM $JobStatusT where jobfileName like '$jobFile%' ";
 
    $cursor =$dbh->prepare($sql)
       || die "Cannot prepare statement: $DBI::errstr\n";
@@ -211,15 +214,12 @@ my $chainN;
 
       $prodFlag{$prodChain} = 1;  
      if ($dhfile =~ /dst.root/) {
-        $dstHpEvts{$prodChain} += ($$dsfile)->Nevts; 
         $dstHpSize{$prodChain} += ($$dsfile)->hpsize;
    }elsif($dhfile =~ /event.root/) {
-        $evtHpSize{$prodChain} += ($$dsfile)->hpsize;    
+        $evtHpSize{$prodChain} += ($$dsfile)->hpsize; 
+        $dstHpEvts{$prodChain} += ($$dsfile)->Nevts;   
    }elsif($dhfile =~ /geant.root/) {
         $gntHpSize{$prodChain} += ($$dsfile)->hpsize;
-   }elsif($dhfile =~ /.xdf/) {
-        $xdfHpEvts{$prodChain} += ($$dsfile)->Nevts;
-        $xdfHpSize{$prodChain} += ($$dsfile)->hpsize;  
   }else{
    next;
  }
@@ -365,7 +365,7 @@ print <<END;
 <TD ALIGN=CENTER WIDTH=\"10%\" HEIGHT=100><B>Production Series</B></TD>
 <TD ALIGN=CENTER WIDTH=\"10%\" HEIGHT=100><B>Library Version</B></TD>
 <TD ALIGN=CENTER WIDTH=\"10%\" HEIGHT=100><B>Production Chain</B></TD>
-<TD ALIGN=CENTER WIDTH=\"10%\" HEIGHT=100><B>Number of Events<br>in DST</B></TD>
+<TD ALIGN=CENTER WIDTH=\"10%\" HEIGHT=100><B>Number of Events<br>in event.root</B></TD>
 <TD ALIGN=CENTER WIDTH=\"10%\" HEIGHT=100><B>Size(GB) of dst.root files</B></TD>
 <TD ALIGN=CENTER WIDTH=\"10%\" HEIGHT=100><B>Size(GB) of event.root files</B></TD>
 <TD ALIGN=CENTER WIDTH=\"10%\" HEIGHT=100><B>Size(GB) of geant.root files</B></TD>
