@@ -1,8 +1,11 @@
 #!/opt/star/bin/perl -w
 #
-# $Id: dbDevTestQueryPlot.pl,v 1.6 2001/02/16 15:37:54 liuzx Exp $
+# $Id: dbDevTestQueryPlot.pl,v 1.7 2001/02/16 16:22:45 liuzx Exp $
 #
 # $Log: dbDevTestQueryPlot.pl,v $
+# Revision 1.7  2001/02/16 16:22:45  liuzx
+# .Format Y number format: %8.2f
+#
 # Revision 1.6  2001/02/16 15:37:54  liuzx
 # .Add select for weeks,(default 1, max 4)
 #
@@ -256,11 +259,13 @@ $graph->set(x_label => "$xlabel",
 	    y_tick_number => 10,
             y_min_value => $min_y-10,
             y_max_value => $max_y+1+($max_y-$min_y)/16.0,
+	    y_number_format => \&y_format,
 	    labelclr => "lred",
 	    dclrs => [ qw(lred lgreen lblue lpurple) ],
 	    line_width => 2,
 	    markers => [ 2,4,6,8],
-	    marker_size => 6
+	    marker_size => 6,
+	    #long_ticks => 1
 	    );
 
 $graph->set_legend(@legend);
@@ -283,3 +288,12 @@ $graph->plot_to_gif("$gif",\@data);
 print "</pre>";
 print "<img src=\"http://www.star.bnl.gov/webdata/plot".$sec.$min.$hour.".gif\"></center>";
 print $query->end_html;
+
+sub y_format
+{
+    my $value = shift;
+    my $ret;
+
+    $ret = sprintf("%8.2f", $value);
+}
+
