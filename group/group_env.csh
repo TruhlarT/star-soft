@@ -1,6 +1,9 @@
-#       $Id: group_env.csh,v 1.10 1998/05/14 19:04:25 fisyak Exp $
+#       $Id: group_env.csh,v 1.11 1998/06/11 20:23:13 wenaus Exp $
 #	Purpose:	STAR group csh setup 
 #       $Log: group_env.csh,v $
+#       Revision 1.11  1998/06/11 20:23:13  wenaus
+#       Add STAR_DB env variable
+#
 #       Revision 1.10  1998/05/14 19:04:25  fisyak
 #       clean LD_LIBRARY_PATH
 #
@@ -56,6 +59,7 @@ setenv STAR_LIB  $STAR/lib/${STAR_HOST_SYS}; if ($ECHO) echo   "Setting up STAR_
 setenv STAR_BIN  $STAR/asps/../.${STAR_HOST_SYS}/bin  ; if ($ECHO) echo   "Setting up STAR_BIN  = ${STAR_BIN}"
 setenv STAR_PAMS $STAR/pams;                 if ($ECHO) echo   "Setting up STAR_PAMS = ${STAR_PAMS}"
 setenv STAR_DATA ${STAR_ROOT}/data;          if ($ECHO) echo   "Setting up STAR_DATA = ${STAR_DATA}"
+setenv STAR_DB /star/sol/db;                 if ($ECHO) echo   "Setting up STAR_DB = ${STAR_DB}"
 setenv STAR_CALIB ${STAR_ROOT}/calib;        if ($ECHO) echo   "Setting up STAR_CALIB= ${STAR_CALIB}"
 setenv CVSROOT   $STAR_PATH/repository;      if ($ECHO) echo   "Setting up CVSROOT   = ${CVSROOT}"
 setenv TEXINPUTS :${GROUP_DIR}/latex/styles
