@@ -14,11 +14,14 @@
 # suitable for a crontab job.
 #
 # Usage :
-#   % 'ThisScriptName' [productionTag] [Flag]
+#   % 'ThisScriptName' [productionTag] [Flag] [Kind]
 #
-# ProductionTage -> default P01he
-# Flag is specified empty the database first (maintainance
-# only).
+# productionTag -> default P01he
+# Flag             if specified as 'delete' empty the database first 
+#                  (maintainance only).
+# Kind             default "daq". Sets the path to scan and where
+#                  to look. See $log_dir etc ...
+# 
 #
 # Added zcat support. Need tuning (twice a zcat | tail is
 # inefficient).
@@ -31,16 +34,17 @@ use DBI;
 
 
 my $ProdTag = $ARGV[0] || "P01he";
+my $Kind    = "daq";
+   $Kind    = $ARGV[2] if (defined($ARGV[2]));
 
 my $min_size = 1200;
 my $min_time = 60;
 my $max_time = 3600;
 
 #dirs
-my $log_dir = "/star/rcf/prodlog/$ProdTag/log/daq/";
-#my $log_dir = "/star/u/nikita/daq/"; #test dir
-my $job_dir = "/star/u/starreco/$ProdTag/requests/daq/jobfiles/";
-my $arch_dir = "/star/u/starreco/$ProdTag/requests/daq/archive/";
+my $log_dir = "/star/rcf/prodlog/$ProdTag/log/$Kind/";
+my $job_dir = "/star/u/starreco/$ProdTag/requests/$Kind/jobfiles/";
+my $arch_dir = "/star/u/starreco/$ProdTag/requests/$Kind/archive/";
 
 my $datasourse = "DBI:mysql:operation:duvall.star.bnl.gov";
 my $username = "starreco";
