@@ -9,13 +9,13 @@
 #   Linux61
 #   Linux72    build a LinuxXX AutoBuild report (one version)
 #   Linux80
-#   Linux9     
+#   Linux9
 #   SL3
 #
 #   Insure     Builds Insure++ compilation
 #   icc        Builds with icc
 #   inter      Builds as per the default target but do not perform
-#              post compilation tasks (and do not send Email if 
+#              post compilation tasks (and do not send Email if
 #              failure)
 #
 # Targets for Other platforms:
@@ -25,7 +25,7 @@
 # Miscellaneous targets
 #   Clean      Runs CleanLibs under the current OS and keeps 2
 #              versions.
-#  
+#
 #
 # Default is to run on the current platform both optimized and
 # non optimized. The
@@ -99,7 +99,7 @@ if ( -r  $GROUP_DIR/star_login.csh ) then
 	    case "du":
 		set LPATH=$AFS_RHIC/star/packages/cal
 		set SPATH=$AFS_RHIC/star/doc/www/comp/prod/Sanity
-		perl $SCRIPTD/AutoBuild.pl -k -i -1 -t -p $LPATH	    
+		perl $SCRIPTD/AutoBuild.pl -k -i -1 -t -p $LPATH
 		if( -e $HOME/AutoBuild-dec_osf.html) then
 		    mv -f $HOME/AutoBuild-dec_osf.html $SPATH/AutoBuild-dec_osf.html
 		endif
@@ -138,7 +138,7 @@ if ( -r  $GROUP_DIR/star_login.csh ) then
 		set sts=$status
 		if ( $sts == 0 ) then
 		    echo "icc is $test ; starting AutoBuild"
-		    $SCRIPTD/AutoBuild.pl -k -i -t -T icc -p $LPATH -a 'setup icc' >$HOME/log/AB-icc-$DAY.log 
+		    $SCRIPTD/AutoBuild.pl -k -i -t -T icc -p $LPATH -a 'setup icc' >$HOME/log/AB-icc-$DAY.log
 		    if( -e $HOME/AutoBuild-linux-icc.html) then
 			mv -f $HOME/AutoBuild-linux-icc.html $SPATH/AutoBuild-$1.html
 		    endif
