@@ -13,6 +13,17 @@ if( $?star_login_csh ) exit
 setenv star_login_csh 1
 
 
+# This file is reserved for pre-login env setup which
+# are site specific. None of the star variables are
+# known at this stage ...
+if( -r $GROUP_DIR/site_pre_setup.csh ) then
+    source $GROUP_DIR/site_pre_setup.csh
+endif
+
+
+
+
+
 # ------------------------------
 # Variables subject to changes
 # ------------------------------
@@ -28,7 +39,7 @@ endif
 
 
 # -------------------------------------
-# Intial checks and definitions
+# Initial checks and definitions
 # -------------------------------------
 # Username defined ? Define it then ... 
 if ( ! $?USER ) then
@@ -146,16 +157,13 @@ setenv XFILESEARCHPATH "/usr/openwin/lib/app-defaults/%N:/usr/lib/X11/app-defaul
 setenv EDITOR      "pico -w"
 setenv VISUAL      "pico -w"
 setenv LESSCHARSET latin1
-setenv WWW_HOME    "http://www.rhic.bnl.gov"
-setenv NNTPSERVER  "news.rhic.bnl.gov"
-setenv http_proxy  "http://squid1.sec.bnl.local:3128/"
-setenv ftp_proxy   "http://192.168.1.3:3128/"
-setenv PRINT_CMD   "xprint"
+#setenv PRINT_CMD   "xprint"
+
 
 # The folowing instruction also appears in the
 # group_login.csh file. One of them will have 
 # to go ...
-if (-e /usr/local/bin/less ) then
+if ( `which less` != "" ) then
     setenv PAGER       "less"
 else
     setenv PAGER       "more"
@@ -267,4 +275,14 @@ if ($?SILENT == 0 && $?prompt) then
 endif
 
 
+
+
+
+# This file is reserved for pre-login env setup which
+# are site specific (can use variables already set by
+# the star login and/or massage them out according to 
+# needs).
+if( -r $GROUP_DIR/site_post_setup.csh ) then
+    source $GROUP_DIR/site_post_setup.csh
+endif
 
