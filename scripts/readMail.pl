@@ -98,18 +98,18 @@ if( defined($ARGV[1]) ){  $SSUBM=$ARGV[1];}
 
 
 # Some date for a mail file output.
-($sec,$min,$hour,$mday,$mon) = localtime();
+($sec,$min,$hour,$mday,$mon,$yr) = localtime();
 
-foreach my $int ( $mon,$mday ){
-    $int < 10 and $int = '0'.$int;
-    $thisday .= $int;
-}
+my $year = $yr + 1900 ;
+   $mon++;
+if( $mon < 10) { $mon = '0'.$mon };
+if( $mday < 10) { $mday = '0'.$mday };
 
+ $thisday = $year."-".$mon."-".$mday; 
 
 # This script also loses Email content. Not very good for
 # debugging purposes so ...
 open(FO,">>mbox.piped");
-
 
 $outfile = "mail" . "_" .$thisday . "_" . "out"; 
 $QFLAG   = 1==1;
