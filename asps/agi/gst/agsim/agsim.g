@@ -201,21 +201,38 @@
       :return:
       END
  
+#else /* __ROOT__ */
+      Idebug      =  p             "  restore Idebug after GINIT         "
+      DPHYS1      =  0             "  oshibku oshibkoi vybivaiut         "
+      %Standalone =  1             "  standalone version, not batch      "
+      %IGRAP      = -1             "  no default graphic, on request only"
+      IGAUTO      =  0             "  defaults GEANT tracking  off       "
+      CrunType    = ' '            "  no default actions defined         "
+      NkineMax    = 64 000         "  ZEBRA limit on KINE bank           "
+      NhitsMax    = 10 000 000     "  a reasonable limit on hit bank     "
+      %Module     = ' '
+      call Agstand
+      Call AgDummy
+*
+END
+#endif /* __ROOT__ */ 
+ 
       subroutine  AgPAWQ
       COMMON /AgCIPAW/  AgIPAW,IwTyp
       AgIPAW = AgIPAW + 1
- 
+#ifndef __ROOT__ 
       if (IwTYP.EQ.999) then
         Call KuWham ('PAW++')
       else
         call KuWhag
       endif
+#endif
       entry       AgPAWE
       end
 *
       subroutine AGKUSER
 *KEEP,TYPING.
-      IMPLICIT NONE
+      IMPLICIT NONE 
 *KEEP,GCBANK.
       INTEGER IQ,LQ,NZEBRA,IXSTOR,IXDIV,IXCONS,LMAIN,LR1,JCG
       INTEGER KWBANK,KWWORK,IWS
@@ -253,22 +270,6 @@ C
       ENDIF
       CALL GSRUNG(N,CTEMP,IA)
       end
- 
-#else /* __ROOT__ */
-      Idebug      =  p             "  restore Idebug after GINIT         "
-      DPHYS1      =  0             "  oshibku oshibkoi vybivaiut         "
-      %Standalone =  1             "  standalone version, not batch      "
-      %IGRAP      = -1             "  no default graphic, on request only"
-      IGAUTO      =  0             "  defaults GEANT tracking  off       "
-      CrunType    = ' '            "  no default actions defined         "
-      NkineMax    = 64 000         "  ZEBRA limit on KINE bank           "
-      NhitsMax    = 10 000 000     "  a reasonable limit on hit bank     "
-      %Module     = ' '
-      call Agstand
-      Call AgDummy
-*
-END
-#endif /* __ROOT__ */ 
 *CMZ :  2.00/03 22/03/2000  04.08.40  by  Pavel Nevski
 *CMZ :  2.00/02 10/01/2000  14.32.42  by  Pavel Nevski
 *CMZ :  2.00/00 01/07/99  17.36.38  by  Pavel Nevski
