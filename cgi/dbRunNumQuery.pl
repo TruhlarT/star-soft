@@ -41,7 +41,7 @@ my $mmRun;
 my @runSet;
 my $nrunSet = 0;
 
- $sql="SELECT DISTINCT runID FROM $FileCatalogT WHERE jobID like '%$prodSr%' ";
+ $sql="SELECT DISTINCT runID FROM $FileCatalogT WHERE jobID like '%$prodSr%' and path like '%/200%' ";
 
    $cursor =$dbh->prepare($sql)
     || die "Cannot prepare statement: $DBI::errstr\n";
