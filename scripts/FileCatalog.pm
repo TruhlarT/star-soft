@@ -333,6 +333,7 @@ sub new {
 sub connect {
   my $self  = shift;
   my ($user,$passwd) = @_;
+  my ($sth,$count);
 
   if( ! defined($user) )  { $user   = $dbuser;}
   if( ! defined($passwd) ){ $passwd = "FCatalog";}
@@ -345,16 +346,18 @@ sub connect {
       my $sqlquery = "SELECT count(*) FROM $_";
       &print_debug("Executing: $sqlquery");
       $sth = $DBH->prepare($sqlquery);
+
       if( ! $sth){
    	&print_debug("FileCatalog:: connect : Failed to prepare [$sqlquery]");
+
       } else {
 	$sth->execute();
-	my( $count );
 	$sth->bind_columns( \$count );
 	
 	if ( $sth->fetch() ) {
 	  $rowcounts{$_} = $count;
 	}
+	$sth->finish();
       }
   }
 
@@ -2115,8 +2118,9 @@ sub run_query {
 
   $sqlquery .= join(" , ",(@selectunique))." FROM ".join(" , ",(@fromunique));
 
-  &print_debug("where clause [$where] constraint [$constraint]");
+
   if ( defined($where) ) {
+    &print_debug("where clause [$where] constraint [$constraint]");
     $sqlquery .=" WHERE $where";
     if ($constraint ne "") {
       $sqlquery .= " AND $constraint";
@@ -2641,7 +2645,7 @@ sub print_message
 
 sub destroy {
   my $self = shift;
-  clear_context();
+  &clear_context();
   if ( defined($DBH) ) {
       if ( $DBH->disconnect ) {
 	  return 1;
