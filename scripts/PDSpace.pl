@@ -10,12 +10,19 @@
 #
 # List of disks will be by numbers
 #
-$MIN   =  4;
+$MIN   =  1;  # 4
 $MAX   =  6;  # for testing
-$MAX   = 27;
+$MAX   = 30;
 $MAIN  = "/star/data";
 
 @COLORS = ("#FFFACD","#C1FFC1","#7FFFD4","#00DEFF","#87CEFA","#ccccee","#D8BFD8","#FF69B4");
+
+# Insert an extra table break before those numbers
+$BREAK{"01"} =  "User Space";  
+$BREAK{"03"} =  "Reserved Usage Space Area";  
+$BREAK{"06"} =  "Production Disks / Assigned TEMPORARY space for Projects";  
+$BREAK{"08"} =  "Production Disks";  
+
 
 
 for ( $i = $MIN ; $i <= $MAX ; $i++){
@@ -23,11 +30,18 @@ for ( $i = $MIN ; $i <= $MAX ; $i++){
 }
 
 foreach $disk (@DISKS){
-    if ( ! -d "$disk/." ){ next;}
+    if ( ! -d "$disk/." ){ 
+	$DINFO{$disk} = "?;?;?;?;".
+	    "<BLINK><FONT COLOR=#FF0000><B>Offline or bad mount point".
+		"</B></FONT></BLINK>; ";
+	next;
+    }
+
+
     chomp($res = `df -k $disk | grep % | grep '/'`);
-    $res =~ s/^\s*(.*?)\s*$/$1/;
-    $res =~ s/\s+/ /g;
-    @items = split(" ",$res);
+    $res   =~ s/^\s*(.*?)\s*$/$1/;
+    $res   =~ s/\s+/ /g;
+    @items =  split(" ",$res);
 
     #print STDERR "$disk $res\n";
 
@@ -115,8 +129,11 @@ print $FO
     "<P>\n",
     "<table border=\"1\" cellspacing=\"0\" width=\"1000\">\n";
 
+$TD  = "<TD BGCOLOR=\"black\" align=\"center\"><FONT FACE=\"Arial, Helvetica\"><FONT COLOR=\"white\"><B>";
+$ETD = "</FONT></B></FONT></TD>";
+
 printf $FO
-    "<TR bgcolor=\"orange\"><TD align=\"center\">%10s</TD><TD align=\"center\">%10s</TD><TD align=\"center\">%10s</TD><TD align=\"center\">%10s</TD><TD align=\"center\">%3s</TD><TD align=\"center\">%s</TD><TD align=\"center\">%s</TD></TR>\n",
+    "<TR>$TD%10s$ETD $TD%10s$ETD $TD%10s$ETD $TD%10s$ETD $TD%3s$ETD $TD%s$ETD $TD%s$ETD</TR>\n",
     "Disk","Total","Used","Avail","Used %","Triggers","Libs";
 
 $col = 0;
@@ -135,11 +152,26 @@ foreach $disk (sort keys %DINFO){
     } else {
 	$col = $COLORS[$col];
     }
+
     #print "$col\n";
+    $disk =~ m/(\d+)/;
+    if ( defined($BREAK{$1}) ){
+	printf $FO 
+	    "<TR BGCOLOR=\"#333333\"><TD ALIGN=\"center\" COLSPAN=\"7\">".
+	    "<FONT COLOR=\"white\"><B>$BREAK{$1}</B></FONT></TD></TR>\n";
+    }
     printf $FO
-	"<TR height=\"10\" bgcolor=\"$col\"><TD align=\"right\">%10s</TD><TD align=\"right\">%10d</TD><TD align=\"right\">%10d</TD><TD align=\"right\">%10d</TD><TD align=\"right\">%3s</TD><TD>%s</TD><TD align=\"right\">%s</TD></TR>\n",
-	"<i><b>$disk</b></i>",$items[0],$items[1],$items[2],$items[3],
-	$items[4],$items[5];
+	"<TR height=\"10\" bgcolor=\"$col\">\n".
+	"  <TD align=\"right\">%10s</TD>\n".
+	"  <TD align=\"right\">%10d</TD>\n".
+	"  <TD align=\"right\">%10d</TD>\n".
+	"  <TD align=\"right\">%10d</TD>\n".
+	"  <TD align=\"right\">%3s</TD>\n".
+	"  <TD>%s</TD>\n".
+	"  <TD align=\"right\">%s</TD>\n".
+	"</TR>\n",
+	    "<i><b>$disk</b></i>",$items[0],$items[1],$items[2],$items[3],
+	    $items[4],$items[5];
 
     #$col++;
     #if($col > $#COLORS){ $col = 0;}
