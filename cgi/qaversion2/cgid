@@ -160,7 +160,7 @@ ACCEPT_LOOP: while ($client = $daemon->accept)
 # I'm the child, handle the request
 #
 
-printToLog ("$0.$$ child handling request");
+printToLog ("$0.$$ child handling request '" . $request->url() . "'");
 
 #
 # process requests to allowed scripts, and docs in allowed dirs.
@@ -225,27 +225,53 @@ if ($script_name){       #this is an allowed cgi script
     #
     # send ouput of QA_main.pm, putting any POST content on stdin
     #
+
+    STDERR->autoflush(1);
     
-    printToLog("running script");
     local *Writer;
     local *Reader; 
     chdir $working_dir or die "cannot cd to $working_dir\n";
-    open2(\*Reader, \*Writer, "./$script_name" ); # I & O sockets
-    Writer->autoflush(1);
-    Reader->autoflush(1);
 
     printToLog("returning output");
-    print Writer $request->content();
-    print $client join("", <Reader>);
+
+    # BEN: put timeout on script 
+    my @output = ();
+    eval{
+	local $SIG{ALRM} = sub{
+	    print $client "Content-type: text/plain\n\n";
+	    print $client "$script_name timed out.\n";
+	    printToLog("$script_name timed out\n");
+
+	    close Writer; close Reader; $client = undef;
+
+	    exit(0);
+	};
+	
+	alarm 15;
+
+	printToLog("running script");
+	open2(\*Reader, \*Writer, "./$script_name"); # I & O sockets
+	print Writer $request->content();
+	@output = <Reader>;
+
+	alarm 0;
+    };
+    if ($@){
+	print $client "$script_name died with error $!.\n";
+	printToLog("$script_name died with error $!.\n");
+
+	close Writer; close Reader; $client = undef;
+
+	exit(0);
+    }
+
+    print $client join("", @output);
 
     #
     # clean up the mess
     #
     
-    close Writer;
-    close Reader;
-
-    $client = undef;
+    close Writer; close Reader; $client = undef;
 
     printToLog ("$0.$$ handled request for script'" . $request->url . 
 		"', exiting");

@@ -80,6 +80,8 @@ if ($DEBUG){
 	print "retrying....$i<br>\n";
 	$responseObject = $userAgent->request($request);
     }
+    ($responseObject->code() eq '200') and 
+	print "Content-type: text/plain\n\nCould not connect to cgid.\n";
 }
 
 #
