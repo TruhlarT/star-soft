@@ -1,4 +1,4 @@
-#!/bin/echo You must source
+#!/bin/echo You must source
 
 if ( -d /afs/rhic/oodb/solaris4/bin ) then
   switch ($STAR_SYS)
