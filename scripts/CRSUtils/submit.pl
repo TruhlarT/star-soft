@@ -28,11 +28,11 @@ $QUEUE = 4;            		# Queue number to submit to
 $DROP  = 2;             	# drop value (if any). 
 $PRIO  = 50;           		# default priority
 $PATT  = "*st_physics*";	# pattern for job files
-$SLTIME= 15;           		# sleep time between job submission
-$SLTIM2= 60;           		# sleep time between queue inspection
+$SLTIME=  2;           		# sleep time between job submission   was 15
+$SLTIM2= 30;           		# sleep time between queue inspection was 60
 $ARCH  = "../archive"; 		# Archive directory path
 $SORT  = 1;			# 1 sort in list of files descending order
-$MAXJB = 15;                    # Maximum number of jobs in one loop
+$MAXJB = 25;                    # Maximum number of jobs in one loop  was 15
 
 
 # Grab the queue number, pattern and sorting from the command
