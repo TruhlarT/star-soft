@@ -1,8 +1,11 @@
 #!/opt/star/bin/perl
 #
-# $Id: SWGdbheader.pm,v 1.1 2001/11/22 00:19:55 jeromel Exp $
+# $Id: SWGdbheader.pm,v 1.2 2002/01/07 20:42:09 jeromel Exp $
 #
 # $Log: SWGdbheader.pm,v $
+# Revision 1.2  2002/01/07 20:42:09  jeromel
+# Removed star_computing.html
+#
 # Revision 1.1  2001/11/22 00:19:55  jeromel
 # Finally at thr right place ...
 #
@@ -71,7 +74,7 @@ A:hover.nav {  text-decoration: none}
 	<tr bgcolor="#ffdc9f">
 	<td align=left> <font size="-1">
 	<a href="/STAR/">STAR</a>
-	&nbsp; <a href="/STAR/html/star_computing.html">Computing</a> 
+	&nbsp; <a href="/STAR/comp/">Computing</a> 
 	</td>
 	<td align=right> <font size="-1">
 	&nbsp;  <!-- top right corner  --> </font></td>
