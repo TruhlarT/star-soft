@@ -48,7 +48,7 @@ my $username = "starreco";
 
 
 my $logname;
-my $fullname;
+my $shortname;
 my $fsize;
 my $deltatime;
 my $mtime;
@@ -64,6 +64,7 @@ my @job_errs;
 my $logerr;
 my $err;
 my $cmprss;
+my $cmd;
 
 my $i = 0;
 my $m_time;
@@ -117,29 +118,30 @@ closedir(ARCH);
 
 opendir(LOGDIR,$log_dir) || die "can't open $log_dir\n: $!";
 while ( defined($logname = readdir(LOGDIR)) ){
+    # we must check for only what we need since the directory
+    # may contain other files. Besides, the .parsed will exist
+    # there.
     if ( $logname =~ /\.log$/ || $logname =~ /\.log\.gz$/) {
-        $fullname = $log_dir . $logname;
-	$err_file = $fullname;
-	if ($err_file =~ /\.gz/){
-	    $err_file =~ s/\.gz// ;
-	    $cmprss = 1;
-	} else {
-	    $cmprss = 0;
-	}
+	$shortname = $logname;
+        $err_file = $logname  = $log_dir . $logname;
 	$err_file =~ s/\.log/\.err/;
-        @fc = stat($fullname);
+
+	# tried the un-compressed. If still nothing, well ...
+	if( ! -e $err_file){  $err_file =~ s/\.gz// ;}
+
+        @fc = stat($logname);
         $deltatime = time() - $fc[9];
 
 	# laps time has to be at minimum min_time
 	if($deltatime > $min_time ){
-	    if ( -e "$log_dir/$logname.parsed"){
+	    if ( -e "$log_dir/$shortname.parsed"){
 		# if a .parsed file exists, then skip it UNLESS
 		# the log file is more recent than the .parsed file.
-		$pmtime = (stat("$log_dir/$logname.parsed"))[9];
+		$pmtime = (stat("$log_dir/$shortname.parsed"))[9];
 		if ( $pmtime > $fc[9] ){
 		    next;
 		} else {
-		    unlink("$log_dir/$logname.parsed");
+		    unlink("$log_dir/$shortname.parsed");
 		}
 	     } elsif ( $deltatime > $max_time ){
 		 # after max_time, and only after, we create a .parsed
@@ -148,38 +150,44 @@ while ( defined($logname = readdir(LOGDIR)) ){
 		 # if a run is started again, the .parsed file would be 
 		 # deleted and the related log file would be treated as
 		 # a new one.
-		 if ( open(FO,">$log_dir$logname.parsed") ){
+		 if ( open(FO,">$log_dir/$shortname.parsed") ){
 		     print FO "$0 (Nikita Man) ".localtime()."\n";
 		     close(FO);
-		     chmod(0775,"$log_dir/$logname.parsed");
+		     chmod(0775,"$log_dir/$shortname.parsed");
+		 }
+
+		 # Take care of compression side effect
+		 my $tmpname = $shortname;
+		 $tmpname =~ s/\.gz//;
+		 if( -e "$log_dir/$tmpname"){ 
+		     print "Deleting (compressed version exists) $tmpname \n";
+		     unlink("$log_dir/$tmpname");
 		 }
 	     }
+	    
 
-	    if($cmprss){
-		$logname =~ s/\.log\.gz//;
-	    } else {
-		$logname =~ s/\.log//;
-	    }
 
 	    # search for a file with similar name
-	    if( ! defined($job_name = $JNAMES{$logname}) ){ next;}
+	    $shortname =~ s/\.log.*//;
+	    if( ! defined($job_name = $JNAMES{$shortname}) ){ next;}
 
 	    # now, we have a job file
-	    $fullname = $log_dir . $logname.".log".($cmprss?".gz":"");
-	    define_trigger($fullname, $job_name);
+	    define_trigger($logname, $job_name);
 
 	    if ( $fc[7] <= $min_size ){
 		if($DEBUG){
 		    print
-			"Found log type 1 : $logname\n",
-			"deltatime : $deltatime\n",
-			"size : $fsize\n",
-			# define ErrorStr
+			"Kind       : 1",
+			"Found log  : $logname\n",
 			"Error file : $err_file\n",
-			"Error string : ";
+			"Short name : $shortname\n",
+			"Deltatime  : $deltatime\n",
+			"Size       : $fc[7]\n",
+			"Errors in ERR file --> \n";
 		}
 		$err="";
-		@job_errs = `tail -4 $err_file`;
+		$cmd = &ZSHandle($err_file,"tail -4");
+		@job_errs = `$cmd`;
 		for ( $i=0;$i<=$#job_errs;$i++ ){
 		    unless ( $err=~/$job_errs[$i]/ ){
 			$err .= "$job_errs[$i] | ";
@@ -191,27 +199,22 @@ while ( defined($logname = readdir(LOGDIR)) ){
 		    if($err ne ""){ print "error type 1 in $logname\n";}
 		}
 	    } else {
+		my $tmp="";
+
 		if($DEBUG){
 		    print
-			"Found log type 2 : $logname\n",
-			"deltatime : $deltatime\n",
-			"size : $fc[7]\n",
-			#define ErrorStr
-			#scan log_file for break errors
-			"Errors in log file : \n";
-		    #scan err_file for assertion and eof errors
-		    print
+			"Kind       : 2",
+			"Found log  : $logname\n",
 			"Error file : $err_file\n",
-			"Error string : ";
+			"Short name : $shortname\n",
+			"Deltatime  : $deltatime\n",
+			"Size       : $fc[7]\n",
+			"Errors in LOG & ERR files --> \n";
 		}
+
 		$err="";
-		if($cmprss){
-		    @log_errs2 = 
-			`zcat $fullname | tail -5000 | grep Break`;
-		} else {
-		    @log_errs2 = 
-			`tail -5000 $fullname | grep Break`;
-		}
+		$cmd = &ZSHandle($logname,"tail -5000");
+		@log_errs2 = `$cmd | grep Break`;
 		foreach $logerr (@log_errs2){
 		    print "$logerr\n";
 		    if ( $logerr=~/(\*+\s+Break\s+\*+)(.*)/ ){
@@ -222,14 +225,9 @@ while ( defined($logname = readdir(LOGDIR)) ){
 		}
 		undef(@log_errs2);
 
-		my $tmp = "";
-		if($cmprss){
-		    @log_errs2 = 
-			`zcat $fullname | tail -5000 | grep 'Done with Event'`;
-		} else {
-		    @log_errs2 = 
-			`tail -5000 $fullname | grep 'Done with Event'`;
-		}
+
+		$cmd = &ZSHandle($logname,"tail -5000");
+		@log_errs2 = `$cmd | grep 'Done with Event'`;
 		foreach $logerr (@log_errs2){
 		    if($logerr =~ m/(\d+)(\/run)/){
 			$tmp = $1;
@@ -240,7 +238,8 @@ while ( defined($logname = readdir(LOGDIR)) ){
 		}
 		undef(@log_errs2);
 		
-		@log_errs1 = `tail -5 $err_file`;
+		$cmd = &ZSHandle($err_file,"tail -5");
+		@log_errs1 = `$cmd`;
 		foreach $logerr (@log_errs1){
 		    &define_err("Assertion.*\s+failed",$logerr);
 		    &define_err("Unexpected EOF",$logerr);
@@ -258,7 +257,7 @@ while ( defined($logname = readdir(LOGDIR)) ){
 	    } #else fsize/minsize compare
 
 	    if ( $err ){
-		$sth3->execute($Trigger, $logname)
+		$sth3->execute($Trigger, $shortname)
 		    or die "cannot execute sth3\n";
 		#print $sth3->fetchrow_array()."\n";
 		if ( ($id, $mtime) = $sth3->fetchrow_array() ){
@@ -266,13 +265,13 @@ while ( defined($logname = readdir(LOGDIR)) ){
 		    print "\nnew mtime : $fc[9]\n";
 		    if ( $mtime != $fc[9] ){
 			#update record
-			print "Updated $logname\n";
+			print "Updated $shortname\n";
 			$sth4->execute($fc[9],$err,$id);
 		    }
 		} else {
 		    #insert record
-		    print "\n Inserted $logname\n";
-		    $sth1->execute($ProdTag, $Trigger, $logname, $c_time, $fc[9], $err);
+		    print "\n Inserted $shortname\n";
+		    $sth1->execute($ProdTag, $Trigger, $shortname, $c_time, $fc[9], $err);
 		}
 	    } #if $err
 	    if ($DEBUG){ print "\n==============================\n";}
@@ -342,3 +341,19 @@ sub define_err
 	print "$err";
     }
 }
+
+#
+# handle Z-stuff and return the aproriate shell command
+#
+sub ZSHandle
+{
+    my($file,$shell)=@_;
+
+    if($file =~ /\.gz/){
+	"zcat $file | $shell";
+    } else {
+	"$shell $file";
+    }
+}
+
+
