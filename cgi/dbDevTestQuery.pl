@@ -1,8 +1,11 @@
 #!/opt/star/bin/perl -w
 #
-# $Id: dbDevTestQuery.pl,v 1.3 2001/02/15 18:13:15 liuzx Exp $
+# $Id: dbDevTestQuery.pl,v 1.4 2001/02/16 15:37:54 liuzx Exp $
 #
 # $Log: dbDevTestQuery.pl,v $
+# Revision 1.4  2001/02/16 15:37:54  liuzx
+# .Add select for weeks,(default 1, max 4)
+#
 # Revision 1.3  2001/02/15 18:13:15  liuzx
 # Header Error modified!
 #
@@ -65,7 +68,7 @@ END
 print $query->startform(-action=>"dbDevTestQueryPlot.pl");  
 
 print "<body bgcolor=\"#ffdc9f\">\n";
-print "<h1 align=center>Query for Nightly Test in DEV Library</h1>\n";
+print "<h1 align=center><u>Query for Nightly Test in DEV Library</u></h1>\n";
 
 print <<END;
 <hr>
@@ -86,8 +89,13 @@ print "<h4 align=center>";
 print $query->scrolling_list(-name=>'plotVal',
 			     -values=>\@myplot,
 			     -size =>8); 
-
 print "</td> </tr> </table><hr><center>";
+
+print "<h4 align=center> How many weeks do you want to show: ";
+print $query->popup_menu(-name=>'weeks',
+			 -values=>['1','2','3','4'],
+			 -defaults=>1);
+print "</h4>";
 
 print $query->submit,"<p>";
 print $query->reset;
