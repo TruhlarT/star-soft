@@ -1798,7 +1798,7 @@ sub run_query {
 
   foreach (keys(%valuset)) {
     my $tabname = get_table_name($_);
-    # Chceck if the table name is one of the dictionary ones
+    # Check if the table name is one of the dictionary ones
     if (($tabname ne "FileData") && 
 	($tabname ne "FileLocations") && 
 	($tabname ne "RunParams") && 
@@ -1816,42 +1816,44 @@ sub run_query {
 	
 	# Find which table this one is connecting to
 	my $parent_tabname;
-	foreach (@datastruct)
-	  {
-	    if (($_ =~ m/$idname/) > 0)
-	      {
+	foreach (@datastruct){
+	    if (($_ =~ m/$idname/) > 0){
 		# We found the right row - get the table name
 		my ($stab,$fld);
 		($stab,$parent_tabname,$fld) = split(",");
-	      }
-	  }
+	    }
+	}
+
+
 	my $sqlquery = "SELECT $idname FROM $tabname WHERE ";
- 	if ((($roundfields =~ m/$fieldname/) > 0) && (! defined $valuset{"noround"}))
-	  {
-	    my ($nround) = $roundfields =~ m/$fieldname|([0-9]*)/;
-	    $sqlquery .= "ROUND($fieldname, $nround) ".$operset{$_}." ".$valuset{$_};
-	  }
-	elsif ($operset{$_} eq "~")
-	  {
+ 	if ((($roundfields =~ m/$fieldname/) > 0) && (! defined $valuset{"noround"})){
+	    #&print_debug("1 Inspecting [$roundfields] [$fieldname]");
+	    my ($nround) = $roundfields =~ m/$fieldname,([0-9]*)/;
+	    #&print_debug("1 Rounding to [$roundfields] [$fieldname] [$nround]");
+	    $sqlquery .= "ROUND($fieldname, $nround) ".$operset{$_}." ";
+	    if( $valuset{$_} =~ m/^\d+/){
+		$sqlquery .= $valuset{$_};
+	    } else {
+		$sqlquery .= "'$valuset{$_}'";
+	    }
+
+	    #&print_debug("1 Rounding Query will be [$sqlquery]");
+
+	} elsif ($operset{$_} eq "~"){
 	    $sqlquery .= "$fieldname LIKE '%".$valuset{$_}."%'";
-	  }
-	elsif ($operset{$_} eq "!~")
-	  {
+
+	} elsif ($operset{$_} eq "!~"){
 	    $sqlquery .= "$fieldname NOT LIKE '%".$valuset{$_}."%'";
-	  }
-	else
-	  {
-	    if (get_field_type($_) eq "text")
-	      { 
+	} else {
+	    if (get_field_type($_) eq "text"){
 		$sqlquery .= "$fieldname ".$operset{$_}." '".$valuset{$_}."'"; 
-	      }
-	    else
-	      { 
+	    } else {
 		$sqlquery .= "$fieldname ".$operset{$_}." ".$valuset{$_}; 
-	      }
-	  }
-	if ($DEBUG > 0) {  &print_debug("Executing: $sqlquery");}
+	    }
+	}
+	if ($DEBUG > 0) {  &print_debug("Executing special: $sqlquery");}
 	$sth = $DBH->prepare($sqlquery);
+
 
 	if( ! $sth){
 	  &print_debug("FileCatalog:: get id's : Failed to prepare [$sqlquery]");
@@ -2024,8 +2026,16 @@ sub run_query {
       my $fieldname = get_field_name($_);
       if ((($roundfields =~ m/$fieldname/) > 0) && (! defined $valuset{"noround"}))
 	{
-	  my ($nround) = $roundfields =~ m/$fieldname|([0-9]*)/;
-	  push( @constraint, "ROUND($fieldname, $nround) ".$operset{$_}." ".$valuset{$_} );
+	  my ($nround) = $roundfields =~ m/$fieldname,([0-9]*)/;
+	  my ($roundv)="ROUND($fieldname, $nround) ".$operset{$_}." ";
+
+	  if( $valuset{$_} =~ m/^\d+/){
+	      $roundv .= $valuset{$_};
+	  } else {
+	      $roundv  .= "'$valuset{$_}'";
+	  }
+	  push(@constraint,$roundv);
+
 	}
       elsif ($operset{$_} eq "~")
 	{
