@@ -17,6 +17,7 @@ require "/afs/rhic/star/packages/scripts/dbCpProdSetup.pl";
 use Class::Struct;
 use CGI;
 use CGI::Carp qw(fatalsToBrowser);
+use Mysql;
 
 #&cgiSetup();
 
@@ -39,7 +40,7 @@ $ntrigSet = 1;
 
 &StDbProdConnect();
 
-$sql="SELECT DISTINCT prodSeries FROM JobStatus WHERE prodSeries like 'P0%'";
+$sql="SELECT DISTINCT prodSeries FROM $JobStatusT WHERE prodSeries like 'P0%'";
 
    $cursor =$dbh->prepare($sql)
       || die "Cannot prepare statement: $DBI::errstr\n";
@@ -60,7 +61,7 @@ $sql="SELECT DISTINCT prodSeries FROM JobStatus WHERE prodSeries like 'P0%'";
       }
 
 
-$sql="SELECT DISTINCT trigger FROM FileCatalog where fName like '%daq' ";
+$sql="SELECT DISTINCT trigger FROM $FileCatalogT where fName like '%daq' ";
 
    $cursor =$dbh->prepare($sql)
       || die "Cannot prepare statement: $DBI::errstr\n";

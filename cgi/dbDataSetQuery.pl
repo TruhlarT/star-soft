@@ -17,6 +17,7 @@ require "/afs/rhic/star/packages/scripts/dbCpProdSetup.pl";
 use Class::Struct;
 use CGI;
 use CGI::Carp qw(fatalsToBrowser);
+use Mysql;
 
 #&cgiSetup();
 
@@ -40,7 +41,7 @@ $ntrigSet = 1;
  
 &StDbProdConnect();
 
-$sql="SELECT DISTINCT prodSeries FROM JobStatus where prodSeries like 'P0%'";
+$sql="SELECT DISTINCT prodSeries FROM $JobStatusT where prodSeries like 'P0%'";
 
    $cursor =$dbh->prepare($sql)
       || die "Cannot prepare statement: $DBI::errstr\n";
@@ -60,7 +61,7 @@ $sql="SELECT DISTINCT prodSeries FROM JobStatus where prodSeries like 'P0%'";
        $nprodPer++;
     }
 
-$sql="SELECT DISTINCT trigger FROM FileCatalog where fName like '%daq' ";
+$sql="SELECT DISTINCT trigger FROM $FileCatalogT where fName like '%daq' ";
 
    $cursor =$dbh->prepare($sql)
       || die "Cannot prepare statement: $DBI::errstr\n";
@@ -118,7 +119,7 @@ print "<h3 align=left>";
 print $query->popup_menu(-name=>'SetCl',  
                    -values=>\@colSet,
                    -default=>'AuAu200',                  
-                   -size=>4                              
+                   -size=>5                              
                    );
 
 print "</td><td width=50%>";
@@ -127,7 +128,7 @@ print "<h3 align=left>";
 print $query->popup_menu(-name=>'SetTrg',
                     -values=>\@trigSet,
                     -default=>'all',
-                    -size=>4
+                    -size=>5
                     );  
 
 print "</td> </tr> </table><hr>";
@@ -143,7 +144,7 @@ print "<h3 align=left >";
 print $query->popup_menu(-name=>'SetField',
                     -values=>\@mfield,
                     -default=>'all', 
-                    -size=>4
+                    -size=>5
                     ); 
 
 print "</td><td width=50%>";
@@ -152,7 +153,7 @@ print "<h3 align=left>";
 print $query->popup_menu(-name=>'SetDet',
                     -values=>\@detSet,
                     -default=>'all',
-                    -size=>4
+                    -size=>5
                     ); 
 
 print "</td> </tr> </table><hr>";
@@ -167,7 +168,7 @@ print "<h3 align=left>";
 print $query->popup_menu(-name=>'SetPrd',  
                    -values=>\@prodPer,
                    -default=>'P01gl',                   
-                   -size=>4                              
+                   -size=>5                              
                    );  
 
 print "</td><td width=50%>";
@@ -176,7 +177,7 @@ print "<h3 align=left>";
 print $query->popup_menu(-name=>'SetForm',
                     -values=>\@format,
                     -default=>'daq',
-                    -size=>4
+                    -size=>5
                     ); 
 
 print "</td> </tr> </table><hr>";
