@@ -30,6 +30,5 @@
 #     should not contain blank lines.
 #
 9,39 *          * * * /afs/rhic/star/packages/dev/mgr/cvslog2html.pl
-#0 0,10,14,18    * * * /star/u2d/wenaus/datadb/daqscan-all.pl
-45 0,12,17      * * * /star/u2d/wenaus/datadb/swguide-cron.pl .dev dev
-0 3             * * * /star/u2d/wenaus/datadb/swguide-cron.pl new pro old
+45 0,12,17      * * * /afs/rhic/star/packages/dev/mgr/swguide-cron.pl .dev dev
+0 3             * * * /afs/rhic/star/packages/dev/mgr/swguide-cron.pl new pro old
