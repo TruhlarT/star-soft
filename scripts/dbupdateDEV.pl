@@ -76,7 +76,7 @@ my $thistime;
 ##### setup output directories for DEV with thisDay
 
 for ($i = 0; $i < scalar(@node_dir); $i++) {
-     for ($j = 0; $j < 3; $j++) {
+     for ($j = 0; $j < 2; $j++) {
       for ($ll = 0; $ll < scalar(@hc_dir); $ll++) {
    $OUT_DIR[$ii] = $TOP_DIRD . $node_dir[$i] . "/" . $testDay . "/". $dir_year[$j] . "/" . $hc_dir[$ll];
     print "Output Dir for DEV :", $OUT_DIR[$ii], "\n";
@@ -97,7 +97,7 @@ for ($i = 0; $i < scalar(@node_daq); $i++) {
 ##### setup output directories for DEV with beforeDay
 
 for ($i = 0; $i < scalar(@node_dir); $i++) {
-     for ($j = 0; $j < 3; $j++) {
+     for ($j = 0; $j < 2; $j++) {
       for ($ll = 0; $ll < scalar(@hc_dir); $ll++) {
    $OUT_DIR[$ii] = $TOP_DIRD . $node_dir[$i] . "/" . $beforeDay . "/". $dir_year[$j] . "/" . $hc_dir[$ll];
     print "Output Dir for DEV :", $OUT_DIR[$ii], "\n";
