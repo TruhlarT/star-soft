@@ -2,7 +2,7 @@
 %
 % StEvent - User Guide and Reference Manual -- LaTeX Source
 %
-% $Id: StEvent.tex,v 2.40 2000/06/22 18:18:33 ullrich Exp $
+% $Id: StEvent.tex,v 2.41 2000/06/29 18:00:37 ullrich Exp $
 %
 % Author: Thomas Ullrich, Nov 1999
 %
@@ -21,8 +21,8 @@
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %
 % $Log: StEvent.tex,v $
-% Revision 2.40  2000/06/22 18:18:33  ullrich
-% Fixed problem with page numbering. Increased textheight.
+% Revision 2.41  2000/06/29 18:00:37  ullrich
+% Better description of StCtbTriggerDetector.
 %
 % Revision 2.47  2000/09/28 10:58:43  ullrich
 % Added ref section for new RICH classes.
@@ -190,11 +190,11 @@
     {\parbox[t]{\labelwidth}{\hspace{0pt}\textbf{{#1}}}}}}
 \newenvironment{Entry}%
 {\renewcommand{\entrylabel}{\Entrylabel}\begin{entry}}%
-  {\LARGE $ $Revision: 2.40 $ $}  \\[5mm] % replaced by cvs with current revision
-  {\LARGE $ $Date: 2000/06/22 18:18:33 $ $}  % replaced by cvs with current revision
+  {\LARGE $ $Revision: 2.41 $ $}  \\[5mm] % replaced by cvs with current revision
+  {\LARGE $ $Date: 2000/06/29 18:00:37 $ $}  % replaced by cvs with current revision
 \begin{document}
-  {\LARGE $ $Revision: 2.40 $ $}  \\[5mm] % replaced by cvs with current revision
-  {\LARGE $ $Date: 2000/06/22 18:18:33 $ $}  % replaced by cvs with current revision
+  {\LARGE $ $Revision: 2.41 $ $}  \\[5mm] % replaced by cvs with current revision
+  {\LARGE $ $Date: 2000/06/29 18:00:37 $ $}  % replaced by cvs with current revision
 %
 %    Title page
 %
@@ -209,8 +209,8 @@
   \mbox{\includegraphics[width=\textwidth]{StEventTitle.eps}}
   \hfill\mbox{}\\[3cm]
   {\LARGE User Guide and Reference Manual \\[5mm] for Version 2}\\[2cm]
-  {\LARGE $ $Revision: 2.40 $ $}  \\[5mm] % replaced by cvs with current revision
-  {\LARGE $ $Date: 2000/06/22 18:18:33 $ $}  % replaced by cvs with current revision
+  {\LARGE $ $Revision: 2.41 $ $}  \\[5mm] % replaced by cvs with current revision
+  {\LARGE $ $Date: 2000/06/29 18:00:37 $ $}  % replaced by cvs with current revision
   \vfill
 \end{center}
 \cleardoublepage
@@ -2517,16 +2517,21 @@ definition in the header file.
     
     \verb+UInt_t numberOfSlats() const;+\\
     Returns number of slats (usually 2).
-    \texttt{1-(1+npresamples+npostsamples-1)} are the other "events",
-    in chronological order.  For example, assuming 3 pre events and 2
+    
+    \verb+UInt_t numberOfPreSamples() const;+\\
     Number of pre-samples taken.
     
     \verb+UInt_t numberOfPostSamples() const;+\\
-    \item[evt = 1] 1st pre event at t = -3
-    \item[evt = 2] 2nd pre event at t = -2
-    \item[evt = 3] 3rd pre event at t = -1
-    \item[evt = 4] 1st post event at t = +1
-    \item[evt = 5] 2nd post event at t = +2
+    Number of post-samples taken.
+    
+    \verb+UInt_t numberOfAuxWords() const;+\\
+    Number of auxiliary words (usually 16).  No physical significance
+    at present, these data are simple reserved for possible future
+    use.
+    
+    \verb+Float_t mips(UInt_t tr, UInt_t sl, UInt_t evt = 0) const;+\\
+    Return MIPS for tray \texttt{tr} and slot \texttt{sl}.  The trays
+    run from 0 -- \texttt{numberOfTrays()}-1, the slots from 0 --
     \texttt{numberOfSlots()}-1. The first half of the tray numbers are
     for the west side, the second half for the east side (usually 0-59
     on west end, 60-119 on east end).  Each tray has 2 slats, 0 is the
