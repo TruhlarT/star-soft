@@ -438,6 +438,10 @@ sub GZipIt{
   # then it also writes out files of the form "StEventLM.ps", for 
   # low multiplicity, etc.
 
+  # it's probably sufficient just to grab all ps files,
+  # but for now, it only grabs the ps files similar to 
+  # the original output of the macro
+
   if ($self->MacroName eq 'bfcread_dst_EventQAhist' &&
       $gDataClass_object->DataClass() =~ /real/ ){
     # strip off .ps
@@ -462,10 +466,9 @@ sub GZipIt{
     # gzip 
     chmod 0666, $outfile;
     my $status = system("/usr/local/bin/gzip $outfile");
-    my $newfile = $outfile . ".gz";
     
     # need to reset output_file 
-    $self->IOMacroReportFilename->Name($newfile)
+    $self->IOMacroReportFilename->Name($gzipped)
       if $outfile eq $outputFile;
   }
 }
