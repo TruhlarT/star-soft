@@ -115,9 +115,7 @@ sub PrintPageHeader{
   my $contact_string = $self->ContactString();
 
   # where's the documentation?  
-  my $doc_link = 
-      "http://duvall.star.bnl.gov/STARAFS/comp/pkg/dev/cgi/qa/doc/index.html";
-#  my $doc_string = "<a href=$doc_link target='display'>Documentation </a>";
+  my $doc_link = "http://www.star.bnl.gov/STARAFS/comp/pkg/dev/cgi/qaversion2/doc/index.html";
   my $doc_string = "<a href=$doc_link target='documentation'>Documentation </a>";
 
   #---
