@@ -2,7 +2,7 @@
 %
 % StEvent - User Guide and Reference Manual -- LaTeX Source
 %
-% $Id: StEvent.tex,v 2.58 2001/07/12 22:57:04 ullrich Exp $
+% $Id: StEvent.tex,v 2.59 2001/07/19 02:30:31 ullrich Exp $
 %
 % Author: Thomas Ullrich, Nov 1999
 %
@@ -21,6 +21,9 @@
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %
 % $Log: StEvent.tex,v $
+% Revision 2.59  2001/07/19 02:30:31  ullrich
+% Added new methods in StL0Trigger.
+%
 % Revision 2.58  2001/07/12 22:57:04  ullrich
 % Added changes to StZdcTriggerDetector.
 %
@@ -239,8 +242,8 @@
   \mbox{\includegraphics[width=\textwidth]{StEventTitle.eps}}
   \hfill\mbox{}\\[3cm]
   {\LARGE User Guide and Reference Manual \\[5mm] for Version 2}\\[2cm]
-  {\LARGE $ $Revision: 2.58 $ $}  \\[5mm] % replaced by cvs with current revision
-  {\LARGE $ $Date: 2001/07/12 22:57:04 $ $}  % replaced by cvs with current revision
+  {\LARGE $ $Revision: 2.59 $ $}  \\[5mm] % replaced by cvs with current revision
+  {\LARGE $ $Date: 2001/07/19 02:30:31 $ $}  % replaced by cvs with current revision
   \vfill
 \end{center}
 \cleardoublepage
@@ -3931,17 +3934,38 @@ definition in the header file.
     \verb+StL0Trigger(const dst_L0_Trigger_st&);+\\
 \item[Public Member\\ Functions]
     \verb+unsigned int coarsePixelArraySize();+\\
-    \verb+int coarsePixelArray(unsigned int);+\\
+    \verb+int coarsePixelArray(unsigned int i);+\\
+    Index texttt{i} runs from 0 to \texttt{coarsePixelArraySize()-1}.
+    
     \verb+int mwcCtbMultiplicity() const;+\\
     \verb+int mwcCtbDipole() const;+\\
     \verb+int mwcCtbTopology() const;+\\
     \verb+int mwcCtbMoment() const;+\\
+    \verb+unsigned short dsmInput() const;+\\
+    \verb+unsigned char detectorBusy() const;+\\ 
+    \verb+unsigned short triggerToken() const;+\\
+    \verb+unsigned short dsmAddress() const;+\\  
+    \verb+unsigned char addBits() const;+\\
+    \verb+unsigned int lastDsmArraySize() const;+\\
+    \verb+unsigned short lastDsmArray(unsigned int i);+\\
+    Index texttt{i} runs from 0 to \texttt{lastDsmArraySize()-1}.
+    
+    \verb+unsigned int bcDataArraySize() const;+\\
+    \verb+unsigned short bcDataArray(unsigned int i);+\\
+    Index texttt{i} runs from 0 to \texttt{bcDataArraySize()-1}.
     
     \verb+void setMwcCtbMultiplicity(int);+\\
     \verb+void setMwcCtbDipole(int);+\\
     \verb+void setMwcCtbTopology(int);+\\
     \verb+void setMwcCtbMoment(int);+\\
-    \verb+void setCoarsePixelArray(unsigned int, int);+\\
+    \verb+void setCoarsePixelArray(unsigned int i, int val);+\\
+    \verb+void setDsmInput(unsigned short);+\\
+    \verb+void setDetectorBusy(unsigned char);+\\ 
+    \verb+void setTriggerToken(unsigned short);+\\
+    \verb+void setDsmAddress(unsigned short); +\\ 
+    \verb+void setAddBits(unsigned char); +\\  
+    \verb+void setLastDsmArray(unsigned int i, unsigned short val);+\\
+    \verb+void setBcDataArray(unsigned int i, unsigned short val);+\\
 \end{Entry}
 \clearpage
 
