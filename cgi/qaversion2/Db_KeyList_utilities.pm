@@ -51,7 +51,7 @@ sub GetOfflineSelections{
      
 
   # run id
-  $query{runID} = QueryOffline('runID',$fileType);
+  $query{runID} = QueryOffline('runID',$fileType,'desc');
   
   # dataset 
   $query{dataset} = QueryOffline('dataset',$fileType);
@@ -89,13 +89,14 @@ sub GetOfflineSelections{
 sub QueryOffline{
   my $field     = shift;
   my $fileType  = shift;
+  my $order     = shift || 'desc';
 
   return qq{select distinct file.$field
 	    from $dbFile.$FileCatalog as file,
 	          $dbQA.$QASum{Table} as s
 	    where file.jobID = s.$QASum{jobID} and
 	          s.$QASum{type} = '$fileType'
-	    order by file.$field asc};
+	    order by file.$field $order};
 }
 #========================================================================
 # get values for dataset selection menu for offline real
