@@ -1,4 +1,4 @@
-*CMZ :          29/06/98  13.05.15  by  Pavel Nevski
+*CMZ :          13/07/98  10.50.50  by  Pavel Nevski
 *-- Author :    Pavel Nevski
 *****************************************************************************
 *                                                                           *
@@ -26,8 +26,7 @@ C
       INTEGER           NWGEAN, NWGEA, NWPAW, NWPA
       PARAMETER        (NWGEAN= 8 000 000,    NWPAW=2 000 000)
       CHARACTER*240     BATCHF,PAWLOGF,PROG,COMD,ARG,VERSION,FATCAT
-      INTEGER           AgIPAW,IwTYP,PAWMEM
-      COMMON /PAWC/     PAWMEM(10000)
+      INTEGER           AgIPAW,IwTYP
       COMMON /AgCIPAW/  AgIPAW,IwTYP
       INTEGER           LENOCC,ICDECI,Iprin,I,J,K,L,N,Nr/0/,Iv/0/,Na/0/,Irc
       CHARACTER*320     CHARGS
@@ -113,8 +112,9 @@ C
       if (G) CALL GDINIT            ! Initialise Drawing pkg
       CALL TIMEL  (TIMINT)
  
-      if (G) { Call AgVERSION;  CALL KUEXEC('ROOT /GEANT') }
-      if (S) { call staf_start; }
+      if (PROG(I:N)!='staf' | Version!=' ')  Call AgVERSION
+      if (G) Call KUEXEC('ROOT /GEANT')
+      if (S) Call staf_start
 ****>
       CALL KUEXEC  ('SET/PROMPT '''//PROG(I:N)//' >''')
 *
@@ -146,7 +146,7 @@ C
 *
  
  
-*CMZ :          03/04/98  11.33.11  by  Pavel Nevski
+*CMZ :          13/07/98  10.44.40  by  Pavel Nevski
 *CMZ :  1.30/00 13/05/97  14.57.05  by  Pavel Nevski
 *-- Author :    Pavel Nevski   10/07/96
       SUBROUTINE AGVERSION
@@ -165,12 +165,12 @@ C
 *KEEP,VIDQQ.
       CHARACTER*68 VIDQQ
       DATA VIDQQ/
-     +'@(#)Advanced Geant Inteface               C: 09/07/98  17.23.48
+     +'@(#)Advanced Geant Inteface               C: 28/07/98  17.27.33
      +'/
 *KEEP,DATEQQ.
-      IDATQQ =   980709
+      IDATQQ =   980728
 *KEEP,TIMEQQ.
-      ITIMQQ =   1723
+      ITIMQQ =   1727
 *KEEP,VERSQQ.
       VERSQQ = ' '
       IVERSQ = -1
@@ -214,6 +214,8 @@ C
  <w>;(' * start with -h option to get more information how to use switches *')
  <w>;(' *                                                                  *')
  <w>;(' * Tracking in MANY volumes is corrected - no missing hits anymore  *')
+ <w>;(' *                                                                  *')
+ <w>;(' * GENZ package added - LGNFIND,GNZGET* calls are available         *')
  <w>;(' *                                                                  *')
  <w>;(' *           FOR MORE DETAILS PLEASE USE HELP FACILITY              *')
  <w>;(' *                                                                  *')
@@ -2730,12 +2732,14 @@ C                                       Link to:
 *
       END
  
-*CMZ :          28/03/98  23.52.31  by  Pavel Nevski
+*CMZ :          13/07/98  20.17.07  by  Pavel Nevski
 *-- Author :    Pavel Nevski   20/03/98
 ************************************************************************
-      subroutine on fault (c,n,name)
+      subroutine on fault (c,nn,name)
 *
 * Description: HP arithmetic error handler control
+*   In a normal mode (no +) unspecified errors are disabled.
+*   With a + their handler is unchanged, is may stay as default.
 *
 ************************************************************************
       character  Name*(*),c*(*)
@@ -12266,7 +12270,7 @@ Common     /AgZbuffer/  K,JRC,JCONT,CSTREAM,COPTN,CREQ,IREQ,iend,mem(100,5)
 End
  
  
-*CMZ :          22/04/98  22.10.55  by  Pavel Nevski
+*CMZ :          28/07/98  14.24.39  by  Pavel Nevski
 *CMZ :  1.30/00 19/03/97  21.57.11  by  Pavel Nevski
 *CMZU:  1.00/01 15/01/96  20.20.30  by  Pavel Nevski
 *-- Author :    L.Vacavant, A.Rozanov    14/12/94
@@ -12403,9 +12407,9 @@ C                                       Link to:
 *KEND.
    Integer      ISLFLAG,i,ier,iprin,jvol,Ldata,Lk,N,NP,NT,NS,IdZ/0/,IdG/0/
    Integer      NHSETS,NDSETS,NSECT,NDETM,NSET,JOCRUN,JOCEVT,IGEN,NTRA,M
-   Integer      LOCF,INDEX,CSADDR,Iadr,iu,jb,none,Idev
+   Integer      LOCF,INDEX,CSADDR,Iadr,iu,jb,none,Idev,Ierold(3)/3*0/
    Integer      Lun/21/,Lhead/0/,ifl/0/,nw/0/,Lsup,Iev/0/,Ihead(400)/400*0/
-   Character    Stream*(*),HEAD*4,CHEAD(2)*4/2*' '/,Chopt*8/'*'/,IDH*4
+   Character    Stream*(*),HEAD*4,CHEAD(2)*4/2*' '/,Chopt*8/'*'/,IDH*4,Cin*4
    Logical      Trig,Done/.true./
 *  tentative guess for standard GFOUT data
    Character*4  Gsets(23)/'PART','MATE','TMED','VOLU','ROTM','SETS','DRAW',
@@ -12439,18 +12443,20 @@ C                                       Link to:
     Call Ucopy(mem(1,iu),K,LocF(Iend)-LocF(k))
     M=5;  If (INDEX(CSTREAM,'1')>0) M=2
     Lun=20+iu;  HEAD=CHEAD(iu);  jvol=JVOLUM; Np=0; Nt=0; Ns=0;
-    Done=.false.;  If (Kevent(iu)==0) Done=.true.
+    Done=.false.;  If (Kevent(iu)==0) { Done=.true.; Ierold(iu)=0 }
 *
   Loop
   {  If done | HEAD=='NONE'
-     {  Lhead=400;      Call FZIN(LUN,IXDIV,LSUP,2,'S',LHEAD,IHEAD)
+     {  Cin='S';        if (Chopt==' ')  Cin='SE'
+        If (Stream='P' & 1<kevent(1) & kevent(1)<=Ptype)  Cin='SE'
+        Lhead=400;      Call FZIN(LUN,IXDIV,LSUP,2,Cin,LHEAD,IHEAD)
         Ier=Iquest(1);  ifl=Iquest(11);  Nw=Iquest(14);  HEAD='NONE'
         If Ier<0  { prin0 ifl; (' error',i6,', see ZEBRA manual page 299');
                If (IQUEST(11)==-4 & IQUEST(12)==202) <w> IQUEST(14),IQUEST(15)
                   (10x,'Expected block size',i6,', found on input',i6); Next;}
         If Ier==1 { prin1 ifl; (' zebra sor, run ',i6); Iev=0; IDz=Ifl; Next;}
         If Ier> 1 { prin1 ier,ifl; (' zebra err, run ',2i6); If (Ier<M) Next;
-                                       Ier=0;  ifl=1;  Kevent(iu)+=1;  break;}
+                    IerOld(iu)=Ier;  Ier=0;   ifl=1;  Kevent(iu)+=1;  break; }
         If      Lhead=1 & Ifl=0 { i=IHEAD(1);  If(1<=i&i<=22) HEAD=Gsets(i); }
         else If Lhead=2 & Ifl>0 { HEAD='RUNG'; If(Kevent(iu)>0) HEAD='HEAD'; }
         else If Lhead=1 & Ifl>0 { i=IHEAD(1);  IF(1<=i&i<=3)  HEAD=Esets(i); }
@@ -12506,10 +12512,10 @@ C                                       Link to:
   If (JKINE>0  & IQ(JKINE-1)==1 ) Call MZPUSH(IxDIV,JKINE, 0,1,'I')
   If (JVERTX>0 & IQ(JVERTX-1)==1) Call MZPUSH(IxDIV,JVERTX,0,1,'I')
 *
-  CHEAD(iu)=HEAD; Kevent(iu)+=1;
+  CHEAD(iu)=HEAD; Kevent(iu)+=1;  Ier=IerOld(iu)
   If Stream=='P'
   {  if ( jvol==0 & Jvolum>0 )   Call AgReINIT
-     if ( 1<kevent(1) & kevent(1)<=Ptype+1 )   Goto 10
+     if ( 1<kevent(1) & kevent(1)<=Ptype+1 & Ier==0 )   Goto 10
      If (LKEVNT>0&INDEX(Chopt,'E')>0&INDEX(Chopt,'K')==0)
      {  Iadr=CSADDR('AGUSKINE');  call UHTOC(IQ(LKEVNT-4),4,IDH,4)
         If      IDH=='EVNT' { Call AgGZKINE(iprin)      }
@@ -12519,6 +12525,7 @@ C                                       Link to:
      }
      If (LKARAW>0 & LKARP1==0)   Call AgBEAMdat
   }
+  if (ns>0 & Ier<6) { Ier=0; IQUEST(1)=0; }
   End
  
  
@@ -14241,6 +14248,7 @@ C                                       Link to:
       END
  
  
+*CMZ :          13/07/98  10.03.02  by  Pavel Nevski
 *CMZ :  1.30/00 07/07/96  13.29.54  by  Pavel Nevski
 *-- Author :    Pavel Nevski   14/01/96
 ****************************************************************************
@@ -14353,8 +14361,6 @@ C                                       Link to:
       ELSE         { P(4) = SQRT(MAX(PTOT**2-AMASS**2,0.)) }
 *
       END
- 
- 
  
  
  
@@ -16471,10 +16477,10 @@ C
    end
  
  
-*CMZ :          23/04/98  18.26.41  by  Pavel Nevski
+*CMZ :          28/07/98  17.27.19  by  Pavel Nevski
 *-- Author :    Pavel Nevski   23/04/98
 ******************************************************************
-      subroutine    A G P R E A D
+      subroutine    A G P R E A D (ier)
 * description: read and possible re-assembly splitted subevents  *
 ******************************************************************
 *KEEP,TYPING.
@@ -16521,32 +16527,116 @@ C
       INTEGER       IDEBUG,IDEMIN,IDEMAX,ITEST,IDRUN,IDEVT,IEORUN
      +        ,IEOTRI,IEVENT,ISWIT,IFINIT,NEVENT,NRNDM
 C
+*KEEP,QUEST.
+      INTEGER      IQUEST
+      COMMON/QUEST/IQUEST(100)
 *KEND.
-   Integer ISLFLAG,IsubEv,Iprin,IbEvnt,ier,i,IHEAD(10)
+   Integer ISLFLAG,IsubEv,Iprin,IbEvnt,ier,jer,i,IHEAD(10)
 *
    IbEvnt = 0; IsubEv = 0
-   call AgZread ('P',ier)
-   Iprin = ISLFLAG('INPU','PRIN')
+   jer=1;  call AgZread ('P',ier)
    if (Ier!=0 | JHEAD<=0) go to :er:
+   Iprin = ISLFLAG('INPU','PRIN')
    call UCOPY(IQ(JHEAD+1),IHEAD,10)
  
 * appending
-    While (IQ(JHEAD+5)>IQ(JHEAD+6)) & Ier==0
-    { call AgZread ('P',ier); IsubEv+=1;
+    While IQ(JHEAD+5)>IQ(JHEAD+6)
+    { jer=2;  call AgZread ('P',ier);
       if (ier!=0 | JHEAD<=0) go to :er:
  
-      prin2 Isubev,(IQ(JHEAD+i),i=1,10)
-      (' AGPREAD: appending subevent',i3,' HEADER =',2i5,2i10,6i4)
+      IsubEv+=1; prin2 Isubev,(IQ(JHEAD+i),i=1,10)
+      (' AGPREAD: appending subevent',i3,' HEADER ='/10x,2i6,2i12,6i6)
  
       IbEvnt = IQ(JHEAD+6)
       call AgMERGE (Iprin,0,IbEvnt,0.,Ier)
+      jer=3;  if (Ier!=0) go to :er:
       Call Ucopy(IHEAD,IQ(JHEAD+1),4)
     }
-    Return
-:er:; prin1 ier,Isubev,IbEvnt;
-      (' AGPREAD: error',i3,' in subevent =',2i6)
-      ier=9
- end
+    ier=0; IQUEST(1)=0; Return
+ 
+:er:; prin1 jer,ier,Isubev,IbEvnt;
+      (' AGPREAD: error',2i3,' in subevent =',2i6)
+      IQUEST(1)=jer; IQUEST(2)=ier; ier=jer
+      end
+*CMZ :          13/07/98  10.03.02  by  Pavel Nevski
+*-- Author :    Pavel Nevski   13/07/98
+****************************************************************************
+ 
+      function    lgnfind (i,name)
+* Description: find the origin of the event/run bank                       *
+* Input : I     - Link number : 1 = primary, 2 = secondary (obsolete)      *
+*         name  - RUNT or EVNT                                             *
+* Output:       - link to the bank or -1 if the bank was not found.        *
+* Original version:                              Robert DeWolf  23/07/92   *
+****************************************************************************
+*KEEP,TYPING.
+      IMPLICIT NONE
+*KEEP,GCBANK.
+      INTEGER IQ,LQ,NZEBRA,IXSTOR,IXDIV,IXCONS,LMAIN,LR1,JCG
+      INTEGER KWBANK,KWWORK,IWS
+      REAL GVERSN,ZVERSN,FENDQ,WS,Q
+C
+      PARAMETER (KWBANK=69000,KWWORK=5200)
+      COMMON/GCBANK/NZEBRA,GVERSN,ZVERSN,IXSTOR,IXDIV,IXCONS,FENDQ(16)
+     +             ,LMAIN,LR1,WS(KWBANK)
+      DIMENSION IQ(2),Q(2),LQ(8000),IWS(2)
+      EQUIVALENCE (Q(1),IQ(1),LQ(9)),(LQ(1),LMAIN),(IWS(1),WS(1))
+      EQUIVALENCE (JCG,JGSTAT)
+      INTEGER       JDIGI ,JDRAW ,JHEAD ,JHITS ,JKINE ,JMATE ,JPART
+     +      ,JROTM ,JRUNG ,JSET  ,JSTAK ,JGSTAT,JTMED ,JTRACK,JVERTX
+     +      ,JVOLUM,JXYZ  ,JGPAR ,JGPAR2,JSKLT
+C
+      COMMON/GCLINK/JDIGI ,JDRAW ,JHEAD ,JHITS ,JKINE ,JMATE ,JPART
+     +      ,JROTM ,JRUNG ,JSET  ,JSTAK ,JGSTAT,JTMED ,JTRACK,JVERTX
+     +      ,JVOLUM,JXYZ  ,JGPAR ,JGPAR2,JSKLT
+C
+*KEEP,SCLINK.
+C SLUG link area :    Permanent Links for SLUG:
+      INTEGER         LKSLUG,NSLINK
+      PARAMETER       (NSLINK=40)
+      COMMON /SCLINK/ LKSLUG(NSLINK)
+C The following names are equivalenced to LKSLUG.
+C The equivalence name is the one used in SLINIB.
+      INTEGER LKGLOB,LKDETM,LKTFLM,LKTFLT,LKAMOD,LKAGEV,LKAMCH,LKADIG,
+     +        LKMAPP,LKMFLD,LKRUNT,LKEVNT,LKARAW,LKATRI,LKAPRE,LKARP1,
+     +        LKARP2,LKARP3,LKDSTD,LKRUN2,LKEVN2,LKVER2,LKKIN2,LKHIT2,
+     +        LKGENE
+C                                       Link to:
+      EQUIVALENCE (LKSLUG(1),LKGLOB)   ! top of temporary HEPEVT Zebra tree
+      EQUIVALENCE (LKSLUG(2),LKDETM)   ! top of subdetector structure
+      EQUIVALENCE (LKSLUG(3),LKTFLM)   ! permanent track filter structure
+      EQUIVALENCE (LKSLUG(4),LKTFLT)   ! temporary track filter structure
+      EQUIVALENCE (LKSLUG(5),LKAMOD)   ! MODule parameters (Dont know this)
+      EQUIVALENCE (LKSLUG(6),LKAGEV)   ! Link to general event structure
+      EQUIVALENCE (LKSLUG(7),LKAMCH)   ! MonteCarlo Hits ( not GEANT I guess)
+      EQUIVALENCE (LKSLUG(8),LKADIG)   ! DIGitized hits (again not GEANT...?)
+      EQUIVALENCE (LKSLUG(9),LKMAPP)   ! map structure
+      EQUIVALENCE (LKSLUG(10),LKMFLD)  ! magnetic field banks
+      EQUIVALENCE (LKSLUG(11),LKRUNT)  ! run tree bank (vertical structure)
+      EQUIVALENCE (LKSLUG(12),LKEVNT)  ! event tree bank (vertical struct)
+      EQUIVALENCE (LKSLUG(13),LKARAW)  ! raw data structure
+      EQUIVALENCE (LKSLUG(14),LKATRI)  ! trigger banks
+      EQUIVALENCE (LKSLUG(15),LKAPRE)  ! preprocessed hits
+      EQUIVALENCE (LKSLUG(16),LKARP1)  ! reconstuction phase 1 banks
+      EQUIVALENCE (LKSLUG(17),LKARP2)  ! reconstuction phase 2 banks
+      EQUIVALENCE (LKSLUG(18),LKARP3)  ! reconstuction phase 3 banks
+      EQUIVALENCE (LKSLUG(19),LKDSTD)  ! DST data banks
+      EQUIVALENCE (LKSLUG(20),LKRUN2)  ! run tree bank for secondary run
+      EQUIVALENCE (LKSLUG(21),LKEVN2)  ! event tree bank for secondary events
+      EQUIVALENCE (LKSLUG(22),LKVER2)  ! secondary GEANT VERT bank
+      EQUIVALENCE (LKSLUG(23),LKKIN2)  ! secondary GEANT KINE bank
+      EQUIVALENCE (LKSLUG(24),LKHIT2)  ! secondary GEANT HITS bank
+      EQUIVALENCE (LKSLUG(26),LKGENE)  ! old slug ZEBRA generator structure
+*KEND.
+      character*4 name
+      integer     lgnfind,i,l,n
+ 
+      l = -1
+      if (name=='EVNT') l = lkevnt
+      if (name=='RUNT') l = lkrunt
+      do n=2,i { if (l>0) l=lq(l) }
+      lgnfind = l
+      end
 *CMZ :  1.00/00 30/06/95  13.09.22  by  Pavel Nevski
 *-- Author :     Pavel Nevski
     subroutine   M Y F I L L (tt,Ix,Iy);
