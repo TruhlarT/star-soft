@@ -1,6 +1,6 @@
 #!/opt/star/bin/perl -w
 
-# $Id: AutoBuild.pl,v 1.8 2002/02/19 18:33:33 jeromel Exp $
+# $Id: AutoBuild.pl,v 1.9 2002/02/21 22:44:37 jeromel Exp $
 # This script was written to perform an automatic compilation
 # with cvs co and write some html page related to it afterward.
 # Written J.Lauret Apr 6 2001
@@ -758,6 +758,7 @@ sub lhelp
               list $excl
 
  -1           First compilation pass only
+ -k           Keep going as far as possible after errors (cons option)
  
  -h or --help Display this help.
 
