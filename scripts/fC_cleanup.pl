@@ -1,4 +1,5 @@
-#!/usr/bin/env perl 
+#!/usr/bin/env perl
+
 #
 # This is a command line utility to do a maintenance and cleanup
 # of te FileCatalog database
@@ -82,6 +83,7 @@ while (defined $ARGV[$count]){
 	$mode      = 2;
 	$batchsize = 250;
     } elsif ($ARGV[$count] eq "-cdelete"){
+	print "-cdelete currently has the same meaning than -delete\n";
 	$mode      = 2;
 	$batchsize = 250;
     } elsif ($ARGV[$count] eq "-ddelete"){
@@ -352,6 +354,8 @@ while ($morerecords)
 		print "Marking files as available\n";
 	    } elsif ($state eq "off") {
 		print "Marking files as unavailable\n";
+	    } elsif ($state eq "delf") {
+		print "Marking files as deletable (any dameon may pic those and delete)\n";
 	    } else {
 		print "Marking files with available = $state\n";
 	    }
@@ -366,6 +370,9 @@ while ($morerecords)
 	} elsif ( $state eq "off") {
 	    $fileC->set_context("available=1");
 	    $fileC->update_location("available",0,$confirm);
+	} elsif ( $state eq "delf") {
+	    $fileC->set_context("available=1");
+	    $fileC->update_location("available",-1,$confirm);
 	} else {
 	    $fileC->set_context("available=1");
 	    $fileC->update_location("available",$state,$confirm);
@@ -515,8 +522,12 @@ sub Exist
 {
     my($file)=@_;
     
-    if ( -e $file ){  return 1; }
-    else { 
+    # do not support soft-links
+    if ( -l $file ){  
+	return 0; 
+    } elsif ( -e $file ){  
+	return 1; 
+    } else { 
         # and since I am paranoid
 	if ( open(FT,$file) ){    
 	    close(FT);
@@ -560,7 +571,7 @@ sub Usage
  -ucheck                 check files with availability =0, set to 1 if found
  -recheck                recheck all files (any availability) and adjust as necessary
 
- -mark {on|off|i}        mark selected files availability (1, 0 or the specified value i)
+ -mark {on|off|delf|i}   mark selected files availability (1, 0 or the specified value i)
 
  Unless specified, the context storage is set to NFS by default for check operations.
  HPSS checks is NOT implemented.
@@ -579,15 +590,17 @@ sub Usage
  combersome to delete records to prevent accidental delete. DO NOT use the above
  keywords unless you are sure of what will happen :
 
-   + The -doit switch MUST now be specified for ALL delete operations.
-   + Unless specified, the context storage is set to NFS by default for delete 
-     operations. 
-     -allst is a switch you may want to use to take into account all 
-     storage type in one shot. The default storage=NFS is made to prevent 
-     accidental deletion of persistent stored files. This should be used with
-     caution.
-   + -alla is a switch you may use to affect availability < 0
-     The default is to only delete the 0 ones. 
+   + -doit  switch MUST now be specified for ALL delete operations.
+   + -allst Unless specified, the context storage is set to NFS by default for 
+            delete operations. -allst is a switch you may want to use to take into 
+            account all storage type in one shot. The default storage=NFS is made 
+            to prevent accidental deletion of persistent stored files. This should 
+            be used with caution.
+
+   + -alla  is a switch you may use to affect availability < 0
+            The default is to only delete the 0 ones. Practically, -ucheck would 
+            check for files previously marked unavailable (on more check) and 
+            -delete -alla would delete all records marked with any availability <= 0.
 
  -alter keyword=value    alter keyword value for entry(ies) ** DANGEROUS **
                          This works on dictionaries or tables
