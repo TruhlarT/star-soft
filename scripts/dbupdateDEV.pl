@@ -23,7 +23,7 @@ require "/afs/rhic.bnl.gov/star/packages/DEV/mgr/dbTJobsSetup.pl";
 my $TOP_DIRD = "/star/rcf/test/dev/";
 my @dir_year = ("year_2001", "year_1h", "year_2003", "year_2004");
 my @node_dir = ("trs_redhat72", "trs_redhat72_opt", "trs_ittf_redhat80");
-my @node_daq = ("daq_redhat72", "daq_redhat72_opt","daq_redhat80.icc","daq_ittf_redhat80","daq_ittf_redhat80_opt"); 
+my @node_daq = ("daq_redhat72", "daq_redhat72_opt","daq_sl302.icc80","daq_ittf_redhat80","daq_ittf_redhat80_opt"); 
 my @hc_dir = ("hc_lowdensity", "hc_standard", "hc_highdensity", "peripheral","pp_minbias","ppl_minbias","dau_minbias","auau_minbias");
 my @daq_dir = ("minbias", "central", "embedding", "ppMinBias", "dAuMinBias", "AuAuMinBias", "AuAu_prodHigh","AuAu_prodLow" );
 
@@ -486,7 +486,7 @@ my @files;
            if( $ltime > 600 && $ltime < 518400 ){         
 #          if( $ltime > 600 ) { 
 #   print "Log time: ", $ltime, "\n";
-   print $fullname, "\n";
+#   print $fullname, "\n";
         &logInfo("$fullname", "$platf");
      $jobTime = $timeS;  
 
