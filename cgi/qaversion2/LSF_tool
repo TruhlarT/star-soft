@@ -55,6 +55,8 @@ $SIG{CHLD} = 'reaper';
 # print out the beginning of the document
 print startDocument($cgi);
 
+#foreach my $key (keys %ENV){print "$key=".$ENV{$key}."<br>\n";}
+
 # carry out any action requested by the user and print result to new window
 print performAction($cgi);
 
@@ -515,6 +517,8 @@ sub runLSFCmd{
 	    #print "killed $lsfPID and closed READER<br>\n";
 	    return "";
 	}else{
+	    # don't interpret <...> as html
+	    s/</&lt;/g;   s/>/&gt;/g;
 	    push @$result, $_;
 	}
     }
