@@ -293,7 +293,7 @@ FINAL_EXIT:
 	print "Have lines, closing summary\n";
 	print $FO 
 	    "$SELF :: Info :\n",
-	    ($unkn  !=0 ? "\tUnknown = $unkn ".sprintf("%2.2f%%",100*$unkn/($new+$old))."\n": ""),
+	    ($unkn  !=0 ? "\tUnknown = $unkn ".sprintf("%2.2f%%",100*$unkn/($unkn+$new+$old))."\n": ""),
 	    ($old   !=0 ? "\tOld     = $old\n"   : ""),
 	    ($new   !=0 ? "\tNew     = $new\n"   : ""),
 	    ($failed!=0 ? "\tFailed  = $failed\n": "");
