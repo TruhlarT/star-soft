@@ -1,7 +1,10 @@
 #!/bin/csh
-#  $Log: SYS_STAR,v $
-#  Revision 1.1  1998/03/09 13:38:24  fisyak
-#  Initial revision
+#  $Log: STAR_SYS,v $
+#  Revision 1.1  1998/03/09 14:29:33  fisyak
+#  Switch STAR varibales
+#
+#  Revision 1.1.1.1  1998/03/09 13:38:24  fisyak
+#  Group environment
 #
 #  Revision 1.2  1998/02/10 00:06:09  fisyak
 #  SL98a second version
@@ -14,21 +17,21 @@
 #
 #  Revision 1.1.1.1  1997/12/31 14:35:23  fisyak
 #
-#             Last modification $Date: 1998/03/09 13:38:24 $ 
+#             Last modification $Date: 1998/03/09 14:29:33 $ 
 #
-# Determine SYS_STAR variable.
+# Determine STAR_SYS variable.
 #
 if (-e /usr/afsws/bin/sys) then
-      setenv SYS_STAR `/usr/afsws/bin/sys`
-      switch ($SYS_STAR)
+      setenv STAR_SYS `/usr/afsws/bin/sys`
+      switch ($STAR_SYS)
 	case "hp_ux102":
 	    if (-e /bin/CC) then 
-		setenv SYS_HOST_STAR "${SYS_STAR}"
+		setenv STAR_HOST_SYS "${STAR_SYS}"
 	    else
 		if (-e /opt/aCC/bin/aCC) then
-		    setenv SYS_HOST_STAR "${SYS_STAR}_aCC"
+		    setenv STAR_HOST_SYS "${STAR_SYS}_aCC"
 		else
-		    setenv SYS_HOST_STAR "${SYS_STAR}_gcc"
+		    setenv STAR_HOST_SYS "${STAR_SYS}_gcc"
 		endif
 	    endif
 	default:
@@ -38,66 +41,68 @@ set mach_os = ` uname -sr | sed -e 's/ //g' -e 's/\.//g' `
 #
 switch ($mach_os)
 case "AIX1":
-	setenv SYS_STAR rs_aix31
+	setenv STAR_SYS rs_aix31
 	breaksw
 case "AIX2":
-	setenv SYS_STAR rs_aix32
+	setenv STAR_SYS rs_aix32
 	breaksw
 case "HP-UXB1020":
-	setenv SYS_STAR hp_ux102
+	setenv STAR_SYS hp_ux102
 if (-e /bin/CC) then 
-  setenv SYS_HOST_STAR "${SYS_STAR}"
+  setenv STAR_HOST_SYS "${STAR_SYS}"
 else
 if (-e /opt/aCC/bin/aCC) then
-  setenv SYS_HOST_STAR "${SYS_STAR}_aCC"
+  setenv STAR_HOST_SYS "${STAR_SYS}_aCC"
 else
-  setenv SYS_HOST_STAR "${SYS_STAR}_gcc"
+  setenv STAR_HOST_SYS "${STAR_SYS}_gcc"
 endif
 endif
 	breaksw
 case "IRIX4*":
 case "IRIX52":
-	setenv SYS_STAR sgi_52
+	setenv STAR_SYS sgi_52
 	breaksw
 case "IRIX53:"
-	setenv SYS_STAR sgi_53
+	setenv STAR_SYS sgi_53
 	breaksw
 case "IRIX63":
-	setenv SYS_STAR sgi_63
+	setenv STAR_SYS sgi_63
 	breaksw
 case "IRIX6464":
-	setenv SYS_STAR sgi_64
+	setenv STAR_SYS sgi_64
 	breaksw
 case "Linux*":
-	setenv SYS_STAR linux
+	setenv STAR_SYS linux
 	breaksw
 case "OSF1V32":
 case "OSF1V40":
-	setenv SYS_STAR alpha_osf32c
+	setenv STAR_SYS alpha_osf32c
 	breaksw
 case "OSF1*":
-	setenv SYS_STAR osf1
+	setenv STAR_SYS osf1
 	breaksw
 case "SunOS54"
-        setenv SYS_STAR sun4x_54
+        setenv STAR_SYS sun4x_54
 	breaksw
 case "SunOS551"
-        setenv SYS_STAR sun4x_55
+        setenv STAR_SYS sun4x_55
 	breaksw
 case "SunOS5*":
 	switch ("`uname -p`")
 	case "*86":
-		setenv SYS_STAR sunx86_55
+		setenv STAR_SYS sunx86_55
 		breaksw
 	default:
-		setenv SYS_STAR sun4x_55
+		setenv STAR_SYS sun4x_55
 		breaksw
 	endsw
 	breaksw
 default:
-	setenv SYS_STAR unknown
+	setenv STAR_SYS unknown
 	breaksw
 endsw
 endif
 #echo "mach_os = " $mach_os
-if ($?SYS_HOST_STAR == 0) setenv SYS_HOST_STAR $SYS_STAR
+if ($?STAR_HOST_SYS == 0) setenv STAR_HOST_SYS $STAR_SYS
+setenv STAR_SYS      $STAR_SYS
+setenv SYS_HOST_STAR $STAR_HOST_SYS

@@ -164,6 +164,6 @@ if ($ECHO) echo   "Setting up SCRATCH   = $SCRATCH"
 endif
 #
 # Hot news....
-if ( -f $STAR_PATH/news/motd.$SYS_STAR ) cat $STAR_PATH/news/motd.$SYS_STAR
+if ( -f $STAR_PATH/news/motd.$STAR_SYS ) cat $STAR_PATH/news/motd.$STAR_SYS
 #
 #END

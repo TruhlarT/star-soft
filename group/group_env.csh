@@ -25,22 +25,27 @@ if ( ! $?GROUP_DIR ) then
 endif
 #if ($ECHO && -r ${GROUP_DIR}/logo )                      cat  ${GROUP_DIR}/logo  
 setenv STAR_PATH ${STAR_ROOT}/packages;      if ($ECHO) echo   "Setting up STAR_PATH = ${STAR_PATH}"       
-if ($?LEVEL_STAR == 0) setenv LEVEL_STAR pro
-setenv VERSION_STAR `ls -l $STAR_PATH | grep "${LEVEL_STAR} ->" |cut -f2 -d">"`  
-setenv STAR $STAR_PATH/${LEVEL_STAR} ;       if ($ECHO) echo   "Setting up STAR      = ${STAR}"
+if ($?STAR_LEVEL == 0) setenv STAR_LEVEL pro
+setenv LEVEL_STAR $STAR_LEVEL
+setenv STAR_VERSION `ls -l $STAR_PATH | grep "${STAR_LEVEL} ->" |cut -f2 -d">"`  
+setenv VERSION_STAR $STAR_VERSION
+setenv STAR $STAR_PATH/${STAR_LEVEL} ;       if ($ECHO) echo   "Setting up STAR      = ${STAR}"
 setenv STAR_MGR $STAR/mgr
-source ${GROUP_DIR}/SYS_STAR;    
-setenv LIB_STAR  $STAR/lib/${SYS_HOST_STAR}; if ($ECHO) echo   "Setting up LIB_STAR  = ${LIB_STAR}"
-setenv BIN_STAR  $STAR/bin/${SYS_HOST_STAR}; if ($ECHO) echo   "Setting up BIN_STAR  = ${BIN_STAR}"
-setenv PAMS_STAR $STAR/pams;                 if ($ECHO) echo   "Setting up PAMS_STAR = ${PAMS_STAR}"
+source ${GROUP_DIR}/STAR_SYS;    
+setenv STAR_LIB  $STAR/lib/${STAR_HOST_SYS}; if ($ECHO) echo   "Setting up STAR_LIB  = ${STAR_LIB}"
+setenv LIB_STAR  ${STAR_LIB}
+setenv STAR_BIN  $STAR/bin/${STAR_HOST_SYS}; if ($ECHO) echo   "Setting up STAR_BIN  = ${STAR_BIN}"
+setenv BIN_STAR  ${STAR_BIN}
+setenv STAR_PAMS $STAR/pams;                 if ($ECHO) echo   "Setting up STAR_PAMS = ${STAR_PAMS}"
+setenv PAMS_STAR ${STAR_PAMS}
 setenv STAR_DATA ${STAR_ROOT}/data;          if ($ECHO) echo   "Setting up STAR_DATA = ${STAR_DATA}"
 setenv STAR_CALB ${STAR_ROOT}/calb;          if ($ECHO) echo   "Setting up STAR_CALB = ${STAR_CALB}"
 setenv CVSROOT   $STAR_PATH/repository;      if ($ECHO) echo   "Setting up CVSROOT   = ${CVSROOT}"
 setenv TEXINPUTS :${GROUP_DIR}/latex/styles
-setenv PATH "/usr/afsws/bin:/usr/afsws/etc:/opt/rhic/bin:${STAR_MGR}:${BIN_STAR}:$PATH"
+setenv PATH "/usr/afsws/bin:/usr/afsws/etc:/opt/rhic/bin:${STAR_MGR}:${STAR_BIN}:${PATH}"
 setenv MANPATH ${MANPATH}:${STAR_PATH}/man
 setenv STAR_LD_LIBRARY_PATH ""
-switch ($SYS_STAR)
+switch ($STAR_SYS)
     case "rs_aix*":
 #  ====================
     breaksw
@@ -111,7 +116,7 @@ endif
 if ($ECHO) echo   "Setting up SCRATCH   = $SCRATCH"
 endif
 #if ( -e $STAR/mgr/init_star.csh) source $STAR/mgr/init_star.csh
-if ($ECHO) echo   "STAR library version "$VERSION_STAR" has been initiated with `which staf++`"
+if ($ECHO) echo   "STAR library version "$STAR_VERSION" has been initiated with `which staf++`"
 #
 # HP Jetprint
 if ( -d /opt/hpnp ) then

@@ -1,5 +1,5 @@
 # Set up STAR enviroment
-setenv LEVEL_STAR old
+setenv STAR_LEVEL old
 if ( -e $GROUP_DIR/group_env.csh ) then
         source $GROUP_DIR/group_env.csh
 endif
