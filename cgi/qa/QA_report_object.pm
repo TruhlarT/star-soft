@@ -278,7 +278,7 @@ sub RunMacro{
 
   my $production_dir = $QA_object_hash{$report_key}->LogReport->OutputDirectory; 
 
-  my $nevent_requested = $QA_object_hash{$report_key}->LogReport->NEevent;
+  my $nevent_requested = $QA_object_hash{$report_key}->LogReport->NEvent;
   $nevent_requested or $nevent_requested = 40;
   #--------------------------------------------------------------------------------------------
 
