@@ -10,6 +10,7 @@
 package ABUtils;
 require 5.000;
 use Exporter;
+use Digest::MD5;
 
 @ISA = (Exporter);
 @EXPORT=qw(IUbody IUcmt IUhead IUtrail IUGetRef IUl2pre IUresource
@@ -22,6 +23,7 @@ use Exporter;
 	   IUCheckFile IUMoveFile
 	   IUReleaseFile IUManagers IUCompDir
 	   IUHtmlDir IUHtmlRef IUHtmlPub
+	   IULockPrepare IULockCheck IULockWrite IULockDelete
 	   IUGetLogin
 	   );
 
@@ -30,7 +32,7 @@ use Exporter;
 # ------------------------------------------
 # Directory where we compile
 $INSU::COMPDIR="/afs/.rhic/star/replicas/DEV";
-$INSU::STARAFS="/afs/rhic/star/packages";
+$INSU::STARAFS="/afs/rhic.bnl.gov/star/packages";
 
 # list of dirs affected by a cvs co
 @INSU::DIRS=("StRoot","StarDb","StDb","pams","asps","mgr");
@@ -67,17 +69,22 @@ $INSU::RELFLNM=".log/afs.release";
 # ------------------------------------------
 # --- Tests and running section
 # ------------------------------------------
-$INSU::QUEUE="star_cas_prod";
+$INSU::QUEUE   ="star_cas_prod";
 
 # Command to issue to load the Insure environment
-$INSU::INSLOAD="setenv INSURE yes ; unsetenv NODEBUG ; staradev";
-$INSU::JPRLOAD="staradev";
+$INSU::INSLOAD ="setenv INSURE yes ; unsetenv NODEBUG ; staradev";
+$INSU::JPRLOAD ="staradev";
 
 # directory which will contain the test result files
-$INSU::TDIR="/star/rcf/test/dev/Insure";
+$INSU::TDIR    ="/star/rcf/test/dev/Insure";
+
+# Misc values
+$INSU::FLNMLCK = "";
+$INSU::LCK     =  0;
+$INSU::md5seed = "";
 
 # LSF submit command
-$INSU::BSUB = "/usr/local/lsf/bin/bsub";
+$INSU::BSUB    = "/usr/local/lsf/bin/bsub";
 
 # All tests may be declared here in this array. The first element is the chain
 # the second a list of files to work on. Note that the array will be later
@@ -131,10 +138,10 @@ $INSU::JPEXEC  ="/afs/rhic/star/packages/dev/.\@sys/BIN/jprof";
 # ---- HTML section
 # ------------------------------------------
 # directory where the HTML file will be stored (final target)
-$INSU::HTMLREPD="/afs/rhic/star/doc/www/comp/prod/Sanity";       # final direcory
-$INSU::HTMLREF="http://www.star.bnl.gov/STAR/comp/prod/Sanity";  # URL
-$INSU::HTMLPUBD="/afs/rhic/star/doc/www/html/tmp/pub/Sanity";    # public dir (temp)
-$INSU::CVSWEB="http://www.star.bnl.gov/cgi-bin/cvsweb.cgi";      # CVS web utility
+$INSU::HTMLREPD="/afs/rhic.bnl.gov/star/doc/www/comp/prod/Sanity";   # final direcory
+$INSU::HTMLREF="http://www.star.bnl.gov/STAR/comp/prod/Sanity";      # URL
+$INSU::HTMLPUBD="/afs/rhic.bnl.gov/star/doc/www/html/tmp/pub/Sanity";# public dir (temp)
+$INSU::CVSWEB="http://www.star.bnl.gov/cgi-bin/cvsweb.cgi";          # CVS web utility
 
 
 # variables subject to export. So far, we will be using
@@ -560,6 +567,109 @@ sub IUMoveFile
     }
     $sts;
 }
+
+#+
+# Routines to handle "a" lock file
+#-
+
+# Create a lock file. First argument is the file 
+# principle name and the second is a string to encrypt
+# and use for uniqueness (MD5 is used). Returns the file
+# name it will use. Does not create the file ...
+sub IULockPrepare
+{
+    my($mdir,$md5seed)=@_;
+    $INSU::md5seed = $md5seed;
+    $INSU::FLNMLCK = $mdir."/.AutoBuild.".
+	(Digest::MD5->new->add($INSU::md5seed)->hexdigest()).".lock";
+    $INSU::FLNMLCK;
+}
+
+# Check and delete the lock file if older than
+# unique argument 1 (a time in secondes). Returns
+# 1 if it is OK to create, 0 otherwise.
+sub IULockCheck
+{
+    my($delta)=@_;
+    my($date);
+
+    if ($INSU::FLNMLCK eq ""){  return 1;}  # nothong to check (it is OK)
+    if ($INSU::LCK != 0){       return 0;}  # cannot check an opened file (logic error)
+
+    if (-e $INSU::FLNMLCK){
+	# a file is found, check date
+	$date = time() - (stat($INSU::FLNMLCK))[9];
+	if ( $date >  $delta ){
+	    print 
+		"ABUtil:: LockCheck: ",
+		"$INSU::FLNMLCK has a date greater than $delta. Deleting.\n";
+	    unlink($INSU::FLNMLCK);
+	} else {
+	    print 
+		"ABUtil:: LockCheck: ",
+		"Found a $INSU::FLNMLCK file (another process is running).\n";
+	}
+	return 0;
+    } else {
+	# nothing found, can proceed
+	1;
+    }
+}
+
+# Write (and create if necessary) the file. Argument(s)
+# are as many info as necessary (will be chomped and \n)
+sub IULockWrite
+{
+    my(@info)=@_;
+    my($sts,$el,$ii);
+
+    if ( $INSU::FLNMLCK eq ""){  return 0;}
+    if ( -e $INSU::FLNMLCK){
+	# append
+	$sts = open($INSU::LCK,">>$INSU::FLNMLCK");
+    } else {
+	# first time
+	if ($sts = open($INSU::LCK,">$INSU::FLNMLCK")){
+	    print $INSU::LCK 
+		`uname -a`,
+		"This file was created with seed [$INSU::md5seed]\n",
+		"by ".&IUGetLogin()." on ".localtime()."\n";
+	}
+    }
+    if ($sts){
+	for ($ii = 0 ; $ii <= $#info ; $ii++){
+	    chomp($el = $info[$ii]);
+	    if ($ii == 0){
+		printf $INSU::LCK "%25s %s\n","".localtime(),$el;
+	    } else {
+		printf $INSU::LCK "%25s %s\n","",$el;
+	    }
+	}
+	close($INSU::LCK);
+	$INSU::LCK = 0;
+    }
+    $sts;
+}
+
+# no arguments needed. Just delete it. Return success status.
+sub IULockDelete
+{
+    if ( $INSU::FLNMLCK ne ""){
+	if ( -e $INSU::FLNMLCK){
+	    if ( ! unlink($INSU::FLNMLCK) ){
+		print "ABUtil:: LockDelete: could not remove $INSU::FLNMLCK\n";
+		return 0;
+	    } else {
+		$INSU::FLNMLCK = "";
+		$INSU::LCK     = 0;
+		return 1;
+	    }
+	}
+    } else {
+	return 1;
+    }
+}
+
 
 # returns the login name (several methods)
 sub IUGetLogin
