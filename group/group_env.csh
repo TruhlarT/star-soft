@@ -1,5 +1,5 @@
-#!/bin/csh -f
-#       $Id: group_env.csh,v 1.180 2005/03/17 23:23:40 jeromel Exp $
+#!/bin/csh -x
+#       $Id: group_env.csh,v 1.181 2005/03/18 00:06:52 jeromel Exp $
 #	Purpose:	STAR group csh setup
 #
 #	Author:		Y.Fisyak     BNL
@@ -19,7 +19,9 @@ if ($?SILENT == 1) set ECHO = 0
 
 # This variable was added for the ECHOD debug mode
 set self="group_env"
-if ( $?DECHO ) echo "$self :: Receiving STAR_LEVEL $STAR_LEVEL"
+if ( $?DECHO && $?STAR_LEVEL ) then
+    echo "$self :: Receiving STAR_LEVEL $STAR_LEVEL"
+endif
 
 
 setenv WWW_HOME http://www.star.bnl.gov/
