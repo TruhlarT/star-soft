@@ -1,7 +1,10 @@
 #!/usr/bin/csh -f
-#       $Id: group_env.csh,v 1.21 1998/07/01 23:28:08 fisyak Exp $
+#       $Id: group_env.csh,v 1.22 1998/07/03 20:04:04 fisyak Exp $
 #	Purpose:	STAR group csh setup 
 #       $Log: group_env.csh,v $
+#       Revision 1.22  1998/07/03 20:04:04  fisyak
+#       Add MANPATH to DQS386
+#
 #       Revision 1.21  1998/07/01 23:28:08  fisyak
 #       Add non debug version
 #
@@ -88,7 +91,7 @@ setenv STAR_MGR $STAR/mgr
 source ${GROUP_DIR}/STAR_SYS; 
 setenv STAF_LIB  $STAR/asps/../.${STAR_HOST_SYS}/lib  ; if ($ECHO) echo   "Setting up STAF_LIB  = ${STAF_LIB}"
 if ($STAR_LEVEL == "dev" || $STAR_LEVEL == "new") then
-if ($?NODEBUG == 0) then
+if ($STAR_LEVEL == "dev" && $?NODEBUG == 0) then
 setenv STAR_LIB  $STAR/.${STAR_HOST_SYS}/lib; if ($ECHO) echo   "Setting up STAR_LIB  = ${STAR_LIB}"
 else
 setenv STAR_LIB  $STAR/.${STAR_HOST_SYS}/nodeb; if ($ECHO) echo   "Setting up STAR_LIB  = ${STAR_LIB}"
@@ -169,6 +172,7 @@ switch ($STAR_SYS)
        setenv CERN_ROOT  $CERN/$CERN_LEVEL
      endif
      set path = (/usr/bin $path  /usr/local/bin/ddd /usr/local/DQS318/bin )
+     setenv  MANPATH "$MANPATH":/usr/local/DQS318/man
 #    set path = ($path  /usr/local/bin/ddd /usr/local/DQS318/bin )
      set path = ($path $PARASOFT/bin.linux)
      if (! ${?LD_LIBRARY_PATH}) setenv LD_LIBRARY_PATH 
