@@ -2,7 +2,7 @@
 %
 % StEvent - User Guide and Reference Manual -- LaTeX Source
 %
-% $Id: StEvent.tex,v 2.38 2000/06/07 09:44:20 ullrich Exp $
+% $Id: StEvent.tex,v 2.39 2000/06/21 22:55:42 ullrich Exp $
 %
 % Author: Thomas Ullrich, Nov 1999
 %
@@ -21,8 +21,11 @@
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %
 % $Log: StEvent.tex,v $
-% Revision 2.38  2000/06/07 09:44:20  ullrich
-% Modified StHit ref section.
+% Revision 2.39  2000/06/21 22:55:42  ullrich
+% Added StEventInfo to ref section. Updated StEvent.
+%
+% Revision 2.46  2000/09/06 22:30:57  ullrich
+% Changes to StEvent and StEventInfo.
 %
 % Revision 2.45  2000/08/23 03:14:07  ullrich
 % Improved (corrected) explanation of return value
@@ -177,17 +180,17 @@
       }%
     }%
   {\end{list}}
-  {\LARGE $ $Revision: 2.38 $ $}  \\[5mm] % replaced by cvs with current revision
-  {\LARGE $ $Date: 2000/06/07 09:44:20 $ $}  % replaced by cvs with current revision
+  {\LARGE $ $Revision: 2.39 $ $}  \\[5mm] % replaced by cvs with current revision
+  {\LARGE $ $Date: 2000/06/21 22:55:42 $ $}  % replaced by cvs with current revision
 {\raisebox{0pt}[1ex][0pt]{\makebox[\labelwidth][l]%
     {\parbox[t]{\labelwidth}{\hspace{0pt}\textbf{{#1}}}}}}
 \newenvironment{Entry}%
 {\renewcommand{\entrylabel}{\Entrylabel}\begin{entry}}%
-  {\LARGE $ $Revision: 2.38 $ $}  \\[5mm] % replaced by cvs with current revision
-  {\LARGE $ $Date: 2000/06/07 09:44:20 $ $}  % replaced by cvs with current revision
+  {\LARGE $ $Revision: 2.39 $ $}  \\[5mm] % replaced by cvs with current revision
+  {\LARGE $ $Date: 2000/06/21 22:55:42 $ $}  % replaced by cvs with current revision
 \begin{document}
-  {\LARGE $ $Revision: 2.38 $ $}  \\[5mm] % replaced by cvs with current revision
-  {\LARGE $ $Date: 2000/06/07 09:44:20 $ $}  % replaced by cvs with current revision
+  {\LARGE $ $Revision: 2.39 $ $}  \\[5mm] % replaced by cvs with current revision
+  {\LARGE $ $Date: 2000/06/21 22:55:42 $ $}  % replaced by cvs with current revision
 %
 %    Title page
 %
@@ -202,8 +205,8 @@
   \mbox{\includegraphics[width=\textwidth]{StEventTitle.eps}}
   \hfill\mbox{}\\[3cm]
   {\LARGE User Guide and Reference Manual \\[5mm] for Version 2}\\[2cm]
-  {\LARGE $ $Revision: 2.38 $ $}  \\[5mm] % replaced by cvs with current revision
-  {\LARGE $ $Date: 2000/06/07 09:44:20 $ $}  % replaced by cvs with current revision
+  {\LARGE $ $Revision: 2.39 $ $}  \\[5mm] % replaced by cvs with current revision
+  {\LARGE $ $Date: 2000/06/21 22:55:42 $ $}  % replaced by cvs with current revision
   \vfill
 \end{center}
 \cleardoublepage
@@ -2880,6 +2883,14 @@ definition in the header file.
     \verb+void Browse(TBrowser*);+\\
     Overwrite inherited \texttt{Browse()} method from \texttt{St\_DataSet}.
     Method is invoked from ROOT to allow interactive browsing of \StEvent. 
+
+    \verb+static const TString& cvsTag();+\\
+    CVS tag of the version you are using.
+    
+    \verb+const TString& type() const;+\\
+    Character string which contains a short description of the type of
+    the event you got.
+    \verb+ULong_t bunchCrossingNumber() const;+\\       
     
     \verb+Long_t runId() const;+\\
     Unique run identifier.
@@ -2965,6 +2976,10 @@ definition in the header file.
     (i.e.~primary tracks) they hold. The first in the list is always the
     the vertex with the most daughter tracks.\index{primary vertices, order of}
     
+    \verb+StSPtrVecV0Vertex& v0Vertices();+\\
+    \verb+const StSPtrVecV0Vertex& v0Vertices() const;+\\
+    Returns container with V0 vertices.
+    
     \verb+StSPtrVecXiVertex& xiVertices();+\\
     \verb+const StSPtrVecXiVertex& xiVertices() const;+\\
     Returns container with Xi vertices.
@@ -2986,6 +3001,40 @@ definition in the header file.
     \verb+void setBunchCrossingNumber(ULong_t, UInt_t);+\\
 
     \verb+void setSummary(StEventSummary*);+\\
+
+    \verb+void setInfo(StEventInfo*);+\\
+
+    \verb+void setSoftwareMonitor(StSoftwareMonitor*);+\\
+
+    \verb+void setTpcHitCollection(StTpcHitCollection*);+\\
+
+    \verb+void setFtpcHitCollection(StFtpcHitCollection*);+\\
+
+    \verb+void setSvtHitCollection(StSvtHitCollection*);+\\
+
+    \verb+void setTriggerDetectorCollection(StTriggerDetectorCollection*);+\\
+
+    \verb+void setL0Trigger(StL0Trigger*);+\\
+    
+    \verb+void setL3Trigger(StL3Trigger*);+\\
+    
+    \verb+void addPrimaryVertex(StPrimaryVertex*);+\\
+    Adds a primary vertex to the list. The vertices are
+    automatically sorted according to their number of daughter
+    tracks (descending order). \index{primary vertices, sorting}
+    
+\end{Entry}
+\clearpage
+
+\subsection{StEventInfo}
+\index{StEventInfo|textbf}
+\label{sec:StEventInfo}
+\begin{Entry}
+\item[Summary] StEvent header info
+
+\item[Synopsis]
+    \verb+#include "StEventInfo.h"+\\
+    \verb+class StEventInfo;+\\
 
 \item[Description] Please note that the information this class provides
     is already accessible directly through the \texttt{StEvent} class
