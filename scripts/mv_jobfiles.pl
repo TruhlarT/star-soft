@@ -8,8 +8,8 @@
 ###############################################################################
 
 my $prodSer = $ARGV[0];
-my $dir_arch = "/star/u/starreco/" .$prodSer ."/requests/daq/archive";
-my $dir_job = "/star/u/starreco/" .$prodSer ."/requests/daq/jobfiles";
+my $dir_arch = "/star/u/starreco/" .$prodSer ."/requests/trs/archive";
+my $dir_job = "/star/u/starreco/" .$prodSer ."/requests/trs/jobfiles";
 
 my @maifile;
 my $mail_line;
@@ -33,6 +33,8 @@ $now = localtime;
 
 my $year = "2002";
    $mon++;
+if( $mon < 10) { $mon = '0'.$mon };
+if( $mday < 10) { $mday = '0'.$mday };
 
 my $thisday = $year."-".$mon."-".$mday; 
 
