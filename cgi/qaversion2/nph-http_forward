@@ -96,12 +96,12 @@ my $response = $responseObject->as_string();
 
 # picks up urls (in FORM or A tags, eg) starting with /pro, /v2, etc
 $response =~ s{(<[^<]*)(/pro/|/v2/|/ben/|/bum/|/peter/)([^>]*>)}
-              {$1/devcgi/qaversion2/nph-ben?$2$3}gs;
+              {$1/devcgi/qaversion2/nph-http_forward?$2$3}gs;
 # picks up urls in A tags without a starting '/'; ignores "mailto:", etc.
 # note that this expects quotes around the url!
 $response =~ 
     s{(<[^<]*)([hH][rR][eE][fF]\s*=\s*[\"\'])([^/][^:\'\"]+)([\"\'][^>]*>)}
-     {$1$2/devcgi/qaversion2/nph-ben?$basePath/$3$4}gs;
+     {$1$2/devcgi/qaversion2/nph-http_forward?$basePath/$3$4}gs;
 
 print $response;
 
