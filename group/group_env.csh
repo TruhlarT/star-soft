@@ -1,5 +1,5 @@
 #!/bin/csh -f
-#       $Id: group_env.csh,v 1.147 2003/06/24 17:27:00 jeromel Exp $
+#       $Id: group_env.csh,v 1.148 2003/06/27 19:56:06 jeromel Exp $
 #	Purpose:	STAR group csh setup
 #
 #	Author:		Y.Fisyak     BNL
@@ -28,8 +28,6 @@ setenv WWW_HOME http://www.star.bnl.gov/
 if ($ECHO) echo   "Setting up WWW_HOME  = $WWW_HOME"
 
 setenv AFS       /usr/afsws
-#setenv AFS_RHIC  /afs/rhic <-- in principle in the star_cshrc
-
 
 if (! $?STAR_ROOT) then
     setenv STAR_ROOT ${AFS_RHIC}/star;
@@ -97,7 +95,7 @@ endif
 # Clear this out. First block STAF, second STAR
 source ${GROUP_DIR}/STAR_SYS;
 
-if ( ! $?optstar ) then
+if ( ! $?optstar && ?$OPTSTAR ) then
     setenv optstar ${OPTSTAR}
     if ( -e ${OPTSTAR}/${STAR_HOST_SYS} ) then
 	# Redhat > 7.3  transition ; adding one level
