@@ -1,8 +1,582 @@
-*CMZ :          21/11/97  17.47.13  by  Pavel Nevski
+*CMZ :          27/12/98  22.02.31  by  Pavel Nevski
+*CMZ :  1.40/05 26/08/98  22.10.06  by  Pavel Nevski
+*CMZ :  1.40/05 13/07/98  10.50.50  by  Pavel Nevski
+*-- Author :    Pavel Nevski
+#ifdef __ROOT__
+*CMZ :          30/04/98  00.45.04  by  Pavel Nevski
+*-- Author :    Pavel Nevski
+*****************************************************************************
+*                                                                           *
+      subroutine        A G M A I N (nwg,nwp,iwtyp)
+*                                                                           *
+*****************************************************************************
++CDE,TYPING,AGECOM,AGCKINE.
++CDE,GCFLAG,GCTIME,GCPHYS,GCTRAK.
+*
+      integer nwg, nwp, iwtyp
+      INTEGER           NWGEA/4000000/,NWPA/500000/,p
+      CHARACTER*6       PROG/'agroot'/
+*
+      CALL TIMEST  (3.E7)  ! set time limit for interactive mode
+      if (nwg .gt. 0) NWGEA = nwg
+      if (nwp .ge. 0) NWPA  = nwp
+      write (*,1001) PROG,NWGEA,NWPA
+1001  format(1x,54('*')/' * Starting ',a8,
+     >       ' NwGEANT=',i9,' NwPAW=',i8,' *'/ 1x,54('*'))
+      IDEBUG = 1
+*                                        initialise packages
+      CALL TIMEL   (TIMINT)
+      CALL MZEBRA  (-3)
+      CALL GZEBRA  (NWGEA)         ! store 0 - geant
+      if (iwtyp .gt. 0) then
+      CALL MZPAW   (NWPA,' ')      ! store 1 - pawc
+      CALL KUINIT  (5000)
+      CALL IGINIT  (10000)
+      CALL IGSSE   (6,1)
+      CALL HLIMIT  (0)
+      CALL REBANKM (-1)
+      CALL GDINIT                  ! Initialise Drawing pkg
+      endif
+****>
+      p  = Idebug
+      CALL GINIT                   "  GEANT common blocks                "
+      CALL GZINIT                  "  GEANT core divisions, link areas,  "
+      CALL AGZINI                  "  specific ZEBRA initialization      "
+      CALL GPART                   "  Define standard particles          "
+      CALL GMATE                   "  Initialize standard materials      "
+      Call AGXINIT                 "  aguser menu - called here          "
+      CALL GINTRI                  "  Geant MENUs and COMMANDs           "
+*
+      Idebug      =  p             "  restore Idebug after GINIT         "
+      DPHYS1      =  0             "  oshibku oshibkoi vybivaiut         "
+      %Standalone =  1             "  standalone version, not batch      "
+      %IGRAP      = -1             "  no default graphic, on request only"
+      IGAUTO      =  0             "  defaults GEANT tracking  off       "
+      CrunType    = ' '            "  no default actions defined         "
+      NkineMax    = 64 000         "  ZEBRA limit on KINE bank           "
+      NhitsMax    = 10 000 000     "  a reasonable limit on hit bank     "
+      %Module=' '
+      call Agstand
+      Call AgDummy
+      end
+*
+#else /*NO __ROOT__ */
+ 
+*****************************************************************************
+*                                                                           *
+      subroutine        A G M A I N
+*                                                                           *
+*****************************************************************************
+*KEEP,TYPING.
+      IMPLICIT NONE
+*KEEP,GCFLAG.
+      COMMON/GCFLAG/IDEBUG,IDEMIN,IDEMAX,ITEST,IDRUN,IDEVT,IEORUN
+     +        ,IEOTRI,IEVENT,ISWIT(10),IFINIT(20),NEVENT,NRNDM(2)
+      COMMON/GCFLAX/BATCH, NOLOG
+      LOGICAL BATCH, NOLOG
+C
+      INTEGER       IDEBUG,IDEMIN,IDEMAX,ITEST,IDRUN,IDEVT,IEORUN
+     +        ,IEOTRI,IEVENT,ISWIT,IFINIT,NEVENT,NRNDM
+C
+*KEEP,GCTIME.
+      COMMON/GCTIME/TIMINT,TIMEND,ITIME,IGDATE,IGTIME
+      INTEGER ITIME,IGDATE,IGTIME
+      REAL TIMINT,TIMEND
+C
+*KEND.
+*
+      INTEGER           NWGEAN / 8 000 000/,    NWPAW/2 000 000/
+      CHARACTER*240     BATCHF,PAWLOGF,PROG,COMD,ARG,VERSION,FATCAT
+      INTEGER           AgIPAW,IwTYP
+      COMMON /AgCIPAW/  AgIPAW,IwTYP
+      INTEGER           LENOCC,ICDECI,Iprin,I,J,K,L,N,Nr/0/,Na/0/,Irc
+      CHARACTER*320     CHARGS
+      COMMON /PCARGS/   CHARGS
+      EXTERNAL          PAEXIT,UGLAST,AgPAWE
+      INTEGER           ICSDEBUG
+      COMMON /CSDEBUG/  ICSDEBUG
+      LOGICAL           S,G
+      EXTERNAL          AgKUSER
+ 
+*     ON REAL UNDERFLOW IGNORE
+*
+      CALL TIMEST  (3.E7)  ! set time limit for interactive mode
+      CALL GETARG(0,ARG)
+      I = 1
+      N = LENOCC (ARG)
+      DO J=1,N   { IF (ARG(J:J).EQ.'/') I=J+1; }
+      VERSION = '       '
+      PROG    = ARG(I:N)
+      FATCAT  = ' '
+      N=N-I+1; I=1; Call CUTOL(PROG)
+*
+      if (PROG(I:N)=='atlsim') { CALL REBANKM(-1); NWGEAN*=2; }
+*
+      do J=1,999
+      {  CALL GETARG(J,comd);  Call CUTOL(comd)
+         L=LENOCC(comd);       if (L<=0) Break
+         if comd(1:2)=='-h'
+         { print *, ' usage: '//prog(i:n)     _
+                 // ' [ -V version]'          _
+                 // ' [ -w HIGZ_UNIT ]'       _
+                 // ' [ -l login_kumac]'      _
+                 // ' [ -b batch_kumac]'      _
+                 // ' [ -D debug_level]'      _
+                 // ' [ -S STAF_size(Mw)]'    _
+                 // ' [ -P PAWC_size(Mw)]'    _
+                 // ' [ -G GCBANK_size(Mw)]'  _
+                 // ' [ -f fatmen_catalog  ]' _
+                 // ' [ -n(o login_kumac)]'   _
+           ; return
+         }
+         if comd(1:1)='-'
+         { Na+=1;  Nr=1;  Arg=' ';  CALL GETARG(J+1,Arg);
+           K=Lenocc(arg);   If (K>0) Nr=ICDECI(arg,1,K);
+           If (comd(1:2)='-v') { Version=PROG; if (LenOCC(arg)>0) VERSION=arg }
+           If (comd(1:2)='-d') { IDEBUG = Nr;  ICSDEBUG=Index(Arg,'c')  }
+           If (comd(1:2)='-g') NWGEAN  = max(0,Nr)*1000000
+           If (comd(1:2)='-p') NWPAW   = max(0,Nr)*1000000
+           If (comd(1:2)='-f') FATCAT  = Arg
+      }  }
+      CALL CUTOL(VERSION)
+      S = Version.ne.'gstar'
+      G = Version.ne.'staf'
+*
+      write (*,1001) PROG(I:N),NWGEAN,NWPAW
+1001  format(1x,54('*')/' * Starting ',a8,
+     >       ' NwGEANT=',i9,' NwPAW=',i8,' *'/ 1x,54('*'))
+*
+      IPRIN = -3
+      IF (IDEBUG>2) IPRIN=-1
+*                                        initialise packages
+      CALL MZEBRA  (IPRIN)
+      CALL GZEBRA  (NWGEAN)         ! store 0 - geant
+      CALL MZPAW   (NWPAW,' ')      ! store 1 - pawc
+ 
+      CALL PAWINT1 (PROG(I:N),BATCHF,PAWLOGF)
+      CALL PAWINT2 (0,'+?',AgPAWE,IWTYP)  ! type of PAW, HBOOK, command
+      CALL FMLOGL  (-3)
+      IF (LENOCC(FATCAT)>0) CALL FMSTRT(62,63,%L(FATCAT),Irc)
+ 
+      if (G) CALL GINTRI            ! Geant MENUs and COMMANDs
+*
+      IF (IWTYP.EQ.999) THEN        ! motif zebra browser
+         CALL PMINIT                ! Paw-Motif
+         CALL GBROWS                ! Geant Browser
+         CALL KUINIM (PROG(I:N))    ! Kuip-Motif
+      ELSE
+*        CALL ZBRDEF                ! zebra menu  (p.248)
+      ENDIF
+*
+      CALL PAWINT3                  ! HIGZ,HPLOT,COMIS,SIGMA, commons
+      if (G) CALL GXCS              ! declare GEANT routines to COMIS
+      if (G) CALL UGINIT(PROG(I:N)) ! user MENUs
+      if (G) CALL GDINIT            ! Initialise Drawing pkg
+      CALL TIMEL  (TIMINT)
+ 
+      if (PROG(I:N)!='staf' | Version!=' '&Version!='staf') Call AgVERSION
+      if (G) Call KUEXEC('ROOT /GEANT')
+      if (S) Call staf_start
+****>
+      CALL KUEXEC  ('SET/PROMPT '''//PROG(I:N)//' >''')
+*
+      NOLOG = LENOCC(PAWLOGF).le.0
+      CALL PAWINT4 (PAWLOGF)
+      BATCH = LENOCC(BATCHF).gt.0
+      IF (BATCH) CALL PAWINT4(BATCHF)
+      CALL KUSER (AgKUSER)
+*
+      Call AgPAWQ
+****>
+      if (S) call staf_stop
+      WRITE(*,'(/1x,a)') 'Exiting from '//PROG(I:N)
+      if (G) Call UGLAST
+      CALL PAEXIT
+      :return:
+      END
+ 
+      subroutine  AgPAWQ
+      COMMON /AgCIPAW/  AgIPAW,IwTyp
+      AgIPAW = AgIPAW + 1
+ 
+      if (IwTYP.EQ.999) then
+        Call KuWham ('PAW++')
+      else
+        call KuWhag
+      endif
+      entry       AgPAWE
+      end
+*
+      subroutine AGKUSER
+      end
+ 
+#endif /* __ROOT__ */
+ 
+ 
+*CMZ :          07/09/98  19.02.49  by  Pavel Nevski
+*CMZ :  1.40/05 13/07/98  10.44.40  by  Pavel Nevski
+*CMZ :  1.30/00 13/05/97  14.57.05  by  Pavel Nevski
+*-- Author :    Pavel Nevski   10/07/96
+      SUBROUTINE AGVERSION
+character*36 cmon/'JanFebMarAprMayJunJulAugSepOctNovDec'/
+*KEEP,GCUNIT.
+      COMMON/GCUNIT/LIN,LOUT,NUNITS,LUNITS(5)
+      INTEGER LIN,LOUT,NUNITS,LUNITS
+      COMMON/GCMAIL/CHMAIL
+      CHARACTER*132 CHMAIL
+C
+*KEEP,agcvers.
+      COMMON /AGCVERS/IDATQQ,ITIMQQ,IVERSQ,VERSQQ,QFTITLCH
+      INTEGER         IDATQQ,ITIMQQ,IVERSQ
+      CHARACTER       VERSQQ*8,QFTITLCH*60
+*     - - - - - - - - - - - - - - - - - - - -
+*KEEP,VIDQQ.
+      CHARACTER*68 VIDQQ
+      DATA VIDQQ/
+     +'@(#)* Advanced Geant Inteface   1.40/05   C: 02/01/99  22.12.19
+     +'/
+*KEEP,DATEQQ.
+      IDATQQ =   990102
+*KEEP,TIMEQQ.
+      ITIMQQ =   2212
+*KEEP,VERSQQ.
+      VERSQQ = ' 1.40/05'
+      IVERSQ =  14005
+*KEND.
+     QFTITLCH=VIDQQ(5:60)
+     id=mod(IDATQQ,100);  im=3*mod(IDATQQ/100,100);  iy=IDATQQ/10000;
+ <w>;(' ********************************************************************')
+ <w>;(' *                                                                  *')
+ <w>;(' *        A D V A N C E D   G E A N T   I N T E R F A C E           *')
+ <w>;(' *                                                                  *')
+*<w>;(' *                      04-Sep-97 hot news:                         *')
+ <w> id,cmon(im-2:im),iy; (' *',22x,i2.2,'-',a3,'-',i2.2,' hot news:',25x,'*')
+ <w>;(' *                                                                  *')
+*<w>;(' * 20-Jul-97, MAJOR update! Remove all sl files prior to this date  *')
+*<w>;(' *                                                                  *')
+ <w>;(' * Kuip command "ON ERROR GOTO label" will now react on:            *')
+ <w>;(' *      - End_of_DATA on P stream, Write_Error on O stream          *')
+ <w>;(' *      - time_left less than defined by GTIME command argument     *')
+*<w>;(' * On GHIST command some standard histogram handling is introduced  *')
+*<w>;(' *        with automatic histogram dump when EXITing AGI.           *')
+*<w>;(' * Binning refined: - for BIT option all 2**Nbit values are used,   *')
+*<w>;(' *                    unknown elements are supposed to be integer   *')
+*<w>;(' *                  - for BIN option the interval is centered       *')
+*<w>;(' * To get robust tracking in MANY volumes use ISWIT(10) value > 0   *')
+*<w>;(' * Electron physics (Bremsstraghlung, Pair production) updated      *')
+*<w>;(' * Print control is now fully consistent with SLUG-DICE-ATRECON     *')
+*<w>;(' * Explicit NCOPY parameter is now allowed in the POSITION operator *')
+*<w>;(' * Protection against errenious hit limits (bug in GFIPAR on SUN)   *')
+*<w>;(' * RbGET counting request now returns again the correct number      *')
+*<w>;(' *       of banks in a chain, as it is described in SOFT-NO-002     *')
+*<w>;(' * USE operator has an OPERation NEXT, allowing bank chain scanning *')
+*<w>;(' * "-b filename" option now available for batch mode.               *')
+*<w>;(' * CERNLIB 97a release is now the default library version.          *')
+*<w>;(' * Be aware that it requires the FILL attribute to be 0, otherwise  *')
+*<w>;(' * edges drawn in black/white obscure most of the GEANT drawings !  *')
+ <w>;(' *                                                                  *')
+ <w>;(' * Absorption length calculation for mixtures corrected in GEANT.   *')
+ <w>;(' * CMZ KEEP sequences (car-format) are recognised as REPLACE macros *')
+ <w>;(' *                                                                  *')
+ <w>;(' * GEANT memory may be increased at the program invocation time -   *')
+ <w>;(' * start with -h option to get more information how to use switches *')
+ <w>;(' *                                                                  *')
+ <w>;(' * Tracking in MANY volumes is corrected - no missing hits anymore  *')
+ <w>;(' *                                                                  *')
+ <w>;(' * GENZ package added - LGNFIND,GNZGET* calls are available         *')
+ <w>;(' *                                                                  *')
+ <w>;(' * Modified STRUCTURES can be read by USE with schema evolution     *')
+ <w>;(' *              See more details on HELP USE                        *')
+ <w>;(' *                                                                  *')
+ <w>;(' *           FOR MORE DETAILS PLEASE USE HELP FACILITY              *')
+ <w>;(' *                                                                  *')
+ <w>;(' * To get complete description of AGI commands in printable format  *')
+ <w>;(' *              do:  MANUAL AGUSER MAN.TEX LATEX                    *')
+ <w>;(' ********************************************************************')
+      end
+ 
+ 
+*CMZ :          27/12/98  22.11.06  by  Pavel Nevski
+*CMZ :  1.40/05 30/12/97  11.59.38  by  Pavel Nevski
+*CMZ :  1.30/00 17/04/97  20.55.24  by  Pavel Nevski
+*-- Author :    Pavel Nevski   27/11/94
+#ifndef __ROOT__
+*****************************************************************************
+*                                                                           *
+             Subroutine   U G I N I T (C)
+*                                                                           *
+*            GEANT Initialization Sequence                                  *
+*****************************************************************************
+*KEEP,TYPING.
+      IMPLICIT NONE
+*KEEP,GCBANK.
+      INTEGER IQ,LQ,NZEBRA,IXSTOR,IXDIV,IXCONS,LMAIN,LR1,JCG
+      INTEGER KWBANK,KWWORK,IWS
+      REAL GVERSN,ZVERSN,FENDQ,WS,Q
+C
+      PARAMETER (KWBANK=69000,KWWORK=5200)
+      COMMON/GCBANK/NZEBRA,GVERSN,ZVERSN,IXSTOR,IXDIV,IXCONS,FENDQ(16)
+     +             ,LMAIN,LR1,WS(KWBANK)
+      DIMENSION IQ(2),Q(2),LQ(8000),IWS(2)
+      EQUIVALENCE (Q(1),IQ(1),LQ(9)),(LQ(1),LMAIN),(IWS(1),WS(1))
+      EQUIVALENCE (JCG,JGSTAT)
+      INTEGER       JDIGI ,JDRAW ,JHEAD ,JHITS ,JKINE ,JMATE ,JPART
+     +      ,JROTM ,JRUNG ,JSET  ,JSTAK ,JGSTAT,JTMED ,JTRACK,JVERTX
+     +      ,JVOLUM,JXYZ  ,JGPAR ,JGPAR2,JSKLT
+C
+      COMMON/GCLINK/JDIGI ,JDRAW ,JHEAD ,JHITS ,JKINE ,JMATE ,JPART
+     +      ,JROTM ,JRUNG ,JSET  ,JSTAK ,JGSTAT,JTMED ,JTRACK,JVERTX
+     +      ,JVOLUM,JXYZ  ,JGPAR ,JGPAR2,JSKLT
+C
+*KEEP,GCPHYS.
+      COMMON/GCPHYS/IPAIR,SPAIR,SLPAIR,ZINTPA,STEPPA
+     +             ,ICOMP,SCOMP,SLCOMP,ZINTCO,STEPCO
+     +             ,IPHOT,SPHOT,SLPHOT,ZINTPH,STEPPH
+     +             ,IPFIS,SPFIS,SLPFIS,ZINTPF,STEPPF
+     +             ,IDRAY,SDRAY,SLDRAY,ZINTDR,STEPDR
+     +             ,IANNI,SANNI,SLANNI,ZINTAN,STEPAN
+     +             ,IBREM,SBREM,SLBREM,ZINTBR,STEPBR
+     +             ,IHADR,SHADR,SLHADR,ZINTHA,STEPHA
+     +             ,IMUNU,SMUNU,SLMUNU,ZINTMU,STEPMU
+     +             ,IDCAY,SDCAY,SLIFE ,SUMLIF,DPHYS1
+     +             ,ILOSS,SLOSS,SOLOSS,STLOSS,DPHYS2
+     +             ,IMULS,SMULS,SOMULS,STMULS,DPHYS3
+     +             ,IRAYL,SRAYL,SLRAYL,ZINTRA,STEPRA
+      COMMON/GCPHLT/ILABS,SLABS,SLLABS,ZINTLA,STEPLA
+     +             ,ISYNC
+     +             ,ISTRA
+*
+      INTEGER IPAIR,ICOMP,IPHOT,IPFIS,IDRAY,IANNI,IBREM,IHADR,IMUNU
+     +       ,IDCAY,ILOSS,IMULS,IRAYL,ILABS,ISYNC,ISTRA
+      REAL    SPAIR,SLPAIR,ZINTPA,STEPPA,SCOMP,SLCOMP,ZINTCO,STEPCO
+     +       ,SPHOT,SLPHOT,ZINTPH,STEPPH,SPFIS,SLPFIS,ZINTPF,STEPPF
+     +       ,SDRAY,SLDRAY,ZINTDR,STEPDR,SANNI,SLANNI,ZINTAN,STEPAN
+     +       ,SBREM,SLBREM,ZINTBR,STEPBR,SHADR,SLHADR,ZINTHA,STEPHA
+     +       ,SMUNU,SLMUNU,ZINTMU,STEPMU,SDCAY,SLIFE ,SUMLIF,DPHYS1
+     +       ,SLOSS,SOLOSS,STLOSS,DPHYS2,SMULS,SOMULS,STMULS,DPHYS3
+     +       ,SRAYL,SLRAYL,ZINTRA,STEPRA,SLABS,SLLABS,ZINTLA,STEPLA
+C
+*KEEP,GCTRAK.
+      INTEGER NMEC,LMEC,NAMEC,NSTEP ,MAXNST,IGNEXT,INWVOL,ISTOP,MAXMEC
+     + ,IGAUTO,IEKBIN,ILOSL, IMULL,INGOTO,NLDOWN,NLEVIN,NLVSAV,ISTORY
+     + ,MAXME1,NAMEC1
+      REAL  VECT,GETOT,GEKIN,VOUT,DESTEP,DESTEL,SAFETY,SLENG ,STEP
+     + ,SNEXT,SFIELD,TOFG  ,GEKRAT,UPWGHT
+      REAL POLAR
+      PARAMETER (MAXMEC=30)
+      COMMON/GCTRAK/VECT(7),GETOT,GEKIN,VOUT(7),NMEC,LMEC(MAXMEC)
+     + ,NAMEC(MAXMEC),NSTEP ,MAXNST,DESTEP,DESTEL,SAFETY,SLENG
+     + ,STEP  ,SNEXT ,SFIELD,TOFG  ,GEKRAT,UPWGHT,IGNEXT,INWVOL
+     + ,ISTOP ,IGAUTO,IEKBIN, ILOSL, IMULL,INGOTO,NLDOWN,NLEVIN
+     + ,NLVSAV,ISTORY
+      PARAMETER (MAXME1=30)
+      COMMON/GCTPOL/POLAR(3), NAMEC1(MAXME1)
+C
+*KEEP,SCLINK.
+C SLUG link area :    Permanent Links for SLUG:
+      INTEGER         LKSLUG,NSLINK
+      PARAMETER       (NSLINK=40)
+      COMMON /SCLINK/ LKSLUG(NSLINK)
+C The following names are equivalenced to LKSLUG.
+C The equivalence name is the one used in SLINIB.
+      INTEGER LKGLOB,LKDETM,LKTFLM,LKTFLT,LKAMOD,LKAGEV,LKAMCH,LKADIG,
+     +        LKMAPP,LKMFLD,LKRUNT,LKEVNT,LKARAW,LKATRI,LKAPRE,LKARP1,
+     +        LKARP2,LKARP3,LKDSTD,LKRUN2,LKEVN2,LKVER2,LKKIN2,LKHIT2,
+     +        LKGENE
+C                                       Link to:
+      EQUIVALENCE (LKSLUG(1),LKGLOB)   ! top of temporary HEPEVT Zebra tree
+      EQUIVALENCE (LKSLUG(2),LKDETM)   ! top of subdetector structure
+      EQUIVALENCE (LKSLUG(3),LKTFLM)   ! permanent track filter structure
+      EQUIVALENCE (LKSLUG(4),LKTFLT)   ! temporary track filter structure
+      EQUIVALENCE (LKSLUG(5),LKAMOD)   ! MODule parameters (Dont know this)
+      EQUIVALENCE (LKSLUG(6),LKAGEV)   ! Link to general event structure
+      EQUIVALENCE (LKSLUG(7),LKAMCH)   ! MonteCarlo Hits ( not GEANT I guess)
+      EQUIVALENCE (LKSLUG(8),LKADIG)   ! DIGitized hits (again not GEANT...?)
+      EQUIVALENCE (LKSLUG(9),LKMAPP)   ! map structure
+      EQUIVALENCE (LKSLUG(10),LKMFLD)  ! magnetic field banks
+      EQUIVALENCE (LKSLUG(11),LKRUNT)  ! run tree bank (vertical structure)
+      EQUIVALENCE (LKSLUG(12),LKEVNT)  ! event tree bank (vertical struct)
+      EQUIVALENCE (LKSLUG(13),LKARAW)  ! raw data structure
+      EQUIVALENCE (LKSLUG(14),LKATRI)  ! trigger banks
+      EQUIVALENCE (LKSLUG(15),LKAPRE)  ! preprocessed hits
+      EQUIVALENCE (LKSLUG(16),LKARP1)  ! reconstuction phase 1 banks
+      EQUIVALENCE (LKSLUG(17),LKARP2)  ! reconstuction phase 2 banks
+      EQUIVALENCE (LKSLUG(18),LKARP3)  ! reconstuction phase 3 banks
+      EQUIVALENCE (LKSLUG(19),LKDSTD)  ! DST data banks
+      EQUIVALENCE (LKSLUG(20),LKRUN2)  ! run tree bank for secondary run
+      EQUIVALENCE (LKSLUG(21),LKEVN2)  ! event tree bank for secondary events
+      EQUIVALENCE (LKSLUG(22),LKVER2)  ! secondary GEANT VERT bank
+      EQUIVALENCE (LKSLUG(23),LKKIN2)  ! secondary GEANT KINE bank
+      EQUIVALENCE (LKSLUG(24),LKHIT2)  ! secondary GEANT HITS bank
+      EQUIVALENCE (LKSLUG(26),LKGENE)  ! old slug ZEBRA generator structure
+*KEEP,AGECOM.
+      CHARACTER*20 AG_MODULE,  AG_TITLE,  AG_EXNAME,   AG_PARLIST,
+     +             AG_MATERIAL,AG_MIXTURE,AG_COMPONENT,AG_MEDIUM,
+     +             AG_CHDIR
+      CHARACTER*4  AG_VOLUME,AG_MOTHER,AG_SHAPE,AG_CNICK,AG_KONLY,
+     +             AG_OPTION,AG_ORT,AG_MARK
+      INTEGER      AG_BEGCOM,AG_IVOLUME,AG_IMOTHER,AG_IGNUM,AG_ISHAPE,
+     +             AG_IMED,AG_IMAT,AG_IFIELD,AG_IDTYPE,AG_NLMAT,AG_ORTI,
+     +             AG_IERROR,AG_NWBUF,AG_NPAR,AG_ISTATUS,AG_IROT,AG_JDU,
+     +             AG_NBITS,AG_ISET,AG_IDET,AG_ISVOL, AG_ATTRIBUTE(6),
+     +             AG_WORK, AG_SEEN,AG_LSTY,AG_LWID,AG_COLO,AG_FILL,
+     +             AG_LEVEL,AG_NDIV,AG_IAXIS,AG_NDVMAX,AG_NPDV,AG_NCOPY,
+     +             AG_IPRIN,AG_RESET1,AG_RESET2,AG_BEGSCR,AG_ENDSCR,
+     +             AG_IRESER,AG_LSTACK,AG_NWUHIT,AG_NWUVOL,AG_MAGIC,
+     +             AG_LDETU,AG_NPDIV,AG_NZ,AG_IGEOM,AG_IDEBU,AG_IGRAP,
+     +             AG_IHIST,AG_IMFLD,AG_SERIAL,AG_STANDALONE,AG_ISIMU,
+     +             AG_CODE,AG_TRKTYP,AG_ECODE,AG_MODE,AG_PDG,
+     +             AG_ENDSAVE,IPRIN
+      REAL         AG_FIELDM,AG_TMAXFD,AG_STEMAX,AG_DEEMAX,AG_EPSIL,
+     +             AG_STMIN,AG_DENS,AG_RADL,AG_ABSL,AG_THETAX,AG_THETAY,
+     +             AG_THETAZ,AG_ALFAX,AG_ALFAY,AG_ALFAZ,AG_PHIX,AG_PHIY,
+     +             AG_ALPHAX,AG_ALPHAY,AG_ALPHAZ, AG_PHIZ, AG_TWIST,
+     +             AG_DX, AG_DX1, AG_DX2, AG_DY, AG_DY1,AG_DY2,
+     +             AG_THET, AG_THE1, AG_THE2, AG_PHI, AG_PHI1, AG_PHI2,
+     +             AG_ALPH, AG_ALP1, AG_ALP2, AG_RMIN, AG_RMAX, AG_RMN,
+     +             AG_RMX, AG_ZI, AG_RMN1, AG_RMN2, AG_RMX1, AG_RMX2,
+     +             AG_H1, AG_H2, AG_BL1, AG_BL2, AG_TL1, AG_TL2,AG_DPHI,
+     +             AG_DZ, AG_TWIS, AG_X, AG_Y, AG_Z, AG_A, AG_ZA, AG_W,
+     +             AG_STEP, AG_C0, AG_PAR, AG_AA,AG_ZZ,AG_WW,AG_TYPE,
+     +             AG_STACK,AG_UBUF,AG_XHMAX,AG_YHMAX,AG_ZHMAX,
+     +             AG_RHMAX,AG_FHMAX,AG_FHMIN,AG_BIN,AG_DMAXMS,
+     +             AG_LX, AG_LY, AG_LZ, AG_HX, AG_HY, AG_HZ, AG_P1,
+     +             AG_P2, AG_CHARGE, AG_MASS, AG_TLIFE, AG_BRATIO
+      PARAMETER   (AG_LSTACK=130, AG_NWUHIT=10, AG_NWUVOL=3,
+     +             AG_MAGIC=-696969, AG_LDETU=250)
+      COMMON/AGCGLOB/AG_MODULE, AG_CHDIR,   AG_LEVEL,   AG_IDTYPE,
+     +              AG_IERROR,  AG_STANDALONE,          IPRIN,
+     +              AG_IPRIN,   AG_IGEOM,   AG_IDEBU,   AG_IGRAP,
+     +              AG_IHIST,   AG_IMFLD,   AG_ISIMU
+C Inherited variables saved during internal calls
+      COMMON/AGCPARA/AG_BEGCOM, AG_IVOLUME, AG_IMOTHER, AG_IGNUM,
+     +              AG_ISHAPE,  AG_IMED,    AG_IMAT,    AG_IFIELD,
+     +              AG_FIELDM,  AG_TMAXFD,  AG_STEMAX,  AG_DEEMAX,
+     +              AG_EPSIL,   AG_STMIN,   AG_DENS,    AG_RADL,
+     +              AG_ABSL,    AG_DX,      AG_DX1,     AG_DX2,
+     +              AG_DY,      AG_DY1,     AG_DY2,
+     +              AG_RMN1,    AG_RMN2,    AG_RMX1,    AG_RMX2,
+     +              AG_THET,    AG_THE1,    AG_THE2,
+     +              AG_PHI,     AG_PHI1,    AG_PHI2,
+     +              AG_ALPH,    AG_ALP1,    AG_ALP2,
+     +              AG_H1,      AG_BL1,     AG_TL1,
+     +              AG_H2,      AG_BL2,     AG_TL2,
+     +              AG_RMIN,    AG_RMAX,    AG_DPHI,    AG_NPDIV,
+     +              AG_NZ,      AG_DZ,      AG_TWIS,
+     +              AG_LX,      AG_LY,      AG_LZ,
+     +              AG_HX,      AG_HY,      AG_HZ,
+     +              AG_A,       AG_ZA,      AG_W,       AG_NLMAT,
+     +              AG_WORK,    AG_SEEN,    AG_LSTY,
+     +              AG_LWID,    AG_COLO,    AG_FILL,
+     +              AG_SERIAL,  AG_ISVOL,   AG_ISTATUS,
+     +              AG_ZI(16),  AG_RMN(16), AG_RMX(16),
+     +              AG_VOLUME,  AG_MOTHER,  AG_SHAPE,   AG_CNICK,
+     +                                                  AG_ENDSAVE,
+     +              AG_RESET1,  AG_THETAX,  AG_THETAY,  AG_THETAZ,
+     +              AG_ALFAX,   AG_ALFAY,   AG_ALFAZ,
+     +              AG_PHIX,    AG_PHIY,    AG_PHIZ,
+     +              AG_X,       AG_Y,       AG_Z,
+     +              AG_STEP,    AG_C0,      AG_NDIV,
+     +              AG_IAXIS,   AG_NDVMAX,  AG_ORTI,    AG_NCOPY,
+     +              AG_RESET2,
+     +              AG_KONLY,   AG_ORT,     AG_MARK
+      COMMON/AGCPART/AG_code,AG_trktyp,AG_mass,AG_charge,AG_tlife,
+     +                       AG_bratio(6),AG_mode(6),AG_pdg,AG_ecode
+C local variables valid inside same block
+      COMMON/AGCLOCA/AG_BEGSCR, AG_UBUF(100), AG_PAR(100),
+     +              AG_AA(20),  AG_ZZ(20),    AG_WW(20),   AG_NWBUF,
+     +              AG_XHMAX,   AG_YHMAX,     AG_ZHMAX,    AG_RHMAX,
+     +              AG_FHMAX, AG_FHMIN, AG_NBITS, AG_BIN,  AG_TYPE,
+     +              AG_IROT,  AG_NPAR,  AG_ISET,  AG_IDET, AG_JDU,
+     +              AG_IRESER,                             AG_ENDSCR,
+     +              AG_TITLE,   AG_EXNAME,    AG_PARLIST,  AG_MATERIAL,
+     +              AG_MIXTURE, AG_COMPONENT, AG_MEDIUM,   AG_OPTION
+      COMMON/AGCSTAC/AG_STACK(AG_LSTACK,15)
+      EQUIVALENCE  (AG_ATTRIBUTE,AG_WORK),(AG_STEMAX,AG_DMAXMS),
+     +             (AG_ALFAX,AG_ALPHAX),  (AG_ALFAY,AG_ALPHAY),
+     +             (AG_ALFAZ,AG_ALPHAZ),  (AG_TWIST,AG_TWIS),
+     +             (AG_P1,AG_HX),         (AG_P2,AG_HY),
+     +             (AG_NPDIV,AG_NPDV),
+*    - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - *
+ 
+ 
+*KEEP,agckine.
+*    AGI general data card information
+      Integer          IKineOld,IdInp,Kevent,
+     >                 Iback,IbackOld,IbMode,IbBefor,IbAfter,
+     >                 IbCurrent,IvCurrent,Ioutp,IoutpOld
+      Real             AVflag,AVcoor,AVsigm,Ptype,PTmin,PTmax,
+     >                 Etamin,Etamax,PhiMin,PhiMax,Ptflag,
+     >                 Zmin,Zmax,BgMult,BgTime,BgSkip,
+     >                 Pxmin,Pxmax,Pymin,Pymax,Pzmin,Pzmax
+      COMMON /AgCKINE/ IKineOld,IdInp,Kevent(3),
+     >                 AVflag,AVcoor(3),AVsigm(3),
+     >                 Ptype,PTmin,PTmax,Etamin,Etamax,
+     >                 PhiMin,PhiMax,Ptflag,Zmin,Zmax,
+     >                 Pxmin,Pxmax,Pymin,Pymax,Pzmin,Pzmax
+      COMMON /AgCKINB/ Iback,IbackOld,IbMode,IbBefor,IbAfter,
+     >                 BgMult,BgTime,BgSkip,IbCurrent,IvCurrent
+      COMMON /AgCKINO/ Ioutp,IoutpOld
+      Character*20     CoptKine,CoptBack,CoptOutp
+      COMMON /AgCKINC/ CoptKine,CoptBack,CoptOutp
+      Character*20     StrmKine,StrmBack,StrmOutp
+      COMMON /AgCKINS/ StrmKine,StrmBack,StrmOutp
+      Character*20     CrunType
+      COMMON /AgCKINR/ CrunType
+      Integer          Ncommand
+      Character*20     Ccommand
+      COMMON /AgCCOMD/ Ncommand,Ccommand
+      Integer          IUHIST
+      Character*80            CFHIST,CDHIST
+      COMMON /AgCHIST/ IUHIST,CFHIST,CDHIST
+*
+      Integer          NtrSubEV,NkineMax,NhitsMax,NtoSkip,NsubToSkip,
+     >                 Nsubran,ItrigStat,NsubEvnt,IsubEvnt,
+     >                 Make_Shadow,Flag_Secondaries
+      Real             Cutele_Gas,VertexNow
+      COMMON /AgCSUBE/ NtrSubEV,NkineMax,NhitsMax,
+     >                 NtoSkip,NsubToSkip,Nsubran(2)
+      COMMON /AgCSTAR/ Make_Shadow,Cutele_Gas,Flag_Secondaries
+      COMMON /AgCstat/ ItrigSTAT,NsubEvnt,IsubEvnt,VertexNow(3)
+*
+*    - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+*
+*KEND.
+     CHARACTER C*1
+     Integer  p/0/
+     EXTERNAL CSRMSL,AGDROP
+*
+     CALL GINIT                   "  GEANT common blocks                "
+     CALL GZINIT                  "  GEANT core divisions, link areas,  "
+     CALL AGZINI                  "  specific ZEBRA initialization      "
+*    CALL GFFGO                   !  READ data cards within GEANt
+     CALL GPART                   "  Define standard particles          "
+     CALL GMATE                   "  Initialize standard materials      "
+     Call CSEXT ('CSRMSL,AGDROP,p',CSRMSL,AGDROP,p,p,p,p,p,p,p,p)
+     Call CSFILE('0.csl')         "  Make all AGI routines callable     "
+     DPHYS1      = 0              "  oshibku oshibkoi vybivaiut         "
+     %Standalone = 1              "  standalone version, not batch      "
+     %IGRAP      = -1             "  no default graphic, on request only"
+     IGAUTO      = 0              "  defaults GEANT tracking  off       "
+     CrunType    = ' '            "  no default actions defined         "
+     NkineMax    =  64 000        "  ZEBRA limit on KINE bank           "
+     NhitsMax    = 100 000 000    "  a reasonable limit on hit bank     "
+*    Call GUINTI                     gsuser menu - called by geant      "
+     Call AGXINIT                 "  aguser menu - called here          "
+     %Module=' ';  call Agstand
+     Call AgDummy
+*
+END
+ 
+#endif /* __ROOT__ */
+*CMZ :          03/09/98  16.43.10  by  Pavel Nevski
+*CMZ :  1.40/05 21/11/97  17.47.13  by  Pavel Nevski
 *CMZ :  1.30/00 02/04/97  22.56.51  by  Pavel Nevski
 *-- Author :    Pavel Nevski   27/11/94
 *********************************************************************
                 Subroutine   U G L A S T
+* Modifications:
+* PN,  03.09.98: terminate spool output.
 *********************************************************************
 *KEEP,TYPING.
       IMPLICIT NONE
@@ -40,6 +614,8 @@ C
       COMMON /AgCKINO/ Ioutp,IoutpOld
       Character*20     CoptKine,CoptBack,CoptOutp
       COMMON /AgCKINC/ CoptKine,CoptBack,CoptOutp
+      Character*20     StrmKine,StrmBack,StrmOutp
+      COMMON /AgCKINS/ StrmKine,StrmBack,StrmOutp
       Character*20     CrunType
       COMMON /AgCKINR/ CrunType
       Integer          Ncommand
@@ -64,6 +640,8 @@ C
     Integer      ICYCLE
     Character*10 CTOP
  
+    If Ioutp==-1 { call GUOUT;  Call FZENDO(23,'TX'); Ioutp=0; IoutpOld=0; }
+ 
     IF IUHIST>0
     { CTOP='//'//CDHIST;  <w> CTOP,CFHIST;
       (' Saving Histograms from ',a,' to ',a)
@@ -74,89 +652,19 @@ C
       CLOSE (IUHIST);    IUHIST=0
     }
     * Call RZCLOS(' ','A')
-    If (Ioutp!=0) Call FZENDO(23,'TX')
     Call GLAST
     " STOP "
     END
  
  
-
-      SUBROUTINE AGVERSION
-character*36 cmon/'JanFebMarAprMayJunJulAugSepOctNovDec'/
-+cde,GCUNIT.
-C
-*KEEP,agcvers.
-      COMMON /AGCVERS/IDATQQ,ITIMQQ,IVERSQ,VERSQQ,QFTITLCH
-      INTEGER         IDATQQ,ITIMQQ,IVERSQ
-      CHARACTER       VERSQQ*8,QFTITLCH*60
-*     - - - - - - - - - - - - - - - - - - - -
-*KEEP,VIDQQ.
-      CHARACTER*68 VIDQQ
-      DATA VIDQQ/
-     +'@(#)Advanced Geant Inteface               C: 18/06/98  20.58.21
-     +'/
-*KEEP,DATEQQ.
-      IDATQQ =   980618
-*KEEP,TIMEQQ.
-      ITIMQQ =   2058
-*KEEP,VERSQQ.
-      VERSQQ = ' '
-      IVERSQ = -1
-*KEND.
-     QFTITLCH=VIDQQ(5:60)
-     id=mod(IDATQQ,100);  im=3*mod(IDATQQ/100,100);  iy=IDATQQ/10000;
- <w>;(' ********************************************************************')
- <w>;(' *                                                                  *')
- <w>;(' *        A D V A N C E D   G E A N T   I N T E R F A C E           *')
- <w>;(' *                                                                  *')
-*<w>;(' *                      04-Sep-97 hot news:                         *')
- <w> id,cmon(im-2:im),iy; (' *',22x,i2.2,'-',a3,'-',i2.2,' hot news:',25x,'*')
- <w>;(' *                                                                  *')
-*<w>;(' * 20-Jul-97, MAJOR update! Remove all sl files prior to this date  *')
-*<w>;(' *                                                                  *')
- <w>;(' * Kuip command "ON ERROR GOTO label" will now react on:            *')
- <w>;(' *      - End_of_DATA on P stream, Write_Error on O stream          *')
- <w>;(' *      - time_left less than defined by GTIME command argument     *')
-*<w>;(' * On GHIST command some standard histogram handling is introduced  *')
-*<w>;(' *        with automatic histogram dump when EXITing AGI.           *')
-*<w>;(' * Binning refined: - for BIT option all 2**Nbit values are used,   *')
-*<w>;(' *                    unknown elements are supposed to be integer   *')
-*<w>;(' *                  - for BIN option the interval is centered       *')
-*<w>;(' * To get robust tracking in MANY volumes use ISWIT(10) value > 0   *')
-*<w>;(' * Electron physics (Bremsstraghlung, Pair production) updated      *')
-*<w>;(' * Print control is now fully consistent with SLUG-DICE-ATRECON     *')
- <w>;(' * Explicit NCOPY parameter is now allowed in the POSITION operator *')
-*<w>;(' * Protection against errenious hit limits (bug in GFIPAR on SUN)   *')
-*<w>;(' * RbGET counting request now returns again the correct number      *')
-*<w>;(' *       of banks in a chain, as it is described in SOFT-NO-002     *')
- <w>;(' * USE operator has an OPERation NEXT, allowing bank chain scanning *')
- <w>;(' * "-b filename" option now available for batch mode.               *')
-*<w>;(' * CERNLIB 97a release is now the default library version.          *')
-*<w>;(' * Be aware that it requires the FILL attribute to be 0, otherwise  *')
-*<w>;(' * edges drawn in black/white obscure most of the GEANT drawings !  *')
- <w>;(' *                                                                  *')
- <w>;(' * Absorption length calculation for mixtures corrected in GEANT.   *')
- <w>;(' * CMZ KEEP sequences (car-format) are recognised as REPLACE macros *')
- <w>;(' *                                                                  *')
- <w>;(' * GEANT memory may be increased at the program invocation time -   *')
- <w>;(' * start with -h option to get more information how to use switches *')
- <w>;(' *                                                                  *')
- <w>;(' * Tracking in MANY volumes is corrected - no missing hits anymore  *')
- <w>;(' *                                                                  *')
- <w>;(' *           FOR MORE DETAILS PLEASE USE HELP FACILITY              *')
- <w>;(' *                                                                  *')
- <w>;(' * To get complete description of AGI commands in printable format  *')
- <w>;(' *              do:  MANUAL AGUSER MAN.TEX LATEX                    *')
- <w>;(' ********************************************************************')
-      end
- 
- 
-*CMZ :          08/06/98  21.29.29  by  Pavel Nevski
+*CMZ :          27/12/98  21.53.56  by  Pavel Nevski
+*CMZ :  1.40/05 27/08/98  22.49.57  by  Pavel Nevski
+*CMZ :  1.40/05 21/08/98  13.34.22  by  Pavel Nevski
 *CMZ :  1.30/00 23/04/97  18.45.29  by  Pavel Nevski
 *-- Author :    Pavel Nevski   01/04/96
 *********+*********+*********+*********+*********+*********+*********+*********+
 *                                                                              *
-      SUBROUTINE    A G X U S E R 
+      SUBROUTINE AGXUSER
 * Description:  define AgI KUIP command repertoire                             *
 *********+*********+*********+*********+*********+*********+*********+*********+
 *KEEP,TYPING.
@@ -299,6 +807,8 @@ C
       COMMON /AgCKINO/ Ioutp,IoutpOld
       Character*20     CoptKine,CoptBack,CoptOutp
       COMMON /AgCKINC/ CoptKine,CoptBack,CoptOutp
+      Character*20     StrmKine,StrmBack,StrmOutp
+      COMMON /AgCKINS/ StrmKine,StrmBack,StrmOutp
       Character*20     CrunType
       COMMON /AgCKINR/ CrunType
       Integer          Ncommand
@@ -360,8 +870,8 @@ C                                       Link to:
      character     command*32,Cword*4,C*1
      character*256 string1,string2,string3
      integer       LENOCC,CSADDR,SYSTEMF,
-                   Npar,Len1,Len2,Len3,Ip,Kp,Jp,L1,L,i,j,K,i0,j0,id,
-                   id1,id2,address,JAD,IAD,Ival,Ier,Iprin/1/,Li/20/
+                   Npar,Len1,Len2,Len3,Ip,Kp,Jp,L1,L2,L,M,Lc,i,j,K,i0,j0,id,
+                   id1,id2,address,JAD,IAD,Ival,Ier,Iprin/1/,Li/20/,Nblk/1024/
      Character*160 source,      destin,      mname,     library
      data          source/' '/, destin/' '/, mname/' '/,library/' '/
      Real          PAR(1000),Rval,dummy1,dummy2
@@ -382,51 +892,65 @@ C                                       Link to:
   }
   else If Command=='GFILE'
   {  " open an I/O: file stream request"  Ccommand=' '
+     IER=0
      Call KUGETC(string1,len1);
      Call KUGETS(string2,len2);
      Call KUGETC(string3,len3);         C='P'
      IF (Index(String1(1:len1),'B')>0)  C='B'
      IF (Index(String1(1:len1),'O')>0)  C='O'
      If (string2(1:len2)=='ZEBRA')  { String2='ZEBRA.'//C; Len2=7; }
-     Do i=4,Npar { Call KUGETI(PAR(i-3)) }
+ 
+* PN, 28.09.98:  Do i=4,Npar { Call KUGETI(PAR(i-3)) }
  
      If  Index(String1(1:len1),'U')>0
      {  { Ikine,IkineOld }=-5;  CoptKine=string3;
         call AgFOPEN(li,string2(1:len2),ier)
         Address=CsADDR('AgUSOPEN')
         L1 = 4*((len2+3)/4)
-        If (address != 0) CALL CsJCAL(address,2,string2(1:L1))
+        If (address!=0) CALL CsJCAL1S(address,string2(1:L1))
      }
      else If Index(String1(1:len1),'N')>0
-     {  Call AgNTOpen(String2(1:len2),4) }
+     {  Call AgNTOpen(String2(1:len2),4);  If (Ikine!=IkineOld) Ier=1; }
      else
-     {  Call AgZOPEN(string1(1:len1),string2(1:len2),string3(1:len3),
-                                                          Npar-3,PAR)
-        IF (Index(String1(1:len1),'P')>0)  Call AGZREAD ('P',ier)
-        IF (Index(String1(1:len1),'B')>0)  Call AGZREAD ('B',ier)
-        IF (Index(String1(1:len1),'O')>0)  Call AGZWRITE('O',ier)
-     }
+     {  Call AgZOPEN(string1(1:len1),string2(1:len2),string3(1:len3),Ier)
+      * PN, 28.09.98:                                         Npar-3,PAR)
+        If Ier==0
+        {  IF (Index(String1(1:len1),'P')>0)  Call AGZREAD ('P',ier)
+           IF (Index(String1(1:len1),'B')>0)  Call AGZREAD ('B',ier)
+         * PN,03.09.98 - spool output until first trig
+         * IF (Index(String1(1:len1),'O')>0)  Call AGZWRITE('O',ier)
+     }  }
      If (Index(String3(1:Len3),'S')>0 | String3(1:1)='*') _
                                       Call AGKEEPS(' ','def')
+     Iquest(1)=Ier
   }
   else If Command=='GHIST' | Command=='HFILE'
   {  " open a histigram file
      Call KUGETS(string1,len1); CFHIST=string1(1:len1)
      Call KUGETC(string2,len2); CDHIST=string2(1:len2)
-     Call KUGETI(IUHIST)
-     Call HROPEN(IUHIST,CDHIST,CFHIST,'N',1024,IVAL)
+     Call KUGETI(IUHIST);       call KUGETI(Nblk);
+     Nblk=1024*(max(nint(NBLK/1024.),1))
+     Call HROPEN(IUHIST,CDHIST,CFHIST,'N',Nblk,IVAL)
      prin1 %L(CDHIST),%L(CFHIST),IUHIST
      (' Creating RZ-directory ',a,' for histogram file ',a,' on unit ',i3)
+  }
+  Else If Command=='GRFILE'
+  {   Call KugetS (String1,len1)
+      Call KUGETC (String2,len2)
+      Call KUGETI (ID)
+      call agrfile(ID,String1(1:len1),String2(1:len2))
   }
   else If Command=='ACTIONS'
   {  Call KUGETC(string1,len1);  CRunType=string1(1:len1)
      prin1 CrunType; (' Allowed actions: ',a)
   }
   else If Command=='VERSIONS'
-  {  if Npar==0  { Call AGVERSION; return; }
-     Call KUGETC(string1,len1);
-     IF (String1(1:4)=='RZ95') { prin1; (' RZ format 95 '); IQUEST(99)=0  }
-     IF (String1(1:4)=='RZ96') { prin1; (' RZ format 96 '); IQUEST(99)=96 }
+  {  Call KUGETC(string1,len1);
+     IF (String1(1:4)=='RZ95')  { prin1; (' RZ format 95 '); IQUEST(99)=0  }
+     IF (String1(1:4)=='RZ96')  { prin1; (' RZ format 96 '); IQUEST(99)=96 }
+     IF (String1(1:5)=='ATLAS') { prin1; (' rebank old');  call REBANKM(-1); }
+     IF (String1(1:4)=='STAF')  { prin1; (' rebank new');  call REBANKM( 0); }
+     IF (String1(1:5)=='DENSE') { prin1; (' rebank dens'); call REBANKM(+1); }
   }
   else If Command=='GKINE' | Command=='PHASESPACE' _
         | Command='GMOMENTUM' | Command=='MOMENTUMBIN'
@@ -504,8 +1028,13 @@ C                                       Link to:
      Do i=2,Npar-1,2
      {  Call KUGETC(String2,Len2); Cword=String2(1:len2); Call KUGETI(IVAL)
         Do j=1,NFLAGS
-        { Check Cword==CFLAG(j); Do ID=ID1,ID2
-          { If (LQ(LKDETM-ID)>0) IQ(LQ(LKDETM-ID)+j)=IVAL; }
+        { Check Cword==CFLAG(j);
+          Do ID=ID1,ID2 { If (LQ(LKDETM-ID)>0) IQ(LQ(LKDETM-ID)+j)=IVAL; }
+          Check Cword='BACK' & Ival>=0;
+          M=10**(int(1+LOG10(Ival+0.9))/2); L1=-Ival; L2=+Ival; L=1;
+          IF M>1  { L1=-(Ival/M/10);  L2=mod(Ival,M); L=mod(Ival/M,10) }
+          If L!=1 { Prin0 Ival; (' pile-up keyword is wrong :',i12) }
+          Prin1 L1,L2; (' pile-up in bunches ',i5,'  -trigger-',i5)
      }  }
      Do ID=ID1,ID2
      { Check LQ(LKDETM-ID)>0;
@@ -520,7 +1049,7 @@ C                                       Link to:
       Do i=2,Npar
       { * awful coding, may be sometime will do it better. PN.
          :more:       string1=string2; Len1=Len2;
-         if Len3==0 { Call KUGETC(string2,len2);  }
+         if Len3==0 { Call KUGETS(string2,len2);  }
          else       { string2=string3; Len2=Len3; }
          Call KUDPAR(string2,Ival,Rval,string3,len3,C);
          Len3=0
@@ -540,6 +1069,8 @@ C                                       Link to:
          prin2 C,string2(1:len2),len2; (' DETP input: ',a,' = ',a,i6)
          If (Len3>0) goto :more:
       }  Call AsLSETBA(CWORD,'DETP',j-1,PAR)
+      if (id>0) Call MZFLAG(IxCons,LQ(LkDetm-id),1,'Z')
+      IQUEST(1)=0
   }
   Else If Command=='GFLAG' | Command=='GSFLAG'
   {" all possible subsystem control flags "
@@ -555,6 +1086,8 @@ C                                       Link to:
   Else If Command=='GCLOSE'
   {" close geometry and possible recalculate cross-sections"
      Call GGCLOS;
+*    hide gphysi table in this case in a file - done inside agphysi
+*    Ival=Lout;  If (Idebug==0) Lout=99;
      If (Npar>0) Call AGPHYSI
 *    Lout=Ival
   }
@@ -597,15 +1130,15 @@ C                                       Link to:
   {  * PN, 04.03.98:  make it case sensitive
      Call KuGetS(string1,len1); " Call CUTOL(string1(1:Len1)) "
      If (Npar>1) Call KuGetS(Library,len2)
-     L=Len1; K=1; DO i=1,Len1
-     { if (string1(i:i)=='/') { K=i+1; L=Len1 };
-       if (string1(i:i)=='.')   L=i-1
+     L=Len1; Lc=Len1; K=1; DO i=Len1,1,-1
+     { if (string1(i:i)=='.') { Lc=i-1; If (L==Len1) L=Lc; }
+       if (string1(i:i)=='/') { K=i+1;  Break; }
      }
 *    call to csrmsl is needed to free the sl file before compilation
      If LENOCC(Source)+LENOCC(Destin)==0
      {  Call CSRMSL(String1(1:L));         CALL PAWCS;
         II(4)=0;
-        IQUEST(1) = SystemF('make '//string1(1:L)//'.sl')
+        Ier = SystemF('make '//string1(1:L)//'.sl')
         CALL  PAWFCA(string1(1:L)//'.csl',L+4,JAD,Idebug)
         Prin1  'make '//string1(1:L)//'.sl';  ('gexec: ',a)
      }
@@ -616,20 +1149,22 @@ C                                       Link to:
                     ' INP_DIR='//%L(Source)//'/'//%L(string1)//_
                     ' '//%L(library)
                     ('gexec: ',a)
-        IQUEST(1)=SystemF('gmake '//%L(mname)//                _
+        Ier=SystemF('gmake '//%L(mname)//                      _
                     ' INP_DIR='//%L(Source)//'/'//%L(string1)//_
                     ' '//%L(library))
         CALL PAWFCA('sl/'//string1(K:L)//'.csl',L-K+8,JAD,Idebug)
      }
+     * use call address as alternative
+     If (Jad==0 & Lc<L) Jad=CsADDR(string1(K:Lc)); L=Lc;
  
      if (JAD!=0) Call Ami_Module_Register (string1(K:L))
      IAD=CsADDR(string1(K:L)//'_init')
-     IF      IAD!=0       " staf module - init and possibly start it "
-     {  CALL CSJCAL(IAD,0,0)
-        IAD=CsADDR(string1(K:L)//'_start')
-        if (IAD!=0) CALL CSJCAL(IAD,0,0)
+     IF  IAD!=0       " staf module - init and possibly start it "
+     {  CALL CSJCAL(IAD,0, 0,0,0,0,0, 0,0,0,0,0)
+        JAD=CsADDR(string1(K:L)//'_start')
      }
-     else if JAD!=0    { CALL CSJCAL(JAD,0,0) }
+     if (JAD!=0)   CALL CSJCAL(JAD,0, 0,0,0,0,0, 0,0,0,0,0)
+     Iquest(1)=Ier
   }
   Else If Command=='GMAKE'
   {  Call KuGetS(source,len1)
@@ -674,6 +1209,8 @@ C                                       Link to:
   end
  
  
+*CMZ :          28/09/98  12.07.33  by  Pavel Nevski
+*CMZ :  1.40/05 17/08/98  18.55.10  by  Pavel Nevski
 *CMZ :  1.30/00 15/04/97  19.40.26  by  Pavel Nevski
 *-- Author :    Pavel Nevski   18/03/97
 ************************************************************************
@@ -681,6 +1218,7 @@ C                                       Link to:
 *                                                                      *
 * Description:    Process events, protected against ZEBRA faults       *
 * Modifications:  Clear ZEBRA storage after memory fault   PN 01/04/97 *
+* PN 28.09.98:    output spooling                                      *
 ************************************************************************
 *KEEP,GCBANK.
       INTEGER IQ,LQ,NZEBRA,IXSTOR,IXDIV,IXCONS,LMAIN,LR1,JCG
@@ -767,6 +1305,47 @@ C                                       Link to:
      +,              MQKEYS(3),NQINIT,NQTSYS,NQM99,NQPERM,NQFATA,NQCASE
      +,              NQTRAC,MQTRAC(48)
                                        EQUIVALENCE (KQSP,NQOFFS(1))
+*KEEP,agckine.
+*    AGI general data card information
+      Integer          IKineOld,IdInp,Kevent,
+     >                 Iback,IbackOld,IbMode,IbBefor,IbAfter,
+     >                 IbCurrent,IvCurrent,Ioutp,IoutpOld
+      Real             AVflag,AVcoor,AVsigm,Ptype,PTmin,PTmax,
+     >                 Etamin,Etamax,PhiMin,PhiMax,Ptflag,
+     >                 Zmin,Zmax,BgMult,BgTime,BgSkip,
+     >                 Pxmin,Pxmax,Pymin,Pymax,Pzmin,Pzmax
+      COMMON /AgCKINE/ IKineOld,IdInp,Kevent(3),
+     >                 AVflag,AVcoor(3),AVsigm(3),
+     >                 Ptype,PTmin,PTmax,Etamin,Etamax,
+     >                 PhiMin,PhiMax,Ptflag,Zmin,Zmax,
+     >                 Pxmin,Pxmax,Pymin,Pymax,Pzmin,Pzmax
+      COMMON /AgCKINB/ Iback,IbackOld,IbMode,IbBefor,IbAfter,
+     >                 BgMult,BgTime,BgSkip,IbCurrent,IvCurrent
+      COMMON /AgCKINO/ Ioutp,IoutpOld
+      Character*20     CoptKine,CoptBack,CoptOutp
+      COMMON /AgCKINC/ CoptKine,CoptBack,CoptOutp
+      Character*20     StrmKine,StrmBack,StrmOutp
+      COMMON /AgCKINS/ StrmKine,StrmBack,StrmOutp
+      Character*20     CrunType
+      COMMON /AgCKINR/ CrunType
+      Integer          Ncommand
+      Character*20     Ccommand
+      COMMON /AgCCOMD/ Ncommand,Ccommand
+      Integer          IUHIST
+      Character*80            CFHIST,CDHIST
+      COMMON /AgCHIST/ IUHIST,CFHIST,CDHIST
+*
+      Integer          NtrSubEV,NkineMax,NhitsMax,NtoSkip,NsubToSkip,
+     >                 Nsubran,ItrigStat,NsubEvnt,IsubEvnt,
+     >                 Make_Shadow,Flag_Secondaries
+      Real             Cutele_Gas,VertexNow
+      COMMON /AgCSUBE/ NtrSubEV,NkineMax,NhitsMax,
+     >                 NtoSkip,NsubToSkip,Nsubran(2)
+      COMMON /AgCSTAR/ Make_Shadow,Cutele_Gas,Flag_Secondaries
+      COMMON /AgCstat/ ItrigSTAT,NsubEvnt,IsubEvnt,VertexNow(3)
+*
+*    - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+*
 *KEND.
       REAL    TIMNOW/0/
       INTEGER IDEBAG/0/,TRIG/0/,AgPHASE
@@ -777,6 +1356,8 @@ C                                       Link to:
          CALL ZPHASE(1)
 *
          DO WHILE (IEVENT<NEVENT)
+*           PN 28.09.98: push out reconstruction banks
+            If (Ioutp.EQ.-1) Call GUOUT
             IQUEST(1)= 0
             IEORUN   = 0
             NQTRAC   = 0
@@ -795,7 +1376,8 @@ C                                       Link to:
             If (JHEAD.GT.0)  CALL MZDROP(IxSTOR,JHEAD,'L')
 *
             CALL TIMEL(TIMNOW)
-*          Check time left
+*          Check time left for non-splitted events
+            IF (NtrSubEV.le.0 .or. IsubEVNT.ge.NsubEvnt) then
             IF (ITIME.GT.0 .and. TIMNOW.LE.TIMEND) Then
                WRITE(CHMAIL,10001) TIMEND
 10001          FORMAT(' ***** THE JOB STOPS NOW because the TIME',
@@ -803,6 +1385,7 @@ C                                       Link to:
                CALL GMAIL(0,1)
                IQUEST(1) = 1
                GO TO 19
+            ENDIF
             ENDIF
 *
 *              initialise event counters
@@ -813,30 +1396,34 @@ C                                       Link to:
             CALL GRNDMQ(IQ(JRUNG+19),IQ(JRUNG+20),0,'G')
             IQ(JRUNG+29)=IEVENT
 *              Normal GEANT simulations (GTREVE) or RAW DATA here
+            IQUEST(1)= 0
             If (LKARAW.EQ.0) then
                CALL GTRIG
             else             !  very special case - test beam data
                CALL AgBEAMdat
                Call GUOUT
             endif
-            CALL GFHSTA
-            Call GRLEAS(JHITS)
-            If (JKINE>0) Call ZSORTI(IxSTOR,JKINE,-5)
-            If (JHITS>0) Call ZSORTI(IxSTOR,JHITS,-5)
+            if (IQUEST(1).EQ.0) then
+               CALL GFHSTA
+               Call GRLEAS(JHITS)
+               If (JKINE>0) Call ZSORTI(IxSTOR,JKINE,-5)
+               If (JHITS>0) Call ZSORTI(IxSTOR,JHITS,-5)
+               IQUEST(1)= 0
+            endif
 *
             IF(IEORUN.NE.0) Then
-               WRITE(CHMAIL,10002) TIMNOW
-10002          FORMAT(' ***** THE JOB STOPS NOW because the IEORUN',
-     >                ' flag set by user, Time left is ',F12.3,' *****')
+               WRITE(CHMAIL,10002) IEORUN
+10002          FORMAT(' ***** event loop ends because the IEORUN',
+     >                ' flag set by user is ',I6)
                CALL GMAIL(0,1)
                IQUEST(1) = 1
                GO TO 19
             ENDIF
 *
             IF(IQUEST(1).NE.0) Then
-               WRITE(CHMAIL,10003) TIMNOW
-10003          FORMAT(' ***** THE JOB STOPS NOW because the IQUEST',
-     >             ' flag set by program, Time left is ',F12.3,' *****')
+               WRITE(CHMAIL,10003) IQUEST(1)
+10003          FORMAT(' ***** event loop ends because the IQUEST',
+     >                ' flag set by program is ',I6)
                CALL GMAIL(0,1)
                IEORUN = 1
                GO TO 19
@@ -941,6 +1528,8 @@ C
 END
  
  
+*CMZ :          27/12/98  21.53.56  by  Pavel Nevski
+*CMZ :  1.40/05 05/08/98  23.16.12  by  Pavel Nevski
 *CMZ :  1.30/00 29/07/96  12.00.03  by  Pavel Nevski
 *-- Author :    R.Brun
 ***********************************************************************
@@ -1043,6 +1632,8 @@ C
       COMMON /AgCKINO/ Ioutp,IoutpOld
       Character*20     CoptKine,CoptBack,CoptOutp
       COMMON /AgCKINC/ CoptKine,CoptBack,CoptOutp
+      Character*20     StrmKine,StrmBack,StrmOutp
+      COMMON /AgCKINS/ StrmKine,StrmBack,StrmOutp
       Character*20     CrunType
       COMMON /AgCKINR/ CrunType
       Integer          Ncommand
@@ -1099,7 +1690,7 @@ C
       enddo
 *
       address=CsADDR ('AGUTREV')
-      if (address != 0) CALL CsJCAL (address,0)
+      if (address!=0) CALL CsJCAL (address,0, 0,0,0,0,0, 0,0,0,0,0)
 *
 * By default (No ACTION command issued) GEANT simulations are done if:
 * a: IKINE<0 and reading of HITS, DIGI and RECB is prohibited,  b: IKINE>=0.
@@ -1121,7 +1712,8 @@ C
       END
  
  
-*CMZ :          05/06/98  12.12.46  by  Pavel Nevski
+*CMZ :          27/12/98  21.53.56  by  Pavel Nevski
+*CMZ :  1.40/05 05/08/98  23.16.12  by  Pavel Nevski
 *CMZ :  1.30/00 17/04/97  20.57.01  by  Pavel Nevski
 *-- Author : R. Brun
 ******************************************************************
@@ -1174,6 +1766,8 @@ C
       COMMON /AgCKINO/ Ioutp,IoutpOld
       Character*20     CoptKine,CoptBack,CoptOutp
       COMMON /AgCKINC/ CoptKine,CoptBack,CoptOutp
+      Character*20     StrmKine,StrmBack,StrmOutp
+      COMMON /AgCKINS/ StrmKine,StrmBack,StrmOutp
       Character*20     CrunType
       COMMON /AgCKINR/ CrunType
       Integer          Ncommand
@@ -1204,12 +1798,14 @@ C
      endif
 *
      Istop = 0
-     if (address != 0) CALL CsJCAL (address,0)
+     if (address!=0) CALL CsJCAL (address,0, 0,0,0,0,0, 0,0,0,0,0)
      If (Istop==0)  CALL GTRACK
 *
       END
  
  
+*CMZ :          27/12/98  21.53.56  by  Pavel Nevski
+*CMZ :  1.40/05 05/08/98  23.33.58  by  Pavel Nevski
 *CMZ :  1.30/00 01/04/97  15.49.43  by  Pavel Nevski
 *CMZ :  3.21/02 29/03/94  15.41.25  by  S.Giani
 *-- Author :
@@ -1295,31 +1891,32 @@ C
 *
       ISKIP = 0
  
-      If (Idevt0.ne.IDEVT) then
+      If (Idevt0 != IDEVT) then
           Idevt0  = IDEVT
           address = CsADDR ('AGUTREV')
       End IF
  
-      If (NGKINE.eq.0. and. JKINE.gt.0) then
+      If (NGKINE==0 & JKINE>0) then
 *     skip particles with a vertex produced - not final state
          L = LQ(JKINE-ITRA)
-         If (L.gt.0) then
+         If (L>0) then
             ITRT = Q(5+L)
             Nver = Q(7+L)
-            If ( NVER.gt.0 .or. ITRT.le.0) then
+            If (NVER>0 | ITRT<=0) then
                ISKIP = -1
-               If (IDEBUG.ge.3) write (LOUT,1001) ITRA
+               If (IDEBUG>=3) write (LOUT,1001) ITRA
  1001          FORMAT(' *** GUSKIP: skip track number ',i8)
             endif
          endif
       endif
  
-      if (address.ne.0) CALL CsJCAL (address,1,ISKIP)
+      if (address!=0) CALL CsJCAL (address,1, ISKIP,0,0,0,0, 0,0,0,0,0)
  
       END
  
  
-*CMZ :          06/02/98  15.16.04  by  Pavel Nevski
+*CMZ :          27/12/98  21.53.56  by  Pavel Nevski
+*CMZ :  1.40/05 05/08/98  23.16.12  by  Pavel Nevski
 *CMZ :  1.30/00 22/04/97  20.18.53  by  Pavel Nevski
 *-- Author :    Alexandre Rozanov 02.04.95
 ****************************************************************************
@@ -1456,6 +2053,8 @@ C
       COMMON /AgCKINO/ Ioutp,IoutpOld
       Character*20     CoptKine,CoptBack,CoptOutp
       COMMON /AgCKINC/ CoptKine,CoptBack,CoptOutp
+      Character*20     StrmKine,StrmBack,StrmOutp
+      COMMON /AgCKINS/ StrmKine,StrmBack,StrmOutp
       Character*20     CrunType
       COMMON /AgCKINR/ CrunType
       Integer          Ncommand
@@ -1525,8 +2124,8 @@ C
          If (ISIMU>=1)            Call AgUsecond   ! - mechanism based
          If (Flag_secondaries>=2) Call AgsSECOND   ! - dense media
       endif
-*
-      if (address != 0) CALL CsJCAL (address,0)       ! let user do something
+*                                                  ! let user do something
+      if (address!=0) CALL CsJCAL (address,0, 0,0,0,0,0, 0,0,0,0,0)
 *
       If (NGKINE<=0)   Break
          NDONE += NGKINE
@@ -1549,6 +2148,8 @@ C
  END
  
  
+*CMZ :          27/12/98  21.53.56  by  Pavel Nevski
+*CMZ :  1.40/05 05/08/98  23.16.12  by  Pavel Nevski
 *CMZ :  1.30/00 10/04/96  18.46.17  by  Pavel Nevski
 *CMZU:  1.00/01 16/11/95  02.01.56  by  Pavel Nevski
 *-- Author :    P. Nevski
@@ -1590,19 +2191,25 @@ C
          IEVOLD=IEVENT
       endif
 *
-      if (address != 0) then
-         CALL CsJCAL (address,2,VECT,Field)
+      if (address!=0) then
+         CALL CsJCAL (address,2, VECT,Field,0,0,0, 0,0,0,0,0)
       Else
-         Field={0.,0.,5.}
+         Field={0.,0.,0.}
       Endif
 *
       END
  
  
-*CMZ :          14/07/97  16.44.31  by  Pavel Nevski
+*CMZ :          27/12/98  21.53.56  by  Pavel Nevski
+*CMZ :  1.40/05 05/08/98  23.16.12  by  Pavel Nevski
 *CMZ :  1.30/00 07/07/96  13.08.33  by  Pavel Nevski
 *-- Author :    Pavel Nevski   07/07/96
+****************************************************************************
      subroutine    G U D I G I
+* Modifications:
+* PN, 22.09.98 :
+* AGUDIGI called in any case - let user decide
+****************************************************************************
 *KEEP,TYPING.
       IMPLICIT NONE
 *KEEP,GCBANK.
@@ -1662,7 +2269,7 @@ C                                       Link to:
       EQUIVALENCE (LKSLUG(24),LKHIT2)  ! secondary GEANT HITS bank
       EQUIVALENCE (LKSLUG(26),LKGENE)  ! old slug ZEBRA generator structure
 *KEND.
-     Integer      CsADDR,Nset,Ndet,Iset,Idet,Ldete,Lsete,address
+     Integer      CsADDR,Nset,Ndet,Iset,Idet,Ldete,Lsete,address,idummy
      Character*4  Cset,Cdet
 *KEEP,STAFUNC.
 C Declare types for the things used in the statement function STAFUNC
@@ -1688,6 +2295,7 @@ C
  
 *KEND.
  
+  do idummy=1,1
      Check LkDetm>0 & Jset>0 & Jhits>0
      Ndet  = IQ(LkDetm-2);       Check Ndet>0
      Nset  = IQ(Jset - 2);       Check Nset>0
@@ -1701,16 +2309,18 @@ C
            Check Cdet(1:3)//'H'==Cset
            address=CsADDR (cdet//'DIG')
 *           print *,'digi routine for ',cdet,': address=',address
-           if (address != 0) CALL CsJCAL (address,0)
+           if (address!=0) CALL CsJCAL (address,0, 0,0,0,0,0, 0,0,0,0,0)
         enddo
      enddo
+  enddo
 *
      address=CsADDR ('AGUDIGI')
-     if (address != 0) CALL CsJCAL (address,0)
+     if (address!=0) CALL CsJCAL (address,0, 0,0,0,0,0, 0,0,0,0,0)
  
      end
  
  
+*CMZ :          28/09/98  21.10.22  by  Pavel Nevski
 *CMZ :  1.30/00 06/07/96  00.19.32  by  Pavel Nevski
 *-- Author :    Pavel Nevski   01/06/96
 ******************************************************************************
@@ -1751,6 +2361,8 @@ C
       COMMON /AgCKINO/ Ioutp,IoutpOld
       Character*20     CoptKine,CoptBack,CoptOutp
       COMMON /AgCKINC/ CoptKine,CoptBack,CoptOutp
+      Character*20     StrmKine,StrmBack,StrmOutp
+      COMMON /AgCKINS/ StrmKine,StrmBack,StrmOutp
       Character*20     CrunType
       COMMON /AgCKINR/ CrunType
       Integer          Ncommand
@@ -1774,8 +2386,9 @@ C
 *KEND.
      Integer  Ier
 *
+*     If (IEOTRI.ne.0)  return
       If (IOutp!=IOutpOld) then
-         If (IOutp==-1) Call AgZOPEN('O','ZEBRA.O','*',0,0)
+         If (IOutp==-1) Call AgZOPEN('O','ZEBRA.O','*',Ier)
          If (IOutp > 0) IOutpOld = Ioutp
       endif
 *
@@ -1786,13 +2399,24 @@ C
 END
  
  
+*CMZ :          27/12/98  21.53.56  by  Pavel Nevski
 *CMZ :  1.30/00 19/04/97  21.12.12  by  Pavel Nevski
 *-- Author :    Rashid Mekhdiev
 ****************************************************************************
                 SUBROUTINE   G U H A D R
+* Description:  select hadronic package according to IHADR switch          *
 ****************************************************************************
 *KEEP,TYPING.
       IMPLICIT NONE
+*KEEP,GCFLAG.
+      COMMON/GCFLAG/IDEBUG,IDEMIN,IDEMAX,ITEST,IDRUN,IDEVT,IEORUN
+     +        ,IEOTRI,IEVENT,ISWIT(10),IFINIT(20),NEVENT,NRNDM(2)
+      COMMON/GCFLAX/BATCH, NOLOG
+      LOGICAL BATCH, NOLOG
+C
+      INTEGER       IDEBUG,IDEMIN,IDEMAX,ITEST,IDRUN,IDEVT,IEORUN
+     +        ,IEOTRI,IEVENT,ISWIT,IFINIT,NEVENT,NRNDM
+C
 *KEEP,GCPHYS.
       COMMON/GCPHYS/IPAIR,SPAIR,SLPAIR,ZINTPA,STEPPA
      +             ,ICOMP,SCOMP,SLCOMP,ZINTCO,STEPCO
@@ -1852,6 +2476,12 @@ C
       REAL          GPOS
 C
 *KEND.
+     integer CsADDR,idevt0/-1/,address/0/
+*
+     If (Idevt0 != Idevt) then
+         Idevt0  = Idevt
+         address = CsADDR ('AGUHADR')
+     endif
 *
       IF      IHADR==0  { ISTOP=2; KCASE=NAMEC(12); DESTEP+=GEKIN; }
       ELSE IF IHADR<=3  { CALL GHEISH }
@@ -1859,16 +2489,29 @@ C
       ELSE IF IHADR==5  { CALL GFMFIN }
       ELSE IF IHADR==6  { CALL GCALOR }
 *
+     if (address!=0) CALL CsJCAL (address,0, 0,0,0,0,0, 0,0,0,0,0)
+*
       END
  
  
+*CMZ :          27/12/98  21.53.56  by  Pavel Nevski
 *CMZ :  1.30/00 17/04/97  19.08.11  by  Pavel Nevski
 *-- Author :    Rashid mekhdiev
 ****************************************************************************
-      SUBROUTINE GUPHAD
+                SUBROUTINE GUPHAD
+* Description:  initialase selected hadronic package                       *
 ****************************************************************************
 *KEEP,TYPING.
       IMPLICIT NONE
+*KEEP,GCFLAG.
+      COMMON/GCFLAG/IDEBUG,IDEMIN,IDEMAX,ITEST,IDRUN,IDEVT,IEORUN
+     +        ,IEOTRI,IEVENT,ISWIT(10),IFINIT(20),NEVENT,NRNDM(2)
+      COMMON/GCFLAX/BATCH, NOLOG
+      LOGICAL BATCH, NOLOG
+C
+      INTEGER       IDEBUG,IDEMIN,IDEMAX,ITEST,IDRUN,IDEVT,IEORUN
+     +        ,IEOTRI,IEVENT,ISWIT,IFINIT,NEVENT,NRNDM
+C
 *KEEP,GCPHYS.
       COMMON/GCPHYS/IPAIR,SPAIR,SLPAIR,ZINTPA,STEPPA
      +             ,ICOMP,SCOMP,SLCOMP,ZINTCO,STEPCO
@@ -1898,14 +2541,25 @@ C
      +       ,SRAYL,SLRAYL,ZINTRA,STEPRA,SLABS,SLLABS,ZINTLA,STEPLA
 C
 *KEND.
+      integer CsADDR,idevt0/-1/,address/0/
+*
+      If (Idevt0 != Idevt) then
+         Idevt0  = Idevt
+         address = CsADDR ('AGUPHAD')
+      endif
+*
       IF       IHADR<=3 {"geisha"       CALL GPGHEI  }
       ELSE IF  IHADR==4 {"fluka"        CALL FLDIST  }
       ELSE IF  IHADR==5 {"fluka+Mikap"  CALL GFMDIS  }
       ELSE IF  IHADR==6 {"gcalor"       CALL CALSIG  }
+*
+      if (address!=0) CALL CsJCAL (address,0, 0,0,0,0,0, 0,0,0,0,0)
+*
       END
  
  
-*CMZ :          30/01/98  13.07.52  by  Pavel Nevski
+*CMZ :          27/10/98  10.12.45  by  Pavel Nevski
+*CMZ :  1.40/05 30/01/98  13.07.52  by  Pavel Nevski
 *CMZ :  1.30/00 20/04/97  23.19.45  by  Pavel Nevski
 *-- Author :    Pavel Nevski
 ******************************************************************
@@ -1915,24 +2569,24 @@ C
 ******************************************************************
       logical first/.true./
 *
-        if (first) print *,' *******  RNDM substituted by GRNDM  *******'
+        if (first) print *,' *******  RNDM has been replaced by GRNDM  *******'
         first=.false.;   call GRNDM(r,1);   rndm=r;  Return;
       entry IRNDM
-        if (first) print *,' *******  RNDM substituted by GRNDM  *******'
+        if (first) print *,' *******  RNDM has been replaced by GRNDM  *******'
         first=.false.;   call GRNDM(i,1);  irndm=i;  Return;
       END
 *
       subroutine NORRAN (a)
       real    a,b/99999/
       logical first/.true./
-       if (first) print *,' *******  NORRAN substituted by RANNOR  *******'
+       if (first) print *,' ******* NORRAN has been replaced by RANNOR *******'
        if b==99999 { call rannor(a,b); first=.false. } else { a=b; b=99999 }
       end
 *
       function  RANF (a)
       real      RANF,a,b
       logical   first/.true./
-       if (first) print *,' *******  RANF substituted by GRNDM  *******'
+       if (first) print *,' *******  RANF has been replaced by GRNDM  *******'
        first=.false.
        Call GRNDM(b,1)
        RANF=b
@@ -1941,7 +2595,7 @@ C
       function  RN32(a)
       real      RN32,a,b
       logical   first/.true./
-       if (first) print *,' *******  RN32 substituted by GRNDM  *******'
+       if (first) print *,' *******  RN32 has been replaced by GRNDM  *******'
        first=.false.
        Call GRNDM(b,1)
        RN32=b
@@ -1950,30 +2604,40 @@ C
       function  RG32(d)
       real      RG32,d,a,b/99999/
       logical   first/.true./
-       if (first) print *,' *******  RG32 substituted by RANNOR  *******'
+       if (first) print *,' *******  RG32 has been replaced by RANNOR  *******'
        if b==99999 { call rannor(a,b); first=.false. } else { a=b; b=99999 }
        RG32=a
       end
 *
-      Subroutine RDMIN
-      entry      RDMOUT
-        print *,' RNDM substituted by GRNDM, set seed using G/CONT/RNDM'
+      Subroutine RDMIN(I1)
+      logical first/.true./
+      integer I2/987654321/
+        CALL GRNDMQ(I1,I2,0,'S')
+        go to 10
+      entry     RDMOUT(I1)
+        CALL GRNDMQ(I1,I2,0,'G')
+10    If (first) _
+        print *,' RNDM has been replaced by GRNDM, set seed using G/CONT/RNDM'
+      first=.false.
       end
 *
       Subroutine RN32IN
       entry      RN32OT
-        print *,' RN32 substituted by GRNDM, set seed using G/CONT/RNDM'
+        print *,' RN32 has been replaced by GRNDM, set seed using G/CONT/RNDM'
       end
 *
       Subroutine RG32IN
       entry      RG32OT
-        print *,' RG32 substituted by RANNOR, set seed using G/CONT/RNDM'
+        print *,' RG32 has been replaced by RANNOR, set seed using G/CONT/RNDM'
       end
 *
- 
- 
- 
-*CMZ :          18/12/97  17.27.24  by  Pavel Nevski
+      subroutine RNPSSN (amu,N,ier)
+      logical first/.true./
+       if (first) print *,' ******* RNPSSN has been replaced by POISSN *******'
+       first=.false.
+       call POISSN(amu,N,ier)
+      end
+*CMZ :  1.40/05 18/12/97  17.27.24  by  Pavel Nevski
 *CMZ :  1.30/00 29/03/97  18.01.53  by  Pavel Nevski
 *-- Author :    Pavel Nevski   15/08/96
  
@@ -1985,31 +2649,57 @@ C
       end
  
  
-*CMZ :          01/04/98  11.36.29  by  Pavel Nevski
+*CMZ :          27/12/98  22.13.28  by  Pavel Nevski
+*CMZ :  1.40/05 01/04/98  11.36.29  by  Pavel Nevski
 *CMZ :  1.30/00 02/04/97  18.16.37  by  Pavel Nevski
 *-- Author :    Pavel Nevski
+#ifndef __ROOT__
 ************************************************************************
       subroutine TRACEQ
 *                         (LUNP,LEV)
 *                                                                      *
 * Description: dispatch an abnormal situation (arithmetics or ZEBRA)   *
 ************************************************************************
-      Implicit NONE
-      Integer  AgPHASE,IgPAW,IwTYP
+      Implicit   NONE
+      Integer    Lenocc,AgPHASE,AgIPAW,IwTYP,Npar,Nerr/0/
       Common /AgCPHASE/ AgPHASE
-      Common /AgCIPAW/  IgPAW,IwTYP
+      Common /AgCIPAW/  AgIPAW,IwTyp
+      character*32      command,commando/' '/
+      common /kcparc/   cmdlin
+      character*255     cmdlin
+      integer              cmd
+      common /cmd_current/ cmd(20)
+*
+*    first, protect against infinite break loops - they are dangerous
+      call kupatl (command,npar)
+      print *,'*** Last Kuip command was ',%L(Command),' Npar=',Npar,' ***'
+      print *,'*** in ',%L(cmdlin),' ***'
+*
+      if (command=='QUIT' | command=='EXIT') STOP 'IN TRACEQ forced exit'
+ 
+      if (command==commando) then
+         nerr=nerr+1
+         if (nerr>10)    STOP 'IN TRACEQ - too many consequantive entries'
+      else
+         nerr=0
+         commando =command
+      endif
+*
+      call dump_arg_list
 *
       call traceqc
       If AgPHASE>0                                 " in event loop  "
       {  call qnexte; print *,' in traceq: qnexte exit' }
-      ELSE IF IgPAW>0                              " single command "
+      ELSE IF AgIPAW>0                              " single command "
       {  call kusibr; print *,' in traceq: kusibr exit' }
 *
-      print *,' Abnormal break recovery - only limited functionality'
+      Print *,' Abnormal break recovery - neither Phase nor Ipaw set '
+      Print *,' Only limited functionality is expected before crash  '
       CALL   AGPAWQ
-      STOP ' TRACEQ '
+      STOP ' TRACEQ exit from AGPAWQ reached '
  
       END
+#endif
  
  
 *CMZ :  1.30/00 15/07/96  15.54.59  by  Pavel Nevski
@@ -2105,7 +2795,8 @@ C
       END DO
       END
  
-*CMZ :          17/06/98  11.14.47  by  Pavel Nevski
+*CMZ :          31/10/98  17.09.29  by  Pavel Nevski
+*CMZ :  1.40/05 21/08/98  17.28.21  by  Pavel Nevski
 *CMZ :  1.30/00 27/03/97  19.14.44  by  Pavel Nevski
 *-- Author :    Pavel Nevski   10/04/96
 **************************************************************************
@@ -2175,14 +2866,19 @@ C
   If Cname='MZGAR1'
   {  L= "LQSYSR(KQT+1)" LINK;
      IF (NQCASE==1) <w> IQUEST(11),(IQ(L+i),i=-5,1)
-     (' LACK OF SPACE to push a bank,',i8,' words missing '/,
+     (' ** LACK OF SPACE to push a bank,' ,i8, ' words missing **'/,
+      ' **   increase GCBANK size with -g key and run again    **',
+      ' *********************************************************',
       ' bank ID=',i6,a6,'  NL,ND=',3i8,'  system, data=',2i12)
   }
   else If Cname='MZTABC'
   { IF (NQCASE==1) print *,' the BANK CHAINING is CLOBBERED (corrupted)',
                            ' the start of clobbered region is ',IQuest(11)  }
   else If Cname='MZPUSH'
-  { if (NQCASE==1) print *,' this means the link ',IQUEST(11),' is invalid '}
+  { if (NQCASE==1) print *,' this means the link ',IQUEST(11),' is invalid '
+    if (NQCASE==2) print *,' cannot push a dead bank '
+    if (NQCASE==3) print *,' invalid increment request, probably NL>64000'
+  }
   else If Cname='ZSHUNT'
   { if (NQCASE==2) print *,' the supporting link ',IQUEST(12),' is invalid '}
   else If Cname='FZLOC'
@@ -2195,13 +2891,13 @@ C
   }
   else If Cname='MZLIFT'
   { print *,' MZLIFT Cannot mount a new bank possibly because of '
-    If (NQCASE==1) print *,'   faulty bank parameters '
-    If (NQCASE==2) print *,'   invalid supporting link'
-    If (NQCASE==3) print *,'   bank at LSUP has too few structural links'
-    If (NQCASE==4) print *,'   invalid next link '
-    If (NQCASE==5) print *,'   non-existing I/O characteristic'
-    If (NQCASE==6) print *,'   invalid I/O parameter'
-    If (NQCASE==7) print *,'   attempt to lift bank in a wrong division'
+    If (NQCASE==1) print *,'        faulty bank parameters '
+    If (NQCASE==2) print *,'        invalid supporting link'
+    If (NQCASE==3) print *,'        bank at LSUP has too few structural links'
+    If (NQCASE==4) print *,'        invalid next link '
+    If (NQCASE==5) print *,'        non-existing I/O characteristic'
+    If (NQCASE==6) print *,'        invalid I/O parameter'
+    If (NQCASE==7) print *,'        attempt to lift bank in a wrong division'
     If (NQCASE==8) print *,'   attempt to connect the new bank inside a bank'
   }
   else If Cname='MZDROP'
@@ -2229,86 +2925,14 @@ C
   end
  
  
-*CMZ :          06/01/98  13.08.02  by  Pavel Nevski
-*CMZ :  1.30/00 15/07/96  15.54.59  by  Pavel Nevski
-*-- Author :    P.Nevski    20/01/94
-***************************************************************************
-                SUBROUTINE   S L D E T N (CHDET,IDET)
-***************************************************************************
-*KEEP,TYPING.
-      IMPLICIT NONE
-*KEEP,GCBANK.
-      INTEGER IQ,LQ,NZEBRA,IXSTOR,IXDIV,IXCONS,LMAIN,LR1,JCG
-      INTEGER KWBANK,KWWORK,IWS
-      REAL GVERSN,ZVERSN,FENDQ,WS,Q
-C
-      PARAMETER (KWBANK=69000,KWWORK=5200)
-      COMMON/GCBANK/NZEBRA,GVERSN,ZVERSN,IXSTOR,IXDIV,IXCONS,FENDQ(16)
-     +             ,LMAIN,LR1,WS(KWBANK)
-      DIMENSION IQ(2),Q(2),LQ(8000),IWS(2)
-      EQUIVALENCE (Q(1),IQ(1),LQ(9)),(LQ(1),LMAIN),(IWS(1),WS(1))
-      EQUIVALENCE (JCG,JGSTAT)
-      INTEGER       JDIGI ,JDRAW ,JHEAD ,JHITS ,JKINE ,JMATE ,JPART
-     +      ,JROTM ,JRUNG ,JSET  ,JSTAK ,JGSTAT,JTMED ,JTRACK,JVERTX
-     +      ,JVOLUM,JXYZ  ,JGPAR ,JGPAR2,JSKLT
-C
-      COMMON/GCLINK/JDIGI ,JDRAW ,JHEAD ,JHITS ,JKINE ,JMATE ,JPART
-     +      ,JROTM ,JRUNG ,JSET  ,JSTAK ,JGSTAT,JTMED ,JTRACK,JVERTX
-     +      ,JVOLUM,JXYZ  ,JGPAR ,JGPAR2,JSKLT
-C
-*KEEP,SCLINK.
-C SLUG link area :    Permanent Links for SLUG:
-      INTEGER         LKSLUG,NSLINK
-      PARAMETER       (NSLINK=40)
-      COMMON /SCLINK/ LKSLUG(NSLINK)
-C The following names are equivalenced to LKSLUG.
-C The equivalence name is the one used in SLINIB.
-      INTEGER LKGLOB,LKDETM,LKTFLM,LKTFLT,LKAMOD,LKAGEV,LKAMCH,LKADIG,
-     +        LKMAPP,LKMFLD,LKRUNT,LKEVNT,LKARAW,LKATRI,LKAPRE,LKARP1,
-     +        LKARP2,LKARP3,LKDSTD,LKRUN2,LKEVN2,LKVER2,LKKIN2,LKHIT2,
-     +        LKGENE
-C                                       Link to:
-      EQUIVALENCE (LKSLUG(1),LKGLOB)   ! top of temporary HEPEVT Zebra tree
-      EQUIVALENCE (LKSLUG(2),LKDETM)   ! top of subdetector structure
-      EQUIVALENCE (LKSLUG(3),LKTFLM)   ! permanent track filter structure
-      EQUIVALENCE (LKSLUG(4),LKTFLT)   ! temporary track filter structure
-      EQUIVALENCE (LKSLUG(5),LKAMOD)   ! MODule parameters (Dont know this)
-      EQUIVALENCE (LKSLUG(6),LKAGEV)   ! Link to general event structure
-      EQUIVALENCE (LKSLUG(7),LKAMCH)   ! MonteCarlo Hits ( not GEANT I guess)
-      EQUIVALENCE (LKSLUG(8),LKADIG)   ! DIGitized hits (again not GEANT...?)
-      EQUIVALENCE (LKSLUG(9),LKMAPP)   ! map structure
-      EQUIVALENCE (LKSLUG(10),LKMFLD)  ! magnetic field banks
-      EQUIVALENCE (LKSLUG(11),LKRUNT)  ! run tree bank (vertical structure)
-      EQUIVALENCE (LKSLUG(12),LKEVNT)  ! event tree bank (vertical struct)
-      EQUIVALENCE (LKSLUG(13),LKARAW)  ! raw data structure
-      EQUIVALENCE (LKSLUG(14),LKATRI)  ! trigger banks
-      EQUIVALENCE (LKSLUG(15),LKAPRE)  ! preprocessed hits
-      EQUIVALENCE (LKSLUG(16),LKARP1)  ! reconstuction phase 1 banks
-      EQUIVALENCE (LKSLUG(17),LKARP2)  ! reconstuction phase 2 banks
-      EQUIVALENCE (LKSLUG(18),LKARP3)  ! reconstuction phase 3 banks
-      EQUIVALENCE (LKSLUG(19),LKDSTD)  ! DST data banks
-      EQUIVALENCE (LKSLUG(20),LKRUN2)  ! run tree bank for secondary run
-      EQUIVALENCE (LKSLUG(21),LKEVN2)  ! event tree bank for secondary events
-      EQUIVALENCE (LKSLUG(22),LKVER2)  ! secondary GEANT VERT bank
-      EQUIVALENCE (LKSLUG(23),LKKIN2)  ! secondary GEANT KINE bank
-      EQUIVALENCE (LKSLUG(24),LKHIT2)  ! secondary GEANT HITS bank
-      EQUIVALENCE (LKSLUG(26),LKGENE)  ! old slug ZEBRA generator structure
-*KEND.
-      INTEGER      IDET
-      CHARACTER*4  CHDET
-*
-      IDET    = -1;    check LkDETM>0
-      CALL GLOOK(CHDET,IQ(LkDETM+1),IQ(LkDETM-1),Idet)
-      check Idet>0;    If   (LQ(LkDETM-Idet)<=0) Idet = 0
-*
-      END
- 
-*CMZ :          28/03/98  23.52.31  by  Pavel Nevski
+*CMZ :  1.40/05 05/08/98  23.16.12  by  Pavel Nevski
 *-- Author :    Pavel Nevski   20/03/98
 ************************************************************************
-      subroutine on fault (c,n,name)
+      subroutine on fault (c,nn,name)
 *
 * Description: HP arithmetic error handler control
+*   In a normal mode (no +) unspecified errors are disabled.
+*   With a + their handler is unchanged, is may stay as default.
 *
 ************************************************************************
       character  Name*(*),c*(*)
@@ -2316,7 +2940,9 @@ C                                       Link to:
  
  
  
-*CMZ :          25/03/98  10.19.30  by  Pavel Nevski
+*CMZ :          27/12/98  21.53.56  by  Pavel Nevski
+*CMZ :  1.40/05 05/08/98  23.16.12  by  Pavel Nevski
+*CMZ :  1.00/01 27/10/94  01.44.00  by  Pavel Nevski
 *-- Author : Pavel Nevski
 ******************************************************************
                 SUBROUTINE GUDCAY
@@ -2356,6 +2982,8 @@ C
       COMMON /AgCKINO/ Ioutp,IoutpOld
       Character*20     CoptKine,CoptBack,CoptOutp
       COMMON /AgCKINC/ CoptKine,CoptBack,CoptOutp
+      Character*20     StrmKine,StrmBack,StrmOutp
+      COMMON /AgCKINS/ StrmKine,StrmBack,StrmOutp
       Character*20     CrunType
       COMMON /AgCKINR/ CrunType
       Integer          Ncommand
@@ -2384,7 +3012,7 @@ C
          address = CsADDR ('AGUDCAY')
      endif
 *
-     if (address != 0) CALL CsJCAL (address,0)
+     if (address!=0) CALL CsJCAL (address,0, 0,0,0,0,0, 0,0,0,0,0)
 *
      END
  
@@ -2663,6 +3291,7 @@ C
                        %NLMAT= 0;
    END
  
+*CMZ :          02/01/99  15.36.41  by  Pavel Nevski
 *CMZ :  1.00/00 23/02/95  01.10.25  by  Pavel Nevski
 *-- Author :    Pavel Nevski   26/11/94
 **********************************************************************
@@ -2804,7 +3433,7 @@ C
  if Im<0 & Cmate#Cmodu & Cmodu#' '           " then for a local material"
  {  %Material=Cmodu//'_'//%Title;  Im=AgSMATE(%Material,JMATE,Par); }
  
- %Medium=%Material;   %Imed=-1;   %Imat=abs(Im);
+ %Medium=%L(%Title);   %Imed=-1;   %Imat=abs(Im);
  if Im<0
  { If %Parlist='NONE'  {error('Undefined material requested',%Title)}
    prin1  %L(%Material),%Imat,%A,%Za,%Dens,%RADL,%ABSL;
@@ -2813,9 +3442,12 @@ C
     Call GSMATE(%Imat,%Material,%A,%Za,%Dens,%RADL,%ABSL,%UBUF,%NWBUF);
  }
  Else If %Parlist='NONE'
- {  Call GFMATE(%Imat, Material,%A,%Za,%Dens,%RADL,%ABSL,%UBUF,%NWBUF); }
+ {  Call GFMATE(%Imat, Material,%A,%Za,%Dens,%RADL,%ABSL,%UBUF,%NWBUF);
+    prin1 %L(Material),%L(%Medium); (' AxMATE: fetched material ',a,' med ',a)
+ }
   END
  
+*CMZ :          02/01/99  15.17.52  by  Pavel Nevski
 *CMZ :  1.30/00 02/04/97  15.00.54  by  Pavel Nevski
 *CMZ :  1.00/00 27/02/95  15.31.04  by  Pavel Nevski
 *-- Author :    Pavel Nevski   26/11/94
@@ -2952,7 +3584,8 @@ C
     Character    Medium*20,Cmedi*4,Cmodu*4
     Real         Par(10)
 *
- %Medium=%Title;     Cmedi=%Medium;   Cmodu=%Module;  Ifield=%Ifield*%Imfld
+ %Medium=%Title;     Cmedi=%Medium;   Cmodu=%Module;
+ Ifield=0;  if (%Ifield>0 & %Imfld>0) Ifield=max(%Ifield,%Imfld)
  PAR={0,%IsVol, Ifield,%Fieldm,%TmaxFD, %SteMax,%DeeMax,%Epsil,%Stmin, 0};
  
  Im=AgSMATE (%Medium,JTMED,Par);              " first check for a global "
@@ -3212,6 +3845,7 @@ C
  }
  END
  
+*CMZ :          26/12/98  09.53.44  by  Pavel Nevski
 *CMZ :  1.30/00 21/11/96  19.48.44  by  Pavel Nevski
 *CMZ :  1.00/00 06/08/95  14.04.27  by  Pavel Nevski
 *-- Author :    Pavel Nevski   26/11/94
@@ -3352,10 +3986,19 @@ C
       INTEGER      NMATE ,NVOLUM,NROTM,NTMED,NTMULT,NTRACK,NPART
      +            ,NSTMAX,NVERTX,NHEAD,NBIT ,NALIVE,NTMSTO
 C
+*KEEP,GCFLAG.
+      COMMON/GCFLAG/IDEBUG,IDEMIN,IDEMAX,ITEST,IDRUN,IDEVT,IEORUN
+     +        ,IEOTRI,IEVENT,ISWIT(10),IFINIT(20),NEVENT,NRNDM(2)
+      COMMON/GCFLAX/BATCH, NOLOG
+      LOGICAL BATCH, NOLOG
+C
+      INTEGER       IDEBUG,IDEMIN,IDEMAX,ITEST,IDRUN,IDEVT,IEORUN
+     +        ,IEOTRI,IEVENT,ISWIT,IFINIT,NEVENT,NRNDM
+C
 *KEND.
-  Character*4 Daughter,Daught;            Real Vdist,D,V
-  Integer  LENOCC,Idaught,Ivd,Jvd,Ivo,Jvo,Ign,Ir,Jvm,Ivm,
-           Npo,Npa,Jmo,in,nin,Ncopy,Id,Jd,Jg,IDH,IDM
+  Character*4 Daughter,Daught;
+  Integer  LENOCC,Idaught,Ivd,Jvd,Ivo,Jvo,Ign,Jvm,Ivm,
+           Npo,Npa,Jmo,in,nin,Ncopy,Id,Jd,Jg,IDH,IDM,igsame
  
 * search for the mother, if it is explicitely defined, and check it.
   If %Ivolume<=0 | %Mother!=%Volume
@@ -3367,8 +4010,16 @@ C
      Jvm=LQ(JVOLUM-%Ivolume); Ivm=IQ(Jvm-5); IDM=IQ(Jvm-4);
      IF IDM==IQ(JVOLUM+%Ivolume) & 1<=Ivm&Ivm<=Nvolum
      { %Ivolume=Ivm; call UHTOC(IQ(JVOLUM+Ivm),4,%Cnick,4); }
-  }  Jmo=LQ(JVOLUM-%Ivolume); nin=Q(Jmo+3);
-  Check "that it has no divisions " nin>=0
+  }
+  Jmo=LQ(JVOLUM-%Ivolume); nin=Q(Jmo+3);
+  If nin<0         " should check names to give the diagnostic !"
+  { "error('volume ',%Cnick,' has both divisions and content')"; return; }
+ 
+  If Q(Jmo+1)==-99 & %Level>1
+  { prin1 %cnick,Ivm;
+    (' mother ',a,' copy ',i6,' was already positioned, skip filling ')
+    return
+  }
  
 * get Active volume number from the generic bank IDN word;
   Daughter=%Title;  Call GLOOK (Daughter,IQ(JVOLUM+1),Nvolum,Ivd);
@@ -3387,16 +4038,23 @@ C
   }
  
 * set copy number(generic) and avoid content (actual name!) dublication
+ 
   Ncopy=1;  Jmo=LQ(JVOLUM-%Ivolume);
-  do in=1,abs(nin)
-  {  Jd=LQ(Jmo-in); "its content"Id=Q(Jd+2); "and address"Jg=LQ(JVOLUM-Id);
+  do in=nin,1,-1
+  {  Jd=LQ(Jmo-in); "its content" Id=Q(Jd+2); "and address" Jg=LQ(JVOLUM-Id);
      "count copies of generic name"    Check IDH=IQ(Jg-4); Ncopy+=1;
-     " dont position same volumes "    Check Idaught=IQ(JVOLUM+Id);
-     " at the same place and angle"    Ir=Q(jd+4); d=Vdist(%x,Q(Jd+5),3); v=0;
-                                       if (Npo=0) V=Vdist(%Par,Q(jd+10),Npa);
-                                       if (d=0 & V=0 & Ir=%Irot)  Return;
-  }
-  If (%Ncopy>0) Ncopy=%Ncopy;  %Ncopy=Ncopy;
+ 
+     If Idaught=IQ(JVOLUM+Id) & %Irot=Q(jd+4)
+     { " dont position same volumes at the same place and angle"
+       if Igsame(%x,Q(Jd+5),3)>0
+       { if (Npo>0) return; if (Igsame(%Par,Q(jd+10),Npa)>0) return; }
+     }
+     If Q(jd+3)==%Ncopy
+     {  prin0 Idaught,IQ(JVOLUM+id),%Ncopy
+        (' Warning: volumes ',a4,' and ',a4,' both have copy number',i6)
+  }  }
+  if (%Ncopy>0) Ncopy=%Ncopy;  %Ncopy=Ncopy;
+ 
   Call UHTOC(Idaught,4,Daught,4);   Call CLTOU (%KONLY);
   If Npo>0 { Call GSPOS (Daught,Ncopy,%CNick,%X,%Y,%Z,%Irot,%KONLY); }
   else     { Call GSPOSP(Daught,Ncopy,%CNick,%X,%Y,%Z,%Irot,%KONLY,
@@ -3405,9 +4063,18 @@ C
         %Level,Ncopy,Npa,%IROT,Ivd,Ivo,nin;
   (' POSITION',2(1x,A4),'  into',2(1x,A4),' at x,y,z=',3f9.3/_
   10x,'level',i3,'  Ncopy',i4,' with Npar,Irot=',2i4,' Ivdau,Ivact=',3I5);
+  Q(LQ(JVOLUM-Ivo)+1)=-99;
    END
  
+   function Igsame(x,y,n)
+   real     x(n),y(n)
+   Igsame = 0
+   do i=1,n { if (x(i)!=y(i)) return; }
+   Igsame = 1
+   end
  
+ 
+*CMZ :          29/11/98  19.20.50  by  Pavel Nevski
 *CMZ :  1.30/00 02/04/97  15.21.45  by  Pavel Nevski
 *CMZU:  1.00/01 30/11/95  19.31.02  by  Pavel Nevski
 *CMZ :  1.00/00 04/09/95  14.29.15  by  Pavel Nevski
@@ -3559,7 +4226,7 @@ JATTF(Jj) = Jj+int(Q(Jj+5))+6
 *
 * Toggle the actual Npa = 0 | NPar
   Npa=0;  Do I=1,%Npar { if (%Par(i)#0) Npa=%Npar; }
-  Call UCTOH(%Volume,Name,4,4);  %Ignum=-1;
+  Call UCTOH(%Volume,Name,4,4);  %Ignum=-1;  Ivo=0;
   If %IMED<=0 {error(' Medium  in  ',%Volume,' not defined')};
  
 * if the top level volume has a hole, its inner radius(radii) is reset to 0:
@@ -3570,9 +4237,12 @@ JATTF(Jj) = Jj+int(Q(Jj+5))+6
       If %Ishape==12  {  do i=1,nint(%PAR(3)) { %Par(3*i+2)=0 }  " - PCON   "}
    }
 * If the volume has been defined with the same dimensions, return %Ivolume;
-  :volume: Do %Ivolume=1,NVOLUM
-  { "take next volum's IDs "       Jvo=LQ(JVOLUM-%Ivolume);   IDH=IQ(Jvo-4);
+  :volume: Do %Ivolume=NVOLUM,1,-1
+  { if (Ivo>0) Break :volume:;
+    "take next volum's IDs "     Jvo=LQ(JVOLUM-%Ivolume);   IDH=IQ(Jvo-4);
     "Select same generic names"  check IDH==Name;   "and count them" %Ignum+=1;
+    "Select Big Brother" if (IQ(JVOLUM+%Ivolume)==Name) Ivo=%Ivolume;
+ 
     "Now check that parameters are the same, otherwise search for another copy"
     "Undefined volumes with Npa=0  will fit any other volume "
      Npo=Q(Jvo+5);     Jat=JATTF(Jvo);
@@ -3609,7 +4279,7 @@ JATTF(Jj) = Jj+int(Q(Jj+5))+6
    Jat=JATTF(Jvo);  Q(Jat+9)=%IdType;  Q(Jat+10)=%Serial;
 :done:
 * save Active volume number in the generic bank status word;
-  Call GLOOK (%Volume,IQ(JVOLUM+1),Nvolum,Ivo);  Jvo=LQ(JVOLUM-Ivo);
+  if (Ivo==0) Call GLOOK (%Volume,IQ(JVOLUM+1),Nvolum,Ivo); Jvo=LQ(JVOLUM-Ivo);
   IQ(Jvo-5)=%Ivolume;  Call UHTOC(IQ(JVOLUM+%Ivolume),4,%CNICK,4);
    END
  
@@ -3791,7 +4461,7 @@ C
   END
  
  
-*CMZ :          02/12/97  18.46.06  by  Pavel Nevski
+*CMZ :  1.40/05 02/12/97  18.46.06  by  Pavel Nevski
 *CMZ :  1.00/00 12/12/94  22.30.21  by  Pavel Nevski
 *-- Author :    Pavel Nevski   26/11/94
 **********************************************************************
@@ -3937,7 +4607,7 @@ Replace[;#,#=>#;] with  [{IF} [EXIST 1] {[INCR a]; %#3([COPY a])=%#1; #2,=>#3;}
  }
    END
  
-*CMZ :          05/06/97  12.19.59  by  Pavel Nevski
+*CMZ :  1.40/05 05/06/97  12.19.59  by  Pavel Nevski
 *CMZ :  1.30/00 13/03/96  21.37.15  by  Pavel Nevski
 *CMZ :  1.00/00 12/12/94  22.30.21  by  Pavel Nevski
 *-- Author :    Pavel Nevski   26/11/94
@@ -4174,6 +4844,7 @@ C
   }  :err:
    END
  
+*CMZ :          02/01/99  19.45.50  by  Pavel Nevski
 *CMZ :  1.00/00 07/03/95  21.07.41  by  Pavel Nevski
 *-- Author :    Pavel Nevski   26/11/94
 **********************************************************************
@@ -4303,25 +4974,27 @@ C
 C
 *KEND.
     Integer      AgSMATE,LENOCC,Imede,Ifield;
-    Character    Cmedi*4,Cmodu*4;
+    Character    Cmedi*4,Cmodu*4,Medium*20;
     Real         Par(10);
  
- Cmedi=%Medium;   Cmodu=%Module;  Ifield=%Ifield * %IMFLD;
- if (Cmedi#Cmodu & Cmodu#' ')  %Medium=Cmodu//'_'//%Medium;
+ Cmedi=%Medium;   Cmodu=%Module;
+ Ifield=0;  if (%Ifield>0 & %Imfld>0) Ifield=max(%Ifield,%Imfld)
+ if  Cmedi#Cmodu & Cmodu#' ' { Medium=Cmodu//'_'//%Medium; %Medium=Medium }
  PAR={%Imat,%IsVol,Ifield,%Fieldm,%TmaxFD,%SteMax,%DeeMax,%Epsil,%Stmin,0};
  
  Imede=AgSMATE(%Medium,JTMED,Par);  %IMED=abs(Imede);
  If Imede<0
  {  prin1       %L(%MEDIUM), %IMED, %Imat, %ISVOL,   IFIELD, %FIELDM, %TMAXFD,
                                            %STEMAX, %DEEMAX, %EPSIL,  %STMIN;
-                (' AGSTMED  for medium ',A,' med,mat,sen,fld =',2i4,2i2/,
+                (' AGSMEDI  for medium ',A,' med,mat,sen,fld =',2i4,2i2/,
                                10x ,'Field = ',2F5.1,'  steps = ',4F8.5);
     Call GSTMED (%IMED, %MEDIUM, %IMAT,   %ISVOL,  IFIELD, %FIELDM, %TMAXFD,
                         %STEMAX, %DEEMAX, %EPSIL, %STMIN,  %UBUF,   %NWBUF);
  }
   END
  
-*CMZ :          28/03/98  23.09.07  by  Pavel Nevski
+*CMZ :          18/10/98  13.17.54  by  Pavel Nevski
+*CMZ :  1.40/05 28/03/98  23.09.07  by  Pavel Nevski
 *CMZ :  1.30/00 02/04/97  15.03.50  by  Pavel Nevski
 *CMZ :  1.00/00 04/09/95  14.29.15  by  Pavel Nevski
 *-- Author :    Pavel Nevski   26/11/94
@@ -4472,7 +5145,7 @@ C
      +            ,NSTMAX,NVERTX,NHEAD,NBIT ,NALIVE,NTMSTO
 C
 *KEND.
-   Character title*(*),Cdet*4,Cset*4,Cbank*4,T*1,Cpar*4
+   Character title*(*),Cdet*4,Cset*4,Cbank*4,T*1,Cpar*4,Modulo*8/' '/
    Integer   LENOCC,JATTF,JV,J,Iset,Idet,Jdet,Iv,Js,Jd,JDN,JDU,
              NWHI/1000/,NWDI/1000/,Lcumu/15/
    Real      Sdt(3),Upar(%LDETU)" up to 15 levels of volumes and hits "
@@ -4480,12 +5153,15 @@ C
                             * * *
  " Set is always the same as 3 letters of the module name plus H or D "
  T=%EXNAME;  Cset=%Module(1:3)//T;  Cdet=Title;
- { %iset,%idet,Iset,Idet,Jdet,Iv }=0;
+ { %iset,%idet,Iset,Idet,Jdet,Jd,Iv,JDU }=0;
  If (Jset > 0)  Call GLOOK(Cset,IQ(JSET+1),IQ(JSET-1),Iset)
- If (Iset > 0)  JDET =LQ(JSET-ISET)
+ If (Iset > 0)  JDET = LQ(JSET-ISET)
  If (Jdet > 0)  Call GLOOK(Cdet,IQ(JDET+1),IQ(JDET-1),Idet)
+ If (Idet > 0)  JD   = LQ(JDET-IDET)
+ If (Jd>0 & %Module!=Modulo) { Call MZDROP(IxCons,Jd,' '); Jd=0 }
+ Modulo = %Module
                             * * *
- If Iset<=0 | Idet<=0
+ If Iset<=0 | Idet<=0 | JD <=0
  {  "              for digi, save previous volume set/det reference       "
     If (T='D') Call GLOOK (Cdet,IQ(JVOLUM+1), Nvolum, Iv)
     If (iv>0)  Call UCopy (Q(JATTF(LQ(JVOLUM-Iv))+7),sdt,3)
@@ -4524,7 +5200,8 @@ C
    END
  
  
-*CMZ :          15/02/98  12.51.45  by  Pavel Nevski
+*CMZ :          26/12/98  19.17.41  by  Pavel Nevski
+*CMZ :  1.40/05 15/02/98  12.51.45  by  Pavel Nevski
 *CMZ :  1.30/00 16/04/96  19.12.28  by  Pavel Nevski
 *CMZ :  1.00/00 02/06/95  02.20.02  by  Pavel Nevski
 *-- Author :    Pavel Nevski   26/11/94
@@ -4674,11 +5351,11 @@ C
 *KEND.
  Integer     CSADDR,LENOCC,IEXT,Ltab,Ioption,Jdu,Ia,N,Ja,i1,i2,Ifun,k,i,new
  Real        ARFROMC
- Parameter   (Ltab=27)
+ Parameter   (Ltab=30)
  Character   T*1, Hit*4, Ctab(Ltab)*4 _
             /'X','Y','Z','R','RR','PHI','THE','ETA','TDR','CT',
-             'CX','CY','CZ','ETOT','ELOS','BIRK','STEP','LGAM',
-             'TOF','USER','XX','YY','ZZ','PX','PY','PZ','SLEN'/
+             'CX','CY','CZ','ETOT','ELOS','BIRK','STEP','LGAM','TOF','USER',
+             'XX','YY','ZZ','PX','PY','PZ','SLEN','PTOT','LPTO','rese'/
  
   Check %Idet>0 & %Iset>0 & %Jdu>0;
   " save next hit in DETU bank for a new structure marked by negative U(10) "
@@ -4863,7 +5540,7 @@ C
   END
  
  
-*CMZ :          25/03/98  16.44.21  by  Pavel Nevski
+*CMZ :  1.40/05 25/03/98  16.44.21  by  Pavel Nevski
 *CMZ :  1.30/00 14/11/96  17.24.24  by  Pavel Nevski
 *CMZ :  1.00/00 06/08/95  14.00.59  by  Pavel Nevski
 *-- Author :    Pavel Nevski   26/11/94
@@ -4976,7 +5653,7 @@ C local variables valid inside same block
   {%Thetax,%Thetay,%Phiy}=90
   END
  
-*CMZ :          30/05/97  15.31.01  by  Pavel Nevski
+*CMZ :  1.40/05 30/05/97  15.31.01  by  Pavel Nevski
 *CMZ :  1.30/00 07/08/96  15.08.41  by  Pavel Nevski
 *CMZU:  1.00/01 01/12/95  02.07.10  by  Pavel Nevski
 *CMZ :  1.00/00 01/06/95  13.09.15  by  Pavel Nevski
@@ -5288,7 +5965,8 @@ C
  %Level-=1;  Iprin=max(%Iprin-%Level-1,0);  if (%level>0) return;
    END
  
-*CMZ :          10/04/98  18.37.13  by  Pavel Nevski
+*CMZ :          24/12/98  17.51.43  by  Pavel Nevski
+*CMZ :  1.40/05 26/08/98  01.18.22  by  Pavel Nevski
 *CMZ :  1.30/00 13/05/97  14.31.40  by  Pavel Nevski
 *-- Author :    Pavel Nevski   26/11/94
 ************************************************************************
@@ -5471,7 +6149,7 @@ C                                       Link to:
       COMMON/QUEST/IQUEST(100)
 *KEND.
    Integer           AgPFLAG,LENOCC,n,m;   parameter   (n=100)
-   Character         Module*(*),Stage*4,Cmother*4,Cs*1,Chdir0*6/' '/
+   Character         Module*(*),Stage*4,Cmother*4,Cs*1,Chdir0*6/' '/,CWD*12
    Integer           IPR,i,Idet,Lrecl,Istat,Itry,Lun/61/
    Character*8       CHTAG(2)/'Bank-ID','Bank-ID'/,CHDIR(n)
    Real              Xtime,XXtime
@@ -5500,10 +6178,12 @@ C
       LVBACK(IIIII)=IQ(LQ(LKDETM-IIIII)+12)
  
 *KEND.
-                            * * *
+                               * * *
    Check %Module != Module;
    %Module=Module; Cs=Module(5:5);
-   If Cs='G' {Stage='GEOM'} else if Cs='D' {Stage='DIGI'} else {Stage='RECO'}
+   If Cs='G'      {Stage='GEOM'} else if Cs='D' {Stage='DIGI'}
+   else if Cs='R' {Stage='RECO'} else if Cs='A' {Stage='ANAL'}
+   else           {Stage='UNKN'}
    Cmother=' ';    If (JVOLUM>0) CALL UHTOC(IQ(JVOLUM+1),4,CMother,4);
    If Cs='G' { do i=1,5 { %attribute(i)=1; };  %attribute(6)=0 }
                                * * *
@@ -5527,13 +6207,17 @@ C
    If %IHIST>0
    {  CALL HCDIR('//PAWC',' ');   CALL HRDIR(n,CHDIR,m)
       Do I=1,m  { Check CHDIR(i)==Module(1:LENOCC(CHDIR(i)))
-                 CALL HCDIR(CHDIR(i),' ');  Break;
+                  CALL HCDIR(CHDIR(i),' ');  Break;
    }            }
                               * * *
    INQUIRE(FILE='detm.rz',OPENED=opnd)
    If .not.opnd & LVGEOM(1)>=0
-   {  Lrecl=256;   INQUIRE(FILE='detm.rz',EXIST=EXST);  %ChDir='RZDOC'
+   {  CALL RZCDIR(CWD,'R')
+      Lrecl=256;   INQUIRE(FILE='detm.rz',EXIST=EXST);  %ChDir='RZDOC'
       If !EXST { Call RZOPEN (Lun,%CHdir,'detm.rz','NWX', Lrecl,Istat)
+* from pawrop:
+*--- bug in RZOPEN with C I/O, TOPDIR is not returned correctly ---
+                                  %CHdir='LUN61'
                  Call RZMAKE (Lun,%CHdir,2,'HH',CHTAG,5000,'XO')
                  call RZCLOS (%Chdir,' ')
                }
@@ -5544,19 +6228,22 @@ C
 *     IF (IOPTC!=0 & LUN <10) WRITE(TOPDIR,'(3HLUN,i1)') LUN
 *     IF (IOPTC!=0 & LUN>=10) WRITE(TOPDIR,'(3HLUN,i2)') LUN
 *
-      Call RZLOGL (Lun,-3);    "  Call RZCDIR (ChDir0,'P') "
+      Call RZLOGL (Lun,-3);
       Do Itry=1,2
       {  Call RZFILE(Lun,%ChDir,'UDX'); if (Iquest(1)==0) Break
          Call Rzfree('RZFILE');         Call RZEND(%Chdir)
       }
+      Call RZPURG(1)
       If Istat!=0     { <w>; (' detm.rz absent - no documentation available');}
-      If Iquest(1)!=0 { <w>Iquest(1);(' problem opening detm.rz, IQUEST=',i6);}
-*     Chdir0=%Chdir
+      If Iquest(1)!=0 { <w>Iquest(1); (' problem opening detm.rz IQUEST=',i6);}
+      call RZCDIR(CWD,' ')
    }
+   If (IDebug>2) Call DZVERI(' module started ',0,'CLU')
    END
  
  
-*CMZ :          04/03/98  23.44.07  by  Pavel Nevski
+*CMZ :          24/12/98  17.52.05  by  Pavel Nevski
+*CMZ :  1.40/05 04/03/98  23.44.07  by  Pavel Nevski
 *CMZ :  1.30/00 17/04/97  17.59.21  by  Pavel Nevski
 *CMZ :  1.00/00 29/11/95  08.55.19  by  Pavel Nevski
 *-- Author :    Pavel Nevski   26/11/94
@@ -5783,10 +6470,12 @@ C
    { Call TIMEX(XXtime); <W> %module,XXtime-Xtime,XXi-Xtime
      (' Module ',a,' done',11x,'Time=',F8.3,' (proper time=',F8.3,')')
    } %Module=' '
+   If (IDebug>2) Call DZVERI(' module finished ',0,'CLU')
    END
  
  
-*CMZ :          09/01/98  03.41.25  by  Pavel Nevski
+*CMZ :          29/11/98  20.56.38  by  Pavel Nevski
+*CMZ :  1.40/05 09/01/98  03.41.25  by  Pavel Nevski
 *CMZ :  1.30/00 02/04/96  20.16.48  by  Pavel Nevski
 *CMZ :  1.00/00 29/05/95  16.26.52  by  Pavel Nevski
 *-- Author :    Pavel Nevski   26/11/94
@@ -5795,6 +6484,8 @@ C
                     Subroutine   A g G C L O S
 *                                                                    *
 *  Description:  Fill hit structures for all sensitive detectors     *
+*  Modifications:
+*  PN, 29.11.98 - cleanup Isearc paramater in JVOLUM structure       *
 **********************************************************************
 *KEEP,TYPING.
       IMPLICIT NONE
@@ -5817,6 +6508,14 @@ C
      +      ,JROTM ,JRUNG ,JSET  ,JSTAK ,JGSTAT,JTMED ,JTRACK,JVERTX
      +      ,JVOLUM,JXYZ  ,JGPAR ,JGPAR2,JSKLT
 C
+*KEEP,GCNUM.
+      COMMON/GCNUM/NMATE ,NVOLUM,NROTM,NTMED,NTMULT,NTRACK,NPART
+     +            ,NSTMAX,NVERTX,NHEAD,NBIT
+      COMMON /GCNUMX/ NALIVE,NTMSTO
+C
+      INTEGER      NMATE ,NVOLUM,NROTM,NTMED,NTMULT,NTRACK,NPART
+     +            ,NSTMAX,NVERTX,NHEAD,NBIT ,NALIVE,NTMSTO
+C
 *KEEP,GCUNIT.
       COMMON/GCUNIT/LIN,LOUT,NUNITS,LUNITS(5)
       INTEGER LIN,LOUT,NUNITS,LUNITS
@@ -5825,8 +6524,10 @@ C
 C
 *KEND.
   Character*4 Cset,Cdet
-  Integer     IPRIN,Iset,Idet,JS,JD,Jdu
+  Integer     IPRIN,Iset,Idet,JS,JD,Jdu,Iv
  
+  Do Iv=2,Nvolum   { If (Q(LQ(JVOLUM-Iv)+1)==-99) Q(LQ(JVOLUM-Iv)+1)=0; }
+*
   Check Jset>0
   :set: DO Iset=1,IQ(Jset-1)                                 " Over Nset "
   {  JS=LQ(Jset-Iset);   Check JS>0;  Call UHTOC (IQ(Jset+Iset),4,Cset,4)
@@ -6118,6 +6819,7 @@ C
  *
   END
  
+*CMZ :          26/12/98  18.48.36  by  Pavel Nevski
 *CMZ :  1.30/00 17/11/96  21.31.31  by  Pavel Nevski
 *CMZ :  1.00/00 22/09/95  18.08.16  by  Pavel Nevski
 *-- Author :    Pavel Nevski   26/11/94
@@ -6259,30 +6961,35 @@ If 15<=Ifun & Ifun<=17  "step and energy losses"
  If Ifun=14              "ETOT"    { CL=0;      CH=1000;    }
  If Ifun=15 | Ifun=16    "ELOS"    { CL=0;      CH=.01*dens*step3; }
  If Ifun=17              "STEP"    { CL=0;      CH=Step2;   }
- If Ifun=18              "Lgam"    { CL=0;      CH=10;      }
+ If Ifun=18              "Lgam"    { CL=-3;     CH=+7;      }
  If Ifun=19              "TOF "    { CL=0;      CH=TOFMAX;  }
  If Ifun=20              "USER"    { CL=%Magic; CH=%Magic   }
  If 21<=Ifun&Ifun<=23  "XX,YY,ZZ"  { CL=-1000;  CH=1000;    }
  If 24<=Ifun&Ifun<=26  "PX,PY,PZ"  { CL=-1000;  CH=1000;    }
  If Ifun=27              "SLEN"    { CL=0;      CH=10000;   }
- If Ifun=28              "SHTN"    { CL=%Magic; CH=%Magic   }
+ If Ifun=28              "PTOT"    { CL=0;      CH=1000;    }
+ If Ifun=29              "LPTO"    { CL=-3;     CH=+7;      }
+ If Ifun=30              "rese"    { CL=%Magic; CH=%Magic   }
  If Ifun>0  { If (Clo=%Magic) Clo=CL; If (Chi=%Magic) Chi=CH; }
    END
  
  
  
  
+*CMZ :          26/12/98  09.47.17  by  Pavel Nevski
 *CMZ :  1.30/00 17/11/96  21.32.11  by  Pavel Nevski
 *CMZU:  1.00/01 27/01/96  22.06.24  by  Pavel Nevski
 *CMZ :  1.00/00 04/09/95  14.29.15  by  Pavel Nevski
 *-- Author :    Pavel Nevski   26/11/94
-**********************************************************************
-*                                                                    *
+************************************************************************
+*                                                                      *
           Subroutine   A g G F D I M (Iax,Cdet,Cl0,Ch0,dens)
-*                                                                    *
-*  Description: given a sensetive volume and axis, find its dimension*
-*             Just a continuation of AgGFLIM splitted for convenience*
-**********************************************************************
+*                                                                      *
+* Description: given a sensetive volume and axis, find its dimension.  *
+*              Just a continuation of AgGFLIM splitted for convenience *
+* Modifications:                                                       *
+* PN, 26dec98: JIN in GFIPAR is a link to POSITION bank, not to mother *
+************************************************************************
 *KEEP,TYPING.
       IMPLICIT NONE
 *KEEP,GCBANK.
@@ -6337,10 +7044,12 @@ Do Iv=1,Nvol
       do In=1,Abs(Nin)
       {  Jda=LQ(Jmo-In);  Check Jda>0;  Ida=Q(Jda+2);
          NR=Q(Jda+3);     Check Ida=Iv; Npar=Q(Jv+5);
-         Call GFIPAR(Jv,Jmo,In, Npar,Natt,Par,Att)
+         Call GFIPAR(Jv,LQ(Jmo-In),In, Npar,Natt,Par,Att)
          IF Npar<=0 | Npar>50
-         { <W> Cdet; (' AgGFDIM: still error in GFIPAR for volume ',a4/,
-                      ' ***** PLEASE USE EXPLICIT HIT LIMITS *****')
+         { <W> Cdet,Iax,Npar
+           (' AgGFDIM: still error in GFIPAR for volume ',a4,
+            ' Axis = ',i3,' Nparameters = ',i3/,
+            ' ***** PLEASE USE EXPLICIT HIT LIMITS *****')
            next
          }
          if      Iax<=3  {  call GFLCAR (Iax,Ish,0,    Par,CL,CH,ier);  }
@@ -6354,7 +7063,7 @@ Do Iv=1,Nvol
 }  }  }
    END
  
-*CMZ :          11/01/98  19.20.57  by  Pavel Nevski
+*CMZ :  1.40/05 05/08/98  23.16.12  by  Pavel Nevski
 *CMZ :  1.30/00 16/03/97  14.27.55  by  Pavel Nevski
 *CMZU:  1.00/01 29/01/96  13.26.30  by  Pavel Nevski
 *-- Author :    Pavel Nevski   26/11/94
@@ -6624,7 +7333,7 @@ C
         hit=serial;
         If   Iad==0   { hit=AgGHIT(ic)           }
         else If ic>0  { Call JumpT2(Iad,j,hit)   }
-        else          { Call CSJCAL(Iad,2,j,hit) }
+        else          { Call CSJCAL(Iad,2, j,hit,0,0,0, 0,0,0,0,0) }
  
         " special case for phi(0,2pi) and rapidity(0,max) -> Org=-Fmin "
         If "phi"  ic==6  { If (Org<=0 & Fmx>6.28 & hit<0) hit+=TwoPi;  }
@@ -6664,7 +7373,8 @@ C
    END
  
  
-*CMZ :          08/08/97  11.42.02  by  Pavel Nevski
+*CMZ :          26/12/98  18.48.36  by  Pavel Nevski
+*CMZ :  1.40/05 08/08/97  11.42.02  by  Pavel Nevski
 *CMZ :  1.30/00 02/04/96  14.53.21  by  Pavel Nevski
 *CMZ :  1.00/00 31/05/95  23.17.43  by  Pavel Nevski
 *-- Author :    Pavel Nevski   26/11/94
@@ -6757,13 +7467,13 @@ C
 *KEND.
  REAL             AgGHIT,VDOTN,VDOT,Hit,V(3),R,THE,VMOD,
                   a(2),c(2),dk,da,Vec(2)
- Integer          IC,JMP,i,IcMax/27/
+ Integer          IC,JMP,i,IcMax/30/
  
  AgGHIT=-9999;    If (0>Ic | Ic>IcMax) Return;      hit=0;
  
- Case  IC of ( X  Y  Z   R    RR   PHI  THET ETA  TDR CP    _
-               U  V  W   ETOT ELOS BIRK STEP LGAM TOF USER  _
-               XX YY ZZ  PX   PY   PZ   SLEN                )
+ Case  IC of ( X  Y  Z   R    RR   PHI  THET ETA  TDR  CP    _
+               U  V  W   ETOT ELOS BIRK STEP LGAM TOF  USER  _
+               XX YY ZZ  PX   PY   PZ   SLEN PTOT LPTO rese )
  {
   :X:;:Y:;:Z: hit=Xloc(ic);                                              Break;
   :R:         hit=VMOD(Xloc,2);                                          Break;
@@ -6791,6 +7501,9 @@ C
   :XX:;:YY:;:ZZ:  i=ic-20; Hit=(Vect(i)+Vect0(i))/2;                     Break;
   :PX:;:PY:;:PZ:  i=ic-20; Hit=(Vect(i)*Vect(7)+Vect0(i)*Vect0(7))/2;    Break;
   :SLEN:      hit= Sleng;                                                Break;
+  :PTOT:      hit= (Vect(7)+Vect0(7))/2;                                 Break;
+  :LPTO:      hit= ALOG10((Vect(7)+Vect0(7))/2);                         Break;
+  :rese:      hit= 0;                                                    Break;
  }
 2 AgGHIT=hit;
    END
@@ -7089,9 +7802,9 @@ C
  
  
  
-*CMZ :          15/06/98  23.04.08  by  Pavel Nevski
+*CMZ :          16/12/98  00.04.59  by  Pavel Nevski
+*CMZ :  1.40/05 19/08/98  16.55.50  by  Pavel Nevski
 *CMZ :  1.30/00 17/11/96  22.43.56  by  Pavel Nevski
-*CMZU:  1.00/01 21/12/95  22.19.56  by  Pavel Nevski
 *CMZ :  1.00/00 14/11/95  02.46.06  by  Pavel Nevski
 *-- Author :    Pavel Nevski   26/11/94
 **********************************************************************
@@ -7114,11 +7827,12 @@ C
 * - Flag controls the I/O format, Link - access methode              *
 * Modifications:                                                     *
 * 16/04/96 PN: flag list changed as in AsFLAGS                       *
+* 23.10.98 PN: save and restore rz CWD before saving documentation.  *
+*          RZPURG cannot be used here because the CWD may be HBOOK.  *
 **********************************************************************
 REPLACE [ERR#{#}] with _
-        [; IF (#1) {<W>%L(Module),Bank; (' AgDOCUM error for module ',A,
-                    ' for bank ',A/ 10x,'*** #2 ***');    Istat=-100;
-                     "no doc mode" {L1Doc,L2Doc,Ldoc}=0;  Return   }; ]
+        [; IF (#1) {<W>%L(Module),Bank; (10x,'AgDOCUM error in module ',A,
+                    ' for bank ',A/ 10x,'*** #2 ***');  go to :warn:; }]
 REPLACE [SWAP(#,#)] with [;iw=#1;#1=#2;#2=iw;]
 * - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 *KEEP,TYPING.
@@ -7215,21 +7929,22 @@ C   - combined DETM + Reconstruction bank access variables - AGI version
       EQUIVALENCE       (CNAM,INAM)
 *
 *KEND.
-Integer       LENOCC,OK,Lb,LL,LL1,LvL,ns1,ns2,Need,Ndm,i,j,k,l,M/1000000/,
-              Idat,Itim,Link,Ia,Lk,L1,L2,Flag,IDYN,INEW,JOX,iw,idd/0/,X,IC,
-              map(2,LL1),num(Lb),key(3),ID/0/,Iform/0/,Jform/0/,Istat/0/
+Integer       LENOCC,IndexN,j1,word2desc,
+              OK,Lb,LL,LL1,LvL,ns1,ns2,Ndm,i,j,k,l,M/1000000/,ND(3),
+              Idat,Itim,Link,Ia,Lk,L1,L2,Flag,IDYN,INEW,JOX,iw,idd/0/,X/0/,
+              map(2,LL1),num(Lb),key(3),ID/0/,Iform/0/,Jform/0/,Istat/0/,IC
 Character*(*) Module,MTitle,Author,Created,Bank,Bpath,Btit,
               Names(LL1),Comment(LL1)
-Character*12  Ddoc,nam
+Character*12  Ddoc,nam,CC,DD
 Character*4   Ctop,Cbank,C1,C2
-Character*8   Flags(15),Dmodule,Dmodu,Dbank,Dbanu,Dup,Ddef,Bname,dash/'-'/
-Character*24  Descr(15),Tshort
-Character     Cform*80,Cforn*80,C*1
+Character*8   Flags(15),Dmodule,Dmodu,Dbank,Dbanu,Dup,Ddef,dash/'-'/
+Character*24  Descr(15),Tshort,CWD
+Character     Cform*80,Cforn*80,Commenti*80,C*1,cinde*40,cin*3/'(,)'/
 Parameter     (OK=0)
-Save          Id,Dmodule,Dbank,Dup,Ddef,Ctop
+Save          Id,Dmodule,Dbanu,Dbank,Dup,Ddef,Ctop
 Logical       First/.true./,start
 Real          Par(LL)
-Integer iprin/1/
+Integer       iprin/1/
 * - - - - - - - - - - - - - - - dete bank - - - - - - - - - - - - - - - - - - -
 Data Flags  /'PNOW', 'PRIN', 'DEBU', 'GEOM', 'HIST', 'GRAP', 'SIMU', 'DIGI',
              'RECO', 'MFLD', 'ANAL', 'BACK', 'resa', 'resb', 'resc'/
@@ -7240,29 +7955,25 @@ Data Descr  _
        'magnetic field flag  ','user analysis level  ','pile-up bunch select.',
        'reserve              ','reserve              ','reserve              '/
 * - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - *
- 
+Iprin=Idebug
 If First
-{  First=.false.;   Istat=0;
-   Call MZFORM('DETP',  '-F'  ,Iform);   Call MZFORM('DDOC','1H 19I -S',Jform);
-  "this part may be re-executed only after recompilation(standalone debugging)"
-  "-in this case make sure that link areas are not initialized twice (commons)"
-  " If (L1Doc>0)     call MZDROP(IxCONS,L1Doc,' ')  Standalone debugging mode "
-*
-*  it was a structural link area, now it becomes a reference one
-*  If (LdArea(1)=0) call MZLINT(IxCONS,'AGCDOCL',LDarea,Lpar,LDarea)
+{  First=.false.;   Istat=0;   L1Doc=0;
+   Call MZFORM('DETP','-F',Iform);  Call MZFORM('DDOC','1H 19I -S',Jform);
    If (LdArea(1)=0) call MZLINT(IxCONS,'AGCDOCL',LDarea,L1Doc,Lpar)
-   L1Doc=0;
 }
 If L1Doc<=0
-{  Call AsbDETE('DOCU',I);  L=0;  If (LKDETM>0 & I>0)  L=LQ(LQ(LKDETM-I)-1);
-   If L>0 { CALL UHTOC(IQ(L-5),4,bname,8); if (bname=='NONEDETM') L1doc=L; }
+{  * locate documentation system at the first link of DOCU bank:
+   *(only bank IDH is checked, IDN may be swapped - check later)
+   Call AsbDETE('DOCU',I);  L=0;  If (I>0)  L=LQ(LQ(LKDETM-I)-1)
+   If L>0  { " both DETM?" if (IQ(L-4)==IQ(LKDETM-4)) L1doc=L; }
 }
+ 
 * - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - *
 * - - - - - -          create the information bank itself           - - - - - *
 * - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - *
  
 " trace module changes - a module may have only ONE default Ctop bank "
-IOX=Flag; If IOX==0
+CWD=' '; IOX=Flag; If IOX==0
 { call AgDForm(Names,map,LL1,LL,Cform,Cforn);  Call MZFORM(Cbank,CForm,IOX) }
 *
 Cbank=Bank;  Dmodu=Module;  start=.false.
@@ -7295,7 +8006,7 @@ else                                 "     explicit directory setting if /    "
 IDYN=0; INEW=LL;             " dependant dynamic banks now - if any required "
 DO i=1,LL1
 {  if (map(1,i)>0 & map(2,i)>0)       { INEW-=map(1,i)*map(2,i); Next; }
-   INEW-=1;                               " dynamic array found here "
+   INEW-=1; IDYN+=1;                      " dynamic array found here "
    If (Link==0) Link=-1                   " force link to be secured "
    L1=map(1,i); If L1<0
    { L1=-L1;    if L1<M { Call Ucopy(Par(L1),L1,1)} else { L1=nint(Par(L1-M))}}
@@ -7306,6 +8017,7 @@ DO i=1,LL1
    swap(LkArP2,LkArP3)
    CALL ReBANK (Nam,1,2+L1*L2+3,Lk,Ia)
    swap(LkArP2,LkArP3)
+   Err LQ(LkArP3-IDYN)!=Lk {This FILL does not work in this version}
 }
 * LkArP3 keeps the current bank adress now
 Dmodule=Module;  Call AGDLINK(Module,Bank,Link,LkArP3)
@@ -7314,101 +8026,258 @@ Check Flag==0;   Flag=JOX;
 * - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - *
 * - - - - -   new bank: make sure that detector documentation exists  - - - - *
 * - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - *
- 
-If Start
-{ "-------------------       level 1  -  DETM bank       -------------------"
-  Call AsBDETE(Dmodu,ID);     Err Id<=0 {detector does not exist in DETM bank}
-  Dbanu='DETMNONE';  Call UCTOH(Dbanu,Key,4,8);  IQUEST(1)=0;
-  If Istat=0 & L1Doc<=0
-  { Call AsBDETE('DOCU',idd)
+Dbanu=' '; Dbank=' '; CALL RZCDIR(CWD,'R')   " save rz-CWD "
+If Start & Istat==0
+{ "-------------------      level 1  - main DETM bank    -------------------"
+  Call AsBDETE(Dmodu,ID);     Err Id<=0  {detector does not exist in DETM bank}
+  Call AsBDETE('DOCU',Idd);   Err Idd<=0 {cannot book DOCU system in DETM bank}
+  Dbanu='DETMNONE';  IQUEST(1)=0;  X=0;
+  If L1Doc<=0
+  {
+    Call UCTOH(Dbanu,Key,4,8)
     Call RZIN (IxCONS,LQ(LKDETM-idd),-1,Key,0,' ')
-    If (Iquest(1)==0) L1Doc=LQ(LQ(LkDETM-idd)-1)
-    If L1Doc<=0               " main documentation bank does not exist "
-    { IQuest(1)=0
-      Call MZBOOK(IxCONS,L1Doc,LQ(LkDETM-idd),-1,'DETM',2,2,300,Jform,0)
-*      if (idebug>0) print *,'DETM/DOCU/DETM done '
-      Err L1Doc<=0 | Iquest(1)#0 { Cant create main documentation bank }
-      IQ(L1Doc-5)=key(2)
-      Call AgDOCBA(L1Doc,Dbanu,'Detector main bank', Author,Created,'-H',
-                         0, 1, 'detector','subsystem or faculty name ',X)
-      Err L1Doc<=0 | Iquest(1)#0 { Cant write main documentation bank }
-  } }
+    If IQuest(1)==0 { L1Doc=LQ(LQ(LkDETM-idd)-1) }
+    else
+    {  IQuest(1)=0
+       Call MZBOOK (IxCONS,L1Doc,LQ(LkDETM-idd),-1,'DETM',2,2,300,Jform,0)
+       Call AgDOCBA(L1Doc,Dbanu,'Detector main bank', Author,Created,'-H',
+                          0, 1, 'detector','subsystem or faculty name ',X)
+    }
+    Err L1Doc<=0 | Iquest(1)#0 | X!=0 { Cant access main documentation bank }
+  }
   "-------------------       level 2  -  DETE bank      -------------------"
-  If Istat==0 & L1Doc>0
+  If L1Doc>0
   { "        first add link description in DETM bank                       "
-    Call AgDTIT (MTitle,Tshort)
+    Call AgDTIT  (MTitle,Tshort)
     Call AgDOCBA (L1Doc,Dbanu,'*','*','*','*',1,0,Module(1:4),Tshort,X)
+ 
     " insure that links in doc DETM coincides with the main DETM "
-    Ns1=IQ(LkDETM-2);  Ns2=IQ(L1Doc-2);  Need=ns1-ns2
-    If (Need>0) Call MZPUSH (IxCONS,L1Doc,Need,0,' ')
-    L2Doc=LQ(L1Doc-Id)
-    If L1Doc>0 & L2Doc<=0
+    Ns1=IQ(LkDETM-2);  Ns2=IQ(L1Doc-2)
+    If (Ns1>Ns2) Call MZPUSH (IxCONS,L1Doc,Ns1-Ns2,0,' ')
+    if (L1Doc>0) L2Doc=LQ(L1Doc-Id)
+ 
+    If L1Doc>0 & L2Doc<=0    "Documentation does not exist for THIS detector"
     { Dbank=DModu(1:4)//'DETM';   Call UCTOH(Dbank,Key,4,8);
       Call RZIN (IxCONS,L1Doc,-ID,Key,0,' ');  L2Doc=LQ(L1Doc-Id);
-      If Iquest(1)#0|L2Doc<=0 "Documentation does not exist for THIS detector"
+      If Iquest(1)#0|L2Doc<=0
       { IQuest(1)=0; Call MZBOOK(IxCONS,L2Doc,L1Doc,-ID,Dbank,2,2,300,Jform,0)
-        Err L2Doc<=0 | Iquest(1)#0  { Can not create DETE documentation bank }
-        IQ(L2DOC-5)=key(2)
         Call AgDOCBA(L2Doc,Dbank,Tshort,Author,Created,'-I',0,15,Flags,Descr,X)
-        Err L2Doc<=0 | Iquest(1)#0  { Can not write DETE documentation bank  }
-  } } }
-  Err IQuest(1)#0|L2Doc<=0|L1Doc<0{cannot find top level documentation banks}
+      }
+      Err L2Doc<=0|Iquest(1)#0|X!=0 { Can not access DETE documentation bank  }
+  } }
+  Err IQuest(1)#0|L2Doc<=0|L1Doc<0 {cannot find top level documentation banks}
 }
+ 
 "---   level 3/4  -  the bank itself: all documentation is linear in DETE  ---"
-Ldoc=0; Lkdoc=0;
-If L2Doc>0
-{  * first, update links in upper level bank
-   Ddoc=Cbank//Dup; Call UCTOH(Ddoc,Key,4,12);
-   Ndm=60+LL*16;    Ns1=IQ(L2doc-2)
-   if IQ(L2doc-4)==Key(2) & IQ(L2doc-5)==Key(3)  " - for level 3 doc "
-   {  "link" Call AgDOCBA (L2doc,Dup,'*','*','*','*',1,0,Cbank,Btit,X) }
+ 
+Ldoc=0; Lkdoc=0; X=0;
+If Istat==0 & L2Doc>0
+{  * first, update links in the upper level bank
+   Ddoc=Cbank//Dup;   Ndm=60+LL*16;    Ns1=IQ(L2doc-2)
+   Call UHTOC (IQ(L2doc-4),4,C1,4)           " - for level 3 doc "
+   Call UHTOC (IQ(L2doc-5),4,C2,4)
+   if C1==Dup(1:4) & C2==Dup(5:8)
+   {  Call AgDOCBA (L2doc,Dup,'*','*','*','*',1,0,Cbank,Btit,X) }
    do i=1,Ns1
    {  Ldoc=LQ(L2Doc-i);   If (Ldoc<=0) go to :f:
-      * if this is a previus description of the same bank - drop it
-      if IQ(Ldoc-4)==Key(1) & IQ(Ldoc-5)==Key(2)
-      {  Call MZDROP (IxCons,Ldoc,' ');   goto :f:;  }
-      * if this is a description of the parent bank - insert links
-      if IQ(Ldoc-4)==Key(2) & IQ(Ldoc-5)==Key(3)   " - for level 4 doc "
+      Call UHTOC (IQ(Ldoc-4),4,C1,4)
+      Call UHTOC (IQ(Ldoc-5),4,C2,4)
+      prin6 Cbank,C1,C2,Dup; (' in agdocum cbank=',a,' id=',2a,' Dup=',a)
+      if C1==Cbank & C2==Dup(1:4)    { "MZDROP(IxSTOR,Ldoc,' ');"  goto :f:; }
+      if C1==Dup(1:4) & C2==Dup(5:8)            " - insert links for level 4 "
       { Lkdoc=Ldoc; Call AgDOCBA (Ldoc,Dup,'*','*','*','*',1,0,Cbank,Btit,X) }
    }  i=Ns1+1;  Call MZPUSH(IxCONS,L2DOC,5,0,' ')
  
-   :f: Ldoc=LQ(L2Doc-i)
-   If (Ldoc==0)  Call MZBOOK (IxCONS,Ldoc,L2doc,-i,Cbank,2,2,Ndm,Jform,0)
+   :f: Ldoc=LQ(L2Doc-i)   " If (Ldoc==0) "
+   Call MZBOOK (IxCONS,Ldoc,L2doc,-i,Cbank,2,2,Ndm,Jform,0)
    Call AGDTIT (Btit,Tshort)
-   If (INEW>1)
-   {  Call AgDOCBA(Ldoc,Ddoc,Tshort,Author,Created,cform,0,1,dash,
-                                                   'usage counter',X)
-      Call AgDOCBA(Ldoc,Ddoc, '*' , '*' , '*' , '*' ,0,1,dash,
-                                                   'system version',X)
+   Call AgDOCBA(Ldoc,Ddoc,Tshort,Author,Created,cform,0,0,' ',' ',X)
+   If INEW>1
+   {  Call AgDOCBA(Ldoc,Ddoc, '*', '*', '*', '*',0,1,dash,'usage counter',X)
+      Call AgDOCBA(Ldoc,Ddoc, '*', '*', '*', '*',0,1,dash,'system version',X)
    }
    Err LDoc<=0 | Iquest(1)#0 { Can not create documentation bank }
    DO i=1,LL1
-   {  k=1; if (map(1,i)>0 & map(2,i)>0) k=map(1,i)*map(2,i)
-      L=Lenocc(Names(i));   Nam=Names(i)(3:L);  if IDEBUG>0&L>10
-      { <W>%L(Module),Bank,Names(i)(3:L);
+   {  k=1; cinde=' ';
+      if map(1,i)>0 & map(2,i)>0 { k=map(1,i)*map(2,i) }
+      else                           " format a text dimension descriptor "
+      {  do j=1,2
+         {  CC=' '; DD=' '    " real dynamic index is displaced by M "
+            if map(j,i)<0     " index word number to index number    "
+            { j1=word2desc(map(j,i),map,LL1,Inew);    CC=Names(j1)(3:)    }
+            if map(j,i)>=j { write (DD,*) map(j,i);   CC=DD(IndexN(DD):); }
+            * print *,' i,j,map(j,i),j1,cc = ', i,j,map(j,i),j1,cc
+            if (Lenocc(CC)>0) cinde=%L(cinde)//cin(j:j)//%L(CC)
+         }  cinde=%L(cinde)//cin(3:3)//'- '
+            prin5 cinde; (' AGDOCUM: dynamic index = ',a,2i5)
+      }                              "              --- done ---
+ 
+      L=Lenocc(Names(i));   Nam=Names(i)(3:L);  if L>10
+      { Prin1 %L(Module),Bank,Names(i)(3:L);
        (' AgDOCUM/DZDOC warning in module ',a,', bank ',a,', variable ',a,':'/,
         ' -name too long, will be trucated in documentation and include files')
       }
-      Call AgDOCBA(Ldoc,Ddoc,Tshort,Author,Created,cform,0,-k,Nam,Comment(i),X)
+      * take description from previous doc - 01.11.98
+      L1=Ldoc; commenti=%L(cinde)//comment(i)
+      while LQ(L1)>0 & Commenti=='    '
+      {  L1=LQ(L1);  call agdocline(L1,Iprin,Nam,commenti) }
+ 
+      * Negative ND(1) means only one comment per the whole array
+      ND = { -k,map(1,i),map(2,i) }
+      Call AgDOCBA(Ldoc,Ddoc,Tshort,Author,Created,cform,0,ND,Nam,Commenti,X)
    }
    If X==0 & Ldoc>0
-   { CALL RZCDIR('//LUN61',' ')
-     CALL aRZOUT (IXCONS,L1doc,Dbanu,IC,'SN')
-     CALL aRZOUT (IXCONS,L2doc,Dbank,IC,'SN')
+   {
+     if (Dbanu!=' ') CALL aRZOUT (IXCONS,L1doc,Dbanu,IC,'SN')
+     if (Dbank!=' ') CALL aRZOUT (IXCONS,L2doc,Dbank,IC,'SN')
      CALL aRZOUT (IXCONS,Lkdoc,Dup , IC,'SN')
      CALL aRZOUT (IXCONS,Ldoc, Ddoc, IC,'SN')
-     call RZPURG (1)
-}  }
+     L1=LQ(Ldoc); if L1>0
+     { if IQ(Ldoc-1)==IQ(L1-1)
+       { do i=1,IQ(Ldoc-1) { if (IQ(Ldoc+i)!=IQ(L1+i)) go to :P:; }
+         call MzDROP (IxSTOR,LQ(Ldoc),' ')
+     } } :p:
+   }
+   else { <W> Ddoc; (' AGDOCUM: problems writing out doc for ',a) }
+}
 if INEW>1
 {  Call DATIME (Idat,Itim);  Par(1)=Idat+Itim/2401.;  Q(LkArP3+1+Ia)=Par(1)
                              Par(2)=IC;               Q(LkArP3+2+Ia)=Par(2)
 }
+goto :e:
+ 
+:warn: <W>; (10x,'***   detm.rz file is probably corrupted   ***'/,
+             10x,'***     delete it and try to run again     ***'/,
+             10x,'**********************************************');
+"no doc mode" {L1Doc,L2Doc,Ldoc}=0; Istat=-100
+:e: if (CWD!=' ') Call RZCDIR(CWD,' ')  " restore CWD"
 END
  
  
-*CMZ :          30/04/98  15.29.51  by  Pavel Nevski
+ 
+***************************************************************************
+          subroutine   a g d o c l i n e (L,Iprin,name,comment)
+*                                                                         *
+* description: provide doc. description (comments) for a given variable   *
+*                                                                         *
+***************************************************************************
+*KEEP,TYPING.
+      IMPLICIT NONE
+*KEEP,GCBANK.
+      INTEGER IQ,LQ,NZEBRA,IXSTOR,IXDIV,IXCONS,LMAIN,LR1,JCG
+      INTEGER KWBANK,KWWORK,IWS
+      REAL GVERSN,ZVERSN,FENDQ,WS,Q
+C
+      PARAMETER (KWBANK=69000,KWWORK=5200)
+      COMMON/GCBANK/NZEBRA,GVERSN,ZVERSN,IXSTOR,IXDIV,IXCONS,FENDQ(16)
+     +             ,LMAIN,LR1,WS(KWBANK)
+      DIMENSION IQ(2),Q(2),LQ(8000),IWS(2)
+      EQUIVALENCE (Q(1),IQ(1),LQ(9)),(LQ(1),LMAIN),(IWS(1),WS(1))
+      EQUIVALENCE (JCG,JGSTAT)
+      INTEGER       JDIGI ,JDRAW ,JHEAD ,JHITS ,JKINE ,JMATE ,JPART
+     +      ,JROTM ,JRUNG ,JSET  ,JSTAK ,JGSTAT,JTMED ,JTRACK,JVERTX
+     +      ,JVOLUM,JXYZ  ,JGPAR ,JGPAR2,JSKLT
+C
+      COMMON/GCLINK/JDIGI ,JDRAW ,JHEAD ,JHITS ,JKINE ,JMATE ,JPART
+     +      ,JROTM ,JRUNG ,JSET  ,JSTAK ,JGSTAT,JTMED ,JTRACK,JVERTX
+     +      ,JVOLUM,JXYZ  ,JGPAR ,JGPAR2,JSKLT
+C
+*KEEP,SCLINK.
+C SLUG link area :    Permanent Links for SLUG:
+      INTEGER         LKSLUG,NSLINK
+      PARAMETER       (NSLINK=40)
+      COMMON /SCLINK/ LKSLUG(NSLINK)
+C The following names are equivalenced to LKSLUG.
+C The equivalence name is the one used in SLINIB.
+      INTEGER LKGLOB,LKDETM,LKTFLM,LKTFLT,LKAMOD,LKAGEV,LKAMCH,LKADIG,
+     +        LKMAPP,LKMFLD,LKRUNT,LKEVNT,LKARAW,LKATRI,LKAPRE,LKARP1,
+     +        LKARP2,LKARP3,LKDSTD,LKRUN2,LKEVN2,LKVER2,LKKIN2,LKHIT2,
+     +        LKGENE
+C                                       Link to:
+      EQUIVALENCE (LKSLUG(1),LKGLOB)   ! top of temporary HEPEVT Zebra tree
+      EQUIVALENCE (LKSLUG(2),LKDETM)   ! top of subdetector structure
+      EQUIVALENCE (LKSLUG(3),LKTFLM)   ! permanent track filter structure
+      EQUIVALENCE (LKSLUG(4),LKTFLT)   ! temporary track filter structure
+      EQUIVALENCE (LKSLUG(5),LKAMOD)   ! MODule parameters (Dont know this)
+      EQUIVALENCE (LKSLUG(6),LKAGEV)   ! Link to general event structure
+      EQUIVALENCE (LKSLUG(7),LKAMCH)   ! MonteCarlo Hits ( not GEANT I guess)
+      EQUIVALENCE (LKSLUG(8),LKADIG)   ! DIGitized hits (again not GEANT...?)
+      EQUIVALENCE (LKSLUG(9),LKMAPP)   ! map structure
+      EQUIVALENCE (LKSLUG(10),LKMFLD)  ! magnetic field banks
+      EQUIVALENCE (LKSLUG(11),LKRUNT)  ! run tree bank (vertical structure)
+      EQUIVALENCE (LKSLUG(12),LKEVNT)  ! event tree bank (vertical struct)
+      EQUIVALENCE (LKSLUG(13),LKARAW)  ! raw data structure
+      EQUIVALENCE (LKSLUG(14),LKATRI)  ! trigger banks
+      EQUIVALENCE (LKSLUG(15),LKAPRE)  ! preprocessed hits
+      EQUIVALENCE (LKSLUG(16),LKARP1)  ! reconstuction phase 1 banks
+      EQUIVALENCE (LKSLUG(17),LKARP2)  ! reconstuction phase 2 banks
+      EQUIVALENCE (LKSLUG(18),LKARP3)  ! reconstuction phase 3 banks
+      EQUIVALENCE (LKSLUG(19),LKDSTD)  ! DST data banks
+      EQUIVALENCE (LKSLUG(20),LKRUN2)  ! run tree bank for secondary run
+      EQUIVALENCE (LKSLUG(21),LKEVN2)  ! event tree bank for secondary events
+      EQUIVALENCE (LKSLUG(22),LKVER2)  ! secondary GEANT VERT bank
+      EQUIVALENCE (LKSLUG(23),LKKIN2)  ! secondary GEANT KINE bank
+      EQUIVALENCE (LKSLUG(24),LKHIT2)  ! secondary GEANT HITS bank
+      EQUIVALENCE (LKSLUG(26),LKGENE)  ! old slug ZEBRA generator structure
+*KEEP,GCUNIT.
+      COMMON/GCUNIT/LIN,LOUT,NUNITS,LUNITS(5)
+      INTEGER LIN,LOUT,NUNITS,LUNITS
+      COMMON/GCMAIL/CHMAIL
+      CHARACTER*132 CHMAIL
+C
+*KEEP,AGCDOCL.
+C     common for the documentation supporting links
+      Integer           LDarea(2),L1Doc,L2Doc,LKDoc,Ldoc,Ldete,Lpar
+      COMMON /AGCDOCL/  LDarea,   L1Doc,L2Doc,LKDoc,Ldoc,Ldete,Lpar
+C     - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+*
+*KEEP,QUEST.
+      INTEGER      IQUEST
+      COMMON/QUEST/IQUEST(100)
+*KEND.
+   Integer      NwDESC,Nwhead,NwGEN,Nwlink,Nwdata,Iprin,i,L,is,Nw,i1,ns
+   Integer      mask(9)/1,1024,16384,8192,9216,10240,15361,19456,17410/
+   Character*2  ask (9)/'ba','au','ve','nd','nl','ns','up','io','dd'/
+   character*1  Let,Sec(0:8)/'*','B','I','F','D','H','*','S','*'/
+   character    comment*(*),Text*80,Bname*4,dname*8,name*8
+ 
+   check L>0
+   prin5 (IQ(L-i),i=1,5);(' ***** agdocline bank=',3i10,2x,2a5,' *****')
+   call UHTOC(IQ(L-5),4,dname,8); prin5 dname;  (' dname  = ',a)
+   call UHTOC(IQ(L+1),4,bname,4); prin5 bname;  (' bname  = ',a)
+   NwDesc = IQ(L+2);              prin5 NwDesc; (' Nwdesc = ',i4)
+   NwHead = IQ(L+3);              prin5 Nwhead; (' Nwhead = ',i4)
+   NwGen  = IQ(L+11);             prin5 NwGen;  (' Nwgen  = ',i4)
+   NwLink = IQ(L+12);             prin5 NwLink; (' Nwlink = ',i4)
+   NwData = IQ(L+15);             prin5 NwData; (' Nwdata = ',i4)
+   i=Nwhead+Nwgen+Nwlink+1;       ns=0;
+ 
+   while i<Nwdesc
+   {  i1=i; Is=IQ(L+i1); Nw=is/16; i=i+Nw+1; Let=Sec(min(mod(Is,16),8));
+      If let='H'
+      {  Ns+=1; text=' ';  Call UHTOC (IQ(L+i1+1),4,text,4*Nw)
+         if text(1:8)==name
+         {  Prin4 bname,text; (' AgDOCLINE bank=',a,' description : ',a)
+            comment=text(11:4*Nw);  return;
+   }  }  }
+*
+end
+ 
+  function word2desc(j,map,LL1,Inew)
+  Integer  word2desc, M/1000000/,map(2,LL1)
+ 
+  word2desc=0
+  jj=abs(j); if (jj>M) jj-=M;
+  kk=Inew
+  do i=1,LL1
+     k=1;   if (map(1,i)>0 & map(2,i)>0) k=map(1,i)*map(2,i)
+     kk+=k; if (kk>=jj)    { word2desc=i; return; }
+  enddo
+  end
+ 
+*CMZ :          04/11/98  14.21.44  by  Pavel Nevski
+*CMZ :  1.40/05 27/06/98  20.48.53  by  Pavel Nevski
 *CMZ :  1.30/00 26/04/96  19.30.43  by  Pavel Nevski
-*CMZU:  1.00/01 16/01/96  00.31.26  by  Pavel Nevski
 *CMZ :  1.00/00 25/08/95  23.30.46  by  Pavel Nevski
 *-- Author :    Pavel Nevski   06/01/95
 **********************************************************************
@@ -7417,6 +8286,11 @@ END
             (Link,Bank,Tit,au,ve,io,NL,ND,Cvar,Comment,i)
 *                                                                    *
 *  Description:  fill a documentation bank                           *
+*  Output i - (success flag) should be Ok(0). At least one of the    *
+*  operations - create, insert link or data should be done           *
+*  Modifications:                                                    *
+*  PN, 27.06.98 - ND is an array with (Ndata,dim1,dime)              *
+*  PN, 03.11.98 - fix fields in doc sector: name(8),-_(2),comment    *
 **********************************************************************
 *KEEP,TYPING.
       IMPLICIT NONE
@@ -7446,31 +8320,36 @@ C
       CHARACTER*132 CHMAIL
 C
 *KEND.
-Character*(*) Bank,Tit,au,ve,io,Cvar(*),Comment(*),NN*4,Cv*8,Cbuf*80;
-Integer       AgDocRd,AgDocWr,Lenocc,Link,NL,ND,Lb,key(2),
-              i,j,k,L,Lk,N,N0,ioff,M,ok;
+Character*(*) Bank,Tit,au,ve,io,Cvar(*),Comment(*),NN*20,Cv*8,Cbuf*80;
+Integer       AgDocRd,AgDocWr,Lenocc,Link,NL,ND(3),Lb,key(2),
+              i,j,k,L,Lk,N,N0,ioff,M,ok,p,r,DATE(4);
 Parameter      (ok=0);
  
-I=-1;  Check Link>0;  Lb=IQ(Link-1)
+check I>=0;  I=-1;  Check Link>0;  Lb=IQ(Link-1)
 If Bank(1:1)#'*'
-{  Call UCTOH(Bank,key,4,8); If IQ(Link-4)#key(1)
-   { <w> Bank,IQ(LINK-4); (' AgDOCBA wrong bank: request ',a8,' found ',a4/,
+{  CALL UCTOH(Bank(1:4),key(1),4,8)
+   If IQ(Link-4)!=key(1)
+   { <w> Bank,IQ(LINK-4),key;
+    (' AgDOCBA wrong bank: request ',a8,' found ',3(1x,a4)/,
     ' *********************************************************************'/,
-    ' * Probably this means that the documentation RZ file is currupted.  *'/,
+    ' * Probably this means that the documentation RZ file is corrupted.  *'/,
     ' * This is often fatal and program may crash imediately afterword !  *'/,
     ' * To solve the problem simply remove detm.rz, it will be re-created *'/,
     ' *********************************************************************')
-     Link=0;  stop ' too dangerous to continue, re-make detm.rz ! ';
+    return
    }
    If IQ(Link+1)=0               " create new bank "
-   {  Call Vzero(IQ(Link+1),Lb);  IQ(Link-5)=key(2);
-      IQ(Link+1)=key(1);  IQ(Link+2)=20;  IQ(Link+3)=20;
+   {  Call DATIMH(DATE(1),DATE(3))
+      Call Vzero(IQ(Link+1),Lb);  IQ(Link-5)=key(2);
+      Call UCTOH(Bank,IQ(Link+1),4,4);
+      IQ(Link+2)=20;  IQ(Link+3)=20;
       Cbuf = Bank(1:4)//Tit(1:LENOCC(Tit))
       i    = AgDocWr(Link,'..',0,0,Cbuf)
       i    = AgDocWr(Link,'up',0,0,Bank(5:8))
  
+      Cbuf=ve;  if (ve=='TODAY') Call UHTOC(DATE,4,Cbuf,8);
       if (au(1:1)#'*') i=AgDocWr(Link,'au', 0,0,au );
-      if (ve(1:1)#'*') i=AgDocWr(Link,'ve', 0,0,ve );
+      if (ve(1:1)#'*') i=AgDocWr(Link,'ve', 0,0,Cbuf );
                        i=AgDocWr(Link,'nl', 0,0,' ');
                        i=AgDocWr(Link,'ns', 0,0,' ');
                        i=AgDocWr(Link,'nd', 0,0,' ');
@@ -7478,19 +8357,29 @@ If Bank(1:1)#'*'
 }  }
 do k=1,NL                               " links can not be doubled "
 {  Lk=Lenocc(Comment(k));
-   if AgDocRd(Link,'Link',Cvar(k)(1:4), N,ioff,L) > Ok
+   i =AgDocRd(Link,'Link',Cvar(k)(1:4), N,ioff,L)
+   if i > Ok
    {  if (AgDocRd(Link,'nl',' ', M,Ioff,L)=Ok) IQ(Link+Ioff+3)=N+1;
       if (AgDocRd(Link,'ns',' ', M,Ioff,L)=Ok) IQ(Link+Ioff+3)=N+1;
       Cbuf = Cvar(k)(1:4)//'    - '//Comment(k)(1:Lk)
       i    = AgDocWr(Link,'Link',N+1,0,Cbuf)
 }  }
-N0=1;
-do k=NL+1,NL+abs(ND)                    "    data can be doubled   "
-{  j=k; if (ND<0) j=NL+1;  Lk=max(Lenocc(Comment(j)),1);  if (k>j) Lk=0;
+N0=1                                 "         array word counter         "
+do k=NL+1,NL+abs(ND(1))              " same data record can be repeated   "
+{  *                            negative ND is an array with one comment
+   j=k; if (ND(1)<0) j=NL+1;  Lk=max(Lenocc(Comment(j)),1);  if (k>j) Lk=0;
+   NN=' '
    if    AgDocRd(Link,'Data','. . . next free place . . . ',N,ioff,L)>Ok
-   { If  Lk=0  { N0+=1; write(NN,'(i3)') N0; }  else  { N0=1; NN=' '; }
+   { If  Lk=0
+     { p=0;  write(NN,*) 1+N0
+       if ND(1)<-1 & ND(2)>0 & ND(3)>1      " fix length 1 or 2 dim array "
+       {  write(NN,*) 1+mod(N0,ND(2)),',',1+N0/ND(2) }
+       do r=1,20 { if NN(r:r)!=' ' { p+=1; NN(p:p)=NN(r:r); } }
+       NN(p+1:)=' ';  N0+=1;
+     }
+ 
      if (AgDocRd(Link,'nd',' ', M,Ioff,L)=Ok)    IQ(Link+Ioff+3)=N+1;
-     Cv = Cvar(j);  Cbuf = Cv//' - '//Comment(j)(1:Lk)//NN
+     Cv = Cvar(j);  Cbuf = Cv//'- '//Comment(j)(1:Lk)//NN
      i  = AgDocWr(Link,'Data',N+1,0,Cbuf)
 }  }
 END
@@ -7621,9 +8510,9 @@ C
 :E:"<w> AgDOCWR,Cf,I1,I2,TEXT;(' AgDocWr=',i2,' at ',a,' i1,i2,T=',2i5,2x,a)";
 END;
  
-*CMZ :          24/04/98  21.24.51  by  Pavel Nevski
+*CMZ :          17/12/98  13.07.30  by  Pavel Nevski
+*CMZ :  1.40/05 06/07/98  18.52.36  by  Pavel Nevski
 *CMZ :  1.30/00 09/02/97  21.15.43  by  Pavel Nevski
-*CMZU:  1.00/01 22/12/95  21.50.31  by  Pavel Nevski
 *CMZ :  1.00/00 15/11/95  01.03.24  by  Pavel Nevski
 *-- Author :    Pavel Nevski   26/11/94
 **********************************************************************
@@ -7671,6 +8560,15 @@ C
       COMMON/GCMAIL/CHMAIL
       CHARACTER*132 CHMAIL
 C
+*KEEP,GCFLAG.
+      COMMON/GCFLAG/IDEBUG,IDEMIN,IDEMAX,ITEST,IDRUN,IDEVT,IEORUN
+     +        ,IEOTRI,IEVENT,ISWIT(10),IFINIT(20),NEVENT,NRNDM(2)
+      COMMON/GCFLAX/BATCH, NOLOG
+      LOGICAL BATCH, NOLOG
+C
+      INTEGER       IDEBUG,IDEMIN,IDEMAX,ITEST,IDRUN,IDEVT,IEORUN
+     +        ,IEOTRI,IEVENT,ISWIT,IFINIT,NEVENT,NRNDM
+C
 *KEEP,SCLINK.
 C SLUG link area :    Permanent Links for SLUG:
       INTEGER         LKSLUG,NSLINK
@@ -7715,6 +8613,12 @@ C                                       Link to:
        COMMON /AGCLINK/ AG_NLINK,AG_LINK(0:NALINKMAX)
 *      - - - - - - - - - - - - - - - - - - - - - -
  
+*KEEP,AGCDOCL.
+C     common for the documentation supporting links
+      Integer           LDarea(2),L1Doc,L2Doc,LKDoc,Ldoc,Ldete,Lpar
+      COMMON /AGCDOCL/  LDarea,   L1Doc,L2Doc,LKDoc,Ldoc,Ldete,Lpar
+C     - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+*
 *KEEP,RBBANK.
 C   - combined DETM + Reconstruction bank access variables - AGI version
       CHARACTER         CNAM*4
@@ -7727,34 +8631,42 @@ C   - combined DETM + Reconstruction bank access variables - AGI version
       EQUIVALENCE       (CNAM,INAM)
 *
 *KEND.
-     INTEGER          Nbp,IP1STACK,    IP2STACK,    IEND,IDSTACK
-     COMMON /RBSTACK/ Nbp,IP1STACK(20),IP2STACK(20),IEND,IDSTACK(20)
+   INTEGER          Nbp,IP1STACK,    IP2STACK,    IEND,IDSTACK
+   COMMON /RBSTACK/ Nbp,IP1STACK(20),IP2STACK(20),IEND,IDSTACK(20)
+   character           ccc*24,cc*24,typ*1,tp*1,cna*8,cnt*12,format*80
+   common /agcstaftab/ ccc(500)
+   common /agcstaffor/ ndtab,nctab,format
+ 
+   Integer       LENOCC,LOCF,JBIT,Iname,Ns,LL,IL,Ia,Ib,Id,LP,JP,La,Lb,Lc,i,J,L,
+                 Lvl,LL1,Link,Lk,Flag,Num(Lb),Map(2,LL1),Nch,IDYN,istat,jstat,
+                 Inew,ie,Ipath(5),Lus,K,I0,I1,m1,m2,m3,n1,n2,n3,
+                 ndtab,Nctab,Iprin,Ivar
+   Character*(*) Module,Bank,Bpath,Name,Names(LL1),Oper
+   Character*4   Ctop,Cbank,C1,C2,Upp
+   Character*8   Dmodu,Dmodule,Dup,Ddef
+   Character*80  Cform,Cforn,Bform
+   Real          Value,Val,Par(LL),Var
+   Save          Ctop,Dmodule,Ddef,Dup,ID
+   Equivalence   (Var,Ivar)
+ 
 REPLACE [ERR#{#}] with [;    IF (#1) {  IQUEST(1)=0;
     IF (istat!=-999) { Istat=Jstat; Return; }
     <W> %L(Module),Ctop,%L(Bank),LL,%L(Name),Value,%L(Bpath),(num(i),i=1,lb)
-    (' error in USE operator called from ',A,' for bank ',A,'/',A,' L =',i3/ _
+    (' error in USEp operator called from ',A,' for bank ',A,'/',A,' L =',i3/ _
          10x,'Looking for variable ',A8,' =',F10.3/10x, '***** #2 *****'  / _
          10x,'The path is ',A,' with IDN =',10i5 );  Return; }
   ]
-   Integer       LENOCC,LOCF,JBIT,Iname,Ns,LL,IL,Ia,Ib,Id,LP,JP,La,Lb,Lc,i,J,L,
-                 Lvl,LL1,Link,Lk,Flag,Num(Lb),Map(2,LL1),Nch,IDYN,istat,jstat
-   Character*(*) Module,Bank,Bpath,Name,Names(LL1),Oper
-   Character*4   Ctop,Cbank,C1,C2
-   Character*8   Dmodu,Dmodule,Dup,Ddef
-   Character*80  Cform,Cforn,Bform
-   Real          Value,Val,Par(LL)
-   Save          Ctop,Dmodule,Ddef,Dup,ID
  
 " trace module changes - a module may have only ONE default Ctop bank "
-Cbank=Bank;  Jstat=-1;
+Cbank=Bank;  Jstat=-1;  ie=0;  ia=0;  Iprin=Idebug
 if Oper(1:1)=='N' & (Istat==0 | Istat=-999) " this is a NEXT request "
 { Err LINK<0 { Bank was not selected };       Lk=%LINK(LINK);
   Err Lk<=0  { Previous bank desappeared };   Lk=LQ(Lk);
 }
 else
-{ If Nbp==0  { Dmodu=Module; If Dmodu!=Dmodule
-               { Dmodule=Dmodu; Ctop=Cbank; Ddef=' '; ID=0;
-             } }
+{ If Nbp==0  { Dmodu=Module;  If Dmodu!=Dmodule
+               { Dmodule=Dmodu; Ctop=Cbank; Ddef=' '; ID=0; }
+             }
 *
  If Lb==1                             "  default directories in the DETM bank "
  { :M: If Cbank==Ctop
@@ -7784,6 +8696,7 @@ else
 }}
 *
  Err Lk<=0 {No bank exists for this path}
+ 
 *                                            explicit parameter request
  If Name!=' '
  { Ib=LOCF(Value)-LOCf(Par)+1;    Err 1>Ib|Ib>LL {variable is not in the bank}
@@ -7797,30 +8710,39 @@ else
    {  Call ZSHUNT(IxCONS,Lk,LkArP2,-IL,0)
       If (LQ(Lk)>0) Call MZDROP(IxSTOR,LQ(Lk),'L')
  } }
-" CHECK LL>0   finish processing for dummy calls "
+If LL<=0  " finish processing for dummy calls "
+{  if (istat==-999) istat=0; return; }
 *
 *                                        bank Validation
-*                       If user requires the status, dont check length here
- IF istat=-999
- { Err mod(IQ(Lk-1),LL)>0 {Bank length does not correspond to the structure} }
+ If mod(IQ(Lk-1),LL)>0
+ { ie=1; if istat==-999 | Idebug>1
+   { Prin1; (' Bank length does not correspond to the structure length'); }
+ }
  If Flag==0
  { LkArP3=Lk  "temporary save bank address"
    call AgDForm(Names,map,LL1,LL,Cform,Cforn);  Call MZFORM(Cbank,CForm,Flag)
     " If (LkArP3!=Lk)  print *,' popalsia gad ',LkArP3,Lk; "
    Lk=LkArP3;  Call MZIOTC (IxStor,Lk,Nch,Bform);
    If Cform!=Bform & Cform!=Bform(2:) & Cforn!=Bform
-   {  print *,' wrong bank ',Cbank,' : '
-      print *,' required format is = ',cform(1:Lenocc(cform)),'***'
-      print *,' found bank format  = ',bform(1:Nch),          '***'
-      Err Nch>=0 {Bank formats are not the same}
+   {  ie=2; Flag=0;
+      IF istat==-999 | Idebug>1
+      { prin1 Cbank,%L(cform),bform(1:Nch)
+        (' Modified format in bank ',a,':'/,
+         '    required format is = ',a,'*'/,
+         '    found bank format  = ',a,'*');
+      }
+      If Nch>=0 { prin1; (' Bank formats are not the same'); }
    }
    "    force link to be secured for banks with dymanic arrays  "
-   IDYN=0; Do I=1,LL1 { If (map(1,i)<0 | MAP(2,I)<0) IDYN=1; }
+   IDYN=0; INEW=LL; Do I=1,LL1
+   { If map(1,i)<0 | MAP(2,I)<0 { IDYN=1;         INEW-=1; }
+     else                       { INEW-=map(1,i)*MAP(2,I); }
+   }
    IF (IDYN>0 & LINK==0) LINK=-1
  }
 *  Update once DETM family banks with datacards stored in DETP
 *  Bit one of the banks status is SET after update is done
-If IrBDIV==IxCONS & ID>0 & JBIT(IQ(Lk),1)==0
+If IrBDIV==IxCONS & ID>0 & JBIT(IQ(Lk),1)==0 & Ie==0
 {
    LP=LQ(LKDETM-ID); Ns=IQ(LP-2); Call UCTOH('DETP',Iname,4,4);
    Do IL=1,Ns
@@ -7836,19 +8758,84 @@ If IrBDIV==IxCONS & ID>0 & JBIT(IQ(Lk),1)==0
       if (Ia+La>=IQ(Lk-1))  Call SBIT1(IQ(Lk),1)
 }  }
 *
- Call Ucopy (Q(Lk+1+ia),Par,min(LL,IQ(Lk-1)))
+ if Ie==0
+ {  Call Ucopy (Q(Lk+1+ia),Par,min(LL,IQ(Lk-1))) }
+ else
+ {
+    ***********************************************************************
+    If (LdArea(1)=0) call MZLINT(IxCONS,'AGCDOCL',LDarea,L1Doc,Lpar)
+    prin1 %L(Bpath),bank,LL
+    (' Schema evolution for Bpath=',a,' bank=',a,' LL=',i5,' : ')
+    Call UCTOH('DETMDOCUDETM'//BPath(7:10)//Bank(1:4),Ipath,4,20)
+    L=LKDETM;   Call MZIOTC (IxStor,Lk,Nch,Bform)
+    :i: do i=1,4
+    {  Check L>0;
+       Check IQ(L-4)==Ipath(i);  Ns=IQ(L-2)
+       Prin3 i,L,IQ(L-4),Ns; (' ===> i,L,bank,ns=>',i3,i8,2x,a4,i3)
+       do IL=1,Ns
+       {  JP=LQ(L-IL);  Check JP>0;  check IQ(JP-4)==Ipath(i+1)
+          If i<4 { L=JP; Next :i:; }
+          Lus=1;  format=' ';  ndtab=99999;
+          while JP>0
+          { call agdprina(Iprin,Lus,JP,2,0,0,2,Upp);
+            If (format==Bform & mod(IQ(lk-1),ndtab)==0) goto :j:
+            JP=LQ(JP);
+    }  }  }
+    prin1 %L(format),ndtab;  (' *** bank format in descriptor=',a,' ndtab=',i5)
+    prin1 %L(Bform),IQ(lk-4);(' *** actualy found bank format=',a,' bank =',a4)
+    Err (format!=Bform | mod(IQ(lk-1),ndtab)!=0)
+    { cant find correct bank format and length for the schema evolution }
+ 
+    :j: INEW=LL; Do I=1,LL1
+    { INEW-=1; If (map(1,i)>0 & map(2,i)>0) INEW=INEW-map(1,i)*map(2,I)+1; }
+ 
+    {I0,m3,n3}=0; If (Inew==0) I0=1;
+    Do I1=I0,LL1
+    { if I1==0 { tp='R';       Cna='SYSTEM';      m1=Inew;      m2=1;        }
+      else     { tp=Names(i1); Cna=Names(i1)(3:); m1=map(1,i1); m2=map(2,i1) }
+      n3=0; do i=2,nctab
+         cc=ccc(i);  Call CLTOU(cc);
+         {n1,n2}=1;  typ=' ';  cnt='1 1'
+         j=INDEX(cc,'[');  if (j==0) j=INDEX(cc,';')
+         k=INDEX(cc,']');  if (k >j) cnt=cc(j+1:k-1)//' 1 1 '
+         read (cnt,*,err=:n:) n1,n2; :n:;
+          if (cc(3:3)=='C' & n2==1) n1/=4 " byte counter";
+         If Cna=cc(11:j-1) { typ=cc(3:3);  Break; }
+         if n1>0  &  n2>0  { n3+=n1*n2; } else { n3+=1; }
+      enddo
+ 
+      if typ!=' '
+      { prin2     tp,cna,m1,m2,m3,  typ,n1,n2,n3
+        ('  filling ',a,'.',a,3i5,' from type=',a,3i5)
+        do j=1,min(m2,n2)
+          do i=1,min(m1,n1)
+            if      typ//tp=='FI' { Ivar =  Q(Lk+Ia+n3+i+(j-1)*n1) }
+            else if typ//tp=='LR' { Var  = IQ(Lk+Ia+n3+i+(j-1)*n1) }
+            else                  { Ivar = IQ(Lk+Ia+n3+i+(j-1)*n1) }
+            Call UCOPY(Ivar,Par(m3+i+(j-1)*m1),1)
+          enddo
+        enddo
+      }
+      if m1>0 & m2>0 { m3+=m1*m2; } else { m3+=1; }
+    }
+    if (Istat==-999) ie=0
+    *************************************************************************
+ }
  if (Oper(1:1)=='Z') call VZERO(IQ(Lk+1),IQ(Lk-1))
  if (Oper(1:1)=='D') call MZDROP(IxSTOR,Lk,' ')
  Call AGDLINK (Module,Bank,Link,Lk)
  If  LVL == 3    { " print *,' default bank set ' "; LkArP2=Lk; }
 *                                      check length once more
  If  istat!=-999 { Istat=0;  Jstat=min(LL,IQ(Lk-1)); }
- Err mod(IQ(Lk-1),LL)>0 {Bank length does not correspond to the structure}
- IQUEST(1)=0
+ Prin3 ie,istat; (' AgdGetP: use done ,ie,istat=',2i5)
+ Err Ie>0  {Bank does not correspond to the structure}
+ IQUEST(1)=0; Return;
+ 
 END
  
  
-*CMZ :          02/06/98  12.51.16  by  Pavel Nevski
+*CMZ :          18/10/98  13.58.06  by  Pavel Nevski
+*CMZ :  1.40/05 30/07/98  14.12.43  by  Pavel Nevski
 *CMZ :  1.30/00 15/04/97  17.02.23  by  Pavel Nevski
 *CMZ :  1.00/00 07/10/95  19.31.21  by  Pavel Nevski
 *-- Author :    Pavel Nevski   12/01/95
@@ -7861,6 +8848,7 @@ END
 *        a sequence of text addresses 'bank(sel).variable(ind)=' and some  *
 *        amount of real numbers. All parts of the address are optional.    *
 *        Type of the selector Value corresponds to the first letter of Name*
+*        CKRACK is an entry in CHPACK (M432)                               *
 ****************************************************************************
 *KEEP,TYPING.
       IMPLICIT NONE
@@ -7883,23 +8871,42 @@ C
 Integer       ND,NE,NF,NG,NUM,   Dummy;     Real Anum(2);
 Common/slate/ ND,NE,NF,NG,NUM(2),Dummy(34);
 Equivalence              (num,                   anum);
-Integer       LL,LL1,LBUF,LENOCC,ICLOCU,ICFIND,Isel,i,j,N,ia,ib,map(2,LL1),
-              ie,iv,ii,i0,i1,i2,Lt,Lb,Lv,jv,kv,ind,jb,kb,ia1
-Character     Bank*4,Name*(*),Names(LL1)*(*),Line*80,C*1,EQ*1/'='/
-Real          Value,Rind,vars(LL),Buf(Lbuf),Blank/-989898.e-17/
+Integer       LL,LL1,LBUF,LENOCC,ICLOCU,ICFIND,Isel,i,j,K,M,N,ia,ib,map(2,LL1),
+              ie,iv,ii,i0,i1,i2,Lt,Lb,Lv,jv,kv,ind,jb,kb,ia1,Irind,Ivalue,ift
+Character     Name*(*),Names(LL1)*(*),Bank*4,Cn*1,
+              Line*80,Cline*80,C*1,EQ*1/'='/,CRind*4,Cvalue*4
+Real          Value,Rind,Rvalue,vars(LL),Buf(Lbuf),Blank/-989898.e-17/
+Equivalence   (Rind,Irind,Crind),(Rvalue,Ivalue,Cvalue)
 Replace[ERR(#)]  with [;<W>;(' AgDatCar error : ','#1'); Isel=0; Ia=0; NEXT;]
 Replace[DEBUG#;] with [;IF (IDEBUG>=7) print *,#1;]
  
-{i1,i2,Ia,Isel}=0
+{i1,i2,Ia,Isel,M}=0;
+ 
+do N=1,LL1                 " find reference variable and bank format"
+{  if (name==Names(N)(3:)) M=N
+   Ia+=1; If (Map(1,N)>0&Map(2,N)>0) Ia+=Map(1,N)*Map(2,N)-1
+}  Ift=LL-Ia+1;  Ia=0;
+* take care of IDN selector - it is passed as a real number
+  Cn='R'; if (M>0) Cn=Names(M);
+ 
+Call UCOPY(Value,Rvalue,1);
+debug ' checking item ',bank,'.',name,': ft=',ift,' M=',M,' c=',Cn
+ 
 While i2<Lbuf
 {  " get new field " i0=i2;  Call AgDatAdr(Buf,i1,i2,Lbuf);
    if Isel>0 & Ia>0      " fill the previous address field with data "
    {  do i=i0+1,i1
       {  j=ia+i-i0-1;  if 1<=j&j<=LL
-         {  if Names(N)(1:1)=='I'
+         {  if  Names(N)(1:1)=='I'
             {  Call Ucopy(Nint(Buf(i)),Vars(j),1)
                <w> Names(N),j-ia1+1,Nint(Buf(i)),Bank,Value
                (' ===> Datacard assign ',a,'(',i2,') =',i10,' in ',a,
+               ' bank selected with ',F10.3)
+            }
+            else if Names(N)(1:1)=='H'
+            {  Call Ucopy(Buf(i),Vars(j),1)
+               <w> Names(N),j-ia1+1,Buf(i),Bank,Value
+               (' ===> Datacard assign ',a,'(',i2,') =',a4,' in ',a,
                ' bank selected with ',F10.3)
             }
             else
@@ -7911,27 +8918,45 @@ While i2<Lbuf
 *                          transform the next address field into characters
    Lt=4*(i2-i1);     If Lt>80   {err(address field is too long)}
    Lt=min(lt,80);    Line=' ';   Call UHTOC(Buf(i1+1),4,line,Lt)
+   Cline=Line;       Call CLTOU (Cline)
    Lb=Lenocc(Bank);  Lt=Lenocc(Line(1:Lt));   Iv=0 "- already used characters "
 *
-   Jb=ICLOCU(Bank,Lb,Line,1,LT);               " look for this bank reference "
-   debug ' looking for ',bank,' in ',line(1:lt),' LT,JB=',lt,jb
+   Jb=ICLOCU(Bank,Lb,CLine,1,LT);              " look for this bank reference "
+   debug ' looking for item ',bank,'.',name,' in ',line(1:lt),' LT,JB=',lt,jb
    if jb>0
    {  ib=jb+lb; C=Line(ib:ib);  Rind=blank;   Iv=ib;  Isel=1; Ia=0;
       if C='('                                 " check for index in brackets  "
       {  kb=ICFIND(')',Line,ib,Lt); if kb<=0 {err(no closing bracket)};
-         call CKRACK(Line,ib+1,kb-1,-1);      Iv=kb+1;
-         if Nf=2 {Rind=NUM(1)} else if Nf>2 {Rind=Anum(1)}
-         else    {err(index is not a number)}
+         ia=0; ie=index(line(ib+1:kb-1),'=')
+         if ie>0
+         {  while Line(ib+1:ib+1)==' ' {ib+=1; ie-=1;}
+            Ia=ift;  do N=1,LL1                 " find reference variable "
+            {  K=N;  if (CLine(ib+1:ib+ie-1)==Names(N)(3:)) Break;  K=0;
+               Ia+=1; If (Map(1,N)>0&Map(2,N)>0) Ia+=Map(1,N)*Map(2,N)-1
+            }  ib=ib+ie
+            debug ' ...name=',%L(name),' line,ib,ie,ia=',line(ib:kb),ib,ie,ia
+         }
+         Iv=kb+1; call CKRACK(Line,ib+1,kb-1,-1);
+         if Nf=2 {Rind=NUM(1)}  else if Nf>2 {Rind=Anum(1)}
+         else    {while Line(ib+1:ib+1)==' ' {ib+=1;}; CRind=Line(ib+1:kb-1)}
       }
       if C=EQ                                  " or direct select assignement "
       {  if ib#Lt {err(equal sign is not the last one)}
          Rind=Buf(i2+1);  Iv=Lt+1;
       }                                        " there was a selection done   "
-      If (Rind!=blank & Rind!=value)  Isel=0
+      If Rind!=blank
+      { Cn='R'; Rvalue=blank;
+        if ia==0    { If (M>0) Cn=Names(M); Call Ucopy(Value,Rvalue,1)    }
+        else if K>0 {          Cn=Names(K); Call Ucopy(Vars(ia),Rvalue,1) }
+        else        { Isel=0 }
+        If (Cn=='I' & Rind!=Ivalue)  Isel=0
+        If (Cn=='R' & Rind!=Rvalue)  Isel=0
+        If (Cn=='H' & CRind!=Cvalue) Isel=0
+      } ia=0
    }  If (Isel=0 | Iv>Lt) Next
 *
-   Ia=3; jv=0; do N=1,LL1                      " now check variable reference "
-   {  Lv=Lenocc(Names(N));       Jv=ICLOCU(Names(N)(3:Lv),Lv-2,Line,Iv+1,LT)
+   Ia=Ift; jv=0; do N=1,LL1                      " now check variable reference "
+   {  Lv=Lenocc(Names(N));       Jv=ICLOCU(Names(N)(3:Lv),Lv-2,CLine,Iv+1,LT)
                                  C=line(jv+Lv-2:jv+Lv-2)
       debug ' ...now for ',names(n)(3:lv),' in ',line(Iv+1:LT),' iv,lt,jv,C=',
       iv,lt,jv,C
@@ -7998,7 +9023,7 @@ C
   End
  
  
-*CMZ :          08/12/97  13.55.36  by  Pavel Nevski
+*CMZ :  1.40/05 08/12/97  13.55.36  by  Pavel Nevski
 *CMZ :  1.30/00 23/05/96  14.03.56  by  Pavel Nevski
 *CMZ :  1.00/00 22/08/95  04.05.46  by  Pavel Nevski
 *-- Author :    Pavel Nevski   26/11/94
@@ -8284,6 +9309,8 @@ C
  
  
  
+*CMZ :          31/10/98  14.45.26  by  Pavel Nevski
+*CMZ :  1.40/05 22/06/98  21.58.44  by  Pavel Nevski
 *CMZ :  1.30/00 26/11/96  23.11.18  by  Pavel Nevski
 *-- Author :    Pavel Nevski   26/11/94
 **********************************************************************
@@ -8452,7 +9479,7 @@ C local variables valid inside same block
  
 *KEND.
   Integer        AGPFLAG,Idet/0/,Ista/0/
-  Character      Cdet*4,Stage*4,Cdeto*4/'.'/,Stageo*4/'.'/
+  Character      Cdet*(*),Stage*(*),Cdeto*4/'.'/,Stageo*4/'.'/
 *KEEP,STAFUNC.
 C Declare types for the things used in the statement function STAFUNC
       INTEGER IIIII, LVPRIN,LVGEOM,LVHIST,LVGRAP,LVDEBU,LWPRIN,
@@ -8481,9 +9508,10 @@ C
       If (Cdet!=Cdeto) CALL GLOOK(Cdet, IQ(LKDETM+1),IQ(LKDETM-1),Idet)
       Cdeto=Cdet;  Check Idet>0
 *                                     attempt to reconsile with DICE
-      If      Stage='RECO'  { Check LVRECO(Idet)>0; }
-      Else If Stage='ANAL'  { Check LVANAL(Idet)>0; }
-      Else                  { Check LVGEOM(Idet)>0; }
+      If      Stage=='RECO'  { Check LVRECO(Idet)>0; }
+      Else If Stage=='ANAL'  { Check LVANAL(Idet)>0; }
+      Else If Stage=='GEOM'  { Check LVGEOM(Idet)>0; }
+      Else If Stage=='DIGI'  { Check LVDIGI(Idet)>0 & LVGEOM(Idet)>0; }
 *
       AgPFLAG = max(LVPRIN(Idet),LWPRIN(Idet),IDEBUG)
       If (stage!=stageo) CALL GLOOK(Stage,IQ(LKDETM+1),IQ(LKDETM-1),Ista)
@@ -8493,6 +9521,7 @@ C
    END
  
  
+*CMZ :          07/09/98  18.06.35  by  Pavel Nevski
 *CMZ :  1.30/00 17/04/97  16.06.21  by  Pavel Nevski
 *CMZ :  1.00/00 09/08/95  15.18.33  by  Pavel Nevski
 *-- Author :    Pavel Nevski   26/11/94
@@ -8587,6 +9616,11 @@ C
       INTEGER NLEVEL,NAMES,NUMBER,LVOLUM,LINDEX,INFROM,NLEVMX,
      +        NLDEV,LINMX
       REAL GTRAN,GRMAT,GONLY,GLX
+*KEEP,GCHVIR.
+      COMMON/GCHVIR/JVIRT,JVDIV,JCONT2,JCONT
+C
+      INTEGER JVIRT,JVDIV,JCONT2,JCONT
+C
 *KEND.
  character*(*) Title;  Character*1 Com;
  com=title;  If (Title=='ALL') Com='*';
@@ -8596,6 +9630,7 @@ C
  if (com='P'|com='-') & JPART >0  { Call MZDROP(IxStor,JPART ,'L');  NPART=0; }
  if (com='V'|com='*') & JROTM >0  { Call MZDROP(IxStor,JROTM ,'L');  NROTM=0; }
  if (com='V'|com='*') & JVOLUM>0  { Call MZDROP(IxStor,JVOLUM,'L');  NVOLUM=0;}
+ if (com='V'|com='*') & JVIRT >0  { Call MZDROP(IxStor,JVIRT, 'L');  JVIRT=0; }
 *if (com='V'|com='*') & JGPAR >0  { Call MZDROP(IxStor,JGPAR, 'L');  JGPAR=0; }
 *if (com='V'|com='*') & JGPAR2>0  { Call MZDROP(IxStor,JGPAR2,'L');  JGPAR2=0;}
  if (com='S'|com='*') & JSET  >0  { Call MZDROP(IxStor,JSET  ,'L');           }
@@ -8849,7 +9884,7 @@ C local variables valid inside same block
 END
  
  
-*CMZ :          27/08/97  14.26.21  by  Pavel Nevski
+*CMZ :  1.40/05 27/08/97  14.26.21  by  Pavel Nevski
 *CMZ :  1.00/00 06/06/95  15.09.02  by  Pavel Nevski
 *-- Author :    Pavel Nevski   07/02/95
 **********************************************************************
@@ -9266,7 +10301,7 @@ If jdu<=0  { call GFDIG1(Cset,Cdet,1,NVS,LTRA,NTRA,NBV,DIGI,Iw,Ia); Return; }
    END
  
  
-*CMZ :          24/04/98  16.58.32  by  Pavel Nevski
+*CMZ :  1.40/05 24/08/98  11.03.17  by  Pavel Nevski
 *CMZ :  1.30/00 13/05/97  14.48.21  by  Pavel Nevski
 *CMZ :  1.00/00 01/09/95  22.54.27  by  Pavel Nevski
 *-- Author : Pavel Nevski
@@ -9341,11 +10376,12 @@ C
       COMMON /AGCHITV/ Iprin,Nvb,Nw,Last,Mb,Nc1,Nc2,Iv,Ia,cs,cd
 *     - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 *KEND.
-Character*(*)    Cdet,Cset;   Integer Lp,Lt;  Parameter (Lp=20,Lt=100);
-Integer          AgFDIG0,JBYT,MSBYT,LENOCC,ICDECI,NVL(Lp),ISC(Lp),Itr,
-                 Iset,Idet,X,Nv,Nr,Nb,Ja,i,j,k,L,Na,Ma,Jv,Nk,Ih,JH,Mbm,Ier
-integer          nac,nas,iac,itc,jtr
-common/agctrbuf/ nac,nas,iac(50000),itc(50000)
+Character*(*)     Cdet,Cset;
+Integer Lp,Lt,La; Parameter (Lp=20,Lt=100,La=50000);
+Integer           AgFDIG0,JBYT,MSBYT,LENOCC,ICDECI,NVL(Lp),ISC(Lp),Itr,
+                  Iset,Idet,X,Nv,Nr,Nb,Ja,i,j,k,L,Na,Ma,Jv,Nk,Ih,JH,Mbm,Ier
+integer           nac,nas,iac,itc,jtr
+common/agctrbuf/  nac,nas,iac(La),itc(La)
 *
    Cs=Cset;  Cd=Cdet;  {AgFDIG0,Iv,Ia}=-1;  {Iset,Idet,Jdu}=0;
    CALL MZLINT (IXSTOR,'AGCRDIG',IWA,JS,JDU);
@@ -9367,9 +10403,12 @@ common/agctrbuf/ nac,nas,iac(50000),itc(50000)
    Nw=IQ(JD+1)+IQ(JD+2*X+1)+1;  Nvb=Q(Jdu+6);  Nv=IQ(JD+2); Nc1=Last/Nw;
    Ier = 3;          If (mod(last,nw)!=0)                   go to :e:
    Nr=0;  if (LENOCC(Cdet)>=6)  Nr=ICDECI(Cdet,5,6);   Nvb=min(Nvb+Nr,Nv);
+ 
+* here we calculate Mbm - number of bits needed to save max pointer
    Call VZERO(NVL,Lp);          Mb=0; i=Nc1; while i>0 {i/=2; Mb+=1;};
    If Mb>1  { Mbm=2**(32-Mb) } else { Mbm=2 000 000 000 "big positive" }
 *
+* calculate number of hit segments, produced by the same track, verify tracks
    Ier=0; last=Nc1+1; jtr=-1; Nac=0
    do ih=1,Nc1
    {  j=JXD+(Ih-1)*Nw+1; itr=IQ(J);
@@ -9377,11 +10416,16 @@ common/agctrbuf/ nac,nas,iac(50000),itc(50000)
       { ier+=1; <w> Cset,Cdet,itr;(' AgFDIG0 error in',2a5,': bad ITRA=',i12)}
       if jtr!=itr { Nac+=1; jtr=itr; }
    }
+   if(Nac>=La)<w>Cset,Cdet,Nac;(' AgFDIG0 error in',2a5,': too many tracks',i9)
+*
+* Now make a bidirectional list of tracks, which produced hits in this detector
+* Replace track numbers by their position in the list (packed by nas if needed)
+* Track numbers should be restored in agfdig1, otherwise they will be lost !
    nas=Nac/Mbm+1; jtr=-1; Nac=0
    do ih=1,Nc1
    {  j=JXD+(Ih-1)*Nw+1; itr=IQ(J);
-      if jtr!=itr { nac+=1; iac(nac)=ih; itc(nac)=itr; jtr =itr; }
-      IQ(J)=(nac-1)/nas
+      if jtr!=itr { nac=min(nac+1,La-1); iac(nac)=ih; itc(nac)=itr; jtr =itr; }
+      IQ(J)=(nac-1)/nas " this is now a position in the list, sometimes crude "
    }  iac(nac+1)=Nc1+1
 *
    "       ----------      associate hits in chains     ---------    "
@@ -9415,7 +10459,7 @@ common/agctrbuf/ nac,nas,iac(50000),itc(50000)
    END
  
  
-*CMZ :          24/04/98  16.58.32  by  Pavel Nevski
+*CMZ :  1.40/05 24/04/98  16.58.32  by  Pavel Nevski
 *CMZ :  1.30/00 13/05/97  14.48.21  by  Pavel Nevski
 *CMZ :  1.00/00 01/09/95  22.55.18  by  Pavel Nevski
 *-- Author : Pavel Nevski
@@ -9586,7 +10630,7 @@ C
     END
  
  
-*CMZ :          23/10/97  22.22.23  by  Pavel Nevski
+*CMZ :  1.40/05 23/10/97  22.22.23  by  Pavel Nevski
 *CMZ :  1.30/00 02/04/97  18.53.55  by  Pavel Nevski
 *CMZ :  1.00/00 03/06/95  12.02.49  by  Pavel Nevski
 *-- Author :    Pavel Nevski   13/12/94
@@ -9747,7 +10791,8 @@ If Link<0  " allocate a new secured link "
 End
  
  
-*CMZ :          13/03/98  22.56.27  by  Pavel Nevski
+*CMZ :          18/11/98  21.44.15  by  Pavel Nevski
+*CMZ :  1.40/05 13/03/98  22.56.27  by  Pavel Nevski
 *CMZ :  1.30/00 01/07/96  15.35.02  by  Pavel Nevski
 *CMZ :  1.00/00 07/09/95  13.27.40  by  Pavel Nevski
 *-- Author :    Pavel Nevski   12/08/95
@@ -9756,6 +10801,7 @@ End
 *                    encode bank format for zebra                       *
 *   Both new (with 2 system words) and old (only users words) formats   *
 *   PN,29-06-96: Make Cform different from Cformo due to AIX problem    *
+*   PN,13-03-98: Both fixed length and tail stile formats are produced  *
 *************************************************************************
 Implicit      NONE
 Integer       LL1,LL,map(2,LL1),i,j,k,L,N,NN,Ls
@@ -9847,7 +10893,7 @@ C
      Igauto=Iauto
 end
  
-*CMZ :          15/06/98  12.24.27  by  Pavel Nevski
+*CMZ :  1.40/05 15/06/98  12.24.27  by  Pavel Nevski
 *CMZ :  1.30/00 24/03/96  21.59.47  by  Pavel Nevski
 *CMZU:  1.00/01 21/01/96  20.18.19  by  Sasha Vanyashin
 *CMZ :  1.00/00 24/11/95  00.28.56  by  Pavel Nevski
@@ -9964,14 +11010,15 @@ If Index(Chopt,'F')!=0
 END
  
  
+*CMZ :          15/11/98  12.35.04  by  Pavel Nevski
 *CMZ :  1.30/00 12/02/96  15.17.30  by  Pavel Nevski
 *-- Author :    Sasha Rozanov  06/02/96
-**********************************************************************
-*                                                                    *
+*************************************************************************
+*                                                                       *
                     Function   A g E X I S T (Ctest)
-*                                                                    *
-* Description: check if a GEANT volume exist                         *
-**********************************************************************
+*                                                                       *
+* Description: check if a GEANT volume exist. If yes, return its number *
+*************************************************************************
 *KEEP,TYPING.
       IMPLICIT NONE
 *KEEP,GCBANK.
@@ -10010,7 +11057,7 @@ C
   END
  
  
-*CMZ :          13/07/97  23.26.30  by  Pavel Nevski
+*CMZ :  1.40/05 13/07/97  23.26.30  by  Pavel Nevski
 *CMZ :  1.30/00 05/08/96  11.35.22  by  Pavel Nevski
 *-- Author :     Pavel Nevski
 ******************************************************************************
@@ -10041,7 +11088,8 @@ do Id=3000,4000,1000
 }  }
 *
    end
-*CMZ :          29/07/97  16.38.30  by  Pavel Nevski
+*CMZ :          09/09/98  19.30.32  by  Pavel Nevski
+*CMZ :  1.40/05 29/07/97  16.38.30  by  Pavel Nevski
 *CMZ :  1.30/00 10/02/97  15.01.26  by  Unknown
 *-- Author :    Alexandre Rozanov 02.04.95
 ******************************************************************************
@@ -10160,7 +11208,9 @@ C
             call hfill(3007,eta,Za,AL);  call hfill(4007,phi,Za,AL)
 * I dont remember what this was useful for - keep it as spare for a while
             call hfill(5001,eta,phi,x0); call hfill(5003,eta,phi,AL);
-         }
+ * AR added for Pixel TDR
+            call hfill(5005,Za,R,x0);    call hfill(5007,Za,R,AL);
+        }
       endif
  END
  
@@ -10608,6 +11658,8 @@ C
       COMMON /AgCKINO/ Ioutp,IoutpOld
       Character*20     CoptKine,CoptBack,CoptOutp
       COMMON /AgCKINC/ CoptKine,CoptBack,CoptOutp
+      Character*20     StrmKine,StrmBack,StrmOutp
+      COMMON /AgCKINS/ StrmKine,StrmBack,StrmOutp
       Character*20     CrunType
       COMMON /AgCKINR/ CrunType
       Integer          Ncommand
@@ -10654,7 +11706,8 @@ C
  
        END
  
-*CMZ :          16/07/97  22.01.24  by  Pavel Nevski
+*CMZ :          14/09/98  12.07.48  by  Pavel Nevski
+*CMZ :  1.40/05 16/07/97  22.01.24  by  Pavel Nevski
 *CMZ :  1.30/00 03/05/97  16.15.42  by  Pavel Nevski
 *-- Author :    Pavel Nevski
 ************************************************************************
@@ -10739,6 +11792,8 @@ C
           NPAR=((NPAR-1)/5)*5;  Isel=0
           Do N=1,NPAR,5
              Call UHTOC(PAR(N+1),4,CPROC,4)
+             CALL CLTOU(CPROC)    " make it case unsensetive "
+             Call UCTOH(CPROC,PAR(N+1),4,4)
              If (Cproc=='*' | Cproc=='ALL') Isel=1
           enddo
       ENDIF
@@ -10815,11 +11870,13 @@ C
    END
  
  
-*CMZ :          14/06/98  15.33.41  by  Pavel Nevski
+*CMZ :          19/11/98  17.07.38  by  Pavel Nevski
+*CMZ :  1.40/05 23/08/98  23.00.42  by  Pavel Nevski
 *-- Author :    Pavel Nevski   25/11/97
 ***************************************************************************
 *                                                                         *
                 subroutine  A G K E E P S (Request,Cdest)
+#ifndef __ROOT__
 *                                                                         *
 * Description:                                                            *
 * produce include files and update the documentation database             *
@@ -10831,22 +11888,25 @@ C
 * Attention: Current links are equivalenced to Ldoc/Ldete for protection  *
 ***************************************************************************
 +include,TYPING,GCBANK,SCLINK,GCUNIT,GCFLAG,AGCDOCL.
-     integer     Iprin,i,i1,i2,il,id,ic,jl,L,Iwr,Kw/1/,Lu,Idl,Key(2)
-     Integer     LENOCC,INDEX,TDM_MAP_TABLE
+     integer     Iprin,i,i1,i2,il,id,ic,jl,L,Iwr,Kw/1/,Lu,Idl,Iswap/0/,Key(2)
+     Integer     AgPFLAG,LENOCC,INDEX,TDM_MAP_TABLE
      Character*8 Sname, Bname, Ckey
-     Character*4 Csys, Cban
+     Character*4 Csys, Cban, Upper
      Character   Request*(*),Cdest*(*), Table*10
+     Logical     opnd
+     character           cccc*12000
+     common /agcstaftab/ cccc
  
-     character      ccc*12000
-     common /agcstaftab/ ccc
- 
-     Call Agsbegm('DOCUM',Iprin); Call AsbDETE('DOCU',Id);
+     INQUIRE(FILE='detm.rz',OPENED=opnd)
+     if (.not.opnd) Call Agsbegm('DOCUM',Iprin)
+     Iprin=AgPFLAG('DOCU','PRIN')
  
      Idl = 2
      if (Index(Cdest,'idl')>0) Idl=1
      if (Index(Cdest,'def')>0) Idl=0
  
-*  request a la UNIX: sys/bank
+*  request a la UNIX: sys/bank.
+*  single name (without /) is equivalent to name/
      Iwr = 0
      i2=lenocc(request);    i1=index(request,'/');  if (i1<=0) i1=i2+1
      Csys='*'; if (i1>2)    Csys=request(1:i1-1);   if (i2>0)  Iwr=1
@@ -10857,215 +11917,66 @@ C
      i2=Lenocc(Cban);       Call CUTOL(Cban);
 *
      If (LdArea(1)=0) call MZLINT(IxCONS,'AGCDOCL',LDarea,L1Doc,Lpar)
-     Check LKDETM>0 & Id>0;  L=LQ(LQ(LKDETM-Id)-1); Check L>0;
-     CALL UHTOC(IQ(L-5),4,Sname,8);
-     if (Sname=='NONEDETM' | Sname=='ENONDETM')  L1doc=L;
-     prin4 L1Doc;  (' ==> got L1Doc  ',i10);     Check L1Doc>0;
+     Call AsbDETE('DOCU',Id); Check LKDETM>0 & Id>0;
+     L=LQ(LQ(LKDETM-Id)-1);   Check L>0;
+*
+*    top level documantation bank should be 'NONEDETM', but NONE
+*    may be swapped on some machines because of big/little endian
+*
+     CALL UHTOC(IQ(L-5),4,Sname,8); Iswap=-1;
+     if (Sname(5:8)=='DETM')
+     { L1doc=L
+       if     Sname(1:4)='NONE' {Iswap=0}
+       elseif Sname(1:4)='ENON' {Iswap=1}
+       elseif Sname(1:4)='    '
+              { Iswap=0; Call UCTOH('NONE',IQ(L-5),4,4);
+                prin0; (' AgKEEPS warning: T3E documentation bug fixed')}
+       else   { prin0 Sname; (' AgKEEPS warning: IDN coding wrong ',a)  }
+     }
+     prin4 sname,L1Doc;  (' ==> got DocName=',a,' L1Doc=',i10);  Check L1Doc>0;
  
-     Lu  = 0
-     call agdprina(Iprin,Lu,L1doc,0,Iwr,Kw,Idl)
+     Lu = 0;  Kw = Iswap
+     call agdprina (Iprin,Lu,L1doc,0,Iwr,Kw,Idl,upper)
+     if (upper!=' ') call UCTOH(upper,IQ(L1doc-5),4,4)
  
      do il=1,IQ(L1doc-2)
-        Ldoc=LQ(L1doc-il); check Ldoc>0;
+        Ldoc=LQ(L1doc-il); check Ldoc>0
         CALL UHTOC(IQ(Ldoc-5),4,Sname,8); Call CUTOL(Sname)
         Check csys='*' | Sname(5:4+i1)==csys(1:i1)
+        prin2 Sname; (' AgKeeps: getting doc for system ',a)
  
-        call agdprina(Iprin,Lu,Ldoc,1,Iwr,Kw,Idl)
+        call agdprina(Iprin,Lu,Ldoc,1,Iwr,Kw,Idl,upper)
+        if (upper!=' ') sname(1:4)=upper;
+ 
+        Ckey=Sname(5:8)//Sname(1:4);  Call CLTOU(Ckey);
+        Call UCTOH(Ckey,Key,4,8);     IQ(Ldoc-5)=Key(2)
+        CALL aRZOUT(IXCONS,Ldoc,CKey,IC,'SN')
  
         do jl=1,IQ(Ldoc-2)
-           Ldete=LQ(Ldoc-jl); check Ldete>0; ccc=' '
+           Ldete=LQ(Ldoc-jl); check Ldete>0; cccc=' '
            CALL UHTOC(IQ(Ldete-5),4,Bname,8); Call CUTOL(Bname)
            Check cban='*' | Bname(5:4+i2)==cban(1:i2)
-           call agdprina(Iprin,Lu,Ldete,2,Iwr,Kw,Idl)
+           prin2 Bname; (' AgKeeps: getting doc for detector ',a)
  
+           call agdprina(Iprin,Lu,Ldete,2,Iwr,Kw,Idl,upper)
+           if (upper!=' ') Bname(1:4)=upper;
            Table=Sname(5:8)//'_'//Bname(5:8); Call CUTOL(Table)
-           if (idl==2) i=TDM_MAP_TABLE(%L(Cdest),%L(Table),%L(ccc),0,0)
+           if (idl==2) i=TDM_MAP_TABLE(%L(Cdest),%L(Table),%L(cccc),0,0)
  
-           Key(1)=IQ(Ldete-4);  Key(2)=IQ(Ldete-5);  Call UHTOC(Key,4,Ckey,8)
+           Ckey=Bname(5:8)//Bname(1:4);  Call CLTOU(Ckey);
+           Call UCTOH(Ckey,Key,4,8);     IQ(Ldete-5)=Key(2)
            CALL aRZOUT(IXCONS,Ldete,CKey,IC,'SN')
+ 
         enddo
      enddo
      If (Lu>6) close (Lu)
-     Call Agsendm
+     if (.not.opnd) Call Agsendm
+#endif
      end
  
  
-*************************************************************************
-*                                                                       *
-              subroutine agdprina(Iprin,Lu,L,Lev,Iwr,Kw,Idl)
-*                                                                       *
-* Description: Produce a copiler readable include files for structures  *
-* Decoding part is tough, for format details see 2.16 MZFORM, page 44:  *
-* a Bank consists of 3 types of blocks (P=1-3 -> tit)                   *
-* each of blocks contains sectors (crec<=ask(1-9))                      *
-* A useful dd sector contains type.variable + comments                  *
-* Routine produce or a def file, or an idl file, or struct in memory    *
-*************************************************************************
-+include,TYPING,GCBANK,SCLINK,GCUNIT,AGCDOCL,QUEST.
-   Integer      INDEX,LENOCC,NwDESC,Nwhead,NwGEN,Nwlink,Nwdata,Idl,lu,nc,MM
-   Integer      Lev,Iwr,Kw,Iprin,i,j,k,l,m,n,is,nd,Nw,iw,iv,i1,j1,P,nn(3),x
-   Integer      mask(9)/1,1024,16384,8192,9216,10240,15361,19456,17410/
-   Character*2  ask (9)/'ba','au','ve','nd','nl','ns','up','io','dd'/
-   character*1  Let,T,Sec(0:8)/'*','B','I','F','D','H','*','S','*'/
-   character*6  tit (3)/'header','links','data'/
-   character*80 Text,texto,Format,Header,Author,Create
-   character*8  var,varo,dname,cn,type,typo
-   character    crec*2,kname*16,blan*12/' '/
-   character*4  Upper,Bname,Csys/' '/
-   Equivalence  (text,var),(texto,varo)
- 
-   character           ccc*24
-   common /agcstaftab/ ccc(500)
- 
-   nc=0; check L>0;
-   prin3 (IQ(L-i),i=1,5);(' ***** doc bank =',3i10,2x,2a5,' *****')
-   call UHTOC(IQ(L-5),4,dname,8); prin5 dname;  (' dname  = ',a)
-   call UHTOC(IQ(L+1),4,bname,4); prin5 bname;  (' bname  = ',a)
-   NwDesc = IQ(L+2);              prin5 NwDesc; (' Nwdesc = ',i4)
-   NwHead = IQ(L+3);              prin5 Nwhead; (' Nwhead = ',i4)
-   NwGen  = IQ(L+11);             prin5 NwGen;  (' Nwgen  = ',i4)
-   NwLink = IQ(L+12);             prin5 NwLink; (' Nwlink = ',i4)
-   NwData = IQ(L+15);             prin5 NwData; (' Nwdata = ',i4)
-   i=Nwhead+1;  Call Vzero(NN,3); P=1; Format='-F'; MM=0;
- 
-   while i<=Nwdesc+1
-   {  if i>=Nwhead+Nwgen+Nwlink+1 {P=3} else if i>=Nwhead+Nwgen+1 {P=2}
-      Let='H'; Text=' '; if i<NwDesc
-      {  i1=i; Is=IQ(L+i1); Nw=is/16; i=i+Nw;
-         Let=Sec(min(mod(Is,16),8));
-      }  i=i+1;
- 
-      If let=='I' & Nw==3
-      {  iw=IQ(L+i1+1);  Iv=IQ(L+i1+2);
-         crec='un';   do k=1,9 { If (iw==mask(k)) crec=ask(k); }
-         if (crec(1:1)=='n') { prin5 crec,iv; (' sector ',a4,i5);}
-      }
-      else If let='H' & i<=NwDesc+1
-      {  j1=1; if (crec=='ba') j1=2;
-         Call UHTOC(IQ(L+i1+j1),4,text,4*(Nw-j1+1));
-         If  NN(P)==0  { Nd=0; Texto=' '; Prin4 tit(p); (' ---  ',a,'  ---') }
-         if (P==3 & nn(p)>=mm)  call agreforma(format,mm,type,idl)
-         NN(P)+=1;  Prin6 crec,p,NN(p),Nd,type,text(1:Lenocc(text));
-         (' sector ',A4,':  NN(',i1,')=',i4,'  ND=',i3,' t=',a,' : ',a)
-      }
-      else  { prin6 i,let,Nw; (' unknown sector at ',i6,2x,a1,i8); crec='dd';}
- 
-      If (crec=='ba' & Let='H')  Header = text
-      If (crec=='au' & Let='H')  Author = text
-      If (crec=='ve' & Let='H')  Create = text
-      If (crec=='up' & Let='H')  Upper  = text
-      If (crec=='io' & Let='H')  Format = text
-      check P==3 & Let='H' & crec='dd'
-*
-* ----------------  unpacking done, now output stuff --------------
-*
-      If NN(P)==1
-      {  prin4 lev,bname; ('===>  starting lev,bname=',i3,2x,a,' <===');
-*         if (Lev<=1) Csys='sys'
-         kname=%L(csys)//'_'//%L(bname)
-         if (Lev<=1) kname=%L(bname)//'sys'
-         if (Idl==0) kname=%L(kname)//'.def'
-         if (Idl>0 ) kname=%L(kname)//'.idl'
-         call CUTOL (kname); J=index(kname,'.')
-         if (Lev==1) Csys=bname
- 
-         if Lev==Iwr
-         {
-            If (Lu>6) CLose(lu);  Lu=1 " pseudo-output - in memory only"
-            if (idl<=1)
-            { lu=62;  prin2 kname; (' AgDocPrin: open file ',a)
-              Open (Lu, file=%L(kname), STATUS= 'UNKNOWN')
-         }  }
- 
-         if (Lu>0 & Idl==0)
-         { if (Lev=0) output kname(:j),%L(create)
-              ('+PATCH,',a/'*Created: ',a/,
-               '*This file is automatically generated by AGI'/,
-               '*--------- DO NOT EDIT THIS FILE -----------'/'*')
-           if (Lev=1) output kname(:j),%L(header),%L(author),%L(create)
-              ('+DECK,',a,' describes the ',a/'*Author : ',a/'*Created: ',a/'*')
-           if (Lev=2) output kname(:j),%L(header),%L(author),%L(create),
-                                                                  bname,header
-              ('+KEEP,',a,' - ',a/'*Author : ',a/'*Created: ',a/'*'/,
-               '  structure  ',A4,'    { " ',a42, ' " _ ')
-         }
-         if (Lu>0 & Idl==1)
-         {  if (Lev==Iwr) output %L(kname),%L(header),%L(author),%L(create)
-            ('/* File ',a,/'** '/'** Description: ',a/,
-             '** Author     : ',a/'** Created    : ',a/,
-             '** This file is automatically generated by AGI'/,
-             '** --------- DO NOT EDIT THIS FILE -----------'/'*/')
-            if (Lev==2) output kname(:j-1);  ('  struct  ',a,'   { ')
-         }
-         if (Lu>0 & Idl==2 & Lev==2)
-         {  nc+=1; CCC(nc)=' struct '//kname(:j-1)//' { '; }
-      }
-*
-      nd+=1; check Lev==2 & var!=varo & lu>0
-*
-      If varo!='  '
-      {  if (varo=='- ') varo='system'
-*        fit rigid stic format - no extra spaces allowed
-         call CUTOL(varo);     N=Lenocc(varo)
-         if (idl>0 & typo=='char') ND=4*ND
-         write(CN,'(i6)') ND;  M=Lenocc(CN)
-         do K=1,M { if (CN(K:K)!=' ') Break; }
- 
-         if Idl==0
-         {  T=','; if (text==' ') T='}'
-            " hash in comments creates problems for AGI parser "
-             do x=9,80  { if (texto(x:x)=='#') texto(x:x)='N' }
-            if (ND==1) output typo,%L(varo),blan(N:),texto(9:),T
-                    (4x,a4,1x,2a,' " ',a42,' " ',a)
-            if (ND >1) output typo,%L(varo),CN(K:M),blan(M-K+N+3:),texto(9:),T
-                    (4x,a4,1x,a,'(',a,')',a,' " ',a42,' " ',a)
-            if (text==' ') output; ('*');
-         }
-         If Idl==1
-         {  if (ND==1) output typo,%L(varo),blan(N:),texto(9:)
-                    (4x,a5,1x,a,       ';',a,'/* ',a42,' */')
-            if (ND >1) output typo,%L(varo),CN(K:M),blan(M-K+N+3:),texto(9:)
-                    (4x,a5,1x,a,'[',a,'];',a,'/* ',a42,' */')
-            if (text==' ') output; ('};');
-         }
-         If Idl==2
-         {  NC+=1;
-            if (ND==1) CCC(NC)='  '//typo//%L(varo)//'; '
-            if (ND >1) CCC(NC)='  '//typo//%L(varo)//'['//CN(K:M)//']; '
-            if (text==' ')  { NC+=1; CCC(NC)='}' }
-         }
-      }
-      nd=0; Texto=Text; typo=type
-   }
-  end
- 
- 
-****************************************************************************
-  subroutine  agreforma (format,num,type,idl)
-*                                                                          *
-* Description: decode ZEBRA 'format' descriptor into a sequence of 'type's *
-*              for format details see: 2.16 MZFORM, page 44                *
-*              - num is the number of items already taken, should be saved *
-*              - idl is an agi/c switch                                    *
-****************************************************************************
- 
-  character   format*(*),type*8,List*14/'0123456789-IFH'/
-  integer     Lenocc,idl,L,i/0/,k,n,num,big/9999999/
- 
-     L=Lenocc(format);  if (num==0) i=0;  N=0;
-     Do i=i+1,L
-     { k=index(list,format(i:i))-1;  check k>=0
-       if  k<=9  "digit"  { N=N*10+k; Next; }
-       if  k=10  "tail"   { N=big;    Next; }
-       num=num+max(1,N);  Break;
-     }
-     if (idl==0) { type ='real';  if (format(i:i)=='I') type='int';  }
-     else        { type ='float'; if (format(i:i)=='I') type='long'; }
-     if (format(i:i)=='H') type='char'
-     end
- 
- 
-*CMZ :          31/03/98  19.05.30  by  Pavel Nevski
+*CMZ :          14/12/98  22.18.10  by  Pavel Nevski
+*CMZ :  1.40/05 31/03/98  19.05.30  by  Pavel Nevski
 *-- Author :    Pavel Nevski   06/03/98
 ************************************************************************
 *                                                                      *
@@ -11172,13 +12083,119 @@ C
            {  IF (J==4 | J==5) Break " strange !"
               IF (LQ(JMA-J)>0) CALL MZDROP(IXCONS,LQ(JMA-J),'L')
      }  }  }
-     Ival=Lout;  If (Idebug<=1) Lout=99;
+     Ival=Lout;  If (Idebug==0) Lout=99;
      Call GPHYSI
      Lout=Ival
      end
  
  
-*CMZ :          14/06/98  16.52.36  by  Pavel Nevski
+ 
+ 
+   subroutine myphysics
+*KEEP,TYPING.
+      IMPLICIT NONE
+*KEEP,GCBANK.
+      INTEGER IQ,LQ,NZEBRA,IXSTOR,IXDIV,IXCONS,LMAIN,LR1,JCG
+      INTEGER KWBANK,KWWORK,IWS
+      REAL GVERSN,ZVERSN,FENDQ,WS,Q
+C
+      PARAMETER (KWBANK=69000,KWWORK=5200)
+      COMMON/GCBANK/NZEBRA,GVERSN,ZVERSN,IXSTOR,IXDIV,IXCONS,FENDQ(16)
+     +             ,LMAIN,LR1,WS(KWBANK)
+      DIMENSION IQ(2),Q(2),LQ(8000),IWS(2)
+      EQUIVALENCE (Q(1),IQ(1),LQ(9)),(LQ(1),LMAIN),(IWS(1),WS(1))
+      EQUIVALENCE (JCG,JGSTAT)
+      INTEGER       JDIGI ,JDRAW ,JHEAD ,JHITS ,JKINE ,JMATE ,JPART
+     +      ,JROTM ,JRUNG ,JSET  ,JSTAK ,JGSTAT,JTMED ,JTRACK,JVERTX
+     +      ,JVOLUM,JXYZ  ,JGPAR ,JGPAR2,JSKLT
+C
+      COMMON/GCLINK/JDIGI ,JDRAW ,JHEAD ,JHITS ,JKINE ,JMATE ,JPART
+     +      ,JROTM ,JRUNG ,JSET  ,JSTAK ,JGSTAT,JTMED ,JTRACK,JVERTX
+     +      ,JVOLUM,JXYZ  ,JGPAR ,JGPAR2,JSKLT
+C
+*KEEP,GCUNIT.
+      COMMON/GCUNIT/LIN,LOUT,NUNITS,LUNITS(5)
+      INTEGER LIN,LOUT,NUNITS,LUNITS
+      COMMON/GCMAIL/CHMAIL
+      CHARACTER*132 CHMAIL
+C
+*KEEP,GCCUTS.
+      COMMON/GCCUTS/CUTGAM,CUTELE,CUTNEU,CUTHAD,CUTMUO,BCUTE,BCUTM
+     +             ,DCUTE ,DCUTM ,PPCUTM,TOFMAX,GCUTS(5)
+C
+      REAL          CUTGAM,CUTELE,CUTNEU,CUTHAD,CUTMUO,BCUTE,BCUTM
+     +             ,DCUTE ,DCUTM ,PPCUTM,TOFMAX,GCUTS
+C
+*KEEP,GCPHYS.
+      COMMON/GCPHYS/IPAIR,SPAIR,SLPAIR,ZINTPA,STEPPA
+     +             ,ICOMP,SCOMP,SLCOMP,ZINTCO,STEPCO
+     +             ,IPHOT,SPHOT,SLPHOT,ZINTPH,STEPPH
+     +             ,IPFIS,SPFIS,SLPFIS,ZINTPF,STEPPF
+     +             ,IDRAY,SDRAY,SLDRAY,ZINTDR,STEPDR
+     +             ,IANNI,SANNI,SLANNI,ZINTAN,STEPAN
+     +             ,IBREM,SBREM,SLBREM,ZINTBR,STEPBR
+     +             ,IHADR,SHADR,SLHADR,ZINTHA,STEPHA
+     +             ,IMUNU,SMUNU,SLMUNU,ZINTMU,STEPMU
+     +             ,IDCAY,SDCAY,SLIFE ,SUMLIF,DPHYS1
+     +             ,ILOSS,SLOSS,SOLOSS,STLOSS,DPHYS2
+     +             ,IMULS,SMULS,SOMULS,STMULS,DPHYS3
+     +             ,IRAYL,SRAYL,SLRAYL,ZINTRA,STEPRA
+      COMMON/GCPHLT/ILABS,SLABS,SLLABS,ZINTLA,STEPLA
+     +             ,ISYNC
+     +             ,ISTRA
+*
+      INTEGER IPAIR,ICOMP,IPHOT,IPFIS,IDRAY,IANNI,IBREM,IHADR,IMUNU
+     +       ,IDCAY,ILOSS,IMULS,IRAYL,ILABS,ISYNC,ISTRA
+      REAL    SPAIR,SLPAIR,ZINTPA,STEPPA,SCOMP,SLCOMP,ZINTCO,STEPCO
+     +       ,SPHOT,SLPHOT,ZINTPH,STEPPH,SPFIS,SLPFIS,ZINTPF,STEPPF
+     +       ,SDRAY,SLDRAY,ZINTDR,STEPDR,SANNI,SLANNI,ZINTAN,STEPAN
+     +       ,SBREM,SLBREM,ZINTBR,STEPBR,SHADR,SLHADR,ZINTHA,STEPHA
+     +       ,SMUNU,SLMUNU,ZINTMU,STEPMU,SDCAY,SLIFE ,SUMLIF,DPHYS1
+     +       ,SLOSS,SOLOSS,STLOSS,DPHYS2,SMULS,SOMULS,STMULS,DPHYS3
+     +       ,SRAYL,SLRAYL,ZINTRA,STEPRA,SLABS,SLLABS,ZINTLA,STEPLA
+C
+*KEEP,GCFLAG.
+      COMMON/GCFLAG/IDEBUG,IDEMIN,IDEMAX,ITEST,IDRUN,IDEVT,IEORUN
+     +        ,IEOTRI,IEVENT,ISWIT(10),IFINIT(20),NEVENT,NRNDM(2)
+      COMMON/GCFLAX/BATCH, NOLOG
+      LOGICAL BATCH, NOLOG
+C
+      INTEGER       IDEBUG,IDEMIN,IDEMAX,ITEST,IDRUN,IDEVT,IEORUN
+     +        ,IEOTRI,IEVENT,ISWIT,IFINIT,NEVENT,NRNDM
+C
+*KEND.
+*
+   Integer       MECA(5,13),Iprin,I,J,N,JTM,JTN,Material,Vacuum/16/
+   real          cuts(11),copy(40)
+*  provide index access to geant mechanism
+   EQUIVALENCE  (MECA,IPAIR),(CUTGAM,cuts)
+*
+*
+   Iprin=Idebug
+   IF JTMED>0
+   {  call UCOPY(Q(JTMED+1),copy,40)
+ 
+*    set mecanism flags and tracking cuts to standard medium
+      Do I=1,9  { Q(JTMED+I)=CUTS(I) }
+      DO I=1,13 { Q(JTMED+10+I)=MECA(1,I) }
+ 
+*    set mecanism flags and tracking cuts to special media
+      DO J=1,IQ(JTMED-2)
+      { JTM=LQ(JTMED-J);    Check JTM>0
+        JTN=LQ(JTM);        Check JTN>0
+*       never modify vacuum parameters:
+        Material=Q(JTM+6);  Check material!=Vacuum
+        N=0
+        Do I=1,9  { check Q(JTN+I)  == copy(I);    N+=1; Q(JTN+I)=CUTS(I)     }
+        DO I=1,13 { check Q(JTN+10+I)==copy(10+I); N+=1; Q(JTN+10+I)=MECA(1,I)}
+        Check N<22;
+        prin1 22-N,J; (I5,' NON-standard parameters in medium ',I4)
+        if (Idebug>1) Call GPTMED(J)
+      }
+   }
+   end
+*CMZ :          07/09/98  00.37.50  by  Pavel Nevski
+*CMZ :  1.40/05 23/08/98  21.58.55  by  Pavel Nevski
 *-- Author :    Pavel Nevski   25/11/97
 ***************************************************************************
 *                                                                         *
@@ -11234,26 +12251,14 @@ C     common for the documentation supporting links
       COMMON /AGCDOCL/  LDarea,   L1Doc,L2Doc,LKDoc,Ldoc,Ldete,Lpar
 C     - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 *
-*KEEP,RBBANK.
-C   - combined DETM + Reconstruction bank access variables - AGI version
-      CHARACTER         CNAM*4
-      INTEGER           LU,BIG,MM,INAM,II,KK,IADR,LENG,IOD,IOX,IrbDIV,
-     >                  LDD,NDDMAX,NDD,DDL,NFR,FRTAB,IrMode
-      PARAMETER         (LDD=5,NDDMAX=100,MM=2,BIG=99999)
-      COMMON /RBXBANK/  LU, CNAM,II,KK,IADR,LENG,IOD,IOX,IrbDIV,IrMode
-      COMMON /RBXLIST/  NDD,DDL(LDD,NDDMAX)
-      COMMON /RBXFORM/  NFR,FRTAB(NDDMAX)
-      EQUIVALENCE       (CNAM,INAM)
-*
-*KEEP,QUEST.
-      INTEGER      IQUEST
-      COMMON/QUEST/IQUEST(100)
 *KEND.
   INTEGER       LENOCC,TDM_MAP_TABLE,Iprin,Nun(15),LK(15),IL(15),Ist(15),
-                I,J,L,K,M,N,Ia,Lc,Lp,Mj
-  Character     Cpath*80,Cdest*80,Csys*80,Table*10,Cbank*4
+                I,J,L,K,M,N,Ia,Lc,Lp,Mj,NDDD,NCCC
+  Character     Csys*4,Table*10,Cbank*4
+  Character*80  Cpath,Cdest,Spec,format
   Character*(*) Source,Destin
   EQUIVALENCE   (L,Lpar)
+  common /agcstaffor/ nddd,nccc,format
 *
 * reduce to the standard path and dest:
   Iprin=Idebug;         Cpath=Source;
@@ -11291,8 +12296,11 @@ J=1; Loop                                  " over existing banks only "
       elseif J> MJ & Csys!='DOCU'
       { Table=Csys(1:4)//'_'//Cbank;  Call CUTOL(Table);
         Call AGKEEPs(%L(Csys)//'/'//Cbank,%L(Cdest))
-        K=1; if (IQ(L-5)<0) K=-IQ(L-5)
-        i=TDM_MAP_TABLE(%L(Cdest),%L(Table),Char(0),K,IQ(L+1))
+ 
+*       Spec=Char(0); if (Table='hepe_gent') Spec='particle'//Char(0)
+ 
+        K=1; if IQ(L-5)<0 { K=-IQ(L-5) } elseif Nddd>0 { K=IQ(L-1)/Nddd }
+        i=TDM_MAP_TABLE(%L(Cdest),%L(Table),Spec,K,IQ(L+1))
         prin2 %L(Cdest),%L(Table),i,k,(Q(L+i),i=1,3)
               (' TDM_MAPing_TABLE:',2(1x,a),2i5,2x,3F8.1)
         " specific bank requested " if (m==0 & Mj==0) Break;
@@ -11305,11 +12313,51 @@ J=1; Loop                                  " over existing banks only "
 }
 END
  
-*CMZ :          13/05/98  20.43.24  by  Pavel Nevski
+*CMZ :          21/09/98  01.46.13  by  Pavel Nevski
+*CMZ :  1.40/05 24/08/98  18.27.39  by  Pavel Nevski
 *-- Author :    Pavel Nevski   25/03/98
 **********************************************************************
                 subroutine   a x p a r t i c l e
+*                                                                    *
+* Description: set a new particle in geant structures                *
+*              (only if it does not already exist )                  *
 **********************************************************************
+*KEEP,TYPING.
+      IMPLICIT NONE
+*KEEP,GCBANK.
+      INTEGER IQ,LQ,NZEBRA,IXSTOR,IXDIV,IXCONS,LMAIN,LR1,JCG
+      INTEGER KWBANK,KWWORK,IWS
+      REAL GVERSN,ZVERSN,FENDQ,WS,Q
+C
+      PARAMETER (KWBANK=69000,KWWORK=5200)
+      COMMON/GCBANK/NZEBRA,GVERSN,ZVERSN,IXSTOR,IXDIV,IXCONS,FENDQ(16)
+     +             ,LMAIN,LR1,WS(KWBANK)
+      DIMENSION IQ(2),Q(2),LQ(8000),IWS(2)
+      EQUIVALENCE (Q(1),IQ(1),LQ(9)),(LQ(1),LMAIN),(IWS(1),WS(1))
+      EQUIVALENCE (JCG,JGSTAT)
+      INTEGER       JDIGI ,JDRAW ,JHEAD ,JHITS ,JKINE ,JMATE ,JPART
+     +      ,JROTM ,JRUNG ,JSET  ,JSTAK ,JGSTAT,JTMED ,JTRACK,JVERTX
+     +      ,JVOLUM,JXYZ  ,JGPAR ,JGPAR2,JSKLT
+C
+      COMMON/GCLINK/JDIGI ,JDRAW ,JHEAD ,JHITS ,JKINE ,JMATE ,JPART
+     +      ,JROTM ,JRUNG ,JSET  ,JSTAK ,JGSTAT,JTMED ,JTRACK,JVERTX
+     +      ,JVOLUM,JXYZ  ,JGPAR ,JGPAR2,JSKLT
+C
+*KEEP,GCFLAG.
+      COMMON/GCFLAG/IDEBUG,IDEMIN,IDEMAX,ITEST,IDRUN,IDEVT,IEORUN
+     +        ,IEOTRI,IEVENT,ISWIT(10),IFINIT(20),NEVENT,NRNDM(2)
+      COMMON/GCFLAX/BATCH, NOLOG
+      LOGICAL BATCH, NOLOG
+C
+      INTEGER       IDEBUG,IDEMIN,IDEMAX,ITEST,IDRUN,IDEVT,IEORUN
+     +        ,IEOTRI,IEVENT,ISWIT,IFINIT,NEVENT,NRNDM
+C
+*KEEP,GCUNIT.
+      COMMON/GCUNIT/LIN,LOUT,NUNITS,LUNITS(5)
+      INTEGER LIN,LOUT,NUNITS,LUNITS
+      COMMON/GCMAIL/CHMAIL
+      CHARACTER*132 CHMAIL
+C
 *KEEP,AGECOM.
       CHARACTER*20 AG_MODULE,  AG_TITLE,  AG_EXNAME,   AG_PARLIST,
      +             AG_MATERIAL,AG_MIXTURE,AG_COMPONENT,AG_MEDIUM,
@@ -11401,23 +12449,46 @@ C local variables valid inside same block
 *    - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - *
  
  
-*KEEP,GCFLAG.
-      COMMON/GCFLAG/IDEBUG,IDEMIN,IDEMAX,ITEST,IDRUN,IDEVT,IEORUN
-     +        ,IEOTRI,IEVENT,ISWIT(10),IFINIT(20),NEVENT,NRNDM(2)
-      COMMON/GCFLAX/BATCH, NOLOG
-      LOGICAL BATCH, NOLOG
-C
-      INTEGER       IDEBUG,IDEMIN,IDEMAX,ITEST,IDRUN,IDEVT,IEORUN
-     +        ,IEOTRI,IEVENT,ISWIT,IFINIT,NEVENT,NRNDM
-C
 *KEND.
-    call gspart(%Code,%Title,%TrkTyp,%Mass,%Charge,%Tlife,0,0)
-    if (%Mode(1)>0) call GSDK(%Code,%Bratio,%Mode)
+    real       Sum,bratio(6)
+    Character  Cpart*20
+    Integer    i,JP,Jp1,Jp2,N,IPR
+ 
+    IPR=Iprin;  Iprin=Idebug
+    If (Jpart<=0 | %code<=0) go to :n:
+    If (IQ(Jpart-2) < %code) go to :n:
+    JP=LQ(Jpart-%code);    If (JP<=0) go to :n:
+    if (Q(JP+6)!=%TrkTyp | Q(JP+7)!=%Mass)  go to :n:
+    if (Q(JP+8)!=%Charge | Q(JP+9)!=%Tlife) go to :n:
+    call UHTOC(Q(JP+1),4,Cpart,20)
+    If (Cpart==%Title)                      go to :o:
+ 
+:n: call gspart(%Code,%Title,%TrkTyp,%Mass,%Charge,%Tlife,0,0)
+ 
+:o: Sum=0;   Do i=1,6 { if (%Mode(i)>0) Sum+=%Bratio(i); }
+    If Sum>0
+    {  {JP,JP1,JP2,N} = 0;
+       If (Jpart>0 & %code>0) JP=LQ(JPART-%code);
+       If (Jp>0)  { JP1=LQ(Jp-1); JP2=LQ(Jp-2); }
+       If (Jp1<=0 | Jp2<=0) N=1
+ 
+       Do i=1,6
+       { bratio(i)=0;   check %Mode(i)>0;
+         bratio(i)=min(%Bratio(i)*100.0001/Sum,100.);
+         if JP1>0 & abs(bratio(i)-Q(JP1+i))>abs(bratio(i)+Q(JP1+i))*1.e-6
+         { N=2; prin5 i,Q(JP1+i),bratio(i);(' axparticle branchings',i6,2F9.3)}
+         if JP2>0 & %Mode(i)!=IQ(JP2+i)
+         { N=3; prin5 i,IQ(JP2+i),%Mode(i);(' axparticle changes mode',3i6)}
+       }
+       if (N>0) call GSDK(%Code, Bratio, %Mode)
+*       print *,' N=',N
+    }
     If (%pdg  != 0) Call SET_PDGEA(%pdg,%code)
     if (Idebug > 1) Call GPPART(%Code)
     if (Idebug > 2) Call GPDCAY(%Code)
+    Iprin=Ipr
  end
-*CMZ :          03/05/98  21.09.43  by  Pavel Nevski
+*CMZ :  1.40/05 08/08/98  23.17.10  by  Pavel Nevski
 *-- Author :    Pavel Nevski   03/05/98
 *************************************************************************
       SUBROUTINE  aGFVOLU (Ivol,Cvol,Cshap,numed,par,npar)
@@ -11446,13 +12517,22 @@ C
      +      ,JROTM ,JRUNG ,JSET  ,JSTAK ,JGSTAT,JTMED ,JTRACK,JVERTX
      +      ,JVOLUM,JXYZ  ,JGPAR ,JGPAR2,JSKLT
 C
+*KEEP,GCUNIT.
+      COMMON/GCUNIT/LIN,LOUT,NUNITS,LUNITS(5)
+      INTEGER LIN,LOUT,NUNITS,LUNITS
+      COMMON/GCMAIL/CHMAIL
+      CHARACTER*132 CHMAIL
+C
 *KEND.
-      integer   Ivol,numed,npar
+      integer   Ivol,numed,npar,nv
 *     integher  Ishap
       character Cvol*4,Cshap*4
       real      par(*)
  
 *         make GFVOLU call... ? => CVOL,CSHAP
+          Nv=-1;  npar=0;  numed=0;
+          If (JVOLUM>0) Nv=IQ(JVOLUM-1)
+          if (Ivol<1 | Ivol>Nv)  Return
           Call GFVOLU (Ivol,CVOL,CSHAP)
 *         Call UHTOC   (IQ(JVOLUM+IVOL),4,Cvol,4)
 *         Ishap     = Q(LQ(JVOLUM-IVOL)+2)
@@ -11463,10 +12543,11 @@ C
           Call Ucopy (Q(LQ(JVOLUM-IVOL)+7),par,min(50,Npar) )
        end
  
-*CMZ :          15/06/98  23.12.56  by  Pavel Nevski
+*CMZ :          11/09/98  00.09.31  by  Pavel Nevski
+*CMZ :  1.40/05 22/08/98  21.51.50  by  Pavel Nevski
 *-- Author :    Pavel Nevski   26/11/94
 ****************************************************************************
-          subroutine  ARZOUT(Idiv,Lo,CKey,IC,opt)
+          subroutine  ARZOUT(Idiv,Lo,CCKey,IC,opt)
 *                                                                          *
 * Description: same functionality as RZOUT is supposed with few additions: *
 *            - consistence between Bank at Lo and Ckey is checked          *
@@ -11522,45 +12603,52 @@ C     common for the documentation supporting links
 C     - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 *
 *KEND.
- Integer        Ie,Iprin,Idiv,Lo,Li,Key(2),Nc,IC,i,k,New,Old,Mn,Mo,Istat;
- Character*(*)  Ckey,Opt,status*10,Copt*4
+ Integer        Ie,Iprin,Idiv,Lo,Li,Key(3),Nc,IC,i,k,New,Old,Mn,Mo,Istat,diff;
+ Character*(*)  CCkey,Opt,status*10,Copt*4,Ckey*12,Cold*12
 *
  New(k)=IQ(Lo+k)
  Old(k)=IQ(Li+k)
 *
 *
-  check Lo>0;  Nc=0;  Iprin=Idebug-1; Ie=0; Li=0;
+  check Lo>0;  Nc=0;  Iprin=Idebug; Ie=0; Li=0;
+  if new(2)>20
+  { diff=IQ(Lo-1)-new(2)-1; if (diff>1) Call MZPUSH(IxCONS,Lo,0,-Diff,'I') }
+  else
+  { prin1 CCkey; (' ARZOUT: empty documentation bank detected for ',a); }
  
-* read the highest cycle, return data + cycle info
-  Call UCTOH(Ckey,key,4,8); if (key(1)!=IQ(Lo-4) | key(2)!=IQ(Lo-5))
-  {  prin3 key,IQ(Lo-4),IQ(Lo-5); (' ARZOUT error: key=',2a4,' bank=',2a4)
+* take into account that IQ(L-5) are integer and may be swaped,
+* but key is ascii and should never be swapped
+*
+  Ckey=CCkey(1:8)//CCkey(8:8)//CCkey(7:7)//CCkey(6:6)//CCkey(5:5)
+  Call CLTOU(Ckey);   Call UCTOH(Ckey,key,4,12);
+  if (key(1)!=IQ(Lo-4) | (key(2)!=IQ(Lo-5) & key(3)!=IQ(Lo-5)))
+  {  prin1 key,IQ(Lo-4),IQ(Lo-5); (' ARZOUT error: key=',3a4,' bank=',2a4)
      IC=0; Return;
   }
  
   istat=IQ(Lo); status=' '; IC=0;
- 
-* drop previous input - should later be done at the end
-* if (L1DOC>0 & LQ(L1DOC-1)>0) Call MZDROP(IxSTOR,LQ(L1DOC-1),' ')
-* CALL RZIN (IxCons,L1DOC,-1,Key,999999,'CD');   Li=LQ(L1DOC-1);
+  call RZCDIR( Cold,    'R')
+  call RZCDIR('//LUN61',' ')
  
 * look for the previous definition, see that it is readable
 * and test thet the output bank was not lost due to garbage collection
+* CD - read the highest cycle, return data + cycle info
  
   CALL RZIN (IxDIV,Li,2,Key,999999,'CD')
   if (IQUEST(1)!=0)
   { prin4 ckey; (' ARZOUT message: bank ',a,' not found')
-    Li=0; go to :w:;
+    status='new';  Li=0;  go to :w:;
   }
   if (IQ(Lo)!=Istat)
   { prin0 ckey; (' ARZOUT error: bank ',a,' link is not protected !')
-    Lo=0; go to :w:;
+    status='bad';  Lo=0;  go to :w:;
   }
  
 * previous definition found - extract its cycle number
   IC=0; Nc=IQUEST(50); if (IQUEST(1)==0 & 0<Nc&Nc<20) Ic=IQUEST(50+Nc)
  
-  ie=1; status='written';  if (Li<=0)
-  { prin3 key; (' ARZOUT error: key=',2a4,' not found '); go to :w: }
+  ie=1; status='updated';  if (Li<=0)
+  { prin4 key; (' ARZOUT error: key=',3a4,' not found '); go to :w: }
  
   ie=2; "data"   if (New(15)!=Old(15)) goto :w:
   mn=new(3)+new(11)+new(12);  mo=old(3)+old(11)+old(12);
@@ -11578,25 +12666,199 @@ C     - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
   :w: Copt='SN';                           " If (ie>2)   Copt='SNR'  "
   if (Li>0) Call MZDROP(IxSTOR,Li,' ')     " drop first, it may move "
   if (Lo>0 & status!='found') CALL RZOUT(Idiv,Lo,Key,IC,Copt)
-  prin4  status,key,ie,nc,ic; (' aRZOUT status - ',a,' - ',2a4,' cycles ',3i6)
- 
+  prin4  status,key,ie,nc,ic; (' aRZOUT status - ',a,' - ',3a4,' cycles ',3i6)
+  call RZCDIR(Cold,' ')
  end
  
+*CMZ :          19/11/98  17.07.38  by  Pavel Nevski
+*-- Author :    Pavel Nevski   25/11/97
+*************************************************************************
+*                                                                       *
+              subroutine agdprina(Iprin,Lu,L,Lev,Iwr,Kw,Idl,upper)
+*                                                                       *
+* Description: Produce a compiler readable include files for structures *
+* Decoding part is tough, for format details see 2.16 MZFORM, page 44:  *
+* a Bank consists of 3 types of blocks (P=1-3 -> tit)                   *
+* each of blocks contains sectors (crec<=ask(1-9))                      *
+* A useful dd sector contains type.variable + comments                  *
+* Routine produce or a def file, or an idl file, or struct in memory    *{
+*************************************************************************
++include,TYPING,GCBANK,SCLINK,GCUNIT,AGCDOCL,QUEST.
+   Integer      INDEX,LENOCC,NwDESC,Nwhead,NwGEN,Nwlink,Nwdata,Idl,lu,nc,MM,x
+   Integer      Lev,Iwr,Kw,Iprin,i,j,k,l,m,n,is,nd,Nw,iw,iv,i1,j1,P,nn(3),
+                NDDD,NCCC
+   Integer      mask(9)/1,1024,16384,8192,9216,10240,15361,19456,17410/
+   Character*2  ask (9)/'ba','au','ve','nd','nl','ns','up','io','dd'/
+   character*1  Let,T,Sec(0:8)/'*','B','I','F','D','H','*','S','*'/
+   character*6  tit (3)/'header','links','data'/
+   character*80 Text,texto,texta,Format,Header,Author,Create
+   character*8  var,varo,dname,type,typo
+   character    CN*20,crec*2,kname*16,blan*12/' '/
+   character*4  Upper,Bname,Csys/' '/
+   Equivalence  (text,var),(texto,varo)
+ 
+   character           ccc*24
+   common /agcstaftab/ ccc(500)
+   common /agcstaffor/ nddd,nccc,format
+ 
+   nc=0; NDDD=-1; NCCC=-1; check L>0; upper=' '
+   prin3 (IQ(L-i),i=1,5);(' ***** doc bank =',3i10,2x,2a5,' *****')
+   call UHTOC(IQ(L-5),4,dname,8); prin5 dname;  (' dname  = ',a)
+   call UHTOC(IQ(L+1),4,bname,4); prin5 bname;  (' bname  = ',a)
+   NwDesc = IQ(L+2);              prin5 NwDesc; (' Nwdesc = ',i4)
+   NwHead = IQ(L+3);              prin5 Nwhead; (' Nwhead = ',i4)
+   NwGen  = IQ(L+11);             prin5 NwGen;  (' Nwgen  = ',i4)
+   NwLink = IQ(L+12);             prin5 NwLink; (' Nwlink = ',i4)
+   NwData = IQ(L+15);             prin5 NwData; (' Nwdata = ',i4)
+   i=Nwhead+1;  Call Vzero(NN,3); P=1; Format='-F'; MM=0;
+ 
+   while i<=Nwdesc+1
+   {  if i>=Nwhead+Nwgen+Nwlink+1 {P=3} else if i>=Nwhead+Nwgen+1 {P=2}
+      Let='H';  if (Text!=' ') texta=text; Text=' ';
+      if i<NwDesc
+      {  i1=i; Is=IQ(L+i1); Nw=is/16; i=i+Nw;
+         Let=Sec(min(mod(Is,16),8));
+      }  i=i+1;
+ 
+      If let=='I' & Nw==3
+      {  iw=IQ(L+i1+1);  Iv=IQ(L+i1+2);
+         crec='un';   do k=1,9 { If (iw==mask(k)) crec=ask(k); }
+         if (crec(1:1)=='n') { prin5 crec,iv; (' sector ',a4,i5);}
+      }
+      else If let='H' & i<=NwDesc+1
+      {  j1=1; if (crec=='ba') j1=2;
+         Call UHTOC(IQ(L+i1+j1),4,text,4*(Nw-j1+1));
+         If  NN(P)==0  { Nd=0; Texto=' '; Prin5 tit(p); (' ---  ',a,'  ---') }
+         if (P==3 & nn(p)>=mm)  call agreforma(format,mm,type,idl)
+         NN(P)+=1;  Prin6 crec,p,NN(p),Nd,type,%L(text);
+         (' sector ',A4,':  NN(',i1,')=',i4,'  ND=',i3,' t=',a,' : ',a)
+      }
+      else  { prin6 i,let,Nw; (' unknown sector at ',i6,2x,a1,i8); crec='dd';}
+ 
+      If (crec=='ba' & Let='H')  Header = text
+      If (crec=='au' & Let='H')  Author = text
+      If (crec=='ve' & Let='H')  Create = text
+      If (crec=='up' & Let='H')  Upper  = text
+      If (crec=='io' & Let='H')  Format = text
+      check P==3 & Let='H' & crec='dd'
+*
+* ----------------  unpacking done, now output stuff --------------
+*
+      If NN(P)==1
+      {  prin5 lev,bname; ('===>  starting lev,bname=',i3,2x,a,' <===');
+*         if (Lev<=1) Csys='sys'
+         kname=%L(csys)//'_'//%L(bname)
+         if (Lev<=1) kname=%L(bname)//'sys'
+         if (Idl==0) kname=%L(kname)//'.def'
+         if (Idl>0 ) kname=%L(kname)//'.idl'
+         call CUTOL (kname); J=index(kname,'.')
+         if (Lev==1) Csys=bname
+ 
+         if Lev==Iwr
+         {  If (Lu>6) CLose(lu);  Lu=1 " pseudo-output - in memory only"
+            if (idl<=1)
+            { lu=62;  prin2 kname; (' AgDocPrin: open file ',a)
+              Open (Lu, file=%L(kname), STATUS= 'UNKNOWN')
+         }  }
+ 
+         if (Lu>0 & Idl==0)
+         { if (Lev=0) output kname(:j),%L(create)
+              ('+PATCH,',a/'*Created: ',a/,
+               '*This file is automatically generated by AGI'/,
+               '*--------- DO NOT EDIT THIS FILE -----------'/'*')
+           if (Lev=1) output kname(:j),%L(header),%L(author),%L(create)
+              ('+DECK,',a,' describes the ',a/'*Author : ',a/'*Created: ',a/'*')
+           if (Lev=2) output kname(:j),%L(header),%L(author),%L(create),
+                                                                  bname,header
+              ('+KEEP,',a,' - ',a/'*Author : ',a/'*Created: ',a/'*'/,
+               '  structure  ',A4,'    { " ',a42, ' " _ ')
+         }
+         if (Lu>0 & Idl==1)
+         {  if (Lev==Iwr) output %L(kname),%L(header),%L(author),%L(create)
+            ('/* File ',a,/'** '/'** Description: ',a/,
+             '** Author     : ',a/'** Created    : ',a/,
+             '** This file is automatically generated by AGI'/,
+             '** --------- DO NOT EDIT THIS FILE -----------'/'*/')
+            if (Lev==2) output kname(:j-1);  ('  struct  ',a,'   { ')
+         }
+         if (Lu>0 & Idl==2 & Lev==2)
+         {  nc+=1; CCC(nc)=' struct '//kname(:j-1)//' { '; }
+      }
+*
+      nd+=1; Nddd+=1; check Lev==2 & var!=varo & lu>0
+*
+      If varo!='  '
+      {  if (varo=='- ') varo='system'
+*        fit rigid stic format - no extra spaces allowed
+         call CUTOL(varo); N=Lenocc(varo);
+         if (idl>0 & typo=='char') ND=4*ND;
+ 
+*        take indices from comments, except for char, system, and repetitions
+         CN=' ';  if (texto!=texta & Lenocc(texta)<=18) CN=texta(11:18)
+         if (typo=='char' | varo='system') write(CN,'(i6)') ND;
+         M=Lenocc(CN);   do K=1,M  { if (CN(K:K)!=' ') Break; }
+ 
+         if Idl==0
+         {  T=','; if (text==' ') T='}'
+            " hash in comments creates problems for AGI parser "
+             do x=9,80  { if (texto(x:x)=='#') texto(x:x)='N' }
+            if (ND==1) output typo,%L(varo),blan(N:),texto(9:),T
+                    (4x,a4,1x,2a,' " ',a42,' " ',a)
+            if (ND >1) output typo,%L(varo),CN(K:M),blan(M-K+N+3:),texto(9:),T
+                    (4x,a4,1x,a,'(',a,')',a,' " ',a42,' " ',a)
+            if (text==' ') output; ('*');
+         }
+         If Idl==1
+         {  if (ND==1) output typo,%L(varo),blan(N:),texto(9:)
+                    (4x,a5,1x,a,       ';',a,'/* ',a42,' */')
+            if (ND >1) output typo,%L(varo),CN(K:M),blan(M-K+N+3:),texto(9:)
+                    (4x,a5,1x,a,'[',a,'];',a,'/* ',a42,' */')
+            if (text==' ') output; ('};');
+         }
+         If Idl==2
+         {  NC+=1;  NCCC=NC;
+            if (ND==1) CCC(NC)='  '//typo//%L(varo)//'; '
+            if (ND >1) CCC(NC)='  '//typo//%L(varo)//'['//CN(K:M)//']; '
+            if (text==' ')  { NC+=1; CCC(NC)='}' }
+         }
+      }
+      nd=0; Texto=Text; typo=type
+   }
+  end
  
  
+****************************************************************************
+  subroutine  agreforma (format,num,type,idl)
+*                                                                          *
+* Description: decode ZEBRA 'format' descriptor into a sequence of 'type's *
+*              for format details see: 2.16 MZFORM, page 44                *
+*              - num is the number of items already taken, should be saved *
+*              - idl is an agi/c switch                                    *
+****************************************************************************
  
+  character   format*(*),type*8,List*14/'0123456789-IFH'/
+  integer     Lenocc,idl,L,i/0/,k,n,num,big/9999999/
  
+     L=Lenocc(format);  if (num==0) i=0;  N=0;
+     Do i=i+1,L
+     { k=index(list,format(i:i))-1;  check k>=0
+       if  k<=9  "digit"  { N=N*10+k; Next; }
+       if  k=10  "tail"   { N=big;    Next; }
+       num=num+max(1,N);  Break;
+     }
+     if (idl==0) { type ='real';  if (format(i:i)=='I') type='int';  }
+     else        { type ='float'; if (format(i:i)=='I') type='long'; }
+     if (format(i:i)=='H') type='char'
+     end
  
- 
- 
- 
-*CMZ :          20/04/98  15.46.43  by  Pavel Nevski
+*CMZ :          28/09/98  00.59.27  by  Pavel Nevski
+*CMZ :  1.40/05 24/08/98  20.25.33  by  Pavel Nevski
 *CMZ :  1.30/00 29/04/97  23.23.51  by  Pavel Nevski
 *CMZU:  1.00/01 15/01/96  20.20.30  by  Pavel Nevski
 *-- Author :    L.Vacavant, A.Rozanov    14/12/94
 ******************************************************************************
 *                                                                            *
-     subroutine    A G Z O P E N (stream,name,Copt,Npar,Ipar)
+     subroutine    A G Z O P E N (stream,name,Copt,ier)
 *                                                                            *
 * Description: (re)open a file with events in GENZ format-via Fatmen or GENZ *
 *   After a succesful open, K keeps track of what should be closed next call *
@@ -11663,6 +12925,8 @@ C
       COMMON /AgCKINO/ Ioutp,IoutpOld
       Character*20     CoptKine,CoptBack,CoptOutp
       COMMON /AgCKINC/ CoptKine,CoptBack,CoptOutp
+      Character*20     StrmKine,StrmBack,StrmOutp
+      COMMON /AgCKINS/ StrmKine,StrmBack,StrmOutp
       Character*20     CrunType
       COMMON /AgCKINR/ CrunType
       Integer          Ncommand
@@ -11686,7 +12950,7 @@ C
 *KEND.
 Character  Stream*(*),Name*(*),Copt*(*),FName*255/' '/,IOFILE*8,
            CREQ*256,COPTN*20,CSTREAM*8,FZOP*4
-Integer    LOCF,Npar,Ipar(*),KEYS(10),LENOCC,Nfound,Jcont,Unit,
+Integer    LOCF,KEYS(10),LENOCC,Nfound,Jcont,Unit,LRECA/0/,
            Ier,Irc,Jrc,K,Lc,iend,mem,iu,IREQ,ko,LREC,L,NUH,HEAD(400)
 Common     /AgZbuffer/  K,JRC,JCONT,CSTREAM,COPTN,CREQ,IREQ,iend,mem(100,5)
 *
@@ -11705,7 +12969,11 @@ Common     /AgZbuffer/  K,JRC,JCONT,CSTREAM,COPTN,CREQ,IREQ,iend,mem(100,5)
    If Name!=' '  { CREQ=Name; COPTN=COPT; CSTREAM=Stream; IREQ=1; }
    else          { if (iu!=2) IREQ-=1;                            }
    LC=LENOCC(CREQ);  FName=' ';  Nfound=0;  Ier=-1;  Ko=K;  K=0;
+ 
+*  on input automatic rec.length has precedence:
    LREC=8100;        If (Index(Stream,'Z')>0) LREC=0
+                     If (iu<=2 & Lreca>0)     Lrec=Lreca
+ 
    If Index(Stream,'F')>0
    {  Print *,'* AGZOPEN trying to get tape from FATMEN catalog *'
       CALL FMLOGL(-2); Call FMLFIL(CREQ(1:LC),FName,KEYS,NFound,1,JCont,JRC)
@@ -11726,37 +12994,44 @@ Common     /AgZbuffer/  K,JRC,JCONT,CSTREAM,COPTN,CREQ,IREQ,iend,mem(100,5)
         * automatic record length detection
         NUH=400;  Call FZIN  (Unit,IxDiv,L,2,'S',NUH,HEAD)
         If Iquest(1)==-4 & Iquest(12)==202
-        {  LREC=IQUEST(15); print *,' AGZOPEN: LREC corrected to',LREC
-           Call FZENDI(Unit,'TXQ');  GoTo :R:
+        {  LRECA=IQUEST(15); print *,' AGZOPEN: LREC corrected to',LRECA
+           LREC =LRECA;      Call FZENDI(Unit,'TXQ');   GoTo :R:
         }  Call FZENDI(Unit,'IQ')
    }  }
    else If iu==3 & IREQ>0
    {  CALL CFOPEN(IQUEST,0,LREC,'w ',0,CREQ,ier);          K=3;
       IF Ier==0 { Call FZFILE(Unit,LREC,'XOL');  Ier=Iquest(1); }
    }
-   IF Ier!=0 { If (IREQ>0) print *,' AGZOPEN error K,ier=',K,Ier,
-                                   ' file =',CREQ(1:LC);   K=0;
-             }
-   else      { If iu==1 { IKine = -1; IKineOld = -1; CoptKine = Coptn; }
-               If iu==2 { IBack = -1; IBackOld = -1; CoptBack = Coptn; }
-               If iu==3 { Ioutp = -1; IOutpOld = -1; CoptOutp = Coptn; }
-               CALL FZLOGL(Unit,-2)
-             }
+   IF Ier!=0
+   { If(IREQ>0) print *,'AGZOPEN error K,ier=',K,Ier,' file=',CREQ(1:LC); K=0 }
+   else
+   { If iu==1 { IKine=-1; IKineOld=-1; CoptKine=Coptn; StrmKine=Stream; }
+     If iu==2 { IBack=-1; IBackOld=-1; CoptBack=Coptn; StrmBack=Stream; }
+     If iu==3 { Ioutp=-1; IOutpOld=-1; CoptOutp=Coptn; StrmOutp=Stream; }
+     CALL FZLOGL(Unit,-2)
+   }
    Kevent(iu)=0;  Call UCOPY(K,mem(1,iu),LocF(iend)-LocF(K))
 *
 End
  
  
-*CMZ :          22/04/98  22.10.55  by  Pavel Nevski
+*CMZ :          06/11/98  19.47.51  by  Pavel Nevski
+*CMZ :  1.40/05 27/08/98  20.38.58  by  Pavel Nevski
 *CMZ :  1.30/00 19/03/97  21.57.11  by  Pavel Nevski
 *CMZU:  1.00/01 15/01/96  20.20.30  by  Pavel Nevski
 *-- Author :    L.Vacavant, A.Rozanov    14/12/94
 ******************************************************************************
 *                                                                            *
                 subroutine    A G Z R E A D (Stream,ier)
+*                                                                            *
 * Modifications and comments:                                                *
-* last event may be lost                                                     *
 * PN, 24.11.97 - both IDEVT and IDRUN are taken only from the primary stream *
+* PN, 20.08.98 - new error handling logic
+* - On entry, SOR/EOR and EOF (ier<5) are skipped to read a multi-file input *
+* - To read the last event, EOR (ier=2) is not returned as an error on exit  *
+* - i/o errors are considered as zebra EOF (ier=3), event is tagged IEOTRI=1 *
+* PN, 26.10.98 - bug fix: the whole KINE/VERT chain expanded to 2 words      *
+*                                                                            *
 ******************************************************************************
 *KEEP,TYPING.
       IMPLICIT NONE
@@ -11861,6 +13136,8 @@ C                                       Link to:
       COMMON /AgCKINO/ Ioutp,IoutpOld
       Character*20     CoptKine,CoptBack,CoptOutp
       COMMON /AgCKINC/ CoptKine,CoptBack,CoptOutp
+      Character*20     StrmKine,StrmBack,StrmOutp
+      COMMON /AgCKINS/ StrmKine,StrmBack,StrmOutp
       Character*20     CrunType
       COMMON /AgCKINR/ CrunType
       Integer          Ncommand
@@ -11882,11 +13159,11 @@ C                                       Link to:
 *    - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 *
 *KEND.
-   Integer      ISLFLAG,i,ier,iprin,jvol,Ldata,Lk,N,NP,NT,NS,IdZ/0/,IdG/0/
+   Integer      ISLFLAG,i,ier,iprin,jvol,Ldata,Lk,N,Ng,NT,NS,IdZ/0/,IdG/0/
    Integer      NHSETS,NDSETS,NSECT,NDETM,NSET,JOCRUN,JOCEVT,IGEN,NTRA,M
-   Integer      LOCF,INDEX,CSADDR,Iadr,iu,jb,none,Idev
+   Integer      LOCF,INDEX,iu,jb,none,Idev,Idn,Ierold(3)/3*0/
    Integer      Lun/21/,Lhead/0/,ifl/0/,nw/0/,Lsup,Iev/0/,Ihead(400)/400*0/
-   Character    Stream*(*),HEAD*4,CHEAD(2)*4/2*' '/,Chopt*8/'*'/,IDH*4
+   Character    Stream*(*),HEAD*4,CHEAD(2)*4/2*' '/,Chopt*8/'*'/,IDH*4,Cin*4
    Logical      Trig,Done/.true./
 *  tentative guess for standard GFOUT data
    Character*4  Gsets(23)/'PART','MATE','TMED','VOLU','ROTM','SETS','DRAW',
@@ -11897,52 +13174,70 @@ C                                       Link to:
    Integer      K,Jrc,Jcont,IREQ,iend,mem
    Common       /AgZbuffer/ K,JRC,JCONT,CSTREAM,COPTN,CREQ,IREQ,iend,mem(100,5)
 *
+* example of a bad in-line coding:
   Replace [INP(#,#,#,#,#)] with [
-    CHECK (Index(Chopt,'#1')>0 | Index(Chopt,'*')>0);   Nt=Nt+1;
-    {IF} '#1'='G' { Np=Np+1; CHECK Jvol==0; IF (#3>0) Call MZDROP(#2,#3,'L'); }
-    IF #3==0 { Call FZIN(LUN,#2,#3,1,'A',Nhead,Ihead); jb=#3;    }
-    ELSE     { jb=#3; WHILE LQ(jb)>0 { jb=LQ(jb) };
+    CHECK (Index(Chopt,'#1')+Index(Chopt,'*')>0 | '#1'=='*');   Nt=Nt+1;
+    {IF} '#1'='G' { Ng=Ng+1; CHECK Jvol==0; IF (#3>0) Call MZDROP(#2,#3,'L'); }
+    IF #3==0 { Call FZIN(LUN,#2,#3,1,'A',Nhead,Ihead); jb=#3; IDN=iu; }
+    ELSE     { jb=#3; WHILE LQ(jb)>0 { jb=LQ(jb) }; IDN=IQ(jb-5)+1;
                Call FZIN(LUN,#2,jb,0,'A',Nhead,Ihead); jb=LQ(jb) }
-    Ier=Iquest(1);  Nw=Iquest(14);  CHECK jb>0;  Call UHTOC(IQ(jb-4),4,IDH,4);
-    IF (IDH!=HEAD&IDEBUG>0) print *,' AGZREAD got ',IDH,' instead of ',HEAD;
-    Ns=Ns+1; IQ(jb-5)=iu;  #4=IQ(jb+(#5));
-    IF (#5==-2&Ier==0) { DO I=1,IQ(jb-2) { IF (LQ(jb-I)>0) #4=I; }}
-    PRIN2 '#3','#4',#4,Nw; (' AGZREAD: read',2(2x,a6),' = ',i6,'  Leng = ',i8)
+    Ier=Iquest(1);  Nw=Iquest(14);  IDH='NONE';
+    if jb>0
+    {  Call UHTOC(IQ(jb-4),4,IDH,4);  IQ(jb-5)=max(iu,IDN);  #4=IQ(jb+(#5));
+       Ns+=1; IF (#5==-2&Ier==0) { DO I=1,IQ(jb-2) { IF (LQ(jb-I)>0) #4=I; }}
+    }
+    PRIN2 '#3','#4',#4,Nw,ier;(' AGZREAD: read',2(2x,a6),' =',i6,' Leng =',2i8)
+    IF IDH!=HEAD  { PRIN1 IDH,HEAD; (' AGZREAD got ',a,' instead of ',a); }
+    IF jb<=0 | ier!=0 { IEOTRI=1; ier=3; HEAD='NONE' }
   ]
 * - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 *
     Check ( index(stream,'P')>0 & IkineOld<=-1 _
           | index(stream,'B')>0 & IBackOld<=-1 )
-10  Iprin=max(Idebug+1,ISLFLAG('INPU','PRIN'))
+10  Iprin=max(Idebug,ISLFLAG('INPU','PRIN'))
                              iu=1;  Chopt=CoptKine;
     If index(stream,'B')>0 { iu=2;  Chopt=CoptBack; }
     If index(stream,'S')>0 {        Chopt=' ';      }
     Call Ucopy(mem(1,iu),K,LocF(Iend)-LocF(k))
     M=5;  If (INDEX(CSTREAM,'1')>0) M=2
-    Lun=20+iu;  HEAD=CHEAD(iu);  jvol=JVOLUM; Np=0; Nt=0; Ns=0;
-    Done=.false.;  If (Kevent(iu)==0) Done=.true.
+    Lun=20+iu;  HEAD=CHEAD(iu);  jvol=JVOLUM; Ng=0; Nt=0; Ns=0; Ier=0;
+    Done=.false.;  If (Kevent(iu)==0) { Done=.true.; Ierold(iu)=0 }
 *
   Loop
   {  If done | HEAD=='NONE'
-     {  Lhead=400;      Call FZIN(LUN,IXDIV,LSUP,2,'S',LHEAD,IHEAD)
+     {  Cin='S';  if (Chopt==' ')  Cin='SE';       IerOld(iu)=ier;
+        If (iu==1 & 0<kevent(1) & kevent(1)<=Ptype)  Cin='SE'
+        Lhead=400;      Call FZIN(LUN,IXDIV,LSUP,2,Cin,LHEAD,IHEAD)
+*   <w> Lhead,iquest(1),(Ihead(i),i=1,3) ('  Lhead,iquest,Ihead = ',4i6,2x,a4)
         Ier=Iquest(1);  ifl=Iquest(11);  Nw=Iquest(14);  HEAD='NONE'
         If Ier<0  { prin0 ifl; (' error',i6,', see ZEBRA manual page 299');
                If (IQUEST(11)==-4 & IQUEST(12)==202) <w> IQUEST(14),IQUEST(15)
-                  (10x,'Expected block size',i6,', found on input',i6); Next;}
+                  (10x,'Expected block size',i6,', found on input',i6);
+                           Ier=3; IEOTRI=1;    Kevent(iu)+=1;  break;}
         If Ier==1 { prin1 ifl; (' zebra sor, run ',i6); Iev=0; IDz=Ifl; Next;}
-        If Ier> 1 { prin1 ier,ifl; (' zebra err, run ',2i6); If (Ier<M) Next;
-                                       Ier=0;  ifl=1;  Kevent(iu)+=1;  break;}
+        If Ier> 1 { prin1 ier,ifl,nt; (' zebra err, run, nt ',3i6);
+                    " skip zebra inter-file records "
+                    If (nt==0 & Ier<=M) Next;   Kevent(iu)+=1;  break;}
+       * decode header
         If      Lhead=1 & Ifl=0 { i=IHEAD(1);  If(1<=i&i<=22) HEAD=Gsets(i); }
         else If Lhead=2 & Ifl>0 { HEAD='RUNG'; If(Kevent(iu)>0) HEAD='HEAD'; }
         else If Lhead=1 & Ifl>0 { i=IHEAD(1);  IF(1<=i&i<=3)  HEAD=Esets(i); }
         else If LHead==3 & Ihead(1)+IHEAD(2)+Ihead(3)==0      { HEAD='RAWD'; }
         else If Lhead>2 {"atlas genz format" Call UHTOC(Ihead(3),4,HEAD,4);  }
-        Trig=Ifl.gt.0
-        If ( " new eor " HEAD=='HEAD' & Ns==0 & Nt>0 & Kevent(iu)>0 _
-           | HEAD=='RUNG' & Nt==0 | HEAD=='CODE' | HEAD=='RUN') Trig=.false.
+ 
+       * analyse end of event - Hardware flag ifl>0
+        Trig = Ifl.gt.0
+       * Software : new Event information after Run information
+        If (HEAD=='HEAD' & Ng>0)                                Trig=.true.
+       * exceptions: Star FZ has CODE and RUN written separately
+        If (HEAD=='CODE' | HEAD=='RUN')                         Trig=.false.
+       * skip new RUN header inside file (multi-file input)
+        If (HEAD=='HEAD' & Ns==0 & Kevent(iu)>0)                Trig=.false.
+       * always append RUNG
+        If (HEAD=='RUNG' & Nt==0)                               Trig=.false.
         If Trig
-        { prin2 kevent(iu),Lun,IHEAD(1),IHEAD(2),HEAD
-          (' AGZREAD: event',i8,' on unit',i4,' ended by',2i6,A6)
+        { prin1 kevent(iu),nt,ns,Lun,IHEAD(1),IHEAD(2),HEAD
+          (' AGZREAD: event',i7,2i3,' on unit',i4,' ended by',2i6,A6)
           Break;
         }
      }  Done=.true.
@@ -11960,11 +13255,10 @@ C                                       Link to:
      else If Head=='SCAN' { inp(G,IXCONS,LKDETM, NDETM,  -1) }
      else If Head=='CODE' { inp(E,IxCONS,LKRUNT, IGEN,   +1) }
      else If Head=='RUN ' { inp(E,IxCONS,LKRUNT, none,   +1) }
-     else if iu==1 & kevent(1)<Ptype+1         { Next;     }
      else If Head=='RUNT' { inp(E,IxDIV, LKRUNT, JOCRUN, +5) }
      else If Head=='EVNT' { inp(E,IxDIV, LKEVNT, JOCEVT, +6) }
      else If Head=='EVEN' { inp(E,IxDIV, LKEVNT, NTRA,   +1) }
-     else If Head=='HEAD' { inp(K,IxDIV, JHEAD,  IDEV ,  +2)
+     else If Head=='HEAD' { inp(*,IxDIV, JHEAD,  IDEV ,  +2)
           If iu==1 & Jb>0 & IQ(Jb+1)>1  {IDRUN=IQ(Jb+1); IDEVT=IDEV}}
      else If Head=='VERT' { inp(K,IXDIV, JVERTX, NVERTX, +1) }
      else If Head=='KINE' { inp(K,IXDIV, JKINE,  NTRACK, +1) }
@@ -11981,27 +13275,23 @@ C                                       Link to:
               (' READRZ: unknown structure ',A,' skipped '/,
                  8x,'Lhead=',i6,' header=',10z9/(20x,10z9))
           }
-     IF Ier#0 { <W> Ier,head; (' READRZ error ',i5,' entering ',A); }
+     IF Ier#0 { <W> Ier,head; (' AgZREAD error ',i5,' entering ',A); break; }
   }
 *
-  If (JKINE>0  & IQ(JKINE-1)==1 ) Call MZPUSH(IxDIV,JKINE, 0,1,'I')
-  If (JVERTX>0 & IQ(JVERTX-1)==1) Call MZPUSH(IxDIV,JVERTX,0,1,'I')
+  LKKIN2=JKINE;   while (LKKIN2>0)
+  { If (IQ(LKKIN2-1)==1) Call MZPUSH(IxDIV,LKKIN2, 0,1,'I'); LKKIN2=LQ(LKKIN2)}
+  LKVER2=JVERTX;  while (LKVER2>0)
+  { If (IQ(LKVER2-1)==1) Call MZPUSH(IxDIV,LKVER2, 0,1,'I'); LKVER2=LQ(LKVER2)}
 *
   CHEAD(iu)=HEAD; Kevent(iu)+=1;
-  If Stream=='P'
+  If Stream=='P' & ier==0
   {  if ( jvol==0 & Jvolum>0 )   Call AgReINIT
-     if ( 1<kevent(1) & kevent(1)<=Ptype+1 )   Goto 10
-     If (LKEVNT>0&INDEX(Chopt,'E')>0&INDEX(Chopt,'K')==0)
-     {  Iadr=CSADDR('AGUSKINE');  call UHTOC(IQ(LKEVNT-4),4,IDH,4)
-        If      IDH=='EVNT' { Call AgGZKINE(iprin)      }
-        else If IDH=='EVEN' { Call AgEZKINE(iprin)      }
-        else If IADR!=0     { Call CSJCAL(Iadr,1,Iprin) }
-        else { <w> IDH; (' READRZ error: unknown event bank :',a) }
-     }
      If (LKARAW>0 & LKARP1==0)   Call AgBEAMdat
+     if (1<kevent(1) & kevent(1)<=Ptype+1 & Ier==0)   Goto 10
   }
+* print *,' leaving agzread with ns,ier = ',ns,ier
+  if (ns>0 & Ier<3) {" zebra eor pending " Ier=0; IQUEST(1)=0; }
   End
- 
  
 *CMZ :  1.30/00 23/05/96  22.35.51  by  Pavel Nevski
 *CMZU:  1.00/01 14/01/96  18.11.41  by  Pavel Nevski
@@ -12054,6 +13344,8 @@ C
       COMMON /AgCKINO/ Ioutp,IoutpOld
       Character*20     CoptKine,CoptBack,CoptOutp
       COMMON /AgCKINC/ CoptKine,CoptBack,CoptOutp
+      Character*20     StrmKine,StrmBack,StrmOutp
+      COMMON /AgCKINS/ StrmKine,StrmBack,StrmOutp
       Character*20     CrunType
       COMMON /AgCKINR/ CrunType
       Integer          Ncommand
@@ -12097,7 +13389,7 @@ C
      end
  
  
-*CMZ :          31/10/97  13.01.26  by  Pavel Nevski
+*CMZ :  1.40/05 31/10/97  13.01.26  by  Pavel Nevski
 *CMZ :  1.30/00 04/07/96  14.07.00  by  Pavel Nevski
 *CMZU:  1.00/01 14/01/96  22.35.50  by  Pavel Nevski
 *-- Author :    A. Rozanov  11/03/95
@@ -12155,6 +13447,8 @@ C
       COMMON /AgCKINO/ Ioutp,IoutpOld
       Character*20     CoptKine,CoptBack,CoptOutp
       COMMON /AgCKINC/ CoptKine,CoptBack,CoptOutp
+      Character*20     StrmKine,StrmBack,StrmOutp
+      COMMON /AgCKINS/ StrmKine,StrmBack,StrmOutp
       Character*20     CrunType
       COMMON /AgCKINR/ CrunType
       Integer          Ncommand
@@ -12218,7 +13512,8 @@ C
     END
  
  
-*CMZ :          18/08/97  11.17.47  by  Pavel Nevski
+*CMZ :          28/09/98  21.12.21  by  Pavel Nevski
+*CMZ :  1.40/05 18/08/97  11.17.47  by  Pavel Nevski
 *CMZ :  1.30/00 16/04/97  20.01.44  by  Pavel Nevski
 *-- Author :    Pavel Nevski   01/06/96
 ******************************************************************************
@@ -12321,6 +13616,8 @@ C                                       Link to:
       COMMON /AgCKINO/ Ioutp,IoutpOld
       Character*20     CoptKine,CoptBack,CoptOutp
       COMMON /AgCKINC/ CoptKine,CoptBack,CoptOutp
+      Character*20     StrmKine,StrmBack,StrmOutp
+      COMMON /AgCKINS/ StrmKine,StrmBack,StrmOutp
       Character*20     CrunType
       COMMON /AgCKINR/ CrunType
       Integer          Ncommand
@@ -12342,7 +13639,7 @@ C                                       Link to:
 *    - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 *
 *KEND.
-   Integer      iu,Lun,Iev,Ier,iprin, Idevt0/-1/,IsubE0/0/,Lk/0/
+   Integer      ISLFLAG,iu,Lun,Iev,Ier,iprin, Idevt0/-1/,IsubE0/0/,Lk/0/
    Logical      Done/.true./
    Character    stream*(*)
 *  tentative guess for standard GFOUT data
@@ -12350,9 +13647,9 @@ C                                       Link to:
 *  'RUNT','EVNT','DETM','a','a','a','HEAD','VERT','KINE','JXYZ','HITS','DIGI'
 * - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 *
-    Ier=999;  Check Stream=='O';  Ier=0;  Iu=3;
-    Iprin=Idebug;   Lun=20+iu;  Iev=Kevent(iu);
-    prin3 Idevt,Idevt0,Iev,CoptOutp
+    Ier=999;  Check Stream=='O';  Ier=0;  Iu=3;  Iev=Kevent(iu);
+    Iprin=max(ISLFLAG('OUTP','PRIN'),Idebug);    Lun=20+iu;
+    prin2 Idevt,Idevt0,Iev,CoptOutp
     (' AGZwrite Idevt,Idevt0,Iev = ',3I10,' opt=',a)
 *
     If Kevent(iu)==0
@@ -12364,8 +13661,9 @@ C                                       Link to:
        Call AgZout(LUN,'VOLU','G',Iev,CoptOutp,JVOLUM,'NVOLUM', -2, 4, ier)
        Call AgZout(LUN,'SETS','G',Iev,CoptOutp,JSET,  'NSET',   -1, 6, ier)
        Call AgZout(LUN,'DETM','G',Iev,CoptOutp,LKDETM,'NDETM',  -1, 9, ier)
-       Kevent(iu)=1;  Lk=-1;  Idevt0=-1;  If (Ier!=0) IOutpOld=0;  Return
+       Kevent(iu)=1;  Lk=-1;  Idevt0=-1;  If Ier!=0 { IOutpOld=0;  Return }
     }
+    check JHEAD>0 & IEOTRI==0;                   Iev=Kevent(iu);
     If Idevt != Idevt0 | IsubEVnt !=IsubE0
     {  if (JHITS>0) Call GRLEAS (JHITS)
        if (JDIGI>0) Call GRLEAS (JDIGI)
@@ -12389,7 +13687,8 @@ C                                       Link to:
 end
  
  
-*CMZ :          30/07/97  11.24.59  by  Pavel Nevski
+*CMZ :          07/09/98  21.27.25  by  Pavel Nevski
+*CMZ :  1.40/05 20/08/98  22.05.53  by  Pavel Nevski
 *-- Author :    Pavel Nevski 06/06/97
 ***************************************************************************
                 Subroutine  A G S V E R T (Vertex,NtBeam,NtTarg,UBUF,NU,Nv)
@@ -12478,6 +13777,8 @@ C
       COMMON /AgCKINO/ Ioutp,IoutpOld
       Character*20     CoptKine,CoptBack,CoptOutp
       COMMON /AgCKINC/ CoptKine,CoptBack,CoptOutp
+      Character*20     StrmKine,StrmBack,StrmOutp
+      COMMON /AgCKINS/ StrmKine,StrmBack,StrmOutp
       Character*20     CrunType
       COMMON /AgCKINR/ CrunType
       Integer          Ncommand
@@ -12500,10 +13801,9 @@ C
 *
 *KEND.
 *
-     Real     Vertex(4),UBUF(*)
-     Integer  NtBeam,NtTarg,NU
-     Integer  Iv,Nv,IDEVT0/-999/,Iprin/0/
-     REAL     RNDM,VDIST,VMOD,a,b,d,z,d1,Vxyz(4),Vcut/0/
+     Integer  NtBeam,NtTarg,NU,IVmode,Iv,Nv,Iprin,IDEVT0/-999/
+     Real     RNDM,VDIST,VMOD,Vertex(4),UBUF(*),Vxyz(4)
+     REAL     a,b,d,z,d1,Vcut/0.0001/,Xscale/1./,Tscale/1./
 *
      Iprin=Idebug
 *    if 3 sigma interval overlaps with request and Sigma is not too big:
@@ -12517,10 +13817,11 @@ C
         If (VMOD(VertexNow,3)>0 & Iprin>=2) <w> VertexNow;
            (' AgSVERT: vertex shifted at ',3F10.4)
      }
-*
-      D1=VMOD(Vertex,4)
-      CALL VADD (Vertex,VertexNow,Vxyz,3)
-      TOFG=Vertex(4);  Vxyz(4)=TOFG
+*                                   get vertex in cm,sec
+      D1=VMOD(Vertex,4);  TOFG=Vertex(4)*Tscale;  Vxyz(4)=TOFG
+      Call VSCALE (Vertex,XScale, Vxyz,3)
+      CALL VADD   (Vxyz,VertexNow,Vxyz,3)
+ 
       DO IV=1,Nvertx
          Check NtBeam == Q(LQ(Jvertx-IV)+5)
          Check NtTarg == Q(LQ(Jvertx-IV)+6)
@@ -12531,12 +13832,25 @@ C
 *
       Call GsVERT(Vxyz,NtBeam,NtTarg,UBUF,NU,Nv)
       If (Nv>0) Return
-      <w> ntbeam; (' AgSVERT can not set vertex ',i8)
+      <w> ntbeam,Vxyz; (' AgSVERT can not set vertex ',i8,' at ',4F10.2)
+      Return
+ 
+*       set units for external vertex
+      Entry agsvertset (IvMode)
+      If IvMode==0 { "geant native" VCUT=.0001; Xscale=1;   Tscale=1; }
+      If IvMode==1 { "ATLAS GENZ  " VCUT=.0001; Xscale=100; Tscale=1; }
+      If IvMode==2 { "STAR PYTHYA " VCUT=.0001; Xscale=0.1; Tscale=.33e-11;}
+      Prin2 IvMode,Vcut,Xscale,Tscale;
+      (' AgSVERT Mode=',i3,'  cut=',F8.4,',  scale=',F7.1,'cm  ',G12.3,'s')
 END
  
  
  
-*CMZ :          23/04/98  14.13.01  by  Pavel Nevski
+ 
+ 
+*CMZ :          05/11/98  20.37.40  by  Pavel Nevski
+*CMZ :  1.40/05 27/08/98  19.50.28  by  Pavel Nevski
+*CMZ :  1.40/05 24/08/98  20.26.49  by  Pavel Nevski
 *CMZ :  1.30/00 21/03/97  15.15.10  by  Pavel Nevski
 *-- Author :    Pavel Nevski   27/05/96
 ************************************************************************
@@ -12544,7 +13858,7 @@ END
 *                                                                      *
 * Description: AG pileup facility - draft, to be polished later        *
 * Modifications:                                                       *
-* PN, 27.11.97 : Neagitive Bg multiplicity means no fluctuations       *
+* PN, 27.11.97 : Negative Bg multiplicity means no fluctuations        *
 ************************************************************************
 *KEEP,TYPING.
       IMPLICIT NONE
@@ -12582,6 +13896,8 @@ C
       COMMON /AgCKINO/ Ioutp,IoutpOld
       Character*20     CoptKine,CoptBack,CoptOutp
       COMMON /AgCKINC/ CoptKine,CoptBack,CoptOutp
+      Character*20     StrmKine,StrmBack,StrmOutp
+      COMMON /AgCKINS/ StrmKine,StrmBack,StrmOutp
       Character*20     CrunType
       COMMON /AgCKINR/ CrunType
       Integer          Ncommand
@@ -12604,10 +13920,10 @@ C
 *
 *KEND.
      Character Copt*4
-     Integer   AgPFLAG,Iprin,Nback,Ibevnt,Nskip,Ier,I
+     Integer   ISLFLAG,Iprin,Nback,Ibevnt,Nskip,Ier,I
      Real      Tbunch,RNDM
 *
-     Iprin = AgPFLAG('BACK','RECO')
+     Iprin = ISLFLAG('BACK','PRIN')
      :bunch: Do IbCurrent=-IbBefor,IbAfter
     {  Call POISSN(BgMult,NBack,Ier)
        If (BgMULT<0) NBack=nint(abs(BgMULT))
@@ -12621,12 +13937,13 @@ C
           Do I=1,Nskip+1
           { Copt='BS';   If (I>Nskip) Copt='B'
             Call AgZREAD (Copt,ier); Check Ier>0  " event still was read "
-            Call AGZOPEN ('B', ' ', ' ', 0, 0)
+            Call AGZOPEN ('B',' ',' ',Ier);
             Call AgZREAD (Copt,ier); Check Ier>0  " geometry skept Only  "
             Prin0; (' AGZBACK error: CANNOT OPEN FILE WITH EVENTS, QUIT !')
             IbackOld=0;  Return
           }
-          call AgMERGE (Iprin,IbCurrent,IbEvnt,Tbunch,Ier)
+          ier=0; if (INDEX(StrmBack,'C')==0) _
+                    call AgMERGE (Iprin,IbCurrent,IbEvnt,Tbunch,Ier)
           If (Ier!=0) Break :bunch:
     }  }
     Call AgTRIM
@@ -12636,6 +13953,10 @@ C
  
 ***************************************************************************
    subroutine AgMERGE (Iprin,IbCurrent,IbEvnt,Tbunch,Ier)
+*
+* Description: append NEXT bank to the PREVIOUS for KINE,VERT,HITS
+* Modifications:
+* PN,  26.08.98: extended BACK flag format to xxx1xxx -or- xx1xxx
 ***************************************************************************
 *KEEP,TYPING.
       IMPLICIT NONE
@@ -12725,9 +14046,9 @@ C                                       Link to:
 *
    Integer            Laref,   Jd,jhs,jhd,jv2,jk2
    Common  /agcmerge/ Laref(2),Jd,jhs,jhd,jv2,jk2
-   Integer            AgPointr,Iprin,IbCurrent,IbEvnt,Ier,Ib,
-                      Dum(20)/20*0/,Jdu,Idu,Nv1,Nv2,Nt1,Nt2,Nh1,Nh2,
-                      Iv,Jv,It,Jt,i,j,Isel,Nw,Nw1,Nw2,L,L1,L2
+   Integer            LgKINE,AgPointr,Iprin,IbCurrent,IbEvnt,Ier,Ib,
+                      Dum(20)/20*0/,Jdu,Idu,Nv1,Nv2,Nt1,Nt2,Nh1,Nh2,gate,
+                      Iv,Jv,It,Jt,i,j,Isel,Nw,Nw1,Nw2,L,M,L1,L2,jo,ju
    REAL               Tbunch
 *  GEANT general definitions for SET-type banks:
    Integer            JSF,JDF,IDF,ISF,LINK,Iset,Idet
@@ -12762,29 +14083,38 @@ C
    Call MZLINT(IXSTOR,'AgCMERGE',Laref,Jd,Jk2)
    Call AgMER(Iprin,JVERTX,+1,Nv1,Nv2);  Nvertx=Nv1+Nv2;
    Call AgMER(Iprin,JKINE, +1,Nt1,Nt2);  Ntrack=Nt1+Nt2;
+*  get current EVNT gate number:
+   gate=1; ju=LkEvnt; while ju>0 { gate=IQ(ju-5); ju=LQ(ju); }
+   prin3 Nvertx, Ntrack,gate;
+   (' AgMERGE: merged ',i6,' vertices,',i7,' tracks in gate',i5)
 *
 *                        adjust track-vertex cross references
    do iv=Nv1+1,Nvertx
    {  jv=LQ(JVERTX-iv); check jv>0;   "ToF"  Q(jv+4)+=Tbunch;
-      do i=5,7+nint(Q(jv+7))          " update track numbers in vertices "
-      {  check i!=7;  j=jv+i; if (Q(j)>0) Q(j)+=Nt1; If (Q(j)>Ntrack) Q(j)=0; }
+      if (Q(jv+5)>0) Q(jv+5)+=Nt1     " only for geant produced tracks   "
+      do i=8,7+nint(Q(jv+7))          " update track numbers in vertices "
+      {               j=jv+i; if (Q(j)>0) Q(j)+=Nt1; If (Q(j)>Ntrack) Q(j)=0; }
+      ju=LQ(jv-1); if ju>0 { if (IQ(ju-1)==2 & Q(ju+1)==1) Q(ju+1)=gate; }
    }
    do it=Nt1+1,Ntrack
-   {  jt=LQ(JKINE-it);  check jt>0;
+   {  jt=LgKINE(jo,it);  check jt>0;
       do i=6,7+nint(Q(jt+7))          " update vertex numbers  in tracks "
       {  check i!=7;  j=jt+i; if (Q(j)>0) Q(j)+=Nv1; if (Q(j)>Nvertx) Q(j)=0; }
+      ju=LQ(jt-1); if ju>0 { if (IQ(ju-1)==2 & Q(ju+1)==1) Q(ju+1)=gate; }
    }
 *
 *  First, count number of hit sets in both streams as the number of links
-   Check Jhits>0;   Call AgMER(Iprin,Jhits,-2,Nh1,Nh2)
+   Check Jset>0 & Jhits>0;   Call AgMER(Iprin,Jhits,-2,Nh1,Nh2)
    prin3 Nh1,Nh2; (' AgMerge: start hit sets merging',2i8)
    If Nh2>0
    {  **>                            correct only track references now
       Iset=0;  J=JHITS; If (LQ(J)>0) J=LQ(J)
       While AgPOINTR (J,Iset,Idet)==0
       {  JDU=LQ(JDF(JSET)-3); Check JDU>0; Idu=Q(JDU+9); Ib=LVBACK(Idu)
-         L = abs(ib);  L1=-L;  L2=+L                    " rule 1: t+/-(i-1)
-         IF (L>=10)  { L1= - (L/100);  L2= mod(L,10) }  " rule 2: -i1,1,+i2
+         " x1x -or- 01x / xx1xx -or- 0x1xx /  xxx1xxx -or- 0xx1xxx "
+         L = abs(ib); M=10**(int(1+LOG10(L+0.9))/2);
+                   L1=-L;  L2=+L                    " rule 1: t+/-(i-1)
+         IF M>1  { L1= - (L/M/10);  L2= mod(L,M) }  " rule 2: -i1,1,+i2
          If Ib>=0 & L1<=IBcurrent&IBcurrent<=L2
          {  Nw2=IDF(J);  JHS=JDF(J);  Nw=1+IQ(JDF(JSET)+1)+IQ(JDF(JSET)+3)
             Isel=Nw2/Nw; do i=JHS+1,JHS+Nw2,Nw
@@ -12829,16 +14159,20 @@ C
          Call MZDROP (IxSTOR,JHS,'L')
       }  Call MZDROP(IxSTOR,LQ(JHITS),'L')
    }
-   If (IDebug>0) Call DZVERI(' VERT/KINE/HITS merged',IXDIV,'CLU')
+   If (IDebug>1) Call DZVERI(' VERT/KINE/HITS merged',IXDIV,'CLU')
    If (Ier==0)   Ier=Iquest(1)
    Laref(1)=0
 END
  
- 
+*deck,Agmer,T=geant.
 *****************************************************************************
-     subroutine AgMER (Iprin,Jj,k,N1,N2)
-* Description : for positive k, IQ(J+k) should contain object counter
-*               for negative, it is number of words or liks.
+            subroutine   A g M E R  (Iprin,Jj,k,N1,N2)
+* Description : return object counters of 2 sequential banks in N1 and N2.  *
+*  for positive k, IQ(J+k) should contain object counter, +k+1 - offset     *
+*               Banks are relocated from the second tree to the first one   *
+*               if there will be more then 64k banks, they stay in place    *
+*  for negative, it is number of words or liks.                             *
+*               Nothing is relocated                                        *
 *****************************************************************************
 *KEEP,TYPING.
       IMPLICIT NONE
@@ -12869,18 +14203,31 @@ C
       INTEGER      NMATE ,NVOLUM,NROTM,NTMED,NTMULT,NTRACK,NPART
      +            ,NSTMAX,NVERTX,NHEAD,NBIT ,NALIVE,NTMSTO
 C
+*KEEP,GCUNIT.
+      COMMON/GCUNIT/LIN,LOUT,NUNITS,LUNITS(5)
+      INTEGER LIN,LOUT,NUNITS,LUNITS
+      COMMON/GCMAIL/CHMAIL
+      CHARACTER*132 CHMAIL
+C
 *KEND.
-   Integer Iprin,N1,N2,jj,jv,jv2,i,k,ier
+   Integer Iprin,N1,N2,M1,M2,jj,jv,i,k,ier
  
    check Jj>0; Jv=Jj;
-   do i=1,2  { N1=N2; N2=0; check Jv>0; N2=IQ(Jv+k); Jv=LQ(Jv); }
+   do i=1,2  { N1=N2; N2=0;  M1=M2; M2=0;    check Jv>0;
+               N2=IQ(Jv+k);  M2=IQ(Jv+k+1);  Jv=LQ(Jv); }
+ 
    If (JV>0) print *,'****  AGMER WARNING: SOMETHING LEFT !!! ***'
-   Check k>0;  If N1>0 & N2>0
-   {  Call agpush(Iprin,Jj,N1+N2,1,Ier);  check Ier==0;
-      DO I=1,N2
-      { JV2=LQ(LQ(Jj)-I); Check JV2>0; Call ZSHUNT(IXSTOR,JV2,Jj,-(N1+I),1) }
-      Call MZDROP(IXSTOR,LQ(Jj),'L');
-   }  IQ(Jj+k)=N1+N2
+   Check k==1;  If N1>0 & N2>0
+   { If N1+N2-M1<64000
+     { Call agpush(Iprin,Jj,N1+N2-M1,1,Ier);  check Ier==0;
+       prin4 N1,M1,N2,M2; (' AgMER: N1,M1=',2i7,'  N2,M2=',2i7);
+       DO I=1,N2-M2
+       { JV=LQ(LQ(Jj)-I); Check JV>0; Call ZSHUNT(IXSTOR,JV,Jj,-(N1-M1+I),1) }
+       Call MZDROP(IXSTOR,LQ(Jj),'L');  IQ(Jj+1)=N1+N2;
+     }
+     else  { jj=LQ(jj); IQ(jj+1)=N1+N2; IQ(jj+2)=N1; }
+   }
+ 
 END
  
  
@@ -12962,12 +14309,18 @@ C
       NLOLD = IQ(LINK-3)
       NDOLD = IQ(LINK-1)
       check (NDATA>NDOLD | NLINK>NLOLD)
-      NNEW  = 20+max(NDOLD,NDATA)+max(NLOLD,NLINK)
+      if NLINK>64000
+      {  <W> MBANK,NLOLD,NLINK
+         (' AgPUSH ERROR pushing bank ',A4,' from ', i8,' to ', i8,' links '/,
+          ' ****** too many links requested, ZEBRA is limited to 64K ******')
+         ier=Nlink; return
+      }
+      NNEW  = 100+max(NDOLD,NDATA)+max(NLOLD,NLINK)
       Call MZNEED(IXDIV,NNEW,'G');  NLEFT=IQUEST(11) " after request "
       prin5  MBANK,NLOLD,NDOLD,NLINK,NDATA,NLEFT
       (' AgPUSH: pushing bank ',A4,' from ',2i8,' to ',2i8,' Nleft=',i8)
 *
-      IF NLEFT<=100
+      IF NLEFT<0
       {  prin0  MBANK,ABS(NLEFT),NNEW
          (' AgPUSH: Not enough memory for pushing bank ',A4/ _
           ' ***',I8,' words short in relocating',I8,' words ***')
@@ -12975,6 +14328,7 @@ C
       }
       NLNEED=max(NLINK-NLOLD,0); If (NLNeed>0 & NLeft>1000)  NLNeed+=100;
       NDNEED=max(NDATA-NDOLD,0); If (NDNeed>0 & NLeft>10000) NDNeed+=5000;
+      NLNEED=min(NLNEED,64000-NLOLD)
       Call MZPUSH(IXDIV,LINK,NLNEED,NDNEED,'I')
       IF IQUEST(1) != 0
       {  prin0  MBANK,ABS(NLEFT),NNEW
@@ -12989,10 +14343,12 @@ C
                   FUNCTION AGPOINTR(LINK,IS,ID)
 *                                                                      *
 * Description :                                                        *
-*        give the address of a next HIT/DIGI bank in GEANT             *
+*        give the address of a gnext HIT/DIGI bank in GEANT             *
 * Arguments   :                                                        *
 *        LINK  (in)  - link to the top level bank (i.e HITS,HIT2 etc)  *
 *        IS,ID (out) - Geant Iset/Idet of the next non-empty bank      *
+* Modifications:
+* PN, 21.09.98 : protect againt extra Iset and Idet in HITS vs SETS    *
 ************************************************************************
 *KEEP,TYPING.
       IMPLICIT NONE
@@ -13020,10 +14376,10 @@ C
 *
       AGPOINTR = 1;    IF (IS>0) GOTO :cont:
       :set: Loop
-      { IS=IS+1;  ID=0;  :cont:   IF (IS>IQ(LINK-2) | IS>IQ(JSET-1)) RETURN
+      { IS=IS+1;  ID=0;  :cont:   IF (IS>IQ(LINK-2) | IS>IQ(JSET-2)) RETURN
         JH=LQ(LINK-IS);  JS=LQ(JSET-IS);  IF (JS<=0 | JH<=0) next :set:
         :det: Loop
-        {  ID=ID+1;                       IF (ID > IQ(JH-2)) next :set:
+        {  ID=ID+1;               IF (ID > IQ(JH-2) | ID > IQ(JS-2)) next :set:
            JP=LQ(JH-ID); JD=LQ(JS-ID);    IF (JD<=0 | JP<=0) next :det:
            NW=IQ(JH+ID);                  IF (NW<=0)         next :det:
            AGPOINTR = 0;  Return;          :done:
@@ -13031,14 +14387,7 @@ C
 END
  
  
- 
- 
- 
- 
- 
- 
- 
-*CMZ :          29/01/98  00.21.52  by  Pavel Nevski
+*CMZ :  1.40/05 29/01/98  00.21.52  by  Pavel Nevski
 *CMZ :  1.30/00 27/03/97  19.08.58  by  Pavel Nevski
 *CMZ :  1.00/00 12/01/95  23.13.14  by  Pavel Nevski
 *-- Author :    Pavel Nevski   09/01/95
@@ -13309,7 +14658,8 @@ C     - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
   END
  
  
-*CMZ :          31/07/97  17.26.28  by  Pavel Nevski
+*CMZ :          28/09/98  00.14.17  by  Pavel Nevski
+*CMZ :  1.40/05 31/07/97  17.26.28  by  Pavel Nevski
 *CMZ :  1.30/00 16/04/97  20.30.01  by  Pavel Nevski
 *-- Author :    Pavel Nevski   01/06/96
 ***************************************************************************
@@ -13421,7 +14771,7 @@ C                                       Link to:
     Call FZOUT(LUN,0,J,Is,'L',IOH,LH,Ihead)
 *   ---------------------------------------
     Ier=Iquest(1);  nw=Iquest(11); Mw=Iquest(14)
-    PRIN2 Is,Name,var,N1,nw; (' AGZwrite:',i3,2(2x,a6),'=',i6,'  Leng=',i8)
+    PRIN3 Is,Name,var,N1,nw; (' AGZout :',i3,2(2x,a6),'=',i6,'  Leng=',i8)
     Check Ier!=0; print *,' AgZOUT error ier=',ier,' after ',Mw,'Mw written'
     If (Ier==+1)  print *,' software EOT set by FZLIMIT reached '
     If (Ier==-1)  print *,' attempt to write after End-Of-Data  '
@@ -13430,7 +14780,7 @@ C                                       Link to:
 End
  
  
-*CMZ :          30/07/97  13.50.48  by  Pavel Nevski
+*CMZ :  1.40/05 20/08/98  23.50.30  by  Pavel Nevski
 *CMZ :  1.30/00 12/03/97  13.19.34  by  Pavel Nevski
 *-- Author :    Pavel Nevski
 **************************************************************************
@@ -13496,14 +14846,14 @@ C
 *KEND.
       CHARACTER*4 CGENE
       INTEGER     IE,IP,NEVTS,NPART1,NKEEP,ICODE,ISTAT,IV,IV1,IEVT,IRUN,
-                  IWTFL,IPA,ITRA,Iprin,MOTH(2),IDAU,K,NU/2/
-      REAL        AMAS,Vrt(4),UB(2),VV(4),VDIST,VCUT,VERT(4),WEIGH,P4(4)
-      DATA        VCUT /0.0010/
+                  IWTFL,IPA,ITRA,Iprin,MOTH(2),IDAU,K,ITRM,NU/2/
+      REAL        AMAS,Vrt(4),UB(2),VERT(4),WEIGH,P4(4)
  
       Call AgNZGETG(1,NEVTS)
       Prin2 NEVTS; (' AgGZKINE: Gate found with ',I8,' events.')
  
       NKEEP = 0
+      ITRM  = 0
       DO IE = 1,NEVTS
          Call AgNZGETE(1,IE,NPART1,IRUN,IEVT,CGENE,VERT,IWTFL,WEIGH)
          prin2 CGENE,IRUN,IEVT,IE,NPART1,WEIGH
@@ -13513,7 +14863,7 @@ C
          UB(1) = IE                         "  store event number here
          IV1   = Nvertx
          DO IP = 1,NPART1
-            Call AgNZGETP(1,IE,IP,ISTAT,ICODE,P4,AMAS,MOTH,TOFG,IDAU,VV)
+            Call AgNZGETP(1,IE,IP,ISTAT,ICODE,P4,AMAS,MOTH,TOFG,IDAU,Vrt)
             Check ISTAT==1                  "  Skip non stable particles    "
             Check IDAU<=0                   "  and particles with daughters "
             Prin5 IP,ICODE,ISTAT,IDAU; (3x,'partc: IP,ICODE,ISTAT,IDAU=',4I8)
@@ -13523,14 +14873,11 @@ C
             IF (.not.(11<=K&K<=14 | K==16 | K==22 | K>=100)) then
                prin1 ICODE; (' AgGZKINE: Stable particle with funny code',I10)
             endif
-            Call VSCALE (VV,100.,Vrt,3)       " get vertex in cm "
-            Vrt(4) = TOFG                     "  for print only  "
-            DO 11 IV=IV1+1,Nvertx
- 11         IF ( VDIST(Q(LQ(Jvertx-IV)+1),Vrt,3) <= Vcut) GO TO 19
-            UB(2) = MOTH(1);  Call aGSVERT (Vrt,0,0,UB,NU,IV)
-            Prin3 IV,Vrt; (3x,'vertx',I5,' booked at ',3F10.5,' Time=',E10.3)
- 
- 19         Call aPDG2GEA (ICODE,IPA)
+            Vrt(4) = TOFG;  UB(2) = MOTH(1);
+            Call aGSVERT (Vrt,0,0,UB,NU,IV);
+            Prin4 IV,Vrt; (3x,'vertx',I5,' booked at ',3F10.5,' Time=',E10.3)
+*
+            Call aPDG2GEA (ICODE,IPA)
             IF (IPA<=0) THEN
                prin1 ICODE,IP; (' AgGZKINE: PDG code ',I7,' for particle',I6,
                                 ' is not recognized by GEANT. SKIP.')
@@ -13538,17 +14885,19 @@ C
             ENDIF
  
             UB(2) = IP;     Call aGSKINE (P4, IPA, IV, UB, NU, ITRA)
-            Check ITRA>0;   NKEEP = NKEEP + 1
+            Check ITRA>0;   NKEEP = NKEEP + 1;   ITRM=max(ITRA,ITRM)
 *
 *          Set the flag in the GENZ record as negative of the Geant KINE ?
 *           Call AgNZXREF(1,IE,IP,ITRA,NORPH)
         enddo
      enddo
-     prin1 NKEEP,Nvertx;
+     prin1 ITRM,Nvertx;
            (' AgGZKINE: # of particles fed to GEANT=',I6,' # of VERTEX',I6)
+     call AGSVERTset(0)
      END
  
  
+*CMZ :          05/11/98  18.01.36  by  Pavel Nevski
 *CMZ :  1.30/00 07/07/96  13.29.54  by  Pavel Nevski
 *-- Author :    Pavel Nevski   14/01/96
 **************************************************************************
@@ -13619,10 +14968,12 @@ C                                       Link to:
       INTEGER ILINK,NEVEN,NZBANK
       entry gnzgetg (ILINK,NEVEN)
       NEVEN = -1
-      If (LKEVNT>0) NEVEN = NZBANK(IXDIV,LKEVNT)
+      If (LkEvnt>0) NEVEN = NZBANK(IXDIV,LkEvnt)
       END
  
  
+*CMZ :          05/11/98  21.30.50  by  Pavel Nevski
+*CMZ :  1.40/05 20/08/98  22.15.49  by  Pavel Nevski
 *CMZ :  1.30/00 07/07/96  13.29.54  by  Pavel Nevski
 *-- Author :    Pavel Nevski   14/01/96
 ***************************************************************************
@@ -13634,7 +14985,7 @@ C                                       Link to:
 *         IRUN  - run number as recorded by generator                     *
 *         IEVT  - event number as recorded by generator                   *
 *         CGNAM - generator name                                          *
-*         VERT(4)- x,y,z,t of event (metres,seconds)                      *
+*         VERT(4)- x,y,z,t of event (metres,seconds or mm,mm/c)           *
 *         IWTFL - weight flag                                             *
 *         WEIGH - event weight                                            *
 * Original version:                              Robert DeWolf  23/07/92  *
@@ -13698,14 +15049,17 @@ C                                       Link to:
       EQUIVALENCE (LKSLUG(24),LKHIT2)  ! secondary GEANT HITS bank
       EQUIVALENCE (LKSLUG(26),LKGENE)  ! old slug ZEBRA generator structure
 *KEND.
-      CHARACTER*(*)  CGNAM
+      CHARACTER      CGNAM*(*),cbank*4
       REAL           VERT(4),WEIGH
-      INTEGER        ILK,IDE,NPART,IRUN,IEVT,IWTFL,LGENE,LGENP,LZFIND
+      INTEGER        ILK,IDE,NPART,IRUN,IEVT,IWTFL,LGENE,LGENP,LZFIND,Lk
  
       entry gNZGETE(ILK,IDE,NPART,IRUN,IEVT,CGNAM,VERT,IWTFL,WEIGH)
-      NPART = -1;                                   check   LKEVNT>0
-      check  "#of links"   IQ(LKEVNT-2)>=2 & "2nd link"  LQ(LKEVNT-2)>0
-      LGENE = LZFIND(IXDIV,LQ(LKevnt-2),IDE,-5);    check   LGENE>0
+      NPART = -1;                                   check   LkEvnt>0
+ 
+* Find the event with the desired IDE:
+      Lk=LZFIND(IXDIV,LkEvnt,IDE,-5);               Check   Lk>0
+      "number of links"                             Check   IQ(Lk-2)>=2
+      LGENE = LQ(Lk-2);                             Check   LGENE>0
       check  "bank length" IQ(LGENE-1)>=12 & "#of links" IQ(LGENE-2)>=1
 *
       IRUN  =    IQ(LGENE+4)
@@ -13717,11 +15071,16 @@ C                                       Link to:
 *
 * Find the number of particles
       LGENP = LQ(LGENE-1);                    Check LGENP>0
-      NPART = MOD(IQ(LGENP+2),100000)
+      Call UHTOC(IQ(LGENP-4),4,Cbank,4)
+      if     Cbank=='GENP' { NPART=MOD(IQ(LGENP+2),100000); call AGSVERTset(1)}
+      elseif Cbank=='GENT' { NPART=IQ(LGENP-1)/15;          call AGSVERTset(2)}
+      else                 { Print *,'AgNZGETE: unknown bank'}
 *
       END
  
  
+*CMZ :          05/11/98  18.21.22  by  Pavel Nevski
+*CMZ :  1.40/05 15/08/98  22.57.35  by  Pavel Nevski
 *CMZ :  1.30/00 07/07/96  13.29.54  by  Pavel Nevski
 *-- Author :    Pavel Nevski   14/01/96
 ****************************************************************************
@@ -13799,47 +15158,65 @@ C                                       Link to:
       EQUIVALENCE (LKSLUG(24),LKHIT2)  ! secondary GEANT HITS bank
       EQUIVALENCE (LKSLUG(26),LKGENE)  ! old slug ZEBRA generator structure
 *KEND.
-      REAL     P(4),AMASS,PTOT,VMOD,TIME,V(3)
-      INTEGER  IL,IDE,IP,IDPDG,ISTAT,MOTH(2),IDAU1,
-               LGENE,LGENP,LZFIND,MODUL,ND,IOFF
+      Character Cbank*4
+      REAL      P(4),AMASS,PTOT,VMOD,TIME,V(3)
+      INTEGER   LK,IL,IDE,IP,IDPDG,ISTAT,MOTH(2),IDAU1,
+                LGENE,LGENP,LZFIND,MODUL,ND,IOFF
 *
       entry gNZGETP(IL,IDE,IP,ISTAT,IDPDG,P,AMASS,MOTH,TIME,IDAU1,V)
-      IDPDG = 0
-      ISTAT = 0
-      Check Lkevnt>0
+      IDPDG = 0;       ISTAT = 0;                   Check   LkEvnt>0
 *
 * Find the event with the desired IDN:
-      check  "#of links"   IQ(LKEVNT-2)>=2 & "2nd link"  LQ(LKEVNT-2)>0
-      LGENE = LZFIND(IXDIV,LQ(LKevnt-2),IDE,-5);    check   LGENE>0
+*
+      Lk=LZFIND(IXDIV,LkEvnt,IDE,-5);               Check   Lk>0
+      check  "#of links" IQ(Lk-2)>=2
+      LGENE = LQ(Lk-2);                             Check   LGENE>0
       check  "bank length" IQ(LGENE-1)>=12 & "#of links" IQ(LGENE-2)>=1
       LGENP = LQ(LGENE-1);                          Check   LGENP>0
+      ND    = IQ(LGENP-1)
+      Call UHTOC(IQ(LGENP-4),4,Cbank,4)
+      if     Cbank=='GENP'
+      {
+         MODUL   = MOD(IQ(LGENP+3),100 000)
+         IOFF    = MODUL * (IP-1) + 3
+         Check     IOFF+MODUL<=ND
+         LGENP   = LGENP + IOFF
 *
-      MODUL   = MOD(IQ(LGENP+3),100 000)
-      ND      = IQ(LGENP-1)
-      IOFF    = MODUL * (IP-1) + 3
-      Check     IOFF+MODUL<=ND
+         ISTAT   = IQ(LGENP + 1)
+         IDPDG   = IQ(LGENP + 2)
+         MOTH(1) = IQ(LGENP + 3)
+         MOTH(2) = IQ(LGENP + 4)
+         IDAU1   = IQ(LGENP + 5)
+         call UCOPY(Q(LGENP + 6),P,3)
+         AMASS   =  Q(LGENP + 9)
+         TIME    =  Q(LGENP + 10)
+         call UCOPY(Q(LGENP + 11),V,3)
+         PTOT    = VMOD( Q(LGENP+6),3)
+         IF AMASS>=0. { P(4) = SQRT(PTOT**2  +  AMASS**2)     }
+         ELSE         { P(4) = SQRT(MAX(PTOT**2-AMASS**2,0.)) }
+      }
+      elseif Cbank=='GENT'
+      {
+         IOFF    = (IP-1)*15
+         CHECK     IOFF+15 <= ND
+         LGENP   = LGENP + IOFF
 *
-      LGENP   = LGENP + IOFF
-      ISTAT   = IQ(LGENP + 1)
-      IDPDG   = IQ(LGENP + 2)
-      MOTH(1) = IQ(LGENP + 3)
-      MOTH(2) = IQ(LGENP + 4)
-      IDAU1   = IQ(LGENP + 5)
-      call UCOPY(Q(LGENP + 6),P,3)
-      AMASS   =  Q(LGENP + 9)
-      TIME    =  Q(LGENP + 10)
-      call UCOPY(Q(LGENP + 11),V,3)
-      PTOT    = VMOD( Q(LGENP+6),3)
-      IF AMASS>=0. { P(4) = SQRT(PTOT**2  +  AMASS**2)     }
-      ELSE         { P(4) = SQRT(MAX(PTOT**2-AMASS**2,0.)) }
-*
+         ISTAT   = IQ(LGENP + 1)
+         IDPDG   = IQ(LGENP + 2)
+         MOTH(1) = IQ(LGENP + 3)
+         MOTH(2) = IQ(LGENP + 4)
+         IDAU1   = IQ(LGENP + 5)
+         call UCOPY(Q(LGENP + 7),P,4)
+         AMASS   =  Q(LGENP + 11)
+         call UCOPY(Q(LGENP + 12),V,3)
+         TIME    =  Q(LGENP + 15)
+      }
+      else  { Print *,'AgNZGETP: unknown bank',Cbank }
       END
  
  
  
- 
- 
-*CMZ :          03/06/98  12.10.44  by  Pavel Nevski
+*CMZ :  1.40/05 03/06/98  12.10.44  by  Pavel Nevski
 *CMZ :  1.30/00 02/04/97  17.34.39  by  Pavel Nevski
 *CMZU:  1.00/01 14/01/96  21.33.44  by  Pavel Nevski
 *-- Author :    A. Rozanov  11/03/95
@@ -13879,6 +15256,8 @@ C
       COMMON /AgCKINO/ Ioutp,IoutpOld
       Character*20     CoptKine,CoptBack,CoptOutp
       COMMON /AgCKINC/ CoptKine,CoptBack,CoptOutp
+      Character*20     StrmKine,StrmBack,StrmOutp
+      COMMON /AgCKINS/ StrmKine,StrmBack,StrmOutp
       Character*20     CrunType
       COMMON /AgCKINR/ CrunType
       Integer          Ncommand
@@ -13932,7 +15311,7 @@ END
  
  
  
-*CMZ :          13/05/98  21.57.17  by  Pavel Nevski
+*CMZ :  1.40/05 13/05/98  21.57.17  by  Pavel Nevski
 *CMZ :  1.30/00 10/07/96  10.34.36  by  Pavel Nevski
 *CMZU:  1.00/01 29/01/96  16.49.07  by  Pavel Nevski
 *-- Author :    Pavel Nevski
@@ -14506,6 +15885,7 @@ Do id=1,2*NDet,2
 larea(1)=0; Iquest(1)=0
 End
  
+*CMZ :          29/12/98  13.44.40  by  Pavel Nevski
 *CMZ :  1.30/00 27/07/96  15.41.07  by  Pavel Nevski
 *-- Author :    Pavel Nevski   27/07/96
 ************************************************************************
@@ -14591,8 +15971,9 @@ C
   {  Call MZFLAG(IxSTOR,LkDETM,1,'Z')
      Do Idet=1,IQ(LkDETM-2)
      {  * clean up SIMU and RESA - no jumps are defined
-        Ldet=LQ(LkDETM-Idet);  Check Ldet>0;  Check IQ(Ldet-1)>=13
-        "IRESA" IQ(Ldet+13)=0;        "ISIMU" IQ(Ldet+7) =0
+        Ldet=LQ(LkDETM-Idet);  Check Ldet>0;
+        "SIMU" If (IQ(Ldet-1)>=7)  IQ(Ldet+7)  = -abs(IQ(Ldet+7))
+        "RESA" If (IQ(Ldet-1)>=13) IQ(Ldet+13) = 0
  
         * drop DETP banks
         Do Ib=1,IQ(Ldet-2)
@@ -14601,7 +15982,8 @@ C
   }  }  }
   call GGCLOS
   End
-*CMZ :          23/04/98  17.12.21  by  Pavel Nevski
+*CMZ :          28/09/98  17.43.21  by  Pavel Nevski
+*CMZ :  1.40/05 26/08/98  17.57.31  by  Pavel Nevski
 *CMZ :  1.30/00 02/05/97  17.21.14  by  Pavel Nevski
 *-- Author :    A. Rozanov  11/03/95
 ******************************************************************************
@@ -14702,6 +16084,8 @@ C
       COMMON /AgCKINO/ Ioutp,IoutpOld
       Character*20     CoptKine,CoptBack,CoptOutp
       COMMON /AgCKINC/ CoptKine,CoptBack,CoptOutp
+      Character*20     StrmKine,StrmBack,StrmOutp
+      COMMON /AgCKINS/ StrmKine,StrmBack,StrmOutp
       Character*20     CrunType
       COMMON /AgCKINR/ CrunType
       Integer          Ncommand
@@ -14723,7 +16107,7 @@ C
 *    - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 *
 *KEND.
-     Integer  Ier,Iev,CsADDR,J,L
+     Integer  LENOCC,CsADDR,Ier,Iev,J,L
      Real     Undf/9.e9/
 *
 * - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
@@ -14756,11 +16140,11 @@ C
 *
       If (IKINE!=IKineOld) then
          If (IKine > 0) IKineOld = Ikine
-         If (IKine==-1) Call AgZOPEN (' ', ' ', '*', 0,0)
+         If (IKine==-1) Call AgZOPEN (' ', ' ', '*', ier)
          If (IKine==-2) Call AgNTOPEN('hcwn.hbook' ,  4 )
          If (IKine==-3) Call AgFOPEN ( 0,  ' ',      ier)
          If (IKine<=-4) { J=CsADDR('AGUSOPEN'); IkineOld=Ikine;
-                          If (J != 0) Call CSjCAL(J,2,' ') }
+                          If (J>0) Call CSjCAL1S(J,' ') }
       endif
 *
       Ier   = 0
@@ -14769,10 +16153,12 @@ C
       If (IKineOld==-1) call AgPread (ier)
       If (IKINEold==-2) call AgNTread(ier)
       If (IKINEold<=-3) call AgFread (ier)
-      If (IKINEold<=-4) {J=CsADDR('AGUSREAD'); If (j != 0) Call CSjCAL(J,1,Ier)}
-                         J=CsADDR('AGUKINE');  If (j != 0) Call CSjCAL(J,1,Ier)
+      If (IKINEold<=-4)
+      { J=CsADDR('AGUSREAD'); If (J>0) Call CSjCAL(J,1,Ier,0,0,0,0,0,0,0,0,0) }
+        J=CsADDR('AGUKINE');  If (J>0) Call CSjCAL(J,1,Ier,0,0,0,0,0,0,0,0,0)
 *
-      If  ier!=0  { Ikineold=0; Ieotri=1; Iquest(1)=Ier; Return; }
+      If  ier!=0
+      {   Ikineold=0; Ieotri=1; Iquest(1)=Ier; Return; }
 *
       If NtoSKIP>0
       { if (IDEBUG>0) <w> Ievent,Idevt; (' AGZKINE event ',2i7,' is skipped ')
@@ -14780,13 +16166,22 @@ C
       }
 *
       If (IBackOld==-1)           Call AgZback
-      L=max(Alog10(1.+NVERTX),Alog10(1.+NTRACK))
+      L=1+max(Alog10(1.+NVERTX),Alog10(1.+NTRACK))
       If (Idebug>L & JVertx>0)    Call GPVERT(0)
       If (Idebug>L & Jkine >0)    Call GPKINE(0)
       NsubEvnt=-1
 *
 * - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 :splitted:        Check NtrSubEV>0
+*   repeat gtreve conditions: spitting is done in simulations only
+      If (Lenocc(CrunType)>0) then
+         Check  Index(CrunType,'S')>0  | Index(CrunType,'*')>0
+      else If (IKine<=0) then
+         Check  Index(CoptKine,'H')==0 & Index(CoptKine,'D')==0
+         Check  Index(CoptKine,'R')==0 & Index(CoptKine,'*')==0
+      endif
+      check JHITS==0 & JDIGI==0 & JVOLUM>0  " & JKINE>0 "
+      Iquest(1)=0
 * - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 *
 *     count subevents from one, first is always event generator info only
@@ -14805,7 +16200,7 @@ C
 END
  
  
-*CMZ :          30/07/97  16.14.22  by  Pavel Nevski
+*CMZ :  1.40/05 30/07/97  16.14.22  by  Pavel Nevski
 *CMZ :  1.30/00 02/04/97  22.56.50  by  Pavel Nevski
 *-- Author :    Pavel Nevski
 **************************************************************************
@@ -15082,9 +16477,14 @@ C                                       Link to:
 *
       end
  
+*CMZ :          29/12/98  11.07.02  by  Pavel Nevski
 *CMZ :  1.30/00 21/03/97  12.42.58  by  Pavel Nevski
 *-- Author :    Pavel Nevski   16/03/97
+*************************************************************************
       SUBROUTINE   AGNEED (IER)
+*
+* make sure there is enouph free memory for TRACK/VERTEX/STACK relocation
+*************************************************************************
 *KEEP,TYPING.
       IMPLICIT NONE
 *KEEP,GCBANK.
@@ -15141,8 +16541,11 @@ C
  
       LSTACK=0;  IF (JSTAK>0) LSTACK=IQ(JSTAK-1)
       NNEW = 500+max(NTRACK,NVERTX,LSTACK)
-      Call MZNEED(IXDIV,NNEW,'G');  CHECK IQUEST(11)<0
-*     Iswit(9)-=1; if (Iswit(9)<0) return
+      Call MZNEED(IXDIV,NNEW,'G')
+      CHECK IQUEST(11)<0
+*
+*     requested relocation reserve (NNEW words) is unavailable
+*     trying to recover memory from constant division
 *
       Call MZGARB(2,0);  CALL MZGARB(20,0);  Call MZDRED(20);
       prin2;  (' ***** AGNEED compression done *****')
@@ -15157,6 +16560,7 @@ C
       IER       = 1
       end
  
+*CMZ :  1.40/05 27/08/98  22.47.55  by  Pavel Nevski
 *CMZ :  1.30/00 24/04/97  20.12.49  by  Pavel Nevski
 *-- Author :    Pavel Nevski   22/03/97
 ***************************************************************************
@@ -15186,22 +16590,17 @@ C
      +      ,JVOLUM,JXYZ  ,JGPAR ,JGPAR2,JSKLT
 C
 *KEND.
-     Integer  LgKINE,I,J,JO,NF
+     Integer  LgKINE,I,J,JO
 *
-     LgKine=0; j=JKINE; JO=j; NF=IQ(j+2)
-     while  0<j&j<NZEBRA
-     { JO=J; If NF==0
-       { If      I >IQ(j+1) "move right" {  J=LQ(J)  }
-         else If I<=IQ(j+2) "move left"  { J=LQ(J+2) }
-         else    {  LgKINe=LQ(j-I+IQ(j+2));  Return  }
-       }
-       else
-       { If      I<=IQ(j+2) "move right" {  J=LQ(J)  }
-         else    {  LgKINe=LQ(j-I+IQ(j+2));  Return  }
-     } }
-*      Print *,' LgKINE error - track ',I,' not found'
+     LgKINE=0; j=JKINE; JO=j;
+     while  0<j&j<NZEBRA & I>0
+     { JO=J    " just in case we will move outside "
+       If      I >IQ(j+1) "move right" {  J=LQ(J)  }
+       else If I<=IQ(j+2) "move left"  { J=LQ(J+2) }
+       else    {  LgKINE=LQ(j-I+IQ(j+2)); Return   }
+     }
+*    Print *,' LgKINE error - track ',I,' not found'
      END
- 
 *CMZ :  1.30/00 31/03/97  21.39.29  by  Pavel Nevski
 *-- Author :    Pavel Nevski
 ****************************************************************************
@@ -15284,7 +16683,7 @@ C
       END
  
  
-*CMZ :          11/12/97  00.29.35  by  Pavel Nevski
+*CMZ :  1.40/05 11/12/97  00.29.35  by  Pavel Nevski
 *CMZ :  1.30/00 03/04/97  13.58.50  by  Pavel Nevski
 *-- Author :    Pavel Nevski   31/03/97
 ***************************************************************************
@@ -15433,7 +16832,7 @@ C                                       Link to:
  
  
  
-*CMZ :          31/10/97  13.01.26  by  Pavel Nevski
+*CMZ :  1.40/05 31/10/97  13.01.26  by  Pavel Nevski
 *CMZ :  1.30/00 02/04/97  17.34.39  by  Pavel Nevski
 *-- Author :    A. Rozanov  11/03/95
 **********************************************************************
@@ -15516,6 +16915,8 @@ C
       COMMON /AgCKINO/ Ioutp,IoutpOld
       Character*20     CoptKine,CoptBack,CoptOutp
       COMMON /AgCKINC/ CoptKine,CoptBack,CoptOutp
+      Character*20     StrmKine,StrmBack,StrmOutp
+      COMMON /AgCKINS/ StrmKine,StrmBack,StrmOutp
       Character*20     CrunType
       COMMON /AgCKINR/ CrunType
       Integer          Ncommand
@@ -15565,7 +16966,8 @@ C
 END
  
  
-*CMZ :          24/03/98  12.52.35  by  Pavel Nevski
+*CMZ :          31/12/98  17.37.25  by  Pavel Nevski
+*CMZ :  1.40/05 20/08/98  18.31.05  by  Pavel Nevski
 *-- Author :    Pavel Nevski   06/06/97
 ***************************************************************************
                 Subroutine  A G S K I N E (Plab,Iparti,Nv,UB,NB,Nt)
@@ -15634,6 +17036,8 @@ C
       COMMON /AgCKINO/ Ioutp,IoutpOld
       Character*20     CoptKine,CoptBack,CoptOutp
       COMMON /AgCKINC/ CoptKine,CoptBack,CoptOutp
+      Character*20     StrmKine,StrmBack,StrmOutp
+      COMMON /AgCKINS/ StrmKine,StrmBack,StrmOutp
       Character*20     CrunType
       COMMON /AgCKINR/ CrunType
       Integer          Ncommand
@@ -15656,9 +17060,9 @@ C
 *
 *KEND.
    Real     ARGUM,Vertex(4),Plab(3),UB(*)
-   Integer  Iparti,Nv,NB,Nt,Id/0/,Iprin,Irc,JV,IV
+   Integer  LgKINE,Iparti,Nv,NB,Nt,Id/0/,Iprin,Irc,JV,IV,JKIN
  
-      Iprin=Idebug;      Check JVERTX>0;
+      Iprin=Idebug;   Nt=0;   Check JVERTX>0;
       Jv=0; IF (1<=NV & NV<=IQ(JVERTX-2)) Jv=LQ(JVERTX-Nv)
       if Jv<=0 { prin1 NV; (' aGSKINE: Vertex',I8,' does not exist'); return }
       Call UCOPY(Q(JV+1), Vertex, 4);     Irc=0;
@@ -15669,13 +17073,13 @@ C
          (' AgSKINE: particle',i5,' Plab=',3f10.3,' rejected by filter',i3)
          return
       }
-      Call GSKINE (Plab,IPARTI,Nv,UB,NB,Nt); IV=ARGUM(UB)
-      if nt>0 & NB==0 { IQ(LQ(JKINE-Nt)-5)=IV }
+      Call GSKINE (Plab,IPARTI,Nv,UB,NB,Nt);  IV=ARGUM(UB)
+      if nt>0 & NB==0 { IQ(LgKINE(JKIN,Nt)-5)=IV }
       if nt <= 0 { Prin1 Iparti,IV; (' AgSKINE: unknown geant iv,id: ',2i6) }
    END
  
  
-*CMZ :          28/07/97  20.58.07  by  Pavel Nevski
+*CMZ :  1.40/05 28/07/97  20.58.07  by  Pavel Nevski
 *-- Author :    Pavel Nevski   18/07/97
 *************************************************************************
    subroutine   A g F O P E N (li,file,ier)
@@ -15704,6 +17108,8 @@ C
       COMMON /AgCKINO/ Ioutp,IoutpOld
       Character*20     CoptKine,CoptBack,CoptOutp
       COMMON /AgCKINC/ CoptKine,CoptBack,CoptOutp
+      Character*20     StrmKine,StrmBack,StrmOutp
+      COMMON /AgCKINS/ StrmKine,StrmBack,StrmOutp
       Character*20     CrunType
       COMMON /AgCKINR/ CrunType
       Integer          Ncommand
@@ -15761,7 +17167,7 @@ C
  
  
  
-*CMZ :          19/07/97  12.41.07  by  Pavel Nevski
+*CMZ :  1.40/05 19/07/97  12.41.07  by  Pavel Nevski
 *-- Author :    Pavel Nevski   18/07/97
 *************************************************************************
    Subroutine   A g F R E A D (ier)
@@ -15792,6 +17198,8 @@ C
       COMMON /AgCKINO/ Ioutp,IoutpOld
       Character*20     CoptKine,CoptBack,CoptOutp
       COMMON /AgCKINC/ CoptKine,CoptBack,CoptOutp
+      Character*20     StrmKine,StrmBack,StrmOutp
+      COMMON /AgCKINS/ StrmKine,StrmBack,StrmOutp
       Character*20     CrunType
       COMMON /AgCKINR/ CrunType
       Integer          Ncommand
@@ -15849,7 +17257,7 @@ C
    End
  
  
-*CMZ :          20/05/98  06.18.54  by  Pavel Nevski
+*CMZ :  1.40/05 02/08/98  15.13.50  by  Pavel Nevski
 *-- Author :    Pavel Nevski   18/07/97
 *************************************************************************
    Subroutine   A g R E A D T X T (Igate)
@@ -15863,7 +17271,7 @@ Replace [READ[DIGIT](#)#;] with [READ(#2,ERR=:E:)#3;IF(Idebug>=#1)<W>#3;]
                  LabelTr,LabelVx,ge_pid,StartVx,StopVx,
                  eg_proc,parent
    Real          version,east_z,east_a,west_z,west_a,sqrts,b_max,
-                 PP(3),vert(4),UBUF(10),a,b
+                 PP(3),vert(4),UBUF(10)
 *
    integer       istat,eg_pid,moth,daut,num(5)
    data          num/1,1,0,0,0/
@@ -15902,7 +17310,7 @@ C
    }
    else If Line(1:5)=='EVENT'
    {
-     read2 (line(7:),*) Ieven,Ntrac,Nvert,a,b;(' AgReadNew: EVENT :',3i8,2f8.3)
+     read2 (line(7:),*) Ieven,Ntrac,Nvert;(' AgReadNew: EVENT :',3i8,2f8.3)
      if (Ieven<=-999) goto :e: " end of data "
    }
    else If Line(1:5)='TRACK'
@@ -15952,10 +17360,11 @@ C
    end
  
  
-*CMZ :          23/04/98  18.26.41  by  Pavel Nevski
+*CMZ :          28/09/98  00.03.21  by  Pavel Nevski
+*CMZ :  1.40/05 24/08/98  20.26.08  by  Pavel Nevski
 *-- Author :    Pavel Nevski   23/04/98
 ******************************************************************
-      subroutine    A G P R E A D
+      subroutine    A G P R E A D (ier)
 * description: read and possible re-assembly splitted subevents  *
 ******************************************************************
 *KEEP,TYPING.
@@ -16002,32 +17411,319 @@ C
       INTEGER       IDEBUG,IDEMIN,IDEMAX,ITEST,IDRUN,IDEVT,IEORUN
      +        ,IEOTRI,IEVENT,ISWIT,IFINIT,NEVENT,NRNDM
 C
-*KEND.
-   Integer ISLFLAG,IsubEv,Iprin,IbEvnt,ier,i,IHEAD(10)
+*KEEP,SCLINK.
+C SLUG link area :    Permanent Links for SLUG:
+      INTEGER         LKSLUG,NSLINK
+      PARAMETER       (NSLINK=40)
+      COMMON /SCLINK/ LKSLUG(NSLINK)
+C The following names are equivalenced to LKSLUG.
+C The equivalence name is the one used in SLINIB.
+      INTEGER LKGLOB,LKDETM,LKTFLM,LKTFLT,LKAMOD,LKAGEV,LKAMCH,LKADIG,
+     +        LKMAPP,LKMFLD,LKRUNT,LKEVNT,LKARAW,LKATRI,LKAPRE,LKARP1,
+     +        LKARP2,LKARP3,LKDSTD,LKRUN2,LKEVN2,LKVER2,LKKIN2,LKHIT2,
+     +        LKGENE
+C                                       Link to:
+      EQUIVALENCE (LKSLUG(1),LKGLOB)   ! top of temporary HEPEVT Zebra tree
+      EQUIVALENCE (LKSLUG(2),LKDETM)   ! top of subdetector structure
+      EQUIVALENCE (LKSLUG(3),LKTFLM)   ! permanent track filter structure
+      EQUIVALENCE (LKSLUG(4),LKTFLT)   ! temporary track filter structure
+      EQUIVALENCE (LKSLUG(5),LKAMOD)   ! MODule parameters (Dont know this)
+      EQUIVALENCE (LKSLUG(6),LKAGEV)   ! Link to general event structure
+      EQUIVALENCE (LKSLUG(7),LKAMCH)   ! MonteCarlo Hits ( not GEANT I guess)
+      EQUIVALENCE (LKSLUG(8),LKADIG)   ! DIGitized hits (again not GEANT...?)
+      EQUIVALENCE (LKSLUG(9),LKMAPP)   ! map structure
+      EQUIVALENCE (LKSLUG(10),LKMFLD)  ! magnetic field banks
+      EQUIVALENCE (LKSLUG(11),LKRUNT)  ! run tree bank (vertical structure)
+      EQUIVALENCE (LKSLUG(12),LKEVNT)  ! event tree bank (vertical struct)
+      EQUIVALENCE (LKSLUG(13),LKARAW)  ! raw data structure
+      EQUIVALENCE (LKSLUG(14),LKATRI)  ! trigger banks
+      EQUIVALENCE (LKSLUG(15),LKAPRE)  ! preprocessed hits
+      EQUIVALENCE (LKSLUG(16),LKARP1)  ! reconstuction phase 1 banks
+      EQUIVALENCE (LKSLUG(17),LKARP2)  ! reconstuction phase 2 banks
+      EQUIVALENCE (LKSLUG(18),LKARP3)  ! reconstuction phase 3 banks
+      EQUIVALENCE (LKSLUG(19),LKDSTD)  ! DST data banks
+      EQUIVALENCE (LKSLUG(20),LKRUN2)  ! run tree bank for secondary run
+      EQUIVALENCE (LKSLUG(21),LKEVN2)  ! event tree bank for secondary events
+      EQUIVALENCE (LKSLUG(22),LKVER2)  ! secondary GEANT VERT bank
+      EQUIVALENCE (LKSLUG(23),LKKIN2)  ! secondary GEANT KINE bank
+      EQUIVALENCE (LKSLUG(24),LKHIT2)  ! secondary GEANT HITS bank
+      EQUIVALENCE (LKSLUG(26),LKGENE)  ! old slug ZEBRA generator structure
+*KEEP,QUEST.
+      INTEGER      IQUEST
+      COMMON/QUEST/IQUEST(100)
+*KEEP,agckine.
+*    AGI general data card information
+      Integer          IKineOld,IdInp,Kevent,
+     >                 Iback,IbackOld,IbMode,IbBefor,IbAfter,
+     >                 IbCurrent,IvCurrent,Ioutp,IoutpOld
+      Real             AVflag,AVcoor,AVsigm,Ptype,PTmin,PTmax,
+     >                 Etamin,Etamax,PhiMin,PhiMax,Ptflag,
+     >                 Zmin,Zmax,BgMult,BgTime,BgSkip,
+     >                 Pxmin,Pxmax,Pymin,Pymax,Pzmin,Pzmax
+      COMMON /AgCKINE/ IKineOld,IdInp,Kevent(3),
+     >                 AVflag,AVcoor(3),AVsigm(3),
+     >                 Ptype,PTmin,PTmax,Etamin,Etamax,
+     >                 PhiMin,PhiMax,Ptflag,Zmin,Zmax,
+     >                 Pxmin,Pxmax,Pymin,Pymax,Pzmin,Pzmax
+      COMMON /AgCKINB/ Iback,IbackOld,IbMode,IbBefor,IbAfter,
+     >                 BgMult,BgTime,BgSkip,IbCurrent,IvCurrent
+      COMMON /AgCKINO/ Ioutp,IoutpOld
+      Character*20     CoptKine,CoptBack,CoptOutp
+      COMMON /AgCKINC/ CoptKine,CoptBack,CoptOutp
+      Character*20     StrmKine,StrmBack,StrmOutp
+      COMMON /AgCKINS/ StrmKine,StrmBack,StrmOutp
+      Character*20     CrunType
+      COMMON /AgCKINR/ CrunType
+      Integer          Ncommand
+      Character*20     Ccommand
+      COMMON /AgCCOMD/ Ncommand,Ccommand
+      Integer          IUHIST
+      Character*80            CFHIST,CDHIST
+      COMMON /AgCHIST/ IUHIST,CFHIST,CDHIST
 *
-   IbEvnt = 0; IsubEv = 0
-   call AgZread ('P',ier)
+      Integer          NtrSubEV,NkineMax,NhitsMax,NtoSkip,NsubToSkip,
+     >                 Nsubran,ItrigStat,NsubEvnt,IsubEvnt,
+     >                 Make_Shadow,Flag_Secondaries
+      Real             Cutele_Gas,VertexNow
+      COMMON /AgCSUBE/ NtrSubEV,NkineMax,NhitsMax,
+     >                 NtoSkip,NsubToSkip,Nsubran(2)
+      COMMON /AgCSTAR/ Make_Shadow,Cutele_Gas,Flag_Secondaries
+      COMMON /AgCstat/ ItrigSTAT,NsubEvnt,IsubEvnt,VertexNow(3)
+*
+*    - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+*
+*KEND.
+   Integer    CSADDR,ISLFLAG,IHEAD(10),Istat/0/,
+              IsubEv,Iprin,IbEvnt,ier,jer,i,iadr
+   Character  IDH*4
+*
+   IbEvnt = 0; IsubEv = 1; Istat=0;
    Iprin = ISLFLAG('INPU','PRIN')
+   jer=1;  call AgZread ('P',ier)
    if (Ier!=0 | JHEAD<=0) go to :er:
    call UCOPY(IQ(JHEAD+1),IHEAD,10)
  
 * appending
-    While (IQ(JHEAD+5)>IQ(JHEAD+6)) & Ier==0
-    { call AgZread ('P',ier); IsubEv+=1;
+    While IQ(JHEAD+5)>IQ(JHEAD+6) & INDEX(StrmKINE,'C')==0
+    {
+      jer=2;  call AgZread ('P',ier);
       if (ier!=0 | JHEAD<=0) go to :er:
- 
-      prin2 Isubev,(IQ(JHEAD+i),i=1,10)
-      (' AGPREAD: appending subevent',i3,' HEADER =',2i5,2i10,6i4)
- 
-      IbEvnt = IQ(JHEAD+6)
+      IbEvnt=IQ(JHEAD+6);    IsubEv+=1;
+      prin2 Isubev,IHEAD,(IQ(JHEAD+i),i=1,10)
+      (' AGPREAD: appending subevent',i3,' HEADER ='/(10x,2i6,2i12,6i6))
+      jer=3;  if (IbEvnt!=IsubEv) go to :er:
       call AgMERGE (Iprin,0,IbEvnt,0.,Ier)
-      Call Ucopy(IHEAD,IQ(JHEAD+1),4)
+      jer=4;  if (Ier!=0) go to :er:
     }
+    Call Ucopy(IHEAD,IQ(JHEAD+1),4)
+ 
+* Load Kine bank
+    If (LKEVNT>0&INDEX(CoptKine,'E')>0&INDEX(CoptKine,'K')==0)
+    { Iadr=CSADDR('AGUSKINE');  call UHTOC(IQ(LKEVNT-4),4,IDH,4)
+      If      IDH=='EVNT' { Call AgGZKINE(iprin)      }
+      else If IDH=='EVEN' { Call AgEZKINE(iprin)      }
+      else If IADR!=0     { Call CSJCAL(Iadr,1, Iprin,0,0,0,0, 0,0,0,0,0) }
+      else { <w> IDH; (' AGPREADRZ error: unknown event bank :',a) }
+    }
+    ier=0; IQUEST(1)=0;
     Return
-:er:; prin1 ier,Isubev,IbEvnt;
-      (' AGPREAD: error',i3,' in subevent =',2i6)
-      ier=9
- end
+ 
+:er:; prin1 jer,ier,Isubev,IbEvnt; (' AGPREAD: error',2i3,' in subevent =',2i6)
+      if   ier>3 { IQUEST(1)=jer; IQUEST(2)=ier; ier=jer }
+      else       { ier=0; IQUEST(1)=0; }
+      IEOTRI = jer
+      end
+ 
+*CMZ :  1.40/05 13/07/98  10.03.02  by  Pavel Nevski
+*-- Author :    Pavel Nevski   13/07/98
+****************************************************************************
+ 
+      function    lgnfind (i,name)
+* Description: find the origin of the event/run bank                       *
+* Input : I     - Link number : 1 = primary, 2 = secondary (obsolete)      *
+*         name  - RUNT or EVNT                                             *
+* Output:       - link to the bank or -1 if the bank was not found.        *
+* Original version:                              Robert DeWolf  23/07/92   *
+****************************************************************************
+*KEEP,TYPING.
+      IMPLICIT NONE
+*KEEP,GCBANK.
+      INTEGER IQ,LQ,NZEBRA,IXSTOR,IXDIV,IXCONS,LMAIN,LR1,JCG
+      INTEGER KWBANK,KWWORK,IWS
+      REAL GVERSN,ZVERSN,FENDQ,WS,Q
+C
+      PARAMETER (KWBANK=69000,KWWORK=5200)
+      COMMON/GCBANK/NZEBRA,GVERSN,ZVERSN,IXSTOR,IXDIV,IXCONS,FENDQ(16)
+     +             ,LMAIN,LR1,WS(KWBANK)
+      DIMENSION IQ(2),Q(2),LQ(8000),IWS(2)
+      EQUIVALENCE (Q(1),IQ(1),LQ(9)),(LQ(1),LMAIN),(IWS(1),WS(1))
+      EQUIVALENCE (JCG,JGSTAT)
+      INTEGER       JDIGI ,JDRAW ,JHEAD ,JHITS ,JKINE ,JMATE ,JPART
+     +      ,JROTM ,JRUNG ,JSET  ,JSTAK ,JGSTAT,JTMED ,JTRACK,JVERTX
+     +      ,JVOLUM,JXYZ  ,JGPAR ,JGPAR2,JSKLT
+C
+      COMMON/GCLINK/JDIGI ,JDRAW ,JHEAD ,JHITS ,JKINE ,JMATE ,JPART
+     +      ,JROTM ,JRUNG ,JSET  ,JSTAK ,JGSTAT,JTMED ,JTRACK,JVERTX
+     +      ,JVOLUM,JXYZ  ,JGPAR ,JGPAR2,JSKLT
+C
+*KEEP,SCLINK.
+C SLUG link area :    Permanent Links for SLUG:
+      INTEGER         LKSLUG,NSLINK
+      PARAMETER       (NSLINK=40)
+      COMMON /SCLINK/ LKSLUG(NSLINK)
+C The following names are equivalenced to LKSLUG.
+C The equivalence name is the one used in SLINIB.
+      INTEGER LKGLOB,LKDETM,LKTFLM,LKTFLT,LKAMOD,LKAGEV,LKAMCH,LKADIG,
+     +        LKMAPP,LKMFLD,LKRUNT,LKEVNT,LKARAW,LKATRI,LKAPRE,LKARP1,
+     +        LKARP2,LKARP3,LKDSTD,LKRUN2,LKEVN2,LKVER2,LKKIN2,LKHIT2,
+     +        LKGENE
+C                                       Link to:
+      EQUIVALENCE (LKSLUG(1),LKGLOB)   ! top of temporary HEPEVT Zebra tree
+      EQUIVALENCE (LKSLUG(2),LKDETM)   ! top of subdetector structure
+      EQUIVALENCE (LKSLUG(3),LKTFLM)   ! permanent track filter structure
+      EQUIVALENCE (LKSLUG(4),LKTFLT)   ! temporary track filter structure
+      EQUIVALENCE (LKSLUG(5),LKAMOD)   ! MODule parameters (Dont know this)
+      EQUIVALENCE (LKSLUG(6),LKAGEV)   ! Link to general event structure
+      EQUIVALENCE (LKSLUG(7),LKAMCH)   ! MonteCarlo Hits ( not GEANT I guess)
+      EQUIVALENCE (LKSLUG(8),LKADIG)   ! DIGitized hits (again not GEANT...?)
+      EQUIVALENCE (LKSLUG(9),LKMAPP)   ! map structure
+      EQUIVALENCE (LKSLUG(10),LKMFLD)  ! magnetic field banks
+      EQUIVALENCE (LKSLUG(11),LKRUNT)  ! run tree bank (vertical structure)
+      EQUIVALENCE (LKSLUG(12),LKEVNT)  ! event tree bank (vertical struct)
+      EQUIVALENCE (LKSLUG(13),LKARAW)  ! raw data structure
+      EQUIVALENCE (LKSLUG(14),LKATRI)  ! trigger banks
+      EQUIVALENCE (LKSLUG(15),LKAPRE)  ! preprocessed hits
+      EQUIVALENCE (LKSLUG(16),LKARP1)  ! reconstuction phase 1 banks
+      EQUIVALENCE (LKSLUG(17),LKARP2)  ! reconstuction phase 2 banks
+      EQUIVALENCE (LKSLUG(18),LKARP3)  ! reconstuction phase 3 banks
+      EQUIVALENCE (LKSLUG(19),LKDSTD)  ! DST data banks
+      EQUIVALENCE (LKSLUG(20),LKRUN2)  ! run tree bank for secondary run
+      EQUIVALENCE (LKSLUG(21),LKEVN2)  ! event tree bank for secondary events
+      EQUIVALENCE (LKSLUG(22),LKVER2)  ! secondary GEANT VERT bank
+      EQUIVALENCE (LKSLUG(23),LKKIN2)  ! secondary GEANT KINE bank
+      EQUIVALENCE (LKSLUG(24),LKHIT2)  ! secondary GEANT HITS bank
+      EQUIVALENCE (LKSLUG(26),LKGENE)  ! old slug ZEBRA generator structure
+*KEND.
+      character*4 name
+      integer     lgnfind,i,l,n
+ 
+      l = -1
+      if (name=='EVNT') l = lkevnt
+      if (name=='RUNT') l = lkrunt
+      do n=2,i { if (l>0) l=lq(l) }
+      lgnfind = l
+      end
+*CMZ :  1.30/00 19/02/97  22.17.46  by  Pavel Nevski
+*CMZ :          05/11/98  21.43.00  by  Pavel Nevski
+*CMZ :  0.00/05 11/10/91  13.57.58  by  R. DeWolf
+*-- Author :    R. DeWolf   25/09/91
+****************************************************************************
+           SUBROUTINE AGNZGETD(IL,IDE,IMOTH,NDAU,IDAUG)
+*                                                                          *
+* description: get list of daughters of a given particle                   *
+* Input : IL    - Link number : 1 = primary, 2 = secondary (obsolete)      *
+*         IDE   - ID number of event in gate                               *
+*         IMOTH - parent particle number in event record                   *
+* I/O:    NDAU  - in - Maximum number of daughters to return               *
+*         NDUAG - out- actual number of daughters                          *
+* Output: IDAUG - vector of daughters                                      *
+* Original Version.                                 R. DeWolf   25/09/91   *
+****************************************************************************
+ 
+*KEEP,TYPING.
+      IMPLICIT NONE
+*KEEP,GCBANK.
+      INTEGER IQ,LQ,NZEBRA,IXSTOR,IXDIV,IXCONS,LMAIN,LR1,JCG
+      INTEGER KWBANK,KWWORK,IWS
+      REAL GVERSN,ZVERSN,FENDQ,WS,Q
+C
+      PARAMETER (KWBANK=69000,KWWORK=5200)
+      COMMON/GCBANK/NZEBRA,GVERSN,ZVERSN,IXSTOR,IXDIV,IXCONS,FENDQ(16)
+     +             ,LMAIN,LR1,WS(KWBANK)
+      DIMENSION IQ(2),Q(2),LQ(8000),IWS(2)
+      EQUIVALENCE (Q(1),IQ(1),LQ(9)),(LQ(1),LMAIN),(IWS(1),WS(1))
+      EQUIVALENCE (JCG,JGSTAT)
+      INTEGER       JDIGI ,JDRAW ,JHEAD ,JHITS ,JKINE ,JMATE ,JPART
+     +      ,JROTM ,JRUNG ,JSET  ,JSTAK ,JGSTAT,JTMED ,JTRACK,JVERTX
+     +      ,JVOLUM,JXYZ  ,JGPAR ,JGPAR2,JSKLT
+C
+      COMMON/GCLINK/JDIGI ,JDRAW ,JHEAD ,JHITS ,JKINE ,JMATE ,JPART
+     +      ,JROTM ,JRUNG ,JSET  ,JSTAK ,JGSTAT,JTMED ,JTRACK,JVERTX
+     +      ,JVOLUM,JXYZ  ,JGPAR ,JGPAR2,JSKLT
+C
+*KEEP,SCLINK.
+C SLUG link area :    Permanent Links for SLUG:
+      INTEGER         LKSLUG,NSLINK
+      PARAMETER       (NSLINK=40)
+      COMMON /SCLINK/ LKSLUG(NSLINK)
+C The following names are equivalenced to LKSLUG.
+C The equivalence name is the one used in SLINIB.
+      INTEGER LKGLOB,LKDETM,LKTFLM,LKTFLT,LKAMOD,LKAGEV,LKAMCH,LKADIG,
+     +        LKMAPP,LKMFLD,LKRUNT,LKEVNT,LKARAW,LKATRI,LKAPRE,LKARP1,
+     +        LKARP2,LKARP3,LKDSTD,LKRUN2,LKEVN2,LKVER2,LKKIN2,LKHIT2,
+     +        LKGENE
+C                                       Link to:
+      EQUIVALENCE (LKSLUG(1),LKGLOB)   ! top of temporary HEPEVT Zebra tree
+      EQUIVALENCE (LKSLUG(2),LKDETM)   ! top of subdetector structure
+      EQUIVALENCE (LKSLUG(3),LKTFLM)   ! permanent track filter structure
+      EQUIVALENCE (LKSLUG(4),LKTFLT)   ! temporary track filter structure
+      EQUIVALENCE (LKSLUG(5),LKAMOD)   ! MODule parameters (Dont know this)
+      EQUIVALENCE (LKSLUG(6),LKAGEV)   ! Link to general event structure
+      EQUIVALENCE (LKSLUG(7),LKAMCH)   ! MonteCarlo Hits ( not GEANT I guess)
+      EQUIVALENCE (LKSLUG(8),LKADIG)   ! DIGitized hits (again not GEANT...?)
+      EQUIVALENCE (LKSLUG(9),LKMAPP)   ! map structure
+      EQUIVALENCE (LKSLUG(10),LKMFLD)  ! magnetic field banks
+      EQUIVALENCE (LKSLUG(11),LKRUNT)  ! run tree bank (vertical structure)
+      EQUIVALENCE (LKSLUG(12),LKEVNT)  ! event tree bank (vertical struct)
+      EQUIVALENCE (LKSLUG(13),LKARAW)  ! raw data structure
+      EQUIVALENCE (LKSLUG(14),LKATRI)  ! trigger banks
+      EQUIVALENCE (LKSLUG(15),LKAPRE)  ! preprocessed hits
+      EQUIVALENCE (LKSLUG(16),LKARP1)  ! reconstuction phase 1 banks
+      EQUIVALENCE (LKSLUG(17),LKARP2)  ! reconstuction phase 2 banks
+      EQUIVALENCE (LKSLUG(18),LKARP3)  ! reconstuction phase 3 banks
+      EQUIVALENCE (LKSLUG(19),LKDSTD)  ! DST data banks
+      EQUIVALENCE (LKSLUG(20),LKRUN2)  ! run tree bank for secondary run
+      EQUIVALENCE (LKSLUG(21),LKEVN2)  ! event tree bank for secondary events
+      EQUIVALENCE (LKSLUG(22),LKVER2)  ! secondary GEANT VERT bank
+      EQUIVALENCE (LKSLUG(23),LKKIN2)  ! secondary GEANT KINE bank
+      EQUIVALENCE (LKSLUG(24),LKHIT2)  ! secondary GEANT HITS bank
+      EQUIVALENCE (LKSLUG(26),LKGENE)  ! old slug ZEBRA generator structure
+*KEND.
+ 
+      INTEGER IL,IDE,IMOTH,NDAU,IDAUG(*)
+      INTEGER LGENE,LGENP,LZFIND,LK,ND,MODUL,NPA,NDAUM,IP,JM1,JM2,IOFF
+*     CHARACTER CBANK*4
+*
+      entry GNZGETD(IL,IDE,IMOTH,NDAU,IDAUG)
+      NDAUM = NDAU
+      NDAU  = 0
+ 
+* Find the event with the desired IDE:
+      Lk=LZFIND(IXDIV,LkEvnt,IDE,-5);               Check   Lk>0
+      check  "#of links" IQ(Lk-2)>=2
+      LGENE = LQ(Lk-2);                             Check   LGENE>0
+      check  "bank length" IQ(LGENE-1)>=12 & "#of links" IQ(LGENE-2)>=1
+ 
+      LGENP = LQ(LGENE-1);                          Check   LGENP>0
+*     Call UHTOC(IQ(LGENP-4),4,Cbank,4);            Check Cbank=='GENP'
+*
+* Get number of particles:
+      ND    = IQ(LGENP-1)
+      NPA   = MOD(IQ(LGENP+2),100 000)
+      MODUL = MOD(IQ(LGENP+3),100 000)
+*
+* Loop over particle list
+      DO IP = 1,NPA
+         IOFF = (IP-1)*MODUL +3
+         Check  IOFF+MODUL <=ND
+         JM1  = IQ(LGENP+IOFF+3)
+         JM2  = IQ(LGENP+IOFF+4)
+         If (abs(JM1)==IMOTH) | (JM2>=0 & JM2==IMOTH)  _
+          | (JM2<0 & abs(JM1)<=IMOTH&IMOTH<=abs(JM2))
+          {  NDAU += 1; If (NDAU<=NDAUM) IDAUG(NDAU)=IP; }
+      enddo
+*
+      END
 *CMZ :  1.00/00 30/06/95  13.09.22  by  Pavel Nevski
 *-- Author :     Pavel Nevski
     subroutine   M Y F I L L (tt,Ix,Iy);
@@ -16120,7 +17816,7 @@ End;
  XFINTER=(F(K1)*(X-X2)+F(K1+1)*(X1-X))/(X1-X2)
 END
  
-*CMZ :          12/05/98  14.44.06  by  Pavel Nevski
+*CMZ :  1.40/05 12/05/98  14.44.06  by  Pavel Nevski
 *CMZ :  1.00/00 07/05/95  13.12.49  by  Pavel Nevski
 *-- Author :    Pavel Nevski
 **********************************************************************
@@ -16180,7 +17876,7 @@ END
  } While EPS>0 & ABS(OTB-Y)>ABS(EPS*OTB)
 END
  
-*CMZ :          31/10/97  12.55.37  by  Pavel Nevski
+*CMZ :  1.40/05 31/10/97  12.55.37  by  Pavel Nevski
 *CMZ :  1.00/00 06/08/95  17.16.05  by  Pavel Nevski
 *-- Author :    Pavel Nevski
 *************************************************************************
@@ -16194,7 +17890,7 @@ NXpoiss=n
 End
  
  
-*CMZ :          25/11/97  23.22.25  by  Pavel Nevski
+*CMZ :  1.40/05 25/11/97  23.22.25  by  Pavel Nevski
 *CMZ :  1.30/00 06/09/96  18.10.33  by  Pavel Nevski
 *CMZ :  1.00/00 25/08/95  00.07.49  by  Pavel Nevski
 *-- Author :    A.Rozanov   30/06/95
@@ -16298,7 +17994,7 @@ End
       END
  
  
-*CMZ :          20/11/97  22.25.45  by  Pavel Nevski
+*CMZ :  1.40/05 20/11/97  22.25.45  by  Pavel Nevski
 *CMZ :  1.30/00 11/05/96  21.53.45  by  Pavel Nevski
 *CMZ :  1.00/00 25/08/95  00.07.49  by  Pavel Nevski
 *-- Author :  Pavel Nevski
@@ -16417,7 +18113,7 @@ End
       DO I=1,L  { AMX(I)=1.E30;   AMN(I)=-1.E30 }
       End
  
-*CMZ :          12/06/98  11.36.35  by  Pavel Nevski
+*CMZ :  1.40/05 12/06/98  11.36.35  by  Pavel Nevski
 *CMZU:  1.00/01 14/01/96  17.57.22  by  Pavel Nevski
 *CMZ :  1.00/00 07/03/95  21.21.52  by  Pavel Nevski
 *-- Author :    Pavel Nevski   07/02/95
@@ -16482,7 +18178,7 @@ C
 *     Print *,'  get track fi0,a0,Pti,z0,dz=',Fi0Fit,A0Fit,PTinv,z0fit,dZdR0
     END
  
-*CMZ :          04/12/97  13.25.20  by  Pavel Nevski
+*CMZ :  1.40/05 27/08/98  19.20.39  by  Pavel Nevski
 *CMZU:  1.00/01 25/01/96  02.13.04  by  Pavel Nevski
 *CMZ :  1.00/00 28/08/95  00.45.41  by  Pavel Nevski
 *-- Author :    Pavel Nevski   11/10/93
@@ -16523,6 +18219,8 @@ C
       COMMON /AgCKINO/ Ioutp,IoutpOld
       Character*20     CoptKine,CoptBack,CoptOutp
       COMMON /AgCKINC/ CoptKine,CoptBack,CoptOutp
+      Character*20     StrmKine,StrmBack,StrmOutp
+      COMMON /AgCKINS/ StrmKine,StrmBack,StrmOutp
       Character*20     CrunType
       COMMON /AgCKINR/ CrunType
       Integer          Ncommand
@@ -16543,6 +18241,15 @@ C
 *
 *    - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 *
+*KEEP,GCFLAG.
+      COMMON/GCFLAG/IDEBUG,IDEMIN,IDEMAX,ITEST,IDRUN,IDEVT,IEORUN
+     +        ,IEOTRI,IEVENT,ISWIT(10),IFINIT(20),NEVENT,NRNDM(2)
+      COMMON/GCFLAX/BATCH, NOLOG
+      LOGICAL BATCH, NOLOG
+C
+      INTEGER       IDEBUG,IDEMIN,IDEMAX,ITEST,IDRUN,IDEVT,IEORUN
+     +        ,IEOTRI,IEVENT,ISWIT,IFINIT,NEVENT,NRNDM
+C
 *KEND.
       CHARACTER*(*) TIT
       CHARACTER*8   TAG,TAGS,Pfx,PfxS
@@ -16557,6 +18264,7 @@ C
       LOGICAL       FIRST /.TRUE./
       INTEGER       Lout/6/,Iprin/0/
       DATA          IP,KV,JD/1,1,1/
+      Iprin=Idebug-2
  
 *   -------------------------------------------------------------------
       IF Iabs(IVAR)<1 000 000 {"integer" V=IVAR} else {"real" IV=IVAR}
@@ -16589,11 +18297,11 @@ C
          IF (!FIRST) GoTo :E:
             NT=MIN(NT+1,NTAG);  It=Nt;   TAGS(NT)=TAG
             Itag(IP+1)=NT;    NV=NV+KV;  KADR(IP+1)=NV
-            Prin1 TAG,NT,IP,NV
+            Prin2 TAG,NT,IP,NV
             (' XNTUP: new tag ',A,i4,' on page',i3,' NVtot=',i5)
         :T: II=MIN(KADR(IP)+(IT-Itag(IP)-1)*KV+JD,NVAL);  VAL(II)=V
       }
-      ELSE                        "   close event    "
+      ELSE if(Nt>0 & ID>0)                       "   close event    "
       {  If (IUHIST>0) CALL RZCDIR('//'//CDHIST,' ')
          If (IUHIST>0) CALL  HCDIR('//'//CDHIST,' ')
          IF FIRST
@@ -16616,11 +18324,13 @@ C
          CALL VZERO(VAL,NVAL)
          {IP,JD,KV}=1
       }
+      else            " restart "
+      {  { IP,KV,JD } = 1;    { NT,NP,NV,ND } = 0;  }
       Return
 :E:;  Prin0 TAG; (' XNTUP: too late to introduce new TAG/PAGE ',A)
       END
  
-*CMZ :          08/11/97  18.05.57  by  Pavel Nevski
+*CMZ :  1.40/05 08/11/97  18.05.57  by  Pavel Nevski
 *CMZU:  1.30/01 17/05/97  16.47.03  by  Pavel Nevski
 *CMZ :  1.30/00 15/04/97  14.58.38  by  Pavel Nevski
 *-- Author :    Pavel Nevski   03/03/96
@@ -16949,7 +18659,7 @@ Structure AgCR { char Cset, char Cdet, int Isys, int Itype, int Npl,
    end
  
  
-*CMZ :          20/11/97  22.28.54  by  Pavel Nevski
+*CMZ :  1.40/05 20/11/97  22.28.54  by  Pavel Nevski
 *CMZ :  1.30/00 01/09/96  16.24.19  by  Pavel Nevski
 *-- Author :    Pavel Nevski   06/02/95
 ********************************************************************
@@ -18753,7 +20463,7 @@ DO n=1,NN                      " calculate gradients and derivatives matrix "
 }  }
 End
  
-*CMZ :          05/11/97  15.31.12  by  Pavel Nevski
+*CMZ :  1.40/05 05/11/97  15.31.12  by  Pavel Nevski
 *-- Author :    Pavel Nevski   04/11/97
 function sind(x);     +cde,gconst;  sind=sin(degrad*x);       end;
 function cosd(x);     +cde,gconst;  cosd=cos(degrad*x);       end;
@@ -18763,7 +20473,7 @@ function acosd(x);    +cde,gconst;  acosd=raddeg*acos(x);     end;
 function atand(x);    +cde,gconst;  atand=raddeg*atan(x);     end;
 function atan2d(x,y); +cde,gconst;  atan2d=raddeg*atan2(x,y); end;
 * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *
-*CMZ :          10/11/97  15.32.54  by  Pavel Nevski
+*CMZ :  1.40/05 10/11/97  15.32.54  by  Pavel Nevski
 *CMZ :  1.30/00 18/06/96  12.32.41  by  Pavel Nevski
 *CMZU:  1.03/00 28/10/93  12.54.58  by  M. Nessi CERN
 *-- Author :  Pavel Nevski
@@ -18777,7 +20487,7 @@ function atan2d(x,y); +cde,gconst;  atan2d=raddeg*atan2(x,y); end;
       TTAN = TAN(2*ATAN(EXP(-Y)))
 *
       END
-*CMZ :          31/01/98  14.01.41  by  Pavel Nevski
+*CMZ :  1.40/05 31/01/98  14.01.41  by  Pavel Nevski
 *-- Author :    Bill LOVE
 C----------------------------------------------------------------------
       FUNCTION  BITCH(INT,FORMAT)
@@ -18824,7 +20534,7 @@ C
         RETURN
         END
  
-*CMZ :          31/01/98  14.01.41  by  Pavel Nevski
+*CMZ :  1.40/05 31/01/98  14.01.41  by  Pavel Nevski
 *-- Author :    Bill Love
 C----------------------------------------------------------------------
       FUNCTION IFNB(STRING)
@@ -18845,7 +20555,7 @@ C----------------------------------------------------------------------
 *
       END
  
-*CMZ :          31/01/98  14.01.41  by  Pavel Nevski
+*CMZ :  1.40/05 31/01/98  14.01.41  by  Pavel Nevski
 *-- Author :    Bill Love
 C----------------------------------------------------------------------
         FUNCTION LSTRG(STRING)
@@ -18868,7 +20578,7 @@ C----------------------------------------------------------------------
 	RETURN
 	END
  
-*CMZ :          31/01/98  14.12.02  by  Pavel Nevski
+*CMZ :  1.40/05 31/01/98  14.12.02  by  Pavel Nevski
 *-- Author :    Bill Love
 C----------------------------------------------------------------------
       SUBROUTINE QIKS (MM,NN,MOVE,COMPARE)
@@ -19147,7 +20857,7 @@ Integer i1,i2,ic,jdd; Data Jdd/1/;
   }  Iadr=DDL(2,Jdd);  Leng=DDL(3,Jdd);  IOD=DDL(4,Jdd);
    END
  
-*CMZ :          23/03/98  20.56.20  by  Pavel Nevski
+*CMZ :  1.40/05 23/03/98  20.56.20  by  Pavel Nevski
 *CMZ :  1.00/00 30/06/95  13.07.15  by  Pavel Nevski
 *-- Author :    Pavel Nevski   26/11/94
 **********************************************************************
@@ -19237,7 +20947,7 @@ CHARACTER  Cname*(*);    Integer    NVL(*),Npar,Array(*),Link,Ia,Ndim;
  If (Npar>0) Call UCOPY (IQ(Link+1+Ia),Array,Npar);
    END
  
-*CMZ :          24/03/98  14.42.38  by  Pavel Nevski
+*CMZ :  1.40/05 24/03/98  14.42.38  by  Pavel Nevski
 *CMZ :  1.00/00 30/06/95  13.07.15  by  Pavel Nevski
 *-- Author :    Pavel Nevski   26/11/94
 **********************************************************************
@@ -19333,7 +21043,8 @@ CHARACTER*(*)  Cname,FORM;     Integer  NVL(*),Npar,Array(*),Link,Ia;
    Call UCOPY (Array,IQ(Link+1+Ia),Npar);  If (NVL(kk)==0) NVL(kk)=II;
    END
  
-*CMZ :          27/04/98  21.52.32  by  Pavel Nevski
+*CMZ :          18/10/98  12.28.38  by  Pavel Nevski
+*CMZ :  1.40/05 01/07/98  19.10.00  by  Pavel Nevski
 *CMZ :  1.30/00 16/04/97  22.11.16  by  Pavel Nevski
 *CMZU:  1.00/01 21/12/95  22.17.57  by  Pavel Nevski
 *CMZ :  1.00/00 03/10/95  18.17.59  by  Pavel Nevski
@@ -19505,8 +21216,9 @@ Lm=LENOCC(Cname);  Check Lm>=J+3;
   }
   If Npar>0 & Link>0
   {  Need=Ie-IQ(Link-1); " If Need>leng { Err Ie,Nd; } "
-     If (Need>0)   Call MZPUSH(IrbDIV,Link,0,NEED,' ')
-     if (Del=='.') IQ(Link-5)=-Ie/Leng
+     if (IrMode>9) print *,' REBANK: Need,del=',need,del
+     If (Need > 0) Call MZPUSH(IrbDIV,Link,0,NEED,' ')
+     if (Del=='.') IQ(Link-5)=-max(Ie/Leng,-IQ(Link-5))
   }
   IQUEST(1)=0
 END
@@ -20229,6 +21941,7 @@ C
    END
  
  
+*CMZ :  1.40/05 01/08/98  14.42.35  by  Pavel Nevski
 *CMZ :  1.00/00 03/10/95  18.17.59  by  Pavel Nevski
 *-- Author :    R. DeWolf   15/07/91
 **********************************************************************
@@ -20299,9 +22012,16 @@ C                                       Link to:
 *KEND.
       CHARACTER*(*) CHDET
       INTEGER       IDET
-                    IDET=0
-      IF (LKDETM>0) CALL GLOOK(CHDET,IQ(LKDETM+1),IQ(LKDETM-1),IDET)
+ 
+      ENTRY   SLDETN (CHDET,IDET)
+*
+      IDET = -1;      check LkDETM>0
+      CALL GLOOK(CHDET,IQ(LkDETM+1),IQ(LkDETM-1),Idet)
+      check Idet>0;   If (LQ(LkDETM-Idet)<=0) Idet = 0
+*
       END
+ 
+ 
 *CMZ :  1.40/05 15/08/98  23.01.56  by  Pavel Nevski
 *-- Author :    Pavel Nevski   01/08/98
 *********************************************************************
