@@ -103,6 +103,7 @@ sub UpdateQAOffline{
   }
 
   # update
+  # Note: no sorting done b/c mysql f*cks it up sometimes.
   my $queryUpdate = qq{select distinct file.jobID, file.redone, file.runID,
 			 file.fileSeq
 			from $dbFile.$FileCatalog as file 
@@ -139,33 +140,46 @@ sub UpdateQAOffline{
   $sthUpdate->execute;
 
   my %runhash; # hash of hashes of hashes
-  my %noskip;  # keys are runIDs
-  my $fraction = .1;
+#  my %noskip;  # keys are runIDs
+  my $fraction = .1; # Dec 17,2001 - not used.
+  my $countLimit=2;
+  my %count; # num of file per run with skip='N'
+
   # organize the new jobs by runID 
-  while (my ($jobID, $redone, $runID,$fileSeq) = $sthUpdate->fetchrow_array){
-    next if !$jobID; # huh?
+  LOOP:while (my ($jobID, $redone, $runID,$fileSeq) = $sthUpdate->fetchrow_array){
+    next LOOP if !$jobID; # huh?
     $runhash{$runID}{$fileSeq}{$jobID}{redone}  = $redone;
     
-    #set fraction as noskip (also mod 10, not 1)
-    if (rand() < $fraction && $fileSeq%10==0){
+    #print "$runID, count=",$count{$runID},"\n";
+
+    # Dec 17,2001- check that no more than $countLimit entries per runid
+    # has skip='N'
+    next LOOP if($count{runID}>=$countLimit);
+    
+    $count{$runID} += countEntries($runID);
+    if($count{$runID}>=$countLimit){ # enough already
+      next LOOP;
+    }
+    #set as noskip (also mod 10, not 1)
+    elsif($fileSeq%10==0){
       $runhash{$runID}{$fileSeq}{$jobID}{noskip}++;
-      $noskip{$runID}++;
+      $count{$runID}++;
     }
   }
   my $jobID;
   # now double check that there's at least one noskip key per runID
-  foreach my $runID ( keys %runhash ){
-    next if exists $noskip{$runID};
+  #foreach my $runID ( keys %runhash ){
+  #next if $count{$runID}>0;
     
     # else set one of the jobs as noskip (file seq 10,20..)
-  SEQ:foreach my $fileSeq ( keys %{$runhash{$runID}} ){
-      next if($fileSeq%10!=0);
-      foreach $jobID ( keys %{$runhash{$runID}{$fileSeq}} ){
-	$runhash{$runID}{$fileSeq}{$jobID}{noskip}++;
-	last SEQ;
-      }
-    }
-  }
+  #SEQ:foreach my $fileSeq ( keys %{$runhash{$runID}} ){
+  #    next if($fileSeq%10!=0);
+  #    foreach $jobID ( keys %{$runhash{$runID}{$fileSeq}} ){
+  #	$runhash{$runID}{$fileSeq}{$jobID}{noskip}++;
+  #     last SEQ;
+  #    }
+  #  }
+  #}
   # loop over runID, jobID
   my $countRun=0; my $countJob=0; my $count=0;
   my %foundJob;
@@ -228,6 +242,19 @@ sub UpdateQAOfflineReal{
 }
 
 #-------------------
+# counts the numbers of entries whose jobID 
+# matches the argument string(usually run) and has 'skip='N'
+
+sub countEntries{
+  my $run=shift;
+
+  my $query=qq{select count(*) from $dbQA.$QASum{Table}
+	       where $QASum{jobID} like '%$run%' and
+	       $QASum{skip}='N'};
+  return $dbh->selectrow_array($query);
+}
+
+#-------------------
 
 sub UpdateQAOfflineFast{
   my $limit = $updateLimit{'offline_fast'};
@@ -246,7 +273,7 @@ sub UpdateQAOfflineFast{
 		       LEFT JOIN $dbQA.$QASum{Table} as qa
 		       on daq.$DAQInfo{file}=qa.$QASum{jobID}
 		       where 
-			 daq.diskLoc!=0 and
+			 daq.diskLoc!=0 and 
 			 (daq.$DAQInfo{status} = $doneStatus and
 			 (qa.$QASum{jobID} is NULL ||
 			  qa.$QASum{QAdone}='Y'))
@@ -305,22 +332,34 @@ sub UpdateQAOfflineFast{
  
   my %runhash; # hash of hashes of hashes
   my %noskip;  # keys are runIDs
-  my $fraction=0;
+  my $fraction=0; # Dec 17,2001 - not used
+  my $countLimit=2;
+   my %count; # num of file per run with skip='N'
+
   # organize the new jobs by runID 
-  while (my ($jobID, $qadone, $runID) = $sthUpdate->fetchrow_array){
+  LOOP:while (my ($jobID, $qadone, $runID) = $sthUpdate->fetchrow_array){
     next if !$jobID; # huh?
     $runhash{$runID}{$jobID}{qadone}  = $qadone;
+
+    # Dec 17,2001- check that no more than $countLimit entries per runid
+    # has skip='N'
     
-    # set $fraction as noskip
-    if (rand() < $fraction ){
+    next LOOP if($count{runID}>=$countLimit);
+    
+    $count{$runID}+=countEntries($runID);
+    if($count{$runID}>=$countLimit){ # enough already
+      next LOOP;
+    }
+    #set as noskip 
+    else{
       $runhash{$runID}{$jobID}{noskip}++;
-      $noskip{$runID}++;
+      $count{$runID}++;
     }
   }
 
   # now double check that there's at least one noskip key per runID
   foreach my $runID ( keys %runhash ){
-    next if exists $noskip{$runID};
+    next if $count{$runID}>0;
     
     # else randomly set one of the jobs as noskip
   JOB:foreach my $jobID ( keys %{$runhash{$runID}} ){

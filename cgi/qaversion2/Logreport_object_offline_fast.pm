@@ -121,12 +121,24 @@ sub ParseLogfile {
   my $self = shift;
 
   # open files
-  my $fh = FileHandle->new( $self->LogfileName(), "r" ) or 
+  # log file may be .log or .fz;
+  #
+  my $logFile = $self->LogfileName();
+  my $openOption=undef;
+  if(-e $logFile) { # .log 
+    $openOption=$logFile;
+  }
+  else {            # .log.gz
+    $logFile =~ s/\.log$/\.log\.gz/;
+    $openOption="|zcat $logFile";
+  }
+
+  my $fh = FileHandle->new($openOption) or 
     do{
-      print "Trouble opening file = ", $self->LogfileName(), " $!\n";
+      print "Trouble opening file = ", $logFile, " $!\n";
       return;
     };
-  print "Found logfile ", $self->LogfileName(), "\n", br;
+  print "Found logfile ", $logFile, "\n", br;
 
   
   my $outFileRequestedString;
