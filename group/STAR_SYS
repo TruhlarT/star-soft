@@ -1,5 +1,8 @@
 #!/bin/csh
 #  $Log: STAR_SYS,v $
+#  Revision 1.33  2003/06/28 00:01:49  jeromel
+#  cygwin + one more sed pattern
+#
 #  Revision 1.32  2003/06/16 23:59:25  jeromel
 #  new scheme (need more testing) for STAR_SYS and STAR_HOST_SYS
 #
@@ -104,7 +107,7 @@
 #
 #  Revision 1.1.1.1  1997/12/31 14:35:23  fisyak
 #
-#             Last modification $Date: 2003/06/16 23:59:25 $
+#             Last modification $Date: 2003/06/28 00:01:49 $
 #
 # Determine STAR_SYS variable.
 #
@@ -120,11 +123,16 @@ else
   if (-e /usr/afsws/bin/fs)  then
     setenv STAR_SYS `/usr/afsws/bin/fs sysname | awk -F\' '{print $2}'`
   else
-    # no /bin/sys anywhere (Linux, Solaris, Digital)
-    if (-e /bin/sys) then
-	setenv STAR_SYS `/bin/sys`
+    # attempt some cygwin stuff
+    if ( -e /cygdrive/c/PROGRA~1/IBM/AFS/Client/Program/fs) then
+	setenv STAR_SYS `/cygdrive/c/PROGRA~1/IBM/AFS/Client/Program/fs sysname | awk -F\' '{print $2}'`
     else
-	if (-e /usr/bin/sys) setenv STAR_SYS `/usr/bin/sys`
+	# no /bin/sys anywhere (Linux, Solaris, Digital)
+	if (-e /bin/sys) then
+	    setenv STAR_SYS `/bin/sys`
+	else
+	    if (-e /usr/bin/sys) setenv STAR_SYS `/usr/bin/sys`
+	endif
     endif
   endif
 endif
@@ -132,9 +140,10 @@ endif
 #
 # Sort it out otherwise via uname command
 #
-if (${STAR_SYS} == "") then
-    set mach_os = ` uname -sr | sed -e 's/ //g' -e 's/\.//g' `
-    #
+if ( "${STAR_SYS}" == "") then
+    # selection using uname -sr
+    set mach_os = ` uname -sr | sed -e 's/ //g' -e 's/\.//g' -e 's/(.*//'`
+
     switch ($mach_os)
     case "sn6*":
 	setenv STAR_SYS cray
@@ -192,6 +201,9 @@ if (${STAR_SYS} == "") then
 		setenv STAR_SYS sun4x_55
 		breaksw
 	endsw
+	breaksw
+    case "CYGWIN*":
+	setenv STAR_SYS "$mach_os"
 	breaksw
     default:
 	setenv STAR_SYS unknown
