@@ -73,19 +73,49 @@
 #
 
 
-package FileCatalog;
+package  FileCatalog;
+require  5.000;
+
+
+require  Exporter;
+@ISA   = qw(Exporter);
+@EXPORT= qw( connect destroy
+	     set_context get_context clear_context
+	     get_keyword_list
+	     set_delimeter get_delimeter
+	     set_delayed flush_delayed print_delayed
+	     add_trigger_composition
+	     
+	     run_query
+	     close_location
+	     delete_records update_location update_record
+
+	     check_ID_for_params insert_dictionary_value
+
+	     debug_on debug_off
+	     );
+
+#@EXPORT_OK = qw(%operset %valuset);
+
 
 use vars qw($VERSION);
-$VERSION   =   1.19;
+$VERSION   =   1.25;
+
+# The hashes that hold a current context
+my %operset;
+my %valuset;
+
 
 use DBI;
 use strict;
 no strict "refs";
 
 # define to print debug information
-my $DEBUG     = 0;
-my $DELAY     = 0;
-my $SILENT    = 0;
+my $NCTRY     =  6;
+my $NCSLP     = 10;
+my $DEBUG     =  0;
+my $DELAY     =  0;
+my $SILENT    =  0;
 my @DCMD;
 
 # db information
@@ -93,7 +123,7 @@ my $dbname    =   "FileCatalog";
 my $dbhost    =   "duvall.star.bnl.gov";
 my $dbport    =   "";
 my $dbuser    =   "FC_user";
-my $dbsource  =   "DBI:mysql:$dbname:$dbhost";
+my $dbpass    =   "FCatalog";
 my $DBH;
 my $sth;
 
@@ -160,7 +190,7 @@ $obsolete{"triggerword"} = "trgword";
 $keywrds{"trgsetupname"  }    =   "triggerSetupName"          .",TriggerSetups"          .",1" .",text" .",0" .",1" .",1";
 
 # The count of individual triggers, the FileData index access in TriggerCompositions and
-# the trigger word ID in the TRiggerComposition table
+# the trigger word ID in the TriggerComposition table
 $keywrds{"tcfdid"        }    =   "fileDataID"                .",TriggerCompositions"    .",0" .",num"  .",0" .",0" .",0";
 $keywrds{"tctwid"        }    =   "triggerWordID"             .",TriggerCompositions"    .",0" .",text" .",0" .",1" .",0";
 $keywrds{"trgcount"      }    =   "triggerCount"              .",TriggerCompositions"    .",0" .",text" .",0" .",1" .",1";
@@ -175,8 +205,8 @@ $keywrds{"trgdefinition" }    =   "triggerDefinition"         .",TriggerWords"  
 # This keyword is a special keyword which will be used to enter
 # a list of triggers/count in the database. It is an agregate
 # keyword only used in INSERT mode.
-$keywrds{"triggerevents" }    =   ",,,,,,0";
-
+#$keywrds{"triggerevents" }    =   ",,,,,,0";
+$obsolete{"triggerevents" }    = "method add_trigger_composition()";
 
 
 
@@ -244,9 +274,6 @@ my $roundfields = "magFieldValue,2 collisionEnergy,0";
 # The delimeter to sperate fields at output
 my $delimeter = "::";
 
-# The hashes that hold a current context
-my %operset;
-my %valuset;
 
 # The list of connections between tables in the database
 # needed to build queries with joins
@@ -427,42 +454,73 @@ sub is_critical {
 
 #============================================
 sub new {
-  my $class= shift;
+
+  my $proto = shift;
+  my $class = ref($proto) || $proto;
   my $self  = {};
-  $self->{values} = [];
-  $self->{entries} = undef;
 
-  $delimeter = "::";
-  $valuset{"all"} = 0;
-
-  # Only way to bless it is to declare them inside
-  # new(). See also use Symbol; and usage of my $bla = gensym;
-  #my %operset=
-  #my %valuset=
-
-  bless($self);
-  bless(\%valuset, "FileCatalog");
-  bless(\%operset, "FileCatalog");
+  bless ($self , $class);
+  $self->_initialize();
 
   return $self;
 }
 
+sub _initialize
+{
+    my $self = shift;
+
+    # Only way to bless it is to declare them inside
+    # new(). See also use Symbol; and usage of my $bla = gensym;
+    $valuset{"all"} = 0;
+    $delimeter = "::";
+
+    #print "self is $self \n";
+    
+
+    #foreach my $el (sort keys %FileCatalog::){
+#	print "$el has for value $FileCatalog::{$el}\n";
+#    }
+
+}
+
+
 #============================================
 sub connect {
   my $self  = shift;
-  my ($user,$passwd) = @_;
+  my ($user,$passwd,$port) = @_;
   my ($sth,$count);
+  my ($tries);
+  my ($dbref);
 
-  if( ! defined($user) )  { $user   = $dbuser;}
-  if( ! defined($passwd) ){ $passwd = "FCatalog";}
+  if( ! defined($user) )   { $user   = $dbuser;}
+  if( ! defined($passwd) ) { $passwd = $dbpass;}
+  if( ! defined($port) )   { $port   = $dbport;}
 
+  # Build connect
+  $dbref  =   "DBI:mysql:$dbname:$dbhost";
+  if ( $port ne ""){ $dbref .= ":$port";}
 
-  $DBH = DBI->connect($dbsource,$user,$passwd,
-		       { RaiseError => 0, AutoCommit => 1 }
+  # Make it more permissive. Simultaneous connections
+  # may make this fail.
+  $tries = 0;
+ CONNECT_TRY:
+  $tries++;
+
+  $DBH = DBI->connect($dbref,$user,$passwd,
+		      { PrintError => 0,
+			RaiseError => 0, AutoCommit => 1 }
 		      );
-  if ( ! $DBH ){
-      &die_message("connect","cannot connect to $dbname : $DBI::errstr");
-  }
+  if (! $DBH ){
+      if ( $tries < $NCTRY ){
+	  &print_message("connect","Connection failed. Retry in $NCSLP secondes");
+	  sleep($NCSLP);
+	  goto CONNECT_TRY;
+      } else {
+	  &die_message("connect","cannot connect to $dbname : $DBI::errstr");
+      }
+  } 
+
+
 
   # Set/Unset global variables here
   $FC::IDX = -1;
@@ -574,7 +632,7 @@ sub set_context {
       } else {
 	  if ( defined($obsolete{$keyw}) ){
 	      &die_message("set_context",
-			   "[$keyw] is obsolste. Use $obsolete{$keyw} instead\n");
+			   "[$keyw] is obsolete. Use $obsolete{$keyw} instead\n");
 	  } else {
 	      my (@kwd);
 	      @kwd = &get_keyword_list();
@@ -1466,7 +1524,7 @@ sub del_trigger_composition
 	} else {
 	    # a complete different story
 	    $cmd = "DELETE LOW_PRIORITY FROM TriggerCompositions WHERE fileDataID=?";
-	    $sth = $DBH->prepare();
+	    $sth = $DBH->prepare($cmd);
 
 	    if ( ! $sth ){
 		&print_message("del_trigger_composition","Prepare failed. Bootstrap TRGC needed.");
