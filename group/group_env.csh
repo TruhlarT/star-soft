@@ -1,7 +1,10 @@
 #!/usr/bin/csh -f
-#       $Id: group_env.csh,v 1.46 1998/08/27 01:29:02 fisyak Exp $
+#       $Id: group_env.csh,v 1.47 1998/09/10 02:00:24 fisyak Exp $
 #	Purpose:	STAR group csh setup 
 #       $Log: group_env.csh,v $
+#       Revision 1.47  1998/09/10 02:00:24  fisyak
+#       Add protection for undefined STAR_SYS
+#
 #       Revision 1.46  1998/08/27 01:29:02  fisyak
 #       Add  root 2/11 for development version (SL98g)
 #
@@ -161,16 +164,17 @@ if ($STAR_VERSION  == "SL98a" || $STAR_VERSION  == "SL98b") then
   setenv STAR $STAR_PATH/${STAR_LEVEL} ;         if ($ECHO) echo   "Setting up STAR      = ${STAR}"
   setenv STAR_LIB  $STAR/lib/${STAR_HOST_SYS};   if ($ECHO) echo   "Setting up STAR_LIB  = ${STAR_LIB}"
   setenv STAF_LIB 
+  setenv STAR_BIN  $STAR/asps/../.${STAR_HOST_SYS}/bin  ; if ($ECHO) echo   "Setting up STAR_BIN  = ${STAR_BIN}"
 else  
   setenv STAR $STAR_PATH/${STAR_VERSION} ;       if ($ECHO) echo   "Setting up STAR      = ${STAR}"
-  setenv STAF_LIB  $STAR/asps/../.${STAR_HOST_SYS}/lib  ; if ($ECHO) echo   "Setting up STAF_LIB  = ${STAF_LIB}"
+  setenv STAF_LIB  $STAR/.${STAR_HOST_SYS}/lib  ; if ($ECHO) echo   "Setting up STAF_LIB  = ${STAF_LIB}"
   if ($?NODEBUG == 0) then
     setenv STAR_LIB  $STAR/.${STAR_HOST_SYS}/lib; if ($ECHO) echo   "Setting up STAR_LIB  = ${STAR_LIB}"
   else
     setenv STAR_LIB  $STAR/.${STAR_HOST_SYS}/LIB; if ($ECHO) echo   "Setting up STAR_LIB  = ${STAR_LIB}"
   endif
+  setenv STAR_BIN  $STAR/.${STAR_HOST_SYS}/bin  ; if ($ECHO) echo   "Setting up STAR_BIN  = ${STAR_BIN}"
 endif
-setenv STAR_BIN  $STAR/asps/../.${STAR_HOST_SYS}/bin  ; if ($ECHO) echo   "Setting up STAR_BIN  = ${STAR_BIN}"
 setenv STAR_MGR $STAR/mgr
 setenv STAR_PAMS $STAR/pams;                 if ($ECHO) echo   "Setting up STAR_PAMS = ${STAR_PAMS}"
 setenv STAR_DATA ${STAR_ROOT}/data;          if ($ECHO) echo   "Setting up STAR_DATA = ${STAR_DATA}"
@@ -180,7 +184,7 @@ setenv STAR_CALIB ${STAR_ROOT}/calib;   if ($ECHO) echo   "Setting up STAR_CALIB
 setenv STAR_PROD   $STAR/prod;          if ($ECHO) echo   "Setting up STAR_PROD = ${STAR_PROD}"
 setenv CVSROOT   $STAR_PATH/repository; if ($ECHO) echo   "Setting up CVSROOT   = ${CVSROOT}"
 #if (! ${?ROOT_LEVEL}) then
-  if ($STAR_VERSION  == "SL98g") then
+  if ($STAR_VERSION  == "SL98g" || $STAR_VERSION  == "SL98h" ) then
     setenv ROOT_LEVEL 2.11
   else
     setenv ROOT_LEVEL 2.09
@@ -245,6 +249,8 @@ switch ($STAR_SYS)
     breaksw
     case "i386_*":
 #  ====================
+# make sure that afws in the path
+     if (! -d /usr/afsws/bin) set path = ($path /afs/rhic/i386_redhat50/usr/afsws/bin)
      if ( -d /usr/pgi ) then
        setenv PGI /usr/pgi
        set path = ( $PGI/linux86/bin $path)
@@ -320,7 +326,7 @@ if ( -f $GROUP_DIR/rootenv.csh) then
 endif
 
 # Objectivity
-source $GROUP_DIR/ObjySetup.csh
+if (`hostname` != "rcf.rhic.bnl.gov") source $GROUP_DIR/ObjySetup.csh
 
 # Geant4
 setenv G4PROTO /star/sol/packages/geant4/prototype

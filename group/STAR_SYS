@@ -1,5 +1,8 @@
 #!/bin/csh
 #  $Log: STAR_SYS,v $
+#  Revision 1.5  1998/09/10 02:00:24  fisyak
+#  Add protection for undefined STAR_SYS
+#
 #  Revision 1.4  1998/06/12 13:12:18  fisyak
 #  Fix Linux version
 #
@@ -26,13 +29,12 @@
 #
 #  Revision 1.1.1.1  1997/12/31 14:35:23  fisyak
 #
-#             Last modification $Date: 1998/06/12 13:12:18 $ 
+#             Last modification $Date: 1998/09/10 02:00:24 $ 
 #
 # Determine STAR_SYS variable.
 #
-if (-e /usr/afsws/bin/sys) then
-      setenv STAR_SYS `/usr/afsws/bin/sys`
-else
+if (-e /usr/afsws/bin/sys)       setenv STAR_SYS `/usr/afsws/bin/sys`
+if (${STAR_SYS} == "") then
 set mach_os = ` uname -sr | sed -e 's/ //g' -e 's/\.//g' `
 #
 switch ($mach_os)
