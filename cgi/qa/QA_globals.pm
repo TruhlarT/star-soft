@@ -72,5 +72,8 @@ $update_dir = "/star/data1/jacobs/qa/update";
 
 $cron_dir = "/star/data1/jacobs/qa/batch/cronjob_logs";
 
+#--------------------- add backup_dir-------------------------------
+$backup_dir = "/star/data1/jacobs/qa/backups";
+
 #------------------------------------------------------------------------------------
 1;
