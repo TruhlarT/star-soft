@@ -34,7 +34,7 @@ my %members = (
 	       _ScaleFactor      => undef
 	      );
 
-#my $basePath = "/star/data19/reco/dev";
+my $basePath = "/star/data13/reco/dev";
 my $logPath = "/star/rcf/prodlog/dev/log/daq";
 
 #==========================================================
@@ -43,8 +43,7 @@ sub new{
   my $self      = $classname->SUPER::new(@_) or return;  
   defined $self or return;
 
-  bless($self,$classname);
-
+#  bless($self,$classname);
 
   if (defined %members){
     # using SUPER::AUTOLOAD
@@ -64,9 +63,6 @@ sub new{
 #
 sub _initplus{ 
   my $self = shift;
-
-  
-
 
   $self->ChainName($self->RequestedChain());
 
@@ -255,11 +251,7 @@ sub ParseLogfile {
 
   }
 
-  if(!-d $self->OutputDirectory()){
-    print "<font color=red>Cannot find ",
-    $self->OutputDirectory(), ". Bailing out...</font>\n";
-    return 0;
-  }
+  
 
   # a first stab at the output files. see GetJobInfo for find tuning
   $self->ProductionFileListRef([split(/\s+/,$outFileRequestedString)]);
@@ -293,15 +285,28 @@ sub GetJobInfo{
   my $jobID = $self->JobID();
 
   
-  # output directory
-#  my $hpss = rdaq_file2hpss($self->JobID(),2);
-#  my ($year,$month) = (split(/\s+/,$hpss))[2,3];
-#  $month = "0$month" if length $month<2;
-#  my $outputDir = "$basePath/$year/$month";
+  # emergency output directory
+  my $hpss = rdaq_file2hpss($self->JobID(),2);
+  my ($year,$month) = (split(/\s+/,$hpss))[2,3];
+  $month = "0$month" if length $month<2;
+  my $defaultOutputDir = "$basePath/$year/$month";
 
   my $outputDir = $self->OutputDirectory();
 
-  
+  if(!-d $self->OutputDirectory()){
+    print "<font color=red>Cannot find",$self->OutputDirectory(),
+    "<br>\n";
+    print "Trying $defaultOutputDir...<br>\n";
+    if(!-d $defaultOutputDir){
+      print  "Bailing out...</font><br>\n";
+      return 0;
+    }
+    else{
+      print "Found it</font><br>\n";
+      $self->OutputDirectory($defaultOutputDir);
+    }
+  }
+
   # Real output files
   my @outFiles; 
   my $size =1000;
