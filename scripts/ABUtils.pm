@@ -18,6 +18,7 @@ use Exporter;
 	   IURTFormat JPRFFormat
 	   JPRExec
 	   IUTests IUTestDir IUListRoutine IUErrorURL
+	   IUQueue IUSubmit
 	   IUReleaseFile IUManagers IUCompDir IUHtmlDir IUHtmlRef
 	   );
 
@@ -378,6 +379,27 @@ sub IUCompDir
     $retv;
 }
 
+# Submits a job to "a" queue system
+# Currently used, LSF ..
+#
+# Arg1 : job to submit
+# Arg2 : flag
+#
+sub IUSubmit
+{
+    my($job,$flag)=@_;
+    my($log);
+
+    $log = $job.".log";
+    
+    if ( ! defined($flag) ){ $flag = 0;}
+
+    if ( ! $flag ){
+	print "bsub -q $INSU::QUEUE -o $log $job\n";
+    } else {
+	system("bsub -q $INSU::QUEUE -o $log $job");
+    }
+}
 
 
 # Returns the directories to update using cvs
@@ -419,3 +441,6 @@ sub IUHtmlDir  { return $INSU::HTMLREPD;}
 
 # Returns the HTML URL reference
 sub IUHtmlRef  { return $INSU::HTMLREF;}
+
+# Returns the queue name
+sub IUQueue    { return $INSU::QUEUE;}
