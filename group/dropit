@@ -1,6 +1,9 @@
-#!/opt/star/bin/perl
-#  $Id: dropit,v 1.3 2000/05/02 22:45:50 fisyak Exp $
+#!/usr/bin/env perl
+#  $Id: dropit,v 1.4 2000/05/15 21:10:38 fisyak Exp $
 #  $Log: dropit,v $
+#  Revision 1.4  2000/05/15 21:10:38  fisyak
+#  Change /opt/star/bin to /usr/bin/env perl
+#
 #  Revision 1.3  2000/05/02 22:45:50  fisyak
 #  Replace shell version by perl one
 #
