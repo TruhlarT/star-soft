@@ -40,7 +40,7 @@ my %oldestDate = ( nightly_real => '2001-08-20',
 # max number of updated jobs
 my %updateLimit = ( nightly_real => 10,
 		    nightly_MC   => 50,
-		    offline_real => 200,
+		    offline_real => 200, #200 
 		    offline_MC   => 10,
 		    offline_fast => 10
 );
@@ -212,7 +212,7 @@ sub UpdateQAOffline{
 	    print "Couldnt insert into db?\n";
 	  }
 	  else{
-	    push @keyList, $reportKey;
+	    push @keyList, $reportKey if $skip eq 'N'; # only no skip jobs
 	  }
 	}
       }
@@ -405,7 +405,7 @@ sub UpdateQAOfflineFast{
 	  print "Cannot reset QAdone to no<br>\n";
 	}
 	else{
-	  print "done<br>\n"; 	  
+	  print "done<br>\n"; 	   
 	}
 	if($stat){ $stat = $sthSetSkip->execute($skip,$jobID) if !$debug; }
       }
@@ -416,7 +416,7 @@ sub UpdateQAOfflineFast{
 	  rdaq_set_files($hh,3,$jobID) or 
 	    print "Uh oh.  could not set qa done in daq info table\n";
 	}
-	push @keyList,$report_key; 
+	push @keyList,$report_key if $skip eq 'N';
       }
       
       print "$runID, $report_key, skip=$skip, stat=$stat\n" if $debug;

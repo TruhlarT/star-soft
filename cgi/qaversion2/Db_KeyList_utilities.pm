@@ -215,6 +215,7 @@ sub GetOfflineKeys{
   #---------------------------------------------------------------------
   # pmj 28/6/00 display keys with header, table formatting
 
+
   my @db_key_strings =
     (
      "dataType = $dataType<br>",
@@ -248,19 +249,23 @@ sub GetOfflineKeys{
   my ($file_where_string, $job_where_string);
 
   # always include the file catalog
-  $file_from_string = " ,$dbFile.$FileCatalog as file ";
-  $file_where_string = " sum.jobID = file.jobID and ";
-
+  # 03/05/02 not anymore
+  
   # --- from FileCatalog ---
-  foreach my $key ('runID','dataset'){
-    my $value = $hashref->{$key};
-    next if $value eq 'any';
-    $file_where_string .= " file.$key = '$value' and ";
-  }
-   
-  # create time string
-  if ($createTime ne 'any') {
-    $file_where_string .= ProcessJobCreateTimeQuery($createTime); 
+  if($runID ne 'any' or $dataset ne 'any' or $createTime ne 'any'){
+    $file_from_string = " ,$dbFile.$FileCatalog as file ";
+    $file_where_string = " sum.jobID = file.jobID and ";
+    
+    foreach my $key ('runID','dataset'){
+      my $value = $hashref->{$key};
+      next if $value eq 'any';
+      $file_where_string .= " file.$key = '$value' and ";
+    }
+    
+    # create time string
+    if ($createTime ne 'any') {
+      $file_where_string .= ProcessJobCreateTimeQuery($createTime); 
+    }
   }
 
   # --- from JobStatus ---
@@ -284,8 +289,10 @@ sub GetOfflineKeys{
   #--- QA status ---
   # $QAstatus_string must be the last line in the 'where' clause
 
+  # 03/05/02 bum - alway skip jobs that we skip qa.
+  my $skipSkip=1;
   my ($QAstatus_string, $macro_string, $macro_where_string, $macro_from_string) 
-    = ProcessQAStatusQuery($QAstatus,$QAdate,$macroName);
+    = ProcessQAStatusQuery($QAstatus,$QAdate,$macroName,$skipSkip);
   
   my $query = qq{select distinct sum.$QASum{report_key}
 		 from $dbQA.$QASum{Table} as sum
@@ -301,16 +308,18 @@ sub GetOfflineKeys{
 		      $QAstatus_string
 		limit $selectLimit };
 
+  print "$query\n";
   #print "$query\n" if $gBrowser_object->ExpertPageFlag;
-
+  
   return GetReportKeys($query, $selectLimit);
-
+ 
 
 }
 #----------
 # get offline selected keys for real jobs only
 
 sub GetOfflineKeysReal{
+
   return GetOfflineKeys('real',@_);
 }
 
@@ -360,7 +369,7 @@ sub GetOfflineKeysFast{
   # $QAstatus_string must be the last line in the 'where' clause
 
   my ($QAstatus_string) 
-    = ProcessQAStatusQuery($hashref->{QAstatus},$hashref->{QAdate});
+    = ProcessQAStatusQuery($hashref->{QAstatus},$hashref->{QAdate},0,1);
 
   my $query = qq{select distinct sum.$QASum{report_key}
 		 from $dbQA.$QASum{Table} as sum
@@ -576,11 +585,13 @@ sub ProcessJobStatusQuery{
 # 'done and analyzed','done and not analyzed',
 # 'not done', 'running'
 #
+# 03/05/02 bum- never show 'skipped jobs'?
 
 sub ProcessQAStatusQuery{
   my $QAstatus  = shift;
   my $QAdate = shift;
   my $macroName = shift;
+  my $skipSkip = shift || 0;
 
   my ($QAstatus_string, $macro_string);
   my ($macro_from_string, $macro_where_string);
@@ -642,9 +653,15 @@ sub ProcessQAStatusQuery{
 	if defined $macroName;
     }
     else {die "Wrong argument $QAstatus"}
+  } 
+  else { # 'any'
+    if($skipSkip){ 
+      $QAstatus_string ="sum.$QASum{skip}='N'";
+    }
+    else{
+      $QAstatus_string = "1>0";
+    }
   }
-  else {$QAstatus_string = "1>0";}
-
   $QAstatus_string = "$QAdate_string $QAstatus_string";
 
   return ($QAstatus_string, $macro_string, $macro_where_string, $macro_from_string);
@@ -763,8 +780,13 @@ sub GetReportKeys{
   my $rows = $sth->rows;
 
   # used to be more stuff here
-
-  return map { $_->[0] } @{$sth->fetchall_arrayref()};
+  my @ary;
+  while(my $key=$sth->fetchrow_array()){
+    push @ary,$key;
+  }
+  return @ary;
+  
+  #return map { $_->[0] } @{$sth->fetchall_arrayref()};
 
 }
 
