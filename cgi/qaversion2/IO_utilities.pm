@@ -194,7 +194,7 @@ sub ComposeBatchScript{
     "setenv SILENT 1 \n".
     "source /afs/rhic/rhstar/group/.stardev \n".
     "/usr/afsws/bin/klog -pa `cat /afs/rhic/star/starqa/qa01/.cgi` \n".
-    "cd $now \n";
+    "cd $now \nwhoami \n";
 
   $string .= 
       "echo \"Starting perl script...<br>\" |& tee $temp_log_html \n".
