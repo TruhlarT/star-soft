@@ -14,7 +14,7 @@
 
 use CGI;
 
-require "/afs/rhic/star/packages/DEV/mgr/dbCpProdSetup.pl";
+require "/afs/rhic/star/packages/scripts/dbCpProdSetup.pl";
 
 use File::Find;
 use Class::Struct;
@@ -27,6 +27,7 @@ $query = new CGI;
 
 $prodSer =  $query->param('SetP');
 $trigD   =  $query->param('SetT');
+$fieldM  =  $query->param('SetF');
 
 my @SetD = (
              $prodSer . "/2000/06",
@@ -82,13 +83,23 @@ my @hpssDstFiles;
 
 
 
-if ($trigD eq "all") {
+if ($trigD eq "all" and $fieldM eq "all" ) {
 
- $sql="SELECT fName, size, path, Nevents  FROM $FileCatalogT WHERE fName LIKE '%.root' AND jobID LIKE '%$prodSer%' AND trigger <> 'n/a' AND dataset <> 'tpc_laser' AND hpss ='Y'"; 
-}else {
- $sql="SELECT fName, size, path, Nevents  FROM $FileCatalogT WHERE fName LIKE '%.root' AND jobID LIKE '%$prodSer%' AND trigger = '$trigD' AND hpss ='Y'";
+ $sql="SELECT fName, size, path, Nevents  FROM $FileCatalogT WHERE fName LIKE '%.root' AND jobID LIKE '%$prodSer%' AND trigger <> 'n/a' AND dataset <> 'tpc_laser' AND site like 'hpss%'";
+ 
+}elsif($trigD ne "all" and $fieldM eq "all") {
 
+ $sql="SELECT fName, size, path, Nevents  FROM $FileCatalogT WHERE fName LIKE '%.root' AND jobID LIKE '%$prodSer%' AND trigger = '$trigD' site like 'hpss%' ";
+
+}elsif ($trigD eq "all" and $fieldM ne "all" ) {
+
+ $sql="SELECT fName, size, path, Nevents  FROM $FileCatalogT WHERE fName LIKE '%.root' AND jobID LIKE '%$prodSer%' AND trigger <> 'n/a' AND dataset like '%$fieldM%' AND site like 'hpss%'";
+ 
+}elsif($trigD ne "all" and $fieldM ne "all") {
+
+ $sql="SELECT fName, size, path, Nevents  FROM $FileCatalogT WHERE fName LIKE '%.root' AND jobID LIKE '%$prodSer%' AND trigger = '$trigD' AND dataset like '%$fieldM%' AND site like 'hpss%' ";
 }
+
    $cursor =$dbh->prepare($sql)
      || die "Cannot prepare statement: $DBI::errstr\n";
    $cursor->execute;
@@ -130,12 +141,23 @@ if ($trigD eq "all") {
  my $dqfile;
  my $dqpath;
 
-if ($trigD eq "all") {
+if ($trigD eq "all" and $fieldM eq "all") {
 
-  $sql="SELECT fName, path, size, Nevents  FROM $FileCatalogT WHERE trigger <> 'n/a' AND dataset <> 'tpc_laser' AND fName LIKE '%daq' AND path like '%$dPath%' AND hpss ='Y' ";
-}else{
- $sql="SELECT fName, path, size, Nevents  FROM $FileCatalogT WHERE trigger = '$trigD' AND fName LIKE '%daq' AND path like '%$dPath%'  AND hpss ='Y' ";
+  $sql="SELECT fName, path, size, Nevents  FROM $FileCatalogT WHERE trigger <> 'n/a' AND dataset <> 'tpc_laser' AND fName LIKE '%daq' AND path like '%$dPath%' AND site like 'hpss%' ";
+
+}elsif ($trigD ne "all" and $fieldM eq "all") {
+
+ $sql="SELECT fName, path, size, Nevents  FROM $FileCatalogT WHERE trigger = '$trigD' AND fName LIKE '%daq' AND path like '%$dPath%'  AND site like 'hpss%' ";
+
+}elsif ($trigD eq "all" and $fieldM ne "all" ) {
+
+ $sql="SELECT fName, size, path, Nevents  FROM $FileCatalogT WHERE fName LIKE '%.root' AND jobID LIKE '%$prodSer%' AND trigger <> 'n/a' AND dataset like '%$fieldM%' AND site like 'hpss%'";
+ 
+}elsif($trigD ne "all" and $fieldM ne "all") {
+
+ $sql="SELECT fName, size, path, Nevents  FROM $FileCatalogT WHERE fName LIKE '%.root' AND jobID LIKE '%$prodSer%' AND trigger = '$trigD' AND dataset like '%$fieldM%' AND site like 'hpss%' ";
 }
+
    $cursor =$dbh->prepare($sql)
       || die "Cannot prepare statement: $DBI::errstr\n";
    $cursor->execute;
