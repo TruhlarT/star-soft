@@ -1,6 +1,6 @@
 #!/usr/bin/env perl
 
-# $Id: AutoBuild.pl,v 1.24 2004/10/28 15:38:35 jeromel Exp $
+# $Id: AutoBuild.pl,v 1.25 2004/10/28 19:48:36 jeromel Exp $
 # This script was written to perform an automatic compilation
 # with cvs co and write some html page related to it afterward.
 # Written J.Lauret Apr 6 2001
@@ -299,7 +299,7 @@ if($NIGNOR){
 	    if ($#dirst != -1){
 		foreach my $dd (@dirst){
 		    # Don't do it for now
-		    push(@PRECOMPILE,"rm -fr $dd\"");
+		    push(@PRECOMPILE,"cd $COMPDIR && rm -fr $dd");
 		}
 	    }
 	}
