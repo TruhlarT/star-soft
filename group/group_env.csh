@@ -1,6 +1,9 @@
-#       $Id: group_env.csh,v 1.17 1998/06/24 18:01:23 wenaus Exp $
+#       $Id: group_env.csh,v 1.18 1998/06/24 18:35:52 wenaus Exp $
 #	Purpose:	STAR group csh setup 
 #       $Log: group_env.csh,v $
+#       Revision 1.18  1998/06/24 18:35:52  wenaus
+#       Objy setup must always be run
+#
 #       Revision 1.17  1998/06/24 18:01:23  wenaus
 #       Add env variables for BaBar and G4 software
 #
@@ -207,7 +210,7 @@ if ( -f $GROUP_DIR/rootenv.csh) then
 endif
 # Objy 5.00
 if (-f /opt/objy/objy500/setup.csh) then
-if ( ! $?OBJY_HOME) source  /opt/objy/objy500/setup.csh
+  source  /opt/objy/objy500/setup.csh
 endif
 # BaBar
 setenv BFROOT /star/sol/packages/BaBar
