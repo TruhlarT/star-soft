@@ -86,7 +86,10 @@ $INSU::TDIR="/star/rcf/test/dev/Insure";
 	      "/star/data03/daq/2001/192/st_physics_2192029_raw_0003.daq",
 
 	      "p2001a",
-	      "/star/data03/daq/2001/251/st_physics_2251004_raw_0001.daq"
+	      "/star/data03/daq/2001/251/st_physics_2251004_raw_0001.daq",
+
+	      "pp2001",
+	      "/star/data03/daq/2002/017/st_physics_3017028_raw_0006.daq"
 
 	      );
 
