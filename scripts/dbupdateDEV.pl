@@ -587,10 +587,15 @@ foreach  $eachOutNDir (@OUT_DIR) {
        $EvGen = "hadronic_cocktail";
        $EvType = substr($EvTp,3); 
     }
-       elsif ($EvTp =~ /pp_/ or $EvTp =~ /ppl_/) {
+       elsif ($EvTp =~ /pp_/ ) {
        $EvGen = "pythia";
        $EvType = "pp_minbias";
      }
+       elsif ($EvTp =~ /ppl_/) {
+       $EvGen = "pythia";
+       $EvType = "ppl_minbias";
+     }
+
        elsif ($EvTp =~ /peripheral/) {
        $EvGen = "hadronic_cocktail";
        $EvType = $EvTp;
