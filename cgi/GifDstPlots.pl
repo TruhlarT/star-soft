@@ -71,6 +71,7 @@ $sql="SELECT fileName, id, summaryFile, mem_size_MB, CPU_per_evt_sec, avg_no_tra
 elsif ( $numRun eq "all" and $evType eq "all" ) {
 $sql="SELECT fileName, id, summaryFile, mem_size_MB, CPU_per_evt_sec, avg_no_tracks, avg_no_vertex FROM $DstProductionT WHERE prodSeries = '$set1' AND HPSS_date = '$datProd' "; 
 }
+}
 ###
 else {
  if( $numRun ne "all" and $evType ne "all" ) {
@@ -291,6 +292,7 @@ $graph->set_y_label_font(gdMediumBoldFont);
 $graph->set_x_axis_font(gdMediumBoldFont);
 $graph->set_y_axis_font(gdMediumBoldFont);
 print $graph->plot(\@data);
+
 }
 
 
