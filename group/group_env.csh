@@ -1,5 +1,5 @@
 #!/usr/bin/csh -f
-#       $Id: group_env.csh,v 1.120 2001/07/18 19:18:51 jeromel Exp $
+#       $Id: group_env.csh,v 1.121 2001/09/25 20:25:13 jeromel Exp $
 #	Purpose:	STAR group csh setup
 #
 #	Author:		Y.Fisyak     BNL
@@ -172,25 +172,21 @@ if ($?MANPATH == 1) then
 else
   setenv MANPATH ${STAR_PATH}/man
 endif
-     setenv OBJY_ARCH  ""
+     
+setenv OBJY_ARCH  ""
 switch ($STAR_SYS)
     case "rs_aix*":
-#  ====================
-##VP         setenv MANPATH {$MANPATH}:/usr/share/man
         setenv MANPATH `${GROUP_DIR}/dropit -p {$MANPATH} -p /usr/share/man`
-    breaksw
+        breaksw
     case "alpha_osf32c":
-#  ====================
-    breaksw
+	breaksw
     case "hp700_ux90":
-#  ====================
-    breaksw
+	breaksw
+
     case "hp_ux102":
-#  ====================
       if ($?SHLIB_PATH == 0) setenv SHLIB_PATH
       if ( -x ${GROUP_DIR}/dropit) setenv SHLIB_PATH `${GROUP_DIR}/dropit -p ${SHLIB_PATH} $STAR_PATH`
       if ($?MINE_lib == 1 && $?STAR_lib == 1) then
-##VP         setenv SHLIB_PATH ${MINE_lib}:${MINE_LIB}:${STAR_lib}:${STAR_LIB}:${STAF_LIB}:${SHLIB_PATH}
         setenv SHLIB_PATH `${GROUP_DIR}/dropit -p ${MINE_lib} -p ${MINE_LIB} -p ${STAR_lib} -p ${STAR_LIB} -p ${STAF_LIB} -p ${SHLIB_PATH}`
       else
 	if ( -x ${GROUP_DIR}/dropit) setenv SHLIB_PATH `${GROUP_DIR}/dropit -p ${SHLIB_PATH} .${STAR_HOST_SYS}/LIB`
@@ -200,74 +196,76 @@ switch ($STAR_SYS)
       setenv LD_LIBRARY_PATH ${SHLIB_PATH}
       setenv BFARCH hp_ux102
       limit coredumpsize 0
-    breaksw
+      breaksw
+
     case "i386_*":
-#  ====================
-# make sure that afws in the path
-     if (! -d /usr/afsws/bin) setenv PATH `${GROUP_DIR}/dropit -p $PATH -p /afs/rhic/i386_redhat50/usr/afsws/bin`
-     if ( -d /usr/pgi ) then
+      #  ====================
+      # make sure that afws in the path
+      if (! -d /usr/afsws/bin) setenv PATH `${GROUP_DIR}/dropit -p $PATH -p /afs/rhic/i386_redhat50/usr/afsws/bin`
+      if ( -d /usr/pgi ) then
        setenv PGI /usr/pgi
        setenv PATH `${GROUP_DIR}/dropit -p $PGI/linux86/bin -p $PATH`
 ##VP        setenv MANPATH "${MANPATH}:${PGI}/man"
        setenv MANPATH `${GROUP_DIR}/dropit -p ${MANPATH} -p ${PGI}/man`
        setenv LM_LICENSE_FILE $PGI/license.dat
        alias pgman 'man -M $PGI/man'
-     endif
-     if (-d /usr/local/KAI/KCC.flex-3.4f-1/KCC_BASE) then
+      endif
+      if (-d /usr/local/KAI/KCC.flex-3.4f-1/KCC_BASE) then
        setenv KAI /usr/local/KAI/KCC.flex-3.4f-1/KCC_BASE
        setenv PATH `${GROUP_DIR}/dropit -p $KAI/bin -p $PATH`
 
-     endif
-     setenv PATH  `${GROUP_DIR}/dropit -p $PATH  -p /usr/local/bin/ddd`
-     if ($?LD_LIBRARY_PATH == 0) setenv LD_LIBRARY_PATH
-     if ($?MINE_lib == 1 && $?STAR_lib == 1) then
-##VP        setenv LD_LIBRARY_PATH "${MINE_lib}:${MINE_LIB}:${STAR_lib}:${STAR_LIB}:${STAF_LIB}:${LD_LIBRARY_PATH}"
-       setenv LD_LIBRARY_PATH `${GROUP_DIR}/dropit -p ${MINE_lib} -p ${MINE_LIB} -p ${STAR_lib} -p ${STAR_LIB} -p ${STAF_LIB} -p ${LD_LIBRARY_PATH}`
-     else
-       if ( -x ${GROUP_DIR}/dropit) setenv LD_LIBRARY_PATH `${GROUP_DIR}/dropit -p ${LD_LIBRARY_PATH} .${STAR_HOST_SYS}/LIB`
-##VP        setenv LD_LIBRARY_PATH "${MINE_LIB}:${STAR_LIB}:${STAF_LIB}:${LD_LIBRARY_PATH}"
-       setenv LD_LIBRARY_PATH `${GROUP_DIR}/dropit -p ${MINE_LIB} -p ${STAR_LIB} -p ${STAF_LIB} -p ${LD_LIBRARY_PATH}`
-     endif
-     limit coredump 0
-     setenv BFARCH Linux2
-
-     setenv OBJY_ARCH linux86
-    breaksw
-    case "sun4*":
-#  ====================
+      endif
+      setenv PATH  `${GROUP_DIR}/dropit -p $PATH  -p /usr/local/bin/ddd`
       if ($?LD_LIBRARY_PATH == 0) setenv LD_LIBRARY_PATH
-##VP       setenv LD_LIBRARY_PATH "/usr/openwin/lib:/usr/dt/lib:/usr/local/lib:${LD_LIBRARY_PATH}"
+      if ($?MINE_lib == 1 && $?STAR_lib == 1) then
+       setenv LD_LIBRARY_PATH `${GROUP_DIR}/dropit -p ${MINE_lib} -p ${MINE_LIB} -p ${STAR_lib} -p ${STAR_LIB} -p ${STAF_LIB} -p ${LD_LIBRARY_PATH}`
+      else
+       if ( -x ${GROUP_DIR}/dropit) setenv LD_LIBRARY_PATH `${GROUP_DIR}/dropit -p ${LD_LIBRARY_PATH} .${STAR_HOST_SYS}/LIB`
+       setenv LD_LIBRARY_PATH `${GROUP_DIR}/dropit -p ${MINE_LIB} -p ${STAR_LIB} -p ${STAF_LIB} -p ${LD_LIBRARY_PATH}`
+      endif
+      limit coredump 0
+      setenv BFARCH Linux2
+
+      setenv OBJY_ARCH linux86
+      breaksw
+
+    case "sun4*":
+      #  ====================
+      # Sun/Solaris version 4
+      #  ====================
+      if ( -r $STAR_MGR/sunWS ) then
+	setenv SUNWS `cat $STAR_MGR/sunWS`
+      else
+	# default packages distribution directory
+	setenv SUNWS "WS5.0"
+      endif
+      set WSVERS=`echo $SUNWS  | sed "s/WS//"`   # full version number
+      set WSMVER=`echo $WSVERS | sed "s/\..*//"` # major version number
+
+      if ($?LD_LIBRARY_PATH == 0) setenv LD_LIBRARY_PATH
       setenv LD_LIBRARY_PATH `${GROUP_DIR}/dropit -p /usr/openwin/lib -p /usr/dt/lib -p /usr/local/lib -p ${LD_LIBRARY_PATH}`
       if ("${STAR_HOST_SYS}" == "sun4x_56_CC5" || "${STAR_HOST_SYS}" == "sun4x_58" ) then
-##VP         setenv LD_LIBRARY_PATH "${LD_LIBRARY_PATH}:/opt/WS5.0/lib:/opt/WS5.0/SC5.0/lib"
-        setenv LD_LIBRARY_PATH `${GROUP_DIR}/dropit -p ${LD_LIBRARY_PATH} -p /opt/WS5.0/lib -p /opt/WS5.0/SC5.0/lib`
-##VP         setenv PATH "/opt/WS5.0/bin:${PATH}"
-        setenv PATH `${GROUP_DIR}/dropit -p /opt/WS5.0/bin -p ${PATH}`
-##VP 	setenv MANPATH "/opt/WS5.0/man:${MANPATH}"
-	setenv MANPATH `${GROUP_DIR}/dropit -p /opt/WS5.0/man -p ${MANPATH}`
+        setenv LD_LIBRARY_PATH `${GROUP_DIR}/dropit -p ${LD_LIBRARY_PATH} -p /opt/$SUNWS/lib -p /opt/$SUNWS/SC$WSVERS/lib -p /opt/$SUNWS/WS$WSMVER/lib`
+        setenv PATH `${GROUP_DIR}/dropit -p /opt/$SUNWS/bin -p ${PATH}`
+	setenv MANPATH `${GROUP_DIR}/dropit -p /opt/$SUNWS/man -p ${MANPATH}`
         if ( -x ${GROUP_DIR}/dropit) then
           setenv PATH `${GROUP_DIR}/dropit SUNWspro ObjectSpace`
           setenv LD_LIBRARY_PATH `${GROUP_DIR}/dropit -p $LD_LIBRARY_PATH SUNWspro`
         endif
       else
         if ( -x ${GROUP_DIR}/dropit) then
-          setenv PATH `${GROUP_DIR}/dropit WS5.0`
-          setenv PATH `${GROUP_DIR}/dropit CC5`
-          setenv LD_LIBRARY_PATH `${GROUP_DIR}/dropit -p $LD_LIBRARY_PATH 5.0`
-          setenv LD_LIBRARY_PATH `${GROUP_DIR}/dropit -p $LD_LIBRARY_PATH CC5`
-
-
+          setenv PATH `${GROUP_DIR}/dropit $SUNWS`
+          setenv PATH `${GROUP_DIR}/dropit CC$WSMVER`
+          setenv LD_LIBRARY_PATH `${GROUP_DIR}/dropit -p $LD_LIBRARY_PATH $WSVERS`
+          setenv LD_LIBRARY_PATH `${GROUP_DIR}/dropit -p $LD_LIBRARY_PATH CC$WSMVER`
         endif
-##VP         setenv LD_LIBRARY_PATH "/opt/SUNWspro/lib:${LD_LIBRARY_PATH}:${STAR_PATH}/ObjectSpace/2.0m/lib"
+
         setenv LD_LIBRARY_PATH `${GROUP_DIR}/dropit -p /opt/SUNWspro/lib -p ${LD_LIBRARY_PATH} -p ${STAR_PATH}/ObjectSpace/2.0m/lib`
-##VP         setenv PATH "/opt/SUNWspro/bin:$PATH"
         setenv PATH `${GROUP_DIR}/dropit -p /opt/SUNWspro/bin -p $PATH`
-##VP         setenv MANPATH "/opt/SUNWspro/man:$MANPATH"
         setenv MANPATH `${GROUP_DIR}/dropit -p /opt/SUNWspro/man -p $MANPATH`
       endif
 
      if ($?MINE_lib == 1 && $?STAR_lib == 1) then
-##VP        setenv LD_LIBRARY_PATH "${MINE_lib}:${MINE_LIB}:${STAR_lib}:${STAR_LIB}:${STAF_LIB}:${LD_LIBRARY_PATH}"
        setenv LD_LIBRARY_PATH `${GROUP_DIR}/dropit -p ${MINE_lib} -p ${MINE_LIB} -p ${STAR_lib} -p ${STAR_LIB} -p ${STAF_LIB} -p ${LD_LIBRARY_PATH}`
      else
 ##VP        setenv LD_LIBRARY_PATH "${MINE_LIB}:${STAR_LIB}:${STAF_LIB}:${LD_LIBRARY_PATH}"
@@ -278,99 +276,95 @@ switch ($STAR_SYS)
      setenv OBJY_ARCH solaris4
      limit coredump 0
      unlimit descriptors
-    breaksw
+     breaksw
+
     default:
-#  ====================
-    breaksw
+	#  ====================
+	breaksw
 endsw
+
 if ( -e /usr/local/lib/libMesaGL.so && -e /usr/X11R6/lib/libXmu.so) then
     setenv OPENGL /usr/local
 endif
-#if ( -e /usr/ccs/bin/ld ) setenv PATH `${GROUP_DIR}/dropit -p $PATH /usr/ccs/bin -p /usr/ccs/lib`
+
 if ( -d /usr/local/lsf/bin ) then
   if ( -x ${GROUP_DIR}/dropit) setenv PATH  `${GROUP_DIR}/dropit lsf`
   setenv LSF_ENVDIR /usr/local/lsf/mnt/conf
   set path=(/usr/local/lsf/bin $path)
-##VP   setenv MANPATH {$MANPATH}:/usr/local/lsf/mnt/man
   setenv MANPATH `${GROUP_DIR}/dropit -p {$MANPATH} -p /usr/local/lsf/mnt/man`
 endif
+
 # We need this aliases even during BATCH
 if (-r $GROUP_DIR/group_aliases.csh) source $GROUP_DIR/group_aliases.csh
 #
 if ($?SCRATCH == 0) then
-#if ( -w /home/scratch ) then
-#        setenv SCRATCH /home/scratch/$LOGNAME
-#else if ( -w /scr20 ) then
-#        setenv SCRATCH /scr20/$LOGNAME
-#else if ( -w /scr21 ) then
-#        setenv SCRATCH /scr21/$LOGNAME
-#else if ( -w /scr22 ) then
-#        setenv SCRATCH /scr22/$LOGNAME
-#else if ( -w /scratch ) then
-#        setenv SCRATCH /scratch/$LOGNAME
-#else
-##	echo No scratch directory available. Using /tmp/$USER ...
-        setenv SCRATCH /tmp/$LOGNAME
+    setenv SCRATCH /tmp/$LOGNAME
 endif
 
+
+
+# User Scratch directory
 if ( ! -d $SCRATCH ) then
         mkdir $SCRATCH
         chmod 755 $SCRATCH
 endif
 if ($ECHO) echo   "Setting up SCRATCH   = $SCRATCH"
 endif
+
+# Echo CERN level information
 if ($?CERN_ROOT == 1 ) then
-if ($ECHO) echo   "CERNLIB version "$CERN_LEVEL" has been initiated with CERN_ROOT="${CERN_ROOT}
+    if ($ECHO) echo   "CERNLIB version "$CERN_LEVEL" has been initiated with CERN_ROOT="${CERN_ROOT}
 endif
+
 
 
 # HP Jetprint
 if ( -d /opt/hpnp ) then
   if ($ECHO) echo   "Paths set up for HP Jetprint"
-##VP   setenv MANPATH "$MANPATH":/opt/hpnp/man
   setenv MANPATH `${GROUP_DIR}/dropit -p $MANPATH -p /opt/hpnp/man`
   setenv PATH `${GROUP_DIR}/dropit -p $PATH  -p /opt/hpnp/bin -p /opt/hpnp/admin`
 endif
 setenv PATH `${GROUP_DIR}/dropit -p $HOME/bin -p $HOME/bin/.$STAR_SYS -p $PATH -p $CERN_ROOT/bin -p $CERN_ROOT/mgr .`
-if ( -x ${GROUP_DIR}/dropit) then
+
+
+
 # clean-up PATH
-if ("$CERN_LEVEL" != "pro") then
-  setenv PATH  `${GROUP_DIR}/dropit cern`
-##VP   setenv PATH  "${PATH}:${CERN_ROOT}/bin"
-  setenv PATH `${GROUP_DIR}/dropit -p ${PATH} -p ${CERN_ROOT}/bin`
-endif
-##VP setenv PATH "${OPTSTAR}/bin:${PATH}"
-setenv PATH `${GROUP_DIR}/dropit -p ${OPTSTAR}/bin -p ${PATH}`
-switch ($STAR_SYS)
-    case "hp_ux102":
-#  ====================
-##VP   setenv SHLIB_PATH "${SHLIB_PATH}:${OPTSTAR}/lib"
-  setenv SHLIB_PATH `${GROUP_DIR}/dropit -p ${SHLIB_PATH} -p ${OPTSTAR}/lib`
-  if ( -d ${OPTSTAR}/lib/mysql ) then
-##VP     setenv SHLIB_PATH "${SHLIB_PATH}:${OPTSTAR}/lib/mysql"
-    setenv SHLIB_PATH `${GROUP_DIR}/dropit -p ${SHLIB_PATH} -p ${OPTSTAR}/lib/mysql`
-  endif
-  setenv SHLIB_PATH `${GROUP_DIR}/dropit -p "$SHLIB_PATH"`
-    breaksw
+if ( -x ${GROUP_DIR}/dropit) then
+    if ("$CERN_LEVEL" != "pro") then
+	setenv PATH  `${GROUP_DIR}/dropit cern`
+	setenv PATH `${GROUP_DIR}/dropit -p ${PATH} -p ${CERN_ROOT}/bin`
+    endif
+    setenv PATH `${GROUP_DIR}/dropit -p ${OPTSTAR}/bin -p ${PATH}`
+    switch ($STAR_SYS)
+	case "hp_ux102":
+	#  ====================
+	setenv SHLIB_PATH `${GROUP_DIR}/dropit -p ${SHLIB_PATH} -p ${OPTSTAR}/lib`
+	if ( -d ${OPTSTAR}/lib/mysql ) then
+	    setenv SHLIB_PATH `${GROUP_DIR}/dropit -p ${SHLIB_PATH} -p ${OPTSTAR}/lib/mysql`
+	endif
+	setenv SHLIB_PATH `${GROUP_DIR}/dropit -p "$SHLIB_PATH"`
+	breaksw
+
     default:
-#  ====================
-##VP   setenv LD_LIBRARY_PATH "${LD_LIBRARY_PATH}:${OPTSTAR}/lib"
-  setenv LD_LIBRARY_PATH `${GROUP_DIR}/dropit -p ${LD_LIBRARY_PATH} -p ${OPTSTAR}/lib`
-  if ( -d ${OPTSTAR}/lib/mysql ) then
-##VP     setenv LD_LIBRARY_PATH "${LD_LIBRARY_PATH}:${OPTSTAR}/lib/mysql"
-    setenv LD_LIBRARY_PATH `${GROUP_DIR}/dropit -p ${LD_LIBRARY_PATH} -p ${OPTSTAR}/lib/mysql`
-  endif
-  setenv LD_LIBRARY_PATH `${GROUP_DIR}/dropit -p "$LD_LIBRARY_PATH"`
-    breaksw
-endsw
-  setenv MANPATH `${GROUP_DIR}/dropit -p ${MANPATH}`
-  setenv PATH `${GROUP_DIR}/dropit -p ${PATH} GROUPPATH`
+	#  ====================
+	setenv LD_LIBRARY_PATH `${GROUP_DIR}/dropit -p ${LD_LIBRARY_PATH} -p ${OPTSTAR}/lib`
+	if ( -d ${OPTSTAR}/lib/mysql ) then
+	    setenv LD_LIBRARY_PATH `${GROUP_DIR}/dropit -p ${LD_LIBRARY_PATH} -p ${OPTSTAR}/lib/mysql`
+	endif
+	setenv LD_LIBRARY_PATH `${GROUP_DIR}/dropit -p "$LD_LIBRARY_PATH"`
+	breaksw
+    endsw
+    setenv MANPATH `${GROUP_DIR}/dropit -p ${MANPATH}`
+    setenv PATH `${GROUP_DIR}/dropit -p ${PATH} GROUPPATH`
 endif
+
 if ($ECHO) then
-echo "STAR setup on" `hostname` "by" `date` " has been completed"
-if ($ECHO) echo   "LD_LIBRARY_PATH = $LD_LIBRARY_PATH"
-unset ECHO
+    echo "STAR setup on" `hostname` "by" `date` " has been completed"
+    echo   "LD_LIBRARY_PATH = $LD_LIBRARY_PATH"
+    unset ECHO
 endif
+
+
 #set date="`date`"
 #cat >> $GROUP_DIR/statistics/star${STAR_VERSION} << EOD
 #$USER from $HOST asked for STAR_LEVEL=$STAR_LEVEL / STAR_VERSION=$STAR_VERSION  $date
