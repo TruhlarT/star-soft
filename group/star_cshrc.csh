@@ -15,7 +15,7 @@ if ( ! $?star_login_csh ) then
     # This is actually the case in 'r' or 's'-service calls or even
     # some shells ...
     #
-    if( ! $?AFS_RHIC)   setenv AFS_RHIC  /afs/rhic
+    if( ! $?AFS_RHIC)   setenv AFS_RHIC  /afs/rhic.bnl.gov
     if( ! $?GROUP_DIR ) setenv GROUP_DIR $AFS_RHIC/star/group/
 
     if( -r $GROUP_DIR/star_login.csh ) then
