@@ -1,7 +1,10 @@
 #!/usr/bin/csh -f
-#       $Id: group_env.csh,v 1.29 1998/07/11 00:59:14 fisyak Exp $
+#       $Id: group_env.csh,v 1.30 1998/07/12 23:14:03 fisyak Exp $
 #	Purpose:	STAR group csh setup 
 #       $Log: group_env.csh,v $
+#       Revision 1.30  1998/07/12 23:14:03  fisyak
+#       fix bug in LD_LIBRARY_PATH
+#
 #       Revision 1.29  1998/07/11 00:59:14  fisyak
 #       add cern/LEVEL/bin to path
 #
@@ -211,7 +214,7 @@ switch ($STAR_SYS)
     case "sun4*":
 #  ====================
       if (! ${?LD_LIBRARY_PATH}) setenv LD_LIBRARY_PATH
-      setenv LD_LIBRARY_PATH "/opt/SUNWspro/lib:/usr/openwin/lib:/usr/dt/lib:/usr/local/lib:${PARASOFT}/lib.solaris:${STAF_LIB}:{LD_LIBRARY_PATH}"
+      setenv LD_LIBRARY_PATH "/opt/SUNWspro/lib:/usr/openwin/lib:/usr/dt/lib:/usr/local/lib:${PARASOFT}/lib.solaris:${STAF_LIB}:${LD_LIBRARY_PATH}"
 	set path = ($path $PARASOFT/bin.solaris)
     breaksw 
     case "sunx86_55":
