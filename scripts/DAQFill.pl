@@ -8,7 +8,7 @@
 # information in the DAQInfo table.
 #
 
-use lib "/afs/rhic/star/packages/scripts/";
+use lib "/afs/rhic.bnl.gov/star/packages/scripts/";
 use RunDAQ;
 
 # Mode 1 will quit
@@ -17,8 +17,12 @@ $sltime= 60;
 $file  = "";   # DAQFill.log";
 
 $mode   = shift(@ARGV) if ( @ARGV );
-$sltime = shift(@ARGV) if ( @ARGV );
+$arg1   = shift(@ARGV) if ( @ARGV );
 $file   = shift(@ARGV) if ( @ARGV );
+
+# We added this in 2004 for a bootstrap by run number
+# range.
+if ($arg1 > 0){ $sltime = $arg1;}
 
 
 # We add an infinit loop around so the table will be filled
@@ -36,35 +40,47 @@ do {
 
 	    # get the top run. Note that <= 0 would get all
 	    # runs ever entered in this database.
-	    $run = $mode*rdaq_last_run($dbObj);
-	    $prun= &GetRun();
+	    if ($arg1 < 0){
+		$run = - $arg1;
+		$prun= 0;
+	    } else {
+		$run = $mode*rdaq_last_run($dbObj);
+		$prun= &GetRun();
+	    }
 
 	    if($prun ne $run){
 		&Print("Last Run=$run on ".localtime()."\n");
 	    }
 
+	    $begin = 0;
+	    $by    = 10000;
 	    if($run >= 0){
 		# fetch new records since that run number
-		@records = rdaq_raw_files($obj,$run);
+		do {
+		    @records = rdaq_raw_files($obj,$run,"$begin,$by");
 
-		# display info
-		if ($#records != -1){
-		    &Print("Fetched ".($#records+1)." records on $ctime, entered ");
+		    # display info
+		    if ($#records != -1){
+			&Print("Fetched ".($#records+1)." records on $ctime, entered ");
 
-		    # record entries
-		    &Print( rdaq_add_entries($dbObj,@records)."\n");
+			# record entries
+			&Print("Adding ".(1+rdaq_add_entries($dbObj,@records))." entries\n");
 
-		    # cleanup
-		    undef(@records);
-		}
+			# cleanup
+			undef(@records);
+		    }
+		    $begin += $by;
+		} while ($#records != -1);
 	    } else {
 		&Print("Checking entries on ".localtime()."\n");
-		$mode    = 0;  # loop reset
-		@records = rdaq_raw_files($obj,$run);
+		$mode    = 0;  # main loop reset
+		do {
+		    @records = rdaq_raw_files($obj,$run,"$begin,$by");
 
-		&Print("Updating $#records on ".localtime()."\n");
-		rdaq_update_entries($dbObj,@records);
-
+		    &Print("Updating ".($#records+1)." on ".localtime()."\n");
+		    rdaq_update_entries($dbObj,@records);
+		    $begin += $by;
+		} while ($#records != -1);
 	    }
 
 	    # close
@@ -77,7 +93,7 @@ do {
     }
 
     sleep($sltime*$mode);
-} while(1*$mode);
+} while(1*$mode );
 
 
 #
