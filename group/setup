@@ -1,5 +1,5 @@
 #! /usr/local/bin/tcsh -f
-set packages = "objy root parasoft sniff g4 cc4 cc5 Dsv" 
+set packages = "objy root parasoft|insure sniff g4 cc4 cc5 Dsv" 
 if ($#argv == 0 || $#argv > 2) then
     echo "Usage: setup package [version]"
     echo "List of packages: $packages"
@@ -28,7 +28,9 @@ switch ($pkg)
          #=====#
 	if (`uname -s` == "SunOS" && `hostname` != "rcf.rhic.bnl.gov" && ! ${?OBJY_HOME} ) source $GROUP_DIR/ObjySetup.csh
 	breaksw
-    case "parasof":
+    case "insure":
+    case "INSURE":
+    case "parasoft":
     case "PARASOFT":	
          #=====#
 	if (-f $GROUP_DIR/parasoftenv.csh) source $GROUP_DIR/parasoftenv.csh
