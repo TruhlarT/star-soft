@@ -191,7 +191,7 @@ sub CompareToReference{
 
   #--------------------------------------------------------
 
-  print "CompareReport_object::CompareToReference: not yet implemented (04/06/00) <br>\n";
+  print "<h4>CompareReport_object::CompareToReference: Sorry, comparison to a single pre-defined reference run is not yet implemented. Go back and do \"Compare to Multiple Reports\" instead. <\h4>\n";
 
 }
 #========================================================
