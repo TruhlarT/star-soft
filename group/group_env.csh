@@ -1,5 +1,5 @@
 #!/usr/bin/csh -f
-#       $Id: group_env.csh,v 1.105 2000/08/18 22:34:01 fisyak Exp $
+#       $Id: group_env.csh,v 1.106 2000/08/24 22:29:16 fisyak Exp $
 #	Purpose:	STAR group csh setup 
 #
 #	Author:		Y.Fisyak     BNL
@@ -18,7 +18,10 @@ setenv WWW_HOME http://www.star.bnl.gov/
                                              if ($ECHO) echo   "Setting up WWW_HOME  = $WWW_HOME"
 setenv AFS       /usr/afsws
 setenv AFS_RHIC  /afs/rhic
-setenv STAR_ROOT ${AFS_RHIC}/star;           if ($ECHO) echo   "Setting up STAR_ROOT = ${STAR_ROOT}"         
+if (! $?STAR_ROOT) then
+    setenv STAR_ROOT ${AFS_RHIC}/star;
+endif
+                                             if ($ECHO) echo   "Setting up STAR_ROOT = ${STAR_ROOT}"         
 # Define /opt/star
 if ( ! $?OPTSTAR )  setenv OPTSTAR /opt/star
 # Defined by HEPiX
@@ -213,7 +216,7 @@ switch ($STAR_SYS)
 #  ====================
     breaksw
 endsw
-if ( -e /usr/local/lib/libMesaGL.so) then
+if ( -e /usr/local/lib/libMesaGL.so && -e /usr/X11R6/lib/libXmu.so) then
     setenv OPENGL /usr/local
 endif
 if ( -e /usr/ccs/bin/ld ) set path = ( $path /usr/ccs/bin /usr/ccs/lib )
