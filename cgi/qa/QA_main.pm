@@ -316,6 +316,19 @@ sub starting_display {
   };
 
   #-----------------------------------------------------------------------------
+  # -- display backup status
+  
+  my $backup_filename = "$backup_dir/last_backup";
+  -s $backup_filename and do{
+     open (BACKUP, $backup_filename) 
+	 or print "Cannot open backup file $backup_filename: $! \n";
+     $line = <BACKUP>;
+     close BACKUP;
+     chomp $line;
+     print "Last backup at $line <br>\n";
+ };
+
+  #-----------------------------------------------------------------------------
   # check for running batch jobs and report if update in progress
 
   opendir(DIR,$update_dir) or die "Cannot open update dir $update_dir:$! \n"; 
