@@ -1,3 +1,58 @@
+#ifdef __ROOT__
+*CMZ :          30/04/98  00.45.04  by  Pavel Nevski
+*-- Author :    Pavel Nevski
+*****************************************************************************
+*                                                                           *
+      subroutine        A G M A I N
+*                                                                           *
+*****************************************************************************
++CDE,TYPING,AGECOM,AGCKINE.
++CDE,GCFLAG,GCTIME,GCPHYS,GCTRAK.
+*
+      INTEGER           NWGEA/4000000/,NWPA/500000/,p
+      CHARACTER*6       PROG/'agroot'/
+*
+      CALL TIMEST  (3.E7)  ! set time limit for interactive mode
+      write (*,1001) PROG,NWGEA,NWPA
+1001  format(1x,54('*')/' * Starting ',a8,
+     >       ' NwGEANT=',i9,' NwPAW=',i8,' *'/ 1x,54('*'))
+      IDEBUG = 1
+*                                        initialise packages
+      CALL TIMEL   (TIMINT)
+      CALL MZEBRA  (-3)
+      CALL GZEBRA  (NWGEA)         ! store 0 - geant
+      CALL MZPAW   (NWPA,' ')      ! store 1 - pawc
+      CALL KUINIT  (5000)
+      CALL IGINIT  (10000)
+      CALL IGSSE   (6,1)
+      CALL HLIMIT  (0)
+      CALL REBANKM (-1)
+      CALL GDINIT                  ! Initialise Drawing pkg
+****>
+      p  = Idebug
+      CALL GINIT                   "  GEANT common blocks                "
+      CALL GZINIT                  "  GEANT core divisions, link areas,  "
+      CALL AGZINI                  "  specific ZEBRA initialization      "
+      CALL GPART                   "  Define standard particles          "
+      CALL GMATE                   "  Initialize standard materials      "
+*yf   Call AGXINIT                 "  aguser menu - called here          "
+      CALL GINTRI                  "  Geant MENUs and COMMANDs           "
+*
+      Idebug      =  p             "  restore Idebug after GINIT         "
+      DPHYS1      =  0             "  oshibku oshibkoi vybivaiut         "
+      %Standalone =  1             "  standalone version, not batch      "
+      %IGRAP      = -1             "  no default graphic, on request only"
+      IGAUTO      =  0             "  defaults GEANT tracking  off       "
+      CrunType    = ' '            "  no default actions defined         "
+      NkineMax    = 64 000         "  ZEBRA limit on KINE bank           "
+      NhitsMax    = 10 000 000     "  a reasonable limit on hit bank     "
+      %Module=' '
+      call Agstand
+      Call AgDummy
+*
+END
+
+#else /*NO __ROOT__ */
 *CMZ :          27/09/98  14.15.12  by  Pavel Nevski
 *CMZ :  1.40/05 26/08/98  22.10.06  by  Pavel Nevski
 *CMZ :  1.40/05 13/07/98  10.50.50  by  Pavel Nevski
@@ -150,6 +205,7 @@ C
       subroutine AGKUSER
       end
  
+#endif /* __ROOT__ */
  
 *CMZ :          07/09/98  19.02.49  by  Pavel Nevski
 *CMZ :  1.40/05 13/07/98  10.44.40  by  Pavel Nevski
@@ -171,12 +227,12 @@ C
 *KEEP,VIDQQ.
       CHARACTER*68 VIDQQ
       DATA VIDQQ/
-     +'@(#)* Advanced Geant Inteface   1.40/05   C: 05/11/98  21.31.15
+     +'@(#)* Advanced Geant Inteface   1.40/05   C: 05/12/98  22.52.16
      +'/
 *KEEP,DATEQQ.
-      IDATQQ =   981105
+      IDATQQ =   981205
 *KEEP,TIMEQQ.
-      ITIMQQ =   2131
+      ITIMQQ =   2252
 *KEEP,VERSQQ.
       VERSQQ = ' 1.40/05'
       IVERSQ =  14005
@@ -232,8 +288,7 @@ C
  <w>;(' *              do:  MANUAL AGUSER MAN.TEX LATEX                    *')
  <w>;(' ********************************************************************')
       end
- 
- 
+#ifndef __ROOT__ 
 *CMZ :  1.40/05 30/12/97  11.59.38  by  Pavel Nevski
 *CMZ :  1.30/00 17/04/97  20.55.24  by  Pavel Nevski
 *-- Author :    Pavel Nevski   27/11/94
@@ -504,6 +559,7 @@ C local variables valid inside same block
 *
 END
  
+#endif /* __ROOT__ */
  
 *CMZ :          03/09/98  16.43.10  by  Pavel Nevski
 *CMZ :  1.40/05 21/11/97  17.47.13  by  Pavel Nevski
@@ -592,8 +648,7 @@ C
     " STOP "
     END
  
- 
-*CMZ :          28/09/98  01.12.45  by  Pavel Nevski
+*CMZ :          20/11/98  11.42.15  by  Pavel Nevski
 *CMZ :  1.40/05 27/08/98  22.49.57  by  Pavel Nevski
 *CMZ :  1.40/05 21/08/98  13.34.22  by  Pavel Nevski
 *CMZ :  1.30/00 23/04/97  18.45.29  by  Pavel Nevski
@@ -807,7 +862,7 @@ C                                       Link to:
      character*256 string1,string2,string3
      integer       LENOCC,CSADDR,SYSTEMF,
                    Npar,Len1,Len2,Len3,Ip,Kp,Jp,L1,L2,L,M,Lc,i,j,K,i0,j0,id,
-                   id1,id2,address,JAD,IAD,Ival,Ier,Iprin/1/,Li/20/
+                   id1,id2,address,JAD,IAD,Ival,Ier,Iprin/1/,Li/20/,Nblk/1024/
      Character*160 source,      destin,      mname,     library
      data          source/' '/, destin/' '/, mname/' '/,library/' '/
      Real          PAR(1000),Rval,dummy1,dummy2
@@ -864,8 +919,9 @@ C                                       Link to:
   {  " open a histigram file
      Call KUGETS(string1,len1); CFHIST=string1(1:len1)
      Call KUGETC(string2,len2); CDHIST=string2(1:len2)
-     Call KUGETI(IUHIST)
-     Call HROPEN(IUHIST,CDHIST,CFHIST,'N',1024,IVAL)
+     Call KUGETI(IUHIST);       call KUGETI(Nblk);
+     Nblk=1024*(max(nint(NBLK/1024.),1))
+     Call HROPEN(IUHIST,CDHIST,CFHIST,'N',Nblk,IVAL)
      prin1 %L(CDHIST),%L(CFHIST),IUHIST
      (' Creating RZ-directory ',a,' for histogram file ',a,' on unit ',i3)
   }
@@ -2538,6 +2594,7 @@ C
       print *,' No GCALOR available in this version'
       end
  
+#ifndef __ROOT__
  
 *CMZ :          27/09/98  14.16.22  by  Pavel Nevski
 *CMZ :  1.40/05 01/04/98  11.36.29  by  Pavel Nevski
@@ -2589,7 +2646,7 @@ C
  
       END
  
- 
+#endif 
 *CMZ :  1.30/00 15/07/96  15.54.59  by  Pavel Nevski
 *-- Author :    P.Nevski    20/01/94
 ***************************************************************************
@@ -3727,6 +3784,7 @@ C
  }
  END
  
+*CMZ :          29/11/98  20.53.51  by  Pavel Nevski
 *CMZ :  1.30/00 21/11/96  19.48.44  by  Pavel Nevski
 *CMZ :  1.00/00 06/08/95  14.04.27  by  Pavel Nevski
 *-- Author :    Pavel Nevski   26/11/94
@@ -3867,10 +3925,19 @@ C
       INTEGER      NMATE ,NVOLUM,NROTM,NTMED,NTMULT,NTRACK,NPART
      +            ,NSTMAX,NVERTX,NHEAD,NBIT ,NALIVE,NTMSTO
 C
+*KEEP,GCFLAG.
+      COMMON/GCFLAG/IDEBUG,IDEMIN,IDEMAX,ITEST,IDRUN,IDEVT,IEORUN
+     +        ,IEOTRI,IEVENT,ISWIT(10),IFINIT(20),NEVENT,NRNDM(2)
+      COMMON/GCFLAX/BATCH, NOLOG
+      LOGICAL BATCH, NOLOG
+C
+      INTEGER       IDEBUG,IDEMIN,IDEMAX,ITEST,IDRUN,IDEVT,IEORUN
+     +        ,IEOTRI,IEVENT,ISWIT,IFINIT,NEVENT,NRNDM
+C
 *KEND.
-  Character*4 Daughter,Daught;            Real Vdist,D,V
-  Integer  LENOCC,Idaught,Ivd,Jvd,Ivo,Jvo,Ign,Ir,Jvm,Ivm,
-           Npo,Npa,Jmo,in,nin,Ncopy,Id,Jd,Jg,IDH,IDM
+  Character*4 Daughter,Daught;
+  Integer  LENOCC,Idaught,Ivd,Jvd,Ivo,Jvo,Ign,Jvm,Ivm,
+           Npo,Npa,Jmo,in,nin,Ncopy,Id,Jd,Jg,IDH,IDM,igsame
  
 * search for the mother, if it is explicitely defined, and check it.
   If %Ivolume<=0 | %Mother!=%Volume
@@ -3882,8 +3949,16 @@ C
      Jvm=LQ(JVOLUM-%Ivolume); Ivm=IQ(Jvm-5); IDM=IQ(Jvm-4);
      IF IDM==IQ(JVOLUM+%Ivolume) & 1<=Ivm&Ivm<=Nvolum
      { %Ivolume=Ivm; call UHTOC(IQ(JVOLUM+Ivm),4,%Cnick,4); }
-  }  Jmo=LQ(JVOLUM-%Ivolume); nin=Q(Jmo+3);
-  Check "that it has no divisions " nin>=0
+  }
+  Jmo=LQ(JVOLUM-%Ivolume); nin=Q(Jmo+3);
+  If nin<0         " should check names to give the diagnostic !"
+  { "error('volume ',%Cnick,' has both divisions and content')"; return; }
+ 
+  If Q(Jmo+1)==-99 & %Level>1
+  { if (Idebug>1) <w> %cnick,Ivm;
+    (' mother ',a,' copy ',i6,' was already positioned, skip filling ')
+    return
+  }
  
 * get Active volume number from the generic bank IDN word;
   Daughter=%Title;  Call GLOOK (Daughter,IQ(JVOLUM+1),Nvolum,Ivd);
@@ -3902,16 +3977,23 @@ C
   }
  
 * set copy number(generic) and avoid content (actual name!) dublication
+ 
   Ncopy=1;  Jmo=LQ(JVOLUM-%Ivolume);
-  do in=1,abs(nin)
-  {  Jd=LQ(Jmo-in); "its content"Id=Q(Jd+2); "and address"Jg=LQ(JVOLUM-Id);
+  do in=nin,1,-1
+  {  Jd=LQ(Jmo-in); "its content" Id=Q(Jd+2); "and address" Jg=LQ(JVOLUM-Id);
      "count copies of generic name"    Check IDH=IQ(Jg-4); Ncopy+=1;
-     " dont position same volumes "    Check Idaught=IQ(JVOLUM+Id);
-     " at the same place and angle"    Ir=Q(jd+4); d=Vdist(%x,Q(Jd+5),3); v=0;
-                                       if (Npo=0) V=Vdist(%Par,Q(jd+10),Npa);
-                                       if (d=0 & V=0 & Ir=%Irot)  Return;
-  }
-  If (%Ncopy>0) Ncopy=%Ncopy;  %Ncopy=Ncopy;
+ 
+     If Idaught=IQ(JVOLUM+Id) & %Irot=Q(jd+4)
+     { " dont position same volumes at the same place and angle"
+       if Igsame(%x,Q(Jd+5),3)>0
+       { if (Npo>0) return; if (Igsame(%Par,Q(jd+10),Npa)>0) return; }
+     }
+     If Q(jd+3)==%Ncopy
+     {  prin0 Idaught,IQ(JVOLUM+id),%Ncopy
+        (' Warning: volumes ',a4,' and ',a4,' both have copy number',i6)
+  }  }
+  if (%Ncopy>0) Ncopy=%Ncopy;  %Ncopy=Ncopy;
+ 
   Call UHTOC(Idaught,4,Daught,4);   Call CLTOU (%KONLY);
   If Npo>0 { Call GSPOS (Daught,Ncopy,%CNick,%X,%Y,%Z,%Irot,%KONLY); }
   else     { Call GSPOSP(Daught,Ncopy,%CNick,%X,%Y,%Z,%Irot,%KONLY,
@@ -3920,9 +4002,18 @@ C
         %Level,Ncopy,Npa,%IROT,Ivd,Ivo,nin;
   (' POSITION',2(1x,A4),'  into',2(1x,A4),' at x,y,z=',3f9.3/_
   10x,'level',i3,'  Ncopy',i4,' with Npar,Irot=',2i4,' Ivdau,Ivact=',3I5);
+  Q(LQ(JVOLUM-Ivo)+1)=-99;
    END
  
+   function Igsame(x,y,n)
+   real     x(n),y(n)
+   Igsame = 0
+   do i=1,n { if (x(i)!=y(i)) return; }
+   Igsame = 1
+   end
  
+ 
+*CMZ :          29/11/98  19.20.50  by  Pavel Nevski
 *CMZ :  1.30/00 02/04/97  15.21.45  by  Pavel Nevski
 *CMZU:  1.00/01 30/11/95  19.31.02  by  Pavel Nevski
 *CMZ :  1.00/00 04/09/95  14.29.15  by  Pavel Nevski
@@ -4074,7 +4165,7 @@ JATTF(Jj) = Jj+int(Q(Jj+5))+6
 *
 * Toggle the actual Npa = 0 | NPar
   Npa=0;  Do I=1,%Npar { if (%Par(i)#0) Npa=%Npar; }
-  Call UCTOH(%Volume,Name,4,4);  %Ignum=-1;
+  Call UCTOH(%Volume,Name,4,4);  %Ignum=-1;  Ivo=0;
   If %IMED<=0 {error(' Medium  in  ',%Volume,' not defined')};
  
 * if the top level volume has a hole, its inner radius(radii) is reset to 0:
@@ -4085,9 +4176,12 @@ JATTF(Jj) = Jj+int(Q(Jj+5))+6
       If %Ishape==12  {  do i=1,nint(%PAR(3)) { %Par(3*i+2)=0 }  " - PCON   "}
    }
 * If the volume has been defined with the same dimensions, return %Ivolume;
-  :volume: Do %Ivolume=1,NVOLUM
-  { "take next volum's IDs "       Jvo=LQ(JVOLUM-%Ivolume);   IDH=IQ(Jvo-4);
+  :volume: Do %Ivolume=NVOLUM,1,-1
+  { if (Ivo>0) Break :volume:;
+    "take next volum's IDs "     Jvo=LQ(JVOLUM-%Ivolume);   IDH=IQ(Jvo-4);
     "Select same generic names"  check IDH==Name;   "and count them" %Ignum+=1;
+    "Select Big Brother" if (IQ(JVOLUM+%Ivolume)==Name) Ivo=%Ivolume;
+ 
     "Now check that parameters are the same, otherwise search for another copy"
     "Undefined volumes with Npa=0  will fit any other volume "
      Npo=Q(Jvo+5);     Jat=JATTF(Jvo);
@@ -4124,7 +4218,7 @@ JATTF(Jj) = Jj+int(Q(Jj+5))+6
    Jat=JATTF(Jvo);  Q(Jat+9)=%IdType;  Q(Jat+10)=%Serial;
 :done:
 * save Active volume number in the generic bank status word;
-  Call GLOOK (%Volume,IQ(JVOLUM+1),Nvolum,Ivo);  Jvo=LQ(JVOLUM-Ivo);
+  if (Ivo==0) Call GLOOK (%Volume,IQ(JVOLUM+1),Nvolum,Ivo); Jvo=LQ(JVOLUM-Ivo);
   IQ(Jvo-5)=%Ivolume;  Call UHTOC(IQ(JVOLUM+%Ivolume),4,%CNICK,4);
    END
  
@@ -6313,6 +6407,7 @@ C
    END
  
  
+*CMZ :          29/11/98  20.56.38  by  Pavel Nevski
 *CMZ :  1.40/05 09/01/98  03.41.25  by  Pavel Nevski
 *CMZ :  1.30/00 02/04/96  20.16.48  by  Pavel Nevski
 *CMZ :  1.00/00 29/05/95  16.26.52  by  Pavel Nevski
@@ -6322,6 +6417,8 @@ C
                     Subroutine   A g G C L O S
 *                                                                    *
 *  Description:  Fill hit structures for all sensitive detectors     *
+*  Modifications:
+*  PN, 29.11.98 - cleanup Isearc paramater in JVOLUM structure       *
 **********************************************************************
 *KEEP,TYPING.
       IMPLICIT NONE
@@ -6344,6 +6441,14 @@ C
      +      ,JROTM ,JRUNG ,JSET  ,JSTAK ,JGSTAT,JTMED ,JTRACK,JVERTX
      +      ,JVOLUM,JXYZ  ,JGPAR ,JGPAR2,JSKLT
 C
+*KEEP,GCNUM.
+      COMMON/GCNUM/NMATE ,NVOLUM,NROTM,NTMED,NTMULT,NTRACK,NPART
+     +            ,NSTMAX,NVERTX,NHEAD,NBIT
+      COMMON /GCNUMX/ NALIVE,NTMSTO
+C
+      INTEGER      NMATE ,NVOLUM,NROTM,NTMED,NTMULT,NTRACK,NPART
+     +            ,NSTMAX,NVERTX,NHEAD,NBIT ,NALIVE,NTMSTO
+C
 *KEEP,GCUNIT.
       COMMON/GCUNIT/LIN,LOUT,NUNITS,LUNITS(5)
       INTEGER LIN,LOUT,NUNITS,LUNITS
@@ -6352,8 +6457,10 @@ C
 C
 *KEND.
   Character*4 Cset,Cdet
-  Integer     IPRIN,Iset,Idet,JS,JD,Jdu
+  Integer     IPRIN,Iset,Idet,JS,JD,Jdu,Iv
  
+  Do Iv=2,Nvolum   { If (Q(LQ(JVOLUM-Iv)+1)==-99) Q(LQ(JVOLUM-Iv)+1)=0; }
+*
   Check Jset>0
   :set: DO Iset=1,IQ(Jset-1)                                 " Over Nset "
   {  JS=LQ(Jset-Iset);   Check JS>0;  Call UHTOC (IQ(Jset+Iset),4,Cset,4)
@@ -7616,7 +7723,7 @@ C
  
  
  
-*CMZ :          05/11/98  20.44.14  by  Pavel Nevski
+*CMZ :          30/11/98  11.14.36  by  Pavel Nevski
 *CMZ :  1.40/05 19/08/98  16.55.50  by  Pavel Nevski
 *CMZ :  1.30/00 17/11/96  22.43.56  by  Pavel Nevski
 *CMZ :  1.00/00 14/11/95  02.46.06  by  Pavel Nevski
@@ -7743,7 +7850,7 @@ C   - combined DETM + Reconstruction bank access variables - AGI version
       EQUIVALENCE       (CNAM,INAM)
 *
 *KEND.
-Integer       LENOCC,IndexN,jj,
+Integer       LENOCC,IndexN,jj,j1,word2desc,
               OK,Lb,LL,LL1,LvL,ns1,ns2,Ndm,i,j,k,l,M/1000000/,ND(3),
               Idat,Itim,Link,Ia,Lk,L1,L2,Flag,IDYN,INEW,JOX,iw,idd/0/,X/0/,
               map(2,LL1),num(Lb),key(3),ID/0/,Iform/0/,Jform/0/,Istat/0/,IC
@@ -7896,7 +8003,7 @@ If Istat==0 & L2Doc>0
    {  Ldoc=LQ(L2Doc-i);   If (Ldoc<=0) go to :f:
       Call UHTOC (IQ(Ldoc-4),4,C1,4)
       Call UHTOC (IQ(Ldoc-5),4,C2,4)
-      prin2 Cbank,C1,C2,Dup; (' in agdocba cbank=',a,' id=',2a,' Dup=',a)
+      prin6 Cbank,C1,C2,Dup; (' in agdocum cbank=',a,' id=',2a,' Dup=',a)
       if C1==Cbank & C2==Dup(1:4)    { "MZDROP(IxSTOR,Ldoc,' ');"  goto :f:; }
       if C1==Dup(1:4) & C2==Dup(5:8)            " - insert links for level 4 "
       { Lkdoc=Ldoc; Call AgDOCBA (Ldoc,Dup,'*','*','*','*',1,0,Cbank,Btit,X) }
@@ -7916,12 +8023,14 @@ If Istat==0 & L2Doc>0
       if map(1,i)>0 & map(2,i)>0 { k=map(1,i)*map(2,i) }
       else                           " format a text dimension descriptor "
       {  do j=1,2
-         {  CC=' '; DD=' '
-            if map(j,i)<0  { jj=-map(j,i)-Inew; if(jj>0) CC=Names(jj)(3:); }
-            if map(j,i)>=j { write (DD,*) map(j,i);    CC=DD(IndexN(DD):); }
+         {  CC=' '; DD=' '    " real dynamic index is displaced by M "
+            if map(j,i)<0     " index word number to index number    "
+            { j1=word2desc(map(j,i),map,LL1,Inew);    CC=Names(j1)(3:)    }
+            if map(j,i)>=j { write (DD,*) map(j,i);   CC=DD(IndexN(DD):); }
+            * print *,' i,j,map(j,i),j1,cc = ', i,j,map(j,i),j1,cc
             if (Lenocc(CC)>0) cinde=%L(cinde)//cin(j:j)//%L(CC)
          }  cinde=%L(cinde)//cin(3:3)//'- '
-            prin3 cinde; (' AGDOCUM: dynamic index = ',a)
+            prin5 cinde; (' AGDOCUM: dynamic index = ',a,2i5)
       }                              "              --- done ---
  
       L=Lenocc(Names(i));   Nam=Names(i)(3:L);  if L>10
@@ -8075,10 +8184,17 @@ C     - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 *
 end
  
+  function word2desc(j,map,LL1,Inew)
+  Integer  word2desc, M/1000000/,map(2,LL1)
  
- 
- 
- 
+  word2desc=0
+  jj=abs(j); if (jj>M) jj-=M;
+  kk=Inew
+  do i=1,LL1
+     k=1;   if (map(1,i)>0 & map(2,i)>0) k=map(1,i)*map(2,i)
+     kk+=k; if (kk>=jj)    { word2desc=i; return; }
+  enddo
+  end
  
 *CMZ :          04/11/98  14.21.44  by  Pavel Nevski
 *CMZ :  1.40/05 27/06/98  20.48.53  by  Pavel Nevski
@@ -8315,7 +8431,7 @@ C
 :E:"<w> AgDOCWR,Cf,I1,I2,TEXT;(' AgDocWr=',i2,' at ',a,' i1,i2,T=',2i5,2x,a)";
 END;
  
-*CMZ :          01/11/98  15.13.33  by  Pavel Nevski
+*CMZ :          18/11/98  16.03.19  by  Pavel Nevski
 *CMZ :  1.40/05 06/07/98  18.52.36  by  Pavel Nevski
 *CMZ :  1.30/00 09/02/97  21.15.43  by  Pavel Nevski
 *CMZ :  1.00/00 15/11/95  01.03.24  by  Pavel Nevski
@@ -8601,7 +8717,7 @@ If IrBDIV==IxCONS & ID>0 & JBIT(IQ(Lk),1)==0 & Ie==0
       enddo
  
       if typ!=' '
-      { prin1     tp,cna,m1,m2,m3,  typ,n1,n2,n3
+      { prin2     tp,cna,m1,m2,m3,  typ,n1,n2,n3
         ('  filling ',a,'.',a,3i5,' from type=',a,3i5)
         do j=1,min(m2,n2)
           do i=1,min(m1,n1)
@@ -10586,6 +10702,7 @@ If Link<0  " allocate a new secured link "
 End
  
  
+*CMZ :          18/11/98  21.44.15  by  Pavel Nevski
 *CMZ :  1.40/05 13/03/98  22.56.27  by  Pavel Nevski
 *CMZ :  1.30/00 01/07/96  15.35.02  by  Pavel Nevski
 *CMZ :  1.00/00 07/09/95  13.27.40  by  Pavel Nevski
@@ -10595,6 +10712,7 @@ End
 *                    encode bank format for zebra                       *
 *   Both new (with 2 system words) and old (only users words) formats   *
 *   PN,29-06-96: Make Cform different from Cformo due to AIX problem    *
+*   PN,13-03-98: Both fixed length and tail stile formats are produced  *
 *************************************************************************
 Implicit      NONE
 Integer       LL1,LL,map(2,LL1),i,j,k,L,N,NN,Ls
@@ -10803,14 +10921,15 @@ If Index(Chopt,'F')!=0
 END
  
  
+*CMZ :          15/11/98  12.35.04  by  Pavel Nevski
 *CMZ :  1.30/00 12/02/96  15.17.30  by  Pavel Nevski
 *-- Author :    Sasha Rozanov  06/02/96
-**********************************************************************
-*                                                                    *
+*************************************************************************
+*                                                                       *
                     Function   A g E X I S T (Ctest)
-*                                                                    *
-* Description: check if a GEANT volume exist                         *
-**********************************************************************
+*                                                                       *
+* Description: check if a GEANT volume exist. If yes, return its number *
+*************************************************************************
 *KEEP,TYPING.
       IMPLICIT NONE
 *KEEP,GCBANK.
@@ -11662,7 +11781,7 @@ C
    END
  
  
-*CMZ :          01/11/98  14.50.07  by  Pavel Nevski
+*CMZ :          19/11/98  17.07.38  by  Pavel Nevski
 *CMZ :  1.40/05 23/08/98  23.00.42  by  Pavel Nevski
 *-- Author :    Pavel Nevski   25/11/97
 ***************************************************************************
@@ -11734,7 +11853,7 @@ C
         Ldoc=LQ(L1doc-il); check Ldoc>0
         CALL UHTOC(IQ(Ldoc-5),4,Sname,8); Call CUTOL(Sname)
         Check csys='*' | Sname(5:4+i1)==csys(1:i1)
-        prin1 Sname; (' AgKeeps: getting doc for system ',a)
+        prin2 Sname; (' AgKeeps: getting doc for system ',a)
  
         call agdprina(Iprin,Lu,Ldoc,1,Iwr,Kw,Idl,upper)
         if (upper!=' ') sname(1:4)=upper;
@@ -11764,185 +11883,6 @@ C
      if (.not.opnd) Call Agsendm
      end
  
- 
-*************************************************************************
-*                                                                       *
-              subroutine agdprina(Iprin,Lu,L,Lev,Iwr,Kw,Idl,upper)
-*                                                                       *
-* Description: Produce a compiler readable include files for structures *
-* Decoding part is tough, for format details see 2.16 MZFORM, page 44:  *
-* a Bank consists of 3 types of blocks (P=1-3 -> tit)                   *
-* each of blocks contains sectors (crec<=ask(1-9))                      *
-* A useful dd sector contains type.variable + comments                  *
-* Routine produce or a def file, or an idl file, or struct in memory    *{
-*************************************************************************
-+include,TYPING,GCBANK,SCLINK,GCUNIT,AGCDOCL,QUEST.
-   Integer      INDEX,LENOCC,NwDESC,Nwhead,NwGEN,Nwlink,Nwdata,Idl,lu,nc,MM,x
-   Integer      Lev,Iwr,Kw,Iprin,i,j,k,l,m,n,is,nd,Nw,iw,iv,i1,j1,P,nn(3),
-                NDDD,NCCC
-   Integer      mask(9)/1,1024,16384,8192,9216,10240,15361,19456,17410/
-   Character*2  ask (9)/'ba','au','ve','nd','nl','ns','up','io','dd'/
-   character*1  Let,T,Sec(0:8)/'*','B','I','F','D','H','*','S','*'/
-   character*6  tit (3)/'header','links','data'/
-   character*80 Text,texto,texta,Format,Header,Author,Create
-   character*8  var,varo,dname,type,typo
-   character    CN*20,crec*2,kname*16,blan*12/' '/
-   character*4  Upper,Bname,Csys/' '/
-   Equivalence  (text,var),(texto,varo)
- 
-   character           ccc*24
-   common /agcstaftab/ ccc(500)
-   common /agcstaffor/ nddd,nccc,format
- 
-   nc=0; NDDD=-1; NCCC=-1; check L>0; upper=' '
-   prin3 (IQ(L-i),i=1,5);(' ***** doc bank =',3i10,2x,2a5,' *****')
-   call UHTOC(IQ(L-5),4,dname,8); prin5 dname;  (' dname  = ',a)
-   call UHTOC(IQ(L+1),4,bname,4); prin5 bname;  (' bname  = ',a)
-   NwDesc = IQ(L+2);              prin5 NwDesc; (' Nwdesc = ',i4)
-   NwHead = IQ(L+3);              prin5 Nwhead; (' Nwhead = ',i4)
-   NwGen  = IQ(L+11);             prin5 NwGen;  (' Nwgen  = ',i4)
-   NwLink = IQ(L+12);             prin5 NwLink; (' Nwlink = ',i4)
-   NwData = IQ(L+15);             prin5 NwData; (' Nwdata = ',i4)
-   i=Nwhead+1;  Call Vzero(NN,3); P=1; Format='-F'; MM=0;
- 
-   while i<=Nwdesc+1
-   {  if i>=Nwhead+Nwgen+Nwlink+1 {P=3} else if i>=Nwhead+Nwgen+1 {P=2}
-      Let='H';  if (Text!=' ') texta=text; Text=' ';
-      if i<NwDesc
-      {  i1=i; Is=IQ(L+i1); Nw=is/16; i=i+Nw;
-         Let=Sec(min(mod(Is,16),8));
-      }  i=i+1;
- 
-      If let=='I' & Nw==3
-      {  iw=IQ(L+i1+1);  Iv=IQ(L+i1+2);
-         crec='un';   do k=1,9 { If (iw==mask(k)) crec=ask(k); }
-         if (crec(1:1)=='n') { prin5 crec,iv; (' sector ',a4,i5);}
-      }
-      else If let='H' & i<=NwDesc+1
-      {  j1=1; if (crec=='ba') j1=2;
-         Call UHTOC(IQ(L+i1+j1),4,text,4*(Nw-j1+1));
-         If  NN(P)==0  { Nd=0; Texto=' '; Prin5 tit(p); (' ---  ',a,'  ---') }
-         if (P==3 & nn(p)>=mm)  call agreforma(format,mm,type,idl)
-         NN(P)+=1;  Prin6 crec,p,NN(p),Nd,type,%L(text);
-         (' sector ',A4,':  NN(',i1,')=',i4,'  ND=',i3,' t=',a,' : ',a)
-      }
-      else  { prin6 i,let,Nw; (' unknown sector at ',i6,2x,a1,i8); crec='dd';}
- 
-      If (crec=='ba' & Let='H')  Header = text
-      If (crec=='au' & Let='H')  Author = text
-      If (crec=='ve' & Let='H')  Create = text
-      If (crec=='up' & Let='H')  Upper  = text
-      If (crec=='io' & Let='H')  Format = text
-      check P==3 & Let='H' & crec='dd'
-*
-* ----------------  unpacking done, now output stuff --------------
-*
-      If NN(P)==1
-      {  prin5 lev,bname; ('===>  starting lev,bname=',i3,2x,a,' <===');
-*         if (Lev<=1) Csys='sys'
-         kname=%L(csys)//'_'//%L(bname)
-         if (Lev<=1) kname=%L(bname)//'sys'
-         if (Idl==0) kname=%L(kname)//'.def'
-         if (Idl>0 ) kname=%L(kname)//'.idl'
-         call CUTOL (kname); J=index(kname,'.')
-         if (Lev==1) Csys=bname
- 
-         if Lev==Iwr
-         {  If (Lu>6) CLose(lu);  Lu=1 " pseudo-output - in memory only"
-            if (idl<=1)
-            { lu=62;  prin2 kname; (' AgDocPrin: open file ',a)
-              Open (Lu, file=%L(kname), STATUS= 'UNKNOWN')
-         }  }
- 
-         if (Lu>0 & Idl==0)
-         { if (Lev=0) output kname(:j),%L(create)
-              ('+PATCH,',a/'*Created: ',a/,
-               '*This file is automatically generated by AGI'/,
-               '*--------- DO NOT EDIT THIS FILE -----------'/'*')
-           if (Lev=1) output kname(:j),%L(header),%L(author),%L(create)
-              ('+DECK,',a,' describes the ',a/'*Author : ',a/'*Created: ',a/'*')
-           if (Lev=2) output kname(:j),%L(header),%L(author),%L(create),
-                                                                  bname,header
-              ('+KEEP,',a,' - ',a/'*Author : ',a/'*Created: ',a/'*'/,
-               '  structure  ',A4,'    { " ',a42, ' " _ ')
-         }
-         if (Lu>0 & Idl==1)
-         {  if (Lev==Iwr) output %L(kname),%L(header),%L(author),%L(create)
-            ('/* File ',a,/'** '/'** Description: ',a/,
-             '** Author     : ',a/'** Created    : ',a/,
-             '** This file is automatically generated by AGI'/,
-             '** --------- DO NOT EDIT THIS FILE -----------'/'*/')
-            if (Lev==2) output kname(:j-1);  ('  struct  ',a,'   { ')
-         }
-         if (Lu>0 & Idl==2 & Lev==2)
-         {  nc+=1; CCC(nc)=' struct '//kname(:j-1)//' { '; }
-      }
-*
-      nd+=1; Nddd+=1; check Lev==2 & var!=varo & lu>0
-*
-      If varo!='  '
-      {  if (varo=='- ') varo='system'
-*        fit rigid stic format - no extra spaces allowed
-         call CUTOL(varo); N=Lenocc(varo);
-         if (idl>0 & typo=='char') ND=4*ND;
- 
-*        take indices from comments, except for char, system, and repetitions
-         CN=' ';  if (texto!=texta & Lenocc(texta)<=18) CN=texta(11:18)
-         if (typo=='char' | varo='system') write(CN,'(i6)') ND;
-         M=Lenocc(CN);   do K=1,M  { if (CN(K:K)!=' ') Break; }
- 
-         if Idl==0
-         {  T=','; if (text==' ') T='}'
-            " hash in comments creates problems for AGI parser "
-             do x=9,80  { if (texto(x:x)=='#') texto(x:x)='N' }
-            if (ND==1) output typo,%L(varo),blan(N:),texto(9:),T
-                    (4x,a4,1x,2a,' " ',a42,' " ',a)
-            if (ND >1) output typo,%L(varo),CN(K:M),blan(M-K+N+3:),texto(9:),T
-                    (4x,a4,1x,a,'(',a,')',a,' " ',a42,' " ',a)
-            if (text==' ') output; ('*');
-         }
-         If Idl==1
-         {  if (ND==1) output typo,%L(varo),blan(N:),texto(9:)
-                    (4x,a5,1x,a,       ';',a,'/* ',a42,' */')
-            if (ND >1) output typo,%L(varo),CN(K:M),blan(M-K+N+3:),texto(9:)
-                    (4x,a5,1x,a,'[',a,'];',a,'/* ',a42,' */')
-            if (text==' ') output; ('};');
-         }
-         If Idl==2
-         {  NC+=1;  NCCC=NC;
-            if (ND==1) CCC(NC)='  '//typo//%L(varo)//'; '
-            if (ND >1) CCC(NC)='  '//typo//%L(varo)//'['//CN(K:M)//']; '
-            if (text==' ')  { NC+=1; CCC(NC)='}' }
-         }
-      }
-      nd=0; Texto=Text; typo=type
-   }
-  end
- 
- 
-****************************************************************************
-  subroutine  agreforma (format,num,type,idl)
-*                                                                          *
-* Description: decode ZEBRA 'format' descriptor into a sequence of 'type's *
-*              for format details see: 2.16 MZFORM, page 44                *
-*              - num is the number of items already taken, should be saved *
-*              - idl is an agi/c switch                                    *
-****************************************************************************
- 
-  character   format*(*),type*8,List*14/'0123456789-IFH'/
-  integer     Lenocc,idl,L,i/0/,k,n,num,big/9999999/
- 
-     L=Lenocc(format);  if (num==0) i=0;  N=0;
-     Do i=i+1,L
-     { k=index(list,format(i:i))-1;  check k>=0
-       if  k<=9  "digit"  { N=N*10+k; Next; }
-       if  k=10  "tail"   { N=big;    Next; }
-       num=num+max(1,N);  Break;
-     }
-     if (idl==0) { type ='real';  if (format(i:i)=='I') type='int';  }
-     else        { type ='float'; if (format(i:i)=='I') type='long'; }
-     if (format(i:i)=='H') type='char'
-     end
  
 *CMZ :  1.40/05 31/03/98  19.05.30  by  Pavel Nevski
 *-- Author :    Pavel Nevski   06/03/98
@@ -12533,6 +12473,187 @@ C     - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
   call RZCDIR(Cold,' ')
  end
  
+*CMZ :          19/11/98  17.07.38  by  Pavel Nevski
+*-- Author :    Pavel Nevski   25/11/97
+*************************************************************************
+*                                                                       *
+              subroutine agdprina(Iprin,Lu,L,Lev,Iwr,Kw,Idl,upper)
+*                                                                       *
+* Description: Produce a compiler readable include files for structures *
+* Decoding part is tough, for format details see 2.16 MZFORM, page 44:  *
+* a Bank consists of 3 types of blocks (P=1-3 -> tit)                   *
+* each of blocks contains sectors (crec<=ask(1-9))                      *
+* A useful dd sector contains type.variable + comments                  *
+* Routine produce or a def file, or an idl file, or struct in memory    *{
+*************************************************************************
++include,TYPING,GCBANK,SCLINK,GCUNIT,AGCDOCL,QUEST.
+   Integer      INDEX,LENOCC,NwDESC,Nwhead,NwGEN,Nwlink,Nwdata,Idl,lu,nc,MM,x
+   Integer      Lev,Iwr,Kw,Iprin,i,j,k,l,m,n,is,nd,Nw,iw,iv,i1,j1,P,nn(3),
+                NDDD,NCCC
+   Integer      mask(9)/1,1024,16384,8192,9216,10240,15361,19456,17410/
+   Character*2  ask (9)/'ba','au','ve','nd','nl','ns','up','io','dd'/
+   character*1  Let,T,Sec(0:8)/'*','B','I','F','D','H','*','S','*'/
+   character*6  tit (3)/'header','links','data'/
+   character*80 Text,texto,texta,Format,Header,Author,Create
+   character*8  var,varo,dname,type,typo
+   character    CN*20,crec*2,kname*16,blan*12/' '/
+   character*4  Upper,Bname,Csys/' '/
+   Equivalence  (text,var),(texto,varo)
+ 
+   character           ccc*24
+   common /agcstaftab/ ccc(500)
+   common /agcstaffor/ nddd,nccc,format
+ 
+   nc=0; NDDD=-1; NCCC=-1; check L>0; upper=' '
+   prin3 (IQ(L-i),i=1,5);(' ***** doc bank =',3i10,2x,2a5,' *****')
+   call UHTOC(IQ(L-5),4,dname,8); prin5 dname;  (' dname  = ',a)
+   call UHTOC(IQ(L+1),4,bname,4); prin5 bname;  (' bname  = ',a)
+   NwDesc = IQ(L+2);              prin5 NwDesc; (' Nwdesc = ',i4)
+   NwHead = IQ(L+3);              prin5 Nwhead; (' Nwhead = ',i4)
+   NwGen  = IQ(L+11);             prin5 NwGen;  (' Nwgen  = ',i4)
+   NwLink = IQ(L+12);             prin5 NwLink; (' Nwlink = ',i4)
+   NwData = IQ(L+15);             prin5 NwData; (' Nwdata = ',i4)
+   i=Nwhead+1;  Call Vzero(NN,3); P=1; Format='-F'; MM=0;
+ 
+   while i<=Nwdesc+1
+   {  if i>=Nwhead+Nwgen+Nwlink+1 {P=3} else if i>=Nwhead+Nwgen+1 {P=2}
+      Let='H';  if (Text!=' ') texta=text; Text=' ';
+      if i<NwDesc
+      {  i1=i; Is=IQ(L+i1); Nw=is/16; i=i+Nw;
+         Let=Sec(min(mod(Is,16),8));
+      }  i=i+1;
+ 
+      If let=='I' & Nw==3
+      {  iw=IQ(L+i1+1);  Iv=IQ(L+i1+2);
+         crec='un';   do k=1,9 { If (iw==mask(k)) crec=ask(k); }
+         if (crec(1:1)=='n') { prin5 crec,iv; (' sector ',a4,i5);}
+      }
+      else If let='H' & i<=NwDesc+1
+      {  j1=1; if (crec=='ba') j1=2;
+         Call UHTOC(IQ(L+i1+j1),4,text,4*(Nw-j1+1));
+         If  NN(P)==0  { Nd=0; Texto=' '; Prin5 tit(p); (' ---  ',a,'  ---') }
+         if (P==3 & nn(p)>=mm)  call agreforma(format,mm,type,idl)
+         NN(P)+=1;  Prin6 crec,p,NN(p),Nd,type,%L(text);
+         (' sector ',A4,':  NN(',i1,')=',i4,'  ND=',i3,' t=',a,' : ',a)
+      }
+      else  { prin6 i,let,Nw; (' unknown sector at ',i6,2x,a1,i8); crec='dd';}
+ 
+      If (crec=='ba' & Let='H')  Header = text
+      If (crec=='au' & Let='H')  Author = text
+      If (crec=='ve' & Let='H')  Create = text
+      If (crec=='up' & Let='H')  Upper  = text
+      If (crec=='io' & Let='H')  Format = text
+      check P==3 & Let='H' & crec='dd'
+*
+* ----------------  unpacking done, now output stuff --------------
+*
+      If NN(P)==1
+      {  prin5 lev,bname; ('===>  starting lev,bname=',i3,2x,a,' <===');
+*         if (Lev<=1) Csys='sys'
+         kname=%L(csys)//'_'//%L(bname)
+         if (Lev<=1) kname=%L(bname)//'sys'
+         if (Idl==0) kname=%L(kname)//'.def'
+         if (Idl>0 ) kname=%L(kname)//'.idl'
+         call CUTOL (kname); J=index(kname,'.')
+         if (Lev==1) Csys=bname
+ 
+         if Lev==Iwr
+         {  If (Lu>6) CLose(lu);  Lu=1 " pseudo-output - in memory only"
+            if (idl<=1)
+            { lu=62;  prin2 kname; (' AgDocPrin: open file ',a)
+              Open (Lu, file=%L(kname), STATUS= 'UNKNOWN')
+         }  }
+ 
+         if (Lu>0 & Idl==0)
+         { if (Lev=0) output kname(:j),%L(create)
+              ('+PATCH,',a/'*Created: ',a/,
+               '*This file is automatically generated by AGI'/,
+               '*--------- DO NOT EDIT THIS FILE -----------'/'*')
+           if (Lev=1) output kname(:j),%L(header),%L(author),%L(create)
+              ('+DECK,',a,' describes the ',a/'*Author : ',a/'*Created: ',a/'*')
+           if (Lev=2) output kname(:j),%L(header),%L(author),%L(create),
+                                                                  bname,header
+              ('+KEEP,',a,' - ',a/'*Author : ',a/'*Created: ',a/'*'/,
+               '  structure  ',A4,'    { " ',a42, ' " _ ')
+         }
+         if (Lu>0 & Idl==1)
+         {  if (Lev==Iwr) output %L(kname),%L(header),%L(author),%L(create)
+            ('/* File ',a,/'** '/'** Description: ',a/,
+             '** Author     : ',a/'** Created    : ',a/,
+             '** This file is automatically generated by AGI'/,
+             '** --------- DO NOT EDIT THIS FILE -----------'/'*/')
+            if (Lev==2) output kname(:j-1);  ('  struct  ',a,'   { ')
+         }
+         if (Lu>0 & Idl==2 & Lev==2)
+         {  nc+=1; CCC(nc)=' struct '//kname(:j-1)//' { '; }
+      }
+*
+      nd+=1; Nddd+=1; check Lev==2 & var!=varo & lu>0
+*
+      If varo!='  '
+      {  if (varo=='- ') varo='system'
+*        fit rigid stic format - no extra spaces allowed
+         call CUTOL(varo); N=Lenocc(varo);
+         if (idl>0 & typo=='char') ND=4*ND;
+ 
+*        take indices from comments, except for char, system, and repetitions
+         CN=' ';  if (texto!=texta & Lenocc(texta)<=18) CN=texta(11:18)
+         if (typo=='char' | varo='system') write(CN,'(i6)') ND;
+         M=Lenocc(CN);   do K=1,M  { if (CN(K:K)!=' ') Break; }
+ 
+         if Idl==0
+         {  T=','; if (text==' ') T='}'
+            " hash in comments creates problems for AGI parser "
+             do x=9,80  { if (texto(x:x)=='#') texto(x:x)='N' }
+            if (ND==1) output typo,%L(varo),blan(N:),texto(9:),T
+                    (4x,a4,1x,2a,' " ',a42,' " ',a)
+            if (ND >1) output typo,%L(varo),CN(K:M),blan(M-K+N+3:),texto(9:),T
+                    (4x,a4,1x,a,'(',a,')',a,' " ',a42,' " ',a)
+            if (text==' ') output; ('*');
+         }
+         If Idl==1
+         {  if (ND==1) output typo,%L(varo),blan(N:),texto(9:)
+                    (4x,a5,1x,a,       ';',a,'/* ',a42,' */')
+            if (ND >1) output typo,%L(varo),CN(K:M),blan(M-K+N+3:),texto(9:)
+                    (4x,a5,1x,a,'[',a,'];',a,'/* ',a42,' */')
+            if (text==' ') output; ('};');
+         }
+         If Idl==2
+         {  NC+=1;  NCCC=NC;
+            if (ND==1) CCC(NC)='  '//typo//%L(varo)//'; '
+            if (ND >1) CCC(NC)='  '//typo//%L(varo)//'['//CN(K:M)//']; '
+            if (text==' ')  { NC+=1; CCC(NC)='}' }
+         }
+      }
+      nd=0; Texto=Text; typo=type
+   }
+  end
+ 
+ 
+****************************************************************************
+  subroutine  agreforma (format,num,type,idl)
+*                                                                          *
+* Description: decode ZEBRA 'format' descriptor into a sequence of 'type's *
+*              for format details see: 2.16 MZFORM, page 44                *
+*              - num is the number of items already taken, should be saved *
+*              - idl is an agi/c switch                                    *
+****************************************************************************
+ 
+  character   format*(*),type*8,List*14/'0123456789-IFH'/
+  integer     Lenocc,idl,L,i/0/,k,n,num,big/9999999/
+ 
+     L=Lenocc(format);  if (num==0) i=0;  N=0;
+     Do i=i+1,L
+     { k=index(list,format(i:i))-1;  check k>=0
+       if  k<=9  "digit"  { N=N*10+k; Next; }
+       if  k=10  "tail"   { N=big;    Next; }
+       num=num+max(1,N);  Break;
+     }
+     if (idl==0) { type ='real';  if (format(i:i)=='I') type='int';  }
+     else        { type ='float'; if (format(i:i)=='I') type='long'; }
+     if (format(i:i)=='H') type='char'
+     end
+ 
 *CMZ :          28/09/98  00.59.27  by  Pavel Nevski
 *CMZ :  1.40/05 24/08/98  20.25.33  by  Pavel Nevski
 *CMZ :  1.30/00 29/04/97  23.23.51  by  Pavel Nevski
@@ -12697,7 +12818,7 @@ Common     /AgZbuffer/  K,JRC,JCONT,CSTREAM,COPTN,CREQ,IREQ,iend,mem(100,5)
 End
  
  
-*CMZ :          05/11/98  20.57.05  by  Pavel Nevski
+*CMZ :          06/11/98  19.47.51  by  Pavel Nevski
 *CMZ :  1.40/05 27/08/98  20.38.58  by  Pavel Nevski
 *CMZ :  1.30/00 19/03/97  21.57.11  by  Pavel Nevski
 *CMZU:  1.00/01 15/01/96  20.20.30  by  Pavel Nevski
@@ -12861,11 +12982,11 @@ C                                       Link to:
     CHECK (Index(Chopt,'#1')+Index(Chopt,'*')>0 | '#1'=='*');   Nt=Nt+1;
     {IF} '#1'='G' { Ng=Ng+1; CHECK Jvol==0; IF (#3>0) Call MZDROP(#2,#3,'L'); }
     IF #3==0 { Call FZIN(LUN,#2,#3,1,'A',Nhead,Ihead); jb=#3; IDN=iu; }
-    ELSE     { jb=#3; WHILE LQ(jb)>0 { jb=LQ(jb) }; IDN=IQ(jb-5);
+    ELSE     { jb=#3; WHILE LQ(jb)>0 { jb=LQ(jb) }; IDN=IQ(jb-5)+1;
                Call FZIN(LUN,#2,jb,0,'A',Nhead,Ihead); jb=LQ(jb) }
     Ier=Iquest(1);  Nw=Iquest(14);  IDH='NONE';
     if jb>0
-    {  Call UHTOC(IQ(jb-4),4,IDH,4); IQ(jb-5)=max(iu,IDN); #4=IQ(jb+(#5));
+    {  Call UHTOC(IQ(jb-4),4,IDH,4);  IQ(jb-5)=max(iu,IDN);  #4=IQ(jb+(#5));
        Ns+=1; IF (#5==-2&Ier==0) { DO I=1,IQ(jb-2) { IF (LQ(jb-I)>0) #4=I; }}
     }
     PRIN2 '#3','#4',#4,Nw,ier;(' AGZREAD: read',2(2x,a6),' =',i6,' Leng =',2i8)
@@ -17285,7 +17406,7 @@ C                                       Link to:
       lgnfind = l
       end
 *CMZ :  1.30/00 19/02/97  22.17.46  by  Pavel Nevski
-*CMZ :          05/11/98  21.30.51  by  Pavel Nevski
+*CMZ :          05/11/98  21.43.00  by  Pavel Nevski
 *CMZ :  0.00/05 11/10/91  13.57.58  by  R. DeWolf
 *-- Author :    R. DeWolf   25/09/91
 ****************************************************************************
@@ -17363,7 +17484,7 @@ C                                       Link to:
  
       INTEGER IL,IDE,IMOTH,NDAU,IDAUG(*)
       INTEGER LGENE,LGENP,LZFIND,LK,ND,MODUL,NPA,NDAUM,IP,JM1,JM2,IOFF
-      CHARACTER CBANK*4
+*     CHARACTER CBANK*4
 *
       entry GNZGETD(IL,IDE,IMOTH,NDAU,IDAUG)
       NDAUM = NDAU
@@ -21785,5 +21906,3 @@ C                                       Link to:
     Call MZFLAG(IxCons,LQ(LkDetm-id),1,'Z')
 *
    end
- 
- 
