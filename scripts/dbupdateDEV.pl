@@ -21,11 +21,11 @@ require "/afs/rhic/star/packages/DEV/mgr/dbTJobsSetup.pl";
 #require "dbTJobsSetup.pl";
 
 my $TOP_DIRD = "/star/rcf/test/dev/";
-my @dir_year = ("year_2001", "year_1h", "year_2003");
+my @dir_year = ("year_2001", "year_1h", "year_2003", "year_2004");
 my @node_dir = ("trs_redhat72", "trs_redhat72_opt");
 my @node_daq = ("daq_redhat72", "daq_redhat72_opt"); 
 my @hc_dir = ("hc_lowdensity", "hc_standard", "hc_highdensity", "peripheral","pp_minbias","ppl_minbias","dau_minbias");
-my @daq_dir = ("minbias", "central", "embedding", "ppMinBias", "dAuMinBias" );
+my @daq_dir = ("minbias", "central", "embedding", "ppMinBias", "dAuMinBias", "AuAuMinBias", "AuAu_prodHigh" );
 
 my @OUT_DIR;
 my @OUTD_DIR;
@@ -88,6 +88,7 @@ for ($i = 0; $i < scalar(@node_dir); $i++) {
   $OUT_DIR[$ii] = $TOP_DIRD . $node_dir[$i] . "/" . $testDay . "/". $dir_year[2] . "/" . $hc_dir[6];
   print "Output Dir for DEV :", $OUT_DIR[$ii], "\n";
     $ii++;
+
 }
 
 
@@ -104,6 +105,12 @@ for ($i = 0; $i < scalar(@node_daq); $i++) {
    print "Output Dir for DEV :", $OUT_DIR[$ii], "\n";
         $ii++;
    } 
+   for ($ik = 5; $ik < 7; $ik++) { 
+    $OUT_DIR[$ii] = $TOP_DIRD . $node_daq[$i] . "/" . $testDay . "/". $dir_year[3] . "/" . $daq_dir[$ik];
+   print "Output Dir for DEV :", $OUT_DIR[$ii], "\n";
+        $ii++;
+   } 
+ 
  }
 
 ##### setup output directories for DEV with beforeDay
@@ -135,6 +142,13 @@ for ($i = 0; $i < scalar(@node_daq); $i++) {
    print "Output Dir for DEV :", $OUT_DIR[$ii], "\n";
         $ii++;
    } 
+   for ($ik = 5; $ik < 7; $ik++) { 
+    $OUT_DIR[$ii] = $TOP_DIRD . $node_daq[$i] . "/" . $beforeDay . "/". $dir_year[3] . "/" . $daq_dir[$ik];
+   print "Output Dir for DEV :", $OUT_DIR[$ii], "\n";
+        $ii++;
+   } 
+
+
   }
 
 struct FileAttr => {
@@ -654,6 +668,13 @@ foreach  $eachOutNDir (@OUT_DIR) {
       }
      elsif($EvTp eq "dAuMinBias") {
         $EvReq = 497;
+      }
+
+     elsif($EvTp eq "AuAuMinBias") {
+        $EvReq = 500;
+      }
+     elsif($EvTp eq "AuAu_prodHigh") {
+        $EvReq = 335;
       }
 #       else {
 #      @prt = split(/\./,$bsname);
