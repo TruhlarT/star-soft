@@ -9,11 +9,13 @@
 #
 setenv star_cshrc_csh 1
 if ( ! $?star_login_csh ) then
+    #
     # OK. Missing environment variables ... 
     # This is actually the case in 'r' or 's'-service calls.
-    if( ! $?GROUP_DIR ) then
-	setenv GROUP_DIR /afs/rhic/star/group/
-    endif
+    #
+    if( ! $?AFS_RHIC)   setenv AFS_RHIC  /afs/rhic
+    if( ! $?GROUP_DIR ) setenv GROUP_DIR $AFS_RHIC/star/group/
+
     if( -r $GROUP_DIR/star_login.csh ) then
     	source $GROUP_DIR/star_login.csh
     endif
