@@ -1,7 +1,10 @@
 #!/usr/bin/csh -f
-#       $Id: group_env.csh,v 1.90 1999/11/29 18:11:17 fisyak Exp $
+#       $Id: group_env.csh,v 1.91 1999/11/30 02:00:42 fisyak Exp $
 #	Purpose:	STAR group csh setup 
 #       $Log: group_env.csh,v $
+#       Revision 1.91  1999/11/30 02:00:42  fisyak
+#       Fix path for Solaris
+#
 #       Revision 1.90  1999/11/29 18:11:17  fisyak
 #       Add LIB to LD_LIBRARY_PATH for non debug
 #
@@ -439,7 +442,10 @@ switch ($STAR_SYS)
     case "sun4*":
 #  ====================
       if (! ${?LD_LIBRARY_PATH}) setenv LD_LIBRARY_PATH
-      setenv LD_LIBRARY_PATH "/opt/SUNWspro/lib:/usr/openwin/lib:/usr/dt/lib:/usr/local/lib:${PARASOFT}/lib.solaris:/afs/rhic/star/packages/ObjectSpace/2.0m/lib:${LD_LIBRARY_PATH}"
+      setenv LD_LIBRARY_PATH "/usr/openwin/lib:/usr/dt/lib:/usr/local/lib:${PARASOFT}/lib.solaris:/afs/rhic/star/packages/ObjectSpace/2.0m/lib:${LD_LIBRARY_PATH}"
+      setenv LD_LIBRARY_PATH "/opt/SUNWspro/lib:${LD_LIBRARY_PATH}"
+      setenv PATH "/opt/SUNWspro/bin:$PATH"
+      setenv MANPATH "/opt/SUNWspro/man:$MANPATH"
      if (${?MINE_lib} && ${?STAR_lib}) then
        setenv LD_LIBRARY_PATH "${MINE_lib}:${STAR_lib}:${MINE_LIB}:${STAR_LIB}:${STAF_LIB}:${LD_LIBRARY_PATH}"
      else
@@ -451,16 +457,20 @@ switch ($STAR_SYS)
       setenv OBJY_ARCH solaris4
       limit coredump 0
       unlimit descriptors
+      if (${?MINE_lib} && ${?STAR_lib}) then
+        setenv LD_LIBRARY_PATH "${MINE_lib}:${STAR_lib}:${MINE_LIB}:${STAR_LIB}:${STAF_LIB}:${LD_LIBRARY_PATH}"
+      else
+        setenv LD_LIBRARY_PATH "${MINE_LIB}:${STAR_LIB}:${STAF_LIB}:${LD_LIBRARY_PATH}"
+      endif
       if ("${STAR_HOST_SYS}" == "sun4x_56_CC5" || "${STAR_HOST_SYS}" == "sun4x_56_CC5C") then
-        setenv LD_LIBRARY_PATH "/opt/WS5.0/lib:/opt/WS5.0/SC5.0/lib:/usr/openwin/lib:/usr/dt/lib:/usr/local/lib:${PARASOFT}/lib.solaris:/afs/rhic/star/packages/ObjectSpace/2.0m/lib:${LD_LIBRARY_PATH}"
-     if (${?MINE_lib} && ${?STAR_lib}) then
-       setenv LD_LIBRARY_PATH "${MINE_lib}:${STAR_lib}:${MINE_LIB}:${STAR_LIB}:${STAF_LIB}:${LD_LIBRARY_PATH}"
-     else
-       setenv LD_LIBRARY_PATH "${MINE_LIB}:${STAR_LIB}:${STAF_LIB}:${LD_LIBRARY_PATH}"
-     endif
-
+        setenv LD_LIBRARY_PATH "/opt/WS5.0/lib:/opt/WS5.0/SC5.0/lib"
         setenv PATH "/opt/WS5.0/bin:${PATH}"
 	setenv MANPATH "/opt/WS5.0/man:${MANPATH}"
+        if ( -x /afs/rhic/star/group/dropit) then
+          setenv PATH `/afs/rhic/star/group/dropit SUNWspro`
+          setenv PATH `/afs/rhic/star/group/dropit SUNWspro`
+          setenv LD_LIBRARY_PATH `/afs/rhic/star/group/dropit -p $LD_LIBRARY_PATH SUNWspro`
+        endif
       else
         if ( -x /afs/rhic/star/group/dropit) then
           setenv PATH `/afs/rhic/star/group/dropit WS5.0`
