@@ -416,7 +416,7 @@ sub setup_report_comparison {
   print "<strong> Select comparison runs from following list, then </strong>",
   $query->submit("$button_value", 'do run comparison.'),"<br> \n";
 
-  print "(multiple selections allowed; more than 6-8 do not display or print well) <br> \n";
+  print "<br>(multiple selections allowed; more than 6-8 do not display or print well) <br> \n";
 
   #---------------------------------------------------------
   # extract essence of report key
@@ -462,7 +462,7 @@ sub setup_report_comparison {
 
   }
 
-  print "<h3> Comparison datasets: </h3>";
+  print "<h3> Comparison runs: </h3>";
   print table( {-border=>undef}, Tr(\@table_rows) );
 
   #-------------------------------------------------------------------
