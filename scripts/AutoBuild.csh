@@ -6,21 +6,22 @@
 # Current target for this script
 #
 #  Linux61
-#  Linux72    build a Linux61 AutoBuild report (one version)
+#  Linux72    build a LinuxXX AutoBuild report (one version)
 #  Linux9     
+#  Insure     Builds Insure++ compilation
 #
 #  Solaris    ditto for Solaris (does cache cleaning)
 #  du         Digital Unix using hack space in 'cal' (dev only)
 #
 #  Clean      Runs CleanLibs
-#  Insure     Builds Insure++ compilation
 #  
-#
+# Default is to run on the current platform both optimized and
+# non optimized.
 #
 #
 
 # Grab it from env
-if ( ! $?AFS_RHIC ) setenv AFS_RHIC /afs/rhic
+if ( ! $?AFS_RHIC ) setenv AFS_RHIC /afs/rhic.bnl.gov
 
 # In case of token failure, send an Email to
 set EMAIL="jeromel@bnl.gov,didenko@bnl.gov"
@@ -29,7 +30,7 @@ set EMAIL="jeromel@bnl.gov,didenko@bnl.gov"
 set SCRIPTD=$AFS_RHIC/star/packages/scripts
 
 # Loading of the star environment etc ...
-setenv GROUP_DIR $AFS_RHIC/rhstar/group
+setenv GROUP_DIR $AFS_RHIC/star/group
 if ( -r  $GROUP_DIR/star_login.csh ) then
 	source $GROUP_DIR/star_login.csh
 
@@ -85,6 +86,7 @@ if ( -r  $GROUP_DIR/star_login.csh ) then
 		mgr/CleanLibs obj 1
 		breaksw
 
+
 	    case "Solaris":
 		set LPATH=$AFS_RHIC/star/packages/adev
 		set SPATH=$AFS_RHIC/star/doc/www/comp/prod/Sanity
@@ -99,6 +101,35 @@ if ( -r  $GROUP_DIR/star_login.csh ) then
 		echo "Cleaning older libraries"
 		mgr/CleanLibs obj 1
 		breaksw
+
+
+	    case "icc":
+		set LPATH=$AFS_RHIC/star/packages/adev
+		set SPATH=$AFS_RHIC/star/doc/www/comp/prod/Sanity
+
+		# this is only for double checking. AutoBuild.pl is
+		# impermeable to external env changes (start a new process)
+		# so modifications has to be passed at command line level
+		echo "Testing setup icc "
+		setup icc
+		set test=`which icc`
+		set sts=$status
+		if ( $sts == 0 ) then
+		    echo "icc is $test ; starting AutoBuild"
+		    $SCRIPTD/AutoBuild.pl -k -i -1 -t -T icc -p $LPATH -a 'setup icc'
+		    if( -e $HOME/AutoBuild-linux-icc.html) then
+			mv -f $HOME/AutoBuild-linux-icc.html $SPATH/AutoBuild-$1.html
+		    endif
+		    cd $LPATH
+		    echo "Cleaning older libraries"
+		    mgr/CleanLibs obj 1
+		else
+		    echo "Test returned status $sts"
+		endif
+		echo "Reverting to gcc setup"
+		setup gcc
+		breaksw
+
 
 	    case "Linux61":
 	    case "Linux72":
