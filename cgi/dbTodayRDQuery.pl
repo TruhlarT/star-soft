@@ -14,13 +14,12 @@ use Class::Struct;
 
 require "/afs/rhic/star/packages/scripts/dbCpProdSetup.pl";
 
-my $prodPer = "P01hf";
+my $prodPer = "P01gk";
 my $debugOn = 0;
 my $thisDay = "000000";
 my $thisday = 0;
 my @dbFiles;
 my $ndbFiles = 0;
-
 
 struct FileAttr => {
         flname  => '$', 
@@ -29,6 +28,7 @@ struct FileAttr => {
          Nevts  => '$',
          dataSt => '$',
         fpath   => '$',
+        trig    => '$',
 		  };
 
 &cgiSetup();
@@ -54,7 +54,7 @@ $thisDay = '01'.$thisday;
 &beginHtml();
 
 
-$sql="SELECT dataset, path, fName, createTime, Nevents, dataStatus FROM $FileCatalogT where insertTime like '$thisDay%' AND fName like '%.root' AND type = 'daq_reco' and jobID like '%$prodPer%' ";
+$sql="SELECT dataset, path, fName, createTime, Nevents, trigger,dataStatus FROM $FileCatalogT where insertTime like '$thisDay%' AND fName like '%.event.root' AND type = 'daq_reco' and jobID like '%$prodPer%' AND site = 'disk_rcf'";
 $cursor =$dbh->prepare($sql)
   || die "Cannot prepare statement: $DBI::errstr\n";
 $cursor->execute;
@@ -75,7 +75,8 @@ while(@fields = $cursor->fetchrow) {
     ($$fObjAdr)->timeS($fvalue)   if($fname eq 'createTime');
     ($$fObjAdr)->Nevts($fvalue)   if($fname eq 'Nevents');
     ($$fObjAdr)->dataSt($fvalue)  if($fname eq 'dataStatus'); 
- }
+    ($$fObjAdr)->trig($fvalue)    if($fname eq 'trigger');   
+}
        $dbFiles[$ndbFiles] = $fObjAdr;
        $ndbFiles++; 
       
@@ -87,6 +88,7 @@ my $myCtime;
 my $myPath;
 my $myEvts;
 my $myDataSt;
+my $myTrig;
 
  foreach $eachFile (@dbFiles) {
 
@@ -96,7 +98,7 @@ my $myDataSt;
        $myCtime = ($$eachFile)->timeS;  
        $myEvts  = ($$eachFile)->Nevts;
        $myDataSt = ($$eachFile)->dataSt;
-
+       $myTrig  = ($$eachFile)->trig;
   &printRow();
 
      }
@@ -117,7 +119,8 @@ print <<END;
 <TABLE ALIGN=CENTER BORDER=5 CELLSPACING=1 CELLPADDING=2 >
 <TR>
 <TD ALIGN=CENTER WIDTH=\"20%\" HEIGHT=30><B>Dataset</B></TD>
-<TD ALIGN=CENTER WIDTH=\"30%\" HEIGHT=30><B>Path</B></TD>
+<TD ALIGN=CENTER WIDTH=\"20%\" HEIGHT=30><B>Path</B></TD>
+<TD ALIGN=CENTER WIDTH=\"10%\" HEIGHT=30><B>Trigger</B></TD>
 <TD ALIGN=CENTER WIDTH=\"20%\" HEIGHT=20><B>Name of File</B></TD>
 <TD ALIGN=CENTER WIDTH=\"10%\" HEIGHT=20><B>Create Date</B></TD>
 <TD ALIGN=CENTER WIDTH=\"10%\" HEIGHT=20><B>Number of Events</B></TD>
@@ -135,6 +138,7 @@ print <<END;
 <TR ALIGN=CENTER>
 <td>$myDSet</td>
 <td>$myPath</td>
+<td>$myTrig</td>
 <td>$myFile</td>
 <td>$myCtime</td>
 <td>$myEvts</td>
