@@ -225,8 +225,8 @@ print <<END;
 <TD ALIGN=CENTER WIDTH=\"10%\" HEIGHT=100><B>Number of files </B></TD>
 <TD ALIGN=CENTER WIDTH=\"10%\" HEIGHT=100><B>Size(MB) of DAQ files</B></TD>
 <TD ALIGN=CENTER WIDTH=\"10%\" HEIGHT=100><B>Number of Events<br>in DAQ files</B></TD>
-<TD ALIGN=CENTER WIDTH=\"10%\" HEIGHT=100><B>Size(MB) of DST</B></TD>
-<TD ALIGN=CENTER WIDTH=\"10%\" HEIGHT=100><B>Number of Events<br>in DST</B></TD>
+<TD ALIGN=CENTER WIDTH=\"10%\" HEIGHT=100><B>Size(MB) of event.root files</B></TD>
+<TD ALIGN=CENTER WIDTH=\"10%\" HEIGHT=100><B>Number of Events<br>in event.root files</B></TD>
 </TR> 
 
 END
