@@ -283,9 +283,9 @@ if( 1==1 ){
 	if($line =~ m/(Error\:)(.*)/){
 	    $el = "Errors";
 	    if( defined($ERRORS{$el}) ){
-		$ERRORS{$el} .= ";$2";
+		$ERRORS{$el} .= ";$line";
 	    } else {
-		$ERRORS{$el}  = "$2";
+		$ERRORS{$el}  = "$line";
 	    }
 	} elsif($line =~ m/(.*)(:\d+\s+)(Warning:)(.*)/){
 	    # I separated it because it may become a ';' list
