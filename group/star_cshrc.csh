@@ -100,12 +100,15 @@ set history=100
 switch ($shell)
     case "/usr/local/bin/tcsh":
     case "/bin/tcsh":
+	if ( ! -e  $HOME/history) then
+	    mkdir -p $HOME/history
+	endif
 	set correct = cmd
 	set autolist=on
 	set listjobs=long
 	set showdots=on
 	set ellispis=1
-	set histfile=~/.history.$HOST
+	set histfile=$HOME/history/.$HOST
 	set autologout=1440
 	breaksw
     default:
