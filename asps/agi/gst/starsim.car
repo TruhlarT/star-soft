@@ -37936,6 +37936,7 @@ void regex  () { }
 +PATCH,AGZIO.
 *CMZ :  1.30/00 19/02/97  22.17.46  by  Pavel Nevski
 +DECK,AgZopen,T=geant. --------------------------------------------------------
+*CMZ :          20/04/98  15.46.43  by  Pavel Nevski
 *CMZ :  1.30/00 29/04/97  23.23.51  by  Pavel Nevski
 *CMZU:  1.00/01 15/01/96  20.20.30  by  Pavel Nevski
 *-- Author :    L.Vacavant, A.Rozanov    14/12/94
@@ -37945,18 +37946,22 @@ void regex  () { }
 *                                                                            *
 * Description: (re)open a file with events in GENZ format-via Fatmen or GENZ *
 *   After a succesful open, K keeps track of what should be closed next call *
+* Modifications:                                                             *
+* PN 20.04.98  - automatic record length correction                          *
+*              - stream is saved in mem stack                                *
 ******************************************************************************
 +CDE,Typing,QUEST,GCBANK,GCFLAG,GCKINE,AgCKINE.
 Character  Stream*(*),Name*(*),Copt*(*),FName*255/' '/,IOFILE*8,
-           CREQ*256,COPTN*20,FZOP*4
+           CREQ*256,COPTN*20,CSTREAM*8,FZOP*4
 Integer    LOCF,Npar,Ipar(*),KEYS(10),LENOCC,Nfound,Jcont,Unit,
-           Ier,Irc,Jrc,K,Lc,iend,mem,iu,IREQ,ko,LREC
-Common     /AgZbuffer/  K,JRC,JCONT,CREQ,COPTN,IREQ,iend,mem(100,5)
+           Ier,Irc,Jrc,K,Lc,iend,mem,iu,IREQ,ko,LREC,L,NUH,HEAD(400)
+Common     /AgZbuffer/  K,JRC,JCONT,CSTREAM,COPTN,CREQ,IREQ,iend,mem(100,5)
 *
 *  extract requested unit record
    If      INDEX(Stream,'B')>0 { iu=2; IBack = -1; IBackOld = 0; }
    else If INDEX(Stream,'O')>0 { iu=3; Ioutp = -1; IOutpOld = 0; }
    else                        { iu=1; IKine = -1; IKineOld = 0; }
+   if (LocF(iend)-LocF(K)>=100) Stop ' AGZOPEN: insufficient  buffrer length '
    Call UCOPY(mem(1,iu),K,LocF(iend)-LocF(K));
    Unit=20+iu;  write (IOFILE,'(6hIOFILE,i2)') Unit;
  
@@ -37964,33 +37969,34 @@ Common     /AgZbuffer/  K,JRC,JCONT,CREQ,COPTN,IREQ,iend,mem(100,5)
    If  K==1   { Call FMCLOS(FName,IOFILE,0,'DE',Irc);  IF (Jrc==0) Jcont=0;  }
    elseIf K>0 { if iu<=2 {Call FZENDI(Unit,'TX')}else{Call FZENDO(Unit,'TX')}}
 *
-   If Name!=' '  { CREQ=Name; COPTN=COPT; IREQ=1; }
-   else          { if (iu!=2) IREQ-=1;            }
+   If Name!=' '  { CREQ=Name; COPTN=COPT; CSTREAM=Stream; IREQ=1; }
+   else          { if (iu!=2) IREQ-=1;                            }
    LC=LENOCC(CREQ);  FName=' ';  Nfound=0;  Ier=-1;  Ko=K;  K=0;
    LREC=8100;        If (Index(Stream,'Z')>0) LREC=0
    If Index(Stream,'F')>0
    {  Print *,'* AGZOPEN trying to get tape from FATMEN catalog *'
       CALL FMLOGL(-2); Call FMLFIL(CREQ(1:LC),FName,KEYS,NFound,1,JCont,JRC)
-      If NFound>0 & Jrc<=0                       " fatmen request manager "
+      If NFound>0 & Jrc<=0                    "   fatmen request manager    "
       {  K=1;  IQUEST(10)=3;                  "inhibit tape label processing"
          Call FMFILE(Unit,FName,'FN',Irc);      ier=0;  If (Irc>1) ier=irc
    }  }
-   else If iu<=2 & IREQ>0                         " direct  file  request  "
+   else If iu<=2 & IREQ>0                     "   direct  file  request     "
    { " first try the variable record length format, then the fix length one "
-      Print *,' ANZOPEN opening file ',CREQ(1:LC);
+      :R: Print *,' ANZOPEN opening file ',CREQ(1:LC);
       If Index(Stream,'L')>0
       {  Fzop='XI';  K=2;  OPEN (Unit,FILE=CREQ,Iostat=Ier,
                            STATUS='OLD',FORM='UNFORMATTED',RECL=8100) }
       else
       {  Fzop='XIL'; K=3;  CALL CFOPEN(IQUEST,0,0,'r ',0,CREQ,ier)    }
       IF Ier==0
-      { :R: Call FZFILE(Unit,LREC,Fzop);  Ier=Iquest(1); K=3;
-         If ier==202
-         { print *,' Block size wrong: Expected ',IQUEST(14),
-                                       ', Found ',IQUEST(15)
-           LREC=IQUEST(15); print *,' LREC forced to ',LREC; GoTo :R:
-      }  }
-   }
+      { Call FZFILE(Unit,LREC,Fzop); CALL FZLOGL(Unit,-2)
+        * automatic record length detection
+        NUH=400;  Call FZIN  (Unit,IxDiv,L,2,'S',NUH,HEAD)
+        If Iquest(1)==-4 & Iquest(12)==202
+        {  LREC=IQUEST(15); print *,' AGZOPEN: LREC corrected to',LREC
+           Call FZENDI(Unit,'TXQ');  GoTo :R:
+        }  Call FZENDI(Unit,'IQ')
+   }  }
    else If iu==3 & IREQ>0
    {  CALL CFOPEN(IQUEST,0,LREC,'w ',0,CREQ,ier);          K=3;
       IF Ier==0 { Call FZFILE(Unit,LREC,'XOL');  Ier=Iquest(1); }
@@ -38009,7 +38015,7 @@ End
  
  
 +DECK,AgZread,T=geant. --------------------------------------------------------
-*CMZ :          24/11/97  23.53.13  by  Pavel Nevski
+*CMZ :          20/04/98  19.19.30  by  Pavel Nevski
 *CMZ :  1.30/00 19/03/97  21.57.11  by  Pavel Nevski
 *CMZU:  1.00/01 15/01/96  20.20.30  by  Pavel Nevski
 *-- Author :    L.Vacavant, A.Rozanov    14/12/94
@@ -38021,17 +38027,20 @@ End
 * PN, 24.11.97 - both IDEVT and IDRUN are taken only from the primary stream *
 ******************************************************************************
 +CDE,TYPING,QUEST,GCBANK,GCUNIT,GCNUM,GCFLAG,SCLINK,AgCKINE.
-   Integer      ISLFLAG,i,ier,iprin,jvol,Ldata,Lk,N,NP,NT,IdZ/0/,IdG/0/
-   Integer      NHSETS,NDSETS,NSECT,NDETM,NSET,JOCRUN,JOCEVT,IGEN,NTRA
-   Integer      CSADDR,Iadr,iu,jb,none,Idev
+   Integer      ISLFLAG,i,ier,iprin,jvol,Ldata,Lk,N,NP,NT,NS,IdZ/0/,IdG/0/
+   Integer      NHSETS,NDSETS,NSECT,NDETM,NSET,JOCRUN,JOCEVT,IGEN,NTRA,M
+   Integer      LOCF,INDEX,CSADDR,Iadr,iu,jb,none,Idev
    Integer      Lun/21/,Lhead/0/,ifl/0/,nw/0/,Lsup,Iev/0/,Ihead(400)/400*0/
    Character    Stream*(*),HEAD*4,CHEAD(2)*4/2*' '/,Chopt*8/'*'/,IDH*4
-   Logical      Done/.true./
+   Logical      Trig,Done/.true./
 *  tentative guess for standard GFOUT data
    Character*4  Gsets(23)/'PART','MATE','TMED','VOLU','ROTM','SETS','DRAW',
                           'RUNG',  'a', 'a', 'a', 'a', 'a', 'a', 'a', 'a' ,
                           'HEAD','VERT','KINE','JXYZ','HITS','DIGI','SCAN'/
    Character*4  Esets(3) /'CODE','RUN ','EVEN'/
+   Character    CREQ*256,COPTN*20,CSTREAM*8
+   Integer      K,Jrc,Jcont,IREQ,iend,mem
+   Common       /AgZbuffer/ K,JRC,JCONT,CSTREAM,COPTN,CREQ,IREQ,iend,mem(100,5)
 *
   Replace [INP(#,#,#,#,#)] with [
     CHECK (Index(Chopt,'#1')>0 | Index(Chopt,'*')>0);   Nt=Nt+1;
@@ -38041,7 +38050,7 @@ End
                Call FZIN(LUN,#2,jb,0,'A',Nhead,Ihead); jb=LQ(jb) }
     Ier=Iquest(1);  Nw=Iquest(14);  CHECK jb>0;  Call UHTOC(IQ(jb-4),4,IDH,4);
     IF (IDH!=HEAD&IDEBUG>0) print *,' AGZREAD got ',IDH,' instead of ',HEAD;
-    IQ(jb-5)=iu;  #4=IQ(jb+(#5));
+    Ns=Ns+1; IQ(jb-5)=iu;  #4=IQ(jb+(#5));
     IF (#5==-2&Ier==0) { DO I=1,IQ(jb-2) { IF (LQ(jb-I)>0) #4=I; }}
     PRIN2 '#3','#4',#4,Nw; (' AGZREAD: read',2(2x,a6),' = ',i6,'  Leng = ',i8)
   ]
@@ -38053,7 +38062,9 @@ End
                              iu=1;  Chopt=CoptKine;
     If index(stream,'B')>0 { iu=2;  Chopt=CoptBack; }
     If index(stream,'S')>0 {        Chopt=' ';      }
-    Lun=20+iu;  HEAD=CHEAD(iu);  jvol=JVOLUM; Np=0; Nt=0;
+    Call Ucopy(mem(1,iu),K,LocF(Iend)-LocF(k))
+    M=5;  If (INDEX(CSTREAM,'1')>0) M=2
+    Lun=20+iu;  HEAD=CHEAD(iu);  jvol=JVOLUM; Np=0; Nt=0; Ns=0;
     Done=.false.;  If (Kevent(iu)==0) Done=.true.
 *
   Loop
@@ -38064,18 +38075,21 @@ End
                If (IQUEST(11)==-4 & IQUEST(12)==202) <w> IQUEST(14),IQUEST(15)
                   (10x,'Expected block size',i6,', found on input',i6); Next;}
         If Ier==1 { prin1 ifl; (' zebra sor, run ',i6); Iev=0; IDz=Ifl; Next;}
-        If Ier==2 { prin1 ifl; (' zebra eor, run ',i6); Ier=0; ifl=1;
-                                                       Kevent(iu)+=1;  Break;}
-        If Ier>=3 { prin1 Ier,ifl; (' zebra err, run ',2i6);           Break;}
-        If      Lhead=1 & Ifl=0 { i=IHEAD(1); If (1<=i&i<=22) HEAD=Gsets(i); }
-        else If Lhead=2 & Ifl>0 { HEAD='RUNG'; if(Kevent(iu)>0) HEAD='HEAD'; }
-        else If Lhead=1 & Ifl>0 { i=IHEAD(1); IF (1<=i&i<=3)  HEAD=Esets(i); }
+        If Ier> 1 { prin1 ier,ifl; (' zebra err, run ',2i6); If (Ier<M) Next;
+                                       Ier=0;  ifl=1;  Kevent(iu)+=1;  break;}
+        If      Lhead=1 & Ifl=0 { i=IHEAD(1);  If(1<=i&i<=22) HEAD=Gsets(i); }
+        else If Lhead=2 & Ifl>0 { HEAD='RUNG'; If(Kevent(iu)>0) HEAD='HEAD'; }
+        else If Lhead=1 & Ifl>0 { i=IHEAD(1);  IF(1<=i&i<=3)  HEAD=Esets(i); }
         else If LHead==3 & Ihead(1)+IHEAD(2)+Ihead(3)==0      { HEAD='RAWD'; }
         else If Lhead>2 {"atlas genz format" Call UHTOC(Ihead(3),4,HEAD,4);  }
-        if ifl>0  { prin2 kevent(iu),Lun,IHEAD(1),HEAD
-                    (' AGZREAD: event',i8,' on unit',i4,' ended by',i8,A6)
-                    If ((HEAD!='RUNG'|Nt>0)&HEAD!='CODE'&HEAD!='RUN') Break;
-                  }
+        Trig=Ifl.gt.0
+        If ( " new eor " HEAD=='HEAD' & Ns==0 & Nt>0 & Kevent(iu)>0 _
+           | HEAD=='RUNG' & Nt==0 | HEAD=='CODE' | HEAD=='RUN') Trig=.false.
+        If Trig
+        { prin2 kevent(iu),Lun,IHEAD(1),HEAD
+          (' AGZREAD: event',i8,' on unit',i4,' ended by',i8,A6)
+          Break;
+        }
      }  Done=.true.
 *
      If (iu==1 & Head=='HEAD' & JHEAD>0) Call MZDROP(IxDIV,JHEAD,' ')
@@ -39451,7 +39465,7 @@ End
   call GGCLOS
   End
 +DECK,AgZkine,T=geant. ---------------------------------------------------------
-*CMZ :          14/08/97  15.35.55  by  Pavel Nevski
+*CMZ :          20/04/98  19.49.51  by  Pavel Nevski
 *CMZ :  1.30/00 02/05/97  17.21.14  by  Pavel Nevski
 *-- Author :    A. Rozanov  11/03/95
 ******************************************************************************
@@ -39514,7 +39528,7 @@ End
       endif
 *
       Ier   = 0
-      If (Idebug>0)     Itest=max(Itest,1)
+*     If (Idebug>0)     Itest=max(Itest,1)
       If  IKINE >0      { Do iev=1,IKINE { Call AgSPkine } }
       If (IKineOld==-1) call AgZread ('P',ier)
       If (IKINEold==-2) call AgNTread(ier)
@@ -39524,8 +39538,8 @@ End
 *
       If  ier!=0  { Ikineold=0; Ieotri=1; Iquest(1)=Ier; Return; }
 *
-      If NtoSKIP>0 & IDEBUG>0
-      { <w> Ievent,Idevt; (' AGZKINE event ',2i7,' is skipped ')
+      If NtoSKIP>0
+      { if (IDEBUG>0) <w> Ievent,Idevt; (' AGZKINE event ',2i7,' is skipped ')
         NtoSKip-=1; Ieotri=1; Return;
       }
 *
