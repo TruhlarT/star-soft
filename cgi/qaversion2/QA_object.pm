@@ -134,6 +134,8 @@ sub _init{
 
   # control file initialized 
   $self->InitControlFile();
+
+  1;
 }
 #===========================================================
 # check if this job is still on disk
