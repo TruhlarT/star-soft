@@ -1,5 +1,5 @@
 #!/bin/csh -f
-#       $Id: group_env.csh,v 1.135 2003/03/05 21:15:32 jeromel Exp $
+#       $Id: group_env.csh,v 1.136 2003/03/07 22:01:31 jeromel Exp $
 #	Purpose:	STAR group csh setup
 #
 #	Author:		Y.Fisyak     BNL
@@ -338,6 +338,17 @@ if ( -d /usr/java/$JDK ) then
     setenv MANPATH ${MANPATH}:/usr/java/$JDK/man
     #CLASSPATH anyone ??
 endif
+
+# Support for Insure++
+set INSV=insure-5.2
+if ( -d /afs/rhic/app/$INSV ) then
+    set VER=`ls -ld /afs/rhic/app/$INSV/bin* | sed "s/.*\.//"`
+    if ($VER != "") set VER=".$VER"
+    set path=($path /afs/rhic/app/$INSV/bin$VER)
+    setenv LD_LIBRARY_PATH  ${LD_LIBRARY_PATH}:/afs/rhic/app/$INSV/lib$VER
+    unset VER
+endif
+
 
 # Support for Qt
 if ( -d $OPTSTAR/qt ) then
