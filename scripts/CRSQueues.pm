@@ -324,7 +324,7 @@ sub CRSQ_getcnt
 
 #
 # Submit $jfile with priority $prio. Eventually use a queue
-# shift of $drop.
+# shift of $drop. 
 #
 # Note that the last 2 arguments are not mandatory if
 # the getcnt() routine was called. If you chose to submit
@@ -333,11 +333,15 @@ sub CRSQ_getcnt
 # submitting something, you must at least specify a default
 # $qnum value. This latest mode is not encouraged ...
 #
+# If $prio is passed negative, this routine will make a
+# reverse-adjustement of priorities i.e. lower queue will
+# have higher priorities (lower number).
+#
 #
 sub CRSQ_submit
 {
     my($jfile,$prio,$qnum,$drop)=@_;
-    my($res,$i,$q);
+    my($res,$i,$q,$cprio);
 
     if ( ! -e $jfile){
 	print 
@@ -367,15 +371,24 @@ sub CRSQ_submit
 	    # with qnum=0, we have to leave now.
 	    if( $qnum == 0){ return 0;}
 	} else {
-	    $drop = 0;
+	    $drop = 1 if ($drop != 0);
+	    #$drop = 0;
 	    $qnum = $q;
 	    #print "We have selected queue $q $CRSQ::DIF{$q}\n";
 	}
     } 
 
-    $res = `$SUBMIT $jfile $prio $qnum $drop`;
+    # Priority adjustment or not
+    if ($prio < 0){
+	# Auto-adjust priority
+	$cprio = (-$prio) + $q - 1;
+    } else {
+	$cprio = $prio;
+    }
+
+    $res = `$SUBMIT $jfile $cprio $qnum $drop`;
     $res =~ s/\n//g;
-    if( $res =~ m/queue $qnum with priority $prio/){ 
+    if( $res =~ m/queue $qnum with priority $cprio/){ 
 	$qnum;
     } else {
 	if ( $res =~ m/(queue\s+)(\d+)/ ){
