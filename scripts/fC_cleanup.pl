@@ -353,7 +353,8 @@ while ($morerecords)
 	if ($mode == 4){
 	    $morerecords = $fileC->update_record($kwrd,"$newval",$confirm);
 	} else {
-	    $morerecords = $fileC->update_location($kwrd,$newval,$confirm);
+	    my $delete=1;
+	    $morerecords = $fileC->update_location($kwrd,$newval,$confirm,$delete);
 	}
 	if (! $confirm ){
 	    $morerecords = 0;
