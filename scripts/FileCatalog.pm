@@ -111,7 +111,7 @@ require  Exporter;
 
 	     check_ID_for_params insert_dictionary_value
 
-	     debug_on debug_off
+	     debug_on debug_off message_class
 	     Require Version
 
 	     );
@@ -138,6 +138,7 @@ no strict "refs";
 my $NCTRY     =  6;
 my $NCSLP     = 10;
 my $DEBUG     =  0;
+my $PCLASS    = "";
 my $DELAY     =  0;
 my $SILENT    =  0;
 my @DCMD;
@@ -224,7 +225,9 @@ $obsolete{"triggerword"} = "trgword";
 $keywrds{"trgsetupname"  }    =   "triggerSetupName"          .",TriggerSetups"          .",1" .",text" .",0" .",1" .",1";
 
 # The count of individual triggers, the FileData index access in TriggerCompositions and
-# the trigger word ID in the TriggerComposition table
+# the trigger word ID in the TriggerComposition table. Note that the filed 4 set for
+# cloning will have no effect as the table association is "reversed" (it contains
+# an association to FileData).
 $keywrds{"tcfdid"        }    =   "fileDataID"                .",TriggerCompositions"    .",0" .",num"  .",0" .",0" .",0";
 $keywrds{"tctwid"        }    =   "triggerWordID"             .",TriggerCompositions"    .",0" .",text" .",0" .",1" .",0";
 $keywrds{"trgcount"      }    =   "triggerCount"              .",TriggerCompositions"    .",0" .",text" .",0" .",1" .",1";
@@ -1035,9 +1038,9 @@ sub _context {
       ($keyw, $oper, $valu) = &disentangle_param($params);
 
       if ( ! defined($keyw) ){
-	  &print_message("set_context","Sorry, but I don't understand ".
+	  &print_message("_context","Sorry, but I don't understand ".
 		       "[$params] in your query.");
-	  &die_message("set_context","May be a missing operator ?");
+	  &die_message("_context","May be a missing operator ?");
       }
 
       #&print_debug("_context","$keyw $oper $valu");
@@ -1052,7 +1055,7 @@ sub _context {
 
       if ( exists $keywrds{$keyw}) {
 	  if ($DEBUG > 0) {
-	      &print_debug("_context","Query accepted $DEBUG: ".$keyw."=".$valu);
+	      &print_debug("_context","Query accepted $DEBUG: $keyw = $valu ($mode)");
 	  }
 	  if ($mode == 1){
 	      $optoperset{$keyw} = $oper;
@@ -1063,12 +1066,12 @@ sub _context {
 	  }
       } else {
 	  if ( defined($obsolete{$keyw}) ){
-	      &die_message("set_context",
+	      &die_message("_context",
 			   "[$keyw] is obsolete. Use $obsolete{$keyw} instead\n");
 	  } else {
 	      my (@kwd);
 	      @kwd = &get_keyword_list();
-	      &die_message("set_context",
+	      &die_message("_context",
 			   "[$keyw] IS NOT a valid keyword. Choose one of\n".
 			   join(" ",@kwd));
 	  }
@@ -3143,7 +3146,7 @@ sub run_query {
   my ($dele,$i);
   my ($keyw,$count);
   my (%keyset,%xkeys);
-  my (%TableUSED);
+  my (%TableUSED,%XTableUSED);
 
   my $grouping = "";
 
@@ -3234,7 +3237,7 @@ sub run_query {
   # Re-transfer clean list of keys. An associated array is NOT sorted
   # so we have to revert to a rather ugly (but fast) trick. We will
   # use the %keyset later
-  my ($j,@temp,@items,@setkeys);
+  my ($j,$tl,@temp,@items,@setkeys);
 
   for ($j=$i=0 ; $i <= $#keywords ; $i++){
       $keyw = $keywords[$i];
@@ -3254,7 +3257,10 @@ sub run_query {
 	      push(@temp,$keyw);
 
 	      # logic is for optional context
-	      $TableUSED{&get_table_name($keyw)} = 1;
+	      $tl = &get_table_name($keyw);
+	      $TableUSED{$tl} = 1;
+	      if ( $FC::FLRELATED{$tl} ){ $XTableUSED{"FileLocations"} = 1;}
+	      if ( $FC::FDRELATED{$tl} ){ $XTableUSED{"FileData"}      = 1;}
 	      #$j++;
 	  }
 	  $j++; # <-- not a bug
@@ -3265,6 +3271,8 @@ sub run_query {
   undef(@items);
   undef(@temp);
   undef($j);
+  undef($tl);
+
   &print_debug("run_query","Ordered list is [".join(" ",@keywords)."]");
 
   # Get all keys for later scan in another form. Those are
@@ -3275,18 +3283,35 @@ sub run_query {
   # Optional condition can be checked now
   # Note that they are enabled only if one of the returned
   # keys belong to the same table than the condition.
+  &print_debug("run_query","Will inspect optional context now");
   foreach $keyw (keys %optvaluset){
       my ($tabname) = &get_table_name($keyw);
-      if ( defined($TableUSED{$tabname}) && $tabname ne ""){
-	  if ( ! defined($valuset{$keyw}) ){
-	      &print_debug("run_query",
-			   "** Activating optional context $keyw ".
-			   "$optoperset{$keyw} $optvaluset{$keyw}");
-	      $valuset{$keyw} = $optvaluset{$keyw};
-	      $operset{$keyw} = $optoperset{$keyw};
+      &print_debug("run_query","\tKey $keyw, table=$tabname");
+      if( $tabname ne ""){
+	  # The conditions above are tricky to understand in one glance.
+	  # - The first one is simple, the table is in use, optional context is set
+	  # - The second/third implies that if there is a cross dependence FileData/FileLocations
+	  #   in the keyword list, there WILL be a JOIN on FileData/FileLocations and therefore,
+	  #   it is also a canidate for adding the optionally context on the query stack.
+	  if ( ( defined($TableUSED{$tabname}) )                                         ||
+	       ( defined($TableUSED{FileData}) && defined($XTableUSED{FileLocations}) )  ||
+	       ( defined($TableUSED{FileLocations}) && defined($XTableUSED{FileData}) )  ){
+	      if ( ! defined($valuset{$keyw}) ){
+		  &print_debug("run_query",
+			       "\t** Activating optional context $keyw ".
+			       "$optoperset{$keyw} $optvaluset{$keyw}");
+		  $valuset{$keyw} = $optvaluset{$keyw};
+		  $operset{$keyw} = $optoperset{$keyw};
+	      } else {
+		  &print_debug("run_query",
+			       "\t** Optional context $keyw will NOT be activated");
+	      }
 	  }
       }
   }
+  # destructor
+  undef(%XTableUSED);
+  undef(%TableUSED);
 
 
   #
@@ -3464,7 +3489,7 @@ sub run_query {
 			  # But remember to add the parent table
 			  # push (@connections, (connect_fields($keywords[0], $keyw)));
 			  &print_debug("run_query","\tPushing $parent_tabname in the case-1 \@from list");
-			  #push (@from, $parent_tabname);
+			  push (@from, $parent_tabname);
 		      }
 		  }
 		  $sth->finish();
@@ -3640,11 +3665,14 @@ sub run_query {
 	  push (@fromunique, $el);
       }
   }
+  &print_debug("run_query","Table list $toquery ; [$where]");
+
 
   # Extra debug line
   #if($DEBUG){
   #    &print_debug("run_query","--> order is --> ".join(" ",@select));
   #}
+
 
   # Get only the unique field names
   my @selectunique;
@@ -4299,11 +4327,10 @@ sub _bootstrap_2levels {
 
     $cmd1  = "SELECT $tab1.$field1 FROM $tab1 LEFT OUTER JOIN $tab3 ON $tab1.$field1 = $tab3.$field1 WHERE $tab3.$field1 IS NULL";
     $cmd2  = "SELECT $tab2.$field2 FROM $tab2 LEFT OUTER JOIN $tab1 ON $tab2.$field2 = $tab1.$field2 WHERE $tab1.$field2 IS NULL";
-
     $sth1 = $DBH->prepare( $cmd1 );
     $sth2 = $DBH->prepare( $cmd2 );
 
-    if( ! $sth1 || ! $sth2 ){ &die_message("_bootstrap_2lavels"," Failed to prepare statements");}
+    if( ! $sth1 || ! $sth2 ){ &die_message("_bootstrap_2levels"," Failed to prepare statements");}
 
     $p1 = $tab1;  $p1 =~ s/[a-z]*//g;
     $p2 = $tab2;  $p2 =~ s/[a-z]*//g;
@@ -4313,7 +4340,7 @@ sub _bootstrap_2levels {
     # Run the first sth on $tab1 since it may leave further
     # holes sth2 would pick up.
     #
-    &print_debug("_bootstrap_2levels","Running [$sth1]");
+    &print_debug("_bootstrap_2levels","Running [$cmd1]");
     if ( ! $sth1->execute() ){  &die_message("bootstrap_2levels","Execute 1 failed");}
 
     $sth1->bind_columns( \$id );
@@ -4341,7 +4368,7 @@ sub _bootstrap_2levels {
 
 
 
-    &print_debug("_bootstrap_2levels","Running [$sth2]");
+    &print_debug("_bootstrap_2levels","Running [$cmd2]");
     if ( ! $sth2->execute() ){  &die_message("bootstrap_2levels","Execute 2 failed");}
 
     $sth2->bind_columns( \$id );
@@ -4353,7 +4380,7 @@ sub _bootstrap_2levels {
 	if ( $DELAY ){
 	    push(@DCMD,$cmdd);
 	} else {
-	    &print_debug("_bootstrap_2levels","Executing $cmdd");
+	    &print_debug("_bootstrap_2levels","Executing [$cmdd]");
 	    $sthd = $DBH->prepare($cmdd);
 	    if ($sthd){
 		$sthd->execute();
@@ -5055,6 +5082,13 @@ sub get_value
 
 
 #============================================
+sub message_class { 
+    if ($_[0] =~ m/FileCatalog/) {  shift @_;} 
+    my($cl)=@_;
+    $PCLASS = $cl;
+}
+
+
 sub debug_on
 {
     if ($_[0] =~ m/FileCatalog/) {  shift @_;}
@@ -5086,6 +5120,12 @@ sub print_debug
     my($line);
 
     return if ($DEBUG==0);
+    if ($PCLASS ne ""){ 
+	if ( lc($head) !~ m/$PCLASS/i){  
+	    #print "$head do not match class $PCLASS\n";
+	    return;
+	}
+    }
 
     foreach $line (@lines){
 	chomp($line);
@@ -5124,6 +5164,8 @@ sub print_message
     my($line);
 
     if ( $SILENT ){ return;}
+    if ( $PCLASS ne ""){ if ( lc($routine) !~ m/$PCLASS/i){  return;}}
+
     foreach $line (@lines){
 	chomp($line);
 	printf STDERR "FileCatalog :: %15.15s : %s\n",$routine,$line;
@@ -5151,7 +5193,13 @@ sub destroy {
 }
 
 #============================================
-
+#
+# Just as a side note, if caching is enabled (which it is)
+# it is unsafe to run bootstraps too often (other processes
+# may be caching values you are deleting). The window of 
+# oportunity is as small as the time for one insert in MySQL
+# but nonetheless, not 0.
+#
 sub _SaveValue
 {
     my($table,$idx,$val)=@_;
