@@ -30,7 +30,7 @@ my $qaPath = "/star/u/starqa/pro";  # run pro version
 #my $qaPath = "/star/u2e/bnorman/cgi-bin/qa";
 my $webServer = "connery.star.bnl.gov";
 my $sleepCmd = "/afs/rhic/star/users/starlib/.sleeper";
-my $afsPwFile = "/afs/rhic/star/users/starlib/.starlib_CGI";
+my $afsPwFile = "/star/u/starqa/.cshnc";
 
 # get options
 my %opt;
@@ -58,7 +58,7 @@ my $token = `tokens`;
 
 if ($token !~ /^User\'s \(AFS ID 31012\)/m) {   # token line in output
     print STDERR "(re)starting reauth...\n";
-    system("killall reauth; cat $afsPwFile | reauth 85000 starlib");
+    system("killall reauth; cat $afsPwFile | reauth 85000 starqa");
     print STDERR "...reauth (re)started\n";
 }
 
@@ -90,7 +90,7 @@ if (!$query){
 }
 
 # check for cgid running
-@pids = getPIDs("starlib","cgid"); 
+@pids = getPIDs("starqa","cgid"); 
 $verbose && print "cgid pid = " . $pids[0] . "\n";
 if (!$query){
     if (!$pids[0] && !$kill && !$destroy){
