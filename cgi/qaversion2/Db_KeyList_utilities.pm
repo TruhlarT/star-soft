@@ -16,7 +16,7 @@ use QA_db_utilities qw(:db_globals); # import db handle and tables
 
 use strict qw(vars subs);
 1;
-#========================================================================
+#===================================================================
 # get values for dataset selection menu for offline db
 # argument is real or MC
 
@@ -46,14 +46,10 @@ sub GetOfflineSelections{
      
 
   # run id
-  $query{runID} = qq{select distinct file.runID
-		     from $dbFile.$FileCatalog as file,
-		          $dbQA.$QASum{Table} as s
-		     where file.jobID = s.$QASum{jobID} and
-			   ($now-unix_timestamp(createtime))>0 and
-		           s.$QASum{type} = '$fileType'
-		     order by file.runID asc};
-
+  $query{runID} = QueryOffline('runID',$fileType);
+  
+  # dataset 
+  $query{dataset} = QueryOffline('dataset',$fileType);
 
   # QA macros
   $query{macroName} = qq{select distinct m.$QAMacros{macroName}
@@ -66,14 +62,6 @@ sub GetOfflineSelections{
 		            s.$QASum{type}     = '$fileType'           
 		       order by m.$QAMacros{macroName} asc};
 
-  # dataset 
-  $query{dataset} = qq{select distinct file.dataset
-		       from $dbFile.$FileCatalog as file,
-			    $dbQA.$QASum{Table} as s
-		       where file.jobID      = s.$QASum{jobID} and
-			    s.$QASum{type} = '$fileType'
-		       order by file.dataset asc };
-  
   my $sth;
 
   # get prodOptions - this is different from the others.
@@ -92,6 +80,18 @@ sub GetOfflineSelections{
   return $hashref;
 			 
 } 
+#========================================================================
+sub QueryOffline{
+  my $field     = shift;
+  my $fileType  = shift;
+
+  return qq{select distinct file.$field
+	    from $dbFile.$FileCatalog as file,
+	          $dbQA.$QASum{Table} as s
+	    where file.jobID = s.$QASum{jobID} and
+	          s.$QASum{type} = '$fileType'
+	    order by file.$field asc};
+}
 #========================================================================
 # get values for dataset selection menu for offline real
 
@@ -119,15 +119,9 @@ sub GetNightlySelections{
   # different queries for different class of data
   if ($dataType eq 'MC')
   {
-    $query{eventGen}  = qq{select distinct eventGen
-		          from $dbFile.$FileCatalog
-			  where eventGen !='n/a/'
-			  order by eventGen};
+    $query{eventGen}  = QueryNightly('eventGen');
+    $query{eventType} = QueryNightly('eventType');
 
-    $query{eventType} = qq{select distinct eventType
-		          from $dbFile.$FileCatalog
-                          where eventType!='n/a' 
-                          order by eventType};
     $fileType = 'MC';
     
   }
@@ -150,18 +144,9 @@ sub GetNightlySelections{
 
   # other queries...
 
-  $query{LibLevel}   = qq{select distinct LibLevel
-		         from $dbFile.$FileCatalog 
-			 where LibTag!='n/a'
-                         order by LibLevel};
-  $query{platform}  = qq{select distinct platform
-		          from $dbFile.$FileCatalog 
-			  where platform!='n/a'
-                          order by platform};
-  
-  $query{geometry}  = qq{select distinct geometry
-		         from $dbFile.$FileCatalog 
-			 order by geometry};
+  $query{LibLevel}  = QueryNightly('LibLevel');
+  $query{platform}  = QueryNightly('platform'); 
+  $query{geometry}  = QueryNightly('geometry'); 
 
   $query{macroName} = qq{select distinct m.$QAMacros{macroName}
 			  from $dbQA.$QAMacros{Table} as m,
@@ -184,6 +169,15 @@ sub GetNightlySelections{
   return $hashref;
 }
 #========================================================================
+sub QueryNightly{
+  my $field = shift;
+
+  return qq{select distinct $field
+	    from $dbFile.$FileCatalog 
+	    where $field !='n/a'
+	    order by $field};
+}
+#========================================================================
 # get possible values for dataset selection menu for real nightly tests
 # 
 
@@ -198,8 +192,6 @@ sub GetNightlySelectionsReal{
 sub GetNightlySelectionsMC{
   return GetNightlySelections('MC');
 }
-
-
 
 #=======================================================================
 # get the QA report keys according to selection query

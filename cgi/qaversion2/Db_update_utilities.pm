@@ -58,7 +58,7 @@ sub UpdateQAOffline{
   }
 
   # update
-  my $queryUpdate = qq{select distinct file.jobID
+  my $queryUpdate = qq{select distinct file.jobID, file.redone
 			from $dbFile.$FileCatalog as file 
 			LEFT JOIN $dbQA.$QASum{Table} as qa
 			on file.jobID  = qa.$QASum{jobID} and
@@ -76,6 +76,7 @@ sub UpdateQAOffline{
   my $queryInsert = qq{insert into $dbQA.$QASum{Table} 
 			set
 			  $QASum{jobID}       = ?,
+			  $QASum{redone}      = ?,
 			  $QASum{report_key}  = ?,
 			  $QASum{type}        = '$dataType',
 			  $QASum{QAdone}      = 'N',
@@ -93,7 +94,7 @@ sub UpdateQAOffline{
   print h3("Found $rows new jobs\n");
 
   # loop over jobs
-  while ( my $jobID = $sthUpdate->fetchrow_array ) {
+  while ( my ($jobID, $redone) = $sthUpdate->fetchrow_array ) {
     $sthKey->execute($jobID);
     
     # get report key
@@ -103,7 +104,7 @@ sub UpdateQAOffline{
     push @keyList, $reportKey;
     
     # insert into QASummary
-    $sthInsert->execute($jobID, $reportKey);
+    $sthInsert->execute($jobID, $redone, $reportKey);
   }	       
   return @keyList;
 }
