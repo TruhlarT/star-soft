@@ -95,7 +95,7 @@ switch ($SHELL)
 	set showdots=on
 	set ellispis=1
 	set histfile=~/.history.$HOST
-	set autologout=600
+	set autologout=1440
 	breaksw
     default:
 	alias cd 'chdir \!* && setprompt'
