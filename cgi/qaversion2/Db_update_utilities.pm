@@ -123,9 +123,9 @@ sub UpdateQAOfflineReal{
 
 sub UpdateQANightly {  
   my $data_class = shift; # 'real' or 'MC'
-  my $limit = 10;
-  my $oldest_date = '2000-06-17'; # dont retrieve anything older 
-
+  
+  my $limit = 20;
+  my $oldest_date = '2000-06-20'; # dont retrieve anything older 
   my ($type, $eventGen_string);
 
   # real or simulation
@@ -195,8 +195,8 @@ sub UpdateQANightly {
 			  $QASum{type}       = '$data_class' };
 
   my $sth_update = $dbh->prepare($query_update); # find jobs to update
-  my $sth_key    = $dbh->prepare($query_key); # get report key info
-  my $sth_check  = $dbh->prepare($query_check); # check for uniqueness
+  my $sth_key    = $dbh->prepare($query_key);    # get report key info
+  my $sth_check  = $dbh->prepare($query_check);  # check for uniqueness
   my $sth_insert = $dbh->prepare($query_insert); # insert into QASummary 
 
   my $rc = $sth_update->execute;

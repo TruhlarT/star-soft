@@ -167,10 +167,10 @@ sub GetNightlySelections{
 
   # other queries...
 
-  my $query_library   = qq{select distinct LibTag
+  my $query_library   = qq{select distinct LibLevel
 		         from $dbFile.$FileCatalog 
 			 where LibTag!='n/a'
-                         order by LibTag};
+                         order by LibLevel};
   my $query_platform  = qq{select distinct platform
 		          from $dbFile.$FileCatalog 
 			  where platform!='n/a'
@@ -199,11 +199,11 @@ sub GetNightlySelections{
   push( @{$hashref->{eventGen}}, $row ) 
     while ( $row = $sth->fetchrow_array );
 
-  # get library version
+  # get library level
   $sth = $dbh->prepare($query_library);
   $sth->execute;
   
-  push( @{$hashref->{LibTag}}, $row ) while ( $row = $sth->fetchrow_array );
+  push( @{$hashref->{LibLevel}}, $row ) while ( $row = $sth->fetchrow_array );
 
   # get machine info
   $sth = $dbh->prepare($query_platform);
@@ -258,8 +258,8 @@ sub GetOfflineKeys{
   my $prodOptions   = shift; # e.g. "$prodSeries;$chainName"
   my $runID         = shift; # e.g. 124
   my $QAstatus_arg  = shift; # e.g. "warnings;$macro_name" or "ok"
-  my $jobStatus     = shift;
-  my $createTime    = shift; 
+  my $jobStatus     = shift; # e.g. 'not done'
+  my $createTime    = shift; # e.g. three_days
   my $dataset       = shift;
 
   my $limit = 50; # dont want to get a million of them
@@ -333,7 +333,7 @@ sub GetOfflineKeys{
     }
   }
   
-  # --- from cpJobStatus ---
+  # --- from cpJobStatus ---2
   my ($prod_string, $chain_string, $jobStatus_string);
  
   if ($jobStatus ne 'any' or $prodSeries ne 'any' ) 
@@ -356,9 +356,10 @@ sub GetOfflineKeys{
     if ($jobStatus eq 'done' ){ 
       $jobStatus_string = "job.jobStatus ='done' and";
     }
-    if ($jobStatus eq 'not_done'){
+    elsif ($jobStatus eq 'not done'){
       $jobStatus_string = "job.jobStatus !='done' and";
     }
+    else {die "Wrong argument for job status"}
   }
   #--- QA status ---
   # $QAstatus_string must be the last line in the 'where' clause
@@ -372,9 +373,9 @@ sub GetOfflineKeys{
     { # dont need to join with macros table
       
       $QAstatus_string = "sum.$QASum{QAok}='Y'"   if $QAstatus eq 'ok';
-      $QAstatus_string = "sum.$QASum{QAok}='N'"   if $QAstatus eq 'not_ok';
+      $QAstatus_string = "sum.$QASum{QAok}='N'"   if $QAstatus eq 'not ok';
       $QAstatus_string = "sum.$QASum{QAdone}='Y'" if $QAstatus eq 'done';
-      $QAstatus_string = "sum.$QASum{QAdone}='N'" if $QAstatus eq 'not_done';
+      $QAstatus_string = "sum.$QASum{QAdone}='N'" if $QAstatus eq 'not done';
     }
     elsif ($QAstatus eq 'warnings' or $QAstatus eq 'errors')
     { # need to join macros table
@@ -449,7 +450,7 @@ sub GetOfflineKeysMC{
 sub GetNightlyKeys{
   my $data_type     = shift; # real or MC
   my $eventGen      = shift;
-  my $LibTag        = shift;
+  my $LibLevel      = shift;
   my $platform      = shift;
   my $eventType     = shift;
   my $geometry      = shift;
@@ -461,7 +462,7 @@ sub GetNightlyKeys{
   my $limit = 50; # limit the query
   
   print h4("eventGen     = $eventGen<br>",
-	   "LibTag       = $LibTag<br>",
+	   "LibLevel     = $LibLevel<br>",
 	   "platform     = $platform<br>",
 	   "eventType    = $eventType<br>",
 	   "geometry     = $geometry<br>",
@@ -480,22 +481,23 @@ sub GetNightlyKeys{
   my ($job_from_string, $job_where_string);
 
   # --- file catalog ---
-  my ($LibTag_string, $platform_string, $eventType_string,
+  my ($LibLevel_string, $platform_string, $eventType_string,
       $geometry_string, $ondisk_string, $createTime_string);
 
-  if ($eventGen  ne 'any' or
-      $LibTag    ne 'any' or 
-      $platform  ne 'any' or
-      $eventType ne 'any' or
-      $geometry  ne 'any' or
-      $ondisk    ne 'any'     )
+  if ($eventGen   ne 'any' or
+      $LibLevel   ne 'any' or 
+      $platform   ne 'any' or
+      $eventType  ne 'any' or
+      $geometry   ne 'any' or
+      $createTime ne 'any' or
+      $ondisk     ne 'any'     )
   {
     $file_from_string  = ",$dbFile.$FileCatalog as file";
     $file_where_string = "sum.jobID = file.jobID and";
 
     # any or not any?
-    $LibTag_string    = "file.LibTag = '$LibTag' and"
-      if $LibTag ne 'any';
+    $LibLevel_string  = "file.LibLevel = '$LibLevel' and"
+      if $LibLevel ne 'any';
     $platform_string  = "file.platform = '$platform' and"
       if $platform ne 'any';
     $eventType_string = "file.eventType = '$eventType' and"
@@ -505,11 +507,11 @@ sub GetNightlyKeys{
   
     # ondisk?
     if ($ondisk ne 'any') {
-      if ($ondisk eq 'on_disk')
+      if ($ondisk eq 'on disk')
       {
 	$ondisk_string = "file.avail = 'Y' and";
       }
-      elsif ($ondisk eq 'not_on_disk') 
+      elsif ($ondisk eq 'not on disk') 
       {
 	$ondisk_string = "file.avail = 'N' and";
       }
@@ -545,12 +547,13 @@ sub GetNightlyKeys{
     if ($jobStatus eq 'done' ){ 
       $jobStatus_string = "job.jobStatus ='done' and";
     }
-    if ($jobStatus eq 'not_done'){
+    elsif ($jobStatus eq 'not done'){
       $jobStatus_string = "job.jobStatus !='done' and";
     }
+    else { die "Wrong argument for jobStatus";}
   }
     
-  # for eventGen, if real we dont need to query on it
+  # for eventGen, if real we dont need to query on it.
   # data_type_string takes care of selecting on real vs MC
   
   # which class of data are we looking at?
@@ -582,9 +585,9 @@ sub GetNightlyKeys{
     { # dont need to join with macros table
       
       $QAstatus_string = "sum.$QASum{QAok}='Y'"   if $QAstatus eq 'ok';
-      $QAstatus_string = "sum.$QASum{QAok}='N'"   if $QAstatus eq 'not_ok';
+      $QAstatus_string = "sum.$QASum{QAok}='N'"   if $QAstatus eq 'not ok';
       $QAstatus_string = "sum.$QASum{QAdone}='Y'" if $QAstatus eq 'done';
-      $QAstatus_string = "sum.$QASum{QAdone}='N'" if $QAstatus eq 'not_done';
+      $QAstatus_string = "sum.$QASum{QAdone}='N'" if $QAstatus eq 'not done';
     }
     elsif ($QAstatus eq 'warnings' or $QAstatus eq 'errors')
     { # need to join macros table
@@ -611,7 +614,7 @@ sub GetNightlyKeys{
 		       $file_where_string
 		       $job_where_string
 		       $eventGen_string 
-		       $LibTag_string 
+		       $LibLevel_string 
 		       $platform_string
 		       $eventType_string
 		       $geometry_string

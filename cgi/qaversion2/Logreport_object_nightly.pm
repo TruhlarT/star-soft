@@ -81,6 +81,9 @@ sub ParseLogfile {
 
   # open files
   my $fh       = FileHandle->new( $logfile, "r" ) or return;
+  
+  print "Found logfile $logfile\n", br;
+
   my $FH_WARN  = $self->IOStWarningFile->Open(">", "0664");
   my $FH_ERR   = $self->IOStErrorFile->Open(">", "0664");
 

@@ -1,6 +1,10 @@
 #! /usr/bin/perl
 #
-# gets the message and report keys
+# Class that takes care of 
+# 1. extracting the relevant keys from the db as chosen by the user
+# 2. creating the popup menu
+# 3. creating the relevant QA_objects when used from the browser
+# 4. adding the messages
 #
 #========================================================
 package KeyList_object;
@@ -20,8 +24,10 @@ my %members = ( _SelectionRef       => undef,
 		_KeyListRef         => [],
 		_NKeys              => undef
 		);
+# there are also a bunch of members related to 
+# the CGI forms... see the derived classes for details.
+
 #========================================================
-# constructor 1
 # used from browser
 
 sub new{
@@ -109,7 +115,7 @@ sub GetSelectedKeyList{
   # make the QA_objects
   QA_utilities::make_QA_objects(@key_list);
 
-  $self->SelectedKeyList(@key_list);
+  $self->KeyList(@key_list);
 
   # pass on the selected key list as hidden values
   # in order to do qa on whole dataset
@@ -129,10 +135,7 @@ sub AddMessagesToKeyList{
   my $self = shift;
 
   # this should be the selected report keys
-  my @report_keys = $self->SelectedKeyList;
-
-  # add it to the overall key list
-  $self->KeyList(@report_keys);
+  my @report_keys = $self->KeyList;
 
   # if key list is empty, return
   scalar @report_keys or return;
@@ -170,7 +173,27 @@ sub AddMessagesToKeyList{
   return $self->KeyList;
  
 }
+#==================================================================
+# make a table row of popup menus
+# uses ben's clever mapping technique
+# returns an array
 
+sub GetRowOfMenus{
+  my $self          = shift;
+  my @select_fields = @_;
+ 
+  return map{
+              b( $self->{select_labels}{$_} ).br.
+	      $gCGIquery->popup_menu(
+				     -name    => $_,
+				     -values  => $self->{values}{$_},
+				     -default => $self->{values}{$_}[$self->{defaults}{$_}],
+				     -labels  => $self->{labels}{$_}
+                                    )
+	    } @select_fields ;
+                    
+}
+  
 #==================================================================
 sub NKeys{
   
@@ -180,6 +203,7 @@ sub NKeys{
 }
 #=======================================================
 # just the selected report keys
+# not used
 
 sub SelectedKeyList{
   my $self = shift;
@@ -198,12 +222,13 @@ sub SelectedKeyList{
 sub KeyList{
 
   my $self = shift;
-
+  
+  no strict 'refs';
   @_ and do{
     my @key_list = @_;
     $self->{_KeyListRef} = \@key_list;
   };
-  defined $self->{_SelectedKeyListRef} or return;
+
   return @{$self->{_KeyListRef}};
 }
 #=========================================================

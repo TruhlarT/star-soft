@@ -10,6 +10,7 @@
 #==========================================================
 package Logreport_object_offline;
 #==========================================================
+use CGI qw/:standard :html3/;
 use QA_globals;
 use FileHandle;
 use QA_db_utilities;
@@ -157,6 +158,8 @@ sub ParseLogfile{
   $sumfile =~ s/\.log$/\.sum/;                 # change extension
 
   my $fh_sum = FileHandle->new( $sumfile, "r" ) or return;
+
+  print "Found summary of logfile $sumfile\n" , br;
 
   # read the log file (actually summary of the log file)
   

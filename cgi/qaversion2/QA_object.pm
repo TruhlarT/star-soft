@@ -361,7 +361,7 @@ sub QASummaryString{
      # ok
      elsif ($warnings eq '0' and $errors eq '0') 
      {
-       $summary_string .= "$macro: <font color=green>O.K.</font>";
+       $summary_string .= "$macro: <font color=green>O.K.</font>".br;
      }
      else  # something's wrong
      {

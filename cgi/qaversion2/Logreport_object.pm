@@ -1,8 +1,13 @@
 #! /usr/bin/perl -w
 #
-# general object to contain logfile summary
+# general object to retrieve basic information about the job.
+# the information is gathered from 
+# 1. logfile
+# 2. mysql database
+# beware: the derived objects should override several methods.
+# this class should never be instantiated
 #
-# pmj 13/11/99
+# pmj 13/11/99 
 #
 #=========================================================
 package Logreport_object;
@@ -115,15 +120,19 @@ sub _init{
   # parse the log file
   # returns an error if this doesnt exist
   #
+  print "Parsing logfile...\n", br;
   $self->ParseLogfile() or do{
     print h3("Error in Logreport_object constructor:\n ",
 	     "logfile $logfile not found for $jobID ($report_key)\n");
     return;
   };
+  print "...done\n" , br;
 
   # get additional job info from the db
   #
+  print "Getting additional info from db...\n" , br;
   $self->GetJobInfo();
+  print "...done\n" , br;
   
   # check for missing files
   # depends on the data class - use global DataClass_object

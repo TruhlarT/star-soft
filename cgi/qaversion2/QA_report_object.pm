@@ -234,7 +234,7 @@ sub GetTests{
 
   my $hist_ok = 1;
   if ($self->MacroName eq "bfcread_hist_to_ps"){ 
-    $hist_ok = 0 if $self->MissingFiles =~ /\.hist\.root/;
+    $hist_ok = 0 if $self->MissingFiles =~ /hist\.root/;
   }
 
   if (! $hist_ok ){
@@ -255,7 +255,11 @@ sub GetTests{
 
     # reset IOMacroReportFilename
     $self->IOMacroReportFilename(IO_object->new("MacroReportFilename",
-					      $macro_name, $self));
+						  $self->ReportKey, 
+						  $self->MacroName,
+						  $self->OutputDataType,
+						  $self->OutputDataFilename,
+						  $self->OutputDataExtension));
   }
   
 

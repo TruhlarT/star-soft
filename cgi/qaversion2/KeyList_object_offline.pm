@@ -32,147 +32,96 @@ sub new{
 
 #========================================================
 # popup menu for selecting jobs
-# currently select on 
 #
-# prodOptions
-# runID
-# QAstatus
-# jobstatus
-# createTime
-# dataset
-# job created
+
 
 sub JobPopupMenu{
   my $self = shift;
 
   no strict 'refs';
 
-  # fill selection values, selection_labels
+  # possible selection fields (i.e. popup menus)
+  $self->{select_fields} = [ 
+			    'prodOptions',
+			    'runID',
+			    'QAstatus',
+			    'jobStatus',
+			    'createTime',
+			    'dataset'
+			   ];
 
-  my $select_ref = $self->GetSelectionOptions;
+  # selection labels for the user
+  $self->{select_labels} = {
+			    prodOptions => 'prodOptions',
+			    runID       => 'runID',
+			    QAstatus    => 'QA status',
+			    jobStatus   => 'job status',
+			    createTime  => 'job createTime',
+			    dataset     => 'dataset'
+			   };
 
-  #prodOptions - see QA_db_utilities::db_GetOfflineSelections()
-  my (@prodOptions_values, %prodOptions_labels);
+  # possible values for each selection field
+  # ref of hash of refs to arrays
+  
+  %{$self->{values}} = map {$_, ['any']} @{$self->{select_fields}};
+
+  # possible labels for each selection field
+  # ref of hash of refs to hashes
+  # not all values need labels...
+  $self->{labels}; 
+
+  # get some selection values from the database
+  my $select_ref = $self->GetSelectionOptions();
+
+  # production options (prod series and chainname)
 
   foreach my $prodSeries (keys %{$select_ref->{prodOptions}}){
-    push @prodOptions_values, $prodSeries;
-    $prodOptions_labels{$prodSeries} = $prodSeries;
+    push @{$self->{values}{prodOptions}}, $prodSeries;
+    $self->{labels}{prodOptions}{$prodSeries} = $prodSeries;
     
-    foreach my $chainName ( @{$select_ref->{prodOptions}->{$prodSeries}} ){
+    foreach my $chainName ( @{$select_ref->{prodOptions}{$prodSeries}} ){
       my $value = "$prodSeries;$chainName";
-      push @prodOptions_values, $value;
-      $prodOptions_labels{$value} = "$prodSeries - $chainName";
+      push @{$self->{valuee}{prodOptions}}, $value;
+      $self->{labels}{prodOptions}{$value} = "$prodSeries - $chainName";
     }
   }
   # runID
-  my (@runID_values, %runID_labels);
-  @runID_values = @{$select_ref->{runID}};
+  push @{$self->{values}{runID}}, @{$select_ref->{runID}};
 
-  
   # QA status (errors, warnings, ok)
   my @macro_names = @{$select_ref->{macroName}};
 
+  my $abbrev;
   # QA status now fill in errors and warnings info
-  my @status_values = ('any','ok','not_ok','done', 'not_done');
-  my %status_labels = (
-		       any      => 'any',
-		       ok       => 'ok',
-		       not_ok   => 'not ok',
-		       done     => 'done',
-		       not_done => 'not done'
-		       );
+  push @{$self->{values}{QAstatus}}, ( 'ok', 'not ok', 'done', 'not done');
+  %{$self->{labels}{QAstatus}} = map{$_, $_} @{$self->{values}{QAstatus}};
 
-  push @status_values, 'warnings';$status_labels{warnings} = 'warnings';
+  foreach my $status ('warnings', 'errors') {
 
-  foreach my $macro_name (@macro_names){
-    my $value = "warnings;$macro_name";
-    push(@status_values, $value);
-    $status_labels{$value} = "warn - $macro_name";
+    push @{$self->{values}{QAstatus}}, "$status";
+    $self->{labels}{QAstatus}{$status} = "$status";
+  
+    foreach my $macro_name (@macro_names){
+      my $value = "$status;$macro_name";
+      push @{$self->{values}{QAstatus}}, $value;
+      ($abbrev = $status) =~ s/warnings/warn/;
+      ($abbrev = $status) =~ s/errors/err/;
+      $self->{labels}{QAstatus}{$value} = "$abbrev - $macro_name";
+    }
   }
-  push @status_values, 'errors'; $status_labels{errors} =  'errors';
-
-  foreach my $macro_name (@macro_names){
-    my $value = "errors;$macro_name";
-    push(@status_values, $value);
-    $status_labels{$value} = "err - $macro_name";
-  }
-
+  
   # dataset
-  my (@dataset_values,%dataset_labels);
-  @dataset_values = @{$select_ref->{dataset}};
+  push @{$self->{values}{dataset}}, @{$select_ref->{dataset}};
     
-  # make it cleaner
-  foreach my $element (@dataset_values){
-#    (my $clean_element = $element) =~ s/\// /g;
-    $dataset_labels{$element} = $element;
-  }
-  
   # job status 
-  my (@jobStatus_values, %jobStatus_labels);
-  
-  @jobStatus_values = ('any', 'done','not_done');
-  %jobStatus_labels = ( any      => 'any',
-			done     => 'done',
-			not_done => 'not done' );
+  push @{$self->{values}{jobStatus}}, ('done', 'not done');
 
   # createTime
-  my (@createTime_values, %createTime_labels);
-  push @createTime_values, 'three_days'   ; 
-  $createTime_labels{'three_days'} = '3 days';
-  push @createTime_values, 'seven_days'   ; 
-  $createTime_labels{seven_days} = '7 days';
-  push @createTime_values, 'fourteen_days'; 
-  $createTime_labels{fourteen_days} = '14 days';
+  push @{$self->{values}{createTime}}, ('three_days','seven_days', 'fourteen_days');
   
-  # make general adjustments
-
-  unshift @prodOptions_values, 'any'; $prodOptions_labels{any} = 'any';
-  unshift @runID_values, 'any';       $runID_labels{any} = 'any';
-  unshift @createTime_values, 'any';  $createTime_labels{any} = 'any';
-  unshift @dataset_values, 'any';     $dataset_labels{any} = 'any';
-
-  # make the cgi strings
-
-  my $prodOptions_string = 
-    b('prodOptions').br.
-      $gCGIquery->popup_menu(-name    => 'select_prodOptions',
-			 -values  => \@prodOptions_values,
-			 -default => $prodOptions_values[0],
-			 -labels  => \%prodOptions_labels);
-
-  my $runID_string =
-    b('runID').br.
-      $gCGIquery->popup_menu(-name    => 'select_runID',
-			 -values  => \@runID_values,
-			 -default => $runID_values[0] );
-
-  my $QAstatus_string = 
-    b('QA status').br.
-      $gCGIquery->popup_menu(-name    => 'select_QAstatus',
-			 -values  => \@status_values,
-			 -default => $status_values[0],
-			 -labels  => \%status_labels);
-
-  my $createTime_string =
-    b('job createTime').br.
-      $gCGIquery->popup_menu(-name    => 'select_createTime',
-			 -values  => \@createTime_values,
-			 -default => $createTime_values[0],
-			 -labels  => \%createTime_labels);
-
-  my $jobStatus_string =
-    b('job status').br.
-      $gCGIquery->popup_menu(-name    => 'select_jobStatus',
-			 -values  => \@jobStatus_values,
-			 -default => $jobStatus_values[0],
-			 -labels  => \%jobStatus_labels);
-
-  my $dataset_string =
-    b('dataset').br.
-      $gCGIquery->popup_menu(-name    => 'select_dataset',
-			 -values  => \@dataset_values,
-			 -default => $dataset_values[0],
-			 -labels  => \%dataset_labels );
+  $self->{labels}{createTime}{three_days} = '3 days ago';
+  $self->{labels}{createTime}{seven_days} = '7 days ago';
+  $self->{labels}{createTime}{fourteen_days} = '14 days ago';
 
 
   my $submit_string = br.$gCGIquery->submit('Display datasets');
@@ -180,8 +129,8 @@ sub JobPopupMenu{
   my (@table_rows);
 
   $table_rows[0] = td( [h3('Select dataset:')]);
-  push @table_rows, td( [$prodOptions_string, $runID_string, $dataset_string ]);
-  push @table_rows, td( [$QAstatus_string, $jobStatus_string, $createTime_string ]);
+  push @table_rows, td( [$self->GetRowOfMenus('prodOptions','runID','dataset') ]);
+  push @table_rows, td( [$self->GetRowOfMenus('QAstatus','jobStatus','createTime') ]);
   push @table_rows, td( [$submit_string] );
 
   my $table_string = 
@@ -208,12 +157,12 @@ sub SelectedParameters{
   my $self = shift;
 
   return (
-	  $gCGIquery->param('select_prodOptions'),
-	  $gCGIquery->param('select_runID'),
-	  $gCGIquery->param('select_QAstatus'),
-	  $gCGIquery->param('select_jobStatus'),
-	  $gCGIquery->param('select_createTime'),
-	  $gCGIquery->param('select_dataset')
+	  $gCGIquery->param('prodOptions'),
+	  $gCGIquery->param('runID'),
+	  $gCGIquery->param('QAstatus'),
+	  $gCGIquery->param('jobStatus'),
+	  $gCGIquery->param('createTime'),
+	  $gCGIquery->param('dataset')
 	  );
 
 }
