@@ -26,7 +26,8 @@ use FileHandle;
 use Getopt::Std;
 
 #my $qaPath = "/star/u2e/starqa/pro";  # run pro version
-my $qaPath = "/afs/rhic/star/packages/DEV/cgi/qaversion2";  # run dev version
+#my $qaPath = "/afs/rhic/star/packages/DEV/cgi/qaversion2";  # run dev version
+my $qaPath = "/star/u2e/bnorman/cgi-bin/qa";
 my $webServer = "connery.star.bnl.gov";
 my $sleepCmd = "/star/rcf/qa/.sleeper";
 my $afsPwFile = "/star/rcf/qa/.starlib_CGI";
@@ -62,36 +63,37 @@ if ($token !~ /^User\'s \(AFS ID 31012\)/m) {   # token line in output
 }
 
 # check for ssh running
-my $pid = getPID("root", $port);
-$verbose && print "ssh pid = $pid\n";
+my @pids = getPIDs("root", $port);
+$verbose && print "ssh pid = " . $pids[0] . "\n";
 if (!$query){
-    if (!$pid && !$kill && !$destroy){             #start it
+    if (!$pids[0] && !$kill && !$destroy){             #start it
 	print "starting ssh...\n";
 	
 	system("ssh -x -f -R $port:localhost:$port $webServer $sleepCmd") == 0
 	    or die "could not run ssh forwarding"; 
 	
 	print "...ssh started\n";
-    } elsif ($pid){                     #stop it  
+    } elsif ($pids[0]){                     #stop it  
 	print "stopping ssh...\n";
 	
-	if($kill){ 
-	    system("kill $pid") == 0
-		or die "could not kill ssh forwarding";
-	}elsif($destroy){
-	    system("kill -9 $pid") == 0
-		or die "could not kill ssh forwarding";
+	for (my $i = 0; $i <= $#pids; $i++){
+	    if($kill){ 
+		system("kill " . $pids[$i]) == 0
+		    or die "could not kill ssh forwarding";
+	    }elsif($destroy){
+		system("kill -9 " . $pids[$1]) == 0
+		    or die "could not kill ssh forwarding";
+	    }
 	}
-
 	print "...ssh stopped\n";
     }
 }
 
 # check for cgid running
-$pid = getPID("starlib","cgid"); 
-$verbose && print "cgid pid = $pid\n";
+@pids = getPIDs("starlib","cgid"); 
+$verbose && print "cgid pid = " . $pids[0] . "\n";
 if (!$query){
-    if (!$pid && !$kill && !$destroy){
+    if (!$pids[0] && !$kill && !$destroy){
 	chdir $qaPath or die "cannot chdir to $qaPath\n";
 	print "starting cgid in " . getcwd() . "...\n";
 	
@@ -99,26 +101,27 @@ if (!$query){
 	    or die "could not run cgid";
 
 	print "...cgid started\n";
-    }elsif ($pid){
+    }elsif ($pids[0]){
 	print "stopping cgid...\n";
-	
-	if($kill){
-	    system("kill -INT $pid") == 0
-		or die "could not kill cgid";
-	}elsif($destroy){
-	    system("kill -9 $pid") == 0
-		or die "could not kill cgid";
-	}
 
+	for (my $i = 0; $i <= $#pids; $i++){
+	    if($kill){
+		system("kill -INT " . $pids[$i]) == 0
+		    or die "could not kill cgid";
+	    }elsif($destroy){
+		system("kill -9 " . $pids[$i]) == 0
+		    or die "could not kill cgid";
+	    }
+	}
 	print "...cgid stopped\n";
     }
 }
 
 exit 0;
 
-# extract PID from the first line of the output of ps for the given 
+# extract PIDs from the output of ps for the given 
 # user and grep search string
-sub getPID{
+sub getPIDs{
     my $user = shift;
     my $search = shift;
 
@@ -129,10 +132,16 @@ sub getPID{
     #print "result = $result\n";
 
     if ($result ne ""){
-	my @fields = split(' ', $result);
-	return $fields[3];
+	my @lines = split("\n", $result);
+
+	my @pids = ();
+	foreach my $line (@lines){
+	    my @fields = split(' ', $result);
+	    push @pids, $fields[3];
+	}
+	return @pids;
     }else{
-	return 0;
+	return (0);
     }
 }
 
