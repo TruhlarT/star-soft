@@ -64,7 +64,7 @@ my $prodSer = "P00hi" ;
  my @topDisk = (
                 "/star/rcf/data03/reco",
                 "/star/rcf/disk00001/star/reco", 
-)
+);
 
  my @prodRun = ("JUNE-2000","JULY-2000","AUGUST-2000","SEPTEMBER-2000"); 
 
