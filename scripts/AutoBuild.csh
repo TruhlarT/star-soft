@@ -13,6 +13,9 @@
 #
 #
 
+# In case of token failure, send an Email to
+set EMAIL=jeromel@bnl.gov
+
 # Path where to find the damned scripts.
 set SCRIPTD=/afs/rhic/star/packages/scripts
 
@@ -30,7 +33,7 @@ if ( -r  $GROUP_DIR/star_login.csh ) then
 	    endif
 	    echo "There is no token on `hostname` for `whoami`" >>/tmp/AutoBuild.info
 	    tokens >>/tmp/AutoBuild.info
-	    cat /tmp/AutoBuild.info | mail jeromel@bnl.gov
+	    cat /tmp/AutoBuild.info | mail -s "Token on `hostname`" $EMAIL
 	else
 	    # Check presence of a log directory
 	    if( ! -d $HOME/log) then
