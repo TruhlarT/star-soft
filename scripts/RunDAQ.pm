@@ -869,7 +869,7 @@ sub rdaq_get_orecords
     $sth->execute(@Values);
     if ($sth){
 	while ( @items = $sth->fetchrow_array() ){
-	    print "<!-- Querry returns ".join("::",@items)." -->\n"   if ($DEBUG);
+	    #print "<!-- Querry returns ".join("::",@items)." -->\n"   if ($DEBUG);
 	    if($mode == 0){
 		print "<!-- Mode is 0, simple return $items[0] -->\n" if ($DEBUG);
 		$file = $items[0];
@@ -879,7 +879,7 @@ sub rdaq_get_orecords
 		    if ( ! defined($items[$i]) ){ $items[$i] = "?";}
 		}
 		$file = join(" ",@items);
-		print "<!-- Returning ".join("::",@items)." -->\n"    if ($DEBUG);
+		#print "<!-- Returning ".join("::",@items)." -->\n"    if ($DEBUG);
 		chomp($file);
 	    }
 	    push(@files,$file);
