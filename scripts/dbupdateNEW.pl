@@ -22,7 +22,7 @@ require "/afs/rhic/star/packages/DEV/mgr/dbTJobsSetup.pl";
 
 my $TOP_DIRD = "/star/rcf/test/new/";
 my @dir_year = ("year_2001", "year_1h", "year_2003", "year_2004");
-my @node_dir = ("trs_redhat72", "trs_redhat72_opt");
+my @node_dir = ("trs_redhat72", "trs_redhat72_opt","trs_ittf_redhat80","trs_ittf_redhat80_opt");
 my @node_daq = ("daq_redhat72", "daq_redhat72_opt"); 
 my @hc_dir = ("hc_lowdensity", "hc_standard", "hc_highdensity", "peripheral","pp_minbias","ppl_minbias","dau_minbias","auau_minbias");
 my @daq_dir = ("minbias", "central", "ppMinBias", "dAuMinBias", "AuAuMinBias", "AuAu_prodHigh","AuAu_prodLow" );
@@ -62,6 +62,7 @@ for ($i = 0; $i < scalar(@node_dir); $i++) {
   print "Output Dir for NEW :", $OUT_DIR[$ii], "\n";
     $ii++;
 }
+
 
 
 my $jj = 0;
