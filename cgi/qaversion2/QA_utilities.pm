@@ -617,6 +617,8 @@ sub doUpdate{
 
   if (not defined @updated_keys) {
     print "<font color=red><h1>No jobs to update</h1></font>";
+    # ben(12jul00):  reporting update even in the event of no jobs found
+    IO_utilities::PrintLastUpdate();
     return;
   } 
   #------------------------------------------------------------------------------------
