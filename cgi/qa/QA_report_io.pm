@@ -161,7 +161,6 @@ sub display_reports{
     show_all_tests($eval, 'run');
 
   }
-
   #---------------------------------------------------------
   # display event-based tests
 

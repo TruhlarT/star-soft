@@ -237,7 +237,7 @@ sub GetTests{
       $self->MacroName($macro_name);
       $self->MacroFile($file);
 
-      $macro_args = "nevent=all ".$self->MacroArguments;
+      $macro_args = "nevent=all infile outfile";
       $self->MacroArguments($macro_args);
 
       $input_data_type =  ".dst.root";

@@ -405,7 +405,7 @@ sub print_button_object_hash{
   }
 
 }
-  #===========================================================
+#===========================================================
 sub print_timing{
 
   @_ and do{
@@ -425,4 +425,28 @@ sub print_timing{
   $now-$time_start,$now-$time_last_call;
 
   $time_last_call = $now;
+}
+#=======================================================================
+sub move_old_reports{
+
+ 
+  opendir REPORTDIR, $topdir_report or die "Cannot open report_dir $topdir_report \n";
+  
+  while ( defined ( $report = readdir REPORTDIR ) ){
+    
+    # move if older than 30 days
+    
+    $name = "$topdir_report/$report";
+    
+    next unless -M $name > 30;
+    
+    $name_move = "$topdir_report_old/$report";
+    
+    print "cp -rp $name $name_move <br> \n";
+    system ("cp -rp $name $name_move");
+
+    print "\\rm -rf $name <br> \n";
+    system ("\\rm -rf $name");
+    
+  }
 }

@@ -524,7 +524,6 @@ sub ShowQA{
 
   my $report_key = $self->ReportKey;
   QA_report_io::display_reports($report_key);
-
   return;
 }
 #========================================================

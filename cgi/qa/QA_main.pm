@@ -226,6 +226,9 @@ sub starting_display {
     $action_string .= $button_ref->SubmitString."<br>";
 
     $button_ref = Button_object->new('CshScript', 'Run csh script');
+    $action_string .= $button_ref->SubmitString;
+
+    $button_ref = Button_object->new('MoveOldReports', 'Move old reports');
     $action_string .= $button_ref->SubmitString."<br>";
 
     $button_ref = Button_object->new('CrontabAdd', 'Add crontab.txt');

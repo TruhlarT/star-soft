@@ -7,7 +7,7 @@ use Exporter ();
 @ISA = qw(Exporter);
 
 @EXPORT = qw(
-	     @topdir_data $topdir_report $scratch
+	     @topdir_data $topdir_report $topdir_report_old $scratch
 	     @topdir_data_WWW $topdir_report_WWW
 	     $control_dir_WWW
 
@@ -54,6 +54,7 @@ use Exporter ();
 	       );
 
 $topdir_report = "/star/data1/jacobs/qa/reports";
+$topdir_report_old = "/star/data1/jacobs/qa/reports_old";
 
 $scratch = "/star/data1/jacobs/qa/scratch";
 

@@ -180,6 +180,13 @@ sub BatchLog{
   &QA_server_utilities::display_batch_logfiles;
 }
 #========================================================
+sub MoveOldReports{
+
+  my $self = shift;
+  #-------------------------------------------------------
+  &QA_utilities::move_old_reports;
+}
+#========================================================
 sub CshScript{
 
   my $self = shift;
@@ -273,8 +280,8 @@ sub QaDetails {
 
   my $self = shift;
   my $report_key = $self->ReportKey;
-
   #-------------------------------------------------------
+
   $QA_object_hash{$report_key}->ShowQA;
 }
 #========================================================
