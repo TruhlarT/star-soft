@@ -1,6 +1,9 @@
-#       $Id: group_env.csh,v 1.9 1998/05/12 12:14:20 fisyak Exp $
+#       $Id: group_env.csh,v 1.10 1998/05/14 19:04:25 fisyak Exp $
 #	Purpose:	STAR group csh setup 
 #       $Log: group_env.csh,v $
+#       Revision 1.10  1998/05/14 19:04:25  fisyak
+#       clean LD_LIBRARY_PATH
+#
 #       Revision 1.9  1998/05/12 12:14:20  fisyak
 #       Clean up
 #
@@ -175,7 +178,8 @@ if ($ECHO) echo   "CERNLIB version "$CERN_LEVEL" has been initiated with CERN_RO
 endif
 # root
 if ( -f /afs/rhic/opt/rhic/ROOT2/rootenv.csh) then
-if ( ! $?ROOTSYS) source /afs/rhic/opt/rhic/ROOT2/rootenv.csh
+  source /afs/rhic/opt/rhic/ROOT2/rootenv.csh
+  if ( -x /afs/rhic/star/group/dropit) setenv LD_LIBRARY_PATH `/afs/rhic/star/group/dropit -p "$LD_LIBRARY_PATH"`
 endif
 # Objy 5.00
 if (-f /opt/objy/objy500/setup.csh) then
