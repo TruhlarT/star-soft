@@ -54,7 +54,8 @@ if ( -r  $GROUP_DIR/star_login.csh ) then
 	    set DAY=`date | sed "s/ .*//"`
 
 	    setenv SILENT 1
-	    if ($?INSURE) unsetenv INSURE
+	    if ($?INSURE)  unsetenv INSURE
+	    if ($?NODEBUG) unsetenv NODEBUG
 	    staradev
 	    unset noclobber
 
@@ -116,7 +117,7 @@ if ( -r  $GROUP_DIR/star_login.csh ) then
 		set sts=$status
 		if ( $sts == 0 ) then
 		    echo "icc is $test ; starting AutoBuild"
-		    $SCRIPTD/AutoBuild.pl -k -i -1 -t -T icc -p $LPATH -a 'setup icc'
+		    $SCRIPTD/AutoBuild.pl -k -i -1 -t -T icc -p $LPATH -a 'setup icc' >$HOME/log/AB-icc-$DAY.log 
 		    if( -e $HOME/AutoBuild-linux-icc.html) then
 			mv -f $HOME/AutoBuild-linux-icc.html $SPATH/AutoBuild-$1.html
 		    endif
