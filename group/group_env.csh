@@ -1,5 +1,5 @@
 #!/usr/bin/csh -f
-#       $Id: group_env.csh,v 1.106 2000/08/24 22:29:16 fisyak Exp $
+#       $Id: group_env.csh,v 1.107 2000/08/26 16:07:27 fisyak Exp $
 #	Purpose:	STAR group csh setup 
 #
 #	Author:		Y.Fisyak     BNL
@@ -104,13 +104,13 @@ setenv CERN_ROOT  $CERN/$CERN_LEVEL
 if ($ECHO) echo   "Setting up ROOT_LEVEL= ${ROOT_LEVEL}"
 setenv GROUPPATH "${GROUP_DIR}:${STAR_MGR}:${STAR_SCRIPTS}:${STAR_CGI}:${MY_BIN}:${STAR_BIN}:${STAF}/mgr:${STAF_BIN}"
 setenv PATH "${OPTSTAR}/bin:$PATH"
-if ( -x /afs/rhic/star/group/dropit) then
+if ( -x ${GROUP_DIR}/dropit) then
 # clean-up PATH
-  setenv MANPATH `/afs/rhic/star/group/dropit -p ${MANPATH}`
-  setenv PATH `/afs/rhic/star/group/dropit -p ${PATH} GROUPPATH`
-  setenv PATH `/afs/rhic/star/group/dropit -p ${PATH} $STAR_PATH`
-  if ($?LD_LIBRARY_PATH == 1) setenv LD_LIBRARY_PATH `/afs/rhic/star/group/dropit -p ${LD_LIBRARY_PATH} $STAR_PATH`
-  if ($?SHLIB_PATH == 1)      setenv SHLIB_PATH      `/afs/rhic/star/group/dropit -p ${SHLIB_PATH} $STAR_PATH`
+  setenv MANPATH `${GROUP_DIR}/dropit -p ${MANPATH}`
+  setenv PATH `${GROUP_DIR}/dropit -p ${PATH} GROUPPATH`
+  setenv PATH `${GROUP_DIR}/dropit -p ${PATH} $STAR_PATH`
+  if ($?LD_LIBRARY_PATH == 1) setenv LD_LIBRARY_PATH `${GROUP_DIR}/dropit -p ${LD_LIBRARY_PATH} $STAR_PATH`
+  if ($?SHLIB_PATH == 1)      setenv SHLIB_PATH      `${GROUP_DIR}/dropit -p ${SHLIB_PATH} $STAR_PATH`
 endif
 setenv PATH "${GROUPPATH}:/usr/afsws/bin:/usr/afsws/etc:${OPTSTAR}/bin:/usr/sue/bin:/usr/local/bin:${PATH}"
 ## Put mysql on path if available
@@ -137,11 +137,11 @@ switch ($STAR_SYS)
     case "hp_ux102":
 #  ====================
       if ($?SHLIB_PATH == 0) setenv SHLIB_PATH
-      if ( -x /afs/rhic/star/group/dropit) setenv SHLIB_PATH `/afs/rhic/star/group/dropit -p ${SHLIB_PATH} $STAR_PATH`
+      if ( -x ${GROUP_DIR}/dropit) setenv SHLIB_PATH `${GROUP_DIR}/dropit -p ${SHLIB_PATH} $STAR_PATH`
       if ($?MINE_lib == 1 && $?STAR_lib == 1) then
         setenv SHLIB_PATH ${MINE_lib}:${STAR_lib}:${MINE_LIB}:${STAR_LIB}:${STAF_LIB}:${SHLIB_PATH}
       else
-	if ( -x /afs/rhic/star/group/dropit) setenv SHLIB_PATH `/afs/rhic/star/group/dropit -p ${SHLIB_PATH} .${STAR_HOST_SYS}/LIB`
+	if ( -x ${GROUP_DIR}/dropit) setenv SHLIB_PATH `${GROUP_DIR}/dropit -p ${SHLIB_PATH} .${STAR_HOST_SYS}/LIB`
         setenv SHLIB_PATH ${MINE_LIB}:${STAR_LIB}:${STAF_LIB}:${SHLIB_PATH}
       endif
       setenv LD_LIBRARY_PATH ${SHLIB_PATH}
@@ -169,7 +169,7 @@ switch ($STAR_SYS)
      if ($?MINE_lib == 1 && $?STAR_lib == 1) then
        setenv LD_LIBRARY_PATH "${MINE_lib}:${STAR_lib}:${MINE_LIB}:${STAR_LIB}:${STAF_LIB}:${LD_LIBRARY_PATH}"
      else
-       if ( -x /afs/rhic/star/group/dropit) setenv LD_LIBRARY_PATH `/afs/rhic/star/group/dropit -p ${LD_LIBRARY_PATH} .${STAR_HOST_SYS}/LIB`
+       if ( -x ${GROUP_DIR}/dropit) setenv LD_LIBRARY_PATH `${GROUP_DIR}/dropit -p ${LD_LIBRARY_PATH} .${STAR_HOST_SYS}/LIB`
        setenv LD_LIBRARY_PATH "${MINE_LIB}:${STAR_LIB}:${STAF_LIB}:${LD_LIBRARY_PATH}"
      endif
      limit coredump 0
@@ -185,16 +185,16 @@ switch ($STAR_SYS)
         setenv LD_LIBRARY_PATH "${LD_LIBRARY_PATH}:/opt/WS5.0/lib:/opt/WS5.0/SC5.0/lib"
         setenv PATH "/opt/WS5.0/bin:${PATH}"
 	setenv MANPATH "/opt/WS5.0/man:${MANPATH}"
-        if ( -x /afs/rhic/star/group/dropit) then
-          setenv PATH `/afs/rhic/star/group/dropit SUNWspro`
-          setenv LD_LIBRARY_PATH `/afs/rhic/star/group/dropit -p $LD_LIBRARY_PATH SUNWspro`
+        if ( -x ${GROUP_DIR}/dropit) then
+          setenv PATH `${GROUP_DIR}/dropit SUNWspro`
+          setenv LD_LIBRARY_PATH `${GROUP_DIR}/dropit -p $LD_LIBRARY_PATH SUNWspro`
         endif
       else
-        if ( -x /afs/rhic/star/group/dropit) then
-          setenv PATH `/afs/rhic/star/group/dropit WS5.0`
-          setenv PATH `/afs/rhic/star/group/dropit CC5`
-          setenv LD_LIBRARY_PATH `/afs/rhic/star/group/dropit -p $LD_LIBRARY_PATH 5.0`
-          setenv LD_LIBRARY_PATH `/afs/rhic/star/group/dropit -p $LD_LIBRARY_PATH CC5`
+        if ( -x ${GROUP_DIR}/dropit) then
+          setenv PATH `${GROUP_DIR}/dropit WS5.0`
+          setenv PATH `${GROUP_DIR}/dropit CC5`
+          setenv LD_LIBRARY_PATH `${GROUP_DIR}/dropit -p $LD_LIBRARY_PATH 5.0`
+          setenv LD_LIBRARY_PATH `${GROUP_DIR}/dropit -p $LD_LIBRARY_PATH CC5`
         endif
         setenv LD_LIBRARY_PATH "/opt/SUNWspro/lib:${LD_LIBRARY_PATH}"
         setenv PATH "/opt/SUNWspro/bin:$PATH"
@@ -221,7 +221,7 @@ if ( -e /usr/local/lib/libMesaGL.so && -e /usr/X11R6/lib/libXmu.so) then
 endif
 if ( -e /usr/ccs/bin/ld ) set path = ( $path /usr/ccs/bin /usr/ccs/lib )
 if ( -d /usr/local/lsf/bin ) then
-  if ( -x /afs/rhic/star/group/dropit) setenv PATH `/afs/rhic/star/group/dropit lsf`
+  if ( -x ${GROUP_DIR}/dropit) setenv PATH `${GROUP_DIR}/dropit lsf`
   setenv LSF_ENVDIR /usr/local/lsf/mnt/conf
   set path=(/usr/local/lsf/bin $path)
   setenv MANPATH {$MANPATH}:/usr/local/lsf/mnt/man
@@ -269,10 +269,10 @@ if ( -d /opt/hpnp ) then
   set path = ( $path /opt/hpnp/bin /opt/hpnp/admin )
 endif
 set path = ($HOME/bin $HOME/bin/.$STAR_SYS $path $CERN_ROOT/bin $CERN_ROOT/mgr .)
-if ( -x /afs/rhic/star/group/dropit) then
+if ( -x ${GROUP_DIR}/dropit) then
 # clean-up PATH
 if ("$CERN_LEVEL" != "pro") then
-  setenv PATH  `/afs/rhic/star/group/dropit cern`
+  setenv PATH  `${GROUP_DIR}/dropit cern`
   setenv PATH  "${PATH}:${CERN_ROOT}/bin"
 endif 
 setenv PATH "${OPTSTAR}/bin:${PATH}"
@@ -283,7 +283,7 @@ switch ($STAR_SYS)
   if ( -d ${OPTSTAR}/lib/mysql ) then
     setenv SHLIB_PATH "${SHLIB_PATH}:${OPTSTAR}/lib/mysql"
   endif
-  setenv SHLIB_PATH `/afs/rhic/star/group/dropit -p "$SHLIB_PATH"`
+  setenv SHLIB_PATH `${GROUP_DIR}/dropit -p "$SHLIB_PATH"`
     breaksw
     default:
 #  ====================
@@ -291,11 +291,11 @@ switch ($STAR_SYS)
   if ( -d ${OPTSTAR}/lib/mysql ) then
     setenv LD_LIBRARY_PATH "${LD_LIBRARY_PATH}:${OPTSTAR}/lib/mysql"
   endif
-  setenv LD_LIBRARY_PATH `/afs/rhic/star/group/dropit -p "$LD_LIBRARY_PATH"`
+  setenv LD_LIBRARY_PATH `${GROUP_DIR}/dropit -p "$LD_LIBRARY_PATH"`
     breaksw
 endsw
-  setenv MANPATH `/afs/rhic/star/group/dropit -p ${MANPATH}`
-  setenv PATH `/afs/rhic/star/group/dropit -p ${PATH} GROUPPATH`
+  setenv MANPATH `${GROUP_DIR}/dropit -p ${MANPATH}`
+  setenv PATH `${GROUP_DIR}/dropit -p ${PATH} GROUPPATH`
 endif
 if ($ECHO) then
 echo "STAR setup on" `hostname` "by" `date` " has been completed"

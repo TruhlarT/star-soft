@@ -13,7 +13,7 @@ switch ($STAR_HOST_SYS)
     case "hp_ux102":
 #  ====================
     if (! ${?SHLIB_PATH}) setenv SHLIB_PATH 
-    if ( -x /afs/rhic/star/group/dropit) setenv SHLIB_PATH `/afs/rhic/star/group/dropit -p "$SHLIB_PATH" ROOT`
+    if ( -x ${GROUP_DIR}/dropit) setenv SHLIB_PATH `${GROUP_DIR}/dropit -p "$SHLIB_PATH" ROOT`
     setenv  SHLIB_PATH  ${ROOTSYS}${root}/lib:${SHLIB_PATH}
     if ($?NODEBUG) then
       setenv  SHLIB_PATH  ${ROOTSYS}${root}/LIB:${SHLIB_PATH}
@@ -22,13 +22,13 @@ switch ($STAR_HOST_SYS)
 	default:
 #  ====================
     if (! ${?LD_LIBRARY_PATH}) setenv LD_LIBRARY_PATH 
-    if ( -x /afs/rhic/star/group/dropit) setenv LD_LIBRARY_PATH `/afs/rhic/star/group/dropit -p "$LD_LIBRARY_PATH" ROOT`
+    if ( -x ${GROUP_DIR}/dropit) setenv LD_LIBRARY_PATH `${GROUP_DIR}/dropit -p "$LD_LIBRARY_PATH" ROOT`
     setenv LD_LIBRARY_PATH "${ROOTSYS}${root}/lib:${LD_LIBRARY_PATH}"
     if ($?NODEBUG) then
       setenv LD_LIBRARY_PATH "${ROOTSYS}${root}/LIB:${LD_LIBRARY_PATH}"
     endif
 endsw
-if ( -x /afs/rhic/star/group/dropit) setenv PATH  `/afs/rhic/star/group/dropit -p "$PATH" ROOT`
+if ( -x ${GROUP_DIR}/dropit) setenv PATH  `${GROUP_DIR}/dropit -p "$PATH" ROOT`
 setenv PATH "${ROOTSYS}/${root}/bin:${PATH}"
 if ($?NODEBUG) then
   setenv PATH "${ROOTSYS}/${root}/BIN:${PATH}"
