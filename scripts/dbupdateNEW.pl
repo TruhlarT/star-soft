@@ -337,8 +337,8 @@ my @files;
        $timeS = sprintf ("%4.4d-%2.2d-%2.2d %2.2d:%2.2d:00",
                        $fullyear,$mo,$dy,$hr,$min);    
 
-           if( $ltime > 600 && $ltime < 518400 ){         
-#          if( $ltime > 600 ) { 
+#           if( $ltime > 600 && $ltime < 518400 ){         
+          if( $ltime > 600 ) { 
 #   print "Log time: ", $ltime, "\n";
 #   print $fullname, "\n";
         &logInfo("$fullname", "$platf");
@@ -1157,10 +1157,10 @@ my $mRealTbfc = 0;
        $Err_messg = "Fatal in <operator new>";   
   }
 
-       if ( $line =~ /Total events processed/) {
+       if ( $line =~ /StQAInfo/ and $line =~ /Total events processed/) {
 
         @part = split /:/,$line;
-        $EvSkip = $part[3];
+        $EvSkip = $part[4];
     }      
 # check if job is completed
      if ( $line =~ /Run completed/) {
@@ -1206,13 +1206,15 @@ my $mRealTbfc = 0;
     $avr_knvertices = $tot_knvertices/$EvCom;
     $avr_xivertices = $tot_xivertices/$EvCom;
  
+# print "Size of executable:  ", $EvDone, "  ", $no_event,"  ",$maker_size[$EvCom  -1], "\n"; 
+
     if ( defined $maker_size[0]) { 
     $memFst = $maker_size[0];
     }else {
     $memFst = 0;
   }
-    if ( defined $maker_size[$no_event -1]) {
-    $memLst = $maker_size[$no_event -1];
+    if ( defined $maker_size[$EvCom -1]) {
+    $memLst = $maker_size[$EvCom -1];
     } else {
     $memLst = 0;
   }
