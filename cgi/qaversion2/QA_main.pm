@@ -216,9 +216,3 @@ print("....done launching qa batch jobs\n");
     QA_db_utilities::db_disconnect();
     
 }
-
-
-
-
-
-
