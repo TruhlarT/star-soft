@@ -139,8 +139,6 @@ sub get_QA_objects{
 
   $arg eq 'update' and do{
 
-    print "Getting dirs on disk... </br> \n";
-
     @logfile_list = ();
     
     foreach $dir ( @topdir_data){
@@ -316,6 +314,60 @@ sub get_logfiles{
 }
 #==========================================================
 sub get_update_dirs{
+
+  @logfile_list = @_;
+
+  @dir_list_update = ();
+
+  foreach $logfile (@logfile_list){
+
+    # already catalogued?
+    $dir_string = dirname($logfile);
+    $report_key = QA_make_reports::get_report_key($dir_string); 
+
+    defined $QA_object_hash{$report_key} and next;
+
+    # too large? log files as large as 200 MB have been seen
+
+    $size = -s $logfile;
+    $size > 5000000 and do {
+      print "Logfile $logfile size=$size; Too large, skipping this run <br> \n";
+      next;
+    };
+    
+    # check that run is complete
+    
+    open LOGFILE, $logfile or die "Cannot open logfile $logfile: $! \n";
+    my @lines = <LOGFILE>;
+    
+    my $job_done = 1;
+    
+  ENDOFJOB:{
+      while (my $line = pop @lines){
+	$line =~ /This is the end of ROOT -- Goodbye/ and last ENDOFJOB;
+	$line =~ /segmentation violation/ and last ENDOFJOB; 
+	$line =~ /QAInfo:Run completed/ and last ENDOFJOB; 
+	$line =~ /Broken Pipe/ and last ENDOFJOB; 
+	$line =~ /bus error/ and last ENDOFJOB; 
+      }
+      $job_done = 0;
+    }
+
+    if($job_done){
+      push @dir_list_update, dirname($logfile)."/";
+    }
+    else{
+      print "<font color = red> New logfile found: $logfile; ",
+      "not catalogued because run apparently not finished </font> <br>\n";
+    }
+
+  }
+
+  return \@dir_list_update;
+
+}
+#==========================================================
+sub get_update_dirs_save{
 
   @logfile_list = @_;
 
