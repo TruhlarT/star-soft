@@ -42,16 +42,18 @@
 #     stdoutdir was specified as ./ . This will automatically
 #     trigger a copy of the local output to the destination.
 #
-
+#use lib "/afs/rhic/star/packages/scripts";
 use File::Basename;
 use File::Copy;
 use Sys::Hostname;
+#use FileCatalog;
 
 # First of all, turn IO autoflush
 $|       = 1;
 
 
 # Some default hardwired values
+$NFSHOME = "/star/u/starreco";     # path to NFS home
 $HPSSBASE= "/home/starreco";       # base HPSS path
 $NTRIES  = 720;                    # number of tries -1 means infinit tries
 $SLPTIME = 120;                    # sleep time in sec between mkpath attempts
@@ -299,7 +301,10 @@ print "Outputs initial will be          ".join(" ",@COUTPUTS)."\n";
 print "Outputs final will be            ".join(" ",@OUTPUTS)."\n";
 print "Running condition                ".($OPTOPT?"Optimized":"Non-Optimized")."\n";
 
-
+if ( -e "$NFSHOME/dbServers.xml"){
+    print "DB will take its data from       $NFSHOME/dbServers.xml\n";
+    $ENV{STDB_SERVERS} = "$NFSHOME/dbServers.xml";
+}
 if ($COMPRS){ 
     print "Output Compression was required, will use $GZIP\n";
 }
