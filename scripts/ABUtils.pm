@@ -402,7 +402,7 @@ sub IUCompDir
 sub IUSubmit
 {
     my($job,$flag)=@_;
-    my($log,$cmd);
+    my($log,$cmd,$tmpfile);
 
     $log = $job.".log";
 
@@ -417,8 +417,19 @@ sub IUSubmit
     if ( ! $flag ){
 	print "$cmd\n";
     } else {
-	print "Executing : $cmd\n";
-	system($cmd);
+	$tmpfile = "/tmp/$$-$<.ABUtils";
+	if (open(FO,">$tmpfile") ){
+	    print FO 
+		"#!/bin/csh\n",
+		"$cmd\n";
+	    close(FO);
+	    chmod(0700,$tmpfile);
+	    print "Executing : $cmd\n";
+	    system($tmpfile);
+	    unlink($tmpfile);
+	} else {
+	    print "Could not open $tmpfile\n";
+	}
     }
 }
 
