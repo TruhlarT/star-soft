@@ -21,7 +21,7 @@ my $count;
 my $debug;
 
 # The state variables
-my ($all, $unique, $field_list, $cond_list, $start, $limit, $delim, $onefile, $outfilename, $OUTHANDLE);
+my ($all, $unique, $field_list, $cond_list, $start, $limit, $delim, $onefile, $outfilename);
 
 # Load the modules to store the data into a new database
 my $fileC = FileCatalog->new;
@@ -36,7 +36,6 @@ $fileC->debug_off();
 $debug       = 0;
 $onefile     = 0;
 $outfilename = "";
-$OUTHANDLE   = 200;
 
 # Parse the cvommand line arguments.
 $count = 0;
@@ -90,7 +89,7 @@ if ($count == 0){
     &Usage();
 } else {
     if ($outfilename ne ""){
-	open (STDOUT, '>', $outfilename) || die "Cannot redirect output to file $outfilename";
+	open (STDOUT, ">$outfilename") || die "Cannot redirect output to file $outfilename";
     }
 
     # Setting the context based on the swiches
@@ -99,7 +98,7 @@ if ($count == 0){
     }
     if ($all==1){          $fileC->set_context("all=1");   }
     if (defined $limit){   $fileC->set_context("limit=$limit"); }
-    if (defined $start){   $fileC->set_context("start=$start"); }
+    if (defined $start){   $fileC->set_context("startrecord=$start"); }
     if (defined $delim){   $fileC->set_delimeter($delim); }
     if ($unique==0){       $fileC->set_context("nounique=1");}
 
@@ -140,6 +139,7 @@ if ($count == 0){
 }
 
 
+
 sub Usage
 {
     print qq~
@@ -148,7 +148,7 @@ Command usage:
 
  where the qualifiers may be
  -all                               use all entries regardless of availability flag
- -onefile                           returns only one location
+ -onefile                           returns only one location (not the default)
  -distinct                          get only one value for a key-set (not the default 
                                     which is faster). 
  -delim <string>                    sets the default delimeter in between keys
