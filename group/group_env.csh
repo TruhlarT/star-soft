@@ -1,5 +1,5 @@
 #!/usr/bin/csh -f
-#       $Id: group_env.csh,v 1.117 2001/04/10 21:06:24 jeromel Exp $
+#       $Id: group_env.csh,v 1.118 2001/04/24 15:13:05 jeromel Exp $
 #	Purpose:	STAR group csh setup
 #
 #	Author:		Y.Fisyak     BNL
@@ -7,10 +7,14 @@
 #	Modified:
 #     3 Mar 98  T. Wenaus  HP Jetprint added (for sol)
 #     2 Apr 01  J. Lauret  Insure path added
+#    24 Apr 01  J. Lauret  Disabled echoing in ! prompt.
+#                          DO NOT MODIFY THIS !!!
 #
 #	STAR software group	1998
 #
-set ECHO = 1; if ($?STAR == 1) set ECHO = 0
+set ECHO = 1; 
+if ($?STAR == 1) set ECHO = 0
+if ( ! $?prompt) set ECHO = 0
 if ($?SILENT == 1) set ECHO = 0;
 
 setenv WWW_HOME http://www.star.bnl.gov/
