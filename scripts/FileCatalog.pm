@@ -119,7 +119,7 @@ require  Exporter;
 
 
 use vars qw($VERSION);
-$VERSION   =   "V01.270";
+$VERSION   =   "V01.275";
 
 # The hashes that hold a current context
 my %optoperset;
@@ -2695,7 +2695,7 @@ sub insert_file_location {
   if ( $storageSite == 0){
       if( defined($valuset{"rssid"}) ){  $storageSite = $valuset{"rssid"}; delete($valuset{"rssid"});}
       if ($storageSite == 0){
-	  &print_message("insert_file_location","Aborting file location insertion query. [site] mandatory");	  
+	  &print_message("insert_file_location","Aborting file location insertion query. [site] mandatory");
       }
   }
 
@@ -2735,14 +2735,14 @@ sub insert_file_location {
       $protection = '"'.$valuset{"protection"}.'"';
   }
 
-  # 
-  # node (really host entry in Hosts dictionary) would revert to a 
+  #
+  # node (really host entry in Hosts dictionary) would revert to a
   # default value if not specified.
   #
   $nodeID = &check_ID_for_params("node",0);
   if ( $nodeID == 0 ) {
       # as usual, use clone default if exists
-      if( defined($valuset{"rhid"}) ){  
+      if( defined($valuset{"rhid"}) ){
 	  $nodeID = $valuset{"rhid"}; delete($valuset{"rhid"});
       }
       if ( $nodeID == 0){
@@ -2750,7 +2750,7 @@ sub insert_file_location {
 	  $valuset{"node"}  = "localhost";        # Cannot be NULL because of check
 	  $nodeID = &check_ID_for_params("node"); # recheck index with default value
       }
-  } 
+  }
   return 0 if ($nodeID == 0);
 
 
@@ -2793,7 +2793,7 @@ sub insert_file_location {
   # NONE of the NULL value should appear below otherwise, one keeps adding
   # entry over and over ... protection and woner are irrelevant here and
   # requires an UPDATE instead of a new insert.
-  $flinchk   .= " fileDataID=$fileData AND storageTypeID=$storageType AND filePathID=$filePathID AND storageSiteID=$storageSite AND hostID=$nodeID"; 
+  $flinchk   .= " fileDataID=$fileData AND storageTypeID=$storageType AND filePathID=$filePathID AND storageSiteID=$storageSite AND hostID=$nodeID";
 
   # AND filePath=$filePathnodeName=$nodeName";
 
@@ -4296,11 +4296,11 @@ sub _bootstrap_2levels {
     $sth1 = $DBH->prepare( $cmd1 );
     $sth2 = $DBH->prepare( $cmd2 );
 
-    if( ! $sth1 || ! $sth2 ){ &die_message("bootstrap_2lavels"," Failed to prepare statements");}
+    if( ! $sth1 || ! $sth2 ){ &die_message("_bootstrap_2lavels"," Failed to prepare statements");}
 
     $p1 = $tab1;  $p1 =~ s/[a-z]*//g;
     $p2 = $tab2;  $p2 =~ s/[a-z]*//g;
-    
+
 
     #
     # Run the first sth on $tab1 since it may leave further
@@ -4828,7 +4828,7 @@ sub update_location {
 		  }
 	      } else {
 		  # note that run_query() takes care of it. This block only treats extraneous
-		  # '=' operators in a constraint and is meant to constraint value=newval 
+		  # '=' operators in a constraint and is meant to constraint value=newval
 		  # where value=oldvalue cases.
 		  &print_debug("update_location","Found operator $operset{$key} for key [$key] (untreated here)");
 	      }
@@ -4844,7 +4844,7 @@ sub update_location {
       return 0;
   }
   &print_debug("update_location","found whereclause = $whereclause");
-  
+
 
   #
   # Sort out sth
