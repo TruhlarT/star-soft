@@ -35,6 +35,11 @@ while( defined($line = <FI>) ){
 	$ref  = "$code $error";
 	#print "$1 $3\n";
 	$CODE{$ref} = "";
+    } elsif ( $line =~ m/(\[.*\])(\sError\:)(.*)/{
+	$code = $1;
+	$error= "Error";
+	$ref  = "$code $error";
+	$CODE{$ref} = $3;
     } else {
 	$CODE{$ref} .= $line;
     }

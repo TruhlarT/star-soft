@@ -157,7 +157,7 @@ if( -e $FILOUT){
     print " - Old report $FILOUT exists. Reading it (may take a while).\n";
     open(FI,$FILOUT) || die "Could not open $FLNM as read.\n";
     while( defined($line = <FI>) ){
-	if ($line =~ m/(\[.*\])(\s\*\*)(.*)(\*\*)/){
+	if ($line =~ m/(\[.*\]\s)(.*)/ ){
 	    # That's a code name. May be unique or not but we don't care
 	    # since we are using associative array
 	    $tmp = $1; $tmp =~ m/\[(.*)(\..*):\d*\]/;

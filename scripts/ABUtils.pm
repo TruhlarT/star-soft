@@ -269,8 +269,11 @@ sub IUl2pre
 sub IUGetRef
 {
     my($line)=@_;
-    $line =~ s/[\.\[\]:\(\)]/_/g;
-    $line =~ s/\s//g;
+
+    if( $line ne ""){
+	$line =~ s/[\.\[\]:\(\)]/_/g;
+	$line =~ s/\s//g;
+    }
     $line;
 }
 
@@ -297,6 +300,7 @@ insure++.leak_sort size
 insure++.leak_sweep on
 insure++.leak_trace off
 insure++.summarize leaks outstanding
+insure++.uninit_flow 300
 insure++.report_file $ofile
     ~;
 #insure++.unsuppress all
