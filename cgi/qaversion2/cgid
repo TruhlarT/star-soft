@@ -4,13 +4,13 @@
 #
 # BEN 2Apr00
 #
-# The sole purpose of cgid is to run QA_main.pm and return the output,
+# The sole purpose of cgid is to run allowed scripts and return the output,
 # just like a cgi-only web server.  If given a request for a document other
-# than QA_main.pm, it gives a HTTP 404 error message.
+# than those allowed, it gives a HTTP 404 error message.
 #
-# cgid makes QA_main think thathas been run as a normal cgi process.
+# cgid makes the script think that it has been run as a normal cgi process.
 # This is accomplished by parsing the HTTP request (from a normal web browser)
-# and setting the CGI environment accordingly before calling QA_main.pm.
+# and setting the CGI environment accordingly before calling the script.
 #
 # cgid forks a child to handle every new request.
 #
@@ -44,7 +44,7 @@ use Cwd;
 $| = 1; # don't buffer output
 
 my $my_name = "cgid";
-my $script_name = "QA_main.pm";
+my $script_names = ["QA_main.pm", "LSF_tool"];
 my $var_dir = "/afs/rhic/star/starqa/var";
 my $log_dir = "$var_dir/log";
 my $run_dir = "$var_dir/run";
@@ -206,7 +206,7 @@ print LOGFILE "[" . localtime() .
 #     the only thing this script knows how to run is "QA_main.pm".
 #
 
-if ($request->url->path =~ /^\/$script_name/)
+if (my $script_name = get_script_name($request))
 {
     #
     # send http header not provided by the cgi script
@@ -258,7 +258,7 @@ if ($request->url->path =~ /^\/$script_name/)
     
     local *Writer;
     local *Reader; 
-    open2(\*Reader, \*Writer, "./QA_main.pm" ); # I & O sockets
+    open2(\*Reader, \*Writer, "./$script_name" ); # I & O sockets
     Writer->autoflush(1);
     Reader->autoflush(1);
 
@@ -325,7 +325,21 @@ sub print_usage
 MICA
 }
 
+# gets the name of the allowed script embedded in the request, or nothing
+# if none is found
 
+sub get_script_name {
+
+    my $request = shift;
+
+    foreach my $script_name (@$script_names){
+	if ($request->url->path =~ /^\/$script_name\b/){
+	    return $script_name;
+	}
+    }
+
+    return;
+}
 
 
 
