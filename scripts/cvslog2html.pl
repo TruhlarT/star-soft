@@ -1,4 +1,4 @@
-#!/opt/star/bin/perl
+#!/usr/bin/env perl
 #
 # cvslog2html.pl
 #
