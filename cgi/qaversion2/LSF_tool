@@ -498,9 +498,12 @@ sub jobsSelected{
 sub runLSFCmd{
     my $cmd = shift;
 
+    my $cmdLine = 
+	"/usr/local/bin/ssh rssh2gw00.rhic.bnl.gov ssh rcas6009 'echo \$\$; /usr/local/lsf/bin/".$cmd."'";
     local *READER; 
-    open(\*READER, "ssh rssh2gw00.rhic.bnl.gov ssh rcas6004 'echo \$\$; ".$cmd." 2>&1' |" ); 
+    open(\*READER, $cmdLine." 2>&1 |"); 
 
+    #print "'$cmdLine'=><br>\n<font color=red>".`$cmdLine`."</font><br>\n";
     my $result = [];
 
     # Is this the only way to get the command's pid?
