@@ -416,7 +416,7 @@ sub rdaq_raw_files
 	$cmd .= " LIMIT $limit";
     }
 
-    #print "$cmd\n";
+    print "$cmd\n";
     $sth  = $obj->prepare($cmd);
     $sth->execute();
     while( @res = $sth->fetchrow_array() ){
@@ -681,9 +681,9 @@ sub rdaq_get_orecords
 	# Sort out now the kind of field we are working with
 	$flag = 1;
 
-	if( defined($ROUND{$el}) ){
+	if( defined($ROUND{$el}) ){                # Round OFF value selection
 	    $val = "ROUND($el,$ROUND{$el})";
-	} elsif ( defined($BITWISE{$el}) ){
+	} elsif ( defined($BITWISE{$el}) ){	   # BITWISE selection
 	    $flag= 0;
 	    $tmp = (split(":",$val))[0];
 	    if( $tmp == 0){
@@ -691,7 +691,18 @@ sub rdaq_get_orecords
 	    } else {
 		$val = "($el & (1 << $tmp))";
 	    }
-	} else {
+	} elsif ( index($val,"|") != -1){          # OR syntax in selection
+	    #print "<!-- Received $val -->\n";
+	    @items = split(/\|/,$val);
+	    $val = "(";
+	    foreach $tmp (@items) {
+		$val .= "$el=$tmp OR ";
+	    }
+	    $val = substr($val,0,length($val)-3).")";
+	    #print "<!-- $val -->\n";
+	    undef(@items);
+	    $flag = 0;
+	} else {                                   # Default selection
 	    $val = $el;
 	}
 
@@ -708,7 +719,8 @@ sub rdaq_get_orecords
 	    $cmd .= "$comp?";
 	    push(@Values,$$Conds{$el});
 	} else {
-	    # the syntax is a bit operation therefore complete
+	    # the syntax is a bit operation or a OR/AND
+	    # syntax and therefore is complete
 	}
 
     }
