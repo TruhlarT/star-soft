@@ -12,6 +12,9 @@
 use lib "/afs/rhic/star/packages/scripts";
 use ABUtils;
 
+# DEfault library version to work with
+$LIBRARY="adev";
+
 # Directory where the reports will be at the end
 $TRGTDIR=IUHtmlDir();
 
@@ -39,7 +42,7 @@ $BY=50;
 # There are some assumptions made :
 # 0 - csh is used to execute the commands.
 # 1 - the SKIP_DIRS rule will be respected
-# 2 - staradev command will be issued before compilation
+# 2 - $CHVER command will be issued before compilation
 #
 # BTW : the echo command is a tupid thing. The keys
 # are returned in reverse order (??) somehow and I 
@@ -52,15 +55,6 @@ $BY=50;
 
 
 # --- Miscellaneous
-# A temp script will be created with this name (number will be
-# appended at the end).
-$TMPNM="$COMPDIR/.AutoBuild";
-# stdout/errors will be re-directed to a file with this main 
-# name. No extension please.
-$FLNMSG="$COMPDIR/Execute";
-# name of an eventual resource file
-$FLNMRC="$COMPDIR/.ABrc_$^O";
-
 # name of the HTML output report. ONLY the main name
 # is expected here. Extension .html will be added.
 $FLNM="AutoBuild";
@@ -95,7 +89,7 @@ $FILO  =STDOUT;       # Default Output file
 
 
 # Quick argument parsing (dirty)
-for($i=0 ; $i <= $#ARGV ; $i++){
+for ($i=0 ; $i <= $#ARGV ; $i++){
     $arg = $ARGV[$i];
     if( substr($arg,0,1) eq "-"){
 	# yeap. We consider this as an argument.
@@ -132,6 +126,11 @@ for($i=0 ; $i <= $#ARGV ; $i++){
 	    $SILENT=1==1;
 	} elsif($arg eq "-d"){
 	    $DEBUG = 1==1;
+	} elsif($arg eq "-v"){
+	    $LIBRARY= $ARGV[++$i];
+	} elsif($arg eq "-p"){
+	    $COMPDIR= $ARGV[++$i];
+	    $DEBUG = 1==1;
 	} elsif ($arg eq "-h" || $arg eq "--help"){
 	    &lhelp();
 	    exit;
@@ -145,6 +144,22 @@ for($i=0 ; $i <= $#ARGV ; $i++){
 }
 
 
+# Massage parameters
+if($LIBRARY =~ m/dev/i || $LIBRARY =~ m/new/i ||
+   $LIBRARY =~ m/pro/i || $LIBRARY =~ m/old/i){
+    $CHVER = "star".lc($LIBRARY);
+} else {
+    $CHVER = "starver $LIBRARY";
+}
+
+# A temp script will be created with this name (number will be
+# appended at the end).
+$TMPNM="$COMPDIR/.AutoBuild";
+# stdout/errors will be re-directed to a file with this main 
+# name. No extension please.
+$FLNMSG="$COMPDIR/Execute";
+# name of an eventual resource file
+$FLNMRC="$COMPDIR/.ABrc_$^O";
 
 
 
@@ -353,7 +368,7 @@ foreach $line (sort keys %COMPILC){
 
     print FO 
 	"#!/bin/csh\n",
-	"staradev\n",
+	"$CHVER\n",
 	"cd $COMPDIR\n",
 	"\n",
 	"setenv SKIP_DIRS \"".join(" ",@SKIP)."\"\n",
@@ -434,9 +449,11 @@ sub Exit()
     if($sts != 0){
 	# Send Emails to the list of managers if the compilation
 	# failed. We do NOT want to be influcenced by anything else
-	@email = IUManagers();
+	@email  = IUManagers();
 	foreach $tmp (@email){
-	    system("echo \"Last error $ERRSTR\" | Mail -s \"AutoBuild: Action failed\" $tmp");
+	    system("echo \"Last error is $ERRSTR\nFor more information, ".
+		   "check ".IUHtmlRef()."/$FLNM.html\" ".
+		   "| Mail -s \"AutoBuild: Action failed\" $tmp");
 	}
 	exit(1);
     } else {
@@ -483,18 +500,13 @@ sub ReportToHtml
 	rename("$flnm.html","$flnm$i.html");
     }
 
-    # open this one for cgi later processing
-    if( open(FO,">>$flnm.dat") ){
-	print FO time()." ".($i+1)." $sts ".join(" ",@STATUS)."\n";
-	close(FO);
-    }
-
     # this is the current generated page
     if( open(FO,">$flnm.html") ){
 	$fo = FO;
     } else {
 	$fo = STDOUT;
     }
+
     
     # Title and link to preceeding if any.
     # The beginning of the "prev" thread at 1 is NOT a coding
@@ -528,7 +540,8 @@ sub ReportToHtml
 
 	    $REPORT[$i] = $line;
 	    $k++;
-	} elsif ($line =~ m/errors constructing/ || $line =~ m/error constructing/ ){
+	} elsif ($line =~ m/errors constructing/ || 
+		 $line =~ m/error constructing/ ){
 	    push(@REFS,"<A HREF=\"#Ref$k\">$line</A>");
 	    $REPORT[$i] = "<A NAME=\"Ref$k\"></A>$line";
 	    $ERRSTR = $line;         # over-write stupid default
@@ -549,6 +562,21 @@ sub ReportToHtml
     # write trailer, close file
     print $fo IUtrail();
     if($fo ne STDOUT){ close(FO);}
+
+    # We can do this part only now because the HTML
+    # parsing also determine the GUILTY maker ...
+    # This will be used for later processing by some
+    # statistics CGI .
+    if( open(FO,">>$flnm.dat") ){
+	if( $ERRSTR =~ m/(StRoot\/)(.*\/)(.*)/){
+	    $GUILTY = $2;
+	} else {
+	    $GUILTY = $ERRSTR;
+	    $GUILTY =~ s/\s+//g;
+	}
+	print FO time()." ".($i+1)." $sts $GUILTY ".join(" ",@STATUS)."\n";
+	close(FO);
+    }
 }
 
 
@@ -600,6 +628,8 @@ sub Execute
     if($rc != 0 && $rc != IUconsOK() ){
 	print $FILO " * [$cmd] FAILED. Return Code =$rc\n";
 	push(@REPORT,&STRsts(1)."Return Code = $rc");
+	# RE-assign errstr
+	$ERRSTR = "ReturnCode $rc";
     } else {
 	push(@REPORT,&STRsts(0));
     }
@@ -670,8 +700,7 @@ sub lhelp
     
     my($excl)=join(" ",@SKIP);
     print $FILO qq~
-
- This utility compiles and test the code automatically. It heavily relies on 
+ This utility compiles and test the code automatically. It heavily relies on
  the ABUtils module so any modification to this module would affect this 
  utility. Apart from that, command line arguments may be used to modify the 
  default values. They are :
@@ -679,13 +708,20 @@ sub lhelp
  -i           Do not checkout/update from cvs. 
  -c           Performs a cvs checkout automatically
  -u           Performs a cvs update automatically
- -d           Debug. DO NOT perform post compilation tasks
-              and peform a HTML output in $ENV{HOME} instead 
-              of $TRGTDIR
+ -t           Tag any resulting output summary file with OS name i.e. 
+              $FLNM-$^O .
+ -d           Debug. DO NOT perform post compilation tasks and perform
+              a HTML output in $ENV{HOME} instead of 
+              $TRGTDIR
+ -v Lib       Change default library version from $LIBRARY to 'Lib' where
+              'Lib' stands for new, old, SL01i etc ...
+ -p Path      Change the default $COMPDIR working directory
+              to 'Path'. This option automatically disables post-compilation
+              operations (-d option is ON).
 
- -x ABC       Exclude ABC from list. Default = $excl
+ -x ABC       Exclude ABC from list in addition to default exclusion
+              list $excl
 
- -t           Tag output file with OS name i.e. $FLNM-$^O
  -1           First compilation pass only
  
  -h or --help Display this help.
