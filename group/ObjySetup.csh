@@ -50,6 +50,10 @@ else
   setenv XBMLANGPATH "${XBMLANGPATH}:${OBJY_HOME}/${OBJY_ARCH}/etc/bitmaps/%N/%B"
 endif
 
+else
+
+if ( $?SILENT == 0 ) echo Objectivity not configured, software not accessible
+
 endif
 
 #end file
