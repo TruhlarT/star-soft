@@ -86,11 +86,14 @@ my $sth3=$dbh1->prepare("SELECT id, mtime FROM RJobInfo ".
 			"WHERE ProdTag = \"$ProdTag\" AND ".
 			"Trigger = ? AND ".
 			"LFName = ?");
+
 my $sth4 = $dbh1->prepare("UPDATE RJobInfo SET ".
-			  "mtime = \"?\", ".
-			  "ErrorStr = \"?\", ".
+			  "mtime=?, ".
+			  "ErrorStr=?, ".
 			  "Status = 0 ".
-			  "WHERE id = ?");
+			  "WHERE id=?");
+
+my $DEBUG=0;
 
 
 if( ! $sth3 || ! $sth1){
@@ -144,78 +147,94 @@ while ( defined($logname = readdir(LOGDIR)) ){
 	     $logname =~ s/\.log//;
 	     # search for a file with similar name
 	     if( ! defined($job_name = $JNAMES{$logname}) ){ next;}
-                      # now, we have a job file
-                      $fullname = $log_dir . $logname.".log";
-                      define_trigger($fullname, $job_name);
-                      if ( $fc[7] <= $min_size ){
-	                   print
-			     "Found log type 1 : $logname\n",
-			     "deltatime : $deltatime\n",
-			     "size : $fsize\n",
-			     # define ErrorStr
-			     "Error file : $err_file\n",
-			     "Error string : ";
-   	                   $err="";
- 	                   @job_errs = `tail -4 $err_file`;
-	                   for ( $i=0;$i<=$#job_errs;$i++ ){
-	                         unless ( $err=~/$job_errs[$i]/ ){
-	                                  $err .= "$job_errs[$i] | ";
-	                         }
-	                   }
-	                   print "$err\n";
-                      } else {
-   	                   print
-			     "Found log type 2 : $logname\n",
-			     "deltatime : $deltatime\n",
-			     "size : $fc[7]\n",
-			     #define ErrorStr
-			     #scan log_file for break errors
-			     "Errors in log file : \n";
-	                   $err="";
-	                   @log_errs2 = `tail -5000 $fullname | grep Break`;
-  	                   foreach $logerr (@log_errs2){
-	                           print "$logerr\n";
-	                           if ( $logerr=~/(\*+\s+Break\s+\*+)(.*)/ ){
-	                                unless ( $err=~/$2/ ){
-                                                 $err.=" $2 |";
-	                                }
-	                           }
-                           }
-	                   undef(@log_errs2);
-	                   #scan err_file for assertion and eof errors
- 	                   print
-	                       "Error file : $err_file\n",
-	                       "Error string : ";
-	                   @log_errs1 = `tail -5 $err_file`;
-	                   foreach $logerr (@log_errs1){
-			     &define_err("Assertion.*\s+failed",$logerr);
-			     &define_err("Unexpected EOF",$logerr);
-			     &define_err("Fatal in <operator delete>",$logerr);
-			     &define_err("Fatal in <operator new>",$logerr);
-	                   }
-	                   chop($err);
-                      }#else fsize/minsize compare
-                      if ( $err ){
-	                   $sth3->execute($Trigger, $logname)
-	                          or die "cannot execute sth3\n";
-			   #print $sth3->fetchrow_array()."\n";
-	                   if ( ($id, $mtime) = $sth3->fetchrow_array() ){
-   	                        print "\nold mtime : $mtime\n";
-	                        print "\nnew mtime : $fc[9]\n";
-	                        if ( $mtime != $fc[9] ){
-	                             #update record
-	                             print "Updated $logname\n";
-	                             $sth4->execute($fc[9],$err,$id);
-	                       }
-	                   } else {
-	                       #insert record
-	                       print "\n Inserted $logname\n";
-	                       $sth1->execute($ProdTag, $Trigger, $logname, $c_time, $fc[9], $err);
-	                   }
-                      } #if $err
-                      print "\n==============================\n";
-	   } #if modtime/min_time
-      } #if logname
+	     # now, we have a job file
+	     $fullname = $log_dir . $logname.".log";
+	    define_trigger($fullname, $job_name);
+	    if ( $fc[7] <= $min_size ){
+		if($DEBUG){
+		    print
+			"Found log type 1 : $logname\n",
+			"deltatime : $deltatime\n",
+			"size : $fsize\n",
+			# define ErrorStr
+			"Error file : $err_file\n",
+			"Error string : ";
+		}
+		$err="";
+		@job_errs = `tail -4 $err_file`;
+		for ( $i=0;$i<=$#job_errs;$i++ ){
+		    unless ( $err=~/$job_errs[$i]/ ){
+			$err .= "$job_errs[$i] | ";
+		    }
+		}
+		if($DEBUG){
+		    print "$err\n";
+		} else {
+		    if($err ne ""){ print "error type 1 in $logname\n";}
+		}
+	    } else {
+		if($DEBUG){
+		    print
+			"Found log type 2 : $logname\n",
+			"deltatime : $deltatime\n",
+			"size : $fc[7]\n",
+			#define ErrorStr
+			#scan log_file for break errors
+			"Errors in log file : \n";
+		    #scan err_file for assertion and eof errors
+		    print
+			"Error file : $err_file\n",
+			"Error string : ";
+		}
+		$err="";
+		@log_errs2 = `tail -5000 $fullname | grep Break`;
+		foreach $logerr (@log_errs2){
+		    print "$logerr\n";
+		    if ( $logerr=~/(\*+\s+Break\s+\*+)(.*)/ ){
+			unless ( $err=~/$2/ ){
+			    $err.=" $2 |";
+			}
+		    }
+		}
+		undef(@log_errs2);
+		
+		@log_errs1 = `tail -5 $err_file`;
+		foreach $logerr (@log_errs1){
+		    &define_err("Assertion.*\s+failed",$logerr);
+		    &define_err("Unexpected EOF",$logerr);
+		    &define_err("Fatal in <operator delete>",$logerr);
+		    &define_err("Fatal in <operator new>",$logerr);
+		}
+		chop($err);
+
+		if($DEBUG){
+		    print "$err\n";
+		} else {
+		    if($err ne ""){ print "error type 2 in $logname\n";}
+		}
+	    } #else fsize/minsize compare
+
+	    if ( $err ){
+		$sth3->execute($Trigger, $logname)
+		    or die "cannot execute sth3\n";
+		#print $sth3->fetchrow_array()."\n";
+		if ( ($id, $mtime) = $sth3->fetchrow_array() ){
+		    print "\nold mtime : $mtime\n";
+		    print "\nnew mtime : $fc[9]\n";
+		    if ( $mtime != $fc[9] ){
+			#update record
+			print "Updated $logname\n";
+			$sth4->execute($fc[9],$err,$id);
+		    }
+		} else {
+		    #insert record
+		    print "\n Inserted $logname\n";
+		    $sth1->execute($ProdTag, $Trigger, $logname, $c_time, $fc[9], $err);
+		}
+	    } #if $err
+	    if ($DEBUG){ print "\n==============================\n";}
+	} #if modtime/min_time
+    } #if logname
 } #while
 closedir(LOGDIR);
 
