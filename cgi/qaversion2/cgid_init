@@ -6,23 +6,30 @@
 # server are working on rcas6001.  It should be run from a cron job.
 
 use strict;
+use Cwd;
 
-my $qaPath = "/afs/rhic/star/packages/dev/cgi/qaversion2";
+#my $qaPath = "/afs/rhic/star/packages/dev/cgi/qaversion2";
+my $qaPath = "/star/u2e/bnorman/cgi-bin/qa";
 my $webServer = "sol.star.bnl.gov";
-my $loopCode = "while cd; do sleep 1000; done";
+my $sleepCmd = "$qaPath/sleeper";
+
+# set up environment needed, eg, for cgid
+$ENV{GROUP_DIR} = "/afs/rhic/rhstar/group";
+
 
 # check for cgid running
-my $running = `ps -u starlib | grep cgid`;
-if (! $running){
-    my $result = `$qaPath/cgid &`;
-    print $result;
+my $running = `ps -u starlib | grep 'cgid\$'`;
+if ($running eq ""){
+    chdir $qaPath or die "cannot chdir to $qaPath\n";
+    print "starting cgid in " . getcwd() . "\n";
+    system("./cgid &");
 }
 
 # check for ssh running
-$running = `ps -fu root | grep ssh | grep 8080`; # forked to run as root
-if (! $running){
-    my $result = `ssh -f -R 8080:localhost:8080 $webServer "loopCode"`; 
-    print $result;
+$running = `ps -flu root | grep ssh | grep 8080`; # forked to run as root
+if ($running eq ""){
+    print "starting ssh\n";
+    my $result = `ssh -f -R 8080:localhost:8080 $webServer $sleepCmd`; 
 }
 
 exit 0;

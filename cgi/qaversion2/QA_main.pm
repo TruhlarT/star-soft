@@ -178,10 +178,10 @@ print("do_qa-ing....\n");
 	my @key_list;
 	if (!$report_key){
 	    # BUM 000625 - getting to do keys depends on the dataclass 
-	    no strict 'refs';
-	    my $sub = $gDataClass_object->ToDoKeys;
-	    @key_list = &$sub;
-	    use strict 'refs';
+	    #no strict 'refs';
+	    #my $sub = $gDataClass_object->ToDoKeys;
+	    #@key_list = &$sub;
+	    #use strict 'refs';
 	} else {
 	    @key_list = ($report_key);
 	}
