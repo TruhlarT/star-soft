@@ -29,6 +29,11 @@ $STORE  = "";
 $SITE   = "";
 $NODE   = "";
 
+if ($#ARGV == -1){
+    die "Syntax is : FCremove.pl [-s] [-c] FileList.lis [StorageType] [Site] [Node]\n";
+}
+
+
 foreach $ARG (@ARGV){
     if ($ARG eq "-s"){
 	$sanity = 1;
@@ -59,13 +64,24 @@ print "\nWill mark ".($sanity?"sanity":"available")." ".($cancel?"ON":"OFF")."\n
 
 open(FI,$FILIN) || die "Give a file name as input\n";
 
-# Instantiate
-$fileC = FileCatalog->new;
+# Instantiate Catalog
+$fileC = new FileCatalog();
 
-# Password
-print "Password : ";
-chomp($passwd = <STDIN>);
-$fileC->connect("FC_admin",$passwd);
+my ($user,$passwd) = $fileC->get_connection($SITE."::Admin");
+
+if ( ! defined($user) ){
+    print "Password : ";
+    chomp($passwd = <STDIN>);
+    $fileC->connect_as($SITE."::Admin","FC_admin",$passwd) || die "Cannot connect as FC_admin\n";
+} else {
+    if ( ! defined($passwd) ){
+        print "Password for $user : ";
+        chomp($passwd = <STDIN>);
+    }
+    $fileC->connect_as($SITE."::Admin",$user,$passwd)      || die "Cannot connect as $user\n";
+}
+
+
 
 # Turn off module debugging and script debugging
 $fileC->debug_off();
@@ -81,13 +97,14 @@ while ( defined($file = <FI>)){
     if ($file =~ m/(.*\/)(.*)/){
 	($path,$file) = ($1,$2);
 	if ( $file =~ /::/){
-	    # Catalog format
+	    # Catalog format with :: separator
 	    ($tmp,$file) = split("::",$file);
 	    $path .= $tmp;
 	} else {
 	    chop($path);
 	}
 	#print "$path $file\n";
+	$fileC->clear_context();
 	$fileC->set_context("path=$path",
 			    "filename=$file");
 	$fileC->set_context("storage=$STORE") if ($STORE ne "");
