@@ -151,18 +151,19 @@ if ($ThisYear == 2002){
     $EXPRESS =  8;     
     $ZEROBIAS= 11;
 
-    @USEQ    = (3,4,3);
+    @USEQ    = (4,4,3);
     @SPILL   = (0,3,2);
 
     # Default chain
-    $DCHAIN{"AuAu"}           = "P2004,svt_daq,svtD,EST,eemcD,OShortR,Xi2,V02,Kink2,CMuDst";
-
+    $DCHAIN{"AuAu"}           = "P2004,svt_daq,svtD,EST,eemcD,OShortR,-OSpaceZ,OSpaceZ2,Xi2,V02,Kink2,CMuDst";
+    $DCHAIN{"PPPP"}           = "P2004,ppOpt,svt_daq,svtD,EST,eemcD,OShortR,-OSpaceZ,OSpaceZ2,Xi2,V02,Kink2,CMuDst";
 
     # Default pre-calib
     #$DCALIB{"dAu"}            = "PreTpcT0";
 
     # Default stand-alone auto-calib (works only on $LASERTP files)
     $SCALIB{"AuAu"}           = "OptLaser";
+    $SCALIB{"PPPP"}           = "OptLaser";
 
 } else {
     print "$SELF :: Unknown Year $ThisYear\n";
@@ -589,7 +590,8 @@ sub Submit
     if($chain eq "" || $chain eq "none" || $chain eq "default"){
 	$chain = $DCHAIN{$coll};
 	if( ! defined($chain) ){
-	    print
+	    print 
+		"$SELF :: Warning : ".localtime().
 		"No chain options declared. No default for [$coll] either.\n";
 	    return 0;
 	}
