@@ -112,7 +112,7 @@ print <<END;
 <br>
 END
 
- unshift(@runset,"all");
+ unshift(@runSet,"all");
  print "<p>";
  print "<h2 align=center>Select Run Number:</h2>";
  print "<h4 align=center>";
