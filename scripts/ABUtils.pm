@@ -280,6 +280,7 @@ sub IUGetRef
 {
     my($line)=@_;
 
+    if( ! defined($line) ){ die "$PRGM IUGetRef requires an argument\n";}
     if( $line ne ""){
 	$line =~ s/[\.\[\]:\(\)]/_/g;
 	$line =~ s/\s//g;
