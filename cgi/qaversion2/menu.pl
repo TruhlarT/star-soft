@@ -33,8 +33,12 @@ for my $class (@classes){
   
   my $storable = IO_object->new("MenuStorable")->Name();
   print "storing to $storable... ";
-  store($menuRef,$storable) or print "CANNOT STORE\n";
-  print "done\n";
+  eval {store($menuRef,$storable)};
+  if ($@){
+    print "CANNOT STORE\n";
+  } else {
+    print "done\n";
+  }
   QA_db_utilities::db_disconnect();
 }
 exit 0;
