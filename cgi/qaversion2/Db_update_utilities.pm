@@ -28,9 +28,9 @@ my %oldestDate = ( nightlyReal => '2001-07-05',
 # max number of updated jobs
 my %updateLimit = ( nightlyReal => 10,
 		    nightlyMC   => 10,
-		    offlineReal => 10,
+		    offlineReal => 50,
 		    offlineMC   => 10,
-		    offlineFast => 2
+		    offlineFast => 10
 );
 # for real offline 
 my $oldestRun = 2202000;
@@ -511,7 +511,7 @@ sub InsertOnlineQASum{
 #
 sub GetToDoReportKeys{
   my $type = shift; # real or MC
-  my $limit = 15;
+  my $limit = 50;
 
   # distinct just in case
   my $query = qq{select distinct $QASum{report_key} 
