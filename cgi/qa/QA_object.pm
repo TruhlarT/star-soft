@@ -674,7 +674,7 @@ sub DisplayFilesAndReports{
   $self->PrintFilestring( $warning_string, basename $warning_file )
     if -s $warning_file;
   $self->PrintFilestring( $error_string, basename $error_file )
-    if -s $warning_file;  
+    if -s $error_file;  
 
   #---
   # look in report directory
