@@ -171,12 +171,12 @@ C
 *KEEP,VIDQQ.
       CHARACTER*68 VIDQQ
       DATA VIDQQ/
-     +'@(#)* Advanced Geant Inteface   1.40/05   C: 24/09/98  01.22.40
+     +'@(#)* Advanced Geant Inteface   1.40/05   C: 24/09/98  02.03.10
      +'/
 *KEEP,DATEQQ.
       IDATQQ =   980924
 *KEEP,TIMEQQ.
-      ITIMQQ =    122
+      ITIMQQ =    203
 *KEEP,VERSQQ.
       VERSQQ = ' 1.40/05'
       IVERSQ =  14005
@@ -2526,7 +2526,7 @@ C
       end
  
  
-*CMZ :          24/09/98  01.22.21  by  Pavel Nevski
+*CMZ :          24/09/98  02.02.38  by  Pavel Nevski
 *CMZ :  1.40/05 01/04/98  11.36.29  by  Pavel Nevski
 *CMZ :  1.30/00 02/04/97  18.16.37  by  Pavel Nevski
 *-- Author :    Pavel Nevski
@@ -2537,12 +2537,12 @@ C
 * Description: dispatch an abnormal situation (arithmetics or ZEBRA)   *
 ************************************************************************
       Implicit   NONE
-      Integer    Lenocc,AgPHASE,AgIPAW,IwTYP,Nerr/0/
+      Integer    Lenocc,AgPHASE,AgIPAW,IwTYP,Npar,Leng,Nerr/0/
       Common /AgCPHASE/ AgPHASE
       Common /AgCIPAW/  AgIPAW,IwTyp
-      character*255     cmdlin
-      common /kcparc/   cmdlin
       character*32      command,commando/' '/
+      common /kcparc/ cmdlin
+      character*255   cmdlin
 *
 *    first, protect against infinite break loops - they are dangerous
       if (command==commando) then
@@ -2550,7 +2550,9 @@ C
          if (nerr>10)    STOP 'IN TRACEQ - too many consequantive entries'
       endif
 *
-      print *,'*** Last Kuip command was: ',%L(cmdlin),' ***'
+      call kupatl (command,npar)
+      print *,'*** Last Kuip command was ',%L(Command),' Npar=',Npar,' ***'
+      print *,'*** in ',%L(cmdlin),' ***'
       if (command=='QUIT' | command=='EXIT') STOP 'IN TRACEQ forced exit'
  
       if (commando!=command) nerr=0
