@@ -167,12 +167,12 @@ C
 *KEEP,VIDQQ.
       CHARACTER*68 VIDQQ
       DATA VIDQQ/
-     +'@(#)* Advanced Geant Inteface   1.40/05   C: 14/09/98  01.17.34
+     +'@(#)* Advanced Geant Inteface   1.40/05   C: 23/09/98  00.12.21
      +'/
 *KEEP,DATEQQ.
-      IDATQQ =   980914
+      IDATQQ =   980923
 *KEEP,TIMEQQ.
-      ITIMQQ =    117
+      ITIMQQ =     12
 *KEEP,VERSQQ.
       VERSQQ = ' 1.40/05'
       IVERSQ =  14005
@@ -2117,10 +2117,16 @@ C
       END
  
  
+*CMZ :          22/09/98  02.49.01  by  Pavel Nevski
 *CMZ :  1.40/05 05/08/98  23.16.12  by  Pavel Nevski
 *CMZ :  1.30/00 07/07/96  13.08.33  by  Pavel Nevski
 *-- Author :    Pavel Nevski   07/07/96
+****************************************************************************
      subroutine    G U D I G I
+* Modifications:
+* PN, 22.09.98 :
+* AGUDIGI called in any case - let user decide
+****************************************************************************
 *KEEP,TYPING.
       IMPLICIT NONE
 *KEEP,GCBANK.
@@ -2180,7 +2186,7 @@ C                                       Link to:
       EQUIVALENCE (LKSLUG(24),LKHIT2)  ! secondary GEANT HITS bank
       EQUIVALENCE (LKSLUG(26),LKGENE)  ! old slug ZEBRA generator structure
 *KEND.
-     Integer      CsADDR,Nset,Ndet,Iset,Idet,Ldete,Lsete,address
+     Integer      CsADDR,Nset,Ndet,Iset,Idet,Ldete,Lsete,address,idummy
      Character*4  Cset,Cdet
 *KEEP,STAFUNC.
 C Declare types for the things used in the statement function STAFUNC
@@ -2206,6 +2212,7 @@ C
  
 *KEND.
  
+  do idummy=1,1
      Check LkDetm>0 & Jset>0 & Jhits>0
      Ndet  = IQ(LkDetm-2);       Check Ndet>0
      Nset  = IQ(Jset - 2);       Check Nset>0
@@ -2222,6 +2229,7 @@ C
            if (address>0) CALL CsJCAL (address,0, 0,0,0,0,0, 0,0,0,0,0)
         enddo
      enddo
+  enddo
 *
      address=CsADDR ('AGUDIGI')
      if (address>0) CALL CsJCAL (address,0, 0,0,0,0,0, 0,0,0,0,0)
@@ -2514,6 +2522,7 @@ C
       end
  
  
+*CMZ :          23/09/98  00.12.13  by  Pavel Nevski
 *CMZ :  1.40/05 01/04/98  11.36.29  by  Pavel Nevski
 *CMZ :  1.30/00 02/04/97  18.16.37  by  Pavel Nevski
 *-- Author :    Pavel Nevski
@@ -2524,10 +2533,22 @@ C
 * Description: dispatch an abnormal situation (arithmetics or ZEBRA)   *
 ************************************************************************
       Implicit NONE
-      Integer  AgPHASE,IgPAW,IwTYP
+      Integer  Lenocc,AgPHASE,IgPAW,IwTYP,Npar,Nerr/0/
       Common /AgCPHASE/ AgPHASE
       Common /AgCIPAW/  IgPAW,IwTYP
+      character*32 command,commando/' '/
 *
+      call kupatl (command,npar)
+      print *,' ***** command ',%L(command),' interrupted *****'
+      if (command=='QUIT' | command=='EXIT') STOP 'IN TRACEQ'
+      if (command==commando) then
+         nerr=nerr+1
+         if (nerr>10)    STOP 'IN TRACEQ'
+      else
+         nerr=0
+         commando=command
+      endif
+ 
       call traceqc
       If AgPHASE>0                                 " in event loop  "
       {  call qnexte; print *,' in traceq: qnexte exit' }
@@ -11322,6 +11343,7 @@ C
  
        END
  
+*CMZ :          14/09/98  12.07.48  by  Pavel Nevski
 *CMZ :  1.40/05 16/07/97  22.01.24  by  Pavel Nevski
 *CMZ :  1.30/00 03/05/97  16.15.42  by  Pavel Nevski
 *-- Author :    Pavel Nevski
@@ -11407,6 +11429,8 @@ C
           NPAR=((NPAR-1)/5)*5;  Isel=0
           Do N=1,NPAR,5
              Call UHTOC(PAR(N+1),4,CPROC,4)
+             CALL CLTOU(CPROC)    " make it case unsensetive "
+             Call UCTOH(CPROC,PAR(N+1),4,4)
              If (Cproc=='*' | Cproc=='ALL') Isel=1
           enddo
       ENDIF
@@ -12012,6 +12036,7 @@ J=1; Loop                                  " over existing banks only "
 }
 END
  
+*CMZ :          21/09/98  01.46.13  by  Pavel Nevski
 *CMZ :  1.40/05 24/08/98  18.27.39  by  Pavel Nevski
 *-- Author :    Pavel Nevski   25/03/98
 **********************************************************************
@@ -12049,6 +12074,12 @@ C
 C
       INTEGER       IDEBUG,IDEMIN,IDEMAX,ITEST,IDRUN,IDEVT,IEORUN
      +        ,IEOTRI,IEVENT,ISWIT,IFINIT,NEVENT,NRNDM
+C
+*KEEP,GCUNIT.
+      COMMON/GCUNIT/LIN,LOUT,NUNITS,LUNITS(5)
+      INTEGER LIN,LOUT,NUNITS,LUNITS
+      COMMON/GCMAIL/CHMAIL
+      CHARACTER*132 CHMAIL
 C
 *KEEP,AGECOM.
       CHARACTER*20 AG_MODULE,  AG_TITLE,  AG_EXNAME,   AG_PARLIST,
@@ -12144,8 +12175,9 @@ C local variables valid inside same block
 *KEND.
     real       Sum,bratio(6)
     Character  Cpart*20
-    Integer    i,JP,Jp1,Jp2,N
+    Integer    i,JP,Jp1,Jp2,N,IPR
  
+    IPR=Iprin;  Iprin=Idebug
     If (Jpart<=0 | %code<=0) go to :n:
     If (IQ(Jpart-2) < %code) go to :n:
     JP=LQ(Jpart-%code);    If (JP<=0) go to :n:
@@ -12164,11 +12196,12 @@ C local variables valid inside same block
        If (Jp1<=0 | Jp2<=0) N=1
  
        Do i=1,6
-       { check %Mode(i)>0;  bratio(i)=min(%Bratio(i)*100.0001/Sum,100.);
-         if (JP1>0 & bratio(i)!=Q(JP1+i)) N=2
-*            { print *,' br ',i, bratio(i),Q(JP1+i);  N=2 }
-         if (JP2>0 & %Mode(i)!=IQ(JP2+i)) N=3
-*            { print *,' md ',i, %Mode(i),IQ(JP2+i);  N=3 }
+       { bratio(i)=0;   check %Mode(i)>0;
+         bratio(i)=min(%Bratio(i)*100.0001/Sum,100.);
+         if JP1>0 & abs(bratio(i)-Q(JP1+i))>abs(bratio(i)+Q(JP1+i))*1.e-6
+         { N=2; prin5 i,Q(JP1+i),bratio(i);(' axparticle branchings',i6,2F9.3)}
+         if JP2>0 & %Mode(i)!=IQ(JP2+i)
+         { N=3; prin5 i,IQ(JP2+i),%Mode(i);(' axparticle changes mode',3i6)}
        }
        if (N>0) call GSDK(%Code, Bratio, %Mode)
 *       print *,' N=',N
@@ -12176,6 +12209,7 @@ C local variables valid inside same block
     If (%pdg  != 0) Call SET_PDGEA(%pdg,%code)
     if (Idebug > 1) Call GPPART(%Code)
     if (Idebug > 2) Call GPDCAY(%Code)
+    Iprin=Ipr
  end
 *CMZ :  1.40/05 08/08/98  23.17.10  by  Pavel Nevski
 *-- Author :    Pavel Nevski   03/05/98
@@ -12359,6 +12393,7 @@ C     - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
   call RZCDIR(Cold,' ')
  end
  
+*CMZ :          21/09/98  20.53.56  by  Pavel Nevski
 *CMZ :  1.40/05 24/08/98  20.25.33  by  Pavel Nevski
 *CMZ :  1.30/00 29/04/97  23.23.51  by  Pavel Nevski
 *CMZU:  1.00/01 15/01/96  20.20.30  by  Pavel Nevski
@@ -12457,7 +12492,7 @@ C
 *KEND.
 Character  Stream*(*),Name*(*),Copt*(*),FName*255/' '/,IOFILE*8,
            CREQ*256,COPTN*20,CSTREAM*8,FZOP*4
-Integer    LOCF,Npar,Ipar(*),KEYS(10),LENOCC,Nfound,Jcont,Unit,
+Integer    LOCF,Npar,Ipar(*),KEYS(10),LENOCC,Nfound,Jcont,Unit,LRECA/0/,
            Ier,Irc,Jrc,K,Lc,iend,mem,iu,IREQ,ko,LREC,L,NUH,HEAD(400)
 Common     /AgZbuffer/  K,JRC,JCONT,CSTREAM,COPTN,CREQ,IREQ,iend,mem(100,5)
 *
@@ -12476,7 +12511,11 @@ Common     /AgZbuffer/  K,JRC,JCONT,CSTREAM,COPTN,CREQ,IREQ,iend,mem(100,5)
    If Name!=' '  { CREQ=Name; COPTN=COPT; CSTREAM=Stream; IREQ=1; }
    else          { if (iu!=2) IREQ-=1;                            }
    LC=LENOCC(CREQ);  FName=' ';  Nfound=0;  Ier=-1;  Ko=K;  K=0;
+ 
+*  on input automatic rec.length has precedence:
    LREC=8100;        If (Index(Stream,'Z')>0) LREC=0
+                     If (iu<=2 & Lreca>0)     Lrec=Lreca
+ 
    If Index(Stream,'F')>0
    {  Print *,'* AGZOPEN trying to get tape from FATMEN catalog *'
       CALL FMLOGL(-2); Call FMLFIL(CREQ(1:LC),FName,KEYS,NFound,1,JCont,JRC)
@@ -12497,8 +12536,8 @@ Common     /AgZbuffer/  K,JRC,JCONT,CSTREAM,COPTN,CREQ,IREQ,iend,mem(100,5)
         * automatic record length detection
         NUH=400;  Call FZIN  (Unit,IxDiv,L,2,'S',NUH,HEAD)
         If Iquest(1)==-4 & Iquest(12)==202
-        {  LREC=IQUEST(15); print *,' AGZOPEN: LREC corrected to',LREC
-           Call FZENDI(Unit,'TXQ');  GoTo :R:
+        {  LRECA=IQUEST(15); print *,' AGZOPEN: LREC corrected to',LRECA
+           LREC =LRECA;      Call FZENDI(Unit,'TXQ');   GoTo :R:
         }  Call FZENDI(Unit,'IQ')
    }  }
    else If iu==3 & IREQ>0
@@ -13342,7 +13381,7 @@ END
  
  
  
-*CMZ :          28/08/98  22.27.44  by  Pavel Nevski
+*CMZ :          21/09/98  21.36.14  by  Pavel Nevski
 *CMZ :  1.40/05 27/08/98  19.50.28  by  Pavel Nevski
 *CMZ :  1.40/05 24/08/98  20.26.49  by  Pavel Nevski
 *CMZ :  1.30/00 21/03/97  15.15.10  by  Pavel Nevski
@@ -13821,6 +13860,8 @@ C
 * Arguments   :                                                        *
 *        LINK  (in)  - link to the top level bank (i.e HITS,HIT2 etc)  *
 *        IS,ID (out) - Geant Iset/Idet of the next non-empty bank      *
+* Modifications:
+* PN, 21.09.98 : protect againt extra Iset and Idet in HITS vs SETS    *
 ************************************************************************
 *KEEP,TYPING.
       IMPLICIT NONE
@@ -13848,22 +13889,15 @@ C
 *
       AGPOINTR = 1;    IF (IS>0) GOTO :cont:
       :set: Loop
-      { IS=IS+1;  ID=0;  :cont:   IF (IS>IQ(LINK-2) | IS>IQ(JSET-1)) RETURN
+      { IS=IS+1;  ID=0;  :cont:   IF (IS>IQ(LINK-2) | IS>IQ(JSET-2)) RETURN
         JH=LQ(LINK-IS);  JS=LQ(JSET-IS);  IF (JS<=0 | JH<=0) next :set:
         :det: Loop
-        {  ID=ID+1;                       IF (ID > IQ(JH-2)) next :set:
+        {  ID=ID+1;               IF (ID > IQ(JH-2) | ID > IQ(JS-2)) next :set:
            JP=LQ(JH-ID); JD=LQ(JS-ID);    IF (JD<=0 | JP<=0) next :det:
            NW=IQ(JH+ID);                  IF (NW<=0)         next :det:
            AGPOINTR = 0;  Return;          :done:
       } }
 END
- 
- 
- 
- 
- 
- 
- 
  
  
 *CMZ :  1.40/05 29/01/98  00.21.52  by  Pavel Nevski
