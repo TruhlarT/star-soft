@@ -1,8 +1,11 @@
 #!/usr/bin/env perl 
 #
-# $Id: dbDevTestQuery.pl,v 1.13 2004/02/16 04:13:49 jeromel Exp $
+# $Id: dbDevTestQuery.pl,v 1.14 2004/02/20 15:27:26 didenko Exp $
 #
 # $Log: dbDevTestQuery.pl,v $
+# Revision 1.14  2004/02/20 15:27:26  didenko
+# updated for 2004 run test
+#
 # Revision 1.13  2004/02/16 04:13:49  jeromel
 # Small modifs (modules would need to be also installed in OPTSTAR)
 #
@@ -67,6 +70,9 @@ my @prod_set = (
                 "daq_redhat72/year_2001/ppMinBias",
                 "daq_redhat72/year_2003/ppMinBias",
                 "daq_redhat72/year_2003/dAuMinBias",
+                "daq_redhat72/year_2004/AuAuMinBias",
+                "daq_redhat72/year_2004/AuAu_prodHigh",
+                "daq_redhat72/year_2004/AuAu_prodLow",
 		);
 
 my @sets_name;
