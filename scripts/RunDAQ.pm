@@ -295,7 +295,9 @@ sub rdaq_open_odatabase
 {
    my($obj);
    
-   $obj = DBI->connect("dbi:mysql:$dbname:$dbhost", $dbuser, $dbpass);
+   $obj = DBI->connect("dbi:mysql:$dbname:$dbhost", $dbuser, $dbpass,
+			{PrintError  => 0, AutoCommit => 1,
+			 ChopBlanks  => 1, LongReadLen => 200});
    return $obj;
 }
 
