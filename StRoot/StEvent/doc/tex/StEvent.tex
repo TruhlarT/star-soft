@@ -2,7 +2,7 @@
 %
 % StEvent - User Guide and Reference Manual -- LaTeX Source
 %
-% $Id: StEvent.tex,v 2.46 2000/09/06 22:30:57 ullrich Exp $
+% $Id: StEvent.tex,v 2.47 2000/09/28 10:58:43 ullrich Exp $
 %
 % Author: Thomas Ullrich, Nov 1999
 %
@@ -21,8 +21,8 @@
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %
 % $Log: StEvent.tex,v $
-% Revision 2.46  2000/09/06 22:30:57  ullrich
-% Changes to StEvent and StEventInfo.
+% Revision 2.47  2000/09/28 10:58:43  ullrich
+% Added ref section for new RICH classes.
 %
 % Revision 2.49  2000/10/16 17:08:12  ullrich
 % Added more description for StEventScavenger.
@@ -215,8 +215,8 @@
   \mbox{\includegraphics[width=\textwidth]{StEventTitle.eps}}
   \hfill\mbox{}\\[3cm]
   {\LARGE User Guide and Reference Manual \\[5mm] for Version 2}\\[2cm]
-  {\LARGE $ $Revision: 2.46 $ $}  \\[5mm] % replaced by cvs with current revision
-  {\LARGE $ $Date: 2000/09/06 22:30:57 $ $}  % replaced by cvs with current revision
+  {\LARGE $ $Revision: 2.47 $ $}  \\[5mm] % replaced by cvs with current revision
+  {\LARGE $ $Date: 2000/09/28 10:58:43 $ $}  % replaced by cvs with current revision
   \vfill
 \end{center}
 \cleardoublepage
@@ -389,6 +389,10 @@ enum StTrackFittingMethod   {kUndefinedFitterId,
                              kLine2StepId,
                              kLine3DId};
 
+enum StTrackFinderMethod    {svtGrouper,
+                             svtStk,
+                             svtOther,
+                             tpcStandard,
                              tpcOther,
                              ftpcConformal,
                              svtTpcSvm,
@@ -4248,6 +4252,70 @@ definition in the header file.
 
     \verb+void setInfo(const StSPtrVecRichMCInfo&);+\\
     Specifies the Monte Carlo list.
+
+    \verb+const StSPtrVecRichMCInfo& getMCInfo() const;+\\
+    Returns the Monte Carlo information.
+
+    \verb+StSPtrVecRichMCInfo& getMCInfo();+\\
+    Returns the Monte Carlo information.
+\end{Entry}
+\clearpage
+
+\subsection{StRichPid}
+\index{StRichPid|textbf}
+\label{sec:StRichPid}
+\begin{Entry}
+\item[Summary]
+\item[Synopsis]
+    \verb+#include "StRichPid.h"+\\
+    \verb+class StRichPid;+\\
+\item[Description]
+\item[Related Classes]
+\item[Public\\ Constructors]
+    \verb+StRichPid();+\\
+\item[Public Member\\ Functions]
+    \verb+StRichPid(StParticleDefinition* particle, StThreeVectorD resid,+\\
+    \verb+Float_t totAzim, Float_t totArea,+\\
+    \verb+UShort_t totHits, Float_t trunAzim,+\\
+    \verb+Float_t trunArea, UShort_t trunHits);+\\
+    \verb+Int_t operator==(const StRichPid&) const;+\\
+    \verb+void setRingType(StParticleDefinition* particle);+\\
+    \verb+void setMipResidual(StThreeVectorD t);+\\
+    \verb+void setTotalAzimuth(Float_t);+\\
+    \verb+void setTotalArea(Float_t);+\\
+    \verb+void setTotalHits(UShort_t);+\\
+    \verb+void setTruncatedAzimuth(Float_t);+\\
+    \verb+void setTruncatedArea(Float_t);+\\
+    \verb+void setTruncatedHits(UShort_t);+\\
+    \verb+StParticleDefinition* getRingType() const;+\\
+    \verb+StThreeVectorD getMipResidual() const;+\\
+    \verb+Float_t getTotalAzimuth() const;+\\
+    \verb+Float_t getTotalArea() const;+\\
+    \verb+UShort_t getTotalHits() const;+\\
+    \verb+Float_t getTotalDensity() const;+\\
+    \verb+Float_t getTruncatedAzimuth() const;+\\
+    \verb+Float_t getTruncatedArea() const;+\\
+    \verb+UShort_t getTruncatedHits() const;+\\
+    \verb+Float_t getTruncatedDensity() const;+\\
+    \verb+bool isSet(StRichPidFlag);+\\
+    \verb+void setBit(StRichPidFlag);+\\
+    \verb+void unSetBit(StRichPidFlag);+\\
+\end{Entry}
+\clearpage
+
+\subsection{StRichPidTraits}
+\index{StRichPidTraits|textbf}
+\label{sec:StRichPidTraits}
+\begin{Entry}
+\item[Summary]
+\item[Synopsis]
+    \verb+#include "StRichPidTraits.h"+\\
+    \verb+class StRichPidTraits;+\\
+\item[Description]
+\item[Related Classes]
+\item[Public\\ Constructors]
+    \verb+StRichPidTraits();+\\
+\item[Public Member\\ Functions]
     \verb+Int_t operator==(const StRichPidTraits&) const;+\\
     \verb+void addPid(StRichPid* );+\\
     \verb+StSPtrVecRichPid getAllPids();+\\
@@ -4297,8 +4365,6 @@ definition in the header file.
     \verb+UShort_t adc() const;+\\
     Returns the adc value.
 
-
-
     \verb+ULong_t reservedLong() const;+\\
     Reserved for future use.
 
@@ -4312,11 +4378,25 @@ definition in the header file.
 \label{sec:StRichSoftwareMonitor}
 \begin{Entry}
 \item[Summary]
+\item[Synopsis]
+    \verb+#include "StRichSoftwareMonitor.h"+\\
+    \verb+class StRichSoftwareMonitor;+\\
+\item[Description]
+\item[Related Classes]
+\item[Public\\ Constructors]
+    \verb+StRichSoftwareMonitor();+\\
+    \verb+StRichSoftwareMonitor(const dst_mon_soft_rich_st&);+\\
+\item[Public Member\\ Functions]
+    \verb+void setNumberOfPixels(Long_t);+\\
+    \verb+void setNumberOfClusters(Long_t);+\\
+    \verb+void setNumberOfHits(Long_t);+\\
+    \verb+void setTotalCharge(Long_t);+\\
+    \verb+Long_t numberOfPixels() const;+\\
+    \verb+Long_t numberOfClusters() const;+\\
+    \verb+Long_t numberOfHits() const;+\\
+    \verb+Long_t totalCharge() const;+\\
     \verb+void setNumberOfTracksCrossing(Long_t);+\\
     \verb+void setNumberOfTracksPidCalculated(Long_t);+\\
-\clearpage
-
-
     \verb+void setNumberOfTracksAbove1Gev(Long_t);+\\
     \verb+void setNumberOfHitsInRings(Long_t);+\\
     \verb+void setNumberOfRings(Long_t);+\\
