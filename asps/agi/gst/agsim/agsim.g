@@ -14823,7 +14823,7 @@ Logical    First/.true./
       { Call FZFILE(Unit,LREC,Fzop); CALL FZLOGL(Unit,-2)
         * automatic record length detection
         NUH=400;  Call FZIN  (Unit,IxDiv,L,2,'S',NUH,HEAD)
-        If Iquest(1)==-4 & Iquest(12)==202
+        If Iquest(1)==-4 & mod(Iquest(12),100)==2
         {  LRECA=IQUEST(15); print *,' AGZOPEN: LREC corrected to',LRECA
            LREC =LRECA;      Call FZENDI(Unit,'TXQ');   GoTo :R:
         }
