@@ -28,9 +28,9 @@ use Cwd;
 
 use vars qw( $CVS_id $CVS_ver $ver_num $ver_rev $version );
 
-$CVS_id = '$Id: cons,v 1.77 2001/01/24 14:40:59 fisyak Exp $ ';   
+$CVS_id = '$Id: cons,v 1.78 2001/01/31 15:38:47 fisyak Exp $ ';   
 
-$CVS_id = '$Id: cons,v 1.77 2001/01/24 14:40:59 fisyak Exp $';
+$CVS_id = '$Id: cons,v 1.78 2001/01/31 15:38:47 fisyak Exp $';
 $CVS_ver = (split(/\s+/, $CVS_id))[2];
 
 $ver_num = "2.3";
@@ -207,7 +207,7 @@ Arguments can be any of the following, in any order:
 );
 
 # stash the path to cons.
-$param::conspath = $0;
+#$param::conspath = $0;  # commentted
 
 # Simplify program name, if it is a path.
 {
@@ -1256,7 +1256,7 @@ sub rmkdir {
   foreach my $term (@terms) {
     if ($dir) {$dir .= "/";}
     $dir .= $term;
-    if (!-d $dir && ! mkdir($dir,0755)) {die "$0: can't create directory $File::Find::path ($!).\n";}
+    if (!-d $dir && ! mkdir($dir,0755)) {die "$0: can't create directory File::Find::path ($!).\n";}
   }
 }
 #________________________________________
