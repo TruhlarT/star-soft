@@ -1,0 +1,147 @@
+#! /opt/star/bin/perl
+
+# cgid_init
+#
+# BEN(6jul00):  cgid_init makes sure cgid and ssh port frowarding from the web
+# server are working on rcas6001.  It can be run manually or from a cron job.
+# From a cron job, you should not use the "-v" flag, which prints debugging
+# info.
+#
+# cgid_init also allows the user to shut down cgid 
+# and the ssh forwarding gently in
+# one step, with "cgid_init -k".  If this doesn't work, try "cgid_init -d"
+# (destroy) for a hard kill (kill -9).
+#
+# "cgid_init -q" takes no action, but
+# shows the pid of ssh & cgid, or 0 if not running (implies "-v")
+#
+# cgid_init runs reauth if no afs token for starlib is found.  It should be
+# run only by starlib.
+#
+# The port can be specified by -p <port>
+
+use strict;
+use Cwd;
+use FileHandle;
+use Getopt::Std;
+
+#my $qaPath = "/star/u2e/starqa/pro";  # run pro version
+my $qaPath = "/afs/rhic/star/packages/DEV/cgi/qaversion2";  # run dev version
+my $webServer = "connery.star.bnl.gov";
+my $sleepCmd = "/star/rcf/qa/.sleeper";
+my $afsPwFile = "/star/rcf/qa/.starlib_CGI";
+
+# get options
+my %opt;
+getopt('p', \%opt);
+my $kill = $opt{k};
+my $destroy = $opt{d};
+my $query = $opt{q};
+my $verbose = $opt{v} || $query;
+my $port = ($opt{p} ? $opt{p} : 8080);
+
+# collect the dead kids
+$SIG{CHLD} = 'reaper';
+
+# don't buffer output
+STDERR->autoflush(1);
+STDOUT->autoflush(1);
+
+#
+# check for reauth running for starlib on rcas and restart it if
+# necessary.  reauth refreshes afs tokens automatically, and we
+# need a token before we can write to afs space.
+#
+
+my $token = `tokens`;
+
+if ($token !~ /^User\'s \(AFS ID 31012\)/m) {   # token line in output
+    print STDERR "(re)starting reauth...\n";
+    system("killall reauth; cat $afsPwFile | reauth 85000 starlib");
+    print STDERR "...reauth (re)started\n";
+}
+
+# check for ssh running
+my $pid = getPID("root", $port);
+$verbose && print "ssh pid = $pid\n";
+if (!$query){
+    if (!$pid && !$kill && !$destroy){             #start it
+	print "starting ssh...\n";
+	
+	system("ssh -x -f -R $port:localhost:$port $webServer $sleepCmd") == 0
+	    or die "could not run ssh forwarding"; 
+	
+	print "...ssh started\n";
+    } elsif ($pid){                     #stop it  
+	print "stopping ssh...\n";
+	
+	if($kill){ 
+	    system("kill $pid") == 0
+		or die "could not kill ssh forwarding";
+	}elsif($destroy){
+	    system("kill -9 $pid") == 0
+		or die "could not kill ssh forwarding";
+	}
+
+	print "...ssh stopped\n";
+    }
+}
+
+# check for cgid running
+$pid = getPID("starlib","cgid"); 
+$verbose && print "cgid pid = $pid\n";
+if (!$query){
+    if (!$pid && !$kill && !$destroy){
+	chdir $qaPath or die "cannot chdir to $qaPath\n";
+	print "starting cgid in " . getcwd() . "...\n";
+	
+	system("./cgid -p $port &") == 0
+	    or die "could not run cgid";
+
+	print "...cgid started\n";
+    }elsif ($pid){
+	print "stopping cgid...\n";
+	
+	if($kill){
+	    system("kill -INT $pid") == 0
+		or die "could not kill cgid";
+	}elsif($destroy){
+	    system("kill -9 $pid") == 0
+		or die "could not kill cgid";
+	}
+
+	print "...cgid stopped\n";
+    }
+}
+
+exit 0;
+
+# extract PID from the first line of the output of ps for the given 
+# user and grep search string
+sub getPID{
+    my $user = shift;
+    my $search = shift;
+
+    my $cmd = 
+        "ps -flu $user | grep '$search' | grep -v grep | grep -v 'cgid_init'";
+    my $result = `$cmd`;
+    #print "cmd = $cmd\n";
+    #print "result = $result\n";
+
+    if ($result ne ""){
+	my @fields = split(' ', $result);
+	return $fields[3];
+    }else{
+	return 0;
+    }
+}
+
+sub reaper{
+    my $waitpid = wait;
+    $SIG{CHLD} = 'reaper';
+}
+
+
+
+
+
