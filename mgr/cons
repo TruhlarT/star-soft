@@ -4,6 +4,7 @@ use Env;
 use English;
 use File::Basename;
 use File::Find;
+use File::Path;
 use POSIX;
 use File::Copy;
 #if (defined($AFS)) {$File::Find::dont_use_nlink;}
@@ -28,9 +29,9 @@ use Cwd;
 
 use vars qw( $CVS_id $CVS_ver $ver_num $ver_rev $version );
 
-$CVS_id = '$Id: cons,v 1.80 2001/03/08 16:29:43 fisyak Exp $ ';   
+$CVS_id = '$Id: cons,v 1.81 2001/03/08 20:35:16 perev Exp $ ';   
 
-$CVS_id = '$Id: cons,v 1.80 2001/03/08 16:29:43 fisyak Exp $';
+$CVS_id = '$Id: cons,v 1.81 2001/03/08 20:35:16 perev Exp $';
 $CVS_ver = (split(/\s+/, $CVS_id))[2];
 
 $ver_num = "2.3";
@@ -718,6 +719,7 @@ sub buildtarget {
 	if (-f $path) {
 	    if (unlink($path)) {
 		print("Removed $path\n") if ($param::quiet < 1);
+#		ClearPath($path);
 	    } else {
 		warn("$0: couldn't remove $path\n");
 	    }
@@ -726,7 +728,31 @@ sub buildtarget {
 
     return "none";
 }
-
+#sub ClearPath($) {
+#  my $path = $_[0];
+#  my $isEmpty = 1;
+#  my $dirname = File::Basename::dirname($path);
+#  opendir (DIR,$dirname) or die "Can't open $dirname\n";
+#  my @files = readdir DIR;
+#  closedir DIR;
+#  foreach my $f (@files) {
+#    next if $f =~ /^\./;
+#    next if $f =~ /SunWS_cache/;
+#    my $ff = $dirname . $dir::SEPARATOR  . $f;
+#    next if -l $ff;
+#    $isEmpty = 0; 
+#    last;
+#  } 
+#  if ($isEmpty) {
+#    if (File::Path::rmtree($dirname,1,1)) {
+#      print("Removed tree $dirname\n") if ($param::quiet < 1);
+#      my $up = File::Basename::dirname($dirname);
+#      if ($up) { ClearPath($dirname); }
+#    } else {
+#      warn("$0: couldn't remove $dirname\n");
+#    }
+#  }
+#}
 package NameSpace;
 
 # Return a hash that maps the name of symbols in a namespace to an
