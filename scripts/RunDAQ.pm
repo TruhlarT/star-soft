@@ -37,6 +37,7 @@
 #      rdaq_status_string           returns a status string from a status val
 #      rdaq_bits2string             Returns a string from a bitfield.
 #      rdaq_mask2string             Returns detector set from detector BitMask.
+#      rdaq_trgs2string             Return trigger Setup name
 #
 #
 # DEV ONLY *** MAY BE CHANGED AT ANY POINT IN TIME ***
@@ -120,7 +121,7 @@ require Exporter;
 	     rdaq_set_files
 
 	     rdaq_file2hpss rdaq_mask2string rdaq_status_string
-	     rdaq_bits2string
+	     rdaq_bits2string rdaq_trgs2string
 
 	     rdaq_set_files_where rdaq_update_entries
 
@@ -176,9 +177,15 @@ $ROUND{"BeamE"}       = 2; # does not work with 1
 # the table name containing the bit position ...
 #
 $BITWISE{"TrgMask"}    = "FOTriggerBits";
-$BITWISE{"TrgSetup"}   = "FOTriggerSetup";
 $BITWISE{"DetSetMask"} = "FODetectorTypes";
 
+#
+# For list_field, we may want to select from secondary
+# tables instead of from $dbtable. We can do this only
+# if the fields are associated with a threaded table.
+# Those tables are assumed to be id,Label.
+$THREAD0{"TrgSetup"} = "FOTriggerSetup";
+$THREAD1{"runNumber"}= "FOruns";
 
 
 #
@@ -487,8 +494,8 @@ sub rdaq_hack
 			  "WHERE runNumber=? ORDER BY triggerLabel DESC");
 
     # Trigger Setup
-    $sths = $obj->prepare("SELECT trgSetupName FROM runDescriptor ".
-			  "WHERE runNumber=? ORDER BY trgSetupName DESC");
+    $sths = $obj->prepare("SELECT glbSetupName FROM runDescriptor ".
+			  "WHERE runNumber=? ORDER BY glbSetupName DESC");
 
 
     #
@@ -496,6 +503,8 @@ sub rdaq_hack
     # as is.
     #
     $run = $res[1];
+    &Record_n_Fetch("FOruns","$run");
+
     if( ! defined($DETSETS{$run}) ){
 	#&info_message("hack","Checking DataSet for run $run\n");
 	$stht->execute($run);
@@ -524,9 +533,12 @@ sub rdaq_hack
 	    &info_message("hack","$run cannot be evaluated. No TriggerSetup info.\n");
 	    $mask = 0;
 	} else {
+	    $mask = "";
 	    while( defined($line = $sths->fetchrow()) ){
-		$mask |= (1 << &GetBitValue("TrgSetup",$line));
-	    }
+		$mask .= $line.".";
+	    } 
+	    chop($mask);
+	    $mask = &Record_n_Fetch("FOTriggerSetup",$mask);
 	}
 	$TRGSET{$run} = $mask;
     } else {
@@ -845,12 +857,18 @@ sub rdaq_list_field
 	$cmd   = "SELECT CONCAT(id,':',Label) FROM $BITWISE{$field}";
 	$field = "id";
 	$cmd  .= " ORDER BY $field DESC";
+    } elsif ( defined($THREAD0{$field}) ){
+	$cmd   = "SELECT id FROM $THREAD0{$field}";
+	$cmd  .= " ORDER BY Label DESC";
+    } elsif ( defined($THREAD1{$field}) ){
+	$cmd   = "SELECT Label FROM $THREAD1{$field}";
+	$cmd  .= " ORDER BY Label DESC";
     } else {
 	$cmd   = "SELECT DISTINCT $field AS SELECTED FROM $dbtable";
 	$cmd  .= " ORDER BY $field DESC";
     }
 
-    #print "$cmd\n";
+    #print "<!-- $cmd -->\n";
 
     $sth = $obj->prepare($cmd);
     if($sth){
@@ -908,6 +926,7 @@ sub GetBitValue
 # object handler.
 # Returns 0 if any failures.
 # Hashes the values to save later processing time.
+# $mode if 1, disables insertion of new values.
 #
 sub Record_n_Fetch
 {
@@ -920,6 +939,9 @@ sub Record_n_Fetch
 
     if( ! defined($rv = $RFETCHED{"$tbl-$el"}) ){
 	# Return value
+	#if($tbl eq "FOruns"){
+	#    print "<!-- Adding $el -->";
+	#}
 	$rv  = 0;
 	$obj = rdaq_open_odatabase();
 
@@ -930,6 +952,7 @@ sub Record_n_Fetch
 	$sthc = $obj->prepare("INSERT IGNORE INTO $tbl VALUES(0,'$el')");
 	$sthc->execute();
 	$sthc->finish();
+
 
 	# fetch now.
 	$sthc = $obj->prepare("SELECT $tbl.id FROM $tbl ".
@@ -950,6 +973,32 @@ sub Record_n_Fetch
     $rv;
 }
 
+sub GetRecord
+{
+    my($tbl,$el)=@_;
+    my($obj,$sth,$val,$rv);
+
+    if($el eq ""){  return 0;}
+    if($el eq 0){   return 0;}
+
+    $rv = 0;
+    if( ! defined($rv = $RFETCHED{"$tbl-$el"}) ){
+	$obj = rdaq_open_odatabase();
+	if(!$obj){ return $rv;}
+	$sth = $obj->prepare("SELECT $tbl.Label FROM $tbl ".
+			      "WHERE $tbl.id=?");
+	if($sth){
+	    $sth->execute($el);  
+	    if( defined($val = $sth->fetchrow()) ){
+		$RFETCHED{"$tbl-$el"} = $val;
+		$rv = $val;
+	    }
+	    $sth->finish();
+	}
+	rdaq_close_odatabase($obj);
+    }
+    $rv;
+}
 
 
 # BACKWARD Compatibility only
@@ -1066,10 +1115,22 @@ sub rdaq_status_string
     $str = "Processed" if($sts == 2);
     $str = "QADone"    if($sts == 3); # i.e. + QA
     $str = "Skipped"   if($sts == 4);
+    $str = "Died"      if($sts == 666);
 
     $str;
 }
 
+sub rdaq_trgs2string
+{
+    my($val)=@_;
+
+    $rv = &GetRecord("FOTriggerSetup",$val);
+    if($rv eq 0){
+	return "unknown";
+    } else {
+	$rv;
+    }
+}
 
 
 #
@@ -1087,4 +1148,14 @@ sub	info_message
 
 
 1;
+
+#
+# Dec 2001
+#  Changed the meaning of TriggerSetup from trgSetupName to
+#  glbSetupName. Seemed more appropriate and what people are 
+#  accustom too. Added rdaq_trgs2string() interface.
+#  Also improved speed in runNumber get_list_field by using
+#  THREAD arrays. Only 1239 entries to scan for runNumber for
+#  example instead of 113940 (2 order of magnitude up).
+#
 

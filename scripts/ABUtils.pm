@@ -30,9 +30,7 @@ $INSU::STARAFS="/afs/rhic/star/packages";
 
 # List of excluded modules in StRoot compilation. This is a default
 # and does not preclude the SKIP_DIRS usage.
-@INSU::SKIP=("StEbyePool",
-	     "Sti","StiGui","StiMaker"
-	     );
+@INSU::SKIP=("StEbyePool");
 $INSU::SKIPNM="SKIP_DIRS";
 
 
