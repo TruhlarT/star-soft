@@ -68,7 +68,8 @@ $FLNM="AutoBuild";
 # Global error string
 $ERRSTR="";
 
-
+# Post-fix
+$POST="";
 
 
 
@@ -109,6 +110,7 @@ for ($i=0 ; $i <= $#ARGV ; $i++){
 	} elsif($arg eq "-t"){
 	    # tag output file with OS name
 	    $FLNM .= "-$^O" if($FLNM !~ $^O);  
+	    $POST = "-$^O";
 	} elsif($arg eq "-1"){
 	    # first compilation pass only
 	    $FIRSTPASS=1==1;
@@ -161,10 +163,10 @@ $COMPDIR=IUCompDir($LIBRARY) if ( $COMPDIR eq "");
 
 # A temp script will be created with this name (number will be
 # appended at the end).
-$TMPNM="$COMPDIR/.AutoBuild";
+$TMPNM="$COMPDIR/.AutoBuild".$POST;
 # stdout/errors will be re-directed to a file with this main 
 # name. No extension please.
-$FLNMSG="$COMPDIR/Execute";
+$FLNMSG="$COMPDIR/Execute".$POST;
 # name of an eventual resource file
 $FLNMRC="$COMPDIR/.ABrc_$^O";
 
