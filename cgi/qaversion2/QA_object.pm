@@ -510,8 +510,35 @@ sub ShowQA{
 
   #--------------------------------------------------------
 
-  # pmj 21/6/00
-  # Control and Test File listing moved to "Files and Reports"
+  $self->ShowPsFiles();
+#  $self->ShowScalarsAndTests();
+
+  #--------------------------------------------------------
+  # pmj 24/6/00
+  # new buttons to display scalars and reports in a new browser window
+
+  my $button_ref = Button_object->new('ViewScalarsAndTests', 'Scalars And Tests', 
+				   $report_key);
+  my $button_string .= $button_ref->SubmitString;
+
+  
+  my $script_name   = $gCGIquery->script_name;
+  my $hidden_string = $gBrowser_object->Hidden->Parameters;
+
+  print $gCGIquery->startform(-TARGET=>"ScalarsAndTests"); 
+
+  print h3("<hr>Scalars and Tests: \n"); 
+  print "View in separate browser window: $button_string.$hidden_string";
+  print $gCGIquery->endform;
+}
+#========================================================
+# QA Details: postscript files
+
+sub ShowPsFiles{
+  my $self = shift;
+
+  my $report_key = $self->ReportKey;
+  my $report_dir = $self->IOReportDirectory->Name;
 
   #---------------------------------------------------------
   # open the report directory
@@ -520,7 +547,7 @@ sub ShowQA{
   
   my $dh = $self->IOReportDirectory->Open;
   
-  my (@ps_files, @evalfile_list);
+  my @ps_files;
 
   while (my $file = readdir $dh){
     $file =~ /^\./ and next;
@@ -530,6 +557,31 @@ sub ShowQA{
       $self->PrintFilestring("Postscript file", $file);
       next;
     }
+  }
+  undef $dh;
+}
+#========================================================
+# QA Details: Scalars and Tests
+
+sub ShowScalarsAndTests{
+  my $self = shift;
+
+  my $report_key = $self->ReportKey;
+  my $report_dir = $self->IOReportDirectory->Name;
+  #---------------------------------------------------------
+  # title
+  print h2("QA Scalars and Tests for $report_key\n"); 
+
+  #---------------------------------------------------------
+  # open the report directory, get evaluation files
+  
+  my $dh = $self->IOReportDirectory->Open;
+  
+  my @evalfile_list;
+
+  while (my $file = readdir $dh){
+    $file =~ /^\./ and next;
+
     # save evaluation files
     if ($file =~ /evaluation$/) {
       push @evalfile_list, "$report_dir/$file"; 
@@ -538,6 +590,7 @@ sub ShowQA{
   }
   undef $dh;
 
+  #---------------------------------------------------------
   my %eval_hash;
 
   # retrieve evaluation from storage

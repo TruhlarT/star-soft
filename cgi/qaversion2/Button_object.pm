@@ -341,6 +341,15 @@ sub QaDetails {
   $QA_object_hash{$report_key}->ShowQA;
 }
 #========================================================
+sub ViewScalarsAndTests{
+
+  my $self = shift;
+  my $report_key = $self->ReportKey;
+  #-------------------------------------------------------
+
+  $QA_object_hash{$report_key}->ShowScalarsAndTests;
+}
+#========================================================
 sub FilesAndReports{
 
   my $self = shift;
