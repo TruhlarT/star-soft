@@ -1,7 +1,10 @@
 #!/usr/bin/csh -f
-#       $Id: group_env.csh,v 1.58 1998/12/27 17:28:49 fisyak Exp $
+#       $Id: group_env.csh,v 1.59 1999/01/21 13:43:22 wenaus Exp $
 #	Purpose:	STAR group csh setup 
 #       $Log: group_env.csh,v $
+#       Revision 1.59  1999/01/21 13:43:22  wenaus
+#       Add ObjectSpace STL to LD_LIBRARY_PATH on Solaris
+#
 #       Revision 1.58  1998/12/27 17:28:49  fisyak
 #       Increase no. of file descriptors on Sun
 #
@@ -216,6 +219,7 @@ setenv CVSROOT   $STAR_PATH/repository; if ($ECHO) echo   "Setting up CVSROOT   
   setenv ROOT_LEVEL 2.13
 #  if ($STAR_VERSION  == "SL98j") setenv ROOT_LEVEL 2.13
   if ($STAR_VERSION  == "SL98l") setenv ROOT_LEVEL 2.20
+  if ($STAR_VERSION  == "SL99a") setenv ROOT_LEVEL 2.21
 #endif
                                         if ($ECHO) echo   "Setting up ROOT_LEVEL= ${ROOT_LEVEL}"
 setenv TEXINPUTS :${GROUP_DIR}/latex/styles
@@ -320,7 +324,7 @@ switch ($STAR_SYS)
     case "sun4*":
 #  ====================
       if (! ${?LD_LIBRARY_PATH}) setenv LD_LIBRARY_PATH
-      setenv LD_LIBRARY_PATH "/opt/SUNWspro/lib:/usr/openwin/lib:/usr/dt/lib:/usr/local/lib:${PARASOFT}/lib.solaris:${MINE_LIB}:${STAR_LIB}:${STAF_LIB}:${LD_LIBRARY_PATH}"
+      setenv LD_LIBRARY_PATH "/opt/SUNWspro/lib:/usr/openwin/lib:/usr/dt/lib:/usr/local/lib:${PARASOFT}/lib.solaris:/afs/rhic/star/packages/ObjectSpace/2.0m/lib:${MINE_LIB}:${STAR_LIB}:${STAF_LIB}:${LD_LIBRARY_PATH}"
 	set path = ($path $PARASOFT/bin.solaris)
       setenv BFARCH SunOS5
       setenv OBJY_ARCH solaris4
