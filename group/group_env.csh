@@ -1,5 +1,5 @@
 #!/usr/bin/csh -f
-#       $Id: group_env.csh,v 1.111 2000/12/02 02:08:26 fisyak Exp $
+#       $Id: group_env.csh,v 1.112 2001/01/04 02:05:07 fisyak Exp $
 #	Purpose:	STAR group csh setup 
 #
 #	Author:		Y.Fisyak     BNL
@@ -36,7 +36,7 @@ if ($STAR_LEVEL  == "old" || $STAR_LEVEL  == "pro" || $STAR_LEVEL  == "new" || $
 else
   setenv STAR_VERSION ${STAR_LEVEL}
 endif
-if ($?STAF_LEVEL == 0) setenv STAF_LEVEL pro
+if ($?STAF_LEVEL == 0) setenv STAF_LEVEL $STAR_LEVEL
 if ($STAF_LEVEL  == "old" || $STAF_LEVEL  == "pro" || $STAF_LEVEL  == "new" || $STAF_LEVEL  == "dev" || $STAF_LEVEL  == ".dev") then
   setenv STAF_VERSION `/bin/ls -ld $STAR_PATH/StAF/${STAF_LEVEL} |cut -f2 -d">"`  
 else
