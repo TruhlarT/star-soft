@@ -1,4 +1,4 @@
-#! /usr/local/bin/perl -w
+#!/opt/star/bin/perl -w
 #
 # $Id:
 #
@@ -8,7 +8,7 @@
 # Script to create plots for production operation
 #================================================================== 
 
-require "/afs/rhic/star/packages/dev/mgr/dbCpProdSetup.pl";
+require "/afs/rhic/star/packages/DEV00/mgr/dbCpProdSetup.pl";
 
 use CGI;
 use GIFgraph::linespoints;
@@ -23,7 +23,7 @@ use File::Basename;
 $query = new CGI;
 
 print <<END;
-<META HTTP-equiv="Refresh" content="1; URL-HTTP://duvall.star.bnl.gov/cgi-bin/didenko/mdc3PlotReq.pl">
+<META HTTP-equiv="Refresh" content="1; URL-HTTP://www.star.bnl.gov/cgi-bin/didenko/mdc3PlotReq.pl">
 END
 
 
@@ -358,7 +358,7 @@ $graph->set_y_axis_font(gdMediumBoldFont);
 print $graph->plot(\@data);
 }
 
-##### Average number of vertexes
+##### Average number of vertices
 
 elsif ( $plotVal eq "Average_NoVertices") {
  
