@@ -25,7 +25,7 @@ my @dir_year = ("year_1h", "year_2001");
 my @node_dir = ("trs_redhat61", "trs_redhat61_opt","trs_redhat72");
 my @node_daq = ("daq_redhat61", "daq_redhat61_opt","daq_redhat72"); 
 my @hc_dir = ("hc_lowdensity", "hc_standard", "hc_highdensity", "peripheral","pp_minbias","ppl_minbias");
-my @daq_dir = ("minbias", "central", "ppMinBias");
+my @daq_dir = ("minbias", "central", "ppMinBias","embedding");
 
 my @OUT_DIR;
 my @OUTD_DIR;
@@ -622,6 +622,9 @@ foreach  $eachOutNDir (@OUT_DIR) {
       }
      elsif($EvTp eq "ppMinBias") {
         $EvReq = 700;
+      }
+     elsif($EvTp eq "embedding") {
+        $EvReq = 10;
       }
 #       else {
 #      @prt = split(/\./,$bsname);
