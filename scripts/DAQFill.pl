@@ -11,6 +11,10 @@
 use lib "/afs/rhic/star/packages/scripts/";
 use RunDAQ;
 
+# Mode 1 will quit
+$mode = 1;
+$mode = 0 if ( defined($ARGV[0]) );
+
 # We add an infinit loop around so the table will be filled
 # as we go.
 do {
@@ -24,7 +28,7 @@ do {
 	    #print "R-Database opened\n";
 	    
 	    # get the top run
-	    $run = rdaq_last_run($dbObj);
+	    $run = $mode*rdaq_last_run($dbObj);
 	    
 	    # fetch new records since that run number
 	    @records = rdaq_raw_files($obj,$run);
@@ -49,6 +53,6 @@ do {
 	print "Failed to open O-Database on ".localtime()."\n";
     }
 
-    sleep(60);
-} while(1);
+    sleep(60*$mode);
+} while(1*$mode);
 
