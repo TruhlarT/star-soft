@@ -14,25 +14,55 @@
 
 use CGI;
 
-require "/afs/rhic/star/packages/dev/mgr/dbCpProdSetup.pl";
+require "/afs/rhic/star/packages/scripts/dbCpProdSetup.pl";
 
 use Math::BigFloat;
 use Class::Struct;
 
 my $debugOn=0;
 
-my @prodPer = ("mdc1", "mdc2", "postmdc2", "prod4", "prod5", "mdc3", "prod6", "P00hi", "MDC4");
+my @prodPer;
+my $nprodPer;
 my %prodFlag = ();
-
+my $mOpt;
+my $mform;
 
 $query = new CGI;
 
 $mcSet   =  $query->param('SetMC');
+$mOpt  = $query->param('qSum');
+$mform = $query->param('form');
 
-my @Nchain = ("tfs","tss","trs");
+my @Nchain = ("tfs","trs");
 my $prodCh; 
 my @prChain;
 my $kk = 0;
+my $myprod;
+
+&StDbProdConnect();
+
+my $jobFile = $mcSet;
+   $jobFile =~ s/\//_/g;
+
+$sql="SELECT DISTINCT prodSeries FROM JobStatus where jobfileName like '$jobFile%' ";
+
+   $cursor =$dbh->prepare($sql)
+      || die "Cannot prepare statement: $DBI::errstr\n";
+   $cursor->execute;
+
+    while(@fields = $cursor->fetchrow) {
+      my $cols=$cursor->{NUM_OF_FIELDS};
+
+    for($i=0;$i<$cols;$i++) {
+       my $fvalue=$fields[$i];
+       my $fname=$cursor->{NAME}->[$i];
+       print "$fname = $fvalue\n" if $debugOn;
+
+       $myprod = $fvalue  if($fname eq 'prodSeries'); 
+       }
+        $prodPer[$nprodPer] = $myprod;
+         $nprodPer++;
+      }
 
 for( $ll = 0; $ll<scalar( @prodPer); $ll++) {
   for( $ii = 0; $ii<scalar(@Nchain); $ii++) {
@@ -63,7 +93,8 @@ struct ChainAttr => {
        chOpt     => '$',
        libVr     => '$',
 		    };
-       
+
+ if($mOpt eq "summary") {      
 
 #####  Find sets in DataSet table
 
@@ -86,8 +117,6 @@ struct ChainAttr => {
 
 #####  connect to RunLog DB
 
-&StDbProdConnect();
-
 my $nmfile;
 
 #####  select DST files from FileCatalog
@@ -100,7 +129,6 @@ my @geantFiles;
 my $ngeantFile = 0;
 my @hpssDstFiles;
 my $nhpssDstFiles = 0;
-
 
 
  $sql="SELECT $FileCatalogT.jobID as fjobID, dataset, fName, size, path, Nevents, $JobStatusT.JobID as jjobID, prodSeries,chainName FROM $FileCatalogT, $JobStatusT WHERE dataset = '$mcSet' AND type = 'MC_reco' AND hpss ='Y' AND $FileCatalogT.jobID = $JobStatusT.JobID ";
@@ -152,8 +180,6 @@ my $chainN;
 
 	if ($dchName =~ /tfs/) {
          $chainN = "tfs";
-      } elsif($dchName =~ /tss/) {
-         $chainN = "tss";
        }elsif($dchName =~ /trs/) {
          $chainN = "trs";
        }
@@ -245,7 +271,7 @@ my $chainN;
 
 &cgiSetup();
 
-print $query->start_html('Prodcution Summmary');
+print $query->start_html('Production Summmary');
 
 print <<END;
 <META HTTP-EQUIV="Expires" CONTENT="0">
@@ -301,12 +327,11 @@ for ($ii = 0; $ii<scalar(@prChain); $ii++) {
     next;
   }
  }
-
 #####  finished with database
  &StDbProdDisconnect();
 
   &endHtml();
-
+}elsif
 exit 0;
 #######################
 
@@ -323,7 +348,6 @@ print <<END;
 <td HEIGHT=80><h3>$TdstHpSize{$mprSer}</h3></td>
 <td HEIGHT=80><h3>$TevtHpSize{$mprSer}</h3></td>
 <td HEIGHT=80><h3>$TgntHpSize{$mprSer}</h3></td>
-<td HEIGHT=80><h3>$TxdfHpSize{$mprSer}</h3></td>
 </TR>
 END
 
@@ -347,7 +371,6 @@ print <<END;
 <TD ALIGN=CENTER WIDTH=\"10%\" HEIGHT=100><B>Size(GB) of dst.root files</B></TD>
 <TD ALIGN=CENTER WIDTH=\"10%\" HEIGHT=100><B>Size(GB) of event.root files</B></TD>
 <TD ALIGN=CENTER WIDTH=\"10%\" HEIGHT=100><B>Size(GB) of geant.root files</B></TD>
-<TD ALIGN=CENTER WIDTH=\"10%\" HEIGHT=100><B>Size(GB) of .xdf files</B></TD>
 </TR> 
 END
 }
