@@ -98,7 +98,7 @@ require  5.008;
 
 require  Exporter;
 @ISA   = qw(Exporter);
-@EXPORT= qw( connect destroy
+@EXPORT= qw( connect destroy get_dbh
 	     set_context set_optional_context get_context clear_context
 	     get_keyword_list
 	     set_delimeter get_delimeter
@@ -107,9 +107,10 @@ require  Exporter;
 
 	     run_query
 	     close_location
-	     delete_records update_location update_record 
+	     delete_records update_location update_record
 
 	     check_ID_for_params insert_dictionary_value
+	     get_detectors
 
 	     debug_on debug_off message_class
 	     Require Version
@@ -120,7 +121,7 @@ require  Exporter;
 
 
 use vars qw($VERSION);
-$VERSION   =   "V01.280";
+$VERSION   =   "V01.291";
 
 # The hashes that hold a current context
 my %optoperset;
@@ -146,9 +147,9 @@ my @DCMD;
 # db information
 my $DSITE     =   undef;
 my $XMLREF    =   undef;
-my $dbname    =   "FileCatalog_BNL";
-my $dbhost    =   "duvall.star.bnl.gov";
-my $dbport    =   "3336";
+my $dbname    =   "FileCatalog_BNL";   # Defaults were
+my $dbhost    =   "";                  # "duvall.star.bnl.gov";
+my $dbport    =   "";                  # "3336";
 my $dbuser    =   "FC_user";
 my $dbpass    =   "FCatalog";
 my $DBH;
@@ -204,6 +205,10 @@ $keywrds{"stid"          }    =   "storageTypeID"             .",StorageTypes"  
 $keywrds{"rstid"         }    =   "storageTypeID"             .",FileLocations"          .",0" .",num"  .",0" .",1" .",0";
 $keywrds{"ssid"          }    =   "storageSiteID"             .",StorageSites"           .",0" .",num"  .",0" .",0" .",0";
 $keywrds{"rssid"         }    =   "storageSiteID"             .",FileLocations"          .",0" .",num"  .",0" .",1" .",0";
+$keywrds{"dcid"          }    =   "detectorConfigurationID"   .",DetectorConfigurations" .",0" .",num"  .",0" .",1" .",0";
+$keywrds{"rdcid"         }    =   "detectorConfigurationID"   .",RunParams"              .",0" .",num"  .",0" .",1" .",0";
+$keywrds{"dsid"          }    =   "detectorStateID"           .",DetectorStatess"        .",0" .",num"  .",0" .",1" .",0";
+$keywrds{"rdsid"         }    =   "detectorStateID"           .",RunParams"              .",0" .",num"  .",0" .",1" .",0";
 
 # *** Those should be documented
 $keywrds{"filetype"      }    =   "fileTypeName"              .",FileTypes"              .",1" .",text" .",0" .",1" .",1";
@@ -254,7 +259,10 @@ $keywrds{"geometry"      }    =   "detectorConfigurationName" .",DetectorConfigu
 $keywrds{"runnumber"     }    =   "runNumber"                 .",RunParams"              .",1" .",num"  .",0" .",1" .",1";
 $keywrds{"runcomments"   }    =   "runComments"               .",RunParams"              .",0" .",text" .",0" .",1" .",1";
 $keywrds{"collision"     }    =   "collisionEnergy"           .",CollisionTypes"         .",1" .",text" .",0" .",1" .",1";
-$keywrds{"datetaken"     }    =   "dataTakingStart"           .",RunParams"              .",0" .",date" .",0" .",1" .",1";
+$keywrds{"datastarts"    }    =   "dataTakingStart"           .",RunParams"              .",0" .",date" .",0" .",1" .",1";
+$keywrds{"dataends"      }    =   "dataTakingEnd"             .",RunParams"              .",0" .",date" .",0" .",1" .",1";
+$keywrds{"daynumber"     }    =   "dataTakingDay"             .",RunParams"              .",0" .",num"  .",0" .",1" .",1";
+$keywrds{"year"          }    =   "dataTakingYear"            .",RunParams"              .",0" .",num"  .",0" .",1" .",1";
 $keywrds{"magscale"      }    =   "magFieldScale"             .",RunParams"              .",1" .",text" .",0" .",1" .",1";
 $keywrds{"magvalue"      }    =   "magFieldValue"             .",RunParams"              .",0" .",num"  .",0" .",1" .",1";
 $keywrds{"filename"      }    =   "filename"                  .",FileData"               .",1" .",text" .",0" .",1" .",1";
@@ -287,6 +295,9 @@ $keywrds{"path"          }    =   "filePathName"              .",FilePaths"     
 #$keywrds{"Xnode"         }    =   "hostName"                  .",Hosts"                  .",0" .",text" .",0" .",0". ",0";
 $keywrds{"node"         }     =   "hostName"                  .",Hosts"                  .",0" .",text" .",0" .",0". ",0";
 
+# old keyword made obsolete
+$obsolete{"datetaken"} = "dtstart";
+
 
 # The detector configuration can be extended as needed
 # > alter table DetectorConfigurations ADD dEEMC TINYINT AFTER dEMC;
@@ -294,14 +305,14 @@ $keywrds{"node"         }     =   "hostName"                  .",Hosts"         
 #
 # + definition here and insert_detector_configuration()
 # and we are Ready to go for a new column
-#  
-# DETECTORS array correspond the fields in DetectorConfigurations table. 
+#
+# DETECTORS array correspond the fields in DetectorConfigurations table.
 # This will make extension easier. For a keyword 'xxx', a field 'dXXX'
 # must exist in the db table.
 # Auto-initialization of keywords will do the equivalent of the above
 # for xxx=tpc. See _initialize() for how this is auto-set.
 # $keywrds{"tpc"           }    =   "dTPC"                      .",DetectorConfigurations" .",1" .",num"  .",0" .",1" .",1";
-my @DETECTORS=("tpc","svt","tof","emc","eemc","fpd","ftpc","pmd","rich","ssd","bbc","bsmd","esmd");
+my @DETECTORS=("tpc","svt","tof","emc","eemc","fpd","ftpc","pmd","rich","ssd","bbc","bsmd","esmd","zdc","ctb");
 
 
 
@@ -371,12 +382,13 @@ $datastruct[8]  = ( "FileTypes"              . ",FileData"            . ",fileTy
 $datastruct[9]  = ( "RunParams"              . ",FileData"            . ",runParamID"              . ",3" . ",0");
 $datastruct[10] = ( "RunTypes"               . ",RunParams"           . ",runTypeID"               . ",4" . ",1");
 $datastruct[11] = ( "DetectorConfigurations" . ",RunParams"           . ",detectorConfigurationID" . ",4" . ",0");
-$datastruct[12] = ( "CollisionTypes"         . ",RunParams"           . ",collisionTypeID"         . ",4" . ",0");
-$datastruct[13] = ( "TriggerSetups"          . ",RunParams"           . ",triggerSetupID"          . ",4" . ",1");
-$datastruct[14] = ( "SimulationParams"       . ",RunParams"           . ",simulationParamsID"      . ",4" . ",0");
-$datastruct[15] = ( "EventGenerators"        . ",SimulationParams"    . ",eventGeneratorID"        . ",5" . ",1");
-$datastruct[16] = ( "FileLocations"          . ","                    . ","                        . ",1" . ",0");
-$datastruct[17] = ( "TriggerCompositions"    . ","                    . ","                        . ",1" . ",0");
+$datastruct[12] = ( "DetectorStates"         . ",RunParams"           . ",detectorStateID"         . ",4" . ",0");
+$datastruct[13] = ( "CollisionTypes"         . ",RunParams"           . ",collisionTypeID"         . ",4" . ",0");
+$datastruct[14] = ( "TriggerSetups"          . ",RunParams"           . ",triggerSetupID"          . ",4" . ",1");
+$datastruct[15] = ( "SimulationParams"       . ",RunParams"           . ",simulationParamsID"      . ",4" . ",0");
+$datastruct[16] = ( "EventGenerators"        . ",SimulationParams"    . ",eventGeneratorID"        . ",5" . ",1");
+$datastruct[17] = ( "FileLocations"          . ","                    . ","                        . ",1" . ",0");
+$datastruct[18] = ( "TriggerCompositions"    . ","                    . ","                        . ",1" . ",0");
 
 
 #%FC::FLRELATED;
@@ -389,7 +401,7 @@ my @operators;
 $operators[0] = "<=";
 $operators[1] = ">=";
 $operators[2] = "<>";
-$operators[3] = "!="; # this operator mysteriously work as well
+$operators[3] = "!="; # this operator mysteriously works in MySQL as well
 $operators[4] = "=="; # this operator is fake
 $operators[5] = "!~";
 $operators[6] = "=";
@@ -400,6 +412,7 @@ $operators[10]= "<";
 $operators[11]= "~";
 $operators[12]= "%%";
 $operators[13]= "%";
+
 
 
 
@@ -623,7 +636,8 @@ sub _initialize
     #
     my($det);
     foreach $det (@DETECTORS){
-	$keywrds{lc($det)} = "d".uc($det)                    .",DetectorConfigurations" .",1" .",num"  .",0" .",1" .",1";
+	$keywrds{lc($det)}      = "d".uc($det)              .",DetectorConfigurations" .",1" .",num"  .",0" .",1" .",1";
+	$keywrds{lc($det)."OK"} = "s".uc($det)              .",DetectorStates"         .",1" .",num"  .",0" .",1" .",0";
     }
 
 
@@ -970,6 +984,14 @@ sub connect
     }
 }
 
+# dangerous external db handler manipulation perspectives
+# for experts only
+sub get_dbh
+{
+    if ($DBH){ return $DBH;}
+    else     { return 0;}
+}
+
 #============================================
 # disentangle keyowrd, operator and value from a context string
 # Params:
@@ -989,7 +1011,7 @@ sub disentangle_param
 
   OPS:
     foreach my $op (@operators ){
-	#&print_debug("disentangle_param","Searching for operator $op");
+	&print_debug("disentangle_param","Searching for operator $op");
 	$op = '\]\[' if ($op eq "][");  # unfortunatly need
 	$op = '\[\]' if ($op eq "[]");  # to be escaped
 
@@ -1034,7 +1056,7 @@ sub _context {
   my $valu;
 
   foreach $params (@_){
-      #  print ("Setting context for: $params \n");
+       # print ("Setting context for: $params \n");
       ($keyw, $oper, $valu) = &disentangle_param($params);
 
       if ( ! defined($keyw) ){
@@ -1415,7 +1437,7 @@ sub insert_dictionary_value {
 	  $retid = &get_last_id();
 	  if ($DEBUG > 0) { &print_debug("insert_dictionary_value","Returning: $retid");}
 	  $sth->finish();
-      } elsif ( $DBH->errstr == 1054) {
+      } elsif ( $DBH->err == 1054) {
 	  # wrong field name
 	  &die_message("insert_dictionary_value","logic error for $tabname ".$DBH->err." >> ".$DBH->errstr);
       } else {
@@ -1446,8 +1468,14 @@ sub get_current_detector_configuration {
   # May be one or the other
   if ( defined($valuset{"geometry"}) ){
       $val = $valuset{"geometry"};
-  } else {
+  } elsif ( defined($valuset{"configuration"}) ){
       $val = $valuset{"configuration"};
+  } else {
+      # Protection for caching. Similar protections have to
+      # happen in the real routine insert_detector_configuration()
+      &print_debug("insert_detector_configuration",
+		   "ERROR: No detector configuration/geometry name given.");
+      return 0;
   }
 
   # This routine introduces caching
@@ -1496,7 +1524,7 @@ sub insert_detector_configuration {
       return 0;
   }
 
-  my ($config,$dtinsert,$dtvalues); 
+  my ($config,$dtinsert,$dtvalues);
   my ($sth);
   my ($el,$retid);
 
@@ -1505,8 +1533,7 @@ sub insert_detector_configuration {
   } else {
       if (! defined $valuset{"configuration"}) {
 	  &print_debug("insert_detector_configuration",
-		       "ERROR: No detector configuration/geometry name given.",
-		       "Cannot add record to the table.");
+		       "ERROR: No detector configuration/geometry name given.");
 	  return 0;
       } else {
 	  $config = $valuset{"configuration"};
@@ -1520,7 +1547,7 @@ sub insert_detector_configuration {
       #print "Trying to split ".$valuset{"configuration"}."\n";
       my @items = split(/\./,$valuset{"configuration"});
       foreach $el (@items){
-	  # the keyword is defined in the 'configuration' but no value
+	  # The keyword is defined in the 'configuration' but no value
 	  # Prevent catastrophe and set default to 1.
 	  if ( defined($keywrds{$el}) ){
 	      if ( ! defined($valuset{$el}) ){
@@ -1533,8 +1560,8 @@ sub insert_detector_configuration {
   }
 
   # Auto-construct the full stuff based on content of @DETECTORS
-  # Note that although it that the orderdoes not  matter, MySQL 
-  # does not care at all (as far as consistency dXXX and associated 
+  # Note that the order does not  matter, MySQL
+  # does not care at all (as far as consistency dXXX and associated
   # value is consistent).
   $dtinsert = "INSERT IGNORE INTO DetectorConfigurations (detectorConfigurationName";
   $dtvalues = " VALUES ('".$config."'";
@@ -1562,6 +1589,16 @@ sub insert_detector_configuration {
   return $retid;
 }
 
+sub get_detectors { return @DETECTORS;}
+
+#
+# Not equivalent to detectorConfigurations which do not
+# repeat themselves.
+#
+#sub get_current_detector_state
+#{
+#    return 0;
+#}
 
 
 #============================================
@@ -1793,9 +1830,12 @@ sub insert_run_param_info {
   my $collisionType;
   my $runType;
   my $detConfiguration;
+  my $detState;
   my $comment;
   my $start;
   my $end;
+  my $year;
+  my $day;
   my $collision;
   my $simulation;
   my $magvalue;
@@ -1809,6 +1849,7 @@ sub insert_run_param_info {
   $triggerSetup     = &check_ID_for_params("trgsetupname");
   $runType          = &check_ID_for_params("runtype");
   $detConfiguration = &get_current_detector_configuration();
+  $detState         = 0;  # &get_current_detector_state();
 
 
   #
@@ -1868,13 +1909,42 @@ sub insert_run_param_info {
   } else {
     $magvalue = $valuset{"magvalue"};
   }
-  if (! defined $valuset{"datetaken"}) {
-    $start = "NULL";
-    $end   = "NULL";
+
+  # all related to date and day
+  if (! defined $valuset{"datastarts"} ) {
+      $start = "NULL";
   } else {
-    $start = "\"".$valuset{"datetaken"}."\"";
-    $end   = "\"".$valuset{"datetaken"}."\"";
+      $start = "\"".$valuset{"datestarts"}."\"";
   }
+  if (! defined $valuset{"dataends"} ) {
+      $end   = "NULL";
+  } else {
+      $end   = "\"".$valuset{"dataends"}."\"";
+  }
+
+  # note that the above are autoset
+  if (! defined $valuset{"daynumber"} ) {
+      my($y,$d) = &get_date_numbers($valuset{"runnumber"});
+      if ( defined($d) ){
+	  $day = $d;
+      } else {
+	  $day = 0;
+      }
+  } else {
+      $day   = $valuset{"daynumber"};
+  }
+  if (! defined $valuset{"year"} ) {
+      my($y,$d) = &get_date_numbers($valuset{"runnumber"});
+      if ( defined($y) ){
+	  $year = $d;
+      } else {
+	  $year = 0;
+      }
+  } else {
+      $year   = $valuset{"year"};
+  }
+
+
   if ((defined $valuset{"simulation"}) && (! ($valuset{"simulation"} eq '0') ) ) {
       &print_debug("insert_run_param_info","Adding simulation data.");
       $simulation = &get_current_simulation_params();
@@ -1886,8 +1956,8 @@ sub insert_run_param_info {
   my $rpinsert;
 
   $rpinsert   = "INSERT IGNORE INTO RunParams ";
-  $rpinsert  .= "(runNumber, dataTakingStart, dataTakingEnd, triggerSetupID, collisionTypeID, simulationParamsID, runTypeID, detectorConfigurationID, runComments, magFieldScale, magFieldValue)";
-  $rpinsert  .= " VALUES (".$valuset{"runnumber"}.",$start,$end,$triggerSetup,$collision,$simulation,$runType,$detConfiguration,$comment,'".$valuset{"magscale"}."',$magvalue)";
+  $rpinsert  .= "(runNumber, dataTakingStart, dataTakingEnd, dataTakingDay, dataTakingYear, triggerSetupID, collisionTypeID, simulationParamsID, runTypeID, detectorConfigurationID, detectorStateID, runComments, magFieldScale, magFieldValue)";
+  $rpinsert  .= " VALUES (".$valuset{"runnumber"}.",$start,$end,$year,$day,$triggerSetup,$collision,$simulation,$runType,$detConfiguration,$detState,$comment,'".$valuset{"magscale"}."',$magvalue)";
   if ($DEBUG > 0) {  &print_debug("insert_run_param_info","Execute $rpinsert");}
 
 
@@ -1907,6 +1977,27 @@ sub insert_run_param_info {
   }
   return $retid;
 }
+
+
+# This function is terribly STAR-specific
+# Returns year, dayInYear
+sub get_date_numbers
+{
+    if ($_[0] =~ m/FileCatalog/) {  shift @_;}
+    my($run)=@_;
+    my($year,$day)=(0,0);
+
+    if ( ! defined($run) ) { return undef;}  # undef
+    if ( $run !~ m/^\d+$/) { return undef;}  # a string ?
+    if ( $run =~ m/(\d)(\d{3,})(\d{3,})/){
+	$year= $1; $year+= 1999;
+	$day = $2;
+	return ($year,$day);
+    } else {
+	return undef;
+    }
+}
+
 
 #============================================
 # get the ID for the current run number
@@ -1945,6 +2036,7 @@ sub insert_file_data {
   my $fileComment;
   my $fileSeq;
   my $filestream;
+  my $md5sum;
   my @triggerWords;
   my @eventCounts;
   my @triggerIDs;
@@ -2006,12 +2098,17 @@ sub insert_file_data {
   } else {
       $nevents = $valuset{"events"};
   }
+  if (! defined $valuset{"md5sum"}) {
+      $md5sum = 0;
+  } else {
+      $md5sum = "\"".$valuset{"md5sum"}."\"";
+  }
 
 
   # Prepare the SQL query and execute it
   my $fdinsert   = "INSERT IGNORE INTO FileData ";
-  $fdinsert  .= "(runParamID, fileName, productionConditionID, numEntries, fileTypeID, fileDataComments, fileSeq, fileStream)";
-  $fdinsert  .= " VALUES ($runNumber, \"".$valuset{"filename"}."\",$production, $nevents, $fileType,$fileComment,$fileSeq,$filestream)";
+  $fdinsert  .= "(runParamID, fileName, productionConditionID, numEntries, md5sum, fileTypeID, fileDataComments, fileSeq, fileStream)";
+  $fdinsert  .= " VALUES ($runNumber, \"".$valuset{"filename"}."\",$production, $nevents, $md5sum, $fileType,$fileComment,$fileSeq,$filestream)";
   if ($DEBUG > 0) { &print_debug("insert_file_data","Execute $fdinsert");}
 
 
@@ -2139,7 +2236,8 @@ sub set_trigger_composition
     # Loop over and check/insert
     $cnt = -1;
     for ($i=0 ; $i <= $#FC::TRGNAME ; $i++){
-	print "Should insert $FC::TRGNAME[$i] $FC::TRGWORD[$i] $FC::TRGVERS[$i] $FC::TRGDEFS[$i] $FC::TRGCNTS[$i]\n";
+	&print_debug("set_trigger_composition",
+		     "Should insert $FC::TRGNAME[$i] $FC::TRGWORD[$i] $FC::TRGVERS[$i] $FC::TRGDEFS[$i] $FC::TRGCNTS[$i]");
 	if ( $sth1->execute($FC::TRGNAME[$i],$FC::TRGWORD[$i],$FC::TRGVERS[$i]) ){
 	    if ( @all = $sth1->fetchrow() ){
 		# Already in, fetch
@@ -2164,8 +2262,8 @@ sub set_trigger_composition
 			 $DBH->err." >> ".$DBH->errstr);
 	}
     }
-    $sth1->finish;
-    $sth2->finish;
+    $sth1->finish();
+    $sth2->finish();
 
 
 
@@ -2200,7 +2298,7 @@ sub set_trigger_composition
 		    &print_debug("set_trigger_composition","$cmdd , $tcfdid, $el");
 		    $sthd->execute($tcfdid,$el);
 		}
-		$sthd->finish;
+		$sthd->finish();
 
 	    } else {
 		&print_message("set_trigger_composition","Update not yet implemented");
@@ -2220,8 +2318,8 @@ sub set_trigger_composition
 
 	}
     }
-    $sth1->finish;
-    $sth2->finish;
+    $sth1->finish();
+    $sth2->finish();
 
 
     # Entries are NOT re-usable (would be too dangerous)
@@ -2260,7 +2358,7 @@ sub del_trigger_composition
 		&print_message("del_trigger_composition",
 			       "Execute failed. Bootstrap TRGC needed.");
 	    }
-	    $sth->finish;
+	    $sth->finish();
 	}
     } else {
 	&print_message("del_trigger_composition",
@@ -4023,7 +4121,14 @@ sub TreatLOps
 		$val = "'$val'";
 	    }
 	} elsif ($flag == 2){
-	    $val = "'$val'";
+	    if ($val eq "NULL"){
+		$connect = "";
+		$op      = "IS";
+		$val     = "NULL";
+		$qq      = "";
+	    } else {
+		$val = "'$val'";
+	    }
 	} elsif ($flag == 3){
 	    $val = "'%$val%'";
 	} elsif ($flag == 4){
@@ -4522,7 +4627,7 @@ sub update_record {
   if ( $ufield =~ m/(.*)(ID)/ ){
       my $idnm=$1;
       if ( index(lc($utable),lc($idnm)) != -1 ){
-  	  &print_message("update_record","Changing $ufield in $utable not allowed\n");
+  	  &print_message("update_record","Changing $ufield in $utable is not allowed\n");
   	  # btw, if you do this, you are screwed big time ... because you
   	  # lose the cross table associations.
   	  return 0;
@@ -4543,8 +4648,12 @@ sub update_record {
       # clause.
       if (($table eq $utable) && ($field ne $ufield)){
 	  if (defined($valuset{$key})){
-	      if (&get_field_type($key) eq "text"){
-		  push (@updates, "$table.$field = '".$valuset{$key}."'");
+	      if (&get_field_type($key) eq "text" ){
+		  if ( $valuset{$key} eq "NULL"){
+		      push (@updates, "$table.$field IS NULL");
+		  } else {
+		      push (@updates, "$table.$field = '".$valuset{$key}."'");
+		  }
 	      } else {
 		  push (@updates, "$table.$field = ".$valuset{$key});
 	      }
@@ -4571,6 +4680,11 @@ sub update_record {
 
 
 
+  # Some extra debug here to be sure
+  #&print_debug("update_record",
+  #"$ukeyword,$utable.$ufield xcond=$xcond whereclause=$whereclause");
+
+
   if ($utable eq ""){
       &print_debug("update_record",
 		   "ERROR: $ukeyword does not have an associated table",
@@ -4584,7 +4698,16 @@ sub update_record {
       $qselect = "SELECT $utable.$ufield FROM $utable WHERE $utable.$ufield = '$newvalue'";
       $qupdate = "UPDATE LOW_PRIORITY $utable SET $utable.$ufield = '$newvalue' ";
       if( defined($valuset{$ukeyword}) ){
-	  $qupdate .= " WHERE $utable.$ufield = '$valuset{$ukeyword}'";
+	  if ( $valuset{$ukeyword} eq $newvalue){
+	      &print_message("update_record",
+			     "Attempting to set keyword [$ukeyword] to identical initial value $newvalue");
+	      return 0;
+	  }
+	  if ( $valuset{$ukeyword} eq "NULL"){
+	      $qupdate .= " WHERE $utable.$ufield IS NULL";
+	  } else {
+	      $qupdate .= " WHERE $utable.$ufield = '$valuset{$ukeyword}'";
+	  }
       } else {
 	  &print_message("update_record",
 			 "$ukeyword not set with an initial value (giving up)");
@@ -4595,6 +4718,11 @@ sub update_record {
       $qselect = "SELECT $utable.$ufield FROM $utable WHERE $utable.$ufield = $newvalue";
       $qupdate = "UPDATE LOW_PRIORITY $utable SET $utable.$ufield = $newvalue ";
       if( defined($valuset{$ukeyword}) ){
+	  if ( $valuset{$ukeyword} == $newvalue){
+	      &print_message("update_record",
+			     "Attempting to set keyword [$ukeyword] to identical initial value $newvalue");
+	      return 0;
+	  }
 	  $qupdate .= " WHERE $utable.$ufield = $valuset{$ukeyword}";
       } else {
 	  &print_message("update_record",
@@ -4668,7 +4796,7 @@ sub update_record {
 	      &print_debug("update_record","Failed to prepare [$qupdate]");
 	  } else {
 	      if ( $sth->execute() ){
-		  $retv = 1;
+		  $retv = $sth->rows;
 	      } else {
 		  &print_message("update_record","update failed with error=".
 				 $DBH->err." >> ".$DBH->errstr);
@@ -4871,12 +4999,16 @@ sub update_location {
       if (defined($valuset{$key})){
 	  &print_debug("update_location","+ key=[$key] for table=$table");
 	  if ( (($table eq $mtable) && ($field ne $ufield))  ||
-	       (($table eq $utable))  
+	       (($table eq $utable))
 	       ){
 	      if ( $operset{$key} =~ m/^=/ ){
 		  &print_debug("update_location","Accepting operator = for [$key]");
-		  if (&get_field_type($key) eq "text"){
-		      push (@updates, "$table.$field = '".$valuset{$key}."'");
+		  if (&get_field_type($key) eq "text" ){
+		      if ( $valuset{$key} eq "NULL"){
+			  push (@updates, "$table.$field IS NULL");
+		      } else {
+			  push (@updates, "$table.$field = '".$valuset{$key}."'");
+		      }
 		  } else {
 		      push (@updates, "$table.$field = ".$valuset{$key});
 		  }
@@ -4910,28 +5042,40 @@ sub update_location {
       # Patch ... The above logic is true only for
       # tables like FileData/FileLocation but not true for others
       # Note that we should not test FDRELATED in this case ...
+      &print_debug("update_location","Case FLRELATED");
       my $uid    = &get_id_from_dictionary($utable,$ufield,$newvalue);
       $ukeyword  = &_IDize("update_location",$utable);
       #$qselect = "SELECT $ukeyword FROM $mtable WHERE $ukeyword=$uid";
-      $qdelete = "DELETE LOW_PRIORITY FROM $utable " ;
-      $qupdate = "UPDATE LOW_PRIORITY $utable SET $ukeyword=$uid ";
+      $qdelete = "DELETE LOW_PRIORITY FROM $mtable " ;
+      $qupdate = "UPDATE LOW_PRIORITY $mtable SET $mtable.$ukeyword=$uid ";
 
-      if ($whereclause ne ""){
-	  $qupdate .= " AND $whereclause";
-      }
+      #if( defined($valuset{$ukeyword}) ){
+      #$qupdate .= " WHERE $mtable.$ukeyword=?";
+      #}
+
+      # overwite the value of utable in this case as we have
+      # all indices now and can work ONLY on mtable (the one related
+      # to ukeyword)
+      $utable = $mtable;
 
       # THOSE ONLY UPDATES VALUES
-  } elsif (&get_field_type($ukeyword) eq "text"){
+  } elsif (&get_field_type($ukeyword) eq "text" ){
+      &print_debug("update_location","Case filed_type is text");
       #$qselect = "SELECT $ukeyword FROM $mtable WHERE $ufield='$newvalue'";
       $qdelete = "DELETE LOW_PRIORITY FROM $utable" ;
       $qupdate = "UPDATE LOW_PRIORITY $utable SET $utable.$ufield = '$newvalue' ";
       if( defined($valuset{$ukeyword}) ){
-	  $qupdate .= " WHERE $utable.$ufield = '$valuset{$ukeyword}'";
+	  if ( $valuset{$ukeyword} eq "NULL"){
+	      $qupdate .= " WHERE $utable.$ufield IS NULL";
+	  } else {
+	      $qupdate .= " WHERE $utable.$ufield = '$valuset{$ukeyword}'";
+	  }
       } else {
 	  &print_debug("update_location"," (text)  $ukeyword ($ufield) not set with an initial value");
 	  #return 0;
       }
   } else {
+      &print_debug("update_location","Case any-other-case");
       #$qselect = "SELECT $ufield FROM $mtable WHERE $ufield=$newvalue" ;
       $qdelete = "DELETE LOW_PRIORITY FROM $utable" ;
       $qupdate = "UPDATE LOW_PRIORITY $utable SET $utable.$ufield = $newvalue ";
@@ -5082,8 +5226,8 @@ sub get_value
 
 
 #============================================
-sub message_class { 
-    if ($_[0] =~ m/FileCatalog/) {  shift @_;} 
+sub message_class {
+    if ($_[0] =~ m/FileCatalog/) {  shift @_;}
     my($cl)=@_;
     $PCLASS = $cl;
 }
@@ -5110,7 +5254,7 @@ sub set_debug {
     if ($_[0] =~ m/FileCatalog/) {  shift @_;}
 
     my ($d)=@_;
-    $DEBUG = $d;
+    $DEBUG = defined($d)?$d:1;
     $DEBUG;
 }
 
@@ -5120,8 +5264,8 @@ sub print_debug
     my($line);
 
     return if ($DEBUG==0);
-    if ($PCLASS ne ""){ 
-	if ( lc($head) !~ m/$PCLASS/i){  
+    if ($PCLASS ne ""){
+	if ( lc($head) !~ m/$PCLASS/i){
 	    #print "$head do not match class $PCLASS\n";
 	    return;
 	}
@@ -5196,7 +5340,7 @@ sub destroy {
 #
 # Just as a side note, if caching is enabled (which it is)
 # it is unsafe to run bootstraps too often (other processes
-# may be caching values you are deleting). The window of 
+# may be caching values you are deleting). The window of
 # oportunity is as small as the time for one insert in MySQL
 # but nonetheless, not 0.
 #
