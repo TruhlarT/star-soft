@@ -668,6 +668,7 @@ foreach  $eachOutNDir (@OUT_DIR) {
   
                if ( $jfpath eq $lgFile ) {
 
+            next if( !defined $idHash{$jfpath} );
               $idHash{$fullname} = $idHash{$jfpath};
 
      print "jobs ID:  ", $idHash{$fullname}," % ",$fullname," % ",$jfpath," % ",$idHash{$jfpath}, "\n";
