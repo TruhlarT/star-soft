@@ -8301,7 +8301,7 @@ C   - combined DETM + Reconstruction bank access variables - AGI version
 *KEND.
    INTEGER          Nbp,IP1STACK,    IP2STACK,    IEND,IDSTACK
    COMMON /RBSTACK/ Nbp,IP1STACK(20),IP2STACK(20),IEND,IDSTACK(20)
-   character           ccc*24,cc*24,typ*1,tp*1,cna*8,cnt*4,format*80
+   character           ccc*24,cc*24,typ*1,tp*1,cna*8,cnt*12,format*80
    common /agcstaftab/ ccc(500)
    common /agcstaffor/ ndtab,nctab,format
  
@@ -8451,9 +8451,9 @@ If IrBDIV==IxCONS & ID>0 & JBIT(IQ(Lk),1)==0 & Ie==0
       else     { tp=Names(i1); Cna=Names(i1)(3:); m1=map(1,i1); m2=map(2,i1) }
       n3=0; do i=2,nctab
          cc=ccc(i);  Call CLTOU(cc);
-         {n1,n2}=1;  {cnt,typ}=' ';
+         {n1,n2}=1;  typ=' ';  cnt='0 0'
          j=INDEX(cc,'[');  if (j==0) j=INDEX(cc,';')
-         k=INDEX(cc,']');  if (k >j) cnt=cc(j+1:k-1)
+         k=INDEX(cc,']');  if (k >j) cnt=cc(j+1:k-1)//' 0 0 '
          read (cnt,*,err=:n:) n1,n2; :n:;
          if (cc(3:3)=='C' & n2==1) n1/=4 " byte counter";
          If Cna=cc(11:j-1) { typ=cc(3:3);  Break; }
