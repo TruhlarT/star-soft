@@ -109,7 +109,7 @@ print "<h3 align=center>Select name of dataset:</h3>";
 print "<h4 align=center>";
 print $query->scrolling_list(-name=>'set1',
                    -values=>\@sets_name,
-                   -size=>8); 
+                   -size=>10); 
 
  
 print <<END;
@@ -121,7 +121,7 @@ print "<h3 align=center> Select plot:</h3>";
 print "<h4 align=center>";
 print $query->scrolling_list(-name=>'plotVal',
                    -values=>\@myplot,
-                   -size =>3); 
+                   -size =>4); 
 
 print <<END;
 </SELECT><br>
