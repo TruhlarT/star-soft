@@ -849,7 +849,7 @@ sub DisplayFilesAndReports{
     foreach my $file (@root_crash){  
       $self->PrintFilestring("Root crash", $file);
     }
-
+    
     $self->PrintFilestring("Batch log", $batchlog);
     
   };

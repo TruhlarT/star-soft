@@ -68,7 +68,8 @@ sub run_root{
 
 #----
 
-  print SCRIPT "/afs/rhic/star/packages/DEV00/.i386_redhat61/bin/root4star -b <<END >>& /tmp/starlib/biteme \n";
+  print SCRIPT "/afs/rhic/star/packages/DEV00/.i386_redhat61/bin/root4star -b -q<<END \n";
+#>>& /tmp/starlib/biteme \n";
 
   foreach $command (@commands){
     print SCRIPT $command."\n";
@@ -81,18 +82,18 @@ sub run_root{
   chmod 0755, $script;
 
   # pipe both STDOUT and STDERR (see PERL Cookbook 16.7)
-#  open ROOTLOG, "$script 2>&1 |"  or die "can't fork: $!";
-#  @root_log = ();
+  open ROOTLOG, "$script 2>&1 |"  or die "can't fork: $!";
 
-#  while ($line = <ROOTLOG>){
-#    push @root_log, $line;
-#  }
+  @root_log = ();
+  while ($line = <ROOTLOG>){
+    push @root_log, $line;
+  }
   
-#  close ROOTLOG;
+  close ROOTLOG;
 
-  $root_log = `$script  2>&1`;
+#  $root_log = `$script  2>&1`;
 
 #  print "root_log = [$root_log]\n";
-  return split("\n",$root_log);
-
+#  return split("\n",$root_log);
+  return @root_log;
 }

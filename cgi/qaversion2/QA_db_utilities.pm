@@ -643,7 +643,7 @@ sub WriteQAMacroSummary{
   }
   # check if the macro was actually run
   # look for output file - maybe the input file didnt exist
-  elsif (not -e $outputFile)
+  elsif (not -s $outputFile)
   {
     $status     = "not run";
     $errors     = "n/a";
