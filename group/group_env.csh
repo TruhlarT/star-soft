@@ -1,7 +1,10 @@
 #!/usr/bin/csh -f
-#       $Id: group_env.csh,v 1.93 1999/12/27 15:55:43 fisyak Exp $
+#       $Id: group_env.csh,v 1.94 2000/01/21 23:01:04 fisyak Exp $
 #	Purpose:	STAR group csh setup 
 #       $Log: group_env.csh,v $
+#       Revision 1.94  2000/01/21 23:01:04  fisyak
+#       Add KAI for Linux and PARASOFT for Linux and Solaris
+#
 #       Revision 1.93  1999/12/27 15:55:43  fisyak
 #       Fix CC5 PATH
 #
@@ -383,13 +386,11 @@ if ($?MANPATH == 1) then
 else
   setenv MANPATH ${STAR_PATH}/man
 endif
-setenv PARASOFT /afs/rhic/star/packages/parasoft
-setenv MANPATH ${MANPATH}:{$PARASOFT}/man
      setenv OBJY_ARCH  ""
 switch ($STAR_SYS)
     case "rs_aix*":
 #  ====================
-	set path = ($path $PARASOFT/bin.aix4) 
+#	set path = ($path $PARASOFT/bin.aix4) 
         setenv MANPATH {$MANPATH}:/usr/share/man
     breaksw
     case "alpha_osf32c":
@@ -423,10 +424,13 @@ switch ($STAR_SYS)
        setenv LM_LICENSE_FILE $PGI/license.dat
        alias pgman 'man -M $PGI/man'
      endif
+     if (-d /usr/local/KAI/KCC.flex-3.4f-1/KCC_BASE) then
+       setenv KAI /usr/local/KAI/KCC.flex-3.4f-1/KCC_BASE
+       set path = ($KAI/bin $path)
+       
+     endif
      set path = ($path  /usr/local/bin/ddd)
-     set path = ($path $PARASOFT/bin.linux)
      if (! ${?LD_LIBRARY_PATH}) setenv LD_LIBRARY_PATH 
-     setenv LD_LIBRARY_PATH "/usr/lib:${PARASOFT}/lib.linux:/usr/local/lib:${LD_LIBRARY_PATH}"
      if (${?MINE_lib} && ${?STAR_lib}) then
        setenv LD_LIBRARY_PATH "${MINE_lib}:${STAR_lib}:${MINE_LIB}:${STAR_LIB}:${STAF_LIB}:${LD_LIBRARY_PATH}"
      else
@@ -435,12 +439,18 @@ switch ($STAR_SYS)
      endif
      limit coredump 0
      setenv BFARCH Linux2
+     setenv PARASOFT /afs/rhic/i386_linux22/app/parasoft
+     setenv LD_LIBRARY_PATH ${LD_LIBRARY_PATH}:{$PARASOFT}/lib.linux
+     if ( -x /afs/rhic/star/group/dropit) setenv PATH `dropit parasoft`
+     set path = ($path $PARASOFT/bin.linux)
+     setenv MANPATH ${MANPATH}:{$PARASOFT}/man
+
      setenv OBJY_ARCH linux86
     breaksw
     case "sun4*":
 #  ====================
       if (! ${?LD_LIBRARY_PATH}) setenv LD_LIBRARY_PATH
-      setenv LD_LIBRARY_PATH "/usr/openwin/lib:/usr/dt/lib:/usr/local/lib:${PARASOFT}/lib.solaris:/afs/rhic/star/packages/ObjectSpace/2.0m/lib:${LD_LIBRARY_PATH}"
+      setenv LD_LIBRARY_PATH "/usr/openwin/lib:/usr/dt/lib:/usr/local/lib:/afs/rhic/star/packages/ObjectSpace/2.0m/lib:${LD_LIBRARY_PATH}"
       if ("${STAR_HOST_SYS}" == "sun4x_56_CC5") then
         setenv LD_LIBRARY_PATH "${LD_LIBRARY_PATH}:/opt/WS5.0/lib:/opt/WS5.0/SC5.0/lib"
         setenv PATH "/opt/WS5.0/bin:${PATH}"
@@ -466,12 +476,16 @@ switch ($STAR_SYS)
      else
        setenv LD_LIBRARY_PATH "${MINE_LIB}:${STAR_LIB}:${STAF_LIB}:${LD_LIBRARY_PATH}"
      endif
-      set path = ($path $PARASOFT/bin.solaris)
-      setenv BFARCH SunOS5
-      if ("${STAR_HOST_SYS}" == "sun4x_56_CC5") setenv BFARCH SunOS5_CC5
-      setenv OBJY_ARCH solaris4
-      limit coredump 0
-      unlimit descriptors
+     setenv BFARCH SunOS5
+     if ("${STAR_HOST_SYS}" == "sun4x_56_CC5") setenv BFARCH SunOS5_CC5
+     setenv OBJY_ARCH solaris4
+     limit coredump 0
+     unlimit descriptors
+     setenv PARASOFT /afs/rhic/sun4x_56/app/parasoft
+     setenv LD_LIBRARY_PATH ${LD_LIBRARY_PATH}:{$PARASOFT}/lib.solaris
+     if ( -x /afs/rhic/star/group/dropit) setenv PATH `dropit parasoft`
+     set path = ($path $PARASOFT/bin.solaris)
+     setenv MANPATH ${MANPATH}:{$PARASOFT}/man
     breaksw 
     default:
 #  ====================
