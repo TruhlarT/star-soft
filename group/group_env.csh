@@ -1,7 +1,10 @@
 #!/usr/bin/csh -f
-#       $Id: group_env.csh,v 1.85 1999/10/08 18:12:30 fisyak Exp $
+#       $Id: group_env.csh,v 1.86 1999/10/10 21:45:01 fisyak Exp $
 #	Purpose:	STAR group csh setup 
 #       $Log: group_env.csh,v $
+#       Revision 1.86  1999/10/10 21:45:01  fisyak
+#       Take out SGI as supported platform, unify CERN_ROOT variable for different platforms
+#
 #       Revision 1.85  1999/10/08 18:12:30  fisyak
 #       Take out TEXINPUTS from the list of environment variable, add Linux egcs platform
 #
@@ -334,6 +337,7 @@ switch ( $STAR_VERSION )
   default: setenv ROOT_LEVEL 2.13
 endsw
 endif
+setenv CERN_ROOT  $CERN/$CERN_LEVEL
 if ($ECHO) echo   "Setting up ROOT_LEVEL= ${ROOT_LEVEL}"
 setenv GROUPPATH "${GROUP_DIR}:${STAR_MGR}:${STAR_SCRIPTS}:${STAR_BIN}:${STAF}/mgr:${STAF_BIN}"
 if ( -x /afs/rhic/star/group/dropit) then
@@ -377,32 +381,6 @@ switch ($STAR_SYS)
       setenv BFARCH hp_ux102
       limit coredumpsize 0
     breaksw
-    case "sgi_5*":
-#  ====================
-	set path = ($path $PARASOFT/bin.sgi5)
-        if (! ${?LD_LIBRARY_PATH}) setenv LD_LIBRARY_PATH 
-	setenv LD_LIBRARY_PATH "${PARASOFT}/lib.sgi5:${MINE_LIB}:${STAR_LIB}:${STAF_LIB}:${LD_LIBRARY_PATH}"
-        limit coredumpsize 0
-     setenv BFARCH sgi_53
-    breaksw
-    case "sgi_62":
- #  ====================
-	setenv CERN /afs/rhic/asis/sgi_62/cern
-	setenv CERN_ROOT $CERN/pro
-	if (! ${?LD_LIBRARY_PATH}) setenv LD_LIBRARY_PATH 
-	setenv LD_LIBRARY_PATH "${MINE_LIB}:${STAR_LIB}:${STAF_LIB}:${LD_LIBRARY_PATH}"
-        limit coredumpsize 0
-     setenv BFARCH sgi_53
-    breaksw
-   case "sgi_64":
-#  ====================
-        setenv CERN_LEVEL pro
-        setenv CERN_ROOT  /cern/pro
-        if (! ${?LD_LIBRARYN32_PATH}) setenv LD_LIBRARYN32_PATH 
-	setenv LD_LIBRARYN32_PATH "${MINE_LIB}:${STAR_LIB}:${STAF_LIB}:${LD_LIBRARYN32_PATH}"
-        limit coredumpsize 0
-     setenv BFARCH sgi_64
-    breaksw
     case "i386_*":
 #  ====================
 # make sure that afws in the path
@@ -413,11 +391,10 @@ switch ($STAR_SYS)
        setenv MANPATH "$MANPATH":$PGI/man
        setenv LM_LICENSE_FILE $PGI/license.dat
        alias pgman 'man -M $PGI/man'
-       if ("`echo $STAR_VERSION | cut -c3-4`" != "99") then
-           setenv CERN_LEVEL pgf98
-       endif
+#       if ("`echo $STAR_VERSION | cut -c3-4`" != "99") then
+#           setenv CERN_LEVEL pgf98
+#       endif
      endif
-     setenv CERN_ROOT  $CERN/$CERN_LEVEL
      set path = ($path  /usr/local/bin/ddd)
 #                                            /usr/local/DQS318/bin )
 #     if ( -x /usr/local/DQS32/bin/qstat32) then
