@@ -2,7 +2,7 @@
 %
 % StEvent - User Guide and Reference Manual -- LaTeX Source
 %
-% $Id: StEvent.tex,v 2.59 2001/07/19 02:30:31 ullrich Exp $
+% $Id: StEvent.tex,v 2.60 2001/09/07 15:00:07 ullrich Exp $
 %
 % Author: Thomas Ullrich, Nov 1999
 %
@@ -21,6 +21,9 @@
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %
 % $Log: StEvent.tex,v $
+% Revision 2.60  2001/09/07 15:00:07  ullrich
+% Modified description of ZDC ADC values.
+%
 % Revision 2.59  2001/07/19 02:30:31  ullrich
 % Added new methods in StL0Trigger.
 %
@@ -242,8 +245,8 @@
   \mbox{\includegraphics[width=\textwidth]{StEventTitle.eps}}
   \hfill\mbox{}\\[3cm]
   {\LARGE User Guide and Reference Manual \\[5mm] for Version 2}\\[2cm]
-  {\LARGE $ $Revision: 2.59 $ $}  \\[5mm] % replaced by cvs with current revision
-  {\LARGE $ $Date: 2001/07/19 02:30:31 $ $}  % replaced by cvs with current revision
+  {\LARGE $ $Revision: 2.60 $ $}  \\[5mm] % replaced by cvs with current revision
+  {\LARGE $ $Date: 2001/09/07 15:00:07 $ $}  % replaced by cvs with current revision
   \vfill
 \end{center}
 \cleardoublepage
@@ -6406,28 +6409,34 @@ numberOfPoints(kTpcId) == numberOfPoints(kFtpcWestId)
     will return 16.
     
     \verb+float adc(unsigned int) const;+\\
-    The meaning of the various words is as follows:
+    The interpretation of the different ADC values can vary as a function
+    of time. The meaning of the various words (status Sep 2001) is as follows:
     \begin{itemize}
     \item unattenuated signals (mostly useful for looking at the single neutron peak)
         \begin{description}
-        \item adc[7] = zdcEast1;
-        \item adc[7] = zdcEast1;    
-        \item adc[6] = zdcEast2;     
-        \item adc[5] = zdcEast3;     
-        \item adc[4] = zdcEastSum;   
-        \item adc[3] = zdcWest1;     
-        \item adc[2] = zdcWest2;     
-        \item adc[1] = zdcWest3;     
-        \item adc[0] = zdcWestSum;   
+        \item adc[7] = ZDC East Module 1    
+        \item adc[6] = ZDC East Module 2     
+        \item adc[5] = ZDC East Module 3     
+        \item adc[4] = ZDC East Sum
+        \item adc[3] = ZDC West Module 1     
+        \item adc[2] = ZDC West Module 2     
+        \item adc[1] = ZDC West Module 3     
+        \item adc[0] = ZDC West Sum   
         \end{description}
     \item attenuated signals
         \begin{description}
-        \item adc[10] = zdcWestSumAtt; 
-        \item adc[11] = zdcWest2Att; 
-        \item adc[12] = zdcWest1Att;    
-        \item adc[13] = zdcEastSumAtt;  
-        \item adc[14] = zdcEast2Att;  
-        \item adc[15] = zdcEast1Att;     
+        \item adc[10] = ZDC West Attenuated Sum 
+        \item adc[11] = ZDC West Module 2 Attenuated
+        \item adc[12] = ZDC West Module 1 Attenuated
+        \item adc[13] = ZDC East Attenuated Sum   
+        \item adc[14] = ZDC East Module 2 Attenuated (until Aug 29, 2001)
+        \item adc[14] = East+West Attenuated Analog Sum (since Aug 29, 2001)
+        \item adc[15] = ZDC East Module 1 Attenuated 
+        \end{description}
+    \item other
+        \begin{description}
+        \item adc[8] = TDC East (since run 2001)
+        \item adc[9] = TDC West (since run 2001)
         \end{description}
     \end{itemize}
     
