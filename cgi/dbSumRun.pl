@@ -203,6 +203,8 @@ print <<END;
           <title>Production Summary for Real Data</title>
    </head>
    <body BGCOLOR=\"#ccffff\"> 
+<h5><a href=\"http://www.star.bnl.gov/STARAFS/comp/prod/ProdSummary.html\">Production</a><br>
+<a href=\"http://www.star.bnl.gov/devcgi/dbProdDAQQuery.pl\">Production Series Query </a><br>
      <h2 align=center>Production Summary for $prodSr <br> and Run Number $runNum</h2>
 <TABLE ALIGN=CENTER BORDER=5 CELLSPACING=1 CELLPADDING=2 >
 <TR>
@@ -226,7 +228,6 @@ my $Date = `date`;
 print <<END;
 </TABLE>
  
-<a href=\"http://www.star.bnl.gov/devcgi/dbProdDAQQuery.pl\"><h3>Back </h3></a>
      <h5>
       <address><a href=\"mailto:didenko\@bnl.gov\">Lidia Didenko</a></address>
 <!-- Created: Wed July 26  05:29:25 MET 2000 -->

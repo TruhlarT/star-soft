@@ -53,10 +53,12 @@ print <<END;
 <META HTTP-EQUIV="Pragma" CONTENT="no-cache">
 <META HTTP-EQUIV="Cache-Control" CONTENT="no-cache">
 END
-
+ 
+  
   print " <title>Production Summary</title>";
   print "  </head>\n";
   print "  <body bgcolor=\"#ffdc9f\"> \n";
+  print "<a href=\"http://www.star.bnl.gov/STARAFS/comp/prod/ProdSummary.html\"><h5>Production </h5></a>\n";
   print "  <h1 align=center>Production Series Query </h1>\n";
   print " </head>\n";
   print " <body>";
@@ -89,7 +91,6 @@ END
  print $query->submit;
  print "<P><br>", $query->reset;
  print $query->endform;
- print "<a href=\"http://www.star.bnl.gov/STARAFS/comp/prod/ProdSummary.html\"><h3>Back </h3></a>\n";
  print "  <address><a href=\"mailto:didenko\@bnl.gov\">Lidia Didenko</a></address>\n";
 
  print "</body>";
