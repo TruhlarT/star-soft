@@ -20,10 +20,13 @@
 #      rdaq_check_entries           check entries and return an array of entries
 #                                   which are suspect (i.e. does not pass the
 #                                   expected conditions).
+#      rdaq_list_field              Returns all possible values for field
 #
 #      rdaq_last_run                return the last run number from the o-ddb
 #      rdaq_get_files               get a list of files with $status from o-ddb
 #      rdaq_get_ffiles              get a list of characteristic ...
+#      rdaq_get_orecords            basic function allowing ANY field selection
+#
 #      rdaq_set_files               set a list of files from o-ddb to $status
 #                                   Accept both format returned by get_files
 #                                   and get_ffiles.
@@ -31,6 +34,7 @@
 # Utility (no need for any ddb to be opened)
 #      rdaq_file2hpss               return an HPSS path+file (several methods)
 #      rdaq_mask2string             convert a detector mask to a string
+#      rdaq_status_string           returns a status string from a status val
 #
 # DEV ONLY *** MAY BE CHANGED AT ANY POINT IN TIME ***
 #      rdaq_set_files_where         Not in its final shape.
@@ -49,12 +53,14 @@ require Exporter;
 	     rdaq_open_rdatabase rdaq_close_rdatabase        
 	     rdaq_open_odatabase rdaq_close_odatabase        
 	     rdaq_raw_files rdaq_add_entry rdaq_add_entries rdaq_delete_entries 
-	     rdaq_check_entries
-          
-	     rdaq_last_run rdaq_get_files rdaq_get_ffiles rdaq_set_files
-	     rdaq_set_files_where
 
-	     rdaq_file2hpss rdaq_mask2string
+	     rdaq_check_entries rdaq_list_field
+	     rdaq_last_run 
+
+	     rdaq_get_files rdaq_get_ffiles rdaq_get_orecords 
+	     rdaq_set_files rdaq_set_files_where
+
+	     rdaq_file2hpss rdaq_mask2string rdaq_status_string
 	     );
 
 
@@ -102,6 +108,15 @@ $DETECTOR[10]="sc";
 
 # Build ddb ref here.
 $DDBREF    = "DBI:mysql:$DDBNAME:$DDBSERVER:$DDBPORT";
+
+#
+# Those fields will be rounded in a get_orecords() and
+# list_field() querry. It will NOT be rounded in a future
+# to be implemented of set_files() or delete entries.
+#
+$ROUND{"scaleFactor"} = 1;
+$ROUND{"BeamE"}       = 2; # does not work with 1
+
 
 
 #
@@ -389,44 +404,89 @@ sub rdaq_open_odatabase
 
 #
 # Scans o-database and returns a list of
-# files which have status $status. A limit
-# number of files may be required. 
-# -1 for all. The list will be given in 
-# a descending order array (first file
-# is last saved to HPSS).
+# files which have status $status. 
+# The parameters are
+#    status    may be -1 for all status
+#    limit     -1 for no limit
+#    mode      0 for the file name only, 
+#              all fields are otherwise
+#              returned.
+#    conds     A reference to an hash array
+#              for extraneous condition selection.
+#
+# The list will be given in a descending ordered 
+# array (first file is last saved to HPSS).
 #
 # Return full list (i.e. all columns from o-ddb)
+#
 sub rdaq_get_ffiles
 {
     my($obj,$status,$limit)=@_;
     return &rdaq_get_files($obj,$status,$limit,1);
 }
-# return only a list of files (i.e. column file from o-ddb)
+
 sub rdaq_get_files
 {
     my($obj,$status,$limit,$mode)=@_;
-    my($cmd,$sth);
+    my(%Conds);
+    
+    # Default values will be sorted out here.
+    if( ! defined($limit) ){  $limit = 0;}
+    if( ! defined($mode)  ){  $mode  = 0;}
+    if( ! defined($status) ){ $status= 0;}
+
+    # We MUST pass a reference to a hash. 
+    $Conds{"Status"} = $status;
+    return &rdaq_get_orecords($obj,\%Conds,$limit,$mode);
+}
+
+#
+# Because of a later version of this (evoluated from get_files()),
+# and for backward compatibility, we need to support the options 
+# described above .
+# This basic fundamental function DOES NOT support default values
+# so it needs to be sorted out prior to this call.
+#
+sub rdaq_get_orecords
+{
+    my($obj,$Conds,$limit,$mode)=@_;
+    my($cmd,$el,$val,$sth);
+    my(@Values);
     my($file,@files,@items);
 
     if(!$obj){ return undef;}
 
-    # default values
-    if( ! defined($status) ){ $status = 0;}
-    if( ! defined($limit) ) { $limit  = 0;}
-    if( ! defined($mode)  ) { $mode   = 0;}
+    # basic selection
+    $cmd = "SELECT * FROM $dbtable";
 
-    if($status == -1){
-	$cmd = "SELECT * FROM $dbtable ORDER BY file DESC";
-    } else {
-	$cmd = "SELECT * FROM $dbtable WHERE Status=$status ORDER BY file DESC";
+
+    # backward compatibility is status selection where -1 = all
+    # may be achieved by skipping hash element.
+    foreach $el (keys %$Conds){
+	$val = $$Conds{$el};
+	if( $el eq "Status" && $val == -1){ next;}
+
+	if( defined($ROUND{$el}) ){
+	    $val = "ROUND($el,$ROUND{$el})";
+	} else {
+	    $val = $el;
+	}
+	if($cmd !~ /WHERE/){
+	    $cmd .= " WHERE $val=?";
+	} else  {
+	    $cmd .= " AND $val=?";
+	}
+	push(@Values,$$Conds{$el});
     }
-    if($limit > 0){
+    $cmd .= " ORDER BY file DESC";
+    if( $limit > 0){	            
 	$cmd .= " LIMIT $limit";
     }
 
-    #print "DEBUG : [$cmd]\n";
+
+    #print "DEBUG : [$cmd] [@Values]\n";
     $sth = $obj->prepare($cmd);
-    $sth->execute();
+    $sth->execute(@Values);
     if ($sth){
 	while ( @items = $sth->fetchrow_array() ){
 	    if($mode == 0){
@@ -481,12 +541,79 @@ sub rdaq_set_files_where
     $success;
 }
 
+#
+# Returns all possible values for a given field
+# BEWARE of some querries which may return a long-long list ...
+# 
+#
+sub rdaq_list_field
+{
+    my($obj,$field,$limit)=@_;
+    my($cmd,$sth,@tmp);
+    my($val,$pval);
+    my($i,@all);
 
+    if(!$obj){ return 0;}
+    if( ! defined($limit) ){ $limit = 0;}
+
+    # The association of DISTINCT and ROUND is apparently
+    # unsafe. It works for 'scaleFactor' but not for 'BeamE' (??).
+    # We will therefore make the unicity ourselves.
+    if( defined($ROUND{$field}) ){
+	$cmd = "SELECT DISTINCT ROUND($field,$ROUND{$field}) FROM $dbtable";
+    } else {
+	$cmd = "SELECT DISTINCT $field FROM $dbtable";
+    }
+    $cmd .= " ORDER BY $field DESC";
+    #print "$cmd\n";
+
+    $sth = $obj->prepare($cmd);
+    if($sth){
+	if($sth->execute()){
+	    #print "Execute = success. Fetching.\n";
+	    $i   = 0;
+	    $pval= "";
+	    while ( @tmp = $sth->fetchrow_array() ){
+		#print "Debug :: @tmp\n";
+		chomp($val = join("",@tmp));
+		if( $val ne $pval){
+		    $pval = $val;
+		    push(@all,$val);
+		    $i++;
+		}
+		if($i == $limit){ last;}
+	    }
+	} else {
+	    &info_message("list_field","Execute failed for $field");
+	}
+	$sth->finish();
+    } else {
+	&info_message("list_field","[$cmd] could no be prepared");
+    }
+    @all;
+}
 
 
 # --------------------
 # Utility routines.
 # --------------------
+
+#
+# Returns the status string for a given entry.
+#
+sub rdaq_status_string
+{
+    my($sts)=@_;
+    my($str);
+
+    $str = "Unknown";
+    $str = "Recorded"  if($sts == 0);
+    $str = "Submitted" if($sts == 1);
+    $str = "Processed" if($sts == 2);
+    $str = "QADone"    if($sts == 3); # i.e. + QA
+
+    $str;
+}
 
 # Provide a decoding method for the above
 # built mask, We can hardcode values (they
@@ -584,4 +711,7 @@ sub	info_message
 }
  
  
+1;
  
+
+
