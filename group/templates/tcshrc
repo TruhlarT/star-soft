@@ -141,7 +141,7 @@ endif
 # if ( -r /usr/local/lib/hepix/oracle_env.csh ) then
 #    source /usr/local/lib/hepix/oracle_env.csh
 # endif
-setenv PATH `dropit GROUPPATH`
+if (-x /afs/rhic/rhstar/group/dropit) setenv PATH `/afs/rhic/rhstar/group/dropit GROUPPATH`
 
 #EOF
 
