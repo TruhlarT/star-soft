@@ -1,8 +1,11 @@
 #!/usr/bin/env perl
 #
-# $Id: group_env.pl,v 1.3 2003/02/23 21:52:37 jeromel Exp $
+# $Id: group_env.pl,v 1.4 2004/01/09 19:23:40 jeromel Exp $
 #
 # $Log: group_env.pl,v $
+# Revision 1.4  2004/01/09 19:23:40  jeromel
+# rhic.bnl.gov instead of rhic
+#
 # Revision 1.3  2003/02/23 21:52:37  jeromel
 # More /usr/bin/env
 #
@@ -23,10 +26,10 @@
 # Set up the STAR environment needed by perl scripts
 #
 
-use lib "/afs/rhic/star/group";
+use lib "/afs/rhic.bnl.gov/star/group";
 
 ## STAR environment setup
-$STAR_ROOT="/afs/rhic/star";
+$STAR_ROOT="/afs/rhic.bnl.gov/star";
 $GROUP_DIR="$STAR_ROOT/group";
 $STAR_PATH="$STAR_ROOT/packages";
 if ( ! $STAR_LEVEL ) {$STAR_LEVEL="pro"}
