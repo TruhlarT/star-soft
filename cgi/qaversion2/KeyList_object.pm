@@ -13,6 +13,7 @@ use CGI qw/:standard :html3/;
 
 use QA_globals;
 use Storable;
+use IO_object;
 use DataClass_object;
 
 use strict;
@@ -51,20 +52,25 @@ sub _init{
    
 }
 #========================================================
-# get the possible values for various fields from the db
+# get the possible values for various fields from disk
 # for selecting a particular job.
-# called in JobPopupMenu
+# if something is funky, gets it from the db.
 
 sub GetSelectionOptions{
   my $self = shift;
 
-  # uses the global DataClass_object to determine which 
-  # sub to call depending on the data class
+  my $menuRef;
+  # first check the disk
+  my $storable = IO_object->new("MenuStorable")->Name();
+  eval {
+    $menuRef = retrieve($storable);
+  };
   no strict 'refs';
-
-  my $sub_getselections = $gDataClass_object->GetSelectionOptions;
-
-  return &$sub_getselections;
+  # else get it from the db
+  if ($@ || !defined $menuRef) {
+    $menuRef = &{$gDataClass_object->GetSelectionOptions};
+  }
+  return $menuRef;
 
 }
 #========================================================
@@ -111,11 +117,17 @@ sub GetSelectedKeyList{
   my @key_list = $self->GetSelectedKeysFromDb();
 
 
-  # make the QA_objects
-  QA_utilities::make_QA_objects(@key_list);
+  # dont make the QA_objects if too many rows are returned.
+  my $limit = $Db_KeyList_utilities::selectLimit;
 
-  # sort
-  return $self->SortKeys(@key_list);
+  if ( scalar @key_list >= $limit ) {
+    return @key_list;
+  }
+  else {
+    QA_utilities::make_QA_objects(@key_list);
+     # sort
+    return $self->SortKeys(@key_list);
+  }
 
 }
 

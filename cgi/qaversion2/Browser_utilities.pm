@@ -279,8 +279,7 @@ sub SwitchDataTypeMenu{
   my $popup_string = $gCGIquery->popup_menu(-name   => 'data_class',
 					    -values => \@dir_values,
 					    -default=> $cur_data_class,
-					    -labels => \%dir_labels,  
-					    -onChange => 'this.form.submit()'
+					    -labels => \%dir_labels 
 					    );
 
 #pmj 6/4/00: change labels from "Select Class" to "Change Class"
@@ -292,8 +291,8 @@ sub SwitchDataTypeMenu{
   my @table_rows =  td ( [h3('Change Class of Data:')] );
 #---
 
-  push @table_rows, td ( [$popup_string ] );
-  push @table_rows, td ( [$submit_string] );
+#  push @table_rows, td ( [$popup_string ] );
+#  push @table_rows, td ( [$submit_string] );
   
   my $table_string = table({-align=>'center'}, 
 			   Tr({-valign=>'top'},\@table_rows));
@@ -301,9 +300,9 @@ sub SwitchDataTypeMenu{
   my $toggle_string =
     $gCGIquery->startform(-action=>"$script_name/upper_display",
 			  -TARGET=>"list").
-      $table_string.
+      $popup_string. $submit_string .
 	$hidden_string.
-	  $gCGIquery->endform;
+	  $gCGIquery->endform ."\n";
   
   return $toggle_string;
 } 

@@ -792,3 +792,12 @@ sub MemoryFile{
 
   return "$report_dir/memory.txt";
 } 
+#====================================================================
+# used to return the file name of the menu perl storable
+
+sub MenuStorable{
+  my $self = shift;
+
+  return $gDataClass_object->Scratch()."/menu.obj";
+
+} 
