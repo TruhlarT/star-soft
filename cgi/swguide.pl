@@ -1,45 +1,6 @@
-#!/usr/bin/env perl 
+#!/usr/bin/env perl
 #
-# $Id: swguide.pl,v 1.3 2002/01/07 20:40:18 jeromel Exp $
-#
-# $Log: swguide.pl,v $
-# Revision 1.3  2002/01/07 20:40:18  jeromel
-# /STARAFS/ -> /STAR/
-#
-# Revision 1.2  2002/01/03 04:07:46  starlib
-# replace 'src' link for lxr by 'dox' link for doxygen
-#
-# Revision 1.1  2001/11/22 00:19:55  jeromel
-# Finally at thr right place ...
-#
-# Revision 1.1  2001/11/21 20:21:25  jeromel
-# Latest version used for swguide. Was running from Wenaus area in
-# crontabs (???).
-#
-# Revision 1.10  1999/10/30 15:10:03  wenaus
-# Improve README, doc handling
-#
-# Revision 1.9  1999/09/21 12:25:00  wenaus
-# Update to run on Solaris
-#
-# Revision 1.8  1999/09/20 22:55:16  wenaus
-# Move output area to RCF NFS web area
-#
-# Revision 1.7  1999/08/18 13:07:54  wenaus
-# Move data files to datapool
-#
-# Revision 1.6  1999/08/08 18:51:31  wenaus
-# Report open failure to page
-#
-# Revision 1.5  1999/07/25 16:26:52  wenaus
-# Report linecounts in files modified in last 2 months
-#
-# Revision 1.4  1999/07/10 13:17:21  wenaus
-# Add ROOT class doc links, when they exist, which isn't too often
-#
-# Revision 1.3  1999/07/07 13:21:07  wenaus
-# faster and more info presented
-#
+# $Id: swguide.pl,v 1.4 2002/01/26 23:34:44 jeromel Exp $
 #
 ######################################################################
 #
@@ -67,12 +28,21 @@ require SWGdbsetup;
 $fpath   = "/afs/rhic/star/doc/www/html/tmp";
 $CVSroot = "/afs/rhic/star/packages/repository/CVSROOT";
 $DOXPATH = $fpath."/dox/html";
+$DOXURL  = "/webdatanfs/dox/html";
+$CVSURL  = "/webdatanfs/cvs/user";
 $curTime = time();
 
 &cgiSetup();
 #print "Bla\n";
 $q->param('ver','dev')  if ( $q->param('ver')    eq '');
 $q->param('detail','1') if ( $q->param('detail') eq '');
+
+
+# Option dynamic was suppressed to avoid users clasing with each other
+# The above commented lines were in the form above.
+#<input type="checkbox" name="dynamic" value="yes">
+#    Force regeneration of page. Slow; only for debugging or if displayed 
+#page is too old.
 
 $dynamic = $q->param('dynamic');
 if ( $dynamic ne "yes" && $q->param('pkg') eq '' && $q->param('find') eq '') {
@@ -144,6 +114,8 @@ macros, and scripts. Pointers and comments...
     (linked to the CVS source), username and date of the most
     recent CVS commit, and the most recent tag for that file version.
     Filename is linked to associated class doc if it exists.
+    <li>Only Library version <b>dev</b> provides link to the
+    doxygen formatted source code.
     <li> Ball color indicates time since most recent mod:
     <img src="/images/redball.gif">=2days, <img src="/images/greenball.gif">=2weeks, <img src="/images/blueball.gif">=2months, <img src="/images/whiteball.gif">=older
 </ul>
@@ -243,9 +215,6 @@ print <<END;
     <input type="radio" $detailChecked{"2"} name="detail" value="2"> Full listing <br>
 <b>Find package:</b> <input type="text" name="pkg" value="$pkg">
 <b>or Find file:</b> <input type="text" name="find" value="$find"><br>
-<input type="checkbox" name="dynamic" value="yes">
-    Force regeneration of page. Slow; only for debugging or if displayed 
-page is too old.
 <br>
 <input type="submit"> &nbsp; <input type="reset"><br>
 </form>
@@ -374,7 +343,7 @@ if ( $find eq "" && $pkg eq "" && $showFlag > 0 ) {
         }
     }
     if ( $ver eq 'dev' ) {
-        open(FSTAT,">/star/starlib/doc/www/html/comp-nfs/swguide-stats.txt");
+        open(FSTAT,">$fpath/swguide-stats.txt-tmp");
         print FSTAT "\n<b>Total files $totfiles</b>";
         print FSTAT "\n<b>Total lines $totlines</b>";
         print FSTAT "\n  By type:          All    Last 2 months\n";
@@ -385,6 +354,7 @@ if ( $find eq "" && $pkg eq "" && $showFlag > 0 ) {
             }
         }
         close(FSTAT);
+	rename("$fpath/swguide-stats.txt-tmp","$fpath/swguide-stats.txt");
     }
 }
 
@@ -422,7 +392,7 @@ sub showPackage {
       if ( -e "$theRoot/$theDir/$thePkg/README" ) {
         $readme = "<a href=\"/STAR/comp/pkg/$ver/$theDir/$thePkg/README\">README</a>";
       } else {
-        $readme = "<font color=\"gray\">README</font>";
+        $readme = "      ";
       }
       ### doc directory. For pams, the doc area has package name doc
       if ( $thePkg eq 'doc' ) {
@@ -432,7 +402,7 @@ sub showPackage {
         $docDir = "$theRoot/$theDir/$thePkg/doc";
         $docLoc = "doc/";
       }
-      $doc = "<font color=\"gray\">doc</font>";
+      $doc = "  ";
       if ( -d $docDir ) {
         opendir(DOC, $docDir);
         while (defined ($docf = readdir DOC)) {
@@ -448,12 +418,6 @@ sub showPackage {
     ### CVS link
     $cvs = "<a href=\"/cgi-bin/cvsweb.cgi/$theDir/$thePkg\">CVS</a>";
 
-    ### Source browser
-    if( -e "$DOXPATH/class$thePkg.html"){
-	$src = "<a href=\"http://www.star.bnl.gov/webdatanfs/dox/html/class$thePkg.html\">dox</a>";
-    } else {
-	$src = "   ";
-    }
 
     ### Try to find the owner
     $pkgOwner = "";
@@ -526,8 +490,9 @@ sub showPackage {
         $pkgName = $thePkg;
     }
     $pkgUrl = "<a href=\"/cgi-bin/prod/swguide.pl?ver=$ver&pkg=$pkgName&detail=2\">";
-    if ( $showFlag > 0 ) { # print all pkg info
 
+
+    if ( $showFlag > 0 ) { # print all pkg info
         ## associated pam?
         $thePamUrl = "";
         if ( $thePkg =~ m/St_([a-z0-9]+)_/ ) {
@@ -555,7 +520,8 @@ sub showPackage {
             $mo = -1;
             $yr = 0;
             $sinceMod = 999;
-        }
+        } 
+	$yr = $yr+1900;
         if ($linecount == 0) {
             $disp1="<font color=\"gray\">$ballUrl";
             $disp2="</font>";
@@ -563,14 +529,18 @@ sub showPackage {
             $disp1="<b>$ballUrl";
             $disp2="</b>";
         }
-        $pkgLine = sprintf("$disp1%s%-27s%s %s %s %s %s%s%9s%s%4d Files%5d Lines %02d/%02d/%02d %3d Days %s$disp2\n",
-                           $pkgUrl,$theDir."/".$thePkg,"</a>",$readme,$doc,$cvs,$src,
-                           "<a href=\"/webdatanfs/cvs/user/$pkgOwner/index.html#bottom\">",$pkgOwner,"</a>",
-                           $filecount,$linecount,$mo+1,$dy,$yr,$sinceMod,$thePamUrl);
+        $pkgLine = 
+	    sprintf("$disp1%s%-30s%s %-6s %-3s %s%s%9s%s%4d Files".
+		    "%7d Lines %02d/%02d/%04d %4d Days %s$disp2\n",
+		    $pkgUrl,$theDir."/".$thePkg,"</a>",$readme,$doc,$cvs,
+		    "<a href=\"$CVSURL/$pkgOwner/index.html#bottom\">",$pkgOwner,"</a>",
+		    $filecount,$linecount,$mo+1,$dy,$yr,$sinceMod,$thePamUrl);
     } else {
-        $pkgLine = sprintf("%s%-27s%s %s %s %s %s\n",
-                           $pkgUrl,$theDir."/".$thePkg,"</a>",$readme,$doc,$cvs,$src);
+        $pkgLine = 
+	    sprintf("%s%-30s%s %-6s %-3s %s %s\n",
+		    $pkgUrl,$theDir."/".$thePkg,"</a>",$readme,$doc,$cvs,$src);
     }
+
     if ( $showFlag >= 0 ) { print $pkgLine; }
     if ( $showFlag > 1 ) {
         print "<blockquote>\n";
@@ -759,24 +729,28 @@ sub showFiles {
                         $fnameFull = "<a href=\"/STAR/comp/src/$rel/StRoot/html/$ff.html\">$ff</a>$ee";
                     }
                 }
+
 		## Prepare file extention for doxygen
-		@fnameparts = split(/\./,$fname);
-		$fnamedox = join("", join(".", @fnameparts[0..$#fnameparts-1]), "_8$fnameparts[$#fnameparts]-source.html");
-		if( -e "$DOXPATH/$fnamedox"){
-		    $fnamedox = "<a href=\"http://www.star.bnl.gov/webdatanfs/dox/html/$fnamedox\">dox</a>";
-		} else {
-		    $fnamedox = "   ";
+		$fnameFull = &DoxyCode($fname,2);
+		$CRef = &DoxyCode($fname,1," ","ClassRef");
+		# We can generate other cross-reference list such as the
+		# one generated while using the \file comment.
+		if($CRef eq ""){
+		    $CRef = &DoxyCode($fname,2," ","FileRef");  
 		}
 
                 $blank='                                              ';
-                $output .= sprintf("%s%s%s %s%-7s%s %s %s %s%s%9s%s %s %s\n",
+                $output .= sprintf("%s%s%s %-8s %s%-7s%s %10.10s %s %s%9.9s%s %10.10s %5.5s\n",
                                    $ballUrl,$fnameFull,substr($blank,0,$fillLen),
+				   $CRef,
                                    "<a href=\"/cgi-bin/cvsweb.cgi/$theDir/$thePkg/$fname?rev=$cver&content-type=text/x-cvsweb-markup\">",$cver,"</a>",
                                    $date,
                                    "<a href=\"/cgi-bin/cvsweb.cgi/$theDir/$thePkg/$fname\">CVS</a>",
-                                   "$fnamedox",
-                                   "<a href=\"/webdata/cvs/user/$owner/index.html#bottom\">",$owner,"</a>",
-                                   $theLines,$reptag);
+
+                                   "<a href=\"$CVSURL/$owner/index.html#bottom\">",$owner,"</a>",
+                                   $theLines,
+				   $reptag);
+
                 print "$output" if $debugOn;
                 $linecount += $count;
             }
@@ -801,3 +775,85 @@ sub getList {
     }
     return $list;
 }
+
+sub DoxyCode
+{
+    my($src,$mode,$b1,$b2) = @_;
+    my($rv);
+
+    if( defined($b1) ){
+	$rv = $b1;
+    } else {
+	$rv  = $src;
+    }
+    if( ! defined($b2) ){ $b2 = $src;}
+    if($mode == 1){
+	#
+	# Class file definition all formatted by doxygen
+	#
+	if($src =~ /\.h/){
+	    $src =~ s/\..*//;
+	    if(-e "$DOXPATH/class$src.html"){
+		$rv = "<a href=\"$DOXURL/class$src.html\">$b2</a>";
+	    }
+	}
+    } elsif ($mode == 2){
+	#
+        # Plain source code mode. Return doxygen URL
+	#
+	$tmp = $src;
+	$tmp =~ s/_/__/g;
+	$tmp =~ s/\./_8/g;
+	$tmp.= "-source.html";
+	
+	if( -e "$DOXPATH/$tmp"){
+	    $rv = "<a href=\"$DOXURL/$tmp\">$b2</a>";
+	} 
+    }
+    $rv;
+}
+
+
+# $Log: swguide.pl,v $
+# Revision 1.4  2002/01/26 23:34:44  jeromel
+# Modified to use doxygen instead of lxr, fixed a Y2000 bug in date and diverse
+# formatting issues.
+#
+# Revision 1.3  2002/01/07 20:40:18  jeromel
+# /STARAFS/ -> /STAR/
+#
+# Revision 1.2  2002/01/03 04:07:46  starlib
+# replace 'src' link for lxr by 'dox' link for doxygen
+#
+# Revision 1.1  2001/11/22 00:19:55  jeromel
+# Finally at thr right place ...
+#
+# Revision 1.1  2001/11/21 20:21:25  jeromel
+# Latest version used for swguide. Was running from Wenaus area in
+# crontabs (???).
+#
+# Revision 1.10  1999/10/30 15:10:03  wenaus
+# Improve README, doc handling
+#
+# Revision 1.9  1999/09/21 12:25:00  wenaus
+# Update to run on Solaris
+#
+# Revision 1.8  1999/09/20 22:55:16  wenaus
+# Move output area to RCF NFS web area
+#
+# Revision 1.7  1999/08/18 13:07:54  wenaus
+# Move data files to datapool
+#
+# Revision 1.6  1999/08/08 18:51:31  wenaus
+# Report open failure to page
+#
+# Revision 1.5  1999/07/25 16:26:52  wenaus
+# Report linecounts in files modified in last 2 months
+#
+# Revision 1.4  1999/07/10 13:17:21  wenaus
+# Add ROOT class doc links, when they exist, which isn't too often
+#
+# Revision 1.3  1999/07/07 13:21:07  wenaus
+# faster and more info presented
+#
+#
