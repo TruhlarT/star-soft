@@ -161,8 +161,8 @@ sub print_page_header{
     $doc_link ="http://www.star.bnl.gov/STARAFS/comp/qa/pmj/index.html";
   }
   else{
-    $star_level = $ENV{STAR_LEVEL};
-    $doc_link = "http://duvall.star.bnl.gov/STARAFS/comp/pkg/$star_level/cgi/qa/doc/index.html";
+#    $star_level = $ENV{STAR_LEVEL};
+    $doc_link = "http://duvall.star.bnl.gov/STARAFS/comp/pkg/dev/cgi/qa/doc/index.html";
   }
 
 #  print "<hr noshade=noshade>",
