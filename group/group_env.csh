@@ -1,7 +1,10 @@
 #!/usr/bin/csh -f
-#       $Id: group_env.csh,v 1.42 1998/08/05 13:07:17 wenaus Exp $
+#       $Id: group_env.csh,v 1.43 1998/08/10 21:32:30 fisyak Exp $
 #	Purpose:	STAR group csh setup 
 #       $Log: group_env.csh,v $
+#       Revision 1.43  1998/08/10 21:32:30  fisyak
+#       add clean up of LD_LIBRARY_PATH
+#
 #       Revision 1.42  1998/08/05 13:07:17  wenaus
 #       SNiFF+ setup
 #
@@ -139,9 +142,12 @@ if ( ! $?GROUP_PATH ) setenv GROUP_PATH ${STAR_ROOT}/group
 setenv GROUPPATH  $GROUP_PATH
 setenv STAR_PATH ${STAR_ROOT}/packages;      if ($ECHO) echo   "Setting up STAR_PATH = ${STAR_PATH}"
 if ($?STAR_LEVEL == 0) setenv STAR_LEVEL pro
-setenv STAR_VERSION `/bin/ls -l $STAR_PATH | grep "${STAR_LEVEL} ->" |cut -f2 -d">"`  
+if ($STAR_LEVEL  == "old" || $STAR_LEVEL  == "pro" || $STAR_LEVEL  == "new" || $STAR_LEVEL  == "dev") then
+  setenv STAR_VERSION `/bin/ls -ld $STAR_PATH/${STAR_LEVEL} |cut -f2 -d">"`  
+else
+  setenv STAR_VERSION ${STAR_LEVEL}
+endif
 source ${GROUP_DIR}/STAR_SYS; 
-if (${STAR_VERSION} == "") setenv STAR_VERSION ${STAR_LEVEL}
 if ($STAR_VERSION  == "SL98a" || $STAR_VERSION  == "SL98b") then
   setenv STAR $STAR_PATH/${STAR_LEVEL} ;         if ($ECHO) echo   "Setting up STAR      = ${STAR}"
   setenv STAR_LIB  $STAR/lib/${STAR_HOST_SYS};   if ($ECHO) echo   "Setting up STAR_LIB  = ${STAR_LIB}"
@@ -171,6 +177,7 @@ if ( -x /afs/rhic/star/group/dropit) then
   setenv MANPATH `/afs/rhic/star/group/dropit -p ${MANPATH}`
   setenv PATH `/afs/rhic/star/group/dropit -p ${PATH} GROUPPATH`
   setenv PATH `/afs/rhic/star/group/dropit -p ${PATH} $STAR_PATH`
+  if (${?LD_LIBRARY_PATH}) setenv LD_LIBRARY_PATH `/afs/rhic/star/group/dropit -p ${LD_LIBRARY_PATH} $STAR_PATH`
 endif
 setenv PATH "/usr/afsws/bin:/usr/afsws/etc:/opt/star/bin:/opt/rhic/bin:/usr/sue/bin:/usr/local/bin:${GROUP_DIR}:${STAR_MGR}:${STAR_BIN}:${PATH}"
 #set path=( /usr/afsws/bin /usr/afsws/etc /opt/rhic/bin /usr/local/bin $GROUP_DIR $STAR_MGR $STAR_BIN $path )
@@ -208,7 +215,7 @@ switch ($STAR_SYS)
 #  ====================
 	set path = ($path $PARASOFT/bin.sgi5)
         if (! ${?LD_LIBRARY_PATH}) setenv LD_LIBRARY_PATH 
-	setenv LD_LIBRARY_PATH "${PARASOFT}/lib.sgi5:${STAF_LIB}:${LD_LIBRARY_PATH}"
+	setenv LD_LIBRARY_PATH "${PARASOFT}/lib.sgi5:.${STAR_SYS}/lib:${STAF_LIB}:${LD_LIBRARY_PATH}"
         limit coredumpsize 0
     breaksw
     case "sgi_6*":
@@ -216,7 +223,7 @@ switch ($STAR_SYS)
         setenv CERN_LEVEL pro
         setenv CERN_ROOT  /cern/pro
         if (! ${?LD_LIBRARYN32_PATH}) setenv LD_LIBRARYN32_PATH 
-	setenv LD_LIBRARYN32_PATH "${STAF_LIB}:${LD_LIBRARYN32_PATH}"
+	setenv LD_LIBRARYN32_PATH ".${STAR_SYS}/lib:${STAF_LIB}:${LD_LIBRARYN32_PATH}"
         limit coredumpsize 0
     breaksw
     case "i386_*":
@@ -239,7 +246,7 @@ switch ($STAR_SYS)
 #    set path = ($path  /usr/local/bin/ddd /usr/local/DQS318/bin )
      set path = ($path $PARASOFT/bin.linux)
      if (! ${?LD_LIBRARY_PATH}) setenv LD_LIBRARY_PATH 
-     setenv LD_LIBRARY_PATH "/usr/lib:${PARASOFT}/lib.linux:/usr/local/lib:${STAF_LIB}:${LD_LIBRARY_PATH}:/opt/star/lib"
+     setenv LD_LIBRARY_PATH "/usr/lib:${PARASOFT}/lib.linux:/usr/local/lib:.${STAR_SYS}/lib:${STAF_LIB}:${LD_LIBRARY_PATH}:/opt/star/lib"
         limit coredump 0
      setenv BFARCH Linux2
      setenv OBJY_ARCH linux
@@ -247,7 +254,7 @@ switch ($STAR_SYS)
     case "sun4*":
 #  ====================
       if (! ${?LD_LIBRARY_PATH}) setenv LD_LIBRARY_PATH
-      setenv LD_LIBRARY_PATH "/opt/SUNWspro/lib:/usr/openwin/lib:/usr/dt/lib:/usr/local/lib:${PARASOFT}/lib.solaris:${STAF_LIB}:${LD_LIBRARY_PATH}"
+      setenv LD_LIBRARY_PATH "/opt/SUNWspro/lib:/usr/openwin/lib:/usr/dt/lib:/usr/local/lib:${PARASOFT}/lib.solaris:.${STAR_SYS}/lib:${STAF_LIB}:${LD_LIBRARY_PATH}"
 	set path = ($path $PARASOFT/bin.solaris)
       setenv BFARCH SunOS5
       setenv OBJY_ARCH solaris4
@@ -255,7 +262,7 @@ switch ($STAR_SYS)
     case "sunx86_55":
 #  ====================
         if (! ${?LD_LIBRARY_PATH}) setenv LD_LIBRARY_PATH
-        setenv LD_LIBRARY_PATH "${STAF_LIB}:${LD_LIBRARY_PATH}"
+        setenv LD_LIBRARY_PATH ".${STAR_SYS}/lib:${STAF_LIB}:${LD_LIBRARY_PATH}"
         limit coredump 0
     breaksw
     default:
