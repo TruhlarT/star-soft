@@ -99,11 +99,11 @@ my $mySet;
       }
 
  my $ii = 0;        
- my $istart = scalar(@SetD) - 2;
+ my $istart = scalar(@SetD) - 4;
 
 for ($ii=$istart; $ii< scalar(@SetD); $ii++)  { 
-
-  $sql="SELECT path, fName FROM $FileCatalogT WHERE fName LIKE '%daq' AND path = '$SetD[$ii]' AND hpss = 'Y' ";
+ 
+  $sql="SELECT path, fName FROM $FileCatalogT WHERE fName LIKE '%daq' AND path = '$SetD[$ii]' AND dataStatus = 'OK' AND hpss = 'Y' ";
 
     $cursor =$dbh->prepare($sql)
      || die "Cannot prepare statement: $DBI::errstr\n";
