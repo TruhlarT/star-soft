@@ -11,7 +11,7 @@
 #
 #
 setenv COLUMNS 512
-set PATH="/afs/rhic/star/packages/scripts"
+set PATH="/afs/rhic.bnl.gov/star/packages/scripts"
 set SCRIPT="DAQFill.pl"
 set LOG="$HOME/DAQFill.log"
 set ME=`whoami`
