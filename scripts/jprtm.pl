@@ -54,7 +54,11 @@ if($#all == -1){
     print IUtrail();
 } else {
     foreach $line (@all){
-	if( $line =~ m/<body>/i){ $line =~ s/(.*)(<body>)(.*)/$1$BODY$3/}
+	if( $line =~ m/<body>/i){      
+	    $line =~ s/(.*)(<body>)(.*)/$1$BODY$3/;
+	} elsif ($line =~ m/<h1>.*<\/h1>/){ 
+	    $line .= "\n<h5 align=\"center\">Created on ".localtime()."</h5>\n";
+	}
 	print $line;
     }
 }
