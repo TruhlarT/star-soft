@@ -21,7 +21,7 @@
 if ( ! $?AFS_RHIC ) setenv AFS_RHIC /afs/rhic
 
 # In case of token failure, send an Email to
-set EMAIL=jeromel@bnl.gov
+set EMAIL="jeromel@bnl.gov,didenko@bnl.gov"
 
 # Path where to find the damned scripts.
 set SCRIPTD=$AFS_RHIC/star/packages/scripts
