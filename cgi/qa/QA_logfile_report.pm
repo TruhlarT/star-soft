@@ -81,7 +81,7 @@ sub parse_logfile {
   undef $run_start_time_and_date;
   undef $machine;
   undef $output_directory;
-  undef $cvs_tags;
+  undef $tags;
   undef $event_timing;
  
   foreach $line (@logfile) {
@@ -170,11 +170,11 @@ sub parse_logfile {
     
     # CVS tags
     $line =~ /with Tag (.*)/ and do{
-      $cvs_tags = "\n".$1;
+      $tags = "\n".$1;
       next;
     };
     $line =~ /built.*from Tag (.*)/ and do{
-      $cvs_tags .= "\n".$1;
+      $tags .= "\n".$1;
       next;
     };
     
@@ -327,7 +327,7 @@ sub parse_logfile {
   write_scalar(\*REPORT, "start time and date", $run_start_time_and_date);
   write_scalar(\*REPORT, "machine", $machine);
   write_scalar(\*REPORT, "output dir", $output_directory);
-  write_scalar(\*REPORT, "cvs tags", $cvs_tags);
+  write_scalar(\*REPORT, "cvs tags", $tags);
   write_scalar(\*REPORT, "event timing", $event_timing);
   write_scalar(\*REPORT, "segmentation violation?", $segmentation_violation);
   write_scalar(\*REPORT, "last event", $last_event);
@@ -371,7 +371,7 @@ sub get_logfile_report{
   %scalars_logfile = ();
 
   my $record_run_options = 0;
-  my $record_cvs_tags = 0;
+  my $record_tags = 0;
   my $record_event_timing = 0;
   my $record_final_timing = 0;
 
@@ -523,15 +523,15 @@ sub get_logfile_report{
     #---
     
     /cvs tags:/ and do {
-      $record_cvs_tags = 1;
+      $record_tags = 1;
       $scalars_logfile{"cvs_tags"} = "\n";
       next;
     };
 
     # done with cvs tags?
-    $record_cvs_tags and $_ !~ /\$Name:  $record_cvs_tags = 0;
+    $record_tags and $_ !~ /\$Name:  $record_tags = 0;
     
-    $record_cvs_tags and do {
+    $record_tags and do {
       $scalars_logfile{"cvs_tags"} .= $_;
       next;
     };
