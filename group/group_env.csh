@@ -1,7 +1,10 @@
 #!/usr/bin/csh -f
-#       $Id: group_env.csh,v 1.63 1999/02/10 19:19:39 fisyak Exp $
+#       $Id: group_env.csh,v 1.64 1999/03/01 17:27:09 fisyak Exp $
 #	Purpose:	STAR group csh setup 
 #       $Log: group_env.csh,v $
+#       Revision 1.64  1999/03/01 17:27:09  fisyak
+#       Set CERNLIB 99 for SL99
+#
 #       Revision 1.63  1999/02/10 19:19:39  fisyak
 #       Set CERN LEVEL 99 for SL99
 #
@@ -319,7 +322,7 @@ switch ($STAR_SYS)
        setenv MANPATH "$MANPATH":$PGI/man
        setenv LM_LICENSE_FILE $PGI/license.dat
        alias pgman 'man -M $PGI/man'
-       if ("$STAR_VERSION"  != "SL99a") then
+       if ("`echo $STAR_VERSION | cut -c3-4`" != "99") then
            setenv CERN_LEVEL pgf98
        endif
      endif
