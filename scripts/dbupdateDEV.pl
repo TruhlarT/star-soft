@@ -1107,7 +1107,7 @@ my $runflag = 0;
 
        if($line =~ /Processing bfc.C/) {
           $runflag++;       
-
+	}
    if ($line =~ /StMessageManager message summary/) {
       $Anflag = 1;
     }
