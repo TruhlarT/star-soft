@@ -53,10 +53,6 @@ sub _init{
   $gCGIquery->delete('save_object_hash_scratch_file') if
     (defined $gCGIquery->param('Change Class') or
      defined $gCGIquery->param('Display datasets'));
-  
-  # delete the references report keys when switching data class
-  $gCGIquery->delete('user_reference_list')
-    if defined $gCGIquery->param('DeleteUserReferences');
 
   # clean up the log scratch directory for old symlinks
 #  IO_utilities::CleanUpLogScratch();
@@ -121,7 +117,9 @@ sub Parameters{
     $gCGIquery->hidden('enable_add_edit_comments').
     $gCGIquery->hidden('save_object_hash_scratch_file').
     $gCGIquery->hidden('data_class').
-    $gCGIquery->hidden('user_reference_list');
+    $gCGIquery->hidden('user_reference_file');
+
+#    $gCGIquery->hidden('user_reference_list');
 
   return $string;
 }

@@ -128,7 +128,7 @@ sub GetTableRows{
 
     foreach my $match_key ( @table_keys ){
 
-      my $compare_scalar_value = $self->MatchScalarValues($macro, $match_key, $scalar);
+      my $compare_scalar_value = $self->MatchScalarValues($match_key, $scalar);
 
       if ($compare_scalar_value =~ /\d+/ ){
 	if ( $this_scalar_value =~ /\d+/ ){
@@ -212,7 +212,7 @@ sub GetAsciiStrings{
 
     foreach my $match_key ( @table_keys ){
 
-      my $compare_scalar_value = $self->MatchScalarValues($macro, $match_key, $scalar);
+      my $compare_scalar_value = $self->MatchScalarValues($match_key, $scalar);
 
       if ($compare_scalar_value =~ /\d+/ ){
 	if ( $this_scalar_value =~ /\d+/ ){

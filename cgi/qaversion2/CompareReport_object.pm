@@ -97,54 +97,6 @@ sub InitialDisplay{
 	"</center>" . "\n";
 }
 #========================================================
-sub SelectMultipleReports{
-
-  my $self = shift;
-  #--------------------------------------------------------
-  $self->PrintHeader();
-  #---------------------------------------------------------
-  my $script_name = $gCGIquery->script_name;
-  print $gCGIquery->startform(-action=>"$script_name/lower_display", -TARGET=>"ScalarsAndTests"); 
-  #---------------------------------------------------------
-  my $report_key = $self->ReportKey();
-
-  print "<h3> Select comparison runs from following list, then push button for macro and multiplicity class</h3>";
-
-  my $button_string = $QA_object_hash{$report_key}->MultClassButtonString('DoCompareMultipleReports');
-  print "$button_string.<br> \n";
-
-  #---------------------------------------------------------
-  print "<br>(multiple file selections allowed; more than 6-8 do not display or print well) <br> \n";
-  
-  #---------------------------------------------------------
-  # get time-ordered set of keys, dependent upon data class
-  
-  my $data_class = $gDataClass_object->DataClass();
-  my $function = "Db_CompareReport_utilities::$data_class";
-  
-  no strict 'refs';
-  my @matched_keys_ordered = &$function($report_key);
-  
-  use strict 'refs';
-  
-  # BUM 000625
-  # it's possible that no key in the %QA_object_hash corresponds
-  # to a matched_key.  this creates the QA_object if it doesnt already
-  # exist in the %QA_object_hash.
-
-  QA_utilities::make_QA_objects(@matched_keys_ordered);
-
-  print "<h3> Comparison runs: </h3>";
-  print $self->CompareKeysTable(0,@matched_keys_ordered);
-
-  #-------------------------------------------------------------------
-  my $hidden_string = $gBrowser_object->Hidden->Parameters;
-  print "$hidden_string";
-  #-------------------------------------------------------------------
-  print $gCGIquery->endform;
-
-}
-#========================================================
 sub CompareMultipleReports{
 
   my $self = shift;
@@ -179,8 +131,8 @@ sub CompareMultipleReports{
   print "<h4>$string</h4>\n";
 
   #---------------------------------------------------------
-  my @matched_keys_ordered = &CompareReport_utilities::GetComparisonKeys;
-
+  my @matched_keys_ordered = CompareReport_utilities::GetReferenceList($report_key);
+  #---------------------------------------------------------
   my ($ref_file_table_rows, $ref_match_label_hash, $ascii_string_file_table) = 
     CompareReport_utilities::BuildFileTable($report_key, @matched_keys_ordered);
   #---------------------------------------------------------
@@ -209,7 +161,10 @@ sub CompareToReference{
 
   $self->PrintHeader();      
 
-  my @refKeys = $self->GetReferenceList();  # get the matching reference(s)
+  my $report_key = $self->ReportKey();
+
+  # get the matching reference(s)
+  my @refKeys = CompareReport_utilities::GetReferenceList($report_key); 
 
   # get out if there are no reference report keys
   if ( ! scalar @refKeys ){
@@ -275,7 +230,12 @@ sub PrintHeader{
   }
   
   print "<h2> $title </h2> \n"; 
-  print "<hr> \n";
+  #-----------------------------------------------------------------
+  # pmj 8/9/00 documentation on scalars
+
+  print Browser_utilities::ScalarDocumentationString(),"<hr>\n";
+
+  #-----------------------------------------------------------------
 } 
 #===================================================================
 sub PrintTables{
@@ -355,7 +315,7 @@ sub CompareKeysTable{
 
   # display matching runs
 
-  my @table_heading = ('Dataset (check to compare)', 'Created/On disk?' );
+  my @table_heading = ('Dataset', 'Created/On disk?' );
   my @table_rows    =  th(\@table_heading);
 
   #--- current run
@@ -373,10 +333,17 @@ sub CompareKeysTable{
     # skip possible duplicate
     next if ($key eq $self->ReportKey);
 
-    my $box_name        = $key.".compare_report";
-    my $button_string   = $gCGIquery->checkbox("$box_name", $checked, 'on', '');
-    my $dataset_string  = $button_string.$QA_object_hash{$key}->DataDisplayString();
+    # pmj 7/9/00 take out check boxes - not very useful now
+
+    #my $box_name        = $key.".compare_report";
+    #my $button_string   = $gCGIquery->checkbox("$box_name", $checked, 'on', '');
+    #my $dataset_string  = $button_string.$QA_object_hash{$key}->DataDisplayString();
+    #my $creation_string = $QA_object_hash{$key}->CreationString();
+
+    my $dataset_string  = $QA_object_hash{$key}->DataDisplayString();
     my $creation_string = $QA_object_hash{$key}->CreationString();
+
+    #---
 
     push @table_rows, td( [$dataset_string, $creation_string ]); 
 
@@ -385,17 +352,53 @@ sub CompareKeysTable{
   return table( {-border=>undef}, Tr(\@table_rows) ."\n" );
 }
   
-#==========
-# returns both the default and all the user references
+#========================================================
+# obsolete pmj 11/9/00
+sub ObsoleteSelectMultipleReports{
+#sub SelectMultipleReports{
 
-sub GetReferenceList{
   my $self = shift;
+  #--------------------------------------------------------
+  $self->PrintHeader();
+  #---------------------------------------------------------
+  my $script_name = $gCGIquery->script_name;
+  print $gCGIquery->startform(-action=>"$script_name/lower_display", -TARGET=>"ScalarsAndTests"); 
+  #---------------------------------------------------------
+  my $report_key = $self->ReportKey();
 
-  my $report_key = $self->ReportKey;
+  print "<h3> Select comparison runs from following list, then push button for macro and multiplicity class</h3>";
 
-  my @defaultList = 
-    Db_CompareReport_utilities::GetMatchingDefaultReferences($report_key);
+  my $button_string = $QA_object_hash{$report_key}->MultClassButtonString('DoCompareMultipleReports');
+  print "$button_string.<br> \n";
 
-  return (@defaultList, $gCGIquery->param('user_reference_list'));
+  #---------------------------------------------------------
+  print "<br>(multiple file selections allowed; more than 6-8 do not display or print well) <br> \n";
   
+  #---------------------------------------------------------
+  # get time-ordered set of keys, dependent upon data class
+  
+  my $data_class = $gDataClass_object->DataClass();
+  my $function = "Db_CompareReport_utilities::$data_class";
+  
+  no strict 'refs';
+  my @matched_keys_ordered = &$function($report_key);
+  
+  use strict 'refs';
+  
+  # BUM 000625
+  # it's possible that no key in the %QA_object_hash corresponds
+  # to a matched_key.  this creates the QA_object if it doesnt already
+  # exist in the %QA_object_hash.
+
+  QA_utilities::make_QA_objects(@matched_keys_ordered);
+
+  print "<h3> Comparison runs: </h3>";
+  print $self->CompareKeysTable(0,@matched_keys_ordered);
+
+  #-------------------------------------------------------------------
+  my $hidden_string = $gBrowser_object->Hidden->Parameters;
+  print "$hidden_string";
+  #-------------------------------------------------------------------
+  print $gCGIquery->endform;
+
 }

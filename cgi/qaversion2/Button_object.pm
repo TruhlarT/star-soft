@@ -418,15 +418,16 @@ sub SetupCompareReport{
   
 }
 #========================================================
-sub SelectMultipleReports{
-
-  my $self = shift;
-  my $report_key = $self->ReportKey;
-
-  #-------------------------------------------------------
-  my $ref = $QA_object_hash{$report_key}->CompareReport_obj();
-  $ref->SelectMultipleReports();
-}
+# obsolete pmj 11/9/00
+#sub SelectMultipleReports{
+#
+#  my $self = shift;
+#  my $report_key = $self->ReportKey;
+#
+#  #-------------------------------------------------------
+#  my $ref = $QA_object_hash{$report_key}->CompareReport_obj();
+#  $ref->SelectMultipleReports();
+#}
 #========================================================
 sub DoCompareMultipleReports{
 
@@ -677,6 +678,21 @@ sub DeleteReference{
 
   CompareReport_utilities::ProcessReference("Delete",$report_key,$dataType);
 }
+#=========================================================
+sub DeleteUserReferences{
+
+  # pmj 7/9/00
+
+  my $self = shift;
+
+  my $io =  new IO_object("UserReferenceFile");
+  my $file = $io->Name();
+
+  unlink $file;
+
+  print "User references deleted<br>\n";
+
+}
 #==========================================================
 # change the old default with the new reference
 
@@ -705,9 +721,13 @@ sub ChangeReference{
 sub SetUserReference{
   my $self = shift;
 
-  my @reference_list = $gCGIquery->param('user_reference_list');
-  
-  CompareReport_utilities::SetUserReference($self->ReportKey(),
-					    @reference_list);
+  my $report_key = $self->ReportKey();
+
+  $gBrowser_object->AddUserReference($report_key);
+
+  my @reference_list = CompareReport_utilities::GetUserReferences();
+
+  #---
+  print "<h4>Data set $report_key added to references</h4>\n";
 
 }

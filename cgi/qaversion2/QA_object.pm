@@ -186,7 +186,9 @@ sub DoQA{
     QA_db_utilities::ResetInProgressFlag($self->qaID);
     return;
   };
-  print h2("<hr>QA for report key $report_key\n");
+
+  my $string = CompareReport_utilities::RunIdentificationString($report_key);
+  print h2("<hr>QA for $string\n");
   print "The time is " . localtime(). "\n". br;
   print h3("Using control file $control_file\n");
 
@@ -500,7 +502,7 @@ sub ButtonString{
 				     'Compare to reference', $report_key);
     $button_string .= $button_ref->SubmitString . br;
     $button_ref = Button_object->new('SetUserReference', 
-				     'Set as user reference', $report_key);
+				     'Add to references', $report_key);
     $button_string .= $button_ref->SubmitString . br;
     
   }
@@ -566,7 +568,8 @@ sub ShowQA{
   my $report_dir = $self->IOReportDirectory->Name;
 
   # title
-  print h2("QA for $report_key\n"); 
+  my $string = CompareReport_utilities::RunIdentificationString($report_key);
+  print h2("QA for $string\n"); 
 
   #--------------------------------------------------------
 
@@ -588,12 +591,14 @@ sub ShowQA{
   $expert_page and
     $button_string_evtscalars_tests = $self->MultClassButtonString('ViewScalarsAndTests', 'evtscalars_tests');
   #---
-  
+
   my $hidden_string = $gBrowser_object->Hidden->Parameters;
   
   print $gCGIquery->startform(-TARGET=>"ScalarsAndTests"); 
   
-  print h3("<hr>Run-averaged Scalars: \n"); 
+  print "<hr>",Browser_utilities::ScalarDocumentationString(),"<br>\n";
+
+  print h3("Run-averaged Scalars: \n"); 
 
   print "$button_string_runscalars";
 
@@ -611,15 +616,81 @@ sub ShowQA{
 sub ShowPsFiles{
   my $self = shift;
 
-  my $report_key = $self->ReportKey;
-  my $report_dir = $self->IOReportDirectory->Name;
+  my $report_key = $self->ReportKey();
+
+  #-------------------------------------------------------------
+  my @filelist_ordered = $self->GetPSFiles();
+  #-------------------------------------------------------------
+
+  print "<hr>",Browser_utilities::HistogramDocumentationString(),"<br>\n";
+
+  print h4("<font color=red>QA histograms for shift crew:</font> \n"); 
+  #-------------------------------------------------------------
+  print "<font color=green>This run: ",
+  CompareReport_utilities::RunIdentificationString($report_key),
+  "</font><br>\n";
+
+  foreach my $file (@filelist_ordered){
+   $file =~ /Shift/ or next;
+   $self->PrintFilestring("Postscript file", $file);
+  }
+  #-------------------------------------------------------------
+  my $report_key = $self->ReportKey();
+  my @refKeys = CompareReport_utilities::GetReferenceList($report_key);
+
+  foreach my $ref_key (@refKeys){
+
+    my @ref_filelist = $self->GetPSFiles($ref_key);
+
+    scalar @ref_filelist and do{
+      print "<br>Reference run: ",
+      CompareReport_utilities::RunIdentificationString($ref_key),"<br>\n";
+
+      foreach my $file (@ref_filelist){
+	$file =~ /Shift/ or next;
+	$self->PrintFilestring("Postscript file", $file, $ref_key);
+      }
+
+    };
+  }
+
+  #-------------------------------------------------------------
+  print h4("<hr>Other QA histograms for this run: \n"); 
+
+  foreach my $file (@filelist_ordered){
+   $file !~ /Shift/ or next;
+   $self->PrintFilestring("Postscript file", $file);
+  }
+
+  #-------------------------------------------------------------
+
+}
+#========================================================
+# returns ordered list of ps files for specified report key
+# if no argument given, returns ps files for this QA_object;
+
+sub GetPSFiles{
+
+  my $self = shift;
+  my $foreign_report_key = shift;
+
+  #-----------------------------------------------------------
+  
+  my $report_key;
+  if ($foreign_report_key){
+    $report_key = $foreign_report_key;
+
+    # make the QA_objects in case it doesn't exist
+    QA_utilities::make_QA_objects($foreign_report_key);
+  }
+  else{
+    $report_key = $self->ReportKey;
+  }
 
   #---------------------------------------------------------
-  # open the report directory
+  # get ps files from directory
 
-  print h4("<hr>QA histograms: \n"); 
-  
-  my $dh = $self->IOReportDirectory->Open;
+  my $dh = $QA_object_hash{$report_key}->IOReportDirectory->Open;
   
   # pmj 28/7/00
   # force ordering of ps files
@@ -635,18 +706,19 @@ sub ShowPsFiles{
     }
   }
   close $dh;
+  #---------------------------------------------------------
+  # order them
 
   my @filelist_ordered = sort { order_ps_files() } @filelist_unordered;
-
-  #----
-
-  foreach my $file (@filelist_ordered){
-    $self->PrintFilestring("Postscript file", $file);
-  }
-
+  #---------------------------------------------------------
+  return @filelist_ordered;
 }
+
 #========================================================
 sub order_ps_files{
+
+  $a =~ /Shift/ and return -1;
+  $b =~ /Shift/ and return 1;
 
   $a =~ /QA/ and return -1;
   $b =~ /QA/ and return 1;
@@ -899,7 +971,13 @@ sub PrintFilestring{
   my $string = shift;
   my $file   = shift;
 
-  my $report_dir = $self->IOReportDirectory->Name;
+  # optional arg for report key; default is this object
+  my $report_key = shift;
+  $report_key or $report_key = $self->ReportKey();
+    
+  #--------------------------------------------------------------------
+
+  my $report_dir = $QA_object_hash{$report_key}->IOReportDirectory->Name;
 
   my $filename = "$report_dir/$file";
   
@@ -918,7 +996,7 @@ sub PrintFilestring{
     print "$string $filename <br> \n";
   }
   else{
-    my $report_dir_WWW = $self->ReportDirectoryWWW;
+    my $report_dir_WWW = $QA_object_hash{$report_key}->ReportDirectoryWWW;
     my $filename_WWW   = "$report_dir_WWW/$file";
     QA_cgi_utilities::make_anchor($string, $filename, $filename_WWW);
   }
@@ -1116,8 +1194,17 @@ sub MultClassButtonString{
     $button_string .= "Multiplicity class: $mult_class; track node limits ($low, $high)<br>\n";
   }
 
+
+  #-----------------------------------------------------------------------------------
+  # first the scalars for shift crews
+
+  $button_string .= "<br><font color=red>Scalars for QA shift crew:</font>\n";
+
   foreach my $file (@evalfile_list) {
     (my $macro_name = basename($file) ) =~ s/\.evaluation//;
+
+    $macro_name =~ /eventBranch/ or next;
+
     $button_string .= "<br>";
     foreach my $mult_class (@mult_class_list){
       my $button_label = "$macro_name";
@@ -1128,7 +1215,27 @@ sub MultClassButtonString{
       $button_string .= $button_ref->SubmitString;
     }
   }
+  #-----------------------------------------------------------------------------------
+  # now all the rest
 
+  $button_string .= "<br><br>Other scalars:\n";
+
+  foreach my $file (@evalfile_list) {
+    (my $macro_name = basename($file) ) =~ s/\.evaluation//;
+
+    $macro_name !~ /eventBranch/ or next;
+
+    $button_string .= "<br>";
+    foreach my $mult_class (@mult_class_list){
+      my $button_label = "$macro_name";
+      $mult_class ne 'none' and $mult_class ne 'mc' and $button_label .= " $mult_class";
+
+      my $button_ref = Button_object->new( $ButtonSub, $button_label, 
+					   $report_key, $file, $macro_name, $mult_class, @args);
+      $button_string .= $button_ref->SubmitString;
+    }
+  }
+  #-----------------------------------------------------------------------------------
   return $button_string;
 
 }

@@ -43,25 +43,6 @@ sub start_comment_button{
 
 }
 #==========================================================
-# buttons relating to the compare report references
-
-sub reference_buttons{
-  my ($button, $string);
-  my $script_name   = $gCGIquery->script_name;
-  my $hidden_string = $gBrowser_object->Hidden->Parameters;
-
-  my $string .= $gCGIquery->startform(-action=>"$script_name/upper_display", 
-				 -TARGET=>"list");  
-  # just a normal submit button.
-  # see Hiddenobject_object for the deletion of param('user_reference_list')
-  $string  .= $gCGIquery->submit("DeleteUserReferences", 
-			      "Delete user references");
-  
-  $string .= $hidden_string . $gCGIquery->endform();
-  
-  return "<center> $string </center>";
-}
-#==========================================================
 # see Browser_object::StartingDisplay
 
 sub start_expert_buttons{
@@ -376,3 +357,26 @@ sub SwitchDataTypeMenuLite{
   
   return $toggle_string;
 } 
+#====================================================================
+sub ScalarDocumentationString{
+
+  # pmj 8/9/00 documentation on scalars
+
+  my $doc_link = $gCGIquery->script_name;
+  $doc_link =~ s/QA_main\.pm/doc\/Scalars.html/;
+
+  my $doc_string = "<a href=$doc_link target='documentation'>Documentation on scalars</a>";
+ 
+  return $doc_string;
+}
+#====================================================================
+sub HistogramDocumentationString{
+
+  # pmj 8/9/00 pointer to Gene's histo documentation page
+
+  my $doc_link = "http://connery.star.bnl.gov/STARAFS/comp/qa/hists";
+
+  my $doc_string = "<a href=$doc_link target='documentation'>Documentation on histograms</a>";
+ 
+  return $doc_string;
+}

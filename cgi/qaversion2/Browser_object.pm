@@ -60,6 +60,10 @@ sub _init{
   $self->{_KeyList} = new $KeyList_obj; # depends on type of data
   $self->{_Hidden}  = new HiddenObject_object;
 
+  # pmj 7/9/00 generate user reference filename
+  my $io = new IO_object("UserReferenceFile");
+  undef $io;
+
 }
 
 
@@ -217,8 +221,6 @@ sub StartingDisplay{
                  <tr> $table_string
                  </table>
         </table>};
-  # buttons relating to compare report references
-  print hr, "<center>",Browser_utilities::reference_buttons(),"</center>";
 
   #-----------------------------------------------------------------------------
   if( $self->ExpertPageFlag() ){
@@ -296,12 +298,6 @@ sub DisplayDataset{
   $gCGIquery->param('enable_add_edit_comments') 
     and  &Browser_utilities::display_comment_buttons;
 
-  # show the references
-  unless($gCGIquery->param('Display messages')){
-    CompareReport_utilities::ShowDefaultReferences();
-    CompareReport_utilities::ShowUserReferences();
-  }
-
   my (@selected_keys);
   # are we looking for datasets?
   if ($gCGIquery->param('Display datasets')){
@@ -309,7 +305,21 @@ sub DisplayDataset{
     $gCGIquery->delete('selected_key_list');
 
     # get selected keys - also make QA_objects
+
+    # pmj 5/9/00 **Also prints out DB query (this should be made a separate function)
     my @all_selected_keys = $self->KeyList->GetSelectedKeyList;
+
+
+    #----
+    # pmj 5/9/00 move these here...
+    # show the references
+    unless($gCGIquery->param('Display messages')){
+      CompareReport_utilities::ShowReferences();
+      print "<hr>\n";
+    }
+
+    #----
+
     
     my $rows = scalar @all_selected_keys;
     # no keys match query, get out
@@ -594,6 +604,19 @@ sub OnlineRunBrowser{
 
   my $string = "<a href=$url target = 'documentation'>Online Run Log</a>";
   return $string;
+}
+#===========================================================
+sub AddUserReference{
+
+  my $self = shift;
+  my $user_reference = shift;
+  
+  #--------------------------------------------------------------
+  my ($io, $FH);
+  $io = new IO_object("UserReferenceFile");
+  $FH = $io->Open(">>");
+  print $FH "$user_reference ";
+  undef $io;
 }
 
 #===========================================================
