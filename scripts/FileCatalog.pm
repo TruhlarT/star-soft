@@ -602,11 +602,17 @@ sub _ReadConfig
 		#}
 	    }
 
-	    if ($line =~ /\<\/SCATALOG\>/i){           $ok = 0;}
+	    if ($line =~ /\<\/SCATALOG\>/i){    $ok = 0;}
 	    if ($line =~ /(\<SERVER)(.*\>)/i && $ok ){
 		$scope = $2;
-		if ($scope =~ m/$intent/){            
+		$scope =~ m/(.*\")(.*)(\".*)/;
+		$scope = $2;
+		#print "[$scope] [$intent]\n";
+
+		if ($scope =~ m/$intent/){
 		    $ok |= 0x2;
+		} else {
+		    $ok &= 0x1;
 		}
 	    }
 
@@ -618,7 +624,7 @@ sub _ReadConfig
 		}
 	    }
 
-	    if ($ok && 0x2){
+	    if ( ($ok & 0x2) ){
 		# Parsing of the block of interrest
 		# Host specific information. Note that we do not
 		# assemble things as a tree so, one value possible
@@ -661,6 +667,7 @@ sub _ReadConfig
 
 sub get_connection
 {
+    my($self)= shift;
     my($intent)=@_;
     my($host,$db,$port,$user,$passwd);
 
@@ -3572,6 +3579,7 @@ sub delete_records {
       @ids = split("::",$_);
 
       $cmd = "DELETE LOW_PRIORITY FROM FileLocations WHERE fileLocationID=$ids[0]";
+      #&print_debug($cmd);
       $sth = $DBH->prepare( $cmd );
 
       if( $doit ){
@@ -3619,6 +3627,8 @@ sub delete_records {
 	      $sth2->finish();
 	  }
 
+      } else {
+	  &print_debug("Delete failed ".$DBH->err." ".$DBH->errstr);
       }
       $sth->finish();
   }
