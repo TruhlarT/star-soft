@@ -159,31 +159,36 @@ if( -e $FILOUT){
     print " - Old report $FILOUT exists. Reading it (may take a while).\n";
     open(FI,$FILOUT) || die "Could not open $FLNM as read.\n";
     while( defined($line = <FI>) ){
+	chomp($line);
 	if ($line =~ m/(\[.*\]\s)(.*)/ ){
 	    # That's a code name. May be unique or not but we don't care
 	    # since we are using associative array
-	    $tmp = $1; $tmp =~ m/\[(.*)(\..*):\d*\]/;
-	    $obj = $1.$OBJ;
-	    if( ! defined($PATH{$obj}) ){
-		print " + Searching for $obj --> ";
-		chomp($res = `$FIND . -name $obj | $GREP $DIRPAT`);
+	    $tmp = $1; 
+	    if ( $tmp =~ m/\[(.*)(\..*):\d*\]/ ){
+		$obj = $1.$OBJ;
+		if( ! defined($PATH{$obj}) ){
+		    print " + Searching for $obj --> ";
+		    chomp($res = `$FIND . -name $obj | $GREP $DIRPAT`);
 
-		$res =~ s/$dir//;
-		if($res eq ""){
-		    print " *** Not found ***\n";
+		    $res =~ s/$dir//;
+		    if($res eq ""){
+			print " *** Not found ***\n";
+		    } else {
+			$PATH{$obj} = $res; 
+			print "$res\n";
+		    }
 		} else {
-		    $PATH{$obj} = $res; 
-		    print "$res\n";
-		}
-	    } else {
-		$res = $PATH{$obj};
-		if( ! defined($DELETE{$res}) ){
 		    $res = $PATH{$obj};
-		    print " + $obj is in $res\n";
+		    if( ! defined($DELETE{$res}) ){
+			$res = $PATH{$obj};
+			print " + $obj is in $res\n";
+		    }
 		}
+		#print "DEBUG :: [$res] ";
+		$DELETE{$res} = $obj;
+	    } else {
+		print "There was no match for [$tmp] extracted from [$line]\n";
 	    }
-	    #print "DEBUG :: [$res] ";
-	    $DELETE{$res} = $obj;
 	}
     }
     close(FI);
