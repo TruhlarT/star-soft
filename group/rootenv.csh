@@ -1,4 +1,6 @@
-#!/usr/bin/csh -f
+#!/usr/bin/env csh 
+if ($#argv > 0) setenv ROOT_LEVEL $1
+if ($?STAR_HOST_SYS == 0) setenv STAR_HOST_SYS `sys`
 set level = `echo $ROOT_LEVEL | awk -F. '{print $2}'`
 if ($level  >= 24)  then
     setenv ROOTSYS /afs/rhic/star/ROOT/${ROOT_LEVEL}
@@ -7,7 +9,7 @@ else
     setenv ROOTSYS /afs/rhic/star/ROOT/${ROOT_LEVEL}/.${STAR_HOST_SYS}/root
     set root   = ""
 endif
-switch ($STAR_SYS)
+switch ($STAR_HOST_SYS)
     case "hp_ux102":
 #  ====================
     if (! ${?SHLIB_PATH}) setenv SHLIB_PATH 
