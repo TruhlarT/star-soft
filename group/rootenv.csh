@@ -81,7 +81,6 @@
     if ($?SILENT == 0) echo " Unimplemented platform $MACHINE"
     exit   
   endsw
-  if ($?SILENT == 0) echo LD_LIBRARY_PATH = $LD_LIBRARY_PATH
 
 #
 # OpenGL
