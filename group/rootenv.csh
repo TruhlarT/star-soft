@@ -9,9 +9,20 @@ if (! $?ROOT) setenv ROOT ${STAR_ROOT}/ROOT
 if ($level  >= 305 )  then
     # all is sorted out here actually
     set p = ""
+    set x = "deb"
     if ($?INSURE)  set p = "I"
-    setenv ROOTSYS ${ROOT}/${ROOT_LEVEL}/.${STAR_HOST_SYS}/rootdeb
+    if ($?NODEBUG) set x = ""
+
     set ROOTBASE = "${ROOT}/${ROOT_LEVEL}/.${STAR_HOST_SYS}"
+
+    if ( ! $?ROOTSYS ) then
+	# We set "a" default
+	setenv ROOTSYS ${ROOT}/${ROOT_LEVEL}/.${STAR_HOST_SYS}/rootdeb
+    else
+	# we reset it according to what is defined
+	setenv ROOTSYS ${ROOT}/${ROOT_LEVEL}/.${STAR_HOST_SYS}/${p}root${x}
+    endif
+
 
 else
     if ($level  >= 224 )  then
