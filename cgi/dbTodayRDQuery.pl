@@ -26,6 +26,7 @@ struct FileAttr => {
         flname  => '$', 
          dtSet  => '$',
          timeS  => '$',
+        fpath   => '$',
 		  };
 
 &cgiSetup();
@@ -48,7 +49,7 @@ $thisDay = '00'.$thisday;
 &beginHtml();
 
 
-$sql="SELECT dataset, fName, createTime FROM $FileCatalogT where insertTime like '$thisDay%' AND fName like '%dst.root' AND type = 'daq_reco'";
+$sql="SELECT dataset, path, fName, createTime FROM $FileCatalogT where insertTime like '$thisDay%' AND fName like '%dst.root' AND type = 'daq_reco'";
 $cursor =$dbh->prepare($sql)
   || die "Cannot prepare statement: $DBI::errstr\n";
 $cursor->execute;
@@ -65,6 +66,7 @@ while(@fields = $cursor->fetchrow) {
 
     ($$fObjAdr)->dtSet($fvalue)   if($fname eq 'dataset'); 
     ($$fObjAdr)->flname($fvalue)  if($fname eq 'fName');
+    ($$fObjAdr)->fpath($fvalue)   if($fname eq 'path');
     ($$fObjAdr)->timeS($fvalue)   if($fname eq 'createTime');
  }
        $dbFiles[$ndbFiles] = $fObjAdr;
@@ -75,11 +77,13 @@ while(@fields = $cursor->fetchrow) {
 my $myFile;
 my $myDSet;
 my $myCtime;
+my $myPath;
 
  foreach $eachFile (@dbFiles) {
 
        $myFile  = ($$eachFile)->flname;
        $myDSet  = ($$eachFile)->dtSet;
+       $myPath  = ($$eachFile)->fpath;
        $myCtime = ($$eachFile)->timeS;  
 
   &printRow();
@@ -101,9 +105,10 @@ print <<END;
      <h1 align=center>List of DST Files Inserted Today into FileCatalog</h1>
 <TABLE ALIGN=CENTER BORDER=5 CELLSPACING=1 CELLPADDING=2 >
 <TR>
-<TD ALIGN=CENTER WIDTH=\"50%\" HEIGHT=50><B>Dataset</B></TD>
-<TD ALIGN=CENTER WIDTH=\"30%\" HEIGHT=50><B>Name of File</B></TD>
-<TD ALIGN=CENTER WIDTH=\"20%\" HEIGHT=50><B>Create Date</B></TD>
+<TD ALIGN=CENTER WIDTH=\"50%\" HEIGHT=30><B>Dataset</B></TD>
+<TD ALIGN=CENTER WIDTH=\"30%\" HEIGHT=30><B>Path</B></TD>
+<TD ALIGN=CENTER WIDTH=\"30%\" HEIGHT=20><B>Name of File</B></TD>
+<TD ALIGN=CENTER WIDTH=\"20%\" HEIGHT=20><B>Create Date</B></TD>
 </TR> 
    </head>
     <body>
@@ -116,6 +121,7 @@ sub printRow {
 print <<END;
 <TR ALIGN=CENTER>
 <td>$myDSet</td>
+<td>$myPath</td>
 <td>$myFile</td>
 <td>$myCtime</td>
 </TR>
