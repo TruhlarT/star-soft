@@ -90,8 +90,8 @@ sub JobPopupMenu{
 
   # QA status (errors, warnings, ok)
   my @macro_names = @{$select_ref->{macroName}};
-
   my $abbrev;
+
   # QA status now fill in errors and warnings info
   push @{$self->{values}{QAstatus}}, ( 'ok', 'not ok', 'done', 'not done');
   %{$self->{labels}{QAstatus}} = map{$_, $_} @{$self->{values}{QAstatus}};
@@ -105,8 +105,9 @@ sub JobPopupMenu{
     foreach my $macro_name (@macro_names){
       my $value = "$status;$macro_name";
       push @{$self->{values}{QAstatus}}, $value;
-      ($abbrev = $status) =~ s/warnings/warn/;
-      ($abbrev = $status) =~ s/errors/err/;
+      ($abbrev = $status) =~ s/warnings/warn/ if $status eq 'warnings';
+      ($abbrev = $status) =~ s/errors/err/    if $status eq 'errors';
+
       $self->{labels}{QAstatus}{$value} = "$abbrev - $macro_name";
     }
   }
@@ -138,8 +139,8 @@ sub JobPopupMenu{
 
   my $null_string = "";
 
-  my $rows_ref =
-    [ 
+  my @rows =
+    (
      td([$self->GetRowOfMenus('prodOptions',
 			      'jobStatus',
 			      'QAstatus',
@@ -153,22 +154,22 @@ sub JobPopupMenu{
 	                       ,$null_string
 	                       ,$submit_string
 	])
-    ];
-
+    );
+  
   #---
   #my $table_string = 
   #    table({-align=>'center'}, Tr({-valign=>'top'}, \@table_rows));
-
+  
   my $script_name   = $gCGIquery->script_name;
   my $hidden_string = $gBrowser_object->Hidden->Parameters;
 
   my $select_data_string =
       $gCGIquery->startform(-action=>"$script_name/upper_display",
 			-TARGET=>"list").
-	table({-align=>'left'}, Tr({-valign=>'top'}, $rows_ref)).
-	  $hidden_string.
+	table({-align=>'left'}, Tr({-valign=>'top'}, \@rows  )).
+	   $hidden_string.
 	    $gCGIquery->endform;
-
+	      
   return $select_data_string;
 
 }

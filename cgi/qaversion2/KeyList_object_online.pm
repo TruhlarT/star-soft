@@ -121,15 +121,15 @@ sub JobPopupMenu{
   my $submit = $gCGIquery->submit('Display datasets');
 
 
-  my $rows_ref = 
-    [ td([ $select_labels{detector},$select_labels{QAstatus} , "", 
+  my @rows = 
+    ( td([ $select_labels{detector},$select_labels{QAstatus} , "", 
 	   $radio_runID, "..or..",$radio_date, "",""                  ]),
       td([ $detector_menu, $QAstatus_menu,            "", 
 	   $runID_text,  "",$year_text,$month_text, $day_text, $submit])
-    ];
+    );
 		      
   my $table_string = table({-align=>'center'}, 
-			   Tr({-valign=>'top'}, $rows_ref));
+			   Tr({-valign=>'top'}, [@rows]));
 
   
   my $script_name   = $gCGIquery->script_name;

@@ -307,7 +307,26 @@ sub QASummaryString{
   else  # qa indeed has been done
   {
     $summary_string = "QA done ".br.$self->QADate.br.br;
-    
+
+    # find the HTML file and make the link
+    my $outputFullHTML = IO_object->new("BatchLogHTML", $self->ReportKey)->Name();
+    my $outputHTML     = basename($outputFullHTML);
+
+    # make a link to the batch HTML file
+    # first need the WWW report directory
+    my $report_dir = $self->IOReportDirectory->Name();
+
+    if (-s "$report_dir/$outputHTML") {
+
+      my $linkdirWWW = $self->ReportDirectoryWWW;
+      my $linkWWW    = "$linkdirWWW/$outputHTML";
+
+      $summary_string .= $gCGIquery->a({-href=>$linkWWW,
+				        -target=>'display'}, $outputHTML);
+
+      $summary_string .= br;
+    }
+
     # get specific macro info
     # ref is a ref to a 2-d array
     my $ref = QA_db_utilities::GetQAMacrosSummary($self->qaID);
@@ -362,8 +381,23 @@ sub QASummaryString{
 
     if( -e $script_name ){
 
+      local *flagFH;
+      open(flagFH, "$report_dir/$file") or print "Cannot open $file\n";
+      my $text = <flagFH>;
+
+      my ($batch_mode, $jobID) = $text =~ /(\D+)(\d+)/;
+
+      if ($batch_mode =~ /LSF/){
+	
+	$summary_string .= $gCGIquery->a({-href=>"LSF_tool?jobID=$jobID",
+					  -target=>"_new"}, "LSF status");
+      }
+
+      close flagFH;
+      
       $summary_string .= "<br><font color=blue>".
 	                 "Batch job $action in progress</font>";
+      
     }
     else{
       # orphaned batch process, clean it up
@@ -379,6 +413,7 @@ sub QASummaryString{
   #----------------------
   return $summary_string;
 }
+
 #========================================================
 # (fifth column)
 # possible actions on the QA object

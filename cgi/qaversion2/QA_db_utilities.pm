@@ -76,6 +76,9 @@ use strict;
 #                     index (QAdone)
 #                     
 
+# QASummary for offline now has one more field.
+#         redone      smallint            not null default 0
+
 # the QA summary table for online is slightly different...
 
 #         report_key  varchar(64)         not null,
@@ -127,6 +130,7 @@ use strict;
 %QASum = (
 	 Table        => 'QASummary', # name of the table
 	 jobID        => 'jobID',
+	 redone       => 'redone',    # offline only
 	 report_key   => 'report_key',
 	 type         => 'type',      # type of data (real, MC)
 	 QAdone       => 'QAdone',
@@ -552,7 +556,7 @@ sub WriteQASummary{
   # get current date
   my ($sec, $min, $hour, $day, $month, $year) = localtime;
   $year += 1900;  $month++;
-  my $datetime = "$year-$month-$day $hour:$sec:$min";
+  my $datetime = "$year-$month-$day $hour:$min:$sec";
 
   my $query = qq{update $dbQA.$QASum{Table} 
 	      set 
@@ -611,11 +615,11 @@ sub WriteQAMacroSummary{
     $size       = "n/a";
     $path       = "n/a";
   }
-  # check for root crash
 
   # -- fill in QA status for the macro--
   my $rootcrashlog = $report_obj->IORootCrashLog->Name;
   
+   # check for root crash
   if (-s $rootcrashlog)
   {
     $status    = "crashed";
@@ -702,7 +706,7 @@ sub WriteQAMacroSummary{
 	   $QAMacros{ID}         = NULL 
 	 };
   }
-  print h4("Inserting qa macro summary into db for $fName...\n");
+  print h4("Inserting qa macro summary into db for $fName ($macroName)...\n");
 
   # insert
   my $rows = $dbh->do($query);

@@ -104,8 +104,8 @@ sub JobPopupMenu{
     foreach my $macro_name (@macro_names){
       my $value = "$status;$macro_name";
       push @{$self->{values}{QAstatus}}, $value;
-      ($abbrev = $status) =~ s/warnings/warn/;
-      ($abbrev = $status) =~ s/errors/err/;
+      ($abbrev = $status) =~ s/warnings/warn/ if $status eq 'warnings';
+      ($abbrev = $status) =~ s/errors/err/    if $status eq 'errors';
       $self->{labels}{QAstatus}{$value} = "$abbrev - $macro_name";
     }
   }
@@ -132,8 +132,8 @@ sub JobPopupMenu{
   # pmj 21/6/00: more compact display, no header. Pulldown menu for changing classes
   # has been moved to banner so there is more horizontal space
 
-  my $rows_ref = 
-    [
+  my @rows = 
+    (
      td([$self->GetRowOfMenus(
 			      'eventGen'
 			      ,'LibLevel'
@@ -150,14 +150,14 @@ sub JobPopupMenu{
 			     )
 	                      ,$submit_string
 	])
-    ];
+    );
   #---
 
   my $script_name = $gCGIquery->script_name;
   my $hidden_string = $gBrowser_object->Hidden->Parameters;
 
   my $table_string =
-    table({-align=>'left'}, Tr({-valign=>'top'}, $rows_ref));
+    table({-align=>'left'}, Tr({-valign=>'top'}, [@rows]));
 
   my $select_data_string = 
       $gCGIquery->startform(-action=>"$script_name/upper_display",
