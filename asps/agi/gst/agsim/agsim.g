@@ -167,12 +167,12 @@ C
 *KEEP,VIDQQ.
       CHARACTER*68 VIDQQ
       DATA VIDQQ/
-     +'@(#)* Advanced Geant Inteface   1.40/05   C: 11/09/98  00.09.41
+     +'@(#)* Advanced Geant Inteface   1.40/05   C: 14/09/98  01.17.34
      +'/
 *KEEP,DATEQQ.
-      IDATQQ =   980911
+      IDATQQ =   980914
 *KEEP,TIMEQQ.
-      ITIMQQ =      9
+      ITIMQQ =    117
 *KEEP,VERSQQ.
       VERSQQ = ' 1.40/05'
       IVERSQ =  14005
@@ -1135,7 +1135,7 @@ C                                       Link to:
   end
  
  
-*CMZ :          03/09/98  14.24.04  by  Pavel Nevski
+*CMZ :          13/09/98  22.04.22  by  Pavel Nevski
 *CMZ :  1.40/05 17/08/98  18.55.10  by  Pavel Nevski
 *CMZ :  1.30/00 15/04/97  19.40.26  by  Pavel Nevski
 *-- Author :    Pavel Nevski   18/03/97
@@ -1281,6 +1281,7 @@ C                                       Link to:
          CALL ZPHASE(1)
 *
          DO WHILE (IEVENT<NEVENT)
+            If (Ioutp.EQ.-1) Call GUOUT
             IQUEST(1)= 0
             IEORUN   = 0
             NQTRAC   = 0
@@ -1294,7 +1295,6 @@ C                                       Link to:
                If (LKARAW.GT.0) IQ(LKARAW-5) = 1
             Endif
 *           clean up memory - fully or partially
-            If (Ioutp.EQ.-1) Call GUOUT
             If (LKARAW.EQ.0) CALL GTRIGC
             If (LKARP1.GT.0) CALL MZDROP(IxSTOR,LKARP1,'L')
             If (JHEAD.GT.0)  CALL MZDROP(IxSTOR,JHEAD,'L')
@@ -1334,18 +1334,18 @@ C                                       Link to:
             endif
 *
             IF(IEORUN.NE.0) Then
-               WRITE(CHMAIL,10002) TIMNOW
-10002          FORMAT(' ***** THE JOB STOPS NOW because the IEORUN',
-     >                ' flag set by user, Time left is ',F12.3,' *****')
+               WRITE(CHMAIL,10002) IEORUN
+10002          FORMAT(' ***** event loop ends because the IEORUN',
+     >                ' flag set by user is ',I6)
                CALL GMAIL(0,1)
                IQUEST(1) = 1
                GO TO 19
             ENDIF
 *
             IF(IQUEST(1).NE.0) Then
-               WRITE(CHMAIL,10003) TIMNOW
-10003          FORMAT(' ***** THE JOB STOPS NOW because the IQUEST',
-     >             ' flag set by program, Time left is ',F12.3,' *****')
+               WRITE(CHMAIL,10003) IQUEST(1)
+10003          FORMAT(' ***** event loop ends because the IQUEST',
+     >                ' flag set by program is ',I6)
                CALL GMAIL(0,1)
                IEORUN = 1
                GO TO 19
@@ -2229,6 +2229,7 @@ C
      end
  
  
+*CMZ :          13/09/98  22.06.35  by  Pavel Nevski
 *CMZ :  1.30/00 06/07/96  00.19.32  by  Pavel Nevski
 *-- Author :    Pavel Nevski   01/06/96
 ******************************************************************************
@@ -2294,6 +2295,7 @@ C
 *KEND.
      Integer  Ier
 *
+      If (IEOTRI.ne.0)  return
       If (IOutp!=IOutpOld) then
          If (IOutp==-1) Call AgZOPEN('O','ZEBRA.O','*',0,0)
          If (IOutp > 0) IOutpOld = Ioutp
@@ -16819,6 +16821,7 @@ C
    end
  
  
+*CMZ :          13/09/98  21.47.21  by  Pavel Nevski
 *CMZ :  1.40/05 24/08/98  20.26.08  by  Pavel Nevski
 *-- Author :    Pavel Nevski   23/04/98
 ******************************************************************
@@ -16962,21 +16965,16 @@ C                                       Link to:
    call UCOPY(IQ(JHEAD+1),IHEAD,10)
  
 * appending
-    While IQ(JHEAD+5)>IQ(JHEAD+6)
-    { jer=2;  call AgZread ('P',ier);
+    While IQ(JHEAD+5)>IQ(JHEAD+6) & INDEX(StrmKINE,'C')==0
+    {
+      jer=2;  call AgZread ('P',ier);
       if (ier!=0 | JHEAD<=0) go to :er:
-      IbEvnt = IQ(JHEAD+6); IsubEv+=1;
-      if IbEvnt!=IsubEv
-      { prin0 Isubev,(IQ(JHEAD+i),i=1,6)
-        (' AGPREAD: wrong subevent sequence ',i3,' HEADER =',2i6,2i12,6i6)
-        Istat=IsubEv; IEOTRI=1
-      }
-      else if INDEX(StrmKINE,'C')==0
-      { prin2 Isubev,(IQ(JHEAD+i),i=1,10)
-        (' AGPREAD: appending subevent',i3,' HEADER ='/10x,2i6,2i12,6i6)
-        call AgMERGE (Iprin,0,IbEvnt,0.,Ier)
-        jer=3;  if (Ier!=0) go to :er:
-      }
+      IbEvnt=IQ(JHEAD+6);    IsubEv+=1;
+      prin2 Isubev,IHEAD,(IQ(JHEAD+i),i=1,10)
+      (' AGPREAD: appending subevent',i3,' HEADER ='/(10x,2i6,2i12,6i6))
+      jer=3;  if (IbEvnt!=IsubEv) go to :er:
+      call AgMERGE (Iprin,0,IbEvnt,0.,Ier)
+      jer=4;  if (Ier!=0) go to :er:
     }
     Call Ucopy(IHEAD,IQ(JHEAD+1),4)
  
@@ -16991,8 +16989,7 @@ C                                       Link to:
 *   ier=0; IQUEST(1)=0;
     Return
  
-:er:; prin1 jer,ier,Isubev,IbEvnt;
-      (' AGPREAD: error',2i3,' in subevent =',2i6)
+:er:; prin1 jer,ier,Isubev,IbEvnt; (' AGPREAD: error',2i3,' in subevent =',2i6)
       if   ier>3 { IQUEST(1)=jer; IQUEST(2)=ier; ier=jer }
       else       { ier=0; IQUEST(1)=0; }
       IEOTRI = jer
