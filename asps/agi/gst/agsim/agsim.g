@@ -8157,7 +8157,10 @@ goto :e:
 :e: if (CWD!=' ') Call RZCDIR(CWD,' ')  " restore CWD"
 END
  
- 
+                 Subroutine   A g D O C U M E _
+             (Module,MTitle,Author,Created,Btit,JOB)
+character*(*) Module,MTitle,Author,Created,Btit,JOB)
+                 end
  
 ***************************************************************************
           subroutine   a g d o c l i n e (L,Iprin,name,comment)
