@@ -29,7 +29,7 @@ use Cwd;
 
 use vars qw( $CVS_id $CVS_ver $ver_num $ver_rev $version );
 
-$CVS_id = '$Id: cons,v 1.83 2001/12/11 12:41:22 fisyak Exp $ ';
+$CVS_id = '$Id: cons,v 1.84 2001/12/11 15:45:35 fisyak Exp $ ';
 $CVS_ver = (split(/\s+/, $CVS_id))[2];
 
 $ver_num = "2.3";
@@ -1761,6 +1761,7 @@ sub find {
 	    # if we're not using repositories, the directory exists,
 	    # or it's Linked to a source directory (that is, it *will*
 	    # exist by the time the link occurs).
+	    next if $dpath eq "."; # remove local directory 
 	    $ldirs .= " ".$env->{LIBDIRPREFIX}.$dpath.$env->{LIBDIRSUFFIX}
 			if ! @param::rpath || -d $dpath || $dir->is_linked;
 	    next if File::Spec->file_name_is_absolute($dpath);
