@@ -23,7 +23,7 @@
 # CGI_dispatcher keeps a log file at 
 # /afs/rhic/star/starqa/var/log/CGI_dispatcher.log
 #
-# For easy access, it stores its pid in 
+# For easy access, it stores the pid of the main process in 
 # /afs/rhic/star/starqa/var/run/CGI_dispatcher.pid
 
 use strict;
@@ -46,6 +46,8 @@ my $log_file = "$log_dir/$my_name.log";
 my $afs_pw_file = "$working_dir/starlib_pw";
 
 my $script_file;
+
+my $MAX_CHILDREN = 10; # maximum number of children to fork
 
 my %opt = ();
 getopt('', \%opt); # no args take options
@@ -97,13 +99,19 @@ POLLING: while (1){
 	if ($script_file =~ /$client_name/ && 
 	    $script_file !~ /output/ &&
 	    $script_file !~ /working/){
-	    my $kid_pid = fork();
-	    if ($kid_pid) {
-		print STDERR "forking child $kid_pid\n";
+	    if(&numChildren < $MAX_CHILDREN){ # too many kids?
+		my $kid_pid = fork();
+		print STDERR "(numkids: " . &numChildren . ")";
+		if ($kid_pid) {
+		    print STDERR "forking child $kid_pid\n";
+		}else{
+		    print STDERR "i'm the forked child $$\n";
+		    #undef $scratchDH; #release our hold on the directory
+		    last POLLING;
+		}
 	    }else{
-		print STDERR "i'm the forked child $$\n";
-		#undef $scratchDH; #release our hold on the directory
-		last POLLING;
+		print STDERR "can't fork: " . &numChildren . 
+		    " children running\n";
 	    }
 	}else{
 	    print STDERR "ignored\n";
@@ -133,8 +141,7 @@ system("./$script_file.working >& $output_file");
 # clean up after ourselves
 #
 
-unlink $script_file;
-#system ("mv $script_file.working $scratch_dir/old");
+unlink "$script_file.working";
 cleanup();
 
 #
@@ -211,5 +218,18 @@ sub printToLog{
     system("echo \"$msg\" >> $log_file");
     print STDERR "$msg\n";
 }
+
+# 
+# find out how many children have been forked
+#
+
+sub numChildren{
+    
+    my @output = `ps -u starlib | grep $my_name`;
+
+    return $#output; # number of children == number of lines - 1
+
+}
+
 
 

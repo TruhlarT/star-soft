@@ -132,7 +132,6 @@ print @output;
 #
 
 unlink $output_name;
-#system ("mv $output_name $scratch_dir/old");
 exit 0;
 
 
