@@ -1,4 +1,4 @@
-*CMZ :          26/08/98  22.10.06  by  Pavel Nevski
+*CMZ :  1.40/05 26/08/98  22.10.06  by  Pavel Nevski
 *CMZ :  1.40/05 13/07/98  10.50.50  by  Pavel Nevski
 *-- Author :    Pavel Nevski
 *****************************************************************************
@@ -168,12 +168,12 @@ C
 *KEEP,VIDQQ.
       CHARACTER*68 VIDQQ
       DATA VIDQQ/
-     +'@(#)* Advanced Geant Inteface  1.40/05    C: 26/08/98  22.23.08
+     +'@(#)* Advanced Geant Inteface   1.40/05   C: 28/08/98  10.55.07
      +'/
 *KEEP,DATEQQ.
-      IDATQQ =   980826
+      IDATQQ =   980828
 *KEEP,TIMEQQ.
-      ITIMQQ =   2223
+      ITIMQQ =   1055
 *KEEP,VERSQQ.
       VERSQQ = ' 1.40/05'
       IVERSQ =  14005
@@ -583,7 +583,7 @@ C
     END
  
  
-*CMZ :          26/08/98  22.18.29  by  Pavel Nevski
+*CMZ :  1.40/05 27/08/98  22.49.57  by  Pavel Nevski
 *CMZ :  1.40/05 21/08/98  13.34.22  by  Pavel Nevski
 *CMZ :  1.30/00 23/04/97  18.45.29  by  Pavel Nevski
 *-- Author :    Pavel Nevski   01/04/96
@@ -950,8 +950,9 @@ C                                       Link to:
         { Check Cword==CFLAG(j);
           Do ID=ID1,ID2 { If (LQ(LKDETM-ID)>0) IQ(LQ(LKDETM-ID)+j)=IVAL; }
           Check Cword='BACK' & Ival>=0;
-          M=10**(int(1+LOG10(Ival+0.9))/2); L1=-Ival; L2=+Ival;
-          IF M>1 { L1= - (Ival/M/10);  L2= mod(Ival,M) }
+          M=10**(int(1+LOG10(Ival+0.9))/2); L1=-Ival; L2=+Ival; L=1;
+          IF M>1  { L1=-(Ival/M/10);  L2= mod(Ival,M);  L=mod(Ival/M,10); }
+          If L!=1 { Prin0 Ival; (' pile-up keyword is wrong :',i12) }
           Prin1 L1,L2; (' pile-up in bunches ',i5,'  -trigger-',i5)
      }  }
      Do ID=ID1,ID2
@@ -12371,7 +12372,7 @@ Common     /AgZbuffer/  K,JRC,JCONT,CSTREAM,COPTN,CREQ,IREQ,iend,mem(100,5)
 End
  
  
-*CMZ :  1.40/05 20/08/98  18.01.54  by  Pavel Nevski
+*CMZ :  1.40/05 27/08/98  20.38.58  by  Pavel Nevski
 *CMZ :  1.30/00 19/03/97  21.57.11  by  Pavel Nevski
 *CMZU:  1.00/01 15/01/96  20.20.30  by  Pavel Nevski
 *-- Author :    L.Vacavant, A.Rozanov    14/12/94
@@ -12549,7 +12550,7 @@ C                                       Link to:
 *
     Check ( index(stream,'P')>0 & IkineOld<=-1 _
           | index(stream,'B')>0 & IBackOld<=-1 )
-10  Iprin=max(Idebug+1,ISLFLAG('INPU','PRIN'))
+10  Iprin=max(Idebug,ISLFLAG('INPU','PRIN'))
                              iu=1;  Chopt=CoptKine;
     If index(stream,'B')>0 { iu=2;  Chopt=CoptBack; }
     If index(stream,'S')>0 {        Chopt=' ';      }
@@ -12585,7 +12586,7 @@ C                                       Link to:
         If ( " new eor nt>0 ?" HEAD=='HEAD' & Ns==0 & Kevent(iu)>0 _
            | HEAD=='RUNG' & Nt==0 | HEAD=='CODE' | HEAD=='RUN') Trig=.false.
         If Trig
-        { prin2 kevent(iu),nt,ns,Lun,IHEAD(1),IHEAD(2),HEAD
+        { prin1 kevent(iu),nt,ns,Lun,IHEAD(1),IHEAD(2),HEAD
           (' AGZREAD: event',i7,2i3,' on unit',i4,' ended by',2i6,A6)
           Break;
         }
@@ -13193,7 +13194,7 @@ END
  
  
  
-*CMZ :          26/08/98  21.54.47  by  Pavel Nevski
+*CMZ :  1.40/05 27/08/98  19.50.28  by  Pavel Nevski
 *CMZ :  1.40/05 24/08/98  20.26.49  by  Pavel Nevski
 *CMZ :  1.30/00 21/03/97  15.15.10  by  Pavel Nevski
 *-- Author :    Pavel Nevski   27/05/96
@@ -13202,7 +13203,7 @@ END
 *                                                                      *
 * Description: AG pileup facility - draft, to be polished later        *
 * Modifications:                                                       *
-* PN, 27.11.97 : Neagitive Bg multiplicity means no fluctuations       *
+* PN, 27.11.97 : Negative Bg multiplicity means no fluctuations        *
 ************************************************************************
 *KEEP,TYPING.
       IMPLICIT NONE
@@ -13390,9 +13391,9 @@ C                                       Link to:
 *
    Integer            Laref,   Jd,jhs,jhd,jv2,jk2
    Common  /agcmerge/ Laref(2),Jd,jhs,jhd,jv2,jk2
-   Integer            AgPointr,Iprin,IbCurrent,IbEvnt,Ier,Ib,
+   Integer            LgKINE,AgPointr,Iprin,IbCurrent,IbEvnt,Ier,Ib,
                       Dum(20)/20*0/,Jdu,Idu,Nv1,Nv2,Nt1,Nt2,Nh1,Nh2,
-                      Iv,Jv,It,Jt,i,j,Isel,Nw,Nw1,Nw2,L,M,L1,L2
+                      Iv,Jv,It,Jt,i,j,Isel,Nw,Nw1,Nw2,L,M,L1,L2,jo
    REAL               Tbunch
 *  GEANT general definitions for SET-type banks:
    Integer            JSF,JDF,IDF,ISF,LINK,Iset,Idet
@@ -13436,7 +13437,7 @@ C
       {               j=jv+i; if (Q(j)>0) Q(j)+=Nt1; If (Q(j)>Ntrack) Q(j)=0; }
    }
    do it=Nt1+1,Ntrack
-   {  jt=LQ(JKINE-it);  check jt>0;
+   {  jt=LgKINE(jo,it);  check jt>0;
       do i=6,7+nint(Q(jt+7))          " update vertex numbers  in tracks "
       {  check i!=7;  j=jt+i; if (Q(j)>0) Q(j)+=Nv1; if (Q(j)>Nvertx) Q(j)=0; }
    }
@@ -13538,17 +13539,23 @@ C
      +            ,NSTMAX,NVERTX,NHEAD,NBIT ,NALIVE,NTMSTO
 C
 *KEND.
-   Integer Iprin,N1,N2,jj,jv,jv2,i,k,ier
+   Integer Iprin,N1,N2,M1,M2,jj,jv,jv2,i,j,k,ier
  
    check Jj>0; Jv=Jj;
-   do i=1,2  { N1=N2; N2=0; check Jv>0; N2=IQ(Jv+k); Jv=LQ(Jv); }
+   do i=1,2  { N1=N2; N2=0;  M1=M2; M2=0;    check Jv>0;
+               N2=IQ(Jv+k);  M2=IQ(Jv+k+1);  Jv=LQ(Jv); }
+ 
    If (JV>0) print *,'****  AGMER WARNING: SOMETHING LEFT !!! ***'
-   Check k>0;  If N1>0 & N2>0
-   {  Call agpush(Iprin,Jj,N1+N2,1,Ier);  check Ier==0;
-      DO I=1,N2
-      { JV2=LQ(LQ(Jj)-I); Check JV2>0; Call ZSHUNT(IXSTOR,JV2,Jj,-(N1+I),1) }
-      Call MZDROP(IXSTOR,LQ(Jj),'L');
-   }  IQ(Jj+k)=N1+N2
+   Check k==1;  If N1>0 & N2>0
+   { If N1+N2-M1<64000
+     { Call agpush(Iprin,Jj,N1+N2-M1,1,Ier);  check Ier==0;
+       DO I=1,N2-M2
+       {JV2=LQ(LQ(Jj)-I); Check JV2>0; Call ZSHUNT(IXSTOR,JV2,Jj,-(N1-M1+I),1)}
+       Call MZDROP(IXSTOR,LQ(Jj),'L');  IQ(Jj+1)=N1+N2;
+     }
+     else  { jj=LQ(jj); IQ(jj+1)=N1+N2; IQ(jj+2)=N1; }
+   }
+ 
 END
  
  
@@ -15861,6 +15868,7 @@ C
       IER       = 1
       end
  
+*CMZ :  1.40/05 27/08/98  22.47.55  by  Pavel Nevski
 *CMZ :  1.30/00 24/04/97  20.12.49  by  Pavel Nevski
 *-- Author :    Pavel Nevski   22/03/97
 ***************************************************************************
@@ -15890,22 +15898,17 @@ C
      +      ,JVOLUM,JXYZ  ,JGPAR ,JGPAR2,JSKLT
 C
 *KEND.
-     Integer  LgKINE,I,J,JO,NF
+     Integer  LgKINE,I,J,JO
 *
-     LgKine=0; j=JKINE; JO=j; NF=IQ(j+2)
-     while  0<j&j<NZEBRA
-     { JO=J; If NF==0
-       { If      I >IQ(j+1) "move right" {  J=LQ(J)  }
-         else If I<=IQ(j+2) "move left"  { J=LQ(J+2) }
-         else    {  LgKINe=LQ(j-I+IQ(j+2));  Return  }
-       }
-       else
-       { If      I<=IQ(j+2) "move right" {  J=LQ(J)  }
-         else    {  LgKINe=LQ(j-I+IQ(j+2));  Return  }
-     } }
-*      Print *,' LgKINE error - track ',I,' not found'
+     LgKINE=0; j=JKINE; JO=j;
+     while  0<j&j<NZEBRA & I>0
+     { JO=J    " just in case we will move outside "
+       If      I >IQ(j+1) "move right" {  J=LQ(J)  }
+       else If I<=IQ(j+2) "move left"  { J=LQ(J+2) }
+       else    {  LgKINE=LQ(j-I+IQ(j+2)); Return   }
+     }
+*    Print *,' LgKINE error - track ',I,' not found'
      END
- 
 *CMZ :  1.30/00 31/03/97  21.39.29  by  Pavel Nevski
 *-- Author :    Pavel Nevski
 ****************************************************************************
@@ -17377,7 +17380,7 @@ C
 *     Print *,'  get track fi0,a0,Pti,z0,dz=',Fi0Fit,A0Fit,PTinv,z0fit,dZdR0
     END
  
-*CMZ :  1.40/05 04/12/97  13.25.20  by  Pavel Nevski
+*CMZ :  1.40/05 27/08/98  19.20.39  by  Pavel Nevski
 *CMZU:  1.00/01 25/01/96  02.13.04  by  Pavel Nevski
 *CMZ :  1.00/00 28/08/95  00.45.41  by  Pavel Nevski
 *-- Author :    Pavel Nevski   11/10/93
@@ -17440,6 +17443,15 @@ C
 *
 *    - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 *
+*KEEP,GCFLAG.
+      COMMON/GCFLAG/IDEBUG,IDEMIN,IDEMAX,ITEST,IDRUN,IDEVT,IEORUN
+     +        ,IEOTRI,IEVENT,ISWIT(10),IFINIT(20),NEVENT,NRNDM(2)
+      COMMON/GCFLAX/BATCH, NOLOG
+      LOGICAL BATCH, NOLOG
+C
+      INTEGER       IDEBUG,IDEMIN,IDEMAX,ITEST,IDRUN,IDEVT,IEORUN
+     +        ,IEOTRI,IEVENT,ISWIT,IFINIT,NEVENT,NRNDM
+C
 *KEND.
       CHARACTER*(*) TIT
       CHARACTER*8   TAG,TAGS,Pfx,PfxS
@@ -17454,6 +17466,7 @@ C
       LOGICAL       FIRST /.TRUE./
       INTEGER       Lout/6/,Iprin/0/
       DATA          IP,KV,JD/1,1,1/
+      Iprin=Idebug-2
  
 *   -------------------------------------------------------------------
       IF Iabs(IVAR)<1 000 000 {"integer" V=IVAR} else {"real" IV=IVAR}
@@ -17486,11 +17499,11 @@ C
          IF (!FIRST) GoTo :E:
             NT=MIN(NT+1,NTAG);  It=Nt;   TAGS(NT)=TAG
             Itag(IP+1)=NT;    NV=NV+KV;  KADR(IP+1)=NV
-            Prin1 TAG,NT,IP,NV
+            Prin2 TAG,NT,IP,NV
             (' XNTUP: new tag ',A,i4,' on page',i3,' NVtot=',i5)
         :T: II=MIN(KADR(IP)+(IT-Itag(IP)-1)*KV+JD,NVAL);  VAL(II)=V
       }
-      ELSE                        "   close event    "
+      ELSE if(Nt>0 & ID>0)                       "   close event    "
       {  If (IUHIST>0) CALL RZCDIR('//'//CDHIST,' ')
          If (IUHIST>0) CALL  HCDIR('//'//CDHIST,' ')
          IF FIRST
@@ -17513,6 +17526,8 @@ C
          CALL VZERO(VAL,NVAL)
          {IP,JD,KV}=1
       }
+      else            " restart "
+      {  { IP,KV,JD } = 1;    { NT,NP,NV,ND } = 0;  }
       Return
 :E:;  Prin0 TAG; (' XNTUP: too late to introduce new TAG/PAGE ',A)
       END
