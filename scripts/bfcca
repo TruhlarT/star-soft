@@ -524,7 +524,8 @@ if ( ! open(FO,">$PWD/$JOB_ID.csh") ){
 	print FO
 	    "echo \"$PRGM :: Reco run is starting on \`date\`\"\n",
 	    "echo \"\"\n",
-	    "setenv StarEndMakerShell\n";            # Option to output memory consumption
+            # Option to output memory consumption
+	    "setenv StarEndMakerShell\n";            
 
 	if( ! $MULTIIN ){
 	    if ( $GENERICO ne ""){  $extra = ",\"$GENERICO\""; }
