@@ -49,6 +49,7 @@ $FILIN = "/tmp/ChkLinks/$$";
 
 open(SAVEOUT,">&STDOUT"); open(STDOUT,">$FILIN.log"); select(STDOUT); $| = 1;
 open(SAVEERR,">&STDERR"); open(STDERR,">$FILIN.err"); select(STDERR); $| = 1;
+# flock(STDOUT,LOCK_SH); flock(STDERR,LOCK_SH);
 
 `$LINKCHECK $ARGS $URL`;
 
