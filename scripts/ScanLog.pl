@@ -259,6 +259,10 @@ while ( defined($logname = readdir(LOGDIR)) ){
 			unless ($err =~ /$2/){
 			    $err .= "$logerr | ";
 			}
+		    } else {
+			unless ($err =~ /$logerr/){
+			    $err .= "$logerr | ";
+			}
 		    }
 		}
 		undef(@log_errs2);
@@ -286,6 +290,7 @@ while ( defined($logname = readdir(LOGDIR)) ){
 		    &define_err("Fatal in <operator delete>",$logerr);
 		    &define_err("Fatal in <operator new>",$logerr);
 		    &define_err("error in loading shared libraries",$logerr);
+		    &define_err("Broken pipe",$logerr);
 		}
 		chop($err);
 
@@ -345,7 +350,26 @@ $dbh1->disconnect();
 #subs
 #=======================================
 
-sub define_trigger {
+
+#
+# This matches job generation script
+#
+sub define_trigger 
+{
+    my ($lname,$jname) = @_;
+    my (@temp);
+
+    # define Trigger, use a default value
+    $Trigger = "unknown";
+    @temp = split(/_/, $jname);    
+    if ( $temp[0] !~ /^\d+/){ $Trigger = $temp[0];}
+    return $Trigger;
+}
+
+#
+# This was used post 2002
+#
+sub define_trigger_old {
     my ($lname,$jname) = @_;
     my @temp;
     my $i = 0;
