@@ -588,7 +588,7 @@ sub ControlFileOffline{
   };
 
   # TEST
-  return "$dir/test_control.txt";
+  return "$dir/control_and_test.txt";
 }
 #=====================================================================
 # output of the macro run
@@ -705,3 +705,4 @@ sub LogScratchWWW{
   
 
   
+
