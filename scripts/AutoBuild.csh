@@ -12,7 +12,9 @@ setenv GROUP_DIR /afs/rhic/rhstar/group
 if ( -r  $GROUP_DIR/star_login.csh ) then
 	source $GROUP_DIR/star_login.csh 
 
-	set TEST=`tokens | grep afs@rhic`
+	# The extra sed is because Solaris does not like the brakets
+	# in the string, although we doubel quote it.
+	set TEST=`tokens | grep afs@rhic | sed "s/\[.*//"`
 	if( "$TEST" == "") then
 	    echo "There is no token on `hostname` for `whoami`"
 	else
@@ -44,7 +46,33 @@ if ( -r  $GROUP_DIR/star_login.csh ) then
 		$SCRIPTD/insbld.pl -c -s >$HOME/log/IN-$DAY.log
 		breaksw
 		
+
+		# ***** THIS BLOCK IS TEMPORARY *****
+	    case "Solaris":
+		# Solaris one pass only
+		set LPATH=/afs/rhic/star/packages/adev
+		set SPATH=/afs/rhic/star/doc/www/comp/prod/Sanity
+		$SCRIPTD/AutoBuild.pl -f -k -i -1 -t -p $LPATH 
+		if( -e $HOME/AutoBuild-solaris.html) then
+		    mv -f $HOME/AutoBuild-solaris.html $SPATH/AutoBuild-solaris.html
+		endif
+		breaksw
+
+	    case "Gcc":
+		set LPATH=/star/u/jeromel/work/STAR/GCC
+		set SPATH=/afs/rhic/star/doc/www/comp/prod/Sanity
+		$SCRIPTD/AutoBuild.pl -f -k -p $LPATH -v dev -1 -c >$HOME/log/AB-$DAY.log
+		if( -e $HOME/AutoBuild.html) then
+		    mv -f $HOME/AutoBuild.html $SPATH/AutoBuild-gcc.html
+		endif
+		/usr/bin/find $LPATH -name '*.so*' -exec rm -f {} \; >&/dev/null
+		breaksw
+
+
+
+		# ****** This is the default action *****
 	    default
+		# Is update mode, not checkout
 		if (-e $HOME/log/AB-$DAY.log) then
 		    rm -f $HOME/log/AB-$DAY.log
 		endif
