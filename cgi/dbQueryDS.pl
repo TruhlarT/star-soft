@@ -79,7 +79,8 @@ while(@fields = $cursor->fetchrow) {
   }
     next if ($mySet =~ /daq/);
     next if ($mySet =~ /dst/);
-    next if ($mySet eq 'n/a'); 
+    next if ($mySet eq 'n/a');
+    next if ($mySet =~ /AuAu/); 
      $prodNext = $prodPer[$ll];
      $pair{$mySet} =  $pair{$mySet} . " : " . $prodNext ;
 
