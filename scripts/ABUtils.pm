@@ -13,10 +13,12 @@ use Exporter;
 
 @ISA = (Exporter);
 @EXPORT=qw(IUbody IUcmt IUhead IUtrail IUGetRef IUl2pre IUresource
-	   IUExcluded IUSourceDirs IUError IUconsOK IULoad
-	   IUTests IUTestDir IURTFormat IUListRoutine IUErrorURL
+	   IUExcluded IUSourceDirs IUError IUconsOK 
+	   IULoad JPLoad
+	   IURTFormat JPRFFormat
+	   JPRExec
+	   IUTests IUTestDir IUListRoutine IUErrorURL
 	   IUReleaseFile IUManagers IUCompDir IUHtmlDir IUHtmlRef
-	   IUJPFormat
 	   );
 
 # ------------------------------------------
@@ -62,6 +64,7 @@ $INSU::RELFLNM=".log/afs.release";
 # ------------------------------------------
 # Command to issue to load the Insure environment
 $INSU::INSLOAD="setenv INSURE yes ; unsetenv NODEBUG ; staradev";
+$INSU::JPRLOAD="staradev";
 
 # directory which will contain the test result files
 $INSU::TDIR="/star/rcf/test/dev/Insure"; 
@@ -83,10 +86,13 @@ $INSU::TDIR="/star/rcf/test/dev/Insure";
 	      "p2000",
 	      "/star/data03/daq/2000/08/st_physics_1229021_raw_0003.daq",
 
-	      "p2001 -Kalman fiedloff",
-	      "/star/data03/daq/2001/192/st_physics_2192029_raw_0003.daq",
+	      #"p2001 -Kalman fiedloff",
+	      #"/star/data03/daq/2001/192/st_physics_2192029_raw_0003.daq",
 
 	      "p2001a",
+	      "/star/data03/daq/2001/251/st_physics_2251004_raw_0001.daq",
+
+	      "p2001",
 	      "/star/data03/daq/2001/251/st_physics_2251004_raw_0001.daq",
 
 	      "pp2001",
@@ -96,7 +102,8 @@ $INSU::TDIR="/star/rcf/test/dev/Insure";
 
 # Default formatting script for run-time
 $INSU::RTFORMAT="/afs/rhic/star/packages/scripts/insrtm.pl";
-$INSU::JPFORMAT="jprof";
+$INSU::JPFORMAT="/afs/rhic/star/packages/scripts/jprtm.pl";
+$INSU::JPEXEC  ="/afs/rhic/star/packages/dev/.\@sys/BIN/jprof";
 
 # routine exclusion in listing-by-routine
 @INSU::SKIPFUNC=("_Cint",
@@ -376,6 +383,10 @@ sub IUconsOK { return $INSU::CONSOK;}
 # Return command to load Insure environment
 sub IULoad { return $INSU::INSLOAD;}
 
+# Return command to load JProf environment.
+# Currently, only 'adev' is loaded
+sub JPLoad { return $INSU::JPRLOAD;}
+
 # Return the test list
 sub IUTests { return %INSU::TESTS;}
 
@@ -383,7 +394,10 @@ sub IUTests { return %INSU::TESTS;}
 sub IURTFormat { return $INSU::RTFORMAT;}
 
 # Returns the jprof formatting program
-sub IUJPFormat { return $INSU::JPFORMAT;}
+sub JPRFFormat { return $INSU::JPFORMAT;}
+
+# Returns the jprof program location
+sub JPRExec {    return $INSU::JPEXEC;}
 
 # Returns the Test working directory
 sub IUTestDir { return $INSU::TDIR;}
