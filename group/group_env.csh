@@ -1,5 +1,5 @@
 #!/usr/bin/csh -f
-#       $Id: group_env.csh,v 1.109 2000/11/02 20:37:50 fisyak Exp $
+#       $Id: group_env.csh,v 1.110 2000/11/03 21:38:41 fisyak Exp $
 #	Purpose:	STAR group csh setup 
 #
 #	Author:		Y.Fisyak     BNL
@@ -102,12 +102,12 @@ endsw
 endif
 setenv CERN_ROOT  $CERN/$CERN_LEVEL
 if ($ECHO) echo   "Setting up ROOT_LEVEL= ${ROOT_LEVEL}"
+setenv GROUPPATH "${GROUP_DIR}:${STAR_MGR}:${STAR_SCRIPTS}:${STAR_CGI}:${MY_BIN}:${STAR_BIN}:${STAF}/mgr:${STAF_BIN}"
+setenv PATH "${OPTSTAR}/bin:$PATH"
 # root
 if ( -f $GROUP_DIR/rootenv.csh) then
   source $GROUP_DIR/rootenv.csh
 endif
-setenv GROUPPATH "${GROUP_DIR}:${STAR_MGR}:${STAR_SCRIPTS}:${STAR_CGI}:${MY_BIN}:${STAR_BIN}:${STAF}/mgr:${STAF_BIN}"
-setenv PATH "${OPTSTAR}/bin:$PATH"
 if ( -x ${GROUP_DIR}/dropit) then
 # clean-up PATH
   setenv MANPATH `${GROUP_DIR}/dropit -p ${MANPATH}`
