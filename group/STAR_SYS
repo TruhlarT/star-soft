@@ -1,5 +1,8 @@
 #!/bin/csh
 #  $Log: STAR_SYS,v $
+#  Revision 1.14  1999/04/13 20:54:33  fisyak
+#  Set all Linuxes to redhat51
+#
 #  Revision 1.13  1999/03/09 02:03:54  fisyak
 #  Add root 2.21.06 for SL99d
 #
@@ -53,21 +56,14 @@
 #
 #  Revision 1.1.1.1  1997/12/31 14:35:23  fisyak
 #
-#             Last modification $Date: 1999/03/09 02:03:54 $ 
+#             Last modification $Date: 1999/04/13 20:54:33 $ 
 #
 # Determine STAR_SYS variable.
 #
 setenv STAR_SYS ""
 if (-e /usr/afsws/bin/sys)       setenv STAR_SYS `/usr/afsws/bin/sys`
-if ("$STAR_SYS" == "i386_linux2" || "$STAR_SYS" == "i386_linux3") then
-  if (-e /usr/afsws/bin/fs)  then
-    if ("`hostname | cut -c1-2`" != "rc") then
-      setenv STAR_SYS2 `/usr/afsws/bin/fs sys | awk -F\' '{print $2}'`
-      if ("${STAR_SYS2}" == "i386_redhat51")           setenv STAR_SYS ${STAR_SYS2}
-      unsetenv STAR_SYS2
-    endif
-  endif
-endif
+if ("$STAR_SYS" == "i386_linux22"|| "$STAR_SYS" == "i386_redhat50" || \
+    "$STAR_SYS" == "i386_linux2" || "$STAR_SYS" == "i386_linux3") setenv STAR_SYS "i386_redhat51"
 if ("${STAR_SYS}" == "i386_redhat50") setenv STAR_SYS i386_linux2
 if (${STAR_SYS} == "") then
 set mach_os = ` uname -sr | sed -e 's/ //g' -e 's/\.//g' `
@@ -100,6 +96,9 @@ case "IRIX63":
 	breaksw
 case "IRIX6464":
 	setenv STAR_SYS sgi_64
+	breaksw
+case "Linux222":
+	setenv STAR_SYS i386_redhat51
 	breaksw
 case "Linux*":
 	setenv STAR_SYS i386_linux2

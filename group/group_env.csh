@@ -1,7 +1,10 @@
 #!/usr/bin/csh -f
-#       $Id: group_env.csh,v 1.70 1999/03/28 18:41:34 fisyak Exp $
+#       $Id: group_env.csh,v 1.71 1999/04/13 20:54:34 fisyak Exp $
 #	Purpose:	STAR group csh setup 
 #       $Log: group_env.csh,v $
+#       Revision 1.71  1999/04/13 20:54:34  fisyak
+#       Set all Linuxes to redhat51
+#
 #       Revision 1.70  1999/03/28 18:41:34  fisyak
 #       Add cleanup for STAR_LIB on HP
 #
@@ -273,6 +276,10 @@ if ( -x /afs/rhic/star/group/dropit) then
 endif
 setenv PATH "/usr/afsws/bin:/usr/afsws/etc:/opt/star/bin:/opt/rhic/bin:/usr/sue/bin:/usr/local/bin:${GROUP_DIR}:${STAR_MGR}:${STAR_BIN}:${PATH}"
 #set path=( /usr/afsws/bin /usr/afsws/etc /opt/rhic/bin /usr/local/bin $GROUP_DIR $STAR_MGR $STAR_BIN $path )
+## Put mysql on path if available
+if ( -d /usr/local/mysql/bin) then
+  setenv PATH "${PATH}:/usr/local/mysql/bin"
+endif
 if ($?MANPATH == 1) then
   setenv MANPATH ${MANPATH}:${STAR_PATH}/man
 else
