@@ -426,22 +426,27 @@ sub get_id_from_dictionary {
   ;
   my @params = @_;
   my $idname = $params[0];
+  my $sth;
+  my $sqlquery;
+
   chop($idname);
   $idname = lcfirst($idname);
   $idname.="ID";
 
-  my $sqlquery = "SELECT $idname FROM $params[0] WHERE UPPER($params[1]) = UPPER(\"$params[2]\")";
-  if ($DEBUG > 0) {
-    print_debug("Executing: $sqlquery");
-  }
+  $sqlquery = "SELECT $idname FROM $params[0] WHERE UPPER($params[1]) = UPPER(\"$params[2]\")";
+  if ($DEBUG > 0) {  print_debug("Executing: $sqlquery");}
+  $sth = $DBH->prepare($sqlquery);
 
-  my $sth = $DBH->prepare($sqlquery);
-  $sth->execute();
-  my( $id );
-  $sth->bind_columns( \$id );
+  if( ! $sth){
+      print_debug("FileCatalog:: get_id_from_dictionary : Failed to prepare [$sqlquery]");
+  } else {
+      $sth->execute();
+      my( $id );
+      $sth->bind_columns( \$id );
 
-  if ( $sth->fetch() ) {
-    return $id;
+      if ( $sth->fetch() ) {
+	  return $id;
+      }
   }
 
 }
@@ -528,6 +533,7 @@ sub insert_dictionary_value {
   my $dtfields = "";
   my $dtvalues = "";
   my $dtinsert;
+
   foreach (@additional) {
     my ($fieldnamea, $tabnamea, $resta) = split(",",$keywrds{$_});
 
@@ -535,19 +541,23 @@ sub insert_dictionary_value {
     $dtvalues .= " , '".$valuset{$_}."'";
   }
 
-  $dtinsert   = "INSERT INTO $tabname ";
+  $dtinsert   = "INSERT IGNORE INTO $tabname ";
   $dtinsert  .= "($fieldname $dtfields)";
   $dtinsert  .= " VALUES ('".$valuset{$keyname}."' $dtvalues)";
-  if ($DEBUG > 0) {
-    print_debug("Execute $dtinsert");
-  }
-  my $sth = $DBH->prepare( $dtinsert );
-  if ( $sth->execute() ) {
-    my $retid = get_last_id();
-    if ($DEBUG > 0) {
-      print_debug("Returning: $retid");
-    }
-    return $retid;
+  if ($DEBUG > 0) {    print_debug("Execute $dtinsert");}
+
+
+  my $sth;
+
+  $sth = $DBH->prepare( $dtinsert );
+  if( ! $sth ){
+      print_debug("FileCatalog::insert_dictionary_value : Failed to prepare [$dtinsert]");
+  } else {
+      if ( $sth->execute() ) {
+	  my $retid = get_last_id();
+	  if ($DEBUG > 0) { print_debug("Returning: $retid");}
+	  return $retid;
+      }
   }
   return 0;
 }
@@ -578,19 +588,23 @@ sub insert_detector_configuration {
   $ssdon = ($valuset{"ssd"} == 1) ? "1" : "0";
 
 
-  my $dtinsert   = "INSERT INTO DetectorConfigurations";
+  my $dtinsert   = "INSERT IGNORE INTO DetectorConfigurations";
   $dtinsert  .= "(detectorConfigurationName, dTPC, dSVT, dTOF, dEMC, dFPD, dFTPC, dPMD, dRICH, dSSD)";
   $dtinsert  .= " VALUES ('".$valuset{"configuration"}."', $tpcon , $svton , $tofon , $emcon , $fpdon , $ftpcon , $pmdon , $richon , $ssdon)";
-  if ($DEBUG > 0) {
-    print_debug("Execute $dtinsert");
-  }
-  my $sth = $DBH->prepare( $dtinsert );
-  if ( $sth->execute() ) {
-    my $retid = get_last_id();
-    if ($DEBUG > 0) {
-      print_debug("Returning: $retid");
-    }
-    return $retid;
+  if ($DEBUG > 0) {  print_debug("Execute $dtinsert");}
+
+
+  my $sth;
+
+  $sth = $DBH->prepare( $dtinsert );
+  if( ! $sth ){
+      print_debug("FileCatalog::insert_detector_configuration : Failed to prepare [$dtinsert]");
+  } else {
+      if ( $sth->execute() ) {
+	  my $retid = get_last_id();
+	  if ($DEBUG > 0) { print_debug("Returning: $retid");}
+	  return $retid;
+      }
   }
   return 0;
 }
@@ -675,30 +689,41 @@ sub get_collision_type {
   my $secondParticle;
   my $energy;
 
-#  my @particles = ("au", "p", "ga", "s");
+  if( $colstring eq ""){
+      die "FileCatalog::get_collision_type : received empty argument\n"; 
+  }
 
   $colstring = lc($colstring);
 
   ($firstParticle, $secondParticle, $energy) = disentangle_collision_type($colstring);
 
-  print "First particle: $firstParticle\nSecond particle: $secondParticle\nEnergy: $colstring\n";
+
   my $sqlquery = "SELECT collisionTypeID FROM CollisionTypes WHERE UPPER(firstParticle) = UPPER(\"$firstParticle\") AND UPPER(secondParticle) = UPPER(\"$secondParticle\") AND ROUND(collisionEnergy) = ROUND($energy)";
+
   if ($DEBUG > 0) {
-    print_debug("Executing: $sqlquery");
+      print_debug("First particle : $firstParticle",
+		  "Second particle: $secondParticle",
+		  "Energy         : $colstring",
+		  "Executing: $sqlquery");
   }
 
   my $sth = $DBH->prepare($sqlquery);
-  $sth->execute();
-  my( $id );
-  $sth->bind_columns( \$id );
+  if( ! $sth){
+      print_debug("FileCatalog::get_collision_type : Failed to prepare [$sqlquery]");
+  } else {
+      if( ! $sth->execute() ){ die "Could not execute [$sqlquery]";}
+      my( $id );
+      $sth->bind_columns( \$id );
 
-  if ( $sth->fetch() ) {
-    #    print "Returning: $id\n";
-    return $id;
+      if ( $sth->fetch() ) {
+	  #    print "Returning: $id\n";
+	  return $id;
+      }
+      if ($DEBUG > 0) {
+	  print_debug("ERROR: No such collision type");
+      }
   }
-  if ($DEBUG > 0) {
-    print_debug("ERROR: No such collsion type");
-  }
+
   return 0;
 
 }
@@ -722,19 +747,23 @@ sub insert_collision_type {
 
   ($firstParticle, $secondParticle, $energy) = disentangle_collision_type($colstring);
 
-  my $ctinsert   = "INSERT INTO CollisionTypes ";
+  my $ctinsert   = "INSERT IGNORE INTO CollisionTypes ";
   $ctinsert  .= "(firstParticle, secondParticle, collisionEnergy)";
   $ctinsert  .= " VALUES ('$firstParticle' , '$secondParticle' , $energy)";
   if ($DEBUG > 0) {
     print_debug("Execute $ctinsert");
   }
-  my $sth = $DBH->prepare( $ctinsert );
-  if ( $sth->execute() ) {
-    my $retid = get_last_id();
-    if ($DEBUG > 0) {
-      print_debug("Returning: $retid");
-    }
-    return $retid;
+  my $sth;
+
+  $sth = $DBH->prepare( $ctinsert );
+  if( ! $sth){
+      print_debug("FileCatalog::insert_collision_type : Failed to prepare [$ctinsert]");
+  } else {
+      if ( $sth->execute() ) {
+	  my $retid = get_last_id();
+	  if ($DEBUG > 0) { print_debug("Returning: $retid");}
+	  return $retid;
+      }
   }
   return 0;
 }
@@ -745,20 +774,23 @@ sub insert_collision_type {
 # The ID of a most recently successfully added record
 sub get_last_id {
   my $sqlquery = "SELECT LAST_INSERT_ID()";
+  my $id;
+  my $retv=0;
 
   $sth = $DBH->prepare($sqlquery);
-  $sth->execute();
-  my( $id );
-  $sth->bind_columns( \$id );
+  if( $sth ){
+      $sth->execute();
+      $sth->bind_columns( \$id );
 
-  if ( $sth->fetch() ) {
-    return $id;
+      if ( $sth->fetch() ) {
+	  $retv = $id;
+      } else {
+	  if ($DEBUG > 0) { print_debug("ERROR: Cannot find the last inserted ID");}
+      }
+  } else {
+      print_debug("FileCatalog::get_last_id : Arghhh !!! Cannot prepare [$sqlquery]");
   }
-  if ($DEBUG > 0) {
-    print_debug("ERROR: Cannot find the last inserted ID");
-  }
-  return 0;
-
+  return $retv;
 }
 
 #============================================
@@ -842,22 +874,24 @@ sub insert_run_param_info {
 
   my $rpinsert;
 
-  $rpinsert   = "INSERT INTO RunParams ";
+  $rpinsert   = "INSERT IGNORE INTO RunParams ";
   $rpinsert  .= "(runNumber, dataTakingStart, dataTakingEnd, triggerSetupID, collisionTypeID, simulationParamsID, runTypeID, detectorConfigurationID, runComments, magFieldScale, magFieldValue)";
   $rpinsert  .= " VALUES (".$valuset{"runnumber"}.",$start,$end,$triggerSetup,$collision,$simulation,$runType,$detConfiguration,$comment,'".$valuset{"magscale"}."',$magvalue)";
-  if ($DEBUG > 0) {
-    print_debug("Execute $rpinsert");
-  }
-  my $sth = $DBH->prepare( $rpinsert );
-  my $retid;
-  # Insert the event counts for a given FileData
-  if ( $sth->execute() ) {
-    $retid = get_last_id();
-    if ($DEBUG > 0) {
-      print_debug("Returning: $retid");
-    }
+  if ($DEBUG > 0) {  print_debug("Execute $rpinsert");}
+
+
+  my $sth;
+  my $retid=0;
+
+  $sth = $DBH->prepare( $rpinsert );
+  if( ! $sth ){
+      print_debug("FileCatalog::insert_run_param_info : Failed to prepare [$rpinsert]");
   } else {
-    return 0;
+      # Insert the event counts for a given FileData
+      if ( $sth->execute() ) {
+	  $retid = get_last_id();
+	  if ($DEBUG > 0) { print_debug("Returning: $retid");}
+      } 
   }
   return $retid;
 }
@@ -968,46 +1002,53 @@ sub insert_file_data {
   }
 
   # Prepare the SQL query and execute it
-  my $fdinsert   = "INSERT INTO FileData ";
+  my $fdinsert   = "INSERT IGNORE INTO FileData ";
   $fdinsert  .= "(runParamID, fileName, productionConditionID, fileTypeID, size, fileDataComments, fileSeq)";
   $fdinsert  .= " VALUES ($runNumber, \"".$valuset{"filename"}."\",$production,$fileType,$size,$fileComment,$fileSeq)";
-  if ($DEBUG > 0) {
-    print_debug("Execute $fdinsert");
-  }
-  my $sth = $DBH->prepare( $fdinsert );
+  if ($DEBUG > 0) { print_debug("Execute $fdinsert");}
+
+
+  my $sth;
   my $retid;
-  if ( $sth->execute() ) {
-    $retid = get_last_id();
-    if ($DEBUG > 0) {
-      print_debug("Returning: $retid");
-    }
+  $sth = $DBH->prepare( $fdinsert );
+  if( $sth ){
+      if ( $sth->execute() ) {
+	  $retid = get_last_id();
+	  if ($DEBUG > 0) { print_debug("Returning: $retid");}
+      } else {
+	  return 0;
+      }
   } else {
-    return 0;
+      print_debug("FileCatalog::insert_file_data : Failed to prepare [$fdinsert]");
   }
 
   # Add the triggerword / event count combinations for this FileData
-  if ($DEBUG > 0) {
-    print_debug("Adding triggerWords $#triggerWords");
-  }
+  if ($DEBUG > 0) { print_debug("Adding triggerWords $#triggerWords");}
+
   for ($count = 0; $count < ($#triggerWords+1); $count++) {
-    if ($DEBUG > 0) {
-      print_debug("Adding triggerWord $count");
-    }
-    my $tcinsert   = "INSERT INTO TriggerCompositions ";
-    $tcinsert  .= "(fileDataID, triggerWordID, numberOfEvents)";
-    $tcinsert  .= " VALUES ( $retid , ".$triggerIDs[$count]." , ".$eventCounts[$count].")";
-    if ($DEBUG > 0) {
-      print_debug("Execute $tcinsert");
-    }
-    my $sth = $DBH->prepare( $tcinsert );
-    if ( ! $sth->execute() ) {
       if ($DEBUG > 0) {
-	print_debug("ERROR: did not add the event count for triggerword $triggerWords[$count]");
+	  print_debug("Adding triggerWord $count");
       }
-    }
+      my $tcinsert   = "INSERT IGNORE INTO TriggerCompositions ";
+      $tcinsert  .= "(fileDataID, triggerWordID, numberOfEvents)";
+      $tcinsert  .= " VALUES ( $retid , ".$triggerIDs[$count]." , ".$eventCounts[$count].")";
+      if ($DEBUG > 0) { print_debug("Execute $tcinsert");}
+
+
+      my $sth;
+      $sth = $DBH->prepare( $tcinsert );
+      if( $sth ){
+	  if ( ! $sth->execute() ) {
+	      if ($DEBUG > 0) { 
+		  print_debug("ERROR: did not add the ".
+			      "event count for triggerword $triggerWords[$count]");
+	      }
+	  }
+      } else {
+	  print_debug("FileCatalog::insert_file_data : Failed to prepare [$tcinsert]");
+      }
   }
   return $retid;
-
 }
 
 #============================================
@@ -1059,9 +1100,17 @@ sub get_current_file_data {
   if ($DEBUG > 0) {
     print_debug("Executing query: $sqlquery");
   }
-  my $sth = $DBH->prepare($sqlquery);
+
+  my($sth,$id);
+
+  $sth = $DBH->prepare($sqlquery);
+
+  if( ! $sth ){
+      print_debug("FileCatalog::get_current_file_data : Failed to prepare [$sqlquery]");
+      return 0;
+  }
+
   $sth->execute();
-  my( $id );
   $sth->bind_columns( \$id );
 
   if ($sth->rows == 0) {
@@ -1123,16 +1172,21 @@ sub insert_simulation_params {
   }
 
   my $sqlquery = "SELECT eventGeneratorID FROM EventGenerators WHERE eventGeneratorName = '".$valuset{"generator"}."' AND eventGeneratorVersion = '".$valuset{"genversion"}."' AND eventGeneratorParams = '".$valuset{"genparams"}."'";
-  if ($DEBUG > 0) {
-    print_debug("Executing query: $sqlquery");
-  }
-  my $sth = $DBH->prepare($sqlquery);
+  if ($DEBUG > 0) { print_debug("Executing query: $sqlquery");}
+
+
+  my $sth;
+  $sth = $DBH->prepare($sqlquery);
+  if( ! $sth ){
+      print_debug("FileCatalog::insert_simulation_params : Failed to prepare [$sqlquery]");
+      return 0;
+  } 
   $sth->execute();
   my( $id );
   $sth->bind_columns( \$id );
 
   if ($sth->rows == 0) {
-    my $eginsert   = "INSERT INTO EventGenerators ";
+    my $eginsert   = "INSERT IGNORE INTO EventGenerators ";
     $eginsert  .= "(eventGeneratorName, eventGeneratorVersion, eventGeneratorComment, eventGeneratorParams)";
     $eginsert  .= " VALUES ('".$valuset{"generator"}."', '".$valuset{"genversion"}."', $evgenComments, '".$valuset{"genparams"}."')";
     if ($DEBUG > 0) {
@@ -1159,13 +1213,18 @@ sub insert_simulation_params {
     $eventGenerator = $id;
   }
 
-  my $spinsert   = "INSERT INTO SimulationParams ";
+  my $spinsert   = "INSERT IGNORE INTO SimulationParams ";
   $spinsert  .= "(eventGeneratorID, simulationParamComments)";
   $spinsert  .= " VALUES ($eventGenerator, $simComments)";
   if ($DEBUG > 0) {
     print_debug("Execute $spinsert");
   }
+
   $sth = $DBH->prepare( $spinsert );
+  if( ! $sth){
+      print_debug("FileCatalog::insert_simulation_params : Failed to prepare [$spinsert]");
+      return 0;
+  }
   if ( $sth->execute() ) {
     my $retid = get_last_id();
     if ($DEBUG > 0) {
@@ -1206,22 +1265,26 @@ sub get_current_simulation_params {
   if ($DEBUG > 0) {
     print_debug("Executing query: $sqlquery");
   }
-  my $sth = $DBH->prepare($sqlquery);
+  my $sth;
+
+  $sth = $DBH->prepare($sqlquery);
+  if ( ! $sth){
+      print_debug("FileCatalog::get_current_simulation_params : Failed to prepare [$sqlquery]");
+      return 0;
+  }
   $sth->execute();
   my( $id );
   $sth->bind_columns( \$id );
 
   if ($sth->rows == 0) {
-    my $newid;
-    $newid = insert_simulation_params();
-    return $newid;
-  }
-
-  if ( $sth->fetch() ) {
-    if ($DEBUG > 0) {
-      print_debug("Returning: $id");
-    }
-    return $id;
+      my $newid;
+      $newid = insert_simulation_params();
+      return $newid;
+  } else {
+      if ( $sth->fetch() ) {
+	  if ($DEBUG > 0) { print_debug("Returning: $id");}
+	  return $id;
+      }
   }
   return 0;
 
@@ -1278,6 +1341,7 @@ sub insert_file_location {
   } else {
     $createTime = $valuset{"createtime"};
   }
+
   if (! defined $valuset{"owner"}) {
     if ($DEBUG > 0) {
       print_debug("WARNING: owner not defined. Using a default value");
@@ -1324,23 +1388,28 @@ sub insert_file_location {
     }
     $sanity = 0;
   } else {
-    $persistent = $valuset{"sanity"};
+    $sanity = $valuset{"sanity"};
   }
 
 
-  my $flinsert   = "INSERT INTO FileLocations ";
+  my $flinsert   = "INSERT IGNORE INTO FileLocations ";
   $flinsert  .= "(fileLocationID, fileDataID, storageTypeID, filePath, createTime, insertTime, owner, storageSiteID, protection, nodeName, availability, persistent, sanity)";
   $flinsert  .= " VALUES (NULL, $fileData, $storageType, $filePath, $createTime, NULL, $owner, $storageSite, $protection, $nodeName, $availability, '$persistent', $sanity)";
   if ($DEBUG > 0) {
     print_debug("Execute $flinsert");
   }
-  my $sth = $DBH->prepare( $flinsert );
-  if ( $sth->execute() ) {
-    my $retid = get_last_id();
-    if ($DEBUG > 0) {
-      print_debug("Returning: $retid");
-    }
-    return $retid;
+  my $sth;
+
+  $sth = $DBH->prepare( $flinsert );
+  #print "++ $flinsert ++";
+  if( ! $sth ){
+      print_debug("FileCatalog::insert_file_location : Failed to prepare [$flinsert]");
+  } else {
+      if ( $sth->execute() ) {
+	  my $retid = get_last_id();
+	  if ($DEBUG > 0) { print_debug("Returning: $retid");}
+	  return $retid;
+      } 
   }
   return 0;
 
@@ -1668,10 +1737,10 @@ sub run_query {
       push (@toquery, $_);
     }
   }
+
   if ($DEBUG > 0) {
     print_debug("Connections to build the query: ".join(" ",@toquery));
   }
-
   # Get the select fields
   my @select;
   foreach (@keywords) {
@@ -1681,13 +1750,12 @@ sub run_query {
     if (defined $functions{$_})
       {
 	if ($functions{$_} eq "grp")
-	{
-	    if (($grouping =~ m/GROUP BY/) == 0)
-	    {
-		$grouping .= " GROUP BY ".get_field_name($_)." ";
-		push (@select, get_field_name($_));
-	    }
-	}
+	  {  
+	      if (($grouping =~ m/GROUP BY/) == 0){
+		  $grouping .= " GROUP BY ".get_field_name($_)." ";
+		  push (@select, get_field_name($_));
+	      }
+	  }
 	elsif ($functions{$_} eq "orda")
 	  {
 	    $grouping .= " ORDER BY ".get_field_name($_)." ASC ";
@@ -1743,12 +1811,12 @@ sub run_query {
   # Get only the unique field names
   my @selectunique;
   foreach (sort {$a cmp $b} (@select)) {
-    if ($debug > 0) {
-      print "Adding $_\n";
-    }
-    if ((not $selectunique[$#selectunique]) || ($selectunique[$#selectunique] ne $_)) {
-      push (@selectunique, $_);
-    }
+      if ($DEBUG > 0) {
+	  print_debug("Adding $_");
+      }
+      if ((not $selectunique[$#selectunique]) || ($selectunique[$#selectunique] ne $_)) {
+	  push (@selectunique, $_);
+      }
   }
 
 
@@ -1819,11 +1887,10 @@ sub run_query {
     {
       $sqlquery .= " FileLocationID , ";
     }
-
   $sqlquery .= join(" , ",(@selectunique))." FROM ".join(" , ",(@fromunique));
-  
-  if (defined $where) { 
-    $sqlquery .=" WHERE $where"; 
+
+  if (defined $where) {
+    $sqlquery .=" WHERE $where";
     if ($constraint ne "") {
       $sqlquery .= " AND $constraint";
     }
@@ -1855,21 +1922,28 @@ sub run_query {
   if ($DEBUG > 0) {
     print_debug("Using query: $sqlquery");
   }
-  my $sth = $DBH->prepare($sqlquery);
-  $sth->execute();
-  my (@result);
-  my (@cols);
-  my $rescount = 0;
+  my $sth;
 
-  while ( @cols = $sth->fetchrow_array() ) {
-      # if field is empty, fetchrow_array() returns undef()
-      # fix it by empty string instead.
-      for (my $i=0 ; $i <= $#cols ; $i++){
-	  if( ! defined($cols[$i]) ){ $cols[$i] = "";}
+  $sth = $DBH->prepare($sqlquery);
+  if ( ! $sth ){
+      print_debug("FileCatalog::run_query : Failed to prepare [$sqlquery]");
+      return;
+  } else {
+      $sth->execute();
+      my (@result);
+      my (@cols);
+      my $rescount = 0;
+
+      while ( @cols = $sth->fetchrow_array() ) {
+	  # if field is empty, fetchrow_array() returns undef()
+	  # fix it by empty string instead.
+	  for (my $i=0 ; $i <= $#cols ; $i++){
+	      if( ! defined($cols[$i]) ){ $cols[$i] = "";}
+	  }
+	  $result[$rescount++] = join($delimeter, (@cols));
       }
-      $result[$rescount++] = join($delimeter, (@cols));
+      return (@result);
   }
-  return (@result);
 }
 
 #============================================
@@ -1942,18 +2016,26 @@ sub delete_record {
 
   my $fldelete;
   $fldelete = "DELETE FROM FileLocations WHERE $wheredelete";
-  if ($DEBUG > 0)
-    {
-      print_debug("Executing delete: $fldelete");
-    }
+  if ($DEBUG > 0){ print_debug("Executing delete: $fldelete");}
 
-  my $sth = $DBH->prepare( $fldelete );
+  my $sth;
+  $sth = $DBH->prepare( $fldelete );
+  if ( ! $sth ){
+      print_debug("FileCatalog::delete_record : Failed to prepare [$fldelete]");
+      return 0;
+  }
   if ( $sth->execute() )
     {
       # Checking if the given file data has any file locations attached to it
       my $fdquery;
       $fdquery = "SELECT fileLocationID from FileLocations, FileData WHERE FileLocations.fileDataID = FileData.fileDataID AND FileData.fileDataID = $fdata";
-      my $stq = $DBH->prepare( $fdquery );
+
+      my $stq;
+      $stq = $DBH->prepare( $fdquery );
+      if ( ! $sth ){
+	  print_debug("FileCatalog::delete_record : Failed to preapre [$fdquery]");
+	  return 0;
+      }
       $stq->execute();
       if ($stq->rows == 0)
 	{
@@ -1968,9 +2050,10 @@ sub delete_record {
 	  my $sttcd = $DBH->prepare($tcdelete);
 	  $sttcd->execute();
 	}
-      return 1; }
-  else
-    { return 0; }
+      return 1; 
+  } else {
+      return 0; 
+  }
 }
 
 #============================================
@@ -2020,7 +2103,13 @@ sub bootstrap {
     }
   my $dcquery;
   $dcquery = "select $table.$linkfield FROM $table LEFT OUTER JOIN $childtable ON $table.$linkfield = $childtable.$linkfield WHERE $childtable.runTypeID IS NULL";
-  my $stq = $DBH->prepare( $dcquery );
+
+  my $stq;
+  $stq = $DBH->prepare( $dcquery );
+  if( ! $stq ){
+      print_debug("FileCatalog::bootstarp : Failed to prepare [$dcquery]");
+      return 0;
+  }
   $stq->execute();
   if ($stq->rows > 0)
     {
@@ -2032,14 +2121,19 @@ sub bootstrap {
 	push ( @rows, $id );
       }
       if ($delete == 1)
-	{
+      {
 	  # We do a bootstapping with delete
 	  my $dcdelete;
 	  $dcdelete = "DELETE FROM $table WHERE $linkfield IN (".join(" , ",(@rows)).")";
 	  if ($DEBUG > 0) { print_debug("Executing $dcdelete"); }
 	  my $stfdd = $DBH->prepare($dcdelete);
-	  $stfdd->execute();
-	}
+	  if ($stfdd){
+	      $stfdd->execute();
+	  } else {
+	      print_debug("FileCatalog::bootstrap : Failed to prepare [$dcdelete]",
+			  " Record in $table will not be deleted");
+	  }
+      }
       return (@rows);
     }
   return 0;
@@ -2102,21 +2196,31 @@ sub update_record {
 
 
   my $qupdate;
-  if (get_field_type($ukeyword) eq "text")
-    { $qupdate = "UPDATE $utable SET $ufield = '$newvalue' WHERE $ufield = '".$valuset{$ukeyword}."'"; }
-  else
-    { $qupdate = "UPDATE $utable SET $ufield = $newvalue WHERE $ufield = ".$valuset{$ukeyword}; }
+  if (get_field_type($ukeyword) eq "text"){
+      $qupdate = "UPDATE $utable SET $ufield = '$newvalue' WHERE $ufield = '".
+	  $valuset{$ukeyword}."'"; 
+  } else {
+      $qupdate = "UPDATE $utable SET $ufield = $newvalue WHERE $ufield = ".
+	  $valuset{$ukeyword}; 
+  }
   if ($whereclause ne "")
     { $qupdate .= " AND $whereclause"; }
   if ($DEBUG > 0){
       print_debug("Executing update: $qupdate\n");
   }
 
-  my $sth = $DBH->prepare( $qupdate );
-  if ( $sth->execute() )
-    { return 1; }
-  else
-    { return 0; }
+  my $sth;
+  $sth = $DBH->prepare( $qupdate );
+  if (!$sth){
+      print_debug("FileCatalog::update_record : Failed to prepare [$qupdate]");
+      return 0;
+  } else {
+      if ( $sth->execute() ){
+	  return 1; 
+      } else {
+	  return 0; 
+      }
+  }
 }
 
 #============================================
@@ -2187,27 +2291,31 @@ sub update_location {
 
 
   foreach my $line (@files) {
-    print "Returned line: $line\n";
-    my $qupdate;
+      print "Returned line: $line\n";
+      my $qupdate;
 
-    my ($flid, $fname, $path) = split("::",$line);
+      my ($flid, $fname, $path) = split("::",$line);
 
-    if (get_field_type($ukeyword) eq "text")
+      if (get_field_type($ukeyword) eq "text")
       { $qupdate = "UPDATE $utable SET $ufield = '$newvalue' WHERE $ufield = '".$valuset{$ukeyword}."'"; }
-    else
+      else
       { $qupdate = "UPDATE $utable SET $ufield = $newvalue WHERE $ufield = ".$valuset{$ukeyword}; }
-    $qupdate .= " AND fileLocationID = $flid";
-    if ($DEBUG > 0)
-      {
-	print_debug("Executing update: $qupdate");
+      $qupdate .= " AND fileLocationID = $flid";
+      if ($DEBUG > 0){
+	  print_debug("Executing update: $qupdate");
       }
 
-    my $sth = $DBH->prepare( $qupdate );
-    if ( $sth->execute() ){
-	if ($DEBUG > 0) { print_debug("Update succeded"); }
-    } else {
-	if ($DEBUG > 0) { print_debug("Update failed"); }
-    }
+      my $sth;
+      $sth = $DBH->prepare( $qupdate );
+      if ( ! $sth ){
+	  print_debug("FileCatalog::update_location : Failed to prepare [$qupdate]");
+      } else {
+	  if ( $sth->execute() ){
+	      if ($DEBUG > 0) { print_debug("Update succeded"); }
+	  } else {
+	      if ($DEBUG > 0) { print_debug("Update failed"); }
+	  }
+      }
   }
 }
 
