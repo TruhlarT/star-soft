@@ -190,11 +190,17 @@ sub UpdateQAOffline{
 	
 	# insert into QASummary
 	#print "\t$reportKey\n";
-	
-	my $rc = $sthInsert->execute($jobID, $redone, $reportKey, $skip) 
-	  unless $debug;
-	# save report key
-	push @keyList, $reportKey if ($rc+=0 || $debug);
+#	unless($debug){
+	  my $rc = $sthInsert->execute($jobID, $redone, $reportKey, $skip);
+	  $rc +=0;
+	  # save report key
+	  if(!$rc){
+	    print "Couldnt insert into db?\n";
+	  }
+	  else{
+	    push @keyList, $reportKey;
+	  }
+#	}
       }
       #$countJob=0;
     }	 
@@ -355,6 +361,7 @@ sub UpdateQAOfflineFast{
       else{ # already exists, but probably reproduction
 	print "Already exists but qa is done.  Will reset qa done to No...";
 	$stat = $sthResetQAdone->execute($jobID) if !$debug;
+	$stat += 0;
 	if(!$stat){
 	  print "Cannot reset QAdone to no<br>\n";
 	}

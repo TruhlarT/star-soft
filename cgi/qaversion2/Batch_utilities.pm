@@ -94,7 +94,9 @@ sub SubmitLSFJob
 
     # -N == notify on job completion  }___taken out for now
     # -B == notify on job dispatch    }
-    my $cmdStr = "/usr/local/lsf/bin/bsub -u $notifyEmail -J $jobName -q $lsfQueue \"$cmd\"";
+
+    # turn off email notice ( -u $notifyEmail )
+    my $cmdStr = "/usr/local/lsf/bin/bsub -J $jobName -q $lsfQueue \"$cmd\"";
 
     my $retStr = RunLsfCommand($cmdStr);
 
