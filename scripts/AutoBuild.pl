@@ -1,6 +1,6 @@
 #!/usr/bin/env perl
 
-# $Id: AutoBuild.pl,v 1.23 2004/10/28 00:00:29 jeromel Exp $
+# $Id: AutoBuild.pl,v 1.24 2004/10/28 15:38:35 jeromel Exp $
 # This script was written to perform an automatic compilation
 # with cvs co and write some html page related to it afterward.
 # Written J.Lauret Apr 6 2001
@@ -212,8 +212,8 @@ $FLNMRC  = "$COMPDIR/.ABrc_$^O";
 
 
 # Lock file automated handling
-IULockPrepare($COMPDIR,$ALLARGS);     # prepare create one
-if ( ! IULockCheck(129600) ){ exit;}  # Check lock file lifetime
+IULockPrepare($COMPDIR,$POST.$ALLARGS);     # prepare create one
+if ( ! IULockCheck(129600) ){ exit;}        # Check lock file lifetime
 
 
 #

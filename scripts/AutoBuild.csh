@@ -8,6 +8,7 @@
 # Linux based targets:
 #   Linux61
 #   Linux72    build a LinuxXX AutoBuild report (one version)
+#   Linux80
 #   Linux9     
 #   SL3
 #
@@ -154,6 +155,7 @@ if ( -r  $GROUP_DIR/star_login.csh ) then
 
 	    case "Linux61":
 	    case "Linux72":
+	    case "Linux80":
 	    case "Linux9":
 	    case "SL3":
 		set LPATH=$AFS_RHIC/star/packages/adev
