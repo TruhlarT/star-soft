@@ -44,7 +44,7 @@ sub GetOfflineSelections{
 			 where job.jobID       = s.$QASum{jobID} and
 			       s.$QASum{type} = '$file_type'
 			 order by job.prodSeries asc};
-  
+     
 
   # run id
   my $query_runID = qq{select distinct file.runID
@@ -460,6 +460,18 @@ sub GetNightlyKeys{
 
   my $limit = 50; # limit the query
   
+  print h4("eventGen     = $eventGen<br>",
+	   "LibTag       = $LibTag<br>",
+	   "platform     = $platform<br>",
+	   "eventType    = $eventType<br>",
+	   "geometry     = $geometry<br>",
+	   "QAstatus_arg = $QAstatus_arg<br>",
+	   "ondisk       = $ondisk<br>",
+	   "jobStatus    = $jobStatus<br>",
+	   "createTime   = $createTime<br>"
+	   );
+
+
   # fine tune status
   my ($QAstatus, $macro_name) = split( /;/, $QAstatus_arg);
 

@@ -706,7 +706,17 @@ sub LogScratchWWW{
 
   return $WWWlink;
 }
-  
+#======================================================================
+# scratch directory that contains the links to the log file
+
+sub LogScratchDir{
+  my $self = shift;
+
+  $self->IsDir(1);
+  $self->ReportErrorOnOpen(1);  
+ 
+  return $gDataClass_object->LogScratchDir();
+}
 
   
 

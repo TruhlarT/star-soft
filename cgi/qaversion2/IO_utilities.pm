@@ -102,30 +102,34 @@ sub GetGlobalMessages{
 
 }
 #==============================================================
+# bum
+# clean up the logfile scratch directory 
+# contains the symlinks to the logfile
+# delete everything older than 12 hours
+
+sub CleanUpLogScratch{
+
+  my $io_dir  = new IO_object("LogScratchDir");
+  my $log_dir = $io_dir->Name;
+  my $dh      = $io_dir->Open;
+
+  unlink grep { -M > 0.5 } map{ "$log_dir/$_" } readdir $dh;
+
+}
+
+#==============================================================
 sub CleanUpScratch{
 
   #-----------------------------------------------------------
   # do a general cleanup of object scratch file directory -
   # delete everything older than 12 hours
 
-  my $io_dir = new IO_object("ScratchDir");
-  my $dh = $io_dir->Open();
-
+  my $io_dir   = new IO_object("ScratchDir");
+  my $dh       = $io_dir->Open();
   my $dir_name = $io_dir->Name();
 
-  my $file;
+  unlink grep { -M > 0.5 } map {"$dir_name/$_"} readdir $dh;
 
-#  unlink { -M $_ > 0.5 } map {"$dir_name/$_"} readdir $dh;
-
-  while ( defined( $file = readdir($dh) ) ){
-
-    my $full_file = "$dir_name/$file";
-
-    -M $full_file > 0.5 and do{
-      unlink($full_file);
-    };
-
-  }
 
   undef $io_dir;
 }
@@ -196,6 +200,8 @@ sub PrintLastUpdate{
   print $fh scalar localtime,"\n";
 }
 #===========================================================
+# NEED TO CHANGE THIS
+
 sub move_old_reports{
 
   my $io_dir = new IO_object("TopdirReport");
@@ -255,6 +261,5 @@ sub is_old_report{
   $report_age =  timelocal(0,0,0, $day, $month, $year);
 
   # return true if older than 30 days ($oldtime)  
-  # see move_old_reports above for $now and $oldtime
   return ($now - $report_age > $oldtime) ? 1 : 0;
 }

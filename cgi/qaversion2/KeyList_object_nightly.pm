@@ -182,7 +182,7 @@ sub JobPopupMenu{
 			 -labels  => \%jobStatus_labels );
 
   my $createTime_string =
-    b('job created').br.
+    b('job createTime').br.
       $gCGIquery->popup_menu(-name    => 'select_createTime',
 			 -values  => \@createTime_values,
 			 -default => $createTime_values[0],
@@ -221,19 +221,17 @@ sub JobPopupMenu{
 sub SelectedParameters{
   my $self = shift;
 
-  my $select_eventGen  = $gCGIquery->param('select_eventGen');
-  my $select_LibTag    = $gCGIquery->param('select_LibTag');
-  my $select_platform  = $gCGIquery->param('select_platform');
-  my $select_eventType = $gCGIquery->param('select_eventType');
-  my $select_geometry  = $gCGIquery->param('select_geometry');
-  my $select_QAstatus  = $gCGIquery->param('select_QAstatus');
-  my $select_ondisk    = $gCGIquery->param('select_ondisk');
-  my $select_jobStatus = $gCGIquery->param('select_jobStatus');
-  my $select_createTime= $gCGIquery->param('select_createTime');
-  
-  return ($select_eventGen, $select_LibTag, $select_platform,
-	  $select_eventType,$select_geometry, $select_QAstatus, 
-	  $select_ondisk, $select_jobStatus, $select_createTime);
+  return (
+	  $gCGIquery->param('select_eventGen'),
+	  $gCGIquery->param('select_LibTag'),
+	  $gCGIquery->param('select_platform'),
+	  $gCGIquery->param('select_eventType'),
+	  $gCGIquery->param('select_geometry'),
+	  $gCGIquery->param('select_QAstatus'),
+	  $gCGIquery->param('select_ondisk'),
+	  $gCGIquery->param('select_jobStatus'),
+	  $gCGIquery->param('select_createTime')
+	 );
 
 }
  

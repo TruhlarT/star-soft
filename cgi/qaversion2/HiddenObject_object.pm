@@ -55,6 +55,7 @@ sub _init{
      defined $gCGIquery->param('Display datasets'));
   
   IO_utilities::CleanUpScratch();
+  IO_utilities::CleanUpLogScratch();
   $self->Retrieve();
 
 }

@@ -422,7 +422,7 @@ sub ButtonString{
   # summary of log file
   $button_ref = Button_object->new('RunDetails', 'Run Details', 
 				   $report_key);
-  $button_string .= $button_ref->SubmitString;
+  $button_string .= $button_ref   ->SubmitString;
   
   # detailed evaluation of QA if qa if done
   if ( $self->QADone ){ 
@@ -523,7 +523,7 @@ sub ShowQA{
   undef $io;      
 
   # chop off the path 
-  (my $base_control = $control_file) =~ s/$control_dir_local\///;
+  (my $base_control = $control_file) =~ s/$control_dir_local//;
   
   # link to control file
   my $control_file_WWW = "$control_dir_WWW_local/$base_control";
@@ -538,7 +538,7 @@ sub ShowQA{
       $test_file =~ /^\#/ and next; # skip comments
       $test_file !~ /\S+/ and next; # skip blank lines
       
-      (my $base_test = $test_file) =~ s/$control_dir_local\///;
+      (my $base_test = $test_file) =~ s/$control_dir_local//;
       my $test_file_WWW = "$control_dir_WWW_local/$base_test";
 
       # link to macro definition file

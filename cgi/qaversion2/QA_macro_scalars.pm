@@ -30,7 +30,7 @@ sub bfcread_dstBranch{
   my $report_filename = shift;
   #--------------------------------------------------------------
 
-  my ($object, $end_of_first_event);
+  my ($object, $end_of_first_event, %bfc_hash);
   my ( %run_scalar_hash, %event_scalar_hash );
 
   tie %run_scalar_hash, "Tie::IxHash"; 
@@ -45,7 +45,7 @@ sub bfcread_dstBranch{
   # default for BfcStatus
   # 0 means no error...
 
-  $run_scalar_hash{BfcStatusError} = 0;
+  $run_scalar_hash{BfcStatus} = 0;
 
   while (<REPORT>){
     /QAInfo:/ or next; # skip lines that dont start with QAInfo
@@ -70,8 +70,12 @@ sub bfcread_dstBranch{
 
     # BfcStatus has special status
     # error!
-    if (/BfcStatus table --/){
-      $run_scalar_hash{BfcStatusError} = 1;
+    if (/BfcStatus table -- row \d+, Maker: (\w+) has istat = (\d+)/){
+      #$run_scalar_hash{BfcStatus} = 1;
+      next if defined $bfc_hash{"BfcStatus_$1"};
+      $bfc_hash{"BfcStatus_$1"} = $2;
+      $run_scalar_hash{BfcStatus}++; # just count the number of times 
+                                     # a BfcStatus error is called per event
       next;
     }
 

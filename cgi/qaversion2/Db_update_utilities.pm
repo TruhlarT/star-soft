@@ -21,7 +21,7 @@ use strict;
 sub UpdateQAOffline{
   my $data_type   = shift; # either 'real' or 'MC'
                            # only used in $query_update
-  my $limit       = 2; # limit number of new jobs
+  my $limit       = 2;     # limit number of new jobs
   my $oldest_date = '2000-04-01'; # dont retrieve anything older than this
   my ($file_type);
 

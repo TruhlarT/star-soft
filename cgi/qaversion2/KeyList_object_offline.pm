@@ -154,7 +154,7 @@ sub JobPopupMenu{
 			 -labels  => \%status_labels);
 
   my $createTime_string =
-    b('job created').br.
+    b('job createTime').br.
       $gCGIquery->popup_menu(-name    => 'select_createTime',
 			 -values  => \@createTime_values,
 			 -default => $createTime_values[0],
@@ -207,15 +207,14 @@ sub JobPopupMenu{
 sub SelectedParameters{
   my $self = shift;
 
-  my $select_prodOptions = $gCGIquery->param('select_prodOptions');
-  my $select_runID       = $gCGIquery->param('select_runID');
-  my $select_status      = $gCGIquery->param('select_QAstatus');
-  my $select_jobStatus   = $gCGIquery->param('select_jobStatus');
-  my $select_createTime  = $gCGIquery->param('select_createTime');
-  my $select_dataset     = $gCGIquery->param('select_dataset');
-
-  return ($select_prodOptions, $select_runID, $select_status,
-	  $select_jobStatus, $select_createTime, $select_dataset);
+  return (
+	  $gCGIquery->param('select_prodOptions'),
+	  $gCGIquery->param('select_runID'),
+	  $gCGIquery->param('select_QAstatus'),
+	  $gCGIquery->param('select_jobStatus'),
+	  $gCGIquery->param('select_createTime'),
+	  $gCGIquery->param('select_dataset')
+	  );
 
 }
 

@@ -860,7 +860,7 @@ sub GetQASummary{
   # get QAdone, QAdate,  
   my $query = qq{select $QASum{QAdone}, $QASum{QAdate}
                  from $dbQA.$QASum{Table}
-                 where $QASum{qaID} = '$qaID' limit 1};
+                 where $QASum{qaID} = '$qaID' };
 
   my ($QADone, $QADate) = $dbh->selectrow_array($query);
   
