@@ -6727,6 +6727,7 @@ C     - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
    Logical           EXST,Opnd,First/.true./
    Integer           LRZDOC
    Common /AgCZDOC/  LRZDOC
+   Integer mem_return
 *KEEP,STAFUNC.
 C Declare types for the things used in the statement function STAFUNC
       INTEGER IIIII, LVPRIN,LVGEOM,LVHIST,LVGRAP,LVDEBU,LWPRIN,
@@ -6809,7 +6810,11 @@ C
        If Iquest(1)!=0 {<w>Iquest(1); (' problem opening detm.rz IQUEST=',i6);}
      }
      ELSE
-     { LUN = MEMGETF(Lrecl*5000+1000)-LOCF(IQ)+1; IQ(LUN)=LRecl
+     {
+       mem_return = MEMGETF(Lrecl*5000+1000);
+       If(mem_return==0) {<w>; ('Problem with memory allocation'); stop;}
+       LUN = mem_return-LOCF(IQ)+1;
+       IQ(LUN)=LRecl;
        Call RZMAKE (IQ(LUN),%CHdir,2,'HH',CHTAG,5000,'MO');
        LRZDOC=LOCF(IQ(LUN));
      }
