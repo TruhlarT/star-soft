@@ -249,7 +249,7 @@ sub DisplayLogReport {
   my $divider = "*" x 100 . "\n";
   my $var;
 
-  print Dumper $self;
+#  print Dumper $self;
   print qq{
     $divider 
     <br> Report for logfile $self->{_LogfileName} <br> 

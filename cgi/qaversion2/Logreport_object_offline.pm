@@ -237,25 +237,20 @@ sub ParseLogfile{
 sub GetJobInfo{
   my $self = shift;
 
-  # node (machine)
-  my $node = QA_db_utilities::GetFromJobStatus('nodeID',$self->JobID);
+  # -- get from JobsStatus
+  my @jobFields = ('nodeID', 'NoEvents', 'jobStatus', 'NoEventSkip');
+
+  my ($node, $eventsDone, $jobStatus, $Nskip) =
+    QA_db_utilities::GetFromJobStatus(\@jobFields,$self->JobID);
+  
   $self->Machine($node);
+  $self->NEventDone($eventsDone);
+  $self->JobStatus($jobStatus);
+  $self->NoEventSkipped($Nskip);  
 
   # input fn
   my $input = QA_db_utilities::GetInputFnOffline($self->JobID);
   $self->InputFn($input);
-
-  # number of events done (processed)
-  my $events_done = QA_db_utilities::GetFromJobStatus('NoEvents',$self->JobID);
-  $self->NEventDone($events_done);
-
-  # job status - done, not completed, etc
-  my $jobstatus = QA_db_utilities::GetFromJobStatus('jobStatus',$self->JobID);
-  $self->JobStatus($jobstatus);
-
-  # number of events skipped
-  my $skip = QA_db_utilities::GetFromJobStatus('NoEventSkip',$self->JobID);
-  $self->NoEventSkipped($skip);
 
   # output file name and directory
   my ($path, $name) = 

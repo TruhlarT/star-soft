@@ -27,13 +27,13 @@ sub GetOfflineSelections{
   my $hashref;               # stores all the selections
   my ($file_type, %query);
 
-
- SWITCH:{
-    $argument eq 'real' and do{$file_type = 'real';   last; };
-    $argument eq 'MC'   and do{$file_type = 'MC'; last; };
-    # default
-    die "Wrong argument";
+  if ($argument eq 'real'){
+    $file_type = 'real';
   }
+  elsif ( $argument eq 'MC' ){
+    $file_type = 'MC';
+  }
+  else { die "Wrong argument" }
   
   # library selections
 
@@ -719,7 +719,7 @@ sub GetOnlineKeys{
 
 sub make_date_nice{
   my $number = shift;
-  my $count = $number =~ tr /0-9//;
+  my $count  = length $number;
   return $count == 1 ? "0$number" : $number;
 }
 #=======================================================================

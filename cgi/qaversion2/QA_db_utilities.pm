@@ -382,35 +382,52 @@ sub GetOutputFileNightly{
   return $dbh->selectrow_array( $query );
 }
 #----------
-# returns the value from the '$field' requested from FileCatalog
+# returns the value from the '@field(s)' requested from FileCatalog
 # that matches the '$jobID'
 
 sub GetFromFileCatalog{
-  my $field = shift;
-  my $jobID = shift;
+  my $field   = shift; # ref to an array or normal scalar
+  my $jobID   = shift;
 
-  my $query = qq{select $field 
+  my @fields;
+
+  # add commas to a list
+  if ( ref($field) ){
+    @fields = join ',', @$field;
+  }
+  else{
+    @fields = ($field); # just one field
+  }
+
+  my $query = qq{select @fields
 		 from $dbFile.$FileCatalog
 		 where jobID = '$jobID' limit 1};
 
   return $dbh->selectrow_array($query);
-
 }
 #----------
-# returns the value from the '$field' requested from JobStatus
+# returns the value from the '@field(s)' requested from JobStatus
 # that matches the '$jobID'
 
 sub GetFromJobStatus{
-  my $field = shift;
-  my $jobID = shift;
+  my $field   = shift; # ref to an array or normal scalar
+  my $jobID   = shift;
+  
+  my @fields;
+  
+  # add commas to a list
+  if ( ref($field) ){
+    @fields = join ',', @$field;
+  }
+  else{
+    @fields = $field; # just one field
+  }
 
-  my $query = qq{select $field 
+  my $query = qq{select @fields 
 		 from $dbFile.$JobStatus
 		 where jobID = '$jobID'};
-
-
+  
   return $dbh->selectrow_array($query);
-
 }
 #----------
 # returns the production series, chain name,
@@ -438,19 +455,6 @@ sub GetInputFnOffline{
   my $query = qq{select inputFile 
 		 from $dbFile.$JobRelations
                  where jobID = '$jobID' };
-
-  return $dbh->selectrow_array($query);
-}
-#----------
-# get the root level, star level, starlib version, and chain 
-# for nightly tests
-
-sub GetStarRootInfo{
-  my $jobID = shift;
-
-  my $query = qq{select LibLevel, rootLevel, LibTag, chainOpt
-		 from $dbFile.$JobStatus
-		 where jobID = '$jobID' };
 
   return $dbh->selectrow_array($query);
 }
@@ -837,7 +841,7 @@ sub GetOldReports{
 
     print h4("... done<br>\n");
   }
-
+  
   return @old_report_keys;
 }
 #----------

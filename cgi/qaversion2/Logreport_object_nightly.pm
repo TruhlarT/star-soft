@@ -46,9 +46,10 @@ sub _initplus{
   my $self = shift;
 
   # trigger info, etc
-  my $evtgen  = QA_db_utilities::GetFromFileCatalog('eventGen', $self->JobID);
-  my $evttype = QA_db_utilities::GetFromFileCatalog('eventType', $self->JobID);
-  my $geom    = QA_db_utilities::GetFromFileCatalog('geometry', $self->JobID);
+  my @fields = ('eventGen', 'eventType', 'geometry');
+
+  my ($evtgen, $evttype, $geom) =
+    QA_db_utilities::GetFromFileCatalog(\@fields, $self->JobID);
 
   $self->EventGen($evtgen);
   $self->EventType($evttype);
@@ -156,37 +157,35 @@ sub GetJobInfo{
 
   my $jobID = $self->JobID;
 
-  # get the starlib level - e.g. new
-  # root level - e.g. 2.24
-  # starlib version - e.g. DEV00
-  # chain options
+  # info from the job status table
   
-  my ($liblevel, $rootlevel, $starlib, $chain) =
-    QA_db_utilities::GetStarRootInfo($jobID);
+  my @jobFields = ('LibLevel', 'rootLevel',   'LibTag',      'chainOpt',
+		   'nodeID',   'NoEventSkip', 'NoEventDone', 'jobStatus');
+
+  my ($liblevel, $rootlevel, $starlib, $chain,
+      $node, $Nskip, $eventsDone, $jobStatus ) =
+    QA_db_utilities::GetFromJobStatus(\@jobFields, $jobID);
 
   $self->StarLevel($liblevel);
   $self->RootLevel($rootlevel);
   $self->StarlibVersion($starlib);
-  $self->RequestedChain($chain);
+  $self->RequestedChain($chain);   
+  $self->Machine($node);         
+  $self->NoEventSkipped($Nskip);
+  $self->NEventDone($eventsDone);
+  $self->JobStatus($jobStatus);
 
-  # node (machine)
-  my $node = QA_db_utilities::GetFromJobStatus('nodeID',$jobID);
-  $self->Machine($node);
+  # info from the File Catalog
+  my @fileFields = ('NoEventReq', 'createTime');
 
-  # number of event requested
-  my $events = QA_db_utilities::GetFromFileCatalog('NoEventReq',$jobID);
+  my ($events, $createTime)  = 
+      QA_db_utilities::GetFromFileCatalog(\@fileFields,$jobID);
+
   $self->NEventRequested($events);
-
-  # the first event is always 1
   $self->FirstEventRequested(1);
-
-  # num of events requested is the same as the last event requested
   $self->LastEventRequested($events);
-
-  # number of events skipped
-  my $skip = QA_db_utilities::GetFromJobStatus('NoEventSkip',$jobID);
-  $self->NoEventSkipped($skip);
-
+  $self->JobCompletionTimeAndDate($createTime);   
+  
   # output file name and directory
   my ($path, $name) = 
     QA_db_utilities::GetOutputFileNightly( $jobID );
@@ -194,17 +193,6 @@ sub GetJobInfo{
   $self->OutputDirectory($path);
   $self->OutputFn($name);
   
-  # job completion time
-  my $donetime = QA_db_utilities::GetFromFileCatalog('createTime',$jobID);
-  $self->JobCompletionTimeAndDate($donetime);
-
-  # number of events done
-  my $events_done = QA_db_utilities::GetFromJobStatus('NoEventDone',$jobID);
-  $self->NEventDone($events_done);
-
-  # job status - done, not completed, etc
-  my $jobstatus = QA_db_utilities::GetFromJobStatus('jobStatus',$jobID);
-  $self->JobStatus($jobstatus);
   
   # all the output files
   my $file_ref = 
