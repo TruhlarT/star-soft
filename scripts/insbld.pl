@@ -46,6 +46,8 @@ $CMPLCMD="cons INSURE=yes";
 # The directory pattern where they are stored
 $DIRPAT="IOBJ";
 # the object file extension (may be sustem/make dependant)
+$FIND="/usr/bin/find";
+$GREP="/usr/bin/grep";
 $OBJ=".o";
 
 # Not used for now
@@ -164,7 +166,7 @@ if( -e $FILOUT){
 	    $obj = $1.$OBJ;
 	    if( ! defined($PATH{$obj}) ){
 		print " + Searching for $obj --> ";
-		chomp($res = `find . -name $obj | grep $DIRPAT`);
+		chomp($res = `$FIND . -name $obj | $GREP $DIRPAT`);
 
 		$res =~ s/$dir//;
 		if($res eq ""){
