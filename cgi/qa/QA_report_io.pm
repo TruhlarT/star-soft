@@ -156,16 +156,18 @@ sub display_reports {
   #---------------------------------------------------------
   # display event-based tests
 
-  print "<hr><h3> Event-based tests (all entries): </h3>\n"; 
+  # disabled because display too long for many events and in any case not very useful
+  # pmj 11/11/99
 
-  foreach $macro_name (keys %eval_hash){
-
-    $eval = $eval_hash{$macro_name};
-    print "<h4> Macro: $macro_name </h4> \n"; 
-
-    show_all_tests($eval, 'event');
-
-  }
+  #print "<hr><h3> Event-based tests (all entries): </h3>\n"; 
+  #
+  # foreach $macro_name (keys %eval_hash){
+  #
+  #   $eval = $eval_hash{$macro_name};
+  #  print "<h4> Macro: $macro_name </h4> \n"; 
+  #
+  #   show_all_tests($eval, 'event');
+  #}
 }
  
 #===================================================================

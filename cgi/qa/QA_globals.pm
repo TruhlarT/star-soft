@@ -43,16 +43,15 @@ $topdir_report = "/star/data1/jacobs/qa/reports";
 $scratch = "/star/data1/jacobs/qa/scratch";
 
 # for browser access, use soft links in /star/u2/jacobs/WWW
-#Very unstable!! Need a better way...
-#$topdir_report_WWW = "../../../~jacobs/report_dir";
-$topdir_report_WWW = "../../../../~jacobs/report_dir";
 
-$control_dir_WWW = "../../../../~jacobs/control_dir";
+$topdir_WWW = "http://duvall.star.bnl.gov/~jacobs";
+$topdir_report_WWW = "$topdir_WWW/report_dir";
+$control_dir_WWW = "$topdir_WWW/control_dir";
+$batch_dir_WWW = "$topdir_WWW/batch_dir";
+
 
 $batch_dir = "/star/data1/jacobs/qa/batch";
 $control_dir = "/star/data1/jacobs/qa/control_and_test";
-
-$batch_dir_WWW = "../../../../~jacobs/batch_dir";
 
 $update_dir = "/star/data1/jacobs/qa/update";
 

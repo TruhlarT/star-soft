@@ -124,6 +124,12 @@ sub GetTests{
       next;
     };
 
+    $line =~ /output data filename:(.*)/ and do{
+      (my $temp = $1) =~ s/\s+//g;
+      $self->OutputDataFilename($temp);
+      next;
+    };
+
     $line =~ /output data filetype:(.*)/ and do{
       (my $temp = $1) =~ s/\s+//g;
       $self->OutputDataType($temp);
@@ -266,6 +272,9 @@ sub RunMacro{
   #--------------------------------------------------------------------------------------------
   my $starlib_version = $QA_object_hash{$report_key}->LogfileReportData->{"starlib_version"};
   $starlib_version =~ s/SL//;
+
+  # Sl99h is screwed up - use 99i instead  pmj 13/11/99
+#  $starlib_version eq "99h" and $starlib_version = "99i";
 
   my $production_dir = $QA_object_hash{$report_key}->LogfileReportData->{"output_directory"}; 
 
@@ -645,6 +654,12 @@ sub OutputDataExtension{
   return $self->{output_data_extension};
 }
 #========================================================
+sub OutputDataFilename{
+  my $self = shift;
+  if (@_) {$self->{output_data_filename} = shift }
+  return $self->{output_data_filename};
+}
+#========================================================
 sub OutputDataType{
   my $self = shift;
   if (@_) {$self->{output_data_type} = shift }
@@ -852,10 +867,16 @@ sub MacroReportFilename{
 
     my $filetype = ( $self->OutputDataType =~ /ps/ ) ? ".ps" : ".qa_report";
 
-    my $extension = $self->OutputDataExtension;
-    $extension and $filetype = $extension.$filetype;
+    my $temp = $self->OutputDataFilename;
 
-    my $filename = $macro_name.$filetype;
+    if ($temp) {
+      $filename = $temp.$filetype;
+    }
+    else{
+      $extension = $self->OutputDataExtension;
+      $filetype = $extension.$filetype;
+      $filename = $macro_name.$filetype;
+    }
 
     my $report_dirname = $topdir_report."/".$report_key;
     $self->{macro_report_filename} = $report_dirname."/".$filename;
@@ -923,8 +944,12 @@ sub SummaryString{
   #-----------------------------------------------------------
   
   $n_test == 0 and do {
-    $summary_string .= " done, no tests;";
-    return $summary_string;
+
+    # modified pmj 12/11/99
+    #    $summary_string .= " done, no tests;";
+    #    return $summary_string;
+    return "";
+
   };
 
   #-----------------------------------------------------------
