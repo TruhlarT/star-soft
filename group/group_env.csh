@@ -1,11 +1,12 @@
 #!/usr/bin/csh -f
-#       $Id: group_env.csh,v 1.113 2001/03/29 23:48:02 perev Exp $
+#       $Id: group_env.csh,v 1.114 2001/04/02 18:43:55 jeromel Exp $
 #	Purpose:	STAR group csh setup 
 #
 #	Author:		Y.Fisyak     BNL
 #	Date:		27 Feb. 1998
 #	Modified:
 #     3 Mar 98  T. Wenaus  HP Jetprint added (for sol)
+#     2 Apr 01  J. Lauret  Insure path added
 # 
 #	STAR software group	1998
 #
@@ -42,22 +43,39 @@ if ($STAF_LEVEL  == "old" || $STAF_LEVEL  == "pro" || $STAF_LEVEL  == "new" || $
 else
   setenv STAF_VERSION ${STAF_LEVEL}
 endif
+
+# Clear this out. First block STAF, second STAR
 source ${GROUP_DIR}/STAR_SYS; 
-setenv STAR $STAR_PATH/${STAR_VERSION};         if ($ECHO) echo   "Setting up STAR      = ${STAR}"
+# STAF
 setenv STAF $STAR_PATH/StAF/${STAF_VERSION};    if ($ECHO) echo   "Setting up STAF      = ${STAF}"
 setenv STAF_LIB  $STAF/.${STAR_HOST_SYS}/lib;   if ($ECHO) echo   "Setting up STAF_LIB  = ${STAF_LIB}"
 setenv STAF_BIN  $STAF/.${STAR_HOST_SYS}/bin;   if ($ECHO) echo   "Setting up STAF_BIN  = ${STAF_BIN}"
+# STAR
+setenv STAR $STAR_PATH/${STAR_VERSION};         if ($ECHO) echo   "Setting up STAR      = ${STAR}"
 setenv STAR_LIB  $STAR/.${STAR_HOST_SYS}/lib;   if ($ECHO) echo   "Setting up STAR_LIB  = ${STAR_LIB}"
 setenv MINE_LIB        .${STAR_HOST_SYS}/lib;
+setenv STAR_BIN  $STAR/.${STAR_HOST_SYS}/bin;
+setenv MY_BIN          .${STAR_HOST_SYS}/bin 
+
 if ($?NODEBUG) then
   setenv STAR_lib  $STAR/.${STAR_HOST_SYS}/LIB; if ($ECHO) echo   "Setting up STAR_lib  = ${STAR_lib}"
   setenv MINE_lib        .${STAR_HOST_SYS}/LIB;
-else 
+else if ($?INSURE) then
+  # do it conditional because this is a late addition. The directory structure may not exist ...
+  if( -e $STAR/.${STAR_HOST_SYS}/ILIB) then
+   setenv STAR_lib  $STAR/.${STAR_HOST_SYS}/ILIB;if ($ECHO) echo  "Setting up STAR_lib  = ${STAR_lib}"
+   setenv MINE_lib        .${STAR_HOST_SYS}/ILIB;
+   setenv STAR_BIN  $STAR/.${STAR_HOST_SYS}/IBIN;
+  else
+   if ($ECHO) echo  "Setting up STAR_lib  = Cannot Set (missing tree)"
+  endif
+else
   if ($?STAR_lib) unsetenv STAR_lib
   if ($?MINE_lib) unsetenv MINE_lib
 endif
-setenv STAR_BIN  $STAR/.${STAR_HOST_SYS}/bin  ; if ($ECHO) echo   "Setting up STAR_BIN  = ${STAR_BIN}"
-setenv MY_BIN          .${STAR_HOST_SYS}/bin 
+if ($ECHO) echo   "Setting up STAR_BIN  = ${STAR_BIN}"
+
+# Common stuff
 setenv STAR_MGR $STAR/mgr
 setenv STAR_SCRIPTS $STAR/scripts
 setenv STAR_CGI $STAR/cgi
