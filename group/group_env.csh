@@ -1,5 +1,5 @@
 #!/bin/csh -f
-#       $Id: group_env.csh,v 1.149 2003/06/27 21:42:38 jeromel Exp $
+#       $Id: group_env.csh,v 1.150 2003/06/28 00:03:37 jeromel Exp $
 #	Purpose:	STAR group csh setup
 #
 #	Author:		Y.Fisyak     BNL
@@ -56,7 +56,8 @@ endif
 
 # Defined by Group Dir
 if ( ! $?GROUP_DIR )  setenv GROUP_DIR ${STAR_ROOT}/group
-# Defined in CORE
+# Defined in CORE. GROUP_PATH/GROUPPATH are global
+# while GROUP_DIR may be local
 if ( ! $?GROUP_PATH ) setenv GROUP_PATH ${STAR_ROOT}/group
 setenv GROUPPATH  $GROUP_PATH
 if ($?STAR_PATH == 0) setenv STAR_PATH ${STAR_ROOT}/packages;
@@ -70,7 +71,16 @@ setenv STAR_VERSION ${STAR_LEVEL}
 if ($STAR_LEVEL  == "old" || $STAR_LEVEL  == "pro" || $STAR_LEVEL  == "new" || $STAR_LEVEL  == "dev" || $STAR_LEVEL  == ".dev") then
   # i.e. replace with link value instead
   if( -e $STAR_PATH/${STAR_LEVEL}) then
-   setenv STAR_VERSION `/bin/ls -ld $STAR_PATH/${STAR_LEVEL} |cut -f2 -d">"`
+    # be carefull, it may not be "seen" as a soft link
+    # at all ... Some AFS client do not show the link.
+    # No even speaking of absolute path ...
+    set a = `/bin/ls -ld $STAR_PATH/${STAR_LEVEL}`
+    set b = `/bin/ls -ld $STAR_PATH/${STAR_LEVEL} |cut -f2 -d">"`
+    if ( "$a" != "$b") then
+	setenv STAR_VERSION $b
+    else
+	setenv STAR_VERSION $STAR_LEVEL
+    endif
   endif
 endif
 
@@ -85,7 +95,13 @@ endif
 setenv STAF_VERSION ${STAF_LEVEL}
 if ($STAF_LEVEL  == "old" || $STAF_LEVEL  == "pro" || $STAF_LEVEL  == "new" || $STAF_LEVEL  == "dev" || $STAF_LEVEL  == ".dev") then
   if( -e $STAR_PATH/StAF/${STAF_LEVEL}) then
-    setenv STAF_VERSION `/bin/ls -ld $STAR_PATH/StAF/${STAF_LEVEL} |cut -f2 -d">"`
+    set a = `/bin/ls -ld $STAR_PATH/StAF/${STAF_LEVEL}`
+    set b = `/bin/ls -ld $STAR_PATH/StAF/${STAF_LEVEL} |cut -f2 -d">"`
+    if ( "$a" != "$b") then
+	setenv STAF_VERSION $b
+    else
+	setenv STAF_VERSION ${STAF_LEVEL}
+    endif
   endif
 endif
 
@@ -117,12 +133,12 @@ endif
 
 
 # STAF
-setenv STAF $STAR_PATH/StAF/${STAF_VERSION};    if ($ECHO) echo   "Setting up STAF      = ${STAF}"
-setenv STAF_LIB  $STAF/.${STAR_HOST_SYS}/lib;   if ($ECHO) echo   "Setting up STAF_LIB  = ${STAF_LIB}"
-setenv STAF_BIN  $STAF/.${STAR_HOST_SYS}/bin;   if ($ECHO) echo   "Setting up STAF_BIN  = ${STAF_BIN}"
+setenv STAF ${STAR_PATH}/StAF/${STAF_VERSION} ;   if ($ECHO) echo   "Setting up STAF      = ${STAF}"
+setenv STAF_LIB  $STAF/.${STAR_HOST_SYS}/lib  ;   if ($ECHO) echo   "Setting up STAF_LIB  = ${STAF_LIB}"
+setenv STAF_BIN  $STAF/.${STAR_HOST_SYS}/bin  ;   if ($ECHO) echo   "Setting up STAF_BIN  = ${STAF_BIN}"
 # STAR
-setenv STAR      $STAR_PATH/${STAR_VERSION};    if ($ECHO) echo   "Setting up STAR      = ${STAR}"
-setenv STAR_LIB  $STAR/.${STAR_HOST_SYS}/lib;   if ($ECHO) echo   "Setting up STAR_LIB  = ${STAR_LIB}"
+setenv STAR      $STAR_PATH/${STAR_VERSION}   ;   if ($ECHO) echo   "Setting up STAR      = ${STAR}"
+setenv STAR_LIB  $STAR/.${STAR_HOST_SYS}/lib  ;   if ($ECHO) echo   "Setting up STAR_LIB  = ${STAR_LIB}"
 setenv MINE_LIB        .${STAR_HOST_SYS}/lib
 setenv STAR_BIN  $STAR/.${STAR_HOST_SYS}/bin
 setenv MY_BIN          .${STAR_HOST_SYS}/bin
@@ -131,7 +147,7 @@ setenv MY_BIN          .${STAR_HOST_SYS}/bin
 # Options my alter *_BIN and/or add *_lib. All options should
 # be treated here. Defaults hould be preserved above.
 if ($?NODEBUG) then
-  setenv STAR_lib  $STAR/.${STAR_HOST_SYS}/LIB; if ($ECHO) echo   "Setting up STAR_lib  = ${STAR_lib}"
+  setenv STAR_lib  $STAR/.${STAR_HOST_SYS}/LIB ;  if ($ECHO) echo   "Setting up STAR_lib  = ${STAR_lib}"
   setenv MINE_lib        .${STAR_HOST_SYS}/LIB
   setenv STAR_BIN  $STAR/.${STAR_HOST_SYS}/BIN
   setenv MY_BIN          .${STAR_HOST_SYS}/BIN
@@ -141,7 +157,7 @@ else if ($?INSURE) then
   if( -e $STAR/.${STAR_HOST_SYS}/ILIB) then
    if (-f $GROUP_DIR/parasoftenv.csh) then
      source $GROUP_DIR/parasoftenv.csh
-     setenv STAR_lib  $STAR/.${STAR_HOST_SYS}/ILIB;if ($ECHO) echo   "Setting up STAR_lib  = ${STAR_lib}"
+     setenv STAR_lib  $STAR/.${STAR_HOST_SYS}/ILIB ;  if ($ECHO) echo   "Setting up STAR_lib  = ${STAR_lib}"
      setenv MINE_lib        .${STAR_HOST_SYS}/ILIB
      setenv STAR_BIN  $STAR/.${STAR_HOST_SYS}/IBIN
      setenv MY_BIN          .${STAR_HOST_SYS}/IBIN
@@ -297,8 +313,11 @@ switch ($STAR_SYS)
        setenv LD_LIBRARY_PATH `${GROUP_DIR}/dropit -p ${MINE_LIB} -p ${STAR_LIB} -p ${STAF_LIB} -p ${LD_LIBRARY_PATH}`
       endif
 
-      limit  coredump 0
-      setenv BFARCH Linux2
+      #  cygwin tcsh has no 'limit' command embedded
+      if ( `echo $STAR_SYS | grep _nt` == "") then
+	limit  coredump 0
+	setenv BFARCH Linux2
+      endif
       breaksw
 
     case "sun4*":
