@@ -11,7 +11,7 @@ use CGI;
 
 require "/afs/rhic/star/packages/DEV00/mgr/dbCpProdSetup.pl";
 
-my @prodPer = ("mdc1", "mdc2", "postmdc2", "prod4", "prod5", "mdc3");
+my @prodPer = ("mdc1", "mdc2", "postmdc2", "prod4", "prod5", "mdc3", "prod6");
 my $debugOn = 0;
 my %pair;
 my @Sets;
@@ -80,7 +80,7 @@ while(@fields = $cursor->fetchrow) {
   }
     next if ($mySet =~ /daq/);
     next if ($mySet =~ /dst/);
- 
+    next if ($mySet eq 'n/a'); 
      $prodNext = $prodPer[$ll];
      $pair{$mySet} =  $pair{$mySet} . " : " . $prodNext ;
 
