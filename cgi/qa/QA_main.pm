@@ -29,6 +29,8 @@ use QA_globals;
 use QA_display_reports;
 use QA_make_reports;
 
+use Button_object;
+
 use QA_report_object;
 use QA_report_io;
 
@@ -41,7 +43,7 @@ print $query->header;
 # this turns off "automatic escaping", which is the default and which
 # disables HTML character sequences in labels
 #$query->autoEscape(undef);
-#--------------------------------------------------------------------
+#-------------------------------------------------------------------------
 
 $path_info = $query->path_info;
 
@@ -69,12 +71,9 @@ if(!$cron_job){
 }
 else
   {
-    $path_info = 'display_data';
+    $path_info = 'lower_display';
     $query->param("$cron_job", 1);
   }
-#--------------------------------------------------------
-# check if certain fields have changed - if so, clear bottom of page
-#&clear_page_on_field_change;
 #--------------------------------------------------------
 &QA_utilities::cleanup_topdir;
 #-----------------------------------------------------------------------------
@@ -82,9 +81,10 @@ else
 # puts all objects into QA_object_hash
 
 @QA_key_list = &QA_utilities::get_QA_objects;
-#-----------------------------------------------------------------------------
-&list_datasets if $path_info =~ /list_datasets/;
-&display_data if $path_info =~ /display_data/;
+
+#--------------------------------------------------------------------
+&upper_display if $path_info =~ /upper_display/;
+&lower_display if $path_info =~ /lower_display/;
 #-----------------------------------------------------------------------------
 
 print  $query->end_html;
@@ -95,274 +95,34 @@ print  $query->end_html;
 #=================================================================
 
 #=============================================================
-sub list_datasets{
+sub upper_display{
 
   #--------------------------------------------------------
-
   QA_cgi_utilities::print_page_header("Offline Software QA");		    
-
   #-----------------------------------------------------------------------------
   &check_for_expert_page;
   #--------------------------------------------------------
   &starting_display;
   #-----------------------------------------------------------------------------
-  $select_dataset = $query->param('select_dataset');
-  
-  get_selected_key_list($select_dataset);
-  
+  &button_actions;
+  #-----------------------------------------------------------------------------
   display_datasets($select_dataset);
 }
 #==========================================================================
-sub display_data{
+sub lower_display{
 
   #-------------------------------------------------------------------------
-    my $string = &QA_utilities::hidden_field_string;
-    print "$string";
+  my $string = &QA_utilities::hidden_field_string;
+  print "$string";
   #-------------------------------------------------------------------------
-  #print "In display_data, here are query values: <br> \n";
+  #print "In lower_display, here are query values: <br> \n";
   #print $query->dump;
   #-----------------------------------------------------------------------------
   &check_for_expert_page;
   #-----------------------------------------------------------------------------
   &check_for_csh_script;
-  #-------------------------------------------------------------------------
-  $select_dataset = $query->param('select_dataset');
-  get_selected_key_list($select_dataset);
   #-----------------------------------------------------------------------------
-  my $do_this_file = 0;
-  my $update_catalogue = 0;
-  my $batch_update_qa = 0;
-  my $do_qa_dataset = 0;
-  my $redo_qa_dataset = 0;
-  my $expert_page_request = 0;
-  my $csh_script = 0;
-  #-----------------------------------------------------------------------------
-  # which button was pushed?
-
- GETBUTTON: {
-
-    $query->param('update_catalogue') and do{
-      $update_catalogue = 1;
-      last GETBUTTON;
-    };
-
-    $query->param('batch_update_qa') and do{
-      $batch_update_qa = 1;
-      last GETBUTTON;
-    };
-
-    $query->param('server_log') and do{
-      &QA_server_utilities::display_server_log;
-      last GETBUTTON;
-    };
-
-    $query->param('server_batch_queue') and do{
-      &QA_server_utilities::display_server_batch_queue;
-      last GETBUTTON;
-    };
-
-    $query->param('batch_log') and do{
-      &QA_server_utilities::display_batch_logfiles;
-      last GETBUTTON;
-    };
-    
-    $query->param('do_qa_dataset') and do{
-      $do_qa_dataset = 1;
-      last GETBUTTON;
-    };
-    
-    $query->param('redo_qa_dataset') and do{
-      $redo_qa_dataset = 1;
-      last GETBUTTON;
-    };
-    
-    $query->param('expert_page_request') and do{
-      $expert_page_request = 1;
-      last GETBUTTON;
-    };
-    
-    $query->param('csh_script') and do{
-      $csh_script = 1;
-      last GETBUTTON;
-    };
-    
-    $query->param('crontab_add') and do{
-      &QA_utilities::crontab_add;
-      last GETBUTTON;
-    };
-    
-    $query->param('crontab_l') and do{
-      &QA_utilities::crontab_l;
-      last GETBUTTON;
-    };
-    
-    $query->param('crontab_r') and do{
-      &QA_utilities::crontab_r;
-      last GETBUTTON;
-    };
-    
-    foreach $report_key ( @selected_key_list ){
-      foreach $suffix ( "show_log_report", "show_qa", "show_files", 
-			"setup_report_comparison", "do_report_comparison",
-			"do_qa_batch", "redo_evaluation", "redo_qa_batch"){
-	
-	$temp = $report_key.".".$suffix;
-	
-	$query->param($temp) and do{
-	  
-	  $query->param('report_key_selected', $report_key);
-	  $query->param('button_action', $suffix);
-	  $do_this_file = 1;
-	  last GETBUTTON;
-	};
-      }
-    }
-  }
-  
-  #-----------------------------------------------------------------------------
-  $report_key = $query->param('report_key_selected');
-  $button_action = $query->param('button_action');
-  #-----------------------------------------------------------------------------
-
-  $batch_update_qa and do{
-    print "<h3> Submitting batch job for catalogue update and global QA... </h3> \n";
-    &QA_utilities::submit_batchjob('update_and_qa');
-  };
-
-  #---
-
-  $update_catalogue and do{
-    print "<h3> Updating calatogue... </h3> \n";
-    &print_refresh;
-    QA_utilities::get_QA_objects('update');
-  };
-
-  #---
-
-  $do_qa_dataset and do{
-    print "<h3> Submitting batch job for QA on dataset... </h3> \n";
-    &QA_utilities::submit_batchjob('do_qa', @selected_key_list);
-  };
-
-  #---
-
-  $redo_qa_dataset and do{
-    print "<h3> Submitting batch job to redo QA on dataset... </h3> \n";
-    &QA_utilities::submit_batchjob('redo_qa', @selected_key_list);
-  };
-
-
-  #---
-
-  $expert_page_request and do{
-    print "<h3>Enter password for expert's page:</h3> \n",
-    print $query->startform(-action=>"$script_name/list_datasets", -TARGET=>"list"); 
-    print $query->password_field('expert_pw', '', 20, 20);
-    my $string = &QA_utilities::hidden_field_string;
-    print "$string";
-    print $query->endform;
-  };
-
-  #---
-
-  $csh_script and do{
-    print "<h3>Enter csh scriptname to execute:</h3> \n",
-    print $query->startform(-action=>"$script_name/display_data", -TARGET=>"display"); 
-    print $query->textfield('csh_scriptname', '', 80, 120);
-    my $string = &QA_utilities::hidden_field_string;
-    print "$string";
-    print $query->endform;
-  };
-
-  #-----------------------------------------------------------------------------
-  if ($do_this_file and $report_key){  
-    
-    #---
-
-  BUTTONACTION: {
-      
-      $button_action eq "show_log_report" and do {
-	$QA_object_hash{$report_key}->DisplayLogfileReport;
-	last BUTTONACTION;
-      };
-      
-      $button_action eq "show_files" and do {
-	$QA_object_hash{$report_key}->DisplayFilesAndReports;
-	last BUTTONACTION;
-      };
-      
-      $button_action eq "show_qa" and do {
-	$QA_object_hash{$report_key}->ShowQA;
-	last BUTTONACTION;
-      };
-
-      $button_action eq "setup_report_comparison" and do {
-	QA_report_io::setup_report_comparison($report_key);
-	last BUTTONACTION;
-      };
-
-      $button_action eq "do_report_comparison" and do {
-	QA_report_io::do_report_comparison($report_key);
-	last BUTTONACTION;
-      };
-      
-      $button_action eq "do_qa" and do {
-	$QA_object_hash{$report_key}->DoQA;
-	last BUTTONACTION;
-      };
-      
-      $button_action eq "redo_evaluation" and do {
-	&print_refresh;
-	$QA_object_hash{$report_key}->DoQA('evaluate_only');
-	last BUTTONACTION;
-      };
-
-      $button_action eq "redo_qa_batch" and do {
-	print "<h3> Submitting batch job to redo QA on run $report_key... </h3> \n";
-	&QA_utilities::submit_batchjob('redo_qa', $report_key);
-	last BUTTONACTION;
-      };
-
-      $button_action eq "do_qa_batch" and do {
-	print "<h3> Submitting batch job to do QA on run $report_key... </h3> \n";
-	&QA_utilities::submit_batchjob('do_qa', $report_key);
-	last BUTTONACTION;
-      };
-      
-    }
-    
-  }
-  
-}
-#===================================================================
-sub clear_page_on_field_change{
-
-  # clears page if a selection changes between invocations
-
-#  print "clear_page called... <br> \n";
-
-#  print $query->dump;
-
-  @dataset_array = $query->param('select_dataset');
-
-#  print "dataset array = @dataset_array <br> \n";
-#-----------------------------------------------------------------
-  undef $clear_page;
-
-  if ($#dataset_array > 0){
-    $dataset_array_previous = $query->param('dataset_array_previous');
-    $#dataset_array > $dataset_array_previous and  $clear_page = 1;
-  }
-  $query->param('dataset_array_previous', $#time_array);
-
-#-----------------------------------------------------------------
-
-  defined ($clear_page) and do{
-    my $save = $query->param('select_dataset');
-    $query->delete('select_dataset');
-    &display_data;
-    $query->param('select_dataset', $save);
-  };
+  &button_actions;
 }
 #=================================================================
 sub starting_display {
@@ -411,7 +171,7 @@ sub starting_display {
   $hidden_string = &QA_utilities::hidden_field_string;
 
   $select_data_string= "<H3>Select datasets:</H3>".
-    $query->startform(-action=>"$script_name/list_datasets", -TARGET=>"list").
+    $query->startform(-action=>"$script_name/upper_display", -TARGET=>"list").
       $query->popup_menu('select_dataset', \@selection_list, $selection_list[0], \%selection_hash).
 	"<P>".$query->submit('Display selected dataset').
 	  $hidden_string.$query->endform;
@@ -419,18 +179,37 @@ sub starting_display {
   if($global_expert_page){  
 
     $action_string = "<H3>Global actions:</H3>".
-      $query->startform(-action=>"$script_name/display_data", -TARGET=>"display"). 
-	$query->submit('update_catalogue', 'Update Catalogue')."<br>".
-	  $query->submit('batch_update_qa', 'Update Catalogue and QA (batch job)')."<br>".
-	    $query->submit('server_log', 'Server Log').
-	      $query->submit('server_batch_queue', 'Server Batch Queue').
-		$query->submit('batch_log', 'Batch Logfiles')."<br>".
-		  $query->submit('csh_script', 'Run csh script')."<br>".
+      $query->startform(-action=>"$script_name/lower_display", -TARGET=>"display");
 
-    $action_string .= $query->submit('crontab_add', 'Add crontab.txt').
-      $query->submit('crontab_l', 'Do crontab -l').
-	$query->submit('crontab_r', 'Do crontab -r').
-	  $hidden_string.$query->endform;
+    $button_ref = Button_object->new('UpdateCatalogue', 'Update Catalogue');
+    $action_string .= $button_ref->SubmitString."<br>";
+
+    $button_ref = Button_object->new('BatchUpdateQA', 'Update Catalogue and QA (batch job)');
+    $action_string .= $button_ref->SubmitString."<br>";
+
+    $button_ref = Button_object->new('ServerLog', 'Server Log');
+    $action_string .= $button_ref->SubmitString;
+
+    $button_ref = Button_object->new('ServerBatchQueue', 'Server Batch Queue');
+    $action_string .= $button_ref->SubmitString;
+
+    $button_ref = Button_object->new('BatchLog', 'Batch Logfiles');
+    $action_string .= $button_ref->SubmitString."<br>";
+
+    $button_ref = Button_object->new('CshScript', 'Run csh script');
+    $action_string .= $button_ref->SubmitString."<br>";
+
+    $button_ref = Button_object->new('CrontabAdd', 'Add crontab.txt');
+    $action_string .= $button_ref->SubmitString;
+
+    $button_ref = Button_object->new('CrontabMinusL', 'Do crontab -l');
+    $action_string .= $button_ref->SubmitString;
+
+    $button_ref = Button_object->new('CrontabMinusR', 'Do crontab -r');
+    $action_string .= $button_ref->SubmitString;
+
+    $hidden_string = &QA_utilities::hidden_field_string;
+    $action_string .= $hidden_string.$query->endform;
 
     $expert_page_string = "<H3>This is the expert's page</H3>";
 
@@ -440,9 +219,12 @@ sub starting_display {
     undef $action_string; 
 
     $expert_page_string = "<H3>Access expert's page<br>(do updates and QA):</H3>".
-      $query->startform(-action=>"$script_name/display_data", -TARGET=>"display"). 
-	$query->submit('expert_page_request', "Expert's page").
-	  $hidden_string.$query->endform;
+      $query->startform(-action=>"$script_name/lower_display", -TARGET=>"display");
+
+    $button_ref = Button_object->new('ExpertPageRequest', "Expert's page");
+    $expert_page_string .= $button_ref->SubmitString;
+
+    $expert_page_string .= $hidden_string.$query->endform;
   }
 
   #-----------------------------------------------------------
@@ -536,7 +318,7 @@ sub get_selected_key_list {
   }
 
   #-----------------------------------------------------------------------------
-  
+
   return @selected_key_list;
   
 }
@@ -554,14 +336,20 @@ sub display_datasets{
   
   if ($global_expert_page){
 
-    print $query->startform(-action=>"$script_name/display_data", -TARGET=>"display"); 
+    print $query->startform(-action=>"$script_name/lower_display", -TARGET=>"display"); 
     
-    print $query->submit('do_qa_dataset', 'Do QA on whole dataset');
-    print $query->submit('redo_qa_dataset', 'Redo QA on whole dataset');
-    my $string = &QA_utilities::hidden_field_string;
-    print "$string";
-    
-    print $query->endform;
+    $button_string = "";
+
+    $button_ref = Button_object->new('DoQaDataset', 'Do QA on whole dataset');
+    $button_string .= $button_ref->SubmitString;
+
+    $button_ref = Button_object->new('RedoQaDataset', 'Reoo QA on whole dataset');
+    $button_string .= $button_ref->SubmitString;
+
+    $hidden_string = &QA_utilities::hidden_field_string;
+    $button_string .= $hidden_string.$query->endform;
+
+    print $button_string;
 
   }
 
@@ -571,11 +359,11 @@ sub display_datasets{
     
     @table_heading = ('Data Set', 'Created/On disk?', 'Run Status', 'QA Status', '');
     @table_rows = th(\@table_heading);
-    
+
     foreach $report_key ( @selected_key_list ){
-      
+
       # make sure logfile report exists
-      $logfile_report = $QA_object_hash{$report_key}->LogfileReportName;
+      $logfile_report = $QA_object_hash{$report_key}->LogReportName;
       -s $logfile_report or next;
 
       $data_string = $QA_object_hash{$report_key}->DataDisplayString;
@@ -588,7 +376,7 @@ sub display_datasets{
 			     $qa_summary_string, $button_string] ) );
     }
     
-    print $query->startform(-action=>"$script_name/display_data", -TARGET=>"display"); 
+    print $query->startform(-action=>"$script_name/lower_display", -TARGET=>"display"); 
     print table( {-border=>undef}, Tr(\@table_rows));
     my $string = &QA_utilities::hidden_field_string;
     print "$string";
@@ -609,8 +397,8 @@ sub print_frameset{
  
   print "<html><head><title>$title</title></head>",
   "<frameset rows=60%,40%>",
-  "<frame src=$script_name/list_datasets name=list>",
-  "<frame src=$script_name/display_data name=display>",
+  "<frame src=$script_name/upper_display name=list>",
+  "<frame src=$script_name/lower_display name=display>",
   "</frameset> \n";
 
     exit 0;
@@ -625,8 +413,8 @@ sub print_frameset_test{
  
   print title("$title"),
   frameset( {-rows=>'60%,40%'},
-	    frame( {-name=>'list', -scr=>"$script_name/list_datasets"} ),
-	    frame( {-name=>'display', -scr=>"$script_name/display_data"} )
+	    frame( {-name=>'list', -scr=>"$script_name/upper_display"} ),
+	    frame( {-name=>'display', -scr=>"$script_name/lower_display"} )
 	 );
 
   #exit 0;
@@ -636,11 +424,6 @@ sub print_html_header {
   $title = shift;
   print $query->start_html($title);
 
-}
-#===========================================================
-sub print_refresh{
-  print "<h3> <font color = blue> To refresh upper panel when done, reselect dataset </font> </h3> \n";
-  return;
 }
 #===========================================================
 sub check_for_expert_page{
@@ -695,4 +478,22 @@ sub selection_sort{
 	  $a_year cmp $b_year
 	    or
 	      $a cmp $b;
+}
+#============================================================
+sub button_actions{
+
+  $select_dataset = $query->param('select_dataset');
+  get_selected_key_list($select_dataset);
+  #-----------------------------------------------------------------------------
+  
+  @get_params = $query->param;
+  
+  # get button action
+  foreach $param ( @get_params ){
+    exists $Button_object_hash{$param} and do{
+      $button_ref = $Button_object_hash{$param}; 
+      $$button_ref->ButtonAction;
+      last;
+    };
+  }
 }

@@ -209,7 +209,7 @@ sub GetTests{
     my $replace_macro = 0;
 
     # is there a .hist.root file?
-    $production_dir = $QA_object_hash{$report_key}->LogfileReportData->{"output_directory"}; 
+    $production_dir = $QA_object_hash{$report_key}->LogReport->OutputDirectory; 
     find( \&QA_cgi_utilities::get_file, $production_dir );
 
 #    print "global_filename = $global_filename <br> \n";
@@ -270,15 +270,15 @@ sub RunMacro{
   };
 
   #--------------------------------------------------------------------------------------------
-  my $starlib_version = $QA_object_hash{$report_key}->LogfileReportData->{"starlib_version"};
+  my $starlib_version = $QA_object_hash{$report_key}->LogReport->StarlibVersion;
   $starlib_version =~ s/SL//;
 
   # Sl99h is screwed up - use 99i instead  pmj 13/11/99
 #  $starlib_version eq "99h" and $starlib_version = "99i";
 
-  my $production_dir = $QA_object_hash{$report_key}->LogfileReportData->{"output_directory"}; 
+  my $production_dir = $QA_object_hash{$report_key}->LogReport->OutputDirectory; 
 
-  my $nevent_requested = $QA_object_hash{$report_key}->LogfileReportData->{"nevent_requested"}; 
+  my $nevent_requested = $QA_object_hash{$report_key}->LogReport->NEevent;
   $nevent_requested or $nevent_requested = 40;
   #--------------------------------------------------------------------------------------------
 

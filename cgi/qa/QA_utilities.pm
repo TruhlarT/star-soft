@@ -70,34 +70,44 @@ sub get_QA_objects{
 
     #-----------------------------------------------------------
 
-    my $temp = $query->param('qa_object_hash_scratch_file');
+    my $temp = $query->param('save_object_hash_scratch_file');
 
     if (-e $temp) {
-      $QA_object_hash_scratch_file = $temp;
-      my $ref = retrieve($QA_object_hash_scratch_file);
-      %QA_object_hash = %$ref;
+      $Save_object_hash_scratch_file = $temp;
+      my $ref = retrieve($Save_object_hash_scratch_file);
+      %Save_object_hash = %$ref;
+
+      %QA_object_hash = %{$Save_object_hash{QA_object_hash}};
+      %Button_object_hash = %{$Save_object_hash{Button_object_hash}};
+
     }
     else {
-      %QA_object_hash = ();
 
       # quick upload for testing
 #      print "Using quick-upload test.qa_hash <br> \n";
-#      $QA_object_hash_scratch_file = "$scratch/test.qa_hash";    
-#      my $ref = retrieve($QA_object_hash_scratch_file);
-#      %QA_object_hash = %$ref;
+#      $Save_object_hash_scratch_file = "$scratch/test.qa_hash";    
+#      my $ref = retrieve($Save_object_hash_scratch_file);
+#      %Save_object_hash = %$ref;
+#      %QA_object_hash = %{$Save_object_hash{QA_object_hash}};
+#      %Button_object_hash = %{$Save_object_hash{Button_object_hash}};
+
+      %QA_object_hash = ();
+      %Button_object_hash = ();
+
       #---- 
 
       # generate unique file ID
       srand;
       my $id_string = int(rand(1000000)); 
-      $QA_object_hash_scratch_file ="$scratch/temp_$id_string.qa_hash";
-      $query->param('qa_object_hash_scratch_file', $QA_object_hash_scratch_file);
+      $Save_object_hash_scratch_file ="$scratch/temp_$id_string.persistent_hash";
+      $query->param('save_object_hash_scratch_file', $Save_object_hash_scratch_file);
       &hidden_field_string;
       
     }
   }
   else {
     %QA_object_hash = ();
+    %Button_object_hash = ();
   }
   #-----------------------------------------------------------
   # get report catalogue
@@ -112,6 +122,7 @@ sub get_QA_objects{
     defined $QA_object_hash{$report_key} or do{
 
       $QA_object_hash{$report_key} = QA_object->new($report_key);
+
     };
   }
   
@@ -156,7 +167,7 @@ sub get_QA_objects{
   # sort directories in time
   @key_list_sorted = ( sort { sort_time($b) <=> sort_time($a) } keys %QA_object_hash );
 
-return @key_list_sorted
+  return @key_list_sorted
 
 }
 #=================================================================
@@ -343,64 +354,31 @@ sub get_update_dirs{
 sub hidden_field_string{
 
   $string = $query->hidden('select_dataset').
-    $query->hidden('report_key_selected').
-      $query->hidden('button_action').
 	$query->hidden('dataset_array_previous').
 	  $query->hidden('selected_key_list').
 	    $query->hidden('expert_pw').
-	      $query->hidden('qa_object_hash_scratch_file');
-
+	      $query->hidden('save_object_hash_scratch_file');
+  
   #------------------------------------------------------------  
-  # store hash
-  %QA_object_hash and do{
-    $filename = $QA_object_hash_scratch_file;
-    store(\%QA_object_hash, $filename ) or print "<h4> Cannot write $filename: $! </h4> \n";
-  };
-  #----------------------------------------------------------------
+  # store persistent hashes
+  
+  $filename = $Save_object_hash_scratch_file;
+  
+  $Save_object_hash{QA_object_hash} = \%QA_object_hash;
+  $Save_object_hash{Button_object_hash} = \%Button_object_hash;
+  
+  #print "In QA utilities::hidden string, about to write Save_object_has to $filename . Here dump of Button_object_hash: <br> \n";
+  #print "<pre> ", Dumper(\%Button_object_hash), "</pre> <br> \n";
+  
+  store(\%Save_object_hash, $filename ) or print "<h4> Cannot write $filename: $! </h4> \n";
+
+#----------------------------------------------------------------
   return $string;
 }
-#======================================================================
-sub crontab_add{
-
-  $now = cwd();
-  $filename = "$now/crontab.txt";
-
-  print "<h4> Adding file $filename to crontab for starlib. Here are contents: <br> </h4>";
-  
-  open CRONTAB, $filename;
-  while (<CRONTAB>){ print "$_ <br> \n";}
-  close CRONTAB;
-
-  $status = system("crontab $filename");
-
-  print "...done. Status = $status <br> \n";
-}  
-#======================================================================
-sub crontab_l{
-
-  print "<h4> Doing crontab -l for starlib: <br> </h4>";
-
-  $filename = "$cron_dir/minus_l.txt";
-
-  $now = cwd();
-  $status = system("$now/crontab_minus_l.csh $filename");
-  print "...done. Status = $status <br> \n";
-  
-  print "<hr> Here is output: <br> <br>\n";
-
-  open CRONFILE, $filename;
-  while (<CRONFILE>){ print "$_ <br> \n";}
-  close CRONFILE;
-
-}  
-#======================================================================
-sub crontab_r{
-  
-  print "<h4> Doing crontab -r for starlib. <br> </h4>";
-
-  $status = system("crontab -r");
-
-  print "...done. Status = $status <br> \n";
-}  
+#===========================================================
+sub print_refresh{
+  print "<h3> <font color = blue> To refresh upper panel when done, reselect dataset </font> </h3> \n";
+  return;
+}
 
   

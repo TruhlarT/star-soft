@@ -14,10 +14,13 @@ use File::Basename;
 use File::Find;
 use File::stat;
 
+use Storable;
 use Data::Dumper;
-
 use QA_globals;
-use QA_logfile_report;
+
+#use QA_logfile_report;
+use Logreport_object;
+
 use QA_make_reports;
 use QA_cgi_utilities;
 use QA_report_io;
@@ -42,26 +45,26 @@ sub _init{
   
   # if no directory supplied as argument, return
   return unless @_;
+  
+  # this argument can be production dir or report dir - check later
+  my $arg_dir = shift;
+
+  # second argument is optional action: update log file, do qa, etc.
+  @_ and $action = shift;
 
   #-------------------------------------------------
-  # get report names
-  
   # is this a data or report directory?
   
-  my $arg_dir = shift;
-  
   undef $report_key;
-  my $this_is_data = 0;
+  my $this_is_prod_dir = 0;
 
  DIRTYPE: {
 
     foreach $topdir (@topdir_data){
 
       $arg_dir =~ /$topdir/ and do{
-
-	print "topdir = $topdir \n";
 	$report_key = QA_make_reports::get_report_key($arg_dir); 
-	$this_is_data = 1;
+	$this_is_prod_dir = 1;
 	last DIRTYPE
       };
     }    
@@ -85,41 +88,24 @@ sub _init{
   }
   #------------------------------------------------------
   $self->ReportKey($report_key);
-  $self->ReportDirectory($report_key);
+  $self->ReportDirectory();
+  $self->LogReportName();
   #------------------------------------------------------
-  $logfile_report = $self->LogfileReportName($report_key);
-  #------------------------------------------------------
-
-  # second argument upon initialization: update log file, do qa, etc.
-
-  if (@_){
-
-    $action = shift;
-
-    $action =~ /update/ and $this_is_data and do{
+  # get pointer to logreport object
+    
+  if($action =~ /update/ and $this_is_prod_dir){
       QA_make_reports::make_report_directory($report_key);
-      QA_logfile_report::make_logfile_report($arg_dir, $logfile_report);
-    };
-
+      $self->LogReport($arg_dir);
+    }
+  else{
+    $self->LogReport();
   }
   #------------------------------------------------------
-
-  -e $logfile_report  and do{
-    $self->LogfileReportData($logfile_report);
-  };
-  #------------------------------------------------------
-  # get QA control file
-
-  #$self->ControlFile($control_file);
-
-  #------------------------------------------------------
-
-  $self->QASummaryString($report_key);
-
+  $self->QASummaryString();
   #------------------------------------------------------
   # is data on disk?
 
-  $self->OnDisk($report_key);
+  $self->OnDisk();
 
 }
 #========================================================
@@ -133,11 +119,10 @@ sub ReportDirectory{
 
   my $self = shift;
 
-  if (@_){
-    my $report_key = shift;
-    $self->{report_directory} = $topdir_report."/".$report_key;
-    $self->{report_directory_WWW} = $topdir_report_WWW."/".$report_key;
-  }
+  $self->{report_directory} or do{
+    my $report_key = $self->ReportKey;
+    $self->{report_directory} = QA_make_reports::report_directory($report_key);
+  };
 
   return $self->{report_directory};
 }
@@ -146,21 +131,12 @@ sub ReportDirectoryWWW{
 
   my $self = shift;
 
-  if (@_){
-    my $report_key = shift;
-    $self->ReportDirectory($report_key);
-  }
+  $self->{report_directory_www} or do{
+    my $report_key = $self->ReportKey;
+    $self->{report_directory_www} = QA_make_reports::report_directory_www($report_key);
+  };
 
-  return $self->{report_directory_WWW};
-}
-#========================================================
-sub LogfileReportData{
-  my $self = shift;
-  if (@_) {
-    $self->{logfile_report_data} = { QA_logfile_report::get_logfile_report(shift) } ;
-  }
-  
-  return $self->{logfile_report_data};
+  return $self->{report_directory_www};
 }
 #========================================================
 sub ControlFile{
@@ -318,57 +294,28 @@ sub QADone{
 #========================================================
 sub OnDisk{
   my $self = shift;
-
-  if (@_) {
-    $report_key = shift; 
-    $test_data_dir = $self->{logfile_report_data}->{output_directory};
+  
+  $self->{on_disk} or do{
+    $report_key = $self->ReportKey(); 
+    $test_data_dir = $self->LogReport->OutputDirectory;
     $on_disk = 0;
+
+#    print "In QA_object::OnDisk, report key = $report_key,",
+#    " test_data_dir = $test_data_dir <br> \n";
 
     if (defined $test_data_dir and -d $test_data_dir){ 
       # even if same directory exists, may contain later run -> test against dir time
       $test_report_key = QA_make_reports::get_report_key($test_data_dir); 
       $test_report_key eq $report_key and $on_disk = 1;
 
-      # snafu for dotdev runs: directories pointed to in log file differ from
-      # those being looked at (directory was copied by Lidia) so punt on 
-      # last check for now - this definitely needs cleaning up  pmj 4/11/99
-      $report_key =~ /dotdev/ and $on_disk = 1;
+#    print "In QA_object::OnDisk, report key = $report_key,",
+#      " test_report_key = $test_report_key <br> \n";
     }
 
     $self->{on_disk} = $on_disk;
-  }
+  };
   
   return $self->{on_disk};
-}
-#========================================================
-sub LogfileReportName{
-
-  my $self = shift;
-
-  if (@_){
-    my $report_key = shift;
-    my $report_dirname = $self->ReportDirectory;
-    my $report_dirname_WWW = $self->ReportDirectoryWWW;
-    my $logfile_reportname = "logfile_report\.txt";
-    $self->{logfile_report} = $report_dirname."/".$logfile_reportname;
-    $self->{logfile_report_WWW} = $report_dirname_WWW."/".$logfile_reportname;
-  }
-  return $self->{logfile_report};
-}
-#========================================================
-sub LogfileReportNameWWW{
-  my $self = shift;
-  return $self->{logfile_report_WWW};
-}
-#========================================================
-sub LogfileName{
-  my $self = shift;
-  return $self->LogfileReportData->{input_logfile};
-}
-#========================================================
-sub ProductionDirectory{
-  my $self = shift;
-  return $self->LogfileReportData->{output_directory};
 }
 #========================================================
 sub DataDisplayString{
@@ -377,18 +324,19 @@ sub DataDisplayString{
 
   #--------------------------------------------------------
 
-  my $string = $self->LogfileReportData->{"output_directory"}; 
-
-  my $logfile_report = $self->LogfileReportName;
-      
+  my $logfile_report = $self->LogReportName;
+  
   if (-e $logfile_report ){
+
+    $string = $self->LogReport->OutputDirectory;
     
-    $starlib_version = $self->LogfileReportData->{"starlib_version"};
-    $star_level = $self->LogfileReportData->{"star_level"};
+    $starlib_version = $self->LogReport->StarlibVersion;
+    $star_level = $self->LogReport->StarLevel;
     $starlib_version =~ /SL/ and $string .= "<br>(STARLIB version: $starlib_version; STAR level: $star_level)";
     
-    $input_filename = $self->LogfileReportData->{"input_filename"};
+    $input_filename = $self->LogReport->InputFn;
     $input_filename and $string .= "<br>(input: $input_filename)";
+
   }
 
   return $string;
@@ -417,7 +365,7 @@ sub CreationEpochSec{
 
   #--------------------------------------------------------
   # get finish time of job, convert to format used by localtime
-  $time_temp = $self->LogfileReportData->{start_time_and_date};
+  $time_temp = $self->LogReport->RunStartTimeAndDate;
  
   return QA_cgi_utilities::convert_logtime_to_epoch_sec($time_temp);
 }
@@ -428,16 +376,15 @@ sub RunSummaryString{
   my $self = shift;
 
   exists $self->{run_summary_string} or do{
-    $logfile_report = $self->LogfileReportName;
-    $self->{run_summary_string} = QA_logfile_report::get_logfile_summary_string($logfile_report);
+    $self->{run_summary_string} = $self->LogReport->LogfileSummaryString;
   };
   
   return $self->{run_summary_string};
 }
 #========================================================
-sub ButtonString{
+sub ButtonStringOld{
   my $self = shift;
-  
+  #-----------------------------------------------------------------------
   my $report_key = $self->ReportKey;
   
   my $temp = $report_key.".show_log_report";
@@ -478,11 +425,84 @@ sub ButtonString{
 
 }
 #========================================================
-sub DisplayLogfileReport{
+sub ButtonString{
   my $self = shift;
 
   my $report_key = $self->ReportKey;
-  QA_logfile_report::display_logfile_report($report_key);
+  #-----------------------------------------------------------------------
+
+  $button_string = "";
+
+#  my $temp = $report_key.".show_log_report";
+#  my $button_string = "<input type=submit name=$temp value='Run details'>";
+  $button_ref = Button_object->new('RunDetails', 'Run Details', 
+				   $report_key);
+  $button_string .= $button_ref->SubmitString;
+  
+  
+  if ( $self->QADone ){ 
+#    $temp = $report_key.".show_qa";
+#    $button_string .= "<input type=submit name=$temp value='QA details'>";
+    $button_ref = Button_object->new('QaDetails', 'QA Details', 
+				     $report_key);
+    $button_string .= $button_ref->SubmitString;
+  }
+  $button_string .= "<br>";
+
+#  $temp = $report_key.".show_files";
+#  $button_string .= "<input type=submit name=$temp value='Files and Reports'><br>";
+  $button_ref = Button_object->new('FilesAndReports', 'Files and Reports', 
+				   $report_key);
+  $button_string .= $button_ref->SubmitString;
+  $button_string .= "<br>";
+
+#  $temp = $report_key.".setup_report_comparison";
+#  $button_string .= "<input type=submit name=$temp value='Compare similar runs'><br>";
+  $button_ref = Button_object->new('CompareSimilarRuns', 'Compare similar runs', 
+				   $report_key);
+  $button_string .= $button_ref->SubmitString;
+  $button_string .= "<br>";
+  
+  if ($global_expert_page){
+
+    if ( $self->QADone ){ 
+#      $temp = $report_key.".redo_evaluation";
+#      $button_string .= "<input type=submit name=$temp value='Redo Evaluation'>";
+      $button_ref = Button_object->new('RedoEvaluation', 'Redo Evaluation', 
+				       $report_key);
+      $button_string .= $button_ref->SubmitString;
+
+      $self->OnDisk and do {	
+#	$temp = $report_key.".redo_qa_batch";
+#	$button_string .= "<input type=submit name=$temp value='Redo QA (batch)'>";
+	$button_ref = Button_object->new('RedoQaBatch', 'Redo QA (batch)', 
+					 $report_key);
+	$button_string .= $button_ref->SubmitString;
+
+      };
+
+    }
+    else{
+      $self->OnDisk and do {	
+#	$temp = $report_key.".do_qa_batch";
+#	$button_string .= "<input type=submit name=$temp value='Do QA (batch)'>";
+	$button_ref = Button_object->new('DoQaBatch', 'Do QA (batch)', 
+					 $report_key);
+	$button_string .= $button_ref->SubmitString;
+
+      };
+    }
+  }
+  #-----------------------------------------------------------------------------
+
+  return $button_string;
+
+}
+#========================================================
+sub DisplayLogReport{
+  my $self = shift;
+
+  $self->LogReport->DisplayLogReport;
 
   return;
 }
@@ -513,6 +533,11 @@ sub ShowQA{
   QA_report_io::display_reports($report_key);
 
   return;
+}
+#========================================================
+sub ProductionDirectory{
+  my $self = shift;
+  return $self->LogReport->OutputDirectory;
 }
 #===========================================================
 sub RunQAMacros {
@@ -616,21 +641,10 @@ sub DisplayFilesAndReports{
   print "<H2> Reports for $production_dir </H2>\n";
   #---------------------------------------------------------------------------------
 
-  $logfile = $self->LogfileName;
+  $logfile = $self->LogReport->LogfileName;
+  $logfile_WWW = $self->LogReport->LogfileNameWWW;
+
   if (-s $logfile){
-
-    # get topdir this is found under, replace with link
-
-    undef $logfile_WWW;
-    my $icount = -1;
-    foreach $topdir (@topdir_data){
-      $icount++;
-      $logfile =~ /$topdir/ and do{
-	($logfile_WWW = $logfile) =~ s/$topdir\///;
-	$logfile_WWW = $topdir_data_WWW[$icount].$logfile_WWW;
-	last;
-      };
-    }
 
     $logfile_WWW and do{
       $time = stat($logfile)->mtime;
@@ -748,13 +762,13 @@ sub PrintFilestring{
   $time = stat($filename)->mtime;
   $string .= " (created:".localtime($time).")";
 
-  if ($file !~ /\.evaluation$/){
+  if ( $file =~ /\.(evaluation|obj)$/){
+    print "$string $filename <br> \n";
+  }
+  else{
     my $report_dir_WWW = $self->ReportDirectoryWWW;
     $filename_WWW = "$report_dir_WWW/$file";
     QA_cgi_utilities::make_anchor($string, $filename, $filename_WWW);
-  }
-  else{
-    print "$string $filename <br> \n";
   }
 
   return;
@@ -769,11 +783,15 @@ sub PrintProductionFiles{
   print "<H2> Files in $production_dir </H2>\n";
   #-----------------------------------------------------------
 
+  opendir (DIR, $production_dir) or do{
+    print "Cannot open directory $production_dir: $! \n";
+    return;
+  };
+  #-----------------------------------------------------------
+
   @table_heading = ('File name', 'Size (bytes)', 'Created');
   @table_rows = th(\@table_heading);
   
-  opendir (DIR, $production_dir) or die "Cannot opendir $report_dir: $! \n";
-
   while (defined ($file = readdir(DIR) ) ){
 
     # skip . and ..
@@ -834,4 +852,86 @@ sub DeleteQAFiles{
 
   return;	
 	 
+}
+#========================================================
+sub LogReport{
+
+  my $self = shift;
+
+  $self->{logreport} or do{
+
+    $report_key = $self->ReportKey();
+    $filename = QA_make_reports::log_report_name($report_key);
+
+    if (@_){
+
+      # log report doesn't exist, create new object and write it to disk
+      $production_dir = shift;
+      $logreport_ref = Logreport_object->new($production_dir, 'data');
+
+      print "<h4> Writing Logreport object to $filename... </h4> \n";
+      store( $logreport_ref, $filename) or die "<h4> Cannot write $filename: $! </h4> \n";
+      if ( -e $filename ){
+	print "<h4> ... done </h4> \n";
+      }
+      else {
+	print "<h4> file $filename not created, something went wrong. </h4> \n";
+      }
+      
+      $self->{logreport} = $logreport_ref;
+    }
+    elsif($filename =~ /\.txt/){
+      # old style ascii report; creat new object and fill it from disk
+      $self->{logreport} = Logreport_object->new($filename, 'txt_report');
+    }
+    else{
+      # "Storable" object on disk    
+
+      if ( -e $filename ){
+	$self->{logreport} = retrieve($filename);
+      }
+      else{
+	print "Error in QA_object::LogReport: cannot find $filename <br> \n";
+      }
+
+    }
+
+  };
+
+  return $self->{logreport};
+}
+#========================================================
+sub LogReportName{
+
+  my $self = shift;
+
+  $self->{logreport_name} or do{
+
+    my $report_key = $self->ReportKey;
+    my $report_dirname = $self->ReportDirectory;
+    my $report_dirname_WWW = $self->ReportDirectoryWWW;
+
+    # if existing ascii file present, use that. Otherwise, generate "Storable" object pmj 13/11/99
+    my $name = "/logfile_report";
+
+    if (-e $report_dirname."$name\.txt"){
+      $name .= "\.txt";
+    }
+    else{
+      $name .= "\.obj";
+    }
+
+    $self->{logreport_name} = $report_dirname.$name;
+    $self->{logreport_name_WWW} = $report_dirname_WWW.$name;
+  };
+
+  return $self->{logreport_name};
+}
+#========================================================
+sub LogReportNameWWW{
+  my $self = shift;
+
+  $self->{logreport_name_WWW} or $self->LogReportName();
+
+  return $self->{logreport_name_WWW};
 }

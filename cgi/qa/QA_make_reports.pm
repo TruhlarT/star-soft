@@ -49,21 +49,26 @@ sub get_report_key{
   # get creation time of logfile in directory
   find( \&QA_cgi_utilities::get_logfile, $dir_string);
 
-  $temp = stat($global_logfile)->mtime; 
-  @time = localtime($temp);
- 
-  $day = $time[3];
-  $month = $time[4] + 1;
-  $year = $time[5];
-  
-  $day < 10 and $day = "0".$day;
-  $month < 10 and $month = "0".$month;
-  $year < 10 and $year = "0".$year;
-  
-  $filename .= $day.$month.$year;
+  if ( -e $global_logfile ){
 
-  return $filename;
-  
+    $temp = stat($global_logfile)->mtime; 
+    @time = localtime($temp);
+    
+    $day = $time[3];
+    $month = $time[4] + 1;
+    $year = $time[5];
+    
+    $day < 10 and $day = "0".$day;
+    $month < 10 and $month = "0".$month;
+    $year < 10 and $year = "0".$year;
+    
+    $filename .= $day.$month.$year;
+    
+    return $filename;
+  }
+  else{
+    return "unknown";
+  }
 }
 
 #===================================================================
@@ -139,4 +144,32 @@ sub check_doEvents_output{
 
   # if finish string not found, delete file
   $crash and unlink $filename;
+}
+#=======================================================================
+sub log_report_name{
+
+  my $report_key = shift;
+  my $report_dirname = report_directory($report_key);
+  
+  # if existing ascii file present, use that. Otherwise, generate "Storable" object pmj 13/11/99
+  my $name = "logfile_report";
+
+  if (-e $report_dirname."/$name\.txt"){
+    $name .= "\.txt";
+  }
+  else{
+    $name .= "\.obj";
+  }
+
+  return "$report_dirname/$name";
+}
+#=======================================================================
+sub report_directory{
+  $report_key = shift;
+  return $topdir_report."/".$report_key;
+}
+#=======================================================================
+sub report_directory_www{
+  $report_key = shift;
+  return $topdir_report_WWW."/".$report_key;
 }
