@@ -110,14 +110,29 @@ if( ! $?X11BIN || ! $?PATH) then
     end
     set USERPATH="$HOME/bin $HOME/scripts $ROOTPATH /cern/pro/bin ."
 
+
+    # Support for Globus toolkit
+    if ( $?GLOBUS_PATH ) then
+	if ( -d /opt/globus/bin ) then 
+	    set UGLOBUS="$GLOBUS_PATH /opt/globus/bin"
+	else
+	    set UGLOBUS=$GLOBUS_PATH
+	endif
+    else
+	set UGLOBUS=""
+    endif
+
+
     if ( $USER == "root" ) then
-	set path=( $ROOTPATH )
+	set path=( $ROOTPATH $UGLOBUS)
     else 
-	set path=( $USERPATH )
+	set path=( $USERPATH $UGLOBUS)
     endif
     unset USERPATH
     unset ROOTPATH
+    unset UGLOBUS
 endif
+
 
 
 # Default manpath
