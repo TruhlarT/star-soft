@@ -12,7 +12,7 @@
 #
 $MIN   =  1;  # 4
 $MAX   =  6;  # for testing
-$MAX   = 30;
+$MAX   = 33;
 $MAIN  = "/star/data";
 
 @COLORS = ("#FFFACD","#C1FFC1","#7FFFD4","#00DEFF","#87CEFA","#ccccee","#D8BFD8","#FF69B4");
