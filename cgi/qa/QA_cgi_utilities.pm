@@ -153,7 +153,17 @@ sub print_page_header{
     "</table>",
     "\n";
   
-  $doc_link = "http://www.star.bnl.gov/STAR/html/comp_l/qa/pmj/QA_documentation.html";
+
+  # ad hoc determination of where to find documentation...if checked out into jacobs area,
+  # this is development version, otherwise, this is in library
+  $now = cwd();
+  if ($now =~ /jacobs/){
+    $doc_link ="http://www.star.bnl.gov/STARAFS/comp/qa/pmj/index.html";
+  }
+  else{
+    $star_level = $ENV{STAR_LEVEL};
+    $doc_link = "http://duvall.star.bnl.gov/STARAFS/comp/pkg/$star_level/cgi/qa/doc/index.html";
+  }
 
 #  print "<hr noshade=noshade>",
 #  "<address><a href=mailto:pmjacobs\@lbl.gov>webmaster</a></address>";
