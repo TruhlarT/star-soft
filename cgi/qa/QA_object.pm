@@ -507,9 +507,6 @@ sub DoQA{
   my $self = shift;
 
   #------------------------------------------------------------------------
-  # make sure this is on disk (protects against doing QA on wrong run in same directory)
-  $self->OnDisk or return;
-  #------------------------------------------------------------------------
 
   @_ and my $arg_string = shift;
 
