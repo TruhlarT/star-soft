@@ -323,8 +323,8 @@ sub new {
   #my %valuset=
 
   bless($self);
-  bless(\%valuset, "FileCatlog");
-  bless(\%operset, "FileCatlog");
+  bless(\%valuset, "FileCatalog");
+  bless(\%operset, "FileCatalog");
 
   return $self;
 }
@@ -376,9 +376,9 @@ sub connect {
 sub disentangle_param {
 
   if ($_[0] =~ m/FileCatalog/) {
-    shift @_;
-  }
-  ;
+      shift @_;
+  };
+
   my ($params) = @_;
   my $keyword;
   my $operator;
@@ -408,35 +408,36 @@ sub set_context {
 
   if ($_[0] =~ m/FileCatalog/) {
     shift @_;
-  }
-  ;
-  my( $params ) = @_;
-
-  #  print ("Setting context for: $params \n");
+  };
+  
+  my $params;
   my $keyw;
   my $oper;
   my $valu;
 
-  ($keyw, $oper, $valu) = disentangle_param($params);
+  foreach $params (@_){
+      #  print ("Setting context for: $params \n");
+      ($keyw, $oper, $valu) = disentangle_param($params);
 
-  # Chop spaces from the key name and value;
-  $keyw =~ y/ //d;
-  if ($valu =~ m/.*[\"\'].*[\"\'].*/) {
-    $valu =~ s/.*[\"\'](.*)[\"\'].*/$1/;
-  } else {
-    $valu =~ s/ //g;
-  }
+      # Chop spaces from the key name and value;
+      $keyw =~ y/ //d;
+      if ($valu =~ m/.*[\"\'].*[\"\'].*/) {
+	  $valu =~ s/.*[\"\'](.*)[\"\'].*/$1/;
+      } else {
+	  $valu =~ s/ //g;
+      }
 
-  if (exists $keywrds{$keyw}) {
-    if ($DEBUG > 0) {
-	&print_debug("Query accepted $DEBUG: ".$keyw."=".$valu);
-    }
-    $operset{$keyw} = $oper;
-    $valuset{$keyw} = $valu;
-  } else {
-      if ($DEBUG > 0){
-	  &print_debug("ERROR: $keyw is not a valid keyword.",
-		       "Cannot set context.");
+      if (exists $keywrds{$keyw}) {
+	  if ($DEBUG > 0) {
+	      &print_debug("Query accepted $DEBUG: ".$keyw."=".$valu);
+	  }
+	  $operset{$keyw} = $oper;
+	  $valuset{$keyw} = $valu;
+      } else {
+	  if ($DEBUG > 0){
+	      &print_debug("ERROR: $keyw is not a valid keyword.",
+			   "Cannot set context.");
+	  }
       }
   }
 }
@@ -2632,11 +2633,13 @@ sub destroy {
   my $self = shift;
   clear_context();
   if ( defined($DBH) ) {
-    if ( $DBH->disconnect ) {
-      return 1;
-    } else {
+      if ( $DBH->disconnect ) {
+	  return 1;
+      } else {
+	  return 0;
+      }
+  } else {
       return 0;
-    }
   }
 }
 
