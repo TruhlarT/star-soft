@@ -45,7 +45,7 @@ my $target_program = "QA_main.pm";
 # BUM 000624 - quick fix
 # moved the afs_pw_file
 
-my $afs_pw_file = "/star/rcf/qa/.CGI_starlib";
+my $afs_pw_file = "/star/rcf/qa/.starlib_CGI";
 #my $afs_pw_file = "$working_dir/starlib_pw";
 
 my $scriptFH = new FileHandle;
