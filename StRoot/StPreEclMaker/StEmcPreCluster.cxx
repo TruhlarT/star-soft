@@ -1,6 +1,10 @@
-// $Id: StEmcPreCluster.cxx,v 1.6 2000/12/01 21:15:40 suaide Exp $
+// $Id: StEmcPreCluster.cxx,v 1.7 2001/01/26 21:54:23 suaide Exp $
 //
 // $Log: StEmcPreCluster.cxx,v $
+// Revision 1.7  2001/01/26 21:54:23  suaide
+// fixed a small bug in the phi calculation for a given cluster
+// CVt: ----------------------------------------------------------------------
+//
 // Revision 1.6  2000/12/01 21:15:40  suaide
 //
 //
@@ -148,6 +152,7 @@ void StEmcPreCluster::calcMeanAndRms(StEmcDetector* mDet,Int_t mod)
     else mSigmaEta = sqrt(mSigmaEta);
 
     mPhi /= mEnergy;
+    mPhi += phi0;
     mSigmaPhi = mSigmaPhi/mEnergy - mPhi*mPhi;
     if(mSigmaPhi<=1.0e-7) mSigmaPhi = 0.0;
     else mSigmaPhi = sqrt(mSigmaPhi);
