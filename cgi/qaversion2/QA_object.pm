@@ -274,7 +274,7 @@ sub DataDisplayString{
 sub CreationString{
   my $self = shift;
 
-  my $creation_time = localtime($self->CreationEpochSec).br;
+  my $creation_time = $self->LogReport->JobCompletionTimeAndDate.br;
   
   my $on_disk = 
     ($self->OnDisk ? "<font color = green> (on disk) </font>"  
