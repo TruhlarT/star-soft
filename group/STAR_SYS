@@ -1,5 +1,8 @@
 #!/bin/csh
 #  $Log: STAR_SYS,v $
+#  Revision 1.38  2004/09/14 21:35:06  fisyak
+#  Add sl302
+#
 #  Revision 1.37  2004/06/24 12:55:36  jeromel
 #  Modulo a few logic change, RHE/SL consolidated support
 #
@@ -119,7 +122,7 @@
 #
 #  Revision 1.1.1.1  1997/12/31 14:35:23  fisyak
 #
-#             Last modification $Date: 2004/06/24 12:55:36 $
+#             Last modification $Date: 2004/09/14 21:35:06 $
 #
 # Determine STAR_SYS variable.
 #
@@ -278,7 +281,7 @@ else
     setenv STAR_HOST_SYS $STAR_SYS
     if (-f /etc/redhat-release) then
 	set rhflavor = `awk '{print $1 $2}' /etc/redhat-release | sed "s/[a-z]//g" | awk '{print tolower($1)}'`
-	set redhat   = `awk '{for (i=1;i<=NF;i++) if ($i == "release") print $(i+1)}' /etc/redhat-release`
+	set redhat   = `awk '{for (i=1;i<=NF;i++) if ($i == "release" || $i == "Release") print $(i+1)}' /etc/redhat-release`
 	set rhmajor  = `echo $redhat | sed "s/\..*//"`
 	set redhat   = `echo $redhat | sed "s/\.//g"`
 	    # Note:  
