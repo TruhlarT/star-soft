@@ -1,5 +1,5 @@
 #!/usr/bin/csh -f
-#       $Id: group_env.csh,v 1.108 2000/09/09 17:23:02 fisyak Exp $
+#       $Id: group_env.csh,v 1.109 2000/11/02 20:37:50 fisyak Exp $
 #	Purpose:	STAR group csh setup 
 #
 #	Author:		Y.Fisyak     BNL
@@ -102,6 +102,10 @@ endsw
 endif
 setenv CERN_ROOT  $CERN/$CERN_LEVEL
 if ($ECHO) echo   "Setting up ROOT_LEVEL= ${ROOT_LEVEL}"
+# root
+if ( -f $GROUP_DIR/rootenv.csh) then
+  source $GROUP_DIR/rootenv.csh
+endif
 setenv GROUPPATH "${GROUP_DIR}:${STAR_MGR}:${STAR_SCRIPTS}:${STAR_CGI}:${MY_BIN}:${STAR_BIN}:${STAF}/mgr:${STAF_BIN}"
 setenv PATH "${OPTSTAR}/bin:$PATH"
 if ( -x ${GROUP_DIR}/dropit) then
@@ -139,7 +143,7 @@ switch ($STAR_SYS)
       if ($?SHLIB_PATH == 0) setenv SHLIB_PATH
       if ( -x ${GROUP_DIR}/dropit) setenv SHLIB_PATH `${GROUP_DIR}/dropit -p ${SHLIB_PATH} $STAR_PATH`
       if ($?MINE_lib == 1 && $?STAR_lib == 1) then
-        setenv SHLIB_PATH ${MINE_lib}:${STAR_lib}:${MINE_LIB}:${STAR_LIB}:${STAF_LIB}:${SHLIB_PATH}
+        setenv SHLIB_PATH ${MINE_lib}:${MINE_LIB}:${STAR_lib}:${STAR_LIB}:${STAF_LIB}:${SHLIB_PATH}
       else
 	if ( -x ${GROUP_DIR}/dropit) setenv SHLIB_PATH `${GROUP_DIR}/dropit -p ${SHLIB_PATH} .${STAR_HOST_SYS}/LIB`
         setenv SHLIB_PATH ${MINE_LIB}:${STAR_LIB}:${STAF_LIB}:${SHLIB_PATH}
@@ -155,7 +159,7 @@ switch ($STAR_SYS)
      if ( -d /usr/pgi ) then
        setenv PGI /usr/pgi
        set path = ( $PGI/linux86/bin $path)
-       setenv MANPATH "$MANPATH":$PGI/man
+       setenv MANPATH "${MANPATH}:${PGI}/man"
        setenv LM_LICENSE_FILE $PGI/license.dat
        alias pgman 'man -M $PGI/man'
      endif
@@ -167,7 +171,7 @@ switch ($STAR_SYS)
      set path = ($path  /usr/local/bin/ddd)
      if ($?LD_LIBRARY_PATH == 0) setenv LD_LIBRARY_PATH 
      if ($?MINE_lib == 1 && $?STAR_lib == 1) then
-       setenv LD_LIBRARY_PATH "${MINE_lib}:${STAR_lib}:${MINE_LIB}:${STAR_LIB}:${STAF_LIB}:${LD_LIBRARY_PATH}"
+       setenv LD_LIBRARY_PATH "${MINE_lib}:${MINE_LIB}:${STAR_lib}:${STAR_LIB}:${STAF_LIB}:${LD_LIBRARY_PATH}"
      else
        if ( -x ${GROUP_DIR}/dropit) setenv LD_LIBRARY_PATH `${GROUP_DIR}/dropit -p ${LD_LIBRARY_PATH} .${STAR_HOST_SYS}/LIB`
        setenv LD_LIBRARY_PATH "${MINE_LIB}:${STAR_LIB}:${STAF_LIB}:${LD_LIBRARY_PATH}"
@@ -202,7 +206,7 @@ switch ($STAR_SYS)
       endif
 
      if ($?MINE_lib == 1 && $?STAR_lib == 1) then
-       setenv LD_LIBRARY_PATH "${MINE_lib}:${STAR_lib}:${MINE_LIB}:${STAR_LIB}:${STAF_LIB}:${LD_LIBRARY_PATH}"
+       setenv LD_LIBRARY_PATH "${MINE_lib}:${MINE_LIB}:${STAR_lib}:${STAR_LIB}:${STAF_LIB}:${LD_LIBRARY_PATH}"
      else
        setenv LD_LIBRARY_PATH "${MINE_LIB}:${STAR_LIB}:${STAF_LIB}:${LD_LIBRARY_PATH}"
      endif
@@ -254,10 +258,6 @@ endif
 if ($ECHO) echo   "STAR library version "$STAR_VERSION" has been initiated with `which staf`"
 if ($?CERN_ROOT == 1 ) then
 if ($ECHO) echo   "CERNLIB version "$CERN_LEVEL" has been initiated with CERN_ROOT="${CERN_ROOT}
-endif
-# root
-if ( -f $GROUP_DIR/rootenv.csh) then
-  source $GROUP_DIR/rootenv.csh
 endif
 
 

@@ -1,5 +1,8 @@
 #!/bin/csh
 #  $Log: STAR_SYS,v $
+#  Revision 1.26  2000/11/02 20:37:50  fisyak
+#  Adjust order of shared libraries for NODEBUG mode
+#
 #  Revision 1.25  2000/03/21 02:03:21  fisyak
 #  Change default for Linux to i386_redhat61 (LBL request)
 #
@@ -86,7 +89,7 @@
 #
 #  Revision 1.1.1.1  1997/12/31 14:35:23  fisyak
 #
-#             Last modification $Date: 2000/03/21 02:03:21 $ 
+#             Last modification $Date: 2000/11/02 20:37:50 $ 
 #
 # Determine STAR_SYS variable.
 #
@@ -103,11 +106,12 @@ else
   endif
 endif
 if ("${STAR_SYS}" == "i386_linux22" || "${STAR_SYS}" == "i386_linux2") then
-    set redhat = "5.2";
-    setenv STAR_SYS i386_redhat51
+    set redhat = "6.1";
+    setenv STAR_SYS i386_redhat61
     if (-f /etc/redhat-release) set redhat = `awk '{print $5}' /etc/redhat-release`
     if ("$redhat" == "6.0") setenv STAR_SYS "i386_redhat60"
     if ("$redhat" == "6.1") setenv STAR_SYS "i386_redhat61"
+    if ("$redhat" == "6.2") setenv STAR_SYS "i386_redhat61"
 endif
 if ("$STAR_SYS" == "i386_linux61"|| "$STAR_SYS" == "i386_linux6") setenv STAR_SYS "i386_redhat61"
 if ("$STAR_SYS" == "i386_linux22"|| "$STAR_SYS" == "i386_redhat50" || \
