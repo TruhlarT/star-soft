@@ -28,6 +28,7 @@
 #
 #   -fdata   : check the FileData for orphan records
 #   -floc    : check the FileLocations for orphan records
+#   -trgc    : check the TriggerCompositions table
 #
 # other options
 #   -cond    : conditions to limit the records processed 
@@ -56,10 +57,6 @@ my $newval=undef;
 
 # Load the modules
 my $fileC = FileCatalog->new;
-
-print "Password : ";
-chomp($passwd = <STDIN>);
-$fileC->connect("FC_admin",$passwd);
 
 
 # Turn off module debugging and script debugging
@@ -98,23 +95,31 @@ while (defined $ARGV[$count]){
 	$mode = 6;
     } elsif ($ARGV[$count] eq "-floc"){
 	$mode = 7;
+    } elsif ($ARGV[$count] eq "-trgc"){
+	$mode = 8;
     } elsif ($ARGV[$count] eq "-cond"){
 	$cond_list = $ARGV[++$count];
 	if ($debug > 0) { print "The conditions list is $cond_list\n"; }
 
     } else {
 	print "Wrong keyword used: ".$ARGV[$count]."\n";
-	print "Usage: fC_cleanup [-status|-check|-delete|-mark [on|off]|-alter keyword=value|-recheck] [-cond field=value{,filed=value}]\n";
+	&Usage();
 	exit;
     }
     $count++;
   }
 
-if ($count == 0)
-  {
-    print "Usage: fC_cleanup [-status|-check|-delete|-mark|-recheck] [-cond field=value{,filed=value}]\n";
+if ($count == 0){
+    &Usage();
     exit;
-  }
+}
+
+
+print "Password : ";
+chomp($passwd = <STDIN>);
+$fileC->connect("FC_admin",$passwd);
+
+
 
 my $morerecords = 1;
 my $start = 0;
@@ -317,6 +322,38 @@ while ($morerecords)
 	@rows = $fileC->bootstrap_data("path",$dodel);
 	print "Returned IDs: @rows\n";
       }    
+    elsif ($mode == 8)
+    {
+	my @rows;
+	$fileC->set_context("limit=100000000");
+	@rows = $fileC->bootstrap_trgc("triggerWordID",$dodel);
+	print "Returned IDs: @rows\n";
+    }
     $start += $batchsize;
 
   }
+
+
+
+
+sub Usage
+{
+    print qq~
+ Usage: fC_cleanup [option]  [-cond field=value{,filed=value}]
+
+ where option is one of
+ -status                 show availability
+ -check                  check availability/set to 0 if not found
+ -delete                 delete records with availability=0
+ -mark {on|off}          mark selected files availability
+ -alter keyword=value    alter keyword value for entry ** DANGEROUS **
+ -recheck                check unavailable files and adjust if necessary
+
+ -clean                  delete records in found 'verify' operations
+ -floc                   verify the location table sanity
+ -fdata                  verify the data information
+ -trgc                   verify the trigger information
+
+~;
+
+}
