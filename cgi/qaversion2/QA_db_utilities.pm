@@ -217,8 +217,8 @@ sub db_connect{
   };
   if ($@) {
     $datasource ="DBI:mysql:$dbQA:$serverHost;mysql_read_default_file=$userFile2";
-    $dbh =  DBI->connect($datasource, $user_name, $password, \%attr) or
-      die "Oh well: $DBI::errstr\n";
+    $dbh =  DBI->connect($datasource, $user_name, $password, \%attr);
+    defined $dbh or die "Oh well: $DBI::errstr\n";
   }
 
 }  
@@ -826,11 +826,13 @@ sub GetOldReports{
 
   $sth_old->execute;
 
+  my $rc;
   while(my ($report_key, $qaID) = $sth_old->fetchrow_array){
     push @old_report_keys, $report_key; # save it
 
     print h4("Deleting $report_key from $QASum{Table} ...\n");
-    $sth_delete_sum->execute($report_key);  # delete it
+    $rc = $sth_delete_sum->execute($report_key);  # delete it
+    print h4("Uh oh. could not delete\n") if !$rc;
 
     print h4("Deleting $report_key from $QAMacros{Table} ...\n");
     $sth_delete_macro->execute($qaID);

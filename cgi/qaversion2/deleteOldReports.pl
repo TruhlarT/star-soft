@@ -9,6 +9,7 @@ use DataClass_object;
 use Server_object;
 use QA_globals;
 use QA_db_utilities qw(:db_globals);
+use Db_update_utilities;
 use Db_KeyList_utilities;
 use KeyList_object_offline;
 use IO_object;
@@ -50,11 +51,14 @@ sub delete_old_reports{
     no strict 'refs';
 
     # delete the jobs from the db
+    # get cut days from Db_update_utilties
+    #my $cutDays = 30;  # 1 month
+    #($dataClass eq "offline_fast" or $dataClass eq "nightly_MC") and
+    #	$cutDays = 7; # 1 week
     
-    my $cutDays = 30;  # 1 month
-    ($dataClass eq "offline_fast" or $dataClass eq "nightly_MC") and
-	$cutDays = 7; # 1 week
-    
+    my $cutDays = $Db_update_utilities::oldestDay{$dataClass}/2.;
+    print "cut=$cutDays\n";
+
     # this sub deletes the jobs from the db
     my @old_report_keys = &{$gDataClass_object->GetOldReports()}($cutDays);
 

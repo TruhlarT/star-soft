@@ -13,24 +13,34 @@ use QA_globals;
 use QA_db_utilities qw(:db_globals); # import
 
 use strict;
+use vars qw(%oldestDay);
 1;
 
 #--------------------------------------------------------------------
 # OLDEST date
 # this is the oldest 'create time' date picked up by autoqa.
-# 
-my %oldestDate = ( nightlyReal => '2001-08-20',
-		   nightlyMC   => '2001-08-20',
-		   offlineReal => '2001-07-20',
-		   offlineMC   => '2001-07-20',
-		   offlineFast => undef
+# 08/24/2001 bum. NOT USED anymore
+my %oldestDate = ( nightly_real => '2001-08-20',
+		   nightly_MC   => '2001-08-20',
+		   offline_real => '2001-07-20',
+		   offline_MC   => '2001-07-20',
+		   offline_fast => undef
 );
+
+# days old cut off for updating.
+%oldestDay = ( nightly_real => 60,
+	       nightly_MC   => 14,
+	       offline_real => 60,
+	       offline_MC   => 60,
+	       offline_fast => 14
+);
+
 # max number of updated jobs
-my %updateLimit = ( nightlyReal => 10,
-		    nightlyMC   => 20,
-		    offlineReal => 50,
-		    offlineMC   => 10,
-		    offlineFast => 10
+my %updateLimit = ( nightly_real => 10,
+		    nightly_MC   => 50,
+		    offline_real => 100,
+		    offline_MC   => 10,
+		    offline_fast => 10
 );
 # for real offline 
 my $oldestRun = 2202000;
@@ -47,6 +57,7 @@ sub UpdateQAOffline{
 
   my $limit;     # limit number of new jobs
   my $oldestDate;# dont retrieve anything older than this
+  my $daysCut;   #
   my $fileType;  # daq_reco or MC_reco
   my $today      = strftime("%Y-%m-%d %H:%M:%S",localtime());
   my $oldestRunString;
@@ -55,18 +66,22 @@ sub UpdateQAOffline{
   if($dataType eq 'real')
   {
     $fileType  = 'daq_reco';
-    $oldestDate= $oldestDate{'offlineReal'};
-    $limit     = $updateLimit{'offlineReal'};
+    #$oldestDate= $oldestDate{'offline_real'};
+    $daysCut    = $oldestDay{'offline_real'};
+    $limit     = $updateLimit{'offline_real'};
     $oldestRunString="file.runID>=$oldestRun and";
   }
   elsif($dataType eq 'MC')
   {
     $fileType  = 'MC_reco';  
-    $oldestDate= $oldestDate{'offlineMC'};
-    $limit     = $updateLimit{'offlineMC'};
+    #$oldestDate= $oldestDate{'offline_MC'};
+    $daysCut   = $oldestDay{'offline_MC'};
+    $limit     = $updateLimit{'offline_MC'};
   }
   else {die "Wrong argument $dataType" }
-  
+ 
+  $oldestDate = strftime("%Y-%m-%d",localtime(time-$daysCut*3600*24));
+
   # report key
   my $queryKey = qq{select concat(jobID, '.', redone, '.', runID, '.',   
 				  fileSeq)
@@ -97,6 +112,7 @@ sub UpdateQAOffline{
 			  qa.$QASum{jobID} is NULL
 			limit $limit};
 
+  print "update query:\n$queryUpdate\n" if $debug;
 
   # insert new jobs into  the QASummaryTable 
   my $queryInsert = qq{insert into $dbQA.$QASum{Table} 
@@ -191,7 +207,7 @@ sub UpdateQAOfflineReal{
 #-------------------
 
 sub UpdateQAOfflineFast{
-  my $limit = $updateLimit{'offlineFast'};
+  my $limit = $updateLimit{'offline_fast'};
   my $doneStatus = 2; # according to daqinfo.
 
   # report key
@@ -208,11 +224,16 @@ sub UpdateQAOfflineFast{
 		       where 
 			 (daq.$DAQInfo{status} = $doneStatus and
 			 (qa.$QASum{jobID} is NULL ||
-			  qa.$QASum{QAdone}='Y')) ||
-			 (daq.$DAQInfo{status} = 3 and
-			  qa.$QASum{jobID} is NULL)
+			  qa.$QASum{QAdone}='Y'))			 
 		       limit $limit
 		     };
+  
+  #
+  # removed this from the update.
+  #
+  # (daq.$DAQInfo{status} = 3 and
+  # qa.$QASum{jobID} is NULL)
+
 
   # insert
   my $queryInsert = qq{insert into $dbQA.$QASum{Table}
@@ -288,9 +309,10 @@ sub UpdateQAOfflineFast{
 sub UpdateQANightly {  
   my $dataType = shift; # 'real' or 'MC'
   
-  my $limit;            # limit number of new jobs
-  my $oldestDate; # dont retrieve anything older 
-  my $today       = strftime("%Y-%m-%d %H:%M:%S",localtime());
+  my $limit;       # limit number of new jobs
+  my $oldestDate;  # dont retrieve anything older 
+  my $daysCut;     #
+  my $today  = strftime("%Y-%m-%d %H:%M:%S",localtime());
 
   my ($type, $eventGen_string);
   # real or simulation
@@ -300,8 +322,9 @@ sub UpdateQANightly {
 			  (file.eventGen = 'daq' or
                            file.eventGen = 'cosmics') and
 			 };
-    $oldestDate = $oldestDate{'nightlyReal'};
-    $limit = $updateLimit{'nightlyReal'};
+    #$oldestDate = $oldestDate{'nightly_real'};
+    $daysCut = $oldestDay{'nightly_real'};
+    $limit = $updateLimit{'nightly_real'};
   }
   elsif ($dataType eq 'MC')
   {
@@ -309,12 +332,13 @@ sub UpdateQANightly {
 			  file.eventGen != 'daq' and
 			  file.eventGen != 'cosmics' and
 			};
-    $oldestDate = $oldestDate{'nightlyMC'};
-    $limit = $updateLimit{'nightlyMC'};
+    #$oldestDate = $oldestDate{'nightly_MC'};
+    $daysCut = $oldestDay{'nightly_MC'};
+    $limit = $updateLimit{'nightly_MC'};
   }
   else { die "Incorrect argument $dataType"; }
 
-  
+  $oldestDate = strftime("%Y-%m-%d",localtime(time-$daysCut*3600*24));
 
   # get info for report key
   my $queryKey =  qq{select concat(LibLevel,'.',
@@ -354,6 +378,8 @@ sub UpdateQANightly {
 			qa.$QASum{jobID} is NULL
 			limit $limit};
   
+  print "update query:\n$queryUpdate\n" if $debug;
+
   # check if the report_key is unique
   my $queryCheck =  qq{select $QASum{qaID}
 		       from $dbQA.$QASum{Table}
@@ -423,7 +449,7 @@ sub UpdateQANightly {
     push @keyList, $reportKey;
 
     # insert into QASummary
-    my $stat = $sthInsert->execute($jobID, $reportKey);
+    my $stat = $sthInsert->execute($jobID, $reportKey) unless $debug;
   }
   print h3("Found $count new jobs\n");
 
@@ -528,12 +554,12 @@ sub GetToDoReportKeys{
   if ($type eq 'real'){
     $query .= qq{and $QASum{type} = 'real'
 		}; 
-   # $oldestDate = $oldestDate{'nightlyReal'};
+   # $oldestDate = $oldestDate{'nightly_real'};
   }
   elsif ($type eq 'MC'){
     $query .= qq{and $QASum{type} = 'MC'
 	       };
-   # $oldestDate = $oldestDate{'nightlyMC'};
+   # $oldestDate = $oldestDate{'nightly_MC'};
   }
 
   # adapt date format to sql timestamp, then cut on oldest allowed date

@@ -130,10 +130,16 @@ sub ParseLogfile {
 
   
   my $outFileRequestedString;
-
+  my $segFault=0;
   my ($record_run_options,$record_job_status);
   # read the log file
   while (defined (my $line = $fh->getline )) {
+
+    # look for seg fault
+    if($line =~ /segmentation violation/){
+      $segFault=1;
+      next;
+    }
 
     # star library version
     if($line =~ /chain will run from library\s+(\S+)/){
@@ -150,11 +156,11 @@ sub ParseLogfile {
     }
 
     # output directory
-    if($line =~ /output destination will be\s+(\S+)/){
-      my $value = $1;
-      $self->OutputDirectory($value);
-      next;
-    }
+    #if($line =~ /output destination will be\s+(\S+)/){
+    #  my $value = $1;
+    #  $self->OutputDirectory($value);
+    #  next;
+    #}
 
     # input file
     if($line =~ /chain will run over file\s+(\S+)/){
@@ -251,6 +257,10 @@ sub ParseLogfile {
 
   }
 
+  # just set the job status as done
+  my $jobStatus = ($segFault) ? "segmentation violation" : "done";
+  $self->JobStatus($jobStatus);
+
   # a first stab at the output files. see GetJobInfo for find tuning
   $self->ProductionFileListRef([split(/\s+/,$outFileRequestedString)]);
   	 
@@ -277,19 +287,19 @@ sub ParseLogfile {
 sub GetJobInfo{
   my $self = shift;
 
-  # just set the job status as done
-  $self->JobStatus("done");
-
   my $jobID = $self->JobID();
 
+  # get the output directory from db
+  my $hh = rdaq_open_odatabase();
+  my $outputDir = rdaq_get_location($hh,$self->JobID());
+  $self->OutputDirectory($outputDir);
+  rdaq_close_odatabase($hh);
   
   # emergency output directory
   my $hpss = rdaq_file2hpss($self->JobID(),2);
   my ($year,$month) = (split(/\s+/,$hpss))[2,3];
   $month = "0$month" if length $month<2;
   my $defaultOutputDir = "$basePath/$year/$month";
-
-  
 
   if(!-d $self->OutputDirectory()){
     print "<font color=red>Cannot find",$self->OutputDirectory(),
@@ -304,7 +314,6 @@ sub GetJobInfo{
       $self->OutputDirectory($defaultOutputDir);
     }
   }
-  my $outputDir = $self->OutputDirectory();
 
   # Real output files
   my @outFiles; 
