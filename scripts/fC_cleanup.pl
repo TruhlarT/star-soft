@@ -14,11 +14,17 @@
 #   -delete  : if the file is marked unavailable, recheck it
 #              and if still not there - delete from database
 #              WARNING!!! The delete operation is irreversible!
-#   -mark    : mark given files as unavailable - no checking
-#   -recheck : 
+#   -mark    : mark given files as (un)available - no checking
+#              keywords {on|off}
+#   -recheck : get the file list, and check if they really exist - 
+#              if not, mark them as unavailable if yes - remark them 
+#              as available
 # other options
-# -cond
+#   -cond    : conditions to limit the records processed 
+#              You REALLY shouldn't use this script on the 
+#              whole database at once!
 
+use lib "/afs/rhic/star/packages/scripts";
 use strict;
 use FileCatalog;
 
@@ -39,8 +45,8 @@ my $fileC = FileCatalog->new;
 $fileC->connect;
 
 # Turn off module debugging and script debugging
-$fileC->debug_on();
-$debug=0;
+$fileC->debug_off();
+$debug=1;
 
 # Parse the cvommand line arguments.
 $count = 0;

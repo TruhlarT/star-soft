@@ -75,6 +75,7 @@ $keywrds{"extension"     }    =   "fileTypeExtension"         .",FileTypes"     
 $keywrds{"storage"       }    =   "storageTypeName"           .",StorageTypes"           .",1" .",text" .",0" .",1";
 $keywrds{"site"          }    =   "storageSiteName"           .",StorageSites"           .",1" .",text" .",0" .",1";
 $keywrds{"production"    }    =   "productionTag"             .",ProductionConditions"   .",1" .",text" .",0" .",1";
+$keywrds{"prodcomment"   }    =   "productionComments"        .",ProductionConditions"   .",1" .",text" .",0" .",1";
 $keywrds{"library"       }    =   "libraryVersion"            .",ProductionConditions"   .",1" .",text" .",0" .",1";
 $keywrds{"triggername"   }    =   "triggerName"               .",TriggerWords"           .",1" .",text" .",0" .",1";
 $keywrds{"triggerword"   }    =   "triggerWord"               .",TriggerWords"           .",1" .",text" .",0" .",1";
@@ -1514,7 +1515,7 @@ sub connect_fields {
 	  if ($debug > 0) {
 	    print "All first descendants: ".join(" ",(@flower))."\n";
 	  }
-	  for (my $cflow = 0; $cflow < $#flower+1; $cflow++) {
+	  for (my $cflow = 0; $cflow <= $#flower; $cflow++) {
 	    # Add a road going from the tree root to this field
 	    $froads{$flower[$cflow]} = $froads{$flevelfields[$fcount]}." ".get_connection($flower[$cflow], $flevelfields[$fcount]);
 	    if ($debug > 0) {
@@ -1522,7 +1523,7 @@ sub connect_fields {
 	    }
 	  }
 	}
-	for ($scount=0; $scount<$#slevelfields+1; $scount++) {
+	for ($scount=0; $scount <= $#slevelfields ; $scount++) {
 	  # Get all the fields that are connected to this one
 	  # and one level up
 	  (@slower) = get_all_upper($slevelfields[$scount]);
@@ -1802,6 +1803,7 @@ sub run_query {
   if (defined $valuset{"limit"})
     {
       $limit = $valuset{"limit"};
+      if($limit <= 0){ $limit = 1000000000;}
     }
   else
     { $limit = 100 };
@@ -1818,7 +1820,12 @@ sub run_query {
   my $rescount = 0;
 
   while ( @cols = $sth->fetchrow_array() ) {
-    $result[$rescount++] = join($delimeter, (@cols));
+      # if field is empty, fetchrow_array() returns undef()
+      # fix it by empty string instead.
+      for (my $i=0 ; $i <= $#cols ; $i++){
+	  if( ! defined($cols[$i]) ){ $cols[$i] = "";}
+      }
+      $result[$rescount++] = join($delimeter, (@cols));
   }
   return (@result);
 }

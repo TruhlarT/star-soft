@@ -15,7 +15,9 @@
 # -delim      : change the characters separating data from different columns (defaut "::")
 # -limit      : limit the number of returne records
 # -start      : start with the n-th record of the sample
+# -debug      : maintainance option
 
+use lib "/afs/rhic/star/packages/scripts";
 use strict;
 use FileCatalog;
 
@@ -55,6 +57,9 @@ while (defined $ARGV[$count])
       { $all = 0; }
     elsif ($ARGV[$count] eq "-onefile")
       { $onefile = 1; }
+    elsif ($ARGV[$count] eq "-debug"){
+	$fileC->debug_on();
+    }
     elsif ($ARGV[$count] eq "-start")
       { $start = $ARGV[++$count]; }
     elsif ($ARGV[$count] eq "-limit")
@@ -110,7 +115,7 @@ else
     @output = $fileC->run_query(split(/,/,$field_list));
 
     # Printing the output
-    if (not defined $onefile)
+    if ($onefile != 1)
       {
 	foreach (@output)
 	  { print "$_\n"; }
