@@ -11,6 +11,11 @@
 # do not do it again, do not even continue
 if( $?star_login_csh ) exit
 
+# This needs in principle to be set only at the end
+# but Solaris backticks command would chock on this.
+# See head for check of this variable
+setenv star_login_csh 1
+
 
 # This file is reserved for pre-login env setup which
 # are site specific. None of the star variables are
@@ -302,7 +307,4 @@ endif
 
 
 
-# This needs to be set only at the end
-# See head for check of this variable
-setenv star_login_csh 1
 
