@@ -48,13 +48,6 @@ if( $PATH eq "" ){
     die "\n";
 }
 
-# Check open channel
-if( $FLNM ne "" ){
-    open(FO,">$FLNM.new") || die "Cannot open $FLNM.new\n";
-    $FO = FO;
-} else {
-    $FO = STDOUT;
-}
 
 print "Calculating partition space $PATH\n" if($DEBUG);
 @all  = `df -k $PATH`;
@@ -85,6 +78,10 @@ $TOT = 0;
 open(STDERR,">/dev/null");    # trash STDERR
 @all = `$REPQUOTA -v $PATH`;
 close(STDERR);
+if ($#all == -1){
+    print "No quota information returned for $PATH\n";
+    exit;
+}
 
 foreach $line (@all){
     $line =~ s/^\s*(.*?)\s*$/$1/;
@@ -98,6 +95,15 @@ foreach $line (@all){
 	    $TOT += $el[2];
 	}
     }
+}
+
+
+# Check open channel
+if( $FLNM ne "" ){
+    open(FO,">$FLNM.new") || die "Cannot open $FLNM.new\n";
+    $FO = FO;
+} else {
+    $FO = STDOUT;
 }
 
 
