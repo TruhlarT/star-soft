@@ -29,6 +29,9 @@
 #   ---------------------------------------
 #   -alter keyword=value    
 #              alter keyword value for entry ** DANGEROUS **
+#
+#   All delete operations are made on availability=0 files
+#
 #   -delete/-cdelete/-ddelete
 #              -cdelete (check) only displays what it will delete
 #              based on context.
@@ -52,7 +55,6 @@
 #
 
 use lib "/afs/rhic/star/packages/scripts";
-
 use strict;
 use FileCatalog;
 
@@ -84,7 +86,7 @@ $fileC->debug_off();
 $debug = 1;
 $dodel = 0;
 $delay = 0;
-
+$mode  = 1;  # check is the default
 
 # Parse the cvommand line arguments.
 $count = 0;
