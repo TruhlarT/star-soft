@@ -1,6 +1,6 @@
 #!/opt/star/bin/perl 
 #
-# $Id: dbDeActivateData.pl,v 1.1 2000/04/28 14:08:02 porter Exp $
+# $Id: dbDeActivateData.pl,v 1.2 2001/07/18 19:29:29 jeromel Exp $
 #
 # Author: R. Jeff Porter
 #***************************************************************************
@@ -13,6 +13,9 @@
 #****************************************************************************
 # 
 # $Log: dbDeActivateData.pl,v $
+# Revision 1.2  2001/07/18 19:29:29  jeromel
+# Corrected $ENV{"STAR"}."/scripts" -> should have been $ENV{"STAR_SCRIPTS"}
+#
 # Revision 1.1  2000/04/28 14:08:02  porter
 # management perl scripts for db-structure accessible from StDbLib
 #
@@ -23,7 +26,7 @@ use Getopt::Std;
 use DBI;
 
 $DbScripts=$ENV{"STDB_ADMIN"};
-if(!$DbScripts){ $DbScripts=$ENV{"STAR"}."/scripts"; }
+if(!$DbScripts){ $DbScripts=$ENV{"STAR_SCRIPTS"}; }
 
 
 getopts('n:v:e:t:d:s:c:hg');

@@ -1,6 +1,6 @@
 #!/opt/star/bin/perl 
 #
-# $Id: dbTableXml.pl,v 1.1 2000/04/28 14:08:04 porter Exp $
+# $Id: dbTableXml.pl,v 1.2 2001/07/18 19:29:30 jeromel Exp $
 #
 # Author: R. Jeff Porter
 #***************************************************************************
@@ -12,6 +12,9 @@
 #****************************************************************************
 # 
 # $Log: dbTableXml.pl,v $
+# Revision 1.2  2001/07/18 19:29:30  jeromel
+# Corrected $ENV{"STAR"}."/scripts" -> should have been $ENV{"STAR_SCRIPTS"}
+#
 # Revision 1.1  2000/04/28 14:08:04  porter
 # management perl scripts for db-structure accessible from StDbLib
 #
@@ -22,7 +25,7 @@ use Getopt::Std;
 
 $DbScripts=$ENV{"STDB_ADMIN"};
 
-if(!$DbScripts){ $DbScripts=$ENV{"STAR"}."/scripts"; }
+if(!$DbScripts){ $DbScripts=$ENV{"STAR_SCRIPTS"}; }
 require "$DbScripts/dbSubs/defineTableXml.pl";
 
 getopts('f:d:n:o:hg');

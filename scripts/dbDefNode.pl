@@ -1,6 +1,6 @@
 #!/opt/star/bin/perl 
 #
-# $Id: dbDefNode.pl,v 1.2 2001/02/16 22:11:22 porter Exp $
+# $Id: dbDefNode.pl,v 1.3 2001/07/18 19:29:30 jeromel Exp $
 #
 # Author: R. Jeff Porter
 #***************************************************************************
@@ -13,6 +13,9 @@
 #****************************************************************************
 # 
 # $Log: dbDefNode.pl,v $
+# Revision 1.3  2001/07/18 19:29:30  jeromel
+# Corrected $ENV{"STAR"}."/scripts" -> should have been $ENV{"STAR_SCRIPTS"}
+#
 # Revision 1.2  2001/02/16 22:11:22  porter
 # modified for new low-level table structures
 #
@@ -27,7 +30,7 @@ use DBI;
 
 $DbScripts=$ENV{"STDB_ADMIN"};
 
-if(!$DbScripts){ $DbScripts=$ENV{"STAR"}."/scripts"; }
+if(!$DbScripts){ $DbScripts=$ENV{"STAR_SCRIPTS"}; }
 
 require "$DbScripts/dbSubs/parseXmlNode.pl";
 
