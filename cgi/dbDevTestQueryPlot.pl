@@ -1,9 +1,9 @@
 #!/opt/star/bin/perl -w
 #
-# $Id: dbDevTestQueryPlot.pl,v 1.8 2001/02/21 22:18:50 didenko Exp $
+# $Id: dbDevTestQueryPlot.pl,v 1.9 2001/02/21 22:31:27 didenko Exp $
 #
 # $Log: dbDevTestQueryPlot.pl,v $
-# Revision 1.8  2001/02/21 22:18:50  didenko
+# Revision 1.9  2001/02/21 22:31:27  didenko
 # change gif file location
 #
 # Revision 1.7  2001/02/16 16:22:45  liuzx
@@ -280,8 +280,9 @@ $graph->set_x_axis_font(gdMediumBoldFont);
 $graph->set_y_axis_font(gdMediumBoldFont);
 #print STDOUT $graph->plot(\@data);
 
-`rm -fr /star/starlib/doc/www/html/comp-nfs/plot*.gif`;
+#`rm -fr /star/starlib/doc/www/html/comp-nfs/plot*.gif`;
 #my $gif = "/star/starlib/doc/www/html/comp-nfs/plot".$sec.$min.$hour.".gif";
+`rm -fr /u1/webdata/plot*.gif`;
 my $gif = "/u1/webdata/plot".$sec.$min.$hour.".gif";
 $graph->plot_to_gif("$gif",\@data);
 
