@@ -1,9 +1,9 @@
 *
-* $Id: gtopti.inc,v 1.1 2004/07/17 20:02:49 perev Exp $
+* $Id: gtopti.inc,v 1.1.1.1 2004/07/17 20:02:49 perev Exp $
 *
 * $Log: gtopti.inc,v $
-* Revision 1.1  2004/07/17 20:02:49  perev
-* Initial revision
+* Revision 1.1.1.1  2004/07/17 20:02:49  perev
+* STAR version of Geant321 TGeant3 etc
 *
 * Revision 1.1.1.1  2002/07/24 15:56:26  rdm
 * initial import into CVS

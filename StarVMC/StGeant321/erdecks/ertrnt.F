@@ -1,9 +1,9 @@
 *
-* $Id: ertrnt.F,v 1.1 2004/07/17 20:01:59 perev Exp $
+* $Id: ertrnt.F,v 1.1.1.1 2004/07/17 20:01:59 perev Exp $
 *
 * $Log: ertrnt.F,v $
-* Revision 1.1  2004/07/17 20:01:59  perev
-* Initial revision
+* Revision 1.1.1.1  2004/07/17 20:01:59  perev
+* STAR version of Geant321 TGeant3 etc
 *
 * Revision 1.1.1.1  2002/07/24 15:56:26  rdm
 * initial import into CVS

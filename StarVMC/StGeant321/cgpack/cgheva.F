@@ -1,9 +1,9 @@
 *
-* $Id: cgheva.F,v 1.1 2004/07/17 20:01:58 perev Exp $
+* $Id: cgheva.F,v 1.1.1.1 2004/07/17 20:01:58 perev Exp $
 *
 * $Log: cgheva.F,v $
-* Revision 1.1  2004/07/17 20:01:58  perev
-* Initial revision
+* Revision 1.1.1.1  2004/07/17 20:01:58  perev
+* STAR version of Geant321 TGeant3 etc
 *
 * Revision 1.1.1.1  2002/07/24 15:56:27  rdm
 * initial import into CVS

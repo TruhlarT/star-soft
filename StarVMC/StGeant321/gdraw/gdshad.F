@@ -1,5 +1,5 @@
 *
-* $Id: gdshad.F,v 1.1 2004/07/17 20:02:42 perev Exp $
+* $Id: gdshad.F,v 1.1.1.1 2004/07/17 20:02:42 perev Exp $
 *
 #include "geant321/pilot.h"
 #if defined(CERNLIB_CG)

@@ -1,9 +1,9 @@
 *
-* $Id: beta.F,v 1.1 2004/07/17 20:02:40 perev Exp $
+* $Id: beta.F,v 1.1.1.1 2004/07/17 20:02:40 perev Exp $
 *
 * $Log: beta.F,v $
-* Revision 1.1  2004/07/17 20:02:40  perev
-* Initial revision
+* Revision 1.1.1.1  2004/07/17 20:02:40  perev
+* STAR version of Geant321 TGeant3 etc
 *
 * Revision 1.3  2003/07/23 16:40:35  brun
 * From Peter Hristov:

@@ -3,7 +3,7 @@
 /* Copyright(c) 1998-1999, ALICE Experiment at CERN, All rights reserved. *
  * See cxx source for full Copyright notice                               */
 
-/* $Id: TPaveTree.h,v 1.1 2004/07/17 20:02:55 perev Exp $ */
+/* $Id: TPaveTree.h,v 1.1.1.1 2004/07/17 20:02:55 perev Exp $ */
 
 //////////////////////////////////////////////////////////////////////////
 //                                                                      //

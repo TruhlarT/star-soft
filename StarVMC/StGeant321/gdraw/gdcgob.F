@@ -1,5 +1,5 @@
 *
-* $Id: gdcgob.F,v 1.1 2004/07/17 20:02:42 perev Exp $
+* $Id: gdcgob.F,v 1.1.1.1 2004/07/17 20:02:42 perev Exp $
 *
 #include "geant321/pilot.h"
 *CMZ :  3.21/04 13/12/94  17.13.38  by  S.Giani

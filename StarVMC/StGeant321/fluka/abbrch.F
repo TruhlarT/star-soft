@@ -1,9 +1,9 @@
 *
-* $Id: abbrch.F,v 1.1 2004/07/17 20:02:40 perev Exp $
+* $Id: abbrch.F,v 1.1.1.1 2004/07/17 20:02:40 perev Exp $
 *
 * $Log: abbrch.F,v $
-* Revision 1.1  2004/07/17 20:02:40  perev
-* Initial revision
+* Revision 1.1.1.1  2004/07/17 20:02:40  perev
+* STAR version of Geant321 TGeant3 etc
 *
 * Revision 1.2  2004/02/24 15:50:29  brun
 * From Peter Hristov:

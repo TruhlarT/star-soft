@@ -1,9 +1,9 @@
 *
-* $Id: gcjump.inc,v 1.1 2004/07/17 20:02:49 perev Exp $
+* $Id: gcjump.inc,v 1.1.1.1 2004/07/17 20:02:49 perev Exp $
 *
 * $Log: gcjump.inc,v $
-* Revision 1.1  2004/07/17 20:02:49  perev
-* Initial revision
+* Revision 1.1.1.1  2004/07/17 20:02:49  perev
+* STAR version of Geant321 TGeant3 etc
 *
 * Revision 1.2  2002/12/02 16:37:44  brun
 * Changes from Federico Carminati and Peter Hristov who ported the system

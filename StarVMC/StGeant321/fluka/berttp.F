@@ -1,9 +1,9 @@
 *
-* $Id: berttp.F,v 1.1 2004/07/17 20:02:40 perev Exp $
+* $Id: berttp.F,v 1.1.1.1 2004/07/17 20:02:40 perev Exp $
 *
 * $Log: berttp.F,v $
-* Revision 1.1  2004/07/17 20:02:40  perev
-* Initial revision
+* Revision 1.1.1.1  2004/07/17 20:02:40  perev
+* STAR version of Geant321 TGeant3 etc
 *
 * Revision 1.3  2002/11/29 13:47:02  brun
 * Remove unused include

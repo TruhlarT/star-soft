@@ -1,9 +1,9 @@
 *
-* $Id: glande.F,v 1.1 2004/07/17 20:02:51 perev Exp $
+* $Id: glande.F,v 1.1.1.1 2004/07/17 20:02:51 perev Exp $
 *
 * $Log: glande.F,v $
-* Revision 1.1  2004/07/17 20:02:51  perev
-* Initial revision
+* Revision 1.1.1.1  2004/07/17 20:02:51  perev
+* STAR version of Geant321 TGeant3 etc
 *
 * Revision 1.2  2003/11/28 11:23:56  brun
 * New version of geant321 with all geant3 routines renamed from G to G3

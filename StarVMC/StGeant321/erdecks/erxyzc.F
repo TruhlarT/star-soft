@@ -1,9 +1,9 @@
 *
-* $Id: erxyzc.F,v 1.1 2004/07/17 20:01:59 perev Exp $
+* $Id: erxyzc.F,v 1.1.1.1 2004/07/17 20:01:59 perev Exp $
 *
 * $Log: erxyzc.F,v $
-* Revision 1.1  2004/07/17 20:01:59  perev
-* Initial revision
+* Revision 1.1.1.1  2004/07/17 20:01:59  perev
+* STAR version of Geant321 TGeant3 etc
 *
 * Revision 1.2  2003/11/28 11:23:55  brun
 * New version of geant321 with all geant3 routines renamed from G to G3

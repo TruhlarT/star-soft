@@ -1,9 +1,9 @@
 *
-* $Id: peanut.F,v 1.1 2004/07/17 20:02:55 perev Exp $
+* $Id: peanut.F,v 1.1.1.1 2004/07/17 20:02:55 perev Exp $
 *
 * $Log: peanut.F,v $
-* Revision 1.1  2004/07/17 20:02:55  perev
-* Initial revision
+* Revision 1.1.1.1  2004/07/17 20:02:55  perev
+* STAR version of Geant321 TGeant3 etc
 *
 * Revision 1.1.1.1  2002/07/24 15:56:28  rdm
 * initial import into CVS

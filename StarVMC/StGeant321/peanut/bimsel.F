@@ -1,9 +1,9 @@
 *
-* $Id: bimsel.F,v 1.1 2004/07/17 20:02:55 perev Exp $
+* $Id: bimsel.F,v 1.1.1.1 2004/07/17 20:02:55 perev Exp $
 *
 * $Log: bimsel.F,v $
-* Revision 1.1  2004/07/17 20:02:55  perev
-* Initial revision
+* Revision 1.1.1.1  2004/07/17 20:02:55  perev
+* STAR version of Geant321 TGeant3 etc
 *
 * Revision 1.3  2004/02/24 15:50:30  brun
 * From Peter Hristov:

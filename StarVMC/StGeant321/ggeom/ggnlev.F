@@ -1,9 +1,9 @@
 *
-* $Id: ggnlev.F,v 1.1 2004/07/17 20:02:46 perev Exp $
+* $Id: ggnlev.F,v 1.1.1.1 2004/07/17 20:02:46 perev Exp $
 *
 * $Log: ggnlev.F,v $
-* Revision 1.1  2004/07/17 20:02:46  perev
-* Initial revision
+* Revision 1.1.1.1  2004/07/17 20:02:46  perev
+* STAR version of Geant321 TGeant3 etc
 *
 * Revision 1.2  2002/12/02 16:37:45  brun
 * Changes from Federico Carminati and Peter Hristov who ported the system

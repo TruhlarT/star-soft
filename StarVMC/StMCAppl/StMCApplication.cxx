@@ -1,4 +1,4 @@
-// $Id: StMCApplication.cxx,v 1.1 2004/07/17 20:02:55 perev Exp $
+// $Id: StMCApplication.cxx,v 1.1.1.1 2004/07/17 20:02:55 perev Exp $
 //
 
 #include "Riostream.h"

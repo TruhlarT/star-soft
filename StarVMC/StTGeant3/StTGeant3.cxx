@@ -16,8 +16,8 @@
 
 /* 
 $Log: StTGeant3.cxx,v $
-Revision 1.1  2004/07/17 20:02:55  perev
-Initial revision
+Revision 1.1.1.1  2004/07/17 20:02:55  perev
+STAR version of Geant321 TGeant3 etc
 
 Revision 1.25  2004/03/23 11:16:44  brun
 From Ivana

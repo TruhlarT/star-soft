@@ -1,9 +1,9 @@
 *
-* $Id: gdarc.F,v 1.1 2004/07/17 20:02:42 perev Exp $
+* $Id: gdarc.F,v 1.1.1.1 2004/07/17 20:02:42 perev Exp $
 *
 * $Log: gdarc.F,v $
-* Revision 1.1  2004/07/17 20:02:42  perev
-* Initial revision
+* Revision 1.1.1.1  2004/07/17 20:02:42  perev
+* STAR version of Geant321 TGeant3 etc
 *
 * Revision 1.2  2004/01/28 08:22:00  brun
 * Rename all graphics routines from Gxxxxx to G3xxxxx

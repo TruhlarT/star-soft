@@ -1,9 +1,9 @@
 *
-* $Id: flufin.F,v 1.1 2004/07/17 20:02:40 perev Exp $
+* $Id: flufin.F,v 1.1.1.1 2004/07/17 20:02:40 perev Exp $
 *
 * $Log: flufin.F,v $
-* Revision 1.1  2004/07/17 20:02:40  perev
-* Initial revision
+* Revision 1.1.1.1  2004/07/17 20:02:40  perev
+* STAR version of Geant321 TGeant3 etc
 *
 * Revision 1.2  2003/11/28 11:23:55  brun
 * New version of geant321 with all geant3 routines renamed from G to G3

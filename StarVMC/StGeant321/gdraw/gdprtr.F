@@ -1,5 +1,5 @@
 *
-* $Id: gdprtr.F,v 1.1 2004/07/17 20:02:42 perev Exp $
+* $Id: gdprtr.F,v 1.1.1.1 2004/07/17 20:02:42 perev Exp $
 *
 #include "geant321/pilot.h"
 *CMZ :  3.21/04 10/01/95  16.43.07  by  S.Giani

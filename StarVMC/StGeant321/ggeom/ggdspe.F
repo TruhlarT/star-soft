@@ -1,9 +1,9 @@
 *
-* $Id: ggdspe.F,v 1.1 2004/07/17 20:02:46 perev Exp $
+* $Id: ggdspe.F,v 1.1.1.1 2004/07/17 20:02:46 perev Exp $
 *
 * $Log: ggdspe.F,v $
-* Revision 1.1  2004/07/17 20:02:46  perev
-* Initial revision
+* Revision 1.1.1.1  2004/07/17 20:02:46  perev
+* STAR version of Geant321 TGeant3 etc
 *
 * Revision 1.2  2002/07/26 11:00:07  rdm
 * Correct initialization of ORIG for shapes TUBE, TUBS, CONE, CONS, PGON,

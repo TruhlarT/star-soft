@@ -15,8 +15,8 @@
 
 /* 
 $Log: THIGZ.cxx,v $
-Revision 1.1  2004/07/17 20:01:58  perev
-Initial revision
+Revision 1.1.1.1  2004/07/17 20:01:58  perev
+STAR version of Geant321 TGeant3 etc
 
 Revision 1.4  2004/01/28 08:17:52  brun
 Reintroduce the Geant3 graphics classes (thanks Andreas Morsch)

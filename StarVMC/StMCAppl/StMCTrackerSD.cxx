@@ -1,4 +1,4 @@
-// $Id: StMCTrackerSD.cxx,v 1.1 2004/07/17 20:02:55 perev Exp $
+// $Id: StMCTrackerSD.cxx,v 1.1.1.1 2004/07/17 20:02:55 perev Exp $
 //
 // Geant4 ExampleN02 adapted to Virtual Monte Carlo 
 //

@@ -1,9 +1,9 @@
 *
-* $Id: iounit.inc,v 1.1 2004/07/17 20:02:50 perev Exp $
+* $Id: iounit.inc,v 1.1.1.1 2004/07/17 20:02:50 perev Exp $
 *
 * $Log: iounit.inc,v $
-* Revision 1.1  2004/07/17 20:02:50  perev
-* Initial revision
+* Revision 1.1.1.1  2004/07/17 20:02:50  perev
+* STAR version of Geant321 TGeant3 etc
 *
 * Revision 1.1.1.1  2002/07/24 15:56:26  rdm
 * initial import into CVS

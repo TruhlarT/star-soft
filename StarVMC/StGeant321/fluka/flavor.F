@@ -1,9 +1,9 @@
 *
-* $Id: flavor.F,v 1.1 2004/07/17 20:02:41 perev Exp $
+* $Id: flavor.F,v 1.1.1.1 2004/07/17 20:02:41 perev Exp $
 *
 * $Log: flavor.F,v $
-* Revision 1.1  2004/07/17 20:02:41  perev
-* Initial revision
+* Revision 1.1.1.1  2004/07/17 20:02:41  perev
+* STAR version of Geant321 TGeant3 etc
 *
 * Revision 1.2  2003/06/10 16:12:15  brun
 * From Andreas Morsch:

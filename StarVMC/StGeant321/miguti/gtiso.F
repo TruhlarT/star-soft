@@ -1,9 +1,9 @@
 *
-* $Id: gtiso.F,v 1.1 2004/07/17 20:02:52 perev Exp $
+* $Id: gtiso.F,v 1.1.1.1 2004/07/17 20:02:52 perev Exp $
 *
 * $Log: gtiso.F,v $
-* Revision 1.1  2004/07/17 20:02:52  perev
-* Initial revision
+* Revision 1.1.1.1  2004/07/17 20:02:52  perev
+* STAR version of Geant321 TGeant3 etc
 *
 * Revision 1.1.1.1  2002/07/24 15:56:28  rdm
 * initial import into CVS
