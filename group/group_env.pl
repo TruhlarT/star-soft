@@ -1,8 +1,12 @@
 #!/opt/star/bin/perl
 #
-# $Id: group_env.pl,v 1.1 1999/07/29 17:58:00 wenaus Exp $
+# $Id: group_env.pl,v 1.2 2001/12/01 22:22:30 jeromel Exp $
 #
 # $Log: group_env.pl,v $
+# Revision 1.2  2001/12/01 22:22:30  jeromel
+# STAR_CALIB variable removed. This was an old entry on my list (from
+# Oct 1st). Directory was removed then.
+#
 # Revision 1.1  1999/07/29 17:58:00  wenaus
 # Set up the STAR environment needed by perl scripts
 #
@@ -33,7 +37,7 @@ $STAR_MGR="$STAR/mgr";
 $STAR_PAMS="$STAR/pams";
 $STAR_DATA="$STAR_ROOT/data";
 $STAR_PARAMS="$STAR/params";
-$STAR_CALIB="$STAR_ROOT/calib";
+#$STAR_CALIB="$STAR_ROOT/calib";
 $STAR_PROD="$STAR/prod";
 $STAR_CVSROOT="$STAR_PATH/repository";
 $ROOT_LEVEL='';
