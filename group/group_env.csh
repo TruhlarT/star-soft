@@ -1,7 +1,10 @@
 #!/usr/bin/csh -f
-#       $Id: group_env.csh,v 1.72 1999/05/06 15:43:47 fisyak Exp $
+#       $Id: group_env.csh,v 1.73 1999/06/03 14:55:39 wenaus Exp $
 #	Purpose:	STAR group csh setup 
 #       $Log: group_env.csh,v $
+#       Revision 1.73  1999/06/03 14:55:39  wenaus
+#       '.' to end of path and other uncommitted changes
+#
 #       Revision 1.72  1999/05/06 15:43:47  fisyak
 #       Introduce ROOT 2.22 for SL99f and add egcs-1.1.2
 #
@@ -254,21 +257,38 @@ setenv STAR_PARAMS ${STAR}/params;      if ($ECHO) echo   "Setting up STAR_PARAM
 setenv STAR_CALIB ${STAR_ROOT}/calib;   if ($ECHO) echo   "Setting up STAR_CALIB= ${STAR_CALIB}"
 setenv STAR_PROD   $STAR/prod;          if ($ECHO) echo   "Setting up STAR_PROD = ${STAR_PROD}"
 setenv CVSROOT   $STAR_PATH/repository; if ($ECHO) echo   "Setting up CVSROOT   = ${CVSROOT}"
-#if (! ${?ROOT_LEVEL}) then
-  setenv ROOT_LEVEL 2.13
-#  if ($STAR_VERSION  == "SL98j") setenv ROOT_LEVEL 2.13
-  if ($STAR_VERSION  == "SL98l") setenv ROOT_LEVEL 2.20
-  if ("`echo $STAR_VERSION | cut -c3-4`" == "99") then
-    setenv CERN_LEVEL 99
-    setenv CERN_ROOT $CERN/$CERN_LEVEL
-    setenv ROOT_LEVEL 2.21
-  endif
-  if ($STAR_VERSION  == "SL99c")                              setenv ROOT_LEVEL 2.21.07
-  if ($STAR_VERSION  == "SL99d" || $STAR_VERSION  == "SL99e") setenv ROOT_LEVEL 2.21.08
-  if ($STAR_VERSION  == "SL99f")                              setenv ROOT_LEVEL 2.22
-#endif
-                                        if ($ECHO) echo   "Setting up ROOT_LEVEL= ${ROOT_LEVEL}"
-if ($STAR_VERSION  == "SL99a") setenv CERN_LEVEL 99
+
+switch ( $STAR_VERSION )
+
+  case SL98l: setenv ROOT_LEVEL 2.20
+  breaksw
+
+  case SL99a: 
+  case SL99b: 
+  setenv ROOT_LEVEL 2.20
+  setenv CERN_LEVEL 99  
+  breaksw
+
+  case SL99c:
+  setenv ROOT_LEVEL 2.21.07
+  setenv CERN_LEVEL 99  
+  breaksw
+
+  case SL99d: 
+  case SL99e: 
+  setenv ROOT_LEVEL 2.21.08
+  setenv CERN_LEVEL 99  
+  breaksw
+
+  case SL99f: 
+  setenv ROOT_LEVEL 2.21.08
+  setenv CERN_LEVEL 99  
+  breaksw
+
+  default: setenv ROOT_LEVEL 2.13
+endsw
+
+if ($ECHO) echo   "Setting up ROOT_LEVEL= ${ROOT_LEVEL}"
 setenv TEXINPUTS :${GROUP_DIR}/latex/styles
 setenv GROUPPATH "${GROUP_DIR}:${STAR_MGR}:${STAR_BIN}"
 if ( -x /afs/rhic/star/group/dropit) then
@@ -278,7 +298,8 @@ if ( -x /afs/rhic/star/group/dropit) then
   setenv PATH `/afs/rhic/star/group/dropit -p ${PATH} $STAR_PATH`
   if (${?LD_LIBRARY_PATH}) setenv LD_LIBRARY_PATH `/afs/rhic/star/group/dropit -p ${LD_LIBRARY_PATH} $STAR_PATH`
 endif
-setenv PATH "/usr/afsws/bin:/usr/afsws/etc:/opt/star/bin:/opt/rhic/bin:/usr/sue/bin:/usr/local/bin:${GROUP_DIR}:${STAR_MGR}:${STAR_BIN}:${PATH}"
+setenv PATH "/usr/afsws/bin:/usr/afsws/etc:/opt/star/bin:/usr/sue/bin:/usr/local/bin:${GROUP_DIR}:${STAR_MGR}:${STAR_BIN}:${PATH}"
+#setenv PATH "/usr/afsws/bin:/usr/afsws/etc:/opt/star/bin:/opt/rhic/bin:/usr/sue/bin:/usr/local/bin:${GROUP_DIR}:${STAR_MGR}:${STAR_BIN}:${PATH}"
 #set path=( /usr/afsws/bin /usr/afsws/etc /opt/rhic/bin /usr/local/bin $GROUP_DIR $STAR_MGR $STAR_BIN $path )
 ## Put mysql on path if available
 if ( -d /usr/local/mysql/bin) then
@@ -364,20 +385,6 @@ switch ($STAR_SYS)
      set path = ($path $PARASOFT/bin.linux)
      if (! ${?LD_LIBRARY_PATH}) setenv LD_LIBRARY_PATH 
      setenv LD_LIBRARY_PATH "/usr/lib:${PARASOFT}/lib.linux:/usr/local/lib:${MINE_LIB}:${STAR_LIB}:${STAF_LIB}:${LD_LIBRARY_PATH}:/opt/star/lib"
-     if ("`echo $STAR_VERSION | cut -c3-4`" == "99") then
-       if ($STAR_VERSION  == "SL99f") then
-         setenv PATH "/usr/local/egcs-1.1.2/bin:${PATH}"
-         setenv LD_LIBRARY_PATH "/usr/local/egcs-1.1.2/lib:${LD_LIBRARY_PATH}"
-       else
-         setenv PATH "/usr/local/egcs-1.1.1/bin:${PATH}"
-         setenv LD_LIBRARY_PATH "/usr/local/egcs-1.1.1/lib:${LD_LIBRARY_PATH}"
-       endif
-     else
-       if ( -x /afs/rhic/star/group/dropit) then
-	 setenv PATH            `/afs/rhic/star/group/dropit egcs-1.1.1`
-         setenv LD_LIBRARY_PATH `/afs/rhic/star/group/dropit -p ${LD_LIBRARY_PATH} egcs-1.1.1`
-       endif
-     endif
      limit coredump 0
      setenv BFARCH Linux2
      setenv OBJY_ARCH linux86
@@ -480,7 +487,7 @@ if ( -d /opt/hpnp ) then
 # set PATH = ( $PATH':'/opt/hpnp/bin':'/opt/hpnp/admin )
   set path = ( $path /opt/hpnp/bin /opt/hpnp/admin )
 endif
-set path = (. $HOME/bin $HOME/bin/.$STAR_SYS $path $CERN_ROOT/bin $CERN_ROOT/mgr)
+set path = ($HOME/bin $HOME/bin/.$STAR_SYS $path $CERN_ROOT/bin $CERN_ROOT/mgr .)
 if ( -x /afs/rhic/star/group/dropit) then
 # clean-up PATH
 switch ($STAR_SYS)
