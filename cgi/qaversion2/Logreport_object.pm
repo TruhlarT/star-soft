@@ -123,7 +123,7 @@ sub _init{
   print "Parsing logfile...\n", br;
   $self->ParseLogfile() or do{
     print h3("Error in Logreport_object constructor:\n ",
-	     "logfile $logfile not found for $jobID ($report_key)\n");
+	     "for $jobID ($report_key)\n");
     return;
   };
   print "...done\n" , br;

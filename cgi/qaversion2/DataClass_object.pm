@@ -281,7 +281,7 @@ sub offline_real{
   $self->FileCatalog("FileCatalog");
   $self->JobStatus("JobStatus");
   $self->ProdOptions("ProdOptions");
-  $self->JobRelations("cpjobRelations");
+  $self->JobRelations("jobRelations");
   $self->dbQA("prod_QA");
 
   # utilities for KeyList_object
@@ -325,7 +325,7 @@ sub offline_MC{
   $self->FileCatalog("FileCatalog");
   $self->JobStatus("JobStatus");
   $self->ProdOptions("ProdOptions");
-  $self->JobRelations("cpjobRelations");
+  $self->JobRelations("jobRelations");
   $self->dbQA("prod_QA");
 
   # utilities for KeyList_object

@@ -81,7 +81,7 @@ sub JobPopupMenu{
     
     foreach my $chainName ( @{$select_ref->{prodOptions}{$prodSeries}} ){
       my $value = "$prodSeries;$chainName";
-      push @{$self->{valuee}{prodOptions}}, $value;
+      push @{$self->{values}{prodOptions}}, $value;
       $self->{labels}{prodOptions}{$value} = "$prodSeries - $chainName";
     }
   }
@@ -97,6 +97,7 @@ sub JobPopupMenu{
   %{$self->{labels}{QAstatus}} = map{$_, $_} @{$self->{values}{QAstatus}};
 
   foreach my $status ('warnings', 'errors') {
+    defined @macro_names or last;
 
     push @{$self->{values}{QAstatus}}, "$status";
     $self->{labels}{QAstatus}{$status} = "$status";
@@ -123,6 +124,9 @@ sub JobPopupMenu{
   $self->{labels}{createTime}{seven_days} = '7 days ago';
   $self->{labels}{createTime}{fourteen_days} = '14 days ago';
 
+  # set defaults.  unless otherwise stated, default is 'any'
+  $self->{defaults}{QAstatus}  = 3;
+  
 
   my $submit_string = br.$gCGIquery->submit('Display datasets');
 

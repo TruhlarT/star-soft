@@ -21,8 +21,8 @@ use strict;
 sub UpdateQAOffline{
   my $data_type   = shift; # either 'real' or 'MC'
                            # only used in $query_update
-  my $limit       = 1;     # limit number of new jobs
-  my $oldest_date = '2000-04-01'; # dont retrieve anything older than this
+  my $limit       = 20;    # limit number of new jobs
+  my $oldest_date = '2000-06-01'; # dont retrieve anything older than this
   my ($file_type);
 
   # real or simulation?
@@ -46,10 +46,11 @@ sub UpdateQAOffline{
   # recent production jobID's have slashes ...
   # replace with underscores
   
-  sub make_report_key{
+  sub make_report_key_offline{
     my $report_key = shift;
 
-    return $report_key =~ s/\//_/g;
+    $report_key =~ s/\//_/g;
+    return $report_key;
   }
 
   # update
@@ -88,7 +89,7 @@ sub UpdateQAOffline{
     $sth_key->execute($jobID);
     
     # get report key
-    my $report_key = make_report_key($sth_key->fetchrow_array);
+    my $report_key = make_report_key_offline($sth_key->fetchrow_array);
     
     # save report_key
     push @key_list, $report_key;

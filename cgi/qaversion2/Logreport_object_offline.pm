@@ -222,8 +222,8 @@ sub ParseLogfile{
 
   if (defined $fh_err)
   {
-    my $FH_ERR  = $self->IOStErrorFile->Open(">", "0664");
-    my $FH_WARN = $self->IOStWarningFile->Open(">", "0664");
+    my $FH_ERR  = $self->IOStErrorFile->Open(">", "0664") or return;
+    my $FH_WARN = $self->IOStWarningFile->Open(">", "0664") or return;
 
     # print to StError and StWarning file
     while( defined( my $line = $fh_err->getline ) ){

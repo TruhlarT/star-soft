@@ -181,7 +181,7 @@ sub DoQA{
   # determines which macro and tests to run
   
   my $control_file = $self->IOControlFile->Name;
-  my $fh           = $self->IOControlFile->Open();
+  my $fh           = $self->IOControlFile->Open() or return;
 
   print h2("<hr>QA for report key $report_key\n");
   print "The time is " . localtime(). "\n". br;
@@ -834,7 +834,7 @@ sub UpdateLogReport{
      "Found new job($report_key) for $topdir_local database</font>\n",br;
   
   # make new report dir
-  print h4("Making directory: $report_dir\n"),br;
+  print h4("Making directory: $report_dir\n");
   mkdir $report_dir, 0775;
 
   # create Logreport_object_offline, nightly, or online, etc

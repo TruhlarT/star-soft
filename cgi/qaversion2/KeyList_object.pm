@@ -51,8 +51,8 @@ sub _init{
    
 }
 #========================================================
-# get the possible selection criteria from the db
-# for selecting a particular job
+# get the possible values for various fields from the db
+# for selecting a particular job.
 # called in JobPopupMenu
 
 sub GetSelectionOptions{

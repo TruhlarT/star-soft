@@ -1,8 +1,8 @@
 #! /usr/bin/perl
 # 
-# utilities for the database and the selection menu
-# all utilities are used only in the KeyList_object
-# and all its derived classes
+# utilities for the KeyList_object.
+# extracts the relevant information from the database
+# to allow users to select on jobs.
 #
 #===================================================================
 package Db_KeyList_utilities;
@@ -353,13 +353,15 @@ sub GetOfflineKeys{
       if defined $chainName;
 
     # jobStatus string
-    if ($jobStatus eq 'done' ){ 
-      $jobStatus_string = "job.jobStatus ='done' and";
+    if ($jobStatus ne 'any'){
+      if ($jobStatus eq 'done' ){ 
+	$jobStatus_string = "job.jobStatus ='done' and";
+      }
+      elsif ($jobStatus eq 'not done'){
+	$jobStatus_string = "job.jobStatus !='done' and";
+      }
+      else {die "Wrong argument for job status"}
     }
-    elsif ($jobStatus eq 'not done'){
-      $jobStatus_string = "job.jobStatus !='done' and";
-    }
-    else {die "Wrong argument for job status"}
   }
   #--- QA status ---
   # $QAstatus_string must be the last line in the 'where' clause
