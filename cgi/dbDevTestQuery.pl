@@ -1,10 +1,11 @@
 #!/opt/star/bin/perl -w
 #
-# $Id: dbDevQuery.pl,v 1.1 2001/02/14 16:52:01 liuzx Exp $
+# $Id: dbDevTestQuery.pl,v 1.1 2001/02/14 16:59:37 liuzx Exp $
 #
-# $Log: dbDevQuery.pl,v $
-# Revision 1.1  2001/02/14 16:52:01  liuzx
-# Initial Version: query for nightly (last five days) test in DEV library.
+# $Log: dbDevTestQuery.pl,v $
+# Revision 1.1  2001/02/14 16:59:37  liuzx
+# Initial Version: query for nightly test in DEV library.
+#                   (currently only last five days)
 #
 #
 ################################################################
