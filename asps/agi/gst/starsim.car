@@ -3864,7 +3864,7 @@ end
  
  
 +DECK,agstrut,T=geant.
-*CMZ :          03/05/98  16.30.24  by  Pavel Nevski
+*CMZ :          24/05/98  13.52.51  by  Pavel Nevski
 *-- Author :    Pavel Nevski   25/11/97
 ***************************************************************************
 *                                                                         *
@@ -3900,7 +3900,7 @@ end
   if (0<n&n<Lc)  { Csys=Cpath(n+1:Lc); Lc=n-1 }
   Mj=2; if (Lenocc(Csys)>0) { Call Agkeeps(Csys,Cdest); Mj=0; }
 *
-* Rebank path does not accept / or /* at the end, truncate:
+* Rebank path does not accept / or /_* at the end, truncate:
   m=Index(Cpath(1:Lc),'*'); Lp=Lc;
   if (m>0) Lp=min(Lp,m-1);  if (Cpath(Lp:Lp)='/') { Lp-=1; m=-1 }
   do i=1,Lp/5 { Nun(i)=1 }; Nun(Lp/5)=0;
@@ -3934,7 +3934,7 @@ J=1; Loop
 END
  
 +DECK,axparticle,T=geant.
-*CMZ :          25/03/98  16.16.21  by  Pavel Nevski
+*CMZ :          13/05/98  20.43.24  by  Pavel Nevski
 *-- Author :    Pavel Nevski   25/03/98
 **********************************************************************
                 subroutine   a x p a r t i c l e
@@ -3942,8 +3942,9 @@ END
 +CDE,Agecom,GCFLAG.
     call gspart(%Code,%Title,%TrkTyp,%Mass,%Charge,%Tlife,0,0)
     if (%Mode(1)>0) call GSDK(%Code,%Bratio,%Mode)
-    if (Idebug>1) Call GPPART(%Code)
-    if (Idebug>2) Call GPDCAY(%Code)
+    If (%pdg  != 0) Call SET_PDGEA(%pdg,%code)
+    if (Idebug > 1) Call GPPART(%Code)
+    if (Idebug > 2) Call GPDCAY(%Code)
  end
 +DECK,agfvolu,T=geant.
 *CMZ :          03/05/98  21.09.43  by  Pavel Nevski
@@ -4792,7 +4793,7 @@ C     - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
      >                 Org(Lp),Fct(Lp),NumMX(Lp)
 *
 +KEEP,AGECOM. -----------------------------------------------------------------
-*CMZ :          25/03/98  16.46.20  by  Pavel Nevski
+*CMZ :          13/05/98  19.15.00  by  Pavel Nevski
 *CMZ :  1.30/00 17/11/96  22.43.56  by  Pavel Nevski
 *CMZ :  1.00/01 30/11/95  13.23.57  by  Pavel Nevski
 *CMZ :  1.00/00 01/06/95  14.24.55  by  Pavel Nevski
@@ -4812,7 +4813,8 @@ C     - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
      +             AG_IRESER,AG_LSTACK,AG_NWUHIT,AG_NWUVOL,AG_MAGIC,
      +             AG_LDETU,AG_NPDIV,AG_NZ,AG_IGEOM,AG_IDEBU,AG_IGRAP,
      +             AG_IHIST,AG_IMFLD,AG_SERIAL,AG_STANDALONE,AG_ISIMU,
-     +             AG_CODE,AG_TRKTYP,AG_ECODE,AG_MODE,AG_ENDSAVE,IPRIN
+     +             AG_CODE,AG_TRKTYP,AG_ECODE,AG_MODE,AG_PDG,
+     +             AG_ENDSAVE,IPRIN
       REAL         AG_FIELDM,AG_TMAXFD,AG_STEMAX,AG_DEEMAX,AG_EPSIL,
      +             AG_STMIN,AG_DENS,AG_RADL,AG_ABSL,AG_THETAX,AG_THETAY,
      +             AG_THETAZ,AG_ALFAX,AG_ALFAY,AG_ALFAZ,AG_PHIX,AG_PHIY,
@@ -4867,7 +4869,7 @@ C Inherited variables saved during internal calls
      +              AG_RESET2,
      +              AG_KONLY,   AG_ORT,     AG_MARK
       COMMON/AGCPART/AG_code,AG_trktyp,AG_mass,AG_charge,AG_tlife,
-     +                       AG_bratio(6),AG_mode(6),AG_ecode
+     +                       AG_bratio(6),AG_mode(6),AG_pdg,AG_ecode
 C local variables valid inside same block
       COMMON/AGCLOCA/AG_BEGSCR, AG_UBUF(100), AG_PAR(100),
      +              AG_AA(20),  AG_ZZ(20),    AG_WW(20),   AG_NWBUF,
@@ -7885,7 +7887,7 @@ C ARGUMENTS are: Input string, Output string, Output lengt=
       END
  
 +DECK,geant3,T=text.
-*CMZ :          28/04/98  18.01.45  by  Pavel Nevski
+*CMZ :          15/05/98  12.41.16  by  Pavel Nevski
 *CMZ :  1.30/00 15/04/97  17.15.59  by  Pavel Nevski
 *-- Author :    PN
 C_geant3_UNIX_compiler..v....3....v....4....v....5....v....6....v....7....v....8....v....9....v....100..v....110..v
@@ -8015,7 +8017,7 @@ C_geant3_UNIX_compiler..v....3....v....4....v....5....v....6....v....7....v....8
   SPECIFY  KSYS8 AS  {'DX'|'DY'|'DZ'|'RMIN'|'RMAX'|'DPHI'|'NZ'|'ALPH'|'THET'|'TWIS'|'TWIST'};
   SPECIFY  KSYS9 AS  {'RMN1'|'RMN2'|'RMX1'|'RMX2'|'RMN'|'RMX'|'ZI'|'AA'|'ZZ'|'WW'|'PHI'};
   SPECIFY  KSYSC AS  {'LX'|'LY'|'LZ'|'HX'|'HY'|'HZ'|'P1'|'P2'};
-  SPECIFY  KSYSB AS  {'CODE'|'TRKTYP'|'MASS'|'CHARGE'|'TLIFE'|'BRATIO'|'MODE'};
+  SPECIFY  KSYSB AS  {'CODE'|'PDG'|'TRKTYP'|'MASS'|'CHARGE'|'TLIFE'|'BRATIO'|'MODE'};
   SPECIFY  KSYS0 AS  {KSYS1|KSYS2|KSYS3|KSYS4|KSYS5|KSYS6|KSYS7|KSYS8|KSYS9|KSYSB|KSYSC|LETTER};
 " if anything survived until here this is an error "
   REPLACE [;[GSYSA] [IDENT]#;]    WITH [; <unrecognized geant operator> : #1 #2 #3; ]
@@ -8662,7 +8664,7 @@ REPLACE [+CDE,AGECOM] with [;" - Advanced Geant interface ";
                 %Idtype,%Iset,%Idet,%Isvol,%level,%ireser,%Igeom,%Standalone,
                 %LSTACK,%NwuHit,%NwuVol,%Magic,%LDETU,%NpDiv,%NpDv,%Nz,%Ncopy,
                 %Idebu,%Igrap,%Ihist,%Imfld,%Isimu,%EndSave,%code,%trktyp,
-                %mode,%ecode,Iprin;
+                %mode,%ecode,%pdg,Iprin;
   Real          %FIELDM,%TMAXFD,%STEMAX,%DEEMAX,%EPSIL,%STMIN,%Dens,%RadL,%AbsL,
                 %Thetax,%Thetay,%Thetaz,%Alfax,%Alfay,%Alfaz,%Phix,%Phiy,%Phiz,
                 %Alphax,%Alphay,%Alphaz,%Type,
@@ -8699,7 +8701,7 @@ REPLACE [+CDE,AGECOM] with [;" - Advanced Geant interface ";
                  %Irot,%Npar,%Iset,%Idet,%JDU,%ireser,                %EndScr,
                  %Title,%Exname,%Parlist,%material,%mixture,
                  %component,%medium,%Option;
-  COMMON/AGCPART/%code,%trktyp,%mass,%charge,%tlife,%bratio(6),%mode(6),%ecode;
+  COMMON/AGCPART/%code,%trktyp,%mass,%charge,%tlife,%bratio(6),%mode(6),%pdg,%ecode;
  
   COMMON/AGCSTAC/ %Stack(%LSTACK,15);
   Equivalence    (%Attribute,%Work),(%STEMAX,%DMAXMS),(%Alphax,%Alfax),
@@ -8815,15 +8817,18 @@ Replace [+CDE,PAWC] with [" Hbook-Paw store "
 Replace [+CDE,TYPING] with [;Implicit None;];
 " - - - - - - - - - - - - - - - - - - - - - - - - - - - "
 "                    cmz part                           ";
- REPLACE [;+INCLUDE]    WITH  [;+CDE,]
- REPLACE [;+CDE,#.#;]   WITH  [;+CDE,#1;]
- REPLACE [;+CDE,#,]     WITH  [{IF} [EXIST 1] {;+CDE,#1};+CDE,]
- REPLACE [;+DECK,#;]    WITH  [;"* DECK,#1";];
- REPLACE [;CDECK ID,#;] WITH  [;"* DECK,#1";];
- REPLACE [;+PATCH,#;]   WITH  [;"* PATCH,#1";];
- Replace [;*KEEP,#;]    with  [;"* KEEP,#1";!FORTRAN;];
- Replace [*KEEP,#;]     with  [;"* KEEP,#1";!FORTRAN;];
- Replace [*KEND.;]      with  [;"* KEND.";!GEANT3; ];
+ REPLACE [;+COMMON]      WITH  [[SETR U=1];+CDE,]
+ REPLACE [;+INCLUDE]     WITH  [;+CDE,]
+ REPLACE [;+COMMON,#.#;] WITH  [;+COMMON,#1;]
+ REPLACE [;+CDE,#.#;]    WITH  [;+CDE,#1;]
+ REPLACE [;+CDE,#,]      WITH  [{IF} [EXIST 1] {;+CDE,#1};+CDE,]
+ REPLACE [;+COMMON,#,]   WITH  [{IF} [EXIST 1] {;+COMMON,#1};+COMMON,]
+ REPLACE [;+DECK,#;]     WITH  [;"* DECK,#1";];
+ REPLACE [;CDECK ID,#;]  WITH  [;"* DECK,#1";];
+ REPLACE [;+PATCH,#;]    WITH  [;"* PATCH,#1";];
+ Replace [;*KEEP,#;]     with  [;"* KEEP,#1";!FORTRAN;];
+ Replace [*KEEP,#;]      with  [;"* KEEP,#1";!FORTRAN;];
+ Replace [*KEND.;]       with  [;"* KEND.";!GEANT3; ];
 ;
 Replace[PRIN[DIGIT]]  With [{IF} '#1'='0' {;<W>} {ELSE} {; IF (Iprin>=#1) <W>}]
 Replace[%] with [ag_];
@@ -23986,6 +23991,2173 @@ C
      +       'tracking')
 11100 FORMAT(' *** GFIN ***  Illegal number of links ',I10)
   999 END
++DECK,del,If=del.
+*CMZ :          24/05/98  13.57.33  by  Pavel Nevski
+*-- Author :
+      SUBROUTINE GTELEC
+C.
+C.    ******************************************************************
+C.    *                                                                *
+C.    *   Electron type track. Computes step size and propagates       *
+C.    *    particle through step.                                      *
+C.    *                                                                *
+C.    *   ==> Called by : GTRACK                                       *
+C.    *       Authors    R.Brun, F.Bruyant, M.Maire L.Urban ********   *
+C.    *                                                                *
+C.    ******************************************************************
+C.
++CDE, GCBANK.
++CDE, GCCUTS.
++CDE, GCJLOC.
++CDE, GCKINE.
++CDE, GCMATE.
++CDE, GCMULO.
++SEQ, GCONSP.
++CDE, GCPHYS.
++CDE, GCSTAK.
++CDE, GCTMED.
++CDE, GCTRAK.
++CDE, GCUNIT.
++CDE, GCKING.
++SEQ, GCJUMP, IF=USRJMP
+ 
++SELF, IF=-OLD
++CDE, GCVOLU.
++SEQ, GCVDMA.
++SELF
++SELF, IF=-SINGLE
+      PARAMETER (EPSMAC=1.E-6)
+      DOUBLE PRECISION DEMEAN,STOPRG,STOPMX,STOPC
+      DOUBLE PRECISION ONE,XCOEF1,XCOEF2,XCOEF3,ZERO
++SELF, IF=SINGLE
+      PARAMETER (EPSMAC=1.E-11)
++SELF
+      PARAMETER (ONE=1,ZERO=0)
+      REAL VNEXT(6)
+      SAVE IKCUT,STOPC
+*>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
+      DIMENSION RNDM(3)
+      PARAMETER ( TLIM = 0.0002)
+      IABAN = NINT(DPHYS1)
+*<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
+C.
+C.    ------------------------------------------------------------------
+*
+* *** Particle below energy threshold ? short circuit
+*
+      IF (GEKIN.LE.CUTELE) GO TO 100
+*
+* *** Update local pointers if medium or particle code has changed
+      IF (IUPD.EQ.0) THEN
+         IUPD  = 1
+         JMULOF= LQ(JTM-1)
+         IF (CHARGE.LT.0.) THEN
+            JBREM = LQ(JMA-9)
+            JLOSS = LQ(JMA-1)
+            JDRAY = LQ(JMA-11)
+            JRANG = LQ(JMA-15)
+            JCOEF = LQ(JMA-17)
+         ELSE
+            JBREM = LQ(JMA-9)  +NEK1
+            JLOSS = LQ(JMA-1)  +NEK1
+            JDRAY = LQ(JMA-11) +NEK1
+            JRANG = LQ(JMA-15) +NEK1
+            JCOEF = LQ(JMA-17) +3*NEK1
+            JANNI = LQ(JMA-7)
+         ENDIF
+         IF(IMCKOV.EQ.1) THEN
+            JTCKOV = LQ(JTM-3)
+            JABSCO = LQ(JTCKOV-1)
+            JEFFIC = LQ(JTCKOV-2)
+            JINDEX = LQ(JTCKOV-3)
+            JCURIN = LQ(JTCKOV-4)
+            NPCKOV = Q(JTCKOV+1)
+         ENDIF
+         OMCMOL = Q(JPROB+21)
+         CHCMOL = Q(JPROB+25)
+         IKCUT  = Q(JMULOF+NEK1+1)
+         STOPC  = Q(JMULOF+NEK1+2)
+         IF(ISTRA.GT.0) THEN
+            JTSTRA = LQ(JMA-19)
+            JTSTCO = LQ(JTSTRA-1)
+            JTSTEN = LQ(JTSTRA-2)
++SELF,IF=ASHO
+            IF(ISTRA.EQ.2) THEN
+               JTASHO = LQ(JMA-20)
+            ENDIF
++SELF
+         ENDIF
+      ENDIF
+*
+* *** Compute current step size
+*
+      STEP   = STEMAX
+      IPROC  = 103
+      GEKRT1 = 1. -GEKRAT
+*
+*  **   Step limitation due to bremsstrahlung ?
+*
+      IF (IBREM.GT.0) THEN
+         STEPBR = GEKRT1*Q(JBREM+IEKBIN) +GEKRAT*Q(JBREM+IEKBIN+1)
+         SBREM  = STEPBR*ZINTBR
+         IF (SBREM.LT.STEP) THEN
+            STEP  = SBREM
+            IPROC = 9
+         ENDIF
+      ENDIF
+*
+*  **   Step limitation due to delta-ray production ?
+*
+      IF (IDRAY.GT.0) THEN
+         STEPDR = GEKRT1*Q(JDRAY+IEKBIN) +GEKRAT*Q(JDRAY+IEKBIN+1)
+         SDRAY  = STEPDR*ZINTDR
+         IF (SDRAY.LT.STEP) THEN
+            STEP  = SDRAY
+            IPROC = 10
+         ENDIF
+      ENDIF
+*
+*  **   Step limitation due to annihilation ?
+*
+      IF (CHARGE.GT.0.) THEN
+         IF (IANNI.GT.0) THEN
+            STEPAN = GEKRT1*Q(JANNI+IEKBIN) +GEKRAT*Q(JANNI+IEKBIN+1)
+            SANNI  = STEPAN*ZINTAN
+            IF (SANNI.LT.STEP) THEN
+               STEP  = SANNI
+               IPROC = 11
+            ENDIF
+         ENDIF
+      ENDIF
+*
+      IF (STEP.LE.0.) THEN
+         STEP = 0.
+         GO TO 90
+      ENDIF
+*
+*  **   Step limitation due to energy-loss,multiple scattering
+*             or magnetic field ?
+*
+      IF (JMULOF.NE.0) THEN
+         SMULOF  = GEKRT1*Q(JMULOF+IEKBIN) +GEKRAT*Q(JMULOF+IEKBIN+1)
+         IF (SMULOF.LT.STEP) THEN
+            STEP  = SMULOF
+            IPROC = 0
+         ENDIF
+      ENDIF
+*
+*  **   Step limitation due to geometry ?
+*
+      IF (STEP.GE.0.95*SAFETY) THEN
+         CALL GTNEXT
+         IF (IGNEXT.NE.0) THEN
+            STEP   = SNEXT + PREC
+            IPROC = 0
+         ENDIF
+*
+*        Update SAFETY in stack companions, if any
+         IF (IQ(JSTAK+3).NE.0) THEN
+            DO 10 IST = IQ(JSTAK+3),IQ(JSTAK+1)
+               JST    = JSTAK + 3 + (IST-1)*NWSTAK
+               Q(JST+11) = SAFETY
+   10       CONTINUE
+            IQ(JSTAK+3) = 0
+         ENDIF
+      ELSE
+         IQ(JSTAK+3) = 0
+      ENDIF
+*
+      IF (IFIELD.EQ.0.OR.STEP.LE.PREC) THEN
+*
+* *** Linear transport when no field or very short step
+*
+         IF (IGNEXT.NE.0) THEN
+*
+* *** Particle is supposed to cross the boundary during step
+*
+            DO 20 I = 1,3
+               VECTMP  = VECT(I) +STEP*VECT(I+3)
+               IF(VECTMP.EQ.VECT(I)) THEN
+*
+* *** Correct for machine precision
+*
+                  IF(VECT(I+3).NE.0.) THEN
+                     VECTMP =
+     +               VECT(I)+ABS(VECT(I))*SIGN(1.,VECT(I+3))*EPSMAC
+                     IF(NMEC.GT.0) THEN
+                        IF(LMEC(NMEC).EQ.104) NMEC=NMEC-1
+                     ENDIF
+                     NMEC=NMEC+1
+                     LMEC(NMEC)=104
++SELF, IF=DEBUG.
+                     WRITE(CHMAIL, 10000)
+                     CALL GMAIL(0,0)
+                     WRITE(CHMAIL, 10100) GEKIN, NUMED, STEP, SNEXT
+                     CALL GMAIL(0,0)
+10000 FORMAT(' Boundary correction in GTELEC: ',
+     +       '    GEKIN      NUMED       STEP      SNEXT')
+10100 FORMAT(31X,E10.3,1X,I10,1X,E10.3,1X,E10.3,1X)
++SELF
+                  ENDIF
+               ENDIF
+               VECT(I) = VECTMP
+   20       CONTINUE
+            INWVOL = 2
+            NMEC = NMEC +1
+            LMEC(NMEC) = 1
+         ELSE
+            DO 30 I = 1,3
+               VECT(I)  = VECT(I) +STEP*VECT(I+3)
+   30       CONTINUE
+         ENDIF
+      ELSE
+*
+* *** otherwise, swim particle in magnetic field
+*
+         NMEC = NMEC +1
+         LMEC(NMEC) = 4
+*
++SELF, IF=-USRJMP
+   40    CALL GUSWIM (CHARGE, STEP, VECT, VOUT)
++SELF, IF=USRJMP
+   40    CALL JUMPT4(JUSWIM,CHARGE, STEP, VECT, VOUT)
++SELF
+*
+*  ** When near to boundary, take proper action (cut-step,crossing...)
+*
+         IF(STEP.GE.SAFETY)THEN
+            INEAR = 0
+            IF (IGNEXT.NE.0) THEN
+               DO 50 I = 1,3
+                  VNEXT(I+3) = VECT(I+3)
+                  VNEXT(I) = VECT(I) +SNEXT*VECT(I+3)
+   50          CONTINUE
+               DO I=1,3
+                 IF ((VOUT(I)-VNEXT(I)).GT.EPSIL) GOTO 60
+               ENDDO
+               INWVOL = 2
+               NMEC = NMEC +1
+               LMEC(NMEC) = 1
+               GOTO 70
+   60          CONTINUE
+               INEAR = 1
+            ENDIF
+*
++SELF, IF=-OLD
+            if(mycoun.gt.1.and.nfmany.gt.0.and.step.ge.safety)then
+              nlevel=manyle(nfmany)
+              do 99 i=1,nlevel
+                names(i)=manyna(nfmany,i)
+                number(i)=manynu(nfmany,i)
+ 99           continue
+              call glvolu(nlevel,names,number,ier)
+              if(ier.ne.0)print *,'Fatal error in GLVOLU'
+              ingoto=0
+            endif
++SELF
+            CALL GINVOL (VOUT, ISAME)
+            IF (ISAME.EQ.0) THEN
+               IF ((INEAR.NE.0).OR.(STEP.LT.EPSIL)) THEN
+                  INWVOL = 2
+                  NMEC = NMEC +1
+                  LMEC(NMEC) = 1
+               ELSE
+*              Cut step
+                  STEP = 0.5*STEP
+                  IF (LMEC(NMEC).NE.24) THEN
+                     NMEC = NMEC +1
+                     LMEC(NMEC) = 24
+                  ENDIF
+                  GO TO 40
+               ENDIF
+            ENDIF
+         ENDIF
+*
+*
+   70    CONTINUE
+         DO 80 I = 1,6
+            VECT(I) = VOUT(I)
+   80    CONTINUE
+*
+      ENDIF
+*
+*
+* *** Correct the step due to multiple scattering
+      IF (IMULL.NE.0) THEN
+         STMULS = STEP
+         CORR=0.0001*(STEP/RADL)*(GETOT/(VECT(7)*VECT(7)))**2
+         IF (CORR.GT.0.25) CORR = 0.25
+         STEP  = (1.+CORR)*STEP
+      ENDIF
+*
+      SLENG = SLENG + STEP
+*
+*  **  Apply synchrotron radiation if required
+*
+      IF(ISYNC*IFIELD.NE.0) THEN
+         CALL GSYNC
+         NMEC = NMEC+1
+         LMEC(NMEC) = 108
+      ENDIF
+*
+* *** Generate Cherenkov photons if required
+*
+      IF(IMCKOV.EQ.1) THEN
+         CALL GGCKOV
+         IF(NGPHOT.NE.0) THEN
+            NMEC = NMEC+1
+            LMEC(NMEC)=105
+         ENDIF
+      ENDIF
+*
+* *** Apply energy loss : find the kinetic energy corresponding
+*      to the new stopping range = stopmx - step
+*
+      IF (ILOSL.NE.0) THEN
+         NMEC = NMEC +1
+         IF(GEKRAT.LT.0.7) THEN
+            I1 = MAX(IEKBIN-1,1)
+         ELSE
+            I1 = MIN(IEKBIN,NEKBIN-1)
+         ENDIF
+         I1 = 3*(I1-1)+1
+         XCOEF1 = Q(JCOEF+I1)
+         XCOEF2 = Q(JCOEF+I1+1)
+         XCOEF3 = Q(JCOEF+I1+2)
+         IF(XCOEF1.NE.0.) THEN
+            STOPMX = -XCOEF2+SIGN(ONE,XCOEF1)*SQRT(XCOEF2**2 - (XCOEF3-
+     +      GEKIN/XCOEF1))
+         ELSE
+            STOPMX = - (XCOEF3-GEKIN)/XCOEF2
+         ENDIF
+*
+         STOPRG = STOPMX - STEP
+         IF (STOPRG.LT.STOPC) THEN
+            STEP = MAX(STOPMX - STOPC,ZERO)
+            GO TO 100
+         ENDIF
+*
+         LMEC(NMEC) = 3
+         IF(XCOEF1.NE.0.) THEN
+            DEMEAN=GEKIN-XCOEF1*(XCOEF3+STOPRG*(2.*XCOEF2+STOPRG))
+         ELSE
+            DEMEAN=GEKIN-XCOEF2*STOPRG-XCOEF3
+         ENDIF
+         IF(DEMEAN.LE.5.*GEKIN*EPSMAC) THEN
+            DEMEAN=(GEKRT1*Q(JLOSS+IEKBIN)+GEKRAT*Q(JLOSS+IEKBIN+1))
+     +     *STEP
+         ENDIF
+         IF (ILOSS.EQ.4.OR.IEKBIN.LE.IKCUT+1) THEN
+            DESTEP = DEMEAN
+         ELSE
+            DEMS = DEMEAN
+            CALL GFLUCT (DEMS,DESTEP)
+         ENDIF
+         DESTEP=MAX(DESTEP,0.)
+         GEKINT = GEKIN -DESTEP
+         IF (GEKINT.LE.(1.01*CUTELE)) GO TO 100
+         DESTEL = DESTEP
+         GEKIN  = GEKINT
+         GETOT  = GEKIN +AMASS
+         VECT(7)= SQRT((GETOT+AMASS)*GEKIN)
+         CALL GEKBIN
+*
+*        IABAN = 1 does not distinguish between sensitive and
+*        non-sensitive volumes, and can stop particles above the CUTE
+*
+         IF(IABAN.EQ.1) THEN
+*
+*        STOP electron/positron if range < safety AND no brems
+*
+           IF(STOPMX.LE.SAFETY) THEN
+             IF(SBREM.GT.STOPMX) THEN
+*          + condition in case of Cherenkov generation:
+*          STOP if E/p >refractive index (i.e. e+/e- is below threshold)
+               IF(IMCKOV.EQ.1) THEN
+                 THRIND=GETOT/VECT(7)
+                 IF(THRIND.GT.Q(JINDEX+1)) GOTO 100
+               ELSE
+                 GOTO 100
+               ENDIF
+             ENDIF
+           ENDIF
+           STOPRG = STOPMX - STEP
+           IF (STOPRG.LT.STOPC) THEN
+            STEP = MAX(STOPMX - STOPC,ZERO)
+            GO TO 100
+           ENDIF
+         END IF
+*
+*        IABAN = 2 distinguishes between sensitive and non-sensitive
+*        volumes.
+*        In sensitive volumes additional tests are applied before
+*        the particle is stopped
+*
+         IF(IABAN.EQ.2) THEN
+           IF(ISVOL.LE.0) THEN
+             IF(STOPMX.LE.SAFETY) THEN
+*
+*        test for brems and annihilation only
+*
+               IF((IBREM.GT.0).AND.(SBREM.LE.STOPMX)) GOTO 97
+               IF((CHARGE.GT.0.).AND.(IANNI.GT.0).and.
+     +                                 (SANNI.LE.STOPMX)) GOTO 97
+               GEKIN=GEKIN+DESTEP
+               GOTO 100
+             END IF
+           ELSE
+*
+*        sensitive volume ---> more tests !!
+*        is energy below TLIM (=200 keV ) ?
+*
+             IF(GEKIN.LE.TLIM) THEN
+*
+*     range of the particle is the overestimated stopping range here
+*
+                TOSTOP=STOPMX-STEP*DESTEP/DEMEAN-STOPC
+*
+*        does the track remain in the actual volume?
+*
+                IF(TOSTOP.LE.SAFETY) THEN
+*
+*        is there no delta ray, brems, annihilation ?
+*
+                  IF((IDRAY.GT.0).AND.(SDRAY.LE.TOSTOP)) GOTO 97
+                  IF((IBREM.GT.0).AND.(SBREM.LE.TOSTOP)) GOTO 97
+                  IF((CHARGE.GT.0.).AND.(IANNI.GT.0).and.
+     +                                   (SANNI.LE.TOSTOP)) GOTO 97
+*
+*        extra condition in case of Cherenkov generation:
+*
+                  IF(IMCKOV.EQ.1) THEN
+                     THRIND=GETOT/VECT(7)
+*
+*        continue only if e+/e- below threshold
+*
+                     IF(THRIND.LT.Q(JINDEX+1)) GOTO 97
+                   ELSE
+*
+*        do not make transport if this estimated range negative...
+*
+                     IF(TOSTOP.LE.0.) GOTO 100
+*
+*        estimate final position/direction of the particle
+*        from energy loss + multiple scattering
+*       ( multiple scattering with path length = range of the particle)
+*
+                     ALFA=0.18*Z
+                     ALFA1=ALFA+1.
+                     TGTH2=ALFA*ALFA1/(1.2+ALFA)
+                     S=TOSTOP*SQRT(1.+TGTH2)/ALFA1
+                     TGTH=SQRT(TGTH2)
+                     THET=ATAN(TGTH)
+                     IF(THET.Lt.0.) THET=PI-THET
+*
+*        correct direction
+*
+                     CT=COS(THET)
+                     ST=SQRT(1.-CT*CT)
+                     CALL GRNDM(RNDM,1)
+                     PHI=TWOPI*RNDM(1)
+*
+                     D1=ST*COS(PHI)
+                     D2=ST*SIN(PHI)
+                     D3=CT
+                     VMM=SQRT(VECT(4)*VECT(4)+VECT(5)*VECT(5))
+                     IF(VMM.NE.0.) THEN
+                       PD1=VECT(4)/VMM
+                       PD2=VECT(5)/VMM
+                       V4=PD1*VECT(6)*D1-PD2*D2+VECT(4)*D3
+                       V5=PD2*VECT(6)*D1+PD1*D2+VECT(5)*D3
+                       V6=-VMM*D1+VECT(6)*D3
+                     ELSE
+                       V4=D1
+                       V5=D2
+                       V6=D3
+                     ENDIF
+                     VP=1./SQRT(V4*V4+V5*V5+V6*V6)
+                     VECT(4)=V4*VP
+                     VECT(5)=V5*VP
+                     VECT(6)=V6*VP
+*
+*       transport particle ( assuming FIELD = 0. )
+*
+                     DO 123 I=1,3
+                     VECT(I)=VECT(I)+S*VECT(I+3)
+123                  CONTINUE
+*
+*       put back into GEKIN the original value in order to have
+*       a correct DESTEP
+*
+                    GEKIN=GEKIN+DESTEP
+                  GOTO 100
+                END IF
+              END IF
+            END IF
+*++++++++++++++++++++++++++++++++++++++++++++++++++++++
+          END IF
+97        CONTINUE
+        ENDIF
+      ENDIF
+*<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
+*
+* *** Apply multiple scattering.
+*
+      IF (IMULL.NE.0) THEN
+         NMEC = NMEC +1
+         LMEC(NMEC) = 2
+         CALL GMULTS
+      ENDIF
+*
+* *** Update time of flight
+*
+      TOFG = TOFG +STEP*GETOT/(VECT(7)*CLIGHT)
+      IF (TOFG.GE.TOFMAX) THEN
+         ISTOP = 4
+         NMEC  = NMEC +1
+         LMEC(NMEC) = 22
+         GO TO 999
+      ENDIF
+*
+* *** Update interaction probabilities
+*
+      IF (IBREM.GT.0)    ZINTBR = ZINTBR -STEP/STEPBR
+      IF (IDRAY.GT.0)    ZINTDR = ZINTDR -STEP/STEPDR
+      IF (CHARGE.GT.0.) THEN
+         IF (IANNI.GT.0) ZINTAN = ZINTAN -STEP/STEPAN
+      ENDIF
+*
+* *** Apply the selected process if any
+*
+   90 IF (IPROC.EQ.0) GO TO 999
+      NMEC = NMEC +1
+      LMEC(NMEC) = IPROC
+*
+*  **   Bremsstrahlung ?
+*
+      IF (IPROC.EQ.9) THEN
+         CALL GBREME
+*
+*  **   Delta ray ?
+*
+      ELSE IF (IPROC.EQ.10) THEN
+*
+       IF((IPART.EQ.2).OR.((IPART.EQ.3).AND.(GEKIN.GT.2.*DCUTE))) THEN
+         CALL GDRAY
+       ELSE
+         GOTO 100
+       ENDIF
+*
+*  **   Positron annihilation ?
+*
+      ELSE IF (IPROC.EQ.11) THEN
+         CALL GANNI
+ 
+      ENDIF
+      GO TO 999
+*
+* *** Special treatment for overstopped tracks
+*
+  100 DESTEP = GEKIN
+      DESTEL = DESTEP
+      GEKIN  = 0.
+      GETOT  = AMASS
+      VECT(7)= 0.
+      INWVOL = 0
+      NMEC   = NMEC +1
+      LMEC(NMEC) = 30
+      IF ((CHARGE.LT.0.).OR.(IANNI.EQ.0)) THEN
+         ISTOP = 2
+      ELSE
+         NMEC = NMEC +1
+         LMEC(NMEC) = 11
+         CALL GANNIR
+      ENDIF
+  999 IF(NGPHOT.GT.0) THEN
+         IF(ITCKOV.EQ.2.AND.ISTOP.EQ.0) THEN
+*
+*  The electron has produced Cerenkov photons and it is still alive
+*  we put it in the stack and we let the photons to be tracked
+            NGKINE = NGKINE+1
+            GKIN(1,NGKINE) = VECT(4)*VECT(7)
+            GKIN(2,NGKINE) = VECT(5)*VECT(7)
+            GKIN(3,NGKINE) = VECT(6)*VECT(7)
+            GKIN(4,NGKINE) = GETOT
+            GKIN(5,NGKINE) = IPART
+            TOFD(NGKINE) = 0.
+            ISTOP = 1
+c----put position as well
+            GPOS(1,NGKINE)=VECT(1)
+            GPOS(2,NGKINE)=VECT(2)
+            GPOS(3,NGKINE)=VECT(3)
+         ENDIF
+      ENDIF
+      END
+      SUBROUTINE GTHADR
+C.
+C.    ******************************************************************
+C.    *                                                                *
+C.    *   Charged hadron type track. Computes step size and propagates *
+C.    *    particle through step.                                      *
+C.    *                                                                *
+C.    *   ==>Called by : GTRACK                                        *
+C.    *       Authors    R.Brun, F.Bruyant, M.Maire ********           *
+C.    *                                                                *
+C.    ******************************************************************
+C.
++CDE, GCBANK.
++CDE, GCCUTS.
++CDE, GCJLOC.
++CDE, GCKINE.
++CDE, GCKING.
++CDE, GCMATE.
++CDE, GCMULO.
++SEQ, GCONSP.
++CDE, GCPHYS.
++CDE, GCSTAK.
++CDE, GCTMED.
++CDE, GCTRAK.
++CDE, GCUNIT.
++SEQ, GCJUMP, IF=USRJMP
+ 
++SELF, IF=-OLD
++CDE, GCVOLU.
++SEQ, GCVDMA.
++SELF
++SELF, IF=-SINGLE
+      PARAMETER (EPSMAC=1.E-6)
+      DOUBLE PRECISION GKR,DEMEAN,STOPP,STOPMX,STOPRG,STOPC,EKIPR
+      DOUBLE PRECISION ONE,XCOEF1,XCOEF2,XCOEF3,YCOEF1,YCOEF2,YCOEF3
++SELF, IF=SINGLE
+      PARAMETER (EPSMAC=1.E-11)
++SELF.
+      PARAMETER (THRESH=0.7,ONE=1)
+      REAL VNEXT(6)
+      SAVE CFLD,CHARG2,RMASS,CUTPRO,IKCUT,STOPC
+C.
+C.    ------------------------------------------------------------------
+*
+* *** Particle below energy threshold ? short circuit
+*
+      IF (GEKIN.LE.CUTHAD) GO TO 100
+*
+* *** Update local pointers if medium has changed
+*
+      IF (IUPD.EQ.0) THEN
+         IUPD  = 1
+         JLOSS = LQ(JMA-3)
+         JRANG = LQ(JMA-16) + NEK1
+         JCOEF = LQ(JMA-18) + 3*NEK1
+         CHARG2 = CHARGE*CHARGE
+         RMASS  = PMASS/AMASS
+         OMCMOL = Q(JPROB+21)*CHARG2
+         CHCMOL = Q(JPROB+25)*ABS(CHARGE)
+         CUTPRO = MAX(CUTHAD*RMASS,ELOW(1))
+         IKCUT = GEKA*LOG10(CUTPRO) + GEKB
+         GKR   = (CUTPRO - ELOW(IKCUT))/(ELOW(IKCUT+1) - ELOW(IKCUT))
+         STOPC = (1.-GKR)*Q(JRANG+IKCUT) + GKR*Q(JRANG+IKCUT+1)
+         IF (FIELDM.NE.0.) THEN
+            CFLD = 3333.*DEGRAD*TMAXFD/ABS(FIELDM*CHARGE)
+         ELSE
+            CFLD = BIG
+         ENDIF
+         IF(IMCKOV.EQ.1) THEN
+            JTCKOV = LQ(JTM-3)
+            JABSCO = LQ(JTCKOV-1)
+            JEFFIC = LQ(JTCKOV-2)
+            JINDEX = LQ(JTCKOV-3)
+            JCURIN = LQ(JTCKOV-4)
+            NPCKOV = Q(JTCKOV+1)
+         ENDIF
+         IF(ISTRA.GT.0) THEN
+            JTSTRA = LQ(JMA-19)
+            JTSTCO = LQ(JTSTRA-1)
+            JTSTEN = LQ(JTSTRA-2)
++SELF,IF=ASHO
+            IF(ISTRA.EQ.2) THEN
+               JTASHO = LQ(JMA-20)
+            ENDIF
++SELF
+         ENDIF
+      ENDIF
+*
+* *** Compute current step size
+*
+      STEP   = STEMAX
+      IPROC  = 103
+      GEKRT1 = 1. -GEKRAT
+*
+*  **   Step limitation due to hadron interaction ?
+*
+      IF (IHADR.GT.0) THEN
++SELF, IF=-USRJMP
+         CALL GUPHAD
++SELF, IF=USRJMP
+         CALL JUMPT0(JUPHAD)
++SELF
+         IF (SHADR.LT.STEP) THEN
+            IF (SHADR.LE.0.) SHADR = PREC
+            STEP  = SHADR
+            IPROC = 12
+         ENDIF
+      ENDIF
+*
+*  **   Step limitation due to decay ?
+*
+      IF (IDCAY.GT.0) THEN
+         SDCAY = SUMLIF*VECT(7)/AMASS
+         IF (SDCAY.LT.STEP) THEN
+            STEP  = SDCAY
+            IPROC = 5
+         ENDIF
+      ENDIF
+*
+*  ** Step limitation due to delta-ray production ?
+*       (Cannot be tabulated easily because dependent on AMASS)
+*
+      IF (IDRAY.GT.0) THEN
+         STEPDR = BIG
+         IF (GEKIN.GT.DCUTM) THEN
+            GAMASS = GETOT +AMASS
+            TMAX   = EMASS*GEKIN*GAMASS/(0.5*AMASS*AMASS+EMASS*GETOT)
+            IF (TMAX.GT.DCUTM) THEN
+               BET2 = GEKIN*GAMASS/(GETOT*GETOT)
+               Y    = DCUTM/TMAX
+               SIG  = (1.-Y+BET2*Y*LOG(Y))/DCUTM
+*              extra term for spin 1/2
+               IF (AMASS.GT.0.9) SIG=SIG+0.5*(TMAX-DCUTM)/(GETOT*GETOT)
+               SIG = SIG*Q(JPROB+17)*CHARG2*EMASS/BET2
+*
+               IF (SIG.GT.0.) THEN
+                  STEPDR = 1./SIG
+                  SDRAY  = STEPDR*ZINTDR
+                  IF (SDRAY.LE.STEP) THEN
+                     STEP  = SDRAY
+                     IPROC = 10
+                  ENDIF
+               ENDIF
+            ENDIF
+         ENDIF
+      ENDIF
+*
+      IF (STEP.LE.0.) THEN
+         STEP  = 0.
+         GO TO 110
+      ENDIF
+*
+*  **   Step limitation due to energy loss (stopping range) ?
+*
+      IF (ILOSL.GT.0) THEN
+         IF(GEKRAT.LT.THRESH) THEN
+            I1 = MAX(IEKBIN-1,1)
+         ELSE
+            I1 = MIN(IEKBIN,NEKBIN-1)
+         ENDIF
+         I1 = 3*(I1-1)+1
+         XCOEF1 = Q(JCOEF+I1)
+         XCOEF2 = Q(JCOEF+I1+1)
+         XCOEF3 = Q(JCOEF+I1+2)
+         IF(XCOEF1.NE.0) THEN
+            STOPP = -XCOEF2+SIGN(ONE,XCOEF1)* SQRT(XCOEF2
+     +      **2 -(XCOEF3-GEKIN*RMASS/XCOEF1))
+         ELSE
+            STOPP = - (XCOEF3-GEKIN*RMASS)/XCOEF2
+         ENDIF
+         STOPMX = (STOPP - STOPC)/(RMASS*CHARG2)
+         IF (STOPMX.LT.MIN(STEP,STMIN)) THEN
+            STEP = STOPMX
+            IPROC = 0
+            IF(STEP.LE.0.)THEN
+               GO TO 100
+            ENDIF
+            GO TO 10
+         ENDIF
+         EKF = (1. - DEEMAX)*GEKIN*RMASS
+         IF (EKF.LT.ELOW(1)) THEN
+            EKF = ELOW(1)
+         ELSEIF (EKF.GE.ELOW(NEK1)) THEN
+            EKF = ELOW(NEK1)*0.99
+         ENDIF
+         IKF=GEKA*LOG10(EKF)+GEKB
+         GKR=(EKF-ELOW(IKF))/(ELOW(IKF+1)-ELOW(IKF))
+         IF(GKR.LT.THRESH) THEN
+            IK1 = MAX(IKF-1,1)
+         ELSE
+            IK1 = MIN(IKF,NEKBIN-1)
+         ENDIF
+         IK1 = 3*(IK1-1)+1
+         YCOEF1=Q(JCOEF+IK1)
+         YCOEF2=Q(JCOEF+IK1+1)
+         YCOEF3=Q(JCOEF+IK1+2)
+         IF(YCOEF1.NE.0.) THEN
+            SLOSP = -YCOEF2+SIGN(ONE,YCOEF1)*SQRT(YCOEF2**2- (YCOEF3-
+     +      EKF/YCOEF1))
+         ELSE
+            SLOSP = - (YCOEF3-EKF)/YCOEF2
+         ENDIF
+         SLOSP = STOPP - SLOSP
+         SLOSS = MAX(STMIN, SLOSP/(RMASS*CHARG2) )
+         IF (SLOSS.LT.STEP) THEN
+            STEP = SLOSS
+            IPROC = 0
+         ENDIF
+      ENDIF
+*
+*  **   Step limitation due to bending in magnetic field ?
+*
+      IF (IFIELD.NE.0) THEN
+         SFIELD = CFLD*VECT(7)
+         SFIELD=MAX(SFIELD, STMIN)
+         IF (SFIELD.LT.STEP) THEN
+            STEP  = SFIELD
+            IPROC = 0
+         ENDIF
+      ENDIF
+*
+*  **   Step limitation due to multiple scattering ?
+*
+      IF (IMULL.GT.0) THEN
+         SMULS=MIN(2232.*RADL*((VECT(7)**2)/(GETOT*CHARGE))**2,10.*RADL)
+         SMULS  = MAX(STMIN, SMULS )
+         IF (SMULS.LT.STEP) THEN
+            STEP  = SMULS
+            IPROC = 0
+         ENDIF
+      ENDIF
+*
+   10 CONTINUE
+*
+*  **   Step limitation due to Cerenkov production ?
+*
+      IF (IMCKOV.GT.0) THEN
+         CALL GNCKOV
+         STCKOV = MXPHOT/MAX(3.*DNDL,1E-10)
+         SMULS  = MAX(STMIN, STCKOV)
+         IF (SMULS.LT.STEP) THEN
+            STEP  = STCKOV
+            IPROC = 0
+         ENDIF
+      ENDIF
+*
+*  **   Step limitation due to geometry ?
+*
+      IF (STEP.GE.0.95*SAFETY) THEN
+         CALL GTNEXT
+         IF (IGNEXT.NE.0) THEN
+            STEP   = SNEXT + PREC
+            IPROC = 0
+         ENDIF
+*
+*        Update SAFETY in stack companions, if any
+         IF (IQ(JSTAK+3).NE.0) THEN
+            DO 20 IST = IQ(JSTAK+3),IQ(JSTAK+1)
+               JST    = JSTAK + 3 + (IST-1)*NWSTAK
+               Q(JST+11) = SAFETY
+   20       CONTINUE
+            IQ(JSTAK+3) = 0
+         ENDIF
+      ELSE
+         IQ(JSTAK+3) = 0
+      ENDIF
+*
+* *** Linear transport when no field or very short step
+*
+      IF (IFIELD.EQ.0.OR.STEP.LE.PREC) THEN
+*
+         IF (IGNEXT.NE.0) THEN
+            DO 30 I = 1,3
+               VECTMP  = VECT(I) +STEP*VECT(I+3)
+               IF(VECTMP.EQ.VECT(I)) THEN
+*
+* *** Correct for machine precision
+*
+                  IF(VECT(I+3).NE.0.) THEN
+                     VECTMP =
+     +               VECT(I)+ABS(VECT(I))*SIGN(1.,VECT(I+3))*EPSMAC
+                     IF(NMEC.GT.0) THEN
+                        IF(LMEC(NMEC).EQ.104) NMEC=NMEC-1
+                     ENDIF
+                     NMEC=NMEC+1
+                     LMEC(NMEC)=104
++SELF, IF=DEBUG.
+                     WRITE(CHMAIL, 10000)
+                     CALL GMAIL(0,0)
+                     WRITE(CHMAIL, 10100) GEKIN, NUMED, STEP, SNEXT
+                     CALL GMAIL(0,0)
+10000 FORMAT(' Boundary correction in GTHADR: ',
+     +       '    GEKIN      NUMED       STEP      SNEXT')
+10100 FORMAT(31X,E10.3,1X,I10,1X,E10.3,1X,E10.3,1X)
++SELF
+                  ENDIF
+               ENDIF
+               VECT(I) = VECTMP
+   30       CONTINUE
+            INWVOL = 2
+            NMEC = NMEC +1
+            LMEC(NMEC) = 1
+         ELSE
+            DO 40 I = 1,3
+               VECT(I)  = VECT(I) +STEP*VECT(I+3)
+   40       CONTINUE
+         ENDIF
+      ELSE
+*
+* ***   otherwise, swim particle in magnetic field
+*
+         NMEC = NMEC +1
+         LMEC(NMEC) = 4
+*
++SELF, IF=-USRJMP
+   50    CALL GUSWIM (CHARGE, STEP, VECT, VOUT)
++SELF, IF=USRJMP
+   50    CALL JUMPT4(JUSWIM, CHARGE, STEP, VECT, VOUT)
++SELF
+*
+*  ** When near to boundary, take proper action (cut-step,crossing...)
+*
+         IF(STEP.GE.SAFETY)THEN
+            INEAR = 0
+            IF (IGNEXT.NE.0) THEN
+               DO 60 I = 1,3
+                  VNEXT(I+3) = VECT(I+3)
+                  VNEXT(I) = VECT(I) +SNEXT*VECT(I+3)
+   60          CONTINUE
+               DO I=1,3
+                 IF ((VOUT(I)-VNEXT(I)).GT.EPSIL) GOTO 70
+               ENDDO
+               INWVOL = 2
+               NMEC = NMEC +1
+               LMEC(NMEC) = 1
+               GOTO 80
+   70          CONTINUE
+               INEAR = 1
+            ENDIF
+*
++SELF, IF=-OLD
+            if(mycoun.gt.1.and.nfmany.gt.0.and.step.ge.safety)then
+              nlevel=manyle(nfmany)
+              do 99 i=1,nlevel
+                names(i)=manyna(nfmany,i)
+                number(i)=manynu(nfmany,i)
+ 99           continue
+              call glvolu(nlevel,names,number,ier)
+              if(ier.ne.0)print *,'Fatal error in GLVOLU'
+              ingoto=0
+            endif
++SELF
+            CALL GINVOL (VOUT, ISAME)
+            IF (ISAME.EQ.0)THEN
+               IF ((INEAR.NE.0).OR.(STEP.LT.EPSIL)) THEN
+                  INWVOL = 2
+                  NMEC = NMEC +1
+                  LMEC(NMEC) = 1
+               ELSE
+*              Cut step
+                  STEP = 0.5*STEP
+                  IF (LMEC(NMEC).NE.24) THEN
+                     NMEC = NMEC +1
+                     LMEC(NMEC) = 24
+                  ENDIF
+                  GO TO 50
+               ENDIF
+            ENDIF
+         ENDIF
+*
+   80    CONTINUE
+         DO 90 I = 1,6
+            VECT(I) = VOUT(I)
+   90    CONTINUE
+*
+      ENDIF
+*
+* *** Correct the step due to multiple scattering
+      IF (IMULL.NE.0) THEN
+         STMULS = STEP
+         CORR=0.0001*CHARG2*(STEP/RADL)*(GETOT/(VECT(7)*VECT(7)))**2
+         IF (CORR.GT.0.25) CORR = 0.25
+         STEP  = (1.+CORR)*STEP
+      ENDIF
+*
+      SLENG = SLENG + STEP
+*
+* *** Generate Cherenkov photons if required
+*
+      IF(IMCKOV.EQ.1) THEN
+         CALL GGCKOV
+         IF(NGPHOT.NE.0) THEN
+            NMEC=NMEC+1
+            LMEC(NMEC)=105
+         ENDIF
+      ENDIF
+*
+* *** apply energy loss : find the kinetic energy corresponding
+*      to the new stopping range = stopmx - step
+*
+      IF (ILOSL.NE.0) THEN
+         NMEC = NMEC +1
+         LMEC(NMEC) = 3
+         STOPRG = STOPP - STEP*RMASS*CHARG2
+         IF (STOPRG.LE.STOPC) THEN
+            STEP = STOPMX
+            GO TO 100
+         ENDIF
+         IF(XCOEF1.NE.0.) THEN
+            EKIPR = XCOEF1*(XCOEF3+STOPRG*(2.*XCOEF2+STOPRG))
+         ELSE
+            EKIPR = XCOEF2*STOPRG+XCOEF3
+         ENDIF
+         DEMEAN=GEKIN - EKIPR/RMASS
+         IF(DEMEAN.LE.5.*GEKIN*EPSMAC) THEN
+            DEMEAN=(GEKRT1*Q(JLOSS+IEKBIN)+GEKRAT*Q(JLOSS+IEKBIN+1))
+     +      *STEP*CHARG2
+         ENDIF
+         IF (ILOSS.EQ.4.OR.IEKBIN.LE.IKCUT+1) THEN
+            DESTEP = DEMEAN
+         ELSE
+            DEMS   = DEMEAN/CHARG2
+            CALL GFLUCT(DEMS,DESTEP)
+            DESTEP = DESTEP*CHARG2
+         ENDIF
+         DESTEP=MAX(DESTEP,0.)
+         GEKINT = GEKIN -DESTEP
+         IF (GEKINT.LE.(1.01*CUTHAD)) GO TO 100
+         DESTEL = DESTEP
+         GEKIN  = GEKINT
+         GETOT  = GEKIN +AMASS
+         VECT(7)= SQRT((GETOT+AMASS)*GEKIN)
+         CALL GEKBIN
+      ENDIF
+*
+* *** Apply multiple scattering.
+*
+      IF (IMULL.NE.0) THEN
+         NMEC = NMEC +1
+         LMEC(NMEC) = 2
+         CALL GMULTS
+      ENDIF
+*
+* *** Update time of flight
+*
+      SUMLIF = SUMLIF -STEP*AMASS/VECT(7)
+      TOFG   = TOFG +STEP*GETOT/(VECT(7)*CLIGHT)
+      IF (TOFG.GE.TOFMAX) THEN
+         ISTOP = 4
+         NMEC  = NMEC +1
+         LMEC(NMEC) = 22
+         GO TO 999
+      ENDIF
+*
+* *** Update interaction probabilities
+*
+      IF (IHADR.GT.0) ZINTHA = ZINTHA*(1.-STEP/SHADR)
+      IF (IDRAY.GT.0) ZINTDR = ZINTDR -STEP/STEPDR
+*
+      GO TO 110
+*
+*  **   Special treatment for overstopped tracks
+*
+  100 DESTEP = GEKIN
+      DESTEL = DESTEP
+      GEKIN  = 0.
+      GAMMA  = GETOT/AMASS
+      GETOT  = AMASS
+      VECT(7)= 0.
+      INWVOL = 0
+      ISTOP  = 2
+      NMEC = NMEC + 1
+      LMEC(NMEC) = 30
+      IF (IHADR.EQ.0) THEN
+         IF (IDCAY.NE.0) THEN
+            TOFG = TOFG +0.5*(1+GAMMA)*SUMLIF/CLIGHT
+            SUMLIF = 0.
+            IF (TOFG.GE.TOFMAX) THEN
+               ISTOP = 4
+               NMEC = NMEC + 1
+               LMEC(NMEC) = 22
+               NGKINE = 0
+            ELSE
+               NMEC = NMEC + 1
+               LMEC(NMEC) = 5
+               ISTOP =1
+               CALL GDECAY
+            ENDIF
+         ENDIF
+         GO TO 999
+      ENDIF
+      IPROC = 12
+*
+* *** apply slected process if any
+*
+  110 IF (IPROC.EQ.0) GO TO 999
+      NMEC = NMEC +1
+      LMEC(NMEC) = IPROC
+*
+*  **   Hadron interaction ?
+*
+      IF (IPROC.EQ.12) THEN
++SELF, IF=-USRJMP
+         CALL GUHADR
++SELF, IF=USRJMP
+         CALL JUMPT0(JUHADR)
++SELF
+*   *   Check time cut-off for decays at rest
+         IF (LMEC(NMEC).EQ.5) THEN
+            TOFG   = TOFG +SUMLIF/CLIGHT
+            SUMLIF = 0.
+            IF (TOFG.GE.TOFMAX) THEN
+               NGKINE = 0
+               ISTOP  = 4
+               LMEC(NMEC) = 22
+            ENDIF
+         ENDIF
+*
+*  **   Decay ?
+*
+      ELSE IF (IPROC.EQ.5) THEN
+         ISTOP = 1
+         CALL GDECAY
+*
+*  **   Delta-ray ?
+*
+      ELSE IF (IPROC.EQ.10) THEN
+         CALL GDRAY
+      ENDIF
+  999 IF(NGPHOT.GT.0) THEN
+         IF(ITCKOV.EQ.2.AND.ISTOP.EQ.0) THEN
+*
+*  The hadron has produced Cerenkov photons and it is still alive
+*  we put it in the stack and we let the photons to be tracked
+            NGKINE = NGKINE+1
+            GKIN(1,NGKINE) = VECT(4)*VECT(7)
+            GKIN(2,NGKINE) = VECT(5)*VECT(7)
+            GKIN(3,NGKINE) = VECT(6)*VECT(7)
+            GKIN(4,NGKINE) = GETOT
+            GKIN(5,NGKINE) = IPART
+            TOFD(NGKINE) = 0.
+            ISTOP = 1
+c----put position as well
+            GPOS(1,NGKINE)=VECT(1)
+            GPOS(2,NGKINE)=VECT(2)
+            GPOS(3,NGKINE)=VECT(3)
+         ENDIF
+      ENDIF
+      END
+      SUBROUTINE GTHION
+C.
+C.    ******************************************************************
+C.    *                                                                *
+C.    *   Heavy  ion  type track. Computes step size and propagates    *
+C.    *    particle through step.                                      *
+C.    *                                                                *
+C.    *   The ionisation energy loss is calculated here (mean +        *
+C.    *       fluctuations)                                            *
+C.    *   The fluctuations are the same for ILOSS=1,2,3 and            *
+C.    *       there is no fluctuation for ILOSS=4.                     *
+C.    *                                                                *
+C.    *   ==>Called by : GTRACK                                        *
+C.    *       Authors    R.Brun, F.Bruyant, M.Maire, L.Urban ***       *
+C.    *                                                                *
+C.    ******************************************************************
+C.
++CDE, GCBANK.
++CDE, GCCUTS.
++CDE, GCJLOC.
++CDE, GCKINE.
++CDE, GCKING.
++CDE, GCMATE.
++CDE, GCMULO.
++SEQ, GCONSP.
++CDE, GCPHYS.
++CDE, GCSTAK.
++CDE, GCTMED.
++CDE, GCTRAK.
++CDE, GCUNIT.
++SEQ, GCJUMP, IF=USRJMP
+ 
++SELF, IF=-OLD
++CDE, GCVOLU.
++SEQ, GCVDMA.
++SELF
++SELF, IF=-SINGLE
+      PARAMETER (EPSMAC=1.E-6)
+      DOUBLE PRECISION GKR,DEMEAN,STOPP,STOPMX,STOPRG,STOPC,EKIPR
+      DOUBLE PRECISION ONE,XCOEF1,XCOEF2,XCOEF3,YCOEF1,YCOEF2,YCOEF3
++SELF, IF=SINGLE
+      PARAMETER (EPSMAC=1.E-11)
++SELF.
+      PARAMETER (THRESH=0.7,ONE=1)
+      PARAMETER (TWOTHR=2*ONE/3,AMU=0.9314943)
+      PARAMETER (DME=7.84572E-8,CNORM=2.5)
+      REAL VNEXT(6)
+      DIMENSION RNDM(2)
+      SAVE RMASS,CUTPRO,IKCUT,STOPC,FACFLU,CHAR23
+C.
+C.    ------------------------------------------------------------------
+*
+* *** Particle below energy threshold ? short circuit
+*
+      IF (GEKIN.LE.CUTHAD) GO TO 100
+*
+* *** Update local pointers if medium has changed
+*
+      IF (IUPD.EQ.0) THEN
+         IUPD  = 1
+         JLOSS = LQ(JMA-3)
+         JRANG = LQ(JMA-16) + NEK1
+         JCOEF = LQ(JMA-18) + 3*NEK1
+         RMASS  = PMASS/AMASS
+         CUTPRO = MAX(CUTHAD*RMASS,ELOW(1))
+         IKCUT = GEKA*LOG10(CUTPRO) + GEKB
+         GKR   = (CUTPRO - ELOW(IKCUT))/(ELOW(IKCUT+1) - ELOW(IKCUT))
+         STOPC = (1.-GKR)*Q(JRANG+IKCUT) + GKR*Q(JRANG+IKCUT+1)
+         FACFLU = DME*Z*DENS/A
+         CHAR23 = ONE/CHARGE**TWOTHR
+         IF(IMCKOV.EQ.1) THEN
+            JTCKOV = LQ(JTM-3)
+            JABSCO = LQ(JTCKOV-1)
+            JEFFIC = LQ(JTCKOV-2)
+            JINDEX = LQ(JTCKOV-3)
+            JCURIN = LQ(JTCKOV-4)
+            NPCKOV = Q(JTCKOV+1)
+         ENDIF
+      ENDIF
+*
+* *** Compute energy dependent parameters
+*
+      GAMASS=GETOT+AMASS
+      BET2=GEKIN*GAMASS/(GETOT*GETOT)
+      BET=SQRT(BET2)
+      W1=1.034-0.1777*EXP(-0.08114*CHARGE)
+      W2=BET*CHAR23
+      W3=121.4139*W2+0.0378*SIN(190.7165*W2)
+      CHARG1=CHARGE*(1.-W1*EXP(-W3))
+*
+*              the effective charge  CHARG1
+*            can be negative only for very low energy and
+*     for CHARGE > 20 ( very low energy : T/A < 20 keV/nucleon)
+*              in this case short circuit
+*
+      IF(CHARG1.LT.0.) GOTO 100
+      CHARG2=CHARG1**2
+*
+      OMCMOL=Q(JPROB+21)*CHARG2
+      CHCMOL=Q(JPROB+25)*ABS(CHARG1)
+      IF(FIELDM.NE.0.) THEN
+         CFLD=3333.*DEGRAD*TMAXFD/ABS(FIELDM*CHARG1)
+      ELSE
+         CFLD=BIG
+      ENDIF
+*
+* *** Compute current step size
+*
+      STEP   = STEMAX
+      IPROC  = 103
+      GEKRT1 = 1. -GEKRAT
+*
+*  **   Step limitation due to hadron interaction ?
+*
+      IF (IHADR.GT.0) THEN
++SELF, IF=-USRJMP
+         CALL GUPHAD
++SELF, IF=USRJMP
+         CALL JUMPT0(JUPHAD)
++SELF
+         IF (SHADR.LT.STEP) THEN
+            IF (SHADR.LE.0.) SHADR = PREC
+            STEP  = SHADR
+            IPROC = 12
+         ENDIF
+      ENDIF
+*
+*  ** Step limitation due to delta-ray production ?
+*       (Cannot be tabulated easily because dependent on AMASS)
+*
+      IF (IDRAY.GT.0) THEN
+         STEPDR = BIG
+         IF (GEKIN.GT.DCUTM) THEN
+            TMAX   = EMASS*GEKIN*GAMASS/(0.5*AMASS*AMASS+EMASS*GETOT)
+            IF (TMAX.GT.DCUTM) THEN
+               Y    = DCUTM/TMAX
+               SIG  = (1.-Y+BET2*Y*LOG(Y))/DCUTM
+*              extra term for spin 1/2
+               IF (AMASS.GT.0.9) SIG=SIG+0.5*(TMAX-DCUTM)/(GETOT*GETOT)
+               SIG = SIG*Q(JPROB+17)*CHARG2*EMASS/BET2
+*
+               IF (SIG.GT.0.) THEN
+                  STEPDR = 1./SIG
+                  SDRAY  = STEPDR*ZINTDR
+                  IF (SDRAY.LE.STEP) THEN
+                     STEP  = SDRAY
+                     IPROC = 10
+                  ENDIF
+               ENDIF
+            ENDIF
+         ENDIF
+      ENDIF
+*
+      IF (STEP.LE.0.) THEN
+         STEP  = 0.
+         GO TO 110
+      ENDIF
+*
+*  **   Step limitation due to energy loss (stopping range) ?
+*
+      IF (ILOSL.GT.0) THEN
+         IF(GEKRAT.LT.THRESH) THEN
+            I1 = MAX(IEKBIN-1,1)
+         ELSE
+            I1 = MIN(IEKBIN,NEKBIN-1)
+         ENDIF
+         I1 = 3*(I1-1)+1
+         XCOEF1 = Q(JCOEF+I1)
+         XCOEF2 = Q(JCOEF+I1+1)
+         XCOEF3 = Q(JCOEF+I1+2)
+         IF(XCOEF1.NE.0) THEN
+            STOPP = -XCOEF2+SIGN(ONE,XCOEF1)* SQRT(XCOEF2
+     +      **2 -(XCOEF3-GEKIN*RMASS/XCOEF1))
+         ELSE
+            STOPP = - (XCOEF3-GEKIN*RMASS)/XCOEF2
+         ENDIF
+         STOPMX = (STOPP - STOPC)/(RMASS*CHARG2)
+         IF (STOPMX.LT.MIN(STEP,STMIN)) THEN
+            STEP = STOPMX
+            IPROC = 0
+            IF(STEP.LE.0.)THEN
+               GO TO 100
+            ENDIF
+            GO TO 10
+         ENDIF
+         EKF = (1. - DEEMAX)*GEKIN*RMASS
+         IF (EKF.LT.ELOW(1)) THEN
+            EKF = ELOW(1)
+         ELSEIF (EKF.GE.ELOW(NEK1)) THEN
+            EKF = ELOW(NEK1)*0.99
+         ENDIF
+         IKF=GEKA*LOG10(EKF)+GEKB
+         GKR=(EKF-ELOW(IKF))/(ELOW(IKF+1)-ELOW(IKF))
+         IF(GKR.LT.THRESH) THEN
+            IK1 = MAX(IKF-1,1)
+         ELSE
+            IK1 = MIN(IKF,NEKBIN-1)
+         ENDIF
+         IK1 = 3*(IK1-1)+1
+         YCOEF1=Q(JCOEF+IK1)
+         YCOEF2=Q(JCOEF+IK1+1)
+         YCOEF3=Q(JCOEF+IK1+2)
+         IF(YCOEF1.NE.0.) THEN
+            SLOSP = -YCOEF2+SIGN(ONE,YCOEF1)*SQRT(YCOEF2**2- (YCOEF3-
+     +      EKF/YCOEF1))
+         ELSE
+            SLOSP = - (YCOEF3-EKF)/YCOEF2
+         ENDIF
+         SLOSP = STOPP - SLOSP
+         SLOSS = MAX(STMIN, SLOSP/(RMASS*CHARG2) )
+         IF (SLOSS.LT.STEP) THEN
+            STEP = SLOSS
+            IPROC = 0
+         ENDIF
+      ENDIF
+*
+*  **   Step limitation due to energy loss in magnetic field ?
+*
+      IF (IFIELD.NE.0) THEN
+         SFIELD = CFLD*VECT(7)
+         SFIELD=MAX(SFIELD, STMIN)
+         IF (SFIELD.LT.STEP) THEN
+            STEP  = SFIELD
+            IPROC = 0
+         ENDIF
+      ENDIF
+*
+*  **   Step limitation due to multiple scattering ?
+*
+      IF (IMULL.GT.0) THEN
+         SMULS=MIN(2232.*RADL*((VECT(7)**2)/(GETOT*CHARG1))**2,10.*RADL)
+         SMULS  = MAX(STMIN, SMULS )
+         IF (SMULS.LT.STEP) THEN
+            STEP  = SMULS
+            IPROC = 0
+         ENDIF
+      ENDIF
+*
+   10 CONTINUE
+*
+*  **   Step limitation due to Cerenkov production ?
+*
+      IF (IMCKOV.GT.0) THEN
+         CALL GNCKOV
+         STCKOV = MXPHOT/MAX(3.*DNDL,1E-10)
+         SMULS  = MAX(STMIN, STCKOV)
+         IF (SMULS.LT.STEP) THEN
+            STEP  = STCKOV
+            IPROC = 0
+         ENDIF
+      ENDIF
+*
+*  **   Step limitation due to geometry ?
+*
+      IF (STEP.GE.0.95*SAFETY) THEN
+         CALL GTNEXT
+         IF (IGNEXT.NE.0) THEN
+            STEP   = SNEXT + PREC
+            IPROC = 0
+         ENDIF
+*
+*        Update SAFETY in stack companions, if any
+         IF (IQ(JSTAK+3).NE.0) THEN
+            DO 20 IST = IQ(JSTAK+3),IQ(JSTAK+1)
+               JST    = JSTAK + 3 + (IST-1)*NWSTAK
+               Q(JST+11) = SAFETY
+   20       CONTINUE
+            IQ(JSTAK+3) = 0
+         ENDIF
+      ELSE
+         IQ(JSTAK+3) = 0
+      ENDIF
+*
+* *** Linear transport when no field or very short step
+*
+      IF (IFIELD.EQ.0.OR.STEP.LE.PREC) THEN
+*
+         IF (IGNEXT.NE.0) THEN
+            DO 30 I = 1,3
+               VECTMP  = VECT(I) +STEP*VECT(I+3)
+               IF(VECTMP.EQ.VECT(I)) THEN
+*
+* *** Correct for machine precision
+*
+                  IF(VECT(I+3).NE.0.) THEN
+                     VECTMP =
+     +               VECT(I)+ABS(VECT(I))*SIGN(1.,VECT(I+3))*EPSMAC
+                     IF(NMEC.GT.0) THEN
+                        IF(LMEC(NMEC).EQ.104) NMEC=NMEC-1
+                     ENDIF
+                     NMEC=NMEC+1
+                     LMEC(NMEC)=104
++SELF, IF=DEBUG.
+                     WRITE(CHMAIL, 10000)
+                     CALL GMAIL(0,0)
+                     WRITE(CHMAIL, 10100) GEKIN, NUMED, STEP, SNEXT
+                     CALL GMAIL(0,0)
+10000 FORMAT(' Boundary correction in GTHION: ',
+     +       '    GEKIN      NUMED       STEP      SNEXT')
+10100 FORMAT(31X,E10.3,1X,I10,1X,E10.3,1X,E10.3,1X)
++SELF
+                  ENDIF
+               ENDIF
+               VECT(I) = VECTMP
+   30       CONTINUE
+            INWVOL = 2
+            NMEC = NMEC +1
+            LMEC(NMEC) = 1
+         ELSE
+            DO 40 I = 1,3
+               VECT(I)  = VECT(I) +STEP*VECT(I+3)
+   40       CONTINUE
+         ENDIF
+      ELSE
+*
+* ***   otherwise, swim particle in magnetic field
+*
+         NMEC = NMEC +1
+         LMEC(NMEC) = 4
+*
++SELF, IF=-USRJMP
+   50    CALL GUSWIM (CHARG1, STEP, VECT, VOUT)
++SELF, IF=USRJMP
+   50    CALL JUMPT4(JUSWIM, CHARG1, STEP, VECT, VOUT)
++SELF
+*
+*  ** When near to boundary, take proper action (cut-step,crossing...)
+*
+         IF(STEP.GE.SAFETY)THEN
+            INEAR = 0
+            IF (IGNEXT.NE.0) THEN
+               DO 60 I = 1,3
+                  VNEXT(I+3) = VECT(I+3)
+                  VNEXT(I) = VECT(I) +SNEXT*VECT(I+3)
+   60          CONTINUE
+               DO I=1,3
+                 IF ((VOUT(I)-VNEXT(I)).GT.EPSIL) GOTO 70
+               ENDDO
+               INWVOL = 2
+               NMEC = NMEC +1
+               LMEC(NMEC) = 1
+               GOTO 80
+   70          CONTINUE
+               INEAR = 1
+            ENDIF
+*
++SELF, IF=-OLD
+            if(mycoun.gt.1.and.nfmany.gt.0.and.step.ge.safety)then
+              nlevel=manyle(nfmany)
+              do 99 i=1,nlevel
+                names(i)=manyna(nfmany,i)
+                number(i)=manynu(nfmany,i)
+ 99           continue
+              call glvolu(nlevel,names,number,ier)
+              if(ier.ne.0)print *,'Fatal error in GLVOLU'
+              ingoto=0
+            endif
++SELF
+            CALL GINVOL (VOUT, ISAME)
+            IF (ISAME.EQ.0)THEN
+               IF ((INEAR.NE.0).OR.(STEP.LT.EPSIL)) THEN
+                  INWVOL = 2
+                  NMEC = NMEC +1
+                  LMEC(NMEC) = 1
+               ELSE
+*              Cut step
+                  STEP = 0.5*STEP
+                  IF (LMEC(NMEC).NE.24) THEN
+                     NMEC = NMEC +1
+                     LMEC(NMEC) = 24
+                  ENDIF
+                  GO TO 50
+               ENDIF
+            ENDIF
+         ENDIF
+*
+   80    CONTINUE
+         DO 90 I = 1,6
+            VECT(I) = VOUT(I)
+   90    CONTINUE
+*
+      ENDIF
+*
+* *** Correct the step due to multiple scattering
+      IF (IMULL.NE.0) THEN
+         STMULS = STEP
+         CORR=0.0001*CHARG2*(STEP/RADL)*(GETOT/(VECT(7)*VECT(7)))**2
+         IF (CORR.GT.0.25) CORR = 0.25
+         STEP  = (1.+CORR)*STEP
+      ENDIF
+*
+      SLENG = SLENG + STEP
+*
+* *** Generate Cherenkov photons if required
+*
+      IF(IMCKOV.EQ.1) THEN
+         CALL GGCKOV
+         NMEC=NMEC+1
+         LMEC(NMEC)=105
+      ENDIF
+*
+* *** apply energy loss : find the kinetic energy corresponding
+*      to the new stopping range = stopmx - step
+*
+      IF (ILOSL.NE.0) THEN
+         NMEC = NMEC +1
+         LMEC(NMEC) = 3
+         STOPRG = STOPP - STEP*RMASS*CHARG2
+         IF (STOPRG.LE.STOPC) THEN
+            STEP = STOPMX
+            GO TO 100
+         ENDIF
+         IF(XCOEF1.NE.0.) THEN
+            EKIPR = XCOEF1*(XCOEF3+STOPRG*(2.*XCOEF2+STOPRG))
+         ELSE
+            EKIPR = XCOEF2*STOPRG+XCOEF3
+         ENDIF
+         DEMEAN=GEKIN - EKIPR/RMASS
+         IF(DEMEAN.LE.5.*GEKIN*EPSMAC) THEN
+            DEMEAN=(GEKRT1*Q(JLOSS+IEKBIN)+GEKRAT*Q(JLOSS+IEKBIN+1))
+     +             *STEP*CHARG2
+         ENDIF
+*
+*        fluctuations : differ from that of 'ordinary' hadrons
+*
+         IF (ILOSS.EQ.4.OR.IEKBIN.LE.IKCUT+1) THEN
+            DESTEP = DEMEAN
+         ELSE
+*
+*     Charge exchange fluctuations + Gaussian 'Landau' fluctuations
+*           (it is the same for ILOSS=1,2,3 !)
+*
+            SIGMA2=CNORM*CHARG1*(1.-CHARG1/CHARGE)
+*
+            TA = RMASS*GEKIN
+            TAM=TA/AMU
+            SIGMA2=SIGMA2+2.+TAM*(2.+TAM)
+*
+            SIGMA2=FACFLU*CHARG2*STEP*SIGMA2
+            SIGMA=SQRT(SIGMA2)
+*
+*     Check if we are in 'Gaussian' regime ...
+*
+            CAPPA=(1.+TAM)/(TAM*(2.+TAM)*EMASS)
+            CAPPA=0.5*CAPPA**2*FACFLU*CHARG2*STEP
+*
+*     ... if not , correct SIGMA !
+ 
+            IF(CAPPA.LT.10.) THEN
+               SIGMA=SIGMA/(0.97+0.03*SQRT(10./CAPPA))
+            ENDIF
+*
+            CALL GRNDM(RNDM,2)
+            DEFLUC=SIGMA*SIN(TWOPI*RNDM(1))*SQRT(-2.*LOG(RNDM(2)))
+            DESTEP=DEMEAN+DEFLUC
+         ENDIF
+*
+*     protection against negative destep
+*
+         IF(DESTEP.LT.0.) DESTEP=DEMEAN
+*                          IF (DESTEP.LT.0.) DESTEP = 0.
+         GEKINT = GEKIN -DESTEP
+         IF (GEKINT.LE.(1.01*CUTHAD)) GO TO 100
+         DESTEL = DESTEP
+         GEKIN  = GEKINT
+         GETOT  = GEKIN +AMASS
+         VECT(7)= SQRT((GETOT+AMASS)*GEKIN)
+         CALL GEKBIN
+      ENDIF
+*
+* *** Apply multiple scattering.
+*
+      IF (IMULL.NE.0) THEN
+         NMEC = NMEC +1
+         LMEC(NMEC) = 2
+*      check charge dependence ...........!!!!!!!  (later..)
+         CALL GMULTS
+      ENDIF
+*
+* *** Update time of flight
+*
+      SUMLIF = SUMLIF -STEP*AMASS/VECT(7)
+      TOFG   = TOFG +STEP*GETOT/(VECT(7)*CLIGHT)
+      IF (TOFG.GE.TOFMAX) THEN
+         ISTOP = 4
+         NMEC  = NMEC +1
+         LMEC(NMEC) = 22
+         GO TO 999
+      ENDIF
+*
+* *** Update interaction probabilities
+*
+      IF (IHADR.GT.0) ZINTHA = ZINTHA*(1.-STEP/SHADR)
+      IF (IDRAY.GT.0) ZINTDR = ZINTDR -STEP/STEPDR
+*
+      GO TO 110
+*
+*  **   Special treatment for overstopped tracks
+*
+  100 DESTEP = GEKIN
+      DESTEL = DESTEP
+      GEKIN  = 0.
+      GETOT  = AMASS
+      VECT(7)= 0.
+      INWVOL = 0
+      ISTOP  = 2
+      NMEC = NMEC + 1
+      LMEC(NMEC) = 30
+      IF (IHADR.EQ.0) GO TO 999
+      IPROC = 12
+*
+* *** apply slected process if any
+*
+  110 IF (IPROC.EQ.0) GO TO 999
+      NMEC = NMEC +1
+      LMEC(NMEC) = IPROC
+*
+*  **   Hadron interaction ?
+*
+      IF (IPROC.EQ.12) THEN
++SELF, IF=-USRJMP
+         CALL GUHADR
++SELF, IF=USRJMP
+         CALL JUMPT0(JUHADR)
++SELF
+*   *   Check time cut-off for decays at rest
+         IF (LMEC(NMEC).EQ.5) THEN
+            TOFG   = TOFG +SUMLIF/CLIGHT
+            SUMLIF = 0.
+            IF (TOFG.GE.TOFMAX) THEN
+               NGKINE = 0
+               ISTOP  = 4
+               LMEC(NMEC) = 22
+            ENDIF
+         ENDIF
+*
+*  **   Delta-ray ?
+*
+      ELSE IF (IPROC.EQ.10) THEN
+         CALL GDRAY
+      ENDIF
+  999 END
+      SUBROUTINE GTMUON
+C.
+C.    ******************************************************************
+C.    *                                                                *
+C.    *   Muon track. Computes step size and propagates particle       *
+C.    *    through step.                                               *
+C.    *                                                                *
+C.    *   ==>Called by : GTRACK                                        *
+C.    *      Authors     R.Brun, F.Bruyant, M.Maire ********           *
+C.    *                                                                *
+C.    ******************************************************************
+C.
++CDE, GCBANK.
++CDE, GCCUTS.
++CDE, GCJLOC.
++CDE, GCKINE.
++CDE, GCMATE.
++CDE, GCMULO.
++SEQ, GCONSP.
++CDE, GCPHYS.
++CDE, GCSTAK.
++CDE, GCTMED.
++CDE, GCTRAK.
++CDE, GCUNIT.
++CDE, GCKING.
++SEQ, GCJUMP, IF=USRJMP
+ 
++SELF, IF=-OLD
++CDE, GCVOLU.
++SEQ, GCVDMA.
++SELF
++SELF, IF=-SINGLE
+      PARAMETER (EPSMAC=1.E-6)
+      DOUBLE PRECISION DEMEAN,STOPRG,STOPMX,STOPC
+      DOUBLE PRECISION ONE,XCOEF1,XCOEF2,XCOEF3
++SELF, IF=SINGLE
+      PARAMETER (EPSMAC=1.E-11)
++SELF
+      PARAMETER (ONE=1)
+      REAL VNEXT(6)
+      SAVE IKCUT,STOPC
+C.
+C.    ------------------------------------------------------------------
+*
+* *** Particle below energy threshold ? short circuit
+*
+      IF (GEKIN.LE.CUTMUO) GO TO 100
+*
+* *** Update local pointers if medium has changed
+      IF (IUPD.EQ.0) THEN
+         IUPD  = 1
+         JLOSS = LQ(JMA-2)
+         JBREM = LQ(JMA-9)
+         JPAIR = LQ(JMA-10)
+         JDRAY = LQ(JMA-11)
+         JMUNU = LQ(JMA-14)
+         JRANG = LQ(JMA-16)
+         JCOEF = LQ(JMA-18)
+         JMULOF= LQ(JTM-2)
+         IF(IMCKOV.EQ.1) THEN
+            JTCKOV = LQ(JTM-3)
+            JABSCO = LQ(JTCKOV-1)
+            JEFFIC = LQ(JTCKOV-2)
+            JINDEX = LQ(JTCKOV-3)
+            JCURIN = LQ(JTCKOV-4)
+            NPCKOV = Q(JTCKOV+1)
+         ENDIF
+         OMCMOL= Q(JPROB+21)
+         CHCMOL= Q(JPROB+25)
+         IKCUT = Q(JMULOF+NEK1+1)
+         STOPC = Q(JMULOF+NEK1+2)
+         IF(ISTRA.GT.0) THEN
+            JTSTRA = LQ(JMA-19)
+            JTSTCO = LQ(JTSTRA-1)
+            JTSTEN = LQ(JTSTRA-2)
++SELF,IF=ASHO
+            IF(ISTRA.EQ.2) THEN
+               JTASHO = LQ(JMA-20)
+            ENDIF
++SELF
+         ENDIF
+      ENDIF
+*
+* *** Compute current step size
+*
+      STEP   = STEMAX
+      IPROC  = 103
+      GEKRT1 = 1. -GEKRAT
+      IEK1   = IEKBIN+NEK1
+      IEK2   = IEKBIN+2*NEK1
+*
+*  **   Step limitation due to bremsstrahlung ?
+*
+      IF (IBREM.GT.0) THEN
+         STEPBR = GEKRT1*Q(JBREM+IEK2) +GEKRAT*Q(JBREM+IEK2+1)
+         SBREM  = STEPBR*ZINTBR
+         IF (SBREM.LT.STEP) THEN
+            STEP  = SBREM
+            IPROC = 9
+         ENDIF
+      ENDIF
+*
+*  **   Step limitation due to pair production ?
+*
+      IF (IPAIR.GT.0) THEN
+         STEPPA = GEKRT1*Q(JPAIR+IEK1) +GEKRAT*Q(JPAIR+IEK1+1)
+         SPAIR  = STEPPA*ZINTPA
+         IF (SPAIR.LT.STEP) THEN
+            STEP  = SPAIR
+            IPROC = 6
+         ENDIF
+      ENDIF
+*
+*  **   Step limitation due to decay ?
+*
+      IF (IDCAY.NE.0) THEN
+         SDCAY = SUMLIF*VECT(7)/AMASS
+         IF (SDCAY.LT.STEP) THEN
+            STEP  = SDCAY
+            IPROC = 5
+         ENDIF
+      ENDIF
+*
+*  **   Step limitation due to delta-ray ?
+*
+      IF (IDRAY.GT.0) THEN
+         STEPDR = GEKRT1*Q(JDRAY+IEK2) +GEKRAT*Q(JDRAY+IEK2+1)
+         SDRAY  = STEPDR*ZINTDR
+         IF (SDRAY.LT.STEP) THEN
+            STEP  = SDRAY
+            IPROC = 10
+         ENDIF
+      ENDIF
+*
+*  **   Step limitation due to nuclear interaction ?
+*
+      IF (IMUNU.GT.0) THEN
+         IF(GEKIN.GE.5.)THEN
+            STEPMU = GEKRT1*Q(JMUNU+IEKBIN) +GEKRAT*Q(JMUNU+IEKBIN+1)
+            SMUNU = STEPMU*ZINTMU
+            IF (SMUNU.LT.STEP) THEN
+               STEP  = SMUNU
+               IPROC = 21
+            ENDIF
+         ELSE
+            STEPMU = BIG
+         ENDIF
+      ENDIF
+*
+      IF (STEP.LE.0.) THEN
+         STEP = 0.
+         GO TO 90
+      ENDIF
+*
+*  **   Step limitation due to energy-loss,multiple scattering
+*             or magnetic field ?
+*
+      IF (JMULOF.NE.0) THEN
+         SMULOF  = GEKRT1*Q(JMULOF+IEKBIN) +GEKRAT*Q(JMULOF+IEKBIN+1)
+         IF (SMULOF.LT.STEP) THEN
+            STEP  = SMULOF
+            IPROC = 0
+         ENDIF
+      ENDIF
+*
+*  **   Step limitation due to geometry ?
+*
+      IF (STEP.GE.0.95*SAFETY) THEN
+         CALL GTNEXT
+         IF (IGNEXT.NE.0) THEN
+            STEP  = SNEXT + PREC
+            IPROC = 0
+         ENDIF
+*
+*        Update SAFETY in stack companions, if any
+         IF (IQ(JSTAK+3).NE.0) THEN
+            DO 10 IST = IQ(JSTAK+3),IQ(JSTAK+1)
+               JST    = JSTAK + 3 + (IST-1)*NWSTAK
+               Q(JST+11) = SAFETY
+   10       CONTINUE
+            IQ(JSTAK+3) = 0
+         ENDIF
+      ELSE
+         IQ(JSTAK+3) = 0
+      ENDIF
+*
+* *** Linear transport when no field or very short step
+*
+      IF (IFIELD.EQ.0.OR.STEP.LE.PREC) THEN
+*
+         IF (IGNEXT.NE.0) THEN
+            DO 20 I = 1,3
+               VECTMP  = VECT(I) +STEP*VECT(I+3)
+               IF(VECTMP.EQ.VECT(I)) THEN
+*
+* *** Correct for machine precision
+*
+                  IF(VECT(I+3).NE.0.) THEN
+                     VECTMP =
+     +               VECT(I)+ABS(VECT(I))*SIGN(1.,VECT(I+3))*EPSMAC
+                     IF(NMEC.GT.0) THEN
+                        IF(LMEC(NMEC).EQ.104) NMEC=NMEC-1
+                     ENDIF
+                     NMEC=NMEC+1
+                     LMEC(NMEC)=104
++SELF, IF=DEBUG.
+                     WRITE(CHMAIL, 10000)
+                     CALL GMAIL(0,0)
+                     WRITE(CHMAIL, 10100) GEKIN, NUMED, STEP, SNEXT
+                     CALL GMAIL(0,0)
+10000 FORMAT(' Boundary correction in GTMUON: ',
+     +       '    GEKIN      NUMED       STEP      SNEXT')
+10100 FORMAT(31X,E10.3,1X,I10,1X,E10.3,1X,E10.3,1X)
++SELF
+                  ENDIF
+               ENDIF
+               VECT(I) = VECTMP
+   20       CONTINUE
+            INWVOL = 2
+            NMEC = NMEC +1
+            LMEC(NMEC) = 1
+         ELSE
+            DO 30 I = 1,3
+               VECT(I)  = VECT(I) +STEP*VECT(I+3)
+   30       CONTINUE
+         ENDIF
+      ELSE
+*
+* ***   otherwise, swim particle in magnetic field
+*
+ 
+         NMEC = NMEC +1
+         LMEC(NMEC) = 4
+*
++SELF, IF=-USRJMP
+   40    CALL GUSWIM (CHARGE, STEP, VECT, VOUT)
++SELF, IF=USRJMP
+   40    CALL JUMPT4(JUSWIM, CHARGE, STEP, VECT, VOUT)
++SELF
+*
+*  ** When near to boundary, take proper action (cut-step,crossing...)
+*
+         IF(STEP.GE.SAFETY)THEN
+            INEAR = 0
+            IF (IGNEXT.NE.0) THEN
+               DO 50 I = 1,3
+                  VNEXT(I+3) = VECT(I+3)
+                  VNEXT(I) = VECT(I) +SNEXT*VECT(I+3)
+   50          CONTINUE
+               DO I=1,3
+                 IF (ABS(VOUT(I)-VNEXT(I)).GT.EPSIL) GOTO 60
+               ENDDO
+               INWVOL = 2
+               NMEC = NMEC +1
+               LMEC(NMEC) = 1
+               GOTO 70
+   60          CONTINUE
+               INEAR = 1
+            ENDIF
+*
++SELF, IF=-OLD
+            if(mycoun.gt.1.and.nfmany.gt.0.and.step.ge.safety)then
+              nlevel=manyle(nfmany)
+              do 99 i=1,nlevel
+                names(i)=manyna(nfmany,i)
+                number(i)=manynu(nfmany,i)
+ 99           continue
+              call glvolu(nlevel,names,number,ier)
+              if(ier.ne.0)print *,'Fatal error in GLVOLU'
+              ingoto=0
+            endif
++SELF
+            CALL GINVOL (VOUT, ISAME)
+            IF (ISAME.EQ.0)THEN
+               IF ((INEAR.NE.0).OR.(STEP.LT.EPSIL)) THEN
+                  INWVOL = 2
+                  NMEC = NMEC +1
+                  LMEC(NMEC) = 1
+               ELSE
+*              Cut step
+                  STEP = 0.5*STEP
+                  IF (LMEC(NMEC).NE.24) THEN
+                     NMEC = NMEC +1
+                     LMEC(NMEC) = 24
+                  ENDIF
+                  GO TO 40
+               ENDIF
+            ENDIF
+         ENDIF
+   70    CONTINUE
+*
+         DO 80 I = 1,6
+            VECT(I) = VOUT(I)
+   80    CONTINUE
+*
+      ENDIF
+*
+* *** Correct the step due to multiple scattering
+      IF (IMULL.NE.0) THEN
+         STMULS = STEP
+         CORR=0.0001*(STEP/RADL)*(GETOT/(VECT(7)*VECT(7)))**2
+         IF (CORR.GT.0.25) CORR = 0.25
+         STEP  = (1.+CORR)*STEP
+      ENDIF
+*
+      SLENG = SLENG + STEP
+*
+* *** Generate Cherenkov photons if required
+*
+      IF(IMCKOV.EQ.1) THEN
+         CALL GGCKOV
+         IF(NGPHOT.NE.0) THEN
+            NMEC=NMEC+1
+            LMEC(NMEC)=105
+         ENDIF
+      ENDIF
+*
+* *** apply energy loss : find the kinetic energy corresponding
+*      to the new stopping range = stopmx - step
+*
+      IF (ILOSL.NE.0) THEN
+         NMEC = NMEC +1
+         LMEC(NMEC) = 3
+         IF(GEKRAT.LT.0.7) THEN
+            I1 = MAX(IEKBIN-1,1)
+         ELSE
+            I1 = MIN(IEKBIN,NEKBIN-1)
+         ENDIF
+         I1 = 3*(I1-1)+1
+         XCOEF1 = Q(JCOEF+I1)
+         XCOEF2 = Q(JCOEF+I1+1)
+         XCOEF3 = Q(JCOEF+I1+2)
+         IF(XCOEF1.NE.0.) THEN
+            STOPMX = -XCOEF2+SIGN(ONE,XCOEF1)*SQRT(XCOEF2**2 - (XCOEF3-
+     +      GEKIN/XCOEF1))
+         ELSE
+            STOPMX = - (XCOEF3-GEKIN)/XCOEF2
+         ENDIF
+         STOPRG = STOPMX - STEP
+         IF (STOPRG.LT.STOPC) THEN
+            STEP = STOPMX - STOPC
+            GO TO 100
+         ENDIF
+*
+         IF(XCOEF1.NE.0.) THEN
+            DEMEAN=GEKIN-XCOEF1*(XCOEF3+STOPRG*(2.*XCOEF2+STOPRG))
+         ELSE
+            DEMEAN=GEKIN-XCOEF2*STOPRG-XCOEF3
+         ENDIF
+         IF(DEMEAN.LE.5.*GEKIN*EPSMAC) THEN
+            DEMEAN=(GEKRT1*Q(JLOSS+IEKBIN)+GEKRAT*Q(JLOSS+IEKBIN+1))
+     +      *STEP
+         ENDIF
+         IF (ILOSS.EQ.4.OR.IEKBIN.LE.IKCUT+1) THEN
+            DESTEP = DEMEAN
+         ELSE
+            DEMS = DEMEAN
+            CALL GFLUCT(DEMS,DESTEP)
+         ENDIF
+         IF (DESTEP.LT.0.) DESTEP = 0.
+         GEKINT = GEKIN -DESTEP
+         IF (GEKINT.LE.(1.01*CUTMUO)) GO TO 100
+         DESTEL = DESTEP
+         GEKIN  = GEKINT
+         GETOT  = GEKIN +AMASS
+         VECT(7)= SQRT((GETOT+AMASS)*GEKIN)
+         CALL GEKBIN
+      ENDIF
+*
+* *** Apply multiple scattering.
+*
+      IF (IMULL.NE.0) THEN
+         NMEC   = NMEC +1
+         LMEC(NMEC) = 2
+         CALL GMULTS
+      ENDIF
+*
+* *** Update time of flight
+*
+      SUMLIF = SUMLIF -STEP*AMASS/VECT(7)
+      TOFG = TOFG +STEP*GETOT/(VECT(7)*CLIGHT)
+      IF (TOFG.GE.TOFMAX) THEN
+         ISTOP = 4
+         NMEC  = NMEC +1
+         LMEC(NMEC) = 22
+         GO TO 999
+      ENDIF
+*
+* *** Update interaction probabilities
+*
+      IF (IBREM.GT.0) ZINTBR = ZINTBR -STEP/STEPBR
+      IF (IPAIR.GT.0) ZINTPA = ZINTPA -STEP/STEPPA
+      IF (IDRAY.GT.0) ZINTDR = ZINTDR -STEP/STEPDR
+      IF (IMUNU.GT.0) ZINTMU = ZINTMU -STEP/STEPMU
+*
+* ***   otherwise, apply the selected process if any
+*
+   90 IF (IPROC.EQ.0) GO TO 999
+      NMEC = NMEC +1
+      LMEC(NMEC) = IPROC
+*
+*  **   Bremsstrahlung ?
+*
+      IF (IPROC.EQ.9) THEN
+         CALL GBREMM
+*
+*  **   Pair production ?
+*
+      ELSE IF (IPROC.EQ.6) THEN
+         CALL GPAIRM
+*
+*  **   Decay ?
+*
+      ELSE IF (IPROC.EQ.5) THEN
+         ISTOP = 1
+         CALL GDECAY
+*
+*  **   Delta-ray ?
+*
+      ELSE IF (IPROC.EQ.10) THEN
+         CALL GDRAY
+*
+*  **   Nuclear interaction ?
+*
+      ELSE IF (IPROC.EQ.21) THEN
+         CALL GMUNU
+      ENDIF
+      GO TO 999
+*
+* *** Special treatment for overstopped tracks
+*
+  100 DESTEP = GEKIN
+      DESTEL = DESTEP
+      GEKIN  = 0.
+      GETOT  = AMASS
+      VECT(7)= 0.
+      INWVOL = 0
+      NMEC   = NMEC +1
+      LMEC(NMEC) = 30
+      IF (IDCAY.EQ.0) THEN
+         ISTOP = 2
+      ELSE
+         NMEC   = NMEC +1
+         TOFG   = TOFG +SUMLIF/CLIGHT
+         SUMLIF = 0.
+         IF (TOFG.GE.TOFMAX) THEN
+            ISTOP = 4
+            LMEC(NMEC) = 22
+            GO TO 999
+         ENDIF
+         LMEC(NMEC) = 5
+         ISTOP = 1
+         CALL GDECAY
+      ENDIF
+  999 IF(NGPHOT.GT.0) THEN
+         IF(ITCKOV.EQ.2.AND.ISTOP.EQ.0) THEN
+*
+*  The muon has produced Cerenkov photons and it is still alive
+*  we put it in the stack and we let the photons to be tracked
+            NGKINE = NGKINE+1
+            GKIN(1,NGKINE) = VECT(4)*VECT(7)
+            GKIN(2,NGKINE) = VECT(5)*VECT(7)
+            GKIN(3,NGKINE) = VECT(6)*VECT(7)
+            GKIN(4,NGKINE) = GETOT
+            GKIN(5,NGKINE) = IPART
+            TOFD(NGKINE) = 0.
+            ISTOP = 1
+c----put position as well
+            GPOS(1,NGKINE)=VECT(1)
+            GPOS(2,NGKINE)=VECT(2)
+            GPOS(3,NGKINE)=VECT(3)
+         ENDIF
+      ENDIF
+      END
 +PATCH,DZDOC. =================================================================
 *CMZ :  1.00/01 02/02/96  12.36.40  by  G. Poulard
 +DECK,DZE2HT. ----------------------------------------------------------------
@@ -28868,165 +31040,6 @@ C-    may be user called with IDP > 100
  
  
  
-+DECK, MZGAR1,IF=test.
-*CMZ :  1.30/00 16/03/97  22.41.45  by  Pavel Nevski
-*-- Author :
-      SUBROUTINE MZGAR1
- 
-C-    Garbage collect division JQDIVI for not enough space
-C-    System called
- 
-+CDE, ZSTATE, ZUNIT.
-+CDE, MQSYS, MZCN, MZCT.
-C--------------    End CDE                             --------------
-+SELF, IF=QTRHOLL, IF=-A6M.
-      DIMENSION    NAMESR(2)
-      DATA  NAMESR / 4HMZGA, 4HR1   /
-+SELF, IF=QTRHOLL, IF=A6M.
-      DATA  NAMESR / 6HMZGAR1 /
-+SELF, IF=-QTRHOLL.
-      CHARACTER    NAMESR*8
-      PARAMETER   (NAMESR = 'MZGAR1  ')
-+SELF.
- 
-+SEQ, Q$JBIT, Q$SBIT.
- 
- 
-+SEQ, QTRACE.
-+SELF, IF=QDEBUG.
-      IQVREM(1,1) = IQVID(1)
-      IQVREM(2,1) = IQVID(2)
-+SELF.
- 
-C----              Construct Memory Occupation table
- 
-      MQDVGA = 0
-      MQDVWI = 0
- 
-      IF (JQDIVI.LT.3)             GO TO 24
-      MQDVGA = MSBIT1 (0,JQDIVI)
-      JQDVM2 = JQDIVI - JQMODE
-      IF (JQDVM2.EQ.JQDVSY-1)  JQDVM2=JQDVLL
-      JQDVM1 = 2
-      JQSTMV = JQSTOR
-      IQTNMV = 0
-      IF (JQSHAR.EQ.0)             GO TO 29
-      MQDVGA = MSBIT1 (MQDVGA,JQSHAR)
-      GO TO 29
- 
-   24 MQDVGA = 3
-      JQSTMV = -1
-   29 NQDVMV = 0
-      NRESAV = NQRESV
-+SELF, IF=QDEBPRI, IF=-QTRHOLL, A6M.
-      IF (NQLOGL.GE.1)  WRITE (IQLOG,9028) MQTRAC(NQTRAC-1),
-     +                      JQSTOR,JQDIVI,NQRESV
- 9028 FORMAT (' MZGAR1-  Auto Garbage Collection called from ',A6,
-     F' for Store/Div',2I3,' Free',I7)
-+SELF, IF=QDEBPRI, IF=QTRHOLL, IF=-A6M.
-      IF (NQLOGL.GE.1)  WRITE (IQLOG,9028) MQTRAC(NQTRAC-3),
-     +                      MQTRAC(NQTRAC-2),JQSTOR,JQDIVI,NQRESV
- 9028 FORMAT (' MZGAR1-  Auto Garbage Collection called from ',2A4,
-     F' for Store/Div',2I3,' Free',I7)
-+SELF, IF=QDEVZE.
-      IF (NQDEVZ.GE.7)
-     +WRITE (IQLOG,9829) JQDIVI,JQSHAR,NQRESV
- 9829 FORMAT (1X/' DEVZE MZGAR1 entered,  JQDIVI,JQSHAR,NQRESV= ',3I8)
-+SELF.
-      CALL MZTABM
- 
-C--                Construct Link Relocation table
- 
-      CALL MZTABR
-      NQRESV = NQRESV + NQFREE
-      IF (NQRESV.GE.0)             GO TO 51
-      IF (IQPART.NE.0)             GO TO 51
-      IF (JQDIVI.LT.3)             GO TO 72
- 
-C----              Shift division if not enough space
- 
-      NRESV1 = LQSTA(KQT+2) - LQEND(KQT+1) - NQMINR
-      NRESV1 = MIN (NRESV1,LQEND(KQT+2)-LQ2END)
- 
-C--                Forward division
- 
-      IF (JQMODE.NE.0)             GO TO 34
-      IF (JQSHAR.NE.0)  THEN
-          NPOSSH = NQDMAX(KQT+JQDIVI) + NQDMAX(KQT+JQDIVN)
-     +             -(LQEND(KQT+JQDIVN) - LQSTA(KQT+JQDIVI))
-          GO TO 36
-        ELSE
-          NPOSSH = LQSTA(KQT+JQDIVI) + NQDMAX(KQT+JQDIVI)
-     +             - LQSTA(KQT+JQDIVN)
-          GO TO 36
-        ENDIF
- 
-C--                Reverse division
- 
-   34 IF (JQSHAR.NE.0)  THEN
-          NPOSSH = NQDMAX(KQT+JQDIVI) + NQDMAX(KQT+JQDIVN)
-     +             -(LQEND(KQT+JQDIVI) - LQSTA(KQT+JQDIVN))
-        ELSE
-          NPOSSH = LQEND(KQT+JQDIVN)
-     +             - (LQEND(KQT+JQDIVI) - NQDMAX(KQT+JQDIVI))
-        ENDIF
- 
-   36 NSH = (LQEND(KQT+JQDIVI)-LQSTA(KQT+JQDIVI)) / 8
-      NSH = MAX (NSH,24) - NQRESV
-      NSH = MIN (NSH, NPOSSH, NRESV1)
- 
-      IF (NSH+NQRESV.LT.0)         GO TO 72
- 
-+SELF, IF=QDEVZE.
-      IF (NQDEVZ.GE.7)
-     +WRITE (IQLOG,9836) JQDIVI,JQSHAR,NQRESV
-     +,           NRESV1,NPOSSH,NSH
-     +,           JQGAPM,JQGAPR
- 9836 FORMAT (' DEVZE MZGAR1,  JQDIVI,JQSHAR,NQRESV=    ',3I8/
-     F16X,'NRESV1,NPOSSH,NSH=',3I8/
-     F16X,'JQGAPM,JQGAPR=    ',2I8)
-+SELF.
-      NQRESV = NQRESV + NSH
-      NQDVMV = - NSH
-      CALL MZTABS
- 
-C----              Relocate + memory move
- 
-   51 NWIN = NQRESV - NRESAV
-+SELF, IF=QDEBPRI.
-      IF (NQLOGL.GE.1)  WRITE (IQLOG,9051) NWIN,NQDVMV
- 9051 FORMAT (10X,'Wins',I7,' words, Shift by',I7)
-+SELF.
-      CALL MZTABX
-      CALL MZTABF
-      IF   (NQNOOP)          68, 53, 67
-   53 CALL MZGSTA (NQDGAF(KQT+1))
-      CALL MZRELX
-   67 CALL MZMOVE
-   68 IF (NQRESV.LT.0)             GO TO 71
-+SEQ, QTRACE99.
-      RETURN
- 
-C--------          Not enough space
- 
-   71 IF (IQPART.NE.0)             GO TO 29
-   72 IQUEST(11) = NQRESV
-      IQUEST(12) = JQSTOR
-      IQUEST(13) = JQDIVI
- 
-*     WRITE (IQLOG,9072) NQRESV
- 9072 FORMAT (10X,'Not enough space, Free',I7)
- 
-      IF (NQPERM.NE.0)             GO TO 999
-      IF (JQKIND.EQ.1)             CALL ZTELL (99,1)
- 
-C------            Error conditions
- 
-      NQCASE = 1
-      NQFATA = 1
-+SEQ, QTOFATAL.
-      END
-+SEQ, QCARDL.      ==================================================
 +DECK,zfatam.
 *CMZ :  1.30/00 19/03/97  21.37.20  by  Pavel Nevski
 *-- Author :    Pavel Nevski   16/03/97
@@ -32622,7 +34635,7 @@ delta-electron production in detector itself.
  
  
 +DECK,agsuser. ------------------------------------------------------------------
-*CMZ :          19/07/97  14.41.41  by  Pavel Nevski
+*CMZ :          27/05/98  23.06.11  by  Pavel Nevski
 *CMZ :  1.30/00 29/04/97  23.40.13  by  Pavel Nevski
 *-- Author :    Pavel Nevski   29/03/97
 c***********************************************************************
@@ -32728,7 +34741,7 @@ c***  Get command and number of parameters passed
 *        - - - -
             call kugets (string1, length1)
             inquire (file=string1(1:length1), exist=exist)
-            if ( .not. exist  ) then
+            if ( Input.gt.0 .and. .not.exist ) then
                write(6,*)' file ',string1(1:length1),' does not exist'
                goto 500
             endif
@@ -32758,7 +34771,10 @@ c***  Get command and number of parameters passed
                 C='t'
             else
                 Iadr=CSADDR('agusopen')
-                if (Iadr.eq.0) goto 490
+                if (Iadr.eq.0) then
+                   print *,' AgSUSER: no agusopen found for this input'
+                   goto 500
+                endif
 *               Comis pass whole words only (both start and length !)
                 L1    = 4*((Length1+3)/4)
                 call CSJCAL(Iadr,2,string1(1:L1))
@@ -34016,7 +36032,7 @@ int getarg_ (int *k, char *args, int n)
        call agmain
        end
 +DECK,astaf,T=CC. -----------------------------------------------------------
-/*CMZ :          03/05/98  23.37.03  by  Pavel Nevski*/
+/*CMZ :          29/05/98  10.46.34  by  Pavel Nevski*/
 /*-- Author :    Pavel Nevski   28/11/97*/
 /*****************************************************/
 /*               S T A F   i n t e r f a c e         */
@@ -34058,8 +36074,9 @@ typedef struct XdfLun_t
 /*---------------------------------------------------------------------------*/
 /*                         p r o t o t y p e s                               */
  
+/* extern "C"  int  dsTypeSpecifier (char**, unsigned*, int); */
+ 
 extern "C" void  staf_banner     (FILE* stream);
-extern "C"  int  dsTypeSpecifier (char**, int*, int);
 extern CC_P int  ami_load        (amiBroker *broker);
 int              ami_load        (amiBroker *broker) {return 1;}
  
@@ -34156,7 +36173,7 @@ extern "C" int tdm_new_table_ (char* name, char* spec, int* n, int ln, int ls)
  
 extern "C" int tdm_find_spec_(char* c, int lc)
 {
-  char *pSpec; int i,lspec=0;
+  char *pSpec;  int i;  unsigned lspec=0;
   for (i=1;;i++)
   { if (!dsTypeSpecifier(&pSpec, &lspec, i)) return 0;
     if (strstr(pSpec,c)) return i;
@@ -34798,6 +36815,7 @@ End;
 END
  
 +DECK,XGINT,T=geant.
+*CMZ :          12/05/98  14.44.06  by  Pavel Nevski
 *CMZ :  1.00/00 07/05/95  13.12.49  by  Pavel Nevski
 *-- Author :    Pavel Nevski
 **********************************************************************
@@ -34816,6 +36834,44 @@ END
  {  Y=OTB; OTB=0; D=(B-A)*.5/N;
     DO I=1,N  { DO K=1,M  { OTB+=W(K)*EXT(A+D*(2*I-1+U(K)))*D; } }
     XGINT=OTB;  N=2*N;  IF N>100000 { Print *,'XGINT Divergence !!!'; Return;}
+ } While EPS>0 & ABS(OTB-Y)>ABS(EPS*OTB)
+END
+ 
+**********************************************************************
+      function    X G I N T 1   (EXT,A,B,EPS)
+*   Description:  famous integration procedure                       *
+**********************************************************************
+  Implicit None
+  External EXT
+  Integer  M,N,I,K
+  Real     XGINT1,A,B,Eps,OTB,Y,W(4),U(4),D,Ext
+  DATA     M/4/,
+  U/-.8611363,-.3399810, .3399810 ,.8611363/,
+  W/ .3478548, .6521452, .6521452, .3478548/
+ 
+ N=10;  OTB=0;  Loop
+ {  Y=OTB; OTB=0; D=(B-A)*.5/N;
+    DO I=1,N  { DO K=1,M  { OTB+=W(K)*EXT(A+D*(2*I-1+U(K)))*D; } }
+    XGINT1=OTB;  N=2*N;  IF N>100000 { Print *,'XGINT1 Divergence !!!'; Return}
+ } While EPS>0 & ABS(OTB-Y)>ABS(EPS*OTB)
+END
+ 
+**********************************************************************
+      function    X G I N T 2   (EXT,A,B,EPS)
+*   Description:  famous integration procedure                       *
+**********************************************************************
+  Implicit None
+  External EXT
+  Integer  M,N,I,K
+  Real     XGINT2,A,B,Eps,OTB,Y,W(4),U(4),D,Ext
+  DATA     M/4/,
+  U/-.8611363,-.3399810, .3399810 ,.8611363/,
+  W/ .3478548, .6521452, .6521452, .3478548/
+ 
+ N=10;  OTB=0;  Loop
+ {  Y=OTB; OTB=0; D=(B-A)*.5/N;
+    DO I=1,N  { DO K=1,M  { OTB+=W(K)*EXT(A+D*(2*I-1+U(K)))*D; } }
+    XGINT2=OTB;  N=2*N;  IF N>100000 { Print *,'XGINT2 Divergence !!!'; Return}
  } While EPS>0 & ABS(OTB-Y)>ABS(EPS*OTB)
 END
  
@@ -36941,9 +38997,9 @@ C        Pop up; QIKS is finished when LEVL returns to 0
       END
  
 +PATCH,COMIS. =================================================================
-*CMZ :  1.30/00 25/01/97  03.42.29  by  Pavel Nevski
-+DECK,CSINIT. -----------------------------------------------------------------
-*CMZ :          10/11/97  12.13.09  by  Pavel Nevski
+*CMZ :          28/05/98  21.47.32  by  Pavel Nevski
++DECK,CSINIT,if=comisf. -------------------------------------------------------
+*CMZ :          28/05/98  21.47.32  by  Pavel Nevski
 *CMZ :  1.30/00 22/04/97  15.56.15  by  Pavel Nevski
 *-- Author : V.Berezhnoi
          SUBROUTINE CSINIT(NW)
@@ -37095,8 +39151,8 @@ C        Pop up; QIKS is finished when LEVL returns to 0
       RETURN
       END
  
-+DECK,CSLINK. -----------------------------------------------------------------
-*CMZ :          23/05/97  18.43.27  by  Pavel Nevski
++DECK,CSLINK,if=comisf. -------------------------------------------------------
+*CMZ :          28/05/98  21.47.33  by  Pavel Nevski
 *CMZ :  1.30/00 22/04/97  15.56.16  by  Pavel Nevski
 *CMZ :  1.18/14 16/01/95  11.45.29  by  Vladimir Berezhnoi
 *-- Author : V.Berezhnoi
@@ -37166,8 +39222,8 @@ C        Pop up; QIKS is finished when LEVL returns to 0
       GO TO 3
   5   END
  
-+DECK,CSMAP. ------------------------------------------------------------------
-*CMZ :          31/10/97  13.20.19  by  Pavel Nevski
++DECK,CSMAP,if=comisf. --------------------------------------------------------
+*CMZ :          28/05/98  21.47.33  by  Pavel Nevski
 *CMZ :  1.18/14 19/09/94  10.05.14  by  Vladimir Berezhnoi
 *-- Author : V.Berezhnoi
       SUBROUTINE CSMAP(NAME)
@@ -37204,8 +39260,8 @@ C        Pop up; QIKS is finished when LEVL returns to 0
       ENDIF
       END
  
-+DECK,CSFILE. -----------------------------------------------------------------
-*CMZ :          10/11/97  12.13.09  by  Pavel Nevski
++DECK,CSFILE,if=csfile. -------------------------------------------------------
+*CMZ :          28/05/98  21.47.33  by  Pavel Nevski
 *CMZ :  1.18/14 20/09/94  14.48.52  by  Fons Rademakers
 *-- Author : V.Berezhnoi
 ************************************************************************
@@ -37315,8 +39371,8 @@ C        Pop up; QIKS is finished when LEVL returns to 0
       END
  
  
-+DECK,CSADDR. ----------------------------------------------------------------
-*CMZ :          10/11/97  12.13.09  by  Pavel Nevski
++DECK,CSADDR,if=comisf. -------------------------------------------------------
+*CMZ :          28/05/98  21.47.33  by  Pavel Nevski
 *CMZ :  1.18/03 09/06/94  17.55.36  by  Rene Brun
 *-- Author : V.Berezhnoi
 ******************************************************************************
@@ -37368,8 +39424,8 @@ C        Pop up; QIKS is finished when LEVL returns to 0
 +SELF.
       END
  
-+DECK,CSCRSL. -----------------------------------------------------------------
-*CMZ :          29/10/97  09.43.10  by  Pavel Nevski
++DECK,CSCRSL,if=comisf. -------------------------------------------------------
+*CMZ :          28/05/98  21.47.33  by  Pavel Nevski
 *CMZ :  1.18/02 07/04/94  15.26.09  by  Vladimir Berezhnoi
 *-- Author :    Vladimir Berezhnoi   07/01/94
 *************************************************************************
@@ -37418,8 +39474,8 @@ C        Pop up; QIKS is finished when LEVL returns to 0
 +SELF.
       END
  
-+DECK,CSSHLD. -----------------------------------------------------------------
-*CMZ :          10/11/97  12.13.09  by  Pavel Nevski
++DECK,CSSHLD,if=comisf. -------------------------------------------------------
+*CMZ :          28/05/98  21.47.33  by  Pavel Nevski
 *CMZ :  1.18/01 30/03/94  11.56.54  by  Vladimir Berezhnoi
 *-- Author :    Vladimir Berezhnoi   07/01/94
       SUBROUTINE CSSHLD
@@ -37471,8 +39527,8 @@ C        Pop up; QIKS is finished when LEVL returns to 0
 +SELF.
       END
  
-+DECK,CSHLOPT. ----------------------------------------------------------------
-*CMZ :          23/05/97  18.43.27  by  Pavel Nevski
++DECK,CSHLOPT,if=comisf. ------------------------------------------------------
+*CMZ :          28/05/98  21.47.33  by  Pavel Nevski
 *CMZ :  1.18/01 30/03/94  11.58.04  by  Vladimir Berezhnoi
 *-- Author : V.Berezhnoi
       SUBROUTINE CSHLOPT(TEXT,CHVAR)
@@ -37503,8 +39559,8 @@ C        Pop up; QIKS is finished when LEVL returns to 0
 +SELF.
       END
  
-+DECK,CSRMSL. ----------------------------------------------------------------
-*CMZ :          23/05/97  19.31.06  by  Pavel Nevski
++DECK,CSRMSL,if=comisf. -------------------------------------------------------
+*CMZ :          28/05/98  21.47.33  by  Pavel Nevski
 *CMZ :  1.19/01 14/11/94  18.10.10  by  Fons Rademakers
 *-- Author :    Vladimir Berezhnoi   07/02/94
       SUBROUTINE CSRMSL(NAME1)
@@ -37565,8 +39621,9 @@ C        Pop up; QIKS is finished when LEVL returns to 0
       ENDIF
 +SELF.
       END
-+DECK,CSCREXEC,IF=SHL. -------------------------------------------------------
-*CMZ :          10/11/97  11.27.40  by  Pavel Nevski
+ 
++DECK,CSCREXEC. ---------------------------------------------------------------
+*CMZ :          28/05/98  22.01.05  by  Pavel Nevski
 *CMZ :  1.17/07 10/01/94  16.41.15  by  Vladimir Berezhnoi
 *-- Author :    Vladimir Berezhnoi   07/01/94
 *************************************************************************
@@ -37687,8 +39744,9 @@ C        Pop up; QIKS is finished when LEVL returns to 0
       IERR=1
       IF(LUNOUT.GT.0)CALL CSCLOS(LUNOUT)
       END
-+DECK,CSFILX.
-*CMZ :          02/12/97  12.36.02  by  Pavel Nevski
+ 
++DECK,CSFILX. -----------------------------------------------------------------
+*CMZ :          28/05/98  22.01.05  by  Pavel Nevski
 *CMZ :  1.18/00 25/01/94  18.26.31  by  Vladimir Berezhnoi
 *-- Author : V.Berezhnoi
       SUBROUTINE CSFILX(NAME)
@@ -37727,8 +39785,10 @@ C        Pop up; QIKS is finished when LEVL returns to 0
 *      CALL CSSOUT('FILE WAS NOT OPEN')
 *      CALL CSSOUT(NAME)
       END
+ 
+ 
 +DECK,csreset.
-*CMZ :          22/03/98  20.47.36  by  Pavel Nevski
+*CMZ :          28/05/98  21.47.33  by  Pavel Nevski
 *-- Author :    Pavel Nevski   22/03/98
 *************************************************************************
       SUBROUTINE CSRESET
@@ -37739,7 +39799,6 @@ C        Pop up; QIKS is finished when LEVL returns to 0
       IRECU=1-LRECU
 *
       END
- 
  
  
  
@@ -39780,6 +41839,7 @@ END
  
  
 +DECK,apdg2gea,T=geant.
+*CMZ :          13/05/98  21.57.17  by  Pavel Nevski
 *CMZ :  1.30/00 10/07/96  10.34.36  by  Pavel Nevski
 *CMZU:  1.00/01 29/01/96  16.49.07  by  Pavel Nevski
 *-- Author :    Pavel Nevski
@@ -39787,18 +41847,29 @@ END
                 SUBROUTINE   A P D G 2 G E A  (IDIN,IDOUT)
 * For a given PDG particle code in IDIN, returns GEANT particle ID in IDOUT
 *----------------------------------------------------------------------------
-      INTEGER    NPARTC
-      PARAMETER (NPARTC = 52)
-      INTEGER IDGEA(0:NPARTC),IDPDG(0:NPARTC),IDMAX,IGMAX
+      INTEGER    NPARTC,      NPARTM,    NPART,  I
+      PARAMETER (NPARTC = 52, NPARTM = 100)
+      INTEGER    IDGEA(0:NPARTM),IDPDG(0:NPARTM),IDMAX,IGMAX
+      DATA       NPART/NPARTC/
 *
 * In rough order of multiplicity: gamma,pi+,pi-,pi0,etc
-  DATA IDGEA /   0,    1,    8,    9,    7,   10,   11,  12,   16,   17,
+*                -   gamma  pi+   pi-   pi0   K0L   K+   K-    K0S   Eta
+*               prot  neut  ~p    ~n    e+    e-   nu_e ~nu_e  mu+   mu-
+*              lamda sigm+ sigm0 sigm-  xi0   xi- omeg-
+*           ~: lamda sigm- sigm0 sigm+  xi0   xi+ omeg+
+*              tau+  tau-    D+    D-    D0  ~D0   DS+   DS-  LamC+
+*                W+    W-    Z0   nu_m ~nu_m nu_t ~nu_t
+*
+  DATA (IDGEA(I),I=0,NPARTC) _
+             /   0,    1,    8,    9,    7,   10,   11,  12,   16,   17,
                 14,   13,   15,   25,    2,    3,   4,    4,    5,    6,
                 18,   19,   20,   21,   22,   23,  24,
                 26,   27,   28,   29,   30,   31,  32,
                 33,   34,   35,   36,   37,   38,  39,   40,   41,
                 42,   43,   44,    4,    4,    4,   4,   48,   48,   48/
-  DATA IDPDG /   0,   22,  211, -211,  111,  130,  321, -321, 310,  221,
+*
+  DATA (IDPDG(I),I=0,NPARTC) _
+            /    0,   22,  211, -211,  111,  130,  321, -321, 310,  221,
               2212, 2112,-2212,-2112,  -11,   11,  -12,  12,  -13,   13,
               3122, 3222, 3212, 3112, 3322, 3312, 3334,
              -3122,-3222,-3212,-3112,-3322,-3312,-3334,
@@ -39806,14 +41877,30 @@ END
                 24,  -24,   23,  -14,   14,  -16,   16,   71,   72,  75/
   DATA IDMAX/4122/,IGMAX/50/
 *
+*     attention:  (1) is meaningful for arrays starting from (0)
+*
       Entry  PDG2GE   (IDIN,IDOUT)
       IDOUT = 0
-      IF (abs(IDIN)<=IDMAX) IDOUT = IDGEA(IUCOMP(IDIN,IDPDG(1),NPARTC))
+      IF (abs(IDIN)<=IDMAX) IDOUT = IDGEA(IUCOMP(IDIN,IDPDG(1),NPART))
       return
 *
       Entry  AGEA2PDG (IDIN,IDOUT)
       IDOUT = 0
-      IF (abs(IDIN)<=IDMAX) IDOUT = IDPDG(IUCOMP(IDIN,IDGEA(1),NPARTC))
+      IF (abs(IDIN)<=IDMAX) IDOUT = IDPDG(IUCOMP(IDIN,IDGEA(1),NPART))
+      return
+*
+      Entry  SET_PDGEA (IDIN,IDOUT)
+      I=0;  IF (0<abs(IDIN)&abs(IDIN)<=IDMAX) I=IUCOMP(IDIN,IDPDG(1),NPART)
+      IF ( I>0) Then
+         If ( IDGEA(I)!=IDOUT ) print *,
+            ' SET_PDGEA warning:  particle PDG code ',IDIN,
+            ' known to geant as ',IDGEA(I),' is redefined as ',IDOUT
+         IDGEA(I)  = IDOUT
+         return
+      ENDIF
+      NPART=min(NPART+1,NPARTM)
+      IDPDG(NPART) = IDIN;    IDMAX=max(IDMAX,abs(IDIN))
+      IDGEA(NPART) = IDOUT;   IGMAX=max(IGMAX,abs(IDOUT))
       return
 *
   END
@@ -40870,7 +42957,7 @@ END
  
  
 +DECK,AgReadTXT,T=geant.
-*CMZ :          21/11/97  01.26.41  by  Pavel Nevski
+*CMZ :          20/05/98  06.18.54  by  Pavel Nevski
 *-- Author :    Pavel Nevski   18/07/97
 *************************************************************************
    Subroutine   A g R E A D T X T (Igate)
@@ -40880,11 +42967,17 @@ Replace [READ[DIGIT](#)#;] with [READ(#2,ERR=:E:)#3;IF(Idebug>=#1)<W>#3;]
 *************************************************************************
    implicit      none
    character*120 line
-   integer       li,Ieven,Ntrac,Nvert,itr,ivt,nv,nt,Igate,i,
-                 LabelTr,LabelVx,ge_pid,eg_pid,StartVx,StopVx,
+   integer       LENOCC,li,Ieven,Ntrac,Nvert,itr,ivt,nv,nt,Igate,i,
+                 LabelTr,LabelVx,ge_pid,StartVx,StopVx,
                  eg_proc,parent
    Real          version,east_z,east_a,west_z,west_a,sqrts,b_max,
                  PP(3),vert(4),UBUF(10),a,b
+*
+   integer       istat,eg_pid,moth,daut,num(5)
+   data          num/1,1,0,0,0/
+   character     Cform*8 /'/6I 9F'/
+   Real          phep,vhep
+   common/GHEPEVT/ istat,eg_pid,moth(2),daut(2),phep(5),vhep(4)
 *
 +CDE,GCUNIT,GCFLAG.
 *
@@ -40917,16 +43010,35 @@ Replace [READ[DIGIT](#)#;] with [READ(#2,ERR=:E:)#3;IF(Idebug>=#1)<W>#3;]
      read5 (line(8:),*) Vert,LabelVx,eg_proc,parent; (16x,'VERTEX:',4F10.6,3i6)
      ivt += 1;  call AgSVERT(vert,-LabelVx,-Igate,Ubuf,0,nv)
    }
-   else If Index(Line,'event')>0 & itr+ivt==0       " old format "
-   { i=Index(Line,'event');  Line(i:i+6)='  ';
-     read1 (line,*) Ntrac,Ieven;  (' AgReadOld: ',i8,' event# ',i6)
-     call VZERO(vert,4);  call AgSVERT(vert,-1,-Igate,Ubuf,0,nv)
+   else If Line(1:6)=='HEPEVT' & itr+ivt==0
+   { *             HEPEVT text format
+     read1 (line(8:),*) Ntrac,Ieven; (' gstar_Read HEPEVT:',i8,' event#',i6)
+ 
      do itr=1,Ntrac
-        read5 (li,*) ge_pid,PP; (16x,i6,3F8.3)
-        call AgSKINE(PP,ge_pid,nv,Ubuf,0,nt)
-     enddo
-     break
+     {  read5(li,*) istat,eg_pid,moth,daut,phep,vhep; (6i5,5F8.2,4F9.3)
+        num(3)=0;   If (itr==1) num(3)=1
+        Call RbSTORE ('/EVNT/GENE/GENT*',num,Cform,15,istat)
+        check Istat==1;       Call apdg2gea (eg_pid, ge_pid)
+	if ge_pid<=0
+        {  if (Idebug>1) <W> eg_pid;(' gstar_read HEPEVT unknown particle',i6);
+           ge_pid = 1000000+eg_pid
+        }
+        Call AgSVERT ( vhep,   0,  -Igate,   0.,       0, nv);
+        Call AgSKINE ( phep,  ge_pid,  nv, float(itr), 0, nt);
+     }  Break
    }
+   else If Index(Line,'event')>0 & itr+ivt==0
+   { *              OLD text format
+     i=Index(Line,'event');  line(i:i+6)='  ';
+     read1 (line,*) Ntrac,Ieven; (' gstar_ReadOld: ',i8,' event# ',i6)
+     call VZERO(vert,4); call AgSVERT(vert,-1,-Igate,Ubuf,0,nv)
+     do itr=1,Ntrac
+     {  read5 (li,*) ge_pid,PP; (16x,i6,3F8.3)
+        call AgSKINE(PP,ge_pid,nv,Ubuf,0,nt)
+     }  break
+   }
+   else If LENOCC(Line)>0
+   { <w> line(1:LENOCC(Line)); (' unknown line : ',a); }
  } return
 *
 :e:<w> line; (' AgReadTXT error in line '/1x,a);  Igate=-1
@@ -41253,7 +43365,7 @@ end
 +PATCH,$KUMACS.
 *CMZ :          08/07/97  12.52.27  by  Pavel Nevski
 +DECK,install,T=TEXT.
-*CMZ :          27/12/97  15.21.55  by  Pavel Nevski
+*CMZ :          28/05/98  09.31.58  by  Pavel Nevski
 *-- Author :    Pavel Nevski   08/07/97
 MACRO INSTALL   1=$MACHINE the rest is optional keys
 ASYS=$upper([1])
@@ -41295,6 +43407,8 @@ pilot QCDE
 endif
 pilot *ZEBRA
 rel
+ 
+ 
 *     compilation language
 set   f77 C CC kuip geant -lan
 set   *   -com   geant
@@ -41335,7 +43449,7 @@ shell make [1].sl
 call  [1].csl
 exitm
 +DECK,makefile,T=TEXT.
-*CMZ :          30/04/98  13.17.33  by  Pavel Nevski
+*CMZ :          11/05/98  18.32.42  by  Pavel Nevski
 *-- Author :    Pavel Nevski   13/07/97
 CMDS  = atlsim starsim gstar staf staf+ staf++ staf+++
 SIZE  = 1 2 4 6 8 10 12 14 16 18 20 22 24 28 32 34 36
@@ -41454,17 +43568,21 @@ LIB   = -L/usr/dt/lib -L/usr/SUNWspro/lib -ldl  -lM77 -lF77 -lsunmath -lmalloc
 +ENDIF. ----------------------------------------------------------------------
 .SILENT:
 .SUFFIXES:
-.SUFFIXES: .sl .o .g .f .c .cc .cdf .rz
+.SUFFIXES: .sl .o .g .f .F .c .cc .cdf .rz
 #
-.g.sl:; geant3    $*
-	$(FSL) -c $*.f -o  $*.o
+.g.sl:; geant3    $*   -o  $*.F
+	$(FSL) -c $*.F -o  $*.o     $(INCL)
 +IF,AIX.
 	nm        $*.o|egrep ' [BAD] '|cut -f1 -d' '|sed -e 's/^#/ #/'|sort|uniq > $*.exp
 	$(RMF)    ../sl/$*.sl
 #	$(RMF)          $*.sl
 +ENDIF.
 	$(LDS)    $*.o -o  $*.sl    $(LIBSL)
-	$(RMF)    $*.f     $*.o
+	$(RMF)    $*.F     $*.o
+#
+.F.sl:; $(FSL) -c $*.F -o  $*.o     $(INCL)
+	$(LDS)    $*.o -o  $*.sl    $(LIBSL)
+	$(RMF)             $*.o
 #
 .f.sl:; $(FSL) -c $*.f -o  $*.o
 	$(LDS)    $*.o -o  $*.sl    $(LIBSL)
@@ -41486,10 +43604,11 @@ LIB   = -L/usr/dt/lib -L/usr/SUNWspro/lib -ldl  -lM77 -lF77 -lsunmath -lmalloc
 .cdf.o:;kuipc     $*
 	$(FOR) -c $*.f -o  $*.o
 	$(RMF)    $*.f
-.g.o:;  geant3    $*
-	$(FOR) -c $*.f -o  $*.o
-	$(RMF)    $*.f
+.g.o:;  geant3    $*   -o  $*.F
+	$(FOR) -c $*.F -o  $*.o     $(INCL)
+	$(RMF)    $*.F
 #
+.F.o:;  $(FOR) -c $*.F -o  $*.o     $(INCL)
 .f.o:;  $(FOR) -c $*.f -o  $*.o
 .c.o:;  $(CC)  -c $*.c -o  $*.o
 .cc.o:; $(CPP) -c $(INCL)  $*.cc -o $*.o
