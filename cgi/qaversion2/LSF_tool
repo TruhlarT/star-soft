@@ -1,15 +1,18 @@
 #!/usr/bin/perl
 
 # LSF_tool provides a cgi interface to the lsf commands bjobs,
-# bhist and bkill.
+# bhist and bkill, bstop, bresume, peek.
 #
-# BEN(20jun2000): will add bstop, bresume, bpeek when I get back.
+# BEN(20jun2000)
 #
 # some semantics:  
 #   "selected" jobs are those which are selected by 
 #              attribute in the browser and returned to the user
 #   "marked"   jobs are those which the user has chosen from among
 #              the "selected" jobs using checkboxes
+#
+# To do:  perhaps encapsulate a "job" in an object with fields given by
+# @$selectionKeys, and methods corresponding to the actions.
 
 use strict;
 use CGI;
@@ -298,10 +301,13 @@ sub writeToNewWindow{
     $text =~ s/\\/\\\\/g;
     $text =~ s/\"/\\\"/g;
 
+    # eval is done so window has unique id, otherwise netscape keeps writing
+    # to the same window
     print <<MICA;
 <script language="JavaScript"><!--
-
-var myWindow = window.open("", "", "toolbars=0, scrollbars=1, location=0, statusbars=1, menubars=0, resizable=1, width=600, height=200");
+var day = new Date();
+var id = day.getTime();
+eval("var myWindow = window.open('', '" + id + "', 'toolbars=0,scrollbars=1,location=0,statusbars=1,menubars=0,resizable=1,width=600,height=200');");
 
 MICA
 
