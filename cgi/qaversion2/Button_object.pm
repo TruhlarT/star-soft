@@ -563,3 +563,29 @@ sub DeleteComment{
   &QA_utilities::delete_comment($message_key);
 
 }
+#========================================================
+sub CleanUpHangedJobs{
+  my $self = shift;
+
+  my $io;
+  # get rid of all batch files
+  $io       = new IO_object("BatchDir");
+  my $batchDir = $io->Name();
+  my $batchDH  = $io->Open() or die "Can't open $batchDir\n";
+  
+  unlink map { "$batchDir/$_" } grep { /^temp/ } readdir $batchDH;
+  undef $io;
+
+  # get rid of all update statements
+
+  $io = new IO_object("UpdateDir");
+  my $updateDir = $io->Name();
+  my $updateDH  = $io->Open() or die "Can't open $updateDir\n";
+
+  unlink map { "$updateDir/$_" } grep { /^temp/ } readdir $updateDH;
+
+  # change the flag in the db
+
+  QA_db_utilities::ResetQANotDone();
+}
+

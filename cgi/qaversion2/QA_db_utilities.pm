@@ -516,9 +516,20 @@ sub FlagQAInProgress{
 }
 #----------
 #
-sub SetQANotDone{
-  my $qaID = shift;
-  UpdateQASummary($QASum{QAdone},'N', $qaID);
+sub ResetQANotDone{
+
+  my $query = qq{ select $QASum{qaID}, $QASum{report_key}
+		  from   $QASum{Table}
+		  where  $QASum{QAdone} = 'in progress'
+		};
+
+  my $sth = $dbh->prepare($query);
+  $sth->execute();
+
+  while (my ($qaID, $report_key) = $sth->fetchrow_array){
+    print "Resetting flag for report key = $report_key<br>\n";
+    UpdateQASummary($QASum{QAdone},'N', $qaID);
+  }
 }
 
 #----------

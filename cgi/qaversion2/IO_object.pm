@@ -704,8 +704,6 @@ sub StErrorFile{
   my $io = IO_object->new("ReportDir", $report_key);
   my $report_dir = $io->Name;
 
-  # warning file
-
   return "$report_dir/StError.txt";
 } 
 #=====================================================================
@@ -750,3 +748,18 @@ sub SummaryHistDir{
 
   return $gDataClass_object->SummaryHistDir;
 }
+#==========================================================================
+# text file used for MemoryUsage macro
+
+sub MemoryFile{
+  my $self       = shift;
+  my $report_key = shift;
+
+  $self->ReportErrorOnOpen(1);
+
+  # report dir
+  my $io = IO_object->new("ReportDir", $report_key);
+  my $report_dir = $io->Name;
+
+  return "$report_dir/memory.txt";
+} 

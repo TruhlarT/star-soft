@@ -136,8 +136,9 @@ sub AddMessagesToKeyList{
   # this should be the selected report keys
   my @report_keys = $self->KeyList;
 
-  # if key list is empty, return
-  scalar @report_keys or return;
+  # if key list is empty, return.
+  # this check now done in Browser_object.
+  #scalar @report_keys or return;
 
   # hash to contain all messages
   %QA_message_hash = ();
@@ -165,7 +166,6 @@ sub AddMessagesToKeyList{
 	or warn "Cannot retrieve file $message_file:$! <br>";
     }
   }
-  
   # add to the key list - should resort as well
   $self->AddKeys(keys %QA_message_hash);
 

@@ -204,7 +204,7 @@ sub StartingDisplay{
   #----------------------------------------------------------
   print qq{
 	<table border=0, width=100%, valign=top, align=center>
-        <tr valign=top>
+        <tr>
 	    <td> $selection_string
 	    <td> <table border=0, valign=top, align=center>
                  <tr> $table_string
@@ -271,21 +271,26 @@ sub ButtonActions{
 sub DisplayDataset{
   my $self = shift;
   
-  # check that Display datasets has been clicked
-  $gCGIquery->param('Display datasets') or return;
+  # get out unless we're looking at messages or datasets
+  return unless($gCGIquery->param('Display datasets') or
+		$gCGIquery->param('Display messages')   );
 
-  # get selected keys - also make QA_objects
-  my @selected_keys = $self->KeyList->GetSelectedKeyList;
 
-  # no keys match query, get out
-  unless (scalar @selected_keys) {
-    print h2('No QA datasets match your query.  Try again.');
-    return;
+  my @selected_keys;
+  # are we looking for datasets?
+  if ($gCGIquery->param('Display datasets')){
+    # get selected keys - also make QA_objects
+    @selected_keys = $self->KeyList->GetSelectedKeyList;
+    
+    # no keys match query, get out
+    unless (scalar @selected_keys) {
+      print h2('No QA datasets match your query.  Try again.');
+      return;
+    }
   }
 
   # add the messages
   my @key_list = $self->KeyList->AddMessagesToKeyList(@selected_keys);
-
 
   # BUM - these buttons are causing problems...
   #$self->ExpertPageFlag() 
@@ -293,6 +298,11 @@ sub DisplayDataset{
  
   $gCGIquery->param('enable_add_edit_comments') 
     and  &Browser_utilities::display_comment_buttons;
+
+  if (!scalar @key_list and $gCGIquery->param('Display messages')){
+    print h2("No global messages\n");
+    return;
+  }
   #---------------------------------------------------------------------------
 
   # now display datasets

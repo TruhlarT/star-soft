@@ -50,46 +50,73 @@ sub start_expert_buttons{
   my $script_name = $gCGIquery->script_name;
   my $hidden_string = $gBrowser_object->Hidden->Parameters;
 
-  my $action_string = 
-     $gCGIquery->startform(-action=>"$script_name/lower_display", 
+  my ($row1, $row2);
+
+  # -- first row --
+  $row1 = $gCGIquery->startform(-action=>"$script_name/lower_display", 
 		       -TARGET=>"display");
 
   my $button_ref = Button_object->new('UpdateCatalogue', 'Update Catalogue');
-  $action_string .= $button_ref->SubmitString;
+  $row1         .= $button_ref->SubmitString;
 
   $button_ref = Button_object->new('BatchUpdateQA', 'Update Catalogue and QA');
-  $action_string .= $button_ref->SubmitString;
+  $row1      .= $button_ref->SubmitString;
 
   $button_ref = Button_object->new('ServerLog', 'Server Log');
-  $action_string .= $button_ref->SubmitString;
+  $row1      .= $button_ref->SubmitString;
 
   $button_ref = Button_object->new('ServerBatchQueue', 'Server Batch Queue');
-  $action_string .= $button_ref->SubmitString;
+  $row1      .= $button_ref->SubmitString;
 
   $button_ref = Button_object->new('BatchLog', 'Batch Logfiles');
-  $action_string .= $button_ref->SubmitString;
+  $row1      .= $button_ref->SubmitString;
 
+  $row1      .= $hidden_string . $gCGIquery->endform();
+
+  # -- second row --
+  $row2 = $gCGIquery->startform(-action=>"$script_name/lower_display", 
+		       -TARGET=>"display");
+  
   $button_ref = Button_object->new('CshScript', 'Run csh script');
-  $action_string .= $button_ref->SubmitString;
+  $row2      .= $button_ref->SubmitString;
+
 
   $button_ref = Button_object->new('MoveOldReports', 'Move old reports');
-  $action_string .= $button_ref->SubmitString;
+  $row2      .= $button_ref->SubmitString;
 
   $button_ref = Button_object->new('CrontabAdd', 'Add crontab.txt');
-  $action_string .= $button_ref->SubmitString;
+  $row2      .= $button_ref->SubmitString;
 
   $button_ref = Button_object->new('CrontabMinusL', 'Do crontab -l');
-  $action_string .= $button_ref->SubmitString;
+  $row2      .= $button_ref->SubmitString;
 
-  $button_ref = Button_object->new('CrontabMinusR', 'Do crontab -r');
-  $action_string .= $button_ref->SubmitString;
+#  $button_ref = Button_object->new('CrontabMinusR', 'Do crontab -r');
+#  $row2      .= $button_ref->SubmitString;
 
+  $button_ref = Button_object->new('CleanUpHangedJobs', 'Hanged jobs');
+  $row2      .= $button_ref->SubmitString;
+  
   $button_ref = Button_object->new('EnableDSV','Enable DSV'); 
-  $action_string .= $button_ref->SubmitString;
+  $row2      .= $button_ref->SubmitString;
+  
+  $row2      .= $hidden_string . $gCGIquery->endform();
 
-  $action_string .= $hidden_string.$gCGIquery->endform;
+  # see global messages only
+  my $message =
+    $gCGIquery->startform(-action=>"$script_name/upper_display", 
+			  -TARGET=>"list") .
+    $gCGIquery->submit('Display messages') .
+    $hidden_string .
+    $gCGIquery->endform();
 
-  return $action_string;
+  return table({-align=>'center', -border=>0, -cellpadding=>0 -cellspacing=>0 } , 
+	       Tr( [ td ([$row1, $message]), td( [$row2 ]) ] ));
+
+  # table({-align=>'center'}, Tr( [ $row1, $row2.$message]));
+  # global messages
+  
+  
+  #return $action_string . $message;
 }
 #===================================================================
 # not experts page for Browser_object::StartingDisplay
@@ -189,19 +216,13 @@ sub SwitchDataTypeMenu{
   my %dir_labels = %$ref;
 
   # set the default
-  my $default; my $count = 0;
+  my $cur_data_class = $gDataClass_object->DataClass();
 
-  my $current_data_class = $gDataClass_object->DataClass();
-
-  foreach my $data_class (@dir_values){
-    $data_class eq $current_data_class and last;
-    $count++;
-  }
    
   #BEN(13jun2000) added javascript to reload on change of data class
   my $popup_string = $gCGIquery->popup_menu(-name   => 'data_class',
 					    -values => \@dir_values,
-					    -default=> $dir_values[$count],
+					    -default=> $cur_data_class,
 					    -labels => \%dir_labels,  
 					    -onChange => 'this.form.submit()'
 					    );
@@ -246,8 +267,6 @@ sub SwitchDataTypeMenuLite{
   my %dir_labels = %$ref;
 
   # set the default
-  my $default; my $count = 0;
-
   my $cur_data_class = $gDataClass_object->DataClass();
 
   #BEN(13jun2000) added javascript to reload on change of data class

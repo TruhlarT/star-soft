@@ -52,7 +52,7 @@ sub DataDisplayString{
 
   my $starlib_version = $self->LogReport->StarlibVersion;
   my $star_level      = $self->LogReport->StarLevel;
-  my $jobID_string    = $self->LogReport->JobID . br
+  my $jobID_string    = "JobID : " . $self->LogReport->JobID . br
     if $gBrowser_object->ExpertPageFlag;
 
   return
