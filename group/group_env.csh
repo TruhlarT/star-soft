@@ -1,7 +1,10 @@
 #!/usr/bin/csh -f
-#       $Id: group_env.csh,v 1.94 2000/01/21 23:01:04 fisyak Exp $
+#       $Id: group_env.csh,v 1.95 2000/02/15 22:16:46 fisyak Exp $
 #	Purpose:	STAR group csh setup 
 #       $Log: group_env.csh,v $
+#       Revision 1.95  2000/02/15 22:16:46  fisyak
+#       take out Objy from default path, add /star/rcf/scratch as default scratch area
+#
 #       Revision 1.94  2000/01/21 23:01:04  fisyak
 #       Add KAI for Linux and PARASOFT for Linux and Solaris
 #
@@ -502,7 +505,9 @@ endif
 if (-r $GROUP_DIR/group_aliases.csh) source $GROUP_DIR/group_aliases.csh
 #
 if ($?SCRATCH == 0) then
-if ( -w /scr20 ) then
+if ( -w /star/rcf/scratch ) then
+        setenv SCRATCH /star/rcf/scratch/$LOGNAME
+else if ( -w /scr20 ) then
         setenv SCRATCH /scr20/$LOGNAME
 else if ( -w /scr21 ) then
         setenv SCRATCH /scr21/$LOGNAME
@@ -531,7 +536,7 @@ if ( -f $GROUP_DIR/rootenv.csh) then
 endif
 
 # Objectivity
-if (`uname -s` == "SunOS" && `hostname` != "rcf.rhic.bnl.gov" && ! ${?OBJY_HOME} ) source $GROUP_DIR/ObjySetup.csh
+#if (`uname -s` == "SunOS" && `hostname` != "rcf.rhic.bnl.gov" && ! ${?OBJY_HOME} ) source $GROUP_DIR/ObjySetup.csh
 
 # SNiFF+
 setenv G4SYSTEM
