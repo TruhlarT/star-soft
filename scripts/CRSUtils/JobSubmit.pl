@@ -65,7 +65,7 @@ use lib "/afs/rhic/star/packages/scripts";
 use RunDAQ;
 use CRSQueues;
 
-$ThisYear = 2003;
+$ThisYear = 2004;
 
 # Default values Year2 data
 if ($ThisYear == 2002){
@@ -96,7 +96,8 @@ if ($ThisYear == 2002){
     $SCALIB{"AuAu"}           = "";
     $SCALIB{"ProtonProton"}   = "OptLaser";
 
-} elsif ($ThisYear == 2003) {
+} elsif ($ThisYear == 2003 ||
+	 $ThisYear == 2004 ) {
     $LIB     = "dev";
     $NUMEVT  = 100;
     $TARGET  = "/star/data27/reco";
@@ -108,6 +109,7 @@ if ($ThisYear == 2002){
     @SPILL   = (0,3,1);      
     
     # Default chain
+    $DCHAIN{"AuAu"}           = "P2004";
     $DCHAIN{"dAu"}            = "dAu2003,alltrigger,est,CMuDst";
     $DCHAIN{"ProtonProton"}   = "pp2003,alltrigger,trgd,est,CMuDst";
     
@@ -115,6 +117,7 @@ if ($ThisYear == 2002){
     #$DCALIB{"dAu"}            = "PreTpcT0";
 
     # Default stand-alone auto-calib (works only on $LASERTP files)
+    $SCALIB{"AuAu"}           = "OptLaser";
     $SCALIB{"dAu"}            = "OptLaser";
     $SCALIB{"ProtonProton"}   = "OptLaser";
 
@@ -164,7 +167,7 @@ $SCRATCH = ".";
 $LOCKF   = "FastOff.lock";
 $CONFF   = "JobSubmit$LIB.lis";
 $PRIORITY= 100;              # default queue priority
-$SLEEPT  = 25;               # sleep time between submit
+$SLEEPT  = 10;               # sleep time between submit
 $MAXCNT  = 20;               # max job to send in a pass
 $RATIO   = 2;                # time drop down for mode + (2=twice faster)
                    
