@@ -182,7 +182,7 @@ if( ($ProdTag) || ($Trigger) ){
 			$sth1->execute($id);
 			while( ($prodtag, $trigger, $LFname)= $sth1->fetchrow_array() ){
 			    print MOVELIST
-				"/star/u/starreco/$prodtag/requests/daq/archive/$prodtag*$LFname ",
+				"/star/u/starreco/$prodtag/requests/daq/archive/*$prodtag\_*$LFname ",
 				"/star/u/starreco/$prodtag/requests/daq/jobfiles/\n";
 			}
 		    } #if Method=CreatList
