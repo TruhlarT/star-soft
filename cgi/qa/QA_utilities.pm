@@ -131,6 +131,7 @@ sub get_QA_objects{
   #---------------------------------------------------------------
   # if update, get additional directories on disk
 
+
   $arg eq 'update' and do{
 
     print "Getting dirs on disk... </br> \n";
@@ -165,8 +166,10 @@ sub get_QA_objects{
 
   #-----------------------------------------------------------
   # sort directories in time
+
   @key_list_sorted = ( sort { sort_time($b) <=> sort_time($a) } keys %QA_object_hash );
 
+  #-----------------------------------------------------------
   return @key_list_sorted
 
 }
@@ -402,4 +405,24 @@ sub print_button_object_hash{
   }
 
 }
-  
+  #===========================================================
+sub print_timing{
+
+  @_ and do{
+    $time_start = shift;
+    @_ and $time_last_call = shift;
+    return;
+  };
+
+  ($package, $filename, $line) = caller;
+
+  print "-" x 80, "\n<br> print_timing called from $package::$filename, line $line <br> \n";
+
+  # get cpu time
+  $now = (times)[0];
+
+  printf "time since start = %.2f sec; time since last call= %.2f sec <br>\n",
+  $now-$time_start,$now-$time_last_call;
+
+  $time_last_call = $now;
+}

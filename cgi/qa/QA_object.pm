@@ -86,6 +86,7 @@ sub _init{
     print "<h4> Error in QA_object constructor: unknown argument $arg_dir </h4> \n";
     return;
   }
+
   #------------------------------------------------------
   $self->ReportKey($report_key);
   $self->ReportDirectory();
@@ -100,6 +101,7 @@ sub _init{
   else{
     $self->LogReport();
   }
+
   #------------------------------------------------------
   $self->QASummaryString();
   #------------------------------------------------------
