@@ -18,7 +18,6 @@
 # -debug      : maintainance option
 
 use lib "/afs/rhic/star/packages/scripts";
-#use lib "/star/u/jeromel/work/ddb";
 use strict;
 use FileCatalog;
 
@@ -26,6 +25,8 @@ my @output;
 my $i;
 my $count;
 my $debug;
+my $morerecords;
+my $batchsize=1000;
 
 # The state variables
 my ($all, $field_list, $cond_list, $start, $limit, $delim, $onefile, $outfilename, $OUTHANDLE);
@@ -52,6 +53,7 @@ $count = 0;
 #    $count++;
 #    
 #  }
+$limit = 0;
 while (defined $ARGV[$count]){
     if ($ARGV[$count] eq "-all")
       {	$all = 1; }
@@ -65,7 +67,10 @@ while (defined $ARGV[$count]){
     elsif ($ARGV[$count] eq "-start")
       { $start = $ARGV[++$count]; }
     elsif ($ARGV[$count] eq "-limit")
-      { $limit = $ARGV[++$count]; }
+      { 
+	  if($limit == 0){ $start = 0;}
+	  $limit = $ARGV[++$count]; 
+      }
     elsif ($ARGV[$count] eq "-delim")
       {	$delim = $ARGV[++$count]; }
     elsif ($ARGV[$count] eq "-keys")
@@ -103,45 +108,58 @@ if ($count == 0){
     foreach (split(/,/,$cond_list)){
 	$fileC->set_context($_);
     }
-    if ($all==1)
-      { $fileC->set_context("nounique=1"); }
-    if (defined $limit)
-      { $fileC->set_context("limit=$limit"); }
-    if (defined $start)
-      { $fileC->set_context("start=$start"); }
-    if (defined $delim)
-      {	$fileC->set_delimeter($delim); }
-    if ($onefile > 0)
-      {	$field_list .= ",grp(filename),orda(persistent)"; }
+    if ($all==1){
+	$fileC->set_context("nounique=1"); }
+    if ($limit != 0){ 
+	$fileC->set_context("limit=$limit"); 
+    } else {
+	$fileC->set_context("limit=$batchsize");
+    }
+    if (defined $delim){
+      	$fileC->set_delimeter($delim); }
+    if ($onefile > 0){
+      	$field_list .= ",grp(filename),orda(persistent)"; }
 
     # Getting the data
-    @output = $fileC->run_query(split(/,/,$field_list));
+    $morerecords = 1;
+    while ( $morerecords ){
+	if (defined $start)
+	{ $fileC->set_context("start=$start"); }
 
-    # Printing the output
-    if ($onefile != 1)
-      {
-	foreach (@output)
-	  { print "$_\n"; }
-    }
-    else
-    {	
-	my $lastfname = "";
-	my $delimeter;
 
-	if (defined $delim)
-	  { $delimeter = $delim; }
+	@output = $fileC->run_query(split(/,/,$field_list));
+
+	if( ($#output+1) != $batchsize){ $morerecords = 0;}
+
+	# Printing the output
+	if ($onefile != 1)
+	{
+	    foreach (@output)
+	    { print "$_\n"; }
+	}
 	else
-	  { $delimeter = "::"; }
-	foreach (@output)
-	  { 
-	    my @fields;
-	    (@fields) = split($delimeter,$_);
-	    $fields[$#fields] = "";
-	    if (join($delimeter,(@fields)) ne $lastfname)
-	      { print "$_\n"; }
-	    $lastfname = join($delimeter,(@fields));
-	  }
+	{	
+	    my $lastfname = "";
+	    my $delimeter;
 
+	    if (defined $delim)
+	    { $delimeter = $delim; }
+	    else
+	    { $delimeter = "::"; }
+	    foreach (@output)
+	    { 
+		my @fields;
+		(@fields) = split($delimeter,$_);
+		$fields[$#fields] = "";
+		if (join($delimeter,(@fields)) ne $lastfname)
+		{ print "$_\n"; }
+		$lastfname = join($delimeter,(@fields));
+	    }
+
+	}
+	if($morerecords && ! $limit == 0){
+	    $start += $batchsize;
+	}
     }
 }
 
