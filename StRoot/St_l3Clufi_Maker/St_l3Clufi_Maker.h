@@ -1,7 +1,7 @@
-// $Id: St_l3Clufi_Maker.h,v 1.1 1999/11/19 18:31:48 flierl Exp $
+// $Id: St_l3Clufi_Maker.h,v 1.1.1.1 1999/11/19 18:31:48 flierl Exp $
 // $Log: St_l3Clufi_Maker.h,v $
-// Revision 1.1  1999/11/19 18:31:48  flierl
-// Initial revision
+// Revision 1.1.1.1  1999/11/19 18:31:48  flierl
+// test
 //
 // Revision 1.11  1999/07/15 13:57:44  perev
 // cleanup
@@ -52,7 +52,7 @@
 //class St_stk_stkpar;
 class St_l3Clufi_Maker : public StMaker {
  private:
-    // static Char_t  m_VersionCVS = "$Id: St_l3Clufi_Maker.h,v 1.1 1999/11/19 18:31:48 flierl Exp $";
+    // static Char_t  m_VersionCVS = "$Id: St_l3Clufi_Maker.h,v 1.1.1.1 1999/11/19 18:31:48 flierl Exp $";
      
     //
     // l3 clusterfinding variables
@@ -84,7 +84,7 @@ class St_l3Clufi_Maker : public StMaker {
    virtual Int_t  Make();
 // virtual void Set_mode       (Int_t   m =      2){m_mode       = m;} // *MENU*
   virtual const char *GetCVS() const
-  {static const char cvs[]="Tag $Name:  $ $Id: St_l3Clufi_Maker.h,v 1.1 1999/11/19 18:31:48 flierl Exp $ built "__DATE__" "__TIME__ ; return cvs;}
+  {static const char cvs[]="Tag $Name:  $ $Id: St_l3Clufi_Maker.h,v 1.1.1.1 1999/11/19 18:31:48 flierl Exp $ built "__DATE__" "__TIME__ ; return cvs;}
 
    ClassDef(St_l3Clufi_Maker, 1)   //StAF chain virtual base class for Makers
 };

@@ -1,10 +1,10 @@
 
 //*-- Author : Victor Perevoztchikov
 // 
-// $Id: St_l3Clufi_Maker.cxx,v 1.1 1999/11/19 18:31:48 flierl Exp $
+// $Id: St_l3Clufi_Maker.cxx,v 1.1.1.1 1999/11/19 18:31:48 flierl Exp $
 // $Log: St_l3Clufi_Maker.cxx,v $
-// Revision 1.1  1999/11/19 18:31:48  flierl
-// Initial revision
+// Revision 1.1.1.1  1999/11/19 18:31:48  flierl
+// test
 //
 // Revision 1.12  1999/07/15 13:57:44  perev
 // cleanup
