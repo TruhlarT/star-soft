@@ -510,7 +510,7 @@ sub UpdateQANightly {
   print "update query:\n$queryUpdate\n" if $debug;
 
   # check if the report_key is unique
-  my $queryCheck =  qq{select $QASum{qaID}
+  my $queryCheck =  qq{select count(*)
 		       from $dbQA.$QASum{Table}
 		       where $QASum{report_key} = ? };
 
@@ -561,23 +561,27 @@ sub UpdateQANightly {
     if($found){
       print "$reportKey found already\n";
       my $label;
+      my $trialKey;
       CHECK:foreach $label (@addLabel){
-	my $trialKey = $reportKey . $label;
+	$trialKey = $reportKey . $label;
+	print "\tTrial key=$trialKey\n";
 	$sthCheck->execute($trialKey);
 	my ($foundAgain) = $sthCheck->fetchrow_array;
 	
 	if(!$foundAgain){ # new reportkey
+	  print "\tOk. the above is unique\n";
 	  last CHECK;
 	}
       }
       # set the report key w/ additional label
-      $reportKey .= $label;
-      print $reportKey,"\n";
+      $reportKey = $trialKey;
+      print "\tSet $reportKey\n";
     }
     # save keys
     push @keyList, $reportKey;
 
     # insert into QASummary
+    print "Inserting report key=$reportKey\n";
     my $stat = $sthInsert->execute($jobID, $reportKey) unless $debug;
   }
   print h3("Found $count new jobs\n");
