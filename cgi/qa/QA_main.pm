@@ -190,6 +190,9 @@ sub starting_display {
       
       $selection =~ /hc_/ and last SELECTION; 
       
+      # bum - added peripheral
+      $selection =~ /peripheral/ and last SELECTION;
+	
       $selection =~ /cosmics/ and do{
 	$selection = "cosmics";
 	last SELECTION;
@@ -445,7 +448,9 @@ sub get_selected_key_list {
 
       # pmj 9/12/99
       # if report key doesn't contain hc_, this is venus
-      $temp =~ /hc_/ or $temp .= "\.venus";
+
+      # bum - added peripheral 
+      $temp =~ /hc_|peripheral/ or $temp .= "\.venus";
 
       $temp =~ /$select_dataset/ and push @selected_key_list, $report_key;
     }
