@@ -1,0 +1,16 @@
+README for cgi/qa
+=================
+
+Author: Peter Jacobs, LBNL (pmjacobs@lbl.gov)
+Date of last change to this README file: Sept. 24, 1999
+
+Purpose of Package: This package is a set of CGI scripts written in
+PERL, which form the framework for the Automated QA and Testing of the
+Offline Software. It provides a catalogue of test and production runs
+and reports a variety of performance and quality information through a
+web-based interface. The QA-related data are extracted from the log
+file of the run and set of QA ROOT macros that are run by the scripts.
+
+History of Revisions:
+
+Sept 24, 1999: Package submitted to library
