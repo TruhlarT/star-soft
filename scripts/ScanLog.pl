@@ -113,9 +113,12 @@ if( ! $sth3 || ! $sth1){
 my(%JNAMES);
 opendir(ARCH,"$arch_dir") || die "Could not open archive directory\n";
 while ( defined($job_name = readdir(ARCH)) ){
-  if($job_name !~ /st_/){ next;}
-  $job_name =~ m/(.*)(st_.*)/;
-  $JNAMES{$2} = $job_name;
+  if($job_name !~ /st_/ && $job_name !~ /rcf.*evts/ ){ next;}
+  if ($job_name =~ m/(.*)(st_.*)/){
+      $JNAMES{$2} = $job_name;
+  } elsif ($job_name =~ m/(rcf.*evts)(.*)/){
+      $JNAMES{$2} = $job_name;
+  }
 }
 closedir(ARCH);
 
