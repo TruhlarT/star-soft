@@ -23,7 +23,7 @@ use strict;
 sub UpdateQAOffline{
   my $dataType   = shift; # either 'real' or 'MC'
 
-  my $limit      = 20;     # limit number of new jobs
+  my $limit      = 1;     # limit number of new jobs
   my $oldestDate;         # dont retrieve anything older than this
   my $fileType;           # daq_reco or MC_reco
   my $today      = strftime("%Y-%m-%d %H:%M:%S",localtime());
@@ -329,7 +329,7 @@ sub InsertOnlineQASum{
 #
 sub GetToDoReportKeys{
   my $type = shift; # real or MC
-
+  my $limit = 15;
   my $type_string;
 
   if ($type eq 'real'){
@@ -343,7 +343,8 @@ sub GetToDoReportKeys{
   my $query = qq{select distinct $QASum{report_key} 
 		 from $dbQA.$QASum{Table}  
 		 where $QASum{QAdone} = 'N' and
-	         $type_string};
+	         $type_string
+		 limit $limit};
   
   return @{$dbh->selectcol_arrayref($query)};
 
