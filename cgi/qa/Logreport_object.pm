@@ -578,6 +578,14 @@ sub ParseLogfile {
   find ( \&QA_cgi_utilities::get_root_runco_file, $this_dir);
   defined $global_root_runco_file or $missing_files .= " .runco.root"; 
 
+  # bum 9/3/00 -added check for geant.root
+  undef $global_root_geant_file;
+  find ( \&QA_cgi_utilities::get_root_geant_file, $this_dir);
+  defined $global_root_geant_file or $missing_files .= " .geant.root";
+
+  # mark it as red
+  $missing_files = "<font color=red> $missing_files </font>";
+
 #----
 
   if ($missing_files  eq ""){

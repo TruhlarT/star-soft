@@ -103,6 +103,14 @@ sub get_root_runco_file{
   
 }
 #==========================================================
+sub get_root_geant_file{
+  $filename = $File::Find::name;
+
+  if ( $filename =~ /\.geant\.root/ ) {
+    $global_root_geant_file = $filename;
+  }
+}
+#==========================================================
 sub get_xdf_file{
   
   $filename = $File::Find::name;

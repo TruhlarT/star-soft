@@ -74,6 +74,7 @@ use Exporter ();
 	     $global_logfile $global_root_dst_file $global_root_hist_file 
 
 	     $global_root_tags_file $global_root_runco_file 
+             $global_root_geant_file
 
 	     $global_root_event_file
 	     $global_dst_xdf_file $global_analysis_report_filename
