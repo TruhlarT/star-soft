@@ -2,8 +2,8 @@
 #
 #  $Id:
 #
-#  $Log:   nodeStatus.pl - script for Web presentaion of node and Jobstatus
-#          moving jobfiles for crashed jobs from archive to jobfiles directory 
+#  $Log:   nodeStatus.pl - monitoring of CRS jobs
+#           
 #  L.Didenko
 ###############################################################################
 
@@ -25,12 +25,14 @@ my @wrd;
 my %nodeCrCount = ();
 my %nodeStCount = ();
 my %nodeAbCount = ();
+my %nodeDnCount = ();
 my $outname;
 my $outfile;
 
 my @ndCrCount;
 my @ndAbCount;
 my @ndStCount; 
+my @ndDnCount;
 
 my @nodeList = (
                 "rcrs6001.rcf.bnl.gov",
@@ -76,6 +78,7 @@ my $eachNode;
        $ndCrCount[$ll]  = 0;
        $ndAbCount[$ll]  = 0;
        $ndStCount[$ll]  = 0;
+       $ndDnCount[$ll]  = 0;
      };
 
 my %nodeHash = (
@@ -152,27 +155,85 @@ open (MAILFILE, $outfile ) or die "cannot open $outfile: $!\n";
      elsif ($jbStat =~ /staging failed/) {
          $ndStCount[$ii]++;
      }
-  } 
+     elsif ($jbStat =~ /done/) {
+         $ndDnCount[$ii]++;
+       }
+   } 
  }
 
+my $TotAbCount = 0;
+my $TotDnCount = 0;
+my $TotCrCount = 0;
+my $TotStCount = 0;
 
 for ($ll = 0; $ll < scalar(@nodeList); $ll++) {
       $mynode = $nodeList[$ll];
       $nodeCrCount{$mynode} = $ndCrCount[$ll];
       $nodeAbCount{$mynode} = $ndAbCount[$ll];
       $nodeStCount{$mynode} = $ndStCount[$ll]; 
-      if( $nodeCrCount{$mynode} != 0) {
+      $nodeDnCount{$mynode} = $ndDnCount[$ll];       
+      
+      $TotAbCount += $ndAbCount[$ll];
+      $TotDnCount += $ndDnCount[$ll];
+      $TotCrCount += $ndCrCount[$ll];
+      $TotStCount += $ndStCount[$ll];
+
+     if(($nodeDnCount{$mynode} != 0) && ($nodeCrCount{$mynode} == 0) && ($nodeAbCount{$mynode}== 0) && ($nodeStCount{$mynode}== 0) ) {
+   &printDnRow();
+  }      
+     elsif($nodeDnCount{$mynode} != 0 && $nodeCrCount{$mynode} != 0 && $nodeAbCount{$mynode} == 0 && $nodeStCount{$mynode} == 0 ) {
+   &printCrDnRow();
+  }       
+     elsif ($nodeDnCount{$mynode} != 0 && $nodeAbCount{$mynode} != 0 && $nodeCrCount{$mynode} == 0 && $nodeStCount{$mynode} == 0 ) {
+   &printAbDnRow();
+  }
+     elsif ($nodeDnCount{$mynode} != 0 && $nodeStCount{$mynode} != 0 && $nodeAbCount{$mynode} == 0 && $nodeCrCount{$mynode} == 0 ) {
+   &printStDnRow();
+ }
+#
+     elsif($nodeDnCount{$mynode} == 0 && $nodeCrCount{$mynode} != 0 && $nodeAbCount{$mynode}== 0 && $nodeStCount{$mynode} == 0 ) {
    &printCrRow();
   }       
-     elsif ($nodeAbCount{$mynode} != 0) {
+     elsif ($nodeDnCount{$mynode} == 0 && $nodeAbCount{$mynode} != 0 && $nodeCrCount{$mynode} == 0 && $nodeStCount{$mynode} == 0) {
    &printAbRow();
   }
-     elsif ($nodeStCount{$mynode} != 0) {
+     elsif ($nodeDnCount{$mynode} == 0 && $nodeStCount{$mynode} != 0 && $nodeAbCount{$mynode} == 0 && $nodeCrCount{$mynode} == 0) {
    &printStRow();
-  }else {       
+}
+#
+     elsif($nodeDnCount{$mynode} == 0 && $nodeCrCount{$mynode} != 0 && $nodeAbCount{$mynode} != 0 && $nodeStCount{$mynode} == 0 ) {
+   &printAbCrRow();
+  }       
+     elsif ($nodeDnCount{$mynode} == 0 && $nodeAbCount{$mynode} != 0 && $nodeCrCount{$mynode} == 0 && $nodeStCount{$mynode} != 0) {
+   &printAbStRow();
+  }
+     elsif ($nodeDnCount{$mynode} == 0 && $nodeStCount{$mynode} != 0 && $nodeAbCount{$mynode} == 0 && $nodeCrCount{$mynode} != 0) {
+   &printCrStRow();
+}
+#
+     elsif($nodeDnCount{$mynode} != 0 && $nodeCrCount{$mynode} != 0 && $nodeAbCount{$mynode} != 0 && $nodeStCount{$mynode} == 0 ) {
+   &printAbCrDnRow();
+  }       
+     elsif ($nodeDnCount{$mynode} != 0 && $nodeAbCount{$mynode} != 0 && $nodeCrCount{$mynode} == 0 && $nodeStCount{$mynode} != 0) {
+   &printAbStDnRow();
+  }
+     elsif ($nodeDnCount{$mynode} != 0 && $nodeStCount{$mynode} != 0 && $nodeAbCount{$mynode} == 0 && $nodeCrCount{$mynode} != 0) {
+   &printCrStDnRow();
+}
+# 
+     elsif($nodeDnCount{$mynode} != 0 && $nodeCrCount{$mynode} != 0 && $nodeAbCount{$mynode} != 0 && $nodeStCount{$mynode} != 0 ) {
+   &printAbCrStDnRow();
+  }       
+     elsif ($nodeDnCount{$mynode} == 0 && $nodeAbCount{$mynode} != 0 && $nodeCrCount{$mynode} != 0 && $nodeStCount{$mynode} != 0) {
+   &printAbCrStRow();
+
+ }else {       
  &printRow();
 }
 }
+
+ &printTotal();
+
  close (MAILFILE);
 
   &endHtml();
@@ -184,16 +245,17 @@ sub beginHtml {
 print <<END;
  <html>
   <head>
-          <title>Crashed Jobs Summary  </title>
+          <title>CRS Jobs Monitor  </title>
 </head>
    <body BGCOLOR=\"#ccffff\"> 
-        <h1 align=center>Crashed Jobs Summary</h1>
+        <h1 align=center>CRS Jobs Monitor</h1>
 <TABLE ALIGN=CENTER BORDER=5 CELLSPACING=1 CELLPADDING=2 >
 <TR>
 <TD ALIGN=CENTER WIDTH= 220 HEIGHT=80><B>Node ID </B></TD>
 <TD ALIGN=CENTER WIDTH= 100  HEIGHT=80><B>Number of Jobs crashed</B></TD>
 <TD ALIGN=CENTER WIDTH= 100  HEIGHT=80><B>Number of Jobs aborted</B></TD>
 <TD ALIGN=CENTER WIDTH= 100  HEIGHT=80><B>Number of Jobs with staging failed</B></TD>
+<TD ALIGN=CENTER WIDTH= 100  HEIGHT=80><B>Number of Jobs <br>Done</B></TD>
 </TR> 
    </head>
     <body>
@@ -210,6 +272,7 @@ print <<END;
 <td>$nodeCrCount{$mynode}</td>
 <td bgcolor=red>$nodeAbCount{$mynode}</td>
 <td>$nodeStCount{$mynode}</td>
+<td>$nodeDnCount{$mynode}</td>
 </TR>
 END
 
@@ -225,6 +288,7 @@ print <<END;
 <td bgcolor=red>$nodeCrCount{$mynode}</td>
 <td>$nodeAbCount{$mynode}</td>
 <td>$nodeStCount{$mynode}</td>
+<td>$nodeDnCount{$mynode}</td>
 </TR>
 END
 
@@ -240,6 +304,7 @@ print <<END;
 <td>$nodeCrCount{$mynode}</td>
 <td>$nodeAbCount{$mynode}</td>
 <td bgcolor=red>$nodeStCount{$mynode}</td>
+<td>$nodeDnCount{$mynode}</td>
 </TR>
 END
 
@@ -255,6 +320,211 @@ print <<END;
 <td>$nodeCrCount{$mynode}</td>
 <td>$nodeAbCount{$mynode}</td>
 <td>$nodeStCount{$mynode}</td>
+<td>$nodeDnCount{$mynode}</td>
+</TR>
+END
+
+}
+#######################
+
+ sub printTotal {
+
+print <<END;
+<TR ALIGN=CENTER bgcolor=lightblue>
+<td>Total</td>
+<td>$TotCrCount</td>
+<td>$TotAbCount</td>
+<td>$TotStCount</td>
+<td>$TotDnCount</td>
+</TR>
+END
+
+}
+
+#######################
+
+ sub printDnRow {
+
+print <<END;
+<TR ALIGN=CENTER>
+<td>$mynode</td>
+<td>$nodeCrCount{$mynode}</td>
+<td>$nodeAbCount{$mynode}</td>
+<td>$nodeStCount{$mynode}</td>
+<td bgcolor=lightgreen>$nodeDnCount{$mynode}</td>
+</TR>
+END
+
+}
+#######################
+
+ sub printAbDnRow {
+
+print <<END;
+<TR ALIGN=CENTER>
+<td>$mynode</td>
+<td>$nodeCrCount{$mynode}</td>
+<td bgcolor=red>$nodeAbCount{$mynode}</td>
+<td>$nodeStCount{$mynode}</td>
+<td bgcolor=lightgreen>$nodeDnCount{$mynode}</td>
+</TR>
+END
+
+}
+
+#######################
+
+ sub printCrDnRow {
+
+print <<END;
+<TR ALIGN=CENTER>
+<td>$mynode</td>
+<td bgcolor=red>$nodeCrCount{$mynode}</td>
+<td>$nodeAbCount{$mynode}</td>
+<td>$nodeStCount{$mynode}</td>
+<td bgcolor=lightgreen>$nodeDnCount{$mynode}</td>
+</TR>
+END
+
+}
+
+#######################
+
+ sub printStDnRow {
+
+print <<END;
+<TR ALIGN=CENTER>
+<td>$mynode</td>
+<td>$nodeCrCount{$mynode}</td>
+<td>$nodeAbCount{$mynode}</td>
+<td bgcolor=red>$nodeStCount{$mynode}</td>
+<td bgcolor=lightgreen>$nodeDnCount{$mynode}</td>
+</TR>
+END
+
+}
+
+#######################
+
+ sub printAbCrRow {
+
+print <<END;
+<TR ALIGN=CENTER>
+<td>$mynode</td>
+<td bgcolor=red>$nodeCrCount{$mynode}</td>
+<td bgcolor=red>$nodeAbCount{$mynode}</td>
+<td>$nodeStCount{$mynode}</td>
+<td>$nodeDnCount{$mynode}</td>
+</TR>
+END
+
+}
+
+#######################
+
+ sub printAbStRow {
+
+print <<END;
+<TR ALIGN=CENTER>
+<td>$mynode</td>
+<td>$nodeCrCount{$mynode}</td>
+<td bgcolor=red>$nodeAbCount{$mynode}</td>
+<td bgcolor=red>$nodeStCount{$mynode}</td>
+<td>$nodeDnCount{$mynode}</td>
+</TR>
+END
+
+}
+
+#######################
+
+ sub printCrStRow {
+
+print <<END;
+<TR ALIGN=CENTER>
+<td>$mynode</td>
+<td bgcolor=red>$nodeCrCount{$mynode}</td>
+<td>$nodeAbCount{$mynode}</td>
+<td bgcolor=red>$nodeStCount{$mynode}</td>
+<td>$nodeDnCount{$mynode}</td>
+</TR>
+END
+
+}
+
+#######################
+
+ sub printAbCrDnRow {
+
+print <<END;
+<TR ALIGN=CENTER>
+<td>$mynode</td>
+<td bgcolor=red>$nodeCrCount{$mynode}</td>
+<td bgcolor=red>$nodeAbCount{$mynode}</td>
+<td>$nodeStCount{$mynode}</td>
+<td bgcolor=lightgreen>$nodeDnCount{$mynode}</td>
+</TR>
+END
+
+}
+
+#######################
+
+ sub printAbStDnRow {
+
+print <<END;
+<TR ALIGN=CENTER>
+<td>$mynode</td>
+<td>$nodeCrCount{$mynode}</td>
+<td bgcolor=red>$nodeAbCount{$mynode}</td>
+<td bgcolor=red>$nodeStCount{$mynode}</td>
+<td bgcolor=lightgreen>$nodeDnCount{$mynode}</td>
+</TR>
+END
+
+}
+
+#######################
+
+ sub printCrStDnRow {
+
+print <<END;
+<TR ALIGN=CENTER>
+<td>$mynode</td>
+<td bgcolor=red>$nodeCrCount{$mynode}</td>
+<td>$nodeAbCount{$mynode}</td>
+<td bgcolor=red>$nodeStCount{$mynode}</td>
+<td bgcolor=lightgreen>$nodeDnCount{$mynode}</td>
+</TR>
+END
+
+}
+#######################
+
+ sub printAbCrStDnRow {
+
+print <<END;
+<TR ALIGN=CENTER>
+<td>$mynode</td>
+<td bgcolor=red>$nodeCrCount{$mynode}</td>
+<td bgcolor=red>$nodeAbCount{$mynode}</td>
+<td bgcolor=red>$nodeStCount{$mynode}</td>
+<td bgcolor=lightgreen>$nodeDnCount{$mynode}</td>
+</TR>
+END
+
+}
+#######################
+
+ sub printAbCrStRow {
+
+print <<END;
+<TR ALIGN=CENTER>
+<td>$mynode</td>
+<td bgcolor=red>$nodeCrCount{$mynode}</td>
+<td bgcolor=red>$nodeAbCount{$mynode}</td>
+<td bgcolor=red>$nodeStCount{$mynode}</td>
+<td>$nodeDnCount{$mynode}</td>
 </TR>
 END
 
