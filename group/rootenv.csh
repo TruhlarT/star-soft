@@ -3,7 +3,8 @@
      setenv PATH            `/afs/rhic/star/group/dropit ROOT`
    endif
    setenv ROOTSYS /afs/rhic/opt/rhic/ROOT2
-   if ( -x /afs/rhic/star/ROOT/2.08/root/bin/root ) setenv ROOTSYS /afs/rhic/star/ROOT/2.08/root
+   if (! ${?ROOT_LEVEL}) setenv ROOT_LEVEL 2.08
+   if ( -x /afs/rhic/star/ROOT/${ROOT_LEVEL}/root/bin/root ) setenv ROOTSYS /afs/rhic/star/ROOT/${ROOT_LEVEL}/root
 #   if ( ! -e $ROOTSYS) setenv ROOTSYS /afs/rhic/opt/rhic/root
 #   if ( ! -e $ROOTSYS) setenv ROOTSYS /afs/rhic/sunx86_55/opt/rhic/ROOT2
 
@@ -44,7 +45,11 @@
     if (! ${?LIBPATH}) setenv LIBPATH 
     setenv  LIBPATH /lib:/usr/lib:${LIBPATH}:$ROOTSYS/lib    
     breaksw
-
+    case HP-UX:
+    if (! ${?SHLIB_PATH}) setenv SHLIB_PATH 
+    setenv  SHLIB_PATH  ${SHLIB_PATH}:$ROOTSYS/lib    
+    breaksw
+    
 
     default:
     echo " Unimplemented platform $MACHINE"
