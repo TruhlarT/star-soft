@@ -94,8 +94,9 @@ print <<END;
 <META HTTP-EQUIV="Expires" CONTENT="0">
 <META HTTP-EQUIV="Pragma" CONTENT="no-cache">
 <META HTTP-EQUIV="Cache-Control" CONTENT="no-cache">
-<META HTTP-equiv="Refresh" content="20; URL-HTTP://duvall.star.bnl.gov/cgi-bin/didenko/GifPlots.pl">
 END
+
+#<META HTTP-equiv="Refresh" content="10; URL-HTTP://duvall.star.bnl.gov/cgi-bin#/didenko/GifPlots.pl">
 
   print " <title>Select query for plot</title>";
   print "  </head>\n";
@@ -106,17 +107,16 @@ END
 
 
 print <<END;
-<form action="http://duvall.star.bnl.gov/cgi-bin/didenko/dbPlotReq.pl?" method="post"><br>
-Select name of set: 
-<SELECT NAME="set1">
+</SELECT><br>
+<p>
+<br>
 END
- 
 
-for( $ll=0; $ll<scalar(@sets_name); $ll++) {
-print <<END;
-<OPTION VALUE=$sets_name[$ll]>$sets_name[$ll]
-END
-}
+print "<p>";
+print "Select name of set:";
+print $query->popup_menu(-name=>'set1',
+                   -values=>\@sets_name,
+                   ); 
 
  
 print <<END;
@@ -140,8 +140,7 @@ END
  print "<p>";
  print "Select library tag:";
  print $query->popup_menu(-name=>'libTag1',
-                    -values=>\@libTag,
-                    -default=>'all'
+                    -values=>\@libTag,sar
                     ); 
 
 
