@@ -1,4 +1,4 @@
-#! /usr/local/bin/perl -w
+#!/usr/bin/env perl
 #
 # $Id:
 #
@@ -11,6 +11,10 @@
 # Scanning FilesCatalog table to get production summary and put it to Web page
 # 
 ################################################################################################
+
+BEGIN {
+ use CGI::Carp qw(fatalsToBrowser carpout);
+}
 
 use CGI;
 
@@ -32,6 +36,7 @@ my $detSet  =  $query->param('SetD');
 my $colSet  =  $query->param('SetC');
 my $Loc     =  $query->param('SetLc');
 
+my $dtset = $colSet."_".$fieldM;
 my @SetD = (
              $prodSer . "/2000/06",
              $prodSer . "/2000/07",
@@ -64,20 +69,14 @@ if($colSet eq "AuAu130") {
 
 #####  Find sets in DataSet table
 
- my $dstHpEvts = 0;
+ my $rootSize = 0;
  my $daqHpEvts = 0;
  my $daqHpSize = 0;
- my $dstHpSize = 0;
  my $evtHpSize = 0;
- my $MuHpSize = 0;
- my $MuHpEvts = 0;
- my $emcHpSize = 0;
- my $emcHpEvts = 0;
+ my $evtHpEvts = 0;
  my $TdaqHpSize = 0;
- my $TdstHpSize = 0;
+ my $TroHpSize = 0;
  my $TevtHpSize = 0;
- my $TMuHpSize = 0;
- my $TemcHpSize = 0;
  my $TNevPrimVtx = 0;
  my $TNevHadrMinb = 0;
  my $TNevHadrCent = 0;
@@ -105,40 +104,42 @@ if($colSet eq "AuAu130") {
 
 ##### select Geant files from FileCatalog
 
-my $nmfile;
-my @hpssInFiles;
 my @prt;
 my $mfield;
 
-#####  select DST files on HPSS from FileCatalog
-my $dhfile;
-my $dhset;
-my @OnlFiles;
-my $nOnlFile = 0;
-my @hpssDstFiles;
+if ($trigD eq "all" and $fieldM eq "all" and $detSet eq "all" ) {
 
- $nhpssDstFiles = 0;
-
-
-
-if ($trigD eq "all" and $detSet eq "all" ) {
-
- $sql="SELECT fName, size, dataset, Nevents  FROM $FileCatalogT WHERE fName LIKE '%.root' AND jobID LIKE '%$prodSer%' AND dataset like '$colls%' AND trigger <> 'n/a' AND site like '$Loc%'";
+ $sql="SELECT sum(size), sum(Nevents)  FROM $FileCatalogT WHERE fName LIKE '%.event.root' AND jobID LIKE '%$prodSer%' AND dataset like '$colls%' AND trigger <> 'n/a' AND site like '$Loc%'";
  
-}elsif($trigD ne "all" and $detSet eq "all") {
+}elsif($trigD ne "all" and $fieldM eq "all" and $detSet eq "all") {
 
- $sql="SELECT fName, size, dataset, Nevents  FROM $FileCatalogT WHERE fName LIKE '%.root' AND jobID LIKE '%$prodSer%' AND dataset like '$colls%' AND trigger = '$trigD' AND site like '$Loc%' ";
+ $sql="SELECT sum(size), sum(Nevents)  FROM $FileCatalogT WHERE fName LIKE '%.event.root' AND jobID LIKE '%$prodSer%' AND dataset like '$colls%' AND trigger = '$trigD' AND site like '$Loc%' ";
 
-}elsif ($trigD eq "all" and $detSet ne "all" ) {
+}elsif ($trigD eq "all" and $fieldM ne "all" and $detSet eq "all") {
 
- $sql="SELECT fName, size, dataset, Nevents  FROM $FileCatalogT WHERE fName LIKE '%.root' AND jobID LIKE '%$prodSer%' AND dataset like '$colls%' AND trigger <> 'n/a' AND dataset like '%$detSet%'  AND site like '$Loc%'";
+ $sql="SELECT  sum(size), sum(Nevents) FROM $FileCatalogT WHERE fName LIKE '%.event.root' AND jobID LIKE '%$prodSer%' AND dataset like '$dtset%' AND trigger <> 'n/a'  AND site like '$Loc%'";
  
-}elsif($trigD ne "all" and $detSet ne "all") {
+}elsif($trigD ne "all" and $fieldM ne "all" and $detSet eq "all") {
 
- $sql="SELECT fName, size, dataset, Nevents  FROM $FileCatalogT WHERE fName LIKE '%.root' AND jobID LIKE '%$prodSer%' AND dataset like '$colls%' AND trigger = '$trigD' AND dataset like '%$detSet%' AND site like '$Loc%' ";
+$sql="SELECT  sum(size), sum(Nevents) FROM $FileCatalogT WHERE fName LIKE '%.event.root' AND jobID LIKE '%$prodSer%' AND dataset like '$dtset%' AND trigger = '$trigD'  AND site like '$Loc%'";
+
+}elsif ($trigD eq "all" and $fieldM eq "all"  and $detSet ne "all" ) {
+
+$sql="SELECT  sum(size), sum(Nevents) FROM $FileCatalogT WHERE fName LIKE '%.event.root' AND jobID LIKE '%$prodSer%' AND dataset like '$colls%' dataset like '%$detSet%' AND trigger <> 'n/a'  AND site like '$Loc%'";
+
+}elsif($trigD ne "all" and $fieldM eq "all" and $detSet ne "all") {
+
+$sql="SELECT  sum(size), sum(Nevents) FROM $FileCatalogT WHERE fName LIKE '%.event.root' AND jobID LIKE '%$prodSer%' AND dataset like '$colls%' dataset like '%$detSet%' AND trigger = '$trigD'  AND site like '$Loc%'";
+
+}elsif ($trigD eq "all" and $fieldM ne "all" and $detSet ne "all" ) {
+
+$sql="SELECT  sum(size), sum(Nevents) FROM $FileCatalogT WHERE fName LIKE '%.event.root' AND jobID LIKE '%$prodSer%' AND dataset like '$dtset%' dataset like '%$detSet%' AND trigger <> 'n/a'  AND site like '$Loc%'";
+
+}elsif($trigD ne "all" and $fieldM ne "all" and $detSet ne "all") {
+
+$sql="SELECT  sum(size), sum(Nevents) FROM $FileCatalogT WHERE fName LIKE '%.event.root' AND jobID LIKE '%$prodSer%' AND dataset like '$dtset%' dataset like '%$detSet%' AND trigger = '$trigD'  AND site like '$Loc%'";
+
 }
-
-
    $cursor =$dbh->prepare($sql)
      || die "Cannot prepare statement: $DBI::errstr\n";
    $cursor->execute;
@@ -152,77 +153,46 @@ if ($trigD eq "all" and $detSet eq "all" ) {
          my $fname=$cursor->{NAME}->[$i];
        print "$fname = $fvalue\n" if $debugOn;
 
-       ($$fObjAdr)->flName($fvalue)   if( $fname eq 'fName');
-       ($$fObjAdr)->dset($fvalue)     if( $fname eq 'dataset');
-       ($$fObjAdr)->hpsize($fvalue)   if( $fname eq 'size');
-       ($$fObjAdr)->Nevts($fvalue)    if( $fname eq 'Nevents');
+        $evtHpSize = $fvalue   if( $fname eq 'sum(size)');
+        $evtHpEvts = $fvalue   if( $fname eq 'sum(Nevents)');
+       }
      }
-  
-     $hpssDstFiles[$nhpssDstFiles] = $fObjAdr;  
-     $nhpssDstFiles++;
-   
-    }
-  
 
-  foreach my $dsfile (@hpssDstFiles) {
 
-      $dhfile = ($$dsfile)->flName; 
-      $dhset  = ($$dsfile)->dset;
-      if($fieldM eq "all")  {
-     if ($dhfile =~ /.dst.root/) {
-        $dstHpSize  += ($$dsfile)->hpsize;
-   }elsif($dhfile =~ /.event.root/) {
-        $evtHpSize  += ($$dsfile)->hpsize;
-        $dstHpEvts  += ($$dsfile)->Nevts;  
-   }elsif($dhfile =~ /.MuDst.root/) {
-        $MuHpSize  += ($$dsfile)->hpsize;
-        $MuHpEvts  += ($$dsfile)->Nevts;   
-   }elsif($dhfile =~ /.emcEvent.root/) {
-        $emcHpSize  += ($$dsfile)->hpsize;
-        $emcHpEvts  += ($$dsfile)->Nevts;   
-      }
-     }else{
-       if($dhset ne "n/a") {
-      @prt = split ("_", $dhset);
-         $mfield = $prt[1];
-         if($mfield eq $fieldM ) {
-     if ($dhfile =~ /.dst.root/) {
-        $dstHpSize  += ($$dsfile)->hpsize;
-   }elsif($dhfile =~ /.event.root/) {
-        $evtHpSize  += ($$dsfile)->hpsize;
-        $dstHpEvts  += ($$dsfile)->Nevts;  
-   }elsif($dhfile =~ /.MuDst.root/) {
-        $MuHpSize  += ($$dsfile)->hpsize;
-        $MuHpEvts  += ($$dsfile)->Nevts;   
-   }elsif($dhfile =~ /.emcEvent.root/) {
-        $emcHpSize  += ($$dsfile)->hpsize;
-        $emcHpEvts  += ($$dsfile)->Nevts;   
-   }    
-   }else{
-    next;
-  }
-  } 
-  }
- }
-#####  select daq files from FileCatalog
- my $dqfile;
- my $dqset;
+##### find sum(size) and sum(Nevents) for daq files from FileCatalog
 
-if ($trigD eq "all" and $detSet eq "all") {
+if ($trigD eq "all" and $fieldM eq "all" and $detSet eq "all" ) {
 
-  $sql="SELECT fName, dataset, size, Nevents  FROM $FileCatalogT WHERE trigger <> 'n/a' AND fName LIKE '%daq' AND path like '%$dPath%' AND dataset like '$colls%' AND site like 'hpss%' ";
+ $sql="SELECT sum(size), sum(Nevents)  FROM $FileCatalogT WHERE fName LIKE '%.daq' AND dataset like '$colls%' AND trigger <> 'n/a' AND site like '$Loc%' AND dataStatus = 'OK' ";
+ 
+}elsif($trigD ne "all" and $fieldM eq "all" and $detSet eq "all") {
 
-}elsif ($trigD ne "all" and $detSet eq "all") {
+ $sql="SELECT sum(size), sum(Nevents)  FROM $FileCatalogT WHERE fName LIKE '%.daq' AND dataset like '$colls%' AND trigger = '$trigD' AND site like '$Loc%' AND dataStatus = 'OK' ";
 
- $sql="SELECT fName, dataset, size, Nevents  FROM $FileCatalogT WHERE trigger = '$trigD' AND fName LIKE '%daq' AND path like '%$dPath%'  AND dataset like '$colls%' AND site like 'hpss%' ";
+}elsif ($trigD eq "all" and $fieldM ne "all" and $detSet eq "all") {
 
-}elsif ($trigD eq "all" and $detSet ne "all") {
+ $sql="SELECT  sum(size), sum(Nevents) FROM $FileCatalogT WHERE fName LIKE '%.daq' AND dataset like '$dtset%' AND trigger <> 'n/a'  AND site like '$Loc%' AND dataStatus = 'OK' ";
+ 
+}elsif($trigD ne "all" and $fieldM ne "all" and $detSet eq "all") {
 
-  $sql="SELECT fName, dataset, size, Nevents  FROM $FileCatalogT WHERE trigger <> 'n/a' AND fName LIKE '%daq' AND dataset like '%$detSet%' AND path like '%$dPath%' AND dataset like '$colls%' AND site like 'hpss%' ";
+$sql="SELECT  sum(size), sum(Nevents) FROM $FileCatalogT WHERE fName LIKE '%.daq' AND dataset like '$dtset%' AND trigger = '$trigD'  AND site like '$Loc%' AND dataStatus = 'OK' " ;
 
-}elsif ($trigD ne "all" and $detSet ne "all") {
+}elsif ($trigD eq "all" and $fieldM eq "all"  and $detSet ne "all" ) {
 
- $sql="SELECT fName, dataset, size, Nevents  FROM $FileCatalogT WHERE trigger = '$trigD' AND fName LIKE '%daq' AND path like '%$dPath%'  AND dataset like '%$detSet%' AND dataset like '$colls%' AND site like 'hpss%' ";
+$sql="SELECT  sum(size), sum(Nevents) FROM $FileCatalogT WHERE fName LIKE '%.daq' AND dataset like '$colls%' dataset like '%$detSet%' AND trigger <> 'n/a'  AND site like '$Loc%' AND dataStatus = 'OK' ";
+
+}elsif($trigD ne "all" and $fieldM eq "all" and $detSet ne "all") {
+
+$sql="SELECT  sum(size), sum(Nevents) FROM $FileCatalogT WHERE fName LIKE '%.daq' AND dataset like '$colls%' dataset like '%$detSet%' AND trigger = '$trigD'  AND site like '$Loc%' AND dataStatus = 'OK' ";
+
+}elsif ($trigD eq "all" and $fieldM ne "all" and $detSet ne "all" ) {
+
+$sql="SELECT  sum(size), sum(Nevents) FROM $FileCatalogT WHERE fName LIKE '%.daq' AND dataset like '$dtset%' dataset like '%$detSet%' AND trigger <> 'n/a'  AND site like '$Loc%' AND dataStatus = 'OK' ";
+
+}elsif($trigD ne "all" and $fieldM ne "all" and $detSet ne "all") {
+
+$sql="SELECT  sum(size), sum(Nevents) FROM $FileCatalogT WHERE fName LIKE '%.daq' AND dataset like '$dtset%' dataset like '%$detSet%' AND trigger = '$trigD'  AND site like '$Loc%' AND dataStatus = 'OK' ";
+
 }
 
    $cursor =$dbh->prepare($sql)
@@ -237,46 +207,68 @@ if ($trigD eq "all" and $detSet eq "all") {
        my $fvalue=$fields[$i];
        my $fname=$cursor->{NAME}->[$i];
        print "$fname = $fvalue\n" if $debugOn;
-# print "$fname = $fvalue\n";
-       ($$fObjAdr)->flName($fvalue)   if( $fname eq 'fName');
-       ($$fObjAdr)->dset($fvalue)     if( $fname eq 'dataset');
-       ($$fObjAdr)->hpsize($fvalue)   if( $fname eq 'size'); 
-       ($$fObjAdr)->Nevts($fvalue)    if( $fname eq 'Nevents');
+
+       $daqHpSize = $fvalue    if( $fname eq 'sum(size)');
+       $daqHpEvts = $fvalue    if( $fname eq 'sum(Nevents)');
      }
-  
-     $OnlFiles[$nOnlFile] = $fObjAdr;  
-     $nOnlFile++;
-   
    }
 
-  foreach my $onfile (@OnlFiles) {
 
-     $dqfile = ($$onfile)->flName;
-     $dqset  = ($$onfile)->dset;
-     $dqEvts = ($$onfile)->Nevts;
-#     $dqEvts -= 1;
-          if($fieldM eq "all")  { 
-    $daqHpEvts  += $dqEvts;
-    $daqHpSize  += ($$onfile)->hpsize; 
-  }else{
-       if($dqset ne "n/a") {
-      @prt = split ("_", $dqset);
-         $mfield = $prt[1];
-         if($mfield eq $fieldM ) {
-    $daqHpEvts  += $dqEvts;
-    $daqHpSize  += ($$onfile)->hpsize; 
-  }else{
-   next;
-      }
-    }
-    }
+if ($trigD eq "all" and $fieldM eq "all" and $detSet eq "all" ) {
+
+ $sql="SELECT sum(size) FROM $FileCatalogT WHERE fName LIKE '%.root' AND jobID LIKE '%$prodSer%' AND dataset like '$colls%' AND trigger <> 'n/a' AND site like '$Loc%'";
+ 
+}elsif($trigD ne "all" and $fieldM eq "all" and $detSet eq "all") {
+
+ $sql="SELECT sum(size) FROM $FileCatalogT WHERE fName LIKE '%.root' AND jobID LIKE '%$prodSer%' AND dataset like '$colls%' AND trigger = '$trigD' AND site like '$Loc%' ";
+
+}elsif ($trigD eq "all" and $fieldM ne "all" and $detSet eq "all") {
+
+ $sql="SELECT  sum(size) FROM $FileCatalogT WHERE fName LIKE '%.root' AND jobID LIKE '%$prodSer%' AND dataset like '$dtset%' AND trigger <> 'n/a'  AND site like '$Loc%'";
+ 
+}elsif($trigD ne "all" and $fieldM ne "all" and $detSet eq "all") {
+
+$sql="SELECT  sum(size) FROM $FileCatalogT WHERE fName LIKE '%.root' AND jobID LIKE '%$prodSer%' AND dataset like '$dtset%' AND trigger = '$trigD'  AND site like '$Loc%'";
+
+}elsif ($trigD eq "all" and $fieldM eq "all"  and $detSet ne "all" ) {
+
+$sql="SELECT  sum(size) FROM $FileCatalogT WHERE fName LIKE '%.root' AND jobID LIKE '%$prodSer%' AND dataset like '$colls%' dataset like '%$detSet%' AND trigger <> 'n/a'  AND site like '$Loc%'";
+
+}elsif($trigD ne "all" and $fieldM eq "all" and $detSet ne "all") {
+
+$sql="SELECT  sum(size) FROM $FileCatalogT WHERE fName LIKE '%.root' AND jobID LIKE '%$prodSer%' AND dataset like '$colls%' dataset like '%$detSet%' AND trigger = '$trigD'  AND site like '$Loc%'";
+
+}elsif ($trigD eq "all" and $fieldM ne "all" and $detSet ne "all" ) {
+
+$sql="SELECT  sum(size) FROM $FileCatalogT WHERE fName LIKE '%.root' AND jobID LIKE '%$prodSer%' AND dataset like '$dtset%' dataset like '%$detSet%' AND trigger <> 'n/a'  AND site like '$Loc%'";
+
+}elsif($trigD ne "all" and $fieldM ne "all" and $detSet ne "all") {
+
+$sql="SELECT  sum(size) FROM $FileCatalogT WHERE fName LIKE '%.root' AND jobID LIKE '%$prodSer%' AND dataset like '$dtset%' dataset like '%$detSet%' AND trigger = '$trigD'  AND site like '$Loc%'";
+
+}
+
+   $cursor =$dbh->prepare($sql)
+      || die "Cannot prepare statement: $DBI::errstr\n";
+   $cursor->execute;
+
+   while(@fields = $cursor->fetchrow) {
+     my $cols=$cursor->{NUM_OF_FIELDS};
+     $fObjAdr = \(FilAttr->new());
+
+     for($i=0;$i<$cols;$i++) {
+       my $fvalue=$fields[$i];
+       my $fname=$cursor->{NAME}->[$i];
+       print "$fname = $fvalue\n" if $debugOn;
+
+       $rootSize = $fvalue    if( $fname eq 'sum(size)');
+     }
    }
+
 
     $TdaqHpSize = int($daqHpSize/1024/1024/1024);
     $TevtHpSize = int($evtHpSize/1024/1024/1024);
-    $TdstHpSize = int($dstHpSize/1024/1024/1024);
-    $TMuHpSize = int($MuHpSize/1024/1024/1024); 
-    $TemcHpSize = int($emcHpSize/1024/1024/1024);       
+    $TroHpSize = int($rootSize/1024/1024/1024);
 
     if($colSet eq "AuAu200" )   {
      if($fieldM eq "all" ) {
@@ -378,12 +370,9 @@ print <<END;
 <TR ALIGN=CENTER HEIGHT=80 bgcolor=lightblue>
 <td HEIGHT=80><h3>$TdaqHpSize</h3></td>
 <td HEIGHT=80><h3>$daqHpEvts</h3></td>
-<td HEIGHT=80><h3>$TdstHpSize</h3></td>
+<td HEIGHT=80><h3>$TroHpSize</h3></td>
 <td HEIGHT=80><h3>$TevtHpSize</h3></td>
-<td HEIGHT=80><h3>$TMuHpSize</h3></td>
-<td HEIGHT=80><h3>$TemcHpSize</h3></td>
-<td HEIGHT=80><h3>$dstHpEvts</h3></td>
-<td HEIGHT=80><h3>$MuHpEvts</h3></td>
+<td HEIGHT=80><h3>$evtHpEvts</h3></td>
 </TR>
 END
 
@@ -442,14 +431,11 @@ print <<END;
      <h2 align=center>Summary for $trigD  $colSet events in $prodSer production </h2>
 <TABLE ALIGN=CENTER BORDER=5 CELLSPACING=1 CELLPADDING=2 >
 <TR>
-<TD ALIGN=CENTER WIDTH=\"10%\" HEIGHT=100><B>Size(GB) of DAQ files</B></TD>
-<TD ALIGN=CENTER WIDTH=\"10%\" HEIGHT=100><B>Number of Events<br>in DAQ files</B></TD>
-<TD ALIGN=CENTER WIDTH=\"10%\" HEIGHT=100><B>Size(GB) of dst.root files</B></TD>
-<TD ALIGN=CENTER WIDTH=\"10%\" HEIGHT=100><B>Size(GB) of event.root files</B></TD>
-<TD ALIGN=CENTER WIDTH=\"10%\" HEIGHT=100><B>Size(GB) of MuDst.root files</B></TD>
-<TD ALIGN=CENTER WIDTH=\"10%\" HEIGHT=100><B>Size(GB) of emcEvent.root files</B></TD>
-<TD ALIGN=CENTER WIDTH=\"10%\" HEIGHT=100><B>Number of Events<br>in event.root file</B></TD>
-<TD ALIGN=CENTER WIDTH=\"10%\" HEIGHT=100><B>Number of Events<br>in MuDst.root file</B></TD>
+<TD ALIGN=CENTER WIDTH=\"20%\" HEIGHT=100><B>Size(GB) of DAQ files</B></TD>
+<TD ALIGN=CENTER WIDTH=\"20%\" HEIGHT=100><B>Number of Events<br>in DAQ files</B></TD>
+<TD ALIGN=CENTER WIDTH=\"20%\" HEIGHT=100><B>Total size(GB) of root files</B></TD>
+<TD ALIGN=CENTER WIDTH=\"20%\" HEIGHT=100><B>Size(GB) of event.root files</B></TD>
+<TD ALIGN=CENTER WIDTH=\"20%\" HEIGHT=100><B>Number of Events <br>in event.root files</B></TD>
 </TR> 
    </head>
     <body>
