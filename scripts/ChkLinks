@@ -47,7 +47,7 @@ $URL  = $ARGV[1] if( defined($ARGV[1]) );
 $FILIN = "/tmp/chklinks$$.log";
 open(SAVEERR,">&STDERR");
 open(STDERR,">/dev/null");
-system("$LINKCHECK $ARGS $URL >/tmp/chklinks$$.log");
+system("$LINKCHECK $ARGS $URL >$FILIN");
 close(STDERR);
 open(STDERR,">&SAVEERR");
 
@@ -203,17 +203,20 @@ if ( open(FO,">$TARGETD/$FLNM-tmp") ){   # If not, forget it
     print FO "</PRE>\n";
     close(FO);
     close(FI);
-}
 
-
-# Safely move now that IO are all done.
-if( -e "$TARGETD/$FLNM-tmp"){
-    @items = stat("$TARGETD/$FLNM-tmp");
-    if( $items[7] != 0){
-	rename("$TARGETD/$FLNM-tmp","$TARGETD/$FLNM");
+    # Safely move now that IO are all done.
+    if( -e "$TARGETD/$FLNM-tmp"){
+	@items = stat("$TARGETD/$FLNM-tmp");
+	if( $items[7] != 0){
+	    rename("$TARGETD/$FLNM-tmp","$TARGETD/$FLNM");
+	}
     }
+    unlink($FILIN);
+} else {
+    print "Could not open $TARGETD/$FLNM-tmp . Leaving $FILIN.\n";
 }
-unlink($FILIN);
+
+
 
 
 sub GetRef
