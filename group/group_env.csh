@@ -1,5 +1,5 @@
 #!/usr/bin/csh -f
-#       $Id: group_env.csh,v 1.131 2002/08/18 23:52:15 jeromel Exp $
+#       $Id: group_env.csh,v 1.132 2002/09/07 22:28:02 jeromel Exp $
 #	Purpose:	STAR group csh setup
 #
 #	Author:		Y.Fisyak     BNL
@@ -300,12 +300,16 @@ switch ($STAR_SYS)
 endsw
 
 
+# ==================================================================
+# Extra package support
+# ==================================================================
+
 # Support for LSF
 if ( -d /usr/local/lsf/bin ) then
-  if ( -x ${GROUP_DIR}/dropit) setenv PATH  `${GROUP_DIR}/dropit lsf`
-  setenv LSF_ENVDIR /usr/local/lsf/mnt/conf
-  set path=(/usr/local/lsf/bin $path)
-  setenv MANPATH `${GROUP_DIR}/dropit -p {$MANPATH} -p /usr/local/lsf/mnt/man`
+    setenv LSF_DIR    /usr/local/lsf
+    setenv LSF_ENVDIR $LSF_DIR/mnt/conf
+    set path=($path $LSF_DIR/bin)
+    setenv MANPATH ${MANPATH}:$LSF_DIR/mnt/man
 endif
 
 # Support for JAVA/JDK
@@ -316,13 +320,26 @@ if ( -d /usr/java/$JDK ) then
     #CLASSPATH anyone ??
 endif
 
+# Support for Qt
+if ( -d $OPTSTAR/qt ) then
+    setenv QTDIR $OPTSTAR/qt
+    set path=($path $QTDIR/bin)
+    setenv MANPATH ${MANPATH}:$QTDIR/man
+    setenv LD_LIBRARY_PATH ${LD_LIBRARY_PATH}:$QTDIR/lib
+endif
+
+# ==================================================================
+# END 
+# ==================================================================
+
+
+
 # We need this aliases even during BATCH
 if (-r $GROUP_DIR/group_aliases.csh) source $GROUP_DIR/group_aliases.csh
 # Scratch space ...
 if ($?SCRATCH == 0) then
     setenv SCRATCH /tmp/$LOGNAME
 endif
-
 
 
 # User Scratch directory
