@@ -60,117 +60,78 @@ endif
 # script which is a file containing commands NOT
 # requird in batch mode.
 # -------------------------------------------------
-/usr/bin/tty -s
-if ( $status == 0 ) then
-    if ( ! $?ENVIRONMENT ) then
-	setenv ENVIRONMENT LOGIN
+
+
+# support for several su mode
+if ( -o /bin/su ) then
+    if($USER == "root") then
+	# root prompt
+	alias setprompt 'set prompt="%m@%.04/# "'
     else
-        if ( $ENVIRONMENT != "DMLOGIN" ) then
-	    setenv ENVIRONMENT LOGIN
-        endif
+	# to another user ...
+	alias setprompt 'set prompt="%m@%.04/| "'
     endif
 else
-    if ( ! $?ENVIRONMENT ) then
-	setenv ENVIRONMENT BATCH
-    endif
-endif
-if( ! $?TERM || ! $?term) then
-    setenv TERM vt100
-    set term=$TERM
+    # user
+    alias setprompt 'set prompt="%m@%.04/> "'
 endif
 
 
-if ( ${ENVIRONMENT} == "LOGIN" || ${ENVIRONMENT} == "DMLOGIN"   ) then
-    # Terminal setting. Can be defined in both mode.
-    # ls /afs/rhic/star/users/*/.Delete
-    # ls /afs/rhic/star/users/*/.BackSpace
-    # and same with /star/u did not find anything. I removed
-    # support for this (noboddy was apparently aware of it).
+# support csh/tcsh
+set filec
+set fignore=( .o .dvi .aux .toc .log .blg .bbl .bak .BAK .sav .old .trace)
+set noclobber               
+set ignoreeof
+set notify
+set savehist=50
+set history=100
 
-    # Delete mode was /bin/stty erase '^?' intr '^c' kill '^u'
-    # BackSpace mode is ...
-    stty erase '^h' intr '^c' kill '^u'
-    stty echoe -inlcr -istrip -parity
-    stty -tostop susp '^z'
-    # BTW, the STAR group login does it all again ...
+switch ($SHELL)
+    case "/usr/local/bin/tcsh":
+    case "/bin/tcsh":
+	set correct = cmd
+	set autolist=on
+	set listjobs=long
+	set showdots=on
+	set ellispis=1
+	set histfile=~/.history.$HOST
+	breaksw
+    default:
+	alias cd 'chdir \!* && setprompt'
+	breaksw
+endsw
 
-
-    # support for several su mode
-    if ( -o /bin/su ) then
-	if($USER == "root") then
-	    # root prompt
-	    alias setprompt 'set prompt="%m@%.04/# "'
-	else
-	    # to another user ...
-	    alias setprompt 'set prompt="%m@%.04/| "'
-	endif
-    else
-	# user
-	alias setprompt 'set prompt="%m@%.04/> "'
-    endif
-
-
-    # support csh/tcsh
-    set filec
-    set fignore = ( .o .dvi .aux .toc .lot .lof .log .blg .bbl .bak .BAK .sav .old .trace )
-    set noclobber               
-    set ignoreeof
-    set notify
-    set savehist=50
-    set history=100
-
-    switch ($SHELL)
-	case "/usr/local/bin/tcsh":
-	case "/bin/tcsh":
-	    set correct = cmd
-	    set autolist=on
-	    set listjobs=long
-	    set showdots=on
-	    set ellispis=1
-	    set histfile=~/.history.$HOST
-	    breaksw
-	default:
-	    breaksw
-    endsw
-
-    # key bindings. Not sure I have done this correctly.
-    if ($?tcsh) then
-	bindkey '^[[1~'  exchange-point-and-mark
-	bindkey '^[[2~'  overwrite-mode
-	bindkey '^[[3~'  delete-char-or-list
-	bindkey '^[[4~'  set-mark-command
-	bindkey '^[[5~'  history-search-backward
-	bindkey '^[[6~'  history-search-forward
-	bindkey '^[Ol'   kill-line
-	bindkey '^[Om'   yank
-	bindkey '^[On'   set-mark-command
-	bindkey '^[Op'   exchange-point-and-mark
-	bindkey '^[Oq'   forward-word
-	bindkey '^[Or'   spell-line
-	bindkey '^[Os'   copy-prev-word
-	bindkey '^[Ot'   beginning-of-line
-	bindkey '^[Ou'   which-command
-	bindkey '^[Ov'   end-of-line
-	bindkey '^[Ow'   backward-word
-	bindkey '^[Ox'   yank
-	bindkey '^[Oy'   kill-region
-    endif
+# key bindings. 
+if ($?tcsh) then
+    bindkey '^[[1~'  exchange-point-and-mark
+    bindkey '^[[2~'  overwrite-mode
+    bindkey '^[[3~'  delete-char-or-list
+    bindkey '^[[4~'  set-mark-command
+    bindkey '^[[5~'  history-search-backward
+    bindkey '^[[6~'  history-search-forward
+    bindkey '^[Ol'   kill-line
+    bindkey '^[Om'   yank
+    bindkey '^[On'   set-mark-command
+    bindkey '^[Op'   exchange-point-and-mark
+    bindkey '^[Oq'   forward-word
+    bindkey '^[Or'   spell-line
+    bindkey '^[Os'   copy-prev-word
+    bindkey '^[Ot'   beginning-of-line
+    bindkey '^[Ou'   which-command
+    bindkey '^[Ov'   end-of-line
+    bindkey '^[Ow'   backward-word
+    bindkey '^[Ox'   yank
+    bindkey '^[Oy'   kill-region
+endif
  
-    # This was taken from HEPIX 100 % as-is
-    # Make sure csh.login will be sourced on IRIX
-    if ( ! $?SHLVL ) then
-       setenv SHLVL 1
-    endif   
+# This was taken from HEPIX 100 % as-is
+# Make sure csh.login will be sourced on IRIX
+if ( ! $?SHLVL ) then
+    setenv SHLVL 1
+endif   
 
-    setprompt
-    alias cd 'chdir \!* && setprompt'
-endif 
+setprompt
 
 
-# One file is not called at all that is
-# the group_cshrc . I think it is obsolete
-# because what is done there is done in other
-# files anyways.
 
-# So, we should be done and OK
 
