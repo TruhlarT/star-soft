@@ -1,7 +1,10 @@
 #!/usr/bin/csh -f
-#       $Id: group_env.csh,v 1.88 1999/11/11 00:14:31 fisyak Exp $
+#       $Id: group_env.csh,v 1.89 1999/11/23 15:12:06 fisyak Exp $
 #	Purpose:	STAR group csh setup 
 #       $Log: group_env.csh,v $
+#       Revision 1.89  1999/11/23 15:12:06  fisyak
+#       Add man path for CC5 and clean up for it
+#
 #       Revision 1.88  1999/11/11 00:14:31  fisyak
 #       Add switch off for CC5 on Solaris
 #
@@ -429,10 +432,13 @@ switch ($STAR_SYS)
       if ("${STAR_HOST_SYS}" == "sun4x_56_CC5" || "${STAR_HOST_SYS}" == "sun4x_56_CC5C") then
         setenv LD_LIBRARY_PATH "/opt/WS5.0/lib:/opt/WS5.0/SC5.0/lib:/usr/openwin/lib:/usr/dt/lib:/usr/local/lib:${PARASOFT}/lib.solaris:/afs/rhic/star/packages/ObjectSpace/2.0m/lib:${MINE_LIB}:${STAR_LIB}:${STAF_LIB}:${LD_LIBRARY_PATH}"
         setenv PATH "/opt/WS5.0/bin:${PATH}"
+	setenv MANPATH "/opt/WS5.0/man:${MANPATH}"
       else
         if ( -x /afs/rhic/star/group/dropit) then
           setenv PATH `/afs/rhic/star/group/dropit WS5.0`
+          setenv PATH `/afs/rhic/star/group/dropit CC5`
           setenv LD_LIBRARY_PATH `/afs/rhic/star/group/dropit -p $LD_LIBRARY_PATH 5.0`
+          setenv LD_LIBRARY_PATH `/afs/rhic/star/group/dropit -p $LD_LIBRARY_PATH CC5`
         endif
       endif
     breaksw 
