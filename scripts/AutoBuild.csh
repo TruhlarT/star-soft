@@ -16,7 +16,12 @@ if ( -r  $GROUP_DIR/star_login.csh ) then
 	# in the string, although we doubel quote it.
 	set TEST=`tokens | grep afs@rhic | sed "s/\[.*//"`
 	if( "$TEST" == "") then
-	    echo "There is no token on `hostname` for `whoami`"
+	    if ( ! -e /tmp/AutoBuild.info) then
+		date >/tmp/AutoBuild.info
+	    endif
+	    echo "There is no token on `hostname` for `whoami`" >>/tmp/AutoBuild.info
+	    tokens >>/tmp/AutoBuild.info
+	    cat /tmp/AutoBuild.info | mail jeromel@bnl.gov
 	else
 	    # Check presence of a log directory
 	    if( ! -d $HOME/log) then
@@ -56,6 +61,9 @@ if ( -r  $GROUP_DIR/star_login.csh ) then
 		if( -e $HOME/AutoBuild-solaris.html) then
 		    mv -f $HOME/AutoBuild-solaris.html $SPATH/AutoBuild-solaris.html
 		endif
+		cd $LPATH
+		# Clean this garbage
+		/usr/bin/find -type d -name SunWS_cache -exec rm -fr {} \;
 		breaksw
 
 	    case "Gcc":
