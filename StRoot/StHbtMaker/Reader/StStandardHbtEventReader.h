@@ -1,6 +1,6 @@
 /***************************************************************************
  *
- * $Id: StStandardHbtEventReader.h,v 1.1 1999/06/29 16:02:57 lisa Exp $
+ * $Id: StStandardHbtEventReader.h,v 1.1.1.1 1999/06/29 16:02:57 lisa Exp $
  *
  * Author: Mike Lisa, Ohio State, lisa@mps.ohio-state.edu
  ***************************************************************************
@@ -20,8 +20,8 @@
  ***************************************************************************
  *
  * $Log: StStandardHbtEventReader.h,v $
- * Revision 1.1  1999/06/29 16:02:57  lisa
- * Initial revision
+ * Revision 1.1.1.1  1999/06/29 16:02:57  lisa
+ * Installation of StHbtMaker
  *
  **************************************************************************/
 
