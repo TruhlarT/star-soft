@@ -167,6 +167,8 @@ print $query->popup_menu(-name=>'plotVal',
  print $query->submit;
  print "<P><br>", $query->reset;
  print $query->endform;
+ print "  <address><a href=\"mailto:didenko\@bnl.gov\">Lidia Didenko</a></address>\n";
+
  print "</body>";
  print "</html>";
   
