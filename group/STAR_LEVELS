@@ -8,23 +8,48 @@
 
 if ($ARGV[0] eq "-g"){
     # Guesstimator
-    if ( -d "include"){
+    $DEBUG = 0;
+
+    if ( ! defined($shs = $ENV{STAR_HOST_SYS}) ){  $shs = "share";}
+    print "STAR_HOST_SYS = $shs\n" if ($DEBUG);
+
+    if ( -d "include" || -d ".$shs"){
+	print "There is apossibility of guessing ..\n" if ($DEBUG);
 	$version = "";
 	if ( opendir(DIR,"include/") ){
+	    print "Scanning include/ ...\n" if ($DEBUG);
 	    while ( defined($file = readdir(DIR)) ){
 		if ( -l "include/$file"){ next;}
 		# This is a fix format defined in RootCint, stic and ConstructTable
 		# If the format changes, the guesstimator will stop working
-		chomp($ver = `grep 'This was generated for version' include/$file`);
-		if ( $ver =~ m/(This was generated for version )(.*)/){
-		    $version = $2;
+		if ( defined($ver = &Found("include/$file")) ){
+		    $version = $ver;
 		    last;
 		}
 	    }
 	    close(DIR);
 	}
+	# Second possibility is to look into STAR_HOST_SYS for some
+	# files
+	if ($version eq ""){
+	    print "Scanning .$shs/share ...\n" if ($DEBUG);
+	    if ( defined($shs = $ENV{STAR_HOST_SYS}) ){
+		if ( -d ".$shs/share"){
+		    print "Searching for LinkDef.h files ...\n" if ($DEBUG);
+		    @all = `find .$shs/share -type f -name '*LinkDef.h'`;
+		    foreach $file (@all){
+			chomp($file);
+			print "\tGot $file\n" if ($DEBUG);
+			if ( defined($ver = &Found($file)) ){
+			    $version = $ver;
+			    last;
+			}
+		    }
+		}
+	    }
+	}
+
 	if ($version ne ""){
-	    $version =~ s/\'//g;
 	    if ($version ne $ENV{STAR_LEVEL}){	print "Wrong STAR environment\n";}
 	    print "$version was the version this code was previously compiled in ...\n";
 	} else {
@@ -49,4 +74,27 @@ if ($ARGV[0] eq "-g"){
     }
     chomp($host = `hostname`);
     print "$host;CERN-$ENV{CERN_LEVEL};STAR-$ENV{STAR_LEVEL};root4star-$cmo/$cdy/$year-$chr:$cmin-$pgmf\n";
+}
+
+
+#
+# Subroutine to find the version from a file
+#
+sub Found
+{
+    my($file)=@_;
+    my($ver)=undef;
+
+    if ( open(FF,$file) ){
+	print "\tReading $file\n" if ($DEBUG);
+	while( defined($line = <FF>) ){
+	    if ( $line =~ m/(This was generated for version )(.*)/){
+		$ver = $2;
+		last;
+	    }
+	}
+	close(FF);
+    }
+    if ( defined($ver) ){  $ver =~ s/\'//g;}
+    $ver;
 }
