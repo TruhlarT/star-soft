@@ -18,9 +18,9 @@ $sltime= 60;
 $mode   = shift(@ARGV) if ( @ARGV );
 $sltime = shift(@ARGV) if ( @ARGV );
 
-
 # We add an infinit loop around so the table will be filled
 # as we go.
+print "$0 starting on ".localtime()."\n";
 do {
     $ctime = localtime();
     $dbObj = rdaq_open_odatabase();
@@ -33,8 +33,9 @@ do {
 	    
 	    # get the top run
 	    $run = $mode*rdaq_last_run($dbObj);
-	    
-	    if($run > 0){
+	    print "Last Run=$run\n";
+
+	    if($run >= 0){
 		# fetch new records since that run number
 		@records = rdaq_raw_files($obj,$run);
 	    
@@ -49,6 +50,7 @@ do {
 		    undef(@records);
 		}
 	    } else {
+		print "Checking entries on ".localtime()."\n";
 		$mode = 0;
 		rdaq_check_entries($obj,$sltime);
 	    }
@@ -64,4 +66,5 @@ do {
 
     sleep($sltime*$mode);
 } while(1*$mode);
+
 

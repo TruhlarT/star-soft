@@ -7,7 +7,7 @@
 # to die ...
 # Will be running on some node ...
 #
-# % DAQFill.csh {Update|Clean|Run} [SleepTime]
+# % DAQFill.csh {Update|Clean|Run|Purge} [SleepTime]
 #
 #
 
@@ -34,6 +34,7 @@ if ( "$1" == "Clean") then
   # auwx is NOT Unix-universal. Use it on Linux.
   set TEST=`ps auwx | grep $ME | grep $SCRIPT | grep -v grep | awk '{print $2}' | xargs`
   if ("$TEST" != "") then
+    echo "Killing $TEST on `date`"
     kill -9 $TEST
   endif
 
@@ -41,21 +42,24 @@ else if ( "$1" == "Update") then
   # Run the script in update mode i.e. fetch intermediate records
   # we may have missed. Sleep time is irrelevant in this mode.
   cd $PATH 
-  ./$SCRIPT 0 >&/dev/null 
+  ./$SCRIPT 0 $SLTIME 
 
 else if ( "$1" == "Purge") then
   # Purge mode will bootstrap the entries entered since some
   # period of time and remove the ones which have been marked
   # bad as a post-action.
   cd $PATH
-  ./$SCRIPT -1 $SLTIME   >>$LOG
+  ./$SCRIPT -1 $SLTIME   
 
 else
   # default option is to Run
   set TEST=`ps -ef | grep $ME | grep $SCRIPT | grep -v grep`
   if ("$TEST" == "") then
     cd $PATH                    
-    ./$SCRIPT 1 $SLTIME  >>$LOG   &     
+    if( ! -e $LOG) then  
+	echo "Starting on `date`" >$LOG
+    endif
+    ./$SCRIPT 1 $SLTIME >>$LOG &     
   endif
 
 endif

@@ -240,6 +240,7 @@ sub rdaq_raw_files
     # Default values
     if( ! defined($from) ){ $from = "";}
     if( ! defined($limit)){ $limit= -1;}
+    if( $from eq 0){ $from = "";}
 
     # An additional time-stamp selection will be made to minimize
     # a problem with database hand-shaking. This will affect only
@@ -252,7 +253,7 @@ sub rdaq_raw_files
 			  "WHERE detectorSet.runNumber=?");
 
     # We will select on RunStatus == 0
-    $cmd  = "SELECT daqFileTag.file, daqSummary.runNumber, daqFileTag.numberOfEvents, daqFileTag.beginEvent, daqFileTag.endEvent, magField.current, magField.scaleFactor, beamInfo.yellowEnergy+beamInfo.blueEnergy, CONCAT(beamInfo.blueSpecies,beamInfo.yellowSpecies) FROM daqFileTag, daqSummary, magField, beamInfo  WHERE daqSummary.runNumber=daqFileTag.run AND daqSummary.runStatus=0 AND daqSummary.destinationID In(1,4) AND daqFileTag.file LIKE '%physics%' AND magField.runNumber=daqSummary.runNumber AND magField.entryTag=0 AND beamInfo.runNumber=daqSummary.runNumber AND beamInfo.entryTag=0 AND daqFileTag.entryTime <= $tref";
+    $cmd  = "SELECT daqFileTag.file, daqSummary.runNumber, daqFileTag.numberOfEvents, daqFileTag.beginEvent, daqFileTag.endEvent, magField.current, magField.scaleFactor, beamInfo.yellowEnergy+beamInfo.blueEnergy, CONCAT(beamInfo.blueSpecies,beamInfo.yellowSpecies) FROM daqFileTag, daqSummary, magField, beamInfo  WHERE daqSummary.runNumber=daqFileTag.run AND daqSummary.runStatus=0 AND daqSummary.destinationID In(1,4) AND daqFileTag.file LIKE '%physics%' AND magField.runNumber=daqSummary.runNumber AND magField.entryTag=0 AND beamInfo.runNumber=daqSummary.runNumber AND beamInfo.entryTag=0";
 
     # Optional arguments
     if( $from ne ""){
@@ -266,16 +267,19 @@ sub rdaq_raw_files
 	    # old expected a run number only
 	    $cmd .= " AND daqSummary.runNumber > $from";
 	}
+	$cmd .= " AND daqFileTag.entryTime <= $tref";
     }
     if($limit > 0){
 	$cmd .= " LIMIT $limit";
     }
 
+    #print "$cmd\n";
     $sth  = $obj->prepare($cmd);
     $sth->execute();
     while( @res = $sth->fetchrow_array() ){
 	# Massage the results to return a non-ambiguous information
 	# We are still lacking 
+	#print join("|",@res)."\n";
 	push(@all,&rdaq_hack($stht,@res));
     }
     @all;
