@@ -1,7 +1,10 @@
 #!/usr/bin/csh -f
-#       $Id: group_env.csh,v 1.71 1999/04/13 20:54:34 fisyak Exp $
+#       $Id: group_env.csh,v 1.72 1999/05/06 15:43:47 fisyak Exp $
 #	Purpose:	STAR group csh setup 
 #       $Log: group_env.csh,v $
+#       Revision 1.72  1999/05/06 15:43:47  fisyak
+#       Introduce ROOT 2.22 for SL99f and add egcs-1.1.2
+#
 #       Revision 1.71  1999/04/13 20:54:34  fisyak
 #       Set all Linuxes to redhat51
 #
@@ -260,8 +263,9 @@ setenv CVSROOT   $STAR_PATH/repository; if ($ECHO) echo   "Setting up CVSROOT   
     setenv CERN_ROOT $CERN/$CERN_LEVEL
     setenv ROOT_LEVEL 2.21
   endif
-  if ($STAR_VERSION  == "SL99d" || $STAR_VERSION  == "SL99c") setenv ROOT_LEVEL 2.21.07
-  if ($STAR_VERSION  == "SL99e")                              setenv ROOT_LEVEL 2.21.08
+  if ($STAR_VERSION  == "SL99c")                              setenv ROOT_LEVEL 2.21.07
+  if ($STAR_VERSION  == "SL99d" || $STAR_VERSION  == "SL99e") setenv ROOT_LEVEL 2.21.08
+  if ($STAR_VERSION  == "SL99f")                              setenv ROOT_LEVEL 2.22
 #endif
                                         if ($ECHO) echo   "Setting up ROOT_LEVEL= ${ROOT_LEVEL}"
 if ($STAR_VERSION  == "SL99a") setenv CERN_LEVEL 99
@@ -361,8 +365,13 @@ switch ($STAR_SYS)
      if (! ${?LD_LIBRARY_PATH}) setenv LD_LIBRARY_PATH 
      setenv LD_LIBRARY_PATH "/usr/lib:${PARASOFT}/lib.linux:/usr/local/lib:${MINE_LIB}:${STAR_LIB}:${STAF_LIB}:${LD_LIBRARY_PATH}:/opt/star/lib"
      if ("`echo $STAR_VERSION | cut -c3-4`" == "99") then
-       setenv PATH "/usr/local/egcs-1.1.1/bin:${PATH}"
-       setenv LD_LIBRARY_PATH "/usr/local/egcs-1.1.1/lib:${LD_LIBRARY_PATH}"
+       if ($STAR_VERSION  == "SL99f") then
+         setenv PATH "/usr/local/egcs-1.1.2/bin:${PATH}"
+         setenv LD_LIBRARY_PATH "/usr/local/egcs-1.1.2/lib:${LD_LIBRARY_PATH}"
+       else
+         setenv PATH "/usr/local/egcs-1.1.1/bin:${PATH}"
+         setenv LD_LIBRARY_PATH "/usr/local/egcs-1.1.1/lib:${LD_LIBRARY_PATH}"
+       endif
      else
        if ( -x /afs/rhic/star/group/dropit) then
 	 setenv PATH            `/afs/rhic/star/group/dropit egcs-1.1.1`
