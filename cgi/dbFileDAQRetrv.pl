@@ -8,7 +8,7 @@
 
 use CGI;
 
-require "/afs/rhic/star/packages/dev/mgr/dbCpProdSetup.pl";
+require "/afs/rhic/star/packages/scripts/dbCpProdSetup.pl";
 
 my $debugOn = 0;
 my %pair;
@@ -30,7 +30,7 @@ $setN = $pck[1];
 &beginHtml();
 my $dirRun = "/home/starreco/reco/" . $setN;
 
-$sql="SELECT * FROM $FileCatalogT WHERE runID = '$runN' AND jobID like '%$setN%' AND path like '%$setN%' AND fName like '%root' ";
+$sql="SELECT * FROM $FileCatalogT WHERE runID = '$runN' AND jobID like '%$setN%' AND path like '%$setN%' AND fName like '%root' order by fileSeq ";
 $cursor =$dbh->prepare($sql)
   || die "Cannot prepare statement: $DBI::errstr\n";
 $cursor->execute;
