@@ -68,21 +68,26 @@
 #              jobs in //.
 #
 
-use lib "/afs/rhic/star/packages/scripts";
+use lib "/afs/rhic.bnl.gov/star/packages/scripts";
 use RunDAQ;
 use CRSQueues;
 
 $ThisYear = 2004;
 
-#
+# Self-sorted vars
 $SELF =  $0;
 $SELF =~ s/.*\///;
 $SELF =~ s/\..*//;
 
 # default values global (unless overwritten)
-$EXPRESS = 0;
-$PHYSTP2 = 0;
-$ZEROBIAS= 0;
+$EXPRESS = 0;  $EXPRESS_W  = 50;
+$ZEROBIAS= 0;  $ZEROBIAS_W = 30;
+
+# this does not have a weight
+$PHYSTP2 = 0;  
+
+
+
 
 # Default values Year2 data
 if ($ThisYear == 2002){
@@ -142,11 +147,11 @@ if ($ThisYear == 2002){
 
     $LASERTP =  3;
     $PHYSTP  =  1;
-    $PHYSTP2 =  5;
-    $EXPRESS =  8;
+    $PHYSTP2 =  5;    # just comment them if you want them disabled
+    $EXPRESS =  8;     
     $ZEROBIAS= 11;
 
-    @USEQ    = (4,4,3);
+    @USEQ    = (3,4,3);
     @SPILL   = (0,3,2);
 
     # Default chain
@@ -177,7 +182,7 @@ $CHAIN   = shift(@ARGV) if ( @ARGV );
 $tmpUQ   = shift(@ARGV) if ( @ARGV );
 $tmpSP   = shift(@ARGV) if ( @ARGV );
 
-$SPATH ="/afs/rhic.star.bnl.gov/star/packages/scripts";
+$SPATH ="/afs/rhic.bnl.gov/star/packages/scripts";
 
 # if we wait 1 minute between submit, and our cron
 # tab executes this once every 20 minutes, max the
@@ -281,28 +286,33 @@ if( $TARGET =~ m/^\// || $TARGET =~ m/\^\// ){
 		print "$SELF :: Top of the list only ...\n";
 		$TARGET=~ s/\^//;
 		if ($EXPRESS != 0){
-		    push(@files,rdaq_get_ffiles($obj,-1,$TOT,$EXPRESS));
+		    push(@files,rdaq_get_ffiles($obj,-1,$TOT*$EXPRESS_W,$EXPRESS));
 		}
 		if ($ZEROBIAS != 0){
-		    push(@files,rdaq_get_ffiles($obj,-1,$TOT,$ZEROBIAS));
+		    push(@files,rdaq_get_ffiles($obj,-1,$TOT*$ZEROBIAS_W,$ZEROBIAS));
 		}
-		push(@files,rdaq_get_ffiles($obj,-1,$TOT,$COND));
+		$W = ($TOT-$num);
+		push(@files,rdaq_get_ffiles($obj,-1,$W,$COND));
 
 	    } else {
 		# ask only for status=0 files (will therefore
 		# crawl-down the list).
 		print "$SELF :: Crawling down the list ...\n";
 		if ($EXPRESS != 0){
-		    push(@files,rdaq_get_ffiles($obj,0,$TOT,$EXPRESS));
+		    push(@files,rdaq_get_ffiles($obj,0,$TOT*$EXPRESS_W,$EXPRESS));
 		}
 		if ($ZEROBIAS != 0){
-		    push(@files,rdaq_get_ffiles($obj,0,$TOT,$ZEROBIAS));
+		    push(@files,rdaq_get_ffiles($obj,0,$TOT*$ZEROBIAS_W,$ZEROBIAS));
 		}
-		push(@files,rdaq_get_ffiles($obj,0,$TOT,$COND));
+		$W = ($TOT-$num);
+		push(@files,rdaq_get_ffiles($obj,0,$W,$COND));
 	    }
 
 
 	    if($#files != -1){
+		# scramble
+		#@files = &Scramble(@files);
+
 		print "$SELF :: Checking ".($#files+1)." jobs\n";
 		undef(@OKFILES);             # will be filled by Submit
 		undef(@SKIPPED);
@@ -765,4 +775,18 @@ __EOF__
 
 }
 
+
+sub Scramble
+{
+    my(@files)=@_;
+    my(@TMP,$i,$s);
+
+    #print "Scrambling ...\n";
+    while ($#files != -1){
+	$i = rand($#files+1);
+	$s = splice(@files,$i,1); #print "Removing $s\n";
+	push(@TMP,$s);
+    }
+    return @TMP;
+}
 
