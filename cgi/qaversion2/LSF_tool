@@ -271,32 +271,38 @@ sub performAction{
     if($action eq "Details"){
 	foreach my $jobID (@markedJobIDs){
 	    writeToNewWindow($cgi->h3("Details for Job $jobID") . "\n" .  
-			     $cgi->pre(`bjobs -l $jobID 2>&1`) . "\n");
+			     $cgi->pre(@{runLSFCmd("bjobs -l $jobID 2>&1")}) .
+			     "\n");
 	}
     }elsif($action eq "History"){
 	foreach my $jobID (@markedJobIDs){
 	    writeToNewWindow($cgi->h3("History for Job $jobID") . "\n" . 
-			     $cgi->pre(`bhist -l $jobID 2>&1`) . "\n");
+			     $cgi->pre(@{runLSFCmd("bhist -l $jobID 2>&1")}) .
+			     "\n");
 	}
     }elsif($action eq "Kill"){
 	foreach my $jobID (@markedJobIDs){
 	    writeToNewWindow($cgi->h3("Killing Job $jobID") . "\n" . 
-			     $cgi->pre(`bkill $jobID 2>&1`) . "\n");
+			     $cgi->pre(@{runLSFCmd("bkill $jobID 2>&1")}) . 
+			     "\n");
 	}
     }elsif($action eq "Suspend" && $expertMode){
 	foreach my $jobID (@markedJobIDs){
 	    writeToNewWindow($cgi->h3("Suspending Job $jobID") . "\n" .  
-			     $cgi->pre(`bstop $jobID 2>&1`) . "\n");
+			     $cgi->pre(@{runLSFCmd("bstop $jobID 2>&1")}) . 
+			     "\n");
 	}
     }elsif($action eq "Resume" && $expertMode){
 	foreach my $jobID (@markedJobIDs){
 	    writeToNewWindow($cgi->h3("Resuming Job $jobID") . "\n" . 
-			     $cgi->pre(`bresume $jobID 2>&1`) . "\n");
+			     $cgi->pre(@{runLSFCmd("bresume $jobID 2>&1")}) .
+			     "\n");
 	}
     }elsif($action eq "Peek" && $expertMode){
 	foreach my $jobID (@markedJobIDs){
 	    writeToNewWindow($cgi->h3("Peeking at Job $jobID") . "\n" . 
-			     $cgi->pre(`bpeek $jobID 2>&1`) . "\n");
+			     $cgi->pre(@{runLSFCmd("bpeek $jobID 2>&1")}) .
+			     "\n");
 	}
     }
 
@@ -380,8 +386,8 @@ sub bJobs{
     my $jobs = {};
 
     # get the jobs from bjobs
-    my @lines = runLSFCmd("bjobs -w -u all");  # lists jobs for all users
-    shift @lines;                              # discard header
+    my @lines = @{runLSFCmd("bjobs -w -u all")};  # lists jobs for all users
+    shift @lines;                                 # discard header
 
     # extract fields from each line
     foreach my $line (@lines){  
@@ -480,7 +486,8 @@ sub jobsSelected{
 # runs an lsf command in a safe way, i.e. checks for the health of the 
 # batch system.  returns "" if the any line of the command output contains
 # "batch system daemon not responding".  Otherwise
-# lsf commands will hang forever.
+# lsf commands will hang forever.  Returns a reference to the array of
+# output lines if the batch system daemon is running ok.
 #
 
 sub runLSFCmd{
@@ -489,7 +496,7 @@ sub runLSFCmd{
     local *READER; 
     open(\*READER, "echo \$\$; ".$cmd." 2>&1 |" ); 
 
-    my $result = "";
+    my $result = [];
 
     # Is this the only way to get the command's pid?
     # I know it's not guaranteed, but it seems to work ok.
@@ -508,7 +515,7 @@ sub runLSFCmd{
 	    #print "killed $lsfPID and closed READER<br>\n";
 	    return "";
 	}else{
-	    $result .= $_;
+	    push @$result, $_;
 	}
     }
 
