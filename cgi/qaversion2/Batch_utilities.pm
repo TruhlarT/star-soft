@@ -88,14 +88,13 @@ sub SubmitLSFJob
     my $cmd = shift;
 
     # user to notify on job begin and end
-    #my $notifyEmail = "starqa\@rcf.rhic.bnl.gov";  
-    my $notifyEmail = 'bnorman@kent.edu';
+    my $notifyEmail = "starqa\@rcf.rhic.bnl.gov";  
     # unique (someday, perhaps...) name of job in batch system
     my $jobName = "AutoQA";
 
     # -N == notify on job completion  }___taken out for now
     # -B == notify on job dispatch    }
-    my $cmdStr = "/usr/local/lsf/bin/bsub -N -u $notifyEmail -J $jobName -q $lsfQueue \"$cmd\"";
+    my $cmdStr = "/usr/local/lsf/bin/bsub -u $notifyEmail -J $jobName -q $lsfQueue \"$cmd\"";
 
     my $retStr = RunLsfCommand($cmdStr);
 
