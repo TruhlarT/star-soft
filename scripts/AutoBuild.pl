@@ -29,8 +29,9 @@ $BY=50;
 @DIRS=IUSourceDirs();
 
 # tasks to peform after compilation
-@POSTSKS=("rm -f RELEASE.date",
-	  "date >RELEASE.date",
+$DFILE = "RELEASE.date";
+@POSTSKS=("rm -f $DFILE",
+	  "date >$DFILE",
 	  );
 
 # Compilation will be made with the following commands. If
@@ -171,7 +172,6 @@ $FLNMSG="$COMPDIR/Execute".$POST;
 $FLNMRC="$COMPDIR/.ABrc_$^O";
 
 
-
 #
 # --- We start here
 #
@@ -300,7 +300,18 @@ if ($ans =~ /^\s*y/i){
     print $FILO " - cvs operation status\n";
     push(@REPORT,"%%REF%%<H2>cvs operation status</H2>");
     if($#UPDATES == -1 && $#MERGED == -1){
-	push(@REPORT,"<BLOCKQUOTE>\n<I>No action required</I>\n</BLOCKQUOTE>");
+	if( -e "$COMPDIR/$DFILE" && $DEBUG){
+	    open(FI,"$COMPDIR/$DFILE");
+	    chomp($tmp = <FI>);
+	    close(FI);
+	    $tmp = "No action requested. Taking the latest $tmp version";
+	} else {
+	    $tmp = "No action required";
+	}
+
+	push(@REPORT,
+	     "<BLOCKQUOTE>\n<I>$tmp</I>\n</BLOCKQUOTE>");
+
     } else {
 	if($#UPDATES != -1){
 	    push(@REPORT,"<OL>");
