@@ -1254,7 +1254,7 @@ my $runflag = 0;
       $EvDone = $no_event;
       $EvCom = $EvDone - $EvSkip;
  
-   print "Number of events: ", $no_event,"  ", $EvDone,"  ",$EvCom, "\n";
+#   print "Number of events: ", $no_event,"  ", $EvDone,"  ",$EvCom, "\n";
 
 ##### get CPU and Real Time per event
       
