@@ -203,9 +203,20 @@ setenv HOST `/bin/hostname | /bin/sed "s/\..*//"`
 # designed sections.
 
 # Then, we came back one level down to ...
-if ( ! -d "$HOME" && -d /homeless ) then
-    setenv HOME /homeless
-    set home="$HOME"
+if ( ! -d "$HOME" ) then
+    if ($ECHO) then
+	echo "          ########################################"
+	echo "          ##                                    ##"
+	echo "          ## WARNING: NO VISIBLE HOME DIRECTORY ##"
+	echo "          ##                                    ##"
+	echo "          ########################################"
+    endif
+    if ( -d /homeless ) then
+	setenv HOME /homeless
+	set home="$HOME"
+    else
+	setenv HOME /tmp
+    endif
     cd $HOME
 endif
 
