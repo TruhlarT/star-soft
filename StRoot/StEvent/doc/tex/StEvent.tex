@@ -2,7 +2,7 @@
 %
 % StEvent - User Guide and Reference Manual -- LaTeX Source
 %
-% $Id: StEvent.tex,v 2.72 2002/02/25 19:56:06 ullrich Exp $
+% $Id: StEvent.tex,v 2.73 2002/04/18 23:38:30 jeromel Exp $
 %
 % Author: Thomas Ullrich, Nov 1999
 %
@@ -21,6 +21,9 @@
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %
 % $Log: StEvent.tex,v $
+% Revision 2.73  2002/04/18 23:38:30  jeromel
+% Implementation of the SVT 2 tables scheme ...
+%
 % Revision 2.72  2002/02/25 19:56:06  ullrich
 % First update after a long time.
 %
@@ -281,8 +284,8 @@
   \mbox{\includegraphics[width=\textwidth]{StEventTitle.eps}}
   \hfill\mbox{}\\[3cm]
   {\LARGE User Guide and Reference Manual \\[5mm] for Version 2}\\[2cm]
-  {\LARGE $ $Revision: 2.72 $ $}  \\[5mm] % replaced by cvs with current revision
-  {\LARGE $ $Date: 2002/02/25 19:56:06 $ $}  % replaced by cvs with current revision
+  {\LARGE $ $Revision: 2.73 $ $}  \\[5mm] % replaced by cvs with current revision
+  {\LARGE $ $Date: 2002/04/18 23:38:30 $ $}  % replaced by cvs with current revision
   \vfill
 \end{center}
 \cleardoublepage
@@ -456,7 +459,8 @@ enum StTrackFittingMethod   {kUndefinedFitterId,
                              kHelix3DId,
                              kKalmanFitId,
                              kLine2StepId,
-                             kLine3DId};
+                             kLine3DId
+                             kL3FitId};
 
 enum StTrackFinderMethod    {svtGrouper,
                              svtStk,
@@ -464,9 +468,11 @@ enum StTrackFinderMethod    {svtGrouper,
                              tpcStandard,
                              tpcOther,
                              ftpcConformal,
+                             ftpcCurrent,
                              svtTpcSvm,
                              svtTpcEst,
-                             svtTpcPattern};
+                             svtTpcPattern,
+                             l3Standard};
 
 enum StRichPidFlag          {eNoMip,
                              eFastEnough,
