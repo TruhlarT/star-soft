@@ -148,7 +148,7 @@ if ($ThisYear == 2002){
     @SPILL   = (0,3,2);
 
     # Default chain
-    $DCHAIN{"AuAu"}           = "P2004,EST,OShortR,Xi2,V02,Kink2,CMuDst";
+    $DCHAIN{"AuAu"}           = "P2004,svt_daq,svtD,EST,eemcD,OShortR,Xi2,V02,Kink2,CMuDst";
 
 
     # Default pre-calib
