@@ -1,4 +1,4 @@
-// $Id: EEmcTowerHit.h,v 1.1 2003/12/18 18:00:54 zolnie Exp $
+// $Id: EEmcTowerHit.h,v 1.1.1.1 2003/12/18 18:00:54 zolnie Exp $
 
 #ifndef STAR_EEmcTowerHit
 #define STAR_EEmcTowerHit
@@ -56,7 +56,7 @@ class EEmcTowerHit : public TObject {
 
 
 // $Log: EEmcTowerHit.h,v $
-// Revision 1.1  2003/12/18 18:00:54  zolnie
-// Initial revision
+// Revision 1.1.1.1  2003/12/18 18:00:54  zolnie
+// Imported sources
 //
 //

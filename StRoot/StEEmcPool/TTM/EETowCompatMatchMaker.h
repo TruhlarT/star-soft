@@ -1,4 +1,4 @@
-// $Id: EETowCompatMatchMaker.h,v 1.1 2003/12/18 18:00:54 zolnie Exp $
+// $Id: EETowCompatMatchMaker.h,v 1.1.1.1 2003/12/18 18:00:54 zolnie Exp $
 
 #ifndef STAR_EETowCompatMatchMaker
 #define STAR_EETowCompatMatchMaker
@@ -132,7 +132,7 @@ class EETowCompatMatchMaker : public StMaker {
   //  StMaker jumbo mumbo
   /// Displayed on session exit, leave it as-is please ...
   virtual const char *GetCVS() const {
-    static const char cvs[]="Tag $Name:  $ $Id: EETowCompatMatchMaker.h,v 1.1 2003/12/18 18:00:54 zolnie Exp $ built "__DATE__" "__TIME__ ; 
+    static const char cvs[]="Tag $Name:  $ $Id: EETowCompatMatchMaker.h,v 1.1.1.1 2003/12/18 18:00:54 zolnie Exp $ built "__DATE__" "__TIME__ ; 
     return cvs;
   }
 
@@ -144,8 +144,8 @@ class EETowCompatMatchMaker : public StMaker {
 
 
 // $Log: EETowCompatMatchMaker.h,v $
-// Revision 1.1  2003/12/18 18:00:54  zolnie
-// Initial revision
+// Revision 1.1.1.1  2003/12/18 18:00:54  zolnie
+// Imported sources
 //
 // Revision 1.1.1.1  2003/12/15 22:48:47  zolnie
 // Imported sources

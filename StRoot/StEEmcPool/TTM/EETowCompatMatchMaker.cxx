@@ -1,5 +1,5 @@
 // *-- Author : Piotr A. Zolnierczuk
-// $Id: EETowCompatMatchMaker.cxx,v 1.1 2003/12/18 18:00:54 zolnie Exp $
+// $Id: EETowCompatMatchMaker.cxx,v 1.1.1.1 2003/12/18 18:00:54 zolnie Exp $
 
 #include "TFile.h"
 #include "TTree.h"
@@ -310,8 +310,8 @@ EETowCompatMatchMaker::accept(StMuEmcCollection *emc, Int_t i, EEmcTowerHit *tow
 
 
 // $Log: EETowCompatMatchMaker.cxx,v $
-// Revision 1.1  2003/12/18 18:00:54  zolnie
-// Initial revision
+// Revision 1.1.1.1  2003/12/18 18:00:54  zolnie
+// Imported sources
 //
 // Revision 1.1.1.1  2003/12/15 22:48:47  zolnie
 // Imported sources
