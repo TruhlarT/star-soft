@@ -691,7 +691,6 @@ sub ShowPsFiles{
    $self->PrintFilestring("Postscript file", $file);
   }
   #-------------------------------------------------------------
-  my $report_key = $self->ReportKey();
   my @refKeys;
   
   if($gDataClass_object->DataClass() !~ /offline_fast/){
