@@ -454,7 +454,7 @@ sub Require
     my($vmin)=@_;
 
     if ( ! defined($vmin) ){ $vmin = "";}
-    if ( $vmin lt $VERSION || $vmin eq ""){
+    if ( $vmin gt $VERSION || $vmin eq ""){
 	&die_message("Require",
 		     "Required $vmin, current version $VERSION");
     }
@@ -4739,6 +4739,7 @@ sub print_delayed
 # value   - new value that should be put into the database
 #           instead of the current one
 # doit    - do it or not, default is 1
+# delete  - delete duplicate it would otherwise create (default 0 and ignore ops)
 #
 sub update_location {
   if ($_[0] =~ m/FileCatalog/) { my $self = shift;}
