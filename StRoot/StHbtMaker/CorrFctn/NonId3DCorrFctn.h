@@ -1,6 +1,6 @@
 /***************************************************************************
  *
- * $Id: NonId3DCorrFctn.h,v 1.1 2001/04/03 21:02:51 kisiel Exp $
+ * $Id: NonId3DCorrFctn.h,v 1.2 2002/12/12 17:02:49 kisiel Exp $
  *
  * Author: Mike Lisa, Ohio State, lisa@mps.ohio-state.edu
  ***************************************************************************
@@ -11,6 +11,9 @@
  ***************************************************************************
  *
  * $Log: NonId3DCorrFctn.h,v $
+ * Revision 1.2  2002/12/12 17:02:49  kisiel
+ * Use KStar instead of 2*KStar for non-identical particles
+ *
  * Revision 1.1  2001/04/03 21:02:51  kisiel
  *
  *
@@ -52,6 +55,8 @@ public:
 		     const float& QinvHi);
   NonId3DCorrFctn(char* title, const int& nbins, const float& QinvLo, 
 		     const float& QinvHi, const int mqSideSel);
+  NonId3DCorrFctn(char* title, const int& nbins, const float& QinvLo, 
+		     const float& QinvHi, const float KCompCut);
   virtual ~NonId3DCorrFctn();
 
   virtual void makeHistos(char* title, const int& nbins, const float& QinvLo, const float& QinvHi);
@@ -99,23 +104,30 @@ private:
   StHbt2DHisto* mHLongKSame;
   StHbt2DHisto* mHLongKDiff;
 
-  StHbt2DHisto* mHQSideExitNum;
-  StHbt2DHisto* mHKStarExitNumSideP;
-  StHbt2DHisto* mHKStarExitNumSideN;
+/*   StHbt2DHisto* mHQSideExitNum; */
+/*   StHbt2DHisto* mHKStarExitNumSideP; */
+/*   StHbt2DHisto* mHKStarExitNumSideN; */
 
-  StHbt2DHisto* mHQSideExitDen;
-  StHbt2DHisto* mHKStarExitDenSideP;
-  StHbt2DHisto* mHKStarExitDenSideN;
+/*   StHbt2DHisto* mHQSideExitDen; */
+/*   StHbt2DHisto* mHKStarExitDenSideP; */
+/*   StHbt2DHisto* mHKStarExitDenSideN; */
 
-  StHbt2DHisto* mHQOutExitNum;
-  StHbt2DHisto* mHKStarExitNumOutP;
-  StHbt2DHisto* mHKStarExitNumOutN;
+/*   StHbt2DHisto* mHQOutExitNum; */
+/*   StHbt2DHisto* mHKStarExitNumOutP; */
+/*   StHbt2DHisto* mHKStarExitNumOutN; */
 
-  StHbt2DHisto* mHQOutExitDen;
-  StHbt2DHisto* mHKStarExitDenOutP;
-  StHbt2DHisto* mHKStarExitDenOutN;
+/*   StHbt2DHisto* mHQOutExitDen; */
+/*   StHbt2DHisto* mHKStarExitDenOutP; */
+/*   StHbt2DHisto* mHKStarExitDenOutN; */
+
+//  StHbt2DHisto* mHPt1KStarOutNum;
+//  StHbt2DHisto* mHPt1KStarOutDen;
+//  StHbt2DHisto* mHPt2KStarOutNum;
+//  StHbt2DHisto* mHPt2KStarOutDen;
 
   int mqSideSel;
+  float mKCompCut;
+  
 
 #ifdef __ROOT__ 
   ClassDef(NonId3DCorrFctn, 1)
