@@ -4,11 +4,11 @@
 #
 #  Wensheng Deng
 #
-#############################################################################################################
+###############################################################################
 
 use CGI;
 
-require "/star/u2a/didenko/dev/mgr/dbCpProdSetup.pl";
+require "/afs/rhic/star/packages/DEV/mgr/dbCpProdSetup.pl";
 
 my $debugOn = 0;
 my %pair;
@@ -21,7 +21,7 @@ $set = $q->param("set");
 
 &beginHtml();
 
-$sql="SELECT * FROM $FilesCatalogTestT WHERE dataset = '$set'";
+$sql="SELECT * FROM $cpFileCatalogT WHERE dataset = '$set' AND JobID LIKE '%prod5%'";
 $cursor =$dbh->prepare($sql)
   || die "Cannot prepare statement: $DBI::errstr\n";
 $cursor->execute;
@@ -80,7 +80,6 @@ print <<END;
 <TD WIDTH=\"10%\" HEIGHT=50><B>hpss</B></TD>
 <TD WIDTH=\"10%\" HEIGHT=50><B>status</B></TD>
 <TD WIDTH=\"10%\" HEIGHT=50><B>comment</B></TD>
-<TD WIDTH=\"10%\" HEIGHT=50><B>magField</B></TD>
 </TR>
 
 END
@@ -113,7 +112,6 @@ print <<END;
 <td>$pair{'hpss'}</td>
 <td>$pair{'status'}</td>
 <td>$pair{'comment'}</td>
-<td>$pair{'magField'}</td>
 </tr>
 END
 
