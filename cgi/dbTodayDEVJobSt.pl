@@ -192,7 +192,7 @@ print <<END;
 <td>$myMemF</td>
 <td>$myMemL</td>
 <td>$myCPU</td>
-<td>$myCtime</td>
+<td>$cdate</td>
 </TR>
 END
 
