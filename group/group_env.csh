@@ -1,28 +1,33 @@
 #!/usr/bin/csh -f
-#       $Id: group_env.csh,v 1.116 2001/04/10 18:52:57 jeromel Exp $
-#	Purpose:	STAR group csh setup 
+#       $Id: group_env.csh,v 1.117 2001/04/10 21:06:24 jeromel Exp $
+#	Purpose:	STAR group csh setup
 #
 #	Author:		Y.Fisyak     BNL
 #	Date:		27 Feb. 1998
 #	Modified:
 #     3 Mar 98  T. Wenaus  HP Jetprint added (for sol)
 #     2 Apr 01  J. Lauret  Insure path added
-# 
+#
 #	STAR software group	1998
 #
 set ECHO = 1; if ($?STAR == 1) set ECHO = 0
 if ($?SILENT == 1) set ECHO = 0;
+
 setenv WWW_HOME http://www.star.bnl.gov/
-                                             if ($ECHO) echo   "Setting up WWW_HOME  = $WWW_HOME"
+if ($ECHO) echo   "Setting up WWW_HOME  = $WWW_HOME"
+
 setenv AFS       /usr/afsws
 setenv AFS_RHIC  /afs/rhic
+
 if (! $?STAR_ROOT) then
     setenv STAR_ROOT ${AFS_RHIC}/star;
 endif
 if ($ECHO) then
-  cat ${STAR_ROOT}/group/small-logo 
+  cat ${STAR_ROOT}/group/small-logo
 endif
-                                             if ($ECHO) echo   "Setting up STAR_ROOT = ${STAR_ROOT}"         
+if ($ECHO) echo   "Setting up STAR_ROOT = ${STAR_ROOT}"
+
+
 # Define /opt/star
 if ( ! $?OPTSTAR )  setenv OPTSTAR /opt/star
 # Defined by HEPiX
@@ -30,43 +35,52 @@ if ( ! $?GROUP_DIR )  setenv GROUP_DIR ${STAR_ROOT}/group
 # Defined in CORE
 if ( ! $?GROUP_PATH ) setenv GROUP_PATH ${STAR_ROOT}/group
 setenv GROUPPATH  $GROUP_PATH
-if ($?STAR_PATH == 0) setenv STAR_PATH ${STAR_ROOT}/packages;      if ($ECHO) echo   "Setting up STAR_PATH = ${STAR_PATH}"
+if ($?STAR_PATH == 0) setenv STAR_PATH ${STAR_ROOT}/packages;
+if ($ECHO) echo   "Setting up STAR_PATH = ${STAR_PATH}"
+
 if ($?STAR_LEVEL == 0) setenv STAR_LEVEL pro
 if ($STAR_LEVEL  == "old" || $STAR_LEVEL  == "pro" || $STAR_LEVEL  == "new" || $STAR_LEVEL  == "dev" || $STAR_LEVEL  == ".dev") then
-  setenv STAR_VERSION `/bin/ls -ld $STAR_PATH/${STAR_LEVEL} |cut -f2 -d">"`  
+  setenv STAR_VERSION `/bin/ls -ld $STAR_PATH/${STAR_LEVEL} |cut -f2 -d">"`
 else
   setenv STAR_VERSION ${STAR_LEVEL}
 endif
+
 if ($?STAF_LEVEL == 0) setenv STAF_LEVEL $STAR_LEVEL
 if ($STAF_LEVEL  == "old" || $STAF_LEVEL  == "pro" || $STAF_LEVEL  == "new" || $STAF_LEVEL  == "dev" || $STAF_LEVEL  == ".dev") then
-  setenv STAF_VERSION `/bin/ls -ld $STAR_PATH/StAF/${STAF_LEVEL} |cut -f2 -d">"`  
+  setenv STAF_VERSION `/bin/ls -ld $STAR_PATH/StAF/${STAF_LEVEL} |cut -f2 -d">"`
 else
   setenv STAF_VERSION ${STAF_LEVEL}
 endif
 
 # Clear this out. First block STAF, second STAR
-source ${GROUP_DIR}/STAR_SYS; 
+source ${GROUP_DIR}/STAR_SYS;
 # STAF
 setenv STAF $STAR_PATH/StAF/${STAF_VERSION};    if ($ECHO) echo   "Setting up STAF      = ${STAF}"
 setenv STAF_LIB  $STAF/.${STAR_HOST_SYS}/lib;   if ($ECHO) echo   "Setting up STAF_LIB  = ${STAF_LIB}"
 setenv STAF_BIN  $STAF/.${STAR_HOST_SYS}/bin;   if ($ECHO) echo   "Setting up STAF_BIN  = ${STAF_BIN}"
 # STAR
-setenv STAR $STAR_PATH/${STAR_VERSION};         if ($ECHO) echo   "Setting up STAR      = ${STAR}"
+setenv STAR      $STAR_PATH/${STAR_VERSION};    if ($ECHO) echo   "Setting up STAR      = ${STAR}"
 setenv STAR_LIB  $STAR/.${STAR_HOST_SYS}/lib;   if ($ECHO) echo   "Setting up STAR_LIB  = ${STAR_LIB}"
-setenv MINE_LIB        .${STAR_HOST_SYS}/lib;
-setenv STAR_BIN  $STAR/.${STAR_HOST_SYS}/bin;
-setenv MY_BIN          .${STAR_HOST_SYS}/bin 
+setenv MINE_LIB        .${STAR_HOST_SYS}/lib
+setenv STAR_BIN  $STAR/.${STAR_HOST_SYS}/bin
+setenv MY_BIN          .${STAR_HOST_SYS}/bin
 
+
+# Options my alter *_BIN and/or add *_lib. All options should
+# be treated here. Defaults hould be preserved above.
 if ($?NODEBUG) then
   setenv STAR_lib  $STAR/.${STAR_HOST_SYS}/LIB; if ($ECHO) echo   "Setting up STAR_lib  = ${STAR_lib}"
-  setenv MINE_lib        .${STAR_HOST_SYS}/LIB;
-  setenv STAR_BIN  $STAR/.${STAR_HOST_SYS}/BIN;
+  setenv MINE_lib        .${STAR_HOST_SYS}/LIB
+  setenv STAR_BIN  $STAR/.${STAR_HOST_SYS}/BIN
+  setenv MY_BIN          .${STAR_HOST_SYS}/BIN
 else if ($?INSURE) then
-  # do it conditional because this is a late addition. The directory structure may not exist ...
+  # Do it conditional because this is a late addition.
+  # The directory structure may not exist for all library version.
   if( -e $STAR/.${STAR_HOST_SYS}/ILIB) then
-   setenv STAR_lib  $STAR/.${STAR_HOST_SYS}/ILIB;if ($ECHO) echo  "Setting up STAR_lib  = ${STAR_lib}"
-   setenv MINE_lib        .${STAR_HOST_SYS}/ILIB;
-   setenv STAR_BIN  $STAR/.${STAR_HOST_SYS}/IBIN;
+   setenv STAR_lib  $STAR/.${STAR_HOST_SYS}/ILIB;if ($ECHO) echo   "Setting up STAR_lib  = ${STAR_lib}"
+   setenv MINE_lib        .${STAR_HOST_SYS}/ILIB
+   setenv STAR_BIN  $STAR/.${STAR_HOST_SYS}/IBIN
+   setenv MY_BIN          .${STAR_HOST_SYS}/IBIN
   else
    if ($ECHO) echo  "Setting up STAR_lib  = Cannot Set (missing tree)"
   endif
@@ -74,15 +88,18 @@ else
   if ($?STAR_lib) unsetenv STAR_lib
   if ($?MINE_lib) unsetenv MINE_lib
 endif
-if ($ECHO) echo   "Setting up STAR_BIN  = ${STAR_BIN}"
+
+if ($ECHO)    echo   "Setting up STAR_BIN  = ${STAR_BIN}"
+
 
 # Common stuff
 setenv STAR_MGR $STAR/mgr
 setenv STAR_SCRIPTS $STAR/scripts
 setenv STAR_CGI $STAR/cgi
-setenv STAR_PAMS $STAR/pams;                 if ($ECHO) echo   "Setting up STAR_PAMS = ${STAR_PAMS}"
-setenv STAR_DATA ${STAR_ROOT}/data;          if ($ECHO) echo   "Setting up STAR_DATA = ${STAR_DATA}"
-if ( $?STAR_DB == 0) setenv STAR_DB /star/sol/db;                 if ($ECHO) echo   "Setting up STAR_DB   = ${STAR_DB}"
+setenv STAR_PAMS $STAR/pams;            if ($ECHO) echo   "Setting up STAR_PAMS = ${STAR_PAMS}"
+setenv STAR_DATA ${STAR_ROOT}/data;     if ($ECHO) echo   "Setting up STAR_DATA = ${STAR_DATA}"
+if ( $?STAR_DB == 0) setenv STAR_DB /star/sol/db
+                                        if ($ECHO) echo   "Setting up STAR_DB   = ${STAR_DB}"
 setenv STAR_PARAMS ${STAR}/params;      if ($ECHO) echo   "Setting up STAR_PARAMS= ${STAR_PARAMS}"
 setenv STAR_CALIB ${STAR_ROOT}/calib;   if ($ECHO) echo   "Setting up STAR_CALIB= ${STAR_CALIB}"
 setenv STAR_PROD   $STAR/prod;          if ($ECHO) echo   "Setting up STAR_PROD = ${STAR_PROD}"
@@ -92,39 +109,44 @@ if (-f $STAR/mgr/ROOT_LEVEL && -f $STAR/mgr/CERN_LEVEL) then
   setenv ROOT_LEVEL `cat $STAR/mgr/ROOT_LEVEL`
   setenv CERN_LEVEL `cat $STAR/mgr/CERN_LEVEL`
 else
-switch ( $STAR_VERSION )
+ switch ( $STAR_VERSION )
 
   case SL98l: setenv ROOT_LEVEL 2.20
   breaksw
 
-  case SL99a: 
-  case SL99b: 
+  case SL99a:
+  case SL99b:
   case SL99c:
   setenv ROOT_LEVEL 2.21
-  setenv CERN_LEVEL 99  
+  setenv CERN_LEVEL 99
   breaksw
 
-  case SL99d: 
-  case SL99e: 
+  case SL99d:
+  case SL99e:
   setenv ROOT_LEVEL 2.21.08
-  setenv CERN_LEVEL 99  
+  setenv CERN_LEVEL 99
   breaksw
 
-  case SL99f: 
-  case SL99g: 
+  case SL99f:
+  case SL99g:
   setenv ROOT_LEVEL 2.22
-  setenv CERN_LEVEL 99  
+  setenv CERN_LEVEL 99
   breaksw
 
   default: setenv ROOT_LEVEL 2.13
-endsw
+ endsw
 endif
+
 setenv CERN_ROOT  $CERN/$CERN_LEVEL
 if ($ECHO) echo   "Setting up ROOT_LEVEL= ${ROOT_LEVEL}"
+
 ##VP setenv GROUPPATH "${GROUP_DIR}:${STAR_MGR}:${STAR_SCRIPTS}:${STAR_CGI}:${MY_BIN}:${STAR_BIN}:${STAF}/mgr:${STAF_BIN}"
 setenv GROUPPATH `${GROUP_DIR}/dropit -p ${GROUP_DIR} -p ${STAR_MGR} -p ${STAR_SCRIPTS} -p ${STAR_CGI} -p ${MY_BIN} -p ${STAR_BIN} -p ${STAF}/mgr -p ${STAF_BIN}`
+
 ##VP setenv PATH "${OPTSTAR}/bin:$PATH"
 setenv PATH `${GROUP_DIR}/dropit -p ${OPTSTAR}/bin -p $PATH`
+
+
 # root
 if ( -f $GROUP_DIR/rootenv.csh) then
   source $GROUP_DIR/rootenv.csh
@@ -194,10 +216,10 @@ switch ($STAR_SYS)
      if (-d /usr/local/KAI/KCC.flex-3.4f-1/KCC_BASE) then
        setenv KAI /usr/local/KAI/KCC.flex-3.4f-1/KCC_BASE
        setenv PATH `${GROUP_DIR}/dropit -p $KAI/bin -p $PATH`
-       
+
      endif
      setenv PATH  `${GROUP_DIR}/dropit -p $PATH  -p /usr/local/bin/ddd`
-     if ($?LD_LIBRARY_PATH == 0) setenv LD_LIBRARY_PATH 
+     if ($?LD_LIBRARY_PATH == 0) setenv LD_LIBRARY_PATH
      if ($?MINE_lib == 1 && $?STAR_lib == 1) then
 ##VP        setenv LD_LIBRARY_PATH "${MINE_lib}:${MINE_LIB}:${STAR_lib}:${STAR_LIB}:${STAF_LIB}:${LD_LIBRARY_PATH}"
        setenv LD_LIBRARY_PATH `${GROUP_DIR}/dropit -p ${MINE_lib} -p ${MINE_LIB} -p ${STAR_lib} -p ${STAR_LIB} -p ${STAF_LIB} -p ${LD_LIBRARY_PATH}`
@@ -233,7 +255,7 @@ switch ($STAR_SYS)
           setenv PATH `${GROUP_DIR}/dropit CC5`
           setenv LD_LIBRARY_PATH `${GROUP_DIR}/dropit -p $LD_LIBRARY_PATH 5.0`
           setenv LD_LIBRARY_PATH `${GROUP_DIR}/dropit -p $LD_LIBRARY_PATH CC5`
-	  
+
 
         endif
 ##VP         setenv LD_LIBRARY_PATH "/opt/SUNWspro/lib:${LD_LIBRARY_PATH}:${STAR_PATH}/ObjectSpace/2.0m/lib"
@@ -256,7 +278,7 @@ switch ($STAR_SYS)
      setenv OBJY_ARCH solaris4
      limit coredump 0
      unlimit descriptors
-    breaksw 
+    breaksw
     default:
 #  ====================
     breaksw
@@ -286,11 +308,11 @@ if ($?SCRATCH == 0) then
 #        setenv SCRATCH /scr22/$LOGNAME
 #else if ( -w /scratch ) then
 #        setenv SCRATCH /scratch/$LOGNAME
-#else 
+#else
 ##	echo No scratch directory available. Using /tmp/$USER ...
         setenv SCRATCH /tmp/$LOGNAME
 endif
- 
+
 if ( ! -d $SCRATCH ) then
         mkdir $SCRATCH
         chmod 755 $SCRATCH
@@ -317,7 +339,7 @@ if ("$CERN_LEVEL" != "pro") then
   setenv PATH  `${GROUP_DIR}/dropit cern`
 ##VP   setenv PATH  "${PATH}:${CERN_ROOT}/bin"
   setenv PATH `${GROUP_DIR}/dropit -p ${PATH} -p ${CERN_ROOT}/bin`
-endif 
+endif
 ##VP setenv PATH "${OPTSTAR}/bin:${PATH}"
 setenv PATH `${GROUP_DIR}/dropit -p ${OPTSTAR}/bin -p ${PATH}`
 switch ($STAR_SYS)
