@@ -6,5 +6,5 @@
 set staff = `which staf`
 set staf = `ls -al $staff | cut -c42-120 |sed -e 's/ /_/g'`
 
-echo " "CERN-$CERN_LEVEL\;STAR-$STAR_LEVEL\;STAF-${staf}\;`date +%d_%h_%y`|sed -e 's/ //g'
+echo " "`hostname`"-"CERN-$CERN_LEVEL\;STAR-$STAR_LEVEL\;STAF-${staf}\;`date +%d_%h_%y`|sed -e 's/ //g'
 #
