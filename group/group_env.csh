@@ -1,7 +1,10 @@
 #!/usr/bin/csh -f
-#       $Id: group_env.csh,v 1.98 2000/04/18 01:25:50 fisyak Exp $
+#       $Id: group_env.csh,v 1.99 2000/04/26 21:31:19 fisyak Exp $
 #	Purpose:	STAR group csh setup 
 #       $Log: group_env.csh,v $
+#       Revision 1.99  2000/04/26 21:31:19  fisyak
+#       switch default SCRATCH from /star/rcf/scratch to /home/scratch
+#
 #       Revision 1.98  2000/04/18 01:25:50  fisyak
 #       remove extra {} in LD_LIBRARY_PATH
 #
@@ -503,8 +506,8 @@ endif
 if (-r $GROUP_DIR/group_aliases.csh) source $GROUP_DIR/group_aliases.csh
 #
 if ($?SCRATCH == 0) then
-if ( -w /star/rcf/scratch ) then
-        setenv SCRATCH /star/rcf/scratch/$LOGNAME
+if ( -w /home/scratch ) then
+        setenv SCRATCH /home/scratch/$LOGNAME
 else if ( -w /scr20 ) then
         setenv SCRATCH /scr20/$LOGNAME
 else if ( -w /scr21 ) then
@@ -572,6 +575,7 @@ endsw
 endif
 if ($ECHO) then
 echo "STAR setup on" `hostname` "by" `date` " has been completed"
+if ($ECHO) echo   "LD_LIBRARY_PATH = $LD_LIBRARY_PATH"
 unset ECHO
 endif
 set date="`date`"
