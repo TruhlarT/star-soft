@@ -82,6 +82,7 @@ $SELF =~ s/\..*//;
 # default values global (unless overwritten)
 $EXPRESS = 0;
 $PHYSTP2 = 0;
+$ZEROBIAS= 0;
 
 # Default values Year2 data
 if ($ThisYear == 2002){
@@ -139,10 +140,11 @@ if ($ThisYear == 2002){
     $NUMEVT  = 100;
     $TARGET  = "/star/data27/reco";
 
-    $LASERTP = 3;
-    $PHYSTP  = 1;
-    $PHYSTP2 = 5;
-    $EXPRESS = 8;
+    $LASERTP =  3;
+    $PHYSTP  =  1;
+    $PHYSTP2 =  5;
+    $EXPRESS =  8;
+    $ZEROBIAS= 11;
 
     @USEQ    = (4,4,3);
     @SPILL   = (0,3,2);
@@ -175,7 +177,7 @@ $CHAIN   = shift(@ARGV) if ( @ARGV );
 $tmpUQ   = shift(@ARGV) if ( @ARGV );
 $tmpSP   = shift(@ARGV) if ( @ARGV );
 
-$SPATH ="/afs/rhic/star/packages/scripts";
+$SPATH ="/afs/rhic.star.bnl.gov/star/packages/scripts";
 
 # if we wait 1 minute between submit, and our cron
 # tab executes this once every 20 minutes, max the
@@ -280,20 +282,23 @@ if( $TARGET =~ m/^\// || $TARGET =~ m/\^\// ){
 		$TARGET=~ s/\^//;
 		if ($EXPRESS != 0){
 		    push(@files,rdaq_get_ffiles($obj,-1,$TOT,$EXPRESS));
-		    push(@files,rdaq_get_ffiles($obj,-1,$TOT,$COND));
-		} else {
-		    @files = rdaq_get_ffiles($obj,-1,$TOT,$COND);
 		}
+		if ($ZEROBIAS != 0){
+		    push(@files,rdaq_get_ffiles($obj,-1,$TOT,$ZEROBIAS));
+		}
+		push(@files,rdaq_get_ffiles($obj,-1,$TOT,$COND));
+
 	    } else {
 		# ask only for status=0 files (will therefore
 		# crawl-down the list).
 		print "$SELF :: Crawling down the list ...\n";
 		if ($EXPRESS != 0){
 		    push(@files,rdaq_get_ffiles($obj,0,$TOT,$EXPRESS));
-		    push(@files,rdaq_get_ffiles($obj,0,$TOT,$COND));
-		} else {
-		    @files = rdaq_get_ffiles($obj,0,$TOT,$COND);
 		}
+		if ($ZEROBIAS != 0){
+		    push(@files,rdaq_get_ffiles($obj,0,$TOT,$ZEROBIAS));
+		}
+		push(@files,rdaq_get_ffiles($obj,0,$TOT,$COND));
 	    }
 
 
