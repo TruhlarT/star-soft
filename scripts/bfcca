@@ -217,9 +217,16 @@ if($LIBRARY =~ m/dev/i || $LIBRARY =~ m/new/i ||
 } elsif ($LIBRARY =~ m/cal/i){
     # Special calibration area where tests would be run
     # before code gets commited. 
-    $CHVER  = "stardev\n";
+    if ( index($LIBRARY,"-") != -1){
+	@items  = split("-",$LIBRARY);
+	$CHVER  = "starver $items[0]\n";
+	$LIBRARY= "$items[0] (cal)";
+    } else {
+	$CHVER  = "stardev\n";
+	$LIBRARY= "dev (cal)";
+    }
     $CHVER .= "ln -s \$STAR_PATH/cal/.\@sys ./.\$STAR_SYS";
-    $LIBRARY= "dev (cal)";
+
 } else {
     $CHVER = "starver $LIBRARY";
 }
