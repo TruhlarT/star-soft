@@ -42,6 +42,10 @@ for( $ll = 0; $ll<scalar( @prodPer); $ll++) {
    $kk++;
   }
 }
+    $prodCh = "MDC4" . "_" . "test" . "_" ."trs2y";
+    $prodFlag{$prodCh} = 0;
+    $prChain[$kk] = $prodCh;
+   
 my $DtSet = $mcSet; 
 
 struct FilAttr => {
@@ -150,12 +154,15 @@ my $chainN;
          $chainN = "tfs";
       } elsif($dchName =~ /tss/) {
          $chainN = "tss";
-       }elsif($dchName =~ /trsY2/) {
-         $chainN = "trs2Y";
        }elsif($dchName =~ /trs/) {
          $chainN = "trs";
        }
+
+       if ($dchName eq "trs2y") {
+      $prodChain = $dhprSer . "_" . "test" . "_" . "trs2y"; 
+    }else {
       $prodChain = $dhprSer . "_" . $chainN;
+    }
 
  $sql="SELECT chainOpt, libVersion, prodSeries FROM $ProdOptionsT WHERE chainName = '$dchName'  AND prodSeries = '$dhprSer' ";
 
