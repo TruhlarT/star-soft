@@ -290,9 +290,7 @@ sub RunMacro{
 
   # does it exist?        
   -e $input_file or do{  
-    my $production_dir = $self->ProductionDirectory;
-    print h4("File with type $input_type not found in directory"),
-          h4("$production_dir \n");
+    print h4("File with type $input_type not found\n");
     return;
   };
 
