@@ -1,7 +1,10 @@
 #!/usr/bin/csh -f
-#       $Id: group_env.csh,v 1.73 1999/06/03 14:55:39 wenaus Exp $
+#       $Id: group_env.csh,v 1.74 1999/06/08 22:25:59 fisyak Exp $
 #	Purpose:	STAR group csh setup 
 #       $Log: group_env.csh,v $
+#       Revision 1.74  1999/06/08 22:25:59  fisyak
+#       Change AFS -> /afs to /usr/afsws
+#
 #       Revision 1.73  1999/06/03 14:55:39  wenaus
 #       '.' to end of path and other uncommitted changes
 #
@@ -223,8 +226,8 @@ if ($ECHO) then
 endif
 setenv WWW_HOME http://www.rhic.bnl.gov/STAR/star.html; 
                                              if ($ECHO) echo   "Setting up WWW_HOME  = $WWW_HOME"
-setenv AFS       /afs
-setenv AFS_RHIC  ${AFS}/rhic
+setenv AFS       /usr/afsws
+setenv AFS_RHIC  /afs/rhic
 setenv STAR_ROOT ${AFS_RHIC}/star;           if ($ECHO) echo   "Setting up STAR_ROOT = ${STAR_ROOT}"         
 # Defined by HEPiX
 if ( ! $?GROUP_DIR )  setenv GROUP_DIR ${STAR_ROOT}/group
