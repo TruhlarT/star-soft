@@ -94,6 +94,7 @@ print <<END;
 <META HTTP-EQUIV="Expires" CONTENT="0">
 <META HTTP-EQUIV="Pragma" CONTENT="no-cache">
 <META HTTP-EQUIV="Cache-Control" CONTENT="no-cache">
+<META HTTP-equiv="Refresh" content="20; URL-HTTP://duvall.star.bnl.gov/cgi-bin/didenko/GifPlots.pl">
 END
 
   print " <title>Select query for plot</title>";
