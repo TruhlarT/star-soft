@@ -40,12 +40,6 @@ use QA_report_io;
 $query = new CGI;
 print $query->header;
 
-#---------------------------------------------------------
-# this turns off "automatic escaping", which is the default and which
-# disables HTML character sequences in labels
-#$query->autoEscape(undef);
-#-------------------------------------------------------------------------
-
 # reset timing
 
 &QA_utilities::print_timing(0.,0.);
