@@ -564,6 +564,7 @@ sub _ReadConfig
 
 
     $config = "";
+    $ok     = 0;
 
     foreach $scope ( (".",
 		      $ENV{HOME},
