@@ -171,12 +171,12 @@ C
 *KEEP,VIDQQ.
       CHARACTER*68 VIDQQ
       DATA VIDQQ/
-     +'@(#)* Advanced Geant Inteface   1.40/05   C: 27/09/98  14.43.38
+     +'@(#)* Advanced Geant Inteface   1.40/05   C: 29/09/98  16.54.49
      +'/
 *KEEP,DATEQQ.
-      IDATQQ =   980927
+      IDATQQ =   980929
 *KEEP,TIMEQQ.
-      ITIMQQ =   1443
+      ITIMQQ =   1654
 *KEEP,VERSQQ.
       VERSQQ = ' 1.40/05'
       IVERSQ =  14005
@@ -593,7 +593,7 @@ C
     END
  
  
-*CMZ :          03/09/98  14.12.13  by  Pavel Nevski
+*CMZ :          28/09/98  01.12.45  by  Pavel Nevski
 *CMZ :  1.40/05 27/08/98  22.49.57  by  Pavel Nevski
 *CMZ :  1.40/05 21/08/98  13.34.22  by  Pavel Nevski
 *CMZ :  1.30/00 23/04/97  18.45.29  by  Pavel Nevski
@@ -828,13 +828,15 @@ C                                       Link to:
   }
   else If Command=='GFILE'
   {  " open an I/O: file stream request"  Ccommand=' '
+     IER=0
      Call KUGETC(string1,len1);
      Call KUGETS(string2,len2);
      Call KUGETC(string3,len3);         C='P'
      IF (Index(String1(1:len1),'B')>0)  C='B'
      IF (Index(String1(1:len1),'O')>0)  C='O'
      If (string2(1:len2)=='ZEBRA')  { String2='ZEBRA.'//C; Len2=7; }
-     Do i=4,Npar { Call KUGETI(PAR(i-3)) }
+ 
+* PN, 28.09.98:  Do i=4,Npar { Call KUGETI(PAR(i-3)) }
  
      If  Index(String1(1:len1),'U')>0
      {  { Ikine,IkineOld }=-5;  CoptKine=string3;
@@ -844,17 +846,19 @@ C                                       Link to:
         If (address>0) CALL CsJCAL1S(address,string2(1:L1))
      }
      else If Index(String1(1:len1),'N')>0
-     {  Call AgNTOpen(String2(1:len2),4) }
+     {  Call AgNTOpen(String2(1:len2),4);  If (Ikine!=IkineOld) Ier=1; }
      else
-     {  Call AgZOPEN(string1(1:len1),string2(1:len2),string3(1:len3),
-                                                          Npar-3,PAR)
-        IF (Index(String1(1:len1),'P')>0)  Call AGZREAD ('P',ier)
-        IF (Index(String1(1:len1),'B')>0)  Call AGZREAD ('B',ier)
-      * PN,03.09.98 - spool output until first trig
-      * IF (Index(String1(1:len1),'O')>0)  Call AGZWRITE('O',ier)
-     }
+     {  Call AgZOPEN(string1(1:len1),string2(1:len2),string3(1:len3),Ier)
+      * PN, 28.09.98:                                         Npar-3,PAR)
+        If Ier==0
+        {  IF (Index(String1(1:len1),'P')>0)  Call AGZREAD ('P',ier)
+           IF (Index(String1(1:len1),'B')>0)  Call AGZREAD ('B',ier)
+         * PN,03.09.98 - spool output until first trig
+         * IF (Index(String1(1:len1),'O')>0)  Call AGZWRITE('O',ier)
+     }  }
      If (Index(String3(1:Len3),'S')>0 | String3(1:1)='*') _
                                       Call AGKEEPS(' ','def')
+     Iquest(1)=Ier
   }
   else If Command=='GHIST' | Command=='HFILE'
   {  " open a histigram file
@@ -1069,7 +1073,7 @@ C                                       Link to:
      If LENOCC(Source)+LENOCC(Destin)==0
      {  Call CSRMSL(String1(1:L));         CALL PAWCS;
         II(4)=0;
-        IQUEST(1) = SystemF('make '//string1(1:L)//'.sl')
+        Ier = SystemF('make '//string1(1:L)//'.sl')
         CALL  PAWFCA(string1(1:L)//'.csl',L+4,JAD,Idebug)
         Prin1  'make '//string1(1:L)//'.sl';  ('gexec: ',a)
      }
@@ -1080,7 +1084,7 @@ C                                       Link to:
                     ' INP_DIR='//%L(Source)//'/'//%L(string1)//_
                     ' '//%L(library)
                     ('gexec: ',a)
-        IQUEST(1)=SystemF('gmake '//%L(mname)//                _
+        Ier=SystemF('gmake '//%L(mname)//                      _
                     ' INP_DIR='//%L(Source)//'/'//%L(string1)//_
                     ' '//%L(library))
         CALL PAWFCA('sl/'//string1(K:L)//'.csl',L-K+8,JAD,Idebug)
@@ -1095,6 +1099,7 @@ C                                       Link to:
         JAD=CsADDR(string1(K:L)//'_start')
      }
      if (JAD!=0)   CALL CSJCAL(JAD,0, 0,0,0,0,0, 0,0,0,0,0)
+     Iquest(1)=Ier
   }
   Else If Command=='GMAKE'
   {  Call KuGetS(source,len1)
@@ -1139,7 +1144,7 @@ C                                       Link to:
   end
  
  
-*CMZ :          13/09/98  22.04.22  by  Pavel Nevski
+*CMZ :          28/09/98  12.07.33  by  Pavel Nevski
 *CMZ :  1.40/05 17/08/98  18.55.10  by  Pavel Nevski
 *CMZ :  1.30/00 15/04/97  19.40.26  by  Pavel Nevski
 *-- Author :    Pavel Nevski   18/03/97
@@ -1148,6 +1153,7 @@ C                                       Link to:
 *                                                                      *
 * Description:    Process events, protected against ZEBRA faults       *
 * Modifications:  Clear ZEBRA storage after memory fault   PN 01/04/97 *
+* PN 28.09.98:    output spooling                                      *
 ************************************************************************
 *KEEP,GCBANK.
       INTEGER IQ,LQ,NZEBRA,IXSTOR,IXDIV,IXCONS,LMAIN,LR1,JCG
@@ -1285,6 +1291,7 @@ C                                       Link to:
          CALL ZPHASE(1)
 *
          DO WHILE (IEVENT<NEVENT)
+*           PN 28.09.98: push out reconstruction banks
             If (Ioutp.EQ.-1) Call GUOUT
             IQUEST(1)= 0
             IEORUN   = 0
@@ -1324,6 +1331,7 @@ C                                       Link to:
             CALL GRNDMQ(IQ(JRUNG+19),IQ(JRUNG+20),0,'G')
             IQ(JRUNG+29)=IEVENT
 *              Normal GEANT simulations (GTREVE) or RAW DATA here
+            IQUEST(1)= 0
             If (LKARAW.EQ.0) then
                CALL GTRIG
             else             !  very special case - test beam data
@@ -1335,6 +1343,7 @@ C                                       Link to:
                Call GRLEAS(JHITS)
                If (JKINE>0) Call ZSORTI(IxSTOR,JKINE,-5)
                If (JHITS>0) Call ZSORTI(IxSTOR,JHITS,-5)
+               IQUEST(1)= 0
             endif
 *
             IF(IEORUN.NE.0) Then
@@ -2241,7 +2250,7 @@ C
      end
  
  
-*CMZ :          13/09/98  22.06.35  by  Pavel Nevski
+*CMZ :          28/09/98  21.10.22  by  Pavel Nevski
 *CMZ :  1.30/00 06/07/96  00.19.32  by  Pavel Nevski
 *-- Author :    Pavel Nevski   01/06/96
 ******************************************************************************
@@ -2307,9 +2316,9 @@ C
 *KEND.
      Integer  Ier
 *
-      If (IEOTRI.ne.0)  return
+*     If (IEOTRI.ne.0)  return
       If (IOutp!=IOutpOld) then
-         If (IOutp==-1) Call AgZOPEN('O','ZEBRA.O','*',0,0)
+         If (IOutp==-1) Call AgZOPEN('O','ZEBRA.O','*',Ier)
          If (IOutp > 0) IOutpOld = Ioutp
       endif
 *
@@ -12408,14 +12417,14 @@ C     - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
   call RZCDIR(Cold,' ')
  end
  
-*CMZ :          21/09/98  20.53.56  by  Pavel Nevski
+*CMZ :          28/09/98  00.59.27  by  Pavel Nevski
 *CMZ :  1.40/05 24/08/98  20.25.33  by  Pavel Nevski
 *CMZ :  1.30/00 29/04/97  23.23.51  by  Pavel Nevski
 *CMZU:  1.00/01 15/01/96  20.20.30  by  Pavel Nevski
 *-- Author :    L.Vacavant, A.Rozanov    14/12/94
 ******************************************************************************
 *                                                                            *
-     subroutine    A G Z O P E N (stream,name,Copt,Npar,Ipar)
+     subroutine    A G Z O P E N (stream,name,Copt,ier)
 *                                                                            *
 * Description: (re)open a file with events in GENZ format-via Fatmen or GENZ *
 *   After a succesful open, K keeps track of what should be closed next call *
@@ -12507,7 +12516,7 @@ C
 *KEND.
 Character  Stream*(*),Name*(*),Copt*(*),FName*255/' '/,IOFILE*8,
            CREQ*256,COPTN*20,CSTREAM*8,FZOP*4
-Integer    LOCF,Npar,Ipar(*),KEYS(10),LENOCC,Nfound,Jcont,Unit,LRECA/0/,
+Integer    LOCF,KEYS(10),LENOCC,Nfound,Jcont,Unit,LRECA/0/,
            Ier,Irc,Jrc,K,Lc,iend,mem,iu,IREQ,ko,LREC,L,NUH,HEAD(400)
 Common     /AgZbuffer/  K,JRC,JCONT,CSTREAM,COPTN,CREQ,IREQ,iend,mem(100,5)
 *
@@ -12572,7 +12581,7 @@ Common     /AgZbuffer/  K,JRC,JCONT,CSTREAM,COPTN,CREQ,IREQ,iend,mem(100,5)
 End
  
  
-*CMZ :          07/09/98  18.59.07  by  Pavel Nevski
+*CMZ :          28/09/98  22.40.48  by  Pavel Nevski
 *CMZ :  1.40/05 27/08/98  20.38.58  by  Pavel Nevski
 *CMZ :  1.30/00 19/03/97  21.57.11  by  Pavel Nevski
 *CMZU:  1.00/01 15/01/96  20.20.30  by  Pavel Nevski
@@ -12715,7 +12724,7 @@ C                                       Link to:
 *    - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 *
 *KEND.
-   Integer      ISLFLAG,i,ier,iprin,jvol,Ldata,Lk,N,NP,NT,NS,IdZ/0/,IdG/0/
+   Integer      ISLFLAG,i,ier,iprin,jvol,Ldata,Lk,N,Ng,NT,NS,IdZ/0/,IdG/0/
    Integer      NHSETS,NDSETS,NSECT,NDETM,NSET,JOCRUN,JOCEVT,IGEN,NTRA,M
    Integer      LOCF,INDEX,iu,jb,none,Idev,Ierold(3)/3*0/
    Integer      Lun/21/,Lhead/0/,ifl/0/,nw/0/,Lsup,Iev/0/,Ihead(400)/400*0/
@@ -12733,7 +12742,7 @@ C                                       Link to:
 * example of a bad in-line coding:
   Replace [INP(#,#,#,#,#)] with [
     CHECK (Index(Chopt,'#1')+Index(Chopt,'*')>0 | '#1'=='*');   Nt=Nt+1;
-    {IF} '#1'='G' { Np=Np+1; CHECK Jvol==0; IF (#3>0) Call MZDROP(#2,#3,'L'); }
+    {IF} '#1'='G' { Ng=Ng+1; CHECK Jvol==0; IF (#3>0) Call MZDROP(#2,#3,'L'); }
     IF #3==0 { Call FZIN(LUN,#2,#3,1,'A',Nhead,Ihead); jb=#3;    }
     ELSE     { jb=#3; WHILE LQ(jb)>0 { jb=LQ(jb) };
                Call FZIN(LUN,#2,jb,0,'A',Nhead,Ihead); jb=LQ(jb) }
@@ -12757,7 +12766,7 @@ C                                       Link to:
     If index(stream,'S')>0 {        Chopt=' ';      }
     Call Ucopy(mem(1,iu),K,LocF(Iend)-LocF(k))
     M=5;  If (INDEX(CSTREAM,'1')>0) M=2
-    Lun=20+iu;  HEAD=CHEAD(iu);  jvol=JVOLUM; Np=0; Nt=0; Ns=0; Ier=0;
+    Lun=20+iu;  HEAD=CHEAD(iu);  jvol=JVOLUM; Ng=0; Nt=0; Ns=0; Ier=0;
     Done=.false.;  If (Kevent(iu)==0) { Done=.true.; Ierold(iu)=0 }
 *
   Loop
@@ -12774,17 +12783,24 @@ C                                       Link to:
         If Ier==1 { prin1 ifl; (' zebra sor, run ',i6); Iev=0; IDz=Ifl; Next;}
         If Ier> 1 { prin1 ier,ifl,nt; (' zebra err, run, nt ',3i6);
                     " skip zebra inter-file records "
-                    If (nt==0 & Ier<M) Next;   Kevent(iu)+=1;  break;}
+                    If (nt==0 & Ier<=M) Next;   Kevent(iu)+=1;  break;}
        * decode header
         If      Lhead=1 & Ifl=0 { i=IHEAD(1);  If(1<=i&i<=22) HEAD=Gsets(i); }
         else If Lhead=2 & Ifl>0 { HEAD='RUNG'; If(Kevent(iu)>0) HEAD='HEAD'; }
         else If Lhead=1 & Ifl>0 { i=IHEAD(1);  IF(1<=i&i<=3)  HEAD=Esets(i); }
         else If LHead==3 & Ihead(1)+IHEAD(2)+Ihead(3)==0      { HEAD='RAWD'; }
         else If Lhead>2 {"atlas genz format" Call UHTOC(Ihead(3),4,HEAD,4);  }
-       * analyse end of event
-        Trig=Ifl.gt.0
-        If ( " new eor nt>0 ?" HEAD=='HEAD' & Ns==0 & Kevent(iu)>0 _
-           | HEAD=='RUNG' & Nt==0 | HEAD=='CODE' | HEAD=='RUN') Trig=.false.
+ 
+       * analyse end of event - Hardware flag ifl>0
+        Trig = Ifl.gt.0
+       * Software : new Event information after Run information
+        If (HEAD=='HEAD' & Ng>0)                                Trig=.true.
+       * exceptions: Star FZ has CODE and RUN written separately
+        If (HEAD=='CODE' | HEAD=='RUN')                         Trig=.false.
+       * skip new RUN header inside file (multi-file input)
+        If (HEAD=='HEAD' & Ns==0 & Kevent(iu)>0)                Trig=.false.
+       * always append RUNG
+        If (HEAD=='RUNG' & Nt==0)                               Trig=.false.
         If Trig
         { prin1 kevent(iu),nt,ns,Lun,IHEAD(1),IHEAD(2),HEAD
           (' AGZREAD: event',i7,2i3,' on unit',i4,' ended by',2i6,A6)
@@ -13060,7 +13076,7 @@ C
     END
  
  
-*CMZ :          03/09/98  14.08.24  by  Pavel Nevski
+*CMZ :          28/09/98  21.12.21  by  Pavel Nevski
 *CMZ :  1.40/05 18/08/97  11.17.47  by  Pavel Nevski
 *CMZ :  1.30/00 16/04/97  20.01.44  by  Pavel Nevski
 *-- Author :    Pavel Nevski   01/06/96
@@ -13187,7 +13203,7 @@ C                                       Link to:
 *    - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 *
 *KEND.
-   Integer      iu,Lun,Iev,Ier,iprin, Idevt0/-1/,IsubE0/0/,Lk/0/
+   Integer      ISLFLAG,iu,Lun,Iev,Ier,iprin, Idevt0/-1/,IsubE0/0/,Lk/0/
    Logical      Done/.true./
    Character    stream*(*)
 *  tentative guess for standard GFOUT data
@@ -13195,8 +13211,8 @@ C                                       Link to:
 *  'RUNT','EVNT','DETM','a','a','a','HEAD','VERT','KINE','JXYZ','HITS','DIGI'
 * - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 *
-    Ier=999;  Check Stream=='O';  Ier=0;  Iu=3;
-    Iprin=Idebug;   Lun=20+iu;  Iev=Kevent(iu);
+    Ier=999;  Check Stream=='O';  Ier=0;  Iu=3;  Iev=Kevent(iu);
+    Iprin=max(ISLFLAG('OUTP','PRIN'),Idebug);    Lun=20+iu;
     prin2 Idevt,Idevt0,Iev,CoptOutp
     (' AGZwrite Idevt,Idevt0,Iev = ',3I10,' opt=',a)
 *
@@ -13211,7 +13227,7 @@ C                                       Link to:
        Call AgZout(LUN,'DETM','G',Iev,CoptOutp,LKDETM,'NDETM',  -1, 9, ier)
        Kevent(iu)=1;  Lk=-1;  Idevt0=-1;  If Ier!=0 { IOutpOld=0;  Return }
     }
-    check JHEAD>0
+    check JHEAD>0 & IEOTRI==0;                   Iev=Kevent(iu);
     If Idevt != Idevt0 | IsubEVnt !=IsubE0
     {  if (JHITS>0) Call GRLEAS (JHITS)
        if (JDIGI>0) Call GRLEAS (JDIGI)
@@ -13396,7 +13412,7 @@ END
  
  
  
-*CMZ :          21/09/98  21.36.14  by  Pavel Nevski
+*CMZ :          28/09/98  22.17.24  by  Pavel Nevski
 *CMZ :  1.40/05 27/08/98  19.50.28  by  Pavel Nevski
 *CMZ :  1.40/05 24/08/98  20.26.49  by  Pavel Nevski
 *CMZ :  1.30/00 21/03/97  15.15.10  by  Pavel Nevski
@@ -13468,10 +13484,10 @@ C
 *
 *KEND.
      Character Copt*4
-     Integer   AgPFLAG,Iprin,Nback,Ibevnt,Nskip,Ier,I
+     Integer   ISLFLAG,Iprin,Nback,Ibevnt,Nskip,Ier,I
      Real      Tbunch,RNDM
 *
-     Iprin = AgPFLAG('BACK','RECO')
+     Iprin = ISLFLAG('BACK','PRIN')
      :bunch: Do IbCurrent=-IbBefor,IbAfter
     {  Call POISSN(BgMult,NBack,Ier)
        If (BgMULT<0) NBack=nint(abs(BgMULT))
@@ -13485,7 +13501,7 @@ C
           Do I=1,Nskip+1
           { Copt='BS';   If (I>Nskip) Copt='B'
             Call AgZREAD (Copt,ier); Check Ier>0  " event still was read "
-            Call AGZOPEN ('B', ' ', ' ', 0, 0)
+            Call AGZOPEN ('B',' ',' ',Ier);
             Call AgZREAD (Copt,ier); Check Ier>0  " geometry skept Only  "
             Prin0; (' AGZBACK error: CANNOT OPEN FILE WITH EVENTS, QUIT !')
             IbackOld=0;  Return
@@ -13844,12 +13860,12 @@ C
       NLOLD = IQ(LINK-3)
       NDOLD = IQ(LINK-1)
       check (NDATA>NDOLD | NLINK>NLOLD)
-      NNEW  = 20+max(NDOLD,NDATA)+max(NLOLD,NLINK)
+      NNEW  = 100+max(NDOLD,NDATA)+max(NLOLD,NLINK)
       Call MZNEED(IXDIV,NNEW,'G');  NLEFT=IQUEST(11) " after request "
       prin5  MBANK,NLOLD,NDOLD,NLINK,NDATA,NLEFT
       (' AgPUSH: pushing bank ',A4,' from ',2i8,' to ',2i8,' Nleft=',i8)
 *
-      IF NLEFT<=100
+      IF NLEFT<0
       {  prin0  MBANK,ABS(NLEFT),NNEW
          (' AgPUSH: Not enough memory for pushing bank ',A4/ _
           ' ***',I8,' words short in relocating',I8,' words ***')
@@ -14186,7 +14202,7 @@ C     - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
   END
  
  
-*CMZ :          03/09/98  14.13.52  by  Pavel Nevski
+*CMZ :          28/09/98  00.14.17  by  Pavel Nevski
 *CMZ :  1.40/05 31/07/97  17.26.28  by  Pavel Nevski
 *CMZ :  1.30/00 16/04/97  20.30.01  by  Pavel Nevski
 *-- Author :    Pavel Nevski   01/06/96
@@ -14299,7 +14315,7 @@ C                                       Link to:
     Call FZOUT(LUN,0,J,Is,'L',IOH,LH,Ihead)
 *   ---------------------------------------
     Ier=Iquest(1);  nw=Iquest(11); Mw=Iquest(14)
-    PRIN3 Is,Name,var,N1,nw; (' AGZwrite:',i3,2(2x,a6),'=',i6,'  Leng=',i8)
+    PRIN3 Is,Name,var,N1,nw; (' AGZout :',i3,2(2x,a6),'=',i6,'  Leng=',i8)
     Check Ier!=0; print *,' AgZOUT error ier=',ier,' after ',Mw,'Mw written'
     If (Ier==+1)  print *,' software EOT set by FZLIMIT reached '
     If (Ier==-1)  print *,' attempt to write after End-Of-Data  '
@@ -15502,6 +15518,7 @@ C
   }  }  }
   call GGCLOS
   End
+*CMZ :          28/09/98  17.43.21  by  Pavel Nevski
 *CMZ :  1.40/05 26/08/98  17.57.31  by  Pavel Nevski
 *CMZ :  1.30/00 02/05/97  17.21.14  by  Pavel Nevski
 *-- Author :    A. Rozanov  11/03/95
@@ -15659,7 +15676,7 @@ C
 *
       If (IKINE!=IKineOld) then
          If (IKine > 0) IKineOld = Ikine
-         If (IKine==-1) Call AgZOPEN (' ', ' ', '*', 0,0)
+         If (IKine==-1) Call AgZOPEN (' ', ' ', '*', ier)
          If (IKine==-2) Call AgNTOPEN('hcwn.hbook' ,  4 )
          If (IKine==-3) Call AgFOPEN ( 0,  ' ',      ier)
          If (IKine<=-4) { J=CsADDR('AGUSOPEN'); IkineOld=Ikine;
@@ -15685,7 +15702,7 @@ C
       }
 *
       If (IBackOld==-1)           Call AgZback
-      L=max(Alog10(1.+NVERTX),Alog10(1.+NTRACK))
+      L=1+max(Alog10(1.+NVERTX),Alog10(1.+NTRACK))
       If (Idebug>L & JVertx>0)    Call GPVERT(0)
       If (Idebug>L & Jkine >0)    Call GPKINE(0)
       NsubEvnt=-1
@@ -16870,7 +16887,7 @@ C
    end
  
  
-*CMZ :          13/09/98  21.47.21  by  Pavel Nevski
+*CMZ :          28/09/98  00.03.21  by  Pavel Nevski
 *CMZ :  1.40/05 24/08/98  20.26.08  by  Pavel Nevski
 *-- Author :    Pavel Nevski   23/04/98
 ******************************************************************
@@ -17035,7 +17052,7 @@ C                                       Link to:
       else If IADR!=0     { Call CSJCAL(Iadr,1, Iprin,0,0,0,0, 0,0,0,0,0) }
       else { <w> IDH; (' AGPREADRZ error: unknown event bank :',a) }
     }
-*   ier=0; IQUEST(1)=0;
+    ier=0; IQUEST(1)=0;
     Return
  
 :er:; prin1 jer,ier,Isubev,IbEvnt; (' AGPREAD: error',2i3,' in subevent =',2i6)
