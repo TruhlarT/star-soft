@@ -77,6 +77,7 @@ $ThisYear = 2004;
 #
 $SELF =  $0;
 $SELF =~ s/.*\///;
+$SELF =~ s/\..*//;
 
 # default values global (unless overwritten)
 $EXPRESS = 0;
@@ -157,7 +158,7 @@ if ($ThisYear == 2002){
     $SCALIB{"AuAu"}           = "OptLaser";
 
 } else {
-    print "Unknown Year $ThisYear\n";
+    print "$SELF :: Unknown Year $ThisYear\n";
     exit;
 }
 
@@ -217,7 +218,7 @@ chomp($space = `/bin/df -k $target`);
 $space =~ m/(.* )(\d+)(%.*)/;
 $space =  $2;
 if ($space >= 99){
-    print "Target disk $target is $space % full (baling out on ".localtime().")\n";
+    print "$SELF :: Target disk $target is $space % full (baling out on ".localtime().")\n";
     exit;
 }
 
@@ -258,13 +259,13 @@ if( $TARGET =~ m/^\// || $TARGET =~ m/\^\// ){
     # get the number of possible jobs per queue.
     $TOT = CRSQ_getcnt($USEQ[0],$SPILL[0],$PAT);
 
-    print "Mode=direct Queue count Tot=$TOT\n";
+    print "$SELF :: Mode=direct Queue count Tot=$TOT\n";
 
     $time = localtime();
     if ($TOT > 0 && ! -e $LOCKF){
 	open(FL,">$LOCKF");
 	close(FL);
-	#print "We need to submit $TOT jobs\n";
+	#print "$SELF :: We need to submit $TOT jobs\n";
 
 	# Check $TARGET for sub-mode
 	# If $TARGET starts with a ^, take only the top, otherwise
@@ -275,7 +276,7 @@ if( $TARGET =~ m/^\// || $TARGET =~ m/\^\// ){
 	if( ($obj = rdaq_open_odatabase()) ){
 	    if( substr($TARGET,0,1) eq "^" ){
 		# Simple with a perl module isn't it.
-		print "Top of the list only ...\n";
+		print "$SELF :: Top of the list only ...\n";
 		$TARGET=~ s/\^//;
 		if ($EXPRESS != 0){
 		    push(@files,rdaq_get_ffiles($obj,-1,$TOT,$EXPRESS));
@@ -286,7 +287,7 @@ if( $TARGET =~ m/^\// || $TARGET =~ m/\^\// ){
 	    } else {
 		# ask only for status=0 files (will therefore
 		# crawl-down the list).
-		print "Crawling down the list ...\n";
+		print "$SELF :: Crawling down the list ...\n";
 		if ($EXPRESS != 0){
 		    push(@files,rdaq_get_ffiles($obj,0,$TOT,$EXPRESS));
 		    push(@files,rdaq_get_ffiles($obj,0,$TOT,$COND));
@@ -297,7 +298,7 @@ if( $TARGET =~ m/^\// || $TARGET =~ m/\^\// ){
 
 
 	    if($#files != -1){
-		print "Checking ".($#files+1)." jobs\n";
+		print "$SELF :: Checking ".($#files+1)." jobs\n";
 		undef(@OKFILES);             # will be filled by Submit
 		undef(@SKIPPED);
 		$kk = $TOT;
@@ -313,7 +314,7 @@ if( $TARGET =~ m/^\// || $TARGET =~ m/\^\// ){
 		rdaq_set_files($obj,4,@SKIPPED);
 	    } else {
 		# there is nothing to submit
-		print "There is nothing to submit on $time\n";
+		print "$SELF :: There is nothing to submit on $time\n";
 	    }
 	    rdaq_close_odatabase($obj);
 	}
@@ -329,7 +330,7 @@ if( $TARGET =~ m/^\// || $TARGET =~ m/\^\// ){
     # Copied from mode 0. Can be merged ...
     #
     $TARGET = $2;
-    #print "Target is now $TARGET\n";
+    #print "$SELF :: Target is now $TARGET\n";
 
     # Overwrite queue if necessary
     $USEQ[1] = $tmpUQ if ( defined($tmpUQ) );
@@ -357,7 +358,7 @@ if( $TARGET =~ m/^\// || $TARGET =~ m/\^\// ){
 	open(FL,">$LOCKF");
 	close(FL);
 
-	print "JobSubmit :: We can slide in $TOT jobs\n" if ($#all != -1);
+	print "$SELF :: We can slide in $TOT jobs\n" if ($#all != -1);
 	foreach $line (@all){
 	    # There are 2 possibilities. The run is new
 	    # or has been marked for re-run. We will recognize
@@ -365,11 +366,11 @@ if( $TARGET =~ m/^\// || $TARGET =~ m/\^\// ){
 	    @items = split(" ",$line);
 
 	    if($#items == 0 || $#items == 1){
-		print "JobSubmit :: Run $line is new\n";
+		print "$SELF :: Run $line is new\n";
 
 		if($#items == 1){
 		    $cho = $items[1];
-		    print "JobSubmit :: Chain bypass $cho\n";
+		    print "$SELF :: Chain bypass $cho\n";
 		} else {
 		    if($CHAIN eq ""){ $CHAIN = "default";}
 		    $cho = $CHAIN;
@@ -395,7 +396,7 @@ if( $TARGET =~ m/^\// || $TARGET =~ m/\^\// ){
 	    }
 
 	    # OK. We have $cnt for that one and $TOT slots.
-	    print "JobSubmit :: Working with $run -> $cnt and $TOT slots\n";
+	    print "$SELF :: Working with $run -> $cnt and $TOT slots\n";
 
 	    # Submit no more than $TOT jobs
 	    if($#files != -1){
@@ -408,7 +409,7 @@ if( $TARGET =~ m/^\// || $TARGET =~ m/\^\// ){
 		    last if ($TOT <= 0);       # max available queues
 		    last if (($cnt-$k) <= 0);  # max file seq for this run
 
-		    #print "Submitting $file\n";
+		    #print "$SELF :: Submitting $file\n";
 		    $TOT = $TOT-1;
 		    $k   = $k+1;
 
@@ -437,12 +438,12 @@ if( $TARGET =~ m/^\// || $TARGET =~ m/\^\// ){
 			push(@RECORDS,"$run $cnt $cho");
 		    }
 		} else {
-		    print "Discrepency $k counted $tot success ".
+		    print "$SELF :: Discrepency $k counted $tot success ".
 			"($#OKFILES/$#SKIPPED)\n";
 		    push(@RECORDS,"$run $cnt $cho");
 		}
 	    } else {
-		print "Run $run will be ignored. No files returned by ddb\n";
+		print "$SELF :: Run $run will be ignored. No files returned by ddb\n";
 	    }
 	}
 
@@ -467,14 +468,14 @@ if( $TARGET =~ m/^\// || $TARGET =~ m/\^\// ){
 
     # Default mode is submit. Target is a path
     # get the number of possible jobs per queue.
-    #print "Using $USEQ[2] $SPILL[2]\n";
+    #print "$SELF :: Using $USEQ[2] $SPILL[2]\n";
     $TOT = CRSQ_getcnt($USEQ[2],$SPILL[2],$PAT,1);
 
     $time = localtime();
     if ($TOT > 0 && ! -e $LOCKF){
 	open(FL,">$LOCKF");
 	close(FL);
-	#print "We need to submit $TOT jobs\n";
+	#print "$SELF :: We need to submit $TOT jobs\n";
 
 	# Check $TARGET for sub-mode
 	# If $TARGET starts with a ^, take only the top, otherwise
@@ -489,17 +490,17 @@ if( $TARGET =~ m/^\// || $TARGET =~ m/\^\// ){
 		@files = rdaq_get_ffiles($obj,0,$TOT,$LASERTP);
 	    } else {
 		# Cannot do this
-		print "Failed. Wrong syntax\n";
+		print "$SELF :: Failed. Wrong syntax\n";
 	    }
 
 
 
 	    if($#files != -1){
-		print "Checking ".($#files+1)." jobs\n";
+		print "$SELF :: Checking ".($#files+1)." jobs\n";
 		undef(@OKFILES);             # will be filled by Submit
 		undef(@SKIPPED);
 		foreach $file (@files){
-		    #print "HW : $file\n";
+		    #print "$SELF :: HW : $file\n";
 		    sleep($SLEEPT) if &Submit(2,$USEQ[2],$SPILL[2],
 					      $file,$CHAIN);
 		    $MAXCNT--;
@@ -509,13 +510,13 @@ if( $TARGET =~ m/^\// || $TARGET =~ m/\^\// ){
 		rdaq_set_files($obj,4,@SKIPPED);  # mark skipped
 	    } else {
 		# there is nothing to submit
-		print "There is nothing to submit on $time\n";
+		print "$SELF :: There is nothing to submit on $time\n";
 	    }
 	    rdaq_close_odatabase($obj);
 	}
 	if(-e $LOCKF){  unlink($LOCKF);}
     #} else {
-	#print "There are no slots available\n";
+	#print "$SELF :: There are no slots available\n";
     }
 
 
@@ -532,7 +533,7 @@ if( $TARGET =~ m/^\// || $TARGET =~ m/\^\// ){
 
 
 } else {
-    print "Unknown mode P3=$TARGET used\n";
+    print "$SELF :: Unknown mode P3=$TARGET used\n";
 }
 
 
@@ -554,7 +555,7 @@ sub Submit
     # We are assuming that the return value of $file is
     # the mode 2 of get_ffiles() and counting on the
     # elements position.
-    #print "$file\n";
+    #print "$SELF :: $file\n";
     @items = split(" ",$file);
     $file  = $items[0];
     $field = $items[6];
@@ -592,7 +593,7 @@ sub Submit
 	# Mode to is calibration only so if we are missing
 	# the option, do NOT continue.
 	push(@SKIPPED,$file);
-	print "Info :: mode 2 requested and calib is empty\n";
+	print "$SELF :: Info : mode 2 requested and calib is empty\n";
 	return 0;
     } elsif ($calib eq ""){
 	# Change it to a dummy value so the
@@ -607,20 +608,20 @@ sub Submit
     # the period coordinator list. Only Jeff Landgraff
     # has answered saying we can skip the 'test' once.
     if ( $file =~ /pedestal/){
-	print "Info :: Skipping $file (name matching exclusion)\n";
+	print "$SELF :: Info : Skipping $file (name matching exclusion)\n";
 	push(@SKIPPED,$file);
 	return 0;
 
     } elsif ( $trgrs eq "pedestal" || $trgrs eq "pulser" ||
 	 $trgsn eq "pedestal" || $trgsn eq "pulser" ){
-	print "Info :: Skipping $file has setup=$trgsn 'triggers'=$items[11]=$trgrs\n";
+	print "$SELF :: Info : Skipping $file has setup=$trgsn 'triggers'=$items[11]=$trgrs\n";
 	push(@SKIPPED,$file);
 	return 0;
 
     } elsif ( $trgrs =~ m/test/ && $mode == 0){
 	if ( $ThisYear == 2002){
 	    # start with a warning
-	    print "Info :: Skipping $file has 'triggers'=$items[11]=$trgrs\n";
+	    print "$SELF :: Info : Skipping $file has 'triggers'=$items[11]=$trgrs\n";
 	    push(@SKIPPED,$file);
 	    return 0;
 	} else {
@@ -630,7 +631,7 @@ sub Submit
 	}
     }
     if ( $dets ne "tpc" && $dets !~ m/\.tpc/){
-	print "Info :: detectors are [$dets] (not including tpc) skipping it\n";
+	print "$SELF :: Info : detectors are [$dets] (not including tpc) skipping it\n";
 	push(@SKIPPED,$file);
 	return 0;
     }
@@ -639,7 +640,7 @@ sub Submit
 
     # Last element will always be the Status
     if($items[$#items] != 0){
-	print "Found status = $items[$#items] (??)\n";
+	print "$SELF :: Found status = $items[$#items] (??)\n";
 	return;
     }
 
@@ -656,7 +657,7 @@ sub Submit
 
     # Just in case ...
     if( -e "$jfile"){
-	print "Info :: $jfile exists. Ignoring for now\n";
+	print "$SELF :: Info : $jfile exists. Ignoring for now\n";
 	return 0;
     }
 
@@ -740,20 +741,20 @@ __EOF__
 	close(FO);
 
 	if( (stat($jfile))[7] == 0){
-	    print "Info :: 0 size $jfile . Please, check quota/disk space\n";
+	    print "$SELF :: Info : 0 size $jfile . Please, check quota/disk space\n";
 	    unlink($jfile);
 	    return 0;
 	} else {
 	    if ( CRSQ_submit($jfile,$PRIORITY,$queue,$spill) ){
 		# Mark it so we can set status 1 later
-		print "Successful submission of $file ($queue,$spill) on ".
+		print "$SELF :: Successful submission of $file ($queue,$spill) on ".
 		    localtime()."\n";
 		push(@OKFILES,$file);
 		return 1;
 	    }
 	}
     } else {
-	print "Fatal :: Could not open $jfile\n";
+	print "$SELF :: Fatal : Could not open $jfile\n";
 	return 0;
     }
 
