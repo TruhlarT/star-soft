@@ -148,7 +148,7 @@ if ($ThisYear == 2002){
     @SPILL   = (0,3,2);
 
     # Default chain
-    $DCHAIN{"AuAu"}           = "P2004,OShortR,Xi2,V02,CMuDst";
+    $DCHAIN{"AuAu"}           = "P2004,EST,OShortR,Xi2,V02,Kink2,CMuDst";
 
 
     # Default pre-calib
@@ -304,7 +304,7 @@ if( $TARGET =~ m/^\// || $TARGET =~ m/\^\// ){
 		$kk = $TOT;
 		foreach $file (@files){
 		    sleep($SLEEPT) if &Submit(0,$USEQ[0],$SPILL[0],
-					      $file,$CHAIN);
+					      $file,$CHAIN,"Normal");
 		    $MAXCNT--;
 		    $kk--;
 		    last if ($MAXCNT == 0);
@@ -414,7 +414,7 @@ if( $TARGET =~ m/^\// || $TARGET =~ m/\^\// ){
 		    $k   = $k+1;
 
 		    sleep($SLEEPT/$RATIO) if &Submit(1,$USEQ[1],$SPILL[1],
-						     $file,$cho);
+						     $file,$cho,"Bypass");
 
 		    $MAXCNT--;
 		}
@@ -502,7 +502,7 @@ if( $TARGET =~ m/^\// || $TARGET =~ m/\^\// ){
 		foreach $file (@files){
 		    #print "$SELF :: HW : $file\n";
 		    sleep($SLEEPT) if &Submit(2,$USEQ[2],$SPILL[2],
-					      $file,$CHAIN);
+					      $file,$CHAIN,"Calibration");
 		    $MAXCNT--;
 		    last if ($MAXCNT == 0);
 		}
