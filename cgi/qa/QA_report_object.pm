@@ -503,6 +503,8 @@ sub DoTests{
 	    # the =~ comparison will fail if the string contains blanks => make a junk string without blanks
 	    ($scalars_string_X = $scalars_string ) =~ s/ /X/g;
 
+	    print "In QA_object_report::DoTests, scalars_string_X = $scalars_string_X <br> \n";
+
 	    foreach $scalar_found ( keys %scalars ){
 	      $display_string = "$scalar_found expected";
 	      $perl_string = "$scalars_string_X =~ /".$scalar_found."/";
@@ -510,6 +512,9 @@ sub DoTests{
 	      $result = eval( $perl_string ) ? "TRUE" : "FALSE" ;
 	      $result eq 'FALSE' and $severity eq 'error' and $n_error++;
 	      $result eq 'FALSE' and $severity eq 'warn' and $n_warn++;
+
+	      print "<br> *** scalar_found = $scalar_found <br> perl_string = $perl_string <br>",
+	      " result = $result <br> \n";
 
 	      $self->TestLineDisplayList($test_type, $test_name, $display_string);
 
