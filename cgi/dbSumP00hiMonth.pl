@@ -76,7 +76,7 @@ my $prodSer = "P00hi" ;
 
  &StDbDescriptorConnect();
 
-my $myRun;
+my $mmRun;
 my @runSet;
 my $nrunSet = 0;
 
@@ -94,9 +94,9 @@ my $nrunSet = 0;
            my $fname=$cursor->{NAME}->[$i];
 #        print "$fname = $fvalue\n" ;
        
-         $myRun = $fvalue     if( $fname eq 'runNumber'); 
+         $mmRun = $fvalue     if( $fname eq 'runNumber'); 
          }
-        $runSet[$nrunSet] = $myRun;
+        $runSet[$nrunSet] = $mmRun;
         $nrunSet++;
  }
 
@@ -185,7 +185,8 @@ my @hpssDstFiles;
  my $dqpath;
 
    for ($ll=0; $ll<scalar(@runSet); $ll++) {
-   $sql="SELECT runID, size, fName,path, Nevents  FROM $FileCatalogT WHERE runID = '$runSet[$ll]' fName LIKE '%daq' AND hpss ='Y' ";
+  
+ $sql="SELECT runID, size, fName,path, Nevents  FROM $FileCatalogT WHERE runID = '$runSet[$ll]' fName LIKE '%daq' AND hpss ='Y' ";
    $cursor =$dbh->prepare($sql)
       || die "Cannot prepare statement: $DBI::errstr\n";
    $cursor->execute;
@@ -198,6 +199,7 @@ my @hpssDstFiles;
        my $fvalue=$fields[$i];
        my $fname=$cursor->{NAME}->[$i];
        print "$fname = $fvalue\n" if $debugOn;
+# print "$fname = $fvalue\n";
        ($$fObjAdr)->flName($fvalue)   if( $fname eq 'fName');
        ($$fObjAdr)->fpath($fvalue)    if( $fname eq 'path');
        ($$fObjAdr)->hpsize($fvalue)   if( $fname eq 'size'); 
