@@ -201,7 +201,8 @@ sub ComposeBatchScript{
 #      "echo \"Environment:<br>\\n<pre>\" |& tee -a $temp_log_html \n".
 #      "setenv |& tee -a $temp_log_html \n".
 #      "echo \"</pre>\" |& tee -a $temp_log_html \n".
-    "/opt/star/bin/perl -I$now $program batch_job $data_class $action ".
+#    "/opt/star/bin/perl -I$now $program batch_job $data_class $action ".
+    "$program batch_job $data_class $action ".
 	($report_key ? "$report_key " : "") . 
 	    "|& tee -a $temp_log_html \n".
       "echo \"Moving files...\" |& tee -a $temp_log_html \n".
