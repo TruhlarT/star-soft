@@ -1,7 +1,10 @@
 #!/usr/bin/csh -f
-#       $Id: group_env.csh,v 1.50 1998/10/05 15:20:39 fisyak Exp $
+#       $Id: group_env.csh,v 1.51 1998/10/08 21:13:32 fisyak Exp $
 #	Purpose:	STAR group csh setup 
 #       $Log: group_env.csh,v $
+#       Revision 1.51  1998/10/08 21:13:32  fisyak
+#       Add SILENT option
+#
 #       Revision 1.50  1998/10/05 15:20:39  fisyak
 #       Add BFARCH for sgi's
 #
@@ -148,6 +151,7 @@
 #	STAR software group	1998
 #
 set ECHO = 1; if ($?STAR == 1) set ECHO = 0
+if ($?SILENT == 1) set ECHO = 0;
 if ($ECHO) then
   cat /afs/rhic/star/group/small-logo 
 endif
@@ -403,8 +407,10 @@ endsw
   setenv MANPATH `/afs/rhic/star/group/dropit -p ${MANPATH}`
   setenv PATH `/afs/rhic/star/group/dropit -p ${PATH} GROUPPATH`
 endif
-if ($ECHO) echo "STAR setup on" `hostname` "by" `date` " has been completed"
+if ($ECHO) then
+echo "STAR setup on" `hostname` "by" `date` " has been completed"
 unset ECHO
+endif
 set date="`date`"
 cat >> $GROUP_DIR/statistics/star${STAR_VERSION} << EOD
 $USER from $HOST asked for STAR_LEVEL=$STAR_LEVEL / STAR_VERSION=$STAR_VERSION  $date

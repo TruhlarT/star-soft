@@ -41,7 +41,7 @@
 #               for Sun
     setenv LD_LIBRARY_PATH ${LD_LIBRARY_PATH}:/usr/dt/lib:/usr/openwin/lib:/usr/ccs/lib
 #               PrintIt
-    echo LD_LIBRARY_PATH = $LD_LIBRARY_PATH
+    if ($?SILENT == 0) echo LD_LIBRARY_PATH = $LD_LIBRARY_PATH
     breaksw
 
     case IRIX64:
@@ -54,7 +54,7 @@
 #               for Sun
       setenv LD_LIBRARY_PATH ${LD_LIBRARY_PATH}:/usr/dt/lib:/usr/openwin/lib:/usr/ccs/lib
 #               PrintIt
-      echo LD_LIBRARY_PATH = $LD_LIBRARY_PATH
+      if ($?SILENT == 0) echo LD_LIBRARY_PATH = $LD_LIBRARY_PATH
       breaksw
     case 6.4   
       if (! ${?LD_LIBRARYN32_PATH}) setenv LD_LIBRARYN32_PATH 
@@ -63,7 +63,7 @@
 #       System libs
       setenv LD_LIBRARYN32_PATH ${LD_LIBRARYN32_PATH}:/usr/lib32:/usr/local/lib
 #               PrintIt
-      echo LD_LIBRARYN32_PATH = $LD_LIBRARYN32_PATH
+      if ($?SILENT == 0) echo LD_LIBRARYN32_PATH = $LD_LIBRARYN32_PATH
       breaksw
     endsw
     
@@ -74,12 +74,12 @@
     case HP-UX:
     if (! ${?SHLIB_PATH}) setenv SHLIB_PATH 
     setenv  SHLIB_PATH  ${SHLIB_PATH}:$ROOTSYS/lib    
-    echo SHLIB_PATH = $SHLIB_PATH
+    if ($?SILENT == 0) echo SHLIB_PATH = $SHLIB_PATH
     breaksw
     
 
     default:
-    echo " Unimplemented platform $MACHINE"
+    if ($?SILENT == 0) echo " Unimplemented platform $MACHINE"
     exit   
   endsw
 
