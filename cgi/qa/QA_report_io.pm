@@ -401,25 +401,23 @@ sub print_horizontal_table{
 	
 }	 
 #========================================================
-sub compare_reports {
+sub setup_report_comparison {
   
   my $report_key = shift;
   #---------------------------------------------------------
   my $production_dirname = $QA_object_hash{$report_key}->ProductionDirectory;
   print "<h2> Comparison of similar runs to $production_dirname ($report_key) </h2> \n"; 
-  print "<h4> (up to 10 most recent runs compared) </h4> \n"; 
+  print "<hr> \n";
   #---------------------------------------------------------
-  # make ascii report - cheap version 
+  print $query->startform(-action=>"$script_name/display_data", -TARGET=>"display"); 
+  #---------------------------------------------------------
 
-  $filename_ascii = "/star/data1/jacobs/qa/compare_runs/$report_key";
+  $button_value = $report_key.".do_report_comparison";
+  print "<strong> Select comparison runs from following list, then </strong>",
+  $query->submit("$button_value", 'do run comparison.'),"<br> \n";
 
-  print "<h4> (Ascii version of this page written to $filename_ascii) </h4> \n";
+  print "(multiple selections allowed; more than 6-8 do not display or print well) <br> \n";
 
-  open ASCIIFILE, ">$filename_ascii" or die "Cannot open file $filename_ascii: $! \n"; 
-
-  print ASCIIFILE "Comparison of similar runs to $production_dirname ($report_key) \n";
-  print ASCIIFILE "(up to 10 most recent runs compared) \n"; 
-  print ASCIIFILE "*" x 80, "\n";
   #---------------------------------------------------------
   # extract essence of report key
 
@@ -437,8 +435,70 @@ sub compare_reports {
   @matched_keys_ordered = sort { $QA_object_hash{$b}->CreationEpochSec <=> 
 				 $QA_object_hash{$a}->CreationEpochSec } @matched_keys_unordered;
 
-  # truncate to 6 most recent runs
-  $#matched_keys_ordered > 9 and $#matched_keys_ordered = 9; 
+  #---------------------------------------------------------
+  # display matching runs
+
+  @table_heading = ('Dataset (check to compare)', 'Created/On disk?' );
+  @table_rows =  th(\@table_heading);
+
+  #--- current run
+
+  $pre_string = "<strong> this run: </strong>";
+  $dataset_string = $pre_string.$QA_object_hash{$report_key}->DataDisplayString();
+  $creation_string = $QA_object_hash{$report_key}->CreationString();
+  
+  push @table_rows, td( [$dataset_string, $creation_string ]); 
+
+  #--- comparison runs
+
+  foreach $match_key (@matched_keys_ordered){
+
+    $box_name = $match_key.".compare_report";
+    $button_string = $query->checkbox("$box_name", 0, 'on', '');
+    $dataset_string = $button_string.$QA_object_hash{$match_key}->DataDisplayString();
+    $creation_string = $QA_object_hash{$match_key}->CreationString();
+
+    push @table_rows, td( [$dataset_string, $creation_string ]); 
+
+  }
+
+  print "<h3> Comparison datasets: </h3>";
+  print table( {-border=>undef}, Tr(\@table_rows) );
+
+  #-------------------------------------------------------------------
+
+  my $string = &QA_utilities::hidden_field_string;
+  print "$string";
+  #-------------------------------------------------------------------
+  print $query->endform;
+
+}
+#========================================================
+sub do_report_comparison {
+  
+  my $report_key = shift;
+  #---------------------------------------------------------
+  my $production_dirname = $QA_object_hash{$report_key}->ProductionDirectory;
+  print "<h2> Comparison of similar runs to $production_dirname ($report_key) </h2> \n"; 
+  #---------------------------------------------------------
+  # extract essence of report key, get list of comparison reports
+
+  my @matched_keys_unordered = ();
+
+  @params = $query->param;
+
+  foreach $param ( @params){
+
+    $param =~ /compare_report/ or next;
+
+    ($compare_key = $param) =~ s/\.compare_report//;
+
+    push @matched_keys_unordered, $compare_key;
+  }
+
+  # time-order the matched objects
+  @matched_keys_ordered = sort { $QA_object_hash{$b}->CreationEpochSec <=> 
+				 $QA_object_hash{$a}->CreationEpochSec } @matched_keys_unordered;
 
   #---------------------------------------------------------
   # display matching runs
@@ -473,13 +533,24 @@ sub compare_reports {
 
   }
 
-
   print "<hr> \n";
 
   print "<h3> Comparison datasets </h3> \n";
   print table( {-border=>undef}, Tr(\@table_rows) );
 
   #---------------------------------------------------------
+  # make ascii report - cheap version 
+
+  $filename_ascii = "/star/data1/jacobs/qa/compare_runs/$report_key";
+
+  print "<h4> (Ascii version of this page written to $filename_ascii) </h4> \n";
+
+  open ASCIIFILE, ">$filename_ascii" or die "Cannot open file $filename_ascii: $! \n"; 
+
+  print ASCIIFILE "Comparison of similar runs to $production_dirname ($report_key) \n";
+  print ASCIIFILE "(up to 10 most recent runs compared) \n"; 
+  print ASCIIFILE "*" x 80, "\n";
+
   print ASCIIFILE " Comparison datasets \n \n";
 
   $label = "this run";

@@ -414,7 +414,7 @@ sub ButtonString{
   $temp = $report_key.".show_files";
   $button_string .= "<input type=submit name=$temp value='Files and Reports'><br>";
 
-  $temp = $report_key.".compare_runs";
+  $temp = $report_key.".setup_report_comparison";
   $button_string .= "<input type=submit name=$temp value='Compare similar runs'><br>";
   
   if ($global_expert_page){

@@ -198,7 +198,8 @@ sub display_data{
     };
     
     foreach $report_key ( @selected_key_list ){
-      foreach $suffix ( "show_log_report", "show_qa", "show_files", "compare_runs",
+      foreach $suffix ( "show_log_report", "show_qa", "show_files", 
+			"setup_report_comparison", "do_report_comparison",
 			"do_qa_batch", "redo_evaluation", "redo_qa_batch"){
 	
 	$temp = $report_key.".".$suffix;
@@ -290,9 +291,14 @@ sub display_data{
 	$QA_object_hash{$report_key}->ShowQA;
 	last BUTTONACTION;
       };
-      
-      $button_action eq "compare_runs" and do {
-	QA_report_io::compare_reports($report_key);
+
+      $button_action eq "setup_report_comparison" and do {
+	QA_report_io::setup_report_comparison($report_key);
+	last BUTTONACTION;
+      };
+
+      $button_action eq "do_report_comparison" and do {
+	QA_report_io::do_report_comparison($report_key);
 	last BUTTONACTION;
       };
       

@@ -13,7 +13,8 @@
 <h2> STAR QA for Offline Software</h2>
 
 Peter Jacobs, LBNL<br>
-Sept. 28, 1999
+Sept. 28, 1999<br>
+Last modified Oct. 3, 1999<br>
 
 <p> <em>Suggestion for reading this page: open this frame in another
 window or use the mouse to raise the horizontal bar dividing the upper
@@ -253,9 +254,9 @@ and make it more intuitive are especially welcome.
  
 <p>
 The time dependence of QA scalars can be viewed via the "Compare
-similar runs" button. This currently shows tables of the run-based
+similar runs" button. This shows tables of the run-based
 scalars for all macros that have been applied to the selected run,
-comparing the 10 youngest runs having (currently) the same geometry
+comparing user selected runs from among those having the same geometry
 and TPC simulator as the selected run. An important future extension
 of this will be to develop ROOT macros to superimpose histograms from
 a reference run on the QA histograms for each selected run.
@@ -537,10 +538,16 @@ type .evaluation).
 </h3>
 
 This display is proving to be the most useful for first-pass QA. The
-run-based scalars for the selected run are compared to those from up
-to 10 of the most recent "similar" runs in the QA database. "Similar"
+run-based scalars for the selected run are compared to user selected
+runs from a list of "similar" runs in the QA database. "Similar"
 currently means the same TPC simulator (tfs, tss or trs) and geometry
 (year_1b or year_2a).
+
+<p> The first display in the lower frame shows all catalogued runs that are
+"similar" to the current run (which is listed first and labelled as "this run"), 
+with check boxes to select the comparison runs. Multiple comparison runs are 
+permitted, and judicious selection can give a useful display of the time dependence 
+of the scalars. After selecting the comparison runs, push "do run comparison".
 
 <p>
 All comparisons runs are listed in a table and are assigned an
@@ -559,11 +566,9 @@ this display are also written to an ASCII file, whose name is given
 near the top of the display.
 
 <p>
-A minor expansion of this capability will be to select a single
-reference run for comparison. In the longer term, a histogram
-comparison facility will be developed, automatically plotting the QA
-histograms for both a selected run and a reference run on the same
-panel.
+In the near future a histogram comparison facility will be developed,
+automatically plotting the QA histograms for the selected run and one
+reference run on the same panel.
 
 <!---------------------------------------------------------------->
 
@@ -1044,6 +1049,9 @@ living at a biology lab).
 crontab -l, and crontab -r buttons. Added security under "Run csh script" so that
 scripts in afs area cannot be run.
 
+<li> Oct 3, 1999: Compare similar runs: user now selects comparison runs by means of 
+check boxes, allowing more targeted comparison to meaningful reference runs.
+
 </ul>
 
 <!---------------------------------------------------------------->
@@ -1060,7 +1068,7 @@ scripts in afs area cannot be run.
     <address><a href="mailto:pmjacobs@lbl.gov">webmaster</a></address>
     <!-- Created: Wed May  6 11:37:01 EDT 1998 -->
 <!-- hhmts start -->
-Last modified: Tue Sep 28 20:59:08 EDT 1999
+Last modified: Sun Oct  3 18:55:03 EDT 1999
 <!-- hhmts end -->
 <!--===============================================================-->
 </body>

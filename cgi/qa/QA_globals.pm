@@ -11,6 +11,8 @@ use Exporter ();
 	     @topdir_data_WWW $topdir_report_WWW
 	     $control_dir_WWW
 
+	     $script_name
+
 	     $batch_dir $batch_dir_WWW $update_dir $control_dir $cron_dir
 
 	     $global_logfile $global_root_dst_file $global_root_hist_file $global_root_event_file
