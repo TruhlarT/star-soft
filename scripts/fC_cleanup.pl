@@ -185,8 +185,9 @@ while ($morerecords)
 
 
     } elsif ($mode*$mode == 1){
-	# Second mode of operation - get the file list, select the available ones
-	# and check if they really exist - if not, mark them as unavailable
+	# Second mode of operation - get the file list, 
+	# select the available ones and check if they 
+	# really exist - if not, mark them as unavailable
 	print "Checking mode=$mode $start (+$batchsize) ".localtime()."\n";
 	$fileC->set_context("limit=$batchsize");
 	$fileC->set_context("startrecord=$start");
@@ -202,7 +203,7 @@ while ($morerecords)
 	if( ! defined($store) ){
 	    # Impose NFS to minimize errors
 	    $store = "NFS";
-	    $fileC->set_context("storage=NFS");
+	    $fileC->set_context("storage=$store");
 	} else {
 	    if( $store eq "HPSS"){
 		die "HPSS checking not immplemented yet\n";
@@ -229,27 +230,29 @@ while ($morerecords)
 	    $fileC->set_context("node=$node") if ($node ne "");
 	    $fileC->set_context("site=$site") if ($site ne "");
 
+	    if ( ($mode == 1  && $available <= 0) || 
+		 ($mode == -1 && $available != 0)){ 
+		print "BOGUS logic or corrupt records !!\n";
+		next;
+	    }
 
-	    if (-e $path."/".$fname){
+	    if ( &Exist("$path/$fname") ){
 		if ($mode == -1){
+		    # remark available
 		    print "File  $site.$store://$node$path/$fname exists $available\n";
+		    $fileC->update_location("available",1,$confirm);
 		    $n++;
 		} elsif ($debug > 1){
 		    print "Found  $site.$store://$node$path/$fname and avail=$available\n";
 		}
 	    } else {
 		if ($mode == 1){
+		    # and ! Exists($path/$file) that is ...
 		    print "File  $site.$store://$node$path/$fname DOES NOT exist or is unavailable !\n";
+                    # mark it un-available
+		    $fileC->update_location("available",0,$confirm);
 		    $n++;
 		}
-	    }
-
-	    if ($mode == 1){
-		# mark it un-available
-		$fileC->update_location("available",0,$confirm);
-	    } else {
-		# remark available
-		$fileC->update_location("available",1,$confirm);
 	    }
 
 	}
@@ -351,7 +354,8 @@ while ($morerecords)
 	    if( ! defined($newval) ){
 		die "  You must specify a new value\n";
 	    } else {
-		print "Resetting keyword [$kwrd] to new value $newval $start ".localtime()."\n";
+		print "Resetting keyword [$kwrd] to new value $newval $start ".
+		    localtime()."\n";
 	    }
 	} else {
 	    die "Keyword is empty \n";
@@ -407,7 +411,7 @@ while ($morerecords)
 	$n = 0;
 	foreach (@output){
 	    my ($path, $fname, $av,$node, $site) = split ("::");
-	    if (-e $path."/".$fname){
+	    if ( &Exist("$path/$fname") ){
 		if ($av == 0){
 		    #if ($debug > 0)
 		    #{
@@ -483,6 +487,21 @@ while ($morerecords)
 
 }
 
+sub Exist
+{
+    my($file)=@_;
+    
+    if ( -e $file ){  return 1; }
+    else { 
+        # and since I am paranoid
+	if ( open(FT,$file) ){    
+	    close(FT);
+	    return 1;
+	} else {
+	    return 0;
+	}
+    }
+}
 
 
 sub FullBootstrap
@@ -541,8 +560,8 @@ sub Usage
      storage type in one shot. The default storage=NFS is made to prevent 
      accidental deletion of persistent stored files. This should be used with
      caution.
-   + -alla is a switch you may use to delete availability < 0
-     The default is to only delete the 0 ones.
+   + -alla is a switch you may use to affect availability < 0
+     The default is to only delete the 0 ones. 
 
  -alter keyword=value    alter keyword value for entry(ies) ** DANGEROUS **
                          This works on dictionaries or tables
