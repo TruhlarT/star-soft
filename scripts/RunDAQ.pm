@@ -39,6 +39,7 @@
 #      rdaq_mask2string             Returns detector set from detector BitMask.
 #      rdaq_trgs2string             Return trigger Setup name
 #      rdaq_ftype2string            Return file type/flavor name
+#      rdaq_toggle_debug            Turn ON/OFF SELECT of raw data.
 #
 #
 # DEV ONLY *** MAY BE CHANGED AT ANY POINT IN TIME ***
@@ -113,25 +114,26 @@ require Exporter;
 @ISA = qw(Exporter);
 
 @EXPORT= qw(
-	     rdaq_open_rdatabase rdaq_close_rdatabase
-	     rdaq_open_odatabase rdaq_close_odatabase
+	    rdaq_open_rdatabase rdaq_close_rdatabase
+	    rdaq_open_odatabase rdaq_close_odatabase
 
-	     rdaq_raw_files rdaq_add_entry rdaq_add_entries
-	     rdaq_set_location rdaq_get_location
-	     rdaq_delete_entries
+	    rdaq_raw_files rdaq_add_entry rdaq_add_entries
+	    rdaq_set_location rdaq_get_location
+	    rdaq_delete_entries
 
-	     rdaq_check_entries rdaq_list_field
-	     rdaq_last_run
+	    rdaq_check_entries rdaq_list_field
+	    rdaq_last_run
 
-	     rdaq_get_files rdaq_get_ffiles rdaq_get_orecords
-	     rdaq_set_files
+	    rdaq_get_files rdaq_get_ffiles rdaq_get_orecords
+	    rdaq_set_files
 
-	     rdaq_file2hpss rdaq_mask2string rdaq_status_string
-	     rdaq_bits2string rdaq_trgs2string rdaq_ftype2string
+	    rdaq_file2hpss rdaq_mask2string rdaq_status_string
+	    rdaq_bits2string rdaq_trgs2string rdaq_ftype2string
+	    rdaq_toggle_debug 
 
-	     rdaq_set_files_where rdaq_update_entries
+	    rdaq_set_files_where rdaq_update_entries
 
-	     );
+	    );
 
 
 #
@@ -162,7 +164,7 @@ $HPSSBASE  = "/home/starsink/raw/daq";        # base path for HPSS file loc.
 # There should be NO OTHER configuration below this line but
 # only composit variables or assumed fixed values.
 #
-
+$DEBUG     = 0;
 
 # Build ddb ref here.
 $DDBREF    = "DBI:mysql:$DDBNAME:$DDBSERVER:$DDBPORT";
@@ -450,6 +452,8 @@ sub rdaq_raw_files
 	    @res = split(/\./,$from);
 	    $cmd .= " AND (daqSummary.runNumber > $res[0] OR ".
 		" (daqSummary.runNumber=$res[0] AND daqFileTag.fileSequence > $res[1]))";
+	} elsif ( $from =~ /=/){
+	    $cmd .=  " AND daqSummary.runNumber $from";
 	} else {
 	    # old expected a run number only
 	    $cmd .= " AND daqSummary.runNumber > $from";
@@ -460,7 +464,7 @@ sub rdaq_raw_files
 	$cmd .= " LIMIT $limit";
     }
 
-    #print "$cmd\n";
+    print "$cmd\n" if ($DEBUG);
     $sth  = $obj->prepare($cmd);
     $sth->execute();
     $kk=0;
@@ -472,7 +476,7 @@ sub rdaq_raw_files
 	if( $kk % 10000 == 0){ 
 	    # always output debug lines in HTML comment format
 	    # since this may be used in a CGI.
-	    print "<!-- Fetched $kk records -->\n";
+	    print "<!-- Fetched $kk records -->\n" if ($DEBUG);
 	}
     }
     $sth->finish();
@@ -701,6 +705,7 @@ sub rdaq_get_files
     if( ! defined($ftype) ){  $ftype = 1;}
 
     # We MUST pass a reference to a hash.
+    #if($status < 0){ $status = 0;}
     $Conds{"Status"} = $status;
     $Conds{"ftype"}  = $ftype;
 
@@ -1190,6 +1195,9 @@ sub	info_message
 	printf "FastOffl :: %10.10s : %s",$routine,$mess;
     }
 }
+
+
+sub    rdaq_toggle_debug { $DEBUG = ! $DEBUG;}
 
 
 1;
