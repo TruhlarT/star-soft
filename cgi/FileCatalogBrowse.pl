@@ -1,20 +1,20 @@
 #!/usr/bin/env perl
 ###################################################
 #                                                 #
-# !/opt/star/bin/perl -w                          # 
+# !/opt/star/bin/perl -w                          #
 # DataBrowser.pl                                  #
 #                                                 #
 # Written by Adam Kisiel, Dec 2001                #
-#                                                 # 
-# This is production data browser that allows you # 
+#                                                 #
+# This is production data browser that allows you #
 # to make query from db FileCatalog.              #
 # This script uses my perl module FileCat.pm      #
 # to work with db FileCatalog.                    #
-#                                                 # 
-################################################### 
+#                                                 #
+###################################################
 
 BEGIN {
- use CGI::Carp qw(fatalsToBrowser); 
+ use CGI::Carp qw(fatalsToBrowser);
 }
 
 use CGI qw(:standard);
@@ -31,14 +31,15 @@ my $boxfields = "filetype,extension,storage,site,production,library,triggername,
 my $queryfields = "filetype,extension,storage,site,production,library,triggername,triggerword,triggersetup,runtype,configuration,geometry,runnumber,runcomments,collision,datetaken,magscale,magvalue,filename,size,fileseq,filecomment,owner,protection,node,available,persistent,createtime,inserttime,path,simcomment,generator,genversion,gencomment,genparams,tpc,svt,tof,emc,fpd,ftpc,pmd,rich,ssd";
 my $operfields = "datetaken,magvalue,runnumber,filename,size,createtime,inserttime,path";
 
-print 
-    header,    
+print
+    header,
     "<html>\n",
     "<head>\n",
     "<title>FileCatalog Data Browser</title>\n",
-    #"<LINK rel=\"stylesheet\" href=\"def_style.css\" type=\"text/css\">",
+    "<LINK rel=\"stylesheet\" type=\"text/css\" href=\"/STAR/comp/cgi_def.css\">",
     "</head>\n",
-    "<body bgcolor=#E0E0E0 link=blue, alink=#5599CC, vlink=navy>\n";   
+    "<body bgcolor=#E0E0E0 link=blue, alink=#5599CC, vlink=navy>\n";
+
 $fC->clear_context;
 my (@pars);
 foreach (split(",",$boxfields))
@@ -49,7 +50,7 @@ foreach (split(",",$boxfields))
 foreach (split(",",$operfields))
   {
     if (param($_."glob") ne "")
-      { 
+      {
 	my $oper;
 	if (param($_."oper") eq "greater than")
 	  { $oper = " > "; }
@@ -67,8 +68,8 @@ foreach (split(",",$operfields))
 	  { $oper = " != "; }
 	elsif (param($_."oper") eq "not like")
 	  { $oper = " !~ "; }
-	
-	$fC->set_context("$_".$oper.param($_."glob")); 
+
+	$fC->set_context("$_".$oper.param($_."glob"));
       }
   }
 foreach (split(",",$queryfields))
@@ -110,7 +111,7 @@ my $lp = 1;
 foreach (@road)
   {
     my @fields;
-    
+
     (@fields) = split("::");
     print "<tr>";
     print "<td class=lp>".($lp+$start)."</td>";
@@ -138,7 +139,7 @@ if ($oldstart)
   {
     $newurl =~ s/start=$oldstart/start=$newstart/;
   }
-else 
+else
   {
     $newurl .= "&start=$newstart";
   }
@@ -153,7 +154,7 @@ if ($oldstart)
   {
     $newurl =~ s/start=$oldstart/start=$newstart/;
   }
-else 
+else
   {
     $newurl .= "&start=$newstart";
   }
