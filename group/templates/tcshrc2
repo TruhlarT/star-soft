@@ -2,22 +2,21 @@
 # File:            .tcshrc                                     
 # Description:     general purpose .tcshrc file            
 #                  This file gives examples of how to modify the behaviour of
-#                  Tenex /bin/csh (tcsh).
+#                  Tenex csh (tcsh).
 #                  It sources a file on the central file server which is 
 #                  starting the HEP scripts if they are not installed locally.
-# Authors:         Arnaud Taddei
+# Authors:         A. Taddei (CERN/CN/DCI) 
 # Site Contact:    Setup.Support@cern.ch
-# Version: 	   2.5
-# Last Change:	   Mon Dec  5 16:31:50 MET 19
+# Version: 	   3.1.1
+# Last Change:	   10 January 1997
 #-############################################################################
+setenv GROUP_DIR /afs/rhic/star/group
+source $GROUP_DIR/STAR_SYS
 # if ($?STAR_LEVEL == 0) setenv STAR_LEVEL dev
 # if ($?CERN_LEVEL == 0) setenv CERN_LEVEL new
-if ( -r /usr/local/lib/hepix/central_env.csh ) then
-	source /usr/local/lib/hepix/central_env.csh
+if ( -r $GROUP_DIR/$STAR_SYS/usr.local/lib/hepix/shells/hep/central_env.csh ) then
+   source $GROUP_DIR/$STAR_SYS/usr.local/lib/hepix/shells/hep/central_env.csh
 endif
-
-
-
 
 #======================================================================#
 # The following is a set of examples.
@@ -29,17 +28,27 @@ endif
 #===================================================
 # Template for environment dependent login
 # switch ( $ENVIRONMENT )
-#        case INTERACTIVE: # Interactive non-login behaviour of the shell 
+         case INTERACTIVE: # Interactive non-login behaviour of the shell 
 #                          # (No output)
-#		           breaksw
-#        case LOGIN:       # STANDARD LOGIN AND DMLOGIN :
-#                          #echo "Environment $ENVIRONMENT"
-#                          breaksw
-#        case X11:         # X11 LOGIN (No output):
-#                          breaksw
-#        case BATCH:       # NQS,... (No output):
-#                          breaksw
-# endsw
+ 		           breaksw
+         case LOGIN:       # STANDARD LOGIN AND DMLOGIN :
+                           #echo "Environment $ENVIRONMENT"
+                           setenv EDITOR xemacs
+                           setenv PAGER "less -i"
+                           unset autologout
+                           set filec
+                           set history = 500
+                           set notify
+                           set status
+#                          # Warning quota limits:
+#                          #======================
+                           $GROUP_DIR/$STAR_SYS/usr.local/lib/hepix/tools/quota-warn
+                           breaksw
+         case X11:         # X11 LOGIN (No output):
+                           breaksw
+         case BATCH:       # NQS,... (No output):
+                           breaksw
+  endsw
 #
 #
 #
@@ -56,15 +65,16 @@ endif
 #
 # How can you set aliases:
 #=========================
-# Definition				# Comment
+# Definition				  # Comment
 #---------------------------------------------------------------------
-# alias H 'history -r | fgrep "\!*"'	# just type H latex to get the 
-#					# last latex command
-# alias h history			# just type h for the history
-# alias m more				# just type m for more
+# alias H 'history -r | fgrep "\!*"'	  # just type H latex to get the 
+#					  # last latex command
+# alias h history			  # just type h for the history
+# alias m more				  # just type m for more
+# alias findfile "find . -name \!^ -print" # To find a file in a hierarchy
 #
 #
-#
+if (-e $HOME/.aliases ) source $HOME/.aliases
 # How can you change the path:
 #=============================
 # Basic rule:
@@ -79,15 +89,14 @@ endif
 # new_directory			# Comment
 #-----------------------------------------------------------------------
 # /afs/cern.ch/user/f/fred/bin 	# To be able to execute Fred's programs
-# $ORACLE/bin			# To use ORACLE
-# /usr/local/bin/gnu		# To access GNU programs
+# $GROUP_DIR/$STAR_SYS/usr.local/bin/gnu		# To access GNU programs
 #
 #
 # The next lines are provided in order to help you
 # removing the '.' in the path (if any)! (refer to CN/DCI/170 from the UCO)
 #-----------------------------------------------
-# set path = ( `echo $path | /bin/sed 's/ \.//'`)
-# set path = ( `echo $path | /bin/sed 's/\. //'`)
+# set path = ( `echo $path | sed 's/ \.//'`)
+# set path = ( `echo $path | sed 's/\. //'`)
 #
 #
 # How can you set environment variables:
@@ -96,7 +105,14 @@ endif
 #--------------------------------------------------------------
 # setenv EDITOR  nedit		# if you want nedit as default
 # setenv PRINTER 513-lps  	# print on 513-lps as default
-# setenv PAGER	 less		# use /usr/local/bin/less to read man pages		
+  setenv PRINTER hp5si1_paper
+# setenv LPDEST  513-lps        # another way to set a printer
+# setenv LPDEST $PRINTER        # if PRINTER is defined, use it!
+# setenv PRINT_CMD xprint       # the printing command mechanism
+  setenv PRINT_CMD lpr
+#                               # used at CERN
+# setenv PAGER	 less		# use less to read man pages		
+# setenv FMHOME /afs/cern.ch/@sys/usr/fm4 # to use Framemaker
 #
 #
 #
@@ -104,7 +120,7 @@ endif
 #==============================
 # Normally, redirecting command output to a file, for example
 #
-#      /bin/ls > file.list
+#      ls > file.list
 #
 # will OVERWRITE any existing file.list. As the default you can't overwrite
 # existing files. If you dislike it uncomment the following line:
@@ -114,7 +130,7 @@ endif
 # If you have this option set you can override the extra protection by
 # adding a '!' - e.g.,
 #
-#      /bin/ls >! file.list
+#      ls >! file.list
 #
 #---------------------------------------------------
 # By default you need to type "logout" to logout from a standard CERN Unix
@@ -138,12 +154,10 @@ endif
 # ------
 # If you want ORACLE uncomment the next lines:
 #=============================================
-# if ( -r /usr/local/lib/hepix/oracle_env.csh ) then
-#    source /usr/local/lib/hepix/oracle_env.csh
+# if ( -r $GROUP_DIR/$STAR_SYS/usr.local/lib/hepix/oracle_env.csh ) then
+#    source $GROUP_DIR/$STAR_SYS/usr.local/lib/hepix/oracle_env.csh
 # endif
-setenv PATH `dropit GROUPPATH`
+# setenv TEXINPUTS $GROUP_DIR/$STAR_SYS/usr.local/share/texmf/tex/latex/
 
 #EOF
-
-
 
