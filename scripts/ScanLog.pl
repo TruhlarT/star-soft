@@ -130,7 +130,12 @@ while ( defined($logname = readdir(LOGDIR)) ){
 	if( ! -e $err_file){  $err_file =~ s/\.gz// ;}
 
         @fc = stat($logname);
-        $deltatime = time() - $fc[9];
+	if( $#fc != -1){
+	    $deltatime = time() - $fc[9];
+	} else {
+	    # Note that a stat() may fail
+	    $deltatime = 0;
+	}
 
 	# laps time has to be at minimum min_time
 	if($deltatime > $min_time ){
@@ -153,7 +158,12 @@ while ( defined($logname = readdir(LOGDIR)) ){
 	    if ( -e "$log_dir/$shortname.parsed"){
 		# if a .parsed file exists, then skip it UNLESS
 		# the log file is more recent than the .parsed file.
-		$pmtime = (stat("$log_dir/$shortname.parsed"))[9];
+		my @info = stat("$log_dir/$shortname.parsed");
+		if( $#info != -1){
+		    $pmtime = $info[9];
+		} else {
+		    $pmtime = 0;
+		}
 		if ( $pmtime > $fc[9] ){
 		    next;
 		} else {
@@ -223,12 +233,16 @@ while ( defined($logname = readdir(LOGDIR)) ){
 
 		$err="";
 		$cmd = &ZSHandle($logname,"tail -5000");
-		@log_errs2 = `$cmd | grep Break`;
+		@log_errs2 = `$cmd | grep -E 'Break|Abort'`;
 		foreach $logerr (@log_errs2){
 		    print "$logerr\n";
 		    if ( $logerr=~/(\*+\s+Break\s+\*+)(.*)/ ){
 			unless ( $err=~/$2/ ){
 			    $err.=" $2 |";
+			}
+		    } elsif ( $logerr =~ m/^Abort/){
+			unless ( $err =~ /Code was aborted/){
+			    $err .= "Code was aborted | ";
 			}
 		    }
 		}
@@ -250,7 +264,9 @@ while ( defined($logname = readdir(LOGDIR)) ){
 		$cmd = &ZSHandle($err_file,"tail -5");
 		@log_errs1 = `$cmd`;
 		foreach $logerr (@log_errs1){
-		    &define_err("Assertion.*\s+failed",$logerr);
+		    chomp($logerr);
+		    print "Checking line [$logerr]\n" if ($DEBUG);
+		    &define_err("Assertion.* failed",$logerr);
 		    &define_err("Unexpected EOF",$logerr);
 		    &define_err("Fatal in <operator delete>",$logerr);
 		    &define_err("Fatal in <operator new>",$logerr);
@@ -346,9 +362,11 @@ sub define_trigger {
 sub define_err
 {
     my ($errname,$logerr) = @_;
+
+    #if( $errname =~ /Assertion/i){ print "[$errname][$logerr]\n";}
     if( $logerr =~ m/$errname/ ){
-	chomp($errname);
-	$err .= " $errname |";
+	#chomp($logerr);
+	$err .= " $logerr |";
 	print "$err";
     }
 }
