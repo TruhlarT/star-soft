@@ -284,8 +284,9 @@ sub DisplayDataset{
   # get out unless we're looking at messages or datasets
   return unless($gCGIquery->param('Display datasets') or
 		$gCGIquery->param('Display messages') or
-	        $gCGIquery->param('More datasets')    or
-	        $gCGIquery->param('Previous datasets'));
+	        $gCGIquery->param('Next subset')      or
+	        $gCGIquery->param('Previous subset')  or
+	        defined $gCGIquery->param('Select subset'));
  
   $gCGIquery->param('enable_add_edit_comments') 
     and  &Browser_utilities::display_comment_buttons;
@@ -314,60 +315,72 @@ sub DisplayDataset{
       
       if ( $rows > $subset_len){
 	
-	$gCGIquery->param('previous_subset',0); 
+	$gCGIquery->param('previous_subset',1); 
 	$gCGIquery->param('selected_key_list',@all_selected_keys);
 
 	@selected_keys = splice(@all_selected_keys,0,$subset_len);
 
+	my $n_subset = ceil($rows/$subset_len);
+	my $popup    = Browser_utilities::SelectSubsetMenu($subset_len,$n_subset,$rows, 1);
+	my $more_button = Browser_utilities::NextSubsetButton();
+	my $row_ref  = td([ $popup, $more_button]);
+
 	print "<center>",h3("Rows 1 - $subset_len (total $rows rows)"),
-	      Browser_utilities::DisplayMoreButton(),"</center>";
+	      table(Tr($row_ref)). "</center>";
 
       }
       else{
 	@selected_keys = @all_selected_keys;
       }
     }
-  elsif($gCGIquery->param('More datasets') ||
-        $gCGIquery->param('Previous datasets')){    
+  elsif($gCGIquery->param('Next subset') ||
+        $gCGIquery->param('Previous subset') ||
+        defined $gCGIquery->param('Select subset')){    
     my $previous_subset   = $gCGIquery->param('previous_subset');
 
     my $current_subset;
-    if ($gCGIquery->param('More datasets')){
+    if ($gCGIquery->param('Next subset')){
       $current_subset    = $previous_subset + 1;
     }
-    elsif($gCGIquery->param('Previous datasets')){
+    elsif($gCGIquery->param('Previous subset')){
       $current_subset    = $previous_subset - 1;
     }
+    elsif(defined $gCGIquery->param('Select subset')){
+      $current_subset    = $gCGIquery->param('Select subset');
+    }
     $gCGIquery->param('previous_subset',$current_subset);
-    
+
     my @all_selected_keys = $gCGIquery->param('selected_key_list');
     my $rows              = scalar @all_selected_keys;
     my $n_subset          = ceil($rows/$subset_len);
-    my $is_last_subset    = ($current_subset == ($n_subset-1));
-    my $is_first_subset   = ($current_subset == 0);
+    my $is_last_subset    = ($current_subset == $n_subset);
+    my $is_first_subset   = ($current_subset == 1);
 
     # if the current subset is the last subset, dont show the more button.
     # if the current subset is the first subset, dont show the previous button.
-    # note that the current subset is numbered from 0
-    my $more_button = Browser_utilities::DisplayMoreButton() 
+    # note that the current subset is numbered from 1
+    my $more_button = Browser_utilities::NextSubsetButton() 
       unless $is_last_subset;
 			     
-    my $previous_button = Browser_utilities::DisplayPreviousButton()
+    my $previous_button = Browser_utilities::PreviousSubsetButton()
       unless $is_first_subset;
+	  
+    my $popup    = Browser_utilities::SelectSubsetMenu($subset_len,$n_subset,$rows, 
+						       $current_subset);
 
-    my $first_row = $current_subset*$subset_len + 1;
+    my $first_row = ($current_subset-1)*$subset_len + 1;
     my $last_row;
     if ($is_last_subset){
-      $last_row = scalar @all_selected_keys;
+      $last_row = $rows;
     }
     else {
-      $last_row = ($current_subset+1)*$subset_len;
+      $last_row = $current_subset*$subset_len;
     }
     
     @selected_keys = splice(@all_selected_keys,
-			       $current_subset*$subset_len, $subset_len);
+			       ($current_subset-1)*$subset_len, $subset_len);
 
-    my $row_ref = td([ $previous_button, $more_button]);
+    my $row_ref = td([ $previous_button, $popup, $more_button]);
     print "<center>",
           h3("Rows $first_row - $last_row (total $rows rows)"), 
           table( Tr($row_ref) ), 

@@ -203,28 +203,66 @@ sub display_comment_string{
 #==============================================================
 # Browser_object::DisplayDataset
 
-sub DisplayMoreButton{
+sub NextSubsetButton{
   my $script_name = $gCGIquery->script_name;
   return "<center>" .
     $gCGIquery->startform(-action=>"$script_name/upper_display",
 			  -TARGET=>"list").
-    $gCGIquery->submit('More datasets').
+    $gCGIquery->submit('Next subset').
     $gBrowser_object->Hidden->Parameters .
     $gCGIquery->endform().
     "</center>";
 }
 #==============================================================
-sub DisplayPreviousButton{
+sub PreviousSubsetButton{
   my $script_name = $gCGIquery->script_name;
   return "<center>" .
     $gCGIquery->startform(-action=>"$script_name/upper_display",
 			  -TARGET=>"list").
-    $gCGIquery->submit('Previous datasets').
+    $gCGIquery->submit('Previous subset').
     $gBrowser_object->Hidden->Parameters .
     $gCGIquery->endform().
     "</center>";
 }
 #=============================================================
+sub SelectSubsetMenu{
+  my $subset_len = shift;
+  my $n_subset   = shift;
+  my $rows       = shift;
+  my $current    = shift;
+
+  my (@values,%labels);
+  my $script_name = $gCGIquery->script_name;
+
+  foreach my $i (1..$n_subset){
+    push @values, $i;
+    my ($first, $last);
+    $first = ($i-1)*$subset_len +1;
+    if ($i==$n_subset){
+      $last = $rows;
+    }
+    else{
+      $last = $i*$subset_len;
+    }
+    $labels{"$i"} = "$first-$last";
+  }
+  my $popup = $gCGIquery->popup_menu(-name   => 'Select subset',
+				     -values => \@values,
+				     -default=> $current,
+				     -labels => \%labels,  
+				     -onChange => 'this.form.submit()'
+				    );
+
+  return 
+    $gCGIquery->startform(-action=>"$script_name/upper_display",
+			  -TARGET=>"list").
+    $popup.
+    $gBrowser_object->Hidden->Parameters .
+    $gCGIquery->endform().
+    "</center>";
+  
+}		 
+#=================================================================  
 
 sub SwitchDataTypeMenu{
 
