@@ -1,0 +1,365 @@
+#!/usr/bin/perl -I/star/u2e/bnorman/lib -w 
+
+# QA cgi server   (cgid)
+#
+# BEN 2Apr00
+#
+# The sole purpose of cgid is to run QA_main.pm and return the output,
+# just like a cgi-only web server.  If given a request for a document other
+# than QA_main.pm, it gives a HTTP 404 error message.
+#
+# cgid makes QA_main think thathas been run as a normal cgi process.
+# This is accomplished by parsing the HTTP request (from a normal web browser)
+# and setting the CGI environment accordingly before calling QA_main.pm.
+#
+# cgid forks a child to handle every new request.
+#
+# It stores its process id in /afs/rhic/star/starqa/var/run/cgid.pid.
+# Logging is appended to /afs/rhic/star/starqa/var/log/cgid.log.
+#
+# Usage:  cgid [-p port] [-r] [-k] [-h]
+#
+# 'port' is the listening port (default 8080)
+# -k kills cgid gently
+# -r restarts cgid
+# -h prints usage instructions
+#
+# cgid is suid starlib.  It gets makes sure reauth is running on the local
+# machine so that it will always have afs access.
+# In practice, you will probably want to run this in the background,
+# and it should definitely be run from the directory in which it lives.
+#
+#      cgid [options] &
+#
+# Cross Your Fingers.
+#
+
+use HTTP::Daemon;
+use Net::hostent; # OO getpeerbyaddr
+use IPC::Open2;
+use Getopt::Std;
+use strict;
+use Cwd;
+
+$| = 1; # don't buffer output
+
+my $my_name = "cgid";
+my $script_name = "QA_main.pm";
+my $var_dir = "/afs/rhic/star/starqa/var";
+my $log_dir = "$var_dir/log";
+my $run_dir = "$var_dir/run";
+my $pid_file = "$run_dir/$my_name.pid";
+my $log_file = "$log_dir/$my_name.log";
+my $afs_pw_file = cwd() . "/starlib_pw";
+
+my %opt = ();
+getopt('p', \%opt);
+
+if ($opt{h})
+{
+	print_usage();
+	exit;
+}
+
+my $port = ($opt{p} ? $opt{p} : 8080);
+my $daemon;
+my $client;
+my $request;
+my $content;
+my $url;
+local *LOGFILE;
+
+#
+# check for reauth running for starlib on sol and restart it if
+# necessary.  reauth refreshes afs tokens automatically, and we
+# need a token before we can write to afs space.
+#
+
+my $reauth = `ps -u starlib | grep reauth`;
+
+if (! $reauth) {
+    system("reauth 50000 starlib `cat $afs_pw_file`");
+}
+
+#
+# handle shutdown or restart requests
+#
+
+if ($opt{k} || $opt{r})
+{
+	# get PID of running process
+	my $kill_pid = `cat $pid_file`;
+	if ($kill_pid)
+	{
+		print "Killing $my_name with pid $kill_pid...";
+		system "kill -INT $kill_pid";
+		print "done\n";
+	}
+	else
+	{
+		print "No pid file found for $my_name.\n";
+	}
+}
+
+if ($opt{k})
+{
+	exit;
+}
+elsif ($opt{r})
+{
+	print "Running new invocation of $my_name with pid $$.\n";
+}
+
+#
+# start logging and write out pid to give us an easy handle
+#
+
+system("echo $$ | cat > $pid_file");
+open LOGFILE, ">>$log_file" or die "Cannot open logfile";
+LOGFILE->autoflush(1);
+print LOGFILE "[" . localtime() . "]  $0.$$ starting\n";
+
+#
+# ignore all signals but SIGINT (^c) and SIGTSTP (^z)
+#
+
+my $key;
+foreach $key (keys(%SIG))
+{
+    if ($key eq "INT")
+    {
+	$SIG{$key} = 'cleanup';
+    }
+    elsif ($key eq "TSTP")
+    {
+	$SIG{$key} = 'DEFAULT';
+    }
+    else
+    {
+	$SIG{$key} = 'IGNORE';
+    }
+}
+
+#
+# instantiate the http daemon
+#
+
+$daemon = new HTTP::Daemon( LocalPort => $port ) 
+    or (print LOGFILE "[" . localtime() . "]  $0.$$ can't open port $port\n]" 
+	&& cleanup() );
+print LOGFILE "[" . localtime() . 
+    "]  $0.$$ running CGI server on port $port\n";
+
+#
+# Loop through incoming HTTP requests
+#
+
+ACCEPT_LOOP: while ($client = $daemon->accept)
+{
+    #
+    # read the HTTP request so we have some information about the connection
+    #
+
+    $client->autoflush(1); # don't buffer IO
+    $request = $client->get_request;
+    unless ($request)
+    {
+	$client = undef; # close connection
+	print LOGFILE "[" . localtime() . "] $0.$$ got bad http request\n";
+	next ACCEPT_LOOP
+    }
+
+    #
+    # Log something to indicate we got the connection - it would be nice
+    # to log the incoming ip, but this is always just the ssh gateway.
+    # So we hope that there's some "user" identification in the http header.
+    #
+    
+    print LOGFILE "[" . localtime() . "] $0.$$ got request from user " .
+	$request->from() . "\n";
+	
+    # 
+    # Fork off a child to handle this request so the parent can
+    # continue accepting connections.
+    #
+    
+    last ACCEPT_LOOP unless ( fork() );
+
+    #
+    # I'm the parent, let go of my copy of this connection &
+    # wait for another
+    #
+    
+    $client = undef;
+}
+
+#
+# I'm the child, handle the request
+#
+
+print LOGFILE "[" . localtime() . 
+    "]  $0.$$ child handling request\n";
+
+#
+# process requests to "QA_main.pm" and only that!
+#   - The sloppy check here isn't a security hole because
+#     the only thing this script knows how to run is "QA_main.pm".
+#
+
+if ($request->url->path =~ /^\/$script_name/)
+{
+    #
+    # send http header not provided by the cgi script
+    #
+
+    $client->send_status_line;
+    $client->send_basic_header;
+
+    #
+    # set up the environment ala the CGI/1.1 "specification"
+    #    - see http://Web.Golux.Com/coar/cgi/
+    #
+
+    %ENV = (); # start clean
+    $url = $request->url();
+    
+    # query string (trailing "?<query string>")
+    $ENV{QUERY_STRING} = $url->equery();
+    # path info (trailing "</path info>" after script name
+    $ENV{PATH_INFO} = $url->epath();
+    $ENV{PATH_INFO} =~ s/\/$script_name(.*)$/$1/;
+    # path info intrpreted as a local directory
+    $ENV{PATH_TRANSLATED} = ""; # QA_main.pm doesn't need this
+    # script path
+    $ENV{SCRIPT_NAME} = "/$script_name";
+
+    # everything else
+    $ENV{AUTH_TYPE} = ""; # QA_main.pm doesn't need this
+    $ENV{CONTENT_LENGTH} = $request->content_length();
+    if ($ENV{CONTENT_LENGTH} eq "")
+    {
+	$ENV{CONTENT_LENGTH} = 0;
+    }
+    $ENV{CONTENT_TYPE} = $request->content_type();
+    $ENV{GATEWAY_INTERFACE} = "CGI/1.1";
+    $ENV{REMOTE_ADDR} = $client->peerhost();
+    $ENV{REMOTE_HOST} = gethostbyaddr( $client->peeraddr() )->name;
+    $ENV{REMOTE_IDENT} = ""; # QA_main.pm doesn't need this
+    $ENV{REMOTE_USER} = $request->from();
+    $ENV{REQUEST_METHOD} = $request->method();
+    $ENV{SERVER_NAME} = gethostbyaddr( $client->sockaddr() )->name;
+    $ENV{SERVER_PORT} = $client->sockport();
+    $ENV{SERVER_PROTOCOL} = "HTTP/1.1";
+    $ENV{SERVER_SOFTWARE} = $my_name;
+
+    #
+    # send ouput of QA_main.pm, putting any POST content on stdin
+    #
+    
+    local *Writer;
+    local *Reader; 
+    open2(\*Reader, \*Writer, "./QA_main.pm" ); # I & O sockets
+    Writer->autoflush(1);
+    Reader->autoflush(1);
+
+    print Writer $request->content();
+
+    while (<Reader>)
+    {
+	print $client $_ . "\n";
+    }
+
+    #
+    # clean up the mess
+    #
+    
+    close Writer;
+    close Reader;
+
+    $client = undef;
+
+    print LOGFILE "[" . localtime() . 
+	"]  $0.$$ handled request for '" . $request->url . "', exiting\n";
+
+}
+else
+{
+    $client->send_error(404, "So sorry.");
+    $client = undef; # close the connection
+
+    print LOGFILE "[" . localtime() . 
+	"]  $0.$$ ignored request for '" . $request->url . "', exiting\n";
+
+}
+
+exit;
+
+#########################################################################
+
+#
+# handle ^c by shutting down the socket gracefully
+#
+
+sub cleanup
+{
+    print LOGFILE "[" . localtime() . "]  $0.$$ exiting\n";
+
+    $client = undef; # close any http connection
+    $daemon = undef; # close socket
+    unlink $pid_file; # remove runtime pid file
+
+    close LOGFILE;
+
+    exit;
+} # sub cleanup
+
+sub print_usage
+{
+        print <<MICA;
+ Usage:  $my_name [-p port] [-r] [-k] [-h]
+
+ 'port' is the listening port (default 8080)
+ -k kills $my_name gently
+ -r restarts $my_name
+ -h prints usage instructions
+MICA
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

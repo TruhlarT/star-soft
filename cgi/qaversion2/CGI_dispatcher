@@ -1,0 +1,215 @@
+#! /opt/star/bin/perl
+# Ben Norman (12jun2000)
+
+# CGI dispatcher program for AutoQA (CGI_dispatcher)
+#
+# CGI_dispatcher works in conjunction with CGI_gateway.  It runs as a daemon
+# and watches the starqa afs scratch area for batch scripts written by 
+# CGI_gateway.  When it sees a new one, it forks a child.
+# The child runs the script and stores its output
+# in a second file.  Meanwhile, CGI_gateway polls for this output file,
+# dumping it back to the web browser when it is found.
+#
+# The multi-threading may be (is?) necessary to keep up with apache, 
+# which could be running more than one invocation of CGI_gateway.  
+# [Maybe AutoQA will be Really Popular ;) ]
+#
+# Usage:  CGI_dispatcher -k -r -h &
+#
+# -k kills CGI_dispatcher gently
+# -r is the same as -k but then runs a new instance
+# -h prints usage instructions
+#
+# CGI_dispatcher keeps a log file at 
+# /afs/rhic/star/starqa/var/log/CGI_dispatcher.log
+#
+# For easy access, it stores its pid in 
+# /afs/rhic/star/starqa/var/run/CGI_dispatcher.pid
+
+use strict;
+use Cwd;
+use FileHandle;
+use DirHandle;
+use Getopt::Std;
+
+my $my_name = "CGI_dispatcher";
+my $client_name = "CGI_gateway";
+my $working_dir = cwd();
+my $afs_dir = "/afs/rhic/star/starqa";
+my $scratch_dir = "$afs_dir/scratch";
+my $var_dir = "$afs_dir/var";
+my $log_dir = "$var_dir/log";
+my $run_dir = "$var_dir/run";
+
+my $pid_file = "$run_dir/$my_name.pid";
+my $log_file = "$log_dir/$my_name.log";
+my $afs_pw_file = "$working_dir/starlib_pw";
+
+my $script_file;
+
+my %opt = ();
+getopt('', \%opt); # no args take options
+
+# don't buffer output
+\*STDOUT->autoflush(1);
+\*STDERR->autoflush(1);
+
+#
+# check for reauth running for starlib on rcas and restart it if
+# necessary.  reauth refreshes afs tokens automatically, and we
+# need a token before we can write to afs space.
+#
+
+my $reauth = `ps -u starlib | grep reauth`;
+if (! $reauth) {
+    print "no reauth running for starlib...running it now.\n";
+    system("/usr/afsws/bin/reauth 85000 starlib `cat $afs_pw_file`");
+}
+
+#
+# handle command line args and set up signal handling
+#
+
+processArgs();
+setSignals();
+
+#
+# start logging and write out pid to give us an easy handle
+#
+
+system("echo $$ | cat > $pid_file");
+printToLog("$0.$$ starting");
+
+#
+# Wait for new batch scripts to be deposited by CGI_gateway
+#
+
+chdir $scratch_dir;
+POLLING: while (1){
+    
+    # get a list of any script files written by CGI_gateway.
+    # for each one which which is valid, fork a child to run it.
+    
+    my $scratchDH = new DirHandle("$scratch_dir");
+    
+    while (defined ($script_file = $scratchDH->read()) ){
+	print STDERR "got directory entry '$script_file'...";
+	if ($script_file =~ /$client_name/ && 
+	    $script_file !~ /output/ &&
+	    $script_file !~ /working/){
+	    my $kid_pid = fork();
+	    if ($kid_pid) {
+		print STDERR "forking child $kid_pid\n";
+	    }else{
+		print STDERR "i'm the forked child $$\n";
+		#undef $scratchDH; #release our hold on the directory
+		last POLLING;
+	    }
+	}else{
+	    print STDERR "ignored\n";
+	}
+    }
+
+    # I'm the parent, I'll twiddle my thumbs for a while
+   
+    undef $scratchDH;
+    print STDERR "I'm sleeping!\n";
+    sleep 1;
+}
+
+#
+# ok, I'm the kid, run the new script file.  We copy the script to a
+# new file so it doesn't get picked up by the next polling cycle.
+# (CGI_gateway.12345 -> CGI_gateway.12345.working)
+#
+
+system("mv $script_file $script_file.working"); 
+printToLog("child $0.$$ handling $script_file");
+
+my $output_file = "$script_file.output";
+system("./$script_file.working >& $output_file");
+
+#
+# clean up after ourselves
+#
+
+#unlink $script_file;
+system ("mv $script_file.working $scratch_dir/old");
+cleanup();
+
+#
+# handle ^c by shutting down the socket gracefully
+#
+sub cleanup
+{
+    printToLog("$0.$$ exiting");
+
+    unlink $pid_file; # remove runtime pid file
+
+    exit 0;
+}
+
+#
+# ignore all signals but SIGINT (^c) and SIGTSTP (^z)
+#
+sub setSignals{
+    foreach my $key (keys(%SIG)){
+	if ($key eq "INT"){
+	    $SIG{$key} = 'cleanup';
+	}elsif ($key eq "TSTP"){
+	    $SIG{$key} = 'DEFAULT';
+	}else{
+	    $SIG{$key} = 'IGNORE';
+	}
+    }
+}
+
+#
+# process command line args, handle shutdown or restart requests
+#
+sub processArgs{
+    if ($opt{k} || $opt{r}){
+	# get PID of running process
+	my $kill_pid = `cat $pid_file`;
+	if ($kill_pid){
+	    print "Killing $my_name with pid $kill_pid...";
+	    system "kill -INT $kill_pid";
+	    print "done\n";
+	}else{
+	    print "No pid file found for $my_name.\n";
+	}
+    }
+    
+    if ($opt{k}){
+	exit 0;
+    }
+
+    elsif ($opt{r}){
+	print "Running new invocation of $my_name with pid $$.\n";
+    }
+}
+
+#
+# take a wild guess....
+#
+sub print_usage{
+    print <<MICA;
+Usage:  CGI_dispatcher -k -r -h &
+
+-k kills CGI_dispatcher gently
+-r is the same as -k but then runs a new instance
+-h prints usage instructions
+MICA
+}
+
+#
+# print timestamped diagnostic message to someplace useful
+# 
+sub printToLog{
+    my $msg = "[" . localtime() . "] " . shift();
+
+    system("echo \"$msg\" >> $log_file");
+    print STDERR "$msg\n";
+}
+
+
