@@ -111,7 +111,7 @@ if ($ThisYear == 2002){
     $DCHAIN{"dAu"}            = "dAu2003,alltrigger,CMuDst";
     
     # Default pre-calib
-    $DCALIB{"dAu"}            = "PreTpcT0";
+    #$DCALIB{"dAu"}            = "PreTpcT0";
 
     # Default stand-alone auto-calib (works only on $LASERTP files)
     $SCALIB{"dAu"}            = "OptLaser";
@@ -476,6 +476,8 @@ sub Submit
     $field = $items[6];
     $coll  = $items[8];
 
+    $coll  = "dAu" if ($coll = "DeuteronAu");
+
     # Trigger setup string
     $trgsn = rdaq_bits2string("TrgMask",$items[10]);
     # Triggers  mask information
@@ -511,7 +513,7 @@ sub Submit
     } elsif ($calib eq ""){
 	# Change it to a dummy value so the
 	# soft-link is created.
-	$calib = "DUMMY";
+	#$calib = "DUMMY";
     }
 
     #
@@ -524,6 +526,7 @@ sub Submit
 	 $trgsn eq "pedestal" || $trgsn eq "pulser" ){
 	print "Info :: Skipping $file has setup=$trgsn 'triggers'=$items[11]=$trgrs\n";
 	push(@SKIPPED,$file);
+	return 0;
 
     } elsif ( $trgrs =~ m/test/ && $mode == 0){
 	if ( $ThisYear == 2002){
