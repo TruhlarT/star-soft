@@ -243,6 +243,45 @@ sub GetOfflineLogFile{
   return $logfile;
 }    
 #----------
+# check if the root files are too small
+
+sub GetSmallFiles{
+  my $jobID = shift;
+  my $type  = shift;
+  my $size  = 1000;
+  my $smallstring;
+  my $query = qq{ select distinct component
+                  from $dbFile.$FileCatalog 
+		  where jobID = '$jobID' and
+		  size < $size and
+		};
+
+  if ($type eq 'nightly'){
+    $query .= qq{avail = 'Y'};
+  }
+  elsif($type eq 'offline'){
+    $query .= qq{hpss = 'N'};
+  }
+  
+  my $sth = $dbh->prepare($query);
+  $sth->execute();
+
+  while (my $component = $sth->fetchrow_array()){
+    $smallstring .= "$component.root<br>";
+  }
+  
+  return $smallstring;
+}
+#---------
+sub GetSmallFilesOffline{
+  my $jobID = shift;
+  return GetSmallFiles($jobID,'offline');
+}
+sub GetSmallFilesNightly{
+  my $jobID = shift;
+  return GetSmallFiles($jobID,'nightly');
+}
+#---------
 # check if the various output files exist
 # input is the jobID
 # .dst.root, .hist.root, (flag if too small), .tags.root, .runco.root
@@ -276,7 +315,7 @@ sub GetMissingFiles{
 
   # find missing files
   foreach ( @componentAry) {
-    $missingFiles .= "$_.root" unless exists $seen{$_};
+    $missingFiles .= "$_.root<br>" unless exists $seen{$_};
   } 
     
   return $missingFiles;

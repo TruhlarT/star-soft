@@ -277,6 +277,9 @@ sub GetJobInfo{
   my $sub_missing = $gDataClass_object->GetMissingFiles; # name of the sub
   $self->MissingFiles( &$sub_missing($self->JobID) );
 
+  # backwards compatibility
+  $self->{_SmallFiles} = QA_db_utilities::GetSmallFilesOffline($self->JobID);
+  
   return 1;
 }
 1;

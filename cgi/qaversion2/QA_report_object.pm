@@ -351,8 +351,8 @@ sub RunMacro{
       next;
     };
 
-    $arg =~ /string=(\S+)/ and do{  
-      $exec_string .= " \"$1\",";
+    $arg =~ /string=(\S*)/ and do{  
+      $exec_string .= " \"$1\","; 
       next;
     };
   }

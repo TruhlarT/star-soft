@@ -48,8 +48,8 @@ my %members = ( _ReportKey           => undef, # identifies job for disk
 		_OutputDirectory     => undef,
 		_ErrorString         => undef,
 		_TimingString        => undef,
-		_MissingString       => undef,
 		_MissingFiles        => undef,
+		_SmallFiles          => undef,
 		_JobStatus           => undef,
 		_WarningFile         => undef,
 		_ErrorFile           => undef,
@@ -236,6 +236,12 @@ sub LogfileSummaryString {
   $self->MissingFiles and $return_string .= br.
     "missing files: ".br.
     font({-color=>'red'}, $self->MissingFiles);
+
+  # files too small?
+  # must be this way for backwords compatibility
+  $self->{_SmallFiles} and $return_string .= br.
+   "small files: ". br.
+     font({-color=>'red'}, $self->{_SmallFiles});
   
   return $return_string . "\n";
 

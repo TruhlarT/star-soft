@@ -58,6 +58,7 @@ sub DataDisplayString{
   return
     $self->ReportKey . br . br .
     $jobID_string .
+    $self->LogReport->OutputDirectory .br.
     "(STARLIB version: $starlib_version; STAR level: $star_level)";
       
     
