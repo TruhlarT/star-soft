@@ -317,9 +317,10 @@ sub ProcessReference{
     }
   }
   else{
-    print h2("Apparently the report key $report_key ", 
-	     "does not correspond to $matchString.<br>",
-	     "Maybe qa hasn't been done.  Try again\n");
+    print h2("Apparently the report key $report_key <br>", 
+	     "does not correspond to <br>",
+	     "$matchString.<br>",
+	     "Maybe qa hasn't been done.  Try again.\n");
     return;
   } 
 }

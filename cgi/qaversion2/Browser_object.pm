@@ -297,8 +297,10 @@ sub DisplayDataset{
     and  &Browser_utilities::display_comment_buttons;
 
   # show the references
-  CompareReport_utilities::ShowDefaultReferences();
-  CompareReport_utilities::ShowUserReferences();
+  unless($gCGIquery->param('Display messages')){
+    CompareReport_utilities::ShowDefaultReferences();
+    CompareReport_utilities::ShowUserReferences();
+  }
 
   my (@selected_keys);
   # are we looking for datasets?

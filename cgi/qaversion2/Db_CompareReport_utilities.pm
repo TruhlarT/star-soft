@@ -94,7 +94,7 @@ sub SqlMatchExact{
     $sql .= "$dbFile.$FileCatalog.$matchCriteria[$i] = '$matchValues[$i]' and ";
   }
   # strip off the last 'and'
-  $sql =~ s/and\s+$//;
+  $sql =~ s/and\s*$//;
 
   # if the string is empty, add a dummy query
   $sql .= "1>0" if (!defined $sql);
@@ -113,11 +113,11 @@ sub SqlMatchLike{
     next if ($matchValues[$i] eq 'any'  or 
              $matchValues[$i] eq 'n/a'  or 
              not defined $matchValues[$i]  );
-    $sql .= "$dbFile.$FileCatalog.$matchCriteria[$i] like '$matchValues[$i]%' and";
+    $sql .= "$dbFile.$FileCatalog.$matchCriteria[$i] like '$matchValues[$i]%' and ";
 
   }
   # strip off the last 'and'
-  $sql =~ s/and$//;
+  $sql =~ s/and\s*$//;
 
   # if the string is empty, add a dummy query
   $sql .= "1>0" if (!defined $sql);
@@ -177,7 +177,8 @@ sub GetAllDefaultReferences{
   Controller();
 
   # add commas
-  my $selectClause = join(',', map { "$dbFile.$FileCatalog.$_" } @matchCriteria);
+  my $selectClause = 
+    join(',', map { "$dbFile.$FileCatalog.$_" } @matchCriteria);
 
   my $orderClause = 
     "order by " . join(',', map { "$dbFile.$FileCatalog.$_" } @order);
@@ -315,6 +316,7 @@ sub IsReference{
 
 #------------
 # checks if the report_key is consistent with the match values
+
 sub ReferenceOk{
   my $report_key = shift;
   my $matchString    = shift;
