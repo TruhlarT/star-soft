@@ -158,11 +158,11 @@ my $myRun;
 
 
  my $ii = 0;	    
- $istart = scalar(@SetD) - 4;
+ $istart = scalar(@SetD) - 6;
  $jobDIn_no = 0; 
- my $ifin = scalar(@SetD) - 3;
-# for ($ii=$istart; $ii< scalar(@SetD); $ii++)  { 
-  for ($ii=$istart; $ii< $ifin ; $ii++)  {
+ my $ifin = scalar(@SetD) - 1;
+ for ($ii=$istart; $ii< scalar(@SetD); $ii++)  { 
+#  for ($ii=$istart; $ii< $ifin ; $ii++)  {
 
   $sql="SELECT path, fName, dataset FROM $FileCatalogT WHERE fName LIKE '%daq' AND path = '$SetD[$ii]' AND dataset like '$coll%' and dataset like '%tpc%' AND dataStatus = 'OK' AND hpss = 'Y' ";
     $cursor =$dbh->prepare($sql)
