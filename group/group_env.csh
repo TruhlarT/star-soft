@@ -1,5 +1,5 @@
 #!/bin/csh -f
-#       $Id: group_env.csh,v 1.141 2003/05/23 23:33:45 jeromel Exp $
+#       $Id: group_env.csh,v 1.142 2003/06/07 19:45:53 jeromel Exp $
 #	Purpose:	STAR group csh setup
 #
 #	Author:		Y.Fisyak     BNL
@@ -187,10 +187,10 @@ setenv CERN_ROOT  $CERN/$CERN_LEVEL
 if ($ECHO) echo   "Setting up ROOT_LEVEL= ${ROOT_LEVEL}"
 
 if ( -x ${GROUP_DIR}/dropit) then
-    setenv GROUPPATH `${GROUP_DIR}/dropit -p ${GROUP_DIR} -p ${STAR_MGR} -p ${STAR_SCRIPTS} -p ${STAR_CGI} -p ${MY_BIN} -p ${STAR_BIN} -p ${STAF}/mgr -p ${STAF_BIN}`
+    setenv GROUPPATH `${GROUP_DIR}/dropit -p ${GROUP_DIR} -p mgr -p ${STAR_MGR} -p ${STAR_SCRIPTS} -p ${STAR_CGI} -p ${MY_BIN} -p ${STAR_BIN} -p ${STAF}/mgr -p ${STAF_BIN}`
     setenv PATH `${GROUP_DIR}/dropit -p ${OPTSTAR}/bin -p $PATH`
 else
-    setenv GROUPPATH ${GROUP_DIR}:${STAR_MGR}:${STAR_SCRIPTS}:${STAR_CGI}:${MY_BIN}:${STAR_BIN}:${STAF}/mgr:${STAF_BIN}
+    setenv GROUPPATH ${GROUP_DIR}:mgr:${STAR_MGR}:${STAR_SCRIPTS}:${STAR_CGI}:${MY_BIN}:${STAR_BIN}:${STAF}/mgr:${STAF_BIN}
     setenv PATH  ${OPTSTAR}/bin:$PATH
 endif
 
