@@ -3,167 +3,338 @@
 <TITLE>List of STAR pams and tables</TITLE>
 </HEAD>
 <BODY>
-<H1>List of STAR pams</H1>
+<H2>List of STAR pams</H2>
 <hr>
 <hr>
-<H2>Domain ctf</H2>
+<H3>Domain ctf</H3>
+<hr> <ol>
+<pre>
+cpi     dev/ana/cpi       # yepes        11/02/93 19:54:37 Particle id using TOF
+</pre>
+<li><a href="#cpe_mod"><strong>cpe</strong></a> &nbsp; &nbsp; &nbsp;
+<li><a href="#cpi_mod"><strong>cpi</strong></a> &nbsp; &nbsp; &nbsp;
+<li><a href="#ctc_mod"><strong>ctc</strong></a> &nbsp; &nbsp; &nbsp;
+<pre>
+cte     dev/ana/cte       # yepes        11/02/93 19:49:42 Extrapolates tracks from the TPC to the CTF
+</pre>
+<li><a href="#cfg_mod"><strong>cfg</strong></a> &nbsp; &nbsp; &nbsp;
+<li><a href="#cte_mod"><strong>cte</strong></a> &nbsp; &nbsp; &nbsp;
+<pre>
+ctg     dev/ana/ctg       # yepes        09/25/93 11:22:15 Geometry initialization for CTF(CTB+TOF)
+</pre>
+<li><a href="#ctg_mod"><strong>ctg</strong></a> &nbsp; &nbsp; &nbsp;
+<pre>
+cts     dev/sim/cts       # yepes        07/26/93 14:37:45 Simulates the CTF (CTB+TOF) response
+</pre>
+<li><a href="#cts_mod"><strong>cts</strong></a> &nbsp; &nbsp; &nbsp;
+<pre>
+ctu     dev/ana/ctu       # yepes        09/25/93 11:52:22 Unpacks the CTF(CTB+TOF) raw information
+</pre>
+<li><a href="#ctu_mod"><strong>ctu</strong></a> &nbsp; &nbsp; &nbsp;
+</ol>
+<H3>Domain emc</H3>
+<hr> <ol>
+<li><a href="#emc_adc_hist_mod"><strong>emc_adc_hist</strong></a> &nbsp; &nbsp; &nbsp;
+<li><a href="#energy_to_adc_mod"><strong>energy_to_adc</strong></a> &nbsp; &nbsp; &nbsp;
+<li><a href="#fake_adcslope_mod"><strong>fake_adcslope</strong></a> &nbsp; &nbsp; &nbsp;
+<li><a href="#fake_pedestal_mod"><strong>fake_pedestal</strong></a> &nbsp; &nbsp; &nbsp;
+<li><a href="#toy_simulator_mod"><strong>toy_simulator</strong></a> &nbsp; &nbsp; &nbsp;
+<pre>
+ems     pams/emc/ems       # llope     12/01/93 16:03:03 Reads EM cal data from GEANT data and puts out Tower Energies.
+</pre>
+<li><a href="#ems_egrid_mod"><strong>ems_egrid</strong></a> &nbsp; &nbsp; &nbsp;
+<li><a href="#ems_elect_mod"><strong>ems_elect</strong></a> &nbsp; &nbsp; &nbsp;
+<li><a href="#ems_erj_mod"><strong>ems_erj</strong></a> &nbsp; &nbsp; &nbsp;
+<li><a href="#ems_fake_egr_mod"><strong>ems_fake_egr</strong></a> &nbsp; &nbsp; &nbsp;
+<li><a href="#ems_interface_mod"><strong>ems_interface</strong></a> &nbsp; &nbsp; &nbsp;
+<li><a href="#ems_interface2_mod"><strong>ems_interface2</strong></a> &nbsp; &nbsp; &nbsp;
+<li><a href="#ems_lvl0_mod"><strong>ems_lvl0</strong></a> &nbsp; &nbsp; &nbsp;
+<li><a href="#emc_egrid_mod"><strong>emc_egrid</strong></a> &nbsp; &nbsp; &nbsp;
+<li><a href="#emc_erj_mod"><strong>emc_erj</strong></a> &nbsp; &nbsp; &nbsp;
+<li><a href="#emc_ideal_egrid_mod"><strong>emc_ideal_egrid</strong></a> &nbsp; &nbsp; &nbsp;
+<li><a href="#emc_jetana_mod"><strong>emc_jetana</strong></a> &nbsp; &nbsp; &nbsp;
+</ol>
+<H3>Domain ftpc</H3>
+<hr> <ol>
+<a href="http://www.rhic.bnl.gov/afs/rhic/star/doc/www/packages_l/dev/pams/ftpc/doc">Its documentation</a>
+<pre>
+fcl             pams/ftpc/fcl  #  Holm Hummler  (hummler@mppmu.mpg.de)
+                               #  or Janet Seyboth (jcs@mppmu.mpg.de)   
+                               #  Forward TPC cluster finder, fcl; replaces old xcl
+</pre>
+<a href="http://www.rhic.bnl.gov/afs/rhic/star/doc/www/packages_l/dev/pams/ftpc/fcl/doc">Its documentation</a>
+<li><a href="#fcl_mod"><strong>fcl</strong></a> &nbsp; &nbsp; &nbsp;
+<pre>
+fde            pams/ftpc/fde   # Janet Seyboth (jcs@mppmu.mpg.de)
+                               # Forward TPC  dE/dx Calculation
+</pre>
+<a href="http://www.rhic.bnl.gov/afs/rhic/star/doc/www/packages_l/dev/pams/ftpc/fde/doc">Its documentation</a>
+<li><a href="#fde_mod"><strong>fde</strong></a> &nbsp; &nbsp; &nbsp;
+<pre>
+ffs             pams/ftpc/ffs  #  Janet Seyboth (jcs@mppmu.mpg.de
+                               #  Ftpc Fast Simulator, formerly PKG xfs
+</pre>
+<a href="http://www.rhic.bnl.gov/afs/rhic/star/doc/www/packages_l/dev/pams/ftpc/ffs/doc">Its documentation</a>
+<li><a href="#ffs_mod"><strong>ffs</strong></a> &nbsp; &nbsp; &nbsp;
+<pre>
+fpt             pams/ftpc/fcl  #  Andreas Shuettauf (andreas@mppmu.mpg.de)
+                               #  or Janet Seyboth (jcs@mppmu.mpg.de)   
+                               #  Forward TPC tracking, fpt; replaces old xpt
+</pre>
+<a href="http://www.rhic.bnl.gov/afs/rhic/star/doc/www/packages_l/dev/pams/ftpc/fpt/doc">Its documentation</a>
+<li><a href="#fpt_mod"><strong>fpt</strong></a> &nbsp; &nbsp; &nbsp;
+<pre>
+fss             pams/ftpc/fss  #  Holm Hummler  (hummler@mppmu.mpg.de)
+                               #  or Janet Seyboth (jcs@mppmu.mpg.de)   
+                               #  Forward TPC slow simulator (origianlly from Wen Gong)
+</pre>
+<a href="http://www.rhic.bnl.gov/afs/rhic/star/doc/www/packages_l/dev/pams/ftpc/fss/doc">Its documentation</a>
+<li><a href="#fss_mod"><strong>fss</strong></a> &nbsp; &nbsp; &nbsp;
+<pre>
+fte             pams/ftpc/fte  #  Andreas Schuettauf (andreas@mppmu.mpg.de)
+                               #  or Janet Seyboth (jcs@mppmu.mpg.de)   
+                               #  Forward TPC tracking evaluation, fte; replaces old xte
+</pre>
+<a href="http://www.rhic.bnl.gov/afs/rhic/star/doc/www/packages_l/dev/pams/ftpc/fte/doc">Its documentation</a>
+<li><a href="#fte_mod"><strong>fte</strong></a> &nbsp; &nbsp; &nbsp;
+</ol>
+<H3>Domain gen</H3>
+<hr> <ol>
+<pre>
+crs     dev/sim/crs       # Peter Jones  13 March 1997     Cosmic Ray event generator
+</pre>
+<li><a href="#cr_star_mod"><strong>cr_star</strong></a> &nbsp; &nbsp; &nbsp;
+<li><a href="#gst2xdf_mod"><strong>gst2xdf</strong></a> &nbsp; &nbsp; &nbsp;
+<li><a href="#hijjet_mod"><strong>hijjet</strong></a> &nbsp; &nbsp; &nbsp;
+<li><a href="#mevsim_mod"><strong>mevsim</strong></a> &nbsp; &nbsp; &nbsp;
+<li><a href="#pythia_mod"><strong>pythia</strong></a> &nbsp; &nbsp; &nbsp;
+<li><a href="#venus_mod"><strong>venus</strong></a> &nbsp; &nbsp; &nbsp;
+</ol>
+<H3>Domain global</H3>
+<hr> <ol>
+<pre>
+egr     pams/global/egr       #  margetis    02/15/94 19:41:34 Package to refit global STAR tracks (TPC+SVT+Privert+...)
+</pre>
+<a href="http://www.rhic.bnl.gov/afs/rhic/star/doc/www/packages_l/dev/pams/global/egr/doc">Its documentation</a>
+<li><a href="#egr_fitter_mod"><strong>egr_fitter</strong></a> &nbsp; &nbsp; &nbsp;
+<li><a href="#egr_gltrk_eval_mod"><strong>egr_gltrk_eval</strong></a> &nbsp; &nbsp; &nbsp;
+<pre>
+epi     pams/global/epi       #  llope     05/19/94 22:01:04 event level particle identification
+</pre>
+<li><a href="#epi_am_mod"><strong>epi_am</strong></a> &nbsp; &nbsp; &nbsp;
+<li><a href="#epi_eval_mod"><strong>epi_eval</strong></a> &nbsp; &nbsp; &nbsp;
+<pre>
+ev0     pams/global/ev0       # margetis     07/23/93 13:45:21 Strange particle reconstruction routines.
+</pre>
+<li><a href="#ev0_am_mod"><strong>ev0_am</strong></a> &nbsp; &nbsp; &nbsp;
+<li><a href="#ev0_direct_mod"><strong>ev0_direct</strong></a> &nbsp; &nbsp; &nbsp;
+<li><a href="#ev0_eval2_mod"><strong>ev0_eval2</strong></a> &nbsp; &nbsp; &nbsp;
+<pre>
+evr     dev/ana/evr       #  margetis   11/03/93 17:39:18 Primary Vertex Reconstruction
+</pre>
+<li><a href="#evr_am_mod"><strong>evr_am</strong></a> &nbsp; &nbsp; &nbsp;
+<pre>
+exi     pams/global/exi       # margetis     06/17/94 13:21:25 Cascade reconstruction package in STAR
+</pre>
+<li><a href="#exiam_mod"><strong>exiam</strong></a> &nbsp; &nbsp; &nbsp;
+<pre>
+svm             pams/global/svm   # margetis      Vector - Vector matching code for svt - tpc tracks
+</pre>
+<li><a href="#svm_am_mod"><strong>svm_am</strong></a> &nbsp; &nbsp; &nbsp;
+<li><a href="#svm_efficiency_mod"><strong>svm_efficiency</strong></a> &nbsp; &nbsp; &nbsp;
+<li><a href="#svm_eval2_mod"><strong>svm_eval2</strong></a> &nbsp; &nbsp; &nbsp;
+<li><a href="#svm_svt_eval_mod"><strong>svm_svt_eval</strong></a> &nbsp; &nbsp; &nbsp;
+<pre>
+tkf     pams/global/tkf       # margetis     10/02/95 14:52:11 Tpc kink finder: to reconstruct charged kaon decays in the TPC volume
+</pre>
+<li><a href="#tkf_mod"><strong>tkf</strong></a> &nbsp; &nbsp; &nbsp;
+</ol>
+<H3>Domain mwc</H3>
+<hr> <ol>
+<pre>
+mwg     pams/mwc/mwg       # yepes        09/25/93 11:53:36 Initialize geometry for mwc
+</pre>
+<li><a href="#mwg_mod"><strong>mwg</strong></a> &nbsp; &nbsp; &nbsp;
+<pre>
+mws     pams/mws/mws       # yepes        09/25/93 11:54:41 Simulates the mwc response
+</pre>
+<li><a href="#mws_mod"><strong>mws</strong></a> &nbsp; &nbsp; &nbsp;
+<li><a href="#mwu_mod"><strong>mwu</strong></a> &nbsp; &nbsp; &nbsp;
+</ol>
+<H3>Domain sim</H3>
+<hr> <ol>
+<pre>
+g2t     pams/sim/g2t       # nevski     10/12/95 18:18:07 GSTAR to table package
+</pre>
+<li><a href="#g2t_get_hits_mod"><strong>g2t_get_hits</strong></a> &nbsp; &nbsp; &nbsp;
+<li><a href="#g2t_get_kine_mod"><strong>g2t_get_kine</strong></a> &nbsp; &nbsp; &nbsp;
+<li><a href="#g2t_kine_mod"><strong>g2t_kine</strong></a> &nbsp; &nbsp; &nbsp;
+<li><a href="#gstar_readxdf_mod"><strong>gstar_readxdf</strong></a> &nbsp; &nbsp; &nbsp;
+</ol>
+<H3>Domain svt</H3>
+<hr> <ol>
+<pre>
+sal     pams/svt/sal       #  pruneau         06/24/97 09:21:21 SVT internal ALignment package using tracking analysis
+</pre>
+<li><a href="#sal_change_geom_mod"><strong>sal_change_geom</strong></a> &nbsp; &nbsp; &nbsp;
+<li><a href="#sal_create_hits_mod"><strong>sal_create_hits</strong></a> &nbsp; &nbsp; &nbsp;
+<li><a href="#sal_create_newgeom_mod"><strong>sal_create_newgeom</strong></a> &nbsp; &nbsp; &nbsp;
+<li><a href="#sal_find_vertex_mod"><strong>sal_find_vertex</strong></a> &nbsp; &nbsp; &nbsp;
+<li><a href="#sal_get_mod"><strong>sal_get</strong></a> &nbsp; &nbsp; &nbsp;
+<li><a href="#sal_get_chi_mod"><strong>sal_get_chi</strong></a> &nbsp; &nbsp; &nbsp;
+<li><a href="#sal_get_sigma_mod"><strong>sal_get_sigma</strong></a> &nbsp; &nbsp; &nbsp;
+<li><a href="#sal_getallev_mod"><strong>sal_getallev</strong></a> &nbsp; &nbsp; &nbsp;
+<li><a href="#sal_getallver_mod"><strong>sal_getallver</strong></a> &nbsp; &nbsp; &nbsp;
+<li><a href="#sal_getlocal_mod"><strong>sal_getlocal</strong></a> &nbsp; &nbsp; &nbsp;
+<li><a href="#sal_main_mod"><strong>sal_main</strong></a> &nbsp; &nbsp; &nbsp;
+<li><a href="#sal_make_align_mod"><strong>sal_make_align</strong></a> &nbsp; &nbsp; &nbsp;
+<pre>
+sci     pams/svt/sci       #    pruneau       08/27/97 17:32:48 SVT drift speed calibration software package
+</pre>
+<li><a href="#sci_ana_inj_mod"><strong>sci_ana_inj</strong></a> &nbsp; &nbsp; &nbsp;
+<pre>
+scp     pams/svt/scp       # pruneau          08/28/97 13:57:41 SVT Calibration Pedestals
+</pre>
+<li><a href="#scp_calc_ped_mod"><strong>scp_calc_ped</strong></a> &nbsp; &nbsp; &nbsp;
+<li><a href="#scp_fake_ped_mod"><strong>scp_fake_ped</strong></a> &nbsp; &nbsp; &nbsp;
+<li><a href="#scp_init_ped_mod"><strong>scp_init_ped</strong></a> &nbsp; &nbsp; &nbsp;
+<li><a href="#scp_proc_ped_mod"><strong>scp_proc_ped</strong></a> &nbsp; &nbsp; &nbsp;
+<pre>
+scs     pams/svt/scs       # pruneau      07/21/93 16:14:27 SVT Cluster to Space Point Finder Package
+</pre>
+<li><a href="#scs_finder_mod"><strong>scs_finder</strong></a> &nbsp; &nbsp; &nbsp;
+<li><a href="#scs_fitter_mod"><strong>scs_fitter</strong></a> &nbsp; &nbsp; &nbsp;
+<li><a href="#scs_par_init_mod"><strong>scs_par_init</strong></a> &nbsp; &nbsp; &nbsp;
+<pre>
+sgr     dev/ana/sgr       # pruneau      07/21/93 10:04:26 Package for grouping SVT hits into tracks. (Only pattern recognition)
+</pre>
+<li><a href="#sgr_am_mod"><strong>sgr_am</strong></a> &nbsp; &nbsp; &nbsp;
+<pre>
+spr     pams/svt/spr       # pruneau      07/21/93 13:20:17 SVT Particle Identification Reconstruction Package
+</pre>
+<li><a href="#spr_am_mod"><strong>spr_am</strong></a> &nbsp; &nbsp; &nbsp;
+<pre>
+srs             pams/svt/srs  pruneau     SVT resolution simulator
+</pre>
+<li><a href="#srs_am_mod"><strong>srs_am</strong></a> &nbsp; &nbsp; &nbsp;
+<pre>
+ssf     dev/sim/ssf       #   pruneau       08/02/96 15:42:34 SVT front end electronics simulator
+</pre>
+<li><a href="#ssf_10to8_mod"><strong>ssf_10to8</strong></a> &nbsp; &nbsp; &nbsp;
+<li><a href="#ssf_10to8_init_mod"><strong>ssf_10to8_init</strong></a> &nbsp; &nbsp; &nbsp;
+<li><a href="#ssf_8to10_mod"><strong>ssf_8to10</strong></a> &nbsp; &nbsp; &nbsp;
+<li><a href="#ssf_8to10_init_mod"><strong>ssf_8to10_init</strong></a> &nbsp; &nbsp; &nbsp;
+<li><a href="#ssf_mv_to_adc_mod"><strong>ssf_mv_to_adc</strong></a> &nbsp; &nbsp; &nbsp;
+<li><a href="#ssf_zero_supp_mod"><strong>ssf_zero_supp</strong></a> &nbsp; &nbsp; &nbsp;
+<li><a href="#ssf_zero_supp_init_mod"><strong>ssf_zero_supp_init</strong></a> &nbsp; &nbsp; &nbsp;
+<pre>
+ste     pams/svt/ste       # pruneau      11/30/93 13:58:01 SVT Tracking Evaluator
+</pre>
+<li><a href="#ste_am_mod"><strong>ste_am</strong></a> &nbsp; &nbsp; &nbsp;
+<pre>
+stk             pams/svt/stk   #  pruneau 
+</pre>
+<li><a href="#stk_am_mod"><strong>stk_am</strong></a> &nbsp; &nbsp; &nbsp;
+<li><a href="#stk_am_direct_mod"><strong>stk_am_direct</strong></a> &nbsp; &nbsp; &nbsp;
+<li><a href="#stk_am_fill2_mod"><strong>stk_am_fill2</strong></a> &nbsp; &nbsp; &nbsp;
+<li><a href="#stk_am_fill3_mod"><strong>stk_am_fill3</strong></a> &nbsp; &nbsp; &nbsp;
+<li><a href="#stk_am_fill4_mod"><strong>stk_am_fill4</strong></a> &nbsp; &nbsp; &nbsp;
+<li><a href="#stk_am_fit_mod"><strong>stk_am_fit</strong></a> &nbsp; &nbsp; &nbsp;
+<li><a href="#stk_am_globfil_mod"><strong>stk_am_globfil</strong></a> &nbsp; &nbsp; &nbsp;
+<li><a href="#stk_am_helix_mod"><strong>stk_am_helix</strong></a> &nbsp; &nbsp; &nbsp;
+<li><a href="#stk_am_init_mod"><strong>stk_am_init</strong></a> &nbsp; &nbsp; &nbsp;
+<li><a href="#stk_am_kine_mod"><strong>stk_am_kine</strong></a> &nbsp; &nbsp; &nbsp;
+<li><a href="#stk_am_select_mod"><strong>stk_am_select</strong></a> &nbsp; &nbsp; &nbsp;
+<li><a href="#stk_am_vertex_direct_mod"><strong>stk_am_vertex_direct</strong></a> &nbsp; &nbsp; &nbsp;
+<pre>
+svg             pams/svt/svg  # pruneau
+</pre>
+<li><a href="#svg_am_mod"><strong>svg_am</strong></a> &nbsp; &nbsp; &nbsp;
+</ol>
+<H3>Domain tpc</H3>
+<hr> <ol>
+<pre>
+tcl             pams/tpc/tcl  #  sakrejda 
+</pre>
+<li><a href="#tcl_make_clusters_mod"><strong>tcl_make_clusters</strong></a> &nbsp; &nbsp; &nbsp;
+<li><a href="#tpeam_mod"><strong>tpeam</strong></a> &nbsp; &nbsp; &nbsp;
+<li><a href="#tpham_mod"><strong>tpham</strong></a> &nbsp; &nbsp; &nbsp;
+<pre>
+tdi     dev/sim/tdi       # jones        03/17/97 15:50:58 distorts
+</pre>
+<li><a href="#tdi_fit_mod"><strong>tdi_fit</strong></a> &nbsp; &nbsp; &nbsp;
+<li><a href="#tdi_rdi_mod"><strong>tdi_rdi</strong></a> &nbsp; &nbsp; &nbsp;
+<pre>
+tfc     dev/sim/tfc       # sakrejda     04/20/95 12:57:40 input/output format conversions for STAR summer sector test.
+</pre>
+<li><a href="#reformat_mod"><strong>reformat</strong></a> &nbsp; &nbsp; &nbsp;
+<li><a href="#tfc_calc_delta_mod"><strong>tfc_calc_delta</strong></a> &nbsp; &nbsp; &nbsp;
+<li><a href="#tfc_stability_mod"><strong>tfc_stability</strong></a> &nbsp; &nbsp; &nbsp;
+<li><a href="#tstam_mod"><strong>tstam</strong></a> &nbsp; &nbsp; &nbsp;
+<li><a href="#tstgain_mod"><strong>tstgain</strong></a> &nbsp; &nbsp; &nbsp;
+<li><a href="#xyz_mod"><strong>xyz</strong></a> &nbsp; &nbsp; &nbsp;
+<pre>
+tfs             pams/tpc/tfs  #  sakrejda
+</pre>
+<a href="http://www.rhic.bnl.gov/afs/rhic/star/doc/www/packages_l/dev/pams/tpc/tfs/doc">Its documentation</a>
+<li><a href="#tfs_filt_mod"><strong>tfs_filt</strong></a> &nbsp; &nbsp; &nbsp;
+<li><a href="#tfs_g2t_mod"><strong>tfs_g2t</strong></a> &nbsp; &nbsp; &nbsp;
+<pre>
+tid     pams/tpc/tid       #  sakrejda        06/24/93 13:25:05 dE/dx evaulation for particle ID
+</pre>
+<li><a href="#tde_new_mod"><strong>tde_new</strong></a> &nbsp; &nbsp; &nbsp;
+<li><a href="#tpi_pid_mod"><strong>tpi_pid</strong></a> &nbsp; &nbsp; &nbsp;
+<pre>
+tpg             pams/tpc/tpg   #  sakrejda
+</pre>
+<li><a href="#tpg_main_mod"><strong>tpg_main</strong></a> &nbsp; &nbsp; &nbsp;
+<pre>
+tpt             pams/tpc/tpt #   sakrejda
+</pre>
+<li><a href="#tpt_mod"><strong>tpt</strong></a> &nbsp; &nbsp; &nbsp;
+<li><a href="#tpt_sts_mod"><strong>tpt_sts</strong></a> &nbsp; &nbsp; &nbsp;
+<pre>
+tss             pams/tpc/tss   #  sakrejda</pre>
+<li><a href="#tseam_mod"><strong>tseam</strong></a> &nbsp; &nbsp; &nbsp;
+<li><a href="#tssam_mod"><strong>tssam</strong></a> &nbsp; &nbsp; &nbsp;
+<li><a href="#tss_mod"><strong>tss</strong></a> &nbsp; &nbsp; &nbsp;
+<pre>
+tte     pams/tpc/tte       # sakrejda     07/28/93 13:14:27 Evaluation of the tracking(tpt) package.
+
+</pre>
+<li><a href="#tte_mod"><strong>tte</strong></a> &nbsp; &nbsp; &nbsp;
+<li><a href="#tte_track_mod"><strong>tte_track</strong></a> &nbsp; &nbsp; &nbsp;
+</ol>
+<H3>Domain trg</H3>
+<hr> <ol>
+<pre>
+rft     pams/trg/rft       # yepes         07/26/93 14:25:10 Fast pattern recognition for 3rd level trigger
+</pre>
+<li><a href="#r_ftpc_mod"><strong>r_ftpc</strong></a> &nbsp; &nbsp; &nbsp;
+<li><a href="#r_tpc_mod"><strong>r_tpc</strong></a> &nbsp; &nbsp; &nbsp;
+<pre>
+rl0     pams/trg/rl0       # yepes        11/01/93 19:08:01 Emulates level 0 trigger
+</pre>
+<li><a href="#rl0_mod"><strong>rl0</strong></a> &nbsp; &nbsp; &nbsp;
+<li><a href="#rl1_ks_mod"><strong>rl1_ks</strong></a> &nbsp; &nbsp; &nbsp;
+<li><a href="#rl1_pw_mod"><strong>rl1_pw</strong></a> &nbsp; &nbsp; &nbsp;
+</ol>
+<H3>Domain vpd</H3>
+<hr> <ol>
+<pre>
+vps     pams/vpd/vps       # yepes       09/30/93 15:38:05 Reading MC hits for VPD and simulating response for each segment.
+</pre>
+<li><a href="#vps_mod"><strong>vps</strong></a> &nbsp; &nbsp; &nbsp;
+<pre>
+vpv     pams/vpd/vpv       # yepes       10/19/93 10:13:05 Locates vertex from vpd infor[mation?]
+</pre>
+<li><a href="#vpv_mod"><strong>vpv</strong></a> &nbsp; &nbsp; &nbsp;
+</ol>
 <hr>
-<a href="#cpe_mod"><strong>cpe</strong></a> &nbsp; &nbsp; &nbsp;
-<a href="#cpi_mod"><strong>cpi</strong></a> &nbsp; &nbsp; &nbsp;
-<a href="#ctc_mod"><strong>ctc</strong></a> &nbsp; &nbsp; &nbsp;
-<a href="#cfg_mod"><strong>cfg</strong></a> &nbsp; &nbsp; &nbsp;
-<a href="#cte_mod"><strong>cte</strong></a> &nbsp; &nbsp; &nbsp;
-<a href="#ctg_mod"><strong>ctg</strong></a> &nbsp; &nbsp; &nbsp;
-<a href="#cts_mod"><strong>cts</strong></a> &nbsp; &nbsp; &nbsp;
-<a href="#ctu_mod"><strong>ctu</strong></a> &nbsp; &nbsp; &nbsp;
-<H2>Domain emc</H2>
-<hr>
-<a href="#emc_adc_hist_mod"><strong>emc_adc_hist</strong></a> &nbsp; &nbsp; &nbsp;
-<a href="#energy_to_adc_mod"><strong>energy_to_adc</strong></a> &nbsp; &nbsp; &nbsp;
-<a href="#fake_adcslope_mod"><strong>fake_adcslope</strong></a> &nbsp; &nbsp; &nbsp;
-<a href="#fake_pedestal_mod"><strong>fake_pedestal</strong></a> &nbsp; &nbsp; &nbsp;
-<a href="#toy_simulator_mod"><strong>toy_simulator</strong></a> &nbsp; &nbsp; &nbsp;
-<a href="#ems_egrid_mod"><strong>ems_egrid</strong></a> &nbsp; &nbsp; &nbsp;
-<a href="#ems_elect_mod"><strong>ems_elect</strong></a> &nbsp; &nbsp; &nbsp;
-<a href="#ems_erj_mod"><strong>ems_erj</strong></a> &nbsp; &nbsp; &nbsp;
-<a href="#ems_fake_egr_mod"><strong>ems_fake_egr</strong></a> &nbsp; &nbsp; &nbsp;
-<a href="#ems_interface_mod"><strong>ems_interface</strong></a> &nbsp; &nbsp; &nbsp;
-<a href="#ems_interface2_mod"><strong>ems_interface2</strong></a> &nbsp; &nbsp; &nbsp;
-<a href="#ems_lvl0_mod"><strong>ems_lvl0</strong></a> &nbsp; &nbsp; &nbsp;
-<a href="#emc_egrid_mod"><strong>emc_egrid</strong></a> &nbsp; &nbsp; &nbsp;
-<a href="#emc_erj_mod"><strong>emc_erj</strong></a> &nbsp; &nbsp; &nbsp;
-<a href="#emc_ideal_egrid_mod"><strong>emc_ideal_egrid</strong></a> &nbsp; &nbsp; &nbsp;
-<a href="#emc_jetana_mod"><strong>emc_jetana</strong></a> &nbsp; &nbsp; &nbsp;
-<H2>Domain ftpc</H2>
-<hr>
-<a href="#fcl_mod"><strong>fcl</strong></a> &nbsp; &nbsp; &nbsp;
-<a href="#fde_mod"><strong>fde</strong></a> &nbsp; &nbsp; &nbsp;
-<a href="#ffs_mod"><strong>ffs</strong></a> &nbsp; &nbsp; &nbsp;
-<a href="#fpt_mod"><strong>fpt</strong></a> &nbsp; &nbsp; &nbsp;
-<a href="#fss_mod"><strong>fss</strong></a> &nbsp; &nbsp; &nbsp;
-<a href="#fte_mod"><strong>fte</strong></a> &nbsp; &nbsp; &nbsp;
-<H2>Domain gen</H2>
-<hr>
-<a href="#cr_star_mod"><strong>cr_star</strong></a> &nbsp; &nbsp; &nbsp;
-<a href="#gst2xdf_mod"><strong>gst2xdf</strong></a> &nbsp; &nbsp; &nbsp;
-<a href="#hijjet_mod"><strong>hijjet</strong></a> &nbsp; &nbsp; &nbsp;
-<a href="#mevsim_mod"><strong>mevsim</strong></a> &nbsp; &nbsp; &nbsp;
-<a href="#pythia_mod"><strong>pythia</strong></a> &nbsp; &nbsp; &nbsp;
-<a href="#venus_mod"><strong>venus</strong></a> &nbsp; &nbsp; &nbsp;
-<H2>Domain global</H2>
-<hr>
-<a href="#egr_fitter_mod"><strong>egr_fitter</strong></a> &nbsp; &nbsp; &nbsp;
-<a href="#egr_gltrk_eval_mod"><strong>egr_gltrk_eval</strong></a> &nbsp; &nbsp; &nbsp;
-<a href="#epi_am_mod"><strong>epi_am</strong></a> &nbsp; &nbsp; &nbsp;
-<a href="#epi_eval_mod"><strong>epi_eval</strong></a> &nbsp; &nbsp; &nbsp;
-<a href="#ev0_am_mod"><strong>ev0_am</strong></a> &nbsp; &nbsp; &nbsp;
-<a href="#ev0_direct_mod"><strong>ev0_direct</strong></a> &nbsp; &nbsp; &nbsp;
-<a href="#ev0_eval2_mod"><strong>ev0_eval2</strong></a> &nbsp; &nbsp; &nbsp;
-<a href="#evr_am_mod"><strong>evr_am</strong></a> &nbsp; &nbsp; &nbsp;
-<a href="#exiam_mod"><strong>exiam</strong></a> &nbsp; &nbsp; &nbsp;
-<a href="#svm_am_mod"><strong>svm_am</strong></a> &nbsp; &nbsp; &nbsp;
-<a href="#svm_efficiency_mod"><strong>svm_efficiency</strong></a> &nbsp; &nbsp; &nbsp;
-<a href="#svm_eval2_mod"><strong>svm_eval2</strong></a> &nbsp; &nbsp; &nbsp;
-<a href="#svm_svt_eval_mod"><strong>svm_svt_eval</strong></a> &nbsp; &nbsp; &nbsp;
-<a href="#tkf_mod"><strong>tkf</strong></a> &nbsp; &nbsp; &nbsp;
-<H2>Domain mwc</H2>
-<hr>
-<a href="#mwg_mod"><strong>mwg</strong></a> &nbsp; &nbsp; &nbsp;
-<a href="#mws_mod"><strong>mws</strong></a> &nbsp; &nbsp; &nbsp;
-<a href="#mwu_mod"><strong>mwu</strong></a> &nbsp; &nbsp; &nbsp;
-<H2>Domain sim</H2>
-<hr>
-<a href="#g2t_get_hits_mod"><strong>g2t_get_hits</strong></a> &nbsp; &nbsp; &nbsp;
-<a href="#g2t_get_kine_mod"><strong>g2t_get_kine</strong></a> &nbsp; &nbsp; &nbsp;
-<a href="#g2t_kine_mod"><strong>g2t_kine</strong></a> &nbsp; &nbsp; &nbsp;
-<a href="#gstar_readxdf_mod"><strong>gstar_readxdf</strong></a> &nbsp; &nbsp; &nbsp;
-<H2>Domain svt</H2>
-<hr>
-<a href="#sal_change_geom_mod"><strong>sal_change_geom</strong></a> &nbsp; &nbsp; &nbsp;
-<a href="#sal_create_hits_mod"><strong>sal_create_hits</strong></a> &nbsp; &nbsp; &nbsp;
-<a href="#sal_create_newgeom_mod"><strong>sal_create_newgeom</strong></a> &nbsp; &nbsp; &nbsp;
-<a href="#sal_find_vertex_mod"><strong>sal_find_vertex</strong></a> &nbsp; &nbsp; &nbsp;
-<a href="#sal_get_mod"><strong>sal_get</strong></a> &nbsp; &nbsp; &nbsp;
-<a href="#sal_get_chi_mod"><strong>sal_get_chi</strong></a> &nbsp; &nbsp; &nbsp;
-<a href="#sal_get_sigma_mod"><strong>sal_get_sigma</strong></a> &nbsp; &nbsp; &nbsp;
-<a href="#sal_getallev_mod"><strong>sal_getallev</strong></a> &nbsp; &nbsp; &nbsp;
-<a href="#sal_getallver_mod"><strong>sal_getallver</strong></a> &nbsp; &nbsp; &nbsp;
-<a href="#sal_getlocal_mod"><strong>sal_getlocal</strong></a> &nbsp; &nbsp; &nbsp;
-<a href="#sal_main_mod"><strong>sal_main</strong></a> &nbsp; &nbsp; &nbsp;
-<a href="#sal_make_align_mod"><strong>sal_make_align</strong></a> &nbsp; &nbsp; &nbsp;
-<a href="#sci_ana_inj_mod"><strong>sci_ana_inj</strong></a> &nbsp; &nbsp; &nbsp;
-<a href="#scp_calc_ped_mod"><strong>scp_calc_ped</strong></a> &nbsp; &nbsp; &nbsp;
-<a href="#scp_fake_ped_mod"><strong>scp_fake_ped</strong></a> &nbsp; &nbsp; &nbsp;
-<a href="#scp_init_ped_mod"><strong>scp_init_ped</strong></a> &nbsp; &nbsp; &nbsp;
-<a href="#scp_proc_ped_mod"><strong>scp_proc_ped</strong></a> &nbsp; &nbsp; &nbsp;
-<a href="#scs_finder_mod"><strong>scs_finder</strong></a> &nbsp; &nbsp; &nbsp;
-<a href="#scs_fitter_mod"><strong>scs_fitter</strong></a> &nbsp; &nbsp; &nbsp;
-<a href="#scs_par_init_mod"><strong>scs_par_init</strong></a> &nbsp; &nbsp; &nbsp;
-<a href="#sgr_am_mod"><strong>sgr_am</strong></a> &nbsp; &nbsp; &nbsp;
-<a href="#spr_am_mod"><strong>spr_am</strong></a> &nbsp; &nbsp; &nbsp;
-<a href="#srs_am_mod"><strong>srs_am</strong></a> &nbsp; &nbsp; &nbsp;
-<a href="#ssf_10to8_mod"><strong>ssf_10to8</strong></a> &nbsp; &nbsp; &nbsp;
-<a href="#ssf_10to8_init_mod"><strong>ssf_10to8_init</strong></a> &nbsp; &nbsp; &nbsp;
-<a href="#ssf_8to10_mod"><strong>ssf_8to10</strong></a> &nbsp; &nbsp; &nbsp;
-<a href="#ssf_8to10_init_mod"><strong>ssf_8to10_init</strong></a> &nbsp; &nbsp; &nbsp;
-<a href="#ssf_mv_to_adc_mod"><strong>ssf_mv_to_adc</strong></a> &nbsp; &nbsp; &nbsp;
-<a href="#ssf_zero_supp_mod"><strong>ssf_zero_supp</strong></a> &nbsp; &nbsp; &nbsp;
-<a href="#ssf_zero_supp_init_mod"><strong>ssf_zero_supp_init</strong></a> &nbsp; &nbsp; &nbsp;
-<a href="#ste_am_mod"><strong>ste_am</strong></a> &nbsp; &nbsp; &nbsp;
-<a href="#stk_am_mod"><strong>stk_am</strong></a> &nbsp; &nbsp; &nbsp;
-<a href="#stk_am_direct_mod"><strong>stk_am_direct</strong></a> &nbsp; &nbsp; &nbsp;
-<a href="#stk_am_fill2_mod"><strong>stk_am_fill2</strong></a> &nbsp; &nbsp; &nbsp;
-<a href="#stk_am_fill3_mod"><strong>stk_am_fill3</strong></a> &nbsp; &nbsp; &nbsp;
-<a href="#stk_am_fill4_mod"><strong>stk_am_fill4</strong></a> &nbsp; &nbsp; &nbsp;
-<a href="#stk_am_fit_mod"><strong>stk_am_fit</strong></a> &nbsp; &nbsp; &nbsp;
-<a href="#stk_am_globfil_mod"><strong>stk_am_globfil</strong></a> &nbsp; &nbsp; &nbsp;
-<a href="#stk_am_helix_mod"><strong>stk_am_helix</strong></a> &nbsp; &nbsp; &nbsp;
-<a href="#stk_am_init_mod"><strong>stk_am_init</strong></a> &nbsp; &nbsp; &nbsp;
-<a href="#stk_am_kine_mod"><strong>stk_am_kine</strong></a> &nbsp; &nbsp; &nbsp;
-<a href="#stk_am_select_mod"><strong>stk_am_select</strong></a> &nbsp; &nbsp; &nbsp;
-<a href="#stk_am_vertex_direct_mod"><strong>stk_am_vertex_direct</strong></a> &nbsp; &nbsp; &nbsp;
-<a href="#svg_am_mod"><strong>svg_am</strong></a> &nbsp; &nbsp; &nbsp;
-<H2>Domain tpc</H2>
-<hr>
-<a href="#tcl_make_clusters_mod"><strong>tcl_make_clusters</strong></a> &nbsp; &nbsp; &nbsp;
-<a href="#tpeam_mod"><strong>tpeam</strong></a> &nbsp; &nbsp; &nbsp;
-<a href="#tpham_mod"><strong>tpham</strong></a> &nbsp; &nbsp; &nbsp;
-<a href="#tdi_fit_mod"><strong>tdi_fit</strong></a> &nbsp; &nbsp; &nbsp;
-<a href="#tdi_rdi_mod"><strong>tdi_rdi</strong></a> &nbsp; &nbsp; &nbsp;
-<a href="#reformat_mod"><strong>reformat</strong></a> &nbsp; &nbsp; &nbsp;
-<a href="#tfc_calc_delta_mod"><strong>tfc_calc_delta</strong></a> &nbsp; &nbsp; &nbsp;
-<a href="#tfc_stability_mod"><strong>tfc_stability</strong></a> &nbsp; &nbsp; &nbsp;
-<a href="#tstam_mod"><strong>tstam</strong></a> &nbsp; &nbsp; &nbsp;
-<a href="#tstgain_mod"><strong>tstgain</strong></a> &nbsp; &nbsp; &nbsp;
-<a href="#xyz_mod"><strong>xyz</strong></a> &nbsp; &nbsp; &nbsp;
-<a href="#tfs_filt_mod"><strong>tfs_filt</strong></a> &nbsp; &nbsp; &nbsp;
-<a href="#tfs_g2t_mod"><strong>tfs_g2t</strong></a> &nbsp; &nbsp; &nbsp;
-<a href="#tde_new_mod"><strong>tde_new</strong></a> &nbsp; &nbsp; &nbsp;
-<a href="#tpi_pid_mod"><strong>tpi_pid</strong></a> &nbsp; &nbsp; &nbsp;
-<a href="#tpg_main_mod"><strong>tpg_main</strong></a> &nbsp; &nbsp; &nbsp;
-<a href="#tpt_mod"><strong>tpt</strong></a> &nbsp; &nbsp; &nbsp;
-<a href="#tpt_sts_mod"><strong>tpt_sts</strong></a> &nbsp; &nbsp; &nbsp;
-<a href="#tseam_mod"><strong>tseam</strong></a> &nbsp; &nbsp; &nbsp;
-<a href="#tssam_mod"><strong>tssam</strong></a> &nbsp; &nbsp; &nbsp;
-<a href="#tss_mod"><strong>tss</strong></a> &nbsp; &nbsp; &nbsp;
-<a href="#tte_mod"><strong>tte</strong></a> &nbsp; &nbsp; &nbsp;
-<a href="#tte_track_mod"><strong>tte_track</strong></a> &nbsp; &nbsp; &nbsp;
-<H2>Domain trg</H2>
-<hr>
-<a href="#r_ftpc_mod"><strong>r_ftpc</strong></a> &nbsp; &nbsp; &nbsp;
-<a href="#r_tpc_mod"><strong>r_tpc</strong></a> &nbsp; &nbsp; &nbsp;
-<a href="#rl0_mod"><strong>rl0</strong></a> &nbsp; &nbsp; &nbsp;
-<a href="#rl1_ks_mod"><strong>rl1_ks</strong></a> &nbsp; &nbsp; &nbsp;
-<a href="#rl1_pw_mod"><strong>rl1_pw</strong></a> &nbsp; &nbsp; &nbsp;
-<H2>Domain vpd</H2>
-<hr>
-<a href="#vps_mod"><strong>vps</strong></a> &nbsp; &nbsp; &nbsp;
-<a href="#vpv_mod"><strong>vpv</strong></a> &nbsp; &nbsp; &nbsp;
-<hr>
-<H1>List of STAR tables</H1>
+<H2>List of STAR tables</H2>
 <hr>
 <hr>
-<H2>Domain ctf</H2>
+<H3>Domain ctf</H3>
 <hr>
 <a href="#cpe_eval_tab"><strong>cpe_eval</strong></a> &nbsp; &nbsp; &nbsp;
 <a href="#cpe_mkine_tab"><strong>cpe_mkine</strong></a> &nbsp; &nbsp; &nbsp;
@@ -181,7 +352,7 @@
 <a href="#cts_mslat_tab"><strong>cts_mslat</strong></a> &nbsp; &nbsp; &nbsp;
 <a href="#ctu_cor_tab"><strong>ctu_cor</strong></a> &nbsp; &nbsp; &nbsp;
 <a href="#ctu_raw_tab"><strong>ctu_raw</strong></a> &nbsp; &nbsp; &nbsp;
-<H2>Domain emc</H2>
+<H3>Domain emc</H3>
 <hr>
 <a href="#emc_adc_tab"><strong>emc_adc</strong></a> &nbsp; &nbsp; &nbsp;
 <a href="#emc_adc_cal_tab"><strong>emc_adc_cal</strong></a> &nbsp; &nbsp; &nbsp;
@@ -204,11 +375,10 @@
 <a href="#ems_lvl0_adcs_tab"><strong>ems_lvl0_adcs</strong></a> &nbsp; &nbsp; &nbsp;
 <a href="#ems_lvl0_bits_tab"><strong>ems_lvl0_bits</strong></a> &nbsp; &nbsp; &nbsp;
 <a href="#ems_lvl0_thres_tab"><strong>ems_lvl0_thres</strong></a> &nbsp; &nbsp; &nbsp;
-<H2>Domain ftpc</H2>
+<H3>Domain ftpc</H3>
 <hr>
 <a href="#fss_param_tab"><strong>fss_param</strong></a> &nbsp; &nbsp; &nbsp;
 <a href="#diag_cortr_tab"><strong>diag_cortr</strong></a> &nbsp; &nbsp; &nbsp;
-<a href="#fcl_det_tab"><strong>fcl_det</strong></a> &nbsp; &nbsp; &nbsp;
 <a href="#fcl_fppoint_tab"><strong>fcl_fppoint</strong></a> &nbsp; &nbsp; &nbsp;
 <a href="#fcl_padtrans_tab"><strong>fcl_padtrans</strong></a> &nbsp; &nbsp; &nbsp;
 <a href="#fcl_raw_tab"><strong>fcl_raw</strong></a> &nbsp; &nbsp; &nbsp;
@@ -222,15 +392,16 @@
 <a href="#ffs_gepoint_tab"><strong>ffs_gepoint</strong></a> &nbsp; &nbsp; &nbsp;
 <a href="#fpt_fptpar_tab"><strong>fpt_fptpar</strong></a> &nbsp; &nbsp; &nbsp;
 <a href="#fpt_fptrack_tab"><strong>fpt_fptrack</strong></a> &nbsp; &nbsp; &nbsp;
+<a href="#fcl_det_tab"><strong>fcl_det</strong></a> &nbsp; &nbsp; &nbsp;
 <a href="#fte_ftepar_tab"><strong>fte_ftepar</strong></a> &nbsp; &nbsp; &nbsp;
-<H2>Domain gen</H2>
+<H3>Domain gen</H3>
 <hr>
 <a href="#eg_event_tab"><strong>eg_event</strong></a> &nbsp; &nbsp; &nbsp;
 <a href="#eg_gener_tab"><strong>eg_gener</strong></a> &nbsp; &nbsp; &nbsp;
 <a href="#eg_track_tab"><strong>eg_track</strong></a> &nbsp; &nbsp; &nbsp;
 <a href="#eg_vertex_tab"><strong>eg_vertex</strong></a> &nbsp; &nbsp; &nbsp;
 <a href="#particle_tab"><strong>particle</strong></a> &nbsp; &nbsp; &nbsp;
-<H2>Domain geometry</H2>
+<H3>Domain geometry</H3>
 <hr>
 <a href="#btofsys_tab"><strong>btofsys</strong></a> &nbsp; &nbsp; &nbsp;
 <a href="#calbsys_tab"><strong>calbsys</strong></a> &nbsp; &nbsp; &nbsp;
@@ -244,7 +415,7 @@
 <a href="#svttsys_tab"><strong>svttsys</strong></a> &nbsp; &nbsp; &nbsp;
 <a href="#tpcesys_tab"><strong>tpcesys</strong></a> &nbsp; &nbsp; &nbsp;
 <a href="#vpddsys_tab"><strong>vpddsys</strong></a> &nbsp; &nbsp; &nbsp;
-<H2>Domain global</H2>
+<H3>Domain global</H3>
 <hr>
 <a href="#ev0_track_tab"><strong>ev0_track</strong></a> &nbsp; &nbsp; &nbsp;
 <a href="#dst_event_tab"><strong>dst_event</strong></a> &nbsp; &nbsp; &nbsp;
@@ -283,11 +454,11 @@
 <a href="#svt_eval_tab"><strong>svt_eval</strong></a> &nbsp; &nbsp; &nbsp;
 <a href="#tkf_tkfout_tab"><strong>tkf_tkfout</strong></a> &nbsp; &nbsp; &nbsp;
 <a href="#tkf_tkfpar_tab"><strong>tkf_tkfpar</strong></a> &nbsp; &nbsp; &nbsp;
-<H2>Domain magnet</H2>
+<H3>Domain magnet</H3>
 <hr>
 <a href="#mft_control_tab"><strong>mft_control</strong></a> &nbsp; &nbsp; &nbsp;
 <a href="#mft_fieldmap_tab"><strong>mft_fieldmap</strong></a> &nbsp; &nbsp; &nbsp;
-<H2>Domain mwc</H2>
+<H3>Domain mwc</H3>
 <hr>
 <a href="#mwc_cal_tab"><strong>mwc_cal</strong></a> &nbsp; &nbsp; &nbsp;
 <a href="#mwc_cor_tab"><strong>mwc_cor</strong></a> &nbsp; &nbsp; &nbsp;
@@ -296,7 +467,7 @@
 <a href="#mwc_mpar_tab"><strong>mwc_mpar</strong></a> &nbsp; &nbsp; &nbsp;
 <a href="#mwc_raw_tab"><strong>mwc_raw</strong></a> &nbsp; &nbsp; &nbsp;
 <a href="#mwc_sector_tab"><strong>mwc_sector</strong></a> &nbsp; &nbsp; &nbsp;
-<H2>Domain sim</H2>
+<H3>Domain sim</H3>
 <hr>
 <a href="#g2t_ctf_hit_tab"><strong>g2t_ctf_hit</strong></a> &nbsp; &nbsp; &nbsp;
 <a href="#g2t_eem_hit_tab"><strong>g2t_eem_hit</strong></a> &nbsp; &nbsp; &nbsp;
@@ -315,7 +486,7 @@
 <a href="#g2t_vertex_tab"><strong>g2t_vertex</strong></a> &nbsp; &nbsp; &nbsp;
 <a href="#g2t_vpd_hit_tab"><strong>g2t_vpd_hit</strong></a> &nbsp; &nbsp; &nbsp;
 <a href="#particle_tab"><strong>particle</strong></a> &nbsp; &nbsp; &nbsp;
-<H2>Domain svt</H2>
+<H3>Domain svt</H3>
 <hr>
 <a href="#sci_clus_tab"><strong>sci_clus</strong></a> &nbsp; &nbsp; &nbsp;
 <a href="#sal_geom_tab"><strong>sal_geom</strong></a> &nbsp; &nbsp; &nbsp;
@@ -361,7 +532,7 @@
 <a href="#svg_config_tab"><strong>svg_config</strong></a> &nbsp; &nbsp; &nbsp;
 <a href="#svg_geom_tab"><strong>svg_geom</strong></a> &nbsp; &nbsp; &nbsp;
 <a href="#svg_shape_tab"><strong>svg_shape</strong></a> &nbsp; &nbsp; &nbsp;
-<H2>Domain tpc</H2>
+<H3>Domain tpc</H3>
 <hr>
 <a href="#tdeparm_tab"><strong>tdeparm</strong></a> &nbsp; &nbsp; &nbsp;
 <a href="#tcl_tclpar_tab"><strong>tcl_tclpar</strong></a> &nbsp; &nbsp; &nbsp;
@@ -425,7 +596,7 @@
 <a href="#raw_row_tab"><strong>raw_row</strong></a> &nbsp; &nbsp; &nbsp;
 <a href="#raw_sec_m_tab"><strong>raw_sec_m</strong></a> &nbsp; &nbsp; &nbsp;
 <a href="#raw_seq_tab"><strong>raw_seq</strong></a> &nbsp; &nbsp; &nbsp;
-<H2>Domain trg</H2>
+<H3>Domain trg</H3>
 <hr>
 <a href="#r_ftpc_ctrl_tab"><strong>r_ftpc_ctrl</strong></a> &nbsp; &nbsp; &nbsp;
 <a href="#rl0_ctbcal_tab"><strong>rl0_ctbcal</strong></a> &nbsp; &nbsp; &nbsp;
@@ -437,13 +608,13 @@
 <a href="#rl1_pw_ctrl_tab"><strong>rl1_pw_ctrl</strong></a> &nbsp; &nbsp; &nbsp;
 <a href="#rl1_pw_out_tab"><strong>rl1_pw_out</strong></a> &nbsp; &nbsp; &nbsp;
 <a href="#trg_fcl_fppoint_tab"><strong>trg_fcl_fppoint</strong></a> &nbsp; &nbsp; &nbsp;
-<H2>Domain vpd</H2>
+<H3>Domain vpd</H3>
 <hr>
 <a href="#vps_par_tab"><strong>vps_par</strong></a> &nbsp; &nbsp; &nbsp;
 <a href="#vps_raw_tab"><strong>vps_raw</strong></a> &nbsp; &nbsp; &nbsp;
 <a href="#vps_sim_tab"><strong>vps_sim</strong></a> &nbsp; &nbsp; &nbsp;
 <a href="#vpv_vert_tab"><strong>vpv_vert</strong></a> &nbsp; &nbsp; &nbsp;
-<H1>List of STAR pams</H1>
+<H2>List of STAR pams</H2>
 <hr>
 <ol>
 <li>Module <a name="cpe_mod"><strong>cpe</strong></a> defined in <a href="http://www.rhic.bnl.gov/afs/rhic/star/doc/www/packages_l/dev/pams/ctf/cpi/cpe.idl">/afs/rhic/star/packages/dev/pams/ctf/cpi/cpe.idl</a>
@@ -1240,7 +1411,7 @@
 <TABLE CELLPADDING=3 BORDER="1">
 <TR><TD>Module</TD><TD>Input tables</TD><TD>Output tables</TD></TR>
 <TR VALIGN='TOP'>
-<TD><a href="http://www.rhic.bnl.gov/afs/rhic/star/doc/www/packages_l/dev/pams/svt/spr/spr_am.F">spr_am</a><TD><a href="#spr_sprpar_tab">spr_sprpar</a><TD><a href="#spr_sprpar_tab">spr_sprpar</a></TD></TR>
+<TD><a href="http://www.rhic.bnl.gov/afs/rhic/star/doc/www/packages_l/dev/pams/svt/spr/spr_am.F /afs/rhic/star/packages/dev/pams/svt/spr/spr_am.F.new">spr_am</a><TD><a href="#spr_sprpar_tab">spr_sprpar</a><TD><a href="#spr_sprpar_tab">spr_sprpar</a></TD></TR>
 <TD>  <TD><a href="#g2t_svt_hit_tab">g2t_svt_hit</a><TD><a href="#stk_ctrack_tab">stk_ctrack</a></TD></TR>
 <TD>  <TD><a href="#g2t_track_tab">g2t_track</a><TD><a href="#stk_ctrack_tab">stk_ctrack</a></TD></TR>
 <TD>  <TD><a href="#stk_kine_tab">stk_kine</a><TD><a href="#stk_track_tab">stk_track</a></TD></TR>
@@ -1631,14 +1802,12 @@
 <TABLE CELLPADDING=3 BORDER="1">
 <TR><TD>Module</TD><TD>Input tables</TD><TD>Output tables</TD></TR>
 <TR VALIGN='TOP'>
-<TD><a href="http://www.rhic.bnl.gov/afs/rhic/star/doc/www/packages_l/dev/pams/tpc/tfs/tfs_g2t.F">tfs_g2t</a><TD><a href="#g2t_tpc_hit_tab">g2t_tpc_hit</a><TD><a href="#g2t_tpc_hit_tab">g2t_tpc_hit</a></TD></TR>
-<TD>  <TD><a href="#g2t_track_tab">g2t_track</a><TD><a href="#g2t_track_tab">g2t_track</a></TD></TR>
-<TD>  <TD><a href="#tfs_fspar_tab">tfs_fspar</a><TD><a href="#tfs_fspar_tab">tfs_fspar</a></TD></TR>
-<TD>  <TD><a href="#tfs_bmpar_tab">tfs_bmpar</a><TD><a href="#tfs_bmpar_tab">tfs_bmpar</a></TD></TR>
-<TD>  <TD><a href="#tfs_fsctrl_tab">tfs_fsctrl</a><TD><a href="#tfs_fsctrl_tab">tfs_fsctrl</a></TD></TR>
-<TD>  <TD><a href="#tcl_tpc_index_tab">tcl_tpc_index</a><TD><a href="#tcl_tpc_index_tab">tcl_tpc_index</a></TD></TR>
-<TD>  <TD><a href="#tcl_tpc_index_type_tab">tcl_tpc_index_type</a><TD><a href="#tcl_tpc_index_type_tab">tcl_tpc_index_type</a></TD></TR>
-<TD>  <TD><a href="#tcl_tphit_tab">tcl_tphit</a><TD><a href="#tcl_tphit_tab">tcl_tphit</a></TD></TR>
+<TD><a href="http://www.rhic.bnl.gov/afs/rhic/star/doc/www/packages_l/dev/pams/tpc/tfs/tfs_g2t.F">tfs_g2t</a><TD><a href="#g2t_tpc_hit_tab">g2t_tpc_hit</a><TD><a href="#tcl_tpc_index_tab">tcl_tpc_index</a></TD></TR>
+<TD>  <TD><a href="#g2t_track_tab">g2t_track</a><TD><a href="#tcl_tphit_tab">tcl_tphit</a></TD></TR>
+<TD>  <TD><a href="#tfs_fspar_tab">tfs_fspar</a><TD>  </TD></TR>
+<TD>  <TD><a href="#tfs_bmpar_tab">tfs_bmpar</a><TD>  </TD></TR>
+<TD>  <TD><a href="#tfs_fsctrl_tab">tfs_fsctrl</a><TD>  </TD></TR>
+<TD>  <TD><a href="#tcl_tpc_index_type_tab">tcl_tpc_index_type</a><TD>  </TD></TR>
 </TABLE>
 <li>Module <a name="tde_new_mod"><strong>tde_new</strong></a> defined in <a href="http://www.rhic.bnl.gov/afs/rhic/star/doc/www/packages_l/dev/pams/tpc/tid/tde_new.idl">/afs/rhic/star/packages/dev/pams/tpc/tid/tde_new.idl</a>
 <BR>
@@ -1834,7 +2003,7 @@
 </TABLE>
 </ol>
 <hr>
-<H1>List of STAR tables</H1>
+<H2>List of STAR tables</H2>
 <hr>
 <ol>
 <li> Table <a name="cpe_eval_tab"><strong>cpe_eval</strong></a> is defined in <a href="http://www.rhic.bnl.gov/afs/rhic/star/doc/www/packages_l/dev/pams/ctf/idl/cpe_eval.idl">/afs/rhic/star/packages/dev/pams/ctf/idl/cpe_eval.idl</a> and used by the following modules:
@@ -1970,9 +2139,6 @@
 <li> Table <a name="fss_param_tab"><strong>fss_param</strong></a> is defined in <a href="http://www.rhic.bnl.gov/afs/rhic/star/doc/www/packages_l/dev/pams/ftpc/idl/fss_param.idl">/afs/rhic/star/packages/dev/pams/ftpc/idl/fss_param.idl</a> and used by the following modules:
 <a href="#fss_mod">fss</a> &nbsp;&nbsp;&nbsp;&nbsp;
 <li> Table <a name="diag_cortr_tab"><strong>diag_cortr</strong></a> is defined in <a href="http://www.rhic.bnl.gov/afs/rhic/star/doc/www/packages_l/dev/pams/ftpc/idl/diag_cortr.idl">/afs/rhic/star/packages/dev/pams/ftpc/idl/diag_cortr.idl</a> and used by the following modules:
-<li> Table <a name="fcl_det_tab"><strong>fcl_det</strong></a> is defined in <a href="http://www.rhic.bnl.gov/afs/rhic/star/doc/www/packages_l/dev/pams/ftpc/idl/fcl_det.idl">/afs/rhic/star/packages/dev/pams/ftpc/idl/fcl_det.idl</a> and used by the following modules:
-<a href="#fcl_mod">fcl</a> &nbsp;&nbsp;&nbsp;&nbsp;
-<a href="#fss_mod">fss</a> &nbsp;&nbsp;&nbsp;&nbsp;
 <li> Table <a name="fcl_fppoint_tab"><strong>fcl_fppoint</strong></a> is defined in <a href="http://www.rhic.bnl.gov/afs/rhic/star/doc/www/packages_l/dev/pams/ftpc/idl/fcl_fppoint.idl">/afs/rhic/star/packages/dev/pams/ftpc/idl/fcl_fppoint.idl</a> and used by the following modules:
 <a href="#fcl_mod">fcl</a> &nbsp;&nbsp;&nbsp;&nbsp;
 <a href="#fpt_mod">fpt</a> &nbsp;&nbsp;&nbsp;&nbsp;
@@ -2007,6 +2173,9 @@
 <li> Table <a name="fpt_fptrack_tab"><strong>fpt_fptrack</strong></a> is defined in <a href="http://www.rhic.bnl.gov/afs/rhic/star/doc/www/packages_l/dev/pams/ftpc/idl/fpt_fptrack.idl">/afs/rhic/star/packages/dev/pams/ftpc/idl/fpt_fptrack.idl</a> and used by the following modules:
 <a href="#fpt_mod">fpt</a> &nbsp;&nbsp;&nbsp;&nbsp;
 <a href="#fte_mod">fte</a> &nbsp;&nbsp;&nbsp;&nbsp;
+<li> Table <a name="fcl_det_tab"><strong>fcl_det</strong></a> is defined in <a href="http://www.rhic.bnl.gov/afs/rhic/star/doc/www/packages_l/dev/pams/ftpc/idl/fcl_det.idl">/afs/rhic/star/packages/dev/pams/ftpc/idl/fcl_det.idl</a> and used by the following modules:
+<a href="#fcl_mod">fcl</a> &nbsp;&nbsp;&nbsp;&nbsp;
+<a href="#fss_mod">fss</a> &nbsp;&nbsp;&nbsp;&nbsp;
 <li> Table <a name="fte_ftepar_tab"><strong>fte_ftepar</strong></a> is defined in <a href="http://www.rhic.bnl.gov/afs/rhic/star/doc/www/packages_l/dev/pams/ftpc/idl/fte_ftepar.idl">/afs/rhic/star/packages/dev/pams/ftpc/idl/fte_ftepar.idl</a> and used by the following modules:
 <a href="#fte_mod">fte</a> &nbsp;&nbsp;&nbsp;&nbsp;
 <li> Table <a name="eg_event_tab"><strong>eg_event</strong></a> is defined in <a href="http://www.rhic.bnl.gov/afs/rhic/star/doc/www/packages_l/dev/pams/gen/idl/eg_event.idl">/afs/rhic/star/packages/dev/pams/gen/idl/eg_event.idl</a> and used by the following modules:
