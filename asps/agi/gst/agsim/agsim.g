@@ -165,12 +165,12 @@ C
 *KEEP,VIDQQ.
       CHARACTER*68 VIDQQ
       DATA VIDQQ/
-     +'@(#)Advanced Geant Inteface               C: 23/08/98  23.01.24
+     +'@(#)Advanced Geant Inteface               C: 26/08/98  18.38.46
      +'/
 *KEEP,DATEQQ.
-      IDATQQ =   980823
+      IDATQQ =   980826
 *KEEP,TIMEQQ.
-      ITIMQQ =   2301
+      ITIMQQ =   1838
 *KEEP,VERSQQ.
       VERSQQ = ' '
       IVERSQ = -1
@@ -446,6 +446,8 @@ C local variables valid inside same block
       COMMON /AgCKINO/ Ioutp,IoutpOld
       Character*20     CoptKine,CoptBack,CoptOutp
       COMMON /AgCKINC/ CoptKine,CoptBack,CoptOutp
+      Character*20     StrmKine,StrmBack,StrmOutp
+      COMMON /AgCKINS/ StrmKine,StrmBack,StrmOutp
       Character*20     CrunType
       COMMON /AgCKINR/ CrunType
       Integer          Ncommand
@@ -536,6 +538,8 @@ C
       COMMON /AgCKINO/ Ioutp,IoutpOld
       Character*20     CoptKine,CoptBack,CoptOutp
       COMMON /AgCKINC/ CoptKine,CoptBack,CoptOutp
+      Character*20     StrmKine,StrmBack,StrmOutp
+      COMMON /AgCKINS/ StrmKine,StrmBack,StrmOutp
       Character*20     CrunType
       COMMON /AgCKINR/ CrunType
       Integer          Ncommand
@@ -724,6 +728,8 @@ C
       COMMON /AgCKINO/ Ioutp,IoutpOld
       Character*20     CoptKine,CoptBack,CoptOutp
       COMMON /AgCKINC/ CoptKine,CoptBack,CoptOutp
+      Character*20     StrmKine,StrmBack,StrmOutp
+      COMMON /AgCKINS/ StrmKine,StrmBack,StrmOutp
       Character*20     CrunType
       COMMON /AgCKINR/ CrunType
       Integer          Ncommand
@@ -1225,6 +1231,8 @@ C                                       Link to:
       COMMON /AgCKINO/ Ioutp,IoutpOld
       Character*20     CoptKine,CoptBack,CoptOutp
       COMMON /AgCKINC/ CoptKine,CoptBack,CoptOutp
+      Character*20     StrmKine,StrmBack,StrmOutp
+      COMMON /AgCKINS/ StrmKine,StrmBack,StrmOutp
       Character*20     CrunType
       COMMON /AgCKINR/ CrunType
       Integer          Ncommand
@@ -1526,6 +1534,8 @@ C
       COMMON /AgCKINO/ Ioutp,IoutpOld
       Character*20     CoptKine,CoptBack,CoptOutp
       COMMON /AgCKINC/ CoptKine,CoptBack,CoptOutp
+      Character*20     StrmKine,StrmBack,StrmOutp
+      COMMON /AgCKINS/ StrmKine,StrmBack,StrmOutp
       Character*20     CrunType
       COMMON /AgCKINR/ CrunType
       Integer          Ncommand
@@ -1657,6 +1667,8 @@ C
       COMMON /AgCKINO/ Ioutp,IoutpOld
       Character*20     CoptKine,CoptBack,CoptOutp
       COMMON /AgCKINC/ CoptKine,CoptBack,CoptOutp
+      Character*20     StrmKine,StrmBack,StrmOutp
+      COMMON /AgCKINS/ StrmKine,StrmBack,StrmOutp
       Character*20     CrunType
       COMMON /AgCKINR/ CrunType
       Integer          Ncommand
@@ -1940,6 +1952,8 @@ C
       COMMON /AgCKINO/ Ioutp,IoutpOld
       Character*20     CoptKine,CoptBack,CoptOutp
       COMMON /AgCKINC/ CoptKine,CoptBack,CoptOutp
+      Character*20     StrmKine,StrmBack,StrmOutp
+      COMMON /AgCKINS/ StrmKine,StrmBack,StrmOutp
       Character*20     CrunType
       COMMON /AgCKINR/ CrunType
       Integer          Ncommand
@@ -2236,6 +2250,8 @@ C
       COMMON /AgCKINO/ Ioutp,IoutpOld
       Character*20     CoptKine,CoptBack,CoptOutp
       COMMON /AgCKINC/ CoptKine,CoptBack,CoptOutp
+      Character*20     StrmKine,StrmBack,StrmOutp
+      COMMON /AgCKINS/ StrmKine,StrmBack,StrmOutp
       Character*20     CrunType
       COMMON /AgCKINR/ CrunType
       Integer          Ncommand
@@ -2771,6 +2787,8 @@ C
       COMMON /AgCKINO/ Ioutp,IoutpOld
       Character*20     CoptKine,CoptBack,CoptOutp
       COMMON /AgCKINC/ CoptKine,CoptBack,CoptOutp
+      Character*20     StrmKine,StrmBack,StrmOutp
+      COMMON /AgCKINS/ StrmKine,StrmBack,StrmOutp
       Character*20     CrunType
       COMMON /AgCKINR/ CrunType
       Integer          Ncommand
@@ -5704,7 +5722,7 @@ C
  %Level-=1;  Iprin=max(%Iprin-%Level-1,0);  if (%level>0) return;
    END
  
-*CMZ :          19/08/98  20.02.29  by  Pavel Nevski
+*CMZ :          26/08/98  01.18.22  by  Pavel Nevski
 *CMZ :  1.30/00 13/05/97  14.31.40  by  Pavel Nevski
 *-- Author :    Pavel Nevski   26/11/94
 ************************************************************************
@@ -5951,6 +5969,9 @@ C
    If .not.opnd & LVGEOM(1)>=0
    {  Lrecl=256;   INQUIRE(FILE='detm.rz',EXIST=EXST);  %ChDir='RZDOC'
       If !EXST { Call RZOPEN (Lun,%CHdir,'detm.rz','NWX', Lrecl,Istat)
+* from pawrop:
+*--- bug in RZOPEN with C I/O, TOPDIR is not returned correctly ---
+                                  %CHdir='LUN61'
                  Call RZMAKE (Lun,%CHdir,2,'HH',CHTAG,5000,'XO')
                  call RZCLOS (%Chdir,' ')
                }
@@ -5970,6 +5991,8 @@ C
       If Istat!=0     { <w>; (' detm.rz absent - no documentation available');}
       If Iquest(1)!=0 { <w>Iquest(1); (' problem opening detm.rz IQUEST=',i6);}
 *     Chdir0=%Chdir
+*     make a dummy call to clear buffers, otherwise GHIST may fail !
+      call rzcdir(' ',' ')
    }
    END
  
@@ -9756,7 +9779,7 @@ If jdu<=0  { call GFDIG1(Cset,Cdet,1,NVS,LTRA,NTRA,NBV,DIGI,Iw,Ia); Return; }
    END
  
  
-*CMZ :          24/04/98  16.58.32  by  Pavel Nevski
+*CMZ :          24/08/98  11.03.17  by  Pavel Nevski
 *CMZ :  1.30/00 13/05/97  14.48.21  by  Pavel Nevski
 *CMZ :  1.00/00 01/09/95  22.54.27  by  Pavel Nevski
 *-- Author : Pavel Nevski
@@ -9831,11 +9854,12 @@ C
       COMMON /AGCHITV/ Iprin,Nvb,Nw,Last,Mb,Nc1,Nc2,Iv,Ia,cs,cd
 *     - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 *KEND.
-Character*(*)    Cdet,Cset;   Integer Lp,Lt;  Parameter (Lp=20,Lt=100);
-Integer          AgFDIG0,JBYT,MSBYT,LENOCC,ICDECI,NVL(Lp),ISC(Lp),Itr,
-                 Iset,Idet,X,Nv,Nr,Nb,Ja,i,j,k,L,Na,Ma,Jv,Nk,Ih,JH,Mbm,Ier
-integer          nac,nas,iac,itc,jtr
-common/agctrbuf/ nac,nas,iac(50000),itc(50000)
+Character*(*)     Cdet,Cset;
+Integer Lp,Lt,La; Parameter (Lp=20,Lt=100,La=50000);
+Integer           AgFDIG0,JBYT,MSBYT,LENOCC,ICDECI,NVL(Lp),ISC(Lp),Itr,
+                  Iset,Idet,X,Nv,Nr,Nb,Ja,i,j,k,L,Na,Ma,Jv,Nk,Ih,JH,Mbm,Ier
+integer           nac,nas,iac,itc,jtr
+common/agctrbuf/  nac,nas,iac(La),itc(La)
 *
    Cs=Cset;  Cd=Cdet;  {AgFDIG0,Iv,Ia}=-1;  {Iset,Idet,Jdu}=0;
    CALL MZLINT (IXSTOR,'AGCRDIG',IWA,JS,JDU);
@@ -9857,9 +9881,12 @@ common/agctrbuf/ nac,nas,iac(50000),itc(50000)
    Nw=IQ(JD+1)+IQ(JD+2*X+1)+1;  Nvb=Q(Jdu+6);  Nv=IQ(JD+2); Nc1=Last/Nw;
    Ier = 3;          If (mod(last,nw)!=0)                   go to :e:
    Nr=0;  if (LENOCC(Cdet)>=6)  Nr=ICDECI(Cdet,5,6);   Nvb=min(Nvb+Nr,Nv);
+ 
+* here we calculate Mbm - number of bits needed to save max pointer
    Call VZERO(NVL,Lp);          Mb=0; i=Nc1; while i>0 {i/=2; Mb+=1;};
    If Mb>1  { Mbm=2**(32-Mb) } else { Mbm=2 000 000 000 "big positive" }
 *
+* calculate number of hit segments, produced by the same track, verify tracks
    Ier=0; last=Nc1+1; jtr=-1; Nac=0
    do ih=1,Nc1
    {  j=JXD+(Ih-1)*Nw+1; itr=IQ(J);
@@ -9867,11 +9894,16 @@ common/agctrbuf/ nac,nas,iac(50000),itc(50000)
       { ier+=1; <w> Cset,Cdet,itr;(' AgFDIG0 error in',2a5,': bad ITRA=',i12)}
       if jtr!=itr { Nac+=1; jtr=itr; }
    }
+   if(Nac>=La)<w>Cset,Cdet,Nac;(' AgFDIG0 error in',2a5,': too many tracks',i9)
+*
+* Now make a bidirectional list of tracks, which produced hits in this detector
+* Replace track numbers by their position in the list (packed by nas if needed)
+* Track numbers should be restored in agfdig1, otherwise they will be lost !
    nas=Nac/Mbm+1; jtr=-1; Nac=0
    do ih=1,Nc1
    {  j=JXD+(Ih-1)*Nw+1; itr=IQ(J);
-      if jtr!=itr { nac+=1; iac(nac)=ih; itc(nac)=itr; jtr =itr; }
-      IQ(J)=(nac-1)/nas
+      if jtr!=itr { nac=min(nac+1,La-1); iac(nac)=ih; itc(nac)=itr; jtr =itr; }
+      IQ(J)=(nac-1)/nas " this is now a position in the list, sometimes crude "
    }  iac(nac+1)=Nc1+1
 *
    "       ----------      associate hits in chains     ---------    "
@@ -11098,6 +11130,8 @@ C
       COMMON /AgCKINO/ Ioutp,IoutpOld
       Character*20     CoptKine,CoptBack,CoptOutp
       COMMON /AgCKINC/ CoptKine,CoptBack,CoptOutp
+      Character*20     StrmKine,StrmBack,StrmOutp
+      COMMON /AgCKINS/ StrmKine,StrmBack,StrmOutp
       Character*20     CrunType
       COMMON /AgCKINR/ CrunType
       Integer          Ncommand
@@ -11826,7 +11860,7 @@ J=1; Loop                                  " over existing banks only "
 }
 END
  
-*CMZ :          23/08/98  14.50.04  by  Pavel Nevski
+*CMZ :          24/08/98  18.27.39  by  Pavel Nevski
 *-- Author :    Pavel Nevski   25/03/98
 **********************************************************************
                 subroutine   a x p a r t i c l e
@@ -11978,7 +12012,7 @@ C local variables valid inside same block
        If (Jp1<=0 | Jp2<=0) N=1
  
        Do i=1,6
-       { check %Mode(i)>0;  bratio(i)=min(%Bratio(i)*100.0001/Sum,100);
+       { check %Mode(i)>0;  bratio(i)=min(%Bratio(i)*100.0001/Sum,100.);
          if (JP1>0 & bratio(i)!=Q(JP1+i)) N=2
 *            { print *,' br ',i, bratio(i),Q(JP1+i);  N=2 }
          if (JP2>0 & %Mode(i)!=IQ(JP2+i)) N=3
@@ -12170,7 +12204,7 @@ C     - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
  
  end
  
-*CMZ :          20/04/98  15.46.43  by  Pavel Nevski
+*CMZ :          24/08/98  20.25.33  by  Pavel Nevski
 *CMZ :  1.30/00 29/04/97  23.23.51  by  Pavel Nevski
 *CMZU:  1.00/01 15/01/96  20.20.30  by  Pavel Nevski
 *-- Author :    L.Vacavant, A.Rozanov    14/12/94
@@ -12243,6 +12277,8 @@ C
       COMMON /AgCKINO/ Ioutp,IoutpOld
       Character*20     CoptKine,CoptBack,CoptOutp
       COMMON /AgCKINC/ CoptKine,CoptBack,CoptOutp
+      Character*20     StrmKine,StrmBack,StrmOutp
+      COMMON /AgCKINS/ StrmKine,StrmBack,StrmOutp
       Character*20     CrunType
       COMMON /AgCKINR/ CrunType
       Integer          Ncommand
@@ -12314,14 +12350,14 @@ Common     /AgZbuffer/  K,JRC,JCONT,CSTREAM,COPTN,CREQ,IREQ,iend,mem(100,5)
    {  CALL CFOPEN(IQUEST,0,LREC,'w ',0,CREQ,ier);          K=3;
       IF Ier==0 { Call FZFILE(Unit,LREC,'XOL');  Ier=Iquest(1); }
    }
-   IF Ier!=0 { If (IREQ>0) print *,' AGZOPEN error K,ier=',K,Ier,
-                                   ' file =',CREQ(1:LC);   K=0;
-             }
-   else      { If iu==1 { IKine = -1; IKineOld = -1; CoptKine = Coptn; }
-               If iu==2 { IBack = -1; IBackOld = -1; CoptBack = Coptn; }
-               If iu==3 { Ioutp = -1; IOutpOld = -1; CoptOutp = Coptn; }
-               CALL FZLOGL(Unit,-2)
-             }
+   IF Ier!=0
+   { If(IREQ>0) print *,'AGZOPEN error K,ier=',K,Ier,' file=',CREQ(1:LC); K=0 }
+   else
+   { If iu==1 { IKine=-1; IKineOld=-1; CoptKine=Coptn; StrmKine=Stream; }
+     If iu==2 { IBack=-1; IBackOld=-1; CoptBack=Coptn; StrmBack=Stream; }
+     If iu==3 { Ioutp=-1; IOutpOld=-1; CoptOutp=Coptn; StrmOutp=Stream; }
+     CALL FZLOGL(Unit,-2)
+   }
    Kevent(iu)=0;  Call UCOPY(K,mem(1,iu),LocF(iend)-LocF(K))
 *
 End
@@ -12446,6 +12482,8 @@ C                                       Link to:
       COMMON /AgCKINO/ Ioutp,IoutpOld
       Character*20     CoptKine,CoptBack,CoptOutp
       COMMON /AgCKINC/ CoptKine,CoptBack,CoptOutp
+      Character*20     StrmKine,StrmBack,StrmOutp
+      COMMON /AgCKINS/ StrmKine,StrmBack,StrmOutp
       Character*20     CrunType
       COMMON /AgCKINR/ CrunType
       Integer          Ncommand
@@ -12646,6 +12684,8 @@ C
       COMMON /AgCKINO/ Ioutp,IoutpOld
       Character*20     CoptKine,CoptBack,CoptOutp
       COMMON /AgCKINC/ CoptKine,CoptBack,CoptOutp
+      Character*20     StrmKine,StrmBack,StrmOutp
+      COMMON /AgCKINS/ StrmKine,StrmBack,StrmOutp
       Character*20     CrunType
       COMMON /AgCKINR/ CrunType
       Integer          Ncommand
@@ -12747,6 +12787,8 @@ C
       COMMON /AgCKINO/ Ioutp,IoutpOld
       Character*20     CoptKine,CoptBack,CoptOutp
       COMMON /AgCKINC/ CoptKine,CoptBack,CoptOutp
+      Character*20     StrmKine,StrmBack,StrmOutp
+      COMMON /AgCKINS/ StrmKine,StrmBack,StrmOutp
       Character*20     CrunType
       COMMON /AgCKINR/ CrunType
       Integer          Ncommand
@@ -12913,6 +12955,8 @@ C                                       Link to:
       COMMON /AgCKINO/ Ioutp,IoutpOld
       Character*20     CoptKine,CoptBack,CoptOutp
       COMMON /AgCKINC/ CoptKine,CoptBack,CoptOutp
+      Character*20     StrmKine,StrmBack,StrmOutp
+      COMMON /AgCKINS/ StrmKine,StrmBack,StrmOutp
       Character*20     CrunType
       COMMON /AgCKINR/ CrunType
       Integer          Ncommand
@@ -13070,6 +13114,8 @@ C
       COMMON /AgCKINO/ Ioutp,IoutpOld
       Character*20     CoptKine,CoptBack,CoptOutp
       COMMON /AgCKINC/ CoptKine,CoptBack,CoptOutp
+      Character*20     StrmKine,StrmBack,StrmOutp
+      COMMON /AgCKINS/ StrmKine,StrmBack,StrmOutp
       Character*20     CrunType
       COMMON /AgCKINR/ CrunType
       Integer          Ncommand
@@ -13139,7 +13185,7 @@ END
  
  
  
-*CMZ :          18/08/98  11.35.06  by  Pavel Nevski
+*CMZ :          24/08/98  20.26.49  by  Pavel Nevski
 *CMZ :  1.30/00 21/03/97  15.15.10  by  Pavel Nevski
 *-- Author :    Pavel Nevski   27/05/96
 ************************************************************************
@@ -13185,6 +13231,8 @@ C
       COMMON /AgCKINO/ Ioutp,IoutpOld
       Character*20     CoptKine,CoptBack,CoptOutp
       COMMON /AgCKINC/ CoptKine,CoptBack,CoptOutp
+      Character*20     StrmKine,StrmBack,StrmOutp
+      COMMON /AgCKINS/ StrmKine,StrmBack,StrmOutp
       Character*20     CrunType
       COMMON /AgCKINR/ CrunType
       Integer          Ncommand
@@ -13229,7 +13277,8 @@ C
             Prin0; (' AGZBACK error: CANNOT OPEN FILE WITH EVENTS, QUIT !')
             IbackOld=0;  Return
           }
-          call AgMERGE (Iprin,IbCurrent,IbEvnt,Tbunch,Ier)
+          ier=0; if (INDEX(StrmBack,'C')==0) _
+                    call AgMERGE (Iprin,IbCurrent,IbEvnt,Tbunch,Ier)
           If (Ier!=0) Break :bunch:
     }  }
     Call AgTRIM
@@ -14504,6 +14553,8 @@ C
       COMMON /AgCKINO/ Ioutp,IoutpOld
       Character*20     CoptKine,CoptBack,CoptOutp
       COMMON /AgCKINC/ CoptKine,CoptBack,CoptOutp
+      Character*20     StrmKine,StrmBack,StrmOutp
+      COMMON /AgCKINS/ StrmKine,StrmBack,StrmOutp
       Character*20     CrunType
       COMMON /AgCKINR/ CrunType
       Integer          Ncommand
@@ -15226,7 +15277,7 @@ C
   }  }  }
   call GGCLOS
   End
-*CMZ :          18/08/98  10.11.02  by  Pavel Nevski
+*CMZ :          26/08/98  17.57.31  by  Pavel Nevski
 *CMZ :  1.30/00 02/05/97  17.21.14  by  Pavel Nevski
 *-- Author :    A. Rozanov  11/03/95
 ******************************************************************************
@@ -15327,6 +15378,8 @@ C
       COMMON /AgCKINO/ Ioutp,IoutpOld
       Character*20     CoptKine,CoptBack,CoptOutp
       COMMON /AgCKINC/ CoptKine,CoptBack,CoptOutp
+      Character*20     StrmKine,StrmBack,StrmOutp
+      COMMON /AgCKINS/ StrmKine,StrmBack,StrmOutp
       Character*20     CrunType
       COMMON /AgCKINR/ CrunType
       Integer          Ncommand
@@ -15421,7 +15474,7 @@ C
          Check  Index(CoptKine,'H')==0 & Index(CoptKine,'D')==0
          Check  Index(CoptKine,'R')==0 & Index(CoptKine,'*')==0
       endif
-      check JHITS==0 & JDIGI==0 & JVOLUM>0 & JKINE>0
+      check JHITS==0 & JDIGI==0 & JVOLUM>0  " & JKINE>0 "
       Iquest(1)=0
 * - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 *
@@ -16152,6 +16205,8 @@ C
       COMMON /AgCKINO/ Ioutp,IoutpOld
       Character*20     CoptKine,CoptBack,CoptOutp
       COMMON /AgCKINC/ CoptKine,CoptBack,CoptOutp
+      Character*20     StrmKine,StrmBack,StrmOutp
+      COMMON /AgCKINS/ StrmKine,StrmBack,StrmOutp
       Character*20     CrunType
       COMMON /AgCKINR/ CrunType
       Integer          Ncommand
@@ -16270,6 +16325,8 @@ C
       COMMON /AgCKINO/ Ioutp,IoutpOld
       Character*20     CoptKine,CoptBack,CoptOutp
       COMMON /AgCKINC/ CoptKine,CoptBack,CoptOutp
+      Character*20     StrmKine,StrmBack,StrmOutp
+      COMMON /AgCKINS/ StrmKine,StrmBack,StrmOutp
       Character*20     CrunType
       COMMON /AgCKINR/ CrunType
       Integer          Ncommand
@@ -16340,6 +16397,8 @@ C
       COMMON /AgCKINO/ Ioutp,IoutpOld
       Character*20     CoptKine,CoptBack,CoptOutp
       COMMON /AgCKINC/ CoptKine,CoptBack,CoptOutp
+      Character*20     StrmKine,StrmBack,StrmOutp
+      COMMON /AgCKINS/ StrmKine,StrmBack,StrmOutp
       Character*20     CrunType
       COMMON /AgCKINR/ CrunType
       Integer          Ncommand
@@ -16428,6 +16487,8 @@ C
       COMMON /AgCKINO/ Ioutp,IoutpOld
       Character*20     CoptKine,CoptBack,CoptOutp
       COMMON /AgCKINC/ CoptKine,CoptBack,CoptOutp
+      Character*20     StrmKine,StrmBack,StrmOutp
+      COMMON /AgCKINS/ StrmKine,StrmBack,StrmOutp
       Character*20     CrunType
       COMMON /AgCKINR/ CrunType
       Integer          Ncommand
@@ -16588,7 +16649,7 @@ C
    end
  
  
-*CMZ :          19/08/98  18.40.52  by  Pavel Nevski
+*CMZ :          24/08/98  20.26.08  by  Pavel Nevski
 *-- Author :    Pavel Nevski   23/04/98
 ******************************************************************
       subroutine    A G P R E A D (ier)
@@ -16697,6 +16758,8 @@ C                                       Link to:
       COMMON /AgCKINO/ Ioutp,IoutpOld
       Character*20     CoptKine,CoptBack,CoptOutp
       COMMON /AgCKINC/ CoptKine,CoptBack,CoptOutp
+      Character*20     StrmKine,StrmBack,StrmOutp
+      COMMON /AgCKINS/ StrmKine,StrmBack,StrmOutp
       Character*20     CrunType
       COMMON /AgCKINR/ CrunType
       Integer          Ncommand
@@ -16738,7 +16801,7 @@ C                                       Link to:
         (' AGPREAD: wrong subevent sequence ',i3,' HEADER =',2i6,2i12,6i6)
         Istat=IsubEv; IEOTRI=1
       }
-      else
+      else if INDEX(StrmKINE,'C')==0
       { prin2 Isubev,(IQ(JHEAD+i),i=1,10)
         (' AGPREAD: appending subevent',i3,' HEADER ='/10x,2i6,2i12,6i6)
         call AgMERGE (Iprin,0,IbEvnt,0.,Ier)
@@ -17340,6 +17403,8 @@ C
       COMMON /AgCKINO/ Ioutp,IoutpOld
       Character*20     CoptKine,CoptBack,CoptOutp
       COMMON /AgCKINC/ CoptKine,CoptBack,CoptOutp
+      Character*20     StrmKine,StrmBack,StrmOutp
+      COMMON /AgCKINS/ StrmKine,StrmBack,StrmOutp
       Character*20     CrunType
       COMMON /AgCKINR/ CrunType
       Integer          Ncommand
