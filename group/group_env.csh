@@ -1,7 +1,10 @@
 #!/usr/bin/csh -f
-#       $Id: group_env.csh,v 1.51 1998/10/08 21:13:32 fisyak Exp $
+#       $Id: group_env.csh,v 1.52 1998/10/12 00:50:03 fisyak Exp $
 #	Purpose:	STAR group csh setup 
 #       $Log: group_env.csh,v $
+#       Revision 1.52  1998/10/12 00:50:03  fisyak
+#       ROOT 2.12 for SL98j
+#
 #       Revision 1.51  1998/10/08 21:13:32  fisyak
 #       Add SILENT option
 #
@@ -196,13 +199,17 @@ setenv STAR_PARAMS ${STAR}/params;      if ($ECHO) echo   "Setting up STAR_PARAM
 setenv STAR_CALIB ${STAR_ROOT}/calib;   if ($ECHO) echo   "Setting up STAR_CALIB= ${STAR_CALIB}"
 setenv STAR_PROD   $STAR/prod;          if ($ECHO) echo   "Setting up STAR_PROD = ${STAR_PROD}"
 setenv CVSROOT   $STAR_PATH/repository; if ($ECHO) echo   "Setting up CVSROOT   = ${CVSROOT}"
-#if (! ${?ROOT_LEVEL}) then
-  if ($STAR_VERSION  == "SL98e") then
-    setenv ROOT_LEVEL 2.09
+if (! ${?ROOT_LEVEL}) then
+  if ($STAR_VERSION  == "SL98j") then
+    setenv ROOT_LEVEL 2.12
   else
-    setenv ROOT_LEVEL 2.11
+    if ($STAR_VERSION  == "SL98e") then
+      setenv ROOT_LEVEL 2.09
+    else
+      setenv ROOT_LEVEL 2.11
+    endif
   endif
-#endif
+endif
                                         if ($ECHO) echo   "Setting up ROOT_LEVEL= ${ROOT_LEVEL}"
 setenv TEXINPUTS :${GROUP_DIR}/latex/styles
 setenv GROUPPATH "${GROUP_DIR}:${STAR_MGR}:${STAR_BIN}"
