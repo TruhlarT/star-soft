@@ -3,6 +3,7 @@
 # Wrapper to autobuild
 # J.Lauret 2001.
 #
+unset noclobber
 
 # Path where to find the damned scripts.
 set SCRIPTD=/afs/rhic/star/packages/scripts
