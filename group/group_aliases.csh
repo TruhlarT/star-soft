@@ -1,5 +1,8 @@
-# $Id: group_aliases.csh,v 1.14 2003/05/01 17:18:45 jeromel Exp $
+# $Id: group_aliases.csh,v 1.15 2003/05/02 00:53:20 jeromel Exp $
 # $Log: group_aliases.csh,v $
+# Revision 1.15  2003/05/02 00:53:20  jeromel
+# Removed skipping alias.
+#
 # Revision 1.14  2003/05/01 17:18:45  jeromel
 # Linux special case
 #
@@ -35,9 +38,9 @@ alias stardev    'source ${GROUP_DIR}/.stardev'
 alias staradev   'source ${GROUP_DIR}/.staradev'
 alias star.dev   'source ${GROUP_DIR}/star.dev'
 alias star..dev  'source ${GROUP_DIR}/star..dev'
-if (`uname -s` != "Linux") then
+#if (`uname -s` != "OSF1") then
    alias starver    'source ${GROUP_DIR}/.starver'
-endif
+#endif
 alias setup      'source ${GROUP_DIR}/setup'
 alias starsetup  'source ${GROUP_DIR}/setup'
 if ($?SILENT == 1) then
