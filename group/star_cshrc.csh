@@ -28,13 +28,14 @@ endif
 # alias pp   '/bin/ps auxww | /bin/egrep '\''PID|\!*'\'' | /bin/grep -v grep'
 # alias rs   'set noglob;eval `/usr/bin/X11/resize`;unset noglob'
 # --------------------------------------------------------------------------
-alias nman       '/usr/bin/nroff -man \!* | $PAGER'
-alias ll         '/bin/ls -lA'
-alias pwd        'echo $cwd'
-alias h          'history'
-alias l          'ls -lt'
-alias lf         'ls -CF'
-alias terminal   'setenv TERM `/usr/bin/tset - \!*`'
+unalias ls
+alias   nman       '/usr/bin/nroff -man \!* | $PAGER'
+alias   ll         '/bin/ls -lA'
+alias   pwd        'echo $cwd'
+alias   h          'history'
+alias   l          'ls -lt'
+alias   lf         'ls -CF'
+alias   terminal   'setenv TERM `/usr/bin/tset - \!*`'
 
 # YP fix
 if ( -x "/bin/domainname" ) then
