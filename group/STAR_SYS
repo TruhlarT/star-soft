@@ -1,5 +1,8 @@
 #!/bin/csh
 #  $Log: STAR_SYS,v $
+#  Revision 1.37  2004/06/24 12:55:36  jeromel
+#  Modulo a few logic change, RHE/SL consolidated support
+#
 #  Revision 1.36  2004/06/09 01:43:29  jeromel
 #  Support for Scientific Linux along with RedHat
 #
@@ -116,7 +119,7 @@
 #
 #  Revision 1.1.1.1  1997/12/31 14:35:23  fisyak
 #
-#             Last modification $Date: 2004/06/09 01:43:29 $
+#             Last modification $Date: 2004/06/24 12:55:36 $
 #
 # Determine STAR_SYS variable.
 #
@@ -275,10 +278,9 @@ else
     setenv STAR_HOST_SYS $STAR_SYS
     if (-f /etc/redhat-release) then
 	set rhflavor = `awk '{print $1 $2}' /etc/redhat-release | sed "s/[a-z]//g" | awk '{print tolower($1)}'`
-	set redhat   = `awk '{print $5}'    /etc/redhat-release`
+	set redhat   = `awk '{for (i=1;i<=NF;i++) if ($i == "release") print $(i+1)}' /etc/redhat-release`
 	set rhmajor  = `echo $redhat | sed "s/\..*//"`
 	set redhat   = `echo $redhat | sed "s/\.//g"`
-	if ($redhat == 73 || $rhmajor >= 8 || "$rhflavor" == "sl") then
 	    # Note:  
             #    always assume the compiler is in the path
 	    #    STARCMPL can be defined outside (see 'setup' for example)
@@ -286,7 +288,7 @@ else
 	    if ( ! $?STARCMPL) setenv STARCMPL "gcc"
 	    switch ($STARCMPL)
 	       case "icc":
-#		set vers = `which icc | sed 's/.*compiler//i;s/\/.*//'`
+		#set vers = `which icc | sed 's/.*compiler//i;s/\/.*//'`
 	        set vers = `icc -V -dryrun > & /tmp/icc_version; \
 		awk '{ if (NR==1) print $8 }' /tmp/icc_version | awk -F\. '{print $1$2}'; \
 		rm  /tmp/icc_version;`
@@ -296,6 +298,12 @@ else
 	        setenv STARCMPL "gcc"
 		set vers = `gcc -dumpversion | awk -F. '{print $1$2$3}'`
             endsw
+	# The above was made to exclude 7.2 Redhat using i386_linux24
+	# and other un-predicted flavor of it. The introduction of
+	# SL and RHE lead to simply it. There may be a need to also
+	# exclude 70, 71.
+	#if ($redhat == 73 || $rhmajor >= 8 || "$rhflavor" == "sl") then
+        if ($redhat != 72) then
 	    if ("$vers" != "" ) setenv STAR_HOST_SYS $rhflavor${redhat}_${STARCMPL}${vers}
 	endif
     endif
