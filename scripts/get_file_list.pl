@@ -51,7 +51,8 @@ while (defined $ARGV[$count]){
       { $onefile = 1; }
     elsif ($ARGV[$count] eq "-distinct")
       { $unique = 1; }
-    elsif ($ARGV[$count] eq "-debug"){
+    elsif ($ARGV[$count] eq "-debug" ||
+	   $ARGV[$count] eq "-coffee"){
 	$fileC->debug_on();
     }
     elsif ($ARGV[$count] eq "-start")
@@ -102,7 +103,7 @@ if ($count == 0){
 	# do something only if sanity was not used
 	# in the condition
 	if ( ! defined($fileC->get_context("sanity")) ){
-	    $fileC->set_context("sanity=1");
+	    $fileC->set_optional_context("sanity=1");
 	}
     }
     if (defined $limit){   $fileC->set_context("limit=$limit"); }
