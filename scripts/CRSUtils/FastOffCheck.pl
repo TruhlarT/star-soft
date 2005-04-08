@@ -102,7 +102,13 @@ if ($UPDATE == 0){
 
     # Also scan the main tree for obsolete files
     if( -d $TARGET){
-	chomp(@all = `cd $TARGET ; /usr/bin/find $LIB -type f -mtime +$RETENT`);
+	#print "Searching for f in $LIB from $TARGET\n";
+	if ( -e "$TARGET/$LIB"){
+	    chomp(@all = `cd $TARGET ; /usr/bin/find $LIB -type f -mtime +$RETENT`);
+	} else {
+	    chomp(@all = `cd $TARGET ; /usr/bin/find -type f -mtime +$RETENT`);
+	    @all = grep(!/StarDb/,@all);
+	}
 	foreach $el (@all){
 	    print "Deleting $TARGET/$el\n";
 	    unlink("$TARGET/$el");
