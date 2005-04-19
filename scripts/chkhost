@@ -24,7 +24,8 @@ if ("$test" != "" && `echo $test | grep "not found"` == "") then
     set test=`$test`
     echo "Globus HOSTNAME is $test"
     if ( `echo $test | grep $DMN` == "") then
-	echo "--> ERROR $test does not contain $DMN"
+	echo "--> Warning $test does not contain $DMN"
+	echo "    This may be wrong in case of dual NIC"
     endif
 endif
 
