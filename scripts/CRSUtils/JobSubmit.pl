@@ -13,7 +13,7 @@
 #
 # A cronjob should call this script regularly using
 # arguments
-#  % ScriptName [LibVersion] [NumEvt] [{|^|+|C}targetDataDisk]
+#  % ScriptName [LibVersion] [NumEvt] [{|^|+|C|Z}targetDataDisk]
 #     [CommaSeparatedChainOptions]  [Queue] [SpillMode]
 # or
 #  % ScriptName [LibVersion] [NumEvt] [Option]
@@ -197,7 +197,6 @@ if ($ThisYear == 2002){
 
     @USEQ    = (5,5,4);
     @SPILL   = (0,4,2);
-    #@SIZES   = (,,);
 
     # Default chain -- P2005 does not include Corr4 but Corr3
     $DCHAIN{"AuAu"}           = "P2005,svt_daq,svtD,EST,pmdRaw,Xi2,V02,Kink2,CMuDst,OShortR";
@@ -268,7 +267,8 @@ if ($PHYSTP2 != 0){ $COND .= " || $PHYSTP2";}
 if ($TARGET !~ m/^\d+$/){
     $target = $TARGET;
     $target =~ s/^\+//;
-    $target =~ s/^C//;
+    $target =~ s/^C//;   # BEWARE !! hack here to check disk presence
+    $target =~ s/^Z//;
     $target =~ s/^\^//;
     chomp($space = `/bin/df -k $target`);
     $space =~ m/(.* )(\d+)(%.*)/;
@@ -619,6 +619,76 @@ if( $TARGET =~ m/^\// || $TARGET =~ m/\^\// ){
 	#print "$SELF :: There are no slots available\n";
     }
 
+} elsif ($TARGET =~ m/(Z\/)(.*)/ ) {
+    #
+    # eZTree processing
+    #
+    # Overwrite queue if necessary
+
+    my($ID)=1;
+    my(%Cond);
+    $Cond{"XStatus$ID"} = 0;
+
+    # ezTree chain
+    $CHAIN   = "pp2004,ITTF,hitfilt,ezTree,-trg,-Sti,-Ftpc,-SvtD,-fcf,-Corr4";
+
+    $USEQ[0] = $tmpUQ if ( defined($tmpUQ) );
+    $SPILL[0]= $tmpSP if ( defined($tmpSP) );
+
+    # Default mode is submit. Target is a path
+    # get the number of possible jobs per queue.
+    #print "$SELF :: Using $USEQ[1] $SPILL[1]\n";
+    $TOT = CRSQ_getcnt($USEQ[0],$SPILL[0],$PAT,1);
+    $TOT = 1 if ($DEBUG);
+
+    $time = localtime();
+    if ($TOT > 0 && ! -e $LOCKF){
+	open(FL,">$LOCKF");
+	close(FL);
+	#print "$SELF :: We need to submit $TOT jobs\n";
+
+	# Check $TARGET for sub-mode
+	# If $TARGET starts with a ^, take only the top, otherwise
+	# go into the 'crawling down the list' mode. We will start
+	# with the second mode (gives an idea of how often we have
+	# a dead time process earlier runs).
+
+	if( ($obj = rdaq_open_odatabase()) ){
+	    if( substr($TARGET,0,1) eq "Z" ){
+		# Simple with a perl module isn't it.
+		$TARGET=~ s/Z\//\//;
+		@files = rdaq_get_orecords($obj,\%Cond,$TOT,$COND);
+	    } else {
+		# Cannot do this
+		print "$SELF :: Failed. Wrong syntax\n";
+	    }
+
+
+
+	    if($#files != -1){
+		print "$SELF :: Checking ".($#files+1)." jobs\n";
+		undef(@OKFILES);             # will be filled by Submit
+		undef(@SKIPPED);
+		foreach $file (@files){
+		    #print "$SELF :: HW : $file\n";
+		    sleep($SLEEPT) if &Submit(1,$USEQ[0],$SPILL[0],
+					      $file,$CHAIN,"eZTree");
+		    $MAXCNT--;
+		    last if ($MAXCNT == 0);
+		}
+		rdaq_set_xstatus($obj,$ID,1,@OKFILES);  # mark submitted
+		rdaq_set_xstatus($obj,$ID,4,@SKIPPED);  # mark skipped
+	    } else {
+		# there is nothing to submit
+		print "$SELF :: There is nothing to submit on $time\n";
+	    }
+	    rdaq_close_odatabase($obj);
+	}
+	if(-e $LOCKF){  unlink($LOCKF);}
+    #} else {
+	#print "$SELF :: There are no slots available\n";
+    }
+
 
 
 } elsif ($TARGET == 1) {
@@ -629,7 +699,6 @@ if( $TARGET =~ m/^\// || $TARGET =~ m/\^\// ){
     # the process since the possibility to have a job killed while
     # a lock file was opened is non null.
     if(-e $LOCKF){ unlink($LOCKF);}
-
 
 
 } else {
@@ -687,7 +756,8 @@ sub Submit
 		"No chain options declared. No default for [$coll] either.\n";
 	    return 0;
 	}
-    }
+    } 
+
     if($mode == 2){
 	# This is the calibration specific mode
 	$tags  = "laser";        # **** this is cheap and dirty ****
@@ -756,6 +826,7 @@ sub Submit
 
 
     # Last element will always be the Status
+    # Even in ezTree mode or else, this should remain
     if($items[$#items] != 0){
 	print "$SELF :: Found status = $items[$#items] (??)\n";
 	return;
