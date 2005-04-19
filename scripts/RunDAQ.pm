@@ -101,7 +101,8 @@
 # 13 | EntryDate   | timestamp(14)       | YES  |     | NULL    |       |
 # 14 | DiskLoc     | int(11)             | YES  |     | 0       |       |
 # 15 | Status      | int(11)             | YES  |     | 0       |       |
-# 16 | Oper        | int(11)             | YES  |     | 0       |       |
+# 16 | XStatus1    | int(11)             | YES  |     | 0       |       | --> This one is reserved for ezTree
+#      ... as many Status as needed for pre-passes
 #    +-------------+---------------------+------+-----+---------+-------+
 #
 #
@@ -129,7 +130,7 @@ require Exporter;
 
 	    rdaq_get_files rdaq_get_ffiles rdaq_get_orecords
 	    rdaq_set_files rdaq_set_files_where
-	    rdaq_set_operation rdaq_set_operation_where
+	    rdaq_set_xstatus rdaq_set_xstatus_where
 
 	    rdaq_file2hpss rdaq_mask2string rdaq_status_string
 	    rdaq_bits2string rdaq_trgs2string rdaq_ftype2string
@@ -909,16 +910,16 @@ sub rdaq_set_files_where
     return &__set_files_where($obj,"Status",$status,$stscond,@files);
 }
 
-# Set operation flag
-sub rdaq_set_operation
+# Set Xstatus flag
+sub rdaq_set_xstatus
 {
-    my($obj,$opflag,@files)=@_;
-    return &rdaq_set_operation_where($obj,$opflag,-1,@files);
+    my($obj,$id,$status,@files)=@_;
+    return &rdaq_set_xstatus_where($obj,$id,$status,-1,@files);
 }
-sub rdaq_set_operation_where
+sub rdaq_set_xstatus_where
 {
-    my($obj,$opflag,$stscond,@files)=@_;
-    return &__set_files_where($obj,"Oper",$opflag,$stscond,@files);
+    my($obj,$id,$status,$stscond,@files)=@_;
+    return &__set_files_where($obj,"XStatus$id",$status,$stscond,@files);
 }
 
 
