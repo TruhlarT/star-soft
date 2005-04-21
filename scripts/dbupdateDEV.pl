@@ -698,6 +698,10 @@ foreach  $eachOutNDir (@OUT_DIR) {
     } elsif ($EvTp eq "auau_minbias") {
        $EvGen = "hijing";
        $EvType = "auau_minbias";
+ 
+   } elsif ($EvTp eq "cucu200_minbias") {
+       $EvGen = "hijing";
+       $EvType = "cucu_minbias";
 
       } else {
        $EvGen = "daq";
@@ -742,6 +746,19 @@ foreach  $eachOutNDir (@OUT_DIR) {
      elsif($EvTp eq "AuAu_prodLow") {
         $EvReq = 100;
       }
+
+     elsif($EvTp eq "CuCu200_MinBias") {
+        $EvReq = 200;
+      }
+     elsif($EvTp eq "CuCu200_HighTower") {
+        $EvReq = 200;
+      }
+     elsif($EvTp eq "CuCu62_MinBias") {
+        $EvReq = 200;
+      }
+     elsif($EvTp eq "CuCu22_MinBias") {
+        $EvReq = 200;
+      }
 #       else {
 #      @prt = split(/\./,$bsname);
 #      $evR = $prt[1];
@@ -770,7 +787,9 @@ foreach  $eachOutNDir (@OUT_DIR) {
      elsif($EvTp eq "auau_minbias") {          
          $EvReq = 100;
  }
-     
+     elsif($EvTp eq "cucu_minbias") {          
+         $EvReq = 200;
+ }     
       if( $bsname =~ /hc_highdensity/) {
       $lgFile = $eachOutNDir ."/" . $bsname ."16_evts.log" ;
       }elsif( $bsname =~ /hc_lowdensity/) {
