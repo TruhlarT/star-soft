@@ -3,7 +3,7 @@ TDataSet *CreateTable() {
   y2005b();
   TObjectSet *geom = 0;
   if (gGeoManager) {
-    geom = new TObjectSet("Geometry",gGeoManager);
+    geom = new TObjectSet("Geometry",gGeoManager,kFALSE);
     geom->SetTitle("y2005b");
   }
   return (TDataSet *) geom;
