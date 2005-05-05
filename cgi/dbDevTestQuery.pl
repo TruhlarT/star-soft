@@ -1,8 +1,11 @@
 #!/usr/bin/env perl 
 #
-# $Id: dbDevTestQuery.pl,v 1.15 2004/12/20 20:56:35 didenko Exp $
+# $Id: dbDevTestQuery.pl,v 1.16 2005/05/05 21:21:31 didenko Exp $
 #
 # $Log: dbDevTestQuery.pl,v $
+# Revision 1.16  2005/05/05 21:21:31  didenko
+# updated for CuCu data
+#
 # Revision 1.15  2004/12/20 20:56:35  didenko
 # updated for SL3 platform
 #
@@ -78,6 +81,10 @@ my @prod_set = (
                 "daq_sl302/year_2004/AuAu_prodHigh",
                 "daq_sl302/year_2004/AuAu_prodLow",
                 "daq_sl302/year_2004/prodPP",
+                "daq_sl302/year_2005/CuCu200_HighTower",
+                "daq_sl302/year_2005/CuCu200_MinBias",
+                "daq_sl302/year_2005/CuCu62_MinBias",
+                "daq_sl302/year_2005/CuCu22_MinBias",
 		);
 
 my @sets_name;
