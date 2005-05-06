@@ -14,7 +14,7 @@ use CGI;
 use Mysql;
 use Class::Struct;
 
- require "/afs/rhic/star/packages/scripts/dbCpProdSetup.pl";
+ require "/afs/rhic/star/packages/scripts/dbProdSetup.pl";
 
 my ($query) = @_;
 
@@ -94,7 +94,7 @@ my $nnode = 0;
  if( $ldate eq $hdate) {
    $thisday =  $hdate ;
 
- $sql="SELECT  nodeName, crashedJobs, abortedJobs, stagingFailed, doneJobs, fileNotFound, queuingFailed transferFailed, msgFailed, dbFailed from $crsStatusT where mdate = '$thisday'" ;
+ $sql="SELECT  nodeName, crashedJobs, abortedJobs, stagingFailed, doneJobs, fileNotFound, queuingFailed, transferFailed, msgFailed, dbFailed from $crsStatusT where mdate = '$thisday'" ;
  }else{
  
  $sql="SELECT  nodeName, crashedJobs, abortedJobs, stagingFailed, doneJobs, fileNotFound, queuingFailed, transferFailed, msgFailed, dbFailed from $crsStatusT where mdate >= '$ldate' and mdate <= '$hdate' " ;
@@ -172,10 +172,10 @@ my %NodeSumDbFa = ();
 
   }else{
 
-      $nodeCount[0] = $NodeSumCr{$dnode};
-      $nodeCount[1] = $NodeSumAb{$dnode};
-      $nodeCount[2] = $NodeSumSt{$dnode}; 
-      $nodeCount[3] = $NodeSumDn{$dnode};       
+      $nodeCount[0] = $NodeSumDn{$dnode};
+      $nodeCount[1] = $NodeSumCr{$dnode};
+      $nodeCount[2] = $NodeSumAb{$dnode};
+      $nodeCount[3] = $NodeSumSt{$dnode};        
       $nodeCount[4] = $NodeSumFNF{$dnode};
       $nodeCount[5] = $NodeSumQuFa{$dnode};
       $nodeCount[6] = $NodeSumTrFa{$dnode};
@@ -183,10 +183,10 @@ my %NodeSumDbFa = ();
       $nodeCount[8] = $NodeSumDbFa{$dnode};
 
      
-      $TotCrCount += $nodeCount[0];
-      $TotAbCount += $nodeCount[1];
-      $TotStCount += $nodeCount[2];
-      $TotDnCount += $nodeCount[3];
+      $TotDnCount += $nodeCount[0];
+      $TotCrCount += $nodeCount[1];
+      $TotAbCount += $nodeCount[2];
+      $TotStCount += $nodeCount[3];
       $TotFNFCount += $nodeCount[4];
       $TotQuFaCount += $nodeCount[5];
       $TotTrFaCount += $nodeCount[6];
@@ -202,7 +202,7 @@ END
 print <<END;
 <td>$nodeCount[$ii]</td>
 END
- }elsif($ii == 3 && $nodeCount[3] != 0 ) {
+ }elsif($ii == 0 && $nodeCount[0] != 0 ) {
 print <<END;
 <td bgcolor=lightgreen>$nodeCount[$ii]</td>
 END
@@ -235,10 +235,10 @@ print <<END;
  <TABLE ALIGN=CENTER BORDER=5 CELLSPACING=1 CELLPADDING=2 >
  <TR>
  <TD ALIGN=CENTER WIDTH= 220 HEIGHT=80><B>Node ID </B></TD>
+ <TD ALIGN=CENTER WIDTH= 100  HEIGHT=80><B>Number of Jobs <br>Done</B></TD>
  <TD ALIGN=CENTER WIDTH= 100  HEIGHT=80><B>Number of Jobs crashed</B></TD>
  <TD ALIGN=CENTER WIDTH= 100  HEIGHT=80><B>Number of Jobs aborted</B></TD>
  <TD ALIGN=CENTER WIDTH= 100  HEIGHT=80><B>Number of Jobs with staging failed</B></TD>
- <TD ALIGN=CENTER WIDTH= 100  HEIGHT=80><B>Number of Jobs <br>Done</B></TD>
  <TD ALIGN=CENTER WIDTH= 100  HEIGHT=80><B>Number of Jobs <br>with file notfound</B></TD>
  <TD ALIGN=CENTER WIDTH= 100  HEIGHT=80><B>Number of Jobs <br>with queuing failed</B></TD> 
  <TD ALIGN=CENTER WIDTH= 100  HEIGHT=80><B>Number of Jobs <br>with transfer failed</B></TD> 
@@ -257,10 +257,10 @@ END
 print <<END;
 <TR ALIGN=CENTER bgcolor=lightblue>
 <td>Total</td>
+<td>$TotDnCount</td>
 <td>$TotCrCount</td>
 <td>$TotAbCount</td>
 <td>$TotStCount</td>
-<td>$TotDnCount</td>
 <td>$TotFNFCount</td>
 <td>$TotQuFaCount</td>
 <td>$TotTrFaCount</td>
