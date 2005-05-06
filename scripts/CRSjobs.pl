@@ -9,7 +9,7 @@
 
 use Mysql;
 
- require "/afs/rhic.bnl.gov/star/packages/cgi/dbCpProdSetup.pl";
+ require "/afs/rhic/star/packages/scripts/dbProdSetup.pl";
 
 my @maifile;
 my $mail_line;
@@ -66,19 +66,18 @@ my $today;
 
 ($sec,$min,$hour,$mday,$mon) = localtime;
 
-my $year = "2004";
+my $year = "2005";
    $mon++;
 if( $mon < 10) { $mon = '0'.$mon };
 if( $mday < 10) { $mday = '0'.$mday };
 
-
  $thisday = $year."-".$mon."-".$mday; 
-# $thisday = "2004-06-01";
-# $today = $thisday;
- print $thisday, "\n";
+ $today = $thisday;
+# print $thisday, "\n";
 $outname = "mail" . "_" .$thisday . "_" . "out";
 
  $outfile = "/star/u/starreco/" . $outname;
+
 
  print $outfile, "\n";
 
@@ -195,7 +194,7 @@ for ($ll = 0; $ll < scalar(@nodeList); $ll++) {
    }      
  
      if( $dbnode eq "none" and $dbDate eq "none" ) {
-#   print "Filling new entries  ",$thisday,"  %  ",$mynode,"  %  ",$nodeCrCount{$mynode}, "  %  ",$nodeAbCount{$mynode}, "  %  ",$nodeStCount{$mynode}, "  %  ",$nodeDnCount{$mynode}, "  %  ",$nodeFNFCount{$mynode},"  %  ", $nodeQuFaCount{$mynode}, "\n";
+   print "Filling new entries  ",$thisday,"  %  ",$mynode,"  %  ",$nodeCrCount{$mynode}, "  %  ",$nodeAbCount{$mynode}, "  %  ",$nodeStCount{$mynode}, "  %  ",$nodeDnCount{$mynode}, "  %  ",$nodeFNFCount{$mynode},"  %  ", $nodeQuFaCount{$mynode}, "\n";
 
   &fillTable();
      }else{
