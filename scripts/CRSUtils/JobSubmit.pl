@@ -628,6 +628,7 @@ if( $TARGET =~ m/^\// || $TARGET =~ m/\^\// ){
     my($ID)=1;
     my(%Cond);
     $Cond{"XStatus$ID"} = 0;
+    $Cond{"Status"}     = 0;
 
     # ezTree chain
     $CHAIN   = "pp2004,ITTF,hitfilt,ezTree,-trg,-Sti,-Ftpc,-SvtD,-fcf,-Corr4";
