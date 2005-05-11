@@ -10,6 +10,7 @@
 # Hidden assumption is that  if a file named FC_$disk.txt or
 # FC_$disk.html exists in $OUTD, a reference to it will appear.
 #
+# if dfpanfs exits, takes advantage of it.
 #
 
 
@@ -49,6 +50,12 @@ $TD  = "<TD BGCOLOR=\"black\" align=\"center\"><FONT FACE=\"Arial, Helvetica\"><
 $ETD = "</FONT></B></FONT></TD>\n\t";
 
 
+# Re-define DF command to be the generic dfpanfs command
+$DF = "/bin/df -k";
+$0  =~ m/(.*\/)(.*)/;
+if ( -e $1."dfpanfs"){
+    $DF = $1."dfpanfs";
+}
 
 
 
@@ -66,7 +73,7 @@ foreach $disk (@DISKS){
     }
 
 
-    chomp($res = `/bin/df -k $disk | /bin/grep % | /bin/grep '/'`);
+    chomp($res = `$DF $disk | /bin/grep % | /bin/grep '/'`);
     $res   =~ s/^\s*(.*?)\s*$/$1/;
     $res   =~ s/\s+/ /g;
     @items =  split(" ",$res);
