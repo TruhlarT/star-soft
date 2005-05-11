@@ -5,6 +5,15 @@
 # handles df and PANFS StatFS 
 # Requires pan_statfs program.
 #
+# Note that the format MUST be compatible with the DF command
+# so this command could be used as a replacement of /bin/df.
+#
+# Note that data05 for example will be sorted out properly in terms
+# of space as expected. Those multi-volume disk are quite bothering 
+# for production automation but OK again with dfpanfs as it provides
+# sub-volume view rather than the "volume" = shelf total capacity view .
+#
+#
 
 $EXEC   = $ENV{OPTSTAR}."/bin/pan_statfs";
 
