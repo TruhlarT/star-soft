@@ -447,7 +447,7 @@ sub CheckLockFile
     # Checks if another one is running by using a lock file trick
     my ($fllock)="/tmp/ScanLog$ProdTag.lock";
     if ( -e $fllock){
-	my($mtime)=5400;      # 3 hours
+	my($mtime)=10800;      # 3 hours
 	my(@info)=stat($fllock);
 	if ( (time()-$info[9] ) > $mtime){
 	    # 3 hours
