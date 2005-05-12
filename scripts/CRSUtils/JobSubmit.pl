@@ -68,6 +68,7 @@
 #              jobs in //.
 #
 # Jan 2005     Added HPSS output mode
+# May 2005     Added disk range syntax support (delegation to bfcca)
 #
 
 use lib "/afs/rhic.bnl.gov/star/packages/scripts";
@@ -187,8 +188,8 @@ if ($ThisYear == 2002){
     $NUMEVT  = 100;
     #$MAXEVT  = 250;
 
-    $TARGET  = "/star/data08/reco";   # This is ONLY a default value.
-                                      # Overwritten by ARGV (see crontab)
+    $TARGET  = "/star/data+08-09/reco";   # This is ONLY a default value.
+                                          # Overwritten by ARGV (see crontab)
     $LASERTP =  4;
     $PHYSTP  =  1;
     $PHYSTP2 =  6;    # just comment them if you want them disabled
@@ -209,6 +210,11 @@ if ($ThisYear == 2002){
     $SCALIB{"AuAu"}           = "OptLaser";
     $SCALIB{"PPPP"}           = "OptLaser";
     $SCALIB{"CuCu"}           = "OptLaser";
+
+    # ezTree production requires some conditions. We set them here
+    $ID                   = 1
+    $EZTREE{"Status"}     = 0;
+    $EZTREE{"XStatus$ID"} = rdaq_string2trgs("ppProductionMinBias");
 
 
 } else {
@@ -270,14 +276,41 @@ if ($TARGET !~ m/^\d+$/){
     $target =~ s/^C//;   # BEWARE !! hack here to check disk presence
     $target =~ s/^Z//;
     $target =~ s/^\^//;
-    chomp($space = `/bin/df -k $target`);
-    $space =~ m/(.* )(\d+)(%.*)/;
-    $space =  $2;
-    if ($space >= 99){
-	print "$SELF :: Target disk $target is $space % full (baling out on ".localtime().")\n";
+
+    if ( $target =~ m/(.*)(\+)(\d+)(-)(\d+)(.*)/){
+	$disk= $1;
+	$low = $3;
+	$high= $5;
+	$last= $6;
+    } else {
+	$disk= $target;
+	$low = $high = 0;
+	$last= "";
+    }
+
+    $OK = 0==1;
+    for( $i=$low ; $i <= $high ; $i++){
+	if ( $i != 0){  $ltarget = sprintf("%s%2.2d%s",$disk,$i,$last);}
+	else         {  $ltarget = $target;}
+
+	#print "Checking $ltarget\n";
+	chomp($space = `/bin/df -k $ltarget`);
+	$space =~ m/(.* )(\d+)(%.*)/;
+	$space =  $2;
+	if ($space >= 99){
+	    print "$SELF :: Target disk $ltarget is $space % full\n";
+	} else {
+	    $OK = 1==1;
+	    last
+	}
+    }
+    
+    if ( ! $OK){
+	print "$SELF :: Target disk $target is full (baling out on ".localtime().")\n";
 	exit;
     }
 }
+
 
 
 # Intermediate variable
@@ -625,10 +658,9 @@ if( $TARGET =~ m/^\// || $TARGET =~ m/\^\// ){
     #
     # Overwrite queue if necessary
 
-    my($ID)=1;
     my(%Cond);
-    $Cond{"XStatus$ID"} = 0;
-    $Cond{"Status"}     = 0;
+
+    foreach $key (keys %EZTREE){ $Cond{$key} = $EZTREE{$key};}
 
     # ezTree chain
     $CHAIN   = "pp2004,ITTF,hitfilt,ezTree,-trg,-Sti,-Ftpc,-SvtD,-fcf,-Corr4";
