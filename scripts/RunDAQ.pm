@@ -38,6 +38,7 @@
 #      rdaq_bits2string             Returns a string from a bitfield.
 #      rdaq_mask2string             Returns detector set from detector BitMask.
 #      rdaq_trgs2string             Return trigger Setup name
+#      rdaq_string2trgs             Return trigger Setup Index from its name
 #      rdaq_ftype2string            Return file type/flavor name
 #      rdaq_toggle_debug            Turn ON/OFF SELECT of raw data.
 #      rdaq_set_dlevel              Set debug level
@@ -100,8 +101,10 @@
 # 12 | ftype       | int(11)             | YES  |     | 0       |       |
 # 13 | EntryDate   | timestamp(14)       | YES  |     | NULL    |       |
 # 14 | DiskLoc     | int(11)             | YES  |     | 0       |       |
-# 15 | Status      | int(11)             | YES  |     | 0       |       |
-# 16 | XStatus1    | int(11)             | YES  |     | 0       |       | --> This one is reserved for ezTree
+# 15 | XStatus1    | int(11)             | YES  |     | 0       |       | --> This one is reserved for ezTree
+# 16 | XStatus2    | int(11)             | YES  |     | 0       |       | --> unused 
+# 17 | Status      | int(11)             | YES  |     | 0       |       |
+
 #      ... as many Status as needed for pre-passes
 #    +-------------+---------------------+------+-----+---------+-------+
 #
@@ -133,7 +136,8 @@ require Exporter;
 	    rdaq_set_xstatus rdaq_set_xstatus_where
 
 	    rdaq_file2hpss rdaq_mask2string rdaq_status_string
-	    rdaq_bits2string rdaq_trgs2string rdaq_ftype2string
+	    rdaq_bits2string rdaq_trgs2string rdaq_string2trgs 
+	    rdaq_ftype2string
 	    rdaq_toggle_debug rdaq_set_dlevel rdaq_scaleToString
 
 	    rdaq_set_files_where rdaq_update_entries
@@ -1102,18 +1106,28 @@ sub Record_n_Fetch
 
 sub GetRecord
 {
-    my($tbl,$el)=@_;
+    my($tbl,$el,$fld)=@_;
     my($obj,$sth,$val,$rv);
 
     if($el eq ""){  return 0;}
     if($el eq 0){   return 0;}
+    if( ! defined($fld) ){
+	$fld = "Label";
+	$sel = "id"; 
+    } elsif ( $fld eq "ID"){
+	$fld = "id";
+	$sel = "Label";
+    } else {
+	$fld = "Label";
+	$sel = "id";
+    }
 
     $rv = 0;
     if( ! defined($rv = $RFETCHED{"$tbl-$el"}) ){
 	$obj = rdaq_open_odatabase();
 	if(!$obj){ return $rv;}
-	$sth = $obj->prepare("SELECT $tbl.Label FROM $tbl ".
-			      "WHERE $tbl.id=?");
+	$sth = $obj->prepare("SELECT $tbl.$fld FROM $tbl ".
+			      "WHERE $tbl.sel=?");
 	if($sth){
 	    $sth->execute($el);
 	    if( defined($val = $sth->fetchrow()) ){
@@ -1286,6 +1300,19 @@ sub rdaq_trgs2string
     $rv = &GetRecord("FOTriggerSetup",$val);
     if($rv eq 0){
 	return "unknown";
+    } else {
+	$rv;
+    }
+}
+
+
+sub rdaq_string2trgs
+{
+    my($val)=@_;
+
+    $rv = &GetRecord("FOTriggerSetup",$val,"ID");
+    if($rv eq 0){
+	return 0;
     } else {
 	$rv;
     }
