@@ -33,9 +33,8 @@ use DBI;
 #use File::stat;
 
 
-my $ProdTag = $ARGV[0] || "P01he";
-my $Kind    = "daq";
-   $Kind    = $ARGV[2] if (defined($ARGV[2]));
+my $ProdTag = defined($ARGV[0])?$ARGV[0]:"P01he";
+my $Kind    = defined($ARGV[2])?$ARGV[2]:"daq";
 
 &CheckLockFile();
 
