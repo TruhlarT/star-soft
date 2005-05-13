@@ -196,7 +196,7 @@ if ( $CONDOR_CRS  ){
     $STDERR = $ENV{"STD_ERR"}.".$$";
 
     if ($DEBUG){
-	print 
+	print
 	    "Attempting to steal STDOUT $ISTDOUT as $STDOUT\n",
 	    "Attempting to steal STDERR $ISTDERR as $STDERR\n";
     }
@@ -521,7 +521,7 @@ $RPROG = "root4star";
 if ( defined($ENV{"CRS_JOB_NAME"}) ){
     if ( $ENV{"CRS_JOB_NAME"} =~ /test_bfcc/ ){
 	$RPROG = "echo";
-    } 
+    }
 }
 
 if ( ! open(FO,">$PWD/$JOB_ID.csh") ){
