@@ -148,7 +148,7 @@ if ($UPDATE == 0){
     # directory if files are moved ...
     $obj = rdaq_open_odatabase();
     if($obj){
-	chomp(@all = `cd $TARGET ; /usr/bin/find $LIB -name '*.event.root'`);
+	chomp(@all = `cd $TARGET ; /usr/bin/find $LIB -type f -name '*.event.root'`);
 	foreach $el (@all){
 	    $el =~ m/(.*\/)(.*)/;
 	    ($tree,$el) = ($1,$2);
