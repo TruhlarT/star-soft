@@ -40,6 +40,7 @@
 #      rdaq_trgs2string             Return trigger Setup name
 #      rdaq_string2trgs             Return trigger Setup Index from its name
 #      rdaq_ftype2string            Return file type/flavor name
+#      rdaq_string2ftyype           Return file type/flavor Index from its name
 #      rdaq_toggle_debug            Turn ON/OFF SELECT of raw data.
 #      rdaq_set_dlevel              Set debug level
 #
@@ -108,6 +109,8 @@
 #      ... as many Status as needed for pre-passes
 #    +-------------+---------------------+------+-----+---------+-------+
 #
+# BEWARE: Adding a column implies code changes where a tag 'MOD HERE'
+# can be found.
 #
 #
 #
@@ -136,8 +139,9 @@ require Exporter;
 	    rdaq_set_xstatus rdaq_set_xstatus_where
 
 	    rdaq_file2hpss rdaq_mask2string rdaq_status_string
-	    rdaq_bits2string rdaq_trgs2string rdaq_string2trgs 
-	    rdaq_ftype2string
+	    rdaq_bits2string 
+	    rdaq_trgs2string  rdaq_string2trgs 
+	    rdaq_ftype2string rdaq_string2ftype
 	    rdaq_toggle_debug rdaq_set_dlevel rdaq_scaleToString
 
 	    rdaq_set_files_where rdaq_update_entries
@@ -226,7 +230,7 @@ sub rdaq_add_entry
 
     if(!$obj){ return 0;}
     $sth = $obj->prepare("INSERT IGNORE INTO $dbtable ".
-			 "VALUES(?,?,?,?,?,?,?,?,?,?,?,?,?,NOW()+0,0,0)");
+			 "VALUES(?,?,?,?,?,?,?,?,?,?,?,?,?,NOW()+0,0,0,0,0)"); # MOD HERE
     $sth->execute(@values);
     $sth->finish();
     1;
@@ -245,7 +249,7 @@ sub rdaq_add_entries
 
     if($#records != -1){
 	$sth = $obj->prepare("INSERT INTO $dbtable ".
-			     "VALUES(?,?,?,?,?,?,?,?,?,?,?,?,?,NOW()+0,0,0,0)");
+			     "VALUES(?,?,?,?,?,?,?,?,?,?,?,?,?,NOW()+0,0,0,0,0)"); # MOD HERE
 	if($sth){
 	    foreach $line (@records){
 		@values = split(" ",$line);
@@ -651,7 +655,7 @@ sub rdaq_hack
     } else {
 	push(@res,0);
     }
-    #print "Returing from rdaq_hack() with ".($#res+1)." values\n" if($DEBUG);
+    #print "Returning from rdaq_hack() with ".($#res+1)." values\n" if($DEBUG);
     return join(" ",@res);
 }
 
@@ -1122,12 +1126,13 @@ sub GetRecord
 	$sel = "id";
     }
 
+
     $rv = 0;
     if( ! defined($rv = $RFETCHED{"$tbl-$el"}) ){
 	$obj = rdaq_open_odatabase();
 	if(!$obj){ return $rv;}
 	$sth = $obj->prepare("SELECT $tbl.$fld FROM $tbl ".
-			      "WHERE $tbl.sel=?");
+			      "WHERE $tbl.$sel=?");
 	if($sth){
 	    $sth->execute($el);
 	    if( defined($val = $sth->fetchrow()) ){
@@ -1329,6 +1334,19 @@ sub rdaq_ftype2string
 	$rv;
     }
 }
+
+sub rdaq_string2ftype
+{
+    my($val)=@_;
+
+    $rv = &GetRecord("FOFileType",$val,"ID");
+    if($rv eq 0){
+	return 0;
+    } else {
+	$rv;
+    }
+}
+
 
 sub rdaq_set_dlevel
 {
