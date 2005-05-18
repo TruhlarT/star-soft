@@ -190,11 +190,15 @@ if ($ThisYear == 2002){
 
     $TARGET  = "/star/data+08-09/reco";   # This is ONLY a default value.
                                           # Overwritten by ARGV (see crontab)
-    $LASERTP =  4;
-    $PHYSTP  =  1;
-    $PHYSTP2 =  6;    # just comment them if you want them disabled
-    $EXPRESS =  0;
-    $ZEROBIAS=  7;
+
+    # Those were made automatically guessed in 2005. 
+    # Previous years hardcoded values could remain as-is (will not change 
+    # as tables are already filled)
+    $LASERTP =  rdaq_string2ftype("laser");
+    $PHYSTP  =  rdaq_string2ftype("physics");
+    $PHYSTP2 =  rdaq_string2ftype("physics_adc"); # just comment them if you want them disabled
+    $EXPRESS =  rdaq_string2ftype("express");
+    $ZEROBIAS=  rdaq_string2ftype("zerobias");
 
     @USEQ    = (5,5,4);
     @SPILL   = (0,4,2);
@@ -211,10 +215,13 @@ if ($ThisYear == 2002){
     $SCALIB{"PPPP"}           = "OptLaser";
     $SCALIB{"CuCu"}           = "OptLaser";
 
-    # ezTree production requires some conditions. We set them here
-    $ID                   = 1
+    # ezTree production requires some conditions. We set them here.
+    $ID                   = 1;
     $EZTREE{"Status"}     = 0;
-    $EZTREE{"XStatus$ID"} = rdaq_string2trgs("ppProductionMinBias");
+    if ( ($tmp = rdaq_string2trgs("ppProductionMinBias")) != 0){
+	# Self adapting
+	$EZTREE{"XStatus$ID"} = $tmp;
+    }
 
 
 } else {
@@ -248,7 +255,7 @@ $PRIORITY= 100;              # default queue priority
 $SLEEPT  = 10;               # sleep time between submit
 $MAXCNT  = 20;               # max job to send in a pass
 $RATIO   = 2;                # time drop down for mode + (2=twice faster)
-
+$MAXFILL = 97;               # this number matches bfcca
 
 # Check if the quit file is present
 if ( -e $QUITF){
@@ -297,7 +304,7 @@ if ($TARGET !~ m/^\d+$/){
 	chomp($space = `/bin/df -k $ltarget`);
 	$space =~ m/(.* )(\d+)(%.*)/;
 	$space =  $2;
-	if ($space >= 99){
+	if ($space >= $MAXFILL ){
 	    print "$SELF :: Target disk $ltarget is $space % full\n";
 	} else {
 	    $OK = 1==1;
@@ -660,7 +667,9 @@ if( $TARGET =~ m/^\// || $TARGET =~ m/\^\// ){
 
     my(%Cond);
 
-    foreach $key (keys %EZTREE){ $Cond{$key} = $EZTREE{$key};}
+    foreach $key (keys %EZTREE){ 
+	$Cond{$key} = $EZTREE{$key};
+    }
 
     # ezTree chain
     $CHAIN   = "pp2004,ITTF,hitfilt,ezTree,-trg,-Sti,-Ftpc,-SvtD,-fcf,-Corr4";
