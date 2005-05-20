@@ -103,7 +103,7 @@
 # 13 | EntryDate   | timestamp(14)       | YES  |     | NULL    |       |
 # 14 | DiskLoc     | int(11)             | YES  |     | 0       |       |
 # 15 | XStatus1    | int(11)             | YES  |     | 0       |       | --> This one is reserved for ezTree
-# 16 | XStatus2    | int(11)             | YES  |     | 0       |       | --> unused 
+# 16 | XStatus2    | int(11)             | YES  |     | 0       |       | --> unused for now
 # 17 | Status      | int(11)             | YES  |     | 0       |       |
 
 #      ... as many Status as needed for pre-passes
@@ -221,7 +221,8 @@ $THREAD1{"runNumber"}= "FOruns";
 
 #
 # Insert an element in the o-database.
-# We accept only one entry. INEFFICIENT.
+# We accept only one entry. INEFFICIENT but provided for backward
+# compatibility. Note the next method allowing for bundle inserts.
 #
 sub rdaq_add_entry
 {
@@ -275,8 +276,11 @@ sub rdaq_add_entries
 
 
 #
-# Update a few field. This routine serves whenever we add a column and
-# want to have a specific field updated. This has to be done manually.
+# Update a few field. This routine serves whenever we import a new information
+# in a column and want to have that specific field updated. 
+#
+# This has to usually be done manually but some programming would allow going
+# back in time and update all records. Possibly an expensive operation.
 #
 sub rdaq_update_entries
 {
@@ -310,7 +314,9 @@ sub rdaq_update_entries
 
 
 #
-# This method may be needed .
+# This method may be needed later.
+# FastOffline do not make use of it at all (when a record is in,
+# it is in forever).
 #
 sub rdaq_delete_entries
 {
@@ -362,7 +368,10 @@ sub rdaq_set_location
     return $sth->execute($val,$file);
 }
 
-# get the outpur directory location
+
+#
+# Get the output directory location
+#
 sub rdaq_get_location
 {
     my($obj,@values)=@_;
@@ -1147,7 +1156,8 @@ sub GetRecord
 }
 
 
-# BACKWARD Compatibility only
+# BACKWARD Compatibility only, this was replaced by bits2string()
+# DO NOT USE ANYMORE.
 sub rdaq_mask2string
 {
     my($val)=@_;
@@ -1271,6 +1281,11 @@ sub rdaq_status_string
     $str;
 }
 
+
+#
+# Converts a scale factor to a string following STAR production conventions
+# like "FullField", "HalfField" etc ...
+#
 sub rdaq_scaleToString
 {
     my($val)=@_;
@@ -1310,7 +1325,14 @@ sub rdaq_trgs2string
     }
 }
 
-
+#
+# This method returns a number based on a string value
+# For example, rdaq_string2trgs("ppProductionMinBias") would return 
+# the associated id number for that trigger setup name. These methods 
+# are used to make it easier for users to access those "dynamic" values
+# (first triggerSetup would get id 1, second id 2 etc ... so
+# depends on year not on a convention)
+#
 sub rdaq_string2trgs
 {
     my($val)=@_;
@@ -1335,6 +1357,14 @@ sub rdaq_ftype2string
     }
 }
 
+#
+# Like string2trgs, but returns the id for the file type.
+# File type is arbitrary and made from a parsing of the full
+# filename. They will be things like 'express', 'zerobias' 
+# etc ... Parsing allows for infinit combo without having to
+# worry of harcoded values. However, the FastOffline interface
+# would need alteration if any new "type" of files appear.
+#
 sub rdaq_string2ftype
 {
     my($val)=@_;
@@ -1356,7 +1386,7 @@ sub rdaq_set_dlevel
 
 
 #
-# Some utility / cut-n-paste
+# Some utility - Displays inforative message
 #
 sub	info_message
 {
