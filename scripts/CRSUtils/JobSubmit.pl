@@ -75,9 +75,11 @@ use lib "/afs/rhic.bnl.gov/star/packages/scripts";
 use RunDAQ;
 use CRSQueues;
 
-$ThisYear = 2005;
-$HPSS     = 1;                    # turn to 0 for UNIX staging
-
+$ThisYear = 2005;                 # Block to consider. Completely artificial
+                                  # and used to preserve older options in if
+                                  # block along with current option.
+$HPSS     = 1;                    # turn to 0 for UNIX staging only
+                                  # HPSS staging was requested for Run5
 
 # Self-sorted vars
 $SELF =  $0;
@@ -118,12 +120,23 @@ if ($ThisYear == 2002){
     @USEQ    = (4,4,2);      # queue to be used for regular mode, bypass and calib
     @SPILL   = (0,3,1);      # queue spill level for the 3 modes
 
+    #
     # Default production chains by species
+    #                           ^^^^^^^^^^
+    # Note that in 2002, the specie for p+p was ProtonProton and this changed
+    # later in PPPP. One has to be aware of the Specices and define the appropriate
+    # chains before FastOffline can submit AND accept any jobs. If a chain is missing,
+    # the jobs (files) will be ignored.
+    #
     $DCHAIN{"AuAu"}           = "P2001a";
     $DCHAIN{"ProtonProton"}   = "PP2001,fpd";
 
 
+    #
     # Default pre-pass calibration chains by species used in regular mode if defined
+    # pre-pass is any pass done with the SAME production job but done just before
+    # the data-cranking.
+    #
     $DCALIB{"AuAu"}           = "";   # Trash out default calib pass.
                                       # All done now ; was PreTpcT0
     $DCALIB{"ProtonProton"}   = "";   # PreLaser" no more interlayed laser,
@@ -216,6 +229,7 @@ if ($ThisYear == 2002){
     $SCALIB{"CuCu"}           = "OptLaser";
 
     # ezTree production requires some conditions. We set them here.
+    # ezTree uses the Xtended Status index 1. See table in RunDAQ.pm
     $ID                   = 1;
     $EZTREE{"Status"}     = 0;
     $EZTREE{"XStatus$ID"} = 0;
@@ -227,6 +241,8 @@ if ($ThisYear == 2002){
 
 
 } else {
+    # Well, at first you may get that message ... should tell you that
+    # you have to add some default values.
     print "$SELF :: Unknown Year $ThisYear\n";
     exit;
 }
@@ -244,6 +260,8 @@ $CHAIN   = shift(@ARGV) if ( @ARGV );
 $tmpUQ   = shift(@ARGV) if ( @ARGV );
 $tmpSP   = shift(@ARGV) if ( @ARGV );
 
+
+# DO NOT MODIFY THIS unless all STAR scripts have moved elsewhere
 $SPATH ="/afs/rhic.bnl.gov/star/packages/scripts";
 
 # if we wait 1 minute between submit, and our cron
@@ -286,6 +304,11 @@ if ($TARGET !~ m/^\d+$/){
     $target =~ s/^Z//;
     $target =~ s/^\^//;
 
+    #
+    # Support disk range and spanning. Syntax follows the same syntax
+    # than bfcca i.e. /star/data+XX-YY where XX and YY are numbers and
+    # the range will be defined as [XX,YY]
+    #
     if ( $target =~ m/(.*)(\+)(\d+)(-)(\d+)(.*)/){
 	$disk= $1;
 	$low = $3;
@@ -833,17 +856,20 @@ sub Submit
     }
 
     #
-    # Exclusions
+    # ATTENTION - Exclusions 
+    #
+    # Those are explained in the FastOffline documentation.
     #
     # This was added according to an Email I have sent to
     # the period coordinator list. Only Jeff Landgraff
-    # has answered saying we can skip the 'test' once.
+    # has answered saying we can skip the 'test' ones.
+    #
     if ( $file =~ /pedestal/){
 	print "$SELF :: Info : Skipping $file (name matching exclusion)\n";
 	push(@SKIPPED,$file);
 	return 0;
 
-    } elsif ( $trgrs eq "unknown" || $trgrn eq "unknown"){
+    } elsif ( $trgrs eq "unknown" || $trgsn eq "unknown"){
 	print "$SELF :: Info : Skipping $file has uknown setup or triggers sn=$trgsn ts=$trgrs\n";
 	return 0;
 
@@ -865,6 +891,10 @@ sub Submit
 		"but Year=$ThisYear not skipping it\n";
 	}
     }
+
+    # Note that skipping dets when tpc is not present is ONLY related to
+    # mode 1. While mode is weakly related to regular/calib/bypass, mode Z (ezTree)
+    # uses mode=1 and will therefore ACCEPT files with no tpc information in.
     if ( $dets ne "tpc" && $dets !~ m/\.tpc/){
 	if ($mode != 1){
 	    print "$SELF :: Info : detectors are [$dets] (not including tpc) skipping it\n";
@@ -1036,7 +1066,11 @@ __EOF__
 
 }
 
-
+#
+# This routine was written to randomize a file list.
+# Did not turn out to be usefull actually so ... but
+# left anyhow in case.
+#
 sub Scramble
 {
     my(@files)=@_;
