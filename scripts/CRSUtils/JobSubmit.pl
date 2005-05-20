@@ -191,8 +191,8 @@ if ($ThisYear == 2002){
     $TARGET  = "/star/data+08-09/reco";   # This is ONLY a default value.
                                           # Overwritten by ARGV (see crontab)
 
-    # Those were made automatically guessed in 2005. 
-    # Previous years hardcoded values could remain as-is (will not change 
+    # Those were made automatically guessed in 2005.
+    # Previous years hardcoded values could remain as-is (will not change
     # as tables are already filled)
     $LASERTP =  rdaq_string2ftype("laser");
     $PHYSTP  =  rdaq_string2ftype("physics");
@@ -201,7 +201,7 @@ if ($ThisYear == 2002){
     $ZEROBIAS=  rdaq_string2ftype("zerobias");
 
     @USEQ    = (5,5,4);
-    @SPILL   = (0,4,2);
+    @SPILL   = (1,4,2);
 
     # Default chain -- P2005 does not include Corr4 but Corr3
     $DCHAIN{"AuAu"}           = "P2005,svt_daq,svtD,EST,pmdRaw,Xi2,V02,Kink2,CMuDst,OShortR";
@@ -218,9 +218,11 @@ if ($ThisYear == 2002){
     # ezTree production requires some conditions. We set them here.
     $ID                   = 1;
     $EZTREE{"Status"}     = 0;
+    $EZTREE{"XStatus$ID"} = 0;
+
     if ( ($tmp = rdaq_string2trgs("ppProductionMinBias")) != 0){
-	# Self adapting
-	$EZTREE{"XStatus$ID"} = $tmp;
+    	# Self adapting
+    	$EZTREE{"TrgSetup"} = $tmp;
     }
 
 
@@ -311,7 +313,7 @@ if ($TARGET !~ m/^\d+$/){
 	    last
 	}
     }
-    
+
     if ( ! $OK){
 	print "$SELF :: Target disk $target is full (baling out on ".localtime().")\n";
 	exit;
@@ -346,10 +348,12 @@ $DEBUG = 0;
 
 
 # Now go ...
-if( $TARGET =~ m/^\// || $TARGET =~ m/\^\// ){
+if( $TARGET =~ m/^\// || $TARGET =~ m/^\^\// ){
     #
     # FAST OFFLINE regular mode
     #
+    print "$SELF :: FO regular mode\n";
+
     undef(@Xfiles);
     undef(@Files);
 
@@ -403,6 +407,8 @@ if( $TARGET =~ m/^\// || $TARGET =~ m/\^\// ){
 		$W = ($TOT-$num);
 		push(@Files,rdaq_get_ffiles($obj,0,$W*($THROTTLE?10:0),$COND));
 	    }
+
+	    print "$SELF :: Xfiles=$#Xfiles Files=$#Files $TARGET\n";
 
 	    #undef($files);
 	    for($ii=0; $ii<=1 ; $ii++){
@@ -461,14 +467,16 @@ if( $TARGET =~ m/^\// || $TARGET =~ m/\^\// ){
 
 
 
-} elsif ($TARGET =~ m/(\+)(.*)/ ) {
+} elsif ($TARGET =~ m/(^\+)(.*)/ ) {
     #
     # FAST OFFLINE BYPASS
     #
     # Copied from mode 0. Can be merged ...
     #
+    print "$SELF :: FO bypass $TARGET\n";
+
     $TARGET   = $2;
-    #print "$SELF :: Target is now $TARGET\n";
+    print "$SELF :: Target is now $TARGET\n";
 
     # Overwrite queue if necessary
     $USEQ[1] = $tmpUQ if ( defined($tmpUQ) );
@@ -597,7 +605,7 @@ if( $TARGET =~ m/^\// || $TARGET =~ m/\^\// ){
     }
 
 
-} elsif ($TARGET =~ m/(C\/)(.*)/ ) {
+} elsif ($TARGET =~ m/(^C\/)(.*)/ ) {
     #
     # AUTO-CALIBRATION MODE
     #
@@ -659,7 +667,7 @@ if( $TARGET =~ m/^\// || $TARGET =~ m/\^\// ){
 	#print "$SELF :: There are no slots available\n";
     }
 
-} elsif ($TARGET =~ m/(Z\/)(.*)/ ) {
+} elsif ($TARGET =~ m/(^Z\/)(.*)/ ) {
     #
     # eZTree processing
     #
@@ -667,7 +675,7 @@ if( $TARGET =~ m/^\// || $TARGET =~ m/\^\// ){
 
     my(%Cond);
 
-    foreach $key (keys %EZTREE){ 
+    foreach $key (keys %EZTREE){
 	$Cond{$key} = $EZTREE{$key};
     }
 
@@ -683,11 +691,13 @@ if( $TARGET =~ m/^\// || $TARGET =~ m/\^\// ){
     $TOT = CRSQ_getcnt($USEQ[0],$SPILL[0],$PAT,1);
     $TOT = 1 if ($DEBUG);
 
+    print "$SELF :: ezTree processing, checking $TOT\n";
+
     $time = localtime();
     if ($TOT > 0 && ! -e $LOCKF){
 	open(FL,">$LOCKF");
 	close(FL);
-	#print "$SELF :: We need to submit $TOT jobs\n";
+	print "$SELF :: We need to submit $TOT jobs\n";
 
 	# Check $TARGET for sub-mode
 	# If $TARGET starts with a ^, take only the top, otherwise
@@ -727,8 +737,8 @@ if( $TARGET =~ m/^\// || $TARGET =~ m/\^\// ){
 	    rdaq_close_odatabase($obj);
 	}
 	if(-e $LOCKF){  unlink($LOCKF);}
-    #} else {
-	#print "$SELF :: There are no slots available\n";
+    } else {
+	print "$SELF :: There are no slots available within range $USEQ[0] / $SPILL[0]\n";
     }
 
 
@@ -798,7 +808,7 @@ sub Submit
 		"No chain options declared. No default for [$coll] either.\n";
 	    return 0;
 	}
-    } 
+    }
 
     if($mode == 2){
 	# This is the calibration specific mode
