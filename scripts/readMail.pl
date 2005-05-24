@@ -93,6 +93,7 @@ my $SUBMIT="/usr/local/bin/crs_submit.pl";         # crs submit script
 my $PRIO=100;                                      # default job submit priority
 my $SFLAG=0;                                       # flag for job sub. Auto set
 my $SSUBM=1;                                       # set to 0 to disable submit
+my $MAXMBXSIZE=4194304;                            # 4 MB limit
 
 if( defined($ARGV[1]) ){  $SSUBM=$ARGV[1];}
 
@@ -107,9 +108,24 @@ if( $mday < 10) { $mday = '0'.$mday };
 
  $thisday = $year."-".$mon."-".$mday; 
 
-# This script also loses Email content. Not very good for
-# debugging purposes so ...
+
+# This script also loses Email content. 
+# Not very good for debugging purposes so ...
+if ( -e "mbox.piped"){
+    # If gets too big, move and delete old
+    my @info = stat("mbox.piped");
+    if ( $info[7] >= $MAXMBXSIZE){
+	unlink("mbox.piped.old") if ( -e "mbox.piped.old");
+	rename("mbox.piped","mbox.piped.old");
+    }
+}
+if ( ! -e "mbox.piped"){ 
+    open(FO,">mbox.piped"); 
+    print FO "Begin on ".localtime()."\n";
+    close(FO);
+}
 open(FO,">>mbox.piped");
+
 
 $outfile = "mail" . "_" .$thisday . "_" . "out"; 
 $QFLAG   = 1==1;
