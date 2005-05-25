@@ -53,7 +53,7 @@ do {
 	    }
 
 	    $begin = 0;
-	    $by    = 10000;
+	    $by    = 5000;
 	    if($run >= 0){
 		# fetch new records since that run number
 		my($count,$tot,$N);
@@ -71,7 +71,7 @@ do {
 
 		    # display info
 		    if ($#records != -1){
-			&Print("Fetched ".($#records+1)." records on $ctime, entered ");
+			&Print("Fetched ".($#records+1)." records on $ctime, ");
 
 			# record entries
 			$N = rdaq_add_entries($dbObj,@records);
