@@ -106,6 +106,9 @@ $THROTTLE = 2;
 # Do not change this value. Set by year, this is the default.
 $TREEMODE = 0;
 
+#### SET THIS TO 1 TO DEBUG NEW SCRIPTS / FEATURES - Can be done by year
+$DEBUG    = 0;
+
 
 # Default values Year2 data
 if ($ThisYear == 2002){
@@ -277,6 +280,8 @@ $MAXCNT  = 20;               # max job to send in a pass
 $RATIO   = 2;                # time drop down for mode + (2=twice faster)
 $MAXFILL = 95;               # max disk occupancy
 
+
+
 # Check if the quit file is present
 if ( -e $QUITF){
     print "$SELF :: $QUITF detected I have been asked to skip processing\n";
@@ -366,8 +371,6 @@ if ( -e $LOCKF){
 }
 
 
-#### SET THIS TO 1 TO DEBUG NEW SCRIPTS / FEATURES
-$DEBUG = 0;
 
 
 # Now go ...
@@ -476,7 +479,7 @@ if( $TARGET =~ m/^\// || $TARGET =~ m/^\^\// ){
 			last if ($kk     == 0);
 		    }
 		    rdaq_set_files($obj,1,@OKFILES);
-		    rdaq_set_chain($obj,$CHAIN,@OKFILES);
+		    rdaq_set_chain($obj,$SCHAIN,@OKFILES);
 		    rdaq_set_files($obj,4,@SKIPPED);
 		} else {
 		    # there is nothing to submit
@@ -591,7 +594,7 @@ if( $TARGET =~ m/^\// || $TARGET =~ m/^\^\// ){
 		}
 		# Mark files as submitted
 		rdaq_set_files($obj,1,@OKFILES);
-		rdaq_set_chain($obj,$cho,@OKFILES);
+		rdaq_set_chain($obj,$SCHAIN,@OKFILES);
 		rdaq_set_files($obj,4,@SKIPPED);
 
 
@@ -680,7 +683,7 @@ if( $TARGET =~ m/^\// || $TARGET =~ m/^\^\// ){
 		    last if ($MAXCNT == 0);
 		}
 		rdaq_set_files($obj,5,@OKFILES);  # special flag
-		rdaq_set_chain($obj,$CHAIN,@OKFILES);
+		rdaq_set_chain($obj,$SCHAIN,@OKFILES);
 		rdaq_set_files($obj,4,@SKIPPED);  # mark skipped
 	    } else {
 		# there is nothing to submit
@@ -1043,6 +1046,9 @@ __EOF__
 	    ($MAXEVT!=0?$MAXEVT:$NUMEVT),",$chain",
 	    "\n";
 	close(FO);
+
+	# A returned value
+	$SCHAIN = $chain;  
 
 	if( (stat($jfile))[7] == 0){
 	    print "$SELF :: Info : 0 size $jfile . Please, check quota/disk space\n";
