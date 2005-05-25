@@ -31,6 +31,12 @@
 #      rdaq_set_files               set a list of files from o-ddb to $status
 #                                   Accept both format returned by get_files
 #                                   and get_ffiles.
+#      rdaq_set_xstatus             Set XStatus for a given XStatus id
+#      rdaq_set_chain               Set chain according to list
+#
+# Each rdaq_set_XXX has an equivalent rdaq_set_XXX_where method which accepts
+# a finer grain selection. 
+#
 #
 # Utility (no need for any ddb to be opened)
 #      rdaq_file2hpss               return an HPSS path+file (several methods)
@@ -102,11 +108,12 @@
 # 12 | ftype       | int(11)             | YES  |     | 0       |       |
 # 13 | EntryDate   | timestamp(14)       | YES  |     | NULL    |       |
 # 14 | DiskLoc     | int(11)             | YES  |     | 0       |       |
-# 15 | XStatus1    | int(11)             | YES  |     | 0       |       | --> This one is reserved for ezTree
-# 16 | XStatus2    | int(11)             | YES  |     | 0       |       | --> unused for now
-# 17 | Status      | int(11)             | YES  |     | 0       |       |
-
+# 15 | Chain       | int(11)             | YES  |     | 0       |       |
+# 16 | XStatus1    | int(11)             | YES  |     | 0       |       | --> This one is 
+#                                                                             reserved for ezTree
+# 17 | XStatus2    | int(11)             | YES  |     | 0       |       | --> unused for now
 #      ... as many Status as needed for pre-passes
+# 18 | Status      | int(11)             | YES  |     | 0       |       |
 #    +-------------+---------------------+------+-----+---------+-------+
 #
 # BEWARE: Adding a column implies code changes where a tag 'MOD HERE'
@@ -137,6 +144,7 @@ require Exporter;
 	    rdaq_get_files rdaq_get_ffiles rdaq_get_orecords
 	    rdaq_set_files rdaq_set_files_where
 	    rdaq_set_xstatus rdaq_set_xstatus_where
+	    rdaq_set_chain rdaq_set_chain_where
 
 	    rdaq_file2hpss rdaq_mask2string rdaq_status_string
 	    rdaq_bits2string 
@@ -161,7 +169,7 @@ $DDBNAME   = "RunLog";
 $dbhost    = "duvall.star.bnl.gov";
 $dbuser    = "starreco";
 $dbpass    = "";
-$dbtable   = "DAQInfo";
+$DBTABLE   = "DAQInfo";
 $dbname    = "operation";
 
 $HPSSBASE  = "/home/starsink/raw/daq";        # base path for HPSS file loc.
@@ -209,13 +217,14 @@ $BITWISE{"DetSetMask"} = "FODetectorTypes";
 
 #
 # For list_field, we may want to select from secondary
-# tables instead of from $dbtable. We can do this only
+# tables instead of from $DBTABLE. We can do this only
 # if the fields are associated with a threaded table.
 # Those tables are assumed to be id,Label. The index
 # 0 or 1 indicates if we select by id or label in the
 # list_field() routine returned values.
 $THREAD0{"TrgSetup"} = "FOTriggerSetup";
 $THREAD0{"ftype"}    = "FOFileType";
+$THREAD1{"Chain"}    = "FOChains";
 $THREAD1{"runNumber"}= "FOruns";
 
 
@@ -230,10 +239,18 @@ sub rdaq_add_entry
     my($sth);
 
     if(!$obj){ return 0;}
-    $sth = $obj->prepare("INSERT IGNORE INTO $dbtable ".
-			 "VALUES(?,?,?,?,?,?,?,?,?,?,?,?,?,NOW()+0,0,0,0,0)"); # MOD HERE
-    $sth->execute(@values);
-    $sth->finish();
+    $sth = $obj->prepare("INSERT IGNORE INTO $DBTABLE ".
+			 "VALUES(?,?,?,?,?,?,?,?,?,?,?,?,?,NOW()+0,0,0,0,0,0)"); # MOD HERE
+    if ( $sth ){
+	if ( ! $sth->execute(@values) ){
+	    print "<!-- Could not execute with $#values params [".join(",",@values)."] -->\n"
+		if ($DEBUG);
+	}
+	$sth->finish();
+    } else {
+	print "<!-- Could not prepare statement in rdaq_add_entry() -->\n" if ($DEBUG);
+    }
+
     1;
 }
 
@@ -249,8 +266,8 @@ sub rdaq_add_entries
     if(!$obj){ return 0;}
 
     if($#records != -1){
-	$sth = $obj->prepare("INSERT INTO $dbtable ".
-			     "VALUES(?,?,?,?,?,?,?,?,?,?,?,?,?,NOW()+0,0,0,0,0)"); # MOD HERE
+	$sth = $obj->prepare("INSERT INTO $DBTABLE ".
+			     "VALUES(?,?,?,?,?,?,?,?,?,?,?,?,?,NOW()+0,0,0,0,0,0)"); # MOD HERE
 	if($sth){
 	    foreach $line (@records){
 		@values = split(" ",$line);
@@ -292,7 +309,7 @@ sub rdaq_update_entries
     if(!$obj){  return 0;}
 
     if($#records != -1){
-	$sth = $obj->prepare("UPDATE $dbtable SET scaleFactor=?, ".
+	$sth = $obj->prepare("UPDATE $DBTABLE SET scaleFactor=?, ".
 			     "DetSetMask=?, TrgSetup=?, TrgMask=?, ftype=?".
 			     "WHERE file=?");
 	if($sth){
@@ -327,7 +344,7 @@ sub rdaq_delete_entries
     $count=0;
     if(!$obj){ return 0;}
 
-    $sth = $obj->prepare("DELETE FROM $dbtable WHERE file=?");
+    $sth = $obj->prepare("DELETE FROM $DBTABLE WHERE file=?");
     if(!$sth){ return 0;}
 
     foreach $line (@files){
@@ -364,7 +381,7 @@ sub rdaq_set_location
     }
 
     $file= shift(@values);
-    $sth = $obj->prepare("UPDATE $dbtable SET DiskLoc=? WHERE file=?");
+    $sth = $obj->prepare("UPDATE $DBTABLE SET DiskLoc=? WHERE file=?");
     return $sth->execute($val,$file);
 }
 
@@ -380,9 +397,9 @@ sub rdaq_get_location
     if(!$obj){  return 0;}
 
     $file= shift(@values);
-    $sth = $obj->prepare("SELECT FOLocations.Label FROM FOLocations,$dbtable ".
-			 "WHERE FOLocations.id=$dbtable.DiskLoc AND ".
-			 "$dbtable.file=?");
+    $sth = $obj->prepare("SELECT FOLocations.Label FROM FOLocations,$DBTABLE ".
+			 "WHERE FOLocations.id=$DBTABLE.DiskLoc AND ".
+			 "$DBTABLE.file=?");
     if($sth){
 	$sth->execute($file);
 	if( ! defined($val = $sth->fetchrow() ) ){
@@ -402,7 +419,7 @@ sub rdaq_get_location
 # only after marked as bad.
 # FastOffline wants those entries but the final table should not have
 # them. Therefore, we implemented a method to boostrap the information
-# in our  $dbtable and compare it to the initial expectations.
+# in our  $DBTABLE and compare it to the initial expectations.
 #
 # $since is a number of minutes
 #
@@ -432,7 +449,7 @@ sub rdaq_last_run
     my($sth,$val);
 
     if(!$obj){ return 0;}
-    $sth = $obj->prepare("SELECT file FROM $dbtable ORDER BY runNumber DESC, file DESC LIMIT 1");
+    $sth = $obj->prepare("SELECT file FROM $DBTABLE ORDER BY runNumber DESC, file DESC LIMIT 1");
     $sth->execute();
     if( $sth ){
 	$val = $sth->fetchrow();
@@ -798,7 +815,7 @@ sub rdaq_get_orecords
     if( ! defined($mode) ){ $mode = 1;}
 
     # basic selection
-    $cmd = "SELECT * FROM $dbtable";
+    $cmd = "SELECT * FROM $DBTABLE";
 
 
     # backward compatibility is status selection where -1 = all
@@ -927,6 +944,22 @@ sub rdaq_set_files_where
     return &__set_files_where($obj,"Status",$status,$stscond,@files);
 }
 
+
+
+# Set chain options or update
+sub rdaq_set_chain
+{
+    my($obj,$chain,@files)=@_;
+    return &rdaq_set_files_where($obj,$chain,-1,@files);
+}
+sub rdaq_set_chain_where
+{
+    my($obj,$chain,$stscond,@files)=@_;
+    return &__set_files_where($obj,"Chain",$chain,$stscond,@files);
+}
+
+
+
 # Set Xstatus flag
 sub rdaq_set_xstatus
 {
@@ -940,17 +973,27 @@ sub rdaq_set_xstatus_where
 }
 
 
+
 # Common interface
 sub __set_files_where
 {
-    my($obj,$field,$status,$stscond,@files)=@_;
+    my($obj,$field,$value,$stscond,@files)=@_;
     my($sth,$success,$cmd);
     my(@items);
 
     if(!$obj){ return 0;}
 
     $success = 0;
-    $cmd = "UPDATE $dbtable SET $field=$status WHERE file=? ";
+
+    # If not numerical and they are indirect fields defined via
+    # index/value tables, record and/or fetch the value now.
+    if ( defined($THREAD0{$field}) ){
+	$value = &Record_n_Fetch($THREAD0{$field},$value);
+    } elsif ( defined($THREAD1{$field}) ){
+	$value = &Record_n_Fetch($THREAD1{$field},$value);
+    }
+
+    $cmd = "UPDATE $DBTABLE SET $field=$value WHERE file=? ";
     if ($stscond != -1){
 	$cmd .= " AND $field=$stscond";
     }
@@ -992,7 +1035,7 @@ sub rdaq_list_field
     # We will therefore make the unicity ourselves.
     if( defined($ROUND{$field}) ){
 	$cmd   = "SELECT DISTINCT ROUND($field,$ROUND{$field})".
-	    " AS SELECTED FROM $dbtable";
+	    " AS SELECTED FROM $DBTABLE";
 	$cmd  .= " ORDER BY SELECTED DESC";
     } elsif ( defined($BITWISE{$field}) ) {
 	# this works fine
@@ -1006,7 +1049,7 @@ sub rdaq_list_field
 	$cmd   = "SELECT Label FROM $THREAD1{$field}";
 	$cmd  .= " ORDER BY Label DESC";
     } else {
-	$cmd   = "SELECT DISTINCT $field AS SELECTED FROM $dbtable";
+	$cmd   = "SELECT DISTINCT $field AS SELECTED FROM $DBTABLE";
 	$cmd  .= " ORDER BY $field DESC";
     }
 
