@@ -81,7 +81,10 @@
 #  are all standardized to avoid proliferation of routines. THERE is nothing else
 #  to do at this level.
 #
-#  WARNING: Log path requires CHAR(255) at least for FOLocations (bummer!!)
+#  WARNING: 
+#   - Log path requires CHAR(255) at least for FOLocations (bummer!!)
+#   - Chains would survive with CHAR(50) but increased by hand to 255 anyhow
+#
 #
 #  If you have build a script based on get_ffiles() or get_orecords(), you will
 #  need to take into account the fact that the number of fields is larger. The
@@ -950,11 +953,13 @@ sub rdaq_set_files_where
 sub rdaq_set_chain
 {
     my($obj,$chain,@files)=@_;
-    return &rdaq_set_files_where($obj,$chain,-1,@files);
+    return 0 if ( ! defined($chain) );
+    return &rdaq_set_chain_where($obj,$chain,-1,@files);
 }
 sub rdaq_set_chain_where
 {
     my($obj,$chain,$stscond,@files)=@_;
+    return 0 if ( ! defined($chain) );
     return &__set_files_where($obj,"Chain",$chain,$stscond,@files);
 }
 
@@ -987,10 +992,13 @@ sub __set_files_where
 
     # If not numerical and they are indirect fields defined via
     # index/value tables, record and/or fetch the value now.
+    #print "DEBUG Received field=$field\n";
     if ( defined($THREAD0{$field}) ){
 	$value = &Record_n_Fetch($THREAD0{$field},$value);
+	print "<!-- Value for $field $THREAD0{$field} case-0 is now $value -->\n" if ($DEBUG);
     } elsif ( defined($THREAD1{$field}) ){
 	$value = &Record_n_Fetch($THREAD1{$field},$value);
+	print "<!-- Value for $field $THREAD1{$field} case-1 is now $value -->\n" if ($DEBUG);
     }
 
     $cmd = "UPDATE $DBTABLE SET $field=$value WHERE file=? ";
@@ -1119,10 +1127,12 @@ sub Record_n_Fetch
     my($obj,$sthc,$val,$rv);
 
     # cannot insert a null value
-    if($el eq ""){  return 0;}
-    if($el eq 0){   return 0;}
+    #print "DEBUG Field=$tbl Value = $el\n";
+    if($el eq ""){                   return 0;}
+    if( sprintf("%s",$el) eq "0"){   return 0;}
 
     #print "Record_n_Fetch :: $tbl $el\n"  if ($tbl eq "FOFileType");
+    #print "Record_n_Fetch :: $tbl $el\n"  if ($tbl eq "FOChains");
 
     if( ! defined($rv = $RFETCHED{"$tbl-$el"}) ){
 	# Return value
@@ -1135,8 +1145,8 @@ sub Record_n_Fetch
 	if(!$obj){ return $rv;}
 
 
-	# Quick and dirty insert
-	$sthc = $obj->prepare("INSERT IGNORE INTO $tbl VALUES(0,'$el')");
+	# Quick and dirty insert. Need quotes as value could be string
+	$sthc = $obj->prepare("INSERT IGNORE INTO $tbl VALUES(0,'".$el."')");
 	$sthc->execute();
 	$sthc->finish();
 
@@ -1145,10 +1155,14 @@ sub Record_n_Fetch
 	$sthc = $obj->prepare("SELECT $tbl.id FROM $tbl ".
 			      "WHERE $tbl.Label=?");
 	if($sthc){
-	    $sthc->execute($el);
-	    if( defined($val = $sthc->fetchrow()) ){
-		$RFETCHED{"$tbl-$el"} = $val;
-		$rv = $val;
+	    if ( $sthc->execute($el) ){
+		if( defined($val = $sthc->fetchrow()) ){
+		    $RFETCHED{"$tbl-$el"} = $val;
+		    $rv = $val;
+		}
+	    #} else {
+	    #	print "<!-- Record_n_Fetch Failed statement with value [$el] -->\n"
+	    #	    if ($DEBUG);
 	    }
 	    $sthc->finish();
 	}
