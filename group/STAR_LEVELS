@@ -20,21 +20,26 @@ if ($ARGV[0] eq "-g"){
 	print "There is a possibility of guessing ..\n" if ($DEBUG);
 	$version = "";
 
-	if ( -d "include"){        $inc = "include";}
-	if ( -d ".$shs/include"){  $inc = ".$shs/include";}
-
-	if ( opendir(DIR,$inc) ){
-	    print "Scanning $inc/ ...\n" if ($DEBUG);
-	    while ( defined($file = readdir(DIR)) ){
-		if ( -l "$inc/$file"){ next;}
-		# This is a fix format defined in RootCint, stic and ConstructTable
-		# If the format changes, the guesstimator will stop working
-		if ( defined($ver = &Found("$inc/$file")) ){
-		    $version = $ver;
-		    last;
+	foreach $inc (("include",".$shs/include",".$shs/include/tables")){
+	    if ( -d $inc){
+		if ( opendir(DIR,$inc) ){
+		    print "Scanning $inc/ ...\n" if ($DEBUG);
+		    while ( defined($file = readdir(DIR)) ){
+			if ( -l "$inc/$file"){ next;}
+			# This is a fix format defined in RootCint, stic and ConstructTable
+			# If the format changes, the guesstimator will stop working
+			if ( defined($ver = &Found("$inc/$file")) ){
+			    print "\t\tFound version [$ver]\n" if ($DEBUG);
+			    if ( $ver ne "(unspecified)"){
+				$version = $ver;
+				last;
+			    }
+			}
+		    }
+		    close(DIR);
 		}
 	    }
-	    close(DIR);
+	    last if ( $version ne "");
 	}
 	# Second possibility is to look into STAR_HOST_SYS for some
 	# files
