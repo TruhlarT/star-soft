@@ -275,7 +275,7 @@ $PRIORITY= 100;              # default queue priority
 $SLEEPT  = 10;               # sleep time between submit
 $MAXCNT  = 20;               # max job to send in a pass
 $RATIO   = 2;                # time drop down for mode + (2=twice faster)
-$MAXFILL = 97;               # this number matches bfcca
+$MAXFILL = 95;               # max disk occupancy
 
 # Check if the quit file is present
 if ( -e $QUITF){
@@ -476,6 +476,7 @@ if( $TARGET =~ m/^\// || $TARGET =~ m/^\^\// ){
 			last if ($kk     == 0);
 		    }
 		    rdaq_set_files($obj,1,@OKFILES);
+		    rdaq_set_chain($obj,$CHAIN,@OKFILES);
 		    rdaq_set_files($obj,4,@SKIPPED);
 		} else {
 		    # there is nothing to submit
@@ -590,6 +591,7 @@ if( $TARGET =~ m/^\// || $TARGET =~ m/^\^\// ){
 		}
 		# Mark files as submitted
 		rdaq_set_files($obj,1,@OKFILES);
+		rdaq_set_chain($obj,$cho,@OKFILES);
 		rdaq_set_files($obj,4,@SKIPPED);
 
 
@@ -678,6 +680,7 @@ if( $TARGET =~ m/^\// || $TARGET =~ m/^\^\// ){
 		    last if ($MAXCNT == 0);
 		}
 		rdaq_set_files($obj,5,@OKFILES);  # special flag
+		rdaq_set_chain($obj,$CHAIN,@OKFILES);
 		rdaq_set_files($obj,4,@SKIPPED);  # mark skipped
 	    } else {
 		# there is nothing to submit
