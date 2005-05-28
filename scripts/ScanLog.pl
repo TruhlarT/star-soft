@@ -213,7 +213,7 @@ while ( defined($logname = readdir(LOGDIR)) ){
 			"Errors in ERR file --> \n";
 		}
 		$err="";
-		$cmd = &ZSHandle($err_file,"tail -4");
+		$cmd = &ZSHandle($err_file,"/usr/bin/tail -4");
 		@job_errs = `$cmd`;
 		for ( $i=0;$i<=$#job_errs;$i++ ){
 		    unless ( $err=~/$job_errs[$i]/ ){
@@ -240,7 +240,8 @@ while ( defined($logname = readdir(LOGDIR)) ){
 		}
 
 		$err="";
-		$cmd = &ZSHandle($logname,"tail -5000");
+		$cmd = &ZSHandle($logname,"/usr/bin/tail -5000");
+		# the above grep is not full-path-ed because it uses -E (GNU grep)
 		@log_errs2 = `$cmd | grep -E 'Break|Abort|Assert|relocation error'`;
 		foreach $logerr (@log_errs2){
 		    print "$logerr\n";
@@ -269,8 +270,8 @@ while ( defined($logname = readdir(LOGDIR)) ){
 		undef(@log_errs2);
 
 
-		$cmd = &ZSHandle($logname,"tail -5000");
-		@log_errs2 = `$cmd | grep 'Done with Event'`;
+		$cmd = &ZSHandle($logname,"/usr/bin/tail -5000");
+		@log_errs2 = `$cmd | /bin/grep 'Done with Event'`;
 		foreach $logerr (@log_errs2){
 		    if($logerr =~ m/(\d+)(\/run)/){
 			$tmp = $1;
@@ -281,7 +282,7 @@ while ( defined($logname = readdir(LOGDIR)) ){
 		}
 		undef(@log_errs2);
 
-		$cmd = &ZSHandle($err_file,"tail -5");
+		$cmd = &ZSHandle($err_file,"/usr/bin/tail -5");
 		@log_errs1 = `$cmd`;
 		foreach $logerr (@log_errs1){
 		    chomp($logerr);
@@ -419,7 +420,7 @@ sub ZSHandle
     my($file,$shell)=@_;
 
     if($file =~ /\.gz/){
-	"zcat $file | $shell";
+	"/bin/zcat $file | $shell";
     } else {
 	"$shell $file";
     }
