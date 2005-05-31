@@ -548,11 +548,18 @@ if ( ! open(FO,">$PWD/$JOB_ID.csh") ){
     if($copt ne "" ){
 	# the file contains the calibration pass chain options
 	chomp($chainopt = `/bin/cat $cdir/$copt`);
-	print FO
-	    "echo \"$PRGM :: Calibration pass is starting on \`/bin/date\`\"\n",
-	    "echo \"\"\n",
-	    "$RPROG -b -q '$BFC(10000,\"$chainopt\",\"$CINPUTFILE\")'\n",
-	    "echo \"$PRGM :: Calibration is done on \`/bin/date\`\"\n";
+	if ( $chainopt ne ""){
+	    print FO
+		"echo \"$PRGM :: Calibration pass is starting on \`/bin/date\`\"\n",
+		"echo \"\"\n",
+		"$RPROG -b -q '$BFC(10000,\"$chainopt\",\"$CINPUTFILE\")'\n",
+		"echo \"$PRGM :: Calibration is done on \`/bin/date\`\"\n";
+	} else {
+	    # This happened in 2005. The disk would be present, the file seen
+	    #  but cat would lead to nothing (messed up file descriptors)
+	    print STDERR "$PRGM :: Error: $cdir/$copt has empty content\n";
+	    exit;
+	}
     }
 
 
@@ -650,6 +657,10 @@ if ( ! open(FO,">$PWD/$JOB_ID.csh") ){
 	$end   = $5;
 	$xtra  = $6;
 	$RDESTINATION = &GetAvailableDisk($base,$start,$end).$xtra;
+	if ( $RDESTINATION eq $xtra ){
+	    print STDERR "$PRGM :: Fatal: Disk selection did not lead to a valid choice\n";
+	    exit;
+	}
 
     } else {
 	$RDESTINATION = $DESTINATION;
@@ -1008,16 +1019,23 @@ sub  MD5sum
 #
 # Only selects based on %tage but has logic to make
 # any selection like on available remaining space.
+# Note that this method may return "".
 #
 sub GetAvailableDisk
 {
     my($base,$start,$end)=@_;
     my($i,$tota,$used,$avai,$prct);
+    my($ppath);
     my(@CANDIDATES,%SIZESORTED,$pos);
 
     for ($i=$start ; $i <= $end ; $i++){
-	if ( ! -e "$base$i"){ next;}      # protect against user typo
-	chomp($res = `/bin/df -k $base$i | /bin/grep % | /bin/grep '/'`);
+        # protect against user typo
+	# This is STAR specific and assumes
+	$ppath = sprintf("%s%2.2d",$base,$i);
+	if ( ! -e $ppath ){ 
+	    next;
+	} 
+	chomp($res = `/bin/df -k $ppath | /bin/grep % | /bin/grep '/'`);
 
 	#print "DEBUG $base$i --> $res\n";
 
@@ -1038,11 +1056,11 @@ sub GetAvailableDisk
 	    $prct = $items[4];
 	}
 	$prct =~ s/%//;
-	#print "DEBUG $base$i $tota $used $avai $prct\n";
+	print "DEBUG ppath=$ppath tota=$tota used=$used avail=$avai prct=$prct\n";
 
 	if ($prct <= $MAXFILL){
-	    push(@CANDIDATES,"$base$i");
-	    $SIZESORTED{"$base$i"} = $avai;
+	    push(@CANDIDATES,"$ppath");
+	    $SIZESORTED{"$ppath"} = $avai;
 	}
     }
 
@@ -1050,8 +1068,12 @@ sub GetAvailableDisk
     # Well, there may be no candidates. If so, pick the
     # largest disk.
     if ($#CANDIDATES == -1){
-	print "$PRGM :: Warning: switched to biggest available space algorithm (all full)\n";
 	@CANDIDATES = sort { $SIZESORTED{$b} <=> $SIZESORTED{$a} } keys %SIZESORTED;
+	if ( $#CANDIDATES == -1 ){
+	    print "$PRGM :: Warning: no valid path found in range $start -> $end ($base)\n";
+	} else {
+	    print "$PRGM :: Warning: switched to biggest available space algorithm (all full)\n";
+	}
 	$pos = 0;
     } else {
 	# Chose one randomly
@@ -1059,6 +1081,6 @@ sub GetAvailableDisk
     }
 
 
-    return $CANDIDATES[$pos];
+    return defined($CANDIDATES[$pos])?$CANDIDATES[$pos]:"";
 }
 
