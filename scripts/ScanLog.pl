@@ -348,6 +348,9 @@ $sth4->finish();
 
 
 $dbh1->disconnect();
+&DeleLockFile();
+
+
 
 #subs
 #=======================================
@@ -457,7 +460,7 @@ sub CheckLockFile
 		print "$fllock is older than $mtime secondes. Cannot remove on ".localtime()."\n";
 	    }
 	} else {
-	    print "Found $fllock . Ignore.\n";
+	    print "Found $fllock on ".localtime().". Ignored in [$$]\n";
 	}
 	exit;
     }
