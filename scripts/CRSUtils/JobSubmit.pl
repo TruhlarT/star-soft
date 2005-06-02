@@ -551,7 +551,7 @@ if( $TARGET =~ m/^\// || $TARGET =~ m/^\^\// ){
 		}
 		$SEL{"runNumber"} = $items[0];
 		@files = rdaq_get_orecords($obj,\%SEL,-1);
-		rdaq_set_files($obj,0,@files);
+		rdaq_set_files($obj,0,@files);      # Bypass: reset status to 0
 
 		# Get the count as being the total
 		$run = $items[0];
@@ -758,6 +758,7 @@ if( $TARGET =~ m/^\// || $TARGET =~ m/^\^\// ){
 		    last if ($MAXCNT == 0);
 		}
 		rdaq_set_xstatus($obj,$ID,1,@OKFILES);  # mark submitted
+		rdaq_set_chain($obj,$SCHAIN,@OKFILES);
 		rdaq_set_xstatus($obj,$ID,4,@SKIPPED);  # mark skipped
 	    } else {
 		# there is nothing to submit
