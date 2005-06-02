@@ -986,7 +986,8 @@ sub __set_files_where
     my($sth,$success,$cmd);
     my(@items);
 
-    if(!$obj){ return 0;}
+    if(!$obj){         return 0;}
+    if($#files == -1){ return 0;}
 
     $success = 0;
 
@@ -1005,6 +1006,7 @@ sub __set_files_where
     if ($stscond != -1){
 	$cmd .= " AND $field=$stscond";
     }
+    print "<!-- Cmd=$cmd -->\n" if ($DEBUG);
 
     $sth = $obj->prepare($cmd);
     if($sth){
@@ -1132,7 +1134,7 @@ sub Record_n_Fetch
     if( sprintf("%s",$el) eq "0"){   return 0;}
 
     #print "Record_n_Fetch :: $tbl $el\n"  if ($tbl eq "FOFileType");
-    #print "Record_n_Fetch :: $tbl $el\n"  if ($tbl eq "FOChains");
+    print "Record_n_Fetch :: $tbl $el\n"  if ($tbl eq "FOChains");
 
     if( ! defined($rv = $RFETCHED{"$tbl-$el"}) ){
 	# Return value
@@ -1460,8 +1462,14 @@ sub	info_message
 
 sub    rdaq_toggle_debug
 {
-    $DEBUG = ! $DEBUG;
-    return DEBUG;
+    my($arg)=@_;
+
+    if ( ! defined($arg) ){
+	$DEBUG = ! $DEBUG;
+    } else {
+	$DEBUG = ($arg==1);
+    }
+    return $DEBUG;
 }
 
 #
