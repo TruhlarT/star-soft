@@ -131,7 +131,8 @@ if ($UPDATE == 0){
 	    }
 	}
 
-
+	print "Setting files with status=2 if status=1 [".join(" ",@DONE)."]\n";
+	rdaq_toggle_debug(1);
 	rdaq_set_files_where($obj,2,1,@DONE);
 	rdaq_close_odatabase($obj);
 
