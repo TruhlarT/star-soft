@@ -98,6 +98,15 @@ $GENERICO= "";                     # Default generic output filename
 $SOFFTOL = 0.02;                   # Size offset tolerance (2%)
 $MAXFILL = 97;                     # Maximum disk occupency in %tage for free space algo
 
+
+# DF command allowing for multiple FS type
+if ( -e $ENV{STAR_SCRIPTS}."/dfpanfs"){
+    $DF  = $ENV{STAR_SCRIPTS}."/dfpanfs";
+} else {
+    $DF  = "/bin/df -k";
+}
+
+
 # This is for debugging purposes
 if ($DEBUG){
     print "ENV variables debugging is ON -->\n";
@@ -1035,7 +1044,7 @@ sub GetAvailableDisk
 	if ( ! -e $ppath ){ 
 	    next;
 	} 
-	chomp($res = `/bin/df -k $ppath | /bin/grep % | /bin/grep '/'`);
+	chomp($res = `$DF $ppath | /bin/grep % | /bin/grep '/'`);
 
 	#print "DEBUG $base$i --> $res\n";
 
