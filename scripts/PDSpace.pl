@@ -41,8 +41,15 @@ $BREAK{"03"} =  "Reserved Usage Space Area";
 $BREAK{"06"} =  "Production Disks / Assigned TEMPORARY space for Projects";
 $BREAK{"08"} =  "Production Disks";
 
-# Exclude those (alias, un-usable etc ...)
+
+# Exclude those completely (alias, un-usable etc ...)
 #$DEXCLUDE{"46"} = 1;
+
+
+# Added 2005 to skip searching the root dir for the README.
+# data46 for example could not be scanned at its root by any tool whenever
+# mounted over NFS (was PANFS).
+$RDMEXCLUDE{"/star/data46"} = 1;
 
 
 # Standard header style
@@ -72,7 +79,7 @@ foreach $disk (@DISKS){
 	next;
     }
 
-
+    #print "DEBUG Checking $disk\n";
     chomp($res = `$DF $disk | /bin/grep % | /bin/grep '/'`);
     $res   =~ s/^\s*(.*?)\s*$/$1/;
     $res   =~ s/\s+/ /g;
@@ -100,13 +107,17 @@ foreach $disk (@DISKS){
     # Logic sorting our the trigger level and the library
     # level. This implies a strict naming convention.
     if( -d "$disk/reco"){
-	@TMP = glob("$disk/reco*/*");
+	#print "DEBUG $disk -d reco OK\n";
+	@TMP = glob("$disk/reco/*");
+	#print "DEBUG:: glob returned $#TMP args\n";
 	foreach $trg (@TMP){
 	    #print "Found $trg\n";
 	    if ($trg =~ /StarDb/){ next;}
 	    $tmp = $trg;
 	    $tmp =~ s/.*\///;
 	    push (@TRGS,$tmp);
+
+	    #print "DEBUG Looking now in $trg\n";
 	    @vers = glob("$trg/*/*");
 	    foreach $ver (@vers){
 		if (! -d $ver && ! -l $ver){ next;}
@@ -129,11 +140,18 @@ foreach $disk (@DISKS){
     foreach $tmp (@TRGS){
 	$trg .= "$tmp ";
     }
-    if ( -e "$disk/AAAREADME"){
-	@all = `/bin/cat $disk/AAAREADME`;
-	$DINFO{$disk} .= "<B><PRE>".join("",@all)."</PRE></B>";
+
+    #print "DEBUG Will now search for a README file on $disk\n";
+
+    if ( ! defined($RDMEXCLUDE{$disk}) ){
+	if ( -e "$disk/AAAREADME"){
+	    @all = `/bin/cat $disk/AAAREADME`;
+	    $DINFO{$disk} .= "<B><PRE>".join("",@all)."</PRE></B>";
+	}
     }
     $DINFO{$disk} .= "$trg;";
+
+    #print "DEBUG Done and ready to format information ...\n";
 
     $ver = " ";
     foreach $tmp (keys %LIBS){
