@@ -100,7 +100,10 @@ $MAXFILL = 97;                     # Maximum disk occupency in %tage for free sp
 
 
 # DF command allowing for multiple FS type
-if ( -e $ENV{STAR_SCRIPTS}."/dfpanfs"){
+$0  =~ m/(.*\/)(.*)/;
+if ( -e $1."dfpanfs"){
+    $DF = $1."dfpanfs";
+} elsif ( -e $ENV{STAR_SCRIPTS}."/dfpanfs"){
     $DF  = $ENV{STAR_SCRIPTS}."/dfpanfs";
 } else {
     $DF  = "/bin/df -k";
@@ -495,6 +498,7 @@ if($#FCINPUTS != -1){
 print "The output destination will be   $DESTINATION ";
 if ( $DESTINATION =~ m/\+/){ print "(range)\n";}
 else                       { print "\n";}
+print "Our disk space usage command is  $DF\n"; 
 
 print "Outputs initial will be          ".join(" ",@COUTPUTS)."\n";
 print "Outputs final will be            ".join(" ",@OUTPUTS)."\n";
