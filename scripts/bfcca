@@ -1050,7 +1050,7 @@ sub GetAvailableDisk
 	} 
 	chomp($res = `$DF $ppath | /bin/grep % | /bin/grep '/'`);
 
-	#print "DEBUG $base$i --> $res\n";
+	print "DEBUG $DF $ppath --> $res\n";
 
 	$res   =~ s/^\s*(.*?)\s*$/$1/;
 	if ($res eq ""){  next;}          # no info on disk (may be un-mounted)
@@ -1069,11 +1069,14 @@ sub GetAvailableDisk
 	    $prct = $items[4];
 	}
 	$prct =~ s/%//;
-	print "DEBUG ppath=$ppath tota=$tota used=$used avail=$avai prct=$prct\n";
+	print "DEBUG ppath=$ppath tota=$tota used=$used avail=$avai prct=$prct - ";
 
 	if ($prct <= $MAXFILL){
 	    push(@CANDIDATES,"$ppath");
 	    $SIZESORTED{"$ppath"} = $avai;
+	    print "Included\n";
+	} else {
+	    print "Excluded\n";
 	}
     }
 
