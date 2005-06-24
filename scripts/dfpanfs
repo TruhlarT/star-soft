@@ -15,7 +15,11 @@
 #
 #
 
-$EXEC   = $ENV{OPTSTAR}."/bin/pan_statfs";
+if ( defined($ENV{OPTSTAR}) ){
+    $EXEC   = $ENV{OPTSTAR}."/bin/pan_statfs";
+} else {
+    $EXEC   = "/opt/star/bin/pan_statfs";
+}
 
 
 $result = `/bin/df -k $ARGV[0]`;
