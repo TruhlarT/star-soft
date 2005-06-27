@@ -160,9 +160,9 @@ if ( -r  $GROUP_DIR/star_login.csh ) then
 	    case "SL3":
 		set LPATH=$AFS_RHIC/star/packages/adev
 		set SPATH=$AFS_RHIC/star/doc/www/comp/prod/Sanity
-		$SCRIPTD/AutoBuild.pl -k -i -1 -t -p $LPATH
-		if( -e $HOME/AutoBuild-linux.html) then
-		    mv -f $HOME/AutoBuild-linux.html $SPATH/AutoBuild-$1.html
+		$SCRIPTD/AutoBuild.pl -k -i -1 -T $1 -p $LPATH
+		if( -e $HOME/AutoBuild-$1.html) then
+		    mv -f $HOME/AutoBuild-$1.html $SPATH/AutoBuild-$1.html
 		endif
 		cd $LPATH
 		echo "Cleaning older libraries"
