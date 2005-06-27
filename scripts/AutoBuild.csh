@@ -16,7 +16,7 @@
 #   icc        Builds with icc
 #   inter      Builds as per the default target but do not perform
 #              post compilation tasks (and do not send Email if
-#              failure)
+#              failure) and do NOT perform cvs co either (-s -i)
 #
 # Targets for Other platforms:
 #   Solaris    Ditto for Solaris (does cache cleaning)
@@ -175,8 +175,8 @@ if ( -r  $GROUP_DIR/star_login.csh ) then
 
 		# ****** This is the default action *****
 	    case "inter":
-		# Is update mode, not checkout
-		$SCRIPTD/AutoBuild.pl -u -s >$HOME/log/AB-d-$DAY.log
+		# Do not checkout, do not perform post-compilation
+		$SCRIPTD/AutoBuild.pl -i -s >$HOME/log/AB-d-$DAY.log
 		breaksw
 	    default
 		# Is update mode, not checkout
