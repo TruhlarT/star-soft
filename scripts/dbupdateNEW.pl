@@ -21,11 +21,11 @@ require "/afs/rhic/star/packages/scripts/dbTJobsSetup.pl";
 #require "dbTJobsSetup.pl";
 
 my $TOP_DIRD = "/star/rcf/test/new/";
-my @dir_year = ("year_2001", "year_1h", "year_2003", "year_2004");
+my @dir_year = ("year_2001", "year_1h", "year_2003", "year_2004", "year_2005");
 my @node_dir = ("trs_sl302", "trs_sl302_opt","trs_sl302.ittf", "trs_sl302.ittf_opt");
 my @node_daq = ("daq_sl302", "daq_sl302_opt","daq_sl302.ittf","daq_sl302.ittf_opt"); 
-my @hc_dir = ("hc_lowdensity", "hc_standard", "hc_highdensity", "peripheral","pp_minbias","ppl_minbias","dau_minbias","auau_minbias");
-my @daq_dir = ("minbias", "central", "ppMinBias", "dAuMinBias", "AuAuMinBias", "AuAu_prodHigh","AuAu_prodLow","prodPP" );
+my @hc_dir = ("hc_lowdensity", "hc_standard", "hc_highdensity", "peripheral","pp_minbias","ppl_minbias","dau_minbias","auau_minbias","cucu200_minbias");
+my @daq_dir = ("minbias", "central", "ppMinBias", "dAuMinBias", "AuAuMinBias", "AuAu_prodHigh","AuAu_prodLow","prodPP","CuCu200_MinBias","CuCu200_HighTower","CuCu62_MinBias","CuCu22_MinBias");
 
 my @OUT_DIR;
 my @OUTD_DIR;
@@ -61,6 +61,10 @@ for ($i = 0; $i < scalar(@node_dir); $i++) {
    $OUT_DIR[$ii] = $TOP_DIRD . $node_dir[$i] . "/" . $dir_year[3] . "/" . $hc_dir[7];
   print "Output Dir for NEW :", $OUT_DIR[$ii], "\n";
     $ii++;
+
+  $OUT_DIR[$ii] = $TOP_DIRD . $node_dir[$i] . "/" . $dir_year[4] . "/" . $hc_dir[8];
+  print "Output Dir for NEW :", $OUT_DIR[$ii], "\n";
+    $ii++;
 }
 
 
@@ -84,6 +88,11 @@ for ($i = 0; $i < scalar(@node_daq); $i++) {
         $ii++;
    } 
  
+   for ($ik = 8; $ik < 12; $ik++) { 
+    $OUT_DIR[$ii] = $TOP_DIRD . $node_daq[$i] . "/" . $dir_year[4] . "/" . $daq_dir[$ik];
+   print "Output Dir for NEW :", $OUT_DIR[$ii], "\n";
+        $ii++;
+   } 
  }
 
 struct FileAttr => {
@@ -550,6 +559,10 @@ foreach  $eachOutNDir (@OUT_DIR) {
        $EvGen = "hijing";
        $EvType = "auau_minbias";
 
+    } elsif ($EvTp eq "cucu200_minbias") {
+       $EvGen = "hijing";
+       $EvType = "cucu_minbias";
+
    } else {
        $EvGen = "daq";
        $EvType = $EvTp;
@@ -596,6 +609,19 @@ foreach  $eachOutNDir (@OUT_DIR) {
      elsif($EvTp eq "prodPP") {
         $EvReq = 500;
       }   
+
+     elsif($EvTp eq "CuCu200_MinBias") {
+        $EvReq = 800;
+      }
+     elsif($EvTp eq "CuCu200_HighTower") {
+        $EvReq = 800;
+      }
+     elsif($EvTp eq "CuCu62_MinBias") {
+        $EvReq = 800;
+      }
+     elsif($EvTp eq "CuCu22_MinBias") {
+        $EvReq = 800;
+      }
 #       else {
 #      @prt = split(/\./,$bsname);
 #      $evR = $prt[1];
@@ -618,7 +644,13 @@ foreach  $eachOutNDir (@OUT_DIR) {
     elsif($EvTp eq "pp_minbias") {          
          $EvReq = 1000;
  }
-      
+    elsif($EvTp eq "auau_minbias") {          
+         $EvReq = 100;
+ }
+     elsif($EvTp eq "cucu_minbias") {          
+         $EvReq = 200;
+ }     
+     
       if( $bsname =~ /hc_highdensity/) {
       $lgFile = $eachOutNDir ."/" . $bsname ."16_evts.log" ;
       }elsif( $bsname =~ /hc_lowdensity/) {
@@ -1035,6 +1067,8 @@ sub  updateJSTable {
 
 #---------------------------------------------------------
 
+# print $fl_log, "\n";
+
   open (LOGFILE, $fl_log ) or die "cannot open $fl_log: $!\n";
 
    my @logfile = <LOGFILE>;
@@ -1182,20 +1216,20 @@ my $mRealTbfc = 0;
 ##### get CPU and Real Time per event
 
  if ($EvCom != 0) {
-    @cpu_output = `tail -1000 $fl_log`;
+    @cpu_output = `tail -5000 $fl_log`;
  
   foreach $end_line (@cpu_output){
           chop $end_line;
-   if ($end_line =~ /QAInfo: Chain/ and $end_line =~ /StBFChain::bfc/) {
+   if ($end_line =~ /StBFChain::bfc/) {
      @part = split (" ", $end_line); 
       $mCPUbfc = $part[6];
       $mRealTbfc = $part[4];
       $mCPUbfc = substr($mCPUbfc,1) + 0;
       $mRealTbfc = substr($mRealTbfc,1) + 0;
-#    print "CPU ", $mCPUbfc,"   %   ", $mRealTbfc, "\n";
+    print "CPU ", $mCPUbfc,"   %   ", $mRealTbfc, "\n";
      $mCPU = $mCPUbfc/$EvCom;
      $mRealT = $mRealTbfc/$EvCom;
-    
+ print "CPU per events ", $mCPU,"   %   ", $mRealT, "\n";   
    }else{
     next;
       }
