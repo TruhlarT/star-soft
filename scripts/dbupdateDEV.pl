@@ -71,7 +71,6 @@ my $thistime;
  $beforeDay = $Nday[$iday - 2];
 
   print "Day Name: ",$thisday, " % ", "Index", $iday, "\n";
-
  
 ##### setup output directories for DEV with thisDay
 
@@ -1245,6 +1244,7 @@ sub  updateJSTable {
  
 #  print $fl_log, "\n";
 
+ 
   open (LOGFILE, $fl_log ) or die "cannot open $fl_log: $!\n";
 
    my @logfile = <LOGFILE>;
@@ -1315,7 +1315,7 @@ my $mRealTbfc = 0;
     }
 # get number of tracks and vertices
 
-      if ($line =~ /QAInfo: StAnalysisMaker/ && $Anflag == 0 ) {
+      if ($line =~ /QA :INFO  - StAnalysisMaker/ && $Anflag == 0 ) {
             my  $string = $logfile[$num_line];
               @word_tr = split /:/,$string;
               @nmb =  split /</,$word_tr[2];
@@ -1369,11 +1369,10 @@ my $mRealTbfc = 0;
        $Err_messg = "Fatal in <operator new>";   
   }
 
-       if ( $line =~ /StQAInfo/ and $line =~ /Total events processed/) {
-
-        @part = split /:/,$line;
+       if ( $line =~ /INFO  - QAInfo:Run/ and $line =~ /Total events processed/) {
+         @part = split /:/,$line;
         $EvSkip = $part[4];
-    }      
+     }      
 # check if job is completed
      if ( $line =~ /Run completed/) {
           
@@ -1389,7 +1388,7 @@ my $mRealTbfc = 0;
       $EvDone = $no_event;
       $EvCom = $EvDone - $EvSkip;
 
-#  print "Number of events: ", $runflag,"  ", $no_event,"  ", $EvDone,"  ",$EvCom, ,"  ",$EvSkip, "\n";
+# print "Number of events: ", $runflag,"  ", $no_event,"  ", $EvDone,"  ",$EvCom, ,"  ",$EvSkip, "\n";
 
  
 ##### get CPU and Real Time per event
@@ -1404,8 +1403,8 @@ my $mRealTbfc = 0;
 #    if ( $end_line =~ /StBFChain::bfc/) {  
 #  print $end_line, "\n";
      @part = split (" ", $end_line); 
-      $mCPUbfc = $part[6];
-      $mRealTbfc = $part[4];
+      $mCPUbfc = $part[8];
+      $mRealTbfc = $part[6];
       $mCPUbfc = substr($mCPUbfc,1) + 0;
       $mRealTbfc = substr($mRealTbfc,1) + 0;
 #     print "CPU ", $mCPUbfc,"   %   ", $mRealTbfc, "\n";
@@ -1424,18 +1423,20 @@ my $mRealTbfc = 0;
 
 #   print "Number of tracks:  ",  $avr_tracks,"  ",$avr_vertices,"  ",$avr_prtracks,"  ",$avr_knvertices,"  ",$avr_xivertices, "\n"; 
 
-# print "Size of executable:  ", $EvDone, "  ", $no_event,"  ",$maker_size[$EvCom  -1], "\n";                               
+# print "Size of executable:  ", $EvDone, "  ", $no_event,"  ",$EvCom,"  ",$maker_size[$EvCom -1], "\n";                               
 
     if ( defined $maker_size[0]) { 
     $memFst = $maker_size[0];
     }else {
     $memFst = 0;
   }
-    if ( defined $maker_size[$EvCom - 1]) {
-    $memLst = $maker_size[$EvCom - 1];
+    if ( defined $maker_size[$EvCom -1]) {
+    $memLst = $maker_size[$EvCom -1];
     } else {
     $memLst = 0;
   }
  }      
+# print "Memory size:   ",$memFst, "   ", $memLst, "\n";
+ 
    close (LOGFILE);
   }
