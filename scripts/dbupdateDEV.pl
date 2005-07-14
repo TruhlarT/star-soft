@@ -101,6 +101,10 @@ for ($i = 0; $i < scalar(@node_dir) - 1; $i++) {
   print "Output Dir for DEV :", $OUT_DIR[$ii], "\n";
     $ii++;
 
+  $OUT_DIR[$ii] = $TOP_DIRD . $node_dir[2] . "/" . $testDay . "/". $dir_year[4] . "/" . $hc_dir[8];
+  print "Output Dir for DEV :", $OUT_DIR[$ii], "\n";
+    $ii++;
+
 my $jj = 0;
 #for ($i = 0; $i < scalar(@node_daq); $i++) {
 
@@ -170,6 +174,9 @@ $OUT_DIR[$ii] = $TOP_DIRD . $node_dir[2] . "/" . $beforeDay . "/". $dir_year[3] 
   print "Output Dir for DEV :", $OUT_DIR[$ii], "\n";
     $ii++;
 
+$OUT_DIR[$ii] = $TOP_DIRD . $node_dir[2] . "/" . $beforeDay . "/". $dir_year[4] . "/" . $hc_dir[8];
+  print "Output Dir for DEV :", $OUT_DIR[$ii], "\n";
+    $ii++;
 
 $jj = 0;
 
