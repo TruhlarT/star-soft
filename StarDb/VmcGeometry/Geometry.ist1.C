@@ -1,10 +1,10 @@
-#include "yist1.h"
+#include "ist1.h"
 TDataSet *CreateTable() {
-  yist1();
+  ist1();
   TObjectSet *geom = 0;
   if (gGeoManager) {
     geom = new TObjectSet("Geometry",gGeoManager,kFALSE);
-    geom->SetTitle("yist1");
+    geom->SetTitle("ist1");
   }
   return (TDataSet *) geom;
 }
