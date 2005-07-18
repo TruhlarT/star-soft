@@ -7,6 +7,7 @@ use File::Find;
 use File::Path;
 use POSIX;
 use File::Copy;
+use lib ("./mgr",$ENV{STAR} ."/mgr");
 #if (defined($AFS)) {$File::Find::dont_use_nlink;}
 #use lib qw(/usr/local/lib/site_perl);
 #use strict;
@@ -30,7 +31,7 @@ use Cwd;
 
 use vars qw( $CVS_id $CVS_ver $ver_num $ver_rev $version );
 
-$CVS_id = '$Id: cons,v 1.97 2005/01/06 17:41:45 jeromel Exp $ ';
+$CVS_id = '$Id: cons,v 1.98 2005/07/18 22:33:27 fisyak Exp $ ';
 $CVS_ver = (split(/\s+/, $CVS_id))[2];
 
 $ver_num = "2.3";
@@ -163,6 +164,7 @@ Arguments can be any of the following, in any order:
   -p		Show construction products in specified trees.
   -pa		Show construction products and associated actions.
   -pw		Show products and where they are defined.
+  -pd           Show products and their dependencies
 
   -q		Be quiet; multiple -q flags increase quietness level:
 		1: quiet about Installing and Removing targets
@@ -223,27 +225,31 @@ Arguments can be any of the following, in any order:
 # Default parameters.
 @param::include = ();
 @param::exclude = ();
-if ( -e "mgr/Construct"){
-    # Local construction file
-    $ENV{ConstructLocation} = "mgr/";
-    $param::defaultConstruct = "mgr/Construct";
-} else {
-    # Default construction file.
-    $ENV{ConstructLocation} = $STAR . "/mgr/";
-    $param::defaultConstruct = $STAR . "/mgr/Construct";
-}
-$param::defaultConscript = "";	# Default construction file.
+$param::defaultConstruct = "Construct";
+#if ( -e "mgr/Construct"){
+#    $param::defaultConstruct = "mgr/Construct";
+#} elsif (-e "$STAR/mgr/Construct") {
+#    $param::defaultConstruct = "$STAR/mgr/Construct";
+#}
+$param::defaultConscript = "Conscript-standard";	# Default construction file.
+#if ( -e "mgr/Conscript-standard"){
+#    $param::defaultConscript = "mgr/Conscript-standard";
+#} elsif (-e "$STAR/mgr/Conscript-standard")  {
+#    $param::defaultConscript = "$STAR/mgr/Conscript-standard";
+#}
 $param::defaultInclude   = "^include\$";  # Force to use default include path
-#$param::topfile = $param::defaultConstruct;
+$param::topfile = $param::defaultConstruct;
 #else
-$param::topfile = 'Construct';	# Top-level construction file.
+#$param::topfile = 'Construct';	# Top-level construction file.
 $param::install = 1;		# Show installations
 $param::build = 1;		# Build targets
 ### $param::show = 1;		# Show building of targets.
 $param::sigpro = 'md5';		# Signature protocol.
 $param::depfile = '';		# Write all deps out to this file
+$param::depflag =  0;		# Write all deps out to this file
 $param::salt = '';		# Salt derived file signatures with this.
 $param::sourcesig = ['*' => 'content'];# Source file signature calculation
+#$param::sourcesig = ['*' => 'stored-content'];# Source file signature calculation
 $param::rep_sig_times_ok = 1;	# Repository .consign times are in sync
 				#   w/files.
 $param::consignFile = ".consign." . $STAR_HOST_SYS;#$^O;
@@ -254,6 +260,7 @@ $param::noRepository = 1;       # should we use sources from repository
 $param::keep  = 0;
 @main::search_files = ();
 @param::defaults = ();
+@param::dependencies = ();
 #
 $indent = '';
 # Display a command while executing or otherwise. This
@@ -400,6 +407,8 @@ sub option {
 		    'o' =>    sub { $param::overfile = $_[0]; },
 		    'R' =>    sub { script::Repository($_[0]); },
 		    'S' =>    sub { $param::sigpro = $_[0]; },
+		    'D' =>    sub { $param::depfile = $_[0];#  $param::depflag=1; $param::build = 0;
+				  },
 		    'wf' =>   sub { $param::depfile = $_[0]; },
                     'c' =>    sub { $param::defaultConscript = $_[0]; },
 		);
@@ -649,8 +658,8 @@ sub buildtarget {
 	    my $entry;
 	    for $entry (sort keys %$members) {
 #		next if $entry eq $dir::CURDIR || $entry eq $dir::UPDIR;
-#yf 		next if $entry eq $dir::CURDIR || $entry eq $dir::UPDIR;
-		next if $entry eq $dir::CURDIR || $entry eq $dir::UPDIR or $entry eq $param::consignFile; # ignore hidden files
+ 		next if $entry eq $dir::CURDIR || $entry eq $dir::UPDIR;
+#yf		next if $entry eq $dir::CURDIR || $entry eq $dir::UPDIR or $entry eq $param::consignFile; # ignore hidden files
 		my($tgt) = $members->{$entry};
 		next if ref($tgt) ne "dir" && !exists($tgt->{builder});
 		my($stat) = buildtarget($members->{$entry});
@@ -674,8 +683,20 @@ sub buildtarget {
 	}
     }
     if ($param::build) {
-	#print((' ' x $level),"Building dependencies for ",$tgt->path,"\n") if $param::depends;
-	return build $tgt;
+      my($path) = $tgt->path;
+      @param::dependencies = ();
+#      if ($tgt->path) {
+#	print((' ' x $level),"Building dependencies for ",$tgt->path,"\n");
+#      }
+      my $flag = build $tgt;
+      my $deps = join(' ',@param::dependencies);
+      if ($deps) {
+	if ($param::depflag) {
+	  if ($param::depfile) {print main::DEPFILE "Target $path: $deps\n";}
+	  else {print("=========== Target $path: $deps\n");}
+	}
+      }
+      return $flag;
     } elsif ($param::pflag || $param::wflag || $param::aflag) {
 	if ($tgt->{builder}) {
 	    if ($param::wflag) {
@@ -822,6 +843,9 @@ sub main::doscripts {
 	  $p =~ s#.*\\##g;
 	  if ($p eq "Construct")  {$path = $param::defaultConstruct;}
 	  if ($p eq "Conscript")  {$path = $param::defaultConscript;}
+	  foreach my $d ( @INC ) {
+	    if (-e "$d/$path") {$path = "$d/$path"; last;}
+	  }
 	}
 	if (-f $path) {
 	    $dir::cwd = $priv::self->{script}->{dir};
@@ -1200,15 +1224,16 @@ sub wanted {
 	/^hold$/ ||
 	/^wrk$/)
      ) {$File::Find::prune = 1; return;}
+  if ( /^\.\#/) {return;}
   if (
-      /^.*\.c$/       ||
-      /^.*\.cc$/      ||
-      /^.*\.cxx$/     ||
-      /^.*\.cpp$/     ||
-      /^.*\.g$/       ||
-      /^.*\.age$/     || #for STAR      /^.*\.f$/       ||
-      /^.*\.cdf$/     ||
-      /^.*\.F$/) {# print " $File::Find::name\n";
+      /^\w.*\.c$/       ||
+      /^\w.*\.cc$/      ||
+      /^\w.*\.cxx$/     ||
+      /^\w.*\.cpp$/     ||
+      /^\w.*\.g$/       ||
+      /^\w.*\.age$/     || #for STAR      /^\w.*\.f$/       ||
+      /^\w.*\.cdf$/     ||
+      /^\w.*\.F$/) {# print " $File::Find::name\n";
     push @main::search_files,  $File::Find::name;
   }
 }
@@ -1231,7 +1256,8 @@ sub wanted_idlM {
 	/^wrk$/)
      ) {$File::Find::prune = 1; return;}
 #    print "=========>$_\n";
-  if (/^.*\.idl$/) {# print "name  $File::Find::name\n";
+  if ( /^\.\#/) {return;}
+  if (/^\w.*\.idl$/) {# print "name  $File::Find::name\n";
     open(SCAN, $_) or die("$0: couldn't open $_ ($!)\n");
     while (<SCAN>) {
       next unless /^\s*interface.*:.*amiModule/;
@@ -1258,12 +1284,13 @@ sub wanted_inc {
 	/^hold$/ ||
 	/^wrk$/)
      ) {$File::Find::prune = 1; return;}
-  if ( /^.*\.h$/|| /^.*\.hh$/ ||
-       /^.*\.inc$/  ||
-       /^.*\.hpp$/ ||
-       /^.*\.icpp$/ ||
-       /^.*\.icc$/ ||
-       /^.*\.tpp$/) {# print " $File::Find::name\n";
+  if ( /^\.\#/) {return;}
+  if ( /^\w.*\.h$/|| /^\w.*\.hh$/ ||
+       /^\w.*\.inc$/  ||
+       /^\w.*\.hpp$/ ||
+       /^\w.*\.icpp$/ ||
+       /^\w.*\.icc$/ ||
+       /^\w.*\.tpp$/) {# print " $File::Find::name\n";
       push @main::search_files,  $File::Find::name;
   }
 }
@@ -1284,7 +1311,8 @@ sub wanted_obj {
 	/^hold$/ ||
 	/^wrk$/)
      ) {$File::Find::prune = 1; return;}
-  if ( /^.*\.o$/|| /^.*\.obj$/) {# print " $File::Find::name\n";
+  if ( /^\.\#/) {return;}
+  if ( /^\w.*\.o$/|| /^\w.*\.obj$/) {# print " $File::Find::name\n";
       push @main::search_files,  $File::Find::name;
   }
 }
@@ -1341,7 +1369,8 @@ sub wanted_Def {
 	/^local$/    ||
 	/^hold$/     ||
 	/^wrk$/))       {$File::Find::prune = 1; return;}
-  if (/^.*\.h$/      || /^.*\.hh$/ ) {# print " $File::Find::name\n";
+  if ( /^\.\#/) {return;}
+  if (/^\w.*\.h$/      || /^\w.*\.hh$/ ) {# print " $File::Find::name\n";
     push @main::search_files,  $File::Find::name; }
 }
 #________________________________________
@@ -1373,7 +1402,8 @@ sub wanted_idl {
 	/^hold$/ ||
 	/^wrk$/)
      ) {$File::Find::prune = 1; return;}
-  if (/^.*\.idl$/) {#print " $File::Find::name\n";
+  if ( /^\.\#/) {return;}
+  if (/^\w.*\.idl$/) {#print " $File::Find::name\n";
     open(SCAN, $_) or die("$0: couldn't open $_ ($!)\n");
     while (<SCAN>) {
       next unless /^\s*struct/;
@@ -3671,8 +3701,12 @@ sub build {
 
 sub _build {
     my($self) = @_;
-    print main::DEPFILE $self->path, "\n" if $param::depfile;
-    print((' ' x $level), "Checking ", $self->path, "\n") if $param::depends;
+    print main::DEPFILE $self->path, "\n" if $param::depfile and !$param::depflag;
+    if ($param::depends) {
+      printf("%2i  ",$level/2);
+      print((' ' x $level), "Checking ", $self->path, "\n");
+    }
+    push @param::dependencies, $self->path; #print("add ",$self->path,"\n");
     if (!exists $self->{builder}) {
 	# We don't know how to build the file. This is OK, if
 	# the file is present as a source file, under either the
@@ -3891,20 +3925,62 @@ sub sigarray {
 }
 
 # Decide if this file's signature should be the content or build signature.
-sub sigtype {
-    if ($_[0]->{sigtype}) {
-	return $_[0]->{sigtype};
-    }
-    my $self = shift;
-    my @sigarray = $self->sigarray;
-    my $sigtype;
-    if (grep($_ eq "build", @sigarray)) {
-	$sigtype = 'bsig';
-    } elsif (grep($_ =~ /content$/, @sigarray)) {
-	$sigtype = 'csig';
-    }
-    return $self->{sigtype} = $sigtype;
-}
+#sub sigtype {
+#    if ($_[0]->{sigtype}) {
+#	return $_[0]->{sigtype};
+#    }
+#    my $self = shift;
+#    my @sigarray = $self->sigarray;
+#    my $sigtype;
+#    if (grep($_ eq "build", @sigarray)) {
+#	$sigtype = 'bsig';
+#    } elsif (grep($_ =~ /content$/, @sigarray)) {
+#	$sigtype = 'csig';
+#    }
+#    return $self->{sigtype} = $sigtype;
+#}
+#if new
+sub sigtype { 
+    my $self = shift; 
+    
+    # 
+    # If there is already a sigtype, this function is going to do nothing other 
+    # than exit with the sigtype already assigned.  This is the same as the 
+    # original method. 
+    # 
+    unless ($self->{sigtype}) 
+    { 
+        # 
+        # New functionality. 
+        # If there is already a signature, set the $sigtype to the type of 
+        # signature found. 
+        # 
+        foreach (qw(bsig csig)) 
+        { 
+            if ($self->{$_}) 
+            { 
+                $self->{sigtype} = $_; 
+                last; 
+            } 
+        } 
+    } 
+    
+    unless ($self->{sigtype}) 
+    { 
+        # 
+        # Set the $sigtype to a build signature, if that type is found in the 
+        # sigarray.  DON'T ask me why!!! 
+        # 
+        $self->{sigtype} = 'bsig' if grep {$_ eq "build"} $self->sigarray; 
+    } 
+    
+    # 
+    # New functionality. 
+    # Default to a content signature. 
+    #     
+    $self->{sigtype} ||= 'csig'; 
+} 
+#endif
 
 # Return whether this file is configured to use stored
 # signature values from the .consign file.
@@ -3914,7 +3990,6 @@ sub stored {
     }
     return $_[0]->{stored};
 }
-
 # Generic entry (file or directory) handling.
 # This is an empty subclass for nodes that haven't
 # quite decided whether they're files or dirs.
@@ -7233,6 +7308,10 @@ Show construction products and associated actions. No build is attempted.
 =item C<-pw>
 
 Show products and where they are defined. No build is attempted.
+
+=item C<-D>
+
+Write products and their dependencies into file. No build is attempted.
 
 =item C<-q>
 
