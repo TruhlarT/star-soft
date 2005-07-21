@@ -1324,31 +1324,41 @@ my $mRealTbfc = 0;
 
       if ($line =~ /QA :INFO  - StAnalysisMaker/ && $Anflag == 0 ) {
             my  $string = $logfile[$num_line];
+              chop $string; 
               @word_tr = split /:/,$string;
               @nmb =  split /</,$word_tr[2];
               $no_tracks = $nmb[0];
               $tot_tracks += $no_tracks; 
-              $string = $logfile[$num_line + 1];
+              $string = $logfile[$num_line + 2];
+             chop $string; 
               @word_tr = split /:/,$string;
               @nmb =  split /</,$word_tr[2];
               $no_prtracks = $nmb[0];
               $tot_prtracks += $no_prtracks;
-              $string = $logfile[$num_line + 2];
+              $string = $logfile[$num_line + 3];
+              chop $string;
+              if( $string =~ /V0 vertices/) { 
               @word_tr = split /:/,$string;
               @nmb =  split /</,$word_tr[2];
               $no_vertices = $nmb[0];              
               $tot_vertices += $no_vertices;
-              $string = $logfile[$num_line + 3];
+            }
+              $string = $logfile[$num_line + 4];
+               chop $string; 
+            if( $string =~ /Xi vertices/) { 
               @word_tr = split /:/,$string;
               @nmb =  split /</,$word_tr[2];
               $no_xivertices = $nmb[0];
               $tot_xivertices += $no_xivertices;
-              $string = $logfile[$num_line + 4];
+            }
+              $string = $logfile[$num_line + 5];
+               chop $string; 
+            if( $string =~ /Kink vertices/) {
               @word_tr = split /:/,$string;
               @nmb =  split /</,$word_tr[2];
               $no_knvertices = $nmb[0];
               $tot_knvertices += $no_knvertices;
-           
+        }   
 #  print "Number of tracks:  ", $no_tracks, "  ",$no_prtracks, "  ",$no_vertices,"  ",$no_xivertices, "\n";
   }   
 #  check if job crashed due to break_buss_error
