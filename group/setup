@@ -61,6 +61,10 @@ switch ($pkg)
 	if ( -f $GROUP_DIR/intelcc.csh  )  source $GROUP_DIR/intelcc.csh 
 	if ( $?optstar ) setenv  OPTSTAR  $optstar
 	if ( $?optstar ) setenv XOPTSTAR $xoptstar
+	if ( $?STARCMPL && -x $GROUP_DIR/dropit ) then
+	    setenv PATH            `$GROUP_DIR/dropit $STAR_HOST_SYS`
+	    setenv LD_LIBRARY_PATH `$GROUP_DIR/dropit -p $LD_LIBRARY_PATH $STAR_HOST_SYS`
+	endif 
 	setenv STARCMPL "icc"; starver $STAR_LEVEL
 	breaksw
 
@@ -83,6 +87,10 @@ switch ($pkg)
       endif
       if ( $?optstar ) setenv  OPTSTAR  $optstar
       if ( $?optstar ) setenv XOPTSTAR $xoptstar
+      if ( $?STARCMPL && -x $GROUP_DIR/dropit ) then
+	setenv PATH            `$GROUP_DIR/dropit $STAR_HOST_SYS`
+	setenv LD_LIBRARY_PATH `$GROUP_DIR/dropit -p $LD_LIBRARY_PATH $STAR_HOST_SYS`
+      endif 
       setenv STARCMPL "gcc"; starver $STAR_LEVEL
       breaksw
 
