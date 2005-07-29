@@ -45,13 +45,17 @@ alias   lf         'ls -CF'
 alias   terminal   'setenv TERM `/usr/bin/tset - \!*`'
 
 # YP fix
-if ( -x "/bin/domainname" ) then
-    if( ! $?DOMAINNAME) then
+if( ! $?DOMAINNAME) then
+    if ( -x "/bin/domainname" ) then
 	setenv DOMAINNAME `/bin/domainname`
+    else
+	setenv DOMAINNAME "(none)"
     endif
-    #if ($DOMAINNAME != "") then
-    #	alias passwd /usr/bin/yppasswd
-    #endif
+
+    # Fake it
+    if ( "$DOMAINNAME" == "(none)") then 
+       setenv DOMAINNAME `/bin/hostname | /bin/sed 's/^[^\.]*\.//'`
+    endif
 endif
 
 
