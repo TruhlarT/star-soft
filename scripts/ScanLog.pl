@@ -49,7 +49,7 @@ my $arch_dir = "/star/u/starreco/$ProdTag/requests/$Kind/archive/";
 
 my $datasourse = "DBI:mysql:operation:duvall.star.bnl.gov";
 my $username = "starreco";
-
+my $SDIR     = "ScanLog";
 
 
 my $logname;
@@ -125,6 +125,8 @@ closedir(ARCH);
 
 
 opendir(LOGDIR,$log_dir) || &Die("can't open $log_dir\n: $!");
+if ( ! -d "$log_dir/$SDIR"){   mkdir("$log_dir/$SDIR",0755);}
+
 while ( defined($logname = readdir(LOGDIR)) ){
     # we must check for only what we need since the directory
     # may contain other files. Besides, the .parsed will exist
@@ -155,18 +157,18 @@ while ( defined($logname = readdir(LOGDIR)) ){
 	    my $tmpname = $shortname;
 	    $tmpname =~ s/\.gz//;
 	    if( $tmpname ne $shortname){
-		if( -e "$log_dir/$tmpname.parsed"){
+		if( -e "$log_dir/$SDIR/$tmpname.parsed"){
 		    print
 			"Deleting (compressed version exists) ",
 			"$tmpname.parsed\n";
-		    unlink("$log_dir/$tmpname.parsed");
+		    unlink("$log_dir/$SDIR/$tmpname.parsed");
 		}
 	    }
 
 	    if ( -e "$log_dir/$shortname.parsed"){
 		# if a .parsed file exists, then skip it UNLESS
 		# the log file is more recent than the .parsed file.
-		my @info = stat("$log_dir/$shortname.parsed");
+		my @info = stat("$log_dir/$SDIR/$shortname.parsed");
 		if( $#info != -1){
 		    $pmtime = $info[9];
 		} else {
@@ -175,7 +177,7 @@ while ( defined($logname = readdir(LOGDIR)) ){
 		if ( $pmtime > $fc[9] ){
 		    next;
 		} else {
-		    unlink("$log_dir/$shortname.parsed");
+		    unlink("$log_dir/$SDIR/$shortname.parsed");
 		}
 	     } elsif ( $deltatime > $max_time ){
 		 # after max_time, and only after, we create a .parsed
@@ -184,10 +186,10 @@ while ( defined($logname = readdir(LOGDIR)) ){
 		 # if a run is started again, the .parsed file would be
 		 # deleted and the related log file would be treated as
 		 # a new one.
-		 if ( open(FO,">$log_dir/$shortname.parsed") ){
+		 if ( open(FO,">$log_dir/$SDIR/$shortname.parsed") ){
 		     print FO "$0 (Nikita Man) ".localtime()."\n";
 		     close(FO);
-		     chmod(0775,"$log_dir/$shortname.parsed");
+		     chmod(0775,"$log_dir/$SDIR/$shortname.parsed");
 		 }
 
 	     }
