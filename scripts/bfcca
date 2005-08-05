@@ -96,7 +96,7 @@ $BFC     = "bfc.C";                # arguments will be passed as numevt, chain, 
 $PERIOD  = 0;                      # See "+" mode
 $GENERICO= "";                     # Default generic output filename
 $SOFFTOL = 0.02;                   # Size offset tolerance (2%)
-$MAXFILL = 92;                     # Maximum disk occupency in %tage for free space algo
+$MAXFILL = 95;                     # Maximum disk occupency in %tage for free space algo
 
 
 # DF command allowing for multiple FS type
