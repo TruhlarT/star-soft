@@ -1,5 +1,5 @@
 #
-# $Id: BaseTables.sql,v 1.4 2003/01/09 20:30:26 porter Exp $
+# $Id: BaseTables.sql,v 1.5 2005/08/08 19:20:06 deph Exp $
 #
 # Author: R. Jeff Porter
 #***************************************************************************
@@ -10,6 +10,9 @@
 #****************************************************************************
 # 
 # $Log: BaseTables.sql,v $
+# Revision 1.5  2005/08/08 19:20:06  deph
+# COmmented out DROP table if EXISTS blah line.  IF database in new these tables should not be there.  Much safer to report if they are there, could be in the wrong DB.
+#
 # Revision 1.4  2003/01/09 20:30:26  porter
 # upgrade of db table structure scripts
 #
@@ -33,7 +36,7 @@
 #
 # Table structure for table 'schema'
 #
-DROP TABLE IF EXISTS schema;
+#DROP TABLE IF EXISTS schema;
 CREATE TABLE schema (
   name varchar(80) DEFAULT '' NOT NULL,
   type varchar(18) DEFAULT '' NOT NULL,
@@ -56,7 +59,7 @@ CREATE TABLE schema (
 #
 # Table structure for table 'structure'
 #
-DROP TABLE IF EXISTS structure;
+#DROP TABLE IF EXISTS structure;
 CREATE TABLE structure (
   name varchar(80) DEFAULT '' NOT NULL,
   lastSchemaID int(11) DEFAULT '1' NOT NULL,
@@ -78,7 +81,7 @@ CREATE TABLE structure (
 #
 # Table structre for table 'Nodes'
 #
-DROP TABLE IF EXISTS Nodes;
+#DROP TABLE IF EXISTS Nodes;
 CREATE TABLE Nodes (
   name varchar(80) DEFAULT '' NOT NULL,
   versionKey varchar(128) DEFAULT 'default' NOT NULL,
@@ -100,7 +103,7 @@ CREATE TABLE Nodes (
 #
 # Table structre for table 'NodeRelation'
 #
-DROP TABLE IF EXISTS NodeRelation;
+#DROP TABLE IF EXISTS NodeRelation;
 CREATE TABLE NodeRelation (
   ID int(11) NOT NULL auto_increment,
   ParentID int(11) DEFAULT '0' NOT NULL,
