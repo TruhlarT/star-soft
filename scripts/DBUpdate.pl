@@ -62,6 +62,7 @@ if ($#ARGV == -1){
 
 $SITE  = "BNL";
 $HPSSD = "/home/starreco";
+$CHKDIR= "/afs/rhic.bnl.gov/star/doc/www/html/tmp/pub/Spider";
 $SELF  = "DBUpdate";
 $LOUT  = 0;
 $FLNM  = "";
@@ -121,12 +122,12 @@ if ( ! defined($FTYPE) ){  $FTYPE = ".MuDst.root";}
 
 if( $DOIT && -e "$SCAND/$SUB"){
     if ($FTYPE ne ""){
-	print "Searching for all files like '*$FTYPE' ...\n";
-	@ALL   = `find $SCAND/$SUB -type f -name '*$FTYPE'`;
+	print "Searching for all files like '*$FTYPE' in $SCAND/$SUB  ...\n";
+	@ALL   = `/usr/bin/find $SCAND/$SUB -type f -name '*$FTYPE'`;
 	print "Found ".($#ALL+1)." files to add (x2)\n";
     } else {
-	print "Searching for all files ...\n";
-	@ALL   = `find $SCAND/$SUB -type f`;
+	print "Searching for all files in $SCAND/$SUB ...\n";
+	@ALL   = `/usr/bin/find $SCAND/$SUB -type f`;
 	print "Found ".($#ALL+1)." files to add (x2)\n";
     }
 }
@@ -175,7 +176,7 @@ $fC->set_silent(1);                  # Turn OFF messaging
 
 # Make a main context
 # Temporary so we get it once only
-chomp($NODE    = `hostname`);
+chomp($NODE    = `/bin/hostname`);
 
 
 
@@ -183,6 +184,12 @@ chomp($NODE    = `hostname`);
 
 foreach  $file (@ALL){
     chomp($file);
+
+    # Add hook file which will globally leave
+    if ( -e "$CHKDIR/$SELF.quit"){ 
+	&Stream("Warning :  $CHKDIR/$SELF.quit is present. Leaving");
+	last;
+    }
 
     # Skip some known pattern
     if ( $file =~ m/reco\/StarDb/){  next;}
@@ -251,7 +258,7 @@ foreach  $file (@ALL){
 		print "Cloning of $file did not occur\n";
 
 	    } else {
-		print "$mess File cloned ".sprintf("%.2f %%",($new/$#ALL)*100)."\n" 
+	        &Stream("$mess File cloned ".sprintf("%.2f %%",($new/$#ALL)*100)) 
 		    if ($new % 10 == 0);
 		$fC->set_context("persistent= 0");
 		
@@ -302,7 +309,11 @@ FINAL_EXIT:
 	if ($FO ne STDERR){ 
 	    print $FO "Scan done on ".localtime()."\n";
 	    close($FO);
-	    unlink("$FLNM") if ( -e "$FLNM");
+ 
+	    # Save previous
+	    if ( -e $FLNM.".last" ){  unlink($FLNM.".last");}
+	    if ( -e $FLNM ){          rename($FLNM,$FLNM.".last");}
+	    # rename new to final name
 	    rename("$FLNM.tmp","$FLNM");
 	}
     } else {
