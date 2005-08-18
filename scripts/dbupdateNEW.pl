@@ -1118,7 +1118,7 @@ my $mRealTbfc = 0;
        }
  
 #   get  number of events
-      if ( $line =~ /QAInfo: Done with Event/ ) {
+      if ( $line =~ /Done with Event/ ) {
         $no_event++;
      } 
 
@@ -1143,22 +1143,22 @@ my $mRealTbfc = 0;
               @nmb =  split /</,$word_tr[2];
               $no_tracks = $nmb[0];
               $tot_tracks += $no_tracks; 
-              $string = $logfile[$num_line + 1];
+              $string = $logfile[$num_line + 2];
               @word_tr = split /:/,$string;
               @nmb =  split /</,$word_tr[2];
               $no_prtracks = $nmb[0];
               $tot_prtracks += $no_prtracks;
-              $string = $logfile[$num_line + 2];
+              $string = $logfile[$num_line + 3];
               @word_tr = split /:/,$string;
               @nmb =  split /</,$word_tr[2];
               $no_vertices = $nmb[0];              
               $tot_vertices += $no_vertices;
-              $string = $logfile[$num_line + 3];
+              $string = $logfile[$num_line + 4];
               @word_tr = split /:/,$string;
               @nmb =  split /</,$word_tr[2];
               $no_xivertices = $nmb[0];
               $tot_xivertices += $no_xivertices;
-              $string = $logfile[$num_line + 4];
+              $string = $logfile[$num_line + 5];
               @word_tr = split /:/,$string;
               @nmb =  split /</,$word_tr[2];
               $no_knvertices = $nmb[0];
@@ -1191,7 +1191,7 @@ my $mRealTbfc = 0;
        $Err_messg = "Fatal in <operator new>";   
   }
 
-       if ( $line =~ /StQAInfo/ and $line =~ /Total events processed/) {
+       if ( $line =~ /INFO  - QAInfo:Run/ and $line =~ /Total events processed/) {
 
         @part = split /:/,$line;
         $EvSkip = $part[4];
@@ -1220,7 +1220,7 @@ my $mRealTbfc = 0;
  
   foreach $end_line (@cpu_output){
           chop $end_line;
-   if ($end_line =~ /StBFChain::bfc/) {
+   if ($end_line =~ /QAInfo:Chain/ and $end_line =~ /StBFChain::bfc/) {
      @part = split (" ", $end_line); 
       $mCPUbfc = $part[6];
       $mRealTbfc = $part[4];
