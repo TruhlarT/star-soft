@@ -10,6 +10,8 @@ my $archdir = "/home/starreco/newcrs/" . $prodSer ."/requests/daq/archive";
  my @statlist = ();
  my @joblist = ();
  my $timestamp ;
+ my $fullname;
+
 
  @statlist = `farmstat`;
 
@@ -62,8 +64,6 @@ $year = $yr + 1900 ;
 
     @joblist = `crs_job -stat_show_problem | grep ERROR` ;
 
-    chdir $archdir ;
-
     foreach $erline (@joblist) {
      chop $erline ;
 #     print $erline, "\n";       
@@ -75,7 +75,10 @@ $year = $yr + 1900 ;
 
       next if ($erline =~ /hpss_export_failed/ );
 
-     `mv $jobname $jobdir \n`;
+     $fullname = $archdir ."/". $jobname;
+     print "Job resubmitted: ", $fullname, "\n";
+
+     `mv $fullname $jobdir \n`;
   }
         `crs_job -kill_status ERROR`;
 
