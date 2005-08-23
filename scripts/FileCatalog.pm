@@ -123,7 +123,7 @@ require  Exporter;
 
 
 use vars qw($VERSION);
-$VERSION   =   "V01.297";
+$VERSION   =   "V01.298";
 
 # The hashes that hold a current context
 my %optoperset;
@@ -668,7 +668,7 @@ sub _ReadConfig
     foreach $scope ( (".",
 		      $ENV{HOME},
 		      $ENV{SCATALOG},
-		      $ENV{STAR}."/StDb/servers",
+		      defined($ENV{STAR})?$ENV{STAR}."/StDb/servers":"./StDb/servers",
 		      ) ){
 	if ( ! defined($scope) ){ next;}
 	&print_debug("_ReadConfig","XML :: Checking $scope");
