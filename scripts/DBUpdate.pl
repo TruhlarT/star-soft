@@ -187,7 +187,7 @@ foreach  $file (@ALL){
 
     # Add hook file which will globally leave
     if ( -e "$CHKDIR/$SELF.quit"){ 
-	&Stream("Warning :  $CHKDIR/$SELF.quit is present. Leaving");
+	print $FO "Warning :  $CHKDIR/$SELF.quit is present. Leaving\n";
 	last;
     }
 
