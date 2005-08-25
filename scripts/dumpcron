@@ -6,5 +6,5 @@
 #
 
 unset noclobber
-set HOST=`hostname | sed "s/\..*//"`
-crontab -l >$HOME/$HOST-$USER.cron
+set HOST=`/bin/hostname | /bin/sed "s/\..*//"`
+/usr/bin/crontab -l >$HOME/$HOST-$USER.cron
