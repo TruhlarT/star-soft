@@ -23,7 +23,6 @@ if ($level  >= 305 )  then
 	setenv ROOTSYS ${ROOT}/${ROOT_LEVEL}/.${STAR_HOST_SYS}/${p}root${x}
     endif
 
-
 else
     if ($level  >= 224 )  then
 	setenv ROOTSYS ${ROOT}/${ROOT_LEVEL}
@@ -35,6 +34,7 @@ else
 	set root   = ""
     endif
 endif
+
 
 
 
@@ -63,6 +63,31 @@ if ( -x ${GROUP_DIR}/dropit) then
     endif
 else
     setenv LD_LIBRARY_PATH ${ROOTSYS}/lib:${LD_LIBRARY_PATH}
+endif
+
+
+#
+# ATTENTION -- XROOTD NOT VALID PRIOR TO THIS VERSION
+#
+if ($level >= 404  && $?XROOTDSYS ) then
+    setenv LD_LIBRARY_PATH ${XROOTDSYS}/lib:${LD_LIBRARY_PATH}
+
+    # This indicates it will use pwdnetrc file and will not ask
+    # for a password 
+    setenv XrdSecPWDAUTOLOG  1
+
+    # Several user/password may apply. If so, define this PRIOR 
+    if ( ! $?XrdSecUSER ) then
+	setenv XrdSecUSER starread
+    endif
+
+    # Point to default auth files where the info will be found
+    if ( ! -e $HOME/.xrd/pwdnetrc && -e ${XROOTDSYS}/.xrd/pwdnetrc ) then
+	setenv XrdSecPWDALOGFILE ${XROOTDSYS}/.xrd/pwdnetrc
+    endif
+    if ( ! -e $HOME/.xrd/pwdsrvpuk && -e ${XROOTDSYS}/.xrd/pwdsrvpuk ) then
+	setenv XrdSecPWDSRVPUK   ${XROOTDSYS}/.xrd/pwdsrvpuk
+    endif
 endif
 
 
