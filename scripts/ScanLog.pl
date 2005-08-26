@@ -41,6 +41,7 @@ my $Kind    = defined($ARGV[2])?$ARGV[2]:"daq";
 my $min_size = 1200;
 my $min_time = 60;
 my $max_time = 3600;
+my $max_file = 250000; # PANASAS 350000 max
 
 #dirs
 my $log_dir = "/star/rcf/prodlog/$ProdTag/log/$Kind/";
@@ -105,6 +106,7 @@ my $sth4 = $dbh1->prepare("UPDATE RJobInfo SET ".
 			  "WHERE id=?");
 
 my $DEBUG=0;
+my $count = 0;
 
 
 if( ! $sth3 || ! $sth1){
@@ -129,8 +131,12 @@ if ( ! -d "$log_dir/$SDIR"){   mkdir("$log_dir/$SDIR",0755);}
 
 while ( defined($logname = readdir(LOGDIR)) ){
     # we must check for only what we need since the directory
-    # may contain other files. Besides, the .parsed will exist
-    # there.
+    # may contain other files. 
+    $count++;
+    if ( $count > $max_file){
+	&Die("$log_dir contains more than $max_file . Please clean.");
+    }
+
     if ( $logname =~ /\.log$/ || $logname =~ /\.log\.gz$/) {
 	$shortname = $logname;
         $err_file = $logname  = $log_dir . $logname;
@@ -138,6 +144,21 @@ while ( defined($logname = readdir(LOGDIR)) ){
 
 	# tried the un-compressed. If still nothing, well ...
 	if( ! -e $err_file){  $err_file =~ s/\.gz// ;}
+
+	# New CRS leaves .log .err while we have .log.gz .err.gz
+	if ( $logname =~ m/\.gz/ &&  $err_file =~ m/\.gz/ ){
+	    my($slog,$serr)=($logname,$err_file);
+	    my($l);
+	    $slog =~ s/\.gz//;
+	    $serr =~ s/\.gz//;
+	    if ( -e $slog && -e $slog){
+		$l = 0; while ( ! unlink($slog) || $l == 10){ $l++; sleep(2);}
+		$l = 0; while ( ! unlink($serr) || $l == 10){ $l++; sleep(2);}
+		print "Found .log/.err while analyzing .log.gz / .err.gz for $shortname\n" ;
+	    }
+	}
+
+
 
         @fc = stat($logname);
 	if( $#fc != -1){
@@ -356,6 +377,7 @@ $dbh1->disconnect();
 
 #subs
 #=======================================
+
 
 
 #
