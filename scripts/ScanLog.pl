@@ -186,7 +186,7 @@ while ( defined($logname = readdir(LOGDIR)) ){
 		}
 	    }
 
-	    if ( -e "$log_dir/$shortname.parsed"){
+	    if ( -e "$log_dir/$SDIR/$shortname.parsed"){
 		# if a .parsed file exists, then skip it UNLESS
 		# the log file is more recent than the .parsed file.
 		my @info = stat("$log_dir/$SDIR/$shortname.parsed");
@@ -285,7 +285,7 @@ while ( defined($logname = readdir(LOGDIR)) ){
 			    $err .= "$logerr | ";
 			}
 		    } else {
-			unless ($err =~ /$logerr/){
+			unless ( index($err,$logerr) >= 0){
 			    $err .= "$logerr | ";
 			}
 		    }
