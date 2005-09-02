@@ -39,7 +39,7 @@ $SpiderControl = "/cgi-bin/starreco/%%RELP%%/SpiderControl.cgi"; # a CGI control
 $BREAK{"01"} =  "User Space";
 $BREAK{"03"} =  "Reserved Usage Space Area";
 $BREAK{"06"} =  "Production Disks / Assigned TEMPORARY space for Projects";
-$BREAK{"08"} =  "Production Disks";
+$BREAK{"09"} =  "Production Disks";
 
 
 # Exclude those completely (alias, un-usable etc ...)
@@ -79,7 +79,7 @@ foreach $disk (@DISKS){
 	next;
     }
 
-    #print "DEBUG Checking $disk\n";
+    #print "DEBUG Checking $disk using $DF\n";
     chomp($res = `$DF $disk | /bin/grep % | /bin/grep '/'`);
     $res   =~ s/^\s*(.*?)\s*$/$1/;
     $res   =~ s/\s+/ /g;
