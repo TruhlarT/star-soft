@@ -15,7 +15,7 @@ my $j;         #move str num
 my %mvstr;     #move strings
 my %mvfiles;   #move file names
 my @wf;        #work files
-my $extended=1;
+my $extended=0;
 
 my($SELF)="MoveJob";
 
