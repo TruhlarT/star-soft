@@ -76,6 +76,7 @@ my $i = 0;
 my $m_time;
 my $c_time=1;
 my $pmtime;
+my $node = "unknown";
 
 my @fc;
 
@@ -91,8 +92,8 @@ if( defined($ARGV[1]) ){
 
 my $sth1 = $dbh1->prepare("INSERT INTO RJobInfo ".
 			  "(ProdTag, Trigger, LFName, ".
-			  "ctime, mtime, ErrorStr) ".
-			  "VALUES (?, ?, ?, ?, ?, ?)");
+			  "ctime, mtime, node, ErrorStr) ".
+			  "VALUES (?, ?, ?, ?, ?, ?, ?)");
 
 my $sth3=$dbh1->prepare("SELECT id, mtime FROM RJobInfo ".
 			"WHERE ProdTag = \"$ProdTag\" AND ".
@@ -101,6 +102,7 @@ my $sth3=$dbh1->prepare("SELECT id, mtime FROM RJobInfo ".
 
 my $sth4 = $dbh1->prepare("UPDATE RJobInfo SET ".
 			  "mtime=?, ".
+			  "node=?".
 			  "ErrorStr=?, ".
 			  "Status = 0 ".
 			  "WHERE id=?");
@@ -263,6 +265,26 @@ while ( defined($logname = readdir(LOGDIR)) ){
 		}
 
 		$err="";
+		$node="unknown";
+
+		# Get node name from header. Any header info should be around here
+		$cmd = &ZSHandle($logname,"/usr/bin/head -5");
+		#print "debug [$cmd] | grep 'running on'\n";
+		# head uses SIGPIPE. Prevent STDERR polution.
+		&DupSTDERR;
+		$node= `$cmd | grep 'running on'`;
+		&ResSTDERR; 
+		if ( $node =~ m/running/){
+		    chomp($node);
+		    $node=~ s/.*running on//i; 
+		    $node=~ s/^\s*(.*?)\s*$/$1/;
+		} else {
+		    $node = "unknown";
+		}
+		#die "debug [$node]\n";
+		
+
+		# Get list of errors
 		$cmd = &ZSHandle($logname,"/usr/bin/tail -5000");
 		# the above grep is not full-path-ed because it uses -E (GNU grep)
 		@log_errs2 = `$cmd | grep -E 'Break|Abort|Assert|relocation error'`;
@@ -292,7 +314,7 @@ while ( defined($logname = readdir(LOGDIR)) ){
 		}
 		undef(@log_errs2);
 
-
+		# Get event number - Faster to spilt in two loops
 		$cmd = &ZSHandle($logname,"/usr/bin/tail -5000");
 		@log_errs2 = `$cmd | /bin/grep 'Done with Event'`;
 		foreach $logerr (@log_errs2){
@@ -304,6 +326,7 @@ while ( defined($logname = readdir(LOGDIR)) ){
 		    $err = "After $tmp events $err\n";
 		}
 		undef(@log_errs2);
+
 
 		$cmd = &ZSHandle($err_file,"/usr/bin/tail -5");
 		@log_errs1 = `$cmd`;
@@ -337,12 +360,12 @@ while ( defined($logname = readdir(LOGDIR)) ){
 		    if ( $mtime != $fc[9] ){
 			#update record
 			print "Updated $shortname\n";
-			$sth4->execute($fc[9],$err,$id);
+			$sth4->execute($fc[9],$node,$err,$id);
 		    }
 		} else {
 		    #insert record
 		    print "Inserted $shortname\n";
-		    $sth1->execute($ProdTag, $Trigger, $shortname, $c_time, $fc[9], $err);
+		    $sth1->execute($ProdTag, $Trigger, $shortname, $c_time, $fc[9], $node ,$err);
 		}
 		print "----\n";
 	    } #if $err
@@ -491,4 +514,19 @@ sub CheckLockFile
     open(FO,">$fllock");
     print FO localtime()."\n";
     close(FO);
+}
+
+
+# Dup & Restore
+sub DupSTDERR
+{
+    open(SAVEERR,">&STDERR");
+    open(STDERR,">/dev/null");
+    select(STDERR);
+}
+sub ResSTDERR
+{
+    close(STDERR);
+    open(STDERR,">&SAVEERR");
+    close(SAVEERR);
 }
