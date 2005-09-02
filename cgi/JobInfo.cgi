@@ -238,7 +238,7 @@ if( ($ProdTag) || ($Trigger) ){
 		$query =~ s/Trigger = \"$Trigger\" AND//;
 	    }
 	}
-	$sth2 = $dbh1->prepare("SELECT id, ProdTag, Trigger, LFName, mtime, ErrorStr, Status ".
+	$sth2 = $dbh1->prepare("SELECT id, ProdTag, Trigger, LFName, mtime, node, ErrorStr, Status ".
 				  "FROM RJobInfo $query")
 	    or die "cannot prepare query";
 	$sth2->execute();
@@ -287,7 +287,7 @@ if( ($ProdTag) || ($Trigger) ){
 	    		"<TH>Status</TH>\n",
 	    		"<TH>Select</TH>\n",
 	    	"</TR>\n";
-	while( ($id, $prodtag, $trigger, $LFname, $mtime, $errstr, $status)= $sth2->fetchrow_array ){
+	while( ($id, $prodtag, $trigger, $LFname, $mtime, $node, $errstr, $status)= $sth2->fetchrow_array ){
 		
 #	    	$mTime = modtime($mtime);
 	    	$mTime = localtime($mtime);
@@ -296,6 +296,10 @@ if( ($ProdTag) || ($Trigger) ){
 	    	$errstr =~ s/\&/&amp;/g;
 	    	$errstr =~ s/</&lt;/g;
 	    	$errstr =~ s/>/&gt;/g;
+
+		if ( $errstr ne "" && $node ne "unknown"){
+		    $errstr = "<i>On $node</i><br>$errstr";
+		}
 
 	    	print
 		    "<TR align=center bgcolor=khaki>\n",
