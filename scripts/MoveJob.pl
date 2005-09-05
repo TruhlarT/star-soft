@@ -35,6 +35,7 @@ while( $actn ne "q"){
     foreach $actn (@items){
 	@nums = split(" ",$actn);
 
+      ACTIONS:
 	if( defined($nums[0]) ){
 	    if( ($nums[0] eq "l") or ($nums[0] eq "list")){
 		#show the list of files with contents
@@ -71,11 +72,20 @@ while( $actn ne "q"){
 		    # move entire file cmnd
 		    &question("move $mvfiles{$fnum} ? [yes] : ");
 		    if( ($actn eq "yes\n") or ($actn eq "\n") ){
-			foreach $key (keys(%mvstr)){
-			    @nums = split(" ",$key);
-			    if( $nums[0] == $fnum ){
-				&move_str("$fnum"." "."$nums[1]","all");
+			@all = keys %mvstr;
+			if ( $#all == -1){
+			    print "Please, use eXtend first, then move\n";
+			} else {
+			    foreach $key (keys(%mvstr)){
+				@nums = split(" ",$key);
+				if( $nums[0] == $fnum ){
+				    &move_str("$fnum"." "."$nums[1]","all");
+				}
 			    }
+			    # Auto-delete the file
+			    $nums[0] = "d";
+			    $nums[1] = $fnum;
+			    goto ACTIONS;
 			}
 		    }
 		}    
@@ -197,35 +207,41 @@ sub scanfiles{
 	    print 
 		$i." : $workfile      $ctime\n";
 	    $j=0;       
-	    while( defined($str=<FI>) ){   
-		undef(@str);     
-		@str = split(" ","$str");
-		$target = $str[1];
-		if( $str[0] =~ /(.*archive\/)(.*st_physics.*)/ ){
-		    $arch_dir = $1;
-		    $match = $2;
-		} elsif( $str[0] =~ /(.*archive\/)(.*st_zerobias.*)/ ){
-		    $arch_dir = $1;
-		    $match = $2;
-		}
 
-		if( -e $target && defined($match) ){
-		    @all = glob($arch_dir.$match);
-		    if ($#all != -1){
-			$source = $all[0];
-			if( -e $source ){
-			    chomp($source);
-			    $movestr = $source."   ".$target; 
-			    $mvstr{"$i"." "."$j"} = $movestr;
-			    if($extended){
-				print "\t$i"." $j"." $movestr\n";
-			    }
-			    $j++;
-			}
+	    if ( $extended ){
+		while( defined($str=<FI>) ){   
+		    undef(@str);     
+		    @str = split(" ","$str");
+		    $target = $str[1];
+		    if( $str[0] =~ /(.*archive\/)(.*st_physics.*)/ ){
+			$arch_dir = $1;
+			$match = $2;
+		    } elsif( $str[0] =~ /(.*archive\/)(.*st_zerobias.*)/ ){
+			$arch_dir = $1;
+			$match = $2;
+		    } elsif( $str[0] =~ /(.*archive\/)(.*st_express.*)/ ){
+			$arch_dir = $1;
+			$match = $2;
+		    } elsif( $str[0] =~ /(.*archive\/)(.*st_fast.*)/ ){
+			$arch_dir = $1;
+			$match = $2;
 		    }
-		} else {
-		    if($extended){ print "\t$target not found or pattern is not st_physics for $str[0]\n";}
-		}	
+
+		    if( -e $target && defined($match) ){
+			@all = glob($arch_dir.$match);
+			if ($#all != -1){
+			    $source = $all[0];
+			    if( -e $source ){
+				chomp($source);
+				$movestr = $source."   ".$target; 
+				$mvstr{"$i"." "."$j"} = $movestr;
+				print "\t$i"." $j"." $movestr\n";
+				$j++;
+			    }
+			}
+		    } else {
+			print "\t$target not found or pattern is not st_physics for $str[0]\n";}
+		    }	
 	    }
 	} else {
 	    warn "cannot open $workfile : $!\n";
