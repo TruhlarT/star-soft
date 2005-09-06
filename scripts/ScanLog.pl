@@ -107,7 +107,7 @@ my $sth4 = $dbh1->prepare("UPDATE RJobInfo SET ".
 			  "Status = 0 ".
 			  "WHERE id=?");
 
-my $DEBUG=0;
+my $DEBUG=$ENV{ScanLogDEBUG};
 my $count = 0;
 
 
@@ -139,6 +139,8 @@ while ( defined($logname = readdir(LOGDIR)) ){
 	&Die("$log_dir contains more than $max_file . Please clean.");
     }
 
+    print "Looking at $logname\n" if ($DEBUG);
+
     if ( $logname =~ /\.log$/ || $logname =~ /\.log\.gz$/) {
 	$shortname = $logname;
         $err_file = $logname  = $log_dir . $logname;
@@ -155,13 +157,17 @@ while ( defined($logname = readdir(LOGDIR)) ){
 	    $serr =~ s/\.gz//;
 	    if ( -e $slog && -e $slog){
 		$l = 0; while ( ! unlink($slog) || $l == 10){ $l++; sleep(2);}
+		if ($l == 10){ print "Warning: tried unlink($slog) 10 times and did not succeed\n";}
+
 		$l = 0; while ( ! unlink($serr) || $l == 10){ $l++; sleep(2);}
+		if ($l == 10){ print "Warning: tried unlink($serr) 10 times and did not succeed\n";}
+
 		print "Found .log/.err while analyzing .log.gz / .err.gz for $shortname\n" ;
 	    }
 	}
 
 
-
+	print " --> stat($logname)\n" if ($DEBUG);
         @fc = stat($logname);
 	if( $#fc != -1){
 	    $deltatime = time() - $fc[9];
@@ -200,6 +206,7 @@ while ( defined($logname = readdir(LOGDIR)) ){
 		if ( $pmtime > $fc[9] ){
 		    next;
 		} else {
+		    print "  --> Deleting $log_dir/$SDIR/$shortname.parsed\n" if ($DEBUG);
 		    unlink("$log_dir/$SDIR/$shortname.parsed");
 		}
 	     } elsif ( $deltatime > $max_time ){
@@ -209,6 +216,7 @@ while ( defined($logname = readdir(LOGDIR)) ){
 		 # if a run is started again, the .parsed file would be
 		 # deleted and the related log file would be treated as
 		 # a new one.
+		 print "  --> Creating $log_dir/$SDIR/$shortname.parsed\n"    if ($DEBUG);
 		 if ( open(FO,">$log_dir/$SDIR/$shortname.parsed") ){
 		     print FO "$0 (Nikita Man) ".localtime()."\n";
 		     close(FO);
@@ -239,6 +247,7 @@ while ( defined($logname = readdir(LOGDIR)) ){
 		}
 		$err="";
 		$cmd = &ZSHandle($err_file,"/usr/bin/tail -4");
+		print "  --> Will execute [$cmd]\n" if ($DEBUG);
 		@job_errs = `$cmd`;
 		for ( $i=0;$i<=$#job_errs;$i++ ){
 		    unless ( $err=~/$job_errs[$i]/ ){
@@ -272,6 +281,7 @@ while ( defined($logname = readdir(LOGDIR)) ){
 		#print "debug [$cmd] | grep 'running on'\n";
 		# head uses SIGPIPE. Prevent STDERR polution.
 		&DupSTDERR;
+		print "  --> Will execute [$cmd | grep 'running on']\n" if ($DEBUG);
 		$node= `$cmd | grep 'running on'`;
 		&ResSTDERR; 
 		if ( $node =~ m/running/){
@@ -286,8 +296,11 @@ while ( defined($logname = readdir(LOGDIR)) ){
 
 		# Get list of errors
 		$cmd = &ZSHandle($logname,"/usr/bin/tail -5000");
-		# the above grep is not full-path-ed because it uses -E (GNU grep)
-		@log_errs2 = `$cmd | grep -E 'Break|Abort|Assert|relocation error'`;
+		# the above grep is not full-path-ed because it uses 
+		# -E (GNU grep)
+		print "  --> Will execute $cmd | grep -E ...\n" if ($DEBUG);
+		@log_errs2 = 
+		    `$cmd | grep -E 'Break|Abort|Assert|relocation error'`;
 		foreach $logerr (@log_errs2){
 		    print "$logerr\n";
 		    if ( $logerr=~/(\*+\s+Break\s+\*+)(.*)/ ){
@@ -316,6 +329,7 @@ while ( defined($logname = readdir(LOGDIR)) ){
 
 		# Get event number - Faster to spilt in two loops
 		$cmd = &ZSHandle($logname,"/usr/bin/tail -5000");
+		print "  --> Will execute $cmd | /bin/grep 'Done with Event'\n" if ($DEBUG);
 		@log_errs2 = `$cmd | /bin/grep 'Done with Event'`;
 		foreach $logerr (@log_errs2){
 		    if($logerr =~ m/(\d+)(\/run)/){
@@ -329,6 +343,7 @@ while ( defined($logname = readdir(LOGDIR)) ){
 
 
 		$cmd = &ZSHandle($err_file,"/usr/bin/tail -5");
+		print "  --> Will execute $cmd\n" if ($DEBUG);
 		@log_errs1 = `$cmd`;
 		foreach $logerr (@log_errs1){
 		    chomp($logerr);
@@ -497,7 +512,7 @@ sub CheckLockFile
     # Checks if another one is running by using a lock file trick
     my ($fllock)="/tmp/ScanLog$ProdTag.lock";
     if ( -e $fllock){
-	my($mtime)=10800;      # 3 hours
+	my($mtime)=43200;      # 12 hours
 	my(@info)=stat($fllock);
 	if ( (time()-$info[9] ) > $mtime){
 	    # 3 hours
