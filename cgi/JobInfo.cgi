@@ -64,8 +64,10 @@ my $hostname   = "duvall.star.bnl.gov";
 my $username   = "starreco";
 
 # my $datasourse = "DBI:mysql:operation:duvall.star.bnl.gov";
-	
-my $scriptname = "/devcgi/JobInfo.cgi";
+
+my $query      = new CGI;	
+my $scriptname = $query->url(-relative=>1);
+my $full_script= $query->url();
 my @KINDS      = ("daq","event");         # Ugly hardwiring
 
 my @querystr;
@@ -100,6 +102,7 @@ if( ($ProdTag) || ($Trigger) ){
 
     if( $Method eq "Generate" ){
 	print "<!-- We are in Method=Generate -->\n";
+	if ( $full_script !~ /protected/ ){  &Bomb();}
 	$sth1 = $dbh1->prepare("SELECT ProdTag, Trigger, LFName ".
 			       "FROM RJobInfo ".
 			       "WHERE id = ?"
@@ -160,6 +163,8 @@ if( ($ProdTag) || ($Trigger) ){
 
     if( ($Method eq "MarkMoved") or ($Method eq "Create List") ){
 	print "<!-- We are in Method=MarkMoved -->\n";
+	if ( $full_script !~ /protected/ ){  &Bomb();}
+
 	$sth3 = $dbh1->prepare("UPDATE RJobInfo SET Status=1 WHERE id =?");
 	
 	&parse_formdata();
@@ -451,3 +456,14 @@ sub parse_formdata {
 }
 #==============================================================
 #ffdc9f
+
+sub Bomb
+{
+    $scriptname =~ s/.*\///;
+    print 
+	"<BLOCKQUOTE><FONT SIZE=\"+1\" COLOR=\"#0000FF\">\n",
+	" <B>Access of protected operation via un-protected script not allowed.<BR>\n",
+	" Use <A HREF=\"/cgi-bin/starreco/protected/$scriptname\">this link</A> instead\n",
+	"</FONT></BLOCKQUOTE>\n";
+    exit(1);
+}
