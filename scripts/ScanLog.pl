@@ -38,9 +38,9 @@ my $Kind    = defined($ARGV[2])?$ARGV[2]:"daq";
 
 &CheckLockFile();
 
-my $min_size = 1200;
-my $min_time = 60;
-my $max_time = 3600;
+my $min_size = 1200;   # minimal size for a log file in bytes (only error file scanned if smaller)
+my $min_time = 60;     # minimal age of a log before any treatement at all
+my $max_time = 3600;   # age of log a necessary before the creation of a marker file
 my $max_file = 250000; # PANASAS 350000 max
 
 #dirs
@@ -512,7 +512,7 @@ sub CheckLockFile
     # Checks if another one is running by using a lock file trick
     my ($fllock)="/tmp/ScanLog$ProdTag.lock";
     if ( -e $fllock){
-	my($mtime)=43200;      # 12 hours
+	my($mtime)=86400;      # 24 hours
 	my(@info)=stat($fllock);
 	if ( (time()-$info[9] ) > $mtime){
 	    # 3 hours
