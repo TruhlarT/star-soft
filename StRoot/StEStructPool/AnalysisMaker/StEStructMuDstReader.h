@@ -1,6 +1,6 @@
 /**********************************************************************
  *
- * $Id: StEStructMuDstReader.h,v 1.2 2005/09/07 20:18:43 prindle Exp $
+ * $Id: StEStructMuDstReader.h,v 1.3 2005/09/14 17:08:35 msd Exp $
  *
  * Author: Jeff Porter 
  *
@@ -35,7 +35,7 @@ public:
   bool mAmDone;
   bool mUseAllTracks;
   int  mCentBin;
-  int  mRefMult;//!
+  int  mNumGoodTracks;//!
   int  mhasdEdxCuts;
   TH2F*  dEdxBefore;
   TH2F*  dEdxAfter;
@@ -86,6 +86,9 @@ inline int StEStructMuDstReader::setCentBin(int centBin) {
 /***********************************************************************
  *
  * $Log: StEStructMuDstReader.h,v $
+ * Revision 1.3  2005/09/14 17:08:35  msd
+ * Fixed compiler warnings, a few tweaks and upgrades
+ *
  * Revision 1.2  2005/09/07 20:18:43  prindle
  *   AnalysisMaker: Keep track of currentAnalysis (for use in doEStruct macro)
  *   EventCuts.h:   Added trigger cuts including cucu and year 4.
