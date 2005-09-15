@@ -96,7 +96,7 @@ for ($k=$i=0 ; $i <= $#ARGV ; $i++){
 
 
 # -------------------------------------------------------------------------
-$TMPDIR  = "/tmp";                                   # temp dir on cron node
+$TMPDIR  = "/tmp/$$";                                # temp dir on cron node
 
 $BINPATH = "/usr/bin/";                              # path to bin for doxy-progs 
                                                      # for Web server (indexer)
@@ -124,11 +124,16 @@ if ( ! -e "$BINCRON/$DOXYGEN"){    chomp($DOXYGEN=`which $DOXYGEN`);
 if ( ! -e "$BINCRON/$DOXYTAG"){    chomp($DOXYTAG=`which $DOXYTAG`);
 } else {                                 $DOXYTAG= "$BINCRON/$DOXYTAG";}
 
+if ( ! -d $TMPDIR ){
+    if( ! mkdir($TMPDIR,0777) ){
+	print "\tDooo  !! Directory $TMPDIR cannot be created.\n";
+    }
+}
 
 # RE-check now
 if( ! -e $DOXYGEN){
     print "Boomer ! Required $DOXYGEN is missing. Please, install.\n";
-    exit;
+    &Exit();
 } 
 
 
@@ -147,7 +152,7 @@ if ($#PROJECTS != $#INDEXD || $#PROJECTS != $#SUBDIR){
     print 
 	"Missmatch in number of projects, directories and subdir ",
 	($#PROJECTS+1)," ",($#INDEXD+1)," ",($#SUBDIR+1),"\n";
-    exit;
+    &Exit();
 }
 
 $listidx = "";
@@ -190,7 +195,7 @@ for ($kk=0 ; $kk <= $#PROJECTS ; $kk++){
     if( ! -d "$TARGETD/dox"){
 	if( ! mkdir("$TARGETD/dox",0777) ){
 	    print "\tDooo  !! Directory $TARGETD/dox cannot be created.\n";
-	    exit;
+	    &Exit();
 	} else {
 	    print "\tCreated $TARGETD/dox\n";
 	}
@@ -200,15 +205,23 @@ for ($kk=0 ; $kk <= $#PROJECTS ; $kk++){
 	    print 
 		"\tHuuuu !! Missing config file $TARGETD/dox/$PROJECT.cfg ",
 		"and cannot create it ..\n";
-	    exit;
+	    &Exit();
 	} else {
 	    print "\tCreated $TARGETD/dox/$PROJECT.cfg\n";
 	}
     }
 
     print "\tGenerating $tmpf.cfg file from $TARGETD/dox/$PROJECT.cfg\n";
-    open(FI,"$TARGETD/dox/$PROJECT.cfg");
-    open(FO,">$tmpf.cfg");
+    if ( ! open(FI,"$TARGETD/dox/$PROJECT.cfg") ){
+	print "Could not open input  $TARGETD/dox/$PROJECT.cfg\n";
+	&Exit();
+    }
+
+    if ( -e "$tmpf.cfg"){  unlink("$tmpf.cfg");}
+    if ( ! open(FO,">$tmpf.cfg") ){ 
+	print "Could not open output $tmpf.cfg\n";
+	&Exit();
+    }
 
     $GENERATE_HTML = 0;
     $GENERATE_LATX = 0;
@@ -419,7 +432,10 @@ for ($kk=0 ; $kk <= $#PROJECTS ; $kk++){
     # -------------------------------------------------------------------
     if( 1==1 ){
 	print "\tScanning for errors/warnings\n";
-	open(FI,"$tmpf.log");
+	if ( ! open(FI,"$tmpf.log") ){
+	    print "Could not open input  $tmpf.log\n";
+	    &Exit();
+	}
 	while ( defined($line=<FI>) ){
 	    if($line =~ m/(Error\:)(.*)/){
 		$el = "Errors";
@@ -458,27 +474,35 @@ for ($kk=0 ; $kk <= $#PROJECTS ; $kk++){
 	print "\tHTML handling\n";
 	if( -d "$TARGETD/dox$SUBDIR/html"){
 	    print "\t\tReading index.html template file\n";
-	    open(FI,"$TARGETD/dox$SUBDIR/html/index.html");
-	    $tmp = 0;
-	    while ( defined($line = <FI>) ){
-		chomp($line);
-		if( $line =~ /<p>/){
-		    $tmp = 1;
-		} elsif ($line =~ /<hr><h1>.*/){
-		    # Ignore it
-		} else {
-		    if($tmp==1){
-			push(@TAIL,$line);
-		    } elsif ($tmp == 0) {
-			push(@HEAD,$line);
+	    if ( ! open(FI,"$TARGETD/dox$SUBDIR/html/index.html") ){
+		print 
+		    "\t\tERROR Could not open input  ",
+		    "$TARGETD/dox$SUBDIR/html/index.html\n",
+		    "\t\t --> Something went wrong with the document generation\n";
+	    } else {
+		$tmp = 0;
+		while ( defined($line = <FI>) ){
+		    chomp($line);
+		    if( $line =~ /<p>/){
+			$tmp = 1;
+		    } elsif ($line =~ /<hr><h1>.*/){
+			# Ignore it
+		    } else {
+			if($tmp==1){
+			    push(@TAIL,$line);
+			} elsif ($tmp == 0) {
+			    push(@HEAD,$line);
+			}
 		    }
 		}
+		close(FI);
 	    }
-	    close(FI);
-
 
 	    print "\t\tGenerating list of run-time errors\n";
-	    open(FO,">$TARGETD/dox$SUBDIR/html/doxycron-errors.html");
+	    if ( ! open(FO,">$TARGETD/dox$SUBDIR/html/doxycron-errors.html") ){
+		print "Could not open output $TARGETD/dox$SUBDIR/html/doxycron-errors.html\n";
+		&Exit();
+	    }
 
 	    # start with a reference list
 	    foreach $line (@HEAD){ print FO "$line\n";}
@@ -518,7 +542,9 @@ for ($kk=0 ; $kk <= $#PROJECTS ; $kk++){
 	    # Re-write the index file
 	    #
 	    print "\t\tRe-writing index.html\n";
-	    open(FO,">$TARGETD/dox$SUBDIR/html/index.html");
+	    if ( ! open(FO,">$TARGETD/dox$SUBDIR/html/index.html") ){
+		print "Could not open output $TARGETD/dox$SUBDIR/html/index.html\n";
+	    }
 	    foreach $line (@HEAD){ print FO "$line\n";}
 	    print FO 
 		"\n",
@@ -554,7 +580,10 @@ for ($kk=0 ; $kk <= $#PROJECTS ; $kk++){
 	# Adding this page relying on the php, older version will have to
 	# refer to the cgi for a standalone linkg to the search
 	print "\tAdding a custom made search page\n";
-	open(FO,">$TARGETD/dox$SUBDIR/html/search.html");
+	if ( ! open(FO,">$TARGETD/dox$SUBDIR/html/search.html") ){
+	    print "Could not open output $TARGETD/dox$SUBDIR/html/search.html\n";
+	    &Exit();
+	}
 	print FO "<!DOCTYPE HTML PUBLIC \"-//W3C//DTD HTML 4.01 Transitional//E";
   	print FO "N\">\n<html><head><meta http-equiv=\"Content-Type\" content=\"";
         print FO "text/html;charset=iso-8859-1\">\n<title>Search</title>\n<link";
@@ -570,6 +599,15 @@ for ($kk=0 ; $kk <= $#PROJECTS ; $kk++){
     # delete the log now
     print "\tRemoving log file\n";
     #unlink("$tmpf.log");
+}
+
+
+
+# Replace exit so we can make some cleanup
+sub Exit
+{
+    if ( -d $TMPDIR ){ rmdir($TMPDIR);}
+    exit;
 }
 
 
