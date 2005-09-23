@@ -1,6 +1,6 @@
 /**********************************************************************
  *
- * $Id: StEStructFlat.h,v 1.2 2005/09/07 20:22:51 prindle Exp $
+ * $Id: StEStructFlat.h,v 1.3 2005/09/23 23:37:22 prindle Exp $
  *
  * Author: Jeff Porter 
  *
@@ -33,11 +33,14 @@ class StEStructFlat : public StEStructEventReader {
   int  mRefMult;
   int  mEventsToDo;
 
-  void fillTracks(StEStructEvent* estructEvent);
-  bool isTrackGood(float *v, float *p, float eta);
-  int  countGoodTracks();
+  void   fillTracks(StEStructEvent* estructEvent);
+  double maxRadius(double eta, double pt, double vz);
+  bool   isTrackGood(float *v, float *p, float eta);
+  int    countGoodTracks();
 
   int mEventCount;
+  bool mgRand2Good;
+  double mgRand2;
 
  public:
 
@@ -62,6 +65,7 @@ class StEStructFlat : public StEStructEventReader {
   virtual StEStructEvent* next();
   virtual bool         done();
   void    generateEvent();
+  double  gRand48();
 
   ClassDef(StEStructFlat,1)
 };
@@ -137,6 +141,13 @@ inline float* StEStructFlat::globalDCA(float* p, float* v){
 /**********************************************************************
  *
  * $Log: StEStructFlat.h,v $
+ * Revision 1.3  2005/09/23 23:37:22  prindle
+ *
+ *   Starting to add vertex distribution and track acceptance dependance on
+ * number of possible hits.
+ *   Make Pythia interface look like Hijing interface so it now works within
+ * my Fluctuation and Correlation framework.
+ *
  * Revision 1.2  2005/09/07 20:22:51  prindle
  *
  *
