@@ -2953,9 +2953,11 @@ sub insert_file_location {
   #
   if (! defined $valuset{"createtime"}) {
       &print_debug("insert_file_location","WARNING: createtime not defined. Using a default value");
-      $createTime = "NULL";
+      $createTime = "NULL+0";
   } else {
       $createTime = $valuset{"createtime"};
+      $createTime =~ s/[:-]//g;
+      &print_debug("insert_file_location","Taking valuset $createTime");
   }
 
   if (! defined $valuset{"owner"}) {
@@ -2987,8 +2989,12 @@ sub insert_file_location {
 	  $nodeID = &check_ID_for_params("node"); # recheck index with default value
       }
   }
-  return 0 if ($nodeID == 0); # not because it is mandatory, but because it
-                              # it has failed
+  if ($nodeID == 0){
+      &print_debug("insert_file_location","NodeID is NULL (failed)");
+      return 0; 
+      # not because it is mandatory, but because it
+      # it has failed
+  }
 
 
   # now for those ...
