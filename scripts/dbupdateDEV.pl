@@ -23,9 +23,9 @@ require "/afs/rhic/star/packages/scripts/dbTJobsSetup.pl";
 my $TOP_DIRD = "/star/rcf/test/dev/";
 my @dir_year = ("year_2001", "year_1h", "year_2003", "year_2004", "year_2005");
 my @node_dir = ("trs_sl302", "trs_sl302_opt", "trs_sl302.ittf");
-my @node_daq = ("daq_sl302", "daq_sl302_opt","daq_sl302.icc80","daq_sl302.ittf","daq_sl302.ittf_opt");
-my @hc_dir = ("hc_lowdensity", "hc_standard", "hc_highdensity", "peripheral","pp_minbias","ppl_minbias","dau_minbias","auau_minbias","cucu200_minbias");
-my @daq_dir = ("minbias", "central", "embedding", "ppMinBias", "dAuMinBias", "AuAuMinBias", "AuAu_prodHigh","AuAu_prodLow","prodPP","CuCu200_MinBias","CuCu200_HighTower","CuCu62_MinBias","CuCu22_MinBias" );
+my @node_daq = ("daq_sl302", "daq_sl302_opt","daq_sl302.ittf","daq_sl302.ittf_opt");
+my @hc_dir = ("hc_lowdensity", "hc_standard", "hc_highdensity", "peripheral","pp_minbias","ppl_minbias","dau_minbias","auau_minbias","cucu200_minbias","cucu62_minbias");
+my @daq_dir = ("minbias", "central", "ppMinBias", "dAuMinBias", "AuAuMinBias", "AuAu_prodHigh","AuAu_prodLow","prodPP","CuCu200_MinBias","CuCu200_HighTower","CuCu62_MinBias","CuCu22_MinBias","ppProduction" );
 
 my @OUT_DIR;
 my @OUTD_DIR;
@@ -75,7 +75,7 @@ my $thistime;
 ##### setup output directories for DEV with thisDay
 
 for ($i = 0; $i < scalar(@node_dir) - 1; $i++) {
-      for ($ll = 0; $ll < scalar(@hc_dir) - 1; $ll++) {
+      for ($ll = 0; $ll < scalar(@hc_dir) - 4; $ll++) {
    $OUT_DIR[$ii] = $TOP_DIRD . $node_dir[$i] . "/" . $testDay . "/". $dir_year[0] . "/" . $hc_dir[$ll];
     print "Output Dir for DEV :", $OUT_DIR[$ii], "\n";
         $ii++;
@@ -92,42 +92,50 @@ for ($i = 0; $i < scalar(@node_dir) - 1; $i++) {
   print "Output Dir for DEV :", $OUT_DIR[$ii], "\n";
     $ii++;
 
- $OUT_DIR[$ii] = $TOP_DIRD . $node_dir[$i] . "/" . $testDay . "/". $dir_year[4] . "/" . $hc_dir[8];
+    for ($ik = 8; $ik < 10; $ik++) { 
+
+ $OUT_DIR[$ii] = $TOP_DIRD . $node_dir[$i] . "/" . $testDay . "/". $dir_year[4] . "/" . $hc_dir[$ik];
   print "Output Dir for DEV :", $OUT_DIR[$ii], "\n";
     $ii++;
+
+ }
+
 }
 
  $OUT_DIR[$ii] = $TOP_DIRD . $node_dir[2] . "/" . $testDay . "/". $dir_year[3] . "/" . $hc_dir[7];
   print "Output Dir for DEV :", $OUT_DIR[$ii], "\n";
     $ii++;
+      for ($ik = 8; $ik < 10; $ik++) { 
 
-  $OUT_DIR[$ii] = $TOP_DIRD . $node_dir[2] . "/" . $testDay . "/". $dir_year[4] . "/" . $hc_dir[8];
+  $OUT_DIR[$ii] = $TOP_DIRD . $node_dir[2] . "/" . $testDay . "/". $dir_year[4] . "/" . $hc_dir[$ik];
   print "Output Dir for DEV :", $OUT_DIR[$ii], "\n";
     $ii++;
+ }
 
+ 
 my $jj = 0;
 #for ($i = 0; $i < scalar(@node_daq); $i++) {
 
   for ($i = 0; $i < 2; $i++) {
-      for ($ll = 0; $ll < 4; $ll++) {
+      for ($ll = 0; $ll < 3; $ll++) {
           
    $OUT_DIR[$ii] = $TOP_DIRD . $node_daq[$i] . "/" . $testDay . "/". $dir_year[0] . "/" . $daq_dir[$ll];
    print "Output Dir for DEV :", $OUT_DIR[$ii], "\n";
         $ii++;
       }
-    for ($ik = 3; $ik < 5; $ik++) { 
+    for ($ik = 2; $ik < 4; $ik++) { 
     $OUT_DIR[$ii] = $TOP_DIRD . $node_daq[$i] . "/" . $testDay . "/". $dir_year[2] . "/" . $daq_dir[$ik];
    print "Output Dir for DEV :", $OUT_DIR[$ii], "\n";
         $ii++;
    } 
   }
   for ($i = 0; $i < scalar(@node_daq); $i++) {   
-   for ($ik = 5; $ik < 9; $ik++) { 
+   for ($ik = 4; $ik < 8; $ik++) { 
     $OUT_DIR[$ii] = $TOP_DIRD . $node_daq[$i] . "/" . $testDay . "/". $dir_year[3] . "/" . $daq_dir[$ik];
    print "Output Dir for DEV :", $OUT_DIR[$ii], "\n";
         $ii++;
    } 
-  for ($ik = 9; $ik < 13; $ik++) { 
+  for ($ik = 8; $ik < 13; $ik++) { 
     $OUT_DIR[$ii] = $TOP_DIRD . $node_daq[$i] . "/" . $testDay . "/". $dir_year[4] . "/" . $daq_dir[$ik];
    print "Output Dir for DEV :", $OUT_DIR[$ii], "\n";
         $ii++;
@@ -135,9 +143,8 @@ my $jj = 0;
 
  }
 
-
-    for ($i = 3; $i < 5; $i++) {
-    $OUT_DIR[$ii] = $TOP_DIRD . $node_daq[$i] . "/" . $testDay . "/". $dir_year[2] . "/" . $daq_dir[4];
+    for ($i = 2; $i < 4; $i++) {
+    $OUT_DIR[$ii] = $TOP_DIRD . $node_daq[$i] . "/" . $testDay . "/". $dir_year[2] . "/" . $daq_dir[3];
    print "Output Dir for DEV :", $OUT_DIR[$ii], "\n";
         $ii++;
    }
@@ -148,7 +155,7 @@ my $jj = 0;
 
  for ($i = 0; $i < scalar(@node_dir) - 1; $i++) {
 
-      for ($ll = 0; $ll < scalar(@hc_dir) - 1; $ll++) {
+      for ($ll = 0; $ll < scalar(@hc_dir) - 4; $ll++) {
    $OUT_DIR[$ii] = $TOP_DIRD . $node_dir[$i] . "/" . $beforeDay . "/". $dir_year[0] . "/" . $hc_dir[$ll];
     print "Output Dir for DEV :", $OUT_DIR[$ii], "\n";
         $ii++;
@@ -165,56 +172,63 @@ my $jj = 0;
   print "Output Dir for DEV :", $OUT_DIR[$ii], "\n";
     $ii++;
 
- $OUT_DIR[$ii] = $TOP_DIRD . $node_dir[$i] . "/" . $beforeDay . "/". $dir_year[4] . "/" . $hc_dir[8];
+     for ($ik = 8; $ik < 10; $ik++) { 
+
+ $OUT_DIR[$ii] = $TOP_DIRD . $node_dir[$i] . "/" . $beforeDay . "/". $dir_year[4] . "/" . $hc_dir[$ik];
   print "Output Dir for DEV :", $OUT_DIR[$ii], "\n";
     $ii++;
-}
+    }
+  }
+
 
 $OUT_DIR[$ii] = $TOP_DIRD . $node_dir[2] . "/" . $beforeDay . "/". $dir_year[3] . "/" . $hc_dir[7];
   print "Output Dir for DEV :", $OUT_DIR[$ii], "\n";
     $ii++;
 
-$OUT_DIR[$ii] = $TOP_DIRD . $node_dir[2] . "/" . $beforeDay . "/". $dir_year[4] . "/" . $hc_dir[8];
+     for ($ik = 8; $ik < 10; $ik++) { 
+
+$OUT_DIR[$ii] = $TOP_DIRD . $node_dir[2] . "/" . $beforeDay . "/". $dir_year[4] . "/" . $hc_dir[$ik];
   print "Output Dir for DEV :", $OUT_DIR[$ii], "\n";
     $ii++;
+  }
 
 $jj = 0;
 
 #for ($i = 0; $i < scalar(@node_daq); $i++) {
 
-  for ($i = 0; $i < 2; $i++) {
+ for ($i = 0; $i < 2; $i++) {
       for ($ll = 0; $ll < 3; $ll++) {
+          
    $OUT_DIR[$ii] = $TOP_DIRD . $node_daq[$i] . "/" . $beforeDay . "/". $dir_year[0] . "/" . $daq_dir[$ll];
-    print "Output Dir for DEV :", $OUT_DIR[$ii], "\n";
+   print "Output Dir for DEV :", $OUT_DIR[$ii], "\n";
         $ii++;
       }
-    for ($ik = 3; $ik < 5; $ik++) { 
+    for ($ik = 2; $ik < 4; $ik++) { 
     $OUT_DIR[$ii] = $TOP_DIRD . $node_daq[$i] . "/" . $beforeDay . "/". $dir_year[2] . "/" . $daq_dir[$ik];
    print "Output Dir for DEV :", $OUT_DIR[$ii], "\n";
         $ii++;
    } 
   }
-
   for ($i = 0; $i < scalar(@node_daq); $i++) {   
-   for ($ik = 5; $ik < 9; $ik++) { 
+   for ($ik = 4; $ik < 8; $ik++) { 
     $OUT_DIR[$ii] = $TOP_DIRD . $node_daq[$i] . "/" . $beforeDay . "/". $dir_year[3] . "/" . $daq_dir[$ik];
    print "Output Dir for DEV :", $OUT_DIR[$ii], "\n";
         $ii++;
    } 
-
-  for ($ik = 9; $ik < 13; $ik++) { 
+  for ($ik = 8; $ik < 13; $ik++) { 
     $OUT_DIR[$ii] = $TOP_DIRD . $node_daq[$i] . "/" . $beforeDay . "/". $dir_year[4] . "/" . $daq_dir[$ik];
    print "Output Dir for DEV :", $OUT_DIR[$ii], "\n";
         $ii++;
-   } 
+   }     
 
-  }
+ }
 
-      for ($i = 3; $i < 5; $i++) {
-    $OUT_DIR[$ii] = $TOP_DIRD . $node_daq[$i] . "/" . $beforeDay . "/". $dir_year[2] . "/" . $daq_dir[4];
+    for ($i = 2; $i < 4; $i++) {
+    $OUT_DIR[$ii] = $TOP_DIRD . $node_daq[$i] . "/" . $beforeDay . "/". $dir_year[2] . "/" . $daq_dir[3];
    print "Output Dir for DEV :", $OUT_DIR[$ii], "\n";
         $ii++;
    }
+
 
 
 struct FileAttr => {
@@ -714,7 +728,11 @@ foreach  $eachOutNDir (@OUT_DIR) {
  
    } elsif ($EvTp eq "cucu200_minbias") {
        $EvGen = "hijing";
-       $EvType = "cucu_minbias";
+       $EvType = "cucu200_minbias";
+
+  } elsif ($EvTp eq "cucu62_minbias") {
+       $EvGen = "hijing";
+       $EvType = "cucu62_minbias";
 
       } else {
        $EvGen = "daq";
@@ -759,6 +777,9 @@ foreach  $eachOutNDir (@OUT_DIR) {
      elsif($EvTp eq "AuAu_prodLow") {
         $EvReq = 100;
       }
+    elsif($EvTp eq "prodPP") {
+        $EvReq = 500;
+      }
 
      elsif($EvTp eq "CuCu200_MinBias") {
         $EvReq = 200;
@@ -771,6 +792,9 @@ foreach  $eachOutNDir (@OUT_DIR) {
       }
      elsif($EvTp eq "CuCu22_MinBias") {
         $EvReq = 200;
+      }
+     elsif($EvTp eq "ppProduction") {
+        $EvReq = 500;
       }
 #       else {
 #      @prt = split(/\./,$bsname);
@@ -800,7 +824,10 @@ foreach  $eachOutNDir (@OUT_DIR) {
      elsif($EvTp eq "auau_minbias") {          
          $EvReq = 100;
  }
-     elsif($EvTp eq "cucu_minbias") {          
+     elsif($EvTp eq "cucu200_minbias") {          
+         $EvReq = 200;
+ }
+    elsif($EvTp eq "cucu62_minbias") {          
          $EvReq = 200;
  }     
       if( $bsname =~ /hc_highdensity/) {
