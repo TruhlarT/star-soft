@@ -24,8 +24,8 @@ my $TOP_DIRD = "/star/rcf/test/new/";
 my @dir_year = ("year_2001", "year_1h", "year_2003", "year_2004", "year_2005");
 my @node_dir = ("trs_sl302", "trs_sl302_opt","trs_sl302.ittf", "trs_sl302.ittf_opt");
 my @node_daq = ("daq_sl302", "daq_sl302_opt","daq_sl302.ittf","daq_sl302.ittf_opt"); 
-my @hc_dir = ("hc_lowdensity", "hc_standard", "hc_highdensity", "peripheral","pp_minbias","ppl_minbias","dau_minbias","auau_minbias","cucu200_minbias");
-my @daq_dir = ("minbias", "central", "ppMinBias", "dAuMinBias", "AuAuMinBias", "AuAu_prodHigh","AuAu_prodLow","prodPP","CuCu200_MinBias","CuCu200_HighTower","CuCu62_MinBias","CuCu22_MinBias");
+my @hc_dir = ("hc_lowdensity", "hc_standard", "hc_highdensity", "peripheral","pp_minbias","ppl_minbias","dau_minbias","auau_minbias","cucu200_minbias","cucu62_minbias");
+my @daq_dir = ("minbias", "central", "ppMinBias", "dAuMinBias", "AuAuMinBias", "AuAu_prodHigh","AuAu_prodLow","prodPP","CuCu200_MinBias","CuCu200_HighTower","CuCu62_MinBias","CuCu22_MinBias","ppProduction");
 
 my @OUT_DIR;
 my @OUTD_DIR;
@@ -45,7 +45,7 @@ my $ii = 0;
 ##### setup output directories 
 
 for ($i = 0; $i < scalar(@node_dir); $i++) {
-      for ($ll = 0; $ll < scalar(@hc_dir) - 1; $ll++) {
+      for ($ll = 0; $ll < scalar(@hc_dir) - 4; $ll++) {
    $OUT_DIR[$ii] = $TOP_DIRD . $node_dir[$i] . "/" . $dir_year[0] . "/" . $hc_dir[$ll];
     print "Output Dir for NEW :", $OUT_DIR[$ii], "\n";
         $ii++;
@@ -62,12 +62,14 @@ for ($i = 0; $i < scalar(@node_dir); $i++) {
   print "Output Dir for NEW :", $OUT_DIR[$ii], "\n";
     $ii++;
 
-  $OUT_DIR[$ii] = $TOP_DIRD . $node_dir[$i] . "/" . $dir_year[4] . "/" . $hc_dir[8];
+     for ($ik = 8; $ik < 10; $ik++) {
+
+  $OUT_DIR[$ii] = $TOP_DIRD . $node_dir[$i] . "/" . $dir_year[4] . "/" . $hc_dir[$ik];
   print "Output Dir for NEW :", $OUT_DIR[$ii], "\n";
     $ii++;
-}
+    }
 
-
+  }
 
 my $jj = 0;
 for ($i = 0; $i < scalar(@node_daq); $i++) {
@@ -88,7 +90,7 @@ for ($i = 0; $i < scalar(@node_daq); $i++) {
         $ii++;
    } 
  
-   for ($ik = 8; $ik < 12; $ik++) { 
+   for ($ik = 8; $ik < 13; $ik++) { 
     $OUT_DIR[$ii] = $TOP_DIRD . $node_daq[$i] . "/" . $dir_year[4] . "/" . $daq_dir[$ik];
    print "Output Dir for NEW :", $OUT_DIR[$ii], "\n";
         $ii++;
@@ -561,7 +563,10 @@ foreach  $eachOutNDir (@OUT_DIR) {
 
     } elsif ($EvTp eq "cucu200_minbias") {
        $EvGen = "hijing";
-       $EvType = "cucu_minbias";
+       $EvType = "cucu200_minbias";
+    } elsif ($EvTp eq "cucu62_minbias") {
+       $EvGen = "hijing";
+       $EvType = "cucu62_minbias";
 
    } else {
        $EvGen = "daq";
@@ -622,6 +627,9 @@ foreach  $eachOutNDir (@OUT_DIR) {
      elsif($EvTp eq "CuCu22_MinBias") {
         $EvReq = 800;
       }
+     elsif($EvTp eq "ppProduction") {
+        $EvReq = 800;
+      }   
 #       else {
 #      @prt = split(/\./,$bsname);
 #      $evR = $prt[1];
@@ -647,10 +655,12 @@ foreach  $eachOutNDir (@OUT_DIR) {
     elsif($EvTp eq "auau_minbias") {          
          $EvReq = 100;
  }
-     elsif($EvTp eq "cucu_minbias") {          
+     elsif($EvTp eq "cucu200_minbias") {          
          $EvReq = 200;
  }     
-     
+     elsif($EvTp eq "cucu62_minbias") {          
+         $EvReq = 200;
+ }      
       if( $bsname =~ /hc_highdensity/) {
       $lgFile = $eachOutNDir ."/" . $bsname ."16_evts.log" ;
       }elsif( $bsname =~ /hc_lowdensity/) {
@@ -1071,7 +1081,9 @@ sub  updateJSTable {
 
   open (LOGFILE, $fl_log ) or die "cannot open $fl_log: $!\n";
 
-   my @logfile = <LOGFILE>;
+ my @logfile = ();
+
+   @logfile = <LOGFILE>;
 
 my $Anflag = 0;
 my $runflag = 0;
@@ -1191,7 +1203,7 @@ my $mRealTbfc = 0;
        $Err_messg = "Fatal in <operator new>";   
   }
 
-       if ( $line =~ /INFO  - QAInfo:Run/ and $line =~ /Total events processed/) {
+       if ( $line =~ /StQAInfo: QAInfo:Run/ and $line =~ /Total events processed/) {
 
         @part = split /:/,$line;
         $EvSkip = $part[4];
@@ -1226,10 +1238,10 @@ my $mRealTbfc = 0;
       $mRealTbfc = $part[4];
       $mCPUbfc = substr($mCPUbfc,1) + 0;
       $mRealTbfc = substr($mRealTbfc,1) + 0;
-    print "CPU ", $mCPUbfc,"   %   ", $mRealTbfc, "\n";
+#    print "CPU ", $mCPUbfc,"   %   ", $mRealTbfc, "\n";
      $mCPU = $mCPUbfc/$EvCom;
      $mRealT = $mRealTbfc/$EvCom;
- print "CPU per events ", $mCPU,"   %   ", $mRealT, "\n";   
+# print "CPU per events ", $mCPU,"   %   ", $mRealT, "\n";   
    }else{
     next;
       }
