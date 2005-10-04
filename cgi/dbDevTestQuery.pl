@@ -1,8 +1,11 @@
 #!/usr/bin/env perl 
 #
-# $Id: dbDevTestQuery.pl,v 1.16 2005/05/05 21:21:31 didenko Exp $
+# $Id: dbDevTestQuery.pl,v 1.17 2005/10/04 14:42:20 didenko Exp $
 #
 # $Log: dbDevTestQuery.pl,v $
+# Revision 1.17  2005/10/04 14:42:20  didenko
+# updated for cucu hijing and pp200 run 2005
+#
 # Revision 1.16  2005/05/05 21:21:31  didenko
 # updated for CuCu data
 #
@@ -72,6 +75,8 @@ my @prod_set = (
                 "trs_sl302/year_2001/pp_minbias",
                 "trs_sl302/year_2003/dau_minbias",
                 "trs_sl302/year_2004/auau_minbias", 
+                "trs_sl302/year_2005/cucu200_minbias",
+                "trs_sl302/year_2005/cucu62_minbias",
 		"daq_sl302/year_2001/minbias",
                 "daq_sl302/year_2001/central",
                 "daq_sl302/year_2001/ppMinBias",
@@ -85,6 +90,7 @@ my @prod_set = (
                 "daq_sl302/year_2005/CuCu200_MinBias",
                 "daq_sl302/year_2005/CuCu62_MinBias",
                 "daq_sl302/year_2005/CuCu22_MinBias",
+                "daq_sl302/year_2005/ppProduction", 
 		);
 
 my @sets_name;
