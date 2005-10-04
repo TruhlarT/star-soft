@@ -1,4 +1,4 @@
-#! /usr/local/bin/perl -w
+#!/usr/local/bin/perl -w
 #
 # L. Didenko
 ###############################################################################
@@ -11,7 +11,7 @@
 
  @statlist = `farmstat`;
  
- my $year = "2005";
+ my $year;
  my $mon = 0;
  my $mday = 0;
  my $hour = 0;
@@ -20,19 +20,22 @@
  my $thisday ;
 
 my $Nsubm = 0;
+my $Nsubmfail = 0;
 my $Nstart = 0;
 my $Nimportw = 0;
 my $Nimporth = 0;
+my $Nsleep = 0;
 my $Nexe = 0;
 my $Nexportw = 0;
 my $Nexporth = 0;
+my $Nexportu = 0;
 my $Ndone = 0;
 my $Nerror = 0;
 my $Nfatal = 0;
 my @prt = ();
 
 
- ($sec,$min,$hour,$mday,$mon) = localtime;
+ ($sec,$min,$hour,$mday,$mon,$yr) = localtime;
 
 
     $mon++;
@@ -40,7 +43,9 @@ if( $mon < 10) { $mon = '0'.$mon };
 if( $mday < 10) { $mday = '0'.$mday };
 if( $hour < 10) { $hour = '0'.$hour };
 if( $min < 10) { $min = '0'.$min };
-if( $sec < 10) { $min = '0'.$sec };
+if( $sec < 10) { $sec = '0'.$sec };
+
+  $year = $yr + 1900;
 
   $thisday = $year."-".$mon."-".$mday." ".$hour.":".$min.":".$sec;
 
@@ -61,14 +66,20 @@ if( $sec < 10) { $min = '0'.$sec };
         $Nimportw =  $prt[1]; 
 	} elsif ($prt[0] eq "MAIN-IMPORT-HPSS") {       
         $Nimporth =  $prt[1];
+	} elsif ($prt[0] eq "MAIN-SLEEP") {       
+        $Nsleep =  $prt[1];
 	} elsif ($prt[0] eq "MAIN-EXEC") { 
          $Nexec =  $prt[1];
+	} elsif ($prt[0] eq "MAIN-EXPORT-UNIX") { 
+         $Nexportu =  $prt[1];
 	} elsif ($prt[0] eq "MAIN-EXPORT-WAITING") { 
          $Nexportw =  $prt[1];
 	} elsif ($prt[0] eq "MAIN-EXPORT-HPSS") { 
          $Nexporth  =  $prt[1];
 	} elsif ($prt[0] eq "DONE") { 
          $Ndone =  $prt[1];
+	} elsif ($prt[0] eq "SUBMIT_FAILED") { 
+         $Nsubmfail =  $prt[1];
 	} elsif ($prt[0] eq "ERROR") {        
          $Nerror =  $prt[1];
  	} elsif ($prt[0] eq "FATAL") {        
@@ -91,16 +102,20 @@ exit;
 
  $sql="insert into $crsJobStatusT set ";
  $sql.="submitted='$Nsubm',";
+ $sql.="submitFailed='$Nsubmfail',";
  $sql.="started='$Nstart',";
  $sql.="importWaiting='$Nimportw',"; 
  $sql.="importHPSS='$Nimporth',";
+ $sql.="sleep='$Nsleep',";
  $sql.="executing='$Nexec',";
  $sql.="exportWaiting='$Nexportw',";
  $sql.="exportHPSS='$Nexporth',";
+ $sql.="exportUNIX='$Nexportu',";
  $sql.="done='$Ndone',";
  $sql.="error='$Nerror',";
  $sql.="fatal='$Nfatal',";
  $sql.="sdate='$thisday' "; 
     print "$sql\n" if $debugOn;
-  $rv = $dbh->do($sql) || die $dbh->errstr;
+    # $rv = $dbh->do($sql) || die $dbh->errstr;
+    $dbh->do($sql) || die $dbh->errstr;
    }
