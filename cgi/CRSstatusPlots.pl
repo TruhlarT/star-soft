@@ -1,11 +1,11 @@
 #!/usr/local/bin/perl
 #!/usr/bin/env perl 
 #
-# $Id: CRSstatusPlots.pl,v 1.1 2005/10/06 14:17:25 didenko Exp $
+# $Id: CRSstatusPlots.pl,v 1.2 2005/10/06 15:41:10 didenko Exp $
 #
 # $Log: CRSstatusPlots.pl,v $
-# Revision 1.1  2005/10/06 14:17:25  didenko
-# script to monitor CRS farm status
+# Revision 1.2  2005/10/06 15:41:10  didenko
+# updated
 #
 #
 #
@@ -33,9 +33,6 @@ my @legend;
  my $fstatus   =  $query->param('statusfield');
  my $fperiod   =  $query->param('period');
 
-
-print $fstatus, "\n";
-print $fperiod, "\n";
 
 if ( ($fstatus eq "") || ($fperiod eq "") ) {
     print $query->header;
@@ -86,9 +83,9 @@ my @prt = ();
 
 
 	if ($fperiod eq "day") {
-	    $sql="SELECT $fstatus FROM  $crsJobStatusT WHERE sdate LIKE \"$nowdate%\"  ORDER by sdate ";
+	    $sql="SELECT $fstatus, sdate FROM  $crsJobStatusT WHERE sdate LIKE \"$nowdate%\"  ORDER by sdate ";
         }else {
-            $sql="SELECT $fstatus FROM  $crsJobStatusT WHERE (TO_DAYS(\"$nowdate\") - TO_DAYS(sdate)) < $day_diff ORDER by sdate ";
+            $sql="SELECT $fstatus, sdate FROM  $crsJobStatusT WHERE (TO_DAYS(\"$nowdate\") - TO_DAYS(sdate)) < $day_diff ORDER by sdate ";
       }
 
 	$cursor = $dbh->prepare($sql) || die "Cannot prepare statement: $dbh->errstr\n";
@@ -96,9 +93,9 @@ my @prt = ();
 	while(@fields = $cursor->fetchrow_array) {
 
 		$numjobs[$ii] = $fields[0];
-                $Npoint[$ii] = $ii + 1 ; 
+                $Npoint[$ii] =  $fields[1]; 
                	$ii++;
-#        print "$fstatus= $fields[0]\n" ; 
+ 
  }
 
 
@@ -117,12 +114,24 @@ if ( ! $graph){
 
 
     my $min_y = 0;
-    my $max_y = scalar(@numjobs +1); 
+    my $max_y = 500;  
 
-    $graph->set(#x_label => "$xlabel",
+ my $xLabelsVertical = 1;
+ my $xLabelPosition = 0;
+ my $xLabelSkip = 1;
+
+$xLabelSkip = 2  if( $fperiod eq "day" );
+$xLabelSkip = 12  if( $fperiod eq "week" );
+$xLabelSkip = 24 if( $fperiod eq "1_month" );
+$xLabelSkip = 48 if( $fperiod eq "2_month" );
+$xLabelSkip = 72 if( $fperiod eq "3_month" );
+$xLabelSkip = 96 if( $fperiod eq "4_month" );
+$xLabelSkip = 120 if( $fperiod eq "5_month" );
+$xLabelSkip = 144 if( $fperiod eq "6_month" );
+ 
+    $graph->set(x_label => "  ",
 		#y_label => "Number of jobs",
-		x_label_position => 0.5,
-		title   => "Number of jobs in $fstatus",
+		title   => "Number of jobs in status '$fstatus' for the period of $fperiod ",
 		y_tick_number => 10,
 		y_min_value => $min_y,
 		y_max_value => $max_y,
@@ -131,8 +140,9 @@ if ( ! $graph){
 		dclrs => [ qw(lblack lblue lred lgreen lpink lpurple lorange lyellow ) ],
 		line_width => 2,
 		markers => [ 2,3,4,5,6,7,8,9],
-		marker_size => 6,
-		#long_ticks => 1
+		marker_size => 1,
+                x_label_skip => $xLabelSkip, 
+                x_labels_vertical =>$xLabelsVertical, 		
 		);
 
 #    $graph->set_legend(@legend);
@@ -154,4 +164,3 @@ sub y_format
     $ret = sprintf("%8.2f", $value);
 }
 
- exit 0
