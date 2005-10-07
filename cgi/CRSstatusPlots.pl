@@ -1,11 +1,11 @@
 #!/usr/local/bin/perl
 #!/usr/bin/env perl 
 #
-# $Id: CRSstatusPlots.pl,v 1.3 2005/10/07 20:38:33 didenko Exp $
+# $Id: CRSstatusPlots.pl,v 1.4 2005/10/07 21:00:54 didenko Exp $
 #
 # $Log: CRSstatusPlots.pl,v $
-# Revision 1.3  2005/10/07 20:38:33  didenko
-# adjusted y limit
+# Revision 1.4  2005/10/07 21:00:54  didenko
+# more improvements
 #
 #
 #
@@ -124,8 +124,19 @@ if ( ! $graph){
     print STDOUT $query->header(-type => 'image/gif');
     binmode STDOUT;
 
-
- $max_y = $maxvalue + 200;  
+   if($maxvalue <= 20) {
+    $max_y = $maxvalue + 10;
+  }elsif($maxvalue <= 50) {
+    $max_y = $maxvalue + 20;
+  }elsif( $maxvalue <= 100) {
+    $max_y = $maxvalue + 50;
+  }elsif( $maxvalue <= 200) {
+    $max_y = $maxvalue + 100;
+  }elsif( $maxvalue <= 1000) {
+    $max_y = $maxvalue + 200;
+   }else{
+   $max_y = $maxvalue + 400;  
+  }
 
  my $xLabelsVertical = 1;
  my $xLabelPosition = 0;
