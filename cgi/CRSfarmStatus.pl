@@ -1,11 +1,11 @@
 #!/usr/local/bin/perl
 #!/usr/bin/env perl 
 #
-# $Id: CRSfarmStatus.pl,v 1.1 2005/10/07 16:07:50 didenko Exp $
+# $Id: CRSfarmStatus.pl,v 1.2 2005/10/07 16:54:39 didenko Exp $
 #
 # $Log: CRSfarmStatus.pl,v $
-# Revision 1.1  2005/10/07 16:07:50  didenko
-# farm status
+# Revision 1.2  2005/10/07 16:54:39  didenko
+# updated limit
 #
 # Revision 1.2  2005/10/06 15:41:10  didenko
 # updated
@@ -28,8 +28,9 @@ use Mysql;
 
 my $query = new CGI;
 
-my $day_diff = 8;
-my $max_y = 500000, $min_y = 0;
+my $day_diff = 1;
+my $max_y = 10000;
+my $min_y = 0;
 my @data;
 my @legend;
 
@@ -51,7 +52,7 @@ my @numjobs3 = ();
 my @numjobs4 = ();
 my @numjobs5 = ();
 my @Npoint = ();
-
+my @maxvalue = ();
 
 ($sec,$min,$hour,$mday,$mon,$year) = localtime;
 
@@ -82,15 +83,32 @@ my @prt = ();
 
    &StcrsdbConnect();
 
-	   my $ii = 0;
-
  @numjobs1 = ();
  @numjobs2 = ();
  @numjobs3 = ();
  @numjobs4 = ();
  @numjobs5 = ();
  @Npoint = ();
+ @maxvalue = ();
 
+
+ 	if ($fperiod eq "day") {
+	    $sql="SELECT max(executing), max(importWaiting), max(exportWaiting), max(error) FROM  $crsJobStatusT WHERE sdate LIKE \"$nowdate%\" ";
+        }else {
+            $sql="SELECT max(executing), max(importWaiting), max(exportWaiting), max(error) FROM  $crsJobStatusT WHERE (TO_DAYS(\"$nowdate\") - TO_DAYS(sdate)) < $day_diff ";
+      }
+
+	$cursor = $dbh->prepare($sql) || die "Cannot prepare statement: $dbh->errstr\n";
+	$cursor->execute;
+	while(@fields = $cursor->fetchrow_array) {  
+
+ 		$maxvalue[0] = $fields[0];
+		$maxvalue[1] = $fields[1];
+		$maxvalue[2] = $fields[2];
+		$maxvalue[3] = $fields[3];   
+	    }
+
+ my $ii = 0;
 
 	if ($fperiod eq "day") {
 	    $sql="SELECT executing, importWaiting, exportWaiting, error, sdate FROM  $crsJobStatusT WHERE sdate LIKE \"$nowdate%\"  ORDER by sdate ";
@@ -131,9 +149,17 @@ if ( ! $graph){
     print STDOUT $query->header(-type => 'image/gif');
     binmode STDOUT;
 
+    my  $ymax = 1;
 
-    my $min_y = 0;
-    my $max_y = 600;  
+    for ($k = 0; $k < scalar(@maxvalue); $k++) {
+	if( $ymax <= $maxvalue[$k]) {
+     $ymax = $maxvalue[$k];    
+       }
+    }
+
+
+  $min_y = 0;
+  $max_y = $ymax + 200 ;  
 
  my $xLabelsVertical = 1;
  my $xLabelPosition = 0;
