@@ -34,8 +34,9 @@ print $query->startform(-action=>"CRSfarmStatus.pl?rand=$rand");
 
 print "<body bgcolor=\"cornsilk\">\n";
 print "<h1 align=center><u>CRS farm status</u></h1>\n";
-
+print "<br>";
 print <<END;
+
 <hr>
 <table BORDER=0 align=center width=99% cellspacing=3>
 <tr ALIGN=center VALIGN=CENTER NOSAVE>
@@ -43,9 +44,8 @@ print <<END;
 END
 
 print "<p>";
-print "<br>";
 print "</td><td>";
-print "<h3 align=center> Select period:</h3>";
+print "<h3 align=center> Select period of monitoring</h3>";
 print "<h4 align=center>";
 print  $query->scrolling_list(-name=>'period',
 			     -values=>\@reqperiod,
@@ -55,7 +55,9 @@ print  $query->scrolling_list(-name=>'period',
 print "</td> </tr> </table><hr><center>";
 
 print "</h4>";
-
+print "<br>";
+print "<br>";
+print "<br>";
 print $query->submit,"<p>";
 print $query->reset;
 print $query->endform;
