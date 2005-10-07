@@ -61,6 +61,8 @@ print "<br>";
 print $query->submit,"<p>";
 print $query->reset;
 print $query->endform;
+print "<br>";
+print "<br>";
 print "<address><a href=\"mailto:didenko\@bnl.gov\">Lidia Didenko</a></address>\n";
 
 #print $query->delete_all;
