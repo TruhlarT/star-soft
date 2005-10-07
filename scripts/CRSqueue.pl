@@ -1,4 +1,4 @@
-#! /usr/local/bin/perl -w
+#!/usr/local/bin/perl -w
 #
 # L. Didenko
 ###############################################################################
@@ -34,7 +34,7 @@ if( $mon < 10) { $mon = '0'.$mon };
 if( $mday < 10) { $mday = '0'.$mday };
 if( $hour < 10) { $hour = '0'.$hour };
 if( $min < 10) { $min = '0'.$min };
-if( $sec < 10) { $min = '0'.$sec };
+if( $sec < 10) { $sec = '0'.$sec };
 
  $year = $yr + 1900;
 
@@ -73,22 +73,24 @@ exit;
 
 #################################################################################################
 
-  sub fillTable {
+sub fillTable {
 
- $sql="insert into $crsQueueT set ";
- $sql.="queue0='$queueRun[0]',";
- $sql.="queue1='$queueRun[1]',";
- $sql.="queue2='$queueRun[2]',"; 
- $sql.="queue3='$queueRun[3]',";
- $sql.="queue4='$queueRun[4]',";
- $sql.="queue5='$queueRun[5]',";
- $sql.="Rqueue0='$Rqueue[0]',";
- $sql.="Rqueue1='$Rqueue[1]',";
- $sql.="Rqueue2='$Rqueue[2]',"; 
- $sql.="Rqueue3='$Rqueue[3]',";
- $sql.="Rqueue4='$Rqueue[4]',";
- $sql.="Rqueue5='$Rqueue[5]',";
- $sql.="sdate='$timestamp' "; 
-    print "$sql\n" if $debugOn;
-  $rv = $dbh->do($sql) || die $dbh->errstr;
-   }
+    $sql="insert into $crsQueueT set ";
+    $sql.="queue0='$queueRun[0]',";
+    $sql.="queue1='$queueRun[1]',";
+    $sql.="queue2='$queueRun[2]',"; 
+    $sql.="queue3='$queueRun[3]',";
+    $sql.="queue4='$queueRun[4]',";
+    $sql.="queue5='$queueRun[5]',";
+    $sql.="Rqueue0='$Rqueue[0]',";
+    $sql.="Rqueue1='$Rqueue[1]',";
+    $sql.="Rqueue2='$Rqueue[2]',"; 
+    $sql.="Rqueue3='$Rqueue[3]',";
+    $sql.="Rqueue4='$Rqueue[4]',";
+    $sql.="Rqueue5='$Rqueue[5]',";
+    $sql.="sdate='$timestamp' "; 
+
+    #  print "$sql\n" if $debugOn;
+    # $rv = $dbh->do($sql) || die $dbh->errstr;
+    $dbh->do($sql) || die $dbh->errstr;
+}
