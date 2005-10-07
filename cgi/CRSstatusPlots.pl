@@ -1,11 +1,11 @@
 #!/usr/local/bin/perl
 #!/usr/bin/env perl 
 #
-# $Id: CRSstatusPlots.pl,v 1.2 2005/10/06 15:41:10 didenko Exp $
+# $Id: CRSstatusPlots.pl,v 1.3 2005/10/07 20:38:33 didenko Exp $
 #
 # $Log: CRSstatusPlots.pl,v $
-# Revision 1.2  2005/10/06 15:41:10  didenko
-# updated
+# Revision 1.3  2005/10/07 20:38:33  didenko
+# adjusted y limit
 #
 #
 #
@@ -26,9 +26,11 @@ use Mysql;
 my $query = new CGI;
 
 my $day_diff = 8;
-my $max_y = 500000, $min_y = 0;
+my $max_y = 10000;
+my $min_y = 0;
 my @data;
 my @legend;
+my $maxvalue = 10000;
 
  my $fstatus   =  $query->param('statusfield');
  my $fperiod   =  $query->param('period');
@@ -82,6 +84,16 @@ my @prt = ();
  @Npoint = ();
 
 
+        $sql="SELECT max($fstatus) FROM  $crsJobStatusT WHERE (TO_DAYS(\"$nowdate\") - TO_DAYS(sdate)) < $day_diff ";
+
+	$cursor = $dbh->prepare($sql) || die "Cannot prepare statement: $dbh->errstr\n";
+	$cursor->execute;
+	while(@fields = $cursor->fetchrow_array) {
+
+             $maxvalue =  $fields[0];
+	 }
+
+
 	if ($fperiod eq "day") {
 	    $sql="SELECT $fstatus, sdate FROM  $crsJobStatusT WHERE sdate LIKE \"$nowdate%\"  ORDER by sdate ";
         }else {
@@ -103,7 +115,7 @@ my @prt = ();
 
     @data = (\@Npoint, \@numjobs );
 
-  $graph = new GIFgraph::linespoints(650,500);
+  $graph = new GIFgraph::linespoints(700,600);
 
 if ( ! $graph){
     print STDOUT $query->header(-type => 'text/plain');
@@ -113,15 +125,14 @@ if ( ! $graph){
     binmode STDOUT;
 
 
-    my $min_y = 0;
-    my $max_y = 500;  
+ $max_y = $maxvalue + 200;  
 
  my $xLabelsVertical = 1;
  my $xLabelPosition = 0;
  my $xLabelSkip = 1;
 
 $xLabelSkip = 2  if( $fperiod eq "day" );
-$xLabelSkip = 12  if( $fperiod eq "week" );
+$xLabelSkip = 12 if( $fperiod eq "week" );
 $xLabelSkip = 24 if( $fperiod eq "1_month" );
 $xLabelSkip = 48 if( $fperiod eq "2_month" );
 $xLabelSkip = 72 if( $fperiod eq "3_month" );
@@ -130,13 +141,12 @@ $xLabelSkip = 120 if( $fperiod eq "5_month" );
 $xLabelSkip = 144 if( $fperiod eq "6_month" );
  
     $graph->set(x_label => "  ",
-		#y_label => "Number of jobs",
+		y_label => "Number of jobs",
 		title   => "Number of jobs in status '$fstatus' for the period of $fperiod ",
 		y_tick_number => 10,
 		y_min_value => $min_y,
 		y_max_value => $max_y,
 		y_number_format => \&y_format,
-		labelclr => "lred",
 		dclrs => [ qw(lblack lblue lred lgreen lpink lpurple lorange lyellow ) ],
 		line_width => 2,
 		markers => [ 2,3,4,5,6,7,8,9],
@@ -147,7 +157,7 @@ $xLabelSkip = 144 if( $fperiod eq "6_month" );
 
 #    $graph->set_legend(@legend);
 #    $graph->set_legend_font(gdMediumBoldFont);
-    $graph->set_title_font(gdMediumBoldFont);
+    $graph->set_title_font(gdLargeFont);
     $graph->set_x_label_font(gdMediumBoldFont);
     $graph->set_y_label_font(gdMediumBoldFont);
     $graph->set_x_axis_font(gdMediumBoldFont);
