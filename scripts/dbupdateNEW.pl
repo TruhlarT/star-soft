@@ -1234,8 +1234,8 @@ my $mRealTbfc = 0;
           chop $end_line;
    if ($end_line =~ /QAInfo:Chain/ and $end_line =~ /StBFChain::bfc/) {
      @part = split (" ", $end_line); 
-      $mCPUbfc = $part[6];
-      $mRealTbfc = $part[4];
+      $mCPUbfc = $part[8];
+      $mRealTbfc = $part[6];
       $mCPUbfc = substr($mCPUbfc,1) + 0;
       $mRealTbfc = substr($mRealTbfc,1) + 0;
 #    print "CPU ", $mCPUbfc,"   %   ", $mRealTbfc, "\n";
