@@ -1077,7 +1077,7 @@ sub  updateJSTable {
 
 #---------------------------------------------------------
 
-# print $fl_log, "\n";
+ print $fl_log, "\n";
 
   open (LOGFILE, $fl_log ) or die "cannot open $fl_log: $!\n";
 
@@ -1140,9 +1140,11 @@ my $mRealTbfc = 0;
         @size_line = split(" ",$line); 
 
           $mymaker = $size_line[3];
+#   print $mymaker, "\n";
         @memSize = split("=",$size_line[6]);
         if( $mymaker eq "outputStream:"){
           $maker_size[$no_event] = $memSize[1];
+
 #          print "outputStream size:  ",$no_event, "   ", $maker_size[$no_event], "\n";  
        }
       }
@@ -1261,9 +1263,12 @@ my $mRealTbfc = 0;
   }
     if ( defined $maker_size[$EvCom -1]) {
     $memLst = $maker_size[$EvCom -1];
-    } else {
-    $memLst = 0;
+    } elsif( defined $maker_size[$EvCom -2]) {
+    $memLst = $maker_size[$EvCom -2];
+   }else{
+    $memLst = $maker_size[$EvCom -3];
   }
  }      
+#   print "Memory size:   ",$memFst, "   ", $memLst, "\n";
    close (LOGFILE);
   }
