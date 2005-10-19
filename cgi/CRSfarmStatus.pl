@@ -1,9 +1,12 @@
 #!/usr/local/bin/perl
 #!/usr/bin/env perl 
 #
-# $Id: CRSfarmStatus.pl,v 1.2 2005/10/07 16:54:39 didenko Exp $
+# $Id: CRSfarmStatus.pl,v 1.3 2005/10/19 20:53:42 didenko Exp $
 #
 # $Log: CRSfarmStatus.pl,v $
+# Revision 1.3  2005/10/19 20:53:42  didenko
+# fixed bug
+#
 # Revision 1.2  2005/10/07 16:54:39  didenko
 # updated limit
 #
@@ -168,11 +171,11 @@ if ( ! $graph){
 $xLabelSkip = 2  if( $fperiod eq "day" );
 $xLabelSkip = 12  if( $fperiod eq "week" );
 $xLabelSkip = 24 if( $fperiod eq "1_month" );
-$xLabelSkip = 48 if( $fperiod eq "2_month" );
-$xLabelSkip = 72 if( $fperiod eq "3_month" );
-$xLabelSkip = 96 if( $fperiod eq "4_month" );
-$xLabelSkip = 120 if( $fperiod eq "5_month" );
-$xLabelSkip = 144 if( $fperiod eq "6_month" );
+$xLabelSkip = 48 if( $fperiod eq "2_months" );
+$xLabelSkip = 72 if( $fperiod eq "3_months" );
+$xLabelSkip = 96 if( $fperiod eq "4_months" );
+$xLabelSkip = 120 if( $fperiod eq "5_months" );
+$xLabelSkip = 144 if( $fperiod eq "6_months" );
  
     $graph->set(x_label => "  ",
 		y_label => "Number of jobs",
