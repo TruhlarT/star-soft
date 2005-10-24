@@ -1,9 +1,12 @@
 #!/usr/local/bin/perl
 #!/usr/bin/env perl 
 #
-# $Id: CRSfarmStatus.pl,v 1.5 2005/10/24 18:28:33 didenko Exp $
+# $Id: CRSfarmStatus.pl,v 1.6 2005/10/24 18:33:39 didenko Exp $
 #
 # $Log: CRSfarmStatus.pl,v $
+# Revision 1.6  2005/10/24 18:33:39  didenko
+# fixed typo
+#
 # Revision 1.5  2005/10/24 18:28:33  didenko
 # modified
 #
@@ -37,7 +40,7 @@ my @plotview = ("numbers","percentage");
 
 my $query = new CGI;
 
-#my $scriptname = $query->url(-relative=>1);
+my $scriptname = $query->url(-relative=>1);
 
 
 my $day_diff = 1;
@@ -61,7 +64,7 @@ print <<END;
 <META HTTP-EQUIV="Pragma" CONTENT="no-cache">
 <META HTTP-EQUIV="Cache-Control" CONTENT="no-cache">
 END
-print $query->startform(-action=>"CRSfarmStatus.dev.pl");  
+print $query->startform(-action=>"$scriptname");  
 
 print "<body bgcolor=\"cornsilk\">\n";
 print "<h1 align=center><u>CRS farm status</u></h1>\n";
