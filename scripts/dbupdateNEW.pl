@@ -1140,7 +1140,7 @@ my $mRealTbfc = 0;
         @size_line = split(" ",$line); 
 
           $mymaker = $size_line[3];
-#   print $mymaker, "\n";
+
         @memSize = split("=",$size_line[6]);
         if( $mymaker eq "outputStream:"){
           $maker_size[$no_event] = $memSize[1];
