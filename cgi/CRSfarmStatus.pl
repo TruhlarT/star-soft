@@ -1,9 +1,12 @@
 #!/usr/local/bin/perl
 #!/usr/bin/env perl 
 #
-# $Id: CRSfarmStatus.pl,v 1.6 2005/10/24 18:33:39 didenko Exp $
+# $Id: CRSfarmStatus.pl,v 1.7 2005/10/28 20:37:36 didenko Exp $
 #
 # $Log: CRSfarmStatus.pl,v $
+# Revision 1.7  2005/10/28 20:37:36  didenko
+# get rid of one more script
+#
 # Revision 1.6  2005/10/24 18:33:39  didenko
 # fixed typo
 #
@@ -28,12 +31,22 @@ BEGIN {
  use CGI::Carp qw(fatalsToBrowser carpout);
 }
 
-require "/afs/rhic.bnl.gov/star/packages/scripts/dbCRSSetup.pl";
-
+use DBI;
 use CGI;
 use GIFgraph::linespoints;
 use GD;
 use Mysql;
+
+$dbhost="duvall.star.bnl.gov";
+$dbuser="starreco";
+$dbpass="";
+$dbname="operation";
+
+
+# Tables
+$crsJobStatusT = "crsJobStatusY5";
+$crsQueueT = "crsQueueY5";
+
 
 my @reqperiod = ("day","week","1_month","2_months","3_months","4_months","5_months","6_months");
 my @plotview = ("numbers","percentage");
@@ -304,7 +317,7 @@ $xLabelSkip = 144 if( $fperiod eq "6_months" );
     print STDOUT $graph->plot(\@data);
 }
 }
-
+######################
 sub y_format
 {
     my $value = shift;
@@ -313,3 +326,13 @@ sub y_format
     $ret = sprintf("%8.2f", $value);
 }
 
+######################
+sub StcrsdbConnect {
+    $dbh = DBI->connect("dbi:mysql:$dbname:$dbhost", $dbuser, $dbpass)
+        || die "Cannot connect to db server $DBI::errstr\n";
+}
+
+######################
+sub StcrsdbDisconnect {
+    $dbh = $dbh->disconnect() || die "Disconnect failure $DBI::errstr\n";
+}
