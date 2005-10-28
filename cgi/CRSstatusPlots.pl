@@ -1,9 +1,12 @@
 #!/usr/local/bin/perl
 #!/usr/bin/env perl 
 #
-# $Id: CRSstatusPlots.pl,v 1.5 2005/10/19 21:08:31 didenko Exp $
+# $Id: CRSstatusPlots.pl,v 1.6 2005/10/28 16:26:32 didenko Exp $
 #
 # $Log: CRSstatusPlots.pl,v $
+# Revision 1.6  2005/10/28 16:26:32  didenko
+# merged scripts
+#
 # Revision 1.5  2005/10/19 21:08:31  didenko
 # fixed bug
 #
@@ -28,25 +31,84 @@ use Mysql;
 
 my $query = new CGI;
 
+
+my @farmstat = ("executing","submitted","submitFailed","started","importWaiting","importHPSS","sleep","exportWaiting","exportHPSS","exportUNIX"
+,"done","error","fatal");
+
+my @reqperiod = ("day","week","1_month","2_months","3_months","4_months","5_months","6_months");
+
+$query = new CGI;
+
+
+ my $fstatus   =  $query->param('statusfield');
+ my $fperiod   =  $query->param('period');
+
+
+  if( $fperiod eq "" and $fstatus eq "") {
+
+print $query->header;
+print $query->start_html('CRS jobs status');
+print <<END;
+<META HTTP-EQUIV="Expires" CONTENT="0">
+<META HTTP-EQUIV="Pragma" CONTENT="no-cache">
+<META HTTP-EQUIV="Cache-Control" CONTENT="no-cache">
+END
+print $query->startform(-action=>"CRSstatusPlots.dev.pl");  
+
+print "<body bgcolor=\"cornsilk\">\n";
+print "<h1 align=center><u>CRS jobs status </u></h1>\n";
+
+print "<br>";
+print <<END;
+<hr>
+<table BORDER=0 align=center width=99% cellspacing=3>
+<tr ALIGN=center VALIGN=CENTER NOSAVE>
+<td>
+END
+
+print "<p>";
+print "<h3 align=center>Select jobs status</h3>";
+print "<h4 align=center>";
+print $query->scrolling_list(-name=>'statusfield',
+                             -values=>\@farmstat,
+                             -default=>executing,
+                             -size=>1);
+print "</td><td>";
+print "<h3 align=center> Select period of monitoring</h3>";
+print "<h4 align=center>";
+print $query->scrolling_list(-name=>'period',
+                             -values=>\@reqperiod,
+                             -default=>day,
+                             -size =>1); 
+
+print "</td> </tr> </table><hr><center>";
+
+print "</h4>";
+print "<br>";
+print "<br>";
+print $query->submit,"<p>";
+print $query->reset;
+print $query->endform;
+print "<br>";
+print "<br>";
+print "<address><a href=\"mailto:didenko\@bnl.gov\">Lidia Didenko</a></address>\n";
+
+print $query->end_html;
+
+   }else{
+
+my $qqr = new CGI;
+
+ my $fstatus   =  $qqr->param('statusfield');
+ my $fperiod   =  $qqr->param('period'); 
+
+
 my $day_diff = 8;
 my $max_y = 10000;
 my $min_y = 0;
 my @data;
 my @legend;
 my $maxvalue = 10000;
-
- my $fstatus   =  $query->param('statusfield');
- my $fperiod   =  $query->param('period');
-
-
-if ( ($fstatus eq "") || ($fperiod eq "") ) {
-    print $query->header;
-    print $query->start_html('Number of jobs in $fstatus for $fperiod');
-    print "<body bgcolor=\"cornsilk\"><center><pre>";
-    print "<h1>You must select both the type of plot and period!!</h1>";
-    print $query->end_html;
-    exit(0);
-}
 
 my @numjobs = ();
 my @Npoint = ();
@@ -178,7 +240,7 @@ $xLabelSkip = 144 if( $fperiod eq "6_months" );
     $graph->set_y_axis_font(gdMediumBoldFont);
     print STDOUT $graph->plot(\@data);
 }
-
+}
 
 sub y_format
 {
