@@ -1,11 +1,11 @@
 #!/usr/local/bin/perl
 #!/usr/bin/env perl 
 #
-# $Id: CRSstatusPlots.pl,v 1.6 2005/10/28 16:26:32 didenko Exp $
+# $Id: CRSstatusPlots.pl,v 1.7 2005/10/28 16:35:25 didenko Exp $
 #
 # $Log: CRSstatusPlots.pl,v $
-# Revision 1.6  2005/10/28 16:26:32  didenko
-# merged scripts
+# Revision 1.7  2005/10/28 16:35:25  didenko
+# fixed name
 #
 # Revision 1.5  2005/10/19 21:08:31  didenko
 # fixed bug
@@ -31,6 +31,7 @@ use Mysql;
 
 my $query = new CGI;
 
+my $scriptname = $query->url(-relative=>1);
 
 my @farmstat = ("executing","submitted","submitFailed","started","importWaiting","importHPSS","sleep","exportWaiting","exportHPSS","exportUNIX"
 ,"done","error","fatal");
@@ -53,7 +54,7 @@ print <<END;
 <META HTTP-EQUIV="Pragma" CONTENT="no-cache">
 <META HTTP-EQUIV="Cache-Control" CONTENT="no-cache">
 END
-print $query->startform(-action=>"CRSstatusPlots.dev.pl");  
+print $query->startform(-action=>"$scriptname");  
 
 print "<body bgcolor=\"cornsilk\">\n";
 print "<h1 align=center><u>CRS jobs status </u></h1>\n";
