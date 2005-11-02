@@ -68,16 +68,18 @@ $year = $yr + 1900 ;
       $crsjobname = $prt[0];
 
       print $jobname,"   ", $prt[1], "\n";
-
-      next if ($erline =~ /hpss_export_failed/ );
-
      $fullname = $archdir ."/". $jobname;
+
+    if ($erline =~ /hpss_export_failed/ ) {
+    `crs_job -kill $crsjobname`;
+     print "Job killed:  ", $jobname,"   ", $prt[1], "\n";
+   }else{
 
     `mv $fullname $jobdir \n`;
     `crs_job -kill $crsjobname`;
-        print "Job resubmitted: ", $jobname, "\n";
+        print "Job killed and resubmitted: ", $jobname, "\n";
   }
-
+ }
  }else {
 
      print "No failed jobs", "\n";
