@@ -21,7 +21,6 @@
 
 use DBI;
 use Getopt::Std;
-#require "dbGetDaqMap.pl";
 
 
 #UNCOMMENT BELOW FOR DEBUGGING DBI
@@ -121,7 +120,10 @@ $dbh2 = DBI->connect("DBI:mysql:RunLog_daq:onlsun1.starp.bnl.gov:$port",$dbUser,
         #  print "$myQuery\n";
     }
 }
-
+$sthFile->finish();
+$sthGet->finish();
+$sthcountGet->finish();
+$dbh2->disconnect();
 exit;
 
 sub numeric { $a <=> $b }
@@ -161,7 +163,7 @@ sub getDaqMap{
   {
     $port = 3400;
     $daqMax = 1;
-  }
+}else{print "Not a valid run number\n"; exit;}
 
 $baseTable = "daqEventTag";
 
@@ -201,8 +203,10 @@ $baseTable = "daqEventTag";
 	#  print "min runNumber is $min :: max runNumber is $max for table $tables[$i] \n";
 
           return  $table[$i];
-      } 
-  }
+      } #end if
+  } #end while
  }
+  $queryFetch->finish();
+  $dbh->diconnect();
 }
 
