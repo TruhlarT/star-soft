@@ -11,6 +11,7 @@
 #   Linux80
 #   Linux9
 #   SL3
+#   SL302
 #
 #   Insure     Builds Insure++ compilation
 #   icc        Builds with icc
@@ -158,6 +159,7 @@ if ( -r  $GROUP_DIR/star_login.csh ) then
 	    case "Linux80":
 	    case "Linux9":
 	    case "SL3":
+	    case "SL302":
 		set LPATH=$AFS_RHIC/star/packages/adev
 		set SPATH=$AFS_RHIC/star/doc/www/comp/prod/Sanity
 		$SCRIPTD/AutoBuild.pl -k -i -1 -T $1 -p $LPATH
