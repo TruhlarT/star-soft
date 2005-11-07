@@ -122,7 +122,6 @@ $dbh2 = DBI->connect("DBI:mysql:RunLog_daq:onlsun1.starp.bnl.gov:$port",$dbUser,
 }
 $sthFile->finish();
 $sthGet->finish();
-$sthcountGet->finish();
 $dbh2->disconnect();
 exit;
 
