@@ -1,9 +1,12 @@
 #!/usr/local/bin/perl
 #!/usr/bin/env perl 
 #
-# $Id: CRSfarmStatus.pl,v 1.7 2005/10/28 20:37:36 didenko Exp $
+# $Id: CRSfarmStatus.pl,v 1.8 2005/11/09 19:18:46 didenko Exp $
 #
 # $Log: CRSfarmStatus.pl,v $
+# Revision 1.8  2005/11/09 19:18:46  didenko
+# farm efficiency implemented
+#
 # Revision 1.7  2005/10/28 20:37:36  didenko
 # get rid of one more script
 #
@@ -173,10 +176,12 @@ my @prt = ();
  @numjobs2 = ();
  @numjobs3 = ();
  @numjobs4 = ();
+ @numjobs5 = ();
  @jobrate1 = ();
  @jobrate2 = ();
  @jobrate3 = ();
  @jobrate4 = ();
+ @jobrate5 = ();
  @Npoint = ();
  @maxvalue = ();
 
@@ -201,9 +206,9 @@ my @prt = ();
  my $ii = 0;
 
 	if ($fperiod eq "day") {
-	    $sql="SELECT executing, importWaiting, exportWaiting, error, sdate FROM  $crsJobStatusT WHERE sdate LIKE \"$nowdate%\"  ORDER by sdate ";
+	    $sql="SELECT executing, importWaiting, exportWaiting, error, done, sdate FROM  $crsJobStatusT WHERE sdate LIKE \"$nowdate%\"  ORDER by sdate ";
         }else {
-            $sql="SELECT executing, importWaiting, exportWaiting, error, sdate FROM  $crsJobStatusT WHERE (TO_DAYS(\"$nowdate\") - TO_DAYS(sdate)) < $day_diff ORDER by sdate ";
+            $sql="SELECT executing, importWaiting, exportWaiting, error,  done, sdate FROM  $crsJobStatusT WHERE (TO_DAYS(\"$nowdate\") - TO_DAYS(sdate)) < $day_diff ORDER by sdate ";
       }
 
 	$cursor = $dbh->prepare($sql) || die "Cannot prepare statement: $dbh->errstr\n";
@@ -214,7 +219,8 @@ my @prt = ();
 		$numjobs2[$ii] = $fields[1];
 		$numjobs3[$ii] = $fields[2];
 		$numjobs4[$ii] = $fields[3];
-                $Npoint[$ii] =  $fields[4]; 
+                $numjobs5[$ii] = $fields[4];
+                $Npoint[$ii] =  $fields[5]; 
                	$ii++;
  
  }
@@ -275,7 +281,11 @@ $xLabelSkip = 144 if( $fperiod eq "6_months" );
   $jobrate1[$i] = $numjobs1[$i]*100/$Nmaxjobs; 
   $jobrate2[$i] = $numjobs2[$i]*100/$Nmaxjobs;
   $jobrate3[$i] = $numjobs3[$i]*100/$Nmaxjobs;
-  $jobrate4[$i] = $numjobs4[$i]*100/$Nmaxjobs;    
+  if($numjobs5[$i] >= 1) {
+  $jobrate4[$i] = ($numjobs4[$i]/($numjobs5[$i] + $numjobs4[$i]))*100.;    
+ }else{
+    $jobrate4[$i] = 0;
+ }
  }
  
     @data = (\@Npoint, \@jobrate1, \@jobrate2, \@jobrate3, \@jobrate4 );
