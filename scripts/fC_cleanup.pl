@@ -181,6 +181,7 @@ my $morerecords = 1;
 my $start = 0;
 while ($morerecords)
 {
+    print "--- ($$)\n" if ($start == 0);
     $morerecords = 0;
     # Setting the context based on the swiches
     $fileC->clear_context();
@@ -410,7 +411,7 @@ while ($morerecords)
 	}
 	# only for stat
 	$start += $morerecords;
-
+	#print "$morerecords\n";
 
     } elsif ($mode == 5){
 	# Fifth mode of operation - get the file list,
@@ -609,9 +610,11 @@ sub Usage
             -delete -alla would delete all records marked with any availability <= 0.
 
  -alter keyword=value    alter keyword value for entry(ies) ** DANGEROUS **
-                         This works on dictionaries or tables
+                         This works on dictionaries or tables and may allows
+                         for gobal updates. 
  -modif keyword=value    alter FileData/FileLocation association for entry(ies)
-
+                         This switch also modify non-dictionary tables but within
+                         carefull checks (one by one).
 
  Integrety check operations
  --------------------------
@@ -620,7 +623,7 @@ sub Usage
  -fdata                  check the FileData for orphan records (no associated Locations)
  -trgc                   check the TriggerCompositions table
  -boots {X|all}          bootstrap keyword X, using "all" will do a
-                         sequence of table cleaning
+                         sequence of table cleaning (but not filename or flid)
 
  Authentication options
  ----------------------
