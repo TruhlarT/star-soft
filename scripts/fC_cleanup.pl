@@ -181,7 +181,7 @@ my $morerecords = 1;
 my $start = 0;
 while ($morerecords)
 {
-    print "--- ($$)\n" if ($start == 0);
+    print "--- ($$)\n" if ($start == 0 && abs($mode) < 5);
     $morerecords = 0;
     # Setting the context based on the swiches
     $fileC->clear_context();
