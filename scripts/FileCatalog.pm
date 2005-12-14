@@ -123,7 +123,7 @@ require  Exporter;
 
 
 use vars qw($VERSION);
-$VERSION   =   "V01.298";
+$VERSION   =   "V01.300";
 
 # The hashes that hold a current context
 my %optoperset;
@@ -263,7 +263,7 @@ $keywrds{"runtype"       }    =   "runTypeName"               .",RunTypes"      
 $keywrds{"configuration" }    =   "detectorConfigurationName" .",DetectorConfigurations" .",1" .",text" .",0" .",1" .",1";
 $keywrds{"geometry"      }    =   "detectorConfigurationName" .",DetectorConfigurations" .",0" .",text" .",0" .",1" .",1";
 $keywrds{"runnumber"     }    =   "runNumber"                 .",RunParams"              .",1" .",num"  .",0" .",1" .",1";
-$keywrds{"runcomments"   }    =   "runComments"               .",RunParams"              .",0" .",text" .",0" .",1" .",1";
+$keywrds{"runcomments"   }    =   "runParamComment"           .",RunParams"              .",0" .",text" .",0" .",1" .",1";
 $keywrds{"collision"     }    =   "collisionEnergy"           .",CollisionTypes"         .",1" .",text" .",0" .",1" .",1";
 $keywrds{"datastarts"    }    =   "dataTakingStart"           .",RunParams"              .",0" .",date" .",0" .",1" .",1";
 $keywrds{"dataends"      }    =   "dataTakingEnd"             .",RunParams"              .",0" .",date" .",0" .",1" .",1";
@@ -274,7 +274,7 @@ $keywrds{"magvalue"      }    =   "magFieldValue"             .",RunParams"     
 $keywrds{"filename"      }    =   "filename"                  .",FileData"               .",1" .",text" .",0" .",1" .",1";
 $keywrds{"fileseq"       }    =   "fileSeq"                   .",FileData"               .",1" .",num"  .",0" .",1" .",1";
 $keywrds{"stream"        }    =   "fileStream"                .",FileData"               .",1" .",num"  .",0" .",1" .",1";
-$keywrds{"filecomment"   }    =   "fileDataComments"          .",FileData"               .",0" .",text" .",0" .",1" .",1";
+$keywrds{"filecomment"   }    =   "fileDataComment"           .",FileData"               .",0" .",text" .",0" .",1" .",1";
 $keywrds{"events"        }    =   "numEntries"                .",FileData"               .",1" .",num"  .",0" .",1" .",1";
 $keywrds{"md5sum"        }    =   "md5sum"                    .",FileData"               .",1" .",text" .",0" .",1" .",1";
 $keywrds{"size"          }    =   "fsize"                     .",FileLocations"          .",1" .",num"  .",0" .",1" .",1";
@@ -285,7 +285,7 @@ $keywrds{"persistent"    }    =   "persistent"                .",FileLocations" 
 $keywrds{"sanity"        }    =   "sanity"                    .",FileLocations"          .",0" .",num"  .",0" .",1" .",1";
 $keywrds{"createtime"    }    =   "createTime"                .",FileLocations"          .",0" .",date" .",0" .",1" .",1";
 $keywrds{"inserttime"    }    =   "insertTime"                .",FileLocations"          .",0" .",date" .",0" .",1" .",1";
-$keywrds{"simcomment"    }    =   "simulationParamComments"   .",SimulationParams"       .",0" .",text" .",0" .",1" .",1";
+$keywrds{"simcomment"    }    =   "simulationParamComment"    .",SimulationParams"       .",0" .",text" .",0" .",1" .",1";
 $keywrds{"generator"     }    =   "eventGeneratorName"        .",EventGenerators"        .",1" .",text" .",0" .",1" .",1";
 $keywrds{"genversion"    }    =   "eventGeneratorVersion"     .",EventGenerators"        .",1" .",text" .",0" .",1" .",1";
 $keywrds{"gencomment"    }    =   "eventGeneratorComment"     .",EventGenerators"        .",0" .",text" .",0" .",1" .",1";
@@ -456,8 +456,12 @@ $aggregates[7] = "ordd";
 
 # Those variables will be used internally
 # - those are used to store main tables associated keywords
+my @CTXMEM;
 my @FDKWD;
 my @FLKWD;
+my %GUPDID;
+
+
 
 # - those are for caching
 my %KNOWNVP;                 # 2 arrays (the P=persistent and
@@ -1068,7 +1072,7 @@ sub disentangle_param
 
   OPS:
     foreach my $op (@operators ){
-	&print_debug("disentangle_param","Searching for operator $op");
+	#&print_debug("disentangle_param","Searching for operator $op");
 	$op = '\]\[' if ($op eq "][");  # unfortunatly need
 	$op = '\[\]' if ($op eq "[]");  # to be escaped
 
@@ -1114,6 +1118,7 @@ sub _context {
 
   foreach $params (@_){
        # print ("Setting context for: $params \n");
+      push(@CTXMEM,$params);
       ($keyw, $oper, $valu) = &disentangle_param($params);
 
       if ( ! defined($keyw) ){
@@ -1162,11 +1167,21 @@ sub _context {
 # Clears the context deleting all the values
 # form the context hashes
 sub clear_context {
-    foreach my $key (keys %optvaluset) { delete $optvaluset{$key};}
-    foreach my $key (keys %optoperset) { delete $optoperset{$key};}
+    my($key,@el);
 
-    foreach my $key (keys %valuset) {    delete $valuset{$key};}
-    foreach my $key (keys %operset) {    delete $operset{$key};}
+    undef(@CTXMEM);
+    foreach  $key (keys %optvaluset) { delete $optvaluset{$key};}
+    foreach  $key (keys %optoperset) { delete $optoperset{$key};}
+
+    foreach  $key (keys %valuset) {    delete $valuset{$key};}
+    foreach  $key (keys %operset) {    delete $operset{$key};}
+    
+    # Only delete this global array if size is bigger than some
+    # value
+    @el = keys %GUPDID;
+    if ( $#el > 1000){
+	foreach  $key (keys %GUPDID)  {    delete $GUPDID{$key};}
+    }
 }
 
 #============================================
@@ -1884,9 +1899,14 @@ sub insert_collision_type {
 
 
 
-  my $ctinsert   = "INSERT IGNORE INTO CollisionTypes ";
-  $ctinsert  .= "(firstParticle, secondParticle, collisionEnergy)";
-  $ctinsert  .= " VALUES ('$firstParticle' , '$secondParticle' , $energy)";
+  my $ctinsert;
+  $ctinsert  = "INSERT IGNORE INTO CollisionTypes ";
+  $ctinsert .= 
+      "(firstParticle, secondParticle, collisionEnergy, ".
+      " collisionTypeIDate, collisionTypeCreator)";
+  $ctinsert .= 
+      "VALUES ('$firstParticle' , '$secondParticle' , $energy, ".
+      " NOW()+0, '".&_GetLogin()."')";
 
   &print_debug("insert_collision_type","Execute $ctinsert");
 
@@ -2077,8 +2097,16 @@ sub insert_run_param_info {
   my $rpinsert;
 
   $rpinsert   = "INSERT IGNORE INTO RunParams ";
-  $rpinsert  .= "(runNumber, dataTakingStart, dataTakingEnd, dataTakingDay, dataTakingYear, triggerSetupID, collisionTypeID, simulationParamsID, runTypeID, detectorConfigurationID, detectorStateID, runComments, magFieldScale, magFieldValue)";
-  $rpinsert  .= " VALUES (".$valuset{"runnumber"}.",$start,$end,$year,$day,$triggerSetup,$collision,$simulation,$runType,$detConfiguration,$detState,$comment,'".$valuset{"magscale"}."',$magvalue)";
+  $rpinsert  .= 
+      "(runNumber, dataTakingStart, dataTakingEnd, dataTakingDay, dataTakingYear, ".
+      " triggerSetupID, collisionTypeID, simulationParamsID, runTypeID, ".
+      " detectorConfigurationID, detectorStateID, magFieldScale, magFieldValue, ".
+      " runParamIDate, runParamCreator, runParamComment)";
+  $rpinsert  .= 
+      "VALUES (".$valuset{"runnumber"}.", $start, $end, $day, $year, ".
+      " $triggerSetup, $collision, $simulation, $runType, ".
+      " $detConfiguration, $detState, '".$valuset{"magscale"}."', $magvalue, ".
+      " NOW()+0, '".&_GetLogin()."', $comment)";
   if ($DEBUG > 0) {  &print_debug("insert_run_param_info","Execute $rpinsert");}
 
 
@@ -2231,9 +2259,17 @@ sub insert_file_data {
 
 
   # Prepare the SQL query and execute it
-  my $fdinsert   = "INSERT IGNORE INTO FileData ";
-  $fdinsert  .= "(runParamID, fileName, productionConditionID, numEntries, md5sum, fileTypeID, fileDataComments, fileSeq, fileStream)";
-  $fdinsert  .= " VALUES ($runNumber, \"".$valuset{"filename"}."\",$production, $nevents, $md5sum, $fileType,$fileComment,$fileSeq,$filestream)";
+  my $fdinsert;
+  $fdinsert  = "INSERT IGNORE INTO FileData ";
+  $fdinsert .= 
+      "(runParamID, fileName, productionConditionID, numEntries, ".
+      " md5sum, fileTypeID, fileDataComment, fileSeq, fileStream, ".
+      " fileDataIDate, fileDataCreator)";
+  $fdinsert .= 
+      "VALUES ($runNumber, \"".$valuset{"filename"}."\",$production, $nevents, ".
+      " $md5sum, $fileType,$fileComment,$fileSeq,$filestream, ".
+      " NOW()+0, '".&_GetLogin()."')";
+
   if ($DEBUG > 0) { &print_debug("insert_file_data","Execute $fdinsert");}
 
 
@@ -2680,8 +2716,8 @@ sub insert_simulation_params {
   }
 
   my $spinsert   = "INSERT IGNORE INTO SimulationParams ";
-  $spinsert  .= "(eventGeneratorID, simulationParamComments)";
-  $spinsert  .= " VALUES ($eventGenerator, $simComments)";
+  $spinsert  .= "(eventGeneratorID, simulationParamIDate, simulationParamCreator, simulationParamComment)";
+  $spinsert  .= " VALUES ($eventGenerator,  NOW()+0, '".&_GetLogin()."', $simComments)";
   if ($DEBUG > 0) {
       &print_debug("insert_simulation_params","Execute $spinsert");
   }
@@ -3030,8 +3066,14 @@ sub insert_file_location {
   my $flinchk    = "SELECT fileLocationID from FileLocations WHERE ";
   my $flinsert   = "INSERT IGNORE INTO FileLocations ";
 
-  $flinsert  .= "(fileLocationID, fileDataID, storageTypeID, filePathID, createTime, insertTime, owner, fsize, storageSiteID, protection, hostID, availability, persistent, sanity)";
-  $flinsert  .= " VALUES (NULL, $fileData, $storageType, $filePathID, $createTime, NULL, $owner, $fsize, $storageSite, $protection, $nodeID, $availability, $persistent, $sanity)";
+  $flinsert  .= 
+      "(fileLocationID, fileDataID, storageTypeID, filePathID, ".
+      " createTime, insertTime, owner, fsize, storageSiteID, protection, ".
+      " hostID, availability, persistent, sanity)";
+  $flinsert  .= 
+      "VALUES (NULL, $fileData, $storageType, $filePathID, ".
+      " $createTime, NULL, $owner, $fsize, $storageSite, $protection, ".
+      " $nodeID, $availability, $persistent, $sanity)";
 
   # NONE of the NULL value should appear below otherwise, one keeps adding
   # entry over and over ... protection and woner are irrelevant here and
@@ -5138,6 +5180,7 @@ sub update_location {
       $id = "fdid";
   }
   @REFid = &run_query($id);
+  &print_debug("update_location","REFid ($id) = ".join(",",@REFid)); 
 
   # Bring back the previous delimeter
   &set_delimeter($delim);
@@ -5227,7 +5270,7 @@ sub update_location {
   } elsif (&get_field_type($ukeyword) eq "text" ){
       &print_debug("update_location","Case filed_type is text");
       #$qselect = "SELECT $ukeyword FROM $mtable WHERE $ufield='$newvalue'";
-      $qdelete = "DELETE LOW_PRIORITY FROM $utable" ;
+      $qdelete = "DELETE LOW_PRIORITY FROM $mtable" ;
       $qupdate = "UPDATE LOW_PRIORITY $utable SET $utable.$ufield = '$newvalue' ";
       if( defined($valuset{$ukeyword}) ){
 	  if ( $valuset{$ukeyword} eq "NULL"){
@@ -5242,7 +5285,7 @@ sub update_location {
   } else {
       &print_debug("update_location","Case any-other-case");
       #$qselect = "SELECT $ufield FROM $mtable WHERE $ufield=$newvalue" ;
-      $qdelete = "DELETE LOW_PRIORITY FROM $utable" ;
+      $qdelete = "DELETE LOW_PRIORITY FROM $mtable" ;
       $qupdate = "UPDATE LOW_PRIORITY $utable SET $utable.$ufield = $newvalue ";
       if( defined($valuset{$ukeyword}) ){
 	  $qupdate .= " WHERE $utable.$ufield = $valuset{$ukeyword}";
@@ -5251,13 +5294,38 @@ sub update_location {
 	  #return 0;
       }
   }
-  if ($qupdate =~ /WHERE/){
-      $qupdate .= " AND $utable.".&_IDize("update_location",$utable)." = ?";
+
+
+  #
+  # mtable was used for building the REFid array.
+  # utable is the table containg the field to update
+  #
+  # We are missing the relation between utable and mtable if necessary
+  #
+  my($xrel,$xjoin);
+  if  ( $utable ne $mtable){
+      # But since we are only speaking about FileData or FileLocations
+      # we only need to put back in the relation between those tables.
+      $xrel = " FileData.fileDataID = FileLocations.fileDataID ";
+      $xjoin= " $utable,$mtable ";
   } else {
-      $qupdate .= " WHERE $utable.".&_IDize("update_location",$utable)." = ?";
+      $xrel = "";
+      $xjoin= "";
+  }
+
+  if ($qupdate =~ /WHERE/){
+      $qupdate .= " AND ".($xrel ne ""?"$xrel AND ":"")."$mtable.".&_IDize("update_location",$mtable)." = ?";
+  } else {
+      $qupdate .= " WHERE ".($xrel ne ""?"$xrel AND ":"")."$mtable.".&_IDize("update_location",$mtable)." = ?";
   }
   #$qselect .= " AND fileLocationID = ?";
-  $qdelete .= " WHERE $utable.".&_IDize("update_location",$utable)." = ?";
+  $qdelete .= " WHERE $mtable.".&_IDize("update_location",$mtable)." = ?";
+
+  if ( $xjoin ne ""){
+      $qupdate =~ s/ $utable /$xjoin/;
+  }
+
+
 
   &print_debug("update_location"," update >> $qupdate");
   &print_debug("update_location"," select >> $qselect");
@@ -5310,37 +5378,49 @@ sub update_location {
 	      #	      $sth2->execute($fldid);
 	      #	  }
 	      #}
-	      if ( $sth3->execute($fldid) ){
-		  #&print_debug("update_location","Update of $mtable at $fldid succeeded [$qupdate]");
-		  $count++;
+	      if ( defined($GUPDID{$qupdate.$fldid}) ){
+		  &print_message("update_location",
+				 "Loop detected for $mtable (record exists, update failed or corrupt db)",
+				 "\tat $fldid [$qupdate] with ? = $fldid",
+				 "\tContext = ".join(",",@CTXMEM));
 	      } else {
-		  $failed++;
-		  if ($DBH->err == 1062){
-		      # Duplicate entry being replaced
-		      #&print_debug("update_location","Duplicate entry is being replaced");
-		      if ( $delete){
-			  if ( $sth2->execute($fldid) ){
+		  $GUPDID{$qupdate.$fldid} = $qdelete;
+		  #&print_debug("update_location","Working on flid: $fldid");
+		  if ( $sth3->execute($fldid) ){
+		      #&print_debug("update_location","Update of $mtable at $fldid succeeded [$qupdate]");
+		      $count++;
+		  } else {
+		      $failed++;
+		      if ($DBH->err == 1062){
+			  # Duplicate entry being replaced
+			  #&print_debug("update_location","Duplicate entry is being replaced");
+			  if ( $delete){
+			      if ( $sth2->execute($fldid) ){
+				  &print_message("update_location",
+						 "selected fldid=$fldid deleted as update would ".
+						 "lead to duplicate key)");
+				  # This counts as a success because it moves records
+				  # as well.
+				  $count++;
+			      }
+			  } else {
 			      &print_message("update_location",
-					     "selected fldid=$fldid deleted as update would ".
-					     "lead to duplicate key)");
-			      # This counts as a success because it moves records
-			      # as well.
-			      $count++;
+					     "selected flid=$fldid cannot be updated ".
+					     "(would lead to duplicate)");
 			  }
 		      } else {
-			  &print_message("update_location",
-					 "selected flid=$fldid cannot be updated ".
-					 "(would lead to duplicate)");
+			  &print_message("update_location","Update of $utable failed error=".
+					 $DBH->err." >> ".$DBH->errstr);
 		      }
-		  } else {
-		      &print_message("update_location","Update of $mtable failed error=".
-				     $DBH->err." >> ".$DBH->errstr);
 		  }
 	      }
 	  }
       }
 
   }
+
+
+
   #$sth1->finish();
   $sth2->finish();
   $sth3->finish();
