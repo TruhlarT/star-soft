@@ -123,7 +123,7 @@ require  Exporter;
 
 
 use vars qw($VERSION);
-$VERSION   =   "V01.300";
+$VERSION   =   "V01.301";
 
 # The hashes that hold a current context
 my %optoperset;
@@ -318,7 +318,9 @@ $obsolete{"datetaken"} = "datastarts";
 # Auto-initialization of keywords will do the equivalent of the above
 # for xxx=tpc. See _initialize() for how this is auto-set.
 # $keywrds{"tpc"           }    =   "dTPC"                      .",DetectorConfigurations" .",1" .",num"  .",0" .",1" .",1";
-my @DETECTORS=("tpc","svt","tof","emc","eemc","fpd","ftpc","pmd","rich","ssd","bbc","bsmd","esmd","zdc","ctb");
+my @DETECTORS=("tpc","svt","tof","emc","eemc","fpd","ftpc",
+	       "pmd","rich","ssd","bbc","bsmd","esmd","zdc",
+	       "ctb");
 
 
 
@@ -1660,7 +1662,7 @@ sub insert_detector_configuration {
       return 0;
   }
 
-  my ($config,$dtinsert,$dtvalues);
+  my ($config,$dtinsert,$dtvalues,$dtv);
   my ($sth);
   my ($el,$retid);
 
@@ -1704,8 +1706,15 @@ sub insert_detector_configuration {
   foreach $el (@DETECTORS){
       # the defined() test is NOT the same than above. It sets to 0 the
       # value of a un-specified keyword. Note also that only 1/0 are allowed
+      if ( ! defined($valuset{$el}) ){
+	  $dtv = 0;
+      } else {
+	  $dtv = $valuset{$el};
+	  # prevent from being anything else than 1 or 0
+	  if ( $dtv != 0){   $dtv = 1};
+      }
       $dtinsert .= ", d".uc($el);
-      $dtvalues .= ", ".(defined($valuset{$el})?1:0);
+      $dtvalues .= ", ".$dtv;
   }
   $dtinsert .= ")";
   $dtvalues .= ")";
