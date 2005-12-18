@@ -385,7 +385,7 @@ $datastruct[2]  = ( "FileData"               . ",FileLocations"       . ",fileDa
 $datastruct[3]  = ( "FilePaths"              . ",FileLocations"       . ",filePathID"              . ",2" . ",1");
 $datastruct[4]  = ( "Hosts"                  . ",FileLocations"       . ",hostID"                  . ",2" . ",1");
 $datastruct[5]  = ( "TriggerWords"           . ",TriggerCompositions" . ",triggerWordID"           . ",2" . ",1");
-$datastruct[6]  = ( "FileData"               . ",TriggerCompositions" . ",fileDataID"              . ",2" . ",0"); 
+$datastruct[6]  = ( "FileData"               . ",TriggerCompositions" . ",fileDataID"              . ",2" . ",0");
 $datastruct[7]  = ( "ProductionConditions"   . ",FileData"            . ",productionConditionID"   . ",3" . ",1");
 $datastruct[8]  = ( "FileTypes"              . ",FileData"            . ",fileTypeID"              . ",3" . ",1");
 $datastruct[9]  = ( "RunParams"              . ",FileData"            . ",runParamID"              . ",3" . ",0");
@@ -762,7 +762,7 @@ sub _ReadConfig
 				    $EL{PORT}  =  $hosts[$#hosts]->{PORT};
 				    $EL{DBREF} =  "";
 				}
-				
+
 
 				# And one authentication per host
 				my (@auths) = @{$hosts[$ii]->{ACCESS}};
@@ -887,7 +887,7 @@ sub _ReadConfig
 		$EL{$ok} =~ s/^(.*?)\s*$/$1/;
 		&print_debug("_ReadConfig","XML :: Got $ok [$EL{$ok}]\n");
 		if ($EL{$ok} eq ""){ $EL{$ok} = undef;}
-	    }					
+	    }
 	    $EL{DBREF} = join(":",$EL{DB},$EL{HOST},$EL{PORT}).",".$EL{USER}.",".$EL{PASS}." ";
 	}
     }
@@ -1177,7 +1177,7 @@ sub clear_context {
 
     foreach  $key (keys %valuset) {    delete $valuset{$key};}
     foreach  $key (keys %operset) {    delete $operset{$key};}
-    
+
     # Only delete this global array if size is bigger than some
     # value
     @el = keys %GUPDID;
@@ -1546,7 +1546,7 @@ sub get_prodlib_version_ID {
 	$sth1 = $DBH->prepare($cmd1);
 	if ( ! $sth1 ){  &die_message("get_prodlib_version_ID","Prepare statements 1 failed");}
 	if ( $sth1->execute($prod,$lib) ){
-	    $sth1->bind_columns( \$id ); 
+	    $sth1->bind_columns( \$id );
 	    if ($sth1->rows == 0) {
 		# then insert
 		my($cmd2,$sth2);
@@ -1555,13 +1555,13 @@ sub get_prodlib_version_ID {
 		$cmd2 .= "VALUES('".$prod."', '".$lib." ', NOW()+0, '".&_GetLogin()."')";
 		#print "$cmd2\n";
 		$sth2  = $DBH->prepare($cmd2);
-		if ( $sth2->execute() ){ 
+		if ( $sth2->execute() ){
 		    &print_debug("get_prodlib_version_ID","Inserted $prod,$lib");
 		    $id = &get_last_id();
 		} else {
 		    &print_message("get_prodlib_version_ID","Failed to insert $prod,$lib".$DBH->errstr);
 		}
-		$sth2->finish(); 
+		$sth2->finish();
 
 	    } elsif ($sth1->rows > 1) {
 		&die_message("get_prodlib_version_ID","Self consistency check failed",
@@ -1910,10 +1910,10 @@ sub insert_collision_type {
 
   my $ctinsert;
   $ctinsert  = "INSERT IGNORE INTO CollisionTypes ";
-  $ctinsert .= 
+  $ctinsert .=
       "(firstParticle, secondParticle, collisionEnergy, ".
       " collisionTypeIDate, collisionTypeCreator)";
-  $ctinsert .= 
+  $ctinsert .=
       "VALUES ('$firstParticle' , '$secondParticle' , $energy, ".
       " NOW()+0, '".&_GetLogin()."')";
 
@@ -2106,12 +2106,12 @@ sub insert_run_param_info {
   my $rpinsert;
 
   $rpinsert   = "INSERT IGNORE INTO RunParams ";
-  $rpinsert  .= 
+  $rpinsert  .=
       "(runNumber, dataTakingStart, dataTakingEnd, dataTakingDay, dataTakingYear, ".
       " triggerSetupID, collisionTypeID, simulationParamsID, runTypeID, ".
       " detectorConfigurationID, detectorStateID, magFieldScale, magFieldValue, ".
       " runParamIDate, runParamCreator, runParamComment)";
-  $rpinsert  .= 
+  $rpinsert  .=
       "VALUES (".$valuset{"runnumber"}.", $start, $end, $day, $year, ".
       " $triggerSetup, $collision, $simulation, $runType, ".
       " $detConfiguration, $detState, '".$valuset{"magscale"}."', $magvalue, ".
@@ -2234,7 +2234,7 @@ sub insert_file_data {
       return 0;
   }
 
-  
+
   #
   # Now we can check for more mandatory parameters
   #
@@ -2289,11 +2289,11 @@ sub insert_file_data {
   # Prepare the SQL query and execute it
   my $fdinsert;
   $fdinsert  = "INSERT IGNORE INTO FileData ";
-  $fdinsert .= 
+  $fdinsert .=
       "(runParamID, fileName, productionConditionID, numEntries, ".
       " md5sum, fileTypeID, fileDataComment, fileSeq, fileStream, ".
       " fileDataIDate, fileDataCreator)";
-  $fdinsert .= 
+  $fdinsert .=
       "VALUES ($runNumber, \"".$valuset{"filename"}."\",$production, $nevents, ".
       " $md5sum, $fileType,$fileComment,$fileSeq,$filestream, ".
       " NOW()+0, '".&_GetLogin()."')";
@@ -2317,7 +2317,7 @@ sub insert_file_data {
 	      &print_debug("insert_file_data","Returning: $retid");
 
 	  } else {
-	      $sth->finish();	
+	      $sth->finish();
 	      &print_debug("insert_file_data",
 			   "ERROR in insert_file_location() ".$DBH->err." >> ".$DBH->errstr);
 	      return 0;
@@ -3057,7 +3057,7 @@ sub insert_file_location {
   }
   if ($nodeID == 0){
       &print_debug("insert_file_location","NodeID is NULL (failed)");
-      return 0; 
+      return 0;
       # not because it is mandatory, but because it
       # it has failed
   }
@@ -3096,11 +3096,11 @@ sub insert_file_location {
   my $flinchk    = "SELECT fileLocationID from FileLocations WHERE ";
   my $flinsert   = "INSERT IGNORE INTO FileLocations ";
 
-  $flinsert  .= 
+  $flinsert  .=
       "(fileLocationID, fileDataID, storageTypeID, filePathID, ".
       " createTime, insertTime, owner, fsize, storageSiteID, protection, ".
       " hostID, availability, persistent, sanity)";
-  $flinsert  .= 
+  $flinsert  .=
       "VALUES (NULL, $fileData, $storageType, $filePathID, ".
       " $createTime, NULL, $owner, $fsize, $storageSite, $protection, ".
       " $nodeID, $availability, $persistent, $sanity)";
@@ -4944,7 +4944,7 @@ sub update_record {
 	  }
       } else {
 	  # In string mode, we can append.
-	  
+
 	  &print_message("update_record",
 			 "$ukeyword not set with an initial value (giving up)");
 	  return 0;
@@ -5210,7 +5210,7 @@ sub update_location {
       $id = "fdid";
   }
   @REFid = &run_query($id);
-  &print_debug("update_location","REFid ($id) = ".join(",",@REFid)); 
+  &print_debug("update_location","REFid ($id) = ".join(",",@REFid));
 
   # Bring back the previous delimeter
   &set_delimeter($delim);
