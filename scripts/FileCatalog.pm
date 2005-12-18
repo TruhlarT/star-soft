@@ -108,7 +108,7 @@ require  Exporter;
 	     add_trigger_composition
 
 	     run_query
-	     close_location
+	     clone_location insert_file_data
 	     delete_records update_location update_record
 
 	     check_ID_for_params insert_dictionary_value
@@ -123,7 +123,7 @@ require  Exporter;
 
 
 use vars qw($VERSION);
-$VERSION   =   "V01.301";
+$VERSION   =   "V01.305";
 
 # The hashes that hold a current context
 my %optoperset;
@@ -2181,7 +2181,8 @@ sub get_current_run_param {
 # The id of a lastly inserted file data
 # or 0 is there is insufficient data to insert a record
 #
-# NOT EXPORTED
+# NOT EXPORTED until 2005/12
+# EXPORTED aftreward AND TO USE WITH CARE
 #
 sub insert_file_data {
   my @params = @_;
@@ -2205,41 +2206,59 @@ sub insert_file_data {
       return 0;
   }
 
-
-  #$production = &check_ID_for_params("production"); 
-  #$library    = &check_ID_for_params("library");    
+  #
   # production and library are dependent -- Logic had to change
-  $library    = &get_prodlib_version_ID();
-  $production = $library;
-  $fileType   = &check_ID_for_params("filetype");
-
+  #
   # cloning has side effects. we must delete the content if replaced
   if ( defined($valuset{"rpcid"}) ){
       # library because later check assigns prod = lib
       if ( $library == 0 ){     $library = $valuset{"rpcid"};}
       delete($valuset{"rpcid"});
+      if ($production == 0) {   $production = $library;}
+  } else {
+      $library    = &get_prodlib_version_ID();
+      $production = $library;
   }
+
+  # rftid for file type may be used in cloning
   if ( defined($valuset{"rftid"}) ){
       if ( $fileType == 0  ){   $fileType = $valuset{"rftid"};}
       delete($valuset{"rftid"});
+  } else {
+      $fileType   = &check_ID_for_params("filetype");
   }
-  return 0 if ((($production == 0 ) && ($library == 0)) || $fileType == 0);
 
-  if ($production == 0) {       $production = $library;}
+  # We CANNOT proceed without those basic values
+  if ((($production == 0 ) && ($library == 0)) || $fileType == 0){
+      &print_message("insert_file_data","production/library or filtype not defined, cannot add to FileData");
+      return 0;
+  }
 
-
-  $runNumber = &get_current_run_param();
-
+  
+  #
+  # Now we can check for more mandatory parameters
+  #
+  # rrpid used in clone
+  if ( defined($valuset{"rrpid"}) ){
+      if ( $runNumber == 0  ){  $runNumber = $valuset{"rrpid"};}
+      delete($valuset{"rrpid"});
+  } else {
+      $runNumber = &get_current_run_param();
+  }
   if ($runNumber == 0) {
       &print_message("insert_file_data","runnumber not defined, cannot add to FileData");
       return 0;
   }
+
   if (! defined $valuset{"filename"}) {
       &print_message("insert_file_data","filename not defined, cannot add to FileData");
       return 0;
   }
 
+
+  #
   # non mandatory keywords
+  #
   if (! defined $valuset{"filecomment"}) {
       $fileComment = "NULL";
   } else {
@@ -2298,7 +2317,9 @@ sub insert_file_data {
 	      &print_debug("insert_file_data","Returning: $retid");
 
 	  } else {
-	      $sth->finish();
+	      $sth->finish();	
+	      &print_debug("insert_file_data",
+			   "ERROR in insert_file_location() ".$DBH->err." >> ".$DBH->errstr);
 	      return 0;
 	  }
       }
