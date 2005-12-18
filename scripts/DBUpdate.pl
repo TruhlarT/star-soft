@@ -21,13 +21,13 @@ if ($#ARGV == -1){
    location new entry if it finds the same entry as
    storage = HPSS.
 
-   It uses the clone_location() method to update the 
+   It uses the clone_location() method to update the
    database with that entry and is a very good example
    of how to do this ...
 
-   This is REALLY a spider ... It is used to post-scan 
-   disk and catch entries which may be missing. 
-  
+   This is REALLY a spider ... It is used to post-scan
+   disk and catch entries which may be missing.
+
    Only clones (if there is no similar entries in the db,
    it will not add it).
 
@@ -35,16 +35,16 @@ if ($#ARGV == -1){
  Arguments are
    ARGV0   the base path of a disk to scan (default /star/data06)
    ARGV1   the filetype (default .MuDst.root ). If null, it will
-           search for all files 
+           search for all files
    ARGV2   this scripts limits it to a sub-directory "reco" starting
            from ARGV0. Use this argument to overwrite.
    ARGV3   A base path substitution for find the entry in HPSS
            Default is /home/starreco .
 
    ARGV4   a user name (default FC_admin)
-   ARGV5   a password (default will be to use the 
+   ARGV5   a password (default will be to use the
            get_connection() method as a guess try)
-           
+
 
  Examples
   % DBUpdate.pl /star/data27
@@ -55,7 +55,7 @@ if ($#ARGV == -1){
     exit;
 }
 
-# BEWARE : 
+# BEWARE :
 #  (1) $SITE and $HPSSD are global variables
 #  (2) There is an hidden logic based on $path !~ /\/star\/data/
 #      to recognized if the storage is local or NFS.
@@ -82,7 +82,7 @@ for ($i=0 ; $i <= $#ARGV ; $i++){
     # Support "-XXX" options
     if ($ARGV[$i] eq "-o"){
 	$FLNM = $ARGV[$i+1];
-	if ( -e $FLNM ){  
+	if ( -e $FLNM ){
 	    # Make the file new all the time
 	    unlink($ARGV[$i+1]);
 	}
@@ -186,7 +186,7 @@ foreach  $file (@ALL){
     chomp($file);
 
     # Add hook file which will globally leave
-    if ( -e "$CHKDIR/$SELF.quit"){ 
+    if ( -e "$CHKDIR/$SELF.quit"){
 	print $FO "Warning :  $CHKDIR/$SELF.quit is present. Leaving\n";
 	last;
     }
@@ -194,7 +194,7 @@ foreach  $file (@ALL){
     # Skip some known pattern
     if ( $file =~ m/reco\/StarDb/){  next;}
 
-    # We need to parse the information we can 
+    # We need to parse the information we can
     # save in the ddb
     $file =~ m/(.*\/)(.*)/;
     $path = $1; $file = $2;
@@ -202,7 +202,7 @@ foreach  $file (@ALL){
     $hpath= $path;
     $hpath=~ s/$SCAND/$HPSSD/;
 
-    
+
     # Is a disk copy ??
     $fC->clear_context();
     if ( $path =~ m/\/star\/data/){
@@ -236,12 +236,12 @@ foreach  $file (@ALL){
 
 	@stat   = stat("$path/$file");
 
-	if ($#stat == -1){  
+	if ($#stat == -1){
 	    &Stream("Error : stat () failed -- $path/$file");
 	    next;
 	}
 
-	#if( $stat[7] != 0){  
+	#if( $stat[7] != 0){
 	#    $sanity = 1;
 	#} else {
 	#    $sanity = 0;
@@ -258,28 +258,30 @@ foreach  $file (@ALL){
 		print "Cloning of $file did not occur\n";
 
 	    } else {
-	        &Stream("$mess File cloned ".sprintf("%.2f %%",($new/$#ALL)*100)) 
+	        &Stream("$mess File cloned ".sprintf("%.2f %%",($new/$#ALL)*100))
 		    if ($new % 10 == 0);
 		$fC->set_context("persistent= 0");
-		
+
 		#chomp($node = `hostname`);
-		
+
 		$fsize = $stat[7];
 		@own   = getpwuid($stat[4]);
 		$prot  = &ShowPerms($stat[2]);
-		#$dt    = &UnixDate(scalar(localtime($stat[10])),"%Y%m%d%H%M%S");
+		$dt    = &UnixDate(scalar(localtime($stat[10])),"%Y%m%d%H%M%S");
+
 		$fC->set_context("path       = $path",
 				 "storage    = $storage",
 				 "persistent = 0",
 				 "size       = $fsize",
 				 "owner      = $own[0]",
 				 "protection = $prot",
+				 "createtime = $dt",
 				 "available  = 1",
 				 "site       = $SITE");
 		if ( $node ne ""){
 		    $fC->set_context("node       = $node");
 		}
-		
+
 		if ( ! $fC->insert_file_location() ){
 		    &Stream("Error : Attempt to insert new location [$path] failed");
 		    $failed++;
@@ -298,18 +300,18 @@ $fC->destroy();
 FINAL_EXIT:
     if ($LOUT){
 	print "Have lines, closing summary\n";
-	print $FO 
+	print $FO
 	    "$SELF :: Info :\n",
 	    ($unkn  !=0 ? "\tUnknown = $unkn ".sprintf("%2.2f%%",100*$unkn/($unkn+$new+$old))."\n": ""),
 	    ($old   !=0 ? "\tOld     = $old\n"   : ""),
 	    ($new   !=0 ? "\tNew     = $new\n"   : ""),
 	    ($failed!=0 ? "\tFailed  = $failed\n": "");
-	    
+
 	# Check if we have opened a file
-	if ($FO ne STDERR){ 
+	if ($FO ne STDERR){
 	    print $FO "Scan done on ".localtime()."\n";
 	    close($FO);
- 
+
 	    # Save previous
 	    if ( -e $FLNM.".last" ){  unlink($FLNM.".last");}
 	    if ( -e $FLNM ){          rename($FLNM,$FLNM.".last");}
@@ -319,7 +321,7 @@ FINAL_EXIT:
     } else {
 	# if nothing was output, delete ALL files (especially if they
 	# were old)
-	if ($FO ne STDERR){ 
+	if ($FO ne STDERR){
 	    close($FO);
 	    unlink("$FLNM.tmp") if ( -e "$FLNM.tmp");
 	    unlink("$FLNM")     if ( -e "$FLNM");
