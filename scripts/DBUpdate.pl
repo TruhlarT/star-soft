@@ -171,13 +171,13 @@ if ( ! $fC->connect($user,$passwd,$port,$host,$db) ){
 
 $failed = $unkn = $old = $new = 0;
 
-#$fC->set_delimeter(",");             # Make it easier to parse
 $fC->set_silent(1);                  # Turn OFF messaging
+$fC->Require("V01.307");             # pathcomment and nodecomment requires a minimal version
 
 # Make a main context
 # Temporary so we get it once only
 chomp($NODE    = `/bin/hostname`);
-
+&Stream("We are on $NODE");
 
 
 
@@ -186,7 +186,7 @@ foreach  $file (@ALL){
     chomp($file);
 
     # Add hook file which will globally leave
-    if ( -e "$CHKDIR/$SELF.quit"){
+    if ( -e "$CHKDIR/$SELF.quit" ){   # && ! defined($ENV{SPDR_DEBUG}) ){
 	print $FO "Warning :  $CHKDIR/$SELF.quit is present. Leaving\n";
 	last;
     }
@@ -208,12 +208,18 @@ foreach  $file (@ALL){
     if ( $path =~ m/\/star\/data/){
 	$node    = "";
 	$storage = "NFS";
-	$fC->set_context("path = $path","filename = $file","storage = NFS","site = $SITE");
+	$fC->set_context("path = $path",
+			 "filename = $file",
+			 "storage = NFS",
+			 "site = $SITE");
 
     } else {
 	$storage = "local";
 	$node    = $NODE;
-	$fC->set_context("path = $path","filename = $file","storage = local","site = $SITE",
+	$fC->set_context("path = $path",
+			 "filename = $file",
+			 "storage = local",
+			 "site = $SITE",
 			 "node = $NODE");
     }
     @all1 = $fC->run_query("size");
@@ -222,7 +228,10 @@ foreach  $file (@ALL){
 
     # HPSS copy (must be the last context to use clone_location() afterward )
     $fC->clear_context();
-    $fC->set_context("path = $hpath","filename = $file","storage = HPSS","site = $SITE");
+    $fC->set_context("path = $hpath",
+		     "filename = $file",
+		     "storage = HPSS",
+		     "site = $SITE");
     @all = $fC->run_query("size");
 
 
@@ -262,8 +271,6 @@ foreach  $file (@ALL){
 		    if ($new % 10 == 0);
 		$fC->set_context("persistent= 0");
 
-		#chomp($node = `hostname`);
-
 		$fsize = $stat[7];
 		@own   = getpwuid($stat[4]);
 		$prot  = &ShowPerms($stat[2]);
@@ -279,15 +286,22 @@ foreach  $file (@ALL){
 				 "available  = 1",
 				 "site       = $SITE");
 		if ( $node ne ""){
-		    $fC->set_context("node       = $node");
+		    print "Setting node to $node\n";
+		    $fC->set_context("node       = $node",
+				     "nodecomment= 'Inserted by $SELF'",
+				     "pathcomment= 'Inserted by $SELF'");
 		}
 
+		#$fC->debug_on() if ( defined($ENV{SPDR_DEBUG}) );
 		if ( ! $fC->insert_file_location() ){
 		    &Stream("Error : Attempt to insert new location [$path] failed");
 		    $failed++;
 		} else {
 		    $new++;
 		}
+		#if ( defined($ENV{SPDR_DEBUG}) ){
+		#    die "Quitting\n";
+		#}
 	    }
 	}
 
