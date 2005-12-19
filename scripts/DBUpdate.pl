@@ -186,7 +186,7 @@ foreach  $file (@ALL){
     chomp($file);
 
     # Add hook file which will globally leave
-    if ( -e "$CHKDIR/$SELF.quit" ){   # && ! defined($ENV{SPDR_DEBUG}) ){
+    if ( -e "$CHKDIR/$SELF.quit"  && ! defined($ENV{SPDR_DEBUG}) ){
 	print $FO "Warning :  $CHKDIR/$SELF.quit is present. Leaving\n";
 	last;
     }
@@ -274,34 +274,36 @@ foreach  $file (@ALL){
 		$fsize = $stat[7];
 		@own   = getpwuid($stat[4]);
 		$prot  = &ShowPerms($stat[2]);
-		$dt    = &UnixDate(scalar(localtime($stat[10])),"%Y%m%d%H%M%S");
 
+		# Enabled, it may update createtime / not enabled, it will likely
+		# set to previous value in clone context
+		#$dt    = &UnixDate(scalar(localtime($stat[10])),"%Y%m%d%H%M%S");
 		$fC->set_context("path       = $path",
 				 "storage    = $storage",
 				 "persistent = 0",
 				 "size       = $fsize",
 				 "owner      = $own[0]",
 				 "protection = $prot",
-				 "createtime = $dt",
+				 #"createtime = $dt",
 				 "available  = 1",
 				 "site       = $SITE");
 		if ( $node ne ""){
-		    print "Setting node to $node\n";
+		    #print "Setting node to $node\n";
 		    $fC->set_context("node       = $node",
-				     "nodecomment= 'Inserted by $SELF'",
-				     "pathcomment= 'Inserted by $SELF'");
+				     "nodecomment= 'Added by $SELF'",
+				     "pathcomment= 'Added by $SELF'");
 		}
 
-		#$fC->debug_on() if ( defined($ENV{SPDR_DEBUG}) );
+		$fC->debug_on() if ( defined($ENV{SPDR_DEBUG}) );
 		if ( ! $fC->insert_file_location() ){
 		    &Stream("Error : Attempt to insert new location [$path] failed");
 		    $failed++;
 		} else {
 		    $new++;
 		}
-		#if ( defined($ENV{SPDR_DEBUG}) ){
-		#    die "Quitting\n";
-		#}
+		if ( defined($ENV{SPDR_DEBUG}) ){
+		    die "DEBUG mode, Quitting\n";
+		}
 	    }
 	}
 
