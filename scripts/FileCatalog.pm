@@ -1,7 +1,7 @@
 # FileCatalog.pm
 #
 # Written by Adam Kisiel, November-December 2001
-# Written and/or Modified by J.Lauret, 2002 - 2003
+# Written and/or Modified by J.Lauret, 2002 - 2005
 #
 # Methods of class FileCatalog:
 #
@@ -123,7 +123,7 @@ require  Exporter;
 
 
 use vars qw($VERSION);
-$VERSION   =   "V01.305";
+$VERSION   =   "V01.307";
 
 # The hashes that hold a current context
 my %optoperset;
@@ -161,6 +161,7 @@ my $sth;
 # hash of keywords
 my %keywrds;
 my %ksimilar;
+my %ktransform;
 
 # hash of obsolete keywords
 my %obsolete;
@@ -180,10 +181,12 @@ $FC::IDX     = -1;
 # 0 - field name in the database
 # 1 - table name in the database for the given field
 # 2 - critical for data insertion into the specified table
-# 3 - type of the field (text,num,date)
-# 4 - if 0, is not returned by the FileTableContent() routine (used in cloning)
-# 5 - if 1, displays as a user usable keywords, skip otherwise.
+# 3 - type of the field (valid are text,num,date)
+# 4 - is keyword is part of a dictionary table ?? {1|0}
+# 5 - if 0, is not returned by the FileTableContent() routine (used in cloning)
+# 6 - if 1, displays as a user usable keywords, skip otherwise (get_keyword_list)
 #     This field cannot be a null string.
+#
 # only the keywords in this table are accepted in set_context sub
 
 # Those are for private use only but require a keyword for access.
@@ -277,6 +280,7 @@ $keywrds{"stream"        }    =   "fileStream"                .",FileData"      
 $keywrds{"filecomment"   }    =   "fileDataComment"           .",FileData"               .",0" .",text" .",0" .",1" .",1";
 $keywrds{"events"        }    =   "numEntries"                .",FileData"               .",1" .",num"  .",0" .",1" .",1";
 $keywrds{"md5sum"        }    =   "md5sum"                    .",FileData"               .",1" .",text" .",0" .",1" .",1";
+#$keywrds{"fdcreator"     }    =   "fileDataCreator"           .",FileData"               .",1" .",num"  .",0" .",1" .",1";
 $keywrds{"size"          }    =   "fsize"                     .",FileLocations"          .",1" .",num"  .",0" .",1" .",1";
 $keywrds{"owner"         }    =   "owner"                     .",FileLocations"          .",0" .",text" .",0" .",1" .",1";
 $keywrds{"protection"    }    =   "protection"                .",FileLocations"          .",0" .",text" .",0" .",1" .",1";
@@ -290,6 +294,10 @@ $keywrds{"generator"     }    =   "eventGeneratorName"        .",EventGenerators
 $keywrds{"genversion"    }    =   "eventGeneratorVersion"     .",EventGenerators"        .",1" .",text" .",0" .",1" .",1";
 $keywrds{"gencomment"    }    =   "eventGeneratorComment"     .",EventGenerators"        .",0" .",text" .",0" .",1" .",1";
 $keywrds{"genparams"     }    =   "eventGeneratorParams"      .",EventGenerators"        .",1" .",text" .",0" .",1" .",1";
+
+# This is a dictionary with multiple association
+$keywrds{"creator"       }    =   "creatorName"               .",Creators"               .",1" .",text" .",0" .",1" .",0";
+
 
 # Path related keywords apart from index -- NEW
 #$keywrds{"path"          }    =   "filePath"                  .",FileLocations"          .",1" .",text" .",0" .",1" .",1";
@@ -347,6 +355,11 @@ $ksimilar{"fulld"        }    =   "data_description;production library runnumber
 $ksimilar{"fulls"        }    =   "simulation_description;production library runnumber runtype site node storage path filename events configuration generator genversion genparams";
 #$ksimilar{"md5n"         }    =   "md5_name;production library trgsetupname runnumber filename";
 #$ksimilar{"md5p"         }    =   "md5_path;site node storage path";
+
+
+# Field transformation routine. This can be relatively powerfull as well as confusing
+#$ktransform{"fdcreator"   }    =   "_CreatorID2Name;_CreatorName2ID";
+
 
 
 # Fields that need to be rounded when selecting from the database
@@ -1191,11 +1204,11 @@ sub clear_context {
 # from a dictionary table
 # NOTE: Field values in dictionary tables are CaSe insensitive
 # Params:
-# table name
-# field name
-# field value
+#   table name
+#   field name
+#   field value
 # Returns:
-# ID of record form a database or 0 if there is no such record
+#   ID of record form a database or 0 if there is no such record
 sub get_id_from_dictionary {
   if ($_[0] =~ m/FileCatalog/) {
     shift @_;
@@ -1422,11 +1435,11 @@ sub check_ID_for_params
 
 #============================================
 # inserts a value into a table corresponding to a given keyword
-# Paramters:
-# A keyword to use
+# Parameters:
+#    A keyword to use
 # Returns:
-# The ID of an inserted value
-# or 0 if such insertion was not possible
+#    the ID of an inserted value
+#    or 0 if such insertion was not possible
 sub insert_dictionary_value {
   if ($_[0] =~ m/FileCatalog/) {
     shift @_;
@@ -1491,8 +1504,15 @@ sub insert_dictionary_value {
   if ( $FC::ISDICT{$tabname} ){
       &print_debug("insert_dictionary_value",
 		   "Calling _IDatize($tabname) and  _Creatorize($tabname)");
-      $dtxfields = " , ".&_IDatize("",$tabname)." , ".&_Creatorize("",$tabname);
-      $dtxvalues = " , NOW()+0, '".&_GetLogin()."'";
+      $dtxfields = " , ".&_IDatize("",$tabname);
+      $dtxvalues = " , NOW()+0";
+
+      # the addition of a bootstraping dictionary itself named Creator
+      # requires an additional check
+      if ($tabname !~ /Creator/){
+	  $dtxfields .= ", '".&_GetILogin()."'";
+	  $dtxvalues .= ",  ".&_Creatorize("",$tabname);
+      }
   }
 
   $dtinsert  .= "($fieldname $dtfields $dtxfields)";
@@ -1552,7 +1572,7 @@ sub get_prodlib_version_ID {
 		my($cmd2,$sth2);
 
 		$cmd2  = "INSERT IGNORE INTO $tabname ($fldnm1, $fldnm2, ".&_IDatize("",$tabname).", ".&_Creatorize("",$tabname).") ";
-		$cmd2 .= "VALUES('".$prod."', '".$lib." ', NOW()+0, '".&_GetLogin()."')";
+		$cmd2 .= "VALUES('".$prod."', '".$lib." ', NOW()+0, ".&_GetILogin().")";
 		#print "$cmd2\n";
 		$sth2  = $DBH->prepare($cmd2);
 		if ( $sth2->execute() ){
@@ -1915,7 +1935,7 @@ sub insert_collision_type {
       " collisionTypeIDate, collisionTypeCreator)";
   $ctinsert .=
       "VALUES ('$firstParticle' , '$secondParticle' , $energy, ".
-      " NOW()+0, '".&_GetLogin()."')";
+      " NOW()+0, ".&_GetILogin().")";
 
   &print_debug("insert_collision_type","Execute $ctinsert");
 
@@ -2115,7 +2135,7 @@ sub insert_run_param_info {
       "VALUES (".$valuset{"runnumber"}.", $start, $end, $day, $year, ".
       " $triggerSetup, $collision, $simulation, $runType, ".
       " $detConfiguration, $detState, '".$valuset{"magscale"}."', $magvalue, ".
-      " NOW()+0, '".&_GetLogin()."', $comment)";
+      " NOW()+0, ".&_GetILogin().", $comment)";
   if ($DEBUG > 0) {  &print_debug("insert_run_param_info","Execute $rpinsert");}
 
 
@@ -2296,7 +2316,7 @@ sub insert_file_data {
   $fdinsert .=
       "VALUES ($runNumber, \"".$valuset{"filename"}."\",$production, $nevents, ".
       " $md5sum, $fileType,$fileComment,$fileSeq,$filestream, ".
-      " NOW()+0, '".&_GetLogin()."')";
+      " NOW()+0, ".&_GetILogin().")";
 
   if ($DEBUG > 0) { &print_debug("insert_file_data","Execute $fdinsert");}
 
@@ -2417,7 +2437,7 @@ sub set_trigger_composition
     #
     $cmd1 = "SELECT triggerWordID, triggerWordComment FROM TriggerWords ".
 	" WHERE triggerWordName=? AND triggerWordBits=?  AND triggerWordVersion=?";
-    $cmd2 = "INSERT INTO TriggerWords values(NULL, ?, ?, ?, NOW()+0, '".&_GetLogin()."', 0, ?)";
+    $cmd2 = "INSERT INTO TriggerWords values(NULL, ?, ?, ?, NOW()+0, ".&_GetILogin().", 0, ?)";
 
     $sth1 = $DBH->prepare($cmd1);
     $sth2 = $DBH->prepare($cmd2);
@@ -2747,7 +2767,7 @@ sub insert_simulation_params {
 
   my $spinsert   = "INSERT IGNORE INTO SimulationParams ";
   $spinsert  .= "(eventGeneratorID, simulationParamIDate, simulationParamCreator, simulationParamComment)";
-  $spinsert  .= " VALUES ($eventGenerator,  NOW()+0, '".&_GetLogin()."', $simComments)";
+  $spinsert  .= " VALUES ($eventGenerator,  NOW()+0, ".&_GetILogin().", $simComments)";
   if ($DEBUG > 0) {
       &print_debug("insert_simulation_params","Execute $spinsert");
   }
@@ -3919,6 +3939,7 @@ sub run_query {
 
   # Get the select fields
   my @select;
+  my @kstack;
   foreach $keyw (@keywords) {
       if (defined $functions{$keyw}){
 	  &print_debug("run_query",">> Adding keyword: [$keyw] associated with operation [$functions{$keyw}] ");
@@ -3947,12 +3968,14 @@ sub run_query {
 	  &print_debug("run_query",">> Adding keyword: [$keyw] (special treatment) ");
 	  my $tab = &get_table_name($keyw);
 	  push (@select, "CONCAT( $tab.firstParticle, $tab.secondParticle, $tab.collisionEnergy )");
+	  push(@kstack,$keyw);
 
 
       } else {
 	  &print_debug("run_query",">> Adding keyword: [$keyw] (nothing special) ");
 	  push (@select, &get_table_name($keyw).".".&get_field_name($keyw));
-
+	  push (@kstack,$keyw);
+	  
       }
   }
 
@@ -4007,14 +4030,17 @@ sub run_query {
 
 
   # Get only the unique field names
-  my @selectunique;
-  #foreach (sort {$a cmp $b} (@select)) {
-  foreach my $el ( @select ) {
+  my(@selectunique,@kstackunique);
+  
+  for (my $ii=0 ; $ii <= $#select ; $ii++){
+      my $el = $select[$ii];
+      my $kel= $kstack[$ii];
       if ($DEBUG > 0) {
 	  &print_debug("run_query","Adding $el");
       }
       if ((not $selectunique[$#selectunique]) || ($selectunique[$#selectunique] ne $el)) {
-	  push (@selectunique, $el);
+	  push(@selectunique, $el);
+	  push(@kstackunique, $kel)
       }
   }
 
@@ -4238,7 +4264,13 @@ sub run_query {
 	      # if field is empty, fetchrow_array() returns undef()
 	      # fix it by empty string instead.
 	      for ($i=0 ; $i <= $#cols ; $i++){
+		  # do not return undefined field, set to null-string
 		  if( ! defined($cols[$i]) ){ $cols[$i] = "";}
+		  # transformation in read here
+		  if ( defined($ktransform{$kstackunique[$i]}) ){
+		      &print_debug("run_query","We will transform $kstackunique[$i] = $cols[$i]\n");
+		      eval("\$cols[$i] = ".(split(";",$ktransform{$kstackunique[$i]}))[0]."($cols[$i]);");
+		  }
 	      }
 
 
@@ -5671,7 +5703,28 @@ sub _CachedValue
 }
 
 #============================================
+# Transofmration routine
+sub _CreatorID2Name
+{
+    my($arg)=@_;
+    return &get_value_from_dictionary("Creators", "creatorID", $arg);
+}
+
+sub _CreatorName2ID
+{
+    my($arg)=@_;
+    return &get_id_from_dictionary("Creators", "creatorName", $arg);
+}
+
+#============================================
 # getlogin() appeared to be unreliable
+sub _GetILogin
+{
+    $valuset{"creator"} = &_GetLogin();
+    return &check_ID_for_params("creator");
+}
+
+
 sub _GetLogin
 {
     if( ! defined($FC::USER) ){
