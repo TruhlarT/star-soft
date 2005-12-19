@@ -123,7 +123,7 @@ require  Exporter;
 
 
 use vars qw($VERSION);
-$VERSION   =   "V01.307";
+$VERSION   =   "V01.309";
 
 # The hashes that hold a current context
 my %optoperset;
@@ -210,14 +210,15 @@ $keywrds{"stid"          }    =   "storageTypeID"             .",StorageTypes"  
 $keywrds{"rstid"         }    =   "storageTypeID"             .",FileLocations"          .",0" .",num"  .",0" .",1" .",0";
 $keywrds{"ssid"          }    =   "storageSiteID"             .",StorageSites"           .",0" .",num"  .",0" .",0" .",0";
 $keywrds{"rssid"         }    =   "storageSiteID"             .",FileLocations"          .",0" .",num"  .",0" .",1" .",0";
-$keywrds{"dcid"          }    =   "detectorConfigurationID"   .",DetectorConfigurations" .",0" .",num"  .",0" .",1" .",0";
+$keywrds{"dcid"          }    =   "detectorConfigurationID"   .",DetectorConfigurations" .",0" .",num"  .",0" .",0" .",0";
 $keywrds{"rdcid"         }    =   "detectorConfigurationID"   .",RunParams"              .",0" .",num"  .",0" .",1" .",0";
-$keywrds{"dsid"          }    =   "detectorStateID"           .",DetectorStatess"        .",0" .",num"  .",0" .",1" .",0";
+$keywrds{"dsid"          }    =   "detectorStateID"           .",DetectorStates"         .",0" .",num"  .",0" .",0" .",0";
 $keywrds{"rdsid"         }    =   "detectorStateID"           .",RunParams"              .",0" .",num"  .",0" .",1" .",0";
-$keywrds{"spid"          }    =   "simulationParamsID"        .",SimulationParams"       .",0" .",num"  .",0" .",1" .",0";
+$keywrds{"spid"          }    =   "simulationParamsID"        .",SimulationParams"       .",0" .",num"  .",0" .",0" .",0";
 $keywrds{"rspid"         }    =   "simulationParamID"         .",EventGenerator"         .",0" .",num"  .",0" .",1" .",0";
-$keywrds{"rtid"          }    =   "runTypeID"                 .",RunTypes"               .",0" .",num"  .",0" .",1" .",0";
+$keywrds{"rtid"          }    =   "runTypeID"                 .",RunTypes"               .",0" .",num"  .",0" .",0" .",0";
 $keywrds{"rrtid"         }    =   "runTypeID"                 .",RunParams"              .",0" .",num"  .",0" .",1" .",0";
+$keywrds{"crid"          }    =   "creatorID"                 .",Creators"               .",0" .",num"  .",0" .",0" .",0";
 
 # *** Those should be documented
 $keywrds{"filetype"      }    =   "fileTypeName"              .",FileTypes"              .",1" .",text" .",0" .",1" .",1";
@@ -246,7 +247,7 @@ $keywrds{"tcfdid"        }    =   "fileDataID"                .",TriggerComposit
 $keywrds{"tctwid"        }    =   "triggerWordID"             .",TriggerCompositions"    .",0" .",text" .",0" .",1" .",0";
 $keywrds{"trgcount"      }    =   "triggerCount"              .",TriggerCompositions"    .",0" .",text" .",0" .",1" .",1";
 
-$keywrds{"twid"          }    =   "triggerWordID"             .",TriggerWords"           .",0" .",text" .",0" .",1" .",0";
+$keywrds{"twid"          }    =   "triggerWordID"             .",TriggerWords"           .",0" .",text" .",0" .",0" .",0";
 $keywrds{"trgname"       }    =   "triggerWordName"           .",TriggerWords"           .",0" .",text" .",0" .",1" .",1";
 $keywrds{"trgversion"    }    =   "triggerWordVersion"        .",TriggerWords"           .",0" .",text" .",0" .",1" .",1";
 $keywrds{"trgword"       }    =   "triggerWordBits"           .",TriggerWords"           .",0" .",text" .",0" .",1" .",1";
@@ -266,7 +267,7 @@ $keywrds{"runtype"       }    =   "runTypeName"               .",RunTypes"      
 $keywrds{"configuration" }    =   "detectorConfigurationName" .",DetectorConfigurations" .",1" .",text" .",0" .",1" .",1";
 $keywrds{"geometry"      }    =   "detectorConfigurationName" .",DetectorConfigurations" .",0" .",text" .",0" .",1" .",1";
 $keywrds{"runnumber"     }    =   "runNumber"                 .",RunParams"              .",1" .",num"  .",0" .",1" .",1";
-$keywrds{"runcomments"   }    =   "runParamComment"           .",RunParams"              .",0" .",text" .",0" .",1" .",1";
+$keywrds{"runcomments"   }    =   "runParamComment"           .",RunParams"              .",0" .",text" .",0" .",0" .",1";
 $keywrds{"collision"     }    =   "collisionEnergy"           .",CollisionTypes"         .",1" .",text" .",0" .",1" .",1";
 $keywrds{"datastarts"    }    =   "dataTakingStart"           .",RunParams"              .",0" .",date" .",0" .",1" .",1";
 $keywrds{"dataends"      }    =   "dataTakingEnd"             .",RunParams"              .",0" .",date" .",0" .",1" .",1";
@@ -277,7 +278,7 @@ $keywrds{"magvalue"      }    =   "magFieldValue"             .",RunParams"     
 $keywrds{"filename"      }    =   "filename"                  .",FileData"               .",1" .",text" .",0" .",1" .",1";
 $keywrds{"fileseq"       }    =   "fileSeq"                   .",FileData"               .",1" .",num"  .",0" .",1" .",1";
 $keywrds{"stream"        }    =   "fileStream"                .",FileData"               .",1" .",num"  .",0" .",1" .",1";
-$keywrds{"filecomment"   }    =   "fileDataComment"           .",FileData"               .",0" .",text" .",0" .",1" .",1";
+$keywrds{"filecomment"   }    =   "fileDataComment"           .",FileData"               .",0" .",text" .",0" .",0" .",1";
 $keywrds{"events"        }    =   "numEntries"                .",FileData"               .",1" .",num"  .",0" .",1" .",1";
 $keywrds{"md5sum"        }    =   "md5sum"                    .",FileData"               .",1" .",text" .",0" .",1" .",1";
 #$keywrds{"fdcreator"     }    =   "fileDataCreator"           .",FileData"               .",1" .",num"  .",0" .",1" .",1";
@@ -289,22 +290,22 @@ $keywrds{"persistent"    }    =   "persistent"                .",FileLocations" 
 $keywrds{"sanity"        }    =   "sanity"                    .",FileLocations"          .",0" .",num"  .",0" .",1" .",1";
 $keywrds{"createtime"    }    =   "createTime"                .",FileLocations"          .",0" .",date" .",0" .",1" .",1";
 $keywrds{"inserttime"    }    =   "insertTime"                .",FileLocations"          .",0" .",date" .",0" .",1" .",1";
-$keywrds{"simcomment"    }    =   "simulationParamComment"    .",SimulationParams"       .",0" .",text" .",0" .",1" .",1";
+$keywrds{"simcomment"    }    =   "simulationParamComment"    .",SimulationParams"       .",0" .",text" .",0" .",0" .",1";
 $keywrds{"generator"     }    =   "eventGeneratorName"        .",EventGenerators"        .",1" .",text" .",0" .",1" .",1";
 $keywrds{"genversion"    }    =   "eventGeneratorVersion"     .",EventGenerators"        .",1" .",text" .",0" .",1" .",1";
-$keywrds{"gencomment"    }    =   "eventGeneratorComment"     .",EventGenerators"        .",0" .",text" .",0" .",1" .",1";
+$keywrds{"gencomment"    }    =   "eventGeneratorComment"     .",EventGenerators"        .",0" .",text" .",0" .",0" .",1";
 $keywrds{"genparams"     }    =   "eventGeneratorParams"      .",EventGenerators"        .",1" .",text" .",0" .",1" .",1";
 
 # This is a dictionary with multiple association
-$keywrds{"creator"       }    =   "creatorName"               .",Creators"               .",1" .",text" .",1" .",1" .",0";
+$keywrds{"creator"       }    =   "creatorName"               .",Creators"               .",1" .",text" .",0" .",0" .",0";
 
 # Path related keywords apart from index 
-$keywrds{"path"          }    =   "filePathName"              .",FilePaths"              .",1" .",text" .",1" .",0". ",1";
-$keywrds{"pathcomment"   }    =   "filePathComment"           .",FilePaths"              .",0" .",text" .",1" .",0". ",1";
+$keywrds{"path"          }    =   "filePathName"              .",FilePaths"              .",1" .",text" .",0" .",0". ",1";
+$keywrds{"pathcomment"   }    =   "filePathComment"           .",FilePaths"              .",0" .",text" .",0" .",0". ",1";
 
 # Node related keywords 
-$keywrds{"node"         }     =   "hostName"                  .",Hosts"                  .",0" .",text" .",1" .",0". ",1";
-$keywrds{"nodecomment"  }     =   "hostComment"               .",Hosts"                  .",0" .",text" .",1" .",0". ",1";
+$keywrds{"node"         }     =   "hostName"                  .",Hosts"                  .",0" .",text" .",0" .",0". ",1";
+$keywrds{"nodecomment"  }     =   "hostComment"               .",Hosts"                  .",0" .",text" .",0" .",0". ",1";
 
 # old keyword made obsolete
 $obsolete{"datetaken"} = "datastarts";
