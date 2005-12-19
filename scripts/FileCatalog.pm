@@ -182,7 +182,7 @@ $FC::IDX     = -1;
 # 1 - table name in the database for the given field
 # 2 - critical for data insertion into the specified table
 # 3 - type of the field (valid are text,num,date)
-# 4 - is keyword is part of a dictionary table ?? {1|0}
+# 4 - (??) -- was used for dict or not dict but now in datastruct
 # 5 - if 0, is not returned by the FileTableContent() routine (used in cloning)
 # 6 - if 1, displays as a user usable keywords, skip otherwise (get_keyword_list)
 #     This field cannot be a null string.
@@ -296,18 +296,15 @@ $keywrds{"gencomment"    }    =   "eventGeneratorComment"     .",EventGenerators
 $keywrds{"genparams"     }    =   "eventGeneratorParams"      .",EventGenerators"        .",1" .",text" .",0" .",1" .",1";
 
 # This is a dictionary with multiple association
-$keywrds{"creator"       }    =   "creatorName"               .",Creators"               .",1" .",text" .",0" .",1" .",0";
+$keywrds{"creator"       }    =   "creatorName"               .",Creators"               .",1" .",text" .",1" .",1" .",0";
 
+# Path related keywords apart from index 
+$keywrds{"path"          }    =   "filePathName"              .",FilePaths"              .",1" .",text" .",1" .",0". ",1";
+$keywrds{"pathcomment"   }    =   "filePathComment"           .",FilePaths"              .",0" .",text" .",1" .",0". ",1";
 
-# Path related keywords apart from index -- NEW
-#$keywrds{"path"          }    =   "filePath"                  .",FileLocations"          .",1" .",text" .",0" .",1" .",1";
-#$keywrds{"Xpath"         }    =   "filePathName"              .",FilePaths"              .",0" .",text" .",0" .",0". ",0";
-$keywrds{"path"          }    =   "filePathName"              .",FilePaths"              .",1" .",text" .",0" .",0". ",1";
-
-# Node related keywords -- NEW
-#$keywrds{"node"          }    =   "nodeName"                  .",FileLocations"          .",0" .",text" .",0" .",1" .",1";
-#$keywrds{"Xnode"         }    =   "hostName"                  .",Hosts"                  .",0" .",text" .",0" .",0". ",0";
-$keywrds{"node"         }     =   "hostName"                  .",Hosts"                  .",0" .",text" .",0" .",0". ",0";
+# Node related keywords 
+$keywrds{"node"         }     =   "hostName"                  .",Hosts"                  .",0" .",text" .",1" .",0". ",1";
+$keywrds{"nodecomment"  }     =   "hostComment"               .",Hosts"                  .",0" .",text" .",1" .",0". ",1";
 
 # old keyword made obsolete
 $obsolete{"datetaken"} = "datastarts";
@@ -411,6 +408,7 @@ $datastruct[15] = ( "SimulationParams"       . ",RunParams"           . ",simula
 $datastruct[16] = ( "EventGenerators"        . ",SimulationParams"    . ",eventGeneratorID"        . ",5" . ",1");
 $datastruct[17] = ( "FileLocations"          . ","                    . ","                        . ",1" . ",0");
 $datastruct[18] = ( "TriggerCompositions"    . ","                    . ","                        . ",1" . ",0");
+$datastruct[19] = ( "Creators"               . ","                    . ","                        . ",1" . ",1");
 
 
 #%FC::FLRELATED;
@@ -1417,7 +1415,7 @@ sub check_ID_for_params
 
 	    } else {
 		&print_debug("check_ID_for_params",
-			     "Returning 0 since there are no $params with value ".
+			     "Returning 0 since ($tabname not a dict) there are no $params with value ".
 			     $valuset{$params});
 		$retid = 0;
 	    }
@@ -1510,8 +1508,8 @@ sub insert_dictionary_value {
       # the addition of a bootstraping dictionary itself named Creator
       # requires an additional check
       if ($tabname !~ /Creator/){
-	  $dtxfields .= ", '".&_GetILogin()."'";
-	  $dtxvalues .= ",  ".&_Creatorize("",$tabname);
+	  $dtxfields .= ",  ".&_Creatorize("",$tabname);
+	  $dtxvalues .= ", '".&_GetILogin()."'";
       }
   }
 
