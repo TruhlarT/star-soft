@@ -19,8 +19,8 @@ $dbname="operation";
 
 
 # Tables
-$crsJobStatusT = "crsJobStatusY5";
-$crsQueueT = "crsQueueY5";
+$crsJobStatusT = "crsJobStatusY6";
+$crsQueueT = "crsQueueY6";
 
 ######################
 sub StcrsdbConnect {
