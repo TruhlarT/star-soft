@@ -15,7 +15,7 @@ use DBI;
 $dbhost="duvall.star.bnl.gov";
 $dbuser="starreco";
 $dbpass="";
-$dbname="TestJobs";
+$dbname="LibraryJobs";
 
 
 # Tables
