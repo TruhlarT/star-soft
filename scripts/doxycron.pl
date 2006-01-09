@@ -339,6 +339,23 @@ for ($kk=0 ; $kk <= $#PROJECTS ; $kk++){
 	    exit;
 	}
     }
+
+    # Must garbagge cleanup first - will be a problem if two are
+    # running simultaneously
+    @all = glob("$TARGETD/dox$SUBDIR/tmp*");
+    foreach $dir (@all){
+	if ($dir =~ m/tmp\d+/){
+	    $delta = time()-(stat($dir))[10];
+	    print "\tFound $dir $delta";
+	    if ( $delta > 3600){
+		print " (cleaning)\n";
+		system("/bin/rm -fr $dir");
+	    } else {
+		print " (too recent - keeping)\n";
+	    }
+	}
+    }
+
     if( ! -d "$TARGETD/dox$SUBDIR/tmp$$"){
 	print "\tCreating temporary dir $TARGETD/dox$SUBDIR/tmp$$\n";
 	if (! mkdir("$TARGETD/dox$SUBDIR/tmp$$",0777) ){
@@ -360,6 +377,12 @@ for ($kk=0 ; $kk <= $#PROJECTS ; $kk++){
 	    "\t\t(cd $TMPDIR ; $DOXYGEN $tmpf.cfg >&$tmpf.log)\n";
 
 	system("cd $TMPDIR ; $DOXYGEN $tmpf.cfg >&$tmpf.log");
+	$status = $?;
+	if ($status != 0){
+	    print "Error: $DOXYGEN stopped with status $status\n";
+	    exit;
+	}
+
 	if( -d "$TARGETD/dox$SUBDIR/tmp$$/html" && $DOTAG){
 	    print "\tRunning $DOXYTAG now ".localtime()."\n";
 	    system("cd $TARGETD/dox$SUBDIR/tmp$$/html ; ".
@@ -368,9 +391,15 @@ for ($kk=0 ; $kk <= $#PROJECTS ; $kk++){
 		print "\t\tDoxygen did not generate $IDXNAME . Trying with $DOXYTAG\n";
 		system("cd $TARGETD/dox$SUBDIR/tmp$$/html ; ".
 		       "$DOXYTAG -t $IDXNAME >&/dev/null");
+		$status = $?;
+		if ($status != 0){
+		    print "\t\tError: $DOXYTAG -t stopped with status $status\n";
+		    exit;
+		}
 	    }
 	} else {
 	    print "\t\tMissing tmp$$/html directory\n";
+	    exit;
 	}
 		
 	#unlink("$tmpf.cfg");
@@ -392,7 +421,7 @@ for ($kk=0 ; $kk <= $#PROJECTS ; $kk++){
 	    if( -d "$TARGETD/dox$SUBDIR/$dir"){
 		if( -d "$TARGETD/dox$SUBDIR/$dir.old"){
 		    #print "Removing old $TARGETD/dox/$SUBDIR/$dir.old\n";
-		    system("rm -fr $TARGETD/dox$SUBDIR/$dir.old");
+		    system("/bin/rm -fr $TARGETD/dox$SUBDIR/$dir.old");
 		}
 		#print "Renaming current $TARGETD/dox/$SUBDIR/$dir\n";
 		rename("$TARGETD/dox$SUBDIR/$dir",
