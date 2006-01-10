@@ -1,9 +1,12 @@
 #!/usr/local/bin/perl
 #!/usr/bin/env perl 
 #
-# $Id: CRSfarmStatus.pl,v 1.8 2005/11/09 19:18:46 didenko Exp $
+# $Id: CRSfarmStatus.pl,v 1.9 2006/01/10 22:20:44 didenko Exp $
 #
 # $Log: CRSfarmStatus.pl,v $
+# Revision 1.9  2006/01/10 22:20:44  didenko
+# modified for year's table
+#
 # Revision 1.8  2005/11/09 19:18:46  didenko
 # farm efficiency implemented
 #
@@ -46,13 +49,9 @@ $dbpass="";
 $dbname="operation";
 
 
-# Tables
-$crsJobStatusT = "crsJobStatusY5";
-$crsQueueT = "crsQueueY5";
-
-
 my @reqperiod = ("day","week","1_month","2_months","3_months","4_months","5_months","6_months");
 my @plotview = ("numbers","percentage");
+my @prodyear = ("2005","2006");
 
 my $query = new CGI;
 
@@ -66,11 +65,12 @@ my @data;
 my @legend;
 my $Nmaxjobs = 422;
 
+ my $pryear =  $query->param('ryear');
  my $fperiod  =  $query->param('period');
  my $plview   =  $query->param('plotvw');
 
 
-  if( $fperiod eq "" and $plview eq "") {
+  if( $fperiod eq "" and $plview eq "" and $pryear eq "") {
 
 
 print $query->header;
@@ -92,6 +92,16 @@ print <<END;
 <tr ALIGN=center VALIGN=CENTER NOSAVE>
 <td>
 END
+
+
+print "<p>";
+print "</td><td>";
+print "<h3 align=center> Select year of production</h3>";
+print "<h4 align=center>";
+print  $query->scrolling_list(-name=>'ryear',
+                             -values=>\@prodyear,
+                             -default=>2006,
+                             -size =>1); 
 
 print "<p>";
 print "</td><td>";
@@ -132,8 +142,16 @@ print $query->end_html;
 
 my $qqr = new CGI;
 
+my $pryear    =  $qqr->param('ryear');
 my $fperiod   =  $qqr->param('period');
 my $plview    =  $qqr->param('plotvw');
+
+my $dyear = $pryear - 2000 ;
+
+
+# Tables
+$crsJobStatusT = "crsJobStatusY".$dyear;
+$crsQueueT = "crsQueueY".$dyear;
 
 my @numjobs1 = ();
 my @numjobs2 = ();
@@ -152,18 +170,29 @@ if( $hour < 10) { $hour = '0'.$hour };
 if( $min < 10) { $min = '0'.$min };
 if( $sec < 10) { $sec = '0'.$sec };
 
-
 my $nowdate = ($year+1900)."-".($mon+1)."-".$mday;
+my $thisyear = $year+1900;
+
+ if( $thisyear eq $pryear) {
+
+ $nowdate = $pryear."-".($mon+1)."-".$mday;
+
+ }else{
+
+ $nowdate = $pryear."-12-31 23:59:59";
+
+} 
 
 my $day_diff = 0;
 my $nmonth = 0;
 my @prt = ();
 
+
     if( $fperiod eq "day") {
            $day_diff = 1;
     
     }elsif( $fperiod eq "week") {
-           $day_diff = 8;
+           $day_diff = 7;
     }elsif ( $fperiod =~ /month/) {
        @prt = split("_", $fperiod);
        $nmonth = $prt[0];
@@ -187,12 +216,8 @@ my @prt = ();
 
 
  
- 	if ($fperiod eq "day") {
-	    $sql="SELECT max(executing), max(importWaiting), max(exportWaiting), max(error) FROM  $crsJobStatusT WHERE sdate LIKE \"$nowdate%\" ";
-        }else {
-            $sql="SELECT max(executing), max(importWaiting), max(exportWaiting), max(error) FROM  $crsJobStatusT WHERE (TO_DAYS(\"$nowdate\") - TO_DAYS(sdate)) < $day_diff ";
-      }
-
+             $sql="SELECT max(executing), max(importWaiting), max(exportWaiting), max(error) FROM  $crsJobStatusT WHERE (TO_DAYS(\"$nowdate\") - TO_DAYS(sdate)) <= $day_diff ";
+ 
 	$cursor = $dbh->prepare($sql) || die "Cannot prepare statement: $dbh->errstr\n";
 	$cursor->execute;
 	while(@fields = $cursor->fetchrow_array) {  
@@ -205,11 +230,7 @@ my @prt = ();
 
  my $ii = 0;
 
-	if ($fperiod eq "day") {
-	    $sql="SELECT executing, importWaiting, exportWaiting, error, done, sdate FROM  $crsJobStatusT WHERE sdate LIKE \"$nowdate%\"  ORDER by sdate ";
-        }else {
-            $sql="SELECT executing, importWaiting, exportWaiting, error,  done, sdate FROM  $crsJobStatusT WHERE (TO_DAYS(\"$nowdate\") - TO_DAYS(sdate)) < $day_diff ORDER by sdate ";
-      }
+            $sql="SELECT executing, importWaiting, exportWaiting, error,  done, sdate FROM  $crsJobStatusT WHERE (TO_DAYS(\"$nowdate\") - TO_DAYS(sdate)) <= $day_diff ORDER by sdate ";
 
 	$cursor = $dbh->prepare($sql) || die "Cannot prepare statement: $dbh->errstr\n";
 	$cursor->execute;
