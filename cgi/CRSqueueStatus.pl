@@ -1,9 +1,12 @@
 #!/usr/local/bin/perl
 #!/usr/bin/env perl 
 #
-# $Id: CRSqueueStatus.pl,v 1.2 2005/10/28 20:32:15 didenko Exp $
+# $Id: CRSqueueStatus.pl,v 1.3 2006/01/12 22:11:34 didenko Exp $
 #
 # $Log: CRSqueueStatus.pl,v $
+# Revision 1.3  2006/01/12 22:11:34  didenko
+# updated to use year's table
+#
 # Revision 1.2  2005/10/28 20:32:15  didenko
 # get rid of onr more script
 #
@@ -35,23 +38,20 @@ $dbpass="";
 $dbname="operation";
 
 
-# Tables
-$crsJobStatusT = "crsJobStatusY5";
-$crsQueueT = "crsQueueY5";
-
-
 my @reqperiod = ("day","week","1_month","2_months","3_months","4_months","5_months","6_months");
 my @plotview = ("numbers","percentage");
+my @prodyear = ("2005","2006");
 
 my $query = new CGI;
 
 my $scriptname = $query->url(-relative=>1);
 
+ my $pryear =  $query->param('ryear');
  my $fperiod  =  $query->param('period');
  my $plview   =  $query->param('plotvw');
 
 
- if( $fperiod eq "" and $plview eq "") {
+ if( $fperiod eq "" and $plview eq "" and $pryear eq "") {
 
 
 print $query->header;
@@ -73,6 +73,15 @@ print <<END;
 <tr ALIGN=center VALIGN=CENTER NOSAVE>
 <td>
 END
+
+print "<p>";
+print "</td><td>";  
+print "<h3 align=center> Select year of production</h3>";
+print "<h4 align=center>";
+print  $query->scrolling_list(-name=>'ryear',
+                             -values=>\@prodyear,
+                             -default=>2006,
+                             -size =>1); 
 
 print "<p>";
 print "</td><td>";
@@ -113,8 +122,16 @@ print $query->end_html;
 
 my $qqr = new CGI;
 
+my $pryear    =  $qqr->param('ryear');
 my $fperiod   =  $qqr->param('period');
 my $plview    =  $qqr->param('plotvw');
+
+my $dyear = $pryear - 2000 ;
+
+
+# Tables
+$crsJobStatusT = "crsJobStatusY".$dyear;
+$crsQueueT = "crsQueueY".$dyear;
 
 
 my $day_diff = 1;
@@ -143,6 +160,18 @@ if( $sec < 10) { $sec = '0'.$sec };
 
 
 my $nowdate = ($year+1900)."-".($mon+1)."-".$mday;
+my $thisyear = $year+1900;
+
+
+ if( $thisyear eq $pryear) {
+
+ $nowdate = $pryear."-".($mon+1)."-".$mday;
+
+ }else{
+
+ $nowdate = $pryear."-12-31 23:59:59";
+
+}
 
 my $day_diff = 0;
 my $nmonth = 0;
@@ -152,7 +181,7 @@ my @prt = ();
            $day_diff = 1;
     
     }elsif( $fperiod eq "week") {
-           $day_diff = 8;
+           $day_diff = 7;
     }elsif ( $fperiod =~ /month/) {
        @prt = split("_", $fperiod);
        $nmonth = $prt[0];
@@ -171,12 +200,7 @@ my @prt = ();
 
     if($plview eq "numbers") {
 
-
- 	if ($fperiod eq "day") {
-	    $sql="SELECT max(queue0), max(queue1), max(queue2), max(queue3), max(queue4) FROM  $crsQueueT WHERE sdate LIKE \"$nowdate%\" ";
-        }else {
-            $sql="SELECT max(queue0), max(queue1), max(queue2), max(queue3), max(queue4) FROM  $crsQueueT WHERE (TO_DAYS(\"$nowdate\") - TO_DAYS(sdate)) < $day_diff ";
-      }
+             $sql="SELECT max(queue0), max(queue1), max(queue2), max(queue3), max(queue4) FROM  $crsQueueT WHERE (TO_DAYS(\"$nowdate\") - TO_DAYS(sdate)) <= $day_diff ";
 
 	$cursor = $dbh->prepare($sql) || die "Cannot prepare statement: $dbh->errstr\n";
 	$cursor->execute;
@@ -191,11 +215,7 @@ my @prt = ();
 
  my $ii = 0;
 
-	if ($fperiod eq "day") {
-	    $sql="SELECT queue0, queue1, queue2, queue3, queue4, sdate FROM  $crsQueueT WHERE sdate LIKE \"$nowdate%\"  ORDER by sdate ";
-        }else {
-            $sql="SELECT queue0, queue1, queue2, queue3, queue4, sdate FROM  $crsQueueT WHERE (TO_DAYS(\"$nowdate\") - TO_DAYS(sdate)) < $day_diff ORDER by sdate ";
-      }
+            $sql="SELECT queue0, queue1, queue2, queue3, queue4, sdate FROM  $crsQueueT WHERE (TO_DAYS(\"$nowdate\") - TO_DAYS(sdate)) <= $day_diff ORDER by sdate ";
 
 	$cursor = $dbh->prepare($sql) || die "Cannot prepare statement: $dbh->errstr\n";
 	$cursor->execute;
@@ -224,11 +244,7 @@ my @prt = ();
 
     }else{
 
-	if ($fperiod eq "day") {
-	    $sql="SELECT Rqueue0, Rqueue1, Rqueue2, Rqueue3, Rqueue4, sdate FROM  $crsQueueT WHERE sdate LIKE \"$nowdate%\"  ORDER by sdate ";
-        }else {
             $sql="SELECT Rqueue0, Rqueue1, Rqueue2, Rqueue3, Rqueue4, sdate FROM  $crsQueueT WHERE (TO_DAYS(\"$nowdate\") - TO_DAYS(sdate)) < $day_diff ORDER by sdate ";
-      }
 
 	$cursor = $dbh->prepare($sql) || die "Cannot prepare statement: $dbh->errstr\n";
 	$cursor->execute;
