@@ -1,9 +1,12 @@
 #!/usr/local/bin/perl
 #!/usr/bin/env perl 
 #
-# $Id: CRSstatusPlots.pl,v 1.7 2005/10/28 16:35:25 didenko Exp $
+# $Id: CRSstatusPlots.pl,v 1.8 2006/01/13 22:29:48 didenko Exp $
 #
 # $Log: CRSstatusPlots.pl,v $
+# Revision 1.8  2006/01/13 22:29:48  didenko
+# updated for year tables
+#
 # Revision 1.7  2005/10/28 16:35:25  didenko
 # fixed name
 #
@@ -29,6 +32,11 @@ use GIFgraph::linespoints;
 use GD;
 use Mysql;
 
+$dbhost="duvall.star.bnl.gov";
+$dbuser="starreco";
+$dbpass="";
+$dbname="operation";
+
 my $query = new CGI;
 
 my $scriptname = $query->url(-relative=>1);
@@ -43,9 +51,9 @@ $query = new CGI;
 
  my $fstatus   =  $query->param('statusfield');
  my $fperiod   =  $query->param('period');
+ my @prodyear = ("2005","2006");
 
-
-  if( $fperiod eq "" and $fstatus eq "") {
+  if( $fperiod eq "" and $fstatus eq "" and $pryear eq "" ) {
 
 print $query->header;
 print $query->start_html('CRS jobs status');
@@ -67,7 +75,18 @@ print <<END;
 <td>
 END
 
+
 print "<p>";
+print "</td><td>";  
+print "<h3 align=center> Select year of production</h3>";
+print "<h4 align=center>";
+print  $query->scrolling_list(-name=>'ryear',
+                             -values=>\@prodyear,
+                             -default=>2006,
+                             -size =>1); 
+
+print "<p>";
+print "</td><td>"; 
 print "<h3 align=center>Select jobs status</h3>";
 print "<h4 align=center>";
 print $query->scrolling_list(-name=>'statusfield',
@@ -100,11 +119,18 @@ print $query->end_html;
 
 my $qqr = new CGI;
 
+ my $pryear    =  $qqr->param('ryear');
  my $fstatus   =  $qqr->param('statusfield');
  my $fperiod   =  $qqr->param('period'); 
 
+ my $dyear = $pryear - 2000 ;
 
-my $day_diff = 8;
+# Tables
+$crsJobStatusT = "crsJobStatusY".$dyear;
+$crsQueueT = "crsQueueY".$dyear;
+
+
+my $day_diff = 0;
 my $max_y = 10000;
 my $min_y = 0;
 my @data;
@@ -126,8 +152,18 @@ if( $sec < 10) { $sec = '0'.$sec };
 
 
 my $nowdate = ($year+1900)."-".($mon+1)."-".$mday;
+my $thisyear = $year+1900;
 
-my $day_diff = 0;
+if( $thisyear eq $pryear) {
+
+ $nowdate = $pryear."-".($mon+1)."-".$mday;
+
+ }else{
+
+ $nowdate = $pryear."-12-31 23:59:59";
+
+}
+
 my $nmonth = 0;
 my @prt = ();
 
@@ -135,7 +171,7 @@ my @prt = ();
            $day_diff = 1;
     
     }elsif( $fperiod eq "week") {
-           $day_diff = 8;
+           $day_diff = 7;
     }elsif ( $fperiod =~ /month/) {
        @prt = split("_", $fperiod);
        $nmonth = $prt[0];
@@ -150,7 +186,7 @@ my @prt = ();
  @Npoint = ();
 
 
-        $sql="SELECT max($fstatus) FROM  $crsJobStatusT WHERE (TO_DAYS(\"$nowdate\") - TO_DAYS(sdate)) < $day_diff ";
+        $sql="SELECT max($fstatus) FROM  $crsJobStatusT WHERE (TO_DAYS(\"$nowdate\") - TO_DAYS(sdate)) <= $day_diff ";
 
 	$cursor = $dbh->prepare($sql) || die "Cannot prepare statement: $dbh->errstr\n";
 	$cursor->execute;
@@ -160,11 +196,7 @@ my @prt = ();
 	 }
 
 
-	if ($fperiod eq "day") {
-	    $sql="SELECT $fstatus, sdate FROM  $crsJobStatusT WHERE sdate LIKE \"$nowdate%\"  ORDER by sdate ";
-        }else {
-            $sql="SELECT $fstatus, sdate FROM  $crsJobStatusT WHERE (TO_DAYS(\"$nowdate\") - TO_DAYS(sdate)) < $day_diff ORDER by sdate ";
-      }
+            $sql="SELECT $fstatus, sdate FROM  $crsJobStatusT WHERE (TO_DAYS(\"$nowdate\") - TO_DAYS(sdate)) <= $day_diff ORDER by sdate ";
 
 	$cursor = $dbh->prepare($sql) || die "Cannot prepare statement: $dbh->errstr\n";
 	$cursor->execute;
@@ -251,3 +283,14 @@ sub y_format
     $ret = sprintf("%8.2f", $value);
 }
 
+
+######################
+sub StcrsdbConnect {
+    $dbh = DBI->connect("dbi:mysql:$dbname:$dbhost", $dbuser, $dbpass)
+        || die "Cannot connect to db server $DBI::errstr\n";
+}
+
+######################
+sub StcrsdbDisconnect {
+    $dbh = $dbh->disconnect() || die "Disconnect failure $DBI::errstr\n";
+}
