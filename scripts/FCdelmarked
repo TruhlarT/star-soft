@@ -12,6 +12,10 @@
 #   % ./$0 localhost NFS
 #   % ./$0 rcas6001.rcf.bnl.gov
 #
+# Note that this script only gets the default batch of files
+# and no more so, deletion are incremental ... Best suited in
+# a cron. This is by design in case something goes utterly
+# wrong.
 #
 
 use lib "/afs/rhic.bnl.gov/star/packages/scripts";
@@ -48,13 +52,13 @@ if ( defined($ARGV[0]) ){
 		if ( -e $file ){ 
 		    if ($OK){
 			if ( unlink($file) ){
-			    print "$file deleted\n";
+			    print localtime()." $file deleted\n";
 			}
 		    } else {
 			print "/bin/rm -f $file\n";
 		    }
 		} else {  
-		    print "$file not found\n";
+		    print localtime()." $file not found\n";
 		}
 	    }
 	}
