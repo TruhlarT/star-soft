@@ -123,7 +123,7 @@ require  Exporter;
 
 
 use vars qw($VERSION);
-$VERSION   =   "V01.309";
+$VERSION   =   "V01.310";
 
 # The hashes that hold a current context
 my %optoperset;
@@ -2091,6 +2091,7 @@ sub insert_run_param_info {
       $end   = "\"".$valuset{"dataends"}."\"";
   }
 
+  # This hook would not quite work in update_record() mode
   # note that the above are autoset
   if (! defined $valuset{"daynumber"} ) {
       my($y,$d) = &get_date_numbers($valuset{"runnumber"});
@@ -2103,6 +2104,8 @@ sub insert_run_param_info {
       $day   = $valuset{"daynumber"};
   }
   if (! defined $valuset{"year"} ) {
+      # try to update anyhow based on runnumber which is
+      # mandatory
       my($y,$d) = &get_date_numbers($valuset{"runnumber"});
       if ( defined($y) ){
 	  $year = $d;
@@ -4286,6 +4289,8 @@ sub run_query {
 
 	  }
 	  $sth->finish();
+      } else {
+	  &print_debug("run_query","ERROR ".$DBH->err." >> ".$DBH->errstr);
       }
       return (@result);
   }
@@ -5368,7 +5373,13 @@ sub update_location {
       # But since we are only speaking about FileData or FileLocations
       # we only need to put back in the relation between those tables.
       $xrel = " FileData.fileDataID = FileLocations.fileDataID ";
-      $xjoin= " $utable,$mtable ";
+      $xjoin= "$utable,$mtable";
+      # however, we do not know if cond is related to FileLocations
+      # or FileData so we need to re-check all table (kind of screwed
+      # logic and relationship between tables)
+      if ($xjoin !~ /FileLocations/){ $xjoin .= ",FileLocations";}
+      if ($xjoin !~ /FileData/){      $xjoin .= ",FileData";}
+      &print_debug("update_location","will use $utable --> $utable,$mtable");
   } else {
       $xrel = "";
       $xjoin= "";
@@ -5383,7 +5394,7 @@ sub update_location {
   $qdelete .= " WHERE $mtable.".&_IDize("update_location",$mtable)." = ?";
 
   if ( $xjoin ne ""){
-      $qupdate =~ s/ $utable /$xjoin/;
+      $qupdate =~ s/$utable/$xjoin/;
   }
 
 
