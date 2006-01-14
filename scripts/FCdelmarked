@@ -1,0 +1,70 @@
+#!/usr/bin/env perl
+
+#
+# Deletes all files with available <= 0 or sanity <= 0
+# Attention: this will work for a give storage
+#
+# Written J. Lauret - 2002 - 2006
+#
+# DO NOT change the arguments please
+#
+# Usage:
+#   % ./$0 localhost NFS
+#   % ./$0 rcas6001.rcf.bnl.gov
+#
+#
+
+use lib "/afs/rhic.bnl.gov/star/packages/scripts";
+use FileCatalog;
+
+my $hostName;
+
+$OK = 1;
+
+if ( defined($ARGV[0]) ){
+    $hostName = $ARGV[0];
+
+    my $fC = FileCatalog->new();
+    if ( $fC ){
+	$fC->connect_as("User");
+
+        # those are sign that the files 
+	# where marked for deletion
+	foreach $select ("available<0","sanity<=0"){
+	    $fC->clear_context();
+	    $fC->set_delimeter("/");
+	    $fC->set_context("node=$hostName",
+			     defined($ARGV[1])?"storage=$ARGV[1]":"storage=local",
+			     "nounique=1",
+			     $select 
+			     );                   
+	    @all = $fC->run_query("path","filename");
+	    if ($#all != -1){ push(@ALL,@all);}
+	}
+
+	# No perform the operation
+	if ($#ALL != -1){
+	    foreach $file (@ALL){ 
+		if ( -e $file ){ 
+		    if ($OK){
+			if ( unlink($file) ){
+			    print "$file deleted\n";
+			}
+		    } else {
+			print "/bin/rm -f $file\n";
+		    }
+		} else {  
+		    print "$file not found\n";
+		}
+	    }
+	}
+	1;
+    
+    } else {
+	0;
+    }
+
+} else {
+    0;
+}
+
