@@ -14,6 +14,10 @@ if ($#ARGV == -1){
 
  Options are
    -o outputFile      redirect output to file outputFile
+   -k subpath         strip subpath before comparing to HPSS, then clone
+                      using full path
+   -l                 consider soft-links in path
+
 
  Purpose
    This script scans a disk given as the first argument
@@ -50,6 +54,7 @@ if ($#ARGV == -1){
   % DBUpdate.pl /star/data27
   % DBUpdate.pl /star/data27 ""
   % DBUpdate.pl /star/data03 .daq daq /home/starsink/raw
+  % DBUpdate.pl /home/starlib/home/starreco -k /home/starlib -l
 
 ~;
     exit;
@@ -67,11 +72,14 @@ $SELF  = "DBUpdate";
 $LOUT  = 0;
 $FLNM  = "";
 
-
-$SCAND = "/star/data06";
-$USER  = "";
-$PASSWD= "";
-$SUB   = "reco";
+# Those default should nt be changed here but via
+# command line options
+$SCAND  = "/star/data06";
+$USER   = "";
+$PASSWD = "";
+$SUBPATH= "";
+$SUB    = "reco";
+$DOSL   = 0;
 
 # Argument pick-up
 $kk    = 0;
@@ -90,6 +98,12 @@ for ($i=0 ; $i <= $#ARGV ; $i++){
 	    $i++;
 	    $FO = FO;
 	}
+
+    } elsif ($ARGV[$i] eq "-k"){
+	$SUBPATH = $ARGV[++$i];
+
+    } elsif ($ARGV[$i] eq "-l"){
+	$DOSL    = 1;
 
     } else {
 	# ... as well as previous syntax
@@ -123,12 +137,23 @@ if ( ! defined($FTYPE) ){  $FTYPE = ".MuDst.root";}
 if( $DOIT && -e "$SCAND/$SUB"){
     if ($FTYPE ne ""){
 	print "Searching for all files like '*$FTYPE' in $SCAND/$SUB  ...\n";
-	@ALL   = `/usr/bin/find $SCAND/$SUB -type f -name '*$FTYPE'`;
-	print "Found ".($#ALL+1)." files to add (x2)\n";
+	if ( $DOSL){
+	    @ALL   = `/usr/bin/find $SCAND/$SUB -type l -name '*$FTYPE'`;
+	    print "Found ".($#ALL+1)." links to add (x2)\n";
+	} else {
+	    @ALL   = `/usr/bin/find $SCAND/$SUB -type f -name '*$FTYPE'`;
+	    print "Found ".($#ALL+1)." files to add (x2)\n";
+	}
+
     } else {
 	print "Searching for all files in $SCAND/$SUB ...\n";
-	@ALL   = `/usr/bin/find $SCAND/$SUB -type f`;
-	print "Found ".($#ALL+1)." files to add (x2)\n";
+	if ($DOSL){
+	    @ALL   = `/usr/bin/find $SCAND/$SUB -type l`;
+	    print "Found ".($#ALL+1)." links to add (x2)\n";
+	} else {
+	    @ALL   = `/usr/bin/find $SCAND/$SUB -type f`;
+	    print "Found ".($#ALL+1)." files to add (x2)\n";
+	}
     }
 }
 
@@ -185,6 +210,14 @@ chomp($NODE    = `/bin/hostname`);
 foreach  $file (@ALL){
     chomp($file);
 
+    # If soft-link, check if real file is present or not
+    if ( -l $file){
+	$realfile = readlink($file);
+	next if ( ! -e $realfile);
+    } else {
+	$realfile = "";
+    }
+
     # Add hook file which will globally leave
     if ( -e "$CHKDIR/$SELF.quit"  && ! defined($ENV{SPDR_DEBUG}) ){
 	print $FO "Warning :  $CHKDIR/$SELF.quit is present. Leaving\n";
@@ -200,7 +233,12 @@ foreach  $file (@ALL){
     $path = $1; $file = $2;
     chop($path);
     $hpath= $path;
-    $hpath=~ s/$SCAND/$HPSSD/;
+
+    if ($SUBPATH eq ""){
+	$hpath=~ s/$SCAND/$HPSSD/;
+    } else {
+	$hpath=~ s/$SUBPATH//;
+    }
 
 
     # Is a disk copy ??
@@ -245,6 +283,7 @@ foreach  $file (@ALL){
 
 	@stat   = stat("$path/$file");
 
+
 	if ($#stat == -1){
 	    &Stream("Error : stat () failed -- $path/$file");
 	    next;
@@ -267,7 +306,7 @@ foreach  $file (@ALL){
 		print "Cloning of $file did not occur\n";
 
 	    } else {
-	        &Stream("$mess File cloned ".sprintf("%.2f %%",($new/$#ALL)*100))
+	        &Stream("$mess File cloned ".sprintf("%.2f %%",($new/($#ALL+1))*100))
 		    if ($new % 10 == 0);
 		$fC->set_context("persistent= 0");
 
@@ -276,7 +315,7 @@ foreach  $file (@ALL){
 		$prot  = &ShowPerms($stat[2]);
 
 		# Enabled, it may update createtime / not enabled, it will likely
-		# set to previous value in clone context
+		# set to previous value in clone context - Ideally, do NOT restore.
 		#$dt    = &UnixDate(scalar(localtime($stat[10])),"%Y%m%d%H%M%S");
 		$fC->set_context("path       = $path",
 				 "storage    = $storage",
