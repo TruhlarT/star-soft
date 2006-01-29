@@ -5,7 +5,7 @@
 # of te FileCatalog database
 #
 # Written by Adam Kisiel, Warsaw University of Technology (2002)
-# Modified by J.Lauret, BNL 2002-2004
+# Modified by J.Lauret, BNL 2002-2006
 #
 
 use lib "/afs/rhic.bnl.gov/star/packages/scripts";
@@ -526,10 +526,16 @@ while ($morerecords)
 sub Exist
 {
     my($file)=@_;
+    my($realf);
 
-    # do not support soft-links
+    # DO support soft-links
     if ( -l $file ){
-	return 0;
+	$realf = readlink($file);
+	if ( -e $file){
+	    return 1;
+	} else {
+	    return 0;
+	}
     } elsif ( -e $file ){
 	return 1;
     } else {
