@@ -530,6 +530,10 @@ sub Exist
 
     # DO support soft-links
     if ( -l $file ){
+	# only files in starreco/reco will apply
+	# otherwise, will ignore
+	if ( $file =~ m/starlib\/reco/){ return 0;}
+	# check if target exists
 	$realf = readlink($file);
 	if ( -e $file){
 	    return 1;
