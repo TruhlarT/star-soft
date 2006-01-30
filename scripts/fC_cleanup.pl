@@ -530,12 +530,16 @@ sub Exist
 
     # DO support soft-links
     if ( -l $file ){
-	# only files in starreco/reco will apply
-	# otherwise, will ignore
+	# only files in a path containing starreco/reco will 
+	# apply otherwise, we will ignore. 
+	# Path like /home/starlib/home/starreco should be valid 
+	# and /home/starlib/reco not ... This is a Xrootd 
+	# transition hack.
 	if ( $file =~ m/starlib\/reco/){ return 0;}
+
 	# check if target exists
 	$realf = readlink($file);
-	if ( -e $file){
+	if ( -e $realf ){
 	    return 1;
 	} else {
 	    return 0;
