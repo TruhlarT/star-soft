@@ -211,9 +211,13 @@ foreach  $file (@ALL){
     chomp($file);
 
     # If soft-link, check if real file is present or not
-    if ( -l $file){
-	$realfile = readlink($file);
-	next if ( ! -e $realfile);
+    if ( -l $file ){
+	if ( $DOSL ){
+	    $realfile = readlink($file);
+	    next if ( ! -e $realfile);
+	} else {
+	    next;
+	}
     } else {
 	$realfile = "";
     }
