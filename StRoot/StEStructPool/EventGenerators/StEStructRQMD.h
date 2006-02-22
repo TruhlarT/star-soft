@@ -1,6 +1,6 @@
 /**********************************************************************
  *
- * $Id: StEStructRQMD.h,v 1.1 2004/03/02 21:51:02 prindle Exp $
+ * $Id: StEStructRQMD.h,v 1.2 2006/02/22 22:05:43 prindle Exp $
  *
  * Author: Jeff Porter 
  *
@@ -35,7 +35,7 @@ class StEStructRQMD : public StEStructEventReader {
 
  public:
 
-  int  mrefMult;
+  int  mnumTracks;
   int  mNFile;
   int  mIFile;
   int  mLine;
@@ -100,6 +100,9 @@ inline float* StEStructRQMD::globalDCA(float* p, float* v){
 /**********************************************************************
  *
  * $Log: StEStructRQMD.h,v $
+ * Revision 1.2  2006/02/22 22:05:43  prindle
+ * Removed all references to multRef (?)
+ *
  * Revision 1.1  2004/03/02 21:51:02  prindle
  *
  *   I forgot to cvs add my EventGenerator readers.

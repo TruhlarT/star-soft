@@ -1,6 +1,6 @@
 /**********************************************************************
  *
- * $Id: StEStructQJ.h,v 1.1 2004/03/02 21:51:00 prindle Exp $
+ * $Id: StEStructQJ.h,v 1.2 2006/02/22 22:05:41 prindle Exp $
  *
  * Author: Jeff Porter 
  *
@@ -27,7 +27,7 @@ class StEStructQJ : public StEStructEventReader {
   int    meventCount;
   int    meventsToDo;
   bool   mAmDone;
-  int    mrefMult;
+  int    mnumTracks;
   double impact;
 
   char  *fileListName;
@@ -132,6 +132,9 @@ inline float* StEStructQJ::globalDCA(float* p, float* v){
 /**********************************************************************
  *
  * $Log: StEStructQJ.h,v $
+ * Revision 1.2  2006/02/22 22:05:41  prindle
+ * Removed all references to multRef (?)
+ *
  * Revision 1.1  2004/03/02 21:51:00  prindle
  *
  *   I forgot to cvs add my EventGenerator readers.
