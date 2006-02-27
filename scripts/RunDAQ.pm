@@ -1305,7 +1305,7 @@ sub rdaq_file2hpss
 	} else {
 	    "$y1path/$file";
 	}
-    } else {
+    } elsif ($y <= 2005) {
 	# the default option is to store by day-of-year
 	if($mode==1){
 	    "$HPSSBASE/$y/$dm $file";
@@ -1316,6 +1316,19 @@ sub rdaq_file2hpss
 		"$HPSSBASE/$y/$dm $file $y $items[1] $dm";
 	} else {
 	    "$HPSSBASE/$y/$dm/$file";
+	}
+    } else {
+	# the default since 2005+ is to store by day-of-year 
+	# and run number
+	if($mode==1){
+	    "$HPSSBASE/$y/$dm/$code $file";
+	} elsif ($mode == 2 || $mode == 3){
+	    @items = Date::Manip::Date_NthDayOfYear($y,$dm);
+	    ($mode == 2)?
+		"$HPSSBASE/$y/$dm/$code $file $y $items[1]":
+		"$HPSSBASE/$y/$dm/$code $file $y $items[1] $dm";
+	} else {
+	    "$HPSSBASE/$y/$dm/$code/$file";
 	}
     }
 }
