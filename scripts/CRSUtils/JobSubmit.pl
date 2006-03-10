@@ -242,6 +242,47 @@ if ($ThisYear == 2002){
     	$EZTREE{"TrgSetup"} = $tmp;
     }
 
+} elsif ( $ThisYear == 2006 ) {
+    # ... blabla like year5 ...
+    $TREEMODE= 1;
+    $LIB     = "dev";
+
+    $NUMEVT  = 100;
+    #$MAXEVT  = 250;
+
+    $TARGET  = "/star/data09/reco";       # This is ONLY a default value.
+                                          # Overwritten by ARGV (see crontab)
+
+    # Those were made automatically guessed in 2005.
+    # Previous years hardcoded values could remain as-is (will not change
+    # as tables are already filled)
+    $LASERTP =  rdaq_string2ftype("laser");
+    $PHYSTP  =  rdaq_string2ftype("physics");
+    $PHYSTP2 =  rdaq_string2ftype("physics_adc"); # just comment them if you want them disabled
+    $EXPRESS =  rdaq_string2ftype("express");
+    $ZEROBIAS=  rdaq_string2ftype("zerobias");
+
+    @USEQ    = (5,5,4);
+    @SPILL   = (1,4,2);
+
+    # Default chain -- P2005 does not include Corr4 but Corr3
+    $DCHAIN{"PPPP"}           = "pp2006a,ittf"; # svt_daq,svtD,EST,pmdRaw,Xi2,V02,Kink2,CMuDst,OShortR
+
+    # Default stand-alone auto-calib (works ONLY on $LASERTP files)
+    $SCALIB{"PPPP"}           = "OptLaser";
+
+    # ezTree production requires some conditions. We set them here.
+    # ezTree uses the Xtended Status index 1. See table in RunDAQ.pm
+    $ID                   = 1;
+    $EZTREE{"Status"}     = 0;
+    $EZTREE{"XStatus$ID"} = 0;
+
+    # ...
+    if ( ($tmp = rdaq_string2trgs("minbiasSetup")) != 0){
+    	# Self adapting
+    	$EZTREE{"TrgSetup"} = $tmp;
+    }
+
 
 } else {
     # Well, at first you may get that message ... should tell you that
@@ -1032,7 +1073,7 @@ __EOH__
 #standard error
     stderrdir=/star/rcf/prodlog/$LIB/log/daq
     stderr=$mfile.err
-    notify=starreco\@rcrsuser1.rcf.bnl.gov
+    notify=starreco\@rcrsuser3.rcf.bnl.gov
 
 #program to run
     executable=$SPATH/bfccb
