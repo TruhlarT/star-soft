@@ -16,11 +16,19 @@ require Exporter;
 	    CRSQ_check
 	    );
 
-
-$STATUS="/usr/local/bin/crs_status.pl -m";
-$JOBINF="/usr/local/bin/crs_status.pl -c";
-$SUBMIT="/usr/local/bin/crs_submit.pl";
-#$SUBMIT="/usr/crs/bin/CRS_submit_awc.pl";
+$BMODE=1;
+if ( $BMODE==0 ){
+    # Those are OK for the OLD system, pre-2005
+    $STATUS="/usr/local/bin/crs_status.pl -m";
+    $JOBINF="/usr/local/bin/crs_status.pl -c";
+    $SUBMIT="/usr/local/bin/crs_submit.pl";
+} elsif ( $BMODE == 1) {
+    $STATUS="/home/starreco/newcrs/bin/crs_job -show_queues";
+    $JOBINF="/home/starreco/newcrs/bin/crs_job -show_crs_jobs_per_queue";
+    $SUBMIT="/home/starreco/newcrs/bin/crs_job -create";
+} else {
+    die "No batch mode. Sorry.\n";
+}
 
 
 $CRSQ::MAXQ=6;                  # support up to that number of queues 
@@ -166,24 +174,46 @@ sub CRSQ_getcnt
     }
 
 
-    # Get queue status and counts first -- Pass 1
+    # Get queue status and counts 
+    #  the jobs running and total possible per queue -- Pass 1
     @result = `$STATUS`;
     foreach $line (@result){
 	chomp($line);
-	@items = split("%",$line);
+	if ( $BMODE ==0 ){
+	    # The purpose of this was to count the job slots i.e.
+	    # total and running and number of un-available nodes
+	    @items = split("%",$line);
 
-	if( $items[1] ne "unavailable"){
-	    $i = $items[4];
-	    $CRSQ::TOT{$i}       += $items[2];
-	    $CRSQ::RUN{$i}       += $items[3];
-	    $NODES{$items[0]}    += $i;
+	    if( $items[1] ne "unavailable"){
+		$i = $items[4];
+		$CRSQ::TOT{$i}       += $items[2];
+		$CRSQ::RUN{$i}       += $items[3];
+		$NODES{$items[0]}    += $i;
 
-	    if ($i == $qnum && $fcdrop){  $CRSQ::TOT{$i}--;}
-	    if ($i != $qnum && $fldrop){  $CRSQ::TOT{$i}--;}	   
+		if ($i == $qnum && $fcdrop){  $CRSQ::TOT{$i}--;}
+		if ($i != $qnum && $fldrop){  $CRSQ::TOT{$i}--;}	   
 
-	} else {
-	    # Number of un-available nodes for any reasons
-	    $NOTA++;
+	    } else {
+		# Number of un-available nodes for any reasons
+		$NOTA++;
+	    }
+	} elsif ( $BMODE == 1 ){
+	    # This will not give us the total number of un-available
+	    # nodes and blabla ... so, we have to concentrate on the
+	    # quantities we really need
+	    @items = split(" ",$line);
+	    next if ($line =~ m/queue,/);
+	    #print "DEBUG [$line]\n";
+	    $i = $items[0];
+	    $CRSQ::TOT{$i}           += $items[1];
+	    $CRSQ::RUN{$i}           += $items[2];	
+
+	    # in this mode, it does not make sens to reduce count
+	    # if the condition is not passed.
+	    if ( $CRSQ::TOT{$i} > $CRSQ::RUN{$i} ){
+		if ($i == $qnum && $fcdrop){  $CRSQ::TOT{$i}-- ;}
+		if ($i != $qnum && $fldrop){  $CRSQ::TOT{$i}-- ;}
+	    }
 	}
     }
     $drop = abs($drop);
@@ -191,7 +221,7 @@ sub CRSQ_getcnt
 
     # Calculate the total number of available jobs 
     foreach $i (keys %CRSQ::TOT){
-	if( $i == 0){ next;}
+	if( $i == 0 && $BMODE == 0){ next;}
 	#printf 
 	#    "Queue=%d Tot=%3d Run=%3d Dif=%3d\n",
 	#    $i,$CRSQ::TOT{$i},$CRSQ::RUN{$i},
@@ -199,6 +229,7 @@ sub CRSQ_getcnt
 
 	$CRSQ::DIF{$i} = $CRSQ::TOT{$i}-$CRSQ::RUN{$i};
 	$TOT += $CRSQ::TOT{$i};
+	#print "DEBUG q=$i $CRSQ::TOT{$i} $CRSQ::RUN{$i} --> $CRSQ::DIF{$i} ($TOT)\n";
     }
 
 
@@ -211,48 +242,72 @@ sub CRSQ_getcnt
     }
 
 
-    # This small test implies that the job files will be moved
-    # after beeing off the queue.
-    # There are cases (July 30th for example) when the CRS 
-    # queues goes beserk and the crs_status does not return 
-    # any information. This leads to a bad count of jobs and
-    # available slots (0 actually) and subsequently, too many 
-    # submission ... The pattern find would prevent this. 
-    if( defined($pat) && ! defined($nchk) ){
-	@all = &Glob($pat);
-	if($#all > $CRSQ::PFACT*$TOT ){
-	    print 
-		"CRSQ :: Warning on ".localtime().", there are ",
-		"$#all job files found as $pat\n";
-	    # Stop, this condition is ab-normal
-	    return -1;
-	} 
+    if ( $BMODE == 0){
+	# This small test implies that the job files will be moved
+	# after beeing off the queue.
+	# There are cases (July 30th for example) when the CRS 
+	# queues goes beserk and the crs_status does not return 
+	# any information. This leads to a bad count of jobs and
+	# available slots (0 actually) and subsequently, too many 
+	# submission ... The pattern find would prevent this. 
+	if( defined($pat) && ! defined($nchk) ){
+	    @all = &Glob($pat);
+	    if($#all > $CRSQ::PFACT*$TOT ){
+		print 
+		    "CRSQ :: Warning on ".localtime().", there are ",
+		    "$#all job files found as $pat\n";
+		# Stop, this condition is ab-normal
+		return -1;
+	    } 
+	}
     }
+    # No idea of what this would be in BMODE 1, need more experience
 
 
     # --- Pass 2
     # Get the number of jobs actually on their way
-    # to those queues. 'staging' or 'staged' jobs would not 
-    # necessarily show up in the -m list. 
-    # -c shows all jobs. Initial logic was a major bug because 
-    # it did not account for this CRS queue peculiarity.
-    # This part is relevant in no $drop mode only.
+    # to those queues. We assume that we will extract a count
+    # per node as well.
+
     @result = `$JOBINF`;
 
     foreach $line (@result){
 	chomp($line);
-	@items = split("%",$line);
 
-	# complete the list. Easier for later testing.
-	if( ! defined($NODES{$items[3]}) ){ $NODES{$items[3]} = 0;}
+	if ( $BMODE == 0 ){
+	    # Mode
+	    # 'staging' or 'staged' jobs would not 
+	    # necessarily show up in the -m list. 
+	    # -c shows all jobs. Initial logic was a major bug because 
+	    # it did not account for this CRS queue peculiarity.
+	    # This part is relevant in no $drop mode only.
+	    @items = split("%",$line);
+	    
+	    # complete the list. Easier for later testing.
+	    if( ! defined($NODES{$items[3]}) ){ $NODES{$items[3]} = 0;}
 
-	$i = $NODES{$items[3]};
-	if( $i != 0){
-	    # This node is knows, hold queue $i and is busy
-	    $CRSQ::FND{$i}++;
-	} else {
-	    # the best we can do is to count on the queue info
-	    $CRSQ::FND{$items[4]}++;
+	    $i = $NODES{$items[3]};
+	    if( $i != 0){
+		# This node is knows, hold queue $i and is busy
+		$CRSQ::FND{$i}++;
+	    } else {
+		# the best we can do is to count on the queue info
+		$CRSQ::FND{$items[4]}++;
+	    }
+
+	} elsif ( $BMODE == 1 ) {
+	    # In this mode, we have to trim each lines and split and
+	    # in addition, we have no ways to know which jobs goes
+	    # into which queue ... 
+	    $line =~ s/\s+/ /g;
+
+	    next if ($line =~ m/^\#/);
+
+	    #  The first 2 are straight queue and number in (total)
+	    @items = split(" ",$line);
+
+	    #print "DEBUG :: Found q=$items[0] n=$items[1]\n";
+	    $CRSQ::FND{$items[0]} = $items[1];
 	}
     }
 
@@ -421,18 +476,29 @@ sub CRSQ_submit
 	$cprio = $prio;
     }
 
-    $res = `$SUBMIT $jfile $cprio $qnum $drop`;
-    $res =~ s/\n//g;
-    if( $res =~ m/queue $qnum with priority $cprio/){ 
-	$qnum;
-    } else {
-	if ( $res =~ m/(queue\s+)(\d+)/ ){
-	    print "CRSQ :: Failed to submit $jfile $qnum -> $2 => [$res]\n";
+    if ( $BMODE == 0 ){
+	$res = `$SUBMIT $jfile $cprio $qnum $drop`;
+	$res =~ s/\n//g;
+	if( $res =~ m/queue $qnum with priority $cprio/){ 
+	    $qnum;
 	} else {
-	    print "CRSQ :: Failed to submit $jfile $qnum => [$res]\n";
+	    if ( $res =~ m/(queue\s+)(\d+)/ ){
+		print "CRSQ :: Failed to submit $jfile $qnum -> $2 => [$res]\n";
+	    } else {
+		print "CRSQ :: Failed to submit $jfile $qnum => [$res]\n";
+	    }
+	    0;
 	}
-	0;
+
+    } elsif ( $BMODE == 1 ){
+	# unfortuntaley, -drop in this system is not
+	# controllable
+	$res = `$SUBMIT $jfile -q$qnum -p$cprio -drop`;
+	chomp($res);
+	print "CRSQ :: [$res]\n";
+	$qnum;
     }
+
 }
 
 
