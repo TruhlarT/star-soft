@@ -10,6 +10,7 @@ my $archdir;
  my @statlist = ();
  my @joblist = ();
  my @joblistf = ();
+ my @jobsloop = ();
  my $timestamp ;
  my $fullname;
 
@@ -69,6 +70,8 @@ my $outfile = "/star/u/starreco/failjobs.".$filestamp.".csh";
 
     @joblist = `crs_job -stat_show_problem | grep ERROR` ;
      @joblistf = `crs_job -stat_show_problem | grep FATAL` ;
+    @jobsloop = `crs_job -stat_show_problem | grep looping` ;
+
 
     if(scalar(@joblistf) >= 1) {
 	for($k=0; $k< scalar(@joblistf); $k++) {
@@ -76,6 +79,13 @@ my $outfile = "/star/u/starreco/failjobs.".$filestamp.".csh";
 
       }
     }
+
+     if(scalar(@jobsloop) >= 1) {
+	for($l=0; $l< scalar(@jobsloop); $l++) {
+        push @joblist, $jobsloop[$l]; 
+
+      }
+    }  
 
     foreach my $erline (@joblist) {
      chop $erline ;
@@ -112,7 +122,10 @@ my $outfile = "/star/u/starreco/failjobs.".$filestamp.".csh";
 
     `mv $fullname $jobdir \n`;
     `crs_job -kill $crsjobname`;
-        print "Job killed and resubmitted: ", $jobname, "\n";
+        print "Job killed and resubmitted: ", $jobname,"   ", $prt[1],  "\n";
+
+    next if($prt[1] eq "looping");
+
     $jobfilelist[$ii] = $jobname;
     $ii++;
     
