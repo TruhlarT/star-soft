@@ -33,6 +33,9 @@ my $ii = 0;
 my $prod;
 my $trigset;
 my @jobrr = ();
+my $Nfatal = 0;
+my $Nfail = 0;
+my $Nloop = 0;
 
 
   ($sec,$min,$hour,$mday,$mon,$yr) = localtime;
@@ -61,17 +64,57 @@ my $outfile = "/star/u/starreco/failjobs.".$filestamp.".csh";
     @prt = split (" ", $line);
      if ($prt[0] eq "ERROR") {
          $Nerror =  $prt[1]; 
+    } elsif($prt[0] eq "FATAL") {
+        $Nfatal =  $prt[1]; 
   }
  }
 
-   if($Nerror >= 1 ) {
+      @jobsloop = `crs_job -stat_show_problem | grep looping` ;
 
-    print $Nerror,"  ", "jobs failed, below is a list:", "\n";
+##################################################### remove looping jobs
+
+  $Nloop = scalar(@jobsloop);
+
+           if(scalar(@jobsloop) >= 1) {
+  
+     print $Nloop,"  ", "jobs looping:", "\n";
+
+    foreach my $lline (@jobsloop) {
+     chop $lline ;
+#      print $lline, "\n";       
+
+      @wrd = ();
+      @prt = ();
+      @jobrr = ();
+      @wrd = split ("-", $lline);
+      $jobname = $wrd[0];
+      @jobrr = split ("_", $wrd[0]);
+      $prodSer = $jobrr[2];
+      @prt = split (" ", $lline);
+      $crsjobname = $prt[0];
+
+#      print $jobname,"   ", $prt[1], "\n";
+
+  $jobdir = "/home/starreco/newcrs/" . $prodSer ."/requests/daq/jobfiles";  
+  $archdir = "/home/starreco/newcrs/" . $prodSer ."/requests/daq/archive";
+
+     $fullname = $archdir ."/". $jobname;
+
+     `mv $fullname $jobdir \n`;
+     `crs_job -kill $crsjobname`;
+        print "Looping job killed and resubmitted: ", $jobname,"   ", $prt[1],  "\n";
+    }
+  }
+
+
+   if($Nerror >= 1 || $Nfatal >= 1 ) {
+
+       $Nfail = $Nerror + $Nfatal;
+
+    print $Nfail,"  ", "jobs failed, below is a list:", "\n";
 
     @joblist = `crs_job -stat_show_problem | grep ERROR` ;
      @joblistf = `crs_job -stat_show_problem | grep FATAL` ;
-    @jobsloop = `crs_job -stat_show_problem | grep looping` ;
-
 
     if(scalar(@joblistf) >= 1) {
 	for($k=0; $k< scalar(@joblistf); $k++) {
@@ -79,13 +122,6 @@ my $outfile = "/star/u/starreco/failjobs.".$filestamp.".csh";
 
       }
     }
-
-     if(scalar(@jobsloop) >= 1) {
-	for($l=0; $l< scalar(@jobsloop); $l++) {
-        push @joblist, $jobsloop[$l]; 
-
-      }
-    }  
 
     foreach my $erline (@joblist) {
      chop $erline ;
@@ -123,14 +159,12 @@ my $outfile = "/star/u/starreco/failjobs.".$filestamp.".csh";
     `mv $fullname $jobdir \n`;
     `crs_job -kill $crsjobname`;
         print "Job killed and resubmitted: ", $jobname,"   ", $prt[1],  "\n";
-
-    next if($prt[1] eq "looping");
-
     $jobfilelist[$ii] = $jobname;
     $ii++;
     
   }
  }
+
 #####################
 
     open (STDOUT, ">$outfile");
