@@ -21,20 +21,36 @@ if ( $BMODE==0 ){
     # Those are OK for the OLD system, pre-2005
     $STATUS="/usr/local/bin/crs_status.pl -m";
     $JOBINF="/usr/local/bin/crs_status.pl -c";
+    $JOBLST="/usr/local/bin/crs_status.pl -c";
+    $QUEUEJ="";
     $SUBMIT="/usr/local/bin/crs_submit.pl";
+
+
+    $CRSQ::MAXQ=6;       # support up to that number of queues 
+    $CRSQ::PFACT=5;      # some number of files arbitrary proportion factor
+    $CRSQ::OFFSYNC=30;   # queue submission will continue up to this %tage
+                         # of off-sync.
+
 } elsif ( $BMODE == 1) {
+    # Condor-based
     $STATUS="/home/starreco/newcrs/bin/crs_job -show_queues";
     $JOBINF="/home/starreco/newcrs/bin/crs_job -show_crs_jobs_per_queue";
-    $SUBMIT="/home/starreco/newcrs/bin/crs_job -create";
+    $JOBLST="/home/starreco/newcrs/bin/crs_job -stat_show_machines";
+    $QUEUEJ="/home/starreco/newcrs/bin/crs_job -create";
+    $SUBMIT="/home/starreco/newcrs/bin/crs_job -submit";
+
+    $CRSQ::MAXQ=6;       # support up to that number of queues 
+    $CRSQ::PFACT=5;      # some number of files arbitrary proportion factor
+    $CRSQ::OFFSYNC=30;   # queue submission will continue up to this %tage
+                         # of off-sync.
+
 } else {
+    # If don't know, die
     die "No batch mode. Sorry.\n";
+
 }
 
 
-$CRSQ::MAXQ=6;                  # support up to that number of queues 
-$CRSQ::PFACT=5;                 # some number of files arbitrary proportion factor
-$CRSQ::OFFSYNC=20;              # queue submission will continue up to this %tage
-                                # of off-sync.
 $CRSQ::GETCNT=0;                # called the getcnt() routine (not a config var)
 
 
@@ -59,7 +75,7 @@ sub CRSQ_check
     my($tmp);
 
 
-    @result = `$JOBINF`;
+    @result = `$JOBLST`;
 
     # If the following test is true, something is wrong or we are at
     # the end of the year period or we are no longer running ...
@@ -67,13 +83,26 @@ sub CRSQ_check
     # least, we need to prevent it from happening again).
     if($#result == -1){ return;}
 
-
-    # Get a list of jobs still in the queue
-    foreach $line (@result){
-	chomp($line);
-	$job = (split("%",$line))[1];
-	$JOBS{$job} = 1;
+    if ( $BMODE == 0){
+	# Get a list of jobs still in the queue
+	foreach $line (@result){
+	    chomp($line);
+	    $job = (split("%",$line))[1];
+	    $JOBS{$job} = 1;
+	}
+    } elsif ( $BMODE == 1 ){
+	foreach $line (@result){
+	    chomp($line);
+	    $line =~ s/\s+/ /g;
+	    $job  = (split(" ",$line))[0];
+	    # also has that funky additional Id
+	    @items= split("-",$job); pop(@items);
+	    $job  = join("-",@items);
+	    $JOBS{$job} = 1;
+	    #print "$job\n";
+	}
     }
+
 
     # Scan the current directory for all job files
     @all = &Glob($pat);
@@ -433,6 +462,13 @@ sub CRSQ_submit
     my($jfile,$prio,$qnum,$drop)=@_;
     my($res,$i,$q,$cprio);
 
+    # Our system is priority 100 based but BMODE 1 has 20
+    # level of priorities. Priorities do not matter however 
+    # (condor alpha sort)
+    if ($BMODE == 1){
+	if ($prio > 20){  $prio = $prio/5;}
+    }
+
     if ( ! -e $jfile){
 	print 
 	    "CRSQ :: File $jfile does not exists. ",
@@ -493,9 +529,20 @@ sub CRSQ_submit
     } elsif ( $BMODE == 1 ){
 	# unfortuntaley, -drop in this system is not
 	# controllable
-	$res = `$SUBMIT $jfile -q$qnum -p$cprio -drop`;
+	$res = `$QUEUEJ $jfile -q$qnum -p$cprio -drop`;
 	chomp($res);
-	print "CRSQ :: [$res]\n";
+	if ($res eq ""){
+	    print "CRSQ :: Something went wrong [$SUBMIT $jfile -q$qnum -p$cprio -drop]\n";
+	    0;
+	} else {
+	    # the return value contains the real job
+	    $rres = `$SUBMIT $res`;
+	    chomp($rres);
+	    if ($rres !~ m/the job is in status SUBMITTED/  &&
+		$rres !~ m/submitted to cluster \d+/            ){
+		print "CRSQ :: Do not know status [$rres] for [$SUBMIT $res]\n";
+	    } 
+	}
 	$qnum;
     }
 
