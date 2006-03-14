@@ -75,7 +75,7 @@ use lib "/afs/rhic.bnl.gov/star/packages/scripts";
 use RunDAQ;
 use CRSQueues;
 
-$ThisYear = 2005;                 # Block to consider. Completely artificial
+$ThisYear = 2006;                 # Block to consider. Completely artificial
                                   # and used to preserve older options in if
                                   # block along with current option.
 $HPSS     = 1;                    # turn to 0 for UNIX staging only
@@ -262,11 +262,11 @@ if ($ThisYear == 2002){
     $EXPRESS =  rdaq_string2ftype("express");
     $ZEROBIAS=  rdaq_string2ftype("zerobias");
 
-    @USEQ    = (5,5,4);
-    @SPILL   = (1,4,2);
+    @USEQ    = (5,5,5);
+    @SPILL   = (0,2,4);
 
     # Default chain -- P2005 does not include Corr4 but Corr3
-    $DCHAIN{"PPPP"}           = "pp2006a,ittf"; # svt_daq,svtD,EST,pmdRaw,Xi2,V02,Kink2,CMuDst,OShortR
+    $DCHAIN{"PPPP"}           = "pp2006a,ittf"; 
 
     # Default stand-alone auto-calib (works ONLY on $LASERTP files)
     $SCALIB{"PPPP"}           = "OptLaser";
@@ -316,7 +316,7 @@ $LOCKF   = "FastOff.lock";
 $QUITF   = "FastOff.quit";
 $CONFF   = "JobSubmit$LIB.lis";
 $PRIORITY= 100;              # default queue priority
-$SLEEPT  = 10;               # sleep time between submit
+$SLEEPT  =  1;               # sleep time between submit (old=10)
 $MAXCNT  = 20;               # max job to send in a pass
 $RATIO   = 2;                # time drop down for mode + (2=twice faster)
 $MAXFILL = 95;               # max disk occupancy
@@ -750,7 +750,12 @@ if( $TARGET =~ m/^\// || $TARGET =~ m/^\^\// ){
     }
 
     # ezTree chain
-    $CHAIN   = "pp2004,ITTF,hitfilt,ezTree,-trg,-Sti,-Ftpc,-SvtD,-fcf,-Corr4";
+    if (  $ThisYear == 2004){
+	# there was one chain only
+	$CHAIN   = "pp2004,ITTF,hitfilt,ezTree,-trg,-Sti,-Ftpc,-SvtD,-fcf,-Corr4";
+    } else {
+	$CHAIN   = $DCHAIN{"PPPP"}.",ezTree,-Sti,-genvtx,-Ftpc,-SvtD,-fcf,-fcl";
+    }
 
     $USEQ[0] = $tmpUQ if ( defined($tmpUQ) );
     $SPILL[0]= $tmpSP if ( defined($tmpSP) );
