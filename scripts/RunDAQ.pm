@@ -163,7 +163,8 @@ require Exporter;
 #
 # Database information
 #
-$DDBSERVER = "onlsun1.star.bnl.gov";
+#$DDBSERVER = "onlsun1.star.bnl.gov";
+$DDBSERVER = "onldb.starp.bnl.gov";
 $DDBUSER   = "starreco";
 $DDBPASSWD = "";
 $DDBPORT   = 3501;
@@ -1348,6 +1349,7 @@ sub rdaq_status_string
     $str = "QADone"    if($sts == 3);   # i.e. + QA
     $str = "Skipped"   if($sts == 4);
     $str = "SCalib"    if($sts == 5);   # submitted for calibration
+    $str = "FCalib"    if($sts == 6);   # submitted for calibration, ezTree
     $str = "Died"      if($sts == 666);
 
     $str;
