@@ -315,10 +315,10 @@ $SCRATCH = ".";
 $LOCKF   = "FastOff.lock";
 $QUITF   = "FastOff.quit";
 $CONFF   = "JobSubmit$LIB.lis";
-$PRIORITY= 100;              # default queue priority
+$PRIORITY= 50;               # default queue priority    (old=100 [max], new 50 (lower the better))
 $SLEEPT  =  1;               # sleep time between submit (old=10)
 $MAXCNT  = 20;               # max job to send in a pass
-$RATIO   = 2;                # time drop down for mode + (2=twice faster)
+$RATIO   =  2;               # time drop down for mode + (2=twice faster)
 $MAXFILL = 95;               # max disk occupancy
 
 
@@ -330,7 +330,8 @@ if ( -e $QUITF){
 }
 
 # be sure to turn it ON
-if (rdaq_toggle_debug()){ rdaq_toggle_debug();}
+# if (rdaq_toggle_debug()){ rdaq_toggle_debug();}
+rdaq_toggle_debug(1);
 
 # Global condition wille exclude from accidental processing of junk
 # puslers or lasers types. Note that EXPRESS are NOT added as they
@@ -844,7 +845,7 @@ if( $TARGET =~ m/^\// || $TARGET =~ m/^\^\// ){
 #
 sub Submit
 {
-    my($mode,$queue,$spill,$file,$chain)=@_;
+    my($mode,$queue,$spill,$file,$chain,$ident)=@_;
     my($Hfile,$jfile,$mfile,@items);
     my($field,$tags);
     my($trgsn,$trgrs);
