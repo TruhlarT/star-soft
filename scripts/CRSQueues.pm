@@ -33,11 +33,11 @@ if ( $BMODE==0 ){
 
 } elsif ( $BMODE == 1) {
     # Condor-based
-    $STATUS="/home/starreco/newcrs/bin/crs_job -show_queues";
-    $JOBINF="/home/starreco/newcrs/bin/crs_job -show_crs_jobs_per_queue";
-    $JOBLST="/home/starreco/newcrs/bin/crs_job -stat_show_machines";
-    $QUEUEJ="/home/starreco/newcrs/bin/crs_job -create";
-    $SUBMIT="/home/starreco/newcrs/bin/crs_job -submit";
+    $STATUS="/home/starreco/bin/crs_job -show_queues";
+    $JOBINF="/home/starreco/bin/crs_job -show_crs_jobs_per_queue";
+    $JOBLST="/home/starreco/bin/crs_job -stat_show_machines";
+    $QUEUEJ="/home/starreco/bin/crs_job -create";
+    $SUBMIT="/home/starreco/bin/crs_job -submit";
 
     $CRSQ::MAXQ=6;       # support up to that number of queues 
     $CRSQ::PFACT=5;      # some number of files arbitrary proportion factor
@@ -102,6 +102,11 @@ sub CRSQ_check
 	    #print "$job\n";
 	}
     }
+
+    # Test if we measure something ; do not do anything if not even
+    # a single job was found (this may be a bad sign by itself)
+    @temp = keys %JOBS;
+    if ($#temp == -1){  return;}
 
 
     # Scan the current directory for all job files
@@ -331,6 +336,7 @@ sub CRSQ_getcnt
 	    $line =~ s/\s+/ /g;
 
 	    next if ($line =~ m/^\#/);
+	    next if ($line =~ m/\s+DONE/);
 
 	    #  The first 2 are straight queue and number in (total)
 	    @items = split(" ",$line);
@@ -466,7 +472,7 @@ sub CRSQ_submit
     # level of priorities. Priorities do not matter however 
     # (condor alpha sort)
     if ($BMODE == 1){
-	if ($prio > 20){  $prio = $prio/5;}
+	$prio = int($prio/5);
     }
 
     if ( ! -e $jfile){
@@ -568,9 +574,10 @@ sub Glob
     # support perl patterns
     if( $pat =~ /\.\*/){
 	# a .* like . 
-	opendir(DIR,".");
-	@all = grep { /$pat/ } readdir(DIR);
-	close(DIR);
+	if ( opendir(DIR,".") ){
+	    @all = grep { /$pat/ } readdir(DIR);
+	    close(DIR);
+	}
     } else {
 	# use glob although this may fail
 	@all = glob($pat);
