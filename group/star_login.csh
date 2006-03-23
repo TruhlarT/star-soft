@@ -134,7 +134,7 @@ if( ! $?X11BIN || ! $?PATH) then
 	    set UGLOBUS="$GLOBUS_PATH/bin"
 	endif
     else
-	set UGLOBUS=""
+	if ( ! $?UGLOBUS) set UGLOBUS=""
     endif
 
 
