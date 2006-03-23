@@ -1,5 +1,5 @@
 #!/bin/csh -x
-#       $Id: group_env.csh,v 1.181 2005/03/18 00:06:52 jeromel Exp $
+#       $Id: group_env.csh,v 1.182 2006/03/23 19:38:49 jeromel Exp $
 #	Purpose:	STAR group csh setup
 #
 #	Author:		Y.Fisyak     BNL
@@ -522,6 +522,20 @@ if ( -d $OPTSTAR/qt ) then
     setenv LD_LIBRARY_PATH ${LD_LIBRARY_PATH}:$QTDIR/lib
 endif
 
+
+# Support for OSG
+# Try to locate things from OSG
+if ( -e /opt ) then
+    set OSG=`/bin/ls -d /opt/OSG* | /usr/bin/tail -1`
+    if ( "$OSG" != "") then
+	if ( -e $OSG/setup.csh ) then
+	    # there will alos be a java version coming along but
+	    # it may be defined prior from /usr/java
+	    source $OSG/setup.csh
+	    setenv SAVED_PATH `echo $PATH | /bin/sed "s/:/ /g"`
+	endif
+    endif
+endif
 
 
 
