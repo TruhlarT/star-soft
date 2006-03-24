@@ -1,5 +1,5 @@
 #!/bin/csh -x
-#       $Id: group_env.csh,v 1.182 2006/03/23 19:38:49 jeromel Exp $
+#       $Id: group_env.csh,v 1.183 2006/03/24 18:33:14 jeromel Exp $
 #	Purpose:	STAR group csh setup
 #
 #	Author:		Y.Fisyak     BNL
@@ -526,7 +526,7 @@ endif
 # Support for OSG
 # Try to locate things from OSG
 if ( -e /opt ) then
-    set OSG=`/bin/ls -d /opt/OSG* | /usr/bin/tail -1`
+    set OSG=`/bin/ls -d /opt/* | /bin/grep OSG | /usr/bin/tail -1`
     if ( "$OSG" != "") then
 	if ( -e $OSG/setup.csh ) then
 	    # there will alos be a java version coming along but
