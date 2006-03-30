@@ -87,8 +87,8 @@ $SELF =~ s/.*\///;
 $SELF =~ s/\..*//;
 
 # default values global (unless overwritten)
-$EXPRESS = 0;  $EXPRESS_W  = 50;
-$ZEROBIAS= 0;  $ZEROBIAS_W = 30;
+@EXPRESS = undef;  $EXPRESS_W  = 50;
+$ZEROBIAS= 0;      $ZEROBIAS_W = 30;
 
 # this does not have a weight
 $PHYSTP2 = 0;
@@ -180,7 +180,7 @@ if ($ThisYear == 2002){
     $LASERTP =  3;
     $PHYSTP  =  1;
     $PHYSTP2 =  5;    # just comment them if you want them disabled
-    $EXPRESS =  8;
+    @EXPRESS = (8);
     $ZEROBIAS= 11;
 
     @USEQ    = (4,4,3);
@@ -213,7 +213,7 @@ if ($ThisYear == 2002){
     $LASERTP =  rdaq_string2ftype("laser");
     $PHYSTP  =  rdaq_string2ftype("physics");
     $PHYSTP2 =  rdaq_string2ftype("physics_adc"); # just comment them if you want them disabled
-    $EXPRESS =  rdaq_string2ftype("express");
+    @EXPRESS = (rdaq_string2ftype("express"));
     $ZEROBIAS=  rdaq_string2ftype("zerobias");
 
     @USEQ    = (5,5,4);
@@ -257,16 +257,21 @@ if ($ThisYear == 2002){
     # Previous years hardcoded values could remain as-is (will not change
     # as tables are already filled)
     $LASERTP =  rdaq_string2ftype("laser");
+
     $PHYSTP  =  rdaq_string2ftype("physics");
     $PHYSTP2 =  rdaq_string2ftype("physics_adc"); # just comment them if you want them disabled
-    $EXPRESS =  rdaq_string2ftype("express");
+    @EXPRESS = (
+		rdaq_string2ftype("express"),
+		rdaq_string2ftype("jpsi"),
+		rdaq_string2ftype("upsilon")
+		);
     $ZEROBIAS=  rdaq_string2ftype("zerobias");
 
     @USEQ    = (5,5,5);
     @SPILL   = (0,2,4);
 
     # Default chain -- P2005 does not include Corr4 but Corr3
-    $DCHAIN{"PPPP"}           = "pp2006a,ittf"; 
+    $DCHAIN{"PPPP"}           = "pp2006a,ittf,ezTree"; 
 
     # Default stand-alone auto-calib (works ONLY on $LASERTP files)
     $SCALIB{"PPPP"}           = "OptLaser";
@@ -278,7 +283,8 @@ if ($ThisYear == 2002){
     $EZTREE{"XStatus$ID"} = 0;
 
     # ...
-    if ( ($tmp = rdaq_string2trgs("minbiasSetup")) != 0){
+    #if ( ($tmp = rdaq_string2trgs("minbiasSetup")) != 0){
+    if ( ($tmp = rdaq_string2trgs("pp2006MinBias")) != 0){
     	# Self adapting
     	$EZTREE{"TrgSetup"} = $tmp;
     }
@@ -337,7 +343,7 @@ rdaq_toggle_debug(1);
 # puslers or lasers types. Note that EXPRESS are NOT added as they
 # will be grabbed FIRST (then, if there is room, some other files).
 $COND = "$PHYSTP";
-if ($PHYSTP2 != 0){ $COND .= " || $PHYSTP2";}
+if ($PHYSTP2 != 0){ $COND .= "|$PHYSTP2";}
 
 
 
@@ -453,26 +459,38 @@ if( $TARGET =~ m/^\// || $TARGET =~ m/^\^\// ){
 		# Simple with a perl module isn't it.
 		print "$SELF :: Top of the list only ...\n";
 		$TARGET=~ s/\^//;
-		if ($EXPRESS != 0){
-		    push(@Xfiles,rdaq_get_ffiles($obj,-1,$TOT*$EXPRESS_W,$EXPRESS));
+		if ($#EXPRESS != 0){
+		    $num = int($TOT*$EXPRESS_W/100)+1;
+		    push(@Xfiles,rdaq_get_ffiles($obj,-1,$num,@EXPRESS));
 		}
 		if ($ZEROBIAS != 0){
-		    push(@Xfiles,rdaq_get_ffiles($obj,-1,$TOT*$ZEROBIAS_W,$ZEROBIAS));
+		    $num = int($TOT*$ZEROBIAS_W/100)+1;
+		    push(@Xfiles,rdaq_get_ffiles($obj,-1,$num,$ZEROBIAS));
 		}
-		$W = ($TOT-$num);
+                # we may push into @Files up to 10 times more files than
+		# nevessary. But please, check the logic further down i.e.
+		# if we want to submit one file per run, we have to select
+		# more files first and then sub-select from that pool. To do
+		# that, we separate clearly Xfiles and files and loop over the
+		# first array then the second ...
+		# Be aware that if $THROTTLE is 0, there will be
+		# no files of the regular type.
+		$W = ($TOT-$#Xfiles+1);
 		push(@Files,rdaq_get_ffiles($obj,-1,$W*($THROTTLE?10:0),$COND));
 
 	    } else {
 		# ask only for status=0 files (will therefore
 		# crawl-down the list).
 		print "$SELF :: Crawling down the list ...\n";
-		if ($EXPRESS != 0){
-		    push(@Xfiles,rdaq_get_ffiles($obj,0,$TOT*$EXPRESS_W,$EXPRESS));
+		if ($#EXPRESS != -1){
+		    $num = int($TOT*$EXPRESS_W/100)+1;
+		    push(@Xfiles,rdaq_get_ffiles($obj,0,$num,@EXPRESS));
 		}
 		if ($ZEROBIAS != 0){
-		    push(@Xfiles,rdaq_get_ffiles($obj,0,$TOT*$ZEROBIAS_W,$ZEROBIAS));
+		    $num = int($TOT*$ZEROBIAS_W/100)+1;
+		    push(@Xfiles,rdaq_get_ffiles($obj,0,$num,$ZEROBIAS));
 		}
-		$W = ($TOT-$num);
+		$W = ($TOT-$#Xfiles+1);
 		push(@Files,rdaq_get_ffiles($obj,0,$W*($THROTTLE?10:0),$COND));
 	    }
 
@@ -480,6 +498,7 @@ if( $TARGET =~ m/^\// || $TARGET =~ m/^\^\// ){
 
 	    #undef($files);
 	    for($ii=0; $ii<=1 ; $ii++){
+		# we loop twice and separate special cases and other cases
 		@files = @Xfiles if ($ii==0);
 		@files = @Files  if ($ii==1);
 
@@ -494,7 +513,8 @@ if( $TARGET =~ m/^\// || $TARGET =~ m/^\^\// ){
 		    $kk    = $TOT;
 		    $prun  = 0;
 		    foreach $file (@files){
-			# pattern match run-number
+			# pattern match run-number / security pattern check
+			# (should not really validate and a redundant test)
 			if ( $file !~ m/(\D+)(\d+)(_raw)/){
 			    print "$SELF :: File $file did not match pattern\n";
 			    push(@SKIPPED,$file);
@@ -755,7 +775,9 @@ if( $TARGET =~ m/^\// || $TARGET =~ m/^\^\// ){
 	# there was one chain only
 	$CHAIN   = "pp2004,ITTF,hitfilt,ezTree,-trg,-Sti,-Ftpc,-SvtD,-fcf,-Corr4";
     } else {
-	$CHAIN   = $DCHAIN{"PPPP"}.",ezTree,-Sti,-genvtx,-Ftpc,-SvtD,-fcf,-fcl";
+	if ( $DCHAIN{"PPPP"} !~ /ezTree/i){
+	    $CHAIN   = $DCHAIN{"PPPP"}.",ezTree,-Sti,-genvtx,-Ftpc,-SvtD,-fcf,-fcl";
+	}
     }
 
     $USEQ[0] = $tmpUQ if ( defined($tmpUQ) );
@@ -960,6 +982,8 @@ sub Submit
     }
 
 
+    # ------------ selectionn/ exclusion logic is done --------------
+
 
     # Last element will always be the Status
     # Even in ezTree mode or else, this should remain
@@ -995,7 +1019,16 @@ sub Submit
     if ( $TREEMODE == 0){
 	$XXX = "$LIB/$items[2]/$m";
     } else {
-	$XXX = "$trgsn/$field/$LIB/$items[2]/$dm";
+	if ($ThisYear < 2006){
+	    $XXX = "$trgsn/$field/$LIB/$items[2]/$dm";
+	} else {
+	    if ( $mfile =~ m/(\d+)(_raw_)/ ){
+		$run = $1;
+	    } else {
+		$run = 0;
+	    }
+	    $XXX   = "$trgsn/$field/$LIB/$items[2]/$dm/$run";
+	}
     }
 
     if ($HPSS){
