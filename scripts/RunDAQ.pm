@@ -195,7 +195,7 @@ $DELAY     = 60;                              # delay backward in time in second
 # There should be NO OTHER configuration below this line but
 # only composit variables or assumed fixed values.
 #
-$DEBUG     = 1;
+$DEBUG     = 0;
 $DLEVEL    = 0;
 
 # Build ddb ref here.
@@ -777,13 +777,13 @@ sub rdaq_open_odatabase
 #
 sub rdaq_get_ffiles
 {
-    my($obj,$status,$limit,$ftype)=@_;
-    return &rdaq_get_files($obj,$status,$limit,1,$ftype);
+    my($obj,$status,$limit,@ftypes)=@_;
+    return &rdaq_get_files($obj,$status,$limit,1,@ftypes);
 }
 
 sub rdaq_get_files
 {
-    my($obj,$status,$limit,$mode,$ftype)=@_;
+    my($obj,$status,$limit,$mode,@ftypes)=@_;
     my(%Conds);
 
     # Default values will be sorted out here.
@@ -795,7 +795,14 @@ sub rdaq_get_files
     # We MUST pass a reference to a hash.
     #if($status < 0){ $status = 0;}
     $Conds{"Status"} = $status;
-    $Conds{"ftype"}  = $ftype if (defined($ftype));
+    if (defined(@ftypes)){
+	if ( $#ftypes > 0 ){
+	    # switch to OR syntax 
+	    $Conds{"ftype"}  = join("|",@ftypes);
+	} else {
+	    $Conds{"ftype"}  = $ftypes[0];
+	}
+    }
 
     return &rdaq_get_orecords($obj,\%Conds,$limit,$mode);
 }
