@@ -16,14 +16,16 @@ $dbhost="duvall.star.bnl.gov";
 $dbuser="starreco";
 $dbpass="";
 $dbname="operation";
-#$SystemData="system_data";
 
 
 # Tables
-$FileCatalogT = "FileCatalog";
+$FileCatalogT = "FileCatalog2000-2003";
 $ProdOptionsT = "ProdOptions";
-$JobStatusT = "JobStatus";
+$JobStatusT = "JobStatus2000-2003";
+$TriggerEventsT = "TriggerEvents";
 $jobRelationsT = "jobRelations";
+$DAQInfoT = "DAQInfo";
+$crsStatusT = "crsStatus";
 
 ######################
 sub StDbProdConnect {
