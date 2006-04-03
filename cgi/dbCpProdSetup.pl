@@ -19,9 +19,9 @@ $dbname="operation";
 
 
 # Tables
-$FileCatalogT = "FileCatalog2000-2003";
+$FileCatalogT = "FileCatalog2000";
 $ProdOptionsT = "ProdOptions";
-$JobStatusT = "JobStatus2000-2003";
+$JobStatusT = "JobStatus2000";
 $TriggerEventsT = "TriggerEvents";
 $jobRelationsT = "jobRelations";
 $DAQInfoT = "DAQInfo";
