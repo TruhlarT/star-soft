@@ -79,6 +79,10 @@ if ($UPDATE == 0){
 		    chomp($lfile = `cd $TARGET ; /usr/bin/find -type f -name $file.event.root`);
 		    if( $lfile ne ""){
 			# found it so it is done.
+
+			@info = stat($lfile);
+			if ( $info[7] == 0){   next;}
+
 			($tree,$el) = $lfile =~ m/(.*\/)(.*)/;
 			chop($tree);
 			$tree =~ s/\.\///;
@@ -106,7 +110,10 @@ if ($UPDATE == 0){
 	if ( -e "$TARGET/$LIB"){
 	    chomp(@all = `cd $TARGET ; /usr/bin/find $LIB -type f -mtime +$RETENT`);
 	} else {
-	    chomp(@all = `cd $TARGET ; /usr/bin/find -type f -mtime +$RETENT`);
+	    push(@all,`cd $TARGET ; /usr/bin/find -type f -mtime +$RETENT`);
+	    push(@all,`cd $TARGET ; /usr/bin/find -type f  -empty`) if ( $^O =~ /linux/);
+	    chomp(@all);
+
 	    @all = grep(!/StarDb/,@all);
 	}
 	foreach $el (@all){
@@ -173,13 +180,33 @@ if ($UPDATE == 0){
     @all = rdaq_get_files($obj,2,0);
     foreach $file (@all){
 	if ( $path  = rdaq_get_location($obj,$file) ){
-	    $ffile = $file;
+	    $qfile = $ffile = $file;
 	    $ffile =~ s/\.daq/\.event\.root/;
+	    $qfile =~ s/\.daq/\.hist\.root/;
+
 	    if ( ! -e "$path/$ffile"){
 		rdaq_set_location($obj,0,$file);
 		print "$path $ffile not found\n";
+	    } else {
+		foreach $tfile (("$path/$ffile","$path/$qfile")){
+		    # we will require for this to have both event and hist
+		    # present or disable it
+		    if ( -e $tfile){
+			@info = stat($tfile);
+			if ( $info[7] == 0){
+			    # disable those records
+			    print "Bogus zero size file found $tfile\n";
+			    rdaq_set_location($obj,0,$file);
+			} else {
+			    #if ( $file =~ /794028/){
+			    #print "Found $file\n";
+			    #}
+			}
+		    }
+		}
 	    }
 	}
-    }
+    } 
+    
 }
 
