@@ -33,8 +33,9 @@ $UPDATE  = shift(@ARGV) if ( @ARGV );   # 0, scan and delete if old,
                                         # 2, get db entries and compare
 
 # Assume standard tree structure
-$JOBDIR  = "/star/u/starreco/$LIB/requests/daq/archive/";
-$SCRATCH = defined($ENV{SCRATCH})?$ENV{SCRATCH}:"/tmp/$<";
+$JOBDIR    = "/star/u/starreco/$LIB/requests/daq/archive/";
+$SCRATCH   = defined($ENV{SCRATCH})?$ENV{SCRATCH}:"/tmp/$<";
+$SPACEPRGM = $ENV{STAR_SCRIPTS}."/dfpanfs";
 
 
 if ( ! -d $SCRATCH){  mkdir($SCRATCH);}
@@ -47,6 +48,16 @@ if( ! opendir(DIR,"$JOBDIR") ){
 
 if ($UPDATE == 0){
     print "Scanning $JOBDIR vs $TARGET on ".localtime()."\n";
+
+    if ( -e $SPACEPRGM ){
+	chomp($space = `$SPACEPRGM  $TARGET`);
+	$space =~ m/(.* )(\d+)(%.*)/;
+	$space =  $2;
+	open(FO,">$TARGET/FreeSpace");
+	print FO "$space\n";
+	close(FO);
+    }
+
     while( defined($jfile = readdir(DIR)) ){
 	#print "$jfile\n";
 	if( $jfile =~ /(.*_)(st_.*)/){

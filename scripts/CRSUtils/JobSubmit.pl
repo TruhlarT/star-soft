@@ -69,6 +69,8 @@
 #
 # Jan 2005     Added HPSS output mode
 # May 2005     Added disk range syntax support (delegation to bfcca)
+# April 2006   $ltarget/FreeSpace mechanism for PANASAS, changed 
+#              the meaning of express.
 #
 
 use lib "/afs/rhic.bnl.gov/star/packages/scripts";
@@ -87,8 +89,8 @@ $SELF =~ s/.*\///;
 $SELF =~ s/\..*//;
 
 # default values global (unless overwritten)
-@EXPRESS = undef;  $EXPRESS_W  = 50;
-$ZEROBIAS= 0;      $ZEROBIAS_W = 30;
+@EXPRESS = undef;  $EXPRESS_W  = 100;
+$ZEROBIAS= 0;      $ZEROBIAS_W =  30;
 
 # this does not have a weight
 $PHYSTP2 = 0;
@@ -271,7 +273,8 @@ if ($ThisYear == 2002){
     @SPILL   = (0,2,4);
 
     # Default chain -- P2005 does not include Corr4 but Corr3
-    $DCHAIN{"PPPP"}           = "pp2006a,ittf,ezTree"; 
+    #$DCHAIN{"PPPP"}           = "pp2006a,ittf,ezTree"; 
+    $DCHAIN{"PPPP"}           = "pp2006b,ittf,ezTree"; 
 
     # Default stand-alone auto-calib (works ONLY on $LASERTP files)
     $SCALIB{"PPPP"}           = "OptLaser";
@@ -329,6 +332,7 @@ $MAXFILL = 95;               # max disk occupancy
 
 
 
+
 # Check if the quit file is present
 if ( -e $QUITF){
     print "$SELF :: $QUITF detected I have been asked to skip processing\n";
@@ -382,6 +386,17 @@ if ($TARGET !~ m/^\d+$/){
 	chomp($space = `/bin/df -k $ltarget`);
 	$space =~ m/(.* )(\d+)(%.*)/;
 	$space =  $2;
+
+	if ( -e "$ltarget/FreeSpace"){
+	    $delta = time()-(stat("$ltarget/FreeSpace"))[10];
+	    if ( $delta < 3600){
+		print "Reading free space from $ltarget/FreeSpace\n";
+		open(FI,"$ltarget/FreeSpace");
+		chomp($space=<FI>);
+		close(FI);
+	    }
+	}
+
 	if ($space >= $MAXFILL ){
 	    print "$SELF :: Target disk $ltarget is $space % full\n";
 	} else {
