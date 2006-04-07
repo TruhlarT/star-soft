@@ -2,8 +2,6 @@
 #
 #  $Id:
 #
-#  $Log:
-#   L.Didenko
 #  dbProdOptionRetrv.pl - script to retrive Production Option table
 #
 ###############################################################################
@@ -14,6 +12,8 @@ require "/afs/rhic/star/packages/cgi/dbCpProdSetup.pl";
 
 my $debugOn = 0;
 my %pair;
+
+my $chain;
 
 &cgiSetup();
 
@@ -35,11 +35,16 @@ while(@fields = $cursor->fetchrow) {
     my $fname=$cursor->{NAME}->[$i];
     print "$fname = $fvalue\n" if $debugOn;
     $pair{$fname} = $fvalue;
+    $chain = $fvalue  if( $fname eq 'chainOpt');
   }
+    if($chain =~ /ITTF/) {
+   
+ &printRow();
 
-&printRow();
-
-}
+}else{
+  &printRoww();
+  }
+ }
 
 &endHtml();
 
@@ -53,7 +58,7 @@ print <<END;
   <head>
           <title>Production Options</title>
   </head>
-  <body BGCOLOR=\"#ccffff\"> 
+  <body BGCOLOR=\"cornsilk\"> 
 <TABLE BORDER=5 CELLSPACING=1 CELLPADDING=2 >
 <TR>
 <TR ALIGN=CENTER VALIGN=CENTER>
@@ -71,7 +76,7 @@ END
 sub printRow {
 
 print <<END;
-<TR ALIGN=CENTER VALIGN=CENTER>
+<TR BGCOLOR=\"#D8BFD8\" ALIGN=CENTER VALIGN=CENTER>
 <td>$pair{'prodSeries'}</td>
 <td>$pair{'eventType'}</td>
 <td>$pair{'libVersion'}</td>
@@ -80,6 +85,20 @@ print <<END;
 </tr>
 END
 
+}
+
+###############
+sub printRoww {
+
+print <<END;
+<TR ALIGN=CENTER VALIGN=CENTER>
+<td>$pair{'prodSeries'}</td>
+<td>$pair{'eventType'}</td>
+<td>$pair{'libVersion'}</td>
+<td>$pair{'chainOpt'}</td>
+<td>$pair{'chainName'}</td>
+</tr>
+END
 }
 
 ###############
