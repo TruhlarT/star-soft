@@ -545,6 +545,13 @@ sub rdaq_raw_files
 	if ( ($#res+1) != $rval){
 	    die "Database has all fields but some are empty ".($#res+1)." received, expected $rval\n";
 	}
+
+	if ( $res[0] !~ /\.daq/){
+	    &info_message("raw_files",3,"File not matching expected name pattern [$res[0]]\n");
+	    next;
+	}
+
+
 	#for ($ii = 0 ; $ii <= $#res ; $ii++){
 	#    print "$ii --> $res[$ii]\n";
 	#}
