@@ -250,7 +250,7 @@ if ($ThisYear == 2002){
     $LIB     = "dev";
 
     $NUMEVT  = 100;
-    #$MAXEVT  = 250;
+    $MINEVT  = 200;
 
     $TARGET  = "/star/data09/reco";       # This is ONLY a default value.
                                           # Overwritten by ARGV (see crontab)
@@ -324,12 +324,12 @@ $SCRATCH = ".";
 $LOCKF   = "FastOff.lock";
 $QUITF   = "FastOff.quit";
 $CONFF   = "JobSubmit$LIB.lis";
-$PRIORITY= 50;               # default queue priority    (old=100 [max], new 50 (lower the better))
-$SLEEPT  =  1;               # sleep time between submit (old=10)
-$MAXCNT  = 20;               # max job to send in a pass
-$RATIO   =  2;               # time drop down for mode + (2=twice faster)
-$MAXFILL = 95;               # max disk occupancy
-
+$PRIORITY= 50;                        # default queue priority    (old=100 [max], new 50 (lower the better))
+$SLEEPT  =  1;                        # sleep time between submit (old=10)
+$MAXCNT  = 20;                        # max job to send in a pass
+$RATIO   =  2;                        # time drop down for mode + (2=twice faster)
+$MAXFILL = 95;                        # max disk occupancy
+$MINEVT  =  0 if (!defined($MINEVT)); # minimum number of events to consider
 
 
 
@@ -434,6 +434,9 @@ if ( -e $LOCKF){
 }
 
 
+# This will be a global selection
+$SEL{"NumEvt"} = "> $MINEVT";
+
 
 
 # Now go ...
@@ -476,11 +479,11 @@ if( $TARGET =~ m/^\// || $TARGET =~ m/^\^\// ){
 		$TARGET=~ s/\^//;
 		if ($#EXPRESS != 0){
 		    $num = int($TOT*$EXPRESS_W/100)+1;
-		    push(@Xfiles,rdaq_get_ffiles($obj,-1,$num,@EXPRESS));
+		    push(@Xfiles,rdaq_get_files($obj,-1,$num, 1,\%SEL,@EXPRESS));
 		}
 		if ($ZEROBIAS != 0){
 		    $num = int($TOT*$ZEROBIAS_W/100)+1;
-		    push(@Xfiles,rdaq_get_ffiles($obj,-1,$num,$ZEROBIAS));
+		    push(@Xfiles,rdaq_get_files($obj,-1,$num, 1,\%SEL,$ZEROBIAS));
 		}
                 # we may push into @Files up to 10 times more files than
 		# nevessary. But please, check the logic further down i.e.
@@ -491,7 +494,7 @@ if( $TARGET =~ m/^\// || $TARGET =~ m/^\^\// ){
 		# Be aware that if $THROTTLE is 0, there will be
 		# no files of the regular type.
 		$W = ($TOT-$#Xfiles+1);
-		push(@Files,rdaq_get_ffiles($obj,-1,$W*($THROTTLE?10:0),$COND));
+		push(@Files,rdaq_get_files($obj,-1,$W*($THROTTLE?10:0), 1,\%SEL,$COND));
 
 	    } else {
 		# ask only for status=0 files (will therefore
@@ -499,14 +502,14 @@ if( $TARGET =~ m/^\// || $TARGET =~ m/^\^\// ){
 		print "$SELF :: Crawling down the list ...\n";
 		if ($#EXPRESS != -1){
 		    $num = int($TOT*$EXPRESS_W/100)+1;
-		    push(@Xfiles,rdaq_get_ffiles($obj,0,$num,@EXPRESS));
+		    push(@Xfiles,rdaq_get_files($obj,0,$num, 1,\%SEL,@EXPRESS));
 		}
 		if ($ZEROBIAS != 0){
 		    $num = int($TOT*$ZEROBIAS_W/100)+1;
-		    push(@Xfiles,rdaq_get_ffiles($obj,0,$num,$ZEROBIAS));
+		    push(@Xfiles,rdaq_get_files($obj,0,$num, 1,\%SEL,$ZEROBIAS));
 		}
 		$W = ($TOT-$#Xfiles+1);
-		push(@Files,rdaq_get_ffiles($obj,0,$W*($THROTTLE?10:0),$COND));
+		push(@Files,rdaq_get_files($obj,0,$W*($THROTTLE?10:0), 1,\%SEL,$COND));
 	    }
 
 	    print "$SELF :: Xfiles=$#Xfiles Files=$#Files $TARGET\n";
