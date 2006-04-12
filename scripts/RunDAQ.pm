@@ -778,13 +778,15 @@ sub rdaq_open_odatabase
 sub rdaq_get_ffiles
 {
     my($obj,$status,$limit,@ftypes)=@_;
-    return &rdaq_get_files($obj,$status,$limit,1,@ftypes);
+    return &rdaq_get_files($obj,$status,$limit, 1,undef,@ftypes);
 }
 
+# Changed on 2006 and added $SEL - A few external script
+# calling this method need to adapt.
 sub rdaq_get_files
 {
-    my($obj,$status,$limit,$mode,@ftypes)=@_;
-    my(%Conds);
+    my($obj,$status,$limit,  $mode,$SEL,@ftypes)=@_;
+    my($el,%Conds);
 
     # Default values will be sorted out here.
     if( ! defined($limit) ){  $limit = 0;}
@@ -792,10 +794,15 @@ sub rdaq_get_files
     if( ! defined($status)){  $status= 0;}
     #if( ! defined($ftype) ){  $ftype = 1;}
 
+    if ( defined($SEL) ){
+	# consider it as a hash reference and transfer
+	# into %Conds
+	foreach $el (keys %$SEL){   $Conds{$el} = $$SEL{$el};}
+    }
+
     # We MUST pass a reference to a hash.
-    #if($status < 0){ $status = 0;}
     $Conds{"Status"} = $status;
-    if (defined(@ftypes)){
+    if ( $#ftypes != -1){
 	if ( $#ftypes > 0 ){
 	    # switch to OR syntax 
 	    $Conds{"ftype"}  = join("|",@ftypes);
