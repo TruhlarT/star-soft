@@ -87,7 +87,7 @@ if ($UPDATE == 0){
 		if ( ! -e "$SCRATCH/$file.done"){
 		    open(FF,">$SCRATCH/$file.done"); close(FF);
 		    #print "Searching for $file\n";
-		    chomp($lfile = `cd $TARGET ; /usr/bin/find -type f -name $file.event.root`);
+		    chomp($lfile = `cd $TARGET ; /usr/bin/find -type f -name $file.MuDst.root`);
 		    if( $lfile ne ""){
 			# found it so it is done.
 
@@ -104,7 +104,7 @@ if ($UPDATE == 0){
 			push(@DONE,"$file.daq");
 			push(@MOVE,$jfile);
 		    } else {
-			#print "Could not find $TARGET/$tree/$file.event.root\n";
+			#print "Could not find $TARGET/$tree/$file.MuDst.root\n";
 		    }
 		}
 	    }
@@ -167,7 +167,7 @@ if ($UPDATE == 0){
     # directory if files are moved ...
     $obj = rdaq_open_odatabase();
     if($obj){
-	chomp(@all = `cd $TARGET ; /usr/bin/find $LIB -type f -name '*.event.root'`);
+	chomp(@all = `cd $TARGET ; /usr/bin/find $LIB -type f -name '*.MuDst.root'`);
 	foreach $el (@all){
 	    $el =~ m/(.*\/)(.*)/;
 	    ($tree,$el) = ($1,$2);
