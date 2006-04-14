@@ -1,9 +1,12 @@
 #!/usr/local/bin/perl
 #!/usr/bin/env perl 
 #
-# $Id: dbDevTestQueryPlot.pl,v 1.29 2005/01/10 18:02:43 didenko Exp $
+# $Id: dbDevTestQueryPlot.pl,v 1.30 2006/04/14 16:20:23 didenko Exp $
 #
 # $Log: dbDevTestQueryPlot.pl,v $
+# Revision 1.30  2006/04/14 16:20:23  didenko
+# updated for tracks with nfit point > 15
+#
 # Revision 1.29  2005/01/10 18:02:43  didenko
 # remove icc path
 #
@@ -65,6 +68,8 @@ my %plotHash = (
 		RealTime_per_Event => 'RealTime_per_evt',
                 Average_NoTracks => 'avg_no_tracks',
 		Average_NoPrimaryT => 'avg_no_primaryT',
+                Average_NoTracksNfit15 => 'avg_no_tracksnfit15',
+		Average_NoPrimaryTNfit15  => 'avg_no_primaryTnfit15',     
                 Average_NoV0Vrt => 'avg_no_V0Vrt',
 		Average_NoXiVrt => 'avg_no_XiVrt',
 		Average_NoKinKVrt => 'avg_no_KinKVrt'

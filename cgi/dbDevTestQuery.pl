@@ -1,8 +1,11 @@
 #!/usr/bin/env perl 
 #
-# $Id: dbDevTestQuery.pl,v 1.17 2005/10/04 14:42:20 didenko Exp $
+# $Id: dbDevTestQuery.pl,v 1.18 2006/04/14 16:20:12 didenko Exp $
 #
 # $Log: dbDevTestQuery.pl,v $
+# Revision 1.18  2006/04/14 16:20:12  didenko
+# updated for tracks with nfit point > 15
+#
 # Revision 1.17  2005/10/04 14:42:20  didenko
 # updated for cucu hijing and pp200 run 2005
 #
@@ -108,6 +111,8 @@ my @myplot =   (
 		"RealTime_per_Event",
                 "Average_NoTracks",
 		"Average_NoPrimaryT",
+                "Average_NoTracksNfit15",
+		"Average_NoPrimaryTNfit15",                 
                 "Average_NoV0Vrt",
 		"Average_NoXiVrt",
 		"Average_NoKinKVrt"
