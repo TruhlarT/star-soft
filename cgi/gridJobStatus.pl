@@ -1,7 +1,7 @@
 #!/usr/local/bin/perl
 #!/usr/bin/env perl 
 #
-# $Id: gridJobStatus.pl
+# $Id:
 #
 # L.Didenko
 #
