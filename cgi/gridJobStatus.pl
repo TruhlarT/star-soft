@@ -324,13 +324,24 @@ if( $qview eq "jobs_browser")  {
     $sdate     = ($$jstat)->rftime;
     $cretime    = ($$jstat)->crtime;
 
+    if($recoSt eq "submitted") {
+
+    $globSt = "n/a";
+    $logSt = "n/a";
+    $glError = 0;
+    $inSt = "n/a";
+    $outSt = "n/a";
+     &printRow();
+
+    }else{
+
     $globSt = $globar[$glStatus];
     $logSt = $logar[$lgStatus];
     $inSt = $infile[$intrans]; 
     $outSt =$outfile[$outtrans];
 
     &printRow();
-
+   }
   }
  
    }else{
