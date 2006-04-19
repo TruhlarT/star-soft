@@ -31,7 +31,7 @@ use Cwd;
 
 use vars qw( $CVS_id $CVS_ver $ver_num $ver_rev $version );
 
-$CVS_id = '$Id: cons,v 1.98 2005/07/18 22:33:27 fisyak Exp $ ';
+$CVS_id = '$Id: cons,v 1.99 2006/04/19 22:12:10 jeromel Exp $ ';
 $CVS_ver = (split(/\s+/, $CVS_id))[2];
 
 $ver_num = "2.3";
@@ -3706,11 +3706,16 @@ sub _build {
       printf("%2i  ",$level/2);
       print((' ' x $level), "Checking ", $self->path, "\n");
     }
-    push @param::dependencies, $self->path; #print("add ",$self->path,"\n");
+    push @param::dependencies, $self->path; 
+    
+    #print "DEBUG:: Done ... going ...\n";
+    #print("add ",$self->path,"\n");  #if $param::debug;
+
     if (!exists $self->{builder}) {
 	# We don't know how to build the file. This is OK, if
 	# the file is present as a source file, under either the
 	# local tree or a Repository.
+	#print "DEBUG:: We don't know how to build the file\n";
 	if ($self->source_exists) {
 	    return $self->{status} = 'handled';
 	} else {
@@ -3719,6 +3724,8 @@ sub _build {
 	    exit(1) unless $param::kflag;
 	    return $self->{status} = 'errors'; # xxx used to be 'unknown'
 	}
+    #} else {
+    #	print "DEBUG:: There is a builder\n";
     }
 
     # An associated build object exists, so we know how to build
@@ -3743,10 +3750,16 @@ sub _build {
 
     my $dep;
     for $dep (@$rdeps) {
-	if ((build $dep) eq 'errors') {
-	    # Propagate dependent errors to target.
-	    # but try to build all dependents regardless of errors.
-	    $self->{status} = 'errors';
+	#print "DEBUG:: We are going to build $dep ".$dep->path."\n";
+	if ( $dep->path ne $self->path ){
+	    if ((build $dep) eq 'errors') {
+		# Propagate dependent errors to target.
+		# but try to build all dependents regardless of errors.
+		$self->{status} = 'errors';
+	    }
+	} else {
+	    print((' ' x $level), "Source has dependencies on itself ".$dep->path."\n");
+	    die "\n";
 	}
     }
 
