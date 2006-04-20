@@ -10,3 +10,4 @@ $TOT = CRSQ_getcnt(5,4,$PAT);
 
 print "Got $TOT\n";
     
+#CRSQ_check($PAT,"../archive");
