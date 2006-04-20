@@ -331,7 +331,7 @@ if( $qview eq "jobs_browser")  {
     $glError = 0;
     $inSt = "n/a";
     $outSt = "n/a";
-     &printRow();
+     &printClRow();
 
     }else{
 
@@ -502,6 +502,28 @@ sub printRow {
 
 print <<END;
 <TR ALIGN=CENTER>
+<td>$gsite</td>
+<td>$inFile</td>
+<td>$globSt</td>
+<td>$glError</td>
+<td>$logSt</td>
+<td>$inSt</td>
+<td>$outSt</td>
+<td>$recoSt</td>
+<td>$sbtime</td>
+<td>$sdate</td>
+<td>$cretime</td>
+</TR>
+END
+
+}
+
+
+############### 
+sub printClRow {
+
+print <<END;
+<TR BGCOLOR=\"#D8BFD8\" ALIGN=CENTER>
 <td>$gsite</td>
 <td>$inFile</td>
 <td>$globSt</td>
