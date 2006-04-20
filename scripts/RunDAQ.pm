@@ -108,15 +108,20 @@
 #  9 | DetSetMask  | bigint(20) unsigned | YES  |     | 0       |       |
 # 10 | TrgSetup    | bigint(20) unsigned | YES  |     | 0       |       |
 # 11 | TrgMask     | bigint(20) unsigned | YES  |     | 0       |       |
+#
 # 12 | ftype       | int(11)             | YES  |     | 0       |       |
 # 13 | EntryDate   | timestamp(14)       | YES  |     | NULL    |       |
-# 14 | DiskLoc     | int(11)             | YES  |     | 0       |       |
-# 15 | Chain       | int(11)             | YES  |     | 0       |       |
-# 16 | XStatus1    | int(11)             | YES  |     | 0       |       | --> This one is 
+# 14 | ExecDate    | timestamp(14)       | YES  |     | NULL    |       |
+# 15 | UpdateDate  | timestamp(14)       | YES  |     | NULL    |       |
+#
+# 16 | DiskLoc     | int(11)             | YES  |     | 0       |       |
+# 17 | Chain       | int(11)             | YES  |     | 0       |       |
+#
+# 18 | XStatus1    | int(11)             | YES  |     | 0       |       | --> This one is 
 #                                                                             reserved for ezTree
-# 17 | XStatus2    | int(11)             | YES  |     | 0       |       | --> unused for now
+# 19 | XStatus2    | int(11)             | YES  |     | 0       |       | --> unused for now
 #      ... as many Status as needed for pre-passes
-# 18 | Status      | int(11)             | YES  |     | 0       |       |
+# 20 | Status      | int(11)             | YES  |     | 0       |       |
 #    +-------------+---------------------+------+-----+---------+-------+
 #
 # BEWARE: Adding a column implies code changes where a tag 'MOD HERE'
@@ -244,7 +249,7 @@ sub rdaq_add_entry
 
     if(!$obj){ return 0;}
     $sth = $obj->prepare("INSERT IGNORE INTO $DBTABLE ".
-			 "VALUES(?,?,?,?,?,?,?,?,?,?,?,?,?,NOW()+0,0,0,0,0,0)"); # MOD HERE
+			 "VALUES(?,?,?,?,?,?,?,?,?,?,?,?,?,NOW()+0,0,0, 0,0,0,0,0)"); # MOD HERE
     if ( $sth ){
 	if ( ! $sth->execute(@values) ){
 	    print "<!-- Could not execute with $#values params [".join(",",@values)."] -->\n"
@@ -271,7 +276,7 @@ sub rdaq_add_entries
 
     if($#records != -1){
 	$sth = $obj->prepare("INSERT INTO $DBTABLE ".
-			     "VALUES(?,?,?,?,?,?,?,?,?,?,?,?,?,NOW()+0,0,0,0,0,0)"); # MOD HERE
+			     "VALUES(?,?,?,?,?,?,?,?,?,?,?,?,?,NOW()+0,0,0, 0,0,0,0,0)"); # MOD HERE
 	if($sth){
 	    foreach $line (@records){
 		@values = split(" ",$line);
@@ -1024,7 +1029,7 @@ sub __set_files_where
 	print "<!-- Value for $field $THREAD1{$field} case-1 is now $value -->\n" if ($DEBUG);
     }
 
-    $cmd = "UPDATE $DBTABLE SET $field=$value WHERE file=? ";
+    $cmd = "UPDATE $DBTABLE SET $field=$value, UpdateDate=NOW()+0 WHERE file=? ";
     if ($stscond != -1){
 	$cmd .= " AND $field=$stscond";
     }
