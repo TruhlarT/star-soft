@@ -324,7 +324,7 @@ if( $qview eq "jobs_browser")  {
     $sdate     = ($$jstat)->rftime;
     $cretime    = ($$jstat)->crtime;
 
-    if($recoSt eq "submitted") {
+    if($recoSt eq "submitted" or $recoSt eq "executing" ) {
 
     $globSt = "n/a";
     $logSt = "n/a";
