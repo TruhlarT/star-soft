@@ -133,7 +133,7 @@ my $outSt;
  
   &GRdbConnect();
 
-  $sql="SELECT DISTINCT testday  FROM $JobStatusT";
+  $sql="SELECT DISTINCT testday  FROM $JobStatusT order by testday ";
 
    $cursor =$dbh->prepare($sql)
       || die "Cannot prepare statement: $DBI::errstr\n";
