@@ -91,8 +91,13 @@ if ($UPDATE == 0){
 		    if( $lfile ne ""){
 			# found it so it is done.
 
-			@info = stat($lfile);
-			if ( $info[7] == 0){   next;}
+			@info = stat("$TARGET/$lfile");
+			if ( $#info == -1){
+			    print "Could not find $TARGET/$lfile\n";
+			    next;
+			} elsif  ( $info[7] == 0){   
+			    next;
+			}
 
 			($tree,$el) = $lfile =~ m/(.*\/)(.*)/;
 			chop($tree);
@@ -192,7 +197,7 @@ if ($UPDATE == 0){
     foreach $file (@all){
 	if ( $path  = rdaq_get_location($obj,$file) ){
 	    $qfile = $ffile = $file;
-	    $ffile =~ s/\.daq/\.event\.root/;
+	    $ffile =~ s/\.daq/\.MuDst\.root/;
 	    $qfile =~ s/\.daq/\.hist\.root/;
 
 	    if ( ! -e "$path/$ffile"){
