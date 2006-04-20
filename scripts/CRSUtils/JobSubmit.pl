@@ -400,13 +400,15 @@ if ($TARGET !~ m/^\d+$/){
 	if ($space >= $MAXFILL ){
 	    print "$SELF :: Target disk $ltarget is $space % full\n";
 	} else {
+	    # only one disk OK warrant a full OK
+	    print "$SELF :: Target disk $ltarget is $space < $MAXFILL (we shall proceed)\n"; 
 	    $OK = 1==1;
-	    last
+	    last;
 	}
     }
 
     if ( ! $OK){
-	print "$SELF :: Target disk $target is full (baling out on ".localtime().")\n";
+	print "$SELF :: Target disk(s) $target is/are full (baling out on ".localtime().")\n";
 	exit;
     }
 }
@@ -964,7 +966,7 @@ sub Submit
 	return 0;
 
     } elsif ( $trgrs eq "unknown" || $trgsn eq "unknown"){
-	print "$SELF :: Info : Skipping $file has uknown setup or triggers sn=$trgsn ts=$trgrs\n";
+	print "$SELF :: Info : Skipping $file has unknown setup or triggers sn=$trgsn ts=$trgrs\n";
 	return 0;
 
     } elsif ( $trgrs eq "pedestal" || $trgrs eq "pulser" ||
