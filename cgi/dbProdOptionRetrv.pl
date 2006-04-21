@@ -21,7 +21,7 @@ my $chain;
 
 &beginHtml();
 
-$sql="SELECT * FROM $ProdOptionsT";
+$sql="SELECT * FROM $ProdOptionsT ORDER BY id DESC ";
 $cursor =$dbh->prepare($sql)
   || die "Cannot prepare statement: $DBI::errstr\n";
 $cursor->execute;
