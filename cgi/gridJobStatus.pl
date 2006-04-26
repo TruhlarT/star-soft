@@ -30,6 +30,7 @@ $dbname="GridJobs";
     subtime     => '$',
     tsite       => '$',
     infile      => '$', 
+    lgpath      => '$',
     glstat      => '$',
     glerr       => '$', 
     lgstat      => '$',
@@ -265,11 +266,11 @@ my $qqr = new CGI;
 
   if( $qsite eq "ALL" ) {
 
-      $sql="SELECT submissionTime, site, inputFile, globusStatus, globusError, logStatus, execStatus, transfer_in, transfer_out, recoFinishTime, createTime FROM $JobStatusT WHERE testday = '$qdate' "; 
+      $sql="SELECT submissionTime, site, inputFile, logpath, globusStatus, globusError, logStatus, execStatus, transfer_in, transfer_out, recoFinishTime, createTime FROM $JobStatusT WHERE testday = '$qdate' "; 
 
   }else{
 
-     $sql="SELECT submissionTime, site, inputFile, globusStatus, globusError, logStatus, execStatus, transfer_in, transfer_out, recoFinishTime, createTime FROM $JobStatusT WHERE testday = '$qdate' and site = '$qsite' ";
+     $sql="SELECT submissionTime, site, inputFile, logpath, globusStatus, globusError, logStatus, execStatus, transfer_in, transfer_out, recoFinishTime, createTime FROM $JobStatusT WHERE testday = '$qdate' and site = '$qsite' ";
 
  }
 
@@ -287,8 +288,9 @@ my $qqr = new CGI;
 #          print "$fname = $fvalue\n" ;
 
       ($$fObjAdr)->subtime($fvalue)   if( $fname eq 'submissionTime');
-      ($$fObjAdr)->tsite($fvalue)   if( $fname eq 'site');
+      ($$fObjAdr)->tsite($fvalue)     if( $fname eq 'site');
       ($$fObjAdr)->infile($fvalue)    if( $fname eq 'inputFile');
+      ($$fObjAdr)->lgpath($fvalue)    if( $fname eq 'logpath');
       ($$fObjAdr)->glstat($fvalue)    if( $fname eq 'globusStatus');
       ($$fObjAdr)->glerr($fvalue)     if( $fname eq 'globusError');
       ($$fObjAdr)->lgstat($fvalue)    if( $fname eq 'logStatus');
@@ -316,6 +318,7 @@ if( $qview eq "jobs_browser")  {
     $gsite     = ($$jstat)->tsite; 
     $glStatus  = ($$jstat)->glstat; 
     $inFile    = ($$jstat)->infile;
+    $lpath     = ($$jstat)->lgpath;
     $glError   = ($$jstat)->glerr;
     $lgStatus  = ($$jstat)->lgstat;
     $intrans   = ($$jstat)->intrs;
@@ -455,15 +458,16 @@ print <<END;
 <TR>
 <TD ALIGN=CENTER WIDTH=\"5%\" HEIGHT=50><B>Site</B></TD>
 <TD ALIGN=CENTER WIDTH=\"10%\" HEIGHT=50><B>Input File</B></TD>
+<TD ALIGN=CENTER WIDTH=\"10%\" HEIGHT=50><B>Log Path</B></TD>
 <TD ALIGN=CENTER WIDTH=\"10%\" HEIGHT=50><B>Globus Status</B></TD>
 <TD ALIGN=CENTER WIDTH=\"5%\" HEIGHT=50><B>Globus Error</B></TD>
 <TD ALIGN=CENTER WIDTH=\"10%\" HEIGHT=50><B>Log Status</B></TD>
-<TD ALIGN=CENTER WIDTH=\"10%\" HEIGHT=50><B>Input Transfer</B></TD>
-<TD ALIGN=CENTER WIDTH=\"10%\" HEIGHT=50><B>Output Transfer</B></TD>
+<TD ALIGN=CENTER WIDTH=\"5%\" HEIGHT=50><B>Input Transfer</B></TD>
+<TD ALIGN=CENTER WIDTH=\"5%\" HEIGHT=50><B>Output Transfer</B></TD>
 <TD ALIGN=CENTER WIDTH=\"10%\" HEIGHT=50><B>Reco Status</B></TD>
-<TD ALIGN=CENTER WIDTH=\"10%\" HEIGHT=50><B>Submission Time</B></TD>
-<TD ALIGN=CENTER WIDTH=\"10%\" HEIGHT=50><B>Reco Finish Time</B></TD>
-<TD ALIGN=CENTER WIDTH=\"10%\" HEIGHT=50><B>Files Created at Time</B></TD>
+<TD ALIGN=CENTER WIDTH=\"10%\" HEIGHT=50><B>Submission Time<br>EST</B></TD>
+<TD ALIGN=CENTER WIDTH=\"10%\" HEIGHT=50><B>Reco Finish Time<br>site local</B></TD>
+<TD ALIGN=CENTER WIDTH=\"10%\" HEIGHT=50><B>Files Created at Time<br>EST</B></TD>
 </TR> 
    </head>
     <body>
@@ -504,6 +508,7 @@ print <<END;
 <TR ALIGN=CENTER>
 <td>$gsite</td>
 <td>$inFile</td>
+<td>$lpath</td>
 <td>$globSt</td>
 <td>$glError</td>
 <td>$logSt</td>
@@ -526,6 +531,7 @@ print <<END;
 <TR BGCOLOR=\"#D8BFD8\" ALIGN=CENTER>
 <td>$gsite</td>
 <td>$inFile</td>
+<td>$lpath</td>
 <td>$globSt</td>
 <td>$glError</td>
 <td>$logSt</td>
