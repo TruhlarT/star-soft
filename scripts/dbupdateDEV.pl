@@ -537,8 +537,8 @@ my @files;
        $timeS = sprintf ("%4.4d-%2.2d-%2.2d %2.2d:%2.2d:00",
                        $fullyear,$mo,$dy,$hr,$min);    
 
-#           if( $ltime > 600 && $ltime < 518400 ){         
-          if( $ltime > 600 ) { 
+           if( $ltime > 600 && $ltime < 518400 ){         
+#          if( $ltime > 600 ) { 
 #   print "Log time: ", $ltime, "\n";
 #   print $fullname, "\n";
         &logInfo("$fullname", "$platf");
@@ -1318,8 +1318,6 @@ sub  updateJSTable {
  
 #  print $fl_log, "\n";
 
-#  if($fl_log eq "/star/rcf/test/dev/daq_sl302.ittf/Wed/year_2005/CuCu200_HighTower/st_physics_6054016_raw_1020005.log") {
- 
   open (LOGFILE, $fl_log ) or die "cannot open $fl_log: $!\n";
 
    my @logfile = <LOGFILE>;
@@ -1495,7 +1493,7 @@ my $mRealTbfc = 0;
       $EvDone = $no_event;
       $EvCom = $EvDone - $EvSkip;
 
- print "Number of events: ", $runflag,"  ", $no_event,"  ", $EvDone,"  ",$EvCom, ,"  ",$EvSkip, "\n";
+# print "Number of events: ", $runflag,"  ", $no_event,"  ", $EvDone,"  ",$EvCom, ,"  ",$EvSkip, "\n";
 
  
 ##### get CPU and Real Time per event
@@ -1530,7 +1528,7 @@ my $mRealTbfc = 0;
     $avr_knvertices = $tot_knvertices/$EvCom;
     $avr_xivertices = $tot_xivertices/$EvCom;
 
-   print "Number of tracks:  ",  $avr_tracks,"  ",$avr_trck_nfit15,"  ", $avr_vertices,"  ",$avr_prtracks,"  ",$avr_prtrck_nfit15,"  ", $avr_knvertices,"  ",$avr_xivertices, "\n"; 
+#   print "Number of tracks:  ",  $avr_tracks,"  ",$avr_trck_nfit15,"  ", $avr_vertices,"  ",$avr_prtracks,"  ",$avr_prtrck_nfit15,"  ", $avr_knvertices,"  ",$avr_xivertices, "\n"; 
 
 # print "Size of executable:  ", $EvDone, "  ", $no_event,"  ",$EvCom,"  ",$maker_size[$EvCom -1], "\n";                               
 
