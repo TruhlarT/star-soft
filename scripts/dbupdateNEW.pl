@@ -1171,7 +1171,7 @@ my $mRealTbfc = 0;
     }
 # get number of tracks and vertices
 
-      if ($line =~ /QAInfo: StAnalysisMaker/ && $Anflag == 0 ) {
+      if ($line =~ /QA :INFO  - StAnalysisMaker/ && $Anflag == 0 ) {
 
   @nmb = ();
   @nmbx = ();
