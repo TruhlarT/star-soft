@@ -1228,7 +1228,7 @@ my $mRealTbfc = 0;
          }
       }
            
-print "Number of tracks:  ", $no_tracks, "  ",$no_trck_nfit15, "  ", $max_npr, "  ",$max_npr_nfit15, "  ", $no_vertices,"  ",$no_xivertices, "\n";
+# print "Number of tracks:  ", $no_tracks, "  ",$no_trck_nfit15, "  ", $max_npr, "  ",$max_npr_nfit15, "  ", $no_vertices,"  ",$no_xivertices, "\n";
 
               $tot_prtracks += $max_npr;
               $tot_prtrck_nfit15 += $max_npr_nfit15;   
