@@ -82,6 +82,10 @@ if ($level >= 404  && $?XROOTDSYS ) then
     endif
 
     # Point to default auth files where the info will be found
+    #
+    # The server will search for $HOME/.xrd/pwdnetrc which may cause some
+    # information syncrhonization issues if $HOME and ${XROOTDSYS} are on 
+    # different FS.
     if ( ! -e $HOME/.xrd/pwdnetrc && -e ${XROOTDSYS}/.xrd/pwdnetrc ) then
 	setenv XrdSecPWDALOGFILE ${XROOTDSYS}/.xrd/pwdnetrc
     endif
