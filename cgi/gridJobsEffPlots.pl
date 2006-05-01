@@ -250,11 +250,11 @@ my $ndt = 0;
 
   if( $qsite eq "ALL" ) {
 
-      $sql="SELECT testday, site, globusStatus, globusError, logStatus, execStatus, transfer_in, transfer_out, recoFinishTime, createTime FROM $JobStatusT WHERE  testday = '$tdate' "; 
+      $sql="SELECT testday, site, globusStatus, globusError, logStatus, execStatus, transfer_in, transfer_out, recoFinishTime, createTime FROM $JobStatusT WHERE  testday = '$tdate' AND (status = 'complete' OR status = 'failed') "; 
 
   }else{
 
-     $sql="SELECT testday, site, globusStatus, globusError, logStatus, execStatus, transfer_in, transfer_out, recoFinishTime, createTime FROM $JobStatusT WHERE site = '$qsite' AND  testday = '$tdate' ";
+     $sql="SELECT testday, site, globusStatus, globusError, logStatus, execStatus, transfer_in, transfer_out, recoFinishTime, createTime FROM $JobStatusT WHERE site = '$qsite' AND  testday = '$tdate' AND (status = 'complete' OR status = 'failed') ";
 
  }
 
