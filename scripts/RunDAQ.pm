@@ -584,9 +584,11 @@ sub rdaq_raw_files
 sub rdaq_hack
 {
     my($obj,@res)=@_;
-    my($stht,$sthl,$sths);
-    my(@items,$line,$run,$mask);
+    my($ii,$stht,$sthl,$sths);
+    my(@init,@items,$line,$run,$mask);
 
+    # save a copy
+    push(@init,@res);
 
     # Add a default BeamBeam at the last element.
     # Will later be in beamInfo table. Use global
@@ -632,7 +634,14 @@ sub rdaq_hack
 		$mask |= (1 << &GetBitValue("DetSetMask",$line));
 	    }
 	}
-	$DETSETS{$run} = $mask;
+
+	if ($mask eq ""){   
+	    &info_message("rdaq_hack",1,
+			  "Reading detectorTypes table=detectorTypes,detectorSet leaded to [$mask]");
+	    return undef;
+	} else {
+	    $DETSETS{$run} = $mask;
+	}
     } else {
 	$mask = $DETSETS{$run};
     }
@@ -657,7 +666,13 @@ sub rdaq_hack
 	    chop($mask);
 	    $mask = &Record_n_Fetch("FOTriggerSetup",$mask);
 	}
-	$TRGSET{$run} = $mask;
+	if ($mask eq ""){   
+	    &info_message("rdaq_hack",1,
+			  "Reading TrgSet table=runDescriptor field= glbSetupName leaded to [$mask]");
+	    return undef;
+	} else {
+	    $TRGSET{$run} = $mask;
+	}
     } else {
 	$mask = $TRGSET{$run};
     }
@@ -681,7 +696,14 @@ sub rdaq_hack
 		}
 	    }
 	}
-	$TRGMASK{$run} = $mask;
+	if ($mask eq ""){   
+	    &info_message("rdaq_hack",1,
+			  "Reading TrgMask table=l0TriggerSet leaded to [$mask]");
+	    return undef;
+	} else {
+	    $TRGMASK{$run} = $mask;
+	}
+
     } else {
 	$mask = $TRGMASK{$run};
     }
@@ -697,7 +719,25 @@ sub rdaq_hack
     } else {
 	push(@res,0);
     }
+
+
     #print "Returning from rdaq_hack() with ".($#res+1)." values\n" if($DEBUG);
+    $mask = "";
+    for ($ii=0 ; $ii <= $#res ; $ii++){
+	$mask .= "$ii -> [$res[$ii]] ; ";
+	if ($res[$ii] eq ""){  
+	    &info_message("hack",1,
+			  "Element $ii is null\n");
+	    &info_message("hack",1,
+			  "I received ".($#init+1)." elements and ended with ".($#res+1)."\n");
+	    &info_message("hack",1,
+			  "$mask\n");
+
+	    print "BOGUS records for run=$res[1]\n";
+	    return undef;
+	}
+    }
+	
     return join(" ",@res);
 }
 
@@ -841,7 +881,7 @@ sub rdaq_get_orecords
     my($file,@files,@items);
     my($flag,$comp);
 
-    if(!$obj){ return undef;}
+    if( ! $obj ){           return undef;}
     if( ! defined($mode) ){ $mode = 1;}
 
     # basic selection
