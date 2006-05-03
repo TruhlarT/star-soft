@@ -22,6 +22,7 @@ use RunDAQ;
 
 $LIB     = "dev";
 $TARGET  = "/star/data19/reco";
+$FIND    = "/usr/bin/find";
 $UPDATE  = 0;
 $RETENT  = 14;
 
@@ -87,7 +88,7 @@ if ($UPDATE == 0){
 		if ( ! -e "$SCRATCH/$file.done"){
 		    open(FF,">$SCRATCH/$file.done"); close(FF);
 		    #print "Searching for $file\n";
-		    chomp($lfile = `cd $TARGET ; /usr/bin/find -type f -name $file.MuDst.root`);
+		    chomp($lfile = `cd $TARGET ; $FIND -type f -name $file.MuDst.root`);
 		    if( $lfile ne ""){
 			# found it so it is done.
 
@@ -124,10 +125,10 @@ if ($UPDATE == 0){
     if( -d $TARGET){
 	#print "Searching for f in $LIB from $TARGET\n";
 	if ( -e "$TARGET/$LIB"){
-	    chomp(@all = `cd $TARGET ; /usr/bin/find $LIB -type f -mtime +$RETENT`);
+	    chomp(@all = `cd $TARGET ; $FIND $LIB -type f -mtime +$RETENT`);
 	} else {
-	    push(@all,`cd $TARGET ; /usr/bin/find -type f -mtime +$RETENT`);
-	    push(@all,`cd $TARGET ; /usr/bin/find -type f  -empty`) if ( $^O =~ /linux/);
+	    push(@all,`cd $TARGET ; $FIND -type f -mtime +$RETENT`);
+	    push(@all,`cd $TARGET ; $FIND -type f  -empty`) if ( $^O =~ /linux/);
 	    chomp(@all);
 
 	    @all = grep(!/StarDb/,@all);
@@ -172,7 +173,7 @@ if ($UPDATE == 0){
     # directory if files are moved ...
     $obj = rdaq_open_odatabase();
     if($obj){
-	chomp(@all = `cd $TARGET ; /usr/bin/find $LIB -type f -name '*.MuDst.root'`);
+	chomp(@all = `cd $TARGET ; $FIND -type f -name '*.MuDst.root'`);
 	foreach $el (@all){
 	    $el =~ m/(.*\/)(.*)/;
 	    ($tree,$el) = ($1,$2);
@@ -192,10 +193,15 @@ if ($UPDATE == 0){
     }
 
 } else {
+    print "Update is $UPDATE i.e. default\n";
     $obj = rdaq_open_odatabase();
+
+    #rdaq_toggle_debug(1);
     @all = rdaq_get_files($obj,2,0);
+
     foreach $file (@all){
 	if ( $path  = rdaq_get_location($obj,$file) ){
+	    print "Checking $path for $file\n";
 	    $qfile = $ffile = $file;
 	    $ffile =~ s/\.daq/\.MuDst\.root/;
 	    $qfile =~ s/\.daq/\.hist\.root/;
