@@ -879,7 +879,7 @@ sub rdaq_get_orecords
     my($cmd,$el,$val,$tmp,$sth);
     my(@Values);
     my($file,@files,@items);
-    my($flag,$comp);
+    my($flag,$comp,$savev);
 
     if( ! $obj ){           return undef;}
     if( ! defined($mode) ){ $mode = 1;}
@@ -905,13 +905,16 @@ sub rdaq_get_orecords
 
 	# Sort out possible comparison operators
 	$test= substr($val,0,1);
+	#print "<!-- DEBUG:: test=$test for [$el] [$val] -->\n";
 	$comp= ">=" if($test eq ">");
 	$comp= "<=" if($test eq "<");
 	$comp= "!=" if($test eq "!");
 	if($comp ne "="){
-	    $val = substr($val,1,length($val));
-	    $$Conds{$el} = $val;
+	    # this re-assigns an array reference and may strip
+	    # the condition
+	    $val   = substr($val,1,length($val));
 	}
+	$savev = $val;
 
 
 	# Sort out now the kind of field we are working with
@@ -953,7 +956,7 @@ sub rdaq_get_orecords
 	# or not.
 	if( $flag){
 	    $cmd .= "$comp?";
-	    push(@Values,$$Conds{$el});
+	    push(@Values,$savev);
 	} else {
 	    # the syntax is a bit operation or a OR/AND
 	    # syntax and therefore is complete
