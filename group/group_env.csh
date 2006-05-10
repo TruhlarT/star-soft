@@ -1,5 +1,5 @@
 #!/bin/csh -x
-#       $Id: group_env.csh,v 1.183 2006/03/24 18:33:14 jeromel Exp $
+#       $Id: group_env.csh,v 1.184 2006/05/10 02:05:21 jeromel Exp $
 #	Purpose:	STAR group csh setup
 #
 #	Author:		Y.Fisyak     BNL
@@ -512,6 +512,14 @@ if ( $?JAVA_ROOT ) then
     endif
 endif
 
+
+# Support for GraXML
+if ( ! $?GRAXML_HOME && -d ${STAR_PATH}/GeoM/GraXML ) then
+    setenv GRAXML_HOME ${STAR_PATH}/GeoM/GraXML
+endif
+if ( $?GRAXML_HOME ) then
+    set path=($path $GRAXML_HOME/bin)
+endif
 
 
 # Support for Qt
