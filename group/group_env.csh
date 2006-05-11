@@ -1,5 +1,5 @@
 #!/bin/csh -x
-#       $Id: group_env.csh,v 1.184 2006/05/10 02:05:21 jeromel Exp $
+#       $Id: group_env.csh,v 1.185 2006/05/11 20:01:12 jeromel Exp $
 #	Purpose:	STAR group csh setup
 #
 #	Author:		Y.Fisyak     BNL
@@ -514,8 +514,15 @@ endif
 
 
 # Support for GraXML
-if ( ! $?GRAXML_HOME && -d ${STAR_PATH}/GeoM/GraXML ) then
-    setenv GRAXML_HOME ${STAR_PATH}/GeoM/GraXML
+if ( ! $?GRAXML_HOME && -d ${STAR_PATH}/GeoM ) then
+    if ( -d ${STAR_PATH}/GeoM/${STAR_LEVEL}/GraXML ) then
+	setenv GRAXML_HOME ${STAR_PATH}/GeoM/${STAR_LEVEL}/GraXML
+    else
+	# revert to a default if exists
+	if ( -e ${STAR_PATH}/GeoM/dev/GraXML ) then
+	    setenv GRAXML_HOME ${STAR_PATH}/GeoM/dev/GraXML
+	endif
+    endif
 endif
 if ( $?GRAXML_HOME ) then
     set path=($path $GRAXML_HOME/bin)
