@@ -380,8 +380,9 @@ my $ndt = 0;
 
     $legend[0] = "Efficiency for PDSF";
     $legend[1] = "Efficiency for SPU"; 
+    $legend[2] = "Efficiency for WSU"; 
 
-    @data = (\@ndate, \@effpdsf, \@effspu );
+    @data = (\@ndate, \@effpdsf, \@effspu, \@effwsu );
 
       }else{
 
