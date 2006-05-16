@@ -135,6 +135,9 @@ $outfile[2] = "incomplete";
 $outfile[3] = "incomplete";
 $outfile[4] = "incomplete";
 $outfile[5] = "complete";
+$outfile[6] = "complete";
+$outfile[7] = "complete";
+$outfile[8] = "complete";
 
 my $globSt;
 my $logSt;
@@ -325,6 +328,8 @@ if( $qview eq "jobs_browser")  {
 
    &beginHtml();
 
+ my $maxout = 5;
+
     foreach $jstat (@jbstat) {
 
     $sbtime    = ($$jstat)->subtime;
@@ -342,6 +347,13 @@ if( $qview eq "jobs_browser")  {
     $recoSt    = ($$jstat)->exstat;
     $sdate     = ($$jstat)->rftime;
     $cretime   = ($$jstat)->crtime;
+
+  
+   if( $outtrans >= $maxout ) {
+	$maxout = $outtrans ;
+    }else{
+	next;
+    }
 
     if($recoSt eq "submitted" or $recoSt eq "executing" ) {
 
@@ -382,6 +394,8 @@ if( $qview eq "jobs_browser")  {
 
    $nreco = 0;
 
+   $maxout = 5;
+
       foreach $jstat (@jbstat) {
 
     $sbtime    = ($$jstat)->subtime;
@@ -395,6 +409,12 @@ if( $qview eq "jobs_browser")  {
     $recoSt    = ($$jstat)->exstat;
     $sdate     = ($$jstat)->rftime;
     $cretime    = ($$jstat)->crtime;
+
+    if( $outtrans >= $maxout ) {
+	$maxout = $outtrans ;
+    }else{
+	next;
+    }
 
     if( $glError == 129 ) {
 	$glStatus = 1;
@@ -415,7 +435,7 @@ if( $qview eq "jobs_browser")  {
     $outEfH{$gsite} = $outEfH{$gsite} + $outtrans;
     $recoEfH{$gsite} = $recoEfH{$gsite} + $nreco;
 
-   if( $glStatus == 1 && $lgStatus >= 1 && $intrans == 1 && $outtrans == 5 && $nreco == 1 ) {
+   if( $glStatus == 1 && $lgStatus >= 1 && $intrans == 1 && $outtrans >= 5 && $nreco == 1 ) {
 
        $siteEff{$gsite}++;
 
@@ -430,7 +450,7 @@ if( $qview eq "jobs_browser")  {
    $globeff = $globEfH{$msite}*100/$njobs;
    $logeff = $logEfH{$msite}*100/(2*$njobs);
    $inputef = $inEfH{$msite}*100/$njobs;
-   $outputeff = $outEfH{$msite}*100/(5*$njobs);
+   $outputeff = $outEfH{$msite}*100/($maxout*$njobs);
    $recoComeff = $recoEfH{$msite}*100/$njobs; 
    $overeff = $siteEff{$msite}*100/$njobs;
      
