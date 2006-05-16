@@ -17,7 +17,7 @@ use DBI;
 use CGI;
 use Mysql;
 use Class::Struct;
-use Date::Manip qw(ParseDate UnixDate);
+
 
 $dbhost="duvall.star.bnl.gov";
 $dbuser="starreco";
@@ -37,9 +37,6 @@ $dbname="GridJobs";
     exstat      => '$',
     intrs       => '$',
     outtrs      => '$',
-    wspeed      => '$',
-    sspeed      => '$',
-    fsize       => '$',
     rftime      => '$',
     crtime      => '$',
 		    };
@@ -93,11 +90,6 @@ my $inputef = 0;
 my $outputeff = 0;
 my $recoComeff = 0;
 my $overeff = 0;
-my $prsize = 0;
-my $speed = 0;
-my $trtime = 1;
-my $unfintime = 0;
-my $uncrtime = 0;
 my %globEfH = { };
 my %logEfH = { };
 my %inEfH  = { };
@@ -108,8 +100,6 @@ my %siteEff = { };
 my $nreco = 0;
 my @sites = ();
 my $msite;
-my $wnspeed = 0;
-my $srmspeed = 0;
 
 my @viewopt = ("jobs_browser","efficiency");
 
@@ -135,9 +125,6 @@ $outfile[2] = "incomplete";
 $outfile[3] = "incomplete";
 $outfile[4] = "incomplete";
 $outfile[5] = "complete";
-$outfile[6] = "complete";
-$outfile[7] = "complete";
-$outfile[8] = "complete";
 
 my $globSt;
 my $logSt;
@@ -279,11 +266,11 @@ my $qqr = new CGI;
 
   if( $qsite eq "ALL" ) {
 
-      $sql="SELECT submissionTime, site, inputFile, logpath, globusStatus, globusError, logStatus, execStatus, transfer_in, transfer_out, size, wan_speed, srm_speed, recoFinishTime, createTime FROM $JobStatusT WHERE testday = '$qdate' "; 
+      $sql="SELECT submissionTime, site, inputFile, logpath, globusStatus, globusError, logStatus, execStatus, transfer_in, transfer_out, recoFinishTime, createTime FROM $JobStatusT WHERE testday = '$qdate' "; 
 
   }else{
 
-     $sql="SELECT submissionTime, site, inputFile, logpath, globusStatus, globusError, logStatus, execStatus, transfer_in, transfer_out, size, wan_speed, srm_speed, recoFinishTime, createTime FROM $JobStatusT WHERE testday = '$qdate' and site = '$qsite' ";
+     $sql="SELECT submissionTime, site, inputFile, logpath, globusStatus, globusError, logStatus, execStatus, transfer_in, transfer_out, recoFinishTime, createTime FROM $JobStatusT WHERE testday = '$qdate' and site = '$qsite' ";
 
  }
 
@@ -309,10 +296,7 @@ my $qqr = new CGI;
       ($$fObjAdr)->lgstat($fvalue)    if( $fname eq 'logStatus');
       ($$fObjAdr)->exstat($fvalue)    if( $fname eq 'execStatus');          
       ($$fObjAdr)->intrs($fvalue)     if( $fname eq 'transfer_in');  
-      ($$fObjAdr)->outtrs($fvalue)    if( $fname eq 'transfer_out');
-      ($$fObjAdr)->wspeed($fvalue)    if( $fname eq 'wan_speed');
-      ($$fObjAdr)->sspeed($fvalue)    if( $fname eq 'srm_speed');
-      ($$fObjAdr)->fsize($fvalue)     if( $fname eq 'size');
+      ($$fObjAdr)->outtrs($fvalue)    if( $fname eq 'transfer_out'); 
       ($$fObjAdr)->rftime($fvalue)    if( $fname eq 'recoFinishTime');
       ($$fObjAdr)->crtime($fvalue)    if( $fname eq 'createTime');
 
@@ -328,8 +312,6 @@ if( $qview eq "jobs_browser")  {
 
    &beginHtml();
 
- my $maxout = 5;
-
     foreach $jstat (@jbstat) {
 
     $sbtime    = ($$jstat)->subtime;
@@ -340,20 +322,10 @@ if( $qview eq "jobs_browser")  {
     $glError   = ($$jstat)->glerr;
     $lgStatus  = ($$jstat)->lgstat;
     $intrans   = ($$jstat)->intrs;
-    $outtrans  = ($$jstat)->outtrs;
-    $prsize    = ($$jstat)->fsize;
-    $wnspeed   = ($$jstat)->wspeed; 
-    $srmspeed  = ($$jstat)->sspeed; 
+    $outtrans  = ($$jstat)->outtrs; 
     $recoSt    = ($$jstat)->exstat;
     $sdate     = ($$jstat)->rftime;
-    $cretime   = ($$jstat)->crtime;
-
-  
-   if( $outtrans >= $maxout ) {
-	$maxout = $outtrans ;
-    }else{
-	next;
-    }
+    $cretime    = ($$jstat)->crtime;
 
     if($recoSt eq "submitted" or $recoSt eq "executing" ) {
 
@@ -362,7 +334,6 @@ if( $qview eq "jobs_browser")  {
     $glError = 0;
     $inSt = "n/a";
     $outSt = "n/a";
-    $speed = 0;
      &printClRow();
 
     }else{
@@ -394,8 +365,6 @@ if( $qview eq "jobs_browser")  {
 
    $nreco = 0;
 
-   $maxout = 5;
-
       foreach $jstat (@jbstat) {
 
     $sbtime    = ($$jstat)->subtime;
@@ -409,12 +378,6 @@ if( $qview eq "jobs_browser")  {
     $recoSt    = ($$jstat)->exstat;
     $sdate     = ($$jstat)->rftime;
     $cretime    = ($$jstat)->crtime;
-
-    if( $outtrans >= $maxout ) {
-	$maxout = $outtrans ;
-    }else{
-	next;
-    }
 
     if( $glError == 129 ) {
 	$glStatus = 1;
@@ -435,7 +398,7 @@ if( $qview eq "jobs_browser")  {
     $outEfH{$gsite} = $outEfH{$gsite} + $outtrans;
     $recoEfH{$gsite} = $recoEfH{$gsite} + $nreco;
 
-   if( $glStatus == 1 && $lgStatus >= 1 && $intrans == 1 && $outtrans >= 5 && $nreco == 1 ) {
+   if( $glStatus == 1 && $lgStatus >= 1 && $intrans == 1 && $outtrans == 5 && $nreco == 1 ) {
 
        $siteEff{$gsite}++;
 
@@ -450,7 +413,7 @@ if( $qview eq "jobs_browser")  {
    $globeff = $globEfH{$msite}*100/$njobs;
    $logeff = $logEfH{$msite}*100/(2*$njobs);
    $inputef = $inEfH{$msite}*100/$njobs;
-   $outputeff = $outEfH{$msite}*100/($maxout*$njobs);
+   $outputeff = $outEfH{$msite}*100/(5*$njobs);
    $recoComeff = $recoEfH{$msite}*100/$njobs; 
    $overeff = $siteEff{$msite}*100/$njobs;
      
@@ -496,15 +459,14 @@ print <<END;
 <TD ALIGN=CENTER WIDTH=\"5%\" HEIGHT=50><B>Site</B></TD>
 <TD ALIGN=CENTER WIDTH=\"10%\" HEIGHT=50><B>Input File</B></TD>
 <TD ALIGN=CENTER WIDTH=\"10%\" HEIGHT=50><B>Log Path</B></TD>
-<TD ALIGN=CENTER WIDTH=\"5%\" HEIGHT=50><B>Globus Status</B></TD>
+<TD ALIGN=CENTER WIDTH=\"10%\" HEIGHT=50><B>Globus Status</B></TD>
 <TD ALIGN=CENTER WIDTH=\"5%\" HEIGHT=50><B>Globus Error</B></TD>
-<TD ALIGN=CENTER WIDTH=\"5%\" HEIGHT=50><B>Log Status</B></TD>
+<TD ALIGN=CENTER WIDTH=\"10%\" HEIGHT=50><B>Log Status</B></TD>
 <TD ALIGN=CENTER WIDTH=\"5%\" HEIGHT=50><B>Input Transfer</B></TD>
 <TD ALIGN=CENTER WIDTH=\"5%\" HEIGHT=50><B>Output Transfer</B></TD>
-<TD ALIGN=CENTER WIDTH=\"5%\" HEIGHT=50><B>WAN transfer<BR> Speed KB/sec</B></TD>
-<TD ALIGN=CENTER WIDTH=\"5%\" HEIGHT=50><B>SRM overall<BR> Speed KB/sec</B></TD>
-<TD ALIGN=CENTER WIDTH=\"5%\" HEIGHT=50><B>Reco Status</B></TD>
+<TD ALIGN=CENTER WIDTH=\"10%\" HEIGHT=50><B>Reco Status</B></TD>
 <TD ALIGN=CENTER WIDTH=\"10%\" HEIGHT=50><B>Submission Time<br>EST</B></TD>
+<TD ALIGN=CENTER WIDTH=\"10%\" HEIGHT=50><B>Reco Finish Time<br>site local</B></TD>
 <TD ALIGN=CENTER WIDTH=\"10%\" HEIGHT=50><B>Files Created at Time<br>EST</B></TD>
 </TR> 
    </head>
@@ -552,10 +514,9 @@ print <<END;
 <td>$logSt</td>
 <td>$inSt</td>
 <td>$outSt</td>
-<td>$wnspeed</td>
-<td>$srmspeed</td>
 <td>$recoSt</td>
 <td>$sbtime</td>
+<td>$sdate</td>
 <td>$cretime</td>
 </TR>
 END
@@ -576,10 +537,9 @@ print <<END;
 <td>$logSt</td>
 <td>$inSt</td>
 <td>$outSt</td>
-<td>$wnspeed</td>
-<td>$srmspeed</td>
 <td>$recoSt</td>
 <td>$sbtime</td>
+<td>$sdate</td>
 <td>$cretime</td>
 </TR>
 END
