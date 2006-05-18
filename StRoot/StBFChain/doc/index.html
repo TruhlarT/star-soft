@@ -372,7 +372,7 @@
 <tr><td><A NAME="ZDCVTX0">ZDCVtx</A></td><td>&nbsp;</td><td>&nbsp;</td><td><A HREF="#DB0">db</A> </td><td>StZdcVertexMaker</td><td>StZdcVertexMaker</td><td>&nbsp;</td></tr>
 <tr><td><A NAME="EMCY20">emcY2</A></td><td>emcY2</td><td>&nbsp;</td><td><A HREF="#EMC_T0">emc_T</A> <A HREF="#TPC_T0">tpc_T</A> <A HREF="#DB0">db</A> <A HREF="#EMCSIM0">emcSim</A> <A HREF="#PREECL0">PreEcl</A> <A HREF="#EPC0">epc</A> </td><td>StMaker</td><td>StChain</td><td>EMC Chain for Y2A (must be before makers which include in this chain)</td></tr>
 <tr><td><A NAME="EMCSIM0">emcSim</A></td><td>&nbsp;</td><td>emcY2</td><td><A HREF="#EMC_T0">emc_T</A> <A HREF="#EMCUTIL0">EmcUtil</A> <A HREF="#STMCEVENT0">StMcEvent</A> </td><td>StEmcSimulatorMaker</td><td>StEmcSimulatorMaker</td><td>New simulator for BEMC</td></tr>
-<tr><td><A NAME="EEFS0">EEfs</A></td><td>eefs</td><td>&nbsp;</td><td><A HREF="#DB0">db</A> <A HREF="#EEMCUTIL0">EEmcUtil</A> </td><td>StEEmcFastMaker</td><td>StEEmcSimulatorMaker</td><td>EEMC fast simulator</td></tr>
+<tr><td><A NAME="EEFS0">EEfs</A></td><td>eefs</td><td>&nbsp;</td><td><A HREF="#DB0">db</A> <A HREF="#EEMCUTIL0">EEmcUtil</A> <A HREF="#MUDST0">MuDst</A> </td><td>StEEmcFastMaker</td><td>StEEmcSimulatorMaker</td><td>EEMC fast simulator</td></tr>
 <tr><td><A NAME="GENVTX0">genvtx</A></td><td>&nbsp;</td><td>&nbsp;</td><td><A HREF="#EEMCUTIL0">EEmcUtil</A> </td><td>StGenericVertexMaker</td><td>Sti StGenericVertexMaker</td><td>Generic Vertex Finder</td></tr>
 <tr><td><A NAME="STIUTIL0">StiUtil</A></td><td>&nbsp;</td><td>&nbsp;</td><td>&nbsp; </td><td>&nbsp;</td><td>StiUtilities</td><td>Load StiUtilities library</td></tr>
 <tr><td><A NAME="STI0">Sti</A></td><td>Sti</td><td>&nbsp;</td><td><A HREF="#SCL0">SCL</A> <A HREF="#STEVENT0">StEvent</A> <A HREF="#TABLES0">tables</A> <A HREF="#TPCDB0">TpcDb</A> <A HREF="#SVTDB0">SvtDb</A> <A HREF="#SSDDB0">ssdDb</A> <A HREF="#STIUTIL0">StiUtil</A> </td><td>StiMaker</td><td>StEventUtilities Sti StiMaker StiTpc StiSvt StiSsd StiEmc StiFtpc</td><td>ITTF tracker</td></tr>
@@ -450,7 +450,7 @@
 <tr><td><A NAME="MCTPCANA0">McTpcAna</A></td><td>&nbsp;</td><td>McAnaChain</td><td><A HREF="#MCEVENT0">McEvent</A> <A HREF="#MCASS0">McAss</A> </td><td>StTpcMcAnalysisMaker</td><td>StTrsMiniMaker StTpcMcAnalysisMaker</td><td>&nbsp;</td></tr>
 <tr><td><A NAME="MINIMCEVENT0">MiniMcEvent</A></td><td>&nbsp;</td><td>&nbsp;</td><td>&nbsp; </td><td>&nbsp;</td><td>StMiniMcEvent</td><td>Loads StMiniMcEvent library only</td></tr>
 <tr><td><A NAME="MINIMCMK0">MiniMcMk</A></td><td>&nbsp;</td><td>&nbsp;</td><td><A HREF="#MCASS0">McAss</A> <A HREF="#MINIMCEVENT0">MiniMcEvent</A> </td><td>StMiniMcMaker</td><td>StMiniMcMaker</td><td>Creates tree in minimc.root file</td></tr>
-<tr><td><A NAME="SVTMATTREE0">SvtMatTree</A></td><td>&nbsp;</td><td>&nbsp;</td><td>&nbsp; </td><td>SvtMatchedTree</td><td>StSvtPoolSvtMatchedTree</td><td>Create SvtMatchedTree</td></tr>
+<tr><td><A NAME="SVTMATTREE0">SvtMatTree</A></td><td>&nbsp;</td><td>&nbsp;</td><td>&nbsp; </td><td>SvtMatchedTree</td><td>StSvtPoolEventT StSvtPoolSvtMatchedTree</td><td>Create SvtMatchedTree</td></tr>
 <tr><td><A NAME="LANA0">LAna</A></td><td>&nbsp;</td><td>&nbsp;</td><td><A HREF="#IN0">in</A> <A HREF="#RY1H0">RY1h</A> <A HREF="#TPCDB0">tpcDb</A> </td><td>StLaserAnalysisMaker</td><td>StLaserAnalysisMaker</td><td>Laser data Analysis</td></tr>
 <tr><td><A NAME="SPINTAG0">SpinTag</A></td><td>SpinTag</td><td>&nbsp;</td><td>&nbsp; </td><td>StSpinTagMaker</td><td>StppSpin</td><td>tag for analysis of polarized pp events</td></tr>
 <tr><td><A NAME="PPLPFIND10">ppLPfind1</A></td><td>ppLPfind1</td><td>&nbsp;</td><td>&nbsp; </td><td>StppLPfindMaker</td><td>StppSpin</td><td>Find leading particle for pp</td></tr>
@@ -462,6 +462,8 @@
 <tr><td><A NAME="EVENTQA0">EventQA</A></td><td>EventQA</td><td>&nbsp;</td><td><A HREF="#QUTILS0">QUtils</A> <A HREF="#EVENT0">Event</A> </td><td>StEventQAMaker</td><td>St_QA_Maker</td><td>Filling Y2/Y3 Qa histo</td></tr>
 <tr><td><A NAME="QAC0">QAC</A></td><td>CosmicsQA</td><td>globT</td><td>&nbsp; </td><td>StQACosmicMaker</td><td>StQACosmicMaker</td><td>&nbsp;</td></tr>
 <tr><td><A NAME="HITFILT0">HitFilt</A></td><td>&nbsp;</td><td>&nbsp;</td><td>&nbsp; </td><td>StHitFilterMaker</td><td>StHitFilterMaker</td><td>Hit filter Maker</td></tr>
+<tr><td><A NAME="KEEPTPCHIT0">KeepTpcHit</A></td><td>&nbsp;</td><td>&nbsp;</td><td>&nbsp; </td><td>&nbsp;</td><td>&nbsp;</td><td>Keep all TPC hits in StHitFilterMaker</td></tr>
+<tr><td><A NAME="KEEPSVTHIT0">KeepSvtHit</A></td><td>&nbsp;</td><td>&nbsp;</td><td>&nbsp; </td><td>&nbsp;</td><td>&nbsp;</td><td>Keep all SVT hits in StHitFilterMaker</td></tr>
 <tr><td><A NAME="TREE0">Tree</A></td><td>OutTree</td><td>&nbsp;</td><td>&nbsp; </td><td>StTreeMaker</td><td>StTreeMaker</td><td>Write requested branches into files</td></tr>
 <tr><td><A NAME="LOGGER0">logger</A></td><td>&nbsp;</td><td>&nbsp;</td><td>&nbsp; </td><td>&nbsp;</td><td>&nbsp;</td><td>Use log4cxx package to manage the program messages</td></tr>
 <tr><td><A NAME="ITTF0">ITTF</A></td><td>&nbsp;</td><td>&nbsp;</td><td>&nbsp; </td><td>&nbsp;</td><td>&nbsp;</td><td>Just to keep option ITTF==false</td></tr>
@@ -854,7 +856,7 @@
 <tr><td><A NAME="ZDCVTX1">ZDCVtx</A></td><td>&nbsp;</td><td>&nbsp;</td><td><A HREF="#DB1">db</A> </td><td>StZdcVertexMaker</td><td>StZdcVertexMaker</td><td>&nbsp;</td></tr>
 <tr><td><A NAME="EMCY21">emcY2</A></td><td>emcY2</td><td>&nbsp;</td><td><A HREF="#EMC_T1">emc_T</A> <A HREF="#TPC_T1">tpc_T</A> <A HREF="#DB1">db</A> <A HREF="#EMCSIM1">emcSim</A> <A HREF="#PREECL1">PreEcl</A> <A HREF="#EPC1">epc</A> </td><td>StMaker</td><td>StChain</td><td>EMC Chain for Y2A (must be before makers which include in this chain)</td></tr>
 <tr><td><A NAME="EMCSIM1">emcSim</A></td><td>&nbsp;</td><td>emcY2</td><td><A HREF="#EMC_T1">emc_T</A> <A HREF="#EMCUTIL1">EmcUtil</A> <A HREF="#STMCEVENT1">StMcEvent</A> </td><td>StEmcSimulatorMaker</td><td>StEmcSimulatorMaker</td><td>New simulator for BEMC</td></tr>
-<tr><td><A NAME="EEFS1">EEfs</A></td><td>eefs</td><td>&nbsp;</td><td><A HREF="#DB1">db</A> <A HREF="#EEMCUTIL1">EEmcUtil</A> </td><td>StEEmcFastMaker</td><td>StEEmcSimulatorMaker</td><td>EEMC fast simulator</td></tr>
+<tr><td><A NAME="EEFS1">EEfs</A></td><td>eefs</td><td>&nbsp;</td><td><A HREF="#DB1">db</A> <A HREF="#EEMCUTIL1">EEmcUtil</A> <A HREF="#MUDST1">MuDst</A> </td><td>StEEmcFastMaker</td><td>StEEmcSimulatorMaker</td><td>EEMC fast simulator</td></tr>
 <tr><td><A NAME="GENVTX1">genvtx</A></td><td>&nbsp;</td><td>&nbsp;</td><td><A HREF="#EEMCUTIL1">EEmcUtil</A> </td><td>StGenericVertexMaker</td><td>Sti StGenericVertexMaker</td><td>Generic Vertex Finder</td></tr>
 <tr><td><A NAME="STIUTIL1">StiUtil</A></td><td>&nbsp;</td><td>&nbsp;</td><td>&nbsp; </td><td>&nbsp;</td><td>StiUtilities</td><td>Load StiUtilities library</td></tr>
 <tr><td><A NAME="STI1">Sti</A></td><td>Sti</td><td>&nbsp;</td><td><A HREF="#SCL1">SCL</A> <A HREF="#STEVENT1">StEvent</A> <A HREF="#TABLES1">tables</A> <A HREF="#TPCDB1">TpcDb</A> <A HREF="#SVTDB1">SvtDb</A> <A HREF="#SSDDB1">ssdDb</A> <A HREF="#STIUTIL1">StiUtil</A> </td><td>StiMaker</td><td>StEventUtilities Sti StiMaker StiTpc StiSvt StiSsd StiEmc StiFtpc</td><td>ITTF tracker</td></tr>
@@ -933,7 +935,7 @@
 <tr><td><A NAME="MCTPCANA1">McTpcAna</A></td><td>&nbsp;</td><td>McAnaChain</td><td><A HREF="#MCEVENT1">McEvent</A> <A HREF="#MCASS1">McAss</A> </td><td>StTpcMcAnalysisMaker</td><td>StTrsMiniMaker StTpcMcAnalysisMaker</td><td>&nbsp;</td></tr>
 <tr><td><A NAME="MINIMCEVENT1">MiniMcEvent</A></td><td>&nbsp;</td><td>&nbsp;</td><td>&nbsp; </td><td>&nbsp;</td><td>StMiniMcEvent</td><td>Loads StMiniMcEvent library only</td></tr>
 <tr><td><A NAME="MINIMCMK1">MiniMcMk</A></td><td>&nbsp;</td><td>&nbsp;</td><td><A HREF="#MCASS1">McAss</A> <A HREF="#MINIMCEVENT1">MiniMcEvent</A> </td><td>StMiniMcMaker</td><td>StMiniMcMaker</td><td>Creates tree in minimc.root file</td></tr>
-<tr><td><A NAME="SVTMATTREE1">SvtMatTree</A></td><td>&nbsp;</td><td>&nbsp;</td><td>&nbsp; </td><td>SvtMatchedTree</td><td>StSvtPoolSvtMatchedTree</td><td>Create SvtMatchedTree</td></tr>
+<tr><td><A NAME="SVTMATTREE1">SvtMatTree</A></td><td>&nbsp;</td><td>&nbsp;</td><td>&nbsp; </td><td>SvtMatchedTree</td><td>StSvtPoolEventT StSvtPoolSvtMatchedTree</td><td>Create SvtMatchedTree</td></tr>
 <tr><td><A NAME="LANA1">LAna</A></td><td>&nbsp;</td><td>&nbsp;</td><td><A HREF="#IN1">in</A> <A HREF="#RY1H1">RY1h</A> <A HREF="#TPCDB1">tpcDb</A> </td><td>StLaserAnalysisMaker</td><td>StLaserAnalysisMaker</td><td>Laser data Analysis</td></tr>
 <tr><td><A NAME="SPINTAG1">SpinTag</A></td><td>SpinTag</td><td>&nbsp;</td><td>&nbsp; </td><td>StSpinTagMaker</td><td>StppSpin</td><td>tag for analysis of polarized pp events</td></tr>
 <tr><td><A NAME="PPLPFIND11">ppLPfind1</A></td><td>ppLPfind1</td><td>&nbsp;</td><td>&nbsp; </td><td>StppLPfindMaker</td><td>StppSpin</td><td>Find leading particle for pp</td></tr>
@@ -945,6 +947,8 @@
 <tr><td><A NAME="EVENTQA1">EventQA</A></td><td>EventQA</td><td>&nbsp;</td><td><A HREF="#QUTILS1">QUtils</A> <A HREF="#EVENT1">Event</A> </td><td>StEventQAMaker</td><td>St_QA_Maker</td><td>Filling Y2/Y3 Qa histo</td></tr>
 <tr><td><A NAME="QAC1">QAC</A></td><td>CosmicsQA</td><td>globT</td><td>&nbsp; </td><td>StQACosmicMaker</td><td>StQACosmicMaker</td><td>&nbsp;</td></tr>
 <tr><td><A NAME="HITFILT1">HitFilt</A></td><td>&nbsp;</td><td>&nbsp;</td><td>&nbsp; </td><td>StHitFilterMaker</td><td>StHitFilterMaker</td><td>Hit filter Maker</td></tr>
+<tr><td><A NAME="KEEPTPCHIT1">KeepTpcHit</A></td><td>&nbsp;</td><td>&nbsp;</td><td>&nbsp; </td><td>&nbsp;</td><td>&nbsp;</td><td>Keep all TPC hits in StHitFilterMaker</td></tr>
+<tr><td><A NAME="KEEPSVTHIT1">KeepSvtHit</A></td><td>&nbsp;</td><td>&nbsp;</td><td>&nbsp; </td><td>&nbsp;</td><td>&nbsp;</td><td>Keep all SVT hits in StHitFilterMaker</td></tr>
 <tr><td><A NAME="TREE1">Tree</A></td><td>OutTree</td><td>&nbsp;</td><td>&nbsp; </td><td>StTreeMaker</td><td>StTreeMaker</td><td>Write requested branches into files</td></tr>
 <tr><td><A NAME="LOGGER1">logger</A></td><td>&nbsp;</td><td>&nbsp;</td><td>&nbsp; </td><td>&nbsp;</td><td>&nbsp;</td><td>Use log4cxx package to manage the program messages</td></tr>
 <tr><td><A NAME="NODEFAULT1">NoDefault</A></td><td>&nbsp;</td><td>&nbsp;</td><td>&nbsp; </td><td>&nbsp;</td><td>&nbsp;</td><td>No Default consistency check</td></tr>
