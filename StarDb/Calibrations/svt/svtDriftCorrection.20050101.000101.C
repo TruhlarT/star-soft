@@ -1,6 +1,7 @@
 // #include "Riostream.h"
 // #include "TTable.h"
 // #include "tables/St_svtCorrection_Table.h"
+#include "Hybrids.h"
 TDataSet *CreateTable() { 
   // -----------------------------------------------------------------
   // bfc/.make/db/.const/StarDb/Calibrations/svt/svtDriftCorrection
@@ -3046,15 +3047,30 @@ TDataSet *CreateTable() {
   Int_t N  = sizeof(Data)/sizeof(data_t);
   Int_t N0 = sizeof(Data0)/sizeof(data_t);
   Int_t N1 = sizeof(Data1)/sizeof(data_t);
-  St_svtCorrection *tableSet = new St_svtCorrection("svtDriftCorrection",N);
+  Int_t NT = 432;
+  St_svtCorrection *tableSet = new St_svtCorrection("svtDriftCorrection",NT);
   svtCorrection_st row;
-  for (Int_t i = 0; i < N; i++) {
+  for (Int_t i = 0; i < NT; i++) {
     memset (&row,0,tableSet->GetRowSize());
-    memcpy (&row.type, &Data[i].type, 9*sizeof(Int_t));
-    row.idx = i+1;
-    row.nrows = N;
-    memcpy (&row.param[0], &Data[i].p0, 24*sizeof(Double_t));
-    memcpy (&row.Comment[0], Data[i].Comment, strlen( Data[i].Comment));
+    row.Npar = -1;
+    row.barrel = hybrids[i].Barrel;
+    row.ladder = hybrids[i].Ladder;
+    row.layer  = 2*row.barrel - 1 + row.ladder%2;
+    row.wafer  = hybrids[i].Wafer;
+    row.hybrid = hybrids[i].Hybrid;
+    for (Int_t j = 0; j < N; j++) {
+      if (row.barrel == Data[j].barrel &&
+	  row.ladder == Data[j].ladder &&
+	  row.wafer  == Data[j].wafer  &&
+	  row.hybrid == Data[j].hybrid) {
+	memcpy (&row.type, &Data[j].type, 9*sizeof(Int_t));
+	memcpy (&row.param[0], &Data[j].p0, 24*sizeof(Double_t));
+	memcpy (&row.Comment[0], Data[j].Comment, strlen( Data[j].Comment));
+	row.idx = j+1;
+	row.nrows = N;
+	break;
+      }
+    }
     Double_t *param = &row.param[0]; 
     Double_t *dparam = &row.dparam[0];
 #if 0
@@ -3064,7 +3080,7 @@ TDataSet *CreateTable() {
     for (Int_t j = 0; j < 12; j++) cout << j << "\t" << param[j] << " +- " << dparam[j] << endl;
     cout << row.Comment << endl;
 #endif
-    for (Int_t i0 = 0; i < N0; i0++) {
+    for (Int_t i0 = 0; i0 < N0; i0++) {
       if (row.barrel == Data0[i0].barrel &&
 	  row.ladder == Data0[i0].ladder &&
 	  row.wafer  == Data0[i0].wafer  &&
@@ -3086,7 +3102,7 @@ TDataSet *CreateTable() {
     for (Int_t j = 0; j < 12; j++) cout << j << "\t" << param[j] << " +- " << dparam[j] << endl;
     cout << row.Comment << endl;
 #endif
-    for (Int_t i1 = 0; i < N1; i1++) {
+    for (Int_t i1 = 0; i1 < N1; i1++) {
       if (row.barrel == Data1[i1].barrel &&
 	  row.ladder == Data1[i1].ladder &&
 	  row.wafer  == Data1[i1].wafer  &&
