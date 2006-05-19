@@ -1,6 +1,6 @@
 #!/usr/bin/env perl
 
-# $Id: AutoBuild.pl,v 1.26 2005/01/27 18:41:55 jeromel Exp $
+# $Id: AutoBuild.pl,v 1.27 2006/05/19 13:55:32 jeromel Exp $
 # This script was written to perform an automatic compilation
 # with cvs co and write some html page related to it afterward.
 # Written J.Lauret Apr 6 2001
@@ -28,8 +28,8 @@ $BY      = 50;                       # checkout by
 
 # tasks to peform after compilation
 $DFILE   = "RELEASE.date";
-@POSTSKS = ("rm -f $DFILE",
-	    "date >$DFILE",
+@POSTSKS = ("/bin/rm -f $DFILE",
+	    "/bin/date >$DFILE",
 	    );
 
 # An associatative array for recovery of failures
@@ -39,7 +39,12 @@ $DFILE   = "RELEASE.date";
 #
 # For now, we have only one case but there may be many.
 #
-%RECOVER = ("Disk quota exceeded",  "mgr/CleanLibs");
+%RECOVER = ("Disk quota exceeded",          
+	    "mgr/CleanLibs",
+
+	    "no newline at end of file",    
+	    "mgr/CleanLibs && /usr/bin/find /tmp -type f -user $USER -exec rm -f {} \\;");
+
 
 # this a counter for each recoverrable errors
 foreach $re (keys %RECOVER){   $GRECOVER{$re} = 0;}
