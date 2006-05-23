@@ -35,7 +35,7 @@
 #      rdaq_set_chain               Set chain according to list
 #
 # Each rdaq_set_XXX has an equivalent rdaq_set_XXX_where method which accepts
-# a finer grain selection. 
+# a finer grain selection.
 #
 #
 # Utility (no need for any ddb to be opened)
@@ -81,7 +81,7 @@
 #  are all standardized to avoid proliferation of routines. THERE is nothing else
 #  to do at this level.
 #
-#  WARNING: 
+#  WARNING:
 #   - Log path requires CHAR(255) at least for FOLocations (bummer!!)
 #   - Chains would survive with CHAR(50) but increased by hand to 255 anyhow
 #
@@ -117,7 +117,7 @@
 # 16 | DiskLoc     | int(11)             | YES  |     | 0       |       |
 # 17 | Chain       | int(11)             | YES  |     | 0       |       |
 #
-# 18 | XStatus1    | int(11)             | YES  |     | 0       |       | --> This one is 
+# 18 | XStatus1    | int(11)             | YES  |     | 0       |       | --> This one is
 #                                                                             reserved for ezTree
 # 19 | XStatus2    | int(11)             | YES  |     | 0       |       | --> unused for now
 #      ... as many Status as needed for pre-passes
@@ -155,8 +155,8 @@ require Exporter;
 	    rdaq_set_chain rdaq_set_chain_where
 
 	    rdaq_file2hpss rdaq_mask2string rdaq_status_string
-	    rdaq_bits2string 
-	    rdaq_trgs2string  rdaq_string2trgs 
+	    rdaq_bits2string
+	    rdaq_trgs2string  rdaq_string2trgs
 	    rdaq_ftype2string rdaq_string2ftype
 	    rdaq_toggle_debug rdaq_set_dlevel rdaq_scaleToString
 
@@ -303,7 +303,7 @@ sub rdaq_add_entries
 
 #
 # Update a few field. This routine serves whenever we import a new information
-# in a column and want to have that specific field updated. 
+# in a column and want to have that specific field updated.
 #
 # This has to usually be done manually but some programming would allow going
 # back in time and update all records. Possibly an expensive operation.
@@ -635,7 +635,7 @@ sub rdaq_hack
 	    }
 	}
 
-	if ($mask eq ""){   
+	if ($mask eq ""){
 	    &info_message("rdaq_hack",1,
 			  "Reading detectorTypes table=detectorTypes,detectorSet leaded to [$mask]");
 	    return undef;
@@ -666,7 +666,7 @@ sub rdaq_hack
 	    chop($mask);
 	    $mask = &Record_n_Fetch("FOTriggerSetup",$mask);
 	}
-	if ($mask eq ""){   
+	if ($mask eq ""){
 	    &info_message("rdaq_hack",1,
 			  "Reading TrgSet table=runDescriptor field= glbSetupName leaded to [$mask]");
 	    return undef;
@@ -696,7 +696,7 @@ sub rdaq_hack
 		}
 	    }
 	}
-	if ($mask eq ""){   
+	if ($mask eq ""){
 	    &info_message("rdaq_hack",1,
 			  "Reading TrgMask table=l0TriggerSet leaded to [$mask]");
 	    return undef;
@@ -725,7 +725,7 @@ sub rdaq_hack
     $mask = "";
     for ($ii=0 ; $ii <= $#res ; $ii++){
 	$mask .= "$ii -> [$res[$ii]] ; ";
-	if ($res[$ii] eq ""){  
+	if ($res[$ii] eq ""){
 	    &info_message("hack",1,
 			  "Element $ii is null\n");
 	    &info_message("hack",1,
@@ -737,7 +737,7 @@ sub rdaq_hack
 	    return undef;
 	}
     }
-	
+
     return join(" ",@res);
 }
 
@@ -856,7 +856,7 @@ sub rdaq_get_files
     $Conds{"Status"} = $status;
     if ( $#ftypes != -1){
 	if ( $#ftypes > 0 ){
-	    # switch to OR syntax 
+	    # switch to OR syntax
 	    $Conds{"ftype"}  = join("|",@ftypes);
 	} else {
 	    $Conds{"ftype"}  = $ftypes[0];
@@ -1255,7 +1255,7 @@ sub GetRecord
     if($el eq 0){   return 0;}
     if( ! defined($fld) ){
 	$fld = "Label";
-	$sel = "id"; 
+	$sel = "id";
     } elsif ( $fld eq "ID"){
 	$fld = "id";
 	$sel = "Label";
@@ -1388,7 +1388,7 @@ sub rdaq_file2hpss
 	    "$HPSSBASE/$y/$dm/$file";
 	}
     } else {
-	# the default since 2005+ is to store by day-of-year 
+	# the default since 2005+ is to store by day-of-year
 	# and run number
 	if($mode==1){
 	    "$HPSSBASE/$y/$dm/$code $file";
@@ -1437,7 +1437,7 @@ sub rdaq_scaleToString
     if ( defined($ROUND{"scaleFactor"}) ){
 	# preserve formatting / rounding
 	$frmt = sprintf("%%.%df",$ROUND{"scaleFactor"});
-	#print "RunDAQ DEBUG $frmt\n";	
+	#print "RunDAQ DEBUG $frmt\n";
 	$vv   = sprintf($frmt,$val);
     } else {
 	$vv   = $val;
@@ -1470,8 +1470,8 @@ sub rdaq_trgs2string
 
 #
 # This method returns a number based on a string value
-# For example, rdaq_string2trgs("ppProductionMinBias") would return 
-# the associated id number for that trigger setup name. These methods 
+# For example, rdaq_string2trgs("ppProductionMinBias") would return
+# the associated id number for that trigger setup name. These methods
 # are used to make it easier for users to access those "dynamic" values
 # (first triggerSetup would get id 1, second id 2 etc ... so
 # depends on year not on a convention)
@@ -1503,7 +1503,7 @@ sub rdaq_ftype2string
 #
 # Like string2trgs, but returns the id for the file type.
 # File type is arbitrary and made from a parsing of the full
-# filename. They will be things like 'express', 'zerobias' 
+# filename. They will be things like 'express', 'zerobias'
 # etc ... Parsing allows for infinit combo without having to
 # worry of harcoded values. However, the FastOffline interface
 # would need alteration if any new "type" of files appear.
