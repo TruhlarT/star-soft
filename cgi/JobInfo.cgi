@@ -31,7 +31,6 @@ my $Status  = param("Status");
 my $Method  = param("button_name");
 my $Method1 = param("button_name1");
 my $Kind    = param("Kind");
-if(! $Kind){ $Kind = "daq";}
 
 my $id;
 my $prodtag;
@@ -85,6 +84,8 @@ my ($dbh1, $sth, $sth1, $sth2, $sth3, $sth4, $sth5, $sth6, $sth7);
 $dbh1 = DBI->connect("DBI:$dbdriver:$dbname:$hostname","$username")
     or die "Can't connect to db $dbname at $hostname";
 
+if(! $Kind){ $Kind = "daq";}
+else {       $Kind = (split(" ",$Kind))[0];}
 
 print
     header,
@@ -99,6 +100,9 @@ if( ($ProdTag) || ($Trigger) ){
 
     # Generate Block
     # =====================================================
+    # strip multiple words
+    if ($ProdTag){  $ProdTag = (split(" ",$ProdTag))[0];}
+    if ($Trigger){  $Trigger = (split(" ",$Trigger))[0];}
 
     if( $Method eq "Generate" ){
 	print "<!-- We are in Method=Generate -->\n";
@@ -126,7 +130,7 @@ if( ($ProdTag) || ($Trigger) ){
 		    if( $name=~/(cb)(\d+)/ ){
 		    	$id=$2;
 		    	push (@checked, "cb$id");
-		    	$sth1->execute($id);
+		    	$sth1->execute(int($id));
 		    	while( ($prodtag, $trigger, $LFname)= $sth1->fetchrow_array() ){
 				print 
 			    	    "mv /star/u/starreco/$prodtag/requests/$Kind/archive/*$LFname ",
@@ -187,9 +191,9 @@ if( ($ProdTag) || ($Trigger) ){
 	    foreach $name (@names){
 		if( $name=~/(cb)(\d+)/ ){
 		    $id=$2;
-		    $sth3->execute($id);
+		    $sth3->execute(int($id));
 		    if( $Method eq "Create List" ){
-			$sth1->execute($id);
+			$sth1->execute(int($id));
 			while( ($prodtag, $trigger, $LFname)= $sth1->fetchrow_array() ){
 			    print MOVELIST
 				"/star/u/starreco/$prodtag/requests/$Kind/archive/*$LFname ",
@@ -292,7 +296,8 @@ if( ($ProdTag) || ($Trigger) ){
 	    		"<TH>Status</TH>\n",
 	    		"<TH>Select</TH>\n",
 	    	"</TR>\n";
-	while( ($id, $prodtag, $trigger, $LFname, $mtime, $node, $errstr, $status)= $sth2->fetchrow_array ){
+	while( ($id, $prodtag, $trigger, $LFname, $mtime, $node, $errstr, $status)= 
+	       $sth2->fetchrow_array() ){
 		
 #	    	$mTime = modtime($mtime);
 	    	$mTime = localtime($mtime);
@@ -376,14 +381,14 @@ if( ($ProdTag) || ($Trigger) ){
 	"\n<table align=center border=0>\n",
 	"<tr bgcolor=khaki><td>ProdTag:<td bgcolor=beige><SELECT name=PT>\n",
 	"\t<OPTION value=All>All\n";
-    while( ($pt) = $sth6->fetchrow_array ){
+    while( ($pt) = $sth6->fetchrow_array() ){
 	print "\t<OPTION value=$pt>$pt\n";
     }
     print "\t</SELECT></td></tr>\n";
     print 
 	"<tr bgcolor=khaki><td>Trigger:</td><td bgcolor=beige><SELECT name=Trigger>\n",
 	"<OPTION value=All>All\n";
-    while( ($tr) = $sth3->fetchrow_array ){
+    while( ($tr) = $sth3->fetchrow_array() ){
 	print "\t<OPTION value=$tr>$tr\n";
     }
     print "\t</SELECT></td></tr>\n";
@@ -418,7 +423,7 @@ print
     "<font size=-1><b><i>Written by <A HREF=\"mailto:nikita\@rcf.rhic.bnl.gov\">Nikita Soldatov</A> </i></b></font>",
     end_html;
 
-$dbh1->disconnect;
+$dbh1->disconnect();
 
 
 #subs
