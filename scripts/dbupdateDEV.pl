@@ -70,6 +70,7 @@ my $thistime;
  $testDay = $Nday[$iday - 1];
  $beforeDay = $Nday[$iday - 2];
 
+
   print "Day Name: ",$thisday, " % ", "Index", $iday, "\n";
  
 ##### setup output directories for DEV with thisDay
@@ -1407,7 +1408,7 @@ my $mRealTbfc = 0;
               @nmbx =  split /</,$word_tr[4];
               $no_trck_nfit15 = $nmbx[0];
               $tot_trck_nfit15 += $no_trck_nfit15;              
-            for ($ik = 2; $ik< 20; $ik++)  { 
+            for ($ik = 2; $ik< 100; $ik++)  { 
               $string = $logfile[$num_line + $ik];
               chop $string;
 #           print $string, "\n";
