@@ -17,15 +17,27 @@
  open(FO,">$ARGV[1]-tmp")|| die "Could not open [$ARGV[1]-tmp]\n";
 
  while (<FI>){
-       chomp($line = $_);
-       $c	   = substr($line,length($line)-1,1);
-       # ^M character.
-       if( ord($c) == 13 ){
-	   chop($line);
-       }
-       # trim trailing in any case
-       $line =~ s/^(.*?)\s*$/$1/;
-       print FO "$line\n";
+     chomp($line = $_);
+     $fline = "";
+     for ($ii=0 ; $ii < length($line) ; $ii++){
+	 $c  = substr($line,$ii,1);
+	 # ^M character can appear in the middle of a file
+	 # too. There are two kind i.e. CR LF and CR alone.
+	 if( ord($c) != 13 ){
+	     $fline .= $c;
+	 } else {
+	     # Whenever CR alone appears (witout the LF) the 
+	     # first character is hidden and IS a CR as well.
+	     $fline .= "\n" if ($ii != 0);
+	 }
+     }
+     # chomp last \n as we may do it twice otherwise.
+     chomp($fline);
+
+     # trim trailing in any case (since the freaking line can
+     # be multiple lines, do it global)
+     $fline =~ s/^(.*?)\s*$/$1/g;
+     print FO "$fline\n";
  }
  close(FI);
  close(FO);
