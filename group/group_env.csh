@@ -1,5 +1,5 @@
 #!/bin/csh -x
-#       $Id: group_env.csh,v 1.185 2006/05/11 20:01:12 jeromel Exp $
+#       $Id: group_env.csh,v 1.186 2006/06/16 17:19:38 jeromel Exp $
 #	Purpose:	STAR group csh setup
 #
 #	Author:		Y.Fisyak     BNL
@@ -538,20 +538,24 @@ if ( -d $OPTSTAR/qt ) then
 endif
 
 
-# Support for OSG
-# Try to locate things from OSG
-if ( -e /opt ) then
-    set OSG=`/bin/ls -d /opt/* | /bin/grep OSG | /usr/bin/tail -1`
-    if ( "$OSG" != "") then
-	if ( -e $OSG/setup.csh ) then
-	    # there will alos be a java version coming along but
-	    # it may be defined prior from /usr/java
-	    source $OSG/setup.csh
-	    setenv SAVED_PATH `echo $PATH | /bin/sed "s/:/ /g"`
-	endif
+# Support for OSG - Try to locate things from OSG including Worker Node
+if ( ! $?OSG ) then 
+    if ( -e /opt ) then
+	set LOSG=`/bin/ls -d /opt/* | /bin/grep OSG | /usr/bin/tail -1`
+	if ( "$LOSG" != "") setenv OSG $LOSG
+    endif
+    if ( $?WNOSG && ! $?OSG ) then
+	setenv OSG $WNOSG
     endif
 endif
-
+if ( $?OSG ) then
+    if ( -e $OSG/setup.csh ) then
+	# there will alos be a java version coming along but
+	# it may be defined prior from /usr/java
+	source $OSG/setup.csh
+	setenv SAVED_PATH `echo $PATH | /bin/sed "s/:/ /g"`
+    endif
+endif
 
 
 # ==================================================================
