@@ -338,7 +338,7 @@ if( $qview eq "jobs_browser")  {
         $maxout = $outtrans ;
     }
 
-    if($recoSt eq "submitted" or $recoSt eq "executing" ) {
+    if($recoSt eq "submitted") {
 
     $globSt = "n/a";
     $logSt = "n/a";
@@ -346,6 +346,25 @@ if( $qview eq "jobs_browser")  {
     $inSt = "n/a";
     $outSt = "n/a";
      &printClRow();
+
+
+  }elsif( $recoSt eq "executing" ) {
+
+   $globSt = "n/a";
+    $logSt = "n/a";
+    $glError = 0;
+    $inSt = "n/a";
+    $outSt = "n/a";
+     &printExcRow();
+
+  }elsif( $recoSt eq "not_completed" ) {
+
+    $globSt = "n/a";
+    $logSt = "n/a";
+    $glError = 0;
+    $inSt = "n/a";
+    $outSt = "n/a";
+     &printFldRow();
 
     }else{
 
@@ -546,6 +565,50 @@ sub printClRow {
 
 print <<END;
 <TR BGCOLOR=\"#D8BFD8\" ALIGN=CENTER>
+<td>$gsite</td>
+<td>$inFile</td>
+<td>$lpath</td>
+<td>$globSt</td>
+<td>$glError</td>
+<td>$logSt</td>
+<td>$inSt</td>
+<td>$outSt</td>
+<td>$recoSt</td>
+<td>$sbtime</td>
+<td>$sdate</td>
+<td>$cretime</td>
+</TR>
+END
+
+}
+
+############### 
+sub printExcRow {
+
+print <<END;
+<TR BGCOLOR=lightgreen ALIGN=CENTER>
+<td>$gsite</td>
+<td>$inFile</td>
+<td>$lpath</td>
+<td>$globSt</td>
+<td>$glError</td>
+<td>$logSt</td>
+<td>$inSt</td>
+<td>$outSt</td>
+<td>$recoSt</td>
+<td>$sbtime</td>
+<td>$sdate</td>
+<td>$cretime</td>
+</TR>
+END
+
+}
+
+############### 
+sub printFldRow {
+
+print <<END;
+<TR BGCOLOR=\"#ffdc9f\" ALIGN=CENTER>
 <td>$gsite</td>
 <td>$inFile</td>
 <td>$lpath</td>
