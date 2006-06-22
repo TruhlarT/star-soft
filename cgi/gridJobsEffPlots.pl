@@ -92,6 +92,7 @@ my @ndate = ();
 my @effpdsf = ();
 my @effspu = ();
 my @effwsu = ();
+my @effbnl = ();
 my %globEfH = { };
 my %logEfH = { };
 my %inEfH  = { };
@@ -358,6 +359,8 @@ my $ndt = 0;
    $effspu[$ndt] = $siteEff{$msite}*100/$njobs[$ndt];
    }elsif($msite eq "WSU")  {
    $effwsu[$ndt] = $siteEff{$msite}*100/$njobs[$ndt];
+   }elsif($msite eq "BNL")  {
+   $effbnl[$ndt] = $siteEff{$msite}*100/$njobs[$ndt];
        }
      }
    }
@@ -381,8 +384,9 @@ my $ndt = 0;
     $legend[0] = "Efficiency for PDSF";
     $legend[1] = "Efficiency for SPU"; 
     $legend[2] = "Efficiency for WSU"; 
+    $legend[3] = "Efficiency for BNL";
 
-    @data = (\@ndate, \@effpdsf, \@effspu, \@effwsu );
+    @data = (\@ndate, \@effpdsf, \@effspu, \@effwsu, \@effbnl );
 
       }else{
 
