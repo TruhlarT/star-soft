@@ -359,11 +359,10 @@ if( $qview eq "jobs_browser")  {
 
   }elsif( $recoSt eq "not_completed" ) {
 
-    $globSt = "n/a";
-    $logSt = "n/a";
-    $glError = 0;
-    $inSt = "n/a";
-    $outSt = "n/a";
+    $globSt = $globar[$glStatus];
+    $logSt = $logar[$lgStatus];
+    $inSt = $infile[$intrans]; 
+    $outSt =$outfile[$outtrans];
      &printFldRow();
 
     }else{
