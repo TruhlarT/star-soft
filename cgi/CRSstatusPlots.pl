@@ -1,11 +1,11 @@
 #!/usr/local/bin/perl
 #!/usr/bin/env perl 
 #
-# $Id: CRSstatusPlots.pl,v 1.9 2006/07/06 16:13:24 didenko Exp $
+# $Id: CRSstatusPlots.pl,v 1.10 2006/07/06 16:16:23 didenko Exp $
 #
 # $Log: CRSstatusPlots.pl,v $
-# Revision 1.9  2006/07/06 16:13:24  didenko
-# extend period for monitoring
+# Revision 1.10  2006/07/06 16:16:23  didenko
+# fixed syntax
 #
 # Revision 1.8  2006/01/13 22:29:48  didenko
 # updated for year tables
@@ -47,7 +47,7 @@ my $scriptname = $query->url(-relative=>1);
 my @farmstat = ("executing","submitted","submitFailed","started","importWaiting","importHPSS","sleep","exportWaiting","exportHPSS","exportUNIX"
 ,"done","error","fatal");
 
-my @reqperiod = ("day","week","1_month","2_months","3_months","4_months","5_months","6_months","7_month","8_months","9_months","10_months","11_months","12_months);
+my @reqperiod = ("day","week","1_month","2_months","3_months","4_months","5_months","6_months","7_month","8_months","9_months","10_months","11_months","12_months");
 
 $query = new CGI;
 
