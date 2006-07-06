@@ -1,9 +1,12 @@
 #!/usr/local/bin/perl
 #!/usr/bin/env perl 
 #
-# $Id: CRSstatusPlots.pl,v 1.8 2006/01/13 22:29:48 didenko Exp $
+# $Id: CRSstatusPlots.pl,v 1.9 2006/07/06 16:13:24 didenko Exp $
 #
 # $Log: CRSstatusPlots.pl,v $
+# Revision 1.9  2006/07/06 16:13:24  didenko
+# extend period for monitoring
+#
 # Revision 1.8  2006/01/13 22:29:48  didenko
 # updated for year tables
 #
@@ -44,7 +47,7 @@ my $scriptname = $query->url(-relative=>1);
 my @farmstat = ("executing","submitted","submitFailed","started","importWaiting","importHPSS","sleep","exportWaiting","exportHPSS","exportUNIX"
 ,"done","error","fatal");
 
-my @reqperiod = ("day","week","1_month","2_months","3_months","4_months","5_months","6_months");
+my @reqperiod = ("day","week","1_month","2_months","3_months","4_months","5_months","6_months","7_month","8_months","9_months","10_months","11_months","12_months);
 
 $query = new CGI;
 
@@ -243,11 +246,19 @@ if ( ! $graph){
 $xLabelSkip = 2  if( $fperiod eq "day" );
 $xLabelSkip = 12 if( $fperiod eq "week" );
 $xLabelSkip = 24 if( $fperiod eq "1_month" );
-$xLabelSkip = 42 if( $fperiod eq "2_months" );
-$xLabelSkip = 70 if( $fperiod eq "3_months" );
-$xLabelSkip = 90 if( $fperiod eq "4_months" );
+$xLabelSkip = 48 if( $fperiod eq "2_months" );
+$xLabelSkip = 72 if( $fperiod eq "3_months" );
+$xLabelSkip = 96 if( $fperiod eq "4_months" );
 $xLabelSkip = 120 if( $fperiod eq "5_months" );
 $xLabelSkip = 144 if( $fperiod eq "6_months" );
+$xLabelSkip = 168 if( $fperiod eq "7_months" );
+$xLabelSkip = 192 if( $fperiod eq "8_months" );
+$xLabelSkip = 216 if( $fperiod eq "9_months" );
+$xLabelSkip = 240 if( $fperiod eq "10_months" );
+$xLabelSkip = 264 if( $fperiod eq "11_months" );
+$xLabelSkip = 288 if( $fperiod eq "12_months" );
+
+
  
     $graph->set(x_label => "  ",
 		y_label => "Number of jobs",
