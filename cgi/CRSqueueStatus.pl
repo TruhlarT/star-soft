@@ -1,9 +1,12 @@
 #!/usr/local/bin/perl
 #!/usr/bin/env perl 
 #
-# $Id: CRSqueueStatus.pl,v 1.3 2006/01/12 22:11:34 didenko Exp $
+# $Id: CRSqueueStatus.pl,v 1.4 2006/07/06 16:02:46 didenko Exp $
 #
 # $Log: CRSqueueStatus.pl,v $
+# Revision 1.4  2006/07/06 16:02:46  didenko
+# extend period for monitoring
+#
 # Revision 1.3  2006/01/12 22:11:34  didenko
 # updated to use year's table
 #
@@ -38,7 +41,7 @@ $dbpass="";
 $dbname="operation";
 
 
-my @reqperiod = ("day","week","1_month","2_months","3_months","4_months","5_months","6_months");
+my @reqperiod = ("day","week","1_month","2_months","3_months","4_months","5_months","6_months","7_months","8_months","9_months","10_months","11_months","12_months");
 my @plotview = ("numbers","percentage");
 my @prodyear = ("2005","2006");
 
@@ -299,6 +302,12 @@ $xLabelSkip = 72 if( $fperiod eq "3_months" );
 $xLabelSkip = 96 if( $fperiod eq "4_months" );
 $xLabelSkip = 120 if( $fperiod eq "5_months" );
 $xLabelSkip = 144 if( $fperiod eq "6_months" );
+$xLabelSkip = 168 if( $fperiod eq "7_months" );
+$xLabelSkip = 192 if( $fperiod eq "8_months" );
+$xLabelSkip = 216 if( $fperiod eq "9_months" );
+$xLabelSkip = 240 if( $fperiod eq "10_months" );
+$xLabelSkip = 264 if( $fperiod eq "11_months" );
+$xLabelSkip = 288 if( $fperiod eq "12_months" );
  
     $graph->set(x_label => "  ",
 		y_label => $ylabel,
