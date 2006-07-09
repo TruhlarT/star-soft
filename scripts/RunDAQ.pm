@@ -194,7 +194,7 @@ $DELAY     = 60;                              # delay backward in time in second
 	      "l0TriggerSet","detectorSet",
 	      "beamInfo","magField");
 
-
+@EXPLAIN=();
 
 #
 # There should be NO OTHER configuration below this line but
@@ -514,7 +514,9 @@ sub rdaq_raw_files
     $rval  = 9;
     $cmd   = "SELECT daqFileTag.file, daqSummary.runNumber, daqFileTag.numberOfEvents,daqFileTag.beginEvent, daqFileTag.endEvent, magField.current,magField.scaleFactor, beamInfo.yellowEnergy+beamInfo.blueEnergy,CONCAT(beamInfo.blueSpecies,beamInfo.yellowSpecies) FROM daqFileTag,daqSummary, magField, beamInfo,runStatus WHERE daqSummary.runNumber=daqFileTag.run AND daqSummary.destinationID In(1,2,4) AND runStatus.runNumber=daqFileTag.run and runStatus.rtsStatus=0 AND magField.runNumber=daqSummary.runNumber AND magField.entryTag In (0,5) AND beamInfo.runNumber=daqSummary.runNumber AND beamInfo.entryTag In (0,5)";
 
-
+    @EXPLAIN = ("File","RunNumber","numberOfEvents","beginEvent","endEvent",
+		"magField current","magField scaleFactor",
+		"yellow+blue Energy","yellow+blue species");
 
 
     # Optional arguments
@@ -550,6 +552,9 @@ sub rdaq_raw_files
 	if ( ($#res+1) != $rval){
 	    die "Database has all fields but some are empty ".($#res+1)." received, expected $rval\n";
 	}
+
+	# skip scaler files added in 2006
+	if ( $res[0] !~ /\.sca/){  next;}
 
 	if ( $res[0] !~ /\.daq/){
 	    &info_message("raw_files",3,"File not matching expected name pattern [$res[0]]\n");
@@ -646,7 +651,7 @@ sub rdaq_hack
 	$mask = $DETSETS{$run};
     }
     push(@res,$mask);
-
+    push(@EXPLAIN,"detectorTypes (mask)");
 
     #
     # This block is for the TriggerSetup
@@ -677,7 +682,7 @@ sub rdaq_hack
 	$mask = $TRGSET{$run};
     }
     push(@res,$mask);
-
+    push(@EXPLAIN,"glbSetupName");
 
     #
     # Now, add to this all possible trigger mask
@@ -711,6 +716,7 @@ sub rdaq_hack
     # taken, we can return 'undef' if mask==0. However, if we need Fastoffline
     # to check this run as we go, we want them ...
     push(@res,$mask);
+    push(@EXPLAIN,"l0TriggerSet (mask)");
 
 
     # File name is the first field 0
@@ -719,12 +725,13 @@ sub rdaq_hack
     } else {
 	push(@res,0);
     }
+    push(@EXPLAIN,"FOFileType (parsed)");
 
 
     #print "Returning from rdaq_hack() with ".($#res+1)." values\n" if($DEBUG);
     $mask = "";
     for ($ii=0 ; $ii <= $#res ; $ii++){
-	$mask .= "$ii -> [$res[$ii]] ; ";
+	$mask .= "$ii $EXPLAIN[$ii] -> [$res[$ii]] ; ";
 	if ($res[$ii] eq ""){
 	    &info_message("hack",1,
 			  "Element $ii is null\n");
