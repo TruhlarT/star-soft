@@ -115,7 +115,7 @@ my $outSt;
   &GRdbConnect();
 
  
- my @arperiod = ("week","1_month","2_months","3_months","4_months","5_months","6_months","12_months");
+ my @arperiod = ("week","1_month","2_months","3_months","4_months","5_months","6_months","7_months","8_months","9_months","10_months","11_months","12_months");
 
 
   $sql="SELECT DISTINCT site   FROM $JobStatusT ";
@@ -412,8 +412,14 @@ $xLabelSkip = 6 if( $qperiod eq "2_months" );
 $xLabelSkip = 9 if( $qperiod eq "3_months" );
 $xLabelSkip = 12 if( $qperiod eq "4_months" );
 $xLabelSkip = 15 if( $qperiod eq "5_months" );
-$xLabelSkip = 12 if( $qperiod eq "6_months" );
-$xLabelSkip = 40 if( $qperiod eq "12_months" );
+$xLabelSkip = 18 if( $qperiod eq "6_months" );
+$xLabelSkip = 21 if( $qperiod eq "7_months" );
+$xLabelSkip = 24 if( $qperiod eq "8_months" );
+$xLabelSkip = 27 if( $qperiod eq "9_months" );
+$xLabelSkip = 30 if( $qperiod eq "10_months" );
+$xLabelSkip = 33 if( $qperiod eq "11_months" );
+$xLabelSkip = 36 if( $qperiod eq "12_months" );
+
 
   $min_y = 0;
   $max_y = 120 ;  
