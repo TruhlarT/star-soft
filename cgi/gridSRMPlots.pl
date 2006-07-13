@@ -203,7 +203,7 @@ my $tdate;
 
    &GRdbConnect();
 
-   $sql="SELECT DISTINCT testday FROM $JobStatusT WHERE status = 'complete' AND (TO_DAYS(\"$nowdate\") - TO_DAYS(testday)) <= $day_diff ORDER by testday";
+   $sql="SELECT DISTINCT testday FROM $JobStatusT WHERE status = 'complete' AND (TO_DAYS(\"$nowdate\") - TO_DAYS(testday)) < $day_diff ORDER by testday";
 
      $cursor =$dbh->prepare($sql)
       || die "Cannot prepare statement: $DBI::errstr\n";
