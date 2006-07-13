@@ -80,7 +80,8 @@ my @wanbnl = ();
 my %datetest = { };
 my @sites = ();
 my $msite;
-
+my @wansite = ();
+my @srmsite = ();
 
  
   &GRdbConnect();
@@ -185,7 +186,7 @@ my $qqr = new CGI;
 my $day_diff = 0;
 my $nmonth = 0;
 my @prt = ();
-my $myday;
+my $myday = 0;
 my $nday = 0;
 my @ardays = ();
 my $tdate;
@@ -209,24 +210,29 @@ my $tdate;
      $cursor->execute;
 
       while($myday = $cursor->fetchrow) {
+#      print $myday, "\n"; 
+
         $ardays[$nday] = $myday;
         $nday++;
       }
 
 my $ndt = 0;
 
+@ndate = { };
+
    foreach  $tdate (@ardays) {
 
  @srmspeed = ();  
  $nstat = 0;
 
+
   if( $qsite eq "ALL" ) {
 
-      $sql="SELECT testday, site, wan_speed, srm_speed, drm_time FROM $JobStatusT WHERE  testday = '$tdate' AND (status = 'complete' OR status = 'failed') "; 
+      $sql="SELECT testday, site, wan_speed, srm_speed, drm_time FROM $JobStatusT WHERE  testday = '$tdate' AND transfer_out >= 2  AND (status = 'complete' OR status = 'failed') "; 
 
   }else{
 
-     $sql="SELECT testday, site, wan_speed, srm_speed, drm_time FROM $JobStatusT WHERE site = '$qsite' AND  testday = '$tdate' AND (status = 'complete' OR status = 'failed') ";
+     $sql="SELECT testday, site, wan_speed, srm_speed, drm_time FROM $JobStatusT WHERE site = '$qsite' AND  testday = '$tdate' AND transfer_out >= 2  AND (status = 'complete' OR status = 'failed') ";
 
  }
 
@@ -261,8 +267,6 @@ my $ndt = 0;
  %srm = { };
  %drm = { };
  %datetest = { };
-
-   $nreco = 0;
 
       foreach $jobst (@srmspeed) {
 
@@ -358,18 +362,18 @@ my $ndt = 0;
  my $xLabelPosition = 0;
  my $xLabelSkip = 1;
 
-$xLabelSkip = 3 if( $qperiod eq "1_months" );
-$xLabelSkip = 6 if( $qperiod eq "2_months" );
-$xLabelSkip = 9 if( $qperiod eq "3_months" );
-$xLabelSkip = 12 if( $qperiod eq "4_months" );
-$xLabelSkip = 15 if( $qperiod eq "5_months" );
-$xLabelSkip = 18 if( $qperiod eq "6_months" );
-$xLabelSkip = 21 if( $qperiod eq "7_months" );
-$xLabelSkip = 24 if( $qperiod eq "8_months" );
-$xLabelSkip = 27 if( $qperiod eq "9_months" );
-$xLabelSkip = 30 if( $qperiod eq "10_months" );
-$xLabelSkip = 33 if( $qperiod eq "11_months" );
-$xLabelSkip = 36 if( $qperiod eq "12_months" );
+$xLabelSkip = 1 if( $qperiod eq "1_months" );
+$xLabelSkip = 2 if( $qperiod eq "2_months" );
+$xLabelSkip = 3 if( $qperiod eq "3_months" );
+$xLabelSkip = 4 if( $qperiod eq "4_months" );
+$xLabelSkip = 5 if( $qperiod eq "5_months" );
+$xLabelSkip = 6 if( $qperiod eq "6_months" );
+$xLabelSkip = 7 if( $qperiod eq "7_months" );
+$xLabelSkip = 8 if( $qperiod eq "8_months" );
+$xLabelSkip = 9 if( $qperiod eq "9_months" );
+$xLabelSkip = 10 if( $qperiod eq "10_months" );
+$xLabelSkip = 11 if( $qperiod eq "11_months" );
+$xLabelSkip = 12 if( $qperiod eq "12_months" );
 
   $min_y = 0;
   $max_y = 2000 ;  
