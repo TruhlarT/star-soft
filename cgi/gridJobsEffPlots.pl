@@ -407,18 +407,18 @@ my $ndt = 0;
  my $xLabelPosition = 0;
  my $xLabelSkip = 1;
 
-$xLabelSkip = 3 if( $qperiod eq "1_months" );
-$xLabelSkip = 6 if( $qperiod eq "2_months" );
-$xLabelSkip = 9 if( $qperiod eq "3_months" );
-$xLabelSkip = 12 if( $qperiod eq "4_months" );
-$xLabelSkip = 15 if( $qperiod eq "5_months" );
-$xLabelSkip = 18 if( $qperiod eq "6_months" );
-$xLabelSkip = 21 if( $qperiod eq "7_months" );
-$xLabelSkip = 24 if( $qperiod eq "8_months" );
-$xLabelSkip = 27 if( $qperiod eq "9_months" );
-$xLabelSkip = 30 if( $qperiod eq "10_months" );
-$xLabelSkip = 33 if( $qperiod eq "11_months" );
-$xLabelSkip = 36 if( $qperiod eq "12_months" );
+$xLabelSkip = 1 if( $qperiod eq "1_months" );
+$xLabelSkip = 2 if( $qperiod eq "2_months" );
+$xLabelSkip = 3 if( $qperiod eq "3_months" );
+$xLabelSkip = 4 if( $qperiod eq "4_months" );
+$xLabelSkip = 5 if( $qperiod eq "5_months" );
+$xLabelSkip = 6 if( $qperiod eq "6_months" );
+$xLabelSkip = 7 if( $qperiod eq "7_months" );
+$xLabelSkip = 8 if( $qperiod eq "8_months" );
+$xLabelSkip = 9 if( $qperiod eq "9_months" );
+$xLabelSkip = 10 if( $qperiod eq "10_months" );
+$xLabelSkip = 11 if( $qperiod eq "11_months" );
+$xLabelSkip = 12 if( $qperiod eq "12_months" );
 
 
   $min_y = 0;
