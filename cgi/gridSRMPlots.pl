@@ -193,7 +193,7 @@ my $tdate;
 
 
     if( $qperiod eq "week") {
-           $day_diff = 7;
+           $day_diff = 8;
   
    }elsif ( $qperiod =~ /month/) {
        @prt = split("_", $qperiod);
