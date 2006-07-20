@@ -269,18 +269,23 @@ my $qqr = new CGI;
 
   if( $qsite eq "ALL" ) {
 
-      $sql="SELECT submissionTime, site, inputFile, logpath, globusStatus, globusError, logStatus, execStatus, transfer_in, transfer_out, recoFinishTime, createTime FROM $JobStatusT WHERE testday = '$qdate' "; 
+      $sql="SELECT submissionTime, site, inputFile, logpath, globusStatus, globusError, logStatus, execStatus, transfer_in, transfer_out, recoFinishTime, createTime FROM $JobStatusT WHERE testday = ? "; 
+
+       $cursor =$dbh->prepare($sql)
+      || die "Cannot prepare statement: $DBI::errstr\n";
+     $cursor->execute($qdate);
 
   }else{
 
-     $sql="SELECT submissionTime, site, inputFile, logpath, globusStatus, globusError, logStatus, execStatus, transfer_in, transfer_out, recoFinishTime, createTime FROM $JobStatusT WHERE testday = '$qdate' and site = '$qsite' ";
+     $sql="SELECT submissionTime, site, inputFile, logpath, globusStatus, globusError, logStatus, execStatus, transfer_in, transfer_out, recoFinishTime, createTime FROM $JobStatusT WHERE testday = ? and site = ? ";
 
- }
+ 
 
      $cursor =$dbh->prepare($sql)
       || die "Cannot prepare statement: $DBI::errstr\n";
-     $cursor->execute;
- 
+     $cursor->execute($qdate, $qsite);
+} 
+
       while(@fields = $cursor->fetchrow) {
         my $cols=$cursor->{NUM_OF_FIELDS};
           $fObjAdr = \(JobAttr->new());
