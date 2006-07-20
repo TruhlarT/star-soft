@@ -94,16 +94,21 @@ my $nnode = 0;
  if( $ldate eq $hdate) {
    $thisday =  $hdate ;
 
- $sql="SELECT  nodeName, crashedJobs, abortedJobs, stagingFailed, doneJobs, fileNotFound, queuingFailed, transferFailed, msgFailed, dbFailed from $crsStatusT where mdate = '$thisday'" ;
+ $sql="SELECT  nodeName, crashedJobs, abortedJobs, stagingFailed, doneJobs, fileNotFound, queuingFailed, transferFailed, msgFailed, dbFailed from $crsStatusT where mdate = ?" ;
+
+     $cursor =$dbh->prepare($sql)
+        || die "Cannot prepare statement: $DBI::errstr\n";
+      $cursor->execute($thisday);
+
  }else{
  
- $sql="SELECT  nodeName, crashedJobs, abortedJobs, stagingFailed, doneJobs, fileNotFound, queuingFailed, transferFailed, msgFailed, dbFailed from $crsStatusT where mdate >= '$ldate' and mdate <= '$hdate' " ;
- }
+ $sql="SELECT  nodeName, crashedJobs, abortedJobs, stagingFailed, doneJobs, fileNotFound, queuingFailed, transferFailed, msgFailed, dbFailed from $crsStatusT where mdate >= ? and mdate <= ? " ;
+
 
       $cursor =$dbh->prepare($sql)
         || die "Cannot prepare statement: $DBI::errstr\n";
-      $cursor->execute;
- 
+      $cursor->execute($ldate,$hdate) ;
+} 
        while(@fields = $cursor->fetchrow) {
        my $cols=$cursor->{NUM_OF_FIELDS};
            $fObjAdr = \(NodeAttr->new());
