@@ -253,16 +253,19 @@ my $ndt = 0;
 
       $sql="SELECT testday, site, globusStatus, globusError, logStatus, execStatus, transfer_in, transfer_out, recoFinishTime, createTime FROM $JobStatusT WHERE  testday = '$tdate' AND (status = 'complete' OR status = 'failed') "; 
 
+    $cursor =$dbh->prepare($sql)
+      || die "Cannot prepare statement: $DBI::errstr\n";
+     $cursor->execute;
+
   }else{
 
-     $sql="SELECT testday, site, globusStatus, globusError, logStatus, execStatus, transfer_in, transfer_out, recoFinishTime, createTime FROM $JobStatusT WHERE site = '$qsite' AND  testday = '$tdate' AND (status = 'complete' OR status = 'failed') ";
+     $sql="SELECT testday, site, globusStatus, globusError, logStatus, execStatus, transfer_in, transfer_out, recoFinishTime, createTime FROM $JobStatusT WHERE site = ? AND  testday = '$tdate' AND (status = 'complete' OR status = 'failed') ";
 
- }
 
      $cursor =$dbh->prepare($sql)
       || die "Cannot prepare statement: $DBI::errstr\n";
-     $cursor->execute;
- 
+     $cursor->execute($qsite);
+ } 
       while(@fields = $cursor->fetchrow) {
         my $cols=$cursor->{NUM_OF_FIELDS};
           $fObjAdr = \(JobAttr->new());
