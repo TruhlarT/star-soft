@@ -1,9 +1,12 @@
 #!/usr/local/bin/perl
 #!/usr/bin/env perl 
 #
-# $Id: CRSqueueStatus.pl,v 1.4 2006/07/06 16:02:46 didenko Exp $
+# $Id: CRSqueueStatus.pl,v 1.5 2006/07/21 17:45:32 didenko Exp $
 #
 # $Log: CRSqueueStatus.pl,v $
+# Revision 1.5  2006/07/21 17:45:32  didenko
+# more fixes for injection protection
+#
 # Revision 1.4  2006/07/06 16:02:46  didenko
 # extend period for monitoring
 #
@@ -191,6 +194,9 @@ my @prt = ();
        $day_diff = 30*$nmonth + 1; 
     }
 
+  $day_diff = int($day_diff);
+
+
    &StcrsdbConnect();
 
  @numjobs1 = ();
@@ -203,10 +209,10 @@ my @prt = ();
 
     if($plview eq "numbers") {
 
-             $sql="SELECT max(queue0), max(queue1), max(queue2), max(queue3), max(queue4) FROM  $crsQueueT WHERE (TO_DAYS(\"$nowdate\") - TO_DAYS(sdate)) <= $day_diff ";
+             $sql="SELECT max(queue0), max(queue1), max(queue2), max(queue3), max(queue4) FROM  $crsQueueT WHERE (TO_DAYS(\"$nowdate\") - TO_DAYS(sdate)) <= ? ";
 
 	$cursor = $dbh->prepare($sql) || die "Cannot prepare statement: $dbh->errstr\n";
-	$cursor->execute;
+	$cursor->execute($day_diff) ;
 	while(@fields = $cursor->fetchrow_array) {  
 
  		$maxvalue[0] = $fields[0];
@@ -218,10 +224,10 @@ my @prt = ();
 
  my $ii = 0;
 
-            $sql="SELECT queue0, queue1, queue2, queue3, queue4, sdate FROM  $crsQueueT WHERE (TO_DAYS(\"$nowdate\") - TO_DAYS(sdate)) <= $day_diff ORDER by sdate ";
+            $sql="SELECT queue0, queue1, queue2, queue3, queue4, sdate FROM  $crsQueueT WHERE (TO_DAYS(\"$nowdate\") - TO_DAYS(sdate)) <= ? ORDER by sdate ";
 
 	$cursor = $dbh->prepare($sql) || die "Cannot prepare statement: $dbh->errstr\n";
-	$cursor->execute;
+	$cursor->execute($day_diff) ;
 	while(@fields = $cursor->fetchrow_array) {
 
 		$numjobs1[$ii] = $fields[0];
@@ -247,10 +253,10 @@ my @prt = ();
 
     }else{
 
-            $sql="SELECT Rqueue0, Rqueue1, Rqueue2, Rqueue3, Rqueue4, sdate FROM  $crsQueueT WHERE (TO_DAYS(\"$nowdate\") - TO_DAYS(sdate)) < $day_diff ORDER by sdate ";
+            $sql="SELECT Rqueue0, Rqueue1, Rqueue2, Rqueue3, Rqueue4, sdate FROM  $crsQueueT WHERE (TO_DAYS(\"$nowdate\") - TO_DAYS(sdate)) < ? ORDER by sdate ";
 
 	$cursor = $dbh->prepare($sql) || die "Cannot prepare statement: $dbh->errstr\n";
-	$cursor->execute;
+	$cursor->execute($day_diff) ;
 	while(@fields = $cursor->fetchrow_array) {
 
 		$numjobs1[$ii] = $fields[0];

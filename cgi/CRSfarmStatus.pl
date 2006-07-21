@@ -1,9 +1,12 @@
 #!/usr/local/bin/perl
 #!/usr/bin/env perl 
 #
-# $Id: CRSfarmStatus.pl,v 1.10 2006/07/06 15:58:59 didenko Exp $
+# $Id: CRSfarmStatus.pl,v 1.11 2006/07/21 17:42:45 didenko Exp $
 #
 # $Log: CRSfarmStatus.pl,v $
+# Revision 1.11  2006/07/21 17:42:45  didenko
+# more fixes for injection protection
+#
 # Revision 1.10  2006/07/06 15:58:59  didenko
 # extend period for monitoring
 #
@@ -202,6 +205,8 @@ my @prt = ();
        $day_diff = 30*$nmonth + 1; 
     }
 
+$day_diff = int($day_diff);
+
    &StcrsdbConnect();
 
  @numjobs1 = ();
@@ -219,10 +224,10 @@ my @prt = ();
 
 
  
-             $sql="SELECT max(executing), max(importWaiting), max(exportWaiting), max(error) FROM  $crsJobStatusT WHERE (TO_DAYS(\"$nowdate\") - TO_DAYS(sdate)) <= $day_diff ";
+             $sql="SELECT max(executing), max(importWaiting), max(exportWaiting), max(error) FROM  $crsJobStatusT WHERE (TO_DAYS(\"$nowdate\") - TO_DAYS(sdate)) <= ? ";
  
 	$cursor = $dbh->prepare($sql) || die "Cannot prepare statement: $dbh->errstr\n";
-	$cursor->execute;
+	$cursor->execute($day_diff);
 	while(@fields = $cursor->fetchrow_array) {  
 
  		$maxvalue[0] = $fields[0];
@@ -233,10 +238,10 @@ my @prt = ();
 
  my $ii = 0;
 
-            $sql="SELECT executing, importWaiting, exportWaiting, error,  done, sdate FROM  $crsJobStatusT WHERE (TO_DAYS(\"$nowdate\") - TO_DAYS(sdate)) <= $day_diff ORDER by sdate ";
+            $sql="SELECT executing, importWaiting, exportWaiting, error,  done, sdate FROM  $crsJobStatusT WHERE (TO_DAYS(\"$nowdate\") - TO_DAYS(sdate)) <= ? ORDER by sdate ";
 
 	$cursor = $dbh->prepare($sql) || die "Cannot prepare statement: $dbh->errstr\n";
-	$cursor->execute;
+	$cursor->execute($day_diff);
 	while(@fields = $cursor->fetchrow_array) {
 
 		$numjobs1[$ii] = $fields[0];
