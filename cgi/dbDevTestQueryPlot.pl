@@ -1,10 +1,10 @@
 #!/usr/local/bin/perl
 #!/usr/bin/env perl 
 #
-# $Id: dbDevTestQueryPlot.pl,v 1.32 2006/07/21 18:51:25 didenko Exp $
+# $Id: dbDevTestQueryPlot.pl,v 1.33 2006/07/21 18:52:46 didenko Exp $
 #
 # $Log: dbDevTestQueryPlot.pl,v $
-# Revision 1.32  2006/07/21 18:51:25  didenko
+# Revision 1.33  2006/07/21 18:52:46  didenko
 # fixed syntax
 #
 # Revision 1.30  2006/04/14 16:20:23  didenko
@@ -182,7 +182,7 @@ while($n_weeks >= 0) {
 
 	} else {
 	    $sql="SELECT path, $mplotVal FROM JobStatus WHERE path LIKE \"%?%\" AND jobStatus=\"Done\" AND (TO_DAYS(\"$nowdate\") -TO_DAYS(createTime)) < ? AND (TO_DAYS(\"$nowdate\") -TO_DAYS(createTime)) > ? ORDER by createTime DESC LIMIT 5";
-	}
+
 
 	$cursor = $dbh->prepare($sql) || die "Cannot prepare statement: $dbh->errstr\n";
 	$cursor->execute($path, $day_diff, $day_diff1);
