@@ -1,9 +1,12 @@
 #!/usr/local/bin/perl
 #!/usr/bin/env perl 
 #
-# $Id: CRSstatusPlots.pl,v 1.10 2006/07/06 16:16:23 didenko Exp $
+# $Id: CRSstatusPlots.pl,v 1.11 2006/07/21 18:15:30 didenko Exp $
 #
 # $Log: CRSstatusPlots.pl,v $
+# Revision 1.11  2006/07/21 18:15:30  didenko
+# more fixes for injection protection
+#
 # Revision 1.10  2006/07/06 16:16:23  didenko
 # fixed syntax
 #
@@ -123,7 +126,7 @@ print $query->end_html;
 my $qqr = new CGI;
 
  my $pryear    =  $qqr->param('ryear');
- my $fstatus   =  $qqr->param('statusfield');
+ my $qstatus   =  $qqr->param('statusfield');
  my $fperiod   =  $qqr->param('period'); 
 
  my $dyear = $pryear - 2000 ;
@@ -143,6 +146,9 @@ my $maxvalue = 10000;
 my @numjobs = ();
 my @Npoint = ();
 
+my $fstatus;
+
+  $fstatus = (split(" ",$qstatus))[0];
 
 ($sec,$min,$hour,$mday,$mon,$year) = localtime;
 
@@ -181,6 +187,9 @@ my @prt = ();
        $day_diff = 30*$nmonth + 1; 
     }
 
+  $day_diff = int($day_diff);
+
+
    &StcrsdbConnect();
 
 	   my $ii = 0;
@@ -189,20 +198,20 @@ my @prt = ();
  @Npoint = ();
 
 
-        $sql="SELECT max($fstatus) FROM  $crsJobStatusT WHERE (TO_DAYS(\"$nowdate\") - TO_DAYS(sdate)) <= $day_diff ";
+        $sql="SELECT max($fstatus) FROM  $crsJobStatusT WHERE (TO_DAYS(\"$nowdate\") - TO_DAYS(sdate)) <= ? ";
 
 	$cursor = $dbh->prepare($sql) || die "Cannot prepare statement: $dbh->errstr\n";
-	$cursor->execute;
+	$cursor->execute($day_diff) ;
 	while(@fields = $cursor->fetchrow_array) {
 
              $maxvalue =  $fields[0];
 	 }
 
 
-            $sql="SELECT $fstatus, sdate FROM  $crsJobStatusT WHERE (TO_DAYS(\"$nowdate\") - TO_DAYS(sdate)) <= $day_diff ORDER by sdate ";
+            $sql="SELECT $fstatus, sdate FROM  $crsJobStatusT WHERE (TO_DAYS(\"$nowdate\") - TO_DAYS(sdate)) <= ? ORDER by sdate ";
 
 	$cursor = $dbh->prepare($sql) || die "Cannot prepare statement: $dbh->errstr\n";
-	$cursor->execute;
+	$cursor->execute($day_diff);
 	while(@fields = $cursor->fetchrow_array) {
 
 		$numjobs[$ii] = $fields[0];
