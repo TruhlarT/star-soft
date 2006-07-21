@@ -53,7 +53,7 @@ do {
 	    }
 
 	    $begin = 0;
-	    $by    = 5000;
+	    $by    = 1000;
 	    if($run >= 0){
 		# fetch new records since that run number
 		my($count,$tot,$N);
