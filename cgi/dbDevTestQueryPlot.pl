@@ -1,11 +1,11 @@
 #!/usr/local/bin/perl
 #!/usr/bin/env perl 
 #
-# $Id: dbDevTestQueryPlot.pl,v 1.37 2006/07/21 19:18:01 didenko Exp $
+# $Id: dbDevTestQueryPlot.pl,v 1.38 2006/07/21 19:22:02 didenko Exp $
 #
 # $Log: dbDevTestQueryPlot.pl,v $
-# Revision 1.37  2006/07/21 19:18:01  didenko
-# more protection
+# Revision 1.38  2006/07/21 19:22:02  didenko
+# come back to previous version
 #
 # Revision 1.34  2006/07/21 18:55:44  didenko
 # more fixes
@@ -189,13 +189,11 @@ while($n_weeks >= 0) {
 	$cursor->execute($day_diff);
 
 	} else {
-#	    $sql="SELECT path, $mplotVal FROM JobStatus WHERE path LIKE \"%$path%\" AND jobStatus=\"Done\" AND (TO_DAYS(\"$nowdate\") -TO_DAYS(createTime)) < ? AND (TO_DAYS(\"$nowdate\") -TO_DAYS(createTime)) > ? ORDER by createTime DESC LIMIT 5";
-
-	    $sql="SELECT path, $mplotVal FROM JobStatus WHERE path LIKE '%?%' AND jobStatus=\"Done\" AND (TO_DAYS(\"$nowdate\") -TO_DAYS(createTime)) < ? AND (TO_DAYS(\"$nowdate\") -TO_DAYS(createTime)) > ? ORDER by createTime DESC LIMIT 5";
+	    $sql="SELECT path, $mplotVal FROM JobStatus WHERE path LIKE \"%$path%\" AND jobStatus=\"Done\" AND (TO_DAYS(\"$nowdate\") -TO_DAYS(createTime)) < ? AND (TO_DAYS(\"$nowdate\") -TO_DAYS(createTime)) > ? ORDER by createTime DESC LIMIT 5";
 
 
 	$cursor = $dbh->prepare($sql) || die "Cannot prepare statement: $dbh->errstr\n";
-	$cursor->execute($path, $day_diff, $day_diff1);
+	$cursor->execute($day_diff, $day_diff1);
 
  }
 	while(@fields = $cursor->fetchrow_array) {
