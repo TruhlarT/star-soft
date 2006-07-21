@@ -229,13 +229,15 @@ my $tdate;
        $day_diff = 30*$nmonth + 1; 
     }
 
+$day_diff = int($day_diff);
+
    &GRdbConnect();
 
-   $sql="SELECT DISTINCT testday FROM $JobStatusT WHERE status = 'complete' AND (TO_DAYS(\"$nowdate\") - TO_DAYS(testday)) < $day_diff ORDER by testday";
+   $sql="SELECT DISTINCT testday FROM $JobStatusT WHERE status = 'complete' AND (TO_DAYS(\"$nowdate\") - TO_DAYS(testday)) < ? ORDER by testday";
 
      $cursor =$dbh->prepare($sql)
       || die "Cannot prepare statement: $DBI::errstr\n";
-     $cursor->execute;
+     $cursor->execute($day_diff);
 
       while($myday = $cursor->fetchrow) {
         $ardays[$nday] = $myday;
