@@ -1,9 +1,12 @@
 #!/usr/local/bin/perl
 #!/usr/bin/env perl 
 #
-# $Id: dbDevTestQueryPlot.pl,v 1.30 2006/04/14 16:20:23 didenko Exp $
+# $Id: dbDevTestQueryPlot.pl,v 1.31 2006/07/21 18:45:50 didenko Exp $
 #
 # $Log: dbDevTestQueryPlot.pl,v $
+# Revision 1.31  2006/07/21 18:45:50  didenko
+# more fixes for injection protection
+#
 # Revision 1.30  2006/04/14 16:20:23  didenko
 # updated for tracks with nfit point > 15
 #
@@ -76,10 +79,10 @@ my %plotHash = (
                 );
 
 my $set1    =  $query->param('set1');
-my $plotVal = $query->param('plotVal');
+my $plotVl = $query->param('plotVal');
 my $weeks   = $query->param('weeks');
 
-if ( ($set1 eq "") || ($plotVal eq "") ) {
+if ( ($set1 eq "") || ($plotVl eq "") ) {
     print $query->header;
     print $query->start_html('Plot for Nightly Test in DEV Library');
     print "<body bgcolor=\"cornsilk\"><center><pre>";
@@ -111,7 +114,11 @@ for($i=0;$i<7*$weeks;$i++) {
     $Nday[$i] = undef;
 }
 
-my $mplotVal = $plotHash{$plotVal};
+ my $plotVal;
+
+ $plotVal = split(" ",$plotVl)[0];
+
+ my $mplotVal = $plotHash{$plotVal};
 
 ($today,$today,$today,$mday,$mon,$year,$today,$today,$today) = localtime(time);
 #$sec,$min,$hour                  $wday,$yday,$isdst
@@ -133,6 +140,10 @@ if ( $today eq Tue ) {
 } else {
     $Nday[1] = "Tue"; $Nday[2] = "Wed"; $Nday[3] = "Thu"; $Nday[4] = "Fri"; $Nday[5] = "Sat"; $Nday[6] = "Sun"; $Nday[0] = "Mon";
 }
+ 
+
+ $weeks = int($weeks);
+
 for($i=1;$i<$weeks;$i++) {
     for($j=0;$j<7;$j++) {
 	$Nday[$j+7*$i] = $Nday[$j];
@@ -152,21 +163,33 @@ while($n_weeks >= 0) {
 	    }
 	$day_diff = $day_diff + 7*$n_weeks;
 	$day_diff1 = 7*$n_weeks;
-	my $sql;
+
+  $day_diff = int($day_diff);
+  $day_diff1 = int($day_diff1);
+
+  my $sql;
 	
-	my $path = $set1;
+  my $path;
+
+     $path = split(" ", $set1)[0];
+    
 	$path =~ s(year)($Nday[$d_week]/year);
-#	print $path, "\n";
 	$path =~ s(/)(%)g;
 
 	if ($n_weeks == 0) {
-	    $sql="SELECT path, $mplotVal FROM JobStatus WHERE path LIKE \"%$path%\" AND avail='Y' AND jobStatus=\"Done\" AND (TO_DAYS(\"$nowdate\") -TO_DAYS(createTime)) < $day_diff ORDER by createTime DESC LIMIT 5";
+	    $sql="SELECT path, $mplotVal FROM JobStatus WHERE path LIKE \"%?%\" AND avail='Y' AND jobStatus=\"Done\" AND (TO_DAYS(\"$nowdate\") -TO_DAYS(createTime)) < ? ORDER by createTime DESC LIMIT 5";
+
+ 	$cursor = $dbh->prepare($sql) || die "Cannot prepare statement: $dbh->errstr\n";
+	$cursor->execute($path, $day_diff);
+
 	} else {
-	    $sql="SELECT path, $mplotVal FROM JobStatus WHERE path LIKE \"%$path%\" AND jobStatus=\"Done\" AND (TO_DAYS(\"$nowdate\") -TO_DAYS(createTime)) < $day_diff AND (TO_DAYS(\"$nowdate\") -TO_DAYS(createTime)) > $day_diff1 ORDER by createTime DESC LIMIT 5";
+	    $sql="SELECT path, $mplotVal FROM JobStatus WHERE path LIKE \"%?%\" AND jobStatus=\"Done\" AND (TO_DAYS(\"$nowdate\") -TO_DAYS(createTime)) < ? AND (TO_DAYS(\"$nowdate\") -TO_DAYS(createTime)) > ? ORDER by createTime DESC LIMIT 5";
 	}
 
 	$cursor = $dbh->prepare($sql) || die "Cannot prepare statement: $dbh->errstr\n";
-	$cursor->execute;
+	$cursor->execute($path, $day_diff, $day_diff1);
+
+ }
 	while(@fields = $cursor->fetchrow_array) {
             next if ( $fields[0] =~ /daq_sl302.icc80/) ;
 	    if ($fields[0] =~ /sl302.ittf_opt/) {
