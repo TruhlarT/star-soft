@@ -1,9 +1,12 @@
 #!/usr/local/bin/perl
 #!/usr/bin/env perl 
 #
-# $Id: dbDevTestQueryPlot.pl,v 1.34 2006/07/21 18:55:44 didenko Exp $
+# $Id: dbDevTestQueryPlot.pl,v 1.35 2006/07/21 19:12:58 didenko Exp $
 #
 # $Log: dbDevTestQueryPlot.pl,v $
+# Revision 1.35  2006/07/21 19:12:58  didenko
+# try more protection
+#
 # Revision 1.34  2006/07/21 18:55:44  didenko
 # more fixes
 #
@@ -114,7 +117,11 @@ for($i=0;$i<7*$weeks;$i++) {
     $Nday[$i] = undef;
 }
 
- my $mplotVal = $plotHash{$plotVal};
+  my @spl = ();
+ @spl = split(" ",$plotVal);
+ my $plotVl = $spl[0];
+
+ my $mplotVal = $plotHash{$plotVl};
 
 ($today,$today,$today,$mday,$mon,$year,$today,$today,$today) = localtime(time);
 #$sec,$min,$hour                  $wday,$yday,$isdst
@@ -167,7 +174,7 @@ while($n_weeks >= 0) {
 	
   my $path;
 
-  my @spl = ();
+  @spl = ();
   
    @spl = split(" ", $set1);
    $path = $spl[0];  
@@ -175,17 +182,22 @@ while($n_weeks >= 0) {
 	$path =~ s(/)(%)g;
 
 	if ($n_weeks == 0) {
-	    $sql="SELECT path, $mplotVal FROM JobStatus WHERE path LIKE \"%$path%\" AND avail='Y' AND jobStatus=\"Done\" AND (TO_DAYS(\"$nowdate\") -TO_DAYS(createTime)) < ? ORDER by createTime DESC LIMIT 5";
+
+	    $sql="SELECT path, $mplotVal FROM JobStatus WHERE path LIKE ? AND avail='Y' AND jobStatus=\"Done\" AND (TO_DAYS(\"$nowdate\") -TO_DAYS(createTime)) < ? ORDER by createTime DESC LIMIT 5";
+
+#	    $sql="SELECT path, $mplotVal FROM JobStatus WHERE path LIKE \"%$path%\" AND avail='Y' AND jobStatus=\"Done\" AND (TO_DAYS(\"$nowdate\") -TO_DAYS(createTime)) < ? ORDER by createTime DESC LIMIT 5";
 
  	$cursor = $dbh->prepare($sql) || die "Cannot prepare statement: $dbh->errstr\n";
-	$cursor->execute($day_diff);
+	$cursor->execute('%$path%', $day_diff);
 
 	} else {
 	    $sql="SELECT path, $mplotVal FROM JobStatus WHERE path LIKE \"%$path%\" AND jobStatus=\"Done\" AND (TO_DAYS(\"$nowdate\") -TO_DAYS(createTime)) < ? AND (TO_DAYS(\"$nowdate\") -TO_DAYS(createTime)) > ? ORDER by createTime DESC LIMIT 5";
 
+#	    $sql="SELECT path, $mplotVal FROM JobStatus WHERE path LIKE ? AND jobStatus=\"Done\" AND (TO_DAYS(\"$nowdate\") -TO_DAYS(createTime)) < ? AND (TO_DAYS(\"$nowdate\") -TO_DAYS(createTime)) > ? ORDER by createTime DESC LIMIT 5";
+
 
 	$cursor = $dbh->prepare($sql) || die "Cannot prepare statement: $dbh->errstr\n";
-	$cursor->execute($day_diff, $day_diff1);
+	$cursor->execute('%$path%', $day_diff, $day_diff1);
 
  }
 	while(@fields = $cursor->fetchrow_array) {
