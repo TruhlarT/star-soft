@@ -1,11 +1,11 @@
 #!/usr/local/bin/perl
 #!/usr/bin/env perl 
 #
-# $Id: dbDevTestQueryPlot.pl,v 1.31 2006/07/21 18:45:50 didenko Exp $
+# $Id: dbDevTestQueryPlot.pl,v 1.32 2006/07/21 18:51:25 didenko Exp $
 #
 # $Log: dbDevTestQueryPlot.pl,v $
-# Revision 1.31  2006/07/21 18:45:50  didenko
-# more fixes for injection protection
+# Revision 1.32  2006/07/21 18:51:25  didenko
+# fixed syntax
 #
 # Revision 1.30  2006/04/14 16:20:23  didenko
 # updated for tracks with nfit point > 15
@@ -79,10 +79,10 @@ my %plotHash = (
                 );
 
 my $set1    =  $query->param('set1');
-my $plotVl = $query->param('plotVal');
+my $plotVal = $query->param('plotVal');
 my $weeks   = $query->param('weeks');
 
-if ( ($set1 eq "") || ($plotVl eq "") ) {
+if ( ($set1 eq "") || ($plotVal eq "") ) {
     print $query->header;
     print $query->start_html('Plot for Nightly Test in DEV Library');
     print "<body bgcolor=\"cornsilk\"><center><pre>";
@@ -113,10 +113,6 @@ for($i=0;$i<7*$weeks;$i++) {
     $point7[$i]=undef;
     $Nday[$i] = undef;
 }
-
- my $plotVal;
-
- $plotVal = split(" ",$plotVl)[0];
 
  my $mplotVal = $plotHash{$plotVal};
 
@@ -171,8 +167,10 @@ while($n_weeks >= 0) {
 	
   my $path;
 
-     $path = split(" ", $set1)[0];
-    
+  my @spl = ();
+  
+   @spl = split(" ", $set1);
+   $path = $spl[0];  
 	$path =~ s(year)($Nday[$d_week]/year);
 	$path =~ s(/)(%)g;
 
