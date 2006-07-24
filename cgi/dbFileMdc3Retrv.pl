@@ -15,16 +15,22 @@ my %pair;
 
 &cgiSetup();
 
-$set = $q->param("set");
+my $set = $q->param("set");
+
+my @spl = ();
+
+@spl = split(" ",$set);
+
+my $dtset = $spl[0];
 
 &StDbProdConnect();
 
 &beginHtml();
 
-$sql="SELECT * FROM $FileCatalogT WHERE dataset = '$set' AND JobID LIKE '%mdc3%'";
+$sql="SELECT * FROM $FileCatalogT WHERE dataset = ? AND JobID LIKE '%mdc3%'";
 $cursor =$dbh->prepare($sql)
   || die "Cannot prepare statement: $DBI::errstr\n";
-$cursor->execute;
+$cursor->execute($dtset);
 
 my $counter = 0;
 while(@fields = $cursor->fetchrow) {
