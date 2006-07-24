@@ -11,7 +11,6 @@
 #############################################################################
 
 
-#require "/afs/rhic/star/packages/cgi/dbCpProdSetup.pl";
 use CGI;
 use CGI::Carp qw(fatalsToBrowser);
 
@@ -95,7 +94,7 @@ print <<END;
 <META HTTP-EQUIV="Expires" CONTENT="0">
 <META HTTP-EQUIV="Pragma" CONTENT="no-cache">
 <META HTTP-EQUIV="Cache-Control" CONTENT="no-cache">
-<META HTTP-equiv="Refresh" content="600; URL-HTTP://www.star.bnl.gov/devcgi/GifMdc3Plots.pl">
+#<META HTTP-equiv="Refresh" content="600; URL-HTTP://www.star.bnl.gov/devcgi/GifMdc3Plots.pl">
 END
 
   print " <title>Select Query for Production Plots </title>";
@@ -135,8 +134,6 @@ print <<END;
 </SELECT><br>
 <p>
 <br>
-<h3>Enter date of production yyyy-mm-dd:</h3> <input type="text" size=12 name="datProd"><br>
-<p>
 END
 
 

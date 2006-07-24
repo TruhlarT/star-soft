@@ -26,10 +26,6 @@ BEGIN {
  
 $query = new CGI;
 
-print <<END;
-<META HTTP-equiv="Refresh" content="1; URL-HTTP://www.star.bnl.gov/cgi-bin/didenko/mdc3PlotReq.pl">
-END
-
 
 my $mplotVal;
 my %plotHash = (
@@ -41,26 +37,24 @@ my %plotHash = (
 );
   
  $set1   =  $query->param('set1');
- $datProd = $query->param('datProd');
  $plotVal = $query->param('plotVal');
 
-if(! defined $datProd) { $datProd = 0};
- 
- $datProd = 0; 
- $mplotVal = $plotHash{$plotVal};
+my @spl = ();
 
-my $jobset = $set1;
+ @spl = (" ",$plotVal);
+ 
+my $plotVl = @spl[0];
+
+ $mplotVal = $plotHash{$plotVl};
+
+ @spl = ();
+
+  @spl = split(" ",$set1);
+  
+ my $jobset = @spl[0];
+
    $jobset =~ s/\//_/g;   
   
-#open (STDOUT,">Error_check");
-
-#print $set1, "\n";
-#print $plotVal, "\n";
-#print $datProd, "\n";
-#print $mplotVal, "\n";
-#print $jobset, "\n"; 
-
-#close (STDOUT);
 
 struct Products => {
    flName    => '$',
@@ -85,18 +79,21 @@ my $mcpuEvt = 0;
 
 my $sql;
 
-  if( $datProd eq 0) { 
 
  if( $set1 ne "all" ) {
 $sql="SELECT sumFileName,jobfileName, jobStatus, mem_size_MB, CPU_per_evt_sec, avg_no_tracks, avg_no_vertex, RealTime_per_evt FROM $JobStatusT WHERE jobfileName LIKE '$jobset%' AND JobID LIKE '%mdc3%' AND jobStatus <>'n/a'"; 
-}
-elsif ( $set1 eq "all") {
+
+
+}elsif ( $set1 eq "all") {
 $sql="SELECT sumFileName,jobfileName, jobStatus, mem_size_MB, CPU_per_evt_sec, avg_no_tracks, avg_no_vertex, RealTime_per_evt FROM $JobStatusT WHERE JobID LIKE '%mdc3%' AND jobStatus <> 'n/a'";
-}
+
+ }
 
   $cursor =$dbh->prepare($sql)
         || die "Cannot prepare statement: $DBI::errstr\n";
     $cursor->execute;
+
+
     while(@fields = $cursor->fetchrow) {
         my $cols=$cursor->{NUM_OF_FIELDS}; 
 
@@ -120,34 +117,7 @@ $sql="SELECT sumFileName,jobfileName, jobStatus, mem_size_MB, CPU_per_evt_sec, a
       $prodInfo[$nProdInfo] = $prodAddr;      
       $nProdInfo++;
 }
-}
-  elsif ($datProd ne 0) {
-  if ($set1 ne "all") {
-$sql="SELECT fName, dataset FROM $FileCatalogT WHERE dataset = '$set1' AND fName LIKE '%dst.root' AND jobID LIKE '%mdc3%' AND createTime LIKE '$datProd%'";
-}
-  elsif($set1 eq "all") {
-$sql="SELECT fName, dataset FROM $FileCatalogT WHERE fName LIKE '%dst.root' AND jobID LIKE '%mdc3%' AND createTime LIKE '$datProd%'";
-}
-
-  $cursor =$dbh->prepare($sql)
-        || die "Cannot prepare statement: $DBI::errstr\n";
-    $cursor->execute;
-    while(@fields = $cursor->fetchrow) {
-        my $cols=$cursor->{NUM_OF_FIELDS};
-
-        $prodAddr = \(Products->new());
-      for($i=0;$i<$cols;$i++) {
-        my $fvalue=$fields[$i];
-        my $fname=$cursor->{NAME}->[$i];
-#      print "$fname = $fvalue\n";
-        ($$prodAddr)->flName($fvalue) if( $fname eq 'fName');
-        ($$prodAddr)->dset($fvalue)   if($fname eq 'dataset');
-
-} 
-       $dstFile[$ndstFile] = $prodAddr;
-       $ndstFile++;
-}
-}
+#}
 
 #===================================================================================================
 # can loop over set here. for the moment, just deal with one set.
@@ -189,25 +159,6 @@ foreach $prodAddr (@prodInfo) {
      if ($mCPUEvt != 0)  { 
   $mflName = basename("$mflName", ".sum");
 
-  if ($datProd ne 0) {
-     foreach $fileAddr (@dstFile) {
-      $dsflName = ($$fileAddr)->flName; 
-      $dstset = ($$fileAddr)->dset;
-       
-      if ( $dsflName =~ /$mflName/) {
-
-      $aflName[$ii] = $mflName;
-      $aMemSize[$ii] = $mMemSize;
-      $aCPUEvt[$ii] = $mCPUEvt;
-      $aRTEvt[$ii] = $mRTEvt;
-      $aAveTrks[$ii] = $mAveTrks;
-      $aAveVtxs[$ii] = $mAveVtxs;      
-      $ii++;      
-} else {
-  next;
-}
-    }
-   }else{
       $aflName[$ii] = $mflName;
       $aMemSize[$ii] = $mMemSize;
       $aCPUEvt[$ii] = $mCPUEvt;
@@ -217,9 +168,8 @@ foreach $prodAddr (@prodInfo) {
 # print $aflName[$ii], $aMemSize[$ii], "\n";
     $ii++;
     }
-  } 
- }
-#close (STDOUT);
+  }
+
 &StDbProdDisconnect();
 #========================================================================================
 my @markerList = (3,4,1,2,5,6,7,8);
