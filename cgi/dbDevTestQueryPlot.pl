@@ -1,9 +1,12 @@
 #!/usr/local/bin/perl
 #!/usr/bin/env perl 
 #
-# $Id: dbDevTestQueryPlot.pl,v 1.38 2006/07/21 19:22:02 didenko Exp $
+# $Id: dbDevTestQueryPlot.pl,v 1.39 2006/07/25 19:36:15 didenko Exp $
 #
 # $Log: dbDevTestQueryPlot.pl,v $
+# Revision 1.39  2006/07/25 19:36:15  didenko
+# more updates
+#
 # Revision 1.38  2006/07/21 19:22:02  didenko
 # come back to previous version
 #
@@ -181,19 +184,21 @@ while($n_weeks >= 0) {
 	$path =~ s(year)($Nday[$d_week]/year);
 	$path =~ s(/)(%)g;
 
+	    my $qupath = "%$path%";
+
 	if ($n_weeks == 0) {
 
-	    $sql="SELECT path, $mplotVal FROM JobStatus WHERE path LIKE \"%$path%\" AND avail='Y' AND jobStatus=\"Done\" AND (TO_DAYS(\"$nowdate\") -TO_DAYS(createTime)) < ? ORDER by createTime DESC LIMIT 5";
+	    $sql="SELECT path, $mplotVal FROM JobStatus WHERE path LIKE ? AND avail='Y' AND jobStatus=\"Done\" AND (TO_DAYS(\"$nowdate\") -TO_DAYS(createTime)) < ? ORDER by createTime DESC LIMIT 5";
 
  	$cursor = $dbh->prepare($sql) || die "Cannot prepare statement: $dbh->errstr\n";
-	$cursor->execute($day_diff);
+	$cursor->execute($qupath,$day_diff);
 
 	} else {
-	    $sql="SELECT path, $mplotVal FROM JobStatus WHERE path LIKE \"%$path%\" AND jobStatus=\"Done\" AND (TO_DAYS(\"$nowdate\") -TO_DAYS(createTime)) < ? AND (TO_DAYS(\"$nowdate\") -TO_DAYS(createTime)) > ? ORDER by createTime DESC LIMIT 5";
+	    $sql="SELECT path, $mplotVal FROM JobStatus WHERE path LIKE ? AND jobStatus=\"Done\" AND (TO_DAYS(\"$nowdate\") -TO_DAYS(createTime)) < ? AND (TO_DAYS(\"$nowdate\") -TO_DAYS(createTime)) > ? ORDER by createTime DESC LIMIT 5";
 
 
 	$cursor = $dbh->prepare($sql) || die "Cannot prepare statement: $dbh->errstr\n";
-	$cursor->execute($day_diff, $day_diff1);
+	$cursor->execute($qupath,$day_diff, $day_diff1);
 
  }
 	while(@fields = $cursor->fetchrow_array) {
