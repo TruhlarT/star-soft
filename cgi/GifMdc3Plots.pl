@@ -55,6 +55,7 @@ my $plotVl = @spl[0];
 
    $jobset =~ s/\//_/g;   
   
+my $qrjobset = "$jobset%";
 
 struct Products => {
    flName    => '$',
@@ -81,18 +82,19 @@ my $sql;
 
 
  if( $set1 ne "all" ) {
-$sql="SELECT sumFileName,jobfileName, jobStatus, mem_size_MB, CPU_per_evt_sec, avg_no_tracks, avg_no_vertex, RealTime_per_evt FROM $JobStatusT WHERE jobfileName LIKE '$jobset%' AND JobID LIKE '%mdc3%' AND jobStatus <>'n/a'"; 
+$sql="SELECT sumFileName,jobfileName, jobStatus, mem_size_MB, CPU_per_evt_sec, avg_no_tracks, avg_no_vertex, RealTime_per_evt FROM $JobStatusT WHERE jobfileName LIKE ? AND JobID LIKE '%mdc3%' AND jobStatus <>'n/a'"; 
 
+ $cursor =$dbh->prepare($sql)
+        || die "Cannot prepare statement: $DBI::errstr\n";
+    $cursor->execute($qrjobset);
 
 }elsif ( $set1 eq "all") {
 $sql="SELECT sumFileName,jobfileName, jobStatus, mem_size_MB, CPU_per_evt_sec, avg_no_tracks, avg_no_vertex, RealTime_per_evt FROM $JobStatusT WHERE JobID LIKE '%mdc3%' AND jobStatus <> 'n/a'";
 
- }
-
   $cursor =$dbh->prepare($sql)
         || die "Cannot prepare statement: $DBI::errstr\n";
     $cursor->execute;
-
+}
 
     while(@fields = $cursor->fetchrow) {
         my $cols=$cursor->{NUM_OF_FIELDS}; 
