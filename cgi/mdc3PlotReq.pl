@@ -94,7 +94,6 @@ print <<END;
 <META HTTP-EQUIV="Expires" CONTENT="0">
 <META HTTP-EQUIV="Pragma" CONTENT="no-cache">
 <META HTTP-EQUIV="Cache-Control" CONTENT="no-cache">
-#<META HTTP-equiv="Refresh" content="600; URL-HTTP://www.star.bnl.gov/devcgi/GifMdc3Plots.pl">
 END
 
   print " <title>Select Query for Production Plots </title>";
