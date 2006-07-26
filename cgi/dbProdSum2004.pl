@@ -130,7 +130,7 @@ if ($trigD eq "all" and $fieldM eq "all" and $detSet eq "all" ) {
 
     $cursor =$dbh->prepare($sql)
      || die "Cannot prepare statement: $DBI::errstr\n";
-   $cursor->execute($prod,$coldata,$datasmp,$Loc); 
+   $cursor->execute($prod,$datasmp,$Loc); 
 
  
 }elsif($trigD ne "all" and $fieldM ne "all" and $detSet eq "all") {
@@ -139,7 +139,7 @@ $sql="SELECT  sum(size), sum(Nevents) FROM $FileCatalogT WHERE fName LIKE '%.MuD
 
     $cursor =$dbh->prepare($sql)
      || die "Cannot prepare statement: $DBI::errstr\n";
-   $cursor->execute($prod,$coldata,$datasmp,$trigD,$Loc); 
+   $cursor->execute($prod,$datasmp,$trigD,$Loc); 
 
 }elsif ($trigD eq "all" and $fieldM eq "all"  and $detSet ne "all" ) {
 
