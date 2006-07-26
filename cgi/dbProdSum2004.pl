@@ -61,15 +61,15 @@ my $Loct   =  $query->param('SetLc');
 my $colls;
 my $dPath;
 
-if($colSet eq "ProtonProton200") {
-    $colls = "PPPP200";
-  }elsif($colSet eq "ProtonProton48") {
-    $colls = "PPPP48";
+ if($colSet eq "ProtonProton200") {
+     $colls = "PPPP200";
+   }elsif($colSet eq "ProtonProton48") {
+     $colls = "PPPP48";
   }else{
       $colls = $colSet;
   };
 
-my $dtset = $colSet."_".$fieldM;
+my $dtset = $colls."_".$fieldM;
 
 struct FilAttr => {
        flName   => '$',
