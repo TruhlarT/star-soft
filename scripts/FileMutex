@@ -1,5 +1,5 @@
 #!/bin/csh
-# * $Id: FileMutex,v 1.3 2006/07/27 15:37:43 fine Exp $
+# * $Id: FileMutex,v 1.1 2006/07/27 16:03:39 fine Exp $
 # Author: Valeri Fine fine@bnl.gov
 # Date:   25.06.2006
 #
@@ -28,7 +28,13 @@ if (  $1 != "" ) then
   set MUTEX_ID=$1
   shift
 else
-  set MUTEX_ID=$REQUESTID
+  if ($?REQUESTID ) then
+     set MUTEX_ID=$REQUESTID
+   else
+     echo " The REQUESTID parameter of the script was not defined."
+     echo " This may entail the synch problem. Fix you script, please"
+     set MUTEX_ID=REQUESTID
+   endif
 endif
 
 # The mutex directory should be defined with the absolute path
@@ -38,13 +44,18 @@ if (  $1 != "" ) then
 else
   set MUTEX_DIR=`echo $HOME/Mutex`
   mkdir -p $MUTEX_DIR >&/dev/null
+  echo  MUTEX_DIR                 $MUTEX_DIR 
 endif
 
 # The mutex comment
 if (  $1 != "" ) then
   set MUTEX_COMMENT=MUTEX_COMMENT
 else
-  set MUTEX_COMMENT="PROCESSID"
+  if ($?PROCESSID ) then
+     set MUTEX_COMMENT MUTEX_ID=$PROCESSID
+   else
+     set MUTEX_COMMENT MUTEX_ID=PROCESSID
+   endif
 endif
 
 
@@ -54,8 +65,8 @@ set SEMAPHORE_MUTEX_FILE=$MUTEX_DIR/$MUTEX_ID.unlock
 
 #echo ------------------------------------------------------
 #echo  SEMAPHORE_TYPE            $SEMAPHORE_TYPE 
- echo  MUTEX_ID                  $MUTEX_ID 
- echo  MUTEX_DIR                 $MUTEX_DIR 
+#echo  MUTEX_ID                  $MUTEX_ID 
+#echo  MUTEX_DIR                 $MUTEX_DIR 
 #echo  MUTEX_COMMENT             $SEMAPHORE_TYPE 
 #echo  INIT_MUTEX_FILE_COMPLETE  $INIT_MUTEX_FILE_COMPLETE 
 #echo  SEMAPHORE_MUTEX_FILE      $SEMAPHORE_MUTEX_FILE
@@ -98,8 +109,8 @@ switch ( $SEMAPHORE_TYPE )
    #  The critical section initialization
    # ---- V-semaphore (inlock) ---------------
       if ( ! -e $SEMAPHORE_MUTEX_FILE ) then
-         touch  > $SEMAPHORE_MUTEX_FILE 
-         touch  > $INIT_MUTEX_FILE_COMPLETE
+         touch  $SEMAPHORE_MUTEX_FILE 
+         touch  $INIT_MUTEX_FILE_COMPLETE
       endif
    endif
    breaksw
