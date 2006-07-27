@@ -1,5 +1,5 @@
 #!/bin/csh
-# * $Id: FileMutex,v 1.4 2006/07/27 17:26:45 fine Exp $
+# * $Id: FileMutex,v 1.5 2006/07/27 17:46:37 fine Exp $
 # Author: Valeri Fine fine@bnl.gov
 # Date:   25.06.2006
 #
@@ -84,8 +84,7 @@ switch ( $SEMAPHORE_TYPE )
      sleep 20  
    end
    breaksw
-   
-   
+      
   case "Unlock" :
   # -----  V-semaphore (Unlock) -----------------
     if ( ! -e $INIT_MUTEX_FILE_COMPLETE ) then
@@ -115,7 +114,15 @@ default:
   echo ""
   echo 'Usage: FileMutex ["Lock" | "Unlock" | "Init" | "Help" ] [$REQUESTID] [$MUTEXDIR] [$PROCESSID]'
   echo '-----  default parameters:  FileMutex Init $REQUESTID $HOME/Mutex  $PROCESSID'
-  echo         Report the problem: 
+  echo ""
+  echo '       Your script should contain:'
+  echo ""
+  echo '          1. One invocation of the "FileMutex [Init]" before any "Lock"/"Unlock" function'
+  echo '          2. Calling "FileMutex Lock"  twice without any "FileMutex Unlock" in between'
+  echo '             leads to the "dead lock"'
+  echo ""
+  echo '        Report the problems and communicate your suggestions'
+  echo '        via "STAR Bug" web page http://www.star.bnl.gov/rt2/'
   echo ""
   breaksw
   
