@@ -554,7 +554,7 @@ sub rdaq_raw_files
 	}
 
 	# skip scaler files added in 2006
-	if ( $res[0] !~ /\.sca/){  next;}
+	if ( $res[0] =~ /\.sca/){  next;}
 
 	if ( $res[0] !~ /\.daq/){
 	    &info_message("raw_files",3,"File not matching expected name pattern [$res[0]]\n");
