@@ -220,7 +220,7 @@ if ($ThisYear == 2002){
     $ZEROBIAS=  rdaq_string2ftype("zerobias");
 
     @USEQ    = (5,5,4);
-    @SPILL   = (1,4,2);
+    @SPILL   = (1,5,2);
 
     # Default chain -- P2005 does not include Corr4 but Corr3
     $DCHAIN{"AuAu"}           = "P2005,svt_daq,svtD,EST,pmdRaw,Xi2,V02,Kink2,CMuDst,OShortR";
@@ -266,7 +266,8 @@ if ($ThisYear == 2002){
     @EXPRESS = (
 		rdaq_string2ftype("express"),
 		rdaq_string2ftype("jpsi"),
-		rdaq_string2ftype("upsilon")
+		rdaq_string2ftype("upsilon"),
+		rdaq_string2ftype("muon")
 		);
     $ZEROBIAS=  rdaq_string2ftype("zerobias");
 
