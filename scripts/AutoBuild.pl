@@ -1,6 +1,6 @@
 #!/usr/bin/env perl
 
-# $Id: AutoBuild.pl,v 1.28 2006/05/19 14:52:51 jeromel Exp $
+# $Id: AutoBuild.pl,v 1.29 2006/07/28 22:16:31 jeromel Exp $
 # This script was written to perform an automatic compilation
 # with cvs co and write some html page related to it afterward.
 # Written J.Lauret Apr 6 2001
@@ -39,11 +39,11 @@ $DFILE   = "RELEASE.date";
 #
 # For now, we have only one case but there may be many.
 #
-%RECOVER = ("Disk quota exceeded",          
+%RECOVER = ("Disk quota exceeded",
 	    "mgr/CleanLibs");
 
-	    #"no newline at end of file",    
-	    #"mgr/CleanLibs && /usr/bin/find /tmp -type f -user $USER -exec rm -f {} \\;");
+	    #"no newline at end of file",
+	    #"mgr/CleanLibs && /usr/bin/find /tmp -type f -user \$USER -exec rm -f {} \\;");
 
 
 # this a counter for each recoverrable errors
@@ -317,7 +317,7 @@ if($NIGNOR){
 		push(@UPDATES,(split(" ",$line))[1]);
 	    } elsif ($line =~ m/^M /){
 		push(@MERGED,(split(" ",$line))[1]);
-	    } elsif ($line !~ m/^\? /){ 
+	    } elsif ($line !~ m/^\? /){
 		push(@DONOTKNOW,$line);
 	    }
 	}
