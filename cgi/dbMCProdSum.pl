@@ -26,12 +26,15 @@ my $debugOn=0;
 my @prodPer;
 my $nprodPer;
 my %prodFlag = ();
-my $mOpt;
 
 $query = new CGI;
 
-$mcSet   =  $query->param('SetMC');
-$mOpt = $query->param('qSum');
+ my $mSet   =  $query->param('SetMC');
+
+ my @spl = ();
+
+ @spl = split(" ",$mSet);
+$mcSet = $spl[0];
 
 my @Nchain = ("tfs","trs");
 my $prodCh; 
@@ -44,11 +47,13 @@ my $myprod;
 my $jobFile = $mcSet;
    $jobFile =~ s/\//_/g;
 
-$sql="SELECT DISTINCT prodSeries FROM $JobStatusT where jobfileName like '$jobFile%' ";
+my $jobs = "$jobFile%";
+
+$sql="SELECT DISTINCT prodSeries FROM $JobStatusT where jobfileName like ? ";
 
    $cursor =$dbh->prepare($sql)
       || die "Cannot prepare statement: $DBI::errstr\n";
-   $cursor->execute;
+   $cursor->execute($jobs);
 
     while(@fields = $cursor->fetchrow) {
       my $cols=$cursor->{NUM_OF_FIELDS};
@@ -95,7 +100,6 @@ struct ChainAttr => {
        libVr     => '$',
 		    };
 
-# if($mOpt eq "summary") {      
 
 #####  Find sets in DataSet table
 
@@ -132,11 +136,11 @@ my @hpssDstFiles;
 my $nhpssDstFiles = 0;
 
 
- $sql="SELECT $FileCatalogT.jobID as fjobID, dataset, fName, size, path, Nevents, $JobStatusT.JobID as jjobID, prodSeries,chainName FROM $FileCatalogT, $JobStatusT WHERE dataset = '$mcSet' AND type = 'MC_reco' AND hpss ='Y' AND $FileCatalogT.jobID = $JobStatusT.JobID ";
+ $sql="SELECT $FileCatalogT.jobID as fjobID, dataset, fName, size, path, Nevents, $JobStatusT.JobID as jjobID, prodSeries,chainName FROM $FileCatalogT, $JobStatusT WHERE dataset = ? AND type = 'MC_reco' AND hpss ='Y' AND $FileCatalogT.jobID = $JobStatusT.JobID ";
 
    $cursor =$dbh->prepare($sql)
      || die "Cannot prepare statement: $DBI::errstr\n";
-   $cursor->execute;
+   $cursor->execute($mcSet);
 
    while(@fields = $cursor->fetchrow) {
       my $cols=$cursor->{NUM_OF_FIELDS};
@@ -225,15 +229,15 @@ my $chainN;
  }
 }
 
-#####  select daq files from FileCatalog
+#####  select MC files from FileCatalog
  my $dqfile;
  my $dqpath;
 
- $sql="SELECT dataset, fName, path, size, Nevents  FROM $FileCatalogT WHERE dataset = '$mcSet' AND type = 'MC' AND fName LIKE '%fz%' AND hpss ='Y' ";
+ $sql="SELECT dataset, fName, path, size, Nevents  FROM $FileCatalogT WHERE dataset = ? AND type = 'MC' AND fName LIKE '%fz%' AND hpss ='Y' ";
 
    $cursor =$dbh->prepare($sql)
       || die "Cannot prepare statement: $DBI::errstr\n";
-   $cursor->execute;
+   $cursor->execute($mcSet);
 
    while(@fields = $cursor->fetchrow) {
      my $cols=$cursor->{NUM_OF_FIELDS};

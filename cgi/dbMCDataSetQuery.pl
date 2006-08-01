@@ -56,15 +56,11 @@ print $query->scrolling_list(-name=>'gYear',
 			     -values=>\@geoYear,
 			     -size =>8); 
 
-print "</td><td>";
-print "<h3 align=center> Select format:</h3>";
-print "<h4 align=center>";
-print $query->scrolling_list(-name=>'fform',
-			     -values=>\@ftype,
-			     -size =>8); 
-
 print "</td> </tr> </table><hr><center>";
-
+print "<br>";
+print "<br>";
+print "<br>";
+print "<br>";
 print $query->submit,"<p>";
 print $query->reset;
 print $query->endform;
