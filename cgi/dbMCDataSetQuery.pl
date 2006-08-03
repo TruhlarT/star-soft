@@ -42,18 +42,21 @@ print "<h3 align=center>Select Collision:</h3>";
 print "<h4 align=center>";
 print $query->scrolling_list(-name=>'setC',
 			     -values=>\@collision,
+                             -default=>'all',  
 			     -size=>8);
 print "</td><td>";
 print "<h3 align=center> Select Event Generator:</h3>";
 print "<h4 align=center>";
 print $query->scrolling_list(-name=>'evGen',
 			     -values=>\@evtGen,
+                             -default=>'all',  
 			     -size =>8); 
 print "</td><td>";
 print "<h3 align=center> Select Geometry:</h3>";
 print "<h4 align=center>";
 print $query->scrolling_list(-name=>'gYear',
 			     -values=>\@geoYear,
+                             -default=>'all',  
 			     -size =>8); 
 
 print "</td> </tr> </table><hr><center>";
