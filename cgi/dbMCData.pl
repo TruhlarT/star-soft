@@ -18,11 +18,13 @@ my @evtGen  = ("all","hijing", "hijet", "mevsim", "venus", "nexus", "vni", "two_
 
 my @geoYear = ("all","year_1b", "year_1h", "year_1e", "year_1s", "complete", "year_1a", "year1a", "year2001", "year2003", "y2003x", "year_2a", "year2a");
 
-my @ftype = ("fzd","event.root","dst.root","geant.root","hist.root", "tags.root", "MuDst.root");
+my @ftype = ("fzd","event.root","geant.root", "MuDst.root");
 my @locSet = ("hpss","disk");
 my @prodPer;
 my $myprod;
 my $nprodPer = 0;
+my @prod = ();
+
 
 &StDbProdConnect();
 
@@ -45,6 +47,9 @@ $sql="SELECT DISTINCT prodSeries FROM $JobStatusT where jobfileName like '%hadro
        $prodPer[$nprodPer] = $myprod;
        $nprodPer++;
     }
+
+   push @prod, "all";
+   push @prod, @prodPer;
 
  &StDbProdDisconnect();
 
@@ -75,7 +80,7 @@ print "<h3 align=center>Collision:</h3>";
 print "<h4 align=center>";
 print $query->scrolling_list(-name=>'setC',
 			     -values=>\@collision,
-                             -default=>'dau200',
+                             -default=>'all',
 			     -size=>6);
 
 print "</td><td>";
@@ -83,7 +88,7 @@ print "<h3 align=center> Event Generator:</h3>";
 print "<h4 align=center>";
 print $query->scrolling_list(-name=>'evGen',
 			     -values=>\@evtGen,
-                             -default=>'hijing', 
+                             -default=>'all', 
 			     -size =>6); 
 
 print "</td><td>";
@@ -91,15 +96,15 @@ print "<h3 align=center> Geometry:</h3>";
 print "<h4 align=center>";
 print $query->scrolling_list(-name=>'gYear',
 			     -values=>\@geoYear,
-                             -default=>'year2001',
+                             -default=>'all',
 			     -size =>6); 
 
 print "</td><td>";
 print "<h3 align=center>Production series:</h3>";
 print "<h3 align=center>";
 print $query->popup_menu(-name=>'SetPrd',  
-                   -values=>\@prodPer,
-                   -default=>'P03id',                   
+                   -values=>\@prod,
+                   -default=>'all',                   
                    -size=>6);                              
 
 print "</td><td>";
