@@ -9,7 +9,7 @@
 
 use CGI;
 
-require "/afs/rhic/star/packages/cgi/dbCpProdSetup.pl";
+require "/afs/rhic/star/users/didenko/cgi/dbCpProdSetup.pl";
 
 use Class::Struct;
 use CGI::Carp qw(fatalsToBrowser);
@@ -28,101 +28,253 @@ my $loct;
 
 #&cgiSetup();
 
-my ($query) = @_;
+ my ($query) = @_;
 
-$query = new CGI;
+ $query = new CGI;
 
-$myCol = $query->param('setC');
-$myEvt = $query->param('evGen');
-$myGeo = $query->param('gYear');
-$myForm = $query->param('SetForm');
-$prod = $query->param('SetPrd');
-$loct = $query->param('SetLc');
+ my $mCol = $query->param('setC');
+ my $mEvt = $query->param('evGen');
+ my $mGeo = $query->param('gYear');
+ my $mform = $query->param('SetForm');
+ my $mprod = $query->param('SetPrd');
+ my $mloct = $query->param('SetLc');
+
+ my @spl = ();
+ @spl = split(" ", $mCol);
+  $myCol = $spl[0];
+ @spl = ();
+ @spl = split(" ", $mEvt);
+  $myEvt = $spl[0];
+ @spl = ();
+ @spl = split(" ", $mGeo);
+  $myGeo = $spl[0];
+ @spl = ();
+ @spl = split(" ", $mform);
+  $myForm = $spl[0];
+ @spl = ();
+ @spl = split(" ", $mprod);
+  $prod = $spl[0];
+  @spl = ();
+ @spl = split(" ", $mloct);
+  $loct = $spl[0];
+
 
 my @joinSet = ($prod . "%" .$myForm . "%" .$loct);
+
+my $prodc = "%$prod%";
+my $exts = "%$myForm";
+my $Col = "$myCol%";
+my $Evt = "%$myEvt%";
+my $Geo = "%$myGeo%";
+my $loc = "$loct%";
 
 &StDbProdConnect();
 
 if ($myForm =~ /root/) {
 
-if ($myCol eq "all" and $myEvt eq "all" and $myGeo eq "all") {
+if ($myCol eq "all" and $myEvt eq "all" and $myGeo eq "all" and $prod ne "all" ) {
 
-$sql="SELECT DISTINCT dataset FROM $FileCatalogT where jobID like '%$prod%' AND dataset <> 'n/a' AND type = 'MC_reco' AND fName like '%$myForm' and site like '$loct%' ";
+$sql="SELECT DISTINCT dataset FROM $FileCatalogT where jobID like ? AND dataset <> 'n/a' AND type = 'MC_reco' AND fName like ? and site like ? ";
 
-}elsif($myCol eq "all" and $myEvt eq "all" and $myGeo ne "all") {
+    $cursor =$dbh->prepare($sql)
+   || die "Cannot prepare statement: $DBI::errstr\n";
+  $cursor->execute($prodc,$exts,$loc);
 
-$sql="SELECT DISTINCT dataset FROM $FileCatalogT where jobID like '%$prod%' AND dataset like '%$myGeo%' AND type = 'MC_reco' AND fName like '%$myForm' and site like '$loct%'";
+}elsif($myCol eq "all" and $myEvt eq "all" and $myGeo ne "all" and $prod ne "all" ) {
 
-}elsif($myCol eq "all" and $myEvt ne "all" and $myGeo ne "all") {
+$sql="SELECT DISTINCT dataset FROM $FileCatalogT where jobID like ? AND dataset like ? AND type = 'MC_reco' AND fName like ? and site like ? ";
 
-$sql="SELECT DISTINCT dataset FROM $FileCatalogT where jobID like '%$prod%' AND dataset like '%$myEvt%' AND dataset like '%$myGeo%' AND type = 'MC_reco' AND fName like '%$myForm' and site like '$loct%'";
+       $cursor =$dbh->prepare($sql)
+   || die "Cannot prepare statement: $DBI::errstr\n";
+  $cursor->execute($prodc,$Geo,$exts,$loc);
 
-}elsif($myCol eq "all" and $myEvt ne "all" and $myGeo eq "all") {
+}elsif($myCol eq "all" and $myEvt ne "all" and $myGeo ne "all" and $prod ne "all") {
 
-$sql="SELECT DISTINCT dataset FROM $FileCatalogT where jobID like '%$prod%' AND dataset like '%$myEvt%' AND type = 'MC_reco' AND fName like '%$myForm' and site like '$loct%'";
+$sql="SELECT DISTINCT dataset FROM $FileCatalogT where jobID like ? AND dataset like ? AND dataset like ? AND type = 'MC_reco' AND fName like ? and site like ? ";
 
-}elsif($myCol ne "all" and $myEvt eq "all" and $myGeo eq "all") {
+         $cursor =$dbh->prepare($sql)
+   || die "Cannot prepare statement: $DBI::errstr\n";
+  $cursor->execute($prodc,$Evt,$Geo,$exts,$loc);
 
-$sql="SELECT DISTINCT dataset FROM $FileCatalogT where jobID like '%$prod%' AND dataset like '$myCol%' AND type = 'MC_reco' AND fName like '%$myForm' and site like '$loct%' ";
+}elsif($myCol eq "all" and $myEvt ne "all" and $myGeo eq "all" and $prod ne "all") {
 
-}elsif($myCol ne "all" and $myEvt ne "all" and $myGeo eq "all") {
+$sql="SELECT DISTINCT dataset FROM $FileCatalogT where jobID like ? AND dataset like ? AND type = 'MC_reco' AND fName like ? and site like ? ";
 
-$sql="SELECT DISTINCT dataset FROM $FileCatalogT where jobID like '%$prod%' AND dataset like '$myCol%' AND dataset like '%$myEvt%' AND type = 'MC_reco' AND fName like '%$myForm' and site like '$loct%'";
+           $cursor =$dbh->prepare($sql)
+   || die "Cannot prepare statement: $DBI::errstr\n";
+  $cursor->execute($prodc,$Evt,$exts,$loc);
 
-}elsif($myCol ne "all" and $myEvt eq "all" and $myGeo ne "all") {
+}elsif($myCol ne "all" and $myEvt eq "all" and $myGeo eq "all" and $prod ne "all") {
 
-$sql="SELECT DISTINCT dataset FROM $FileCatalogT where jobID like '%$prod%' AND dataset like '$myCol%' AND dataset like '%$myGeo%' AND type = 'MC_reco' AND fName like '%$myForm' and site like '$loct%' ";
+$sql="SELECT DISTINCT dataset FROM $FileCatalogT where jobID like ? AND dataset like ? AND type = 'MC_reco' AND fName like ? and site like ? ";
 
-}elsif($myCol ne "all" and $myEvt ne "all" and $myGeo ne "all") {
+       $cursor =$dbh->prepare($sql)
+   || die "Cannot prepare statement: $DBI::errstr\n";
+  $cursor->execute($prodc,$Col,$exts,$loc);
 
-$sql="SELECT DISTINCT dataset FROM $FileCatalogT where jobID like '%$prod%' AND dataset like '$myCol%' AND dataset like '%$myEvt%' AND dataset like '%$myGeo%' AND type = 'MC_reco' AND fName like '%$myForm' and site like '$loct%' ";
+}elsif($myCol ne "all" and $myEvt ne "all" and $myGeo eq "all" and $prod ne "all") {
+
+$sql="SELECT DISTINCT dataset FROM $FileCatalogT where jobID like ? AND dataset like ? AND dataset like ? AND type = 'MC_reco' AND fName like ? and site like ? ";
+
+       $cursor =$dbh->prepare($sql)
+    || die "Cannot prepare statement: $DBI::errstr\n";
+   $cursor->execute($prodc,$Col,$Evt,$exts,$loc);
+
+}elsif($myCol ne "all" and $myEvt eq "all" and $myGeo ne "all"  and $prod ne "all") {
+
+$sql="SELECT DISTINCT dataset FROM $FileCatalogT where jobID like ? AND dataset like ? AND dataset like ? AND type = 'MC_reco' AND fName like ? and site like ? ";
+
+       $cursor =$dbh->prepare($sql)
+    || die "Cannot prepare statement: $DBI::errstr\n";
+   $cursor->execute($prodc,$Col,$Geo,$exts,$loc);
+
+}elsif($myCol ne "all" and $myEvt ne "all" and $myGeo ne "all" and $prod ne "all" ) {
+
+$sql="SELECT DISTINCT dataset FROM $FileCatalogT where jobID like ? AND dataset like ? AND dataset like ? AND dataset like ? AND type = 'MC_reco' AND fName like ? and site like ? ";
+
+        $cursor =$dbh->prepare($sql)
+    || die "Cannot prepare statement: $DBI::errstr\n";
+   $cursor->execute($prodc,$Col,$Evt,$Geo,$exts,$loc);
+
+} elsif ($myCol eq "all" and $myEvt eq "all" and $myGeo eq "all" and $prod eq "all" ) {
+
+$sql="SELECT DISTINCT dataset FROM $FileCatalogT where  dataset <> 'n/a' AND type = 'MC_reco' AND fName like ? and site like ? ";
+
+         $cursor =$dbh->prepare($sql)
+    || die "Cannot prepare statement: $DBI::errstr\n";
+   $cursor->execute($exts,$loc);
+
+}elsif($myCol eq "all" and $myEvt eq "all" and $myGeo ne "all" and $prod eq "all" ) {
+
+$sql="SELECT DISTINCT dataset FROM $FileCatalogT where  dataset like ? AND type = 'MC_reco' AND fName like ? and site like ? ";
+
+          $cursor =$dbh->prepare($sql)
+    || die "Cannot prepare statement: $DBI::errstr\n";
+   $cursor->execute($Geo,$exts,$loc);
+
+}elsif($myCol eq "all" and $myEvt ne "all" and $myGeo ne "all" and $prod eq "all") {
+
+$sql="SELECT DISTINCT dataset FROM $FileCatalogT where dataset like ? AND dataset like ? AND type = 'MC_reco' AND fName like ? and site like ? ";
+
+           $cursor =$dbh->prepare($sql)
+    || die "Cannot prepare statement: $DBI::errstr\n";
+   $cursor->execute($Evt,$Geo,$exts,$loc);
+
+}elsif($myCol eq "all" and $myEvt ne "all" and $myGeo eq "all" and $prod eq "all") {
+
+$sql="SELECT DISTINCT dataset FROM $FileCatalogT where  dataset like ? AND type = 'MC_reco' AND fName like ? and site like ? ";
+
+       $cursor =$dbh->prepare($sql)
+    || die "Cannot prepare statement: $DBI::errstr\n";
+   $cursor->execute($Evt,$exts,$loc);
+
+}elsif($myCol ne "all" and $myEvt eq "all" and $myGeo eq "all" and $prod eq "all") {
+
+$sql="SELECT DISTINCT dataset FROM $FileCatalogT where  dataset like ? AND type = 'MC_reco' AND fName like ? and site like ? ";
+
+         $cursor =$dbh->prepare($sql)
+    || die "Cannot prepare statement: $DBI::errstr\n";
+   $cursor->execute($Col,$exts,$loc);
+
+}elsif($myCol ne "all" and $myEvt ne "all" and $myGeo eq "all" and $prod eq "all") {
+
+$sql="SELECT DISTINCT dataset FROM $FileCatalogT where  dataset like ? AND dataset like ? AND type = 'MC_reco' AND fName like ? and site like ? ";
+
+           $cursor =$dbh->prepare($sql)
+    || die "Cannot prepare statement: $DBI::errstr\n";
+   $cursor->execute($Col,$Evt,$exts,$loc); 
+
+}elsif($myCol ne "all" and $myEvt eq "all" and $myGeo ne "all"  and $prod eq "all") {
+
+$sql="SELECT DISTINCT dataset FROM $FileCatalogT where dataset like ? AND dataset like ? AND type = 'MC_reco' AND fName like ? and site like ? ";
+
+           $cursor =$dbh->prepare($sql)
+    || die "Cannot prepare statement: $DBI::errstr\n";
+   $cursor->execute($Col,$Geo,$exts,$loc); 
+
+}elsif($myCol ne "all" and $myEvt ne "all" and $myGeo ne "all" and $prod eq "all" ) {
+
+$sql="SELECT DISTINCT dataset FROM $FileCatalogT where dataset like ? AND dataset like ? AND dataset like ? AND type = 'MC_reco' AND fName like ? and site like ? ";
+   
+         $cursor =$dbh->prepare($sql)
+    || die "Cannot prepare statement: $DBI::errstr\n";
+   $cursor->execute($Col,$Evt,$Geo,$exts,$loc); 
+
 }
 
-}else{
+ }else{
 
 if ($myCol eq "all" and $myEvt eq "all" and $myGeo eq "all") {
 
-$sql="SELECT DISTINCT dataset FROM $FileCatalogT where dataset <> 'n/a' AND type = 'MC' AND fName like '%$myForm' ";
+$sql="SELECT DISTINCT dataset FROM $FileCatalogT where dataset <> 'n/a' AND type = 'MC' AND fName like ? ";
+
+          $cursor =$dbh->prepare($sql)
+    || die "Cannot prepare statement: $DBI::errstr\n";
+   $cursor->execute($exts); 
 
 }elsif($myCol eq "all" and $myEvt eq "all" and $myGeo ne "all" ) {
 
-$sql="SELECT DISTINCT dataset FROM $FileCatalogT where dataset like '%$myGeo%' AND type = 'MC' AND fName like '%$myForm' ";
+$sql="SELECT DISTINCT dataset FROM $FileCatalogT where dataset like ? AND type = 'MC' AND fName like ? ";
+
+           $cursor =$dbh->prepare($sql)
+    || die "Cannot prepare statement: $DBI::errstr\n";
+   $cursor->execute($Geo,$exts); 
 
 }elsif($myCol eq "all" and $myEvt ne "all" and $myGeo ne "all") {
 
-$sql="SELECT DISTINCT dataset FROM $FileCatalogT where dataset like '%$myEvt%' AND dataset like '%$myGeo%' AND type = 'MC' AND fName like '%$myForm' ";
+$sql="SELECT DISTINCT dataset FROM $FileCatalogT where dataset like ? AND dataset like ? AND type = 'MC' AND fName like ? ";
+
+           $cursor =$dbh->prepare($sql)
+    || die "Cannot prepare statement: $DBI::errstr\n";
+   $cursor->execute($Evt,$Geo,$exts); 
 
 }elsif($myCol eq "all" and $myEvt ne "all" and $myGeo eq "all" ) {
 
-$sql="SELECT DISTINCT dataset FROM $FileCatalogT where dataset like '%$myEvt%' AND type = 'MC' AND fName like '%$myForm' ";
+$sql="SELECT DISTINCT dataset FROM $FileCatalogT where dataset like ? AND type = 'MC' AND fName like ? ";
+
+         $cursor =$dbh->prepare($sql)
+    || die "Cannot prepare statement: $DBI::errstr\n";
+   $cursor->execute($Evt,$exts);  
 
 }elsif($myCol ne "all" and $myEvt eq "all" and $myGeo eq "all") {
 
-$sql="SELECT DISTINCT dataset FROM $FileCatalogT where dataset like '$myCol%' AND type = 'MC' AND fName like '%$myForm' ";
+$sql="SELECT DISTINCT dataset FROM $FileCatalogT where dataset like ? AND type = 'MC' AND fName like ? ";
+
+         $cursor =$dbh->prepare($sql)
+    || die "Cannot prepare statement: $DBI::errstr\n";
+   $cursor->execute($Col,$exts);  
 
 }elsif($myCol ne "all" and $myEvt ne "all" and $myGeo eq "all") {
 
-$sql="SELECT DISTINCT dataset FROM $FileCatalogT where dataset like '$myCol%' AND dataset like '%$myEvt%' AND type = 'MC' AND fName like '%$myForm' ";
+$sql="SELECT DISTINCT dataset FROM $FileCatalogT where dataset like ? AND dataset like ? AND type = 'MC' AND fName like ? ";
+
+          $cursor =$dbh->prepare($sql)
+    || die "Cannot prepare statement: $DBI::errstr\n";
+   $cursor->execute($Col,$Evt,$exts);  
 
 }elsif($myCol ne "all" and $myEvt eq "all" and $myGeo ne "all") {
 
-$sql="SELECT DISTINCT dataset FROM $FileCatalogT where dataset like '$myCol%' AND dataset like '%$myGeo%' AND type = 'MC' AND fName like '%$myForm' ";
+$sql="SELECT DISTINCT dataset FROM $FileCatalogT where dataset like ? AND dataset like ? AND type = 'MC' AND fName like ? ";
+
+           $cursor =$dbh->prepare($sql)
+    || die "Cannot prepare statement: $DBI::errstr\n";
+   $cursor->execute($Col,$Geo,$exts);  
 
 }elsif($myCol ne "all" and $myEvt ne "all" and $myGeo ne "all") {
 
-$sql="SELECT DISTINCT dataset FROM $FileCatalogT where dataset like '$myCol%' AND dataset like '%$myEvt%' AND dataset like '%$myGeo%' AND type = 'MC' AND fName like '%$myForm' ";
+$sql="SELECT DISTINCT dataset FROM $FileCatalogT where dataset like ? AND dataset like ? AND dataset like ? AND type = 'MC' AND fName like ? ";
+            $cursor =$dbh->prepare($sql)
+    || die "Cannot prepare statement: $DBI::errstr\n";
+   $cursor->execute($Col,$Evt,$Geo,$exts); 
+
+  }
  }
-}
 
-$cursor =$dbh->prepare($sql)
-  || die "Cannot prepare statement: $DBI::errstr\n";
-$cursor->execute;
+    my $counter = 0;
+    while(@fields = $cursor->fetchrow) {
+    my $cols=$cursor->{NUM_OF_FIELDS};
 
-my $counter = 0;
-while(@fields = $cursor->fetchrow) {
-  my $cols=$cursor->{NUM_OF_FIELDS};
-
- for($i=0;$i<$cols;$i++) {
+   for($i=0;$i<$cols;$i++) {
     my $fvalue=$fields[$i];
     my $fname=$cursor->{NAME}->[$i];
     print "$fname = $fvalue\n" if $debugOn;
