@@ -17,8 +17,17 @@ my @pck;
 
 $query = new CGI;
 
-$setM  = $query->param("SetMC");
-$prSet = $query->param("prodSet");
+my $set  = $query->param("SetMC");
+my $prodr = $query->param("prodSet");
+
+my @spl = ();
+
+@spl = split(" ",$set);
+my $setM = $spl[0];
+
+@spl = ();
+@spl = split(" ",$prodr);
+my $prSet = $spl[0];
 
 @pck = split ("%",$prSet);
  
@@ -28,23 +37,41 @@ my $loc = $pck[2];
 my $mcom = "no";
 my $mstat;
 
+my $prod = "%$prodSer%";
+my $ext = "%$fform";
+my $Loc = "$loc%";
+
+
 &cgiSetup();
 
 &beginHtml();
 
 &StDbProdConnect();
 
-  if( $fform =~ /root/ ) {
+  if(  $prodSer ne "all" and $fform =~ /root/ ) {
 
-$sql="SELECT jobID, fName, path, Nevents, size, createTime, type, dataStatus, comment FROM $FileCatalogT WHERE dataset = '$setM' AND jobID LIKE '%$prodSer%' AND fName like '%$fform' AND site like '$loc%' ";
+$sql="SELECT jobID, fName, path, Nevents, size, createTime, type, dataStatus, comment FROM $FileCatalogT WHERE dataset = ? AND jobID LIKE ? AND fName like ? AND site like ? ";
+
+    $cursor =$dbh->prepare($sql)
+     || die "Cannot prepare statement: $DBI::errstr\n";
+   $cursor->execute($setM,$prod,$ext,$Loc);
+
+}elsif($prodSer eq "all" and $fform =~ /root/ ) {
+
+$sql="SELECT jobID, fName, path, Nevents, size, createTime, type, dataStatus, comment FROM $FileCatalogT WHERE dataset = ? AND fName like ? AND site like ? ";
+
+      $cursor =$dbh->prepare($sql)
+     || die "Cannot prepare statement: $DBI::errstr\n";
+   $cursor->execute($setM,$ext,$Loc);
 
 }elsif ( $fform = "fzd") {
 
-$sql="SELECT jobID, fName, path, Nevents, size, createTime, type, dataStatus, comment FROM $FileCatalogT WHERE dataset = '$setM' AND fName like '%$fform' AND site like '$loc%' ";
-}
+$sql="SELECT jobID, fName, path, Nevents, size, createTime, type, dataStatus, comment FROM $FileCatalogT WHERE dataset = ? AND fName like ? AND site like ? ";
    $cursor =$dbh->prepare($sql)
      || die "Cannot prepare statement: $DBI::errstr\n";
-   $cursor->execute;
+   $cursor->execute($setM,$ext,$Loc);
+
+}
 
    my $counter = 0;
    while(@fields = $cursor->fetchrow) {
