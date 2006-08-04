@@ -269,7 +269,7 @@ my $qqr = new CGI;
 
   if( $qsite eq "ALL" ) {
 
-      $sql="SELECT submissionTime, site, inputFile, logpath, globusStatus, globusError, logStatus, execStatus, transfer_in, transfer_out, recoFinishTime, createTime FROM $JobStatusT WHERE testday = ? "; 
+      $sql="SELECT submissionTime, site, inputFile, logpath, globusStatus, globusError, logStatus, execStatus, transfer_in, transfer_out, recoFinishTime, createTime FROM $JobStatusT WHERE testday = ? order by id "; 
 
        $cursor =$dbh->prepare($sql)
       || die "Cannot prepare statement: $DBI::errstr\n";
@@ -277,7 +277,7 @@ my $qqr = new CGI;
 
   }else{
 
-     $sql="SELECT submissionTime, site, inputFile, logpath, globusStatus, globusError, logStatus, execStatus, transfer_in, transfer_out, recoFinishTime, createTime FROM $JobStatusT WHERE testday = ? and site = ? ";
+     $sql="SELECT submissionTime, site, inputFile, logpath, globusStatus, globusError, logStatus, execStatus, transfer_in, transfer_out, recoFinishTime, createTime FROM $JobStatusT WHERE testday = ? and site = ?  order by id  ";
 
  
 
