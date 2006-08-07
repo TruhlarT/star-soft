@@ -90,9 +90,21 @@ for ($i=0 ; $i <= $#ARGV ; $i++){
     # Support "-XXX" options
     if ($ARGV[$i] eq "-o"){
 	$FLNM = $ARGV[$i+1];
-	if ( -e $FLNM ){
-	    # Make the file new all the time
-	    unlink($ARGV[$i+1]);
+
+	# Be sure we check on the tmp file and do 
+	# not have process clashing.
+	if ( -e "$FLNM.tmp"){
+	    my(@items)=stat("$FLNM.tmp");
+	    my($deltatime)= time() - $items[9];
+	    if ( $deltatime < 900){
+                # this file is too recent i.e. less than 10 mnts
+                open(FO,">>$FLNM");
+                print FO 
+		    "$FLNM.tmp detected and more recent than expected. ".
+		    "Process $$ exit.\n";
+                close(FO);
+                exit;
+	    }
 	}
 	if ( open(FO,">$FLNM.tmp") ){
 	    $i++;
@@ -307,7 +319,7 @@ foreach  $file (@ALL){
 	} else {
 	    #print "Cloning $hpath $file\n";
 	    if ( ! $fC->clone_location() ){
-		print "Cloning of $file did not occur\n";
+		#print "Cloning of $file did not occur\n";
 
 	    } else {
 	        &Stream("$mess File cloned ".sprintf("%.2f %%",($new/($#ALL+1))*100))
