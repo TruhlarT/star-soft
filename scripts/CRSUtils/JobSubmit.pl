@@ -213,11 +213,11 @@ if ($ThisYear == 2002){
     # Those were made automatically guessed in 2005.
     # Previous years hardcoded values could remain as-is (will not change
     # as tables are already filled)
-    $LASERTP =  rdaq_string2ftype("laser");
+#    $LASERTP =  rdaq_string2ftype("laser");
     $PHYSTP  =  rdaq_string2ftype("physics");
     $PHYSTP2 =  rdaq_string2ftype("physics_adc"); # just comment them if you want them disabled
-    @EXPRESS = (rdaq_string2ftype("express"));
-    $ZEROBIAS=  rdaq_string2ftype("zerobias");
+#    @EXPRESS = (rdaq_string2ftype("express"));
+#    $ZEROBIAS=  rdaq_string2ftype("zerobias");
 
     @USEQ    = (5,5,4);
     @SPILL   = (1,5,2);
