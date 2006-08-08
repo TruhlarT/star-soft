@@ -31,6 +31,7 @@ my $n;
 my $confirm;
 my $allst;
 my $class;
+my $instance="";
 
 # Connection parameters
 my $user=undef;
@@ -45,11 +46,12 @@ my $fileC = FileCatalog->new();
 
 # Turn off module debugging and script debugging
 $fileC->debug_off();
-$debug = 1;
-$delay = 0;
-$mode  = 1;  # check is the default
-$confirm = 0;
-$allst  = 0;
+$debug    = 1;
+$delay    = 0;
+$mode     = 1;  # check is the default
+$confirm  = 0;
+$allst    = 0;
+
 
 # Parse the cvommand line arguments.
 $count = 0;
@@ -71,7 +73,8 @@ while (defined $ARGV[$count]){
     } elsif ($ARGV[$count] eq "-nodebug"){
 	$debug = 0;
 
-
+    } elsif ($ARGV[$count] eq "-i"){
+	$instance  = $ARGV[++$count];
     } elsif ($ARGV[$count] eq "-u"){
 	$user      = $ARGV[++$count];
     } elsif ($ARGV[$count] eq "-p"){
@@ -131,7 +134,7 @@ while (defined $ARGV[$count]){
 
     } elsif ($ARGV[$count] eq "-cond"){
 	$cond_list = $ARGV[++$count];
-	if ($debug > 0) { print "The conditions list is $cond_list\n"; }
+	if ($debug > 0) { &Print("The conditions list is $cond_list"); }
 
 
     } else {
@@ -143,7 +146,20 @@ while (defined $ARGV[$count]){
 
 if ($count == 0){  &Usage(1);}
 
-
+if ( $instance ne ""){
+    $instance = $ENV{HOME}."/.fC_cleanup_$instance";
+    if ( -e $instance ){
+	my(@items)=stat($instance);
+	if ( (time() - $items[9]) > 3600 ){
+	    # No activity on lock file for an hour?
+	    &Print("No activity detected on $instance, deleting");
+	    unlink($instance);
+	} else {
+	    &Print("$instance exists, $$ exiting");
+	    exit;
+	}
+    } 
+}
 
 # Get connection fills the blanks while reading from XML
 # However, USER/PASSWORD presence are re-checked
@@ -181,7 +197,7 @@ my $morerecords = 1;
 my $start = 0;
 while ($morerecords)
 {
-    print "--- ($$)\n" if ($start == 0 && abs($mode) < 5);
+    &Print("--- ($$)") if ($start == 0 && abs($mode) < 5);
     $morerecords = 0;
     # Setting the context based on the swiches
     $fileC->clear_context();
@@ -193,7 +209,7 @@ while ($morerecords)
 
     if ($mode == 0){
 	# First mode of operation - just get the file list and their availability
-	print "Checking $start (+$batchsize) ".localtime()."\n";
+	&Print("Checking $start (+$batchsize) ".localtime());
 	$fileC->set_context("limit=$batchsize");
 	$fileC->set_context("startrecord=$start");
 	$fileC->set_delimeter("::");
@@ -209,7 +225,7 @@ while ($morerecords)
 	foreach (@output)
 	  {
 	    my ($path, $fname, $av) = split ("::");
-	    print join("/",($path, $fname))." $av\n";
+	    &Print(join("/",($path, $fname))." $av");
 	}
 	$start += $batchsize;
 
@@ -219,7 +235,7 @@ while ($morerecords)
 	# Second mode of operation - get the file list,
 	# select the available ones and check if they
 	# really exist - if not, mark them as unavailable
-	print "Checking mode=$mode $start (+$batchsize) ".localtime()."\n";
+	&Print("Checking mode=$mode $start (+$batchsize) ".localtime());
 	$fileC->set_context("limit=$batchsize");
 	$fileC->set_context("startrecord=$start");
 	if ($mode == 1){
@@ -237,7 +253,7 @@ while ($morerecords)
 	    $fileC->set_context("storage=$store");
 	} else {
 	    if( $store eq "HPSS"){
-		die "HPSS checking not immplemented yet\n";
+		&Die("HPSS checking not immplemented yet");
 	    }
 	}
 
@@ -270,16 +286,16 @@ while ($morerecords)
 	    if ( &Exist("$path/$fname") ){
 		if ($mode == -1){
 		    # remark available
-		    print "File  $site.$store://$node$path/$fname exists $available\n";
+		    &Print("File  $site.$store://$node$path/$fname exists $available");
 		    $fileC->update_location("available",1,$confirm);
 		    $n++;
 		} elsif ($debug > 1){
-		    print "Found  $site.$store://$node$path/$fname and avail=$available\n";
+		    &Print("Found  $site.$store://$node$path/$fname and avail=$available");
 		}
 	    } else {
 		if ($mode == 1){
 		    # and ! Exist($path/$file) that is ...
-		    print "File  $site.$store://$node$path/$fname DOES NOT exist or is unavailable !\n";
+		    &Print("File  $site.$store://$node$path/$fname DOES NOT exist or is unavailable !");
                     # mark it un-available
 		    $fileC->update_location("available",0,$confirm);
 		    $n++;
@@ -296,7 +312,7 @@ while ($morerecords)
 	# dangerous now since any record can be deleted based
 	# on context.
 	my($rec,@items);
-	print "Checking $start (+$batchsize) ".localtime()."\n";
+	&Print("Checking $start (+$batchsize) ".localtime());
 	$fileC->set_context("limit=$batchsize");
 	$fileC->set_context("startrecord=$start");
 	if ($mode == -2){
@@ -320,7 +336,7 @@ while ($morerecords)
 	    @items = $fileC->delete_records($confirm);
 	    if( $debug ){
 		foreach (@items){
-		    print "Deleted $_\n";
+		    &Print("Deleted $_");
 		}
 	    }
 
@@ -331,7 +347,7 @@ while ($morerecords)
 	} else {
 	    @items = $fileC->run_query("site","node","storage","path","filename","available");
 	    foreach (@items){
-		print "$_\n";
+		&Print("$_");
 	    }
 	}
 
@@ -356,13 +372,13 @@ while ($morerecords)
 	# without checking if they exist or not.
 	if ($debug>0){
 	    if ($state eq "on"){
-		print "Marking files as available\n";
+		&Print("Marking files as available");
 	    } elsif ($state eq "off") {
-		print "Marking files as unavailable\n";
+		&Print("Marking files as unavailable");
 	    } elsif ($state eq "delf") {
-		print "Marking files as deletable (any dameon may pic those and delete)\n";
+		&Print("Marking files as deletable (any dameon may pic those and delete)");
 	    } else {
-		print "Marking files with available = $state\n";
+		&Print("Marking files with available = $state");
 	    }
 	}
 
@@ -388,13 +404,13 @@ while ($morerecords)
 	$fileC->set_context("limit=$batchsize");
 	if ($kwrd ne ""){
 	    if( ! defined($newval) ){
-		die "  You must specify a new value\n";
+		&Die("  You must specify a new value");
 	    } else {
 		print "Resetting keyword [$kwrd] to new value $newval $start ".
 		    localtime()."\n";
 	    }
 	} else {
-	    die "Keyword is empty \n";
+	    &Die("Keyword is empty ");
 	}
 
 	$fileC->set_delayed() if (! $confirm);
@@ -417,7 +433,7 @@ while ($morerecords)
 	# Fifth mode of operation - get the file list,
 	# and check if they really exist - if not, mark them as unavailable
 	# if yes - remark them as available
-	print "Checking $start (+$batchsize) ".localtime()."\n";
+	&Print("Checking $start (+$batchsize) ".localtime());
 	$fileC->set_context("limit=$batchsize");
 	$fileC->set_context("startrecord=$start");
 	$fileC->set_context("all=1");
@@ -431,7 +447,7 @@ while ($morerecords)
 	    $fileC->set_context("storage=NFS");
 	} else {
 	    if( $store eq "HPSS"){
-		die "HPSS checking not implemented yet\n";
+		&Die("HPSS checking not implemented yet");
 	    }
 	}
 
@@ -451,7 +467,7 @@ while ($morerecords)
 		if ($av == 0){
 		    #if ($debug > 0)
 		    #{
-		    print "File $site.$store://$node$path/$fname exists\n";
+		    &Print("File $site.$store://$node$path/$fname exists");
 		    #}
 		    # Marking the file as available
 		    $fileC->clear_context();
@@ -467,7 +483,7 @@ while ($morerecords)
 		if ($av == 1){
 		    #if ($debug>0)
 		    #{
-		    print "File $site.$store://$node$path/$fname DOES NOT exist or is unavailable !\n";
+		    &Print("File $site.$store://$node$path/$fname DOES NOT exist or is unavailable !");
 		    #}
 		    # Marking the file as unavailable
 		    $fileC->clear_context();
@@ -519,9 +535,42 @@ while ($morerecords)
 	}
 	print "Use -doit to do a real cleaning\n" if (! $confirm);
     }
-
-
 }
+
+unlink($instance) if ( $instance ne "");
+
+
+
+sub Die
+{
+    my($mess)=@_;
+    unlink($instance) if ( $instance ne "");
+    die "$mess\n";
+}
+sub Exit
+{
+    my($val)=@_;
+    unlink($instance) if ( $instance ne "");
+    exit $val;
+}
+
+
+sub Print
+{
+    my(@msg)=@_;
+    my($mess);
+    foreach $mess (@msg){
+	chomp($mess);
+	print "$mess\n";
+	if ( $instance ne ""){
+	    open(OUT,">>$instance");
+	    print OUT "$$ $mess\n";
+	    close(OUT);
+	}
+    }
+}
+
+
 
 sub Exist
 {
