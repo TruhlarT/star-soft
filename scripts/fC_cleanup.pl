@@ -147,7 +147,7 @@ while (defined $ARGV[$count]){
 if ($count == 0){  &Usage(1);}
 
 if ( $instance ne ""){
-    $instance = $ENV{HOME}."/.fC_cleanup_$instance";
+    $instance = "/tmp/.fC_cleanup_$instance";
     if ( -e $instance ){
 	my(@items)=stat($instance);
 	if ( (time() - $items[9]) > 3600 ){
