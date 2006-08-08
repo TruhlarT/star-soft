@@ -1,5 +1,5 @@
 #!/bin/csh -x
-#       $Id: group_env.csh,v 1.188 2006/06/18 19:59:52 jeromel Exp $
+#       $Id: group_env.csh,v 1.189 2006/08/08 19:31:58 jeromel Exp $
 #	Purpose:	STAR group csh setup
 #
 #	Author:		Y.Fisyak     BNL
@@ -557,18 +557,18 @@ else
     # java, python and even perl all ...
     if ( $?WNOSG ) then
 	if ( -e $WNOSG/setup.csh ) then
-	    setenv GSAVED_PATH   $PATH
-	    setenv GSAVED_LDPATH $LD_LIBRARY_PATH
-	    # trash the path
-	    setenv PATH  /bin:/usr/bin
-	    # trash LD
-	    unsetenv LD_LIBRARY_PATH
-	    # load definitions
-	    source $WNOSG/setup.csh
-	    # redefine path and ld path
-	    setenv PATH             ${GSAVED_PATH}:${PATH}
-	    setenv LD_LIBRARY_PATH  ${GSAVED_LDPATH}:${LD_LIBRARY_PATH}
-	endif
+    	    setenv GSAVED_PATH   $PATH
+    	    setenv GSAVED_LDPATH $LD_LIBRARY_PATH
+    	    # trash the path
+    	    setenv PATH  /bin:/usr/bin
+    	    # trash LD
+    	    unsetenv LD_LIBRARY_PATH
+    	    # load definitions
+    	    source $WNOSG/setup.csh
+    	    # redefine path and ld path
+    	    setenv PATH             ${GSAVED_PATH}:${PATH}
+    	    setenv LD_LIBRARY_PATH  ${GSAVED_LDPATH}:${LD_LIBRARY_PATH}
+    	endif
     endif
 endif
 
