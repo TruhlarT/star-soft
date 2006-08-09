@@ -179,7 +179,7 @@ if ($#ALL == -1){ goto FINAL_EXIT;}
 
 # Added algo to process by differences
 if ( $DOCACHE ){
-    $XSELF = "$SELF$SCANDS";
+    $XSELF = "$SELF$SCAND";
     $XSELF =~ s/[+\/\*]/_/g; 
     $kk=0;
     while ( -e "/tmp/$XSELF"."_$kk.lis"){  $kk++;}
