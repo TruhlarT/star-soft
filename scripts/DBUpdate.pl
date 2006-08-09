@@ -179,13 +179,15 @@ if ($#ALL == -1){ goto FINAL_EXIT;}
 
 # Added algo to process by differences
 if ( $DOCACHE ){
+    $XSELF = "$SELF$SCANDS";
+    $XSELF =~ s/[+\/\*]/_/g; 
     $kk=0;
-    while ( -e "/tmp/$SELF"."_$kk.lis"){  $kk++;}
+    while ( -e "/tmp/$XSELF"."_$kk.lis"){  $kk++;}
     if ($kk != 0){
 	# there is a previous $kk-1 file
 	my(@count)=(0,0,0);
 	
-	if ( open(OCACHE,"/tmp/$SELF"."_".($kk-1).".lis") ){
+	if ( open(OCACHE,"/tmp/$XSELF"."_".($kk-1).".lis") ){
 	    while ( defined($line = <OCACHE>) ){  
 		chomp($line);
 		$RECORDS{$line}=1;
@@ -194,7 +196,7 @@ if ( $DOCACHE ){
 	    close(OCACHE);
 	}
 	push(@TEMP,@ALL); 
-	if ( open(CACHE,">/tmp/$SELF"."_".($kk).".lis") ){
+	if ( open(CACHE,">/tmp/$XSELF"."_".($kk).".lis") ){
 	    undef(@ALL);
 	    foreach $file (@TEMP){
 		chomp($file);
@@ -213,7 +215,7 @@ if ( $DOCACHE ){
 	}
     } else {
 	# still dump it all to an _0
-	if ( open(CACHE,">/tmp/$SELF"."_0.lis") ){
+	if ( open(CACHE,">/tmp/$XSELF"."_0.lis") ){
 	    foreach $file (@ALL){
 		chomp($file);
 		print CACHE "$file\n";
