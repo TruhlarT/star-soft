@@ -17,6 +17,7 @@ if ($#ARGV == -1){
    -k subpath         strip subpath before comparing to HPSS, then clone
                       using full path
    -l                 consider soft-links in path
+   -nocache           do not use caching
 
 
  Purpose
@@ -80,6 +81,7 @@ $PASSWD = "";
 $SUBPATH= "";
 $SUB    = "reco";
 $DOSL   = 0;
+$DOCACHE= 1;
 
 # Argument pick-up
 $kk    = 0;
@@ -110,6 +112,9 @@ for ($i=0 ; $i <= $#ARGV ; $i++){
 	    $i++;
 	    $FO = FO;
 	}
+
+    } elsif ($ARGV[$i] eq "-nocache"){
+	$DOCACHE= 0;
 
     } elsif ($ARGV[$i] eq "-k"){
 	$SUBPATH = $ARGV[++$i];
@@ -170,6 +175,56 @@ if( $DOIT && -e "$SCAND/$SUB"){
 }
 
 if ($#ALL == -1){ goto FINAL_EXIT;}
+
+
+# Added algo to process by differences
+if ( $DOCACHE ){
+    $kk=0;
+    while ( -e "/tmp/$SELF"."_$kk.lis"){  $kk++;}
+    if ($kk != 0){
+	# there is a previous $kk-1 file
+	my(@count)=(0,0,0);
+	
+	if ( open(OCACHE,"/tmp/$SELF"."_".($kk-1).".lis") ){
+	    while ( defined($line = <OCACHE>) ){  
+		chomp($line);
+		$RECORDS{$line}=1;
+		$count[0]++;
+	    }
+	    close(OCACHE);
+	}
+	push(@TEMP,@ALL); 
+	if ( open(CACHE,">/tmp/$SELF"."_".($kk).".lis") ){
+	    undef(@ALL);
+	    foreach $file (@TEMP){
+		chomp($file);
+		print CACHE "$file\n";
+		if ( ! defined($RECORDS{$file}) ){  
+		    $count[1]++;
+		    push(@ALL,$file);
+		}
+		$count[2]++;
+	    }
+	    close(CACHE);
+	}
+	undef(@TEMP);
+	if ($count[1] != $count[2]){
+	    print "Previous pass had $count[0], found $count[2] and selected $count[1]\n";
+	}
+    } else {
+	# still dump it all to an _0
+	if ( open(CACHE,">/tmp/$SELF"."_0.lis") ){
+	    foreach $file (@ALL){
+		chomp($file);
+		print CACHE "$file\n";
+	    }
+	    close(CACHE);
+	    print "Dumped initial ".($#ALL+1)." records\n";
+	}
+    }
+}
+
+
 
 
 
