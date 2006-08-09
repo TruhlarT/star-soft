@@ -53,7 +53,7 @@ $confirm  = 0;
 $allst    = 0;
 
 
-# Parse the cvommand line arguments.
+# Parse the command line arguments.
 $count = 0;
 while (defined $ARGV[$count]){
     if ($ARGV[$count] eq "-status"){
@@ -146,6 +146,10 @@ while (defined $ARGV[$count]){
 
 if ($count == 0){  &Usage(1);}
 
+
+#
+# Handle instance for multi-process cohesion
+#
 if ( $instance ne ""){
     $instance = "/tmp/.fC_cleanup_$instance";
     if ( -e $instance ){
@@ -160,6 +164,20 @@ if ( $instance ne ""){
 	}
     } 
 }
+
+
+#
+# Allow for one shot disable
+#
+my($test) = $ENV{HOME}."/fC_cleanup.quit";
+if ( -e $test ){
+    &Print("Found $test - quitting");
+    exit;
+}
+
+
+
+
 
 # Get connection fills the blanks while reading from XML
 # However, USER/PASSWORD presence are re-checked
@@ -564,7 +582,7 @@ sub Print
 	print "$mess\n";
 	if ( $instance ne ""){
 	    open(OUT,">>$instance");
-	    print OUT "$$ $mess\n";
+	    print OUT localtime()." $$ $mess\n";
 	    close(OUT);
 	}
     }
