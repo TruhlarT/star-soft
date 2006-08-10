@@ -24,9 +24,27 @@ $OK = 1;
 if ( defined($ARGV[0]) ){
     $hostName = $ARGV[0];
 
+    # one instance at a time
+    if ( -e "/tmp/$hostName$<.lock"){
+	 my(@items)=stat("/tmp/$hostName$<.lock");
+	 my($deltatime)= time() - $items[9];
+	 if ( $deltatime < 21600){   # 6 hours
+	     print localtime()." Found /tmp/$hostName$<.lock ; quit.\n";
+	     exit 0;
+	 } else {
+	     unlink("/tmp/$hostName$<.lock");
+	 }
+     }
+
+
     my $fC = FileCatalog->new();
     if ( $fC ){
 	$fC->connect_as("User");
+
+	open(LOCK,">/tmp/$hostName$<.lock");
+	print LOCK localtime()."\n";
+	close LOCK;
+
 
         # those are sign that the files
 	# where marked for deletion
@@ -73,9 +91,12 @@ if ( defined($ARGV[0]) ){
 		}
 	    }
 	}
+	unlink("/tmp/$hostName$<.lock") if ( -e "/tmp/$hostName$<.lock");
+
 	1;
 
     } else {
+	print localtime()." Did not get a FC handler\n";
 	0;
     }
 
