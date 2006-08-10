@@ -149,10 +149,11 @@ $DOIT  = ($#ALL == -1);
 
 
 if ( ! defined($FTYPE) ){  $FTYPE = ".MuDst.root";}
+$FTYPE =~ s/^\s*(.*?)\s*$/$1/;   # trim leading/trailing
 
 
 if( $DOIT && -e "$SCAND/$SUB"){
-    if ($FTYPE ne ""){
+    if ($FTYPE ne "" ){
 	print "Searching for all files like '*$FTYPE' in $SCAND/$SUB  ...\n";
 	if ( $DOSL){
 	    @ALL   = `/usr/bin/find $SCAND/$SUB -type l -name '*$FTYPE'`;
@@ -275,7 +276,7 @@ $fC->Require("V01.307");             # pathcomment and nodecomment requires a mi
 # Make a main context
 # Temporary so we get it once only
 chomp($NODE    = `/bin/hostname`);
-&Stream("We are on $NODE");
+&Stream("Info : We are on $NODE");
 
 
 
@@ -433,7 +434,7 @@ FINAL_EXIT:
     if ($LOUT){
 	print "Have lines, closing summary\n";
 	print $FO
-	    "$SELF :: Info :\n",
+	    "$SELF :: Info : Summary follows\n",
 	    ($unkn  !=0 ? "\tUnknown = $unkn ".sprintf("%2.2f%%",100*$unkn/($unkn+$new+$old))."\n": ""),
 	    ($old   !=0 ? "\tOld     = $old\n"   : ""),
 	    ($new   !=0 ? "\tNew     = $new\n"   : ""),
