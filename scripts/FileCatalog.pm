@@ -1041,7 +1041,8 @@ sub Connect
 	    sleep($NCSLP);
 	    goto CONNECT_TRY;
 	} else {
-	    &die_message("Connect","cannot connect to $dbname : $DBI::errstr");
+	    &print_message("Connect","cannot connect to $dbname : $DBI::errstr");
+	    return 0;
 	}
     }
 
