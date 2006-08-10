@@ -181,8 +181,12 @@ if ($#ALL == -1){ goto FINAL_EXIT;}
 if ( $DOCACHE ){
     $XSELF = "$SELF$SCAND";
     $XSELF =~ s/[+\/\*]/_/g; 
+
+  ONELIS:
     $kk=0;
     while ( -e "/tmp/$XSELF"."_$kk.lis"){  $kk++;}
+    if ( $kk > 15){  unlink(glob("/tmp/$XSELF"."_*.lis")); goto ONELIS;}
+
     if ($kk != 0){
 	# there is a previous $kk-1 file
 	my(@count)=(0,0,0);
