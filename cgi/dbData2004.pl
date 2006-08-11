@@ -16,7 +16,7 @@ BEGIN {
  use CGI::Carp qw(fatalsToBrowser carpout);
 }
 
-require "/afs/rhic/star/packages/scripts/dbProdSetup.pl";
+require "/afs/rhic/star/users/didenko/cgi/dbProdSetup.pl";
 
 use Class::Struct;
 use CGI;
