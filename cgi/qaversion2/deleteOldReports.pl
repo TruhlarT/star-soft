@@ -73,7 +73,7 @@ sub delete_old_reports{
 	my $name      = "$dir_name/$report_key";
 	
 	print "rm -rf $name<br> \n";
-	print `rm -rf $name`;
+	print `/bin/rm -rf $name`;
 
     } # foreach report_key
 
