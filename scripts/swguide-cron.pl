@@ -1,10 +1,13 @@
 #!/usr/bin/env perl
 #
-# $Id: swguide-cron.pl,v 1.6 2004/11/16 01:49:03 jeromel Exp $
+# $Id: swguide-cron.pl,v 1.7 2006/08/15 18:05:43 jeromel Exp $
 #
 # $Log: swguide-cron.pl,v $
+# Revision 1.7  2006/08/15 18:05:43  jeromel
+# Bundle rhic -> rhic.bnl.gov
+#
 # Revision 1.6  2004/11/16 01:49:03  jeromel
-# Modified /afs/rhic/ to /afs/rhic.bnl.gov/
+# Modified /afs/rhic.bnl.gov/ to /afs/rhic.bnl.gov/
 #
 # Revision 1.5  2002/01/26 23:54:50  jeromel
 # *** empty log message ***

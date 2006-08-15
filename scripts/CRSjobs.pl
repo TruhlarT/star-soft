@@ -9,7 +9,7 @@
 
 use Mysql;
 
- require "/afs/rhic/star/packages/scripts/dbProdSetup.pl";
+ require "/afs/rhic.bnl.gov/star/packages/scripts/dbProdSetup.pl";
 
 my @maifile;
 my $mail_line;

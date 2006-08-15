@@ -106,6 +106,8 @@ for ($i=0 ; $i <= $#ARGV ; $i++){
 		    "Process $$ exit.\n";
                 close(FO);
                 exit;
+	    } else {
+		unlink("$FLNM.tmp");
 	    }
 	}
 	if ( open(FO,">$FLNM.tmp") ){
@@ -144,8 +146,8 @@ for ($i=0 ; $i <= $#ARGV ; $i++){
 #@ALL =( "$SCAND/$SUB/FPDXmas/FullField/P02ge/2002/013/st_physics_3013016_raw_0018.MuDst.root",
 #	"$SCAND/$SUB/FPDXmas/FullField/P02ge/2002/013/st_physics_3013012_raw_0008.MuDst.root");
 
-
-$DOIT  = ($#ALL == -1);
+$failed = $unkn = $old = $new = 0;
+$DOIT   = ($#ALL == -1);
 
 
 if ( ! defined($FTYPE) ){  $FTYPE = ".MuDst.root";}
@@ -267,8 +269,6 @@ if ( ! $fC->connect($user,$passwd,$port,$host,$db) ){
 }
 
 #$fC->debug_off();
-
-$failed = $unkn = $old = $new = 0;
 
 $fC->set_silent(1);                  # Turn OFF messaging
 $fC->Require("V01.307");             # pathcomment and nodecomment requires a minimal version
@@ -432,7 +432,6 @@ $fC->destroy();
 
 FINAL_EXIT:
     if ($LOUT){
-	print "Have lines, closing summary\n";
 	print $FO
 	    "$SELF :: Info : Summary follows\n",
 	    ($unkn  !=0 ? "\tUnknown = $unkn ".sprintf("%2.2f%%",100*$unkn/($unkn+$new+$old))."\n": ""),
@@ -446,10 +445,16 @@ FINAL_EXIT:
 	    close($FO);
 
 	    # Save previous
-	    if ( -e $FLNM.".last" ){  unlink($FLNM.".last");}
-	    if ( -e $FLNM ){          rename($FLNM,$FLNM.".last");}
-	    # rename new to final name
-	    rename("$FLNM.tmp","$FLNM");
+	    if ( $failed!=0 || $unkn!=0 || $old!=0 || $new!=0 ){
+		print "Have lines, summary done\n";
+		if ( -e $FLNM.".last" ){  unlink($FLNM.".last");}
+		if ( -e $FLNM ){          rename($FLNM,$FLNM.".last");}
+		# rename new to final name
+		rename("$FLNM.tmp","$FLNM");
+	    } else {
+		unlink("$FLNM.tmp");
+		print "No need for summary\n";
+	    }
 	}
     } else {
 	# if nothing was output, delete ALL files (especially if they
@@ -457,7 +462,8 @@ FINAL_EXIT:
 	if ($FO ne STDERR){
 	    close($FO);
 	    unlink("$FLNM.tmp") if ( -e "$FLNM.tmp");
-	    unlink("$FLNM")     if ( -e "$FLNM");
+	    unlink("$FLNM")     if ( -e "$FLNM" && 
+				     ( $failed!=0 || $unkn!=0 || $old!=0 || $new!=0 ));
 	}
     }
 

@@ -43,8 +43,7 @@ $BREAK{"09"} =  "Production Disks";
 
 
 # Exclude those completely (alias, un-usable etc ...)
-$DEXCLUDE{"46"} = 1;
-$DEXCLUDE{"47"} = 1;
+#$DEXCLUDE{"46"} = 1;
 
 
 # Added 2005 to skip searching the root dir for the README.
@@ -65,14 +64,9 @@ if ( -e $1."dfpanfs"){
     $DF = $1."dfpanfs";
 }
 
-$DEBUG = defined($ENV{PDSPACE_DEBUG});
 
 
 for ( $i = $MIN ; $i <= $MAX ; $i++){
-    if ( defined($DEXCLUDE{$i}) ){ 
-	print "DEBUG Skipping $i by DEXCLUDE rule\n"    if ($DEBUG);
-	next;
-    }
     push(@DISKS,sprintf("$MAIN%2.2d",$i));
 }
 
@@ -85,7 +79,7 @@ foreach $disk (@DISKS){
 	next;
     }
 
-    print "DEBUG Checking $disk using $DF\n"            if ($DEBUG);
+    #print "DEBUG Checking $disk using $DF\n";
     chomp($res = `$DF $disk | /bin/grep % | /bin/grep '/'`);
     $res   =~ s/^\s*(.*?)\s*$/$1/;
     $res   =~ s/\s+/ /g;
@@ -113,9 +107,9 @@ foreach $disk (@DISKS){
     # Logic sorting our the trigger level and the library
     # level. This implies a strict naming convention.
     if( -d "$disk/reco"){
-	print "DEBUG $disk -d reco OK\n"                if ($DEBUG);
+	#print "DEBUG $disk -d reco OK\n";
 	@TMP = glob("$disk/reco/*");
-	print "DEBUG:: glob returned $#TMP args\n"      if ($DEBUG);
+	#print "DEBUG:: glob returned $#TMP args\n";
 	foreach $trg (@TMP){
 	    #print "Found $trg\n";
 	    if ($trg =~ /StarDb/){ next;}
@@ -123,9 +117,8 @@ foreach $disk (@DISKS){
 	    $tmp =~ s/.*\///;
 	    push (@TRGS,$tmp);
 
-	    print "DEBUG Looking now in $trg - "        if ($DEBUG);
+	    #print "DEBUG Looking now in $trg\n";
 	    @vers = glob("$trg/*/*");
-	    print "Glob returned $#vers values\n"       if ($DEBUG);
 	    foreach $ver (@vers){
 		if (! -d $ver && ! -l $ver){ next;}
 		#print "\tFound $ver\n";
@@ -148,7 +141,7 @@ foreach $disk (@DISKS){
 	$trg .= "$tmp ";
     }
 
-    print "DEBUG Will now search for a README file on $disk\n" if ($DEBUG);
+    #print "DEBUG Will now search for a README file on $disk\n";
 
     if ( ! defined($RDMEXCLUDE{$disk}) ){
 	if ( -e "$disk/AAAREADME"){
@@ -218,7 +211,7 @@ $col     = 0;
 @$totals = (0,0,0);
 foreach $disk (sort keys %DINFO){
 
-    print "DEBUG $DINFO{$disk}\n"    if ($DEBUG);
+    #print STDERR "$DINFO{$disk}\n";
     @items = split(";",$DINFO{$disk});
     $items[4] =~ s/\s/&nbsp; /;
     $items[5] =~ s/\s/&nbsp; /;
@@ -407,7 +400,7 @@ print $FO
     "</HTML>\n";
 
 if ( defined($ARGV[0]) ){
-    if ( -e $ARGV[0] && ! -z "$ARGV[0]-tmp"){
+    if ( -e $ARGV[0]){
 	# delete if exits the preceedingly renamed file
 	if ( -e "$ARGV[0]-old"){ unlink("$ARGV[0]-old");}
 	# move the file to a new target name
@@ -417,9 +410,7 @@ if ( defined($ARGV[0]) ){
 	}
     }
     # move new file to target
-    if ( ! -z "$ARGV[0]-tmp"){
-	rename("$ARGV[0]-tmp","$ARGV[0]");
-    }
+    rename("$ARGV[0]-tmp","$ARGV[0]");
 }
 
 
@@ -442,7 +433,11 @@ sub GetFCRef
 
     if ( -e $OUTD."/$What$el.txt"){
 	if ( $What eq "FC"){
+	    # For this report, only the unknown are important as
+	    # we do not care of details, only if there are unknnown
+	    # files
 	    chomp($x = `/bin/grep Unknown $OUTD/$What$el.txt`);
+	    return "" if ( $x eq "");
 	    $x =~ m/(.*)(\d+\.\d+)(.*)/;
 	    $x = "<BR><TT>$2$3</TT>";
 	}
