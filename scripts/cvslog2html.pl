@@ -11,6 +11,8 @@
 #  - Found a strange case where CVS: appears. Removed from
 #    final listing with regexp.
 #
+# Modified a few times from 2001-2006, J.Lauret
+#
 $commitlog   = "/afs/rhic.bnl.gov/star/packages/repository/CVSROOT/commitlog";
 $cvsHtml     = "/star/starlib/doc/www/html/tmp/cvs";
 $cvsUrl      = "/cgi-bin/cvsweb.cgi";
@@ -21,8 +23,12 @@ $tmp         = "-tmp".getppid();
 if( defined($ARGV[0]) ){ print "Starting on ".localtime()."\n";}
 open (COMMITLOG,"< $commitlog") or die "Can't read file $commitlog: $!";
 
+if ( ! -d "$cvsHtml"){      mkdir("$cvsHtml")      || exit;}
+if ( ! -d "$cvsHtml/user"){ mkdir("$cvsHtml/user") || exit;}
+
+
 # Prevent 2 from starting
-chomp($host    = `hostname -s`);
+chomp($host    = `/bin/hostname -s`);
 $LockFile="$cvsHtml/$host.lock";
 if( ! -e $LockFile){
     open(FO,">$LockFile") || exit;
