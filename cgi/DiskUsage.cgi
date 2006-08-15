@@ -16,7 +16,7 @@ my $disk  = param("disk");
 my $this_script= $query->url();
 
 
-$PATH = "/afs/rhic/star/doc/www/html/tmp/pub";
+$PATH = "/afs/rhic.bnl.gov/star/doc/www/html/tmp/pub";
 $title    = "Disk Space Information";
 $BGCOLOR  = "cornsilk"; # Body color fields
 $TEXTCOL  = "black";

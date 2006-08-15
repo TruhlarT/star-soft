@@ -19,7 +19,7 @@ use Net::FTP;
 use Class::Struct;
 use File::Basename;
 
-require "/afs/rhic/star/packages/SL99h/cgi/dbOperaSetup.pl";
+require "/afs/rhic.bnl.gov/star/packages/SL99h/cgi/dbOperaSetup.pl";
 
 struct FileAttri => {
     filename  => '$',

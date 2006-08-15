@@ -12,7 +12,7 @@ use Mysql;
 use Class::Struct;
 
 
-require "/afs/rhic/star/packages/scripts/dbCpProdSetup.pl";
+require "/afs/rhic.bnl.gov/star/packages/scripts/dbCpProdSetup.pl";
 
 my $prodPer = "P01gl";
 my $debugOn = 0;

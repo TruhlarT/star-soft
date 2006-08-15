@@ -13,7 +13,7 @@ my @setShr_Sol = ();
 my @setShrSol = ();
 
 # get all files in directory
-my $Wdir = "/afs/rhic/star/doc/www/comp/prod/";
+my $Wdir = "/afs/rhic.bnl.gov/star/doc/www/comp/prod/";
 
 opendir DIR, $Wdir or die "Cannot open directory $Wdir <br> \n";
 while( defined ( $file = readdir(DIR) ) ){

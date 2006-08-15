@@ -18,7 +18,7 @@ BEGIN {
 
 use CGI;
 
-require "/afs/rhic/star/packages/scripts/dbProdSetup.pl";
+require "/afs/rhic.bnl.gov/star/packages/scripts/dbProdSetup.pl";
 
 use File::Find;
 use Class::Struct;

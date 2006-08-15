@@ -12,7 +12,7 @@ use Mysql;
 use Class::Struct;
 
 
-require "/afs/rhic/star/packages/scripts/dbTJobsSetup.pl";
+require "/afs/rhic.bnl.gov/star/packages/scripts/dbTJobsSetup.pl";
 
 my $TOP_DIRD = "/star/rcf/test/dev/";
 my @dir_year = ("year_1h", "year_2001", "year_2003","year_2004");

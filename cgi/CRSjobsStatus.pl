@@ -14,7 +14,7 @@ use CGI;
 use Mysql;
 use Class::Struct;
 
- require "/afs/rhic/star/packages/scripts/dbProdSetup.pl";
+ require "/afs/rhic.bnl.gov/star/packages/scripts/dbProdSetup.pl";
 
 my ($query) = @_;
 

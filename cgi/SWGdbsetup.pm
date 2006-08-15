@@ -1,8 +1,11 @@
 #!/opt/star/bin/perl -w
 #
-# $Id: SWGdbsetup.pm,v 1.1 2001/11/22 00:19:54 jeromel Exp $
+# $Id: SWGdbsetup.pm,v 1.2 2006/08/15 17:48:13 jeromel Exp $
 #
 # $Log: SWGdbsetup.pm,v $
+# Revision 1.2  2006/08/15 17:48:13  jeromel
+# Bundle rhic -> rhic.bnl.gov
+#
 # Revision 1.1  2001/11/22 00:19:54  jeromel
 # Finally at thr right place ...
 #
@@ -44,8 +47,8 @@
 
 use DBI;
 use File::Basename;
-use lib "/afs/rhic/star/packages/cgi"; 
-use lib "/afs/rhic/star/group";
+use lib "/afs/rhic.bnl.gov/star/packages/cgi"; 
+use lib "/afs/rhic.bnl.gov/star/group";
 
 ## STAR environment setup
 require "group_env.pl";

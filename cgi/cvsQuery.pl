@@ -16,7 +16,7 @@ my @setCvs_all = ();
 my @setCvsAll = ();
 
 # get all files in directory
-$Wdir = "/afs/rhic/star/doc/www/comp/prod/";
+$Wdir = "/afs/rhic.bnl.gov/star/doc/www/comp/prod/";
 opendir DIR, $Wdir or die "Cannot open directory $Wdir <br> \n";
 while( defined ( $file = readdir(DIR) ) ){
   $file =~ /all\.html/ and push @setCvs_all, $file;

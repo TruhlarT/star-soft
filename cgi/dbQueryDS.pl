@@ -9,7 +9,7 @@
 
 use CGI;
 
-require "/afs/rhic/star/packages/scripts/dbCpProdSetup.pl";
+require "/afs/rhic.bnl.gov/star/packages/scripts/dbCpProdSetup.pl";
 
 my @prodPer = ();
 my $debugOn = 0;
