@@ -176,7 +176,7 @@ sub _init{
     %ok_data_class = %ok_data_class_offline;
 
     # BEN(8jun2000):  changed for rcas
-    $self->Home("/afs/rhic/star/starqa/qa01");
+    $self->Home("/afs/rhic.bnl.gov/star/starqa/qa01");
 
     $self->MySQLHost("duvall.star.bnl.gov");
   }

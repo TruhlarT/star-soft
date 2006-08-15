@@ -12,7 +12,7 @@ sub run_root{
 # runs root with arbitrary commands. Invoked like:
 #
 # $star_level = "new";
-# $scratch = "/afs/rhic/star/data1/jacobs/qa";
+# $scratch = "/afs/rhic.bnl.gov/star/data1/jacobs/qa";
 # @root_commands = ("gSystem->Getenv(\"STAR_LEVEL\")", 
 #		  ".L read_bfc_hist_list.C",
 #		  "Example_pmj()",
@@ -36,7 +36,7 @@ sub run_root{
 
   # write to script
   print SCRIPT "#! /usr/local/bin/tcsh\n",
-  "setenv GROUP_DIR /afs/rhic/rhstar/group\n",
+  "setenv GROUP_DIR /afs/rhic.bnl.gov/rhstar/group\n",
   "setenv CERN_ROOT /cern/pro\n",
   "setenv HOME /star/u2e/starqa\n";
 #---
@@ -51,13 +51,13 @@ sub run_root{
 # Try again with new...
 
   if ($starlib_version eq "dev" ){
-    print SCRIPT "source /afs/rhic/rhstar/group/.stardev \n";
+    print SCRIPT "source /afs/rhic.bnl.gov/rhstar/group/.stardev \n";
   }
   else{
-    print SCRIPT "source /afs/rhic/rhstar/group/.starver ".$starlib_version."\n";
+    print SCRIPT "source /afs/rhic.bnl.gov/rhstar/group/.starver ".$starlib_version."\n";
   }
 
-#    print SCRIPT "source /afs/rhic/rhstar/group/.stardev \n";
+#    print SCRIPT "source /afs/rhic.bnl.gov/rhstar/group/.stardev \n";
 
 #----
 

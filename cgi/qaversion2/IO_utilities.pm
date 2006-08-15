@@ -187,13 +187,13 @@ sub ComposeBatchScript{
     # BEN(4jun2000): took out TopDir stuff....we have data_class
 
   my $string = "#! /usr/local/bin/tcsh -f\n".
-    "setenv GROUP_DIR /afs/rhic/rhstar/group \n".
+    "setenv GROUP_DIR /afs/rhic.bnl.gov/rhstar/group \n".
     "setenv CERN_ROOT /cern/pro \n".
     "setenv CERN /cern \n".
     "setenv HOME /star/u2e/starqa \n".
     "setenv SILENT 1 \n".
-    "source /afs/rhic/rhstar/group/.stardev \n".
-    "/usr/afsws/bin/klog -pa `cat /afs/rhic/star/starqa/qa01/.cgi` \n".
+    "source /afs/rhic.bnl.gov/rhstar/group/.stardev \n".
+    "/usr/afsws/bin/klog -pa `cat /afs/rhic.bnl.gov/star/starqa/qa01/.cgi` \n".
     "cd $now \nwhoami \n";
 
   $string .= 

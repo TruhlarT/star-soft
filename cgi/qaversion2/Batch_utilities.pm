@@ -169,7 +169,7 @@ sub RunLsfCommand{
 	$cmdStr = $cmdStr." 2>&1";
     }else{
 	$cmdStr = 
-	    "/usr/local/bin/ssh -l starqa -i /afs/rhic/star/users/starlib/.ssh/identity_starqa $gatewayHost ssh $rcasHost '".$cmdStr."' 2>&1";
+	    "/usr/local/bin/ssh -l starqa -i /afs/rhic.bnl.gov/star/users/starlib/.ssh/identity_starqa $gatewayHost ssh $rcasHost '".$cmdStr."' 2>&1";
     }
     
     return `$cmdStr`;

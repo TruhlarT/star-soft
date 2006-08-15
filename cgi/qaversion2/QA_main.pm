@@ -1,4 +1,4 @@
-#!/usr/local/bin/perl -I/usr/lib/perl5/5.00503 -I/usr/lib/perl5/site_perl/5.005 -I/usr/lib/perl5/site_perl/5.005/i386-linux/ -I/afs/rhic/star/starqa/qa01/libRCAS/lib/site_perl 
+#!/usr/local/bin/perl -I/usr/lib/perl5/5.00503 -I/usr/lib/perl5/site_perl/5.005 -I/usr/lib/perl5/site_perl/5.005/i386-linux/ -I/afs/rhic.bnl.gov/star/starqa/qa01/libRCAS/lib/site_perl 
 
 # pmj & bjc 1/6/00
 #=========================================================
@@ -9,13 +9,13 @@
 #on connery and RCAS.  Yeah for upgrades!!!!
 #BEGIN{
 #  if(`hostname` =~ /connery/){
-#    unshift(@INC, "/afs/rhic/star/starqa/qa01/libConnery/lib/site_perl/5.6.0/");
-#    unshift(@INC, "/afs/rhic/star/starqa/qa01/libConnery/lib/site_perl/5.6.0/i386-linux/");
+#    unshift(@INC, "/afs/rhic.bnl.gov/star/starqa/qa01/libConnery/lib/site_perl/5.6.0/");
+#    unshift(@INC, "/afs/rhic.bnl.gov/star/starqa/qa01/libConnery/lib/site_perl/5.6.0/i386-linux/");
 #  }else{
-#    unshift(@INC, "/afs/rhic/star/starqa/qa01/libRCAS/lib");
+#    unshift(@INC, "/afs/rhic.bnl.gov/star/starqa/qa01/libRCAS/lib");
 #  }
 # }
-#use lib qw{/afs/rhic/star/starqa/qa01/lib};
+#use lib qw{/afs/rhic.bnl.gov/star/starqa/qa01/lib};
 #print "\nAfter:\n".join("\n", @INC);
 
 use CGI qw/:standard :html3/;

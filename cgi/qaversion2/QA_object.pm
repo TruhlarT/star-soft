@@ -594,6 +594,9 @@ sub ButtonString{
       $title = "Unset QA Analyzed"; $value = 'N';
     }
     elsif($self->QAAnalyzed eq 'N'){
+#     $button_ref = Button_object->new('StartQAReport','Start QA report',
+#                                      $report_key,$self->qaID(),$value);
+#     $button_string .= $button_ref->SubmitString."<br>";
       $title = "Set QA Analyzed"; $value = 'Y';
     }
     $button_ref = Button_object->new('RequestQAAnalyzed',$title,

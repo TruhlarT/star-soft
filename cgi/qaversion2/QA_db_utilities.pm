@@ -193,7 +193,7 @@ use strict;
 #----------------------------------------------------------------------------
 
 my $userFile2  = '/star/u2e/starqa/.my.cnf';
-my $userFile = '/afs/rhic/star/starqa/qa01/.my.cnf';
+my $userFile = '/afs/rhic.bnl.gov/star/starqa/qa01/.my.cnf';
 my %attr = (RaiseError =>1, PrintError =>0, AutoCommit => 1); 
 # rely on this to catch errors
 

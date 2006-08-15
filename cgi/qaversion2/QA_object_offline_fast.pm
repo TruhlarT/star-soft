@@ -10,7 +10,7 @@ use IO_object;
 use QA_globals;
 use QA_db_utilities;
 use Logreport_object_offline_fast;
-use lib "/afs/rhic/star/packages/scripts"; # RunDaq.pm lives here
+use lib "/afs/rhic.bnl.gov/star/packages/scripts"; # RunDaq.pm lives here
 use RunDAQ;
 
 use base qw(QA_object);

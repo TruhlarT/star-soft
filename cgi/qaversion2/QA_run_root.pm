@@ -12,7 +12,7 @@ sub run_root{
 # runs root with arbitrary commands. Invoked like:
 #
 # $star_level = "new";
-# $scratch = "/afs/rhic/star/data1/jacobs/qa";
+# $scratch = "/afs/rhic.bnl.gov/star/data1/jacobs/qa";
 # @root_commands = ("gSystem->Getenv(\"STAR_LEVEL\")", 
 #		  ".L read_bfc_hist_list.C",
 #		  "Example_pmj()",
@@ -36,7 +36,7 @@ sub run_root{
 
   # write to script
   print SCRIPT "#! /usr/local/bin/tcsh -f\n",
-  "setenv GROUP_DIR /afs/rhic/rhstar/group\n",
+  "setenv GROUP_DIR /afs/rhic.bnl.gov/rhstar/group\n",
   "setenv CERN_ROOT /cern/pro\n",
   "setenv HOME /star/u2e/starqa\n";
 
@@ -52,26 +52,26 @@ sub run_root{
 # Try again with new...
 
   if ($starlib_version eq "dev" ){
-      print SCRIPT "source /afs/rhic/rhstar/group/.stardev \n";
+      print SCRIPT "source /afs/rhic.bnl.gov/rhstar/group/.stardev \n";
   }
   elsif ($starlib_version eq "new" ){
-      print SCRIPT "source /afs/rhic/rhstar/group/.starnew \n";
+      print SCRIPT "source /afs/rhic.bnl.gov/rhstar/group/.starnew \n";
   }
   elsif ($starlib_version eq "pro" ){
-      print SCRIPT "source /afs/rhic/rhstar/group/.starpro \n";
+      print SCRIPT "source /afs/rhic.bnl.gov/rhstar/group/.starpro \n";
   }
   else{
-      print SCRIPT "source /afs/rhic/rhstar/group/.starver ".$starlib_version."\n";
+      print SCRIPT "source /afs/rhic.bnl.gov/rhstar/group/.starver ".$starlib_version."\n";
   }
 
-#    print SCRIPT "source /afs/rhic/rhstar/group/.stardev \n";
+#    print SCRIPT "source /afs/rhic.bnl.gov/rhstar/group/.stardev \n";
 
 #----
   #
   # bum 04/16/02 - just use 'root4star'.  
   #
    print SCRIPT "root4star -b <<END\n";
-#  print SCRIPT "/afs/rhic/star/packages/dev/.i386_redhat61/bin/root4star -b<<END \n";
+#  print SCRIPT "/afs/rhic.bnl.gov/star/packages/dev/.i386_redhat61/bin/root4star -b<<END \n";
 #>>& /tmp/starlib/biteme \n";
 
   foreach $command (@commands){

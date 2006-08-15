@@ -287,15 +287,15 @@ sub run_DSV{
 #
 #  # write to script
 #  print $fh "#! /usr/local/bin/tcsh\n",
-#  "setenv GROUP_DIR /afs/rhic/rhstar/group\n",
+#  "setenv GROUP_DIR /afs/rhic.bnl.gov/rhstar/group\n",
 #  "setenv CERN /cern\n",
 #  "setenv CERN_ROOT /cern/pro\n",
 #  "setenv HOME /star/u2e/starqa\n",
 #  "setenv DISPLAY $DISPLAY\n",
-#  "source /afs/rhic/rhstar/group/.stardev\n",
-#  "setenv DSV_DIR /afs/rhic/star/tpc/dsv\n",
-#  "echo Doing: source /afs/rhic/star/tpc/dsv/set_path\n",
-#  "source /afs/rhic/star/tpc/dsv/set_path\n",
+#  "source /afs/rhic.bnl.gov/rhstar/group/.stardev\n",
+#  "setenv DSV_DIR /afs/rhic.bnl.gov/star/tpc/dsv\n",
+#  "echo Doing: source /afs/rhic.bnl.gov/star/tpc/dsv/set_path\n",
+#  "source /afs/rhic.bnl.gov/star/tpc/dsv/set_path\n",
 #  "echo Doing: rpoints -xdfFile $xdf_file -event dst_0\n",
 #  "rpoints -xdfFile $xdf_file -event dst_0 &\n";
 #

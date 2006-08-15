@@ -12,14 +12,14 @@ shift
 shift
 
 # set root4star environment
-setenv GROUP_DIR /afs/rhic/rhstar/group 
+setenv GROUP_DIR /afs/rhic.bnl.gov/rhstar/group 
 setenv CERN_ROOT /cern/pro
 setenv CERN      /cern
 setenv HOME      /star/users/starlib
 setenv SILENT    1
 
-source /afs/rhic/rhstar/group/.stardev
-/usr/afsws/bin/klog -pa `cat /afs/rhic/star/starqa/qa01/.cgi`
+source /afs/rhic.bnl.gov/rhstar/group/.stardev
+/usr/afsws/bin/klog -pa `cat /afs/rhic.bnl.gov/star/starqa/qa01/.cgi`
 
 # change to working directory
 cd $WORKING_DIR
