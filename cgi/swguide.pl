@@ -1,6 +1,6 @@
 #!/usr/bin/env perl
 #
-# $Id: swguide.pl,v 1.7 2003/12/22 14:23:10 jeromel Exp $
+# $Id: swguide.pl,v 1.8 2006/08/15 17:36:56 jeromel Exp $
 #
 ######################################################################
 #
@@ -181,18 +181,18 @@ open(LOGINFO,"< $CVSroot/loginfo")
 @loginfoFile=<LOGINFO>;
 close LOGINFO;
 
-$STAR = "/afs/rhic/star/packages/$ver";
+$STAR = "/afs/rhic.bnl.gov/star/packages/$ver";
 $root = $STAR;
-$rel = readlink("/afs/rhic/star/packages/$ver");
+$rel = readlink("/afs/rhic.bnl.gov/star/packages/$ver");
 ($f, $d, $e) = fileparse($rel);
 $rel = $f;
 undef($d);
 
-$ddevVer= (fileparse(readlink("/afs/rhic/star/packages/.dev")))[0];
-$devVer = (fileparse(readlink("/afs/rhic/star/packages/dev")))[0];
-$newVer = (fileparse(readlink("/afs/rhic/star/packages/new")))[0];
-$proVer = (fileparse(readlink("/afs/rhic/star/packages/pro")))[0];
-$oldVer = (fileparse(readlink("/afs/rhic/star/packages/old")))[0];
+$ddevVer= (fileparse(readlink("/afs/rhic.bnl.gov/star/packages/.dev")))[0];
+$devVer = (fileparse(readlink("/afs/rhic.bnl.gov/star/packages/dev")))[0];
+$newVer = (fileparse(readlink("/afs/rhic.bnl.gov/star/packages/new")))[0];
+$proVer = (fileparse(readlink("/afs/rhic.bnl.gov/star/packages/pro")))[0];
+$oldVer = (fileparse(readlink("/afs/rhic.bnl.gov/star/packages/old")))[0];
 
 $verChecked{$ver} = "checked";
 $detailChecked{$showFlag} = "checked";
@@ -593,7 +593,7 @@ sub showFiles {
 ##            date from the repository file itself.
             $cdate = $tokens[3];
             $date = substr($cdate,4,12)." ".substr($cdate,22,2);
-            open(REPFILE,"</afs/rhic/star/packages/repository/$theDir/$thePkg/$fname,v");
+            open(REPFILE,"</afs/rhic.bnl.gov/star/packages/repository/$theDir/$thePkg/$fname,v");
             $owner = "";
             $repTime = 0;
             $repver = "";
@@ -722,7 +722,7 @@ sub showFiles {
                 $fnameLen = length $fname;
                 $fillLen = 35 - $fnameLen;
                 if ( $ftype eq 'C++' ) {
-                    if ( -e "/afs/rhic/star/packages/$rel/StRoot/html/$ff.html" ) {
+                    if ( -e "/afs/rhic.bnl.gov/star/packages/$rel/StRoot/html/$ff.html" ) {
                         $fnameFull = "<a href=\"/STAR/comp/src/$rel/StRoot/html/$ff.html\">$ff</a>$ee";
                     }
                 }
@@ -812,6 +812,9 @@ sub DoxyCode
 
 
 # $Log: swguide.pl,v $
+# Revision 1.8  2006/08/15 17:36:56  jeromel
+# rhic -> rhic.bnl.gov
+#
 # Revision 1.7  2003/12/22 14:23:10  jeromel
 # Trailing spaces removed
 #
