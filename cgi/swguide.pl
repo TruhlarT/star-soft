@@ -1,6 +1,6 @@
 #!/usr/bin/env perl
 #
-# $Id: swguide.pl,v 1.8 2006/08/15 17:36:56 jeromel Exp $
+# $Id: swguide.pl,v 1.9 2006/08/15 17:46:16 jeromel Exp $
 #
 ######################################################################
 #
@@ -170,16 +170,20 @@ $find = $q->param('find');
 $pkg = $q->param('pkg');
 
 #read in avail file of package owners
-open(AVAIL,"< $CVSroot/avail")
-    or print "Can't open avail file: $!\n";
-@availFile=<AVAIL>;
-close AVAIL;
+if ( -e "$CVSroot/avail"){
+    open(AVAIL,"< $CVSroot/avail")
+	or print "Can't open avail file: $!\n";
+    @availFile=<AVAIL>;
+    close AVAIL;
+}
 
 #read in loginfo file of package mod notification email
-open(LOGINFO,"< $CVSroot/loginfo")
-    or print "Can't open loginfo file: $!\n";
-@loginfoFile=<LOGINFO>;
-close LOGINFO;
+if ( -e "$CVSroot/loginfo"){
+    open(LOGINFO,"< $CVSroot/loginfo")
+	or print "Can't open loginfo file: $!\n";
+    @loginfoFile=<LOGINFO>;
+    close LOGINFO;
+}
 
 $STAR = "/afs/rhic.bnl.gov/star/packages/$ver";
 $root = $STAR;
@@ -573,7 +577,10 @@ sub showFiles {
     if ( $theSubDir ne "" ) { $thePkg .= "/".$theSubDir; }
     ### Files
     $lines = 0;
+
+    return if ( ! -e "$theRoot/$theDir/$thePkg/CVS/Entries");
     open(ENTRIES, "<$theRoot/$theDir/$thePkg/CVS/Entries");
+
     while (<ENTRIES>) {
         $line = $_;
         chomp $line;
@@ -593,7 +600,10 @@ sub showFiles {
 ##            date from the repository file itself.
             $cdate = $tokens[3];
             $date = substr($cdate,4,12)." ".substr($cdate,22,2);
+
+	    next if ( ! -e "/afs/rhic.bnl.gov/star/packages/repository/$theDir/$thePkg/$fname,v");
             open(REPFILE,"</afs/rhic.bnl.gov/star/packages/repository/$theDir/$thePkg/$fname,v");
+
             $owner = "";
             $repTime = 0;
             $repver = "";
@@ -633,9 +643,11 @@ sub showFiles {
                 print "\"$ff\" \"$dd\" \"$ee\"\n" if $debugOn;
                 $isScript = 0;
                 if ( $ee eq "" ) {
+		    next if ( ! -e $fullname);
                     open(FL,"< $fullname") or next;
                     $line1=<FL>;
                     close FL;
+
                     if ( $line1 =~ m/^#!/ ) {
                          $isScript = 1;
                      }
@@ -650,9 +662,12 @@ sub showFiles {
                     } else {
                         $ftype = $okExtensions{$ee};
                     }
+
+		    next if ( ! -e "$theRoot/$theDir/$thePkg/$fname");
                     open(FILE,"< $theRoot/$theDir/$thePkg/$fname") or next;
                     @lines=<FILE>;
                     close FILE;
+
                     $inComment=0;
                     for ($ii=0; $ii<@lines; $ii++) {
                         ## Don't count comments. Imperfect but should get
@@ -812,6 +827,9 @@ sub DoxyCode
 
 
 # $Log: swguide.pl,v $
+# Revision 1.9  2006/08/15 17:46:16  jeromel
+# Misc fixes
+#
 # Revision 1.8  2006/08/15 17:36:56  jeromel
 # rhic -> rhic.bnl.gov
 #
