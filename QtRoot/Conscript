@@ -27,7 +27,9 @@ my @DepsI = map {$INCLUDE .  "/TQt" . $_ . ".h"}
      AxisEditor        Event        Lock      RConfig             Thread
      Brush             EventQueue   Marker    RootApplication     ThreadStub
      ClientFilter      GedAttFrame  PadEditor RootThread          Timer Condition RootBrowserImp);
-Command $env ["Makefile"], qw(qtRoot.pro qtthread/qtthread.pro), qq(cd $obj_dir; qmake;);
+my $DEBUG = "";
+$DEBUG = " CONFIG+=debug" if $env->{DEBUG} !~ /-O/;
+Command $env ["Makefile"], qw(qtRoot.pro qtthread/qtthread.pro), qq(cd $obj_dir; qmake $DEBUG;);
 Command $env [(@DepsL, @DepsI)], (Makefile, @src), qq(cd $obj_dir; make; make install);
 #________________________________________
 sub find_q{  @main::search_files   = ();
