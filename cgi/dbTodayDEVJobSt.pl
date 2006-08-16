@@ -78,7 +78,10 @@ struct FileAttr => {
 
 # print "Today Date :", $thisDay, "\n";
 #  print $mdate, "\n"; 
- 
+
+my @dbFiles = ();
+my $ndbFiles = 0; 
+
 &StDbTJobsConnect();
 
  &beginHtml();
