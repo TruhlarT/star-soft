@@ -1,0 +1,82 @@
+#!/usr/bin/env perl
+Import qw ( env INCLUDE LIB BIN BUILD OBJ);
+( my $build = $OBJ ) =~ s/\#//g;
+$build =~ s/\\/\//g;                                    # print "OBJ = $OBJ build = $build\n";
+(my $sysdir = $build ) =~ s/\/obj//;
+#print "PWD === $ENV{PWD}\n"; die;
+$env->{ENV}->{QTROOTSYSDIR} = $ENV{PWD} . "/" . $sysdir;# print "QTROOTSYSDIR = $env->{ENV}->{QTROOTSYSDIR}\n";
+$env->{ENV}->{QTDIR} = $env->{Packages}->{QT}->{DIR};
+my $DirPath = DirPath '.';                              # print "DirPath = $DirPath\n";
+( my $obj_dir = $DirPath ) =~ s/\\/\//g;                # print "obj_dir = $obj_dir\n";
+( my $Dir = $obj_dir ) =~ s/$build\///g;                # print "Dir = $Dir\n";
+my $PKGT = "QtRoot";
+printf( "Run Conscript          in %-30s  for %-20s\n", $Dir,$PKGT );
+
+my @src = ();
+my @dirs = qw(qt qtgui qtimage qtgl qtged qtExamples qtroot qtthread);
+foreach my $dir (@dirs) {
+  my @srcL = find_q($Dir . "/" . $dir); #print "dir = $dir ==> @srcL\n";
+  foreach my $s (@srcL) {
+    push @src, $dir . "/" . $s;
+  }
+}
+my @DepsL = map {$LIB . "/lib" . $_ . ".so"} qw(QtRoot QtGed  RQTGL QtGui QtImage);
+my @DepsI = map {$INCLUDE .  "/TQt" . $_ . ".h"} 
+  qw(Application       ClientGuard  GedEditor PaletteEditor       SymbolCodec      Util
+     ApplicationThread ClientWidget Image     PaletteEditorThread TermInputHandler Widget
+     AxisEditor        Event        Lock      RConfig             Thread
+     Brush             EventQueue   Marker    RootApplication     ThreadStub
+     ClientFilter      GedAttFrame  PadEditor RootThread          Timer Condition RootBrowserImp);
+Command $env ["Makefile"], qw(qtRoot.pro qtthread/qtthread.pro), qq(cd $obj_dir; qmake;);
+Command $env [(@DepsL, @DepsI)], (Makefile, @src), qq(cd $obj_dir; make; make install);
+#________________________________________
+sub find_q{  @main::search_files   = ();
+#	     print "find_q for $_[0]\n";
+  if (-d $_[0]) {
+    &File::Find::find(\&wanted_q, @_);
+    for my $dir (@_) {
+      if ( -d $dir ) {
+	my $i = 0;
+	for ($i=0;$i<=$#main::search_files;$i++) {
+	   $main::search_files[$i] = cutdir($dir, $main::search_files[$i]);
+	}
+      }
+    }
+  }
+	     return @main::search_files;
+}
+#________________________________________
+sub wanted_q {
+#  print "wanted ",$_,"\n";
+  my ($dev,$ino,$mode,$nlink,$uid,$gid) = lstat($_);
+  if ( -d _ &&
+       (/^CVS$/)
+     ) {$File::Find::prune = 1; return;}
+  if ( /^\.\#/) {return;}
+  if (
+      /^\w.*\.c$/       ||
+      /^\w.*\.cc$/      ||
+      /^\w.*\.cxx$/     ||
+      /^\w.*\.cpp$/     ||
+      /^\w.*\.g$/       ||
+      /^\w.*\.age$/     || #for STAR      /^\w.*\.f$/       ||
+      /^\w.*\.cdf$/     ||
+      /^\w.*\.F$/       ||
+      /^\w.*\.h$/       ||
+      /^\w.*\.hh$/      ||
+      /^\w.*\.inc$/     ||
+      /^\w.*\.hpp$/     ||
+      /^\w.*\.icpp$/    ||
+      /^\w.*\.icc$/     ||
+      /^\w.*\.pro$/     ||
+      /^\w.*\.xpm$/     ||
+      /^\w.*\.pri$/     ||
+      /^\w.*\.pro$/     ||
+      /^\w.*\.ui$/      ||
+      /^root\w+$/       ||
+      /^\w.*\.tpp$/) {# print " $File::Find::name\n";
+    {# print " $File::Find::name\n";
+    push @main::search_files,  $File::Find::name;
+    }
+  }
+}
