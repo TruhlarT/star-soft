@@ -1,0 +1,12 @@
+# .rootrc:$Name:  $:$Id: rootrc,v 1.1 2006/08/16 19:33:37 fine Exp $
+# Author: Valeri Fine 10/10/2003
+
+# The custom ROOT env to turn on the QT edition of ROOT gui
+# One hast to define only the custom param,eters.
+# all others are to be picked from the standard place, namely
+#
+#  $ROOTSYS/etc/system.rootrc
+# GUI specific settings
+Gui.Backend:                qt
+Gui.Factory:                qtgui
+Plugin.TGuiFactory: qtgui     TQtGUIFactory  QtGui       "TQtGUIFactory()"
