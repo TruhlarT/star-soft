@@ -1,0 +1,4 @@
+# GUI specific settings
+# Gui.Style:                  motif
+Gui.Backend:                qt
+Gui.Factory:                qt

@@ -1,0 +1,4 @@
+# GUI specific settings
+Gui.Backend:                qt
+Gui.Factory:                qtgui
+Plugin.TGuiFactory: qtgui   TQtGUIFactory       QtRootGui    "TQtGUIFactory()"

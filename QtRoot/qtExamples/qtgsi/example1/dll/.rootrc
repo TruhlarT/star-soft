@@ -1,0 +1,23 @@
+ # .rootrc:$Name:  $:$Id: .rootrc,v 1.1 2006/08/16 19:48:42 fine Exp $
+# Author: Valeri Fine 10/10/2003
+
+# The custom ROOT env to turn on the Qt-edition of ROOT gui
+#  see: http://root.bnl.gov
+#
+# One has to define only the custom parameters.
+# All others are to be picked from the standard place, namely
+#        $ROOTSYS/etc/system.rootrc
+#
+
+
+Plugin.TVirtualPadEditor: Ged TQtGedEditor    QtGed          "TQtGedEditor(TCanvas*)"
+
+# Plugin.TPaletteEditor:      *  TQtPaletteEditor  QtImage  "TQtPaletteEditor(TAttImage*,UInt_t,UInt_t)"
+# Plugin.TImage:              *  TQtImage          QtImage  "TQtImage()"
+# GUI specific settings
+Gui.Style:                  windows
+Gui.Backend:                qt
+Gui.Factory:                qtgui
+Plugin.TVirtualX:   qt        TGQt          GQt          "TGQt(const char*,const char*)"
+Plugin.TGuiFactory: qtgui   TQtGUIFactory  QtGui       "TQtGUIFactory()"
+Plugin.TVirtualViewer3D:   ogl TQtRootViewer3D  RQTGL    "TQtRootViewer3D(TVirtualPad*)"
