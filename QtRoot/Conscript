@@ -2,7 +2,7 @@
 Import qw ( env INCLUDE LIB BIN BUILD OBJ);
 ( my $build = $OBJ ) =~ s/\#//g;
 $build =~ s/\\/\//g;                                    # print "OBJ = $OBJ build = $build\n";
-(my $sysdir = $build ) =~ s/\/obj//;
+(my $sysdir = $build ) =~ s/\/obj//i;
 #print "PWD === $ENV{PWD}\n"; die;
 $env->{ENV}->{QTROOTSYSDIR} = $ENV{PWD} . "/" . $sysdir;# print "QTROOTSYSDIR = $env->{ENV}->{QTROOTSYSDIR}\n";
 $env->{ENV}->{QTDIR} = $env->{Packages}->{QT}->{DIR};
@@ -20,17 +20,29 @@ foreach my $dir (@dirs) {
     push @src, $dir . "/" . $s;
   }
 }
-my @DepsL = map {$LIB . "/lib" . $_ . ".so"} qw(QtRoot QtGed  RQTGL QtGui QtImage);
+my @DepsL = map {$LIB . "/lib" . $_ . ".so"} qw(QtRoot QtGed  RQTGL QtRootGui QtImage);
 my @DepsI = map {$INCLUDE .  "/TQt" . $_ . ".h"} 
   qw(Application       ClientGuard  GedEditor PaletteEditor       SymbolCodec      Util
-     ApplicationThread ClientWidget Image     PaletteEditorThread TermInputHandler Widget
+     ClientWidget Image     PaletteEditorThread TermInputHandler  Widget
      AxisEditor        Event        Lock      RConfig             Thread
-     Brush             EventQueue   Marker    RootApplication     ThreadStub
-     ClientFilter      GedAttFrame  PadEditor RootThread          Timer Condition RootBrowserImp);
+     Brush             EventQueue   Marker    RootApplication     ClientFilter     
+     GedAttFrame  PadEditor RootThread          Timer Condition   RootBrowserImp     
+     CanvasImp          FloatSpinBox       ObjectDialog           StyleComboBox
+     CanvasWidget       ObjectListItem     TabValidator           GuiFactory    
+     Pad2Html           ToolBar            TBrowserCustom         ColorSelectButton
+     Gui                UpdateViewFlag     TCanvasImp.interface   ColorSelect  
+     IconBrowserImp     PatternSelectButton     ZoomPadWidget     TEmbeddedPad   
+     ContextMenuImp     InspectImp              PatternSelect     TQGsiRootCanvas
+     ControlBarImp      LineStyleComboBox.cw    RootAction        BrowserImp  
+     CustomizeCanvasMenu  LineWidthComboBox.cw  RootBrowserAction Canvas2Html   
+     LockWidget         
+    );
+
 my $DEBUG = "";
 $DEBUG = " CONFIG+=debug" if $env->{DEBUG} !~ /-O/;
-Command $env ["Makefile"], qw(qtRoot.pro qtthread/qtthread.pro), qq(cd $obj_dir; qmake $DEBUG;);
-Command $env [(@DepsL, @DepsI)], (Makefile, @src), qq(cd $obj_dir; make; make install);
+Command $env ["Makefile"], qw(qtRoot.pro qtthread/qtthread.pro), qq(cd $obj_dir; qmake $DEBUG);
+Command $env [(@DepsL, @DepsI)], (Makefile, @src), qq(cd $obj_dir;  make; make install);
+# Command $env ["Makefile"], qw(qtExamples/qtExamples.pro), qq(cd $obj_dir; qmake $DEBUG; make);
 #________________________________________
 sub find_q{  @main::search_files   = ();
 #	     print "find_q for $_[0]\n";
