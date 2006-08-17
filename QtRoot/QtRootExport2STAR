@@ -1,0 +1,13 @@
+#!/usr/local/bin/tcsh
+cd $SCRATCH
+rm -rf qtExport >/dev/null
+setenv f " root/MyModules.mk root/MyRules.mk root/qt root/qtetc root/qtExamples root/qtged root/qtgl root/qtgui root/qtimage root/qtroot root/qtRoot.pro root/qtthread root/qtx3d  root/README.html root/test"
+cvs -d :pserver:cvsuser@cvs.bnl.gov:/data01/CVS export -d qtExport  -r HEAD $f
+cd qtExport/root
+rm -rf `find . -name CVS`
+tar -czvf $SCRATCH/qtExport/qtExport.tar.gz *
+cd $SCRATCH
+cvs  -d $CVSROOT co QtRoot
+cd QtRoot
+tar -xzvf $SCRATCH/qtExport/qtExport.tar.gz
+rm -rf $SCRATCH/qtExport
