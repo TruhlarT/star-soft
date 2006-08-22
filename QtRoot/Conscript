@@ -22,19 +22,18 @@ foreach my $dir (@dirs) {
 }
 my @DepsL = map {$LIB . "/lib" . $_ . ".so"} qw(QtRoot QtGed  RQTGL QtRootGui QtImage);
 my @DepsI = map {$INCLUDE .  "/TQt" . $_ . ".h"} 
-  qw(Application       ClientGuard  GedEditor PaletteEditor       SymbolCodec      Util
-     ClientWidget Image     PaletteEditorThread TermInputHandler  Widget
-     AxisEditor        Event        Lock      RConfig             Thread
-     Brush             EventQueue   Marker    RootApplication     ClientFilter     
-     GedAttFrame  PadEditor RootThread          Timer Condition   RootBrowserImp     
+  qw(Application       ClientGuard  GedEditor  PaletteEditor       SymbolCodec      Util
+     ClientWidget      Image        Widget     AxisEditor          Event            Lock
+     RConfig           Brush        EventQueue Marker              RootApplication  ClientFilter     
+     GedAttFrame       PadEditor    Timer      Condition           RootBrowserImp     
      CanvasImp          FloatSpinBox       ObjectDialog           StyleComboBox
      CanvasWidget       ObjectListItem     TabValidator           GuiFactory    
      Pad2Html           ToolBar            TBrowserCustom         ColorSelectButton
      Gui                UpdateViewFlag     TCanvasImp.interface   ColorSelect  
      IconBrowserImp     PatternSelectButton     ZoomPadWidget     TEmbeddedPad   
      ContextMenuImp     InspectImp              PatternSelect     TQGsiRootCanvas
-     ControlBarImp      LineStyleComboBox.cw    RootAction        BrowserImp  
-     CustomizeCanvasMenu  LineWidthComboBox.cw  RootBrowserAction Canvas2Html   
+     ControlBarImp       RootAction        BrowserImp  
+     CustomizeCanvasMenu RootBrowserAction Canvas2Html   
      LockWidget         
     );
 
