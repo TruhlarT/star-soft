@@ -1,4 +1,4 @@
-// @(#)root/ged:$Name:  $:$Id: TQtLineEditor.cxx,v 1.1 2006/08/16 19:27:06 fine Exp $
+// @(#)root/ged:$Name:  $:$Id: TQtLineEditor.cxx,v 1.2 2006/08/22 14:40:59 fine Exp $
 // Author: Valeri Fine 13/06/06
 
 /*************************************************************************
@@ -85,6 +85,7 @@ void TQtLineEditor::BuildView(QWidget  *editorPanel)
   fEndPointY = new TQtFloatSpinBox(0.25, -1000000.0, 1000000.0, 2, hbox);
   QToolTip::add(fEndPointY,"Set end point Y coordinate of Line.");
   
+#if ROOT_VERSION_CODE > ROOT_VERSION(5,11,3) 
   fOrientation  = new QVButtonGroup(vframe); fOrientation->setExclusive(TRUE);
   fVertical = new QCheckBox("Vertical",fOrientation);
   QToolTip::add(fVertical,   "Set vertical");
@@ -93,6 +94,9 @@ void TQtLineEditor::BuildView(QWidget  *editorPanel)
   fHorizontal = new QCheckBox("Horizontal",fOrientation);
   QToolTip::add(fHorizontal,"Set horizontal");
   fHorizontal->setTristate();
+#else
+   fOrientation  = 0; fHorizontal = 0;
+#endif   
 }
 
 //______________________________________________________________________________
@@ -110,7 +114,9 @@ void TQtLineEditor::ConnectSignals2Slots()
    ConnectView(fStartPointY,SIGNAL(ValueChanged(double)),this, SLOT(DoStartPointY(double))     );
    ConnectView(fEndPointX,  SIGNAL(ValueChanged(double)),this, SLOT(DoEndPointX(double))       );
    ConnectView(fEndPointY,  SIGNAL(ValueChanged(double)),this, SLOT(DoEndPointY(double))       );
+#if ROOT_VERSION_CODE > ROOT_VERSION(5,11,3) 
    ConnectView(fOrientation,SIGNAL(clicked(int))     ,this, SLOT(DoLineOrientation(int)));
+#endif   
 }
 
 //______________________________________________________________________________
@@ -123,7 +129,9 @@ void TQtLineEditor::ChangeView()
    fEndPointX  ->SetValue  (fModel->GetX2() );
    fStartPointY->SetValue  (fModel->GetY1() );
    fEndPointY  ->SetValue  (fModel->GetY2() );
+#if ROOT_VERSION_CODE > ROOT_VERSION(5,11,3) 
    fHorizontal ->setChecked(fModel->IsHorizontal());
+#endif   
 }
 
 //______________________________________________________________________________
@@ -138,9 +146,7 @@ void TQtLineEditor::DoStartPointX(double value)
 void TQtLineEditor::DoStartPointY(double value)
 {
    // Slot connected to the line start point.
-
    fModel->SetY1(value);
-   // fModel->Paint(fModel->GetDrawOption());
 }
 
 //______________________________________________________________________________
@@ -149,7 +155,6 @@ void TQtLineEditor::DoEndPointX(double value)
    // Slot connected to the line EndPoint X.
 
    fModel->SetX2(value);
-//   fModel->Paint(fModel->GetDrawOption());
 }
 
 //______________________________________________________________________________
@@ -157,7 +162,6 @@ void TQtLineEditor::DoEndPointY(double value)
 {
    // Slot connected to the line EndPoint Y.
    fModel->SetY2(value);
-//   fModel->Paint(fModel->GetDrawOption());
 }
 
 //______________________________________________________________________________                                                                                
@@ -165,8 +169,10 @@ void TQtLineEditor::DoLineOrientation(int)
 {
    // Slot so set the line orientation
 
+#if ROOT_VERSION_CODE > ROOT_VERSION(5,11,3) 
    fModel->SetVertical  (fVertical  ->state() == QButton::On);
    fModel->SetHorizontal(fHorizontal->state() == QButton::On);
+#endif   
 }
 
 

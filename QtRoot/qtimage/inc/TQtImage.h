@@ -1,4 +1,4 @@
-// @(#)root/asimage:$Name:  $:$Id: TQtImage.h,v 1.1 2006/08/16 19:39:26 fine Exp $
+// @(#)root/asimage:$Name:  $:$Id: TQtImage.h,v 1.2 2006/08/22 14:40:13 fine Exp $
 // Author: Valeri Fine 7/02/2004
 
 /*************************************************************************
@@ -115,11 +115,13 @@ public:
    virtual void Pad(const char * /*color*/ = "#FFFFFFFF", UInt_t /*left*/ = 0, 
                    UInt_t /*right*/ = 0, UInt_t /*top*/ = 0, UInt_t /*bottom*/ = 0) {}
    virtual void Blur(Double_t /*horizontal*/ = 3, Double_t /*vertical*/ = 3) {}
-// #if ROOT_VERSION_CODE < ROOT_VERSION(5,11,3)
-//   virtual void Vectorize(UInt_t /*max_colors*/ = 256, UInt_t /*dither*/ = 4, Int_t /*opaque_threshold*/ = 0) {}
-//#else
+#ifndef __CINT__
+#if ROOT_VERSION_CODE < ROOT_VERSION(5,11,3)
+   virtual void Vectorize(UInt_t /*max_colors*/ = 256, UInt_t /*dither*/ = 4, Int_t /*opaque_threshold*/ = 0) {}
+#else
    virtual Double_t *Vectorize(UInt_t /*max_colors*/ = 256, UInt_t /*dither*/ = 4, Int_t /*opaque_threshold*/ = 0) { return 0; }
-//#endif
+#endif
+#endif
    virtual void HSV(UInt_t /*hue*/ = 0, UInt_t /*radius*/ = 360, Int_t /*H*/ = 0, Int_t /*S*/ = 0, Int_t /*V*/ = 0, 
                     Int_t /*x*/ = 0, Int_t /*y*/ = 0, UInt_t /*width*/ = 0, UInt_t /*height*/ = 0) {}
    virtual void Gradient(UInt_t /*angle*/ = 0, const char * /*colors*/ = "#FFFFFF #000000", const char * /*offsets*/ = 0,
