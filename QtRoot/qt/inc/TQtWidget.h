@@ -1,4 +1,4 @@
-// @(#)root/qt:$Name:  $:$Id: TQtWidget.h,v 1.1 2006/08/16 19:29:08 fine Exp $
+// @(#)root/qt:$Name:  $:$Id: TQtWidget.h,v 1.2 2006/08/22 14:38:52 fine Exp $
 // Author: Valeri Fine   21/01/2002
 /****************************************************************************
 **
@@ -180,6 +180,7 @@ public:
    // Static method to inmitate ROOT as needed
    static TApplication *InitRint(Bool_t prompt=kFALSE, const char *appClassName="QtRint", int *argc=0, char **argv=0,
           void *options = 0, int numOptions = 0, Bool_t noLogo = kFALSE);
+   static TQtWidget *Widget(const TCanvas *);
    //  Proxy methods to access the TCanvas selected TObject 
    //  and last processed ROOT TCanvas event
    Int_t             GetEvent()       const;

@@ -1,4 +1,4 @@
-// @(#)root/qt:$Name:  $:$Id: TQtWidget.cxx,v 1.1 2006/08/16 19:27:06 fine Exp $
+// @(#)root/qt:$Name:  $:$Id: TQtWidget.cxx,v 1.2 2006/08/22 14:38:52 fine Exp $
 // Author: Valeri Fine   23/01/2003
 
 /*************************************************************************
@@ -604,6 +604,16 @@ bool TQtWidget::Save(const QString &fileName,const char *format,int quality)cons
    }
    emit ((TQtWidget *)this)->Saved(Ok);
    return Ok;
+}
+//_____________________________________________________________________________
+TQtWidget *TQtWidget::Widget(const TCanvas *canvas)
+{
+   // Return the QWidget backend for Tcanvas *canvas object
+   TQtWidget *wCanvas = 0;
+   if (canvas) {
+      wCanvas = dynamic_cast<TQtWidget *>(TGQt::iwid(canvas->GetCanvasID()));
+   }
+   return wCanvas;
 }
 //_____________________________________________________________________________
 void TQtWidget::stretchWidget(QResizeEvent * /*s*/)
