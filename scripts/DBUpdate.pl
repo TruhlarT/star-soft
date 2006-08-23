@@ -16,9 +16,9 @@ if ($#ARGV == -1){
    -o outputFile      redirect output to file outputFile
    -k subpath         strip subpath before comparing to HPSS, then clone
                       using full path
+   -z                 use any filetype (not the default)
    -l                 consider soft-links in path
    -nocache           do not use caching
-
 
  Purpose
    This script scans a disk given as the first argument
@@ -123,6 +123,9 @@ for ($i=0 ; $i <= $#ARGV ; $i++){
 
     } elsif ($ARGV[$i] eq "-l"){
 	$DOSL    = 1;
+
+    } elsif ($ARGV[$i] eq "-z"){
+	$FTYPE   = " ";
 
     } else {
 	# ... as well as previous syntax
