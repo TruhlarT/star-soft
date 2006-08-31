@@ -168,16 +168,20 @@ setenv LESSCHARSET latin1
 # CERN stuff
 if ( $?DECHO ) echo "$self :: Checking CERN stuff"
 
-if ( -e /cern ) then
-    setenv CERN "/cern"
-else 
-    # What to do now ...
-    if( -e "${AFS_RHIC}/asis/@sys/cern" ) then
-	setenv CERN "${AFS_RHIC}/asis/@sys/cern"
-    else
-	echo "WARNING /cern nor ${AFS_RHIC}/asis/@sys/cern exist ..."
+if ($?CERN == 0) then
+    if ( -e /cern ) then
+	setenv CERN "/cern"
+    else 
+	# What to do now ...
+	if( -e "${AFS_RHIC}/asis/@sys/cern" ) then
+	    setenv CERN "${AFS_RHIC}/asis/@sys/cern"
+	else
+	    echo "WARNING /cern nor ${AFS_RHIC}/asis/@sys/cern exist ..."
+	endif
     endif
 endif
+
+# if still undefined, set it to /cern
 if ($?CERN == 0) setenv CERN "/cern"
 if ($?CERN_LEVEL == 0) setenv CERN_LEVEL pro
 setenv CERN_ROOT "$CERN/$CERN_LEVEL"
