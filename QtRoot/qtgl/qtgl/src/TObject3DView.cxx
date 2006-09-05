@@ -33,7 +33,7 @@
  
 ClassImp(TObject3DView)
 
-//#define STARONLINE
+#define STARONLINE
 
 
 //_____________________________________________________________________________
