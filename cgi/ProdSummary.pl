@@ -338,10 +338,9 @@ sub beginHtml {
 print <<END;
 
   <html>
-  <head>
-          <title>Summary for $trigD  $coll events in $prodSer production</title>
-   </head>
    <body BGCOLOR=\"#ccffff\"> 
+ <h2 ALIGN=CENTER><B> Summary for $prodSer production of $coll events in $trigD trigger set</B></h2>
+<br>
 <TABLE ALIGN=CENTER BORDER=5 CELLSPACING=1 CELLPADDING=2 >
 <TR>
 <TD ALIGN=CENTER WIDTH=\"20%\" HEIGHT=100><B>Size(GB) of DAQ files</B></TD>
@@ -351,8 +350,7 @@ print <<END;
 <TD ALIGN=CENTER WIDTH=\"10%\" HEIGHT=100><B>Size(GB) of MuDst.root files</B></TD>
 <TD ALIGN=CENTER WIDTH=\"20%\" HEIGHT=100><B>Number of Events <br>in MuDst.root files</B></TD>
 </TR> 
-   </head>
-    <body>
+    </body>
 END
 }
 
