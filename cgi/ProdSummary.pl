@@ -29,8 +29,6 @@ my $fileC = new FileCatalog();
 
     $fileC->connect_as($SITE."::User","FC_user") || die "Connection failed for FC_user\n";
 
-#  $fileC->connect_as($SITE."::User");
-
 my @col = ();
 my @trig = ();
 my @prod = ();
@@ -74,12 +72,6 @@ my $Loc   =  $query->param('SetLc');
 
 print $query->header;
 print $query->start_html('Production');
-
-print <<END;
-<META HTTP-EQUIV="Expires" CONTENT="0">
-<META HTTP-EQUIV="Pragma" CONTENT="no-cache">
-<META HTTP-EQUIV="Cache-Control" CONTENT="no-cache">
-END
 
 print $query->startform(-action=>"$scriptname");
 
