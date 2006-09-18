@@ -34,7 +34,7 @@ my @trig = ();
 my @prod = ();
 
 
- $fileC->set_context("filetype=daq_reco_event");
+ $fileC->set_context("filetype=daq_reco_event","limit=0");
 
  my @prodSr = $fileC->run_query('orda(production)');
  my @trigg = $fileC->run_query(trgsetupname);
@@ -314,7 +314,7 @@ if ($coll eq "all" and $trigD eq "all" and $prodSer eq "all" and $fieldM eq "all
 
 
 print <<END;
-<TR ALIGN=CENTER HEIGHT=80 bgcolor=lightblue>
+<TR ALIGN=CENTER HEIGHT=80 bgcolor=\"#ffdc9f\">
 <td HEIGHT=80><h3>$TdaqHpSize</h3></td>
 <td HEIGHT=80><h3>$daqHpEvts[0]</h3></td>
 <td HEIGHT=80><h3>$TevtHpSize</h3></td>
@@ -339,7 +339,7 @@ print <<END;
 
   <html>
    <body BGCOLOR=\"#ccffff\"> 
- <h2 ALIGN=CENTER><B> Summary for $prodSer production of $coll events in $trigD trigger set</B></h2>
+ <h2 ALIGN=CENTER><B> Summary for $coll events in $prodSer production of $trigD trigger set</B></h2>
 <br>
 <TABLE ALIGN=CENTER BORDER=5 CELLSPACING=1 CELLPADDING=2 >
 <TR>
