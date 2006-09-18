@@ -66,16 +66,10 @@ my $Loc   =  $query->param('SetLc');
 print $query->header;
 print $query->start_html('Production');
 
-print <<END;
-<META HTTP-EQUIV="Expires" CONTENT="0">
-<META HTTP-EQUIV="Pragma" CONTENT="no-cache">
-<META HTTP-EQUIV="Cache-Control" CONTENT="no-cache">
-END
-
 print $query->startform(-action=>"$scriptname");
 
 print "<body bgcolor=\"cornsilk\">\n";
-print "<h1 align=center>Production Summary by Run Number</h1>\n";
+print "<h1 align=center>Production Summary by Run Numbers</h1>\n";
 print "<br>";
 
 
