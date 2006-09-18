@@ -214,6 +214,16 @@ if ($coll eq "all" and $trigD eq "all" and $fieldM eq "all" and $detSet eq "all"
 my @prt = ();
 my $nrun = 0;
 
+
+if(scalar(@prodruns) < 1) {
+
+ print "<br><br>", "\n";
+
+  print "<h2 align=center>No data for this production. Check Real Data Production Web page for available productions</h2>","\n";
+     print "<h3 align=center> http://www.star.bnl.gov/STAR/comp/prod/ProdList.html</h3>","\n";
+
+} else{
+
  &beginHtml();
 
   foreach my $line (@prodruns){
@@ -245,7 +255,8 @@ END
  }
 
  $fileC->destroy();
- 
+
+ } 
  print $qqr->end_html;
  &endHtml();
 
