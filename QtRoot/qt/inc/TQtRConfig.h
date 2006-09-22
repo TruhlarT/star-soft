@@ -1,6 +1,6 @@
 // Author: Valeri Fine   28/06/2004
 /****************************************************************************
-** $Id: TQtRConfig.h,v 1.1 2006/08/16 19:29:07 fine Exp $
+** $Id: TQtRConfig.h,v 1.2 2006/09/22 16:55:30 fine Exp $
 **
 ** Copyright (C) 2004 by Valeri Fine.  All rights reserved.
 **
@@ -12,6 +12,9 @@
 #ifndef ROOT_TQTRCONFIG
 #define ROOT_TQTRCONFIG
 #include "RConfig.h"
+#ifndef __CINT__
+#  include "qglobal.h"
+#endif
 
 // defined the CPP symbols to create the different versions
 #ifdef R__QTX11
@@ -44,7 +47,13 @@
 
 #ifndef ROOT_VALID_QT_VERSION
 // The least Qt version the ROOT package can work with
-#define ROOT_VALID_QT_VERSION "3.2.0"
+#  ifndef __CINT__
+#    if QT_VERSION < 0x40000
+#      define ROOT_VALID_QT_VERSION "3.2.0"
+#    else
+#      define ROOT_VALID_QT_VERSION "4.1.2"
+#    endif
+#  endif
 #endif
 
 #endif /*ROOT_TQTCONFIG*/
