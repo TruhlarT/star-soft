@@ -1,4 +1,4 @@
-// @(#)root/ged:$Name:  $:$Id: TQtMarkerEditor.h,v 1.1 2006/08/16 19:32:43 fine Exp $
+// @(#)root/ged:$Name:  $:$Id: TQtMarkerEditor.h,v 1.2 2006/09/22 17:28:08 fine Exp $
 // Author: Valeri Fine 11/06/06
 
 /****************************************************************************
@@ -36,6 +36,7 @@
 
 class TQtFloatSpinBox;
 class TQtColorSelect;
+class TQtMarkerSelect;
 // class QedMarkerSelect;
 class QFontTypeComboBox;
 // class TQtMarker;
@@ -48,9 +49,9 @@ class TQtMarkerEditor : public TQtGedAttFrame<TAttMarker> {
 protected:
    TQtFloatSpinBox     *fMarkerSize;      // marker size combo box
    TQtColorSelect      *fColorSelect;     // marker color
-//   QedMarkerSelect    *fMarkerType;      // marker type
+   TQtMarkerSelect     *fStyleSelect;     // marker style
 
-   virtual void BuildView(QWidget  *editorPanel);
+   virtual void  BuildView(QWidget  *editorPanel);
    virtual void  ConnectSignals2Slots();
    virtual void  ChangeView();
 

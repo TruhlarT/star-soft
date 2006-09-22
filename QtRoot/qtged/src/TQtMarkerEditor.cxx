@@ -1,4 +1,4 @@
-// @(#)root/ged:$Name:  $:$Id: TQtMarkerEditor.cxx,v 1.1 2006/08/16 19:27:06 fine Exp $
+// @(#)root/ged:$Name:  $:$Id: TQtMarkerEditor.cxx,v 1.2 2006/09/22 17:28:08 fine Exp $
 // Author: Valeri Fine  11/07/06
 
 /****************************************************************************
@@ -37,6 +37,7 @@
 #include "TQtMarkerEditor.h"
 #include "TQtColorSelect.h"
 #include "TQtColorSelectButton.h"
+#include "TQtMarkerSelect.h"
 #include "TQtFloatSpinBox.h"
 #include "TColor.h"
 #include "TVirtualPad.h"
@@ -73,12 +74,9 @@ void TQtMarkerEditor::BuildView(QWidget  *editorPanel)
 
    // MakeTitle("Marker");
    QHBox *hbox = new QHBox(editorPanel);
+   hbox->setSpacing(3);
    fColorSelect = new TQtColorSelect(hbox, 0);
-#if 0
-   fMarkerType = new QedMarkerSelect(f2, 1, kMARKER);
-   f2->AddFrame(fMarkerType, new QLayoutHints(kLHintsLeft, 1, 1, 1, 1));
-   fMarkerType->Associate(this);
-#endif
+   fStyleSelect = new TQtMarkerSelect(hbox);
    fMarkerSize  = new TQtFloatSpinBox(0.2, 0.2, 5.0, 1, hbox);
    QToolTip::add(fMarkerSize ,"Set marker size");
 }
@@ -95,6 +93,7 @@ void TQtMarkerEditor::ConnectSignals2Slots()
    // Connect signals to slots.
 
    ConnectView(fColorSelect, SIGNAL(ColorSelected(Pixel_t)),this, SLOT(DoMarkerColor(Pixel_t)) );
+   ConnectView(fStyleSelect, SIGNAL(StyleSelected(Style_t)),this, SLOT(DoMarkerStyle(Style_t)) );
    ConnectView(fMarkerSize,  SIGNAL(valueChanged(int)),     this, SLOT(DoMarkerSize(int) )     );
 
 //   fMarkerType->Connect("MarkerSelected(Style_t)", "TQtMarkerEditor", this, "DoMarkerStyle(Style_t)");
@@ -118,8 +117,8 @@ void TQtMarkerEditor::ChangeView()
       fMarkerSize->setEnabled(true);
       fMarkerSize->SetValue(s);
    }
-//    fMarkerType->SetMarkerStyle(marker);
    fColorSelect->SetColor(fModel->GetMarkerColor());
+   fStyleSelect->SetStyle(marker);
 
 }
 
