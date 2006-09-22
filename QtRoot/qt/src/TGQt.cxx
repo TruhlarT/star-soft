@@ -1,6 +1,6 @@
 // Author: Valeri Fine   21/01/2002
 /****************************************************************************
-** $Id: TGQt.cxx,v 1.1 2006/08/16 19:27:05 fine Exp $
+** $Id: TGQt.cxx,v 1.2 2006/09/22 17:07:38 fine Exp $
 **
 ** Copyright (C) 2002 by Valeri Fine. Brookhaven National Laboratory.
 **                                    All rights reserved.
@@ -656,7 +656,7 @@ Bool_t TGQt::Init(void* /*display*/)
 {
    //*-*-*-*-*-*-*-*-*-*-*-*-*-*Qt GUI initialization-*-*-*-*-*-*-*-*-*-*-*-*-*-*
    //*-*                        ========================                      *-*
-   fprintf(stderr,"** $Id: TGQt.cxx,v 1.1 2006/08/16 19:27:05 fine Exp $ this=%p\n",this);
+   fprintf(stderr,"** $Id: TGQt.cxx,v 1.2 2006/09/22 17:07:38 fine Exp $ this=%p\n",this);
 
    if(fDisplayOpened)   return fDisplayOpened;
    fSelectedBuffer = fSelectedWindow = fPrevWindow = NoOperation;
@@ -1052,7 +1052,30 @@ void  TGQt::CopyPixmap(int wid, int xpos, int ypos)
       }
    }
 }
-
+//______________________________________________________________________________
+void TGQt::CopyPixmap(const QPixmap &src, Int_t xpos, Int_t ypos) 
+{
+   // Copy the pixmap p at the position xpos, ypos in the current window.
+   if (fSelectedWindow )
+   {
+      // fprintf(stderr,"x=%d,y=%d: %d %d %d %d\n",xpos,ypos,sr.x(),sr.y(),sr.width(),sr.height());
+      QPaintDevice *dst = fSelectedBuffer ? fSelectedBuffer : fSelectedWindow;
+      bool isPainted = dst->paintingActive ();
+      if (isPainted) End();
+#if QT_VERSION < 0x40000
+      QRect sr = src.rect();
+      bitBlt ( dst,QPoint(xpos,ypos),&src,sr,Qt::CopyROP ); // bool ignoreMask )
+#else /* QT_VERSION */
+      {
+        QPainter paint(dst);
+        paint.setCompositionMode(QPainter::CompositionMode_Source);
+        paint.drawPixmap(xpos,ypos,src);
+      }
+     //  ----  !!!!  bitBlt ( dst,QPoint(xpos,ypos),src,sr,QPainter::CompositionMode_Source); // bool ignoreMask )
+#endif /* QT_VERSION */
+      if (isPainted) Begin();
+   }
+}
 //______________________________________________________________________________
 void TGQt::CreateOpenGLContext(int wid)
 {

@@ -1,4 +1,4 @@
-// @(#)root/qt:$Name:  $:$Id: TGQt.h,v 1.1 2006/08/16 19:29:07 fine Exp $
+// @(#)root/qt:$Name:  $:$Id: TGQt.h,v 1.2 2006/09/22 17:07:38 fine Exp $
 // Author: Valeri Fine   21/01/2002
 /****************************************************************************
 **
@@ -200,7 +200,7 @@ public:
     virtual void      SetFillStyleIndex( Int_t style, Int_t fasi);
     virtual void      SetMarkerType( Int_t type, Int_t n, TPoint *xy );
     virtual void      SetTitle(const char *title);
-
+    virtual void      CopyPixmap(const QPixmap &p, Int_t px1, Int_t py1);
     virtual void      SetTextDecoder(const char * /*textDeocerName*/){;}  // for the future
     virtual const QTextCodec *GetTextDecoder();
 #endif
