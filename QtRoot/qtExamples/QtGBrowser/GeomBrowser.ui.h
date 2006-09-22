@@ -12,7 +12,7 @@
 
 // Author: Valeri Fine   21/01/2002
 /****************************************************************************
-** $Id: GeomBrowser.ui.h,v 1.1 2006/08/16 19:41:03 fine Exp $
+** $Id: GeomBrowser.ui.h,v 1.2 2006/09/22 17:20:26 fine Exp $
 **
 ** Copyright (C) 2004 by Valeri Fine.  All rights reserved.
 **
@@ -187,10 +187,10 @@ void GeomBrowser::editFind()
       viewer->EndScene();
       TQtRootViewer3D *v  = (TQtRootViewer3D*)(viewer);
       if (v) {
-        TQtGLViewerImp *viewerImp = v->GetViewerImp();
+        TGLViewerImp *viewerImp = v->GetViewerImp();
         if (viewerImp) 
         {
-           connect(viewerImp,SIGNAL( ObjectSelected(TObject *, const QPoint&))
+           connect(&viewerImp->Signals(),SIGNAL( ObjectSelected(TObject *, const QPoint&))
                  , this, SLOT(ObjectSelected(TObject *, const QPoint &)));
        }
       }
@@ -657,9 +657,24 @@ void GeomBrowser::viewCoin3D()
 {
 // 
 #if  ROOT_VERSION_CODE >= ROOT_VERSION(4,03,3)   
-   if (false) {
-     editFind();
-  }
+   TVirtualViewer3D *viewer = TVirtualViewer3D::Viewer3D(tQtWidget1->GetCanvas(),"oiv");
+   if (viewer) {
+       // Create Open GL viewer
+       TGQt::SetCoinFlag(1);
+       viewer->BeginScene();
+       viewer->EndScene();
+       TQtRootViewer3D *v  = (TQtRootViewer3D*)(viewer);
+       if (v) {
+           TGLViewerImp *viewerImp = v->GetViewerImp();
+           if (viewerImp) 
+           {
+               connect(&viewerImp->Signals(),SIGNAL( ObjectSelected(TObject *, const QPoint&))
+                 , this, SLOT(ObjectSelected(TObject *, const QPoint &)));
+           }
+       }
+    } else {
+         editView_Coin3DAction->setEnabled(false);
+    }
 #else  
    if (! glViewerLoadFlag) glViewerLoadFlag = !gQt->LoadQt("libRQTGL");
    if (glViewerLoadFlag) {
@@ -671,9 +686,6 @@ void GeomBrowser::viewCoin3D()
       gPad->x3d("OPENGL");
    } 
 #endif   
-   else {
-      editView_Coin3DAction->setEnabled(false);
-   }
 }
 
 
