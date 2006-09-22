@@ -1,4 +1,4 @@
-// @(#)root/qt:$Name:  $:$Id: GQtGUI.cxx,v 1.1 2006/08/16 19:27:05 fine Exp $
+// @(#)root/qt:$Name:  $:$Id: GQtGUI.cxx,v 1.2 2006/09/22 17:01:07 fine Exp $
 // Author: Valeri Fine   23/01/2003
 /****************************************************************************
 **
@@ -1212,7 +1212,6 @@ Window_t TGQt::CreateWindow(Window_t parent, Int_t x, Int_t y,
       win =  fQClientGuard.Create(pWidget,"tooltip", Qt::WStyle_StaysOnTop | Qt::WStyle_Customize | Qt::WStyle_NoBorder | Qt::WStyle_Tool | Qt::WX11BypassWM );
       win->setFrameStyle(QFrame::PopupPanel | QFrame::Plain);
    } else {
-      win =  fQClientGuard.Create(pWidget,"Other", Qt::WStyle_StaysOnTop | Qt::WStyle_Customize | Qt::WX11BypassWM );
       win =  fQClientGuard.Create(pWidget,"Other", Qt::WStyle_StaysOnTop | Qt::WStyle_Customize | Qt::WX11BypassWM | (wtype & kOwnBackground ? Qt::WNoAutoErase : 0));
       if (!pWidget) {
            win->setFrameStyle( QFrame::PopupPanel | QFrame::Plain );
