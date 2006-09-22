@@ -4,7 +4,7 @@
 # Qmake include file to add the rules to create RootCint Dictionary
 #-------------------------------------------------------------------------
 #
-# $Id: rootlibs.pri,v 1.1 2006/08/16 19:29:08 fine Exp $
+# $Id: rootlibs.pri,v 1.2 2006/09/22 16:59:12 fine Exp $
 #
 # Copyright (C) 2002 by Valeri Fine.  All rights reserved.
 #
@@ -34,6 +34,13 @@
 #
 
 # QMake must be defined by Qmake alone but ... It is not :(  Sept 6, 2005 V.Fine)
+
+
+# define whether the current QMake is from Qt4 distribution
+
+MYVERSION = $$[QMAKE_VERSION] 
+ISQT4 = $$find(MYVERSION, ^[2-9])
+
 
 unix {
   QMAKE_EXTENSION_SHLIB = so
