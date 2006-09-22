@@ -1,4 +1,4 @@
-// @(#)root/gui:$Name:  $:$Id: TQtColorSelectButton.cxx,v 1.1 2006/08/16 19:27:07 fine Exp $
+// @(#)root/gui:$Name:  $:$Id: TQtColorSelectButton.cxx,v 1.2 2006/09/22 17:27:11 fine Exp $
 // Author: Bertrand Bellenot + Fons Rademakers   22/08/02
 
 /*************************************************************************
@@ -347,11 +347,14 @@ TQtColorSelectButton::TQtColorSelectButton( QWidget *p, QColor &color, Int_t /*i
 void TQtColorSelectButton::CreateWidget() 
 {
     setSizePolicy(QSizePolicy( QSizePolicy::Minimum, QSizePolicy::Fixed ));
+    QRect r;
 #if QT_VERSION < 0x40000
-    QRect r = QApplication::style().querySubControlMetrics(QStyle::CC_ComboBox, this, QStyle::SC_ComboBoxEditField);
+    r = QApplication::style().querySubControlMetrics(QStyle::CC_ComboBox, this, QStyle::SC_ComboBoxEditField);
           //QRect r = QStyle::visualRect( combo->style().querySubControlMetrics(QStyle::CC_ComboBox, combo,
 	 //							        combo );
 #else
+      QStyleOptionComboBox editField;
+      r = QApplication::style()->subControlRect(QStyle::CC_ComboBox, &editField, QStyle::SC_ComboBoxEditField);
 #endif
     setMinimumSize( QSize( int(r.width()*0.75), r.height() ) );
     setLineWidth(1);

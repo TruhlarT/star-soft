@@ -2,7 +2,7 @@
 #define ROOT_TQtZoomPadWidget
 // Author: Valeri Fine   16/03/2006
 /****************************************************************************
-** $Id: TQtZoomPadWidget.h,v 1.1 2006/08/16 19:33:21 fine Exp $
+** $Id: TQtZoomPadWidget.h,v 1.2 2006/09/22 17:27:10 fine Exp $
 **
 ** Copyright (C) 2006 by Valeri Fine. Brookhaven National Laboratory.
 **                                    All rights reserved.

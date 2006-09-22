@@ -29,7 +29,7 @@ INCLUDEPATH +=  $$MODDIRI
 QTGUIH1        = $$MODDIRI/TQtGuiFactory.h     $$MODDIRI/TBrowserCustom.h  $$MODDIRI/TQtColorSelect.h  \
                  $$MODDIRI/TQtPatternSelect.h  $$MODDIRI/TEmbeddedPad.h    $$MODDIRI/TQtTabValidator.h \
                  $$MODDIRI/TQtZoomPadWidget.h  $$MODDIRI/TQGsiRootCanvas.h $$MODDIRI/TQtPad2Html.h     \
-                 $$MODDIRI/TQtCanvas2Html.h
+                 $$MODDIRI/TQtCanvas2Html.h    $$MODDIRI/TQtPixmapBox.h    $$MODDIRI/TQtMarkerSelect.h
 
 CREATE_ROOT_DICT_FOR_CLASSES  = $$QTGUIH1 $$MODDIRI/LinkDef.h
 
@@ -114,12 +114,18 @@ HEADERS += inc/TBrowserCustom.h       \
            inc/TQtToolBar.h           \
            inc/TQtStyleComboBox.h     \
            inc/TQtLockWidget.h        \
+           inc/TQtPixmapBox.h         \
+           inc/TQtMarkerSelect.h      \
+           inc/TQtMarkerSelectButton.h\
            inc/TQtCustomizeCanvasMenu.h
 
 
 HEADERS -= inc/LinkDef.h
 
-SOURCES += src/TBrowserCustom.cxx       \
+SOURCES += src/TQtMarkerSelect.cxx      \
+           src/TQtMarkerSelectButton.cxx\
+           src/TQtPixmapBox.cxx         \
+           src/TBrowserCustom.cxx       \
            src/TEmbeddedPad.cxx         \
            src/TQtBrowserImp.cxx        \
            src/TQtCanvasImp.cxx         \
@@ -146,6 +152,7 @@ SOURCES += src/TBrowserCustom.cxx       \
            src/TQtCanvas2Html.cxx       \
            src/TQtToolBar.cxx           \
            src/TQtStyleComboBox.cxx     \
+           src/TQtGui.cxx               \
            src/TQtObjectListItemInterface.cxx
            
            

@@ -1,7 +1,7 @@
-/* @(#)root/win32:$Name:  $:$Id: LinkDef.h,v 1.1 2006/08/16 19:33:20 fine Exp $ */
+/* @(#)root/win32:$Name:  $:$Id: LinkDef.h,v 1.2 2006/09/22 17:27:10 fine Exp $ */
 
 /****************************************************************************
-** $Id: LinkDef.h,v 1.1 2006/08/16 19:33:20 fine Exp $
+** $Id: LinkDef.h,v 1.2 2006/09/22 17:27:10 fine Exp $
 **
 ** Copyright (C) 2004 by Valeri Fine. Brookhaven National Laboratory.
 **                                    All rights reserved.
@@ -23,10 +23,12 @@
 #pragma link C++ class TBrowserCustom;
 #pragma link C++ class TQtColorSelect;
 #pragma link C++ class TQtPatternSelect;
+#pragma link C++ class TQtMarkerSelect;
 #pragma link C++ class TEmbeddedPad;
 #pragma link C++ class TQtTabValidator;
 #pragma link C++ class TQtZoomPadWidget;
 #pragma link C++ class TQRootCanvas;
 #pragma link C++ class TQtPad2Html;
 #pragma link C++ class TQtCanvas2Html;
+#pragma link C++ class TQtPixmapBox;
 #endif

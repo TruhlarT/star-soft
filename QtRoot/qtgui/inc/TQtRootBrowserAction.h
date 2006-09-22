@@ -1,6 +1,6 @@
 // Author: Valeri Fine  08/03/2003
 /****************************************************************************
-** $Id: TQtRootBrowserAction.h,v 1.1 2006/08/16 19:33:21 fine Exp $
+** $Id: TQtRootBrowserAction.h,v 1.2 2006/09/22 17:27:10 fine Exp $
 **
 ** Copyright (C) 2002 by Valeri Fine.  All rights reserved.
 **

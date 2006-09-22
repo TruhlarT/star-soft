@@ -1,6 +1,6 @@
 #ifndef QTROOT_CUSTOMIZECANVASMENU
 #define QTROOT_CUSTOMIZECANVASMENU
-// @(#)root/qt:$Name:  $:$Id: TQtCustomizeCanvasMenu.h,v 1.1 2006/08/16 19:33:21 fine Exp $
+// @(#)root/qt:$Name:  $:$Id: TQtCustomizeCanvasMenu.h,v 1.2 2006/09/22 17:27:10 fine Exp $
 // Author: Valeri Fine   12/12/2005
 /****************************************************************************
 **

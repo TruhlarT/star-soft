@@ -1,6 +1,6 @@
 // Author: Valeri Fine   16/06/2006
 /****************************************************************************
-** $Id: TQtToolBar.h,v 1.1 2006/08/16 19:33:21 fine Exp $
+** $Id: TQtToolBar.h,v 1.2 2006/09/22 17:27:10 fine Exp $
 **
 ** Copyright (C) 2006 by Valeri Fine.  All rights reserved.
 **

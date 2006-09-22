@@ -1,4 +1,4 @@
-// @(#)root/gui:$Name:  $:$Id: TQtColorSelectButton.h,v 1.1 2006/08/16 19:33:20 fine Exp $
+// @(#)root/gui:$Name:  $:$Id: TQtColorSelectButton.h,v 1.2 2006/09/22 17:27:10 fine Exp $
 // Author: Bertrand Bellenot + Fons Rademakers   22/08/02
 
 /*************************************************************************

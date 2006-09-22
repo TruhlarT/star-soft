@@ -1,4 +1,4 @@
-// @(#)root/gui:$Name:  $:$Id: TQtStyleComboBox.cxx,v 1.1 2006/08/16 19:27:08 fine Exp $
+// @(#)root/gui:$Name:  $:$Id: TQtStyleComboBox.cxx,v 1.2 2006/09/22 17:27:11 fine Exp $
 // Author: Valeri Fine 07/07/2006
 /****************************************************************************
 **

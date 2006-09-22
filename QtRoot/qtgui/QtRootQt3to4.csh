@@ -1,5 +1,5 @@
 # Create the Qt4 aware version of qtRoot package
-# $Id: QtRootQt3to4.csh,v 1.1 2006/08/16 19:26:18 fine Exp $
+# $Id: QtRootQt3to4.csh,v 1.2 2006/09/22 17:27:10 fine Exp $
 qt3to4 -rulesFile $QTDIR/q3porting.xml  qtgui.pro
 rm -rf qt4
 mkdir -p qt4/src

@@ -1,11 +1,11 @@
-// @(#)root/gui:$Name:  $:$Id: TQtPatternSelect.h,v 1.1 2006/08/16 19:33:21 fine Exp $
+// @(#)root/gui:$Name:  $:$Id: TQtPatternSelect.h,v 1.2 2006/09/22 17:27:10 fine Exp $
 // Author: Valeri Fine  21/05/2004
 
 #ifndef ROOT_TQtPatternSelect
 #define ROOT_TQtPatternSelect
 
 /****************************************************************************
-** $Id: TQtPatternSelect.h,v 1.1 2006/08/16 19:33:21 fine Exp $
+** $Id: TQtPatternSelect.h,v 1.2 2006/09/22 17:27:10 fine Exp $
 **
 ** Copyright (C) 2004 by Valeri Fine. Brookhaven National Laboratory.
 **                                    All rights reserved.

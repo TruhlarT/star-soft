@@ -1,4 +1,4 @@
-// @(#)root/gui:$Name:  $:$Id: TQtLockWidget.h,v 1.1 2006/08/16 19:33:21 fine Exp $
+// @(#)root/gui:$Name:  $:$Id: TQtLockWidget.h,v 1.2 2006/09/22 17:27:10 fine Exp $
 // Author: Valeri Fine 07/07/2006
 
 #ifndef ROOT_TQtLockWidget

@@ -1,4 +1,4 @@
-// @(#)root/qtgsi:$Name:  $:$Id: TQGsiRootCanvas.h,v 1.1 2006/08/16 19:33:20 fine Exp $
+// @(#)root/qtgsi:$Name:  $:$Id: TQGsiRootCanvas.h,v 1.2 2006/09/22 17:27:10 fine Exp $
 // Author: Denis Bertini, M. AL-Turany  01/11/2000
 
 /*************************************************************************

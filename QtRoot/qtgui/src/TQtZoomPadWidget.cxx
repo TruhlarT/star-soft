@@ -1,6 +1,6 @@
 // Author: Valeri Fine   16/03/2006
 /****************************************************************************
-** $Id: TQtZoomPadWidget.cxx,v 1.1 2006/08/16 19:27:08 fine Exp $
+** $Id: TQtZoomPadWidget.cxx,v 1.2 2006/09/22 17:27:11 fine Exp $
 **
 ** Copyright (C) 2006 by Valeri Fine. Brookhaven National Laboratory.
 **                                    All rights reserved.
