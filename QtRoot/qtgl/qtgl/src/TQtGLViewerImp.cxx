@@ -796,7 +796,7 @@ void TQtGLViewerImp::CreateViewer(const char *name)
 #ifdef QGLVIEWER
       ((TQtGLViewerWidget *)fGLWidget)->setSnapshotFileName  (fSaveFile.Data());
       connect(fGLWidget,SIGNAL(objectSelected(TObject*,const QPoint &)),this,SLOT( ShowObjectInfo(TObject *, const QPoint&)));
-      connect(fGLWidget,SIGNAL(objectSelected(TObject*,const QPoint &)),this,SIGNAL( ObjectSelected(TObject *, const QPoint&)));
+      connect(fGLWidget,SIGNAL(objectSelected(TObject*,const QPoint &)),&this->Signals(),SIGNAL( ObjectSelected(TObject *, const QPoint&)));
 #endif
    };
 }

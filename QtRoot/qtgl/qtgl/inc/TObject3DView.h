@@ -1,4 +1,4 @@
-// @(#)root/gtgl:$Name:  $:$Id: TObject3DView.h,v 1.1 2006/08/16 19:38:48 fine Exp $
+// @(#)root/gtgl:$Name:  $:$Id: TObject3DView.h,v 1.2 2006/09/22 17:30:13 fine Exp $
 // Author: Valery Fine      23/10/03
 
 #ifndef ROOT_TObject3DView
@@ -70,6 +70,7 @@ protected:
     TObject3DView(TObject *root3DObject,std::map<TObject *,TObject3DView *> *volumeMap,  Int_t level=1,Int_t maxlevel=3);
     virtual void BeginModel();
     virtual void EndModel();
+    virtual void AddChild(TObject3DView *child);
 
 public:
     TObject3DView();

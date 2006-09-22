@@ -1,8 +1,8 @@
-// @(#)root/qtgl:$Name:  $:$Id: TQtGLViewerWidget.cxx,v 1.1 2006/08/16 19:38:50 fine Exp $
+// @(#)root/qtgl:$Name:  $:$Id: TQtGLViewerWidget.cxx,v 1.2 2006/09/22 17:30:14 fine Exp $
 // Author: Valery Fine(fine@vxcern.cern.ch)   12/11/02
  
 /****************************************************************************
-** $Id: TQtGLViewerWidget.cxx,v 1.1 2006/08/16 19:38:50 fine Exp $
+** $Id: TQtGLViewerWidget.cxx,v 1.2 2006/09/22 17:30:14 fine Exp $
 **
 ** Copyright (C) 2002 by Valeri Fine. Brookhaven National Laboratory.
 **                                    All rights reserved.

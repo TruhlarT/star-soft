@@ -245,6 +245,18 @@ void   TQtRootViewer3D::Disconnect()
    fViewer = 0;
 }
 
+//______________________________________________________________________________
+const TGLViewerImp *TQtRootViewer3D::GetViewerImp() const
+{ 
+   // return the QGLWidget implementation
+   return fViewer;                      
+}
+//______________________________________________________________________________
+TGLViewerImp *TQtRootViewer3D::GetViewerImp()
+{ 
+   // return the QGLWidget implementation
+   return fViewer;                      
+}
 
 //   Dummy methdos  --
 

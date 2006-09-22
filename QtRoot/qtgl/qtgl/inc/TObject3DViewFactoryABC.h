@@ -1,4 +1,4 @@
-// @(#)root/gtgl:$Name:  $:$Id: TObject3DViewFactoryABC.h,v 1.1 2006/08/16 19:38:48 fine Exp $
+// @(#)root/gtgl:$Name:  $:$Id: TObject3DViewFactoryABC.h,v 1.2 2006/09/22 17:30:14 fine Exp $
 // Author: Valery Fine      24/04/05
 
 #ifndef ROOT_TObject3DViewFactoryABC
@@ -33,6 +33,7 @@ public:
    TObject3DViewFactoryABC() :TObject(){};
    virtual ~TObject3DViewFactoryABC(){}
    virtual void AddNormal(TObject3DView *, const Double_t *normal) = 0;
+   virtual void AddChild(TObject3DView * parent, TObject3DView *child) = 0;
    virtual TObject3DView *BeginModel(TObject3DView *)              = 0;
    virtual TObject3DView *EndModel()                               = 0;
    virtual void           PushMatrix()                             = 0;

@@ -1,4 +1,4 @@
-// @(#)root/g3d:$Name:  $:$Id: TGLViewerImp.cxx,v 1.1 2006/08/16 19:38:49 fine Exp $
+// @(#)root/g3d:$Name:  $:$Id: TGLViewerImp.cxx,v 1.2 2006/09/22 17:30:14 fine Exp $
 // Author: Valery Fine      23/05/97
 
 /*************************************************************************
@@ -29,11 +29,33 @@
 #include "TQPadOpenGLView.h"
 #include "TQVirtualGL.h"
 
+//______________________________________________________________________________
+void TQtSlotProxy::Disconnect()
+{
+   if (fMaster){  /* fMaster->fViewer = 0; fMaster->Disconnect();  */ } 
+}
+//______________________________________________________________________________
+void TQtSlotProxy::DestroyMaster()
+{ 
+   // emit the Qt signal on behalf of non-QObject interface
+   Disconnect();
+   TGLViewerImp *master = fMaster; 
+   fMaster = 0; 
+   emit Destroyed(master);
+   delete master;
+}
+
+//______________________________________________________________________________
+void  TQtSlotProxy::EmitObjectSelected(TObject *o, const QPoint&p)
+{
+   // emit the Qt signal on behalf of non-QObject interface
+   emit ObjectSelected(o,p);
+}
 
 ClassImp(TGLViewerImp)
 
 //______________________________________________________________________________
-TGLViewerImp::TGLViewerImp()
+TGLViewerImp::TGLViewerImp(): fProxy(this)
 {
     fDrawList = 0;
     fGLView   = 0;
@@ -41,7 +63,7 @@ TGLViewerImp::TGLViewerImp()
 }
 
 //______________________________________________________________________________
-TGLViewerImp::TGLViewerImp(TPadOpenGLView *, const char *, UInt_t, UInt_t)
+TGLViewerImp::TGLViewerImp(TPadOpenGLView *, const char *, UInt_t, UInt_t) : fProxy(this)
 {
     fDrawList = 0;
     fGLView   = 0;
@@ -50,6 +72,7 @@ TGLViewerImp::TGLViewerImp(TPadOpenGLView *, const char *, UInt_t, UInt_t)
 
 //______________________________________________________________________________
 TGLViewerImp::TGLViewerImp(TPadOpenGLView *, const char *, Int_t, Int_t, UInt_t, UInt_t)
+             : fProxy(this)
 {
     fDrawList = 0;
     fGLView   = 0;

@@ -1,4 +1,4 @@
-// @(#)root/gl:$Name:  $:$Id: TVirtualOIViewer.h,v 1.1 2006/08/16 19:38:49 fine Exp $
+// @(#)root/gl:$Name:  $:$Id: TVirtualOIViewer.h,v 1.2 2006/09/22 17:30:14 fine Exp $
 // Author: Valery Fine  5/19/2001
 
 #ifndef ROOT_TVirtualOIViewer

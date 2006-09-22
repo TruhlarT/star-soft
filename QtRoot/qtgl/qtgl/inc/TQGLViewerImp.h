@@ -1,4 +1,4 @@
-// @(#)root/g3d:$Name:  $:$Id: TQGLViewerImp.h,v 1.1 2006/08/16 19:38:49 fine Exp $
+// @(#)root/g3d:$Name:  $:$Id: TQGLViewerImp.h,v 1.2 2006/09/22 17:30:14 fine Exp $
 // Author: Valery Fine      12/03/2005
 
 /*************************************************************************
@@ -35,9 +35,39 @@
 # include "Buttons.h"
 #endif
 
+class TGLViewerImp;
+class QPoint;
+
+#ifndef __CINT__
+#include <qobject.h>
+class TQtSlotProxy : public QObject {
+   Q_OBJECT
+protected:
+   friend class TGLViewerImp;
+   TGLViewerImp *fMaster;
+   TQtSlotProxy (TGLViewerImp *master=0) {fMaster = master;}
+   virtual ~TQtSlotProxy() {}
+   void EmitObjectSelected(TObject *, const QPoint&);
+   
+protected slots:
+   void Disconnect();
+   void DestroyMaster();
+   
+signals:
+   void Destroyed( TGLViewerImp *);
+   void ObjectSelected(TObject *, const QPoint&);
+};
+
+#else
+class TQtSlotProxy;
+#endif
+
 class TPadOpenGLView;
 class TGLViewerImp  {
 
+private:
+   TQtSlotProxy fProxy;
+ 
 protected:
    friend class TPadOpenGLView;
    UInt_t               fDrawList;      // GL list used to redraw the contents
@@ -75,7 +105,7 @@ public:
    virtual void   Update() { fPaint = kTRUE; }
    virtual ULong_t GetViewerID() const = 0;
  
-// New methods for Qt   
+// New methods for Qt
    virtual void AddGLList(unsigned int list, int type=1)=0;
    virtual void RemoveGLList(unsigned int list)=0;
    virtual void SetBackgroundColor(Color_t color)=0;
@@ -85,6 +115,12 @@ public:
    virtual void SynchTPadCB(bool)=0;
    virtual void SetRotationAxisAngle(const float  x, const float  y, const float  z, const   float a)=0;
    virtual void SetSnapFileCounter(int counter)=0;
+   
+//Methods to provide Qt Signal/Slot communication
+   TQtSlotProxy &Signals()             { return fProxy;}
+   const TQtSlotProxy &Signals() const { return fProxy; /* ((TQtSlotProxy *)this)->Signal(); */ }
+   TQtSlotProxy &Slots()               { return Signals();}
+   const TQtSlotProxy &Slots() const   { return Signals();}
 
    ClassDef(TGLViewerImp,0)  //ROOT OpenGL viewer implementation
 };

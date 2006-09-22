@@ -33,7 +33,7 @@
  
 ClassImp(TObject3DView)
 
-#define STARONLINE
+//#define STARONLINE
 
 
 //_____________________________________________________________________________
@@ -140,6 +140,14 @@ TObject3DView::~TObject3DView()
    Delete();
    if (fIsMapOwner)  { delete fMap; fMap = 0; }
 }
+//______________________________________________________________________________
+void TObject3DView::AddChild(TObject3DView *child)
+{
+  if (fView3DFactory) {
+       fView3DFactory->AddChild(this,child); 
+  }
+  TDataSet::AddLast(child);
+}
 
 //______________________________________________________________________________
 void TObject3DView::Delete(Option_t *opt)
@@ -178,7 +186,7 @@ void TObject3DView::BeginModel()
    if (fView3DFactory) 
       beginView = fView3DFactory->BeginModel(this);
    if (beginView) {
-      TDataSet::AddLast(beginView);
+      AddChild(beginView);
 #ifndef  GLLIST   
       SetViewID(beginView->GetViewId());
 #endif
@@ -193,7 +201,7 @@ void TObject3DView::EndModel()
    if (fView3DFactory) 
       endView = fView3DFactory->EndModel();
    if (endView) {
-      TDataSet::AddLast(endView);
+      AddChild(endView);
       endView->IncCounter();
    }
 #else
@@ -294,7 +302,7 @@ TObject3DView *TObject3DView::MakeMatrix(const Double_t *traslation, const Doubl
       matrixNode = new TObject3DView();
       matrixView->SetTitle("transformation");
       matrixView->IncCounter();
-      matrixNode->TDataSet::AddLast(matrixView);
+      matrixNode->AddChild(matrixView);
    }
    return matrixNode;
 }  
@@ -323,7 +331,7 @@ void  TObject3DView::MakeShape(const TObject *shape)
         shapeView = fView3DFactory->CreateShape(shape,rgba);
    }
    if (shapeView) {
-      TDataSet::AddLast(shapeView);
+      AddChild(shapeView);
       shapeView->IncCounter();
    }
 }
@@ -387,8 +395,8 @@ void TObject3DView::MakeVolumeView(TGeoVolume *top, Int_t maxlevel)
                nextVolume= new TObject3DView(geoVolume,fMap,fLevel+1,maxlevel);
                gGeoManager->CdUp();
 #endif
-            position->TDataSet::AddLast(nextVolume);
-            TDataSet::AddLast(position);
+            position->AddChild(nextVolume);
+            AddChild(position);
             nextVolume->IncCounter();
             position->CompileViewLevel();
    }  }  }
@@ -442,8 +450,8 @@ void TObject3DView::MakeVolumeView(TVolume *top, Int_t maxlevel)
 #else
             nextVolume= new TObject3DView(geoVolume,fMap,fLevel+1,maxlevel);
 #endif
-            position->TDataSet::AddLast(nextVolume);
-            TDataSet::AddLast(position);
+            position->AddChild(nextVolume);
+            AddChild(position);
             nextVolume->IncCounter();
             position->CompileViewLevel();
    }  }  }
@@ -528,8 +536,8 @@ void TObject3DView::MakeVolumeView(TVolumeView *top, Int_t maxlevel)
 #else 
          nextVolume= new TObject3DView(geoVolume,fMap,fLevel+1,maxlevel);
 #endif                  
-         position->TDataSet::AddLast(nextVolume);
-         TDataSet::AddLast(position);
+         position->AddChild(nextVolume);
+         AddChild(position);
          nextVolume->IncCounter();
          position->CompileViewLevel();
    }  }
@@ -578,8 +586,8 @@ void TObject3DView::MakeVolumeView(TNode *top, Int_t maxlevel)
                  if (!nextVolume) {
                     nextVolume= new TObject3DView(node,fMap,fLevel+1,maxlevel);
                  }
-                 position->TDataSet::AddLast(nextVolume);
-                 TDataSet::AddLast(position);
+                 position->AddChild(nextVolume);
+                 AddChild(position);
                  nextVolume->IncCounter();
                  position->CompileViewLevel();
      }  }  };  }

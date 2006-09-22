@@ -1,8 +1,8 @@
-// @(#)root/g3d:$Name:  $:$Id: TQtGLViewerImp.h,v 1.1 2006/08/16 19:38:49 fine Exp $
+// @(#)root/g3d:$Name:  $:$Id: TQtGLViewerImp.h,v 1.2 2006/09/22 17:30:14 fine Exp $
 // Author: Valery Fine      23/05/97
 
 /****************************************************************************
-** $Id: TQtGLViewerImp.h,v 1.1 2006/08/16 19:38:49 fine Exp $
+** $Id: TQtGLViewerImp.h,v 1.2 2006/09/22 17:30:14 fine Exp $
 **
 ** Copyright (C) 2002 by Valeri Fine. Brookhaven National Laboratory.
 **                                    All rights reserved.
@@ -183,8 +183,6 @@ public:
      virtual void WantRootContextMenuCB(bool on);
      virtual void AboutCB();
      virtual void HelpCB();
-  signals:
-       void ObjectSelected(TObject *, const QPoint&);
 #endif
 //   ClassDef(TQtGLViewerImp,0)  //ROOT OpenGL viewer implementation
 };

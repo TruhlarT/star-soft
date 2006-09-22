@@ -1,4 +1,4 @@
-// @(#)root/gtgl:$Name:  $:$Id: TObjectOpenGLViewFactory.cxx,v 1.1 2006/08/16 19:38:50 fine Exp $
+// @(#)root/gtgl:$Name:  $:$Id: TObjectOpenGLViewFactory.cxx,v 1.2 2006/09/22 17:30:14 fine Exp $
 // Author: Valery Fine      24/04/05
 
 /****************************************************************************
@@ -373,6 +373,13 @@ TObjectOpenGLViewFactory::TObjectOpenGLViewFactory() : TObject3DViewFactory()
 //____________________________________________________________________________________________________________________
 TObjectOpenGLViewFactory::~TObjectOpenGLViewFactory()
 { }
+//____________________________________________________________________________________________________________________
+void TObjectOpenGLViewFactory::AddChild(TObject3DView * parent, TObject3DView *child)
+{
+      // There is no GL specific for this method. Call the base method
+    if (parent && child) {}
+}
+
 //____________________________________________________________________________________________________________________
 TObject3DView *TObjectOpenGLViewFactory::MakeShape(TShape3DPolygonView &shapeView, const Float_t *rgba)
 {

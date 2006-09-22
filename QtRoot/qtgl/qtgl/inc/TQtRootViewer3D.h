@@ -59,6 +59,7 @@ class SlotDisconnect;
 #endif
 
 class TQtGLViewerImp;
+class TGLViewerImp;
 
 class TQtRootViewer3D : public TVirtualViewer3D
 {
@@ -107,7 +108,8 @@ public:
    virtual void   AddCompositeOp(UInt_t /*operation*/) {}
    virtual void   SetDepth(Int_t depth) { fDepth = depth; }
    virtual Int_t  Depth() const         { return fDepth;  }
-   inline TQtGLViewerImp *GetViewerImp() const { return fViewer;} 
+   virtual const TGLViewerImp *GetViewerImp() const;
+   virtual TGLViewerImp *GetViewerImp();
    inline SlotDisconnect *GetSlotDisconnect() const { return fDisconnectSlot;}
    virtual void   UpdateView();
            void   DisconnectPad();
