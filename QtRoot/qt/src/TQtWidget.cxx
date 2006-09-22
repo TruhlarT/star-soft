@@ -1,4 +1,4 @@
-// @(#)root/qt:$Name:  $:$Id: TQtWidget.cxx,v 1.2 2006/08/22 14:38:52 fine Exp $
+// @(#)root/qt:$Name:  $:$Id: TQtWidget.cxx,v 1.3 2006/09/22 17:08:26 fine Exp $
 // Author: Valeri Fine   23/01/2003
 
 /*************************************************************************
@@ -124,12 +124,6 @@ ClassImp(TQtWidget)
 ////////////////////////////////////////////////////////////////////////////////
 
 //_____________________________________________________________________________
-TCanvas  *TQtWidget::Canvas()
-{
-   return GetCanvas();
-};
-
-//_____________________________________________________________________________
 TQtWidget::TQtWidget(QWidget* parent, const char* name, Qt::WFlags f,bool embedded):QWidget(parent,name,f)
           ,fBits(0),fCanvas(0),fPixmapID(this),fPaint(TRUE),fSizeChanged(FALSE)
           ,fDoubleBufferOn(FALSE),fEmbedded(embedded),fWrapper(0),fSaveFormat("PNG")
@@ -183,6 +177,31 @@ TQtWidget::~TQtWidget()
   } else {
       fCanvas = 0;
   }
+}
+
+//_____________________________________________________________________________
+TCanvas  *TQtWidget::Canvas()
+{
+   return GetCanvas();
+};
+//_____________________________________________________________________________
+TCanvas   *TQtWidget::Canvas(TQtWidget *widget)
+{
+    // static: return TCanvas by TQtWidget pointer
+   return widget ? widget->Canvas() : 0 ;
+}
+
+//_____________________________________________________________________________
+TQtWidget *TQtWidget::Canvas(const TCanvas *canvas)
+{
+   // static: return the TQtWidget backend for TCanvas *canvas object
+   return canvas ? Canvas(canvas->GetCanvasID()) : 0;
+}
+//_____________________________________________________________________________
+TQtWidget *TQtWidget::Canvas(Int_t id)
+{
+   // static: return TQtWidget by TCanvas id
+   return dynamic_cast<TQtWidget *>(TGQt::iwid(id));
 }
 
 //_____________________________________________________________________________
@@ -604,16 +623,6 @@ bool TQtWidget::Save(const QString &fileName,const char *format,int quality)cons
    }
    emit ((TQtWidget *)this)->Saved(Ok);
    return Ok;
-}
-//_____________________________________________________________________________
-TQtWidget *TQtWidget::Widget(const TCanvas *canvas)
-{
-   // Return the QWidget backend for Tcanvas *canvas object
-   TQtWidget *wCanvas = 0;
-   if (canvas) {
-      wCanvas = dynamic_cast<TQtWidget *>(TGQt::iwid(canvas->GetCanvasID()));
-   }
-   return wCanvas;
 }
 //_____________________________________________________________________________
 void TQtWidget::stretchWidget(QResizeEvent * /*s*/)
