@@ -67,9 +67,14 @@ Each directory contains its own README. Please read it FIRST.
 7. HelloLife        - the example made of the the original Qt "life" example and
                       ROOT "hsimple.C" tutorial to demonstrate the off-screen TPad rendering
 
-8. HelloZoomer      - the simple (non-ROOT) example for the the widget zoomming the pixmap objects.
+8. HelloPixmap      - the example shows how to use the special ROOT object of TQtPixmapBox class.
+                      Since TQtPixmapBox subclasses TObject it can drawn onto the TCanvas as 
+                      any other TObject does. On the other hand the interiour of the box can be 
+                      painted using Qt QPainter class and QPixmap methods as well.
 
-9. CustomCanvasMenu - the same as "ex1". In addition, it demonstrates how one can customize 
+9. HelloZoomer      - the simple (non-ROOT) example for the the widget zoomming the pixmap objects.
+
+10.CustomCanvasMenu - the same as "ex1". In addition, it demonstrates how one can customize 
                       the automatically generated ROOT Context Menu.
 
 

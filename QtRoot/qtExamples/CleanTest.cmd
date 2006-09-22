@@ -108,6 +108,14 @@ nmake
 HelloLife
 cd ..
 
+cd HelloPixmap
+echo -----------     HelloPixmap     -------------
+qmake
+nmake
+HelloPixmap
+cd ..
+
+
 cd QtGBrowser
 echo -----------  Geometry Browser -------------
 qmake

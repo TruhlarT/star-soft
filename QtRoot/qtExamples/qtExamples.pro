@@ -7,6 +7,7 @@ QTEXAMPLEPACKAGES   = ex1/tqrootexample.pro \
                       HelloZoomer
 
 QTEXTENSIONEXAMPLES = QtGBrowser            \
+                      HelloPixmap           \
                       CustomWidgets         \
                       CustomCanvasMenu
 unix {
