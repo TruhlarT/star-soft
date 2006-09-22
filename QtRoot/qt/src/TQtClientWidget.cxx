@@ -1,7 +1,7 @@
-// @(#)root/qt:$Name:  $:$Id: TQtClientWidget.cxx,v 1.1 2006/08/16 19:27:06 fine Exp $
+// @(#)root/qt:$Name:  $:$Id: TQtClientWidget.cxx,v 1.2 2006/09/22 17:05:04 fine Exp $
 // Author: Valeri Fine   01/03/2003
 /****************************************************************************
-** $Id: TQtClientWidget.cxx,v 1.1 2006/08/16 19:27:06 fine Exp $
+** $Id: TQtClientWidget.cxx,v 1.2 2006/09/22 17:05:04 fine Exp $
 **
 ** Copyright (C) 2003 by Valeri Fine. Brookhaven National Laboratory.
 **                                    All rights reserved.
@@ -241,14 +241,11 @@ Bool_t TQtClientWidget::SetKeyMask(Int_t keycode, UInt_t modifier, int insert)
    int ikeys = 0;
    int index = 0;
    if (keycode) {
-      if (modifier & kAnyModifier)  assert(!(modifier & kAnyModifier));
-      else {
-         if (modifier & kKeyShiftMask)   { key[index++] = Qt::SHIFT; ikeys += Qt::SHIFT;}
-         if (modifier & kKeyLockMask)    { key[index++] = Qt::META;  ikeys += Qt::META; }
-         if (modifier & kKeyControlMask) { key[index++] = Qt::CTRL;  ikeys += Qt::CTRL; }
-         if (modifier & kKeyMod1Mask)    { key[index++] = Qt::ALT;   ikeys += Qt::ALT;  }
-     }
-                                           key[index++] = Qt::UNICODE_ACCEL + keycode;  ikeys += Qt::UNICODE_ACCEL + keycode; 
+      if (modifier & kKeyShiftMask)   { key[index++] = Qt::SHIFT; ikeys += Qt::SHIFT;}
+      if (modifier & kKeyLockMask)    { key[index++] = Qt::META;  ikeys += Qt::META; }
+      if (modifier & kKeyControlMask) { key[index++] = Qt::CTRL;  ikeys += Qt::CTRL; }
+      if (modifier & kKeyMod1Mask)    { key[index++] = Qt::ALT;   ikeys += Qt::ALT;  }
+                                        key[index++] = Qt::UNICODE_ACCEL + keycode;  ikeys += Qt::UNICODE_ACCEL + keycode; 
    }
    QKeySequence keys(ikeys);
 
