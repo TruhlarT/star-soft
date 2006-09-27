@@ -6,7 +6,7 @@
 #
 # ProdSummary.pl
 #
-# Scanning FilesCatalog table to get production summary.
+# Production Summary for real data from FileCatalog.
 # 
 ################################################################################################
 

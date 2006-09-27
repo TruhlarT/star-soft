@@ -4,9 +4,9 @@
 #
 # L.Didenko
 #
-# ProdSummary.pl
+# ProdRuns.pl
 #
-# Scanning FilesCatalog table to get production summary.
+# Real data production summary by runnumbers from FileCatalog.
 # 
 ################################################################################################
 
