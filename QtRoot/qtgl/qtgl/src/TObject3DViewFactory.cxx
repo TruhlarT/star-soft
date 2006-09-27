@@ -1,4 +1,4 @@
-// @(#)root/gtgl:$Name:  $:$Id: TObject3DViewFactory.cxx,v 1.2 2006/09/22 17:30:14 fine Exp $
+// @(#)root/gtgl:$Name:  $:$Id: TObject3DViewFactory.cxx,v 1.3 2006/09/27 07:03:00 fine Exp $
 // Author: Valery Fine      24/04/05
 
 /****************************************************************************
@@ -88,10 +88,10 @@
 
 //____________________________________________________________________________________________________________________
 TObject3DViewFactory::TObject3DViewFactory() : TObject3DViewFactoryABC()
-{ }
+{                              }
 //____________________________________________________________________________________________________________________
 TObject3DViewFactory::~TObject3DViewFactory()
-{ }
+{                                           }
 //____________________________________________________________________________________________________________________
 //TObject3DView *TObject3DViewFactory::CreateMatrix(const Double_t * /*traslation*/ , const Double_t * /*rotation*/, Bool_t /*isReflection*/ )
 //{ return new TObject3DView() ; }
@@ -175,23 +175,24 @@ template <class S> TObject3DView *TObject3DViewFactory::MakeBrikShape(const S &s
    //   points[21] =  fDx ; points[22] = -fDy ; points[23] =  fDz;
    //}
 
+
    const Int_t nVertices = 8;   const Int_t nNormals  = 6;
    const int topindex    = 4;   const int bottomindex = 5;
    static Int_t sidefaces[6][4]; static int iface=0;  
    if (! iface ) { // build the index at once
       for (iface = 0; iface<4; iface++) {
-         sidefaces[topindex][iface]    = iface+4;
-         sidefaces[bottomindex][iface] = 3-iface;
+         sidefaces[topindex][iface]    = 7-iface;
+         sidefaces[bottomindex][iface] = iface;
          if (iface < 3) {
-            sidefaces[iface][0] = iface;
-            sidefaces[iface][1] = iface+1;
-            sidefaces[iface][2] = iface+5;
-            sidefaces[iface][3] = iface+4;
+            sidefaces[iface][0] = iface+4;
+            sidefaces[iface][1] = iface+5;
+            sidefaces[iface][2] = iface+1;
+            sidefaces[iface][3] = iface+0;
          } else {
-            sidefaces[iface][0] = 0;
-            sidefaces[iface][1] = 4;
-            sidefaces[iface][2] = 7;
-            sidefaces[iface][3] = 3;
+            sidefaces[iface][0] = 3;
+            sidefaces[iface][1] = 7;
+            sidefaces[iface][2] = 4;
+            sidefaces[iface][3] = 0;
    }  }  }
 
    TShape3DPolygonView view(nVertices,nNormals,rgba);
@@ -220,7 +221,7 @@ template <class S> TObject3DView *TObject3DViewFactory::MakeBrikShape(const S &s
           if (j != 3) vertices[j] = &view.fVertex[sidefaces[face][j]].fX;
        }
        Coord3D currentNormal;
-       TMath::Normal2Plane(vertices[0],vertices[2],vertices[1],&currentNormal.fX);
+       TMath::Normal2Plane(vertices[2],vertices[0],vertices[1],&currentNormal.fX);
        polygon.fNormalIndex = normals.size();
        normals.push_back(currentNormal);
        view.fPolygonsFaceBinding.push_back(polygon);
@@ -255,8 +256,6 @@ template <class S> TObject3DView *TObject3DViewFactory::MakeXtruShape(const S &s
 
    // calculate the number of normals;
    Int_t nNormals = nFaces*(nstacks-1)+2;
-
-   fprintf(stderr," MakeXtruShape %s   nVertices = %d, nstacks=%d ,nNormals=%d \n", shp.ClassName(), nVertices, nstacks,nNormals);
 
    TShape3DPolygonView view(nVertices,nNormals,rgba);
 
@@ -376,7 +375,8 @@ template <class S> TObject3DView *TObject3DViewFactory::MakeConeShape(const S &s
    //   j - the stack number
    //   k = 0 internal points
    //       1 external points
-
+  
+  
    enum {kInternal=0, kExternal};
 #define vertindex(i,j,k)  ((i)+nDiv*(2*(j)+(k)))
 #define vert(i,j,k) (&vertex[3*vertindex(i,j,k)])
@@ -712,26 +712,19 @@ template <class S> TObject3DView *TObject3DViewFactory::MakeConeShape(const S &s
       TPolygone3DFaceBindingView face2(2*nstacks);
       face2.fNormalIndex = sideDecayNormalIndex+1;
       face2.fType  = TPolygone3DView::kPolygon;
-      printf(" nstackas %d nDiv = %d \n", nstacks,nDiv);
       for (i=0;i<nstacks;i++) {
          Int_t v0 = vertindex( 0, nstacks-i-1 ,kInternal );
          face1.fVertexIndices.push_back(v0);
-         printf(" 1. nstackas %d %d %d\n", v0, i, nstacks-i-1);
-         fprintf(stderr," vertex %d x=%f y=%f z=%f\n", v0,vertex[3*v0],vertex[3*v0+1],vertex[3*v0+2]);
   
          Int_t u0 = vertindex(nDiv-1, i ,kInternal);
          face2.fVertexIndices.push_back(u0);
-         fprintf(stderr," vertex %d x=%f y=%f z=%f\n", u0,vertex[3*u0],vertex[3*u0+1],vertex[3*u0+2]);
       }
-	  fprintf(stderr,"\n-- :: --\n");
       for (i=nstacks-1;i>=0;i--) {
          Int_t v0 = vertindex(   0  , nstacks-i-1 ,kExternal);
          face1.fVertexIndices.push_back(v0);
-         printf(" 2. nstackas %d %d %d\n", v0, i, nstacks-i-1);
 
          Int_t u0 = vertindex(nDiv-1, i ,kExternal);
          face2.fVertexIndices.push_back(u0);
-         fprintf(stderr," vertex %d x=%f y=%f z=%f\n", u0,vertex[3*u0],vertex[3*u0+1],vertex[3*u0+2]);
       }
       view.fPolygonsFaceBinding.push_back(face1);
       view.fPolygonsFaceBinding.push_back(face2);
