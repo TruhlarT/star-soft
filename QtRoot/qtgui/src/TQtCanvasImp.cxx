@@ -1,6 +1,6 @@
 // Author: Valeri Fine   21/01/2002
 /****************************************************************************
-** $Id: TQtCanvasImp.cxx,v 1.2 2006/09/22 17:27:11 fine Exp $
+** $Id: TQtCanvasImp.cxx,v 1.3 2006/09/28 00:41:14 fine Exp $
 **
 ** Copyright (C) 2002 by Valeri Fine. Brookhaven National Laboratory.
 **                                    All rights reserved.
@@ -282,8 +282,10 @@ void TQtCanvasImp::Delete()
       if (c && c->GetCanvasID() != TGQt::iwid(((TGQt *)gVirtualX)->GetSelectedWindow()) ) 
          gVirtualX->SelectWindow ( TGQt::iwid(fCanvasID));
       fCanvasID = 0;
+#if ROOT_VERSION_CODE < ROOT_VERSION(5,13,3) 
       // Stolen from the TRootCanvas::Close()
       if (fEditor) fEditor->DeleteEditors();
+#endif      
 #if 0      
       if (TVirtualPadEditor::GetPadEditor(kFALSE) != 0)
          TVirtualPadEditor::Terminate();

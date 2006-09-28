@@ -1,8 +1,8 @@
-// @(#)root/ged:$Name:  $:$Id: TQtGedEditor.cxx,v 1.1 2006/08/16 19:27:06 fine Exp $
+// @(#)root/ged:$Name:  $:$Id: TQtGedEditor.cxx,v 1.2 2006/09/28 00:41:13 fine Exp $
 // Author: Valeri Fine 10/07/2004
 
 /****************************************************************************
-** $Id: TQtGedEditor.cxx,v 1.1 2006/08/16 19:27:06 fine Exp $
+** $Id: TQtGedEditor.cxx,v 1.2 2006/09/28 00:41:13 fine Exp $
 **
 ** Copyright (C) 2004 by Valeri Fine.  All rights reserved.
 **
@@ -113,6 +113,9 @@ Bool_t   TQtGedEditor::IsGlobal() const { return fGlobal;}
 
 //______________________________________________________________________________
 void     TQtGedEditor::SetGlobal(Bool_t flag) { fGlobal= flag; }
+//______________________________________________________________________________
+TCanvas* TQtGedEditor::GetCanvas() const
+{ return fCanvas;                                              }
 
 //______________________________________________________________________________
 void TQtGedEditor::Insert(TQtGedAttInterfaceB *frame) 

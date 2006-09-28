@@ -22,21 +22,30 @@ foreach my $dir (@dirs) {
 }
 my @DepsL = map {$LIB . "/lib" . $_ . ".so"} qw(QtRoot QtGed  RQTGL QtRootGui QtImage);
 my @DepsI = map {$INCLUDE .  "/TQt" . $_ . ".h"} 
-  qw(Application       ClientGuard  GedEditor  PaletteEditor       SymbolCodec      Util
-     ClientWidget      Image        Widget     AxisEditor          Event            Lock
-     RConfig           Brush        EventQueue Marker              RootApplication  ClientFilter     
+  qw(       ClientGuard  GedEditor  PaletteEditor       SymbolCodec      Util
+     ClientWidget      Image        Widget               Event            Lock
+     RConfig           EventQueue Marker              RootApplication  ClientFilter     
      GedAttFrame       PadEditor    Timer      Condition           RootBrowserImp     
-     CanvasImp          FloatSpinBox       ObjectDialog           StyleComboBox
+     FloatSpinBox       ObjectDialog           StyleComboBox
      CanvasWidget       ObjectListItem     TabValidator           GuiFactory    
-     Pad2Html           ToolBar            TBrowserCustom         ColorSelectButton
-     Gui                UpdateViewFlag     TCanvasImp.interface   ColorSelect  
-     IconBrowserImp     PatternSelectButton     ZoomPadWidget     TEmbeddedPad   
-     ContextMenuImp     InspectImp              PatternSelect     TQGsiRootCanvas
-     ControlBarImp       RootAction        BrowserImp  
-     CustomizeCanvasMenu RootBrowserAction Canvas2Html   
+     Pad2Html           ToolBar                     ColorSelectButton
+     Gui                UpdateViewFlag       ColorSelect  
+     IconBrowserImp     PatternSelectButton     ZoomPadWidget     
+     ContextMenuImp     InspectImp              PatternSelect     
+     ControlBarImp       RootAction          
+     CustomizeCanvasMenu RootBrowserAction 
      LockWidget         
+     Application AxisEditor BrowserImp Brush Canvas2Html CanvasImp IconBrowserImp RootApplication RootBrowserImp
     );
 
+push @DepsI, $INCLUDE .  "/TBrowserCustom.h";
+push @DepsI, $INCLUDE .  "/TCanvasImp.interface.h";
+push @DepsI, $INCLUDE .  "/TCanvasImp.interface.h";
+push @DepsI, $INCLUDE .  "/TEmbeddedPad.h";
+#push @DepsI, $INCLUDE .  "/TG3Application.h";
+push @DepsI, $INCLUDE .  "/TQGsiRootCanvas.h";
+
+#TBrowserCustom Application AxisEditor BrowserImp Brush  Canvas2Html   CanvasImp    TCanvasImp.interface  TEmbeddedPad   TQGsiRootCanvas
 my $DEBUG = "";
 $DEBUG = " CONFIG+=debug" if $env->{DEBUG} !~ /-O/;
 Command $env ["Makefile"], qw(qtRoot.pro qtthread/qtthread.pro), qq(cd $obj_dir; qmake $DEBUG);

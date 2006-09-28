@@ -1,8 +1,8 @@
-// @(#)root/ged:$Name:  $:$Id: TQtGedEditor.h,v 1.1 2006/08/16 19:32:43 fine Exp $
+// @(#)root/ged:$Name:  $:$Id: TQtGedEditor.h,v 1.2 2006/09/28 00:41:13 fine Exp $
 // Author: Valeri Fine 10/07/2004
 
 /****************************************************************************
-** $Id: TQtGedEditor.h,v 1.1 2006/08/16 19:32:43 fine Exp $
+** $Id: TQtGedEditor.h,v 1.2 2006/09/28 00:41:13 fine Exp $
 **
 ** Copyright (C) 2004 by Valeri Fine.  All rights reserved.
 **
@@ -84,9 +84,10 @@ public:
    static void SetDefaultPosition(Qt::Dock dockPosition);
    static Qt::Dock DefaultPosition();
 #endif
-  virtual Bool_t   IsGlobal() const;
+   virtual Bool_t   IsGlobal() const;
    virtual void     SetGlobal(Bool_t);
- 
+   virtual TCanvas* GetCanvas() const;
+
    virtual void CloseWindow();
    TQtGedAttInterfaceB *CanEdit(const char *className) const;
 
