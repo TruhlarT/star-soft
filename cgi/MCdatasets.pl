@@ -265,9 +265,9 @@ print <<END;
 <br>
 <TABLE ALIGN=CENTER BORDER=5 CELLSPACING=1 CELLPADDING=2 >
 <TR>
-<TD ALIGN=CENTER WIDTH=\"60%\" HEIGHT=60><B><h3>List of datasets</h3></B></TD>
-<TD ALIGN=CENTER WIDTH=\"20%\" HEIGHT=60><B><h3>List of runnumbers</h3></B></TD>
-<TD ALIGN=CENTER WIDTH=\"20%\" HEIGHT=60><B><h3>Production</h3></B></TD>
+<TD ALIGN=CENTER WIDTH=\"60%\" HEIGHT=60><B><h2>List of datasets</h2></B></TD>
+<TD ALIGN=CENTER WIDTH=\"20%\" HEIGHT=60><B><h2>Run numbers</h2></B></TD>
+<TD ALIGN=CENTER WIDTH=\"20%\" HEIGHT=60><B><h2>Production</h2></B></TD>
 </TR> 
     </body>
 END
