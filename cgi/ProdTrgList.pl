@@ -34,6 +34,7 @@ my @trig = ();
 my @prod = ();
 my @sumevt = ();
 my @prodset = ();
+my @runevents = ();
 my @prt = ();
 my $nline = 0;
 
@@ -41,27 +42,38 @@ my $trg0 = "n/a";
 
  $fileC->set_context("filetype=daq_reco_event","storage=hpss","limit=0");
 
- my @prodset = $fileC->run_query("grp(trgsetupname)","collision","ordd(production)","sum(events)");
+ my @prodset = $fileC->run_query("trgsetupname","collision","ordd(production)");
 
 
  $fileC->clear_context( );
 
-  $fileC->destroy();
-
-  &beginHtml();
+&beginHtml();
 
     foreach my $line (@prodset){
 
 	next if($line =~ /$trg0/);
         next if($line =~ /DEV/);
- 
+
+    @prt = (); 
     @prt = split("::",$line); 
+
     $trig[$nlist] = $prt[0];
     $coll[$nlist] = $prt[1];
     $prod[$nlist] = $prt[2];  
-    $sumevt[$nlist] = $prt[3];
 
-print <<END;
+    @runevents = ();
+     $runevents[0] = 0;  
+
+	next if($coll[$nlist] eq "0" );
+
+    $fileC->set_context("trgsetupname=$trig[$nlist]","production=$prod[$nlist]","filetype=daq_reco_event","storage=hpss");
+ 
+   @runevents = $fileC->run_query("sum(events)");
+   $fileC->clear_context( );
+
+   $sumevt[$nlist] = $runevents[0];
+
+ print <<END;
 <TR ALIGN=CENTER HEIGHT=60 bgcolor=\"#ffdc9f\">
 <td HEIGHT=10><h3>$coll[$nlist]</h3></td>
 <td HEIGHT=10><h3>$trig[$nlist]</h3></td>
@@ -69,9 +81,12 @@ print <<END;
 <td HEIGHT=10><h3>$sumevt[$nlist]</h3></td>
 </TR>
 END
-  $nlist++;
 
- }
+      $nlist++;
+
+    }
+ 
+   $fileC->destroy();
 
  &endHtml();
 
@@ -84,7 +99,7 @@ print <<END;
 
   <html>
    <body BGCOLOR=\"cornsilk\"> 
- <h2 ALIGN=CENTER><B>List of Real Data Trigger Sets Production </B></h2>
+ <h2 ALIGN=CENTER><B>List of Real Data Trigger Sets Productions </B></h2>
 <br>
 <TABLE ALIGN=CENTER BORDER=5 CELLSPACING=1 CELLPADDING=2 >
 <TR>
