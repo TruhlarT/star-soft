@@ -53,7 +53,8 @@ my $trg0 = "n/a";
     foreach my $line (@prodset){
 
 	next if($line =~ /$trg0/);
-
+        next if($line =~ /DEV/);
+ 
     @prt = split("::",$line); 
     $trig[$nlist] = $prt[0];
     $coll[$nlist] = $prt[1];
