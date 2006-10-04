@@ -3,3 +3,5 @@ setenv PATH `dropit Coin`
 setenv LD_LIBRARY_PATH `dropit Coin -p $LD_LIBRARY_PATH`
 setenv PATH $IVROOT/bin:$PATH
 setenv LD_LIBRARY_PATH $IVROOT/lib:$LD_LIBRARY_PATH
+setenv QTROOTSYSDIR $STAR/.$STAR_HOST_SYS
+
