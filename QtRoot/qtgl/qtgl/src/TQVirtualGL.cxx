@@ -1,4 +1,4 @@
-// @(#)root/base:$Name:  $:$Id: TQVirtualGL.cxx,v 1.2 2006/09/22 17:30:14 fine Exp $
+// @(#)root/base:$Name:  $:$Id: TQVirtualGL.cxx,v 1.3 2006/10/04 21:40:54 fine Exp $
 // Author: Valery Fine(fine@vxcern.cern.ch)   05/03/97
 
 //______________________________________________________________________________

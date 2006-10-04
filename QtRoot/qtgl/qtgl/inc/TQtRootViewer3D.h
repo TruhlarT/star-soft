@@ -41,6 +41,7 @@ class SlotDisconnect : public QObject {
    Q_OBJECT
 protected: 
    friend class TQtRootViewer3D;
+   friend class TQtRootCoinViewer3D;
    TQtRootViewer3D *fMaster;
    SlotDisconnect(TQtRootViewer3D *master) {fMaster = master;}
    virtual ~SlotDisconnect() {}
@@ -65,15 +66,17 @@ class TQtRootViewer3D : public TVirtualViewer3D
 {
 protected:
    friend class     SlotDisconnect;
+   TObject3DViewFactoryABC  *fView3DFactory;	   
    TVirtualPad      *fPad;
    TObject3DView     fListOfPrimitives;
    TQtGLViewerImp   *fViewer;
    SlotDisconnect    *fDisconnectSlot;
    Int_t             fDepth;              // the current scene depth
    Bool_t            fBuildingScena;      // Flag to mark we are building the view
-   void              Disconnect();
-   TQtGLViewerImp   *Viewer();
+   virtual  void    Disconnect();
+   virtual  void    Viewer();
    void             ClearPrimitives();
+   virtual void     MakeViewerNil();
 public:
     TQtRootViewer3D(TVirtualPad*pad=0);
     virtual ~TQtRootViewer3D() ;

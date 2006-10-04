@@ -1,4 +1,4 @@
-// @(#)root/gtgl:$Name:  $:$Id: TObjectOpenGLViewFactory.cxx,v 1.2 2006/09/22 17:30:14 fine Exp $
+// @(#)root/gtgl:$Name:  $:$Id: TObjectOpenGLViewFactory.cxx,v 1.3 2006/10/04 21:40:54 fine Exp $
 // Author: Valery Fine      24/04/05
 
 /****************************************************************************
@@ -340,7 +340,7 @@ static inline const Double_t *GlMatrix(const Double_t *matrix,Double_t *glrows)
 }
 
 //____________________________________________________________________________________________________________________
-static inline TObject3DView *OpenView() 
+static inline TObject3DView *OpenView(TObject3DViewFactoryABC  *aFactory) 
 {  
    // Instantiate the OpenGL list and TObjectView
    // If one can not create OpenGL list the object is to dle
@@ -348,14 +348,14 @@ static inline TObject3DView *OpenView()
 #ifdef GLLIST   
    GLuint gllist = GetNextGLList();
    if ( gllist ) {
-      view = new TObject3DView(); 
+      view = new TObject3DView(aFactory); 
       view->SetViewID(gllist);
       // fprintf(stderr," OpenView for %d list\n", gllist);
       glNewList(gllist, GL_COMPILE);
       IFGLE;
    } 
 #else
-      view = new TObject3DView();
+      view = new TObject3DView(aFactory);
 #endif   
    return view;
 }
@@ -373,6 +373,7 @@ TObjectOpenGLViewFactory::TObjectOpenGLViewFactory() : TObject3DViewFactory()
 //____________________________________________________________________________________________________________________
 TObjectOpenGLViewFactory::~TObjectOpenGLViewFactory()
 { }
+
 //____________________________________________________________________________________________________________________
 void TObjectOpenGLViewFactory::AddChild(TObject3DView * parent, TObject3DView *child)
 {
@@ -383,7 +384,7 @@ void TObjectOpenGLViewFactory::AddChild(TObject3DView * parent, TObject3DView *c
 //____________________________________________________________________________________________________________________
 TObject3DView *TObjectOpenGLViewFactory::MakeShape(TShape3DPolygonView &shapeView, const Float_t *rgba)
 {
-    TObject3DView *view = OpenView();
+    TObject3DView *view = OpenView(this);
 #ifdef GLLIST
     if ( view )
 #endif     
@@ -430,7 +431,7 @@ void TObjectOpenGLViewFactory::AddNormal(TObject3DView *, const Double_t * /*nor
 //____________________________________________________________________________________________________________________
 TObject3DView *TObjectOpenGLViewFactory::BeginModel(TObject3DView *rootView)
 {
-   TObject3DView *view = OpenView();
+   TObject3DView *view = OpenView(this);
 #ifdef GLLIST
     if (rootView && (rootView->GetViewId(TObject3DViewFactoryABC::kNormal) == 0) )
     {
@@ -467,7 +468,7 @@ TObject3DView *TObjectOpenGLViewFactory::EndModel()
 {
    TObject3DView *view = 0;
 #ifdef GLLIST          
-    if ( (view=OpenView()) )
+    if ( (view=OpenView(this)) )
 #endif     
     {
 #if 0       
@@ -523,7 +524,7 @@ TObject3DView *TObjectOpenGLViewFactory::CreateMatrix( const Double_t *translati
                                                       ,const Double_t *rotation
                                                       ,Bool_t isReflection)
 { 
-   TObject3DView *view = OpenView();
+   TObject3DView *view = OpenView(this);
    Double_t  bombTranslation[3] = {1.0,1.0,1.0};
    const Double_t *thisTranslation = translation;
    if ( view ) {
@@ -563,6 +564,13 @@ TObject3DView *TObjectOpenGLViewFactory::CreateMatrix( const Double_t *translati
    return view;
 }
 //____________________________________________________________________________________________________________________
+TObject3DView *TObjectOpenGLViewFactory::CreatePosition(UInt_t Id)
+{
+    // Create the new position node with Id
+   if (Id) {}
+   return new TObject3DView(this);
+} 
+ //____________________________________________________________________________________________________________________
 TObject3DView *CreateNormal(const Double_t * /*normal*/)
 {  return 0;  }
 //____________________________________________________________________________________________________________________

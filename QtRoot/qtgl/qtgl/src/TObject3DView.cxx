@@ -30,11 +30,33 @@
 
 #define GLLIST 
 // -- This slow down the rendering vf 31.05.2005
+/////////////////////////////////////////////////////////////////////////////////////////////
+//
+//  class TObject3DView: Convert ROOT3D object to the generic 3D view
+//
+// TObject (3d) --> View(TObject, opt)
+//                   |
+//                   +--- BeginModel ( use the factory)
+//                   |
+//                   +--- Shape (use the factory)
+//                   |
+//                   +--- Position . . . Position . . . Postion 
+//                   |       |
+//                   |       +-----CreateMatrix (use the factory)
+//                   |       |
+//                   |       +-----View(TObject, map)
+//                   |               |
+//                   |               +-------- Shape 
+//                   |               |
+//                   |               +-------- Position  . . .  Position . . .  Position 
+//                   |                             
+//                   +--- EndModel (use the factory)
+//
+/////////////////////////////////////////////////////////////////////////////////////////////
  
 ClassImp(TObject3DView)
 
 //#define STARONLINE
-
 
 //_____________________________________________________________________________
 TObject3DView::TObject3DView()
@@ -43,25 +65,35 @@ TObject3DView::TObject3DView()
       ,fTranslucentFactor(0.5),fIsShape(kFALSE),fIsSelectable(kFALSE),fIsSelected(kFALSE),fIsMapOwner(kFALSE)
       ,fView3DFactory(0)
 {
-      fView3DFactory = TObject3DViewFactoryABC::View3DFactory("ogl");
+   // Ctor
 }
 
 //_____________________________________________________________________________
-TObject3DView::TObject3DView(TObject *root3DObj, Option_t *depth)
+TObject3DView::TObject3DView(TObject3DViewFactoryABC  *aFactory)
+: TObjectSet(0,kFALSE),f3DViewID(0),f3DViewIDSelectable(0),f3DViewIDSelected(0)
+      ,fMap(0), fRefCounter(0), fLevel(0),fType(1)
+      ,fTranslucentFactor(0.5),fIsShape(kFALSE),fIsSelectable(kFALSE),fIsSelected(kFALSE),fIsMapOwner(kFALSE)
+      ,fView3DFactory(aFactory)
+{
+   // Ctor
+}
+
+//_____________________________________________________________________________
+TObject3DView::TObject3DView(TObject *root3DObj, Option_t *depth, TObject3DViewFactoryABC  *aFactory)
 : TObjectSet(root3DObj,kFALSE),f3DViewID(0),f3DViewIDSelectable(0),f3DViewIDSelected(0)
       , fMap(0),fRefCounter(0), fLevel(1),fType(1)
       ,fTranslucentFactor(0.5),fIsShape(kFALSE),fIsSelectable(kFALSE),fIsSelected(kFALSE),fIsMapOwner(kFALSE)
-      ,fView3DFactory(0)
+      ,fView3DFactory(aFactory)
 {
    Int_t maxlevel = 3;
+   SetName(root3DObj->GetName());
    if (depth && depth[0]) {
        maxlevel = atoi(depth);
    }
    if (maxlevel == 0) maxlevel = 5;
-   fView3DFactory = TObject3DViewFactoryABC::View3DFactory("ogl");
    fMap = new OBJECT_MAP; fIsMapOwner = kTRUE;
    BeginModel();
-   // fprintf(stderr,"-------------------------START----------------------- %s ----------\n",root3DObj->ClassName());
+   // fprintf(stderr,"--------------START-- Top --Class:  %s --Name: %s --------\n",root3DObj->ClassName(),root3DObj->GetName());
    MakeVolumeView(maxlevel);
 
    EndModel();
@@ -71,17 +103,17 @@ TObject3DView::TObject3DView(TObject *root3DObj, Option_t *depth)
   //  ls(0);
 }
 //_____________________________________________________________________________
-TObject3DView::TObject3DView(TObject *root3DObj, Int_t thisLevel,Int_t maxlevel)
+TObject3DView::TObject3DView(TObject *root3DObj, TObject3DViewFactoryABC  *aFactory, Int_t thisLevel,Int_t maxlevel)
 : TObjectSet(root3DObj,kFALSE),f3DViewID(0),f3DViewIDSelectable(0),f3DViewIDSelected(0)
       ,fMap(0),fRefCounter(0), fLevel(thisLevel),fType(1)
       ,fTranslucentFactor(0.5),fIsShape(kFALSE),fIsSelectable(kFALSE),fIsSelected(kFALSE),fIsMapOwner(kFALSE)
-      ,fView3DFactory(0)
+      ,fView3DFactory(aFactory)
 {
    maxlevel = 6;
-   fView3DFactory = TObject3DViewFactoryABC::View3DFactory("ogl");
+   SetName(root3DObj->GetName());
    fMap = new OBJECT_MAP; fIsMapOwner = kTRUE;
    BeginModel();
-   // fprintf(stderr,"-------------------------START----------------------- %s ----------\n",root3DObj->ClassName());
+   // fprintf(stderr,"--------------START--   --Class:  %s --Name: %s --------\n",root3DObj->ClassName(),root3DObj->GetName());
    MakeVolumeView(maxlevel);
 
    EndModel();
@@ -91,17 +123,16 @@ TObject3DView::TObject3DView(TObject *root3DObj, Int_t thisLevel,Int_t maxlevel)
   // ls(0);
 }
 //_____________________________________________________________________________
-TObject3DView::TObject3DView(TObject *root3DObj,std::map<TObject *,TObject3DView *> *volumeMap,  Int_t level,Int_t maxlevel)
+TObject3DView::TObject3DView(TObject *root3DObj,std::map<TObject *,TObject3DView *> *volumeMap,  TObject3DViewFactoryABC  *aFactory, Int_t level,Int_t maxlevel)
 :  TObjectSet(root3DObj,kFALSE), f3DViewID(0),f3DViewIDSelectable(0),f3DViewIDSelected(0)
       ,fMap(volumeMap),fRefCounter(0), fLevel(level),fType(1)
       ,fTranslucentFactor(0.5),fIsShape(kFALSE),fIsSelectable(kFALSE),fIsSelected(kFALSE),fIsMapOwner(kFALSE)
-      ,fView3DFactory(0)
+      ,fView3DFactory(aFactory)
 {
-   if (fMap) {
+  if (fMap) {
       typedef std::pair <TObject *, TObject3DView *> VOLUME_PAIR;
       fMap->insert(VOLUME_PAIR(root3DObj,this));
    }
-   fView3DFactory = TObject3DViewFactoryABC::View3DFactory("ogl");
    if (level == 2) {
       // Make the second level object "selectable"
       SetSelectable(); 
@@ -112,34 +143,17 @@ TObject3DView::TObject3DView(TObject *root3DObj,std::map<TObject *,TObject3DView
    CompileViewLevel();
 #endif   
 }
-#if 0
-//_____________________________________________________________________________
-TObject3DView::TObject3DView(std::map<TObject *,TObject3DView *> *volumeMap,  Int_t level,Int_t maxlevel)
-:  TObjectSet(0,kFALSE), f3DViewID(0),f3DViewIDSelectable(0),f3DViewIDSelected(0)
-      ,fMap(volumeMap),fRefCounter(0), fLevel(level),fType(1)
-      ,fTranslucentFactor(0.5),fIsShape(kFALSE),fIsSelectable(kFALSE),fIsSelected(kFALSE),fIsMapOwner(kFALSE)
-      ,fView3DFactory(0)
-{
-   if (fMap) {
-      typedef std::pair <TObject *, TObject3DView *> VOLUME_PAIR;
-      fMap->insert(VOLUME_PAIR(root3DObj,this));
-   }
-   fView3DFactory = TObject3DViewFactoryABC::View3DFactory("ogl");
-   MakeVolumeView(maxlevel);
-#ifdef  GLLIST   
-   CompileViewLevel();
-#endif
-}
-#endif
 //_____________________________________________________________________________
 TObject3DView::~TObject3DView()
 { 
+	//std::cout << "~TObject3DView";
    if (fView3DFactory) 
        fView3DFactory->Release(this);
 
    Delete();
    if (fIsMapOwner)  { delete fMap; fMap = 0; }
 }
+
 //______________________________________________________________________________
 void TObject3DView::AddChild(TObject3DView *child)
 {
@@ -183,9 +197,12 @@ void TObject3DView::Delete(Option_t *opt)
 void TObject3DView::BeginModel()
 {
    TObject3DView *beginView = 0; // new TObject3DView(0,fMap,fLevel+1);
-   if (fView3DFactory) 
+   if (fView3DFactory) {
       beginView = fView3DFactory->BeginModel(this);
+   }
    if (beginView) {
+      TString nodeName = GetName(); nodeName += "_Begin";
+      beginView->SetName((const char *)nodeName);
       AddChild(beginView);
 #ifndef  GLLIST   
       SetViewID(beginView->GetViewId());
@@ -198,9 +215,12 @@ void TObject3DView::EndModel()
 {
 #ifdef GLLIST
    TObject3DView *endView = 0; // new TObject3DView(0,fMap,fLevel+1);
-   if (fView3DFactory) 
+   if (fView3DFactory) {
       endView = fView3DFactory->EndModel();
+   }
    if (endView) {
+      TString nodeName = GetName(); nodeName += "_End";
+      endView->SetName((const char *)nodeName);
       AddChild(endView);
       endView->IncCounter();
    }
@@ -294,18 +314,25 @@ void TObject3DView::MakeVolumeView(Int_t maxlevel)
 //_____________________________________________________________________________
 TObject3DView *TObject3DView::MakeMatrix(const Double_t *traslation, const Double_t *rotation, Bool_t isReflection)
 {
-   TObject3DView *matrixView = 0; // new TObject3DView(0,fMap,fLevel+1);
    TObject3DView *matrixNode = 0; // new TObject3DView(0,fMap,fLevel+1);
+   
    if (fView3DFactory) 
-      matrixView = fView3DFactory->CreateMatrix(traslation, rotation, isReflection);
-   if (matrixView) {
-      matrixNode = new TObject3DView();
-      matrixView->SetTitle("transformation");
-      matrixView->IncCounter();
-      matrixNode->AddChild(matrixView);
+         matrixNode =  fView3DFactory->CreatePosition(0);
+   assert (matrixNode);
+   TString nodeName = "MatrixNode_"; nodeName += GetName(); ;
+   matrixNode->SetName((const char *)nodeName);
+
+   if (fView3DFactory) {
+       TObject3DView *matrixView = fView3DFactory->CreateMatrix(traslation, rotation, isReflection);
+       if (matrixView) {
+          matrixView->SetTitle("transformation");
+          matrixView->IncCounter();
+          matrixNode->AddChild(matrixView);
+       }
+         //matrixView->SetName("MatrixView");
    }
    return matrixNode;
-}  
+}
 
 //_____________________________________________________________________________
 void  TObject3DView::MakeShape(const TObject *shape)
@@ -387,12 +414,12 @@ void TObject3DView::MakeVolumeView(TGeoVolume *top, Int_t maxlevel)
 
             if (!nextVolume) {
                gGeoManager->CdDown(i);
-               nextVolume= new TObject3DView(geoVolume,fMap,fLevel+1,maxlevel);
+               nextVolume= new TObject3DView(geoVolume,fMap,fView3DFactory,fLevel+1,maxlevel);
                gGeoManager->CdUp();
             } 
 #else
                gGeoManager->CdDown(i);
-               nextVolume= new TObject3DView(geoVolume,fMap,fLevel+1,maxlevel);
+               nextVolume= new TObject3DView(geoVolume,fMap,fView3DFactory,fLevel+1,maxlevel);
                gGeoManager->CdUp();
 #endif
             position->AddChild(nextVolume);
@@ -445,14 +472,14 @@ void TObject3DView::MakeVolumeView(TVolume *top, Int_t maxlevel)
                nextVolume = volumeFinder->second;
 
             if (!nextVolume) {
-               nextVolume= new TObject3DView(geoVolume,fMap,fLevel+1,maxlevel);
+               nextVolume= new TObject3DView(geoVolume,fMap,fView3DFactory,fLevel+1,maxlevel);
             }
 #else
-            nextVolume= new TObject3DView(geoVolume,fMap,fLevel+1,maxlevel);
+            nextVolume= new TObject3DView(geoVolume,fMap,fView3DFactory,fLevel+1,maxlevel);
 #endif
             position->AddChild(nextVolume);
             AddChild(position);
-            nextVolume->IncCounter();
+            if (nextVolume) nextVolume->IncCounter();
             position->CompileViewLevel();
    }  }  }
 }
@@ -528,13 +555,13 @@ void TObject3DView::MakeVolumeView(TVolumeView *top, Int_t maxlevel)
             nextVolume = volumeFinder->second;
 
          if (!nextVolume) {
-            nextVolume= new TObject3DView(geoVolume,fMap,fLevel+1,maxlevel);
+            nextVolume= new TObject3DView(geoVolume,fMap,fView3DFactory,fLevel+1,maxlevel);
          } else {
             Error("MakeVolumeView","Each TVolumeView must be unique");
             assert(0);
          }
 #else 
-         nextVolume= new TObject3DView(geoVolume,fMap,fLevel+1,maxlevel);
+         nextVolume= new TObject3DView(geoVolume,fMap,fView3DFactory,fLevel+1,maxlevel);
 #endif                  
          position->AddChild(nextVolume);
          AddChild(position);
@@ -545,6 +572,7 @@ void TObject3DView::MakeVolumeView(TVolumeView *top, Int_t maxlevel)
 //_____________________________________________________________________________
 void TObject3DView::MakeVolumeView(TNode *top, Int_t maxlevel)
 {
+   // printf("TObject3DView::MakeVolumeView(TNode *top = %p)\n", top);
    if (!top) return;
 
    switch ( top->GetVisibility()) {
@@ -584,12 +612,13 @@ void TObject3DView::MakeVolumeView(TNode *top, Int_t maxlevel)
                     nextVolume = volumeFinder->second;
 
                  if (!nextVolume) {
-                    nextVolume= new TObject3DView(node,fMap,fLevel+1,maxlevel);
+                    nextVolume= new TObject3DView(node,fMap,fView3DFactory,fLevel+1,maxlevel);
                  }
-                 position->AddChild(nextVolume);
-                 AddChild(position);
-                 nextVolume->IncCounter();
-                 position->CompileViewLevel();
+		    nextVolume->SetName("NextVolume-child");
+		    position->AddChild(nextVolume);
+		    AddChild(position);
+		    nextVolume->IncCounter();
+		    position->CompileViewLevel();
      }  }  };  }
 }
 //_____________________________________________________________________________

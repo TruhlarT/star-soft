@@ -1,4 +1,4 @@
-// @(#)root/gtgl:$Name:  $:$Id: TObject3DView.h,v 1.2 2006/09/22 17:30:13 fine Exp $
+// @(#)root/gtgl:$Name:  $:$Id: TObject3DView.h,v 1.3 2006/10/04 21:40:53 fine Exp $
 // Author: Valery Fine      23/10/03
 
 #ifndef ROOT_TObject3DView
@@ -67,15 +67,16 @@ private:
 
 protected:
     TObject3DViewFactoryABC  *fView3DFactory;
-    TObject3DView(TObject *root3DObject,std::map<TObject *,TObject3DView *> *volumeMap,  Int_t level=1,Int_t maxlevel=3);
+    TObject3DView();
+    TObject3DView(TObject *root3DObject,std::map<TObject *,TObject3DView *> *volumeMap, TObject3DViewFactoryABC  *aFactory,  Int_t level=1,Int_t maxlevel=3);
     virtual void BeginModel();
     virtual void EndModel();
     virtual void AddChild(TObject3DView *child);
 
 public:
-    TObject3DView();
-    TObject3DView(TObject *root3DObj, Option_t *depth);
-    TObject3DView(TObject *root3DObj, Int_t thisLevel=1,Int_t maxlevel=3);
+    TObject3DView(TObject3DViewFactoryABC  *aFactory);
+    TObject3DView(TObject *root3DObj, Option_t *depth, TObject3DViewFactoryABC  *aFactory);
+    TObject3DView(TObject *root3DObj, TObject3DViewFactoryABC  *aFactory, Int_t thisLevel=1,Int_t maxlevel=3);
     virtual ~TObject3DView();
     Int_t Counter();
     virtual void Delete(Option_t *opt="");

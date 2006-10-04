@@ -1,4 +1,4 @@
-// @(#)root/gtgl:$Name:  $:$Id: TObject3DViewFactory.cxx,v 1.3 2006/09/27 07:03:00 fine Exp $
+// @(#)root/gtgl:$Name:  $:$Id: TObject3DViewFactory.cxx,v 1.4 2006/10/04 21:40:54 fine Exp $
 // Author: Valery Fine      24/04/05
 
 /****************************************************************************
@@ -85,6 +85,12 @@
 // one array of normals 
 // one material per shape always (color, fill style, line style) 
 
+//____________________________________________________________________________________________________________________
+static inline void AssertNormal(Double_t code) {
+   if (code == 0 )  {
+    //  assert(code);
+   }
+}
 
 //____________________________________________________________________________________________________________________
 TObject3DViewFactory::TObject3DViewFactory() : TObject3DViewFactoryABC()
@@ -222,6 +228,7 @@ template <class S> TObject3DView *TObject3DViewFactory::MakeBrikShape(const S &s
        }
        Coord3D currentNormal;
        TMath::Normal2Plane(vertices[2],vertices[0],vertices[1],&currentNormal.fX);
+       AssertNormal(TMath::Normalize(&currentNormal.fX));
        polygon.fNormalIndex = normals.size();
        normals.push_back(currentNormal);
        view.fPolygonsFaceBinding.push_back(polygon);
@@ -315,8 +322,8 @@ template <class S> TObject3DView *TObject3DViewFactory::MakeXtruShape(const S &s
    //------------------------------------------ 
    //   make walls
    //------------------------------------------ 
-   Int_t nextStack = nDiv;
-   Int_t currentStack = 0;
+   //Int_t nextStack = nDiv;
+   // Int_t currentStack = 0;
    for (j=0;j< nstacks-1; j++) 
    {
       for (i=0;i< nDiv; i++) { 
@@ -324,10 +331,10 @@ template <class S> TObject3DView *TObject3DViewFactory::MakeXtruShape(const S &s
          face.fType = TPolygone3DView::kQuade ;
          Int_t k = (i < nDiv-1) ? i+1 : 0;
          // fill vertex indices
-         Int_t v1 = vrtndx( i ,j+1); face.fVertexIndices.push_back(v1);
-         Int_t v3 = vrtndx(k,j+1); face.fVertexIndices.push_back(v3);
-         Int_t v2 = vrtndx(k ,j ); face.fVertexIndices.push_back(v2);
-         Int_t v0 = vrtndx( i,  j ); face.fVertexIndices.push_back(v0);
+         Int_t v1 = vrtndx( i,j+1); face.fVertexIndices.push_back(v1);
+         Int_t v3 = vrtndx( k,j+1); face.fVertexIndices.push_back(v3);
+         Int_t v2 = vrtndx( k, j ); face.fVertexIndices.push_back(v2);
+         Int_t v0 = vrtndx( i, j ); face.fVertexIndices.push_back(v0);
          // calculate and fill the normal  and its index
 
          TMath::Normal2Plane( &vertex[3*v0],&vertex[3*v1],&vertex[3*v2],&norm.fX);
@@ -576,12 +583,12 @@ template <class S> TObject3DView *TObject3DViewFactory::MakeConeShape(const S &s
             // calculate and fill the normal  and its index
             if (plain == kSphere) {
                norm.fX = vertex[3*v0]; norm.fY = vertex[3*v0+1]; norm.fZ = vertex[3*v0+2];
-               TMath::Normalize(&norm.fX);
+               AssertNormal(TMath::Normalize(&norm.fX));
                extFaces.fNormalIndices.push_back(nextNormalIndex);
                normals.push_back(norm);        
 
                norm.fX = vertex[3*v1]; norm.fY = vertex[3*v1+1]; norm.fZ = vertex[3*v1+2];
-               TMath::Normalize(&norm.fX);
+               AssertNormal(TMath::Normalize(&norm.fX));
                nextNormalIndex++;
             } else {
                Int_t v0Next = vertindex( ((i == nDiv-1) ? 0 : i+1),j,kExternal);
@@ -654,12 +661,12 @@ template <class S> TObject3DView *TObject3DViewFactory::MakeConeShape(const S &s
                if (plain == kSphere) {
 
                   norm.fX = -vertex[3*v0]; norm.fY = -vertex[3*v0+1]; norm.fZ = -vertex[3*v0+2];
-                  TMath::Normalize(&norm.fX);
+                  AssertNormal(TMath::Normalize(&norm.fX));
                   intFaces.fNormalIndices.push_back(nextNormalIndex);
                   normals.push_back(norm);        
 
                   norm.fX = -vertex[3*v1]; norm.fY = -vertex[3*v1+1]; norm.fZ = -vertex[3*v1+2];
-                  TMath::Normalize(&norm.fX);
+                  AssertNormal(TMath::Normalize(&norm.fX));
                   nextNormalIndex++;
                } else {
                   Int_t v0Next = vertindex( ((i == nDiv-1) ? 0 : i+1),j,kInternal);

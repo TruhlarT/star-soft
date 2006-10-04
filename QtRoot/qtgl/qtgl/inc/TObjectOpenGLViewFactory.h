@@ -1,4 +1,4 @@
-// @(#)root/gtgl:$Name:  $:$Id: TObjectOpenGLViewFactory.h,v 1.2 2006/09/22 17:30:14 fine Exp $
+// @(#)root/gtgl:$Name:  $:$Id: TObjectOpenGLViewFactory.h,v 1.3 2006/10/04 21:40:53 fine Exp $
 // Author: Valery Fine      24/04/05
 
 #ifndef ROOT_TObjectOpenGLViewFactory
@@ -33,7 +33,7 @@ public:
    TObjectOpenGLViewFactory();
    virtual ~TObjectOpenGLViewFactory();
    virtual void AddNormal(TObject3DView *, const Double_t *normal);
-   virtual void AddChild(TObject3DView * parent, TObject3DView *child);;
+   virtual void AddChild(TObject3DView * parent, TObject3DView *child);
    virtual TObject3DView *BeginModel(TObject3DView *);
    virtual TObject3DView *EndModel();
    virtual void           PushMatrix();
@@ -42,6 +42,7 @@ public:
    virtual void           PopMatrixEstimate();
    virtual TObject3DView *CreateMatrix(const Double_t *traslation, const Double_t *rotation, Bool_t isReflection);
    virtual TObject3DView *CreateNormal(const Double_t *normal);
+   virtual TObject3DView *CreatePosition(UInt_t Id);
    virtual TObject3DView *CompileSelection(TObject3DView *view);
    virtual void           CompileViewLevel(TObject3DView *,ERenderType type=kNormal);
    virtual void           GetBoundBox(Double_t *min, Double_t *max) const;

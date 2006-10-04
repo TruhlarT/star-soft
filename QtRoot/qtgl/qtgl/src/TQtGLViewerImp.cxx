@@ -403,6 +403,7 @@ void TQtGLViewerImp::ActivateSelectionGlobalCB(bool on)
 //______________________________________________________________________________
 void TQtGLViewerImp::AddGLList(unsigned int list, int type)
 {
+	// printf("TQtGLViewerImp::AddGLList");
    QWidget *c = centralWidget();
    if (!c) return;   
 #ifdef QGLVIEWER

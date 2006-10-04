@@ -45,7 +45,7 @@ void SlotDisconnect::CleanPrimitives()
 //______________________________________________________________________________
 void SlotDisconnect::Disconnect()
 {
-   if (fMaster){  fMaster->fViewer = 0; fMaster->Disconnect(); } 
+   if (fMaster){  fMaster->MakeViewerNil();/*fMaster->fViewer = 0; printf("SlotDisconnect::Disconnect()\n"); */fMaster->Disconnect(); } 
 }
 //______________________________________________________________________________
 void SlotDisconnect::DestroyMaster()
@@ -64,12 +64,15 @@ void  SlotDisconnect::UpdateView(QPixmap *)
 
 //______________________________________________________________________________
 TQtRootViewer3D::TQtRootViewer3D(TVirtualPad*pad)
-: TVirtualViewer3D(), fPad(pad),fViewer(0),fDepth(3),fBuildingScena(kFALSE)
+: TVirtualViewer3D(),fView3DFactory(0), fPad(pad), fListOfPrimitives(0), fViewer(0), fDepth(3), fBuildingScena(kFALSE)
 {  }
 //______________________________________________________________________________
-TQtGLViewerImp   *TQtRootViewer3D::Viewer()
+void   TQtRootViewer3D::Viewer()
 {
    if (!fViewer && fPad) {
+      TObject3DViewFactoryABC::Registr(new TObjectOpenGLViewFactory(), "ogl");
+      fView3DFactory = TObject3DViewFactoryABC::View3DFactory("ogl");
+      fListOfPrimitives.SetViewFactory(fView3DFactory);
       fViewer = new TQtGLViewerImp(fPad,fPad->GetName(),fPad->UtoPixel(1.),fPad->VtoPixel(0.) );
       // fprintf(stderr,"QtRootViewer3D %p for TPad %p : %s \n", this, fPad, fPad->GetName());
       fDisconnectSlot = new SlotDisconnect(this);
@@ -81,7 +84,6 @@ TQtGLViewerImp   *TQtRootViewer3D::Viewer()
       fPad->Connect("Closed()","TQtRootViewer3D", this, "DisconnectPad()");
       QObject::connect(gQt->Emitter(),SIGNAL(padPainted(QPixmap*)),fDisconnectSlot, SLOT(UpdateView(QPixmap*)));
    }
-   return fViewer;
 }
 //______________________________________________________________________________
 TQtRootViewer3D::~TQtRootViewer3D()
@@ -105,7 +107,8 @@ Int_t  TQtRootViewer3D::AddObject(TObject *obj, Option_t *drawOption, Bool_t *ad
   if (obj && obj->InheritsFrom("TAtt3D") ) {
     Option_t *opt = drawOption;
     if (!opt || !opt[0]) opt = obj->GetDrawOption();
-    TObject3DView *view = new TObject3DView(obj,opt);
+    TObject3DView *view = new TObject3DView(obj,opt, fView3DFactory);
+    view->SetName("TopView");
     fListOfPrimitives.TDataSet::AddLast(view);
     result = 1;
   }
@@ -121,7 +124,8 @@ Int_t  TQtRootViewer3D::AddObjectFirst(TObject *obj, Option_t *drawOption, Bool_
   if (obj && obj->InheritsFrom("TAtt3D") ) {
     Option_t *opt = drawOption;
     if (!opt || !opt[0]) opt = obj->GetDrawOption();
-    TObject3DView *view = new TObject3DView(obj,opt);
+    TObject3DView *view = new TObject3DView(obj,opt, fView3DFactory);
+    view->SetName("TopView");
     fListOfPrimitives.TDataSet::AddFirst(view);
     result = 1;
   }
@@ -286,4 +290,10 @@ void  TQtRootViewer3D::UpdateView()
 {
    BeginScene();
    EndScene();
+}
+
+//______________________________________________________________________________
+void  TQtRootViewer3D::MakeViewerNil()
+{
+   fViewer = 0;
 }
