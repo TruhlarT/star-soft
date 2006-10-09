@@ -1,4 +1,4 @@
-// @(#)root/gtgl:$Name:  $:$Id: TObjectCoinViewFactory.cxx,v 1.1 2006/10/04 20:38:10 fine Exp $
+// @(#)root/gtgl:$Name:  $:$Id: TObjectCoinViewFactory.cxx,v 1.2 2006/10/09 21:44:03 fine Exp $
 // Author: Valery Fine      24/09/06
 
 /****************************************************************************
@@ -32,6 +32,7 @@
 #include <Inventor/nodes/SoIndexedLineSet.h>
 #include <Inventor/fields/SoMFVec3f.h> 
 #include <Inventor/nodes/SoNormal.h>
+#include <Inventor/nodes/SoNormalBinding.h> 
 #include <Inventor/nodes/SoMarkerSet.h> 
 #include <Inventor/nodes/SoMaterial.h>
 #include <Inventor/nodes/SoMatrixTransform.h>
