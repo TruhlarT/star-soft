@@ -32,6 +32,9 @@
 #include "TObject3DView.h"
 #include "TVirtualViewer3D.h"
 
+// workaround for old STAR  QtRoot layout
+#define CAN_RENDER_PAD_DIRECTLY 1 
+
 #ifndef __CINT__
 #include <qobject.h>
 class TQtRootViewer3D;
