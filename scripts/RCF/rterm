@@ -363,7 +363,8 @@ if ("$TEST" != "$node") then
     #set LOAD=`which lsload`
     #if( "$LOAD" == "") then
     # try to find it
-    foreach path ( /opt/local/bin /usr/local/bin )
+    set LOAD=""
+    foreach path ( /opt/local/bin /usr/local/bin /usr/bin )
 	if ( -e $path) then
 	    if (-x $path/condor_status) then
 		set LOAD=$path/condor_status
