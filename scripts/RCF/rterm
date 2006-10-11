@@ -445,9 +445,21 @@ endif
 
 # Allow user to chose a color but set a default
 if ( "$col" != "") then
+    if ( $DEBUG ) then
+	echo "Color comes set as [$col]"
+    endif
     set TERM_BKG_COLOR=$col
-else if ( ! $?TERM_BKG_COLOR) then
-    set TERM_BKG_COLOR=PowderBlue
+else 
+    if ( ! $?TERM_BKG_COLOR) then
+	if ( $DEBUG ) then
+	    echo "Color set to default value - env var not defined"
+	endif
+	set TERM_BKG_COLOR=PowderBlue
+    else
+	if ( $DEBUG ) then
+	    echo "Color set via env to [$TERM_BKG_COLOR]"
+	endif
+    endif
 endif
 # TERM_OPTIONS supersedes it all
 if( ! $?TERM_OPTIONS ) then
@@ -481,7 +493,7 @@ else
 	echo "Opening a connection to $node for $user $extra"
 	$SLOGIN $port $user@$node
     else
-	echo "Opening a $col terminal on $node for $user $extra"
+	echo "Opening a $col terminal on $node for $user $extra ($TERM_BKG_COLOR)"
 	$TERM_PRGM -sl 500 -sb +si -sk -T "$user@$node" -n "Xterm_$node" -bg $TERM_BKG_COLOR $TERM_OPTIONS -e $SLOGIN $port $user@$node &
     endif
 endif
