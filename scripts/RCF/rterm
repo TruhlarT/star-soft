@@ -64,8 +64,13 @@ while ( $count <= $#argv)
 	    set port="-p $argv[$count]"
 	    set extra="$extra port $argv[$count]"
 	    if ($DEBUG) then
-		echo "Extraneous args are   [$extra]"
+		echo "Additional args are   [$extra]"
 	    endif
+	    @ count++
+	    breaksw
+
+	case "-bg":
+	    set col=$argv[$count]
 	    @ count++
 	    breaksw
 
@@ -167,7 +172,7 @@ __EOF__
 
 		if( -f $file) then
 		    set col=`$PERL $file`
-		    rm -f $file
+		    /bin/rm -f $file
 		    if ($DEBUG) then
 			echo "The color will be     [$col]"
 		    endif
@@ -196,6 +201,11 @@ __EOF__
 	    breaksw
     endsw
 end
+
+
+if ( $DEBUG ) then
+    echo "Node is [$node]"
+endif
 
 
 if ("$node" == "") then
@@ -270,8 +280,11 @@ else
         breaksw;
 
        default:
-        echo "no Condor pool found for $node"
-        set help=1
+        # Exact node specification MUST allow rterm to work
+        # if node is accessible, regardless of condor pool or
+        # not.
+        #echo "no Condor pool found for $node"
+        #set help=1
         breaksw;
     endsw
 endif
@@ -301,12 +314,13 @@ Currently implemented options are :
   -x node    Exclude 'node' from possible node to connect to. May be
              a comma separated list of nodes.
   -funky     pick a color randomly
+  -bg color  pick specific color
 
 The 'NodeSpec' argument may be a node name (specific login to a given node) 
 or a partial node name followed by the '+' sign (wildcard). For example,
   % $prgm $node
 
-will open a connection on the least loaded node amongst all LSF-available 
+will open a connection on the least loaded node amongst all available 
 $wnode* nodes. By default, this command will determine the appropriate
 wildcarded node specification for your GroupID. However, if this help
 is displayed when the command '% $prgm' is used, contact the RCF support 
@@ -474,6 +488,10 @@ endif
 
 
 
+#
+# Revised 2006
+# - Collapsed logic regarding Condor changes fixed
+# - Added for -bg color for color picking
 #
 # Revised Feb 2005
 # - Modified call to lsload
