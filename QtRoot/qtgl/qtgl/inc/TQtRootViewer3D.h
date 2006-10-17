@@ -32,9 +32,6 @@
 #include "TObject3DView.h"
 #include "TVirtualViewer3D.h"
 
-// workaround for old STAR  QtRoot layout
-#define CAN_RENDER_PAD_DIRECTLY 1 
-
 #ifndef __CINT__
 #include <qobject.h>
 class TQtRootViewer3D;
@@ -62,7 +59,6 @@ signals:
 class SlotDisconnect;
 #endif
 
-class TQtGLViewerImp;
 class TGLViewerImp;
 
 class TQtRootViewer3D : public TVirtualViewer3D
@@ -72,10 +68,11 @@ protected:
    TObject3DViewFactoryABC  *fView3DFactory;	   
    TVirtualPad      *fPad;
    TObject3DView     fListOfPrimitives;
-   TQtGLViewerImp   *fViewer;
-   SlotDisconnect    *fDisconnectSlot;
+   TGLViewerImp     *fViewer;
+   SlotDisconnect   *fDisconnectSlot;
    Int_t             fDepth;              // the current scene depth
    Bool_t            fBuildingScena;      // Flag to mark we are building the view
+   
    virtual  void    Disconnect();
    virtual  void    Viewer();
    void             ClearPrimitives();

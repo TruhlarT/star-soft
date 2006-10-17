@@ -614,11 +614,11 @@ void TObject3DView::MakeVolumeView(TNode *top, Int_t maxlevel)
                  if (!nextVolume) {
                     nextVolume= new TObject3DView(node,fMap,fView3DFactory,fLevel+1,maxlevel);
                  }
-		    nextVolume->SetName("NextVolume-child");
-		    position->AddChild(nextVolume);
-		    AddChild(position);
-		    nextVolume->IncCounter();
-		    position->CompileViewLevel();
+          nextVolume->SetName("NextVolume-child");
+          position->AddChild(nextVolume);
+          AddChild(position);
+          nextVolume->IncCounter();
+          position->CompileViewLevel();
      }  }  };  }
 }
 //_____________________________________________________________________________

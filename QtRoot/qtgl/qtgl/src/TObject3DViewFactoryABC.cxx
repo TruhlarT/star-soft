@@ -55,17 +55,22 @@ void TObject3DViewFactoryABC::Registr(TObject3DViewFactoryABC * f, const char * 
 //______________________________________________________________________________
 void TObject3DViewFactoryABC::Unregistr(const char * name)
 {
-	/*
-	TString factoryName(type);
-	gfMap.insert(FACTORY_PAIR(factoryName,factory));	
-	*/
+   if (name) {
+    /*
+     TString factoryName(type);
+      gfMap.insert(FACTORY_PAIR(factoryName,factory));	
+   */
+   }
 }
 
 //______________________________________________________________________________
 TObject3DViewFactoryABC* TObject3DViewFactoryABC::View3DFactory(Option_t *type)
 {
  //  Create a Viewer 3D of specified type
-   TObject3DViewFactoryABC *factory = gFMap.find(TString(type))->second;
+   TObject3DViewFactoryABC *factory = 0;
+   std::map<TString, TObject3DViewFactoryABC *>::iterator f = gFMap.find(TString(type));
+   if (f != gFMap.end() )
+         factory = gFMap.find(TString(type))->second;
 	   /*
 #if 0
       TPluginHandler *h;
