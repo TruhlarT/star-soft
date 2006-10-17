@@ -1,4 +1,4 @@
-// @(#)root/gtgl:$Name:  $:$Id: TShape3DPolygonView.h,v 1.3 2006/10/04 21:40:53 fine Exp $
+// @(#)root/gtgl:$Name:  $:$Id: TShape3DPolygonView.h,v 1.4 2006/10/17 20:07:12 fine Exp $
 // Author: Valery Fine      27/04/05
 
 #ifndef ROOT_TShape3DPolygonView
@@ -15,6 +15,7 @@
 **
 *****************************************************************************/
 
+#include "Riostream.h"
 #include "TAttFill.h"
 #include "TAttLine.h"
 #include "TMath.h"
@@ -125,7 +126,7 @@ class  TPolygone3DFaceBindingView : public TPolygone3DView
 };
 
 //_______________________________________________________________________________________
-class TShape3DPolygonView : public TAttFill, public TAttLine 
+class TShape3DPolygonView : public TAttFill, public TAttLine
 {
 public:
   Float_t fRgba[4];
