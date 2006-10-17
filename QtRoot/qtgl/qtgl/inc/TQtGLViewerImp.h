@@ -1,8 +1,8 @@
-// @(#)root/g3d:$Name:  $:$Id: TQtGLViewerImp.h,v 1.3 2006/10/04 21:40:53 fine Exp $
+// @(#)root/g3d:$Name:  $:$Id: TQtGLViewerImp.h,v 1.4 2006/10/17 20:05:58 fine Exp $
 // Author: Valery Fine      23/05/97
 
 /****************************************************************************
-** $Id: TQtGLViewerImp.h,v 1.3 2006/10/04 21:40:53 fine Exp $
+** $Id: TQtGLViewerImp.h,v 1.4 2006/10/17 20:05:58 fine Exp $
 **
 ** Copyright (C) 2002 by Valeri Fine. Brookhaven National Laboratory.
 **                                    All rights reserved.
@@ -151,6 +151,8 @@ public:
    virtual void    DisconnectPad();
         QGLWidget *GLWidget() const { return fGLWidget;}
    virtual TVirtualPad *GetPad();
+//  Qt proxy   
+   virtual void SetUpdatesEnabled(const bool&);
 
 
 #ifndef __CINT__
@@ -160,6 +162,7 @@ public:
      virtual void ActivateSelectionGlobalCB(bool);
      virtual void DisconnectSelectorWidgetCB();
      virtual void AddGLList(unsigned int list, int type=1);
+     virtual void AddRootChild(ULong_t ){ assert(0); /* this to be called for Coin3D only */ };
      virtual void RemoveGLList(unsigned int list);
      virtual void NewViewer();
      virtual void PrintCB();
