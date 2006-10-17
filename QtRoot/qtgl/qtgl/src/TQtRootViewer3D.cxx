@@ -65,19 +65,26 @@ void  SlotDisconnect::UpdateView(QPixmap *)
 //______________________________________________________________________________
 TQtRootViewer3D::TQtRootViewer3D(TVirtualPad*pad)
 : TVirtualViewer3D(),fView3DFactory(0), fPad(pad), fListOfPrimitives(0), fViewer(0), fDepth(3), fBuildingScena(kFALSE)
-{  }
+{ 
+   // fprintf(stderr,"TQtRootViewer3D::TQtRootViewer3D this=%p\n", this); 
+}
+
 //______________________________________________________________________________
 void   TQtRootViewer3D::Viewer()
 {
    if (!fViewer && fPad) {
-      TObject3DViewFactoryABC::Registr(new TObjectOpenGLViewFactory(), "ogl");
+      // fprintf(stderr,"-- TQtRootViewer3D::Viewer begin -- \n");
       fView3DFactory = TObject3DViewFactoryABC::View3DFactory("ogl");
+      if (!fView3DFactory) {
+         TObject3DViewFactoryABC::Registr(new TObjectOpenGLViewFactory(), "ogl");
+         fView3DFactory = TObject3DViewFactoryABC::View3DFactory("ogl");
+      }
       fListOfPrimitives.SetViewFactory(fView3DFactory);
       fViewer = new TQtGLViewerImp(fPad,fPad->GetName(),fPad->UtoPixel(1.),fPad->VtoPixel(0.) );
       // fprintf(stderr,"QtRootViewer3D %p for TPad %p : %s \n", this, fPad, fPad->GetName());
       fDisconnectSlot = new SlotDisconnect(this);
      //  QObject::connect(fViewer,SIGNAL(destroyed()), fDisconnectSlot, SLOT(Disconnect()));
-      QObject::connect(fViewer,SIGNAL(destroyed()), fDisconnectSlot, SLOT(DestroyMaster()));
+      QObject::connect(&(fViewer->Signals()),SIGNAL(destroyed()), fDisconnectSlot, SLOT(DestroyMaster()));
  //     QObject::connect(fViewer->GLWidget(),SIGNAL(viewerAbout2Close())
  //                     , fDisconnectSlot, SLOT(CleanPrimitives()));
       // fPad->Connect("Modified()","TQtRootViewer3D", this, "UpdateView()");
@@ -88,9 +95,9 @@ void   TQtRootViewer3D::Viewer()
 //______________________________________________________________________________
 TQtRootViewer3D::~TQtRootViewer3D()
 {
-    TQtGLViewerImp *sav = fViewer;
+    TGLViewerImp *sav = fViewer;
     if (sav && fDisconnectSlot) {
-       QObject::disconnect(sav,SIGNAL(destroyed()), fDisconnectSlot, SLOT(DestroyMaster()));
+       QObject::disconnect(&(sav->Signals()),SIGNAL(destroyed()), fDisconnectSlot, SLOT(DestroyMaster()));
 //       QObject::disconnect(sav,SIGNAL(viewerAbout2Close()), fDisconnectSlot, SLOT(CleanPrimitives()));
        ClearPrimitives();
     }
@@ -178,7 +185,7 @@ void TQtRootViewer3D::ClearPrimitives()
 {
    if (fViewer)  {
       fViewer->MakeCurrent();
-      fViewer->setUpdatesEnabled(FALSE);
+      fViewer->SetUpdatesEnabled(FALSE);
       fViewer->Clear();
    }
    fListOfPrimitives.Delete();
@@ -191,7 +198,7 @@ void  TQtRootViewer3D::EndScene(){
    if (fViewer) {
      fViewer->MakeCurrent();
 #if 1
-      fViewer->setUpdatesEnabled(FALSE);
+      fViewer->SetUpdatesEnabled(FALSE);
       fViewer->Clear();
 #endif
     fViewer->SetBackgroundColor(gPad->GetFillColor());
@@ -207,7 +214,7 @@ void  TQtRootViewer3D::EndScene(){
            fViewer->AddGLList(glo->GetViewId(TObject3DViewFactoryABC::kSelectable), 2 );
 #endif
      }
-     fViewer->setUpdatesEnabled(TRUE);
+     fViewer->SetUpdatesEnabled(TRUE);
      fViewer->Update();
    }
    fBuildingScena = kFALSE;
@@ -232,7 +239,7 @@ void   TQtRootViewer3D::Disconnect()
    if (fPad)  {
       // fprintf(stderr," TQtRootViewer3D::Disconnect() fViewer=%p\n", fViewer);
       if (fViewer) {
-         QObject::disconnect(fViewer,SIGNAL(destroyed()),        fDisconnectSlot, SLOT(DestroyMaster()));
+         QObject::disconnect(&(fViewer->Signals()),SIGNAL(destroyed()), fDisconnectSlot, SLOT(DestroyMaster()));
          // QObject::disconnect(fViewer,SIGNAL(viewerAbout2Close()),fDisconnectSlot, SLOT(CleanPrimitives()));
          fViewer->DisconnectPad();
       }
