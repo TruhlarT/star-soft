@@ -1,4 +1,4 @@
-// @(#)root/gtgl:$Name:  $:$Id: TObject3DViewFactory.cxx,v 1.4 2006/10/04 21:40:54 fine Exp $
+// @(#)root/gtgl:$Name:  $:$Id: TObject3DViewFactory.cxx,v 1.5 2006/10/17 20:08:41 fine Exp $
 // Author: Valery Fine      24/04/05
 
 /****************************************************************************
@@ -221,14 +221,23 @@ template <class S> TObject3DView *TObject3DViewFactory::MakeBrikShape(const S &s
     int j;
     for (face = 0; face<6; face++,vertices+=3) {
        TPolygone3DFaceBindingView polygon(6);
-       Double_t *vertices[3];
+       Double_t *vertices[4];
        for (j=0;j<4;j++) {
           polygon.fVertexIndices.push_back(sidefaces[face][j]); 
-          if (j != 3) vertices[j] = &view.fVertex[sidefaces[face][j]].fX;
+          vertices[j] = &view.fVertex[sidefaces[face][j]].fX;
        }
        Coord3D currentNormal;
        TMath::Normal2Plane(vertices[2],vertices[0],vertices[1],&currentNormal.fX);
-       AssertNormal(TMath::Normalize(&currentNormal.fX));
+       if (!TMath::Normalize(&currentNormal.fX)) {
+//         May be this is a triangle !!!
+//         Let's try other edges
+          TMath::Normal2Plane(vertices[0],vertices[2],vertices[3],&currentNormal.fX);
+//           fprintf(stderr," normals: %f %f %f \n", currentNormal.fX ,currentNormal.fY, currentNormal.fZ);
+           if (!TMath::Normalize(&currentNormal.fX)) {
+//           This is not a surface at all. Any normal is Ok then:
+             currentNormal.fX = 1; currentNormal.fY = 0; currentNormal.fZ = 0;
+          }
+       }
        polygon.fNormalIndex = normals.size();
        normals.push_back(currentNormal);
        view.fPolygonsFaceBinding.push_back(polygon);
@@ -591,13 +600,21 @@ template <class S> TObject3DView *TObject3DViewFactory::MakeConeShape(const S &s
                AssertNormal(TMath::Normalize(&norm.fX));
                nextNormalIndex++;
             } else {
-               Int_t v0Next = vertindex( ((i == nDiv-1) ? 0 : i+1),j,kExternal);
+               if (i == 0 ) {
+                  Int_t v0Next = vertindex(i+1,j,kExternal);
+                  TMath::Normal2Plane( &vertex[3*v0],&vertex[3*v1],&vertex[3*v0Next],&norm.fX);
+               } else if (i == nDiv-1) {
+                  Int_t v0Pre = vertindex(i-1,j,kExternal);
+                  TMath::Normal2Plane( &vertex[3*v0Pre],&vertex[3*v1], &vertex[3*v0] ,&norm.fX);
+               } else {
+                  Int_t v0Next = vertindex( ((i == nDiv-1) ? 0 : i+1),j,kExternal);
 
-               TMath::Normal2Plane( &vertex[3*v0],&vertex[3*v1],&vertex[3*v0Next],&norm.fX);
+                  TMath::Normal2Plane( &vertex[3*v0],&vertex[3*v1],&vertex[3*v0Next],&norm.fX);
 
-               Int_t v0Pre = vertindex(( i==0 ? nDiv-1: i-1),j,kExternal);
-               TMath::Normal2Plane( &vertex[3*v0Pre],&vertex[3*v1], &vertex[3*v0] ,&norm2.fX);
-               norm.fX = (norm.fX + norm2.fX)/2; norm.fY = (norm.fY + norm2.fY)/2; norm.fZ = (norm.fZ + norm2.fZ)/2;
+                  Int_t v0Pre = vertindex(( i==0 ? nDiv-1: i-1),j,kExternal);
+                  TMath::Normal2Plane( &vertex[3*v0Pre],&vertex[3*v1], &vertex[3*v0] ,&norm2.fX);
+                  norm.fX = (norm.fX + norm2.fX)/2; norm.fY = (norm.fY + norm2.fY)/2; norm.fZ = (norm.fZ + norm2.fZ)/2;
+               }
                extFaces.fNormalIndices.push_back(nextNormalIndex); 
             }
             extFaces.fNormalIndices.push_back(nextNormalIndex);
@@ -638,6 +655,7 @@ template <class S> TObject3DView *TObject3DViewFactory::MakeConeShape(const S &s
          intFaces.fType=TPolygone3DView::kQuadeStrip;
          for (i=0;i< nLoop; i++) { // -----------------
             Int_t nextNormalIndex = normals.size();
+            if (i==0 ) firstNormalIndex = nextNormalIndex;
 
             // internal wall
             if (plain== kPlain) {
@@ -669,13 +687,21 @@ template <class S> TObject3DView *TObject3DViewFactory::MakeConeShape(const S &s
                   AssertNormal(TMath::Normalize(&norm.fX));
                   nextNormalIndex++;
                } else {
-                  Int_t v0Next = vertindex( ((i == nDiv-1) ? 0 : i+1),j,kInternal);
+                  if (i == 0 ) {
+                     Int_t v0Next = vertindex(i+1,j,kInternal);
+                     TMath::Normal2Plane( &vertex[3*v0],&vertex[3*v1],&vertex[3*v0Next],&norm.fX);
+                  } else if (i == nDiv-1) {
+                      Int_t v0Pre = vertindex(i-1,j,kInternal);
+                      TMath::Normal2Plane( &vertex[3*v0Pre],&vertex[3*v1],&vertex[3*v0] ,&norm.fX);
+                  } else {
+                     Int_t v0Next = vertindex( ((i == nDiv-1) ? 0 : i+1),j,kInternal);
 
-                  TMath::Normal2Plane( &vertex[3*v0],&vertex[3*v1],&vertex[3*v0Next],&norm.fX);
+                     TMath::Normal2Plane( &vertex[3*v0],&vertex[3*v1],&vertex[3*v0Next],&norm.fX);
 
-                  Int_t v0Pre = vertindex( (i==0 ? nDiv-1: i-1),j,kInternal);
-                  TMath::Normal2Plane( &vertex[3*v0Pre],&vertex[3*v1],&vertex[3*v0] ,&norm2.fX);
-                  norm.fX = (norm.fX + norm2.fX)/2; norm.fY = (norm.fY + norm2.fY)/2; norm.fZ = (norm.fZ + norm2.fZ)/2;
+                     Int_t v0Pre = vertindex( (i==0 ? nDiv-1: i-1),j,kInternal);
+                     TMath::Normal2Plane( &vertex[3*v0Pre],&vertex[3*v1],&vertex[3*v0] ,&norm2.fX);
+                     norm.fX = (norm.fX + norm2.fX)/2; norm.fY = (norm.fY + norm2.fY)/2; norm.fZ = (norm.fZ + norm2.fZ)/2;
+                  }
                   intFaces.fNormalIndices.push_back(nextNormalIndex);
                }
                intFaces.fNormalIndices.push_back(nextNormalIndex);
@@ -916,7 +942,7 @@ TObject3DView *TObject3DViewFactory::MakeShape(const TGeoTrd2 &shp, const Float_
 
 //________________________________________________________________
 TObject3DView *TObject3DViewFactory::MakeShape(const TGeoSphere & shp, const Float_t *rgba) {
- Int_t specialCase = -1;
+// Int_t specialCase = -1;
 // if (TMath::Abs(TMath::Sin(2*(shp.GetPhi2() - shp.GetPhi2()))) <= 0.01) specialCase = -specialCase;
  // Create TSPHE to simplify the calculations
  TSPHE sphere(shp.GetName() // name
