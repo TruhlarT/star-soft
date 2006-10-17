@@ -1,4 +1,4 @@
-// @(#)root/g3d:$Name:  $:$Id: TQGLViewerImp.h,v 1.3 2006/10/04 21:40:53 fine Exp $
+// @(#)root/g3d:$Name:  $:$Id: TQGLViewerImp.h,v 1.4 2006/10/17 20:05:00 fine Exp $
 // Author: Valery Fine      12/03/2005
 
 /*************************************************************************
@@ -103,18 +103,24 @@ public:
    virtual void   Iconify() { };
    virtual void   Show() { };
    virtual void   Update() { fPaint = kTRUE; }
-   virtual ULong_t GetViewerID() const = 0;
- 
+   virtual ULong_t GetViewerID() const                  = 0;
+   virtual void   Clear()                               = 0;
+
 // New methods for Qt
-   virtual void AddGLList(unsigned int list, int type=1)=0;
-   virtual void RemoveGLList(unsigned int list)=0;
-   virtual void SetBackgroundColor(Color_t color)=0;
-   virtual void SaveSnapShot(bool)=0;
-   virtual void ShowFrameAxisCB(bool)=0;
-   virtual void ShowLightsCB(bool)=0;
-   virtual void SynchTPadCB(bool)=0;
+   virtual void AddGLList(unsigned int list, int type=1)= 0;
+   virtual void AddRootChild(ULong_t id)                = 0;
+   virtual void DisconnectPad()                         = 0;
+   virtual void RemoveGLList(unsigned int list)         = 0;
+   virtual void SetBackgroundColor(Color_t color)       = 0;
+   virtual void SaveSnapShot(bool)                      = 0;
+   virtual void ShowFrameAxisCB(bool)                   = 0;
+   virtual void ShowLightsCB(bool)                      = 0;
+   virtual void SynchTPadCB(bool)                       = 0;
    virtual void SetRotationAxisAngle(const float  x, const float  y, const float  z, const   float a)=0;
-   virtual void SetSnapFileCounter(int counter)=0;
+   virtual void SetSnapFileCounter(int counter)         = 0;
+   
+// Method to be forwarde to the QObjects:
+   virtual void SetUpdatesEnabled(const bool&)          = 0;
    
 //Methods to provide Qt Signal/Slot communication
    TQtSlotProxy &Signals()             { return fProxy;}
