@@ -358,6 +358,9 @@ void TQtGLViewerImp::SetStatusText(const char *text, Int_t partidx, Int_t stype)
   }
 }
 //______________________________________________________________________________
+void TQtGLViewerImp::SetUpdatesEnabled(const bool&enable)
+{  setUpdatesEnabled(enable); }
+//______________________________________________________________________________
 void TQtGLViewerImp::ShowStatusBar(Bool_t show)
 {
    // Show / Hide the status bar
