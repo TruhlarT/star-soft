@@ -36,12 +36,11 @@ public:
    TQtRootCoinViewer3D(TVirtualPad * pad = 0);	
    virtual void   EndScene();            // called by TPad::Paint | PaintModified
            void   DisconnectPad();
-   virtual TGLViewerImp *GetViewerImp() const { return (TGLViewerImp*)fCoinViewer;} 
    //virtual Int_t  AddObject(TObject *, Option_t* drawOption = 0, Bool_t * addChildren = 0);
    //virtual Int_t  AddObjectFirst(TObject *, Option_t* drawOption = 0, Bool_t * addChildren = 0);
 protected:
-   TQtCoinViewerImp   *fCoinViewer;
-   void   Viewer();
+   // TQtCoinViewerImp   *fCoinViewer;
+   virtual void        Viewer();
    virtual ~TQtRootCoinViewer3D();
 
    virtual void     MakeViewerNil();	

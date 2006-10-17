@@ -1,8 +1,8 @@
-// @(#)root/g3d:$Name:  $:$Id: TQtCoinViewerImp.h,v 1.1 2006/10/04 20:38:09 fine Exp $
+// @(#)root/g3d:$Name:  $:$Id: TQtCoinViewerImp.h,v 1.2 2006/10/17 20:12:27 fine Exp $
 // Author: Valery Fine      23/05/97
 
 /****************************************************************************
-** $Id: TQtCoinViewerImp.h,v 1.1 2006/10/04 20:38:09 fine Exp $
+** $Id: TQtCoinViewerImp.h,v 1.2 2006/10/17 20:12:27 fine Exp $
 **
 ** Copyright (C) 2002 by Valeri Fine. Brookhaven National Laboratory.
 **                                    All rights reserved.
@@ -176,6 +176,7 @@ public:
    virtual ULong_t GetViewerID() const;   
    //virtual void    SetPadSynchronize(Bool_t on=kTRUE);
    // static void     SetDefaultFileCounter(int counter);
+   virtual void SetUpdatesEnabled(const bool&);
    virtual void    DisconnectPad();
    //QGLWidget *GLWidget() const { return fGLWidget;}
    virtual TVirtualPad *GetPad();

@@ -681,7 +681,10 @@ void TQtGLViewerImp::ShowStatusBar(Bool_t show)
  {
     fPad = 0;
  }
- 
+//______________________________________________________________________________
+void TQtCoinViewerImp::SetUpdatesEnabled(const bool&enable)
+{   setUpdatesEnabled(enable);                            }
+
 //______________________________________________________________________________
 TVirtualPad *TQtCoinViewerImp::GetPad() 
 {
@@ -1234,7 +1237,6 @@ void TQtCoinViewerImp::HelpCB()
 #endif
    */
 }
-//______________________________________________________________________________
 
 //______________________________________________________________________________
 void TQtCoinViewerImp::CreateViewer(const char *name)
@@ -1256,17 +1258,39 @@ void TQtCoinViewerImp::CreateViewer(const char *name)
    fSelNode = new SoSelection;
    fSelNode->setName("SelectionNode");
    fRootNode->addChild(fSelNode);
+   fSelNode->renderCaching = SoSeparator::ON;
+   fSelNode ->boundingBoxCaching = SoSeparator::ON;
 	
    fShapeNode = new SoSeparator;
    fShapeNode->setName("ShapesNode");
+   fShapeNode->renderCaching = SoSeparator::ON;
+   fShapeNode->boundingBoxCaching = SoSeparator::ON;
    fSelNode->addChild(fShapeNode);
+   
+ // ---------------------------------------------------------------------
+ // void SoSeparator::setNumRenderCaches ( const int  howmany ) [static] 
+ // ---------------------------------------------------------------------
+ // Set the maximum number of caches that SoSeparator nodes may allocate
+ // for render caching. This is a global value which will be used for all
+ // SoSeparator nodes, but the value indicate the maximum number per
+ // SoSeparator node. More caches might give better performance, but will
+ //  use more memory. The built-in default value is 2.
+ //
+ // The value can also be changed globally by setting the host system's 
+ // environment variable IV_SEPARATOR_MAX_CACHES to the wanted number.
+ // This is primarily meant as an aid during debugging, to make it easy to 
+ // turn off rendercaching completely (by setting "IV_SEPARATOR_MAX_CACHES=0")
+ // without having to change any application code.
+ //
 
 	SoShapeHints * sh = new SoShapeHints;
 	sh->vertexOrdering = SoShapeHints::CLOCKWISE;
-	//sh->shapeType = SoShapeHints::UNKNOWN_SHAPE_TYPE;
+	sh->shapeType      = SoShapeHints::SOLID;
+	sh->faceType       = SoShapeHints::CONVEX;
+   //sh->shapeType = SoShapeHints::UNKNOWN_SHAPE_TYPE;
 	//sh->faceType = SoShapeHints::UNKNOWN_FACE_TYPE;
 	fShapeNode->addChild(sh);	
-   
+    
 	//*/
    //fRootNode = new SoSelection;
 
@@ -1316,9 +1340,9 @@ void TQtCoinViewerImp::CreateViewer(const char *name)
       */
    
    
-   fSelNode->addSelectionCallback(SelectCB, this); 		//!
-   fSelNode->addDeselectionCallback(DeselectCB, this); 		//!
-   fSelNode->setPickFilterCallback(PickFilterCB, this); 		//!
+   // -- vf fSelNode->addSelectionCallback(SelectCB, this); 		//!
+   // -- vf fSelNode->addDeselectionCallback(DeselectCB, this); 		//!
+   // -- vf fSelNode->setPickFilterCallback(PickFilterCB, this); 		//!
    
    fInventorViewer = new SoQtExaminerViewer(this);
    fInventorViewer->setSceneGraph(fRootNode);
@@ -1344,7 +1368,7 @@ void TQtCoinViewerImp::EmitSelectSignal(TObject3DView * view)
 //______________________________________________________________________________
 void TQtCoinViewerImp::SetBoxSelection()
 {
-	fInventorViewer->setGLRenderAction( new SoBoxHighlightRenderAction );
+	// vf fInventorViewer->setGLRenderAction( new SoBoxHighlightRenderAction );
 }
 
 //______________________________________________________________________________

@@ -117,12 +117,14 @@ INSTALLS += headerfiles target
 # Input
 HEADERS += inc/TQtCoinViewerImp.h            \
            inc/TQtRootCoinViewer3D.h         \
-	   inc/TObjectCoinViewFactory.h	
+           inc/TObjectCoinViewFactory.h      \
+           inc/TCoinShapeBuilder.h
            
 SOURCES += src/TQtCoinViewerImp.cxx          \
            src/TQtRootCoinViewer3D.cxx       \
-	   src/TObjectCoinViewFactory.cxx
-           
+           src/TObjectCoinViewFactory.cxx    \
+           src/TCoinShapeBuilder.cxx
+
 DISTFILES += LICENSE.QPL
 
 unix {
