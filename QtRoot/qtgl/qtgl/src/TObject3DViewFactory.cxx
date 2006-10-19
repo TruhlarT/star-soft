@@ -1,4 +1,4 @@
-// @(#)root/gtgl:$Name:  $:$Id: TObject3DViewFactory.cxx,v 1.5 2006/10/17 20:08:41 fine Exp $
+// @(#)root/gtgl:$Name:  $:$Id: TObject3DViewFactory.cxx,v 1.6 2006/10/19 00:02:05 fine Exp $
 // Author: Valery Fine      24/04/05
 
 /****************************************************************************
@@ -1109,9 +1109,13 @@ TObject3DView *TObject3DViewFactory::MakeShape(const TPolyLineShape  *shape, con
             TPolygone3DView::kLines : TPolygone3DView::kPoints ;
       // fprintf(stderr," %d Lines %s\n",nPoint, ((flags*)shape)->GetLineFlag() ?   "Dots": "Lines" );
       view.fPolygonsFaceBinding.push_back(face);
-
+#if 0
       view.SetLineColor(shape->GetLineColor());          view.SetLineStyle(shape->GetLineStyle());
       view.SetLineWidth(Width_t(shape->GetLineWidth())); view.SetFillColor(shape->GetLineColor());
+#else
+      view.SetLineColor(shape->GetColorAttribute());         view.SetLineStyle(shape->GetStyleAttribute());
+      view.SetLineWidth(Width_t(shape->GetSizeAttribute())); view.SetFillColor(shape->GetColorAttribute());
+#endif
       
       vObj =  MakeShape(view,rgba);
    }
