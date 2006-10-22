@@ -1,0 +1,11 @@
+--- ./elements/GL/SoGLLightIdElement.cpp.orig	2006-10-18 14:47:17.000000000 -0400
++++ ./elements/GL/SoGLLightIdElement.cpp	2006-10-18 14:47:59.000000000 -0400
+@@ -177,7 +177,7 @@
+   GLint val;
+   glGetIntegerv(GL_MAX_LIGHTS, &val);
+ 
+-  assert(glGetError() == GL_NO_ERROR &&
++  assert(cc_glue_glGetError() == GL_NO_ERROR &&
+          "GL error when calling glGetInteger() -- no current GL context?");
+ 
+   return (int32_t)val;

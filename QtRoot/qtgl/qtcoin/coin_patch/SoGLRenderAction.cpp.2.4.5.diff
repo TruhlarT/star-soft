@@ -1,0 +1,43 @@
+--- ./actions/SoGLRenderAction.cpp.hold	2006-10-18 11:33:36.000000000 -0400
++++ ./actions/SoGLRenderAction.cpp	2006-10-18 11:27:13.000000000 -0400
+@@ -952,7 +952,7 @@
+   if (COIN_GLBBOX) {
+     THIS->bboxaction->apply(node);
+   }
+-  int err_before_init = glGetError();
++  int err_before_init = cc_glue_glGetError();
+ 
+   if (THIS->needglinit) {
+     THIS->needglinit = FALSE;
+@@ -972,7 +972,7 @@
+     }
+   }
+ 
+-  int err_after_init = glGetError();
++  int err_after_init = cc_glue_glGetError();
+ 
+   if (COIN_DEBUG && ((err_before_init != GL_NO_ERROR) || (err_after_init != GL_NO_ERROR))) {
+     int err = (err_before_init != GL_NO_ERROR) ? err_before_init : err_after_init;
+@@ -1756,11 +1756,11 @@
+   
+ 
+   // Clear all errors before traversal, just in case.
+-  GLenum glerror = glGetError();
++  GLenum glerror = cc_glue_glGetError();
+   while (glerror) {
+     SoDebugError::postWarning("renderOneBlendLayer", 
+                               "glError() = %d\n", glerror);
+-    glerror = glGetError();
++    glerror = cc_glue_glGetError();
+   }
+ 
+   // Do the rendering
+@@ -1861,7 +1861,7 @@
+     // FIXME: Maybe a wrapper for catching fragment program errors
+     // should be a part of GLUE... (20031204 handegar)
+     GLint errorPos;    
+-    GLenum err = glGetError();
++    GLenum err = cc_glue_glGetError();
+     if (err) {
+       glGetIntegerv(GL_PROGRAM_ERROR_POSITION_ARB, &errorPos);
+       SoDebugError::postWarning("initSortedLayersBlendRendering",
