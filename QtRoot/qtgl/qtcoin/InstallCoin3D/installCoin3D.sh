@@ -19,9 +19,14 @@ if !(test -d "$installDir"); then
   if !(mkdir -p $installDir); then
      exit 1
   fi
-else
-installDir=`pwd`/$installDir
 fi
+if !(test -d "$builddirbase"); then
+  echo "** Warning ** \"$builddirbase\" does not exist. Create it!"
+  if !(mkdir -p $builddirbase); then
+     exit 1
+  fi
+fi
+installDir=`pwd`/$installDir
 echo "Coin package will be installed in to the \"$installDir\" directory from $srcdir"
 builddir=$builddirbase/${platform}.debug
 
