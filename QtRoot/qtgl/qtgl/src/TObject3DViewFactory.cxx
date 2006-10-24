@@ -1,4 +1,4 @@
-// @(#)root/gtgl:$Name:  $:$Id: TObject3DViewFactory.cxx,v 1.6 2006/10/19 00:02:05 fine Exp $
+// @(#)root/gtgl:$Name:  $:$Id: TObject3DViewFactory.cxx,v 1.7 2006/10/24 00:23:51 fine Exp $
 // Author: Valery Fine      24/04/05
 
 /****************************************************************************
@@ -1114,7 +1114,12 @@ TObject3DView *TObject3DViewFactory::MakeShape(const TPolyLineShape  *shape, con
       view.SetLineWidth(Width_t(shape->GetLineWidth())); view.SetFillColor(shape->GetLineColor());
 #else
       view.SetLineColor(shape->GetColorAttribute());         view.SetLineStyle(shape->GetStyleAttribute());
-      view.SetLineWidth(Width_t(shape->GetSizeAttribute())); view.SetFillColor(shape->GetColorAttribute());
+      view.SetFillColor(shape->GetColorAttribute());
+      if ( face.fType == TPolygone3DView::kLines) {
+         view.SetLineWidth(Width_t(shape->GetSizeAttribute())); 
+      } else {
+         view.SetLineWidth(Width_t(4*shape->GetSizeAttribute())); 
+      }
 #endif
       
       vObj =  MakeShape(view,rgba);
