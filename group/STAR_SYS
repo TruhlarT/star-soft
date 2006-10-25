@@ -1,5 +1,8 @@
 #!/bin/csh
 #  $Log: STAR_SYS,v $
+#  Revision 1.43  2006/10/25 00:10:28  jeromel
+#  Reshaped for Mac OS / TBC on other OS
+#
 #  Revision 1.42  2005/02/02 00:11:21  jeromel
 #  Some 64 bit support. Probably need arch in STAR_HOST_SYS
 #
@@ -137,7 +140,7 @@
 #
 #  Revision 1.1.1.1  1997/12/31 14:35:23  fisyak
 #
-#             Last modification $Date: 2005/02/02 00:11:21 $
+#             Last modification $Date: 2006/10/25 00:10:28 $
 #
 # Determine STAR_SYS variable.
 #
@@ -175,67 +178,43 @@ if ( "${STAR_SYS}" == "") then
     set mach_os = `/bin/uname -sr | /bin/sed -e 's/ //g' -e 's/\.//g' -e 's/(.*//'`
 
     switch ($mach_os)
-    case "sn6*":
-	setenv STAR_SYS cray
-	breaksw
-    case "AIX1":
-	setenv STAR_SYS rs_aix31
-	breaksw
-    case "AIX2":
-	setenv STAR_SYS rs_aix32
-	breaksw
-    case "HP-UXB1020":
-	setenv STAR_SYS hp_ux102
-	breaksw
-    case "IRIX4*":
-    case "IRIX52":
-	setenv STAR_SYS sgi_52
-	breaksw
-    case "IRIX53:"
-	setenv STAR_SYS sgi_53
-	breaksw
-    case "IRIX62":
-	setenv STAR_SYS sgi_62
-	breaksw
-    case "IRIX63":
-	setenv STAR_SYS sgi_63
-	breaksw
-    case "IRIX6464":
-	setenv STAR_SYS sgi_64
-	breaksw
-    case "Linux222":
+     case "Linux222":
 	setenv STAR_SYS i386_redhat51
 	breaksw
-    case "Linux*":
+     case "Linux*":
 	setenv STAR_SYS i386_redhat61
 	breaksw
-    case "OSF1V32":
-    case "OSF1V40":
+
+     case "OSF1V32":
+     case "OSF1V40":
 	setenv STAR_SYS alpha_osf32c
 	breaksw
-    case "OSF1*":
+     case "OSF1*":
 	setenv STAR_SYS osf1
 	breaksw
-    case "SunOS54"
+
+     case "SunOS54"
         setenv STAR_SYS sun4x_54
 	breaksw
-    case "SunOS551"
+     case "SunOS551"
         setenv STAR_SYS sun4x_55
 	breaksw
-    case "SunOS5*":
+     case "SunOS5*":
 	switch ("`/bin/uname -p`")
-	case "*86":
+	    case "*86":
 		setenv STAR_SYS sunx86_55
 		breaksw
-	default:
+	    default:
 		setenv STAR_SYS sun4x_55
 		breaksw
 	endsw
 	breaksw
-    case "CYGWIN*":
+
+     case "CYGWIN*":
 	setenv STAR_SYS "$mach_os"
 	breaksw
-    default:
+
+     default:
 	setenv STAR_SYS unknown
 	breaksw
     endsw
@@ -294,47 +273,71 @@ else
     # Also, BEWARE of non RedHat releases
     #
     setenv STAR_HOST_SYS $STAR_SYS
+    set redhat = ""
+
     if (-f /etc/redhat-release) then
 	set rhflavor = `/bin/awk '{print $1 $2}' /etc/redhat-release | /bin/sed "s/[a-z]//g" | /bin/awk '{print tolower($1)}'`
 	set redhat   = `/bin/awk '{for (i=1;i<=NF;i++) if ($i == "release" || $i == "Release") print $(i+1)}' /etc/redhat-release`
 	set rhmajor  = `echo $redhat | /bin/sed "s/\..*//"`
 	set redhat   = `echo $redhat | /bin/sed "s/\.//g"`
-	    # Note:  
-            #    always assume the compiler is in the path
-	    #    STARCMPL can be defined outside (see 'setup' for example)
-	    #
-	    if ( ! $?STARCMPL) setenv STARCMPL "gcc"
-	    switch ($STARCMPL)
-	       case "icc":
-		#set vers = `which icc | /bin/sed 's/.*compiler//i;s/\/.*//'`
-	        set vers = `icc -V -dryrun > & /tmp/icc_version; \
-		/bin/awk '{ if (NR==1) print $8 }' /tmp/icc_version | /bin/awk -F\. '{print $1$2}'; \
-		/bin/rm  /tmp/icc_version;`
+    else
+	# will try this combination to first order
+	# - on linux, would lead to something like .linux_i686 
+	# - on MAC, would lead to .power_macintosh
+	# - on Solaris, would be .sunos_sun4u
+	#
+	# Note that only partial enabling is made (there is a lack
+	# of conistency ; should all go through STARCMPL
+	switch ($STAR_SYS)
+	    case "*darwin*"
+		set rhflavor = ""
+		set rhmajor  = `uname -s | tr '[A-Z]' '[a-z]'`
+		set redhat   = `uname -m | tr '[A-Z]' '[a-z]' | /bin/sed "s/ /_/g"`
 		breaksw
 
-	       default:
-	        setenv STARCMPL "gcc"
-		set vers = `gcc -dumpversion | /bin/awk -F. '{print $1$2$3}'`
-            endsw
-	# The above was made to exclude 7.2 Redhat using i386_linux24
-	# and other un-predicted flavor of it. The introduction of
-	# SL and RHE lead to simply it. There may be a need to also
-	# exclude 70, 71.
-	#if ($redhat == 73 || $rhmajor >= 8 || "$rhflavor" == "sl") then
-        if ($redhat != 72) then
-	    # Initially did not think of 64 bit architecture
-	    if ("$vers" != "" ) then
-		switch ($STAR_SYS)
+	    default:
+        endsw
+    endif
+
+    if ( "$redhat" != "") then
+	# Note:  
+	#    always assume the compiler is in the path
+	#    STARCMPL can be defined outside (see 'setup' for example)
+	#
+	if ( ! $?STARCMPL) setenv STARCMPL "gcc"
+
+	switch ($STARCMPL)
+	 case "icc":
+	    #set vers = `which icc | /bin/sed 's/.*compiler//i;s/\/.*//'`
+	    set vers = `icc -V -dryrun > & /tmp/icc_version; \
+	    /bin/awk '{ if (NR==1) print $8 }' /tmp/icc_version | /bin/awk -F\. '{print $1$2}'; \
+	    /bin/rm  /tmp/icc_version;`
+	    breaksw
+
+	 default:
+	    setenv STARCMPL "gcc"
+	    set vers = `gcc -dumpversion | /bin/awk -F. '{print $1$2$3}'`
+       endsw
+
+       # The above was made to exclude 7.2 Redhat using i386_linux24
+       # and other un-predicted flavor of it. The introduction of
+       # SL and RHE lead to simply it. There may be a need to also
+       # exclude 70, 71.
+       #if ($redhat == 73 || $rhmajor >= 8 || "$rhflavor" == "sl") then
+       if ($redhat != 72) then
+	# Initially did not think of 64 bit architecture
+	if ("$vers" != "" ) then
+	    switch ($STAR_SYS)
 		case "x8664*":
 		    setenv STAR_HOST_SYS $rhflavor${redhat}_x8664_${STARCMPL}${vers}
 		    breaksw
 
 		default:
 		    setenv STAR_HOST_SYS $rhflavor${redhat}_${STARCMPL}${vers}
-		endsw
-	    endif
+	    endsw
 	endif
     endif
+   endif
 endif
 
 
