@@ -1,4 +1,4 @@
-// @(#)root/gtgl:$Name:  $:$Id: TObjectCoinViewFactory.cxx,v 1.3 2006/10/17 20:12:28 fine Exp $
+// @(#)root/gtgl:$Name:  $:$Id: TObjectCoinViewFactory.cxx,v 1.4 2006/10/27 00:26:47 fine Exp $
 // Author: Valery Fine      24/09/06
 
 /****************************************************************************
@@ -38,6 +38,7 @@
 //______________________________________________________________________________
 static inline void SetView(TObject3DView *view, const SoGroup *node)
 {
+     node->ref(); // this node to be release by Release method
      view->SetViewID(ULong_t ( node ) );
 }
 
@@ -99,9 +100,9 @@ TObject3DView *TObjectCoinViewFactory::BeginModel(TObject3DView *rootView)
    if (rootView) {}
    TObject3DView *view = new TObject3DView(this);
    SoSeparator *separator = new SoSeparator();
-   separator->setName(rootView->GetTitle());
-   separator->renderCaching = SoSeparator::ON;
-   separator->boundingBoxCaching = SoSeparator::ON;
+   separator->setName(rootView->GetObject()->GetTitle());
+//   separator->renderCaching = SoSeparator::ON;
+//   separator->boundingBoxCaching = SoSeparator::ON;
    SetView(view , separator );
    return view;
 }
@@ -165,16 +166,18 @@ TObject3DView *TObjectCoinViewFactory::CreateMatrix( const Double_t *translation
             rot->matrix.setValue(    rotation[0] , rotation[ 1] , rotation[ 2] , 0.
                                    , rotation[3] , rotation[ 4] , rotation[ 5] , 0.
                                    , rotation[6] , rotation[ 7] , rotation[ 8] , 0.
-                                   ,     0.      ,     0.       ,     0.       , 1.  );
+                                   ,     0.      ,     0.       ,     0.       , 1.
+                                );
             if (isReflection)
                rot->setName("reflection");
             else
-               rot->setName("stright");
+               rot->setName("straight");
          }
       }
       if ( trans || rot ) {
          view =  OpenView(this);
          SoGroup *shapeGroup = (SoGroup *) view->GetViewId();
+         shapeGroup->setName("VolumeTransformation");
          if (trans) shapeGroup->addChild(trans);
          if (rot)   shapeGroup->addChild(rot);
       }
@@ -188,10 +191,12 @@ TObject3DView *TObjectCoinViewFactory::CreatePosition(UInt_t Id)
     // Create the new position node with Id
    if (Id) {}
    TObject3DView *view = new TObject3DView(this);
-//   SoTransformSeparator *separator =  new SoTransformSeparator();
+   // SoTransformSeparator *separator =  new SoTransformSeparator();
    SoSeparator *separator =  new SoSeparator();
-   separator->renderCaching      = SoSeparator::ON;
-   separator->boundingBoxCaching = SoSeparator::ON;
+   separator->setName("Position");
+//   SoSeparator *separator =  new SoSeparator();
+//   separator->renderCaching      = SoSeparator::ON;
+//   separator->boundingBoxCaching = SoSeparator::ON;
    SetView(view , separator);
    return view;
 }
@@ -209,7 +214,7 @@ void TObjectCoinViewFactory::CompileViewLevel(TObject3DView *,ERenderType )
 //____________________________________________________________________________________________________________________
 TObject3DView *TObjectCoinViewFactory::MakeShape(TShape3DPolygonView &shapeView, const Float_t *rgba)
 {
-    TObject3DView *view = new TObject3DView(this); 
+    TObject3DView *view = new TObject3DView(this);
 
     TCoinShapeBuilder coinShape(shapeView, rgba);
     SetView(view, coinShape());
@@ -247,7 +252,6 @@ Bool_t TObjectCoinViewFactory::NeedCompilation() const
 void   TObjectCoinViewFactory::Release(TObject3DView *view)
 { 
    if (view) {
-#if 0      
       SoGroup *id = 0;
       if ( (id = (SoGroup *)view->GetViewId()) )  
          id->unref();
@@ -255,7 +259,6 @@ void   TObjectCoinViewFactory::Release(TObject3DView *view)
          id->unref();
       if ( (id = (SoGroup *)view->GetViewId(TObject3DViewFactoryABC::kSelected))  ) 
          id->unref();
-#endif
    }
 }
 

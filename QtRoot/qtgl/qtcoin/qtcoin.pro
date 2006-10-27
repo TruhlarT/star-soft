@@ -44,7 +44,7 @@ QTCOINH1    = $$QTCOINDIRI/TQtCoinViewerImp.h      $$QTCOINDIRI/TQtRootCoinViewe
 CREATE_ROOT_DICT_FOR_CLASSES  = $$QTCOINH1 $$QTCOINDIRI/LinkDef.h
 
 unix {
-  LIBS += -L../.. -L$$COINT3DDIR/lib -lSoQt -lCoin
+  LIBS += -L../.. -L$$COINT3DDIR/lib -lSoQt -lCoin -lSmallChange
 }
 
 ROOTCINTFOUND =

@@ -1,8 +1,8 @@
-// @(#)root/g3d:$Name:  $:$Id: TQtCoinViewerImp.h,v 1.2 2006/10/17 20:12:27 fine Exp $
+// @(#)root/g3d:$Name:  $:$Id: TQtCoinViewerImp.h,v 1.3 2006/10/27 00:26:47 fine Exp $
 // Author: Valery Fine      23/05/97
 
 /****************************************************************************
-** $Id: TQtCoinViewerImp.h,v 1.2 2006/10/17 20:12:27 fine Exp $
+** $Id: TQtCoinViewerImp.h,v 1.3 2006/10/27 00:26:47 fine Exp $
 **
 ** Copyright (C) 2002 by Valeri Fine. Brookhaven National Laboratory.
 **                                    All rights reserved.
@@ -59,9 +59,11 @@ class SoSeparator;
 class SoNode;
 class SoMaterial;
 class SoCallback;
-class SoQtRenderArea;
+class SoQtViewer;
 class SoPerspectiveCamera;
+class SoCamera;
 class SoSelection;
+class SmAxisDisplayKit;
 
 //#include <qintdict.h>
 //class TQtRootAction;
@@ -73,7 +75,8 @@ class QAction;
 class TVirtualPad;
 class SoQtExaminerViewer;
 class TObject3DView;
-	
+class TContextMenu;
+
 #if QT_VERSION < 0x40000
   class TQtCoinViewerImp :public QMainWindow, public TGLViewerImp {
 #else /* QT_VERSION */
@@ -84,14 +87,14 @@ class TObject3DView;
 Q_OBJECT	  
 private:
 	
-   SoQtRenderArea         *fInventorViewer;
+   SoQtViewer             *fInventorViewer;
    SoQtExaminerViewer     *qt_viewer;
    SoSeparator            *fRootNode;
    SoSeparator            *fShapeNode;
    SoSelection            *fSelNode;
    SoPerspectiveCamera    *myCamera;
-   SoPerspectiveCamera    *fCamera;
-
+   SoCamera               *fCamera;
+   SmAxisDisplayKit       *fAxis;
    std::vector<int>        flist[3];
 
    TQtCoinViewerImp(const TQtCoinViewerImp&);
@@ -104,8 +107,9 @@ protected:
    //static Int_t    gfDefaultMaxSnapFileCounter; // the default max number of the different "snapshot files" (The length of the cyclic bugger)
    //QGLWidget      *fGLWidget;           // QT GL widget to render the view
    TVirtualPad    *fPad;                // For forward compatibility with the new viewer
- //TContextMenu   *fContextMenu;        // ROOT Context menu for the 3D widget
+   TContextMenu   *fContextMenu;        // ROOT Context menu for the 3D widget
    static Bool_t   fgCoinInitialized;
+   TObject        *fSelectedObject;     // The last selected TObject
 
 
 #ifndef __CINT__
@@ -123,7 +127,7 @@ protected:
    //Bool_t          fSelectionViewer;     // Flag to create the slave viewer with no own layout
    //Bool_t          fSelectionHighlight;  // Flag to highlight the selection object in place
    //Bool_t          fShowSelectionGlobal; // Show the selected object in the global coordinate
-   //Bool_t          fWantRootContextMenu; // Create "ROOT Context menu" for the seelcted ROOT objects
+   Bool_t          fWantRootContextMenu; // Create "ROOT Context menu" for the seelcted ROOT objects
    QAction        *fSnapShotAction;      // QAction to toglle the snap shot file saving
    
    
@@ -155,6 +159,7 @@ public:
    virtual void   Clear();
    //virtual void   CreateStatusBar(Int_t nparts=1);
    virtual void   CreateStatusBar(Int_t *parts, Int_t nparts=1);
+   virtual TContextMenu &ContextMenu(); 
    //virtual void   DeleteContext() { }
    //virtual void   MakeCurrent();
    //virtual void   Paint(Option_t *opt="");
@@ -163,7 +168,8 @@ public:
    //virtual void   ShowStatusBar(Bool_t show = kTRUE);
 
    //virtual void   SwapBuffers() { };
-
+   SoCamera *GetCamera() const { return fCamera;} 
+   SmAxisDisplayKit *GetAxis() const { return fAxis;}
    std::vector<int> GetMyGLList1() { return flist[0]; }
    std::vector<int> GetMyGLList2() { return flist[1]; }
    std::vector<int> GetMyGLList3() { return flist[2]; }
@@ -184,6 +190,9 @@ public:
    void EmitSelectSignal(TObject3DView * view);
    void SetBoxSelection();
    void SetLineSelection();
+   TObject     *GetSelected()         const { return fSelectedObject;     }
+   SoQtViewer  *GetCoinViewer()       const { return fInventorViewer;     }
+   Bool_t       WantRootContextMenu() const { return fWantRootContextMenu;}
 
 #ifndef __CINT__
   public slots:
@@ -214,7 +223,7 @@ public:
      virtual void SetRotationAxisAngle(const float  x, const float  y, const float  z, const float a);
      virtual void SetSnapFileCounter(int counter);
      //virtual void SetFooter(QString &text);
-     //virtual void WantRootContextMenuCB(bool on);
+     virtual void WantRootContextMenuCB(bool on);
      virtual void AboutCB();
      virtual void HelpCB();
   signals:

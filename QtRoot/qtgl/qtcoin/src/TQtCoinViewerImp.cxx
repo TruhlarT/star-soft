@@ -64,6 +64,9 @@
 //#include <qglobal.h>
 //#include <qmainwindow.h>
 
+#include <qlayout.h> 
+#include <qframe.h> 
+
 #include <Inventor/Qt/SoQt.h>
 #include <Inventor/Qt/SoQtRenderArea.h>
 
@@ -99,7 +102,6 @@
 #include <Inventor/actions/SoLineHighlightRenderAction.h>
 #include <Inventor/actions/SoBoxHighlightRenderAction.h>
 #include <Inventor/actions/SoWriteAction.h>
-
 #include <Inventor/nodes/SoDirectionalLight.h>
 
 #include <Inventor/VRMLnodes/SoVRMLGroup.h>
@@ -121,6 +123,10 @@
 
 #include <Inventor/nodes/SoCone.h>
 #include <Inventor/nodes/SoShape.h>
+#include <SmallChange/nodekits/SmAxisDisplayKit.h>
+#include <SmallChange/misc/Init.h>
+#include <Inventor/sensors/SoFieldSensor.h> 
+
 #include <vector>
 #include "TRootGLU.h"
 
@@ -271,9 +277,9 @@ static void InventorCallback3(void *d, SoAction *action)
 //static bool g_isManip = false;
 
 //______________________________________________________________________________
-static void DeselectCB(void * viewer, SoPath * p) 
+static void DeselectCB(void * viewer, SoPath *) 
 {
-   printf("DeselectCB\n");	
+   // printf("DeselectCB\n");	
 	/*
    SoPath * path = new SoPath(*p);
    path->ref();
@@ -292,13 +298,12 @@ static void DeselectCB(void * viewer, SoPath * p)
    }
    path->unref();
 	*/
-   ((TQtCoinViewerImp*)(viewer))->Update();
+  ((TQtCoinViewerImp*)(viewer))->Update();
 }
 
 //______________________________________________________________________________
 static SoPath * PickFilterCB(void * viewer, const SoPickedPoint * pick)
 {
-   printf("static SoPath * PickFilterCB\n");
    SoPath *p = pick->getPath();
 	/*
    if (p->getTail()->getTypeId() == SoLineSet::getClassTypeId()          ||
@@ -311,19 +316,27 @@ static SoPath * PickFilterCB(void * viewer, const SoPickedPoint * pick)
    }
 	*/
    ((TQtCoinViewerImp*)(viewer))->SetLineSelection();
-   int i;
-   for (i = p->getLength() - 1; i >= 0; i--) {
-      SoNode *n = p->getNode(i);
-      if (n->getName() == "CoinShapeNode")
-         break;
-   }
-   return p->copy(0, i+1);
+   int i=0;
+   int l = p->getLength();
+   if (l > 1) {
+      for (i = l - 1; i > 0; i--) {
+         SoNode *n = p->getNode(i);
+         if (n->getName() == "CoinShapeNode")
+            break;
+     }
+  }
+//  SoGroup *thisGroup = (SoGroup *)p->getNode(i);
+  TObject3DView *v = (TObject3DView*)p->getNode(i)->getUserData();
+ // printf("static SoPath *PickFilterCB l=%d, i=%d %s : root name = %s \n",p->getLength(),i
+ //        ,(const char *)p->getNode(i)->getName(),(const char *)v->GetName());
+  ((TQtCoinViewerImp*)(viewer))->EmitSelectSignal(v);
+  return p->copy(0, i);
 }
 
 //______________________________________________________________________________
-static void SelectCB(void * viewer, SoPath * p)
+static void SelectCB(void * viewer, SoPath *)
 {
-   printf("SelectCB\n");
+   // printf("SelectCB\n");
 	/*
    SoPath * path = new SoPath(*p);
    path->ref();
@@ -352,7 +365,23 @@ static void SelectCB(void * viewer, SoPath * p)
    }
    path->unref();
    */
-   ((TQtCoinViewerImp*)(viewer))->Update();
+   TQtCoinViewerImp *thisViewer = (TQtCoinViewerImp*)viewer;
+   thisViewer->Update();
+
+    // Popup the object tip
+
+   TObject *selectedObject = thisViewer->GetSelected();
+   if ((!thisViewer->WantRootContextMenu()) && selectedObject ) {
+      QPoint globalPosition = QCursor::pos();
+      QWidget *viewerWidget = thisViewer->GetCoinViewer()->getWidget();
+      QPoint cursorPosition = viewerWidget->mapFromGlobal(globalPosition);
+      QString tipText =  selectedObject->GetObjectInfo(cursorPosition.x(),cursorPosition.y());
+#if QT_VERSION < 0x40000
+      QWhatsThis::display(tipText, globalPosition,viewerWidget);
+#else
+      Q3WhatsThis::display(tipText,globalPosition,viewerWidget);
+#endif
+   }
 }
 
 /*
@@ -419,11 +448,15 @@ TQtCoinViewerImp::TQtCoinViewerImp(TVirtualPad *pad, const char *title,
    : Q3MainWindow(0,"coinviewer", Qt::WDestructiveClose)
 #endif 
    , TGLViewerImp(0,title,width,height)
-   , fSaveType("JPEG"),fMaxSnapFileCounter(2)//,fGLWidget(0),fPad(pad),fContextMenu(0),fSelectedView(0),fSelectedViewActive(kFALSE)
-   //, fSelectionViewer(kFALSE),fSelectionHighlight(kFALSE),fShowSelectionGlobal(kFALSE),fWantRootContextMenu(kFALSE)
+   , fInventorViewer(0),qt_viewer(0), fRootNode(0)
+   , fShapeNode(0),fSelNode(0),myCamera(0),fCamera(0),fAxis(0)
+   , fSaveType("JPEG"),fMaxSnapFileCounter(2),fPad(pad),fContextMenu(0),fSelectedObject(0)
+   , fWantRootContextMenu(kFALSE)
+   //,fGLWidget(0),fSelectedView(0),fSelectedViewActive(kFALSE)
+   //, fSelectionViewer(kFALSE),fSelectionHighlight(kFALSE),fShowSelectionGlobal(kFALSE)
    , fSnapShotAction(0)
 {
-   if (fPad = pad) {
+   if ( fPad ) {
 	   printf("TQtCoinViewerImp::TQtCoinViewerImp begin Pad=%p\n", pad);
        //Create the default SnapShot file name and type if any
       const char *fileDir = gSystem->Getenv("SnapShotDirectory");
@@ -537,18 +570,20 @@ TQtGLViewerImp::TQtGLViewerImp(TQtGLViewerImp &parent) :
 */
 //______________________________________________________________________________
 TQtCoinViewerImp::~TQtCoinViewerImp()
-{  }
+{ 
+   if (fRootNode) fRootNode->unref();
+}
 
 //______________________________________________________________________________
 void TQtCoinViewerImp::AddRootChild(ULong_t id)
 {
-	assert(id);
-	printf("TQtCoinViewerImp::AddRootChild----------------------------------------------------------------  <===\n");
-	//fRootNode->addChild(new SoCone);
-	fShapeNode->addChild((SoNode*)id);
-	
-	// Make myCamera see everything.
-	fCamera->viewAll(fRootNode, fInventorViewer->getViewportRegion());
+   assert(id);
+   printf("TQtCoinViewerImp::AddRootChild----------------------------------------------------------------  <===\n");
+   //fRootNode->addChild(new SoCone);
+   fShapeNode->addChild((SoNode*)id);
+   
+   // Make myCamera see everything.
+   fCamera->viewAll(fRootNode, fInventorViewer->getViewportRegion());
 }
 
 //______________________________________________________________________________
@@ -645,7 +680,17 @@ int TQtCoinViewerImp::CreateSnapShotCounter()
    }
    return gfDefaultMaxSnapFileCounter;
 }
+*/
+//______________________________________________________________________________
+TContextMenu &TQtCoinViewerImp::ContextMenu() 
+{
+   // Create the TConextMEny if needed and return it
+   if (!fContextMenu) 
+        fContextMenu = new TContextMenu("3DViewContextMenu");
+   return *fContextMenu;
+}
 
+/*
 //______________________________________________________________________________
 void TQtGLViewerImp::DisconnectSelectorWidgetCB()
 {
@@ -830,7 +875,7 @@ void TQtCoinViewerImp::SaveCB()
 { 
  printf("TQtCoinViewerImp::SaveCB\n");
    //if (!c) return;
-   QString filter = "Image File (*.rgb);;TranparImg File (*.rgbt);;WRL File (*.wrl);;IV files (*.iv);;PostScript File (*.ps)";
+   QString filter = "Image File (*.rgb);;TransparImg File (*.rgbt);;WRL File (*.wrl);;IV files (*.iv);;PostScript File (*.ps)";
 
    QString selectedFilter;
 #if QT_VERSION < 0x40000
@@ -905,16 +950,9 @@ void TQtCoinViewerImp::SaveCB()
       myViewport.setPixelsPerInch((float)printerDPI);
 
       // Render the scene
-      SoOffscreenRenderer *myRenderer = 
-             new SoOffscreenRenderer(myViewport);
-      if (!myRenderer->render(fShapeNode)) {
-          delete myRenderer;
-      }
-
-      // Generate PostScript and write it to the given file
-      myRenderer->writeToPostScript(thatFile);
-
-      delete myRenderer;	
+      SoOffscreenRenderer myRenderer(myViewport);
+      if (myRenderer.render(fShapeNode)) 
+          myRenderer.writeToPostScript(thatFile);
       //*/	
    } else if (e == "iv") {
       printf("Saving in iv format ...\n");
@@ -1205,14 +1243,14 @@ void TQtCoinViewerImp::ShowLightsCB(bool on)
 #endif
 	*/
 }
-/*
+
 //______________________________________________________________________________
-void TQtGLViewerImp::WantRootContextMenuCB(bool on)
+void TQtCoinViewerImp::WantRootContextMenuCB(bool on)
 {
   // Create "ROOT Context menu" otherwise use the QGLViewer "right mouse click"
   fWantRootContextMenu = on; 
 }
-*/
+
 //______________________________________________________________________________
 void TQtCoinViewerImp::AboutCB()
 { 
@@ -1237,36 +1275,45 @@ void TQtCoinViewerImp::HelpCB()
 #endif
    */
 }
-
+//______________________________________________________________________________
+static void cameraChangeCB(void *data, SoSensor *)
+{
+   // Callback  that reports whenever the viewer's orientation change
+  TQtCoinViewerImp *viewer = (TQtCoinViewerImp *) data;
+  SoCamera *camera = viewer->GetCamera();
+  if (camera) {
+     SmAxisDisplayKit *axis = viewer->GetAxis();
+     if (axis) {
+        axis->orientation = camera->orientation;
+     }
+  }
+}
 //______________________________________________________________________________
 void TQtCoinViewerImp::CreateViewer(const char *name)
 {
    printf("TQtCoinViewerImp::CreateViewer\n");
 
    connect(this, SIGNAL(ObjectSelected(TObject*, const QPoint &)), &this->Signals(), SIGNAL(ObjectSelected(TObject *, const QPoint&)));
-   if ( !fgCoinInitialized) { SoQt::init(this);fgCoinInitialized = kTRUE; }
-   
+   if ( !fgCoinInitialized) { 
+      SoQt::init(this); 
+#ifdef __SMALLCHANGE__ 
+      smallchange_init(); 
+#endif
+     fgCoinInitialized = kTRUE; }
+
    //OverlayHighlightRenderAction::initClass();	
 	//*
    fRootNode = new SoSeparator;
    fRootNode->setName("RootNode");
    fRootNode->ref();	
-   fCamera = new SoPerspectiveCamera;
-   fRootNode->addChild(fCamera);	
 	
-
    fSelNode = new SoSelection;
    fSelNode->setName("SelectionNode");
    fRootNode->addChild(fSelNode);
-   fSelNode->renderCaching = SoSeparator::ON;
-   fSelNode ->boundingBoxCaching = SoSeparator::ON;
-	
+
    fShapeNode = new SoSeparator;
    fShapeNode->setName("ShapesNode");
-   fShapeNode->renderCaching = SoSeparator::ON;
-   fShapeNode->boundingBoxCaching = SoSeparator::ON;
    fSelNode->addChild(fShapeNode);
-   
  // ---------------------------------------------------------------------
  // void SoSeparator::setNumRenderCaches ( const int  howmany ) [static] 
  // ---------------------------------------------------------------------
@@ -1340,35 +1387,69 @@ void TQtCoinViewerImp::CreateViewer(const char *name)
       */
    
    
-   // -- vf fSelNode->addSelectionCallback(SelectCB, this); 		//!
-   // -- vf fSelNode->addDeselectionCallback(DeselectCB, this); 		//!
-   // -- vf fSelNode->setPickFilterCallback(PickFilterCB, this); 		//!
+   fSelNode->addSelectionCallback(SelectCB, this); 		//!
+   fSelNode->addDeselectionCallback(DeselectCB, this); 		//!
+   fSelNode->setPickFilterCallback(PickFilterCB, this); 		//!
    
-   fInventorViewer = new SoQtExaminerViewer(this);
+   QFrame *glFrame = new QFrame(this);
+   setCentralWidget (glFrame);
+   QVBoxLayout *l  = new QVBoxLayout(glFrame);
+   fInventorViewer = new SoQtExaminerViewer(glFrame);
+   l->addWidget(fInventorViewer->getWidget());
    fInventorViewer->setSceneGraph(fRootNode);
    fInventorViewer->setTransparencyType(SoGLRenderAction::NONE);
+
+   fCamera = fInventorViewer->getCamera(); 
+#ifdef __SMALLCHANGE__ 
+   SmAxisDisplayKit *ax = fAxis =  new SmAxisDisplayKit();
+   // axis sizes
+   ax->axes.set1Value(0, 20., 0., 0.);
+   ax->axes.set1Value(1, 0., 20., 0.);
+   ax->axes.set1Value(2, 1., 0., 20.);
    
+   // axis colors
+   ax->colors.set1Value( 0, 1., 0., 0.);
+   ax->colors.set1Value( 1, 0., 1., 0.);
+   ax->colors.set1Value( 2, 1., 0., 1.);
+   
+   // axis labels
+   ax-> annotations.set1Value(0,"x");
+   ax-> annotations.set1Value(1,"y");
+   ax-> annotations.set1Value(2,"z");
+   
+   SoFieldSensor *cameraSensor = new SoFieldSensor(cameraChangeCB,this);
+   cameraSensor->attach(&fCamera->orientation);
+   fSelNode->addChild(ax);
+#endif
    SetBoxSelection();
 
    //  Pick the background color from pad
    SetBackgroundColor(fPad->GetFillColor());
+
+   connect(this,SIGNAL(ObjectSelected(TObject*,const QPoint &)),this,SLOT( ShowObjectInfo(TObject *, const QPoint&)));
 }
 
 //______________________________________________________________________________
 void TQtCoinViewerImp::EmitSelectSignal(TObject3DView * view)
 {
-      printf("TQtCoinViewerImp::EmitSelectSignal\n");
-      TObject * obj = 0;
-      if (view && (view != (TObject3DView *)1) && (obj = view->GetObject()) ) {
-	//  printf("\tview = %p, obj = %p\n", view, obj);
-          emit ObjectSelected((TObject*)obj, *(new QPoint));
+   static QPoint mousePosition;
+
+   mousePosition = fInventorViewer->getWidget()->mapFromGlobal ( QCursor::pos());
+   if (view) {
+      TObject3DView  *parent = (TObject3DView  *)view->GetParent();
+      TObject *obj = parent->GetObject();
+      fSelectedObject = obj;
+      if (obj) {
+         //  printf("\tTQtCoinViewerImp::EmitSelectSignal view = %p, obj = %p; obj name %s \n", view, obj, (const char*)obj->GetName());
+         emit ObjectSelected(obj,  mousePosition);
       }
+   }
 }
 
 //______________________________________________________________________________
 void TQtCoinViewerImp::SetBoxSelection()
 {
-	// vf fInventorViewer->setGLRenderAction( new SoBoxHighlightRenderAction );
+	fInventorViewer->setGLRenderAction( new SoBoxHighlightRenderAction );
 }
 
 //______________________________________________________________________________
@@ -1623,7 +1704,7 @@ void TQtCoinViewerImp::MakeMenu()
    const char * viewSelectionHighlightActionText = "Turn this option on to highlight the selected object";
    viewSelectionHighlightAction->setWhatsThis( viewSelectionHighlightActionText );
    viewSelectionHighlightAction->setToggleAction(true);
- 
+ */
    // Create a "Context Menu for  the selected object" action
 #if QT_VERSION < 0x40000
    QAction *viewContextMenuAction =  new QAction("ContexteMenu", "Context menu", CTRL+Key_I, this, "contextmenu" );
@@ -1634,7 +1715,7 @@ void TQtCoinViewerImp::MakeMenu()
    const char * viewContextMenuActionText  = "Show the ROOT context menu for the selected ROOT object";
    viewContextMenuAction->setWhatsThis( viewContextMenuActionText );
    viewContextMenuAction->setToggleAction(true);
-  */
+
    QMenuBar   *mainMenu = menuBar();
 
    // -- populate the menu bar
@@ -1730,11 +1811,11 @@ void TQtCoinViewerImp::MakeMenu()
     viewSelectionHighlightAction->addTo(optionMenu);
     viewSelectionHighlightAction->setOn( false );
     viewSelectionHighlightAction->setEnabled (true);
-    
+*/
     viewContextMenuAction->addTo(optionMenu);
     viewContextMenuAction->setOn( false );
     viewContextMenuAction->setEnabled (true);
-*/
+
 #endif
 // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
  //  helpMenu
@@ -1829,6 +1910,7 @@ void TQtCoinViewerImp::SetBackgroundColor(Color_t color)
 //______________________________________________________________________________
 void TQtCoinViewerImp::ShowObjectInfo(TObject *obj, const QPoint &cursorPosition)
 {
+  if (obj) {
 	/*
    //  Qt Slot to accept the signal emiited by the GL Widget selecting the ROOT object
    static QRect previousTipArea;
@@ -1880,16 +1962,14 @@ void TQtCoinViewerImp::ShowObjectInfo(TObject *obj, const QPoint &cursorPosition
       if (!view->GetViewId(TObject3DViewFactoryABC::kSelected)) view->CompileSelection();
       tipped->addGLList(view->GetViewId(TObject3DViewFactoryABC::kSelected), TQtGLViewerWidget::kSelected);
    }
+   */
    // Display the context menu if any
-   if (fWantRootContextMenu) {
-      if (!fContextMenu) fContextMenu = new TContextMenu("3DViewContextMenu");
-      TObject *obj = view->GetObject();
-      if (obj) {
-         QPoint pos = tipped->mapToGlobal(cursorPosition);
-         fContextMenu->Popup(pos.x(),pos.y(), obj,(TBrowser *)0);
+      if (fWantRootContextMenu) {
+      // Popup the context menu
+         QPoint pos = fInventorViewer->getWidget()->mapToGlobal(cursorPosition);
+         ContextMenu().Popup(pos.x(),pos.y(), obj,(TBrowser *)0);
       }
    }
-   */
 }
 /*
 //______________________________________________________________________________
@@ -1906,7 +1986,6 @@ void TQtGLViewerImp::CreateSelectionViewer( )
 //______________________________________________________________________________
 ULong_t TQtCoinViewerImp::GetViewerID() const
 {
-	printf("TQtCoinViewerImp::GetViewerID()\n");
    return ULong_t((QMainWindow *) this);
 }
 

@@ -1,4 +1,4 @@
-// @(#)root/gtgl:$Name:  $:$Id: TCoinShapeBuilder.cxx,v 1.2 2006/10/24 00:27:06 fine Exp $
+// @(#)root/gtgl:$Name:  $:$Id: TCoinShapeBuilder.cxx,v 1.3 2006/10/27 00:26:47 fine Exp $
 // Author: Valery Fine      24/09/06
 
 /****************************************************************************
@@ -241,8 +241,9 @@ SoGroup * TCoinShapeBuilder::CreateCoinShape()
 {
 
     SoSeparator *shapeGroup = new SoSeparator;
-    shapeGroup->renderCaching      = SoSeparator::ON;
-    shapeGroup->boundingBoxCaching = SoSeparator::ON;
+    shapeGroup->setName("CoinShapeNode");
+//    shapeGroup->renderCaching      = SoSeparator::ON;
+//    shapeGroup->boundingBoxCaching = SoSeparator::ON;
     fGroup = shapeGroup;
     const std::vector<Coord3D> &vertices = fShapeView.fVertex;
 
