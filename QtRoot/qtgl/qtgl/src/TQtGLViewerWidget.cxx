@@ -1,8 +1,8 @@
-// @(#)root/qtgl:$Name:  $:$Id: TQtGLViewerWidget.cxx,v 1.3 2006/10/04 21:40:54 fine Exp $
+// @(#)root/qtgl:$Name:  $:$Id: TQtGLViewerWidget.cxx,v 1.4 2006/10/27 00:25:40 fine Exp $
 // Author: Valery Fine(fine@vxcern.cern.ch)   12/11/02
  
 /****************************************************************************
-** $Id: TQtGLViewerWidget.cxx,v 1.3 2006/10/04 21:40:54 fine Exp $
+** $Id: TQtGLViewerWidget.cxx,v 1.4 2006/10/27 00:25:40 fine Exp $
 **
 ** Copyright (C) 2002 by Valeri Fine. Brookhaven National Laboratory.
 **                                    All rights reserved.
@@ -40,6 +40,10 @@
 #include <qevent.h>
 #include <qmessagebox.h> 
 #include <qcolor.h> 
+
+#ifdef TEST_GETGFERROR_PEFORMANCE
+#  include <qdatetime.h> 
+#endif
 
 #if QT_VERSION >= 0x40000
 //Added by qt3to4:
@@ -407,7 +411,14 @@ TQtGLViewerWidget::TQtGLViewerWidget(TVirtualPad *pad, const char *title,QWidget
     
 // Remove the "Z" key description
     setKeyDescription(Qt::Key_Z, "");
-
+#ifdef TEST_GETGFERROR_PEFORMANCE
+//  -- test the server performance by calling glGetError in loop
+     QTime bench; bench.start();
+     for (int tt =0; tt<1000; tt++) {
+          glGetError();
+     }
+     fprintf(stderr,"Testing the GLX-server peformance: %f \n", bench.elapsed()/1000.);
+#endif
     if (!restoreStateFromFile() )
           showEntireScene();
     setCursor(Qt::CrossCursor);
