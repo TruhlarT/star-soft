@@ -134,6 +134,21 @@
 Bool_t TQtCoinViewerImp::fgCoinInitialized = kFALSE;
 
 //______________________________________________________________________________
+SoGLRenderAction &TQtCoinViewerImp::BoxHighlightAction()
+{
+   if (!fBoxHighlightAction) 
+      fBoxHighlightAction = new SoBoxHighlightRenderAction;
+   return *fBoxHighlightAction;
+}
+//______________________________________________________________________________
+SoGLRenderAction &TQtCoinViewerImp::LineHighlightAction()
+{
+   if (!fLineHighlightAction) 
+      fLineHighlightAction = new SoLineHighlightRenderAction;
+   return *fLineHighlightAction;
+}
+
+//______________________________________________________________________________
  static void testCube() {
    // - > 0-th face binded polygon
  glBegin(GL_QUADS);
@@ -454,7 +469,7 @@ TQtCoinViewerImp::TQtCoinViewerImp(TVirtualPad *pad, const char *title,
    , fWantRootContextMenu(kFALSE)
    //,fGLWidget(0),fSelectedView(0),fSelectedViewActive(kFALSE)
    //, fSelectionViewer(kFALSE),fSelectionHighlight(kFALSE),fShowSelectionGlobal(kFALSE)
-   , fSnapShotAction(0)
+   , fSnapShotAction(0),fBoxHighlightAction(0),fLineHighlightAction(0)
 {
    if ( fPad ) {
 	   printf("TQtCoinViewerImp::TQtCoinViewerImp begin Pad=%p\n", pad);
@@ -572,6 +587,8 @@ TQtGLViewerImp::TQtGLViewerImp(TQtGLViewerImp &parent) :
 TQtCoinViewerImp::~TQtCoinViewerImp()
 { 
    if (fRootNode) fRootNode->unref();
+   delete fBoxHighlightAction;
+   delete fLineHighlightAction;
 }
 
 //______________________________________________________________________________
@@ -1449,13 +1466,15 @@ void TQtCoinViewerImp::EmitSelectSignal(TObject3DView * view)
 //______________________________________________________________________________
 void TQtCoinViewerImp::SetBoxSelection()
 {
-	fInventorViewer->setGLRenderAction( new SoBoxHighlightRenderAction );
+   BoxHighlightAction().setTransparencyType(fInventorViewer->getTransparencyType());
+	fInventorViewer->setGLRenderAction( &BoxHighlightAction());
 }
 
 //______________________________________________________________________________
 void TQtCoinViewerImp::SetLineSelection()
 {
-	fInventorViewer->setGLRenderAction( new SoLineHighlightRenderAction );
+   LineHighlightAction().setTransparencyType(fInventorViewer->getTransparencyType());
+	fInventorViewer->setGLRenderAction( &LineHighlightAction());
 }
 
 /*

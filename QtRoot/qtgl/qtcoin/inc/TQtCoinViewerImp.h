@@ -1,8 +1,8 @@
-// @(#)root/g3d:$Name:  $:$Id: TQtCoinViewerImp.h,v 1.3 2006/10/27 00:26:47 fine Exp $
+// @(#)root/g3d:$Name:  $:$Id: TQtCoinViewerImp.h,v 1.4 2006/10/28 18:45:43 fine Exp $
 // Author: Valery Fine      23/05/97
 
 /****************************************************************************
-** $Id: TQtCoinViewerImp.h,v 1.3 2006/10/27 00:26:47 fine Exp $
+** $Id: TQtCoinViewerImp.h,v 1.4 2006/10/28 18:45:43 fine Exp $
 **
 ** Copyright (C) 2002 by Valeri Fine. Brookhaven National Laboratory.
 **                                    All rights reserved.
@@ -76,6 +76,7 @@ class TVirtualPad;
 class SoQtExaminerViewer;
 class TObject3DView;
 class TContextMenu;
+class SoGLRenderAction;
 
 #if QT_VERSION < 0x40000
   class TQtCoinViewerImp :public QMainWindow, public TGLViewerImp {
@@ -100,7 +101,6 @@ private:
    TQtCoinViewerImp(const TQtCoinViewerImp&);
    void operator=(const TQtCoinViewerImp&)  {}
 protected:
-
    TString         fSaveFile;           // the file name to save the pixmap to
    TString         fSaveType;           // the image format type name
    Int_t           fMaxSnapFileCounter; // The max number of the difffrent "snapshot files" (The length of the cyclic buffer)
@@ -129,7 +129,9 @@ protected:
    //Bool_t          fShowSelectionGlobal; // Show the selected object in the global coordinate
    Bool_t          fWantRootContextMenu; // Create "ROOT Context menu" for the seelcted ROOT objects
    QAction        *fSnapShotAction;      // QAction to toglle the snap shot file saving
-   
+   SoGLRenderAction *fBoxHighlightAction;
+   SoGLRenderAction *fLineHighlightAction;
+  
    
    
    
@@ -144,6 +146,8 @@ protected:
    //static int CreateSnapShotCounter();
 
    //TQtCoinViewerImp(TQtCoinViewerImp &);
+   SoGLRenderAction &BoxHighlightAction();
+   SoGLRenderAction &LineHighlightAction();
 
 public:
    enum {kStatusPopIn, kStatusNoBorders, kStatusOwn, kStatusPopOut};
