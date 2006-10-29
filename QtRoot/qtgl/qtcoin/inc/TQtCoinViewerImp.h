@@ -1,8 +1,8 @@
-// @(#)root/g3d:$Name:  $:$Id: TQtCoinViewerImp.h,v 1.4 2006/10/28 18:45:43 fine Exp $
+// @(#)root/g3d:$Name:  $:$Id: TQtCoinViewerImp.h,v 1.5 2006/10/29 00:11:03 fine Exp $
 // Author: Valery Fine      23/05/97
 
 /****************************************************************************
-** $Id: TQtCoinViewerImp.h,v 1.4 2006/10/28 18:45:43 fine Exp $
+** $Id: TQtCoinViewerImp.h,v 1.5 2006/10/29 00:11:03 fine Exp $
 **
 ** Copyright (C) 2002 by Valeri Fine. Brookhaven National Laboratory.
 **                                    All rights reserved.
@@ -64,6 +64,7 @@ class SoPerspectiveCamera;
 class SoCamera;
 class SoSelection;
 class SmAxisDisplayKit;
+class SoClipPlaneManip;
 
 //#include <qintdict.h>
 //class TQtRootAction;
@@ -131,7 +132,8 @@ protected:
    QAction        *fSnapShotAction;      // QAction to toglle the snap shot file saving
    SoGLRenderAction *fBoxHighlightAction;
    SoGLRenderAction *fLineHighlightAction;
-  
+   Bool_t          fWantClipPlane;       //
+   SoClipPlaneManip *fClipPlaneMan; 
    
    
    
@@ -148,7 +150,7 @@ protected:
    //TQtCoinViewerImp(TQtCoinViewerImp &);
    SoGLRenderAction &BoxHighlightAction();
    SoGLRenderAction &LineHighlightAction();
-
+   void SetCliPlaneMan(Bool_t on=kTRUE);
 public:
    enum {kStatusPopIn, kStatusNoBorders, kStatusOwn, kStatusPopOut};
    //TQtCoinViewerImp();
@@ -206,7 +208,8 @@ public:
      //virtual void DisconnectSelectorWidgetCB();
      virtual void AddGLList(unsigned int list, int type=1);
      virtual void RemoveGLList(unsigned int list);
-     //virtual void NewViewer();
+     virtual void FrameAxisActionCB(bool);
+      //virtual void NewViewer();
      virtual void PrintCB();
      virtual void CopyCB();
      virtual void CopyFrameCB();

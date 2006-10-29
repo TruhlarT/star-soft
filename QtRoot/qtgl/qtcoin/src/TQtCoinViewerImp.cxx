@@ -93,6 +93,7 @@
 #include <Inventor/VRMLnodes/SoVRMLShape.h>
 
 #include <Inventor/elements/SoCacheElement.h>
+#include <Inventor/manips/SoClipPlaneManip.h>
 
 #include <Inventor/SoOffscreenRenderer.h>
 
@@ -470,6 +471,7 @@ TQtCoinViewerImp::TQtCoinViewerImp(TVirtualPad *pad, const char *title,
    //,fGLWidget(0),fSelectedView(0),fSelectedViewActive(kFALSE)
    //, fSelectionViewer(kFALSE),fSelectionHighlight(kFALSE),fShowSelectionGlobal(kFALSE)
    , fSnapShotAction(0),fBoxHighlightAction(0),fLineHighlightAction(0)
+   , fWantClipPlane(kFALSE), fClipPlaneMan(0)
 {
    if ( fPad ) {
 	   printf("TQtCoinViewerImp::TQtCoinViewerImp begin Pad=%p\n", pad);
@@ -586,9 +588,10 @@ TQtGLViewerImp::TQtGLViewerImp(TQtGLViewerImp &parent) :
 //______________________________________________________________________________
 TQtCoinViewerImp::~TQtCoinViewerImp()
 { 
-   if (fRootNode) fRootNode->unref();
-   delete fBoxHighlightAction;
-   delete fLineHighlightAction;
+   if (fRootNode)     { fRootNode->unref();    fRootNode     = 0;}
+   if (fClipPlaneMan) { fClipPlaneMan->unref();fClipPlaneMan = 0;}
+   delete fBoxHighlightAction; fBoxHighlightAction  = 0;
+   delete fLineHighlightAction;fLineHighlightAction = 0;
 }
 
 //______________________________________________________________________________
@@ -1657,6 +1660,18 @@ void TQtCoinViewerImp::MakeMenu()
    showFrameAxisAction->setToggleAction(true);
    showFrameAxisAction->setWhatsThis( showFrameAxisText);
 
+   // Edit ClipPlane 
+   
+#if QT_VERSION < 0x40000
+   QAction *editClipPlaneAction  =  new QAction("clipPlane", "Edit the Clip Plane", CTRL+Key_9, this, "clipplane" );
+#else 
+   Q3Action *editClipPlaneAction =  new Q3Action("clipPlane", "Edit the Clip Plane", Qt::CTRL+Qt::Key_9, this, "clipplane " );
+#endif 
+   connect ( editClipPlaneAction, SIGNAL( toggled(bool) ) , this, SLOT( FrameAxisActionCB(bool)  ) );
+   const char *editClipPlaneText = "Activate Clip Plane manipulator";
+   editClipPlaneAction->setToggleAction(true);
+   showFrameAxisAction->setWhatsThis( editClipPlaneText);
+
 #if QT_VERSION < 0x40000
    QAction *showLightsAction =  new QAction("GLLights", "Show &light", CTRL+Key_L, this, "gllight" );
 #else 
@@ -1834,6 +1849,10 @@ void TQtCoinViewerImp::MakeMenu()
     viewContextMenuAction->addTo(optionMenu);
     viewContextMenuAction->setOn( false );
     viewContextMenuAction->setEnabled (true);
+    
+    editClipPlaneAction->addTo(optionMenu);
+    editClipPlaneAction->setOn( false );
+    editClipPlaneAction->setEnabled (true);
 
 #endif
 // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
@@ -2012,4 +2031,29 @@ ULong_t TQtCoinViewerImp::GetViewerID() const
 void TQtCoinViewerImp::SetSnapFileCounter(int counter)
 { 
 	fMaxSnapFileCounter = counter;  
+}
+//______________________________________________________________________________
+void TQtCoinViewerImp::SetCliPlaneMan(Bool_t on)
+{
+   if (on) {
+     if (!fClipPlaneMan) {
+        fClipPlaneMan = new SoClipPlaneManip();
+        fClipPlaneMan->ref();
+     }
+
+     SoGetBoundingBoxAction ba(fInventorViewer->getViewportRegion());
+     ba.apply(fShapeNode);
+   
+     SbBox3f box = ba.getBoundingBox();
+     fClipPlaneMan->setValue(box, SbVec3f(1.0f, 0.0f, 0.0f), 1.02f);
+     fShapeNode->insertChild(fClipPlaneMan, 0);
+  } else if (fClipPlaneMan) {
+     // fClipPlaneMan->replace
+  }
+}
+
+//______________________________________________________________________________
+void TQtCoinViewerImp::FrameAxisActionCB(bool on)
+{
+  SetCliPlaneMan(on); 
 }
