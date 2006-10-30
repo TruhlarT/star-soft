@@ -205,7 +205,12 @@ if ( $passwd eq "" ){
 #
 # Now connect
 #
-$fileC->connect($user,$passwd,$port,$host,$db);
+if ( ! $fileC->connect($user,$passwd,$port,$host,$db) ){
+    &Print("Failed to connect to db");
+    exit;
+#} else {
+#    &Print("A priori connected $mode");
+}
 
 
 
@@ -227,7 +232,7 @@ while ($morerecords)
 
     if ($mode == 0){
 	# First mode of operation - just get the file list and their availability
-	&Print("Checking $start (+$batchsize) ".localtime());
+	&Print("Checking mode=0 $start (+$batchsize) ".localtime());
 	$fileC->set_context("limit=$batchsize");
 	$fileC->set_context("startrecord=$start");
 	$fileC->set_delimeter("::");
@@ -301,6 +306,7 @@ while ($morerecords)
 		next;
 	    }
 
+	    print "$path/$fname\n";
 	    if ( &Exist("$path/$fname") ){
 		if ($mode == -1){
 		    # remark available
