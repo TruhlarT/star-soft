@@ -1,8 +1,8 @@
-// @(#)root/g3d:$Name:  $:$Id: TQtCoinViewerImp.h,v 1.5 2006/10/29 00:11:03 fine Exp $
+// @(#)root/g3d:$Name:  $:$Id: TQtCoinViewerImp.h,v 1.6 2006/10/30 03:16:51 fine Exp $
 // Author: Valery Fine      23/05/97
 
 /****************************************************************************
-** $Id: TQtCoinViewerImp.h,v 1.5 2006/10/29 00:11:03 fine Exp $
+** $Id: TQtCoinViewerImp.h,v 1.6 2006/10/30 03:16:51 fine Exp $
 **
 ** Copyright (C) 2002 by Valeri Fine. Brookhaven National Laboratory.
 **                                    All rights reserved.
@@ -18,7 +18,7 @@
 
 //////////////////////////////////////////////////////////////////////////
 //                                                                      //
-// TQtCoinViewerImp                                                       //
+// TQtCoinViewerImp                                                     //
 //                                                                      //
 // Second ABC TQtCoinViewerImp specifies Window system independent openGL //
 // interface. This class uses the GL includes and isn't passed to CINT  //
@@ -65,6 +65,8 @@ class SoCamera;
 class SoSelection;
 class SmAxisDisplayKit;
 class SoClipPlaneManip;
+class SmAxisKit;
+class SoFieldSensor;
 
 //#include <qintdict.h>
 //class TQtRootAction;
@@ -96,9 +98,13 @@ private:
    SoSelection            *fSelNode;
    SoPerspectiveCamera    *myCamera;
    SoCamera               *fCamera;
-   SmAxisDisplayKit       *fAxis;
+   SmAxisDisplayKit       *fAxes;
    std::vector<int>        flist[3];
-
+   SmAxisKit              *fXAxis;
+   SmAxisKit              *fYAxis;
+   SmAxisKit              *fZAxis;
+   SoFieldSensor          *fCameraSensor;
+   
    TQtCoinViewerImp(const TQtCoinViewerImp&);
    void operator=(const TQtCoinViewerImp&)  {}
 protected:
@@ -175,7 +181,7 @@ public:
 
    //virtual void   SwapBuffers() { };
    SoCamera *GetCamera() const { return fCamera;} 
-   SmAxisDisplayKit *GetAxis() const { return fAxis;}
+   SmAxisDisplayKit *GetAxis() const { return fAxes;}
    std::vector<int> GetMyGLList1() { return flist[0]; }
    std::vector<int> GetMyGLList2() { return flist[1]; }
    std::vector<int> GetMyGLList3() { return flist[2]; }
@@ -224,6 +230,7 @@ public:
      virtual void ShowObjectInfo(TObject *, const QPoint&);
      virtual void SnapShotSaveCB(bool);
      virtual void SaveSnapShot(bool);
+     virtual void SmallAxesActionCB(bool on);
      virtual void ShowFrameAxisCB(bool);
      virtual void ShowLightsCB(bool);
      virtual void SynchTPadCB(bool);

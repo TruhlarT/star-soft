@@ -76,6 +76,7 @@
 
 #include <Inventor/nodes/SoSeparator.h>
 #include <Inventor/nodes/SoSelection.h>
+#include <Inventor/nodes/SoBaseColor.h> 
 #include <Inventor/nodes/SoCallback.h>
 #include <Inventor/nodes/SoMaterial.h>
 #include <Inventor/nodes/SoDrawStyle.h>
@@ -125,6 +126,7 @@
 #include <Inventor/nodes/SoCone.h>
 #include <Inventor/nodes/SoShape.h>
 #include <SmallChange/nodekits/SmAxisDisplayKit.h>
+#include <SmallChange/nodekits/SmAxisKit.h>
 #include <SmallChange/misc/Init.h>
 #include <Inventor/sensors/SoFieldSensor.h> 
 
@@ -465,7 +467,8 @@ TQtCoinViewerImp::TQtCoinViewerImp(TVirtualPad *pad, const char *title,
 #endif 
    , TGLViewerImp(0,title,width,height)
    , fInventorViewer(0),qt_viewer(0), fRootNode(0)
-   , fShapeNode(0),fSelNode(0),myCamera(0),fCamera(0),fAxis(0)
+   , fShapeNode(0),fSelNode(0),myCamera(0),fCamera(0),fAxes(0)
+   , fXAxis(0), fYAxis(0), fZAxis(0),fCameraSensor(0)
    , fSaveType("JPEG"),fMaxSnapFileCounter(2),fPad(pad),fContextMenu(0),fSelectedObject(0)
    , fWantRootContextMenu(kFALSE)
    //,fGLWidget(0),fSelectedView(0),fSelectedViewActive(kFALSE)
@@ -588,10 +591,15 @@ TQtGLViewerImp::TQtGLViewerImp(TQtGLViewerImp &parent) :
 //______________________________________________________________________________
 TQtCoinViewerImp::~TQtCoinViewerImp()
 { 
-   if (fRootNode)     { fRootNode->unref();    fRootNode     = 0;}
-   if (fClipPlaneMan) { fClipPlaneMan->unref();fClipPlaneMan = 0;}
+   if (fClipPlaneMan) { fClipPlaneMan->unref(); fClipPlaneMan = 0;}
+   if (fAxes)         { fAxes        ->unref(); fAxes         = 0;}
+   if (fXAxis)        { fXAxis       ->unref(); fXAxis        = 0;}
+   if (fYAxis)        { fYAxis       ->unref(); fYAxis        = 0;}
+   if (fZAxis)        { fZAxis       ->unref(); fZAxis        = 0;}
    delete fBoxHighlightAction; fBoxHighlightAction  = 0;
    delete fLineHighlightAction;fLineHighlightAction = 0;
+   delete fCameraSensor;       fCameraSensor        = 0;
+   if (fRootNode)     { fRootNode    ->unref(); fRootNode     = 0;}
 }
 
 //______________________________________________________________________________
@@ -1239,7 +1247,20 @@ void TQtCoinViewerImp::SynchTPadCB(bool on)
 //______________________________________________________________________________
 void TQtCoinViewerImp::ShowFrameAxisCB(bool on)
 {  
-	/*
+   if (on) {
+      if (!fXAxis) { fXAxis = new SmAxisKit; fXAxis->ref(); }
+      
+      SoGetBoundingBoxAction ba(fInventorViewer->getViewportRegion());
+      ba.apply(fShapeNode);
+   
+      SbBox3f box = ba.getBoundingBox();
+      fXAxis->axisRange.setValue(box.getMin()[0], box.getMax()[0]);
+      fXAxis->axisName = "X";
+      SoSeparator *as = new SoSeparator; as->setName("MainAxices");
+       as->addChild(fXAxis);
+      fShapeNode->insertChild(as, 0);
+   }
+/*
 #ifdef QGLVIEWER
    QWidget *c = centralWidget();
    TQtGLViewerWidget *glView = (TQtGLViewerWidget *)c;
@@ -1420,27 +1441,7 @@ void TQtCoinViewerImp::CreateViewer(const char *name)
    fInventorViewer->setTransparencyType(SoGLRenderAction::NONE);
 
    fCamera = fInventorViewer->getCamera(); 
-#ifdef __SMALLCHANGE__ 
-   SmAxisDisplayKit *ax = fAxis =  new SmAxisDisplayKit();
-   // axis sizes
-   ax->axes.set1Value(0, 20., 0., 0.);
-   ax->axes.set1Value(1, 0., 20., 0.);
-   ax->axes.set1Value(2, 1., 0., 20.);
-   
-   // axis colors
-   ax->colors.set1Value( 0, 1., 0., 0.);
-   ax->colors.set1Value( 1, 0., 1., 0.);
-   ax->colors.set1Value( 2, 1., 0., 1.);
-   
-   // axis labels
-   ax-> annotations.set1Value(0,"x");
-   ax-> annotations.set1Value(1,"y");
-   ax-> annotations.set1Value(2,"z");
-   
-   SoFieldSensor *cameraSensor = new SoFieldSensor(cameraChangeCB,this);
-   cameraSensor->attach(&fCamera->orientation);
-   fSelNode->addChild(ax);
-#endif
+
    SetBoxSelection();
 
    //  Pick the background color from pad
@@ -1469,8 +1470,8 @@ void TQtCoinViewerImp::EmitSelectSignal(TObject3DView * view)
 //______________________________________________________________________________
 void TQtCoinViewerImp::SetBoxSelection()
 {
-   BoxHighlightAction().setTransparencyType(fInventorViewer->getTransparencyType());
-	fInventorViewer->setGLRenderAction( &BoxHighlightAction());
+ // BoxHighlightAction().setTransparencyType(fInventorViewer->getTransparencyType());
+ // fInventorViewer->setGLRenderAction( &BoxHighlightAction());
 }
 
 //______________________________________________________________________________
@@ -1648,7 +1649,7 @@ void TQtCoinViewerImp::MakeMenu()
    synchAction->setToggleAction(true);
    synchAction->setWhatsThis( synchText );
 
-   // Synchronize TPad rotation 
+   // Show frame axis
    
 #if QT_VERSION < 0x40000
    QAction *showFrameAxisAction =  new QAction("Frame3DAxis", "Show Frame axis", CTRL+Key_1, this, "frameaxis" );
@@ -1660,7 +1661,19 @@ void TQtCoinViewerImp::MakeMenu()
    showFrameAxisAction->setToggleAction(true);
    showFrameAxisAction->setWhatsThis( showFrameAxisText);
 
-   // Edit ClipPlane 
+   // Show frame axis
+   
+#if QT_VERSION < 0x40000
+   QAction *showSmallAxesAction =  new QAction("Small3DAxes", "Show \"small\" axes", CTRL+Key_2, this, "smallaxes" );
+#else 
+   Q3Action *showSmallAxesAction =  new Q3Action("Small3DAxes", "Show \"small\" axes", Qt::CTRL+Qt::Key_2, this, "smallaxes" );
+#endif 
+   connect ( showSmallAxesAction, SIGNAL( toggled(bool) ) , this, SLOT( SmallAxesActionCB(bool)  ) );
+   const char *showSmallAxesText = "Show the  small 3D axes at the bottom right corner of the screen. Can slow down the rendering !!!";
+   showSmallAxesAction->setToggleAction(true);
+   showSmallAxesAction->setWhatsThis( showSmallAxesText);
+
+      // Edit ClipPlane 
    
 #if QT_VERSION < 0x40000
    QAction *editClipPlaneAction  =  new QAction("clipPlane", "Edit the Clip Plane", CTRL+Key_9, this, "clipplane" );
@@ -1816,6 +1829,11 @@ void TQtCoinViewerImp::MakeMenu()
     //showFrameAxisAction->setOn(glView? glView->FrameAxisScale()> 0 : false);
     showFrameAxisAction->setOn(false);
     showFrameAxisAction->setEnabled(true);
+    
+    showSmallAxesAction->addTo(optionMenu);
+    showSmallAxesAction->setOn(false);
+    showSmallAxesAction->setEnabled(true);
+    
 /*
     showLightsAction->addTo(optionMenu);
     showLightsAction->setOn(false);
@@ -2056,4 +2074,44 @@ void TQtCoinViewerImp::SetCliPlaneMan(Bool_t on)
 void TQtCoinViewerImp::FrameAxisActionCB(bool on)
 {
   SetCliPlaneMan(on); 
+}
+//______________________________________________________________________________
+void TQtCoinViewerImp::SmallAxesActionCB(bool on)
+{
+    if (on) {
+#ifdef __SMALLCHANGE__ 
+       if (!fAxes) { 
+          fAxes =  new SmAxisDisplayKit();
+          fAxes->ref();
+          
+          SmAxisDisplayKit *ax = fAxes;
+          // axis sizes
+          ax->axes.set1Value(0, 20., 0., 0.);
+          ax->axes.set1Value(1, 0., 20., 0.);
+          ax->axes.set1Value(2, 1., 0., 20.);
+   
+          // axis colors
+          ax->colors.set1Value( 0, 1., 0., 0.);
+          ax->colors.set1Value( 1, 0., 1., 0.);
+          ax->colors.set1Value( 2, 1., 0., 1.);
+   
+          // axis labels
+          ax-> annotations.set1Value(0,"x");
+          ax-> annotations.set1Value(1,"y");
+          ax-> annotations.set1Value(2,"z");
+   
+          //  Adjust the initial orientation if any
+          if (fCamera) 
+             ax->orientation = fCamera->orientation;
+          
+          if (!fCameraSensor) 
+             fCameraSensor = new SoFieldSensor(cameraChangeCB,this);
+       }
+       fCameraSensor->attach(&fCamera->orientation);
+       fRootNode->addChild(fAxes);
+   } else if (fAxes) {
+      fRootNode->removeChild(fAxes);
+      fCameraSensor->detach();
+   }
+#endif
 }
