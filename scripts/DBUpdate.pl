@@ -81,7 +81,7 @@ $PASSWD = "";
 $SUBPATH= "";
 $SUB    = "reco";
 $DOSL   = 0;
-$DOCACHE= 1;
+$DOCACHE= 0;
 
 # Argument pick-up
 $kk    = 0;
@@ -117,6 +117,8 @@ for ($i=0 ; $i <= $#ARGV ; $i++){
 
     } elsif ($ARGV[$i] eq "-nocache"){
 	$DOCACHE= 0;
+    } elsif ($ARGV[$i] eq "-cache"){
+	$DOCACHE= 1;
 
     } elsif ($ARGV[$i] eq "-k"){
 	$SUBPATH = $ARGV[++$i];
