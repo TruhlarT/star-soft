@@ -1516,7 +1516,7 @@ sub insert_dictionary_value {
   }
 
   $dtinsert  .= "($fieldname $dtfields $dtxfields)";
-  $dtinsert  .= " VALUES ('".$valuset{$keyname}."' $dtvalues $dtxvalues)";
+  $dtinsert  .= " VALUES('".$valuset{$keyname}."' $dtvalues $dtxvalues)";
   &print_debug("insert_dictionary_value","Execute $dtinsert");
 
 
@@ -1722,7 +1722,7 @@ sub insert_detector_configuration {
   # does not care at all (as far as consistency dXXX and associated
   # value is consistent).
   $dtinsert = "INSERT IGNORE INTO DetectorConfigurations (detectorConfigurationName";
-  $dtvalues = " VALUES ('".$config."'";
+  $dtvalues = " VALUES('".$config."'";
   foreach $el (@DETECTORS){
       # the defined() test is NOT the same than above. It sets to 0 the
       # value of a un-specified keyword. Note also that only 1/0 are allowed
@@ -1934,7 +1934,7 @@ sub insert_collision_type {
       "(firstParticle, secondParticle, collisionEnergy, ".
       " collisionTypeIDate, collisionTypeCreator)";
   $ctinsert .=
-      " VALUES ('$firstParticle' , '$secondParticle' , $energy, ".
+      " VALUES('$firstParticle' , '$secondParticle' , $energy, ".
       " NOW()+0, ".&_GetILogin().")";
 
   &print_debug("insert_collision_type","Execute $ctinsert");
@@ -2135,7 +2135,7 @@ sub insert_run_param_info {
       " detectorConfigurationID, detectorStateID, magFieldScale, magFieldValue, ".
       " runParamIDate, runParamCreator, runParamComment)";
   $rpinsert  .=
-      " VALUES (".$valuset{"runnumber"}.", $start, $end, $day, $year, ".
+      " VALUES(".$valuset{"runnumber"}.", $start, $end, $day, $year, ".
       " $triggerSetup, $collision, $simulation, $runType, ".
       " $detConfiguration, $detState, '".$valuset{"magscale"}."', $magvalue, ".
       " NOW()+0, ".&_GetILogin().", $comment)";
@@ -2317,7 +2317,7 @@ sub insert_file_data {
       " md5sum, fileTypeID, fileDataComment, fileSeq, fileStream, ".
       " fileDataIDate, fileDataCreator)";
   $fdinsert .=
-      " VALUES ($runNumber, \"".$valuset{"filename"}."\",$production, $nevents, ".
+      " VALUES($runNumber, \"".$valuset{"filename"}."\",$production, $nevents, ".
       " $md5sum, $fileType,$fileComment,$fileSeq,$filestream, ".
       " NOW()+0, ".&_GetILogin().")";
 
@@ -2440,7 +2440,7 @@ sub set_trigger_composition
     #
     $cmd1 = "SELECT triggerWordID, triggerWordComment FROM TriggerWords ".
 	" WHERE triggerWordName=? AND triggerWordBits=?  AND triggerWordVersion=?";
-    $cmd2 = "INSERT INTO TriggerWords values(NULL, ?, ?, ?, NOW()+0, ".&_GetILogin().", 0, ?)";
+    $cmd2 = "INSERT INTO TriggerWords VALUES(NULL, ?, ?, ?, NOW()+0, ".&_GetILogin().", 0, ?)";
 
     $sth1 = $DBH->prepare($cmd1);
     $sth2 = $DBH->prepare($cmd2);
@@ -2485,7 +2485,7 @@ sub set_trigger_composition
     # Enter entries in TriggerCompositions
     #
     $cmd1 = "SELECT triggerWordID FROM TriggerCompositions WHERE fileDataID=?";
-    $cmd2 = "INSERT DELAYED INTO TriggerCompositions values(?,?,?)";
+    $cmd2 = "INSERT DELAYED INTO TriggerCompositions VALUES(?,?,?)";
     $sth1 = $DBH->prepare($cmd1);
     $sth2 = $DBH->prepare($cmd2);
 
@@ -2744,7 +2744,7 @@ sub insert_simulation_params {
   if ($sth->rows == 0) {
       my $eginsert   = "INSERT IGNORE INTO EventGenerators ";
       $eginsert  .= "(eventGeneratorName, eventGeneratorVersion, eventGeneratorComment, eventGeneratorParams)";
-      $eginsert  .= " VALUES ('".$valuset{"generator"}."', '".$valuset{"genversion"}."', $evgenComments, '".$valuset{"genparams"}."')";
+      $eginsert  .= " VALUES('".$valuset{"generator"}."', '".$valuset{"genversion"}."', $evgenComments, '".$valuset{"genparams"}."')";
       if ($DEBUG > 0) {
 	  &print_debug("insert_simulation_params","Execute $eginsert");
       }
@@ -2770,7 +2770,7 @@ sub insert_simulation_params {
 
   my $spinsert   = "INSERT IGNORE INTO SimulationParams ";
   $spinsert  .= "(eventGeneratorID, simulationParamIDate, simulationParamCreator, simulationParamComment)";
-  $spinsert  .= " VALUES ($eventGenerator,  NOW()+0, ".&_GetILogin().", $simComments)";
+  $spinsert  .= " VALUES($eventGenerator,  NOW()+0, ".&_GetILogin().", $simComments)";
   if ($DEBUG > 0) {
       &print_debug("insert_simulation_params","Execute $spinsert");
   }
@@ -3044,7 +3044,7 @@ sub insert_file_location {
       &print_debug("insert_file_location","WARNING: createtime not defined. Using a default value");
       $createTime = "NULL+0";
   } else {
-      $createTime = $valuset{"createtime"};
+      $createTime = '"'.$valuset{"createtime"}.'"';
       $createTime =~ s/[:-]//g;
       &print_debug("insert_file_location","Taking valuset $createTime");
   }
@@ -3124,7 +3124,7 @@ sub insert_file_location {
       " createTime, insertTime, owner, fsize, storageSiteID, protection, ".
       " hostID, availability, persistent, sanity)";
   $flinsert  .=
-      " VALUES (NULL, $fileData, $storageType, $filePathID, ".
+      " VALUES(NULL, $fileData, $storageType, $filePathID, ".
       " $createTime, NULL, $owner, $fsize, $storageSite, $protection, ".
       " $nodeID, $availability, $persistent, $sanity)";
 
@@ -3168,6 +3168,11 @@ sub insert_file_location {
 	      push(@DCMD,$flinsert);
 	      $retid = 0;
 	  } else {
+	      # Just for fun, time this operation
+	      my($ts,$td);
+	      $ts = time();
+
+	      # $DBH->trace(9);
 	      if ( $sth->execute() ) {
 		  $retid = &get_last_id();
 		  &print_debug("insert_file_location","Returning: $retid");
@@ -3176,6 +3181,10 @@ sub insert_file_location {
 		  &print_debug("insert_file_location",
 			       "ERROR in insert_file_location() ".$DBH->err." >> ".$DBH->errstr);
 	      }
+	  
+	      $td = time()-$ts;
+	      &print_debug("insert_file_location","Execute took $td secondes");
+
 	  }
       }
   }
