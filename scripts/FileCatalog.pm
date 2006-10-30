@@ -123,7 +123,7 @@ require  Exporter;
 
 
 use vars qw($VERSION);
-$VERSION   =   "V01.310";
+$VERSION   =   "V01.315";
 
 # The hashes that hold a current context
 my %optoperset;
@@ -1934,7 +1934,7 @@ sub insert_collision_type {
       "(firstParticle, secondParticle, collisionEnergy, ".
       " collisionTypeIDate, collisionTypeCreator)";
   $ctinsert .=
-      "VALUES ('$firstParticle' , '$secondParticle' , $energy, ".
+      " VALUES ('$firstParticle' , '$secondParticle' , $energy, ".
       " NOW()+0, ".&_GetILogin().")";
 
   &print_debug("insert_collision_type","Execute $ctinsert");
@@ -2135,7 +2135,7 @@ sub insert_run_param_info {
       " detectorConfigurationID, detectorStateID, magFieldScale, magFieldValue, ".
       " runParamIDate, runParamCreator, runParamComment)";
   $rpinsert  .=
-      "VALUES (".$valuset{"runnumber"}.", $start, $end, $day, $year, ".
+      " VALUES (".$valuset{"runnumber"}.", $start, $end, $day, $year, ".
       " $triggerSetup, $collision, $simulation, $runType, ".
       " $detConfiguration, $detState, '".$valuset{"magscale"}."', $magvalue, ".
       " NOW()+0, ".&_GetILogin().", $comment)";
@@ -2317,7 +2317,7 @@ sub insert_file_data {
       " md5sum, fileTypeID, fileDataComment, fileSeq, fileStream, ".
       " fileDataIDate, fileDataCreator)";
   $fdinsert .=
-      "VALUES ($runNumber, \"".$valuset{"filename"}."\",$production, $nevents, ".
+      " VALUES ($runNumber, \"".$valuset{"filename"}."\",$production, $nevents, ".
       " $md5sum, $fileType,$fileComment,$fileSeq,$filestream, ".
       " NOW()+0, ".&_GetILogin().")";
 
@@ -3124,7 +3124,7 @@ sub insert_file_location {
       " createTime, insertTime, owner, fsize, storageSiteID, protection, ".
       " hostID, availability, persistent, sanity)";
   $flinsert  .=
-      "VALUES (NULL, $fileData, $storageType, $filePathID, ".
+      " VALUES (NULL, $fileData, $storageType, $filePathID, ".
       " $createTime, NULL, $owner, $fsize, $storageSite, $protection, ".
       " $nodeID, $availability, $persistent, $sanity)";
 
@@ -3809,9 +3809,7 @@ sub run_query {
 			      &print_debug("run_query","\tAdded constraints case-1 now $addedconstr");
 			  }
 			  #$addedconstr .= " ) ";
-			  if( index($addedconstr,"OR") != -1){
-			      $addedconstr = " ($addedconstr)";
-			  }
+			  $addedconstr = &_NormalizeAND_OR($addedconstr);
 
 
 			  # Add a newly constructed keyword
@@ -4419,9 +4417,11 @@ sub TreatLOps
 
     # OR and AND should be re-grouped by ()
     if ($#Val > 0 || $flag == 4){
-	$qq = "( $qq )";
+	&print_debug("TreatLOps","re-group");
+	$qq = &_NormalizeAND_OR($qq,1);
+	#$qq = "( $qq )";
     }
-
+    #&print_debug("TreatLOps","Will return $qq");
     $qq;
 }
 
@@ -5654,6 +5654,59 @@ sub destroy {
   }
 }
 
+
+sub _NormalizeAND_OR
+{
+    my($cond,$p)=@_;
+    my(@test,$case);
+
+    &print_debug("_NormalizeOR","OK, checking");
+    if( index($cond,"OR") != -1){
+	$case = 1;
+	@test = split("OR",$cond);
+    } elsif ( index($cond,"AND") != -1){
+	$case = 2;
+	@test = split("AND",$cond);
+    }
+
+    if ($#test != -1){
+	&print_debug("_NormalizeAND_OR","Found $#test items $test[0]");	
+    }
+    if ($#test > 5){
+	my($base)=$test[0];
+	my($el,$list,$newop);
+
+	#
+	# OR and != will lead to TRUE  always
+	# AND and = will lead to FALSE always
+	#
+	if ($case == 1 && $base =~ m/!=/){  return " (1=1) ";}
+	if ($case == 2 && $base =~ m/ = /){ 
+	    &print_message("_NormalizeAND_OR","One keyword chain of ANDs of equality will lead to FALSE");
+	    return " (1=0) ";
+	}
+
+	#
+	# OR  has sens only with  = and translates into IN
+	# AND has sens only with != and translates into NOT IN
+	#
+	$newop = ($case==1?"IN":"NOT IN");
+	if ( $base =~ m/!=/){
+	    $base =~ s/!=.*//;
+	} else {
+	    $base =~ s/=.*//;
+	}
+	$list = "";
+	foreach $el (@test){ $el =~ s/.*=//; $list .= "$el,";}
+	chop($list);
+	$list =~ s/\s+//g;
+	return "$base $newop ($list)";
+    } else {
+	return " ($cond) ";
+    }
+}
+
+
 #============================================
 #
 # Just as a side note, if caching is enabled (which it is)
@@ -5714,7 +5767,7 @@ sub _CachedValue
 }
 
 #============================================
-# Transofmration routine
+# Transformation routine
 sub _CreatorID2Name
 {
     my($arg)=@_;
