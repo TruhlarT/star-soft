@@ -1,8 +1,8 @@
-// @(#)root/g3d:$Name:  $:$Id: TQtCoinViewerImp.h,v 1.6 2006/10/30 03:16:51 fine Exp $
+// @(#)root/g3d:$Name:  $:$Id: TQtCoinViewerImp.h,v 1.7 2006/10/30 04:24:11 fine Exp $
 // Author: Valery Fine      23/05/97
 
 /****************************************************************************
-** $Id: TQtCoinViewerImp.h,v 1.6 2006/10/30 03:16:51 fine Exp $
+** $Id: TQtCoinViewerImp.h,v 1.7 2006/10/30 04:24:11 fine Exp $
 **
 ** Copyright (C) 2002 by Valeri Fine. Brookhaven National Laboratory.
 **                                    All rights reserved.
@@ -104,6 +104,7 @@ private:
    SmAxisKit              *fYAxis;
    SmAxisKit              *fZAxis;
    SoFieldSensor          *fCameraSensor;
+   void                   *fPickedObject;
    
    TQtCoinViewerImp(const TQtCoinViewerImp&);
    void operator=(const TQtCoinViewerImp&)  {}
@@ -205,7 +206,10 @@ public:
    TObject     *GetSelected()         const { return fSelectedObject;     }
    SoQtViewer  *GetCoinViewer()       const { return fInventorViewer;     }
    Bool_t       WantRootContextMenu() const { return fWantRootContextMenu;}
-
+   Bool_t       WasPicked(void *p) { 
+      Bool_t res = (p != fPickedObject); if (res) fPickedObject = p; 
+      return res; 
+   }
 #ifndef __CINT__
   public slots:
      //virtual void ActivateSelectorWidgetCB(bool);

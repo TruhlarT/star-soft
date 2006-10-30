@@ -295,9 +295,9 @@ static void InventorCallback3(void *d, SoAction *action)
 //static bool g_isManip = false;
 
 //______________________________________________________________________________
-static void DeselectCB(void * viewer, SoPath *) 
+static void DeselectCB(void * viewer, SoPath *p) 
 {
-   // printf("DeselectCB\n");	
+   // printf("DeselectCB %p %d\n",p,p->getRefCount() );	
 	/*
    SoPath * path = new SoPath(*p);
    path->ref();
@@ -333,7 +333,6 @@ static SoPath * PickFilterCB(void * viewer, const SoPickedPoint * pick)
 	((TQtCoinViewerImp*)(viewer))->SetBoxSelection();
    }
 	*/
-   ((TQtCoinViewerImp*)(viewer))->SetLineSelection();
    int i=0;
    int l = p->getLength();
    if (l > 1) {
@@ -347,14 +346,20 @@ static SoPath * PickFilterCB(void * viewer, const SoPickedPoint * pick)
   TObject3DView *v = (TObject3DView*)p->getNode(i)->getUserData();
  // printf("static SoPath *PickFilterCB l=%d, i=%d %s : root name = %s \n",p->getLength(),i
  //        ,(const char *)p->getNode(i)->getName(),(const char *)v->GetName());
-  ((TQtCoinViewerImp*)(viewer))->EmitSelectSignal(v);
-  return p->copy(0, i);
+  TQtCoinViewerImp *thisViewer = (TQtCoinViewerImp*)viewer;
+  if (v->IsSolid()) thisViewer->SetLineSelection();
+  else              thisViewer->SetBoxSelection();
+  // Emit signal at once
+  if (!thisViewer->WasPicked(v) ) thisViewer->EmitSelectSignal(v);
+  SoPath *selPath = p->copy(0, i);
+  // fprintf(stderr,"static SoPath *PickFilterCB path %p\n", selPath);
+  return selPath;
 }
 
 //______________________________________________________________________________
-static void SelectCB(void * viewer, SoPath *)
+static void SelectCB(void * viewer, SoPath *p)
 {
-   // printf("SelectCB\n");
+   // fprintf(stderr, "SelectCB %p %d\n",p,p->getRefCount() );	
 	/*
    SoPath * path = new SoPath(*p);
    path->ref();
@@ -468,7 +473,7 @@ TQtCoinViewerImp::TQtCoinViewerImp(TVirtualPad *pad, const char *title,
    , TGLViewerImp(0,title,width,height)
    , fInventorViewer(0),qt_viewer(0), fRootNode(0)
    , fShapeNode(0),fSelNode(0),myCamera(0),fCamera(0),fAxes(0)
-   , fXAxis(0), fYAxis(0), fZAxis(0),fCameraSensor(0)
+   , fXAxis(0), fYAxis(0), fZAxis(0),fCameraSensor(0),fPickedObject(0)
    , fSaveType("JPEG"),fMaxSnapFileCounter(2),fPad(pad),fContextMenu(0),fSelectedObject(0)
    , fWantRootContextMenu(kFALSE)
    //,fGLWidget(0),fSelectedView(0),fSelectedViewActive(kFALSE)
