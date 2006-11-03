@@ -66,11 +66,39 @@ else
 endif
 
 
+# Deal with PATH
+if ( -x ${GROUP_DIR}/dropit) then
+    setenv PATH `${GROUP_DIR}/dropit -p "$PATH" ROOT`
+    setenv PATH `${GROUP_DIR}/dropit -p ${ROOTSYS}/bin -p ${PATH}`
+
+    if ($level  < 305 )  then
+	if ($?NODEBUG) then
+	    setenv PATH `${GROUP_DIR}/dropit -p ${ROOTSYS}/BIN -p ${PATH}`
+	endif
+	if ($?INSURE) then
+	    setenv PATH `${GROUP_DIR}/dropit -p ${ROOTSYS}/IBIN -p ${PATH}`
+	endif
+    else
+	if ($?NODEBUG) then
+	    ##VP   setenv PATH "${ROOTSYS}/${root}/BIN:${PATH}"
+	    setenv PATH `${GROUP_DIR}/dropit -p ${ROOTBASE}/root/bin -p ${PATH}`
+	endif
+	if ($?INSURE) then
+	    setenv PATH `${GROUP_DIR}/dropit -p ${ROOTBASE}/${p}root/bin -p ${PATH}`
+	endif
+    endif
+else
+    setenv PATH ${ROOTSYS}/bin:${PATH}
+endif
+
+
+
 #
 # ATTENTION -- XROOTD NOT VALID PRIOR TO THIS VERSION
 #
 if ($level >= 404  && $?XROOTDSYS ) then
     setenv LD_LIBRARY_PATH ${XROOTDSYS}/lib:${LD_LIBRARY_PATH}
+    setenv PATH ${XROOTDSYS}/bin:${PATH}
 
     # This indicates it will use pwdnetrc file and will not ask
     # for a password 
@@ -95,31 +123,6 @@ if ($level >= 404  && $?XROOTDSYS ) then
 endif
 
 
-
-# Deal with PATH
-if ( -x ${GROUP_DIR}/dropit) then
-    setenv PATH  `${GROUP_DIR}/dropit -p "$PATH" ROOT`
-    setenv PATH `${GROUP_DIR}/dropit -p ${ROOTSYS}/bin -p ${PATH}`
-
-    if ($level  < 305 )  then
-	if ($?NODEBUG) then
-	    setenv PATH `${GROUP_DIR}/dropit -p ${ROOTSYS}/BIN -p ${PATH}`
-	endif
-	if ($?INSURE) then
-	    setenv PATH `${GROUP_DIR}/dropit -p ${ROOTSYS}/IBIN -p ${PATH}`
-	endif
-    else
-	if ($?NODEBUG) then
-	    ##VP   setenv PATH "${ROOTSYS}/${root}/BIN:${PATH}"
-	    setenv PATH `${GROUP_DIR}/dropit -p ${ROOTBASE}/root/bin -p ${PATH}`
-	endif
-	if ($?INSURE) then
-	    setenv PATH `${GROUP_DIR}/dropit -p ${ROOTBASE}/${p}root/bin -p ${PATH}`
-	endif
-    endif
-else
-    setenv PATH ${ROOTSYS}/bin:${PATH}
-endif
 
 
 
