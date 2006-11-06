@@ -56,7 +56,7 @@
  
 ClassImp(TObject3DView)
 
-//#define STARONLINE
+#define STARONLINE
 
 //_____________________________________________________________________________
 TObject3DView::TObject3DView()
@@ -652,8 +652,9 @@ void TObject3DView::MakeVolumeView(TPolyLine3D *polyline, Int_t  maxlevel)
 void TObject3DView::MakeVolumeView(TPolyLineShape *polyline, Int_t  maxlevel)
 { 
    if (polyline  && maxlevel > 0 ) {
-      SetLineColor(polyline->GetLineColor()); SetLineStyle(polyline->GetLineStyle());
-      SetLineWidth(polyline->GetLineWidth()); SetFillColor(polyline->GetLineColor());
+      SetLineColor(polyline->GetColorAttribute());SetLineStyle(polyline->GetStyleAttribute());
+      SetLineWidth(polyline->GetSizeAttribute()); SetFillColor(polyline->GetColorAttribute());
+      assert(polyline->GetSizeAttribute());
       MakeShape(polyline);
    }
 }
