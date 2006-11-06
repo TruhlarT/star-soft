@@ -4,9 +4,9 @@ Index: actions/SoGLRenderAction.cpp
 ===================================================================
 RCS file: /export/cvsroot/Coin-2/src/actions/SoGLRenderAction.cpp,v
 retrieving revision 1.23
-diff -u -u -r1.23 SoGLRenderAction.cpp
+diff -u -u -w -b -r1.23 SoGLRenderAction.cpp
 --- actions/SoGLRenderAction.cpp	29 Apr 2006 13:04:46 -0000	1.23
-+++ actions/SoGLRenderAction.cpp	22 Oct 2006 21:05:53 -0000
++++ actions/SoGLRenderAction.cpp	5 Nov 2006 23:53:23 -0000
 @@ -952,7 +952,7 @@
    if (COIN_GLBBOX) {
      THIS->bboxaction->apply(node);
@@ -48,13 +48,29 @@ diff -u -u -r1.23 SoGLRenderAction.cpp
      if (err) {
        glGetIntegerv(GL_PROGRAM_ERROR_POSITION_ARB, &errorPos);
        SoDebugError::postWarning("initSortedLayersBlendRendering",
+Index: caches/SoGLCacheList.cpp
+===================================================================
+RCS file: /export/cvsroot/Coin-2/src/caches/SoGLCacheList.cpp,v
+retrieving revision 1.13
+diff -u -u -w -b -r1.13 SoGLCacheList.cpp
+--- caches/SoGLCacheList.cpp	29 Apr 2006 13:04:48 -0000	1.13
++++ caches/SoGLCacheList.cpp	5 Nov 2006 23:53:23 -0000
+@@ -196,7 +196,7 @@
+ 
+         static SbBool chkglerr = sogl_glerror_debugging();
+         if (chkglerr) {
+-          GLenum err = glGetError();
++          GLenum err = cc_glue_glGetError();
+           if (err != GL_NO_ERROR) {
+             SoDebugError::post("SoGLCacheList::call",
+                                "An OpenGL error (%s) was detected after a "
 Index: elements/GL/SoGLClipPlaneElement.cpp
 ===================================================================
 RCS file: /export/cvsroot/Coin-2/src/elements/GL/SoGLClipPlaneElement.cpp,v
 retrieving revision 1.6
-diff -u -u -r1.6 SoGLClipPlaneElement.cpp
+diff -u -u -w -b -r1.6 SoGLClipPlaneElement.cpp
 --- elements/GL/SoGLClipPlaneElement.cpp	29 Apr 2006 13:04:52 -0000	1.6
-+++ elements/GL/SoGLClipPlaneElement.cpp	22 Oct 2006 21:05:53 -0000
++++ elements/GL/SoGLClipPlaneElement.cpp	5 Nov 2006 23:53:23 -0000
 @@ -35,7 +35,7 @@
  #include <config.h>
  #endif // HAVE_CONFIG_H
@@ -73,13 +89,29 @@ diff -u -u -r1.6 SoGLClipPlaneElement.cpp
           "GL error when calling glGetInteger() -- no current GL context?");
  
    return (int)val;
+Index: elements/GL/SoGLDisplayList.cpp
+===================================================================
+RCS file: /export/cvsroot/Coin-2/src/elements/GL/SoGLDisplayList.cpp,v
+retrieving revision 1.13
+diff -u -u -w -b -r1.13 SoGLDisplayList.cpp
+--- elements/GL/SoGLDisplayList.cpp	29 Apr 2006 13:04:52 -0000	1.13
++++ elements/GL/SoGLDisplayList.cpp	5 Nov 2006 23:53:24 -0000
+@@ -228,7 +228,7 @@
+ {
+   if (this->type == DISPLAY_LIST) {
+     glEndList();
+-    if (glGetError() == GL_OUT_OF_MEMORY) {
++    if (cc_glue_glGetError() == GL_OUT_OF_MEMORY) {
+       SoDebugError::post("SoGLDisplayList::close",
+                          "Not enough memory resources available on system "
+                          "to store full display list. Expect flaws in "
 Index: elements/GL/SoGLLightIdElement.cpp
 ===================================================================
 RCS file: /export/cvsroot/Coin-2/src/elements/GL/SoGLLightIdElement.cpp,v
 retrieving revision 1.9
-diff -u -u -r1.9 SoGLLightIdElement.cpp
+diff -u -u -w -b -r1.9 SoGLLightIdElement.cpp
 --- elements/GL/SoGLLightIdElement.cpp	29 Apr 2006 13:04:52 -0000	1.9
-+++ elements/GL/SoGLLightIdElement.cpp	22 Oct 2006 21:05:53 -0000
++++ elements/GL/SoGLLightIdElement.cpp	5 Nov 2006 23:53:24 -0000
 @@ -177,7 +177,7 @@
    GLint val;
    glGetIntegerv(GL_MAX_LIGHTS, &val);
@@ -93,9 +125,9 @@ Index: elements/GL/SoGLModelMatrixElement.cpp
 ===================================================================
 RCS file: /export/cvsroot/Coin-2/src/elements/GL/SoGLModelMatrixElement.cpp,v
 retrieving revision 1.5
-diff -u -u -r1.5 SoGLModelMatrixElement.cpp
+diff -u -u -w -b -r1.5 SoGLModelMatrixElement.cpp
 --- elements/GL/SoGLModelMatrixElement.cpp	29 Apr 2006 13:04:52 -0000	1.5
-+++ elements/GL/SoGLModelMatrixElement.cpp	22 Oct 2006 21:05:53 -0000
++++ elements/GL/SoGLModelMatrixElement.cpp	5 Nov 2006 23:53:24 -0000
 @@ -38,7 +38,7 @@
  #include <config.h>
  #endif // HAVE_CONFIG_H
@@ -118,9 +150,9 @@ Index: glue/gl.c
 ===================================================================
 RCS file: /export/cvsroot/Coin-2/src/glue/gl.c,v
 retrieving revision 1.66
-diff -u -u -r1.66 gl.c
+diff -u -u -w -b -r1.66 gl.c
 --- glue/gl.c	29 Apr 2006 13:04:58 -0000	1.66
-+++ glue/gl.c	22 Oct 2006 21:05:55 -0000
++++ glue/gl.c	5 Nov 2006 23:53:26 -0000
 @@ -355,6 +355,33 @@
    const char * val = coin_getenv(txt);
    return val ? atoi(val) : 0;
@@ -192,9 +224,9 @@ Index: shapenodes/soshape_bumprender.cpp
 ===================================================================
 RCS file: /export/cvsroot/Coin-2/src/shapenodes/soshape_bumprender.cpp,v
 retrieving revision 1.25
-diff -u -u -r1.25 soshape_bumprender.cpp
+diff -u -u -w -b -r1.25 soshape_bumprender.cpp
 --- shapenodes/soshape_bumprender.cpp	29 Apr 2006 13:05:18 -0000	1.25
-+++ shapenodes/soshape_bumprender.cpp	22 Oct 2006 21:05:55 -0000
++++ shapenodes/soshape_bumprender.cpp	5 Nov 2006 23:53:27 -0000
 @@ -287,7 +287,7 @@
                                (GLsizei)strlen(diffusebumpdirlightvpprogram),
                                diffusebumpdirlightvpprogram);
