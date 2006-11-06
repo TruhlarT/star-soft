@@ -652,8 +652,8 @@ void TObject3DView::MakeVolumeView(TPolyLine3D *polyline, Int_t  maxlevel)
 void TObject3DView::MakeVolumeView(TPolyLineShape *polyline, Int_t  maxlevel)
 { 
    if (polyline  && maxlevel > 0 ) {
-      SetLineColor(polyline->GetColorAttribute());SetLineStyle(polyline->GetStyleAttribute());
-      SetLineWidth(polyline->GetSizeAttribute()); SetFillColor(polyline->GetColorAttribute());
+      SetLineColor(polyline->GetColorAttribute());          SetLineStyle(polyline->GetStyleAttribute());
+      SetLineWidth(Width_t (polyline->GetSizeAttribute())); SetFillColor(polyline->GetColorAttribute());
       assert(polyline->GetSizeAttribute());
       MakeShape(polyline);
    }
