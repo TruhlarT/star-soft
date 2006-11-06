@@ -87,7 +87,7 @@ include (../../qt/inc/rootlibs.pri)
 #   LIBS += "$(ROOTSYS)/lib/libGQt.lib"   "$(ROOTSYS)/lib/libGraf3d.lib"
 #}
 unix {
-   LIBS += -L../../qt  -lGeom -lRQTGL 
+   LIBS += -L../../qt  -L.. -lGeom -lRQTGL 
 }
 mac {
    LIBS *=  -L../../qt -lGeom

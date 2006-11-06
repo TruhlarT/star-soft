@@ -39,6 +39,9 @@
 #include <qfileinfo.h>
 #include <qmessagebox.h>
 #include <qmenubar.h>
+#include <qimage.h>
+#include <qgl.h> 
+#include <qpngio.h> 
 
 #include <qpainter.h>
 #include <qtextstream.h>
@@ -288,6 +291,35 @@ static void InventorCallback3(void *d, SoAction *action)
         SoCacheElement::invalidate(action->getState());
 	int max = currentViewer->GetMyGLList3().size();
 	for (int i = 0; i < max; i++) glCallList(currentViewer->GetMyGLList3()[i]);
+      }
+   }
+}
+static int iframe = 0;
+static int ifile = 0;
+static QPNGImagePacker *fAnimator = 0;
+static QIODevice *fAnimDevice;
+//______________________________________________________________________________
+// Inventor call back function
+static void MovieCallback(void *d, SoAction *action)
+{
+   if (!d) return;
+   TQtCoinViewerImp *currentViewer = (TQtCoinViewerImp *)d;
+   if ( currentViewer ) {
+      if (action->isOfType(SoGLRenderAction::getClassTypeId()) )
+      {
+        SoCacheElement::invalidate(action->getState());
+        QGLWidget *w = (QGLWidget *)currentViewer->GetCoinViewer()->getGLWidget();
+        fprintf(stderr,"MovieCallback %s \n",(const char*)QString("file%1.png").arg(iframe+1));
+        QImage im =  w->grabFrameBuffer(TRUE); 
+//        if (!fAnimator) {
+//           fAnimDevice = new  QFile(QString("file%1.png").arg(ifile++));
+//           fAnimDevice->open( IO_WriteOnly );           
+//           fAnimator = new QPNGImagePacker(fAnimDevice,32,Qt::AutoColor);
+//        }
+//        fAnimator->packImage(im);iframe++; 
+//        if (iframe > 20) { fAnimDevice->flush(); fAnimDevice->close(); delete fAnimator;  fAnimator = 0; delete fAnimDevice;  fAnimDevice = 0;}
+        im.save(QString("file%1.png").arg(iframe++),"PNG");
+//              QPixmap::grabWidget(w).save(QString("file%1.png").arg(iframe++),"PNG");
       }
    }
 }
@@ -960,6 +992,7 @@ void TQtCoinViewerImp::SaveCB()
       newroot->unref();
    } else if (e == "ps") {
          //*
+#if 0      
       int printerDPI = 400;
       const SbViewportRegion &vp  = fInventorViewer->getViewportRegion();
       const SbVec2s &imagePixSize = vp.getViewportSizePixels();
@@ -987,6 +1020,76 @@ void TQtCoinViewerImp::SaveCB()
       if (myRenderer.render(fShapeNode)) 
           myRenderer.writeToPostScript(thatFile);
       //*/	
+#else
+     SoVectorizePSAction *va = new SoVectorizePSAction;
+     if (true) {
+        va->setGouraudThreshold(0.1f);
+     } else {
+        va->setGouraudThreshold(0.0f);
+     }
+     va->setBackgroundColor(TRUE, SbColor(1.0f, 1.0f, 1.0f));
+     SoVectorOutput * out = va->getOutput();
+     if (!out->openFile((const char*)thatFile)) {
+       fprintf(stderr,"Unable to open %s for writing\n",
+              (const char*)thatFile);
+     }
+     SbVec2s vpsize = fInventorViewer->getViewportRegion().getViewportSizePixels();
+     float vpratio = ((float)vpsize[0]) / ((float)vpsize[1]);
+
+     //
+     if (vpratio > 1.0f) {
+        va->setOrientation(SoVectorizeAction::LANDSCAPE);
+        vpratio = 1.0f / vpratio;
+     } else {
+        va->setOrientation(SoVectorizeAction::PORTRAIT);
+     }
+     
+     const float BORDER = 10.0f;
+     
+//     va->beginStandardPage(SoVectorizeAction::A4, BORDER);
+     va->beginPage (SbVec2f(0,0), SbVec2f(8,10), SoVectorizeAction::INCH);
+      
+     // try to fill as much "paper" as possible
+
+     // FIXME: consider making getPageSize() public
+     //SbVec2f size = va->getPageSize();
+     
+//     SbVec2f size = SbVec2f(210.0f - BORDER*2.0f,
+//                            297.0f - BORDER*2.0f);
+
+     SbVec2f size = SbVec2f(203.0f - BORDER*2.0f,
+                            279.0f - BORDER*2.0f);
+     
+     float pageratio = size[0] / size[1];
+     float xsize, ysize;
+
+     if (pageratio < vpratio) {
+        xsize = size[0];
+        ysize = xsize / vpratio;
+     } else {
+       ysize = size[1];
+       xsize = ysize * vpratio;
+     }
+
+     float offx = BORDER + (size[0]-xsize) * 0.5f;
+     float offy = BORDER + (size[1]-ysize) * 0.5f;
+
+     va->beginViewport(SbVec2f(offx, offy), SbVec2f(xsize, ysize));
+     va->calibrate(fInventorViewer->getViewportRegion() );
+
+     fprintf(stdout,"Vectorizing...");
+     fflush(stdout);
+
+     va->apply(fInventorViewer->getSceneManager()->getSceneGraph());
+     fprintf(stdout,"Creating postscript file (%s)...", (const char*)thatFile);
+     fflush(stdout);
+     va->endViewport();
+     va->endPage();
+     out->closeFile();
+
+     fprintf(stdout,"done\n");
+     fflush(stdout);
+#endif      
    } else if (e == "iv") {
       printf("Saving in iv format ...\n");
       SoWriteAction myAction;
@@ -1342,7 +1445,8 @@ void TQtCoinViewerImp::CreateViewer(const char *name)
    connect(this, SIGNAL(ObjectSelected(TObject*, const QPoint &)), &this->Signals(), SIGNAL(ObjectSelected(TObject *, const QPoint&)));
    if ( !fgCoinInitialized) { 
       SoQt::init(this); 
-#ifdef __SMALLCHANGE__ 
+      SoHardCopy::init();
+ #ifdef __SMALLCHANGE__ 
       smallchange_init(); 
 #endif
      fgCoinInitialized = kTRUE; }
@@ -1446,9 +1550,13 @@ void TQtCoinViewerImp::CreateViewer(const char *name)
    fInventorViewer->setTransparencyType(SoGLRenderAction::NONE);
 
    fCamera = fInventorViewer->getCamera(); 
-
-   SetBoxSelection();
-
+#if 0   
+   SoCallback * movie = new SoCallback;
+//    SoSeparator *mv    = new SoSeparator;
+   movie->setCallback(MovieCallback, this);
+   fRootNode->addChild(movie);
+#endif   
+   
    //  Pick the background color from pad
    SetBackgroundColor(fPad->GetFillColor());
 
