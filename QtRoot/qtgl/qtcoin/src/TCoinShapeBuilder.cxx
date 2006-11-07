@@ -1,4 +1,4 @@
-// @(#)root/gtgl:$Name:  $:$Id: TCoinShapeBuilder.cxx,v 1.3 2006/10/27 00:26:47 fine Exp $
+// @(#)root/gtgl:$Name:  $:$Id: TCoinShapeBuilder.cxx,v 1.4 2006/11/07 21:53:27 fine Exp $
 // Author: Valery Fine      24/09/06
 
 /****************************************************************************
@@ -46,8 +46,9 @@ static inline SoNode *SetCurrentColor(const Float_t *rgba,bool material=false)
    if ( material ) {
       SoMaterial * m = new SoMaterial;
       m->diffuseColor.setValue(rgba[0], rgba[1], rgba[2]);
+      m->specularColor.setValue(0.7, 0.7, 0.7); 
       m->transparency = rgba[3]; // fFactor;
-      m->shininess = .8;
+      m->shininess = .9;
       node = m;
    } else {
       SoBaseColor * colorNode = new SoBaseColor;
@@ -247,7 +248,6 @@ SoGroup * TCoinShapeBuilder::CreateCoinShape()
     fGroup = shapeGroup;
     const std::vector<Coord3D> &vertices = fShapeView.fVertex;
 
-    SoFaceSet   *shapeFaces = 0;
     SoLineSet   *shapeLine  = 0;
     SoPointSet  *shapePoint = 0;
     if (fShapeView.fPolygonsFaceBinding.size()) {

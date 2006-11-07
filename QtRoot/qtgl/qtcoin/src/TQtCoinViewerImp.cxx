@@ -19,6 +19,7 @@
 #include <qpixmap.h>
 #include <qapplication.h>
 #include <qclipboard.h>
+#include <qregexp.h> 
 #include <qimage.h>
 
 #if QT_VERSION < 0x40000
@@ -354,6 +355,7 @@ static void DeselectCB(void * viewer, SoPath *p)
 //______________________________________________________________________________
 static SoPath * PickFilterCB(void * viewer, const SoPickedPoint * pick)
 {
+   SoPath *selPath = 0;
    SoPath *p = pick->getPath();
 	/*
    if (p->getTail()->getTypeId() == SoLineSet::getClassTypeId()          ||
@@ -378,12 +380,14 @@ static SoPath * PickFilterCB(void * viewer, const SoPickedPoint * pick)
   TObject3DView *v = (TObject3DView*)p->getNode(i)->getUserData();
  // printf("static SoPath *PickFilterCB l=%d, i=%d %s : root name = %s \n",p->getLength(),i
  //        ,(const char *)p->getNode(i)->getName(),(const char *)v->GetName());
-  TQtCoinViewerImp *thisViewer = (TQtCoinViewerImp*)viewer;
-  if (v->IsSolid()) thisViewer->SetLineSelection();
-  else              thisViewer->SetBoxSelection();
-  // Emit signal at once
-  if (!thisViewer->WasPicked(v) ) thisViewer->EmitSelectSignal(v);
-  SoPath *selPath = p->copy(0, i);
+  if (v) {
+     TQtCoinViewerImp *thisViewer = (TQtCoinViewerImp*)viewer;
+     if (v->IsSolid()) thisViewer->SetLineSelection();
+      else              thisViewer->SetBoxSelection();
+     // Emit signal at once
+     if (!thisViewer->WasPicked(v) ) thisViewer->EmitSelectSignal(v);
+     selPath = p->copy(0, i);
+  }
   // fprintf(stderr,"static SoPath *PickFilterCB path %p\n", selPath);
   return selPath;
 }
@@ -511,7 +515,7 @@ TQtCoinViewerImp::TQtCoinViewerImp(TVirtualPad *pad, const char *title,
    //,fGLWidget(0),fSelectedView(0),fSelectedViewActive(kFALSE)
    //, fSelectionViewer(kFALSE),fSelectionHighlight(kFALSE),fShowSelectionGlobal(kFALSE)
    , fSnapShotAction(0),fBoxHighlightAction(0),fLineHighlightAction(0)
-   , fWantClipPlane(kFALSE), fClipPlaneMan(0)
+   , fWantClipPlane(kFALSE), fClipPlaneMan(0), fClipPlane(0)
 {
    if ( fPad ) {
 	   printf("TQtCoinViewerImp::TQtCoinViewerImp begin Pad=%p\n", pad);
@@ -628,6 +632,7 @@ TQtGLViewerImp::TQtGLViewerImp(TQtGLViewerImp &parent) :
 //______________________________________________________________________________
 TQtCoinViewerImp::~TQtCoinViewerImp()
 { 
+   if (fClipPlane)    { fClipPlane   ->unref(); fClipPlane    = 0;}
    if (fClipPlaneMan) { fClipPlaneMan->unref(); fClipPlaneMan = 0;}
    if (fAxes)         { fAxes        ->unref(); fAxes         = 0;}
    if (fXAxis)        { fXAxis       ->unref(); fXAxis        = 0;}
@@ -934,13 +939,61 @@ void TQtCoinViewerImp::OpenCB()
         }
      }
 }
+//______________________________________________________________________________
+static QString ListOfFilters() 
+{
+  QString a = "";
+  SoOffscreenRenderer r(*(new SbViewportRegion));
+  int num = r.getNumWriteFiletypes();
 
+ if (num == 0) {
+    (void)fprintf(stdout,
+                   "No image formats supported by the "
+                  "SoOffscreenRenderer except SGI RGB and Postscript.\n");
+ } else {
+    for (int i=0; i < num; i++) {
+       SbPList extlist;
+       SbString fullname, description;
+       r.getWriteFiletypeInfo(i, extlist, fullname, description);
+       if (i > 0) a+= ";";
+       a += fullname.getString(); 
+       (void)fprintf(stdout, "%s: %s (extension%s: ",
+                      fullname.getString(), description.getString(),
+                      extlist.getLength() > 1 ? "s" : "");
+         a+= " ( " ;
+         for (int j=0; j < extlist.getLength(); j++) {
+            if (j>0) a+= ", "; a+= "*."; a+=(const char*) extlist[j];
+            (void)fprintf(stdout, "%s%s", j>0 ? ", " : "", (const char*) extlist[j]);
+         }
+         a += " );";
+         (void)fprintf(stdout, ")\n");
+    }
+  }
+  return a;
+}
+//______________________________________________________________________________
+static QStringList ExtensionList(const QString &filter)
+{
+   // Return the list of the extsntion from the file dialog filter
+   QRegExp rx("(\\*\\.\\w+\\b)");
+   QStringList extension;
+   int pos = 0;
+   while ( pos >= 0 ) {
+      pos = rx.search(filter,pos);
+      if ( pos > -1 ) {
+         extension += rx.cap(1);
+         pos  += rx.matchedLength();
+      }
+   }   
+   return extension ;
+}
 //______________________________________________________________________________
 void TQtCoinViewerImp::SaveCB()
 { 
- printf("TQtCoinViewerImp::SaveCB\n");
+   printf("TQtCoinViewerImp::SaveCB\n");
    //if (!c) return;
-   QString filter = "Image File (*.rgb);;TransparImg File (*.rgbt);;WRL File (*.wrl);;IV files (*.iv);;PostScript File (*.ps)";
+   QString filter = ListOfFilters();
+   filter +=";Transparent Img File (*.rgbt);;WRL File (*.wrl);;IV files (*.iv);";
 
    QString selectedFilter;
 #if QT_VERSION < 0x40000
@@ -951,12 +1004,16 @@ void TQtCoinViewerImp::SaveCB()
     , filter, centralWidget(), "SaveAs"
     , "Save the current view as"
     , &selectedFilter);
-
+   
+   QStringList selectedExtensions = ExtensionList(selectedFilter);
+   
    if (thatFile.isEmpty()) return;
-
+   
    QString e = selectedFilter.mid(selectedFilter.find('.') + 1);
    e.remove(')');
-   
+//   QFileInfo outFile( thatFile );
+//   QString ext = outFile.extenstion(FALSE);
+//   if (ext.isEmpty()) 
    if (! thatFile.contains('.')) thatFile += '.';
    if (thatFile.at(thatFile.length()-1) == '.')  thatFile += e;
 
@@ -2168,18 +2225,28 @@ void TQtCoinViewerImp::SetCliPlaneMan(Bool_t on)
 {
    if (on) {
      if (!fClipPlaneMan) {
-        fClipPlaneMan = new SoClipPlaneManip();
+        fClipPlaneMan = new SoClipPlaneManip();       
         fClipPlaneMan->ref();
-     }
-
-     SoGetBoundingBoxAction ba(fInventorViewer->getViewportRegion());
-     ba.apply(fShapeNode);
+        SoGetBoundingBoxAction ba(fInventorViewer->getViewportRegion());
+        ba.apply(fShapeNode);
    
-     SbBox3f box = ba.getBoundingBox();
-     fClipPlaneMan->setValue(box, SbVec3f(1.0f, 0.0f, 0.0f), 1.02f);
+        SbBox3f box = ba.getBoundingBox();
+        fClipPlaneMan->setValue(box, SbVec3f(1.0f, 0.0f, 0.0f), 1.02f);
+        
+        fClipPlane    = new SoClipPlane();
+        fClipPlane->plane = fClipPlaneMan->plane;
+        fClipPlane->ref();
+        fShapeNode->insertChild(fClipPlane,0);
+     }
+     
+     fClipPlane->on = FALSE;
+     fClipPlaneMan->plane = fClipPlane->plane;    
+     
      fShapeNode->insertChild(fClipPlaneMan, 0);
   } else if (fClipPlaneMan) {
-     // fClipPlaneMan->replace
+     fShapeNode->removeChild(fClipPlaneMan);
+     fClipPlane->plane = fClipPlaneMan->plane;
+     fClipPlane->on=TRUE;
   }
 }
 

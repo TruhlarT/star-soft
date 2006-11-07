@@ -1,8 +1,8 @@
-// @(#)root/g3d:$Name:  $:$Id: TQtCoinViewerImp.h,v 1.8 2006/11/06 02:01:55 fine Exp $
+// @(#)root/g3d:$Name:  $:$Id: TQtCoinViewerImp.h,v 1.9 2006/11/07 21:53:27 fine Exp $
 // Author: Valery Fine      23/05/97
 
 /****************************************************************************
-** $Id: TQtCoinViewerImp.h,v 1.8 2006/11/06 02:01:55 fine Exp $
+** $Id: TQtCoinViewerImp.h,v 1.9 2006/11/07 21:53:27 fine Exp $
 **
 ** Copyright (C) 2002 by Valeri Fine. Brookhaven National Laboratory.
 **                                    All rights reserved.
@@ -67,6 +67,7 @@ class SmAxisDisplayKit;
 class SoClipPlaneManip;
 class SmAxisKit;
 class SoFieldSensor;
+class SoClipPlane;
 
 //#include <qintdict.h>
 //class TQtRootAction;
@@ -141,7 +142,8 @@ protected:
    SoGLRenderAction *fLineHighlightAction;
    Bool_t          fWantClipPlane;       //
    SoClipPlaneManip *fClipPlaneMan; 
-   
+   SoClipPlane      *fClipPlane; 
+  
    
    
 protected:
