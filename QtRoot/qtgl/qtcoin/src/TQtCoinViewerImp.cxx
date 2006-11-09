@@ -632,7 +632,6 @@ TQtGLViewerImp::TQtGLViewerImp(TQtGLViewerImp &parent) :
 //______________________________________________________________________________
 TQtCoinViewerImp::~TQtCoinViewerImp()
 { 
-   if (fClipPlane)    { fClipPlane   ->unref(); fClipPlane    = 0;}
    if (fClipPlaneMan) { fClipPlaneMan->unref(); fClipPlaneMan = 0;}
    if (fAxes)         { fAxes        ->unref(); fAxes         = 0;}
    if (fXAxis)        { fXAxis       ->unref(); fXAxis        = 0;}
@@ -1506,8 +1505,31 @@ void TQtCoinViewerImp::CreateViewer(const char *name)
  #ifdef __SMALLCHANGE__ 
       smallchange_init(); 
 #endif
-     fgCoinInitialized = kTRUE; }
-
+     fgCoinInitialized = kTRUE;
+   }
+    // 
+    // fInventorViewer
+    //      | 
+    //  fRootNode ---+
+    //               | fSelNode
+    //               |----------+
+    //               |          |  fShapeNode
+    //               |          |-------------+
+    //               | SelectCB               | ShapeHints
+    //               |---------               |------------
+    //               |                        |
+    //               |DeselectCB              |  fileNode
+    //               |----------              |------------
+    //               |
+    //               |PickFilterCB    
+    //               |---------- 
+    //               |
+    //               | MovieCB    
+    //               |---------- 
+    //               |
+    //               | fAxes    
+    //               |---------- 
+    // 
    //OverlayHighlightRenderAction::initClass();	
 	//*
    fRootNode = new SoSeparator;
@@ -2231,18 +2253,18 @@ void TQtCoinViewerImp::SetCliPlaneMan(Bool_t on)
         ba.apply(fShapeNode);
    
         SbBox3f box = ba.getBoundingBox();
-        fClipPlaneMan->setValue(box, SbVec3f(1.0f, 0.0f, 0.0f), 1.02f);
+        fClipPlaneMan->setValue(box, SbVec3f(1.0f, 0.0f, 0.0f), 0.5f);
         
         fClipPlane    = new SoClipPlane();
         fClipPlane->plane = fClipPlaneMan->plane;
-        fClipPlane->ref();
         fShapeNode->insertChild(fClipPlane,0);
      }
      
      fClipPlane->on = FALSE;
      fClipPlaneMan->plane = fClipPlane->plane;    
-     
+          
      fShapeNode->insertChild(fClipPlaneMan, 0);
+     
   } else if (fClipPlaneMan) {
      fShapeNode->removeChild(fClipPlaneMan);
      fClipPlane->plane = fClipPlaneMan->plane;
