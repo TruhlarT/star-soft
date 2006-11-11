@@ -38,7 +38,7 @@ INCLUDEPATH += $$QTCOINDIRI $$QTGLGLDIRI $$COININCDIRI $$SOQTINCDIRI
 
 GQTDIRI   = ../../qt/inc
 
-QTCOINH1    = $$QTCOINDIRI/TQtCoinViewerImp.h      $$QTCOINDIRI/TQtRootCoinViewer3D.h  
+QTCOINH1    = $$QTCOINDIRI/TQtCoinViewerImp.h   $$QTCOINDIRI/TQtCoinWidget.h   $$QTCOINDIRI/TQtRootCoinViewer3D.h  
 #$$QTCOINDIRI/TQtGLViewerWidget.h          $$QTCOINDIRI/TObject3DView.h      $$QTCOINDIRI/TQtGLViewerImp.h
 
 CREATE_ROOT_DICT_FOR_CLASSES  = $$QTCOINH1 $$QTCOINDIRI/LinkDef.h
@@ -116,11 +116,13 @@ INSTALLS += headerfiles target
 
 # Input
 HEADERS += inc/TQtCoinViewerImp.h            \
+           inc/TQtCoinWidget.h               \
            inc/TQtRootCoinViewer3D.h         \
            inc/TObjectCoinViewFactory.h      \
            inc/TCoinShapeBuilder.h
            
-SOURCES += src/TQtCoinViewerImp.cxx          \
+SOURCES += src/TQtCoinWidget.cxx             \
+           src/TQtCoinViewerImp.cxx          \
            src/TQtRootCoinViewer3D.cxx       \
            src/TObjectCoinViewFactory.cxx    \
            src/TCoinShapeBuilder.cxx

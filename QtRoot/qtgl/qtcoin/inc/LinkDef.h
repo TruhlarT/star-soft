@@ -1,4 +1,4 @@
-/* @(#)root/qt:$Name:  $:$Id: LinkDef.h,v 1.2 2006/10/17 20:12:27 fine Exp $*/
+/* @(#)root/qt:$Name:  $:$Id: LinkDef.h,v 1.3 2006/11/11 14:23:46 fine Exp $*/
 
 /*************************************************************************
  * Copyright (C) 1995-2004, Rene Brun and Fons Rademakers.               *
@@ -16,5 +16,6 @@
 
 #pragma link C++ class TQtRootCoinViewer3D;
 #pragma link C++ class TQtCoinViewerImp;
+#pragma link C++ class TQtCoinWidget;
 
 #endif
