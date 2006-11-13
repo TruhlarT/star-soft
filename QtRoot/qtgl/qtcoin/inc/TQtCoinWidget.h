@@ -1,8 +1,8 @@
-// @(#)root/g3d:$Name:  $:$Id: TQtCoinWidget.h,v 1.1 2006/11/11 14:23:46 fine Exp $
+// @(#)root/g3d:$Name:  $:$Id: TQtCoinWidget.h,v 1.2 2006/11/13 06:22:11 fine Exp $
 // Author: Valery Fine      23/05/97
 
 /****************************************************************************
-** $Id: TQtCoinWidget.h,v 1.1 2006/11/11 14:23:46 fine Exp $
+** $Id: TQtCoinWidget.h,v 1.2 2006/11/13 06:22:11 fine Exp $
 **
 ** Copyright (C) 2002 by Valeri Fine. Brookhaven National Laboratory.
 **                                    All rights reserved.
@@ -38,18 +38,18 @@
 #ifndef __CINT__
 #  include <qglobal.h>
 #  if QT_VERSION < 0x40000
-#    include <qmainwindow.h>
+#    include <qframe.h>
 #    include <qptrvector.h>
 #  else /* QT_VERSION */
-#    include <q3mainwindow.h>
+#    include <QFrame>
 #    include <q3ptrvector.h>
 #  endif /* QT_VERSION */
 #  include <qlabel.h>
 #else
 #  if QT_VERSION < 0x40000
-     class QMainWindow;
+     class QFrame;
 #  else /* QT_VERSION */
-     class Q3MainWindow;
+     class QFrame;
 #  endif /* QT_VERSION */
    class QString;
 #endif
@@ -76,17 +76,27 @@ class SoClipPlane;
 #include <vector>
 
 class QAction;
+class QWidget;
 class TVirtualPad;
 class SoQtExaminerViewer;
 class TObject3DView;
 class TContextMenu;
 class SoGLRenderAction;
+#ifdef __CINT__
+#  define COINWIDGETFLAGSTYPE  UInt_t
+#else
+#  if QT_VERSION < 0x40000
+#    define COINWIDGETFLAGSTYPE  Qt::WFlags
+#  else
+#    define COINWIDGETFLAGSTYPE  Qt::WindowFlags
+#  endif
+#endif     
 
 #if QT_VERSION < 0x40000
-  class TQtCoinWidget :public QMainWindow, public TGLViewerImp {
+  class TQtCoinWidget :public QFrame, public TGLViewerImp {
 #else /* QT_VERSION */
 //MOC_SKIP_BEGIN
-  class TQtCoinWidget :public Q3MainWindow, public TGLViewerImp {
+  class TQtCoinWidget :public QFrame, public TGLViewerImp {
 //MOC_SKIP_END
 #endif /* QT_VERSION */
 Q_OBJECT	  
@@ -150,7 +160,6 @@ protected:
    void CopyFile(const QString &fileName2Copy,Int_t counter);
    void CreateViewer(const char *name="qcoinviewer");
    //void CreateViewer(QGLWidget *share, const char *name="qglviewershared");
-   void MakeMenu();
    //void SaveHtml(Int_t counter);
    //void SaveHtml(QString &fileName, Int_t counter);
    //void CreateSelectionViewer();
@@ -162,12 +171,8 @@ protected:
    void SetCliPlaneMan(Bool_t on=kTRUE);
 public:
    enum {kStatusPopIn, kStatusNoBorders, kStatusOwn, kStatusPopOut};
-   //TQtCoinWidget();
-   //TQtCoinWidget(TPadOpenGLView *padview, const char *title="OpenGL Viewer", UInt_t width=400, UInt_t height=300);
-
-   //TQtCoinWidget(TPadOpenGLView *padview, const char *title, Int_t x, Int_t y,UInt_t width, UInt_t height);
+   TQtCoinWidget(QWidget *parent=0, COINWIDGETFLAGSTYPE f=0); 
    TQtCoinWidget(TVirtualPad *pad, const char *title="Coin Viewer", UInt_t width=400, UInt_t height=300);
-   //TQtCoinWidget(TVirtualPad *pad, const char *title, Int_t x, Int_t y,UInt_t width, UInt_t height);
 
    virtual ~TQtCoinWidget();
    void AddRootChild(ULong_t id);
@@ -225,8 +230,8 @@ public:
      virtual void PrintCB();
      virtual void CopyCB();
      virtual void CopyFrameCB();
-     virtual void SaveCB();
-     virtual void OpenCB();
+     virtual void ReadInputFile(QString fileName);
+     virtual void Save(QString fileName,QString type="png");
      virtual void ClearCB();
      virtual void SaveAsCB();
      //virtual void SelectEventCB(bool on);
