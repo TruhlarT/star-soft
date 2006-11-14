@@ -918,7 +918,7 @@ void TQtCoinViewerImp::OpenCB()
 { 
    printf("TQtCoinViewerImp::OpenCB\n");
 
-   QString filter = "WRL File (*.wrl);;IV files (*.iv)";
+   QString filter = "OpenInventor IV files (*.iv);;WRL File (*.wrl)";
    QString selectedFilter;
 #if QT_VERSION < 0x40000
    QString thatFile = QFileDialog::getOpenFileName(gSystem->WorkingDirectory()
@@ -929,14 +929,16 @@ void TQtCoinViewerImp::OpenCB()
     , "Add graph to coin scene");
 	
    const char * fileDecor = thatFile;
-     SoInput viewDecor;
-     if (!gSystem->AccessPathName(fileDecor) && viewDecor.openFile(fileDecor)) {
-        SoSeparator *extraObjects = SoDB::readAll(&viewDecor);
-        if (extraObjects) {
-	   printf("readings ...\n");
-           fShapeNode->addChild(extraObjects);
-        }
-     }
+   SoInput viewDecor;
+   if (!gSystem->AccessPathName(fileDecor) && viewDecor.openFile(fileDecor)) {
+      SoSeparator *extraObjects = SoDB::readAll(&viewDecor);
+      if (extraObjects) {
+          printf("readings ...\n");
+          fShapeNode->addChild(extraObjects);
+          // Make myCamera see everything.
+          fCamera->viewAll(fRootNode, fInventorViewer->getViewportRegion());
+      }
+   }
 }
 //______________________________________________________________________________
 static QString ListOfFilters() 
@@ -980,7 +982,7 @@ static QStringList ExtensionList(const QString &filter)
    while ( pos >= 0 ) {
       pos = rx.search(filter,pos);
       if ( pos > -1 ) {
-         extension += rx.cap(1);
+         extension += rx.cap(1).replace("*.","");
          pos  += rx.matchedLength();
       }
    }   
@@ -1007,31 +1009,31 @@ void TQtCoinViewerImp::SaveCB()
    QStringList selectedExtensions = ExtensionList(selectedFilter);
    
    if (thatFile.isEmpty()) return;
-   
-   QString e = selectedFilter.mid(selectedFilter.find('.') + 1);
-   e.remove(')');
-//   QFileInfo outFile( thatFile );
-//   QString ext = outFile.extenstion(FALSE);
-//   if (ext.isEmpty()) 
-   if (! thatFile.contains('.')) thatFile += '.';
-   if (thatFile.at(thatFile.length()-1) == '.')  thatFile += e;
-
+   QString e;
+   QFileInfo outFile( thatFile );
+   e = outFile.extension(FALSE).lower();
+   int extIndex = selectedExtensions.findIndex(e);
+     
+   if (extIndex == -1) {
+      // use the first extension
+      e = selectedExtensions[0];
+      // add this extenstion tho the existent file
+      thatFile += ".";  thatFile += e;
+   }
    printf("selectedFilter = %s\n", selectedFilter.data());
    printf("thatFile = %s\n", thatFile.data());
-   printf("e = %s\n", e.data());
+   printf("e = <%s>\n", e.data());
    
    if (e == "rgb") {
       SoOffscreenRenderer osr(fInventorViewer->getViewportRegion());
       osr.setComponents(SoOffscreenRenderer::RGB);
       SbBool ok = osr.render(fShapeNode);
-      if (!ok) { return; }
-      ok = osr.writeToRGB(thatFile);
+      if (ok) ok = osr.writeToRGB(thatFile);
    } else if (e == "rgbt") {
       SoOffscreenRenderer osr(fInventorViewer->getViewportRegion());
-      osr.setComponents(SoOffscreenRenderer::RGB_TRANSPARENCY);
+      osr.setComponents(SoOffscreenRenderer::RGB_TRANSPARENCY);      
       SbBool ok = osr.render(fShapeNode);
-      if (!ok) { return; }
-      ok = osr.writeToRGB(thatFile);
+      if (ok) ok = osr.writeToRGB(thatFile);
    } else if (e == "wrl") {
       printf("Converting...\n");
       SoToVRML2Action tovrml2;
@@ -1046,7 +1048,7 @@ void TQtCoinViewerImp::SaveCB()
       wra.apply(newroot);
       out.closeFile();	
       newroot->unref();
-   } else if (e == "ps") {
+   } else if (e == "ps" || e=="eps" ) {
          //*
 #if 0      
       int printerDPI = 400;
@@ -1076,7 +1078,7 @@ void TQtCoinViewerImp::SaveCB()
       if (myRenderer.render(fShapeNode)) 
           myRenderer.writeToPostScript(thatFile);
       //*/	
-#else
+#else     
      SoVectorizePSAction *va = new SoVectorizePSAction;
      if (true) {
         va->setGouraudThreshold(0.1f);
@@ -1136,7 +1138,17 @@ void TQtCoinViewerImp::SaveCB()
      fprintf(stdout,"Vectorizing...");
      fflush(stdout);
 
+#if 1
      va->apply(fInventorViewer->getSceneManager()->getSceneGraph());
+#else     
+     SoSeparator *renderNode = new SoSeparator;
+     renderNode->ref();
+     // Borrow the camera
+     renderNode->addChild(fCamera);
+     renderNode->addChild(fInventorViewer->getSceneManager()->getSceneGraph());
+     va->apply(renderNode);
+     renderNode->unref();     
+#endif     
      fprintf(stdout,"Creating postscript file (%s)...", (const char*)thatFile);
      fflush(stdout);
      va->endViewport();
@@ -1154,7 +1166,11 @@ void TQtCoinViewerImp::SaveCB()
       myAction.apply(fShapeNode);
       myAction.getOutput()->closeFile();
    } else {
-      //assert(false);
+        QGLWidget *w = (QGLWidget *)GetCoinViewer()->getGLWidget();
+        if (w) {
+           QImage im =  w->grabFrameBuffer(TRUE); 
+           im.save(thatFile,e.upper());
+        }
    }
 }
 //______________________________________________________________________________
