@@ -462,6 +462,29 @@ TQtCoinWidget::TQtCoinWidget(QWidget *parent, COINWIDGETFLAGSTYPE f)
    , fWantClipPlane(kFALSE), fClipPlaneMan(0), fClipPlane(0)
 {
 }
+//______________________________________________________________________________
+void TQtCoinWidget::SetPad(TVirtualPad *pad)
+{
+   fPad = pad;
+   if ( fPad ) {
+	   printf("TQtCoinWidget::TQtCoinWidget begin Pad=%p\n", pad);
+       //Create the default SnapShot file name and type if any
+      const char *fileDir = gSystem->Getenv("SnapShotDirectory");
+      if (!(fileDir  && fileDir[0]) && ( gEnv ) ) {
+           fileDir  = gEnv->GetValue("Gui.SnapShotDirectory",(const char *)0);
+      }
+      if (fileDir  && fileDir[0]) {  fSaveFile = fileDir; fSaveFile += "/"; }
+      fSaveFile += fPad->GetName();
+      fSaveFile += ".";
+      fSaveFile += "jpg";
+      
+      QString caption = fPad->GetTitle();
+      caption += ": Coin viewer";
+      fGLView = 0;
+      CreateViewer(caption);
+      SetDrawList(0);
+   }
+}
       
 //______________________________________________________________________________
 TQtCoinWidget::TQtCoinWidget(TVirtualPad *pad, const char *title,
@@ -500,10 +523,7 @@ TQtCoinWidget::TQtCoinWidget(TVirtualPad *pad, const char *title,
       resize(width, height);
       fGLView = 0;
       CreateViewer(title);
-      int parts[] = {43,7,10,39};
-      CreateStatusBar(parts,4);
       SetDrawList(0);
-      show();
    }
    fMaxSnapFileCounter = 2;//CreateSnapShotCounter();
    printf("TQtCoinWidget::TQtCoinWidget end\n");
@@ -663,32 +683,8 @@ void TQtGLViewerImp::CreateStatusBar(Int_t nparts)
 
 //______________________________________________________________________________
 void TQtCoinWidget::CreateStatusBar(Int_t *parts, Int_t nparts)
-{
-  //  Create the status bar with "nparts" separate portions
-  // The initial relative size of each part is defined by "parts" array
-/*
-  QStatusBar *thisStatusBar = statusBar();
-#ifdef WIN32
-  thisStatusBar->setSizeGripEnabled(FALSE);
-#endif
-  // Any number of widgets may be controlled by just
-  // one splitter
-  QSplitter *split = new QSplitter(thisStatusBar);
-  thisStatusBar->addWidget(split,1,FALSE);
-
-  fStatusBar.resize(nparts);
-  Int_t iField=0;
-  for (iField=0; iField<nparts; iField++) {
-    QLabel *infoBox = new QLabel(split);
-    infoBox->setIndent(3);
-    QSize s = infoBox->size();
-    s.setWidth(parts[iField]);
-    infoBox->resize(s);
-
-    // remember to delete later
-    fStatusBar.insert(iField,infoBox);
-  }
-  */
+{ 
+    // Dummy for this class 
 }
 /*
 //______________________________________________________________________________
@@ -953,14 +949,12 @@ void TQtCoinWidget::Save(QString fileName,QString type)
       SoOffscreenRenderer osr(fInventorViewer->getViewportRegion());
       osr.setComponents(SoOffscreenRenderer::RGB);
       SbBool ok = osr.render(fShapeNode);
-      if (!ok) { return; }
-      ok = osr.writeToRGB(thatFile);
+      if (ok) ok = osr.writeToRGB(thatFile);
    } else if (e == "rgbt") {
       SoOffscreenRenderer osr(fInventorViewer->getViewportRegion());
-      osr.setComponents(SoOffscreenRenderer::RGB_TRANSPARENCY);
+      osr.setComponents(SoOffscreenRenderer::RGB_TRANSPARENCY);      
       SbBool ok = osr.render(fShapeNode);
-      if (!ok) { return; }
-      ok = osr.writeToRGB(thatFile);
+      if (ok) ok = osr.writeToRGB(thatFile);
    } else if (e == "wrl") {
       printf("Converting...\n");
       SoToVRML2Action tovrml2;
@@ -975,7 +969,7 @@ void TQtCoinWidget::Save(QString fileName,QString type)
       wra.apply(newroot);
       out.closeFile();	
       newroot->unref();
-   } else if (e == "ps") {
+   } else if (e == "ps" || e=="eps") {
          //*
 #if 0      
       int printerDPI = 400;
@@ -1065,7 +1059,17 @@ void TQtCoinWidget::Save(QString fileName,QString type)
      fprintf(stdout,"Vectorizing...");
      fflush(stdout);
 
+#if 1
      va->apply(fInventorViewer->getSceneManager()->getSceneGraph());
+#else     
+     SoSeparator *renderNode = new SoSeparator;
+     renderNode->ref();
+     // Borrow the camera
+     renderNode->addChild(fCamera);
+     renderNode->addChild(fInventorViewer->getSceneManager()->getSceneGraph());
+     va->apply(renderNode);
+     renderNode->unref();     
+#endif     
      fprintf(stdout,"Creating postscript file (%s)...", (const char*)thatFile);
      fflush(stdout);
      va->endViewport();
@@ -1083,7 +1087,11 @@ void TQtCoinWidget::Save(QString fileName,QString type)
       myAction.apply(fShapeNode);
       myAction.getOutput()->closeFile();
    } else {
-      //assert(false);
+        QGLWidget *w = (QGLWidget *)GetCoinViewer()->getGLWidget();
+        if (w) {
+           QImage im =  w->grabFrameBuffer(TRUE); 
+           im.save(thatFile,e.upper().replace("JPG","JPEG"));
+        }
    }
 }
 //______________________________________________________________________________

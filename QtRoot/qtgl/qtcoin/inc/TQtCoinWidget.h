@@ -1,8 +1,8 @@
-// @(#)root/g3d:$Name:  $:$Id: TQtCoinWidget.h,v 1.2 2006/11/13 06:22:11 fine Exp $
+// @(#)root/g3d:$Name:  $:$Id: TQtCoinWidget.h,v 1.3 2006/11/14 21:26:05 fine Exp $
 // Author: Valery Fine      23/05/97
 
 /****************************************************************************
-** $Id: TQtCoinWidget.h,v 1.2 2006/11/13 06:22:11 fine Exp $
+** $Id: TQtCoinWidget.h,v 1.3 2006/11/14 21:26:05 fine Exp $
 **
 ** Copyright (C) 2002 by Valeri Fine. Brookhaven National Laboratory.
 **                                    All rights reserved.
@@ -157,6 +157,7 @@ protected:
    
    
 protected:
+   friend class TQtCoinViewerImp;
    void CopyFile(const QString &fileName2Copy,Int_t counter);
    void CreateViewer(const char *name="qcoinviewer");
    //void CreateViewer(QGLWidget *share, const char *name="qglviewershared");
@@ -168,7 +169,8 @@ protected:
    //TQtCoinWidget(TQtCoinWidget &);
    SoGLRenderAction &BoxHighlightAction();
    SoGLRenderAction &LineHighlightAction();
-   void SetCliPlaneMan(Bool_t on=kTRUE);
+            void SetCliPlaneMan(Bool_t on=kTRUE);
+   virtual  void SetPad(TVirtualPad *pad);  
 public:
    enum {kStatusPopIn, kStatusNoBorders, kStatusOwn, kStatusPopOut};
    TQtCoinWidget(QWidget *parent=0, COINWIDGETFLAGSTYPE f=0); 

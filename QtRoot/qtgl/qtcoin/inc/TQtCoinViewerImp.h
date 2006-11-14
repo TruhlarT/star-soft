@@ -1,8 +1,8 @@
-// @(#)root/g3d:$Name:  $:$Id: TQtCoinViewerImp.h,v 1.9 2006/11/07 21:53:27 fine Exp $
+// @(#)root/g3d:$Name:  $:$Id: TQtCoinViewerImp.h,v 1.10 2006/11/14 21:26:05 fine Exp $
 // Author: Valery Fine      23/05/97
 
 /****************************************************************************
-** $Id: TQtCoinViewerImp.h,v 1.9 2006/11/07 21:53:27 fine Exp $
+** $Id: TQtCoinViewerImp.h,v 1.10 2006/11/14 21:26:05 fine Exp $
 **
 ** Copyright (C) 2002 by Valeri Fine. Brookhaven National Laboratory.
 **                                    All rights reserved.
@@ -81,6 +81,7 @@ class SoQtExaminerViewer;
 class TObject3DView;
 class TContextMenu;
 class SoGLRenderAction;
+class TQtCoinWidget;
 
 #if QT_VERSION < 0x40000
   class TQtCoinViewerImp :public QMainWindow, public TGLViewerImp {
@@ -91,34 +92,13 @@ class SoGLRenderAction;
 #endif /* QT_VERSION */
 Q_OBJECT	  
 private:
-	
-   SoQtViewer             *fInventorViewer;
-   SoQtExaminerViewer     *qt_viewer;
-   SoSeparator            *fRootNode;
-   SoSeparator            *fShapeNode;
-   SoSelection            *fSelNode;
-   SoPerspectiveCamera    *myCamera;
-   SoCamera               *fCamera;
-   SmAxisDisplayKit       *fAxes;
-   std::vector<int>        flist[3];
-   SmAxisKit              *fXAxis;
-   SmAxisKit              *fYAxis;
-   SmAxisKit              *fZAxis;
-   SoFieldSensor          *fCameraSensor;
-   void                   *fPickedObject;
+   TQtCoinWidget         *fCoinWidget;
    
    TQtCoinViewerImp(const TQtCoinViewerImp&);
    void operator=(const TQtCoinViewerImp&)  {}
 protected:
-   TString         fSaveFile;           // the file name to save the pixmap to
-   TString         fSaveType;           // the image format type name
-   Int_t           fMaxSnapFileCounter; // The max number of the difffrent "snapshot files" (The length of the cyclic buffer)
    //static Int_t    gfDefaultMaxSnapFileCounter; // the default max number of the different "snapshot files" (The length of the cyclic bugger)
    //QGLWidget      *fGLWidget;           // QT GL widget to render the view
-   TVirtualPad    *fPad;                // For forward compatibility with the new viewer
-   TContextMenu   *fContextMenu;        // ROOT Context menu for the 3D widget
-   static Bool_t   fgCoinInitialized;
-   TObject        *fSelectedObject;     // The last selected TObject
 
 
 #ifndef __CINT__
@@ -136,15 +116,8 @@ protected:
    //Bool_t          fSelectionViewer;     // Flag to create the slave viewer with no own layout
    //Bool_t          fSelectionHighlight;  // Flag to highlight the selection object in place
    //Bool_t          fShowSelectionGlobal; // Show the selected object in the global coordinate
-   Bool_t          fWantRootContextMenu; // Create "ROOT Context menu" for the seelcted ROOT objects
    QAction        *fSnapShotAction;      // QAction to toglle the snap shot file saving
-   SoGLRenderAction *fBoxHighlightAction;
-   SoGLRenderAction *fLineHighlightAction;
-   Bool_t          fWantClipPlane;       //
-   SoClipPlaneManip *fClipPlaneMan; 
-   SoClipPlane      *fClipPlane; 
-  
-   
+     
    
 protected:
    void CopyFile(const QString &fileName2Copy,Int_t counter);
@@ -183,11 +156,11 @@ public:
    //virtual void   ShowStatusBar(Bool_t show = kTRUE);
 
    //virtual void   SwapBuffers() { };
-   SoCamera *GetCamera() const { return fCamera;} 
-   SmAxisDisplayKit *GetAxis() const { return fAxes;}
-   std::vector<int> GetMyGLList1() { return flist[0]; }
-   std::vector<int> GetMyGLList2() { return flist[1]; }
-   std::vector<int> GetMyGLList3() { return flist[2]; }
+   SoCamera *GetCamera() const; 
+   SmAxisDisplayKit *GetAxis() const;
+   std::vector<int> GetMyGLList1() const ;
+   std::vector<int> GetMyGLList2() const ;
+   std::vector<int> GetMyGLList3() const ;
    //virtual void   SetDrawList(UInt_t list) { fDrawList = list; }
 
    //virtual void   Iconify() { hide(); };
@@ -202,16 +175,12 @@ public:
    //QGLWidget *GLWidget() const { return fGLWidget;}
    virtual TVirtualPad *GetPad();
    void CreateViewer(const int id);
-   void EmitSelectSignal(TObject3DView * view);
    void SetBoxSelection();
    void SetLineSelection();
-   TObject     *GetSelected()         const { return fSelectedObject;     }
-   SoQtViewer  *GetCoinViewer()       const { return fInventorViewer;     }
-   Bool_t       WantRootContextMenu() const { return fWantRootContextMenu;}
-   Bool_t       WasPicked(void *p) { 
-      Bool_t res = (p != fPickedObject); if (res) fPickedObject = p; 
-      return res; 
-   }
+   TObject     *GetSelected()         const;
+   SoQtViewer  *GetCoinViewer()       const;
+   Bool_t       WantRootContextMenu() const;
+   Bool_t       WasPicked(void *p)    const  ;
 #ifndef __CINT__
   public slots:
      //virtual void ActivateSelectorWidgetCB(bool);

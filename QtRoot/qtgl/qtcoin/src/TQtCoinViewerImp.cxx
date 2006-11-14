@@ -3,6 +3,7 @@
 
 #include "TQVirtualGL.h"
 #include "TQPadOpenGLView.h"
+#include "TQtCoinWidget.h"
 
 #define QGLVIEWER
 
@@ -137,311 +138,6 @@
 #include <vector>
 #include "TRootGLU.h"
 
-//#include "OverlayHighlightRenderAction.h"
-Bool_t TQtCoinViewerImp::fgCoinInitialized = kFALSE;
-
-//______________________________________________________________________________
-SoGLRenderAction &TQtCoinViewerImp::BoxHighlightAction()
-{
-   if (!fBoxHighlightAction) 
-      fBoxHighlightAction = new SoBoxHighlightRenderAction;
-   return *fBoxHighlightAction;
-}
-//______________________________________________________________________________
-SoGLRenderAction &TQtCoinViewerImp::LineHighlightAction()
-{
-   if (!fLineHighlightAction) 
-      fLineHighlightAction = new SoLineHighlightRenderAction;
-   return *fLineHighlightAction;
-}
-
-//______________________________________________________________________________
- static void testCube() {
-   // - > 0-th face binded polygon
- glBegin(GL_QUADS);
-    float a= 20.0, b = 15.0;
-   glNormal3f( -1.000000, 0.000000, 0.000000);
-     glVertex3f(-a, -b , -b);
-     glVertex3f(-a,  b , -b);
-     glVertex3f(-a,  b ,  b);
-     glVertex3f(-a, -b ,  b);
-
- //-- > 1-th face binded polygon
-     glNormal3f(0.000000, 1.000000, 0.0000000);
-      glVertex3f(-a, b, -b);
-      glVertex3f( a, b, -b);
-      glVertex3f( a, b,  b);
-      glVertex3f(-a, b,  b);
- // -- > 2-th face binded polygon
-   glNormal3f( -1.000000, 0.000000, 0.000000);
-      glVertex3f(a,  b, -b);
-      glVertex3f(a, -b, -b);
-      glVertex3f(a, -b,  b);
-      glVertex3f(a,  b,  b);
-// -- > 3-th face binded polygon
-   glNormal3f(0.000000, -1.000000, 0.000000);
-      glVertex3f(-a, -b, -b);
-      glVertex3f(-a, -b,  b);
-      glVertex3f( a, -b,  b);
-      glVertex3f( a, -b, -b);
-// -- > 4-th face binded polygon
-   glNormal3f(0.000000, 0.000000, +1.000000);
-       glVertex3f(-a, -b, b);
-       glVertex3f(-a,  b, b);
-       glVertex3f( a,  b, b);
-       glVertex3f( a, -b, b);
- //-- > 5-th face binded polygon
-    glNormal3f(0.000000, 0.000000, -1.000000);
-       glVertex3f( a, -b, -b);
-       glVertex3f( a,  b, -b);
-       glVertex3f(-a,  b, -b);
-       glVertex3f(-a, -b, -b);
-  glEnd();
- }
-//______________________________________________________________________________
-// Inventor call back function
-static void InventorCallback1(void *d, SoAction *action)
-{
-   printf("static void InventorCallback1\n");
-   if (!d) return;
-   TQtCoinViewerImp *currentViewer = (TQtCoinViewerImp *)d;
-   if ( currentViewer ) {
-      if (action->isOfType(SoGLRenderAction::getClassTypeId()) )
-      {
-        // glEnable(GL_LIGHTING);
-        SoCacheElement::invalidate(action->getState());
-	int max = currentViewer->GetMyGLList1().size();
-	printf("static void InventorCallback1 lists count=%i\n", max);
-        // testCube();
-	for (int i = 0; i < max; i++) glCallList(currentViewer->GetMyGLList1()[i]);
-	//gVirtualGL->RunGLList(myGLIst + TPadOpenGLView::kModel);
-      }
-      //*
-      else if (action->isOfType(SoGetBoundingBoxAction::getClassTypeId()) )
-      {
-
-         Float_t minBound[3]={-1500,-1500,-1500};
-         Float_t maxBound[3]={ 1500, 1500, 1500};
-
-         //currentViewer->GetGLView()->GetPad()->GetView()->GetRange(minBound,maxBound);		// old
-	 currentViewer->GetPad()->GetView()->GetRange(minBound,maxBound);				// new
-	
-	  //printf(" %f %f %f :  %f %f %f \n", minBound[0],minBound[1],minBound[2]
-	//		  , maxBound[0],maxBound[1],maxBound[2]);
-	  
-         if (minBound[0] == maxBound[0]) {
-            SoCacheElement::invalidate(action->getState());
-         }
-         SoGetBoundingBoxAction *boundAction =  (SoGetBoundingBoxAction *)action;
-         Float_t min = TMath::Min(TMath::Min(minBound[0],minBound[1]),minBound[2]);
-         Float_t max = TMath::Max(TMath::Max(maxBound[0],maxBound[1]),maxBound[2]);
-         boundAction->
-            extendBy(SbBox3f(min,min,min,max,max,max));
-
-         //boundAction->
-         //   extendBy(SbBox3f(minBound[0],minBound[1],minBound[2]
-         //   ,maxBound[0],maxBound[1],maxBound[2])
-         //      );
-             // I had to add the line below into 
-             //  SoNode::GLRenderS:780 to supress the annoying warning
-             // This is very dirty but I have to do that (Valeri Fine 24.05.2003 fine@bnl.gov)
-             //    err =  GL_NO_ERROR;
-
-         const SbVec3f &centerPoint =  boundAction->getBoundingBox().getCenter();
-         boundAction->setCenter(centerPoint, false);
-         float x,y,z;
-         centerPoint.getValue(x,y,z);
-         // printf(" new center = %f %f %f \n", x,y,z);
-	 
-      }
-      //*/
-   }
-}
-
-//______________________________________________________________________________
-// Inventor call back function
-static void InventorCallback2(void *d, SoAction *action)
-{
-   if (!d) return;
-   TQtCoinViewerImp *currentViewer = (TQtCoinViewerImp *)d;
-   if ( currentViewer ) {
-      if (action->isOfType(SoGLRenderAction::getClassTypeId()) )
-      {
-        SoCacheElement::invalidate(action->getState());
-        //glEnable(GL_LIGHT0); 
-        glEnable(GL_LIGHTING);
-        //glEnable(GL_COLOR_MATERIAL);
-
-	int max = currentViewer->GetMyGLList2().size();
-	printf("static void InventorCallback2 lists count=%i\n", max);
-	for (int i = 0; i < max; i++) glCallList(currentViewer->GetMyGLList2()[i]);
-      }
-   }
-}
-
-//______________________________________________________________________________
-// Inventor call back function
-static void InventorCallback3(void *d, SoAction *action)
-{
-   printf("static void InventorCallback2\n");
-   if (!d) return;
-   TQtCoinViewerImp *currentViewer = (TQtCoinViewerImp *)d;
-   if ( currentViewer ) {
-      if (action->isOfType(SoGLRenderAction::getClassTypeId()) )
-      {
-        SoCacheElement::invalidate(action->getState());
-	int max = currentViewer->GetMyGLList3().size();
-	for (int i = 0; i < max; i++) glCallList(currentViewer->GetMyGLList3()[i]);
-      }
-   }
-}
-static int iframe = 0;
-static int ifile = 0;
-static QPNGImagePacker *fAnimator = 0;
-static QIODevice *fAnimDevice;
-//______________________________________________________________________________
-// Inventor call back function
-static void MovieCallback(void *d, SoAction *action)
-{
-   if (!d) return;
-   TQtCoinViewerImp *currentViewer = (TQtCoinViewerImp *)d;
-   if ( currentViewer ) {
-      if (action->isOfType(SoGLRenderAction::getClassTypeId()) )
-      {
-        SoCacheElement::invalidate(action->getState());
-        QGLWidget *w = (QGLWidget *)currentViewer->GetCoinViewer()->getGLWidget();
-        fprintf(stderr,"MovieCallback %s \n",(const char*)QString("file%1.png").arg(iframe+1));
-        QImage im =  w->grabFrameBuffer(TRUE); 
-//        if (!fAnimator) {
-//           fAnimDevice = new  QFile(QString("file%1.png").arg(ifile++));
-//           fAnimDevice->open( IO_WriteOnly );           
-//           fAnimator = new QPNGImagePacker(fAnimDevice,32,Qt::AutoColor);
-//        }
-//        fAnimator->packImage(im);iframe++; 
-//        if (iframe > 20) { fAnimDevice->flush(); fAnimDevice->close(); delete fAnimator;  fAnimator = 0; delete fAnimDevice;  fAnimDevice = 0;}
-        im.save(QString("file%1.png").arg(iframe++),"PNG");
-//              QPixmap::grabWidget(w).save(QString("file%1.png").arg(iframe++),"PNG");
-      }
-   }
-}
-
-//static bool g_isManip = false;
-
-//______________________________________________________________________________
-static void DeselectCB(void * viewer, SoPath *p) 
-{
-   // printf("DeselectCB %p %d\n",p,p->getRefCount() );	
-	/*
-   SoPath * path = new SoPath(*p);
-   path->ref();
-   path->truncate(path->getLength()-3);
-   if (path->getLength() == 0) {
-	//printf("!!!Er:path.len = 0\n");
-	return;
-   }
-   SoSeparator * group = (SoSeparator *) path->getTail();
-   if (g_isManip) {
-	   SoTransformerManip * manip = (SoTransformerManip *) group->getChild(0);
-	   if ( manip->isOfType(SoTransformerManip::getClassTypeId()) ) {
-	      path->append(manip);
-	      manip->replaceManip(path, new SoTransform);
-	   }
-   }
-   path->unref();
-	*/
-  ((TQtCoinViewerImp*)(viewer))->Update();
-}
-
-//______________________________________________________________________________
-static SoPath * PickFilterCB(void * viewer, const SoPickedPoint * pick)
-{
-   SoPath *selPath = 0;
-   SoPath *p = pick->getPath();
-	/*
-   if (p->getTail()->getTypeId() == SoLineSet::getClassTypeId()          ||
-       p->getTail()->getTypeId() == SoIndexedLineSet::getClassTypeId()) {
-	// for lines
-	((TQtCoinViewerImp*)(viewer))->SetLineSelection();
-   } else {
-	// for figures
-	((TQtCoinViewerImp*)(viewer))->SetBoxSelection();
-   }
-	*/
-   int i=0;
-   int l = p->getLength();
-   if (l > 1) {
-      for (i = l - 1; i > 0; i--) {
-         SoNode *n = p->getNode(i);
-         if (n->getName() == "CoinShapeNode")
-            break;
-     }
-  }
-//  SoGroup *thisGroup = (SoGroup *)p->getNode(i);
-  TObject3DView *v = (TObject3DView*)p->getNode(i)->getUserData();
- // printf("static SoPath *PickFilterCB l=%d, i=%d %s : root name = %s \n",p->getLength(),i
- //        ,(const char *)p->getNode(i)->getName(),(const char *)v->GetName());
-  if (v) {
-     TQtCoinViewerImp *thisViewer = (TQtCoinViewerImp*)viewer;
-     if (v->IsSolid()) thisViewer->SetLineSelection();
-      else              thisViewer->SetBoxSelection();
-     // Emit signal at once
-     if (!thisViewer->WasPicked(v) ) thisViewer->EmitSelectSignal(v);
-     selPath = p->copy(0, i);
-  }
-  // fprintf(stderr,"static SoPath *PickFilterCB path %p\n", selPath);
-  return selPath;
-}
-
-//______________________________________________________________________________
-static void SelectCB(void * viewer, SoPath *p)
-{
-   // fprintf(stderr, "SelectCB %p %d\n",p,p->getRefCount() );	
-	/*
-   SoPath * path = new SoPath(*p);
-   path->ref();
-   path->truncate(path->getLength()-3);
-   //printf("SelectCB; %S\n", p->getTail()->getTypeId().getName().getString());
-   if (path->getLength() != 0) {
-	   TObject3DView * v = (TObject3DView*)(path->getTail()->getUserData());
-	   //printf("\tnode->userdata=%p\n", v);
-	   ((TQtCoinViewerImp*)(viewer))->EmitSelectSignal(v);
-	   if (g_isManip) {
-		   SoSeparator * group = (SoSeparator *) path->getTail();
-		   if ( !group->getChild(0)->isOfType(SoTransform::getClassTypeId())) {
-		      group->insertChild(new SoTransform, 0);
-		   }	
-		   SoTransform * transform = (SoTransform *) group->getChild(0);
-		   path->append(transform);
-		   static SoTransformerManip * manip = 0;
-		   // if (!manip) {
-		      manip = new SoTransformerManip;
-		      manip->ref();
-		   // }
-		   manip->replaceNode(path);
-	   }
-   } else {
-	//printf("!!!Er:path.len = 0\n");
-   }
-   path->unref();
-   */
-   TQtCoinViewerImp *thisViewer = (TQtCoinViewerImp*)viewer;
-   thisViewer->Update();
-
-    // Popup the object tip
-
-   TObject *selectedObject = thisViewer->GetSelected();
-   if ((!thisViewer->WantRootContextMenu()) && selectedObject ) {
-      QPoint globalPosition = QCursor::pos();
-      QWidget *viewerWidget = thisViewer->GetCoinViewer()->getWidget();
-      QPoint cursorPosition = viewerWidget->mapFromGlobal(globalPosition);
-      QString tipText =  selectedObject->GetObjectInfo(cursorPosition.x(),cursorPosition.y());
-#if QT_VERSION < 0x40000
-      QWhatsThis::display(tipText, globalPosition,viewerWidget);
-#else
-      Q3WhatsThis::display(tipText,globalPosition,viewerWidget);
-#endif
-   }
-}
 
 /*
 //______________________________________________________________________________
@@ -507,41 +203,28 @@ TQtCoinViewerImp::TQtCoinViewerImp(TVirtualPad *pad, const char *title,
    : Q3MainWindow(0,"coinviewer", Qt::WDestructiveClose)
 #endif 
    , TGLViewerImp(0,title,width,height)
-   , fInventorViewer(0),qt_viewer(0), fRootNode(0)
-   , fShapeNode(0),fSelNode(0),myCamera(0),fCamera(0),fAxes(0)
-   , fXAxis(0), fYAxis(0), fZAxis(0),fCameraSensor(0),fPickedObject(0)
-   , fSaveType("JPEG"),fMaxSnapFileCounter(2),fPad(pad),fContextMenu(0),fSelectedObject(0)
-   , fWantRootContextMenu(kFALSE)
+   , fSnapShotAction(0)
    //,fGLWidget(0),fSelectedView(0),fSelectedViewActive(kFALSE)
    //, fSelectionViewer(kFALSE),fSelectionHighlight(kFALSE),fShowSelectionGlobal(kFALSE)
-   , fSnapShotAction(0),fBoxHighlightAction(0),fLineHighlightAction(0)
-   , fWantClipPlane(kFALSE), fClipPlaneMan(0), fClipPlane(0)
 {
-   if ( fPad ) {
+   if (pad ) {
 	   printf("TQtCoinViewerImp::TQtCoinViewerImp begin Pad=%p\n", pad);
        //Create the default SnapShot file name and type if any
-      const char *fileDir = gSystem->Getenv("SnapShotDirectory");
-      if (!(fileDir  && fileDir[0]) && ( gEnv ) ) {
-           fileDir  = gEnv->GetValue("Gui.SnapShotDirectory",(const char *)0);
-      }
-      if (fileDir  && fileDir[0]) {  fSaveFile = fileDir; fSaveFile += "/"; }
-      fSaveFile += fPad->GetName();
-      fSaveFile += ".";
-      fSaveFile += "jpg";
       
-      QString caption = fPad->GetTitle();
+      QString caption = pad->GetTitle();
       caption += ": Coin viewer";
       setCaption(caption);
       resize(width, height);
       fGLView = 0;
-      CreateViewer(title);
+      CreateViewer(title);      
+      fCoinWidget ->SetPad(pad);
       int parts[] = {43,7,10,39};
       CreateStatusBar(parts,4);
       MakeMenu();
       SetDrawList(0);
       show();
    }
-   fMaxSnapFileCounter = 2;//CreateSnapShotCounter();
+   // fMaxSnapFileCounter = 2;//CreateSnapShotCounter();
    printf("TQtCoinViewerImp::TQtCoinViewerImp end\n");
 }
 /*
@@ -631,28 +314,12 @@ TQtGLViewerImp::TQtGLViewerImp(TQtGLViewerImp &parent) :
 */
 //______________________________________________________________________________
 TQtCoinViewerImp::~TQtCoinViewerImp()
-{ 
-   if (fClipPlaneMan) { fClipPlaneMan->unref(); fClipPlaneMan = 0;}
-   if (fAxes)         { fAxes        ->unref(); fAxes         = 0;}
-   if (fXAxis)        { fXAxis       ->unref(); fXAxis        = 0;}
-   if (fYAxis)        { fYAxis       ->unref(); fYAxis        = 0;}
-   if (fZAxis)        { fZAxis       ->unref(); fZAxis        = 0;}
-   delete fBoxHighlightAction; fBoxHighlightAction  = 0;
-   delete fLineHighlightAction;fLineHighlightAction = 0;
-   delete fCameraSensor;       fCameraSensor        = 0;
-   if (fRootNode)     { fRootNode    ->unref(); fRootNode     = 0;}
-}
+{ }
 
 //______________________________________________________________________________
 void TQtCoinViewerImp::AddRootChild(ULong_t id)
-{
-   assert(id);
-   printf("TQtCoinViewerImp::AddRootChild----------------------------------------------------------------  <===\n");
-   //fRootNode->addChild(new SoCone);
-   fShapeNode->addChild((SoNode*)id);
-   
-   // Make myCamera see everything.
-   fCamera->viewAll(fRootNode, fInventorViewer->getViewportRegion());
+{ 
+   if (fCoinWidget) fCoinWidget->AddRootChild(id);
 }
 
 //______________________________________________________________________________
@@ -664,21 +331,7 @@ void TQtCoinViewerImp::ClearCB()
 //______________________________________________________________________________
 void TQtCoinViewerImp::Clear()
 {
-	fShapeNode->removeAllChildren();
-	/*
-	fInventorViewer->setSceneGraph(NULL);
-	fInventorViewer->setSceneGraph(NULL);
-	fRootNode->unref();
-	fRootNode = NULL;
-	*/
-	/*
-     // Clear (remove) all objects from the view
-   QWidget *c = centralWidget();
-   if (!c) return;
-   TQtGLViewerWidget *glView = (TQtGLViewerWidget *)c;
-   glView->clearGLList();
-   Update();
-	*/
+   if (fCoinWidget) fCoinWidget->Clear();
 }
 /*
 //______________________________________________________________________________
@@ -698,7 +351,7 @@ void TQtGLViewerImp::CreateStatusBar(Int_t nparts)
 */
 
 //______________________________________________________________________________
-void TQtCoinViewerImp::CreateStatusBar(Int_t *parts, Int_t nparts)
+void TQtCoinViewerImp::CreateStatusBar(Int_t * /*parts*/, Int_t /*nparts*/ )
 {
   //  Create the status bar with "nparts" separate portions
   // The initial relative size of each part is defined by "parts" array
@@ -753,10 +406,8 @@ int TQtCoinViewerImp::CreateSnapShotCounter()
 //______________________________________________________________________________
 TContextMenu &TQtCoinViewerImp::ContextMenu() 
 {
-   // Create the TConextMEny if needed and return it
-   if (!fContextMenu) 
-        fContextMenu = new TContextMenu("3DViewContextMenu");
-   return *fContextMenu;
+   // Create the TContextMeny if needed and return it
+   return  fCoinWidget ? fCoinWidget->ContextMenu() : *(TContextMenu *)0;
 }
 
 /*
@@ -793,17 +444,19 @@ void TQtGLViewerImp::ShowStatusBar(Bool_t show)
 //______________________________________________________________________________
  void  TQtCoinViewerImp::DisconnectPad()
  {
-    fPad = 0;
+    if (fCoinWidget) fCoinWidget->DisconnectPad();
  }
 //______________________________________________________________________________
 void TQtCoinViewerImp::SetUpdatesEnabled(const bool&enable)
-{   setUpdatesEnabled(enable);                            }
-
+{  
+    setUpdatesEnabled(enable);                            
+    if (fCoinWidget) fCoinWidget->SetUpdatesEnabled(enable);
+}
 //______________________________________________________________________________
 TVirtualPad *TQtCoinViewerImp::GetPad() 
 {
    if (GetGLView()) return GetGLView()->GetPad();
-   return fPad;
+   return  fCoinWidget ? fCoinWidget->GetPad() : 0;
 }
 /*
 //______________________________________________________________________________
@@ -834,40 +487,14 @@ void TQtGLViewerImp::ActivateSelectionGlobalCB(bool on)
 void TQtCoinViewerImp::AddGLList(unsigned int list, int type)
 {
    printf("TQtCoinViewerImp::AddGLList\n");
-   
-   flist[type].push_back(list);
-	/*
-   QWidget *c = centralWidget();
-   if (!c) return;   
-#ifdef QGLVIEWER
-     TQtGLViewerWidget *glView = (TQtGLViewerWidget *)c;
-     switch (type) {
-     case 0:
-        glView->addGLList(list, TQtGLViewerWidget::kWired);
-        break;
-     case 1: default:
-        glView->addGLList(list, TQtGLViewerWidget::kSolid);
-        break;
-     case 2:
-        glView->addGLList(list, TQtGLViewerWidget::kSelecting);
-        break;
-     };
-#endif
-	*/
+   if (fCoinWidget) fCoinWidget->AddGLList(list, type);
 }
 
 //______________________________________________________________________________
 void TQtCoinViewerImp::RemoveGLList(unsigned int list)
 {
 	printf("TQtCoinViewerImp::RemoveGLList\n");
-	/*
-   QWidget *c = centralWidget();
-   if (!c) return;   
-#ifdef QGLVIEWER
-     TQtGLViewerWidget *glView = (TQtGLViewerWidget *)c;
-     glView->removeGLList(list);
-#endif
-	*/
+   if (fCoinWidget) fCoinWidget->RemoveGLList(list);
 }
 /*
 //______________________________________________________________________________
@@ -876,70 +503,44 @@ void TQtGLViewerImp::NewViewer(){
 
 */
 //______________________________________________________________________________
-void TQtCoinViewerImp::PrintCB(){
-	/*
-   QPrinter p;
-   QWidget *c = centralWidget();
-   if (c && p.setup()) {
-      QPainter pnt(&p);
-        QGLWidget *glView = (QGLWidget *)c;
-        if (glView) pnt.drawImage(0,0,glView->grabFrameBuffer());
-      pnt.end();
-   }
-	*/	
-	SoWriteAction 	writeAction;
-	writeAction.apply(fRootNode); //writes the entire scene graph to stdout
+void TQtCoinViewerImp::PrintCB()
+{
+   if (fCoinWidget) fCoinWidget->PrintCB();
 }
 
 //______________________________________________________________________________
 void TQtCoinViewerImp::CopyCB()
 {
-	/*
- //  Copy the current x3d view to the system clipboard 
-   QWidget *c = centralWidget();
-   if (c) { 
-      QClipboard *cb = QApplication::clipboard();
-      cb->setPixmap(QPixmap::grabWindow(c->winId () )) ;
-   }
-	*/
+   //  Copy the current 3d view to the system clipboard 
+   if (fCoinWidget)  fCoinWidget->CopyCB();
 }
 //______________________________________________________________________________
 void TQtCoinViewerImp::CopyFrameCB()
 {
-	/*
    // Copy the entire window including the menu and the status bar
    QClipboard *cb = QApplication::clipboard();
    cb->setPixmap(QPixmap::grabWidget(topLevelWidget()));
-	*/
 }
 
 //______________________________________________________________________________
 void TQtCoinViewerImp::OpenCB()
 { 
    printf("TQtCoinViewerImp::OpenCB\n");
-
-   QString filter = "OpenInventor IV files (*.iv);;WRL File (*.wrl)";
-   QString selectedFilter;
+   if (fCoinWidget) {
+      QString filter = "OpenInventor IV files (*.iv);;WRL File (*.wrl)";
+      QString selectedFilter;
 #if QT_VERSION < 0x40000
-   QString thatFile = QFileDialog::getOpenFileName(gSystem->WorkingDirectory()
+      QString thatFile = QFileDialog::getOpenFileName(gSystem->WorkingDirectory()
 #else 
-   QString thatFile = Q3FileDialog::getOpenFileName(gSystem->WorkingDirectory()
+      QString thatFile = Q3FileDialog::getOpenFileName(gSystem->WorkingDirectory()
 #endif 
-    , filter, centralWidget(), "Open"
-    , "Add graph to coin scene");
-	
-   const char * fileDecor = thatFile;
-   SoInput viewDecor;
-   if (!gSystem->AccessPathName(fileDecor) && viewDecor.openFile(fileDecor)) {
-      SoSeparator *extraObjects = SoDB::readAll(&viewDecor);
-      if (extraObjects) {
-          printf("readings ...\n");
-          fShapeNode->addChild(extraObjects);
-          // Make myCamera see everything.
-          fCamera->viewAll(fRootNode, fInventorViewer->getViewportRegion());
-      }
+        , filter, centralWidget(), "Open"
+        , "Add graph to coin scene");
+      
+      fCoinWidget->ReadInputFile(thatFile);
    }
 }
+
 //______________________________________________________________________________
 static QString ListOfFilters() 
 {
@@ -991,275 +592,53 @@ static QStringList ExtensionList(const QString &filter)
 //______________________________________________________________________________
 void TQtCoinViewerImp::SaveCB()
 { 
-   printf("TQtCoinViewerImp::SaveCB\n");
-   //if (!c) return;
-   QString filter = ListOfFilters();
-   filter +=";Transparent Img File (*.rgbt);;WRL File (*.wrl);;IV files (*.iv);";
+   if (fCoinWidget) {
+      printf("TQtCoinViewerImp::SaveCB\n");
+      //if (!c) return;
+      QString filter = ListOfFilters();
+      filter +=";Transparent Img File (*.rgbt);;WRL File (*.wrl);;IV files (*.iv);";
 
-   QString selectedFilter;
+      QString selectedFilter;
 #if QT_VERSION < 0x40000
-   QString thatFile = QFileDialog::getSaveFileName(gSystem->WorkingDirectory()
+      QString thatFile = QFileDialog::getSaveFileName(gSystem->WorkingDirectory()
 #else 
-   QString thatFile = Q3FileDialog::getSaveFileName(gSystem->WorkingDirectory()
+      QString thatFile = Q3FileDialog::getSaveFileName(gSystem->WorkingDirectory()
 #endif 
     , filter, centralWidget(), "SaveAs"
     , "Save the current view as"
     , &selectedFilter);
    
-   QStringList selectedExtensions = ExtensionList(selectedFilter);
+      QStringList selectedExtensions = ExtensionList(selectedFilter);
    
-   if (thatFile.isEmpty()) return;
-   QString e;
-   QFileInfo outFile( thatFile );
-   e = outFile.extension(FALSE).lower();
-   int extIndex = selectedExtensions.findIndex(e);
+      if (thatFile.isEmpty()) return;
+      QString e;
+      QFileInfo outFile( thatFile );
+      e = outFile.extension(FALSE).lower();
+      int extIndex = selectedExtensions.findIndex(e);
      
-   if (extIndex == -1) {
-      // use the first extension
-      e = selectedExtensions[0];
-      // add this extenstion tho the existent file
-      thatFile += ".";  thatFile += e;
-   }
-   printf("selectedFilter = %s\n", selectedFilter.data());
-   printf("thatFile = %s\n", thatFile.data());
-   printf("e = <%s>\n", e.data());
+      if (extIndex == -1) {
+         // use the first extension
+         e = selectedExtensions[0];
+         // add this extenstion tho the existent file
+         thatFile += ".";  thatFile += e;
+      }
+      printf("selectedFilter = %s\n", selectedFilter.data());
+      printf("thatFile = %s\n", thatFile.data());
+      printf("e = <%s>\n", e.data());
    
-   if (e == "rgb") {
-      SoOffscreenRenderer osr(fInventorViewer->getViewportRegion());
-      osr.setComponents(SoOffscreenRenderer::RGB);
-      SbBool ok = osr.render(fShapeNode);
-      if (ok) ok = osr.writeToRGB(thatFile);
-   } else if (e == "rgbt") {
-      SoOffscreenRenderer osr(fInventorViewer->getViewportRegion());
-      osr.setComponents(SoOffscreenRenderer::RGB_TRANSPARENCY);      
-      SbBool ok = osr.render(fShapeNode);
-      if (ok) ok = osr.writeToRGB(thatFile);
-   } else if (e == "wrl") {
-      printf("Converting...\n");
-      SoToVRML2Action tovrml2;
-      tovrml2.apply(fShapeNode);
-      SoVRMLGroup *newroot = tovrml2.getVRML2SceneGraph();
-      newroot->ref();
-      printf("Writing...\n");
-      SoOutput out;
-      out.openFile(thatFile);
-      out.setHeaderString("#VRML V2.0 utf8");
-      SoWriteAction wra(&out);
-      wra.apply(newroot);
-      out.closeFile();	
-      newroot->unref();
-   } else if (e == "ps" || e=="eps" ) {
-         //*
-#if 0      
-      int printerDPI = 400;
-      const SbViewportRegion &vp  = fInventorViewer->getViewportRegion();
-      const SbVec2s &imagePixSize = vp.getViewportSizePixels();
-      SbVec2f imageInches;
-      float pixPerInch;
-
-      pixPerInch = SoOffscreenRenderer::getScreenPixelsPerInch();
-      imageInches.setValue((float)imagePixSize[0] / pixPerInch,
-                           (float)imagePixSize[1] / pixPerInch);
-
-      // The resolution to render the scene for the printer
-      // is equal to the size of the image in inches times
-      // the printer DPI;
-      SbVec2s postScriptRes;
-      postScriptRes.setValue((short)(imageInches[0])*printerDPI,
-                             (short)(imageInches[1])*printerDPI);
-
-            // Create a viewport to render the scene into.
-      SbViewportRegion myViewport;
-      myViewport.setWindowSize(postScriptRes);
-      myViewport.setPixelsPerInch((float)printerDPI);
-
-      // Render the scene
-      SoOffscreenRenderer myRenderer(myViewport);
-      if (myRenderer.render(fShapeNode)) 
-          myRenderer.writeToPostScript(thatFile);
-      //*/	
-#else     
-     SoVectorizePSAction *va = new SoVectorizePSAction;
-     if (true) {
-        va->setGouraudThreshold(0.1f);
-     } else {
-        va->setGouraudThreshold(0.0f);
-     }
-     va->setBackgroundColor(TRUE, SbColor(1.0f, 1.0f, 1.0f));
-     SoVectorOutput * out = va->getOutput();
-     if (!out->openFile((const char*)thatFile)) {
-       fprintf(stderr,"Unable to open %s for writing\n",
-              (const char*)thatFile);
-     }
-     SbVec2s vpsize = fInventorViewer->getViewportRegion().getViewportSizePixels();
-     float vpratio = ((float)vpsize[0]) / ((float)vpsize[1]);
-
-     //
-     if (vpratio > 1.0f) {
-        va->setOrientation(SoVectorizeAction::LANDSCAPE);
-        vpratio = 1.0f / vpratio;
-     } else {
-        va->setOrientation(SoVectorizeAction::PORTRAIT);
-     }
-     
-     const float BORDER = 10.0f;
-     
-//     va->beginStandardPage(SoVectorizeAction::A4, BORDER);
-     va->beginPage (SbVec2f(0,0), SbVec2f(8,10), SoVectorizeAction::INCH);
-      
-     // try to fill as much "paper" as possible
-
-     // FIXME: consider making getPageSize() public
-     //SbVec2f size = va->getPageSize();
-     
-//     SbVec2f size = SbVec2f(210.0f - BORDER*2.0f,
-//                            297.0f - BORDER*2.0f);
-
-     SbVec2f size = SbVec2f(203.0f - BORDER*2.0f,
-                            279.0f - BORDER*2.0f);
-     
-     float pageratio = size[0] / size[1];
-     float xsize, ysize;
-
-     if (pageratio < vpratio) {
-        xsize = size[0];
-        ysize = xsize / vpratio;
-     } else {
-       ysize = size[1];
-       xsize = ysize * vpratio;
-     }
-
-     float offx = BORDER + (size[0]-xsize) * 0.5f;
-     float offy = BORDER + (size[1]-ysize) * 0.5f;
-
-     va->beginViewport(SbVec2f(offx, offy), SbVec2f(xsize, ysize));
-     va->calibrate(fInventorViewer->getViewportRegion() );
-
-     fprintf(stdout,"Vectorizing...");
-     fflush(stdout);
-
-#if 1
-     va->apply(fInventorViewer->getSceneManager()->getSceneGraph());
-#else     
-     SoSeparator *renderNode = new SoSeparator;
-     renderNode->ref();
-     // Borrow the camera
-     renderNode->addChild(fCamera);
-     renderNode->addChild(fInventorViewer->getSceneManager()->getSceneGraph());
-     va->apply(renderNode);
-     renderNode->unref();     
-#endif     
-     fprintf(stdout,"Creating postscript file (%s)...", (const char*)thatFile);
-     fflush(stdout);
-     va->endViewport();
-     va->endPage();
-     out->closeFile();
-
-     fprintf(stdout,"done\n");
-     fflush(stdout);
-#endif      
-   } else if (e == "iv") {
-      printf("Saving in iv format ...\n");
-      SoWriteAction myAction;
-      myAction.getOutput()->openFile(thatFile);
-      myAction.getOutput()->setBinary(FALSE);
-      myAction.apply(fShapeNode);
-      myAction.getOutput()->closeFile();
-   } else {
-        QGLWidget *w = (QGLWidget *)GetCoinViewer()->getGLWidget();
-        if (w) {
-           QImage im =  w->grabFrameBuffer(TRUE); 
-           im.save(thatFile,e.upper());
-        }
+      fCoinWidget->Save(thatFile,e);
    }
 }
 //______________________________________________________________________________
 void TQtCoinViewerImp::SaveAsCB()
 { 
-/*
-   QWidget *c = centralWidget();
-   if (!c) return;
-#ifndef QGLVIEWER
-   QString filter = 
-     "Image (";
-
-   QString defExtension[] = {"bmp","C"};
-
-   UInt_t i;
-   for (i = 0; i < QImageIO::outputFormats().count(); i++ ) 
-   {
-      if (i) filter +=',';
-      filter += "*.";
-      QString str = QString( QImageIO::outputFormats().at( i ) );
-      filter += str.lower();
-   }
-   filter +=");;";
-
-   QString selectedFilter;
-
-#if QT_VERSION < 0x40000
-   QString thatFile = QFileDialog::getSaveFileName(gSystem->WorkingDirectory()
-#else 
-   QString thatFile = Q3FileDialog::getSaveFileName(gSystem->WorkingDirectory()
-#endif 
-    , filter, centralWidget(), "SaveAs"
-    , "Save the current x3d view as"
-    , &selectedFilter);
-
-   if (thatFile.isEmpty()) return;
- 
-   UInt_t nExt = sizeof(defExtension)/sizeof(const char *);
-   QString e;
-   for (i = 0; i < nExt-1; i++) {
-     e = '.'; e += defExtension[i];
-     if (selectedFilter.contains(e)) break;
-   }
-
-   if (! thatFile.contains('.'))  thatFile += '.';
-   if (thatFile.at(thatFile.length()-1) == '.')  thatFile += defExtension[i];
-
-   fSaveFile = (const char *)thatFile;
-   QGLWidget *glView = (QGLWidget *)c;
-   glView-> grabFrameBuffer().save(fSaveFile.Data(),fSaveType.Data());
-#else
-     TQtGLViewerWidget *glView = (TQtGLViewerWidget *)c;
-     glView->saveSnapshot(false);
-     fSaveFile = (const char *)glView->snapshotFileName( );
-#endif
-*/
+  if (fCoinWidget) fCoinWidget->SaveAsCB();
 }
 
 //______________________________________________________________________________
-void TQtCoinViewerImp::SaveSnapShot(bool)
+void TQtCoinViewerImp::SaveSnapShot(bool yes)
 {
-	/*
-#ifdef QGLVIEWER
-//  QString filename(fSaveFile.Data());
-//  glView->saveSnapshot("STAR",true);
-    if (fSaveFile.IsNull()) {
-       SaveAsCB();
-    } else {
-       // raise the widget
-       QWidget *c = centralWidget();
-       TQtGLViewerWidget *glView = (TQtGLViewerWidget *)c;
-       TVirtualPad *thisPad= GetPad();
-       QString footer(thisPad->GetTitle());
-       glView->setFooter(footer);
-       
-       // raise();
-       
-       glView->saveSnapshot(true,true);
-       if (fMaxSnapFileCounter <= 2) {
-          SaveHtml(glView->snapshotCounter()-1);
-          float x,y,z;
-          if (glView->RotationAxisAngle(x,y,z)< 0.02) {
-             CopyFile(QString(fSaveFile.Data()),glView->snapshotCounter()-1);
-          }
-       }
-       if (glView->snapshotCounter() ==  fMaxSnapFileCounter) glView->setSnapshotCounter(0);
-   }
-#endif
-*/
+  if (fCoinWidget) fCoinWidget->SaveSnapShot(yes);
 }
 /*
 //______________________________________________________________________________
@@ -1375,101 +754,37 @@ void TQtGLViewerImp::SaveHtml(QString &saveFile, Int_t counter)
    }
 #endif
 }
-//______________________________________________________________________________
-void TQtGLViewerImp::SelectEventCB(bool on)
-{
-    // Toggle the widget the "wried object selecction mode
-   QWidget *c = centralWidget();
-   TQtGLViewerWidget *glView = (TQtGLViewerWidget *)c;
-   if (glView) glView->SetWiredSelectable(on);
-}
-//______________________________________________________________________________
-void TQtGLViewerImp::SelectDetectorCB(bool on)
-{
-   // Toggle the widget the "wried object selecction mode
-   QWidget *c = centralWidget();
-   TQtGLViewerWidget *glView = (TQtGLViewerWidget *)c;
-   if (glView) glView->SetSolidSelectable(on);
-}
 */
 
 //______________________________________________________________________________
 void TQtCoinViewerImp::SnapShotSaveCB(bool on)
 {  
-	/*
-   QWidget *c = centralWidget();
-   TQtGLViewerWidget *glView = (TQtGLViewerWidget *)c;
-   // Adjust the menu indicator if any
-   if (fSnapShotAction) {
-      bool snapStatus = fSnapShotAction->isOn();
-      if (snapStatus != on ) {
-         blockSignals (true);
-         fSnapShotAction->setOn(on);
-         blockSignals (false);
-      }
-   }
-   if (on) {
-         // fGLWidget->resize(720, 576); // PAL DV format (use 720x480 for NTSC DV)
-       raise();
-       connect(glView, SIGNAL(drawFinished(bool)), this, SLOT(SaveSnapShot(bool)));
-    } else {
-       disconnect(glView, SIGNAL(drawFinished(bool)), this, SLOT(SaveSnapShot(bool)));
-    }
-	*/
+	 if (fCoinWidget) fCoinWidget->SnapShotSaveCB(on);
 }
 
 //______________________________________________________________________________
 void TQtCoinViewerImp::SynchTPadCB(bool on)
 {  
-    //SetPadSynchronize(on);
+   if (fCoinWidget) fCoinWidget->SynchTPadCB (on);
 }
 
 //______________________________________________________________________________
 void TQtCoinViewerImp::ShowFrameAxisCB(bool on)
 {  
-   if (on) {
-      if (!fXAxis) { fXAxis = new SmAxisKit; fXAxis->ref(); }
-      
-      SoGetBoundingBoxAction ba(fInventorViewer->getViewportRegion());
-      ba.apply(fShapeNode);
-   
-      SbBox3f box = ba.getBoundingBox();
-      fXAxis->axisRange.setValue(box.getMin()[0], box.getMax()[0]);
-      fXAxis->axisName = "X";
-      SoSeparator *as = new SoSeparator; as->setName("MainAxices");
-       as->addChild(fXAxis);
-      fShapeNode->insertChild(as, 0);
-   }
-/*
-#ifdef QGLVIEWER
-   QWidget *c = centralWidget();
-   TQtGLViewerWidget *glView = (TQtGLViewerWidget *)c;
-   if (on) 
-      glView->SetFrameAxisFactor(5.0);
-   else 
-      glView->SetFrameAxisFactor(-1);
-   glView->update();
-#endif
-   */
+   if (fCoinWidget) fCoinWidget->ShowFrameAxisCB(on);
 }
 
 //______________________________________________________________________________
 void TQtCoinViewerImp::ShowLightsCB(bool on)
 {  
-	/*
-#ifdef QGLVIEWER
-   QWidget *c = centralWidget();
-   TQtGLViewerWidget *glView = (TQtGLViewerWidget *)c;
-   glView->setDrawLight(on);glView->update();
-#endif
-	*/
+  if (fCoinWidget) fCoinWidget->ShowLightsCB(on);
 }
 
 //______________________________________________________________________________
 void TQtCoinViewerImp::WantRootContextMenuCB(bool on)
 {
   // Create "ROOT Context menu" otherwise use the QGLViewer "right mouse click"
-  fWantRootContextMenu = on; 
+  if (fCoinWidget) fCoinWidget->WantRootContextMenuCB(on);
 }
 
 //______________________________________________________________________________
@@ -1497,196 +812,27 @@ void TQtCoinViewerImp::HelpCB()
    */
 }
 //______________________________________________________________________________
-static void cameraChangeCB(void *data, SoSensor *)
-{
-   // Callback  that reports whenever the viewer's orientation change
-  TQtCoinViewerImp *viewer = (TQtCoinViewerImp *) data;
-  SoCamera *camera = viewer->GetCamera();
-  if (camera) {
-     SmAxisDisplayKit *axis = viewer->GetAxis();
-     if (axis) {
-        axis->orientation = camera->orientation;
-     }
-  }
-}
-//______________________________________________________________________________
 void TQtCoinViewerImp::CreateViewer(const char *name)
 {
    printf("TQtCoinViewerImp::CreateViewer\n");
-
-   connect(this, SIGNAL(ObjectSelected(TObject*, const QPoint &)), &this->Signals(), SIGNAL(ObjectSelected(TObject *, const QPoint&)));
-   if ( !fgCoinInitialized) { 
-      SoQt::init(this); 
-      SoHardCopy::init();
- #ifdef __SMALLCHANGE__ 
-      smallchange_init(); 
-#endif
-     fgCoinInitialized = kTRUE;
-   }
-    // 
-    // fInventorViewer
-    //      | 
-    //  fRootNode ---+
-    //               | fSelNode
-    //               |----------+
-    //               |          |  fShapeNode
-    //               |          |-------------+
-    //               | SelectCB               | ShapeHints
-    //               |---------               |------------
-    //               |                        |
-    //               |DeselectCB              |  fileNode
-    //               |----------              |------------
-    //               |
-    //               |PickFilterCB    
-    //               |---------- 
-    //               |
-    //               | MovieCB    
-    //               |---------- 
-    //               |
-    //               | fAxes    
-    //               |---------- 
-    // 
-   //OverlayHighlightRenderAction::initClass();	
-	//*
-   fRootNode = new SoSeparator;
-   fRootNode->setName("RootNode");
-   fRootNode->ref();	
-	
-   fSelNode = new SoSelection;
-   fSelNode->setName("SelectionNode");
-   fRootNode->addChild(fSelNode);
-
-   fShapeNode = new SoSeparator;
-   fShapeNode->setName("ShapesNode");
-   fSelNode->addChild(fShapeNode);
- // ---------------------------------------------------------------------
- // void SoSeparator::setNumRenderCaches ( const int  howmany ) [static] 
- // ---------------------------------------------------------------------
- // Set the maximum number of caches that SoSeparator nodes may allocate
- // for render caching. This is a global value which will be used for all
- // SoSeparator nodes, but the value indicate the maximum number per
- // SoSeparator node. More caches might give better performance, but will
- //  use more memory. The built-in default value is 2.
- //
- // The value can also be changed globally by setting the host system's 
- // environment variable IV_SEPARATOR_MAX_CACHES to the wanted number.
- // This is primarily meant as an aid during debugging, to make it easy to 
- // turn off rendercaching completely (by setting "IV_SEPARATOR_MAX_CACHES=0")
- // without having to change any application code.
- //
-
-	SoShapeHints * sh = new SoShapeHints;
-	sh->vertexOrdering = SoShapeHints::CLOCKWISE;
-	sh->shapeType      = SoShapeHints::SOLID;
-	sh->faceType       = SoShapeHints::CONVEX;
-   //sh->shapeType = SoShapeHints::UNKNOWN_SHAPE_TYPE;
-	//sh->faceType = SoShapeHints::UNKNOWN_FACE_TYPE;
-	fShapeNode->addChild(sh);	
-    
-	//*/
-   //fRootNode = new SoSelection;
-
-   //SoMaterial *myMaterial = new SoMaterial;
-   //fRootNode->addChild(myCamera);
-   //fRootNode->addChild(new SoDirectionalLight);
-   //myMaterial->diffuseColor.setValue(1.0, 0.0, 0.0);   // Red
-   //fRootNode->addChild(myMaterial);
-   //fRootNode->addChild(new SoCone);
-   //SoSeparator * fWNode = new SoSeparator;
-
-	// old GLFactory
-	/*
-   SoCallback * cb1 = new SoCallback;
-   SoCallback * cb2 = new SoCallback;
-   SoCallback * cb3 = new SoCallback;
-   cb1->setCallback(InventorCallback1, this);
-   cb2->setCallback(InventorCallback2, this);
-   cb3->setCallback(InventorCallback3, this);
-
-   SoSeparator * s1 = new SoSeparator;
-   SoSeparator * s2 = new SoSeparator;
-   SoSeparator * s3 = new SoSeparator;
-   s1->addChild(cb1);
-   //s2->addChild(new SoShape);
-   s2->addChild(cb2);
-   s3->addChild(cb3);
-
-   fRootNode->addChild(s1);		// wired
-   fRootNode->addChild(s2);		// solid
-   fRootNode->addChild(s3);		// selecting
-   
-   SoDrawStyle *wireStyle;
-   wireStyle = new SoDrawStyle;
-   wireStyle->style = SoDrawStyle::LINES;
-   s1->insertChild(wireStyle, 0);
-	*/
-   /*
-      QMainWindow       *fMainWidget;
-      fMainWidget = new QMainWindow(0,"Coin3dViewer",Qt::WDestructiveClose|Qt::WType_TopLevel);
-      //connect(fMainWidget,SIGNAL(destroyed()),this,SLOT(Disconnect()));
-      QFrame *glFrame = new QFrame(fMainWidget);
-      fMainWidget->setCentralWidget (glFrame);
-      qt_viewer = new SoQtExaminerViewer((QWidget*)glFrame);   
-      qt_viewer->setSceneGraph(fRootNode);
-      setCentralWidget(fInventorViewer);
-      */
-   
-   
-   fSelNode->addSelectionCallback(SelectCB, this); 		//!
-   fSelNode->addDeselectionCallback(DeselectCB, this); 		//!
-   fSelNode->setPickFilterCallback(PickFilterCB, this); 		//!
-   
-   QFrame *glFrame = new QFrame(this);
-   setCentralWidget (glFrame);
-   QVBoxLayout *l  = new QVBoxLayout(glFrame);
-   fInventorViewer = new SoQtExaminerViewer(glFrame);
-   l->addWidget(fInventorViewer->getWidget());
-   fInventorViewer->setSceneGraph(fRootNode);
-   fInventorViewer->setTransparencyType(SoGLRenderAction::NONE);
-
-   fCamera = fInventorViewer->getCamera(); 
-#if 0   
-   SoCallback * movie = new SoCallback;
-//    SoSeparator *mv    = new SoSeparator;
-   movie->setCallback(MovieCallback, this);
-   fRootNode->addChild(movie);
-#endif   
-   
-   //  Pick the background color from pad
-   SetBackgroundColor(fPad->GetFillColor());
-
-   connect(this,SIGNAL(ObjectSelected(TObject*,const QPoint &)),this,SLOT( ShowObjectInfo(TObject *, const QPoint&)));
-}
-
-//______________________________________________________________________________
-void TQtCoinViewerImp::EmitSelectSignal(TObject3DView * view)
-{
-   static QPoint mousePosition;
-
-   mousePosition = fInventorViewer->getWidget()->mapFromGlobal ( QCursor::pos());
-   if (view) {
-      TObject3DView  *parent = (TObject3DView  *)view->GetParent();
-      TObject *obj = parent->GetObject();
-      fSelectedObject = obj;
-      if (obj) {
-         //  printf("\tTQtCoinViewerImp::EmitSelectSignal view = %p, obj = %p; obj name %s \n", view, obj, (const char*)obj->GetName());
-         emit ObjectSelected(obj,  mousePosition);
-      }
+   if (!fCoinWidget) {
+      fCoinWidget = new TQtCoinWidget(this);
+      fCoinWidget->setName(name);
+      setCentralWidget (fCoinWidget);
+      connect(fCoinWidget,SIGNAL(ObjectSelected(TObject*,const QPoint &)), &this->Signals(), SIGNAL(ObjectSelected(TObject *, const QPoint&)));
    }
 }
 
 //______________________________________________________________________________
 void TQtCoinViewerImp::SetBoxSelection()
 {
- // BoxHighlightAction().setTransparencyType(fInventorViewer->getTransparencyType());
- // fInventorViewer->setGLRenderAction( &BoxHighlightAction());
+   if (fCoinWidget) fCoinWidget->SetBoxSelection();
 }
 
 //______________________________________________________________________________
 void TQtCoinViewerImp::SetLineSelection()
 {
-   LineHighlightAction().setTransparencyType(fInventorViewer->getTransparencyType());
-	fInventorViewer->setGLRenderAction( &LineHighlightAction());
+   if (fCoinWidget) fCoinWidget->SetLineSelection();
 }
 
 /*
@@ -1829,7 +975,7 @@ void TQtCoinViewerImp::MakeMenu()
 #endif 
    connect ( copyFrameAction, SIGNAL( activated() ) , this, SLOT( CopyFrameCB() ) );
    const char * copyFrameText = "<p><img source=\"frame\"> "
-                "Click this button to copy a <em>tge frame of the 3D image</em>to the system clipborad. <br>"
+                "Click this button to copy <em>the frame of the 3D image</em>to the system clipborad. <br>"
                 "You can also select the <b>Copy Frame</b> command "
                 "from the <b>Edit</b> menu.</p>";
    copyFrameAction->setWhatsThis( copyFrameText );
@@ -2115,16 +1261,7 @@ void TQtGLViewerImp::Paint(Option_t *opt)
 //______________________________________________________________________________
 void TQtCoinViewerImp::Update()
 {  
-	fRootNode->touch();
-	/*
-   CreateViewer();
-#ifdef QGLVIEWER
-   if (fGLWidget && !fSelectionViewer) 
-      ((TQtGLViewerWidget*)fGLWidget)->SetSceneLayout();
-#endif
-   TGLViewerImp::Update();
-   centralWidget()->update();
-   */
+   if (fCoinWidget) fCoinWidget->Update();
 }
 /*
 //______________________________________________________________________________
@@ -2151,89 +1288,21 @@ void TQtCoinViewerImp::SetPadSynchronize(Bool_t on)
 //______________________________________________________________________________
 void TQtCoinViewerImp::SetRotationAxisAngle(const float x, const float y, const float z, const float a)
 {
-	/*
    // Set the current rotation of the frame. 
    // Parameters are the rotation axis vector and its angle (in radians). 
-#ifdef QGLVIEWER
-  if (fGLWidget) ((TQtGLViewerWidget*)fGLWidget)->setRotationAxisAngle(x,y,z,a);
-#endif
-	*/
+   if (fCoinWidget) fCoinWidget->SetRotationAxisAngle(x,y,z,a);
 }
 
 //______________________________________________________________________________
 void TQtCoinViewerImp::SetBackgroundColor(Color_t color)
 {
-   TColor *background = gROOT->GetColor(color);
-   if (background) {
-     float rgb[3];
-     background->GetRGB(rgb[0],rgb[1],rgb[2]);
-     fInventorViewer->setBackgroundColor(SbColor(rgb));
-   }  
+   if (fCoinWidget) fCoinWidget->SetBackgroundColor(color);
 }
 
 //______________________________________________________________________________
 void TQtCoinViewerImp::ShowObjectInfo(TObject *obj, const QPoint &cursorPosition)
 {
-  if (obj) {
-	/*
-   //  Qt Slot to accept the signal emiited by the GL Widget selecting the ROOT object
-   static QRect previousTipArea;
-   QString tipText = obj->GetObjectInfo(cursorPosition.x(),cursorPosition.y());
-   
-   SetStatusText(obj->GetName(), 0);
-   Color_t objectColor = -1;
-   if (obj->InheritsFrom("TAttLine")) {
-      TAttLine *lAttr = dynamic_cast<TAttLine *>(obj);
-      if (lAttr)  objectColor =  lAttr->GetLineColor();
-   }
-   SetStatusText(QString("%1,%2").arg(cursorPosition.x()).arg(cursorPosition.y()), 1,objectColor);
-   SetStatusText(obj->ClassName(), 2);
-   SetStatusText(tipText, 3);
-   // Create a tooltip
-
-   TQtGLViewerWidget *tipped = (TQtGLViewerWidget *)sender();
-   QPoint globalPosition = tipped->mapToGlobal(cursorPosition);
-#if QT_VERSION < 0x40000
-   QWhatsThis::display(tipText, globalPosition,tipped);
-#else 
-   Q3WhatsThis::display(tipText, globalPosition,tipped);
-#endif 
-
-   TObject3DView *view = (TObject3DView *)tipped->selectedName();
-
-   // open a separate window to show the selection   
-   if (fSelectedViewActive) {      
-      if (!fSelectedView) 
-         CreateSelectionViewer();
-      else 
-         fSelectedView->Clear();
-      fSelectedView->setCaption(tipText);
-      ULong_t id = 0;
-      if (fShowSelectionGlobal) {
-          if (!view->GetViewId(TObject3DViewFactoryABC::kSelected)) view->CompileSelection();
-          id = view->GetViewId(TObject3DViewFactoryABC::kSelected);
-      } else { 
-          id = view->GetViewId();
-      }
-      fSelectedView->AddGLList(id, view->IsSolid() );
-//      fSelectedView->Update();
-      fSelectedView->update();
-   }
-   if (fSelectionHighlight) {
-      // remove the previouse selection
-      tipped->clearGLList(TQtGLViewerWidget::kSelected);
-      // Hightlight the new one
-      if (!view->GetViewId(TObject3DViewFactoryABC::kSelected)) view->CompileSelection();
-      tipped->addGLList(view->GetViewId(TObject3DViewFactoryABC::kSelected), TQtGLViewerWidget::kSelected);
-   }
-   */
-   // Display the context menu if any
-      if (fWantRootContextMenu) {
-      // Popup the context menu
-         QPoint pos = fInventorViewer->getWidget()->mapToGlobal(cursorPosition);
-         ContextMenu().Popup(pos.x(),pos.y(), obj,(TBrowser *)0);
-      }
-   }
+   if (obj && fCoinWidget) fCoinWidget->ShowObjectInfo(obj,cursorPosition);
 }
 /*
 //______________________________________________________________________________
@@ -2256,36 +1325,12 @@ ULong_t TQtCoinViewerImp::GetViewerID() const
 //______________________________________________________________________________
 void TQtCoinViewerImp::SetSnapFileCounter(int counter)
 { 
-	fMaxSnapFileCounter = counter;  
+	if (fCoinWidget) fCoinWidget->SetSnapFileCounter(counter);
 }
 //______________________________________________________________________________
 void TQtCoinViewerImp::SetCliPlaneMan(Bool_t on)
 {
-   if (on) {
-     if (!fClipPlaneMan) {
-        fClipPlaneMan = new SoClipPlaneManip();       
-        fClipPlaneMan->ref();
-        SoGetBoundingBoxAction ba(fInventorViewer->getViewportRegion());
-        ba.apply(fShapeNode);
-   
-        SbBox3f box = ba.getBoundingBox();
-        fClipPlaneMan->setValue(box, SbVec3f(1.0f, 0.0f, 0.0f), 0.5f);
-        
-        fClipPlane    = new SoClipPlane();
-        fClipPlane->plane = fClipPlaneMan->plane;
-        fShapeNode->insertChild(fClipPlane,0);
-     }
-     
-     fClipPlane->on = FALSE;
-     fClipPlaneMan->plane = fClipPlane->plane;    
-          
-     fShapeNode->insertChild(fClipPlaneMan, 0);
-     
-  } else if (fClipPlaneMan) {
-     fShapeNode->removeChild(fClipPlaneMan);
-     fClipPlane->plane = fClipPlaneMan->plane;
-     fClipPlane->on=TRUE;
-  }
+    if (fCoinWidget) fCoinWidget->SetCliPlaneMan(on);
 }
 
 //______________________________________________________________________________
@@ -2296,40 +1341,52 @@ void TQtCoinViewerImp::FrameAxisActionCB(bool on)
 //______________________________________________________________________________
 void TQtCoinViewerImp::SmallAxesActionCB(bool on)
 {
-    if (on) {
-#ifdef __SMALLCHANGE__ 
-       if (!fAxes) { 
-          fAxes =  new SmAxisDisplayKit();
-          fAxes->ref();
-          
-          SmAxisDisplayKit *ax = fAxes;
-          // axis sizes
-          ax->axes.set1Value(0, 20., 0., 0.);
-          ax->axes.set1Value(1, 0., 20., 0.);
-          ax->axes.set1Value(2, 1., 0., 20.);
-   
-          // axis colors
-          ax->colors.set1Value( 0, 1., 0., 0.);
-          ax->colors.set1Value( 1, 0., 1., 0.);
-          ax->colors.set1Value( 2, 1., 0., 1.);
-   
-          // axis labels
-          ax-> annotations.set1Value(0,"x");
-          ax-> annotations.set1Value(1,"y");
-          ax-> annotations.set1Value(2,"z");
-   
-          //  Adjust the initial orientation if any
-          if (fCamera) 
-             ax->orientation = fCamera->orientation;
-          
-          if (!fCameraSensor) 
-             fCameraSensor = new SoFieldSensor(cameraChangeCB,this);
-       }
-       fCameraSensor->attach(&fCamera->orientation);
-       fRootNode->addChild(fAxes);
-   } else if (fAxes) {
-      fRootNode->removeChild(fAxes);
-      fCameraSensor->detach();
-   }
-#endif
+     if (fCoinWidget) fCoinWidget->SmallAxesActionCB(on);
+}
+//______________________________________________________________________________
+SoCamera *TQtCoinViewerImp::GetCamera() const 
+{ 
+   return fCoinWidget ? fCoinWidget->GetCamera(): 0;
+}
+//______________________________________________________________________________
+SmAxisDisplayKit *TQtCoinViewerImp::GetAxis() const 
+{ 
+   return fCoinWidget ? fCoinWidget->GetAxis() : 0;
+}
+//______________________________________________________________________________
+std::vector<int> TQtCoinViewerImp::GetMyGLList1() const
+{ 
+   static std::vector<int>  d;
+   return fCoinWidget ? fCoinWidget->GetMyGLList1() : d; 
+}
+//______________________________________________________________________________
+std::vector<int> TQtCoinViewerImp::GetMyGLList2() const
+{ 
+   static std::vector<int>  d;
+   return fCoinWidget ? fCoinWidget->GetMyGLList2() : d; 
+}
+//______________________________________________________________________________
+std::vector<int> TQtCoinViewerImp::GetMyGLList3() const
+{
+   static std::vector<int>  d;
+   return fCoinWidget ? fCoinWidget->GetMyGLList3() : d; 
+}
+//______________________________________________________________________________
+TObject  *TQtCoinViewerImp::GetSelected() const 
+{ 
+   return fCoinWidget ? fCoinWidget->GetSelected() : 0;
+}
+//______________________________________________________________________________
+SoQtViewer  *TQtCoinViewerImp::GetCoinViewer()  const 
+{
+   return fCoinWidget ? fCoinWidget->GetCoinViewer():0; 
+}
+//______________________________________________________________________________
+Bool_t  TQtCoinViewerImp::WantRootContextMenu() const 
+{
+   return fCoinWidget ? fCoinWidget->WantRootContextMenu():kFALSE;
+}
+//______________________________________________________________________________
+Bool_t   TQtCoinViewerImp::WasPicked(void *p) const { 
+   return fCoinWidget ? fCoinWidget->WasPicked(p) : kFALSE;
 }
