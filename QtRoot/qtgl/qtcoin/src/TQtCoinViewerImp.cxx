@@ -202,7 +202,7 @@ TQtCoinViewerImp::TQtCoinViewerImp(TVirtualPad *pad, const char *title,
 #else 
    : Q3MainWindow(0,"coinviewer", Qt::WDestructiveClose)
 #endif 
-   , TGLViewerImp(0,title,width,height)
+   , TGLViewerImp(0,title,width,height),fCoinWidget(0)
    , fSnapShotAction(0)
    //,fGLWidget(0),fSelectedView(0),fSelectedViewActive(kFALSE)
    //, fSelectionViewer(kFALSE),fSelectionHighlight(kFALSE),fShowSelectionGlobal(kFALSE)
