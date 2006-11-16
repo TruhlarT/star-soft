@@ -31,7 +31,7 @@ use Cwd;
 
 use vars qw( $CVS_id $CVS_ver $ver_num $ver_rev $version );
 
-$CVS_id = '$Id: cons,v 1.99 2006/04/19 22:12:10 jeromel Exp $ ';
+$CVS_id = '$Id: cons,v 1.100 2006/11/16 19:56:17 fisyak Exp $ ';
 $CVS_ver = (split(/\s+/, $CVS_id))[2];
 
 $ver_num = "2.3";
@@ -252,7 +252,7 @@ $param::sourcesig = ['*' => 'content'];# Source file signature calculation
 #$param::sourcesig = ['*' => 'stored-content'];# Source file signature calculation
 $param::rep_sig_times_ok = 1;	# Repository .consign times are in sync
 				#   w/files.
-$param::consignFile = ".consign." . $STAR_HOST_SYS;#$^O;
+$param::consignFile = ".consign";#." . $STAR_HOST_SYS;#$^O;
 $param::conscript_chdir = 0;	# Change dir to Conscript directory
 $param::quiet = 0;		# should we show the command being executed.
 $param::debug = 0;		# should we print out debug information
@@ -1207,6 +1207,18 @@ sub find_idlM {
   return @main::search_files;
 }
 #________________________________________
+sub find_ui {
+  @main::search_files   = ();
+  &File::Find::find(\&wanted_ui, @_);
+  return @main::search_files;
+}
+#________________________________________
+sub find_xpm {
+  @main::search_files   = ();
+  &File::Find::find(\&wanted_xpm, @_);
+  return @main::search_files;
+}
+#________________________________________
 sub wanted {
   #  print "wanted ",$_,"\n";
   my ($dev,$ino,$mode,$nlink,$uid,$gid) = lstat($_);
@@ -1291,6 +1303,50 @@ sub wanted_inc {
        /^\w.*\.icpp$/ ||
        /^\w.*\.icc$/ ||
        /^\w.*\.tpp$/) {# print " $File::Find::name\n";
+      push @main::search_files,  $File::Find::name;
+  }
+}
+#________________________________________
+sub wanted_ui {
+#    print "wanted ",$_,"\n";
+  my ($dev,$ino,$mode,$nlink,$uid,$gid) = lstat($_);
+  if ( -d _ &&
+       (/^CVS$/ ||
+	/^macros$/ ||
+	/^html$/ ||
+	/^idl$/ ||
+	/^exa$/ ||
+	/^doc$/ ||
+	/^run$/ ||
+	/^examples$/ ||
+	/^local$/ ||
+	/^hold$/ ||
+	/^wrk$/)
+     ) {$File::Find::prune = 1; return;}
+  if ( /^\.\#/) {return;}
+  if ( /^\w.*\.ui$/) {# print " $File::Find::name\n";
+      push @main::search_files,  $File::Find::name;
+  }
+}
+#________________________________________
+sub wanted_xpm {
+#    print "wanted ",$_,"\n";
+  my ($dev,$ino,$mode,$nlink,$uid,$gid) = lstat($_);
+  if ( -d _ &&
+       (/^CVS$/ ||
+	/^macros$/ ||
+	/^html$/ ||
+	/^idl$/ ||
+	/^exa$/ ||
+	/^doc$/ ||
+	/^run$/ ||
+	/^examples$/ ||
+	/^local$/ ||
+	/^hold$/ ||
+	/^wrk$/)
+     ) {$File::Find::prune = 1; return;}
+  if ( /^\.\#/) {return;}
+  if ( /^\w.*\.xpm$/) {# print " $File::Find::name\n";
       push @main::search_files,  $File::Find::name;
   }
 }
