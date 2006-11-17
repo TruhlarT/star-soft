@@ -800,16 +800,7 @@ void TQtCoinViewerImp::AboutCB()
 //______________________________________________________________________________
 void TQtCoinViewerImp::HelpCB()
 {
-	/*
-   // Show TGLWidget command key values
-#ifndef QGLVIEWER
-   TQtGLWidget *c = dynamic_cast<TQtGLWidget *>(centralWidget());
-   if (c) c->ShowHelp();
-#else
-   TQtGLViewerWidget *c = dynamic_cast<TQtGLViewerWidget *>(centralWidget());
-   if (c) c->help();
-#endif
-   */
+  if (fCoinWidget) fCoinWidget->HelpCB();
 }
 //______________________________________________________________________________
 void TQtCoinViewerImp::CreateViewer(const char *name)
@@ -1229,8 +1220,8 @@ void TQtCoinViewerImp::MakeMenu()
 #endif
 // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
  //  helpMenu
-    //helpMenu->insertItem("&Help",this,SLOT(HelpCB()));
-    //helpMenu->insertSeparator();
+    helpMenu->insertItem("&Help",this,SLOT(HelpCB()));
+    helpMenu->insertSeparator();
     helpMenu->insertItem("&About",this,SLOT(AboutCB()));
 }
 /*

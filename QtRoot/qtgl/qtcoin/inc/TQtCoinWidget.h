@@ -1,8 +1,8 @@
-// @(#)root/g3d:$Name:  $:$Id: TQtCoinWidget.h,v 1.3 2006/11/14 21:26:05 fine Exp $
+// @(#)root/g3d:$Name:  $:$Id: TQtCoinWidget.h,v 1.4 2006/11/17 18:57:02 fine Exp $
 // Author: Valery Fine      23/05/97
 
 /****************************************************************************
-** $Id: TQtCoinWidget.h,v 1.3 2006/11/14 21:26:05 fine Exp $
+** $Id: TQtCoinWidget.h,v 1.4 2006/11/17 18:57:02 fine Exp $
 **
 ** Copyright (C) 2002 by Valeri Fine. Brookhaven National Laboratory.
 **                                    All rights reserved.
@@ -68,6 +68,7 @@ class SoClipPlaneManip;
 class SmAxisKit;
 class SoFieldSensor;
 class SoClipPlane;
+class QTabWidget;
 
 //#include <qintdict.h>
 //class TQtRootAction;
@@ -153,7 +154,7 @@ protected:
    Bool_t          fWantClipPlane;       //
    SoClipPlaneManip *fClipPlaneMan; 
    SoClipPlane      *fClipPlane; 
-  
+   QTabWidget       *fHelpWidget;
    
    
 protected:
@@ -169,6 +170,7 @@ protected:
    //TQtCoinWidget(TQtCoinWidget &);
    SoGLRenderAction &BoxHighlightAction();
    SoGLRenderAction &LineHighlightAction();
+   QTabWidget* HelpWidget()   { return fHelpWidget; }
             void SetCliPlaneMan(Bool_t on=kTRUE);
    virtual  void SetPad(TVirtualPad *pad);  
 public:

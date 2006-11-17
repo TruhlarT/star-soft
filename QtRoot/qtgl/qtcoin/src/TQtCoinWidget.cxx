@@ -503,7 +503,7 @@ TQtCoinWidget::TQtCoinWidget(TVirtualPad *pad, const char *title,
    //,fGLWidget(0),fSelectedView(0),fSelectedViewActive(kFALSE)
    //, fSelectionViewer(kFALSE),fSelectionHighlight(kFALSE),fShowSelectionGlobal(kFALSE)
    , fSnapShotAction(0),fBoxHighlightAction(0),fLineHighlightAction(0)
-   , fWantClipPlane(kFALSE), fClipPlaneMan(0), fClipPlane(0)
+   , fWantClipPlane(kFALSE), fClipPlaneMan(0), fClipPlane(0),fHelpWidget(0)
 {
    if ( fPad ) {
 	   printf("TQtCoinWidget::TQtCoinWidget begin Pad=%p\n", pad);
@@ -1406,16 +1406,62 @@ void TQtCoinWidget::AboutCB()
 //______________________________________________________________________________
 void TQtCoinWidget::HelpCB()
 {
-	/*
-   // Show TGLWidget command key values
-#ifndef QGLVIEWER
-   TQtGLWidget *c = dynamic_cast<TQtGLWidget *>(centralWidget());
-   if (c) c->ShowHelp();
-#else
-   TQtGLViewerWidget *c = dynamic_cast<TQtGLViewerWidget *>(centralWidget());
-   if (c) c->help();
-#endif
-   */
+	    // Gives infos on current event
+    QString msg;
+    
+    
+    msg += "<b>hold down left mousebutton</b> and move mouse pointer to <b>rotate</b> ";
+    msg += "the camera around it's current focal point"; 
+    msg += "(the focal point can be changed by doing a seek operation)";
+    msg += "<P>";
+
+    msg += "<b>hold middle mousebutton</b> to <b>pan</b>";
+    msg += " (or a CTRL-key plus left mousebutton, or a SHIFT-key plus left mousebutton)";
+    msg += "<P>";
+
+    msg += "<b>hold down left + middle mousebutton</b> to <b>zoom / dolly</b>, ";
+    msg += "or CTRL + middle mousebutton, or CTRL + SHIFT + the left mousebutton";
+    msg += "<P>";
+
+    msg += "<b>click \'s\'</b>, then <b>pick</b> with the left mousebutton to seek";
+    msg += "<P>";
+
+    msg += "<b>right mousebutton</b> opens the <b>popup menu</b>";
+    msg += "<P>";
+
+    msg += "<b>click \'ESC\' key</b> to switch to and from \'camera interaction\' mode";
+    msg += " and \'scenegraph interaction\' mode (see setViewing() documentation)";
+    
+//    msg += "<P>";
+//    msg += "<b>\'q\'</b> quits the application"; 
+//    msg += "<br>";
+
+    msg += "<hr>";
+    msg += "The SoQtExaminerViewer provides a user decoration\'s button";
+    msg += " for toggling between <b>orthographic</b> or <b>perspective</b> camera view volumes and projection methods.";
+    msg += "This is the <b>bottom-most</b> click button on the right decoration border.";
+    msg += "<hr>";
+    msg += "It also inherits the decoration buttons from the SoQtFullViewer:";
+    msg += "<br>";
+    msg += "<b>the arrow</b> for switching to \"scenegraph interaction\" mode,";
+    msg += "<br>";
+    msg += "<b>the hand</b> for setting back to \"camera interaction\" mode,";
+    msg += "<br>";
+    msg += "<b>the house</b> for \"reset camera to home position\",";
+    msg += "<br>";
+    msg += "<b>the blueprint house</b> for \"set new camera home position\",";
+    msg += "<br>";
+    msg += "<b>the eye</b> for \"zoom camera out to view full scene\","; 
+    msg += "<br>";
+    msg += "<b>the flashlight</b> for setting \"click to seek\" mode.";
+    msg += "<hr>";
+    msg += "See: <a href=\"http://doc.coin3d.org/SoQt\">http://doc.coin3d.org/SoQt </a> and";
+    msg += "<P>";
+    msg += "<a href=\"http://doc.coin3d.org/SoQt/classSoQtExaminerViewer.html\">";
+    msg += "http://doc.coin3d.org/SoQt/classSoQtExaminerViewer.html</a> also";
+
+    QMessageBox::information(0,"Infos on mouse and decoration buttons"
+                              ,msg,QMessageBox::Ok);
 }
 //______________________________________________________________________________
 static void cameraChangeCB(void *data, SoSensor *)
