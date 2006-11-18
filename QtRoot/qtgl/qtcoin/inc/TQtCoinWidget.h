@@ -1,8 +1,8 @@
-// @(#)root/g3d:$Name:  $:$Id: TQtCoinWidget.h,v 1.4 2006/11/17 18:57:02 fine Exp $
+// @(#)root/g3d:$Name:  $:$Id: TQtCoinWidget.h,v 1.5 2006/11/18 00:59:09 fine Exp $
 // Author: Valery Fine      23/05/97
 
 /****************************************************************************
-** $Id: TQtCoinWidget.h,v 1.4 2006/11/17 18:57:02 fine Exp $
+** $Id: TQtCoinWidget.h,v 1.5 2006/11/18 00:59:09 fine Exp $
 **
 ** Copyright (C) 2002 by Valeri Fine. Brookhaven National Laboratory.
 **                                    All rights reserved.
@@ -68,6 +68,8 @@ class SoClipPlaneManip;
 class SmAxisKit;
 class SoFieldSensor;
 class SoClipPlane;
+class SoCallback;
+ 
 class QTabWidget;
 
 //#include <qintdict.h>
@@ -121,10 +123,10 @@ private:
    TQtCoinWidget(const TQtCoinWidget&);
    void operator=(const TQtCoinWidget&)  {}
 protected:
-   TString         fSaveFile;           // the file name to save the pixmap to
-   TString         fSaveType;           // the image format type name
+   QString         fSaveFile;           // the file name to save the pixmap to
+   QString         fSaveType;           // the image format type name
    Int_t           fMaxSnapFileCounter; // The max number of the difffrent "snapshot files" (The length of the cyclic buffer)
-   //static Int_t    gfDefaultMaxSnapFileCounter; // the default max number of the different "snapshot files" (The length of the cyclic bugger)
+   static Int_t    gfDefaultMaxSnapFileCounter; // the default max number of the different "snapshot files" (The length of the cyclic bugger)
    //QGLWidget      *fGLWidget;           // QT GL widget to render the view
    TVirtualPad    *fPad;                // For forward compatibility with the new viewer
    TContextMenu   *fContextMenu;        // ROOT Context menu for the 3D widget
@@ -155,8 +157,9 @@ protected:
    SoClipPlaneManip *fClipPlaneMan; 
    SoClipPlane      *fClipPlane; 
    QTabWidget       *fHelpWidget;
-   
-   
+   Bool_t            fRecord;
+   SoCallback       *fMovie;
+  
 protected:
    friend class TQtCoinViewerImp;
    void CopyFile(const QString &fileName2Copy,Int_t counter);
@@ -165,7 +168,7 @@ protected:
    //void SaveHtml(Int_t counter);
    //void SaveHtml(QString &fileName, Int_t counter);
    //void CreateSelectionViewer();
-   //static int CreateSnapShotCounter();
+   static int CreateSnapShotCounter();
 
    //TQtCoinWidget(TQtCoinWidget &);
    SoGLRenderAction &BoxHighlightAction();
@@ -212,6 +215,7 @@ public:
    virtual TVirtualPad *GetPad();
    void CreateViewer(const int id);
    void EmitSelectSignal(TObject3DView * view);
+   Bool_t Recording()  const { return fRecord;}
    void SetBoxSelection();
    void SetLineSelection();
    TObject     *GetSelected()         const { return fSelectedObject;     }
@@ -236,6 +240,8 @@ public:
      virtual void CopyFrameCB();
      virtual void ReadInputFile(QString fileName);
      virtual void Save(QString fileName,QString type="png");
+     virtual void SetFileName(const QString &fileName);     
+     virtual void SetFileType(const QString &fileType);     
      virtual void ClearCB();
      virtual void SaveAsCB();
      //virtual void SelectEventCB(bool on);
@@ -249,6 +255,8 @@ public:
      virtual void ShowFrameAxisCB(bool);
      virtual void ShowLightsCB(bool);
      virtual void SynchTPadCB(bool);
+     virtual void StartRecordingCB(bool on=kTRUE);
+     virtual void StopRecordingCB(bool on=kTRUE);
      virtual void SetRotationAxisAngle(const float  x, const float  y, const float  z, const float a);
      virtual void SetSnapFileCounter(int counter);
      //virtual void SetFooter(QString &text);

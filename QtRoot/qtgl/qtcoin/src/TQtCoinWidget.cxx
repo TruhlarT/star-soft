@@ -139,7 +139,7 @@
 
 //#include "OverlayHighlightRenderAction.h"
 Bool_t TQtCoinWidget::fgCoinInitialized = kFALSE;
-
+Int_t TQtCoinWidget::gfDefaultMaxSnapFileCounter = 0 ;
 //______________________________________________________________________________
 SoGLRenderAction &TQtCoinWidget::BoxHighlightAction()
 {
@@ -155,49 +155,6 @@ SoGLRenderAction &TQtCoinWidget::LineHighlightAction()
    return *fLineHighlightAction;
 }
 
-//______________________________________________________________________________
- static void testCube() {
-   // - > 0-th face binded polygon
- glBegin(GL_QUADS);
-    float a= 20.0, b = 15.0;
-   glNormal3f( -1.000000, 0.000000, 0.000000);
-     glVertex3f(-a, -b , -b);
-     glVertex3f(-a,  b , -b);
-     glVertex3f(-a,  b ,  b);
-     glVertex3f(-a, -b ,  b);
-
- //-- > 1-th face binded polygon
-     glNormal3f(0.000000, 1.000000, 0.0000000);
-      glVertex3f(-a, b, -b);
-      glVertex3f( a, b, -b);
-      glVertex3f( a, b,  b);
-      glVertex3f(-a, b,  b);
- // -- > 2-th face binded polygon
-   glNormal3f( -1.000000, 0.000000, 0.000000);
-      glVertex3f(a,  b, -b);
-      glVertex3f(a, -b, -b);
-      glVertex3f(a, -b,  b);
-      glVertex3f(a,  b,  b);
-// -- > 3-th face binded polygon
-   glNormal3f(0.000000, -1.000000, 0.000000);
-      glVertex3f(-a, -b, -b);
-      glVertex3f(-a, -b,  b);
-      glVertex3f( a, -b,  b);
-      glVertex3f( a, -b, -b);
-// -- > 4-th face binded polygon
-   glNormal3f(0.000000, 0.000000, +1.000000);
-       glVertex3f(-a, -b, b);
-       glVertex3f(-a,  b, b);
-       glVertex3f( a,  b, b);
-       glVertex3f( a, -b, b);
- //-- > 5-th face binded polygon
-    glNormal3f(0.000000, 0.000000, -1.000000);
-       glVertex3f( a, -b, -b);
-       glVertex3f( a,  b, -b);
-       glVertex3f(-a,  b, -b);
-       glVertex3f(-a, -b, -b);
-  glEnd();
- }
 //______________________________________________________________________________
 // Inventor call back function
 static void InventorCallback1(void *d, SoAction *action)
@@ -305,22 +262,23 @@ static void MovieCallback(void *d, SoAction *action)
 {
    if (!d) return;
    TQtCoinWidget *currentViewer = (TQtCoinWidget *)d;
-   if ( currentViewer ) {
+   if ( currentViewer && currentViewer->Recording() ) {
       if (action->isOfType(SoGLRenderAction::getClassTypeId()) )
       {
         SoCacheElement::invalidate(action->getState());
-        QGLWidget *w = (QGLWidget *)currentViewer->GetCoinViewer()->getGLWidget();
-        fprintf(stderr,"MovieCallback %s \n",(const char*)QString("file%1.png").arg(iframe+1));
-        QImage im =  w->grabFrameBuffer(TRUE); 
+        currentViewer->Save(QString().sprintf("file%04d.png",ifile++),"PNG");
+//              QGLWidget *w = (QGLWidget *)currentViewer->GetCoinViewer()->getGLWidget();
+//        fprintf(stderr,"MovieCallback %s \n",(const char*)QString("file%1.png").arg(iframe+1));
+//        QImage im =  w->grabFrameBuffer(TRUE); 
 //        if (!fAnimator) {
-//           fAnimDevice = new  QFile(QString("file%1.png").arg(ifile++));
+//           fAnimDevice = new  QFile(QString().sprintf("file%04d",ifile++));
 //           fAnimDevice->open( IO_WriteOnly );           
 //           fAnimator = new QPNGImagePacker(fAnimDevice,32,Qt::AutoColor);
 //        }
 //        fAnimator->packImage(im);iframe++; 
 //        if (iframe > 20) { fAnimDevice->flush(); fAnimDevice->close(); delete fAnimator;  fAnimator = 0; delete fAnimDevice;  fAnimDevice = 0;}
-        im.save(QString("file%1.png").arg(iframe++),"PNG");
-//              QPixmap::grabWidget(w).save(QString("file%1.png").arg(iframe++),"PNG");
+//        im.save(QString().sprintf("file%04d.png",ifile++),"PNG");
+//              QPixmap::grabWidget(w).save(QString("file%1.png").arg(iframe++,),"PNG");
       }
    }
 }
@@ -459,7 +417,8 @@ TQtCoinWidget::TQtCoinWidget(QWidget *parent, COINWIDGETFLAGSTYPE f)
    //,fGLWidget(0),fSelectedView(0),fSelectedViewActive(kFALSE)
    //, fSelectionViewer(kFALSE),fSelectionHighlight(kFALSE),fShowSelectionGlobal(kFALSE)
    , fSnapShotAction(0),fBoxHighlightAction(0),fLineHighlightAction(0)
-   , fWantClipPlane(kFALSE), fClipPlaneMan(0), fClipPlane(0)
+   , fWantClipPlane(kFALSE), fClipPlaneMan(0), fClipPlane(0),fHelpWidget(0),fRecord(kFALSE)
+   , fMovie(0)
 {
 }
 //______________________________________________________________________________
@@ -477,6 +436,7 @@ void TQtCoinWidget::SetPad(TVirtualPad *pad)
       fSaveFile += fPad->GetName();
       fSaveFile += ".";
       fSaveFile += "jpg";
+      fSaveType = "JPG";
       
       QString caption = fPad->GetTitle();
       caption += ": Coin viewer";
@@ -503,16 +463,17 @@ TQtCoinWidget::TQtCoinWidget(TVirtualPad *pad, const char *title,
    //,fGLWidget(0),fSelectedView(0),fSelectedViewActive(kFALSE)
    //, fSelectionViewer(kFALSE),fSelectionHighlight(kFALSE),fShowSelectionGlobal(kFALSE)
    , fSnapShotAction(0),fBoxHighlightAction(0),fLineHighlightAction(0)
-   , fWantClipPlane(kFALSE), fClipPlaneMan(0), fClipPlane(0),fHelpWidget(0)
+   , fWantClipPlane(kFALSE), fClipPlaneMan(0), fClipPlane(0),fHelpWidget(0),fRecord(kFALSE)
+   , fMovie(0)
 {
+   printf("TQtCoinWidget::TQtCoinWidget begin Pad=%p\n", pad);
+   //Create the default SnapShot file name and type if any
+   const char *fileDir = gSystem->Getenv("SnapShotDirectory");
+   if (!(fileDir  && fileDir[0]) && ( gEnv ) ) {
+        fileDir  = gEnv->GetValue("Gui.SnapShotDirectory",(const char *)0);
+   }
+   if (fileDir  && fileDir[0]) {  fSaveFile = fileDir; fSaveFile += "/"; }
    if ( fPad ) {
-	   printf("TQtCoinWidget::TQtCoinWidget begin Pad=%p\n", pad);
-       //Create the default SnapShot file name and type if any
-      const char *fileDir = gSystem->Getenv("SnapShotDirectory");
-      if (!(fileDir  && fileDir[0]) && ( gEnv ) ) {
-           fileDir  = gEnv->GetValue("Gui.SnapShotDirectory",(const char *)0);
-      }
-      if (fileDir  && fileDir[0]) {  fSaveFile = fileDir; fSaveFile += "/"; }
       fSaveFile += fPad->GetName();
       fSaveFile += ".";
       fSaveFile += "jpg";
@@ -616,6 +577,7 @@ TQtGLViewerImp::TQtGLViewerImp(TQtGLViewerImp &parent) :
 //______________________________________________________________________________
 TQtCoinWidget::~TQtCoinWidget()
 { 
+   if (fMovie)        { fMovie       ->unref(); fMovie        = 0;}
    if (fClipPlaneMan) { fClipPlaneMan->unref(); fClipPlaneMan = 0;}
    if (fAxes)         { fAxes        ->unref(); fAxes         = 0;}
    if (fXAxis)        { fXAxis       ->unref(); fXAxis        = 0;}
@@ -686,7 +648,7 @@ void TQtCoinWidget::CreateStatusBar(Int_t *parts, Int_t nparts)
 { 
     // Dummy for this class 
 }
-/*
+
 //______________________________________________________________________________
 int TQtCoinWidget::CreateSnapShotCounter()
 {
@@ -709,7 +671,7 @@ int TQtCoinWidget::CreateSnapShotCounter()
    }
    return gfDefaultMaxSnapFileCounter;
 }
-*/
+
 //______________________________________________________________________________
 TContextMenu &TQtCoinWidget::ContextMenu() 
 {
@@ -905,16 +867,16 @@ static QString ListOfFilters()
        r.getWriteFiletypeInfo(i, extlist, fullname, description);
        if (i > 0) a+= ";";
        a += fullname.getString(); 
-       (void)fprintf(stdout, "%s: %s (extension%s: ",
-                      fullname.getString(), description.getString(),
-                      extlist.getLength() > 1 ? "s" : "");
+//       (void)fprintf(stdout, "%s: %s (extension%s: ",
+//                      fullname.getString(), description.getString(),
+//                      extlist.getLength() > 1 ? "s" : "");
          a+= " ( " ;
          for (int j=0; j < extlist.getLength(); j++) {
             if (j>0) a+= ", "; a+= "*."; a+=(const char*) extlist[j];
-            (void)fprintf(stdout, "%s%s", j>0 ? ", " : "", (const char*) extlist[j]);
+//            (void)fprintf(stdout, "%s%s", j>0 ? ", " : "", (const char*) extlist[j]);
          }
          a += " );";
-         (void)fprintf(stdout, ")\n");
+//         (void)fprintf(stdout, ")\n");
     }
   }
   return a;
@@ -942,8 +904,7 @@ void TQtCoinWidget::Save(QString fileName,QString type)
    
    QString &thatFile  = fileName;
    QString &e = type;
-   printf("thatFile = %s\n", thatFile.data());
-   printf("e = %s\n", e.data());
+   printf("thatFile = %s  type=%s\n", thatFile.data(), e.data());
    
    if (e == "rgb") {
       SoOffscreenRenderer osr(fInventorViewer->getViewportRegion());
@@ -1317,7 +1278,13 @@ void TQtGLViewerImp::SelectDetectorCB(bool on)
 //______________________________________________________________________________
 void TQtCoinWidget::SnapShotSaveCB(bool on)
 {  
-	/*
+	fRecord = on;
+   if (on) {
+      fRootNode->addChild(fMovie);
+   } else {
+      fRootNode->removeChild(fMovie);
+   }
+         /*
    QWidget *c = centralWidget();
    TQtGLViewerWidget *glView = (TQtGLViewerWidget *)c;
    // Adjust the menu indicator if any
@@ -1518,7 +1485,11 @@ void TQtCoinWidget::CreateViewer(const char *name)
    fRootNode = new SoSeparator;
    fRootNode->setName("RootNode");
    fRootNode->ref();	
-	
+   if (!fCamera) {
+    	fCamera = new SoPerspectiveCamera;
+      fRootNode->addChild(fCamera);	
+    }
+
    fSelNode = new SoSelection;
    fSelNode->setName("SelectionNode");
    fRootNode->addChild(fSelNode);
@@ -1610,12 +1581,11 @@ void TQtCoinWidget::CreateViewer(const char *name)
    fInventorViewer->setTransparencyType(SoGLRenderAction::NONE);
 
    fCamera = fInventorViewer->getCamera(); 
-#if 0   
-   SoCallback * movie = new SoCallback;
+  
+   fMovie  = new SoCallback;
 //    SoSeparator *mv    = new SoSeparator;
-   movie->setCallback(MovieCallback, this);
-   fRootNode->addChild(movie);
-#endif   
+   fMovie->setCallback(MovieCallback, this);
+   fMovie->ref();
    
    //  Pick the background color from pad
    SetBackgroundColor(fPad->GetFillColor());
@@ -1747,6 +1717,16 @@ void TQtCoinWidget::SetPadSynchronize(Bool_t on)
 }
 */
 //______________________________________________________________________________
+void TQtCoinWidget::SetFileName(const QString &fileName)
+{
+   fSaveFile = fileName;
+}  
+//______________________________________________________________________________
+void TQtCoinWidget::SetFileType(const QString &fileType)
+{
+   fSaveType =  fileType;
+}     
+//______________________________________________________________________________
 void TQtCoinWidget::SetRotationAxisAngle(const float x, const float y, const float z, const float a)
 {
 	/*
@@ -1756,6 +1736,17 @@ void TQtCoinWidget::SetRotationAxisAngle(const float x, const float y, const flo
   if (fGLWidget) ((TQtGLViewerWidget*)fGLWidget)->setRotationAxisAngle(x,y,z,a);
 #endif
 	*/
+}
+//______________________________________________________________________________
+void TQtCoinWidget::StartRecordingCB(bool on)
+{
+  fRecord = on;
+}
+
+//______________________________________________________________________________
+void TQtCoinWidget::StopRecordingCB(bool on)
+{
+  StartRecordingCB (kFALSE);
 }
 
 //______________________________________________________________________________

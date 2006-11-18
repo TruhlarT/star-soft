@@ -887,8 +887,8 @@ void TQtCoinViewerImp::MakeMenu()
                 "You can also select the <b>Save As</b> command "
                 "from the <b>File</b> menu.</p>";
    saveAsAction->setWhatsThis( saveAsText );
- 
-    // Create a "open" action
+    
+   // Create a "open" action
 #if QT_VERSION < 0x40000
    QAction *openAction =  new QAction("Open", "Open", CTRL+Key_O, this, "open" );
 #else 
@@ -904,15 +904,15 @@ void TQtCoinViewerImp::MakeMenu()
  
    // Create a "save as" action
 #if QT_VERSION < 0x40000
-   fSnapShotAction  =  new QAction("snapShot", "SnapShotSave", CTRL+Key_O, this, "snapshot" );
+   fSnapShotAction  =  new QAction("snapShot", "Record", CTRL+Key_R, this, "record" );
    connect ( fSnapShotAction, SIGNAL( toggled(bool) ) , this, SLOT( SnapShotSaveCB(bool) ) );
 #else 
-   fSnapShotAction  =  new Q3Action("snapShot", "SnapShotSave", Qt::CTRL+Qt::Key_O, this, "snapshot" );
+   fSnapShotAction  =  new Q3Action("snapShot", "Record", Qt::CTRL+Qt::Key_R, this, "record" );
 #endif 
    connect ( fSnapShotAction, SIGNAL( toggled(bool) ) , this, SLOT( SnapShotSaveCB(bool) ) );
 
    const char * snapShotText = "<p><img source=\"snapshot\"> "
-                "Click this button to save the image each time the frame is updated";
+                "Click this button to create the animation, i.e. to save the image each time the frame is updated";
    fSnapShotAction->setWhatsThis( snapShotText );
    fSnapShotAction->setToggleAction(true);
 
@@ -1146,7 +1146,7 @@ void TQtCoinViewerImp::MakeMenu()
    
    saveAction     ->addTo(fileMenu);
    //saveAsAction   ->addTo(fileMenu);
-   //fSnapShotAction->addTo(fileMenu);
+   fSnapShotAction->addTo(fileMenu);
    openAction     ->addTo(fileMenu);
    clearAction     ->addTo(fileMenu);
                     fileMenu->insertSeparator();

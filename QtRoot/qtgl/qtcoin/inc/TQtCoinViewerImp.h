@@ -1,8 +1,8 @@
-// @(#)root/g3d:$Name:  $:$Id: TQtCoinViewerImp.h,v 1.10 2006/11/14 21:26:05 fine Exp $
+// @(#)root/g3d:$Name:  $:$Id: TQtCoinViewerImp.h,v 1.11 2006/11/18 00:59:09 fine Exp $
 // Author: Valery Fine      23/05/97
 
 /****************************************************************************
-** $Id: TQtCoinViewerImp.h,v 1.10 2006/11/14 21:26:05 fine Exp $
+** $Id: TQtCoinViewerImp.h,v 1.11 2006/11/18 00:59:09 fine Exp $
 **
 ** Copyright (C) 2002 by Valeri Fine. Brookhaven National Laboratory.
 **                                    All rights reserved.
@@ -116,7 +116,7 @@ protected:
    //Bool_t          fSelectionViewer;     // Flag to create the slave viewer with no own layout
    //Bool_t          fSelectionHighlight;  // Flag to highlight the selection object in place
    //Bool_t          fShowSelectionGlobal; // Show the selected object in the global coordinate
-   QAction        *fSnapShotAction;      // QAction to toglle the snap shot file saving
+   QAction        *fSnapShotAction;      // QAction to toggle the snap shot file saving
      
    
 protected:
