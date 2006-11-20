@@ -1,7 +1,15 @@
 #!/bin/sh
 
+# CoinInstallDir 
 srcdir=`pwd`
-platform=rh8
+platform=$STAR_HOST_SYS
+
+if test "x$platform" = "x" ; then
+   platform=`uname`
+fi 
+
+packageName=$platform/coin3d
+
 cd ..
 builddirbase=`pwd`/buildDir
 installDir=$1
@@ -14,21 +22,24 @@ if test ! $installDir;  then
   echo "-----"
   exit 1
 fi
+
 if !(test -d "$installDir"); then
   echo "** Warning ** \"$installDir\" does not exist. Create it!"
   if !(mkdir -p $installDir); then
      exit 1
   fi
 fi
+
 if !(test -d "$builddirbase"); then
   echo "** Warning ** \"$builddirbase\" does not exist. Create it!"
   if !(mkdir -p $builddirbase); then
      exit 1
   fi
 fi
-installDir=`pwd`/$installDir
+
+installDir=`pwd`/$installDir/$packageName
 echo "Coin package will be installed in to the \"$installDir\" directory from $srcdir"
-builddir=$builddirbase/${platform}.debug
+builddir=$builddirbase/${packageName}
 
 cd $srcdir
 if test -d Coin-2; then 
@@ -41,24 +52,14 @@ if test -d Coin-2; then
  
 
  cd $builddirbase
- mkdir -p ${platform}.debug
- cd ${platform}.debug
+ mkdir -p ${packageName}
+ cd ${packageName}
   mkdir simage-1
   mkdir Coin-2
   mkdir SmallChange
   mkdir SoQt
-  mkdir SoXt
   mkdir SoGuiExamples-SoQt
- cd ..
- mkdir -p ${platform}.release
- cd ${platform}.release
-  mkdir simage-1
-  mkdir Coin-2
-  mkdir SmallChange
-  mkdir SoQt
-  mkdir SoXt
-  mkdir SoGuiExamples-SoQt
- cd ..
+ cd ../..
  pwd
  echo " Configure simage $builddir/simage-1"
  cd $builddir/simage-1
@@ -84,15 +85,15 @@ if test -d Coin-2; then
    $srcdir/SoQt/configure  --prefix=$installDir  ${msvcrt}  --with-coin   --with-qt=true  --enable-debug --enable-threadsafe
     make install
   
-if test "x$testPlatform" = "x0" ; then
-  # non Windows 
- echo " Configure SoXt"
- echo " Do NOT build SoXt!!!  It may confuse the ROOT configure utility!!!"
+  if test "x$testPlatform" = "x0" ; then
+    # non Windows 
+   echo " Configure SoXt"
+   echo " Do NOT build SoXt!!!  It may confuse the ROOT configure utility!!!"
 
-# cd $builddir/SoXt
-#   $srcdir/SoXt/configure  --prefix=$installDir --with-coin --enable-debug --enable-threadsafe
-#    make install
-fi
+  # cd $builddir/SoXt
+  #   $srcdir/SoXt/configure  --prefix=$installDir --with-coin --enable-debug --enable-threadsafe
+  #    make install
+  fi
 
   export PATH=$installDir/bin:$PATH
   cd $builddir/SoGuiExamples-SoQt
