@@ -41,7 +41,7 @@ if test -d Coin-2; then
  
 
  cd $builddirbase
- mkdir ${platform}.debug
+ mkdir -p ${platform}.debug
  cd ${platform}.debug
   mkdir simage-1
   mkdir Coin-2
@@ -50,7 +50,7 @@ if test -d Coin-2; then
   mkdir SoXt
   mkdir SoGuiExamples-SoQt
  cd ..
- mkdir ${platform}.release
+ mkdir -p ${platform}.release
  cd ${platform}.release
   mkdir simage-1
   mkdir Coin-2
@@ -95,7 +95,7 @@ if test "x$testPlatform" = "x0" ; then
 fi
 
   export PATH=$installDir/bin:$PATH
-  cd $builddir/SoGuiExamples-SoQT
+  cd $builddir/SoGuiExamples-SoQt
   $srcdir/SoGuiExamples/configure --with-soqt ${msvcrt} --enable-threadsafe
   make
   echo "---- Installation of Coin3D package has been completed"
