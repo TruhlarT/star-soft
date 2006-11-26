@@ -266,19 +266,7 @@ static void MovieCallback(void *d, SoAction *action)
       if (action->isOfType(SoGLRenderAction::getClassTypeId()) )
       {
         SoCacheElement::invalidate(action->getState());
-        currentViewer->Save(QString().sprintf("file%04d.png",ifile++),"PNG");
-//              QGLWidget *w = (QGLWidget *)currentViewer->GetCoinViewer()->getGLWidget();
-//        fprintf(stderr,"MovieCallback %s \n",(const char*)QString("file%1.png").arg(iframe+1));
-//        QImage im =  w->grabFrameBuffer(TRUE); 
-//        if (!fAnimator) {
-//           fAnimDevice = new  QFile(QString().sprintf("file%04d",ifile++));
-//           fAnimDevice->open( IO_WriteOnly );           
-//           fAnimator = new QPNGImagePacker(fAnimDevice,32,Qt::AutoColor);
-//        }
-//        fAnimator->packImage(im);iframe++; 
-//        if (iframe > 20) { fAnimDevice->flush(); fAnimDevice->close(); delete fAnimator;  fAnimator = 0; delete fAnimDevice;  fAnimDevice = 0;}
-//        im.save(QString().sprintf("file%04d.png",ifile++),"PNG");
-//              QPixmap::grabWidget(w).save(QString("file%1.png").arg(iframe++,),"PNG");
+        currentViewer->SaveSnapShot();
       }
    }
 }
@@ -409,8 +397,8 @@ TQtCoinWidget::TQtCoinWidget(QWidget *parent, COINWIDGETFLAGSTYPE f)
       :QFrame(parent,f)
 #endif      
    , TGLViewerImp(0,"",0,0)
-   , fInventorViewer(0),qt_viewer(0), fRootNode(0)
-   , fShapeNode(0),fSelNode(0),myCamera(0),fCamera(0),fAxes(0)
+   , fInventorViewer(0), fRootNode(0)
+   , fShapeNode(0),fSelNode(0),fCamera(0),fAxes(0)
    , fXAxis(0), fYAxis(0), fZAxis(0),fCameraSensor(0),fPickedObject(0)
    , fSaveType("JPEG"),fMaxSnapFileCounter(2),fPad(0),fContextMenu(0),fSelectedObject(0)
    , fWantRootContextMenu(kFALSE)
@@ -455,8 +443,8 @@ TQtCoinWidget::TQtCoinWidget(TVirtualPad *pad, const char *title,
    : QFrame(0, Qt::WDestructiveClose)
 #endif 
    , TGLViewerImp(0,title,width,height)
-   , fInventorViewer(0),qt_viewer(0), fRootNode(0)
-   , fShapeNode(0),fSelNode(0),myCamera(0),fCamera(0),fAxes(0)
+   , fInventorViewer(0), fRootNode(0)
+   , fShapeNode(0),fSelNode(0),fCamera(0),fAxes(0)
    , fXAxis(0), fYAxis(0), fZAxis(0),fCameraSensor(0),fPickedObject(0)
    , fSaveType("JPEG"),fMaxSnapFileCounter(2),fPad(pad),fContextMenu(0),fSelectedObject(0)
    , fWantRootContextMenu(kFALSE)
@@ -1110,10 +1098,17 @@ void TQtCoinWidget::SaveAsCB()
 #endif
 */
 }
-
+//______________________________________________________________________________
+void TQtCoinWidget::SaveMpegShot(bool)      
+{
+     // Save the frame in mpg format
+   
+}
 //______________________________________________________________________________
 void TQtCoinWidget::SaveSnapShot(bool)
 {
+   const QString &saveType = SaveType();
+   Save(QString().sprintf("file%04d.%s",ifile++, saveType.lower(),saveType.upper()));
 	/*
 #ifdef QGLVIEWER
 //  QString filename(fSaveFile.Data());

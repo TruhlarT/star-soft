@@ -1,8 +1,8 @@
-// @(#)root/g3d:$Name:  $:$Id: TQtCoinWidget.h,v 1.5 2006/11/18 00:59:09 fine Exp $
+// @(#)root/g3d:$Name:  $:$Id: TQtCoinWidget.h,v 1.6 2006/11/26 06:33:19 fine Exp $
 // Author: Valery Fine      23/05/97
 
 /****************************************************************************
-** $Id: TQtCoinWidget.h,v 1.5 2006/11/18 00:59:09 fine Exp $
+** $Id: TQtCoinWidget.h,v 1.6 2006/11/26 06:33:19 fine Exp $
 **
 ** Copyright (C) 2002 by Valeri Fine. Brookhaven National Laboratory.
 **                                    All rights reserved.
@@ -106,11 +106,9 @@ Q_OBJECT
 private:
 	
    SoQtViewer             *fInventorViewer;
-   SoQtExaminerViewer     *qt_viewer;
    SoSeparator            *fRootNode;
    SoSeparator            *fShapeNode;
    SoSelection            *fSelNode;
-   SoPerspectiveCamera    *myCamera;
    SoCamera               *fCamera;
    SmAxisDisplayKit       *fAxes;
    std::vector<int>        flist[3];
@@ -225,6 +223,8 @@ public:
       Bool_t res = (p != fPickedObject); if (res) fPickedObject = p; 
       return res; 
    }
+   const QString &SaveType() const { return   fSaveType; }
+   const QString &SaveFile() const { return   fSaveFile; }
 #ifndef __CINT__
   public slots:
      //virtual void ActivateSelectorWidgetCB(bool);
@@ -240,7 +240,7 @@ public:
      virtual void CopyFrameCB();
      virtual void ReadInputFile(QString fileName);
      virtual void Save(QString fileName,QString type="png");
-     virtual void SetFileName(const QString &fileName);     
+      virtual void SetFileName(const QString &fileName);     
      virtual void SetFileType(const QString &fileType);     
      virtual void ClearCB();
      virtual void SaveAsCB();
@@ -250,7 +250,8 @@ public:
      //virtual void SetBackgroundColor(const TColor *color);
      virtual void ShowObjectInfo(TObject *, const QPoint&);
      virtual void SnapShotSaveCB(bool);
-     virtual void SaveSnapShot(bool);
+     virtual void SaveMpegShot(bool);
+     virtual void SaveSnapShot(bool on=TRUE);
      virtual void SmallAxesActionCB(bool on);
      virtual void ShowFrameAxisCB(bool);
      virtual void ShowLightsCB(bool);
@@ -265,6 +266,7 @@ public:
      virtual void HelpCB();
   signals:
        void ObjectSelected(TObject *, const QPoint&);
+       void NextFrameReady(bool on=TRUE);
 #endif
 
 //   ClassDef(TQtCoinWidget,0)  //ROOT OpenGL viewer implementation
