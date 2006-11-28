@@ -1,10 +1,10 @@
 #ifndef STAR_TSimageMovie
 #define STAR_TSimageMovie
-// @(#)root/g3d:$Name:  $:$Id: TSimageMovie.h,v 1.1 2006/11/26 06:33:19 fine Exp $
+// @(#)root/g3d:$Name:  $:$Id: TSimageMovie.h,v 1.2 2006/11/28 23:29:23 fine Exp $
 // Author: Valery Fine      24/11/06
 
 /****************************************************************************
-** $Id: TSimageMovie.h,v 1.1 2006/11/26 06:33:19 fine Exp $
+** $Id: TSimageMovie.h,v 1.2 2006/11/28 23:29:23 fine Exp $
 **
 ** Copyright (C) 2002 by Valeri Fine. Brookhaven National Laboratory.
 **                                    All rights reserved.
@@ -26,13 +26,15 @@ class  TSimageMovie {
   private:
      int fWidth;            // pixels
      int fHeight;           // pixels
-     int fClocktime;        // clocktime (sec)
+     int fClocktime;        // length of movie in seconds
      int fConstraintslevel;  
      int fNumberOfFrames;
      QString fParamFile;
+     QString fMovieFile;
      s_params *fParams;   // simage object
      s_movie  *fMovie;
      s_image  *fImage;
+     static bool fgPluginLoaded;
 
 protected:
     static s_image  *CreateImage(int w, int h, unsigned char *prealloc=0, int components=3);
@@ -46,7 +48,6 @@ protected:
 
     int PutImage();
     void SetImage(unsigned char *buffer);
-    void SetMovie(const QString &movieFileName);
     void SetParams();
 public:
    TSimageMovie(int width=640,int height=480, int nrFrames=1000, int clocktime=1,int constraintslevel=8);
@@ -54,7 +55,10 @@ public:
    void Open(int width=640,int height=480, int nrFrames=1000, int clocktime=1,int constraintslevel=8);
    const QString &ParamFileName() const { return fParamFile;}
    void AddFrame(unsigned char *frameBuffer);
+   int Width()  const { return fWidth;}
+   int Height() const { return fHeight;}
    void Close();
+   void SetMovie(const QString &movieFileName="");
 };
 
 

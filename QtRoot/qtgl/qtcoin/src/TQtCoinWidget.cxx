@@ -9,6 +9,7 @@
 #include "TQtCoinWidget.h"
 //#include "TQtGLViewerWidget.h"
 #include "TObject3DView.h"
+#include "TSimageMovie.h"
 
 #include "TSystem.h"
 #include "TROOT.h"
@@ -406,7 +407,7 @@ TQtCoinWidget::TQtCoinWidget(QWidget *parent, COINWIDGETFLAGSTYPE f)
    //, fSelectionViewer(kFALSE),fSelectionHighlight(kFALSE),fShowSelectionGlobal(kFALSE)
    , fSnapShotAction(0),fBoxHighlightAction(0),fLineHighlightAction(0)
    , fWantClipPlane(kFALSE), fClipPlaneMan(0), fClipPlane(0),fHelpWidget(0),fRecord(kFALSE)
-   , fMovie(0)
+   , fMovie(0),fMPegMovie(0)
 {
 }
 //______________________________________________________________________________
@@ -420,12 +421,14 @@ void TQtCoinWidget::SetPad(TVirtualPad *pad)
       if (!(fileDir  && fileDir[0]) && ( gEnv ) ) {
            fileDir  = gEnv->GetValue("Gui.SnapShotDirectory",(const char *)0);
       }
-      if (fileDir  && fileDir[0]) {  fSaveFile = fileDir; fSaveFile += "/"; }
-      fSaveFile += fPad->GetName();
-      fSaveFile += ".";
-      fSaveFile += "jpg";
-      fSaveType = "JPG";
-      
+      QString saveFile;
+      if (fileDir  && fileDir[0]) {  saveFile = fileDir; saveFile += "/"; }
+      saveFile += fPad->GetName();
+      saveFile += ".";
+      saveFile += "jpg";
+      SetFileType("JPG");
+      SetFileName(saveFile);
+            
       QString caption = fPad->GetTitle();
       caption += ": Coin viewer";
       fGLView = 0;
@@ -452,7 +455,7 @@ TQtCoinWidget::TQtCoinWidget(TVirtualPad *pad, const char *title,
    //, fSelectionViewer(kFALSE),fSelectionHighlight(kFALSE),fShowSelectionGlobal(kFALSE)
    , fSnapShotAction(0),fBoxHighlightAction(0),fLineHighlightAction(0)
    , fWantClipPlane(kFALSE), fClipPlaneMan(0), fClipPlane(0),fHelpWidget(0),fRecord(kFALSE)
-   , fMovie(0)
+   , fMovie(0),fMPegMovie(0)
 {
    printf("TQtCoinWidget::TQtCoinWidget begin Pad=%p\n", pad);
    //Create the default SnapShot file name and type if any
@@ -460,12 +463,16 @@ TQtCoinWidget::TQtCoinWidget(TVirtualPad *pad, const char *title,
    if (!(fileDir  && fileDir[0]) && ( gEnv ) ) {
         fileDir  = gEnv->GetValue("Gui.SnapShotDirectory",(const char *)0);
    }
-   if (fileDir  && fileDir[0]) {  fSaveFile = fileDir; fSaveFile += "/"; }
+   QString saveFile;
+   if (fileDir  && fileDir[0]) {  saveFile = fileDir; saveFile += "/"; }
    if ( fPad ) {
-      fSaveFile += fPad->GetName();
-      fSaveFile += ".";
-      fSaveFile += "jpg";
+      saveFile += fPad->GetName();
+      saveFile += ".";
+      saveFile += "jpg";
       
+      SetFileType("JPG");
+      SetFileName(saveFile);
+     
       QString caption = fPad->GetTitle();
       caption += ": Coin viewer";
       setCaption(caption);
@@ -565,6 +572,7 @@ TQtGLViewerImp::TQtGLViewerImp(TQtGLViewerImp &parent) :
 //______________________________________________________________________________
 TQtCoinWidget::~TQtCoinWidget()
 { 
+   if (fMPegMovie)    { delete fMPegMovie;      fMPegMovie    = 0;}
    if (fMovie)        { fMovie       ->unref(); fMovie        = 0;}
    if (fClipPlaneMan) { fClipPlaneMan->unref(); fClipPlaneMan = 0;}
    if (fAxes)         { fAxes        ->unref(); fAxes         = 0;}
@@ -894,6 +902,11 @@ void TQtCoinWidget::Save(QString fileName,QString type)
    QString &e = type;
    printf("thatFile = %s  type=%s\n", thatFile.data(), e.data());
    
+   if (!Recording()) {
+      SetFileName(thatFile);
+      SetFileType(e);
+   }
+   
    if (e == "rgb") {
       SoOffscreenRenderer osr(fInventorViewer->getViewportRegion());
       osr.setComponents(SoOffscreenRenderer::RGB);
@@ -1008,17 +1021,7 @@ void TQtCoinWidget::Save(QString fileName,QString type)
      fprintf(stdout,"Vectorizing...");
      fflush(stdout);
 
-#if 1
      va->apply(fInventorViewer->getSceneManager()->getSceneGraph());
-#else     
-     SoSeparator *renderNode = new SoSeparator;
-     renderNode->ref();
-     // Borrow the camera
-     renderNode->addChild(fCamera);
-     renderNode->addChild(fInventorViewer->getSceneManager()->getSceneGraph());
-     va->apply(renderNode);
-     renderNode->unref();     
-#endif     
      fprintf(stdout,"Creating postscript file (%s)...", (const char*)thatFile);
      fflush(stdout);
      va->endViewport();
@@ -1035,6 +1038,8 @@ void TQtCoinWidget::Save(QString fileName,QString type)
       myAction.getOutput()->setBinary(FALSE);
       myAction.apply(fShapeNode);
       myAction.getOutput()->closeFile();
+   } else if (e == "mpg") {
+      SnapShotSaveCB(TRUE);
    } else {
         QGLWidget *w = (QGLWidget *)GetCoinViewer()->getGLWidget();
         if (w) {
@@ -1097,18 +1102,35 @@ void TQtCoinWidget::SaveAsCB()
      fSaveFile = (const char *)glView->snapshotFileName( );
 #endif
 */
-}
+};
 //______________________________________________________________________________
 void TQtCoinWidget::SaveMpegShot(bool)      
 {
      // Save the frame in mpg format
-   
+   assert(fMPegMovie);
+   QGLWidget *w = (QGLWidget *)GetCoinViewer()->getGLWidget();
+   if (w) {
+      QImage im = w->grabFrameBuffer(TRUE); 
+      if (im.size()  != QSize( fMPegMovie->Width(), fMPegMovie->Height())) {
+        // All frames of the mpeg file must be one and the same size
+        fMPegMovie->Close();
+        fMPegMovie->Open(im.size().width(),im.size().height()); 
+        fMPegMovie->SetMovie(); // Re-use the previous file name
+      }
+      fMPegMovie->AddFrame(im.bits());       
+   }
 }
 //______________________________________________________________________________
-void TQtCoinWidget::SaveSnapShot(bool)
+void TQtCoinWidget::SaveSnapShot(bool on)
 {
    const QString &saveType = SaveType();
-   Save(QString().sprintf("file%04d.%s",ifile++, saveType.lower(),saveType.upper()));
+   printf(" TQtCoinWidget::SaveSnapShot %s\n", (const char*)saveType);
+   if ( (saveType.lower() == "mpg") || (saveType.lower() == "mpeg")) {
+      SaveMpegShot(on);  
+   } else {
+      Save(QString().sprintf((const char*)SaveFilePattern(),ifile++),saveType.upper());
+   }
+   
 	/*
 #ifdef QGLVIEWER
 //  QString filename(fSaveFile.Data());
@@ -1276,7 +1298,13 @@ void TQtCoinWidget::SnapShotSaveCB(bool on)
 	fRecord = on;
    if (on) {
       fRootNode->addChild(fMovie);
+      if ( (SaveType().lower() == "mpg") || (SaveType().lower() == "mpeg")) {
+         if (!fMPegMovie) fMPegMovie = new TSimageMovie();
+         else fMPegMovie->Open();
+         fMPegMovie->SetMovie(SaveFile());
+      } 
    } else {
+      if (fMPegMovie) fMPegMovie->Close();
       fRootNode->removeChild(fMovie);
    }
          /*
@@ -1715,6 +1743,11 @@ void TQtCoinWidget::SetPadSynchronize(Bool_t on)
 void TQtCoinWidget::SetFileName(const QString &fileName)
 {
    fSaveFile = fileName;
+   // Set the file pattern
+   QFileInfo  fi(fSaveFile);
+   fSaveFileMoviePattern = 
+            fi.dirPath()+"/" + fi.baseName(TRUE)+ "_%04d" + "." + fi.extension(FALSE);
+   printf(" TQtCoinWidget::SetFileName %s\n", (const char *)fSaveFileMoviePattern);
 }  
 //______________________________________________________________________________
 void TQtCoinWidget::SetFileType(const QString &fileType)

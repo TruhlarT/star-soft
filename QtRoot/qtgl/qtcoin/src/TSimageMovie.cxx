@@ -1,8 +1,8 @@
-// @(#)root/g3d:$Name:  $:$Id: TSimageMovie.cxx,v 1.1 2006/11/26 06:33:20 fine Exp $
+// @(#)root/g3d:$Name:  $:$Id: TSimageMovie.cxx,v 1.2 2006/11/28 23:29:24 fine Exp $
 // Author: Valery Fine      24/11/06
 
 /****************************************************************************
-** $Id: TSimageMovie.cxx,v 1.1 2006/11/26 06:33:20 fine Exp $
+** $Id: TSimageMovie.cxx,v 1.2 2006/11/28 23:29:24 fine Exp $
 **
 ** Copyright (C) 2002 by Valeri Fine. Brookhaven National Laboratory.
 **                                    All rights reserved.
@@ -19,7 +19,7 @@
 #include "TString.h"
 #include "qfileinfo.h"
 
-
+bool TSimageMovie::fgPluginLoaded=false;
 //______________________________________________________________________________
 static void
 error_cb(void * /*userdata*/, const char *text)
@@ -58,30 +58,34 @@ TSimageMovie::TSimageMovie(int width,int height, int nrFrames,int clocktime,int 
 : fWidth(width), fHeight(height), fClocktime(clocktime), fConstraintslevel(constraintslevel)
 , fNumberOfFrames(nrFrames), fParams(0), fMovie(0), fImage(0)
 {
+   if (!fgPluginLoaded) { fgPluginLoaded = !gSystem->Load("libsimage"); }
+   DefineParamFile();
    Open(width,height,nrFrames,clocktime,constraintslevel);
+   SetParams();
 }
 //______________________________________________________________________________
 void TSimageMovie::Open(int width,int height, int nrFrames, int clocktime,int constraintslevel)
 {
   Close();
-  fWidth           = width;
-  fHeight          = height; 
-  fClocktime       = clocktime;
-  fConstraintslevel= constraintslevel; 
-  fNumberOfFrames  = nrFrames;
-  fParams = CreateParams();
+  if (fgPluginLoaded) {
+    fWidth           = width;
+    fHeight          = height; 
+    fClocktime       = clocktime;
+    fConstraintslevel= constraintslevel; 
+    fNumberOfFrames  = nrFrames;
+  }
 }
 
 //______________________________________________________________________________
 TSimageMovie::~TSimageMovie()
 {
-   Close();
+  if (fParams) { s_params_destroy(fParams); fParams = 0; }
+  Close();
 }
 
 //______________________________________________________________________________
 void TSimageMovie::Close()
 {
-   if (fParams) { s_params_destroy(fParams); fParams = 0; }
    if (fImage ) { s_image_destroy (fImage) ; fImage  = 0; }
    if (fMovie ) { s_movie_close(fMovie);  
                   s_movie_destroy(fMovie)  ; fMovie  = 0; }
@@ -101,7 +105,13 @@ s_image  *TSimageMovie::CreateImage(int w, int h, unsigned char * prealloc, int 
 //______________________________________________________________________________
 s_movie *TSimageMovie::CreateMovie(const QString &movieFileName, s_params *params)
 {
-   return s_movie_create((const char*)movieFileName, params);
+   s_movie *m = s_movie_create((const char*)movieFileName, params);
+   printf("TSimageMovie::CreateMovie   %s %p %p\n", (const char*)movieFileName,m,params);
+   if (m == NULL) {
+      error_cb(NULL, "could not create movie file");
+      if (simage_get_last_error()) { error_cb(NULL, simage_get_last_error()); }
+   }
+   return m;
 }
 
 //______________________________________________________________________________
@@ -124,7 +134,7 @@ int TSimageMovie::PutImage()
 //______________________________________________________________________________
 void TSimageMovie::AddFrame(unsigned char *frameBuffer)
 {
-   if (frameBuffer && fMovie) 
+   if (frameBuffer && fMovie)
    {
       SetImage(frameBuffer);
       PutImage();
@@ -142,13 +152,16 @@ void TSimageMovie::SetImage(unsigned char *buffer)
 //______________________________________________________________________________
 void TSimageMovie::SetMovie(const QString &movieFileName)
 { 
-   if (!fMovie && fParams) fMovie = CreateMovie(movieFileName,fParams);
+   if (!movieFileName.isEmpty())  fMovieFile = movieFileName;
+   if (!fMovie && fParams) fMovie = CreateMovie(fMovieFile,fParams);
+   printf(" TSimageMovie::SetMovie() %s movie %p params = %p\n",(const char *)movieFileName, fMovie,fParams);
 }
 //______________________________________________________________________________
 void TSimageMovie::SetParams()
 {
-  if (!fParams) fParams = CreateParams();
-  s_params_set(fParams, 
+  if (!fParams) {
+     fParams = CreateParams();
+     s_params_set(fParams, 
                "mime-type"     , S_STRING_PARAM_TYPE , "video/mpeg",
                "width"         , S_INTEGER_PARAM_TYPE, fWidth,
                "height"        , S_INTEGER_PARAM_TYPE, fHeight,
@@ -181,6 +194,7 @@ void TSimageMovie::SetParams()
 
                /* NULL means no more params */
                NULL);              
+   }
 }
 //______________________________________________________________________________
 void TSimageMovie::SetParamFile(const QString &paramFile) {
@@ -189,9 +203,9 @@ void TSimageMovie::SetParamFile(const QString &paramFile) {
 //______________________________________________________________________________
 void TSimageMovie::DefineParamFile() 
 {
-    TString paramFile = gEnv->GetValue("Movie.Parameters","$STAR/QtRoot/qtcoin/data/ntsc_coin.par");
-    gSystem->ExpandPathName(paramFile);
-    fParamFile = (const char *)paramFile;
-    if (!QFileInfo(fParamFile).isReadable() )  fParamFile = "";
+   TString paramFile = gEnv->GetValue("Movie.Parameters","$STAR/QtRoot/qtgl/qtcoin/data/ntsc_coin.par");
+   gSystem->ExpandPathName(paramFile);
+   fParamFile = (const char *)paramFile;
+   if (!QFileInfo(fParamFile).isReadable() )  fParamFile = "";
 }
 

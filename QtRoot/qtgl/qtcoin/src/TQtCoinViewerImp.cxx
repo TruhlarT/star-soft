@@ -597,7 +597,8 @@ void TQtCoinViewerImp::SaveCB()
       //if (!c) return;
       QString filter = ListOfFilters();
       filter +=";Transparent Img File (*.rgbt);;WRL File (*.wrl);;IV files (*.iv);";
-
+      // filter +=";Moving Picture Experts Group (*.mpg);";
+      
       QString selectedFilter;
 #if QT_VERSION < 0x40000
       QString thatFile = QFileDialog::getSaveFileName(gSystem->WorkingDirectory()
@@ -625,7 +626,8 @@ void TQtCoinViewerImp::SaveCB()
       printf("selectedFilter = %s\n", selectedFilter.data());
       printf("thatFile = %s\n", thatFile.data());
       printf("e = <%s>\n", e.data());
-   
+      
+      // EXECUTE THE ACTION
       fCoinWidget->Save(thatFile,e);
    }
 }

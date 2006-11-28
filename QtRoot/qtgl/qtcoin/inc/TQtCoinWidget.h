@@ -1,8 +1,8 @@
-// @(#)root/g3d:$Name:  $:$Id: TQtCoinWidget.h,v 1.6 2006/11/26 06:33:19 fine Exp $
+// @(#)root/g3d:$Name:  $:$Id: TQtCoinWidget.h,v 1.7 2006/11/28 23:29:23 fine Exp $
 // Author: Valery Fine      23/05/97
 
 /****************************************************************************
-** $Id: TQtCoinWidget.h,v 1.6 2006/11/26 06:33:19 fine Exp $
+** $Id: TQtCoinWidget.h,v 1.7 2006/11/28 23:29:23 fine Exp $
 **
 ** Copyright (C) 2002 by Valeri Fine. Brookhaven National Laboratory.
 **                                    All rights reserved.
@@ -85,6 +85,8 @@ class SoQtExaminerViewer;
 class TObject3DView;
 class TContextMenu;
 class SoGLRenderAction;
+class TSimageMovie;
+
 #ifdef __CINT__
 #  define COINWIDGETFLAGSTYPE  UInt_t
 #else
@@ -123,6 +125,7 @@ private:
 protected:
    QString         fSaveFile;           // the file name to save the pixmap to
    QString         fSaveType;           // the image format type name
+   QString         fSaveFileMoviePattern; // the file name to save the pixmap to, frame by frame
    Int_t           fMaxSnapFileCounter; // The max number of the difffrent "snapshot files" (The length of the cyclic buffer)
    static Int_t    gfDefaultMaxSnapFileCounter; // the default max number of the different "snapshot files" (The length of the cyclic bugger)
    //QGLWidget      *fGLWidget;           // QT GL widget to render the view
@@ -157,7 +160,8 @@ protected:
    QTabWidget       *fHelpWidget;
    Bool_t            fRecord;
    SoCallback       *fMovie;
-  
+   TSimageMovie     *fMPegMovie;
+   
 protected:
    friend class TQtCoinViewerImp;
    void CopyFile(const QString &fileName2Copy,Int_t counter);
@@ -223,8 +227,9 @@ public:
       Bool_t res = (p != fPickedObject); if (res) fPickedObject = p; 
       return res; 
    }
-   const QString &SaveType() const { return   fSaveType; }
-   const QString &SaveFile() const { return   fSaveFile; }
+   const QString &SaveType() const        { return fSaveType; }
+   const QString &SaveFile() const        { return fSaveFile; }
+   const QString &SaveFilePattern() const { return fSaveFileMoviePattern; }
 #ifndef __CINT__
   public slots:
      //virtual void ActivateSelectorWidgetCB(bool);
@@ -240,7 +245,7 @@ public:
      virtual void CopyFrameCB();
      virtual void ReadInputFile(QString fileName);
      virtual void Save(QString fileName,QString type="png");
-      virtual void SetFileName(const QString &fileName);     
+     virtual void SetFileName(const QString &fileName);     
      virtual void SetFileType(const QString &fileType);     
      virtual void ClearCB();
      virtual void SaveAsCB();
