@@ -1921,9 +1921,9 @@ void TQtCoinWidget::SmallAxesActionCB(bool on)
           
           SmAxisDisplayKit *ax = fAxes;
           // axis sizes
-          ax->axes.set1Value(0, 20., 0., 0.);
-          ax->axes.set1Value(1, 0., 20., 0.);
-          ax->axes.set1Value(2, 1., 0., 20.);
+          ax->axes.set1Value(0, 20.,  0.,  0.);
+          ax->axes.set1Value(1,  0., 20.,  0.);
+          ax->axes.set1Value(2,  1.,  0., 20.);
    
           // axis colors
           ax->colors.set1Value( 0, 1., 0., 0.);
