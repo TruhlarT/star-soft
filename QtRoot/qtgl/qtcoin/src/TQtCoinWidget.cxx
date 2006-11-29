@@ -1116,6 +1116,7 @@ void TQtCoinWidget::SaveMpegShot(bool)
         fMPegMovie->Close();
         fMPegMovie->Open(im.size().width(),im.size().height()); 
         fMPegMovie->SetMovie(); // Re-use the previous file name
+        printf(" mew size %d %d \n", im.size().width(),im.size().height());
       }
       fMPegMovie->AddFrame(im.bits());       
    }
@@ -1124,7 +1125,7 @@ void TQtCoinWidget::SaveMpegShot(bool)
 void TQtCoinWidget::SaveSnapShot(bool on)
 {
    const QString &saveType = SaveType();
-   printf(" TQtCoinWidget::SaveSnapShot %s\n", (const char*)saveType);
+   printf("\n TQtCoinWidget::SaveSnapShot %s\n", (const char*)saveType);
    if ( (saveType.lower() == "mpg") || (saveType.lower() == "mpeg")) {
       SaveMpegShot(on);  
    } else {

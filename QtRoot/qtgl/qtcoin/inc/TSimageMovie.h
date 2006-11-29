@@ -1,10 +1,10 @@
 #ifndef STAR_TSimageMovie
 #define STAR_TSimageMovie
-// @(#)root/g3d:$Name:  $:$Id: TSimageMovie.h,v 1.2 2006/11/28 23:29:23 fine Exp $
+// @(#)root/g3d:$Name:  $:$Id: TSimageMovie.h,v 1.3 2006/11/29 01:05:36 fine Exp $
 // Author: Valery Fine      24/11/06
 
 /****************************************************************************
-** $Id: TSimageMovie.h,v 1.2 2006/11/28 23:29:23 fine Exp $
+** $Id: TSimageMovie.h,v 1.3 2006/11/29 01:05:36 fine Exp $
 **
 ** Copyright (C) 2002 by Valeri Fine. Brookhaven National Laboratory.
 **                                    All rights reserved.
@@ -46,7 +46,7 @@ protected:
     void SetParamFile(const QString &paramFile);
     static int PutImage(s_movie  *movie, s_image  *image,  s_params *params=0);
 
-    int PutImage();
+    int  PutImage();
     void SetImage(unsigned char *buffer);
     void SetParams();
 public:
