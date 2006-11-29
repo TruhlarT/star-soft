@@ -597,7 +597,7 @@ void TQtCoinViewerImp::SaveCB()
       //if (!c) return;
       QString filter = ListOfFilters();
       filter +=";Transparent Img File (*.rgbt);;WRL File (*.wrl);;IV files (*.iv);";
-      // filter +=";Moving Picture Experts Group (*.mpg);";
+      filter +=";Moving Picture Experts Group (*.mpg);";
       
       QString selectedFilter;
 #if QT_VERSION < 0x40000

@@ -63,7 +63,7 @@ if test -d Coin-2; then
  pwd
  echo " Configure simage $builddir/simage-1"
  cd $builddir/simage-1
-  $srcdir/simage/configure  --prefix=$installDir  ${msvcrt}  --enable-qimage  --enable-optimization=yes  --enable-debug  --with-qt=true  --with-avienc --enable-threadsafe
+  $srcdir/simage/configure  --prefix=$installDir  ${msvcrt}  --enable-qimage  --enable-optimization=yes  --enable-debug  --with-qt=true --with-mpeg2enc --with-avienc --enable-threadsafe
   make install
  
  cd $builddir/Coin-2
