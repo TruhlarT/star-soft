@@ -64,6 +64,7 @@ switch ($pkg)
 	if ( $?STARCMPL && -x $GROUP_DIR/dropit ) then
 	    setenv PATH            `$GROUP_DIR/dropit $STAR_HOST_SYS`
 	    setenv LD_LIBRARY_PATH `$GROUP_DIR/dropit -p $LD_LIBRARY_PATH $STAR_HOST_SYS`
+	    unsetenv QTDIR
 	endif 
 	setenv STARCMPL "icc"; starver $STAR_LEVEL
 	breaksw
@@ -71,6 +72,7 @@ switch ($pkg)
 
     # Alternative or restore of gcc version
     case "gcc":
+      unsetenv QTDIR
       if ( -x $GROUP_DIR/dropit ) then
 	setenv PATH            `$GROUP_DIR/dropit alt`
 	setenv LD_LIBRARY_PATH `$GROUP_DIR/dropit -p $LD_LIBRARY_PATH $OPTSTAR/alt`
