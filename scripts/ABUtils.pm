@@ -88,13 +88,13 @@ $INSU::md5seed = "";
 # LSF submit command
 $INSU::BSUB    = "/usr/local/lsf/bin/bsub";
 
-# All tests may be declared here in this array. 
+# All tests may be declared here in this array.
 # - The first element is the chain
-#   A ";" separator may use indicating a string to use for filename 
+#   A ";" separator may use indicating a string to use for filename
 #   generation (if empty, will concatenate chain options)
-# - the second is a list of files to work on. 
+# - the second is a list of files to work on.
 #
-# Note that the array will be later sorted so no need to try to put the chain 
+# Note that the array will be later sorted so no need to try to put the chain
 # in a different order, hoping it will do something different.
 #
 %INSU::TESTS=(
@@ -127,7 +127,7 @@ $INSU::BSUB    = "/usr/local/lsf/bin/bsub";
 
 	      "pp2003 eemcD alltrigger trgd",
 	      "/star/data03/daq/2003/111/st_physics_4111036_raw_0030004.daq",
-	      
+
 	      # Y4 chains
 	      "P2004 EST svt_daq svtD eemcD pmdRaw OShortR Xi2 V02 CMuDst",
 	      "/star/rcf/test/daq/2004/028/st_physics_5028066_raw_1010003.daq",
@@ -144,7 +144,7 @@ $INSU::BSUB    = "/usr/local/lsf/bin/bsub";
 	      "ry2004 in tpc_daq tpc -tcl -tpt -PreVtx fcf Physics svtDb ITTF dst ".
 	      "event genvtx Sti analysis EventQA tags Tree evout  l3onl tofDat emcDY2 ".
 	      "fpd Corr2 ftpc trgd OSpaceZ OShortR Kink2 V02 Xi2 debug1".
-	      "; ITTF full chain", 
+	      "; ITTF full chain",
 	      "/star/data03/daq/2004/061a/st_physics_5061059_raw_3030004.daq",
 
 	      "trs y2004 globT tcl TpcHitMover sim_T svt_T ftpcT ctf_T l0 SvtCL svtDb ITTF ".
@@ -159,7 +159,7 @@ $INSU::BSUB    = "/usr/local/lsf/bin/bsub";
 # Default formatting script for run-time
 $INSU::RTFORMAT ="/afs/rhic.bnl.gov/star/packages/scripts/insrtm.pl";
 $INSU::JPFORMAT ="/afs/rhic.bnl.gov/star/packages/scripts/jprtm.pl";
-$INSU::VLGFORMAT="/afs/rhic.bnl.gov/star/packages/scripts/valgrtm.pl"; 
+$INSU::VLGFORMAT="/afs/rhic.bnl.gov/star/packages/scripts/valgrtm.pl";
 $INSU::JPEXEC   ="/afs/rhic.bnl.gov/star/packages/dev/.\@sys/BIN/jprof";
 
 # routine exclusion in listing-by-routine
@@ -377,7 +377,7 @@ sub IUCanonicalName
 {
     my($func)=@_;
     $func =~ s/.*OBJ\///;
-    $func =~ s/.*obj\///;  
+    $func =~ s/.*obj\///;
     $func =~ s/\/afs\/.*ROOT\//ROOT\//;
     $func;
 }
@@ -393,7 +393,7 @@ sub IUFuncMatch
 
     return "" if ( ! defined($func) );
     foreach $dir (@INSU::DIRS){
-	if ($func =~ m/(.*)($dir\/.*)/){ 
+	if ($func =~ m/(.*)($dir\/.*)/){
 	    return $2;
 	}
     }
@@ -634,7 +634,7 @@ sub IUMoveFile
 # Routines to handle "a" lock file
 #-
 
-# Create a lock file. First argument is the file 
+# Create a lock file. First argument is the file
 # principle name and the second is a string to encrypt
 # and use for uniqueness (MD5 is used). Returns the file
 # name it will use. Does not create the file ...
@@ -662,12 +662,12 @@ sub IULockCheck
 	# a file is found, check date
 	$date = time() - (stat($INSU::FLNMLCK))[9];
 	if ( $date >  $delta ){
-	    print 
+	    print
 		"ABUtil:: LockCheck: ",
 		"$INSU::FLNMLCK has a date greater than $delta. Deleting.\n";
 	    unlink($INSU::FLNMLCK);
 	} else {
-	    print 
+	    print
 		"ABUtil:: LockCheck: ",
 		"Found a $INSU::FLNMLCK file (another process is running).\n";
 	}
@@ -692,7 +692,7 @@ sub IULockWrite
     } else {
 	# first time
 	if ($sts = open($INSU::LCK,">$INSU::FLNMLCK")){
-	    print $INSU::LCK 
+	    print $INSU::LCK
 		`uname -a`,
 		"This file was created with seed [$INSU::md5seed]\n",
 		"by ".&IUGetLogin()." on ".localtime()."\n";
@@ -749,7 +749,7 @@ sub IUGetLogin
     $INSU::USER;
 }
 
-sub IUdie { 
+sub IUdie {
     my($msgs)=@_;
     &IULockDelete();
     die $msgs;
