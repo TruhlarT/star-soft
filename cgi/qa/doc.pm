@@ -37,15 +37,20 @@
 use CGI qw(:all);
 use File::Path;
 
+#BEGIN {
+#use CGI::Carp qw(carpout);
+#open(LOG, ">>/afs/rhic.bnl.gov/star/doc_public/www/html/tmp/doc_cgi-log")
+#  or die "Unable to append to doc_cgi-log: $!\n";
+#carpout(*LOG);
+#}
+
 BEGIN {
-use CGI::Carp qw(carpout);
-open(LOG, ">>/afs/rhic.bnl.gov/star/doc_public/www/html/tmp/doc_cgi-log")
-  or die "Unable to append to doc_cgi-log: $!\n";
-carpout(*LOG);
+    use CGI::Carp qw(fatalsToBrowser);
 }
 
+
 $docfile = "/afs/rhic.bnl.gov/star/doc_public/www/html/tmp/doc_cgi-log";
-if (`fgrep Fail $docfile | wc -l` > 0) {
+if (`/bin/grep Fail $docfile | /usr/bin/wc -l` > 0) {
 #  `/bin/mail -s 'DOC_LOG_FAIL' gene\@bnl.gov < $docfile`;
 }
 
@@ -85,111 +90,113 @@ if (`fgrep Fail $docfile | wc -l` > 0) {
 $base = param('base');
 if ($base) {
 
-$level = param('level');
-if (! $level) {
-  warn "No level parameter supplied...using dev.\n";
-  $level = "dev";
-}
+    $level =  param('level');
+    $level =~ s/[\s\|\>\<].*//;
 
-$packdir = "\/afs\/rhic.bnl.gov\/star\/packages\/";
-if ($level eq "CVS") {
-  $CVS = 1;
-  $SR2 = $packdir . "repository";
-  $ENV{CVSROOT} = $SR2;
-  $SR = $SR2 . "\/";
-  $subdir = $sdirs{$base};
-  $thesource2 = $SR . $subdir . $names{$base} . ".tex";
-  $thesource = $thesource2 . ",v";
-} else {
-  $CVS = 0;
-  $SR = $packdir . $level . "\/";
-  $subdir = $sdirs{$base};
-  $thesource = $SR . $subdir . $names{$base} . ".tex";
-}
-
-# default type is ps:
-$type = param('type');
-$type or $type = "ps";
-
-$write_area = "/afs/rhic.bnl.gov/star/doc_public/www/html/tmp/";
-$thefile = $names{$base} . "." . $type;
-$psfile = $names{$base} . ".ps";
-$thefile2 = $level . "_" . $thefile;
-$psfile2 = $level . "_" . $psfile;
-$thefile3 = $write_area . $thefile2;
-$psfile3 = $write_area . $psfile2;
-$request = "----- " . $thefile2 . " -----\n" .
-  "  Host   : " . remote_host() . "\n" .
-  "  Browser: " . user_agent() . "\n";
-warn $request;
-
-$ENV{PATH} .= ":/usr/local/bin:/usr/ccs/bin";
-$ENV{LD_LIBRARY_PATH} .= ":/usr/local/lib";
-chdir $write_area;
-$createnew = 0;
-    
-if (-e $thefile2) {
-  if ((-M $thefile2) > (-M $thesource)) {
-    `rm $thefile2`;
-    $createnew = 1;
-  }
-} else {
-  if ((($type eq "pdf") && (! $makepdf{$base})) && (-e $psfile2)) {
-    `ps2pdf $psfile2 $thefile2`;
-    (-e $thefile2) or die "Failed to convert $psfile2 to $thefile2.";
-  } else {
-    $createnew = 1;
-  }
-}
-
-if ($createnew) {
-  warn "Creating new file.\n";
-  if ($CVS) {
-    `cvs co $subdir`;
-  } else {
-    mkpath($subdir);
-  }
-  (-e $subdir) or die "Failed to find/create subdirectory $subdir.";
-  chdir $subdir;
-  if (! $CVS) {
-    $olddir = $SR . $subdir . "\*";
-    `cp -R $olddir .`;
-  }
-  if ($type eq "pdf") {
-    if ($makepdf{$base}) {
-      `make -s pdf`;
-    } else {
-      `make -s`;
-      `ps2pdf $psfile $thefile`;
-      `mv $psfile $psfile3`;
+    if (! $level) {
+	warn "No level parameter supplied...using dev.\n";
+	$level = "dev";
     }
-  } else {
-    `make -s`;
-  }
-  (-e $thefile) or die "Failed to create file $thefile.";
-  `mv $thefile $thefile3`;
-  chdir $write_area;
-#  rmtree("StRoot");
-} else {
-  warn "Retrieving existing file.\n";
-}
+
+    $packdir = "\/afs\/rhic.bnl.gov\/star\/packages\/";
+    if ($level eq "CVS") {
+	$CVS = 1;
+	$SR2 = $packdir . "repository";
+	$ENV{CVSROOT} = $SR2;
+	$SR = $SR2 . "\/";
+	$subdir = $sdirs{$base};
+	$thesource2 = $SR . $subdir . $names{$base} . ".tex";
+	$thesource = $thesource2 . ",v";
+    } else {
+	$CVS = 0;
+	$SR = $packdir . $level . "\/";
+	$subdir = $sdirs{$base};
+	$thesource = $SR . $subdir . $names{$base} . ".tex";
+    }
+
+    # default type is ps:
+    $type = param('type');
+    $type or $type = "ps";
+
+    $write_area = "/afs/rhic.bnl.gov/star/doc_public/www/html/tmp/";
+    $thefile = $names{$base} . "." . $type;
+    $psfile = $names{$base} . ".ps";
+    $thefile2 = $level . "_" . $thefile;
+    $psfile2 = $level . "_" . $psfile;
+    $thefile3 = $write_area . $thefile2;
+    $psfile3 = $write_area . $psfile2;
+    $request = "----- " . $thefile2 . " -----\n" .
+	"  Host   : " . remote_host() . "\n" .
+	"  Browser: " . user_agent() . "\n";
+    warn $request;
+
+    $ENV{PATH} .= ":/usr/local/bin:/usr/ccs/bin";
+    $ENV{LD_LIBRARY_PATH} .= ":/usr/local/lib";
+    chdir($write_area);
+    $createnew = 0;
+    
+    if (-e $thefile2) {
+	if ((-M $thefile2) > (-M $thesource)) {
+	    `/bin/rm $thefile2`;
+	    $createnew = 1;
+	}
+    } else {
+	if ((($type eq "pdf") && (! $makepdf{$base})) && (-e $psfile2)) {
+	    `/usr/bin/ps2pdf $psfile2 $thefile2`;
+	    (-e $thefile2) or die "Failed to convert $psfile2 to $thefile2.\n";
+	} else {
+	    $createnew = 1;
+	}
+    }
+
+    if ($createnew) {
+	warn "Creating new file.\n";
+	if ($CVS) {
+	    `/usr/bin/cvs co $subdir`;
+	} else {
+	    mkpath($subdir) || die "Could not make $subdir in $write_area\n";
+	}
+	(-e $subdir) or die "Failed to find/create subdirectory $subdir.\n";
+	chdir($subdir);
+	if (! $CVS) {
+	    $olddir = $SR . $subdir . "\*";
+	    `/bin/cp -R $olddir .`;
+	}
+	if ($type eq "pdf") {
+	    if ($makepdf{$base}) {
+		`/usr/bin/make -s pdf`;
+	    } else {
+		`/usr/bin/make -s`;
+		`/usr/bin/ps2pdf $psfile $thefile`;
+		`/bin/mv $psfile $psfile3`;
+	    }
+	} else {
+	    `/usr/bin/make -s`;
+	}
+	(-e $thefile) or die "Failed to create file $thefile.\n";
+	`/bin/mv $thefile $thefile3`;
+	chdir($write_area);
+        #  rmtree("StRoot");
+    } else {
+	warn "Retrieving existing file.\n";
+    }
    
-$url = "http://www.star.bnl.gov/STAR/html/tmp/$thefile2";
+    $url = "http://www.star.bnl.gov/STAR/html/tmp/$thefile2";
 } else {
-# no base name supplied
-$url = "http://www.star.bnl.gov/STAR/comp/root/special_docs.html";
+    # no base name supplied
+    $url = "http://www.star.bnl.gov/STAR/comp/root/special_docs.html";
 }
 print "Location: $url\n\n";
 
-if (`cat $docfile | wc -l` > 500) {
-  `/bin/mail -s 'DOC_LOG' gene\@bnl.gov < $docfile`;
-  $zipf = $docfile . ".gz.";
-  $zipfany = $zipf . "*" ;
-  $zipn = `ls -1 $zipfany | wc -l`;
-  chomp $zipn;
-  $zipn =~ s/ //g;
-  $zipfname = $zipf . $zipn;
-  `gzip $docfile -c > $zipfname; rm $docfile`;
+if (`/bin/cat $docfile | /usr/bin/wc -l` > 500) {
+    `/bin/mail -s 'DOC_LOG' gene\@bnl.gov < $docfile`;
+    $zipf = $docfile . ".gz.";
+    $zipfany = $zipf . "*" ;
+    $zipn = `/bin/ls -1 $zipfany | /usr/bin/wc -l`;
+    chomp $zipn;
+    $zipn =~ s/ //g;
+    $zipfname = $zipf . $zipn;
+    `/usr/bin/gzip $docfile -c > $zipfname; /bin/rm $docfile`;
 }
 exit;
 
