@@ -13,3 +13,8 @@ isEmpty(DESTDIR) {
 QTROOTSYSDIR=$$DESTDIR
 
 SUBDIRS = qglviewer/QGLViewer qtgl
+IVROOT = $$IVROOT
+!isEmpty(IVROOT) 
+{
+   exists($(IVROOT)/include/Inventor)  SUBDIRS+=qtcoin
+}
