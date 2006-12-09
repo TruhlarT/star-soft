@@ -6,6 +6,7 @@ $build =~ s/\\/\//g;                                    # print "OBJ = $OBJ buil
 #print "PWD === $ENV{PWD}\n"; die;
 $env->{ENV}->{QTROOTSYSDIR} = $ENV{PWD} . "/" . $sysdir;# print "QTROOTSYSDIR = $env->{ENV}->{QTROOTSYSDIR}\n";
 $env->{ENV}->{QTDIR} = $env->{Packages}->{QT}->{DIR};
+$env->{ENV}->{IVROOT} = $env->{Packages}->{COIN3D}->{DIR}; # print "IvRoot = $env->{ENV}->{IVROOT}";
 my $DirPath = DirPath '.';                              # print "DirPath = $DirPath\n";
 ( my $obj_dir = $DirPath ) =~ s/\\/\//g;                # print "obj_dir = $obj_dir\n";
 ( my $Dir = $obj_dir ) =~ s/$build\///g;                # print "Dir = $Dir\n";
@@ -49,7 +50,7 @@ push @DepsI, $INCLUDE .  "/TQGsiRootCanvas.h";
 my $DEBUG = "";
 $DEBUG = " CONFIG+=debug" if $env->{DEBUG} !~ /-O/;
 Command $env ["Makefile"], qw(qtRoot.pro qtthread/qtthread.pro), qq(cd $obj_dir; qmake $DEBUG);
-Command $env [(@DepsL, @DepsI)], (Makefile, @src), qq(cd $obj_dir;  make; make install);
+Command $env [(@DepsL, @DepsI)], (Makefile, @src), qq(cd $obj_dir; make; make install);
 # Command $env ["Makefile"], qw(qtExamples/qtExamples.pro), qq(cd $obj_dir; qmake $DEBUG; make);
 #________________________________________
 sub find_q{  @main::search_files   = ();
