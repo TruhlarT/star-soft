@@ -1,10 +1,10 @@
 #ifndef STAR_TSimageMovie
 #define STAR_TSimageMovie
-// @(#)root/g3d:$Name:  $:$Id: TSimageMovie.h,v 1.3 2006/11/29 01:05:36 fine Exp $
+// @(#)root/g3d:$Name:  $:$Id: TSimageMovie.h,v 1.4 2006/12/09 17:10:42 fine Exp $
 // Author: Valery Fine      24/11/06
 
 /****************************************************************************
-** $Id: TSimageMovie.h,v 1.3 2006/11/29 01:05:36 fine Exp $
+** $Id: TSimageMovie.h,v 1.4 2006/12/09 17:10:42 fine Exp $
 **
 ** Copyright (C) 2002 by Valeri Fine. Brookhaven National Laboratory.
 **                                    All rights reserved.
@@ -55,7 +55,7 @@ public:
    void Open(int width=640,int height=480, int nrFrames=1000, int clocktime=1,int constraintslevel=8);
    const QString &ParamFileName() const { return fParamFile;}
    void AddFrame(unsigned char *frameBuffer);
-   int Width()  const { return fWidth;}
+   int Width()  const { return fWidth; }
    int Height() const { return fHeight;}
    void Close();
    void SetMovie(const QString &movieFileName="");
