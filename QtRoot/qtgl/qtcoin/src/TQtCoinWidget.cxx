@@ -156,6 +156,7 @@ SoGLRenderAction &TQtCoinWidget::LineHighlightAction()
    return *fLineHighlightAction;
 }
 
+#if 0
 //______________________________________________________________________________
 // Inventor call back function
 static void InventorCallback1(void *d, SoAction *action)
@@ -253,10 +254,12 @@ static void InventorCallback3(void *d, SoAction *action)
       }
    }
 }
-static int iframe = 0;
-static int ifile = 0;
 static QPNGImagePacker *fAnimator = 0;
 static QIODevice *fAnimDevice;
+static int iframe = 0;
+
+#endif
+static int ifile = 0;
 //______________________________________________________________________________
 // Inventor call back function
 static void MovieCallback(void *d, SoAction *action)
@@ -275,7 +278,7 @@ static void MovieCallback(void *d, SoAction *action)
 //static bool g_isManip = false;
 
 //______________________________________________________________________________
-static void DeselectCB(void * viewer, SoPath *p) 
+static void DeselectCB(void * viewer, SoPath *) 
 {
    // printf("DeselectCB %p %d\n",p,p->getRefCount() );	
 	/*
@@ -340,7 +343,7 @@ static SoPath * PickFilterCB(void * viewer, const SoPickedPoint * pick)
 }
 
 //______________________________________________________________________________
-static void SelectCB(void * viewer, SoPath *p)
+static void SelectCB(void * viewer, SoPath *)
 {
    // fprintf(stderr, "SelectCB %p %d\n",p,p->getRefCount() );	
 	/*
@@ -643,6 +646,7 @@ void TQtGLViewerImp::CreateStatusBar(Int_t nparts)
 void TQtCoinWidget::CreateStatusBar(Int_t *parts, Int_t nparts)
 { 
     // Dummy for this class 
+   if (parts && nparts) {}
 }
 
 //______________________________________________________________________________
@@ -777,7 +781,7 @@ void TQtCoinWidget::AddGLList(unsigned int list, int type)
 //______________________________________________________________________________
 void TQtCoinWidget::RemoveGLList(unsigned int list)
 {
-	printf("TQtCoinWidget::RemoveGLList\n");
+	printf("TQtCoinWidget::RemoveGLList %d\n",list);
 	/*
    QWidget *c = centralWidget();
    if (!c) return;   
@@ -845,6 +849,7 @@ void TQtCoinWidget::ReadInputFile(QString fileName)
        }
     }
 }
+#if 0
 //______________________________________________________________________________
 static QString ListOfFilters() 
 {
@@ -893,6 +898,7 @@ static QStringList ExtensionList(const QString &filter)
    }   
    return extension ;
 }
+#endif
 //______________________________________________________________________________
 void TQtCoinWidget::Save(QString fileName,QString type)
 { 
@@ -1334,6 +1340,7 @@ void TQtCoinWidget::SnapShotSaveCB(bool on)
 void TQtCoinWidget::SynchTPadCB(bool on)
 {  
     //SetPadSynchronize(on);
+   if (on) {}
 }
 
 //______________________________________________________________________________
@@ -1368,7 +1375,8 @@ void TQtCoinWidget::ShowFrameAxisCB(bool on)
 //______________________________________________________________________________
 void TQtCoinWidget::ShowLightsCB(bool on)
 {  
-	/*
+   if (on) {}
+/*
 #ifdef QGLVIEWER
    QWidget *c = centralWidget();
    TQtGLViewerWidget *glView = (TQtGLViewerWidget *)c;
@@ -1468,7 +1476,7 @@ static void cameraChangeCB(void *data, SoSensor *)
   }
 }
 //______________________________________________________________________________
-void TQtCoinWidget::CreateViewer(const char *name)
+void TQtCoinWidget::CreateViewer(const char * /*name*/)
 {
    printf("TQtCoinWidget::CreateViewer\n");
 
@@ -1758,7 +1766,8 @@ void TQtCoinWidget::SetFileType(const QString &fileType)
 //______________________________________________________________________________
 void TQtCoinWidget::SetRotationAxisAngle(const float x, const float y, const float z, const float a)
 {
-	/*
+	if (x + y + z + a >0) {}
+   /*
    // Set the current rotation of the frame. 
    // Parameters are the rotation axis vector and its angle (in radians). 
 #ifdef QGLVIEWER
@@ -1775,6 +1784,7 @@ void TQtCoinWidget::StartRecordingCB(bool on)
 //______________________________________________________________________________
 void TQtCoinWidget::StopRecordingCB(bool on)
 {
+  if (on) {} 
   StartRecordingCB (kFALSE);
 }
 
