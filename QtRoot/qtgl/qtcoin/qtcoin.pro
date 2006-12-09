@@ -6,7 +6,7 @@ TEMPLATE = lib
 QGLVIEWERDIR = ../qcoinviewer/QCoinViewer
 CONFIG *= thread dll opengl
 CONFIG *= create_prl
-COINT3DDIR= $(IVROOT)
+COIN3DDIR= $(IVROOT)
 
 TARGET = RQIVTGL
 
@@ -31,7 +31,7 @@ QTCOINDIRS  = src
 QTCOINDIRI  = inc
 
 QTGLGLDIRI = ../qtgl/inc
-COININCDIRI = $$COINT3DDIR/include
+COININCDIRI = $$COIN3DDIR/include
 
 DEPENDPATH  += $$QTCOINDIRI $$QTGLGLDIRI
 INCLUDEPATH += $$QTCOINDIRI $$QTGLGLDIRI $$COININCDIRI $$SOQTINCDIRI
@@ -44,7 +44,7 @@ QTCOINH1    = $$QTCOINDIRI/TQtCoinViewerImp.h   $$QTCOINDIRI/TQtCoinWidget.h   $
 CREATE_ROOT_DICT_FOR_CLASSES  = $$QTCOINH1 $$QTCOINDIRI/LinkDef.h
 
 unix {
-  LIBS += -L../.. -L$$COINT3DDIR/lib -lSoQt -lCoin -lSmallChange
+  LIBS += -L../.. -L$$COIN3DDIR/lib -lSoQt -lCoin -lSmallChange
 }
 
 ROOTCINTFOUND =
