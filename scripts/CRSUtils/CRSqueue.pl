@@ -45,24 +45,34 @@ if( $sec < 10) { $sec = '0'.$sec };
    &StcrsdbConnect();
  
 my $nn = 0;
+my $nk = 0;
 
   foreach $line (@statlist) {
      chop $line ;
-#   print  $line, "\n";
+#  print  $line, "\n";
      next if( $line =~ /queue/);
     @prt = ();
     @prt = split (" ", $line);
-    $queueAvl[$nn] = $prt[1]; 
-    $queueRun[$nn] = $prt[2]; 
-     if($queueAvl[$nn] >=1 ) {
-	 $Rqueue[$nn] = ($queueRun[$nn]/$queueAvl[$nn])*100.0 ;
+     if( $nn == 0) {
+     $nk = $nn;
+ }else{
+     $nk = $nn +2;
+ }
+    $queueAvl[$nk] = $prt[1]; 
+    $queueRun[$nk] = $prt[2]; 
+     if($queueAvl[$nk] >=1 ) {
+	 $Rqueue[$nk] = ($queueRun[$nk]/$queueAvl[$nk])*100.0 ;
      } else {
-     $Rqueue[$nn] = 0; 
+     $Rqueue[$nk] = 0; 
   }
-#     print $nn,"  All slots:  ", $queueAvl[$nn], "  Busy: ", $queueRun[$nn], "  Ratio ", $Rqueue[$nn], "\n";
+#    print $nn,"   ", $nk, "  All slots:  ", $queueAvl[$nk], "  Busy: ", $queueRun[$nk], "  Ratio ", $Rqueue[$nk], "\n";
     $nn++;
 
  }
+$queueRun[1] = 0;
+$queueRun[2] = 0;
+$Rqueue[1] = 0;
+$Rqueue[2] = 0; 
    
       &fillTable();
 
