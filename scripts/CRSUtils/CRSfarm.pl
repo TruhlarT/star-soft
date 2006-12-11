@@ -115,7 +115,7 @@ exit;
  $sql.="error='$Nerror',";
  $sql.="fatal='$Nfatal',";
  $sql.="sdate='$thisday' "; 
-    print "$sql\n" if $debugOn;
+#   print "$sql\n" if $debugOn;
     # $rv = $dbh->do($sql) || die $dbh->errstr;
     $dbh->do($sql) || die $dbh->errstr;
    }
