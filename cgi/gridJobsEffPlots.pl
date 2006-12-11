@@ -386,21 +386,21 @@ my $ndt = 0;
 
     if( $qsite eq "ALL" ) {
 
-    $legend[0] = "Efficiency for PDSF";
-    $legend[1] = "Efficiency for SPU"; 
-    $legend[2] = "Efficiency for WSU"; 
-    $legend[3] = "Efficiency for BNL";
+    $legend[0] = "Efficiency for PDSF; ";
+    $legend[1] = "Efficiency for SPU; "; 
+    $legend[2] = "Efficiency for WSU; "; 
+    $legend[3] = "Efficiency for BNL; ";
 
     @data = (\@ndate, \@effpdsf, \@effspu, \@effwsu, \@effbnl );
 
       }else{
 
-    $legend[0] = "Globus efficiency";
-    $legend[1] = "Log files delivery";
-    $legend[2] = "Input transferring";
-    $legend[3] = "Output transferring";
-    $legend[4] = "Reco completion";
-    $legend[5] = "Overall efficiency";
+    $legend[0] = "Globus efficiency;        ";
+    $legend[1] = "Log files delivery;       ";
+    $legend[2] = "Input transferring;       ";
+    $legend[3] = "Output transferring;      ";
+    $legend[4] = "Reco completion;          ";
+    $legend[5] = "Overall efficiency;       ";
 
       @data = (\@ndate, \@globeff, \@logeff, \@inputef, \@outputeff, \@recoComeff, \@overeff) ;
 
@@ -427,14 +427,14 @@ $xLabelSkip = 12 if( $qperiod eq "12_months" );
 
 
   $min_y = 0;
-  $max_y = 120 ;  
+  $max_y = 150 ;  
   $ylabel = "Efficiency in %";
   $gtitle = "Efficiency of jobs execution for the period of $qperiod on  $qsite site";
 
      $graph->set(x_label => "Date of Test",
                 y_label => $ylabel,
                 title   => $gtitle,
-                y_tick_number => 10,
+                y_tick_number => 15,
                 x_label_position => 0.5,
                 y_min_value => $min_y,
                 y_max_value => $max_y,
@@ -442,18 +442,18 @@ $xLabelSkip = 12 if( $qperiod eq "12_months" );
                 #labelclr => "lblack",
                 titleclr => "lblack",
                 dclrs => [ qw(lblack lblue lred lgreen lpurple lorange ) ],
-                line_width => 2,
+                line_width => 4,
                 markers => [ 2,3,4,5,6,7,8,9],
-                marker_size => 1,
+                marker_size => 3,
                 x_label_skip => $xLabelSkip, 
                 x_labels_vertical =>$xLabelsVertical, 
                 );
 
     $graph->set_legend(@legend);
     $graph->set_legend_font(gdMediumBoldFont);
-    $graph->set_title_font(gdLargeFont);
-    $graph->set_x_label_font(gdMediumBoldFont);
-    $graph->set_y_label_font(gdMediumBoldFont);
+    $graph->set_title_font(gdGiantFont);
+    $graph->set_x_label_font(gdGiantFont);
+    $graph->set_y_label_font(gdGiantFont);
     $graph->set_x_axis_font(gdMediumBoldFont);
     $graph->set_y_axis_font(gdMediumBoldFont);
     print STDOUT $graph->plot(\@data);
