@@ -1,6 +1,6 @@
 // Author: Valeri Fine   21/01/2002
 /****************************************************************************
-** $Id: TGQt.cxx,v 1.2 2006/09/22 17:07:38 fine Exp $
+** $Id: TGQt.cxx,v 1.3 2006/12/12 02:32:26 fine Exp $
 **
 ** Copyright (C) 2002 by Valeri Fine. Brookhaven National Laboratory.
 **                                    All rights reserved.
@@ -466,7 +466,7 @@ class TQtInputHandler : public TFileHandler
       return TFileHandler::Notify();
     }
 };
-
+#if ROOT_VERSION_CODE < ROOT_VERSION(5,13,0)
 //______________________________________________________________________________
 QPixmap *TGQt::MakeIcon(Int_t i)
 {
@@ -497,7 +497,7 @@ QPixmap *TGQt::MakeIcon(Int_t i)
 #endif
    return tempIcon;
 }
-
+#endif 
 #define NoOperation (QPaintDevice *)(-1)
 
 
@@ -656,7 +656,7 @@ Bool_t TGQt::Init(void* /*display*/)
 {
    //*-*-*-*-*-*-*-*-*-*-*-*-*-*Qt GUI initialization-*-*-*-*-*-*-*-*-*-*-*-*-*-*
    //*-*                        ========================                      *-*
-   fprintf(stderr,"** $Id: TGQt.cxx,v 1.2 2006/09/22 17:07:38 fine Exp $ this=%p\n",this);
+   fprintf(stderr,"** $Id: TGQt.cxx,v 1.3 2006/12/12 02:32:26 fine Exp $ this=%p\n",this);
 
    if(fDisplayOpened)   return fDisplayOpened;
    fSelectedBuffer = fSelectedWindow = fPrevWindow = NoOperation;

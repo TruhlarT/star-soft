@@ -1,4 +1,4 @@
-// @(#)root/qt:$Name:  $:$Id: TQtWidget.cxx,v 1.3 2006/09/22 17:08:26 fine Exp $
+// @(#)root/qt:$Name:  $:$Id: TQtWidget.cxx,v 1.4 2006/12/12 02:32:26 fine Exp $
 // Author: Valeri Fine   23/01/2003
 
 /*************************************************************************
@@ -150,6 +150,7 @@ TQtWidget::TQtWidget(QWidget* parent, const char* name, Qt::WFlags f,bool embedd
   fSizeHint = QWidget::sizeHint();
   setSizePolicy (QSizePolicy::Expanding ,QSizePolicy::Expanding );
 #ifdef R__QTWIN32
+#if ROOT_VERSION_CODE < ROOT_VERSION(5,13,0)
    // Set the application icon for all ROOT widgets
    static HICON rootIcon = 0;
    if (!rootIcon) {
@@ -161,6 +162,7 @@ TQtWidget::TQtWidget(QWidget* parent, const char* name, Qt::WFlags f,bool embedd
                    LONG(rootIcon)  // new value
       );
     }
+#endif
 #endif
 }
 //______________________________________________________________________________

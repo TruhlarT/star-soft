@@ -1,4 +1,4 @@
-// $Id: TQtClientFilter.cxx,v 1.1 2006/08/16 19:27:06 fine Exp $
+// $Id: TQtClientFilter.cxx,v 1.2 2006/12/12 02:32:26 fine Exp $
 // Author: Valeri Fine   21/01/2003
 /****************************************************************************
 **
@@ -10,6 +10,7 @@
 ** LICENSE.QPL included in the packaging of this file.
 **
 *****************************************************************************/
+#include <assert.h>
 #include "TQtClientFilter.h"
 #include "TQtRConfig.h"
 
