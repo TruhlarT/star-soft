@@ -4,8 +4,16 @@
 ###############################################################################
 
  use Mysql;
+ use DBI;
 
- require "/afs/rhic.bnl.gov/star/packages/scripts/dbCRSSetup.pl";
+$dbhost="duvall.star.bnl.gov";
+$dbuser="starreco";
+$dbpass="";
+$dbname="operation";
+
+
+# Tables
+$crsQueueT = "crsQueueY6";
 
  my @statlist = ();
 
@@ -103,4 +111,16 @@ sub fillTable {
     #  print "$sql\n" if $debugOn;
     # $rv = $dbh->do($sql) || die $dbh->errstr;
     $dbh->do($sql) || die $dbh->errstr;
+}
+
+
+##################################################################################################
+sub StcrsdbConnect {
+    $dbh = DBI->connect("dbi:mysql:$dbname:$dbhost", $dbuser, $dbpass)
+        || die "Cannot connect to db server $DBI::errstr\n";
+}
+
+######################
+sub StcrsdbDisconnect {
+    $dbh = $dbh->disconnect() || die "Disconnect failure $DBI::errstr\n";
 }
