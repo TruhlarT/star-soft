@@ -1,4 +1,4 @@
-// @(#)root/qt:$Name:  $:$Id: TQtWidget.cxx,v 1.4 2006/12/12 02:32:26 fine Exp $
+// @(#)root/qt:$Name:  $:$Id: TQtWidget.cxx,v 1.5 2006/12/13 00:05:25 fine Exp $
 // Author: Valeri Fine   23/01/2003
 
 /*************************************************************************
@@ -249,7 +249,7 @@ TApplication *TQtWidget::InitRint( Bool_t /*prompt*/, const char *appClassName, 
 
        TRint *rint = new TRint(appClassName, &localArgc, argv ? argv : qApp->argv(),options,numOptions,kFALSE);
        // To mimic what TRint::Run(kTRUE) does.
-       const char *prompt= gEnv->GetValue("Gui.Prompt", (char*)0);
+       Int_t prompt= gEnv->GetValue("Gui.Prompt", (Int_t)0);
        if (prompt) {
            Getlinem(kInit, rint->GetPrompt());
        } else {
