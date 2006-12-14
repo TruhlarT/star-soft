@@ -1,8 +1,8 @@
-// @(#)root/g3d:$Name:  $:$Id: TQtCoinViewerImp.h,v 1.11 2006/11/18 00:59:09 fine Exp $
+// @(#)root/g3d:$Name:  $:$Id: TQtCoinViewerImp.h,v 1.12 2006/12/14 01:02:53 fine Exp $
 // Author: Valery Fine      23/05/97
 
 /****************************************************************************
-** $Id: TQtCoinViewerImp.h,v 1.11 2006/11/18 00:59:09 fine Exp $
+** $Id: TQtCoinViewerImp.h,v 1.12 2006/12/14 01:02:53 fine Exp $
 **
 ** Copyright (C) 2002 by Valeri Fine. Brookhaven National Laboratory.
 **                                    All rights reserved.
@@ -197,6 +197,7 @@ public:
      virtual void SaveCB();
      virtual void OpenCB();
      virtual void ClearCB();
+     virtual void ReadInputFile(const char *fileName);
      virtual void SaveAsCB();
      //virtual void SelectEventCB(bool on);
      //virtual void SelectDetectorCB(bool on);

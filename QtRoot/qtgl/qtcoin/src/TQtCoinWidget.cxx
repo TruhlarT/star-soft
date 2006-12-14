@@ -834,6 +834,11 @@ void TQtCoinWidget::CopyFrameCB()
    cb->setPixmap(QPixmap::grabWidget(topLevelWidget()));
 	*/
 }
+//______________________________________________________________________________
+void TQtCoinWidget::ReadInputFile(const char *fileName)
+{
+   ReadInputFile(QString( fileName));
+}
 
 //______________________________________________________________________________
 void TQtCoinWidget::ReadInputFile(QString fileName)

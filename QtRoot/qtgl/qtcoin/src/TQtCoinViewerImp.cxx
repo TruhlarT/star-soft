@@ -590,6 +590,12 @@ static QStringList ExtensionList(const QString &filter)
    return extension ;
 }
 //______________________________________________________________________________
+void TQtCoinViewerImp::ReadInputFile(const char *fileName)
+{
+   // render the extrenal Open Inventor file
+    if (fCoinWidget) fCoinWidget->ReadInputFile(fileName);
+}
+//______________________________________________________________________________
 void TQtCoinViewerImp::SaveCB()
 { 
    if (fCoinWidget) {

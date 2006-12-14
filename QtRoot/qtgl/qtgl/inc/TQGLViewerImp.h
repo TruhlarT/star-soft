@@ -1,4 +1,4 @@
-// @(#)root/g3d:$Name:  $:$Id: TQGLViewerImp.h,v 1.4 2006/10/17 20:05:00 fine Exp $
+// @(#)root/g3d:$Name:  $:$Id: TQGLViewerImp.h,v 1.5 2006/12/14 01:02:54 fine Exp $
 // Author: Valery Fine      12/03/2005
 
 /*************************************************************************
@@ -110,6 +110,7 @@ public:
    virtual void AddGLList(unsigned int list, int type=1)= 0;
    virtual void AddRootChild(ULong_t id)                = 0;
    virtual void DisconnectPad()                         = 0;
+   virtual void ReadInputFile(const char *fileName)     = 0;
    virtual void RemoveGLList(unsigned int list)         = 0;
    virtual void SetBackgroundColor(Color_t color)       = 0;
    virtual void SaveSnapShot(bool)                      = 0;

@@ -1,8 +1,8 @@
-// @(#)root/g3d:$Name:  $:$Id: TQtGLViewerImp.h,v 1.4 2006/10/17 20:05:58 fine Exp $
+// @(#)root/g3d:$Name:  $:$Id: TQtGLViewerImp.h,v 1.5 2006/12/14 01:02:54 fine Exp $
 // Author: Valery Fine      23/05/97
 
 /****************************************************************************
-** $Id: TQtGLViewerImp.h,v 1.4 2006/10/17 20:05:58 fine Exp $
+** $Id: TQtGLViewerImp.h,v 1.5 2006/12/14 01:02:54 fine Exp $
 **
 ** Copyright (C) 2002 by Valeri Fine. Brookhaven National Laboratory.
 **                                    All rights reserved.
@@ -168,6 +168,7 @@ public:
      virtual void PrintCB();
      virtual void CopyCB();
      virtual void CopyFrameCB();
+     virtual void ReadInputFile(const char *fileName);
      virtual void SaveCB();
      virtual void SaveAsCB();
      virtual void SelectEventCB(bool on);

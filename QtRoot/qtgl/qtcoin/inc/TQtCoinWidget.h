@@ -1,8 +1,8 @@
-// @(#)root/g3d:$Name:  $:$Id: TQtCoinWidget.h,v 1.7 2006/11/28 23:29:23 fine Exp $
+// @(#)root/g3d:$Name:  $:$Id: TQtCoinWidget.h,v 1.8 2006/12/14 01:02:53 fine Exp $
 // Author: Valery Fine      23/05/97
 
 /****************************************************************************
-** $Id: TQtCoinWidget.h,v 1.7 2006/11/28 23:29:23 fine Exp $
+** $Id: TQtCoinWidget.h,v 1.8 2006/12/14 01:02:53 fine Exp $
 **
 ** Copyright (C) 2002 by Valeri Fine. Brookhaven National Laboratory.
 **                                    All rights reserved.
@@ -243,6 +243,7 @@ public:
      virtual void PrintCB();
      virtual void CopyCB();
      virtual void CopyFrameCB();
+     virtual void ReadInputFile(const char *fileName);
      virtual void ReadInputFile(QString fileName);
      virtual void Save(QString fileName,QString type="png");
      virtual void SetFileName(const QString &fileName);     

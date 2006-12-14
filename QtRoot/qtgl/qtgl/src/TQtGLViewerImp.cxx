@@ -467,6 +467,15 @@ void TQtGLViewerImp::CopyFrameCB()
    cb->setPixmap(QPixmap::grabWidget(topLevelWidget()));
 }
 //______________________________________________________________________________
+void TQtGLViewerImp::ReadInputFile(const char *fileName)
+{
+   // Read the extrernal OpenInventor file
+   //This implementation can not do this
+   QMessageBox::critical(0, "OpenGL Viewer","Can not render the Open Inventor scene"
+         , QMessageBox::Ok, QMessageBox::NoButton);
+   
+}
+//______________________________________________________________________________
 void TQtGLViewerImp::SaveCB()
 { 
    QWidget *c = centralWidget();
