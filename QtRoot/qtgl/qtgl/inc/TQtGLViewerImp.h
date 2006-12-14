@@ -1,8 +1,8 @@
-// @(#)root/g3d:$Name:  $:$Id: TQtGLViewerImp.h,v 1.5 2006/12/14 01:02:54 fine Exp $
+// @(#)root/g3d:$Name:  $:$Id: TQtGLViewerImp.h,v 1.6 2006/12/14 23:15:51 fine Exp $
 // Author: Valery Fine      23/05/97
 
 /****************************************************************************
-** $Id: TQtGLViewerImp.h,v 1.5 2006/12/14 01:02:54 fine Exp $
+** $Id: TQtGLViewerImp.h,v 1.6 2006/12/14 23:15:51 fine Exp $
 **
 ** Copyright (C) 2002 by Valeri Fine. Brookhaven National Laboratory.
 **                                    All rights reserved.
@@ -126,7 +126,7 @@ public:
    TQtGLViewerImp(TVirtualPad *pad, const char *title, Int_t x, Int_t y,UInt_t width, UInt_t height);
 
    virtual ~TQtGLViewerImp();
-   virtual void   Clear();
+   virtual void   Clear(const char *opt=0);
    virtual void   CreateStatusBar(Int_t nparts=1);
    virtual void   CreateStatusBar(Int_t *parts, Int_t nparts=1);
    virtual void   DeleteContext() { }
@@ -161,8 +161,8 @@ public:
      virtual void ActivateSelectionHighlighCB(bool);
      virtual void ActivateSelectionGlobalCB(bool);
      virtual void DisconnectSelectorWidgetCB();
-     virtual void AddGLList(unsigned int list, int type=1);
-     virtual void AddRootChild(ULong_t ){ assert(0); /* this to be called for Coin3D only */ };
+     virtual void AddGLList(unsigned int list, EObject3DType type=kSolid);
+     virtual void AddRootChild(ULong_t, EObject3DType ){ assert(0); /* this to be called for Coin3D only */ };
      virtual void RemoveGLList(unsigned int list);
      virtual void NewViewer();
      virtual void PrintCB();

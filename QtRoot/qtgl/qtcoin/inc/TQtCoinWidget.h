@@ -1,8 +1,8 @@
-// @(#)root/g3d:$Name:  $:$Id: TQtCoinWidget.h,v 1.8 2006/12/14 01:02:53 fine Exp $
+// @(#)root/g3d:$Name:  $:$Id: TQtCoinWidget.h,v 1.9 2006/12/14 23:15:49 fine Exp $
 // Author: Valery Fine      23/05/97
 
 /****************************************************************************
-** $Id: TQtCoinWidget.h,v 1.8 2006/12/14 01:02:53 fine Exp $
+** $Id: TQtCoinWidget.h,v 1.9 2006/12/14 23:15:49 fine Exp $
 **
 ** Copyright (C) 2002 by Valeri Fine. Brookhaven National Laboratory.
 **                                    All rights reserved.
@@ -110,6 +110,9 @@ private:
    SoQtViewer             *fInventorViewer;
    SoSeparator            *fRootNode;
    SoSeparator            *fShapeNode;
+   SoSeparator            *fWiredShapeNode;
+   SoSeparator            *fSolidShapeNode;
+   SoSeparator            *fFileNode;
    SoSelection            *fSelNode;
    SoCamera               *fCamera;
    SmAxisDisplayKit       *fAxes;
@@ -184,8 +187,8 @@ public:
    TQtCoinWidget(TVirtualPad *pad, const char *title="Coin Viewer", UInt_t width=400, UInt_t height=300);
 
    virtual ~TQtCoinWidget();
-   void AddRootChild(ULong_t id);
-   virtual void   Clear();
+   void AddRootChild(ULong_t id, EObject3DType type=kSolid);
+   virtual void   Clear(const char *opt=0);
    //virtual void   CreateStatusBar(Int_t nparts=1);
    virtual void   CreateStatusBar(Int_t *parts, Int_t nparts=1);
    virtual TContextMenu &ContextMenu(); 
@@ -236,7 +239,7 @@ public:
      //virtual void ActivateSelectionHighlighCB(bool);
      //virtual void ActivateSelectionGlobalCB(bool);
      //virtual void DisconnectSelectorWidgetCB();
-     virtual void AddGLList(unsigned int list, int type=1);
+     virtual void AddGLList(unsigned int list, EObject3DType type=kSolid);
      virtual void RemoveGLList(unsigned int list);
      virtual void FrameAxisActionCB(bool);
       //virtual void NewViewer();

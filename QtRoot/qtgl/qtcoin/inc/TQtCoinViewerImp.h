@@ -1,8 +1,8 @@
-// @(#)root/g3d:$Name:  $:$Id: TQtCoinViewerImp.h,v 1.12 2006/12/14 01:02:53 fine Exp $
+// @(#)root/g3d:$Name:  $:$Id: TQtCoinViewerImp.h,v 1.13 2006/12/14 23:15:49 fine Exp $
 // Author: Valery Fine      23/05/97
 
 /****************************************************************************
-** $Id: TQtCoinViewerImp.h,v 1.12 2006/12/14 01:02:53 fine Exp $
+** $Id: TQtCoinViewerImp.h,v 1.13 2006/12/14 23:15:49 fine Exp $
 **
 ** Copyright (C) 2002 by Valeri Fine. Brookhaven National Laboratory.
 **                                    All rights reserved.
@@ -143,8 +143,8 @@ public:
    //TQtCoinViewerImp(TVirtualPad *pad, const char *title, Int_t x, Int_t y,UInt_t width, UInt_t height);
 
    virtual ~TQtCoinViewerImp();
-   void AddRootChild(ULong_t id);
-   virtual void   Clear();
+   void AddRootChild(ULong_t id, EObject3DType type=kSolid);
+   virtual void   Clear(const char *opt=0);
    //virtual void   CreateStatusBar(Int_t nparts=1);
    virtual void   CreateStatusBar(Int_t *parts, Int_t nparts=1);
    virtual TContextMenu &ContextMenu(); 
@@ -187,7 +187,7 @@ public:
      //virtual void ActivateSelectionHighlighCB(bool);
      //virtual void ActivateSelectionGlobalCB(bool);
      //virtual void DisconnectSelectorWidgetCB();
-     virtual void AddGLList(unsigned int list, int type=1);
+     virtual void AddGLList(unsigned int list, EObject3DType type=kSolid);
      virtual void RemoveGLList(unsigned int list);
      virtual void FrameAxisActionCB(bool);
       //virtual void NewViewer();

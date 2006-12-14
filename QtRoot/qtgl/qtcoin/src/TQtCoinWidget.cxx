@@ -402,7 +402,7 @@ TQtCoinWidget::TQtCoinWidget(QWidget *parent, COINWIDGETFLAGSTYPE f)
 #endif      
    , TGLViewerImp(0,"",0,0)
    , fInventorViewer(0), fRootNode(0)
-   , fShapeNode(0),fSelNode(0),fCamera(0),fAxes(0)
+   , fShapeNode(0),fWiredShapeNode(0),fSolidShapeNode(0),fFileNode(0),fSelNode(0),fCamera(0),fAxes(0)
    , fXAxis(0), fYAxis(0), fZAxis(0),fCameraSensor(0),fPickedObject(0)
    , fSaveType("JPEG"),fMaxSnapFileCounter(2),fPad(0),fContextMenu(0),fSelectedObject(0)
    , fWantRootContextMenu(kFALSE)
@@ -450,7 +450,7 @@ TQtCoinWidget::TQtCoinWidget(TVirtualPad *pad, const char *title,
 #endif 
    , TGLViewerImp(0,title,width,height)
    , fInventorViewer(0), fRootNode(0)
-   , fShapeNode(0),fSelNode(0),fCamera(0),fAxes(0)
+   , fShapeNode(0),fWiredShapeNode(0),fSolidShapeNode(0),fFileNode(0),fSelNode(0),fCamera(0),fAxes(0)
    , fXAxis(0), fYAxis(0), fZAxis(0),fCameraSensor(0),fPickedObject(0)
    , fSaveType("JPEG"),fMaxSnapFileCounter(2),fPad(pad),fContextMenu(0),fSelectedObject(0)
    , fWantRootContextMenu(kFALSE)
@@ -589,12 +589,25 @@ TQtCoinWidget::~TQtCoinWidget()
 }
 
 //______________________________________________________________________________
-void TQtCoinWidget::AddRootChild(ULong_t id)
+void TQtCoinWidget::AddRootChild(ULong_t id, EObject3DType type)
 {
    assert(id);
-   printf("TQtCoinWidget::AddRootChild----------------------------------------------------------------  <===\n");
    //fRootNode->addChild(new SoCone);
-   fShapeNode->addChild((SoNode*)id);
+   switch (type) {
+       case TGLViewerImp::kSolid:
+          //fShapeNode->addChild((SoNode*)id);
+          fSolidShapeNode->addChild((SoNode*)id);
+          printf("TQtCoinWidget::AddRootChild------------SOLID----------  <===\n");
+          break;
+       case TGLViewerImp::kWired:
+          fWiredShapeNode->addChild((SoNode*)id);
+          printf("TQtCoinWidget::AddRootChild------------WIRED----------  <===\n");
+          break;
+       default:
+          fSolidShapeNode->addChild((SoNode*)id);
+          printf("TQtCoinWidget::AddRootChild------------DEFAULT----------  <===\n");
+          break;              
+    };
    
    // Make myCamera see everything.
    fCamera->viewAll(fRootNode, fInventorViewer->getViewportRegion());
@@ -603,14 +616,18 @@ void TQtCoinWidget::AddRootChild(ULong_t id)
 //______________________________________________________________________________
 void TQtCoinWidget::ClearCB()
 {
+   if (fFileNode) fFileNode->removeAllChildren();
 	Clear();
 }
 
 //______________________________________________________________________________
-void TQtCoinWidget::Clear()
+void TQtCoinWidget::Clear(const char *opt)
 {
-	fShapeNode->removeAllChildren();
-	/*
+   if (opt) {}
+	//fShapeNode->removeAllChildren();
+	fSolidShapeNode->removeAllChildren();
+   fWiredShapeNode->removeAllChildren();
+   /*
 	fInventorViewer->setSceneGraph(NULL);
 	fInventorViewer->setSceneGraph(NULL);
 	fRootNode->unref();
@@ -753,7 +770,7 @@ void TQtGLViewerImp::ActivateSelectionGlobalCB(bool on)
 }
 */
 //______________________________________________________________________________
-void TQtCoinWidget::AddGLList(unsigned int list, int type)
+void TQtCoinWidget::AddGLList(unsigned int list, EObject3DType type)
 {
    printf("TQtCoinWidget::AddGLList\n");
    
@@ -850,7 +867,11 @@ void TQtCoinWidget::ReadInputFile(QString fileName)
        SoSeparator *extraObjects = SoDB::readAll(&viewDecor);
        if (extraObjects) {
 	        printf("readings ...\n");
-           fShapeNode->addChild(extraObjects);
+            if (!fFileNode) {
+               fFileNode = new SoSeparator();
+               fShapeNode->addChild(fFileNode);
+            }
+           fFileNode->addChild(extraObjects);
        }
     }
 }
@@ -1534,6 +1555,15 @@ void TQtCoinWidget::CreateViewer(const char * /*name*/)
    fShapeNode = new SoSeparator;
    fShapeNode->setName("ShapesNode");
    fSelNode->addChild(fShapeNode);
+   
+   fWiredShapeNode = new SoSeparator;
+   fWiredShapeNode->setName("WiredShapes");
+   fShapeNode->addChild(fWiredShapeNode);
+   
+   fSolidShapeNode = new SoSeparator;
+   fSolidShapeNode->setName("SolidShapes");
+   fShapeNode->addChild(fSolidShapeNode);
+   
  // ---------------------------------------------------------------------
  // void SoSeparator::setNumRenderCaches ( const int  howmany ) [static] 
  // ---------------------------------------------------------------------
@@ -1556,7 +1586,7 @@ void TQtCoinWidget::CreateViewer(const char * /*name*/)
 	sh->faceType       = SoShapeHints::CONVEX;
    //sh->shapeType = SoShapeHints::UNKNOWN_SHAPE_TYPE;
 	//sh->faceType = SoShapeHints::UNKNOWN_FACE_TYPE;
-	fShapeNode->addChild(sh);	
+	fSolidShapeNode->addChild(sh);	
     
 	//*/
    //fRootNode = new SoSelection;

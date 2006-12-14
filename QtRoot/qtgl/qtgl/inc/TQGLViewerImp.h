@@ -1,4 +1,4 @@
-// @(#)root/g3d:$Name:  $:$Id: TQGLViewerImp.h,v 1.5 2006/12/14 01:02:54 fine Exp $
+// @(#)root/g3d:$Name:  $:$Id: TQGLViewerImp.h,v 1.6 2006/12/14 23:15:51 fine Exp $
 // Author: Valery Fine      12/03/2005
 
 /*************************************************************************
@@ -75,7 +75,8 @@ protected:
    Bool_t               fPaint;         // Allows "Refresh" OpenGL window
    virtual void Disconnect(){ fGLView = 0;} // to be called from TPadOpenGLView dtor
 public:
-   enum {kStatusPopIn, kStatusNoBorders, kStatusOwn, kStatusPopOut};
+   enum {kStatusPopIn,  kStatusNoBorders, kStatusOwn, kStatusPopOut};
+   enum  EObject3DType { kWired, kSolid, kSelecting, kSelected };
    TGLViewerImp();
    TGLViewerImp(TPadOpenGLView *padview, const char *title="OpenGL Viewer", UInt_t width=400, UInt_t height=300);
    TGLViewerImp(TPadOpenGLView *padview, const char *title, Int_t x, Int_t y,UInt_t width, UInt_t height);
@@ -104,11 +105,11 @@ public:
    virtual void   Show() { };
    virtual void   Update() { fPaint = kTRUE; }
    virtual ULong_t GetViewerID() const                  = 0;
-   virtual void   Clear()                               = 0;
+   virtual void   Clear(const char *opt=0)              = 0;
 
 // New methods for Qt
-   virtual void AddGLList(unsigned int list, int type=1)= 0;
-   virtual void AddRootChild(ULong_t id)                = 0;
+   virtual void AddGLList(unsigned int list, EObject3DType type=kSolid)= 0;
+   virtual void AddRootChild(ULong_t id, EObject3DType type=kSolid)    = 0;
    virtual void DisconnectPad()                         = 0;
    virtual void ReadInputFile(const char *fileName)     = 0;
    virtual void RemoveGLList(unsigned int list)         = 0;

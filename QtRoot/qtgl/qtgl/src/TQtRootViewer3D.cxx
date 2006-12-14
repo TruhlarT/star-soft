@@ -208,10 +208,10 @@ void  TQtRootViewer3D::EndScene(){
      TDataSetIter nextList(&fListOfPrimitives);
      TObject3DView *glo = 0;
      while( (glo = (TObject3DView *)nextList()  )) {
-        fViewer->AddGLList(glo->GetViewId(), glo->IsSolid() );
+        fViewer->AddGLList(glo->GetViewId(), glo->IsSolid() ? TGLViewerImp::kSolid : TGLViewerImp::kWired );
 #ifdef EXTRASELECTION
         if ( glo->GetViewId(TObject3DViewFactoryABC::kSelectable) ) 
-           fViewer->AddGLList(glo->GetViewId(TObject3DViewFactoryABC::kSelectable), 2 );
+           fViewer->AddGLList(glo->GetViewId(TObject3DViewFactoryABC::kSelectable), TGLViewerImp::kSelecting );
 #endif
      }
      fViewer->SetUpdatesEnabled(TRUE);

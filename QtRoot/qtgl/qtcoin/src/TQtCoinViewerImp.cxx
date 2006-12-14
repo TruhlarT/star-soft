@@ -317,21 +317,21 @@ TQtCoinViewerImp::~TQtCoinViewerImp()
 { }
 
 //______________________________________________________________________________
-void TQtCoinViewerImp::AddRootChild(ULong_t id)
+void TQtCoinViewerImp::AddRootChild(ULong_t id, EObject3DType type)
 { 
-   if (fCoinWidget) fCoinWidget->AddRootChild(id);
+   if (fCoinWidget) fCoinWidget->AddRootChild(id,type);
 }
 
 //______________________________________________________________________________
 void TQtCoinViewerImp::ClearCB()
 {
-	Clear();
+   if (fCoinWidget) fCoinWidget->ClearCB();
 }
 
 //______________________________________________________________________________
-void TQtCoinViewerImp::Clear()
+void TQtCoinViewerImp::Clear(const char *opt)
 {
-   if (fCoinWidget) fCoinWidget->Clear();
+   if (fCoinWidget) fCoinWidget->Clear(opt);
 }
 /*
 //______________________________________________________________________________
@@ -484,7 +484,7 @@ void TQtGLViewerImp::ActivateSelectionGlobalCB(bool on)
 }
 */
 //______________________________________________________________________________
-void TQtCoinViewerImp::AddGLList(unsigned int list, int type)
+void TQtCoinViewerImp::AddGLList(unsigned int list, EObject3DType type)
 {
    printf("TQtCoinViewerImp::AddGLList\n");
    if (fCoinWidget) fCoinWidget->AddGLList(list, type);

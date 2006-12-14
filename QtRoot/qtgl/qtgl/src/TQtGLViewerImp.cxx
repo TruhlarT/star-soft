@@ -263,7 +263,7 @@ TQtGLViewerImp::TQtGLViewerImp(TQtGLViewerImp &parent) :
 TQtGLViewerImp::~TQtGLViewerImp()
 {  }
 //______________________________________________________________________________
-void TQtGLViewerImp::Clear()
+void TQtGLViewerImp::Clear(const char *)
 {
      // Clear (remove) all objects from the view
    QWidget *c = centralWidget();
@@ -404,7 +404,7 @@ void TQtGLViewerImp::ActivateSelectionGlobalCB(bool on)
 }
 
 //______________________________________________________________________________
-void TQtGLViewerImp::AddGLList(unsigned int list, int type)
+void TQtGLViewerImp::AddGLList(unsigned int list, EObject3DType type)
 {
 	// printf("TQtGLViewerImp::AddGLList");
    QWidget *c = centralWidget();
@@ -412,13 +412,13 @@ void TQtGLViewerImp::AddGLList(unsigned int list, int type)
 #ifdef QGLVIEWER
      TQtGLViewerWidget *glView = (TQtGLViewerWidget *)c;
      switch (type) {
-     case 0:
+     case TGLViewerImp::kWired:
         glView->addGLList(list, TQtGLViewerWidget::kWired);
         break;
-     case 1: default:
+     case TGLViewerImp::kSolid: default:
         glView->addGLList(list, TQtGLViewerWidget::kSolid);
         break;
-     case 2:
+     case TGLViewerImp::kSelecting:
         glView->addGLList(list, TQtGLViewerWidget::kSelecting);
         break;
      };
@@ -1263,7 +1263,7 @@ void TQtGLViewerImp::ShowObjectInfo(TObject *obj, const QPoint &cursorPosition)
       } else { 
           id = view->GetViewId();
       }
-      fSelectedView->AddGLList(id, view->IsSolid() );
+      fSelectedView->AddGLList(id, view->IsSolid() ? kSolid : kWired  );
 //      fSelectedView->Update();
       fSelectedView->update();
    }
