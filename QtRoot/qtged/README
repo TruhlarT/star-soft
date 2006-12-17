@@ -1,4 +1,4 @@
-// @(#)root/ged:$Name:  $:$Id: README,v 1.1 2006/08/16 19:32:43 fine Exp $
+// @(#)root/ged:$Name:  $:$Id: README,v 1.2 2006/12/17 03:03:51 fine Exp $
 // Author:Valeri Fine   13/06/06
     To create the user custom Qt-based editor one needs 3 steps:
     ------------------------------------------------------------
@@ -49,7 +49,7 @@
       // other methods
      public slots:
       // The bunch of the custom Qt slots (if any) 
-      // to change the selected by TCanvas the  TObject object
+      // to change theTObject object  selected by TCanvas
    }
 
    see qtged/inc/TQtArrowEditor.h
@@ -57,7 +57,7 @@
    Pay your attention if the class you are building the editor for is derived from another class 
    ( or classes) and some of those classes are in possesion of the "object editor", all those editors 
    will be present and available to edit one's subclass too. 
-   This means one has to implement the editor ocde for the missing componets only.
+   This means one has to implement the editor code for the missing components only.
 
  2. Within your "MyCustomEditorClass" provide the "global factory" to register the new class editor automatically 
 
