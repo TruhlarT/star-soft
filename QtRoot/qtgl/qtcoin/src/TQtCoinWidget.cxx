@@ -22,6 +22,7 @@
 #include <qclipboard.h>
 #include <qregexp.h> 
 #include <qimage.h>
+#include <qdir.h>
 
 #if QT_VERSION < 0x40000
 #  include <qfiledialog.h>
@@ -863,16 +864,23 @@ void TQtCoinWidget::ReadInputFile(QString fileName)
    // Read in ythe exteran scene in the "OpenInventor" format
     QFileInfo info(fileName);
     SoInput viewDecor;
-    if (info.isReadable() && viewDecor.openFile(fileName)) {
-       SoSeparator *extraObjects = SoDB::readAll(&viewDecor);
-       if (extraObjects) {
-	        printf("readings ...\n");
-            if (!fFileNode) {
-               fFileNode = new SoSeparator();
-               fShapeNode->addChild(fFileNode);
-            }
-           fFileNode->addChild(extraObjects);
+    if (info.isReadable() ) {
+       QString saveWorkingDir = QDir::currentDirPath();
+       TString ivDir = (const char*)info.dirPath();
+       gSystem->ExpandPathName(ivDir);
+       gSystem->ChangeDirectory((const char*)ivDir);
+       if ( viewDecor.openFile(info.fileName() ) ) {
+          SoSeparator *extraObjects = SoDB::readAll(&viewDecor);
+          if (extraObjects) {
+	           printf("readings ... %s from %s\n", (const char *)info.fileName(), (const char*)info.dirPath());
+              if (!fFileNode) {
+                 fFileNode = new SoSeparator();
+                 fShapeNode->addChild(fFileNode);
+              }
+              fFileNode->addChild(extraObjects);
+          }
        }
+       gSystem->ChangeDirectory((const char*)saveWorkingDir);
     }
 }
 #if 0
