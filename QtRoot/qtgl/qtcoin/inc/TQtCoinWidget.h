@@ -1,8 +1,8 @@
-// @(#)root/g3d:$Name:  $:$Id: TQtCoinWidget.h,v 1.9 2006/12/14 23:15:49 fine Exp $
+// @(#)root/g3d:$Name:  $:$Id: TQtCoinWidget.h,v 1.10 2006/12/21 06:00:12 fine Exp $
 // Author: Valery Fine      23/05/97
 
 /****************************************************************************
-** $Id: TQtCoinWidget.h,v 1.9 2006/12/14 23:15:49 fine Exp $
+** $Id: TQtCoinWidget.h,v 1.10 2006/12/21 06:00:12 fine Exp $
 **
 ** Copyright (C) 2002 by Valeri Fine. Brookhaven National Laboratory.
 **                                    All rights reserved.
@@ -18,9 +18,9 @@
 
 //////////////////////////////////////////////////////////////////////////
 //                                                                      //
-// TQtCoinWidget                                                     //
+// TQtCoinWidget                                                        //
 //                                                                      //
-// Second ABC TQtCoinWidget specifies Window system independent openGL //
+// Second ABC TQtCoinWidget specifies Window system independent openGL  //
 // interface. This class uses the GL includes and isn't passed to CINT  //
 //                                                                      //
 //////////////////////////////////////////////////////////////////////////
@@ -64,8 +64,9 @@ class SoPerspectiveCamera;
 class SoCamera;
 class SoSelection;
 class SmAxisDisplayKit;
-class SoClipPlaneManip;
 class SmAxisKit;
+class SoClipPlaneManip;
+class TCoinAxisSeparator;
 class SoFieldSensor;
 class SoClipPlane;
 class SoCallback;
@@ -117,7 +118,7 @@ private:
    SoCamera               *fCamera;
    SmAxisDisplayKit       *fAxes;
    std::vector<int>        flist[3];
-   SmAxisKit              *fXAxis;
+   TCoinAxisSeparator     *fXAxis;
    SmAxisKit              *fYAxis;
    SmAxisKit              *fZAxis;
    SoFieldSensor          *fCameraSensor;
@@ -169,7 +170,7 @@ protected:
    friend class TQtCoinViewerImp;
    void CopyFile(const QString &fileName2Copy,Int_t counter);
    void CreateViewer(const char *name="qcoinviewer");
-   //void CreateViewer(QGLWidget *share, const char *name="qglviewershared");
+   // void CreateViewer(QGLWidget *share, const char *name="qglviewershared"){;}
    //void SaveHtml(Int_t counter);
    //void SaveHtml(QString &fileName, Int_t counter);
    //void CreateSelectionViewer();
@@ -189,7 +190,7 @@ public:
    virtual ~TQtCoinWidget();
    void AddRootChild(ULong_t id, EObject3DType type=kSolid);
    virtual void   Clear(const char *opt=0);
-   //virtual void   CreateStatusBar(Int_t nparts=1);
+   virtual void   CreateStatusBar(Int_t nparts=1){;}
    virtual void   CreateStatusBar(Int_t *parts, Int_t nparts=1);
    virtual TContextMenu &ContextMenu(); 
    //virtual void   DeleteContext() { }
@@ -218,7 +219,7 @@ public:
    virtual void    DisconnectPad();
    //QGLWidget *GLWidget() const { return fGLWidget;}
    virtual TVirtualPad *GetPad();
-   void CreateViewer(const int id);
+   void CreateViewer(const int){;}
    void EmitSelectSignal(TObject3DView * view);
    Bool_t Recording()  const { return fRecord;}
    void SetBoxSelection();

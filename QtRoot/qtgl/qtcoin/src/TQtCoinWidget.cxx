@@ -143,6 +143,37 @@
 Bool_t TQtCoinWidget::fgCoinInitialized = kFALSE;
 Int_t TQtCoinWidget::gfDefaultMaxSnapFileCounter = 0 ;
 //______________________________________________________________________________
+class TCoinAxisSeparator : public SoSeparator 
+{
+private:
+   bool fOn;
+   SmAxisKit *fAxis;
+   int fNumberTextLabels;
+public:
+   TCoinAxisSeparator(SmAxisKit *ax=0): SoSeparator(), fOn(false), fAxis(ax)
+   , fNumberTextLabels(-1) {
+      setName("MainAxices");
+      if (!fAxis) {
+         fAxis = new SmAxisKit();
+         fAxis->axisName = "X";
+      }
+      addChild(fAxis);
+   }
+   bool IsOn() const { return fOn; }
+   SmAxisKit &Axis() const { return *fAxis; }
+   void SetOn(bool on=true) { fOn = on; }
+   void Connect(SoGroup *node, bool connect=true){
+      if (connect) node->insertChild(this,0);
+      else         node->removeChild(this);
+   }
+   void Disconnect(SoGroup *node) { Connect(node,false); }
+   void SetTextLabelNumber(int nLabels=12) {
+      if (fAxis && (nLabels > 0)) 
+         fAxis->textInterval = fAxis->axisRange.getValue().length()/nLabels;
+   }
+};
+
+//______________________________________________________________________________
 SoGLRenderAction &TQtCoinWidget::BoxHighlightAction()
 {
    if (!fBoxHighlightAction) 
@@ -1382,17 +1413,18 @@ void TQtCoinWidget::SynchTPadCB(bool on)
 void TQtCoinWidget::ShowFrameAxisCB(bool on)
 {  
    if (on) {
-      if (!fXAxis) { fXAxis = new SmAxisKit; fXAxis->ref(); }
+      if (!fXAxis) { fXAxis = new TCoinAxisSeparator; fXAxis->ref(); }
       
       SoGetBoundingBoxAction ba(fInventorViewer->getViewportRegion());
       ba.apply(fShapeNode);
    
       SbBox3f box = ba.getBoundingBox();
-      fXAxis->axisRange.setValue(box.getMin()[0], box.getMax()[0]);
-      fXAxis->axisName = "X";
-      SoSeparator *as = new SoSeparator; as->setName("MainAxices");
-       as->addChild(fXAxis);
-      fShapeNode->insertChild(as, 0);
+      fXAxis->Axis().axisRange.setValue(box.getMin()[0], box.getMax()[0]);
+      // Make sure there are no more the 12 text labels
+      fXAxis->SetTextLabelNumber(12);
+      fXAxis->Connect(fShapeNode);
+   } else {
+      if (fXAxis) fXAxis->Disconnect(fShapeNode);
    }
 /*
 #ifdef QGLVIEWER
