@@ -143,6 +143,22 @@
 Bool_t TQtCoinWidget::fgCoinInitialized = kFALSE;
 Int_t TQtCoinWidget::gfDefaultMaxSnapFileCounter = 0 ;
 //______________________________________________________________________________
+static double Round(double range, int prec=2) {
+   double r = log10(range);
+   double factor = pow(10.0,int(r) - prec - (r < 0 ? 1:0) );
+   int fraction  = int(range/factor);
+   int remainder = fraction  %10;
+   fraction  -= remainder;
+   if (2 < remainder && remainder < 8 ) {
+      fraction += 5;
+   } else if (7 < remainder && remainder < 10 ){
+      fraction += 10;
+   }
+    // restore the number
+   return fraction*factor;
+}
+
+//______________________________________________________________________________
 class TCoinAxisSeparator : public SoSeparator 
 {
 private:
@@ -167,9 +183,18 @@ public:
       else         node->removeChild(this);
    }
    void Disconnect(SoGroup *node) { Connect(node,false); }
+   void SetRange(float amin, float amax, int nLabels = 12) {
+      double range = amax - amin;
+      double textInterval  = Round(range/nLabels);
+      amin = textInterval*int(amin/textInterval - (amin < 0 ? 1:0));
+      fAxis->textInterval  = textInterval;
+      fAxis->axisRange.setValue(amin,amax);
+      fAxis->markerHeight  = textInterval/15;
+      fAxis->markerInterval= textInterval/10;
+   }
    void SetTextLabelNumber(int nLabels=12) {
       if (fAxis && (nLabels > 0)) 
-         fAxis->textInterval = fAxis->axisRange.getValue().length()/nLabels;
+         fAxis->textInterval = Round(fAxis->axisRange.getValue().length()/nLabels);
    }
 };
 
@@ -629,11 +654,11 @@ void TQtCoinWidget::AddRootChild(ULong_t id, EObject3DType type)
        case TGLViewerImp::kSolid:
           //fShapeNode->addChild((SoNode*)id);
           fSolidShapeNode->addChild((SoNode*)id);
-          printf("TQtCoinWidget::AddRootChild------------SOLID----------  <===\n");
+          // printf("TQtCoinWidget::AddRootChild------------SOLID----------  <===\n");
           break;
        case TGLViewerImp::kWired:
           fWiredShapeNode->addChild((SoNode*)id);
-          printf("TQtCoinWidget::AddRootChild------------WIRED----------  <===\n");
+          // printf("TQtCoinWidget::AddRootChild------------WIRED----------  <===\n");
           break;
        default:
           fSolidShapeNode->addChild((SoNode*)id);
@@ -1419,9 +1444,7 @@ void TQtCoinWidget::ShowFrameAxisCB(bool on)
       ba.apply(fShapeNode);
    
       SbBox3f box = ba.getBoundingBox();
-      fXAxis->Axis().axisRange.setValue(box.getMin()[0], box.getMax()[0]);
-      // Make sure there are no more the 12 text labels
-      fXAxis->SetTextLabelNumber(12);
+      fXAxis->SetRange(box.getMin()[0], box.getMax()[0],16);
       fXAxis->Connect(fShapeNode);
    } else {
       if (fXAxis) fXAxis->Disconnect(fShapeNode);
@@ -1966,6 +1989,10 @@ void TQtCoinWidget::SetSnapFileCounter(int counter)
 void TQtCoinWidget::SetCliPlaneMan(Bool_t on)
 {
    if (on) {
+     int wiredIndx = 0;
+     if (fWiredShapeNode) {
+        wiredIndx = fShapeNode->findChild(fWiredShapeNode);
+     }
      if (!fClipPlaneMan) {
         fClipPlaneMan = new SoClipPlaneManip();       
         fClipPlaneMan->ref();
@@ -1977,13 +2004,13 @@ void TQtCoinWidget::SetCliPlaneMan(Bool_t on)
         
         fClipPlane    = new SoClipPlane();
         fClipPlane->plane = fClipPlaneMan->plane;
-        fShapeNode->insertChild(fClipPlane,0);
+        fShapeNode->insertChild(fClipPlane, wiredIndx==-1 ? 0 : wiredIndx );
      }
      
      fClipPlane->on = FALSE;
      fClipPlaneMan->plane = fClipPlane->plane;    
           
-     fShapeNode->insertChild(fClipPlaneMan, 0);
+     fShapeNode->insertChild(fClipPlaneMan, wiredIndx==-1 ? 0 : wiredIndx);
      
   } else if (fClipPlaneMan) {
      fShapeNode->removeChild(fClipPlaneMan);

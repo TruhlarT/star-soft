@@ -1,8 +1,8 @@
-// @(#)root/g3d:$Name:  $:$Id: TSimageMovie.cxx,v 1.2 2006/11/28 23:29:24 fine Exp $
+// @(#)root/g3d:$Name:  $:$Id: TSimageMovie.cxx,v 1.3 2006/12/21 22:56:22 fine Exp $
 // Author: Valery Fine      24/11/06
 
 /****************************************************************************
-** $Id: TSimageMovie.cxx,v 1.2 2006/11/28 23:29:24 fine Exp $
+** $Id: TSimageMovie.cxx,v 1.3 2006/12/21 22:56:22 fine Exp $
 **
 ** Copyright (C) 2002 by Valeri Fine. Brookhaven National Laboratory.
 **                                    All rights reserved.
