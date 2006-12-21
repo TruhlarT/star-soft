@@ -10,6 +10,7 @@
 //                                                                      //
 //////////////////////////////////////////////////////////////////////////
 
+#include <cassert>
 //#include "TQtRootViewer3D.h"
 #include "TQtRootCoinViewer3D.h"
 #include "TQtCoinViewerImp.h"
