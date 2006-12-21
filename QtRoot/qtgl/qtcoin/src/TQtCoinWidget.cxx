@@ -1990,8 +1990,8 @@ void TQtCoinWidget::SetCliPlaneMan(Bool_t on)
 {
    if (on) {
      int wiredIndx = 0;
-     if (fWiredShapeNode) {
-        wiredIndx = fShapeNode->findChild(fWiredShapeNode);
+     if (fSolidShapeNode) {
+        wiredIndx = fShapeNode->findChild(fSolidShapeNode);
      }
      if (!fClipPlaneMan) {
         fClipPlaneMan = new SoClipPlaneManip();       
