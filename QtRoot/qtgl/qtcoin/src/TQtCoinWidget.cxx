@@ -855,13 +855,14 @@ void TQtCoinWidget::CopyFrameCB()
 //______________________________________________________________________________
 void TQtCoinWidget::ReadInputFile(const char *fileName)
 {
+   // Read in the external scene in the "OpenInventor" format
    ReadInputFile(QString( fileName));
 }
 
 //______________________________________________________________________________
 void TQtCoinWidget::ReadInputFile(QString fileName)
 { 	
-   // Read in ythe exteran scene in the "OpenInventor" format
+   // Read in the external scene in the "OpenInventor" format
     QFileInfo info(fileName);
     SoInput viewDecor;
     if (info.isReadable() ) {
