@@ -1,5 +1,5 @@
 #!/bin/csh -x
-#       $Id: group_env.csh,v 1.189 2006/08/08 19:31:58 jeromel Exp $
+#       $Id: group_env.csh,v 1.190 2006/12/25 22:40:55 jeromel Exp $
 #	Purpose:	STAR group csh setup
 #
 #	Author:		Y.Fisyak     BNL
@@ -538,39 +538,6 @@ if ( -d $OPTSTAR/qt ) then
 endif
 
 
-# Support for OSG - Try to locate things from OSG including Worker Node
-if ( ! $?OSG ) then 
-    if ( -e /opt ) then
-	set LOSG=`/bin/ls -d /opt/* | /bin/grep OSG | /usr/bin/tail -1`
-	if ( "$LOSG" != "") setenv OSG $LOSG
-    endif
-endif
-if ( $?OSG ) then
-    if ( -e $OSG/setup.csh ) then
-	# there will alos be a java version coming along but
-	# it may be defined prior from /usr/java
-	source $OSG/setup.csh
-	setenv SAVED_PATH `echo $PATH | /bin/sed "s/:/ /g"`
-    endif
-else
-    # Unfortunately, the WN package loads the whole blabla with
-    # java, python and even perl all ...
-    if ( $?WNOSG ) then
-	if ( -e $WNOSG/setup.csh ) then
-    	    setenv GSAVED_PATH   $PATH
-    	    setenv GSAVED_LDPATH $LD_LIBRARY_PATH
-    	    # trash the path
-    	    setenv PATH  /bin:/usr/bin
-    	    # trash LD
-    	    unsetenv LD_LIBRARY_PATH
-    	    # load definitions
-    	    source $WNOSG/setup.csh
-    	    # redefine path and ld path
-    	    setenv PATH             ${GSAVED_PATH}:${PATH}
-    	    setenv LD_LIBRARY_PATH  ${GSAVED_LDPATH}:${LD_LIBRARY_PATH}
-    	endif
-    endif
-endif
 
 
 # ==================================================================
