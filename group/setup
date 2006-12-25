@@ -13,6 +13,7 @@ if ($#argv == 0 || $#argv > 2) then
    nodebug|NODEBUG                  switch the environment to the nodebug (optimized) 
                                     of the STAR software
 
+   Grid|OSG                         Setup Grid environment
    root|ROOT  {version}             load or change root version
    parasoft|PARASOFT|insure|ISURE   load the Insure++ toolkit environment
 
@@ -30,6 +31,43 @@ set version = 0;
 if ( $#argv > 0 ) set version = $1
 
 switch ($pkg)
+    case "OSG":
+    case "Grid":
+	# Support for OSG - Try to locate things from OSG including Worker Node
+	if ( ! $?OSG ) then 
+	    if ( -e /opt ) then
+		set LOSG=`/bin/ls -d /opt/* | /bin/grep OSG | /usr/bin/tail -1`
+		if ( "$LOSG" != "") setenv OSG $LOSG
+	    endif
+	endif
+	if ( $?OSG ) then
+	    if ( -e $OSG/setup.csh ) then
+		# there will alos be a java version coming along but
+		# it may be defined prior from /usr/java
+		source $OSG/setup.csh
+		setenv SAVED_PATH `echo $PATH | /bin/sed "s/:/ /g"`
+	    endif
+	else
+	    # Unfortunately, the WN package loads the whole blabla with
+	    # java, python and even perl all ...
+	    if ( $?WNOSG ) then
+		if ( -e $WNOSG/setup.csh ) then
+		    setenv GSAVED_PATH   $PATH
+		    setenv GSAVED_LDPATH $LD_LIBRARY_PATH
+		    # trash the path
+		    setenv PATH  /bin:/usr/bin
+		    # trash LD
+		    unsetenv LD_LIBRARY_PATH
+		    # load definitions
+		    source $WNOSG/setup.csh
+		    # redefine path and ld path
+		    setenv PATH             ${GSAVED_PATH}:${PATH}
+		    setenv LD_LIBRARY_PATH  ${GSAVED_LDPATH}:${LD_LIBRARY_PATH}
+	    endif
+	endif
+    endif
+
+
     # Root setup
     case "root":
     case "ROOT":
