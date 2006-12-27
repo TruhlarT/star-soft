@@ -444,7 +444,8 @@ void TQtGLViewerImp::ShowStatusBar(Bool_t show)
 //______________________________________________________________________________
  void  TQtCoinViewerImp::DisconnectPad()
  {
-    if (fCoinWidget) fCoinWidget->DisconnectPad();
+   QObject::disconnect(&Signals(),SIGNAL( ObjectSelected(TObject *, const QPoint&)));
+   if (fCoinWidget) fCoinWidget->DisconnectPad();
  }
 //______________________________________________________________________________
 void TQtCoinViewerImp::SetUpdatesEnabled(const bool&enable)

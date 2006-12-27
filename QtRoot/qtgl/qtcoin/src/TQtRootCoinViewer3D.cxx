@@ -148,7 +148,6 @@ void   TQtRootCoinViewer3D::DisconnectPad()
       if (fViewer) {
           fViewer->DisconnectPad();
       }
-      QObject::disconnect(&Signals(),SIGNAL( ObjectSelected(TObject *, const QPoint&)));
       fPad->TQObject::Disconnect("Closed()",this, 0);
       fPad->TQObject::Disconnect("Modified()",this, 0);
       fPad = 0;
