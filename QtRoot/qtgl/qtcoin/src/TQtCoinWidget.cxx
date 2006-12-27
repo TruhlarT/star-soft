@@ -164,15 +164,18 @@ class TCoinAxisSeparator : public SoSeparator
 private:
    bool fOn;
    SmAxisKit *fAxis;
+   SoTranslation *fOffset;
    int fNumberTextLabels;
 public:
    TCoinAxisSeparator(SmAxisKit *ax=0): SoSeparator(), fOn(false), fAxis(ax)
-   , fNumberTextLabels(-1) {
+   , fOffset(0), fNumberTextLabels(-1) {
       setName("MainAxices");
       if (!fAxis) {
          fAxis = new SmAxisKit();
          fAxis->axisName = "X";
       }
+      fOffset = new SoTranslation();
+      addChild(fOffset);
       addChild(fAxis);
    }
    bool IsOn() const { return fOn; }
@@ -191,6 +194,9 @@ public:
       fAxis->axisRange.setValue(amin,amax);
       fAxis->markerHeight  = textInterval/15;
       fAxis->markerInterval= textInterval/10;
+      // set the new offset
+      double offset  = (amin + amax)/2;
+      fOffset->translation.setValue(offset, 0.0f, 0.0f);
    }
    void SetTextLabelNumber(int nLabels=12) {
       if (fAxis && (nLabels > 0)) 
