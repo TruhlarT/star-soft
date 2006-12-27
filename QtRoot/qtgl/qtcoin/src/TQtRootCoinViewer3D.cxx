@@ -62,11 +62,10 @@ void   TQtRootCoinViewer3D::Viewer()
       TObject3DViewFactoryABC::Registr(new TObjectCoinViewFactory(), "oiv");
       fView3DFactory = TObject3DViewFactoryABC::View3DFactory("oiv");
    }
-   printf("TQtRootCoinViewer3D::Viewer begin fView3DFactory=%p\n", fView3DFactory);
    assert(fView3DFactory);
    fListOfPrimitives.SetViewFactory(fView3DFactory);
       fViewer = new TQtCoinViewerImp(fPad,fPad->GetName(),fPad->UtoPixel(1.),fPad->VtoPixel(0.) );
-      printf("TQtRootCoinViewer3D::Viewer this=%p, fPad=%p, fView3DFactory=%p, fViewer=%p\n",this,fPad,fView3DFactory,fViewer);
+   //   printf("TQtRootCoinViewer3D::Viewer this=%p, fPad=%p, fView3DFactory=%p, fViewer=%p\n",this,fPad,fView3DFactory,fViewer);
    //*
       fDisconnectSlot = new SlotDisconnect(this);
      //  QObject::connect(fViewer,SIGNAL(destroyed()), fDisconnectSlot, SLOT(Disconnect()));
@@ -78,7 +77,7 @@ void   TQtRootCoinViewer3D::Viewer()
       QObject::connect(gQt->Emitter(),SIGNAL(padPainted(QPixmap*)),fDisconnectSlot, SLOT(UpdateView(QPixmap*)));
 	 //  */
    }
-   printf("TQtRootCoinViewer3D::Viewer end\n");
+   // printf("TQtRootCoinViewer3D::Viewer end\n");
 }
 //______________________________________________________________________________
 TQtRootCoinViewer3D::~TQtRootCoinViewer3D()
@@ -149,6 +148,7 @@ void   TQtRootCoinViewer3D::DisconnectPad()
       if (fViewer) {
           fViewer->DisconnectPad();
       }
+      QObject::disconnect(&Signals(),SIGNAL( ObjectSelected(TObject *, const QPoint&)));
       fPad->TQObject::Disconnect("Closed()",this, 0);
       fPad->TQObject::Disconnect("Modified()",this, 0);
       fPad = 0;

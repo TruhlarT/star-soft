@@ -115,7 +115,7 @@ public:
    virtual TGLViewerImp *GetViewerImp();
    inline SlotDisconnect *GetSlotDisconnect() const { return fDisconnectSlot;}
    virtual void   UpdateView();
-           void   DisconnectPad();
+   virtual void   DisconnectPad();
 
    ClassDef(TQtRootViewer3D,0) // Abstract interface to 3D viewers
 };

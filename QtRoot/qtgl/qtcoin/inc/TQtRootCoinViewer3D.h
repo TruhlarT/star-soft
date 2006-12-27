@@ -35,7 +35,7 @@ class TQtRootCoinViewer3D : public TQtRootViewer3D
 public:
    TQtRootCoinViewer3D(TVirtualPad * pad = 0);	
    virtual void   EndScene();            // called by TPad::Paint | PaintModified
-           void   DisconnectPad();
+   virtual void   DisconnectPad();
    //virtual Int_t  AddObject(TObject *, Option_t* drawOption = 0, Bool_t * addChildren = 0);
    //virtual Int_t  AddObjectFirst(TObject *, Option_t* drawOption = 0, Bool_t * addChildren = 0);
 protected:
