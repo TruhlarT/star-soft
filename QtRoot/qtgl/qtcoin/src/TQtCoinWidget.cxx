@@ -1563,7 +1563,7 @@ static void cameraChangeCB(void *data, SoSensor *)
 {
    // Callback  that reports whenever the viewer's orientation change
   TQtCoinWidget *viewer = (TQtCoinWidget *) data;
-  SoCamera *camera = viewer->GetCamera();
+  const SoCamera *camera = viewer->GetCamera();
   if (camera) {
      SmAxisDisplayKit *axis = viewer->GetAxis();
      if (axis) {
@@ -1728,6 +1728,17 @@ void TQtCoinWidget::CreateViewer(const char * /*name*/)
    SetBackgroundColor(fPad->GetFillColor());
 
    connect(this,SIGNAL(ObjectSelected(TObject*,const QPoint &)),this,SLOT( ShowObjectInfo(TObject *, const QPoint&)));
+}
+
+//______________________________________________________________________________
+SoCamera *TQtCoinWidget::GetCamera() const 
+{ 
+   return fInventorViewer->getCamera();
+} 
+//______________________________________________________________________________
+SoCamera &TQtCoinWidget::Camera() const
+{
+   return *GetCamera();
 }
 
 //______________________________________________________________________________
@@ -2055,14 +2066,12 @@ void TQtCoinWidget::SmallAxesActionCB(bool on)
           ax-> annotations.set1Value(1,"y");
           ax-> annotations.set1Value(2,"z");
    
-          //  Adjust the initial orientation if any
-          if (fCamera) 
-             ax->orientation = fCamera->orientation;
-          
           if (!fCameraSensor) 
              fCameraSensor = new SoFieldSensor(cameraChangeCB,this);
        }
-       fCameraSensor->attach(&fCamera->orientation);
+       //  Adjust the initial orientation if any
+       fAxes->orientation = Camera().orientation;
+       fCameraSensor->attach(&Camera().orientation);
        fRootNode->addChild(fAxes);
    } else if (fAxes) {
       fRootNode->removeChild(fAxes);

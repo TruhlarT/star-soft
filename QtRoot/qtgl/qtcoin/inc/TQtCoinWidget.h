@@ -1,8 +1,8 @@
-// @(#)root/g3d:$Name:  $:$Id: TQtCoinWidget.h,v 1.10 2006/12/21 06:00:12 fine Exp $
+// @(#)root/g3d:$Name:  $:$Id: TQtCoinWidget.h,v 1.11 2006/12/27 20:45:03 fine Exp $
 // Author: Valery Fine      23/05/97
 
 /****************************************************************************
-** $Id: TQtCoinWidget.h,v 1.10 2006/12/21 06:00:12 fine Exp $
+** $Id: TQtCoinWidget.h,v 1.11 2006/12/27 20:45:03 fine Exp $
 **
 ** Copyright (C) 2002 by Valeri Fine. Brookhaven National Laboratory.
 **                                    All rights reserved.
@@ -201,7 +201,8 @@ public:
    //virtual void   ShowStatusBar(Bool_t show = kTRUE);
 
    //virtual void   SwapBuffers() { };
-   SoCamera *GetCamera() const { return fCamera;} 
+   SoCamera *GetCamera() const;
+   SoCamera &Camera() const;
    SmAxisDisplayKit *GetAxis() const { return fAxes;}
    std::vector<int> GetMyGLList1() { return flist[0]; }
    std::vector<int> GetMyGLList2() { return flist[1]; }
