@@ -1,6 +1,6 @@
 // Author: Valeri Fine   16/06/2006
 /****************************************************************************
-** $Id: TQtToolBar.h,v 1.2 2006/09/22 17:27:10 fine Exp $
+** $Id: TQtToolBar.h,v 1.3 2006/12/29 20:15:53 fine Exp $
 **
 ** Copyright (C) 2006 by Valeri Fine.  All rights reserved.
 **
@@ -38,7 +38,7 @@
 
 class QMainWindow;
 class TQtRootAction;
-class TQtBrowserMenuItem_t;
+struct TQtBrowserMenuItem_t;
 class TQtRootAction;
 
 class TQtToolBar : public TOOLBARCLASSNAME {
