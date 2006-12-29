@@ -1,5 +1,5 @@
 #!/bin/csh -x
-#       $Id: group_env.csh,v 1.190 2006/12/25 22:40:55 jeromel Exp $
+#       $Id: group_env.csh,v 1.191 2006/12/29 20:31:36 jeromel Exp $
 #	Purpose:	STAR group csh setup
 #
 #	Author:		Y.Fisyak     BNL
@@ -234,9 +234,21 @@ if ( $?DECHO ) echo "$self :: ROOT_LEVEL and CERN_LEVEL"
 if (-f $STAR/mgr/ROOT_LEVEL && -f $STAR/mgr/CERN_LEVEL) then
   setenv ROOT_LEVEL `/bin/cat $STAR/mgr/ROOT_LEVEL`
   setenv CERN_LEVEL `/bin/cat $STAR/mgr/CERN_LEVEL`
+
+  # try with post-fix
+  if ( -f $STAR/mgr/CERN_LEVEL.${STAR_SYS} ) then
+    # Overwrite
+    setenv CERN_LEVEL `/bin/cat $STAR/mgr/CERN_LEVEL.${STAR_SYS}`
+  endif 
   if ( -f $STAR/mgr/CERN_LEVEL.${STAR_HOST_SYS} ) then
     # Overwrite
     setenv CERN_LEVEL `/bin/cat $STAR/mgr/CERN_LEVEL.${STAR_HOST_SYS}`
+  endif
+
+  # try with post-fix
+  if ( -f $STAR/mgr/ROOT_LEVEL.${STAR_SYS} ) then
+    # Overwrite
+    setenv ROOT_LEVEL `/bin/cat $STAR/mgr/ROOT_LEVEL.${STAR_SYS}`
   endif
   if ( -f $STAR/mgr/ROOT_LEVEL.${STAR_HOST_SYS} ) then
     # Overwrite
