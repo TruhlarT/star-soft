@@ -526,7 +526,6 @@ void TQtCoinViewerImp::CopyFrameCB()
 //______________________________________________________________________________
 void TQtCoinViewerImp::OpenCB()
 { 
-   printf("TQtCoinViewerImp::OpenCB\n");
    if (fCoinWidget) {
       QString filter = "OpenInventor IV files (*.iv);;WRL File (*.wrl)";
       QString selectedFilter;
@@ -927,7 +926,7 @@ void TQtCoinViewerImp::MakeMenu()
 
    // Create a "print" action
 #if QT_VERSION < 0x40000
-   QAction *printAction =  new QAction("Print", "&Print graph in ctout", CTRL+Key_P, this, "print" );
+   QAction *printAction =  new QAction("Print", "&Print graph to stdout", CTRL+Key_P, this, "print" );
 #else 
    Q3Action *printAction =  new Q3Action("Print", "&Print", Qt::CTRL+Qt::Key_P, this, "print" );
 #endif 
