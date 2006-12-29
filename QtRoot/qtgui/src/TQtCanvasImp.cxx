@@ -1,6 +1,6 @@
 // Author: Valeri Fine   21/01/2002
 /****************************************************************************
-** $Id: TQtCanvasImp.cxx,v 1.3 2006/09/28 00:41:14 fine Exp $
+** $Id: TQtCanvasImp.cxx,v 1.4 2006/12/29 20:17:00 fine Exp $
 **
 ** Copyright (C) 2002 by Valeri Fine. Brookhaven National Laboratory.
 **                                    All rights reserved.
@@ -36,6 +36,7 @@
 #include "TVirtualPadEditor.h"
 #include "TQtCanvas2Html.h"
 #include "TEnv.h"
+#include "TError.h"
 
 #if  ROOT_VERSION_CODE >= ROOT_VERSION(4,03,3)   
 #include "TVirtualViewer3D.h"
@@ -285,8 +286,8 @@ void TQtCanvasImp::Delete()
 #if ROOT_VERSION_CODE < ROOT_VERSION(5,13,3) 
       // Stolen from the TRootCanvas::Close()
       if (fEditor) fEditor->DeleteEditors();
-#endif      
-#if 0      
+#endif
+#if 0
       if (TVirtualPadEditor::GetPadEditor(kFALSE) != 0)
          TVirtualPadEditor::Terminate();
 #else
@@ -813,7 +814,7 @@ void TQtCanvasImp::RootExec(const char* /*cmd*/){assert(0);}
 //______________________________________________________________________________
 void TQtCanvasImp::SetCanvasSize(UInt_t w, UInt_t h)
 { 
-   printf("It is not clear what SetCanvasSize differs from SetWindowSize\n");
+   // printf("It is not clear what SetCanvasSize differs from SetWindowSize\n");
    fCanvasImpID->resize(w,h);
 }
 
@@ -958,6 +959,7 @@ void TQtCanvasImp::SaveAsCB()
      ";Portable Document Format (*.pdf);"
      ";Scalable Vector Graphics (*.svg);"
      ";Extensible Markup Language (*.xml);"
+     ";Graphics Interchange Format (*.gif);"
      ";Web page (*.html);"
      ";ROOT file (*.root);"
      ";Image (";
@@ -1033,7 +1035,7 @@ void TQtCanvasImp::SaveFile(const QString &theFile, const QString &selectedFilte
   QString thatFile = theFile;
   QString e;
   bool rootFormatFound = kTRUE;
-  fprintf(stderr,"Selected filter %s \n", (const char *)selectedFilter);
+  Info("SaveFile","Selected filter %s \n", (const char *)selectedFilter);
 
   //  define the file extension
   QString fileNameExtension = QFileInfo(thatFile).extension(FALSE);
@@ -1070,7 +1072,7 @@ void TQtCanvasImp::SaveFile(const QString &theFile, const QString &selectedFilte
 //   if (! thatFile.contains('.'))  thatFile += '.';
 //   if (thatFile.at(thatFile.length()-1) == '.')  thatFile += defExtension[i];
   
-  fprintf(stderr, "Save %d:<%s> file as \"%s\"\n",rootFormatFound,(const char *)fSaveFileName, (const char *)fSaveType);
+  Info("TQtCanvasImp::SaveFile","Save %d:<%s> file as \"%s\"\n",rootFormatFound,(const char *)fSaveFileName, (const char *)fSaveType);
   if (fSaveType == "HTML") {
      if (fActions[kViewZoomer]->isOn() ) {
         TQtCanvas2Html a(Canvas(),1,0,fgZoomingWidget);
@@ -1242,7 +1244,7 @@ void TQtCanvasImp::X3DViewCB()
   // Create X3d viewer
   // This entry for X11 only. It is never called under WIN32
 #if  ROOT_VERSION_CODE >= ROOT_VERSION(4,03,3)   
-      fprintf(stderr,"  There is no 3D viewer implementation with the Qt layer for ROOT 4.03 yet !!!\n");
+      Error("X3DViewCB","  There is no 3D viewer implementation with the Qt layer for ROOT 4.03 yet !!!\n");
 #else   
   gPad->x3d();
 #endif  
@@ -1287,7 +1289,6 @@ void TQtCanvasImp::GLIVViewCB()
    if (viewer) {
       // Create Open GL viewer
       TGQt::SetCoinFlag(1);
-      fprintf(stderr,"  There is no X3D viewer implementation with the Qt layer for ROOT 4.03 yet !!!\n");
       viewer->BeginScene();
       viewer->EndScene();
     }
