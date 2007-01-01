@@ -49,6 +49,7 @@ $INSU::SKIPNM="SKIP_DIRS";
 # Pattern only ; case insensitive.
 @INSU::MSGISERR=("Do not generate Streamer",
 		 ".consign",
+		 "install_headerfiles.*Error 1",
 		 ".flc",
 		 "cvs update: Updating",
 		 "Run Conscript-standard in");
