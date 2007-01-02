@@ -1,5 +1,6 @@
 #include "TVirtualPad.h"
 #include "TContextMenu.h"
+#include "THLimitsFinder.h"
 
 #include "TQVirtualGL.h"
 #include "TQPadOpenGLView.h"
@@ -1219,7 +1220,7 @@ void TQtCoinWidget::SaveMpegShot(bool)
         fMPegMovie->Close();
         fMPegMovie->Open(im.size().width(),im.size().height()); 
         fMPegMovie->SetMovie(); // Re-use the previous file name
-        printf(" mew size %d %d \n", im.size().width(),im.size().height());
+        printf(" new size %d %d \n", im.size().width(),im.size().height());
       }
       fMPegMovie->AddFrame(im.bits());       
    }
@@ -1450,7 +1451,14 @@ void TQtCoinWidget::ShowFrameAxisCB(bool on)
       ba.apply(fShapeNode);
    
       SbBox3f box = ba.getBoundingBox();
-      fXAxis->SetRange(box.getMin()[0], box.getMax()[0],16);
+      double amin = -1;   double amax = +1;
+      // check range to avoid the crash before any geometry added to the viewer
+      if ( (TMath::Abs(box.getMin()[0])< 1.0E+37) &&  (TMath::Abs(box.getMin()[0]) < 1.0E+37))  {
+         amin = box.getMin()[0]; amax = box.getMax()[0];
+      }
+      double aminopt;   double amaxopt; double width ;int ndivopt;
+      THLimitsFinder::Optimize(amin,amax,15,aminopt,amaxopt,ndivopt,width);
+      fXAxis->SetRange(aminopt, amaxopt ,ndivopt);
       fXAxis->Connect(fShapeNode);
    } else {
       if (fXAxis) fXAxis->Disconnect(fShapeNode);
