@@ -52,16 +52,16 @@ if( $min < 10) { $min = '0'.$min };
 if( $sec < 10) { $sec = '0'.$sec };
 
 
-my $nowdate = ($year+1900)."-".($mon+1)."-".$mday;
+my $todate = ($year+1900)."-".($mon+1)."-".$mday;
 
+my $nowdate;
 my $thisyear = $year+1900;
 my $dyear = $thisyear - 2000;
 
+my @prodyear = ("2006","2007");
 
 # Tables
-#$JobStatusT = "JobStatus"."_".$dyear;
-
-$JobStatusT = "JobStatus_06";
+$JobStatusT = "JobStatus_07";
 
 my @arsites = ( );
 my $mydate;
@@ -140,10 +140,11 @@ my $outSt;
 
 my $scriptname = $query->url(-relative=>1);
 
- my $qperiod  =  $query->param('period');
- my $qsite  =  $query->param('testsite');
+ my $pryear  = $query->param('ryear');
+ my $qperiod = $query->param('period');
+ my $qsite   = $query->param('testsite');
 
- if( $qperiod eq "" and $qsite eq "" ) {
+ if( $qperiod eq "" and $qsite eq "" and $pryear eq "" ) {
 
 
 print $query->header;
@@ -166,6 +167,17 @@ print <<END;
 <tr ALIGN=center VALIGN=CENTER NOSAVE>
 <td>
 END
+
+print "<p>";
+print "</td><td>";
+print "<h3 align=center> Select year</h3>";
+print "<h4 align=center>";
+print  $query->scrolling_list(-name=>'ryear',
+                             -values=>\@prodyear,
+                             -default=>2007,
+      			     -size =>1);
+
+
 
 print "<p>";
 print "</td><td>";  
@@ -208,9 +220,17 @@ print $query->end_html;
 
 my $qqr = new CGI;
 
+ my $pryear =  $qqr->param('ryear');
  my $qperiod  =  $qqr->param('period');
  my $qsite  =  $qqr->param('testsite');
  
+my $dyear = $pryear - 2000;
+if($dyear < 10) { $dyear = "0".$dyear };
+
+# Tables
+$JobStatusT = "JobStatus"."_".$dyear;
+
+
 my $day_diff = 0;
 my $nmonth = 0;
 my @prt = ();
@@ -219,6 +239,11 @@ my $nday = 0;
 my @ardays = ();
 my $tdate;
 
+  if($pryear eq "2006") {
+    $nowdate = "2006-12-31";
+  }else{
+    $nowdate = $todate;
+  }
 
     if( $qperiod eq "week") {
            $day_diff = 8;
