@@ -1,9 +1,12 @@
 #!/usr/local/bin/perl
 #!/usr/bin/env perl 
 #
-# $Id: CRSstatusPlots.pl,v 1.11 2006/07/21 18:15:30 didenko Exp $
+# $Id: CRSstatusPlots.pl,v 1.12 2007/01/09 17:34:00 didenko Exp $
 #
 # $Log: CRSstatusPlots.pl,v $
+# Revision 1.12  2007/01/09 17:34:00  didenko
+# updates for year 2007
+#
 # Revision 1.11  2006/07/21 18:15:30  didenko
 # more fixes for injection protection
 #
@@ -57,7 +60,7 @@ $query = new CGI;
 
  my $fstatus   =  $query->param('statusfield');
  my $fperiod   =  $query->param('period');
- my @prodyear = ("2005","2006");
+ my @prodyear = ("2005","2006","2007");
 
   if( $fperiod eq "" and $fstatus eq "" and $pryear eq "" ) {
 

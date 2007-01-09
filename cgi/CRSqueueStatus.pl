@@ -1,9 +1,12 @@
 #!/usr/local/bin/perl
 #!/usr/bin/env perl 
 #
-# $Id: CRSqueueStatus.pl,v 1.5 2006/07/21 17:45:32 didenko Exp $
+# $Id: CRSqueueStatus.pl,v 1.6 2007/01/09 17:33:51 didenko Exp $
 #
 # $Log: CRSqueueStatus.pl,v $
+# Revision 1.6  2007/01/09 17:33:51  didenko
+# updates for year 2007
+#
 # Revision 1.5  2006/07/21 17:45:32  didenko
 # more fixes for injection protection
 #
@@ -46,7 +49,7 @@ $dbname="operation";
 
 my @reqperiod = ("day","week","1_month","2_months","3_months","4_months","5_months","6_months","7_months","8_months","9_months","10_months","11_months","12_months");
 my @plotview = ("numbers","percentage");
-my @prodyear = ("2005","2006");
+my @prodyear = ("2005","2006","2007");
 
 my $query = new CGI;
 
