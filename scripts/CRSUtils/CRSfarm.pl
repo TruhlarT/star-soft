@@ -13,7 +13,7 @@ $dbname="operation";
 
 
 # Tables
-$crsJobStatusT = "crsJobStatusY6";
+$crsJobStatusT = "crsJobStatusY7";
 
  my @statlist = ();
 
