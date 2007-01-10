@@ -1,4 +1,4 @@
-// @(#)root/gtgl:$Name:  $:$Id: TObject3DView.h,v 1.3 2006/10/04 21:40:53 fine Exp $
+// @(#)root/gtgl:$Name:  $:$Id: TObject3DView.h,v 1.4 2007/01/10 04:07:31 fine Exp $
 // Author: Valery Fine      23/10/03
 
 #ifndef ROOT_TObject3DView
@@ -87,6 +87,7 @@ public:
     const TObject3DView *FindView(const TObject *node) const;
     const TObject       *FindObjectByView(const TObject3DView *view) const;
     TObject3DView *MakeMatrix(const Double_t *traslation=0, const Double_t *rotation=0, Bool_t isReflection=kFALSE);
+    TObject3DView *AddNodeByDefinition(const TObject *descriptor);
     void   MakeVolumeView(Int_t maxlevel);
     Int_t IsSolid()      const { return fType;         }
     Int_t IsSelectable() const { return fIsSelectable; }

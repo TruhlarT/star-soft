@@ -335,6 +335,24 @@ TObject3DView *TObject3DView::MakeMatrix(const Double_t *traslation, const Doubl
 }
 
 //_____________________________________________________________________________
+TObject3DView *TObject3DView::AddNodeByDefinition(const TObject *descriptor)
+{
+   // THis method allows mixins ROOT and Coin3D node if Coin3D factor is present
+   // Add the new Coin node by its defininition
+   // Non-coin factory would return zero and no insancts for the "descriptor"
+   // is to be added to the TObject3DView
+
+   TObject3DView *coinNode = 0; // new TObject3DView(0,fMap,fLevel+1);
+   
+   if (fView3DFactory && descriptor) {
+         coinNode =  fView3DFactory->CreateCoinNode(descriptor);
+         if (coinNode) AddChild(coinNode);
+   }
+   return coinNode;
+}
+
+
+//_____________________________________________________________________________
 void  TObject3DView::MakeShape(const TObject *shape)
 {
    TObject3DView *shapeView = 0; // new TObject3DView(0,fMap,fLevel+1);
@@ -343,7 +361,7 @@ void  TObject3DView::MakeShape(const TObject *shape)
 
         Float_t rgba[4] = {0, 0, 0, 1.0} ;
         Style_t style = GetFillStyle();
-        if (style > 4000) rgba[3] = (style - 4000)/100.;
+        if (style > 4000) rgba[3] = (style - 4000)/float(100.);
 
         // Multiply the original transparency to the translucent factor
         rgba[3]  = TMath:: Min(1.0f,TMath::Max(0.0f,rgba[3]));        
@@ -395,13 +413,14 @@ void TObject3DView::MakeVolumeView(TGeoVolume *top, Int_t maxlevel)
          const Double_t   *rotation  = geoMatrix->IsIdentity() ? 0 : geoMatrix->GetRotationMatrix();
          Bool_t isReflection  = geoMatrix->IsReflection();
          Double_t mx[9];
-		 if (rotation) {
-			 mx[0] = rotation[0]; mx[1] = rotation[3]; mx[2] = rotation[6];
-			 mx[3] = rotation[1]; mx[4] = rotation[4]; mx[5] = rotation[7];
-			 mx[6] = rotation[2]; mx[7] = rotation[5]; mx[8] = rotation[8];
-			 rotation = &mx[0];
-		 }
+         if (rotation) {
+            mx[0] = rotation[0]; mx[1] = rotation[3]; mx[2] = rotation[6];
+            mx[3] = rotation[1]; mx[4] = rotation[4]; mx[5] = rotation[7];
+            mx[6] = rotation[2]; mx[7] = rotation[5]; mx[8] = rotation[8];
+            rotation = &mx[0];
+         }
          TObject3DView *position =  MakeMatrix(trans,rotation,isReflection);
+         position->AddNodeByDefinition(geoMatrix);
 
          geoVolume = geoNode ? geoNode->GetVolume(): 0;
          if (geoVolume) {
@@ -462,6 +481,7 @@ void TObject3DView::MakeVolumeView(TVolume *top, Int_t maxlevel)
             isReflection = matrix->IsReflection();
          }
          TObject3DView *position = MakeMatrix(trans,rotation, isReflection);
+         position->AddNodeByDefinition(matrix);
 
          if (geoVolume) {
             TObject3DView *nextVolume = 0;
@@ -546,6 +566,7 @@ void TObject3DView::MakeVolumeView(TVolumeView *top, Int_t maxlevel)
          }
  
          TObject3DView *position = MakeMatrix(trans,rotation, isReflection);
+         position->AddNodeByDefinition(matrix);
 
          TObject3DView *nextVolume = 0;
 #ifdef GLLIST
@@ -603,6 +624,8 @@ void TObject3DView::MakeVolumeView(TNode *top, Int_t maxlevel)
                  }
                  
                  TObject3DView *position = MakeMatrix(trans,rotation, isReflection);
+                 position->AddNodeByDefinition(matrix);
+
  
                  TObject3DView *nextVolume = 0;
 

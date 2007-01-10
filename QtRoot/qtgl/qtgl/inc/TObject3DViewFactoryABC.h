@@ -1,4 +1,4 @@
-// @(#)root/gtgl:$Name:  $:$Id: TObject3DViewFactoryABC.h,v 1.3 2006/10/04 21:40:53 fine Exp $
+// @(#)root/gtgl:$Name:  $:$Id: TObject3DViewFactoryABC.h,v 1.4 2007/01/10 04:07:32 fine Exp $
 // Author: Valery Fine      24/04/05
 
 #ifndef ROOT_TObject3DViewFactoryABC
@@ -32,22 +32,23 @@ public:
    enum ERenderType { kNormal, kSelectable, kSelected } ;
    TObject3DViewFactoryABC() :TObject(){};
    virtual ~TObject3DViewFactoryABC(){}
-   virtual void AddNormal(TObject3DView *, const Double_t *normal) = 0;
+   virtual void AddNormal(TObject3DView *, const Double_t *normal)     = 0;
    virtual void AddChild(TObject3DView * parent, TObject3DView *child) = 0;
-   virtual TObject3DView *BeginModel(TObject3DView *)              = 0;
-   virtual TObject3DView *EndModel()                               = 0;
-   virtual void           PushMatrix()                             = 0;
-   virtual void           PopMatrix()                              = 0;
+   virtual TObject3DView *BeginModel(TObject3DView *)                  = 0;
+   virtual TObject3DView *EndModel()                                   = 0;
+   virtual void           PushMatrix()                                 = 0;
+   virtual void           PopMatrix()                                  = 0;
+   virtual TObject3DView *CreateCoinNode(const TObject *descriptor)   = 0;
    virtual TObject3DView *CreateMatrix(const Double_t *traslation, const Double_t *rotation, Bool_t isReflection) = 0;
-   virtual TObject3DView *CreateNormal(const Double_t *normal)     = 0;
-   virtual TObject3DView *CreatePosition(UInt_t Id)                = 0;
+   virtual TObject3DView *CreateNormal(const Double_t *normal)         = 0;
+   virtual TObject3DView *CreatePosition(UInt_t Id)                    = 0;
    virtual TObject3DView *CreateShape (const TObject *shape,const Float_t *rgba)     = 0;
    virtual void           GetBoundBox(Double_t *min, Double_t *max) const            = 0;
    virtual TObject3DView *CompileSelection(TObject3DView *view)                      = 0;
    virtual void           CompileViewLevel(TObject3DView *,ERenderType type=kNormal) = 0;
-   virtual ULong_t        GetViewerId(TObject3DView *) const       = 0;
-   virtual Bool_t NeedCompilation()                    const       = 0;
-   virtual void   Release(TObject3DView *)                         = 0;
+   virtual ULong_t        GetViewerId(TObject3DView *) const           = 0;
+   virtual Bool_t NeedCompilation()                    const           = 0;
+   virtual void   Release(TObject3DView *)                             = 0;
    static void Registr(TObject3DViewFactoryABC *f, const char *name);
    static void Unregistr(const char * name);
    static TObject3DViewFactoryABC *View3DFactory(Option_t *type="OGL");

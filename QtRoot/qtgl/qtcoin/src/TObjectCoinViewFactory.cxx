@@ -1,4 +1,4 @@
-// @(#)root/gtgl:$Name:  $:$Id: TObjectCoinViewFactory.cxx,v 1.4 2006/10/27 00:26:47 fine Exp $
+// @(#)root/gtgl:$Name:  $:$Id: TObjectCoinViewFactory.cxx,v 1.5 2007/01/10 04:07:31 fine Exp $
 // Author: Valery Fine      24/09/06
 
 /****************************************************************************
@@ -17,6 +17,8 @@
 
 #include "TObjectCoinViewFactory.h"
 #include "TCoinShapeBuilder.h"
+#include "TSystem.h"
+#include "TQtCoin3DDefInterface.h"
 #include "TShape3DPolygonView.h"
 #include "TObject3DView.h"
 #include "TDataSetIter.h"
@@ -31,6 +33,11 @@
 #include <Inventor/nodes/SoTransform.h>
 #include <Inventor/nodes/SoTransformSeparator.h> 
 #include <Inventor/nodes/SoTranslation.h>
+#include <qstring.h>
+#include <qdir.h>
+
+#include <qfileinfo.h>
+
 
 #include "assert.h"
 // #define OWNNORMALS 1
@@ -114,6 +121,71 @@ TObject3DView *TObjectCoinViewFactory::EndModel()
 TObject3DView *TObjectCoinViewFactory::CreateNormal(double const*)
 { return 0; }
 
+//______________________________________________________________________________
+static SoNode *ReadInputFile(QString fileName)
+{ 	
+   // Read in the external scene in the "OpenInventor" format
+    QFileInfo info(fileName);
+    SoNode *exObj = 0;
+    SoInput viewDecor;
+    if (info.isReadable() ) {
+       QString saveWorkingDir = QDir::currentDirPath();
+       TString ivDir = (const char*)info.dirPath();
+       gSystem->ExpandPathName(ivDir);
+       gSystem->ChangeDirectory((const char*)ivDir);
+       if ( viewDecor.openFile(info.fileName() ) ) {
+          if (!SoDB::read(&viewDecor,exObj))
+             exObj = 0; // FIX ME. Print something for user
+       }
+       gSystem->ChangeDirectory((const char*)saveWorkingDir);
+    }
+    return exObj;
+}
+
+
+//____________________________________________________________________________________________________________________
+TObject3DView *TObjectCoinViewFactory::CreateCoinNode(const TObject *descriptor)
+{
+   // Create the Coin node from the external descriptor
+   const TQtCoin3DDefInterface *coinDescriptor = dynamic_cast<const TQtCoin3DDefInterface *>(descriptor);
+   SoNode *thisNode = 0;
+   if (coinDescriptor) {
+      switch (coinDescriptor->GetType() ) {
+         case TQtCoin3DDefInterface::kStringNode:
+            {
+               const char *definition = 
+                  (const char*)((TQtCoin3DStringNode*)coinDescriptor)->GetNodeDescriptor();
+               int len = ((TQtCoin3DStringNode*)coinDescriptor)->GetNodeDescriptor().Length();
+               if (definition && len > 0) {
+                  SoInput coinDb;
+                  coinDb.setBuffer((void *)definition,len);
+                  if (!SoDB::read(&coinDb,thisNode)){
+                     thisNode = 0; // FIX ME. Print something for user
+                  }
+               }
+            }
+            break;
+         case TQtCoin3DDefInterface::kFileNode:
+            // Read the fist SoNode defintion from the file provided
+            thisNode = ReadInputFile( (const char*)((TQtCoin3DFileNode*)coinDescriptor)->GetFileName());
+            break;
+         case TQtCoin3DDefInterface::kMemoryNode:
+            thisNode =  ((TQtCoin3DNode*)coinDescriptor)->GetNode();
+            break;
+         default:
+            break;
+      };
+   }
+   TObject3DView *view = 0;
+   if (thisNode) {
+         view = OpenView(this);
+         SoGroup *shapeGroup = (SoGroup *) view->GetViewId();
+         shapeGroup->setName("ExternalObject");
+         shapeGroup->addChild(thisNode);
+   }
+
+   return view;
+}
 //____________________________________________________________________________________________________________________
 TObject3DView *TObjectCoinViewFactory::CreateMatrix( const Double_t *translation
                                                       ,const Double_t *rotation

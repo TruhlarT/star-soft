@@ -1,4 +1,4 @@
-// @(#)root/gtgl:$Name:  $:$Id: TObjectOpenGLViewFactory.h,v 1.3 2006/10/04 21:40:53 fine Exp $
+// @(#)root/gtgl:$Name:  $:$Id: TObjectOpenGLViewFactory.h,v 1.4 2007/01/10 04:07:32 fine Exp $
 // Author: Valery Fine      24/04/05
 
 #ifndef ROOT_TObjectOpenGLViewFactory
@@ -40,6 +40,7 @@ public:
    virtual void           PushMatrixEstimate(const Double_t *traslation,const Double_t *rotation);
    virtual void           PopMatrix();
    virtual void           PopMatrixEstimate();
+   virtual TObject3DView *CreateCoinNode(const TObject *){ return 0; }
    virtual TObject3DView *CreateMatrix(const Double_t *traslation, const Double_t *rotation, Bool_t isReflection);
    virtual TObject3DView *CreateNormal(const Double_t *normal);
    virtual TObject3DView *CreatePosition(UInt_t Id);
