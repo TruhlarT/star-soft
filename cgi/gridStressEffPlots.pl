@@ -219,6 +219,8 @@ my $tdate;
  my $startdate = 20061228000000;
 my $bdate;
 my $njb = 0;
+my $ptag = "none";
+my $gname;
 
     if( $qperiod eq "week") {
            $day_diff = 8;
@@ -369,11 +371,7 @@ $njb = 0;
 #   $outputeff[$ndt] = $outEfH{$msite}*100/(5*$njobs[$ndt]);
 #    $outputeff[$ndt] = $outEfH{$msite}*100/($njobs[$ndt]);
 #   $recoComeff[$ndt] = $recoEfH{$msite}*100/$njobs[$ndt];
-   if ($bdate <= 20061228000000 || ( $bdate >= 20070101000000 && $bdate <= 20070108100000)) {
    $outputeff[$ndt] = $outEfH{$msite}*100/($njobs[$ndt]);
-  }else{
-    $outputeff[$ndt] = $outEfH{$msite}*100/$njb;
-  }
    $overeff[$ndt] = $siteEff{$msite}*100/$njobs[$ndt];
    
    if ($msite eq "PDSF")  {
@@ -392,17 +390,11 @@ $njb = 0;
  }
     &GRdbDisconnect();
 
-
    $graph = new GIFgraph::linespoints(750,650);
 
- if ( ! $graph){
-    print STDOUT $qqr->header(-type => 'text/plain');
-    print STDOUT "Failed\n";
- } else {
-    print STDOUT $qqr->header(-type => 'image/gif');
-    binmode STDOUT;
-
     if( $qsite eq "ALL" ) {
+
+	$ptag = "ALL";
 
     $legend[0] = "Efficiency for PDSF; ";
 #    $legend[1] = "Efficiency for SPU; "; 
@@ -411,9 +403,12 @@ $njb = 0;
 
 #    @data = (\@ndate, \@effpdsf, \@effspu, \@effwsu, \@effbnl );
    
+
    @data = (\@ndate, \@effpdsf );
 
       }else{
+
+	  $ptag = $gsite;
    
     $legend[0] = "Globus efficiency;        ";
     $legend[1] = "Log files delivery;       ";
@@ -423,9 +418,14 @@ $njb = 0;
 #    $legend[5] = "Overall efficiency;       ";
 
 #      @data = (\@ndate, \@globeff, \@logeff, \@inputef, \@outputeff, \@recoComeff, \@overeff) ;
+
     @data = (\@ndate, \@globeff, \@logeff, \@outputeff);
+
+ }
+
+        $gname = "Effplot".$ptag.".gif";
  
-  }
+  print $qqr->header(-type => "image/gif");
 
  my $ylabel;
  my $gtitle; 
@@ -479,8 +479,14 @@ $xLabelSkip = 12 if( $dim > 550 && $dim <= 600 );
     $graph->set_y_label_font(gdGiantFont);
     $graph->set_x_axis_font(gdMediumBoldFont);
     $graph->set_y_axis_font(gdMediumBoldFont);
-    print STDOUT $graph->plot(\@data);
-    }
+
+   if( -e "/afs/rhic.bnl.gov/star/doc/www/html/tmp/pub/effplots/$gname")  {
+       unlink("/afs/rhic.bnl.gov/star/doc/www/html/tmp/pub/effplots/$gname");
+   }
+
+  $graph->plot_to_gif("/afs/rhic.bnl.gov/star/doc/www/html/tmp/pub/effplots/$gname", \@data);
+
+   print "<BR><CENTER><IMG WIDTH=750 HEIGHT=650 SRC=\"/webdatanfs/pub/effplots/$gname\"></CENTER>\n";
 
  }
 
