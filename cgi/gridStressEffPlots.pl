@@ -318,12 +318,20 @@ $njb = 0;
     $exStatus  = ($$jstat)->exstat;
     $intrans   = ($$jstat)->intrs;
     $outtrans  = ($$jstat)->outtrs; 
+    $recoSt    = ($$jstat)->exstat;
 
     if( $glError == 129 ) {
 	$glStatus = 1;
    }
 
     if( $exStatus eq "complete") {$njb++};
+
+    if( $recoSt eq "Done") {
+	$nreco = 1;
+    }else{
+	$nreco = 0;
+    }
+
 
     @prt = split(" ",$sbday);
     $bdate = $prt[0];
@@ -337,12 +345,12 @@ $njb = 0;
     $datetest{$gsite} = $sbday;
     $globEfH{$gsite} = $globEfH{$gsite} + $glStatus;
     $logEfH{$gsite} =  $logEfH{$gsite} +  $lgStatus;
-#    $inEfH{$gsite} = $inEfH{$gsite} + $intrans;   
+    $inEfH{$gsite} = $inEfH{$gsite} + $intrans;   
     $outEfH{$gsite} = $outEfH{$gsite} + $outtrans;
+    $recoEfH{$gsite} = $recoEfH{$gsite} + $nreco;
+
 
 #   if( $glStatus == 1 && $lgStatus >= 1 && $intrans == 1 && $outtrans == 5 ) {
-
-#   if (( $bdate <= 20061228000000 || $bdate >= 20070104000000 ) && $glStatus == 1 && $lgStatus >= 1 ){
 
      if ( $bdate <= 20061228000000  && $glStatus == 1 && $lgStatus >= 1 ){ 
 
@@ -352,9 +360,11 @@ $njb = 0;
 
      $siteEff{$gsite}++;
 
-    }elsif( $glStatus == 1 && $lgStatus >= 1 && $outtrans == 1 ) {
+    }elsif( $bdate >= 20070108100000 && $bdate <= 20070111100000 &&  $glStatus == 1 && $lgStatus >= 1 && $outtrans == 1 ) {
        $siteEff{$gsite}++;
-
+    }elsif( $bdate >= 20070108100000 && $glStatus == 1 && $lgStatus >= 1 && $intrans == 1 ) {
+       $siteEff{$gsite}++;
+    
   }
 
 }
@@ -367,10 +377,10 @@ $njb = 0;
    $njobs[$ndt] = $siteH{$msite};
    $globeff[$ndt] = $globEfH{$msite}*100/$njobs[$ndt];
    $logeff[$ndt] = $logEfH{$msite}*100/(2*$njobs[$ndt]);
-#   $inputef[$ndt] = $inEfH{$msite}*100/$njobs[$ndt];
+   $inputef[$ndt] = $inEfH{$msite}*100/$njobs[$ndt];
 #   $outputeff[$ndt] = $outEfH{$msite}*100/(5*$njobs[$ndt]);
 #    $outputeff[$ndt] = $outEfH{$msite}*100/($njobs[$ndt]);
-#   $recoComeff[$ndt] = $recoEfH{$msite}*100/$njobs[$ndt];
+   $recoComeff[$ndt] = $recoEfH{$msite}*100/$njobs[$ndt];
    $outputeff[$ndt] = $outEfH{$msite}*100/($njobs[$ndt]);
    $overeff[$ndt] = $siteEff{$msite}*100/$njobs[$ndt];
    
@@ -412,14 +422,14 @@ $njb = 0;
    
     $legend[0] = "Globus efficiency;        ";
     $legend[1] = "Log files delivery;       ";
-#    $legend[2] = "Input transferring;       ";
     $legend[2] = "Output transferring;      ";
-#    $legend[4] = "Reco completion;          ";
+    $legend[3] = "Input transferring;       ";
+    $legend[4] = "Reco completion;          ";
 #    $legend[5] = "Overall efficiency;       ";
 
 #      @data = (\@ndate, \@globeff, \@logeff, \@inputef, \@outputeff, \@recoComeff, \@overeff) ;
 
-    @data = (\@ndate, \@globeff, \@logeff, \@outputeff);
+    @data = (\@ndate, \@globeff, \@logeff, \@outputeff, \@recoComeff, \@inputef );
 
  }
 
