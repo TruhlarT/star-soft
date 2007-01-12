@@ -362,7 +362,7 @@ $njb = 0;
 
     }elsif( $bdate >= 20070108100000 && $bdate <= 20070111100000 &&  $glStatus == 1 && $lgStatus >= 1 && $outtrans == 1 ) {
        $siteEff{$gsite}++;
-    }elsif( $bdate >= 20070108100000 && $glStatus == 1 && $lgStatus >= 1 && $intrans == 1 ) {
+    }elsif( $bdate >= 20070111100000 && $glStatus == 1 && $lgStatus >= 1 && $intrans == 1 ) {
        $siteEff{$gsite}++;
     
   }
@@ -400,6 +400,8 @@ $njb = 0;
  }
     &GRdbDisconnect();
 
+#  print $qqr->header(); 
+
    $graph = new GIFgraph::linespoints(750,650);
 
     if( $qsite eq "ALL" ) {
@@ -424,18 +426,23 @@ $njb = 0;
     $legend[1] = "Log files delivery;       ";
     $legend[2] = "Output transferring;      ";
     $legend[3] = "Input transferring;       ";
-    $legend[4] = "Reco completion;          ";
+#    $legend[4] = "Reco completion;          ";
 #    $legend[5] = "Overall efficiency;       ";
 
 #      @data = (\@ndate, \@globeff, \@logeff, \@inputef, \@outputeff, \@recoComeff, \@overeff) ;
 
-    @data = (\@ndate, \@globeff, \@logeff, \@outputeff, \@recoComeff, \@inputef );
-
+#    @data = (\@ndate, \@globeff, \@logeff, \@outputeff, \@inputef, \@recoComeff );
+    
+   @data = (\@ndate, \@globeff, \@logeff, \@outputeff, \@inputef );
  }
 
         $gname = "Effplot".$ptag.".gif";
  
-  print $qqr->header(-type => "image/gif");
+#  print $qqr->header(-type => "image/gif");
+
+    print $qqr->header(); 
+    print $qqr->start_html(-title=>"Grid efficiency"), "\n";
+ 
 
  my $ylabel;
  my $gtitle; 
@@ -495,10 +502,13 @@ $xLabelSkip = 12 if( $dim > 550 && $dim <= 600 );
    }
 
   $graph->plot_to_gif("/afs/rhic.bnl.gov/star/doc/www/html/tmp/pub/effplots/$gname", \@data);
+   
 
    print "<BR><CENTER><IMG WIDTH=750 HEIGHT=650 SRC=\"/webdatanfs/pub/effplots/$gname\"></CENTER>\n";
 
- }
+  print $qqr->end_html();
+
+}
 
 ######################
 sub y_format
