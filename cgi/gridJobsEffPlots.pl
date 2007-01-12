@@ -104,7 +104,8 @@ my %datetest = { };
 my $nreco = 0;
 my @sites = ();
 my $msite;
-
+my $ptag = "none";
+my $gname;
 
 my $globSt;
 my $logSt;
@@ -402,14 +403,10 @@ my $ndt = 0;
 
    $graph = new GIFgraph::linespoints(750,650);
 
- if ( ! $graph){
-    print STDOUT $qqr->header(-type => 'text/plain');
-    print STDOUT "Failed\n";
- } else {
-    print STDOUT $qqr->header(-type => 'image/gif');
-    binmode STDOUT;
 
     if( $qsite eq "ALL" ) {
+
+	$ptag = "ALL";
 
     $legend[0] = "Efficiency for PDSF; ";
     $legend[1] = "Efficiency for SPU; "; 
@@ -420,6 +417,8 @@ my $ndt = 0;
 
       }else{
 
+     $ptag = $gsite; 
+
     $legend[0] = "Globus efficiency;        ";
     $legend[1] = "Log files delivery;       ";
     $legend[2] = "Input transferring;       ";
@@ -428,8 +427,12 @@ my $ndt = 0;
     $legend[5] = "Overall efficiency;       ";
 
       @data = (\@ndate, \@globeff, \@logeff, \@inputef, \@outputeff, \@recoComeff, \@overeff) ;
-
   }
+
+   $gname = "Effplot.ngt".$ptag.".gif"; 
+
+   print $qqr->header();
+   print $qqr->start_html(-title=>"Grid efficiency"), "\n"; 
 
  my $ylabel;
  my $gtitle; 
@@ -481,8 +484,17 @@ $xLabelSkip = 12 if( $qperiod eq "12_months" );
     $graph->set_y_label_font(gdGiantFont);
     $graph->set_x_axis_font(gdMediumBoldFont);
     $graph->set_y_axis_font(gdMediumBoldFont);
-    print STDOUT $graph->plot(\@data);
+
+    if( -e "/afs/rhic.bnl.gov/star/doc/www/html/tmp/pub/effplots/$gname")  {
+        unlink("/afs/rhic.bnl.gov/star/doc/www/html/tmp/pub/effplots/$gname");
+
     }
+
+  $graph->plot_to_gif("/afs/rhic.bnl.gov/star/doc/www/html/tmp/pub/effplots/$gname", \@data);
+
+  print "<BR><CENTER><IMG WIDTH=750 HEIGHT=650 SRC=\"/webdatanfs/pub/effplots/$gname\"></CENTER>\n";
+
+  print $qqr->end_html();
 
  }
 
