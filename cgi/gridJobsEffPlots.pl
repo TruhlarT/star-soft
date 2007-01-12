@@ -429,7 +429,7 @@ my $ndt = 0;
       @data = (\@ndate, \@globeff, \@logeff, \@inputef, \@outputeff, \@recoComeff, \@overeff) ;
   }
 
-   $gname = "Effplot.ngt".$ptag.".gif"; 
+   $gname = "Effplot.prod.".$ptag.".gif"; 
 
    print $qqr->header();
    print $qqr->start_html(-title=>"Grid efficiency"), "\n"; 
