@@ -72,17 +72,19 @@ Each directory contains its own README. Please read it FIRST.
                       any other TObject does. On the other hand the interiour of the box can be 
                       painted using Qt QPainter class and QPixmap methods as well.
 
-9. HelloZoomer      - the simple (non-ROOT) example for the the widget zoomming the pixmap objects.
+9. HelloZoomer      - the simple (non-ROOT) example for the widget zoomming the pixmap objects.
 
 10.CustomCanvasMenu - the same as "ex1". In addition, it demonstrates how one can customize 
                       the automatically generated ROOT Context Menu.
+                      
+11.macros           - The set of the simple ROOT macros
 
 
 Be kind :) please. 
 It is the first public presentation, and huge amount of the unfold yet bugs and typos
 are to be anticipated :( and tolerated :)
 
-You promtp bug reports will be appreciated a lot.
+You prompt bug reports will be appreciated a lot.
 
   My best regards.
 
