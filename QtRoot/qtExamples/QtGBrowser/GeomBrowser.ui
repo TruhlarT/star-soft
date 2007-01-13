@@ -54,8 +54,8 @@
                     </property>
                     <property name="minimumSize">
                         <size>
-                            <width>332</width>
-                            <height>166</height>
+                            <width>204</width>
+                            <height>96</height>
                         </size>
                     </property>
                     <property name="frameShape">
@@ -319,20 +319,6 @@
                                             <property name="orientation">
                                                 <enum>Horizontal</enum>
                                             </property>
-                                            <widget class="QFrame">
-                                                <property name="name">
-                                                    <cstring>frame6</cstring>
-                                                </property>
-                                                <property name="frameShape">
-                                                    <enum>StyledPanel</enum>
-                                                </property>
-                                                <property name="frameShadow">
-                                                    <enum>Raised</enum>
-                                                </property>
-                                                <property name="toolTip" stdset="0">
-                                                    <string>The parameters of the seclected node</string>
-                                                </property>
-                                            </widget>
                                             <widget class="TQtWidget">
                                                 <property name="name">
                                                     <cstring>tQtWidget2</cstring>
@@ -422,10 +408,11 @@
 <toolbars>
     <toolbar dock="2">
         <property name="name">
-            <cstring>toolBar</cstring>
+            <cstring>geometry</cstring>
         </property>
         <property name="label">
-            <string>Tools</string>
+            <string>Version</string>
+            <comment>The version of the STAR geometry (see: http://www.star.bnl.gov/STAR/comp/prod/MCGeometry.html )</comment>
         </property>
         <action name="fileOpenAction"/>
         <action name="ReloadFileAction"/>
@@ -439,6 +426,216 @@
         <action name="editView_Coin3DAction"/>
         <separator/>
         <action name="fileExitAction"/>
+        <widget class="QComboBox">
+            <item>
+                <property name="text">
+                    <string>complete</string>
+                </property>
+            </item>
+            <item>
+                <property name="text">
+                    <string>IST1</string>
+                </property>
+            </item>
+            <item>
+                <property name="text">
+                    <string>UPGR12</string>
+                </property>
+            </item>
+            <item>
+                <property name="text">
+                    <string>UPGR11</string>
+                </property>
+            </item>
+            <item>
+                <property name="text">
+                    <string>UPGR10</string>
+                </property>
+            </item>
+            <item>
+                <property name="text">
+                    <string>UPGR09</string>
+                </property>
+            </item>
+            <item>
+                <property name="text">
+                    <string>UPGR08</string>
+                </property>
+            </item>
+            <item>
+                <property name="text">
+                    <string>UPGR07</string>
+                </property>
+            </item>
+            <item>
+                <property name="text">
+                    <string>UPGR06</string>
+                </property>
+            </item>
+            <item>
+                <property name="text">
+                    <string>UPGR05</string>
+                </property>
+            </item>
+            <item>
+                <property name="text">
+                    <string>UPGR04</string>
+                </property>
+            </item>
+            <item>
+                <property name="text">
+                    <string>UPGR03</string>
+                </property>
+            </item>
+            <item>
+                <property name="text">
+                    <string>UPGR02</string>
+                </property>
+            </item>
+            <item>
+                <property name="text">
+                    <string>UPGR01</string>
+                </property>
+            </item>
+            <item>
+                <property name="text">
+                    <string>y2007</string>
+                </property>
+            </item>
+            <item>
+                <property name="text">
+                    <string>y2006a</string>
+                </property>
+            </item>
+            <item>
+                <property name="text">
+                    <string>y2006</string>
+                </property>
+            </item>
+            <item>
+                <property name="text">
+                    <string>y2005x</string>
+                </property>
+            </item>
+            <item>
+                <property name="text">
+                    <string>y2005e</string>
+                </property>
+            </item>
+            <item>
+                <property name="text">
+                    <string>y2005d</string>
+                </property>
+            </item>
+            <item>
+                <property name="text">
+                    <string>y2005c</string>
+                </property>
+            </item>
+            <item>
+                <property name="text">
+                    <string>y2005b</string>
+                </property>
+            </item>
+            <item>
+                <property name="text">
+                    <string>y2005a</string>
+                </property>
+            </item>
+            <item>
+                <property name="text">
+                    <string>y2005</string>
+                </property>
+            </item>
+            <item>
+                <property name="text">
+                    <string>y2004y</string>
+                </property>
+            </item>
+            <item>
+                <property name="text">
+                    <string>y2004x</string>
+                </property>
+            </item>
+            <item>
+                <property name="text">
+                    <string>y2004d</string>
+                </property>
+            </item>
+            <item>
+                <property name="text">
+                    <string>y2004c</string>
+                </property>
+            </item>
+            <item>
+                <property name="text">
+                    <string>y2004b</string>
+                </property>
+            </item>
+            <item>
+                <property name="text">
+                    <string>y2004a</string>
+                </property>
+            </item>
+            <item>
+                <property name="text">
+                    <string>y2004</string>
+                </property>
+            </item>
+            <item>
+                <property name="text">
+                    <string>y2003x</string>
+                </property>
+            </item>
+            <item>
+                <property name="text">
+                    <string>y2003c</string>
+                </property>
+            </item>
+            <item>
+                <property name="text">
+                    <string>y2003b</string>
+                </property>
+            </item>
+            <item>
+                <property name="text">
+                    <string>y2003a</string>
+                </property>
+            </item>
+            <item>
+                <property name="text">
+                    <string>year2003</string>
+                </property>
+            </item>
+            <item>
+                <property name="text">
+                    <string>year2002</string>
+                </property>
+            </item>
+            <item>
+                <property name="text">
+                    <string>year2001</string>
+                </property>
+            </item>
+            <item>
+                <property name="text">
+                    <string>year2000</string>
+                </property>
+            </item>
+            <item>
+                <property name="text">
+                    <string>year_2b</string>
+                </property>
+            </item>
+            <item>
+                <property name="text">
+                    <string>year_2a</string>
+                </property>
+            </item>
+            <property name="name">
+                <cstring>comboBox2</cstring>
+            </property>
+        </widget>
     </toolbar>
 </toolbars>
 <customwidgets>
@@ -972,6 +1169,12 @@
         <receiver>GeomBrowser</receiver>
         <slot>ReloadFileAction_activated()</slot>
     </connection>
+    <connection>
+        <sender>comboBox2</sender>
+        <signal>activated(const QString&amp;)</signal>
+        <receiver>GeomBrowser</receiver>
+        <slot>STAR_geometry_activated(const QString&amp;)</slot>
+    </connection>
 </connections>
 <includes>
     <include location="local" impldecl="in declaration">TVolume.h</include>
@@ -1011,6 +1214,8 @@
     <include location="local" impldecl="in implementation">TQtRootViewer3D.h</include>
     <include location="local" impldecl="in implementation">TQtGLViewerImp.h</include>
     <include location="global" impldecl="in implementation">qvaluestack.h</include>
+    <include location="local" impldecl="in implementation">St_geant_Maker/St_geant_Maker.h</include>
+    <include location="local" impldecl="in implementation">StChain.h</include>
     <include location="local" impldecl="in implementation">GeomBrowser.ui.h</include>
 </includes>
 <forwards>
@@ -1022,8 +1227,12 @@
     <forward>class TQtObjectListItem</forward>
     <forward>class TGeoVolume</forward>
     <forward>class TGeoManager</forward>
+    <forward>class St_geant_Maker</forward>
+    <forward>class StChain</forward>
+    <forward>class TVirtualViewer3D</forward>
 </forwards>
 <variables>
+    <variable>TVirtualViewer3D *fCurrentViewer;</variable>
     <variable>bool glViewerLoadFlag;</variable>
     <variable>QListViewItem * fCurrentDrawn;</variable>
     <variable>TQtInspectImp *fInspector;</variable>
@@ -1034,6 +1243,10 @@
     <variable>QIconSet fIconSet;</variable>
     <variable>QString fOpenFileName;</variable>
     <variable>TGeoManager *fGeoManager2Delete;</variable>
+    <variable>QString fGeomKuipDescriptor;</variable>
+    <variable>St_geant_Maker *fGeant;</variable>
+    <variable>bool fGeometryLoaded;</variable>
+    <variable>StChain *fChain;</variable>
 </variables>
 <slots>
     <slot>fileNew()</slot>
@@ -1054,7 +1267,7 @@
     <slot>listView1_selectionChanged( QListViewItem * item )</slot>
     <slot>listView1_contextMenuRequested( QListViewItem * item, const QPoint &amp; pos, int col )</slot>
     <slot>slider1_valueChanged( int val )</slot>
-    <slot>AddItemToListView( TObject * obj, bool )</slot>
+    <slot returnType="TQtObjectListItem *">AddItemToListView( TObject * obj, bool )</slot>
     <slot>listView1_expanded( QListViewItem * item )</slot>
     <slot>listView1_onItem( QListViewItem * item )</slot>
     <slot access="protected">init()</slot>
@@ -1064,19 +1277,24 @@
     <slot>listView1_collapsed( QListViewItem * item )</slot>
     <slot>listView1_doubleClicked( QListViewItem * item )</slot>
     <slot access="protected">drawItem( QListViewItem * item, int depth, TQtWidget * view )</slot>
-    <slot>viewCoin3D()</slot>
+    <slot returnType="TVirtualViewer3D *">viewCoin3D()</slot>
     <slot>OpenInventorConvertor( TVolume * volume )</slot>
     <slot>OpenInventorConvertor( TGeoVolume * volume )</slot>
     <slot>fileOpenRoot( const QString &amp; fileName )</slot>
     <slot>ReloadFileAction_activated()</slot>
-    <slot>ObjectSelected(TObject *,const QPoint&amp;)</slot>
+    <slot>ObjectSelected( TObject * obj, const QPoint &amp; )</slot>
+    <slot>STAR_geometry_activated( const QString &amp; geoVersion )</slot>
+    <slot>fileOpenZebra( const QString &amp; fileName )</slot>
+    <slot>fileOpenInventor( const QString &amp; fileName )</slot>
 </slots>
 <functions>
     <function access="protected">SetVisibility( TQtObjectListItem * item, TVolume::ENodeSEEN vis )</function>
     <function>fileOpenMacro( const QString &amp; fileName )</function>
+    <function access="protected" returnType="St_geant_Maker &amp;">Geant()</function>
 </functions>
 <layoutdefaults spacing="6" margin="11"/>
 <includehints>
-    <includehint>TQtWidget.h</includehint>
+    <includehint>tqtwidget.h</includehint>
+    <includehint>tqtwidget.h</includehint>
 </includehints>
 </UI>

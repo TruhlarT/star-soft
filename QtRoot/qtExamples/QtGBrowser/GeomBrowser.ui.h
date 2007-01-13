@@ -12,7 +12,7 @@
 
 // Author: Valeri Fine   21/01/2002
 /****************************************************************************
-** $Id: GeomBrowser.ui.h,v 1.3 2006/11/07 22:59:08 fine Exp $
+** $Id: GeomBrowser.ui.h,v 1.4 2007/01/13 20:44:07 fine Exp $
 **
 ** Copyright (C) 2004 by Valeri Fine.  All rights reserved.
 **
@@ -67,12 +67,21 @@ void GeomBrowser::fileNew()
 void GeomBrowser::fileOpen()
 {
    static QString thisCintCommand;
-   static QString filetypes = "ROOT files (*.root);"
-                              ";STAR Geometry macro (*.C);;";
+   static QString filetypes = "STAR Geometry macro (*.C);"
+                              ";ROOT files (*.root);"
+#ifdef  NO_GEANT_MAKER
+                              ";GEANT3 Zebra file (*.fz)"
+#endif
+                              ;
    QString selectedFilter;
    QString dir = fSaveFileName;
    if (dir.isEmpty()) dir = gSystem->WorkingDirectory();
-   else               dir = QFileInfo(dir).dirPath();
+   else   {
+      TString exp((const char*)fSaveFileName);
+      gSystem->ExpandPathName(exp);
+      dir = exp.Data();
+      dir = QFileInfo(dir).dirPath();
+   }
 
    QString fileName = QFileDialog::getOpenFileName (dir
       , filetypes, this, "Open"
@@ -80,9 +89,11 @@ void GeomBrowser::fileOpen()
       , &selectedFilter);
    if (!fileName.isEmpty()){
       QFileInfo openFile(fileName);
-      if (openFile.extension(FALSE).contains("C"))
+      if (openFile.extension(FALSE).contains("C")) {
          fileOpenMacro(fileName);
-      else {
+      } else if (openFile.extension(FALSE).contains("fz")) {
+         fileOpenZebra(fileName);
+      } else {
         fileOpenRoot(fileName);
       }
    }
@@ -180,7 +191,6 @@ void GeomBrowser::editFind()
 {
 #if  ROOT_VERSION_CODE >= ROOT_VERSION(4,01,01)   
    TVirtualViewer3D *viewer = TVirtualViewer3D::Viewer3D(gPad,"ogl");
-//   TVirtualViewer3D *viewer = TVirtualViewer3D::Viewer3D(tQtWidget1->GetCanvas(),"ogl");
    if (viewer) {
       // Create Open GL viewer
       TGQt::SetCoinFlag(0);
@@ -267,9 +277,10 @@ void GeomBrowser::slider1_valueChanged( int val )
    drawItem(fCurrentDrawn, val, tQtWidget1 ); 
 }
 //_____________________________________________________________________________
-void GeomBrowser::AddItemToListView( TObject *obj, bool /*expand*/ )
+TQtObjectListItem* GeomBrowser::AddItemToListView( TObject *obj, bool /*expand*/ )
 {
    TVolume *volume = 0;
+   TQtObjectListItem* item = 0;
    if (       obj->IsA() == TGeometry::Class()) {
       volume = new TVolume(*((TGeometry*)obj)->GetCurrentNode());
    } else if (obj->IsA() == TGeoManager::Class()) {
@@ -281,7 +292,7 @@ void GeomBrowser::AddItemToListView( TObject *obj, bool /*expand*/ )
       volume = (TVolume *)obj;
    }
    if(volume) {
-      TQtObjectListItem* item = new TQtObjectListItem(volume,listView1, volume->GetName(), QCheckListItem::CheckBox);
+      item = new TQtObjectListItem(volume,listView1, volume->GetName(), QCheckListItem::CheckBox);
       item->setText(1,volume->GetTitle());
       item->setText(3,volume->ClassName());
       item->setExpandable(volume->GetListSize());
@@ -289,6 +300,7 @@ void GeomBrowser::AddItemToListView( TObject *obj, bool /*expand*/ )
       SetVisibility(item, volume->GetVisibility());
       listView1->setOpen(item,true);
    }
+   return item;
 }
 
 
@@ -365,14 +377,22 @@ void GeomBrowser::init()
 
    }
 #endif
+#ifdef  NO_GEANT_MAKER
+   comboBox2->setEnabled(FALSE);
+   comboBox2->hide();
+#endif
    // remove tmp Coin file
    QFileInfo tmpInfo(QDir::currentDirPath() ,"GeomBrowser_tmp.iv");
    QFile tmp(tmpInfo.absFilePath ());
    tmp.remove();
+   fGeometryLoaded = false;
+   fChain          = 0;
+   fGeant          = 0;
    fInspector       = 0;
    fContextMenu     = 0;
    fCurrentDrawn    = 0;
    fGeoManager2Delete = 0;
+   fCurrentViewer     = 0;
    glViewerLoadFlag = false;
    fFile            = 0;
    fIconSet = Action->iconSet();
@@ -390,12 +410,10 @@ void GeomBrowser::init()
    comboBox1->insertItem("gGeometry->SetBomb(1.7);");
    comboBox1->insertItem("gPad->SetFillColor(kBlack);");
    comboBox1->insertItem("gPad->SetFillColor(kWhite);");
-   comboBox1->insertItem("gROOT->Macro(\"qcanvas.CC(gPad)\");");
-   comboBox1->insertItem("TIVShape::SetCut(2);");
-
-   comboBox1->insertItem(".x hsimple.C");
+   comboBox1->insertItem(".qqqqqq");
+   comboBox1->insertItem(".q");
    spinBox1->setValue(3);
-
+   tQtWidget1->GetCanvas()->SetFillColor(kBlack); 
    // do we have the QGLViewer?
    char *libRQTGL = 0;
    libRQTGL = gSystem->DynamicPathName("libRQTGL",kTRUE);
@@ -425,16 +443,21 @@ void GeomBrowser::init()
 
       TIter next(fFile->GetListOfKeys());
       // Fill the "tree view" with the object info from the file
+      int countObject = 0;
       while((key = (TKey*) next())) {
-         AddItemToListView(key->ReadObj(),true);
+         if (AddItemToListView(key->ReadObj(),true)) countObject++;
       }
-      
+      if (!countObject)   
+           QMessageBox::warning(this,"Open ROOT geometry file","No 3D object was found here");
+ 
       // Create a separate Wwigdet with ROOT Object browser, Just in case
       //  new TBrowser();
    } else {
       //   fileOpen();
-      if (gGeoManager) {
-         AddItemToListView(gGeoManager->GetTopVolume(),true);
+     fSaveFileName = "$STAR/StarDb/VmcGeometry/";
+     if (gGeoManager) {
+        TUpdateList listLock(listView1);
+        AddItemToListView(gGeoManager->GetTopVolume(),true);
       }
    }
 }
@@ -461,7 +484,7 @@ void GeomBrowser::listView1_clicked( QListViewItem *item )
       TObject *obj = itemRoot->Object();
       TVolume *volume = dynamic_cast<TVolume *>(obj);
 
-      // check visibilite
+      // check visibility
       if (volume) {
          TVolume::ENodeSEEN s;
 #if (QT_VERSION > 0x030100)
@@ -654,18 +677,19 @@ void GeomBrowser::SetVisibility( TQtObjectListItem * item, TVolume::ENodeSEEN vi
 
 
 //_____________________________________________________________________________
-void GeomBrowser::viewCoin3D()
+TVirtualViewer3D *GeomBrowser::viewCoin3D()
 {
 // 
-#if  ROOT_VERSION_CODE >= ROOT_VERSION(4,03,3)   
-//   TVirtualViewer3D *viewer = TVirtualViewer3D::Viewer3D(tQtWidget1->GetCanvas(),"oiv");
-   TVirtualViewer3D *viewer = TVirtualViewer3D::Viewer3D(gPad,"oiv");
-   if (viewer) {
+#if  ROOT_VERSION_CODE >= ROOT_VERSION(4,03,3) 
+   if (fCurrentViewer) 
+      ((TQtRootViewer3D*)fCurrentViewer)->DisconnectPad();
+   fCurrentViewer = TVirtualViewer3D::Viewer3D(tQtWidget1->GetCanvas(),"oiv");
+   if (fCurrentViewer) {
        // Create Open GL viewer
        TGQt::SetCoinFlag(1);
-       viewer->BeginScene();
-       viewer->EndScene();
-       TQtRootViewer3D *v  = (TQtRootViewer3D*)(viewer);
+       fCurrentViewer->BeginScene();
+       fCurrentViewer->EndScene();
+       TQtRootViewer3D *v  = (TQtRootViewer3D*)(fCurrentViewer);
        if (v) {
            TGLViewerImp *viewerImp = v->GetViewerImp();
            if (viewerImp) 
@@ -677,6 +701,7 @@ void GeomBrowser::viewCoin3D()
     } else {
          editView_Coin3DAction->setEnabled(false);
     }
+    return fCurrentViewer;
 #else  
    if (! glViewerLoadFlag) glViewerLoadFlag = !gQt->LoadQt("libRQTGL");
    if (glViewerLoadFlag) {
@@ -706,14 +731,14 @@ void GeomBrowser::OpenInventorConvertor( TVolume *volume )
            setcut=true;
          }
          // get the current cut
-         sprintf(buff,"*(int *)0x%p = TIVShape::GetCut();",&currentCut);
+         //  sprintf(buff,"*(int *)0x%p = TIVShape::GetCut();",&currentCut);
          gROOT->ProcessLineSync(buff);
          if (currentCut > 0) {
             TVolumeView view(*volume,spinBox1->value(),0, TDataSet::kAll);
             view.MarkAll();
-            sprintf(buff,""\
-               "TR2iv riv((TVolumeView *)0x%p, 1, %d);"\
-               "riv.Draw(\"GeomBrowser_tmp.iv\");", &view, spinBox1->value());	
+//            sprintf(buff,""
+//               "TR2iv riv((TVolumeView *)0x%p, 1, %d);"
+//               "riv.Draw(\"GeomBrowser_tmp.iv\");", &view, spinBox1->value());	
 //              "riv.Draw(\"GeomBrowser_tmp.iv\");", &view, spinBox1->value(),3);	
             gROOT->ProcessLineSync(buff);
          } else {
@@ -726,14 +751,12 @@ void GeomBrowser::OpenInventorConvertor( TVolume *volume )
    }
 }
 
-
 //_____________________________________________________________________________
 void GeomBrowser::OpenInventorConvertor( TGeoVolume *volume )
 {
    if (volume) {
    }
 }
-
 
 //_____________________________________________________________________________
 void GeomBrowser::fileOpenMacro( const QString &fileName )
@@ -744,7 +767,13 @@ void GeomBrowser::fileOpenMacro( const QString &fileName )
       TDataSet *topSet = (TDataSet *)gROOT->ProcessLineFast("CreateTable()");
       if (topSet) {
          // Look for the "Geometry" set
-         AddItemToListView(gGeoManager,true);
+         TUpdateList listLock(listView1);
+         TQtObjectListItem* item = AddItemToListView(gGeoManager,true);
+         if (item) {
+            // rename it
+            QString name = QFileInfo(fileName).baseName(TRUE);
+            item->setText(0,name); 
+         }
       }
       fOpenFileName = fileName;
    } else {
@@ -760,20 +789,34 @@ void GeomBrowser::fileOpenMacro( const QString &fileName )
 //_____________________________________________________________________________
 void GeomBrowser::fileOpenRoot( const QString &fileName )
 {
-  // fileOpenRoot(fOpenFileName);
   QApplication::setOverrideCursor( QCursor(Qt::WaitCursor) );
-  if (fFile) delete fFile; 
+  if (fFile) delete fFile;
+     QString base = QFileInfo(fileName).baseName(TRUE); 
      fFile = TFile::Open((const char *)fileName);
      if (!fFile->IsZombie()) {
         TKey *key = 0;
         TIter next(fFile->GetListOfKeys());
         // Fill the "tree view" with the object info from the file
  
-      TUpdateList listLock(listView1);
+        TUpdateList listLock(listView1);
 
+        int countObject = 0;
         while((key = (TKey*) next())) {
-           AddItemToListView(key->ReadObj(),true);
+           TObject *o = key->ReadObj();
+           TQtObjectListItem* item = AddItemToListView(o,true);
+           if (item) {
+              // rename it
+              QString name = base;
+              name += ".";
+              name += o->GetName();
+              item->setText(0,name);
+              //count it
+              countObject++;              
+           }
         }
+        if (!countObject)   
+           QMessageBox::warning(this,"Open ROOT geometry file"
+                                    ,"No 3D object was found here");
         fOpenFileName = fileName;
      } else {
         delete fFile; fFile=0;
@@ -872,4 +915,109 @@ void GeomBrowser::ObjectSelected( TObject *obj, const QPoint &)
    }
 }
 
+static int Geant3Init = 0;
+//_____________________________________________________________________________
+void GeomBrowser::STAR_geometry_activated( const QString &geoVersion )
+{
+#ifndef NO_GEANT_MAKER
+   QString kuipCmd  = "detp geometry ";
+   kuipCmd         +=  geoVersion;
+   QApplication::setOverrideCursor( QCursor(Qt::WaitCursor) );
+   // fprintf(stderr,"STAR_geometry_activated <%s>\n", (const char*)kuipCmd );
+   if (!fGeometryLoaded)  fGeometryLoaded = !gSystem->Load("geometry");
+   if (fGeometryLoaded) {
+      Geant().LoadGeometry((const char*)kuipCmd );
+      if (Geant3Init) {
+          Geant().Do("gdrop all"); // To allow calling Init more then one time;
+          Geant().Do((const char *)kuipCmd); 
+          //Geant().Do("make geometry"); 
+          Geant().Geometry();
+         // Geant().Do("gclose all");
+      } else {          
+         fChain->Init(); Geant3Init = 1;     
+      }
+      // comboBox2->setEnabled(FALSE); // we can acommuicate GEAT one time ony :(
+      TVolume *v = dynamic_cast<TVolume *>(Geant().GetDataSet("HALL"));
+      if (v) {
+         // Make CAVE invisible
+         // v->SetName((const char*)geoVersion);
+         TVolume *cave = (TVolume *)v->FindByName("CAVE");
+         if (cave) {
+            cave->SetVisibility(TVolume::ENodeSEEN(2));
+         }
+         TVolume *hall = (TVolume *)v->FindByName("HALL");
+         if (hall) {
+              hall->SetVisibility(TVolume::ENodeSEEN(2));
+              v = hall;
+         }
+         gPad->SetFillColor(kBlack);
+         TUpdateList listLock(listView1);
+         TQtObjectListItem* item = AddItemToListView(v,true);
+         if (item) item->setText(0,geoVersion);
+      }
+   }
+   QApplication::restoreOverrideCursor();
+#endif
+}
 
+//_____________________________________________________________________________
+St_geant_Maker & GeomBrowser::Geant() 
+{
+#ifndef NO_GEANT_MAKER
+    if (!fGeant) {
+       gSystem->Load("St_base");
+       gSystem->Load("StChain");
+       gSystem->Load("St_Tables");
+       gSystem->Load("St_g2t.so");
+       gSystem->Load("StarMagField");
+       gSystem->Load("St_geant_Maker");  
+       gSystem->Load("StUtilities");
+       
+       fChain = new StChain(); 
+       fGeant = new St_geant_Maker();
+       // fChain->Init();
+    }
+#endif 
+    return *fGeant;
+}
+
+
+//_____________________________________________________________________________
+void GeomBrowser::fileOpenZebra( const QString &fileName )
+{
+   // fprintf(stderr,"fileOpenZebra <%s>\n", (const char*)kuipCmd );
+#ifndef NO_GEANT_MAKER
+   QString kuipCmd  = "gfile p  ";
+   kuipCmd         +=  fileName;
+   QApplication::setOverrideCursor( QCursor(Qt::WaitCursor) );
+   Geant().SetInputFile(fileName);
+   if (Geant3Init) {
+       Geant().Do("gdrop all"); // To allow calling Init more then one time;
+       Geant().Do((const char *)kuipCmd); 
+       Geant().Do("gclose all");
+   } else {
+      fChain->Init(); Geant3Init = 1;
+   }
+   comboBox2->setEnabled(FALSE); // we can communicate GEANT one time ony :(
+   QApplication::restoreOverrideCursor();
+#else
+   comboBox2->setEnabled(FALSE); // we can communicate GEANT one time ony :(
+#endif
+}
+
+
+//_____________________________________________________________________________
+void GeomBrowser::fileOpenInventor( const QString &fileName )
+{
+   // Open the new Coin widget and feed the IV file there
+   if (editView_Coin3DAction->isEnabled() ) {
+      TVirtualViewer3D *viewer = viewCoin3D(); 
+      if (viewer) {
+         TQtRootViewer3D *v  = (TQtRootViewer3D*)(viewer);
+         if (v) {
+            TGLViewerImp *viewerImp = v->GetViewerImp();
+            if (viewerImp) viewerImp->ReadInputFile((const char*)fileName);
+         }
+      }
+   }
+}
