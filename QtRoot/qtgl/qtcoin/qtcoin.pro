@@ -130,7 +130,8 @@ SOURCES += src/TQtCoinWidget.cxx             \
            src/TQtRootCoinViewer3D.cxx       \
            src/TObjectCoinViewFactory.cxx    \
            src/TCoinShapeBuilder.cxx         \
-           src/TSimageMovie.cxx
+           src/TSimageMovie.cxx              \
+           src/TQtCoin3DDefInterface.cxx
 
 DISTFILES += LICENSE.QPL
 

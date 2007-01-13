@@ -19,6 +19,10 @@
 #include "TDataSetIter.h"
 
 #include "TGQt.h"
+#include "TEnv.h"
+#include <qstringlist.h>
+#include <Inventor/SoDB.h> 
+#include <Inventor/SoInput.h> 
 
 /*
 #include "TObject3DView.h"
@@ -48,19 +52,34 @@ ClassImp(TQtRootCoinViewer3D)
 //______________________________________________________________________________
 TQtRootCoinViewer3D::TQtRootCoinViewer3D(TVirtualPad * pad)
 	: TQtRootViewer3D(pad)
-{
-	printf("TQtRootCoinViewer3D::TQtRootCoinViewer3D %p\n",this);
-}
+{ }
 
 //______________________________________________________________________________
 void   TQtRootCoinViewer3D::Viewer()
 {
-	printf("TQtRootCoinViewer3D::Viewer begin -- fViewer =%p, fPad=%p\n",fViewer, fPad);
    if (!fViewer && fPad) {
    fView3DFactory = TObject3DViewFactoryABC::View3DFactory("oiv");
    if (!fView3DFactory) {
+      SoDB::init();
       TObject3DViewFactoryABC::Registr(new TObjectCoinViewFactory(), "oiv");
       fView3DFactory = TObject3DViewFactoryABC::View3DFactory("oiv");
+      // prepare the list of the search directories for "iv" files
+      // that matches the list of the ROOO macros directories
+      const char *macroPath = gEnv->GetValue("Root.MacroPath","");
+      if (macroPath && macroPath[0]) {
+          SoInput::removeDirectory(".");
+#ifdef R__WIN32
+         const char sep = ';';
+#else
+         const char sep = ':';
+#endif
+         TString path(macroPath); path.ReplaceAll("\\","/");
+         QStringList macroPathList =  QStringList::split(QChar(sep),QString((const char*)path));
+         for ( QStringList::Iterator it = macroPathList.begin(); it != macroPathList.end(); ++it ) 
+         {
+             SoInput::addDirectoryLast((const char*)(*it));
+         }
+      }
    }
    assert(fView3DFactory);
    fListOfPrimitives.SetViewFactory(fView3DFactory);

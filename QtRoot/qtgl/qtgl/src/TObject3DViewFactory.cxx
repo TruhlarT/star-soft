@@ -1,4 +1,4 @@
-// @(#)root/gtgl:$Name:  $:$Id: TObject3DViewFactory.cxx,v 1.7 2006/10/24 00:23:51 fine Exp $
+// @(#)root/gtgl:$Name:  $:$Id: TObject3DViewFactory.cxx,v 1.8 2007/01/13 20:40:59 fine Exp $
 // Author: Valery Fine      24/04/05
 
 /****************************************************************************
@@ -14,6 +14,7 @@
 ** LICENSE.QPL included in the packaging of this file.
 **
 *****************************************************************************/
+#include <cassert>
 
 #include "TObject3DViewFactory.h"
 #include "TShape3DPolygonView.h"
