@@ -1,7 +1,7 @@
-// @(#)root/qt:$Name:  $:$Id: TGQt.cxx,v 1.5 2006/12/29 20:17:00 fine Exp $
+// @(#)root/qt:$Name:  $:$Id: TGQt.cxx,v 1.6 2007/01/15 16:19:17 fine Exp $
 // Author: Valeri Fine   21/01/2002
 /****************************************************************************
-** $Id: TGQt.cxx,v 1.5 2006/12/29 20:17:00 fine Exp $
+** $Id: TGQt.cxx,v 1.6 2007/01/15 16:19:17 fine Exp $
 **
 ** Copyright (C) 2002 by Valeri Fine. Brookhaven National Laboratory.
 **                                    All rights reserved.
@@ -63,6 +63,7 @@
 #include <qlineedit.h>
 #include <qfileinfo.h>
 #include <qtextcodec.h>
+#include <qdir.h>
 
 #include "TROOT.h"
 #include "TMath.h"
@@ -701,7 +702,7 @@ Bool_t TGQt::Init(void* /*display*/)
 {
    //*-*-*-*-*-*-*-*-*-*-*-*-*-*Qt GUI initialization-*-*-*-*-*-*-*-*-*-*-*-*-*-*
    //*-*                        ========================                      *-*
-   fprintf(stderr,"** $Id: TGQt.cxx,v 1.5 2006/12/29 20:17:00 fine Exp $ this=%p\n",this);
+   fprintf(stderr,"** $Id: TGQt.cxx,v 1.6 2007/01/15 16:19:17 fine Exp $ this=%p\n",this);
 
    if(fDisplayOpened)   return fDisplayOpened;
    fSelectedBuffer = fSelectedWindow = fPrevWindow = NoOperation;
@@ -818,22 +819,50 @@ Bool_t TGQt::Init(void* /*display*/)
    fWidgetArray =  new TQWidgetCollection();
    fDisplayOpened = kTRUE;
    TQtEventInputHandler::Instance();
-   // Add $QTDIR include  path to the  the list of includes for ACliC
-   gSystem->AddIncludePath("-I$QTDIR/include");
-#ifndef R__WIN32
+   // Add $QTDIR include  path to the  list of includes for ACliC
+   // make sure Qt SDK does exist.
+   TString qtdir = "$(QTDIR)/include";
+   gSystem->ExpandPathName(qtdir);
+   TString testQtHeader = qtdir + "/qglobal.h";
+   if (!gSystem->AccessPathName((const char *)testQtHeader) ) {
+      // Expand the QTDIR first to avoid the cross-platform issue
+      TString incpath= "-I"; incpath+=qtdir;
+      gSystem->AddIncludePath((const char*)incpath);
+#ifdef R__WIN32
+      QString libPath = gSystem->GetLinkedLibs();
+      // detect the exact name of the Qt library
+      TString qtlibdir= "$(QTDIR)"; 
+      qtlibdir += QDir::separator(); 
+      qtlibdir += "lib";
+
+      gSystem->ExpandPathName(qtlibdir);
+      QDir qtdir((const char*)qtlibdir);
+      if (qtdir.isReadable ()) {
+         QStringList qtLibFile =  qtdir.entryList("qt-mt*.lib");
+         if (qtLibFile.count() ) {
+            libPath += " -LIBPATH:\"";libPath += qtlibdir;  libPath += "\" "; libPath += qtLibFile.first();
+            gSystem->SetLinkedLibs((const char*)libPath);
+         }
+      } else {
+         qWarning(" Can not open the QTDIR %s",(const char*)qtlibdir);
+      }
+#endif 
+   }
    TString newPath = 
-# ifdef ROOTLIBDIR
-      ROOTLIBDIR
+# ifdef CINTINCDIR
+      CINTINCDIR
 # else 
-   "$(ROOTSYS)/cint/include"
+   "$(ROOTSYS)/cint/"
 # endif
-     ;
+     ; newPath += "include";
+#ifndef R__WIN32
    newPath += ":";
-   newPath += gSystem->GetDynamicPath();
-   // SetDynamicPath causes the SegFault on Win32 platform
-   gSystem->SetDynamicPath(newPath.Data());
+#else
+   newPath += ";";
 #endif
-  return fDisplayOpened;
+   newPath += gSystem->GetDynamicPath();
+   gSystem->SetDynamicPath(newPath.Data());
+   return fDisplayOpened;
 }
 
 //______________________________________________________________________________
