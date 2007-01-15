@@ -1,7 +1,7 @@
-// @(#)root/qt:$Name:  $:$Id: TGQt.cxx,v 1.6 2007/01/15 16:19:17 fine Exp $
+// @(#)root/qt:$Name:  $:$Id: TGQt.cxx,v 1.7 2007/01/15 17:00:38 fine Exp $
 // Author: Valeri Fine   21/01/2002
 /****************************************************************************
-** $Id: TGQt.cxx,v 1.6 2007/01/15 16:19:17 fine Exp $
+** $Id: TGQt.cxx,v 1.7 2007/01/15 17:00:38 fine Exp $
 **
 ** Copyright (C) 2002 by Valeri Fine. Brookhaven National Laboratory.
 **                                    All rights reserved.
@@ -702,7 +702,7 @@ Bool_t TGQt::Init(void* /*display*/)
 {
    //*-*-*-*-*-*-*-*-*-*-*-*-*-*Qt GUI initialization-*-*-*-*-*-*-*-*-*-*-*-*-*-*
    //*-*                        ========================                      *-*
-   fprintf(stderr,"** $Id: TGQt.cxx,v 1.6 2007/01/15 16:19:17 fine Exp $ this=%p\n",this);
+   fprintf(stderr,"** $Id: TGQt.cxx,v 1.7 2007/01/15 17:00:38 fine Exp $ this=%p\n",this);
 
    if(fDisplayOpened)   return fDisplayOpened;
    fSelectedBuffer = fSelectedWindow = fPrevWindow = NoOperation;
@@ -813,7 +813,6 @@ Bool_t TGQt::Init(void* /*display*/)
         // create a custom codec
         new QSymbolCodec();
     }
-   //  printf(" TGQt::Init finsihed\n");
    // Install filter for the desktop
    // QApplication::desktop()->installEventFilter(QClientFilter());
    fWidgetArray =  new TQWidgetCollection();
@@ -821,10 +820,13 @@ Bool_t TGQt::Init(void* /*display*/)
    TQtEventInputHandler::Instance();
    // Add $QTDIR include  path to the  list of includes for ACliC
    // make sure Qt SDK does exist.
-   TString qtdir = "$(QTDIR)/include";
+   TString qtdir = "$QTDIR/include";
    gSystem->ExpandPathName(qtdir);
-   TString testQtHeader = qtdir + "/qglobal.h";
-   if (!gSystem->AccessPathName((const char *)testQtHeader) ) {
+   QString testQtHeader = (const char*)qtdir;
+   testQtHeader += QDir::separator();
+   testQtHeader += "qglobal.h";
+   QFileInfo info((const char *)testQtHeader);
+   if (info.isReadable()) {
       // Expand the QTDIR first to avoid the cross-platform issue
       TString incpath= "-I"; incpath+=qtdir;
       gSystem->AddIncludePath((const char*)incpath);
@@ -842,6 +844,8 @@ Bool_t TGQt::Init(void* /*display*/)
          if (qtLibFile.count() ) {
             libPath += " -LIBPATH:\"";libPath += qtlibdir;  libPath += "\" "; libPath += qtLibFile.first();
             gSystem->SetLinkedLibs((const char*)libPath);
+         } else {
+            qWarning(" No Qt library was found under QTDIR <%s> ",(const char*)qtlibdir);
          }
       } else {
          qWarning(" Can not open the QTDIR %s",(const char*)qtlibdir);
