@@ -23,13 +23,16 @@
 	 $c  = substr($line,$ii,1);
 	 # ^M character can appear in the middle of a file
 	 # too. There are two kind i.e. CR LF and CR alone.
-	 if( ord($c) != 13 ){
+	 if( ord($c) ==  0){
+	     # skip, this is a NULL character from evil Windowzzz
+	 } elsif( ord($c) != 13 ){
 	     $fline .= $c;
 	 } else {
 	     # Whenever CR alone appears (witout the LF) the 
 	     # first character is hidden and IS a CR as well.
 	     $fline .= "\n" if ($ii != 0);
 	 }
+	 #print ord($c). " ";
      }
      # chomp last \n as we may do it twice otherwise.
      chomp($fline);
