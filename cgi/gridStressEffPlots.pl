@@ -362,7 +362,7 @@ $njb = 0;
 
     }elsif( $bdate >= 20070108100000 && $bdate <= 20070111100000 &&  $glStatus == 1 && $lgStatus >= 1 && $outtrans == 1 ) {
        $siteEff{$gsite}++;
-    }elsif( $bdate >= 20070111100000 && $glStatus == 1 && $lgStatus >= 1 && $intrans == 1 ) {
+    }elsif( $bdate >= 20070111100000 && $glStatus == 1 && $lgStatus >= 1 && $intrans == 1 && $nreco == 1 ) {
        $siteEff{$gsite}++;
     
   }
@@ -426,14 +426,14 @@ $njb = 0;
     $legend[1] = "Log files delivery;       ";
     $legend[2] = "Output transferring;      ";
     $legend[3] = "Input transferring;       ";
-#    $legend[4] = "Reco completion;          ";
+    $legend[4] = "Reco completion;          ";
 #    $legend[5] = "Overall efficiency;       ";
 
 #      @data = (\@ndate, \@globeff, \@logeff, \@inputef, \@outputeff, \@recoComeff, \@overeff) ;
 
-#    @data = (\@ndate, \@globeff, \@logeff, \@outputeff, \@inputef, \@recoComeff );
+    @data = (\@ndate, \@globeff, \@logeff, \@outputeff, \@inputef, \@recoComeff );
     
-   @data = (\@ndate, \@globeff, \@logeff, \@outputeff, \@inputef );
+#   @data = (\@ndate, \@globeff, \@logeff, \@outputeff, \@inputef );
  }
 
         $gname = "Effplot".$ptag.".gif";
