@@ -639,6 +639,7 @@ TQtGLViewerImp::TQtGLViewerImp(TQtGLViewerImp &parent) :
 //______________________________________________________________________________
 TQtCoinWidget::~TQtCoinWidget()
 { 
+   if (fInventorViewer) { SoQtExaminerViewer *viewer = (SoQtExaminerViewer*)fInventorViewer; fInventorViewer = 0; delete viewer; }
    if (fMPegMovie)    { delete fMPegMovie;      fMPegMovie    = 0;}
    if (fMovie)        { fMovie       ->unref(); fMovie        = 0;}
    if (fClipPlaneMan) { fClipPlaneMan->unref(); fClipPlaneMan = 0;}
@@ -932,7 +933,7 @@ void TQtCoinWidget::ReadInputFile(QString fileName)
        QString saveWorkingDir = QDir::currentDirPath();
        TString ivDir = (const char*)info.dirPath();
        gSystem->ExpandPathName(ivDir);
-       gSystem->ChangeDirectory((const char*)ivDir);
+       QDir::setCurrent((const char*)ivDir);
        if ( viewDecor.openFile(info.fileName() ) ) {
           SoSeparator *extraObjects = SoDB::readAll(&viewDecor);
           if (extraObjects) {
@@ -944,7 +945,7 @@ void TQtCoinWidget::ReadInputFile(QString fileName)
               fFileNode->addChild(extraObjects);
           }
        }
-       gSystem->ChangeDirectory((const char*)saveWorkingDir);
+       QDir::setCurrent(saveWorkingDir);
     }
 }
 #if 0
