@@ -84,17 +84,10 @@ void   TQtRootCoinViewer3D::Viewer()
    assert(fView3DFactory);
    fListOfPrimitives.SetViewFactory(fView3DFactory);
       fViewer = new TQtCoinViewerImp(fPad,fPad->GetName(),fPad->UtoPixel(1.),fPad->VtoPixel(0.) );
-   //   printf("TQtRootCoinViewer3D::Viewer this=%p, fPad=%p, fView3DFactory=%p, fViewer=%p\n",this,fPad,fView3DFactory,fViewer);
-   //*
       fDisconnectSlot = new SlotDisconnect(this);
-     //  QObject::connect(fViewer,SIGNAL(destroyed()), fDisconnectSlot, SLOT(Disconnect()));
       QObject::connect(&(fViewer->Signals()),SIGNAL(destroyed()), fDisconnectSlot, SLOT(DestroyMaster()));
- //     QObject::connect(fViewer->GLWidget(),SIGNAL(viewerAbout2Close())
- //                     , fDisconnectSlot, SLOT(CleanPrimitives()));
-      // fPad->Connect("Modified()","TQtRootViewer3D", this, "UpdateView()");
       fPad->Connect("Closed()","TQtRootCoinViewer3D", this, "DisconnectPad()");
       QObject::connect(gQt->Emitter(),SIGNAL(padPainted(QPixmap*)),fDisconnectSlot, SLOT(UpdateView(QPixmap*)));
-	 //  */
    }
    // printf("TQtRootCoinViewer3D::Viewer end\n");
 }
@@ -187,7 +180,7 @@ void   TQtRootCoinViewer3D::Disconnect()
 #if ROOT_VERSION_CODE < ROOT_VERSION(5,07,00)
       TVirtualViewer3D *currentPadViewer = fPad->GetViewer3D(0);
 #else
-      TVirtualViewer3D *currentPadViewer = fPad->GetViewer3D("");
+      TVirtualViewer3D *currentPadViewer = fPad->GetViewer3D((const char*)0);
 #endif
       if (currentPadViewer == (TVirtualViewer3D *)this ) 
          fPad->ReleaseViewer3D();
