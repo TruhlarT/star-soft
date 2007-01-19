@@ -1,7 +1,7 @@
-// @(#)root/qt:$Name:  $:$Id: TGQt.cxx,v 1.7 2007/01/15 17:00:38 fine Exp $
+// @(#)root/qt:$Name:  $:$Id: TGQt.cxx,v 1.8 2007/01/19 02:13:18 fine Exp $
 // Author: Valeri Fine   21/01/2002
 /****************************************************************************
-** $Id: TGQt.cxx,v 1.7 2007/01/15 17:00:38 fine Exp $
+** $Id: TGQt.cxx,v 1.8 2007/01/19 02:13:18 fine Exp $
 **
 ** Copyright (C) 2002 by Valeri Fine. Brookhaven National Laboratory.
 **                                    All rights reserved.
@@ -702,7 +702,7 @@ Bool_t TGQt::Init(void* /*display*/)
 {
    //*-*-*-*-*-*-*-*-*-*-*-*-*-*Qt GUI initialization-*-*-*-*-*-*-*-*-*-*-*-*-*-*
    //*-*                        ========================                      *-*
-   fprintf(stderr,"** $Id: TGQt.cxx,v 1.7 2007/01/15 17:00:38 fine Exp $ this=%p\n",this);
+   fprintf(stderr,"** $Id: TGQt.cxx,v 1.8 2007/01/19 02:13:18 fine Exp $ this=%p\n",this);
 
    if(fDisplayOpened)   return fDisplayOpened;
    fSelectedBuffer = fSelectedWindow = fPrevWindow = NoOperation;
@@ -820,37 +820,34 @@ Bool_t TGQt::Init(void* /*display*/)
    TQtEventInputHandler::Instance();
    // Add $QTDIR include  path to the  list of includes for ACliC
    // make sure Qt SDK does exist.
-   TString qtdir = "$QTDIR/include";
-   gSystem->ExpandPathName(qtdir);
-   QString testQtHeader = (const char*)qtdir;
-   testQtHeader += QDir::separator();
-   testQtHeader += "qglobal.h";
-   QFileInfo info((const char *)testQtHeader);
-   if (info.isReadable()) {
-      // Expand the QTDIR first to avoid the cross-platform issue
-      TString incpath= "-I"; incpath+=qtdir;
-      gSystem->AddIncludePath((const char*)incpath);
+   if (gSystem->Getenv("QTDIR")) {
+      TString qtdir = "$(QTDIR)/include";
+      gSystem->ExpandPathName(qtdir);
+      TString testQtHeader = qtdir + "/qglobal.h";
+      if (!gSystem->AccessPathName((const char *)testQtHeader) ) {
+         // Expand the QTDIR first to avoid the cross-platform issue
+         TString incpath= "-I"; incpath+=qtdir;
+         gSystem->AddIncludePath((const char*)incpath);
 #ifdef R__WIN32
-      QString libPath = gSystem->GetLinkedLibs();
-      // detect the exact name of the Qt library
-      TString qtlibdir= "$(QTDIR)"; 
-      qtlibdir += QDir::separator(); 
-      qtlibdir += "lib";
+         QString libPath = gSystem->GetLinkedLibs();
+         // detect the exact name of the Qt library
+         TString qtlibdir= "$(QTDIR)"; 
+         qtlibdir += QDir::separator(); 
+         qtlibdir += "lib";
 
-      gSystem->ExpandPathName(qtlibdir);
-      QDir qtdir((const char*)qtlibdir);
-      if (qtdir.isReadable ()) {
-         QStringList qtLibFile =  qtdir.entryList("qt-mt*.lib");
-         if (qtLibFile.count() ) {
-            libPath += " -LIBPATH:\"";libPath += qtlibdir;  libPath += "\" "; libPath += qtLibFile.first();
-            gSystem->SetLinkedLibs((const char*)libPath);
+         gSystem->ExpandPathName(qtlibdir);
+         QDir qtdir((const char*)qtlibdir);
+         if (qtdir.isReadable ()) {
+            QStringList qtLibFile =  qtdir.entryList("qt-mt*.lib");
+            if (qtLibFile.count() ) {
+               libPath += " -LIBPATH:\"";libPath += qtlibdir;  libPath += "\" "; libPath += qtLibFile.first();
+               gSystem->SetLinkedLibs((const char*)libPath);
+            }
          } else {
-            qWarning(" No Qt library was found under QTDIR <%s> ",(const char*)qtlibdir);
+            qWarning(" Can not open the QTDIR %s",(const char*)qtlibdir);
          }
-      } else {
-         qWarning(" Can not open the QTDIR %s",(const char*)qtlibdir);
-      }
 #endif 
+      }
    }
    TString newPath = 
 # ifdef CINTINCDIR
