@@ -1,4 +1,4 @@
-/* @(#)root/qt:$Name:  $:$Id: LinkDef.h,v 1.1 2006/08/16 19:29:07 fine Exp $*/
+/* @(#)root/qt:$Name:  $:$Id: LinkDef.h,v 1.2 2007/01/19 02:14:21 fine Exp $*/
 
 /*************************************************************************
  * Copyright (C) 1995-2004, Rene Brun and Fons Rademakers.               *
@@ -23,6 +23,9 @@
 #pragma link C++ class TQtBrush;
 #pragma link C++ class TQtApplication;
 #pragma link C++ class TGQt;
+#pragma link C++ class TQtRootSlot;
+#pragma link C++ function QConnectCint;
+#pragma link C++ function QConnectTerminate;
 #pragma link C++ global gQt;
 // #pragma link C++ class TQGuiFactory;
 

@@ -55,7 +55,8 @@ INCLUDEPATH += $$GQTDIRS $$GQTDIRI $(ROOTSYS)/include
 #
 GQTH1  =  $$GQTDIRI/TGQt.h            $$GQTDIRI/TQtApplication.h  $$GQTDIRI/TQtTimer.h    \
           $$GQTDIRI/TQtBrush.h        $$GQTDIRI/TQMimeTypes.h $$GQTDIRI/TQtClientFilter.h \
-          $$GQTDIRI/TQtClientWidget.h $$GQTDIRI/TQtWidget.h   $$GQTDIRI/TQtMarker.h       
+          $$GQTDIRI/TQtClientWidget.h $$GQTDIRI/TQtWidget.h   $$GQTDIRI/TQtMarker.h       \
+          $$GQTDIRI/TQtRootSlot.h
           
 
 CREATE_ROOT_DICT_FOR_CLASSES  = $$GQTH1 $$GQTDIRI/LinkDef.h
@@ -141,24 +142,26 @@ HEADERS += $$GQTDIRI/TGQt.h \
            $$GQTDIRI/TWaitCondition.h       \
            $$GQTDIRI/TQtLock.h              \
            $$GQTDIRI/TQtEmitter.h           \
-           $$GQTDIRI//TQtLockGuard.h
+           $$GQTDIRI/TQtLockGuard.h         \
+           $$GQTDIRI/TQtRootSlot.h
            
-SOURCES += $$GQTDIRS/GQtGUI.cxx \
-           $$GQTDIRS/TGQt.cxx \
-           $$GQTDIRS/TGQtDummy.cxx \
-           $$GQTDIRS/TQMimeTypes.cxx \
-           $$GQTDIRS/TQtApplication.cxx \
-           $$GQTDIRS/TQtBrush.cxx \
-           $$GQTDIRS/TQtClientFilter.cxx \
-           $$GQTDIRS/TQtClientGuard.cxx \
-           $$GQTDIRS/TQtClientWidget.cxx \
-           $$GQTDIRS/TQtEvent.cxx \
-           $$GQTDIRS/TQtEventQueue.cxx \
-           $$GQTDIRS/TQtMarker.cxx \
+SOURCES += $$GQTDIRS/GQtGUI.cxx             \
+           $$GQTDIRS/TGQt.cxx               \
+           $$GQTDIRS/TGQtDummy.cxx          \
+           $$GQTDIRS/TQMimeTypes.cxx        \
+           $$GQTDIRS/TQtApplication.cxx     \
+           $$GQTDIRS/TQtBrush.cxx           \
+           $$GQTDIRS/TQtClientFilter.cxx    \
+           $$GQTDIRS/TQtClientGuard.cxx     \
+           $$GQTDIRS/TQtClientWidget.cxx    \
+           $$GQTDIRS/TQtEvent.cxx           \
+           $$GQTDIRS/TQtEventQueue.cxx      \
+           $$GQTDIRS/TQtMarker.cxx          \
            $$GQTDIRS/TQtRootApplication.cxx \
-           $$GQTDIRS/TQtSymbolCodec.cxx \
-           $$GQTDIRS/TQtTimer.cxx \
-           $$GQTDIRS/TQtWidget.cxx
+           $$GQTDIRS/TQtSymbolCodec.cxx     \
+           $$GQTDIRS/TQtTimer.cxx           \
+           $$GQTDIRS/TQtWidget.cxx          \
+           $$GQTDIRS/TQtRootSlot.cxx
            
 DISTFILES += LICENSE.QPL  Module.mk  Module.mk.unix  Module.mk.win32
 
