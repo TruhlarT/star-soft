@@ -362,11 +362,13 @@ $njb = 0;
 
     }elsif( $bdate >= 20070108100000 && $bdate <= 20070111100000 &&  $glStatus == 1 && $lgStatus >= 1 && $outtrans == 1 ) {
        $siteEff{$gsite}++;
-    }elsif( $bdate >= 20070111100000 && $glStatus == 1 && $lgStatus >= 1 && $intrans == 1 && $nreco == 1 ) {
+    }elsif( $bdate > 20070111100000 && $bdate <= 20070118140000  && $glStatus == 1 && $lgStatus >= 1 && $intrans == 1 && $nreco == 1 ) {
        $siteEff{$gsite}++;
     
-  }
+    }elsif( $bdate >= 20070118150000 && $glStatus == 1 && $lgStatus >= 1 && $intrans == 1 && $outtrans == 5 && $nreco == 1 ) {
+     $siteEff{$gsite}++; 
 
+     }
 }
    for($ii = 0; $ii <scalar(@sites); $ii++) {
 
@@ -379,9 +381,12 @@ $njb = 0;
    $logeff[$ndt] = $logEfH{$msite}*100/(2*$njobs[$ndt]);
    $inputef[$ndt] = $inEfH{$msite}*100/$njobs[$ndt];
 #   $outputeff[$ndt] = $outEfH{$msite}*100/(5*$njobs[$ndt]);
-#    $outputeff[$ndt] = $outEfH{$msite}*100/($njobs[$ndt]);
    $recoComeff[$ndt] = $recoEfH{$msite}*100/$njobs[$ndt];
+   if( $bdate <= 20070118140000 ) {
    $outputeff[$ndt] = $outEfH{$msite}*100/($njobs[$ndt]);
+   }else{
+   $outputeff[$ndt] = $outEfH{$msite}*100/(5*$njobs[$ndt]);
+   }
    $overeff[$ndt] = $siteEff{$msite}*100/$njobs[$ndt];
    
    if ($msite eq "PDSF")  {
