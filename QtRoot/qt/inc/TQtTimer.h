@@ -1,4 +1,4 @@
-// @(#)root/qt:$Name:  $:$Id: TQtTimer.h,v 1.2 2007/01/23 16:48:50 fine Exp $
+// @(#)root/qt:$Name:  $:$Id: TQtTimer.h,v 1.3 2007/01/23 17:53:37 fine Exp $
 // Author: Valeri Fine   09/08/2004
 /****************************************************************************
 **
@@ -30,8 +30,8 @@ class  TQtTimer : public QTimer  {
      Q_OBJECT
 #endif
 private:
-	 void operator=(const TQtTimer &)  {}
-    TQtTimer(const TQtTimer &) : QTimer()  {}
+	 void operator=(const TQtTimer &);
+    TQtTimer(const TQtTimer &);
 protected:
   static TQtTimer *fgQTimer;
   int fCounter;     
