@@ -1,6 +1,6 @@
 #!/usr/bin/env perl
 
-# $Id: AutoBuild.pl,v 1.29 2006/07/28 22:16:31 jeromel Exp $
+# $Id: AutoBuild.pl,v 1.30 2007/01/23 15:18:49 jeromel Exp $
 # This script was written to perform an automatic compilation
 # with cvs co and write some html page related to it afterward.
 # Written J.Lauret Apr 6 2001
@@ -43,7 +43,7 @@ $DFILE   = "RELEASE.date";
 	    "mgr/CleanLibs");
 
 	    #"no newline at end of file",
-	    #"mgr/CleanLibs && /usr/bin/find /tmp -type f -user \$USER -exec rm -f {} \\;");
+	    #"mgr/CleanLibs && /usr/bin/find /tmp -type f -user \$USER -exec /bin/rm -f {} \\;");
 
 
 # this a counter for each recoverrable errors
@@ -273,12 +273,28 @@ if($NIGNOR){
 	IULockWrite(" Inspecting $dir");
 	print $FILO " + Inspecting $dir\n";
 	if( -d $dir ){
-	    @res = `$CVSCMDT $dir`;
+	    $cmd = "$CVSCMDT $dir";
 	} else {
-	    @res = `$CVSCMDR $dir`;
+	    $cmd = "$CVSCMDR $dir";
 	}
+	@res = `$cmd`;
 
-	if($? != 0){ $fail++;}
+	if($? != 0){ 
+	    print $FILO  "Failed with error=$? [$!] while performing [$cmd]\n";             
+	    push(@REPORT,"Failed with error=$? [$!] while performing [$cmd]<br>");
+	    foreach $line (@res){  
+		if ($line !~ m/^\? /){
+		    if ($line =~ m/^C /){
+			print $FILO "\t--> $line   <== THIS FILE CREATES A CONFLICT";     
+			push(@REPORT,"\t--> $line  &gt;== THIS FILE CREATES A CONFLICT<br>");
+		    } else {
+			print $FILO "\t--> $line";     
+			push(@REPORT,"\t--> $line<br>");
+		    }
+		}
+	    }
+	    $fail++;
+	}
 	foreach $line (@res){
 	    if($line =~ m/^U /){
 		push(@UPDATES,(split(" ",$line))[1]);
@@ -304,14 +320,30 @@ if($NIGNOR){
 	    if ($#dirst != -1){
 		foreach my $dd (@dirst){
 		    # Don't do it for now
-		    push(@PRECOMPILE,"cd $COMPDIR && rm -fr $dd");
+		    push(@PRECOMPILE,"cd $COMPDIR && /bin/rm -fr $dd");
 		}
 	    }
 	}
 	IULockWrite(" Fully Inspecting for new code $dir");
 	print $FILO " + Fully Inspecting for new code $dir\n";
 	@res = `$CVSCMDR $dir`;
-	if($? != 0){ $fail++;}
+	if($? != 0){ 
+	    print $FILO  "Failed with error=$? [$!] while performing [$CVSCMDR $dir]"; 
+	    push(@REPORT,"Failed with error=$? [$!] while performing [$CVSCMDR $dir]<br>");
+
+	    foreach $line (@res){ 
+		if ($line !~ m/^\? /){ 
+		    if ($line =~ m/^C /){
+			print $FILO "\t--> $line   <== THIS FILE CREATES A CONFLICT";     
+			push(@REPORT,"\t--> $line  &gt;== THIS FILE CREATES A CONFLICT<br>");
+		    } else {
+			print $FILO "\t--> $line";     
+			push(@REPORT,"\t--> $line<br>");
+		    }
+		}
+	    }
+	    $fail++;
+	}
 	foreach $line (@res){
 	    if($line =~ m/^U /){
 		push(@UPDATES,(split(" ",$line))[1]);
