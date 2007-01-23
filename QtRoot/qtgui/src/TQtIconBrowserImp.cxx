@@ -1,6 +1,6 @@
 // Author: Valeri Fine   21/01/2002
 /****************************************************************************
-** $Id: TQtIconBrowserImp.cxx,v 1.3 2007/01/23 06:52:52 fine Exp $
+** $Id: TQtIconBrowserImp.cxx,v 1.4 2007/01/23 20:13:05 fine Exp $
 **
 ** Copyright (C) 2002 by Valeri Fine. Brookhaven National Laboratory.
 **                                    All rights reserved.
@@ -33,6 +33,7 @@
 #include "TContextMenu.h"
 #include "TBrowser.h"
 #include "TSystem.h"
+#include "TFile.h"
 #include "TSystemFile.h"
 #include "TEnv.h"
 #include "TKey.h"
@@ -602,38 +603,6 @@ static QString AsString(void *buf, TTable::EColumnType type)
    return out;
 }
 //______________________________________________________________________________
-void TQtIconBrowserImp::Chdir(const TQtBrowserItem *item);
-{
-   // Make object associated with item the current directory.
-
-   if (item) {
-      TQtBrowserItem *i = item;
-      TString dir;
-//      while (i) {
-         TObject *obj = i->Object();
-         if (obj) {
-            if (obj->IsA() == TDirectory::Class()) {
-               dir = "/" + dir;
-               dir = obj->GetName() + dir;
-            }
-            if (obj->IsA() == TFile::Class()) {
-               dir = ":/" + dir;
-               dir = obj->GetName() + dir;
-            }
-            if (obj->IsA() == TKey::Class()) {
-               if (strcmp(((TKey*)obj)->GetClassName(), "TDirectory") == 0) {
-                  dir = "/" + dir;
-                  dir = obj->GetName() + dir;
-               }
-            }
-         }
-//         i = i->GetParent(); // the icon view item has no parentbut the IconView
-//      }
-
-      if (gDirectory && dir.Length()) gDirectory->cd(dir.Data());
-   }
-}
-//______________________________________________________________________________
 // Check details:
 #if QT_VERSION < 0x40000
 static void ViewTable(QTable *details, TObject *obj) {
@@ -760,6 +729,38 @@ static void ViewTable(Q3Table *details, TObject *obj) {
     }
 }
 #endif
+//______________________________________________________________________________
+void TQtIconBrowserImp::Chdir(const TQtBrowserItem *item)
+{
+   // Make object associated with item the current directory.
+
+   if (item) {
+      const TQtBrowserItem *i = item;
+      TString dir;
+//      while (i) {
+         TObject *obj = i->Object();
+         if (obj) {
+            if (obj->IsA() == TDirectory::Class()) {
+               dir = "/" + dir;
+               dir = obj->GetName() + dir;
+            }
+            if (obj->IsA() == TFile::Class()) {
+               dir = ":/" + dir;
+               dir = obj->GetName() + dir;
+            }
+            if (obj->IsA() == TKey::Class()) {
+               if (strcmp(((TKey*)obj)->GetClassName(), "TDirectory") == 0) {
+                  dir = "/" + dir;
+                  dir = obj->GetName() + dir;
+               }
+            }
+         }
+//         i = i->GetParent(); // the icon view item has no parentbut the IconView
+//      }
+
+      if (gDirectory && dir.Length()) gDirectory->cd(dir.Data());
+   }
+}
 //______________________________________________________________________________
 void TQtIconBrowserImp::EnableUpdates(Bool_t updt)
 {
