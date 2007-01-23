@@ -1,6 +1,6 @@
 // Author: Valeri Fine   21/01/2002
 /****************************************************************************
-** $Id: TQtBrowserImp.h,v 1.2 2006/09/22 17:27:10 fine Exp $
+** $Id: TQtBrowserImp.h,v 1.3 2007/01/23 06:52:48 fine Exp $
 **
 ** Copyright (C) 2002 by Valeri Fine.  All rights reserved.
 **
@@ -25,6 +25,7 @@
 #include "TClass.h"
 
 #include "TQtObjectListItem.h"
+#include "TQtUpdateViewFlag.h"
 
 #include <qglobal.h>
 #include <qstring.h>
@@ -73,7 +74,8 @@ private:
   Q3PtrVector<TQtBrowserItem> fOpenFolderList;
 //MOC_SKIP_END
 #endif /* QT_VERSION */
-  
+  TQtUpdateViewFlag fUpdate;
+
 protected:  
   TBrowserCustom    *fBrowserCustom;
 
@@ -112,9 +114,10 @@ public:
 protected:
    // This class own methods:
    void            ChangeActive(TObject *obj,Bool_t parent);
+   void            Chdir(const TQtBrowserItem *item);
    void            CloseBranch(int depth);
    TQtBrowserItem *CloseItem(int depth);
-   void            Open(TQtBrowserItem *item);
+   void            Open(TQtBrowserItem *item, Bool_t chdir=kFALSE);
 
 public:
    virtual Int_t InitWindow(Bool_t show=kFALSE);
@@ -124,7 +127,7 @@ public slots:
    void SwitchParent(Int_t flag);
    void ChangeActive(TObject *obj);
    void MakeParentActive(TObject *obj);
-
+   void EnableUpdates(Bool_t updt=kTRUE);
 
 protected slots:
 #if QT_VERSION < 0x40000
@@ -145,6 +148,7 @@ protected slots:
   void DisconnectItem(QObject *obj);
 
 signals:
+  void CanBeUpdated(Bool_t);
 #if QT_VERSION < 0x40000
   void CurrentPath(const QPtrVector<TQtBrowserItem> &);
 #else /* QT_VERSION */

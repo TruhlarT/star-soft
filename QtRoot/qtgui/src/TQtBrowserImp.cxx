@@ -1,6 +1,6 @@
 // Author: Valeri Fine   21/01/2002
 /****************************************************************************
-** $Id: TQtBrowserImp.cxx,v 1.2 2006/09/22 17:27:11 fine Exp $
+** $Id: TQtBrowserImp.cxx,v 1.3 2007/01/23 06:52:52 fine Exp $
 **
 ** Copyright (C) 2002 by Valeri Fine. Brookhaven National Laboratory.
 **                                    All rights reserved.
@@ -22,6 +22,8 @@
 
 #include "TROOT.h"
 #include "TSystem.h"
+#include "TFile.h"
+#include "TKey.h"
 #include "TContextMenu.h"
 #include "TBrowser.h"
 
@@ -223,8 +225,26 @@ TQtBrowserItem *TQtBrowserImp::CloseItem(int depth)
     return item;
 }
 //______________________________________________________________________________
-void TQtBrowserImp::Open(TQtBrowserItem *item) 
+void TQtBrowserImp::Open(TQtBrowserItem *item,Bool_t chdir) 
 {
+   if (!item) return;
+   if (chdir) {
+      TObject *o = item->Object();
+      if (o && 
+             (   (o->IsA() == TKey::Class() ) 
+              || (o->InheritsFrom(TDirectory::Class())) 
+              ) 
+         ) 
+      {         
+         TQtBrowserItem *i = (TQtBrowserItem *)item->
+#if QT_VERSION < 0x40000
+               QListViewItem::parent();
+#else /* QT_VERSION */
+                Q3ListViewItem::parent();
+#endif /* QT_VERSION */
+         Chdir(i);            
+      } 
+   }
    int depth = item->depth();
 //   fprintf(stderr, " Open: depth = %d item %p %p\n", depth, item, fOpenFolderList[depth]);
    if (item != fOpenFolderList[depth]) { 
@@ -247,7 +267,7 @@ void TQtBrowserImp::Open(TQtBrowserItem *item)
             oldItem->setPixmap(0,*folderClosed);
          fOpenFolderList.insert(depth,item);
          item->setPixmap(0,*folderOpen);
-      }     
+      } 
    }
 }
 //______________________________________________________________________________
@@ -275,7 +295,11 @@ void TQtBrowserImp::Add(TObject *obj, const char *caption, Int_t check)
 
    if (obj->IsFolder()) {
       // eliminate the second copy of the object
-      if (fActiveItem  && fActiveItem->DoesChildrenContain(obj)) return;
+      bool isDirectory = fActiveItem
+                      && (fActiveItem->Object()->IsA() == TKey::Class() )
+                      && !(strcmp(((TKey*)fActiveItem->Object())->GetClassName(),"TDirectory"));
+      if (fActiveItem  && !isDirectory
+           && fActiveItem->DoesChildrenContain(obj)) return;
       TQtBrowserItem *item = 0;
       fRealFolder = kTRUE;
       if (fActiveItem) 
@@ -305,6 +329,43 @@ void  TQtBrowserImp::AddCheckBox(TObject *obj, Bool_t check)
 {  
    // Add a checkbox in the TGListTreeItem corresponding to obj
    // and a checkmark on TGLVEntry if check = kTRUE.
+}
+//______________________________________________________________________________
+void TQtBrowserImp::Chdir(const TQtBrowserItem *item)
+{
+   // Make object associated with item the current directory.
+
+   if (item) {
+      const TQtBrowserItem *i = item;
+      TString dir;
+      while (i) 
+      { 
+         TObject *obj = i->Object();
+         if (obj) {
+            if (obj->IsA() == TDirectory::Class()) {
+               dir = "/" + dir;
+               dir = obj->GetName() + dir;
+            }
+            if (obj->IsA() == TFile::Class()) {
+               dir = ":/" + dir;
+               dir = obj->GetName() + dir;
+            }
+            if (obj->IsA() == TKey::Class()) {
+               if (strcmp(((TKey*)obj)->GetClassName(), "TDirectory") == 0) {
+                  dir = "/" + dir;
+                  dir = obj->GetName() + dir;
+               }
+            }
+         }
+         i = (TQtBrowserItem *)i->
+#if QT_VERSION < 0x40000
+               QListViewItem::parent();
+#else /* QT_VERSION */
+               Q3ListViewItem::parent();
+#endif /* QT_VERSION */
+      }
+      if (gDirectory && dir.Length()) gDirectory->cd(dir.Data());
+   }
 }
 //______________________________________________________________________________
 void  TQtBrowserImp::CheckObjectItem(TObject *obj, Bool_t check)
@@ -351,10 +412,8 @@ void TQtBrowserImp::SwitchParent(Int_t flag)
 void TQtBrowserImp::DisconnectItem(QObject *obj) 
 {
   // Disconnect the destroyed items
-  qApp->lock();
     TQtBrowserItem*item = (TQtBrowserItem*)obj;
     if (fActiveItem == item) fActiveItem = 0;
-  qApp->lock();
 } 
 //______________________________________________________________________________
 #if QT_VERSION < 0x40000
@@ -385,9 +444,7 @@ void TQtBrowserImp::ClickedItem(Q3ListViewItem *item)
 
    // The critical section must be here - danger of the share access to TBrowser instance
 
-   qApp->lock();
    Browser()->SetSelected(justClicked->Object());
-   qApp->lock();
 
    if (justClicked !=fOpenFolderList[item->depth()] ) {
       Open(justClicked);
@@ -397,6 +454,7 @@ void TQtBrowserImp::ClickedItem(Q3ListViewItem *item)
       } else {
          TObject *obj = justClicked->Object();
          emit OpenFolder(obj);
+         Chdir(justClicked);
       }
    } 
 }
@@ -466,7 +524,14 @@ void TQtBrowserImp::ExpandedItem(Q3ListViewItem *item)
          // emit the current browser path
          emit CurrentPath(fOpenFolderList);
          // Browse() has a side effect to change the fRealFolder value
+         // Block this widget update
+      EnableUpdates(kFALSE);
+      {
+         // we have to freeze the update 
          justOpened->Browse(Browser());
+      } 
+      EnableUpdates(kTRUE);
+      
          if (fRealFolder || ( justOpened->Object()->IsA() == TSystemDirectory::Class()) ) {
             fRealFolder = kFALSE;
             justOpened->SetExpanded(kTRUE);
@@ -476,6 +541,18 @@ void TQtBrowserImp::ExpandedItem(Q3ListViewItem *item)
       }
       // if (justOpened) emit FolderExpanded(justOpened->Object());
    }
+}
+//______________________________________________________________________________
+void TQtBrowserImp::EnableUpdates(Bool_t updt)
+{
+   // Slot: Enable / disable the treeview update
+   if (updt)  {
+     fUpdate.UnFreezeToUpdate(fBrowserImpID);
+     emit CanBeUpdated(updt);
+   } else {
+     emit CanBeUpdated(updt);
+     fUpdate.FreezeToUpdate(fBrowserImpID); 
+   }   
 }
 //______________________________________________________________________________
 void TQtBrowserImp::CreateIcons()
@@ -560,7 +637,10 @@ void TQtBrowserImp::BrowseObj(TObject *obj)
       b = Browser();
       if (b) obj->Browse(b); 
 #else
-      if (fBrowserCustom)  obj->Browse(fBrowserCustom);
+      if (fBrowserCustom) {
+//          Emit("BrowseObj(TObject*)", (Long_t)obj);
+          obj->Browse(fBrowserCustom);
+      }
 #endif
       fBrowser->SetRefreshFlag(kFALSE);
    }

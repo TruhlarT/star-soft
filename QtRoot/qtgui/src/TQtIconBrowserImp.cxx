@@ -1,6 +1,6 @@
 // Author: Valeri Fine   21/01/2002
 /****************************************************************************
-** $Id: TQtIconBrowserImp.cxx,v 1.2 2006/09/22 17:27:11 fine Exp $
+** $Id: TQtIconBrowserImp.cxx,v 1.3 2007/01/23 06:52:52 fine Exp $
 **
 ** Copyright (C) 2002 by Valeri Fine. Brookhaven National Laboratory.
 **                                    All rights reserved.
@@ -515,7 +515,9 @@ void TQtIconBrowserImp::BrowseObject(TObject *obj)
     obj->Browse(Browser());
     emit SwitchTreeView(); // restore the normal flow in TreeView
 #else
-    if (fBrowserCustom)  obj->Browse(fBrowserCustom);
+    if (fBrowserCustom) {
+       obj->Browse(fBrowserCustom);
+    }
 #endif
     FolderExpanded(obj);
   }
@@ -544,6 +546,7 @@ void TQtIconBrowserImp::ClickedItem(Q3IconViewItem *item)
 #endif
      }
     emit SwitchTreeView(1); // change parent object in TreeView
+//    Emit("BrowseObj(TObject*)", (Long_t)obj);
     obj->Browse(Browser());
     emit SwitchTreeView();  // restore the normal flow in TreeView
     FolderExpanded(obj);
@@ -597,6 +600,38 @@ static QString AsString(void *buf, TTable::EColumnType type)
          break;
    };
    return out;
+}
+//______________________________________________________________________________
+void TQtIconBrowserImp::Chdir(const TQtBrowserItem *item);
+{
+   // Make object associated with item the current directory.
+
+   if (item) {
+      TQtBrowserItem *i = item;
+      TString dir;
+//      while (i) {
+         TObject *obj = i->Object();
+         if (obj) {
+            if (obj->IsA() == TDirectory::Class()) {
+               dir = "/" + dir;
+               dir = obj->GetName() + dir;
+            }
+            if (obj->IsA() == TFile::Class()) {
+               dir = ":/" + dir;
+               dir = obj->GetName() + dir;
+            }
+            if (obj->IsA() == TKey::Class()) {
+               if (strcmp(((TKey*)obj)->GetClassName(), "TDirectory") == 0) {
+                  dir = "/" + dir;
+                  dir = obj->GetName() + dir;
+               }
+            }
+         }
+//         i = i->GetParent(); // the icon view item has no parentbut the IconView
+//      }
+
+      if (gDirectory && dir.Length()) gDirectory->cd(dir.Data());
+   }
 }
 //______________________________________________________________________________
 // Check details:
@@ -725,6 +760,23 @@ static void ViewTable(Q3Table *details, TObject *obj) {
     }
 }
 #endif
+//______________________________________________________________________________
+void TQtIconBrowserImp::EnableUpdates(Bool_t updt)
+{
+   // Enable / disanle the widget update
+#if QT_VERSION < 0x40000
+   QIconView *iconView = (QIconView *)fBrowserImpID->widget(fIconWidgetId);
+#else /* QT_VERSION */
+   Q3IconView *iconView = (Q3IconView *)fBrowserImpID->widget(fIconWidgetId);
+#endif /* QT_VERSION */
+   if (updt) {
+     // Block this widget update
+     fUpdate.UnFreezeToUpdate(iconView);
+   } else {
+       // Block this widget update
+     fUpdate.FreezeToUpdate(iconView);
+   }
+}
 //______________________________________________________________________________
 void TQtIconBrowserImp::CreateDetailView()
 {
@@ -911,7 +963,7 @@ void TQtIconBrowserImp::SetViewMode(int mode){
 #else /* QT_VERSION */
       Q3IconView *iconView = (Q3IconView *)fBrowserImpID->widget(fIconWidgetId);
 #endif /* QT_VERSION */
-      fUpdate.FreezeToUpdate(iconView);
+      EnableUpdates (kFALSE);
       {
          iconView->setArrangement (arrangement );
          iconView->setItemTextPos (labelPosition);
@@ -923,7 +975,6 @@ void TQtIconBrowserImp::SetViewMode(int mode){
 #else /* QT_VERSION */
          iconView->setResizeMode(Q3IconView::Adjust);
 #endif /* QT_VERSION */
-
          // set  (reset) new pixmap size for all items;
 #if QT_VERSION < 0x40000
          QIconViewItem *item;
@@ -933,7 +984,7 @@ void TQtIconBrowserImp::SetViewMode(int mode){
          for ( item = iconView->firstItem(); item; item = item->nextItem() )
             ((TQtIconBrowserItem*)item)->SetPixmap(fIconSize);
       } 
-      fUpdate.UnFreezeToUpdate(iconView);
+      EnableUpdates (kTRUE);
       fBrowserImpID->raiseWidget (fIconWidgetId);
    }
 }

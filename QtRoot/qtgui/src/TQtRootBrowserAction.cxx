@@ -1,6 +1,6 @@
 // Author: Valeri Fine  08/03/2003
 /****************************************************************************
-** $Id: TQtRootBrowserAction.cxx,v 1.2 2006/09/22 17:27:11 fine Exp $
+** $Id: TQtRootBrowserAction.cxx,v 1.3 2007/01/23 06:52:53 fine Exp $
 **
 ** Copyright (C) 2002 by Valeri Fine.  All rights reserved.
 **
@@ -83,9 +83,7 @@ TQtRootBrowserAction::~TQtRootBrowserAction(){}
 //______________________________________________________________________________
 TQtRootBrowserAction *TQtRootBrowserAction::Instance()
 {
-   qApp->lock();
-      if (!gfRootBrowserAction) gfRootBrowserAction = new TQtRootBrowserAction();
-   qApp->unlock();
+   if (!gfRootBrowserAction) gfRootBrowserAction = new TQtRootBrowserAction();
    return gfRootBrowserAction;
 }
 //______________________________________________________________________________

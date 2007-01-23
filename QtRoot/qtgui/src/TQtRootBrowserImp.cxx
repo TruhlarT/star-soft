@@ -1,6 +1,6 @@
 // Author: Valeri Fine   21/01/2002
 /****************************************************************************
-** $Id: TQtRootBrowserImp.cxx,v 1.2 2006/09/22 17:27:11 fine Exp $
+** $Id: TQtRootBrowserImp.cxx,v 1.3 2007/01/23 06:52:53 fine Exp $
 **
 ** Copyright (C) 2002 by Valeri Fine. Brookhaven National Laboratory.
 **                                    All rights reserved.
@@ -218,13 +218,11 @@ TQtRootBrowserImp::TQtRootBrowserImp(TBrowser *b, const char *title, Int_t x, In
 //______________________________________________________________________________
 TQtRootBrowserImp::~TQtRootBrowserImp() 
 {
-  qApp->lock(); {
     if (fBrowserImpID) {
       QWidget *w = fBrowserImpID; 
       fBrowserImpID = 0;
       delete w;
     }
-  } qApp->lock();
 }
 //______________________________________________________________________________
 void TQtRootBrowserImp::Add(TObject *obj, const char *caption)
@@ -315,13 +313,11 @@ void TQtRootBrowserImp::DisplayTotal(Int_t total, Int_t selected)
 //______________________________________________________________________________
 void TQtRootBrowserImp::Disconnect()
 {
-  qApp->lock(); {    
-    if (fBrowserImpID) {
+   if (fBrowserImpID) {
       fBrowserImpID = 0;
       TBrowser *b = Browser(); 
       if (b && b->IsOnHeap() )  delete b;
     }
-  } qApp->lock();
 }
 //______________________________________________________________________________
 QWidget *TQtRootBrowserImp::GetBrowserID()
@@ -384,6 +380,7 @@ Int_t TQtRootBrowserImp::InitWindow()
   connect(fIconView,SIGNAL(SwitchTreeView(Int_t)),           fTreeView,SLOT(SwitchParent(Int_t)));
   connect(fIconView,SIGNAL(ActivateParent(TObject *)),       fTreeView,SLOT(MakeParentActive(TObject *)));
   connect(fIconView,SIGNAL(ActivateObject(TObject *)),       fTreeView,SLOT(ChangeActive(TObject *)));
+  connect(fTreeView,SIGNAL(CanBeUpdated(Bool_t)),            fIconView,SLOT(EnableUpdates(Bool_t)));
 
   
 
