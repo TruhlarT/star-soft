@@ -58,19 +58,19 @@ if ( -r  $GROUP_DIR/star_login.csh ) then
 
 	if ($STATUS != 0) then
 	    if ( ! -e /tmp/AutoBuild.info) then
-		date >/tmp/AutoBuild.info
+		/bin/date >/tmp/AutoBuild.info
 	    endif
-	    echo "There is no token on `hostname` for `whoami`" >>/tmp/AutoBuild.info
+	    echo "There is no token on `/bin/hostname` for `/usr/bin/id`" >>/tmp/AutoBuild.info
 	    tokens >>/tmp/AutoBuild.info
-	    cat /tmp/AutoBuild.info | mail -s "Token on `hostname`" $EMAIL
+	    /bin/cat /tmp/AutoBuild.info | mail -s "Token on `/bin/hostname`" $EMAIL
 	else
 	    # Check presence of a log directory
 	    if( ! -d $HOME/log) then
-		mkdir $HOME/log
+		/bin/mkdir $HOME/log
 	    endif
 
 	    # Small global usage variable
-	    set DAY=`date | sed "s/ .*//"`
+	    set DAY=`/bin/date | /bin/sed "s/ .*//"`
 
 	    setenv SILENT 1
 	    if ($?INSURE)  unsetenv INSURE
@@ -81,8 +81,8 @@ if ( -r  $GROUP_DIR/star_login.csh ) then
 	    switch ("$1")
 	    case "Clean":
 		cd $STAR
-		mgr/CleanLibs obj 2 | grep Delete  >$HOME/log/CleanLibs.log
-		mgr/CleanLibs OBJ 2 | grep Delete  >$HOME/log/CleanLibs.log
+		mgr/CleanLibs obj 2 | /bin/grep Delete  >$HOME/log/CleanLibs.log
+		mgr/CleanLibs OBJ 2 | /bin/grep Delete  >$HOME/log/CleanLibs.log
 		breaksw
 
 	    case "Insure2":

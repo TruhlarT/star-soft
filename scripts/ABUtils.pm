@@ -556,8 +556,8 @@ sub IUCheckFile
     if ($mode == 0){
 	# csh mode
 	$sts = "";
-	$sts = "if ( -e $dir/$file-old) rm -f $dir/$file-old\n";
-	$sts.= "if ( -e $dir/$file)     mv -f $dir/$file $dir/$file-old\n";
+	$sts = "if ( -e $dir/$file-old) /bin/rm -f $dir/$file-old\n";
+	$sts.= "if ( -e $dir/$file)     /bin/mv -f $dir/$file $dir/$file-old\n";
 
     } elsif ($mode == 1){
 	# perl mode
@@ -607,8 +607,8 @@ sub IUMoveFile
     if ($mode == 0){
 	# csh mode ; we are cheating for the version
 	$sts = "";
-	$sts.= "if ( -e $odir/$oflnm$oext ) mv -f $odir/$oflnm$oext $odir/$oflnm-$cnt$oext\n";
-	$sts.= "if ( -e $infile) cp -f $infile $odir/$oflnm$oext\n";
+	$sts.= "if ( -e $odir/$oflnm$oext ) /bin/mv -f $odir/$oflnm$oext $odir/$oflnm-$cnt$oext\n";
+	$sts.= "if ( -e $infile) /bin/cp -f $infile $odir/$oflnm$oext\n";
 
     } elsif ($mode == 1){
 	# perl mode
