@@ -1,8 +1,8 @@
-// @(#)root/qt:$Name:  $:$Id: TQtRootSlot.h,v 1.1 2007/01/19 02:14:21 fine Exp $
+// @(#)root/qt:$Name:  $:$Id: TQtRootSlot.h,v 1.2 2007/01/23 19:27:55 fine Exp $
 // Author: Valery Fine      18/01/2007
 
 /****************************************************************************
-** $Id: TQtRootSlot.h,v 1.1 2007/01/19 02:14:21 fine Exp $
+** $Id: TQtRootSlot.h,v 1.2 2007/01/23 19:27:55 fine Exp $
 **
 ** Copyright (C) 2002 by Valeri Fine. Brookhaven National Laboratory.
 **                                    All rights reserved.
@@ -36,6 +36,9 @@ class QObject;
 
 class TQtRootSlot : public QObject {
    Q_OBJECT
+private:
+   TQtRootSlot (const TQtRootSlot &);
+   void operator=(const TQtRootSlot &);
 protected:
    static TQtRootSlot *fgTQtRootSlot;
    TQtRootSlot () {} 
