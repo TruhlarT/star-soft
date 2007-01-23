@@ -1,4 +1,4 @@
-// @(#)root/qt:$Name:  $:$Id: TQtClientWidget.h,v 1.1 2006/08/16 19:29:07 fine Exp $
+// @(#)root/qt:$Name:  $:$Id: TQtClientWidget.h,v 1.2 2007/01/23 16:48:50 fine Exp $
 /*************************************************************************
  * Copyright (C) 1995-2004, Rene Brun and Fons Rademakers.               *
  * Copyright (C) 2002 by Valeri Fine.                                    *
@@ -56,9 +56,6 @@ class TQtClientWidget: public CLIENT_WIDGET_BASE_CLASS {
 
 private:
          void  operator=(const TQtClientWidget&)  {}
-#if !defined(_MSC_VER)  || _MSC_VER >= 1310
-         void  operator=(const TQtClientWidget&) const {}
-#endif 
          TQtClientWidget(const TQtClientWidget&) : CLIENT_WIDGET_BASE_CLASS(0) {}
 protected:
 

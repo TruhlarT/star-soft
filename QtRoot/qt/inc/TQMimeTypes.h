@@ -1,7 +1,7 @@
-// @(#)root/gui:$Name:  $:$Id: TQMimeTypes.h,v 1.2 2007/01/19 02:13:38 fine Exp $
+// @(#)root/gui:$Name:  $:$Id: TQMimeTypes.h,v 1.3 2007/01/23 16:48:48 fine Exp $
 // Author: Valeri Fine   21/01/2003
 /****************************************************************************
-** $Id: TQMimeTypes.h,v 1.2 2007/01/19 02:13:38 fine Exp $
+** $Id: TQMimeTypes.h,v 1.3 2007/01/23 16:48:48 fine Exp $
 **
 ** Copyright (C) 2002 by Valeri Fine. Brookhaven National Laboratory.
 **                                    All rights reserved.
@@ -74,11 +74,8 @@ public:
 
 class TQMimeTypes : public TObject {
 private:
-#if !defined(_MSC_VER)  || _MSC_VER >= 1310
-      void operator=(const TQMimeTypes&) const {}
-#endif
-      void operator=(const TQMimeTypes&)  {}
-      TQMimeTypes(const TQMimeTypes&) : TObject()  {}
+   void operator=(const TQMimeTypes&)  {}
+   TQMimeTypes(const TQMimeTypes&) : TObject()  {}
 
 protected:
    TString          fIconPath;   // the path to the icon directory

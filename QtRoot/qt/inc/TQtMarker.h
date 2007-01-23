@@ -1,4 +1,4 @@
-// @(#)root/qt:$Name:  $:$Id: TQtMarker.h,v 1.1 2006/08/16 19:29:07 fine Exp $
+// @(#)root/qt:$Name:  $:$Id: TQtMarker.h,v 1.2 2007/01/23 16:48:50 fine Exp $
 // Author: Valeri Fine   21/01/2002
 /****************************************************************************
 **
@@ -53,6 +53,8 @@ private:
 public:
 
    TQtMarker(int n=0, TPoint *xy=0,int type=0);
+   void operator=(const TQtMarker&);
+   TQtMarker(const TQtMarker&);
    virtual ~TQtMarker();
    int     GetNumber() const;
 #ifndef __CINT__
@@ -66,5 +68,17 @@ public:
    void    SetMarker(int n, TPoint *xy, int type);
    ClassDef(TQtMarker,0) //  Convert  ROOT TMarker objects on to QPointArray
 };
+
+//_________________________________________________________
+inline void TQtMarker::operator=(const TQtMarker&m) 
+{
+   fNumNode = m.fNumNode;
+   fChain   = m.fChain; 
+   fCindex  = m.fCindex;
+   fMarkerType=m.fMarkerType;
+}
+//_________________________________________________________
+inline TQtMarker::TQtMarker(const TQtMarker&m) : fNumNode(m.fNumNode),
+fChain(m.fChain), fCindex(m.fCindex),fMarkerType(m.fMarkerType) {}
 
 #endif

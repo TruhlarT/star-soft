@@ -1,4 +1,4 @@
-// @(#)root/qt:$Name:  $:$Id: TQtWidget.h,v 1.4 2006/12/12 02:51:00 fine Exp $
+// @(#)root/qt:$Name:  $:$Id: TQtWidget.h,v 1.5 2007/01/23 16:48:50 fine Exp $
 // Author: Valeri Fine   21/01/2002
 /****************************************************************************
 **
@@ -83,9 +83,6 @@ class  TQtWidget : public QWidget {
  Q_OBJECT
 #endif
 private:
-#if !defined(_MSC_VER)  || _MSC_VER >= 1310
-      void operator=(const TQtWidget&) const {}
-#endif
 		void operator=(const TQtWidget&) {}
       TQtWidget(const TQtWidget&) :QWidget() {}
    //----- Private bits, clients can only test but not change them
