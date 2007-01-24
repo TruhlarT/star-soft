@@ -1,6 +1,6 @@
 // Author: Valeri Fine   16/03/2006
 /****************************************************************************
-** $Id: TQtZoomPadWidget.cxx,v 1.2 2006/09/22 17:27:11 fine Exp $
+** $Id: TQtZoomPadWidget.cxx,v 1.3 2007/01/24 20:15:59 fine Exp $
 **
 ** Copyright (C) 2006 by Valeri Fine. Brookhaven National Laboratory.
 **                                    All rights reserved.
@@ -60,11 +60,6 @@
 //          to the TQtWidget::RootEventProcessed  Qt signal                        //
 //                                                                                 //
 /////////////////////////////////////////////////////////////////////////////////////
-#if QT_VERSION < 0x40000
-TQtZoomPadWidget::TQtZoomPadWidget(const TQtZoomPadWidget &):QHBox(){}
-#else /* QT_VERSION */
-TQtZoomPadWidget::TQtZoomPadWidget(const TQtZoomPadWidget &):Q3HBox(){}
-#endif
 
 //__________________________________________________________________________________
 #if QT_VERSION < 0x40000
@@ -74,7 +69,8 @@ TQtZoomPadWidget::TQtZoomPadWidget(TVirtualPad *pad, QWidget *parent, const char
 TQtZoomPadWidget::TQtZoomPadWidget(TVirtualPad *pad, QWidget *parent, const char *name, Qt::WFlags f)
 : Q3HBox(parent, name, f),fSelectingButton(kButton2Down),fSetPadInProgress(false),fSmartZoomFactor(true)
 #endif /* QT_VERSION */
- , fJustOpen(true), fOldWidth(-1), fOldHieght(-1),fPad(0),fHideOnLeave(true),fZoomFactor(1.8), fSrcWidget(0),fMouseBits(0)
+, fJustOpen(true), fOldWidth(-1), fOldHieght(-1),fPad(0),fHideOnLeave(true),fZoomFactor(1.8), fSrcWidget(0),fMouseBits(0)
+, fLastZoomed(0),fIgnoreNextMotion(false)
 {
     // Create the Embedded TCanvas to draw the zoomed image of the "pad"
     // Other parameteres are passed to QHBox ctor
@@ -208,6 +204,8 @@ void TQtZoomPadWidget::Connect(TQtWidget  *wid)
       connect(wid,SIGNAL(RootEventProcessed(TObject *, unsigned int, TCanvas *))
            ,this,SLOT(RootEventProcessed(TObject *, unsigned int, TCanvas *)));
       wid->EnableSignalEvents(kMousePressEvent);
+      QToolTip::add(wid,"To zoom any <b>TPad</b> click it with the <b>wheel</b> button");
+      ResetLastZoomed();
    }
 }
 
@@ -217,8 +215,8 @@ void TQtZoomPadWidget::Disconnect()
     // (Qt/ROOT) SLOT 
     // One should connect this slot to the ROOT TPad::Closed() SIGNAL
    hide();
-   if (fSrcWidget) { fSrcWidget->SetAllBits(fMouseBits); fSrcWidget->ResetBit(kMouseMoveEvent);}
-   fPad = 0; fSrcWidget = 0; fMouseBits = 0;
+   if (fSrcWidget) {fSrcWidget->SetAllBits(fMouseBits); fSrcWidget->ResetBit(kMouseMoveEvent);}
+   fPad = 0; fSrcWidget = 0; fMouseBits = 0; ResetLastZoomed();
 }
 
 //__________________________________________________________________________________
@@ -282,12 +280,14 @@ void TQtZoomPadWidget::Disconnect(TQtWidget  *wid)
       if ( fSrcWidget == wid ) Disconnect();
       disconnect(wid,SIGNAL(RootEventProcessed(TObject *, unsigned int, TCanvas *))
            ,this,SLOT(RootEventProcessed(TObject *, unsigned int, TCanvas *)));
+      QToolTip::remove(wid);
    }
 }
 //__________________________________________________________________________________
 void TQtZoomPadWidget::HideOnLeave(bool on)
 {
     // Set the "hide on leave" flag
+    ResetLastZoomed();
     fHideOnLeave = on; 
     DefineTooTip(fHideOnLeave);
 }
@@ -314,12 +314,35 @@ void TQtZoomPadWidget::Resize(unsigned int w, unsigned int h)
 }
 
 //__________________________________________________________________________________
+static QPoint GetLocation(TQtWidget &w,TVirtualPad *pad)
+{
+   // returns an absolute screen location of the TPad
+   QWidget *parent = w.parentWidget();
+   TCanvas *padCanvas = w.GetCanvas();
+   if (padCanvas) {
+       QPoint padLocation(pad->UtoAbsPixel(0),pad->VtoAbsPixel(1));
+       if (parent) padLocation = parent->mapToGlobal(padLocation);
+       return padLocation;
+   }
+   return QPoint(-9999,-9999);
+}
+//__________________________________________________________________________________
+void TQtZoomPadWidget::ResetLastZoomed(TVirtualPad *pad)
+{
+   // reset the last zoommed TPad 
+   fLastZoomed = pad;
+}       
+//__________________________________________________________________________________
 void TQtZoomPadWidget::SetPad(TVirtualPad *pad,bool tobeShown )
 {
    // (Qt/ROOT) SLOT 
    // One should connect all desired TPad::Selected or TQtWidget signals 
    // to this single slot
    //
+   // Second invocation of this method with  one and the same "pad value"
+   // disables "mouse move even". It effects the zooming widget will not be changed
+   // over the same pad disables the move mouse event processing
+
    if (fSetPadInProgress) return;
    fSetPadInProgress = true;
    if (pad && (fZoomFactor > 0) && (fPad != pad) && (pad->GetCanvas() != (TCanvas *)pad) ) {
@@ -327,18 +350,27 @@ void TQtZoomPadWidget::SetPad(TVirtualPad *pad,bool tobeShown )
       fCanvas->cd();
       setCaption(pad->GetName());
       fCanvas->Clear();
+      //  Restore the mouse event bits
+      if (fSrcWidget) { 
+         fSrcWidget->SetAllBits(fMouseBits); 
+         fSrcWidget->ResetBit(kMouseMoveEvent);
+         // remove the tip
+         if (fPad) {
+            QPoint pos = GetLocation(*fSrcWidget,fPad);
+            QSize size(fPad->UtoPixel(1),fPad->VtoPixel(0));
+            QToolTip::remove(fSrcWidget,QRect(pos,size));               
+         }
+      }
       if (savePad == fPad) savePad = 0;
       delete fPad;
       fPad = (TPad*)pad->Clone();
+      ResetLastZoomed(pad);
       
-      //  Restore the mouse event bits
-      if (fSrcWidget) { fSrcWidget->SetAllBits(fMouseBits); fSrcWidget->ResetBit(kMouseMoveEvent);}
       // Take the curret TQtWidget
       fSrcWidget = (TQtWidget *)TGQt::iwid(pad->GetCanvas()->GetCanvasID());
       // Save the widget mouse event bits
       fMouseBits = fSrcWidget->GetAllBits();
       fSrcWidget->EnableSignalEvents(kMouseMoveEvent);
-
       fCanvas->GetListOfPrimitives()->Add(fPad);
       fPad->SetPad(0,0,1,1);
       TObjLink *lnk = fPad->GetListOfPrimitives()->FirstLink();
@@ -363,10 +395,18 @@ void TQtZoomPadWidget::SetPad(TVirtualPad *pad,bool tobeShown )
             move(padLocation);
          }
       }
+      // create the tool tip
+      if (!fHideOnLeave && fSrcWidget) {
+         QPoint pos = GetLocation(*fSrcWidget,pad);
+         QSize size(pad->UtoPixel(1),pad->VtoPixel(0));
+         QToolTip::add(fSrcWidget,QRect(pos,size)
+            ,"Click this <b>TPad</b> with the <b>wheel</b> button to <b>stick</b> it with the zooming widget");
+      }
       fCanvas->Modified(); fCanvas->Update();
       if (savePad) savePad->cd();
       if (tobeShown) show();
    }
+    
    fSetPadInProgress = false;
 
 //    if (fPad) PadModified();
@@ -394,11 +434,12 @@ void TQtZoomPadWidget::Selected(TVirtualPad *pad, TObject *, Int_t event)
   //  It behaves essentially like the above function.
    
   // fprintf(stderr," TQtZoomPadWidget::Selected %p %s\n",pad,pad->GetName());
+  // Attn: The mouse move event is mapped to kButton2Down also
   if (event == kButton2Down && !fSetPadInProgress) SetPad(pad);
 
 }
 //__________________________________________________________________________________
-void TQtZoomPadWidget::RootEventProcessed(TObject *, unsigned int event, TCanvas *canvas)
+void TQtZoomPadWidget::RootEventProcessed( TObject *, unsigned int event, TCanvas *canvas)
 {
   // (Qt/ROOT) SLOT 
   // This is an overloaded member function, provided for convenience to receive 
@@ -408,7 +449,18 @@ void TQtZoomPadWidget::RootEventProcessed(TObject *, unsigned int event, TCanvas
    if (canvas) {
        TVirtualPad *pad = canvas->GetSelectedPad();
        if (pad)  {
-          if (event == kMouseMotion) event = kButton2Down;
+          if (fSrcWidget && ( event == kButton2Down) &&  (pad == fLastZoomed) ) {
+             QPoint pos = GetLocation(*fSrcWidget,pad);
+             QSize size(pad->UtoPixel(1),pad->VtoPixel(0));
+             QToolTip::remove(fSrcWidget,QRect(pos,size));
+             QToolTip::add(fSrcWidget,"To zoom any <b>TPad</b> click it with the <b>wheel</b> button");
+             fIgnoreNextMotion = true;
+          } else if ( (event == kMouseMotion) ) {
+             if (!fIgnoreNextMotion) event = kButton2Down; 
+          } else {
+             fIgnoreNextMotion = false;
+          }
+       
           Selected(pad,canvas->GetSelected(), event);
        }
    }
@@ -429,7 +481,7 @@ void TQtZoomPadWidget::DefineTooTip(bool hideOnLeave)
 {
    // Define the current tool tip for thew zoomer
    if (hideOnLeave) 
-      QToolTip::add( this,"Click the middle mouse button to keep this widget on the top permanently");
+      QToolTip::add( this,"Click the <b>wheel</b> button to <b>keep</b> this widget on the top permanently");
    else
-      QToolTip::add( this,"Click the middle mouse button to turn the \"hide on leave\" mode");
+      QToolTip::add( this,"Click the <b>wheel</b> button to turn the <b>\"hide on leave\"</b> mode");
 }

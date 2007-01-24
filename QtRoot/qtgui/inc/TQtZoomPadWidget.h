@@ -2,7 +2,7 @@
 #define ROOT_TQtZoomPadWidget
 // Author: Valeri Fine   16/03/2006
 /****************************************************************************
-** $Id: TQtZoomPadWidget.h,v 1.2 2006/09/22 17:27:10 fine Exp $
+** $Id: TQtZoomPadWidget.h,v 1.3 2007/01/24 20:15:59 fine Exp $
 **
 ** Copyright (C) 2006 by Valeri Fine. Brookhaven National Laboratory.
 **                                    All rights reserved.
@@ -98,7 +98,7 @@ class  TQtZoomPadWidget
 #endif
   private:
      TQtZoomPadWidget(const TQtZoomPadWidget &);
-     void operator=(const TQtZoomPadWidget &){}
+     void operator=(const TQtZoomPadWidget &);
      
      EEventType   fSelectingButton;  // The mlouse button to use to activa the zoomer
      bool         fSetPadInProgress; // semaphore to avoid double setting
@@ -114,6 +114,8 @@ class  TQtZoomPadWidget
      float        fZoomFactor;  // The initial zoom factor.
      TQtWidget   *fSrcWidget;   // The signaling TCanvas QWidget
      unsigned int fMouseBits;   // Keep the fSrcWidget mouse event mask to restore
+     TVirtualPad *fLastZoomed;  // Last TPad to be zoomed;
+     bool         fIgnoreNextMotion; // The flag wehther to igomre the mouse motion events
      void         DefineTooTip(bool hideOnLeave);
  public:
 #ifndef __CINT__
@@ -128,6 +130,7 @@ class  TQtZoomPadWidget
      TVirtualPad *GetPad() const;
      virtual void Show();
              bool HasSmartZoom() const;
+             void ResetLastZoomed(TVirtualPad *pad=0);
 
 protected:
 
