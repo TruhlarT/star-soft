@@ -1,8 +1,8 @@
-// @(#)root/g3d:$Name:  $:$Id: TSimageMovie.cxx,v 1.4 2007/01/23 23:48:04 fine Exp $
+// @(#)root/g3d:$Name:  $:$Id: TSimageMovie.cxx,v 1.5 2007/01/24 05:55:06 fine Exp $
 // Author: Valery Fine      24/11/06
 
 /****************************************************************************
-** $Id: TSimageMovie.cxx,v 1.4 2007/01/23 23:48:04 fine Exp $
+** $Id: TSimageMovie.cxx,v 1.5 2007/01/24 05:55:06 fine Exp $
 **
 ** Copyright (C) 2002 by Valeri Fine. Brookhaven National Laboratory.
 **                                    All rights reserved.
@@ -45,7 +45,7 @@ progress_cb(void * /*userdata*/ , float sub, int current_frame, int num_frames)
 {
   char buffer[256];
 
-  int logframes = (int)log10(num_frames) + 1;
+  int logframes = (int)log10(float(num_frames)) + 1;
   (void)sprintf(buffer, "\rwriting frame: %%%dd / %%%dd  -- %%03.1f%%%%  ",
                 logframes, logframes);
 
