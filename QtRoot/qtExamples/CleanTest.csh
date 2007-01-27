@@ -131,11 +131,11 @@ root.exe h1draw_zoom.C
 cd ..
 
 echo -----------  QtGSI test -------------
-cd qtgsi\example1
+cd qtgsi/example1
 qmake
 nmake
-exe\QtGsiTest.exe
-cd ..\..
+exe/QtGsiTest.exe
+cd ../..
 
 echo ---------  Qt RootCint test -----------
 cd macros
