@@ -45,7 +45,7 @@ $tempsdir = $tempdir . $sdir;
 $lfile = $tempdir . "rFSI.lis";
 $update_lfile = 0;
 
-if (-d $tempsdir) {
+if ((-f $lfile) && (-d $tempsdir)) {
   chdir $tempdir;
   qafind("SyncRFSIT2W");
 } else {
@@ -185,6 +185,7 @@ sub SyncIssW2T {
 
 $sdir = "log";
 $ifile = $tempdir . $tfile . $sdir;
+$lfile = $ifile . "/QAlog.txt";
 
 # only ten times per day
 exit if ((-f $ifile) && ((-M $ifile) < 0.1));
@@ -192,7 +193,7 @@ exit if ((-f $ifile) && ((-M $ifile) < 0.1));
 chdir $tempdir;
   # Decide on whether sync temp->web is necessary...
 if ((-f $ifile) && (-d $sdir)) {
-  if ((-M $sdir) < (-M $ifile)) { qafind("SyncLogsT2W"); }
+  if ((-M $lfile) < (-M $ifile)) { qafind("SyncLogsT2W"); }
 } else {
   unlink($ifile) if (-e $ifile);
   rmtree($sdir);
