@@ -45,7 +45,11 @@ void SlotDisconnect::CleanPrimitives()
 //______________________________________________________________________________
 void SlotDisconnect::Disconnect()
 {
-   if (fMaster){  fMaster->MakeViewerNil();/*fMaster->fViewer = 0; printf("SlotDisconnect::Disconnect()\n"); */fMaster->Disconnect(); } 
+   if (fMaster){  
+      fMaster->MakeViewerNil();
+      /*fMaster->fViewer = 0; printf("SlotDisconnect::Disconnect()\n"); */
+      fMaster->Disconnect(); 
+   } 
 }
 //______________________________________________________________________________
 void SlotDisconnect::DestroyMaster()
