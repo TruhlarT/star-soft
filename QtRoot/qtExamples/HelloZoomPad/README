@@ -24,7 +24,7 @@ the zooming widget and connect it with the TCanvas objects:
        and connect the TCanvas""Selected" ROOT signal to the 
        TQtZoomPadWidget::Selected ROOT slot
 
-       > root.exe $ROOTSYS/tutorials/h1draw_zoom.C
+       > root.exe h1draw_zoom.C
        
 
     4. Click over any TPad with the middle mouse button to popup the zoomer widget;
