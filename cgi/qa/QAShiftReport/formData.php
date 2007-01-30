@@ -260,8 +260,8 @@ fbutton("Reset","Reset","document.dataForm.reset()");
 print "</center>\n";
 fend();
 
-fstart("lookupForm","http://www.star.bnl.gov/cgi-bin/qa/showRun.pl",
-       "QAshowRun","GET",0);
+fstart("lookupForm","showRun.php",
+       "QAshowRun","POST",0);
 fhidden("run",0);
 fend();
 

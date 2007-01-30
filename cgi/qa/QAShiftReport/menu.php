@@ -97,7 +97,7 @@ mymkhref("wrapup.php","Finish &amp; Submit");
 Newrow("#ffcc9f");
 mymkhref("issueEditor.php","Open Issue Browser/Editor","QAifr");
 Newrow("#ffcc9f");
-mymkhref2("/cgi-bin/qa/showRun.pl","Open Report Archive","QAafr");
+mymkhref2("showRun.php","Open Report Archive","QAafr");
 
 if (defd($work)) {
 Newrow("#ffbc9f");
