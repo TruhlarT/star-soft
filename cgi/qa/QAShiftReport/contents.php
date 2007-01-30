@@ -69,7 +69,7 @@ if (file_exists($infoFile)) {
   print "</td><td>\n";
   fbutton("Einfo","Edit","Edit('Info','yes',0)");
 } else {
-  print "<tr><td colspan=3>\n";
+  print "<tr><td colspan=3 bgcolor=#ffbc9f>\n";
   print "<b>YOU NEED TO RE-ENTER YOUR SHIFT INFO!</b>\n";
 }
 print "</td></tr>\n\n";
@@ -83,10 +83,12 @@ foreach ($ents as $typ => $entN) {
     print "<tr><td><br></td></tr>\n<tr><td colspan=3>\n";
     print "$entN data entries:\n<br>\n";
     print "</td></tr>\n";
+    $duplicates = 0;
+    $listOfRFS = array();
     foreach ($entFiles as $k => $entFile) {
       $entFileEnd = substr($entFile,3);
       $numb = intval(substr($entFileEnd,0,strpos($entFileEnd,".data")));
-      if ($rpt = readEntry($typ,$numb));
+      if ($entr = readEntry($typ,$numb));
         $dname = "del" . $numA;
         print "<tr><td>\n";
         print "<input type=checkbox name=${dname}";
@@ -95,8 +97,9 @@ foreach ($ents as $typ => $entN) {
         $allents .= d2tdelim() . $entFile;
 
         # insert run/fseq:
-        $rptinfo = $rpt->info;
-        $runfseq = $rptinfo[runid] . " / " . $rptinfo[fseq];
+        $runfseq = $entr->info["runid"] . " / " . $entr->info["fseq"];
+        if (isset($listOfRFS[$runfseq])) $duplicates = 1;
+        else $listOfRFS[$runfseq] = 1;
 
         mkhref("showRep.php?content=${entFile}","${numb} : ${runfseq}","new");
         print "</td><td>\n";
@@ -106,11 +109,14 @@ foreach ($ents as $typ => $entN) {
         print "</td></tr>\n\n";
         $numA++;
     }
-    print "<p>\n\n";
+    if ($duplicates) {
+      print "<tr><td colspan=3 bgcolor=#ffbc9f>\n";
+      print "WARNING: duplicate run / file sequence entries!\n</td></tr>\n\n";
+    }
   }
 }
 
-print "</table><p>\n";
+print "</table><p>\n\n";
 
 if ($numA > 0) {
   fhidden("mode","Delete");
