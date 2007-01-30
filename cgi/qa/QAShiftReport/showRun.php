@@ -131,7 +131,7 @@ if ($byrun) {
       $fnames = split("[_.]",$fname);
       $runslist[$fnames[0]] = 1;
       if ($mode > 2 && $fnames[0] == $run) {
-        $link = readText($byrundaydir . $fname);
+        $link = ($mode > 3 ? readText($byrundaydir . $fname) : "");
         if (substr($link,0,5) != "/STAR") $link = "/STAR" . $link;
         if ($fnames[3] == "fast") $replistFast[] = array($fnames[1],$fnames[2],$link);
         else $replist[] = array($fnames[1],$fnames[2],$link);
