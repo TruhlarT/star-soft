@@ -1,4 +1,4 @@
-// @(#)root/qtgsi:$Name:  $:$Id: TQRootCanvas.cxx,v 1.2 2006/09/22 17:27:11 fine Exp $
+// @(#)root/qtgsi:$Name:  $:$Id: TQRootCanvas.cxx,v 1.3 2007/01/30 02:56:37 fine Exp $
 // Author: Denis Bertini, M. Al-Turany  01/11/2000
 
 /*************************************************************************
@@ -10,6 +10,7 @@
  *************************************************************************/
 
 #include "Riostream.h"
+#include "TROOT.h"
 #include "qevent.h"
 #include "qdialog.h"
 #include "qpushbutton.h"

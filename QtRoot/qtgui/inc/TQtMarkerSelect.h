@@ -67,8 +67,8 @@ public :
 
 #ifndef __CINT__
 signals :
-#endif // #ifndef __CINT__
    void StyleSelected ( Style_t markerStyle );
+#endif // #ifndef __CINT__
 #ifndef Q_MOC_RUN
 //MOC_SKIP_BEGIN
    ClassDef ( TQtMarkerSelect, 0 ) // style selection checkbutton

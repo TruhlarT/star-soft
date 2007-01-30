@@ -9,6 +9,7 @@
 **
 *****************************************************************************/
 #include "TObject3DView.h"
+#include "TROOT.h"
 #include "TColor.h"
 #include "TVolume.h"
 #include "TVolumeView.h"

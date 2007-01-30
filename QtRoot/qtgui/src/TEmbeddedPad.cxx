@@ -1,4 +1,4 @@
-// @(#)root/base:$Name:  $:$Id: TEmbeddedPad.cxx,v 1.2 2006/09/22 17:27:11 fine Exp $
+// @(#)root/base:$Name:  $:$Id: TEmbeddedPad.cxx,v 1.3 2007/01/30 02:56:37 fine Exp $
 // Author: Valeri Fine   02/18/2006
 
 /****************************************************************************
@@ -27,7 +27,7 @@
 #include "TEmbeddedPad.h"
 #include "TStyle.h"
 #include "TView.h"
-
+#include "TMath.h"
 #ifdef R__QT
 #  include "TGQt.h"
 #  include "TQtWidget.h"

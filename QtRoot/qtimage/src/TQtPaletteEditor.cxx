@@ -1,4 +1,4 @@
-// @(#)root/asimage:$Name:  $:$Id: TQtPaletteEditor.cxx,v 1.1 2006/08/16 19:27:08 fine Exp $
+// @(#)root/asimage:$Name:  $:$Id: TQtPaletteEditor.cxx,v 1.2 2007/01/30 02:56:38 fine Exp $
 // Author: Reiner Rohlfs   24/03/2002
 
 /*************************************************************************
@@ -44,7 +44,7 @@
 #include "TDirectory.h"
 #include "TFile.h"
 #include "TLine.h"
-
+#include "TMath.h"
 static const char *gFileTypes[] = {
    "ROOT palette file",  "*.pal.root",
    "ASCII palette file", "*.pal.txt",
