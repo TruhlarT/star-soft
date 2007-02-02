@@ -47,6 +47,7 @@ protected:
      TQtZoomPadWidget *fZoomer;
      TCanvas          *fZoomCanvas;
      bool              fOwnZoom;// do we own fZoomer;
+     QString           fUUID; // Unique ID to compare the Web pages
 
 
      virtual  int  CreateMapPage(TVirtualPad *pad);

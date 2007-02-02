@@ -1,4 +1,5 @@
 #include "TQtCanvas2Html.h"
+#include "TUUID.h"
 
 #if QT_VERSION >= 0x40000
 //Added by qt3to4:
@@ -19,7 +20,8 @@
 #include "TGQt.h"
 #include "TSystem.h"
 #include "TH1.h"
-
+#include "TList.h"
+#include "TIterator.h"
 // fgPrefix = "Root_Qt_Canvas";
 
 //______________________________________________________________________________________________
@@ -67,7 +69,9 @@ TQtCanvas2Html::TQtCanvas2Html(TQtWidget *canvas, uint width, uint height, const
 void TQtCanvas2Html::MakePage(float zoom,uint width, uint height)
 {
    // Open and generate html and png files
-
+   // Make UUID
+   TUUID id;
+   fUUID = id.AsString();
    fTargetWindow = "Zoom_";
    TVirtualPad *pad = Pad();
    if (pad) fTargetWindow += pad->GetName();
@@ -122,7 +126,7 @@ void TQtCanvas2Html::CreateRectArea(const QString &name,const QString &title
     Html() << " SHAPE=RECT COORDS=";           Quote();
     Html() <<
         QString("%1,%2,%3,%4").arg(upperLeft_x).arg(upperLeft_y).arg(lowRight_x).arg(lowRight_y);
-    Quote() << " target="; Quote() << fTargetWindow; Quote();
+    Quote() << " target="; Quote() << fTargetWindow << fUUID; Quote();
     Quote() << ">"; Eol();
 }
 
