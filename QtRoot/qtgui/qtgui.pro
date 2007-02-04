@@ -117,6 +117,7 @@ HEADERS += inc/TBrowserCustom.h       \
            inc/TQtPixmapBox.h         \
            inc/TQtMarkerSelect.h      \
            inc/TQtMarkerSelectButton.h\
+           inc/TQtFloatSlider.h       \
            inc/TQtCustomizeCanvasMenu.h
 
 
@@ -153,6 +154,7 @@ SOURCES += src/TQtMarkerSelect.cxx      \
            src/TQtToolBar.cxx           \
            src/TQtStyleComboBox.cxx     \
            src/TQtGui.cxx               \
+           src/TQtFloatSlider.cxx       \
            src/TQtObjectListItemInterface.cxx
            
            

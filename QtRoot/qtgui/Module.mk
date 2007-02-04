@@ -1,4 +1,4 @@
-# $Id: Module.mk,v 1.2 2006/09/22 17:27:10 fine Exp $
+# $Id: Module.mk,v 1.3 2007/02/04 16:50:19 fine Exp $
 # Module.mk for qtgui module
 # Copyright (c) 2001 Valeri Fine
 #
@@ -23,7 +23,8 @@ QTGUIH1        := $(MODDIRI)/TQtGuiFactory.h        $(MODDIRI)/TBrowserCustom.h 
                   $(MODDIRI)/TQtPatternSelect.h     $(MODDIRI)/TQtTabValidator.h  \
                   $(MODDIRI)/TEmbeddedPad.h         $(MODDIRI)/TQtColorSelect.h   \
                   $(MODDIRI)/TQtZoomPadWidget.h     $(MODDIRI)/TQGsiRootCanvas.h  \
-                  $(MODDIRI)/TQtPad2Html.h          $(MODDIRI)/TQtCanvas2Html.h   
+				  $(MODDIRI)/TQtPad2Html.h          $(MODDIRI)/TQtCanvas2Html.h   \
+                  $(MODDIRI)/TQtMarkerSelect.h      $(MODDIRI)/TQtPixmapBox.h   
                
 QTGUIH          := $(filter-out $(MODDIRI)/LinkDef%,$(wildcard $(MODDIRI)/*.h))
 
@@ -36,7 +37,9 @@ QTGUIMOCH     := $(ROOTQTGUIDIRI)/TQtBrowserImp.h          $(ROOTQTGUIDIRI)/TQtC
                  $(ROOTQTGUIDIRI)/TQtObjectDialog.h        $(ROOTQTGUIDIRI)/TQtPatternSelect.h     \
                  $(ROOTQTGUIDIRI)/TQtPatternSelectButton.h $(ROOTQTGUIDIRI)/TQtRootBrowserAction.h \
                  $(ROOTQTGUIDIRI)/TQtZoomPadWidget.h       $(ROOTQTGUIDIRI)/TQtToolBar.h           \
-                 $(ROOTQTGUIDIRI)/TQGsiRootCanvas.h
+                 $(ROOTQTGUIDIRI)/TQtMarkerSelect.h        $(ROOTQTGUIDIRI)/TQtPixmapBox.h         \
+                 $(ROOTQTGUIDIRI)/TQGsiRootCanvas.h        $(ROOTQTGUIDIRI)/TQtMarkerSelectButton.h\
+                 $(ROOTQTGUIDIRI)/TQtFloatSlider.h   
 
 
 QTGUIMOC        := $(subst $(MODDIRI)/,$(MODDIRS)/moc_,$(patsubst %.h,%.cxx,$(QTGUIMOCH)))
@@ -61,8 +64,14 @@ QTGUILIB        := $(LPATH)/libQtRootGui.$(SOEXT)
 
 QTGUIOBJEXTRA   := $(QTGUIMOCO)
 
+QCUSTOMWIDGETS += $(ROOTQTGUIDIRI)/TQtColorSelectButton.cw  $(ROOTQTGUIDIRI)/TQtLineStyleComboBox.cw   \
+                  $(ROOTQTGUIDIRI)/TQtFloatSlider.cw        $(ROOTQTGUIDIRI)/TQtLineWidthComboBox.cw   \
+                  $(ROOTQTGUIDIRI)/TQtFloatSpinBox.cw       $(ROOTQTGUIDIRI)/TQtPatternSelectButton.cw \
+                  $(ROOTQTGUIDIRI)/TQtFontComboBox.cw
+
 # used in the main Makefile
 ALLHDRS     += $(patsubst $(MODDIRI)/%.h,include/%.h,$(QTGUIH))
+ALLHDRS     += $(patsubst $(ROOTQTGUIDIRI)/%.cw,include/%.cw,$(QCUSTOMWIDGETS))
 ALLLIBS     += $(QTGUILIB)
 
 # include all dependency files
@@ -70,6 +79,9 @@ INCLUDEFILES += $(QTGUIDEP)
 
 ##### local rules #####
 include/%.h:    $(ROOTQTGUIDIRI)/%.h
+		cp $< $@
+		
+include/%.cw:   $(ROOTQTGUIDIRI)/%.cw
 		cp $< $@
 
 $(QTGUILIB):    $(QTGUIO) $(QTGUIDO) $(QTGUIMOCO)  $(ORDER_) $(MAINLIBS) $(QTGUILIBDEP)

@@ -13,6 +13,9 @@ with the 3 "Custom widget" from QtRootGui library of QtRoot system:
        TQtFloatSpinBox.h        - To input the float point values
                                   (The QSpinBox works with the integers only)
 
+       TQtFloatSlider           - To input the float point values
+                                  (The QSlider works with the integers only)
+
        TQtColorSelectButton.h   - To select the ROOT color from 
                                   the color box dialog
 
@@ -33,6 +36,7 @@ with the 3 "Custom widget" from QtRootGui library of QtRoot system:
                                   Qt QComboBox with the images of TText ROOT object 
                                   with the different values of the ROOT  "font number" 
                                   attribute to choose from.
+
 
 See: http://root.cern.ch/phpBB2/viewtopic.php?t=2529
      http://root.bnl.gov/QtRoot/QtRoot.html#designer
