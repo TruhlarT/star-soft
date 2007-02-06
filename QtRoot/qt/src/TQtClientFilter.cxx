@@ -1,4 +1,4 @@
-// $Id: TQtClientFilter.cxx,v 1.2 2006/12/12 02:32:26 fine Exp $
+// $Id: TQtClientFilter.cxx,v 1.3 2007/02/06 20:14:17 fine Exp $
 // Author: Valeri Fine   21/01/2003
 /****************************************************************************
 **
@@ -10,7 +10,7 @@
 ** LICENSE.QPL included in the packaging of this file.
 **
 *****************************************************************************/
-#include <assert.h>
+
 #include "TQtClientFilter.h"
 #include "TQtRConfig.h"
 
@@ -38,7 +38,7 @@
 #include <QResizeEvent>
 #include <QMouseEvent>
 #endif /* QT_VERSION */
-
+#include <cassert>
 #include "KeySymbols.h"
 #define QTCLOSE_DESTROY_RESPOND 1
 
@@ -438,6 +438,9 @@ bool TQtClientFilter::eventFilter( QObject *qWidget, QEvent *e ){
          
       case QEvent::MouseButtonPress:     // mouse button pressed
          event.fType   = kButtonPress;
+      case QEvent::MouseButtonDblClick:
+         if (e->type()== QEvent::MouseButtonDblClick)
+            event.fType   = kButtonDoubleClick;
          mouseEvent = (QMouseEvent *)e;
          MapEvent(*mouseEvent,event);
          selectEventMask |=  kButtonPressMask;
@@ -446,14 +449,10 @@ bool TQtClientFilter::eventFilter( QObject *qWidget, QEvent *e ){
               &&  fButtonGrabList.findRef(frame) >=0 
               &&  frame->IsGrabbed(event) )
          {
- //           mouseEvent->accept();
             GrabPointer(frame, frame->ButtonEventMask(),0,frame->GrabButtonCursor(), kTRUE,kFALSE);
-
-            // fprintf(stderr," 1. -- QEvent::MouseButtonPress -- Check the redundant grabbing %p frame %p \n", QWidget::mouseGrabber(), frame);
             // Make sure fgButtonGrabber is Ok. GrabPointer zeros fgButtonGrabber!!!
             fgButtonGrabber = frame;
             grabSelectEvent = kTRUE;
-            // fprintf(stderr," 2. -- QEvent::MouseButtonPress --  turn grabbing on id = %x widget = %p, event=%p\n", TGQt::rootwid(frame), frame,e);
          }
          else {
             grabSelectEvent = SelectGrab(event,selectEventMask,*mouseEvent);
@@ -480,17 +479,6 @@ bool TQtClientFilter::eventFilter( QObject *qWidget, QEvent *e ){
          else {
             grabSelectEvent = SelectGrab(event,selectEventMask,*mouseEvent);
           }
-         break;
-
-      case QEvent::MouseButtonDblClick:
-#if ROOT_VERSION_CODE >= ROOT_VERSION(4,00,1)
-         event.fType   = kButtonDoubleClick;
-          // the rest code is taken from kButtonPress
-         mouseEvent = (QMouseEvent *)e;
-         MapEvent(*mouseEvent,event);
-         selectEventMask |=  kButtonPressMask;
-         grabSelectEvent = SelectGrab(event,selectEventMask,*mouseEvent);
-#endif
          break;
 
       case QEvent::MouseMove:            // mouse move
