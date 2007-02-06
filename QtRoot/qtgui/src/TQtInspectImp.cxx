@@ -1,6 +1,6 @@
 // Author: Valeri Fine   21/01/2002
 /****************************************************************************
-** $Id: TQtInspectImp.cxx,v 1.2 2006/09/22 17:27:11 fine Exp $
+** $Id: TQtInspectImp.cxx,v 1.3 2007/02/06 19:34:46 fine Exp $
 **
 ** Copyright (C) 2002 by Valeri Fine. Brookhaven National Laboratory.
 **                                    All rights reserved.
@@ -18,6 +18,8 @@
 #include "TRealData.h"
 #include "TDataType.h"
 #include "TDataMember.h"
+#include "TIterator.h"
+#include "TList.h"
 #include "TLink.h"
 #include "TDatime.h"
 

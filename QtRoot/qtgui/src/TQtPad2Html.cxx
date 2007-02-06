@@ -1,4 +1,4 @@
-// @(#)root/gui:$Name:  $:$Id: TQtPad2Html.cxx,v 1.2 2006/09/22 17:27:11 fine Exp $
+// @(#)root/gui:$Name:  $:$Id: TQtPad2Html.cxx,v 1.3 2007/02/06 19:34:46 fine Exp $
 // Author: Valeri Fine 07/06/2006
 /****************************************************************************
 **
@@ -12,7 +12,6 @@
 *****************************************************************************/
 
 #include "TQtPad2Html.h"
-
 #if QT_VERSION >= 0x40000
 //Added by qt3to4:
 #  include <QTextStream>
@@ -33,7 +32,8 @@
 #include "TQtWidget.h"
 #include "TGQt.h"
 #include "TSystem.h"
-
+#include "TIterator.h"
+#include "TList.h"
 // fgPrefix = "Root_Qt_Canvas";
 
 //__________________________________________________________________________________
