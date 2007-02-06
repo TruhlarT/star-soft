@@ -1,4 +1,4 @@
-// @(#)root/qt:$Name:  $:$Id: TQtMarker.h,v 1.2 2007/01/23 16:48:50 fine Exp $
+// @(#)root/qt:$Name:  $:$Id: TQtMarker.h,v 1.3 2007/02/06 21:00:23 fine Exp $
 // Author: Valeri Fine   21/01/2002
 /****************************************************************************
 **
@@ -12,9 +12,9 @@
 #ifndef ROOT_TQtMarker
 #define ROOT_TQtMarker
 
-#include "Gtypes.h"
-#include "Rtypes.h"
+#ifndef ROOT_TPoint
 #include "TPoint.h"
+#endif
 
 #ifndef __CINT__
 #  include "qglobal.h"
