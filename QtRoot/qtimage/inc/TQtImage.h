@@ -1,4 +1,4 @@
-// @(#)root/asimage:$Name:  $:$Id: TQtImage.h,v 1.2 2006/08/22 14:40:13 fine Exp $
+// @(#)root/asimage:$Name:  $:$Id: TQtImage.h,v 1.3 2007/02/06 19:46:22 fine Exp $
 // Author: Valeri Fine 7/02/2004
 
 /*************************************************************************
@@ -43,7 +43,7 @@
 #ifndef ROOT_TImage
 #include "TImage.h"
 #endif
-
+#include "TList.h"
 class QImage;
 class QPixmap;
 

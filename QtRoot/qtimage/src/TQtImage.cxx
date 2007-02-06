@@ -1,4 +1,4 @@
-// @(#)root/asimage:$Name:  $:$Id: TQtImage.cxx,v 1.1 2006/08/16 19:27:08 fine Exp $
+// @(#)root/asimage:$Name:  $:$Id: TQtImage.cxx,v 1.2 2007/02/06 19:46:23 fine Exp $
 // Author: Valeri Fine   2/02/2004
 
 /*************************************************************************
@@ -52,7 +52,7 @@
 #include "TColor.h"
 #include "TObjArray.h"
 #include "TQtPaletteEditor.h"
-
+#include "TMath.h"
 const Int_t kFRS = 5;  // size of frame of image on pad in pixels
 
 ClassImp(TQtImage)
