@@ -2084,6 +2084,7 @@ void TQtCoinWidget::SetCliPlaneMan(Bool_t on)
         connect(fPlaneEditor,SIGNAL(Orientation()),this,SLOT(ViewAll()));
      }
      fPlaneEditor->SetCamera(&Camera());
+     fPlaneEditor->SetClipMan(fClipPlaneMan);
      fPlaneEditor->show();
      
   } else if (fClipPlaneMan) {

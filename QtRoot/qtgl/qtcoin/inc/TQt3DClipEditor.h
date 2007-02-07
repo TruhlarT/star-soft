@@ -4,13 +4,18 @@
 
 class SoClipPlaneManip;
 class SoCamera;
+class QVButtonGroup;
 
 class TQt3DClipEditor : public QDockWindow {
   Q_OBJECT
   private:
 
-    SoClipPlaneManip *fPlaneEditor;
     SoCamera         *fCamera;
+    QVButtonGroup    *fCameraGroup;
+
+    SoClipPlaneManip *fPlaneEditor;
+    QVButtonGroup    *fPlaneGroup;
+
 
   protected:
     void BuildWidget();
@@ -25,6 +30,7 @@ class TQt3DClipEditor : public QDockWindow {
       SoClipPlaneManip *ClipMan() const;
       SoCamera *Camera() const;
    public slots:
+      void CameraSelected(int);
       void PlaneSelected(int);
 signals:
       void Orientation();
