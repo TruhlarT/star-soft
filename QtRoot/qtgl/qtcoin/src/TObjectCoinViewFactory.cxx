@@ -1,4 +1,8 @@
-// @(#)root/gtgl:$Name:  $:$Id: TObjectCoinViewFactory.cxx,v 1.6 2007/01/13 20:40:57 fine Exp $
+<<<<<<< TObjectCoinViewFactory.cxx
+// @(#)root/gtgl:$Name:  $:$Id: TObjectCoinViewFactory.cxx,v 1.7 2007/02/07 23:10:10 fine Exp $
+=======
+// @(#)root/gtgl:$Name:  $:$Id: TObjectCoinViewFactory.cxx,v 1.7 2007/02/07 23:10:10 fine Exp $
+>>>>>>> 1.29
 // Author: Valery Fine      24/09/06
 
 /****************************************************************************
@@ -51,7 +55,16 @@ static inline void SetView(TObject3DView *view, const SoGroup *node)
      node->ref(); // this node to be release by Release method
      view->SetViewID(ULong_t ( node ) );
 }
-
+//____________________________________________________________________________________________________________________
+static void SetName(SoNode *node, const char *name) 
+{
+    // Make sure the name has no "invalid symbols"
+   if (node && name && name[0]) {
+      TString n  = name;
+      n.ReplaceAll(" ","_");
+      node->setName(n.Data());
+   }
+}
 //____________________________________________________________________________________________________________________
 static inline TObject3DView *OpenView(TObject3DViewFactoryABC  *aFactory) 
 {  
@@ -76,7 +89,7 @@ void TObjectCoinViewFactory::AddChild(TObject3DView * parent, TObject3DView *chi
    if (parent && child) {
       if (parent->GetViewId() == 0) {
          SoGroup * p = new SoGroup();
-         p->setName(parent->GetTitle());
+         SetName(p,parent->GetTitle());
          p->setUserData((void*)parent);
          SetView(parent , p );
       }
@@ -85,7 +98,7 @@ void TObjectCoinViewFactory::AddChild(TObject3DView * parent, TObject3DView *chi
          // fprintf(stderr,"\tnew child %s \n", child->GetTitle());
          // assert(0);
          SoGroup * c = new SoGroup();
-         c->setName(child->GetTitle());
+         SetName(c,child->GetTitle());
          c->setUserData((void*)child);
          SetView(child , c );
       }
@@ -110,7 +123,7 @@ TObject3DView *TObjectCoinViewFactory::BeginModel(TObject3DView *rootView)
    if (rootView) {}
    TObject3DView *view = new TObject3DView(this);
    SoSeparator *separator = new SoSeparator();
-   separator->setName(rootView->GetObject()->GetTitle());
+   SetName(separator, rootView->GetObject()->GetTitle());
 //   separator->renderCaching = SoSeparator::ON;
 //   separator->boundingBoxCaching = SoSeparator::ON;
    SetView(view , separator );
