@@ -4,21 +4,23 @@
 # Basic setup
 #
 
-    $bdir = "/tmp/QA/";
+    # Base directory for working on reports:
     $bdir = "/afs/rhic.bnl.gov/star/doc/www/html/tmp/pub/QA/";
-    $elog = $bdir . "log/QAlog.txt";
-    $webDir = dirname($_SERVER["SCRIPT_NAME"]) . "/";
-    $webHost .= "http://" . $_SERVER["HTTP_HOST"];
-    $webFullDir = $webHost . $webDir;
-    #historically, webDir did not include "/STAR"...
-    if (substr($webDir,0,5) == "/STAR") { $webDir = substr($webDir,5); }
-    $hdir = dirname($_SERVER["PATH_TRANSLATED"]) . "/";
-    $htmldir = "html/";
-    $htmlfull = $hdir . $htmldir;
-    $refphp = $refphp = basename($_SERVER["PHP_SELF"],".php");
-    function incl($file) { global $incdir; include_once($incdir . $file); }
-    
 
+    # Web directory of web-access scripts
+    $webdir = "http://" . $_SERVER["HTTP_HOST"] .
+                  dirname($_SERVER["SCRIPT_NAME"]) . "/";
+    # File system directory of web-access scripts
+    $fsdir = dirname($_SERVER["PATH_TRANSLATED"]) . "/";
+
+    # Log file
+    $elog = $bdir . "log/QAlog.txt";
+
+    function incl($file) {
+      global $incdir;
+      @(include_once $incdir . $file) or die("Problems (2).");
+    }
+    
     incl("shift.php");
     incl("logit.php");
     
@@ -27,13 +29,12 @@
 # Page functions
 #
     function head($title) {
-      global $htmldir;
-      include("${htmldir}head.html");
+      incl("head.html");
       print $title;
-      include("${htmldir}head2.html");
+      incl("head2.html");
     }
-    function body()       { global $htmldir; include("${htmldir}body.html"); }
-    function foot()       { global $htmldir; include("${htmldir}foot.html"); }
+    function body() { incl("body.html"); }
+    function foot() { incl("foot.html"); }
     
     
 ###############################
@@ -51,10 +52,10 @@
       jend();
     }
     function needSesName() {
-      global $webFullDir;
+      global $webdir;
       $ses = GetSesName();
       if (!defd($ses)) {
-        header("location: ${webFullDir}sessions.php");
+        header("location: ${webdir}sessions.php");
 	exit;
       }
       return $ses;
@@ -156,7 +157,7 @@ incl("forms.php");
     }
     function mkhref($ref,$val,$trg="QArfr",$onc="") {
       global $webFullFir;
-      mkhref2($webFullDir . $ref,$val,$trg,$onc);
+      mkhref2($webdir . $ref,$val,$trg,$onc);
     }
     function mkhref2($ref,$val,$trg="QArfr",$onc="") {
       print "<a href=\"${ref}\" target=\"${trg}\"";

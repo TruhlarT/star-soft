@@ -2,10 +2,10 @@
 # Forms HTML    
 				
     function fstart($name,$action,$target="QArfr",$meth="POST",$auto=1) {
-      global $webFullDir;
+      global $webdir;
       #print "<form name=\"${name}\" action=\"${action}\" ";
       print "<form name=\"${name}\" action=\"";
-      if ($auto==1) { print $webFullDir; }
+      if ($auto==1) { print $webdir; }
       print $action . "\" method=\"${meth}\" target=${target}>\n";
     }
 

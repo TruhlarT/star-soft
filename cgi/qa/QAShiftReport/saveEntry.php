@@ -4,7 +4,7 @@
 # Take care of saving a data entry/info/wrapup to file
 #
 
-include("setup.php");
+include "setup.php";
 incl("entry.php");
 incl("infohandling.php");
 
@@ -34,7 +34,7 @@ if ($type == "Info") {
   }
   if ($estr != "") {
     getPassedVarStrict("work");
-    header("location: ${webFullDir}info.php?work=${work}&mode=Error${estr}");
+    header("location: ${webdir}info.php?work=${work}&mode=Error${estr}");
     exit;
   }
 
@@ -68,7 +68,7 @@ if ($type == "Info") {
     $entr->Save();
     logit("Saved entry: temp");
     $passStr = "type=${type}&num=-${num}&editit=yes&issueYear=${issueYear}";
-    header("location: ${webFullDir}formData.php?${passStr}");
+    header("location: ${webdir}formData.php?${passStr}");
     exit;
   }
 
@@ -79,7 +79,7 @@ if ($type == "Info") {
 }
 
 # View the entries so far
-header("location: ${webFullDir}contents.php?mode=View");
+header("location: ${webdir}contents.php?mode=View");
 exit;
 
 ?>

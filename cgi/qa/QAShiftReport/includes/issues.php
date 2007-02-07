@@ -133,8 +133,8 @@ class Issue {
 
 # Functions for issue directories and file names
 function getIssWebLink($id) {
-  global $webFullDir;
-  return $webFullDir . "issueEditor.php?iid=${id}";
+  global $webdir;
+  return $webdir . "issueEditor.php?iid=${id}";
 }
 function getIssDir() {
   global $bdir,$issueYear;

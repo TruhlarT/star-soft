@@ -1,4 +1,4 @@
 <?php
-$incdir = "temp_include/";
-include($incdir . "base.php");
+$incdir = "QA/";
+@(include_once $incdir . "base.php") or die("Problems (1).");
 ?>

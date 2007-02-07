@@ -1,6 +1,6 @@
 <?php
 
-include("setup.php");
+include "setup.php";
 incl("entry.php");
 
 # Routes:
@@ -17,7 +17,7 @@ getPassedInt("issueYear",1);
 
 if ($type == "Info") {
   getPassedVarStrict("work");
-  header("location: ${webFullDir}info.php?mode=Edit&work=${work}");
+  header("location: ${webdir}info.php?mode=Edit&work=${work}");
   exit;
 }
 

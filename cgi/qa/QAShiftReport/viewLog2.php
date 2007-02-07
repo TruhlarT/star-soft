@@ -1,5 +1,5 @@
 <?php
-include("setup.php");
+include "setup.php";
 head("QAlog2");
 body();
 print "<pre>";

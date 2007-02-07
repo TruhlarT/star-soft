@@ -1,5 +1,5 @@
 <?php
-include("setup.php");
+include "setup.php";
 
 
 # Request mode
@@ -106,7 +106,7 @@ print "By Run year / day / number / sequence :<br>\n";
 if ($byrun) print "</font>\n";
 
 print "<select name=runyear onchange=\"rform.mode.value=1;submit()\">\n";
-$byrundir = $hdir . "runFileSeqIndex/";
+$byrundir = $fsdir . "runFileSeqIndex/";
 print "<option value=0 disabled" . (!$byrun ? " selected" : "") . ">year</option>\n";
 foreach (dirlist($byrundir,"","",1) as $k => $runyears) {
   print "<option value=$runyears";
@@ -132,7 +132,6 @@ if ($byrun) {
       $runslist[$fnames[0]] = 1;
       if ($mode > 2 && $fnames[0] == $run) {
         $link = ($mode > 3 ? readText($byrundaydir . $fname) : "");
-        if (substr($link,0,5) != "/STAR") $link = "/STAR" . $link;
         if ($fnames[3] == "fast") $replistFast[] = array($fnames[1],$fnames[2],$link);
         else $replist[] = array($fnames[1],$fnames[2],$link);
       }
@@ -155,7 +154,7 @@ if ($byrun) {
             print "<option value=$runIndices";
             if ($mode > 3 && $runIndices == $runIndex) {
               print " selected";
-              $repfile = $webHost . $runInfo[2];
+              $repfile = $webdir . $runInfo[2];
             }
             print ">" . $runInfo[0] . " (" . $runInfo[1] . ")</option>\n";
           }
@@ -168,7 +167,7 @@ if ($byrun) {
             print "<option value=$runIndices";
             if ($mode > 3 && $runIndices == $runIndex) {
               print " selected";
-              $repfile = $webHost . $runInfo[2];
+              $repfile = $webdir . $runInfo[2];
             }
             print ">" . $runInfo[0] . " (" . $runInfo[1] . ")</option>\n";
           }
@@ -196,7 +195,7 @@ foreach (array("FAST OFFLINE","OFFLINE") as $k => $type) {
 if ($byrep) {
   print "</select> / <select name=repyrmo onchange=\"rform.mode.value=12;submit()\">\n";
   print "<option value=0 disabled" . ($mode==11 ? " selected" : "") . ">year/month</option>\n";
-  $byrepdir = $hdir . "archive";
+  $byrepdir = $fsdir . "archive";
   if ($reptype == 1) $byrepdir .= "Online";
   $oldyear = 0;
   $yrmo_subdir = "";
@@ -234,7 +233,7 @@ if ($byrep) {
       print "<option value=$repnums";
       if ($mode > 12 && $repnums == $repnum) {
         print " selected";
-        $repfile = substr($byrepdatedir,strlen($hdir)) . "/" . $rfile;
+        $repfile = substr($byrepdatedir,strlen($fsdir)) . "/" . $rfile;
       }
       print ">$repnums</option>\n";
     }

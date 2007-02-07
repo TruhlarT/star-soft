@@ -1,6 +1,6 @@
 <?php
 
-include("setup.php");
+include "setup.php";
 incl("entrytypes.php");
 incl("infohandling.php");
 incl("data2text.php");

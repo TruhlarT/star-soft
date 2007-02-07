@@ -4,13 +4,13 @@
 # Form for entering shift info
 #
 
-include("setup.php");
+include "setup.php";
 incl("loadSession.php");
 
 getPassedVarStrict("work");
 
 if (!defd($work)) {
-  header("location: ${webFullDir}sessions.php");
+  header("location: ${webdir}sessions.php");
   exit;
 }
 
@@ -28,7 +28,7 @@ loadSes($work);
 # e) from info with error (mode = ErrorX) => info
 
 if (substr($mode,0,1) != "E") {
-  header("location: ${webFullDir}contents.php?mode=" . $mode);
+  header("location: ${webdir}contents.php?mode=" . $mode);
   exit;
 }
 

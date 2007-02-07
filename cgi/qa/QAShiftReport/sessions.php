@@ -1,6 +1,6 @@
 <?php
 
-include("setup.php");
+include "setup.php";
 
 $rhst = chop($_SERVER["REMOTE_ADDR"]);
 $rhsn = gethostbyaddr($rhst);

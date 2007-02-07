@@ -5,13 +5,13 @@ incl("infohandling.php");
 
 function d2tdelim() { return "###"; }
 function str2page($title,$str) {
-  global $htmlfull;
-  $output .= readText("${htmlfull}head.html");
+  global $incdir;
+  $output .= readText("${incdir}head.html");
   $output .= $title;
-  $output .= readText("${htmlfull}head2.html");
-  $output .= readText("${htmlfull}body.html");
+  $output .= readText("${incdir}head2.html");
+  $output .= readText("${incdir}body.html");
   $output .= $str;
-  $output .= readText("${htmlfull}foot.html");
+  $output .= readText("${incdir}foot.html");
   return $output;
 }
 

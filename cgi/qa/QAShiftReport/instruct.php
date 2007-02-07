@@ -1,6 +1,6 @@
 <?php
 
-include("setup.php");
+include "setup.php";
 
 head("STAR QA Shift Report Header");
 body();

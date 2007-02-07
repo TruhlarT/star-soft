@@ -1,6 +1,6 @@
 <?php
 
-include("setup.php");
+include "setup.php";
 
 global $slArray, $slFile;
 
@@ -22,11 +22,11 @@ function PrepShiftLog($date,$author,$comment) {
 }
 
 function PostToShiftLog() {
-  global $slArray, $slFile, $webFullDir;
+  global $slArray, $slFile, $webdir;
   logit("Post to shift log for author: " . $slArray["author"]);
   if (strlen($slArray["author"]) < 2) { return; }
   saveObject($slArray,$slFile);
-  $loc = "${webFullDir}shiftLog.php";
+  $loc = "${webdir}shiftLog.php";
 
 # temporary change from QAnfr to QAhfr to test for Mike
   jstart();

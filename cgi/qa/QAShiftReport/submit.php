@@ -1,6 +1,6 @@
 <?php
 
-include("setup.php");
+include "setup.php";
 incl("data2text.php");
 
 
@@ -15,7 +15,7 @@ saveWrapup($_POST,$ses);
 
 # Go back to contents if only saving:
 if ($mode == "SaveIt") {
-  header("location: ${webFullDir}contents.php?mode=View");
+  header("location: ${webdir}contents.php?mode=View");
   exit;
 }
 
@@ -121,7 +121,7 @@ foreach ($ents as $typ => $entN) {
 
 # Put a copy of the full report in the appropriate archive directory
 function Archive() {
-  global $reportFile,$archFile,$webDir,$webFile,$datestr,$fast,$bdir;
+  global $reportFile,$archFile,$webFile,$datestr,$fast,$bdir;
   $archDir = "archive";
   if ($fast != 0) { $archDir .= "Online"; }
   $archDir .= "/";
@@ -131,12 +131,11 @@ function Archive() {
   $acount++;
   saveObject($acount,$acntfile);
   $acountF = nDigits(4,$acount);
-  $archSubFile = "${archDir}${datestr}/Report_${datestr}_${acountF}.txt";
-  $archFile = $bdir . $archSubFile;
+  $webFile = "${archDir}${datestr}/Report_${datestr}_${acountF}.txt";
+  $archFile = $fsdir . $webFile;
   ckdir(dirname($archFile));
   copy($reportFile,$archFile);
   copy(HfromT($reportFile),HfromT($archFile));
-  $webFile = $webDir . $archSubFile;
 }
 
 # Trial filenames for archive links
@@ -205,7 +204,7 @@ function OutputExaminedRunFseq($typ) {
 
 # Main routine for archiving/linking/mailing reports & summaries
 function ArchAndMail($typs, $sendmail=1) {
-  global $startTxt,$info,$sesDir,$webFile,$archFile,$webHost;
+  global $startTxt,$info,$sesDir,$webFile,$archFile,$webdir;
   global $fast,$toFolks,$mode,$typecounts,$shift,$datestr2,$runFileSeqIndex;
   $runFileSeqIndex = readText($bdir . "rFSI.lis");
   Archive();
@@ -222,7 +221,7 @@ function ArchAndMail($typs, $sendmail=1) {
     if ($typecounts[$typ] > 0) { $sumTemp .= OutputExaminedRunFseq($typ); }
   }
 
-  $fullLink = $webHost . HfromT($webFile);
+  $fullLink = $webdir . HfromT($webFile);
 
   # output is the email summary, output2 is for the electronic shift log entry
 

@@ -1,6 +1,6 @@
 <?php
 
-include("setup.php");
+include "setup.php";
 incl("entry.php");
 
 # Reset all issue indices

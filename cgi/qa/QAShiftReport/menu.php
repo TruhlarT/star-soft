@@ -4,7 +4,7 @@
 # Frame for Table of Contents
 #
 
-include("setup.php");
+include "setup.php";
 incl("entrytypes.php");
 
 $work = getSesName();

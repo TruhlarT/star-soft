@@ -1,6 +1,6 @@
 <?php
 
-include("setup.php");
+include "setup.php";
 incl("infohandling.php");
 
 $ses = needSesName();
@@ -105,7 +105,7 @@ fend();
 
 # Make sure the QAnfr frame is blank (and not submit.php)
 jstart();
-print "  parent.QAnfr.location.href=\"${webFullDir}blank.html\";\n";
+print "  parent.QAnfr.location.href=\"${webdir}blank.html\";\n";
 jend();
 
 foot(); ?>
