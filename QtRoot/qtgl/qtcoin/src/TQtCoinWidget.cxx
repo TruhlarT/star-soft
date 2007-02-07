@@ -1171,7 +1171,7 @@ void TQtCoinWidget::Save(QString fileName,QString type)
                  img->SetImage(Pixmap_t(TGQt::rootwid(&finalPixmap)),0);
                  QString gifFile = thatFile;
 //                 if ( Recording() ) 
-                    gifFile += '+';
+                 gifFile += '+';
                  img->WriteImage((const char*)gifFile, 
 #if ROOT_VERSION_CODE >= ROOT_VERSION(5,13,0)            
                     TImage::kAnimGif);
