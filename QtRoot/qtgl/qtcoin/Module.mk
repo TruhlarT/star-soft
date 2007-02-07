@@ -1,5 +1,5 @@
-# Module.mk for qtgl module
-# Copyright (c) 2000 [BNL] Valeri Fine
+# Module.mk for qtcoin module
+# Copyright (c) 2006 [BNL] Valeri Fine
 # 
 # Author: Valeri Fine, 11/11/2002
 
@@ -47,7 +47,8 @@ QTCOIN3DMOC     := $(subst $(QTCOIN3DDIRI)/,$(QTCOIN3DDIRS)/moc_,$(patsubst %.h,
 QTCOIN3DMOCO    := $(QTCOIN3DMOC:.cxx=.o)
 
 QTCOIN3DS       += TObjectCoinViewFactory.cxx  TQtCoinWidget.cxx      TSimageMovie.cxx          \
-                    TCoinShapeBuilder.cxx       TQtCoinViewerImp.cxx  TQtRootCoinViewer3D.cxx
+                   TCoinShapeBuilder.cxx       TQtCoinViewerImp.cxx   TQtRootCoinViewer3D.cxx   \
+                   TQtCoin3DDefInterface.cxx   TQt3DClipEditor.cxx
                     
 QTCOIN3DS       := $(patsubst %,$(QTCOIN3DDIRS)/%,$(QTCOIN3DS))
 QTCOIN3DLIB     := $(LPATH)/libRQIVTGL.$(SOEXT)

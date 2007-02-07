@@ -1,6 +1,10 @@
 #include "TVirtualPad.h"
 #include "TContextMenu.h"
+#include "TImage.h"
+#include "TError.h"
+#include "TGQt.h"
 #include "THLimitsFinder.h"
+#include "TQt3DClipEditor.h"
 
 #include "TQVirtualGL.h"
 #include "TQPadOpenGLView.h"
@@ -474,7 +478,7 @@ TQtCoinWidget::TQtCoinWidget(QWidget *parent, COINWIDGETFLAGSTYPE f)
    //, fSelectionViewer(kFALSE),fSelectionHighlight(kFALSE),fShowSelectionGlobal(kFALSE)
    , fSnapShotAction(0),fBoxHighlightAction(0),fLineHighlightAction(0)
    , fWantClipPlane(kFALSE), fClipPlaneMan(0), fClipPlane(0),fHelpWidget(0),fRecord(kFALSE)
-   , fMovie(0),fMPegMovie(0)
+   , fMovie(0),fMPegMovie(0),fPlaneEditor(0)
 {
 }
 //______________________________________________________________________________
@@ -522,7 +526,7 @@ TQtCoinWidget::TQtCoinWidget(TVirtualPad *pad, const char *title,
    //, fSelectionViewer(kFALSE),fSelectionHighlight(kFALSE),fShowSelectionGlobal(kFALSE)
    , fSnapShotAction(0),fBoxHighlightAction(0),fLineHighlightAction(0)
    , fWantClipPlane(kFALSE), fClipPlaneMan(0), fClipPlane(0),fHelpWidget(0),fRecord(kFALSE)
-   , fMovie(0),fMPegMovie(0)
+   , fMovie(0),fMPegMovie(0),fPlaneEditor(0)
 {
    printf("TQtCoinWidget::TQtCoinWidget begin Pad=%p\n", pad);
    //Create the default SnapShot file name and type if any
@@ -639,6 +643,7 @@ TQtGLViewerImp::TQtGLViewerImp(TQtGLViewerImp &parent) :
 //______________________________________________________________________________
 TQtCoinWidget::~TQtCoinWidget()
 { 
+   if (fPlaneEditor)  { delete fPlaneEditor;    fPlaneEditor  = 0;}
    if (fInventorViewer) { SoQtExaminerViewer *viewer = (SoQtExaminerViewer*)fInventorViewer; fInventorViewer = 0; delete viewer; }
    if (fMPegMovie)    { delete fMPegMovie;      fMPegMovie    = 0;}
    if (fMovie)        { fMovie       ->unref(); fMovie        = 0;}
@@ -675,7 +680,14 @@ void TQtCoinWidget::AddRootChild(ULong_t id, EObject3DType type)
     };
    
    // Make myCamera see everything.
-   fCamera->viewAll(fRootNode, fInventorViewer->getViewportRegion());
+   ViewAll();
+}
+//______________________________________________________________________________
+void TQtCoinWidget::ViewAll()
+{
+   // Make myCamera see everything.
+   if (fCamera)
+      fCamera->viewAll(fRootNode, fInventorViewer->getViewportRegion());
 }
 
 //______________________________________________________________________________
@@ -1149,7 +1161,30 @@ void TQtCoinWidget::Save(QString fileName,QString type)
         QGLWidget *w = (QGLWidget *)GetCoinViewer()->getGLWidget();
         if (w) {
            QImage im =  w->grabFrameBuffer(TRUE); 
-           im.save(thatFile,e.upper().replace("JPG","JPEG"));
+           if ( e.lower() == "gif") {
+              // Save animated GIF via TImage (to avoid the "Sofwatre patent" issue
+              Int_t saver = gErrorIgnoreLevel;
+              gErrorIgnoreLevel = kFatal;
+              TImage *img = TImage::Create();
+              if (img) {
+                 QPixmap finalPixmap(im);
+                 img->SetImage(Pixmap_t(TGQt::rootwid(&finalPixmap)),0);
+                 QString gifFile = thatFile;
+//                 if ( Recording() ) 
+                    gifFile += '+20';
+                 img->WriteImage((const char*)gifFile, 
+#if ROOT_VERSION_CODE >= ROOT_VERSION(5,13,0)            
+                    TImage::kAnimGif);
+//                    Recording() ? TImage::kAnimGif:TImage::kGif);
+#else            
+                    TImage::kGif);
+#endif                  
+                 delete img;
+              }
+              gErrorIgnoreLevel = saver;
+           } else {
+              im.save(thatFile,e.upper().replace("JPG","JPEG"));
+           }
         }
    }
 }
@@ -1234,7 +1269,12 @@ void TQtCoinWidget::SaveSnapShot(bool on)
    if ( (saveType.lower() == "mpg") || (saveType.lower() == "mpeg")) {
       SaveMpegShot(on);  
    } else {
-      Save(QString().sprintf((const char*)SaveFilePattern(),ifile++),saveType.upper());
+#if ROOT_VERSION_CODE >= ROOT_VERSION(5,13,0)    
+      if (saveType.upper() == "GIF") {
+         Save(SaveFile(),saveType.upper());
+      } else 
+#endif
+         Save(QString().sprintf((const char*)SaveFilePattern(),ifile++),saveType.upper());
    }
    
 	/*
@@ -2037,11 +2077,20 @@ void TQtCoinWidget::SetCliPlaneMan(Bool_t on)
      fClipPlaneMan->plane = fClipPlane->plane;    
           
      fShapeNode->insertChild(fClipPlaneMan, wiredIndx==-1 ? 0 : wiredIndx);
+     // create the editor
+     if (!fPlaneEditor) {
+        fPlaneEditor = new TQt3DClipEditor(QDockWindow::OutsideDock);
+        fPlaneEditor->setCaption("Camera Control");
+        connect(fPlaneEditor,SIGNAL(Orientation()),this,SLOT(ViewAll()));
+     }
+     fPlaneEditor->SetCamera(&Camera());
+     fPlaneEditor->show();
      
   } else if (fClipPlaneMan) {
      fShapeNode->removeChild(fClipPlaneMan);
      fClipPlane->plane = fClipPlaneMan->plane;
      fClipPlane->on=TRUE;
+     fPlaneEditor->hide();
   }
 }
 

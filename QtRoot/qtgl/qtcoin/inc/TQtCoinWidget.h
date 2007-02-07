@@ -1,8 +1,8 @@
-// @(#)root/g3d:$Name:  $:$Id: TQtCoinWidget.h,v 1.11 2006/12/27 20:45:03 fine Exp $
+// @(#)root/g3d:$Name:  $:$Id: TQtCoinWidget.h,v 1.12 2007/02/07 16:01:09 fine Exp $
 // Author: Valery Fine      23/05/97
 
 /****************************************************************************
-** $Id: TQtCoinWidget.h,v 1.11 2006/12/27 20:45:03 fine Exp $
+** $Id: TQtCoinWidget.h,v 1.12 2007/02/07 16:01:09 fine Exp $
 **
 ** Copyright (C) 2002 by Valeri Fine. Brookhaven National Laboratory.
 **                                    All rights reserved.
@@ -78,6 +78,8 @@ class QTabWidget;
 //====================   
    
 #include <vector>
+
+class TQt3DClipEditor;
 
 class QAction;
 class QWidget;
@@ -165,6 +167,8 @@ protected:
    Bool_t            fRecord;
    SoCallback       *fMovie;
    TSimageMovie     *fMPegMovie;
+   TQt3DClipEditor  *fPlaneEditor;
+
    
 protected:
    friend class TQtCoinViewerImp;
@@ -273,6 +277,7 @@ public:
      virtual void SetSnapFileCounter(int counter);
      //virtual void SetFooter(QString &text);
      virtual void WantRootContextMenuCB(bool on);
+     virtual void ViewAll();
      virtual void AboutCB();
      virtual void HelpCB();
   signals:
