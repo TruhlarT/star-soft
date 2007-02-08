@@ -1,4 +1,4 @@
-// @(#)root/ged:$Name:  $:$Id: TQtGedAttFrame.cxx,v 1.1 2006/08/16 19:27:06 fine Exp $
+// @(#)root/ged:$Name:  $:$Id: TQtGedAttFrame.cxx,v 1.2 2007/02/08 21:16:47 fine Exp $
 // Author: Valeri Fine   22/07/06
 
 /****************************************************************************
@@ -49,7 +49,7 @@
 #include "Api.h"
 #include "TPaveLabel.h"
 #include <snprintf.h>
-
+#include "TList.h"
 // ClassImp(TQtGedAttInterface)
 // ClassImp(TQtGedAttFrame)
 

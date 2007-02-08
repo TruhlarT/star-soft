@@ -1,4 +1,4 @@
-// @(#)root/gtgl:$Name:  $:$Id: TCoinShapeBuilder.cxx,v 1.4 2006/11/07 21:53:27 fine Exp $
+// @(#)root/gtgl:$Name:  $:$Id: TCoinShapeBuilder.cxx,v 1.5 2007/02/08 21:19:05 fine Exp $
 // Author: Valery Fine      24/09/06
 
 /****************************************************************************
@@ -20,7 +20,7 @@
 #include "TObject3DView.h"
 #include "TDataSetIter.h"
 #include "TStopwatch.h"
-
+#include "TAttMarker.h"
 #include <Inventor/nodes/SoBaseColor.h>
 #include <Inventor/nodes/SoCoordinate3.h>
 #include <Inventor/nodes/SoDrawStyle.h>
