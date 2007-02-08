@@ -2,7 +2,7 @@
 
 
 incl("files.php");
-global $lockfile;
+global $lockfile,$refphp;
 
 # requested php
 $refphp = basename($_SERVER["PHP_SELF"],".php");
