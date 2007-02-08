@@ -1,8 +1,4 @@
-<<<<<<< TObjectCoinViewFactory.cxx
-// @(#)root/gtgl:$Name:  $:$Id: TObjectCoinViewFactory.cxx,v 1.7 2007/02/07 23:10:10 fine Exp $
-=======
-// @(#)root/gtgl:$Name:  $:$Id: TObjectCoinViewFactory.cxx,v 1.7 2007/02/07 23:10:10 fine Exp $
->>>>>>> 1.29
+// @(#)root/gtgl:$Name:  $:$Id: TObjectCoinViewFactory.cxx,v 1.8 2007/02/08 16:24:58 fine Exp $
 // Author: Valery Fine      24/09/06
 
 /****************************************************************************
