@@ -7,6 +7,7 @@
 # Script requires list of lost files as argument, placed under /star/u/starreco.
 # Create FCrmRootfiles.csh, when run it lost and not found files will be mark as unavailable 
 # in FileCatalog. 
+# Script should be run on rcas6003 with starreco account to make possible to login to all rcas nodes
 #
 ###########################################################################################################
 
