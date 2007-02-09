@@ -60,80 +60,12 @@
 
 
 #include "TObject3DView.h"
-
-//=============
-
-//#include "TQtCoinViewerImp.h"
-//#include "TVirtualPad.h"
 #include "TView.h"
-//#include <qglobal.h>
-//#include <qmainwindow.h>
 
 #include <qlayout.h> 
 #include <qframe.h> 
 
-#include <Inventor/Qt/SoQt.h>
-#include <Inventor/Qt/SoQtRenderArea.h>
-
-#include <Inventor/Qt/viewers/SoQtExaminerViewer.h>
-
-#include <Inventor/SoPickedPoint.h>
-
-#include <Inventor/nodes/SoSeparator.h>
-#include <Inventor/nodes/SoSelection.h>
-#include <Inventor/nodes/SoBaseColor.h> 
-#include <Inventor/nodes/SoCallback.h>
-#include <Inventor/nodes/SoMaterial.h>
-#include <Inventor/nodes/SoDrawStyle.h>
-#include <Inventor/nodes/SoTranslation.h>
-#include <Inventor/nodes/SoCamera.h>
-#include <Inventor/nodes/SoPerspectiveCamera.h>
-#include <Inventor/nodes/SoPickStyle.h>
-#include <Inventor/nodes/SoShapeHints.h>
-#include <Inventor/nodes/SoFaceSet.h>
-#include <Inventor/nodes/SoPointSet.h>
-#include <Inventor/nodes/SoLineSet.h>
-#include <Inventor/nodes/SoIndexedLineSet.h>
-//#include <Inventor/VRMLnodes/SoVRMLIndexedLineSet.h>
-//#include <Inventor/VRMLnodes/SoVRMLCoordinate.h>
-#include <Inventor/VRMLnodes/SoVRMLShape.h>
-
-#include <Inventor/elements/SoCacheElement.h>
-#include <Inventor/manips/SoClipPlaneManip.h>
-
 #include <Inventor/SoOffscreenRenderer.h>
-
-#include <Inventor/actions/SoSearchAction.h> 
-#include <Inventor/actions/SoToVRML2Action.h>
-#include <Inventor/actions/SoGetBoundingBoxAction.h>
-#include <Inventor/actions/SoLineHighlightRenderAction.h>
-#include <Inventor/actions/SoBoxHighlightRenderAction.h>
-#include <Inventor/actions/SoWriteAction.h>
-#include <Inventor/nodes/SoDirectionalLight.h>
-
-#include <Inventor/VRMLnodes/SoVRMLGroup.h>
-#include <Inventor/manips/SoTransformBoxManip.h>
-#include <Inventor/manips/SoTabBoxManip.h>
-#include <Inventor/annex/HardCopy/SoHardCopy.h>
-#include <Inventor/nodes/SoTransparencyType.h> 
-
-#include <Inventor/annex/HardCopy/SoVectorizePSAction.h>
-#include <Inventor/annex/HardCopy/SoVectorOutput.h>
-
-#include <Inventor/actions/SoWriteAction.h>
-#include <Inventor/actions/SoToVRML2Action.h>
-#include <Inventor/VRMLnodes/SoVRMLGroup.h>
-
-#include <Inventor/manips/SoTransformerManip.h>
-
-#include <Inventor/SoPath.h>
-
-#include <Inventor/nodes/SoCone.h>
-#include <Inventor/nodes/SoShape.h>
-#include <SmallChange/nodekits/SmAxisDisplayKit.h>
-#include <SmallChange/nodekits/SmAxisKit.h>
-#include <SmallChange/misc/Init.h>
-#include <Inventor/sensors/SoFieldSensor.h> 
 
 #include <vector>
 #include "TRootGLU.h"
@@ -602,6 +534,7 @@ void TQtCoinViewerImp::SaveCB()
       printf("TQtCoinViewerImp::SaveCB\n");
       //if (!c) return;
       QString filter = ListOfFilters();
+      filter +=";Graphics Interchange Format (*.gif);";
       filter +=";Transparent Img File (*.rgbt);;WRL File (*.wrl);;IV files (*.iv);";
       filter +=";Moving Picture Experts Group (*.mpg);";
       
@@ -803,6 +736,7 @@ void TQtCoinViewerImp::AboutCB()
    rootVersion += gROOT->GetVersion();
    rootVersion += "with Qt interface";
    QMessageBox::about(0,rootVersion,"ROOT Qt interface Coin Viewer 2006 Zubanov Alexei AZubanov@gmail.com");
+   if (fCoinWidget) fCoinWidget->AboutCB();
 }
 
 //______________________________________________________________________________

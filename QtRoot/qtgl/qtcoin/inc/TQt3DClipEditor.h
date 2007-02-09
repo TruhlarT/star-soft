@@ -3,14 +3,14 @@
 #include <qdockwindow.h> 
 
 class SoClipPlaneManip;
-class SoCamera;
+class SoQtViewer;
 class QVButtonGroup;
 
 class TQt3DClipEditor : public QDockWindow {
   Q_OBJECT
   private:
 
-    SoCamera         *fCamera;
+    SoQtViewer       *fInventorViewer;
     QVButtonGroup    *fCameraGroup;
 
     SoClipPlaneManip *fPlaneEditor;
@@ -26,9 +26,9 @@ class TQt3DClipEditor : public QDockWindow {
 
       virtual ~TQt3DClipEditor();
       void SetClipMan(SoClipPlaneManip *man);
-      void SetCamera(SoCamera *cam);
+      void SetViewer(SoQtViewer *viewer);
       SoClipPlaneManip *ClipMan() const;
-      SoCamera *Camera() const;
+      SoQtViewer *Viewer() const;
    public slots:
       void CameraSelected(int);
       void PlaneSelected(int);

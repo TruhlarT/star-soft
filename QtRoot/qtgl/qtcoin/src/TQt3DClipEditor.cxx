@@ -4,17 +4,18 @@
 #include <qradiobutton.h> 
 
 #include <Inventor/manips/SoClipPlaneManip.h>
+#include <Inventor/Qt/viewers/SoQtViewer.h> 
 #include <Inventor/nodes/SoCamera.h>
 
 
 //_______________________________________________________________________________
 TQt3DClipEditor::TQt3DClipEditor ( Place p, QWidget *parent, const char *name, WFlags f)
-: QDockWindow(p,parent,name,f),fCamera(0),fCameraGroup(0), fPlaneEditor(0),fPlaneGroup(0)
+: QDockWindow(p,parent,name,f),fInventorViewer(0),fCameraGroup(0), fPlaneEditor(0),fPlaneGroup(0)
 {  BuildWidget(); }
 
 //_______________________________________________________________________________
 TQt3DClipEditor::TQt3DClipEditor(QWidget *parent, const char *name, WFlags f)
-: QDockWindow(parent, name, f),fCamera(0),fCameraGroup(0), fPlaneEditor(0),fPlaneGroup(0)
+: QDockWindow(parent, name, f),fInventorViewer(0),fCameraGroup(0), fPlaneEditor(0),fPlaneGroup(0)
 {  BuildWidget();  } 
 
 //_______________________________________________________________________________
@@ -43,8 +44,7 @@ TQt3DClipEditor::~TQt3DClipEditor()
 {
    if (fPlaneEditor) fPlaneEditor->unref();
    fPlaneEditor = 0;
-   if (fCamera) fCamera->unref();
-   fCamera = 0;
+   fInventorViewer = 0;
 }
 
 //_______________________________________________________________________________
@@ -59,13 +59,11 @@ void TQt3DClipEditor::SetClipMan(SoClipPlaneManip *man)
 }
 
 //_______________________________________________________________________________
-void TQt3DClipEditor::SetCamera(SoCamera *cam)
+void TQt3DClipEditor::SetViewer(SoQtViewer *viewer)
 {
-   if (fCamera != cam) {
-      if (fCamera) fCamera->unref();
-      fCamera = cam;
-      if (fCamera) fCamera->ref();
-      fCameraGroup->setEnabled(fCamera);
+   if (fInventorViewer != viewer) {
+      fInventorViewer = viewer;
+      fCameraGroup->setEnabled(fInventorViewer);
    }
 }
 
@@ -74,24 +72,27 @@ SoClipPlaneManip *TQt3DClipEditor::ClipMan() const
 { return fPlaneEditor; }
 
 //_______________________________________________________________________________
-SoCamera *TQt3DClipEditor::Camera() const
-{ return fCamera; }
+SoQtViewer *TQt3DClipEditor::Viewer() const
+{ return fInventorViewer; }
 //_______________________________________________________________________________
 void TQt3DClipEditor::CameraSelected(int cameraDirection)
 {
-   if (fCamera) {
-      switch (cameraDirection) {
+   if (fInventorViewer) {
+      SoCamera *camera = fInventorViewer->getCamera();
+      if (camera) {
+         switch (cameraDirection) {
          case 0:
-           fCamera->orientation.setValue(SbRotation(SbVec3f(0, 1, 0), -M_PI / 2.0f));
-           break;
+            camera->orientation.setValue(SbRotation(SbVec3f(0, 1, 0), -M_PI / 2.0f));
+            break;
          case 1:
-           fCamera->orientation.setValue(SbRotation(SbVec3f(1, 0, 0), M_PI / 2.0f));
-           break;
+            camera->orientation.setValue(SbRotation(SbVec3f(1, 0, 0), M_PI / 2.0f));
+            break;
          case 2:
-           fCamera->orientation.setValue(SbRotation(SbVec3f(0, 0, 1), 0.0f));
-           break;
+            camera->orientation.setValue(SbRotation(SbVec3f(0, 0, 1), 0.0f));
+            break;
+         }
+         emit Orientation();
       }
-      emit Orientation();
    }
 }
 
@@ -101,7 +102,7 @@ void TQt3DClipEditor::PlaneSelected(int planeDirection)
    if (fPlaneEditor) {
       SbPlane currentClipPlane = fPlaneEditor->plane.getValue();      
       SbVec3d point  = currentClipPlane.getNormal();
-               point *= currentClipPlane.getDistanceFromOrigin();
+              point *= currentClipPlane.getDistanceFromOrigin();
 
       SbVec3f normal;
       switch (planeDirection) {

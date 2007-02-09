@@ -644,7 +644,10 @@ TQtGLViewerImp::TQtGLViewerImp(TQtGLViewerImp &parent) :
 TQtCoinWidget::~TQtCoinWidget()
 { 
    if (fPlaneEditor)  { delete fPlaneEditor;    fPlaneEditor  = 0;}
-   if (fInventorViewer) { SoQtExaminerViewer *viewer = (SoQtExaminerViewer*)fInventorViewer; fInventorViewer = 0; delete viewer; }
+   if (fInventorViewer) { 
+      SoQtExaminerViewer *viewer = (SoQtExaminerViewer*)fInventorViewer; 
+      fInventorViewer = 0; delete viewer; 
+   }
    if (fMPegMovie)    { delete fMPegMovie;      fMPegMovie    = 0;}
    if (fMovie)        { fMovie       ->unref(); fMovie        = 0;}
    if (fClipPlaneMan) { fClipPlaneMan->unref(); fClipPlaneMan = 0;}
@@ -686,8 +689,9 @@ void TQtCoinWidget::AddRootChild(ULong_t id, EObject3DType type)
 void TQtCoinWidget::ViewAll()
 {
    // Make myCamera see everything.
-   if (fCamera)
-      fCamera->viewAll(fRootNode, fInventorViewer->getViewportRegion());
+   if (GetCamera()) {
+      GetCamera()->viewAll(fRootNode, fInventorViewer->getViewportRegion());
+   }
 }
 
 //______________________________________________________________________________
@@ -2083,7 +2087,7 @@ void TQtCoinWidget::SetCliPlaneMan(Bool_t on)
         fPlaneEditor->setCaption("Camera Control");
         connect(fPlaneEditor,SIGNAL(Orientation()),this,SLOT(ViewAll()));
      }
-     fPlaneEditor->SetCamera(&Camera());
+     fPlaneEditor->SetViewer(fInventorViewer);
      fPlaneEditor->SetClipMan(fClipPlaneMan);
      fPlaneEditor->show();
      
