@@ -136,7 +136,9 @@
 
 #include <Inventor/nodes/SoCone.h>
 #include <Inventor/nodes/SoShape.h>
-#include <SmallChange/nodekits/SmAxisDisplayKit.h>
+#ifdef NOEXAMINERVIEWER
+#  include <SmallChange/nodekits/SmAxisDisplayKit.h>
+#endif 
 #include <SmallChange/nodekits/SmAxisKit.h>
 #include <SmallChange/misc/Init.h>
 #include <Inventor/sensors/SoFieldSensor.h> 
@@ -651,7 +653,9 @@ TQtCoinWidget::~TQtCoinWidget()
    if (fMPegMovie)    { delete fMPegMovie;      fMPegMovie    = 0;}
    if (fMovie)        { fMovie       ->unref(); fMovie        = 0;}
    if (fClipPlaneMan) { fClipPlaneMan->unref(); fClipPlaneMan = 0;}
+#ifdef NOEXAMINERVIEWER
    if (fAxes)         { fAxes        ->unref(); fAxes         = 0;}
+#endif
    if (fXAxis)        { fXAxis       ->unref(); fXAxis        = 0;}
    if (fYAxis)        { fYAxis       ->unref(); fYAxis        = 0;}
    if (fZAxis)        { fZAxis       ->unref(); fZAxis        = 0;}
@@ -1611,6 +1615,7 @@ void TQtCoinWidget::HelpCB()
     QMessageBox::information(0,"Infos on mouse and decoration buttons"
                               ,msg,QMessageBox::Ok);
 }
+#ifdef NOEXAMINERVIEWER
 //______________________________________________________________________________
 static void cameraChangeCB(void *data, SoSensor *)
 {
@@ -1624,6 +1629,7 @@ static void cameraChangeCB(void *data, SoSensor *)
      }
   }
 }
+#endif 
 //______________________________________________________________________________
 void TQtCoinWidget::CreateViewer(const char * /*name*/)
 {
@@ -2107,6 +2113,9 @@ void TQtCoinWidget::FrameAxisActionCB(bool on)
 //______________________________________________________________________________
 void TQtCoinWidget::SmallAxesActionCB(bool on)
 {
+#ifndef NOEXAMINERVIEWER
+    ((SoQtExaminerViewer*)fInventorViewer)->setFeedbackVisibility(on);
+#else
     if (on) {
 #ifdef __SMALLCHANGE__ 
        if (!fAxes) { 
@@ -2140,5 +2149,6 @@ void TQtCoinWidget::SmallAxesActionCB(bool on)
       fRootNode->removeChild(fAxes);
       fCameraSensor->detach();
    }
+#endif
 #endif
 }
