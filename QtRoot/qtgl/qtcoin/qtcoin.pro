@@ -124,6 +124,9 @@ HEADERS += inc/TQtCoinViewerImp.h            \
            inc/TCoinShapeBuilder.h           \
            inc/TSimageMovie.h                \
            inc/TQt3DClipEditor.h             \
+           inc/x.xpm.h                       \
+           inc/y.xpm.h                       \
+           inc/z.xpm.h                       \
            inc/TQtCoin3DDefInterface.h
            
 SOURCES += src/TQtCoinWidget.cxx             \

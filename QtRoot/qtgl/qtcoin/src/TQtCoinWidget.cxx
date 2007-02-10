@@ -34,6 +34,8 @@
 #  include <qpopupmenu.h>
 #  include <qwhatsthis.h> 
 #  include <qaction.h>
+#  include <qpushbutton.h> 
+#  include <qtooltip.h> 
 #else 
 #  include <q3filedialog.h>
 #  include <q3popupmenu.h>
@@ -142,6 +144,11 @@
 #include <SmallChange/nodekits/SmAxisKit.h>
 #include <SmallChange/misc/Init.h>
 #include <Inventor/sensors/SoFieldSensor.h> 
+
+#include "x.xpm.h"
+#include "y.xpm.h"
+#include "z.xpm.h"
+
 
 #include <vector>
 #include "TRootGLU.h"
@@ -1772,6 +1779,36 @@ void TQtCoinWidget::CreateViewer(const char * /*name*/)
    
    QVBoxLayout *l  = new QVBoxLayout(this);
    fInventorViewer = new SoQtExaminerViewer(this);
+   // Decorate it with the extra buttons
+   // add X, Y, Z viewpoint buttons
+   //  X-button
+   SoQtFullViewer *fullViewer = (SoQtFullViewer *)fInventorViewer;
+   QWidget *buttonParent = fullViewer->getAppPushButtonParent();
+   QPushButton *button = new QPushButton(buttonParent);
+   button->setFocusPolicy(QWidget::NoFocus);
+   button->setPixmap(QPixmap((const char **) x_xpm));
+   QObject::connect(button, SIGNAL(clicked()),
+                    this, SLOT(ViewPlaneX()));
+   QToolTip::add(button,"View the YZ plane");
+   fullViewer->addAppPushButton(button);
+   //  Y-button
+   button = new QPushButton(buttonParent);
+   button->setFocusPolicy(QWidget::NoFocus);
+   button->setPixmap(QPixmap((const char **) y_xpm));
+   QObject::connect(button, SIGNAL(clicked()),
+                    this, SLOT(ViewPlaneY()));
+   QToolTip::add(button,"View the XZ plane");
+   fullViewer->addAppPushButton(button);
+
+   //  Z-button
+   button = new QPushButton(buttonParent);
+   button->setFocusPolicy(QWidget::NoFocus);
+   button->setPixmap(QPixmap((const char **) z_xpm));
+   QObject::connect(button, SIGNAL(clicked()),
+                    this, SLOT(ViewPlaneZ()));
+   QToolTip::add(button,"View the XY plane");
+   fullViewer->addAppPushButton(button);
+
    l->addWidget(fInventorViewer->getWidget());
    fInventorViewer->setSceneGraph(fRootNode);
    fInventorViewer->setTransparencyType(SoGLRenderAction::NONE);
@@ -2110,6 +2147,51 @@ void TQtCoinWidget::FrameAxisActionCB(bool on)
 {
   SetCliPlaneMan(on); 
 }
+//______________________________________________________________________________
+void TQtCoinWidget::ViewPlaneX() const
+{
+  SoCamera * const camera = GetCamera();
+  if (! camera) return; // probably a scene-less viewer
+
+  SbVec3f dir;
+  camera->orientation.getValue().multVec(SbVec3f(0, 0, -1), dir);
+  SbVec3f focalpoint = camera->position.getValue() +
+    camera->focalDistance.getValue() * dir;
+  camera->position = focalpoint +
+    camera->focalDistance.getValue() * SbVec3f(1, 0, 0);
+  camera->orientation = SbRotation(SbVec3f(0, 1, 0), float(M_PI) / 2.0f);
+}
+
+//______________________________________________________________________________
+void TQtCoinWidget::ViewPlaneY() const
+{
+  SoCamera * const camera = GetCamera();
+  if (! camera) return; // probably a scene-less viewer
+
+  SbVec3f dir;
+  camera->orientation.getValue().multVec(SbVec3f(0, 0, -1), dir);
+  SbVec3f focalpoint = camera->position.getValue() +
+    camera->focalDistance.getValue() * dir;
+  camera->position = focalpoint +
+    camera->focalDistance.getValue() * SbVec3f(0, 1, 0);
+  camera->orientation = SbRotation(SbVec3f(1, 0, 0), -float(M_PI) / 2.0f);
+}
+
+//______________________________________________________________________________
+void TQtCoinWidget::ViewPlaneZ() const
+{
+  SoCamera * const camera = GetCamera();
+  if (! camera) return; // probably a scene-less viewer
+
+  SbVec3f dir;
+  camera->orientation.getValue().multVec(SbVec3f(0, 0, -1), dir);
+  SbVec3f focalpoint = camera->position.getValue() +
+    camera->focalDistance.getValue() * dir;
+  camera->position = focalpoint +
+    camera->focalDistance.getValue() * SbVec3f(0, 0, 1);
+  camera->orientation = SbRotation(SbVec3f(0, 1, 0), 0);
+}
+
 //______________________________________________________________________________
 void TQtCoinWidget::SmallAxesActionCB(bool on)
 {

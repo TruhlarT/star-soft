@@ -1,8 +1,8 @@
-// @(#)root/g3d:$Name:  $:$Id: TQtCoinWidget.h,v 1.13 2007/02/07 20:34:02 fine Exp $
+// @(#)root/g3d:$Name:  $:$Id: TQtCoinWidget.h,v 1.14 2007/02/10 06:42:06 fine Exp $
 // Author: Valery Fine      23/05/97
 
 /****************************************************************************
-** $Id: TQtCoinWidget.h,v 1.13 2007/02/07 20:34:02 fine Exp $
+** $Id: TQtCoinWidget.h,v 1.14 2007/02/10 06:42:06 fine Exp $
 **
 ** Copyright (C) 2002 by Valeri Fine. Brookhaven National Laboratory.
 **                                    All rights reserved.
@@ -275,6 +275,9 @@ public:
      virtual void SetRotationAxisAngle(const float  x, const float  y, const float  z, const float a);
      virtual void SetSnapFileCounter(int counter);
      virtual void Update();
+     virtual void ViewPlaneX() const;
+     virtual void ViewPlaneY() const;
+     virtual void ViewPlaneZ() const;
      virtual void ViewAll();
      //virtual void SetFooter(QString &text);
      virtual void WantRootContextMenuCB(bool on);
