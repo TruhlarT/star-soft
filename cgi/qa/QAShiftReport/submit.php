@@ -21,6 +21,7 @@ if ($mode == "SaveIt") {
 
 ###################################################################
 
+include "shiftLog.php";
 
 #################################
 # Prepare for archiving
@@ -54,7 +55,7 @@ $toFolks = array(
 
 # Convert .txt filename to .html
 function HfromT($file) {
-  return preg_replace("/\.txt$/","\.html",$file);
+  return preg_replace("/\.txt$/",".html",$file);
 }
 
 ###################################################################
@@ -126,13 +127,13 @@ function Archive() {
   if ($fast != 0) { $archDir .= "Online"; }
   $archDir .= "/";
   $acount = 0;
-  $acntfile = $archDir . ".Count";
-  if ($obj == readInt($acntfile)) { $account = $obj; }
+  $acntfile = $bdir . $archDir . ".Count";
+  if ($obj = readInt($acntfile)) { $acount = $obj; }
   $acount++;
   saveObject($acount,$acntfile);
   $acountF = nDigits(4,$acount);
   $webFile = "${archDir}${datestr}/Report_${datestr}_${acountF}.txt";
-  $archFile = $fsdir . $webFile;
+  $archFile = $bdir . $webFile;
   ckdir(dirname($archFile));
   copy($reportFile,$archFile);
   copy(HfromT($reportFile),HfromT($archFile));
@@ -145,9 +146,9 @@ function linkFileFind($file1) {
   if ($fast != 0) { $insert = ".fast"; }
   $file2 = "";
   $n = 0;
-  while (($file2 = $file1 . ++$n . $insert . ".txt") &&
-         ((preg_match($file2,$runFileSeqIndex,$temp)) ||
-          (file_exists($file2)))) {}
+  while (ereg(basename($file2 = $file1 . ++$n . $insert . ".txt"),
+              $runFileSeqIndex,$temp) ||
+         file_exists($file2)) {}
   return $file2;
 }
 
@@ -204,7 +205,7 @@ function OutputExaminedRunFseq($typ) {
 
 # Main routine for archiving/linking/mailing reports & summaries
 function ArchAndMail($typs, $sendmail=1) {
-  global $startTxt,$info,$sesDir,$webFile,$archFile,$webdir;
+  global $startTxt,$info,$sesDir,$webFile,$archFile,$webdir,$bdir;
   global $fast,$toFolks,$mode,$typecounts,$shift,$datestr2,$runFileSeqIndex;
   $runFileSeqIndex = readText($bdir . "rFSI.lis");
   Archive();
@@ -227,7 +228,8 @@ function ArchAndMail($typs, $sendmail=1) {
 
   $output  = $startTxt[$fast] . "\n\n" . dashdelim() . "\n";
   $output .= $sumTemp . "\n" . $info . "\nFull report archived in:\n";
-  $output .= $archFile . "\n" . $fullLink . "\n\n";
+  #$output .= $archFile . "\n" . $fullLink . "\n\n";
+  $output .= $fullLink . "\n\n";
 
   $output2  = $startTxt[$fast] . "\n";
   $output2 .= $sumTemp . "\n" . str_replace("----","",$info);
