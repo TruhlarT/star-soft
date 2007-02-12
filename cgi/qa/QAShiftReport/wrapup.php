@@ -1,6 +1,6 @@
 <?php
 
-include "setup.php";
+@(include "setup.php") or die("Problems (0).");
 incl("infohandling.php");
 
 $ses = needSesName();

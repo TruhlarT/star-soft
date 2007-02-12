@@ -1,6 +1,6 @@
 <?php
 
-include "setup.php";
+@(include "setup.php") or die("Problems (0).");
 
 head("STAR QA Shift Report Header");
 body();

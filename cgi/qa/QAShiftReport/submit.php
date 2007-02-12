@@ -1,6 +1,6 @@
 <?php
 
-include "setup.php";
+@(include "setup.php") or die("Problems (0).");
 incl("data2text.php");
 
 
@@ -21,7 +21,7 @@ if ($mode == "SaveIt") {
 
 ###################################################################
 
-include "shiftLog.php";
+@(include "shiftLog.php") or die("Problems (3).");
 
 #################################
 # Prepare for archiving

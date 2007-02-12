@@ -4,7 +4,7 @@
 # Take care of saving a data entry/info/wrapup to file
 #
 
-include "setup.php";
+@(include "setup.php") or die("Problems (0).");
 incl("entry.php");
 incl("infohandling.php");
 

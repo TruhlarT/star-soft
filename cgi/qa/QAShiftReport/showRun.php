@@ -1,5 +1,5 @@
 <?php
-include "setup.php";
+@(include "setup.php") or die("Problems (0).");
 
 
 # Request mode

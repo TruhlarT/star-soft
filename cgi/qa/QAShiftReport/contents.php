@@ -1,6 +1,6 @@
 <?php
 
-include "setup.php";
+@(include "setup.php") or die("Problems (0).");
 incl("entrytypes.php");
 incl("infohandling.php");
 incl("data2text.php");

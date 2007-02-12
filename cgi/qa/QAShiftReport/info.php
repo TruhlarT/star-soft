@@ -4,7 +4,7 @@
 # Form for entering shift info
 #
 
-include "setup.php";
+@(include "setup.php") or die("Problems (0).");
 incl("loadSession.php");
 
 getPassedVarStrict("work");
