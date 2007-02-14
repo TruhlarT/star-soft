@@ -34,6 +34,7 @@ class TQtRootCoinViewer3D : public TQtRootViewer3D
    friend class     SlotDisconnect;
 public:
    TQtRootCoinViewer3D(TVirtualPad * pad = 0);	
+   virtual ~TQtRootCoinViewer3D();
    virtual void   EndScene();            // called by TPad::Paint | PaintModified
    virtual void   DisconnectPad();
    //virtual Int_t  AddObject(TObject *, Option_t* drawOption = 0, Bool_t * addChildren = 0);
@@ -41,7 +42,6 @@ public:
 protected:
    // TQtCoinViewerImp   *fCoinViewer;
    virtual void        Viewer();
-   virtual ~TQtRootCoinViewer3D();
 
    virtual void     MakeViewerNil();	
    void             Disconnect();

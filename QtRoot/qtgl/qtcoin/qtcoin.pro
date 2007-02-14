@@ -123,10 +123,12 @@ HEADERS += inc/TQtCoinViewerImp.h            \
            inc/TObjectCoinViewFactory.h      \
            inc/TCoinShapeBuilder.h           \
            inc/TSimageMovie.h                \
-           inc/TQt3DClipEditor.h             \
            inc/x.xpm.h                       \
            inc/y.xpm.h                       \
            inc/z.xpm.h                       \
+           inc/xc.xpm.h                      \
+           inc/yc.xpm.h                      \
+           inc/zc.xpm.h                      \
            inc/TQtCoin3DDefInterface.h
            
 SOURCES += src/TQtCoinWidget.cxx             \
@@ -135,7 +137,6 @@ SOURCES += src/TQtCoinWidget.cxx             \
            src/TObjectCoinViewFactory.cxx    \
            src/TCoinShapeBuilder.cxx         \
            src/TSimageMovie.cxx              \
-           src/TQt3DClipEditor.cxx           \
            src/TQtCoin3DDefInterface.cxx
 
 DISTFILES += LICENSE.QPL

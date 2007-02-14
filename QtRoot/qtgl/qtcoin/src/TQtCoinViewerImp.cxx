@@ -338,7 +338,7 @@ int TQtCoinViewerImp::CreateSnapShotCounter()
 //______________________________________________________________________________
 TContextMenu &TQtCoinViewerImp::ContextMenu() 
 {
-   // Create the TContextMeny if needed and return it
+   // Create the TContextMenu if needed and return it
    return  fCoinWidget ? fCoinWidget->ContextMenu() : *(TContextMenu *)0;
 }
 
@@ -960,18 +960,6 @@ void TQtCoinViewerImp::MakeMenu()
    showSmallAxesAction->setToggleAction(true);
    showSmallAxesAction->setWhatsThis( showSmallAxesText);
 
-      // Edit ClipPlane 
-   
-#if QT_VERSION < 0x40000
-   QAction *editClipPlaneAction  =  new QAction("clipPlane", "Edit the Clip Plane", CTRL+Key_9, this, "clipplane" );
-#else 
-   Q3Action *editClipPlaneAction =  new Q3Action("clipPlane", "Edit the Clip Plane", Qt::CTRL+Qt::Key_9, this, "clipplane " );
-#endif 
-   connect ( editClipPlaneAction, SIGNAL( toggled(bool) ) , this, SLOT( FrameAxisActionCB(bool)  ) );
-   const char *editClipPlaneText = "Activate Clip Plane manipulator";
-   editClipPlaneAction->setToggleAction(true);
-   showFrameAxisAction->setWhatsThis( editClipPlaneText);
-
 #if QT_VERSION < 0x40000
    QAction *showLightsAction =  new QAction("GLLights", "Show &light", CTRL+Key_L, this, "gllight" );
 #else 
@@ -1155,10 +1143,6 @@ void TQtCoinViewerImp::MakeMenu()
     viewContextMenuAction->setOn( false );
     viewContextMenuAction->setEnabled (true);
     
-    editClipPlaneAction->addTo(optionMenu);
-    editClipPlaneAction->setOn( false );
-    editClipPlaneAction->setEnabled (true);
-
 #endif
 // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
  //  helpMenu
@@ -1263,7 +1247,7 @@ void TQtCoinViewerImp::SetSnapFileCounter(int counter)
 //______________________________________________________________________________
 void TQtCoinViewerImp::SetCliPlaneMan(Bool_t on)
 {
-    if (fCoinWidget) fCoinWidget->SetCliPlaneMan(on);
+    if (fCoinWidget) fCoinWidget->SetClipPlaneMan(on);
 }
 
 //______________________________________________________________________________

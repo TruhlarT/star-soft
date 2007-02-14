@@ -4,7 +4,6 @@
 #include "TError.h"
 #include "TGQt.h"
 #include "THLimitsFinder.h"
-#include "TQt3DClipEditor.h"
 
 #include "TQVirtualGL.h"
 #include "TQPadOpenGLView.h"
@@ -36,6 +35,7 @@
 #  include <qaction.h>
 #  include <qpushbutton.h> 
 #  include <qtooltip.h> 
+#  include <qcheckbox.h> 
 #else 
 #  include <q3filedialog.h>
 #  include <q3popupmenu.h>
@@ -148,6 +148,10 @@
 #include "x.xpm.h"
 #include "y.xpm.h"
 #include "z.xpm.h"
+
+#include "xc.xpm.h"
+#include "yc.xpm.h"
+#include "zc.xpm.h"
 
 
 #include <vector>
@@ -379,6 +383,7 @@ static void DeselectCB(void * viewer, SoPath *)
   ((TQtCoinWidget*)(viewer))->Update();
 }
 
+
 //______________________________________________________________________________
 static SoPath * PickFilterCB(void * viewer, const SoPickedPoint * pick)
 {
@@ -410,7 +415,7 @@ static SoPath * PickFilterCB(void * viewer, const SoPickedPoint * pick)
   if (v) {
      TQtCoinWidget *thisViewer = (TQtCoinWidget*)viewer;
      if (v->IsSolid()) thisViewer->SetLineSelection();
-      else              thisViewer->SetBoxSelection();
+     else              thisViewer->SetBoxSelection();
      // Emit signal at once
      if (!thisViewer->WasPicked(v) ) thisViewer->EmitSelectSignal(v);
      selPath = p->copy(0, i);
@@ -487,7 +492,7 @@ TQtCoinWidget::TQtCoinWidget(QWidget *parent, COINWIDGETFLAGSTYPE f)
    //, fSelectionViewer(kFALSE),fSelectionHighlight(kFALSE),fShowSelectionGlobal(kFALSE)
    , fSnapShotAction(0),fBoxHighlightAction(0),fLineHighlightAction(0)
    , fWantClipPlane(kFALSE), fClipPlaneMan(0), fClipPlane(0),fHelpWidget(0),fRecord(kFALSE)
-   , fMovie(0),fMPegMovie(0),fPlaneEditor(0)
+   , fMovie(0),fMPegMovie(0),fClipPlaneState(0)
 {
 }
 //______________________________________________________________________________
@@ -535,7 +540,7 @@ TQtCoinWidget::TQtCoinWidget(TVirtualPad *pad, const char *title,
    //, fSelectionViewer(kFALSE),fSelectionHighlight(kFALSE),fShowSelectionGlobal(kFALSE)
    , fSnapShotAction(0),fBoxHighlightAction(0),fLineHighlightAction(0)
    , fWantClipPlane(kFALSE), fClipPlaneMan(0), fClipPlane(0),fHelpWidget(0),fRecord(kFALSE)
-   , fMovie(0),fMPegMovie(0),fPlaneEditor(0)
+   , fMovie(0),fMPegMovie(0),fClipPlaneState(0)
 {
    printf("TQtCoinWidget::TQtCoinWidget begin Pad=%p\n", pad);
    //Create the default SnapShot file name and type if any
@@ -652,7 +657,6 @@ TQtGLViewerImp::TQtGLViewerImp(TQtGLViewerImp &parent) :
 //______________________________________________________________________________
 TQtCoinWidget::~TQtCoinWidget()
 { 
-   if (fPlaneEditor)  { delete fPlaneEditor;    fPlaneEditor  = 0;}
    if (fInventorViewer) { 
       SoQtExaminerViewer *viewer = (SoQtExaminerViewer*)fInventorViewer; 
       fInventorViewer = 0; delete viewer; 
@@ -784,9 +788,10 @@ int TQtCoinWidget::CreateSnapShotCounter()
 //______________________________________________________________________________
 TContextMenu &TQtCoinWidget::ContextMenu() 
 {
-   // Create the TConextMEny if needed and return it
-   if (!fContextMenu) 
+   // Create the TConextMenu if needed and return it
+   if (!fContextMenu) {
         fContextMenu = new TContextMenu("3DViewContextMenu");
+   }
    return *fContextMenu;
 }
 
@@ -1784,6 +1789,7 @@ void TQtCoinWidget::CreateViewer(const char * /*name*/)
    //  X-button
    SoQtFullViewer *fullViewer = (SoQtFullViewer *)fInventorViewer;
    QWidget *buttonParent = fullViewer->getAppPushButtonParent();
+
    QPushButton *button = new QPushButton(buttonParent);
    button->setFocusPolicy(QWidget::NoFocus);
    button->setPixmap(QPixmap((const char **) x_xpm));
@@ -1808,6 +1814,49 @@ void TQtCoinWidget::CreateViewer(const char * /*name*/)
                     this, SLOT(ViewPlaneZ()));
    QToolTip::add(button,"View the XY plane");
    fullViewer->addAppPushButton(button);
+
+    // Clip Plane buttons;
+
+   //  X-button
+   button = new QPushButton(buttonParent);
+   button->setName("z");
+   button->setFocusPolicy(QWidget::NoFocus);
+   button->setPixmap(QPixmap((const char **) xc_xpm));
+   QObject::connect(button, SIGNAL(clicked()),
+                    this, SLOT(SetClipPlaneXCB()));
+   QToolTip::add(button,"Clip the YZ plane");
+   fullViewer->addAppPushButton(button);
+   //  Y-button
+   button = new QPushButton(buttonParent);
+   button->setName("y");
+   button->setFocusPolicy(QWidget::NoFocus);
+   button->setPixmap(QPixmap((const char **) yc_xpm));
+   QObject::connect(button, SIGNAL(clicked()),
+                    this, SLOT(SetClipPlaneYCB()));
+   QToolTip::add(button,"Clip the XZ plane");
+   fullViewer->addAppPushButton(button);
+
+   //  Z-button
+   button = new QPushButton(buttonParent);
+   button->setName("z");
+   button->setFocusPolicy(QWidget::NoFocus);
+   button->setPixmap(QPixmap((const char **) zc_xpm));
+   QObject::connect(button, SIGNAL(clicked()),
+                    this, SLOT(SetClipPlaneZCB()));
+   QToolTip::add(button,"Clip the XY plane");
+   fullViewer->addAppPushButton(button);
+
+   //  Plane-switch-button
+   fClipPlaneState = new QCheckBox(buttonParent);
+   fClipPlaneState->setFocusPolicy(QWidget::NoFocus);
+   fClipPlaneState->setTristate(true);
+   fClipPlaneState->setNoChange();
+//   button->setPixmap(QPixmap((const char **) zc_xpm));
+   QObject::connect(fClipPlaneState, SIGNAL(stateChanged(int)),
+                    this, SLOT(ClipPlaneModeCB(int)));
+   QToolTip::add(fClipPlaneState,"Switch between edit/clip/no clip views");
+   fullViewer->addAppPushButton(fClipPlaneState);
+
 
    l->addWidget(fInventorViewer->getWidget());
    fInventorViewer->setSceneGraph(fRootNode);
@@ -1848,7 +1897,7 @@ void TQtCoinWidget::EmitSelectSignal(TObject3DView * view)
       TObject *obj = parent->GetObject();
       fSelectedObject = obj;
       if (obj) {
-         //  printf("\tTQtCoinWidget::EmitSelectSignal view = %p, obj = %p; obj name %s \n", view, obj, (const char*)obj->GetName());
+         // fprintf(stderr,"\tTQtCoinWidget::EmitSelectSignal view = %p, obj = %p; obj name %s \n", view, obj, (const char*)obj->GetName());
          emit ObjectSelected(obj,  mousePosition);
       }
    }
@@ -2098,8 +2147,57 @@ void TQtCoinWidget::SetSnapFileCounter(int counter)
 { 
 	fMaxSnapFileCounter = counter;  
 }
+//_______________________________________________________________________________
+static void SetClipPlane(SoClipPlane *plane, int planeDirection)
+{
+   if (plane) {
+      SbPlane currentClipPlane = plane->plane.getValue();      
+      SbVec3d point  = currentClipPlane.getNormal();
+              point *= currentClipPlane.getDistanceFromOrigin();
+
+      SbVec3f normal;
+      switch (planeDirection) {
+         case 0: normal.setValue(1,0,0); break;
+         case 1: normal.setValue(0,1,0); break;
+         case 2: normal.setValue(0,0,1); break;
+      };
+      plane->plane.setValue(SbPlane(normal,point));
+   }
+}
+//_______________________________________________________________________________
+void TQtCoinWidget::SetClipPlaneXCB() 
+{
+  // Set the clip plane orthogonal to oX
+  SetActiveClipPlane(0);
+}
+//_______________________________________________________________________________
+void TQtCoinWidget::SetClipPlaneYCB() 
+{
+  // Set the clip plane orthogonal to oY
+  SetActiveClipPlane(1);
+}
+
+//_______________________________________________________________________________
+void TQtCoinWidget::SetClipPlaneZCB() 
+{
+  // Set the clip plane orthogonal to oZ
+  SetActiveClipPlane(2);
+}
+
+//_______________________________________________________________________________
+void TQtCoinWidget::SetActiveClipPlane(int planeDirection)
+{
+   if (fClipPlaneState->state() == QButton::NoChange) {
+      fClipPlaneState->blockSignals(true);
+      fClipPlaneState->setChecked(true);
+      ClipPlaneModeCB(QButton::On);
+      fClipPlaneState->blockSignals(false);
+   }
+   ::SetClipPlane( fClipPlane->on.getValue() ? fClipPlane : fClipPlaneMan, planeDirection);
+}
+
 //______________________________________________________________________________
-void TQtCoinWidget::SetCliPlaneMan(Bool_t on)
+void TQtCoinWidget::SetClipPlaneMan(Bool_t on)
 {
    if (on) {
      int wiredIndx = 0;
@@ -2107,13 +2205,14 @@ void TQtCoinWidget::SetCliPlaneMan(Bool_t on)
         wiredIndx = fShapeNode->findChild(fSolidShapeNode);
      }
      if (!fClipPlaneMan) {
+      fprintf(stderr," TQtCoinWidget::SetClipPlaneMan \n",on);
         fClipPlaneMan = new SoClipPlaneManip();       
         fClipPlaneMan->ref();
         SoGetBoundingBoxAction ba(fInventorViewer->getViewportRegion());
         ba.apply(fShapeNode);
    
         SbBox3f box = ba.getBoundingBox();
-        fClipPlaneMan->setValue(box, SbVec3f(1.0f, 0.0f, 0.0f), 0.5f);
+        fClipPlaneMan->setValue(box, SbVec3f(1.0f, 0.0f, 0.0f), 1.02f);
         
         fClipPlane    = new SoClipPlane();
         fClipPlane->plane = fClipPlaneMan->plane;
@@ -2123,29 +2222,18 @@ void TQtCoinWidget::SetCliPlaneMan(Bool_t on)
      fClipPlane->on = FALSE;
      fClipPlaneMan->plane = fClipPlane->plane;    
           
-     fShapeNode->insertChild(fClipPlaneMan, wiredIndx==-1 ? 0 : wiredIndx);
-     // create the editor
-     if (!fPlaneEditor) {
-        fPlaneEditor = new TQt3DClipEditor(QDockWindow::OutsideDock);
-        fPlaneEditor->setCaption("Camera Control");
-        connect(fPlaneEditor,SIGNAL(Orientation()),this,SLOT(ViewAll()));
-     }
-     fPlaneEditor->SetViewer(fInventorViewer);
-     fPlaneEditor->SetClipMan(fClipPlaneMan);
-     fPlaneEditor->show();
-     
+     fShapeNode->insertChild(fClipPlaneMan, wiredIndx==-1 ? 0 : wiredIndx);     
   } else if (fClipPlaneMan) {
      fShapeNode->removeChild(fClipPlaneMan);
      fClipPlane->plane = fClipPlaneMan->plane;
      fClipPlane->on=TRUE;
-     fPlaneEditor->hide();
   }
 }
 
 //______________________________________________________________________________
 void TQtCoinWidget::FrameAxisActionCB(bool on)
 {
-  SetCliPlaneMan(on); 
+  SetClipPlaneMan(on); 
 }
 //______________________________________________________________________________
 void TQtCoinWidget::ViewPlaneX() const
@@ -2155,10 +2243,10 @@ void TQtCoinWidget::ViewPlaneX() const
 
   SbVec3f dir;
   camera->orientation.getValue().multVec(SbVec3f(0, 0, -1), dir);
-  SbVec3f focalpoint = camera->position.getValue() +
-    camera->focalDistance.getValue() * dir;
-  camera->position = focalpoint +
-    camera->focalDistance.getValue() * SbVec3f(1, 0, 0);
+  SbVec3f focalpoint  = camera->position.getValue()
+                      + camera->focalDistance.getValue() * dir;
+  camera->position    = focalpoint
+                      + camera->focalDistance.getValue() * SbVec3f(1, 0, 0);
   camera->orientation = SbRotation(SbVec3f(0, 1, 0), float(M_PI) / 2.0f);
 }
 
@@ -2170,10 +2258,10 @@ void TQtCoinWidget::ViewPlaneY() const
 
   SbVec3f dir;
   camera->orientation.getValue().multVec(SbVec3f(0, 0, -1), dir);
-  SbVec3f focalpoint = camera->position.getValue() +
-    camera->focalDistance.getValue() * dir;
-  camera->position = focalpoint +
-    camera->focalDistance.getValue() * SbVec3f(0, 1, 0);
+  SbVec3f focalpoint  = camera->position.getValue()
+                      + camera->focalDistance.getValue() * dir;
+  camera->position    = focalpoint
+                      + camera->focalDistance.getValue() * SbVec3f(0, 1, 0);
   camera->orientation = SbRotation(SbVec3f(1, 0, 0), -float(M_PI) / 2.0f);
 }
 
@@ -2185,11 +2273,33 @@ void TQtCoinWidget::ViewPlaneZ() const
 
   SbVec3f dir;
   camera->orientation.getValue().multVec(SbVec3f(0, 0, -1), dir);
-  SbVec3f focalpoint = camera->position.getValue() +
-    camera->focalDistance.getValue() * dir;
-  camera->position = focalpoint +
-    camera->focalDistance.getValue() * SbVec3f(0, 0, 1);
+  SbVec3f focalpoint  = camera->position.getValue()
+                      + camera->focalDistance.getValue() * dir;
+  camera->position    = focalpoint
+                      + camera->focalDistance.getValue() * SbVec3f(0, 0, 1);
   camera->orientation = SbRotation(SbVec3f(0, 1, 0), 0);
+}
+
+//______________________________________________________________________________
+void TQtCoinWidget::ClipPlaneModeCB(int mode)
+{
+   switch (mode) {
+       case QButton::Off:
+          // Remove the clip plane manipulator
+          SetClipPlaneMan(false);
+          break;
+       case QButton::On:
+          // Set the clip plane manipulator
+          SetClipPlaneMan(true);
+          break;
+       case QButton::NoChange:
+       default:
+          // Remove the clip plane manipulator if present
+          if (!fClipPlane->on.getValue()) SetClipPlaneMan(false);
+          // and disable the cliplane
+          fClipPlane->on = FALSE;
+          break;
+   };
 }
 
 //______________________________________________________________________________

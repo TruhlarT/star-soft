@@ -47,7 +47,8 @@ if test -d Coin-2; then
  # define Windows option if any
  testPlatform=`uname | grep -c CYGWIN`
  if test "x$testPlatform" = "x1" ; then
- msvcrt=--with-msvcrt=multithread-dynamic 
+ msvcrt=--with-msvcrt=multithread-dynamic
+#  msvcrt=--with-msvcrt=multithread-dynamic-debug
  fi
  
 

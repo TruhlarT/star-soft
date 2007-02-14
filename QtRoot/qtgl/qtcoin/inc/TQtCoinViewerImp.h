@@ -1,8 +1,8 @@
-// @(#)root/g3d:$Name:  $:$Id: TQtCoinViewerImp.h,v 1.13 2006/12/14 23:15:49 fine Exp $
+// @(#)root/g3d:$Name:  $:$Id: TQtCoinViewerImp.h,v 1.14 2007/02/14 00:08:03 fine Exp $
 // Author: Valery Fine      23/05/97
 
 /****************************************************************************
-** $Id: TQtCoinViewerImp.h,v 1.13 2006/12/14 23:15:49 fine Exp $
+** $Id: TQtCoinViewerImp.h,v 1.14 2007/02/14 00:08:03 fine Exp $
 **
 ** Copyright (C) 2002 by Valeri Fine. Brookhaven National Laboratory.
 **                                    All rights reserved.
@@ -35,6 +35,9 @@
 
 #include "TString.h"
 
+#ifndef QT_VERSION
+#define QT_VERSION 0x30307
+#endif 
 #ifndef __CINT__
 #  include <qglobal.h>
 #  if QT_VERSION < 0x40000
@@ -122,7 +125,7 @@ protected:
 protected:
    void CopyFile(const QString &fileName2Copy,Int_t counter);
    void CreateViewer(const char *name="qcoinviewer");
-   //void CreateViewer(QGLWidget *share, const char *name="qglviewershared");
+   // void CreateViewer(QGLWidget *share, const char *name="qglviewershared"){;}
    void MakeMenu();
    //void SaveHtml(Int_t counter);
    //void SaveHtml(QString &fileName, Int_t counter);
@@ -145,7 +148,7 @@ public:
    virtual ~TQtCoinViewerImp();
    void AddRootChild(ULong_t id, EObject3DType type=kSolid);
    virtual void   Clear(const char *opt=0);
-   //virtual void   CreateStatusBar(Int_t nparts=1);
+   virtual void   CreateStatusBar(Int_t nparts=1){;}
    virtual void   CreateStatusBar(Int_t *parts, Int_t nparts=1);
    virtual TContextMenu &ContextMenu(); 
    //virtual void   DeleteContext() { }
@@ -174,7 +177,7 @@ public:
    virtual void    DisconnectPad();
    //QGLWidget *GLWidget() const { return fGLWidget;}
    virtual TVirtualPad *GetPad();
-   void CreateViewer(const int id);
+   void CreateViewer(const int id){;}
    void SetBoxSelection();
    void SetLineSelection();
    TObject     *GetSelected()         const;

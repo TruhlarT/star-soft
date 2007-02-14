@@ -48,7 +48,7 @@ QTCOIN3DMOCO    := $(QTCOIN3DMOC:.cxx=.o)
 
 QTCOIN3DS       += TObjectCoinViewFactory.cxx  TQtCoinWidget.cxx      TSimageMovie.cxx          \
                    TCoinShapeBuilder.cxx       TQtCoinViewerImp.cxx   TQtRootCoinViewer3D.cxx   \
-                   TQtCoin3DDefInterface.cxx   TQt3DClipEditor.cxx
+                   TQtCoin3DDefInterface.cxx
                     
 QTCOIN3DS       := $(patsubst %,$(QTCOIN3DDIRS)/%,$(QTCOIN3DS))
 QTCOIN3DLIB     := $(LPATH)/libRQIVTGL.$(SOEXT)
@@ -81,6 +81,12 @@ $(QTCOIN3DDO): $(QTCOIN3DDS)
 
 
 all-qtcoin:         $(QTCOIN3DLIB) $(QTCOIN3DMOC)
+
+map-qtcoin:       $(RLIBMAP)
+		$(RLIBMAP) -r $(ROOTMAP) -l $(QTCOIN3DLIB) \
+                  -d $(QTCOIN3DLIBDEP) -c $(QTCOIN3DL)
+
+map::           map-qtcoin
 
 clean-qtcoin:
 		@rm -f $(QTCOIN3DO)  $(QTCOIN3DDO) $(QTCOIN3DMOC) $(QTCOIN3DMOCO)

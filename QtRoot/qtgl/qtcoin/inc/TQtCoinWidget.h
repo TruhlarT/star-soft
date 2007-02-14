@@ -1,8 +1,8 @@
-// @(#)root/g3d:$Name:  $:$Id: TQtCoinWidget.h,v 1.14 2007/02/10 06:42:06 fine Exp $
+// @(#)root/g3d:$Name:  $:$Id: TQtCoinWidget.h,v 1.15 2007/02/14 00:08:03 fine Exp $
 // Author: Valery Fine      23/05/97
 
 /****************************************************************************
-** $Id: TQtCoinWidget.h,v 1.14 2007/02/10 06:42:06 fine Exp $
+** $Id: TQtCoinWidget.h,v 1.15 2007/02/14 00:08:03 fine Exp $
 **
 ** Copyright (C) 2002 by Valeri Fine. Brookhaven National Laboratory.
 **                                    All rights reserved.
@@ -79,8 +79,6 @@ class QTabWidget;
    
 #include <vector>
 
-class TQt3DClipEditor;
-
 class QAction;
 class QWidget;
 class TVirtualPad;
@@ -89,6 +87,7 @@ class TObject3DView;
 class TContextMenu;
 class SoGLRenderAction;
 class TSimageMovie;
+class QCheckBox;
 
 #ifdef __CINT__
 #  define COINWIDGETFLAGSTYPE  UInt_t
@@ -167,7 +166,7 @@ protected:
    Bool_t            fRecord;
    SoCallback       *fMovie;
    TSimageMovie     *fMPegMovie;
-   TQt3DClipEditor  *fPlaneEditor;
+   QCheckBox        *fClipPlaneState;
 
    
 protected:
@@ -184,7 +183,8 @@ protected:
    SoGLRenderAction &BoxHighlightAction();
    SoGLRenderAction &LineHighlightAction();
    QTabWidget* HelpWidget()   { return fHelpWidget; }
-            void SetCliPlaneMan(Bool_t on=kTRUE);
+            void SetClipPlaneMan(Bool_t on=kTRUE);
+            void SetActiveClipPlane(int planeDirection);
    virtual  void SetPad(TVirtualPad *pad);  
 public:
    enum {kStatusPopIn, kStatusNoBorders, kStatusOwn, kStatusPopOut};
@@ -228,6 +228,7 @@ public:
    Bool_t Recording()  const { return fRecord;}
    void SetBoxSelection();
    void SetLineSelection();
+   SoSelection *GetSelectingNode()    const { return fSelNode;            }
    TObject     *GetSelected()         const { return fSelectedObject;     }
    SoQtViewer  *GetCoinViewer()       const { return fInventorViewer;     }
    Bool_t       WantRootContextMenu() const { return fWantRootContextMenu;}
@@ -249,6 +250,7 @@ public:
      virtual void FrameAxisActionCB(bool);
       //virtual void NewViewer();
      virtual void PrintCB();
+     virtual void ClipPlaneModeCB(int mode);
      virtual void CopyCB();
      virtual void CopyFrameCB();
      virtual void ReadInputFile(const char *fileName);
@@ -278,6 +280,9 @@ public:
      virtual void ViewPlaneX() const;
      virtual void ViewPlaneY() const;
      virtual void ViewPlaneZ() const;
+     virtual void SetClipPlaneXCB();
+     virtual void SetClipPlaneYCB();
+     virtual void SetClipPlaneZCB();
      virtual void ViewAll();
      //virtual void SetFooter(QString &text);
      virtual void WantRootContextMenuCB(bool on);
