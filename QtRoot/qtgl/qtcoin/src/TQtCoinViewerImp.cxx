@@ -1245,7 +1245,7 @@ void TQtCoinViewerImp::SetSnapFileCounter(int counter)
 	if (fCoinWidget) fCoinWidget->SetSnapFileCounter(counter);
 }
 //______________________________________________________________________________
-void TQtCoinViewerImp::SetCliPlaneMan(Bool_t on)
+void TQtCoinViewerImp::SetCliPlaneMan(bool on)
 {
     if (fCoinWidget) fCoinWidget->SetClipPlaneMan(on);
 }

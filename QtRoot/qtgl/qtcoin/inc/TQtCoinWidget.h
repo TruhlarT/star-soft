@@ -1,8 +1,8 @@
-// @(#)root/g3d:$Name:  $:$Id: TQtCoinWidget.h,v 1.15 2007/02/14 00:08:03 fine Exp $
+// @(#)root/g3d:$Name:  $:$Id: TQtCoinWidget.h,v 1.16 2007/02/16 01:36:05 fine Exp $
 // Author: Valery Fine      23/05/97
 
 /****************************************************************************
-** $Id: TQtCoinWidget.h,v 1.15 2007/02/14 00:08:03 fine Exp $
+** $Id: TQtCoinWidget.h,v 1.16 2007/02/16 01:36:05 fine Exp $
 **
 ** Copyright (C) 2002 by Valeri Fine. Brookhaven National Laboratory.
 **                                    All rights reserved.
@@ -70,6 +70,7 @@ class TCoinAxisSeparator;
 class SoFieldSensor;
 class SoClipPlane;
 class SoCallback;
+class SoPath;
  
 class QTabWidget;
 
@@ -124,6 +125,7 @@ private:
    SmAxisKit              *fZAxis;
    SoFieldSensor          *fCameraSensor;
    void                   *fPickedObject;
+   float                   fPivotClipPoint[3];
    
    TQtCoinWidget(const TQtCoinWidget&);
    void operator=(const TQtCoinWidget&)  {}
@@ -167,6 +169,7 @@ protected:
    SoCallback       *fMovie;
    TSimageMovie     *fMPegMovie;
    QCheckBox        *fClipPlaneState;
+   SoPath           *fClipPlanePath;
 
    
 protected:
@@ -183,7 +186,7 @@ protected:
    SoGLRenderAction &BoxHighlightAction();
    SoGLRenderAction &LineHighlightAction();
    QTabWidget* HelpWidget()   { return fHelpWidget; }
-            void SetClipPlaneMan(Bool_t on=kTRUE);
+            void SetClipPlane(SoClipPlane *plane, int planeDirection);
             void SetActiveClipPlane(int planeDirection);
    virtual  void SetPad(TVirtualPad *pad);  
 public:
@@ -256,6 +259,8 @@ public:
      virtual void ReadInputFile(const char *fileName);
      virtual void ReadInputFile(QString fileName);
      virtual void Save(QString fileName,QString type="png");
+     virtual void SetClipPlaneMan(bool on=kTRUE,float x=1.0f, float y=0.0f, float z=0.0f);
+
      virtual void SetFileName(const QString &fileName);     
      virtual void SetFileType(const QString &fileType);     
      virtual void ClearCB();

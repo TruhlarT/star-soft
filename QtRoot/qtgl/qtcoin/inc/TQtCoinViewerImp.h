@@ -1,8 +1,8 @@
-// @(#)root/g3d:$Name:  $:$Id: TQtCoinViewerImp.h,v 1.14 2007/02/14 00:08:03 fine Exp $
+// @(#)root/g3d:$Name:  $:$Id: TQtCoinViewerImp.h,v 1.15 2007/02/16 01:36:04 fine Exp $
 // Author: Valery Fine      23/05/97
 
 /****************************************************************************
-** $Id: TQtCoinViewerImp.h,v 1.14 2007/02/14 00:08:03 fine Exp $
+** $Id: TQtCoinViewerImp.h,v 1.15 2007/02/16 01:36:04 fine Exp $
 **
 ** Copyright (C) 2002 by Valeri Fine. Brookhaven National Laboratory.
 **                                    All rights reserved.
@@ -135,7 +135,7 @@ protected:
    //TQtCoinViewerImp(TQtCoinViewerImp &);
    SoGLRenderAction &BoxHighlightAction();
    SoGLRenderAction &LineHighlightAction();
-   void SetCliPlaneMan(Bool_t on=kTRUE);
+   void SetCliPlaneMan(bool on=kTRUE);
 public:
    enum {kStatusPopIn, kStatusNoBorders, kStatusOwn, kStatusPopOut};
    //TQtCoinViewerImp();

@@ -492,8 +492,9 @@ TQtCoinWidget::TQtCoinWidget(QWidget *parent, COINWIDGETFLAGSTYPE f)
    //, fSelectionViewer(kFALSE),fSelectionHighlight(kFALSE),fShowSelectionGlobal(kFALSE)
    , fSnapShotAction(0),fBoxHighlightAction(0),fLineHighlightAction(0)
    , fWantClipPlane(kFALSE), fClipPlaneMan(0), fClipPlane(0),fHelpWidget(0),fRecord(kFALSE)
-   , fMovie(0),fMPegMovie(0),fClipPlaneState(0)
+   , fMovie(0),fMPegMovie(0),fClipPlaneState(0),fClipPlanePath(0)
 {
+      memset(fPivotClipPoint,0,sizeof(fPivotClipPoint));
 }
 //______________________________________________________________________________
 void TQtCoinWidget::SetPad(TVirtualPad *pad)
@@ -540,7 +541,7 @@ TQtCoinWidget::TQtCoinWidget(TVirtualPad *pad, const char *title,
    //, fSelectionViewer(kFALSE),fSelectionHighlight(kFALSE),fShowSelectionGlobal(kFALSE)
    , fSnapShotAction(0),fBoxHighlightAction(0),fLineHighlightAction(0)
    , fWantClipPlane(kFALSE), fClipPlaneMan(0), fClipPlane(0),fHelpWidget(0),fRecord(kFALSE)
-   , fMovie(0),fMPegMovie(0),fClipPlaneState(0)
+   , fMovie(0),fMPegMovie(0),fClipPlaneState(0),fClipPlanePath(0)
 {
    printf("TQtCoinWidget::TQtCoinWidget begin Pad=%p\n", pad);
    //Create the default SnapShot file name and type if any
@@ -549,6 +550,7 @@ TQtCoinWidget::TQtCoinWidget(TVirtualPad *pad, const char *title,
         fileDir  = gEnv->GetValue("Gui.SnapShotDirectory",(const char *)0);
    }
    QString saveFile;
+   memset(fPivotClipPoint,0,sizeof(fPivotClipPoint));
    if (fileDir  && fileDir[0]) {  saveFile = fileDir; saveFile += "/"; }
    if ( fPad ) {
       saveFile += fPad->GetName();
@@ -664,6 +666,7 @@ TQtCoinWidget::~TQtCoinWidget()
    if (fMPegMovie)    { delete fMPegMovie;      fMPegMovie    = 0;}
    if (fMovie)        { fMovie       ->unref(); fMovie        = 0;}
    if (fClipPlaneMan) { fClipPlaneMan->unref(); fClipPlaneMan = 0;}
+   if (fClipPlanePath){ fClipPlanePath->unref();fClipPlanePath = 0;}
 #ifdef NOEXAMINERVIEWER
    if (fAxes)         { fAxes        ->unref(); fAxes         = 0;}
 #endif
@@ -2148,20 +2151,19 @@ void TQtCoinWidget::SetSnapFileCounter(int counter)
 	fMaxSnapFileCounter = counter;  
 }
 //_______________________________________________________________________________
-static void SetClipPlane(SoClipPlane *plane, int planeDirection)
+void TQtCoinWidget::SetClipPlane(SoClipPlane *plane, int planeDirection)
 {
    if (plane) {
-      SbPlane currentClipPlane = plane->plane.getValue();      
-      SbVec3d point  = currentClipPlane.getNormal();
-              point *= currentClipPlane.getDistanceFromOrigin();
-
       SbVec3f normal;
       switch (planeDirection) {
          case 0: normal.setValue(1,0,0); break;
          case 1: normal.setValue(0,1,0); break;
          case 2: normal.setValue(0,0,1); break;
       };
-      plane->plane.setValue(SbPlane(normal,point));
+      plane->plane.setValue(SbPlane(normal,SbVec3f( fPivotClipPoint[0]
+                                                   ,fPivotClipPoint[1]
+                                                   ,fPivotClipPoint[2]
+                                                   )));
    }
 }
 //_______________________________________________________________________________
@@ -2187,46 +2189,65 @@ void TQtCoinWidget::SetClipPlaneZCB()
 //_______________________________________________________________________________
 void TQtCoinWidget::SetActiveClipPlane(int planeDirection)
 {
-   if (fClipPlaneState->state() == QButton::NoChange) {
+   if (fClipPlaneState->state() != QButton::Off) 
+   {
       fClipPlaneState->blockSignals(true);
-      fClipPlaneState->setChecked(true);
-      ClipPlaneModeCB(QButton::On);
+      if (fClipPlaneState->state() == QButton::On) {
+         // Recreate the path
+         if (fClipPlanePath) {
+            fClipPlanePath->unref(); 
+            fClipPlanePath = 0;
+         }
+         if (fClipPlaneMan) {
+            fShapeNode->removeChild(fClipPlaneMan);
+            fClipPlaneMan->unref(); fClipPlaneMan = 0;
+         }
+      } else {
+         fClipPlaneState->setChecked(true);
+      }
+      switch (planeDirection) {
+         case 0: SetClipPlaneMan(kTRUE,1,0,0); break;
+         case 1: SetClipPlaneMan(kTRUE,0,1,0); break;
+         case 2: SetClipPlaneMan(kTRUE,0,0,1); break;
+      };      
       fClipPlaneState->blockSignals(false);
+   } else {
+       if (fClipPlane) SetClipPlane( fClipPlane, planeDirection);
    }
-   ::SetClipPlane( fClipPlane->on.getValue() ? fClipPlane : fClipPlaneMan, planeDirection);
 }
 
 //______________________________________________________________________________
-void TQtCoinWidget::SetClipPlaneMan(Bool_t on)
+void TQtCoinWidget::SetClipPlaneMan(bool on, float x, float y, float z)
 {
    if (on) {
-     int wiredIndx = 0;
-     if (fSolidShapeNode) {
-        wiredIndx = fShapeNode->findChild(fSolidShapeNode);
-     }
-     if (!fClipPlaneMan) {
-      fprintf(stderr," TQtCoinWidget::SetClipPlaneMan \n",on);
+     if (!fClipPlanePath) {
+        // fprintf(stderr," TQtCoinWidget::SetClipPlaneMan \n",on);
+        int wiredIndx = fSolidShapeNode ? fShapeNode->findChild(fSolidShapeNode):0;
         fClipPlaneMan = new SoClipPlaneManip();       
         fClipPlaneMan->ref();
         SoGetBoundingBoxAction ba(fInventorViewer->getViewportRegion());
         ba.apply(fShapeNode);
    
         SbBox3f box = ba.getBoundingBox();
-        fClipPlaneMan->setValue(box, SbVec3f(1.0f, 0.0f, 0.0f), 1.02f);
-        
-        fClipPlane    = new SoClipPlane();
-        fClipPlane->plane = fClipPlaneMan->plane;
-        fShapeNode->insertChild(fClipPlane, wiredIndx==-1 ? 0 : wiredIndx );
+        box.getCenter().getValue( fPivotClipPoint[0]
+                                 ,fPivotClipPoint[1]
+                                 ,fPivotClipPoint[2]
+                                 );
+
+        fClipPlaneMan->setValue(box, SbVec3f(x, y, z), 1.02f);
+        // construct the clip plane path
+        fClipPlanePath = new SoPath(fShapeNode);
+        fClipPlanePath->ref();
+        fShapeNode->insertChild(fClipPlaneMan, wiredIndx==-1 ? 0 : wiredIndx );
+        fClipPlanePath->append(fClipPlaneMan);
+     } else {
+        fClipPlaneMan->replaceNode(fClipPlanePath);
      }
-     
-     fClipPlane->on = FALSE;
-     fClipPlaneMan->plane = fClipPlane->plane;    
-          
-     fShapeNode->insertChild(fClipPlaneMan, wiredIndx==-1 ? 0 : wiredIndx);     
-  } else if (fClipPlaneMan) {
-     fShapeNode->removeChild(fClipPlaneMan);
-     fClipPlane->plane = fClipPlaneMan->plane;
-     fClipPlane->on=TRUE;
+
+     if (!fClipPlaneMan->on.getValue()) fClipPlaneMan->on = TRUE;
+
+  } else if (fClipPlanePath) {
+     fClipPlaneMan->replaceManip(fClipPlanePath, fClipPlane = new SoClipPlane());
   }
 }
 
@@ -2295,7 +2316,7 @@ void TQtCoinWidget::ClipPlaneModeCB(int mode)
        case QButton::NoChange:
        default:
           // Remove the clip plane manipulator if present
-          if (!fClipPlane->on.getValue()) SetClipPlaneMan(false);
+          if (fClipPlaneMan->getRefCount() > 1 ) SetClipPlaneMan(false);
           // and disable the cliplane
           fClipPlane->on = FALSE;
           break;
