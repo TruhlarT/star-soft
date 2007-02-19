@@ -1,4 +1,4 @@
-// @(#)root/ged:$Name:  $:$Id: TQtGedAttFrame.h,v 1.1 2006/08/16 19:32:43 fine Exp $
+// @(#)root/ged:$Name:  $:$Id: TQtGedAttFrame.h,v 1.2 2007/02/19 03:43:52 fine Exp $
 // Author: Valeri Fine 25/06/04
 // based on the code by Marek Biskup, Ilka  Antcheva 28/07/03
 
@@ -87,9 +87,8 @@ class TQtFrameUpdate : public QObject {
   private:
      TQtGedAttInterfaceB *fFrame;
      TQtFrameUpdate (){}
-     TQtFrameUpdate (const TQtFrameUpdate&): QObject() {}
-     void operator=(const TQtFrameUpdate&) {}
-     void operator=(const TQtFrameUpdate&) const  {}
+     TQtFrameUpdate (const TQtFrameUpdate&);
+     void operator=(const TQtFrameUpdate&);
   public:
      TQtFrameUpdate(TQtGedAttInterfaceB *frame) : fFrame(frame) {}
   public slots:
@@ -105,9 +104,8 @@ friend class TQtGedEditor;
 friend class TQtFrameUpdate;
 
 private:
-   TQtGedAttInterfaceB (const TQtGedAttInterfaceB&): TObject(),fUpdateSlot(0) {}
-   void operator=(const TQtGedAttInterfaceB&) {}
-   void operator=(const TQtGedAttInterfaceB&) const  {}
+   TQtGedAttInterfaceB (const TQtGedAttInterfaceB&);
+   void operator=(const TQtGedAttInterfaceB&);
 
 protected:
    Int_t         fId;          // This interface index
@@ -255,9 +253,8 @@ class TQtGedFactory : public TQtGedFactoryI {
  class TQtGedAttInterface : public QDockWindow, public TQtGedAttInterfaceB  {
 
  private: 
-   TQtGedAttInterface(const TQtGedAttInterface&) : QDockWindow(), TQtGedAttInterfaceB() {}
-   void operator=(const TQtGedAttInterface&) {}
-   void operator=(const TQtGedAttInterface&) const  {}
+   TQtGedAttInterface(const TQtGedAttInterface&);
+   void operator=(const TQtGedAttInterface&);
  protected:
        
    QHBox       *fPanelBox;
@@ -307,8 +304,7 @@ protected:
 
    virtual TObject *SetModel(TObject *obj);
    virtual const char *ModelName() const;
-   void operator=(const TQtGedAttFrame &) {}
-   void operator=(const TQtGedAttFrame&) const  {}
+   void operator=(const TQtGedAttFrame &);
 
 public:
    TQtGedAttFrame(QMainWindow *mainWidget, const QString &label, TCanvas *canvas, Int_t id,
@@ -375,7 +371,7 @@ template<class V>
 TQtGedAttInterfaceB *TQtGedFactory<V>::Create(QMainWindow *mainWidget, TCanvas *canvas) const
 {
    // Create the Ged editor
-    V *v = new V(mainWidget, canvas);
+    TQtGedAttInterfaceB *v = new V(mainWidget, canvas);
     return v;
 }
 
@@ -384,7 +380,7 @@ template<class V>
 TQtGedAttInterfaceB *TQtGedFactory<V>::Create(TCanvas *canvas, QWidget *parent) const
 {
    // Create the Ged editor
-   V *v =  new V(canvas, parent);
+   TQtGedAttInterfaceB *v =  new V(canvas, parent);
    return v;
 }
 
