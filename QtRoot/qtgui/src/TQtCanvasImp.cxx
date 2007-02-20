@@ -1,6 +1,6 @@
 // Author: Valeri Fine   21/01/2002
 /****************************************************************************
-** $Id: TQtCanvasImp.cxx,v 1.4 2006/12/29 20:17:00 fine Exp $
+** $Id: TQtCanvasImp.cxx,v 1.5 2007/02/20 20:41:37 fine Exp $
 **
 ** Copyright (C) 2002 by Valeri Fine. Brookhaven National Laboratory.
 **                                    All rights reserved.
@@ -699,8 +699,12 @@ void TQtCanvasImp::Disconnect()
 //______________________________________________________________________________
 void TQtCanvasImp::NewCanvas()
 {
+#if ROOT_VERSION_CODE >= ROOT_VERSION(5,15,03)
+  gROOT->MakeDefCanvas();
+#else   
   gROOT->GetMakeDefCanvas()();
-}
+#endif  
+ }
 //______________________________________________________________________________
 void TQtCanvasImp::CreateStatusBar(Int_t nparts)
 {
@@ -1217,7 +1221,11 @@ void TQtCanvasImp::ColorsCB()
   char defcanvas[32];
   strcpy(defcanvas,gROOT->GetDefCanvasName());
   gROOT->SetDefCanvasName("DisplayColors");
+#if ROOT_VERSION_CODE >= ROOT_VERSION(5,15,03)
+  gROOT->MakeDefCanvas();
+#else   
   (gROOT->GetMakeDefCanvas())();
+#endif  
   gROOT->SetDefCanvasName(defcanvas);
   TPad::DrawColorTable();
   gPad->Update();
