@@ -1,6 +1,6 @@
 // Author: Valeri Fine   21/01/2002
 /****************************************************************************
-** $Id: TQtRootBrowserImp.cxx,v 1.3 2007/01/23 06:52:53 fine Exp $
+** $Id: TQtRootBrowserImp.cxx,v 1.4 2007/02/20 20:50:22 fine Exp $
 **
 ** Copyright (C) 2002 by Valeri Fine. Brookhaven National Laboratory.
 **                                    All rights reserved.
@@ -574,7 +574,11 @@ void TQtRootBrowserImp::NewBrowserCB()
 //______________________________________________________________________________
 void TQtRootBrowserImp::NewCanvasCB()
 { 
+#if ROOT_VERSION_CODE >= ROOT_VERSION(5,15,03)
+  gROOT->MakeDefCanvas();
+#else   
   gROOT->GetMakeDefCanvas()();
+#endif  
 }
 //______________________________________________________________________________
 void TQtRootBrowserImp::OpenCB()
