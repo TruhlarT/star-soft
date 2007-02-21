@@ -1,4 +1,4 @@
-// @(#)root/base:$Name:  $:$Id: TNumDeriv.cxx,v 1.1 2007/02/21 16:54:03 fisyak Exp $
+// @(#)root/base:$Name:  $:$Id: TNumDeriv.cxx,v 1.1.1.1 2007/02/21 16:54:03 fisyak Exp $
 // Author: Victor Perev   05/08/03
 
 
