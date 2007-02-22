@@ -1,6 +1,6 @@
 #!/usr/bin/env perl
 
-# $Id: AutoBuild.pl,v 1.30 2007/01/23 15:18:49 jeromel Exp $
+# $Id: AutoBuild.pl,v 1.31 2007/02/22 20:55:10 jeromel Exp $
 # This script was written to perform an automatic compilation
 # with cvs co and write some html page related to it afterward.
 # Written J.Lauret Apr 6 2001
@@ -135,7 +135,7 @@ for ($i=0 ; $i <= $#ARGV ; $i++){
 
 	} elsif($arg eq "-o"){
 	    $FILO= $ARGV[++$i];
-	    if(-e $FILO){ unlink($FILO);}
+	    IUnlink($FILO);
 	    if(open(FILO,">$FILO")){
 		$FILO = FILO;
 	    } else {
@@ -518,7 +518,7 @@ if ($ans =~ /^\s*y/i){
 		    if(! $TRASH){
 			push(@REPORT," found and preserved as-is");
 		    } else {
-			if(unlink($file)){
+			if( IUnlink($file)){
 			    push(@REPORT,"deleted");
 			    $fail += &Execute("$CVSCMDR $file");
 			} else {
@@ -666,8 +666,8 @@ COMPILE_BEGIN:
 			    if( &Execute("$RECVF$i.recover") == 0){
 				# we recovered successfully, start all over again
 				$PASSN++;                     # increment counter
-				unlink("$TMPNM$i");           # clean-up compile pass exec
-				unlink("$RECVF$i.recover");   # clean up recovery exec
+				IUnlink("$TMPNM$i");          # clean-up compile pass exec
+				IUnlink("$RECVF$i.recover");  # clean up recovery exec
 				push(@STATUS,"$i-$fail"."-1");
 				$fail = 0;
 				push(@REPORT,"</UL>");        # </UL> is terminated in the next block
@@ -694,7 +694,7 @@ COMPILE_BEGIN:
 	    # in case of failure, we purposadly leave the executor file
 	    # in place and do not delete. It allows for executing by hand
 	    # for debugging purposes.
-	    unlink("$TMPNM$i");
+	    IUnlink("$TMPNM$i");
 	    $i++;
 	}
 	if($FIRSTPASS){ last;}
@@ -787,7 +787,7 @@ sub Exit()
     } else {
 	# Release the volume now
 	$tmp = IUReleaseFile();
-	if( -e $tmp){ unlink($tmp);}
+	IUnlink($tmp);
 	open(FO,">$tmp"); print FO "Ready to release on ".localtime()."\n";
 	close(FO);
 
@@ -836,7 +836,7 @@ sub ReportToHtml
     if( -e "$flnm.html"){
 	while( -e "$flnm$i.html"){ $i++;}
 	if( $i == 100){
-	    unlink(glob("$flnm\[0-9\]*.html"));
+	    IUnlink(glob("$flnm\[0-9\]*.html"));
 	    $i = 0;
 	}
 	rename("$flnm.html","$flnm$i.html");
@@ -957,13 +957,13 @@ sub Execute
     if( ! defined($mode) ){ $mode = 0;}
     IULockWrite("Executing [$cmd]");
 
-    unlink("$FLNMSG.err")        if ( -e "$FLNMSG.err");
+    IUnlink("$FLNMSG.err");
     open(SAVEERR,">&STDERR");
     open(STDERR,">$FLNMSG.err");
     select(STDERR); $| = 1;
     if($mode == 1){
 	print $FILO " - Executing [$cmd]. Please wait ...\n";
-	unlink("$FLNMSG.out")    if ( -e "$FLNMSG.out");
+	IUnlink("$FLNMSG.out");
 	open(SAVOUT,">&STDOUT");
 	open(STDOUT,">$FLNMSG.out");
 	select(STDOUT); $| = 1;
@@ -1057,7 +1057,7 @@ sub Execute
 	if($k != -1){ push(@REPORT,"</PRE></TR></TD>");}
 	push(@REPORT,"</TABLE>");
 	close(FI);
-	unlink("$FLNMSG.err");
+	IUnlink("$FLNMSG.err");
     }
 
 
@@ -1073,7 +1073,7 @@ sub Execute
 	}
 	push(@REPORT,"</PRE>");
 	close(FI);
-	unlink("$FLNMSG.out");
+	IUnlink("$FLNMSG.out");
     }
     return $rc;
 }
