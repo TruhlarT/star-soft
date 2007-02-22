@@ -26,6 +26,7 @@ use Digest::MD5;
 	   IUHtmlDir IUHtmlRef IUHtmlPub
 	   IULockPrepare IULockCheck IULockWrite IULockDelete
 	   IUGetLogin
+	   IUnlink
 	   );
 
 # ------------------------------------------
@@ -506,7 +507,7 @@ sub IUSubmit
 
     if ( -e $log ){
 	print "Deleting preceding log\n";
-	unlink($log);
+	&IUnlink($log);
     }
 
     $cmd = "$INSU::BSUB -q $INSU::QUEUE -o $log $job";
@@ -522,7 +523,7 @@ sub IUSubmit
 	    chmod(0700,$tmpfile);
 	    print "Executing : $cmd\n";
 	    system($tmpfile);
-	    unlink($tmpfile);
+	    &IUnlink($tmpfile);
 	} else {
 	    print "Could not open $tmpfile\n";
 	}
@@ -561,8 +562,8 @@ sub IUCheckFile
 
     } elsif ($mode == 1){
 	# perl mode
-	if ( -e "$dir/$file-old"){ unlink("$dir/$file-old");}
-	if ( -e "$dir/$file")    { rename("$dir/$file","$dir/$file-old");}
+	                            &IUnlink("$dir/$file-old");
+	if ( -e "$dir/$file")    {  rename("$dir/$file","$dir/$file-old");}
 
 
     } elsif ($mode == 3){
@@ -600,7 +601,7 @@ sub IUMoveFile
     while ( -e "$odir/$oflnm-$cnt$oext" && $cnt < $limit){ $cnt++;}
     if ($cnt == $limit) {
 	$cnt = 0;
-	unlink(glob("$odir/$oflnm-*$oext"));
+	&IUnlink(glob("$odir/$oflnm-*$oext"));
     }
 
 
@@ -666,7 +667,7 @@ sub IULockCheck
 	    print
 		"ABUtil:: LockCheck: ",
 		"$INSU::FLNMLCK has a date greater than $delta. Deleting.\n";
-	    unlink($INSU::FLNMLCK);
+	    &IUnlink($INSU::FLNMLCK);
 	} else {
 	    print
 		"ABUtil:: LockCheck: ",
@@ -719,7 +720,7 @@ sub IULockDelete
 {
     if ( $INSU::FLNMLCK ne ""){
 	if ( -e $INSU::FLNMLCK){
-	    if ( ! unlink($INSU::FLNMLCK) ){
+	    if ( ! &IUnlink($INSU::FLNMLCK) ){
 		print "ABUtil:: LockDelete: could not remove $INSU::FLNMLCK\n";
 		return 0;
 	    } else {
@@ -756,6 +757,36 @@ sub IUdie {
     die $msgs;
 }
 
+
+#
+# Trap for unlink - will retry a few times (5)
+#
+sub IUnlink
+{
+    my(@files)=@_;
+    my($file,$i,$cnt);
+    
+    $cnt = 0;
+    foreach $file (@files){
+	$i=0;
+	UNLINKTRIAL:
+	if ( -e $file ){
+	    if ( ! unlink($file) ){
+		if ( $i++ < 5){
+		    sleep(1);
+		    goto UNLINKTRIAL;
+		}
+	    } else {
+		$cnt++;
+	    }
+	} else {
+	    # a subtle issue, we will count as OK
+	    # if the file is not present
+	    $cnt++;
+	}
+    }
+    $cnt;
+}
 
 
 
