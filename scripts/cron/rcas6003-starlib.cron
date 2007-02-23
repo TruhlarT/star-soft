@@ -4,7 +4,7 @@
 00 21 * * 2,4,6 /afs/rhic.bnl.gov/star/packages/scripts/AutoBuild.csh Clean
 05 23 * * *     /afs/rhic.bnl.gov/star/packages/scripts/AutoBuild.csh
 00 04 * * *     /afs/rhic.bnl.gov/star/packages/scripts/AutoBuild.csh icc
-00 06 * * *     /afs/rhic.bnl.gov/star/packages/scripts/AutoBuild.csh Insure
+#00 06 * * *     /afs/rhic.bnl.gov/star/packages/scripts/AutoBuild.csh Insure
 
 01,16,31,46 * * * * /afs/rhic.bnl.gov/star/packages/scripts/cvslog2html.pl
 45 00,12,17   * * * /afs/rhic.bnl.gov/star/packages/scripts/swguide-cron.pl .dev dev
@@ -13,14 +13,17 @@
 
 # Nova processes
 10,30,50      *   * * *   /afs/rhic.bnl.gov/star/users/starlib/novabin/updateServers.csh update
-15            *   * * *   /afs/rhic.bnl.gov/star/users/starlib/novabin/updateServers.csh hook 
 17            *   * * *   /afs/rhic.bnl.gov/star/users/starlib/novabin/updateServers.csh cddb
-23  03,09,15,21   * * *   /afs/rhic.bnl.gov/star/users/starlib/novabin/updateServers.csh lddb
+#23  03,09,15,21   * * *   /afs/rhic.bnl.gov/star/users/starlib/novabin/updateServers.csh lddb
 26  04,10,16,22   * * *   /afs/rhic.bnl.gov/star/users/starlib/novabin/updateServers.csh delf
 00           01   * * 0,3 /afs/rhic.bnl.gov/star/users/starlib/novabin/updateServers.csh newlog
+# added for peace of mind 
+15           22    * * *   /afs/rhic.bnl.gov/star/users/starlib/novabin/updateServers.csh 'hook 3'
+# 15        02,14    * * *   /afs/rhic.bnl.gov/star/users/starlib/novabin/updateServers.csh hook
+
 
 # Fill with new entries as necessary / cycle every 6 hours
-14  03,09,15,21   * * *   /afs/rhic.bnl.gov/star/users/starlib/novabin/fcheck.pl fill
+14    03,09,15,21    * * *   /afs/rhic.bnl.gov/star/users/starlib/novabin/fcheck.pl fill
 
 
 # Generate plots for nova disk - this will speed up 
@@ -30,15 +33,15 @@
 
 # XROOTD load measurement and publishing
 # each hour do plots
-0 * * * * /star/data08/users/pjakl/loadStat/bin/publishLoadStat.csh hour
+0 * * * * /star/data08/users/pjakl/cas_loadStat/bin/publishLoadStat.csh hour
 # each day at 00:00:00 do day statistic
-5 0 * * * /star/data08/users/pjakl/loadStat/bin/publishLoadStat.csh day
+5 0 * * * /star/data08/users/pjakl/cas_loadStat/bin/publishLoadStat.csh day
 # each week at 00:00:00 on Sunday do week
-20 0 * * 1 /star/data08/users/pjakl/loadStat/bin/publishLoadStat.csh week
+20 0 * * 1 /star/data08/users/pjakl/cas_loadStat/bin/publishLoadStat.csh week
 # at 00:00:00 on 1.1.yyyy do year statistic
-0 0 1 1 * /star/data08/users/pjakl/loadStat/bin/publishLoadStat.csh year
+0 0 1 1 * /star/data08/users/pjakl/cas_loadStat/bin/publishLoadStat.csh year
 # at 01:10:00 and 13:10:00 do a synchronization 
-10 01,13 * * * /star/data08/users/pjakl/loadStat/bin/publishLoadStat.csh synch
+10 01,13 * * * /star/data08/users/pjakl/cas_loadStat/bin/publishLoadStat.csh synch
 
 # XROOTD ganglia plots downloading
 # each week at 00:00:00 on Sunday do week
@@ -60,17 +63,8 @@
 # at 02:00:00 each day do a synchronization
 00 6 * * * /star/data08/users/pjakl/failureStat/bin/failureCollector.csh synch
 
-# xrootd and Olbd startup added on Tue Jun 13 13:57:53 EDT 2006
-* * * * * /star/u/starlib/ROOT/xrootd/utils/StartXRD
-01        * * * * /star/u/starlib/ROOT/xrootd/utils/StartXRD savelog
-# xrootd and Olbd developement version added on Tue Jun 13 13:57:53 EDT 2006
-10,20,30,40,50,00 * * * * /star/u/starlib/ROOT/xrootd_dev/utils/StartXRD
-01        * * * * /star/u/starlib/ROOT/xrootd_dev/utils/StartXRD savelog
 
 
-# Reference for AddThisNode.csh and nova daemon added on Sun Jul 30 16:23:33 EDT 2006
-25 16,18,20,22,0,2,4,6,8,10,12,14 * * * /tmp/nova/novaStart.csh
-10 0,2,4,6,8,10,12,14,16,18,20,22 * * * /usr/bin/test -e /star/u/starlib/novabin/AddThisNode.csh && /star/u/starlib/novabin/AddThisNode.csh 
 
 # XROOTD load measurement and publishing for CRS cluster
 # each hour do plots
@@ -82,5 +76,14 @@
 # at 00:00:00 on 1.1.yyyy do year statistic
 0 0 1 1 * /star/data08/users/pjakl/crs_loadStat/bin/publishLoadStat.csh year
 # at 01:10:00 and 13:10:00 do a synchronization
-30 01,13 * * * /star/data08/users/pjakl/crs_loadStat/bin/publishLoadStat.csh synch
+40 02,14 * * * /star/data08/users/pjakl/crs_loadStat/bin/publishLoadStat.csh synch
 
+# xrootd and Olbd startup added on Mon Oct 30 15:39:40 EST 2006
+* * * * * /star/u/starlib/ROOT/xrootd/utils/StartXRD
+01 * * * * /star/u/starlib/ROOT/xrootd/utils/StartXRD savelog
+# xrootd and Olbd developement version added on Mon Oct 30 15:39:40 EST 2006
+* * * * * /star/u/starlib/ROOT/xrootd_dev/utils/StartXRD
+01 * * * * /star/u/starlib/ROOT/xrootd_dev/utils/StartXRD savelog
+# Reference for AddThisNode.csh and nova daemon added on Thu Feb  8 18:17:18 EST 2007
+19 18,20,22,0,2,4,6,8,10,12,14,16 * * * /tmp/nova/novaStart.csh
+19 0,2,4,6,8,10,12,14,16,18,20,22 * * * /usr/bin/test -e /star/u/starlib/novabin/AddThisNode.csh && /star/u/starlib/novabin/AddThisNode.csh 
