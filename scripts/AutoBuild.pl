@@ -1,6 +1,6 @@
 #!/usr/bin/env perl
 
-# $Id: AutoBuild.pl,v 1.33 2007/02/26 18:06:17 jeromel Exp $
+# $Id: AutoBuild.pl,v 1.34 2007/02/26 18:17:35 jeromel Exp $
 # This script was written to perform an automatic compilation
 # with cvs co and write some html page related to it afterward.
 # Written J.Lauret Apr 6 2001
@@ -846,7 +846,7 @@ sub ReportToHtml
     if( open(FO,">$flnm.html") ){
 	$fo = FO;
     } else {
-	&SendMessage("AutoBuild: Problem writting $flnm",
+	&SendMessage("AutoBuild: Problem writting $flnm error=$? [$!].",
 		     "Action is incomplete, results dumped to ".($FILO==STDOUT?"STDOUT":$FILO));
 	$fo = STDOUT;
     }
