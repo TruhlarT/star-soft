@@ -1,6 +1,6 @@
 #!/usr/bin/env perl
 
-# $Id: AutoBuild.pl,v 1.31 2007/02/22 20:55:10 jeromel Exp $
+# $Id: AutoBuild.pl,v 1.32 2007/02/26 18:04:36 jeromel Exp $
 # This script was written to perform an automatic compilation
 # with cvs co and write some html page related to it afterward.
 # Written J.Lauret Apr 6 2001
@@ -135,7 +135,7 @@ for ($i=0 ; $i <= $#ARGV ; $i++){
 
 	} elsif($arg eq "-o"){
 	    $FILO= $ARGV[++$i];
-	    IUnlink($FILO);
+	    ABUnlink($FILO);
 	    if(open(FILO,">$FILO")){
 		$FILO = FILO;
 	    } else {
@@ -518,7 +518,7 @@ if ($ans =~ /^\s*y/i){
 		    if(! $TRASH){
 			push(@REPORT," found and preserved as-is");
 		    } else {
-			if( IUnlink($file)){
+			if( ABUnlink($file)){
 			    push(@REPORT,"deleted");
 			    $fail += &Execute("$CVSCMDR $file");
 			} else {
@@ -666,8 +666,8 @@ COMPILE_BEGIN:
 			    if( &Execute("$RECVF$i.recover") == 0){
 				# we recovered successfully, start all over again
 				$PASSN++;                     # increment counter
-				IUnlink("$TMPNM$i");          # clean-up compile pass exec
-				IUnlink("$RECVF$i.recover");  # clean up recovery exec
+				ABUnlink("$TMPNM$i");          # clean-up compile pass exec
+				ABUnlink("$RECVF$i.recover");  # clean up recovery exec
 				push(@STATUS,"$i-$fail"."-1");
 				$fail = 0;
 				push(@REPORT,"</UL>");        # </UL> is terminated in the next block
@@ -694,7 +694,7 @@ COMPILE_BEGIN:
 	    # in case of failure, we purposadly leave the executor file
 	    # in place and do not delete. It allows for executing by hand
 	    # for debugging purposes.
-	    IUnlink("$TMPNM$i");
+	    ABUnlink("$TMPNM$i");
 	    $i++;
 	}
 	if($FIRSTPASS){ last;}
@@ -787,7 +787,7 @@ sub Exit()
     } else {
 	# Release the volume now
 	$tmp = IUReleaseFile();
-	IUnlink($tmp);
+	ABUnlink($tmp);
 	open(FO,">$tmp"); print FO "Ready to release on ".localtime()."\n";
 	close(FO);
 
@@ -839,7 +839,7 @@ sub ReportToHtml
 	    IUnlink(glob("$flnm\[0-9\]*.html"));
 	    $i = 0;
 	}
-	rename("$flnm.html","$flnm$i.html");
+	ABRename("$flnm.html","$flnm$i.html");
     }
 
     # this is the current generated page
@@ -1077,6 +1077,7 @@ sub Execute
     }
     return $rc;
 }
+
 
 sub lhelp
 {

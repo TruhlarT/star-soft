@@ -26,7 +26,7 @@ use Digest::MD5;
 	   IUHtmlDir IUHtmlRef IUHtmlPub
 	   IULockPrepare IULockCheck IULockWrite IULockDelete
 	   IUGetLogin
-	   IUnlink
+	   ABUnlink ABRename
 	   );
 
 # ------------------------------------------
@@ -507,7 +507,7 @@ sub IUSubmit
 
     if ( -e $log ){
 	print "Deleting preceding log\n";
-	&IUnlink($log);
+	&ABUnlink($log);
     }
 
     $cmd = "$INSU::BSUB -q $INSU::QUEUE -o $log $job";
@@ -523,7 +523,7 @@ sub IUSubmit
 	    chmod(0700,$tmpfile);
 	    print "Executing : $cmd\n";
 	    system($tmpfile);
-	    &IUnlink($tmpfile);
+	    &ABUnlink($tmpfile);
 	} else {
 	    print "Could not open $tmpfile\n";
 	}
@@ -562,8 +562,8 @@ sub IUCheckFile
 
     } elsif ($mode == 1){
 	# perl mode
-	                            &IUnlink("$dir/$file-old");
-	if ( -e "$dir/$file")    {  rename("$dir/$file","$dir/$file-old");}
+	                            &ABUnlink("$dir/$file-old");
+	if ( -e "$dir/$file")    {  &ABRename("$dir/$file","$dir/$file-old");}
 
 
     } elsif ($mode == 3){
@@ -601,7 +601,7 @@ sub IUMoveFile
     while ( -e "$odir/$oflnm-$cnt$oext" && $cnt < $limit){ $cnt++;}
     if ($cnt == $limit) {
 	$cnt = 0;
-	&IUnlink(glob("$odir/$oflnm-*$oext"));
+	&ABUnlink(glob("$odir/$oflnm-*$oext"));
     }
 
 
@@ -613,7 +613,7 @@ sub IUMoveFile
 
     } elsif ($mode == 1){
 	# perl mode
-	if ( -e "$odir/$oflnm$oext"){ rename("$odir/$oflnm$oext","$odir/$oflnm-$cnt$oext");}
+	if ( -e "$odir/$oflnm$oext"){ &ABRename("$odir/$oflnm$oext","$odir/$oflnm-$cnt$oext");}
 	if ( -e "$infile"){
 	    $sts = open(FO,">$odir/$oflnm$oext") && open(FI,"$infile");
 	    if ($sts){
@@ -667,7 +667,7 @@ sub IULockCheck
 	    print
 		"ABUtil:: LockCheck: ",
 		"$INSU::FLNMLCK has a date greater than $delta. Deleting.\n";
-	    &IUnlink($INSU::FLNMLCK);
+	    &ABUnlink($INSU::FLNMLCK);
 	} else {
 	    print
 		"ABUtil:: LockCheck: ",
@@ -720,7 +720,7 @@ sub IULockDelete
 {
     if ( $INSU::FLNMLCK ne ""){
 	if ( -e $INSU::FLNMLCK){
-	    if ( ! &IUnlink($INSU::FLNMLCK) ){
+	    if ( ! &ABUnlink($INSU::FLNMLCK) ){
 		print "ABUtil:: LockDelete: could not remove $INSU::FLNMLCK\n";
 		return 0;
 	    } else {
@@ -761,7 +761,7 @@ sub IUdie {
 #
 # Trap for unlink - will retry a few times (5)
 #
-sub IUnlink
+sub ABUnlink
 {
     my(@files)=@_;
     my($file,$i,$cnt);
@@ -787,6 +787,19 @@ sub IUnlink
     }
     $cnt;
 }
+
+# Trap for rename - will sync() the FS
+sub ABRename
+{
+    my($i,$f)=@_;
+    my($sts);
+
+    $sts = rename($i,$f);
+    system("/bin/sync") if ( -x  "/bin/sync");
+
+    $sts;
+}
+
 
 
 
