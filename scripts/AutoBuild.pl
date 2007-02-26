@@ -1,6 +1,6 @@
 #!/usr/bin/env perl
 
-# $Id: AutoBuild.pl,v 1.32 2007/02/26 18:04:36 jeromel Exp $
+# $Id: AutoBuild.pl,v 1.33 2007/02/26 18:06:17 jeromel Exp $
 # This script was written to perform an automatic compilation
 # with cvs co and write some html page related to it afterward.
 # Written J.Lauret Apr 6 2001
@@ -836,7 +836,7 @@ sub ReportToHtml
     if( -e "$flnm.html"){
 	while( -e "$flnm$i.html"){ $i++;}
 	if( $i == 100){
-	    IUnlink(glob("$flnm\[0-9\]*.html"));
+	    ABUnlink(glob("$flnm\[0-9\]*.html"));
 	    $i = 0;
 	}
 	ABRename("$flnm.html","$flnm$i.html");
@@ -957,13 +957,13 @@ sub Execute
     if( ! defined($mode) ){ $mode = 0;}
     IULockWrite("Executing [$cmd]");
 
-    IUnlink("$FLNMSG.err");
+    ABUnlink("$FLNMSG.err");
     open(SAVEERR,">&STDERR");
     open(STDERR,">$FLNMSG.err");
     select(STDERR); $| = 1;
     if($mode == 1){
 	print $FILO " - Executing [$cmd]. Please wait ...\n";
-	IUnlink("$FLNMSG.out");
+	ABUnlink("$FLNMSG.out");
 	open(SAVOUT,">&STDOUT");
 	open(STDOUT,">$FLNMSG.out");
 	select(STDOUT); $| = 1;
@@ -1057,7 +1057,7 @@ sub Execute
 	if($k != -1){ push(@REPORT,"</PRE></TR></TD>");}
 	push(@REPORT,"</TABLE>");
 	close(FI);
-	IUnlink("$FLNMSG.err");
+	ABUnlink("$FLNMSG.err");
     }
 
 
@@ -1073,7 +1073,7 @@ sub Execute
 	}
 	push(@REPORT,"</PRE>");
 	close(FI);
-	IUnlink("$FLNMSG.out");
+	ABUnlink("$FLNMSG.out");
     }
     return $rc;
 }
