@@ -1,6 +1,6 @@
 // Author: Valeri Fine   21/01/2002
 /****************************************************************************
-** $Id: TQtCanvasImp.cxx,v 1.5 2007/02/20 20:41:37 fine Exp $
+** $Id: TQtCanvasImp.cxx,v 1.6 2007/02/27 00:44:55 fine Exp $
 **
 ** Copyright (C) 2002 by Valeri Fine. Brookhaven National Laboratory.
 **                                    All rights reserved.
@@ -1210,6 +1210,9 @@ void TQtCanvasImp::ZoomCB()
    }
    if (action->isOn()) { 
        fgZoomingWidget->Connect(fCanvasID);
+       fgZoomingWidget->HideOnLeave(false);
+       // fCanvasID->EnableSignalEvents(kMouseMoveEvent);
+       fgZoomingWidget->Show();
    } else {
        fgZoomingWidget->Disconnect(fCanvasID);
    }
