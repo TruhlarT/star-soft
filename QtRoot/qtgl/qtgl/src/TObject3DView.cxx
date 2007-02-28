@@ -57,7 +57,7 @@
  
 ClassImp(TObject3DView)
 
-#define STARONLINE
+// #define STARONLINE
 
 //_____________________________________________________________________________
 TObject3DView::TObject3DView()
