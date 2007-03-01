@@ -1,4 +1,4 @@
-// @(#)root/qt:$Name:  $:$Id: TQtWidget.cxx,v 1.6 2006/12/29 20:17:00 fine Exp $
+// @(#)root/qt:$Name:  $:$Id: TQtWidget.cxx,v 1.7 2007/03/01 22:38:22 fine Exp $
 // Author: Valeri Fine   23/01/2003
 
 /*************************************************************************
@@ -619,8 +619,14 @@ bool TQtWidget::Save(const QString &fileName,const char *format,int quality)cons
       c->Print((const char *)fileName,(const char *)saveType);
       Ok = true;
    } else {
-      int plus = fileName.find("+");
-      QString fln = (plus>=0) ? TGQt::GetNewFileName(fileName.left(plus)) : fileName;
+      // Since the "+" is a legal part of the file name and it is used by Onuchin
+      // to indicate  the "animation" mode, we have to proceed very carefully
+      int dot = fileName.findRev('.');
+      int plus = 0;
+      if (dot) {
+         plus = fileName.find('+',dot+1);
+      }
+      QString fln = (plus) ? TGQt::GetNewFileName(fileName.left(plus)) : fileName;
       Ok = GetBuffer().save(fln,saveType,quality);
    }
    emit ((TQtWidget *)this)->Saved(Ok);
