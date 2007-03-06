@@ -1,4 +1,4 @@
-// @(#)root/base:$Name:  $:$Id: TQVirtualGL.h,v 1.3 2006/10/04 21:40:53 fine Exp $
+// @(#)root/base:$Name:  $:$Id: TQVirtualGL.h,v 1.4 2007/03/06 17:44:01 fine Exp $
 // Author: Valery Fine(fine@vxcern.cern.ch)   05/03/97
 
 /*************************************************************************
@@ -45,7 +45,11 @@ class TGLViewerImp;
 class TPadOpenGLView;
 class TVirtualPad;
 class TPoints3DABC;
-class TPadView3D;
+#if ROOT_VERSION_CODE >= ROOT_VERSION(5,15,2)
+  class TTablePadView3D;
+#else
+  class TPadView3D;
+#endif
 
 #ifndef gVirtualGL
 #define gVirtualGL gQVirtualGL
@@ -78,7 +82,11 @@ public:
    virtual void ClearGL(UInt_t bufbits );
    virtual Int_t CreateGLLists(Int_t range);
    virtual TGLViewerImp *CreateGLViewerImp(TPadOpenGLView *c, const char *title, UInt_t width, UInt_t height);
+#if ROOT_VERSION_CODE >= ROOT_VERSION(5,15,2)
+   virtual TTablePadView3D *CreatePadGLView(TVirtualPad *c);
+#else
    virtual TPadView3D *CreatePadGLView(TVirtualPad *c);
+#endif      
    virtual void DeleteGLLists(Int_t ilist, Int_t range);
    virtual void DisableGL(EG3D2GLmode mode);
    virtual void EnableGL(EG3D2GLmode mode);
@@ -136,7 +144,11 @@ inline void TQVirtualGL::ClearGLColor(Float_t, Float_t, Float_t, Float_t) { }
 inline void TQVirtualGL::ClearGL(UInt_t) { }
 inline Int_t TQVirtualGL::CreateGLLists(Int_t) { return 0; }
 inline TGLViewerImp *TQVirtualGL::CreateGLViewerImp(TPadOpenGLView *, const char *, UInt_t, UInt_t) { return 0; }
+#if ROOT_VERSION_CODE >= ROOT_VERSION(5,15,2)
+inline TTablePadView3D *TQVirtualGL::CreatePadGLView(TVirtualPad *) { return 0; }
+#else
 inline TPadView3D *TQVirtualGL::CreatePadGLView(TVirtualPad *) { return 0; }
+#endif
 inline void TQVirtualGL::DeleteGLLists(Int_t, Int_t) { }
 inline void TQVirtualGL::DisableGL(EG3D2GLmode) { }
 inline void TQVirtualGL::EnableGL(EG3D2GLmode) { }

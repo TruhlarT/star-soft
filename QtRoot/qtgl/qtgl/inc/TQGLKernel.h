@@ -1,4 +1,4 @@
-// @(#)root/gl:$Name:  $:$Id: TQGLKernel.h,v 1.3 2006/10/04 21:40:53 fine Exp $
+// @(#)root/gl:$Name:  $:$Id: TQGLKernel.h,v 1.4 2007/03/06 17:44:01 fine Exp $
 // Author: Valery Fine(fine@vxcern.cern.ch)   05/03/97
 
 /*************************************************************************
@@ -38,6 +38,11 @@
 
 #include "TPoints3DABC.h"
 
+#if ROOT_VERSION_CODE >= ROOT_VERSION(5,15,2)
+   class TTablePadView3D;
+#else
+   class TPadView3D;
+#endif      
 
 class TGLKernel : public  TQVirtualGL
 {
@@ -61,7 +66,11 @@ public:
    virtual void ClearGLColor(Float_t colors[4]);
    virtual void ClearGL(UInt_t bufbits );
    virtual Int_t CreateGLLists(Int_t range);
+#if ROOT_VERSION_CODE >= ROOT_VERSION(5,15,2)
+   virtual TTablePadView3D *CreatePadGLView(TVirtualPad *c);
+#else
    virtual TPadView3D *CreatePadGLView(TVirtualPad *c);
+#endif      
    virtual void DeleteGLLists(Int_t ilist, Int_t range);
    virtual void EndGLList();
    virtual void BeginGLCmd(EG3D2GLmode mode);

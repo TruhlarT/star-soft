@@ -1,4 +1,4 @@
-// @(#)root/g3d:$Name:  $:$Id: TQPadOpenGLView.h,v 1.3 2006/10/04 21:40:53 fine Exp $
+// @(#)root/g3d:$Name:  $:$Id: TQPadOpenGLView.h,v 1.4 2007/03/06 17:44:01 fine Exp $
 // Author: Valery Fine(fine@vxcern.cern.ch)   08/05/97
 
 /*************************************************************************
@@ -24,9 +24,15 @@
 // pad is viewed.                                                       //
 //                                                                      //
 //////////////////////////////////////////////////////////////////////////
+#include "RVersion.h"
 
-#ifndef ROOT_TPadView3D
-#include "TPadView3D.h"
+#if ROOT_VERSION_CODE >= ROOT_VERSION(5,15,2)
+#  include "TTablePadView3D.h"
+#  ifndef  TPadView3D
+#  define  TPadView3D TTablePadView3D
+#endif
+#else
+#  include "TPadView3D.h"
 #endif
 #ifndef ROOT_Buttons
 #include "Buttons.h"
