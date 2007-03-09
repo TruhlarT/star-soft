@@ -491,7 +491,7 @@ TQtCoinWidget::TQtCoinWidget(QWidget *parent, COINWIDGETFLAGSTYPE f)
    //,fGLWidget(0),fSelectedView(0),fSelectedViewActive(kFALSE)
    //, fSelectionViewer(kFALSE),fSelectionHighlight(kFALSE),fShowSelectionGlobal(kFALSE)
    , fSnapShotAction(0),fBoxHighlightAction(0),fLineHighlightAction(0)
-   , fWantClipPlane(kFALSE), fClipPlaneMan(0), fClipPlane(0),fHelpWidget(0),fRecord(kFALSE)
+   , fWantClipPlane(kFALSE), fClipPlaneMan(0), fClipPlane(0), fSlicePlane(0),fHelpWidget(0),fRecord(kFALSE)
    , fMovie(0),fMPegMovie(0),fClipPlaneState(0),fClipPlanePath(0)
 {
       memset(fPivotClipPoint,0,sizeof(fPivotClipPoint));
@@ -540,7 +540,7 @@ TQtCoinWidget::TQtCoinWidget(TVirtualPad *pad, const char *title,
    //,fGLWidget(0),fSelectedView(0),fSelectedViewActive(kFALSE)
    //, fSelectionViewer(kFALSE),fSelectionHighlight(kFALSE),fShowSelectionGlobal(kFALSE)
    , fSnapShotAction(0),fBoxHighlightAction(0),fLineHighlightAction(0)
-   , fWantClipPlane(kFALSE), fClipPlaneMan(0), fClipPlane(0),fHelpWidget(0),fRecord(kFALSE)
+   , fWantClipPlane(kFALSE), fClipPlaneMan(0), fClipPlane(0), fSlicePlane(0),fHelpWidget(0),fRecord(kFALSE)
    , fMovie(0),fMPegMovie(0),fClipPlaneState(0),fClipPlanePath(0)
 {
    printf("TQtCoinWidget::TQtCoinWidget begin Pad=%p\n", pad);
@@ -663,20 +663,21 @@ TQtCoinWidget::~TQtCoinWidget()
       SoQtExaminerViewer *viewer = (SoQtExaminerViewer*)fInventorViewer; 
       fInventorViewer = 0; delete viewer; 
    }
-   if (fMPegMovie)    { delete fMPegMovie;      fMPegMovie    = 0;}
-   if (fMovie)        { fMovie       ->unref(); fMovie        = 0;}
-   if (fClipPlaneMan) { fClipPlaneMan->unref(); fClipPlaneMan = 0;}
+   if (fMPegMovie)    { delete fMPegMovie;      fMPegMovie     = 0;}
+   if (fMovie)        { fMovie       ->unref(); fMovie         = 0;}
+   if (fSlicePlane)   { fSlicePlane->unref();   fSlicePlane    = 0;}
+   if (fClipPlaneMan) { fClipPlaneMan->unref(); fClipPlaneMan  = 0;}
    if (fClipPlanePath){ fClipPlanePath->unref();fClipPlanePath = 0;}
 #ifdef NOEXAMINERVIEWER
-   if (fAxes)         { fAxes        ->unref(); fAxes         = 0;}
+   if (fAxes)         { fAxes        ->unref(); fAxes          = 0;}
 #endif
-   if (fXAxis)        { fXAxis       ->unref(); fXAxis        = 0;}
-   if (fYAxis)        { fYAxis       ->unref(); fYAxis        = 0;}
-   if (fZAxis)        { fZAxis       ->unref(); fZAxis        = 0;}
+   if (fXAxis)        { fXAxis       ->unref(); fXAxis         = 0;}
+   if (fYAxis)        { fYAxis       ->unref(); fYAxis         = 0;}
+   if (fZAxis)        { fZAxis       ->unref(); fZAxis         = 0;}
    delete fBoxHighlightAction; fBoxHighlightAction  = 0;
    delete fLineHighlightAction;fLineHighlightAction = 0;
    delete fCameraSensor;       fCameraSensor        = 0;
-   if (fRootNode)     { fRootNode    ->unref(); fRootNode     = 0;}
+   if (fRootNode)     { fRootNode    ->unref(); fRootNode      = 0;}
 }
 
 //______________________________________________________________________________
@@ -701,7 +702,7 @@ void TQtCoinWidget::AddRootChild(ULong_t id, EObject3DType type)
     };
    
    // Make myCamera see everything.
-   ViewAll();
+  // vf --  ViewAll();
 }
 //______________________________________________________________________________
 void TQtCoinWidget::ViewAll()
@@ -835,12 +836,26 @@ void TQtGLViewerImp::ShowStatusBar(Bool_t show)
     fPad = 0;
  }
 //______________________________________________________________________________
-void TQtCoinWidget::SetUpdatesEnabled(const bool&enable)
-{   setUpdatesEnabled(enable);                            }
+void TQtCoinWidget::SetUpdatesEnabled(bool enable)
+{   
+   setUpdatesEnabled(enable);  
+   if (fInventorViewer) fInventorViewer->setAutoRedraw(enable);
+}
+
+//______________________________________________________________________________
+bool TQtCoinWidget::GetUpdatesEnabled() const
+{   
+   // This method sets whether redrawing should be handled automatically 
+   // or not when data in the scenegraph changes
+   return 
+      fInventorViewer ? fInventorViewer->isAutoRedraw()  
+                      : isUpdatesEnabled();                        
+}
 
 //______________________________________________________________________________
 TVirtualPad *TQtCoinWidget::GetPad() 
 {
+   // This method returns whether redrawing is handled automatically not
    if (GetGLView()) return GetGLView()->GetPad();
    return fPad;
 }
@@ -927,7 +942,7 @@ void TQtCoinWidget::PrintCB(){
    }
 	*/	
 	SoWriteAction 	writeAction;
-	writeAction.apply(fRootNode); //writes the entire scene graph to stdout
+	writeAction.apply(fInventorViewer->getSceneGraph()); // fRootNode //writes the entire scene graph to stdout
 }
 
 //______________________________________________________________________________
@@ -1019,7 +1034,7 @@ static QString ListOfFilters()
 //______________________________________________________________________________
 static QStringList ExtensionList(const QString &filter)
 {
-   // Return the list of the extsntion from the file dialog filter
+   // Return the list of the extension from the file dialog filter
    QRegExp rx("(\\*\\.\\w+\\b)");
    QStringList extension;
    int pos = 0;
@@ -1854,13 +1869,24 @@ void TQtCoinWidget::CreateViewer(const char * /*name*/)
    fClipPlaneState->setFocusPolicy(QWidget::NoFocus);
    fClipPlaneState->setTristate(true);
    fClipPlaneState->setNoChange();
-//   button->setPixmap(QPixmap((const char **) zc_xpm));
+   // button->setPixmap(QPixmap((const char **) zc_xpm));
    QObject::connect(fClipPlaneState, SIGNAL(stateChanged(int)),
                     this, SLOT(ClipPlaneModeCB(int)));
    QToolTip::add(fClipPlaneState,"Switch between edit/clip/no clip views");
    fullViewer->addAppPushButton(fClipPlaneState);
 
 
+   //  Slice-switch-button
+#if 0
+   button = new QPushButton(buttonParent);
+   button->setName("slice");
+   button->setFocusPolicy(QWidget::NoFocus);
+   button->setPixmap(QPixmap((const char **) zc_xpm));
+   QObject::connect(button, SIGNAL(clicked()),
+                    this, SLOT(SetSlicePlaneCB()));
+   QToolTip::add(button,"Slice plane");
+   fullViewer->addAppPushButton(button);
+#endif
    l->addWidget(fInventorViewer->getWidget());
    fInventorViewer->setSceneGraph(fRootNode);
    fInventorViewer->setTransparencyType(SoGLRenderAction::NONE);
@@ -1980,6 +2006,7 @@ void TQtGLViewerImp::Paint(Option_t *opt)
 void TQtCoinWidget::Update()
 {  
 	fRootNode->touch();
+   fInventorViewer->render();
 	/*
    CreateViewer();
 #ifdef QGLVIEWER
@@ -2185,6 +2212,27 @@ void TQtCoinWidget::SetClipPlaneZCB()
   // Set the clip plane orthogonal to oZ
   SetActiveClipPlane(2);
 }
+//_______________________________________________________________________________
+void TQtCoinWidget::SetSlicePlaneCB()
+{
+   // Switch to Off state
+   if (fClipPlaneState->state() != QButton::Off) {
+      // setUpdatesEnabled(FALSE);
+      fClipPlaneState->toggle();
+      // setUpdatesEnabled(TRUE);
+   }
+   if (fClipPlaneState->state() != QButton::Off) 
+      fClipPlaneState->toggle();
+   // Activate the Slice plane
+   SbVec3d normal =   fClipPlane->plane.getValue().getNormal();
+   // Invert normal
+   normal *= -1;
+   float distance =   fClipPlane->plane.getValue().getDistanceFromOrigin();
+   // increase the distance
+   distance -= 10;
+   fSlicePlane->plane = SbPlane(normal,distance);
+   fSlicePlane->on = TRUE;
+}
 
 //_______________________________________________________________________________
 void TQtCoinWidget::SetActiveClipPlane(int planeDirection)
@@ -2238,12 +2286,18 @@ void TQtCoinWidget::SetClipPlaneMan(bool on, float x, float y, float z)
         // construct the clip plane path
         fClipPlanePath = new SoPath(fShapeNode);
         fClipPlanePath->ref();
-        fShapeNode->insertChild(fClipPlaneMan, wiredIndx==-1 ? 0 : wiredIndx );
+        if (!fSlicePlane) {
+           fSlicePlane = new SoClipPlane(); 
+           fSlicePlane->on = FALSE; 
+           fSlicePlane->ref();
+           fShapeNode->insertChild(fSlicePlane, wiredIndx==-1 ? 0 : wiredIndx );
+        }
+        fShapeNode->insertChild(fClipPlaneMan, fShapeNode->findChild(fSlicePlane)+1);
         fClipPlanePath->append(fClipPlaneMan);
      } else {
         fClipPlaneMan->replaceNode(fClipPlanePath);
      }
-
+     if (fSlicePlane->on.getValue()) fSlicePlane->on = FALSE;
      if (!fClipPlaneMan->on.getValue()) fClipPlaneMan->on = TRUE;
 
   } else if (fClipPlanePath) {

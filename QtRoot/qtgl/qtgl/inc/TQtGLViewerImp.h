@@ -1,8 +1,8 @@
-// @(#)root/g3d:$Name:  $:$Id: TQtGLViewerImp.h,v 1.6 2006/12/14 23:15:51 fine Exp $
+// @(#)root/g3d:$Name:  $:$Id: TQtGLViewerImp.h,v 1.7 2007/03/09 22:00:01 fine Exp $
 // Author: Valery Fine      23/05/97
 
 /****************************************************************************
-** $Id: TQtGLViewerImp.h,v 1.6 2006/12/14 23:15:51 fine Exp $
+** $Id: TQtGLViewerImp.h,v 1.7 2007/03/09 22:00:01 fine Exp $
 **
 ** Copyright (C) 2002 by Valeri Fine. Brookhaven National Laboratory.
 **                                    All rights reserved.
@@ -25,6 +25,7 @@
 //                                                                      //
 //////////////////////////////////////////////////////////////////////////
 
+#include <cassert>
 #include "RVersion.h"
 #if ROOT_VERSION_CODE >= 262400
 // ROOT_VERSION(4,01,00)
@@ -79,7 +80,7 @@ Q_OBJECT
 #endif
 private:
    TQtGLViewerImp(const TQtGLViewerImp&);
-   void operator=(const TQtGLViewerImp&)  {}
+   void operator=(const TQtGLViewerImp&);
 protected:
    TString         fSaveFile;           // the file name to save the pixmap to
    TString         fSaveType;           // the image format type name
@@ -152,7 +153,8 @@ public:
         QGLWidget *GLWidget() const { return fGLWidget;}
    virtual TVirtualPad *GetPad();
 //  Qt proxy   
-   virtual void SetUpdatesEnabled(const bool&);
+   virtual void SetUpdatesEnabled( bool);
+   virtual bool GetUpdatesEnabled() const;
 
 
 #ifndef __CINT__
@@ -184,6 +186,7 @@ public:
      virtual void SetRotationAxisAngle(const float  x, const float  y, const float  z, const   float a);
      virtual void SetSnapFileCounter(int counter);
      virtual void SetFooter(QString &text);
+     virtual void ViewAll();
      virtual void WantRootContextMenuCB(bool on);
      virtual void AboutCB();
      virtual void HelpCB();

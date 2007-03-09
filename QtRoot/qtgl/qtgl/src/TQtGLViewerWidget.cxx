@@ -1,8 +1,8 @@
-// @(#)root/qtgl:$Name:  $:$Id: TQtGLViewerWidget.cxx,v 1.4 2006/10/27 00:25:40 fine Exp $
+// @(#)root/qtgl:$Name:  $:$Id: TQtGLViewerWidget.cxx,v 1.5 2007/03/09 22:00:02 fine Exp $
 // Author: Valery Fine(fine@vxcern.cern.ch)   12/11/02
  
 /****************************************************************************
-** $Id: TQtGLViewerWidget.cxx,v 1.4 2006/10/27 00:25:40 fine Exp $
+** $Id: TQtGLViewerWidget.cxx,v 1.5 2007/03/09 22:00:02 fine Exp $
 **
 ** Copyright (C) 2002 by Valeri Fine. Brookhaven National Laboratory.
 **                                    All rights reserved.
@@ -1066,9 +1066,16 @@ void TQtGLViewerWidget::SetBackgroundColor(const TColor *color)
    }
 }
 //______________________________________________________________________________
- void TQtGLViewerWidget::setDrawLight(bool on , int light, float scale)
- {
-    fGLLights[light].fOn = on;
-    fGLLights[light].fGLValue = GL_LIGHT0 + light;
-    fGLLights[light].fScale = scale;
- }
+void TQtGLViewerWidget::setDrawLight(bool on , int light, float scale)
+{
+   fGLLights[light].fOn = on;
+   fGLLights[light].fGLValue = GL_LIGHT0 + light;
+   fGLLights[light].fScale = scale;
+}
+
+//______________________________________________________________________________
+void TQtGLViewerWidget::ViewAll() 
+{
+   showEntireScene();
+}
+

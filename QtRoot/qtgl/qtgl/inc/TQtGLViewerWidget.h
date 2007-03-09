@@ -1,12 +1,12 @@
 
-// @(#)root/gtgl:$Name:  $:$Id: TQtGLViewerWidget.h,v 1.3 2006/10/04 21:40:53 fine Exp $
+// @(#)root/gtgl:$Name:  $:$Id: TQtGLViewerWidget.h,v 1.4 2007/03/09 22:00:01 fine Exp $
 // Author: Valery Fine      23/10/03
 
 #ifndef ROOT_TQtGLViewerWidget_
 #define ROOT_TQtGLViewerWidget_
 
 /****************************************************************************
-** $Id: TQtGLViewerWidget.h,v 1.3 2006/10/04 21:40:53 fine Exp $
+** $Id: TQtGLViewerWidget.h,v 1.4 2007/03/09 22:00:01 fine Exp $
 **
 ** Copyright (C) 2002 by Valeri Fine.  All rights reserved.
 **
@@ -200,6 +200,9 @@ public slots:
    virtual void SetSceneLayout(Float_t *minBound,Float_t *maxBound, Color_t color=kBlack);
    virtual void SetWiredSelectable(Bool_t on=kTRUE);
    virtual void SetSolidSelectable(Bool_t on=kTRUE);
+   virtual void ViewAll();
+
+
 #ifndef __CINT__
 signals:
       void viewerAbout2Close();

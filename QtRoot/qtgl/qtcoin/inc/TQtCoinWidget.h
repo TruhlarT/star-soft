@@ -1,8 +1,8 @@
-// @(#)root/g3d:$Name:  $:$Id: TQtCoinWidget.h,v 1.16 2007/02/16 01:36:05 fine Exp $
+// @(#)root/g3d:$Name:  $:$Id: TQtCoinWidget.h,v 1.17 2007/03/09 22:00:00 fine Exp $
 // Author: Valery Fine      23/05/97
 
 /****************************************************************************
-** $Id: TQtCoinWidget.h,v 1.16 2007/02/16 01:36:05 fine Exp $
+** $Id: TQtCoinWidget.h,v 1.17 2007/03/09 22:00:00 fine Exp $
 **
 ** Copyright (C) 2002 by Valeri Fine. Brookhaven National Laboratory.
 **                                    All rights reserved.
@@ -164,6 +164,7 @@ protected:
    Bool_t          fWantClipPlane;       //
    SoClipPlaneManip *fClipPlaneMan; 
    SoClipPlane      *fClipPlane; 
+   SoClipPlane      *fSlicePlane; 
    QTabWidget       *fHelpWidget;
    Bool_t            fRecord;
    SoCallback       *fMovie;
@@ -222,7 +223,7 @@ public:
    virtual ULong_t GetViewerID() const;   
    //virtual void    SetPadSynchronize(Bool_t on=kTRUE);
    // static void    SetDefaultFileCounter(int counter);
-   virtual void SetUpdatesEnabled(const bool&);
+   virtual bool GetUpdatesEnabled() const;
    virtual void    DisconnectPad();
    //QGLWidget *GLWidget() const { return fGLWidget;}
    virtual TVirtualPad *GetPad();
@@ -260,7 +261,7 @@ public:
      virtual void ReadInputFile(QString fileName);
      virtual void Save(QString fileName,QString type="png");
      virtual void SetClipPlaneMan(bool on=kTRUE,float x=1.0f, float y=0.0f, float z=0.0f);
-
+     virtual void SetUpdatesEnabled(bool enable);
      virtual void SetFileName(const QString &fileName);     
      virtual void SetFileType(const QString &fileType);     
      virtual void ClearCB();
@@ -288,6 +289,7 @@ public:
      virtual void SetClipPlaneXCB();
      virtual void SetClipPlaneYCB();
      virtual void SetClipPlaneZCB();
+     virtual void SetSlicePlaneCB();
      virtual void ViewAll();
      //virtual void SetFooter(QString &text);
      virtual void WantRootContextMenuCB(bool on);

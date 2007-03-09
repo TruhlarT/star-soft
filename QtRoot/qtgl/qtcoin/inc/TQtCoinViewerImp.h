@@ -1,8 +1,8 @@
-// @(#)root/g3d:$Name:  $:$Id: TQtCoinViewerImp.h,v 1.15 2007/02/16 01:36:04 fine Exp $
+// @(#)root/g3d:$Name:  $:$Id: TQtCoinViewerImp.h,v 1.16 2007/03/09 22:00:00 fine Exp $
 // Author: Valery Fine      23/05/97
 
 /****************************************************************************
-** $Id: TQtCoinViewerImp.h,v 1.15 2007/02/16 01:36:04 fine Exp $
+** $Id: TQtCoinViewerImp.h,v 1.16 2007/03/09 22:00:00 fine Exp $
 **
 ** Copyright (C) 2002 by Valeri Fine. Brookhaven National Laboratory.
 **                                    All rights reserved.
@@ -173,7 +173,7 @@ public:
    virtual ULong_t GetViewerID() const;   
    //virtual void    SetPadSynchronize(Bool_t on=kTRUE);
    // static void    SetDefaultFileCounter(int counter);
-   virtual void SetUpdatesEnabled(const bool&);
+   virtual bool  GetUpdatesEnabled() const;
    virtual void    DisconnectPad();
    //QGLWidget *GLWidget() const { return fGLWidget;}
    virtual TVirtualPad *GetPad();
@@ -215,7 +215,9 @@ public:
      virtual void SynchTPadCB(bool);
      virtual void SetRotationAxisAngle(const float  x, const float  y, const float  z, const float a);
      virtual void SetSnapFileCounter(int counter);
+     virtual void SetUpdatesEnabled(bool);
      //virtual void SetFooter(QString &text);
+     virtual void ViewAll();
      virtual void WantRootContextMenuCB(bool on);
      virtual void AboutCB();
      virtual void HelpCB();

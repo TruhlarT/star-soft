@@ -380,11 +380,19 @@ void TQtGLViewerImp::ShowStatusBar(Bool_t show)
    if (fCoinWidget) fCoinWidget->DisconnectPad();
  }
 //______________________________________________________________________________
-void TQtCoinViewerImp::SetUpdatesEnabled(const bool&enable)
+void TQtCoinViewerImp::SetUpdatesEnabled(bool enable)
 {  
     setUpdatesEnabled(enable);                            
     if (fCoinWidget) fCoinWidget->SetUpdatesEnabled(enable);
 }
+//______________________________________________________________________________
+bool TQtCoinViewerImp::GetUpdatesEnabled() const
+{  
+   return fCoinWidget ?
+             fCoinWidget->GetUpdatesEnabled()
+           : isUpdatesEnabled();
+}
+
 //______________________________________________________________________________
 TVirtualPad *TQtCoinViewerImp::GetPad() 
 {
@@ -1303,6 +1311,12 @@ Bool_t  TQtCoinViewerImp::WantRootContextMenu() const
 {
    return fCoinWidget ? fCoinWidget->WantRootContextMenu():kFALSE;
 }
+//______________________________________________________________________________
+void TQtCoinViewerImp::ViewAll()
+{
+   if (fCoinWidget)  fCoinWidget->ViewAll();
+}
+
 //______________________________________________________________________________
 Bool_t   TQtCoinViewerImp::WasPicked(void *p) const { 
    return fCoinWidget ? fCoinWidget->WasPicked(p) : kFALSE;

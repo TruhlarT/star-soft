@@ -358,8 +358,17 @@ void TQtGLViewerImp::SetStatusText(const char *text, Int_t partidx, Int_t stype)
   }
 }
 //______________________________________________________________________________
-void TQtGLViewerImp::SetUpdatesEnabled(const bool&enable)
-{  setUpdatesEnabled(enable); }
+void TQtGLViewerImp::SetUpdatesEnabled( bool enable)
+{  
+   setUpdatesEnabled(enable); 
+   if (fGLWidget) ((TQtGLViewerWidget*)fGLWidget)->setUpdatesEnabled(enable);
+}
+//______________________________________________________________________________
+bool  TQtGLViewerImp::GetUpdatesEnabled() const
+{ 
+   return fGLWidget? fGLWidget->isUpdatesEnabled() : isUpdatesEnabled(); 
+}
+
 //______________________________________________________________________________
 void TQtGLViewerImp::ShowStatusBar(Bool_t show)
 {
@@ -759,6 +768,13 @@ void TQtGLViewerImp::ShowLightsCB(bool on)
 #endif
 }
 //______________________________________________________________________________
+void TQtGLViewerImp::ViewAll()
+{
+   // view the entire scene
+   if (fGLWidget) ((TQtGLViewerWidget*)fGLWidget)->ViewAll();
+}
+
+//______________________________________________________________________________
 void TQtGLViewerImp::WantRootContextMenuCB(bool on)
 {
   // Create "ROOT Context menu" otherwise use the QGLViewer "right mouse click"
@@ -1152,7 +1168,7 @@ void TQtGLViewerImp::Paint(Option_t *opt)
 #ifndef QGLVIEWER
    TGLViewerImp::Paint(opt);
 #else
-   if (opt);
+   if (opt){;}
    Update();
 #endif
 

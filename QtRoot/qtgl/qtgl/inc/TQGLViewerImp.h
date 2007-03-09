@@ -1,4 +1,4 @@
-// @(#)root/g3d:$Name:  $:$Id: TQGLViewerImp.h,v 1.6 2006/12/14 23:15:51 fine Exp $
+// @(#)root/g3d:$Name:  $:$Id: TQGLViewerImp.h,v 1.7 2007/03/09 22:00:01 fine Exp $
 // Author: Valery Fine      12/03/2005
 
 /*************************************************************************
@@ -42,6 +42,9 @@ class QPoint;
 #include <qobject.h>
 class TQtSlotProxy : public QObject {
    Q_OBJECT
+private:
+   TQtSlotProxy(const TQtSlotProxy&); 
+   void operator=(const TQtSlotProxy&);   
 protected:
    friend class TGLViewerImp;
    TGLViewerImp *fMaster;
@@ -67,7 +70,8 @@ class TGLViewerImp  {
 
 private:
    TQtSlotProxy fProxy;
- 
+   TGLViewerImp(const TGLViewerImp&);
+   void operator=(const TGLViewerImp&);
 protected:
    friend class TPadOpenGLView;
    UInt_t               fDrawList;      // GL list used to redraw the contents
@@ -120,10 +124,12 @@ public:
    virtual void SynchTPadCB(bool)                       = 0;
    virtual void SetRotationAxisAngle(const float  x, const float  y, const float  z, const   float a)=0;
    virtual void SetSnapFileCounter(int counter)         = 0;
+   virtual void ViewAll()                               = 0;
    
-// Method to be forwarde to the QObjects:
-   virtual void SetUpdatesEnabled(const bool&)          = 0;
-   
+// Method to be forwarded to the QObjects:
+   virtual void SetUpdatesEnabled( bool)                = 0;
+   virtual bool GetUpdatesEnabled() const               = 0;
+
 //Methods to provide Qt Signal/Slot communication
    TQtSlotProxy &Signals()             { return fProxy;}
    const TQtSlotProxy &Signals() const { return fProxy; /* ((TQtSlotProxy *)this)->Signal(); */ }

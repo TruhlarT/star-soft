@@ -112,6 +112,7 @@ void  TQtRootCoinViewer3D::EndScene()
 {
    printf("TQtRootCoinViewer3D::EndScene\n");
 
+   fViewer->SetUpdatesEnabled(FALSE);
    fViewer->Clear();
    TDataSetIter nextList(&fListOfPrimitives);
    TObject3DView *glo = 0;
@@ -120,7 +121,10 @@ void  TQtRootCoinViewer3D::EndScene()
       fViewer->AddRootChild(glo->GetViewId()
                           , glo->IsSolid() ? TGLViewerImp::kSolid : TGLViewerImp::kWired);
    }
-   printf("TQtRootCoinViewer3D::EndScene_in loop\n");
+   fViewer->SetUpdatesEnabled(TRUE);
+   fViewer->ViewAll();
+   fViewer->Update();
+
    // old internal format GLFactory
 	/*
    // called by TPad::Paint | PaintModified
