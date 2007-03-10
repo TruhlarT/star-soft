@@ -92,6 +92,7 @@ public:
    virtual void   BeginScene(TVirtualPad *pad); 
    virtual Bool_t BuildingScene() const; // called by TPad::Paint | PaintModified
    virtual void   EndScene();            // called by TPad::Paint | PaintModified
+   virtual void   SetUpdatesEnable(bool on=true);
 
    // Simple object addition - buffer represents a unique single positioned object
    virtual Int_t  AddObject(const TBuffer3D & buffer, Bool_t * addChildren = 0);

@@ -295,7 +295,12 @@ void  TQtRootViewer3D::OpenComposite(const TBuffer3D &, Bool_t *)
 Bool_t TQtRootViewer3D::OpenComposite(const TBuffer3D &, Bool_t *)
 { return kFALSE; }
 #endif
-
+//______________________________________________________________________________
+void   TQtRootViewer3D::SetUpdatesEnable(bool on)
+{
+   // Proxy to enable  / disable  the view widget updates
+  if (fViewer) fViewer->SetUpdatesEnable(on);
+}
 //______________________________________________________________________________
 void  TQtRootViewer3D::UpdateView()
 {
