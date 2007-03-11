@@ -1877,7 +1877,8 @@ void TQtCoinWidget::CreateViewer(const char * /*name*/)
 
 
    //  Slice-switch-button
-#if 0
+#ifdef SLICEPLANEBUTTON
+   // suspend this feature for the time being
    button = new QPushButton(buttonParent);
    button->setName("slice");
    button->setFocusPolicy(QWidget::NoFocus);
@@ -2217,19 +2218,15 @@ void TQtCoinWidget::SetSlicePlaneCB()
 {
    // Switch to Off state
    if (fClipPlaneState->state() != QButton::Off) {
-      // setUpdatesEnabled(FALSE);
-      fClipPlaneState->toggle();
-      // setUpdatesEnabled(TRUE);
+      fClipPlaneState->setChecked(false);
+      ClipPlaneModeCB(QButton::Off);
    }
-   if (fClipPlaneState->state() != QButton::Off) 
-      fClipPlaneState->toggle();
-   // Activate the Slice plane
-   SbVec3d normal =   fClipPlane->plane.getValue().getNormal();
+    SbVec3d normal =   fClipPlane->plane.getValue().getNormal();
    // Invert normal
    normal *= -1;
    float distance =   fClipPlane->plane.getValue().getDistanceFromOrigin();
    // increase the distance
-   distance -= 10;
+   distance = TMath::Abs(distance - 10);
    fSlicePlane->plane = SbPlane(normal,distance);
    fSlicePlane->on = TRUE;
 }
@@ -2260,7 +2257,10 @@ void TQtCoinWidget::SetActiveClipPlane(int planeDirection)
       };      
       fClipPlaneState->blockSignals(false);
    } else {
-       if (fClipPlane) SetClipPlane( fClipPlane, planeDirection);
+      if (fClipPlane)  {
+         SetClipPlane( fClipPlane, planeDirection);
+         if (fSlicePlane && fSlicePlane->on.getValue() ) SetSlicePlaneCB();
+      }
    }
 }
 
@@ -2286,23 +2286,29 @@ void TQtCoinWidget::SetClipPlaneMan(bool on, float x, float y, float z)
         // construct the clip plane path
         fClipPlanePath = new SoPath(fShapeNode);
         fClipPlanePath->ref();
-        if (!fSlicePlane) {
+#ifdef SLICEPLANEBUTTON
+        if ((!fSlicePlane) && false)  // suspend this feature for the time being
+        {
            fSlicePlane = new SoClipPlane(); 
            fSlicePlane->on = FALSE; 
            fSlicePlane->ref();
            fShapeNode->insertChild(fSlicePlane, wiredIndx==-1 ? 0 : wiredIndx );
         }
+#endif
         fShapeNode->insertChild(fClipPlaneMan, fShapeNode->findChild(fSlicePlane)+1);
         fClipPlanePath->append(fClipPlaneMan);
-     } else {
-        fClipPlaneMan->replaceNode(fClipPlanePath);
+     } else if ((fClipPlaneMan->getRefCount() == 1) || true ) { // FIX ME LATER !!!
+         fClipPlaneMan->replaceNode(fClipPlanePath);
      }
-     if (fSlicePlane->on.getValue()) fSlicePlane->on = FALSE;
+     if (fSlicePlane && fSlicePlane->on.getValue()) 
+                                        fSlicePlane  ->on = FALSE;
      if (!fClipPlaneMan->on.getValue()) fClipPlaneMan->on = TRUE;
 
-  } else if (fClipPlanePath) {
-     fClipPlaneMan->replaceManip(fClipPlanePath, fClipPlane = new SoClipPlane());
-  }
+   } else if (fClipPlanePath && ((fClipPlaneMan->getRefCount() > 1)|| true) ) { // FIX ME LATER !!!
+          fClipPlaneMan->replaceManip(fClipPlanePath, fClipPlane = new SoClipPlane());
+         if (fSlicePlane && fSlicePlane && fSlicePlane->on.getValue())
+              fSlicePlane->on = FALSE;
+   }
 }
 
 //______________________________________________________________________________
@@ -2372,7 +2378,8 @@ void TQtCoinWidget::ClipPlaneModeCB(int mode)
           // Remove the clip plane manipulator if present
           if (fClipPlaneMan->getRefCount() > 1 ) SetClipPlaneMan(false);
           // and disable the cliplane
-          fClipPlane->on = FALSE;
+          if (fSlicePlane && fSlicePlane->on.getValue()) fSlicePlane->on = FALSE;
+          if (fClipPlane-> on.getValue()) fClipPlane->on  = FALSE;
           break;
    };
 }
