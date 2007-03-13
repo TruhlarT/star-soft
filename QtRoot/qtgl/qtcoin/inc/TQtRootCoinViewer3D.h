@@ -37,6 +37,8 @@ public:
    virtual ~TQtRootCoinViewer3D();
    virtual void   EndScene();            // called by TPad::Paint | PaintModified
    virtual void   DisconnectPad();
+   virtual Int_t  AddRawObject(ULong_t placedID, UInt_t optMask);
+
    //virtual Int_t  AddObject(TObject *, Option_t* drawOption = 0, Bool_t * addChildren = 0);
    //virtual Int_t  AddObjectFirst(TObject *, Option_t* drawOption = 0, Bool_t * addChildren = 0);
 protected:

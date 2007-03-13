@@ -156,6 +156,15 @@ void  TQtRootCoinViewer3D::EndScene()
    
 }
 //______________________________________________________________________________
+Int_t  TQtRootCoinViewer3D::AddRawObject(ULong_t placedID, UInt_t optMask)
+{
+   if (fViewer) {
+      fViewer->AddRootChild(placedID,TGLViewerImp::EObject3DType(optMask));
+   }
+   return 0;
+}
+
+//______________________________________________________________________________
 void   TQtRootCoinViewer3D::DisconnectPad()
 {
    if (fPad) {

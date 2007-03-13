@@ -142,7 +142,16 @@ Int_t  TQtRootViewer3D::AddObjectFirst(TObject *obj, Option_t *drawOption, Bool_
   }
   return result;
 }
-
+//______________________________________________________________________________
+Int_t  TQtRootViewer3D::AddRawObject(ULong_t placedID, UInt_t optMask)
+{
+   // Add the raw GL list directly to the scene (
+   if (fViewer) {
+      fViewer->MakeCurrent();
+      fViewer->AddGLList(placedID, TGLViewerImp::EObject3DType(optMask));
+   }
+   return 0;
+}
 //______________________________________________________________________________
 void   TQtRootViewer3D::BeginScene() {
    BeginScene(fPad);

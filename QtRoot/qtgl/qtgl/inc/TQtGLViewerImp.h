@@ -1,8 +1,8 @@
-// @(#)root/g3d:$Name:  $:$Id: TQtGLViewerImp.h,v 1.7 2007/03/09 22:00:01 fine Exp $
+// @(#)root/g3d:$Name:  $:$Id: TQtGLViewerImp.h,v 1.8 2007/03/13 00:47:44 fine Exp $
 // Author: Valery Fine      23/05/97
 
 /****************************************************************************
-** $Id: TQtGLViewerImp.h,v 1.7 2007/03/09 22:00:01 fine Exp $
+** $Id: TQtGLViewerImp.h,v 1.8 2007/03/13 00:47:44 fine Exp $
 **
 ** Copyright (C) 2002 by Valeri Fine. Brookhaven National Laboratory.
 **                                    All rights reserved.
@@ -115,8 +115,6 @@ protected:
    void SaveHtml(QString &fileName, Int_t counter);
    void CreateSelectionViewer();
    static int CreateSnapShotCounter();
-
-   TQtGLViewerImp(TQtGLViewerImp &);
 
 public:
    enum {kStatusPopIn, kStatusNoBorders, kStatusOwn, kStatusPopOut};

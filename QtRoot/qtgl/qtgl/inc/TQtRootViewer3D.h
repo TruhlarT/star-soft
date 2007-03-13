@@ -102,7 +102,9 @@ public:
    virtual Int_t  AddObject(UInt_t placedID, const TBuffer3D & buffer, Bool_t * addChildren = 0);
    virtual Int_t  AddObject(TObject *, Option_t* drawOption = 0, Bool_t * addChildren = 0);
    virtual Int_t  AddObjectFirst(TObject *, Option_t* drawOption = 0, Bool_t * addChildren = 0);
+   virtual Int_t  AddRawObject(ULong_t placedID, UInt_t optMask);
   
+
 #if  ROOT_VERSION_CODE < 327937
       virtual void   OpenComposite(const TBuffer3D & buffer, Bool_t * addChildren = 0);
 #else
