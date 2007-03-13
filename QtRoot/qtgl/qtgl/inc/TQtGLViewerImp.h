@@ -1,8 +1,8 @@
-// @(#)root/g3d:$Name:  $:$Id: TQtGLViewerImp.h,v 1.8 2007/03/13 00:47:44 fine Exp $
+// @(#)root/g3d:$Name:  $:$Id: TQtGLViewerImp.h,v 1.9 2007/03/13 01:12:44 fine Exp $
 // Author: Valery Fine      23/05/97
 
 /****************************************************************************
-** $Id: TQtGLViewerImp.h,v 1.8 2007/03/13 00:47:44 fine Exp $
+** $Id: TQtGLViewerImp.h,v 1.9 2007/03/13 01:12:44 fine Exp $
 **
 ** Copyright (C) 2002 by Valeri Fine. Brookhaven National Laboratory.
 **                                    All rights reserved.
@@ -119,6 +119,7 @@ protected:
 public:
    enum {kStatusPopIn, kStatusNoBorders, kStatusOwn, kStatusPopOut};
    TQtGLViewerImp();
+   TQtGLViewerImp(TQtGLViewerImp&);
    TQtGLViewerImp(TPadOpenGLView *padview, const char *title="OpenGL Viewer", UInt_t width=400, UInt_t height=300);
    TQtGLViewerImp(TPadOpenGLView *padview, const char *title, Int_t x, Int_t y,UInt_t width, UInt_t height);
    TQtGLViewerImp(TVirtualPad *pad, const char *title="OpenGL Viewer", UInt_t width=400, UInt_t height=300);
