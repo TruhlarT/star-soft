@@ -42,7 +42,11 @@ public:
    //virtual Int_t  AddObject(TObject *, Option_t* drawOption = 0, Bool_t * addChildren = 0);
    //virtual Int_t  AddObjectFirst(TObject *, Option_t* drawOption = 0, Bool_t * addChildren = 0);
 protected:
+         Bool_t fViewAll;
+
+protected:
    // TQtCoinViewerImp   *fCoinViewer;
+
    virtual void        Viewer();
 
    virtual void     MakeViewerNil();	

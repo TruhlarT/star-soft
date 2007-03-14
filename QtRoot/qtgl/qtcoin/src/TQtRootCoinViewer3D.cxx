@@ -51,7 +51,7 @@
 ClassImp(TQtRootCoinViewer3D)
 //______________________________________________________________________________
 TQtRootCoinViewer3D::TQtRootCoinViewer3D(TVirtualPad * pad)
-	: TQtRootViewer3D(pad)
+	: TQtRootViewer3D(pad),fViewAll(kTRUE)
 { }
 
 //______________________________________________________________________________
@@ -121,8 +121,8 @@ void  TQtRootCoinViewer3D::EndScene()
       fViewer->AddRootChild(glo->GetViewId()
                           , glo->IsSolid() ? TGLViewerImp::kSolid : TGLViewerImp::kWired);
    }
+   if (fViewAll) { fViewer->ViewAll(); fViewAll = kFALSE; }
    fViewer->SetUpdatesEnabled(TRUE);
-   fViewer->ViewAll();
    fViewer->Update();
 
    // old internal format GLFactory
