@@ -1,8 +1,8 @@
-// @(#)root/qtgl:$Name:  $:$Id: TQtGLViewerWidget.cxx,v 1.5 2007/03/09 22:00:02 fine Exp $
+// @(#)root/qtgl:$Name:  $:$Id: TQtGLViewerWidget.cxx,v 1.6 2007/03/14 00:12:00 fine Exp $
 // Author: Valery Fine(fine@vxcern.cern.ch)   12/11/02
  
 /****************************************************************************
-** $Id: TQtGLViewerWidget.cxx,v 1.5 2007/03/09 22:00:02 fine Exp $
+** $Id: TQtGLViewerWidget.cxx,v 1.6 2007/03/14 00:12:00 fine Exp $
 **
 ** Copyright (C) 2002 by Valeri Fine. Brookhaven National Laboratory.
 **                                    All rights reserved.
@@ -1012,7 +1012,7 @@ void TQtGLViewerWidget::clearGLList(EObjectType type)
 {
      //  Clear the selected list
     switch (type) {
-      case kSolid:
+      default: case kSolid:
             fGLSolidLists.clear();
             break;
       case kWired:

@@ -377,6 +377,7 @@ void TQtGLViewerImp::ShowStatusBar(Bool_t show)
  void  TQtCoinViewerImp::DisconnectPad()
  {
    QObject::disconnect(&Signals(),SIGNAL( ObjectSelected(TObject *, const QPoint&)));
+   QObject::disconnect(&Signals(),SIGNAL( HandleSelected(ULong_t, const QPoint&)));
    if (fCoinWidget) fCoinWidget->DisconnectPad();
  }
 //______________________________________________________________________________
@@ -755,12 +756,12 @@ void TQtCoinViewerImp::HelpCB()
 //______________________________________________________________________________
 void TQtCoinViewerImp::CreateViewer(const char *name)
 {
-   printf("TQtCoinViewerImp::CreateViewer\n");
-   if (!fCoinWidget) {
+    if (!fCoinWidget) {
       fCoinWidget = new TQtCoinWidget(this);
       fCoinWidget->setName(name);
       setCentralWidget (fCoinWidget);
       connect(fCoinWidget,SIGNAL(ObjectSelected(TObject*,const QPoint &)), &this->Signals(), SIGNAL(ObjectSelected(TObject *, const QPoint&)));
+      connect(fCoinWidget,SIGNAL(NodeSelected(ULong_t,const QPoint &)), &this->Signals(), SIGNAL(HandleSelected(ULong_t, const QPoint&)));
    }
 }
 

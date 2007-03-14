@@ -1,12 +1,12 @@
 
-// @(#)root/gtgl:$Name:  $:$Id: TQtGLViewerWidget.h,v 1.4 2007/03/09 22:00:01 fine Exp $
+// @(#)root/gtgl:$Name:  $:$Id: TQtGLViewerWidget.h,v 1.5 2007/03/14 00:11:59 fine Exp $
 // Author: Valery Fine      23/10/03
 
 #ifndef ROOT_TQtGLViewerWidget_
 #define ROOT_TQtGLViewerWidget_
 
 /****************************************************************************
-** $Id: TQtGLViewerWidget.h,v 1.4 2007/03/09 22:00:01 fine Exp $
+** $Id: TQtGLViewerWidget.h,v 1.5 2007/03/14 00:11:59 fine Exp $
 **
 ** Copyright (C) 2002 by Valeri Fine.  All rights reserved.
 **
@@ -151,7 +151,7 @@ protected:
     
 public:
    // kWired is applied to the dots and lines, kSolid for the rest kind of the objects
-   enum  EObjectType { kWired, kSolid, kSelecting, kSelected };
+   enum  EObjectType { kWired, kSolid, kSelecting, kSelected, kRaw };
 //   TQtGLViewerWidget();
 #ifndef __CINT__
    TQtGLViewerWidget(QWidget *parent=0, const char *name=0,const QGLWidget *shareWidget=0, Qt::WFlags f=0);

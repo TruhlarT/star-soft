@@ -1,4 +1,4 @@
-// @(#)root/g3d:$Name:  $:$Id: TQGLViewerImp.h,v 1.7 2007/03/09 22:00:01 fine Exp $
+// @(#)root/g3d:$Name:  $:$Id: TQGLViewerImp.h,v 1.8 2007/03/14 00:11:59 fine Exp $
 // Author: Valery Fine      12/03/2005
 
 /*************************************************************************
@@ -51,6 +51,7 @@ protected:
    TQtSlotProxy (TGLViewerImp *master=0) {fMaster = master;}
    virtual ~TQtSlotProxy() {}
    void EmitObjectSelected(TObject *, const QPoint&);
+   void EmitHandleSelected(ULong_t , const QPoint&);
    
 protected slots:
    void Disconnect();
@@ -59,6 +60,7 @@ protected slots:
 signals:
    void Destroyed( TGLViewerImp *);
    void ObjectSelected(TObject *, const QPoint&);
+   void HandleSelected(ULong_t, const QPoint&);
 };
 
 #else
@@ -80,7 +82,7 @@ protected:
    virtual void Disconnect(){ fGLView = 0;} // to be called from TPadOpenGLView dtor
 public:
    enum {kStatusPopIn,  kStatusNoBorders, kStatusOwn, kStatusPopOut};
-   enum  EObject3DType { kWired, kSolid, kSelecting, kSelected };
+   enum  EObject3DType { kWired, kSolid, kSelecting, kSelected, kRaw };
    TGLViewerImp();
    TGLViewerImp(TPadOpenGLView *padview, const char *title="OpenGL Viewer", UInt_t width=400, UInt_t height=300);
    TGLViewerImp(TPadOpenGLView *padview, const char *title, Int_t x, Int_t y,UInt_t width, UInt_t height);

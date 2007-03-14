@@ -1,8 +1,8 @@
-// @(#)root/g3d:$Name:  $:$Id: TQtCoinWidget.h,v 1.17 2007/03/09 22:00:00 fine Exp $
+// @(#)root/g3d:$Name:  $:$Id: TQtCoinWidget.h,v 1.18 2007/03/14 00:11:58 fine Exp $
 // Author: Valery Fine      23/05/97
 
 /****************************************************************************
-** $Id: TQtCoinWidget.h,v 1.17 2007/03/09 22:00:00 fine Exp $
+** $Id: TQtCoinWidget.h,v 1.18 2007/03/14 00:11:58 fine Exp $
 **
 ** Copyright (C) 2002 by Valeri Fine. Brookhaven National Laboratory.
 **                                    All rights reserved.
@@ -115,6 +115,7 @@ private:
    SoSeparator            *fShapeNode;
    SoSeparator            *fWiredShapeNode;
    SoSeparator            *fSolidShapeNode;
+   SoSeparator            *fRawShapeNode;
    SoSeparator            *fFileNode;
    SoSelection            *fSelNode;
    SoCamera               *fCamera;
@@ -229,6 +230,7 @@ public:
    virtual TVirtualPad *GetPad();
    void CreateViewer(const int){;}
    void EmitSelectSignal(TObject3DView * view);
+   void EmitNodeSelectSignal(SoNode *node);
    Bool_t Recording()  const { return fRecord;}
    void SetBoxSelection();
    void SetLineSelection();
@@ -297,6 +299,7 @@ public:
      virtual void HelpCB();
   signals:
        void ObjectSelected(TObject *, const QPoint&);
+       void NodeSelected(ULong_t, const QPoint&);
        void NextFrameReady(bool on=TRUE);
 #endif
 

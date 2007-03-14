@@ -407,25 +407,29 @@ static SoPath * PickFilterCB(void * viewer, const SoPickedPoint * pick)
          if (n->getName() == "CoinShapeNode")
             break;
      }
-  }
+   }
 //  SoGroup *thisGroup = (SoGroup *)p->getNode(i);
   TObject3DView *v = (TObject3DView*)p->getNode(i)->getUserData();
  // printf("static SoPath *PickFilterCB l=%d, i=%d %s : root name = %s \n",p->getLength(),i
  //        ,(const char *)p->getNode(i)->getName(),(const char *)v->GetName());
+  TQtCoinWidget *thisViewer = (TQtCoinWidget*)viewer;
   if (v) {
-     TQtCoinWidget *thisViewer = (TQtCoinWidget*)viewer;
      if (v->IsSolid()) thisViewer->SetLineSelection();
      else              thisViewer->SetBoxSelection();
      // Emit signal at once
      if (!thisViewer->WasPicked(v) ) thisViewer->EmitSelectSignal(v);
      selPath = p->copy(0, i);
+  } else {
+     // No TObject attached to the coin path waqs discovered
+     thisViewer->EmitNodeSelectSignal(p->getTail());
+     selPath = p->copy(0);
   }
   // fprintf(stderr,"static SoPath *PickFilterCB path %p\n", selPath);
   return selPath;
 }
 
 //______________________________________________________________________________
-static void SelectCB(void * viewer, SoPath *)
+static void SelectCB(void * viewer, SoPath *p)
 {
    // fprintf(stderr, "SelectCB %p %d\n",p,p->getRefCount() );	
 	/*
@@ -472,6 +476,21 @@ static void SelectCB(void * viewer, SoPath *)
 #else
       Q3WhatsThis::display(tipText,globalPosition,viewerWidget);
 #endif
+   } else if (!selectedObject) {
+      QPoint globalPosition = QCursor::pos();
+      QWidget *viewerWidget = thisViewer->GetCoinViewer()->getWidget();
+      SoNode *node = p->getTail();
+      if (node) {
+         SbName name = node->getName();
+         if (name.getLength()) {            
+            QString tipText =  name.getString();
+#if QT_VERSION < 0x40000
+            QWhatsThis::display(tipText, globalPosition,viewerWidget);
+#else
+            Q3WhatsThis::display(tipText,globalPosition,viewerWidget);
+#endif
+         }
+      }
    }
 }
 
@@ -484,7 +503,7 @@ TQtCoinWidget::TQtCoinWidget(QWidget *parent, COINWIDGETFLAGSTYPE f)
 #endif      
    , TGLViewerImp(0,"",0,0)
    , fInventorViewer(0), fRootNode(0)
-   , fShapeNode(0),fWiredShapeNode(0),fSolidShapeNode(0),fFileNode(0),fSelNode(0),fCamera(0),fAxes(0)
+   , fShapeNode(0),fWiredShapeNode(0),fSolidShapeNode(0),fRawShapeNode(0),fFileNode(0),fSelNode(0),fCamera(0),fAxes(0)
    , fXAxis(0), fYAxis(0), fZAxis(0),fCameraSensor(0),fPickedObject(0)
    , fSaveType("JPEG"),fMaxSnapFileCounter(2),fPad(0),fContextMenu(0),fSelectedObject(0)
    , fWantRootContextMenu(kFALSE)
@@ -533,7 +552,7 @@ TQtCoinWidget::TQtCoinWidget(TVirtualPad *pad, const char *title,
 #endif 
    , TGLViewerImp(0,title,width,height)
    , fInventorViewer(0), fRootNode(0)
-   , fShapeNode(0),fWiredShapeNode(0),fSolidShapeNode(0),fFileNode(0),fSelNode(0),fCamera(0),fAxes(0)
+   , fShapeNode(0),fWiredShapeNode(0),fSolidShapeNode(0),fRawShapeNode(0),fFileNode(0),fSelNode(0),fCamera(0),fAxes(0)
    , fXAxis(0), fYAxis(0), fZAxis(0),fCameraSensor(0),fPickedObject(0)
    , fSaveType("JPEG"),fMaxSnapFileCounter(2),fPad(pad),fContextMenu(0),fSelectedObject(0)
    , fWantRootContextMenu(kFALSE)
@@ -695,9 +714,12 @@ void TQtCoinWidget::AddRootChild(ULong_t id, EObject3DType type)
           fWiredShapeNode->addChild((SoNode*)id);
           // printf("TQtCoinWidget::AddRootChild------------WIRED----------  <===\n");
           break;
+       case TGLViewerImp::kRaw:
+          fRawShapeNode->addChild((SoNode*)id);          
+          break;
        default:
           fSolidShapeNode->addChild((SoNode*)id);
-          printf("TQtCoinWidget::AddRootChild------------DEFAULT----------  <===\n");
+          // printf("TQtCoinWidget::AddRootChild------------DEFAULT----------  <===\n");
           break;              
     };
    
@@ -716,8 +738,9 @@ void TQtCoinWidget::ViewAll()
 //______________________________________________________________________________
 void TQtCoinWidget::ClearCB()
 {
-   if (fFileNode) fFileNode->removeAllChildren();
-	Clear();
+   if (fFileNode)    fFileNode->removeAllChildren();
+   if (fRawShapeNode)fRawShapeNode->removeAllChildren(); ;	
+   Clear();
 }
 
 //______________________________________________________________________________
@@ -1715,10 +1738,15 @@ void TQtCoinWidget::CreateViewer(const char * /*name*/)
    fShapeNode->setName("ShapesNode");
    fSelNode->addChild(fShapeNode);
    
+ 
    fWiredShapeNode = new SoSeparator;
    fWiredShapeNode->setName("WiredShapes");
    fShapeNode->addChild(fWiredShapeNode);
    
+   fRawShapeNode = new SoSeparator;
+   fRawShapeNode->setName("RawShapes");
+   fShapeNode->addChild(fRawShapeNode);
+
    fSolidShapeNode = new SoSeparator;
    fSolidShapeNode->setName("SolidShapes");
    fShapeNode->addChild(fSolidShapeNode);
@@ -1914,6 +1942,16 @@ SoCamera *TQtCoinWidget::GetCamera() const
 SoCamera &TQtCoinWidget::Camera() const
 {
    return *GetCamera();
+}
+//______________________________________________________________________________
+void TQtCoinWidget::EmitNodeSelectSignal(SoNode *node)
+{
+   static QPoint mousePosition;
+   
+   fSelectedObject = 0;
+   
+   mousePosition = fInventorViewer->getWidget()->mapFromGlobal ( QCursor::pos());
+   emit NodeSelected(ULong_t(node), mousePosition);
 }
 
 //______________________________________________________________________________
@@ -2270,7 +2308,7 @@ void TQtCoinWidget::SetClipPlaneMan(bool on, float x, float y, float z)
    if (on) {
      if (!fClipPlanePath) {
         // fprintf(stderr," TQtCoinWidget::SetClipPlaneMan \n",on);
-        int wiredIndx = fSolidShapeNode ? fShapeNode->findChild(fSolidShapeNode):0;
+        // int wiredIndx = fSolidShapeNode ? fShapeNode->findChild(fSolidShapeNode):0;
         fClipPlaneMan = new SoClipPlaneManip();       
         fClipPlaneMan->ref();
         SoGetBoundingBoxAction ba(fInventorViewer->getViewportRegion());
