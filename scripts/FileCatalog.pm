@@ -374,7 +374,7 @@ my $delimeter = "::";
 # 2 - Table that links the given table
 # 3 - Name of the linking field in both tables
 # 4 - "Level" of the table in the DB structure
-#     The table is at level 1, if it not directly referenced by any other table
+#     The table is at level 1, if it is not directly referenced by any other table
 #     The table is at level 2 if it is directly referenced by a table at level 1
 #     etc.
 # 5 - 1 if table is a dictionary table, 0 otherwise
@@ -1384,8 +1384,9 @@ sub _name_and_ID
 # Check if there is a record with a given value
 # in a corresponding dictionary table
 # Parameters:
-#    the keyword to check for
-#    a flag indicating if the field has to be known
+#    0 the keyword to check for
+#    1 a flag indicating if the field has to be known - only used for printing
+#    2 a forced value / bypass without having to set a valuset
 #
 # Returns:
 #    The ID value for a given keyword value
@@ -1396,12 +1397,16 @@ sub check_ID_for_params
 
     if ($_[0] =~ m/FileCatalog/) {  shift @_;}
 
-    my ($params, $requested) = @_;
+    my ($params, $requested, $val) = @_;
     my $retid;
 
+    # forced a message to be displayed
     if ( ! defined($requested) ){ $requested = 1;}
 
-    if (defined $valuset{$params}) {
+    # allow forced value
+    if ( ! defined($val) ){  $val =  $valuset{$params};}
+
+    if ( defined($val) ) {
 	my $fieldname;
 	my $tabname;
 	my $rest;
@@ -1778,7 +1783,7 @@ sub disentangle_collision_type {
 
   my ($colstring) = @_;
   my ($firstParticle,$secondParticle,$el);
-  my (@particles) = ("proton", "gas", "au", "ga", "si", "p", "d", "s", "cu", "ca");
+  my (@particles) = ("proton", "gas", "au", "ga", "si", "p", "d", "s", "cu", "ca", "u");
 
   $firstParticle = $secondParticle = "";
 
@@ -1890,8 +1895,10 @@ sub get_collision_collection {
 	  }
 	  if($#retv == -1){
 	      $id = &insert_collision_type();
-	      &print_message("get_collision_collection","Inserting new CollisionTypes value [$colstring]");
-	      push(@retv,$id);
+	      if ( $id != 0){
+		  &print_message("get_collision_collection","Inserting new CollisionTypes value [$colstring]");
+		  push(@retv,$id);
+	      }
 	  }
 
 	  $sth->finish();
@@ -1920,12 +1927,19 @@ sub insert_collision_type {
   }
 
 
-
-
   $colstring = lc($colstring);
 
   ($firstParticle, $secondParticle, $energy) = &disentangle_collision_type($colstring);
 
+  if ( $firstParticle eq ""  || 
+       $secondParticle eq "" || 
+       $energy eq ""){
+
+      # Don't waste time, it is wrong and not parsed
+      &die_message("get_collision_type","Cannot parse [$colstring] - This is an invalid system");
+      # cosmetics
+      return 0;
+  }
 
 
   my $ctinsert;
@@ -1944,11 +1958,13 @@ sub insert_collision_type {
 
   $sth = $DBH->prepare( $ctinsert );
   if( ! $sth){
-      &print_debug("get_collision_type","Failed to prepare [$ctinsert]");
+      &print_debug("insert_collision_type","Failed to prepare [$ctinsert]");
   } else {
       if ( $sth->execute() ) {
 	  $retid = &get_last_id();
-	  &print_debug("get_collision_type","Returning: $retid");
+	  &print_debug("insert_collision_type","Returning: $retid");
+      } else {
+	  &print_debug("insert_collision_type","Failed to insert - returning $retid");
       }
       $sth->finish();
   }
@@ -3283,8 +3299,8 @@ sub get_intersect {
   }
   if ($DEBUG > 0) {
       &print_debug("get_intersect",
-		   "First set: ".join(" ", (@first)),
-		   "Second set: ".join(" ", (@second)));
+		   "First set: [".join(" ", (@first)."]"),
+		   "Second set: [".join(" ", (@second)."]"));
   }
   for ($cf=0; $cf<$#first+1; $cf++) {
     for ($cs=0; $cs<$#second+1; $cs++) {
@@ -3337,6 +3353,15 @@ sub connect_fields {
 		   "\tFirst: $ftable , $flevel",
 		   "\tSecond: $stable , $slevel");
   }
+  #if (! defined($slevel) ){
+  #    &print_debug("connect_fields","Level in undefined (??)");
+  #    return undef;
+  #}
+  #if ( $slevel eq "" ){
+  #    &print_debug("connect_fields","Level is empty");
+  #    return undef;
+  #}
+
   # Get to the fields on the same level in tree hierarchy
   while ($slevel < $flevel) {
     my ($ttable, $tlevel, $connum) = &get_lower_level($ftable);
@@ -3347,7 +3372,7 @@ sub connect_fields {
 
   # If not the same table - look again
   if ( $stable ne $ftable) {
-    &print_debug("connect_fields","\tLooking for downward connections");
+    &print_debug("connect_fields","\tLooking for downward connections [$stable] [$ftable]");
     my @upconnections;
     # look upward in table structure
     while (($stable ne $ftable) && ($slevel != 1)) {
@@ -3377,8 +3402,9 @@ sub connect_fields {
       while ($findex == -1) {
 	if ($DEBUG > 0) {
 	    &print_debug("connect_fields",
-			 "First fields: ".join(" ",(@flevelfields)),
-			 "Second fields: ".join(" ",(@slevelfields)));
+			 "Index        : ".$findex,
+			 "First fields : [".join(" ",(@flevelfields)."]"),
+			 "Second fields: [".join(" ",(@slevelfields)."]"));
 	}
 	my ($fcount, $scount);
 	my (@flower, @slower);
@@ -3914,16 +3940,22 @@ sub run_query {
   for ($count=1; $count<$#keywords+1; $count++) {
       &print_debug("run_query","\t. Connecting $keywords[0] $keywords[$count] ".
 		   &connect_fields($keywords[0], $keywords[$count]));
+      
       push (@connections, (&connect_fields($keywords[0], $keywords[$count])));
       push (@from, &get_table_name($keywords[$count]));
   }
 
   # Also add to the FROM array the tables for each set keyword
   foreach my $key (keys %valuset){
-      if (&get_table_name($key) ne ""){
-	  #&print_debug("run_query","\t. Connect ".&connect_fields($keywords[0], $key)." From < ".
-	  #&get_table_name($key));
-	  push (@connections, (&connect_fields($keywords[0], $key)));
+      if ( &get_table_name($key) ne "" ){
+	  &print_debug("run_query","Initiate resolve for $keywords[0] $key");
+
+	  my(@l)= &connect_fields($keywords[0], $key);
+	  my($t)= &get_table_name($key);
+
+	  &print_debug("run_query","\t. Connect ".join(" ",@l).
+		       " From < $t for kwrd=$keywords[0] and key=$key");
+	  push (@connections, @l);
 	  push (@from, &get_table_name($key));
       }
   }
@@ -5793,8 +5825,7 @@ sub _CreatorName2ID
 # getlogin() appeared to be unreliable
 sub _GetILogin
 {
-    $valuset{"creator"} = &_GetLogin();
-    return &check_ID_for_params("creator");
+    return &check_ID_for_params("creator",0,&_GetLogin());
 }
 
 
