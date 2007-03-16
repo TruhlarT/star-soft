@@ -503,7 +503,7 @@ TQtCoinWidget::TQtCoinWidget(QWidget *parent, COINWIDGETFLAGSTYPE f)
 #endif      
    , TGLViewerImp(0,"",0,0)
    , fInventorViewer(0), fRootNode(0)
-   , fShapeNode(0),fWiredShapeNode(0),fSolidShapeNode(0),fRawShapeNode(0),fFileNode(0),fSelNode(0),fCamera(0),fAxes(0)
+   , fShapeNode(0),fWiredShapeNode(0),fClippingShapeNode(0),fSolidShapeNode(0),fRawShapeNode(0),fFileNode(0),fSelNode(0),fCamera(0),fAxes(0)
    , fXAxis(0), fYAxis(0), fZAxis(0),fCameraSensor(0),fPickedObject(0)
    , fSaveType("JPEG"),fMaxSnapFileCounter(2),fPad(0),fContextMenu(0),fSelectedObject(0)
    , fWantRootContextMenu(kFALSE)
@@ -552,7 +552,7 @@ TQtCoinWidget::TQtCoinWidget(TVirtualPad *pad, const char *title,
 #endif 
    , TGLViewerImp(0,title,width,height)
    , fInventorViewer(0), fRootNode(0)
-   , fShapeNode(0),fWiredShapeNode(0),fSolidShapeNode(0),fRawShapeNode(0),fFileNode(0),fSelNode(0),fCamera(0),fAxes(0)
+   , fShapeNode(0),fWiredShapeNode(0),fClippingShapeNode(0),fSolidShapeNode(0),fRawShapeNode(0),fFileNode(0),fSelNode(0),fCamera(0),fAxes(0)
    , fXAxis(0), fYAxis(0), fZAxis(0),fCameraSensor(0),fPickedObject(0)
    , fSaveType("JPEG"),fMaxSnapFileCounter(2),fPad(pad),fContextMenu(0),fSelectedObject(0)
    , fWantRootContextMenu(kFALSE)
@@ -1743,13 +1743,17 @@ void TQtCoinWidget::CreateViewer(const char * /*name*/)
    fWiredShapeNode->setName("WiredShapes");
    fShapeNode->addChild(fWiredShapeNode);
    
+   fClippingShapeNode = new SoSeparator;
+   fClippingShapeNode->setName("ClippingShapes");
+   fShapeNode->addChild(fClippingShapeNode);
+   
    fRawShapeNode = new SoSeparator;
    fRawShapeNode->setName("RawShapes");
-   fShapeNode->addChild(fRawShapeNode);
+   fClippingShapeNode->addChild(fRawShapeNode);
 
    fSolidShapeNode = new SoSeparator;
    fSolidShapeNode->setName("SolidShapes");
-   fShapeNode->addChild(fSolidShapeNode);
+   fClippingShapeNode->addChild(fSolidShapeNode);
    
  // ---------------------------------------------------------------------
  // void SoSeparator::setNumRenderCaches ( const int  howmany ) [static] 
@@ -2282,7 +2286,8 @@ void TQtCoinWidget::SetActiveClipPlane(int planeDirection)
             fClipPlanePath = 0;
          }
          if (fClipPlaneMan) {
-            fShapeNode->removeChild(fClipPlaneMan);
+            fClippingShapeNode->removeChild(fClipPlaneMan);
+            // fShapeNode->removeChild(fClipPlaneMan);
             fClipPlaneMan->unref(); fClipPlaneMan = 0;
          }
       } else {
@@ -2322,7 +2327,8 @@ void TQtCoinWidget::SetClipPlaneMan(bool on, float x, float y, float z)
 
         fClipPlaneMan->setValue(box, SbVec3f(x, y, z), 1.02f);
         // construct the clip plane path
-        fClipPlanePath = new SoPath(fShapeNode);
+//        fClipPlanePath = new SoPath(fShapeNode);
+        fClipPlanePath = new SoPath(fClippingShapeNode);
         fClipPlanePath->ref();
 #ifdef SLICEPLANEBUTTON
         if ((!fSlicePlane) && false)  // suspend this feature for the time being
@@ -2330,10 +2336,12 @@ void TQtCoinWidget::SetClipPlaneMan(bool on, float x, float y, float z)
            fSlicePlane = new SoClipPlane(); 
            fSlicePlane->on = FALSE; 
            fSlicePlane->ref();
-           fShapeNode->insertChild(fSlicePlane, wiredIndx==-1 ? 0 : wiredIndx );
+           // fShapeNode->insertChild(fSlicePlane, wiredIndx==-1 ? 0 : wiredIndx );
+           fClippingShapeNode->insertChild(fSlicePlane, wiredIndx==-1 ? 0 : wiredIndx );
         }
 #endif
-        fShapeNode->insertChild(fClipPlaneMan, fShapeNode->findChild(fSlicePlane)+1);
+//        fShapeNode->insertChild(fClipPlaneMan, fShapeNode->findChild(fSlicePlane)+1);
+        fClippingShapeNode->insertChild(fClipPlaneMan, fClippingShapeNode->findChild(fSlicePlane)+1);
         fClipPlanePath->append(fClipPlaneMan);
      } else if ((fClipPlaneMan->getRefCount() == 1) || true ) { // FIX ME LATER !!!
          fClipPlaneMan->replaceNode(fClipPlanePath);

@@ -1,8 +1,8 @@
-// @(#)root/g3d:$Name:  $:$Id: TQtCoinWidget.h,v 1.18 2007/03/14 00:11:58 fine Exp $
+// @(#)root/g3d:$Name:  $:$Id: TQtCoinWidget.h,v 1.19 2007/03/16 20:04:06 fine Exp $
 // Author: Valery Fine      23/05/97
 
 /****************************************************************************
-** $Id: TQtCoinWidget.h,v 1.18 2007/03/14 00:11:58 fine Exp $
+** $Id: TQtCoinWidget.h,v 1.19 2007/03/16 20:04:06 fine Exp $
 **
 ** Copyright (C) 2002 by Valeri Fine. Brookhaven National Laboratory.
 **                                    All rights reserved.
@@ -114,6 +114,7 @@ private:
    SoSeparator            *fRootNode;
    SoSeparator            *fShapeNode;
    SoSeparator            *fWiredShapeNode;
+   SoSeparator            *fClippingShapeNode;
    SoSeparator            *fSolidShapeNode;
    SoSeparator            *fRawShapeNode;
    SoSeparator            *fFileNode;
