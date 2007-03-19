@@ -1189,16 +1189,34 @@ void TQtCoinViewerImp::Update()
 {  
    if (fCoinWidget) fCoinWidget->Update();
 }
-/*
 //______________________________________________________________________________
-void TQtGLViewerImp::SetFooter(QString &text)
+void TQtCoinViewerImp::SetFullScreenView(bool on)
+{
+   // Shows the widget in full-screen mode.
+   if (on) showFullScreen();
+   else    showNormal();
+}
+//______________________________________________________________________________
+bool  TQtCoinViewerImp::IsFullScreen( )       const
+{   
+   // Returns TRUE if the widget is full screen 
+   return isFullScreen();
+}
+
+//______________________________________________________________________________
+void TQtCoinViewerImp::SetFooter(const char *text)
+{
+     // Set the footer text
+   QString f(text);
+   SetFooter(f);
+}
+//______________________________________________________________________________
+void TQtCoinViewerImp::SetFooter(QString &text)
 {
    // Set the footer text
-#ifdef QGLVIEWER
-  if (fGLWidget) ((TQtGLViewerWidget*)fGLWidget)->setFooter(text);
-#endif
+  if (fCoinWidget)  fCoinWidget->SetFooter(text);
 }
-*/
+
 /*
 //______________________________________________________________________________
 void TQtCoinViewerImp::SetPadSynchronize(Bool_t on)

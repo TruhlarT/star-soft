@@ -1,8 +1,8 @@
-// @(#)root/g3d:$Name:  $:$Id: TQtCoinWidget.h,v 1.20 2007/03/19 17:25:56 fine Exp $
+// @(#)root/g3d:$Name:  $:$Id: TQtCoinWidget.h,v 1.21 2007/03/19 22:17:54 fine Exp $
 // Author: Valery Fine      23/05/97
 
 /****************************************************************************
-** $Id: TQtCoinWidget.h,v 1.20 2007/03/19 17:25:56 fine Exp $
+** $Id: TQtCoinWidget.h,v 1.21 2007/03/19 22:17:54 fine Exp $
 **
 ** Copyright (C) 2002 by Valeri Fine. Brookhaven National Laboratory.
 **                                    All rights reserved.
@@ -119,6 +119,8 @@ private:
    SoSeparator            *fRawShapeNode;
    SoSeparator            *fFileNode;
    SoSelection            *fSelNode;
+   SoSeparator            *fAnnotation;
+   SoNode                 *fFooterText;
    SoCamera               *fCamera;
    SmAxisDisplayKit       *fAxes;
    std::vector<int>        flist[3];
@@ -244,6 +246,7 @@ public:
       Bool_t res = (p != fPickedObject); if (res) fPickedObject = p; 
       return res; 
    }
+   bool         IsFullScreen( )       const;
    const QString &SaveType() const        { return fSaveType; }
    const QString &SaveFile() const        { return fSaveFile; }
    const QString &SaveFilePattern() const { return fSaveFileMoviePattern; }
@@ -296,7 +299,9 @@ public:
      virtual void SetClipPlaneZCB();
      virtual void SetSlicePlaneCB();
      virtual void ViewAll();
-     //virtual void SetFooter(QString &text);
+     virtual void SetFooter(const char *text);
+     virtual void SetFooter(QString &text);
+     virtual void SetFullScreenView(bool);
      virtual void WantRootContextMenuCB(bool on);
      virtual void AboutCB();
      virtual void HelpCB();

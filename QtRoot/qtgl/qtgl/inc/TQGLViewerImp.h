@@ -1,4 +1,4 @@
-// @(#)root/g3d:$Name:  $:$Id: TQGLViewerImp.h,v 1.8 2007/03/14 00:11:59 fine Exp $
+// @(#)root/g3d:$Name:  $:$Id: TQGLViewerImp.h,v 1.9 2007/03/19 22:17:56 fine Exp $
 // Author: Valery Fine      12/03/2005
 
 /*************************************************************************
@@ -124,6 +124,8 @@ public:
    virtual void ShowFrameAxisCB(bool)                   = 0;
    virtual void ShowLightsCB(bool)                      = 0;
    virtual void SynchTPadCB(bool)                       = 0;
+   virtual void SetFullScreenView(bool)                 = 0;
+   virtual void SetFooter(const char *)                 = 0;
    virtual void SetRotationAxisAngle(const float  x, const float  y, const float  z, const   float a)=0;
    virtual void SetSnapFileCounter(int counter)         = 0;
    virtual void ViewAll()                               = 0;
@@ -131,6 +133,7 @@ public:
 // Method to be forwarded to the QObjects:
    virtual void SetUpdatesEnabled( bool)                = 0;
    virtual bool GetUpdatesEnabled() const               = 0;
+   virtual bool IsFullScreen()      const               = 0;
 
 //Methods to provide Qt Signal/Slot communication
    TQtSlotProxy &Signals()             { return fProxy;}

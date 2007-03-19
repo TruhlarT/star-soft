@@ -1,8 +1,8 @@
-// @(#)root/g3d:$Name:  $:$Id: TQtGLViewerImp.h,v 1.9 2007/03/13 01:12:44 fine Exp $
+// @(#)root/g3d:$Name:  $:$Id: TQtGLViewerImp.h,v 1.10 2007/03/19 22:17:56 fine Exp $
 // Author: Valery Fine      23/05/97
 
 /****************************************************************************
-** $Id: TQtGLViewerImp.h,v 1.9 2007/03/13 01:12:44 fine Exp $
+** $Id: TQtGLViewerImp.h,v 1.10 2007/03/19 22:17:56 fine Exp $
 **
 ** Copyright (C) 2002 by Valeri Fine. Brookhaven National Laboratory.
 **                                    All rights reserved.
@@ -154,6 +154,7 @@ public:
 //  Qt proxy   
    virtual void SetUpdatesEnabled( bool);
    virtual bool GetUpdatesEnabled() const;
+   virtual bool IsFullScreen( )     const;
 
 
 #ifndef __CINT__
@@ -182,6 +183,8 @@ public:
      virtual void ShowFrameAxisCB(bool);
      virtual void ShowLightsCB(bool);
      virtual void SynchTPadCB(bool);
+     virtual void SetFullScreenView(bool);
+     virtual void SetFooter(const char *);
      virtual void SetRotationAxisAngle(const float  x, const float  y, const float  z, const   float a);
      virtual void SetSnapFileCounter(int counter);
      virtual void SetFooter(QString &text);

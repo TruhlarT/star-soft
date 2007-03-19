@@ -476,7 +476,7 @@ void TQtGLViewerImp::CopyFrameCB()
    cb->setPixmap(QPixmap::grabWidget(topLevelWidget()));
 }
 //______________________________________________________________________________
-void TQtGLViewerImp::ReadInputFile(const char *fileName)
+void TQtGLViewerImp::ReadInputFile(const char * /*fileName*/ )
 {
    // Read the extrernal OpenInventor file
    //This implementation can not do this
@@ -1213,6 +1213,29 @@ void TQtGLViewerImp::SetPadSynchronize(Bool_t on)
 #else
    if (fGLWidget) ((TQtGLViewerWidget*)fGLWidget)->setPadSynchronize(on);
 #endif
+}
+//______________________________________________________________________________
+void TQtGLViewerImp::SetFullScreenView(bool on)
+{
+   // set the full screen view mode if available
+   // Shows the widget in full-screen mode.
+   if (on) showFullScreen();
+   else    showNormal();
+   // if (fGLWidget) ((TQtGLViewerWidget*)fGLWidget)->SetFullScreenView();
+}
+//______________________________________________________________________________
+void TQtGLViewerImp::SetFooter(const char *text)
+{
+   // Assign the text for the footer
+  QString f(text);
+  SetFooter(f);
+}
+//______________________________________________________________________________
+bool TQtGLViewerImp::IsFullScreen()  const  
+{
+   // Returns TRUE if the widget is full screen 
+   return isFullScreen();
+  
 }
 //______________________________________________________________________________
 void TQtGLViewerImp::SetRotationAxisAngle(const float x, const float y, const float z, const float a)

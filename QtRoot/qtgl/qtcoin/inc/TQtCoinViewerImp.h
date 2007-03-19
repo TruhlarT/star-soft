@@ -1,8 +1,8 @@
-// @(#)root/g3d:$Name:  $:$Id: TQtCoinViewerImp.h,v 1.17 2007/03/19 17:25:56 fine Exp $
+// @(#)root/g3d:$Name:  $:$Id: TQtCoinViewerImp.h,v 1.18 2007/03/19 22:17:54 fine Exp $
 // Author: Valery Fine      23/05/97
 
 /****************************************************************************
-** $Id: TQtCoinViewerImp.h,v 1.17 2007/03/19 17:25:56 fine Exp $
+** $Id: TQtCoinViewerImp.h,v 1.18 2007/03/19 22:17:54 fine Exp $
 **
 ** Copyright (C) 2002 by Valeri Fine. Brookhaven National Laboratory.
 **                                    All rights reserved.
@@ -183,7 +183,8 @@ public:
    TObject     *GetSelected()         const;
    SoQtViewer  *GetCoinViewer()       const;
    Bool_t       WantRootContextMenu() const;
-   Bool_t       WasPicked(void *p)    const  ;
+   Bool_t       WasPicked(void *p)    const;
+   bool         IsFullScreen( )       const;
 #ifndef __CINT__
   public slots:
      //virtual void ActivateSelectorWidgetCB(bool);
@@ -216,7 +217,9 @@ public:
      virtual void SetRotationAxisAngle(const float  x, const float  y, const float  z, const float a);
      virtual void SetSnapFileCounter(int counter);
      virtual void SetUpdatesEnabled(bool);
-     //virtual void SetFooter(QString &text);
+     virtual void SetFooter(const char *);
+     virtual void SetFooter(QString &text);
+     virtual void SetFullScreenView(bool);
      virtual void ViewAll();
      virtual void WantRootContextMenuCB(bool on);
      virtual void AboutCB();

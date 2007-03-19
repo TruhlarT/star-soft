@@ -96,6 +96,7 @@
 #include <Inventor/nodes/SoTranslation.h>
 #include <Inventor/nodes/SoCamera.h>
 #include <Inventor/nodes/SoPerspectiveCamera.h>
+#include <Inventor/nodes/SoOrthographicCamera.h> 
 #include <Inventor/nodes/SoPickStyle.h>
 #include <Inventor/nodes/SoShapeHints.h>
 #include <Inventor/nodes/SoFaceSet.h>
@@ -123,6 +124,8 @@
 #include <Inventor/manips/SoTransformBoxManip.h>
 #include <Inventor/manips/SoTabBoxManip.h>
 #include <Inventor/annex/HardCopy/SoHardCopy.h>
+#include <Inventor/nodes/SoAnnotation.h>
+#include <Inventor/nodes/SoText2.h> 
 #include <Inventor/nodes/SoTransparencyType.h> 
 
 #include <Inventor/annex/HardCopy/SoVectorizePSAction.h>
@@ -503,7 +506,8 @@ TQtCoinWidget::TQtCoinWidget(QWidget *parent, COINWIDGETFLAGSTYPE f)
 #endif      
    , TGLViewerImp(0,"",0,0)
    , fInventorViewer(0), fRootNode(0)
-   , fShapeNode(0),fWiredShapeNode(0),fClippingShapeNode(0),fSolidShapeNode(0),fRawShapeNode(0),fFileNode(0),fSelNode(0),fCamera(0),fAxes(0)
+   , fShapeNode(0),fWiredShapeNode(0),fClippingShapeNode(0),fSolidShapeNode(0),fRawShapeNode(0)
+   , fFileNode(0),fSelNode(0),fAnnotation(0),fFooterText(0),fCamera(0),fAxes(0)
    , fXAxis(0), fYAxis(0), fZAxis(0),fCameraSensor(0),fPickedObject(0)
    , fSaveType("JPEG"),fMaxSnapFileCounter(2),fSnapshotCounter(0),fPad(0),fContextMenu(0),fSelectedObject(0)
    , fWantRootContextMenu(kFALSE)
@@ -554,7 +558,8 @@ TQtCoinWidget::TQtCoinWidget(TVirtualPad *pad, const char *title,
 #endif 
    , TGLViewerImp(0,title,width,height)
    , fInventorViewer(0), fRootNode(0)
-   , fShapeNode(0),fWiredShapeNode(0),fClippingShapeNode(0),fSolidShapeNode(0),fRawShapeNode(0),fFileNode(0),fSelNode(0),fCamera(0),fAxes(0)
+   , fShapeNode(0),fWiredShapeNode(0),fClippingShapeNode(0),fSolidShapeNode(0),fRawShapeNode(0)
+   , fFileNode(0),fSelNode(0),fAnnotation(0),fFooterText(0),fCamera(0),fAxes(0)
    , fXAxis(0), fYAxis(0), fZAxis(0),fCameraSensor(0),fPickedObject(0)
    , fSaveType("JPEG"),fMaxSnapFileCounter(2),fSnapshotCounter(0),fPad(pad),fContextMenu(0),fSelectedObject(0)
    , fWantRootContextMenu(kFALSE)
@@ -1731,6 +1736,15 @@ void TQtCoinWidget::CreateViewer(const char * /*name*/)
     //               |
     //               | fAxes    
     //               |---------- 
+    //               |
+    //               | fAnnotation    
+    //               |------------- 
+    //                           |
+    //                           |  camera
+    //                           |----------
+    //                           |
+    //                           |  fFooterText
+    //                           |-------------
     // 
    //OverlayHighlightRenderAction::initClass();	
 	//*
@@ -1945,7 +1959,6 @@ void TQtCoinWidget::CreateViewer(const char * /*name*/)
    
    //  Pick the background color from pad
    SetBackgroundColor(fPad->GetFillColor());
-
    connect(this,SIGNAL(ObjectSelected(TObject*,const QPoint &)),this,SLOT( ShowObjectInfo(TObject *, const QPoint&)));
 }
 
@@ -2072,16 +2085,7 @@ void TQtCoinWidget::Update()
    centralWidget()->update();
    */
 }
-/*
-//______________________________________________________________________________
-void TQtGLViewerImp::SetFooter(QString &text)
-{
-   // Set the footer text
-#ifdef QGLVIEWER
-  if (fGLWidget) ((TQtGLViewerWidget*)fGLWidget)->setFooter(text);
-#endif
-}
-*/
+
 /*
 //______________________________________________________________________________
 void TQtCoinWidget::SetPadSynchronize(Bool_t on)
@@ -2108,7 +2112,55 @@ void TQtCoinWidget::SetFileName(const QString &fileName)
 void TQtCoinWidget::SetFileType(const QString &fileType)
 {
    fSaveType =  fileType;
-}     
+}
+     
+//______________________________________________________________________________
+void TQtCoinWidget::SetFooter(const char *text)
+{ 
+   QString f(text);
+   SetFooter(f);
+}
+
+//______________________________________________________________________________
+void TQtCoinWidget::SetFooter(QString &text)
+{
+   // Set the footer text
+  if (fInventorViewer) 
+  {
+     if (!fAnnotation) {
+        SoSeparator *s = new SoSeparator();
+        fRootNode->addChild(s);
+        fAnnotation = new SoAnnotation();
+        s->addChild(fAnnotation);
+        SoCamera *acamera =  new SoOrthographicCamera();
+        fAnnotation->addChild(acamera);
+        SoTranslation *translate = new SoTranslation();
+        fAnnotation->addChild(translate);
+        translate->translation = SbVec3f(0,-1,0);
+     }
+     if (!fFooterText) {
+        fFooterText = new SoText2();
+        ((SoText2*)fFooterText)->justification =SoText2::CENTER; 
+        fAnnotation->addChild(fFooterText);        
+     }
+     ((SoText2*)fFooterText)->string = text.ascii();
+  }
+}
+//______________________________________________________________________________
+void TQtCoinWidget::SetFullScreenView(bool on)
+{
+   //TBD
+   if (fInventorViewer) 
+      fInventorViewer->setFullScreen(on);
+}
+      
+//______________________________________________________________________________
+bool TQtCoinWidget::IsFullScreen( )       const
+{
+   //TBD
+   return fInventorViewer?fInventorViewer->isFullScreen(): false;
+   
+}
 //______________________________________________________________________________
 void TQtCoinWidget::SetRotationAxisAngle(const float x, const float y, const float z, const float a)
 {
