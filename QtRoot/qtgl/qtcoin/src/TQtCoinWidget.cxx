@@ -340,7 +340,6 @@ static QIODevice *fAnimDevice;
 static int iframe = 0;
 
 #endif
-static int ifile = 0;
 //______________________________________________________________________________
 // Inventor call back function
 static void MovieCallback(void *d, SoAction *action)
@@ -366,7 +365,8 @@ static void DeselectCB(void * viewer, SoPath *)
    SoPath * path = new SoPath(*p);
    path->ref();
    path->truncate(path->getLength()-3);
-   if (path->getLength() == 0) {
+   if (path->getLengt  printf("TQtCoinWidget::TQtCoinWidget %d end\n",fMaxSnapFileCounter);
+h() == 0) {
 	//printf("!!!Er:path.len = 0\n");
 	return;
    }
@@ -505,7 +505,7 @@ TQtCoinWidget::TQtCoinWidget(QWidget *parent, COINWIDGETFLAGSTYPE f)
    , fInventorViewer(0), fRootNode(0)
    , fShapeNode(0),fWiredShapeNode(0),fClippingShapeNode(0),fSolidShapeNode(0),fRawShapeNode(0),fFileNode(0),fSelNode(0),fCamera(0),fAxes(0)
    , fXAxis(0), fYAxis(0), fZAxis(0),fCameraSensor(0),fPickedObject(0)
-   , fSaveType("JPEG"),fMaxSnapFileCounter(2),fPad(0),fContextMenu(0),fSelectedObject(0)
+   , fSaveType("JPEG"),fMaxSnapFileCounter(2),fSnapshotCounter(0),fPad(0),fContextMenu(0),fSelectedObject(0)
    , fWantRootContextMenu(kFALSE)
    //,fGLWidget(0),fSelectedView(0),fSelectedViewActive(kFALSE)
    //, fSelectionViewer(kFALSE),fSelectionHighlight(kFALSE),fShowSelectionGlobal(kFALSE)
@@ -514,6 +514,8 @@ TQtCoinWidget::TQtCoinWidget(QWidget *parent, COINWIDGETFLAGSTYPE f)
    , fMovie(0),fMPegMovie(0),fClipPlaneState(0),fClipPlanePath(0)
 {
       memset(fPivotClipPoint,0,sizeof(fPivotClipPoint));
+      fMaxSnapFileCounter = CreateSnapShotCounter();
+      printf("TQtCoinWidget::TQtCoinWidget %d end\n",fMaxSnapFileCounter);
 }
 //______________________________________________________________________________
 void TQtCoinWidget::SetPad(TVirtualPad *pad)
@@ -554,7 +556,7 @@ TQtCoinWidget::TQtCoinWidget(TVirtualPad *pad, const char *title,
    , fInventorViewer(0), fRootNode(0)
    , fShapeNode(0),fWiredShapeNode(0),fClippingShapeNode(0),fSolidShapeNode(0),fRawShapeNode(0),fFileNode(0),fSelNode(0),fCamera(0),fAxes(0)
    , fXAxis(0), fYAxis(0), fZAxis(0),fCameraSensor(0),fPickedObject(0)
-   , fSaveType("JPEG"),fMaxSnapFileCounter(2),fPad(pad),fContextMenu(0),fSelectedObject(0)
+   , fSaveType("JPEG"),fMaxSnapFileCounter(2),fSnapshotCounter(0),fPad(pad),fContextMenu(0),fSelectedObject(0)
    , fWantRootContextMenu(kFALSE)
    //,fGLWidget(0),fSelectedView(0),fSelectedViewActive(kFALSE)
    //, fSelectionViewer(kFALSE),fSelectionHighlight(kFALSE),fShowSelectionGlobal(kFALSE)
@@ -587,8 +589,8 @@ TQtCoinWidget::TQtCoinWidget(TVirtualPad *pad, const char *title,
       CreateViewer(title);
       SetDrawList(0);
    }
-   fMaxSnapFileCounter = 2;//CreateSnapShotCounter();
-   printf("TQtCoinWidget::TQtCoinWidget end\n");
+   fMaxSnapFileCounter = CreateSnapShotCounter();
+   printf("TQtCoinWidget::TQtCoinWidget %d end\n",fMaxSnapFileCounter);
 }
 /*
 //______________________________________________________________________________
@@ -1323,6 +1325,13 @@ void TQtCoinWidget::SaveMpegShot(bool)
    }
 }
 //______________________________________________________________________________
+void TQtCoinWidget::SetSnapshotCounter(int counter)
+{
+   // reset the current counter
+   fSnapshotCounter = counter;
+}
+
+//______________________________________________________________________________
 void TQtCoinWidget::SaveSnapShot(bool on)
 {
    const QString &saveType = SaveType();
@@ -1335,7 +1344,10 @@ void TQtCoinWidget::SaveSnapShot(bool on)
          Save(SaveFile(),saveType.upper());
       } else 
 #endif
-         Save(QString().sprintf((const char*)SaveFilePattern(),ifile++),saveType.upper());
+      {
+         if (fMaxSnapFileCounter != 0) fSnapshotCounter=fSnapshotCounter%fMaxSnapFileCounter;
+         Save(QString().sprintf((const char*)SaveFilePattern(),fSnapshotCounter++),saveType.upper());
+      }
    }
    
 	/*

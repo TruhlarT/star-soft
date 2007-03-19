@@ -1,8 +1,8 @@
-// @(#)root/g3d:$Name:  $:$Id: TQtCoinWidget.h,v 1.19 2007/03/16 20:04:06 fine Exp $
+// @(#)root/g3d:$Name:  $:$Id: TQtCoinWidget.h,v 1.20 2007/03/19 17:25:56 fine Exp $
 // Author: Valery Fine      23/05/97
 
 /****************************************************************************
-** $Id: TQtCoinWidget.h,v 1.19 2007/03/16 20:04:06 fine Exp $
+** $Id: TQtCoinWidget.h,v 1.20 2007/03/19 17:25:56 fine Exp $
 **
 ** Copyright (C) 2002 by Valeri Fine. Brookhaven National Laboratory.
 **                                    All rights reserved.
@@ -132,10 +132,11 @@ private:
    TQtCoinWidget(const TQtCoinWidget&);
    void operator=(const TQtCoinWidget&)  {}
 protected:
-   QString         fSaveFile;           // the file name to save the pixmap to
-   QString         fSaveType;           // the image format type name
-   QString         fSaveFileMoviePattern; // the file name to save the pixmap to, frame by frame
-   Int_t           fMaxSnapFileCounter; // The max number of the difffrent "snapshot files" (The length of the cyclic buffer)
+   QString         fSaveFile;            // the file name to save the pixmap to
+   QString         fSaveType;            // the image format type name
+   QString         fSaveFileMoviePattern;// the file name to save the pixmap to, frame by frame
+   Int_t           fMaxSnapFileCounter;  // The max number of the difffrent "snapshot files" (The length of the cyclic buffer)
+   Int_t           fSnapshotCounter;     // Current value of the snapshot counter
    static Int_t    gfDefaultMaxSnapFileCounter; // the default max number of the different "snapshot files" (The length of the cyclic bugger)
    //QGLWidget      *fGLWidget;           // QT GL widget to render the view
    TVirtualPad    *fPad;                // For forward compatibility with the new viewer
@@ -200,7 +201,7 @@ public:
    virtual ~TQtCoinWidget();
    void AddRootChild(ULong_t id, EObject3DType type=kSolid);
    virtual void   Clear(const char *opt=0);
-   virtual void   CreateStatusBar(Int_t nparts=1){;}
+   virtual void   CreateStatusBar(Int_t /*nparts=1*/ ){;}
    virtual void   CreateStatusBar(Int_t *parts, Int_t nparts=1);
    virtual TContextMenu &ContextMenu(); 
    //virtual void   DeleteContext() { }
@@ -275,6 +276,7 @@ public:
      //virtual void SetBackgroundColor(const TColor *color);
      virtual void ShowObjectInfo(TObject *, const QPoint&);
      virtual void SnapShotSaveCB(bool);
+     virtual void SetSnapshotCounter(int counter=2);
      virtual void SaveMpegShot(bool);
      virtual void SaveSnapShot(bool on=TRUE);
      virtual void SmallAxesActionCB(bool on);

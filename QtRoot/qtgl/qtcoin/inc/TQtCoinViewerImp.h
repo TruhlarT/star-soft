@@ -1,8 +1,8 @@
-// @(#)root/g3d:$Name:  $:$Id: TQtCoinViewerImp.h,v 1.16 2007/03/09 22:00:00 fine Exp $
+// @(#)root/g3d:$Name:  $:$Id: TQtCoinViewerImp.h,v 1.17 2007/03/19 17:25:56 fine Exp $
 // Author: Valery Fine      23/05/97
 
 /****************************************************************************
-** $Id: TQtCoinViewerImp.h,v 1.16 2007/03/09 22:00:00 fine Exp $
+** $Id: TQtCoinViewerImp.h,v 1.17 2007/03/19 17:25:56 fine Exp $
 **
 ** Copyright (C) 2002 by Valeri Fine. Brookhaven National Laboratory.
 **                                    All rights reserved.
@@ -148,7 +148,7 @@ public:
    virtual ~TQtCoinViewerImp();
    void AddRootChild(ULong_t id, EObject3DType type=kSolid);
    virtual void   Clear(const char *opt=0);
-   virtual void   CreateStatusBar(Int_t nparts=1){;}
+   virtual void   CreateStatusBar(Int_t /* nparts=1 */ ){;}
    virtual void   CreateStatusBar(Int_t *parts, Int_t nparts=1);
    virtual TContextMenu &ContextMenu(); 
    //virtual void   DeleteContext() { }
@@ -177,7 +177,7 @@ public:
    virtual void    DisconnectPad();
    //QGLWidget *GLWidget() const { return fGLWidget;}
    virtual TVirtualPad *GetPad();
-   void CreateViewer(const int id){;}
+   void CreateViewer(const int /* id */ ){;}
    void SetBoxSelection();
    void SetLineSelection();
    TObject     *GetSelected()         const;
