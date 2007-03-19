@@ -2104,7 +2104,7 @@ void TQtCoinWidget::SetFileName(const QString &fileName)
    // Set the file pattern
    QFileInfo  fi(fSaveFile);
    fSaveFileMoviePattern = 
-            fi.dirPath()+"/" + fi.baseName(TRUE)+ "_%04d" + "." + fi.extension(FALSE);
+            fi.dirPath()+"/" + fi.baseName(TRUE)+ "-%04d" + "." + fi.extension(FALSE);
    printf(" TQtCoinWidget::SetFileName %s\n", (const char *)fSaveFileMoviePattern);
 }  
 //______________________________________________________________________________
