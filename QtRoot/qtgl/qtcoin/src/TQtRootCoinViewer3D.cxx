@@ -117,7 +117,7 @@ void  TQtRootCoinViewer3D::EndScene()
    TDataSetIter nextList(&fListOfPrimitives);
    TObject3DView *glo = 0;
    while( (glo = (TObject3DView *)nextList()  )) {
-   //glo->ls(0);
+      // glo->ls(0); 
       fViewer->AddRootChild(glo->GetViewId()
                           , glo->IsSolid() ? TGLViewerImp::kSolid : TGLViewerImp::kWired);
    }
@@ -208,6 +208,11 @@ void  TQtRootCoinViewer3D::MakeViewerNil()
    fViewer = 0;
 }
 
+//______________________________________________________________________________
+void TQtRootCoinViewer3D::Clear(Option_t *)
+{
+    ClearPrimitives();
+}
 
 /*
 //______________________________________________________________________________

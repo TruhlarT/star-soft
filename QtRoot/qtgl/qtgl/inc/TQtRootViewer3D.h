@@ -75,8 +75,8 @@ protected:
    
    virtual  void    Disconnect();
    virtual  void    Viewer();
-   void             ClearPrimitives();
-   virtual void     MakeViewerNil();
+   virtual  void    ClearPrimitives();
+   virtual  void    MakeViewerNil();
 public:
     TQtRootViewer3D(TVirtualPad*pad=0);
     virtual ~TQtRootViewer3D() ;
@@ -103,7 +103,9 @@ public:
    virtual Int_t  AddObject(TObject *, Option_t* drawOption = 0, Bool_t * addChildren = 0);
    virtual Int_t  AddObjectFirst(TObject *, Option_t* drawOption = 0, Bool_t * addChildren = 0);
    virtual Int_t  AddRawObject(ULong_t placedID, UInt_t optMask);
-  
+   
+   virtual  void    Clear(Option_t *opt="");
+ 
 
 #if  ROOT_VERSION_CODE < 327937
       virtual void   OpenComposite(const TBuffer3D & buffer, Bool_t * addChildren = 0);

@@ -295,6 +295,11 @@ Int_t  TQtRootViewer3D::AddObject(const TBuffer3D &, Bool_t *)
 Int_t  TQtRootViewer3D::AddObject(UInt_t , const TBuffer3D &, Bool_t *) 
 {return 0;}
 
+//______________________________________________________________________________
+void TQtRootViewer3D::Clear(Option_t *)
+{
+    ClearPrimitives();
+}
 
 //______________________________________________________________________________
 #if  ROOT_VERSION_CODE <  ROOT_VERSION(5,00,00) 
