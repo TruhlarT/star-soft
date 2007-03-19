@@ -1703,8 +1703,6 @@ static void cameraChangeCB(void *data, SoSensor *)
 //______________________________________________________________________________
 void TQtCoinWidget::CreateViewer(const char * /*name*/)
 {
-   printf("TQtCoinWidget::CreateViewer\n");
-
    connect(this, SIGNAL(ObjectSelected(TObject*, const QPoint &)), &this->Signals(), SIGNAL(ObjectSelected(TObject *, const QPoint&)));
    if ( !fgCoinInitialized) { 
       SoQt::init(this); 
@@ -1959,6 +1957,7 @@ void TQtCoinWidget::CreateViewer(const char * /*name*/)
    
    //  Pick the background color from pad
    SetBackgroundColor(fPad->GetFillColor());
+   // SetFooter("Test Two lines\nSecond lines");
    connect(this,SIGNAL(ObjectSelected(TObject*,const QPoint &)),this,SLOT( ShowObjectInfo(TObject *, const QPoint&)));
 }
 
@@ -2136,14 +2135,20 @@ void TQtCoinWidget::SetFooter(QString &text)
         fAnnotation->addChild(acamera);
         SoTranslation *translate = new SoTranslation();
         fAnnotation->addChild(translate);
-        translate->translation = SbVec3f(0,-1,0);
+        translate->translation = SbVec3f(0,-0.95,0);
      }
      if (!fFooterText) {
         fFooterText = new SoText2();
         ((SoText2*)fFooterText)->justification =SoText2::CENTER; 
         fAnnotation->addChild(fFooterText);        
      }
-     ((SoText2*)fFooterText)->string = text.ascii();
+     QStringList list = QStringList::split(QChar('\n'),text);
+     int i =0;
+     for ( QStringList::Iterator it = list.begin(); it != list.end(); ++it ) 
+     {
+       ((SoText2*)fFooterText)->string.set1Value(i++,(*it).ascii());
+     }
+
   }
 }
 //______________________________________________________________________________
