@@ -121,6 +121,7 @@ public:
    inline SlotDisconnect *GetSlotDisconnect() const { return fDisconnectSlot;}
    virtual void   UpdateView();
    virtual void   DisconnectPad();
+   virtual void   SetFooter(const char *title="");
 
    ClassDef(TQtRootViewer3D,0) // Abstract interface to 3D viewers
 };

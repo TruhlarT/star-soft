@@ -327,3 +327,8 @@ void  TQtRootViewer3D::MakeViewerNil()
 {
    fViewer = 0;
 }
+//______________________________________________________________________________
+void  TQtRootViewer3D::SetFooter(const char *title)
+{
+   if (fViewer) fViewer->SetFooter(title);  
+}
