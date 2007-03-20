@@ -91,6 +91,7 @@
 #include <Inventor/nodes/SoSelection.h>
 #include <Inventor/nodes/SoBaseColor.h> 
 #include <Inventor/nodes/SoCallback.h>
+#include <Inventor/actions/SoCallbackAction.h>
 #include <Inventor/nodes/SoMaterial.h>
 #include <Inventor/nodes/SoDrawStyle.h>
 #include <Inventor/nodes/SoTranslation.h>
@@ -98,6 +99,7 @@
 #include <Inventor/nodes/SoPerspectiveCamera.h>
 #include <Inventor/nodes/SoOrthographicCamera.h> 
 #include <Inventor/nodes/SoPickStyle.h>
+#include <Inventor/SoSceneManager.h>
 #include <Inventor/nodes/SoShapeHints.h>
 #include <Inventor/nodes/SoFaceSet.h>
 #include <Inventor/nodes/SoPointSet.h>
@@ -162,7 +164,7 @@
 
 //#include "OverlayHighlightRenderAction.h"
 Bool_t TQtCoinWidget::fgCoinInitialized = kFALSE;
-Int_t TQtCoinWidget::gfDefaultMaxSnapFileCounter = 0 ;
+Int_t TQtCoinWidget::gfDefaultMaxSnapFileCounter = 40 ;
 //______________________________________________________________________________
 static double Round(double range, int prec=2) {
    double r = log10(range);
@@ -350,9 +352,10 @@ static void MovieCallback(void *d, SoAction *action)
    if (!d) return;
    TQtCoinWidget *currentViewer = (TQtCoinWidget *)d;
    if ( currentViewer && currentViewer->Recording() ) {
-      if (action->isOfType(SoGLRenderAction::getClassTypeId()) )
+      if (action->isOfType(SoGetBoundingBoxAction::getClassTypeId()) )
+//      if (action->isOfType(SoGLRenderAction::getClassTypeId()) )
       {
-        SoCacheElement::invalidate(action->getState());
+        // SoCacheElement::invalidate(action->getState());
         currentViewer->SaveSnapShot();
       }
    }
@@ -505,7 +508,7 @@ TQtCoinWidget::TQtCoinWidget(QWidget *parent, COINWIDGETFLAGSTYPE f)
       :QFrame(parent,f)
 #endif      
    , TGLViewerImp(0,"",0,0)
-   , fInventorViewer(0), fRootNode(0)
+   , fInventorViewer(0),fRootNode(0)
    , fShapeNode(0),fWiredShapeNode(0),fClippingShapeNode(0),fSolidShapeNode(0),fRawShapeNode(0)
    , fFileNode(0),fSelNode(0),fAnnotation(0),fFooterText(0),fCamera(0),fAxes(0)
    , fXAxis(0), fYAxis(0), fZAxis(0),fCameraSensor(0),fPickedObject(0)
@@ -557,7 +560,7 @@ TQtCoinWidget::TQtCoinWidget(TVirtualPad *pad, const char *title,
    : QFrame(0, Qt::WDestructiveClose)
 #endif 
    , TGLViewerImp(0,title,width,height)
-   , fInventorViewer(0), fRootNode(0)
+   , fInventorViewer(0),fRootNode(0)
    , fShapeNode(0),fWiredShapeNode(0),fClippingShapeNode(0),fSolidShapeNode(0),fRawShapeNode(0)
    , fFileNode(0),fSelNode(0),fAnnotation(0),fFooterText(0),fCamera(0),fAxes(0)
    , fXAxis(0), fYAxis(0), fZAxis(0),fCameraSensor(0),fPickedObject(0)
@@ -810,11 +813,11 @@ int TQtCoinWidget::CreateSnapShotCounter()
    //
    const char *dcounter = gSystem->Getenv("SnapShotFileCounter");
    if (!(dcounter && dcounter[0]) && ( gEnv ) ) {
-        dcounter  = gEnv->GetValue("Gui.SnapShotFileCounter","2");
+        dcounter  = gEnv->GetValue("Gui.SnapShotFileCounter","10");
    }
    if (dcounter && dcounter[0]) {
       int count = QString(dcounter).toInt();
-      if (count > 2 )  gfDefaultMaxSnapFileCounter = count;
+      gfDefaultMaxSnapFileCounter = count;      
    }
    return gfDefaultMaxSnapFileCounter;
 }
@@ -972,7 +975,7 @@ void TQtCoinWidget::PrintCB(){
    }
 	*/	
 	SoWriteAction 	writeAction;
-	writeAction.apply(fInventorViewer->getSceneGraph()); // fRootNode //writes the entire scene graph to stdout
+	writeAction.apply(fInventorViewer->getSceneManager()->getSceneGraph()); // fRootNode //writes the entire scene graph to stdout
 }
 
 //______________________________________________________________________________
@@ -1521,7 +1524,7 @@ void TQtCoinWidget::SnapShotSaveCB(bool on)
 {  
 	fRecord = on;
    if (on) {
-      fRootNode->addChild(fMovie);
+       fRootNode->addChild(fMovie);
       if ( (SaveType().lower() == "mpg") || (SaveType().lower() == "mpeg")) {
          if (!fMPegMovie) fMPegMovie = new TSimageMovie();
          else fMPegMovie->Open();
@@ -1746,9 +1749,8 @@ void TQtCoinWidget::CreateViewer(const char * /*name*/)
     // 
    //OverlayHighlightRenderAction::initClass();	
 	//*
-   fRootNode = new SoSeparator;
+   fRootNode = new SoSeparator;fRootNode->ref();
    fRootNode->setName("RootNode");
-   fRootNode->ref();	
    if (!fCamera) {
     	fCamera = new SoPerspectiveCamera;
       fRootNode->addChild(fCamera);	
@@ -1949,7 +1951,6 @@ void TQtCoinWidget::CreateViewer(const char * /*name*/)
    fInventorViewer->setTransparencyType(SoGLRenderAction::NONE);
 
    fCamera = fInventorViewer->getCamera(); 
-  
    fMovie  = new SoCallback;
 //    SoSeparator *mv    = new SoSeparator;
    fMovie->setCallback(MovieCallback, this);
@@ -1957,7 +1958,7 @@ void TQtCoinWidget::CreateViewer(const char * /*name*/)
    
    //  Pick the background color from pad
    SetBackgroundColor(fPad->GetFillColor());
-   // SetFooter("Test Two lines\nSecond lines");
+//   SetFooter("Test Two lines\nSecond lines");
    connect(this,SIGNAL(ObjectSelected(TObject*,const QPoint &)),this,SLOT( ShowObjectInfo(TObject *, const QPoint&)));
 }
 
@@ -2128,7 +2129,13 @@ void TQtCoinWidget::SetFooter(QString &text)
   {
      if (!fAnnotation) {
         SoSeparator *s = new SoSeparator();
-        fRootNode->addChild(s);
+        // Add annotation in front of fMovie if any
+        int indx = -1;
+        if (fMovie) indx = fRootNode->findChild(fMovie);
+        if (indx >0)
+           fRootNode->insertChild(s,indx-1);
+        else 
+           fRootNode->addChild(s);
         fAnnotation = new SoAnnotation();
         s->addChild(fAnnotation);
         SoCamera *acamera =  new SoOrthographicCamera();
