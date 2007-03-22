@@ -1,8 +1,8 @@
-// @(#)root/g3d:$Name:  $:$Id: TQtCoinWidget.h,v 1.22 2007/03/20 18:54:58 fine Exp $
+// @(#)root/g3d:$Name:  $:$Id: TQtCoinWidget.h,v 1.23 2007/03/22 19:55:50 fine Exp $
 // Author: Valery Fine      23/05/97
 
 /****************************************************************************
-** $Id: TQtCoinWidget.h,v 1.22 2007/03/20 18:54:58 fine Exp $
+** $Id: TQtCoinWidget.h,v 1.23 2007/03/22 19:55:50 fine Exp $
 **
 ** Copyright (C) 2002 by Valeri Fine. Brookhaven National Laboratory.
 **                                    All rights reserved.
@@ -89,6 +89,7 @@ class TContextMenu;
 class SoGLRenderAction;
 class TSimageMovie;
 class QCheckBox;
+class SoEventCallback;
 
 #ifdef __CINT__
 #  define COINWIDGETFLAGSTYPE  UInt_t
@@ -176,15 +177,14 @@ protected:
    TSimageMovie     *fMPegMovie;
    QCheckBox        *fClipPlaneState;
    SoPath           *fClipPlanePath;
+   SoEventCallback  *fKeyboardHandler;
 
    
 protected:
    friend class TQtCoinViewerImp;
-   void CopyFile(const QString &fileName2Copy,Int_t counter);
    void CreateViewer(const char *name="qcoinviewer");
    // void CreateViewer(QGLWidget *share, const char *name="qglviewershared"){;}
-   //void SaveHtml(Int_t counter);
-   //void SaveHtml(QString &fileName, Int_t counter);
+   virtual void EmitImageSaved(QString &fileName,QString &fileType, int frameCounter);
    //void CreateSelectionViewer();
    static int CreateSnapShotCounter();
 
@@ -247,9 +247,10 @@ public:
       return res; 
    }
    bool         IsFullScreen( )       const;
-   const QString &SaveType() const        { return fSaveType; }
-   const QString &SaveFile() const        { return fSaveFile; }
-   const QString &SaveFilePattern() const { return fSaveFileMoviePattern; }
+   const QString &SaveType()          const { return fSaveType; }
+   const QString &SaveFile()          const { return fSaveFile; }
+   const QString &SaveFilePattern()   const { return fSaveFileMoviePattern; }
+   SoEventCallback *KeyboardHandler() const { return fKeyboardHandler;      }
 #ifndef __CINT__
   public slots:
      //virtual void ActivateSelectorWidgetCB(bool);
@@ -266,6 +267,8 @@ public:
      virtual void CopyFrameCB();
      virtual void ReadInputFile(const char *fileName);
      virtual void ReadInputFile(QString fileName);
+     virtual void RotateCamera(int axis,float angle);
+     virtual void RotateCamera(int axis,bool clockWise=true);
      virtual void Save(QString fileName,QString type="png");
      virtual void SetClipPlaneMan(bool on=kTRUE,float x=1.0f, float y=0.0f, float z=0.0f);
      virtual void SetUpdatesEnabled(bool enable);
@@ -309,6 +312,7 @@ public:
        void ObjectSelected(TObject *, const QPoint&);
        void NodeSelected(ULong_t, const QPoint&);
        void NextFrameReady(bool on=TRUE);
+       void ImageSaved(QString &fileName,QString &fileType, int frameCounter);
 #endif
 
 //   ClassDef(TQtCoinWidget,0)  //ROOT OpenGL viewer implementation

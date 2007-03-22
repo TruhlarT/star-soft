@@ -60,13 +60,6 @@
 
 #include <qevent.h>
 
-#ifdef WIN32
-#  ifdef CopyFile
-#     undef CopyFile
-#  endif
-#endif
-
-
 #include "TObject3DView.h"
 
 //=============
@@ -91,6 +84,7 @@
 #include <Inventor/nodes/SoSelection.h>
 #include <Inventor/nodes/SoBaseColor.h> 
 #include <Inventor/nodes/SoCallback.h>
+#include <Inventor/nodes/SoEventCallback.h>
 #include <Inventor/actions/SoCallbackAction.h>
 #include <Inventor/nodes/SoMaterial.h>
 #include <Inventor/nodes/SoDrawStyle.h>
@@ -242,6 +236,30 @@ SoGLRenderAction &TQtCoinWidget::LineHighlightAction()
    return *fLineHighlightAction;
 }
 
+//______________________________________________________________________________
+static void ViewerKeyPressCB(void *userData, SoEventCallback *eventCB)
+{
+   fprintf(stderr,"ViewerKeyPressCB --> \n");
+   if (userData) {
+      TQtCoinWidget *currentViewer = (TQtCoinWidget *)userData;
+      {
+         const SoKeyboardEvent  *event = (SoKeyboardEvent *)eventCB->getEvent();
+         int axis = 0;
+         fprintf(stderr,"ViewerKeyPressCB %d\n", event->getKey());
+         switch (event->getKey()) {
+            case SoKeyboardEvent::X: 
+               axis = 0; break;
+            case SoKeyboardEvent::Y: 
+               axis = 1; break;
+            case SoKeyboardEvent::Z: 
+               axis = 2; break;
+            default: 
+                         break;
+         };
+         currentViewer->RotateCamera(axis,(bool)event->wasShiftDown() );
+      }
+   }
+}
 #if 0
 //______________________________________________________________________________
 // Inventor call back function
@@ -519,6 +537,7 @@ TQtCoinWidget::TQtCoinWidget(QWidget *parent, COINWIDGETFLAGSTYPE f)
    , fSnapShotAction(0),fBoxHighlightAction(0),fLineHighlightAction(0)
    , fWantClipPlane(kFALSE), fClipPlaneMan(0), fClipPlane(0), fSlicePlane(0),fHelpWidget(0),fRecord(kFALSE)
    , fMovie(0),fMPegMovie(0),fClipPlaneState(0),fClipPlanePath(0)
+   , fKeyboardHandler(0)
 {
       memset(fPivotClipPoint,0,sizeof(fPivotClipPoint));
       fMaxSnapFileCounter = CreateSnapShotCounter();
@@ -571,6 +590,7 @@ TQtCoinWidget::TQtCoinWidget(TVirtualPad *pad, const char *title,
    , fSnapShotAction(0),fBoxHighlightAction(0),fLineHighlightAction(0)
    , fWantClipPlane(kFALSE), fClipPlaneMan(0), fClipPlane(0), fSlicePlane(0),fHelpWidget(0),fRecord(kFALSE)
    , fMovie(0),fMPegMovie(0),fClipPlaneState(0),fClipPlanePath(0)
+   , fKeyboardHandler(0)
 {
    printf("TQtCoinWidget::TQtCoinWidget begin Pad=%p\n", pad);
    //Create the default SnapShot file name and type if any
@@ -981,23 +1001,19 @@ void TQtCoinWidget::PrintCB(){
 //______________________________________________________________________________
 void TQtCoinWidget::CopyCB()
 {
-	/*
- //  Copy the current x3d view to the system clipboard 
-   QWidget *c = centralWidget();
-   if (c) { 
+   //  Copy the current 3d view to the system clipboard 
+   QGLWidget *w = (QGLWidget *)GetCoinViewer()->getGLWidget();
+   if (w) {
       QClipboard *cb = QApplication::clipboard();
-      cb->setPixmap(QPixmap::grabWindow(c->winId () )) ;
+      cb->setImage(w->grabFrameBuffer(TRUE));
    }
-	*/
 }
 //______________________________________________________________________________
 void TQtCoinWidget::CopyFrameCB()
-{
-	/*
+{	
    // Copy the entire window including the menu and the status bar
    QClipboard *cb = QApplication::clipboard();
-   cb->setPixmap(QPixmap::grabWidget(topLevelWidget()));
-	*/
+   cb->setPixmap(QPixmap::grabWidget(topLevelWidget()));	
 }
 //______________________________________________________________________________
 void TQtCoinWidget::ReadInputFile(const char *fileName)
@@ -1249,12 +1265,17 @@ void TQtCoinWidget::Save(QString fileName,QString type)
 //                    Recording() ? TImage::kAnimGif:TImage::kGif);
 #else            
                     TImage::kGif);
-#endif                  
+#endif
+                 static QString GIF("GIF");
+                 EmitImageSaved(thatFile, GIF,fSnapshotCounter);
                  delete img;
               }
               gErrorIgnoreLevel = saver;
            } else {
               im.save(thatFile,e.upper().replace("JPG","JPEG"));
+              EmitImageSaved(thatFile
+                 , e.upper().replace("JPG","JPEG")
+                 , fSnapshotCounter);
            }
         }
    }
@@ -1338,6 +1359,11 @@ void TQtCoinWidget::SetSnapshotCounter(int counter)
    // reset the current counter
    fSnapshotCounter = counter;
 }
+//______________________________________________________________________________
+void TQtCoinWidget::EmitImageSaved(QString &fileName,QString &fileType, int frameCounter)
+{
+   emit ImageSaved(fileName,fileType,frameCounter);
+}
 
 //______________________________________________________________________________
 void TQtCoinWidget::SaveSnapShot(bool on)
@@ -1387,120 +1413,8 @@ void TQtCoinWidget::SaveSnapShot(bool on)
 #endif
 */
 }
+
 /*
-//______________________________________________________________________________
-void TQtGLViewerImp::CopyFile(const QString &fileName2Copy,Int_t counter)
-{
-  QFileInfo infoOldFile(fileName2Copy);
-  QString newName = infoOldFile.dirPath() + "/" + infoOldFile.baseName(TRUE) +
-  "_S."+infoOldFile.extension(FALSE); 
-  QFileInfo infoNewFile(newName);
-
-QString shellCommand;
-#ifndef WIN32  
-   shellCommand = "cd " + infoOldFile.dirPath(true)  + " && " +
-                  "cp " + infoOldFile.baseName(TRUE) + "-000" + QString::number(counter) + "." + infoOldFile.extension(FALSE)
-                       + "   " + infoNewFile.baseName(TRUE) + "-000" + QString::number(counter) + "."
-                         + infoNewFile.extension(FALSE);
-#else
-   shellCommand = 
-                 "copy " + infoOldFile.baseName(TRUE) + "-000" + QString::number(counter) + "." + infoOldFile.extension(FALSE)
-                         + "   " + infoNewFile.baseName(TRUE) + "-000" + QString::number(counter) + "." + infoNewFile.extension(FALSE);
-#endif
-   gSystem->Exec((const char*) shellCommand);
-//   fprintf(stderr," ==Copy==  %s \n", (const char*) shellCommand);
-
-   SaveHtml(newName,counter);
-}
-//______________________________________________________________________________
-void TQtGLViewerImp::SaveHtml(Int_t counter)
-{
-   if (fSaveFile.IsNull())  SaveAsCB();
-   if (!fSaveFile.IsNull()) {
-     QString f(fSaveFile.Data());
-     SaveHtml(f,counter);
-   }
-}
-//______________________________________________________________________________
-void TQtGLViewerImp::SaveHtml(QString &saveFile, Int_t counter)
-{
-#if 0
-   if (fSaveFile.IsNull()) {
-       SaveAsCB();
-   }
-   if (fSaveFile.IsNull()) return;
-   
-   QFileInfo info(fSaveFile.Data());
-#else
-   if (saveFile.isEmpty()) return;
-   
-   QFileInfo info(saveFile);
-#endif   
-   QString htmlFile(  info.dirPath(true) + "/" + info.baseName(TRUE) + "-000" +
-                      QString::number(counter) +".html");
-#ifdef GENERATE_HTML
-   TVirtualPad *thisPad= GetPad();
-   QString caption = thisPad->GetTitle();
-   FILE *f = fopen((const char*)htmlFile, "w+");
-   if (f) {
-   QTextOStream(f) << "<html>"   << endl; 
-   QTextOStream(f) << "<title>"  << endl;
-   QTextOStream(f) <<  caption << endl;
-//   QTextOStream(f) <<  caption() << endl;
-   QTextOStream(f) << "</title>" << endl;
-   QTextOStream(f) << "<head>"   << endl;
-   QTextOStream(f) << "<meta http-equiv=\"REFRESH\" content=\"15\">" << endl;
-   QTextOStream(f) << "</head>"  << endl;
-   QTextOStream(f) << "<body>"   << endl;
-   QTextOStream(f) << "<center>" << endl;
-   QTextOStream(f) << "<H2> <a href=\"http://www.star.bnl.gov\">STAR@rhic</a></H2><br>" << endl;
-//   QTextOStream(f) << "<H3>" << caption() << "</H3><br><hr><br>"   << endl;
-   QTextOStream(f) << "<H3>" << caption << "</H3><br><hr><br>"   << endl;
-   QTextOStream(f) << "<img src=\"" << info.baseName(TRUE) << "-000" + 
-     QString::number(counter) + "." <<info.extension(FALSE)  << "\">" << endl;
-//     QString::number(counter) + "." <<info.extension(FALSE)  << "\" width=100%>" << endl;
-   QTextOStream(f) << "</center>"<< endl;
-   QTextOStream(f) << "</body>"  << endl;
-   QTextOStream(f) << "</html>"  << endl;
-   fflush(f);
-   fclose(f);
-#ifndef WIN32  
-   QString shellCommand =  "cd " + info.dirPath(true)  + " && " 
-                         + "mv   " + info.baseName(TRUE) + "-000" + QString::number(counter) +".html "
-                         + info.baseName(TRUE) + ".html";
-#else
-   QString shellCommand =  "cd  " + info.dirPath(true)  + " && " 
-                         + "ren " + info.baseName(TRUE) + "-000" + QString::number(counter) +".html "
-                                  + info.baseName(TRUE) + ".html";
-#endif                         
-#else
-   QString shellCommand;
-   QFileInfo html(htmlFile);
-   if (html.exists() && html.isReadable() ) {
-#ifndef WIN32
-           shellCommand =  "cd " + info.dirPath(true)  + " && " 
-                         + "cp " + htmlFile   + " "
-                                 + "." + info.baseName(TRUE) + ".html && "
-                         + "mv " + "." + info.baseName(TRUE) + ".html " + info.baseName(TRUE) + ".html";
-#else
-          shellCommand =   "cd  " + info.dirPath(true)  + " && "
-                         + "copy "+ htmlFile            + "   "
-                                  + "." + info.baseName(TRUE) + ".html && "
-                         + "ren  "+ "." + info.baseName(TRUE) + ".html " + info.baseName(TRUE) + ".html";
-#endif
-   }
-#endif
-    if (!shellCommand.isEmpty())  gSystem->Exec((const char*) shellCommand);
-    // fprintf(stderr," ***  %s \n", (const char*) shellCommand);
-#ifdef GENERATE_HTML
-   } else {
-      char buffer[100];
-      sprintf(buffer,"TQtGLViewerImp::SaveHtml file %s", (const char*)htmlFile);
-      perror(buffer);
-      assert(0);
-   }
-#endif
-}
 //______________________________________________________________________________
 void TQtGLViewerImp::SelectEventCB(bool on)
 {
@@ -1959,6 +1873,16 @@ void TQtCoinWidget::CreateViewer(const char * /*name*/)
    //  Pick the background color from pad
    SetBackgroundColor(fPad->GetFillColor());
 //   SetFooter("Test Two lines\nSecond lines");
+#if 1
+   // Create the keyborad handler
+   fKeyboardHandler = new SoEventCallback();
+
+   fKeyboardHandler->addEventCallback(
+         SoKeyboardEvent::getClassTypeId()
+       , ViewerKeyPressCB,this);
+  // fRootNode->insertChild(fKeyboardHandler,0);
+  fRootNode->addChild(fKeyboardHandler);
+#endif
    connect(this,SIGNAL(ObjectSelected(TObject*,const QPoint &)),this,SLOT( ShowObjectInfo(TObject *, const QPoint&)));
 }
 
@@ -2161,7 +2085,7 @@ void TQtCoinWidget::SetFooter(QString &text)
 //______________________________________________________________________________
 void TQtCoinWidget::SetFullScreenView(bool on)
 {
-   //TBD
+   //   Set the full screen view
    if (fInventorViewer) 
       fInventorViewer->setFullScreen(on);
 }
@@ -2169,14 +2093,14 @@ void TQtCoinWidget::SetFullScreenView(bool on)
 //______________________________________________________________________________
 bool TQtCoinWidget::IsFullScreen( )       const
 {
-   //TBD
+   // return the current view mode
    return fInventorViewer?fInventorViewer->isFullScreen(): false;
    
 }
 //______________________________________________________________________________
 void TQtCoinWidget::SetRotationAxisAngle(const float x, const float y, const float z, const float a)
 {
-	if (x + y + z + a >0) {}
+	if (x + y + z + a >0) { RotateCamera(2,a);}
    /*
    // Set the current rotation of the frame. 
    // Parameters are the rotation axis vector and its angle (in radians). 
@@ -2466,6 +2390,52 @@ void TQtCoinWidget::ViewPlaneY() const
   camera->position    = focalpoint
                       + camera->focalDistance.getValue() * SbVec3f(0, 1, 0);
   camera->orientation = SbRotation(SbVec3f(1, 0, 0), -float(M_PI) / 2.0f);
+}
+//______________________________________________________________________________
+void  TQtCoinWidget::RotateCamera(int axis,bool clockWise)
+{
+   RotateCamera(axis, float(clockWise ? 0.5l : -0.5l ));
+}
+
+//______________________________________________________________________________
+void TQtCoinWidget::RotateCamera(int axis,float angle)
+{
+  SoCamera * const camera = GetCamera();
+  if (! camera) return; // probably a scene-less viewer
+
+  SbVec3f dir;
+  SbRotation cameraRotation = camera->orientation.getValue();
+  cameraRotation.multVec(SbVec3f(0, 0, -1), dir);
+  SbVec3f focalpoint  = camera->position.getValue()
+                      + camera->focalDistance.getValue() * dir;
+  SbVec3f rotAxis(0,0,0);
+  switch (axis) {
+   case 0:
+      rotAxis.setValue(1,0,0);
+      break;
+   case 1:
+      rotAxis.setValue(0,1,0);
+      break;
+   case 2:
+      rotAxis.setValue(0,0,1);
+      break;
+   default: assert(0);
+  };
+
+  SbRotation neworient(rotAxis, angle );
+  SbVec3f position = camera->position.getValue() - focalpoint;
+  neworient.multVec(position,position);
+  camera->position    = position;
+
+  neworient.multVec(dir,dir);
+  float oldAngle;
+  cameraRotation.getValue(dir,oldAngle);
+  cameraRotation.setValue(dir,oldAngle+angle);
+  camera->orientation.setValue(cameraRotation);
+
+//  camera->position    = focalpoint 
+//                      + camera->focalDistance.getValue() * SbVec3f(0, 1, 0);
+//  camera->orientation = SbRotation(SbVec3f(1, 0, 0), angle );
 }
 
 //______________________________________________________________________________
