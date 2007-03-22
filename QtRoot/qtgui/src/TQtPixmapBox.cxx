@@ -1,4 +1,4 @@
-// @(#)root/graf:$Name:  $:$Id: TQtPixmapBox.cxx,v 1.1 2006/09/22 17:27:11 fine Exp $
+// @(#)root/graf:$Name:  $:$Id: TQtPixmapBox.cxx,v 1.2 2007/03/22 20:24:48 fine Exp $
 // Author: Valeri Fine   03/09/2006
 
 /****************************************************************************
@@ -174,7 +174,12 @@ void TQtPixmapBox::Draw(Option_t *option)
 }
 
 //______________________________________________________________________________
-void TQtPixmapBox::DrawBox(Double_t x1, Double_t y1,Double_t x2, Double_t  y2)
+#if ROOT_VERSION_CODE < 331523 
+void 
+#else
+TBox *      
+#endif      
+TQtPixmapBox::DrawBox(Double_t x1, Double_t y1,Double_t x2, Double_t  y2)
 {
 //*-*-*-*-*-*-*-*-*-*-*Draw this box with new coordinates*-*-*-*-*-*-*-*-*-*
 //*-*                  ==================================
@@ -182,6 +187,9 @@ void TQtPixmapBox::DrawBox(Double_t x1, Double_t y1,Double_t x2, Double_t  y2)
    TBox::Copy(*newbox);
    newbox->SetBit(kCanDelete);
    newbox->AppendPad();
+#if ROOT_VERSION_CODE >= 331523 
+   return newbox;
+#endif   
 }
 
 //______________________________________________________________________________

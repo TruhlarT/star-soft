@@ -1,6 +1,6 @@
 // Author: Valeri Fine   16/03/2006
 /****************************************************************************
-** $Id: TQtZoomPadWidget.cxx,v 1.5 2007/01/30 17:12:04 fine Exp $
+** $Id: TQtZoomPadWidget.cxx,v 1.6 2007/03/22 20:24:48 fine Exp $
 **
 ** Copyright (C) 2006 by Valeri Fine. Brookhaven National Laboratory.
 **                                    All rights reserved.
@@ -15,6 +15,7 @@
 #include "TQtWidget.h"
 #include "TROOT.h"
 #include "TGQt.h"
+#include "TMath.h"
 #include "TCanvas.h"
 #include "qevent.h"
 #include "qtooltip.h"
@@ -132,7 +133,7 @@ void TQtZoomPadWidget::resizeEvent(QResizeEvent *e)
    if (HasSmartZoom() && !fJustOpen ) {
       if (fOldWidth > 0) {
         // the current factor
-        fZoomFactor *= sqrt(double(e->   size().width()) * e->   size().height()
+        fZoomFactor *= TMath::Sqrt(double(e->   size().width()) * e->   size().height()
                             /double(fOldWidth * fOldHieght));
       }
       fOldWidth  = e->size().width();

@@ -1,4 +1,4 @@
-// @(#)root/graf:$Name:  $:$Id: TQtPixmapBox.h,v 1.1 2006/09/22 17:27:10 fine Exp $
+// @(#)root/graf:$Name:  $:$Id: TQtPixmapBox.h,v 1.2 2007/03/22 20:24:48 fine Exp $
 // Author: Valeri Fine   02/09/06
 
 /****************************************************************************
@@ -53,7 +53,11 @@ public:
    virtual ~TQtPixmapBox();
            void  Copy(TObject &box) const;
    virtual void  Draw(Option_t *option="");
+#if ROOT_VERSION_CODE < 331523 
    virtual void  DrawBox(Double_t x1, Double_t y1, Double_t x2, Double_t  y2);
+#else
+   virtual TBox *DrawBox(Double_t x1, Double_t y1, Double_t x2, Double_t  y2);
+#endif      
    virtual void  ls(Option_t *option="") const;
    virtual void  Paint(Option_t *option="");
    virtual void  PaintBox(Double_t x1, Double_t y1, Double_t x2, Double_t y2, Option_t *option="");
