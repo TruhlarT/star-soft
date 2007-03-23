@@ -123,7 +123,7 @@ require  Exporter;
 
 
 use vars qw($VERSION);
-$VERSION   =   "V01.315";
+$VERSION   =   "V01.317";
 
 # The hashes that hold a current context
 my %optoperset;
@@ -1397,22 +1397,22 @@ sub check_ID_for_params
 
     if ($_[0] =~ m/FileCatalog/) {  shift @_;}
 
-    my ($params, $requested, $val) = @_;
+    my ($params, $requested, $vval) = @_;
     my $retid;
 
     # forced a message to be displayed
     if ( ! defined($requested) ){ $requested = 1;}
 
     # allow forced value
-    if ( ! defined($val) ){  $val =  $valuset{$params};}
+    if ( ! defined($vval) ){  $vval =  $valuset{$params};}
 
-    if ( defined($val) ) {
+    if ( defined($vval) ) {
 	my $fieldname;
 	my $tabname;
 	my $rest;
 
 	($fieldname, $tabname, $rest) = split(",",$keywrds{$params});
-	$retid = &get_id_from_dictionary($tabname, $fieldname, $valuset{$params});
+	$retid = &get_id_from_dictionary($tabname, $fieldname, $vval );
 	if ($retid == 0) {
 	    # *** THIS NEEDS TO BE LATER FIXED
 	    if ( $FC::ISDICT{$tabname} ) {
@@ -1423,7 +1423,7 @@ sub check_ID_for_params
 	    } else {
 		&print_debug("check_ID_for_params",
 			     "Returning 0 since ($tabname not a dict) there are no $params with value ".
-			     $valuset{$params});
+			     $vval);
 		$retid = 0;
 	    }
 
@@ -1456,13 +1456,22 @@ sub insert_dictionary_value {
 
   my ($keyname) = @_;
   my @additional;
+  my $del_onexit=0;
+
   if (! defined $valuset{$keyname}) {
-    if ($DEBUG > 0) {
-	&print_debug("insert_dictionary_value",
-		     "ERROR: No value for keyword $keyname.",
-		     "Cannot add record to dictionary table.");
-    }
-    return 0;
+      if ( $keyname eq "creator"){
+	  # This is a special keyword which may NOT be populated
+	  # but need to be initialized"on demand"
+	  $valuset{$keyname} = &_GetLogin();
+	  $del_onexit = 1;
+      } else {
+	  if ($DEBUG > 0) {
+	      &print_debug("insert_dictionary_value",
+			   "ERROR: No value for keyword $keyname.",
+			   "Cannot add record to dictionary table.");
+	  }
+	  return 0;
+      }
   }
 
   # Check if there are other fields from this table set
@@ -1543,6 +1552,8 @@ sub insert_dictionary_value {
 	  &print_debug("insert_dictionary_value","ERROR for $tabname ".$DBH->err." >> ".$DBH->errstr);
       }
   }
+  if ($del_onexit){ $valuset{$keyname} = undef;}
+
   return $retid;
 }
 
