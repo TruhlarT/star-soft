@@ -77,7 +77,7 @@ use lib "/afs/rhic.bnl.gov/star/packages/scripts";
 use RunDAQ;
 use CRSQueues;
 
-$ThisYear = 2006;                 # Block to consider. Completely artificial
+$ThisYear = 2007;                 # Block to consider. Completely artificial
                                   # and used to preserve older options in if
                                   # block along with current option.
 $HPSS     = 1;                    # turn to 0 for UNIX staging only
@@ -294,6 +294,55 @@ if ($ThisYear == 2002){
     	$EZTREE{"TrgSetup"} = $tmp;
     }
 
+} elsif ( $ThisYear == 2007 ) {
+    # ... blabla like year6 ...
+    $TREEMODE= 1;
+    $LIB     = "dev";
+
+    $NUMEVT  = 100;
+    $MINEVT  = 200;
+
+    $TARGET  = "/star/data09/reco";       # This is ONLY a default value.
+                                          # Overwritten by ARGV (see crontab)
+
+    # Those were made automatically guessed in 2005.
+    # Previous years hardcoded values could remain as-is (will not change
+    # as tables are already filled)
+    $LASERTP =  rdaq_string2ftype("laser");
+
+    $PHYSTP  =  rdaq_string2ftype("physics");
+    $PHYSTP2 =  rdaq_string2ftype("physics_adc"); # just comment them if you want them disabled
+    @EXPRESS = (
+		rdaq_string2ftype("express"),
+		rdaq_string2ftype("jpsi"),
+		rdaq_string2ftype("upsilon"),
+		rdaq_string2ftype("muon")
+		);
+    $ZEROBIAS=  rdaq_string2ftype("zerobias");
+
+    @USEQ    = (5,5,5);
+    @SPILL   = (0,2,4);
+
+    # Default chain 
+    $DCHAIN{"AuAu"}           = "p2007,ittf,ezTree"; # <==== LIDIA, CHANGE P2007 to P2007a here
+
+    # Default stand-alone auto-calib (works ONLY on $LASERTP files)
+    $SCALIB{"AuAu"}           = "OptLaser";
+
+    # ezTree production requires some conditions. We set them here.
+    # ezTree uses the Xtended Status index 1. See table in RunDAQ.pm
+    $ID                   = 1;
+    $EZTREE{"Status"}     = 0;
+    $EZTREE{"XStatus$ID"} = 0;
+
+    # ...
+    # EzTree were processed for this trigger before
+    #
+    #if ( ($tmp = rdaq_string2trgs("pp2006MinBias")) != 0){
+    #	# Self adapting
+    #	$EZTREE{"TrgSetup"} = $tmp;
+    #}
+
 
 } else {
     # Well, at first you may get that message ... should tell you that
@@ -343,7 +392,7 @@ if ( -e $QUITF){
 
 # be sure to turn it ON
 # if (rdaq_toggle_debug()){ rdaq_toggle_debug();}
-rdaq_toggle_debug(1);
+#rdaq_toggle_debug(1);
 
 # Global condition wille exclude from accidental processing of junk
 # puslers or lasers types. Note that EXPRESS are NOT added as they
