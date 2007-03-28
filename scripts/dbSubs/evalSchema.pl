@@ -1,6 +1,6 @@
 #!/opt/star/bin/perl -w
 #
-# $Id: evalSchema.pl,v 1.2 2000/05/03 20:06:26 porter Exp $
+# $Id: evalSchema.pl,v 1.3 2007/03/28 04:18:56 deph Exp $
 #
 # Author: R. Jeff Porter
 #
@@ -13,6 +13,9 @@
 #****************************************************************************
 # 
 # $Log: evalSchema.pl,v $
+# Revision 1.3  2007/03/28 04:18:56  deph
+# Added quotes to identifier schema
+#
 # Revision 1.2  2000/05/03 20:06:26  porter
 # header output fix ... continued
 #
@@ -72,7 +75,7 @@ $ssrQuery= qq{ SELECT structure.ID, structure.lastSchemaID, } .
            qq{ schema.length, schema.position, schema.Comment, } .
            qq{ structure.Comment as structComment, schema.storeType }.
            qq{ FROM structure } .
-           qq{ LEFT JOIN schema ON structure.ID=schema.structID }.
+           qq{ LEFT JOIN `schema` ON structure.ID=schema.structID }.
            qq{ WHERE structure.name='$tableName' ORDER BY schema.position};
 
   if($debug){ print $ssrQuery,"\n"; }

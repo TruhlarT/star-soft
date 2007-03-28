@@ -1,6 +1,6 @@
 #!/opt/star/bin/perl -w
 #
-# $Id: evolveTable.pl,v 1.2 2001/02/16 22:11:38 porter Exp $
+# $Id: evolveTable.pl,v 1.3 2007/03/28 04:18:56 deph Exp $
 #
 # Author: R. Jeff Porter
 #
@@ -11,6 +11,9 @@
 #****************************************************************************
 # 
 # $Log: evolveTable.pl,v $
+# Revision 1.3  2007/03/28 04:18:56  deph
+# Added quotes to identifier schema
+#
 # Revision 1.2  2001/02/16 22:11:38  porter
 # modified for new low-level table structures
 #
@@ -24,7 +27,7 @@ use DBI;
 
 sub evolveTable(){
 
-$ssrQuery="SELECT structure.ID, structure.lastSchemaID, schema.name, schema.ID, schema.schemaID, schema.type, schema.length, schema.position, schema.Comment, structure.Comment as structComment, schema.storeType  FROM structure LEFT JOIN schema ON structure.ID=schema.structID WHERE structure.name='".$tableName."' ORDER BY schema.position";
+$ssrQuery="SELECT structure.ID, structure.lastSchemaID, schema.name, schema.ID, schema.schemaID, schema.type, schema.length, schema.position, schema.Comment, structure.Comment as structComment, schema.storeType  FROM structure LEFT JOIN `schema` ON structure.ID=schema.structID WHERE structure.name='".$tableName."' ORDER BY schema.position";
 
 if($debug){ print $ssrQuery,"\n";}
 
@@ -165,7 +168,7 @@ if( ($#elements eq $numFound-1) && ($#elements eq $numQueried-1)){$done=1;}
    }
        
     $ii=$i+1;
-        $statement="INSERT schema SET name='".$elements[$i]."', type='".$etypes[$i]."', length='".$elengths[$i]."', schemaID=".$thisSchemaID.", Comment='".$ecomments[$i]."', storeType='".$storeType[$i]."', structName='".$tableName."', structID=".$structID.", position=".$ii.", units='".$eunits."'";
+        $statement="INSERT `schema` SET name='".$elements[$i]."', type='".$etypes[$i]."', length='".$elengths[$i]."', schemaID=".$thisSchemaID.", Comment='".$ecomments[$i]."', storeType='".$storeType[$i]."', structName='".$tableName."', structID=".$structID.", position=".$ii.", units='".$eunits."'";
    if($debug){print $statement, " \n";}
         $sth=$dbh->prepare($statement);
         $sth->execute;

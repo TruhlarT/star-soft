@@ -1,7 +1,7 @@
 #!/usr/bin/perl 
 #
 #
-# $Id: dbGetSchema.pl,v 1.2 2003/01/09 20:30:27 porter Exp $
+# $Id: dbGetSchema.pl,v 1.3 2007/03/28 04:18:25 deph Exp $
 #
 # Author: Bum Choi & R. Jeff Porter
 #
@@ -12,6 +12,9 @@
 #****************************************************************************
 # 
 # $Log: dbGetSchema.pl,v $
+# Revision 1.3  2007/03/28 04:18:25  deph
+# Added quotes to identifier schema
+#
 # Revision 1.2  2003/01/09 20:30:27  porter
 # upgrade of db table structure scripts
 #
@@ -58,7 +61,7 @@ if (defined $structName){
 }
 $sth1=$dbh->prepare($query);   
 $sth1->execute;    
-$sth2=$dbh->prepare(qq{select name, type, length, comment from schema }. 
+$sth2=$dbh->prepare(qq{select name, type, length, comment from `schema` }. 
 		    qq{where structID=? and schemaID=?});
 #--------------------------------------------------------------------
 while(($structName, $comment, $structID, $lastID) = $sth1->fetchrow_array){
@@ -136,7 +139,7 @@ sub PrintData{
 sub CheckSchema{
     my ($structid, $schemaid) = @_;
     my @checkarray = 
-	    $dbh->selectrow_array(qq{select structID from schema }.
+	    $dbh->selectrow_array(qq{select structID from `schema` }.
 				  qq{where structID=$structid and }.
 				  qq{schemaID=$schemaid});
     return @checkarray;

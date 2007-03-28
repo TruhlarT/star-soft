@@ -1,6 +1,6 @@
 #!/usr/bin/perl -w
 #
-# $Id: dbTableCreate.pl,v 1.4 2003/01/31 02:14:42 porter Exp $
+# $Id: dbTableCreate.pl,v 1.5 2007/03/28 04:18:55 deph Exp $
 #
 # Author: R. Jeff Porter
 #
@@ -12,6 +12,9 @@
 #****************************************************************************
 # 
 # $Log: dbTableCreate.pl,v $
+# Revision 1.5  2007/03/28 04:18:55  deph
+# Added quotes to identifier schema
+#
 # Revision 1.4  2003/01/31 02:14:42  porter
 # got rid of a couple of opsolete files and got rid of environment variable
 # STDB_ADMIN
@@ -178,7 +181,7 @@ sub addSchema {
 
     my ($tn,$sid) = @_;
 
-    my $stest = qq{ select ID from schema where } .
+    my $stest = qq{ select ID from `schema` where } .
                 qq{ structName='$tn' and schemaID='$sid' };
 
     $stesth = $dbh->prepare($stest);
@@ -197,12 +200,12 @@ sub addSchema {
     if($sid!=1){ #check for old schema's
 
 #-> get the list of distinct schemas for this structure
-       my $qlist=qq{ select max(schemaID) from schema } . 
+       my $qlist=qq{ select max(schemaID) from `schema` } . 
                  qq{ where structName='$tn'};
        my $scitr=$dbh->prepare($qlist);
 
 #-> get the element-list per distinct schema
-       my $scQuery=qq{ select name,type,length,position,storeType from schema } .
+       my $scQuery=qq{ select name,type,length,position,storeType from `schema` } .
                    qq{ where structName='$tn' and schemaID=? };
        my $scth= $dbh->prepare($scQuery);           
 
@@ -256,7 +259,7 @@ sub addSchema {
     my $ii=0;
     for($i=0;$i<=$#elements;$i++){
         $ii=$i+1;
-        my $addS = qq{ insert into schema } .
+        my $addS = qq{ insert into `schema` } .
                    qq{ set name='$elements[$i]', type='$etypes[$i]', } .
                    qq{ length='$elengths[$i]', schemaID=$sid, } .
                    qq{ Comment='$ecomments[$i]',storeType='$storeType[$i]', } .
