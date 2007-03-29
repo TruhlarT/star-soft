@@ -324,7 +324,7 @@ if ($ThisYear == 2002){
     @SPILL   = (0,2,4);
 
     # Default chain 
-    $DCHAIN{"AuAu"}           = "p2007a,ittf,ezTree"; # <==== LIDIA, CHANGE P2007 to P2007a here
+    $DCHAIN{"AuAu"}           = "p2007a,alltrigger,ittf,ezTree"; # <==== LIDIA, CHANGE P2007 to P2007a here
 
     # Default stand-alone auto-calib (works ONLY on $LASERTP files)
     $SCALIB{"AuAu"}           = "OptLaser";
