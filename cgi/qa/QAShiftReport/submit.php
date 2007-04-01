@@ -85,9 +85,8 @@ foreach ($ents as $typ => $entN) {
   $typeissues = array();
   $runFileSeqs = array();
   foreach ($entFiles as $k => $entFile) {
-    $datFile = $sesDir . $entFile;
-    $allents .= d2tdelim() . $datFile;
-    if ($entr = readObjectEntry($datFile)) {
+    $allents .= d2tdelim() . $entFile;
+    if ($entr = readObjectEntry($sesDir . $entFile)) {
       $typeissues += $entr->issues;
       $runFileSeqs[] = array($entr->info["runid"],$entr->info["fseq"],$entr->Anchor());
     }
