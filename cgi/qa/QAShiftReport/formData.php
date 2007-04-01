@@ -214,7 +214,8 @@ if (count($previssues) > 0) {
   sectionhead("Issues in the latest " . $ents[$type] . " entry");
   listar($previssues,"Add");
   holinel(30);
-  $actissues += $previssues;
+  if (count($actissues) > 0) { $actissues += $previssues; }
+  else { $actissues = $previssues; }
   print "<tr><td colspan=3>\n";
   fbutton("addAllLatest","Add All Latest Issues","AddIssueN(1)");
   print "</td></tr>\n\n";
