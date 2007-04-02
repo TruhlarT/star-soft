@@ -1,4 +1,4 @@
-// @(#)root/gtgl:$Name:  $:$Id: TCoinShapeBuilder.cxx,v 1.5 2007/02/08 21:19:05 fine Exp $
+// @(#)root/gtgl:$Name:  $:$Id: TCoinShapeBuilder.cxx,v 1.6 2007/04/02 17:01:33 fine Exp $
 // Author: Valery Fine      24/09/06
 
 /****************************************************************************
@@ -267,6 +267,11 @@ SoGroup * TCoinShapeBuilder::CreateCoinShape()
             } else if ( ( (*face_binding_iter).fType ==  TPolygone3DView::kPoints) && !shapePoint) {
                if (!fMaterial) shapeGroup->addChild(fMaterial = SetCurrentColor(fRgba));
                Style_t style = (Style_t)fShapeView.GetLineStyle();
+               if (vertices.size() > 20) {
+                  // Alas, there are too many of them. 
+                  // We should not use the simplest  marker style
+                  style =  kDot; 
+               }
               /*
                *-*  List of the currently supported markers (screen and PostScript)
                *-*  ===============================================================
