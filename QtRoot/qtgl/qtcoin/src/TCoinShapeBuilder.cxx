@@ -1,4 +1,4 @@
-// @(#)root/gtgl:$Name:  $:$Id: TCoinShapeBuilder.cxx,v 1.6 2007/04/02 17:01:33 fine Exp $
+// @(#)root/gtgl:$Name:  $:$Id: TCoinShapeBuilder.cxx,v 1.7 2007/04/03 13:11:41 fine Exp $
 // Author: Valery Fine      24/09/06
 
 /****************************************************************************
@@ -270,6 +270,7 @@ SoGroup * TCoinShapeBuilder::CreateCoinShape()
                if (vertices.size() > 20) {
                   // Alas, there are too many of them. 
                   // We should not use the simplest  marker style
+                  // if the Coin3D in debug mode
                   style =  kDot; 
                }
               /*
