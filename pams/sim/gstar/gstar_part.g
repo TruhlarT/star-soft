@@ -1,6 +1,9 @@
-* $Id: gstar_part.g,v 1.17 2007/04/02 18:09:27 potekhin Exp $
+* $Id: gstar_part.g,v 1.12.2.1 2007/04/05 20:12:49 jeromel Exp $
 *
 * $Log: gstar_part.g,v $
+* Revision 1.12.2.1  2007/04/05 20:12:49  jeromel
+* Updated particle definition file
+*
 * Revision 1.17  2007/04/02 18:09:27  potekhin
 * For the pi0 "embedding" studies, we need to enrich the
 * pi0 sample with Dalitz decays to enhance statistics.
