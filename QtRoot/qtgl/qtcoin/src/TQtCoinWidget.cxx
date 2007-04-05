@@ -434,7 +434,7 @@ static SoPath * PickFilterCB(void * viewer, const SoPickedPoint * pick)
    }
 //  SoGroup *thisGroup = (SoGroup *)p->getNode(i);
   TObject *o = (TObject*)p->getNode(i)->getUserData();
-  TObject3DView *v = dymanic_cast<TObject3DView *>(o);
+  TObject3DView *v = dynamic_cast<TObject3DView *>(o);
  // printf("static SoPath *PickFilterCB l=%d, i=%d %s : root name = %s \n",p->getLength(),i
  //        ,(const char *)p->getNode(i)->getName(),(const char *)v->GetName());
   TQtCoinWidget *thisViewer = (TQtCoinWidget*)viewer;
