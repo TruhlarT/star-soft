@@ -1,4 +1,4 @@
-// @(#)root/gtgl:$Name:  $:$Id: TObjectCoinViewFactory.cxx,v 1.8 2007/02/08 16:24:58 fine Exp $
+// @(#)root/gtgl:$Name:  $:$Id: TObjectCoinViewFactory.cxx,v 1.9 2007/04/05 23:20:26 fine Exp $
 // Author: Valery Fine      24/09/06
 
 /****************************************************************************
@@ -86,7 +86,7 @@ void TObjectCoinViewFactory::AddChild(TObject3DView * parent, TObject3DView *chi
       if (parent->GetViewId() == 0) {
          SoGroup * p = new SoGroup();
          SetName(p,parent->GetTitle());
-         p->setUserData((void*)parent);
+         p->setUserData((void*)(TObject *)parent);
          SetView(parent , p );
       }
       if (child->GetViewId()  == 0) {
@@ -95,14 +95,14 @@ void TObjectCoinViewFactory::AddChild(TObject3DView * parent, TObject3DView *chi
          // assert(0);
          SoGroup * c = new SoGroup();
          SetName(c,child->GetTitle());
-         c->setUserData((void*)child);
+         c->setUserData((void*)(TObject *)child);
          SetView(child , c );
       }
       SoGroup *p = (SoGroup*)(parent->GetViewId());
-      p->setUserData((void*)parent); // FIXME: one has to check this first
+      p->setUserData((void*)(TObject *)parent); // FIXME: one has to check this first
       
       SoGroup *c = (SoGroup*)(child->GetViewId() );
-      c->setUserData((void*)child);  // FIXME: one has to check this first// FIXME: one ha to checl this first
+      c->setUserData((void*)(TObject *)child);  // FIXME: one has to check this first
       p->addChild(c);
    } else {
       assert(0);

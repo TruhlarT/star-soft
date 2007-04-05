@@ -1,8 +1,8 @@
-// @(#)root/g3d:$Name:  $:$Id: TQtCoinWidget.h,v 1.23 2007/03/22 19:55:50 fine Exp $
+// @(#)root/g3d:$Name:  $:$Id: TQtCoinWidget.h,v 1.24 2007/04/05 23:20:25 fine Exp $
 // Author: Valery Fine      23/05/97
 
 /****************************************************************************
-** $Id: TQtCoinWidget.h,v 1.23 2007/03/22 19:55:50 fine Exp $
+** $Id: TQtCoinWidget.h,v 1.24 2007/04/05 23:20:25 fine Exp $
 **
 ** Copyright (C) 2002 by Valeri Fine. Brookhaven National Laboratory.
 **                                    All rights reserved.
@@ -233,7 +233,7 @@ public:
    //QGLWidget *GLWidget() const { return fGLWidget;}
    virtual TVirtualPad *GetPad();
    void CreateViewer(const int){;}
-   void EmitSelectSignal(TObject3DView * view);
+   void EmitSelectSignal(TObject *view);
    void EmitNodeSelectSignal(SoNode *node);
    Bool_t Recording()  const { return fRecord;}
    void SetBoxSelection();

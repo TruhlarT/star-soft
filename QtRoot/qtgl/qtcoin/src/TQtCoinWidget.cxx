@@ -433,7 +433,8 @@ static SoPath * PickFilterCB(void * viewer, const SoPickedPoint * pick)
      }
    }
 //  SoGroup *thisGroup = (SoGroup *)p->getNode(i);
-  TObject3DView *v = (TObject3DView*)p->getNode(i)->getUserData();
+  TObject *o = (TObject*)p->getNode(i)->getUserData();
+  TObject3DView *v = dymanic_cast<TObject3DView *>(o);
  // printf("static SoPath *PickFilterCB l=%d, i=%d %s : root name = %s \n",p->getLength(),i
  //        ,(const char *)p->getNode(i)->getName(),(const char *)v->GetName());
   TQtCoinWidget *thisViewer = (TQtCoinWidget*)viewer;
@@ -441,11 +442,20 @@ static SoPath * PickFilterCB(void * viewer, const SoPickedPoint * pick)
      if (v->IsSolid()) thisViewer->SetLineSelection();
      else              thisViewer->SetBoxSelection();
      // Emit signal at once
-     if (!thisViewer->WasPicked(v) ) thisViewer->EmitSelectSignal(v);
+     if (!thisViewer->WasPicked(v) ) {
+        TObject3DView  *parent = (TObject3DView  *)v->GetParent();
+        TObject *obj = parent ? parent->GetObject() :0 ;
+        if (obj)  thisViewer->EmitSelectSignal(obj);
+     }
      selPath = p->copy(0, i);
   } else {
-     // No TObject attached to the coin path waqs discovered
-     thisViewer->EmitNodeSelectSignal(p->getTail());
+     // No TObject attached to the coin path was discovered
+     o = (TObject *)p->getTail()->getUserData();
+     if (o) {
+        thisViewer->EmitSelectSignal(o);
+     } else {
+        thisViewer->EmitNodeSelectSignal(p->getTail());
+     }
      selPath = p->copy(0);
   }
   // fprintf(stderr,"static SoPath *PickFilterCB path %p\n", selPath);
@@ -1908,19 +1918,17 @@ void TQtCoinWidget::EmitNodeSelectSignal(SoNode *node)
 }
 
 //______________________________________________________________________________
-void TQtCoinWidget::EmitSelectSignal(TObject3DView * view)
+void TQtCoinWidget::EmitSelectSignal(TObject *obj)
 {
    static QPoint mousePosition;
 
    mousePosition = fInventorViewer->getWidget()->mapFromGlobal ( QCursor::pos());
-   if (view) {
-      TObject3DView  *parent = (TObject3DView  *)view->GetParent();
-      TObject *obj = parent->GetObject();
+   if (obj) {
       fSelectedObject = obj;
       if (obj) {
          // fprintf(stderr,"\tTQtCoinWidget::EmitSelectSignal view = %p, obj = %p; obj name %s \n", view, obj, (const char*)obj->GetName());
          emit ObjectSelected(obj,  mousePosition);
-      }
+      }      
    }
 }
 
