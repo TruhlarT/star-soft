@@ -1,5 +1,5 @@
 //_____________________________________________________________________
-// @(#)StRoot/StBFChain:$Name:  $:$Id: StBFChain.cxx_doc,v 1.27 2007/03/23 14:40:46 jeromel Exp $
+// @(#)StRoot/StBFChain:$Name:  $:$Id: StBFChain.cxx_doc,v 1.28 2007/04/06 00:20:28 jeromel Exp $
 //_____________________________________________________________________
 #include "TROOT.h"
 #include "TString.h"
@@ -130,6 +130,9 @@ Bfc_st BFC[] = {
   {"------------","-----------","-----------","------------------------------------------","","","",kFALSE},
   {"Trigger Type","-----------","-----------","------------------------------------------","","","",kFALSE},
   {"------------","-----------","-----------","------------------------------------------","","","",kFALSE},
+
+
+
 
   {"Physics" ,"","","trg" ,"","","Select Physics events",kFALSE},
   {"LaserTest" ,"","","trg" ,"","","Select Laser events",kFALSE},
@@ -334,6 +337,8 @@ Bfc_st BFC[] = {
   {"OGridLeak" ,"" ,"","","" ,"","Grid Leak correction",kFALSE},
   {"OGridLeak3D" ,"" ,"","","" ,"","3D Grid Leak correction",kFALSE},
   {"AlignSectors","" ,"","","" ,"","Activate Sector Alignment correction",kFALSE},
+  {"DbRichSca" ,"" ,"","detdb","","", "Force reading of Rich scalers from DB",kFALSE},
+
 
   {"EastOff" ,"" ,"","","" ,"","Disactivate East part of tpc",kFALSE},
   {"WestOff" ,"" ,"","","" ,"","Disactivate West part of tpc",kFALSE},
@@ -1259,6 +1264,9 @@ Bfc_st BFC2[] = {
   {"Trigger Type","-----------","-----------","------------------------------------------","","","",kFALSE},
   {"------------","-----------","-----------","------------------------------------------","","","",kFALSE},
 
+
+
+
   {"Physics" ,"","","trg" ,"","","Select Physics events",kFALSE},
   {"LaserTest" ,"","","trg" ,"","","Select Laser events",kFALSE},
   {"PulserSvt" ,"","","trg" ,"","","Select SVT Pulser events",kFALSE},
@@ -1516,6 +1524,8 @@ Bfc_st BFC2[] = {
   {"OGridLeak" ,"" ,"","","" ,"","Grid Leak correction",kFALSE},
   {"OGridLeak3D" ,"" ,"","","" ,"","3D Grid Leak correction",kFALSE},
   {"AlignSectors","" ,"","","" ,"","Activate Sector Alignment correction",kFALSE},
+  {"DbRichSca" ,"" ,"","detdb","","", "Force reading of Rich scalers from DB",kFALSE},
+
 
   {"EastOff" ,"" ,"","","" ,"","Disactivate East part of tpc",kFALSE},
   {"WestOff" ,"" ,"","","" ,"","Disactivate West part of tpc",kFALSE},
@@ -2755,6 +2765,10 @@ Int_t StBFChain::Instantiate()
     if (maker == "StLaserEventMaker"){
       // Bill stuff - Empty place-holder
     }
+    if (maker == "StDetectorDbMaker") {
+      if ( GetOption("DbRichSca") ) mk->SetMode(1);
+    }
+
     if (maker == "St_tpt_Maker" && (GetOption("MINIDAQ") || GetOption("Eval"))) {
       TString cmd(Form("St_tpt_Maker *tptMk = (St_tpt_Maker *) %p;",mk));
       if (GetOption("MINIDAQ")) cmd += "tptMk->Set_final(kTRUE);";// Turn on the final ntuple.
