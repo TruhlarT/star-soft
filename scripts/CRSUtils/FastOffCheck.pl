@@ -97,14 +97,14 @@ if ($UPDATE == 0){
 			if ( $#info == -1){
 			    print "Could not find $TARGET/$lfile\n";
 			    next;
-			} elsif  ( $info[7] == 0){   
+			} elsif  ( $info[7] == 0){
 			    next;
 			}
 
 			($tree,$el) = $lfile =~ m/(.*\/)(.*)/;
 			chop($tree);
 			$tree =~ s/\.\///;
-			
+
 			#print " $el --> $TARGET/$tree\n";
 
 			$LOCATIONS{"$file.daq"} = "$TARGET/$tree";
@@ -162,7 +162,7 @@ if ($UPDATE == 0){
 	rdaq_set_files_where($obj,2,1,@DONE);
 	rdaq_close_odatabase($obj);
 
-	foreach $jfile (@MOVE){ps
+	foreach $jfile (@MOVE){
 	    open(FO,">$JOBDIR/old/$jfile.checked");
 	    print FO "$0 ".localtime()."\n";
 	    close(FO);
@@ -231,7 +231,7 @@ if ($UPDATE == 0){
 		}
 	    }
 	}
-    } 
-    
+    }
+
 }
 
