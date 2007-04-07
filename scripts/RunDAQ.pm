@@ -152,6 +152,7 @@ require Exporter;
 	    rdaq_get_files rdaq_get_ffiles rdaq_get_orecords
 	    rdaq_set_files rdaq_set_files_where
 	    rdaq_set_xstatus rdaq_set_xstatus_where
+	    rdaq_set_execdate rdaq_execdate_where
 	    rdaq_set_chain rdaq_set_chain_where
 
 	    rdaq_file2hpss rdaq_mask2string rdaq_status_string
@@ -161,6 +162,8 @@ require Exporter;
 	    rdaq_toggle_debug rdaq_set_dlevel rdaq_scaleToString
 
 	    rdaq_set_files_where rdaq_update_entries
+
+	    rdaq_set_message rdaq_get_message rdaq_purge_message
 
 	    );
 
@@ -174,6 +177,9 @@ $DDBUSER   = "starreco";
 $DDBPASSWD = "";
 $DDBPORT   = 3501;
 $DDBNAME   = "RunLog";
+
+$RDBOBJ    = undef;
+$ODBOBJ    = undef;
 
 $dbhost    = "duvall.star.bnl.gov";
 $dbuser    = "starreco";
@@ -805,12 +811,14 @@ sub rdaq_close_odatabase
 
 sub rdaq_open_odatabase
 {
-   my($obj);
-
-   $obj = DBI->connect("dbi:mysql:$dbname:$dbhost", $dbuser, $dbpass,
-			{PrintError  => 0, AutoCommit => 1,
-			 ChopBlanks  => 1, LongReadLen => 200});
-   return $obj;
+   if ( ! defined($ODBOBJ) ){
+       $DBOBJ = DBI->connect("dbi:mysql:$dbname:$dbhost", $dbuser, $dbpass,
+			   {PrintError  => 0, AutoCommit => 1,
+			    ChopBlanks  => 1, LongReadLen => 200});
+       return $DBOBJ;
+   } else {
+       return $DBOBJ;
+   }
 }
 
 #
@@ -1038,6 +1046,20 @@ sub rdaq_set_chain_where
     my($obj,$chain,$stscond,@files)=@_;
     return 0 if ( ! defined($chain) );
     return &__set_files_where($obj,"Chain",$chain,$stscond,@files);
+}
+
+
+# Settng the ExecDate
+sub rdaq_set_execdate
+{
+    my($obj,$val,@files)=@_;
+    return &rdaq_set_execdate_where($obj,$val,-1,@files);
+}
+sub rdaq_set_execdate_where
+{
+    my($obj,$val,$stscond,@files)=@_;
+    if ( ! defined($val) ){ $val = "NOW()+0";}
+    return &__set_files_where($obj,"ExecDate",$val,$stscond,@files);
 }
 
 
@@ -1573,10 +1595,82 @@ sub    rdaq_set_delay
     return $DELAY;
 }
 
+#
+# We will have
+#  FOMessages: id, Itime, Category, Message, Variablemsg
+#
+# Category is arbitrary.
+#   
+#
+sub  rdaq_set_message
+{
+    my($fac,$mess,$var)=@_;
+    my($obj,$val,$sth1,$sth2);
+
+    if ( $obj = rdaq_open_odatabase() ){
+	$sth1 = $obj->prepare("SELECT id FROM FOMessages WHERE Message='?' AND Variablemsg='?'");
+	$sth2 = $obj->prepare("INSERT INTO FOMessages VALUES(0,NOW()+0,?,?,?)");
+	if ( ! defined($fac) ){  $fac  = "-";}
+	if ( ! defined($mess) ){ $cat  = "";}
+	if ( ! defined($var)){   $var  = "";}
+	if ( $sth1 ){
+	    $sth1->execute($mess,$var);
+	    if( ! defined($val = $sth1->fetchrow() ) ){
+		if ( $sth2 ){
+		    $sth2->execute($fac,$mess,$var);
+		    $sth2->finish();
+		}
+	    }
+	    $sth1->finish();
+	}
+    }
+}
+sub  rdaq_get_message 
+{
+    my($limit,$mode)=@_;
+    my($obj,$sth,$qq);
+    my(@tmp,@rec);
+    
+    if ( ! defined($limit) ){ $limit = "10";}
+    if ( $obj = rdaq_open_odatabase() ){
+	$sth = $obj->prepare("SELECT Itime, Category, Message, Variablemsg ".
+	                     "FROM FOMessages GROUP BY Message ".
+	                     "ORDER BY ITime DESC LIMIT $limit");
+	# if ( $mode = 0){
+	#    $qq = "";
+	# }
+	# push(@rec,"Prepare");
+	if ( $sth->execute() ){
+	    # push(@rec,"Execute");
+	    while ( @tmp = $sth->fetchrow_array() ){
+		chomp($val = join(";",@tmp));
+		push(@rec,$val);
+	    }
+	    # } else {
+	    # push(@rec,$obj->errstr);
+	}
+	return @rec;
+    } else {
+	return undef;
+    } 
+}
+
+sub rdaq_purge_message
+{
+}
 
 
 1;
 
+#
+# April 2007
+#  Added several methods for handling message synchronization / 
+#  reporting amongst components.
+#
+#  CREATE TABLE FOMessages (id INT NOT NULL AUTO_INCREMENT, Itime TIMESTAMP 
+#     NOT NULL DEFAULT CURRENT_TIMESTAMP, Utime  TIMESTAMP NOT NULL, 
+#     Category CHAR(15), Message TEXT, PRIMARY KEY (id));
+#
 #
 # Dec 2001
 #  Changed the meaning of TriggerSetup from trgSetupName to
