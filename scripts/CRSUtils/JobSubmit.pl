@@ -69,7 +69,7 @@
 #
 # Jan 2005     Added HPSS output mode
 # May 2005     Added disk range syntax support (delegation to bfcca)
-# April 2006   $ltarget/FreeSpace mechanism for PANASAS, changed 
+# April 2006   $ltarget/FreeSpace mechanism for PANASAS, changed
 #              the meaning of express.
 #
 
@@ -117,7 +117,7 @@ $DEBUG    = 0;
 # Default values Year2 data
 if ($ThisYear == 2002){
     $LIB     = "dev";
-    $NUMEVT  = 20;
+    $NUMEVT  = 20;           # this may be overwritten by command line arguments
     $TARGET  = "/star/data13/reco";
 
     $PHYSTP  = 1;
@@ -276,8 +276,8 @@ if ($ThisYear == 2002){
     @SPILL   = (0,2,4);
 
     # Default chain -- P2005 does not include Corr4 but Corr3
-    #$DCHAIN{"PPPP"}           = "pp2006a,ittf,ezTree"; 
-    $DCHAIN{"PPPP"}           = "pp2006b,ittf,ezTree"; 
+    #$DCHAIN{"PPPP"}           = "pp2006a,ittf,ezTree";
+    $DCHAIN{"PPPP"}           = "pp2006b,ittf,ezTree";
 
     # Default stand-alone auto-calib (works ONLY on $LASERTP files)
     $SCALIB{"PPPP"}           = "OptLaser";
@@ -324,8 +324,8 @@ if ($ThisYear == 2002){
     @USEQ    = (5,5,5);
     @SPILL   = (0,2,4);
 
-    # Default chain 
-    $DCHAIN{"AuAu"}           = "p2007a,alltrigger,ittf,ezTree"; # <==== LIDIA, CHANGE P2007 to P2007a here
+    # Default chain
+    $DCHAIN{"AuAu"}           = "p2007a,alltrigger,ittf,ezTree";
 
     # Default stand-alone auto-calib (works ONLY on $LASERTP files)
     $SCALIB{"AuAu"}           = "OptLaser";
@@ -339,10 +339,10 @@ if ($ThisYear == 2002){
     # ...
     # EzTree were processed for this trigger before
     #
-    #if ( ($tmp = rdaq_string2trgs("pp2006MinBias")) != 0){
+    # if ( ($tmp = rdaq_string2trgs("pp2006MinBias")) != 0){
     #	# Self adapting
     #	$EZTREE{"TrgSetup"} = $tmp;
-    #}
+    # }
 
 
 } else {
@@ -454,7 +454,7 @@ if ($TARGET !~ m/^\d+$/){
 	    rdaq_set_message($SSELF,"Target disk space notice","$ltarget is $space % full");
 	} else {
 	    # only one disk OK warrant a full OK
-	    print "$SELF : Target disk $ltarget is $space < $MAXFILL (we shall proceed)\n"; 
+	    print "$SELF : Target disk $ltarget is $space < $MAXFILL (we shall proceed)\n";
 	    $OK = 1==1;
 	    last;
 	}
@@ -663,7 +663,7 @@ if( $TARGET =~ m/^\// || $TARGET =~ m/^\^\// ){
     chomp(@all = <FI>);
     close(FI);
 
-    if ( $#all == -1){ 
+    if ( $#all == -1){
 	exit;
     } else {
 	rdaq_set_message($SSELF,"Found bypass requests",(1+$#all)." lines to consider ".join("::",@all));
@@ -1033,7 +1033,7 @@ sub Submit
     }
 
     #
-    # ATTENTION - Exclusions 
+    # ATTENTION - Exclusions
     #
     # Those are explained in the FastOffline documentation.
     #
@@ -1230,7 +1230,7 @@ __EOF__
 	close(FO);
 
 	# A returned value
-	$SCHAIN = $chain;  
+	$SCHAIN = $chain;
 
 	if( (stat($jfile))[7] == 0){
 	    print "$SELF : Info : 0 size $jfile . Please, check quota/disk space\n";
