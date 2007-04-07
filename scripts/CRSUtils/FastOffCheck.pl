@@ -25,6 +25,7 @@ $TARGET  = "/star/data19/reco";
 $FIND    = "/usr/bin/find";
 $UPDATE  = 0;
 $RETENT  = 14;
+$SSELF   = "FastOffCheck";
 
 $LIB     = shift(@ARGV) if ( @ARGV );
 $TARGET  = shift(@ARGV) if ( @ARGV );
@@ -65,7 +66,7 @@ if ($UPDATE == 0){
 	    $tree = $1;
 	    $file = $2;
 
-	    #print "$jfile Tree=$tree file=$file\n";
+	    # print "$jfile Tree=$tree file=$file\n";
 
 	    $tree =~ s/_/\//g;
 	    chop($tree);        # remove trailing '/'
@@ -87,7 +88,7 @@ if ($UPDATE == 0){
 	    } else {
 		if ( ! -e "$SCRATCH/$file.done"){
 		    open(FF,">$SCRATCH/$file.done"); close(FF);
-		    #print "Searching for $file\n";
+		    # print "Searching for $file\n";
 		    chomp($lfile = `cd $TARGET ; $FIND -type f -name $file.MuDst.root`);
 		    if( $lfile ne ""){
 			# found it so it is done.
@@ -107,10 +108,11 @@ if ($UPDATE == 0){
 			#print " $el --> $TARGET/$tree\n";
 
 			$LOCATIONS{"$file.daq"} = "$TARGET/$tree";
+			rdaq_set_message($SSELF,"New file found as done with prod","$file");
 			push(@DONE,"$file.daq");
 			push(@MOVE,$jfile);
 		    } else {
-			#print "Could not find $TARGET/$tree/$file.MuDst.root\n";
+			# print "Could not find $TARGET/$tree/$file.MuDst.root\n";
 		    }
 		}
 	    }
@@ -160,7 +162,7 @@ if ($UPDATE == 0){
 	rdaq_set_files_where($obj,2,1,@DONE);
 	rdaq_close_odatabase($obj);
 
-	foreach $jfile (@MOVE){
+	foreach $jfile (@MOVE){ps
 	    open(FO,">$JOBDIR/old/$jfile.checked");
 	    print FO "$0 ".localtime()."\n";
 	    close(FO);
@@ -218,6 +220,7 @@ if ($UPDATE == 0){
 			if ( $info[7] == 0){
 			    # disable those records
 			    print "Bogus zero size file found $tfile\n";
+			    rdaq_set_message($SSELF,"Bogus zero file size found","$tfile");
 			    rdaq_set_location($obj,0,$file);
 			} else {
 			    #if ( $file =~ /794028/){

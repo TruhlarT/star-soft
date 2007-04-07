@@ -87,6 +87,7 @@ $HPSS     = 1;                    # turn to 0 for UNIX staging only
 $SELF  =  $0;
 $SELF  =~ s/.*\///;
 $SELF  =~ s/\..*//;
+$SSELF = $SELF;
 $SELF .= " :: ".time();
 
 # default values global (unless overwritten)
@@ -450,6 +451,7 @@ if ($TARGET !~ m/^\d+$/){
 
 	if ($space >= $MAXFILL ){
 	    print "$SELF : Target disk $ltarget is $space % full\n";
+	    rdaq_set_message($SSELF,"Target disk space notice","$ltarget is $space % full");
 	} else {
 	    # only one disk OK warrant a full OK
 	    print "$SELF : Target disk $ltarget is $space < $MAXFILL (we shall proceed)\n"; 
@@ -460,6 +462,7 @@ if ($TARGET !~ m/^\d+$/){
 
     if ( ! $OK){
 	print "$SELF : Target disk(s) $target is/are full (baling out on ".localtime().")\n";
+	rdaq_set_message($SSELF,"Warning - Disk Space problem","Target disk(s) $target is/are full (baling out)");
 	exit;
     }
 }
@@ -479,9 +482,11 @@ if ( -e $LOCKF){
     $date = time()-(stat($LOCKF))[9];
     if ($date > 3600){
 	print "$SELF : removing $LOCKF (older than 3600 seconds)\n";
+	rdaq_set_message($SSELF,"Recovery","Removing $LOCKF (older than 3600 seconds)");
 	unlink($LOCKF);
     } else {
 	print "$SELF : $LOCKF present. Skipping pass using target=$TARGET\n";
+	rdaq_set_message($SSELF,"$LOCKF present. Skipping pass","using target=$TARGET");
     }
     exit;
 }
@@ -512,6 +517,7 @@ if( $TARGET =~ m/^\// || $TARGET =~ m/^\^\// ){
     $TOT = 1 if ($DEBUG);
 
     print "$SELF : Mode=direct Queue count Tot=$TOT\n";
+
 
     $time = localtime();
     if ($TOT > 0 && ! -e $LOCKF){
@@ -617,12 +623,15 @@ if( $TARGET =~ m/^\// || $TARGET =~ m/^\^\// ){
 		} else {
 		    # there is nothing to submit
 		    print "$SELF : There is nothing to submit on $time\n";
+		    rdaq_set_message($SSELF,"There is nothing to submit at this time");
 		}
 	    }
 
 	    rdaq_close_odatabase($obj);
 	}
 	if(-e $LOCKF){  unlink($LOCKF);}
+    } else {
+	rdaq_set_message($SSELF,"No slots available within range $USEQ[0] / $SPILL[0]","mode=direct");
     }
 
 
@@ -654,6 +663,11 @@ if( $TARGET =~ m/^\// || $TARGET =~ m/^\^\// ){
     chomp(@all = <FI>);
     close(FI);
 
+    if ( $#all == -1){ 
+	exit;
+    } else {
+	rdaq_set_message($SSELF,"Found bypass requests",(1+$#all)." lines to consider ".join("::",@all));
+    }
 
     # get number of slots. Work is spill mode.
     $TOT = CRSQ_getcnt($USEQ[1],$SPILL[1],$PAT);
@@ -714,6 +728,7 @@ if( $TARGET =~ m/^\// || $TARGET =~ m/^\^\// ){
 
 	    # OK. We have $cnt for that one and $TOT slots.
 	    print "$SELF : Working with $run -> $cnt and $TOT slots\n";
+	    rdaq_set_message($SSELF,"Working with run","$run -> $cnt and $TOT slots");
 
 	    # Submit no more than $TOT jobs
 	    if($#files != -1){
@@ -762,6 +777,7 @@ if( $TARGET =~ m/^\// || $TARGET =~ m/^\^\// ){
 		}
 	    } else {
 		print "$SELF : Run $run will be ignored. No files returned by ddb\n";
+		rdaq_set_message($SSELF,"Run $run will be ignored. No files returned by ddb");
 	    }
 	}
 
@@ -773,6 +789,8 @@ if( $TARGET =~ m/^\// || $TARGET =~ m/^\^\// ){
 	close(FO);
 	unlink($LOCKF);
 
+    } else {
+	rdaq_set_message($SSELF,"No slots available within range $USEQ[1] / $SPILL[1]","mode=bypass");
     }
 
 
@@ -835,8 +853,9 @@ if( $TARGET =~ m/^\// || $TARGET =~ m/^\^\// ){
 	    rdaq_close_odatabase($obj);
 	}
 	if(-e $LOCKF){  unlink($LOCKF);}
-    #} else {
-	#print "$SELF : There are no slots available\n";
+    } else {
+	print "$SELF : Target=C - There are no slots available within range $USEQ[2] / $SPILL[2]\n";
+	rdaq_set_message($SSELF,"No slots available within range $USEQ[2] / $SPILL[2]","mode=calib");
     }
 
 } elsif ($TARGET =~ m/(^Z\/)(.*)/ ) {
@@ -918,7 +937,8 @@ if( $TARGET =~ m/^\// || $TARGET =~ m/^\^\// ){
 	}
 	if(-e $LOCKF){  unlink($LOCKF);}
     } else {
-	print "$SELF : There are no slots available within range $USEQ[0] / $SPILL[0]\n";
+	print "$SELF : Target=Z - There are no slots available within range $USEQ[0] / $SPILL[0]\n";
+	rdaq_set_message($SSELF,"Target=XForm - No slots available within range $USEQ[0] / $SPILL[0]");
     }
 
 
@@ -1222,10 +1242,14 @@ __EOF__
 		    # Mark it so we can set status 1 later
 		    print "$SELF : Successful submission of $file ($queue,$spill) on ".
 			localtime()."\n";
+
+		    rdaq_set_execdate($obj,,$file);  # set execdate, more or less meaning submit
+		    rdaq_set_message($SSELF,"Submitted",$file);
 		    push(@OKFILES,$file);
 		    return 1;
 		}
 	    } else {
+		rdaq_set_message($SSELF,"DEBUG is ON - There will be no submission");
 		print "$SELF : DEBUG is on, $jfile not submitted\n";
 		return 0;
 	    }
