@@ -15,6 +15,7 @@ use RunDAQ;
 $mode  = 1;
 $sltime= 60;
 $file  = "";   # DAQFill.log";
+$SSELF = "DAQFill";
 
 $mode   = shift(@ARGV) if ( @ARGV );
 $arg1   = shift(@ARGV) if ( @ARGV );
@@ -35,8 +36,9 @@ do {
 	#&Print("O-Database opened\n");
 	if ( ($obj = rdaq_open_rdatabase()) == 0){
 	    &Print("Failed to open R-Database on ".localtime()."\n");
+	    rdaq_set_message($SSELF,"Failed to open R-Datase","This will prevent fetching of new records");
 	} else {
-	    #&Print("R-Database opened\n");
+	    # &Print("R-Database opened\n");
 
 	    # get the top run. Note that <= 0 would get all
 	    # runs ever entered in this database.
@@ -50,16 +52,18 @@ do {
 
 	    if($prun ne $run){
 		&Print("Last Run=$run on ".localtime()."\n");
+		rdaq_set_message($SSELF,"Last run in our db","Run=$run");
 	    }
 
+	    $tot   = 0;
 	    $begin = 0;
 	    $by    = 1000;
 	    if($run >= 0){
 		# fetch new records since that run number
-		my($count,$tot,$N);
+		my($count,$N);
 
 		&Print("Bootstrap case Run >= 0, run=$run\n");
-		$count = $tot = 0;
+		$count = 0;
 		rdaq_set_dlevel(1);
 		
 		do {
@@ -72,15 +76,16 @@ do {
 		    # display info
 		    if ($#records != -1){
 			&Print("Fetched ".($#records+1)." records on $ctime, ");
-
+			
 			# record entries
 			$N = rdaq_add_entries($dbObj,@records);
-			&Print("Adding $N entries to $tot so far\n");
+			&Print("Adding ".($N+1)." entries to $tot so far\n");
 			$tot += $N;
 		    }
 		    $begin += $by;
 		} while ($#records != -1);
 		&Print("Got $tot records in $count passes\n");
+		rdaq_set_message($SSELF,"Fetched new records","$tot records") if ($tot != 0);
 		
 	    } else {
 		&Print("Checking entries on ".localtime()."\n");
@@ -89,10 +94,12 @@ do {
 		    @records = rdaq_raw_files($obj,$run,"$begin,$by");
 
 		    &Print("Updating ".($#records+1)." on ".localtime()."\n");
-		    rdaq_update_entries($dbObj,@records);
+		    $tot   += rdaq_update_entries($dbObj,@records);
 		    $begin += $by;
 		} while ($#records != -1);
+		rdaq_set_message($SSELF,"Bootstrap","Updated or inserted $tot records") if ($tot != 0);
 	    }
+
 
 	    # close
 	    rdaq_close_rdatabase($obj);
@@ -135,7 +142,7 @@ sub GetRun
 
     $rv = "0.0";
     if( $file ne ""){
-	$line = `tail -1 $file`;
+	$line = `/usr/bin/tail -1 $file`;
 	if ($line =~ m/(Run=)(\d+)\.(\d+)/){
 	    $rv = "$2.$3";
 	}
