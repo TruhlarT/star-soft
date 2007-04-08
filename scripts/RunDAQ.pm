@@ -33,6 +33,8 @@
 #                                   and get_ffiles.
 #      rdaq_set_xstatus             Set XStatus for a given XStatus id
 #      rdaq_set_chain               Set chain according to list
+#      rdaq_set_execdate            Set the file(s) execute date (should be 
+#                                   passed in GMT)
 #
 # Each rdaq_set_XXX has an equivalent rdaq_set_XXX_where method which accepts
 # a finer grain selection.
@@ -49,6 +51,8 @@
 #      rdaq_string2ftyype           Return file type/flavor Index from its name
 #      rdaq_toggle_debug            Turn ON/OFF SELECT of raw data.
 #      rdaq_set_dlevel              Set debug level
+#      rdaq_set_message             Add a message to the message stack (debug)
+#      rdaq_get_message             Get N message from the message stack
 #
 # DEV ONLY *** MAY BE CHANGED AT ANY POINT IN TIME ***
 #      rdaq_set_files_where         Not in its final shape.
@@ -1049,16 +1053,22 @@ sub rdaq_set_chain_where
 }
 
 
-# Settng the ExecDate
+# Setting the ExecDate - val could be 0 or undef which would equate
+# to NOW()+0. This was added for convenience as updating a timestamp
+# field without knowing the date format could be problematic (requires
+# additional calculations)    
 sub rdaq_set_execdate
 {
     my($obj,$val,@files)=@_;
+    # $DEBUG = 1;
     return &rdaq_set_execdate_where($obj,$val,-1,@files);
 }
 sub rdaq_set_execdate_where
 {
     my($obj,$val,$stscond,@files)=@_;
     if ( ! defined($val) ){ $val = "NOW()+0";}
+    if ( "$val" eq "0" ){   $val = "NOW()+0";}    
+    # print "<!-- In set_execdate_where() calling with $val=[$val] and cond=[$stscond] -->\n" if ($DEBUG);    
     return &__set_files_where($obj,"ExecDate",$val,$stscond,@files);
 }
 
@@ -1092,7 +1102,7 @@ sub __set_files_where
 
     # If not numerical and they are indirect fields defined via
     # index/value tables, record and/or fetch the value now.
-    #print "DEBUG Received field=$field\n";
+    # print "DEBUG Received field=$field\n";
     if ( defined($THREAD0{$field}) ){
 	$value = &Record_n_Fetch($THREAD0{$field},$value);
 	print "<!-- Value for $field $THREAD0{$field} case-0 is now $value -->\n" if ($DEBUG);
@@ -1101,6 +1111,7 @@ sub __set_files_where
 	print "<!-- Value for $field $THREAD1{$field} case-1 is now $value -->\n" if ($DEBUG);
     }
 
+    # any change would the UpdateDate field
     $cmd = "UPDATE $DBTABLE SET $field=$value, UpdateDate=NOW()+0 WHERE file=? ";
     if ($stscond != -1){
 	$cmd .= " AND $field=$stscond";
@@ -1627,24 +1638,61 @@ sub  rdaq_set_message
 }
 sub  rdaq_get_message 
 {
-    my($limit,$mode)=@_;
-    my($obj,$sth,$qq);
-    my(@tmp,@rec);
+    my($limit,$fld,$sel)=@_;
+    my($obj,$cmd,$sth,$sts,$key,$ii);
+    my(@tmp,@rec,%Rec);
     
-    if ( ! defined($limit) ){ $limit = "10";}
+    if ( ! defined($limit) ){ $limit = 10;}
+    if ( ! defined($sel) ){   $sel   = "";}
+    if ( ! defined($fld) ){   $fld   = -1;}
+    
+    # force type for int
+    $limit = int($limit);
+    $fld   = int($fld);
+    
     if ( $obj = rdaq_open_odatabase() ){
-	$sth = $obj->prepare("SELECT Itime, Category, Message, Variablemsg ".
-	                     "FROM FOMessages GROUP BY Message ".
-	                     "ORDER BY ITime DESC LIMIT $limit");
-	# if ( $mode = 0){
-	#    $qq = "";
-	# }
-	# push(@rec,"Prepare");
-	if ( $sth->execute() ){
-	    # push(@rec,"Execute");
-	    while ( @tmp = $sth->fetchrow_array() ){
-		chomp($val = join(";",@tmp));
-		push(@rec,$val);
+	my(@fields)=("Itime","Category","Message","Variablemsg");
+	$cmd = "SELECT ".join(",",@fields)." FROM FOMessages";
+
+	if ( $fld != -1){
+	    # protect string arg - further protect by using prepare with ?
+	    $sel = (split(" ",$sel))[0];
+	    $sel =~ s/%.*//;
+	    $sel =~ s/-/ /g;   # this is an internal convention
+	    $cmd .= " WHERE $fields[$fld]=?";
+	}
+	$cmd .= " ORDER BY ITime DESC LIMIT ?";
+
+	# now prepare
+	$sth = $obj->prepare($cmd);
+	
+	# push(@rec,";ModuleDebug;Prepare statement; $cmd + [$sel] [$limit]");
+	$ii = 0;
+
+	# can't do the same sorting using MySQL
+	# The limit x10 is purely arbitrary as we will count the records we need 
+	# and stop when we get the proper requested number.
+	#
+	# Note the logic: if a selector is used, all records otherwise unique
+	# based on key Message/Variablemsg
+	#
+	if ( $sel ne ""){
+	    $sts = $sth->execute($sel,10*$limit);
+	} else {
+	    $sts = $sth->execute(10*$limit);
+	}
+
+	if ( $sts ){
+	    # push(@rec,";ModuleDebug;Execute;Status was OK, ready to execute");
+	    # print "Execute";
+	    while ( (@tmp = $sth->fetchrow_array()) && $ii < $limit ){
+		$key = $tmp[2]." ".$tmp[3];
+		# print "Got [$key] ";		
+		if ( ! defined($Rec{$key}) || $sel ne "" ){
+		    chomp($Rec{$key} = join(";",@tmp));
+		    push(@rec,$Rec{$key});
+		    $ii++;
+		}
 	    }
 	    # } else {
 	    # push(@rec,$obj->errstr);
@@ -1668,8 +1716,8 @@ sub rdaq_purge_message
 #  reporting amongst components.
 #
 #  CREATE TABLE FOMessages (id INT NOT NULL AUTO_INCREMENT, Itime TIMESTAMP 
-#     NOT NULL DEFAULT CURRENT_TIMESTAMP, Utime  TIMESTAMP NOT NULL, 
-#     Category CHAR(15), Message TEXT, PRIMARY KEY (id));
+#     NOT NULL DEFAULT CURRENT_TIMESTAMP, Category CHAR(15), Message CHAR(80),
+#     Variablemsg TEXT, PRIMARY KEY (id));
 #
 #
 # Dec 2001
