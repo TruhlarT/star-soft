@@ -1247,7 +1247,7 @@ __EOF__
 		    print "$SELF : Successful submission of $file ($queue,$spill) on ".
 			localtime()."\n";
 
-		    rdaq_set_execdate($obj,,$file);  # set execdate, more or less meaning submit
+		    rdaq_set_execdate($obj,undef,$file);  # set execdate, more or less meaning submit
 		    rdaq_set_message($SSELF,"Submitted",$file);
 		    push(@OKFILES,$file);
 		    return 1;
