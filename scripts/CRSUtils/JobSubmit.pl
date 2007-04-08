@@ -388,12 +388,15 @@ $MINEVT  =  0 if (!defined($MINEVT)); # minimum number of events to consider
 # Check if the quit file is present
 if ( -e $QUITF){
     print "$SELF : $QUITF detected I have been asked to skip processing\n";
+    rdaq_set_message($SSELF,"$QUITF detected","I have been asked to skip processing");
     exit;
 }
 
 # be sure to turn it ON
 # if (rdaq_toggle_debug()){ rdaq_toggle_debug();}
-#rdaq_toggle_debug(1);
+# if ($DEBUG){
+#    rdaq_toggle_debug(1);
+# }
 
 # Global condition wille exclude from accidental processing of junk
 # puslers or lasers types. Note that EXPRESS are NOT added as they
@@ -666,7 +669,8 @@ if( $TARGET =~ m/^\// || $TARGET =~ m/^\^\// ){
     if ( $#all == -1){
 	exit;
     } else {
-	rdaq_set_message($SSELF,"Found bypass requests",(1+$#all)." lines to consider ".join("::",@all));
+	my($tmp)=($#all+1);
+	rdaq_set_message($SSELF,"Found bypass requests","$tmp line".($tmp!=1?"s":"")." to consider ".join("::",@all));
     }
 
     # get number of slots. Work is spill mode.
