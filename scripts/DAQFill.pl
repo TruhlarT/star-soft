@@ -29,6 +29,7 @@ if ($arg1 > 0){ $sltime = $arg1;}
 # We add an infinit loop around so the table will be filled
 # as we go.
 &Print("$0 starting on ".localtime()." ($sltime)\n");
+rdaq_set_message($SSELF,"Starting","DAQInfo filler for FastOffline has started");
 do {
     $ctime = localtime();
     $dbObj = rdaq_open_odatabase();
@@ -36,7 +37,7 @@ do {
 	#&Print("O-Database opened\n");
 	if ( ($obj = rdaq_open_rdatabase()) == 0){
 	    &Print("Failed to open R-Database on ".localtime()."\n");
-	    rdaq_set_message($SSELF,"Failed to open R-Datase","This will prevent fetching of new records");
+	    rdaq_set_message($SSELF,"Failed to open R-Database","This will prevent fetching of new records");
 	} else {
 	    # &Print("R-Database opened\n");
 
@@ -51,8 +52,14 @@ do {
 	    }
 
 	    if($prun ne $run){
+		# do not change this next message - it is used by GetRun()
 		&Print("Last Run=$run on ".localtime()."\n");
-		rdaq_set_message($SSELF,"Last run in our db","Run=$run");
+		# the format here do not matter
+		if ( $run < 0){
+		    rdaq_set_message($SSELF,"Last run in our log",(-run)." but asked to bootstrap all records from the beginning");
+		} else {
+		    rdaq_set_message($SSELF,"Last run in our log","We will update or get new runs >= $run");
+		}
 	    }
 
 	    $tot   = 0;
@@ -62,7 +69,7 @@ do {
 		# fetch new records since that run number
 		my($count,$N);
 
-		&Print("Bootstrap case Run >= 0, run=$run\n");
+		&Print("Bootstrap case, run = $run ( >= 0)\n");
 		$count = 0;
 		rdaq_set_dlevel(1);
 		
@@ -79,13 +86,13 @@ do {
 			
 			# record entries
 			$N = rdaq_add_entries($dbObj,@records);
-			&Print("Adding ".($N+1)." entries to $tot so far\n");
+			&Print("Adding $N entr".($N==1?"y":"ies")." to $tot so far\n");
 			$tot += $N;
 		    }
 		    $begin += $by;
 		} while ($#records != -1);
 		&Print("Got $tot records in $count passes\n");
-		rdaq_set_message($SSELF,"Fetched new records","$tot records") if ($tot != 0);
+		rdaq_set_message($SSELF,"Fetched new records","$tot records in $count pass".($count==1?"":"es")) if ($tot != 0);
 		
 	    } else {
 		&Print("Checking entries on ".localtime()."\n");
@@ -138,13 +145,15 @@ sub Print
 #
 sub GetRun
 {
-    my($line,$rv);
+    my(@lines,$line,$rv);
 
     $rv = "0.0";
     if( $file ne ""){
-	$line = `/usr/bin/tail -1 $file`;
-	if ($line =~ m/(Run=)(\d+)\.(\d+)/){
-	    $rv = "$2.$3";
+	@lines = `/usr/bin/tail -10 $file`;
+	foreach $line (@lines){
+	    if ($line =~ m/(Run=)(\d+)\.(\d+)/){
+		$rv = "$2.$3";
+	    }
 	}
     }
     $rv;
