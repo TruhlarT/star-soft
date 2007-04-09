@@ -1,4 +1,4 @@
-// @(#)root/g3d:$Name:  $:$Id: TQGLViewerImp.h,v 1.10 2007/03/22 19:55:54 fine Exp $
+// @(#)root/g3d:$Name:  $:$Id: TQGLViewerImp.h,v 1.11 2007/04/09 04:13:17 fine Exp $
 // Author: Valery Fine      12/03/2005
 
 /*************************************************************************
@@ -81,13 +81,15 @@ protected:
    TPadOpenGLView      *fGLView;        // Pointer to Pad GL View object
    Bool_t               fPaint;         // Allows "Refresh" OpenGL window
    virtual void Disconnect(){ fGLView = 0;} // to be called from TPadOpenGLView dtor
+   static TGLViewerImp *fgGLViewerImp;
 public:
    enum {kStatusPopIn,  kStatusNoBorders, kStatusOwn, kStatusPopOut};
    enum  EObject3DType { kWired, kSolid, kSelecting, kSelected, kRaw };
    TGLViewerImp();
    TGLViewerImp(TPadOpenGLView *padview, const char *title="OpenGL Viewer", UInt_t width=400, UInt_t height=300);
    TGLViewerImp(TPadOpenGLView *padview, const char *title, Int_t x, Int_t y,UInt_t width, UInt_t height);
-
+   static void MakeCurrent(TGLViewerImp *viewer){ fgGLViewerImp = viewer; }
+   static TGLViewerImp *CurrentViewer() { return fgGLViewerImp; }
    virtual ~TGLViewerImp();
 
    virtual void   CreateContext() { }
@@ -97,7 +99,7 @@ public:
    virtual void   DeleteView();
    virtual void   HandleInput(EEventType button, Int_t x, Int_t y);
    TPadOpenGLView *GetGLView();
-   virtual void   MakeCurrent() { };
+   virtual void   MakeCurrent() { MakeCurrent(this); }
    virtual void   Paint(Option_t *opt="");
 
    virtual void   SetStatusText(const char *text, Int_t partidx=0,Int_t stype=0);

@@ -1,4 +1,4 @@
-// @(#)root/g3d:$Name:  $:$Id: TGLViewerImp.cxx,v 1.3 2006/10/04 21:40:54 fine Exp $
+// @(#)root/g3d:$Name:  $:$Id: TGLViewerImp.cxx,v 1.4 2007/04/09 04:13:17 fine Exp $
 // Author: Valery Fine      23/05/97
 
 /*************************************************************************
@@ -52,6 +52,8 @@ void  TQtSlotProxy::EmitObjectSelected(TObject *o, const QPoint&p)
    emit ObjectSelected(o,p);
 }
 
+TGLViewerImp *TGLViewerImp::fgGLViewerImp = 0;
+
 ClassImp(TGLViewerImp)
 
 //______________________________________________________________________________
@@ -83,7 +85,10 @@ TGLViewerImp::TGLViewerImp(TPadOpenGLView *, const char *, Int_t, Int_t, UInt_t,
 TGLViewerImp::~TGLViewerImp()
 {
    // break view / viewer relationship
-   if (fGLView) {
+  if (CurrentViewer() == this) {
+     MakeCurrent(0);
+  }
+  if (fGLView) {
       TPadOpenGLView *view = fGLView;
       fGLView = 0;
       view->Disconnect();
