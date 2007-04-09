@@ -2108,7 +2108,15 @@ bool TQtCoinWidget::IsFullScreen( )       const
 //______________________________________________________________________________
 void TQtCoinWidget::SetRotationAxisAngle(const float x, const float y, const float z, const float a)
 {
-	if (x + y + z + a >0) { RotateCamera(2,a);}
+   SoCamera * const camera = GetCamera();
+   if (! camera) return; // probably a scene-less viewer
+
+	if (a != 0 ) 
+   { 
+      SbVec3f rotAxis;
+      rotAxis.setValue(x,y,z);
+      RotateCamera(camera,rotAxis,a);
+   }
    /*
    // Set the current rotation of the frame. 
    // Parameters are the rotation axis vector and its angle (in radians). 
@@ -2411,11 +2419,6 @@ void TQtCoinWidget::RotateCamera(int axis,float angle)
   SoCamera * const camera = GetCamera();
   if (! camera) return; // probably a scene-less viewer
 
-  SbVec3f dir;
-  SbRotation cameraRotation = camera->orientation.getValue();
-  cameraRotation.multVec(SbVec3f(0, 0, -1), dir);
-  SbVec3f focalpoint  = camera->position.getValue()
-                      + camera->focalDistance.getValue() * dir;
   SbVec3f rotAxis(0,0,0);
   switch (axis) {
    case 0:
@@ -2430,22 +2433,29 @@ void TQtCoinWidget::RotateCamera(int axis,float angle)
    default: assert(0);
   };
 
-  SbRotation neworient(rotAxis, angle );
-  SbVec3f position = camera->position.getValue() - focalpoint;
-  neworient.multVec(position,position);
-  camera->position    = position;
+  RotateCamera(camera,rotAxis,angle);
+}  
+//______________________________________________________________________________
+void TQtCoinWidget::RotateCamera(SoCamera * cam,
+                                   const SbVec3f & aroundaxis,
+                                   const float delta)
+{
+  const SbVec3f DEFAULTDIRECTION(0, 0, -1);
+  const SbRotation currentorientation = cam->orientation.getValue();
 
-  neworient.multVec(dir,dir);
-  float oldAngle;
-  cameraRotation.getValue(dir,oldAngle);
-  cameraRotation.setValue(dir,oldAngle+angle);
-  camera->orientation.setValue(cameraRotation);
+  SbVec3f currentdir;
+  currentorientation.multVec(DEFAULTDIRECTION, currentdir);
 
-//  camera->position    = focalpoint 
-//                      + camera->focalDistance.getValue() * SbVec3f(0, 1, 0);
-//  camera->orientation = SbRotation(SbVec3f(1, 0, 0), angle );
+  const SbVec3f focalpoint = cam->position.getValue() +
+    cam->focalDistance.getValue() * currentdir;
+
+  // set new orientation
+  cam->orientation = SbRotation(aroundaxis, delta) * currentorientation;
+
+  SbVec3f newdir;
+  cam->orientation.getValue().multVec(DEFAULTDIRECTION, newdir);
+  cam->position = focalpoint - cam->focalDistance.getValue() * newdir;
 }
-
 //______________________________________________________________________________
 void TQtCoinWidget::ViewPlaneZ() const
 {

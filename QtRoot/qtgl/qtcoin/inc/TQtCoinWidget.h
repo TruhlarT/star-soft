@@ -1,8 +1,8 @@
-// @(#)root/g3d:$Name:  $:$Id: TQtCoinWidget.h,v 1.24 2007/04/05 23:20:25 fine Exp $
+// @(#)root/g3d:$Name:  $:$Id: TQtCoinWidget.h,v 1.25 2007/04/09 21:29:24 fine Exp $
 // Author: Valery Fine      23/05/97
 
 /****************************************************************************
-** $Id: TQtCoinWidget.h,v 1.24 2007/04/05 23:20:25 fine Exp $
+** $Id: TQtCoinWidget.h,v 1.25 2007/04/09 21:29:24 fine Exp $
 **
 ** Copyright (C) 2002 by Valeri Fine. Brookhaven National Laboratory.
 **                                    All rights reserved.
@@ -90,6 +90,7 @@ class SoGLRenderAction;
 class TSimageMovie;
 class QCheckBox;
 class SoEventCallback;
+class SbVec3f;
 
 #ifdef __CINT__
 #  define COINWIDGETFLAGSTYPE  UInt_t
@@ -251,6 +252,8 @@ public:
    const QString &SaveFile()          const { return fSaveFile; }
    const QString &SaveFilePattern()   const { return fSaveFileMoviePattern; }
    SoEventCallback *KeyboardHandler() const { return fKeyboardHandler;      }
+   static void RotateCamera(SoCamera * cam,const SbVec3f & aroundaxis,const float delta);
+
 #ifndef __CINT__
   public slots:
      //virtual void ActivateSelectorWidgetCB(bool);

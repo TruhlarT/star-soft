@@ -1,4 +1,4 @@
-// @(#)root/g3d:$Name:  $:$Id: TGLViewerImp.cxx,v 1.4 2007/04/09 04:13:17 fine Exp $
+// @(#)root/g3d:$Name:  $:$Id: TGLViewerImp.cxx,v 1.5 2007/04/09 21:29:24 fine Exp $
 // Author: Valery Fine      23/05/97
 
 /*************************************************************************
@@ -52,9 +52,22 @@ void  TQtSlotProxy::EmitObjectSelected(TObject *o, const QPoint&p)
    emit ObjectSelected(o,p);
 }
 
-TGLViewerImp *TGLViewerImp::fgGLViewerImp = 0;
-
 ClassImp(TGLViewerImp)
+
+TGLViewerImp *gGLViewerImp = 0;
+
+//______________________________________________________________________________
+void TGLViewerImp::MakeCurrent(TGLViewerImp *viewer)
+{ 
+   // static: set the current viewer
+   gGLViewerImp = viewer; 
+}
+//______________________________________________________________________________
+TGLViewerImp *TGLViewerImp::CurrentViewer() 
+{ 
+   // static: get the current viewer
+   return gGLViewerImp; 
+}
 
 //______________________________________________________________________________
 TGLViewerImp::TGLViewerImp(): fProxy(this)
