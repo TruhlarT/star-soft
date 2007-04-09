@@ -1,5 +1,5 @@
 #!/bin/csh -x
-#       $Id: group_env.csh,v 1.191 2006/12/29 20:31:36 jeromel Exp $
+#       $Id: group_env.csh,v 1.192 2007/04/09 18:52:19 jeromel Exp $
 #	Purpose:	STAR group csh setup
 #
 #	Author:		Y.Fisyak     BNL
@@ -60,10 +60,12 @@ endif
 
 
 
-if ( $?DECHO) echo "$self :: Definiting GROUP_DIR GROUP_PATH STAR_PATH"
+if ( $?DECHO) echo "$self :: Defining GROUP_DIR GROUP_PATH STAR_PATH"
 
 # Defined by Group Dir
 if ( ! $?GROUP_DIR )  setenv GROUP_DIR ${STAR_ROOT}/group
+if ( $?DECHO) echo   "Value of GROUP_DIR = ${GROUP_DIR}"
+
 # Defined in CORE. GROUP_PATH/GROUPPATH are global
 # while GROUP_DIR may be local
 if ( ! $?GROUP_PATH ) setenv GROUP_PATH ${STAR_ROOT}/group
@@ -80,12 +82,17 @@ if ( $?DECHO) echo "$self :: Setting STAR_VERSION"
 setenv STAR_VERSION ${STAR_LEVEL}
 if ($STAR_LEVEL  == "old" || $STAR_LEVEL  == "pro" || $STAR_LEVEL  == "new" || $STAR_LEVEL  == "dev" || $STAR_LEVEL  == ".dev") then
   # i.e. replace with link value instead
+  if ( $?DECHO ) echo "Will test -e $STAR_PATH/${STAR_LEVEL}"  
+  # exit
+  
   if( -e $STAR_PATH/${STAR_LEVEL}) then
     # be carefull, it may not be "seen" as a soft link
     # at all ... Some AFS client do not show the link.
     # No even speaking of absolute path ...
+    if ( $?DECHO ) echo "Will ls -ld $STAR_PATH/${STAR_LEVEL}"
     set a = `/bin/ls -ld $STAR_PATH/${STAR_LEVEL}`
     set b = `/bin/ls -ld $STAR_PATH/${STAR_LEVEL} | /usr/bin/cut -f2 -d">"`
+    if ( $?DECHO ) echo "Checked $a $b"
     if ( "$a" != "$b") then
 	setenv STAR_VERSION $b
     else
