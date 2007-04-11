@@ -1,4 +1,4 @@
-// @(#)root/gtgl:$Name:  $:$Id: TCoinShapeBuilder.cxx,v 1.7 2007/04/03 13:11:41 fine Exp $
+// @(#)root/gtgl:$Name:  $:$Id: TCoinShapeBuilder.cxx,v 1.8 2007/04/11 00:02:51 fine Exp $
 // Author: Valery Fine      24/09/06
 
 /****************************************************************************
@@ -36,6 +36,7 @@
 #include <Inventor/nodes/SoPointSet.h>
 #include <Inventor/nodes/SoSeparator.h>
 #include <Inventor/nodes/SoShapeHints.h>
+#include <Inventor/nodes/SoLightModel.h>
 
 #include "assert.h"
 
@@ -44,12 +45,30 @@ static inline SoNode *SetCurrentColor(const Float_t *rgba,bool material=false)
 {
    SoNode *node = 0;
    if ( material ) {
-      SoMaterial * m = new SoMaterial;
-      m->diffuseColor.setValue(rgba[0], rgba[1], rgba[2]);
-      m->specularColor.setValue(0.7, 0.7, 0.7); 
-      m->transparency = rgba[3]; // fFactor;
-      m->shininess = .9;
-      node = m;
+      if (rgba[3] <= 0.99) {
+         SoMaterial * m = new SoMaterial;
+         m->diffuseColor.setValue(rgba[0], rgba[1], rgba[2]);
+         m->specularColor.setValue(0.7, 0.7, 0.7); 
+         m->transparency = rgba[3]; // fFactor;
+         m->shininess = .9;
+         node = m;
+      } else {
+         // Use line style for the transparent shapes
+         SoGroup *colorGroup = new SoGroup();
+         colorGroup->setName("Transparent_Shape");
+            SoLightModel *lighting = new SoLightModel;
+            lighting->model = SoLightModel::BASE_COLOR;
+            
+            SoBaseColor * colorNode = new SoBaseColor;
+            colorNode->rgb = SbColor(rgba[0], rgba[1], rgba[2]);
+            
+            SoDrawStyle *ds = new SoDrawStyle();
+            ds->style =  SoDrawStyle::LINES; 
+            colorGroup->addChild(lighting);
+            colorGroup->addChild(ds);
+            colorGroup->addChild(colorNode);
+            node =colorGroup;
+      }
    } else {
       SoBaseColor * colorNode = new SoBaseColor;
       colorNode->rgb = SbColor(rgba[0], rgba[1], rgba[2]);

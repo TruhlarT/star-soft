@@ -551,14 +551,13 @@ TQtCoinWidget::TQtCoinWidget(QWidget *parent, COINWIDGETFLAGSTYPE f)
 {
       memset(fPivotClipPoint,0,sizeof(fPivotClipPoint));
       fMaxSnapFileCounter = CreateSnapShotCounter();
-      printf("TQtCoinWidget::TQtCoinWidget %d end\n",fMaxSnapFileCounter);
 }
 //______________________________________________________________________________
 void TQtCoinWidget::SetPad(TVirtualPad *pad)
 {
    fPad = pad;
    if ( fPad ) {
-	   printf("TQtCoinWidget::TQtCoinWidget begin Pad=%p\n", pad);
+	     // printf("TQtCoinWidget::TQtCoinWidget begin Pad=%p\n", pad);
        //Create the default SnapShot file name and type if any
       const char *fileDir = gSystem->Getenv("SnapShotDirectory");
       if (!(fileDir  && fileDir[0]) && ( gEnv ) ) {
@@ -602,7 +601,7 @@ TQtCoinWidget::TQtCoinWidget(TVirtualPad *pad, const char *title,
    , fMovie(0),fMPegMovie(0),fClipPlaneState(0),fClipPlanePath(0)
    , fKeyboardHandler(0)
 {
-   printf("TQtCoinWidget::TQtCoinWidget begin Pad=%p\n", pad);
+   // printf("TQtCoinWidget::TQtCoinWidget begin Pad=%p\n", pad);
    //Create the default SnapShot file name and type if any
    const char *fileDir = gSystem->Getenv("SnapShotDirectory");
    if (!(fileDir  && fileDir[0]) && ( gEnv ) ) {
@@ -628,7 +627,7 @@ TQtCoinWidget::TQtCoinWidget(TVirtualPad *pad, const char *title,
       SetDrawList(0);
    }
    fMaxSnapFileCounter = CreateSnapShotCounter();
-   printf("TQtCoinWidget::TQtCoinWidget %d end\n",fMaxSnapFileCounter);
+   // printf("TQtCoinWidget::TQtCoinWidget %d end\n",fMaxSnapFileCounter);
 }
 /*
 //______________________________________________________________________________

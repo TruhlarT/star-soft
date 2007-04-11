@@ -362,11 +362,17 @@ void  TObject3DView::MakeShape(const TObject *shape)
 
         Float_t rgba[4] = {0, 0, 0, 1.0} ;
         Style_t style = GetFillStyle();
-        if (style > 4000) rgba[3] = (style - 4000)/float(100.);
+        // 4000 - means 100% transparent
+        // 4100 - means 100% opaque
+        // OpenGL = 0 - 100% opaque
+        // OpenGL = 1 - 100% transparent
+        if (4000 <= style && style <= 4100) 
+           rgba[3] = (style-4000)/float(100.);
 
         // Multiply the original transparency to the translucent factor
-        rgba[3]  = TMath:: Min(1.0f,TMath::Max(0.0f,rgba[3]));        
+        //rgba[3]  = TMath:: Min(1.0f,TMath::Max(0.0f,rgba[3]));        
         rgba[3] *= TMath::Max(0.2f,TMath::Min(1.0f,fTranslucentFactor));
+        rgba[3] = 1 - rgba[3];
         TColor *c = gROOT->GetColor(GetFillColor());
         if (c->GetNumber() == kBlack) c = gROOT->GetColor(GetLineColor());
         if (c->GetNumber() == kBlack) c = 0;
