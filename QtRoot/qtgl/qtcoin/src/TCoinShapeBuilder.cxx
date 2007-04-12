@@ -1,4 +1,4 @@
-// @(#)root/gtgl:$Name:  $:$Id: TCoinShapeBuilder.cxx,v 1.8 2007/04/11 00:02:51 fine Exp $
+// @(#)root/gtgl:$Name:  $:$Id: TCoinShapeBuilder.cxx,v 1.9 2007/04/12 19:37:35 fine Exp $
 // Author: Valery Fine      24/09/06
 
 /****************************************************************************
@@ -37,6 +37,7 @@
 #include <Inventor/nodes/SoSeparator.h>
 #include <Inventor/nodes/SoShapeHints.h>
 #include <Inventor/nodes/SoLightModel.h>
+#include <Inventor/nodes/SoPickStyle.h>
 
 #include "assert.h"
 
@@ -63,7 +64,13 @@ static inline SoNode *SetCurrentColor(const Float_t *rgba,bool material=false)
             colorNode->rgb = SbColor(rgba[0], rgba[1], rgba[2]);
             
             SoDrawStyle *ds = new SoDrawStyle();
-            ds->style =  SoDrawStyle::LINES; 
+            ds->style =  SoDrawStyle::LINES;
+            if (rgba[3] > 0.9951) {
+               // Make the 100% transparent shape "unpickable"
+               SoPickStyle *pickStyle = new SoPickStyle();
+               pickStyle->style = SoPickStyle::UNPICKABLE;
+               colorGroup->addChild(pickStyle);
+            }
             colorGroup->addChild(lighting);
             colorGroup->addChild(ds);
             colorGroup->addChild(colorNode);
