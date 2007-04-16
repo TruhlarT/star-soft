@@ -1,8 +1,8 @@
-// @(#)root/g3d:$Name:  $:$Id: TQtCoinWidget.h,v 1.25 2007/04/09 21:29:24 fine Exp $
+// @(#)root/g3d:$Name:  $:$Id: TQtCoinWidget.h,v 1.26 2007/04/16 22:30:08 fine Exp $
 // Author: Valery Fine      23/05/97
 
 /****************************************************************************
-** $Id: TQtCoinWidget.h,v 1.25 2007/04/09 21:29:24 fine Exp $
+** $Id: TQtCoinWidget.h,v 1.26 2007/04/16 22:30:08 fine Exp $
 **
 ** Copyright (C) 2002 by Valeri Fine. Brookhaven National Laboratory.
 **                                    All rights reserved.
@@ -91,6 +91,7 @@ class TSimageMovie;
 class QCheckBox;
 class SoEventCallback;
 class SbVec3f;
+class SoOffscreenRenderer;
 
 #ifdef __CINT__
 #  define COINWIDGETFLAGSTYPE  UInt_t
@@ -148,7 +149,6 @@ protected:
    static Bool_t   fgCoinInitialized;
    TObject        *fSelectedObject;     // The last selected TObject
 
-
 #ifndef __CINT__
 #if QT_VERSION < 0x40000
    QPtrVector<QLabel> fStatusBar;
@@ -179,6 +179,8 @@ protected:
    QCheckBox        *fClipPlaneState;
    SoPath           *fClipPlanePath;
    SoEventCallback  *fKeyboardHandler;
+   Bool_t            fOffScreenBatch;    // The offscreen (batch) mode
+   SoOffscreenRenderer *fOffScreenRender; 
 
    
 protected:
@@ -196,6 +198,7 @@ protected:
             void SetClipPlane(SoClipPlane *plane, int planeDirection);
             void SetActiveClipPlane(int planeDirection);
    virtual  void SetPad(TVirtualPad *pad);  
+   virtual  bool OffScreenRender();
 public:
    enum {kStatusPopIn, kStatusNoBorders, kStatusOwn, kStatusPopOut};
    TQtCoinWidget(QWidget *parent=0, COINWIDGETFLAGSTYPE f=0); 
@@ -242,6 +245,7 @@ public:
    SoSelection *GetSelectingNode()    const { return fSelNode;            }
    TObject     *GetSelected()         const { return fSelectedObject;     }
    SoQtViewer  *GetCoinViewer()       const { return fInventorViewer;     }
+   Bool_t       IsOffScreen()         const { return fOffScreenBatch;     }
    Bool_t       WantRootContextMenu() const { return fWantRootContextMenu;}
    Bool_t       WasPicked(void *p) { 
       Bool_t res = (p != fPickedObject); if (res) fPickedObject = p; 
@@ -274,6 +278,7 @@ public:
      virtual void RotateCamera(int axis,bool clockWise=true);
      virtual void Save(QString fileName,QString type="png");
      virtual void SetClipPlaneMan(bool on=kTRUE,float x=1.0f, float y=0.0f, float z=0.0f);
+     virtual void SetOffScreen(Bool_t offscreen=kTRUE);
      virtual void SetUpdatesEnabled(bool enable);
      virtual void SetFileName(const QString &fileName);     
      virtual void SetFileType(const QString &fileType);     

@@ -1209,6 +1209,19 @@ bool  TQtCoinViewerImp::IsFullScreen( )       const
 }
 
 //______________________________________________________________________________
+void TQtCoinViewerImp:: SetOffScreenSet(bool on)
+{
+   // Set the offscreen (batch) rendering mode
+  if (fCoinWidget)fCoinWidget->SetOffScreen(on);
+}
+//______________________________________________________________________________
+bool  TQtCoinViewerImp::IsOffScreen( )       const
+{   
+   // Returns TRUE if the image is to be rendered offscreen
+   // (batch mode)
+   return  fCoinWidget ? fCoinWidget->IsOffScreen(): kFALSE;
+}
+//______________________________________________________________________________
 void TQtCoinViewerImp::SetFooter(const char *text)
 {
      // Set the footer text

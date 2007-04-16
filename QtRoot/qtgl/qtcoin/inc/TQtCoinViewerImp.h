@@ -1,8 +1,8 @@
-// @(#)root/g3d:$Name:  $:$Id: TQtCoinViewerImp.h,v 1.18 2007/03/19 22:17:54 fine Exp $
+// @(#)root/g3d:$Name:  $:$Id: TQtCoinViewerImp.h,v 1.19 2007/04/16 22:30:08 fine Exp $
 // Author: Valery Fine      23/05/97
 
 /****************************************************************************
-** $Id: TQtCoinViewerImp.h,v 1.18 2007/03/19 22:17:54 fine Exp $
+** $Id: TQtCoinViewerImp.h,v 1.19 2007/04/16 22:30:08 fine Exp $
 **
 ** Copyright (C) 2002 by Valeri Fine. Brookhaven National Laboratory.
 **                                    All rights reserved.
@@ -185,6 +185,10 @@ public:
    Bool_t       WantRootContextMenu() const;
    Bool_t       WasPicked(void *p)    const;
    bool         IsFullScreen( )       const;
+// Off screen rendering   
+   virtual Bool_t IsOffScreen()     const;
+   virtual void SetOffScreen(Bool_t offscreen=kTRUE);
+   
 #ifndef __CINT__
   public slots:
      //virtual void ActivateSelectorWidgetCB(bool);
