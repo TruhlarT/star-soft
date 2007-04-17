@@ -907,8 +907,7 @@ void TQtGLViewerImp::ShowStatusBar(Bool_t show)
 //______________________________________________________________________________
 void TQtCoinWidget::SetUpdatesEnabled(bool enable)
 {   
-   
-   if (!enable) QApplication::setOverrideCursor( QCursor(Qt::WaitCursor) );
+   if (!enable) QApplication::setOverrideCursor( QCursor(Qt::WaitCursor), TRUE );
    else if (! IsOffScreen() ) {
       setUpdatesEnabled(enable);  
       if (fInventorViewer) fInventorViewer->setAutoRedraw(enable);
