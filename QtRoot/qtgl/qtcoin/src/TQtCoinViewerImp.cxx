@@ -1209,7 +1209,7 @@ bool  TQtCoinViewerImp::IsFullScreen( )       const
 }
 
 //______________________________________________________________________________
-void TQtCoinViewerImp:: SetOffScreenSet(bool on)
+void TQtCoinViewerImp:: SetOffScreen(bool on)
 {
    // Set the offscreen (batch) rendering mode
   if (fCoinWidget)fCoinWidget->SetOffScreen(on);
