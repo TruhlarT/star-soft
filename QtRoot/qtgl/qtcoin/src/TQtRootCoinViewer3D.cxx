@@ -108,51 +108,30 @@ void TQtRootCoinViewer3D::ClearPrimitives()
    fListOfPrimitives.Clear();
 }
 //______________________________________________________________________________
+void  TQtRootCoinViewer3D::CloseScene() 
+{
+   // called by EndScene
+    TDataSetIter nextList(&fListOfPrimitives);
+    TObject3DView *glo = 0;
+    while( (glo = (TObject3DView *)nextList()  )) {
+       // glo->ls(0); 
+       fViewer->AddRootChild(glo->GetViewId()
+                          , glo->IsSolid() ? TGLViewerImp::kSolid : TGLViewerImp::kWired);
+    }
+    if (fViewAll) { fViewer->ViewAll(); fViewAll = kFALSE; }
+}
+//______________________________________________________________________________
 void  TQtRootCoinViewer3D::EndScene()
 {
    printf("TQtRootCoinViewer3D::EndScene\n");
 
    fViewer->SetUpdatesEnabled(FALSE);
    fViewer->Clear();
-   TDataSetIter nextList(&fListOfPrimitives);
-   TObject3DView *glo = 0;
-   while( (glo = (TObject3DView *)nextList()  )) {
-      // glo->ls(0); 
-      fViewer->AddRootChild(glo->GetViewId()
-                          , glo->IsSolid() ? TGLViewerImp::kSolid : TGLViewerImp::kWired);
-   }
-   if (fViewAll) { fViewer->ViewAll(); fViewAll = kFALSE; }
-   fViewer->SetUpdatesEnabled(TRUE);
+   
+   CloseScene();
+   
    fViewer->Update();
-
-   // old internal format GLFactory
-	/*
-   // called by TPad::Paint | PaintModified
-   // This is a signal the scene has been closed and we should refresh the display
-   if (fViewer) {
-     //fViewer->MakeCurrent();
-#if 1
-      fViewer->setUpdatesEnabled(FALSE);
-      fViewer->Clear();
-#endif
-    fViewer->SetBackgroundColor(gPad->GetFillColor());
-#if 0     
-     fListOfPrimitives.CompileViewLevel();
-#endif     
-     TDataSetIter nextList(&fListOfPrimitives);
-     TObject3DView *glo = 0;
-     while( (glo = (TObject3DView *)nextList()  )) {
-        fViewer->AddGLList(glo->GetViewId(), glo->IsSolid() );
-#ifdef EXTRASELECTION
-        if ( glo->GetViewId(TObject3DViewFactoryABC::kSelectable) ) 
-           fViewer->AddGLList(glo->GetViewId(TObject3DViewFactoryABC::kSelectable), 2 );
-#endif
-     }
-     fViewer->setUpdatesEnabled(TRUE);
-     fViewer->Update();
-   }
-   fBuildingScena = kFALSE;
-   */
+   fViewer->SetUpdatesEnabled(TRUE);
    
 }
 //______________________________________________________________________________

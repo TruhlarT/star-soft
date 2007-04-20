@@ -204,29 +204,38 @@ void TQtRootViewer3D::ClearPrimitives()
    fListOfPrimitives.Delete();
    fListOfPrimitives.Clear();
 }
+ //______________________________________________________________________________
+void   TQtRootViewer3D::CloseScene() 
+{
+    // called by EndScene
+   if (fViewer) {
+      fViewer->SetBackgroundColor(gPad->GetFillColor());
+#if 0     
+       fListOfPrimitives.CompileViewLevel();
+#endif     
+       TDataSetIter nextList(&fListOfPrimitives);
+       TObject3DView *glo = 0;
+       while( (glo = (TObject3DView *)nextList()  )) {
+          fViewer->AddGLList(glo->GetViewId(), glo->IsSolid() ? TGLViewerImp::kSolid : TGLViewerImp::kWired );
+#ifdef EXTRASELECTION
+          if ( glo->GetViewId(TObject3DViewFactoryABC::kSelectable) ) 
+             fViewer->AddGLList(glo->GetViewId(TObject3DViewFactoryABC::kSelectable), TGLViewerImp::kSelecting );
+#endif
+      }
+   }
+}
 //______________________________________________________________________________
 void  TQtRootViewer3D::EndScene(){
    // called by TPad::Paint | PaintModified
    // This is a signal the scene has been closed and we should refresh the display
    if (fViewer) {
      fViewer->MakeCurrent();
-#if 1
-      fViewer->SetUpdatesEnabled(FALSE);
-      fViewer->Clear();
-#endif
-    fViewer->SetBackgroundColor(gPad->GetFillColor());
-#if 0     
-     fListOfPrimitives.CompileViewLevel();
-#endif     
-     TDataSetIter nextList(&fListOfPrimitives);
-     TObject3DView *glo = 0;
-     while( (glo = (TObject3DView *)nextList()  )) {
-        fViewer->AddGLList(glo->GetViewId(), glo->IsSolid() ? TGLViewerImp::kSolid : TGLViewerImp::kWired );
-#ifdef EXTRASELECTION
-        if ( glo->GetViewId(TObject3DViewFactoryABC::kSelectable) ) 
-           fViewer->AddGLList(glo->GetViewId(TObject3DViewFactoryABC::kSelectable), TGLViewerImp::kSelecting );
-#endif
-     }
+     
+     fViewer->SetUpdatesEnabled(FALSE);
+     fViewer->Clear();
+     
+         CloseScene();
+         
      fViewer->SetUpdatesEnabled(TRUE);
      fViewer->Update();
    }

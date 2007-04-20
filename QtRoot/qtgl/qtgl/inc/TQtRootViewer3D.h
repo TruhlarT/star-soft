@@ -103,6 +103,7 @@ public:
    virtual Int_t  AddObject(TObject *, Option_t* drawOption = 0, Bool_t * addChildren = 0);
    virtual Int_t  AddObjectFirst(TObject *, Option_t* drawOption = 0, Bool_t * addChildren = 0);
    virtual Int_t  AddRawObject(ULong_t placedID, UInt_t optMask);
+   virtual void   CloseScene();            // called by EndScene
    
    virtual  void    Clear(Option_t *opt="");
  

@@ -39,6 +39,7 @@ public:
    virtual void   DisconnectPad();
    virtual Int_t  AddRawObject(ULong_t placedID, UInt_t optMask);
    virtual void   Clear(Option_t *opt="");
+   virtual void   CloseScene();            // called by EndScene
 
    //virtual Int_t  AddObject(TObject *, Option_t* drawOption = 0, Bool_t * addChildren = 0);
    //virtual Int_t  AddObjectFirst(TObject *, Option_t* drawOption = 0, Bool_t * addChildren = 0);

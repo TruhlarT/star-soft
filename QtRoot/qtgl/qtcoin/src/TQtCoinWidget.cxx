@@ -796,6 +796,7 @@ void TQtCoinWidget::Clear(const char *opt)
 	//fShapeNode->removeAllChildren();
 	fSolidShapeNode->removeAllChildren();
    fWiredShapeNode->removeAllChildren();
+   // printf("TQtCoinWidget::Clear(const char *opt) ------------SOLID and WIRED----------  <===\n");
    /*
 	fInventorViewer->setSceneGraph(NULL);
 	fInventorViewer->setSceneGraph(NULL);
@@ -907,6 +908,7 @@ void TQtGLViewerImp::ShowStatusBar(Bool_t show)
 //______________________________________________________________________________
 void TQtCoinWidget::SetUpdatesEnabled(bool enable)
 {   
+  //  fprintf(stderr,"TQtCoinWidget::SetUpdatesEnabled %d\n", enable); 
    if (!enable) QApplication::setOverrideCursor( QCursor(Qt::WaitCursor), TRUE );
    else if (! IsOffScreen() ) {
       setUpdatesEnabled(enable);  
@@ -1128,6 +1130,7 @@ bool TQtCoinWidget::OffScreenRender()
          fOffScreenRender->setViewportRegion(fInventorViewer->getViewportRegion());
       SoNode * root = fInventorViewer->getSceneManager()->getSceneGraph();
       renderOk = fOffScreenRender->render(root);
+      fprintf(stderr,"TQtCoinWidget::OffScreenRender %d\n", renderOk );
       //      osr.setComponents(SoOffscreenRenderer::RGB);
    }
    return renderOk;
@@ -1409,7 +1412,7 @@ void TQtCoinWidget::EmitImageSaved(QString &fileName,QString &fileType, int fram
 void TQtCoinWidget::SaveSnapShot(bool on)
 {
    const QString &saveType = SaveType();
-   printf("\n TQtCoinWidget::SaveSnapShot %s\n", (const char*)saveType);
+   printf("TQtCoinWidget::SaveSnapShot %s; recording =%d\n", (const char*)saveType, fRecord);
    if ( (saveType.lower() == "mpg") || (saveType.lower() == "mpeg")) {
       SaveMpegShot(on);  
    } else {
@@ -1419,8 +1422,13 @@ void TQtCoinWidget::SaveSnapShot(bool on)
       } else 
 #endif
       {
+         // save  the recording status
+         bool recStatus = Recording();
+         if (!recStatus) fRecord = true; // enforce the recording status
          if (fMaxSnapFileCounter != 0) fSnapshotCounter=fSnapshotCounter%fMaxSnapFileCounter;
          Save(QString().sprintf((const char*)SaveFilePattern(),fSnapshotCounter++),saveType.upper());
+         // restore the recording status
+         if (!recStatus) fRecord = false;
       }
    }
    
