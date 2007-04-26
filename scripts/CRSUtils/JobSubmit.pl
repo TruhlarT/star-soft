@@ -91,7 +91,7 @@ $SSELF = $SELF;
 $SELF .= " :: ".time();
 
 # default values global (unless overwritten)
-@EXPRESS = undef;  $EXPRESS_W  = 100;
+@EXPRESS = undef;  $EXPRESS_W  =  70;
 $ZEROBIAS= 0;      $ZEROBIAS_W =  30;
 
 # this does not have a weight
@@ -316,6 +316,7 @@ if ($ThisYear == 2002){
     @EXPRESS = (
 		rdaq_string2ftype("express"),
 		rdaq_string2ftype("jpsi"),
+		rdaq_string2ftype("gamma"),
 		rdaq_string2ftype("upsilon"),
 		rdaq_string2ftype("muon")
 		);
@@ -325,7 +326,9 @@ if ($ThisYear == 2002){
     @SPILL   = (0,2,4);
 
     # Default chain
-    $DCHAIN{"AuAu"}           = "p2007a,alltrigger,ittf,ezTree";
+    # $DCHAIN{"AuAu"}           = "p2007a,alltrigger,ittf,ezTree";
+    # Changed Thu Apr 26 13:51:28 EDT 2007
+    $DCHAIN{"AuAu"}           = "p2007b,alltrigger,ittf,ezTree";
 
     # Default stand-alone auto-calib (works ONLY on $LASERTP files)
     $SCALIB{"AuAu"}           = "OptLaser";
