@@ -6,7 +6,7 @@
 
  \class  StBFChain
  \author Yuri Fisyak, Jerome LAURET
- \date   1999/07/29 , 2001-2007
+ \date   1999/07/29 , 2001-2004
 
  Class to control "BFC" chain
 
@@ -20,25 +20,7 @@
 //////////////////////////////////////////////////////////////////////////
 #include "StChain.h"
 #include "TFile.h"
-#include "TTable.h"
-#include "Ttypes.h"
-
-/* @(#)StRoot/StBFChain:$Name:  $:$Id: StBFChain.h,v 1.40 2007/04/26 03:56:09 perev Exp $ */
-struct Bfc_st {
-  Char_t       Key[63];      /* nick name */
-  Char_t       Name[63];     /* maker name */
-  Char_t       Chain[63];    /* its chain */
-  Char_t       Opts[127];    /* required options */
-  Char_t       Maker[63];    /* required Makers */
-  Char_t       Libs[127];    /* libraries to be loaded */
-  Char_t       Comment[257];  
-  Char_t       Flag;         /* F/T to use it in chain */
-};
-class St_Bfc : public TTable {
- public:
-  ClassDefTable(St_Bfc,Bfc_st)
-  ClassDef(St_Bfc,1) //C++ container for VMC detector path
-};
+#include "tables/St_Bfc_Table.h"
 //_____________________________________________________________________
 
 class StFileI;
@@ -46,27 +28,28 @@ class TObjArray;
 
 class StBFChain : public StChain {
  private:
+  TFile               *fTFile;    // TFile associated with the chain
   Bfc_st              *fBFC;      // Private chain
   StFileI             *fSetFiles; //
   TString             fInFile;    //
   TString             fFileOut;   //
-  TFile              *fTFile;
   Int_t               FDate;      // floating timestamp date (MaxDateTime)
   Int_t               FTime;      // floating timestamp time (unused)
   Int_t               FDateS;     // floating timestamp date (DateTime)
   Int_t               FTimeS;     // floating timestamp time (DateTime)
-  Int_t               fNoChainOptions;
-  St_Bfc             *fchainOpt;
-  Int_t               fkChain;    // Master chain option
+
+  Int_t               NoChainOptions;
+  St_Bfc             *chainOpt;
+
  public:
   StBFChain(const char *name="bfc", const Bool_t UseOwnHeader = kFALSE) :
-            StChain(name,UseOwnHeader)
-           ,fSetFiles(0),fInFile(""),fFileOut(""),fTFile(0)
-	   ,fNoChainOptions(0), fchainOpt(0), fkChain(-1) {}
+    StChain(name,UseOwnHeader),fTFile(0),fSetFiles(0),fInFile(""),fFileOut("") 
+    {NoChainOptions = 0;chainOpt = 0;}
+    
   StBFChain(Int_t mode, const char *name="bfc",const Bool_t UseOwnHeader = kFALSE) :
-            StChain(name,UseOwnHeader)
-           ,fSetFiles(0),fInFile(""),fFileOut(""),fTFile(0)
-	   ,fNoChainOptions(0), fchainOpt(0), fkChain(-1) {}
+    StChain(name,UseOwnHeader),fTFile(0),fSetFiles(0),fInFile(""),fFileOut("") 
+    {NoChainOptions = 0;chainOpt = 0;}
+
   void Setup(Int_t mode=1);
    virtual            ~StBFChain();
    virtual Int_t       Make(int number){ SetIventNumber(number); return StChain::Make(number);};
@@ -88,8 +71,6 @@ class StBFChain : public StChain {
 			     );                                                       // *MENU
 
    void                SetOutputFile(const Char_t *outfile=0);                        // *MENU
-   void                SetTFile(TFile *tf)			{fTFile=tf;}
-   TFile              *GetTFile() const			        {return fTFile;}
    virtual Int_t       kOpt(const TString *Tag, Bool_t Check = kTRUE) const;
    virtual Int_t       kOpt(const Char_t  *Tag, Bool_t Check = kTRUE) const;
    virtual void        SetDbOptions();
@@ -100,7 +81,9 @@ class StBFChain : public StChain {
    virtual void        SetOption(const TString* Opt, const Char_t *chain="Chain") {SetOption(kOpt(Opt),chain);}
    virtual void        SetOptionOff(const Char_t*  Opt, const Char_t *chain="Chain") {SetOption(-kOpt(Opt),chain);}
    virtual void        SetOptionOff(const TString* Opt, const Char_t *chain="Chain") {SetOption(-kOpt(Opt),chain);}
+   virtual void        SetTFile(TFile *m) {fTFile = m;}
    virtual Int_t       Finish();
+   virtual TFile      *GetTFile() {return fTFile;}
    virtual Option_t*   GetOption() const{return TObject::GetOption();}
    virtual Bool_t      GetOption(const Int_t k)  const;
    virtual Bool_t      GetOption(const TString *Opt, Bool_t Check = kTRUE) const {return GetOption(kOpt(Opt,Check));}
@@ -110,7 +93,7 @@ class StBFChain : public StChain {
    virtual const TString &GetFileOut() const {return *(&fFileOut);}
    virtual Long_t      ProcessLine(const char *line);
    virtual const char *GetCVS() const {
-       static const char cvs[]="Tag $Name:  $ $Id: StBFChain.h,v 1.40 2007/04/26 03:56:09 perev Exp $ built "__DATE__" "__TIME__ ;
+       static const char cvs[]="Tag $Name:  $ $Id: StBFChain.h,v 1.35.2.1 2007/04/27 16:13:17 jeromel Exp $ built "__DATE__" "__TIME__ ;
        return cvs;
    }
    /// StBFChain control class
