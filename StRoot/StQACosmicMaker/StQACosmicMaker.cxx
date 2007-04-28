@@ -1,11 +1,14 @@
 /***************************************************************************
  *
- * $Id: StQACosmicMaker.cxx,v 1.21 2003/09/02 17:58:50 perev Exp $
+ * $Id: StQACosmicMaker.cxx,v 1.22 2007/04/28 17:56:46 perev Exp $
  *
  * Author: Raimond Snellings, LBNL, Jun 1999
  * Description:  Maker to QA the data from the tables (hitfinding, tracking etc.)
  *
  * $Log: StQACosmicMaker.cxx,v $
+ * Revision 1.22  2007/04/28 17:56:46  perev
+ * Redundant StChain.h removed
+ *
  * Revision 1.21  2003/09/02 17:58:50  perev
  * gcc 3.2 updates + WarnOff
  *
@@ -38,7 +41,6 @@
 #include <stdlib.h>
 #include <math.h>
 #include "StQACosmicMaker.h"
-#include "StChain.h"
 #include "St_DataSet.h"
 #include "St_DataSetIter.h"
 #include "TFile.h"
@@ -99,7 +101,7 @@ Int_t StQACosmicMaker::Make() {
 
 void StQACosmicMaker::PrintInfo() {
   printf("**************************************************************\n");
-  printf("* $Id: StQACosmicMaker.cxx,v 1.21 2003/09/02 17:58:50 perev Exp $\n");
+  printf("* $Id: StQACosmicMaker.cxx,v 1.22 2007/04/28 17:56:46 perev Exp $\n");
   printf("**************************************************************\n");
 
   if (Debug()) StMaker::PrintInfo();
