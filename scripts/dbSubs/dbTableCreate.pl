@@ -1,6 +1,6 @@
 #!/usr/bin/perl -w
 #
-# $Id: dbTableCreate.pl,v 1.5 2007/03/28 04:18:55 deph Exp $
+# $Id: dbTableCreate.pl,v 1.6 2007/05/04 03:55:08 deph Exp $
 #
 # Author: R. Jeff Porter
 #
@@ -12,6 +12,9 @@
 #****************************************************************************
 # 
 # $Log: dbTableCreate.pl,v $
+# Revision 1.6  2007/05/04 03:55:08  deph
+# New table with bit masks for pmdHotCells
+#
 # Revision 1.5  2007/03/28 04:18:55  deph
 # Added quotes to identifier schema
 #
@@ -96,7 +99,7 @@ sub dbTableCreate(){
 #-> connect to DB
 #
 
-$dbh = DBI->connect("DBI:mysql:$dbname:$dbhostname",$dbuser,$dbpass)
+$dbh = DBI->connect("DBI:mysql:$dbname:$dbhostname",'deph',$dbpass)
     || die "Cannot connect to server $DBI::errstr\n";
 
 #

@@ -1,7 +1,7 @@
 #!/usr/bin/perl 
 #
 #
-# $Id: dbGetNode.pl,v 1.4 2003/01/09 20:30:27 porter Exp $
+# $Id: dbGetNode.pl,v 1.5 2007/05/04 03:54:53 deph Exp $
 #
 # Author: Bum Choi & R. Jeff Porter
 #
@@ -12,6 +12,9 @@
 #****************************************************************************
 # 
 # $Log: dbGetNode.pl,v $
+# Revision 1.5  2007/05/04 03:54:53  deph
+# New table with bit masks for pmdHotCells
+#
 # Revision 1.4  2003/01/09 20:30:27  porter
 # upgrade of db table structure scripts
 #
@@ -48,8 +51,8 @@ my ($configname, $configversion, $configtype);
 my ($name, $version, $nodetype, $structname, $baseline, $isbinary, $isindexed);
 my $xml_fh;  # handle used in all the print statements
 #-------------------------------------------------------------------
-$dbh = DBI->connect("DBI:mysql:$dbName:$serverHost",
-		       {RaiseError => 1, AutoCommit => 0})
+$dbh = DBI->connect("DBI:mysql:$dbName:$serverHost",'deph','')
+#		       {RaiseError => 1, AutoCommit => 0})
   or die "couldnt connect to $dbName: $dbh->errstr\n";
 #------------------------------------------------------------------- 
 # get id of config node that is in NodeRelation

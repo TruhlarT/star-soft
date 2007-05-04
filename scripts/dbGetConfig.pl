@@ -1,6 +1,6 @@
 #!/usr/bin/perl 
 ##
-# $Id: dbGetConfig.pl,v 1.3 2003/04/11 19:53:35 porter Exp $
+# $Id: dbGetConfig.pl,v 1.4 2007/05/04 03:54:53 deph Exp $
 #
 # Author: Bum Choi & R. Jeff Porter
 #
@@ -11,6 +11,9 @@
 #****************************************************************************
 # 
 # $Log: dbGetConfig.pl,v $
+# Revision 1.4  2007/05/04 03:54:53  deph
+# New table with bit masks for pmdHotCells
+#
 # Revision 1.3  2003/04/11 19:53:35  porter
 # fixed a bug retrieving xml configuration when a directory is associated
 # more than one config-tree. i.e. added use of NodeRelation.BranchID which
@@ -45,8 +48,8 @@ my ($query, $check);
 my ($configname, $configversion, $configid);
 my $xml_fh;  # handle used in all the print statements
 #-------------------------------------------------------------------
-$dbh = DBI->connect("DBI:mysql:$dbName:$serverHost",
-		       {RaiseError => 1, AutoCommit => 0, Trace=>2})
+$dbh = DBI->connect("DBI:mysql:$dbName:$serverHost",'deph','')
+#		       {RaiseError => 1, AutoCommit => 0, Trace=>2})
   or die "couldnt connect to $dbName: $dbh->errstr\n";
 #------------------------------------------------------------------- 
 # bunch of checks to see that infact $configVersion is a 'Config' parent
