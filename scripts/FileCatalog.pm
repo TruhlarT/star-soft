@@ -123,7 +123,7 @@ require  Exporter;
 
 
 use vars qw($VERSION);
-$VERSION   =   "V01.317";
+$VERSION   =   "V01.319";
 
 # The hashes that hold a current context
 my %optoperset;
@@ -326,7 +326,7 @@ $obsolete{"datetaken"} = "datastarts";
 # $keywrds{"tpc"           }    =   "dTPC"                      .",DetectorConfigurations" .",1" .",num"  .",0" .",1" .",1";
 my @DETECTORS=("tpc","svt","tof","emc","eemc","fpd","ftpc",
 	       "pmd","rich","ssd","bbc","bsmd","esmd","zdc",
-	       "ctb");
+	       "ctb","tpx");
 
 
 
