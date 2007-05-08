@@ -62,12 +62,12 @@ print <<END;
 <TABLE WIDTH=100% BORDER=5 CELLSPACING=1 CELLPADDING=2 >
 <TR>
 <TR ALIGN=CENTER VALIGN=CENTER>
-<TH WIDTH=\"5%\" HEIGHT=50><h3>Production Series</h3></TH>
-<TH WIDTH=\"5%\" HEIGHT=50><h3>Event Type</h3></TH>
-<TH WIDTH=\"5%\" HEIGHT=50><h3>Library Version</h3></TH>
-<TH WIDTH=\"5%\" HEIGHT=50><h3>Geometry</h3></TH>
-<TH WIDTH=\"40%\" HEIGHT=50><h3>Chain Options</h3></TH>
-<TH WIDTH=\"40%\" HEIGHT=50><h3>Production <br> description</h3></TH>
+<TH WIDTH=\"5%\" HEIGHT=100><h3>Production Series</h3></TH>
+<TH WIDTH=\"5%\" HEIGHT=100><h3>Event Type</h3></TH>
+<TH WIDTH=\"5%\" HEIGHT=100><h3>Library Version</h3></TH>
+<TH WIDTH=\"5%\" HEIGHT=100><h3>Geometry</h3></TH>
+<TH WIDTH=\"200\" HEIGHT=100><h3>Chain Options</h3></TH>
+<TH WIDTH=\"40%\" HEIGHT=100><h3>Production <br> description</h3></TH>
 </TR>
 
 END
@@ -82,8 +82,8 @@ print <<END;
 <th WIDTH=5%>$pair{'eventType'}</th>
 <th WIDTH=5%>$pair{'libVersion'}</th>
 <th WIDTH=5%>$pair{'geometry'}</th>
-<th WIDTH=40%> $pair{'chainOpt'}</th>
-<th WIDTH=40%> $pair{'comment'}</th>
+<th WIDTH=200> $pair{'chainOpt'}</th>
+<td WIDTH=200> $pair{'comment'}</td>
 </tr>
 END
 
@@ -98,8 +98,8 @@ print <<END;
 <th WIDTH=5%>$pair{'eventType'}</th>
 <th WIDTH=5%>$pair{'libVersion'}</th>
 <th WIDTH=5%>$pair{'geometry'}</th>
-<th WIDTH=40%>$pair{'chainOpt'}</th>
-<th WIDTH=40%>$pair{'comment'}</th>
+<th WIDTH=200>$pair{'chainOpt'}</th>
+<td WIDTH=200>$pair{'comment'}</td>
 </tr>
 END
 }
