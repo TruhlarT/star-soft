@@ -62,12 +62,12 @@ print <<END;
 <TABLE BORDER=5 CELLSPACING=1 CELLPADDING=2 >
 <TR>
 <TR ALIGN=CENTER VALIGN=CENTER>
-<TD WIDTH=\"20%\" HEIGHT=50><B>Production Series</B></TD>
-<TD WIDTH=\"20%\" HEIGHT=50><B>Event Type</B></TD>
-<TD WIDTH=\"20%\" HEIGHT=50><B>Library Version</B></TD>
-<TD WIDTH=\"20%\" HEIGHT=50><B>Geometry</B></TD>
-<TD WIDTH=\"20%\" HEIGHT=50><B>Chain Option</B></TD>
-<TD WIDTH=\"20%\" HEIGHT=50><B>Production</B></TD>
+<TD WIDTH=\"5%\" HEIGHT=50><B>Production Series</B></TD>
+<TD WIDTH=\"5%\" HEIGHT=50><B>Event Type</B></TD>
+<TD WIDTH=\"5%\" HEIGHT=50><B>Library Version</B></TD>
+<TD WIDTH=\"5%\" HEIGHT=50><B>Geometry</B></TD>
+<TD WIDTH=\"40%\" HEIGHT=50><B>Chain Option</B></TD>
+<TD WIDTH=\"40%\" HEIGHT=50><B>Production</B></TD>
 </TR>
 
 END
