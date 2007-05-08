@@ -8,7 +8,7 @@
 
 use CGI;
 
-require "/afs/rhic.bnl.gov/star/packages/cgi/dbCpProdSetup.pl";
+require "/afs/rhic/star/packages/cgi/dbCpProdSetup.pl";
 
 my $debugOn = 0;
 my %pair;
@@ -62,11 +62,12 @@ print <<END;
 <TABLE BORDER=5 CELLSPACING=1 CELLPADDING=2 >
 <TR>
 <TR ALIGN=CENTER VALIGN=CENTER>
-<TD WIDTH=\"20%\" HEIGHT=50><B>prodSeries</B></TD>
-<TD WIDTH=\"20%\" HEIGHT=50><B>eventType</B></TD>
-<TD WIDTH=\"20%\" HEIGHT=50><B>libVersion</B></TD>
-<TD WIDTH=\"20%\" HEIGHT=50><B>chainOpt</B></TD>
-<TD WIDTH=\"20%\" HEIGHT=50><B>chainName</B></TD>
+<TD WIDTH=\"20%\" HEIGHT=50><B>Production Series</B></TD>
+<TD WIDTH=\"20%\" HEIGHT=50><B>Event Type</B></TD>
+<TD WIDTH=\"20%\" HEIGHT=50><B>Library Version</B></TD>
+<TD WIDTH=\"20%\" HEIGHT=50><B>Geometry</B></TD>
+<TD WIDTH=\"20%\" HEIGHT=50><B>Chain Option</B></TD>
+<TD WIDTH=\"20%\" HEIGHT=50><B>Production</B></TD>
 </TR>
 
 END
@@ -95,8 +96,9 @@ print <<END;
 <td>$pair{'prodSeries'}</td>
 <td>$pair{'eventType'}</td>
 <td>$pair{'libVersion'}</td>
+<td>$pair{'geometry'}</td>
 <td>$pair{'chainOpt'}</td>
-<td>$pair{'chainName'}</td>
+<td>$pair{'comments'}</td>
 </tr>
 END
 }
