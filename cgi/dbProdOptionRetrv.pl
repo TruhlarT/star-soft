@@ -78,12 +78,12 @@ sub printRow {
 
 print <<END;
 <TR BGCOLOR=\"#D8BFD8\" ALIGN=CENTER VALIGN=CENTER>
-<td WIDTH=5%>$pair{'prodSeries'}</td>
-<td WIDTH=5%>$pair{'eventType'}</td>
-<td WIDTH=5%>$pair{'libVersion'}</td>
-<td WIDTH=5%>$pair{'geometry'}</td>
-<td WIDTH=40%> $pair{'chainOpt'}</td>
-<td WIDTH=40%> $pair{'comment'}</td>
+<th WIDTH=5%>$pair{'prodSeries'}</th>
+<th WIDTH=5%>$pair{'eventType'}</th>
+<th WIDTH=5%>$pair{'libVersion'}</th>
+<th WIDTH=5%>$pair{'geometry'}</th>
+<th WIDTH=40%> $pair{'chainOpt'}</th>
+<th WIDTH=40%> $pair{'comment'}</th>
 </tr>
 END
 
@@ -94,12 +94,12 @@ sub printRoww {
 
 print <<END;
 <TR ALIGN=CENTER VALIGN=CENTER>
-<td WIDTH=5%>$pair{'prodSeries'}</td>
-<td WIDTH=5%>$pair{'eventType'}</td>
-<td WIDTH=5%>$pair{'libVersion'}</td>
-<td WIDTH=5%>$pair{'geometry'}</td>
-<td WIDTH=40%>$pair{'chainOpt'}</td>
-<td WIDTH=40%>$pair{'comment'}</td>
+<th WIDTH=5%>$pair{'prodSeries'}</th>
+<th WIDTH=5%>$pair{'eventType'}</th>
+<th WIDTH=5%>$pair{'libVersion'}</th>
+<th WIDTH=5%>$pair{'geometry'}</th>
+<th WIDTH=40%>$pair{'chainOpt'}</th>
+<th WIDTH=40%>$pair{'comment'}</th>
 </tr>
 END
 }
