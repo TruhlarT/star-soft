@@ -66,7 +66,7 @@ print <<END;
 <TH WIDTH=\"5%\" HEIGHT=100><h3>Event Type</h3></TH>
 <TH WIDTH=\"5%\" HEIGHT=100><h3>Library Version</h3></TH>
 <TH WIDTH=\"5%\" HEIGHT=100><h3>Geometry</h3></TH>
-<TH WIDTH=\"200\" HEIGHT=100><h3>Chain Options</h3></TH>
+<TH WIDTH=\"40%\" HEIGHT=100><h3>Chain Options</h3></TH>
 <TH WIDTH=\"40%\" HEIGHT=100><h3>Production <br> description</h3></TH>
 </TR>
 
@@ -82,8 +82,8 @@ print <<END;
 <th WIDTH=5%>$pair{'eventType'}</th>
 <th WIDTH=5%>$pair{'libVersion'}</th>
 <th WIDTH=5%>$pair{'geometry'}</th>
-<th WIDTH=200> $pair{'chainOpt'}</th>
-<td WIDTH=200> $pair{'comment'}</td>
+<th WIDTH=40%> $pair{'chainOpt'}</th>
+<td WIDTH=40%> $pair{'comment'}</td>
 </tr>
 END
 
@@ -98,8 +98,8 @@ print <<END;
 <th WIDTH=5%>$pair{'eventType'}</th>
 <th WIDTH=5%>$pair{'libVersion'}</th>
 <th WIDTH=5%>$pair{'geometry'}</th>
-<th WIDTH=200>$pair{'chainOpt'}</th>
-<td WIDTH=200>$pair{'comment'}</td>
+<th WIDTH=40%>$pair{'chainOpt'}</th>
+<td WIDTH=40%>$pair{'comment'}</td>
 </tr>
 END
 }
