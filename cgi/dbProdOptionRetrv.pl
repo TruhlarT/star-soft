@@ -62,12 +62,12 @@ print <<END;
 <TABLE BORDER=5 CELLSPACING=1 CELLPADDING=2 >
 <TR>
 <TR ALIGN=CENTER VALIGN=CENTER>
-<TD WIDTH=\"5%\" HEIGHT=50><B>Production Series</B></TD>
-<TD WIDTH=\"5%\" HEIGHT=50><B>Event Type</B></TD>
-<TD WIDTH=\"5%\" HEIGHT=50><B>Library Version</B></TD>
-<TD WIDTH=\"5%\" HEIGHT=50><B>Geometry</B></TD>
-<TD WIDTH=\"40%\" HEIGHT=50><B>Chain Options</B></TD>
-<TD WIDTH=\"40%\" HEIGHT=50><B>Production <br> description</B></TD>
+<TH WIDTH=\"5%\" HEIGHT=50><B>Production Series</B></TH>
+<TH WIDTH=\"5%\" HEIGHT=50><B>Event Type</B></TH>
+<TH WIDTH=\"5%\" HEIGHT=50><B>Library Version</B></TH>
+<TH WIDTH=\"5%\" HEIGHT=50><B>Geometry</B></TH>
+<TH WIDTH=\"40%\" HEIGHT=50><B>Chain Options</B></TH>
+<TH WIDTH=\"60%\" HEIGHT=50><B>Production <br> description</B></TH>
 </TR>
 
 END
@@ -83,7 +83,7 @@ print <<END;
 <th WIDTH=5%>$pair{'libVersion'}</th>
 <th WIDTH=5%>$pair{'geometry'}</th>
 <th WIDTH=40%> $pair{'chainOpt'}</th>
-<th WIDTH=40%> $pair{'comment'}</th>
+<th WIDTH=60%> $pair{'comment'}</th>
 </tr>
 END
 
