@@ -81,8 +81,9 @@ print <<END;
 <td>$pair{'prodSeries'}</td>
 <td>$pair{'eventType'}</td>
 <td>$pair{'libVersion'}</td>
+<td>$pair{'geometry'}</td>
 <td>$pair{'chainOpt'}</td>
-<td>$pair{'chainName'}</td>
+<td>$pair{'comment'}</td>
 </tr>
 END
 
@@ -98,7 +99,7 @@ print <<END;
 <td>$pair{'libVersion'}</td>
 <td>$pair{'geometry'}</td>
 <td>$pair{'chainOpt'}</td>
-<td>$pair{'comments'}</td>
+<td>$pair{'comment'}</td>
 </tr>
 END
 }
