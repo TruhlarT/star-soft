@@ -66,8 +66,8 @@ print <<END;
 <TD WIDTH=\"5%\" HEIGHT=50><B>Event Type</B></TD>
 <TD WIDTH=\"5%\" HEIGHT=50><B>Library Version</B></TD>
 <TD WIDTH=\"5%\" HEIGHT=50><B>Geometry</B></TD>
-<TD WIDTH=\"40%\" HEIGHT=50><B>Chain Option</B></TD>
-<TD WIDTH=\"40%\" HEIGHT=50><B>Production</B></TD>
+<TD WIDTH=\"40%\" HEIGHT=50><B>Chain Options</B></TD>
+<TD WIDTH=\"40%\" HEIGHT=50><B>Production <br> description</B></TD>
 </TR>
 
 END
@@ -78,12 +78,12 @@ sub printRow {
 
 print <<END;
 <TR BGCOLOR=\"#D8BFD8\" ALIGN=CENTER VALIGN=CENTER>
-<td>$pair{'prodSeries'}</td>
-<td>$pair{'eventType'}</td>
-<td>$pair{'libVersion'}</td>
-<td>$pair{'geometry'}</td>
-<td>$pair{'chainOpt'}</td>
-<td>$pair{'comment'}</td>
+<td WIDTH=5%>$pair{'prodSeries'}</td>
+<td WIDTH=5%>$pair{'eventType'}</td>
+<td WIDTH=5%>$pair{'libVersion'}</td>
+<td WIDTH=5%>$pair{'geometry'}</td>
+<td WIDTH=40%> $pair{'chainOpt'}</td>
+<td WIDTH=40%> $pair{'comment'}</td>
 </tr>
 END
 
@@ -94,12 +94,12 @@ sub printRoww {
 
 print <<END;
 <TR ALIGN=CENTER VALIGN=CENTER>
-<td>$pair{'prodSeries'}</td>
-<td>$pair{'eventType'}</td>
-<td>$pair{'libVersion'}</td>
-<td>$pair{'geometry'}</td>
-<td>$pair{'chainOpt'}</td>
-<td>$pair{'comment'}</td>
+<td WIDTH=5%>$pair{'prodSeries'}</td>
+<td WIDTH=5%>$pair{'eventType'}</td>
+<td WIDTH=5%>$pair{'libVersion'}</td>
+<td WIDTH=5%>$pair{'geometry'}</td>
+<td WIDTH=40%>$pair{'chainOpt'}</td>
+<td WIDTH=40%>$pair{'comment'}</td>
 </tr>
 END
 }
