@@ -558,20 +558,21 @@ TQtCoinWidget::TQtCoinWidget(QWidget *parent, COINWIDGETFLAGSTYPE f)
 void TQtCoinWidget::SetPad(TVirtualPad *pad)
 {
    fPad = pad;
-   if ( fPad ) {
-	     // printf("TQtCoinWidget::TQtCoinWidget begin Pad=%p\n", pad);
-       //Create the default SnapShot file name and type if any
-      const char *fileDir = gSystem->Getenv("SnapShotDirectory");
-      if (!(fileDir  && fileDir[0]) && ( gEnv ) ) {
-           fileDir  = gEnv->GetValue("Gui.SnapShotDirectory",(const char *)0);
-      }
-      QString saveFile;
-      if (fileDir  && fileDir[0]) {  saveFile = fileDir; saveFile += "/"; }
-      saveFile += fPad->GetName();
-      saveFile += ".";
-      saveFile += "jpg";
-      SetFileType("JPG");
+   QString saveFile = TGLViewerImp::GetSnapShotFileName();
+   if (!saveFile.isEmpty()) {
       SetFileName(saveFile);
+      SetFileType("PNG");
+   }
+   if ( fPad ) {
+      // printf("TQtCoinWidget::TQtCoinWidget begin Pad=%p\n", pad);
+      //Create the default SnapShot file name and type if any
+      if (saveFile.isEmpty() || saveFile.endsWith("/") ) {
+         saveFile += fPad->GetName();
+         saveFile += ".";
+         saveFile += "jpg";
+         SetFileType("JPG");
+         SetFileName(saveFile);
+      }
             
       QString caption = fPad->GetTitle();
       caption += ": Coin viewer";
@@ -607,20 +608,22 @@ TQtCoinWidget::TQtCoinWidget(TVirtualPad *pad, const char *title,
 {
    // printf("TQtCoinWidget::TQtCoinWidget begin Pad=%p\n", pad);
    //Create the default SnapShot file name and type if any
-   const char *fileDir = gSystem->Getenv("SnapShotDirectory");
-   if (!(fileDir  && fileDir[0]) && ( gEnv ) ) {
-        fileDir  = gEnv->GetValue("Gui.SnapShotDirectory",(const char *)0);
-   }
-   QString saveFile;
-   memset(fPivotClipPoint,0,sizeof(fPivotClipPoint));
-   if (fileDir  && fileDir[0]) {  saveFile = fileDir; saveFile += "/"; }
-   if ( fPad ) {
-      saveFile += fPad->GetName();
-      saveFile += ".";
-      saveFile += "jpg";
-      
-      SetFileType("JPG");
+   QString saveFile = TGLViewerImp::GetSnapShotFileName();
+   if (!saveFile.isEmpty()) {
       SetFileName(saveFile);
+      SetFileType("PNG");
+   }
+   
+   memset(fPivotClipPoint,0,sizeof(fPivotClipPoint));
+   if ( fPad ) {
+      if (saveFile.isEmpty() || saveFile.endsWith("/") ) {
+        saveFile += fPad->GetName();
+        saveFile += ".";
+        saveFile += "jpg";
+      
+        SetFileType("JPG");
+        SetFileName(saveFile);
+      }
      
       QString caption = fPad->GetTitle();
       caption += ": Coin viewer";

@@ -1,4 +1,4 @@
-// @(#)root/g3d:$Name:  $:$Id: TQGLViewerImp.h,v 1.13 2007/04/16 22:30:08 fine Exp $
+// @(#)root/g3d:$Name:  $:$Id: TQGLViewerImp.h,v 1.14 2007/05/09 22:57:10 fine Exp $
 // Author: Valery Fine      12/03/2005
 
 /*************************************************************************
@@ -40,6 +40,7 @@ class QPoint;
 
 #ifndef __CINT__
 #include <qobject.h>
+#include <qstring.h>
 class TQtSlotProxy : public QObject {
    Q_OBJECT
 private:
@@ -66,6 +67,7 @@ signals:
 
 #else
 class TQtSlotProxy;
+class QString;
 #endif
 
 class TPadOpenGLView;
@@ -87,6 +89,7 @@ public:
    TGLViewerImp();
    TGLViewerImp(TPadOpenGLView *padview, const char *title="OpenGL Viewer", UInt_t width=400, UInt_t height=300);
    TGLViewerImp(TPadOpenGLView *padview, const char *title, Int_t x, Int_t y,UInt_t width, UInt_t height);
+   static QString GetSnapShotFileName();
    static void MakeCurrent(TGLViewerImp *viewer);
    static TGLViewerImp *CurrentViewer();
    virtual ~TGLViewerImp();

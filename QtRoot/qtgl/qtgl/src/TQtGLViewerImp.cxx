@@ -74,20 +74,17 @@ TQtGLViewerImp::TQtGLViewerImp(TPadOpenGLView *pad, const char *title,
    , fSelectionViewer(kFALSE),fSelectionHighlight(kFALSE),fShowSelectionGlobal(kFALSE),fWantRootContextMenu(kFALSE)
    , fSnapShotAction(0)
  {
+   QString saveFile = TGLViewerImp::GetSnapShotFileName();
+   if (!saveFile.isEmpty()) fSaveFile = (const char*)saveFile;
    if (pad) {
       TVirtualPad *thisPad = pad->GetPad();
       if (thisPad) {
-
          // Create the default SnapShot file name and type if any
-         const char *fileDir = gSystem->Getenv("SnapShotDirectory");
-         if (!(fileDir  && fileDir[0]) && ( gEnv ) ) {
-             fileDir  = gEnv->GetValue("Gui.SnapShotDirectory",(const char *)0);
+         if (saveFile.isEmpty() || saveFile.endsWith("/") ) {
+            fSaveFile += thisPad->GetName();
+            fSaveFile += ".";
+            fSaveFile += "jpg";
          }
-         if (fileDir  && fileDir[0]) {  fSaveFile = fileDir; fSaveFile += "/"; }
-
-         fSaveFile += thisPad->GetName();
-         fSaveFile += ".";
-         fSaveFile += "jpg";
          QString caption = thisPad->GetTitle();
          caption += ": OpenGL viewer";
          setCaption(caption);
@@ -117,18 +114,16 @@ TQtGLViewerImp::TQtGLViewerImp(TPadOpenGLView *pad, const char *title,
    , fSelectionViewer(kFALSE),fSelectionHighlight(kFALSE),fShowSelectionGlobal(kFALSE),fWantRootContextMenu(kFALSE)
    , fSnapShotAction(0)
 {
+   QString saveFile = TGLViewerImp::GetSnapShotFileName();
+   if (!saveFile.isEmpty()) fSaveFile = (const char*)saveFile;
    if (pad) {
       TVirtualPad *thisPad = pad->GetPad();
       if (thisPad) {
-         // Create the default SnapShot file name and type if any
-         const char *fileDir = gSystem->Getenv("SnapShotDirectory");
-         if (!(fileDir  && fileDir[0]) && ( gEnv ) ) {
-             fileDir  = gEnv->GetValue("Gui.SnapShotDirectory",(const char *)0);
+         if (saveFile.isEmpty() || saveFile.endsWith("/") ) {
+            fSaveFile += thisPad->GetName();
+            fSaveFile += ".";
+            fSaveFile += "jpg";
          }
-         if (fileDir  && fileDir[0]) {  fSaveFile = fileDir; fSaveFile += "/"; }
-         fSaveFile += thisPad->GetName();
-         fSaveFile += ".";
-         fSaveFile += "jpg";
          QString caption = thisPad->GetTitle();
          caption += ": OpenGL viewer";
          setCaption(caption);
@@ -158,16 +153,16 @@ TQtGLViewerImp::TQtGLViewerImp(TVirtualPad *pad, const char *title,
    , fSelectionViewer(kFALSE),fSelectionHighlight(kFALSE),fShowSelectionGlobal(kFALSE),fWantRootContextMenu(kFALSE)
    , fSnapShotAction(0)
  {
-   if (fPad) {
       // Create the default SnapShot file name and type if any
-      const char *fileDir = gSystem->Getenv("SnapShotDirectory");
-      if (!(fileDir  && fileDir[0]) && ( gEnv ) ) {
-           fileDir  = gEnv->GetValue("Gui.SnapShotDirectory",(const char *)0);
+   QString saveFile = TGLViewerImp::GetSnapShotFileName();
+   if (!saveFile.isEmpty()) fSaveFile = (const char*)saveFile;
+   if (fPad) {
+      if (saveFile.isEmpty() || saveFile.endsWith("/") ) {
+         fSaveFile += fPad->GetName();
+         fSaveFile += ".";
+         fSaveFile += "jpg";
       }
-      if (fileDir  && fileDir[0]) {  fSaveFile = fileDir; fSaveFile += "/"; }
-      fSaveFile += fPad->GetName();
-      fSaveFile += ".";
-      fSaveFile += "jpg";
+       
       QString caption = fPad->GetTitle();
       caption += ": OpenGL viewer";
       setCaption(caption);
@@ -195,16 +190,14 @@ TQtGLViewerImp::TQtGLViewerImp(TVirtualPad *pad, const char *title,
    ,fSelectionViewer(kFALSE),fSelectionHighlight(kFALSE),fShowSelectionGlobal(kFALSE),fWantRootContextMenu(kFALSE)
    , fSnapShotAction(0)
 {
+   QString saveFile = TGLViewerImp::GetSnapShotFileName();
+   if (!saveFile.isEmpty()) fSaveFile = (const char*)saveFile;
    if (fPad) {
-      // Create the default SnapShot file name and type if any
-      const char *fileDir = gSystem->Getenv("SnapShotDirectory");
-      if (!(fileDir  && fileDir[0]) && ( gEnv ) ) {
-         fileDir  = gEnv->GetValue("Gui.SnapShotDirectory",(const char *)0);
+      if (saveFile.isEmpty() || saveFile.endsWith("/") ) {
+         fSaveFile += fPad->GetName();
+         fSaveFile += ".";
+         fSaveFile += "jpg";
       }
-      if (fileDir  && fileDir[0]) {  fSaveFile = fileDir; fSaveFile += "/"; }
-      fSaveFile += fPad->GetName();
-      fSaveFile += ".";
-      fSaveFile += "jpg";
       QString caption = fPad->GetTitle();
       caption += ": OpenGL viewer";
       setCaption(caption);
@@ -235,16 +228,14 @@ TQtGLViewerImp::TQtGLViewerImp(TQtGLViewerImp &parent) :
    // create a satelite widget
    connect(this,SIGNAL(destroyed() ),&parent, SLOT(DisconnectSelectorWidgetCB()));
    QString caption;
+   QString saveFile = TGLViewerImp::GetSnapShotFileName();
+   if (!saveFile.isEmpty()) fSaveFile = (const char*)saveFile;
    if (fPad) {
-      // Create the default SnapShot file name and type if any
-      const char *fileDir = gSystem->Getenv("SnapShotDirectory");
-      if (!(fileDir  && fileDir[0]) && ( gEnv ) ) {
-         fileDir  = gEnv->GetValue("Gui.SnapShotDirectory",(const char *)0);
+      if (saveFile.isEmpty() || saveFile.endsWith("/") ) {
+         fSaveFile += fPad->GetName();
+         fSaveFile += ".";
+         fSaveFile += "jpg";
       }
-      if (fileDir  && fileDir[0]) {  fSaveFile = fileDir; fSaveFile += "/"; }
-      fSaveFile += fPad->GetName();
-      fSaveFile += ".";
-      fSaveFile += "jpg";
       caption = fPad->GetTitle();
    }
    fGLView = 0;

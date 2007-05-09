@@ -1,4 +1,4 @@
-// @(#)root/g3d:$Name:  $:$Id: TGLViewerImp.cxx,v 1.5 2007/04/09 21:29:24 fine Exp $
+// @(#)root/g3d:$Name:  $:$Id: TGLViewerImp.cxx,v 1.6 2007/05/09 22:57:10 fine Exp $
 // Author: Valery Fine      23/05/97
 
 /*************************************************************************
@@ -26,8 +26,35 @@
 #include "TQGLViewerImp.h"
 #include "TGuiFactory.h"
 #include "TROOT.h"
+#include "TSystem.h"
+#include "TEnv.h"
 #include "TQPadOpenGLView.h"
 #include "TQVirtualGL.h"
+
+//______________________________________________________________________________
+QString TGLViewerImp::GetSnapShotFileName() 
+{
+      QString fullShapShotFileName;
+
+      // Create the default SnapShot file name and type if any
+      const char *fileDir = gSystem->Getenv("SnapShotDirectory");
+      if (!(fileDir  && fileDir[0]) && ( gEnv ) ) {
+           fileDir  = gEnv->GetValue("Gui.SnapShotDirectory",(const char *)0);
+      }
+      if (fileDir  && fileDir[0]) {
+             fullShapShotFileName = fileDir;
+             fullShapShotFileName += "/"; 
+      }
+
+      fileDir = gSystem->Getenv("SnapShotFile");
+      if (!(fileDir  && fileDir[0]) && ( gEnv ) ) {
+           fileDir  = gEnv->GetValue("Gui.SnapShotFile",(const char *)0);
+      }
+      printf("\n\n -- %s -- \n",fileDir ); 
+      if (fileDir  && fileDir[0])    fullShapShotFileName += fileDir;
+
+  return fullShapShotFileName;
+}
 
 //______________________________________________________________________________
 void TQtSlotProxy::Disconnect()
