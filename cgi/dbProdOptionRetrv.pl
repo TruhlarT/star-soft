@@ -14,6 +14,7 @@ my $debugOn = 0;
 my %pair;
 
 my $chain;
+my $chainline;
 
 &cgiSetup();
 
@@ -36,6 +37,9 @@ while(@fields = $cursor->fetchrow) {
     print "$fname = $fvalue\n" if $debugOn;
     $pair{$fname} = $fvalue;
     $chain = $fvalue  if( $fname eq 'chainOpt');
+    $chainline =  $chain;
+    $chainline =~ s/,/ /g; 
+
   }
     if($chain =~ /ITTF/) {
    
@@ -66,8 +70,8 @@ print <<END;
 <TH WIDTH=\"5%\" HEIGHT=100><h3>Event Type</h3></TH>
 <TH WIDTH=\"5%\" HEIGHT=100><h3>Library Version</h3></TH>
 <TH WIDTH=\"5%\" HEIGHT=100><h3>Geometry</h3></TH>
-<TH WIDTH=\"40%\" HEIGHT=100><h3>Chain Options</h3></TH>
-<TH WIDTH=\"40%\" HEIGHT=100><h3>Production <br> description</h3></TH>
+<TH WIDTH=\"50%\" HEIGHT=100><h3>Chain Options</h3></TH>
+<TH WIDTH=\"30%\" HEIGHT=100><h3>Production <br> description</h3></TH>
 </TR>
 
 END
@@ -82,8 +86,8 @@ print <<END;
 <th WIDTH=5%>$pair{'eventType'}</th>
 <th WIDTH=5%>$pair{'libVersion'}</th>
 <th WIDTH=5%>$pair{'geometry'}</th>
-<th WIDTH=40%> $pair{'chainOpt'}</th>
-<td WIDTH=40%> $pair{'comment'}</td>
+<th WIDTH=50%> $chainline</th>
+<th WIDTH=30%> $pair{'comment'}</th>
 </tr>
 END
 
@@ -98,8 +102,8 @@ print <<END;
 <th WIDTH=5%>$pair{'eventType'}</th>
 <th WIDTH=5%>$pair{'libVersion'}</th>
 <th WIDTH=5%>$pair{'geometry'}</th>
-<th WIDTH=40%>$pair{'chainOpt'}</th>
-<td WIDTH=40%>$pair{'comment'}</td>
+<th WIDTH=50%>$chainline</th>
+<th WIDTH=30%>$pair{'comment'}</th>
 </tr>
 END
 }
