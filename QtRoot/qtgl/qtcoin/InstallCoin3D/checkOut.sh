@@ -16,7 +16,7 @@ echo "See: http://www.coin3d.org/doc/cvs_access"
 # has to install the Subversion first
 
 export COINCVSROOT=:pserver:cvs@cvs.coin3d.org:/export/cvsroot
-export COINCVNROOT=https://svn.coin3d.org/repos
+export COINSVNROOT=https://svn.coin3d.org/repos
 export PATH="`cygpath "E:/Program Files/svn-win32-1.4.2/bin"`":$PATH
 echo $PATH
 # "Coin" - Latest development version
@@ -25,10 +25,10 @@ echo $PATH
 # "Coin-2" - Last stable production release
 svn co $COINCVNROOT/Coin-2/trunk       Coin-2
 
-svn co $COINCVNROOT/SmallChange/trunk  SmallChange
-svn co $COINCVNROOT/simage/trunk       simage
-svn co $COINCVNROOT/simacros/trunk     simacros
-svn co $COINCVNROOT/SoQt/trunk         SoQt
+svn co $COINSVNROOT/SmallChange/trunk  SmallChange
+svn co $COINSVNROOT/simage/trunk       simage
+svn co $COINSVNROOT/simacros/trunk     simacros
+svn co $COINSVNROOT/SoQt/trunk         SoQt
 
 testPlatform=`uname | grep -c CYGWIN`
 if test "x$testPlatform" = "x0" ; then
