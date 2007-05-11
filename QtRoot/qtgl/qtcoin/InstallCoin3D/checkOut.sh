@@ -33,9 +33,4 @@ svn co ${COINSVNROOT}/simage/trunk       simage
 svn co ${COINSVNROOT}/simacros/trunk     simacros
 svn co ${COINSVNROOT}/SoQt/trunk         SoQt
 
-testPlatform=`uname | grep -c CYGWIN`
-if test "x$testPlatform" = "x0" ; then
-echo  svn -z3 $COINSVNROOT checkout SoXt
-fi
-
 svn co ${COINSVNROOT}/SoGuiExamples/trunk SoGuiExamples
