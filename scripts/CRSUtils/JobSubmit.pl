@@ -313,12 +313,16 @@ if ($ThisYear == 2002){
     $LASERTP =  rdaq_string2ftype("laser");
 
     $PHYSTP  =  rdaq_string2ftype("physics");
-    $PHYSTP2 =  rdaq_string2ftype("physics_adc"); # just comment them if you want them disabled
+    $PHYSTP2 =  
+	rdaq_string2ftype("physics_adc")."|".
+	rdaq_string2ftype("upsilon")."|".
+	rdaq_string2ftype("btag");
+
     @EXPRESS = (
 		rdaq_string2ftype("express"),
 		rdaq_string2ftype("jpsi"),
 		rdaq_string2ftype("gamma"),
-		rdaq_string2ftype("upsilon"),
+		rdaq_string2ftype("mtd"),
 		rdaq_string2ftype("muon")
 		);
     $ZEROBIAS=  rdaq_string2ftype("zerobias");
