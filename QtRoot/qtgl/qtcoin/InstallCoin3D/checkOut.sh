@@ -23,16 +23,16 @@ echo $PATH
 # cvs -z3 -d $COINCVSROOT checkout Coin
 
 # "Coin-2" - Last stable production release
-svn co $COINCVNROOT/Coin-2/trunk       Coin-2
+svn co ${COINSVNROOT}/Coin-2/trunk       Coin-2
 
-svn co $COINSVNROOT/SmallChange/trunk  SmallChange
-svn co $COINSVNROOT/simage/trunk       simage
-svn co $COINSVNROOT/simacros/trunk     simacros
-svn co $COINSVNROOT/SoQt/trunk         SoQt
+svn co ${COINSVNROOT}/SmallChange/trunk  SmallChange
+svn co ${COINSVNROOT}/simage/trunk       simage
+svn co ${COINSVNROOT}/simacros/trunk     simacros
+svn co ${COINSVNROOT}/SoQt/trunk         SoQt
 
 testPlatform=`uname | grep -c CYGWIN`
 if test "x$testPlatform" = "x0" ; then
 #  svn -z3 $COINCVNROOT checkout SoXt
 fi
 
-svn co $COINCVNROOT/SoGuiExamples/trunk SoGuiExamples
+svn co ${COINCVNROOT}/SoGuiExamples/trunk SoGuiExamples
