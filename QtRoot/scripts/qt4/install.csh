@@ -1,7 +1,7 @@
 #!/bin/sh
 #-------------------------------------------------------
 # Author: Valeri Fine (fine@bnl.gov)       2007/05/16
-# $Id: install.csh,v 1.3 2007/05/16 20:14:38 fine Exp $
+# $Id: install.csh,v 1.4 2007/05/16 20:22:22 fine Exp $
 #-------------------------------------------------------
 QT_VERSION=4.3.0beta
 QTSDK=qt-x11-opensource-src-${QT_VERSION}
@@ -13,7 +13,7 @@ then
   if ! test -s ${QTSDK}.tar.gz
   then
     echo 1. -- downloading the distribution kit --- 
-    wget ftp://ftp.trolltech.com/qt/source/${QTSDK}.tar.gz
+    wget  --quiet ftp://ftp.trolltech.com/qt/source/${QTSDK}.tar.gz
   fi
 # --
 # -- upack the Qt4 kit
