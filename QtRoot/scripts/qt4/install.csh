@@ -1,7 +1,7 @@
 #!/bin/sh
 #-------------------------------------------------------
 # Author: Valeri Fine (fine@bnl.gov)       2007/05/16
-# $Id: install.csh,v 1.4 2007/05/16 20:22:22 fine Exp $
+# $Id: install.csh,v 1.5 2007/05/18 18:05:46 fine Exp $
 #-------------------------------------------------------
 QT_VERSION=4.3.0beta
 QTSDK=qt-x11-opensource-src-${QT_VERSION}
@@ -32,6 +32,7 @@ if  test -s ${QTSDK}
 then
   cd ${QTSDK}
   echo 3. configure the Qt4 to be installed under .$STAR_HOST_SYS/qt4 from `pwd`
+  echo Attn. the Qt4 -debug option creates both the debug as well as non-debug versions of the Qt4 binaries
   ./configure -prefix-install -prefix .$STAR_HOST_SYS/${QT_VERSION}/debug -debug  -no-openssl <<YES
 yes
 YES
