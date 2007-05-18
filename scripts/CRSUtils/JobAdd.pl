@@ -1,4 +1,4 @@
-d#!/opt/star/bin/perl -w
+#!/opt/star/bin/perl -w
 
 #
 # Add a run or run sequence to the .lis file.
