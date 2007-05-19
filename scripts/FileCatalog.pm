@@ -123,7 +123,7 @@ require  Exporter;
 
 
 use vars qw($VERSION);
-$VERSION   =   "V01.319";
+$VERSION   =   "V01.320";
 
 # The hashes that hold a current context
 my %optoperset;
@@ -2136,7 +2136,7 @@ sub insert_run_param_info {
       # mandatory
       my($y,$d) = &get_date_numbers($valuset{"runnumber"});
       if ( defined($y) ){
-	  $year = $d;
+	  $year = $y;
       } else {
 	  $year = 0;
       }
