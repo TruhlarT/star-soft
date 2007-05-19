@@ -794,7 +794,7 @@ if( $TARGET =~ m/^\// || $TARGET =~ m/^\^\// ){
 		    # Save the remaining record count for that run
 		    # When it will reach 0, no longer record that run.
 		    if( $cnt > 0){
-			$cnt = $cnt - $k;
+			$cnt = $cnt - $k if ($k != -1);
 			push(@RECORDS,"$run $cnt $cho $patt");
 		    }
 		} else {
