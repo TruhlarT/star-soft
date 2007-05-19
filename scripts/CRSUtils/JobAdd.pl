@@ -17,6 +17,10 @@ print qq~
     runumber #FSeq Chain      submits up to 'Fseq' file sequence for
                               this run. Chain is MANDATORY.
 
+    runumber #FSeq Chain Pat  As previous but only files matching pattern 
+                              'pat' are submitted, the rest is skipped
+                              Chain is MANDATORY.
+
  You can also use a semi column separated list of the above.
 
  WARNING: 

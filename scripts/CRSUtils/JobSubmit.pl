@@ -698,6 +698,12 @@ if( $TARGET =~ m/^\// || $TARGET =~ m/^\^\// ){
 	    # a new run by a run number only on a line.
 	    @items = split(" ",$line);
 
+	    if (defined($items[3]) ){
+		$patt = $items[3];
+	    } else {
+		$patt = "";
+	    }
+
 	    if($#items == 0 || $#items == 1){
 		print "$SELF : Run $line is new\n";
 
@@ -757,6 +763,15 @@ if( $TARGET =~ m/^\// || $TARGET =~ m/^\^\// ){
 		    $TOT = $TOT-1;
 		    $k   = $k+1;
 
+		    if ($patt ne ""){
+			if ( $file !~ /$patt/ ){
+			    print "$SELF : Skipping $file not matching $patt\n"; 
+			    push(@SKIPPED,$file);
+			    next;
+			}
+		    }
+
+		    
 		    sleep($SLEEPT/$RATIO) if &Submit(1,$USEQ[1],$SPILL[1],
 						     $file,$cho,"Bypass");
 
@@ -780,12 +795,12 @@ if( $TARGET =~ m/^\// || $TARGET =~ m/^\^\// ){
 		    # When it will reach 0, no longer record that run.
 		    if( $cnt > 0){
 			$cnt = $cnt - $k;
-			push(@RECORDS,"$run $cnt $cho");
+			push(@RECORDS,"$run $cnt $cho $patt");
 		    }
 		} else {
 		    print "$SELF : Discrepency $k counted $tot success ".
 			"($#OKFILES/$#SKIPPED)\n";
-		    push(@RECORDS,"$run $cnt $cho");
+		    push(@RECORDS,"$run $cnt $cho $patt");
 		}
 	    } else {
 		print "$SELF : Run $run will be ignored. No files returned by ddb\n";
