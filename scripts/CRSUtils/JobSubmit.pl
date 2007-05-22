@@ -323,7 +323,8 @@ if ($ThisYear == 2002){
 		rdaq_string2ftype("jpsi"),
 		rdaq_string2ftype("gamma"),
 		rdaq_string2ftype("mtd"),
-		rdaq_string2ftype("muon")
+		rdaq_string2ftype("muon"),
+		rdaq_string2ftype("upcjpsi")
 		);
     $ZEROBIAS=  rdaq_string2ftype("zerobias");
 
