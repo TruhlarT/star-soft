@@ -1,6 +1,6 @@
 // Author: Valeri Fine   21/01/2002
 /****************************************************************************
-** $Id: TQtRootBrowserImp.cxx,v 1.5 2007/05/22 20:07:23 fine Exp $
+** $Id: TQtRootBrowserImp.cxx,v 1.6 2007/05/22 20:17:37 fine Exp $
 **
 ** Copyright (C) 2002 by Valeri Fine. Brookhaven National Laboratory.
 **                                    All rights reserved.
@@ -427,7 +427,12 @@ void TQtRootBrowserImp::MakeActions() {
 }
 //______________________________________________________________________________
 void TQtRootBrowserImp::ResetAction(int mode) {
-   fActions[M_VIEW_LARGE+mode]->setChecked(true);
+fActions[M_VIEW_LARGE+mode]->
+#if QT_VERSION < 0x40000
+   setOn(true);
+#else
+   setChecked(true);
+#endif
 }
 //______________________________________________________________________________
 void TQtRootBrowserImp::MakeMenu()
