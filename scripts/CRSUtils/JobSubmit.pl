@@ -313,7 +313,7 @@ if ($ThisYear == 2002){
     $LASERTP =  rdaq_string2ftype("laser");
 
     $PHYSTP  =  rdaq_string2ftype("physics");
-    $PHYSTP2 =  
+    $PHYSTP2 =
 	rdaq_string2ftype("physics_adc")."|".
 	rdaq_string2ftype("upsilon")."|".
 	rdaq_string2ftype("btag");
@@ -766,13 +766,13 @@ if( $TARGET =~ m/^\// || $TARGET =~ m/^\^\// ){
 
 		    if ($patt ne ""){
 			if ( $file !~ /$patt/ ){
-			    print "$SELF : Skipping $file not matching $patt\n"; 
+			    print "$SELF : Skipping $file not matching $patt\n";
 			    push(@SKIPPED,$file);
 			    next;
 			}
 		    }
 
-		    
+
 		    sleep($SLEEPT/$RATIO) if &Submit(1,$USEQ[1],$SPILL[1],
 						     $file,$cho,"Bypass");
 
