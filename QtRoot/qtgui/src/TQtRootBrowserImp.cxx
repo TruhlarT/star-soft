@@ -1,6 +1,6 @@
 // Author: Valeri Fine   21/01/2002
 /****************************************************************************
-** $Id: TQtRootBrowserImp.cxx,v 1.4 2007/02/20 20:50:22 fine Exp $
+** $Id: TQtRootBrowserImp.cxx,v 1.5 2007/05/22 20:07:23 fine Exp $
 **
 ** Copyright (C) 2002 by Valeri Fine. Brookhaven National Laboratory.
 **                                    All rights reserved.
@@ -37,51 +37,40 @@
 #include "TQtIconBrowserImp.h"
 
 #if QT_VERSION < 0x40000
-#include "qpopupmenu.h"
+#  include "qpopupmenu.h"
+#  include "qiconview.h"
+#  include "qhbox.h"
+#  include "qmainwindow.h"
+#  include "qfiledialog.h"
+#  include "qtoolbar.h"
+#  include "qdragobject.h" 
 #else /* QT_VERSION */
-#include "q3popupmenu.h"
+#  include <QMenu>
+#  include <q3iconview.h>
+#  include <q3hbox.h>
+#  include <QMainWindow>
+#  include <q3filedialog.h>
+#  include <QToolBar>
+#  include "q3dragobject.h" 
+#  include <QImageWriter>
+//Added by qt3to4:
+#  include <QActionGroup>
+#  include <QDropEvent>
+#  include <Q3ValueList>
 #endif /* QT_VERSION */
+
 #include "qlabel.h"
 #include "qapplication.h"
-#if QT_VERSION < 0x40000
-#include "qiconview.h"
-#else /* QT_VERSION */
-#include "q3iconview.h"
-#endif /* QT_VERSION */
 #include "qpixmap.h"
 #include "qsplitter.h"
-#if QT_VERSION < 0x40000
-#include "qhbox.h"
-#include "qmainwindow.h"
-#else /* QT_VERSION */
-#include "q3hbox.h"
-#include "q3mainwindow.h"
-#endif /* QT_VERSION */
 #include "qmenubar.h"
 #include "qmessagebox.h"
 #include "qstatusbar.h"
-#if QT_VERSION < 0x40000
-#include "qfiledialog.h"
-#else /* QT_VERSION */
-#include "q3filedialog.h"
-#endif /* QT_VERSION */
 #include "qimage.h"
 #include "qclipboard.h"
 #include "qapplication.h"
 #include "qprinter.h"
 #include "qpainter.h"
-#if QT_VERSION < 0x40000
-#include "qtoolbar.h"
-#include "qdragobject.h" 
-#else /* QT_VERSION */
-#  include "q3toolbar.h"
-#  include "q3dragobject.h" 
-#  include <QImageWriter>
-//Added by qt3to4:
-#  include <Q3ActionGroup>
-#  include <QDropEvent>
-#  include <Q3ValueList>
-#endif /* QT_VERSION */
 
 enum {
    M_NEW_BROWSER,
@@ -111,17 +100,17 @@ enum {
 #if QT_VERSION < 0x40000
 class RootMainWindows : public QMainWindow {
 #else /* QT_VERSION */
-class RootMainWindows : public Q3MainWindow {
+class RootMainWindows : public QMainWindow {
 #endif /* QT_VERSION */
 protected:
    TList *fFileList;
 public:
 #if QT_VERSION < 0x40000
-   RootMainWindows( QWidget* parent=0, const char* name=0, WFlags f = WType_TopLevel ) :
-      QMainWindow( parent, name, f ), fFileList(0){setAcceptDrops(true);}
+   RootMainWindows( QWidget* parent=0, WFlags f = WType_TopLevel ) :
+      QMainWindow( parent, (const char*)0, f ), fFileList(0){setAcceptDrops(true);}
 #else /* QT_VERSION */
-   RootMainWindows( QWidget* parent=0, const char* name=0, Qt::WFlags f = Qt::WType_TopLevel ) :
-      Q3MainWindow( parent, name, f ), fFileList(0){setAcceptDrops(true);}
+   RootMainWindows( QWidget* parent=0, Qt::WFlags f = Qt::WType_TopLevel ) :
+      QMainWindow( parent, f ), fFileList(0){setAcceptDrops(true);}
 #endif /* QT_VERSION */
       ~RootMainWindows() {
          if (fFileList) {
@@ -351,7 +340,8 @@ void TQtRootBrowserImp::Show() {
 //______________________________________________________________________________
 Int_t TQtRootBrowserImp::InitWindow()
 {
-  fBrowserImpID = new RootMainWindows(0,Browser()->GetName(),Qt::WDestructiveClose|Qt::WType_TopLevel);
+  fBrowserImpID = new RootMainWindows(0,Qt::WDestructiveClose|Qt::WType_TopLevel);
+  fBrowserImpID->setName(Browser()->GetName());
   connect(fBrowserImpID,SIGNAL(destroyed()),this,SLOT(Disconnect()));
   fBrowserImpID->setCaption(fTitle);
 
@@ -420,20 +410,24 @@ void TQtRootBrowserImp::MakeActions() {
    // Create a group action
 #if QT_VERSION < 0x40000
    fViewActions = new QActionGroup(fBrowserImpID,"viewActions",true);
-#else /* QT_VERSION */
-   fViewActions = new Q3ActionGroup(fBrowserImpID,"viewActions",true);
-#endif /* QT_VERSION */
    fViewActions->add(fActions[M_VIEW_LARGE] ); fActions[M_VIEW_LARGE] ->setToggleAction ( true );
    fViewActions->add(fActions[M_VIEW_SMALL] ); fActions[M_VIEW_SMALL] ->setToggleAction ( true ); fActions[M_VIEW_SMALL]  ->setOn(true);
    fViewActions->add(fActions[M_VIEW_LIST]  ); fActions[M_VIEW_LIST]  ->setToggleAction ( true );
    fViewActions->add(fActions[M_VIEW_DETAIL]); fActions[M_VIEW_DETAIL]->setToggleAction ( true );  
+#else /* QT_VERSION */
+   fViewActions = new QActionGroup(fBrowserImpID); fViewActions->setExclusive(true);
+   fViewActions->addAction(fActions[M_VIEW_LARGE] ); fActions[M_VIEW_LARGE] ->setCheckable ( true );
+   fViewActions->addAction(fActions[M_VIEW_SMALL] ); fActions[M_VIEW_SMALL] ->setCheckable ( true ); fActions[M_VIEW_SMALL]  ->setChecked(true);
+   fViewActions->addAction(fActions[M_VIEW_LIST]  ); fActions[M_VIEW_LIST]  ->setCheckable ( true );
+   fViewActions->addAction(fActions[M_VIEW_DETAIL]); fActions[M_VIEW_DETAIL]->setCheckable ( true );  
+#endif /* QT_VERSION */
    if (fIconView) 
       connect(fIconView,SIGNAL(ResetActionRequest(int)), this,SLOT(ResetAction(int)));
 
 }
 //______________________________________________________________________________
 void TQtRootBrowserImp::ResetAction(int mode) {
-   fActions[M_VIEW_LARGE+mode]->setOn(true);
+   fActions[M_VIEW_LARGE+mode]->setChecked(true);
 }
 //______________________________________________________________________________
 void TQtRootBrowserImp::MakeMenu()
@@ -452,38 +446,16 @@ void TQtRootBrowserImp::MakeMenu()
  // Int_t iMainMenuStart = i;
 #if QT_VERSION < 0x40000
  QPopupMenu *fileMenu      = new QPopupMenu();
-#else /* QT_VERSION */
- Q3PopupMenu *fileMenu      = new Q3PopupMenu();
-#endif /* QT_VERSION */
  mainMenu->insertItem("&File",fileMenu);
 
-#if QT_VERSION < 0x40000
  QPopupMenu *viewMenu      = new QPopupMenu();
-#else /* QT_VERSION */
- Q3PopupMenu *viewMenu      = new Q3PopupMenu();
-#endif /* QT_VERSION */
  mainMenu->insertItem("&View",viewMenu);
 
-#if QT_VERSION < 0x40000
  QPopupMenu *optionsMenu   = new QPopupMenu();
-#else /* QT_VERSION */
- Q3PopupMenu *optionsMenu   = new Q3PopupMenu();
-#endif /* QT_VERSION */
  mainMenu->insertItem("&Options",optionsMenu);
-#if 0
- fOptionMenu = optionsMenu;
-#endif
-
-#if QT_VERSION < 0x40000
+                                                 mainMenu->insertSeparator();
  QPopupMenu *helpMenu   = new QPopupMenu();
-#else /* QT_VERSION */
- Q3PopupMenu *helpMenu   = new Q3PopupMenu();
-#endif /* QT_VERSION */
  mainMenu->insertItem("&Help",helpMenu);
-
-
-//*-*   Items for the File Menu
-
 
 //  fileMenu->insertItem("&New Browser",   this,SLOT(NewBrowserCB()),CTRL+Key_N);
   fActions[M_NEW_BROWSER]->addTo(fileMenu); 
@@ -511,29 +483,61 @@ void TQtRootBrowserImp::MakeMenu()
   viewMenu->                                 insertSeparator();
   fActions[M_VIEW_REFRESH]->addTo(viewMenu); 
 
+//*-*   Items for the Help
+
+  fActions[M_HELP_MAIN] ->addTo(helpMenu); 
+  helpMenu->insertSeparator();
+  fActions[M_ABOUT_MAIN]->addTo(helpMenu); 
+
+#else /* QT_VERSION */
+ QMenu *fileMenu      = mainMenu->addMenu("&File");
+ QMenu *viewMenu      = mainMenu->addMenu("&View");
+ QMenu *optionsMenu   = mainMenu->addMenu("&Options");
+                                                 mainMenu->addSeparator();
+ QMenu *helpMenu      = mainMenu->addMenu("Help");
+
+//  fileMenu->insertItem("&New Browser",   this,SLOT(NewBrowserCB()),CTRL+Key_N);
+  fileMenu->clear();
+  fileMenu->addAction(fActions[M_NEW_BROWSER]); 
+  fileMenu->addAction(fActions[M_NEW_CANVAS] ); 
+  fileMenu->addAction(fActions[M_OPEN_FILE]  ); 
+  fileMenu->                                addSeparator();
+  fileMenu->addAction(fActions[M_FILE_SAVE]  ); 
+  fileMenu->addAction(fActions[M_FILE_SAVEAS]); 
+  fileMenu->                                addSeparator();
+  fileMenu->addAction(fActions[M_FILE_COPY]  ); 
+  fileMenu->                                addSeparator();
+  fileMenu->addAction(fActions[M_FILE_PRINT] ); 
+  fileMenu->                                addSeparator();
+  fileMenu->addAction(fActions[M_FILE_CLOSE] ); 
+  fileMenu->addAction(fActions[M_FILE_QUIT]  ); 
+
+//*-*   Items for the View
+  viewMenu->clear();
+  viewMenu->addAction(fActions[M_VIEW_TOOLBAR]);
+  viewMenu->addAction(fActions[M_VIEW_STATBAR]);
+  viewMenu->                                 addSeparator();
+  viewMenu->addActions(fViewActions->actions());
+  viewMenu->                                 addSeparator();
+  viewMenu->addAction(fActions[M_VIEW_ICONS]  ); 
+  viewMenu->addAction(fActions[M_VIEW_LINEUP] ); 
+  viewMenu->                                 addSeparator();
+  viewMenu->addAction(fActions[M_VIEW_REFRESH]); 
+
+//*-*   Items for the Help
+
+  helpMenu->clear();
+  helpMenu->addAction(fActions[M_HELP_MAIN]  ); 
+  helpMenu->                                addSeparator();
+  helpMenu->addAction(fActions[M_ABOUT_MAIN] ); 
+
+#endif /* QT_VERSION */
+ 
 #if 0
-//*-*   Items for the Options Menu
- optionsMenu->setCheckable ( TRUE );
- connect(optionsMenu, SIGNAL(activated(int)), this, SLOT(SetOptionCB(int)));
- Int_t ieventStat =
- optionsMenu->insertItem("&Status Bar",kStatusBar);
- optionsMenu->                                  insertSeparator();
- Int_t iautoFitStat =
- optionsMenu->insertItem("&Auto Resize Canvas",this,SLOT(AutoFitCanvasCB()));
- Int_t iFitCanvasStat =
- optionsMenu->insertItem("&Resize Canvas",      this,SLOT(FitCanvasCB()));
- optionsMenu->                                  insertSeparator();
- optionsMenu->insertItem("Re&Fresh",            this,SLOT(RefreshCB()));
- optionsMenu->                                  insertSeparator();
- optionsMenu->insertItem("&Statistics",kOptionStatistics);
- optionsMenu->insertItem("&Histogram title",kOptionHistTitle);
- optionsMenu->insertItem("Fit &Params",kOptionFitParams);
- optionsMenu->insertItem("&Can Edit Histograms",kOptionCanEdit);
+ fOptionMenu = optionsMenu;
 #endif
 
- fActions[M_HELP_MAIN] ->addTo(helpMenu); 
- helpMenu->insertSeparator();
- fActions[M_ABOUT_MAIN]->addTo(helpMenu); 
+
 }
 //______________________________________________________________________________
 void TQtRootBrowserImp::MakeToolBar() 
@@ -541,9 +545,6 @@ void TQtRootBrowserImp::MakeToolBar()
     //---- toolbar. Add the action with the icon to the toolbar
 #if QT_VERSION < 0x40000
     fToolBar = new QToolBar(fBrowserImpID);
-#else /* QT_VERSION */
-    fToolBar = new Q3ToolBar(fBrowserImpID);
-#endif /* QT_VERSION */
     fBrowserImpID->addDockWindow(fToolBar);
     fActions[M_FILE_SAVEAS]->addTo(fToolBar); 
     fToolBar->                               addSeparator();
@@ -556,6 +557,21 @@ void TQtRootBrowserImp::MakeToolBar()
     connect(fActions[M_VIEW_TOOLBAR],SIGNAL(toggled ( bool)), this,SLOT(ToolbarCB(bool)));
     fActions[M_VIEW_TOOLBAR]->setToggleAction (true); 
     fActions[M_VIEW_TOOLBAR]->setOn (true);
+#else /* QT_VERSION */
+    fToolBar = new QToolBar(fBrowserImpID);
+    fBrowserImpID->addToolBar(fToolBar);
+    fToolBar->addAction(fActions[M_FILE_SAVEAS] );
+    fToolBar->                               addSeparator();
+    fToolBar->addAction(fActions[M_FILE_PRINT]  ); 
+    fToolBar->                               addSeparator();
+    fToolBar->addActions(fViewActions->actions()); 
+
+    // reset Signals/Slots
+    fActions[M_VIEW_TOOLBAR]->disconnect(SIGNAL(activated()));
+    connect(fActions[M_VIEW_TOOLBAR],SIGNAL(toggled ( bool)), this,SLOT(ToolbarCB(bool)));
+    fActions[M_VIEW_TOOLBAR]->setCheckable(true); 
+    fActions[M_VIEW_TOOLBAR]->setChecked (true);
+#endif /* QT_VERSION */
 }
 //______________________________________________________________________________
 void TQtRootBrowserImp::MakeStatBar() 

@@ -1,6 +1,6 @@
 // Author: Valeri Fine   16/06/2006
 /****************************************************************************
-** $Id: TQtToolBar.cxx,v 1.3 2007/05/22 01:05:24 fine Exp $
+** $Id: TQtToolBar.cxx,v 1.4 2007/05/22 20:07:23 fine Exp $
 **
 ** Copyright (C) 2006 by Valeri Fine. Brookhaven National Laboratory.
 **                                    All rights reserved.
@@ -81,7 +81,7 @@ static TQtBrowserMenuItem_t gToolBarData[] = {
 #if QT_VERSION < 0x40000
    fEditToolBar = new QToolBar(fCanvasImpID);
 #else /* QT_VERSION */
-   fEditToolBar = new Q3ToolBar(fCanvasImpID);
+   fEditToolBar = new QToolBar(fCanvasImpID);
 #endif /* QT_VERSION */
 #endif
 //______________________________________________________________________________
@@ -145,7 +145,7 @@ void TQtToolBar::AddAction(const TQtBrowserMenuItem_t &action)
 //______________________________________________________________________________
 void TQtToolBar::AddAction(TQtRootAction *action) 
 {
-   // Add one ROOT tool define dby "actopn" to the tool bar 
+   // Add one ROOT tool defined by "action" to the tool bar 
    // It behaves essentially like the above function. 
 
    if (action) {

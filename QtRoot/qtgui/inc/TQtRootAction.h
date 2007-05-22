@@ -1,6 +1,6 @@
 // Author: Valeri Fine   21/01/2002
 /****************************************************************************
-** $Id: TQtRootAction.h,v 1.2 2006/09/22 17:27:10 fine Exp $
+** $Id: TQtRootAction.h,v 1.3 2007/05/22 20:07:21 fine Exp $
 **
 ** Copyright (C) 2003 by Valeri Fine.  All rights reserved.
 **
@@ -15,10 +15,8 @@
 #include <qglobal.h>
 #if QT_VERSION < 0x40000
 #  include <qaction.h>
-#  define ROOT_QT_ACTION QAction
 #else
-#  include <Q3Action>
-#  define ROOT_QT_ACTION Q3Action
+#  include <QAction>
 #endif
 //////////////////////////////////////////////////////////////////////////
 //                                                                      //
@@ -37,12 +35,11 @@ struct TQtBrowserMenuItem_t  {
    const char *iconName;
 };  
 
-class TQtRootAction : public ROOT_QT_ACTION {
+class TQtRootAction : public QAction {
   public:
-    TQtRootAction(QObject * parent, const TQtBrowserMenuItem_t  &data, const char * name = 0);
+    TQtRootAction(QObject * parent, const TQtBrowserMenuItem_t  &data);
     int Id() const { return fId; }
   private:
      int  fId;
 };
-#undef ROOT_QT_ACTION
 #endif

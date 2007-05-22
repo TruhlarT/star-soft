@@ -1,6 +1,6 @@
 // Author: Valeri Fine   21/01/2002
 /****************************************************************************
-** $Id: TQtRootBrowserImp.h,v 1.2 2006/09/22 17:27:10 fine Exp $
+** $Id: TQtRootBrowserImp.h,v 1.3 2007/05/22 20:07:21 fine Exp $
 **
 ** Copyright (C) 2002 by Valeri Fine.  All rights reserved.
 **
@@ -23,20 +23,16 @@
 #include "TBrowserImp.h"
 #include "TQtGui.h"
 
-#include <qglobal.h>
-#if QT_VERSION < 0x40000
-#include <qptrvector.h>
-#else /* QT_VERSION */
-#include <q3ptrvector.h>
-#endif /* QT_VERSION */
 #include <qstring.h>
 #include <qobject.h>
+
 #if QT_VERSION < 0x40000
-#include <qintdict.h>
+#  include <qptrvector.h>
+#  include <qintdict.h>
 #else /* QT_VERSION */
-#include <q3intdict.h>
-//Added by qt3to4:
-#include <Q3ActionGroup>
+#  include <q3ptrvector.h>
+#  include <q3intdict.h>
+// #  include <QActionGroup>
 #endif /* QT_VERSION */
 
 // class TQtBrowserWidget;
@@ -44,30 +40,17 @@ class TQtBrowserImp;
 class TQtIconBrowserImp;
 class TQtRootAction;
 
-#if QT_VERSION < 0x40000
 class QMainWindow;
-#else /* QT_VERSION */
-class Q3MainWindow;
-#endif /* QT_VERSION */
 class QMenuBar;
-#if QT_VERSION < 0x40000
 class QToolBar;
 class QActionGroup;
-#else /* QT_VERSION */
-class Q3ToolBar;
-class Q3ActionGroup;
-#endif /* QT_VERSION */
 
 class TQtRootBrowserImp :  public QObject, public TBrowserImp {
   Q_OBJECT
     friend class ev;
 protected:
 
-#if QT_VERSION < 0x40000
   QMainWindow       *fBrowserImpID;
-#else /* QT_VERSION */
-  Q3MainWindow       *fBrowserImpID;
-#endif /* QT_VERSION */
   QMenuBar          *fMenuBar;
   TQtBrowserImp     *fTreeView;
   TQtIconBrowserImp *fIconView;
@@ -78,13 +61,12 @@ protected:
 
 #if QT_VERSION < 0x40000
   QIntDict<TQtRootAction> fActions;
-  QActionGroup      *fViewActions;
-  QToolBar          *fToolBar;
 #else /* QT_VERSION */
   Q3IntDict<TQtRootAction> fActions;
-  Q3ActionGroup      *fViewActions;
-  Q3ToolBar          *fToolBar;
 #endif /* QT_VERSION */
+
+  QActionGroup      *fViewActions;
+  QToolBar          *fToolBar;
   QString           fSaveType;
   QString           fSaveFileName;
 

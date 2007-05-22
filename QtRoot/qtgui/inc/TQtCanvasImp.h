@@ -1,6 +1,6 @@
 // Author: Valeri Fine   21/01/2002
 /****************************************************************************
-** $Id: TQtCanvasImp.h,v 1.3 2007/05/22 01:05:23 fine Exp $
+** $Id: TQtCanvasImp.h,v 1.4 2007/05/22 20:07:21 fine Exp $
 **
 ** Copyright (C) 2002 by Valeri Fine.  All rights reserved.
 **
@@ -103,7 +103,7 @@ protected:
 #if QT_VERSION < 0x40000
   QPopupMenu *fOptionMenu;
 #else /* QT_VERSION */
-  Q3PopupMenu *fOptionMenu;
+  QMenu *fOptionMenu;
 #endif /* QT_VERSION */
   Bool_t      fDoubleBuffer;
 #if QT_VERSION < 0x40000
