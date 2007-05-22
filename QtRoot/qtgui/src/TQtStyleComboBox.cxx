@@ -1,4 +1,4 @@
-// @(#)root/gui:$Name:  $:$Id: TQtStyleComboBox.cxx,v 1.2 2006/09/22 17:27:11 fine Exp $
+// @(#)root/gui:$Name:  $:$Id: TQtStyleComboBox.cxx,v 1.3 2007/05/22 01:05:24 fine Exp $
 // Author: Valeri Fine 07/07/2006
 /****************************************************************************
 **
@@ -19,7 +19,9 @@
 
 #include <qpixmap.h>
 #include <qsize.h>
-
+#if QT_VERSION >=  0x40000
+#  include <QResizeEvent>
+#endif
 //______________________________________________________________________________
 TQtStyleComboBox::TQtStyleComboBox( int listSize, QWidget *parent,QString name)
 : QComboBox(parent), fPad(0), fItemListSize (listSize)

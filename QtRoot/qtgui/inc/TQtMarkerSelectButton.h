@@ -8,7 +8,18 @@
 #include <qpoint.h>
 #include <qtoolbutton.h>
 #include <qobject.h>
-#include <qpopupmenu.h>
+#ifndef __CINT__
+#if QT_VERSION < 0x40000
+#  include <qdialog.h>
+#  define MARKERSELECTORBASECLASS QDialog
+#else
+#  include  <QDialog>
+#  define MARKERSELECTORBASECLASS QDialog
+#endif
+#else
+  class QMenu;
+  class QPopupMenu;
+#endif  
 
 /////////////////////////////////////////////////////////////////////////////////////////////////
 // TQtMarkerFrame                                                                              //
@@ -39,11 +50,11 @@ signals :
 /////////////////////////////////////////////////////////////////////////////////////////////////
 // TQt18MarkerSelector                                                                         //
 /////////////////////////////////////////////////////////////////////////////////////////////////
-class TQt18MarkerSelector : public QPopupMenu {
+class TQt18MarkerSelector : public QDialog {
 Q_OBJECT
 
 public :
-   TQt18MarkerSelector( QWidget *p, const char * name );
+   TQt18MarkerSelector( QWidget *p,Qt::WFlags f=Qt::WStyle_Customize | Qt::WStyle_NoBorder|Qt::WStyle_StaysOnTop);
    virtual ~TQt18MarkerSelector(){}
    void showSelector ( const QPoint & position );
 

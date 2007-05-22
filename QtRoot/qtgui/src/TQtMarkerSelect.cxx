@@ -6,29 +6,34 @@
 
 
 #if QT_VERSION < 0x40000
-#define  QBUTTONGROUP QButtonGroup
-#include <qbuttongroup.h>
+#  define  QBUTTONGROUP QButtonGroup
+#  include <qbuttongroup.h>
+#  include <qhbox.h>
 
 #else /* QT_VERSION */
-#define  QBUTTONGROUP Q3ButtonGroup
-#include <q3buttongroup.h>
+#  define  QBUTTONGROUP Q3ButtonGroup
+#  include <q3buttongroup.h>
+#  include <q3hbox.h>
 #endif /* QT_VERSION */
 
-#include <qhbox.h>
 
 ClassImp( TQtMarkerSelect )
 
 /////////////////////////////////////////////////////////////////////////////////////////////////
 // TQtMarkerSelect                                                                             //
 /////////////////////////////////////////////////////////////////////////////////////////////////
-TQtMarkerSelect::TQtMarkerSelect ( QWidget * p, const char * name, Style_t style )
+TQtMarkerSelect::TQtMarkerSelect ( QWidget * p, const char *, Style_t style )
    : fSelected(0),
      fPopup   (0)
 {
    //QBUTTONGROUP *group =  new  QBUTTONGROUP (2, Qt::Horizontal , p, "markerGroup");
    //group->setSizePolicy(QSizePolicy( QSizePolicy::Minimum, QSizePolicy::Fixed ));
 
+#if QT_VERSION < 0x40000
    QHBox * hbox = new QHBox(p);
+#else
+   Q3HBox * hbox = new Q3HBox(p);
+#endif
    hbox->setMargin (0);
    hbox->setSpacing(0);
    hbox->setSizePolicy(QSizePolicy( QSizePolicy::Fixed, QSizePolicy::Minimum ));
@@ -39,7 +44,7 @@ TQtMarkerSelect::TQtMarkerSelect ( QWidget * p, const char * name, Style_t style
    connect ( arrow     , SIGNAL ( clicked ( ))                  , this , SLOT ( showPopup()    )) ;
    connect ( fSelected , SIGNAL ( clicked ( ))                  , this , SLOT ( showPopup()    )) ;
 
-   fPopup    = new TQt18MarkerSelector(hbox,"18markerSelector");
+   fPopup    = new TQt18MarkerSelector(hbox); //,"18markerSelector");
 
    connect ( fPopup    , SIGNAL ( selected ( TQtMarkerFrame * )), this , SLOT ( selectedSlot(TQtMarkerFrame * ) )) ;
 

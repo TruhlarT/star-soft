@@ -1,6 +1,6 @@
 // Author: Valeri Fine   21/01/2002
 /****************************************************************************
-** $Id: TQtCanvasImp.cxx,v 1.6 2007/02/27 00:44:55 fine Exp $
+** $Id: TQtCanvasImp.cxx,v 1.7 2007/05/22 01:05:24 fine Exp $
 **
 ** Copyright (C) 2002 by Valeri Fine. Brookhaven National Laboratory.
 **                                    All rights reserved.
@@ -48,6 +48,7 @@
 #include "TQtCanvasWidget.h"
 #include "TQtRootAction.h"
 #include "TQtZoomPadWidget.h"
+#include "TQtToolBar.h"
 
 #include <qapplication.h>
 #include <qmenubar.h>
@@ -61,13 +62,15 @@
 #  include <qwhatsthis.h> 
 #else /* QT_VERSION */
 #  include <q3popupmenu.h>
+#  include <QMenu>
 #  include <QImageWriter>
 #  include <QFileDialog>
 #  include <q3scrollview.h>
 #  include <q3whatsthis.h> 
 #  include <q3valuelist.h>
 #  include <q3filedialog.h>
-#  include <q3toolbar.h>
+#  include <QToolBar>
+#  include <QDockWidget>
 //Added by qt3to4:
 #  include <QPixmap>
 #endif /* QT_VERSION */
@@ -82,8 +85,6 @@
 #include <qclipboard.h>
 #include <qapplication.h>
 #include <qprinter.h>
-
-#include "TQtToolBar.h"
 
 // Canvas menu command ids
 enum ERootCanvasCommands {
@@ -332,22 +333,20 @@ void TQtCanvasImp::MakeMenu()
    fMenuBar = mainMenu;
 
     //---- toolbar. Add the action with the icon to the toolbar
-#if QT_VERSION < 0x40000
    fFileToolBar = new QToolBar(fCanvasImpID);
-#else /* QT_VERSION */
-   fFileToolBar = new Q3ToolBar(fCanvasImpID);
-#endif /* QT_VERSION */
-   fCanvasImpID->addDockWindow(fFileToolBar);
-
-#if QT_VERSION < 0x40000
    fToolBar = new QToolBar(fCanvasImpID);
-#else /* QT_VERSION */
-   fToolBar = new Q3ToolBar(fCanvasImpID);
-#endif /* QT_VERSION */
+#if QT_VERSION < 0x40000
+   fCanvasImpID->addDockWindow(fFileToolBar);
    fCanvasImpID->addDockWindow(fToolBar);
-   
    // fEditToolBar has been created at TQtCanvasImp::MakeToolBarAction()
    fCanvasImpID->addDockWindow(fEditToolBar);
+#else
+   fCanvasImpID->addToolBar(fFileToolBar);
+   fCanvasImpID->addToolBar(fToolBar);
+   // fEditToolBar has been created at TQtCanvasImp::MakeToolBarAction()
+   fCanvasImpID->addToolBar(fEditToolBar);
+#endif
+
 
    //    QPopupMenu *fileMenu = new QPopupMenu;
    //    fileMenu->insertItem( "New",  myView, SLOT(newFile()), CTRL+Key_N );
@@ -1034,7 +1033,7 @@ void TQtCanvasImp::SaveAsWebCB()
 void TQtCanvasImp::SaveFile(const QString &theFile, const QString &selectedFilter)
 {
   //
-  // selectedFilter contains "*.* - the output formnat is defined by the file extension
+  // selectedFilter contains "*.* - the output format is defined by the file extension
   //                        != *.* - outputformat is defined by the seleted filter
   QString thatFile = theFile;
   QString e;
@@ -1210,9 +1209,6 @@ void TQtCanvasImp::ZoomCB()
    }
    if (action->isOn()) { 
        fgZoomingWidget->Connect(fCanvasID);
-       fgZoomingWidget->HideOnLeave(false);
-       // fCanvasID->EnableSignalEvents(kMouseMoveEvent);
-       fgZoomingWidget->Show();
    } else {
        fgZoomingWidget->Disconnect(fCanvasID);
    }

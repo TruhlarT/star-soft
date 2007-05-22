@@ -1,6 +1,6 @@
 // Author: Valeri Fine   16/06/2006
 /****************************************************************************
-** $Id: TQtToolBar.cxx,v 1.2 2006/09/22 17:27:11 fine Exp $
+** $Id: TQtToolBar.cxx,v 1.3 2007/05/22 01:05:24 fine Exp $
 **
 ** Copyright (C) 2006 by Valeri Fine. Brookhaven National Laboratory.
 **                                    All rights reserved.
@@ -29,7 +29,8 @@
 #if QT_VERSION < 0x40000
 #  include <qtoolbar.h>
 #else /* QT_VERSION */
-#   include <q3toolbar.h>
+#   include <QToolBar>
+#   include <QMainWindow>
 #endif /* QT_VERSION */
 
 #include <qlabel.h>
@@ -85,7 +86,11 @@ static TQtBrowserMenuItem_t gToolBarData[] = {
 #endif
 //______________________________________________________________________________
 TQtToolBar::TQtToolBar(const QString &label, QMainWindow *mainWindow, QWidget *parent, bool newLine, const char *name,Qt::WFlags f)
+#if QT_VERSION < 0x40000
       : TOOLBARCLASSNAME  ( label, mainWindow,parent,newLine, name ,f)
+#else
+      : TOOLBARCLASSNAME  ( label, mainWindow)
+#endif
 {
   // Constructs an empty horizontal toolbar. 
   // The toolbar is called name and is a child of parent and is managed by mainWindow. 
@@ -94,13 +99,15 @@ TQtToolBar::TQtToolBar(const QString &label, QMainWindow *mainWindow, QWidget *p
 
   // Use this constructor if you want to create torn-off (undocked, floating) toolbars 
   // or toolbars in the status bar. 
-
+#if QT_VERSION >= 0x40000
+   assert( !(parent || name || f));
+#endif
   Build();
 }
 
 //______________________________________________________________________________
-TQtToolBar::TQtToolBar(QMainWindow *parent, const char *name) 
-      : TOOLBARCLASSNAME (parent,name) 
+TQtToolBar::TQtToolBar(QMainWindow *parent) 
+      : TOOLBARCLASSNAME (parent) 
 {   
    // This is an overloaded member function, provided for convenience. 
    // It behaves essentially like the above function. 

@@ -1,6 +1,6 @@
 // Author: Valeri Fine   3/02/2007
 /****************************************************************************
-** $Id: TQtFloatSlider.cxx,v 1.1 2007/02/04 16:50:19 fine Exp $
+** $Id: TQtFloatSlider.cxx,v 1.2 2007/05/22 01:05:24 fine Exp $
 **
 ** Copyright (C) 2007 by Valeri Fine. Brookhaven National Laboratory.
 **                                    All rights reserved.
@@ -23,7 +23,7 @@ QSlider(parent,name),fMinValue(0),fMaxValue(1)
    ConnectSingals();
 }
 //______________________________________________________________________________
-TQtFloatSlider::TQtFloatSlider ( Orientation orientation, QWidget *parent, const char *name):
+TQtFloatSlider::TQtFloatSlider ( Qt::Orientation orientation, QWidget *parent, const char *name):
 QSlider(orientation, parent, name),fMinValue(0),fMaxValue(1)
 {
   // Constructs a slider. 
@@ -34,7 +34,7 @@ QSlider(orientation, parent, name),fMinValue(0),fMaxValue(1)
 }
 
 //______________________________________________________________________________
-TQtFloatSlider::TQtFloatSlider ( int minValue, int maxValue, int pageStep, int value, Orientation orientation, QWidget * parent, const char * name)
+TQtFloatSlider::TQtFloatSlider ( int minValue, int maxValue, int pageStep, int value, Qt::Orientation orientation, QWidget * parent, const char * name)
 : QSlider(minValue, maxValue, pageStep, value, orientation,parent,name) 
 {
    // special ctor for the integers. It should behave as the original QSlider 
@@ -42,7 +42,7 @@ TQtFloatSlider::TQtFloatSlider ( int minValue, int maxValue, int pageStep, int v
 }
 
 //______________________________________________________________________________
-TQtFloatSlider::TQtFloatSlider ( double minValue, double maxValue, double pageStep, double value, Orientation orientation, QWidget * parent, const char * name)
+TQtFloatSlider::TQtFloatSlider ( double minValue, double maxValue, double pageStep, double value, Qt::Orientation orientation, QWidget * parent, const char * name)
 :QSlider(0, kFloatSliderPrecision, 1, 0, orientation,parent,name),fMinValue(minValue),fMaxValue(maxValue)
 {
    // Constructs a slider whose value can never be smaller than minValue or greater than maxValue, 

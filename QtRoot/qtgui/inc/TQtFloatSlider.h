@@ -2,7 +2,7 @@
 #define ROOT_TQtFloatSlider
 // Author: Valeri Fine   3/02/2007
 /****************************************************************************
-** $Id: TQtFloatSlider.h,v 1.1 2007/02/04 16:50:19 fine Exp $
+** $Id: TQtFloatSlider.h,v 1.2 2007/05/22 01:05:23 fine Exp $
 **
 ** Copyright (C) 2007 by Valeri Fine. Brookhaven National Laboratory.
 **                                    All rights reserved.
@@ -46,9 +46,9 @@ protected:
 public:
    enum {kFloatSliderPrecision = 10000};
    TQtFloatSlider ( QWidget* parent=0, const char* name=0 );
-   TQtFloatSlider ( Orientation orientation, QWidget * parent, const char * name = 0 );
-   TQtFloatSlider ( int minValue, int maxValue, int pageStep, int value, Orientation orientation, QWidget * parent, const char * name = 0 );
-   TQtFloatSlider ( double minValue, double maxValue, double pageStep, double value, Orientation orientation, QWidget * parent, const char * name = 0 );
+   TQtFloatSlider ( Qt::Orientation orientation, QWidget * parent, const char * name = 0 );
+   TQtFloatSlider ( int minValue, int maxValue, int pageStep, int value, Qt::Orientation orientation, QWidget * parent, const char * name = 0 );
+   TQtFloatSlider ( double minValue, double maxValue, double pageStep, double value, Qt::Orientation orientation, QWidget * parent, const char * name = 0 );
    ~TQtFloatSlider (){;}
 
 

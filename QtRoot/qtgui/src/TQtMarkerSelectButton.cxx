@@ -5,12 +5,12 @@
 
 
 #if QT_VERSION < 0x40000
-#define  QBUTTONGROUP QButtonGroup
-#include <qbuttongroup.h>
+#  define  QBUTTONGROUP QButtonGroup
+#  include <qbuttongroup.h>
 
 #else /* QT_VERSION */
-#define  QBUTTONGROUP Q3ButtonGroup
-#include <q3buttongroup.h>
+#  define  QBUTTONGROUP Q3ButtonGroup
+#  include  <q3buttongroup.h>
 #endif /* QT_VERSION */
 
 /////////////////////////////////////////////////////////////////////////////////////////////////
@@ -40,9 +40,14 @@ void TQtMarkerFrame::SetStyle ( const Style_t & style )
 /////////////////////////////////////////////////////////////////////////////////////////////////
 // TQt18MarkerSelector                                                                         //
 /////////////////////////////////////////////////////////////////////////////////////////////////
-TQt18MarkerSelector::TQt18MarkerSelector( QWidget * p, const char * name )
-   : QPopupMenu (p, name)
+TQt18MarkerSelector::TQt18MarkerSelector( QWidget * p,Qt::WFlags f) :
+#if QT_VERSION < 0x40000
+   QDialog (p,0,0,f)
+#else
+   QDialog (p,f)
+#endif
 {
+   setModal(true);
    QBUTTONGROUP *group =  new  QBUTTONGROUP (3, Qt::Horizontal , this, "markerGroup");
 
    TQtMarkerFrame * frame;
@@ -70,20 +75,21 @@ TQt18MarkerSelector::TQt18MarkerSelector( QWidget * p, const char * name )
 
    group -> adjustSize();
 
-   insertItem(group);
    adjustSize();
-   hide();
 }
 
 void TQt18MarkerSelector::selectedSlot ( TQtMarkerFrame * selectedMarkerFrame )
 {
-   close();
+   // close();
+   accept();
    emit selected(selectedMarkerFrame);
 }
 
 void TQt18MarkerSelector::showSelector( const QPoint & position)
 {
-   popup(position);
+   // popup(position);
+   move(position);
+   exec();
 }
 
 #undef QBUTTONGROUP

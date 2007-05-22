@@ -24,7 +24,12 @@ bool TQtGui::AddPicture(const QPixmap &pic, const char *pictureName, bool checkC
      bool found = false;
      if (!checkCache || ( checkCache && !(found = QPixmapCache::find(pname))))
      {
+#if QT_VERSION >= 0x40000
+        QPixmap p(pic);
+        QPixmapCache::insert(pictureName, p);
+#else
         QPixmapCache::insert(pictureName, new QPixmap(pic));
+#endif
         res = true;
      }
    }

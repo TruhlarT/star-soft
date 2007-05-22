@@ -9,9 +9,10 @@
 
 #ifndef __CINT__
 #include <qpoint.h>
-#include <qtoolbutton.h>
+// #include <qtoolbutton.h>
 #include <qobject.h>
-#include <qpopupmenu.h>
+// #include <q3popupmenu.h>
+// #include <qpopupmenu.h>
 //#elif
 
 #endif // ifndef __CINT__

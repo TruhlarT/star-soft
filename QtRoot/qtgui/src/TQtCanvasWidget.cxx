@@ -1,6 +1,6 @@
 // Author: Valeri Fine   21/01/2002
 /****************************************************************************
-** $Id: TQtCanvasWidget.cxx,v 1.2 2006/09/22 17:27:11 fine Exp $
+** $Id: TQtCanvasWidget.cxx,v 1.3 2007/05/22 01:05:24 fine Exp $
 **
 ** Copyright (C) 2002 by Valeri Fine. Brookhaven National Laboratory.
 **                                    All rights reserved.
@@ -23,26 +23,17 @@
 #include "qevent.h"
 #include "qpainter.h"
 #include "qapplication.h"
-#if QT_VERSION < 0x40000
-#include <qdockwindow.h> 
-#else /* QT_VERSION */
-#include <q3dockwindow.h> 
-//Added by qt3to4:
-#include <QCustomEvent>
-#endif /* QT_VERSION */
+//#if QT_VERSION >= 0x40000
+// #  include <QCustomEvent>
+// #endif /* QT_VERSION */
 
 #ifdef WIN32
 #include "Windows4Root.h"
 #endif
 
 //_____________________________________________________________________________
-#if QT_VERSION < 0x40000
-TQtCanvasWidget::TQtCanvasWidget(QWidget* parent, const char* name, WFlags f)
-          :QMainWindow(parent,name,f)
-#else /* QT_VERSION */
 TQtCanvasWidget::TQtCanvasWidget(QWidget* parent, const char* name, Qt::WFlags f)
-          :Q3MainWindow(parent,name,f)
-#endif /* QT_VERSION */
+          :QMainWindow(parent,name,f)
 { 
 #if QT_VERSION < 0x40000
    setWFlags(getWFlags () | Qt::WDestructiveClose);

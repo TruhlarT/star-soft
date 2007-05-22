@@ -1,6 +1,6 @@
 // Author: Valeri Fine   16/03/2006
 /****************************************************************************
-** $Id: TQtZoomPadWidget.cxx,v 1.6 2007/03/22 20:24:48 fine Exp $
+** $Id: TQtZoomPadWidget.cxx,v 1.7 2007/05/22 01:05:24 fine Exp $
 **
 ** Copyright (C) 2006 by Valeri Fine. Brookhaven National Laboratory.
 **                                    All rights reserved.
@@ -22,10 +22,10 @@
 #include "qapplication.h"
 #if QT_VERSION >= 0x40000
 //Added by qt3to4:
-#include <QMouseEvent>
-#include <Q3Frame>
-#include <QResizeEvent>
-#include <cmath>
+#  include <QMouseEvent>
+#  include <Q3Frame>
+#  include <QResizeEvent>
+#  include <cmath>
 #endif /* QT_VERSION */
 
 
@@ -361,7 +361,11 @@ void TQtZoomPadWidget::SetPad(TVirtualPad *pad,bool tobeShown )
          if (fPad) {
             QPoint pos = GetLocation(*fSrcWidget,fPad);
             QSize size(fPad->UtoPixel(1),fPad->VtoPixel(0));
+#if QT_VERSION < 0x40000
             QToolTip::remove(fSrcWidget,QRect(pos,size));               
+#else
+            QToolTip::remove(fSrcWidget);               
+#endif
          }
       }
       if (savePad == fPad) savePad = 0;
@@ -455,7 +459,11 @@ void TQtZoomPadWidget::RootEventProcessed( TObject *, unsigned int event, TCanva
           if (fSrcWidget && ( event == kButton2Down) &&  (pad == fLastZoomed) ) {
              QPoint pos = GetLocation(*fSrcWidget,pad);
              QSize size(pad->UtoPixel(1),pad->VtoPixel(0));
+#if QT_VERSION < 0x40000
              QToolTip::remove(fSrcWidget,QRect(pos,size));
+#else
+             QToolTip::remove(fSrcWidget);
+#endif
              QToolTip::add(fSrcWidget,"To zoom any <b>TPad</b> click it with the <b>wheel</b> button");
              fIgnoreNextMotion = true;
           } else if ( (event == kMouseMotion) ) {

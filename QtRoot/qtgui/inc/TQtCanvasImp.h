@@ -1,6 +1,6 @@
 // Author: Valeri Fine   21/01/2002
 /****************************************************************************
-** $Id: TQtCanvasImp.h,v 1.2 2006/09/22 17:27:10 fine Exp $
+** $Id: TQtCanvasImp.h,v 1.3 2007/05/22 01:05:23 fine Exp $
 **
 ** Copyright (C) 2002 by Valeri Fine.  All rights reserved.
 **
@@ -49,15 +49,9 @@ class QMenuBar;
 #if QT_VERSION < 0x40000
 class QToolBar;
 #else /* QT_VERSION */
-class Q3ToolBar;
+class QToolBar;
 #endif /* QT_VERSION */
 class QPixmap;
-#if QT_VERSION < 0x40000
-class QDockWindow;
-#else /* QT_VERSION */
-class Q3DockWindow;
-#endif /* QT_VERSION */
-
 
 class TQtCanvasWidget;
 class TQtRootAction;
@@ -88,10 +82,10 @@ private:
    QToolBar   *fEditToolBar;
    QIntDict<TQtRootAction> fActions;
 #else /* QT_VERSION */
-   Q3PopupMenu *fViewMenu; // pointer to the view popup menu
-   Q3ToolBar   *fFileToolBar;
-   Q3ToolBar   *fToolBar;
-   Q3ToolBar   *fEditToolBar;
+   QMenu       *fViewMenu; // pointer to the view popup menu
+   QToolBar   *fFileToolBar;
+   QToolBar   *fToolBar;
+   QToolBar   *fEditToolBar;
    Q3IntDict<TQtRootAction> fActions;
 #endif /* QT_VERSION */
    TVirtualPadEditor   *fEditor;     // pointer to currently loaded pad editor
