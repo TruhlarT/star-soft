@@ -1145,16 +1145,34 @@ sub __set_files_where
 # Returns all possible values for a given field
 # BEWARE of some querries which may return a long-long list ...
 #
+# $cache is a caching value in second - 0 is no caching
 #
 sub rdaq_list_field
 {
-    my($obj,$field,$limit)=@_;
+    my($obj,$field,$limit,$cache)=@_;
     my($cmd,$sth,@tmp);
-    my($val,$pval);
+    my($val,$pval,$cfile);
     my($i,@all);
 
     if(!$obj){ return 0;}
     if( ! defined($limit) ){ $limit = 0;}
+    if( ! defined($cache) ){ $cache = 0;}
+
+
+    # Cache values introduced 2007
+    $cfile = "/tmp/RunDAQ.$field.$limit.cache";
+    if ( $cache && -e $cfile ){
+	if ( time() - (stat($cfile))[9] <= $cache){
+	    open(FI,$cfile);
+	    while ( defined($val = <FI>) ){
+		chomp($val);
+		push(@all,$val);
+	    }
+	    close(FI);
+	    return @all;
+	} 
+    }
+
 
     # The association of DISTINCT and ROUND is apparently
     # unsafe. It works for 'scaleFactor' but not for 'BeamE' (??).
@@ -1203,6 +1221,16 @@ sub rdaq_list_field
 	$sth->finish();
     } else {
 	&info_message("list_field",3,"[$cmd] could no be prepared\n");
+    }
+
+    # write cache
+    if ( $cache ){
+	if ( -e $cfile ){  unlink($cfile);}
+	open(FO,">$cfile");
+	foreach $val (@all){
+	    print FO "$val\n";
+	}
+	close(FO);
     }
     @all;
 }
