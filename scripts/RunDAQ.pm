@@ -1093,6 +1093,7 @@ sub __set_files_where
 {
     my($obj,$field,$value,$stscond,@files)=@_;
     my($sth,$success,$cmd);
+    my($TimeReset);
     my(@items);
 
     if(!$obj){         return 0;}
@@ -1112,7 +1113,12 @@ sub __set_files_where
     }
 
     # any change would the UpdateDate field
-    $cmd = "UPDATE $DBTABLE SET $field=$value, UpdateDate=NOW()+0 WHERE file=? ";
+    # $cmd = "UPDATE $DBTABLE SET $field=$value, UpdateDate=NOW()+0 WHERE file=? ";
+    $TimeReset = ", UpdateDate=NOW()+0 ";
+
+    if ( $field eq "Status" && $value == 3){  $TimeReset = "";}
+    $cmd = "UPDATE $DBTABLE SET $field=$value $TimeReset WHERE file=? ";
+
     if ($stscond != -1){
 	$cmd .= " AND $field=$stscond";
     }
