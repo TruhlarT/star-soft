@@ -1,4 +1,4 @@
-// @(#)root/qt:$Name:  $:$Id: TQtWidget.cxx,v 1.7 2007/03/01 22:38:22 fine Exp $
+// @(#)root/qt:$Name:  $:$Id: TQtWidget.cxx,v 1.8 2007/05/24 16:49:55 fine Exp $
 // Author: Valeri Fine   23/01/2003
 
 /*************************************************************************
@@ -334,7 +334,12 @@ void TQtWidget::resize (int w, int h)
 }
 
 //_____________________________________________________________________________
-void TQtWidget::customEvent(QCustomEvent *e)
+void
+#if (QT_VERSION > 0x039999)
+TQtWidget::customEvent(QEvent *e)
+#else
+TQtWidget::customEvent(QCustomEvent *e)
+#endif      
 {
    // The custom responce to the special WIN32 events
    // These events are not present with X11 systems
