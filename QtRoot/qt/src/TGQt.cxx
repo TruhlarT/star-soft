@@ -1,7 +1,7 @@
-// @(#)root/qt:$Name:  $:$Id: TGQt.cxx,v 1.9 2007/04/06 17:59:52 fine Exp $
+// @(#)root/qt:$Name:  $:$Id: TGQt.cxx,v 1.10 2007/05/26 00:12:06 fine Exp $
 // Author: Valeri Fine   21/01/2002
 /****************************************************************************
-** $Id: TGQt.cxx,v 1.9 2007/04/06 17:59:52 fine Exp $
+** $Id: TGQt.cxx,v 1.10 2007/05/26 00:12:06 fine Exp $
 **
 ** Copyright (C) 2002 by Valeri Fine. Brookhaven National Laboratory.
 **                                    All rights reserved.
@@ -387,7 +387,12 @@ static float CalibrateFont()
 
           bool  italic = TRUE;
           long  bold   = 5;
-          QString fontName = "Times New Roman";
+          QString fontName = 
+#if QT_VERSION < 0x40000
+            "Times New Roman";
+#else          
+            "Nimbus Roman No9 L";
+#endif           
 
           QFont pattern;
 
@@ -404,16 +409,18 @@ static float CalibrateFont()
 // I found 0.94 matches well what Rene thinks it should be
 // for TTF and XFT and it should be 1.1 for X Fonts
 //
-//  X11 returns      h = 12
-//  XFT returns      h = 14
-// WIN32 TTF returns h = 16
+//  X11 returns         h = 12
+//  XFT returns         h = 14
+// WIN32 TTF returns    h = 16
+// Nimbus Roman returns h = 18
 
-          // printf(" Font metric w = %d , h = %d\n", w,h);
+         // printf(" Font metric w = %d , h = %d\n", w,h);
           float f;
           switch (h) {
              case 12: f = 1.10;  break;// it was  f = 1.13 :-(;
              case 14: f = 0.915; break;// it was f = 0.94  :-(;
              case 16: f = 0.94;  break;// to be tested yet
+             case 18: f = 0.92;  break;// to be tested yet
              default: f = 1.10;  break;
           }
           fontCalibFactor = f;
@@ -702,7 +709,7 @@ Bool_t TGQt::Init(void* /*display*/)
 {
    //*-*-*-*-*-*-*-*-*-*-*-*-*-*Qt GUI initialization-*-*-*-*-*-*-*-*-*-*-*-*-*-*
    //*-*                        ========================                      *-*
-   fprintf(stderr,"** $Id: TGQt.cxx,v 1.9 2007/04/06 17:59:52 fine Exp $ this=%p\n",this);
+   fprintf(stderr,"** $Id: TGQt.cxx,v 1.10 2007/05/26 00:12:06 fine Exp $ this=%p\n",this);
 
    if(fDisplayOpened)   return fDisplayOpened;
    fSelectedBuffer = fSelectedWindow = fPrevWindow = NoOperation;
@@ -793,10 +800,14 @@ Bool_t TGQt::Init(void* /*display*/)
    // Check whether "Symbol" font is available
     QFontDatabase fdb;
     QStringList families = fdb.families();
+#if QT_VERSION < 0x40000
     Bool_t symbolFontFound = kFALSE;
+#else    
+    Bool_t symbolFontFound = kTRUE;
+#endif    
     for ( QStringList::Iterator f = families.begin(); f != families.end(); ++f ) {
-        // fprintf(stderr," TGQt::TGQt %s \n", (const char *)*f);
-        if ( *f == fSymbolFontFamily) { symbolFontFound = kTRUE; break; }
+        // fprintf(stderr," TGQt::TGQt %s \n", (*f).ascii());
+        if ( (*f).contains(fSymbolFontFamily)) { symbolFontFound = kTRUE; break; }
     }
     if (!symbolFontFound) {
         fprintf(stderr, "The font \"symbol.ttf\" was not installed yet\n");
@@ -1213,7 +1224,16 @@ void  TGQt::DrawBox(int x1, int y1, int x2, int y2, EBoxMode mode)
    // Draw a box.
    // mode=0 hollow  (kHollow)
    // mode=1 solid   (kSolid)
-
+#if QT_VERSION < 0x40000
+   static const int Q3=1;
+#else  
+   // Read: http://doc.trolltech.com/4.3/porting4.html
+   // "In Qt 4, the result of drawing a QRect with
+   //  a pen width of 1 pixel is 1 pixel wider and 
+   //  1 pixel taller than in Qt 3 "
+ 
+   static const int Q3=0;
+#endif   
    TQtLock lock;
    if (fSelectedWindow)
    {
@@ -1222,7 +1242,7 @@ void  TGQt::DrawBox(int x1, int y1, int x2, int y2, EBoxMode mode)
       if (mode == kHollow)
       {
          fQPainter->setBrush(Qt::NoBrush);
-         fQPainter->drawRect(x1,y2,x2-x1+1,y1-y2+1);
+         fQPainter->drawRect(x1,y2,x2-x1+Q3,y1-y2+Q3);
       } else {
          if (fQBrush->style() != Qt::SolidPattern)
             fQPainter->setPen(fQBrush->GetColor());  
@@ -2580,6 +2600,18 @@ void  TGQt::SetTextFont(Font_t fontnumber)
    //*-*       12 : symbol-medium-r-normal     "Symbol"               0           6
    //*-*       13 : times-medium-r-normal      "Times New Roman"      0           5
    //*-*       14 :                            "Wingdings"            0           5
+   
+#if QT_VERSION < 0x40000
+   static const char *romanFontName   = "Times New Roman";
+   static const char *arialFontName   = "Arial";
+   static const char *courierFontName = "Courier New";
+   static const char *symbolFontName  = "Standard Symbols L"; // "Symbol";
+#else
+   static const char *romanFontName   = "Nimbus Roman No9 L";
+   static const char *arialFontName   = "Nimbus Sans L";
+   static const char *courierFontName = "Nimbus Mono L ";
+   static const char *symbolFontName  = "Standard Symbols L";
+#endif      
 
    if ( fTextFont == fontnumber) return;
    fTextFont = fontnumber;
@@ -2588,75 +2620,79 @@ void  TGQt::SetTextFont(Font_t fontnumber)
       return;
    }
    int italic, bold;
-   const char *fontName = "Times New Roman";
+   const char *fontName = romanFontName;
 
    switch(fontnumber/10) {
 
    case  1:
       italic = 1;
       bold   = 5;
-      fontName = "Times New Roman";
+      fontName = romanFontName;
       break;
    case  2:
       italic = 0;
       bold   = 8;
-      fontName = "Times New Roman";
+      fontName = romanFontName;
       break;
    case  3:
       italic = 1;
       bold   = 8;
-      fontName = "Times New Roman";
+      fontName = romanFontName;
       break;
    case  4:
       italic = 0;
       bold   = 5;
-      fontName = "Arial";
+      fontName = arialFontName;
       break;
    case  5:
       italic = 1;
       bold   = 5;
-      fontName = "Arial";
+      fontName = arialFontName;
       break;
    case  6:
       italic = 0;
       bold   = 8;
-      fontName = "Arial";
+      fontName = arialFontName;
       break;
    case  7:
       italic = 1;
       bold   = 8;
-      fontName = "Arial";
+      fontName = arialFontName;
       break;
    case  8:
       italic = 0;
       bold   = 5;
-      fontName = "Courier New";
+      fontName = courierFontName;
       break;
    case  9:
       italic = 1;
       bold   = 5;
-      fontName = "Courier New";
+      fontName = courierFontName;
       break;
    case 10:
       italic = 0;
       bold   = 8;
-      fontName = "Courier New";
+      fontName = courierFontName;
       break;
    case 11:
       italic = 1;
       bold   = 8;
-      fontName = "Courier New";
+      fontName = courierFontName;
       break;
    case 12:
       italic = 0;
       bold   = 5;
-      fontName = fSymbolFontFamily;
-//      fontName = "Monospace";
+      fontName = 
+#if QT_VERSION < 0x40000
+            fSymbolFontFamily;
+#else      
+            symbolFontName;
+#endif            
       break;
    case 13:
       italic = 0;
       bold   = 5;
-      fontName = "Times New Roman";
+      fontName = romanFontName;
       break;
    case 14:
       italic = 0;
@@ -2666,7 +2702,7 @@ void  TGQt::SetTextFont(Font_t fontnumber)
    default:
       italic = 0;
       bold   = 5;
-      fontName = "Times New Roman";
+      fontName = romanFontName;
       break;
 
    }
