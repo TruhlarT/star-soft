@@ -1,4 +1,4 @@
-// @(#)root/qt:$Name:  $:$Id: GQtGUI.cxx,v 1.3 2007/02/09 19:00:56 fine Exp $
+// @(#)root/qt:$Name:  $:$Id: GQtGUI.cxx,v 1.4 2007/05/28 01:15:59 fine Exp $
 // Author: Valeri Fine   23/01/2003
 /****************************************************************************
 **
@@ -741,7 +741,11 @@ Window_t TGQt::GetWindowID(Int_t id) {
          ,0,0,canvasWidget->width(),canvasWidget->height()
          ,0,0,0,0,0,0));
       // reparent the canvas
+#if QT_VERSION < 0x40000
       canvasWidget->reparent(client,QPoint(0,0));
+#else
+      canvasWidget->setParent(client);
+#endif            
       QBoxLayout * l = new QVBoxLayout( client );
       l->addWidget( canvasWidget );
       canvasWidget->SetRootID(client);
