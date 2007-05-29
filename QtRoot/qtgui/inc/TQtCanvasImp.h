@@ -1,6 +1,6 @@
 // Author: Valeri Fine   21/01/2002
 /****************************************************************************
-** $Id: TQtCanvasImp.h,v 1.4 2007/05/22 20:07:21 fine Exp $
+** $Id: TQtCanvasImp.h,v 1.5 2007/05/29 18:51:22 fine Exp $
 **
 ** Copyright (C) 2002 by Valeri Fine.  All rights reserved.
 **
@@ -32,7 +32,7 @@
 //Added by qt3to4:
 #  include <QPixmap>
 #  include <QEvent>
-#  include <Q3PopupMenu>
+#  include <QMenu>
 #endif /* QT_VERSION */
 #include <qlabel.h>
 
@@ -41,16 +41,12 @@
 class TVirtualPadEditor;
 
 #if QT_VERSION < 0x40000
-class QPopupMenu;
+   class QPopupMenu;
 #else /* QT_VERSION */
-class Q3PopupMenu;
+   class QMenu;
 #endif /* QT_VERSION */
 class QMenuBar;
-#if QT_VERSION < 0x40000
 class QToolBar;
-#else /* QT_VERSION */
-class QToolBar;
-#endif /* QT_VERSION */
 class QPixmap;
 
 class TQtCanvasWidget;

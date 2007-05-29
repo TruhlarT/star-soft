@@ -1,6 +1,6 @@
 // Author: Valeri Fine   21/01/2002
 /****************************************************************************
-** $Id: TQtCanvasWidget.cxx,v 1.3 2007/05/22 01:05:24 fine Exp $
+** $Id: TQtCanvasWidget.cxx,v 1.4 2007/05/29 18:51:23 fine Exp $
 **
 ** Copyright (C) 2002 by Valeri Fine. Brookhaven National Laboratory.
 **                                    All rights reserved.
@@ -23,9 +23,6 @@
 #include "qevent.h"
 #include "qpainter.h"
 #include "qapplication.h"
-//#if QT_VERSION >= 0x40000
-// #  include <QCustomEvent>
-// #endif /* QT_VERSION */
 
 #ifdef WIN32
 #include "Windows4Root.h"

@@ -1,6 +1,6 @@
 // Author: Valeri Fine   21/01/2002
 /****************************************************************************
-** $Id: TQtCanvasImp.cxx,v 1.8 2007/05/22 20:07:22 fine Exp $
+** $Id: TQtCanvasImp.cxx,v 1.9 2007/05/29 18:51:22 fine Exp $
 **
 ** Copyright (C) 2002 by Valeri Fine. Brookhaven National Laboratory.
 **                                    All rights reserved.
@@ -61,14 +61,12 @@
 #  include <qscrollview.h>
 #  include <qwhatsthis.h> 
 #else /* QT_VERSION */
-#  include <q3popupmenu.h>
+#  include <q3valuelist.h>
 #  include <QMenu>
 #  include <QImageWriter>
 #  include <QFileDialog>
-#  include <q3scrollview.h>
-#  include <q3whatsthis.h> 
-#  include <q3valuelist.h>
-#  include <q3filedialog.h>
+#  include <QWhatsThis>
+#  include <QFileDialog>
 #  include <QToolBar>
 #  include <QDockWidget>
 //Added by qt3to4:
@@ -746,7 +744,11 @@ Int_t TQtCanvasImp::InitWindow()
     connect(fCanvasImpID,SIGNAL(destroyed()),this,SLOT(Disconnect()));
 //    fCanvasID = (TQtWidget *)TGQt::iwid(gVirtualX->InitWindow(TGQt::iwid(fCanvasImpID)));
     fCanvasID = (TQtWidget *)TGQt::iwid(gVirtualX->InitWindow(0));
+#if QT_VERSION < 0x40000
     fCanvasID->reparent(fCanvasImpID,QPoint(0,0));
+#else /* QT_VERSION */
+    fCanvasID->setParent(fCanvasImpID);
+#endif /* QT_VERSION */
     // printf(" %d \n",  fCanvasID->isTopLevel());
     fCanvasID->SetCanvas(Canvas());
 //    fCanvasID->resize(fWidth,fHeight);
@@ -1033,19 +1035,24 @@ void TQtCanvasImp::OpenCB()
    static QString thisCintCommand;
    static QString filetypes = "ROOT files (*.root);;";
    if( Canvas()) {
-      QString selectedFilter;
       QString dir = fSaveFileName;
       if (dir.isEmpty()) dir = gSystem->WorkingDirectory(); 
       else               dir = QFileInfo(dir).dirPath();
 
+      QString fOpenFileName = QFileDialog::getOpenFileName (
 #if QT_VERSION < 0x40000
-      QString fOpenFileName = QFileDialog::getOpenFileName (dir
+           dir
+         , filetypes
+         , fCanvasImpID
+         , tr("Open")
+         , tr("Open ROOT file ") );
 #else /* QT_VERSION */
-      QString fOpenFileName = Q3FileDialog::getOpenFileName (dir
+           fCanvasImpID
+         , tr("Open ROOT file ")
+         , dir
+         , filetypes );
 #endif /* QT_VERSION */
-         , filetypes, fCanvasImpID, "Open"
-         , "Open ROOT file "
-         , &selectedFilter);      
+      
       if (!fOpenFileName.isEmpty()){
          thisCintCommand = "{new TFile(\"";
          thisCintCommand += fOpenFileName;
@@ -1102,15 +1109,24 @@ void TQtCanvasImp::SaveAsCB()
 
   QString selectedFilter;
 
+  QString thatFile = QFileDialog::getSaveFileName(
 #if QT_VERSION < 0x40000
-  QString thatFile = QFileDialog::getSaveFileName(gSystem->WorkingDirectory()
+         gSystem->WorkingDirectory()
+       , filter
+       , fCanvasImpID
+       , "SaveAs"
+       , tr("Save the selected Canvas/Pad as")
+       , &selectedFilter
+       );
 #else /* QT_VERSION */
-  QString thatFile = Q3FileDialog::getSaveFileName(gSystem->WorkingDirectory()
+         fCanvasImpID 
+       , tr("Save the selected Canvas/Pad as")
+       , gSystem->WorkingDirectory()
+       , filter
+       , &selectedFilter
+       );
 #endif /* QT_VERSION */
-    , filter, fCanvasImpID, "SaveAs"
-    , "Save the selected Canvas/Pad as"
-    , &selectedFilter);
-
+         
   if (thatFile.isEmpty()) return;
   SaveFile(thatFile,selectedFilter);
 }
@@ -1121,15 +1137,16 @@ void TQtCanvasImp::SaveAsWebCB()
 { 
   QString filter = "Web page (*.html);";
 
-#if QT_VERSION < 0x40000
-  QString thatFolder = QFileDialog::getExistingDirectory(gSystem->WorkingDirectory()
-    , fCanvasImpID, "SaveAsWeb"
-    , "Select the folder to save the Canvas/Pad as Web site" );
-#else /* QT_VERSION */
   QString thatFolder = QFileDialog::getExistingDirectory(
-          fCanvasImpID
-        , "Select the folder to save the Canvas/Pad as Web site"
-        , gSystem->WorkingDirectory());
+#if QT_VERSION < 0x40000
+         gSystem->WorkingDirectory()
+       , fCanvasImpID
+       , "SaveAsWeb"
+       , tr("Select the folder to save the Canvas/Pad as Web site") );
+#else /* QT_VERSION */
+         fCanvasImpID
+       , tr("Select the folder to save the Canvas/Pad as Web site")
+       , gSystem->WorkingDirectory() );
 #endif /* QT_VERSION */
 
    if (thatFolder.isEmpty()) return;
@@ -1314,10 +1331,11 @@ void TQtCanvasImp::ZoomCB()
    if (!fgZoomingWidget && (action->isOn()))  {
        fgZoomingWidget = new TQtZoomPadWidget();
 #if QT_VERSION < 0x40000
-       QWhatsThis::display("<P>Click any <b>TPad</b> object with the <b>middle</b> mouse button to zoom it out");
+       QWhatsThis::display(
 #else /* QT_VERSION */
-       Q3WhatsThis::display("<P>Click any <b>TPad</b> object with the <b>middle</b> mouse button to zoom it out");
+       QWhatsThis::showText(QCursor::pos(),
 #endif /* QT_VERSION */
+       tr("<P>Click any <b>TPad</b> object with the <b>middle</b> mouse button to zoom it out"));
    }
    if (action->isOn()) { 
        fgZoomingWidget->Connect(fCanvasID);
