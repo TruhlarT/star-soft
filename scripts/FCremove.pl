@@ -68,7 +68,7 @@ open(FI,$FILIN) || die "Give a file name as input\n";
 $fileC = new FileCatalog();
 
 my ($user,$passwd) = $fileC->get_connection($SITE."::Admin");
-if ( ! defined($user) ){   $user = "";}
+if ( ! defined($user) ){   $user   = "";}
 if ( ! defined($passwd) ){ $passwd = "";}
 
 if ( $user eq ""){
@@ -91,8 +91,15 @@ $fileC->debug_off();
 
 while ( defined($file = <FI>)){
     chomp($file);
+    next if ($file eq "");
+
+    # Do not allow for spaces as separator
+    @items = split(" ",$file);
+    if ($#items > 0){ $file = $items[0];}
+
     # File list sent by the HPSS team i.e. FSS dump-lists
     # have file path starting with a "." . Strip it out.
+
     if ( substr($file,0,1) eq "."){
 	$file = substr($file,1,length($file)-1);
     }
@@ -128,10 +135,10 @@ while ( defined($file = <FI>)){
 	    #($path,$file) = split("::",$_);
 	    if ( $sanity ){
 		print "Marking $path $file sanity=".($cancel?1:0)."\n";
-		$fileC->update_location("sanity",$cancel?1:0);
+		$fileC->update_location("sanity",$cancel?1:0,1);
 	    } else {
 		print "".($cancel?"Enabling":"Disabling")." $path $file\n";
-		$fileC->update_location("available",$cancel?1:0);
+		$fileC->update_location("available",$cancel?1:0,1);
 	    }
 	    #}
 	} else {
