@@ -1,6 +1,6 @@
 // Author: Valeri Fine   21/01/2002
 /****************************************************************************
-** $Id: TQtCanvasImp.cxx,v 1.9 2007/05/29 18:51:22 fine Exp $
+** $Id: TQtCanvasImp.cxx,v 1.10 2007/05/30 23:18:20 fine Exp $
 **
 ** Copyright (C) 2002 by Valeri Fine. Brookhaven National Laboratory.
 **                                    All rights reserved.
@@ -266,9 +266,7 @@ TQtCanvasImp::TQtCanvasImp(TCanvas *c, const char *name, Int_t x, Int_t y, UInt_
 TQtCanvasImp::~TQtCanvasImp()
 { 
 #ifndef WIN32
-  qApp->lock();
   Delete();
-  qApp->unlock();
 #endif
 }
 //______________________________________________________________________________
@@ -792,7 +790,6 @@ Int_t TQtCanvasImp::InitWindow()
 //______________________________________________________________________________
 void TQtCanvasImp::Disconnect()
 {
-  qApp->lock();
   if (fCanvasImpID) {
      fCanvasImpID = 0;
      TCanvas *c = Canvas();
@@ -807,7 +804,6 @@ void TQtCanvasImp::Disconnect()
        // delete c;
      }
   }
-  qApp->unlock();
 }
 //______________________________________________________________________________
 void TQtCanvasImp::NewCanvas()
@@ -1229,8 +1225,13 @@ void TQtCanvasImp::PrintCB()
 //______________________________________________________________________________
 void TQtCanvasImp::CloseCB()
 {
+#if 1   
   TCanvas *c = Canvas();
   if (c && c->IsOnHeap() )  delete c;
+#else
+  Close();
+  delete this;
+#endif  
 }
 
 //______________________________________________________________________________

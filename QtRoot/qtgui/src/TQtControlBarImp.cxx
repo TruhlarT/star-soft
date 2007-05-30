@@ -1,6 +1,6 @@
 // Author: Valeri Fine   21/01/2002
 /****************************************************************************
-** $Id: TQtControlBarImp.cxx,v 1.2 2006/09/22 17:27:11 fine Exp $
+** $Id: TQtControlBarImp.cxx,v 1.3 2007/05/30 23:18:21 fine Exp $
 **
 ** Copyright (C) 2002 by Valeri Fine. Brookhaven National Laboratory.
 **                                    All rights reserved.
@@ -61,22 +61,19 @@ TQtControlBarImp::TQtControlBarImp(TControlBar *c, const char *title,Int_t x, In
 }
 //______________________________________________________________________________
 TQtControlBarImp::~TQtControlBarImp() {
-  qApp->lock();
   if (fWidget) {
     fWidget->disconnect(this);
     delete fWidget; 
     fWidget = 0;
   }
-  qApp->unlock();
 }
 //______________________________________________________________________________
 void TQtControlBarImp::Create()
 { }
 //______________________________________________________________________________
 void TQtControlBarImp::Disconnect()
-{   qApp->lock();
-    fWidget = 0; delete this; 
-    qApp->unlock();
+{   
+   fWidget = 0; delete this;     
 }
 //______________________________________________________________________________
 void TQtControlBarImp::Hide(){ if (fWidget) fWidget->hide(); }
@@ -84,17 +81,13 @@ void TQtControlBarImp::Hide(){ if (fWidget) fWidget->hide(); }
 void TQtControlBarImp::Clicked(bool)
 {
    TQtControlBarItem *item = (TQtControlBarItem*)sender();
-   qApp->lock();
-       fClicked = item->GetClicked();  
-   qApp->unlock();
+   fClicked = item->GetClicked();  
 }
 
 //______________________________________________________________________________
 TControlBarButton *TQtControlBarImp::GetClicked()
 {
-   qApp->lock();
-      TControlBarButton *lastButton = fClicked;
-   qApp->unlock();
+   TControlBarButton *lastButton = fClicked;
    return lastButton;
 }
 //______________________________________________________________________________
