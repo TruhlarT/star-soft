@@ -1,9 +1,9 @@
 #!/bin/sh
 #-------------------------------------------------------
 # Author: Valeri Fine (fine@bnl.gov)       2007/05/16
-# $Id: install.csh,v 1.5 2007/05/18 18:05:46 fine Exp $
+# $Id: install.csh,v 1.6 2007/05/30 16:26:52 fine Exp $
 #-------------------------------------------------------
-QT_VERSION=4.3.0beta
+QT_VERSION=4.3.0rc1
 QTSDK=qt-x11-opensource-src-${QT_VERSION}
 # --
 # -- download the Qt4 kit

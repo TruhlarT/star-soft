@@ -1,4 +1,6 @@
-setenv QTDIR /afs/rhic.bnl.gov/star/users/fine/scratch/public/QT/Qt4/qt-x11-opensource-src-4.3.0beta/.sl305_gcc323/4.3.0beta/debug
+setenv QT_VERSION 4.3.0rc1
+setenv QT_SRC_VERSION 
+setenv QTDIR /afs/rhic.bnl.gov/star/users/fine/scratch/public/QT/Qt4/qt-x11-opensource-src-${QT_VERSION}/.${STAR_HOST_SYS}/${QT_VERSION}/debug
 
 setenv LD_LIBRARY_PATH $QTDIR/lib:`dropit qt -p $LD_LIBRARY_PATH`
 
