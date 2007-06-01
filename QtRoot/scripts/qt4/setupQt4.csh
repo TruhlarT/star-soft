@@ -1,4 +1,4 @@
-setenv QT_VERSION 4.3.0rc1
+setenv QT_VERSION 4.3.0
 setenv QT_SRC_VERSION 
 setenv QTDIR /afs/rhic.bnl.gov/star/users/fine/scratch/public/QT/Qt4/qt-x11-opensource-src-${QT_VERSION}/.${STAR_HOST_SYS}/${QT_VERSION}/debug
 
