@@ -1,6 +1,6 @@
 // Author: Valeri Fine   21/01/2002
 /****************************************************************************
-** $Id: TQtInspectImp.h,v 1.2 2006/09/22 17:27:10 fine Exp $
+** $Id: TQtInspectImp.h,v 1.3 2007/06/02 04:45:51 fine Exp $
 **
 ** Copyright (C) 2002 by Valeri Fine.  All rights reserved.
 **
@@ -26,33 +26,40 @@
 #  include "qlistview.h"
 #else /* QT_VERSION */
 //MOC_SKIP_BEGIN
-   #include "q3listview.h"
+#   include <QTableWidget>
+class QTableWidget;
+class QTableWidgetItem;
 //MOC_SKIP_END
 #endif /* QT_VERSION */
 
+class TQtInspectImp;
+
 #if QT_VERSION < 0x40000
-  class TQtInspectImp : public QListView, public TInspectorImp {
+  class TQtInspectWidget : public QListView    {
 #else /* QT_VERSION */
 //MOC_SKIP_BEGIN
-  class TQtInspectImp : public Q3ListView, public TInspectorImp {
+  class TQtInspectWidget : public QTableWidget {
 //MOC_SKIP_END
 #endif /* QT_VERSION */
 
 Q_OBJECT
 
 private:
-  const TObject  *fObject;             // Pointer to displayed object
-
+  const TObject *fObject;             // Pointer to displayed object
+  TQtInspectImp *fInspector;
+   
 protected:
-
+  friend class TQtInspectImp;
   virtual void AddValues();
   virtual void CreateInspector(const TObject *obj);
   virtual void MakeHeaders();
   virtual void MakeTitle();
+  TQtInspectImp *Disconnect();
 
 public:
-  TQtInspectImp(const TObject *obj=0, UInt_t width=400, UInt_t height=300);
-  virtual ~TQtInspectImp();
+  TQtInspectWidget(QWidget *parent=0,const TObject *obj=0);
+  TQtInspectWidget(TQtInspectImp *parent,const TObject *obj=0);
+  virtual ~TQtInspectWidget();
   virtual void Hide();
   virtual void Show();
 
@@ -61,10 +68,24 @@ public slots:
   virtual void Selected(QListViewItem * item);
 #else /* QT_VERSION */
 //MOC_SKIP_BEGIN
-  virtual void Selected(Q3ListViewItem * item);
+  virtual void Selected(QTableWidgetItem *item );
 //MOC_SKIP_END
 #endif /* QT_VERSION */
+};
+  
 
+class TQtInspectImp : public TInspectorImp {
+   private:         
+     TQtInspectWidget *fWidget;
+   protected:
+     friend class TQtInspectWidget;
+     TQtInspectWidget *Disconnect();
+   
+   public:
+     TQtInspectImp(const TObject *obj=0, UInt_t width=400, UInt_t height=300);
+     virtual ~TQtInspectImp();
+     virtual void Hide();
+     virtual void Show();
 };
 
 #endif

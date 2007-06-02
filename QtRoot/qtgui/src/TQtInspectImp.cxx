@@ -1,6 +1,6 @@
 // Author: Valeri Fine   21/01/2002
 /****************************************************************************
-** $Id: TQtInspectImp.cxx,v 1.3 2007/02/06 19:34:46 fine Exp $
+** $Id: TQtInspectImp.cxx,v 1.4 2007/06/02 04:45:51 fine Exp $
 **
 ** Copyright (C) 2002 by Valeri Fine. Brookhaven National Laboratory.
 **                                    All rights reserved.
@@ -26,11 +26,20 @@
 #include "qclipboard.h"
 #include "qapplication.h"
 
-#if QT_VERSION < 0x40000
-class TQtInspectorItem : public QListViewItem {
-#else /* QT_VERSION */
-class TQtInspectorItem : public Q3ListViewItem {
+#if QT_VERSION >= 0x40000
+#  include <QTableWidgetItem>
+#  include <QHeaderView>
+#  include <QtDebug>
+#  include <QTableWidget>
 #endif /* QT_VERSION */
+
+class TQtInspectorItem : public
+#if QT_VERSION < 0x40000
+                         QListViewItem 
+#else /* QT_VERSION */
+                         QTableWidgetItem 
+#endif /* QT_VERSION */
+                            {
 private:
   TLink *fLink;
 public:
@@ -38,51 +47,103 @@ public:
   TQtInspectorItem(QListView * parent, QString label, QString label2,QString label3, TLink *link)
     :  QListViewItem(parent,label,label2,label3),fLink(link) {}
 #else /* QT_VERSION */
-  TQtInspectorItem(Q3ListView * parent, QString label, QString label2,QString label3, TLink *link)
-    :  Q3ListViewItem(parent,label,label2,label3),fLink(link) {}
+  TQtInspectorItem(QTableWidget*parent, QString label, QString label2,QString label3, TLink *link)
+    :  QTableWidgetItem(label),fLink(link) 
+  {
+      Qt::ItemFlags flags = Qt::ItemIsSelectable | Qt::ItemIsEnabled;
+      int rows = parent->rowCount();
+      parent->setRowCount (rows+1);      
+      parent->setItem(rows,0,this); 
+      setText(label);
+      setFlags(flags);
+       
+      QTableWidgetItem *item= new QTableWidgetItem();       
+      item->setText(label2);
+      item->setFlags(flags);
+      parent->setItem(rows,1,item);
+      
+      item= new QTableWidgetItem();
+      item->setText(label3);
+      item->setFlags(flags);
+      parent->setItem(rows,2,item);
+//       qDebug() << "Row" << rows+1<<":"<< label << label2 << label3;
+
+  }
 #endif /* QT_VERSION */
-  ~TQtInspectorItem(){delete fLink; }
-  TLink *Link(){ return fLink;} 
+   TLink *Link(){ return fLink;} 
+  ~TQtInspectorItem(){delete Link(); }
 };
 
-// ClassImp(TQtInspectImp)
+// ClassImp(TQtInspectWidget)
 
 ///////////////////////////////////////////////////////////////
 //                                                           //
-//   TQtInspectImp is a special Qt object to implement       //
+//   TQtInspectWidget is a special Qt object to implement    //
 //   TObject::Inspect  member funection                      //
 //                                                           //
 ///////////////////////////////////////////////////////////////
 
 //______________________________________________________________________________
-TQtInspectImp::TQtInspectImp(const TObject *obj,UInt_t width, UInt_t height) :
+TQtInspectWidget::TQtInspectWidget(QWidget *parent,const TObject *obj) :
 #if QT_VERSION < 0x40000
-                                   QListView(0,0,Qt::WDestructiveClose)
+                                   QListView(parent,0,Qt::WDestructiveClose)
 #else /* QT_VERSION */
-                                   Q3ListView(0,0,Qt::WDestructiveClose)
+                                  QTableWidget(parent)
 #endif /* QT_VERSION */
-{
+, fInspector(0)
+ {
    CreateInspector(obj);
 #if QT_VERSION < 0x40000
    connect(this,SIGNAL(clicked(QListViewItem *)),SLOT(Selected(QListViewItem *)));
 #else /* QT_VERSION */
-   connect(this,SIGNAL(clicked(Q3ListViewItem *)),SLOT(Selected(Q3ListViewItem *)));
+   connect(this,SIGNAL(itemClicked(QTableWidgetItem *)),SLOT(Selected(QTableWidgetItem *)));
+   setAttribute(Qt::WA_DeleteOnClose);
 #endif /* QT_VERSION */
-   resize(width,height);
-   Show();
 }
+
 //______________________________________________________________________________
-void TQtInspectImp::CreateInspector(const TObject *obj)
+TQtInspectWidget::TQtInspectWidget(TQtInspectImp  *parent,const TObject *obj) :
+#if QT_VERSION < 0x40000
+                                   QListView(0,0,Qt::WDestructiveClose)
+#else /* QT_VERSION */
+                                  QTableWidget()
+#endif /* QT_VERSION */
+, fInspector(parent)
+ {
+   CreateInspector(obj);
+#if QT_VERSION < 0x40000
+   connect(this,SIGNAL(clicked(QListViewItem *)),SLOT(Selected(QListViewItem *)));
+#else /* QT_VERSION */
+   connect(this,SIGNAL(itemClicked(QTableWidgetItem *)),SLOT(Selected(QTableWidgetItem *)));
+   setAttribute(Qt::WA_DeleteOnClose);
+#endif /* QT_VERSION */
+}
+
+//______________________________________________________________________________
+void TQtInspectWidget::CreateInspector(const TObject *obj)
 {
   fObject = obj;
-
+#if QT_VERSION >= 0x40000   
+ setSortingEnabled(false);
+ setColumnCount(3);
+#endif      
   MakeTitle();
   MakeHeaders();
   AddValues();
+  
+  
+  // Enable the sorting
+#if QT_VERSION < 0x40000
+  setShowSortIndicator(TRUE); 
+#else  
+  verticalHeader()->hide();
+  setSortingEnabled(TRUE);
+#endif      
+  
 }
 
 //______________________________________________________________________________
-void TQtInspectImp::MakeHeaders()
+void TQtInspectWidget::MakeHeaders()
 {
 
   const char *headers[3];
@@ -90,16 +151,26 @@ void TQtInspectImp::MakeHeaders()
   headers[1] = "Value";
   headers[2] = "Title";
 
+#if QT_VERSION < 0x40000
   Int_t widths[]  = {96,120,-320};
+#else  
+  Int_t widths[]  = {96,120, 320};
+#endif  
   int i;
   int lHeader = sizeof(headers)/sizeof(const char *);
   for (i=0;i<lHeader;i++){
+#if QT_VERSION < 0x40000
     addColumn(headers[i],widths[i]);
-  }
-  setShowSortIndicator(TRUE); 
+#else    
+    QTableWidgetItem *item = new QTableWidgetItem();
+    item->setText(tr(headers[i]));
+    setHorizontalHeaderItem(i, item);
+    setColumnWidth(i, widths[i]);
+#endif           
+  }  
 }
 //______________________________________________________________________________
-void TQtInspectImp::MakeTitle()
+void TQtInspectWidget::MakeTitle()
 {
     TClass *cl = fObject->IsA();
     if (cl == 0) return;
@@ -112,7 +183,7 @@ void TQtInspectImp::MakeTitle()
     setCaption(buffer);
 }
 //______________________________________________________________________________
-void TQtInspectImp::AddValues()
+void TQtInspectWidget::AddValues()
 {
     Int_t cdate = 0;
     Int_t ctime = 0;
@@ -196,17 +267,25 @@ void TQtInspectImp::AddValues()
          tlink->SetName((char *)member->GetTypeName());
          tlink->SetBit(kCanDelete);
        }
+       
        new TQtInspectorItem(this,line[kname],line[kvalue],line[ktitle],tlink);
-//       if (tlink) { Add(tlink); ctrl->Add(tlink); }
+//       if (tlink) { Add(tlink); ctrl->Add(tlink); } 
     }
 }
 //______________________________________________________________________________
-TQtInspectImp::~TQtInspectImp()
-{  hide(); }
+TQtInspectWidget::~TQtInspectWidget()
+{ 
+   hide(); 
+   delete Disconnect();
+}
 //______________________________________________________________________________
-void TQtInspectImp::Hide(){ hide(); }
+void TQtInspectWidget::Hide(){ hide(); }
 //______________________________________________________________________________
-void TQtInspectImp::Show(){ 
+void TQtInspectWidget::Show(){ 
+#if QT_VERSION >= 0x40000
+   resizeColumnToContents(2); 
+ //  show();
+#endif   
    raise();
    showNormal();
 //   gVirtualX->RaiseWindow(TGQt::iwid(this)); 
@@ -214,26 +293,89 @@ void TQtInspectImp::Show(){
 
 //______________________________________________________________________________
 #if QT_VERSION < 0x40000
-void TQtInspectImp::Selected(QListViewItem * item)
+void TQtInspectWidget::Selected(QListViewItem * item)
 #else /* QT_VERSION */
-void TQtInspectImp::Selected(Q3ListViewItem * item)
+void TQtInspectWidget::Selected(QTableWidgetItem *item)
 #endif /* QT_VERSION */
 {
   // - Expand the selected item (if possible)
-  // - Copy the selcted item to the system clipboad
+  // - Copy the selected item to the system clipboard
 
   if (item) {
-    QString clipboardText = item->text(0);
+    QString clipboardText;
+    
+#if QT_VERSION < 0x40000
+    clipboardText += item->text(0);
     clipboardText += item->text(1);
     clipboardText += item->text(2);
+#else    
+    int row = item->row();
+    clipboardText += takeItem(row,0)->text();
+    clipboardText += takeItem(row,1)->text();
+    clipboardText += takeItem(row,2)->text();
+#endif        
     if ( ! clipboardText.isEmpty() ){
-      // Copy it to the system clipboad
+      // Copy it to the system clipboard
       QClipboard *cb = QApplication::clipboard();
       cb->setText(clipboardText);
     }
     // Execute ROOT action
-    TQtInspectorItem *it = (TQtInspectorItem *)item;
-    TLink *tlink = it->Link();
-    if (tlink) tlink->ExecuteEvent(kButton1Up,0,0);
+    TQtInspectorItem *it = 0;
+#if QT_VERSION < 0x40000
+    it = (TQtInspectorItem *)item;
+#else    
+    it = (TQtInspectorItem *)takeItem(row,0);
+#endif    
+    if (it) {
+       TLink *tlink = it->Link();
+       if (tlink) tlink->ExecuteEvent(kButton1Up,0,0);
+    }
   }
+}
+//______________________________________________________________________________
+TQtInspectImp *TQtInspectWidget::Disconnect()
+{
+   TQtInspectImp *save = fInspector;
+   fInspector = 0;
+   if (save) save->Disconnect();
+   return save;
+}
+
+//______________________________________________________________________________
+//
+//              TQtInspectImp
+//______________________________________________________________________________
+TQtInspectImp::TQtInspectImp(const TObject *obj, UInt_t width, UInt_t height)
+{
+    fWidget = new  TQtInspectWidget(this, obj);  
+    fWidget->resize(width,height);
+    Show();
+}
+//______________________________________________________________________________
+TQtInspectImp::~TQtInspectImp()
+{
+   // Destroy the widget
+   Hide();
+   delete Disconnect();
+}
+//______________________________________________________________________________
+void  TQtInspectImp::Hide()
+{
+   // Hide the widget
+   if (fWidget) fWidget->Hide();
+}
+//______________________________________________________________________________
+void  TQtInspectImp::Show()
+{
+   // Show the widget
+   if (fWidget) fWidget->Show();
+}
+//______________________________________________________________________________
+TQtInspectWidget *TQtInspectImp::Disconnect()
+{
+   // To be called by TQtInspectWidget dtor
+   TQtInspectWidget *save = fWidget;
+   fWidget = 0;
+   if (save) save->Disconnect();
+   return save;
 }
