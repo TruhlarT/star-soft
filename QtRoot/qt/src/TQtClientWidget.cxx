@@ -1,7 +1,7 @@
-// @(#)root/qt:$Name:  $:$Id: TQtClientWidget.cxx,v 1.2 2006/09/22 17:05:04 fine Exp $
+// @(#)root/qt:$Name:  $:$Id: TQtClientWidget.cxx,v 1.3 2007/06/05 22:06:21 fine Exp $
 // Author: Valeri Fine   01/03/2003
 /****************************************************************************
-** $Id: TQtClientWidget.cxx,v 1.2 2006/09/22 17:05:04 fine Exp $
+** $Id: TQtClientWidget.cxx,v 1.3 2007/06/05 22:06:21 fine Exp $
 **
 ** Copyright (C) 2003 by Valeri Fine. Brookhaven National Laboratory.
 **                                    All rights reserved.
@@ -47,8 +47,12 @@
 
 //______________________________________________________________________________
 TQtClientWidget::TQtClientWidget(TQtClientGuard *guard, QWidget* parent, const char* name, Qt::WFlags f ):
-          CLIENT_WIDGET_BASE_CLASS(parent,name,f),
-          fGrabButtonMask(kAnyModifier),      fGrabEventPointerMask(kNoEventMask)
+#if QT_VERSION < 0x40000
+          QFrame(parent,name,f)
+#else
+          QFrame(parent,f)
+#endif          
+         ,fGrabButtonMask(kAnyModifier),      fGrabEventPointerMask(kNoEventMask)
          ,fGrabEventButtonMask(kNoEventMask), fSelectEventMask(kNoEventMask), fSaveSelectInputMask(kNoEventMask) // ,fAttributeEventMask(0)
          ,fButton(kAnyButton),fGrabbedKey(0), fPointerOwner(kFALSE)
          ,fNormalPointerCursor(0),fGrabPointerCursor(0),fGrabButtonCursor(0)
@@ -56,6 +60,7 @@ TQtClientWidget::TQtClientWidget(TQtClientGuard *guard, QWidget* parent, const c
          ,fCanvasWidget(0)
 {
 #if QT_VERSION >= 0x40000
+   setName(name);
    setAttribute(Qt::WA_PaintOnScreen);
    setAttribute(Qt::WA_PaintOutsidePaintEvent);
 #endif
