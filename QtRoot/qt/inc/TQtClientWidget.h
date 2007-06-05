@@ -1,4 +1,4 @@
-// @(#)root/qt:$Name:  $:$Id: TQtClientWidget.h,v 1.3 2007/01/23 17:53:37 fine Exp $
+// @(#)root/qt:$Name:  $:$Id: TQtClientWidget.h,v 1.4 2007/06/05 18:46:20 fine Exp $
 /*************************************************************************
  * Copyright (C) 1995-2004, Rene Brun and Fons Rademakers.               *
  * Copyright (C) 2002 by Valeri Fine.                                    *
@@ -17,14 +17,12 @@
 #  if QT_VERSION < 0x40000
 #     include <qframe.h>
 #  else /* QT_VERSION */
-//    Added by qt3to4:
 #     include <QCloseEvent>
-#     include <q3frame.h>
+#     include <QFrame>
 #  endif /* QT_VERSION */
 #  include <qcursor.h>
 #else
   class QFrame;
-  class Q3Frame;
   class QCursor;
   class QAccel;
 #endif
@@ -40,16 +38,9 @@ class QCursor;
 class QCloseEvent;
 class TQtClientGuard;
 class TQtWidget;
-
-#if (QT_VERSION >= 0x39999)
-// Trick to fool the stupid Qt "moc" utility 15.12.2005
 class Q3Accel;
-#define CLIENT_WIDGET_BASE_CLASS Q3Frame
-#else
-#define CLIENT_WIDGET_BASE_CLASS QFrame
-#endif
 
-class TQtClientWidget: public CLIENT_WIDGET_BASE_CLASS {
+class TQtClientWidget: public QFrame {
 #ifndef __CINT__
      Q_OBJECT
 #endif

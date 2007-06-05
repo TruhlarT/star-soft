@@ -1,4 +1,4 @@
-// @(#)root/qt:$Name:  $:$Id: TQtWidget.h,v 1.7 2007/05/24 16:49:54 fine Exp $
+// @(#)root/qt:$Name:  $:$Id: TQtWidget.h,v 1.8 2007/06/05 18:46:20 fine Exp $
 // Author: Valeri Fine   21/01/2002
 /****************************************************************************
 **
@@ -110,7 +110,7 @@ public:
   // overloaded methods
   virtual void adjustSize();
   virtual void resize (int w, int h);
-  virtual void erase ();
+  virtual void Erase ();
   bool    IsDoubleBuffered() { return fDoubleBufferOn; }
   void    SetDoubleBuffer(bool on=TRUE){ fDoubleBufferOn = on;}
   virtual void SetSaveFormat(const char *format);
