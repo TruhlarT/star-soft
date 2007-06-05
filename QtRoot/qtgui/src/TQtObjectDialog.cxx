@@ -1,6 +1,6 @@
 // Author: Valeri Fine   21/01/2002
 /****************************************************************************
-** $Id: TQtObjectDialog.cxx,v 1.2 2006/09/22 17:27:11 fine Exp $
+** $Id: TQtObjectDialog.cxx,v 1.3 2007/06/05 21:47:12 fine Exp $
 **
 ** Copyright (C) 2002 by Valeri Fine. Brookhaven National Laboratory.
 **                                    All rights reserved.
@@ -18,21 +18,16 @@
 #include <qlabel.h>
 #include <qpushbutton.h>
 #if QT_VERSION < 0x40000
-#include <qobjectlist.h>
+#  include <qobjectlist.h>
+#  include <qcstring.h> 
+#  include <qlayout.h>
 #else /* QT_VERSION */
-#include <qobject.h>
+#  include <qobject.h>
+#  include <q3cstring.h> 
+#  include <QVBoxLayout>
+#  include <QHBoxLayout>
 #endif /* QT_VERSION */
-#include <qlayout.h>
 #include <qtextcodec.h> 
-#if QT_VERSION < 0x40000
-#include <qcstring.h> 
-#else /* QT_VERSION */
-#include <q3cstring.h> 
-//Added by qt3to4:
-#include <Q3VBoxLayout>
-#include <Q3HBoxLayout>
-#endif /* QT_VERSION */
-
 
 #include "TClass.h"
 
@@ -59,11 +54,7 @@ TQtObjectDialog::TQtObjectDialog( TObject *object, TMethod *method ):QDialog(0,0
         TMethodArg *argument = NULL;
         TIter next( method->GetListOfMethodArgs() );
 
-#if QT_VERSION < 0x40000
         QVBoxLayout *layout = new QVBoxLayout( this );
-#else /* QT_VERSION */
-        Q3VBoxLayout *layout = new Q3VBoxLayout( this );
-#endif /* QT_VERSION */
         while ( (argument = (TMethodArg *) next() ) ) {
             // Create a label gadget.
 //*-* - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
@@ -135,11 +126,7 @@ TQtObjectDialog::TQtObjectDialog( TObject *object, TMethod *method ):QDialog(0,0
            // remember the first widget to put initial focus on it
         }
         // Create Layout
-#if QT_VERSION < 0x40000
         QHBoxLayout *buttonLayout = new QHBoxLayout( layout );
-#else /* QT_VERSION */
-        Q3HBoxLayout *buttonLayout = new Q3HBoxLayout( layout );
-#endif /* QT_VERSION */
 
         QPushButton *Ok = new QPushButton("Ok",this);
         connect(Ok,SIGNAL(clicked()),this,SLOT(accept ()));
