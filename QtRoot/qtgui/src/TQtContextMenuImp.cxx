@@ -1,6 +1,6 @@
 // Author: Valeri Fine   21/01/2002
 /****************************************************************************
-** $Id: TQtContextMenuImp.cxx,v 1.2 2006/09/22 17:27:11 fine Exp $
+** $Id: TQtContextMenuImp.cxx,v 1.3 2007/06/05 00:59:05 fine Exp $
 **
 ** Copyright (C) 2002 by Valeri Fine. Brookhaven National Laboratory.
 **                                    All rights reserved.
@@ -11,11 +11,13 @@
 **
 *****************************************************************************/
 
-#include <qapplication.h>
 #if QT_VERSION >= 0x40000
 //Added by qt3to4:
-#include <Q3PopupMenu>
+#  include <QMenu>
+#else
+#  include "qpopupmenu.h"
 #endif /* QT_VERSION */
+
 #include "TQtContextMenuImp.h"
 #include "TGQt.h"
 #include "TQtLock.h"
@@ -59,7 +61,7 @@ void TQtContextMenuImp::DeletePopup()
 #if QT_VERSION < 0x40000
     QPopupMenu   *m = fPopupMenu; fPopupMenu = 0;
 #else /* QT_VERSION */
-    Q3PopupMenu   *m = fPopupMenu; fPopupMenu = 0;
+    QMenu   *m = fPopupMenu; fPopupMenu = 0;
 #endif /* QT_VERSION */
     delete m; 
   }
@@ -68,7 +70,6 @@ void TQtContextMenuImp::DeletePopup()
     TObjectExecute  *e=fExecute; fExecute = 0; 
     delete e;
   }
-  // qApp->unlock();
 }
 //______________________________________________________________________________
 void TQtContextMenuImp::CreatePopup ( TObject * /*object*/ ) 
@@ -91,7 +92,8 @@ void TQtContextMenuImp::CreatePopup () {
 #if QT_VERSION < 0x40000
     fPopupMenu = new QPopupMenu(parent,"ContextMenu");
 #else /* QT_VERSION */
-    fPopupMenu = new Q3PopupMenu(parent,"ContextMenu");
+    fPopupMenu = new QMenu("ContextMenu",parent);
+    fPopupMenu->setSeparatorsCollapsible(false);
 #endif /* QT_VERSION */
     connect(fPopupMenu,SIGNAL(destroyed()),this,SLOT(Disconnect()));
     connect(fPopupMenu,SIGNAL(aboutToShow () ),this,SLOT( AboutToShow() ));
@@ -104,17 +106,22 @@ void TQtContextMenuImp::CreatePopup () {
     titleBar += "</i></b></center>";
 #if QT_VERSION < 0x40000
     fPopupMenu->insertItem(new QLabel(titleBar,fPopupMenu));
-#else
-    fPopupMenu->setTitle(titleBar);
-    titleBar = fContextMenu->CreatePopupTitle(object);
-    fPopupMenu->addAction(titleBar);
-#endif
-
-    fPopupMenu->insertSeparator();fPopupMenu->insertSeparator();
+    fPopupMenu->insertSeparator(); fPopupMenu->insertSeparator();
 
 //*-*  Include the standard static item into the context menu
     fPopupMenu->insertItem("&Inspect",    this,SLOT(InspectCB()));
     fPopupMenu->insertItem("&Browse",     this,SLOT(BrowseCB()));
+#else
+    // fPopupMenu->setTitle(titleBar);
+    titleBar = fContextMenu->CreatePopupTitle(object);
+    fPopupMenu->addAction(titleBar);
+
+    fPopupMenu->addSeparator(); fPopupMenu->addSeparator();
+
+//*-*  Include the standard static item into the context menu
+    fPopupMenu->addAction("&Inspect",    this,SLOT(InspectCB()));
+    fPopupMenu->addAction("&Browse",     this,SLOT(BrowseCB()));
+#endif
   }
 }
 //______________________________________________________________________________
@@ -159,7 +166,7 @@ void  TQtContextMenuImp::Dialog( TObject *object, TFunction *function )
 void TQtContextMenuImp::Disconnect()
 {
   TQtLock lock;
-   // Popup menu has been desstroyed from outside
+   // Popup menu has been destroyed from outside
   if (fPopupMenu) fPopupMenu = 0;
 }
 //______________________________________________________________________________
@@ -193,11 +200,12 @@ void TQtContextMenuImp::UpdateProperties()
     //*-*  Include the "Properties" item "by canvases"
 #if QT_VERSION < 0x40000
     QPopupMenu *propertiesMenu = new QPopupMenu();
-#else /* QT_VERSION */
-    Q3PopupMenu *propertiesMenu = new Q3PopupMenu();
-#endif /* QT_VERSION */
     fPopupMenu->insertSeparator();
     fPopupMenu->insertItem("&Properties",propertiesMenu);
+#else /* QT_VERSION */
+    fPopupMenu->addSeparator();
+    QMenu *propertiesMenu = fPopupMenu->addMenu("&Properties");
+#endif /* QT_VERSION */
 
     //*-*  Create Menu "Properties"
 
@@ -214,13 +222,22 @@ void TQtContextMenuImp::UpdateProperties()
       
       if ( classPtr != method->GetClass() ) {
         //*-*  Add a separator.
-        if (classPtr) propertiesMenu->insertSeparator();
+        if (classPtr) 
+#if QT_VERSION < 0x40000
+           propertiesMenu->insertSeparator();
+#else        
+           propertiesMenu->addSeparator();
+#endif           
         classPtr = method->GetClass();
       }
       //*-*  Create a popup item.
       TQtMenutItem *menuItem = new TQtMenutItem(c,method,object);
       fItems.push(menuItem);
+#if QT_VERSION < 0x40000
       propertiesMenu->insertItem(method->GetName(),menuItem,SLOT(Exec()));
+#else
+      propertiesMenu->addAction(method->GetName(),menuItem,SLOT(Exec()));
+#endif            
     }
     // Delete linked list of methods.
     delete methodList;

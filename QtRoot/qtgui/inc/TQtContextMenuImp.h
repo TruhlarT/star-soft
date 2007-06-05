@@ -1,6 +1,6 @@
 // Author: Valeri Fine   21/01/2002
 /****************************************************************************
-** $Id: TQtContextMenuImp.h,v 1.2 2006/09/22 17:27:10 fine Exp $
+** $Id: TQtContextMenuImp.h,v 1.3 2007/06/05 00:59:04 fine Exp $
 **
 ** Copyright (C) 2002 by Valeri Fine.  All rights reserved.
 **
@@ -26,39 +26,37 @@
 #include "TContextMenu.h"
 
 #include <qglobal.h>
+#include <qobject.h>
 #if QT_VERSION < 0x40000
-#  include "qpopupmenu.h"
 #  include "qptrstack.h"
 #else /* QT_VERSION */
 //MOC_SKIP_BEGIN
-#  include "q3popupmenu.h"
 #  include "q3ptrstack.h"
-//Added by qt3to4:
-#  include <QEvent>
 //MOC_SKIP_END
 #endif /* QT_VERSION */
 
-//*-*
-//*-* Context Menu is derived from QPopupMenu (since it is special type of PopUp menu
-//*-*   with
-//*-*
-//*-*    TQtMenuItem  fTitle
-//*-*    TQtMenuItem  fProperties
-//*-*
-//*-*   where
-//*-*
-//*-*     fTitle      is the first item of the menu
-//*-*     fProperties is the last one
-//*-*     fWindowsObj is a pointer to the parent Windows object
-//*-*     ("normal" menu has no direct relation with any Windows objects)
-//*-*
+// *-*
+// *-* Context Menu is derived from QPopupMenu (since it is special type of PopUp menu
+// *-*   with
+// *-*
+// *-*    TQtMenuItem  fTitle
+// *-*    TQtMenuItem  fProperties
+// *-*
+// *-*   where
+// *-*
+// *-*     fTitle      is the first item of the menu
+// *-*     fProperties is the last one
+// *-*     fWindowsObj is a pointer to the parent Windows object
+// *-*     ("normal" menu has no direct relation with any Windows objects)
+// *-*
 
 class TQtDialog;
+class QEvent;
 #if QT_VERSION < 0x40000
   class QPopupMenu;
 #else /* QT_VERSION */
 //MOC_SKIP_BEGIN
-  class Q3PopupMenu;
+  class QMenu;
 //MOC_SKIP_END
 #endif /* QT_VERSION */
 
@@ -92,7 +90,7 @@ class TQtContextMenuImp : public QObject, public TContextMenuImp
    QPtrStack<TQtMenutItem> fItems;
 #else /* QT_VERSION */
 //MOC_SKIP_BEGIN
-   Q3PopupMenu   *fPopupMenu;
+   QMenu   *fPopupMenu;
    Q3PtrStack<TQtMenutItem> fItems;
 //MOC_SKIP_END
 #endif /* QT_VERSION */
@@ -117,7 +115,7 @@ class TQtContextMenuImp : public QObject, public TContextMenuImp
     QPopupMenu &PopupMenu() const { return *fPopupMenu; }
 #else /* QT_VERSION */
 //MOC_SKIP_BEGIN
-    Q3PopupMenu &PopupMenu() const { return *fPopupMenu; }
+    QMenu &PopupMenu() const { return *fPopupMenu; }
 //MOC_SKIP_END
 #endif /* QT_VERSION */
 
@@ -136,7 +134,7 @@ signals:
       void AboutToShow(QPopupMenu *, TContextMenu *);
 #else /* QT_VERSION */
 //MOC_SKIP_BEGIN
-      void AboutToShow(Q3PopupMenu *, TContextMenu *);
+      void AboutToShow(QMenu *, TContextMenu *);
 //MOC_SKIP_END
 #endif /* QT_VERSION */
     // ClassDef(TQtContextMenuImp,0) //Context sensitive popup menu implementation

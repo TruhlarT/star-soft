@@ -1,6 +1,6 @@
 // Author: Valeri Fine   21/01/2002
 /****************************************************************************
-** $Id: TQtCanvasImp.cxx,v 1.10 2007/05/30 23:18:20 fine Exp $
+** $Id: TQtCanvasImp.cxx,v 1.11 2007/06/05 00:59:05 fine Exp $
 **
 ** Copyright (C) 2002 by Valeri Fine. Brookhaven National Laboratory.
 **                                    All rights reserved.
@@ -715,12 +715,13 @@ UInt_t TQtCanvasImp::GetWindowGeometry(Int_t &x, Int_t &y, UInt_t &w, UInt_t &h)
 void   TQtCanvasImp::GetWindowGeometry(Int_t &x, Int_t &y, UInt_t &w, UInt_t &h);
 #endif   
 {
-  // Get effective window parameters (with borders and menubar)
+   // Get effective window parameters (with borders and menubar)
    QRect rect = fCanvasImpID->topLevelWidget()->frameGeometry();
    x = rect.x();
    y = rect.y();
    w = rect.width();
-   h = rect.height();
+   h = rect.height(); 
+
 //   if (!fCanvas->GetShowEditor()) return 0;
 //   return fEditorFrame->GetWidth();
 #if ROOT_VERSION_CODE > ROOT_VERSION(4,00,4) 
@@ -752,11 +753,11 @@ Int_t TQtCanvasImp::InitWindow()
 //    fCanvasID->resize(fWidth,fHeight);
 
 #if 0 
-#if QT_VERSION < 0x40000
+#  if QT_VERSION < 0x40000
     QScrollView *view = new QScrollView (0,"canvasscroll");
-#else /* QT_VERSION */
+#  else /* QT_VERSION */
     Q3ScrollView *view = new Q3ScrollView (0,"canvasscroll");
-#endif /* QT_VERSION */
+#  endif /* QT_VERSION */
     view->addChild(fCanvasID);
     fCanvasImpID->setCentralWidget (view);
 #else
@@ -780,8 +781,8 @@ Int_t TQtCanvasImp::InitWindow()
 #else
     fCanvasImpID->resize(fWidth,fHeight);
 #endif
-
-    fCanvasID->resize(fWidth,fHeight);
+ 
+//    fCanvasID->resize(fWidth,fHeight);
   }
   assert(Canvas()->GetCanvasID() == -1 ||  Canvas()->GetCanvasID() != TGQt::iwid(fCanvasID));
   // fprintf(stderr," TQtCanvasImp::InitWindow() %d \n",TGQt::iwid(fCanvasID));
