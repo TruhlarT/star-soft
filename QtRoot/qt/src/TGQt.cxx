@@ -1,7 +1,7 @@
-// @(#)root/qt:$Name:  $:$Id: TGQt.cxx,v 1.11 2007/06/05 19:10:41 fine Exp $
+// @(#)root/qt:$Name:  $:$Id: TGQt.cxx,v 1.12 2007/06/05 19:50:02 fine Exp $
 // Author: Valeri Fine   21/01/2002
 /****************************************************************************
-** $Id: TGQt.cxx,v 1.11 2007/06/05 19:10:41 fine Exp $
+** $Id: TGQt.cxx,v 1.12 2007/06/05 19:50:02 fine Exp $
 **
 ** Copyright (C) 2002 by Valeri Fine. Brookhaven National Laboratory.
 **                                    All rights reserved.
@@ -730,7 +730,7 @@ Bool_t TGQt::Init(void* /*display*/)
 {
    //*-*-*-*-*-*-*-*-*-*-*-*-*-*Qt GUI initialization-*-*-*-*-*-*-*-*-*-*-*-*-*-*
    //*-*                        ========================                      *-*
-   fprintf(stderr,"** $Id: TGQt.cxx,v 1.11 2007/06/05 19:10:41 fine Exp $ this=%p\n",this);
+   fprintf(stderr,"** $Id: TGQt.cxx,v 1.12 2007/06/05 19:50:02 fine Exp $ this=%p\n",this);
 
    if(fDisplayOpened)   return fDisplayOpened;
    fSelectedBuffer = fSelectedWindow = fPrevWindow = NoOperation;
@@ -2115,7 +2115,7 @@ void  TGQt::SetLineColor(Color_t cindex)
 }
 
 //______________________________________________________________________________
-void  TGQt::SetLineType(int n, int* /*dash*/)
+void  TGQt::SetLineType(int n, int*dash)
 {
 //*-*-*-*-*-*-*-*-*-*-*Set line style-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*
 //*-*                  ==============
@@ -2133,7 +2133,9 @@ void  TGQt::SetLineType(int n, int* /*dash*/)
 //*-*    e.g. n=4,DASH=(6,3,1,3) gives a dashed-dotted line with dash length 6
 //*-*    and a gap of 7 between dashes
 //*-*
-  if (n < 0 ) {
+
+  if (n == 0 ) n = -1; // solid lines
+  if (n < 0) {
     Qt::PenStyle styles[] = {
       Qt::NoPen          // - no line at all.
      ,Qt::SolidLine      // - a simple line.
@@ -2145,8 +2147,17 @@ void  TGQt::SetLineType(int n, int* /*dash*/)
     int l = -n;
     if (l > int(sizeof(styles)/sizeof(Qt::PenStyle)) ) l = 1; // Solid line "by default"
     fQPen->setStyle(styles[l]);
-    UpdatePen();
+  } 
+#if QT_VERSION >= 0x40000
+  else {
+     // - A custom pattern defined using QPainterPathStroker::setDashPattern(). 
+     QVector<qreal> dashes;
+     int i;
+     for (i=0;i<n;i++) dashes << dash[i];
+     fQPen->setDashPattern(dashes);
   }
+#endif  
+  UpdatePen();          
 }
 
 //______________________________________________________________________________
