@@ -1,7 +1,7 @@
-// @(#)root/qt:$Name:  $:$Id: TGQt.cxx,v 1.10 2007/05/26 00:12:06 fine Exp $
+// @(#)root/qt:$Name:  $:$Id: TGQt.cxx,v 1.11 2007/06/05 19:10:41 fine Exp $
 // Author: Valeri Fine   21/01/2002
 /****************************************************************************
-** $Id: TGQt.cxx,v 1.10 2007/05/26 00:12:06 fine Exp $
+** $Id: TGQt.cxx,v 1.11 2007/06/05 19:10:41 fine Exp $
 **
 ** Copyright (C) 2002 by Valeri Fine. Brookhaven National Laboratory.
 **                                    All rights reserved.
@@ -50,7 +50,8 @@
 #  include <QImageWriter>
 #  include <q3ptrvector.h>
 #  include <q3valuestack.h>
-#  include <q3picture.h>
+#  include <QPicture>
+#  include <QDebug>
 #endif /* QT_VERSION */
 
 #include <qpixmap.h>
@@ -98,8 +99,28 @@
 
 TGQt *gQt=0;
 TVirtualX *TGQt::fgTQt = 0; // to remember the poiner fulishing ROOT PluginManager later.
-// static const int kDefault=2;
+#if 1 
+// #if QT_VERSION < 0x40000
+   static const char *romanFontName   = "Times New Roman";
+   static const char *arialFontName   = "Arial";
+   static const char *courierFontName = "Courier New";
+//   static const char *symbolFontName  = "Symbol"; // "Symbol";
+   static const char *symbolFontName  = "Standard Symbols L"; // "Symbol";
+#else
+   static const char *romanFontName   = "Nimbus Roman No9 L";
+   static const char *arialFontName   = "Nimbus Sans L";
+   static const char *courierFontName = "Nimbus Mono L ";
+   static const char *symbolFontName  = "Standard Symbols L";
+#endif      
 
+// static const int kDefault=2;
+//__________________________________________________________________
+static QWidget *IsWidget(QPaintDevice *d)
+{ return  dynamic_cast<QWidget *>(d);   }
+
+//__________________________________________________________________
+static QPixmap *IsPixmap(QPaintDevice *d)
+{ return dynamic_cast<QPixmap *>(d); }
 //__________________________________________________________________
 QString TGQt::SetFileName(const QString &fileName)
 {
@@ -667,7 +688,7 @@ TGQt::TGQt() : TVirtualX(),fDisplayOpened(kFALSE),fQPainter(0),fQClientFilterBuf
    //*-*                    ===================
    fgTQt = this;
    gQt   = this;
-   fSelectedBuffer = 0;
+   fSelectedBuffer = 0; 
    fSelectedWindow = fPrevWindow = NoOperation;
 }
 
@@ -709,7 +730,7 @@ Bool_t TGQt::Init(void* /*display*/)
 {
    //*-*-*-*-*-*-*-*-*-*-*-*-*-*Qt GUI initialization-*-*-*-*-*-*-*-*-*-*-*-*-*-*
    //*-*                        ========================                      *-*
-   fprintf(stderr,"** $Id: TGQt.cxx,v 1.10 2007/05/26 00:12:06 fine Exp $ this=%p\n",this);
+   fprintf(stderr,"** $Id: TGQt.cxx,v 1.11 2007/06/05 19:10:41 fine Exp $ this=%p\n",this);
 
    if(fDisplayOpened)   return fDisplayOpened;
    fSelectedBuffer = fSelectedWindow = fPrevWindow = NoOperation;
@@ -932,8 +953,9 @@ Int_t TGQt::InitWindow(ULong_t window)
    {
       // fprintf(stderr," ---- >  New Canvas window %p with the parent %s parent id=%p\n",wid, (const char *)parent->name(), rootwid(parent));
    }
-
-   return fWidgetArray->GetFreeId(wid);
+   Int_t id = fWidgetArray->GetFreeId(wid);
+   // fprintf(stderr," TGQt::InitWindow %d id=%d\n",window,id);  
+   return id;
 }
 
 //______________________________________________________________________________
@@ -941,8 +963,9 @@ Int_t TGQt::OpenPixmap(UInt_t w, UInt_t h)
 {
    //*-*  Create a new pixmap object
    QPixmap *obj =  new QPixmap(w,h);
+   // fprintf(stderr," TGQt::OpenPixmap %d %d \n",w,h);  
    return fWidgetArray->GetFreeId(obj);
-   return iwid(obj);
+   // return iwid(obj);
 }
 
 //______________________________________________________________________________
@@ -1010,29 +1033,15 @@ void TGQt::GetPlanes(Int_t &nplanes){
 void  TGQt::ClearWindow()
 {
    // Clear current window.
-   // fprintf(stderr,"TGQt::ClearWindow() %p\n",fSelectedWindow);
+//   fprintf(stderr,"TGQt::ClearWindow() %p\n",fSelectedWindow);
    if (fSelectedWindow && fSelectedWindow != NoOperation)
    {
-      switch (fSelectedWindow->devType()) {
-    case QInternal::Widget:
-       ((TQtWidget *)fSelectedWindow)->erase();
-       break;
-    case QInternal::Pixmap:
-       ((QPixmap *)fSelectedWindow)->fill();
-       break;
-    case QInternal::Picture:
-    case QInternal::Printer:
-#if QT_VERSION < 0x40000
-    case QInternal::UndefinedDevice:
-#else /* QT_VERSION */
-   // case QInternal::UndefinedDevice:
-#endif /* QT_VERSION */
-       fQPainter->eraseRect(GetQRect(*fSelectedWindow));
-       break;
-    default:
-       assert(0);
-       break;
-      };
+      if (IsWidget(fSelectedWindow)) 
+         ((TQtWidget *)fSelectedWindow)->Erase();
+      else if (IsPixmap(fSelectedWindow) )
+         ((QPixmap *)fSelectedWindow)->fill();
+      else 
+         fQPainter->eraseRect(GetQRect(*fSelectedWindow));
    }
 }
 
@@ -1093,11 +1102,7 @@ QRect TGQt::GetQRect(QPaintDevice &dev)
      break;
                           }
   case QInternal::Picture:
-#if QT_VERSION < 0x40000
      res = ((QPicture *)&dev)->boundingRect();
-#else /* QT_VERSION */
-     res = ((Q3Picture *)&dev)->boundingRect();
-#endif /* QT_VERSION */
      break;
 
   case QInternal::Printer:
@@ -1123,9 +1128,9 @@ void  TGQt::CopyPixmap(int wid, int xpos, int ypos)
    QPaintDevice *dev = iwid(wid);
    assert(dev->devType() == QInternal::Pixmap);
    QPixmap *src = (QPixmap *)dev;
-   //   QPixmap *src = (QPixmap *)(QPaintDevice *)wid;
-   // fprintf(stderr," TGQt::CopyPixmap Selected = %p, Buffer = %p, wid = %p\n",
-   //    fSelectedWindow,fSelectedBuffer,iwid(wid));
+     //  QPixmap *src = (QPixmap *)(QPaintDevice *)wid;
+     //  fprintf(stderr," TGQt::CopyPixmap Selected = %p, Buffer = %p, wid = %p\n",
+     //  fSelectedWindow,fSelectedBuffer,iwid(wid));
    if (fSelectedWindow )
    {
       // fprintf(stderr,"x=%d,y=%d: %d %d %d %d\n",xpos,ypos,sr.x(),sr.y(),sr.width(),sr.height());
@@ -1238,7 +1243,7 @@ void  TGQt::DrawBox(int x1, int y1, int x2, int y2, EBoxMode mode)
    if (fSelectedWindow)
    {
       fQPainter->save();
-      //    fprintf(stderr, " Drawbox x1=%d, y1=%d, x2=%d, y2=%d, mode=%d\n",x1,y1,x2,y2,mode);
+      // fprintf(stderr, " Drawbox x1=%d, y1=%d, x2=%d, y2=%d, mode=%d\n",x1,y1,x2,y2,mode);
       if (mode == kHollow)
       {
          fQPainter->setBrush(Qt::NoBrush);
@@ -1597,14 +1602,15 @@ void  TGQt::GetGeometry(int wid, int &x, int &y, unsigned int &w, unsigned int &
       QPaintDevice  *dev = iwid(wid);
       if (dev) {
          if ( dev->devType() == QInternal::Widget) {
-            TQtWidget &thisWidget = *(TQtWidget *)dev;
+            TQtWidget &thisWidget = *(TQtWidget *)dev;            
             if (thisWidget.GetRootID() ) {
                // we are using the ROOT Gui factory
                devSize = thisWidget.parentWidget()->geometry();
             } else{
                devSize = thisWidget.geometry();
             }
-            devSize.moveTopLeft(thisWidget.mapToGlobal(QPoint(0,0)));
+           QPoint corner = thisWidget.mapToGlobal(QPoint(0,0));
+           devSize.moveTopLeft(corner);
          } else {
             devSize = GetQRect(*dev);
          }
@@ -1614,7 +1620,7 @@ void  TGQt::GetGeometry(int wid, int &x, int &y, unsigned int &w, unsigned int &
    y = devSize.top();
    w = devSize.width();
    h = devSize.height();
-   // fprintf(stderr," TGQt::GetGeometry %d %d %d %d %d\n", wid, x,y,w,h);
+ //  fprintf(stderr," 2. TGQt::GetGeometry %d %d %d %d %d\n", wid, x,y,w,h);
 }
 
 //______________________________________________________________________________
@@ -1892,10 +1898,12 @@ void   TGQt::SelectPixmap(Int_t qpixid){ SelectWindow(qpixid);}
 void  TGQt::SelectWindow(int wid)
 {
    // Select window to which subsequent output is directed.
-
+   // fprintf(stderr," TGQt::SelectWindow %d \n", wid);
    // Don't select things twice
+   
    if (wid == -1 || wid == (int) kNone) {
        fSelectedBuffer=0; fSelectedWindow = NoOperation;
+      //return;
    } else {
       QPaintDevice *dev = iwid(wid);
       if (!dev) {
@@ -1907,13 +1915,18 @@ void  TGQt::SelectWindow(int wid)
          if (wid == -1 || wid == (int) kNone) { fSelectedBuffer=0; fSelectedWindow = NoOperation; }
          else {
             fSelectedWindow = dev;
-            fSelectedBuffer = offScreenBuffer;
+            fSelectedBuffer = offScreenBuffer;            
          }
       }
    }
-
-   if (fPrevWindow && fPrevWindow != (void *)-1 && (fWidgetArray->find(fPrevWindow) != -1) )   End();
-   if (fSelectedWindow && (fSelectedWindow != NoOperation))  Begin();
+   if (fPrevWindow && fPrevWindow != (void *)-1 && (fWidgetArray->find(fPrevWindow) != -1) )  {
+//       fprintf(stderr," TGQt::SelectWindow End %d \n", wid);
+      End();
+   }
+   if (fSelectedWindow && (fSelectedWindow != NoOperation)) {
+//      fprintf(stderr," TGQt::SelectWindow  begin %d \n", wid);
+      Begin();
+   }
 }
 
 //______________________________________________________________________________
@@ -1975,10 +1988,8 @@ void  TGQt::SetCursor(Int_t wid, ECursor cursor)
    if (wid && wid != -1 && wid != kDefault)
    {
       QPaintDevice *widget = iwid(wid);
-      if (widget->devType() == QInternal::Widget )
-      {
-         ((TQtWidget *)widget)->setCursor(*fCursors[fCursor]);
-      }
+      if ( TQtWidget *w = (TQtWidget *)IsWidget(widget) )
+         w->setCursor(*fCursors[fCursor]);
    }
 }
 
@@ -1993,9 +2004,9 @@ void  TGQt::SetDoubleBuffer(int wid, int mode)
 
    if (wid == -1 && wid == kDefault) return;
    QPaintDevice *dev = iwid(wid);
-   TQtWidget *widget = dynamic_cast<TQtWidget *>(dev);
-   if (widget) {
+   if ( TQtWidget *widget = (TQtWidget *)IsWidget(dev) ) {              
       widget->SetDoubleBuffer(mode);
+   // fprintf(stderr," TGQt::SetDoubleBuffer \n"); 
    }
 }
 
@@ -2034,6 +2045,7 @@ void  TGQt::SetDrawMode(TVirtualX::EDrawMode mode)
          fQPainter->setCompositionMode(fDrawMode);
      }
 #endif /* QT_VERSION */
+     // sfprintf(stderr,"TGQt::SetDrawMode \n");
    }
 }
 
@@ -2574,6 +2586,22 @@ void  TGQt::SetTextFont(const char *fontname, int italic, int bold)
    fQFont->setWeight((long) bold*10);
    fQFont->setItalic((Bool_t)italic);
    fQFont->setFamily(fontname);
+#if QT_VERSION >= 0x40000
+   if (!strcmp(fontname,romanFontName)) {
+      fQFont->setStyleHint(QFont::Serif);
+   } else if (!strcmp(fontname,arialFontName)) {
+      fQFont->setStyleHint(QFont::SansSerif);
+   } else if (!strcmp(fontname,courierFontName)){
+      fQFont->setStyleHint(QFont::TypeWriter);
+   }  
+   fQFont->setStyleStrategy(QFont::PreferDevice);
+#if 0   
+   qDebug() << "TGQt::SetTextFont:" << fontname 
+         << fQFont->lastResortFamily ()
+         << fQFont->lastResortFont () 
+         << fQFont->substitute (fontname);
+#endif   
+#endif   
    fTextFontModified = 1;
    // fprintf(stderr, "TGQt::SetTextFont font: <%s> bold=%d italic=%d\n",fontname,bold,italic);
 }
@@ -2601,18 +2629,6 @@ void  TGQt::SetTextFont(Font_t fontnumber)
    //*-*       13 : times-medium-r-normal      "Times New Roman"      0           5
    //*-*       14 :                            "Wingdings"            0           5
    
-#if QT_VERSION < 0x40000
-   static const char *romanFontName   = "Times New Roman";
-   static const char *arialFontName   = "Arial";
-   static const char *courierFontName = "Courier New";
-   static const char *symbolFontName  = "Standard Symbols L"; // "Symbol";
-#else
-   static const char *romanFontName   = "Nimbus Roman No9 L";
-   static const char *arialFontName   = "Nimbus Sans L";
-   static const char *courierFontName = "Nimbus Mono L ";
-   static const char *symbolFontName  = "Standard Symbols L";
-#endif      
-
    if ( fTextFont == fontnumber) return;
    fTextFont = fontnumber;
    if (fTextFont == -1) {
@@ -2945,6 +2961,7 @@ void TGQt::Begin()
                  fQPainter->setCompositionMode(fDrawMode);
 #endif /* QT_VERSION */
       }
+      // fprintf(stderr,"---> TGQt::Begin() finished\n");
    }
 }
 
