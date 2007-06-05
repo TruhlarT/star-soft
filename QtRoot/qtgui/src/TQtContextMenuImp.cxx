@@ -1,6 +1,6 @@
 // Author: Valeri Fine   21/01/2002
 /****************************************************************************
-** $Id: TQtContextMenuImp.cxx,v 1.3 2007/06/05 00:59:05 fine Exp $
+** $Id: TQtContextMenuImp.cxx,v 1.4 2007/06/05 15:38:06 fine Exp $
 **
 ** Copyright (C) 2002 by Valeri Fine. Brookhaven National Laboratory.
 **                                    All rights reserved.
@@ -11,14 +11,14 @@
 **
 *****************************************************************************/
 
+#include "TQtContextMenuImp.h"
 #if QT_VERSION >= 0x40000
-//Added by qt3to4:
 #  include <QMenu>
 #else
 #  include "qpopupmenu.h"
+#  include  <qlabel.h>
 #endif /* QT_VERSION */
 
-#include "TQtContextMenuImp.h"
 #include "TGQt.h"
 #include "TQtLock.h"
 
@@ -40,7 +40,6 @@
 #include "TQtBrowserImp.h"
 #include "TObjectExecute.h"
 
-#include  <qlabel.h>
 //______________________________________________________________________________
 TQtContextMenuImp::TQtContextMenuImp(TContextMenu *c) :  TContextMenuImp(c), fPopupMenu(0)
                       
@@ -101,9 +100,7 @@ void TQtContextMenuImp::CreatePopup () {
 
 //*-*  Include the menu title
     TObject *object = c? c->GetSelectedObject() : 0;
-    QString titleBar = "<center><b><i>";
-    titleBar += fContextMenu->CreatePopupTitle(object);
-    titleBar += "</i></b></center>";
+    QString titleBar = fContextMenu->CreatePopupTitle(object);
 #if QT_VERSION < 0x40000
     fPopupMenu->insertItem(new QLabel(titleBar,fPopupMenu));
     fPopupMenu->insertSeparator(); fPopupMenu->insertSeparator();
@@ -112,9 +109,10 @@ void TQtContextMenuImp::CreatePopup () {
     fPopupMenu->insertItem("&Inspect",    this,SLOT(InspectCB()));
     fPopupMenu->insertItem("&Browse",     this,SLOT(BrowseCB()));
 #else
-    // fPopupMenu->setTitle(titleBar);
-    titleBar = fContextMenu->CreatePopupTitle(object);
-    fPopupMenu->addAction(titleBar);
+    QAction *action = fPopupMenu->addAction(titleBar);
+    QFont af = action->font();
+    af.setBold(true);
+    action->setFont(af);
 
     fPopupMenu->addSeparator(); fPopupMenu->addSeparator();
 
