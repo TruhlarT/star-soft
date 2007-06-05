@@ -1,4 +1,4 @@
-// @(#)root/qt:$Name:  $:$Id: TQtWidget.cxx,v 1.8 2007/05/24 16:49:55 fine Exp $
+// @(#)root/qt:$Name:  $:$Id: TQtWidget.cxx,v 1.9 2007/06/05 18:17:50 fine Exp $
 // Author: Valeri Fine   23/01/2003
 
 /*************************************************************************
@@ -280,12 +280,14 @@ void TQtWidget::adjustSize()
   update();
 }
 //_____________________________________________________________________________
-void TQtWidget::erase ()
+void TQtWidget::Erase ()
 {
   // Erases the specified area (x, y, w, h) in the widget
   // without generating a paint event.
-  QWidget::erase();
-  fPixmapID.fill();
+  //  QWidget::erase(); -- Fix me for no double buffer mode
+ 
+  fPixmapID.fill(this,QPoint(0,0));
+  update();
 }
 //_____________________________________________________________________________
 void TQtWidget::cd()
@@ -720,13 +722,13 @@ void TQtWidget::paintEvent (QPaintEvent *e)
    QRect rect = e->rect();
    if ( fPaint && !rect.isEmpty() )
    {
-      // fprintf(stderr,"TQtWidget::paintEvent: window = %p; buffer =  %p\n",
-      //  (QPaintDevice *)this, (QPaintDevice *)&GetBuffer());
+     //  fprintf(stderr,"TQtWidget::paintEvent: window = %p; buffer =  %p\n",
+     //   (QPaintDevice *)this, (QPaintDevice *)&GetBuffer());
 #if QT_VERSION < 0x40000
       bitBlt(this, rect.x(),rect.y(),&GetBuffer(),rect.x(), rect.y(), rect.width(), rect.height());
 #else
       QPainter screen(this);
-      screen.drawPixmap(rect,GetBuffer());      
+      screen.drawPixmap(rect.x(),rect.y(),GetBuffer(),rect.x(), rect.y(), rect.width(), rect.height());
 #endif
    }
 }
