@@ -1,8 +1,8 @@
-// @(#)root/g3d:$Name:  $:$Id: TQtCoinWidget.h,v 1.26 2007/04/16 22:30:08 fine Exp $
+// @(#)root/g3d:$Name:  $:$Id: TQtCoinWidget.h,v 1.27 2007/06/08 17:16:42 fine Exp $
 // Author: Valery Fine      23/05/97
 
 /****************************************************************************
-** $Id: TQtCoinWidget.h,v 1.26 2007/04/16 22:30:08 fine Exp $
+** $Id: TQtCoinWidget.h,v 1.27 2007/06/08 17:16:42 fine Exp $
 **
 ** Copyright (C) 2002 by Valeri Fine. Brookhaven National Laboratory.
 **                                    All rights reserved.
@@ -133,6 +133,7 @@ private:
    SoFieldSensor          *fCameraSensor;
    void                   *fPickedObject;
    float                   fPivotClipPoint[3];
+   bool                    fEnableObjectPick;
    
    TQtCoinWidget(const TQtCoinWidget&);
    void operator=(const TQtCoinWidget&)  {}
@@ -168,7 +169,7 @@ protected:
    QAction        *fSnapShotAction;      // QAction to toglle the snap shot file saving
    SoGLRenderAction *fBoxHighlightAction;
    SoGLRenderAction *fLineHighlightAction;
-   Bool_t          fWantClipPlane;       //
+   Bool_t            fWantClipPlane;       //
    SoClipPlaneManip *fClipPlaneMan; 
    SoClipPlane      *fClipPlane; 
    SoClipPlane      *fSlicePlane; 
@@ -237,6 +238,8 @@ public:
    //QGLWidget *GLWidget() const { return fGLWidget;}
    virtual TVirtualPad *GetPad();
    void CreateViewer(const int){;}
+   bool ObjectPickEnabled() const { return  fEnableObjectPick; }
+
    void EmitSelectSignal(TObject *view);
    void EmitNodeSelectSignal(SoNode *node);
    Bool_t Recording()  const { return fRecord;}
@@ -265,6 +268,7 @@ public:
      //virtual void ActivateSelectionGlobalCB(bool);
      //virtual void DisconnectSelectorWidgetCB();
      virtual void AddGLList(unsigned int list, EObject3DType type=kSolid);
+     virtual void EnableObjectPick(bool enable=true)  { fEnableObjectPick = enable; }
      virtual void RemoveGLList(unsigned int list);
      virtual void FrameAxisActionCB(bool);
       //virtual void NewViewer();

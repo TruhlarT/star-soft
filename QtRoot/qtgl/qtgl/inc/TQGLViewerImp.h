@@ -1,4 +1,4 @@
-// @(#)root/g3d:$Name:  $:$Id: TQGLViewerImp.h,v 1.14 2007/05/09 22:57:10 fine Exp $
+// @(#)root/g3d:$Name:  $:$Id: TQGLViewerImp.h,v 1.15 2007/06/08 17:16:44 fine Exp $
 // Author: Valery Fine      12/03/2005
 
 /*************************************************************************
@@ -122,6 +122,8 @@ public:
    virtual void AddGLList(unsigned int list, EObject3DType type=kSolid)= 0;
    virtual void AddRootChild(ULong_t id, EObject3DType type=kSolid)    = 0;
    virtual void DisconnectPad()                         = 0;
+   virtual void EnableObjectPick(bool enable=true)      = 0;
+   virtual bool ObjectPickEnabled()   const             = 0;
    virtual void ReadInputFile(const char *fileName)     = 0;
    virtual void RemoveGLList(unsigned int list)         = 0;
    virtual void SetBackgroundColor(Color_t color)       = 0;

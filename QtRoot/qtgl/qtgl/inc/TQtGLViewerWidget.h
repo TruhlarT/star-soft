@@ -1,12 +1,12 @@
 
-// @(#)root/gtgl:$Name:  $:$Id: TQtGLViewerWidget.h,v 1.5 2007/03/14 00:11:59 fine Exp $
+// @(#)root/gtgl:$Name:  $:$Id: TQtGLViewerWidget.h,v 1.6 2007/06/08 17:16:44 fine Exp $
 // Author: Valery Fine      23/10/03
 
 #ifndef ROOT_TQtGLViewerWidget_
 #define ROOT_TQtGLViewerWidget_
 
 /****************************************************************************
-** $Id: TQtGLViewerWidget.h,v 1.5 2007/03/14 00:11:59 fine Exp $
+** $Id: TQtGLViewerWidget.h,v 1.6 2007/06/08 17:16:44 fine Exp $
 **
 ** Copyright (C) 2002 by Valeri Fine.  All rights reserved.
 **
@@ -137,6 +137,7 @@ protected:
    Bool_t   fSolidSelectable;     // flag whether to objects from fGLSolidLists are selectable
    Bool_t   fWiredSelectable;     // flag whether to objects from fGLWiredLists are selectable
    Float_t  fFrameAxisFactor;     // the scale of the frame axis ( <0 - no axis at all)
+   bool     fEnableObjectPick;    // Should we pick the TObject ?
    
 protected:
    void    drawFooter();
@@ -178,6 +179,7 @@ public:
    inline Bool_t  IsSolidSelectable() const { return fSolidSelectable;  }
    inline Bool_t  IsSlicingSelected() const { return fClipPlane > 0 ? true: false;  }
    inline Float_t FrameAxisScale()    const { return fFrameAxisFactor;  }
+          bool    ObjectPickEnabled() const { return  fEnableObjectPick;}
    
 public slots:
    virtual void actionGLView(char option, int count=1);
@@ -185,6 +187,7 @@ public slots:
    virtual void addGLList(unsigned int list, EObjectType type=kSolid);
    virtual void clearGLList();
    virtual void clearGLList(EObjectType type);
+   virtual void EnableObjectPick(bool enable=true)  { fEnableObjectPick = enable; }
    virtual void initFromDOMElement(const QDomElement &element);
    virtual void removeGLList(unsigned int list);
    virtual void setFooter(QString &text){ fFooterText = text;}

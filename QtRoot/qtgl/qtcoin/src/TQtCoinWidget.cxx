@@ -434,7 +434,7 @@ static SoPath * PickFilterCB(void * viewer, const SoPickedPoint * pick)
    }
 //  SoGroup *thisGroup = (SoGroup *)p->getNode(i);
   TObject *o = (TObject*)p->getNode(i)->getUserData();
-  TObject3DView *v = dynamic_cast<TObject3DView *>(o);
+  TObject3DView *v = (o && o->TestBit(TObject::kNotDeleted)) ? dynamic_cast<TObject3DView *>(o) : 0;
  // printf("static SoPath *PickFilterCB l=%d, i=%d %s : root name = %s \n",p->getLength(),i
  //        ,(const char *)p->getNode(i)->getName(),(const char *)v->GetName());
   TQtCoinWidget *thisViewer = (TQtCoinWidget*)viewer;
@@ -445,13 +445,13 @@ static SoPath * PickFilterCB(void * viewer, const SoPickedPoint * pick)
      if (!thisViewer->WasPicked(v) ) {
         TObject3DView  *parent = (TObject3DView  *)v->GetParent();
         TObject *obj = parent ? parent->GetObject() :0 ;
-        if (obj)  thisViewer->EmitSelectSignal(obj);
+        if (thisViewer->ObjectPickEnabled() && obj && obj->TestBit(TObject::kNotDeleted))  thisViewer->EmitSelectSignal(obj);
      }
      selPath = p->copy(0, i);
   } else {
      // No TObject attached to the coin path was discovered
      o = (TObject *)p->getTail()->getUserData();
-     if (o) {
+     if (thisViewer->ObjectPickEnabled() && o && o->TestBit(TObject::kNotDeleted)) {
         thisViewer->EmitSelectSignal(o);
      } else {
         thisViewer->EmitNodeSelectSignal(p->getTail());
@@ -499,8 +499,9 @@ static void SelectCB(void * viewer, SoPath *p)
 
     // Popup the object tip
 
-   TObject *selectedObject = thisViewer->GetSelected();
-   if ((!thisViewer->WantRootContextMenu()) && selectedObject ) {
+//   TObject *selectedObject = thisViewer->ObjectPickEnabled() ? thisViewer->GetSelected(): 0;
+   TObject *selectedObject =thisViewer->GetSelected();
+   if ((!thisViewer->WantRootContextMenu()) && selectedObject && selectedObject->TestBit(TObject::kNotDeleted)) {
       QPoint globalPosition = QCursor::pos();
       QWidget *viewerWidget = thisViewer->GetCoinViewer()->getWidget();
       QPoint cursorPosition = viewerWidget->mapFromGlobal(globalPosition);
@@ -539,7 +540,7 @@ TQtCoinWidget::TQtCoinWidget(QWidget *parent, COINWIDGETFLAGSTYPE f)
    , fInventorViewer(0),fRootNode(0)
    , fShapeNode(0),fWiredShapeNode(0),fClippingShapeNode(0),fSolidShapeNode(0),fRawShapeNode(0)
    , fFileNode(0),fSelNode(0),fAnnotation(0),fFooterText(0),fCamera(0),fAxes(0)
-   , fXAxis(0), fYAxis(0), fZAxis(0),fCameraSensor(0),fPickedObject(0)
+   , fXAxis(0), fYAxis(0), fZAxis(0),fCameraSensor(0),fPickedObject(0),fEnableObjectPick(true)
    , fSaveType("JPEG"),fMaxSnapFileCounter(2),fSnapshotCounter(0),fPad(0),fContextMenu(0),fSelectedObject(0)
    , fWantRootContextMenu(kFALSE)
    //,fGLWidget(0),fSelectedView(0),fSelectedViewActive(kFALSE)
@@ -594,7 +595,7 @@ TQtCoinWidget::TQtCoinWidget(TVirtualPad *pad, const char *title,
    , fInventorViewer(0),fRootNode(0)
    , fShapeNode(0),fWiredShapeNode(0),fClippingShapeNode(0),fSolidShapeNode(0),fRawShapeNode(0)
    , fFileNode(0),fSelNode(0),fAnnotation(0),fFooterText(0),fCamera(0),fAxes(0)
-   , fXAxis(0), fYAxis(0), fZAxis(0),fCameraSensor(0),fPickedObject(0)
+   , fXAxis(0), fYAxis(0), fZAxis(0),fCameraSensor(0),fPickedObject(0),fEnableObjectPick(true)
    , fSaveType("JPEG"),fMaxSnapFileCounter(2),fSnapshotCounter(0),fPad(pad),fContextMenu(0),fSelectedObject(0)
    , fWantRootContextMenu(kFALSE)
    //,fGLWidget(0),fSelectedView(0),fSelectedViewActive(kFALSE)
@@ -1293,14 +1294,13 @@ void TQtCoinWidget::Save(QString fileName,QString type)
    } else {
         QGLWidget *w = (QGLWidget *)GetCoinViewer()->getGLWidget();
         if (w) {
-           QImage im =  w->grabFrameBuffer(TRUE); 
            if ( e.lower() == "gif") {
               // Save animated GIF via TImage (to avoid the "Software patent" issue
               Int_t saver = gErrorIgnoreLevel;
               gErrorIgnoreLevel = kFatal;
               TImage *img = TImage::Create();
               if (img) {
-                 QPixmap finalPixmap(im);
+                 QPixmap finalPixmap(w->grabFrameBuffer(TRUE));
                  img->SetImage(Pixmap_t(TGQt::rootwid(&finalPixmap)),0);
                  QString gifFile = thatFile;
 //                 if ( Recording() ) 
@@ -1318,6 +1318,8 @@ void TQtCoinWidget::Save(QString fileName,QString type)
               }
               gErrorIgnoreLevel = saver;
            } else {
+              QImage im = w->grabFrameBuffer(TRUE); 
+//              QPixmap::grabWidget(w).save(thatFile,e.upper().replace("JPG","JPEG"));
               im.save(thatFile,e.upper().replace("JPG","JPEG"));
               EmitImageSaved(thatFile
                  , e.upper().replace("JPG","JPEG")

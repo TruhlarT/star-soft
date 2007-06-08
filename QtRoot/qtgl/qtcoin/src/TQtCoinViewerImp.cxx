@@ -1283,7 +1283,19 @@ ULong_t TQtCoinViewerImp::GetViewerID() const
 {
    return ULong_t((QMainWindow *) this);
 }
-
+//______________________________________________________________________________
+void TQtCoinViewerImp::EnableObjectPick(bool enable)
+{  
+ //  [slot]  Proxy to enable the TObject picking
+	if (fCoinWidget) fCoinWidget->EnableObjectPick(enable);
+}
+//______________________________________________________________________________
+bool TQtCoinViewerImp::ObjectPickEnabled()  const
+{
+   // returns whether the Coin widget picks the TObject's
+   // Need to protect the widget against of the images of the host TObject
+   return fCoinWidget ? fCoinWidget->ObjectPickEnabled(): false; 
+}
 //______________________________________________________________________________
 void TQtCoinViewerImp::SetSnapFileCounter(int counter)
 { 

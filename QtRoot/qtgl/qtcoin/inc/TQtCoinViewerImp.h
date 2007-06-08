@@ -1,8 +1,8 @@
-// @(#)root/g3d:$Name:  $:$Id: TQtCoinViewerImp.h,v 1.19 2007/04/16 22:30:08 fine Exp $
+// @(#)root/g3d:$Name:  $:$Id: TQtCoinViewerImp.h,v 1.20 2007/06/08 17:16:42 fine Exp $
 // Author: Valery Fine      23/05/97
 
 /****************************************************************************
-** $Id: TQtCoinViewerImp.h,v 1.19 2007/04/16 22:30:08 fine Exp $
+** $Id: TQtCoinViewerImp.h,v 1.20 2007/06/08 17:16:42 fine Exp $
 **
 ** Copyright (C) 2002 by Valeri Fine. Brookhaven National Laboratory.
 **                                    All rights reserved.
@@ -180,6 +180,7 @@ public:
    void CreateViewer(const int /* id */ ){;}
    void SetBoxSelection();
    void SetLineSelection();
+   virtual bool ObjectPickEnabled()   const;
    TObject     *GetSelected()         const;
    SoQtViewer  *GetCoinViewer()       const;
    Bool_t       WantRootContextMenu() const;
@@ -195,6 +196,7 @@ public:
      //virtual void ActivateSelectionHighlighCB(bool);
      //virtual void ActivateSelectionGlobalCB(bool);
      //virtual void DisconnectSelectorWidgetCB();
+     virtual void EnableObjectPick(bool enable=true);
      virtual void AddGLList(unsigned int list, EObject3DType type=kSolid);
      virtual void RemoveGLList(unsigned int list);
      virtual void FrameAxisActionCB(bool);

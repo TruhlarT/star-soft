@@ -1,8 +1,8 @@
-// @(#)root/g3d:$Name:  $:$Id: TQtGLViewerImp.h,v 1.10 2007/03/19 22:17:56 fine Exp $
+// @(#)root/g3d:$Name:  $:$Id: TQtGLViewerImp.h,v 1.11 2007/06/08 17:16:44 fine Exp $
 // Author: Valery Fine      23/05/97
 
 /****************************************************************************
-** $Id: TQtGLViewerImp.h,v 1.10 2007/03/19 22:17:56 fine Exp $
+** $Id: TQtGLViewerImp.h,v 1.11 2007/06/08 17:16:44 fine Exp $
 **
 ** Copyright (C) 2002 by Valeri Fine. Brookhaven National Laboratory.
 **                                    All rights reserved.
@@ -155,6 +155,7 @@ public:
    virtual void SetUpdatesEnabled( bool);
    virtual bool GetUpdatesEnabled() const;
    virtual bool IsFullScreen( )     const;
+   virtual bool ObjectPickEnabled() const;
 
 
 #ifndef __CINT__
@@ -163,6 +164,7 @@ public:
      virtual void ActivateSelectionHighlighCB(bool);
      virtual void ActivateSelectionGlobalCB(bool);
      virtual void DisconnectSelectorWidgetCB();
+     virtual void EnableObjectPick(bool enable=true);
      virtual void AddGLList(unsigned int list, EObject3DType type=kSolid);
      virtual void AddRootChild(ULong_t, EObject3DType ){ assert(0); /* this to be called for Coin3D only */ };
      virtual void RemoveGLList(unsigned int list);
