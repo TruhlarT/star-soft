@@ -1,6 +1,6 @@
 // Author: Valeri Fine   21/01/2002
 /****************************************************************************
-** $Id: TQtApplication.cxx,v 1.1 2006/08/16 19:27:06 fine Exp $
+** $Id: TQtApplication.cxx,v 1.2 2007/06/10 04:04:50 fine Exp $
 **
 ** Copyright (C) 2002 by Valeri Fine. Brookhaven National Laboratory.
 **                                    All rights reserved.
@@ -72,6 +72,12 @@ void TQtApplication::CreateQApplication(int &argc, char ** argv, bool GUIenabled
 #if QT_VERSION < 0x40000
        qApp = new QApplication(argc,argv,GUIenabled);
 #else /* QT_VERSION */
+#ifdef NOSYNC       
+       int argC = 2;
+       static char *argV[] = {"root.exe", "-sync" };
+       fprintf(stderr," argc = %d, argv = %s %s\n", argC,argV[0],argV[1]);
+       new QApplication(argC,argV,GUIenabled);
+#endif       
        new QApplication(argc,argv,GUIenabled);
 #endif /* QT_VERSION */
        // The string must be one of the QStyleFactory::keys(),
