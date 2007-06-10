@@ -1,6 +1,6 @@
 // Author: Valeri Fine   21/01/2002
 /****************************************************************************
-** $Id: TQtCanvasImp.cxx,v 1.11 2007/06/05 00:59:05 fine Exp $
+** $Id: TQtCanvasImp.cxx,v 1.12 2007/06/10 04:00:18 fine Exp $
 **
 ** Copyright (C) 2002 by Valeri Fine. Brookhaven National Laboratory.
 **                                    All rights reserved.
@@ -419,8 +419,8 @@ void TQtCanvasImp::MakeMenu()
    fileMenu->                                 addSeparator();
    fileMenu->addAction(fActions[kFilePrint]);                  fFileToolBar->addAction(fActions[kFilePrint]);
    fileMenu->                                 addSeparator();
-   fileMenu->addAction(fActions[kFileQuit]);
-   fileMenu->addAction(fActions[kFileExit]);
+   fileMenu->addAction(fActions[kFileQuit]);fActions[kFileQuit]->setMenuRole(QAction::QuitRole);
+   fileMenu->addAction(fActions[kFileExit]);fActions[kFileExit]->setMenuRole(QAction::QuitRole);
 #endif
 
    //*-*   Items for the Edit Menu
@@ -656,7 +656,7 @@ void TQtCanvasImp::MakeMenu()
    helpMenu->addAction(fActions[kHelpOnObjects]   );
    helpMenu->addAction(fActions[kHelpOnPS]        );
    helpMenu->                                   addSeparator();
-   helpMenu->addAction(fActions[kHelpAbout]       );
+   helpMenu->addAction(fActions[kHelpAbout]       );fActions[kHelpAbout]->setMenuRole(QAction::AboutRole);
 #endif
 }
 
