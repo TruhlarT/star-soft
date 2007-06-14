@@ -1,4 +1,4 @@
-// @(#)root/qt:$Name:  $:$Id: TGQt.h,v 1.4 2006/12/29 20:16:59 fine Exp $
+// @(#)root/qt:$Name:  $:$Id: TGQt.h,v 1.5 2007/06/14 20:14:45 fine Exp $
 // Author: Valeri Fine   21/01/2002
 /****************************************************************************
 **
@@ -79,7 +79,7 @@ class TFileHandler;
 class TQtApplication;
 class TQtClientFilter;
 class TQtEventQueue;
-
+class TGWindow;
 
 //#define TRACE_TGQt() fprintf(stdout, "TGQt::%s() %d\n", __FUNCTION__, __LINE__)
 

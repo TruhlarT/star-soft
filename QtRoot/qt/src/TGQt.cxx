@@ -1,7 +1,7 @@
-// @(#)root/qt:$Name:  $:$Id: TGQt.cxx,v 1.13 2007/06/14 17:30:04 fine Exp $
+// @(#)root/qt:$Name:  $:$Id: TGQt.cxx,v 1.14 2007/06/14 20:14:45 fine Exp $
 // Author: Valeri Fine   21/01/2002
 /****************************************************************************
-** $Id: TGQt.cxx,v 1.13 2007/06/14 17:30:04 fine Exp $
+** $Id: TGQt.cxx,v 1.14 2007/06/14 20:14:45 fine Exp $
 **
 ** Copyright (C) 2002 by Valeri Fine. Brookhaven National Laboratory.
 **                                    All rights reserved.
@@ -730,7 +730,7 @@ Bool_t TGQt::Init(void* /*display*/)
 {
    //*-*-*-*-*-*-*-*-*-*-*-*-*-*Qt GUI initialization-*-*-*-*-*-*-*-*-*-*-*-*-*-*
    //*-*                        ========================                      *-*
-   fprintf(stderr,"** $Id: TGQt.cxx,v 1.13 2007/06/14 17:30:04 fine Exp $ this=%p\n",this);
+   fprintf(stderr,"** $Id: TGQt.cxx,v 1.14 2007/06/14 20:14:45 fine Exp $ this=%p\n",this);
 #if QT_VERSION >= 0x40000
 #ifndef R__QTWIN32
    extern void qt_x11_set_global_double_buffer(bool);
@@ -828,9 +828,16 @@ Bool_t TGQt::Init(void* /*display*/)
     QFontDatabase fdb;
     QStringList families = fdb.families();
     Bool_t symbolFontFound = kFALSE;
+    Bool_t isXdfSupport = 
+#if QT_VERSION < 0x40000          
+          kTRUE
+#else
+          !gSystem->Getenv("QT_X11_NO_FONTCONFIG");
+#endif            
     for ( QStringList::Iterator f = families.begin(); f != families.end(); ++f ) {
         // fprintf(stderr," TGQt::TGQt %s \n", (*f).ascii());
-        if ( (*f).contains(fSymbolFontFamily)) 
+        if ( (isXdfSupport && (*f).contains(fSymbolFontFamily))
+            || (!isXdfSupport && (*f) == fSymbolFontFamily) ) 
         { 
            symbolFontFound = kTRUE; 
            fSymbolFontFamily = *f;
@@ -842,7 +849,21 @@ Bool_t TGQt::Init(void* /*display*/)
            break; 
         }
     }
-    if (!symbolFontFound) {
+#if QT_VERSION >= 0x40000
+    if (isXdfSupport && !symbolFontFound) {
+// Load the local ROOT font 
+       QString fontdir =
+#ifdef TTFFONTDIR
+    		TTFFONTDIR
+#else
+		  "$ROOOTSYS/fonts"
+#endif
+        ;
+        QString symbolFontFile = fontdir + "/" + QString(fSymbolFontFamily).toLower() + ".ttf";
+        symbolFontFound = QFontDatabase::addApplicationFont(symbolFontFile);
+    }
+#endif                
+    if (!symbolFontFound) {       
         fprintf(stderr, "The font \"symbol.ttf\" was not installed yet\n");
          //  provide the replacement and the codec
         fSymbolFontFamily = "Arial";
