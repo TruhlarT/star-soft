@@ -1,4 +1,4 @@
-// @(#)root/qt:$Name:  $:$Id: TQtWidget.cxx,v 1.10 2007/06/14 20:28:57 fine Exp $
+// @(#)root/qt:$Name:  $:$Id: TQtWidget.cxx,v 1.11 2007/06/14 20:32:27 fine Exp $
 // Author: Valeri Fine   23/01/2003
 
 /*************************************************************************
@@ -450,7 +450,6 @@ void TQtWidget::mousePressEvent (QMouseEvent *e)
          EmitSignal(kMousePressEvent);
          if (!( IsDoubleBuffered() || IsShadow()) ) {
             if (GetShadow() && ! GetShadow()->isVisible() ) {
-               qDebug() << 2 << " QtWidget::mousePressEvent ";
                GetShadow()->show();
             }
          }
