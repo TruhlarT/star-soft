@@ -1,4 +1,4 @@
-// @(#)root/qt:$Name:  $:$Id: TQtClientWidget.h,v 1.4 2007/06/05 18:46:20 fine Exp $
+// @(#)root/qt:$Name:  $:$Id: TQtClientWidget.h,v 1.5 2007/06/14 19:43:39 fine Exp $
 /*************************************************************************
  * Copyright (C) 1995-2004, Rene Brun and Fons Rademakers.               *
  * Copyright (C) 2002 by Valeri Fine.                                    *
@@ -17,7 +17,6 @@
 #  if QT_VERSION < 0x40000
 #     include <qframe.h>
 #  else /* QT_VERSION */
-#     include <QCloseEvent>
 #     include <QFrame>
 #  endif /* QT_VERSION */
 #  include <qcursor.h>
@@ -36,9 +35,11 @@
 
 class QCursor;
 class QCloseEvent;
+class QPaintEvent;
 class TQtClientGuard;
 class TQtWidget;
 class Q3Accel;
+class TGWindow;
 
 class TQtClientWidget: public QFrame {
 #ifndef __CINT__
@@ -69,7 +70,8 @@ protected:
        bool     fDeleteNotify;
        TQtClientGuard  *fGuard;
        TQtWidget       *fCanvasWidget;
-             friend class TQtClientGuard;
+       TGWindow *fMyRootWindow;  // back pointer to the host window object
+       friend class TQtClientGuard;
        friend class TGQt;
 #ifndef __CINT__
       TQtClientWidget(TQtClientGuard *guard, QWidget* parent=0, const char* name=0, Qt::WFlags f=0);
@@ -77,6 +79,7 @@ protected:
       TQtClientWidget(TQtClientGuard *guard, QWidget* parent=0, const char* name=0, WFlags f=0);
 #endif
       void SetCanvasWidget(TQtWidget *widget);
+      virtual void paintEvent       ( QPaintEvent * );
 public:
     enum {kRemove = -1, kTestKey = 0, kInsert = 1};
     virtual ~TQtClientWidget();
@@ -112,7 +115,7 @@ public:
     UInt_t ButtonMask  ()    const;
     UInt_t ButtonEventMask() const;
     UInt_t SelectEventMask() const;
-      EMouseButton Button()    const;
+    EMouseButton Button()    const;
     UInt_t PointerMask ()    const;
 #ifndef __CINT__
 protected slots:

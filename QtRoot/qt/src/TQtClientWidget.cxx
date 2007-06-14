@@ -1,7 +1,7 @@
-// @(#)root/qt:$Name:  $:$Id: TQtClientWidget.cxx,v 1.3 2007/06/05 22:06:21 fine Exp $
+// @(#)root/qt:$Name:  $:$Id: TQtClientWidget.cxx,v 1.4 2007/06/14 19:43:39 fine Exp $
 // Author: Valeri Fine   01/03/2003
 /****************************************************************************
-** $Id: TQtClientWidget.cxx,v 1.3 2007/06/05 22:06:21 fine Exp $
+** $Id: TQtClientWidget.cxx,v 1.4 2007/06/14 19:43:39 fine Exp $
 **
 ** Copyright (C) 2003 by Valeri Fine. Brookhaven National Laboratory.
 **                                    All rights reserved.
@@ -31,6 +31,8 @@
 #endif /* QT_VERSION */
 #include <qevent.h>
 
+#include "TGClient.h"
+
 ////////////////////////////////////////////////////////////////////////////////
 //
 //  TQtClientWidget is QFrame designed to back the ROOT GUI TGWindow class objects
@@ -57,7 +59,7 @@ TQtClientWidget::TQtClientWidget(TQtClientGuard *guard, QWidget* parent, const c
          ,fButton(kAnyButton),fGrabbedKey(0), fPointerOwner(kFALSE)
          ,fNormalPointerCursor(0),fGrabPointerCursor(0),fGrabButtonCursor(0)
          ,fIsClosing(false)  ,fDeleteNotify(false), fGuard(guard)
-         ,fCanvasWidget(0)
+         ,fCanvasWidget(0),fMyRootWindow(0)
 {
 #if QT_VERSION >= 0x40000
    setName(name);
@@ -361,6 +363,25 @@ void TQtClientWidget::Disconnect()
 
    SetCanvasWidget(0);           }
 
+//______________________________________________________________________________
+void TQtClientWidget::paintEvent( QPaintEvent *e )
+{
+   QFrame::paintEvent(e);
+#if ROOT_VERSION_CODE >= ROOT_VERSION(5,15,9)
+   if (gClient) {
+      // Find my host ROOT TGWindow
+      if (!fMyRootWindow)
+         fMyRootWindow = gClient->GetWindowById(TGQt::rootwid(this));
+   
+      if (fMyRootWindow) {
+         Event_t event;
+         gVirtualX->NextEvent(event); // to remove this event from the ROOT event  queu 
+         assert( (event.fType  == kExpose) && ( event.fWindow == TGQt::rootwid(this)));
+         gClient->NeedRedraw(fMyRootWindow,true);
+      }
+   }
+#endif   
+}
 //______________________________________________________________________________
 void TQtClientWidget::polish()
 {
