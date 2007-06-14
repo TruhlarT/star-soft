@@ -1,7 +1,7 @@
-// @(#)root/qt:$Name:  $:$Id: TGQt.cxx,v 1.12 2007/06/05 19:50:02 fine Exp $
+// @(#)root/qt:$Name:  $:$Id: TGQt.cxx,v 1.13 2007/06/14 17:30:04 fine Exp $
 // Author: Valeri Fine   21/01/2002
 /****************************************************************************
-** $Id: TGQt.cxx,v 1.12 2007/06/05 19:50:02 fine Exp $
+** $Id: TGQt.cxx,v 1.13 2007/06/14 17:30:04 fine Exp $
 **
 ** Copyright (C) 2002 by Valeri Fine. Brookhaven National Laboratory.
 **                                    All rights reserved.
@@ -98,14 +98,14 @@
 #include "TError.h"
 
 TGQt *gQt=0;
-TVirtualX *TGQt::fgTQt = 0; // to remember the poiner fulishing ROOT PluginManager later.
+TVirtualX *TGQt::fgTQt = 0; // to remember the pointer foolishing ROOT PluginManager later.
 #if 1 
 // #if QT_VERSION < 0x40000
    static const char *romanFontName   = "Times New Roman";
    static const char *arialFontName   = "Arial";
    static const char *courierFontName = "Courier New";
 //   static const char *symbolFontName  = "Symbol"; // "Symbol";
-   static const char *symbolFontName  = "Standard Symbols L"; // "Symbol";
+//   static const char *symbolFontName  = "Standard Symbols L"; // "Symbol";
 #else
    static const char *romanFontName   = "Nimbus Roman No9 L";
    static const char *arialFontName   = "Nimbus Sans L";
@@ -410,7 +410,7 @@ static float CalibrateFont()
           long  bold   = 5;
           QString fontName = 
 #if QT_VERSION < 0x40000
-            "Times New Roman";
+            romanFontName;
 #else          
             "Nimbus Roman No9 L";
 #endif           
@@ -730,7 +730,13 @@ Bool_t TGQt::Init(void* /*display*/)
 {
    //*-*-*-*-*-*-*-*-*-*-*-*-*-*Qt GUI initialization-*-*-*-*-*-*-*-*-*-*-*-*-*-*
    //*-*                        ========================                      *-*
-   fprintf(stderr,"** $Id: TGQt.cxx,v 1.12 2007/06/05 19:50:02 fine Exp $ this=%p\n",this);
+   fprintf(stderr,"** $Id: TGQt.cxx,v 1.13 2007/06/14 17:30:04 fine Exp $ this=%p\n",this);
+#if QT_VERSION >= 0x40000
+#ifndef R__QTWIN32
+   extern void qt_x11_set_global_double_buffer(bool);
+//   qt_x11_set_global_double_buffer(false);  
+#endif   
+#endif   
 
    if(fDisplayOpened)   return fDisplayOpened;
    fSelectedBuffer = fSelectedWindow = fPrevWindow = NoOperation;
@@ -821,14 +827,20 @@ Bool_t TGQt::Init(void* /*display*/)
    // Check whether "Symbol" font is available
     QFontDatabase fdb;
     QStringList families = fdb.families();
-#if QT_VERSION < 0x40000
     Bool_t symbolFontFound = kFALSE;
-#else    
-    Bool_t symbolFontFound = kTRUE;
-#endif    
     for ( QStringList::Iterator f = families.begin(); f != families.end(); ++f ) {
         // fprintf(stderr," TGQt::TGQt %s \n", (*f).ascii());
-        if ( (*f).contains(fSymbolFontFamily)) { symbolFontFound = kTRUE; break; }
+        if ( (*f).contains(fSymbolFontFamily)) 
+        { 
+           symbolFontFound = kTRUE; 
+           fSymbolFontFamily = *f;
+#if QT_VERSION < 0x40000
+//              fprintf(stderr, "Symbol font family found %s\n", fSymbolFontFamily);
+#else
+//              qDebug() << "Symbol font family found:" << fSymbolFontFamily;
+#endif                                        
+           break; 
+        }
     }
     if (!symbolFontFound) {
         fprintf(stderr, "The font \"symbol.ttf\" was not installed yet\n");
@@ -954,7 +966,9 @@ Int_t TGQt::InitWindow(ULong_t window)
       // fprintf(stderr," ---- >  New Canvas window %p with the parent %s parent id=%p\n",wid, (const char *)parent->name(), rootwid(parent));
    }
    Int_t id = fWidgetArray->GetFreeId(wid);
-   // fprintf(stderr," TGQt::InitWindow %d id=%d\n",window,id);  
+   // The default mode is the dubble buffer mode 
+   wid->SetDoubleBuffer(1);
+  // fprintf(stderr," TGQt::InitWindow %d id=%d\n",window,id);  
    return id;
 }
 
@@ -1172,7 +1186,8 @@ void TGQt::CopyPixmap(const QPixmap &src, Int_t xpos, Int_t ypos)
 #else /* QT_VERSION */
       {
         QPainter paint(dst);
-        paint.setCompositionMode(QPainter::CompositionMode_Source);
+        // setCompistion makes sense for QImage only
+        // paint.setCompositionMode(QPainter::CompositionMode_Source);
         paint.drawPixmap(xpos,ypos,src);
       }
      //  ----  !!!!  bitBlt ( dst,QPoint(xpos,ypos),src,sr,QPainter::CompositionMode_Source); // bool ignoreMask )
@@ -2006,7 +2021,10 @@ void  TGQt::SetDoubleBuffer(int wid, int mode)
    QPaintDevice *dev = iwid(wid);
    if ( TQtWidget *widget = (TQtWidget *)IsWidget(dev) ) {              
       widget->SetDoubleBuffer(mode);
-   // fprintf(stderr," TGQt::SetDoubleBuffer \n"); 
+      // fprintf(stderr," TGQt::SetDoubleBuffer \n"); 
+#if QT_VERSION >= 0x40000
+ //     End();
+#endif      
    }
 }
 
@@ -2041,7 +2059,9 @@ void  TGQt::SetDrawMode(TVirtualX::EDrawMode mode)
 #if QT_VERSION < 0x40000
       if (fQPainter->isActive()) { fQPainter->setRasterOp(fDrawMode); }
 #else /* QT_VERSION */
-      if (fQPainter->isActive() && (fQPainter->device()->devType() !=  QInternal::Widget )) {
+//      if (fQPainter->isActive() && (fQPainter->device()->devType() !=  QInternal::Widget )) 
+      if (fQPainter->isActive() && (fQPainter->device()->devType() ==  QInternal::Image )) 
+      {
          fQPainter->setCompositionMode(fDrawMode);
      }
 #endif /* QT_VERSION */
@@ -2149,7 +2169,7 @@ void  TGQt::SetLineType(int n, int*dash)
     fQPen->setStyle(styles[l]);
   } 
 #if QT_VERSION >= 0x40000
-  else {
+  else if (dash) {
      // - A custom pattern defined using QPainterPathStroker::setDashPattern(). 
      QVector<qreal> dashes;
      int i;
@@ -2709,12 +2729,7 @@ void  TGQt::SetTextFont(Font_t fontnumber)
    case 12:
       italic = 0;
       bold   = 5;
-      fontName = 
-#if QT_VERSION < 0x40000
-            fSymbolFontFamily;
-#else      
-            symbolFontName;
-#endif            
+      fontName = fSymbolFontFamily;
       break;
    case 13:
       italic = 0;
@@ -2951,7 +2966,18 @@ void TGQt::Begin()
       QPaintDevice *src = fSelectedBuffer ? fSelectedBuffer : fSelectedWindow;
       // Adjust size
       if ( fSelectedWindow->devType() ==  QInternal::Widget)
+      {
          ((TQtWidget *)fSelectedWindow)->AdjustBufferSize();
+#if QT_VERSION >= 0x40000
+#ifdef SHWDOWBUFFER         
+         if (src == fSelectedWindow) {
+            TQtWidget *ww = (TQtWidget *)fSelectedWindow;
+            if (ww && !ww->IsShadow()) 
+               src = &ww->GetShadow()->GetBuffer();
+         }
+#endif         
+#endif         
+      }
       if (!fQPainter->begin(src) ) {
          fprintf(stderr,"---> TGQt::Begin() win=%p dev=%p\n",src,fQPainter->device());
       } else {
@@ -2968,7 +2994,8 @@ void TGQt::Begin()
 #if QT_VERSION < 0x40000
          fQPainter->setRasterOp(fDrawMode);
 #else /* QT_VERSION */
-         if (fQPainter->device()->devType() !=  QInternal::Widget )
+//         if (fQPainter->device()->devType() !=  QInternal::Widget )
+         if (fQPainter->device()->devType() ==  QInternal::Image )
                  fQPainter->setCompositionMode(fDrawMode);
 #endif /* QT_VERSION */
       }
@@ -2981,7 +3008,7 @@ void TGQt::End()
 {
    // End  the painting of the current slection (Pixmap or Widget)
 
-   if ( fQPainter->isActive() )
+   if ( fQPainter && fQPainter->isActive() )
    {
       // fprintf(stderr,"<--- TGQt::End() %p\n",fQPainter->device());
       fQPainter->end();
