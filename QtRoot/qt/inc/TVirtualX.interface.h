@@ -1,4 +1,4 @@
-// @(#)root/base:$Name:  $:$Id: TVirtualX.interface.h,v 1.1 2006/08/16 19:29:08 fine Exp $
+// @(#)root/base:$Name:  $:$Id: TVirtualX.interface.h,v 1.2 2007/06/14 20:11:43 fine Exp $
 // Author: Valeri Fine   28/07/2004
 
 //
@@ -103,6 +103,7 @@ public:
    virtual void         MoveResizeWindow(Window_t id, Int_t x, Int_t y, UInt_t w, UInt_t h);
    virtual void         ResizeWindow(Window_t id, UInt_t w, UInt_t h);
    virtual void         IconifyWindow(Window_t id);
+   virtual Bool_t       NeedRedraw(TGWindow * w, Bool_t force);
    virtual void         SetWindowBackground(Window_t id, ULong_t color);
    virtual void         SetWindowBackgroundPixmap(Window_t id, Pixmap_t pxm);
    virtual Window_t     CreateWindow(Window_t parent, Int_t x, Int_t y,
