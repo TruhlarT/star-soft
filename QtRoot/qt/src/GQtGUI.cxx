@@ -1,15 +1,15 @@
-// @(#)root/qt:$Name:  $:$Id: GQtGUI.cxx,v 1.5 2007/06/14 20:11:43 fine Exp $
+// @(#)root/qt:$Name:  $:$Id: GQtGUI.cxx,v 1.6 2007/06/15 01:37:18 fine Exp $
 // Author: Valeri Fine   23/01/2003
-/****************************************************************************
-**
-** Copyright (C) 2003 by Valeri Fine. Brookhaven National Laboratory.
-**                                    All rights reserved.
-**
-** This file may be distributed under the terms of the Q Public License
-** as defined by Trolltech AS of Norway and appearing in the file
-** LICENSE.QPL included in the packaging of this file.
-**
-*****************************************************************************/
+
+/*************************************************************************
+ * Copyright (C) 1995-2004, Rene Brun and Fons Rademakers.               *
+ * Copyright (C) 2003 by Valeri Fine.                                    *
+ * All rights reserved.                                                  *
+ *                                                                       *
+ * For the licensing terms see $ROOTSYS/LICENSE.                         *
+ * For the list of contributors see $ROOTSYS/README/CREDITS.             *
+ *************************************************************************/
+
 #include <assert.h>
 #include "TGQt.h"
 #include "TQUserEvent.h"
@@ -1198,16 +1198,28 @@ void         TGQt::SetWindowBackground(Window_t id, ULong_t color)
 {
    // Set the window background color.
    if (id == kNone || id == kDefault ) return;
+#if QT_VERSION < 0x40000
    wid(id)->setEraseColor(QtColor(color));
-   // wid(id)->setPaletteBackgroundColor(QtColor(color));
+#else   
+   QPalette palette;
+   palette.setColor(wid(id)->backgroundRole(), QtColor(color));
+   wid(id)->setPalette(palette);
+#endif   
 }
 //______________________________________________________________________________
 void         TGQt::SetWindowBackgroundPixmap(Window_t id, Pixmap_t pxm)
 {
    // Set pixmap as window background.
-   if (pxm  != kNone && id != kNone && id != kDefault )
+   if (pxm  != kNone && id != kNone && id != kDefault ) {
+#if QT_VERSION < 0x40000
       wid(id)->setPaletteBackgroundPixmap(*fQPixmapGuard.Pixmap(pxm));
-}
+#else   
+      QPalette palette;
+      palette.setBrush(wid(id)->backgroundRole(), QBrush(*fQPixmapGuard.Pixmap(pxm)));
+      wid(id)->setPalette(palette);
+#endif      
+   }
+ }
 //______________________________________________________________________________
 Window_t TGQt::CreateWindow(Window_t parent, Int_t x, Int_t y,
                                     UInt_t w, UInt_t h, UInt_t border,
@@ -2771,13 +2783,16 @@ char **TGQt::ListFonts(const char *fontname, Int_t max, Int_t &count)
    // count    - returns the actual number of font names
 
    // ------------------------------------------------------
-   //  ROOT uses nin-portable XLDF font description:
+   //  ROOT uses non-portable XLDF font description:
    //  XLFD 
    // ------------------------------------------------------
 
-   // The X Logical Font Descriptor (XLFD) is a text string made up of 13 parts separated by a minus sign, i.e.: 
-   // -Misc-Fixed-Medium-R-Normal-13-120-75-75-C-70-ISO8859-1 -Adobe-Helvetica-Medium-R-Normal-12-120-75-75-P-67-ISO8859-1 
+   // The X Logical Font Descriptor (XLFD) is a text string made up of 13 parts 
+   // separated by a minus sign, i.e.: 
    // 
+   // -Misc -Fixed    -Medium-R-Normal-13-120-75-75-C-70-ISO8859-1 
+   // -Adobe-Helvetica-Medium-R-Normal-12-120-75-75-P-67-ISO8859-1 
+   // ------------------------------------------------------------
    // 
    // FOUNDRY 
    // text name of font creator 
@@ -2815,7 +2830,7 @@ char **TGQt::ListFonts(const char *fontname, Int_t max, Int_t &count)
    // AVERAGE_WIDTH 
    // unweighted arithmetic mean of absolute value of width of each glyph in tenths of pixels 
    // CHARSET_REGISTRY and CHARSET_ENCODING 
-   // the chararterset used to encode the font; ISO8859-1 for Latin 1 fonts    fprintf(stderr,"No implementation: TGQt::ListFonts\n");
+   // the chararterset used to encode the font; ISO8859-1 for Latin 1 fonts
    
    //  Check whether "Symbol" font is available
     count = 0;

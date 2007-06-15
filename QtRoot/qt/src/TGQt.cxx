@@ -1,7 +1,7 @@
-// @(#)root/qt:$Name:  $:$Id: TGQt.cxx,v 1.15 2007/06/14 20:18:08 fine Exp $
+// @(#)root/qt:$Name:  $:$Id: TGQt.cxx,v 1.16 2007/06/15 01:37:18 fine Exp $
 // Author: Valeri Fine   21/01/2002
 /****************************************************************************
-** $Id: TGQt.cxx,v 1.15 2007/06/14 20:18:08 fine Exp $
+** $Id: TGQt.cxx,v 1.16 2007/06/15 01:37:18 fine Exp $
 **
 ** Copyright (C) 2002 by Valeri Fine. Brookhaven National Laboratory.
 **                                    All rights reserved.
@@ -730,7 +730,7 @@ Bool_t TGQt::Init(void* /*display*/)
 {
    //*-*-*-*-*-*-*-*-*-*-*-*-*-*Qt GUI initialization-*-*-*-*-*-*-*-*-*-*-*-*-*-*
    //*-*                        ========================                      *-*
-   fprintf(stderr,"** $Id: TGQt.cxx,v 1.15 2007/06/14 20:18:08 fine Exp $ this=%p\n",this);
+   fprintf(stderr,"** $Id: TGQt.cxx,v 1.16 2007/06/15 01:37:18 fine Exp $ this=%p\n",this);
 #if QT_VERSION >= 0x40000
 #ifndef R__QTWIN32
    extern void qt_x11_set_global_double_buffer(bool);
@@ -1602,7 +1602,7 @@ void  TGQt::GetCharacterUp(Float_t &chupx, Float_t &chupy)
 //______________________________________________________________________________
 QPaintDevice *TGQt::GetDoubleBuffer(QPaintDevice *dev)
 {
-   // Query the pointer to the dev offscrenn buffer if any
+   // Query the pointer to the dev offscreen buffer if any
 
    QPaintDevice *buffer = 0;
    if (dev) {
@@ -1638,15 +1638,14 @@ void  TGQt::GetGeometry(int wid, int &x, int &y, unsigned int &w, unsigned int &
       QPaintDevice  *dev = iwid(wid);
       if (dev) {
          if ( dev->devType() == QInternal::Widget) {
-            TQtWidget &thisWidget = *(TQtWidget *)dev;            
+            TQtWidget &thisWidget = *(TQtWidget *)dev;
             if (thisWidget.GetRootID() ) {
                // we are using the ROOT Gui factory
                devSize = thisWidget.parentWidget()->geometry();
             } else{
                devSize = thisWidget.geometry();
             }
-           QPoint corner = thisWidget.mapToGlobal(QPoint(0,0));
-           devSize.moveTopLeft(corner);
+            devSize.moveTopLeft(thisWidget.mapToGlobal(QPoint(0,0)));
          } else {
             devSize = GetQRect(*dev);
          }
@@ -1951,7 +1950,7 @@ void  TGQt::SelectWindow(int wid)
          if (wid == -1 || wid == (int) kNone) { fSelectedBuffer=0; fSelectedWindow = NoOperation; }
          else {
             fSelectedWindow = dev;
-            fSelectedBuffer = offScreenBuffer;            
+            fSelectedBuffer = offScreenBuffer; 
          }
       }
    }
