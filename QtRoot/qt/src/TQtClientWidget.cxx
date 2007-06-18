@@ -1,7 +1,7 @@
-// @(#)root/qt:$Name:  $:$Id: TQtClientWidget.cxx,v 1.4 2007/06/14 19:43:39 fine Exp $
+// @(#)root/qt:$Name:  $:$Id: TQtClientWidget.cxx,v 1.5 2007/06/18 18:18:28 fine Exp $
 // Author: Valeri Fine   01/03/2003
 /****************************************************************************
-** $Id: TQtClientWidget.cxx,v 1.4 2007/06/14 19:43:39 fine Exp $
+** $Id: TQtClientWidget.cxx,v 1.5 2007/06/18 18:18:28 fine Exp $
 **
 ** Copyright (C) 2003 by Valeri Fine. Brookhaven National Laboratory.
 **                                    All rights reserved.

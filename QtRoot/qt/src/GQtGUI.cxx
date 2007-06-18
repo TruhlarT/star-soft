@@ -1,4 +1,4 @@
-// @(#)root/qt:$Name:  $:$Id: GQtGUI.cxx,v 1.6 2007/06/15 01:37:18 fine Exp $
+// @(#)root/qt:$Name:  $:$Id: GQtGUI.cxx,v 1.7 2007/06/18 18:18:28 fine Exp $
 // Author: Valeri Fine   23/01/2003
 
 /*************************************************************************
@@ -46,6 +46,7 @@
 #  include <QVBoxLayout>
 #  include <Q3PointArray>
 #  include <QDesktopWidget>
+#  include <QDebug>
 #endif /* QT_VERSION */
 
 #include <qfontmetrics.h>
@@ -1140,7 +1141,7 @@ void  TGQt::IconifyWindow(Window_t id)
 }
 
 //______________________________________________________________________________
-Bool_t TGQt::NeedRedraw(TGWindow *w, Bool_t force)
+Bool_t TGQt::NeedRedraw(ULong_t w, Bool_t force)
 {
    // Notify the low level GUI layer ROOT requires "w" to be updated
    // Return kTRUE if the notification was desirable and it was sent
@@ -1150,8 +1151,13 @@ Bool_t TGQt::NeedRedraw(TGWindow *w, Bool_t force)
    // One needs to process the notification to confine 
    // all paint operations within "expose" / "paint" like low level event
    // or equivalent
-   if (!force) wid(w->GetId())->update();
+#if ROOT_VERSION_CODE >= ROOT_VERSION(5,15,11)
+   if (!force) wid(((TGWindow *)w)->GetId())->update();
    return force;
+#else
+   if (w||force) {}
+   return kFALSE;   
+#endif     
 }
 //______________________________________________________________________________
 void  TGQt::RaiseWindow(Window_t id)
@@ -1193,6 +1199,24 @@ void         TGQt::SetIconPixmap(Window_t id, Pixmap_t pix)
    if (id == kNone || id == kDefault || (pix==0) ) return;
    wid(id)->setIcon(*fQPixmapGuard.Pixmap(pix));
 }
+//______________________________________________________________________________
+void         TGQt::ReparentWindow(Window_t id, Window_t pid, Int_t x, Int_t y)
+{
+   // If the specified window is mapped, ReparentWindow automatically
+   // performs an UnmapWindow request on it, removes it from its current
+   // position in the hierarchy, and inserts it as the child of the specified
+   // parent. The window is placed in the stacking order on top with respect
+   // to sibling windows.
+  
+#if QT_VERSION < 0x40000
+      wid(id)->reparent(wid(pid),QPoint(x,y));
+#else
+      wid(id)->setParent(wid(pid));
+      if (x || y) wid(id)->move(x,y);
+#endif            
+
+}
+
 //______________________________________________________________________________
 void         TGQt::SetWindowBackground(Window_t id, ULong_t color)
 {
@@ -1727,9 +1751,30 @@ void         TGQt::CopyArea(Drawable_t src, Drawable_t dest, GContext_t gc,
             pix->resize(mask->width(), mask->height());
         }
          pix->setMask(*mask);
+#if QT_VERSION < 0x40000
          bitBlt(iwid(dest), dest_x,dest_y,pix, src_x,src_y,width,height, qtcontext(gc).fROp);
+#else
+         QPainter copyArea(iwid(dest));
+         copyArea.setCompositionMode(qtcontext(gc).fROp);
+         copyArea.drawPixmap(dest_x,dest_y, *pix, src_x,src_y,width,height);
+#endif
       } else {
+#if QT_VERSION < 0x40000
          bitBlt(iwid(dest), dest_x,dest_y,iwid(src), src_x,src_y,width,height, qtcontext(gc).fROp);
+#else
+         QPainter copyArea(iwid(dest));
+         copyArea.setCompositionMode(qtcontext(gc).fROp);
+         if (pix) {
+           copyArea.drawPixmap(dest_x,dest_y,*pix, src_x,src_y,width,height);
+         } else {
+            QImage *im = dynamic_cast<QImage*>(iwid(src)); 
+            if (im) {
+               copyArea.drawImage(dest_x,dest_y,*im, src_x,src_y,width,height);
+            } else {
+               qDebug() << " TGQt::CopyArea: illegal image source. Shoudl be either QPixmap or QImage";
+            }
+         }
+#endif
       }
    }
 }
