@@ -46,6 +46,7 @@ QTROOTSYSPATHINSTALL = $(QTROOTSYSDIR)
 
 # Used by Qt4 only
 QT += xml opengl
+QT += qt3support 
 
 DISTFILES *= qglviewer-icon.xpm
 

@@ -1,4 +1,4 @@
-// @(#)root/gtgl:$Name:  $:$Id: TObjectOpenGLViewFactory.cxx,v 1.3 2006/10/04 21:40:54 fine Exp $
+// @(#)root/gtgl:$Name:  $:$Id: TObjectOpenGLViewFactory.cxx,v 1.4 2007/06/19 19:45:09 fine Exp $
 // Author: Valery Fine      24/04/05
 
 /****************************************************************************
@@ -24,7 +24,11 @@
 #include <stack>
 
 #ifndef __APPLE__
-#  include "TRootGLU.h"
+#  if  ROOT_VERSION_CODE >= ROOT_VERSION(5,15,9)
+#    include  "TGLIncludes.h"
+#  else
+#    include "TRootGLU.h"
+#  endif
 #else
 #  include <glu.h>
 #endif

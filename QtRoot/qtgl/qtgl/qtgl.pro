@@ -113,16 +113,15 @@ HEADERS += inc/TBoundBoxEstimator.h       \
            inc/TObject3DViewFactory.h     \
            inc/TObject3DViewFactoryABC.h  \
            inc/TObjectOpenGLViewFactory.h \
-           inc/TQGLKernel.h               \
            inc/TQGLViewerImp.h            \
            inc/TQtGLViewerImp.h           \
            inc/TQtGLViewerWidget.h        \
            inc/TQtRootViewer3D.h          \
            inc/TQVirtualGL.h              \
            inc/TShape3DPolygonView.h
+#           inc/TQGLKernel.h               \
            
-SOURCES += src/TGLKernel.cxx                 \
-           src/TObject3DView.cxx             \
+SOURCES += src/TObject3DView.cxx             \
            src/TObject3DViewFactory.cxx      \
            src/TObject3DViewFactoryABC.cxx   \
            src/TObjectOpenGLViewFactory.cxx  \
@@ -132,6 +131,7 @@ SOURCES += src/TGLKernel.cxx                 \
            src/TQVirtualGL.cxx               \
            src/TPadOpenGLView.cxx            \
            src/TGLViewerImp.cxx             
+#           src/TGLKernel.cxx                 \
 
            
 DISTFILES += LICENSE.QPL
