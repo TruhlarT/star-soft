@@ -36,7 +36,7 @@ my @jobrr = ();
 my $Nfatal = 0;
 my $Nfail = 0;
 my $Nloop = 0;
-
+my $pathname;
 
   ($sec,$min,$hour,$mday,$mon,$yr) = localtime;
 
@@ -100,8 +100,10 @@ my $outfile = "/star/u/starreco/failjobs.".$filestamp.".csh";
 
      $fullname = $archdir ."/". $jobname;
 
-     `mv $fullname $jobdir \n`;
-     `crs_job -kill $crsjobname`;
+      `crs_job -kill $crsjobname`;
+     next if( $jobname =~ /dev/);
+
+      `mv $fullname $jobdir \n`;
         print "Looping job killed and resubmitted: ", $jobname,"   ", $prt[1],  "\n";
     }
   }
@@ -147,17 +149,31 @@ my $outfile = "/star/u/starreco/failjobs.".$filestamp.".csh";
     if ( $prt[1] eq "hpss_export_failed" ) {
     `crs_job -kill $crsjobname`;
      print "Job killed:  ", $jobname,"   ", $prt[1], "\n";
+   }elsif($prt[1] eq "hpss_error_-2") {
+    `crs_job -kill $crsjobname`;
+     print "Job killed:  ", $jobname,"   ", $prt[1], "\n";
    }elsif($prt[1] eq "no_response_from_hpss_server") {
     `crs_job -reset $crsjobname`; 
      print "Job was reset:  ", $jobname,"   ", $prt[1], "\n";
+
+   }elsif($prt[1] eq "hpss_busy") {
+    `crs_job -reset $crsjobname`; 
+     print "Job was reset:  ", $jobname,"   ", $prt[1], "\n";
+
    }elsif($prt[1] eq "pftp_get_failed") {
+    `crs_job -reset $crsjobname`; 
+     print "Job was reset:  ", $jobname,"   ", $prt[1], "\n";  
+
+   }elsif($prt[1] eq "evicted_by_condor") {
     `crs_job -reset $crsjobname`; 
      print "Job was reset:  ", $jobname,"   ", $prt[1], "\n";  
 
    }else{
 
-    `mv $fullname $jobdir \n`;
     `crs_job -kill $crsjobname`;
+    next if( $jobname =~ /dev/);   
+
+    `mv $fullname $jobdir \n`;
         print "Job killed and resubmitted: ", $jobname,"   ", $prt[1],  "\n";
     $jobfilelist[$ii] = $jobname;
     $ii++;
@@ -167,9 +183,9 @@ my $outfile = "/star/u/starreco/failjobs.".$filestamp.".csh";
 
 #####################
 
-    open (STDOUT, ">$outfile");
+#    open (STDOUT, ">$outfile");
 
-   print "#! /usr/local/bin/tcsh -f", "\n";
+#   print "#! /usr/local/bin/tcsh -f", "\n";
 
    foreach my $jfile (@jobfilelist) { 
 
@@ -185,13 +201,13 @@ my $outfile = "/star/u/starreco/failjobs.".$filestamp.".csh";
 
     $pathname = "/star/data*/reco/".$trigset."/".$field."/".$prod."/"."*"."/"."*"."/".$filebase."*";
 
-   print "rm ", $pathname, "\n";
+#   print "rm ", $pathname, "\n";
 
  }
 #####################
-     close (STDOUT);
+#     close (STDOUT);
 
-    `chmod +x $outfile`;
+#    `chmod +x $outfile`;
 
  }else {
 
