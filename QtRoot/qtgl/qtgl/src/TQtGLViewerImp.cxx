@@ -62,7 +62,7 @@ TQtGLViewerImp::TQtGLViewerImp(TPadOpenGLView *pad, const char *title,
                        UInt_t width, UInt_t height)
  : QMainWindow(
 #if QT_VERSION < 0x40000
-     0,"glviewer", Qt::WDestructiveClose)
+     0,"glviewer", Qt::WDestructiveClose
 #endif /* QT_VERSION */
       )
    , TGLViewerImp(pad,title,width,height)
@@ -147,7 +147,7 @@ TQtGLViewerImp::TQtGLViewerImp(TVirtualPad *pad, const char *title,
                        UInt_t width, UInt_t height)
    : QMainWindow(
 #if QT_VERSION < 0x40000
-      0,"glviewer", Qt::WDestructiveClose)
+      0,"glviewer", Qt::WDestructiveClose
 #endif /* QT_VERSION */
      )
    , TGLViewerImp(0,title,width,height)
