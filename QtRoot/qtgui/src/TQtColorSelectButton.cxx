@@ -1,4 +1,4 @@
-// @(#)root/gui:$Name:  $:$Id: TQtColorSelectButton.cxx,v 1.2 2006/09/22 17:27:11 fine Exp $
+// @(#)root/gui:$Name:  $:$Id: TQtColorSelectButton.cxx,v 1.3 2007/06/19 23:31:27 fine Exp $
 // Author: Bertrand Bellenot + Fons Rademakers   22/08/02
 
 /*************************************************************************
@@ -100,7 +100,7 @@ TQtColorPopup *TQtColorPopup::fgColorPopup = 0;
 //}
 
 //________________________________________________________________________________
-TQtColorFrame::TQtColorFrame(QWidget *p, QColor &color, Int_t n): QToolButton(p),fActive(n),fColor(color)
+TQtColorFrame::TQtColorFrame(QWidget *p, const QColor &color, Int_t n): QToolButton(p),fActive(n),fColor(color)
 {
    setPaletteBackgroundColor (fColor);
    setPaletteForegroundColor (fColor);
@@ -167,38 +167,19 @@ TQt16ColorSelector::TQt16ColorSelector( QWidget *p,const char *name) :
    group->setExclusive(true);
    languageChange();
    group->setInsideMargin(2);  
-   group->setInsideSpacing(1);  
-   QColor  defColors[] = {  QColor(0xFF, 0xFF, 0xFF)
-                          , QColor(0x00, 0x00, 0x00)
-                          , QColor(0x00, 0x00, 0x80)
-                          , QColor(0x00, 0x80, 0x00)
-         
-                          , QColor(0xFF, 0x00, 0x00)        
-                          , QColor(0x80, 0x00, 0x00)         
-                          , QColor(0x80, 0x00, 0x80)         
-                          , QColor(0xFF, 0x80, 0x00)
-         
-                          , QColor(0xFF, 0xFF, 0x00)
-                          , QColor(0x00, 0xFF, 0x00)                         
-                          , QColor(0x00, 0x80, 0x80)                 
-                          , QColor(0x00, 0xFF, 0xFF)
-                          
-                          , QColor(0x00, 0x00, 0xFF)
-                          , QColor(0xFF, 0x00, 0xFF)                          
-                          , QColor(0x80, 0x80, 0x80)
-                          , QColor(0xC0, 0xC0, 0xC0)
-                          
-                         };
+   group->setInsideSpacing(1); 
+   Color_t  defColors[] = {  0, 1 , 2 , 3 
+                           , 4, 5 , 6 , 7
+                           , 8, 9 ,30 ,38
+                           , 41,42,50 ,51 
+   };
    int i =0;
-   int nDefColors = sizeof(defColors)/sizeof(QColor);
+   int nDefColors = sizeof(defColors)/sizeof(Color_t);
    for (i=0;i < nDefColors;i++) {
-     fCe[i] = new TQtColorFrame(group,defColors[i], i); 
+     fCe[i] = new TQtColorFrame(group,gQt->ColorIndex(defColors[i]), i);
      connect(fCe[i],SIGNAL(clicked()),this,SLOT(SetActiveSlot()));
   }
-
-
-//   buttonGroup->setButton(fActive);
-   connect(group,SIGNAL(clicked(int)),this,SLOT(SetActiveSlot(int)));
+  connect(group,SIGNAL(clicked(int)),this,SLOT(SetActiveSlot(int)));
  }
 //________________________________________________________________________________
 TQt16ColorSelector::~TQt16ColorSelector()

@@ -1,4 +1,4 @@
-// @(#)root/gui:$Name:  $:$Id: TQtColorSelectButton.h,v 1.2 2006/09/22 17:27:10 fine Exp $
+// @(#)root/gui:$Name:  $:$Id: TQtColorSelectButton.h,v 1.3 2007/06/19 23:31:27 fine Exp $
 // Author: Bertrand Bellenot + Fons Rademakers   22/08/02
 
 /*************************************************************************
@@ -77,7 +77,7 @@ protected:
    virtual void drawButtonLabel(QPainter *);
 
 public:
-   TQtColorFrame(QWidget *p, QColor &c, Int_t n);
+   TQtColorFrame(QWidget *p, const QColor &c, Int_t n);
    virtual ~TQtColorFrame() { }
          QSize   sizeHint () const ;
          void    SetActive(Bool_t in) { fActive = in;  }
