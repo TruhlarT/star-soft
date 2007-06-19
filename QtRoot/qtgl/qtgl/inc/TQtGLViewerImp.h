@@ -1,8 +1,8 @@
-// @(#)root/g3d:$Name:  $:$Id: TQtGLViewerImp.h,v 1.12 2007/06/19 19:45:08 fine Exp $
+// @(#)root/g3d:$Name:  $:$Id: TQtGLViewerImp.h,v 1.13 2007/06/19 21:33:00 fine Exp $
 // Author: Valery Fine      23/05/97
 
 /****************************************************************************
-** $Id: TQtGLViewerImp.h,v 1.12 2007/06/19 19:45:08 fine Exp $
+** $Id: TQtGLViewerImp.h,v 1.13 2007/06/19 21:33:00 fine Exp $
 **
 ** Copyright (C) 2002 by Valeri Fine. Brookhaven National Laboratory.
 **                                    All rights reserved.
@@ -60,9 +60,7 @@ class TContextMenu;
 class QAction;
 
 #ifndef __CINT__
-//MOC_SKIP_BEGIN
   class TQtGLViewerImp :public QMainWindow, public TGLViewerImp {
-//MOC_SKIP_END
 Q_OBJECT
 #else 
 //MOC_SKIP_BEGIN
@@ -146,6 +144,7 @@ public:
    virtual void SetUpdatesEnabled( bool);
    virtual bool GetUpdatesEnabled() const;
    virtual bool IsFullScreen( )     const;
+   virtual bool ObjectPickEnabled() const;
 
 
 #ifndef __CINT__
@@ -154,6 +153,7 @@ public:
      virtual void ActivateSelectionHighlighCB(bool);
      virtual void ActivateSelectionGlobalCB(bool);
      virtual void DisconnectSelectorWidgetCB();
+     virtual void EnableObjectPick(bool enable=true);
      virtual void AddGLList(unsigned int list, EObject3DType type=kSolid);
      virtual void AddRootChild(ULong_t, EObject3DType ){ assert(0); /* this to be called for Coin3D only */ };
      virtual void RemoveGLList(unsigned int list);
