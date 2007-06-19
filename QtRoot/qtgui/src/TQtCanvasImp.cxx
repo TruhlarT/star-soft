@@ -1,6 +1,6 @@
 // Author: Valeri Fine   21/01/2002
 /****************************************************************************
-** $Id: TQtCanvasImp.cxx,v 1.12 2007/06/10 04:00:18 fine Exp $
+** $Id: TQtCanvasImp.cxx,v 1.13 2007/06/19 21:43:32 fine Exp $
 **
 ** Copyright (C) 2002 by Valeri Fine. Brookhaven National Laboratory.
 **                                    All rights reserved.
@@ -739,7 +739,11 @@ Int_t TQtCanvasImp::InitWindow()
   if (!fCanvasImpID) 
   {
      // fprintf(stderr,"TQtCanvasImp::InitWindow: ");
+#if QT_VERSION < 0x40000
     fCanvasImpID = new TQtCanvasWidget (0,gVirtualX->GetName(),Qt::WDestructiveClose|Qt::WType_TopLevel);
+#else        
+    fCanvasImpID = new TQtCanvasWidget (0,gVirtualX->GetName());
+#endif    
     connect(fCanvasImpID,SIGNAL(destroyed()),this,SLOT(Disconnect()));
 //    fCanvasID = (TQtWidget *)TGQt::iwid(gVirtualX->InitWindow(TGQt::iwid(fCanvasImpID)));
     fCanvasID = (TQtWidget *)TGQt::iwid(gVirtualX->InitWindow(0));
