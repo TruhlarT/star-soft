@@ -1,4 +1,4 @@
-// @(#)root/qt:$Name:  $:$Id: TQtWidget.cxx,v 1.11 2007/06/14 20:32:27 fine Exp $
+// @(#)root/qt:$Name:  $:$Id: TQtWidget.cxx,v 1.12 2007/06/20 01:50:18 fine Exp $
 // Author: Valeri Fine   23/01/2003
 
 /*************************************************************************
@@ -190,6 +190,8 @@ TQtWidget::~TQtWidget()
    TCanvas *c = 0;
    // to block the double deleting from
    if (!IsShadow()) {
+      gVirtualX->SelectWindow(-1);
+      gQt->End();
       TGQt::UnRegisterWid(this);
       if (fEmbedded) {
          // one has to set CanvasID = 0 to disconnect things properly.
