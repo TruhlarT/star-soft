@@ -335,7 +335,7 @@ if ($ThisYear == 2002){
     # $DCHAIN{"AuAu"}           = "p2007a,alltrigger,ittf,ezTree";
     # Changed Thu Apr 26 13:51:28 EDT 2007
 #    $DCHAIN{"AuAu"}           = "p2007b,alltrigger,ittf,ezTree";
-    $DCHAIN{"AuAu"}           = "p2007b,ittf,ezTree";
+    $DCHAIN{"AuAu"}           = "p2007b,ittf,pmdRaw,ezTree";
 
     # Default stand-alone auto-calib (works ONLY on $LASERTP files)
     $SCALIB{"AuAu"}           = "OptLaser";
