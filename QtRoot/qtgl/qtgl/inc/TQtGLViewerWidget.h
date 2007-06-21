@@ -1,12 +1,12 @@
 
-// @(#)root/gtgl:$Name:  $:$Id: TQtGLViewerWidget.h,v 1.6 2007/06/08 17:16:44 fine Exp $
+// @(#)root/gtgl:$Name:  $:$Id: TQtGLViewerWidget.h,v 1.7 2007/06/21 22:35:35 fine Exp $
 // Author: Valery Fine      23/10/03
 
 #ifndef ROOT_TQtGLViewerWidget_
 #define ROOT_TQtGLViewerWidget_
 
 /****************************************************************************
-** $Id: TQtGLViewerWidget.h,v 1.6 2007/06/08 17:16:44 fine Exp $
+** $Id: TQtGLViewerWidget.h,v 1.7 2007/06/21 22:35:35 fine Exp $
 **
 ** Copyright (C) 2002 by Valeri Fine.  All rights reserved.
 **

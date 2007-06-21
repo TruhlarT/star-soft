@@ -1300,6 +1300,18 @@ void TQtGLViewerImp::SetPadSynchronize(Bool_t on)
 #endif
 }
 //______________________________________________________________________________
+void TQtGLViewerImp::EnableObjectPick(bool enable)
+{
+#ifdef QGLVIEWER
+  if (fGLWidget) ((TQtGLViewerWidget*)fGLWidget)->EnableObjectPick(enable);
+#endif
+}
+//______________________________________________________________________________
+bool TQtGLViewerImp::ObjectPickEnabled() const
+{
+   return fGLWidget ? ((TQtGLViewerWidget*)fGLWidget)->ObjectPickEnabled():false;
+}
+//______________________________________________________________________________
 void TQtGLViewerImp::SetFullScreenView(bool on)
 {
    // set the full screen view mode if available
