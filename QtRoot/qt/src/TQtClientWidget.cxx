@@ -1,7 +1,7 @@
-// @(#)root/qt:$Name:  $:$Id: TQtClientWidget.cxx,v 1.5 2007/06/18 18:18:28 fine Exp $
+// @(#)root/qt:$Name:  $:$Id: TQtClientWidget.cxx,v 1.6 2007/06/22 15:04:44 fine Exp $
 // Author: Valeri Fine   01/03/2003
 /****************************************************************************
-** $Id: TQtClientWidget.cxx,v 1.5 2007/06/18 18:18:28 fine Exp $
+** $Id: TQtClientWidget.cxx,v 1.6 2007/06/22 15:04:44 fine Exp $
 **
 ** Copyright (C) 2003 by Valeri Fine. Brookhaven National Laboratory.
 **                                    All rights reserved.
@@ -59,7 +59,7 @@ TQtClientWidget::TQtClientWidget(TQtClientGuard *guard, QWidget* parent, const c
          ,fButton(kAnyButton),fGrabbedKey(0), fPointerOwner(kFALSE)
          ,fNormalPointerCursor(0),fGrabPointerCursor(0),fGrabButtonCursor(0)
          ,fIsClosing(false)  ,fDeleteNotify(false), fGuard(guard)
-         ,fCanvasWidget(0),fMyRootWindow(0)
+         ,fCanvasWidget(0),fMyRootWindow(0),fEraseColor(0), fErasePixmap(0)
 {
 #if QT_VERSION >= 0x40000
    setName(name);
@@ -81,6 +81,8 @@ TQtClientWidget::~TQtClientWidget()
    fNormalPointerCursor = 0; // to prevent the cursor shape restoring
    UnSetButtonMask(true);
    UnSetKeyMask();
+   delete fEraseColor;  fEraseColor  = 0; 
+   delete fErasePixmap; fErasePixmap = 0;
    if (!IsClosing())
       gQt->SendDestroyEvent(this);  // notify TGClient we have been destroyed
 }
@@ -98,6 +100,26 @@ void TQtClientWidget::closeEvent(QCloseEvent *ev)
    printf("TQtClientWidget::closeEvent(QCloseEvent *ev)\n");
    QWidget::closeEvent(ev);
 }
+//______________________________________________________________________________
+void TQtClientWidget::setEraseColor(const QColor &color)
+{
+   // Color to paint widget background with our PainEvent
+   if (!fEraseColor) 
+      fEraseColor = new QColor(color);
+   else 
+      *fEraseColor = color;
+}
+
+//______________________________________________________________________________
+void TQtClientWidget::setErasePixmap (const QPixmap &pixmap)
+{
+   // pixmap to paint widget background with our PainEvent
+   if (!fErasePixmap) 
+      fErasePixmap = new QPixmap(pixmap);
+   else
+      *fErasePixmap = pixmap;
+}
+
 //______________________________________________________________________________
 bool TQtClientWidget::IsGrabbed(Event_t &ev)
 {
@@ -314,8 +336,6 @@ void TQtClientWidget::SetCanvasWidget(TQtWidget *widget)
       // may be transparent
 #if QT_VERSION < 0x40000
       setWFlags(getWFlags () | Qt::WRepaintNoErase | Qt:: WResizeNoErase );
-#else /* QT_VERSION */
-      setWindowFlags(windowFlags()  | Qt::WNoAutoErase | Qt:: WResizeNoErase );
 #endif /* QT_VERSION */
       connect(fCanvasWidget,SIGNAL(destroyed()),this,SLOT(Disconnect()));
    }
@@ -367,17 +387,13 @@ void TQtClientWidget::Disconnect()
 void TQtClientWidget::paintEvent( QPaintEvent *e )
 {
    QFrame::paintEvent(e);
-#if ROOT_VERSION_CODE >= ROOT_VERSION(5,15,9)
+#if ROOT_VERSION_CODE >= ROOT_VERSION(9,15,9)
    if (gClient) {
       // Find my host ROOT TGWindow
       if (!fMyRootWindow)
          fMyRootWindow = gClient->GetWindowById(TGQt::rootwid(this));
-   
       if (fMyRootWindow) {
-         Event_t event;
-         gVirtualX->NextEvent(event); // to remove this event from the ROOT event  queu 
-         assert( (event.fType  == kExpose) && ( event.fWindow == TGQt::rootwid(this)));
-         gClient->NeedRedraw(fMyRootWindow,true);
+         gClient->NeedRedraw(fMyRootWindow,kTRUE);
       }
    }
 #endif   

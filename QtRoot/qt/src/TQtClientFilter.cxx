@@ -1,4 +1,4 @@
-// $Id: TQtClientFilter.cxx,v 1.3 2007/02/06 20:14:17 fine Exp $
+// $Id: TQtClientFilter.cxx,v 1.4 2007/06/22 15:04:44 fine Exp $
 // Author: Valeri Fine   21/01/2003
 /****************************************************************************
 **
@@ -663,6 +663,15 @@ bool TQtClientFilter::eventFilter( QObject *qWidget, QEvent *e ){
       // send message to another thread
       justInit = true;
    }
+#if ROOT_VERSION_CODE >= ROOT_VERSION(9,15,9)         
+   if (event.fType ==  kExpose ) {
+     Bool_t keepEvent4Qt =
+          (((TQtClientWidget*)(TGQt::wid(event.fWindow)))->IsEventSelected(selectEventMask) );
+     if (filterTime) filterTime->Stop();
+     delete &event;
+     return !keepEvent4Qt;
+   }
+#endif         
 
    if ( destroyNotify 
        || (event.fType == kClientMessage) || (event.fType == kDestroyNotify)  ||
