@@ -528,14 +528,21 @@ void TQtGLViewerImp::SaveAsCB()
 
    QString selectedFilter;
 
+   QString thatFile = QFileDialog::getSaveFileName(
 #if QT_VERSION < 0x40000
-   QString thatFile = QFileDialog::getSaveFileName(gSystem->WorkingDirectory()
+          gSystem->WorkingDirectory()
+        , filter, centralWidget(), "SaveAs"
+        , tr("Save the current 3D view as")
+        , &selectedFilter
+        );
 #else /* QT_VERSION */
-   QString thatFile = Q3FileDialog::getSaveFileName(gSystem->WorkingDirectory()
+         centralWidget(),
+       , tr("Save the current 3D view as")
+       , gSystem->WorkingDirectory()
+       , filter
+       , &selectedFilter
+       );
 #endif /* QT_VERSION */
-    , filter, centralWidget(), "SaveAs"
-    , "Save the current x3d view as"
-    , &selectedFilter);
 
    if (thatFile.isEmpty()) return;
  
