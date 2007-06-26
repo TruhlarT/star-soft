@@ -1,8 +1,8 @@
-// @(#)root/g3d:$Name:  $:$Id: TQtCoinWidget.h,v 1.27 2007/06/08 17:16:42 fine Exp $
+// @(#)root/g3d:$Name:  $:$Id: TQtCoinWidget.h,v 1.28 2007/06/26 22:26:01 fine Exp $
 // Author: Valery Fine      23/05/97
 
 /****************************************************************************
-** $Id: TQtCoinWidget.h,v 1.27 2007/06/08 17:16:42 fine Exp $
+** $Id: TQtCoinWidget.h,v 1.28 2007/06/26 22:26:01 fine Exp $
 **
 ** Copyright (C) 2002 by Valeri Fine. Brookhaven National Laboratory.
 **                                    All rights reserved.
@@ -186,6 +186,7 @@ protected:
    
 protected:
    friend class TQtCoinViewerImp;
+   void CreateViewer(const QString &title);
    void CreateViewer(const char *name="qcoinviewer");
    // void CreateViewer(QGLWidget *share, const char *name="qglviewershared"){;}
    virtual void EmitImageSaved(QString &fileName,QString &fileType, int frameCounter);

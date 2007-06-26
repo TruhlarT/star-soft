@@ -1,8 +1,8 @@
-// @(#)root/g3d:$Name:  $:$Id: TQtCoinViewerImp.h,v 1.20 2007/06/08 17:16:42 fine Exp $
+// @(#)root/g3d:$Name:  $:$Id: TQtCoinViewerImp.h,v 1.21 2007/06/26 22:26:00 fine Exp $
 // Author: Valery Fine      23/05/97
 
 /****************************************************************************
-** $Id: TQtCoinViewerImp.h,v 1.20 2007/06/08 17:16:42 fine Exp $
+** $Id: TQtCoinViewerImp.h,v 1.21 2007/06/26 22:26:00 fine Exp $
 **
 ** Copyright (C) 2002 by Valeri Fine. Brookhaven National Laboratory.
 **                                    All rights reserved.
@@ -37,23 +37,20 @@
 
 #ifndef QT_VERSION
 #define QT_VERSION 0x30307
-#endif 
+#endif
+
 #ifndef __CINT__
 #  include <qglobal.h>
 #  if QT_VERSION < 0x40000
 #    include <qmainwindow.h>
 #    include <qptrvector.h>
 #  else /* QT_VERSION */
-#    include <q3mainwindow.h>
+#    include <QMainWindow>
 #    include <q3ptrvector.h>
 #  endif /* QT_VERSION */
 #  include <qlabel.h>
 #else
-#  if QT_VERSION < 0x40000
-     class QMainWindow;
-#  else /* QT_VERSION */
-     class Q3MainWindow;
-#  endif /* QT_VERSION */
+   class QMainWindow;
    class QString;
 #endif
 
@@ -86,14 +83,8 @@ class TContextMenu;
 class SoGLRenderAction;
 class TQtCoinWidget;
 
-#if QT_VERSION < 0x40000
-  class TQtCoinViewerImp :public QMainWindow, public TGLViewerImp {
-#else /* QT_VERSION */
-//MOC_SKIP_BEGIN
-  class TQtCoinViewerImp :public Q3MainWindow, public TGLViewerImp {
-//MOC_SKIP_END
-#endif /* QT_VERSION */
-Q_OBJECT	  
+class TQtCoinViewerImp :public QMainWindow, public TGLViewerImp {
+  Q_OBJECT	  
 private:
    TQtCoinWidget         *fCoinWidget;
    

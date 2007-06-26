@@ -36,13 +36,16 @@
 #  include <qpushbutton.h> 
 #  include <qtooltip.h> 
 #  include <qcheckbox.h> 
+#  include <qpngio.h> 
 #else 
-#  include <q3filedialog.h>
-#  include <q3popupmenu.h>
-#  include <q3whatsthis.h> 
+#  include <QFileDialog>
+#  include <QMenu>
+#  include <QWhatsThis> 
+#  include <QPushButton> 
 //Added by qt3to4:
 #  include <QLabel>
-#  include <Q3Action>
+#  include <QAction>
+#  include <QCheckBox>
 #endif 
 
 #include <qfile.h>
@@ -51,7 +54,6 @@
 #include <qmenubar.h>
 #include <qimage.h>
 #include <qgl.h> 
-#include <qpngio.h> 
 
 #include <qpainter.h>
 #include <qtextstream.h>
@@ -509,7 +511,7 @@ static void SelectCB(void * viewer, SoPath *p)
 #if QT_VERSION < 0x40000
       QWhatsThis::display(tipText, globalPosition,viewerWidget);
 #else
-      Q3WhatsThis::display(tipText,globalPosition,viewerWidget);
+      QWhatsThis::showText(globalPosition,tipText,viewerWidget );
 #endif
    } else if (!selectedObject) {
       QPoint globalPosition = QCursor::pos();
@@ -522,7 +524,7 @@ static void SelectCB(void * viewer, SoPath *p)
 #if QT_VERSION < 0x40000
             QWhatsThis::display(tipText, globalPosition,viewerWidget);
 #else
-            Q3WhatsThis::display(tipText,globalPosition,viewerWidget);
+            QWhatsThis::showText(globalPosition,tipText,viewerWidget );
 #endif
          }
       }
@@ -1147,7 +1149,6 @@ void TQtCoinWidget::Save(QString fileName,QString type)
    
    QString &thatFile  = fileName;
    QString &e = type;
-   printf("thatFile = %s  type=%s\n", thatFile.data(), e.data());
    
    if (!Recording()) {
       SetFileName(thatFile);
@@ -1671,7 +1672,12 @@ static void cameraChangeCB(void *data, SoSensor *)
 }
 #endif 
 //______________________________________________________________________________
-void TQtCoinWidget::CreateViewer(const char * /*name*/)
+void CreateViewer(const char *title)
+{
+   CreateViewer(QString(title));
+}
+//______________________________________________________________________________
+void TQtCoinWidget::CreateViewer( const QString &/*name*/)
 {
    connect(this, SIGNAL(ObjectSelected(TObject*, const QPoint &)), &this->Signals(), SIGNAL(ObjectSelected(TObject *, const QPoint&)));
    if ( !fgCoinInitialized) { 
@@ -1834,28 +1840,55 @@ void TQtCoinWidget::CreateViewer(const char * /*name*/)
    QWidget *buttonParent = fullViewer->getAppPushButtonParent();
 
    QPushButton *button = new QPushButton(buttonParent);
-   button->setFocusPolicy(QWidget::NoFocus);
+   button->setFocusPolicy(
+#if QT_VERSION < 0x40000
+   QWidget::NoFocus);
+#else   
+   Qt::NoFocus);
+#endif   
    button->setPixmap(QPixmap((const char **) x_xpm));
    QObject::connect(button, SIGNAL(clicked()),
                     this, SLOT(ViewPlaneX()));
+#if QT_VERSION < 0x40000
    QToolTip::add(button,"View the YZ plane");
+#else
+   button->setToolTip(tr("View the YZ plane"));
+#endif      
    fullViewer->addAppPushButton(button);
    //  Y-button
    button = new QPushButton(buttonParent);
-   button->setFocusPolicy(QWidget::NoFocus);
+   button->setFocusPolicy(
+#if QT_VERSION < 0x40000
+   QWidget::NoFocus);
+#else   
+   Qt::NoFocus);
+#endif   
    button->setPixmap(QPixmap((const char **) y_xpm));
    QObject::connect(button, SIGNAL(clicked()),
                     this, SLOT(ViewPlaneY()));
+#if QT_VERSION < 0x40000
    QToolTip::add(button,"View the XZ plane");
+#else   
+   button->setToolTip(tr("View the XZ plane"));
+#endif   
    fullViewer->addAppPushButton(button);
 
    //  Z-button
    button = new QPushButton(buttonParent);
-   button->setFocusPolicy(QWidget::NoFocus);
+   button->setFocusPolicy(
+#if QT_VERSION < 0x40000
+   QWidget::NoFocus);
+#else   
+   Qt::NoFocus);
+#endif   
    button->setPixmap(QPixmap((const char **) z_xpm));
    QObject::connect(button, SIGNAL(clicked()),
                     this, SLOT(ViewPlaneZ()));
+#if QT_VERSION < 0x40000
    QToolTip::add(button,"View the XY plane");
+#else   
+   button->setToolTip(tr("View the XY plane"));
+#endif   
    fullViewer->addAppPushButton(button);
 
     // Clip Plane buttons;
@@ -1863,42 +1896,78 @@ void TQtCoinWidget::CreateViewer(const char * /*name*/)
    //  X-button
    button = new QPushButton(buttonParent);
    button->setName("z");
-   button->setFocusPolicy(QWidget::NoFocus);
+   button->setFocusPolicy(
+#if QT_VERSION < 0x40000
+   QWidget::NoFocus);
+#else   
+   Qt::NoFocus);
+#endif   
    button->setPixmap(QPixmap((const char **) xc_xpm));
    QObject::connect(button, SIGNAL(clicked()),
                     this, SLOT(SetClipPlaneXCB()));
+#if QT_VERSION < 0x40000
    QToolTip::add(button,"Clip the YZ plane");
+#else   
+   button->setToolTip(tr("Clip the YZ plane"));
+#endif   
    fullViewer->addAppPushButton(button);
    //  Y-button
    button = new QPushButton(buttonParent);
    button->setName("y");
-   button->setFocusPolicy(QWidget::NoFocus);
+   button->setFocusPolicy(
+#if QT_VERSION < 0x40000
+   QWidget::NoFocus);
+#else   
+   Qt::NoFocus);
+#endif   
    button->setPixmap(QPixmap((const char **) yc_xpm));
    QObject::connect(button, SIGNAL(clicked()),
                     this, SLOT(SetClipPlaneYCB()));
+#if QT_VERSION < 0x40000
    QToolTip::add(button,"Clip the XZ plane");
+#else
+   button->setToolTip(tr("Clip the XZ plane"));
+#endif   
    fullViewer->addAppPushButton(button);
 
    //  Z-button
    button = new QPushButton(buttonParent);
    button->setName("z");
-   button->setFocusPolicy(QWidget::NoFocus);
+   button->setFocusPolicy(
+#if QT_VERSION < 0x40000
+   QWidget::NoFocus);
+#else   
+   Qt::NoFocus);
+#endif   
    button->setPixmap(QPixmap((const char **) zc_xpm));
    QObject::connect(button, SIGNAL(clicked()),
                     this, SLOT(SetClipPlaneZCB()));
+#if QT_VERSION < 0x40000
    QToolTip::add(button,"Clip the XY plane");
+#else
+   button->setToolTip(tr("Clip the XY plane"));
+#endif   
    fullViewer->addAppPushButton(button);
 
    //  Plane-switch-button
    fClipPlaneState = new QCheckBox(buttonParent);
-   fClipPlaneState->setFocusPolicy(QWidget::NoFocus);
+   button->setFocusPolicy(
+#if QT_VERSION < 0x40000
+   QWidget::NoFocus);
+#else   
+   Qt::NoFocus);
+#endif   
    fClipPlaneState->setTristate(true);
    fClipPlaneState->setNoChange();
    // button->setPixmap(QPixmap((const char **) zc_xpm));
    QObject::connect(fClipPlaneState, SIGNAL(stateChanged(int)),
                     this, SLOT(ClipPlaneModeCB(int)));
+#if QT_VERSION < 0x40000
    QToolTip::add(fClipPlaneState,"Switch between edit/clip/no clip views");
-   fullViewer->addAppPushButton(fClipPlaneState);
+#else
+   fClipPlaneState->setToolTip(tr("Switch between edit/clip/no clip views"));
+#endif   
+    fullViewer->addAppPushButton(fClipPlaneState);
 
 
    //  Slice-switch-button
@@ -1906,12 +1975,21 @@ void TQtCoinWidget::CreateViewer(const char * /*name*/)
    // suspend this feature for the time being
    button = new QPushButton(buttonParent);
    button->setName("slice");
-   button->setFocusPolicy(QWidget::NoFocus);
+   button->setFocusPolicy(
+#if QT_VERSION < 0x40000
+   QWidget::NoFocus);
+#else   
+   Qt::NoFocus);
+#endif   
    button->setPixmap(QPixmap((const char **) zc_xpm));
    QObject::connect(button, SIGNAL(clicked()),
                     this, SLOT(SetSlicePlaneCB()));
+#if QT_VERSION < 0x40000
    QToolTip::add(button,"Slice plane");
-   fullViewer->addAppPushButton(button);
+#else
+   button->setToolTip(tr("Slice plane"));
+#endif   
+      fullViewer->addAppPushButton(button);
 #endif
    l->addWidget(fInventorViewer->getWidget());
    fInventorViewer->setSceneGraph(fRootNode);
@@ -2330,10 +2408,17 @@ void TQtCoinWidget::SetClipPlaneZCB()
 void TQtCoinWidget::SetSlicePlaneCB()
 {
    // Switch to Off state
+#if QT_VERSION < 0x40000
    if (fClipPlaneState->state() != QButton::Off) {
       fClipPlaneState->setChecked(false);
       ClipPlaneModeCB(QButton::Off);
    }
+#else
+   if (fClipPlaneState->checkState() != Qt::Unchecked) {
+      fClipPlaneState->setCheckState(Qt::Unchecked);
+      ClipPlaneModeCB(Qt::Unchecked);
+   }
+#endif            
     SbVec3d normal =   fClipPlane->plane.getValue().getNormal();
    // Invert normal
    normal *= -1;
@@ -2347,10 +2432,19 @@ void TQtCoinWidget::SetSlicePlaneCB()
 //_______________________________________________________________________________
 void TQtCoinWidget::SetActiveClipPlane(int planeDirection)
 {
-   if (fClipPlaneState->state() != QButton::Off) 
+#if QT_VERSION < 0x40000
+   if (fClipPlaneState->state()      != QButton::Off) 
+#else
+   if (fClipPlaneState->checkState() !=Qt::Unchecked)
+#endif                  
    {
       fClipPlaneState->blockSignals(true);
-      if (fClipPlaneState->state() == QButton::On) {
+#if QT_VERSION < 0x40000
+      if (fClipPlaneState->state() == QButton::On)
+#else
+      if (fClipPlaneState->checkState() == Qt::Checked)
+#endif                  
+      {
          // Recreate the path
          if (fClipPlanePath) {
             fClipPlanePath->unref(); 
@@ -2362,7 +2456,11 @@ void TQtCoinWidget::SetActiveClipPlane(int planeDirection)
             fClipPlaneMan->unref(); fClipPlaneMan = 0;
          }
       } else {
+#if QT_VERSION < 0x40000
          fClipPlaneState->setChecked(true);
+#else
+         fClipPlaneState->setCheckState(Qt::Checked);
+#endif                  
       }
       switch (planeDirection) {
          case 0: SetClipPlaneMan(kTRUE,1,0,0); break;
@@ -2530,15 +2628,27 @@ void TQtCoinWidget::ViewPlaneZ() const
 void TQtCoinWidget::ClipPlaneModeCB(int mode)
 {
    switch (mode) {
+#if QT_VERSION < 0x40000
        case QButton::Off:
+#else          
+       case Qt::Unchecked:
+#endif          
           // Remove the clip plane manipulator
           SetClipPlaneMan(false);
           break;
+#if QT_VERSION < 0x40000
        case QButton::On:
+#else          
+       case   Qt::Checked:
+#endif          
           // Set the clip plane manipulator
           SetClipPlaneMan(true);
           break;
+#if QT_VERSION < 0x40000
        case QButton::NoChange:
+#else          
+       case Qt::PartiallyChecked:
+#endif          
        default:
           // Remove the clip plane manipulator if present
           if (fClipPlaneMan->getRefCount() > 1 ) SetClipPlaneMan(false);
