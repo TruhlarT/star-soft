@@ -1672,7 +1672,7 @@ static void cameraChangeCB(void *data, SoSensor *)
 }
 #endif 
 //______________________________________________________________________________
-void CreateViewer(const char *title)
+void  TQtCoinWidget::CreateViewer(const char *title)
 {
    CreateViewer(QString(title));
 }
