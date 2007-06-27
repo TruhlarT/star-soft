@@ -1,4 +1,4 @@
-// @(#)root/asimage:$Name:  $:$Id: TQtImage.cxx,v 1.2 2007/02/06 19:46:23 fine Exp $
+// @(#)root/asimage:$Name:  $:$Id: TQtImage.cxx,v 1.3 2007/06/27 12:36:31 fine Exp $
 // Author: Valeri Fine   2/02/2004
 
 /*************************************************************************
@@ -225,17 +225,10 @@ void TQtImage::WriteImage(const char *file, EImageFileTypes type)
       return;
    }
 
-   QString outFormat = QFileInfo(file).extension(FALSE).upper();
-   if (type == kUnknown) {
-    // define the format
-      QStringList list = fImage->outputFormatList();
-      QStringList::Iterator it = list.begin();
-      while( it != list.end() && outFormat != *it )  ++it;
-      if (it == list.end()) {
-         Error("WriteImage", "not a valid file type was specified");
-         return;
-      }
-   }
+   QString outFormat = QFileInfo(file).extension(FALSE).upper();   
+   if (type == kUnknown) 
+      outFormat = TGQt::QtFileFormat(outFormat);
+   
 
    //  ASImageFileTypes atype;
    //  MapFileTypes(type, (UInt_t&)atype);
@@ -345,6 +338,7 @@ void TQtImage::SetImage(const Double_t *imageData, UInt_t width, UInt_t height,
    // QtVectorPalette asPalette;
    Int_t nColors = pal.fNumPoints;
    Int_t                                 depth =  1; // bpp
+#if (QT_VERSION < 0x040000)
    if ( 1 < nColors  &&  nColors <=256 ) depth =  8; // bpp
    // else if (nColors <= 16)             depth = 16; // bpp
    else                                  depth = 32; // bpp
@@ -356,11 +350,29 @@ void TQtImage::SetImage(const Double_t *imageData, UInt_t width, UInt_t height,
          width,height,depth,nColors);
       return;
    }
+#else
+   QImage::Format format                        = QImage::Format_Mono;     // bpp
+   if ( 1 < nColors  &&  nColors <=256 ) format = QImage::Format_Indexed8; // bpp
+   else                                  format = QImage::Format_RGB32 ;   // bpp
+   fImage =  new QImage(width,height,format);
+   QImage &image = *fImage;
+#endif      
 
    // Fill the color table;
    depth = image.depth ();
-   QRgb *qPalette =  image.colorTable ();
-   if (!qPalette) return;
+#if (QT_VERSION < 0x040000)
+   QRgb *
+#else
+   QVector<QRgb>       
+#endif   
+         qPalette =  image.colorTable ();   
+   
+#if (QT_VERSION < 0x040000)
+   if (!qPalette) 
+#else
+   if (qPalette.empty()) 
+#endif            
+      return;
    Int_t col;
    for (col = 0; col < nColors; col++) {
          qPalette[col] = qRgba(pal.fColorRed  [col]
@@ -480,10 +492,16 @@ void TQtImage::FromPad(TVirtualPad *pad, Int_t x, Int_t y, UInt_t w, UInt_t h)
       h = pad->VtoPixel(0.);
 
    QPixmap *pix = (QPixmap *)TGQt::iwid(pad->GetPixmapID());
-
-   QPixmap tmpPx((int)w,(int)h,-1);
-   bitBlt( (QPaintDevice *)&tmpPx, 0,0,pix,x,y,int(w),int(h),Qt::CopyROP) ;  // ignoreMask ) 
-   fImage = new QImage(pix->convertToImage ());
+   if (pix) {
+#if (QT_VERSION < 0x040000)
+      QPixmap tmpPx((int)w,(int)h,-1);
+      bitBlt( (QPaintDevice *)&tmpPx, 0,0,pix,x,y,int(w),int(h),Qt::CopyROP) ;  // igno   QPainter paint(
+      fImage = new QImage(tmpPx.convertToImage ());
+#else
+      QPixmap tmpPx = pix->copy(x,y,int(w),int(h));
+      fImage = new QImage(tmpPx.toImage());
+#endif
+   }
 }
 
 //______________________________________________________________________________
@@ -630,13 +648,21 @@ void TQtImage::Paint(Option_t *option)
                              new QImage( 
                                           (fImage->copy(fZoomOffX,
                                                        fImage->height() - fZoomHeight - fZoomOffY,
+#if (QT_VERSION < 0x040000)
                                                        fZoomWidth,fZoomHeight)).scale(to_w, to_h)
+#else
+                                                       fZoomWidth,fZoomHeight)).scaled(to_w, to_h)
+#endif
                                         );
                delete fScaledImage; 
                fScaledImage = new TQtImage(); fScaledImage->SetImage(scaledImg);
             } else {
                // scale image, no zooming
+#if (QT_VERSION < 0x040000)                     
                 QImage *scaledImg = new QImage(fImage->scale(to_w, to_h));
+#else
+                QImage *scaledImg = new QImage(fImage->scaled(to_w, to_h));
+#endif                
                 delete fScaledImage; 
                 fScaledImage = new TQtImage(); fScaledImage->SetImage(scaledImg);
            }
