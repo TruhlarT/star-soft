@@ -1,5 +1,5 @@
-// @(#)root/thread:$Name:  $:$Id: TQtThreadImp.cxx,v 1.1 2006/08/16 19:27:09 fine Exp $
-// $Id: TQtThreadImp.cxx,v 1.1 2006/08/16 19:27:09 fine Exp $
+// @(#)root/thread:$Name:  $:$Id: TQtThreadImp.cxx,v 1.2 2007/06/27 11:24:04 fine Exp $
+// $Id: TQtThreadImp.cxx,v 1.2 2007/06/27 11:24:04 fine Exp $
 // Author: Valery Fine  08/25/2005
 /****************************************************************************
 ** Copyright (C) 2005 by Valeri Fine. Brookhaven National Laboratory.
@@ -42,6 +42,18 @@ class TRootThread : public QThread {
            TThread::Function(fROOTTHread); 
      }
 };
+class TCancelThread : public QThread {
+   private:
+     TCancelThread() {};
+   public:
+     ~TCancelThread() {};
+   void SetCancel(Bool_t on=kTRUE) {
+#if (QT_VERSION >= 0x040000)
+      setTerminationEnabled(on);
+#endif      
+   }               
+};
+
 ClassImp(TQtThreadImp)
 
 //______________________________________________________________________________
@@ -72,7 +84,12 @@ Int_t TQtThreadImp::Exit(void * /*ret*/)
 {
    // Exit the thread.
 
+#if (QT_VERSION < 0x040000)
    QThread::exit();
+#else   
+   QThread *qt = QThread::currentThread();
+   if (qt) qt->quit();
+#endif   
    return 0;
 }
 
@@ -83,7 +100,7 @@ Int_t TQtThreadImp::Kill(TThread *th)
    // suggested to Stop() threads a lot.
       
    QThread *qt = ((QThread*)th->fHandle);
-   if (qt) { qt->terminate(); delete qt; }
+   if (qt) { qt->terminate();  qt->wait(); delete qt; }
    return 0;
 }
 
@@ -125,16 +142,27 @@ Long_t TQtThreadImp::SelfId()
 //______________________________________________________________________________
 Int_t TQtThreadImp::SetCancelOff()
 {
+#if (QT_VERSION < 0x040000)
    if (gDebug)
       Warning("SetCancelOff", "Not implemented on Qt");
+#else
+   QThread *qt = QThread::currentThread();
+   if (qt) ((TCancelThread *)qt)->SetCancel(kFALSE);
+#endif      
+   
    return 0;
 }
 
 //______________________________________________________________________________
 Int_t TQtThreadImp::SetCancelOn()
 {
+#if (QT_VERSION < 0x040000)
    if (gDebug)
       Warning("SetCancelOn", "Not implemented on Qt ");
+#else
+   QThread *qt = QThread::currentThread();
+   if (qt) ((TCancelThread *)qt)->SetCancel();
+#endif      
    return 0;
 }
 
