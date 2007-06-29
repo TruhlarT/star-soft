@@ -328,8 +328,9 @@ if ($ThisYear == 2002){
 		);
     $ZEROBIAS=  rdaq_string2ftype("zerobias");
 
+    # Order is: regular, bypass, calib
     @USEQ    = (5,5,5);
-    @SPILL   = (0,2,4);
+    @SPILL   = (0,4,4);
 
     # Default chain
     # $DCHAIN{"AuAu"}           = "p2007a,alltrigger,ittf,ezTree";
