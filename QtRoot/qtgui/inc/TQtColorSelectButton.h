@@ -1,4 +1,4 @@
-// @(#)root/gui:$Name:  $:$Id: TQtColorSelectButton.h,v 1.3 2007/06/19 23:31:27 fine Exp $
+// @(#)root/gui:$Name:  $:$Id: TQtColorSelectButton.h,v 1.4 2007/06/29 20:24:31 fine Exp $
 // Author: Bertrand Bellenot + Fons Rademakers   22/08/02
 
 /*************************************************************************
@@ -46,9 +46,7 @@
 #  include <qframe.h>
 #else /* QT_VERSION */
 //MOC_SKIP_BEGIN
-#  include <q3buttongroup.h> 
-#  include <q3vbox.h> 
-#  include <q3frame.h>
+#  include <QFrame>
 //MOC_SKIP_END
 #endif /* QT_VERSION */
 
@@ -93,13 +91,7 @@ protected slots:
 //                 TQt16ColorSelector
 //----------------------------------------------------------------------
 
-#if QT_VERSION < 0x40000
 class TQt16ColorSelector : public  QFrame {
-#else /* QT_VERSION */
-//MOC_SKIP_BEGIN
-class TQt16ColorSelector : public  Q3Frame {
-//MOC_SKIP_END
-#endif /* QT_VERSION */
 Q_OBJECT
 protected:
    Int_t            fActive;
@@ -160,13 +152,7 @@ protected slots:
 
 class Q3Button;
 
-#if QT_VERSION < 0x40000
 class TQtColorSelectButton : public QFrame {
-#else /* QT_VERSION */
-//MOC_SKIP_BEGIN
-class TQtColorSelectButton : public Q3Frame {
-//MOC_SKIP_END
-#endif /* QT_VERSION */
 Q_OBJECT
 Q_PROPERTY( QColor  fColor  READ GetColor  WRITE SetColor)
 protected:
@@ -177,7 +163,7 @@ protected:
    QButton       *fPushButton;
 #else /* QT_VERSION */
 //MOC_SKIP_BEGIN
-   Q3Button       *fPushButton;
+   QAbstractButton       *fPushButton;
 //MOC_SKIP_END
 #endif /* QT_VERSION */
    QToolButton   *fArrowButton;
