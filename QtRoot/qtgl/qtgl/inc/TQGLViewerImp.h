@@ -1,4 +1,4 @@
-// @(#)root/g3d:$Name:  $:$Id: TQGLViewerImp.h,v 1.16 2007/06/21 22:35:34 fine Exp $
+// @(#)root/g3d:$Name:  $:$Id: TQGLViewerImp.h,v 1.17 2007/07/01 23:36:31 fine Exp $
 // Author: Valery Fine      12/03/2005
 
 /*************************************************************************
@@ -143,7 +143,7 @@ public:
    virtual bool IsFullScreen()      const               = 0;
 // Off screen rendering   
    virtual Bool_t IsOffScreen()     const { return kFALSE;} 
-   virtual void SetOffScreen(Bool_t offscreen=kTRUE) {if (offscreen); }
+   virtual void SetOffScreen(Bool_t offscreen=kTRUE) {if (offscreen){;} }
 
 //Methods to provide Qt Signal/Slot communication
    TQtSlotProxy &Signals()             { return fProxy;}
