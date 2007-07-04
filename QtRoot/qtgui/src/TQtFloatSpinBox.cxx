@@ -1,6 +1,6 @@
 // Author: Valeri Fine   30/04/2003
 /****************************************************************************
-** $Id: TQtFloatSpinBox.cxx,v 1.2 2006/09/22 17:27:11 fine Exp $
+** $Id: TQtFloatSpinBox.cxx,v 1.3 2007/07/04 20:45:43 fine Exp $
 **
 ** Copyright (C) 2002 by Valeri Fine. Brookhaven National Laboratory.
 **                                    All rights reserved.
@@ -190,7 +190,7 @@ QDoubleSpinBox(parent)
    SetMinValue(minimal);
    SetMaxValue(maximal);
    lineEdit()->setAlignment(Qt::AlignRight);
-   connect(this,SIGNAL(valueChanged(float)), this, SIGNAL(ValueChanged(float)));
+   connect(this,SIGNAL(valueChanged(double)), this, SIGNAL(ValueChanged(double)));
 }
 //______________________________________________________________________________
 QString TQtFloatSpinBox::mapValueToText( int )

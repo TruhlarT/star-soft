@@ -1,7 +1,7 @@
-// @(#)root/gui:$Name:  $:$Id: TQtPatternSelect.cxx,v 1.2 2006/09/22 17:27:11 fine Exp $
+// @(#)root/gui:$Name:  $:$Id: TQtPatternSelect.cxx,v 1.3 2007/07/04 20:45:43 fine Exp $
 // Author: Valeri Fine  21/05/2004
 /****************************************************************************
-** $Id: TQtPatternSelect.cxx,v 1.2 2006/09/22 17:27:11 fine Exp $
+** $Id: TQtPatternSelect.cxx,v 1.3 2007/07/04 20:45:43 fine Exp $
 **
 ** Copyright (C) 2004 by Valeri Fine. Brookhaven National Laboratory.
 **                                    All rights reserved.
@@ -40,7 +40,7 @@
 ClassImp(TQtPatternSelect)
 //______________________________________________________________________________
 TQtPatternSelect::TQtPatternSelect(QWidget *p,  Style_t pattern, Int_t id )
-               : fPatternSelector(0) 
+               : QObject(), fPatternSelector(0) 
 {
    ConstructorThread(p, pattern, id);
 }
@@ -70,15 +70,15 @@ void   TQtPatternSelect::ConstructorThread(QWidget *p,  Style_t pattern, Int_t i
 //______________________________________________________________________________
 void TQtPatternSelect::Constructor(QWidget *p, Style_t pattern, Int_t id)
 {
-   fPatternSelector = new TQtPatternSelectButton(p, pattern, id, this);
-   fPatternSelector->show();
+   fPatternSelector = new TQtPatternSelectButton(p, pattern, id, this);//
+//   fPatternSelector->show();
 }
 
 //______________________________________________________________________________
-TQtPatternSelect::~TQtPatternSelect() { 
+TQtPatternSelect::~TQtPatternSelect() {
    if (fPatternSelector) {
-      fPatternSelector->hide(); 
-      delete fPatternSelector; 
+      fPatternSelector->hide();
+      delete fPatternSelector;
       fPatternSelector = 0;
    }
 }

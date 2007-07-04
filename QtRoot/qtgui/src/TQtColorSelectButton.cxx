@@ -1,4 +1,4 @@
-// @(#)root/gui:$Name:  $:$Id: TQtColorSelectButton.cxx,v 1.4 2007/06/29 20:24:31 fine Exp $
+// @(#)root/gui:$Name:  $:$Id: TQtColorSelectButton.cxx,v 1.5 2007/07/04 20:45:43 fine Exp $
 // Author: Bertrand Bellenot + Fons Rademakers   22/08/02
 
 /*************************************************************************
@@ -164,22 +164,19 @@ TQt16ColorSelector::TQt16ColorSelector( QWidget *p,const char *name) :
    
 #if QT_VERSION < 0x40000
    QButtonGroup *group=  new  QButtonGroup (4, Qt::Horizontal , this, "colorGroup");
-   group->setExclusive(true);
+   group->setInsideMargin(2);  
+   group->setInsideSpacing(1); 
 #else /* QT_VERSION */
    QWidget *group          = this;
    QGridLayout *gridLayout = new QGridLayout(group);
    QButtonGroup *buttonGroup = new QButtonGroup(group);
-   buttonGroup->setExclusive(true);
-#endif /* QT_VERSION */
-   group->setGeometry(QRect(0,0,2 + 4*(boxSize+1) +1, 2 + 4*(boxSize+1) +1));
-   languageChange();
-#if QT_VERSION < 0x40000
-   group->setInsideMargin(2);  
-   group->setInsideSpacing(1); 
-#else
    gridLayout->setMargin(2);  
    gridLayout->setSpacing(1); 
-#endif      
+#endif /* QT_VERSION */
+   group->setGeometry(QRect(0,0,2 + 4*(boxSize+1) +1, 2 + 4*(boxSize+1) +1));
+
+   languageChange();
+   
    Color_t  defColors[] = {  0, 1 , 2 , 3 
                            , 4, 5 , 6 , 7
                            , 8, 9 ,30 ,38
@@ -362,11 +359,11 @@ void TQtColorSelectButton::CreateWidget()
     r = QApplication::style().querySubControlMetrics(QStyle::CC_ComboBox, this, QStyle::SC_ComboBoxEditField);
           //QRect r = QStyle::visualRect( combo->style().querySubControlMetrics(QStyle::CC_ComboBox, combo,
 	 //							        combo );
+    setMinimumSize( QSize( int(r.width()*0.75), r.height() ) );
 #else
       QStyleOptionComboBox editField;
       r = QApplication::style()->subControlRect(QStyle::CC_ComboBox, &editField, QStyle::SC_ComboBoxEditField);
 #endif
-    setMinimumSize( QSize( int(r.width()*0.75), r.height() ) );
     setLineWidth(1);
     //setFrameShape( QFrame::StyledPanel );
     setFrameShadow( QFrame::Raised );

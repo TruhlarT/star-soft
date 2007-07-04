@@ -1,4 +1,4 @@
-// @(#)root/gui:$Name:  $:$Id: TQtPatternSelectButton.h,v 1.2 2006/09/22 17:27:10 fine Exp $
+// @(#)root/gui:$Name:  $:$Id: TQtPatternSelectButton.h,v 1.3 2007/07/04 20:45:43 fine Exp $
 // Author: Bertrand Bellenot + Fons Rademakers   22/08/02
 
 /*************************************************************************
@@ -42,32 +42,33 @@
 #include "Gtypes.h"
 
 #include <qtoolbutton.h> 
+// #include <qpushbutton.h> 
 #if QT_VERSION < 0x40000
 #  include <qbuttongroup.h> 
 #  include <qvbox.h> 
 #  include <qframe.h>
 #else /* QT_VERSION */
 //MOC_SKIP_BEGIN
-#  include <q3buttongroup.h> 
-#  include <q3vbox.h> 
-#  include <q3frame.h>
+#  include <QFrame>
 //MOC_SKIP_END
 #endif /* QT_VERSION */
 #include <qdialog.h> 
 
 #include <qcolor.h>
 #include <qbrush.h>
-#include <qpushbutton.h> 
 
 
-
+class QToolButton;
+class QMouseEvent;
 
 class TEmitRootSignal;
 //----------------------------------------------------------------------
 //                TQtPatternFrame
 //----------------------------------------------------------------------
 
-class TQtPatternFrame : public QToolButton {
+//class TQtPatternFrame : public QPushButton {
+//class TQtPatternFrame : public QToolButton {
+class TQtPatternFrame : public QFrame {
 Q_OBJECT
 
 protected:
@@ -75,9 +76,11 @@ protected:
    Bool_t          fActive;
    TQtBrush        fBrush;
    QString         fBrushTipLabel;
+   QWidget        *fPanel;
    
 protected:
-   virtual void drawButtonLabel(QPainter *);
+   virtual void SetIcon();
+   virtual void mouseReleaseEvent(QMouseEvent *event);
 
 public:
    TQtPatternFrame(QWidget *p, TQtBrush &c, Int_t n=-1);
@@ -85,49 +88,16 @@ public:
    virtual ~TQtPatternFrame() { }
    QSize   sizeHint () const ;
    void    SetActive(Bool_t in)         { fActive = in;       }
-   void    SetBrush(TQtBrush &newBrush) { fBrush = newBrush ; }
    const TQtBrush &GetBrush() const { return fBrush; }
 
+public slots:
+   void    SetBrush(TQtBrush &newBrush);
 protected slots:
    virtual void languageChange();
+signals:
+   void clicked();
 
    // ClassDef(TQtPatternFrame,0)  // Frame for color cell
-};
-
-//----------------------------------------------------------------------
-//                 TQt16BrushSelector
-//----------------------------------------------------------------------
-
-#if QT_VERSION < 0x40000
-class TQt16BrushSelector : public  QFrame {
-#else /* QT_VERSION */
-//MOC_SKIP_BEGIN
-  class TQt16BrushSelector : public  Q3Frame {
-//MOC_SKIP_END
-#endif /* QT_VERSION */
-Q_OBJECT
-protected:
-   Int_t            fActive;
-   TQtPatternFrame    *fCe[28];
-
-public:
-   TQt16BrushSelector(QWidget *p, const char *name=0);
-   virtual ~TQt16BrushSelector();
-
-   void    SetActive(Int_t newat);
-   Int_t   GetActive() const { return fActive; }
-   const TQtBrush  &GetActiveBrush() const;
-
-public slots:
-   void SetActiveSlot(int id);
-   void SetActiveSlot();
-
-protected slots:
-   virtual void languageChange();
-
-signals:
-   void BrushChanged(const TQtBrush &pattern);
-   // ClassDef(TQt16BrushSelector,0)  // 16 color cells
 };
 
 //----------------------------------------------------------------------
@@ -142,26 +112,17 @@ protected:
    static TQtPatternPopup *fgBrushPopup;//  Pointer to the singletons
 
 protected:
-#if QT_VERSION < 0x40000
-   TQtPatternPopup( QWidget *p, TQtBrush &color,const char *name=0, bool modal=FALSE, WFlags f=Qt::WStyle_Customize | Qt::WStyle_NoBorder|Qt::WStyle_StaysOnTop);
-#else /* QT_VERSION */
-//MOC_SKIP_BEGIN
    TQtPatternPopup( QWidget *p, TQtBrush &color,const char *name=0, bool modal=FALSE, Qt::WFlags f=Qt::WStyle_Customize | Qt::WStyle_NoBorder|Qt::WStyle_StaysOnTop);
-//MOC_SKIP_END
-#endif /* QT_VERSION */
 
 public:
-#if QT_VERSION < 0x40000
-   static TQtPatternPopup *Create(QWidget *p, TQtBrush &pattern,const char *name=0, bool modal=FALSE, WFlags f=Qt::WStyle_Customize | Qt::WStyle_NoBorder|Qt::WStyle_StaysOnTop);            
-#else /* QT_VERSION */
-//MOC_SKIP_BEGIN
    static TQtPatternPopup *Create(QWidget *p, TQtBrush &pattern,const char *name=0, bool modal=FALSE, Qt::WFlags f=Qt::WStyle_Customize | Qt::WStyle_NoBorder|Qt::WStyle_StaysOnTop);            
-//MOC_SKIP_END
-#endif /* QT_VERSION */
    virtual ~TQtPatternPopup();
 
    const TQtBrush &Brush() const { return fCurrentBrush;}
    
+protected slots:
+    void SetActiveSlot();
+
 public slots:
       virtual void BrushSelected(const TQtBrush &pattern);
       
@@ -175,13 +136,7 @@ protected slots:
 //----------------------------------------------------------------------
 
 
-#if QT_VERSION < 0x40000
   class TQtPatternSelectButton : public QFrame {
-#else /* QT_VERSION */
-//MOC_SKIP_BEGIN
-  class TQtPatternSelectButton : public Q3Frame {
-//MOC_SKIP_END
-#endif /* QT_VERSION */
 Q_OBJECT
 protected:
    TQtBrush         fBrush;

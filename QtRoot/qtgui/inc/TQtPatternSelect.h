@@ -1,11 +1,11 @@
-// @(#)root/gui:$Name:  $:$Id: TQtPatternSelect.h,v 1.3 2007/01/30 02:56:36 fine Exp $
+// @(#)root/gui:$Name:  $:$Id: TQtPatternSelect.h,v 1.4 2007/07/04 20:45:43 fine Exp $
 // Author: Valeri Fine  21/05/2004
 
 #ifndef ROOT_TQtPatternSelect
 #define ROOT_TQtPatternSelect
 
 /****************************************************************************
-** $Id: TQtPatternSelect.h,v 1.3 2007/01/30 02:56:36 fine Exp $
+** $Id: TQtPatternSelect.h,v 1.4 2007/07/04 20:45:43 fine Exp $
 **
 ** Copyright (C) 2004 by Valeri Fine. Brookhaven National Laboratory.
 **                                    All rights reserved.
@@ -78,7 +78,8 @@ protected:
 public:
    TQtPatternSelect(QWidget *p=0, Style_t pattern=0, Int_t id=-1);
    virtual ~TQtPatternSelect();
-   virtual void EmitRootSignal(ULong_t style); //*SIGNAL*
+   virtual void EmitRootSignal(ULong_t style); // *SIGNAL*
+   TQtPatternSelectButton *GetPatternSelectButton() const { return fPatternSelector;}
    virtual void Constructor(QWidget *p=0, Style_t pattern=0, Int_t id=-1);
    void         SetPattern(Style_t pattern);
    Style_t      GetPattern() const;

@@ -1,7 +1,7 @@
-// @(#)root/gui:$Name:  $:$Id: TQtColorSelect.cxx,v 1.2 2006/09/22 17:27:11 fine Exp $
+// @(#)root/gui:$Name:  $:$Id: TQtColorSelect.cxx,v 1.3 2007/07/04 20:45:43 fine Exp $
 // Author: Valeri Fine  21/05/2004
 /****************************************************************************
-** $Id: TQtColorSelect.cxx,v 1.2 2006/09/22 17:27:11 fine Exp $
+** $Id: TQtColorSelect.cxx,v 1.3 2007/07/04 20:45:43 fine Exp $
 **
 ** Copyright (C) 2004 by Valeri Fine. Brookhaven National Laboratory.
 **                                    All rights reserved.
@@ -35,7 +35,7 @@
 ClassImp(TQtColorSelect)
 //______________________________________________________________________________
 TQtColorSelect::TQtColorSelect(QWidget *p,  UInt_t pixel, Int_t id )
-               : fColorSelector(0) 
+               : QObject(), fColorSelector(0) 
 {
   Constructor(p, pixel, id);
 }
@@ -48,13 +48,14 @@ void TQtColorSelect::Constructor(QWidget *p, UInt_t pixel, Int_t id)
 }
 
 //______________________________________________________________________________
-TQtColorSelect::~TQtColorSelect() { 
+TQtColorSelect::~TQtColorSelect() {
    if (fColorSelector) {
-      fColorSelector->hide(); 
-      delete fColorSelector; 
+      fColorSelector->hide();
+      delete fColorSelector;
       fColorSelector = 0;
    }
 }
+
 //______________________________________________________________________________
 void TQtColorSelect::ColorEmit(Pixel_t pixel) 
  { 

@@ -1,4 +1,4 @@
-// @(#)root/gui:$Name:  $:$Id: TQtColorSelectButton.h,v 1.4 2007/06/29 20:24:31 fine Exp $
+// @(#)root/gui:$Name:  $:$Id: TQtColorSelectButton.h,v 1.5 2007/07/04 20:45:43 fine Exp $
 // Author: Bertrand Bellenot + Fons Rademakers   22/08/02
 
 /*************************************************************************
@@ -106,8 +106,8 @@ public:
    const QColor  &GetActiveColor() const;
 
 public slots:
-   void SetActiveSlot(int id);
    void SetActiveSlot();
+   void SetActiveSlot(int id);
 
 protected slots:
    virtual void languageChange();
@@ -150,7 +150,6 @@ protected slots:
 //                 TQtColorSelectButton
 //----------------------------------------------------------------------
 
-class Q3Button;
 
 class TQtColorSelectButton : public QFrame {
 Q_OBJECT
