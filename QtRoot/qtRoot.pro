@@ -6,11 +6,14 @@ QT += qt3support
 
 TEMPLATE = subdirs
 #  qt4ged
-QTPACKAGES = qt qtroot qtgui qtgl qtthread
+QTPACKAGES = qt qtroot qtgui qtgl qtthread 
 QT_VERSION=$$[QT_VERSION]
+contains( QT_VERSION, "^4.*" ) {
+  QTPACKAGES += qt4ged
+}
 !contains( QT_VERSION, "^4.*" ) {
-  QTPACKAGES -= qt4ged
-  QTPACKAGES += qtimage qtged
+  QTPACKAGES += qtimage 
+  QTPACKAGES += qtged
 }
 QTPACKAGES -= $$REMOVEPACKAGES
 #qtExamples
