@@ -1,5 +1,5 @@
 #!/bin/csh -x
-#       $Id: group_env.csh,v 1.192 2007/04/09 18:52:19 jeromel Exp $
+#       $Id: group_env.csh,v 1.193 2007/07/05 16:29:02 jeromel Exp $
 #	Purpose:	STAR group csh setup
 #
 #	Author:		Y.Fisyak     BNL
@@ -545,6 +545,16 @@ if ( ! $?GRAXML_HOME && -d ${STAR_PATH}/GeoM ) then
 endif
 if ( $?GRAXML_HOME ) then
     set path=($path $GRAXML_HOME/bin)
+endif
+
+
+# Support for subversion if installed in a sub-directory
+# Will start with simple one location
+if ( -d /usr/local/subversion ) then
+    setenv SVNDIR /usr/local/subversion
+    set path=($path $SVNDIR/bin )
+    setenv MANPATH ${MANPATH}:$SVNDIR/man
+    setenv LD_LIBRARY_PATH ${LD_LIBRARY_PATH}:$SVNDIR/lib
 endif
 
 
