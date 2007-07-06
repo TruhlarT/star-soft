@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: HelloLife.cxx,v 1.1 2006/08/16 19:41:02 fine Exp $
+** $Id: HelloLife.cxx,v 1.2 2007/07/06 22:26:49 fine Exp $
 **
 ** Copyright (C) 1992-2000 Trolltech AS.  All rights reserved.
 **
@@ -183,8 +183,13 @@ void LifeWidget::mouseMoveEvent( QMouseEvent *e )
 //_____________________________________________________________________________________
 void LifeWidget::mousePressEvent( QMouseEvent *e )
 {
-   if ( e->button() == QMouseEvent::LeftButton )
-      mouseHandle( e->pos() );
+   if ( e->button() == 
+#if QT_VERSION < 0x40000
+   QMouseEvent::LeftButton
+#else      
+   Qt::LeftButton
+#endif               
+   )   mouseHandle( e->pos() );
 }
 
 //_____________________________________________________________________________________
