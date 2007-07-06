@@ -1,4 +1,4 @@
-// @(#)root/gui:$Name:  $:$Id: TQtPatternSelectButton.cxx,v 1.4 2007/07/06 22:27:27 fine Exp $
+// @(#)root/gui:$Name:  $:$Id: TQtPatternSelectButton.cxx,v 1.5 2007/07/06 22:32:26 fine Exp $
 // Author: Bertrand Bellenot + Fons Rademakers   22/08/02
 
 /*************************************************************************
@@ -158,14 +158,15 @@ void TQtPatternFrame::paintEvent(QPaintEvent *e)
 //________________________________________________________________________________
 void TQtPatternFrame::SetIcon()
 {   
-   setFrameStyle(QFrame::Panel | QFrame::Raised);
 #if QT_VERSION < 0x40000
+   setFrameStyle(QFrame::Panel | QFrame::Raised);
    QToolTip::add(this,fBrushTipLabel + QString::number(fBrush.GetStyle()) );
    setMargin(0);
    //   setFrameStyle(QFrame::StyledPanel | QFrame::Raised);
 #else
+   setFrameStyle(QFrame::StyledPanel | QFrame::Raised);
    setToolTip(fBrushTipLabel + QString::number(fBrush.GetStyle()) );
-   setContentsMargins(0,0,0,0);
+   setContentsMargins(2,2,2,2);
 #endif
 }
 //________________________________________________________________________________
