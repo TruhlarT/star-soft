@@ -14,7 +14,11 @@ int main( int argc, char **argv )
 	//QScrollArea *sa = new QScrollArea( mw );
 //	PixmapWidget *pw = new PixmapWidget( QString("./test.png"), sa );
 	PixmapWidget *pw = new PixmapWidget( QPixmap("./test.png"), 0);
+#if QT_VERSION < 0x40000
    QToolTip::add ( pw, "Rotate the mouse wheel to zoom the image, move the mouse pointer out the picture to hide it");
+#else   
+   pw->setToolTip("Rotate the mouse wheel to zoom the image, move the mouse pointer out the picture to hide it");
+#endif   
 //	sa->setWidgetResizable( true );
 //	sa->setWidget( pw );
 

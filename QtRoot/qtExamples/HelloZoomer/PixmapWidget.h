@@ -11,7 +11,11 @@ class PixmapWidget : public QWidget
 	Q_OBJECT
 	
 public:
-	PixmapWidget( const QPixmap &pixmap, QWidget *parent=0, WFlags f= WStyle_Customize | WStyle_Splash | Qt::WRepaintNoErase | Qt::WNoAutoErase );
+#if QT_VERSION < 0x40000
+	PixmapWidget( const QPixmap &pixmap, QWidget *parent=0, Qt::WFlags f= Qt::WStyle_Customize | Qt::WStyle_Splash | Qt::WRepaintNoErase | Qt::WNoAutoErase );
+#else
+	PixmapWidget( const QPixmap &pixmap, QWidget *parent=0, Qt::WFlags f=0 );
+#endif      
 	~PixmapWidget();
 
 public slots:

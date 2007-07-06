@@ -5,8 +5,12 @@
 #include <qtimer.h>
 
 //_____________________________________________________________________
-PixmapWidget::PixmapWidget( const QPixmap &pixmap, QWidget *parent , WFlags f)
+PixmapWidget::PixmapWidget( const QPixmap &pixmap, QWidget *parent , Qt::WFlags f)
+#if QT_VERSION < 0x40000
 : QWidget( parent,"maginifier", f )
+#else
+: QWidget( parent,f )
+#endif
 {
 	ResetPixmap(pixmap);
 }
@@ -14,7 +18,9 @@ PixmapWidget::PixmapWidget( const QPixmap &pixmap, QWidget *parent , WFlags f)
 //_____________________________________________________________________
 void PixmapWidget::Init()
 {
+#if QT_VERSION < 0x40000
    setBackgroundMode(Qt::NoBackground);
+#endif   
 	zoomFactor = 0.1f; // 1.2;
 	fZoomStep = 0.05f; //fTime/fSmoothFactor;
 	setMinimumSize( int(m_pm->width()*zoomFactor), int(m_pm->height()*zoomFactor) );
