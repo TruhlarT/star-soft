@@ -1,4 +1,4 @@
-// @(#)root/gui:$Name:  $:$Id: TQtPatternSelectButton.cxx,v 1.3 2007/07/04 20:45:43 fine Exp $
+// @(#)root/gui:$Name:  $:$Id: TQtPatternSelectButton.cxx,v 1.4 2007/07/06 22:27:27 fine Exp $
 // Author: Bertrand Bellenot + Fons Rademakers   22/08/02
 
 /*************************************************************************
@@ -94,25 +94,6 @@ static int hSize = 2*boxSize ;
 
 TQtPatternPopup *TQtPatternPopup::fgBrushPopup = 0;
 
-class MyPanel : public QWidget {
-      TQtBrush *fBrush;
-      public:
-            MyPanel(QWidget *parent, TQtBrush &brush): QWidget(parent), fBrush(&brush){}
-   public:
-      void SetBrush(TQtBrush *brush) { fBrush = brush; update(); };
-      protected:
-         void paintEvent(QPaintEvent *) {
-            QPainter p(this);
-#ifdef R__WIN32
-            if ( 3000 <= fBrush->GetStyle() && fBrush->GetStyle() < 4000) {
-               QPixmap &px = *fBrush->pixmap();
-               px.fill(fBrush->GetColor());
-               p.drawTiledPixmap(rect(), px);
-            } else 
-#endif
-               p.fillRect(rect(), *fBrush);
-         }
-   };
 //________________________________________________________________________________
 //TQtPatternFrame::TQtPatternFrame( QWidget *p, ULong_t color, Int_t /*n*/) 
 //: QToolButton(p)
@@ -124,23 +105,17 @@ class MyPanel : public QWidget {
 
  //________________________________________________________________________________
 TQtPatternFrame::TQtPatternFrame(QWidget *p, Style_t pattern, Int_t n):QFrame(p)
-,fActive(n), fPanel(0)
+,fActive(n)
 {
    fBrush.SetStyle(pattern);
 
    languageChange();
-#if QT_VERSION < 0x40000
-   QToolTip::add(this,fBrushTipLabel + QString::number(fBrush.GetStyle()) );
-#else
-   setToolTip(tr(fBrushTipLabel + QString::number(fBrush.GetStyle())));
-#endif      
-   setFrameStyle(QFrame::StyledPanel | QFrame::Raised);
    SetIcon();
    resize(wSize, hSize);   
 }
  //________________________________________________________________________________
 TQtPatternFrame::TQtPatternFrame(QWidget *p, TQtBrush &pattern, Int_t n): QFrame(p)
-,fActive(n),fBrush(pattern),fPanel(0)
+,fActive(n),fBrush(pattern)
 { 
    if (boxSize == 0 ) {
 #if QT_VERSION < 0x40000
@@ -154,12 +129,6 @@ TQtPatternFrame::TQtPatternFrame(QWidget *p, TQtBrush &pattern, Int_t n): QFrame
     }
 
    languageChange();
-#if QT_VERSION < 0x40000
-   QToolTip::add(this,fBrushTipLabel + QString::number(fBrush.GetStyle()) );
-#else   
-   setToolTip(fBrushTipLabel + QString::number(fBrush.GetStyle()) );
-#endif   
-   setFrameStyle(QFrame::StyledPanel | QFrame::Raised);
    SetIcon();
    resize(wSize, hSize);
 }
@@ -167,24 +136,37 @@ TQtPatternFrame::TQtPatternFrame(QWidget *p, TQtBrush &pattern, Int_t n): QFrame
 void TQtPatternFrame::SetBrush(TQtBrush &newBrush)
 { 
    fBrush = newBrush;
-   if (fPanel) ((MyPanel *)fPanel)->SetBrush(&fBrush);
+   update();
 }
+
+//________________________________________________________________________________
+void TQtPatternFrame::paintEvent(QPaintEvent *e) 
+{
+   QFrame::paintEvent(e);
+   QPainter p(this);
+#ifdef R__WIN32
+   if ( 3000 <= fBrush.GetStyle() && fBrush.GetStyle() < 4000) {
+      QPixmap &px = *fBrush.pixmap();
+      px.fill(fBrush.GetColor());
+      p.drawTiledPixmap(contentsRect(), px);
+   } else 
+#endif
+      p.fillRect(contentsRect(), fBrush);
+}
+
 
 //________________________________________________________________________________
 void TQtPatternFrame::SetIcon()
 {   
-   if (!fPanel) {
+   setFrameStyle(QFrame::Panel | QFrame::Raised);
 #if QT_VERSION < 0x40000
-      setMargin(2);
+   QToolTip::add(this,fBrushTipLabel + QString::number(fBrush.GetStyle()) );
+   setMargin(0);
+   //   setFrameStyle(QFrame::StyledPanel | QFrame::Raised);
 #else
-      setContentsMargins(2,2,2,2);
+   setToolTip(fBrushTipLabel + QString::number(fBrush.GetStyle()) );
+   setContentsMargins(0,0,0,0);
 #endif
-      QGridLayout *l = new QGridLayout(this);
-      l->setMargin(1);
-      l->setSpacing(0);
-      fPanel = new MyPanel(this,fBrush);
-      l->addWidget(fPanel,0,0);
-   }
 }
 //________________________________________________________________________________
 QSize TQtPatternFrame::sizeHint () const 

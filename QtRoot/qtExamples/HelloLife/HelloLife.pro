@@ -1,5 +1,6 @@
 TEMPLATE = app
 TARGET   = HelloLife
+QT += qt3support
 
 CONFIG   += qt warn_on release thread
 

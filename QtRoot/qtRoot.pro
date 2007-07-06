@@ -8,6 +8,9 @@ TEMPLATE = subdirs
 #  qt4ged
 QTPACKAGES = qt qtroot qtgui qtgl qtthread 
 QT_VERSION=$$[QT_VERSION]
+
+QTROOTSYS = $$(QTROOTSYSDIR)
+
 contains( QT_VERSION, "^4.*" ) {
   QTPACKAGES += qt4ged
 }
@@ -22,14 +25,14 @@ message (excluding $$EXCLUDE)
 # qtx3d qtExamples qtetc
 
 TARGET = QtRoot
-QTROOTSYS = $(QTROOTSYSDIR)
 !isEmpty(QTROOTSYS) 
 {
    QTROOTSYSPATHINSTALL = $$QTROOTSYS
 }
+
 isEmpty(QTROOTSYSPATHINSTALL) {
   QTROOTSYSPATHINSTALL = $$DESTDIR
-  message("Warning:  Did you forget to set QTROOTSYSDIR environment variable?")
+  message("Warning:  Did you forget to set QTROOTSYSDIR environment variable? $$QTROOTSYSDIR")
   message(" ")
   message(" Installing <$$QTPACKAGES> of $$TARGET system")
   message(" To remove some packages from the build, start the qmake utility as follows:")

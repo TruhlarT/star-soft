@@ -28,7 +28,7 @@ exists ($(ROOTSYS)/include){
 unix:  TARGET = GQt
 win32: TARGET = libGQt
 
-QTROOTSYSPATHINSTALL = $(QTROOTSYSDIR)
+QTROOTSYSPATHINSTALL = $$(QTROOTSYSDIR)
 
 isEmpty(DESTDIR) {
   DESTDIR=..
@@ -87,7 +87,7 @@ win32 {
     LIBS+=comctl32.lib
 }
 unix {
-   LIBS += -L$(ROOTSYS)/lib -lGpad -lRint
+   LIBS += -L$(ROOTSYS)/lib -lGui  -lGpad -lRint
 }
 mac {
     !exists ($$GQTDIRI/rootlibs.pri){

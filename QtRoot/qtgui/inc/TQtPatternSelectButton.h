@@ -1,4 +1,4 @@
-// @(#)root/gui:$Name:  $:$Id: TQtPatternSelectButton.h,v 1.3 2007/07/04 20:45:43 fine Exp $
+// @(#)root/gui:$Name:  $:$Id: TQtPatternSelectButton.h,v 1.4 2007/07/06 22:27:26 fine Exp $
 // Author: Bertrand Bellenot + Fons Rademakers   22/08/02
 
 /*************************************************************************
@@ -81,6 +81,7 @@ protected:
 protected:
    virtual void SetIcon();
    virtual void mouseReleaseEvent(QMouseEvent *event);
+   virtual void paintEvent(QPaintEvent *e);
 
 public:
    TQtPatternFrame(QWidget *p, TQtBrush &c, Int_t n=-1);

@@ -1,4 +1,4 @@
-// @(#)root/qt:$Name:  $:$Id: TQtWidget.h,v 1.9 2007/06/14 20:28:57 fine Exp $
+// @(#)root/qt:$Name:  $:$Id: TQtWidget.h,v 1.10 2007/07/06 22:27:23 fine Exp $
 // Author: Valeri Fine   21/01/2002
 /****************************************************************************
 **
@@ -73,8 +73,8 @@ class TQtWidgetBuffer : public QPixmap
     QWidget *fWidget;
 
   public:
-    TQtWidgetBuffer(QWidget *w=0) :  QPixmap(), fWidget(w)
-    { if (w) resize(w->size()); }
+    TQtWidgetBuffer(QWidget *w=0) :  QPixmap(w?w->size():QPixmap()), fWidget(w)
+    { }
     inline QRect rect () const { return fWidget->rect();}
 };
 //___________________________________________________________________

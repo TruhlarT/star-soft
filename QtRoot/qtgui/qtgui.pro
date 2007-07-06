@@ -11,7 +11,10 @@ TARGET = QtRootGui
 
 GQTDIRI   = ../qt/inc
 
-QTROOTSYSPATHINSTALL = $(QTROOTSYSDIR)
+QTROOTSYSPATHINSTALL = $$(QTROOTSYSDIR)
+
+contains( QT_VERSION, "^4.*" ) {
+}
 
 isEmpty(DESTDIR) {
   DESTDIR=..
@@ -19,7 +22,6 @@ isEmpty(DESTDIR) {
 isEmpty(QTROOTSYSPATHINSTALL) {
   QTROOTSYSPATHINSTALL = $$DESTDIR
 }
-QT_VERSION=$$[QT_VERSION]
 
 DEFINES += R__QT
 MODDIRI = inc
@@ -192,3 +194,5 @@ unix {
 }
 #The following line was inserted by qt3to4
 QT +=  qt3support 
+#The following line was inserted by qt3to4
+QT +=  

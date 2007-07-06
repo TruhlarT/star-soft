@@ -1,6 +1,6 @@
 // Author: Valeri Fine   30/04/2003
 /****************************************************************************
-** $Id: TQtFloatSpinBox.cxx,v 1.3 2007/07/04 20:45:43 fine Exp $
+** $Id: TQtFloatSpinBox.cxx,v 1.4 2007/07/06 22:27:27 fine Exp $
 **
 ** Copyright (C) 2002 by Valeri Fine. Brookhaven National Laboratory.
 **                                    All rights reserved.
@@ -146,14 +146,6 @@ void  TQtFloatSpinBox::SetMaxValue( const QString &v)
 void  TQtFloatSpinBox::SetValue   ( const QString &v)
 { SetValue(v.toFloat());   }
 
-//______________________________________________________________________________
-//
-//   Custom signals / slots 
-//______________________________________________________________________________
-void TQtFloatSpinBox::EmitSignal(int) {
-   // emit float value changed signa;
-   emit ValueChanged((double)Value());
-}
 #else
 //______________________________________________________________________________
 TQtFloatSpinBox::TQtFloatSpinBox( QWidget* parent, const char* name ):
@@ -260,6 +252,15 @@ void  TQtFloatSpinBox::SetMaxValue( const QString &v)
 void  TQtFloatSpinBox::SetValue   ( const QString &v)
 { setValue(v.toFloat());   }
 #endif
+//______________________________________________________________________________
+//
+//   Custom signals / slots 
+//______________________________________________________________________________
+void TQtFloatSpinBox::EmitSignal(int) {
+   // emit float value changed signa;
+   emit ValueChanged((double)Value());
+}
+
 #if 0
 //______________________________________________________________________________
 QSize TQtFloatSpinBox::sizeHint() const
