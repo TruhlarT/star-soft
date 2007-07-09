@@ -17,7 +17,7 @@ TARGET = QtThread
 
 GQTDIRI   = ../qt/inc
 
-QTROOTSYSPATHINSTALL = $$(QTROOTSYSDIR)
+QTROOTSYSPATHINSTALL = $(QTROOTSYSDIR)
 
 isEmpty(DESTDIR) {
   DESTDIR=..
@@ -71,10 +71,10 @@ mac {
 
 mac: unix: LIBS += -lThread
 
-headerfiles.path  = $$QTROOTSYSPATHINSTALL/include
+headerfiles.path  = $$QTROOTSYSPATHINSTALL/include/
 headerfiles.files = $$QTTHREADDIRI/*.*
 headerfiles.files -= $$QTTHREADDIRI/LinkDef.h
-target.path = $$QTROOTSYSPATHINSTALL/lib
+target.path = $$QTROOTSYSPATHINSTALL/lib/
 
 INSTALLS += headerfiles target
 

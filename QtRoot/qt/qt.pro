@@ -28,7 +28,7 @@ exists ($(ROOTSYS)/include){
 unix:  TARGET = GQt
 win32: TARGET = libGQt
 
-QTROOTSYSPATHINSTALL = $$(QTROOTSYSDIR)
+QTROOTSYSPATHINSTALL = $(QTROOTSYSDIR)
 
 isEmpty(DESTDIR) {
   DESTDIR=..
@@ -103,7 +103,7 @@ unix {
     LIBS -= -lQtRootGui
 }
     
-headerfiles.path  = $$QTROOTSYSPATHINSTALL/include
+headerfiles.path  = $$QTROOTSYSPATHINSTALL/include/
 headerfiles.files = $$GQTDIRI/*.h $$GQTDIRI/*.cw $$GQTDIRI/*.pri  $$GQTDIRI/TVirtualX.interface.h
 headerfiles.files -= $$GQTDIRI/LinkDef.h
 unix:  target.path = $$QTROOTSYSPATHINSTALL/lib

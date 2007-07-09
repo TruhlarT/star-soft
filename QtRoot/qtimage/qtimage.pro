@@ -11,7 +11,7 @@ GQTDIRI   = ../qt/inc
 
 TARGET = QtImage
 
-QTROOTSYSPATHINSTALL = $$(QTROOTSYSDIR)
+QTROOTSYSPATHINSTALL = $(QTROOTSYSDIR)
 
 isEmpty(DESTDIR) {
   DESTDIR=..
@@ -58,10 +58,10 @@ mac {
     }
 }
 
-headerfiles.path   = $$QTROOTSYSPATHINSTALL/include
+headerfiles.path   = $$QTROOTSYSPATHINSTALL/include/
 headerfiles.files  = $$QTIMAGEDIRI/*.*
 headerfiles.files -= $$QTIMAGEDIRI/LinkDef.h
-target.path = $$QTROOTSYSPATHINSTALL/lib 
+target.path = $$QTROOTSYSPATHINSTALL/lib/
 
 INSTALLS += headerfiles target
 

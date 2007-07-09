@@ -11,7 +11,7 @@ TARGET = QtRootGui
 
 GQTDIRI   = ../qt/inc
 
-QTROOTSYSPATHINSTALL = $$(QTROOTSYSDIR)
+QTROOTSYSPATHINSTALL = $(QTROOTSYSDIR)
 
 contains( QT_VERSION, "^4.*" ) {
 }
@@ -162,10 +162,10 @@ SOURCES += src/TQtMarkerSelect.cxx      \
            
 DISTFILES += LICENSE.QPL Module.mk  Module.mk.unix  Module.mk.win32 
 
-headerfiles.path   = $$QTROOTSYSPATHINSTALL/include
+headerfiles.path   = $$QTROOTSYSPATHINSTALL/include/
 headerfiles.files  = $$HEADERS inc/*.cw
 headerfiles.files -= $$MODDIRI/LinkDef.h
-target.path = $$QTROOTSYSPATHINSTALL/lib
+target.path = $$QTROOTSYSPATHINSTALL/lib/
 
 INSTALLS += headerfiles target
 

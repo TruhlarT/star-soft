@@ -18,7 +18,7 @@ win32:    system(type %ROOTSYS%/config.status)
      error(       or remove the qtgl package from the list of the Qt/Root packages  - NOT RECOMMENDED)
 }
 
-QTROOTSYSPATHINSTALL = $$(QTROOTSYSDIR)
+QTROOTSYSPATHINSTALL = $(QTROOTSYSDIR)
 
 isEmpty(DESTDIR) {
   DESTDIR=..

@@ -10,7 +10,7 @@ CONFIG += create_prl
 
 TARGET = QtGed
 
-QTROOTSYSPATHINSTALL = $$(QTROOTSYSDIR)
+QTROOTSYSPATHINSTALL = $(QTROOTSYSDIR)
 
 isEmpty(DESTDIR) {
   DESTDIR=..
@@ -88,10 +88,10 @@ mac {
 }
 
 
-headerfiles.path  = $$QTROOTSYSPATHINSTALL/include
+headerfiles.path  = $$QTROOTSYSPATHINSTALL/include/
 headerfiles.files = $$QTGEDDIRI/*.h
 headerfiles.files -= $$QTGEDDIRI/LinkDef.h
-target.path = $$QTROOTSYSPATHINSTALL/lib
+target.path = $$QTROOTSYSPATHINSTALL/lib/
 
 INSTALLS += headerfiles target
 
