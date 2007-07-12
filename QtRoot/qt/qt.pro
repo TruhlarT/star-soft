@@ -10,11 +10,14 @@ CONFIG += create_prl
 
 DEPENDPATH += inc src
 
+QTROOTSYSPATHINSTALL = $(QTROOTSYSDIR)
+
 QT_VERSION=$$[QT_VERSION]
 contains( QT_VERSION, "^4.*" ) {
 #  DEFINES += QT_VERSION=0x40000
 #   INCLUDEPATH +=$(QTDIR)/include  $(QTDIR)/include/ActiveQt  $(QTDIR)/include/Qt  $(QTDIR)/include/Qt3Support $(QTDIR)/include/QtAssistant  $(QTDIR)/include/QtCore  $(QTDIR)/include/QtGui  $(QTDIR)/include/QtNetwork   $(QTDIR)/include/QtOpenGL   $(QTDIR)/include/QtXml
 #   LIBS += -L$(QTDIR)/lib 
+QTROOTSYSPATHINSTALL = $$(QTROOTSYSDIR)
 }
 win32 {
   DEFINES +=  GDK_WIN32
@@ -27,8 +30,6 @@ exists ($(ROOTSYS)/include){
 
 unix:  TARGET = GQt
 win32: TARGET = libGQt
-
-QTROOTSYSPATHINSTALL = $(QTROOTSYSDIR)
 
 isEmpty(DESTDIR) {
   DESTDIR=..

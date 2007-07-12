@@ -20,6 +20,10 @@ win32:    system(type %ROOTSYS%/config.status)
 }
 
 QTROOTSYSPATHINSTALL = $(QTROOTSYSDIR)
+QT_VERSION=$$[QT_VERSION]
+contains( QT_VERSION, "^4.*" ) {
+    QTROOTSYSPATHINSTALL = $$(QTROOTSYSDIR)
+}
 
 isEmpty(DESTDIR) {
   DESTDIR=..

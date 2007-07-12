@@ -12,6 +12,10 @@ TARGET = QtRootGui
 GQTDIRI   = ../qt/inc
 
 QTROOTSYSPATHINSTALL = $(QTROOTSYSDIR)
+QT_VERSION=$$[QT_VERSION]
+contains( QT_VERSION, "^4.*" ) {
+    QTROOTSYSPATHINSTALL = $$(QTROOTSYSDIR)
+}
 
 contains( QT_VERSION, "^4.*" ) {
 }
