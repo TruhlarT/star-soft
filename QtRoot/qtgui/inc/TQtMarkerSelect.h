@@ -9,16 +9,11 @@
 
 #ifndef __CINT__
 #include <qpoint.h>
-// #include <qtoolbutton.h>
 #include <qobject.h>
-// #include <q3popupmenu.h>
-// #include <qpopupmenu.h>
-//#elif
 
 #endif // ifndef __CINT__
 
-class TQtMarkerFrame ;
-class TQt18MarkerSelector;
+class TQtMarkerSelectButton;
 
 /////////////////////////////////////////////////////////////////////////////////////////////////
 // TQtMarkerEmit                                                                               //
@@ -43,9 +38,7 @@ class TQtMarkerSelect :
 Q_OBJECT
 #endif // #ifndef __CINT__
 private :
-   TQtMarkerFrame      * fSelected ;
-   TQt18MarkerSelector * fPopup ;
-
+   TQtMarkerSelectButton *fSelectButton; 
    TQtMarkerSelect(const TQtMarkerSelect&);
    TQtMarkerSelect &operator=(const TQtMarkerSelect&);
 
@@ -53,15 +46,13 @@ private :
 protected slots :
 #endif // #ifndef __CINT__
 
-   void selectedSlot ( TQtMarkerFrame * selectedMarkerFrame );
-
-   void showPopup    ();
+   virtual void MarkerStyleEmit(Style_t style);  // *SIGNAL*
 
 public :
    TQtMarkerSelect ( QWidget * p = 0, const char * name = "" , Style_t style = 1 );
    virtual ~TQtMarkerSelect () {}
 
-   virtual void MarkerStyleEmit(Style_t style);  // *SIGNAL*
+   QWidget *GetMarkerSelectButton() const;
 
    Style_t GetStyle();
    void    SetStyle(Style_t style);
@@ -77,4 +68,5 @@ signals :
 #endif
 }; // class TQtMarkerSelectButton 
 
-#endif // #ifndef ROOT_TQtMarkerSelect
+#endif
+ 

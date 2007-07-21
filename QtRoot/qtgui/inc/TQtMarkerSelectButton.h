@@ -7,14 +7,13 @@
 
 #include <qpoint.h>
 #include <qtoolbutton.h>
-#include <qobject.h>
 #ifndef __CINT__
 #if QT_VERSION < 0x40000
 #  include <qdialog.h>
-#  define MARKERSELECTORBASECLASS QDialog
+#include <qframe.h>
 #else
 #  include  <QDialog>
-#  define MARKERSELECTORBASECLASS QDialog
+#  include  <QFrame>
 #endif
 #else
   class QMenu;
@@ -66,4 +65,34 @@ signals :
 
 }; // class TQt18MarkerSelector
 
+/////////////////////////////////////////////////////////////////////////////////////////////////
+// TQtMarkerSelectButton                                                                              //
+/////////////////////////////////////////////////////////////////////////////////////////////////
+class TQtMarkerSelectButton : public QFrame {
+Q_OBJECT
+private :
+   TQtMarkerFrame      * fSelected ;
+   TQt18MarkerSelector * fPopup ;
+
+   TQtMarkerSelectButton(const TQtMarkerSelectButton&);
+   TQtMarkerSelectButton &operator=(const TQtMarkerSelectButton&);
+
+protected slots :
+
+   void selectedSlot ( TQtMarkerFrame * selectedMarkerFrame );
+
+   void showPopup    ();
+
+public :
+   TQtMarkerSelectButton ( QWidget * p = 0, const char * name = "" , Style_t style = 1 );
+   virtual ~TQtMarkerSelectButton () {}
+
+   virtual void MarkerStyleEmit(Style_t style);  // *SIGNAL*
+
+   Style_t GetStyle();
+   void    SetStyle(Style_t style);
+
+signals :
+   void StyleSelected ( Style_t markerStyle );
+}; // class TQtMarkerSelectButton 
 #endif // #ifndef ROOT_TQtMarkerSelectButton
