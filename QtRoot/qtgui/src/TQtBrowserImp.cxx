@@ -1,6 +1,6 @@
 // Author: Valeri Fine   21/01/2002
 /****************************************************************************
-** $Id: TQtBrowserImp.cxx,v 1.3 2007/01/23 06:52:52 fine Exp $
+** $Id: TQtBrowserImp.cxx,v 1.4 2007/07/23 13:33:12 fine Exp $
 **
 ** Copyright (C) 2002 by Valeri Fine. Brookhaven National Laboratory.
 **                                    All rights reserved.
@@ -735,7 +735,9 @@ Int_t TQtBrowserImp::InitWindow(Bool_t show)
 
    fBrowserImpID->addColumn("ROOT folders");
    fBrowserImpID->addColumn("class name");
+#ifdef SORT_ROW_BY DEFAULT   
    fBrowserImpID->setShowSortIndicator(TRUE); 
+#endif   
    fRootItem = new TQtBrowserItem(0,fBrowserImpID,"ROOT");
    Add(gROOT,"ROOT");
    fRootItem->setEnabled(TRUE);
