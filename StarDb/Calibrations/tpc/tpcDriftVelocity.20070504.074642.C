@@ -1,0 +1,11 @@
+TDataSet *CreateTable() {
+  if (!gROOT->GetClass("St_tpcDriftVelocity")) return 0;
+  St_tpcDriftVelocity *tableSet = new St_tpcDriftVelocity("tpcDriftVelocity",1);
+  tpcDriftVelocity_st row;// Laser Run 124011
+  row.laserDriftVelocityEast	 =   5.57748; // +/- 2.19098e-05 cm/us East: Slope = -0.530631 +/- 0.0039424 DV = 5.57748 +/- 2.19098e-05
+  row.laserDriftVelocityWest	 =   5.5787; // +/- 3.89016e-05 cm/us West: Slope = -0.746049 +/- 0.00701504 DV = 5.5787 +/- 3.89016e-05
+  row.cathodeDriftVelocityEast	 =          0; // cm/us : from cathode emission  ;
+  row.cathodeDriftVelocityWest	 =          0; // cm/us : from cathode emission  ;
+  tableSet->AddAt(&row); 
+  return (TDataSet *)tableSet;
+};
