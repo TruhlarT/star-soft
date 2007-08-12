@@ -1,6 +1,6 @@
 /***************************************************************************
  *
- * $Id: StTpcDbMaker.cxx,v 1.40 2007/08/04 00:38:04 jeromel Exp $
+ * $Id: StTpcDbMaker.cxx,v 1.36.2.1 2007/08/12 23:27:43 jeromel Exp $
  *
  * Author:  David Hardtke
  ***************************************************************************
@@ -11,18 +11,8 @@
  ***************************************************************************
  *
  * $Log: StTpcDbMaker.cxx,v $
- * Revision 1.40  2007/08/04 00:38:04  jeromel
- * SL4 issue: Removal of the inline func, moved to class implementation.
- *     Symbols may otherwise be hidden.
- *
- * Revision 1.39  2007/07/12 20:21:09  fisyak
- * Drift velocity depends on TPC half, use online RHIC clock
- *
- * Revision 1.38  2007/04/28 17:57:19  perev
- * Redundant StChain.h removed
- *
- * Revision 1.37  2007/03/21 17:27:02  fisyak
- * use TGeoHMatrix, change mode for switching drift velocities
+ * Revision 1.36.2.1  2007/08/12 23:27:43  jeromel
+ * Further fixes for SL06g built for SL44
  *
  * Revision 1.36  2006/02/27 19:20:53  fisyak
  * Set simu flag for tpcISTimeOffsets and tpcOSTimeOffsets tables
@@ -124,7 +114,9 @@
 
 #define StTpc_STATIC_ARRAYS
 #include <assert.h>
+#include "TCL.h"
 #include "StTpcDbMaker.h"
+#include "StChain.h"
 #include "StTpcDb.h"
 #include "StDbUtilities/StCoordinates.hh"
 #include "tables/St_tpg_pad_plane_Table.h"
@@ -133,11 +125,6 @@
 #include "math_constants.h"
 #include "StDetectorDbMaker/StDetectorDbTpcRDOMasks.h"
 #include "StDetectorDbMaker/StDetectorDbMagnet.h"
-#if ROOT_VERSION_CODE < 331013
-#include "TCL.h"
-#else
-#include "TCernLib.h"
-#endif
 ClassImp(StTpcDbMaker)
 
 //
@@ -419,7 +406,7 @@ int type_of_call tpc_hit_error_table_(int *i, int*j, int *k,float *val){
 }
 
 //_____________________________________________________________________________
-StTpcDbMaker::StTpcDbMaker(const char *name): StMaker(name), m_TpcDb(0), m_tpg_pad_plane(0), m_tpg_detector(0) {}
+StTpcDbMaker::StTpcDbMaker(const char *name): StMaker(name), m_TpcDb(0), m_tpg_pad_plane(0), m_tpg_detector(0), m_dvtype(0) {}
 //_____________________________________________________________________________
 StTpcDbMaker::~StTpcDbMaker(){
   //delete m_TpcDb;
@@ -448,37 +435,32 @@ Int_t StTpcDbMaker::InitRun(int runnumber){
     }
 
   // Set Table Flavors
-   if (m_Mode%1000000==1){
-     const Char_t *tabNames[5] = {"tpcGlobalPosition","tpcSectorPosition", "tpcISTimeOffsets", 
-				  "tpcOSTimeOffsets","starClockOnl"};
-     for (Int_t i = 0; i < 5; i++) {
+   if (m_Mode==1){
+     const Char_t *tabNames[4] = {"tpcGlobalPosition","tpcSectorPosition", "tpcISTimeOffsets", "tpcOSTimeOffsets"};
+     for (Int_t i = 0; i < 4; i++) {
        SetFlavor("sim",tabNames[i]); 
        gMessMgr->Info()  << "StTpcDbMaker::Setting Sim Flavor tag for table " << "\t" << tabNames[i] << endm;
      }
    }
-   if ((m_Mode/1000000)%10==0) {
+   if (m_dvtype==0) {
    SetFlavor("ofl+laserDV","tpcDriftVelocity");
    gMessMgr->Info() << "StTpcDbMaker::Using any drift velocity" << endm;
    }
-   else if ((m_Mode/1000000)%10==1) {
+   else if (m_dvtype==1) {
    SetFlavor("ofl","tpcDriftVelocity");
    gMessMgr->Info() << "StTpcDbMaker::Using drift velocity from T0 analysis" << endm;
    }
-   else if ((m_Mode/1000000)%10==2) {
+   else if (m_dvtype==2) {
    SetFlavor("laserDV","tpcDriftVelocity");
    gMessMgr->Info() << "StTpcDbMaker::Using drift velocity from laser analysis" << endm;
-   }
-   else if ((m_Mode/1000000)%10==3) {
-   SetFlavor("NewlaserDV","tpcDriftVelocity");
-   gMessMgr->Info() << "StTpcDbMaker::Using drift velocity from New laser analysis" << endm;
    }
    else {
      gMessMgr->Info() << "StTpcDbMaker::Undefined drift velocity flavor requested" << endm;
    }
-   
+
  
 //
-  if (m_Mode%1000000 != 1){
+  if (m_Mode!=1){
    if (gFactor<-0.8) {
      gMessMgr->Info() << "StTpcDbMaker::Full Reverse Field Twist Parameters.  If this is an embedding run, you should not use it." << endm;
      SetFlavor("FullMagFNegative","tpcGlobalPosition");
@@ -502,11 +484,10 @@ Int_t StTpcDbMaker::InitRun(int runnumber){
   }
 
   m_TpcDb = new StTpcDb(this); if (Debug()) m_TpcDb->SetDebug(Debug());
-  if (m_Mode%1000000 & 2) {
+  if (m_Mode & 2) {
     Int_t option = (m_Mode & 0xfffc) >> 2;
     m_TpcDb->SetExB(new StMagUtilities(gStTpcDb, RunLog, option));
   }
-  SetTpc2Global();
   m_tpg_pad_plane = new St_tpg_pad_plane("tpg_pad_plane",1);
   m_tpg_pad_plane->SetNRows(1);
   m_tpg_detector = new St_tpg_detector("tpg_detector",1);
@@ -557,11 +538,10 @@ Int_t StTpcDbMaker::Make(){
 
   if (!m_TpcDb) m_TpcDb = new StTpcDb(this);
   if (tpcDbInterface()->PadPlaneGeometry()&&tpcDbInterface()->Dimensions())
-    Update_tpg_pad_plane();
+   Update_tpg_pad_plane();
   if (tpcDbInterface()->Electronics()&&tpcDbInterface()->Dimensions()&&
       tpcDbInterface()->DriftVelocity()) 
-    Update_tpg_detector();
-  SetTpc2Global();
+   Update_tpg_detector();
   return kStOK;
 }
 
@@ -602,25 +582,12 @@ void StTpcDbMaker::Update_tpg_detector(){
      pp[0].vdrift = tpcDbInterface()->DriftVelocity();
  }
 }
-//_____________________________________________________________________________
-void StTpcDbMaker::SetTpc2Global() {
-  double phi   = 0.0;  //large uncertainty, so set to 0
-  double theta = m_TpcDb->GlobalPosition()->TpcRotationAroundGlobalAxisY()*180./TMath::Pi();
-  double psi   = m_TpcDb->GlobalPosition()->TpcRotationAroundGlobalAxisX()*180./TMath::Pi();
-  TGeoHMatrix Tpc2Global("Tpc2Global");
-  Tpc2Global.RotateX(-psi);
-  Tpc2Global.RotateY(-theta);
-  Tpc2Global.RotateZ(-phi);
-  Double_t xyz[3] = {
-    m_TpcDb->GlobalPosition()->TpcCenterPositionX(),
-    m_TpcDb->GlobalPosition()->TpcCenterPositionY(),
-    m_TpcDb->GlobalPosition()->TpcCenterPositionZ()
-  };
-  Tpc2Global.SetTranslation(xyz);
-  m_TpcDb->SetTpc2GlobalMatrix(&Tpc2Global);
-}
 
 
 StTpcDb* StTpcDbMaker::tpcDbInterface() const {return m_TpcDb;}
+void StTpcDbMaker::UseOnlyLaserDriftVelocity() {m_dvtype=2;}
+void StTpcDbMaker::UseOnlyCathodeDriftVelocity() {m_dvtype=1;}
+void StTpcDbMaker::UseAnyDriftVelocity() {m_dvtype=0;}
+
 
 

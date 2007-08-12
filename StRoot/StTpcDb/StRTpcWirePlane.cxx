@@ -1,6 +1,6 @@
 /***************************************************************************
  *
- * $Id: StRTpcWirePlane.cxx,v 1.6 2007/08/04 00:38:04 jeromel Exp $
+ * $Id: StRTpcWirePlane.cxx,v 1.5.4.1 2007/08/12 23:27:43 jeromel Exp $
  *
  * Author:  David Hardtke
  ***************************************************************************
@@ -10,6 +10,9 @@
  ***************************************************************************
  *
  * $Log: StRTpcWirePlane.cxx,v $
+ * Revision 1.5.4.1  2007/08/12 23:27:43  jeromel
+ * Further fixes for SL06g built for SL44
+ *
  * Revision 1.6  2007/08/04 00:38:04  jeromel
  * SL4 issue: Removal of the inline func, moved to class implementation.
  *     Symbols may otherwise be hidden.
