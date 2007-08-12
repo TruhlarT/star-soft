@@ -12,6 +12,7 @@
 #   Linux9
 #   SL3
 #   SL302
+#   SL305
 #   SL44
 #
 #   Insure     Builds Insure++ compilation
@@ -161,6 +162,7 @@ if ( -r  $GROUP_DIR/star_login.csh ) then
 	    case "Linux9":
 	    case "SL3":
 	    case "SL302":
+	    case "SL305":
 	    case "SL44":
 		set LPATH=$AFS_RHIC/star/packages/adev
 		set SPATH=$AFS_RHIC/star/doc/www/comp/prod/Sanity
