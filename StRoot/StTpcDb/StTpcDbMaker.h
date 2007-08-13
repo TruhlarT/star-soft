@@ -1,6 +1,6 @@
 /***************************************************************************
  *
- * $Id: StTpcDbMaker.h,v 1.19 2007/08/04 00:38:04 jeromel Exp $
+ * $Id: StTpcDbMaker.h,v 1.17.6.1 2007/08/13 01:04:44 jeromel Exp $
  *
  * Author:  David Hardtke
  ***************************************************************************
@@ -10,12 +10,11 @@
  ***************************************************************************
  *
  * $Log: StTpcDbMaker.h,v $
- * Revision 1.19  2007/08/04 00:38:04  jeromel
- * SL4 issue: Removal of the inline func, moved to class implementation.
- *     Symbols may otherwise be hidden.
+ * Revision 1.17.6.1  2007/08/13 01:04:44  jeromel
+ * Patches for SL07a, SL44
  *
- * Revision 1.18  2007/03/21 17:27:02  fisyak
- * use TGeoHMatrix, change mode for switching drift velocities
+ * Revision 1.17.4.1  2007/08/12 23:27:44  jeromel
+ * Further fixes for SL06g built for SL44
  *
  * Revision 1.17  2004/01/14 22:54:31  fisyak
  * Add hooks for Pedestal and tpcGain
@@ -175,6 +174,7 @@ class StTpcDbMaker : public StMaker {
   StTpcDb* m_TpcDb;               //! tpc database class
   St_tpg_pad_plane* m_tpg_pad_plane; //!
   St_tpg_detector* m_tpg_detector; //! 
+  Int_t m_dvtype;  //! 0= use all, 1=only StTpcT0Maker, 2=only laser;
  protected:
  public: 
                   StTpcDbMaker(const char *name="TpcDb");
@@ -185,14 +185,13 @@ class StTpcDbMaker : public StMaker {
    virtual void Clear(const char *opt);
    virtual void Update_tpg_pad_plane();
    virtual void Update_tpg_detector();
-   virtual void UseOnlyLaserDriftVelocity()   {m_Mode = m_Mode%1000000 + 2000000;}
-   virtual void UseOnlyCathodeDriftVelocity() {m_Mode = m_Mode%1000000 + 1000000;}
-   virtual void UseAnyDriftVelocity()         {m_Mode = m_Mode%1000000;}
+   virtual void UseOnlyLaserDriftVelocity();
+   virtual void UseOnlyCathodeDriftVelocity();
+   virtual void UseAnyDriftVelocity();
    virtual StTpcDb* tpcDbInterface() const;    //! return m_TpcDb
 // virtual void Set_mode       (Int_t   m =      2){m_mode       = m;} // *MENU*
-   virtual void SetTpc2Global();
   virtual const char *GetCVS() const
-  {static const char cvs[]="Tag $Name:  $ $Id: StTpcDbMaker.h,v 1.19 2007/08/04 00:38:04 jeromel Exp $ built "__DATE__" "__TIME__ ; return cvs;}
+  {static const char cvs[]="Tag $Name:  $ $Id: StTpcDbMaker.h,v 1.17.6.1 2007/08/13 01:04:44 jeromel Exp $ built "__DATE__" "__TIME__ ; return cvs;}
 
    ClassDef(StTpcDbMaker,0)   //StAF chain virtual base class for Makers
 };

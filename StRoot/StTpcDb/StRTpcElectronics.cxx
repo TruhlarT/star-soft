@@ -1,6 +1,6 @@
 /***************************************************************************
  *
- * $Id: StRTpcElectronics.cxx,v 1.8 2007/08/12 15:06:30 fisyak Exp $
+ * $Id: StRTpcElectronics.cxx,v 1.5.6.1 2007/08/13 01:04:41 jeromel Exp $
  *
  * Author:  David Hardtke
  ***************************************************************************
@@ -10,8 +10,11 @@
  ***************************************************************************
  *
  * $Log: StRTpcElectronics.cxx,v $
- * Revision 1.8  2007/08/12 15:06:30  fisyak
- * Use separated East/West drift velocities only >= 2007, for back compartibility
+ * Revision 1.5.6.1  2007/08/13 01:04:41  jeromel
+ * Patches for SL07a, SL44
+ *
+ * Revision 1.5.4.1  2007/08/12 23:27:40  jeromel
+ * Further fixes for SL06g built for SL44
  *
  * Revision 1.7  2007/08/04 00:38:03  jeromel
  * SL4 issue: Removal of the inline func, moved to class implementation.
@@ -31,13 +34,11 @@ ClassImp(StRTpcElectronics)
 
 double StRTpcElectronics::samplingFrequency() const {
   //  return (*mElec)[0].samplingFrequency;
-  Double_t sampling = StDetectorDbClock::instance()->getCurrentFrequency()/1000000.0;
-  return sampling;
+  return StDetectorDbClock::instance()->getCurrentFrequency()/1000000.0;
 }
 
 int StRTpcElectronics::numberOfTimeBins() const {
-  Int_t N = (*mElec)[0].numberOfTimeBins; 
-  return N;
+   return (*mElec)[0].numberOfTimeBins;
 }
 
 double StRTpcElectronics::nominalGain() const {
