@@ -33,7 +33,11 @@
 #include "TError.h"
 
 #ifndef __APPLE__
-#  include "TRootGLU.h"
+#  if  ROOT_VERSION_CODE >= ROOT_VERSION(5,15,9)
+#    include  "TGLIncludes.h"
+#  else
+#    include "TRootGLU.h"
+#  endif
 #else
 #  include <glu.h>
 #endif

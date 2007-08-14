@@ -156,7 +156,15 @@
 
 
 #include <vector>
-#include "TRootGLU.h"
+#ifndef __APPLE__
+#  if  ROOT_VERSION_CODE >= ROOT_VERSION(5,15,9)
+#    include  "TGLIncludes.h"
+#  else
+#    include "TRootGLU.h"
+#  endif
+#else
+#  include <glu.h>
+#endif
 
 //#include "OverlayHighlightRenderAction.h"
 Bool_t TQtCoinWidget::fgCoinInitialized = kFALSE;
