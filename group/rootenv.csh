@@ -6,7 +6,7 @@ set level = `echo $ROOT_LEVEL | /bin/awk -F. '{print $1$2}'`
 
 if (! $?ROOT) setenv ROOT ${STAR_ROOT}/ROOT
 
-if ($level  >= 305 )  then
+if ($level >= 305 )  then
     # all is sorted out here actually
     set p = ""
     set x = "deb"
@@ -97,8 +97,8 @@ endif
 # ATTENTION -- XROOTD NOT VALID PRIOR TO THIS VERSION
 #
 if ($level >= 404  && $?XROOTDSYS ) then
-    setenv LD_LIBRARY_PATH ${XROOTDSYS}/lib:${LD_LIBRARY_PATH}
-    setenv PATH ${XROOTDSYS}/bin:${PATH}
+    setenv LD_LIBRARY_PATH ${XROOTDSYS}/.${STAR_HOST_SYS}/lib:${LD_LIBRARY_PATH}
+    setenv PATH ${XROOTDSYS}/.${STAR_HOST_SYS}/bin:${PATH}
 
     # This indicates it will use pwdnetrc file and will not ask
     # for a password 
