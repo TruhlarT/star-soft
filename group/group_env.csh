@@ -1,5 +1,5 @@
 #!/bin/csh -x
-#       $Id: group_env.csh,v 1.193 2007/07/05 16:29:02 jeromel Exp $
+#       $Id: group_env.csh,v 1.194 2007/08/17 18:06:30 jeromel Exp $
 #	Purpose:	STAR group csh setup
 #
 #	Author:		Y.Fisyak     BNL
@@ -195,6 +195,11 @@ setenv STAR_LIB  $STAR/.${STAR_HOST_SYS}/lib  ;   if ($ECHO) echo   "Setting up 
 setenv MINE_LIB        .${STAR_HOST_SYS}/lib
 setenv STAR_BIN  $STAR/.${STAR_HOST_SYS}/bin
 setenv MY_BIN          .${STAR_HOST_SYS}/bin
+
+# db related
+if ( $?SITE ) then
+setenv DB_SERVER_LOCAL_CONFIG ${STAR}/StDb/servers/dbLoadBalancerLocalConfig_${SITE}.xml
+endif
 
 
 # Options my alter *_BIN and/or add *_lib. All options should
