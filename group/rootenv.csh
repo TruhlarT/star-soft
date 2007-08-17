@@ -97,8 +97,8 @@ endif
 # ATTENTION -- XROOTD NOT VALID PRIOR TO THIS VERSION
 #
 if ($level >= 404  && $?XROOTDSYS ) then
-    setenv LD_LIBRARY_PATH ${XROOTDSYS}/.${STAR_HOST_SYS}/lib:${LD_LIBRARY_PATH}
-    setenv PATH ${XROOTDSYS}/.${STAR_HOST_SYS}/bin:${PATH}
+    setenv LD_LIBRARY_PATH ${LD_LIBRARY_PATH}:${XROOTDSYS}/.${STAR_HOST_SYS}/lib
+    setenv PATH ${PATH}:${XROOTDSYS}/.${STAR_HOST_SYS}/bin
 
     # This indicates it will use pwdnetrc file and will not ask
     # for a password 
