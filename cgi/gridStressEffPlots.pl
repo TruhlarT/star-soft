@@ -112,8 +112,9 @@ my $outSt;
  
   &GRdbConnect();
 
- 
  my @arperiod = ("week","1_month","2_months");
+
+# my @arperiod = ("week","1_month","2_months","8_months");
 
 
   $sql="SELECT DISTINCT site   FROM $JobStatusT ";
@@ -221,6 +222,7 @@ my $bdate;
 my $njb = 0;
 my $ptag = "none";
 my $gname;
+my $maxout = 6;
 
     if( $qperiod eq "week") {
            $day_diff = 8;
@@ -349,8 +351,8 @@ $njb = 0;
     $outEfH{$gsite} = $outEfH{$gsite} + $outtrans;
     $recoEfH{$gsite} = $recoEfH{$gsite} + $nreco;
 
-
-#   if( $glStatus == 1 && $lgStatus >= 1 && $intrans == 1 && $outtrans == 5 ) {
+    if ($bdate <= 20070819000000 ) {
+    $maxout = 5;
 
      if ( $bdate <= 20061228000000  && $glStatus == 1 && $lgStatus >= 1 ){ 
 
@@ -365,10 +367,15 @@ $njb = 0;
     }elsif( $bdate > 20070111100000 && $bdate <= 20070118140000  && $glStatus == 1 && $lgStatus >= 1 && $intrans == 1 && $nreco == 1 ) {
        $siteEff{$gsite}++;
     
-    }elsif( $bdate >= 20070118150000 && $glStatus == 1 && $lgStatus >= 1 && $intrans == 1 && $outtrans == 5 && $nreco == 1 ) {
+    }elsif( $bdate >= 20070118150000 && $bdate <= 2007081900000 && $glStatus == 1 && $lgStatus >= 1 && $intrans == 1 && $outtrans == 5 && $nreco == 1 ) {
      $siteEff{$gsite}++; 
+ }
 
-     }
+#    }elsif($bdate >= 2007081900000 && $glStatus == 1 && $lgStatus >= 1 && $intrans == 1 && $outtrans == 6 && $nreco == 1) {
+    }elsif($glStatus == 1 && $lgStatus >= 1 && $intrans == 1 && $outtrans == 6 && $nreco == 1) {
+	$maxout = 6;
+    $siteEff{$gsite}++; 
+  }
 }
    for($ii = 0; $ii <scalar(@sites); $ii++) {
 
@@ -380,18 +387,19 @@ $njb = 0;
    $globeff[$ndt] = $globEfH{$msite}*100/$njobs[$ndt];
    $logeff[$ndt] = $logEfH{$msite}*100/(2*$njobs[$ndt]);
    $inputef[$ndt] = $inEfH{$msite}*100/$njobs[$ndt];
-#   $outputeff[$ndt] = $outEfH{$msite}*100/(5*$njobs[$ndt]);
+#   $outputeff[$ndt] = $outEfH{$msite}*100/($maxout*$njobs[$ndt]);
    $recoComeff[$ndt] = $recoEfH{$msite}*100/$njobs[$ndt];
    if( $bdate <= 20070118140000 ) {
    $outputeff[$ndt] = $outEfH{$msite}*100/($njobs[$ndt]);
    }else{
-   $outputeff[$ndt] = $outEfH{$msite}*100/(5*$njobs[$ndt]);
+   $outputeff[$ndt] = $outEfH{$msite}*100/($maxout*$njobs[$ndt]);
    }
    $overeff[$ndt] = $siteEff{$msite}*100/$njobs[$ndt];
    
    if ($msite eq "PDSF")  {
    $effpdsf[$ndt] = $siteEff{$msite}*100/$njobs[$ndt];
 
+#
    }elsif($msite eq "SPU")  {
    $effspu[$ndt] = $siteEff{$msite}*100/$njobs[$ndt];
    }elsif($msite eq "WSU")  {
@@ -426,19 +434,18 @@ $njb = 0;
       }else{
 
 	  $ptag = $gsite;
-   
-    $legend[0] = "Globus efficiency;        ";
-    $legend[1] = "Log files delivery;       ";
-    $legend[2] = "Output transferring;      ";
+
+    $legend[0] = "Overall efficiency;       ";   
+    $legend[1] = "Globus efficiency;        ";
+    $legend[2] = "Log files delivery;       ";
     $legend[3] = "Input transferring;       ";
-    $legend[4] = "Reco completion;          ";
-#    $legend[5] = "Overall efficiency;       ";
+    $legend[4] = "Output transferring;      ";
+    $legend[5] = "Reco completion;          ";
 
-#      @data = (\@ndate, \@globeff, \@logeff, \@inputef, \@outputeff, \@recoComeff, \@overeff) ;
+      @data = (\@ndate, \@overeff, \@globeff, \@logeff, \@inputef, \@outputeff, \@recoComeff ) ;
 
-    @data = (\@ndate, \@globeff, \@logeff, \@outputeff, \@inputef, \@recoComeff );
+#    @data = (\@ndate, \@globeff, \@logeff, \@outputeff, \@inputef, \@recoComeff );
     
-#   @data = (\@ndate, \@globeff, \@logeff, \@outputeff, \@inputef );
  }
 
         $gname = "Effplot".$ptag.".gif";
