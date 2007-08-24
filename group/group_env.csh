@@ -1,5 +1,5 @@
 #!/bin/csh -x
-#       $Id: group_env.csh,v 1.194 2007/08/17 18:06:30 jeromel Exp $
+#       $Id: group_env.csh,v 1.195 2007/08/24 01:14:26 jeromel Exp $
 #	Purpose:	STAR group csh setup
 #
 #	Author:		Y.Fisyak     BNL
@@ -11,6 +11,10 @@
 #                          DO NOT MODIFY THIS !!!
 #
 #	STAR software group	1998
+#
+# Should be loaded by star_login itself loaded executed by
+# our individual .login files.
+#
 #
 set ECHO = 1;
 if ($?STAR == 1)   set ECHO = 0
@@ -196,10 +200,66 @@ setenv MINE_LIB        .${STAR_HOST_SYS}/lib
 setenv STAR_BIN  $STAR/.${STAR_HOST_SYS}/bin
 setenv MY_BIN          .${STAR_HOST_SYS}/bin
 
+
+
+# YP fix
+if( ! $?DOMAINNAME) then
+    if ( -x "/bin/domainname" ) then
+	setenv DOMAINNAME `/bin/domainname`
+    else
+	setenv DOMAINNAME "(none)"
+    endif
+
+    # Fake it
+    if ( "$DOMAINNAME" == "(none)") then 
+       setenv DOMAINNAME `/bin/hostname | /bin/sed 's/^[^\.]*\.//'`
+    endif
+endif
+
+
+
+
+#
+# ATTENTION - This support for $SITE need extending
+# at each new site.
+#
+# Each Grid site should have an entry.
+# Only sites having local DB rules could have an entry.
+# 
+if ( ! $?SITE ) then
+    switch ($DOMAINNAME)
+	case "nersc.gov":    # <--- or whatever domainame returns
+	    setenv SITE "LBL"
+	    breaksw
+ 
+	case "rhic.bnl.gov":
+	case "rcf.bnl.gov":
+	    setenv SITE "BNL"
+	    breaksw
+
+	case "if.usp.br":
+	    setenv SITE "USP"
+	    breaksw
+
+	case "cluster.phy.uic.edu":
+	    setenv SITE "UIC"
+	    breaksw
+
+	default:
+	    # Not implemented
+	    setenv SITE "generic"
+	    breaksw
+    endsw
+endif
+
+
+
+
 # db related
 if ( $?SITE ) then
-setenv DB_SERVER_LOCAL_CONFIG ${STAR}/StDb/servers/dbLoadBalancerLocalConfig_${SITE}.xml
+    setenv DB_SERVER_LOCAL_CONFIG ${STAR}/StDb/servers/dbLoadBalancerLocalConfig_${SITE}.xml
 endif
+
 
 
 # Options my alter *_BIN and/or add *_lib. All options should

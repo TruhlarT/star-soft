@@ -44,52 +44,6 @@ alias   l          'ls -lt'
 alias   lf         'ls -CF'
 alias   terminal   'setenv TERM `/usr/bin/tset - \!*`'
 
-# YP fix
-if( ! $?DOMAINNAME) then
-    if ( -x "/bin/domainname" ) then
-	setenv DOMAINNAME `/bin/domainname`
-    else
-	setenv DOMAINNAME "(none)"
-    endif
-
-    # Fake it
-    if ( "$DOMAINNAME" == "(none)") then 
-       setenv DOMAINNAME `/bin/hostname | /bin/sed 's/^[^\.]*\.//'`
-    endif
-endif
-
-#
-# ATTENTION - This support for $SITE need extending
-# at each new site.
-#
-# Each Grid site should have an entry.
-# Only sites having local DB rules could have an entry.
-# 
-switch ($DOMAINNAME)
-    case "nersc.gov":    # <--- or whatever domainame returns
-	setenv SITE "LBL"
-	breaksw
- 
-    case "rhic.bnl.gov":
-    case "rcf.bnl.gov":
-	setenv SITE "BNL"
-	breaksw
-
-    case "if.usp.br":
-	setenv SITE "USP"
-	breaksw
-
-    case "cluster.phy.uic.edu":
-	setenv SITE "UIC"
-	breaksw
-
-   default:
-	# Not implemented
-	setenv SITE "generic"
-	breaksw
-endsw
-
-
 
 
 # This group file might be merged later on.
