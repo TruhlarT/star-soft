@@ -1,4 +1,4 @@
-// @(#)root/qt:$Name:  $:$Id: TQtWidget.h,v 1.11 2007/08/23 23:31:42 fine Exp $
+// @(#)root/qt:$Name:  $:$Id: TQtWidget.h,v 1.12 2007/08/24 14:00:57 fine Exp $
 // Author: Valeri Fine   21/01/2002
 /****************************************************************************
 **
@@ -92,6 +92,8 @@ private:
    enum {
       kBitMask       = 0x00ffffff
    };
+protected:
+   void Init();
 public:
    enum {
       kEXITSIZEMOVE,
@@ -99,7 +101,8 @@ public:
       kFORCESIZE
    };
 #ifndef __CINT__
-   TQtWidget( QWidget* parent=0, const char* name=0, Qt::WFlags f=Qt::WStyle_NoBorder, bool embedded=TRUE);
+  TQtWidget( QWidget* parent, const char* name, Qt::WFlags f=0, bool embedded=TRUE);
+  TQtWidget( QWidget* parent=0, Qt::WFlags f=0, bool embedded=TRUE);
 #else
   TQtWidget( QWidget* parent=0);
 #endif  
