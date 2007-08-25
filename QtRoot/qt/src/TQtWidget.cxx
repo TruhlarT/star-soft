@@ -1,4 +1,4 @@
-// @(#)root/qt:$Name:  $:$Id: TQtWidget.cxx,v 1.13 2007/08/24 14:01:00 fine Exp $
+// @(#)root/qt:$Name:  $:$Id: TQtWidget.cxx,v 1.14 2007/08/25 02:31:55 fine Exp $
 // Author: Valeri Fine   23/01/2003
 
 /*************************************************************************
@@ -750,7 +750,7 @@ void TQtWidget::stretchWidget(QResizeEvent * /*s*/)
    // Stretch the widget during sizing
 
    if  (!paintingActive()) {
-#ifdef R__QTWIN32
+#if defined(R__QTWIN32) && (QT_VERSION < 0x40000)
       QPainter painter( this );
       if (!StretchBlt(
          painter.handle(),    // handle of destination device context

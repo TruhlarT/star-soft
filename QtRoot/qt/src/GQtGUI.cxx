@@ -1,4 +1,4 @@
-// @(#)root/qt:$Name:  $:$Id: GQtGUI.cxx,v 1.9 2007/06/26 21:34:24 fine Exp $
+// @(#)root/qt:$Name:  $:$Id: GQtGUI.cxx,v 1.10 2007/08/25 02:31:54 fine Exp $
 // Author: Valeri Fine   23/01/2003
 
 /*************************************************************************
@@ -344,11 +344,13 @@ const QtGContext  &QtGContext::Copy(const GCValues_t &gval)
       case kGXset:
          fROp = Qt::SetROP;     // dst = 1
          break;
+#else
+      case 0: // to make VC++ compiler happy
 #endif /* not QT_VERSION */
       default:
 #if QT_VERSION < 0x40000
 	      fROp = Qt::CopyROP;
-	break;
+	      break;
 #else /* QT_VERSION */
         fROp = QPainter::CompositionMode_Source; //Qt::CopyROP;
         break;
@@ -920,7 +922,7 @@ void TGQt::NextEvent(Event_t &event)
          // For example the mouse pointer had left some screen area but
          // event keeps reporting it is still there
          event = *ev; delete ev;
-         if (gDebug > 3) fprintf(stderr," TGQt::NextEvent event type=%d win=%p, WM handle=%lx\n", event.fType,(void *)event.fWindow,wid(event.fWindow)->handle());
+         if (gDebug > 3) fprintf(stderr," TGQt::NextEvent event type=%d win=%p\n", event.fType,(void *)event.fWindow);
       }
    }
 }

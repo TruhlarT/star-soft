@@ -1,7 +1,7 @@
-// @(#)root/qt:$Name:  $:$Id: TGQt.cxx,v 1.19 2007/07/02 03:39:48 fine Exp $
+// @(#)root/qt:$Name:  $:$Id: TGQt.cxx,v 1.20 2007/08/25 02:31:55 fine Exp $
 // Author: Valeri Fine   21/01/2002
 /****************************************************************************
-** $Id: TGQt.cxx,v 1.19 2007/07/02 03:39:48 fine Exp $
+** $Id: TGQt.cxx,v 1.20 2007/08/25 02:31:55 fine Exp $
 **
 ** Copyright (C) 2002 by Valeri Fine. Brookhaven National Laboratory.
 **                                    All rights reserved.
@@ -730,7 +730,7 @@ Bool_t TGQt::Init(void* /*display*/)
 {
    //*-*-*-*-*-*-*-*-*-*-*-*-*-*Qt GUI initialization-*-*-*-*-*-*-*-*-*-*-*-*-*-*
    //*-*                        ========================                      *-*
-   fprintf(stderr,"** $Id: TGQt.cxx,v 1.19 2007/07/02 03:39:48 fine Exp $ this=%p\n",this);
+   fprintf(stderr,"** $Id: TGQt.cxx,v 1.20 2007/08/25 02:31:55 fine Exp $ this=%p\n",this);
 #if QT_VERSION >= 0x40000
 #ifndef R__QTWIN32
    extern void qt_x11_set_global_double_buffer(bool);
@@ -898,7 +898,11 @@ Bool_t TGQt::Init(void* /*display*/)
          QString libPath = gSystem->GetLinkedLibs();
          // detect the exact name of the Qt library
          TString qtlibdir= "$(QTDIR)"; 
-         qtlibdir += QDir::separator(); 
+         qtlibdir += QDir::separator()
+#if QT_VERSION >= 0x40000
+            .toAscii()
+#endif
+            ;
          qtlibdir += "lib";
 
          gSystem->ExpandPathName(qtlibdir);
