@@ -3,7 +3,7 @@
 
 #include <qglobal.h>
 #if QT_VERSION < 0x40000
-  #include <event.h>
+  #include <qevent.h>
 #endif /* QT_VERSION */
 #include "GuiTypes.h"
 
