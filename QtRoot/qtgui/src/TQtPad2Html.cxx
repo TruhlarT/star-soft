@@ -1,4 +1,4 @@
-// @(#)root/gui:$Name:  $:$Id: TQtPad2Html.cxx,v 1.3 2007/02/06 19:34:46 fine Exp $
+// @(#)root/gui:$Name:  $:$Id: TQtPad2Html.cxx,v 1.4 2007/08/26 17:47:02 fine Exp $
 // Author: Valeri Fine 07/06/2006
 /****************************************************************************
 **
@@ -19,6 +19,7 @@
 #  include <QFile>
 #  include <QPixmap>
 #  include <QDir>
+#  include <QIODevice>
 #else
 #  include <qtextstream.h>
 #  include <qfileinfo.h> 
@@ -70,7 +71,7 @@ QTextStream &TQtPad2Html::Html() {
    if (!fHtml) {
      fFile = new QFile(PadHtmlFile(fPad));
 #if QT_VERSION >= 0x40000     
-     fFile->open(QIODevice::IO_WriteOnly);
+     fFile->open(QIODevice::WriteOnly);
 #else     
      fFile->open(IO_WriteOnly);
 #endif

@@ -1,6 +1,6 @@
 // Author: Valeri Fine   10/08/2004
 /****************************************************************************
-** $Id: TQtTabValidator.h,v 1.2 2006/09/22 17:27:10 fine Exp $
+** $Id: TQtTabValidator.h,v 1.3 2007/08/26 17:46:59 fine Exp $
 **
 ** Copyright (C) 2003 by Valeri Fine.  All rights reserved.
 **
@@ -40,7 +40,12 @@ protected:
    static TTabCom *fgTabCom;  
    TQtTabValidator() : QValidator(0) {}
 public:
-   TQtTabValidator(QObject *parent, const char *name=0) : QValidator(parent,name){}
+   TQtTabValidator(QObject *parent, const char *name=0) :
+#if QT_VERSION >= 0x040000
+      QValidator(parent){ if (name && name[0]) {} }
+#else
+      QValidator(parent,name){}
+#endif
    static void Clear();
 
    virtual State validate(QString &input, int &pos) const;

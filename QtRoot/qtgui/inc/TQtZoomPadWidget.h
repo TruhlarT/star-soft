@@ -2,7 +2,7 @@
 #define ROOT_TQtZoomPadWidget
 // Author: Valeri Fine   16/03/2006
 /****************************************************************************
-** $Id: TQtZoomPadWidget.h,v 1.3 2007/01/24 20:15:59 fine Exp $
+** $Id: TQtZoomPadWidget.h,v 1.4 2007/08/26 17:46:59 fine Exp $
 **
 ** Copyright (C) 2006 by Valeri Fine. Brookhaven National Laboratory.
 **                                    All rights reserved.
@@ -23,16 +23,20 @@ class TObject;
 class QResizeEvent;
 
 #ifdef __CINT__
+#ifndef Q_MOC_RUN
 //MOC_SKIP_BEGIN
    class QFrame;
    class QHBox;
    class Q3Frame;
    class Q3HBox;
 //MOC_SKIP_END
+#endif
 #else
 #  include <qglobal.h>
 #  if QT_VERSION < 0x40000
+#ifndef Q_MOC_RUN
 #    include "qhbox.h"
+#endif
 #  else /* QT_VERSION */
 //MOC_SKIP_BEGIN
 #    include "q3hbox.h"
@@ -46,14 +50,14 @@ class QResizeEvent;
 
 /////////////////////////////////////////////////////////////////////////////////////
 //                                                                                 //
-//                                                                                 //
+//  TQtZoomPadWidget                                                               //
 //  TQtZoomPadWidget - create the temporary "splash" TCanvas with the magnified    //
 //                     image of the selected TPad  connected to the TQtZoomPadWidget //
 //                     via either ROOT or Qt signal/slot                           //
 //                     One instance of the class is sufficient to serve            //
 //                     the unlimited number of the TPad's                          //
 //                                                                                 //
-// begin_html <img src="png/ZoomPad.png"> end_html
+// Begin_html <img src="png/ZoomPad.png"> End_html                                 //
 //                                                                                 //
 // For example:                                                                    //
 // ------------                                                                    //
@@ -82,7 +86,9 @@ class QResizeEvent;
 
 #ifndef __CINT__
 #if QT_VERSION < 0x40000
+#ifndef Q_MOC_RUN
   class  TQtZoomPadWidget : public QHBox 
+#endif
 #else /* QT_VERSION */
 //MOC_SKIP_BEGIN
   class  TQtZoomPadWidget : public Q3HBox 
@@ -91,10 +97,12 @@ class QResizeEvent;
 {   
   Q_OBJECT
 #else
+#ifndef Q_MOC_RUN
 //MOC_SKIP_BEGIN
 class  TQtZoomPadWidget
 {
 //MOC_SKIP_END
+#endif
 #endif
   private:
      TQtZoomPadWidget(const TQtZoomPadWidget &);
@@ -121,9 +129,11 @@ class  TQtZoomPadWidget
 #ifndef __CINT__
      TQtZoomPadWidget(TVirtualPad *pad =0, QWidget *parent=0, const char *name=0, Qt::WFlags f=0);
 #else
+#ifndef Q_MOC_RUN
 //MOC_SKIP_BEGIN
      TQtZoomPadWidget(TVirtualPad *pad =0, QWidget *parent=0, const char *name=0);
 //MOC_SKIP_END
+#endif  
 #endif  
      virtual ~TQtZoomPadWidget(){;}
      TCanvas *GetCanvas() const;

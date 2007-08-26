@@ -2,7 +2,7 @@
 #define ROOT_TQtFloatSpinBox
 // Author: Valeri Fine   30/04/2003
 /****************************************************************************
-** $Id: TQtFloatSpinBox.h,v 1.2 2006/09/22 17:27:10 fine Exp $
+** $Id: TQtFloatSpinBox.h,v 1.3 2007/08/26 17:46:58 fine Exp $
 **
 ** Copyright (C) 2002 by Valeri Fine. Brookhaven National Laboratory.
 **                                    All rights reserved.
@@ -16,7 +16,9 @@
 #include <qglobal.h>
 
 #if QT_VERSION < 0x40000
+#ifndef Q_MOC_RUN
 #  include <qspinbox.h>
+#endif
 #else
 //MOC_SKIP_BEGIN
 #  include <QDoubleSpinBox>
@@ -26,7 +28,9 @@
 // http://www.billbaxter.com/code/floatspin
 
 #if QT_VERSION < 0x40000
+#ifndef Q_MOC_RUN
 class  /* Q_EXPORT */ TQtFloatSpinBox: public QSpinBox
+#endif
 #else
 //MOC_SKIP_BEGIN
 class  /* Q_EXPORT */ TQtFloatSpinBox: public QDoubleSpinBox

@@ -1,6 +1,6 @@
 // Author: Valeri Fine   16/06/2006
 /****************************************************************************
-** $Id: TQtToolBar.cxx,v 1.4 2007/05/22 20:07:23 fine Exp $
+** $Id: TQtToolBar.cxx,v 1.5 2007/08/26 17:47:03 fine Exp $
 **
 ** Copyright (C) 2006 by Valeri Fine. Brookhaven National Laboratory.
 **                                    All rights reserved.
@@ -19,6 +19,7 @@
 // drawing area.                                                        //
 //                                                                      //
 //////////////////////////////////////////////////////////////////////////
+#include <assert.h>
 
 #include "TROOT.h"
 

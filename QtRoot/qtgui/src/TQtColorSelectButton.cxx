@@ -1,4 +1,4 @@
-// @(#)root/gui:$Name:  $:$Id: TQtColorSelectButton.cxx,v 1.5 2007/07/04 20:45:43 fine Exp $
+// @(#)root/gui:$Name:  $:$Id: TQtColorSelectButton.cxx,v 1.6 2007/08/26 17:47:00 fine Exp $
 // Author: Bertrand Bellenot + Fons Rademakers   22/08/02
 
 /*************************************************************************
@@ -140,7 +140,7 @@ void TQtColorFrame::drawButtonLabel(QPainter *paint)
      QRect buttonDraw =  QApplication::style().subRect(QStyle::SR_PushButtonContents,this);
 #else
      QStyleOptionButton button;
-     QRect buttonDraw = QApplication::style()->subElementRect(QStyle::QStyle::SE_PushButtonContents,&button);
+     QRect buttonDraw = QApplication::style()->subElementRect(QStyle::SE_PushButtonContents,&button);
 #endif
 
    buttonDraw.addCoords(1,1,-1,-2);

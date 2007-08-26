@@ -1,6 +1,6 @@
 #ifndef QTROOT_CUSTOMIZECANVASMENU
 #define QTROOT_CUSTOMIZECANVASMENU
-// @(#)root/qt:$Name:  $:$Id: TQtCustomizeCanvasMenu.h,v 1.2 2006/09/22 17:27:10 fine Exp $
+// @(#)root/qt:$Name:  $:$Id: TQtCustomizeCanvasMenu.h,v 1.3 2007/08/26 17:46:58 fine Exp $
 // Author: Valeri Fine   12/12/2005
 /****************************************************************************
 **
@@ -72,7 +72,9 @@ class TQtContextMenuImp;
 
 // Qt classes:
 #if QT_VERSION < 0x40000
+#ifndef Q_MOC_RUN
   class QPopupMenu;
+#endif
 #else /* QT_VERSION */
 //MOC_SKIP_BEGIN
   class Q3PopupMenu;
@@ -98,7 +100,9 @@ Q_OBJECT
 
 signals:
 #if QT_VERSION < 0x40000
+#ifndef Q_MOC_RUN
     void AboutToShow(QPopupMenu *,TContextMenu *);
+#endif
 #else /* QT_VERSION */
 //MOC_SKIP_BEGIN
     void AboutToShow(Q3PopupMenu *,TContextMenu *);

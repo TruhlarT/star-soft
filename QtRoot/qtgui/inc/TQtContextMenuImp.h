@@ -1,6 +1,6 @@
 // Author: Valeri Fine   21/01/2002
 /****************************************************************************
-** $Id: TQtContextMenuImp.h,v 1.3 2007/06/05 00:59:04 fine Exp $
+** $Id: TQtContextMenuImp.h,v 1.4 2007/08/26 17:46:58 fine Exp $
 **
 ** Copyright (C) 2002 by Valeri Fine.  All rights reserved.
 **
@@ -28,7 +28,9 @@
 #include <qglobal.h>
 #include <qobject.h>
 #if QT_VERSION < 0x40000
+#ifndef Q_MOC_RUN
 #  include "qptrstack.h"
+#endif
 #else /* QT_VERSION */
 //MOC_SKIP_BEGIN
 #  include "q3ptrstack.h"
@@ -53,7 +55,9 @@
 class TQtDialog;
 class QEvent;
 #if QT_VERSION < 0x40000
+#ifndef Q_MOC_RUN
   class QPopupMenu;
+#endif
 #else /* QT_VERSION */
 //MOC_SKIP_BEGIN
   class QMenu;
@@ -86,8 +90,10 @@ class TQtContextMenuImp : public QObject, public TContextMenuImp
  private:
 
 #if QT_VERSION < 0x40000
+#ifndef Q_MOC_RUN
    QPopupMenu   *fPopupMenu;
    QPtrStack<TQtMenutItem> fItems;
+#endif
 #else /* QT_VERSION */
 //MOC_SKIP_BEGIN
    QMenu   *fPopupMenu;
@@ -112,7 +118,9 @@ class TQtContextMenuImp : public QObject, public TContextMenuImp
     virtual void       DisplayPopup ( Int_t x, Int_t y);
             void       DeletePopup();
 #if QT_VERSION < 0x40000
+#ifndef Q_MOC_RUN
     QPopupMenu &PopupMenu() const { return *fPopupMenu; }
+#endif
 #else /* QT_VERSION */
 //MOC_SKIP_BEGIN
     QMenu &PopupMenu() const { return *fPopupMenu; }
@@ -131,7 +139,9 @@ class TQtContextMenuImp : public QObject, public TContextMenuImp
    void  BrowseCB();
 signals:
 #if QT_VERSION < 0x40000
+#ifndef Q_MOC_RUN
       void AboutToShow(QPopupMenu *, TContextMenu *);
+#endif
 #else /* QT_VERSION */
 //MOC_SKIP_BEGIN
       void AboutToShow(QMenu *, TContextMenu *);
@@ -140,5 +150,3 @@ signals:
     // ClassDef(TQtContextMenuImp,0) //Context sensitive popup menu implementation
 };
 #endif
-
-

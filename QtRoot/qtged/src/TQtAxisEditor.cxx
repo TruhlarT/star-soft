@@ -1,8 +1,8 @@
-// @(#)root/ged:$Name:  $:$Id: TQtAxisEditor.cxx,v 1.1 2006/08/16 19:27:06 fine Exp $
+// @(#)root/ged:$Name:  $:$Id: TQtAxisEditor.cxx,v 1.2 2007/08/26 17:46:54 fine Exp $
 // Author: Ilka Antcheva   11/05/04
 
 /****************************************************************************
-** $Id: TQtAxisEditor.cxx,v 1.1 2006/08/16 19:27:06 fine Exp $
+** $Id: TQtAxisEditor.cxx,v 1.2 2007/08/26 17:46:54 fine Exp $
 **
 ** Copyright (C) 2004 by Valeri Fine.  All rights reserved.
 **
@@ -90,23 +90,24 @@ TQtAxisEditor::TQtAxisEditor( TCanvas *canvas,QWidget  *p, Int_t id, Int_t width
 
 //______________________________________________________________________________
 void TQtAxisEditor::BuildView(QWidget  *editorPanel) {
-   const int space = 2;
+   const int space = 0;
+   const int margin = 4;
    // Constructor of axis attribute GUI.
    QVBox *vframe  = new QVBox(editorPanel);
 //--- 
    QHBox *hbox = new QHBox(vframe);hbox->setSpacing(space);
-
+   hbox->setMargin(margin);
    fAxisColor   = new TQtColorSelect  (hbox, 0);
 
-   QLabel *label = new QLabel("Ticks:",hbox); label->setAlignment(Qt::AlignRight);
+   QLabel *label = new QLabel("Ticks:",hbox); label->setAlignment(Qt::AlignRight | Qt::AlignVCenter);
    fTickLength = new TQtFloatSpinBox(0.03, -1.0, 1.0, 2, hbox);
    QToolTip::add(fTickLength,"Set ticks' length");
    //fTickLength->setPrefix("Ticks: ");
 //---
    QButtonGroup *f2 = new   QButtonGroup (2, Qt::Horizontal, vframe);
-   f2->setFlat(true); f2->setInsideMargin(0); 
-
-   fTicksBoth = new QCheckBox("+-",f2);
+   f2->setFlat(true); f2->setInsideMargin(6); 
+   f2->setMargin(margin+2);
+   fTicksBoth = new QCheckBox("+-",f2); 
    QToolTip::add(fTicksBoth,"Draw ticks on both axis sides");
 
    fOptimize = new QCheckBox("Optimize", f2);
@@ -119,7 +120,9 @@ void TQtAxisEditor::BuildView(QWidget  *editorPanel) {
    fMoreLog = new QCheckBox("MoreLog", f2);
    QToolTip::add(fMoreLog,"Draw more logarithmic labels");
 //---
+
    hbox = new QHBox(vframe); // hbox->setSpacing(1);
+   hbox->setMargin(margin); hbox->setSpacing(2); 
 
    fDiv3 = new QSpinBox(0, 99, 1, hbox); fDiv3->setValue(10);
    QToolTip::add(fDiv3, "Tertiary axis divisions");
@@ -134,8 +137,9 @@ void TQtAxisEditor::BuildView(QWidget  *editorPanel) {
 // --  title 
    // MakeTitle("Title",vframe);
    QGroupBox *vgroup = new QVGroupBox("Title",vframe);
-
 //---    
+   vgroup->setMargin(3);
+   // vgroup->setInsideMargin(4);
    fTitlePrec = 2;
    fTitle = new QLineEdit(vgroup);
    QToolTip::add(fTitle,"Enter the axis title string");
@@ -143,7 +147,7 @@ void TQtAxisEditor::BuildView(QWidget  *editorPanel) {
    hbox = new QHBox(vgroup); hbox->setSpacing(space);
    fTitleColor = new TQtColorSelect(hbox, 0);
 
-   label = new QLabel("Size:",hbox);label->setAlignment(Qt::AlignRight);
+   label = new QLabel("Size:",hbox);label->setAlignment(Qt::AlignRight | Qt::AlignVCenter);
 
    fTitleSize = new TQtFloatSpinBox(0.05, 0.0, 1.0, 2, hbox);
    QToolTip::add(fTitleSize,"Set title size");
@@ -161,7 +165,7 @@ void TQtAxisEditor::BuildView(QWidget  *editorPanel) {
    QToolTip::add(fRotated,"Rotate axis title by 180 degrees");
 
    hbox = new QHBox(vgroup); hbox->setSpacing(space);
-   label = new QLabel("Offset:",hbox); label->setAlignment(Qt::AlignRight);
+   label = new QLabel("Offset:",hbox); label->setAlignment(Qt::AlignRight | Qt::AlignVCenter );
 //---    7
 //   hbox = new QHBox(vgroup);
 
@@ -170,11 +174,13 @@ void TQtAxisEditor::BuildView(QWidget  *editorPanel) {
 
    // MakeTitle("Labels",vframe);
    vgroup = new QVGroupBox("Labels",vframe);
+   vgroup->setMargin(margin);
+   vgroup->setInsideMargin(4);
    fLabelPrec = 2;
    hbox = new QHBox(vgroup); hbox->setSpacing(space);
    fLabelColor = new TQtColorSelect(hbox, 0);
 
-   label = new QLabel("Size:",hbox); label->setAlignment(Qt::AlignRight);                             
+   label = new QLabel("Size:",hbox); label->setAlignment(Qt::AlignRight | Qt::AlignVCenter);
    fLabelSize = new TQtFloatSpinBox(0.05,0.,1.,2,hbox);
    QToolTip::add(fLabelSize,"Set labels' size");
 

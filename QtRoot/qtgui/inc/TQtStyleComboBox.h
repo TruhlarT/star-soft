@@ -1,4 +1,4 @@
-// @(#)root/gui:$Name:  $:$Id: TQtStyleComboBox.h,v 1.2 2006/09/22 17:27:10 fine Exp $
+// @(#)root/gui:$Name:  $:$Id: TQtStyleComboBox.h,v 1.3 2007/08/26 17:46:59 fine Exp $
 // Author: Valeri Fine 07/07/2006
 
 
@@ -26,7 +26,7 @@ class TQtStyleComboBox : public QComboBox {
     TEmbeddedPad  &Pad();
     virtual void AddItem(QPixmap &pix, QString &str);
  protected:
-   virtual void resizeEvent(QResizeEvent *);
+    virtual void resizeEvent(QResizeEvent *);
 
  public:
     TQtStyleComboBox(int listSize, QWidget *parent=0, QString name = QString::null);

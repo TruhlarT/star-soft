@@ -1,6 +1,6 @@
 // Author: Valeri Fine   21/01/2002
 /****************************************************************************
-** $Id: TQtInspectImp.h,v 1.3 2007/06/02 04:45:51 fine Exp $
+** $Id: TQtInspectImp.h,v 1.4 2007/08/26 17:46:59 fine Exp $
 **
 ** Copyright (C) 2002 by Valeri Fine.  All rights reserved.
 **
@@ -23,7 +23,9 @@
 #include <qglobal.h>
 
 #if QT_VERSION < 0x40000
+#ifndef Q_MOC_RUN
 #  include "qlistview.h"
+#endif
 #else /* QT_VERSION */
 //MOC_SKIP_BEGIN
 #   include <QTableWidget>
@@ -35,7 +37,9 @@ class QTableWidgetItem;
 class TQtInspectImp;
 
 #if QT_VERSION < 0x40000
+#ifndef Q_MOC_RUN
   class TQtInspectWidget : public QListView    {
+#endif
 #else /* QT_VERSION */
 //MOC_SKIP_BEGIN
   class TQtInspectWidget : public QTableWidget {
@@ -65,7 +69,9 @@ public:
 
 public slots:
 #if QT_VERSION < 0x40000
+#ifndef Q_MOC_RUN
   virtual void Selected(QListViewItem * item);
+#endif
 #else /* QT_VERSION */
 //MOC_SKIP_BEGIN
   virtual void Selected(QTableWidgetItem *item );

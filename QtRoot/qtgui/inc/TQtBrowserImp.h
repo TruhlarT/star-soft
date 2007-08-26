@@ -1,6 +1,6 @@
 // Author: Valeri Fine   21/01/2002
 /****************************************************************************
-** $Id: TQtBrowserImp.h,v 1.3 2007/01/23 06:52:48 fine Exp $
+** $Id: TQtBrowserImp.h,v 1.4 2007/08/26 17:46:58 fine Exp $
 **
 ** Copyright (C) 2002 by Valeri Fine.  All rights reserved.
 **
@@ -31,11 +31,13 @@
 #include <qstring.h>
 
 #if QT_VERSION < 0x40000
-# include <qptrvector.h>
-# include <qlistview.h>
+#ifndef Q_MOC_RUN
+#  include <qptrvector.h>
+#  include <qlistview.h>
+#endif
 #else /* QT_VERSION */
-# include <q3ptrvector.h>
-# include <q3listview.h>
+#  include <q3ptrvector.h>
+#  include <q3listview.h>
 #endif /* QT_VERSION */
 
 
@@ -50,10 +52,12 @@ class TQtBrowserImp :  public QObject, public TBrowserImp {
     friend class ev;
 protected:
 #if QT_VERSION < 0x40000
+#ifndef Q_MOC_RUN
   QListView  *fBrowserImpID;
+#endif
 #else /* QT_VERSION */
 //MOC_SKIP_BEGIN
- Q3ListView  *fBrowserImpID;
+  Q3ListView  *fBrowserImpID;
 //MOC_SKIP_END
 #endif /* QT_VERSION */
   TBrowserImp  *fParent;
@@ -67,13 +71,17 @@ private:
   TQtBrowserItem   *fActiveItem;
   TQtBrowserItem   *fRootItem;
   Bool_t            fRealFolder;
+
 #if QT_VERSION < 0x40000
+#ifndef Q_MOC_RUN
   QPtrVector<TQtBrowserItem> fOpenFolderList;
+#endif
 #else /* QT_VERSION */
 //MOC_SKIP_BEGIN
   Q3PtrVector<TQtBrowserItem> fOpenFolderList;
 //MOC_SKIP_END
 #endif /* QT_VERSION */
+
   TQtUpdateViewFlag fUpdate;
 
 protected:  
@@ -131,11 +139,13 @@ public slots:
 
 protected slots:
 #if QT_VERSION < 0x40000
+#ifndef Q_MOC_RUN
   void ClickedItem(QListViewItem *item);
   void CollapsedItem(QListViewItem *item);
   void ExpandedItem(QListViewItem *item);
   void PopMenu(QListViewItem *item, const QPoint &pos, int id);
   void SelectionChanged(QListViewItem *item);
+#endif
 #else /* QT_VERSION */
 //MOC_SKIP_BEGIN
   void ClickedItem(Q3ListViewItem *item);
@@ -150,7 +160,9 @@ protected slots:
 signals:
   void CanBeUpdated(Bool_t);
 #if QT_VERSION < 0x40000
+#ifndef Q_MOC_RUN
   void CurrentPath(const QPtrVector<TQtBrowserItem> &);
+#endif 
 #else /* QT_VERSION */
 //MOC_SKIP_BEGIN
   void CurrentPath(const Q3PtrVector<TQtBrowserItem> &);

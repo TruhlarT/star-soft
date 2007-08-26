@@ -1,6 +1,6 @@
 // Author: Valeri Fine   21/01/2002
 /****************************************************************************
-** $Id: TQtIconBrowserImp.h,v 1.3 2007/01/23 06:52:51 fine Exp $
+** $Id: TQtIconBrowserImp.h,v 1.4 2007/08/26 17:46:58 fine Exp $
 **
 ** Copyright (C) 2002 by Valeri Fine.  All rights reserved.
 **
@@ -25,9 +25,11 @@
 #include "TQtGui.h"
 
 #if QT_VERSION < 0x40000
+#ifndef Q_MOC_RUN
 #  include <qptrvector.h>
 #  include <qiconview.h>
 #  include <qiconset.h>
+#endif
 #else /* QT_VERSION */
 //MOC_SKIP_BEGIN
 #  include <q3ptrvector.h>
@@ -38,9 +40,11 @@
 #include <qstring.h>
 
 #if QT_VERSION < 0x40000
+#ifndef Q_MOC_RUN
   class QListView;
   class QListViewItem;
   class QWidgetStack;
+#endif
 #else /* QT_VERSION */
 //MOC_SKIP_BEGIN
   class Q3ListView;
@@ -52,7 +56,9 @@ class TQtBrowserItem;
 class TBrowserCustom;
 
 #if QT_VERSION < 0x40000
+#ifndef Q_MOC_RUN
   class TQtIconBrowserItem : public QObject, public QIconViewItem {
+#endif
 #else /* QT_VERSION */
 //MOC_SKIP_BEGIN
   class TQtIconBrowserItem : public QObject, public Q3IconViewItem {
@@ -62,7 +68,9 @@ class TBrowserCustom;
 protected:
   TObject *fObject;
 #if QT_VERSION < 0x40000
+#ifndef Q_MOC_RUN
   const QIconSet *fIconSet;
+#endif
 #else /* QT_VERSION */
 //MOC_SKIP_BEGIN
   const QIcon *fIconSet;
@@ -71,8 +79,10 @@ protected:
 public:
 
 #if QT_VERSION < 0x40000
+#ifndef Q_MOC_RUN
   TQtIconBrowserItem( TObject *obj,QIconView * parent, QString label1) : QIconViewItem(parent,label1), fObject(obj) {;}
   TQtIconBrowserItem( TObject *obj,QIconView * parent, QIconViewItem * after ): QIconViewItem(parent,after ), fObject(obj){}
+#endif
 #else /* QT_VERSION */
 //MOC_SKIP_BEGIN
   TQtIconBrowserItem( TObject *obj,Q3IconView * parent, QString label1) : Q3IconViewItem(parent,label1), fObject(obj) {;}
@@ -82,7 +92,9 @@ public:
   void Browse(TBrowser *b){ if (fObject && b) fObject->Browse(b);}
   TObject *Object(){ return fObject;}
 #if QT_VERSION < 0x40000
+#ifndef Q_MOC_RUN
   void SetIconSet(const QIconSet *set, QIconSet::Size size, QIconSet::Mode mode=QIconSet::Normal, QIconSet::State state=QIconSet::Off)
+#endif
 #else /* QT_VERSION */
 //MOC_SKIP_BEGIN
   void SetIconSet(const QIcon *set, QIcon::Size size, QIcon::Mode mode=QIcon::Normal, QIcon::State state=QIcon::Off)
@@ -90,8 +102,10 @@ public:
 #endif /* QT_VERSION */
   {fIconSet = set; SetPixmap(size,mode,state); }
 #if QT_VERSION < 0x40000
+#ifndef Q_MOC_RUN
   void SetPixmap(QIconSet::Size size, QIconSet::Mode mode=QIconSet::Normal, QIconSet::State state=QIconSet::Off)
   { QIconViewItem::setPixmap(fIconSet->pixmap(size,mode,state));}
+#endif
 #else /* QT_VERSION */
 //MOC_SKIP_BEGIN
   void SetPixmap(QIcon::Size size, QIcon::Mode mode=QIcon::Normal, QIcon::State state=QIcon::Off)
@@ -106,7 +120,9 @@ class TQtIconBrowserImp :  public QObject, public TBrowserImp {
     friend class ev;
 protected:
 #if QT_VERSION < 0x40000
+#ifndef Q_MOC_RUN
   QWidgetStack     *fBrowserImpID;
+#endif
 #else /* QT_VERSION */
 //MOC_SKIP_BEGIN
   Q3WidgetStack     *fBrowserImpID;
@@ -119,7 +135,9 @@ protected:
   QString           fTitle;  
   Bool_t            fFolderExpanded;
 #if QT_VERSION < 0x40000
+#ifndef Q_MOC_RUN
   QIconSet::Size    fIconSize;
+#endif
 #else /* QT_VERSION */
 //MOC_SKIP_BEGIN
   QIcon::Size    fIconSize;
@@ -127,7 +145,9 @@ protected:
 #endif /* QT_VERSION */
   TQtUpdateViewFlag fUpdate;
 #if QT_VERSION < 0x40000
+#ifndef Q_MOC_RUN
   QListView        *fStackBrowser;
+#endif
 #else /* QT_VERSION */
 //MOC_SKIP_BEGIN
   Q3ListView        *fStackBrowser;
@@ -147,7 +167,9 @@ public:
 
    static TQMimeTypes *IconList();
 #if QT_VERSION < 0x40000
-   static const QIconSet  *Shape2GeoShapeIcon(const char *shapeName);
+#ifndef Q_MOC_RUN
+  static const QIconSet  *Shape2GeoShapeIcon(const char *shapeName);
+#endif
 #else /* QT_VERSION */
 //MOC_SKIP_BEGIN
    static const QIcon  *Shape2GeoShapeIcon(const char *shapeName);
@@ -202,8 +224,10 @@ public slots:
    void SetViewMode(int mode);
    void SetSortIndicator(int section);
 #if QT_VERSION < 0x40000
+#ifndef Q_MOC_RUN
    void SetIconSize(QIconSet::Size size);
    void StackClicked(QListViewItem *item);
+#endif
 #else /* QT_VERSION */
 //MOC_SKIP_BEGIN
    void SetIconSize(QIcon::Size size);
@@ -214,10 +238,12 @@ public slots:
 
 protected slots:
 #if QT_VERSION < 0x40000
+#ifndef Q_MOC_RUN
    void ReplaceStack(const QPtrVector<TQtBrowserItem> &folderList);
    void ClickedItem(QIconViewItem *item);
    void PopMenu(QIconViewItem *item, const QPoint &pos);
    void SelectionChanged(QIconViewItem *item);
+#endif
 #else /* QT_VERSION */
 //MOC_SKIP_BEGIN
    void ReplaceStack(const Q3PtrVector<TQtBrowserItem> &folderList);
@@ -231,7 +257,9 @@ signals:
    void ActivateObject(TObject *);
    void ActivateParent(TObject *);
 #if QT_VERSION < 0x40000
+#ifndef Q_MOC_RUN
    void StackHasBeenCreated(QListView *);
+#endif
 #else /* QT_VERSION */
 //MOC_SKIP_BEGIN
    void StackHasBeenCreated(Q3ListView *);
@@ -242,7 +270,9 @@ signals:
 };
 inline  const char* TQtIconBrowserImp::GetTitle() const { return fTitle;        }
 #if QT_VERSION < 0x40000
+#ifndef Q_MOC_RUN
 inline  void TQtIconBrowserImp::SetIconSize(QIconSet::Size size) { fIconSize = size;     };
+#endif
 #else /* QT_VERSION */
 inline  void TQtIconBrowserImp::SetIconSize(QIcon::Size size) { fIconSize = size;     };
 #endif /* QT_VERSION */

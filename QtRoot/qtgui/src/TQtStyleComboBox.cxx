@@ -1,4 +1,4 @@
-// @(#)root/gui:$Name:  $:$Id: TQtStyleComboBox.cxx,v 1.3 2007/05/22 01:05:24 fine Exp $
+// @(#)root/gui:$Name:  $:$Id: TQtStyleComboBox.cxx,v 1.4 2007/08/26 17:47:03 fine Exp $
 // Author: Valeri Fine 07/07/2006
 /****************************************************************************
 **
@@ -23,7 +23,7 @@
 #  include <QResizeEvent>
 #endif
 //______________________________________________________________________________
-TQtStyleComboBox::TQtStyleComboBox( int listSize, QWidget *parent,QString name)
+TQtStyleComboBox::TQtStyleComboBox( int listSize, QWidget *parent,const QString name)
 : QComboBox(parent), fPad(0), fItemListSize (listSize)
 {
     // The base class for all "style" selectors
@@ -43,15 +43,17 @@ TQtStyleComboBox::~TQtStyleComboBox ()
 void TQtStyleComboBox::AddItem(QPixmap &pixmap, QString &seq)
 {
    // Add the the prepared Qt item to the QComboBox
+   QString indx = seq.rightJustify(2,' ',TRUE);
 #if QT_VERSION < 0x40000
-   insertItem(pixmap,seq);
+   insertItem(pixmap,indx);
 #else
-   addItem(pixmap,seq);
+   addItem(pixmap,indx);
 #endif
 }
 //______________________________________________________________________________
 void TQtStyleComboBox::Build()
-{
+{ 
+   // Rebuild the "pad" items to fit the new widget size
    TQtLockWidget(this);
 
    clear();
@@ -60,7 +62,6 @@ void TQtStyleComboBox::Build()
    if (padsav) padsav->cd();
 
    SetCurrentItem (1);  // to have first entry selected
-   // SetWindowName();
 }
 
 //______________________________________________________________________________
@@ -73,7 +74,7 @@ void TQtStyleComboBox::SetCurrentItem(int style)
 //______________________________________________________________________________
 TEmbeddedPad  &TQtStyleComboBox::Pad() {
    if (!fPad) {
-      fPad = new  TEmbeddedPad("","",width()-40,height()-4,kWhite);
+      fPad = new  TEmbeddedPad("","",width()-58,height()-4,kWhite);
       fPad->SetBorderSize(0);
    }
    return *fPad;
@@ -135,11 +136,11 @@ void TQtLineWidthComboBox::AddItem(int lwidth, bool savepadflag)
    TVirtualPad *padsav = savepadflag ? gPad : 0;
    Pad().cd();
    TLine line(0.0,0.5,1.0,0.5);
-   QString seq;
    line.SetLineWidth(lwidth);
    line.Draw();   Pad().Update();
    QPixmap &pixmap = *(QPixmap*)Pad().GetHandle();
-   TQtStyleComboBox::AddItem(pixmap,seq.setNum(lwidth));
+   QString seq = QString::number(lwidth);
+   TQtStyleComboBox::AddItem(pixmap,seq );
    if (padsav) padsav->cd();
 }
 //_____________________________________________________________________________
@@ -174,10 +175,10 @@ void TQtFontComboBox::AddItem(int lfont, bool savepadflag)
    TVirtualPad *padsav = savepadflag ? gPad : 0;
    Pad().cd();
    TText text(0.0,0.5,gFonts[lfont-1]);
-   QString seq;
    text.SetTextFont(lfont*10); text.SetTextSize(0.9);text.SetTextAlign(12);
    text.Draw();    Pad().Update();
    QPixmap &pixmap = *(QPixmap*)Pad().GetHandle();
-   TQtStyleComboBox::AddItem(pixmap,seq.setNum(lfont));
+   QString seq=QString::number(lfont) ;
+   TQtStyleComboBox::AddItem(pixmap,seq);
    if (padsav) padsav->cd();
 }

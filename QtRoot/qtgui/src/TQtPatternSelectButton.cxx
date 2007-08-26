@@ -1,4 +1,4 @@
-// @(#)root/gui:$Name:  $:$Id: TQtPatternSelectButton.cxx,v 1.5 2007/07/06 22:32:26 fine Exp $
+// @(#)root/gui:$Name:  $:$Id: TQtPatternSelectButton.cxx,v 1.6 2007/08/26 17:47:03 fine Exp $
 // Author: Bertrand Bellenot + Fons Rademakers   22/08/02
 
 /*************************************************************************
@@ -124,7 +124,7 @@ TQtPatternFrame::TQtPatternFrame(QWidget *p, TQtBrush &pattern, Int_t n): QFrame
 #else
       QStyleOptionButton button;
       boxSize = 
-            QApplication::style()->subElementRect(QStyle::QStyle::SE_PushButtonContents,&button).height();
+            QApplication::style()->subElementRect(QStyle::SE_PushButtonContents,&button).height();
 #endif
     }
 
