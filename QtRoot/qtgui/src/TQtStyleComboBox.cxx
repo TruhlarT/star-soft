@@ -1,4 +1,4 @@
-// @(#)root/gui:$Name:  $:$Id: TQtStyleComboBox.cxx,v 1.4 2007/08/26 17:47:03 fine Exp $
+// @(#)root/gui:$Name:  $:$Id: TQtStyleComboBox.cxx,v 1.5 2007/08/27 17:48:57 fine Exp $
 // Author: Valeri Fine 07/07/2006
 /****************************************************************************
 **
@@ -49,6 +49,7 @@ void TQtStyleComboBox::AddItem(QPixmap &pixmap, QString &seq)
 #else
    addItem(pixmap,indx);
 #endif
+   Pad().Clear();
 }
 //______________________________________________________________________________
 void TQtStyleComboBox::Build()
