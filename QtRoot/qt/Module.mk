@@ -1,4 +1,4 @@
-# $Id: Module.mk,v 1.3 2007/08/25 02:32:26 fine Exp $
+# $Id: Module.mk,v 1.4 2007/08/27 05:06:50 fine Exp $
 # Module.mk for qt module
 # Copyright (c) 2001 Valeri Fine
 #
@@ -22,28 +22,32 @@ GQTH1         := $(GQTDIRI)/TGQt.h  $(GQTDIRI)/TQtTimer.h              \
                  $(GQTDIRI)/TQtApplication.h $(GQTDIRI)/TQtBrush.h     \
                  $(GQTDIRI)/TQMimeTypes.h $(GQTDIRI)/TQtClientFilter.h \
                  $(GQTDIRI)/TQtClientWidget.h $(GQTDIRI)/TQtWidget.h   \
-                 $(GQTDIRI)/TQtMarker.h $(GQTDIRI)/TQtTimer.h          \
-                 $(GQTDIRI)/TQtRootSlot.h  
+                 $(GQTDIRI)/TQtMarker.h $(GQTDIRI)/TQtTimer.h \
+                 $(GQTDIRI)/TQtRootSlot.h
 
 GQTH          := $(filter-out $(MODDIRI)/LinkDef%,$(wildcard $(MODDIRI)/*.h))
 GQTS          := $(filter-out $(MODDIRS)/moc_%,\
                  $(filter-out $(MODDIRS)/G__%,$(wildcard $(MODDIRS)/*.cxx)))
 GQTO          := $(GQTS:.cxx=.o)
 
-GQTMOCH       := $(MODDIRI)/TQtWidget.h       $(MODDIRI)/TQtEmitter.h     \
+GQTMOCH       := $(MODDIRI)/TQtWidget.h       $(MODDIRI)/TQtEmitter.h \
                  $(MODDIRI)/TQtClientFilter.h $(MODDIRI)/TQtClientGuard.h \
-                 $(MODDIRI)/TQtClientWidget.h  $(MODDIRI)/TQtTimer.h      \
+                 $(MODDIRI)/TQtClientWidget.h  $(MODDIRI)/TQtTimer.h \
                  $(MODDIRI)/TQtRootSlot.h
 
-GQTMOC        := $(subst $(MODDIRI)/,$(MODDIRS)/moc_,$(patsubst %.h,%.cxx,$(GQTMOCH))) 
+GQTMOC        := $(subst $(MODDIRI)/,$(MODDIRS)/moc_,$(patsubst %.h,%.cxx,$(GQTMOCH)))
 GQTMOCO       := $(GQTMOC:.cxx=.o)
 
 GQTDEP        := $(GQTO:.o=.d) $(GQTDO:.o=.d)
 
-GQTCXXFLAGS   := -DQT_DLL  -DQT_NO_DEBUG -DQT_SHARED -DQT_THREAD_SUPPORT -I$(QTDIR)/mkspecs/default -I. $(QTINCDIR:%=-I%)
-GQTCXXFLAGS   += -DQT_QT3SUPPORT_LIB -DQT3_SUPPORT -DQT_GUI_LIB
+QT3CPPFLAGS   := -DQT_DLL  -DQT_NO_DEBUG  -DQT_THREAD_SUPPORT
+QT4CPPFLAGS   := -DQT_QT3SUPPORT_LIB -DQT3_SUPPORT -DQT_GUI_LIB -DQT_CORE_LIB 
+QT3QT4CPPFLAGS:= -DQT_SHARED
+
+GQTCXXFLAGS   := $(QT4CPPFLAGS) $(QT3CPPFLAGS) $(QT3QT4CPPFLAGS) -I$(QTDIR)/mkspecs/default -I. $(QTINCDIR:%=-I%)
 
 GQTLIB        := $(LPATH)/libGQt.$(SOEXT)
+GQTMAP        := $(GQTLIB:.$(SOEXT)=.rootmap)
 
 # Qt project header files
 
@@ -56,6 +60,7 @@ ALLHDRS       += $(patsubst $(MODDIRI)/%.h,include/%.h,$(GQTH))
 ALLHDRS       += $(patsubst $(MODDIRI)/%.cw,include/%.cw,$(QCUSTOMWIDGETS))
 ALLHDRS       += $(patsubst $(MODDIRI)/%.pri,include/%.pri,$(QMAKERULES))
 ALLLIBS       += $(GQTLIB)
+ALLMAPS       += $(GQTMAP)
 
 # include all dependency files
 INCLUDEFILES  += $(GQTDEP)
@@ -80,21 +85,19 @@ $(GQTDS):       $(GQTH1) $(GQTL) $(ROOTCINTTMPEXE)
 		@echo "Generating dictionary $@..."
 		$(ROOTCINTTMP) -f $@ -c $(GQTH1) $(GQTL)
 
-all-qt:         $(GQTLIB)
+$(GQTMAP):      $(RLIBMAP) $(MAKEFILEDEP) $(GQTL)
+		$(RLIBMAP) -o $(GQTMAP) -l $(GQTLIB) \
+		   -d $(GQTLIBDEPM) -c $(GQTL)
 
-map-qt:         $(RLIBMAP)
-		$(RLIBMAP) -r $(ROOTMAP) -l $(GQTLIB) \
-		   -d $(GQTLIBDEP) -c $(GQTL)
-
-map::           map-qt
+all-qt:         $(GQTLIB) $(GQTMAP)
 
 clean-qt:
-		@rm  -f $(GQTO) $(GQTDO) $(GQTMOCO) $(GQTMOC) 
+		@rm  -f $(GQTO) $(GQTDO) $(GQTMOCO) $(GQTMOC)
 
 clean::         clean-qt
 
 distclean-qt: clean-qt
-		@rm -f $(GQTDEP) $(GQTDS) $(GQTDH) $(GQTMOC) $(GQTLIB)
+		@rm -f $(GQTDEP) $(GQTDS) $(GQTDH) $(GQTMOC) $(GQTLIB) $(GQTMAP)
 
 distclean::     distclean-qt
 
