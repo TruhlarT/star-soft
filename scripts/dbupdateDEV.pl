@@ -21,11 +21,11 @@ require "/afs/rhic.bnl.gov/star/packages/scripts/dbTJobsSetup.pl";
 #require "dbTJobsSetup.pl";
 
 my $TOP_DIRD = "/star/rcf/test/dev/";
-my @dir_year = ("year_2001", "year_1h", "year_2003", "year_2004", "year_2005", "year_2006");
+my @dir_year = ("year_2001", "year_1h", "year_2003", "year_2004", "year_2005", "year_2006", "year_2007");
 my @node_dir = ("trs_sl302", "trs_sl302_opt", "trs_sl302.ittf");
 my @node_daq = ("daq_sl302", "daq_sl302_opt","daq_sl302.ittf","daq_sl302.ittf_opt");
 my @hc_dir = ("hc_lowdensity", "hc_standard", "hc_highdensity", "peripheral","pp_minbias","dau_minbias","auau_minbias","auau_central","cucu200_minbias","cucu62_minbias");
-my @daq_dir = ("minbias", "central", "ppMinBias", "dAuMinBias", "AuAuMinBias", "AuAu_prodHigh","AuAu_prodLow","prodPP","CuCu200_MinBias","CuCu200_HighTower","CuCu62_MinBias","CuCu22_MinBias","ppProduction","ppProdLong","ppProdTrans" );
+my @daq_dir = ("minbias", "central", "ppMinBias", "dAuMinBias", "AuAuMinBias", "AuAu_prodHigh","AuAu_prodLow","prodPP","CuCu200_MinBias","CuCu200_HighTower","CuCu62_MinBias","CuCu22_MinBias","ppProduction","ppProdLong","ppProdTrans","2007ProductionMinBias" );
 
 my @OUT_DIR;
 my @OUTD_DIR;
@@ -155,6 +155,11 @@ my $jj = 0;
         $ii++;
    } 
 
+   for ($ik = 15; $ik < 16; $ik++) { 
+    $OUT_DIR[$ii] = $TOP_DIRD . $node_daq[$i] . "/" . $testDay . "/". $dir_year[6] . "/" . $daq_dir[$ik];
+   print "Output Dir for NEW :", $OUT_DIR[$ii], "\n";
+        $ii++;
+   } 
 
  }
 
@@ -245,7 +250,12 @@ $jj = 0;
    print "Output Dir for NEW :", $OUT_DIR[$ii], "\n";
         $ii++;
    } 
-
+   for ($ik = 15; $ik < 16; $ik++) { 
+    $OUT_DIR[$ii] = $TOP_DIRD . $node_daq[$i] . "/" . $beforeDay . "/". $dir_year[6] . "/" . $daq_dir[$ik];
+   print "Output Dir for NEW :", $OUT_DIR[$ii], "\n";
+        $ii++;
+   } 
+ 
  }
 
     for ($i = 2; $i < 4; $i++) {
