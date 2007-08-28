@@ -21,11 +21,11 @@ require "/afs/rhic.bnl.gov/star/packages/scripts/dbTJobsSetup.pl";
 #require "dbTJobsSetup.pl";
 
 my $TOP_DIRD = "/star/rcf/test/new/";
-my @dir_year = ("year_2001", "year_1h", "year_2003", "year_2004", "year_2005", "year_2006");
+my @dir_year = ("year_2001", "year_1h", "year_2003", "year_2004", "year_2005", "year_2006", "year_2007");
 my @node_dir = ("trs_sl302", "trs_sl302_opt","trs_sl302.ittf", "trs_sl302.ittf_opt");
 my @node_daq = ("daq_sl302", "daq_sl302_opt","daq_sl302.ittf","daq_sl302.ittf_opt"); 
 my @hc_dir = ("hc_lowdensity", "hc_standard", "hc_highdensity", "peripheral","pp_minbias","dau_minbias","auau_minbias","cucu200_minbias","cucu62_minbias");
-my @daq_dir = ("minbias", "central", "ppMinBias", "dAuMinBias", "AuAuMinBias", "AuAu_prodHigh","AuAu_prodLow","prodPP","CuCu200_MinBias","CuCu200_HighTower","CuCu62_MinBias","CuCu22_MinBias","ppProduction","ppProdLong","ppProdTrans");
+my @daq_dir = ("minbias", "central", "ppMinBias", "dAuMinBias", "AuAuMinBias", "AuAu_prodHigh","AuAu_prodLow","prodPP","CuCu200_MinBias","CuCu200_HighTower","CuCu62_MinBias","CuCu22_MinBias","ppProduction","ppProdLong","ppProdTrans","2007Production","2007ProductionMinBias");
 
 my @OUT_DIR;
 my @OUTD_DIR;
@@ -97,6 +97,12 @@ for ($i = 0; $i < scalar(@node_daq); $i++) {
    } 
    for ($ik = 13; $ik < 15; $ik++) { 
     $OUT_DIR[$ii] = $TOP_DIRD . $node_daq[$i] . "/" . $dir_year[5] . "/" . $daq_dir[$ik];
+   print "Output Dir for NEW :", $OUT_DIR[$ii], "\n";
+        $ii++;
+   } 
+
+    for ($ik = 15; $ik < 17; $ik++) { 
+    $OUT_DIR[$ii] = $TOP_DIRD . $node_daq[$i] . "/" . $dir_year[6] . "/" . $daq_dir[$ik];
    print "Output Dir for NEW :", $OUT_DIR[$ii], "\n";
         $ii++;
    } 
@@ -247,6 +253,8 @@ struct JFileAttr => {
 #####  select all files from JobStatusT from testDay direcroties
 
  $sql="SELECT jobID, path, logFile, createTime, avail FROM $JobStatusT WHERE path LIKE '%test/new%' AND avail = 'Y'";
+
+
    $cursor =$dbh->prepare($sql)
     || die "Cannot prepare statement: $DBI::errstr\n";
    $cursor->execute;
@@ -298,6 +306,9 @@ my @files;
 
  foreach  my $eachOutLDir (@OUT_DIR) {
           if (-d $eachOutLDir) {
+###
+#	      if($eachOutLDir =~ /ittf/ )  {
+###
      opendir(DIR, $eachOutLDir) or die "can't open $eachOutLDir\n";
       @files = readdir(DIR);
 #    while( defined($fname = readdir(DIR)) ) {
@@ -441,7 +452,8 @@ my @files;
  closedir DIR;
    }
  }
-
+###
+# }
 
              foreach my $newjobFile (@testJobStFiles) {
 
@@ -645,6 +657,12 @@ foreach  $eachOutNDir (@OUT_DIR) {
      elsif($EvTp eq "ppProduction") {
         $EvReq = 800;
       }   
+     elsif($EvTp eq "ppProdLong") {
+        $EvReq = 5000;
+      }
+     elsif($EvTp eq "ppProdTrans") {
+        $EvReq = 5000;
+      }      
 #       else {
 #      @prt = split(/\./,$bsname);
 #      $evR = $prt[1];
@@ -1103,7 +1121,7 @@ sub  updateJSTable {
 
 #---------------------------------------------------------
 
-# print $fl_log, "\n";
+ print $fl_log, "\n";
 
   open (LOGFILE, $fl_log ) or die "cannot open $fl_log: $!\n";
 
@@ -1282,6 +1300,8 @@ my $mRealTbfc = 0;
  
      }
  
+      close (LOGFILE);
+
       $EvDone = $no_event;
       $EvCom = $EvDone - $EvSkip;
 #  print "Number of events: ", $runflag,"  ", $no_event,"  ", $EvDone,"  ",$EvCom, "  ",$EvSkip, "\n";
@@ -1290,6 +1310,9 @@ my $mRealTbfc = 0;
 ##### get CPU and Real Time per event
 
  if ($EvCom != 0) {
+
+  @cpu_output = ();
+
     @cpu_output = `tail -5000 $fl_log`;
  
   foreach $end_line (@cpu_output){
@@ -1332,5 +1355,5 @@ my $mRealTbfc = 0;
   }
  }      
 #   print "Memory size:   ",$memFst, "   ", $memLst, "\n";
-   close (LOGFILE);
+#   close (LOGFILE);
   }
