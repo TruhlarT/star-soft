@@ -51,7 +51,7 @@ $year = $yr + 1900 ;
 
      print "Killed  ", $Ndone, "  jobs DONE", "\n";
    
-   `crs_job -fix_job`;
+   `crs_job -fix_jobs`;
     
 exit;
 
