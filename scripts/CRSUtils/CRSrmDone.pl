@@ -40,6 +40,7 @@ $year = $yr + 1900 ;
 #   print  $line, "\n";
     @prt = ();
     @prt = split (" ", $line);
+
      if ($prt[0] eq "DONE") {
 	 $Ndone =  $prt[1];
   }
@@ -49,6 +50,8 @@ $year = $yr + 1900 ;
      }
 
      print "Killed  ", $Ndone, "  jobs DONE", "\n";
-
+   
+   `crs_job -fix_job`;
+    
 exit;
 
