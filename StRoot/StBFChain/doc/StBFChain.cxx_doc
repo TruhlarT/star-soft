@@ -1,5 +1,5 @@
 //_____________________________________________________________________
-// @(#)StRoot/StBFChain:$Name:  $:$Id: StBFChain.cxx_doc,v 1.31 2007/07/12 19:14:07 fisyak Exp $
+// @(#)StRoot/StBFChain:$Name:  $:$Id: StBFChain.cxx_doc,v 1.32 2007/08/31 18:47:51 fisyak Exp $
 //_____________________________________________________________________
 #include "TROOT.h"
 #include "TString.h"
@@ -661,7 +661,7 @@ Bfc_st BFC[] = {
                                                                            "New simulator for BEMC",kFALSE},
   {"EEfs" ,"eefs","","db,EEmcUtil,MuDst",
                                      "StEEmcFastMaker","StEEmcSimulatorMaker","EEMC fast simulator",kFALSE},
-  {"StiLibs","","","StarMagField,StiTpcLib,StiSvtLib,StiSsdlib,StiRnDLib","",
+  {"StiLibs","","","StarMagField,StiTpcLib,StiSvtLib,StiSsdlib,StiRnDLib,StiUtil","",
                                                                        "","ITTF:load Sti libraries",kFALSE},
   {"StiTpcLib","","","tpcDB","", "Sti,StiTpc","Sti Tpc related libratries",kFALSE},
   {"StiSvtLib","","","svtDB","", "Sti,StSvtClassLibrary,StiSvt","Sti Svt related libratries",kFALSE},
@@ -845,7 +845,7 @@ Bfc_st BFC[] = {
   {"NoDefault" ,"" ,"","" ,"","","No Default consistency check",kFALSE},
 
   {"Calibration chains","------------","-----------","-----------------------------------","","","",kFALSE},
-  {"LanaDV" ,"","","MakeEvent,in,tpc_daq,tpcI,fcf,LaserIT,VFMinuit,Lana,Analysis,Corr4",
+  {"LanaDV" ,"","","MakeEvent,trgd,in,tpc_daq,tpcI,fcf,LaserIT,VFMinuit,Lana,Analysis,Corr4",
    "","" ,"get LDV",kFALSE},
   {"LaserDV.Chain","","","in,LaserCal,fcf,TpcHitMover,OGridLeak3D,OShortR,OSpaceZ2","","","get LDV",kFALSE},
 
@@ -926,7 +926,7 @@ Bfc_st BFC[] = {
   {"p2001e.Chain" ,"" ,"","ry2001,DbV1107,in,tpc_daq,tpc,rich,l3onl,tofDat,Physics,Kalman,AlignSectors,"
    "Cdst,tags,Tree,evout,emcDY2,ExB,OBmap,OClock,OPr13,Otwist" ,"","","",kFALSE},
   {"trsgl.Chain" ,"","","y2001,trs,Simu,rrs,tpc,rich,l0,Cdst,Kalman,tags,Tree,EvOut,emcY2,big,GeantOut,fzin"
-                                                                                          ,"","","",kFALSE},
+                                                                                    ,"","","",kFALSE},
   {"p2001l.Chain" ,"" ,"","ry2001,in,tpc_daq,tpc,rich,l3onl,tofDat,Physics,Kalman,AlignSectors,Cdst,tags,"
    "Tree,evout,ExB,OBmap,OClock,OPr13,OTwist,NoHits" ,"","","",kFALSE},
   {"p2001f.Chain" ,"" ,"","ry2001,DbV1211,in,tpc_daq,tpc,rich,l3onl,tofDat,Physics,Kalman,AlignSectors,"
@@ -1854,7 +1854,7 @@ Bfc_st BFC2[] = {
                                                                            "New simulator for BEMC",kFALSE},
   {"EEfs" ,"eefs","","db,EEmcUtil,MuDst",
                                      "StEEmcFastMaker","StEEmcSimulatorMaker","EEMC fast simulator",kFALSE},
-  {"StiLibs","","","StarMagField,StiTpcLib,StiSvtLib,StiSsdlib,StiRnDLib","",
+  {"StiLibs","","","StarMagField,StiTpcLib,StiSvtLib,StiSsdlib,StiRnDLib,StiUtil","",
                                                                        "","ITTF:load Sti libraries",kFALSE},
   {"StiTpcLib","","","tpcDB","", "Sti,StiTpc","Sti Tpc related libratries",kFALSE},
   {"StiSvtLib","","","svtDB","", "Sti,StSvtClassLibrary,StiSvt","Sti Svt related libratries",kFALSE},
@@ -2038,7 +2038,7 @@ Bfc_st BFC2[] = {
   {"NoDefault" ,"" ,"","" ,"","","No Default consistency check",kFALSE},
 
   {"Calibration chains","------------","-----------","-----------------------------------","","","",kFALSE},
-  {"LanaDV" ,"","","MakeEvent,in,tpc_daq,tpcI,fcf,LaserIT,VFMinuit,Lana,Analysis,Corr4",
+  {"LanaDV" ,"","","MakeEvent,trgd,in,tpc_daq,tpcI,fcf,LaserIT,VFMinuit,Lana,Analysis,Corr4",
    "","" ,"get LDV",kFALSE},
   {"LaserDV.Chain","","","in,LaserCal,fcf,TpcHitMover,OGridLeak3D,OShortR,OSpaceZ2","","","get LDV",kFALSE},
 
@@ -3608,7 +3608,7 @@ void StBFChain::SetDbOptions(StMaker *mk){
 		       << " Maker set time = "
 		       << db->GetDateTime().GetDate() << "."
 		       << db->GetDateTime().GetTime() << endm;
-    if (GetOption("VMC") && m_EvtHddr) {
+    if (GetOption("SIMU") && m_EvtHddr) {
       gMessMgr->QAInfo() << GetName() << " Chain set time from  " << db->GetName() << endm;
       m_EvtHddr->SetDateTime(db->GetDateTime());
     }
