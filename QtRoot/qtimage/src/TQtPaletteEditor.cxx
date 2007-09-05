@@ -1,4 +1,4 @@
-// @(#)root/asimage:$Name:  $:$Id: TQtPaletteEditor.cxx,v 1.2 2007/01/30 02:56:38 fine Exp $
+// @(#)root/asimage:$Name:  $:$Id: TQtPaletteEditor.cxx,v 1.3 2007/09/05 18:44:45 fine Exp $
 // Author: Reiner Rohlfs   24/03/2002
 
 /*************************************************************************
@@ -23,19 +23,27 @@
 #include "TCanvas.h"
 #include "TH1.h"
 #include "TQtPaletteEditor.h"
-#include <qtoolbar.h> 
-#include <qcombobox.h> 
-#include <qradiobutton.h> 
-#include <qcheckbox.h> 
-#include <qpushbutton.h> 
-#include <qlayout.h>
-#include <qtooltip.h> 
-#include <qcheckbox.h>
-#include <qvbox.h> 
-#include <qhbox.h> 
-#include <qdockwindow.h> 
-#include <qbuttongroup.h>
-#include <qimage.h> 
+#if QT_VERSION < 0x40000
+#  include <qtoolbar.h> 
+#  include <qcombobox.h> 
+#  include <qradiobutton.h> 
+#  include <qcheckbox.h> 
+#  include <qpushbutton.h> 
+#  include <qlayout.h>
+#  include <qtooltip.h> 
+#  include <qcheckbox.h>
+#  include <qvbox.h> 
+#  include <qhbox.h> 
+#  include <qdockwindow.h> 
+#  include <qbuttongroup.h>
+#  include <qimage.h> 
+#  include <qframe.h>
+#else
+#  include <QImage>
+#  include <QToolBar>
+#  include <QBoxLayout>
+#  include <QFrame>
+#endif
 
 //// #include "QXYLayout.h"
 //#include "qbutton.h"
@@ -90,13 +98,18 @@ TQtPaletteEditor::TQtPaletteEditor(TAttImage *attImage, UInt_t w, UInt_t h)
 
    CreateMenuToolBox();
 
-   QWidget *centralWidget = new QVBox(this);
+   QWidget *centralWidget = new QFrame(this);
+   QVBoxLayout *boxLayout = new QVBoxLayout(centralWidget);
+
    setCentralWidget(centralWidget);
-      QWidget *controlFrame = new QHBox (centralWidget);
-         // the histogram of the data
-         fHistCanvas = CreateHistogramArea(controlFrame,attImage);
-         // button area
-         CreateButtonFrame(controlFrame);
+
+      QWidget *controlFrame = new QWidget(centralWidget);
+      boxLayout->addWidget(controlFrame);
+      QVBoxLayout *vboxLayout = new QVBoxLayout (controlFrame);
+      // the histogram of the data
+      fHistCanvas = CreateHistogramArea(controlFrame,attImage);
+      // button area
+      CreateButtonFrame(controlFrame);
 
 
       // the palette
@@ -140,6 +153,7 @@ void TQtPaletteEditor::CloseWindow()
 QWidget *TQtPaletteEditor::CreateMenuToolBox()
 {
    QToolBar *menuTool = new QToolBar(this);
+#if QT_VERSION < 0x40000
    addDockWindow(menuTool);
    moveDockWindow(menuTool,Qt::DockRight);
 
@@ -180,12 +194,15 @@ QWidget *TQtPaletteEditor::CreateMenuToolBox()
    QToolTip::add(button,"Edit a palette (not yet implemented)");
    // connect(button,SIGNAL(clicked()),this,SLOT(EditCB()));
    button->setEnabled(false);
+#endif
    return menuTool;
 }
 //______________________________________________________________________________
 QWidget *TQtPaletteEditor::CreateButtonFrame(QWidget *controlFrame)
 {
+
    QWidget *buttonFrame = new QWidget(controlFrame);
+#if QT_VERSION < 0x40000
    QGridLayout *grid    = new QGridLayout(buttonFrame, 10, 2); // 8 rows, 2 columns grid layout
 
    // buttons
@@ -264,7 +281,9 @@ QWidget *TQtPaletteEditor::CreateButtonFrame(QWidget *controlFrame)
    fComboBox->insertItem("Cold", 3);
    fComboBox->insertItem("Bowlerhat", 4);
    fComboBox->insertItem("", 5);
-
+#else
+   fprintf(stderr," The method TQtPaletteEditor::CreateButtonFrame has not been implemented yet for Qt4\n");
+#endif
    return buttonFrame;
 }
 
@@ -338,21 +357,30 @@ void TQtPaletteEditor::CancelCB() {
 //______________________________________________________________________________
 void TQtPaletteEditor::UndoCB() {
    fPalette = (TImagePalette*)(fPaletteList->Before(fPalette));
+#if QT_VERSION < 0x40000
    if (fPalette && fAutoUpdate->isChecked() ) {
       fAttImage->SetPalette(fPalette);
       fImagePad->Modified();
       fImagePad->Update();
    }
+#else
+      fprintf(stderr," The method TQtPaletteEditor::UndoCB has not been implemented yet for Qt4\n");
+#endif 
    UpdateScreen(kTRUE);
 }
 //______________________________________________________________________________
 void TQtPaletteEditor::RedoCB() {
    fPalette = (TImagePalette*)(fPaletteList->After(fPalette));
+#if QT_VERSION < 0x40000
    if (fPalette && fAutoUpdate->isChecked() ) {
       fAttImage->SetPalette(fPalette);
       fImagePad->Modified();
       fImagePad->Update();
    }
+#else
+      fprintf(stderr," The method TQtPaletteEditor::RedoCB has not been implemented yet for Qt4\n");
+#endif 
+
    UpdateScreen(kTRUE);
 }
 
@@ -371,13 +399,17 @@ void TQtPaletteEditor::InsertNewPalette(TImagePalette *newPalette)
    // add new palette and make it to the current palette
    fPaletteList->Add(newPalette);
    fPalette = newPalette;
-
+#if QT_VERSION < 0x40000
    // update the image
    if (fAutoUpdate->isChecked ()) {
       fAttImage->SetPalette(fPalette);
       fImagePad->Modified();
       fImagePad->Update();
    }
+#else
+      fprintf(stderr," The method TQtPaletteEditor::InsertNewPalette has not been implemented yet for Qt4\n");
+#endif 
+
 }
 
 //______________________________________________________________________________
@@ -511,6 +543,7 @@ void TQtPaletteEditor::UpdateScreen(Bool_t histoUpdate)
       fHistCanvas->GetCanvas()->Update();
    }
 
+#if QT_VERSION < 0x40000
    // update undo / redo button
    fUnDoButton->setEnabled(fPalette != fPaletteList->First());
    fReDoButton->setEnabled(fPalette != fPaletteList->Last());
@@ -549,6 +582,9 @@ void TQtPaletteEditor::UpdateScreen(Bool_t histoUpdate)
          break;
       }
 
+#else
+      fprintf(stderr," The method TQtPaletteEditor::UpdateScreen has not been implemented yet for Qt4\n");
+#endif 
    //fRamps[0]->setChecked(fRampFactor == 1);
    //fRamps[1]->setChecked(fRampFactor == 2);
    //fRamps[2]->setChecked(fRampFactor == 4);
@@ -601,6 +637,7 @@ void TQtPaletteEditor::LinPaletteCB()
    TImagePalette *newPalette = new TImagePalette(*fPalette);
 
    Double_t delta = fPalette->fPoints[fPalette->fNumPoints-2] - fPalette->fPoints[1];
+#if QT_VERSION < 0x40000
    if (! fStepButton->isChecked ()) {
       for (Int_t pt = 2; pt < Int_t(fPalette->fNumPoints - 2); pt++)
          newPalette->fPoints[pt] = fPalette->fPoints[1] +
@@ -614,7 +651,10 @@ void TQtPaletteEditor::LinPaletteCB()
    }
 
    InsertNewPalette(newPalette);
-   UpdateScreen(kFALSE);
+#else
+      fprintf(stderr," The method TQtPaletteEditor::LinPaletteCB has not been implemented yet for Qt4\n");
+#endif 
+  UpdateScreen(kFALSE);
 }
 
 //______________________________________________________________________________
@@ -741,8 +781,10 @@ void TQtPaletteEditor::StepCB()
    // Create a step palette. This is called by the step - check button.
    // Protected method.
 
+#if QT_VERSION < 0x40000
    TImagePalette *newPalette;
    QCheckBox &button = *(QCheckBox *)sender();
+
    if (button.isChecked ()) {
       // change colors in steps
       newPalette = new TImagePalette(fPalette->fNumPoints * 2 - 2);
@@ -783,6 +825,9 @@ void TQtPaletteEditor::StepCB()
    newPalette->fColorAlpha[newPalette->fNumPoints-1] = fPalette->fColorAlpha[fPalette->fNumPoints-1];
 
    InsertNewPalette(newPalette);
+#else
+      fprintf(stderr," The method TQtPaletteEditor::StepCB has not been implemented yet for Qt4\n");
+#endif 
    UpdateScreen(kFALSE);
 }
 #if 0
