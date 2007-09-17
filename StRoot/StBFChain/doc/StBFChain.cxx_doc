@@ -1,5 +1,5 @@
 //_____________________________________________________________________
-// @(#)StRoot/StBFChain:$Name:  $:$Id: StBFChain.cxx_doc,v 1.32 2007/08/31 18:47:51 fisyak Exp $
+// @(#)StRoot/StBFChain:$Name:  $:$Id: StBFChain.cxx_doc,v 1.33 2007/09/17 15:47:49 fisyak Exp $
 //_____________________________________________________________________
 #include "TROOT.h"
 #include "TString.h"
@@ -706,7 +706,8 @@ Bfc_st BFC[] = {
   {"flaser" ,"","","fpt" ,"","","StFtpcTrackMaker in LASERTRACKING",kFALSE},
 
 
-  {"pmdRaw" ,"pmdRaw","","PmdUtil,pmdRead,pmdClust" ,"StMaker","StChain","PMD Raw chain",kFALSE},
+  {"pmdReco" ,"pmdReco","","PmdUtil,pmdRead,pmdClust" ,"StMaker","StChain","PMD Reco chain",kFALSE},
+  {"pmdRaw" ,"pmdRaw","","pmdReco" "","","PMD Reco chain giving raw data",kFALSE},
   {"pmd" ,"pmd","","pmdSim,pmdClust,pmdDis","StMaker" ,"StChain", "PMD Simulation chain",kFALSE},
   {"pmdRead" ,"","","PmdUtil","StPmdReadMaker" ,"StPmdReadMaker", "DAQ reader for PMD",kFALSE},
   {"pmdSim" ,"","","PmdUtil","StPmdSimulatorMaker","StPmdSimulatorMaker","Hit Simulator for PMD",kFALSE},
@@ -1451,15 +1452,15 @@ Bfc_st BFC2[] = {
   {"B2007","","","ry2007,MakeEvent,in,tpc_daq,tpcI,fcf,svt_daq,SvtD,ssddat,spt,Physics,Idst,l0,tags,Tree,evout",
                                                         "","","Base chain for 2007 ITTF (tpc+svt+ssd)",kFALSE},
   {"P2007" ,"" ,"",
-   "B2007,IAna,KeepSvtHit,hitfilt,skip1row,VFMinuit,l3onl,emcDY2,fpd,ftpc,trgd,ZDCvtx,svtIT,ssdIT,Corr5",
+   "B2007,IAna,KeepSvtHit,hitfilt,VFMinuit,l3onl,emcDY2,fpd,ftpc,trgd,ZDCvtx,svtIT,ssdIT,Corr5",
                       "","","Production chain for 2007 data (+ l3, tof, bcc/fpd, ftpc, e/b-emc, trgd)",kFALSE},
 
 
   {"P2007a" ,"" ,"",
-   "B2007,IAna,KeepSvtHit,hitfilt,skip1row,VFMinuit,l3onl,emcDY2,fpd,ftpc,trgd,ZDCvtx,svtIT,ssdIT,Corr3",
+   "B2007,IAna,KeepSvtHit,hitfilt,VFMinuit,l3onl,emcDY2,fpd,ftpc,trgd,ZDCvtx,svtIT,ssdIT,Corr3",
                  "","","Production chain for 2007 data Corr3 (+ l3, tof, bcc/fpd, ftpc, e/b-emc, trgd)",kFALSE},
   {"P2007b" ,"" ,"",
-   "B2007,IAna,KeepSvtHit,hitfilt,skip1row,VFMinuit,l3onl,emcDY2,fpd,ftpc,trgd,ZDCvtx,svtIT,ssdIT,Corr4",
+   "B2007,IAna,KeepSvtHit,hitfilt,VFMinuit,l3onl,emcDY2,fpd,ftpc,trgd,ZDCvtx,svtIT,ssdIT,Corr4",
                  "","","Production chain for 2007 data Corr4 (+ l3, tof, bcc/fpd, ftpc, e/b-emc, trgd)",kFALSE},
   {"LaserCal0","" ,"","db,detDb,tpc_daq,tpcDb,tcl,globT,laser,LaserTest","","",
                                                                     "Laser Calibration Chain (tcl)",kFALSE},
@@ -1899,7 +1900,8 @@ Bfc_st BFC2[] = {
   {"flaser" ,"","","fpt" ,"","","StFtpcTrackMaker in LASERTRACKING",kFALSE},
 
 
-  {"pmdRaw" ,"pmdRaw","","PmdUtil,pmdRead,pmdClust" ,"StMaker","StChain","PMD Raw chain",kFALSE},
+  {"pmdReco" ,"pmdReco","","PmdUtil,pmdRead,pmdClust" ,"StMaker","StChain","PMD Reco chain",kFALSE},
+  {"pmdRaw" ,"pmdRaw","","pmdReco" "","","PMD Reco chain giving raw data",kFALSE},
   {"pmd" ,"pmd","","pmdSim,pmdClust,pmdDis","StMaker" ,"StChain", "PMD Simulation chain",kFALSE},
   {"pmdRead" ,"","","PmdUtil","StPmdReadMaker" ,"StPmdReadMaker", "DAQ reader for PMD",kFALSE},
   {"pmdSim" ,"","","PmdUtil","StPmdSimulatorMaker","StPmdSimulatorMaker","Hit Simulator for PMD",kFALSE},
@@ -2440,8 +2442,11 @@ Int_t StBFChain::Instantiate()
 	ProcessLine(Form("((St_geant_Maker *) %p)->SetNwGEANT(%i);",mk,NwGeant));
 	if (GetOption("Higz")) ProcessLine(Form("((St_geant_Maker *) %p)->SetIwtype(1);",mk));
 	if (GetOption("paw"))  ProcessLine(Form("((St_geant_Maker *) %p)->SetNwPAW(2);",mk));
-	if (GetOption("fzin") || GetOption("ntin") || GetOption("gstar") || GetOption("PrepEmbed")) mk->SetActive(kTRUE);
-	else                                                              mk->SetActive(kFALSE);
+	if (GetOption("fzin") || GetOption("ntin") || GetOption("gstar") || GetOption("PrepEmbed")) {
+	  mk->SetActive(kTRUE);
+	  if (GetOption("Embedding")) mk->SetMode(10*(mk->GetMode()/10)+1);
+	}
+	else   mk->SetActive(kFALSE);
 	if (! mk) goto Error;
 	SetGeantOptions(mk);
       }
@@ -2851,6 +2856,11 @@ Int_t StBFChain::Instantiate()
     if ( maker == "StFtpcTrackMaker"       &&
 	 GetOption("flaser"))                  mk->SetMode(mk->GetMode()+1);
     // FTPC
+
+    // PMD
+    if ( maker == "StPmdReadMaker"         &&
+         GetOption("pmdRaw"))                  mk->SetAttr("pmdRaw",kTRUE);
+    // PMD
     
     // Hit filtering will be made from a single maker in
     // future with flexible filtering method
