@@ -21,6 +21,7 @@ set node=""
 set port=""
 set extra=""
 set col=""
+set node=""
 set excluded=""
 set DEBUG=0
 set pool="condor02.rcf.bnl.gov:9664"
@@ -391,10 +392,18 @@ if ("$TEST" != "$node") then
     if( "$LOAD" != "") then    
         setenv CONDOR_CONFIG /dev/null
         set CANDIDATES=`$LOAD -pool $pool -constraint 'interactive_node == True' -format "%s " Machine -format "%f\n" TotalLoadAvg | $SORT -un -k 2 | $GREP $TEST | $AWK '{print $1}'`
+	if ( $DEBUG) then
+	    echo "Candidates are [$CANDIDATES]"
+	endif
 	if ( $#CANDIDATES != 0) then
 	    set i=1
 	    AGAIN:
 		set node=$CANDIDATES[$i]
+		#if ( $DEBUG ) then
+		#    echo "Checking [$node]"
+		#    
+		#endif
+		set node=`echo $node | $SED "s/\..*//"`
 		if( `echo $excluded | $GREP $node` != "") then
 		    if ($DEBUG) then
 			echo "Excluded node         [$node] $i/$#CANDIDATES"
