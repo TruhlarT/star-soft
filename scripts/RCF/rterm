@@ -503,7 +503,7 @@ else
 	$SLOGIN $port $user@$node
     else
 	echo "Opening a $col terminal on $node for $user $extra ($TERM_BKG_COLOR)"
-	$TERM_PRGM -sl 500 -sb +si -sk -T "$user@$node" -n "Xterm_$node" -bg $TERM_BKG_COLOR $TERM_OPTIONS -e $SLOGIN $port $user@$node &
+	$TERM_PRGM -sl 500 -sb +si -sk -T "$user@$node" -n "Xterm_$node" -bg $TERM_BKG_COLOR $TERM_OPTIONS -e $SLOGIN -X $port $user@$node &
     endif
 endif
 
