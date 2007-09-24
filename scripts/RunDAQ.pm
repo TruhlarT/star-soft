@@ -1695,6 +1695,10 @@ sub  rdaq_get_message
 	    $sel =~ s/-/ /g;   # this is an internal convention
 	    $cmd .= " WHERE $fields[$fld]=?";
 	}
+	#+
+	# ATTENTION - See http://www.star.bnl.gov/HyperNews-star/protected/get/dbdevel/47.html
+	# This may break
+	#-
 	$cmd .= " ORDER BY ITime DESC LIMIT ?";
 
 	# now prepare
