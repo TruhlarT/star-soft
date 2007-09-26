@@ -110,7 +110,7 @@ my $rscript = "/star/u/starreco/FCrmRootfiles.csh";
 
   open (FILE, ">$script");
   print FILE "#! /usr/local/bin/tcsh -f", "\n";
-  print FILE "pftp -v hpss.rcf.bnl.gov 2121 <<EOF","\n";
+  print FILE "pftp -v hpss.rcf.bnl.gov 4021 <<EOF","\n";
   print FILE "quote site setcos 11","\n";
   print FILE "bin","\n";
   print FILE "lcd ", $dpath, "\n";

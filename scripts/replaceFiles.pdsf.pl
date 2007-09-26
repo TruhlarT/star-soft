@@ -57,7 +57,7 @@ $fileC->connect_as($SITE."::User","FC_user") || die "Connection failed for FC_us
 
    open (CFILE, ">$copyscript");
    print CFILE "#! /usr/local/bin/tcsh -f", "\n";
-   print CFILE "pftp -v hpss.rcf.bnl.gov 2121 <<EOF | tee -a copy_grid.log", "\n";
+   print CFILE "pftp -v hpss.rcf.bnl.gov 4021 <<EOF | tee -a copy_grid.log", "\n";
    print CFILE "quote site setcos 11", "\n";
    print CFILE "bin", "\n";
 
