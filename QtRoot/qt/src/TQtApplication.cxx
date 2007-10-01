@@ -1,6 +1,6 @@
 // Author: Valeri Fine   21/01/2002
 /****************************************************************************
-** $Id: TQtApplication.cxx,v 1.3 2007/06/14 17:31:58 fine Exp $
+** $Id: TQtApplication.cxx,v 1.4 2007/10/01 19:51:39 fine Exp $
 **
 ** Copyright (C) 2002 by Valeri Fine. Brookhaven National Laboratory.
 **                                    All rights reserved.
@@ -78,17 +78,20 @@ void TQtApplication::CreateQApplication(int &argc, char ** argv, bool GUIenabled
 #if QT_VERSION < 0x40000
        qApp = new QApplication(argc,argv,GUIenabled);
 #else /* QT_VERSION */
-#ifdef NOSYNC       
-       int argC = 2;
-       static char *argV[] = {"root.exe", "-sync" };
-       fprintf(stderr," argc = %d, argv = %s %s\n", argC,argV[0],argV[1]);
-       new QApplication(argC,argV,GUIenabled);
-#else       
 #ifndef R__WIN32       
        QCoreApplication::setAttribute(Qt::AA_ImmediateWidgetCreation);
 #endif       
-       new QApplication(argc,argv,GUIenabled);
-#endif       
+       // Check whether we want to debug the Qt X11
+       QString fatalWarnings = gSystem->Getenv("QT_FATAL_WARNINGS");
+       fprintf(stderr," ATTENTION. the env variable \"QT_FATAL_WARNIGNS\" was defined as %s.\n",gSystem->Getenv("QT_FATAL_WARNINGS") );
+       if (fatalWarnings.contains("1")) {
+          int argC = 2;
+          static char *argV[] = {"root.exe", "-sync" };
+          fprintf(stderr," ATTENTION. the env variable \"QT_FATAL_WARNIGNS\" was defined. The special debug option has  been turned on. argc = %d, argv = %s %s\n", argC,argV[0],argV[1]);
+          new QApplication(argC,argV,GUIenabled);
+       } else {       
+          new QApplication(argc,argv,GUIenabled);
+       }
 #endif /* QT_VERSION */
        // The string must be one of the QStyleFactory::keys(),
        // typically one of
