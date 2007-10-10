@@ -15,7 +15,7 @@
 #
 $commitlog   = "/afs/rhic.bnl.gov/star/packages/repository/CVSROOT/commitlog";
 $cvsHtml     = "/star/starlib/doc/www/html/tmp/cvs";
-$cvsUrl      = "/cgi-bin/cvsweb.cgi";
+$cvsUrl      = "/cgi-bin/protected/cvsweb.cgi";
 $currentTime = localtime time;
 $tmp         = "-tmp".getppid();
 
