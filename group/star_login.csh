@@ -176,7 +176,7 @@ if ($?CERN == 0) then
 	if( -e "${AFS_RHIC}/asis/@sys/cern" ) then
 	    setenv CERN "${AFS_RHIC}/asis/@sys/cern"
 	else
-	    echo "WARNING /cern nor ${AFS_RHIC}/asis/@sys/cern exist ..."
+	    if ($ECHO) echo "WARNING /cern nor ${AFS_RHIC}/asis/@sys/cern exist ..."
 	endif
     endif
 endif
