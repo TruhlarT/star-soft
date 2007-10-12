@@ -457,7 +457,7 @@ void TObject3DView::MakeVolumeView(TGeoVolume *top, Int_t maxlevel)
 //_____________________________________________________________________________
 void TObject3DView::MakeVolumeView(TVolume *top, Int_t maxlevel)
 {
-   if (!top) return;
+   if (!top || ( top->GetVisibility() == TVolume::kNoneVisible)) return;
 
    // printf("TObject3DView::MakeVolumeView  name=%s  title=%s \n",GetName(), GetTitle());
    if ( !( top->GetVisibility() & TVolume::kThisUnvisible) ) {
@@ -513,7 +513,7 @@ void TObject3DView::MakeVolumeView(TVolume *top, Int_t maxlevel)
 //_____________________________________________________________________________
 void TObject3DView::MakeVolumeView(TVolumeView *top, Int_t maxlevel)
 {
-   if (!top) return;
+   if (!top || ( top->GetVisibility() == TVolume::kNoneVisible)) return;
 
    if ( !( top->GetVisibility() & TVolume::kThisUnvisible) ) 
    {
