@@ -12,7 +12,7 @@
 
 // Author: Valeri Fine   21/01/2002
 /****************************************************************************
-** $Id: GeomBrowser.ui.h,v 1.4 2007/01/13 20:44:07 fine Exp $
+** $Id: GeomBrowser.ui.h,v 1.5 2007/10/12 16:51:25 fine Exp $
 **
 ** Copyright (C) 2004 by Valeri Fine.  All rights reserved.
 **
@@ -523,8 +523,10 @@ void GeomBrowser::listView1_clicked( QListViewItem *item )
                   QListViewItemIterator it(fCurrentDrawn);
                   while ( it.current() ) {
                      if (rootObject == (((TQtObjectListItem*)it.current())->Object()) ){
-                        tQtWidget1->Refresh();
-
+                          TVirtualPad *savePad = (gPad == tQtWidget1->GetCanvas() ) ? 0 : gPad;
+                          if (savePad) tQtWidget1->cd();
+                          tQtWidget1->Refresh();
+                          if (savePad) savePad->cd();
                         //                     drawItem(fCurrentDrawn, spinBox1->value(), tQtWidget1 );
                         break;
                      }
