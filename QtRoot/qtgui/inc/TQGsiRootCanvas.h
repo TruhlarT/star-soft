@@ -1,4 +1,4 @@
-// @(#)root/qtgsi:$Name:  $:$Id: TQGsiRootCanvas.h,v 1.2 2006/09/22 17:27:10 fine Exp $
+// @(#)root/qtgsi:$Name:  $:$Id: TQGsiRootCanvas.h,v 1.3 2007/10/19 15:03:35 fine Exp $
 // Author: Denis Bertini, M. AL-Turany  01/11/2000
 
 /*************************************************************************
@@ -51,12 +51,17 @@ class QDropEvent;
 class QDragEnterEvent;
 class QCloseEvent;
 class QEvent;
-
+#ifdef __CINT__
+#  undef  Q_OBJECT
+#  define Q_OBJECT
+#endif
 
 class TQRootCanvas : public TQtWidget
 {
 #ifndef __CINT__
+#ifndef WIN32
    Q_OBJECT
+#endif
 #endif
 private:
    TQRootCanvas(const TQRootCanvas &);
