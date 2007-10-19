@@ -1,7 +1,7 @@
-// @(#)root/qt:$Name:  $:$Id: TGQt.cxx,v 1.21 2007/08/27 18:57:12 fine Exp $
+// @(#)root/qt:$Name:  $:$Id: TGQt.cxx,v 1.22 2007/10/19 15:02:57 fine Exp $
 // Author: Valeri Fine   21/01/2002
 /****************************************************************************
-** $Id: TGQt.cxx,v 1.21 2007/08/27 18:57:12 fine Exp $
+** $Id: TGQt.cxx,v 1.22 2007/10/19 15:02:57 fine Exp $
 **
 ** Copyright (C) 2002 by Valeri Fine. Brookhaven National Laboratory.
 **                                    All rights reserved.
@@ -730,7 +730,7 @@ Bool_t TGQt::Init(void* /*display*/)
 {
    //*-*-*-*-*-*-*-*-*-*-*-*-*-*Qt GUI initialization-*-*-*-*-*-*-*-*-*-*-*-*-*-*
    //*-*                        ========================                      *-*
-   fprintf(stderr,"** $Id: TGQt.cxx,v 1.21 2007/08/27 18:57:12 fine Exp $ this=%p\n",this);
+   fprintf(stderr,"** $Id: TGQt.cxx,v 1.22 2007/10/19 15:02:57 fine Exp $ this=%p\n",this);
 #if QT_VERSION >= 0x40000
 #ifndef R__QTWIN32
    extern void qt_x11_set_global_double_buffer(bool);
@@ -1075,11 +1075,13 @@ void  TGQt::ClearWindow()
 //   fprintf(stderr,"TGQt::ClearWindow() %p\n",fSelectedWindow);
    if (fSelectedWindow && fSelectedWindow != NoOperation)
    {
-      if (IsWidget(fSelectedWindow)) 
+      if (IsWidget(fSelectedWindow)) {
+         End(); // stop the painter before erasing
          ((TQtWidget *)fSelectedWindow)->Erase();
-      else if (IsPixmap(fSelectedWindow) )
+      } else if (IsPixmap(fSelectedWindow) ) {
+         // End(); // stop the painter before erasing
          ((QPixmap *)fSelectedWindow)->fill();
-      else 
+      } else 
          fQPainter->eraseRect(GetQRect(*fSelectedWindow));
    }
 }
