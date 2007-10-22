@@ -1,5 +1,5 @@
 //_____________________________________________________________________
-// @(#)StRoot/StBFChain:$Name:  $:$Id: StBFChain.cxx_doc,v 1.35 2007/09/26 21:47:15 fisyak Exp $
+// @(#)StRoot/StBFChain:$Name:  $:$Id: StBFChain.cxx_doc,v 1.36 2007/10/22 20:43:00 genevb Exp $
 //_____________________________________________________________________
 #include "TROOT.h"
 #include "TString.h"
@@ -1587,6 +1587,8 @@ Bfc_st BFC2[] = {
   {"VFppLMV" ,"" ,"","genvtx","" ,"","...VertexMaker will use ppLMV method",kFALSE},
   {"VFppLMV5" ,"" ,"","genvtx","" ,"","...VertexMaker will use ppLMV method (tuned)",kFALSE},
 
+  {"VFmin1trk" ,"" ,"","","" ,"","...only 1 track needed for vertex finding",kFALSE},
+
 
 
   {"onlcl" ,"" ,"","","" ,"","Read/use TPC DAQ100 clusters",kFALSE},
@@ -2513,6 +2515,7 @@ Int_t StBFChain::Instantiate()
       if ( GetOption("VFPPVnoCTB") ){VtxOpt |= (0x1 << 4);} // 16 0x10
       if ( GetOption("VFFV") ){      VtxOpt |= (0x1 << 5);} // 32 0x20
       if ( GetOption("VFMCE") ){     VtxOpt |= (0x1 << 6);} // 64 0x40
+      if ( GetOption("VFmin1trk") ){ VtxOpt |= (0x1 <<30);} // 0x40000000
       mk->SetMode(VtxOpt);
       
       // All VertexFinders implement those (or not)
