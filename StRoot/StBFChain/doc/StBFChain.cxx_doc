@@ -1,5 +1,5 @@
 //_____________________________________________________________________
-// @(#)StRoot/StBFChain:$Name:  $:$Id: StBFChain.cxx_doc,v 1.36 2007/10/22 20:43:00 genevb Exp $
+// @(#)StRoot/StBFChain:$Name:  $:$Id: StBFChain.cxx_doc,v 1.37 2007/10/23 05:31:09 genevb Exp $
 //_____________________________________________________________________
 #include "TROOT.h"
 #include "TString.h"
@@ -386,6 +386,7 @@ Bfc_st BFC[] = {
   {"VtxOffSet" ,"" ,"","","" ,"","Account Primary Vertex offset from y2000 data",kFALSE},
   {"Calibration" ,"" ,"","","" ,"","Calibration mode",kFALSE},
   {"beamLine" ,"" ,"","","" ,"","LMV Beam line constrain",kFALSE},
+  {"min2trkVtx" ,"" ,"","","" ,"","...only 2 tracks needed for vertex finding",kFALSE},
 
 
 
@@ -1577,6 +1578,7 @@ Bfc_st BFC2[] = {
   {"VtxOffSet" ,"" ,"","","" ,"","Account Primary Vertex offset from y2000 data",kFALSE},
   {"Calibration" ,"" ,"","","" ,"","Calibration mode",kFALSE},
   {"beamLine" ,"" ,"","","" ,"","LMV Beam line constrain",kFALSE},
+  {"min2trkVtx" ,"" ,"","","" ,"","...only 2 tracks needed for vertex finding",kFALSE},
   {"CtbMatchVtx" ,"" ,"","genvtx","" ,"","... CTB Matching ON in Vertex Finding",kFALSE},
   {"VFPPV" ,"" ,"","genvtx","" ,"","... Pile-up proof vertex finder",kFALSE},
   {"VFPPVnoCTB" ,"" ,"","genvtx","" ,"","... Pile-up proof vertex finder, noCTB",kFALSE},
@@ -1586,8 +1588,6 @@ Bfc_st BFC2[] = {
 
   {"VFppLMV" ,"" ,"","genvtx","" ,"","...VertexMaker will use ppLMV method",kFALSE},
   {"VFppLMV5" ,"" ,"","genvtx","" ,"","...VertexMaker will use ppLMV method (tuned)",kFALSE},
-
-  {"VFmin1trk" ,"" ,"","","" ,"","...only 1 track needed for vertex finding",kFALSE},
 
 
 
@@ -2515,14 +2515,14 @@ Int_t StBFChain::Instantiate()
       if ( GetOption("VFPPVnoCTB") ){VtxOpt |= (0x1 << 4);} // 16 0x10
       if ( GetOption("VFFV") ){      VtxOpt |= (0x1 << 5);} // 32 0x20
       if ( GetOption("VFMCE") ){     VtxOpt |= (0x1 << 6);} // 64 0x40
-      if ( GetOption("VFmin1trk") ){ VtxOpt |= (0x1 <<30);} // 0x40000000
       mk->SetMode(VtxOpt);
       
       // All VertexFinders implement those (or not)
-      if (GetOption("beamLine") || GetOption("CtbMatchVtx")) {
+      if (GetOption("beamLine") || GetOption("CtbMatchVtx") || GetOption("min2trkVtx")) {
 	TString  cmd(Form("StGenericVertexMaker* gvtxMk = (StGenericVertexMaker*) %p;",mk));
 	if (GetOption("beamLine"))    {cmd += "gvtxMk->UseBeamLine();";}
 	if (GetOption("CtbMatchVtx")) {cmd += "gvtxMk->UseCTB();";}
+	if (GetOption("min2trkVtx"))  {cmd += "gvtxMk->SetMinimumTrack(2);";}
 	ProcessLine(cmd);
       }
     }
