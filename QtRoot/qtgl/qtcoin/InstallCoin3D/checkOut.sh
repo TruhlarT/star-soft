@@ -28,7 +28,7 @@ fi
 # "Coin-2" - Last stable production release
 svn co ${COINSVNROOT}/Coin-2/trunk       Coin-2
 
-echo svn co ${COINSVNROOT}/SmallChange/trunk  SmallChange
+svn co ${COINSVNROOT}/SmallChange/trunk  SmallChange
 svn co ${COINSVNROOT}/simage/trunk       simage
 svn co ${COINSVNROOT}/simacros/trunk     simacros
 svn co ${COINSVNROOT}/SoQt/trunk         SoQt
