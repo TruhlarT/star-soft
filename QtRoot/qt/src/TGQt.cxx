@@ -1,7 +1,7 @@
-// @(#)root/qt:$Name:  $:$Id: TGQt.cxx,v 1.22 2007/10/19 15:02:57 fine Exp $
+// @(#)root/qt:$Name:  $:$Id: TGQt.cxx,v 1.23 2007/10/24 01:39:52 fine Exp $
 // Author: Valeri Fine   21/01/2002
 /****************************************************************************
-** $Id: TGQt.cxx,v 1.22 2007/10/19 15:02:57 fine Exp $
+** $Id: TGQt.cxx,v 1.23 2007/10/24 01:39:52 fine Exp $
 **
 ** Copyright (C) 2002 by Valeri Fine. Brookhaven National Laboratory.
 **                                    All rights reserved.
@@ -79,6 +79,9 @@
 #include "TQtEventQueue.h"
 #include "TQtSymbolCodec.h"
 #include "TQtLock.h"
+#include "TStyle.h"
+#include "TObjString.h"
+#include "TObjArray.h"
 
 #include "TSystem.h"
 #ifdef R__QTWIN32
@@ -716,6 +719,11 @@ TGQt::~TGQt()
       TQtLock lock;
       gVirtualX = gGXBatch;
       gROOT->SetBatch();
+      // clear the color map
+      QMap<Color_t,QColor*>::const_iterator it;
+      for (it = fPallete.begin();it !=fPallete.end();++it) {
+         QColor *c = *it; delete c;
+      }
       delete fQClientFilter;
       delete fQClientFilterBuffer;
       delete fQPainter; fQPainter = 0;
@@ -730,7 +738,7 @@ Bool_t TGQt::Init(void* /*display*/)
 {
    //*-*-*-*-*-*-*-*-*-*-*-*-*-*Qt GUI initialization-*-*-*-*-*-*-*-*-*-*-*-*-*-*
    //*-*                        ========================                      *-*
-   fprintf(stderr,"** $Id: TGQt.cxx,v 1.22 2007/10/19 15:02:57 fine Exp $ this=%p\n",this);
+   fprintf(stderr,"** $Id: TGQt.cxx,v 1.23 2007/10/24 01:39:52 fine Exp $ this=%p\n",this);
 #if QT_VERSION >= 0x40000
 #ifndef R__QTWIN32
    extern void qt_x11_set_global_double_buffer(bool);
@@ -1011,30 +1019,32 @@ Int_t TGQt::OpenPixmap(UInt_t w, UInt_t h)
 const QColor &TGQt::ColorIndex(Color_t ic) const
 {
    // Define the QColor object by ROOT color index
-#ifndef R__QTWIN32
+   QColor *colorBuffer=0;
+   static QColor unknownColor;
    // There three different ways in ROOT to define RGB.
    // It took 4 months to figure out.
-   const int BIGGEST_RGB_VALUE=255;
-   static QColor colorBuffer;
-   // const int ColorOffset = 0;
-   TColor *myColor = gROOT->GetColor(ic);
-   if (myColor) {
-      colorBuffer.setRgb(  int(myColor->GetRed()  *BIGGEST_RGB_VALUE +0.5)
-         ,int(myColor->GetGreen()*BIGGEST_RGB_VALUE +0.5)
-         ,int(myColor->GetBlue() *BIGGEST_RGB_VALUE +0.5)
-         );
-   }
-#ifdef QTDEBUG
-   else {
-      fprintf(stderr," TGQt::%s:%d - Wrong color index %d\n", "TGQt::wid",__LINE__, ic);
-   }
-#endif
+   // See #ifndef R_WIN32 with  TColor::SetRGB method 
 
-   return colorBuffer;
+   if (!fPallete.contains(ic)) {
+      // Allocate color 
+      TColor *myColor = gROOT->GetColor(ic);
+      if (myColor) { 
+         ((TGQt *)this)->SetRGB(ic,myColor->GetRed()
+            ,myColor->GetGreen()
+            ,myColor->GetBlue()   
+#if QT_VERSION >= 0x40000
+            ,myColor->GetAlpha()
 #else
-   const QColor &c = fPallete[ic+ColorOffset];
-   return c;
+            ,0
 #endif
+            );
+      } else {
+         Warning("ColorIndex","Unknown color. No RGB component for the index %d was defined\n",ic);
+         return unknownColor;
+      }
+   }
+   colorBuffer = fPallete[ic];
+   return *colorBuffer;
 }
 
 //______________________________________________________________________________
@@ -1695,7 +1705,7 @@ void  TGQt::GetRGB(int index, float &r, float &g, float &b)
    TQtLock lock;
    if (fSelectedWindow != NoOperation) {
       int c[3];
-      const QColor &color = fPallete[index];
+      const QColor &color = *fPallete[index];
       color.rgb(&c[0],&c[1],&c[2]);
 
       r = c[0]/BIGGEST_RGB_VALUE;
@@ -2184,10 +2194,19 @@ void  TGQt::SetLineType(int n, int*dash)
 //*-*    e.g. n=4,DASH=(6,3,1,3) gives a dashed-dotted line with dash length 6
 //*-*    and a gap of 7 between dashes
 //*-*
-
-  if (n == 0 ) n = -1; // solid lines
-  if (n < 0) {
-    Qt::PenStyle styles[] = {
+/*
+   SetLineStyleString(1," ");
+   SetLineStyleString(2,"12 12");
+   SetLineStyleString(3,"4 8");
+   SetLineStyleString(4,"12 16 4 16");
+   SetLineStyleString(5,"20 12 4 12");
+   SetLineStyleString(6,"20 12 4 12 4 12 4 12");
+   SetLineStyleString(7,"20 20");
+   SetLineStyleString(8,"20 12 4 12 4 12");
+   SetLineStyleString(9,"80 20");
+   SetLineStyleString(10,"80 40 4 40");
+*/
+  static  Qt::PenStyle styles[] = {
       Qt::NoPen          // - no line at all.
      ,Qt::SolidLine      // - a simple line.
      ,Qt::DashLine       // - dashes separated by a few pixels.
@@ -2195,8 +2214,11 @@ void  TGQt::SetLineType(int n, int*dash)
      ,Qt::DashDotLine    // - alternate dots and dashes.
      ,Qt::DashDotDotLine // - one dash, two dots, one dash, two dotsQt::NoPen
     };
+
+  if (n == 0 ) n = -1; // solid lines
+  if (n < 0) {
     int l = -n;
-    if (l > int(sizeof(styles)/sizeof(Qt::PenStyle)) ) l = 1; // Solid line "by default"
+    if (l >= int(sizeof(styles)/sizeof(Qt::PenStyle)) ) l = 1; // Solid line "by default"
     fQPen->setStyle(styles[l]);
   } 
   else if (dash) {
@@ -2227,9 +2249,32 @@ void  TGQt::SetLineStyle(Style_t linestyle)
 //*-*      < -6 - solid line
 //*-*
 //*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*
+   // Copy/Paste from TGX11::SetLineStyle (it is called "subclassing")
+   // Set line style.
+
+   static Int_t dashed[2] = {3,3};
+   static Int_t dotted[2] = {1,2};
+   static Int_t dasheddotted[4] = {3,4,1,4};
+
    if (fLineStyle != linestyle) { //set style index only if different
       fLineStyle = linestyle;
-      SetLineType(-linestyle, NULL);
+      if (linestyle > 0 && linestyle <= 5 ) {
+         SetLineType(-linestyle,NULL);
+      } else {
+         TString st = (TString)gStyle->GetLineStyleString(linestyle);
+         TObjArray *tokens = st.Tokenize(" ");
+         Int_t nt;
+         nt = tokens->GetEntries();
+         Int_t *lstyle = new Int_t[nt];
+         for (Int_t j = 0; j<nt; j++) {
+            Int_t it;
+            sscanf(((TObjString*)tokens->At(j))->GetName(), "%d", &it);
+            lstyle[j] = (Int_t)(it/4);
+         }
+         SetLineType(nt,lstyle);
+         delete [] lstyle;
+         delete tokens;
+      }
    }
 }
 
@@ -2506,7 +2551,8 @@ void  TGQt::SetRGB(int cindex, float r, float g, float b)
    else {
       //    if (cindex >= fPallete.size()) fPallete.resize(cindex+1);
       //    fPallete[cindex].setRgb((r*BIGGEST_RGB_VALUE)
-      fPallete[cindex] = QColor(
+      if (fPallete.contains(cindex)) delete fPallete[cindex];
+      fPallete[cindex] =  new QColor(
           int(r*BIGGEST_RGB_VALUE+0.5)
          ,int(g*BIGGEST_RGB_VALUE+0.5)
          ,int(b*BIGGEST_RGB_VALUE+0.5)
@@ -2526,8 +2572,8 @@ void  TGQt::SetAlpha(Int_t cindex, Float_t a)
    // Add  the alpha component (supported with Qt 4 only)
   if (cindex < 0 || a < 0 ) return;
 #if QT_VERSION >= 0x40000
-   QColor &color = fPallete[cindex];
-   color.setAlphaF(a);
+   QColor *color = fPallete[cindex];
+   if (color) color->setAlphaF(a);
 #endif
 }
 //______________________________________________________________________________
@@ -2543,8 +2589,8 @@ Float_t TGQt::GetAlpha(Int_t cindex)
    // Return Alpha component for the color cindex
    if (cindex < 0 ) return 1.0;
 #if QT_VERSION >= 0x40000
-   const QColor &color = fPallete[cindex];
-   return (Float_t)color.alphaF();
+   const QColor *color = fPallete[cindex];
+   return (Float_t)color->alphaF();
 #else
    return 1.0;
 #endif
@@ -2954,7 +3000,7 @@ void TGQt::UpdatePen()
    // Update the current QPen within active QPainter
    if (fQPen  && fQPainter->isActive()) {
       fQPainter->setPen(*fQPen);
-      // fprintf(stderr," uu --- uu TGQt::UpdatePen() %p\n",fQPainter->device());
+      // fprintf(stderr," uu --- uu TGQt::UpdatePen() %p color=%d\n",fQPainter->device(),fLineColor);
    }
 }
 

@@ -1,4 +1,4 @@
-// @(#)root/qt:$Name:  $:$Id: TGQt.h,v 1.6 2007/06/18 18:18:25 fine Exp $
+// @(#)root/qt:$Name:  $:$Id: TGQt.h,v 1.7 2007/10/24 01:39:52 fine Exp $
 // Author: Valeri Fine   21/01/2002
 /****************************************************************************
 **
@@ -144,8 +144,8 @@ protected:
 //  Colors staff
 //
 
-//   QMemArray<QColor> fPallete;
-    QMap<Color_t,QColor> fPallete;
+//   QMemArray<QColor> QMap<Key, T>::const_iterator;
+    QMap<Color_t,QColor*> fPallete;
     TQtClientFilter *fQClientFilter;
     TQtEventQueue   *fQClientFilterBuffer;
     TQtClientGuard       fQClientGuard;  // guard TQtClientWibdget against of dead pointers
