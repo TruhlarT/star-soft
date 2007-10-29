@@ -1,5 +1,5 @@
 //_____________________________________________________________________
-// @(#)StRoot/StBFChain:$Name:  $:$Id: StBFChain.cxx_doc,v 1.37 2007/10/23 05:31:09 genevb Exp $
+// @(#)StRoot/StBFChain:$Name:  $:$Id: StBFChain.cxx_doc,v 1.38 2007/10/29 20:41:59 fisyak Exp $
 //_____________________________________________________________________
 #include "TROOT.h"
 #include "TString.h"
@@ -671,6 +671,7 @@ Bfc_st BFC[] = {
   {"laserIT" ,"","","","", "TpcIT","use Sti for laser reconstruction",kFALSE},
   {"TpcIT" ,"" ,"","TpcDb,StiLibs","" ,"","ITTF: track using TPC geom",kFALSE},
   {"NoSvtIT" ,"" ,"","-SvtIT","" ,"","ITTF: track with switch off SVT geom",kFALSE},
+  {"NoSsdIT" ,"" ,"","-SsdIT","" ,"","ITTF: track with switch off SSD geom",kFALSE},
   {"SvtIT" ,"" ,"","svtDb,StiLibs","" ,"","ITTF: track using SVT geom",kFALSE},
   {"SsdIT" ,"" ,"","ssdDb,StiLibs","" ,"","ITTF: track using SSD geom",kFALSE},
   {"HpdIT" ,"" ,"","StiLibs","" ,"","ITTF: track using Hpd geom",kFALSE},
@@ -1866,6 +1867,7 @@ Bfc_st BFC2[] = {
   {"laserIT" ,"","","","", "TpcIT","use Sti for laser reconstruction",kFALSE},
   {"TpcIT" ,"" ,"","TpcDb,StiLibs","" ,"","ITTF: track using TPC geom",kFALSE},
   {"NoSvtIT" ,"" ,"","-SvtIT","" ,"","ITTF: track with switch off SVT geom",kFALSE},
+  {"NoSsdIT" ,"" ,"","-SsdIT","" ,"","ITTF: track with switch off SSD geom",kFALSE},
   {"SvtIT" ,"" ,"","svtDb,StiLibs","" ,"","ITTF: track using SVT geom",kFALSE},
   {"SsdIT" ,"" ,"","ssdDb,StiLibs","" ,"","ITTF: track using SSD geom",kFALSE},
   {"HpdIT" ,"" ,"","StiLibs","" ,"","ITTF: track using Hpd geom",kFALSE},
@@ -2479,10 +2481,12 @@ Int_t StBFChain::Instantiate()
 	  mk->SetAttr("useSvt"	,kTRUE);
 	  mk->SetAttr("activeSvt"	,kTRUE);
 	}
-      if (GetOption("SsdIT")){
-	mk->SetAttr("useSsd"	,kTRUE);
-	mk->SetAttr("activeSsd"	,kTRUE);
-      }
+      if (GetOption("NoSsdIT")) mk->SetAttr("useSsd"	,kFALSE);
+      else 
+	if (GetOption("SsdIT")){
+	  mk->SetAttr("useSsd"	,kTRUE);
+	  mk->SetAttr("activeSsd"	,kTRUE);
+	}
       if (GetOption("PixelIT")){
 	mk->SetAttr("usePixel"	,kTRUE);
 	mk->SetAttr("activePixel",kTRUE);
