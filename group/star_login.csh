@@ -29,7 +29,6 @@ endif
 
 
 
-
 # ------------------------------
 # Variables subject to changes
 # ------------------------------
@@ -176,7 +175,7 @@ if ($?CERN == 0) then
 	if( -e "${AFS_RHIC}/asis/@sys/cern" ) then
 	    setenv CERN "${AFS_RHIC}/asis/@sys/cern"
 	else
-	    if ($ECHO) echo "WARNING /cern nor ${AFS_RHIC}/asis/@sys/cern exist ..."
+	    if ($?ECHO == 1) echo "WARNING /cern nor ${AFS_RHIC}/asis/@sys/cern exist ..."
 	endif
     endif
 endif
