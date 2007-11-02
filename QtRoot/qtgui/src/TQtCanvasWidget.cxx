@@ -1,6 +1,6 @@
 // Author: Valeri Fine   21/01/2002
 /****************************************************************************
-** $Id: TQtCanvasWidget.cxx,v 1.5 2007/06/19 21:43:32 fine Exp $
+** $Id: TQtCanvasWidget.cxx,v 1.6 2007/11/02 17:48:09 fine Exp $
 **
 ** Copyright (C) 2002 by Valeri Fine. Brookhaven National Laboratory.
 **                                    All rights reserved.
@@ -63,6 +63,13 @@ bool TQtCanvasWidget::ExitSizeEvent (int update)
 //_____________________________________________________________________________
 bool TQtCanvasWidget::winEvent ( MSG *msg )
 {
+   // QT 3.x compliand version of the method
+   long result;
+   return winEvent ( msg , &result);
+}
+//_____________________________________________________________________________
+bool    TQtCanvasWidget::winEvent ( MSG *msg , long * result )
+{
    // In your reimplementation of this function, if you want to stop the event 
    // being handled by Qt, return TRUE. If you return FALSE, this native event
    // is passed back to Qt, which translates the event into a Qt event and sends
@@ -75,7 +82,7 @@ bool TQtCanvasWidget::winEvent ( MSG *msg )
 
   default: break;
   };
+  *result = 0;
   return res;
 }
-
 #endif

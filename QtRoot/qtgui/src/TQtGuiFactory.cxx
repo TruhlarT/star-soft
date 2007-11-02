@@ -1,6 +1,6 @@
 // Author: Valeri Fine   21/01/2002
 /****************************************************************************
-** $Id: TQtGuiFactory.cxx,v 1.2 2006/09/22 17:27:11 fine Exp $
+** $Id: TQtGuiFactory.cxx,v 1.3 2007/11/02 17:48:09 fine Exp $
 **
 ** Copyright (C) 2002 by Valeri Fine. Brookhaven National Laboratory.
 **                                    All rights reserved.
@@ -111,6 +111,20 @@ TCanvasImp *TQtGUIFactory::CreateCanvasImp(TCanvas *c, const char *title, Int_t 
 //______________________________________________________________________________
 TBrowserImp *TQtGUIFactory::CreateBrowserImp(TBrowser *b, const char *title, UInt_t width, UInt_t height)
 {
+   // make sure TBrowser  virtual function table is Ok (ROOT > 5.17/05 compliant version)
+   return CreateBrowserImp(b, title, width, height, (Option_t *)0);
+}
+
+//______________________________________________________________________________
+TBrowserImp *TQtGUIFactory::CreateBrowserImp(TBrowser *b, const char *title, Int_t x, Int_t y, UInt_t width, UInt_t height)
+{
+  // make sure TBrowser  virtual function table is Ok (ROOT > 5.17/05 compliant version)
+  return CreateBrowserImp(b, title, x, y, width, height, (Option_t *)0);
+}
+
+//______________________________________________________________________________
+TBrowserImp *TQtGUIFactory::CreateBrowserImp(TBrowser *b, const char *title, UInt_t width, UInt_t height, Option_t *)
+{
    // make sure TBrowser  virtual function table is Ok
    TQtRootBrowserImp *browserImp = new TQtRootBrowserImp(b,title,width, height,false);
    browserImp->InitWindow();
@@ -118,7 +132,7 @@ TBrowserImp *TQtGUIFactory::CreateBrowserImp(TBrowser *b, const char *title, UIn
 }
 
 //______________________________________________________________________________
-TBrowserImp *TQtGUIFactory::CreateBrowserImp(TBrowser *b, const char *title, Int_t x, Int_t y, UInt_t width, UInt_t height)
+TBrowserImp *TQtGUIFactory::CreateBrowserImp(TBrowser *b, const char *title, Int_t x, Int_t y, UInt_t width, UInt_t height, Option_t *)
 {
   TQtRootBrowserImp *browserImp = new TQtRootBrowserImp(b,title,x,y,width, height,false);
   browserImp->InitWindow();

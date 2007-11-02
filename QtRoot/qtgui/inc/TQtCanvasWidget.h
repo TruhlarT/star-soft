@@ -1,6 +1,6 @@
 // Author: Valeri Fine   21/01/2002
 /****************************************************************************
-** $Id: TQtCanvasWidget.h,v 1.4 2007/05/29 18:51:22 fine Exp $
+** $Id: TQtCanvasWidget.h,v 1.5 2007/11/02 17:48:08 fine Exp $
 **
 ** Copyright (C) 2002 by Valeri Fine.  All rights reserved.
 **
@@ -33,6 +33,7 @@ protected slots:
 protected:
   //  Some WIN32 optimization. It will work with out these methods too.
   virtual bool winEvent(MSG *msg);
+  virtual bool winEvent(MSG *msg, long * result);
 #endif
 
 };

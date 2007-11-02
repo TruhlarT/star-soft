@@ -1,6 +1,6 @@
 // Author: Valeri Fine   21/01/2002
 /****************************************************************************
-** $Id: TQtRootGuiFactory.cxx,v 1.1 2006/08/16 19:27:08 fine Exp $
+** $Id: TQtRootGuiFactory.cxx,v 1.2 2007/11/02 17:48:11 fine Exp $
 **
 ** Copyright (C) 2002 by Valeri Fine. Brookhaven National Laboratory.
 **                                    All rights reserved.
@@ -30,7 +30,9 @@
 
 #include "TSystem.h"
 #ifdef R__QTWIN32
-# include "TWin32Application.h" 
+#  if ROOT_VERSION_CODE < ROOT_VERSION(5,13,0)
+#    include "TWin32Application.h" 
+#  endif
 #else
 # include "TROOT.h"
 # include "TQtRootApplication.h"
@@ -52,9 +54,9 @@ TQtRootGuiFactory::TQtRootGuiFactory()
    : TGuiFactory("QtRootProxy","Qt-based ROOT GUI Factory"),fGuiProxy(0)
 {
    // TQtRootGuiFactory ctor.
-   // Restore the right TVirtulaX pointer      
+   // Restore the right TVirtualX pointer      
    if (TGQt::GetVirtualX())  gVirtualX = TGQt::GetVirtualX();
-   gSystem->Load("libGui");
+   // gSystem->Load("libGui");
    fGuiProxy = new TRootGuiFactory(); 
 }
 
@@ -63,21 +65,22 @@ TQtRootGuiFactory::TQtRootGuiFactory(const char *name, const char *title)
    : TGuiFactory(name, title),fGuiProxy(0)
 {
    // TQtRootGuiFactory ctor.
-   // Restore the right TVirtulaX pointer      
+   // Restore the right TVirtualX pointer      
    if (TGQt::GetVirtualX())  gVirtualX = TGQt::GetVirtualX();
-   gSystem->Load("libGui");
+   // gSystem->Load("libGui");
    fGuiProxy = new TRootGuiFactory(name,title); 
 }
 //______________________________________________________________________________
 TApplicationImp *TQtRootGuiFactory::CreateApplicationImp(const char *classname, int *argc, char **argv)
 {
  TGQt::CreateQtApplicationImp();
+ TApplicationImp *app = 0;
 #ifdef R__QTWIN32
-  TApplicationImp *app = 
-       new TWin32Application(classname, argc, argv);
+#  if ROOT_VERSION_CODE < ROOT_VERSION(5,13,0)
+    app = new TWin32Application(classname, argc, argv);
+#  endif 
 #else
-  TApplicationImp *app = 
-       new TQtRootApplication (classname, argc, argv);
+  app = new TQtRootApplication (classname, argc, argv);
 #endif
   CreateQClient();
   return app;        

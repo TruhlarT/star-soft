@@ -1,4 +1,4 @@
-# $Id: Module.mk,v 1.3 2007/02/04 16:50:19 fine Exp $
+# $Id: Module.mk,v 1.4 2007/11/02 17:48:07 fine Exp $
 # Module.mk for qtgui module
 # Copyright (c) 2001 Valeri Fine
 #
@@ -11,6 +11,8 @@ MODDIRI          := $(MODDIR)/inc
 ROOTQTGUIDIR     := $(MODDIR)
 ROOTQTGUIDIRS    := $(ROOTQTGUIDIR)/src
 ROOTQTGUIDIRI    := $(ROOTQTGUIDIR)/inc
+
+QT4           :=  $(findstring QtCore, $(QTINCDIR))
 
 ##### libQtGui #####
 QTGUIL          := $(MODDIRI)/LinkDef.h
@@ -38,8 +40,10 @@ QTGUIMOCH     := $(ROOTQTGUIDIRI)/TQtBrowserImp.h          $(ROOTQTGUIDIRI)/TQtC
                  $(ROOTQTGUIDIRI)/TQtPatternSelectButton.h $(ROOTQTGUIDIRI)/TQtRootBrowserAction.h \
                  $(ROOTQTGUIDIRI)/TQtZoomPadWidget.h       $(ROOTQTGUIDIRI)/TQtToolBar.h           \
                  $(ROOTQTGUIDIRI)/TQtMarkerSelect.h        $(ROOTQTGUIDIRI)/TQtPixmapBox.h         \
-                 $(ROOTQTGUIDIRI)/TQGsiRootCanvas.h        $(ROOTQTGUIDIRI)/TQtMarkerSelectButton.h\
+                 $(ROOTQTGUIDIRI)/TQtMarkerSelectButton.h\
                  $(ROOTQTGUIDIRI)/TQtFloatSlider.h   
+                 
+#                 $(ROOTQTGUIDIRI)/TQGsiRootCanvas.h   
 
 
 QTGUIMOC        := $(subst $(MODDIRI)/,$(MODDIRS)/moc_,$(patsubst %.h,%.cxx,$(QTGUIMOCH)))
@@ -99,11 +103,11 @@ $(QTGUIDO): $(QTGUIDS)
 
 all-qtgui:      $(QTGUILIB)
 
-#map-qtgui:      $(RLIBMAP)
-#		$(RLIBMAP) -r $(ROOTMAP) -l $(GQTGUILIB) \
-#                  -d $(GQTGUILIBDEP) -c $(GQTGUIL)
+map-qtgui:      $(RLIBMAP)
+		$(RLIBMAP) -r $(ROOTMAP) -l $(QTGUILIB) \
+                  -d $(QTGUILIBDEP) -c $(QTGUIL)
 
-# map::           map-qtgui
+map::           map-qtgui
 
 clean-qtgui:
 		rm -f $(QTGUIO) $(QTGUIDO) $(QTGUIMOC) $(QTGUIMOCO)
@@ -125,5 +129,9 @@ distclean::     distclean-qtgui
 $(sort $(QTGUIMOCO) $(QTGUIO)):  CXXFLAGS += $(GQTCXXFLAGS)
 #(GQTGUIDO): CXXFLAGS += kkk $(GQTCXXFLAGS)
 
-$(QTGUIMOC) : $(MODDIRS)/moc_%.cxx: $(MODDIRI)/%.h
-	$(QTMOCEXE) $< -o $@
+$(QTGUIMOC) : $(ROOTQTGUIDIRS)/moc_%.cxx: $(ROOTQTGUIDIRI)/%.h
+ifeq (,$(QT4))
+	$(QTMOCEXE)  $< -o $@
+else
+	$(QTMOCEXE)  $(QTGUICXXFLAGS) $< -o $@
+endif
