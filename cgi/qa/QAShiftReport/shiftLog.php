@@ -47,7 +47,7 @@ if (file_exists($slFile)) {
   ob_start();
   head("QA Shift Report Shift Log");
   body();
-  $summaryUrl = "http://online.star.bnl.gov/apps/shiftLog2006/private/addWebSummry.jsp";
+  $summaryUrl = "http://online.star.bnl.gov/apps/shiftLog/private/addWebSummry.jsp";
   fstart("sform",$summaryUrl,"QAnfr","POST",0);
   logit("SHIFTLOG DATA START");
   foreach ($slArray as $name => $val) {

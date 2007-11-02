@@ -54,8 +54,8 @@ body();
     This is simply because it is easiest to fill out the form while
     looking at the data.
 <li>The plan is: one report per shift, many data entries per report.
-<li>You should never (need to) select the <u>Back</u> button of your
-    web browser during the report process.
+<li>You should never select the <u>Back</u> button of your
+    web browser during the report process (and you should never need to do so).
 <li>Do not be afraid to try things out. Until you submit the full report,
     everything can be modified.
 <li>If you are experiencing problems, try clearing your browser's cache
@@ -75,6 +75,8 @@ body();
     or computer crashes. Your chosen session name should appear
     next to <u>Session</u> in the <b>Menu</b>.
     You can also make a copy of another session.
+<dd>If you do not see a session name in the <b>Menu</b>, or the name Unknown
+    appears, please try selecting a session again. Problems will arise otherwise.
 <dt><b>Fill out the Shift Info form</b>.
 <dd>Select the <u>Save/Continue</u> button at the bottom of the form
     when finished. If you are unsure about an item, it can be edited later.
@@ -96,6 +98,8 @@ body();
     description of each issue, and a detailed description is available
     via the Browser/Editor. To be listed in the data entry form of
     a given data type, an issue must be <i>allowed</i> for that type.
+<dd>You may need to <u>Refresh Issues</u> when working on an entry for
+    any newly created issues to appear.
 <dt><b>Maintain the contents</b>
 <dd>After entering each portion of the report, a current contents
     listing is shown. Each portion may be <b>viewed</b>

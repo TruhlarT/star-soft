@@ -126,21 +126,25 @@ function saveText($str,$file,$encodeit=0) {
   if ($encodeit != 0) { saveText(encodeText($str,10),$file,0); return; }
   rmfile($file);
   ckdir(dirname($file));
-  ($fp = fopen($file,'w')) or died("Couldn't open output file");
+  @($fp = fopen($file,'w')) or died("Couldn't open output file");
   flock($fp,LOCK_EX);
-  fwrite($fp,$str);
+  @(fwrite($fp,$str)) or died("Couldn't write to output file");
   flock($fp,LOCK_UN);
-  fclose($fp);
+  @(fclose($fp)) or died("Couldn't close output file");
 }
 function readText($file) {
   cleanFileName($file);
   $str = "";
   if (!is_file($file)) { return $str; }
-  ($fp = fopen($file,'r')) or died("Couldn't open input file");
+  @($fp = fopen($file,'r')) or died("Couldn't open input file");
   flock($fp,LOCK_SH);
-  while (!feof($fp)) { $str .= fread($fp,4096); }
+  while (!feof($fp)) {
+#logit("INPUTFILE: $file \n");
+    @($strtemp = fread($fp,8192)) or died("Couldn't read from input file");
+    $str .= $strtemp;
+  }
   flock($fp,LOCK_UN);
-  fclose($fp);
+  @(fclose($fp)) or died("Couldn't close input file");
   return decodeText($str,10);
 }
 
