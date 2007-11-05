@@ -181,10 +181,10 @@ if ($base) {
 	warn "Retrieving existing file.\n";
     }
    
-    $url = "http://www.star.bnl.gov/STAR/html/tmp/$thefile2";
+    $url = "/webdata/$thefile2";
 } else {
     # no base name supplied
-    $url = "http://www.star.bnl.gov/STAR/comp/root/special_docs.html";
+    $url = "/public/comp/root/special_docs.html";
 }
 print "Location: $url\n\n";
 
