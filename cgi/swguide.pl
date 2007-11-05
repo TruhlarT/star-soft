@@ -1,6 +1,6 @@
 #!/usr/bin/env perl
 #
-# $Id: swguide.pl,v 1.11 2007/11/05 19:53:44 jeromel Exp $
+# $Id: swguide.pl,v 1.12 2007/11/05 20:08:06 jeromel Exp $
 #
 ######################################################################
 #
@@ -201,7 +201,7 @@ $oldVer = (fileparse(readlink("/afs/rhic.bnl.gov/star/packages/old")))[0];
 $verChecked{$ver} = "checked";
 $detailChecked{$showFlag} = "checked";
 print <<END;
-<form method="GET" action="/cgi-bin/prod/swguide.pl">
+<form method="GET" action="/devcgi/swguide.pl">
 <b>Version:</b>
     <input type="radio" $verChecked{".dev"} name="ver" value=".dev"> .dev
     ($ddevVer)
@@ -420,7 +420,7 @@ sub showPackage {
       }
     }
     ### CVS link
-    $cvs = "<a href=\"/cgi-bin/cvsweb.cgi/$theDir/$thePkg\">CVS</a>";
+    $cvs = "<a href=\"/cgi-bin/protected/cvsweb.cgi/$theDir/$thePkg\">CVS</a>";
 
 
     ### Try to find the owner
@@ -493,7 +493,7 @@ sub showPackage {
     } else {
         $pkgName = $thePkg;
     }
-    $pkgUrl = "<a href=\"/cgi-bin/prod/swguide.pl?ver=$ver&pkg=$pkgName&detail=2\">";
+    $pkgUrl = "<a href=\"/devcgi/swguide.pl?ver=$ver&pkg=$pkgName&detail=2\">";
 
 
     if ( $showFlag > 0 ) { # print all pkg info
@@ -502,7 +502,7 @@ sub showPackage {
         if ( $thePkg =~ m/St_([a-z0-9]+)_/ ) {
             if ( exists($pams{$1}) ) {
                 $thePam = $pams{$1};
-                $thePamUrl = "<a href=\"/cgi-bin/prod/swguide.pl?ver=$ver&pkg=$thePam&detail=2\">$thePam</a>";
+                $thePamUrl = "<a href=\"/devcgi/swguide.pl?ver=$ver&pkg=$thePam&detail=2\">$thePam</a>";
             }
         }
         ## time since last mod
@@ -755,9 +755,9 @@ sub showFiles {
                 $output .= sprintf("%s%s%s %-8s %s%-7s%s %10.10s %s %s%9.9s%s %10.10s %5.5s\n",
                                    $ballUrl,$fnameFull,substr($blank,0,$fillLen),
 				   $CRef,
-                                   "<a href=\"/cgi-bin/cvsweb.cgi/$theDir/$thePkg/$fname?rev=$cver&content-type=text/x-cvsweb-markup\">",$cver,"</a>",
+                                   "<a href=\"/cgi-bin/protected/cvsweb.cgi/$theDir/$thePkg/$fname?rev=$cver&content-type=text/x-cvsweb-markup\">",$cver,"</a>",
                                    $date,
-                                   "<a href=\"/cgi-bin/cvsweb.cgi/$theDir/$thePkg/$fname\">CVS</a>",
+                                   "<a href=\"/cgi-bin/protected/cvsweb.cgi/$theDir/$thePkg/$fname\">CVS</a>",
 
                                    "<a href=\"$CVSURL/$owner/index.html#bottom\">",$owner,"</a>",
                                    $theLines,
@@ -827,6 +827,9 @@ sub DoxyCode
 
 
 # $Log: swguide.pl,v $
+# Revision 1.12  2007/11/05 20:08:06  jeromel
+# cgi-bin/prod -> devcgi
+#
 # Revision 1.11  2007/11/05 19:53:44  jeromel
 # Path adjustements
 #
