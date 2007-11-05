@@ -1,6 +1,6 @@
 #!/usr/bin/env perl
 #
-# $Id: swguide.pl,v 1.10 2007/11/05 19:42:00 jeromel Exp $
+# $Id: swguide.pl,v 1.11 2007/11/05 19:53:44 jeromel Exp $
 #
 ######################################################################
 #
@@ -28,8 +28,8 @@ require SWGdbsetup;
 $fpath   = "/afs/rhic.bnl.gov/star/doc/www/html/tmp";
 $CVSroot = "/afs/rhic.bnl.gov/star/packages/repository/CVSROOT";
 $DOXPATH = $fpath."/dox/html";
-$DOXURL  = "/webdatanfs/dox/html";
-$CVSURL  = "/webdatanfs/cvs/user";
+$DOXURL  = "/webdata/dox/html";
+$CVSURL  = "/webdata/cvs/user";
 $curTime = time();
 
 &cgiSetup();
@@ -394,7 +394,7 @@ sub showPackage {
     } else {
       ### README file
       if ( -e "$theRoot/$theDir/$thePkg/README" ) {
-        $readme = "<a href=\"/STAR/comp/pkg/$ver/$theDir/$thePkg/README\">README</a>";
+        $readme = "<a href=\"/public/comp/pkg/$ver/$theDir/$thePkg/README\">README</a>";
       } else {
         $readme = "      ";
       }
@@ -412,7 +412,7 @@ sub showPackage {
         while (defined ($docf = readdir DOC)) {
           if ( $docf ne "." && $docf ne ".." && $docf ne "CVS" ) {
             # something seems to be there
-            $doc = "<a href=\"/STAR/comp/pkg/$ver/$theDir/$thePkg/$docLoc\">doc</a>";
+            $doc = "<a href=\"/public/comp/pkg/$ver/$theDir/$thePkg/$docLoc\">doc</a>";
             last;
           }
         }
@@ -738,7 +738,7 @@ sub showFiles {
                 $fillLen = 35 - $fnameLen;
                 if ( $ftype eq 'C++' ) {
                     if ( -e "/afs/rhic.bnl.gov/star/packages/$rel/StRoot/html/$ff.html" ) {
-                        $fnameFull = "<a href=\"/STAR/comp/src/$rel/StRoot/html/$ff.html\">$ff</a>$ee";
+                        $fnameFull = "<a href=\"/public/comp/src/$rel/StRoot/html/$ff.html\">$ff</a>$ee";
                     }
                 }
 
@@ -827,6 +827,9 @@ sub DoxyCode
 
 
 # $Log: swguide.pl,v $
+# Revision 1.11  2007/11/05 19:53:44  jeromel
+# Path adjustements
+#
 # Revision 1.10  2007/11/05 19:42:00  jeromel
 # /STAR/images -> /images
 #
