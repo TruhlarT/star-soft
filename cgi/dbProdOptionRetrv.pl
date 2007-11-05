@@ -8,7 +8,7 @@
 
 use CGI;
 
-require "/afs/rhic/star/packages/cgi/dbCpProdSetup.pl";
+require "/afs/rhic.bnl.gov/star/packages/cgi/dbCpProdSetup.pl";
 
 my $debugOn = 0;
 my %pair;
@@ -110,7 +110,7 @@ END
 
 ###############
 sub endHtml {
-my $Date = `date`;
+my $Date = '/bin/date';
 
 print <<END;
 </TABLE>

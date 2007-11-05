@@ -119,7 +119,7 @@ END
 
 ###############
 sub endHtml {
-my $Date = `date`;
+my $Date = '/bin/date';
 
 print <<END;
 </TABLE>

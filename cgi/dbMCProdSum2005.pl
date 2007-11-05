@@ -19,7 +19,7 @@ BEGIN {
 use CGI;
 use Class::Struct;
 
-require "/afs/rhic/star/users/didenko/cgi/dbProdSetup.2005.pl";
+require "/afs/rhic.bnl.gov/star/users/didenko/cgi/dbProdSetup.2005.pl";
 
 my $debugOn=0;
 
@@ -380,7 +380,7 @@ END
 
 #####################
 sub endHtml {
-my $Date = `date`;
+my $Date = '/bin/date';
 
 print <<END;
 </TABLE>

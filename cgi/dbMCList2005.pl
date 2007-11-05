@@ -9,7 +9,7 @@
 
 use CGI;
 
-require "/afs/rhic/star/users/didenko/cgi/dbProdSetup.2005.pl";
+require "/afs/rhic.bnl.gov/star/users/didenko/cgi/dbProdSetup.2005.pl";
 
 use Class::Struct;
 use CGI::Carp qw(fatalsToBrowser);
