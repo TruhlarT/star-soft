@@ -25,7 +25,7 @@ $MAIN  = "/star/data";                                   # default base path
 # Static configuration
 $OUTD  = "/afs/rhic.bnl.gov/star/doc/www/html/tmp/pub/Spider"; # this will be used for Catalog hand-shake
 $ICON1 = "/icons/transfer.gif";                                # Icon to display for indexer result
-$ICON2 = "/STAR/images/Spider1.jpg";                           # Icon to display for spider result
+$ICON2 = "/images/Spider1.jpg";                                # Icon to display for spider result
 $DINFO = "(check 'nova' Spiders)";                             # Many tools may be used for indexing
                                                                # display info about which one.
 
