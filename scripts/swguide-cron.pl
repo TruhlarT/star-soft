@@ -1,8 +1,11 @@
 #!/usr/bin/env perl
 #
-# $Id: swguide-cron.pl,v 1.7 2006/08/15 18:05:43 jeromel Exp $
+# $Id: swguide-cron.pl,v 1.8 2007/11/05 20:04:32 jeromel Exp $
 #
 # $Log: swguide-cron.pl,v $
+# Revision 1.8  2007/11/05 20:04:32  jeromel
+# Path change / cleanup
+#
 # Revision 1.7  2006/08/15 18:05:43  jeromel
 # Bundle rhic -> rhic.bnl.gov
 #
@@ -48,7 +51,7 @@
 # Usage: swguide-cron.pl [dev .dev new pro old]
 #
 
-$fpath = "/star/starlib/doc/www/html/tmp";
+$fpath = "/afs/rhic.bnl.gov/star/doc/www/html/tmp";
 if( defined($ENV{STAR_CGI}) ){
     $prgm = $ENV{STAR_CGI}."/swguide.pl";
 } else {
