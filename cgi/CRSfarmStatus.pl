@@ -1,10 +1,10 @@
 #!/usr/local/bin/perl
 #!/usr/bin/env perl 
 #
-# $Id: CRSfarmStatus.pl,v 1.17 2007/11/06 21:26:24 didenko Exp $
+# $Id: CRSfarmStatus.pl,v 1.18 2007/11/06 21:28:12 didenko Exp $
 #
 # $Log: CRSfarmStatus.pl,v $
-# Revision 1.17  2007/11/06 21:26:24  didenko
+# Revision 1.18  2007/11/06 21:28:12  didenko
 # more fixes
 #
 # Revision 1.13  2007/01/09 17:40:34  didenko
@@ -270,7 +270,7 @@ $day_diff = int($day_diff);
 #   $graph = new GIFgraph::linespoints(750,650);
 #   $graph = new GD::Graph::linespoints(750,650);
 
-  my $graph = GD::Graph::chart->new(750,650);
+  my $graph = GD::Graph::linespoints->new(750,650);
 
  if ( ! $graph){
     print STDOUT $qqr->header(-type => 'text/plain');
