@@ -1,11 +1,11 @@
 #!/usr/local/bin/perl
 #!/usr/bin/env perl 
 #
-# $Id: CRSfarmStatus.pl,v 1.14 2007/11/06 20:54:51 didenko Exp $
+# $Id: CRSfarmStatus.pl,v 1.15 2007/11/06 20:58:44 didenko Exp $
 #
 # $Log: CRSfarmStatus.pl,v $
-# Revision 1.14  2007/11/06 20:54:51  didenko
-# change GIFgraph to GD::Graphs
+# Revision 1.15  2007/11/06 20:58:44  didenko
+# fix typo
 #
 # Revision 1.13  2007/01/09 17:40:34  didenko
 # change default year
@@ -54,7 +54,8 @@ BEGIN {
 
 use DBI;
 use CGI;
-use GD::Graphs::linespoints;
+use GD;
+use GD::Graph::linespoints;
 use GD;
 use Mysql;
 
