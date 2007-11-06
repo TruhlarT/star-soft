@@ -1,9 +1,12 @@
 #!/usr/local/bin/perl
 #!/usr/bin/env perl 
 #
-# $Id: dbDevTestQueryPlot.pl,v 1.39 2006/07/25 19:36:15 didenko Exp $
+# $Id: dbDevTestQueryPlot.pl,v 1.40 2007/11/06 21:53:39 didenko Exp $
 #
 # $Log: dbDevTestQueryPlot.pl,v $
+# Revision 1.40  2007/11/06 21:53:39  didenko
+# replace GIFgraph with GD::Graph
+#
 # Revision 1.39  2006/07/25 19:36:15  didenko
 # more updates
 #
@@ -60,9 +63,8 @@ BEGIN {
 require "/afs/rhic.bnl.gov/star/packages/scripts/dbTJobsSetup.pl";
 
 use CGI;
-use GIFgraph::linespoints;
 use GD;
-
+use GD::Graph::linespoints;
 
 my $query = new CGI;
 
@@ -300,7 +302,7 @@ if ($plotVal eq "MemUsage") {
 }
 
 
-$graph = new GIFgraph::linespoints(550+50*$weeks,500);
+$graph = new GD::Graph::linespoints(550+50*$weeks,500);
 
 if ( ! $graph){
     print STDOUT $query->header(-type => 'text/plain');
