@@ -1,10 +1,10 @@
 #!/usr/local/bin/perl
 #!/usr/bin/env perl 
 #
-# $Id: CRSfarmStatus.pl,v 1.19 2007/11/06 21:43:25 didenko Exp $
+# $Id: CRSfarmStatus.pl,v 1.20 2007/11/06 21:47:41 didenko Exp $
 #
 # $Log: CRSfarmStatus.pl,v $
-# Revision 1.19  2007/11/06 21:43:25  didenko
+# Revision 1.20  2007/11/06 21:47:41  didenko
 # more trying
 #
 # Revision 1.13  2007/01/09 17:40:34  didenko
@@ -373,8 +373,8 @@ $xLabelSkip = 288 if( $fperiod eq "12_months" );
     $graph->set_y_label_font(gdMediumBoldFont);
     $graph->set_x_axis_font(gdMediumBoldFont);
     $graph->set_y_axis_font(gdMediumBoldFont);
-#    print STDOUT $graph->plot(\@data);
-     print STDOUT $graph->plot(\@data)->gif; 
+    print STDOUT $graph->plot(\@data);
+
    
 }
 }
