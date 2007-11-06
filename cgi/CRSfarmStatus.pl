@@ -1,11 +1,11 @@
 #!/usr/local/bin/perl
 #!/usr/bin/env perl 
 #
-# $Id: CRSfarmStatus.pl,v 1.15 2007/11/06 20:58:44 didenko Exp $
+# $Id: CRSfarmStatus.pl,v 1.16 2007/11/06 21:02:22 didenko Exp $
 #
 # $Log: CRSfarmStatus.pl,v $
-# Revision 1.15  2007/11/06 20:58:44  didenko
-# fix typo
+# Revision 1.16  2007/11/06 21:02:22  didenko
+# more fixes
 #
 # Revision 1.13  2007/01/09 17:40:34  didenko
 # change default year
@@ -267,7 +267,8 @@ $day_diff = int($day_diff);
 
     &StcrsdbDisconnect();
 
-   $graph = new GIFgraph::linespoints(750,650);
+#   $graph = new GIFgraph::linespoints(750,650);
+    $graph = new GD::Graph::linespoints(750,650);
 
  if ( ! $graph){
     print STDOUT $qqr->header(-type => 'text/plain');
