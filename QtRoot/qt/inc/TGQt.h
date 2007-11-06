@@ -1,4 +1,4 @@
-// @(#)root/qt:$Name:  $:$Id: TGQt.h,v 1.7 2007/10/24 01:39:52 fine Exp $
+// @(#)root/qt:$Name:  $:$Id: TGQt.h,v 1.8 2007/11/06 19:26:19 fine Exp $
 // Author: Valeri Fine   21/01/2002
 /****************************************************************************
 **
@@ -95,7 +95,7 @@ class TGQt  : public TVirtualX  {
    friend class TQtImage;
    friend class TQtClientGuard;
    friend class TQtClientFilter;
-   
+
 protected:
    enum DEFWINDOWID { kDefault=1 };
    QPaintDevice *fSelectedWindow;      // Pointer to the current "paintdevice: PixMap, Widget etc"
@@ -176,7 +176,7 @@ protected:
    void UpdatePen();
    void UpdateBrush();
    void UpdateClipRectangle();
-   
+
    QPaintDevice *GetDoubleBuffer(QPaintDevice *dev);
 
 #endif
