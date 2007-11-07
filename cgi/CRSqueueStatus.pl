@@ -1,9 +1,12 @@
 #!/usr/local/bin/perl
 #!/usr/bin/env perl 
 #
-# $Id: CRSqueueStatus.pl,v 1.7 2007/01/09 17:40:34 didenko Exp $
+# $Id: CRSqueueStatus.pl,v 1.8 2007/11/07 19:13:42 didenko Exp $
 #
 # $Log: CRSqueueStatus.pl,v $
+# Revision 1.8  2007/11/07 19:13:42  didenko
+# replace GIFGraph with GC::Graph
+#
 # Revision 1.7  2007/01/09 17:40:34  didenko
 # change default year
 #
@@ -38,9 +41,9 @@ BEGIN {
 }
 
 use DBI;
-use CGI;
-use GIFgraph::linespoints;
 use GD;
+use CGI qw(:standard);
+use GD::Graph::linespoints;
 use Mysql;
 
 
@@ -291,15 +294,17 @@ my @prt = ();
     $legend[3] = "Jobs in queue 3";
     $legend[4] = "Jobs in queue 4"; 
 
+ my  $graph = new GD::Graph::linespoints(750,650);
 
-  $graph = new GIFgraph::linespoints(750,650);
 
 if ( ! $graph){
     print STDOUT $query->header(-type => 'text/plain');
     print STDOUT "Failed\n";
 } else {
-    print STDOUT $query->header(-type => 'image/gif');
-    binmode STDOUT;
+
+  my $format = $graph->export_format;
+  print header("image/$format");
+  binmode STDOUT;
 
 
  my $xLabelsVertical = 1;
@@ -346,7 +351,9 @@ $xLabelSkip = 288 if( $fperiod eq "12_months" );
     $graph->set_y_label_font(gdMediumBoldFont);
     $graph->set_x_axis_font(gdMediumBoldFont);
     $graph->set_y_axis_font(gdMediumBoldFont);
-    print STDOUT $graph->plot(\@data);
+ 
+    print STDOUT $graph->plot(\@data)->$format();
+
 }
 
 }
