@@ -448,6 +448,8 @@ my $ndt = 0;
     print STDOUT $qqr->header(-type => 'text/plain');
     print STDOUT "Failed\n";
 
+ } else {
+
   my $format = $graph->export_format;
   print header("image/$format");
   binmode STDOUT;
