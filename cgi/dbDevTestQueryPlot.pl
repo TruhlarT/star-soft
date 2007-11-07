@@ -1,10 +1,10 @@
 #!/usr/local/bin/perl
 #!/usr/bin/env perl 
 #
-# $Id: dbDevTestQueryPlot.pl,v 1.44 2007/11/07 16:31:37 didenko Exp $
+# $Id: dbDevTestQueryPlot.pl,v 1.45 2007/11/07 16:33:36 didenko Exp $
 #
 # $Log: dbDevTestQueryPlot.pl,v $
-# Revision 1.44  2007/11/07 16:31:37  didenko
+# Revision 1.45  2007/11/07 16:33:36  didenko
 # more updates
 #
 # Revision 1.39  2006/07/25 19:36:15  didenko
@@ -312,7 +312,7 @@ $graph = new GD::Graph::linespoints(550+50*$weeks,500);
 #    binmode STDOUT;
 
   my $format = $graph->export_format;
-  print $query->header("image/$format");
+  print header("image/$format");
   binmode STDOUT;
 
 
@@ -359,7 +359,7 @@ $graph = new GD::Graph::linespoints(550+50*$weeks,500);
     $graph->set_x_axis_font(gdMediumBoldFont);
     $graph->set_y_axis_font(gdMediumBoldFont);
 #    print STDOUT $graph->plot(\@data);
-    print $graph->plot(\@data)->$format();     
+    print STDOUT $graph->plot(\@data)->$format();     
 }
 
 
