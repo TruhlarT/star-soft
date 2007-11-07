@@ -1,11 +1,11 @@
 #!/usr/local/bin/perl
 #!/usr/bin/env perl 
 #
-# $Id: CRSfarmStatus.pl,v 1.20 2007/11/06 21:47:41 didenko Exp $
+# $Id: CRSfarmStatus.pl,v 1.21 2007/11/07 17:02:13 didenko Exp $
 #
 # $Log: CRSfarmStatus.pl,v $
-# Revision 1.20  2007/11/06 21:47:41  didenko
-# more trying
+# Revision 1.21  2007/11/07 17:02:13  didenko
+# more updates
 #
 # Revision 1.13  2007/01/09 17:40:34  didenko
 # change default year
@@ -53,10 +53,9 @@ BEGIN {
 }
 
 use DBI;
-use CGI;
+use CGI qw(:standard);
 use GD;
 use GD::Graph::linespoints;
-use GD;
 use Mysql;
 
 $dbhost="duvall.star.bnl.gov";
@@ -267,17 +266,16 @@ $day_diff = int($day_diff);
 
     &StcrsdbDisconnect();
 
-#   $graph = new GIFgraph::linespoints(750,650);
-#   $graph = new GD::Graph::linespoints(750,650);
-
-  my $graph = GD::Graph::linespoints->new(750,650);
+   $graph = new GD::Graph::linespoints(750,650);
 
  if ( ! $graph){
     print STDOUT $qqr->header(-type => 'text/plain');
     print STDOUT "Failed\n";
  } else {
-    print STDOUT $qqr->header(-type => 'image/gif');
-    binmode STDOUT;
+
+  my $format = $graph->export_format;
+  print header("image/$format");
+  binmode STDOUT;
 
     $legend[0] = "Jobs in status 'executing'";
     $legend[1] = "Jobs waiting transferring from HPSS";
@@ -373,9 +371,8 @@ $xLabelSkip = 288 if( $fperiod eq "12_months" );
     $graph->set_y_label_font(gdMediumBoldFont);
     $graph->set_x_axis_font(gdMediumBoldFont);
     $graph->set_y_axis_font(gdMediumBoldFont);
-    print STDOUT $graph->plot(\@data);
 
-   
+    print STDOUT $graph->plot(\@data)->$format();      
 }
 }
 ######################
