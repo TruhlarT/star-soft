@@ -1,11 +1,11 @@
 #!/usr/local/bin/perl
 #!/usr/bin/env perl 
 #
-# $Id: dbDevTestQueryPlot.pl,v 1.46 2007/11/07 16:36:00 didenko Exp $
+# $Id: dbDevTestQueryPlot.pl,v 1.47 2007/11/07 16:43:02 didenko Exp $
 #
 # $Log: dbDevTestQueryPlot.pl,v $
-# Revision 1.46  2007/11/07 16:36:00  didenko
-# more updates
+# Revision 1.47  2007/11/07 16:43:02  didenko
+# last cleanup for working version
 #
 # Revision 1.39  2006/07/25 19:36:15  didenko
 # more updates
@@ -308,8 +308,6 @@ $graph = new GD::Graph::linespoints(550+50*$weeks,500);
     print STDOUT $query->header(-type => 'text/plain');
     print STDOUT "Failed\n";
 } else {
-#    print STDOUT $query->header(-type => 'image/gif');
-#    binmode STDOUT;
 
   my $format = $graph->export_format;
   print header("image/$format");
@@ -358,7 +356,7 @@ $graph = new GD::Graph::linespoints(550+50*$weeks,500);
     $graph->set_y_label_font(gdMediumBoldFont);
     $graph->set_x_axis_font(gdMediumBoldFont);
     $graph->set_y_axis_font(gdMediumBoldFont);
-#    print STDOUT $graph->plot(\@data);
+
     print STDOUT $graph->plot(\@data)->$format();     
 }
 
