@@ -1,5 +1,5 @@
 #!/bin/csh -x
-#       $Id: group_env.csh,v 1.196 2007/11/01 22:06:36 jeromel Exp $
+#       $Id: group_env.csh,v 1.197 2007/11/07 00:13:43 jeromel Exp $
 #	Purpose:	STAR group csh setup
 #
 #	Author:		Y.Fisyak     BNL
@@ -257,9 +257,9 @@ endif
 
 # db related
 if ( $?SITE ) then
-    if ( ! $?DB_SERVER_LOCAL_CONFIG ) then
+    #if ( ! $?DB_SERVER_LOCAL_CONFIG ) then
 	setenv DB_SERVER_LOCAL_CONFIG ${STAR}/StDb/servers/dbLoadBalancerLocalConfig_${SITE}.xml
-    endif
+    #endif
 endif
 
 
