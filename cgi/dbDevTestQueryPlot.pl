@@ -1,10 +1,10 @@
 #!/usr/local/bin/perl
 #!/usr/bin/env perl 
 #
-# $Id: dbDevTestQueryPlot.pl,v 1.41 2007/11/07 16:21:37 didenko Exp $
+# $Id: dbDevTestQueryPlot.pl,v 1.42 2007/11/07 16:23:45 didenko Exp $
 #
 # $Log: dbDevTestQueryPlot.pl,v $
-# Revision 1.41  2007/11/07 16:21:37  didenko
+# Revision 1.42  2007/11/07 16:23:45  didenko
 # more updates
 #
 # Revision 1.39  2006/07/25 19:36:15  didenko
@@ -359,7 +359,7 @@ if ( ! $graph){
     $graph->set_x_axis_font(gdMediumBoldFont);
     $graph->set_y_axis_font(gdMediumBoldFont);
 #    print STDOUT $graph->plot(\@data);
-    print $graph->plot(\@data)->$format();     
+    print STDOUT $graph->plot(\@data)->$format();     
 }
 
 
