@@ -14,9 +14,9 @@ BEGIN {
 }
 
 use DBI;
-use CGI;
-use GIFgraph::linespoints;
+use CGI qw(:standard);
 use GD;
+use GD::Graph::linespoints;
 use Mysql;
 use Class::Struct;
 
@@ -38,6 +38,7 @@ $dbname="GridJobs";
     outtrs      => '$',
     rftime      => '$',
     ovstat      => '$',
+    mxout       => '$', 
     rsub        => '$',
     rglstat     => '$',
     rlgstat     => '$',
@@ -255,6 +256,7 @@ my $myday;
 my $nday = 0;
 my @ardays = ();
 my $tdate;
+my $maxout;
 
   if($pryear eq "2006") {
     $nowdate = "2006-12-31";
@@ -295,7 +297,7 @@ my $ndt = 0;
 
   if( $qsite eq "ALL" ) {
 
-      $sql="SELECT productionDate, site, globusStatus, logStatus, execStatus, transfer_in, transfer_out, ovrStatus, resubmit, rglobusStatus, rlogStatus, rexecStatus, rtransfer_in, rtransfer_out,  ovresubmitStatus FROM $JobStatusT WHERE  productionDate = '$tdate' AND (status = 'complete' OR status = 'failed' OR status = 'killed' ) "; 
+      $sql="SELECT productionDate, site, globusStatus, logStatus, execStatus, transfer_in, transfer_out, ovrStatus, maxoutfile, resubmit, rglobusStatus, rlogStatus, rexecStatus, rtransfer_in, rtransfer_out,  ovresubmitStatus FROM $JobStatusT WHERE  productionDate = '$tdate' AND (status = 'complete' OR status = 'failed' OR status = 'killed' ) "; 
 
     $cursor =$dbh->prepare($sql)
       || die "Cannot prepare statement: $DBI::errstr\n";
@@ -303,7 +305,7 @@ my $ndt = 0;
 
   }else{
 
-     $sql="SELECT productionDate, site, globusStatus, logStatus, execStatus, transfer_in, transfer_out, ovrStatus, resubmit, rglobusStatus, rlogStatus, rexecStatus, rtransfer_in, rtransfer_out,  ovresubmitStatus FROM $JobStatusT WHERE site = ? AND  productionDate = '$tdate' AND (status = 'complete' OR status = 'failed' OR status = 'killed' ) ";
+     $sql="SELECT productionDate, site, globusStatus, logStatus, execStatus, transfer_in, transfer_out, ovrStatus, maxoutfile, resubmit, rglobusStatus, rlogStatus, rexecStatus, rtransfer_in, rtransfer_out,  ovresubmitStatus FROM $JobStatusT WHERE site = ? AND  productionDate = '$tdate' AND (status = 'complete' OR status = 'failed' OR status = 'killed' ) ";
 
 
      $cursor =$dbh->prepare($sql)
@@ -327,6 +329,7 @@ my $ndt = 0;
       ($$fObjAdr)->intrs($fvalue)     if( $fname eq 'transfer_in');  
       ($$fObjAdr)->outtrs($fvalue)    if( $fname eq 'transfer_out'); 
       ($$fObjAdr)->ovstat($fvalue)    if( $fname eq 'ovrStatus');
+      ($$fObjAdr)->mxout($fvalue)     if( $fname eq 'maxoutfile');
       ($$fObjAdr)->rsub($fvalue)      if( $fname eq 'resubmit');
       ($$fObjAdr)->rglstat($fvalue)   if( $fname eq 'rglobusStatus');
       ($$fObjAdr)->rlgstat($fvalue)   if( $fname eq 'rlogStatus');
@@ -366,6 +369,7 @@ my $ndt = 0;
     $outtrans  = ($$jstat)->outtrs; 
     $recoSt    = ($$jstat)->exstat;
     $ovrStat   = ($$jstat)->ovstat;
+    $maxout    = ($$jstat)->mxout;  
     $rsubmt    = ($$jstat)->rsub;
     $rglStatus = ($$jstat)->rglstat;
     $rlogStat  = ($$jstat)->rlgstat;
@@ -418,7 +422,7 @@ my $ndt = 0;
    $globeff[$ndt] = $globEfH{$msite}*100/$njobs[$ndt];
    $logeff[$ndt] = $logEfH{$msite}*100/(2*$njobs[$ndt]);
    $inputef[$ndt] = $inEfH{$msite}*100/$njobs[$ndt];
-   $outputeff[$ndt] = $outEfH{$msite}*100/(5*$njobs[$ndt]);
+   $outputeff[$ndt] = $outEfH{$msite}*100/($maxout*$njobs[$ndt]);
    $recoComeff[$ndt] = $recoEfH{$msite}*100/$njobs[$ndt]; 
    $overeff[$ndt] = $siteEff{$msite}*100/$njobs[$ndt];
    if ($msite eq "PDSF")  {
@@ -438,9 +442,15 @@ my $ndt = 0;
  }
     &GRdbDisconnect();
 
+ my $graph = new GD::Graph::linespoints(750,650);
 
-   $graph = new GIFgraph::linespoints(750,650);
+  if ( ! $graph){
+    print STDOUT $qqr->header(-type => 'text/plain');
+    print STDOUT "Failed\n";
 
+  my $format = $graph->export_format;
+  print header("image/$format");
+  binmode STDOUT;
 
     if( $qsite eq "ALL" ) {
 
@@ -468,10 +478,7 @@ my $ndt = 0;
       @data = (\@ndate, \@globeff, \@logeff, \@inputef, \@outputeff, \@recoComeff, \@overeff) ;
   }
 
-   $gname = "Effplot.prod.".$ptag.".gif"; 
-
-   print $qqr->header();
-   print $qqr->start_html(-title=>"Grid efficiency"), "\n"; 
+#   print $qqr->start_html(-title=>"Grid efficiency"), "\n"; 
 
  my $ylabel;
  my $gtitle; 
@@ -524,19 +531,12 @@ $xLabelSkip = 12 if( $qperiod eq "12_months" );
     $graph->set_x_axis_font(gdMediumBoldFont);
     $graph->set_y_axis_font(gdMediumBoldFont);
 
-    if( -e "/afs/rhic.bnl.gov/star/doc/www/html/tmp/pub/effplots/$gname")  {
-        unlink("/afs/rhic.bnl.gov/star/doc/www/html/tmp/pub/effplots/$gname");
+   print STDOUT $graph->plot(\@data)->$format();
 
     }
+  }
 
-  $graph->plot_to_gif("/afs/rhic.bnl.gov/star/doc/www/html/tmp/pub/effplots/$gname", \@data);
-
-  print "<BR><CENTER><IMG WIDTH=750 HEIGHT=650 SRC=\"/webdatanfs/pub/effplots/$gname\"></CENTER>\n";
-
-  print $qqr->end_html();
-
- }
-
+ 
 ######################
 sub y_format
 {
