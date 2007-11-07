@@ -1,9 +1,12 @@
 #!/usr/local/bin/perl
 #!/usr/bin/env perl 
 #
-# $Id: CRSstatusPlots.pl,v 1.13 2007/01/09 17:40:34 didenko Exp $
+# $Id: CRSstatusPlots.pl,v 1.14 2007/11/07 19:19:07 didenko Exp $
 #
 # $Log: CRSstatusPlots.pl,v $
+# Revision 1.14  2007/11/07 19:19:07  didenko
+# replace GIFGraph with GC::Graph
+#
 # Revision 1.13  2007/01/09 17:40:34  didenko
 # change default year
 #
@@ -39,9 +42,9 @@ BEGIN {
 
 require "/afs/rhic.bnl.gov/star/packages/scripts/dbCRSSetup.pl";
 
-use CGI;
-use GIFgraph::linespoints;
+use CGI qw(:standard);
 use GD;
+use GD::Graph::linespoints;
 use Mysql;
 
 $dbhost="duvall.star.bnl.gov";
@@ -231,14 +234,17 @@ my @prt = ();
 
     @data = (\@Npoint, \@numjobs );
 
-  $graph = new GIFgraph::linespoints(700,600);
+my  $graph = new GD::Graph::linespoints(750,650);
 
 if ( ! $graph){
     print STDOUT $query->header(-type => 'text/plain');
     print STDOUT "Failed\n";
 } else {
-    print STDOUT $query->header(-type => 'image/gif');
-    binmode STDOUT;
+ 
+  my $format = $graph->export_format;
+  print header("image/$format");
+  binmode STDOUT;
+
 
    if($maxvalue <= 20) {
     $max_y = $maxvalue + 10;
@@ -297,7 +303,8 @@ $xLabelSkip = 288 if( $fperiod eq "12_months" );
     $graph->set_y_label_font(gdMediumBoldFont);
     $graph->set_x_axis_font(gdMediumBoldFont);
     $graph->set_y_axis_font(gdMediumBoldFont);
-    print STDOUT $graph->plot(\@data);
+     print STDOUT $graph->plot(\@data)->$format();
+
 }
 }
 
