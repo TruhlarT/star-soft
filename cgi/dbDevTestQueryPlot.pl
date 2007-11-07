@@ -1,11 +1,11 @@
 #!/usr/local/bin/perl
 #!/usr/bin/env perl 
 #
-# $Id: dbDevTestQueryPlot.pl,v 1.40 2007/11/06 21:53:39 didenko Exp $
+# $Id: dbDevTestQueryPlot.pl,v 1.41 2007/11/07 16:21:37 didenko Exp $
 #
 # $Log: dbDevTestQueryPlot.pl,v $
-# Revision 1.40  2007/11/06 21:53:39  didenko
-# replace GIFgraph with GD::Graph
+# Revision 1.41  2007/11/07 16:21:37  didenko
+# more updates
 #
 # Revision 1.39  2006/07/25 19:36:15  didenko
 # more updates
@@ -62,7 +62,7 @@ BEGIN {
 
 require "/afs/rhic.bnl.gov/star/packages/scripts/dbTJobsSetup.pl";
 
-use CGI;
+use CGI qw(:standard);
 use GD;
 use GD::Graph::linespoints;
 
@@ -311,6 +311,9 @@ if ( ! $graph){
     print STDOUT $query->header(-type => 'image/gif');
     binmode STDOUT;
 
+  my $format = $graph->export_format;
+  print header("image/$format");
+  binmode STDOUT;
 
 
     if( $min_y == 0) {
@@ -355,7 +358,8 @@ if ( ! $graph){
     $graph->set_y_label_font(gdMediumBoldFont);
     $graph->set_x_axis_font(gdMediumBoldFont);
     $graph->set_y_axis_font(gdMediumBoldFont);
-    print STDOUT $graph->plot(\@data);
+#    print STDOUT $graph->plot(\@data);
+    print $graph->plot(\@data)->$format();     
 }
 
 
