@@ -1,10 +1,10 @@
 #!/usr/local/bin/perl
 #!/usr/bin/env perl 
 #
-# $Id: dbDevTestQueryPlot.pl,v 1.43 2007/11/07 16:29:05 didenko Exp $
+# $Id: dbDevTestQueryPlot.pl,v 1.44 2007/11/07 16:31:37 didenko Exp $
 #
 # $Log: dbDevTestQueryPlot.pl,v $
-# Revision 1.43  2007/11/07 16:29:05  didenko
+# Revision 1.44  2007/11/07 16:31:37  didenko
 # more updates
 #
 # Revision 1.39  2006/07/25 19:36:15  didenko
@@ -304,7 +304,7 @@ if ($plotVal eq "MemUsage") {
 
 $graph = new GD::Graph::linespoints(550+50*$weeks,500);
 
-#if ( ! $graph){
+ if ( ! $graph){
 #    print STDOUT $query->header(-type => 'text/plain');
 #    print STDOUT "Failed\n";
 #} else {
