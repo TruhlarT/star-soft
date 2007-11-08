@@ -6,6 +6,7 @@
  my $prodSer; 
 my $jobdir;
 my $archdir;
+my $lostdir;
 
  my @statlist = ();
  my @joblist = ();
@@ -143,16 +144,28 @@ my $outfile = "/star/u/starreco/failjobs.".$filestamp.".csh";
 
   $jobdir = "/home/starreco/newcrs/" . $prodSer ."/requests/daq/jobfiles";  
   $archdir = "/home/starreco/newcrs/" . $prodSer ."/requests/daq/archive";
+  $lostdir = "/home/starreco/newcrs/" . $prodSer ."/requests/daq/jobs_lostfiles"; 
 
      $fullname = $archdir ."/". $jobname;
 
     if ( $prt[1] eq "hpss_export_failed" ) {
     `crs_job -kill $crsjobname`;
      print "Job killed:  ", $jobname,"   ", $prt[1], "\n";
-   }elsif($prt[1] eq "hpss_error_-2") {
+
+   }elsif($prt[1] eq "hpss_error_-2" or $prt[1] eq "hpss_error_-5") {
     `crs_job -kill $crsjobname`;
      print "Job killed:  ", $jobname,"   ", $prt[1], "\n";
+        `mv $fullname $lostdir \n`;
+
    }elsif($prt[1] eq "no_response_from_hpss_server") {
+    `crs_job -reset $crsjobname`; 
+     print "Job was reset:  ", $jobname,"   ", $prt[1], "\n";
+
+   }elsif($prt[1] eq "hpss_request_submission_timed_out") {
+    `crs_job -reset $crsjobname`; 
+     print "Job was reset:  ", $jobname,"   ", $prt[1], "\n";
+
+   }elsif($prt[1] eq "hpss_stage_request_timed_out") {
     `crs_job -reset $crsjobname`; 
      print "Job was reset:  ", $jobname,"   ", $prt[1], "\n";
 
