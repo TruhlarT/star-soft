@@ -342,7 +342,6 @@ my $qqr = new CGI;
    $outfile[$i] = "incomplete";
   }
 
-  $outfile[$maxout-1] = "incomplete";
   $outfile[$maxout] = "complete";
 
   
