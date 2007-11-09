@@ -14,9 +14,9 @@ BEGIN {
 }
 
 use DBI;
-use CGI;
-use GIFgraph::linespoints;
+use CGI qw(:standard);
 use GD;
+use GD::Graph::linespoints;
 use Mysql;
 use Class::Struct;
 
@@ -259,7 +259,7 @@ $day_diff = int($day_diff);
 
    &GRdbConnect();
 
-   $sql="SELECT DISTINCT testday FROM $JobStatusT WHERE status = 'complete' AND (TO_DAYS(\"$nowdate\") - TO_DAYS(testday)) < ? ORDER by testday";
+   $sql="SELECT DISTINCT testday FROM $JobStatusT WHERE ( status = 'complete' OR status = 'failed') AND (TO_DAYS(\"$nowdate\") - TO_DAYS(testday)) < ? ORDER by testday";
 
      $cursor =$dbh->prepare($sql)
       || die "Cannot prepare statement: $DBI::errstr\n";
@@ -400,8 +400,17 @@ my $ndt = 0;
  }
     &GRdbDisconnect();
 
+ my $graph = new GD::Graph::linespoints(750,650);
 
-   $graph = new GIFgraph::linespoints(750,650);
+  if ( ! $graph){
+    print STDOUT $qqr->header(-type => 'text/plain');
+    print STDOUT "Failed\n";
+
+ } else {
+
+  my $format = $graph->export_format;
+  print header("image/$format");
+  binmode STDOUT;
 
 
     if( $qsite eq "ALL" ) {
@@ -429,10 +438,6 @@ my $ndt = 0;
       @data = (\@ndate, \@globeff, \@logeff, \@inputef, \@outputeff, \@recoComeff, \@overeff) ;
   }
 
-   $gname = "Effplot.prod.".$ptag.".gif"; 
-
-   print $qqr->header();
-   print $qqr->start_html(-title=>"Grid efficiency"), "\n"; 
 
  my $ylabel;
  my $gtitle; 
@@ -485,16 +490,9 @@ $xLabelSkip = 12 if( $qperiod eq "12_months" );
     $graph->set_x_axis_font(gdMediumBoldFont);
     $graph->set_y_axis_font(gdMediumBoldFont);
 
-    if( -e "/afs/rhic.bnl.gov/star/doc/www/html/tmp/pub/effplots/$gname")  {
-        unlink("/afs/rhic.bnl.gov/star/doc/www/html/tmp/pub/effplots/$gname");
+      print STDOUT $graph->plot(\@data)->$format();
 
     }
-
-  $graph->plot_to_gif("/afs/rhic.bnl.gov/star/doc/www/html/tmp/pub/effplots/$gname", \@data);
-
-  print "<BR><CENTER><IMG WIDTH=750 HEIGHT=650 SRC=\"/webdatanfs/pub/effplots/$gname\"></CENTER>\n";
-
-  print $qqr->end_html();
 
  }
 
