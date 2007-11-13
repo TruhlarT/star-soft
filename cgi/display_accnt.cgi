@@ -702,10 +702,13 @@ $namlen = 15;
 	     
 	     my $gd = $graph->plot(\@data) or die $graph->error;
 
-	     # ONLY the sub-directory will be writeable
+	     # ONLY the sub-directory should be writeable
 	     $PATH = "/afs/rhic.bnl.gov/star/doc/www/html/tmp/pub";
 	     if (! -d "$PATH/DataCarousel"){ 
-		 mkdir("$PATH/DataCarousel",0775) || die "could not create temp dire\n";
+		 if ( ! mkdir("$PATH/DataCarousel",0775) ){
+		     print "Dcould not create temp directory\n";
+		     goto GRAPH_DONE;
+		 }
 	     }
 
 	     $tries =0;
@@ -720,13 +723,16 @@ $namlen = 15;
 		 goto AGAIN if ( $tries < 5);
 	     }
 
-	     open(GDG,">$PATH/DataCarousel/bla_$jj.png") || die "Cannot open file with index $jj\n";
-	     binmode(GDG);
-	     print GDG $gd->png();
-	     close(GDG);
-	     print "<IMG WIDTH=$WIDTH  HEIGHT=$HEIGHT SRC=\"/webdata/pub/DataCarousel/bla_$jj.png\">\n";
+	     if ( open(GDG,">$PATH/DataCarousel/bla_$jj.png") ){
+		 binmode(GDG);
+		 print GDG $gd->png();
+		 close(GDG);
+		 print "<IMG WIDTH=$WIDTH  HEIGHT=$HEIGHT SRC=\"/webdata/pub/DataCarousel/bla_$jj.png\">\n";
+	     } else {
+		print "Cannot open file with index $jj. Graph is not working.\n";
+	     }
 	 }
-
+       GRAPH_DONE:
 
      } else {
 	 print 
