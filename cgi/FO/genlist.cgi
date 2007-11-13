@@ -17,7 +17,7 @@ $LINKCOL  = "navy";
 $query = new CGI;
 $this_script= $query->url();
 
-$dctref = "/STAR/comp/carousel/data_carousel.html";
+$dctref = "/STAR/comp/sofi/tutorials/carousel";
 $title  = "List generator for the STAR DataCarousel ...";
 $namlen = 35;
 
