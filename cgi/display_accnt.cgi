@@ -702,21 +702,29 @@ $namlen = 15;
 	     
 	     my $gd = $graph->plot(\@data) or die $graph->error;
 
+	     # ONLY the sub-directory will be writeable
 	     $PATH = "/afs/rhic.bnl.gov/star/doc/www/html/tmp/pub";
-	     if (! -d "$PATH/DataCarousel"){ mkdir("$PATH/DataCarousel",0775);}
+	     if (! -d "$PATH/DataCarousel"){ 
+		 mkdir("$PATH/DataCarousel",0775) || die "could not create temp dire\n";
+	     }
 
+	     $tries =0;
 	   AGAIN:
+	     $tries++;
 	     $jj = 0;
 	     while ( -e "$PATH/DataCarousel/bla_$jj.png" && $jj < 10){
 		 $jj++;
 	     }
-	     if ($jj == 10){  unlink(glob("$PATH/DataCarousel/bla_*.png")); goto AGAIN;}
+	     if ($jj == 10){  
+		 unlink(glob("$PATH/DataCarousel/bla_*.png")); 
+		 goto AGAIN if ( $tries < 5);
+	     }
 
-	     open(GDG,">$PATH/DataCarousel/bla_$jj.png");
+	     open(GDG,">$PATH/DataCarousel/bla_$jj.png") || die "Cannot open file with index $jj\n";
 	     binmode(GDG);
 	     print GDG $gd->png();
 	     close(GDG);
-	     print "<IMG WIDTH=$WIDTH  HEIGHT=$HEIGHT SRC=\"/webdatanfs/pub/DataCarousel/bla_$jj.png\">\n";
+	     print "<IMG WIDTH=$WIDTH  HEIGHT=$HEIGHT SRC=\"/webdata/pub/DataCarousel/bla_$jj.png\">\n";
 	 }
 
 
