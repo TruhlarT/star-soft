@@ -1,16 +1,18 @@
 #!/usr/bin/env perl
 #
-# $Id: swguide.pl,v 1.12 2007/11/05 20:08:06 jeromel Exp $
+# $Id: swguide.pl,v 1.13 2007/11/14 20:02:17 jeromel Exp $
 #
 ######################################################################
 #
 # swguide.pl
 #
 # T. Wenaus 6/99
+# J.Lauret since 2000
 #
 # Software guide; tool for browsing software info and doc
 #
-# Usage: CGI script
+# Usage: 
+#   This CGI can be executed on the fly
 #
 
 BEGIN {
@@ -25,17 +27,51 @@ require SWGdbsetup;
 
 
 # Area where the files will be written
-$fpath   = "/afs/rhic.bnl.gov/star/doc/www/html/tmp";
-$CVSroot = "/afs/rhic.bnl.gov/star/packages/repository/CVSROOT";
-$DOXPATH = $fpath."/dox/html";
-$DOXURL  = "/webdata/dox/html";
-$CVSURL  = "/webdata/cvs/user";
-$curTime = time();
+$fpath     = "/afs/rhic.bnl.gov/star/doc/www/html/tmp";
+$STAR_PATH = "/afs/rhic.bnl.gov/star/packages";
+$CVSROOT   = "$STAR_PATH/repository";
+$DOXPATH   = $fpath."/dox/html";
+$PUBURL    = "/webdata";
+$DOXURL    = "$PUBURL/dox/html";
+$CVSURL    = "$PUBURL/cvs/user";
+$CVSWEB    = "/cgi-bin/protected/cvsweb.cgi";
+$SELF      = "swguide";
+
+$curTime   = time();
 
 &cgiSetup();
 #print "Bla\n";
 $q->param('ver','dev')  if ( $q->param('ver')    eq '');
 $q->param('detail','1') if ( $q->param('detail') eq '');
+
+
+# attempt to create a subdirectory - create a marker file
+# in case of no write so this test is not made again and again
+if ( -e "/tmp/$SELF.nw"){
+    # TODO: should check how old and delete old ones in
+    # case /tmp cleanup is not done
+    $WRITE = 1==0;
+
+} else {
+    my($test);
+    if ( -d "$fpath/$SELF"){
+	if ($test = open(FF,">$fpath/$SELF/test.tmp")){
+	    close(FF);
+	    unlink("$fpath/$SELF/test.tmp");
+	}
+    } else {
+	$test = mkdir("$fpath/$SELF",0755);
+    }
+
+    if ( $test ){
+	$WRITE = 1==1;
+    } else {
+	open(FF,">/tmp/$SELF.nw");
+	print FF localtime()."\n";
+	close(FF);
+	$WRITE = 1==0;
+    }
+}
 
 
 # Option dynamic was suppressed to avoid users clasing with each other
@@ -117,7 +153,7 @@ macros, and scripts. Pointers and comments...
     <li>Only Library version <b>dev</b> provides link to the
     doxygen formatted source code.
     <li> Ball color indicates time since most recent mod:
-    <img src="/images/redball.gif">=2days, <img src="/images/greenball.gif">=2weeks, <img src="/images/blueball.gif">=2months, <img src="/images/whiteball.gif">=older
+    <img src="/images/redball.gif" border="0">=2days, <img src="/images/greenball.gif" border="0">=2weeks, <img src="/images/blueball.gif" border="0">=2months, <img src="/images/whiteball.gif" border="0">=older
 </ul>
 END
 
@@ -170,33 +206,33 @@ $find = $q->param('find');
 $pkg = $q->param('pkg');
 
 #read in avail file of package owners
-if ( -e "$CVSroot/avail"){
-    open(AVAIL,"< $CVSroot/avail")
+if ( -e "$CVSROOT/CVSROOT/avail"){
+    open(AVAIL,"< $CVSROOT/CVSROOT/avail")
 	or print "Can't open avail file: $!\n";
     @availFile=<AVAIL>;
     close AVAIL;
 }
 
 #read in loginfo file of package mod notification email
-if ( -e "$CVSroot/loginfo"){
-    open(LOGINFO,"< $CVSroot/loginfo")
+if ( -e "$CVSROOT/CVSROOT/loginfo"){
+    open(LOGINFO,"< $CVSROOT/CVSROOT/loginfo")
 	or print "Can't open loginfo file: $!\n";
     @loginfoFile=<LOGINFO>;
     close LOGINFO;
 }
 
-$STAR = "/afs/rhic.bnl.gov/star/packages/$ver";
+$STAR = "$STAR_PATH/$ver";
 $root = $STAR;
-$rel = readlink("/afs/rhic.bnl.gov/star/packages/$ver");
+$rel = readlink("$STAR_PATH/$ver");
 ($f, $d, $e) = fileparse($rel);
 $rel = $f;
 undef($d);
 
-$ddevVer= (fileparse(readlink("/afs/rhic.bnl.gov/star/packages/.dev")))[0];
-$devVer = (fileparse(readlink("/afs/rhic.bnl.gov/star/packages/dev")))[0];
-$newVer = (fileparse(readlink("/afs/rhic.bnl.gov/star/packages/new")))[0];
-$proVer = (fileparse(readlink("/afs/rhic.bnl.gov/star/packages/pro")))[0];
-$oldVer = (fileparse(readlink("/afs/rhic.bnl.gov/star/packages/old")))[0];
+$ddevVer= (fileparse(readlink("$STAR_PATH/.dev")))[0];
+$devVer = (fileparse(readlink("$STAR_PATH/dev")))[0];
+$newVer = (fileparse(readlink("$STAR_PATH/new")))[0];
+$proVer = (fileparse(readlink("$STAR_PATH/pro")))[0];
+$oldVer = (fileparse(readlink("$STAR_PATH/old")))[0];
 
 $verChecked{$ver} = "checked";
 $detailChecked{$showFlag} = "checked";
@@ -226,9 +262,9 @@ print <<END;
 
 <hr>
 <p>
-<h3>Version $ver = $rel</h3>
+<h3>Version <a href="/devcgi/swguide.pl?ver=$ver">$ver</a> = $rel</h3>
 </h3>
-<pre>
+<table border="0">
 END
 
 # Build list of pams
@@ -252,6 +288,8 @@ $totfiles = 0;
 
 @allDirs = (
             "StRoot",
+            "QtRoot",
+            "StarVMC",
             "StDb",
             "mgr",
             "scripts",
@@ -336,6 +374,8 @@ for ($idr=0; $idr<@allDirs; $idr++) {
         }
     }
 }
+print "</table><pre>\n";
+
 
 if ( $find eq "" && $pkg eq "" && $showFlag > 0 ) {
     print "\n<b>Total files $totfiles</b>";
@@ -348,18 +388,21 @@ if ( $find eq "" && $pkg eq "" && $showFlag > 0 ) {
         }
     }
     if ( $ver eq 'dev' ) {
-        open(FSTAT,">$fpath/swguide-stats.txt-tmp");
-        print FSTAT "\n<b>Total files $totfiles</b>";
-        print FSTAT "\n<b>Total lines $totlines</b>";
-        print FSTAT "\n  By type:          All    Last 2 months\n";
-        foreach $typ (sort keys %typeCounts) {
-            if ( $typeCounts{$typ} > 0 ) {
-                printf(FSTAT "    %-10s   %7d   %7d\n",$typ,$typeCounts{$typ},
-                       $typeCountsRecent{$typ});
-            }
-        }
-        close(FSTAT);
-	rename("$fpath/swguide-stats.txt-tmp","$fpath/swguide-stats.txt");
+        if ( open(FSTAT,">$fpath/swguide-stats.txt-tmp") ){
+	    print FSTAT "\n<b>Total files $totfiles</b>";
+	    print FSTAT "\n<b>Total lines $totlines</b>";
+	    print FSTAT "\n  By type:          All    Last 2 months\n";
+	    foreach $typ (sort keys %typeCounts) {
+		if ( $typeCounts{$typ} > 0 ) {
+		    printf(FSTAT "    %-10s   %7d   %7d\n",$typ,$typeCounts{$typ},
+			   $typeCountsRecent{$typ});
+		}
+	    }
+	    close(FSTAT);
+	    rename("$fpath/swguide-stats.txt-tmp","$fpath/swguide-stats.txt");
+	} else {
+	    print "Failed to open statistics summary file\n";
+	}
     }
 }
 
@@ -393,11 +436,22 @@ sub showPackage {
       $doc = "   ";
     } else {
       ### README file
+      $readme = "      ";
       if ( -e "$theRoot/$theDir/$thePkg/README" ) {
-        $readme = "<a href=\"/public/comp/pkg/$ver/$theDir/$thePkg/README\">README</a>";
-      } else {
-        $readme = "      ";
+	  # print STDERR "DEBUG Found $theRoot/$theDir/$thePkg/README\n";
+	  if ( ! -e "$fpath/$SELF/$ver/$theDir/$thePkg/README" && $WRITE ){
+	      # print STDERR "DEBUG ! -e $fpath/$SELF/$ver/$theDir/$thePkg/README\n";
+	      # make a copy
+	      if ( &CreateTree("$fpath","$SELF/$ver/$theDir/$thePkg/") ){
+		  &CopyFile("$theRoot/$theDir/$thePkg/README","$fpath/$SELF/$ver/$theDir/$thePkg/README");
+	      }
+	  }
+	  # check it again
+	  if( -e "$fpath/$SELF/$ver/$theDir/$thePkg/README"){
+	      $readme = "<a href=\"$PUBURL/$SELF/$ver/$theDir/$thePkg/README\">README</a>";
+	  }
       }
+
       ### doc directory. For pams, the doc area has package name doc
       if ( $thePkg eq 'doc' ) {
         $docDir = "$theRoot/$theDir/$thePkg";
@@ -411,16 +465,20 @@ sub showPackage {
         opendir(DOC, $docDir);
         while (defined ($docf = readdir DOC)) {
           if ( $docf ne "." && $docf ne ".." && $docf ne "CVS" ) {
-            # something seems to be there
-            $doc = "<a href=\"/public/comp/pkg/$ver/$theDir/$thePkg/$docLoc\">doc</a>";
-            last;
+	      # something seems to be there
+	      # TODO: detect what's in, copy using technique like for the README
+	      #        be ware that the tree may not be browsable
+	      #
+	      #$doc = "<a href=\"/public/comp/pkg/$ver/$theDir/$thePkg/$docLoc\">doc</a>";
+	      $doc = "doc";
+	      last;
           }
         }
         close DOC;
       }
     }
     ### CVS link
-    $cvs = "<a href=\"/cgi-bin/protected/cvsweb.cgi/$theDir/$thePkg\">CVS</a>";
+    $cvs = "<a href=\"$CVSWEB/$theDir/$thePkg\">CVS</a>";
 
 
     ### Try to find the owner
@@ -517,7 +575,7 @@ sub showPackage {
         } else {
             $ball="white";
         }
-        $ballUrl="<img src=\"/images/".$ball."ball.gif\">";
+        $ballUrl="<img src=\"/images/".$ball."ball.gif\" border=\"0\">";
         ($dy, $mo, $yr) = (localtime($lastMod))[3,4,5];
         if ($yr == 69 ) {
             $dy = 0;
@@ -527,27 +585,62 @@ sub showPackage {
         }
 	$yr = $yr+1900;
         if ($linecount == 0) {
-            $disp1="<font color=\"gray\">$ballUrl";
+            $disp1="<font color=\"gray\">";
             $disp2="</font>";
         } else {
-            $disp1="<b>$ballUrl";
-            $disp2="</b>";
+            $disp1="";
+            $disp2="";
         }
+
+	# Only display link if index exists
+
+	if ( -e "$fpath/cvs/user/$pkgOwner/index.html"){
+	    $pkgOwnerURL = "<a href=\"$CVSURL/$pkgOwner/index.html#bottom\">".$pkgOwner."</a>";
+	} else {
+	    $pkgOwnerURL = $pkgOwner;
+	}
+
         $pkgLine =
-	    sprintf("$disp1%s%-30s%s %-6s %-3s %s%s%9s%s%4d Files".
-		    "%7d Lines %02d/%02d/%04d %4d Days %s$disp2\n",
-		    $pkgUrl,$theDir."/".$thePkg,"</a>",$readme,$doc,$cvs,
-		    "<a href=\"$CVSURL/$pkgOwner/index.html#bottom\">",$pkgOwner,"</a>",
-		    $filecount,$linecount,$mo+1,$dy,$yr,$sinceMod,$thePamUrl);
+	    "<tr><td>$disp1$ballUrl$disp2</td>\n".
+	    "    <td align=\"left\">$disp1$pkgUrl$theDir/$thePkg</a>$disp2</td>\n".
+	    "    <td>$disp1<tt>$readme</tt>$disp2</td>\n".
+	    "    <td>$disp1<tt>$doc</tt>$disp2</td>\n".
+	    "    <td>$disp1<tt>$cvs</tt>$disp2</td>\n".
+	    "    <td align=\"right\">$disp1$pkgOwnerURL$disp2</td>\n".
+	    "    <td align=\"right\">$disp1$filecount Files$disp2</td>\n".
+	    "    <td align=\"right\">$disp1$linecount Lines$disp2</td>\n".
+	    "    <td align=\"right\">$disp1$yr/".sprintf("%2.2d/%2.2d",($mo+1),$dy)."$disp2</td>\n".
+	    "    <td align=\"right\">$disp1".int($sinceMod)." Days $disp2</td>\n".
+	    "</tr>\n";
+	    
+
+	    #sprintf("$disp1%s%-30s%s %-6s %-3s %s%s%9s%s%4d Files".
+	    #	    "%7d Lines %02d/%02d/%04d %4d Days %s$disp2\n",
+	    #	    $pkgUrl,$theDir."/".$thePkg,"</a>",$readme,$doc,$cvs,
+	    #	    $pkgOwnerURL,$filecount,$linecount,$mo+1,$dy,$yr,$sinceMod,$thePamUrl);
     } else {
-        $pkgLine =
-	    sprintf("%s%-30s%s %-6s %-3s %s\n",
-		    $pkgUrl,$theDir."/".$thePkg,"</a>",$readme,$doc,$cvs);
+
+         $pkgLine =
+	    "<tr><td>$ballUrl</td>\n".
+	    "    <td align=\"left\">$pkgUrl$theDir/$thePkg</a></td>\n".
+	    "    <td><tt>$readme</tt></td>\n".
+	    "    <td><tt>$doc</tt></td>\n".
+	    "    <td><tt>$cvs</tt></td>\n".
+	    "    <td>&nbsp;</td>\n".
+	    "    <td>&nbsp;</td>\n".
+	    "    <td>&nbsp;</td>\n".
+	    "    <td>&nbsp;</td>\n".
+	    "    <td>&nbsp;</td>\n".
+	    "</tr>\n";
+
+       #$pkgLine =
+       #	    sprintf("%s%-30s%s %-6s %-3s %s\n",
+       #		    $pkgUrl,$theDir."/".$thePkg,"</a>",$readme,$doc,$cvs);
     }
 
     if ( $showFlag >= 0 ) { print $pkgLine; }
     if ( $showFlag > 1 ) {
-        print "<blockquote>\n";
+        print "<tr><td colspan=\"10\"><pre>\n";
         print $details;
         if ($nsub>0) {
             for ($ns=0; $ns<$nsub; $ns++) {
@@ -567,7 +660,7 @@ sub showPackage {
             printf("%-33s",$e);
             if ($i%3 == 0) { print "\n"; }
         }
-        print "</blockquote>\n";
+        print "</pre></td></tr>\n";
     }
 }
 
@@ -601,8 +694,8 @@ sub showFiles {
             $cdate = $tokens[3];
             $date = substr($cdate,4,12)." ".substr($cdate,22,2);
 
-	    next if ( ! -e "/afs/rhic.bnl.gov/star/packages/repository/$theDir/$thePkg/$fname,v");
-            open(REPFILE,"</afs/rhic.bnl.gov/star/packages/repository/$theDir/$thePkg/$fname,v");
+	    next if ( ! -e "$CVSROOT/$theDir/$thePkg/$fname,v");
+            open(REPFILE,"<$CVSROOT/$theDir/$thePkg/$fname,v");
 
             $owner = "";
             $repTime = 0;
@@ -722,7 +815,7 @@ sub showFiles {
                 } else {
                     $ball="white";
                 }
-                $ballUrl="<img src=\"/images/".$ball."ball.gif\">";
+                $ballUrl="<img src=\"/images/".$ball."ball.gif\" border=\"0\">";
 
                 if ( exists($okExtensions{$ee}) || ($ff =~ m/akefile/)
                      || $isScript ) {
@@ -737,7 +830,7 @@ sub showFiles {
                 $fnameLen = length $fname;
                 $fillLen = 35 - $fnameLen;
                 if ( $ftype eq 'C++' ) {
-                    if ( -e "/afs/rhic.bnl.gov/star/packages/$rel/StRoot/html/$ff.html" ) {
+                    if ( -e "$STAR_PATH/$rel/StRoot/html/$ff.html" ) {
                         $fnameFull = "<a href=\"/public/comp/src/$rel/StRoot/html/$ff.html\">$ff</a>$ee";
                     }
                 }
@@ -752,13 +845,12 @@ sub showFiles {
 		}
 
                 $blank='                                              ';
-                $output .= sprintf("%s%s%s %-8s %s%-7s%s %10.10s %s %s%9.9s%s %10.10s %5.5s\n",
+                $output .= sprintf("&nbsp;&nbsp;&nbsp;%s%s%s %-8s %s%-7s%s %10.10s %s %s%9.9s%s %10.10s %5.5s\n",
                                    $ballUrl,$fnameFull,substr($blank,0,$fillLen),
 				   $CRef,
-                                   "<a href=\"/cgi-bin/protected/cvsweb.cgi/$theDir/$thePkg/$fname?rev=$cver&content-type=text/x-cvsweb-markup\">",$cver,"</a>",
+                                   "<a href=\"$CVSWEB/$theDir/$thePkg/$fname?rev=$cver&content-type=text/x-cvsweb-markup\">",$cver,"</a>",
                                    $date,
-                                   "<a href=\"/cgi-bin/protected/cvsweb.cgi/$theDir/$thePkg/$fname\">CVS</a>",
-
+                                   "<a href=\"$CVSWEB/$theDir/$thePkg/$fname\">CVS</a>",
                                    "<a href=\"$CVSURL/$owner/index.html#bottom\">",$owner,"</a>",
                                    $theLines,
 				   $reptag);
@@ -826,7 +918,82 @@ sub DoxyCode
 }
 
 
+#
+# Create the tree $base/$dest but do not touch $base
+#
+sub CreateTree
+{
+    my($base,$dir)=@_;
+
+    # do not touch $base ever and return immediately if it does not exist
+    return 0 if ( ! -d $base);
+    # save time and return if exists
+    return 1 if ( -d "$base/$dir");
+
+    # otherwise start doing things
+    my(@items)=split("\/",$dir);
+    my($p,$el,$sts);
+
+    $sts = 1;
+    $p   = $base;
+    foreach $el (@items){
+	next if ($el eq "");
+	$p .= "/$el";
+	next if ( -d $p);
+	if (! mkdir($p,0755) ){
+	    # print STDERR "Failed to create $p\n";
+	    $sts = 0;
+	    last;
+	}
+    }
+    return $sts;
+}
+
+# copy file from source to dest
+sub CopyFile
+{
+    my($source,$dest)=@_;
+
+    if ( open(SRC,"<$source") ){
+	if ( open(DST,">$dest.tmp") ){
+	    while ( defined($line = <SRC>) ){
+		chomp($line);
+		print DST "$line\n";
+	    }
+	    close(SRC);
+	    close(DST);
+	    
+	    unlink($dest) if ( -e $dest);
+	    return rename("$dest.tmp",$dest);
+
+	} else {
+	    # print STDERR "Failed to open $dest.tmp (W)\n";
+	    close(SRC);
+	    return 0;
+	}
+    } else {
+	# print STDERR "Failed to open $source (R)\n";
+	return 0;
+    }
+
+}
+
+
+
 # $Log: swguide.pl,v $
+# Revision 1.13  2007/11/14 20:02:17  jeromel
+# Lots of changes (some minor)
+# - Multiple paths made canonical via top variables.
+# - Detect if write access or not, switch logic depending on result
+# - img no borders
+# - add link to go back to the main page (from detail view)
+# - change <pre? formatting to table aligned
+# - copy README, pkg/ link was a killer for several reasons
+#   * our entire code was indexed by Google - no wonder why we have so high load
+#   * pkg/ bypassed all protection in cvsweb and otherwise
+#   * password exposed via "convenient" directory browsing
+# - bug fix in linking to use cvs commit index
+#
 # Revision 1.12  2007/11/05 20:08:06  jeromel
 # cgi-bin/prod -> devcgi
 #
