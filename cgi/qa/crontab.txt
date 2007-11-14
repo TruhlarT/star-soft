@@ -1,4 +1,0 @@
-0 6 * * * /afs/rhic.bnl.gov/star/packages/dev/cgi/qa/cronjob.csh
-30 7 * * 2 /afs/rhic.bnl.gov/star/packages/dev/cgi/qa/cronjob.csh
-0 9 * * 2 /afs/rhic.bnl.gov/star/packages/dev/cgi/qa/cronjob.csh
-
