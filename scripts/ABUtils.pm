@@ -88,7 +88,8 @@ $INSU::LCK     =  0;
 $INSU::md5seed = "";
 
 # LSF submit command
-$INSU::BSUB    = "/usr/local/lsf/bin/bsub";
+$INSU::BSUB = (defined($ENV{LSF_BINDIR})?$ENV{LSF_BINDIR}."/bsub":"/usr/local/lsf/bin/bsub");
+
 
 # All tests may be declared here in this array.
 # - The first element is the chain
@@ -175,9 +176,10 @@ $INSU::JPEXEC   ="/afs/rhic.bnl.gov/star/packages/dev/.\@sys/BIN/jprof";
 # ------------------------------------------
 # directory where the HTML file will be stored (final target)
 $INSU::HTMLREPD="/afs/rhic.bnl.gov/star/doc/www/comp/prod/Sanity";   # final direcory
-$INSU::HTMLREF="http://www.star.bnl.gov/STAR/comp/prod/Sanity";      # URL
+$INSU::WSERVR = "http://www.star.bnl.gov";                           # Web server root
+$INSU::HTMLREF="/public/comp/prod/Sanity";                           # URL
 $INSU::HTMLPUBD="/afs/rhic.bnl.gov/star/doc/www/html/tmp/pub/Sanity";# public dir (temp)
-$INSU::CVSWEB="http://www.star.bnl.gov/cgi-bin/cvsweb.cgi";          # CVS web utility
+$INSU::CVSWEB="/cgi-bin/protected/cvsweb.cgi";                       # CVS web utility
 
 
 # variables subject to export. So far, we will be using
@@ -186,7 +188,7 @@ $INSU::CVSWEB="http://www.star.bnl.gov/cgi-bin/cvsweb.cgi";          # CVS web u
 $INSU::BODYATTR="bgcolor=cornsilk text=black link=navy vlink=maroon alink=tomato";
 # HTML font declaration
 $INSU::FONT="<basefont face=\"verdana,arial,helvetica,sans-serif\">";
-$INSURL="http://www.star.bnl.gov/STAR/comp/sofi/Insure/manuals/";
+$INSURL="/public/comp/sofi/Insure/manuals/";
 %INSERRORS=(
 	    # the above list was generated dumping and parsing the main
 	    # insure++ index.htm page. Script used is named format_insure.pl
@@ -847,7 +849,7 @@ sub IUManagers { return @INSU::MANAGERS;}
 sub IUHtmlDir  { return $INSU::HTMLREPD;}
 
 # Returns the HTML URL reference
-sub IUHtmlRef  { return $INSU::HTMLREF;}
+sub IUHtmlRef  { return $INSU::WSERVR.$INSU::HTMLREF;}
 
 # Returns "a" HTML output public directory (volatile ; no token)
 sub IUHtmlPub  { return $INSU::HTMLPUBD;}
