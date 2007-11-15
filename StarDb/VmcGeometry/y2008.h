@@ -1,4 +1,4 @@
-void Y2008()
+void y2008()
 {
 //
 //  This file has been generated automatically via the root
@@ -9,7 +9,7 @@ gSystem->Load("libGeom");
 TGeoRotation *rot;
 TGeoNode *Node, *Node1;
 
-TGeoManager *Y2008 = new TGeoManager("Y2008","Y2008.h");
+TGeoManager *y2008 = new TGeoManager("y2008","y2008.h");
 
 
 //-----------List of Materials and Mixtures--------------
