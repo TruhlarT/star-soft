@@ -10,12 +10,12 @@ incl("issues.php");
 # They hold infomation about the file examined and
 # an array of active issues.
 
-class Entry {
+class qaentry {
   var $type;
   var $info;
   var $issues;
   
-  function Entry($typ) {
+  function qaentry($typ) {
     (existsType($typ)) or died("Entry cannot be created with type: " . $typ);
     $this->type = $typ;
     $this->issues = array();
@@ -179,7 +179,7 @@ function fileEntry($typ,$num) {
   return "";
 }
 
-function readObjectEntry($file) { return readObjectClass($file,"Entry"); }
+function readObjectEntry($file) { return readObjectClass($file,"qaentry"); }
 function readEntry($typ,$num=-1) {
   $file = "";
   if ($num == -1) { $file = tempEntry(); }

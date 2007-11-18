@@ -11,23 +11,30 @@ incl("preserve_wordwrap.php");
 # name ####.data, where #### is their ID number.
 # An index file of issue names and date-last-used
 # is kept in for all issues, and for each type.
+# The directories for issues have a number which
+# generally corresponds to the run ID numbers, and
+# is 1 greater than the RHIC Run Year (e.g. RHIC
+# Run VIII starts with runs 8xxxxxx, but generally
+# has runs 9xxxxxx, and its issues appear in a
+# directory called issues9).
 
 
 global $issueList,$issuePrev,$closedList,$issueYear;
 $issueList = array();
 $issuePrev = array();
-# default year is this year:
+# default year is this fiscal year:
 $issueYear = intval(date("y"))+1;
+if (intval(date("m"))>9) $issueYear += 1;
 
 
-class Issue {
+class qaissue {
   var $ID;
   var $Name;
   var $Desc;
   var $firsttime;
   var $times;
 
-  function Issue($Nm,$De) {
+  function qaissue($Nm,$De) {
     $this->firsttime = time();
     $this->Name = $Nm;
     $this->Desc = $De;
@@ -154,7 +161,7 @@ function issYearFromId($id) {
 }
 
 # Read in a specific issue from file
-function readObjectIssue($file) { return readObjectClass($file,"Issue"); }
+function readObjectIssue($file) { return readObjectClass($file,"qaissue"); }
 function readIssue($id) { return readObjectIssue(getIssFile($id)); }
 
 # Helper functions for the functions below

@@ -5,7 +5,7 @@
 #
 
     # Base directory for working on reports:
-    $bdir = "/afs/rhic.bnl.gov/star/doc/www/html/tmp/pub/QA/";
+    $bdir = "/home/users/starweb/WWW/tmp/QAShiftReport/";
 
     # Web directory of web-access scripts
     $webdir = "http://" . $_SERVER["HTTP_HOST"] .

@@ -171,7 +171,7 @@ if ($mode != "none") {
     getPassedVar("iname");
     getPassedVar("idesc");
     if ($iid == 0) {
-      $issue = new Issue($iname,$idesc);
+      $issue = new qaissue($iname,$idesc);
     } else {
       ($issue = readIssue($iid)) or died("Could not read issue " . $iid);
       $issue->Name = $iname;
@@ -261,7 +261,9 @@ fhidden("iid","$iid");
 fhidden("type",$type);
 holines(8);
 
-print "<p align=right><font size=-1>Issues for runs ${issueYear}xxxxxx only</font></p>\n\n";
+$issueYear1 = $issueYear - 1;
+print "<p align=right><font size=-1>Issues for RHIC Run ${issueYear1} only<br>\n";
+print "(generally STAR run ID numbers ${issueYear}xxxxxx)<font></p>\n\n";
 
 # Put the list of entry types in the order of whichever
 # type we are examining first

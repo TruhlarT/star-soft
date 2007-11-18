@@ -18,6 +18,8 @@ use File::Basename;
 use File::Find;
 no warnings 'File::Find';
 
+if ($ENV{'HTTP_HOST'}) exit;
+
 $webdir = "/afs/rhic.bnl.gov/star/doc_public/www/comp/qa/QAShiftReport/";
 $tempdir = "/afs/rhic.bnl.gov/star/doc/www/html/tmp/pub/QA/";
 mkpath($tempdir) if (! -d $tempdir);

@@ -46,7 +46,7 @@ if ($type == "Info") {
 } else {
   # All other entries
 
-  $entr = new Entry($type);
+  $entr = new qaentry($type);
   $entr->Fill($_POST);
   foreach ($_POST as $key => $val) {
     if (substr($key,0,1) == "x") {

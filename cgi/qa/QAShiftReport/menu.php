@@ -55,6 +55,9 @@ function NewRow($col="#ffdc9f") { EndRow(); BeginRow($col); }
 
 print "<b>Menu</b>\n\n";
 print "<table border=0 cellpadding=1 cellspacing=1 width=\"100%\">";
+NewRow("#dfec9f");
+mymkhref("http://drupal.star.bnl.gov/STAR/comp/qa/offline/QAShiftReportInstructions",
+  "<b>QA Shift Report Instructions</b>","QASRinstruct");
 BeginRow("#efdc9f");
 
 print "\n  <table cellpadding=0 cellspacing=0 border=0 width=\"100%\"><tr><td>\n";

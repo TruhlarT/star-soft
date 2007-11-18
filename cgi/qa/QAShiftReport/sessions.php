@@ -82,7 +82,9 @@ body();
 <h3>QA Shift Report Form: Session Selection</h3>
 
 Please choose either a name for a new session,
-or select from the available saved sessions:
+or select from the available saved sessions.
+If you need help, select Instructions from the
+menu on the left.
 <p>
 
 <?php 

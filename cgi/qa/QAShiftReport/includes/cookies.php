@@ -2,7 +2,7 @@
 
 global $cookiepath,$domain,$undef;
 
-    $cookiepath = "/STAR/comp/qa/QAShiftReport/";
+    $cookiepath = "/devcgi/qa/QAShiftReport/";
     $domain = "star.bnl.gov";
     $undef = "unknown";
 
