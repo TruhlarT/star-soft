@@ -131,7 +131,7 @@ void  TQtRootCoinViewer3D::CloseScene()
 //______________________________________________________________________________
 void  TQtRootCoinViewer3D::EndScene()
 {
-   printf("TQtRootCoinViewer3D::EndScene\n");
+   // printf("TQtRootCoinViewer3D::EndScene\n");
 
    fViewer->SetUpdatesEnabled(FALSE);
    fViewer->Clear();
