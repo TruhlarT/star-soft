@@ -337,6 +337,7 @@ if ($ThisYear == 2002){
     # Changed Thu Apr 26 13:51:28 EDT 2007
 #    $DCHAIN{"AuAu"}           = "p2007b,alltrigger,ittf,ezTree";
     $DCHAIN{"AuAu"}           = "p2007b,ittf,pmdRaw,ezTree";
+    $DCHAIN{"dAu"}           = "P2008,ITTF,QAalltrigs";
 
     # Default stand-alone auto-calib (works ONLY on $LASERTP files)
     $SCALIB{"AuAu"}           = "OptLaser";
@@ -355,6 +356,17 @@ if ($ThisYear == 2002){
     #	$EZTREE{"TrgSetup"} = $tmp;
     # }
 
+} elsif ( $ThisYear == 2008 ) {
+
+    $TREEMODE= 1;
+    $LIB     = "dev";
+
+    $NUMEVT  = 100;
+    $MINEVT  = 200;
+
+    $TARGET  = "/star/data09/reco";       # This is ONLY a default value.
+                                          # Overwritten by ARGV (see crontab)
+    $DCHAIN{"dAu"}           = "P2008,ITTF,QAalltrigs";
 
 } else {
     # Well, at first you may get that message ... should tell you that
