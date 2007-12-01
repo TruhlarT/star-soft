@@ -77,7 +77,7 @@ use lib "/afs/rhic.bnl.gov/star/packages/scripts";
 use RunDAQ;
 use CRSQueues;
 
-$ThisYear = 2007;                 # Block to consider. Completely artificial
+$ThisYear = 2008;                 # Block to consider. Completely artificial
                                   # and used to preserve older options in if
                                   # block along with current option.
 $HPSS     = 1;                    # turn to 0 for UNIX staging only
@@ -337,7 +337,6 @@ if ($ThisYear == 2002){
     # Changed Thu Apr 26 13:51:28 EDT 2007
 #    $DCHAIN{"AuAu"}           = "p2007b,alltrigger,ittf,ezTree";
     $DCHAIN{"AuAu"}           = "p2007b,ittf,pmdRaw,ezTree";
-    $DCHAIN{"dAu"}           = "P2008,ITTF,QAalltrigs";
 
     # Default stand-alone auto-calib (works ONLY on $LASERTP files)
     $SCALIB{"AuAu"}           = "OptLaser";
@@ -357,7 +356,6 @@ if ($ThisYear == 2002){
     # }
 
 } elsif ( $ThisYear == 2008 ) {
-
     $TREEMODE= 1;
     $LIB     = "dev";
 
@@ -366,7 +364,35 @@ if ($ThisYear == 2002){
 
     $TARGET  = "/star/data09/reco";       # This is ONLY a default value.
                                           # Overwritten by ARGV (see crontab)
+
+    # Those are taken from previous yera - agreed upon as per rate, etc...
+    # and documented on our Web pages.
+    $LASERTP =  rdaq_string2ftype("laser");
+
+    $PHYSTP  =  rdaq_string2ftype("physics");
+    $PHYSTP2 =
+	rdaq_string2ftype("physics_adc")."|".
+	rdaq_string2ftype("upsilon")."|".
+	rdaq_string2ftype("btag");
+
+    @EXPRESS = (
+		rdaq_string2ftype("express"),
+		rdaq_string2ftype("jpsi"),
+		rdaq_string2ftype("gamma"),
+		rdaq_string2ftype("mtd"),
+		rdaq_string2ftype("muon"),
+		rdaq_string2ftype("upcjpsi")
+		);
+    $ZEROBIAS=  rdaq_string2ftype("zerobias");
+
+    # Order is: regular, bypass, calib
+    @USEQ    = (5,5,5);
+    @SPILL   = (0,4,4);
+
+
+    # Chain for 2008 starts here
     $DCHAIN{"dAu"}           = "P2008,ITTF,QAalltrigs";
+
 
 } else {
     # Well, at first you may get that message ... should tell you that
