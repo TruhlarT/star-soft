@@ -1,5 +1,5 @@
 //_____________________________________________________________________
-// @(#)StRoot/StBFChain:$Name:  $:$Id: StBFChain.cxx_doc,v 1.39 2007/10/31 15:18:53 genevb Exp $
+// @(#)StRoot/StBFChain:$Name:  $:$Id: StBFChain.cxx_doc,v 1.40 2007/12/01 00:24:36 jeromel Exp $
 //_____________________________________________________________________
 #include "TROOT.h"
 #include "TString.h"
@@ -493,7 +493,7 @@ Bfc_st BFC[] = {
   {"Db makers   ","-----------","-----------","------------------------------------------","","","",kFALSE},
   {"------------","-----------","-----------","------------------------------------------","","","",kFALSE},
   {"db" ,"db" ,"","StDbT" ,"St_db_Maker","StDbLib,StDbBroker,St_db_Maker","",kFALSE},
-  {"detDb" ,"detDb","","","StDetectorDbMaker","StDetectorDbMaker","Load and run StDetectorDbMaker",kFALSE},
+  {"detDb","detDb","","db","StDetectorDbMaker","StDetectorDbMaker","Load and run StDetectorDbMaker",kFALSE},
   {"magF" ,"MagField","","StDbT,db","StMagFMaker","StarMagField,StMagF"
                                                          ,"Mag.field map with scale factor from Db",kFALSE},
   {"dbutil" ,"" ,"","detDb,StDbT" ,"","StDbUtilities","Load StDbUtilities",kFALSE},
@@ -834,6 +834,7 @@ Bfc_st BFC[] = {
   {"QA" ,"QA","","QUtils,globT,SCL,global","St_QA_Maker","St_QA_Maker","Filling Y1/Y2 Qa histo",kFALSE},
   {"EventQA","EventQA","","QUtils,Event","StEventQAMaker" ,"St_QA_Maker","Filling Y2/Y3 Qa histo",kFALSE},
   {"QAC" ,"CosmicsQA","globT","" ,"StQACosmicMaker","StQACosmicMaker","",kFALSE},
+  {"QAalltrigs" ,"", "","", "","","Analyze all triggers in QA",kFALSE},
   {"HitFilt" ,"", "","", "StHitFilterMaker","StHitFilterMaker","Hit filter Maker",kFALSE},
   {"KeepTpcHit" ,"", "","", "","","Keep all TPC hits in StHitFilterMaker",kFALSE},
   {"KeepSvtHit" ,"", "","", "","","Keep all SVT hits in StHitFilterMaker",kFALSE},
@@ -1464,6 +1465,28 @@ Bfc_st BFC2[] = {
   {"P2007b" ,"" ,"",
    "B2007,IAna,KeepSvtHit,hitfilt,VFMinuit,l3onl,emcDY2,fpd,ftpc,trgd,ZDCvtx,svtIT,ssdIT,Corr4",
                  "","","Production chain for 2007 data Corr4 (+ l3, tof, bcc/fpd, ftpc, e/b-emc, trgd)",kFALSE},
+
+
+
+
+
+  {"B2008" ,"" ,"","ry2008,in,tpc_daq,tpcI,fcf,Idst,tags,ctf,Tree,evout","",""
+                                                              ,"Base chain for 2008 ITTF (tpc)",kFALSE},
+
+  {"P2008a" ,"" ,"",
+   "B2008,IAna,hitfilt,VFMinuit,l3onl,emcDY2,fpd,ftpc,trgd,ZDCvtx,NosvtIT,NossdIT,Corr3,analysis",
+                 "","","Production chain for 2008 data Corr3 (+ l3, tof, bcc/fpd, ftpc, e/b-emc, trgd)",kFALSE},
+  {"P2008b" ,"" ,"",
+   "B2008,IAna,hitfilt,VFMinuit,l3onl,emcDY2,fpd,ftpc,trgd,ZDCvtx,NosvtIT,NossdIT,Corr4,analysis",
+                 "","","Production chain for 2008 data Corr4 (+ l3, tof, bcc/fpd, ftpc, e/b-emc, trgd)",kFALSE},
+
+  {"P2008" ,"" ,"",
+   "B2008,IAna,hitfilt,VFMinuit,l3onl,emcDY2,fpd,ftpc,trgd,ZDCvtx,NosvtIT,NossdIT,Corr3,analysis",
+                      "","","Production chain for 2008 data (+ l3, tof, bcc/fpd, ftpc, e/b-emc, trgd)",kFALSE},
+
+
+
+
   {"LaserCal0","" ,"","db,detDb,tpc_daq,tpcDb,tcl,globT,laser,LaserTest","","",
                                                                     "Laser Calibration Chain (tcl)",kFALSE},
   {"LaserCal","" ,"","db,detDb,tpc_daq,tpcDb,fcf,globT,laser,LaserTest","","",
@@ -1689,7 +1712,7 @@ Bfc_st BFC2[] = {
   {"Db makers   ","-----------","-----------","------------------------------------------","","","",kFALSE},
   {"------------","-----------","-----------","------------------------------------------","","","",kFALSE},
   {"db" ,"db" ,"","StDbT" ,"St_db_Maker","StDbLib,StDbBroker,St_db_Maker","",kFALSE},
-  {"detDb" ,"detDb","","","StDetectorDbMaker","StDetectorDbMaker","Load and run StDetectorDbMaker",kFALSE},
+  {"detDb","detDb","","db","StDetectorDbMaker","StDetectorDbMaker","Load and run StDetectorDbMaker",kFALSE},
   {"magF" ,"MagField","","StDbT,db","StMagFMaker","StarMagField,StMagF"
                                                          ,"Mag.field map with scale factor from Db",kFALSE},
   {"dbutil" ,"" ,"","detDb,StDbT" ,"","StDbUtilities","Load StDbUtilities",kFALSE},
@@ -2030,6 +2053,7 @@ Bfc_st BFC2[] = {
   {"QA" ,"QA","","QUtils,globT,SCL,global","St_QA_Maker","St_QA_Maker","Filling Y1/Y2 Qa histo",kFALSE},
   {"EventQA","EventQA","","QUtils,Event","StEventQAMaker" ,"St_QA_Maker","Filling Y2/Y3 Qa histo",kFALSE},
   {"QAC" ,"CosmicsQA","globT","" ,"StQACosmicMaker","StQACosmicMaker","",kFALSE},
+  {"QAalltrigs" ,"", "","", "","","Analyze all triggers in QA",kFALSE},
   {"HitFilt" ,"", "","", "StHitFilterMaker","StHitFilterMaker","Hit filter Maker",kFALSE},
   {"KeepTpcHit" ,"", "","", "","","Keep all TPC hits in StHitFilterMaker",kFALSE},
   {"KeepSvtHit" ,"", "","", "","","Keep all SVT hits in StHitFilterMaker",kFALSE},
@@ -2801,7 +2825,7 @@ Int_t StBFChain::Instantiate()
 	   GetOption("SpcChgCalG"))   mk->SetMode(2);
       if ( GetOption("SCScalerCal") ) mk->SetMode(4);
     }
-    if (maker == "StEventQAMaker" && GetOption("alltrigger") )
+    if (maker == "StEventQAMaker" && GetOption("QAalltrigs"))
       ProcessLine(Form("((StEventQAMaker *) %p)->AllTriggers();",mk));
     //Special options for V0s and Xis using estGlobal tracks
     if(maker=="StV0FinderMaker" && Key=="v0svt"){
