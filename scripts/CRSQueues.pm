@@ -44,6 +44,7 @@ if ( $BMODE==0 ){
     $CRSQ::OFFSYNC=30;   # queue submission will continue up to this %tage
                          # of off-sync.
 
+
 } else {
     # If don't know, die
     die "No batch mode. Sorry.\n";
@@ -205,6 +206,12 @@ sub CRSQ_getcnt
     for($i=0 ; $i < $CRSQ::MAXQ ; $i++){   
 	$CRSQ::FND{$i} = $CRSQ::RUN{$i} = $CRSQ::TOT{$i} = 0;
 	if( ! defined($CRSQ::WARN{$i}) ){ $CRSQ::WARN{$i} = 1;}
+    }
+
+    my($tmp)=(split(" ",$STATUS))[0];
+    if ( ! -e $tmp){   
+	print "CRSQ :: Could not find $tmp necessary to proceed\n";
+	return -1;
     }
 
 
