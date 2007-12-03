@@ -706,7 +706,12 @@ if( $TARGET =~ m/^\// || $TARGET =~ m/^\^\// ){
 
     # In this mode, read a configuration file, select those runs
     # and submit them out.
-    if( ! -e $CONFF){ exit;}                       # no conf exit
+    if( ! -e $CONFF){ 
+	# no conf exit
+	print "$SELF : mode=bypass ; could not find $CONFF at this moment\n";
+	exit;
+    }
+
     if( ! ($obj = rdaq_open_odatabase()) ){ exit;} # no ddb abort
     if( -e $LOCKF){ exit;}                         # leave if lockf
 
