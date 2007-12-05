@@ -278,7 +278,7 @@ sub CRSQ_getcnt
     # any information, no need to continue ...
     if($TOT == 0){
 	print "CRSQ :: Error on ".localtime().
-	    ", none of the queues are available\n";
+	    ", none of the queues are available unavailable=$NOTA qcounts=".join(";",keys %CRSQ::TOT)."\n";
 	return -1;
     }
 
