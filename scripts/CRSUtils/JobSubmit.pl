@@ -391,8 +391,8 @@ if ($ThisYear == 2002){
 
 
     # Chain for 2008 starts here
-    $DCHAIN{"dAu"}           = "P2008,ITTF,QAalltrigs";
-    $SCALIB{"dAu"}           = "OptLaser";
+    $DCHAIN{"dAu"}  = "P2008,ITTF,QAalltrigs";
+    $SCALIB{"dAu"}  = "OptLaser";
 
 } else {
     # Well, at first you may get that message ... should tell you that
@@ -1078,7 +1078,7 @@ sub Submit
 	if( ! defined($chain) ){
 	    print
 		"$SELF : Warning : ".localtime().
-		"No chain options declared. No default for [$coll] either.\n";
+		" No chain options declared. No default for [$coll] either.\n";
 	    return 0;
 	}
     }
