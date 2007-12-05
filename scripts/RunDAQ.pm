@@ -259,7 +259,7 @@ sub rdaq_add_entry
 
     if(!$obj){ return 0;}
     $sth = $obj->prepare("INSERT IGNORE INTO $DBTABLE ".
-			 "VALUES(?,?,?,?,?,?,?,?,?,?,?,?,?,NOW()+0,0,0, 0,0,0,0,0)"); # MOD HERE
+			 "VALUES(?,?,?,?,?,?,?,?,?,?,?,?,?,NOW(),0,0, 0,0,0,0,0)"); # MOD HERE
     if ( $sth ){
 	if ( ! $sth->execute(@values) ){
 	    print "<!-- Could not execute with $#values params [".join(",",@values)."] -->\n"
@@ -286,7 +286,7 @@ sub rdaq_add_entries
 
     if($#records != -1){
 	$sth = $obj->prepare("INSERT INTO $DBTABLE ".
-			     "VALUES(?,?,?,?,?,?,?,?,?,?,?,?,?,NOW()+0,0,0, 0,0,0,0,0)"); # MOD HERE
+			     "VALUES(?,?,?,?,?,?,?,?,?,?,?,?,?,NOW(),0,0, 0,0,0,0,0)"); # MOD HERE
 	if($sth){
 	    foreach $line (@records){
 		@values = split(" ",$line);
@@ -1066,8 +1066,8 @@ sub rdaq_set_execdate
 sub rdaq_set_execdate_where
 {
     my($obj,$val,$stscond,@files)=@_;
-    if ( ! defined($val) ){ $val = "NOW()+0";}
-    if ( "$val" eq "0" ){   $val = "NOW()+0";}    
+    if ( ! defined($val) ){ $val = "NOW()";}
+    if ( "$val" eq "0" ){   $val = "NOW()";}    
     # print "<!-- In set_execdate_where() calling with $val=[$val] and cond=[$stscond] -->\n" if ($DEBUG);    
     return &__set_files_where($obj,"ExecDate",$val,$stscond,@files);
 }
@@ -1114,7 +1114,7 @@ sub __set_files_where
 
     # any change would the UpdateDate field
     # $cmd = "UPDATE $DBTABLE SET $field=$value, UpdateDate=NOW()+0 WHERE file=? ";
-    $TimeReset = ", UpdateDate=NOW()+0 ";
+    $TimeReset = ", UpdateDate=NOW() ";
 
     if ( $field eq "Status" && $value == 3){  $TimeReset = "";}
     $cmd = "UPDATE $DBTABLE SET $field=$value $TimeReset WHERE file=? ";
@@ -1654,7 +1654,7 @@ sub  rdaq_set_message
 
     if ( $obj = rdaq_open_odatabase() ){
 	$sth1 = $obj->prepare("SELECT id FROM FOMessages WHERE Message='?' AND Variablemsg='?'");
-	$sth2 = $obj->prepare("INSERT INTO FOMessages VALUES(0,NOW()+0,?,?,?)");
+	$sth2 = $obj->prepare("INSERT INTO FOMessages VALUES(0,NOW(),?,?,?)");
 	if ( ! defined($fac) ){  $fac  = "-";}
 	if ( ! defined($mess) ){ $cat  = "";}
 	if ( ! defined($var)){   $var  = "";}
