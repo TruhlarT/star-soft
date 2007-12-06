@@ -56,7 +56,7 @@ do {
 		&Print("Last Run=$run on ".localtime()."\n");
 		# the format here do not matter
 		if ( $run < 0){
-		    rdaq_set_message($SSELF,"Last run in our log",(-run)." but asked to bootstrap all records from the beginning");
+		    rdaq_set_message($SSELF,"Last run in our log",(-$run)." but asked to bootstrap all records from the beginning");
 		} else {
 		    rdaq_set_message($SSELF,"Last run in our log","We will update or get new runs >= $run");
 		}
