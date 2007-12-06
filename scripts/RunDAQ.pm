@@ -1675,6 +1675,7 @@ sub  rdaq_get_message
     my($limit,$fld,$sel)=@_;
     my($obj,$cmd,$sth,$sts,$key,$ii);
     my(@tmp,@rec,%Rec);
+    my($Debug)=0;
     
     if ( ! defined($limit) ){ $limit = 10;}
     if ( ! defined($sel) ){   $sel   = "";}
@@ -1699,12 +1700,19 @@ sub  rdaq_get_message
 	# ATTENTION - See http://www.star.bnl.gov/HyperNews-star/protected/get/dbdevel/47.html
 	# This may break
 	#-
-	$cmd .= " ORDER BY ITime DESC LIMIT ?";
-
-	# now prepare
-	$sth = $obj->prepare($cmd);
+	#$cmd .= " ORDER BY ITime DESC LIMIT ?";
+        #
+	# YES, broken 2007
+	#
+	#
+	#
+	## now prepare
+	#$sth = $obj->prepare($cmd);
 	
-	# push(@rec,";ModuleDebug;Prepare statement; $cmd + [$sel] [$limit]");
+	$cmd .= " ORDER BY ITime DESC LIMIT ".(10*$limit);
+	$sth = $obj->prepare($cmd);
+
+	push(@rec,";ModuleDebug;Prepare statement; $cmd + [$sel] [$limit]") if ($Debug);
 	$ii = 0;
 
 	# can't do the same sorting using MySQL
@@ -1715,13 +1723,13 @@ sub  rdaq_get_message
 	# based on key Message/Variablemsg
 	#
 	if ( $sel ne ""){
-	    $sts = $sth->execute($sel,10*$limit);
+	    $sts = $sth->execute($sel); 
 	} else {
-	    $sts = $sth->execute(10*$limit);
+	    $sts = $sth->execute();
 	}
 
 	if ( $sts ){
-	    # push(@rec,";ModuleDebug;Execute;Status was OK, ready to execute");
+	    push(@rec,";ModuleDebug;Execute;Status was OK, ready to execute") if ($Debug);
 	    # print "Execute";
 	    while ( (@tmp = $sth->fetchrow_array()) && $ii < $limit ){
 		$key = $tmp[2]." ".$tmp[3];
@@ -1732,8 +1740,9 @@ sub  rdaq_get_message
 		    $ii++;
 		}
 	    }
-	    # } else {
-	    # push(@rec,$obj->errstr);
+	} else {
+	    push(@rec,";ModuleDebug;Execute;Error was [".$obj->errstr."]") if ($Debug); 
+
 	}
 	return @rec;
     } else {
