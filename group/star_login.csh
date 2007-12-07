@@ -10,6 +10,12 @@
 #
 # do not do it again, do not even continue
 set self="star_login_csh"
+
+# have a way to force reloading full login
+if ( $?FLOGIN ) then
+   unsetenv star_login_csh
+endif
+
 if( $?star_login_csh ) exit
 
 # This needs in principle to be set only at the end

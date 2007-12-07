@@ -8,6 +8,12 @@
 # J.Lauret May 2001
 #
 set self="star_cshrc_csh"
+
+# have a way to force reloading full login
+if ( $?FLOGIN ) then
+   unsetenv star_login_csh
+endif
+
 setenv star_cshrc_csh 1
 if ( ! $?star_login_csh ) then
     #
