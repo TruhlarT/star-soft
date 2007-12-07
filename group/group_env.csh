@@ -1,5 +1,5 @@
 #!/bin/csh -x
-#       $Id: group_env.csh,v 1.198 2007/12/07 01:53:16 jeromel Exp $
+#       $Id: group_env.csh,v 1.199 2007/12/07 15:38:36 jeromel Exp $
 #	Purpose:	STAR group csh setup
 #
 #	Author:		Y.Fisyak     BNL
@@ -386,7 +386,7 @@ if ( -x ${GROUP_DIR}/dropit) then
   setenv PATH    `${GROUP_DIR}/dropit -p ${PATH} GROUPPATH`
   setenv PATH    `${GROUP_DIR}/dropit -p ${PATH} $STAR_PATH`
   #if ($?LD_LIBRARY_PATH == 1) setenv LD_LIBRARY_PATH `${GROUP_DIR}/dropit -p ${LD_LIBRARY_PATH} $STAR_PATH`
-  setenv LD_LIBRARY_PATH `${GROUP_DIR}/dropit -p ${LD_LIBRARY_PATH} $STAR_PATH`
+  setenv LD_LIBRARY_PATH `${GROUP_DIR}/dropit -p "${LD_LIBRARY_PATH}" $STAR_PATH`
   if ($?SHLIB_PATH == 1)      setenv SHLIB_PATH      `${GROUP_DIR}/dropit -p ${SHLIB_PATH} $STAR_PATH`
   
   setenv PATH `${GROUP_DIR}/dropit -p ${GROUPPATH} -p /usr/afsws/bin -p /usr/afsws/etc -p ${OPTSTAR}/bin -p /usr/sue/bin -p /usr/local/bin -p ${PATH}`
@@ -549,7 +549,7 @@ if ( $?DECHO ) echo "$self :: Extraneous packages check"
 # Support for LSF
 if ( -d /usr/local/lsf/bin && ! $?LSF_ENVDIR ) then
     if ( -e /etc/profile.d/lsfsetup.csh ) then
-	source /etc/profile.d/lsfsetup.csh
+	source /etc/profile.d/lsfsetup.csh 
     else
 	setenv LSF_DIR    /usr/local/lsf
 	setenv LSF_ENVDIR $LSF_DIR/mnt/conf
@@ -640,7 +640,14 @@ endif
 
 # ==================================================================
 # END
+# The above setups may mess path and append without checking
+# if already defined. dropit will "fix" duplicates
+if ( -x ${GROUP_DIR}/dropit ) then
+    setenv LD_LIBRARY_PATH `${GROUP_DIR}/dropit -p "${LD_LIBRARY_PATH}"`
+    setenv PATH  `${GROUP_DIR}/dropit -p "${PATH}"`
+endif
 # ==================================================================
+
 
 if ( $?DECHO ) echo "$self :: Final touch ..."
 
