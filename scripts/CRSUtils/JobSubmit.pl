@@ -429,7 +429,8 @@ $PRIORITY= 50;                        # default queue priority    (old=100 [max]
 $SLEEPT  =  1;                        # sleep time between submit (old=10)
 $MAXCNT  = 20;                        # max job to send in a pass
 $RATIO   =  2;                        # time drop down for mode + (2=twice faster)
-$MAXFILL = 95;                        # max disk occupancy
+$MAXFILL = 95;                        # max disk occupancy 
+$FUZZ4C  =  3;                        # for C mode, margin is higher MAXFILL+FUZZ4C <= 100 best ;-)
 $MINEVT  =  0 if (!defined($MINEVT)); # minimum number of events to consider
 
 
@@ -486,11 +487,15 @@ if ($TARGET !~ m/^\d+$/){
 	if ( $i != 0){  $ltarget = sprintf("%s%2.2d%s",$disk,$i,$last);}
 	else         {  $ltarget = $target;}
 
-	#print "Checking $ltarget\n";
-	chomp($space = `/bin/df -k $ltarget`);
-	$space =~ m/(.* )(\d+)(%.*)/;
-	$space =  $2;
-
+	#
+	# FreeSpace file is generated from outside and especially from
+	# FastOffCheck.pl which runs on the CAS farm nor on the rcrs node.
+	# The main goal of this approach is that we had (pre-2007) PanFS
+	# and the size could be reliably determined only from the farm
+	# and not the rcrs node, hence an information passing mechanism
+	# was designed.
+	#
+	$space = "";
 	if ( -e "$ltarget/FreeSpace"){
 	    $delta = time()-(stat("$ltarget/FreeSpace"))[10];
 	    if ( $delta < 3600){
@@ -500,10 +505,23 @@ if ($TARGET !~ m/^\d+$/){
 		close(FI);
 	    }
 	}
+	if ( $space eq ""){
+	    #print "Checking $ltarget\n";
+	    chomp($space = `/bin/df -k $ltarget`);
+	    $space =~ m/(.* )(\d+)(%.*)/;
+	    $space =  $2;
+	}
 
-	if ($space >= $MAXFILL ){
+
+
+	if ( $TARGET =~ m/^C/ && $space >= $MAXFILL+$FUZZ4C){
+	    print "$SELF : C mode - disk $ltarget is $space % full\n";
+	    rdaq_set_message($SSELF,"Target disk space notice","C mode - $ltarget is $space % full");
+
+	} elsif ($space >= $MAXFILL ){
 	    print "$SELF : Target disk $ltarget is $space % full\n";
 	    rdaq_set_message($SSELF,"Target disk space notice","$ltarget is $space % full");
+
 	} else {
 	    # only one disk OK warrant a full OK
 	    print "$SELF : Target disk $ltarget is $space < $MAXFILL (we shall proceed)\n";
@@ -514,7 +532,7 @@ if ($TARGET !~ m/^\d+$/){
 
     if ( ! $OK){
 	print "$SELF : Target disk(s) $target is/are full (baling out on ".localtime().")\n";
-	rdaq_set_message($SSELF,"Warning - Disk Space problem","Target disk(s) $target is/are full (baling out)");
+	rdaq_set_message($SSELF,"Disk Space problem","Target disk(s) $target is/are full (baling out)");
 	exit;
     }
 }
@@ -675,7 +693,7 @@ if( $TARGET =~ m/^\// || $TARGET =~ m/^\^\// ){
 		} else {
 		    # there is nothing to submit
 		    print "$SELF : There is nothing to submit on $time\n";
-		    rdaq_set_message($SSELF,"There is nothing to submit at this time");
+		    rdaq_set_message($SSELF,"Submitted","There is nothing to submit at this time");
 		}
 	    }
 
@@ -683,7 +701,7 @@ if( $TARGET =~ m/^\// || $TARGET =~ m/^\^\// ){
 	}
 	if(-e $LOCKF){  unlink($LOCKF);}
     } else {
-	rdaq_set_message($SSELF,"No slots available within range $USEQ[0] / $SPILL[0]","mode=direct");
+	rdaq_set_message($SSELF,"No slots available","$USEQ[0] / $SPILL[0]","mode=direct");
     }
 
 
