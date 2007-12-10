@@ -391,7 +391,7 @@ if ($ThisYear == 2002){
 
 
     # Chain for 2008 starts here
-    $DCHAIN{"dAu"}  = "P2008,ITTF,QAalltrigs";
+    $DCHAIN{"dAu"}  = "P2008b,ITTF";
     $SCALIB{"dAu"}  = "OptLaser";
 
 } else {
@@ -805,6 +805,8 @@ if( $TARGET =~ m/^\// || $TARGET =~ m/^\^\// ){
 
 		$SEL{"runNumber"} = $run;
 		$SEL{"Status"}    = 0;
+
+		# if ($patt ne ""){  $cnt = $cnt*10;}
 		@files = rdaq_get_orecords($obj,\%SEL,$cnt);
 	    }
 
@@ -830,6 +832,7 @@ if( $TARGET =~ m/^\// || $TARGET =~ m/^\^\// ){
 		    if ($patt ne ""){
 			if ( $file !~ /$patt/ ){
 			    print "$SELF : Skipping $file not matching $patt\n";
+			    $TOT++;  # re-increment this since we skipped it
 			    push(@SKIPPED,$file);
 			    next;
 			}
