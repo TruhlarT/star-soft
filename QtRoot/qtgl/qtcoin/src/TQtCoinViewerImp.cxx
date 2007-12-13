@@ -389,7 +389,7 @@ void TQtGLViewerImp::ShowStatusBar(Bool_t show)
  {
    QObject::disconnect(&Signals(),SIGNAL( ObjectSelected(TObject *, const QPoint&)));
    QObject::disconnect(&Signals(),SIGNAL( HandleSelected(ULong_t, const QPoint&)));
-   QObject::disconnect(&Signals(),SIGNAL(ImageSaved(QString &,QString &, int)));
+   QObject::disconnect(&Signals(),SIGNAL(ImageSaved(QString ,QString , int)));
    if (fCoinWidget) fCoinWidget->DisconnectPad();
  }
 //______________________________________________________________________________
@@ -790,8 +790,8 @@ void TQtCoinViewerImp::CreateViewer(const char *name)
              , &this->Signals(), SIGNAL(ObjectSelected(TObject *, const QPoint&)));
       connect(fCoinWidget,SIGNAL(NodeSelected(ULong_t,const QPoint &))
              , &this->Signals(), SIGNAL(HandleSelected(ULong_t, const QPoint&)));
-      connect(fCoinWidget,SIGNAL(ImageSaved(QString &,QString &, int))
-             , &this->Signals(), SIGNAL(ImageSaved(QString &,QString &, int)));
+      connect(fCoinWidget,SIGNAL(ImageSaved(QString ,QString , int))
+             , &this->Signals(), SIGNAL(ImageSaved(QString ,QString , int)));
    }
 }
 

@@ -1,4 +1,4 @@
-// @(#)root/g3d:$Name:  $:$Id: TQGLViewerImp.h,v 1.17 2007/07/01 23:36:31 fine Exp $
+// @(#)root/g3d:$Name:  $:$Id: TQGLViewerImp.h,v 1.18 2007/12/13 21:25:23 fine Exp $
 // Author: Valery Fine      12/03/2005
 
 /*************************************************************************
@@ -62,7 +62,7 @@ signals:
    void Destroyed( TGLViewerImp *);
    void ObjectSelected(TObject *, const QPoint&);
    void HandleSelected(ULong_t, const QPoint&);
-   void ImageSaved(QString &fileName,QString &fileType, int frameCounter);
+   void ImageSaved(QString fileName,QString fileType, int frameCounter);
 };
 
 #else
