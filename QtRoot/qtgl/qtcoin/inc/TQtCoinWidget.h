@@ -1,8 +1,8 @@
-// @(#)root/g3d:$Name:  $:$Id: TQtCoinWidget.h,v 1.28 2007/06/26 22:26:01 fine Exp $
+// @(#)root/g3d:$Name:  $:$Id: TQtCoinWidget.h,v 1.29 2007/12/13 20:21:41 fine Exp $
 // Author: Valery Fine      23/05/97
 
 /****************************************************************************
-** $Id: TQtCoinWidget.h,v 1.28 2007/06/26 22:26:01 fine Exp $
+** $Id: TQtCoinWidget.h,v 1.29 2007/12/13 20:21:41 fine Exp $
 **
 ** Copyright (C) 2002 by Valeri Fine. Brookhaven National Laboratory.
 **                                    All rights reserved.
@@ -325,7 +325,7 @@ public:
        void ObjectSelected(TObject *, const QPoint&);
        void NodeSelected(ULong_t, const QPoint&);
        void NextFrameReady(bool on=TRUE);
-       void ImageSaved(QString &fileName,QString &fileType, int frameCounter);
+       void ImageSaved(QString fileName,QString fileType, int frameCounter);
 #endif
 
 //   ClassDef(TQtCoinWidget,0)  //ROOT OpenGL viewer implementation

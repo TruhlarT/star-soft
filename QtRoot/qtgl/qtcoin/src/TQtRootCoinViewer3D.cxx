@@ -135,12 +135,12 @@ void  TQtRootCoinViewer3D::EndScene()
 
    fViewer->SetUpdatesEnabled(FALSE);
    fViewer->Clear();
-   
+
    CloseScene();
-   
+
    fViewer->Update();
    fViewer->SetUpdatesEnabled(TRUE);
-   
+
 }
 //______________________________________________________________________________
 Int_t  TQtRootCoinViewer3D::AddRawObject(ULong_t placedID, UInt_t optMask)
