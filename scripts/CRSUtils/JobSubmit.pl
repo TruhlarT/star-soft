@@ -1166,7 +1166,7 @@ sub Submit
     # Note that skipping dets when tpc is not present is ONLY related to
     # mode 1. While mode is weakly related to regular/calib/bypass, mode Z (ezTree)
     # uses mode=1 and will therefore ACCEPT files with no tpc information in.
-    if ( $dets ne "tpc" && $dets !~ m/\.tpc/){
+    if ( $dets ne "tpc" && $dets !~ m/\.tpc/ &&  $dets !~ m/tpc\./){
 	if ($mode != 1){
 	    print "$SELF : Info : detectors are [$dets] (not including tpc) skipping it\n";
 	    push(@SKIPPED,$file);
