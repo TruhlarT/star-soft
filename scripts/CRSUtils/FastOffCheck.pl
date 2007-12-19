@@ -26,6 +26,7 @@ $FIND    = "/usr/bin/find";
 $UPDATE  = 0;
 $RETENT  = 14;
 $SSELF   = "FastOffCheck";
+$DEBUG   = $ENV{FastOffCheck_DEBUG};
 
 $LIB     = shift(@ARGV) if ( @ARGV );
 $TARGET  = shift(@ARGV) if ( @ARGV );
@@ -40,25 +41,61 @@ $SCRATCH   = defined($ENV{SCRATCH})?$ENV{SCRATCH}:"/tmp/$<";
 $SPACEPRGM = $ENV{STAR_SCRIPTS}."/dfpanfs";
 
 
+# create scratch if not there
 if ( ! -d $SCRATCH){  mkdir($SCRATCH);}
+
+
+$lockf = $TARGET;
+$lockf =~ s/\//_/g;
+$lockf = $SCRATCH."/$lockf.lck";
+if ( -e $lockf ){
+    my(@info)=stat($lockf);
+    if ( (time()-$info[10]) > 7200){  # 2 hours
+	print "Removing lock file $lockf ".localtime()."\n";
+	unlink($lockf);
+    } else {
+	print "Skipping - $lockf is present\n";
+	exit;
+    }
+}
+# else open a lock and delete later
+open(FLCK,">$lockf") || die "Could not create $lockf\n";
+print FLCK localtime()."\n";
+close(FLCK);
+
+
+
 
 # Fault tolerant. No info if fails.
 if( ! opendir(DIR,"$JOBDIR") ){
     print "$JOBDIR does not exists\n";
     exit;
+} else {
+    print "DEBUG $JOBDIR is opened\n" if ($DEBUG);
 }
+
+
+
+print "DEBUG Update=$UPDATE\n" if ($DEBUG);
 
 if ($UPDATE == 0){
     print "Scanning $JOBDIR vs $TARGET on ".localtime()."\n";
 
     if ( -e $SPACEPRGM ){
+	print "DEBUG Getting space for $TARGET using $SPACEPRGM\n" if ($DEBUG);
 	chomp($space = `$SPACEPRGM  $TARGET`);
 	$space =~ m/(.* )(\d+)(%.*)/;
 	$space =  $2;
-	open(FO,">$TARGET/FreeSpace");
-	print FO "$space\n";
-	close(FO);
+
+	open(FO,">$TARGET/FreeSpace.new") || &Die("Could not open $TARGET/FreeSpace.new");
+	print FO "$space\n"; close(FO);
+	unlink("$TARGET/FreeSpace") if ( -e "$TARGET/FreeSpace");
+	rename("$TARGET/FreeSpace.new","$TARGET/FreeSpace");
+
+	print "DEBUG FreeSpace is $space\n" if ($DEBUG);
     }
+
+    $TAKEN = $COUNT = 0;
 
     while( defined($jfile = readdir(DIR)) ){
 	#print "$jfile\n";
@@ -67,12 +104,17 @@ if ($UPDATE == 0){
 	    $file = $2;
 
 	    # print "$jfile Tree=$tree file=$file\n";
+	    next if ($file =~ /st_laser/);  # some knowledge of our file naming
 
 	    $tree =~ s/_/\//g;
 	    chop($tree);        # remove trailing '/'
 	    if( -e "$JOBDIR/old/$jfile.checked"){
 		@stat1 = stat("$JOBDIR/old/$jfile.checked");
 		@stat2 = stat("$JOBDIR/$jfile");
+
+                # can happen of disappear like a massive delete or move
+		next if ($#stat2 == -1 || $#stat1 == -1);
+
 		if ( $stat1[10] >= $stat2[10]){
 		    next;
 		} else {
@@ -87,11 +129,20 @@ if ($UPDATE == 0){
 		push(@MOVE,$jfile);
 	    } else {
 		if ( ! -e "$SCRATCH/$file.done"){
-		    open(FF,">$SCRATCH/$file.done"); close(FF);
+		    $COUNT++;
+		    if ($DEBUG){
+			if ( $COUNT%50==0 ){
+			    print "DEBUG Got $TAKEN/$COUNT $file\n";
+			}
+		    }
+
 		    # print "Searching for $file\n";
 		    chomp($lfile = `cd $TARGET ; $FIND -type f -name $file.MuDst.root`);
 		    if( $lfile ne ""){
-			# found it so it is done.
+			# found it so it is done - if not, it may be on another disk
+			# .checked file is really what will disable the check though
+			open(FF,">$SCRATCH/$file.done") || &Die("Cannot open $SCRATCH/$file.done");
+			close(FF);
 
 			@info = stat("$TARGET/$lfile");
 			if ( $#info == -1){
@@ -105,14 +156,15 @@ if ($UPDATE == 0){
 			chop($tree);
 			$tree =~ s/\.\///;
 
-			#print " $el --> $TARGET/$tree\n";
+			$TAKEN++;
+			print "DEBUG $el --> $TARGET/$tree\n" if ($DEBUG);
 
 			$LOCATIONS{"$file.daq"} = "$TARGET/$tree";
 			rdaq_set_message($SSELF,"New file found as done with prod","$file");
 			push(@DONE,"$file.daq");
 			push(@MOVE,$jfile);
 		    } else {
-			# print "Could not find $TARGET/$tree/$file.MuDst.root\n";
+			#print "DEBUG Could not find $TARGET/$tree/$file.MuDst.root\n" if ($DEBUG);
 		    }
 		}
 	    }
@@ -140,11 +192,21 @@ if ($UPDATE == 0){
 	    unlink("$TARGET/$el");
 	    $el =~ s/.*\///g;
 	    $el =~ s/\..*//;
+
+	    # job file should be moved in old/ so the job directory
+	    # does not get too large
+	    if (-e "$JOBDIR/$el"){
+		rename("$JOBDIR/$el","$JOBDIR/old/$el");
+		print "Renaming $JOBDIR/$el to the old/ directory\n";
+	    }
+
 	    $el .= ".daq";
 
 	    if( ! defined($LOCATIONS{$el}) ){
 		$LOCATIONS{$el} = 0;
 	    }
+
+
 	}
     }
 
@@ -157,17 +219,22 @@ if ($UPDATE == 0){
 	    }
 	}
 
-	print "Setting files with status=2 if status=1 [".join(" ",@DONE)."]\n";
-	rdaq_toggle_debug(1);
-	rdaq_set_files_where($obj,2,1,@DONE);
-	rdaq_close_odatabase($obj);
+	if ($#DONE != -1){
+	    print "Setting files with status=2 if status=1 [".join(" ",@DONE)."]\n";
+	    rdaq_toggle_debug(1);
+	    rdaq_set_files_where($obj,2,1,@DONE);
+	    rdaq_close_odatabase($obj);
 
-	foreach $jfile (@MOVE){
-	    open(FO,">$JOBDIR/old/$jfile.checked");
-	    print FO "$0 ".localtime()."\n";
-	    close(FO);
+	    # if we have a problem here, not  abig deal (time stamp will
+	    # be compared again)
+	    foreach $jfile (@MOVE){
+		open(FO,">$JOBDIR/old/$jfile.checked");
+		print FO "$0 ".localtime()."\n";
+		close(FO);
+	    }
 	}
     }
+
 } elsif ($UPDATE == 1) {
     # Scan the directory for all files present and mark their
     # path in the database. This is rarely used. And done
@@ -234,4 +301,28 @@ if ($UPDATE == 0){
     }
 
 }
+
+DONE:
+    &end();
+
+
+
+
+sub end {  unlink($lockf) if ( -e $lockf);    }
+
+
+sub Die
+{
+    my(@MSG)=@_;
+    my($mess);
+
+    &end();
+
+    foreach $mess (@MSG){
+	chomP($mess);
+	die "$mess\n";
+    }
+}
+
+
 
