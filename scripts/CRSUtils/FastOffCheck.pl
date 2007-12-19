@@ -35,6 +35,10 @@ $UPDATE  = shift(@ARGV) if ( @ARGV );   # 0, scan and delete if old,
                                         # 1, scan and enter in db
                                         # 2, get db entries and compare
 
+# You can debug a specific run #
+$DEBUGR = 8348080;
+
+
 # Assume standard tree structure
 $JOBDIR    = "/star/u/starreco/$LIB/requests/daq/archive/";
 $SCRATCH   = defined($ENV{SCRATCH})?$ENV{SCRATCH}:"/tmp/$<";
@@ -76,6 +80,7 @@ if( ! opendir(DIR,"$JOBDIR") ){
 
 
 
+
 print "DEBUG Update=$UPDATE\n" if ($DEBUG);
 
 if ($UPDATE == 0){
@@ -106,6 +111,11 @@ if ($UPDATE == 0){
 	    # print "$jfile Tree=$tree file=$file\n";
 	    next if ($file =~ /st_laser/);  # some knowledge of our file naming
 
+	    if ($DEBUG){
+		if ($file =~ m/$DEBUGR/){ print "DEBUG **** found it $file ***\n";}
+	    }
+		
+
 	    $tree =~ s/_/\//g;
 	    chop($tree);        # remove trailing '/'
 	    if( -e "$JOBDIR/old/$jfile.checked"){
@@ -116,6 +126,9 @@ if ($UPDATE == 0){
 		next if ($#stat2 == -1 || $#stat1 == -1);
 
 		if ( $stat1[10] >= $stat2[10]){
+		    if ($DEBUG){
+			if ($file =~ m/$DEBUGR/){ print "DEBUG **** $jfile.checked exist [skip]\n";}
+		    }
 		    next;
 		} else {
 		    print "$jfile is more recent than last check. Rescan\n";
@@ -129,6 +142,12 @@ if ($UPDATE == 0){
 		push(@MOVE,$jfile);
 	    } else {
 		if ( ! -e "$SCRATCH/$file.done"){
+		    if ($DEBUG){
+			if ($file =~ m/$DEBUGR/){ 
+			    print "DEBUG **** Did NOT find $SCRATCH/$file.done [treat]\n";
+			}
+		    }
+
 		    $COUNT++;
 		    if ($DEBUG){
 			if ( $COUNT%50==0 ){
@@ -164,6 +183,12 @@ if ($UPDATE == 0){
 			push(@DONE,"$file.daq");
 			push(@MOVE,$jfile);
 		    } else {
+			if ($DEBUG){
+			    if ($file =~ m/$DEBUGR/){ 
+				print "DEBUG **** Found $SCRATCH/$file.done [skip]\n";
+			    }
+			}
+
 			#print "DEBUG Could not find $TARGET/$tree/$file.MuDst.root\n" if ($DEBUG);
 		    }
 		}
@@ -243,6 +268,7 @@ if ($UPDATE == 0){
     $obj = rdaq_open_odatabase();
     if($obj){
 	chomp(@all = `cd $TARGET ; $FIND -type f -name '*.MuDst.root'`);
+	print "We found $#all in the db\n" if ($DEBUG);
 	foreach $el (@all){
 	    $el =~ m/(.*\/)(.*)/;
 	    ($tree,$el) = ($1,$2);
