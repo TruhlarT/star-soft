@@ -1092,14 +1092,16 @@ sub rdaq_set_xstatus_where
 sub __set_files_where
 {
     my($obj,$field,$value,$stscond,@files)=@_;
-    my($sth,$success,$cmd);
     my($TimeReset);
     my(@items);
+    #my($sth,$success,$cmd);
+    my($sth,$cmd);
+    my(@FS);
 
     if(!$obj){         return 0;}
     if($#files == -1){ return 0;}
 
-    $success = 0;
+    #$success = 0;
 
     # If not numerical and they are indirect fields defined via
     # index/value tables, record and/or fetch the value now.
@@ -1130,12 +1132,13 @@ sub __set_files_where
 	    # support for list of files or full list.
 	    $file = (split(" ",$file))[0];
 	    if($sth->execute($file)){
-		$success++;
+		push(@FS,$file);
+		#$success++;
 	    }
 	}
 	$sth->finish();
     }
-    $success;
+    return @FS;
 }
 
 
