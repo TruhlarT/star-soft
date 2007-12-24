@@ -82,6 +82,7 @@ $DLOG  = "<A HREF=\"$this_script?Trace=1\"><IMG BORDER=\"0\" SRC=\"/icons/text.g
 $TARGET  = "RunLog";
 $LINKREF = "http://online.star.bnl.gov/$TARGET/Summary.php?run=";
 
+$CACHES  = 120;
 
 
 $obj   = rdaq_open_odatabase();
@@ -326,166 +327,174 @@ if( $flag && ! $trace ){
     # This part simply shows all fields in a table format for selection
     # i.e. build a form etc ...
     if ( ! $trace ){
-	print 
-	  "<FORM ACTION=\"$this_script\">\n",
-	  "<TABLE WIDTH=800 BORDER=\"0\">\n";   
+	my(@info)=stat("/tmp/FOPage.html");
+	if ( (time()-$info[10]) > $CACHES || ! -e "/tmp/FOPage.html" ){
+	    if (open(FF,">/tmp/FOPage.html")){
+		print FF
+		    "<FORM ACTION=\"$this_script\">\n",
+		    "<TABLE WIDTH=800 BORDER=\"0\">\n";   
 
-	$STDK  = "<TD WIDTH=100 BGCOLOR=\"#e6e6e6\">";
-	$STDV  = "<TD WIDTH=300 BGCOLOR=\"#e6e6ff\">";
-	$ETD   = "</TD>";
-	$SFONT = "<FONT FACE=\"Lucida Sans, sans-serif\"><FONT SIZE=\"3\">";
-	$EFONT = "</FONT></FONT>";
+		$STDK  = "<TD WIDTH=100 BGCOLOR=\"#e6e6e6\">";
+		$STDV  = "<TD WIDTH=300 BGCOLOR=\"#e6e6ff\">";
+		$ETD   = "</TD>";
+		$SFONT = "<FONT FACE=\"Lucida Sans, sans-serif\"><FONT SIZE=\"3\">";
+		$EFONT = "</FONT></FONT>";
 
-	$ii    = 0;
+		$ii    = 0;
 
-	foreach $field (sort keys %FIELDS){
-	    %labels=();
+		foreach $field (sort keys %FIELDS){
+		    %labels=();
 
-	    ($pos,$name) = split(";",$field);
+		    ($pos,$name) = split(";",$field);
 
-	    if ($name eq ""){
-		# This is some kind of header
-		print 
-		  "<TR>\n",
-		  "    <TD COLSPAN=4 BGCOLOR=\"#9999cc\">\n",
-		  "         <FONT COLOR=\"#000080\"><FONT FACE=\"Arial, sans-serif\"><FONT SIZE=4>\n",
-		  "            <B>$FIELDS{$field}</B>\n",
-		  "         </FONT>\n",
-		  "    </TD>\n";
-		next;
-	    }
+		    if ($name eq ""){
+			# This is some kind of header
+			print FF
+			    "<TR>\n",
+			    "    <TD COLSPAN=4 BGCOLOR=\"#9999cc\">\n",
+			    "         <FONT COLOR=\"#000080\"><FONT FACE=\"Arial, sans-serif\"><FONT SIZE=4>\n",
+			    "            <B>$FIELDS{$field}</B>\n",
+			    "         </FONT>\n",
+			    "    </TD>\n";
+			next;
+		    }
 
-	    # else
-	    $ii++;
+		    # else
+		    $ii++;
 
-	    @values = rdaq_list_field($obj,$name,undef,60);
-	    if( defined($CONVERT{$name}) && $#values != -1){
-		# A conversion was requested
-		foreach $val (@values){
-		    my($fval);
-		    $cmd = "\$fval = $CONVERT{$name}($val)";
-		    eval($cmd);
-		    $labels{$val} = $fval;
+		    @values = rdaq_list_field($obj,$name,undef,$CACHES);
+		    if( defined($CONVERT{$name}) && $#values != -1){
+			# A conversion was requested
+			foreach $val (@values){
+			    my($fval);
+			    $cmd = "\$fval = $CONVERT{$name}($val)";
+			    eval($cmd);
+			    $labels{$val} = $fval;
+			}
+		    }
+	    
+		    # @values = sort  {$b cmp $a} @values;
+		    if($name eq "TrgMask")   { push(@values,"0:unknown");}
+		    # if($name eq "TrgSetup")  { push(@values,"0:unknown");}
+		    if($name eq "DetSetMask"){ push(@values,"0:unknown");}
+		    unshift(@values,"All");
+
+		    if ($ii%2){  print FF "<TR>\n";}
+	    
+		    print FF
+			"    $STDK $SFONT $FIELDS{$field} $EFONT $ETD\n",
+			"    $STDV ";
+		    if ($name eq "runNumber"){
+			print FF $query->scrolling_list(-name=>$name,
+							-values=>\@values,
+							-labels=>\%labels,
+							-size=>5,
+							-multiple=>'true',
+							-default=>"All"
+							);
+		    } else {
+			print FF $query->popup_menu(-name=>$name,
+						    -values=>\@values,
+						    -labels=>\%labels
+						    );
+		    }
+		    print FF "$ETD\n";
+		    if (! $ii%2){  print FF "</TR>\n";}
 		}
+
+		
+		# Put a number of records limit
+		%labels = ();
+		@values = (20,50,100,200,500,1000,2000,"All");
+		foreach $val ( @values ){
+		    $labels{$val} = " $val ";
+		}
+		print FF
+		    "<TR>\n",
+		    "    $STDK $SFONT Only the last (entries) $EFONT $ETD\n",
+		    "    $STDV",
+		    $query->radio_group(-name=>"Limit",
+					-values=>\@values,
+					-labels=>\%labels,
+					-default=>200),
+		    "$ETD\n";
+
+
+		# Put a time limit
+		%labels = ();
+		@values=(" 24 hours "," 2 days "," 3 days "," 4 days "," 7 days ",
+			 " 14 days "," 21 days "," 28 days ");
+		for($i=0 ; $i <= $#values ; $i++){
+		    $val = &DateCalc("now","-$values[$i]");
+		    $val =~ s/://g;
+		    $labels{$val} = $values[$i];
+		    $values[$i]   = $val;
+		}
+		unshift(@values,0);
+		$labels{0} = "All";
+		print FF
+		    "    $STDK $SFONT Limit by last (time sel) $EFONT $ETD\n",
+		    "    $STDV",
+		    $query->radio_group(-name=>"EntryDate",
+					-values=>\@values,
+					-labels=>\%labels,
+					-default=>0),
+		    "$ETD\n</TR>\n";
+
+		
+		# Put a detail level choice
+		print FF
+		    "<TR>\n",
+		    "    <TD COLSPAN=4 BGCOLOR=\"#9999cc\">\n",
+		    "         <FONT COLOR=\"#000080\"><FONT FACE=\"Arial, sans-serif\"><FONT SIZE=4>\n",
+		    "            <B>Display and verbosity</B>\n",
+		    "         </FONT>\n",
+		    "    </TD>\n";
+
+		%labels = ();
+		$labels{0} = " Full ";
+		$labels{1} = " Medium ";
+		$labels{2} = " Low ";
+		@values = keys %labels;
+		print FF
+		    "<TR>\n",
+		    "    $STDK $SFONT Detail level $EFONT $ETD\n",
+		    "    $STDV",
+		    $query->radio_group(-name=>"Display",
+					-values=>\@values,
+					-labels=>\%labels,
+					-default=>0),
+		    "$ETD\n";
+
+
+		
+		# Give the on-disk/not-on disk choice
+		%labels=();
+		@values=(">0","!0");
+		$labels{"!0"} = " On disk ";
+		$labels{">0"} = " All ";
+		print FF
+		    "    $STDK $SFONT Availability $EFONT $ETD\n",
+		    "    $STDV",
+		    $query->radio_group(-name=>"DiskLoc",
+					-values=>\@values,
+					-labels=>\%labels,
+					-default=>">0"),
+		    "$ETD\n",
+		    "</TR>\n";
+
+
+		print FF
+		    "</TABLE>\n",
+		    $query->submit(),"\n",
+		    $query->endform(),"\n<HR>\n",
+		    $DLOG;
+		close(FF);
 	    }
-	    
-	    # @values = sort  {$b cmp $a} @values;
-	    if($name eq "TrgMask")   { push(@values,"0:unknown");}
-	    # if($name eq "TrgSetup")  { push(@values,"0:unknown");}
-	    if($name eq "DetSetMask"){ push(@values,"0:unknown");}
-	    unshift(@values,"All");
-
-	    if ($ii%2){  print "<TR>\n";}
-	    
-	    print
-	      "    $STDK $SFONT $FIELDS{$field} $EFONT $ETD\n",
-	      "    $STDV ";
-	    if ($name eq "runNumber"){
-		print $query->scrolling_list(-name=>$name,
-		                             -values=>\@values,
-		                             -labels=>\%labels,
-					     -size=>5,
-					     -multiple=>'true',
-					     -default=>"All"
-					    );
-	    } else {
-		print $query->popup_menu(-name=>$name,
-				         -values=>\@values,
-				         -labels=>\%labels
-		                        );
-	    }
-	    print "$ETD\n";
-	    if (! $ii%2){  print "</TR>\n";}
 	}
-
-
-	# Put a number of records limit
-	%labels = ();
-	@values = (20,50,100,200,500,1000,2000,"All");
-	foreach $val ( @values ){
-	    $labels{$val} = " $val ";
-	}
-	print 
-	  "<TR>\n",
-	  "    $STDK $SFONT Only the last (entries) $EFONT $ETD\n",
-	  "    $STDV",
-	  $query->radio_group(-name=>"Limit",
-	                      -values=>\@values,
-			      -labels=>\%labels,
-			      -default=>200),
-	  "$ETD\n";
-
-
-	# Put a time limit
-	%labels = ();
-	@values=(" 24 hours "," 2 days "," 3 days "," 4 days "," 7 days ",
-	         " 14 days "," 21 days "," 28 days ");
-	for($i=0 ; $i <= $#values ; $i++){
-	    $val = &DateCalc("now","-$values[$i]");
-	    $val =~ s/://g;
-	    $labels{$val} = $values[$i];
-	    $values[$i]   = $val;
-	}
-	unshift(@values,0);
-	$labels{0} = "All";
-	print 
-	  "    $STDK $SFONT Limit by last (time sel) $EFONT $ETD\n",
-	  "    $STDV",
-	  $query->radio_group(-name=>"EntryDate",
-			      -values=>\@values,
-			      -labels=>\%labels,
-			      -default=>0),
-	  "$ETD\n</TR>\n";
-
-
-	# Put a detail level choice
-	print 
-	  "<TR>\n",
-	  "    <TD COLSPAN=4 BGCOLOR=\"#9999cc\">\n",
-	  "         <FONT COLOR=\"#000080\"><FONT FACE=\"Arial, sans-serif\"><FONT SIZE=4>\n",
-	  "            <B>Display and verbosity</B>\n",
-	  "         </FONT>\n",
-	  "    </TD>\n";
-
-	%labels = ();
-	$labels{0} = " Full ";
-	$labels{1} = " Medium ";
-	$labels{2} = " Low ";
-	@values = keys %labels;
-	print 
-	  "<TR>\n",
-	  "    $STDK $SFONT Detail level $EFONT $ETD\n",
-	  "    $STDV",
-	  $query->radio_group(-name=>"Display",
-			      -values=>\@values,
-			      -labels=>\%labels,
-			      -default=>0),
-	  "$ETD\n";
-
-
-
-	# Give the on-disk/not-on disk choice
-	%labels=();
-	@values=(">0","!0");
-	$labels{"!0"} = " On disk ";
-	$labels{">0"} = " All ";
-	print 
-	  "    $STDK $SFONT Availability $EFONT $ETD\n",
-	  "    $STDV",
-	  $query->radio_group(-name=>"DiskLoc",
-			      -values=>\@values,
-			      -labels=>\%labels,
-			      -default=>">0"),
-	  "$ETD\n",
-	  "</TR>\n";
-
-
-	print 
-	  "</TABLE>\n",
-	  $query->submit(),"\n",
-	  $query->endform(),"\n<HR>\n",
-	  $DLOG;
-	 
+	open(FF,"/tmp/FOPage.html");
+	while ( defined($line = <FF>)){ print $line;}
+	close(FF);
 
     } else {
 	# TRACE ENABLED - Showed in both mode
