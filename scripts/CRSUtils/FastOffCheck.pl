@@ -179,7 +179,7 @@ if ($UPDATE == 0){
 			print "DEBUG $el --> $TARGET/$tree\n" if ($DEBUG);
 
 			$LOCATIONS{"$file.daq"} = "$TARGET/$tree";
-			rdaq_set_message($SSELF,"New file found as done with prod","$file");
+			#rdaq_set_message($SSELF,"New file found as done with prod","$file");
 			push(@DONE,"$file.daq");
 			push(@MOVE,$jfile);
 		    } else {
@@ -247,8 +247,15 @@ if ($UPDATE == 0){
 	if ($#DONE != -1){
 	    print "Setting files with status=2 if status=1 [".join(" ",@DONE)."]\n";
 	    rdaq_toggle_debug(1);
-	    rdaq_set_files_where($obj,2,1,@DONE);
+	    @all = rdaq_set_files_where($obj,2,1,@DONE);
 	    rdaq_close_odatabase($obj);
+
+	    # reshaped to realistic success status
+	    # between @DONE and @all, the difference could be files already entered
+	    # but for which we had previously set status=2 ... or simply failed entries.
+	    foreach $jfile (@all){
+		rdaq_set_message($SSELF,"New file found as done with prod","$jfile");
+	    }
 
 	    # if we have a problem here, not  abig deal (time stamp will
 	    # be compared again)
