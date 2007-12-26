@@ -1,5 +1,5 @@
 //_____________________________________________________________________
-// @(#)StRoot/StBFChain:$Name:  $:$Id: StBFChain.cxx_doc,v 1.41 2007/12/01 00:59:51 jeromel Exp $
+// @(#)StRoot/StBFChain:$Name:  $:$Id: StBFChain.cxx_doc,v 1.42 2007/12/26 18:31:32 genevb Exp $
 //_____________________________________________________________________
 #include "TROOT.h"
 #include "TString.h"
@@ -402,6 +402,7 @@ Bfc_st BFC[] = {
 
   {"ezTree" ,"" ,"","","" ,"","Create ezTree branch",kFALSE},
   {"BEmcDebug","" ,"","","" ,"","Turn OFF B-EMC hit reconstruction cuts",kFALSE},
+  {"BEmcChkStat","" ,"","","" ,"","Turn ON status checking in raw data",kFALSE},
 
 
   {"useLDV" ,"" ,"","","" ,"","... uses laserDV database flavor",kFALSE},
@@ -1622,6 +1623,7 @@ Bfc_st BFC2[] = {
 
   {"ezTree" ,"" ,"","","" ,"","Create ezTree branch",kFALSE},
   {"BEmcDebug","" ,"","","" ,"","Turn OFF B-EMC hit reconstruction cuts",kFALSE},
+  {"BEmcChkStat","" ,"","","" ,"","Turn ON status checking in raw data",kFALSE},
 
 
   {"useLDV" ,"" ,"","","" ,"","... uses laserDV database flavor",kFALSE},
@@ -2639,6 +2641,10 @@ Int_t StBFChain::Instantiate()
     // hit reco cuts. This will make allm hits saved to MuDST /ezTree.
     if ( maker == "StEmcRawMaker" && GetOption("BEmcDebug"))
       mk->SetMode(1); // only one option now, bit a bitmask
+    
+    // Use status tables for raw BEMC data (helpful for QA)
+    if ( maker == "StEmcRawMaker" && GetOption("BEmcChkStat"))
+      mk->SetAttr("BEmcCheckStatus",kTRUE);
     
     // MuDST and ezTree. Combinations are
     //  ezTree         -> ezTree only
