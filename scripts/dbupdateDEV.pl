@@ -509,7 +509,6 @@ my $fflag;
 my $Fname;
 my @files;
 
- 
 
  foreach  my $eachOutLDir (@OUT_DIR) {
           if (-d $eachOutLDir) {
@@ -728,6 +727,8 @@ my @files;
       $crCode = "n/a"; 
  print "Insert new files: ", $mjID, " % ",$fullName, "\n";
       $idHash{$fullName} = $mjID;
+###########################
+
     &fillJSTable();
 
         foreach my $nOldJob (@old_jobs) {
@@ -1357,9 +1358,9 @@ sub  updateJSTable {
 
 #---------------------------------------------------------
  
-#  print $fl_log, "\n";
+  print $fl_log, "\n";
 
-  open (LOGFILE, $fl_log ) or die "cannot open $fl_log: $!\n";
+  open (LOGFILE, $fl_log ) or die "cannot open $fl_log", "\n";
 
    my @logfile = <LOGFILE>;
 
@@ -1367,8 +1368,23 @@ my $Anflag = 0;
 my $runflag = 0;
 my $mCPUbfc = 0;
 my $mRealTbfc = 0;
+my $embflag = 0;
+my @tmm = ();
+my $mrlt = 0;
+my $mcpu = 0;
+my $rlt = 0;
+my $cput = 0;
+my $mixline = "$STAR/StRoot/macros/embedding";
 
- 
+$Err_messg = "none";
+$jrun = "n/a";
+
+  if($fl_log =~ /embed/) {
+
+   $embflag = 1;
+ }
+
+
    foreach my $line (@logfile) {
        chop $line ;
         $num_line++; 
@@ -1381,6 +1397,7 @@ my $mRealTbfc = 0;
       $Anflag = 1;
     }
 
+  
        if ($line =~ /QAInfo:You are using STAR_LEVEL/) {
          @part = split (" ", $line);
          $rootL = $part[8];
@@ -1388,30 +1405,60 @@ my $mRealTbfc = 0;
        }
 #   get library version
       if ( $line =~ /={3} You are in (\w+)/ ) {
-        if( $Anflag == 0) {
+        if( $Anflag == 0 or $embflag == 1 ) {
         $libV = $1;
       }else{
        next;
        }
     }
+
 #   get chain option
-	  if($runflag == 1) {
+	  if($runflag == 1 or $embflag == 1 ) {
 	      if ( $line =~ /Processing bfc.C/)   {
          if( $Anflag == 0 ) {
+         @part = ();
          @part = split /"/, $line ;
          $mchain = $part[1]; 
          $mchain =~ s/ /,/g;  
 #   print  $mchain, "\n";
+
     }else{
        next;
         }
-       }
- 
+
+    }elsif ( $line =~ /$mixline/ ) {
+     @part = ();
+     @part = split( "/", $line) ;
+       $mchain = $part[4];
+# print $line, "\n";
+
+         }
+        
+# print  $mchain, "\n";
+
 #   get  number of events
 #     if ( $line =~ /QAInfo: Done with Event/ ) {
       if ( $line =~ /Done with Event/ ) {
         $no_event++;
+
+#############################################
+    if($embflag == 1)  {
+    @part = ();
+    @part = split( "=", $line) ;
+    $mrlt = $part[1];
+    $mcpu = $part[2];
+     @tmm = ();
+    @tmm = split(" ", $part[1]) ; 
+    $rlt = $tmm[0];
+     @tmm = ();
+    @tmm = split(" ", $part[2]) ;      
+    $cput = $tmm[0];
+
+    }
+#############################################
      } 
+
+#  print "Number of event ",$no_event, "\n";
 
 #  get memory size
       if ($num_line > 200){
@@ -1524,17 +1571,25 @@ my $mRealTbfc = 0;
           
            $jrun = "Done";      
          }
+#   print "Run completed   ", $jrun,  "\n";
 
 ###### 
      
        }
  
-     }
- 
+#     }
+#### check here
+   } 
       $EvDone = $no_event;
       $EvCom = $EvDone - $EvSkip;
 
-# print "Number of events: ", $runflag,"  ", $no_event,"  ", $EvDone,"  ",$EvCom, ,"  ",$EvSkip, "\n";
+   if($embflag == 1) {
+      $mCPU = $cput/$EvDone;
+      $mRealT = $rlt/$EvDone;
+
+ }
+
+# print "Number of events: ", $runflag,"  ",$libV,"  ",$rootL,"  ",$mchain,"  ",$no_event,"  ",$EvDone,"  ",$EvCom,"  ",$EvSkip,"  ",$jrun,"  ",$mCPU,"  ",$mRealT, "\n";
 
  
 ##### get CPU and Real Time per event
