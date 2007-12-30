@@ -31,12 +31,12 @@ static QStandardItem *CreateItem(TDirectory  *parentDir)
      } else {
        QStandardItem *itObj =  TQtObjectViewFrame::ClearEditFlag(new QStandardItem(obj->GetName()));
        itObj->setData(qVariantFromValue((void *)obj));
-       QList<QStandardItem *>  rows;
-       rows << itObj
+       QList<QStandardItem *>  columns;
+       columns << itObj
             <<  TQtObjectViewFrame::ClearEditFlag(new QStandardItem(obj->ClassName()))
             <<  TQtObjectViewFrame::ClearEditFlag(new QStandardItem(obj->GetTitle()))
           ;
-       item->appendRow(rows);
+       item->appendRow(columns);
        if (obj->InheritsFrom(TH3::Class())) 
          itObj->setIcon(QIcon("h3_s.xpm"));
        else if (obj->InheritsFrom(TH2::Class()))
@@ -68,13 +68,13 @@ QStandardItem *TQtObjectViewFrame::CreateItem(TDirectory *dir, QStandardItem *pa
    // Create the top view 
    if (dir) {
       QStandardItem *item = ::CreateItem(dir);
-       QList<QStandardItem *>  rows;
-       rows << item
-            << TQtObjectViewFrame::ClearEditFlag(new QStandardItem(dir->ClassName()))
-            << TQtObjectViewFrame::ClearEditFlag(new QStandardItem(dir->GetTitle()))
+       QList<QStandardItem *>  columns;
+       columns  << item
+                << TQtObjectViewFrame::ClearEditFlag(new QStandardItem(dir->ClassName()))
+                << TQtObjectViewFrame::ClearEditFlag(new QStandardItem(dir->GetTitle()))
            ;
 
-      parentItem->appendRow(rows);
+      parentItem->appendRow(columns);
    }
    return parentItem;
 }
