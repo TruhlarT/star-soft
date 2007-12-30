@@ -32,6 +32,7 @@ public:
    virtual ~TQtObjectViewFrame();
    static QStandardItem *CreateItem(TDirectory *dir, QStandardItem *parentItem);
    static const QIcon &Icon(QFileIconProvider::IconType it);
+   static QStandardItem *ClearEditFlag(QStandardItem *item);
 
 public slots:
    void ActivateObject(const QModelIndex &index);

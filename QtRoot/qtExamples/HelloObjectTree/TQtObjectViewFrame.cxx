@@ -35,13 +35,20 @@ public:
    }
 
 };
-
+//______________________________________________________________
+QStandardItem *TQtObjectViewFrame::ClearEditFlag(QStandardItem *item)
+{
+   if (item) {
+      item->setFlags(item->flags() & ( ~Qt::ItemIsEditable)); 
+   }
+   return item;
+}
 //______________________________________________________________
 TQtObjectViewFrame::TQtObjectViewFrame(QWidget * parent)
       : QTreeView(parent), fModel(0),fROOTFileNameItem(0)
        ,fDaqBufferItem(0),fDirectory(0),fLastWorkingDir(".")
 {
-   fModel = new QStandardItemModel(0,3,this); 
+   fModel = new QStandardItemModel(0,3,this);
    this->header()->setDefaultAlignment(Qt::AlignHCenter);
    this->setColumnWidth(0,200);  // Object name
    this->setColumnWidth(1,64);   // Object class
@@ -76,7 +83,7 @@ void TQtObjectViewFrame::ResetView()
    QStringList labels;
    labels << "Object" << "Class" << "Title";
    fModel->setHorizontalHeaderLabels (labels);
-   fROOTFileNameItem = new  QStandardItem();
+   fROOTFileNameItem = ClearEditFlag(new QStandardItem());
    
    fROOTFileNameItem->setIcon(Icon(QFileIconProvider::Drive));
    if (!saveFileName.isEmpty()) {

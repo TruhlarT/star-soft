@@ -18,7 +18,7 @@ static QStandardItem *CreateItem(TDirectory  *parentDir)
    if (saveDir) parentDir->cd();
 
    QStandardItem *item = 0;
-   item = new QStandardItem(parentDir->GetName());
+   item =  TQtObjectViewFrame::ClearEditFlag(new QStandardItem(parentDir->GetName()));
    item->setData(qVariantFromValue((void *)parentDir));
 
    TList *listOfKeys = parentDir->GetListOfKeys();
@@ -29,12 +29,12 @@ static QStandardItem *CreateItem(TDirectory  *parentDir)
      if (TDirectory *nextDir = dynamic_cast<TDirectory*>(obj)) {
          item->appendRow(CreateItem(nextDir));
      } else {
-       QStandardItem *itObj = new QStandardItem(obj->GetName());
+       QStandardItem *itObj =  TQtObjectViewFrame::ClearEditFlag(new QStandardItem(obj->GetName()));
        itObj->setData(qVariantFromValue((void *)obj));
        QList<QStandardItem *>  rows;
        rows << itObj
-            << new QStandardItem(obj->ClassName())
-            << new QStandardItem(obj->GetTitle())
+            <<  TQtObjectViewFrame::ClearEditFlag(new QStandardItem(obj->ClassName()))
+            <<  TQtObjectViewFrame::ClearEditFlag(new QStandardItem(obj->GetTitle()))
           ;
        item->appendRow(rows);
        if (obj->InheritsFrom(TH3::Class())) 
