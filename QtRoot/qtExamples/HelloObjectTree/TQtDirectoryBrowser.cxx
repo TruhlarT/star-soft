@@ -68,7 +68,13 @@ QStandardItem *TQtObjectViewFrame::CreateItem(TDirectory *dir, QStandardItem *pa
    // Create the top view 
    if (dir) {
       QStandardItem *item = ::CreateItem(dir);
-      parentItem->appendRow(item);
+       QList<QStandardItem *>  rows;
+       rows << item
+            << TQtObjectViewFrame::ClearEditFlag(new QStandardItem(dir->ClassName()))
+            << TQtObjectViewFrame::ClearEditFlag(new QStandardItem(dir->GetTitle()))
+           ;
+
+      parentItem->appendRow(rows);
    }
    return parentItem;
 }
