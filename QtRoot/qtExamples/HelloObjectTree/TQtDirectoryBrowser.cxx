@@ -14,49 +14,46 @@ static QStandardItem *CreateItem(TDirectory  *parentDir)
 {
    // Create tree view of the ROOT TDirectory
    TDirectory *saveDir = (parentDir == gDirectory) ? 0 : gDirectory;
-   QFileIconProvider::IconType it = QFileIconProvider::Trashcan;
    if (saveDir) parentDir->cd();
 
    QStandardItem *item = 0;
    item =  TQtObjectViewFrame::ClearEditFlag(new QStandardItem(parentDir->GetName()));
    item->setData(qVariantFromValue((void *)parentDir));
+   item->setIcon(TQtObjectViewFrame::Icon(QFileIconProvider::Folder)); 
 
    TList *listOfKeys = parentDir->GetListOfKeys();
    TIter next(listOfKeys);
    TObject *key = 0;
    while ((key = next())) { 
-     TObject *obj = ((TKey *)key)->ReadObj();
-     if (TDirectory *nextDir = dynamic_cast<TDirectory*>(obj)) {
-         item->appendRow(CreateItem(nextDir));
-     } else {
-       QStandardItem *itObj =  TQtObjectViewFrame::ClearEditFlag(new QStandardItem(obj->GetName()));
-       itObj->setData(qVariantFromValue((void *)obj));
-       QList<QStandardItem *>  columns;
-       columns << itObj
-            <<  TQtObjectViewFrame::ClearEditFlag(new QStandardItem(obj->ClassName()))
-            <<  TQtObjectViewFrame::ClearEditFlag(new QStandardItem(obj->GetTitle()))
+      TObject *obj = ((TKey *)key)->ReadObj();
+      QStandardItem *nextItem = 0;
+      TDirectory    *nextDir  = 0;
+      if (nextDir = dynamic_cast<TDirectory*>(obj)) {
+         nextItem  =  CreateItem(nextDir);
+      } else {
+         nextItem =  TQtObjectViewFrame::ClearEditFlag(new QStandardItem(obj->GetName()));
+      }
+      nextItem->setData(qVariantFromValue((void *)obj));
+      QList<QStandardItem *>  columns;
+      columns << nextItem
+              <<  TQtObjectViewFrame::ClearEditFlag(new QStandardItem(obj->ClassName()))
+              <<  TQtObjectViewFrame::ClearEditFlag(new QStandardItem(obj->GetTitle()))
           ;
-       item->appendRow(columns);
-       if (obj->InheritsFrom(TH3::Class())) 
-         itObj->setIcon(QIcon("h3_s.xpm"));
-       else if (obj->InheritsFrom(TH2::Class()))
-         itObj->setIcon(QIcon("h2_s.xpm"));
-       else  if (obj->InheritsFrom(TH1::Class()))
-          itObj->setIcon(QIcon("h1_s.xpm"));
-       else  if (obj->InheritsFrom("TNtuple"))
-          itObj->setIcon(QIcon("ntuple_s.xpm"));
-       else  if (obj->InheritsFrom("TTree"))
-          itObj->setIcon(QIcon("tree_s.xpm"));
-       else
-          itObj->setIcon(TQtObjectViewFrame::Icon(QFileIconProvider::File));
+      item->appendRow(columns);
+      if (!nextDir) {
+         if (obj->InheritsFrom(TH3::Class())) 
+            nextItem->setIcon(QIcon("h3_s.xpm"));
+         else if (obj->InheritsFrom(TH2::Class()))
+            nextItem->setIcon(QIcon("h2_s.xpm"));
+         else  if (obj->InheritsFrom(TH1::Class()))
+            nextItem->setIcon(QIcon("h1_s.xpm"));
+         else  if (obj->InheritsFrom("TNtuple"))
+            nextItem->setIcon(QIcon("ntuple_s.xpm"));
+         else  if (obj->InheritsFrom("TTree"))
+            nextItem->setIcon(QIcon("tree_s.xpm"));
+         else 
+            nextItem->setIcon(TQtObjectViewFrame::Icon(QFileIconProvider::File));
      }
-   }
-   if (item) {
-       it = item->hasChildren () ? 
-       QFileIconProvider::Folder 
-        :
-       QFileIconProvider::File;
-       item->setIcon(TQtObjectViewFrame::Icon(it)); 
    }
    if (saveDir) saveDir->cd();
    return item;
