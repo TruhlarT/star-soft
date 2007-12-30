@@ -1,10 +1,8 @@
 #include "TQtObjectViewFrame.h"
 
-#include <QVBoxLayout>
 #include <QTreeView>
 #include <QHeaderView>
 #include <QStandardItemModel>
-#include <QStandardItem>
 #include <QStandardItem>
 #include <QString>
 #include <QFileDialog>
@@ -41,7 +39,7 @@ public:
 //______________________________________________________________
 TQtObjectViewFrame::TQtObjectViewFrame(QWidget * parent)
       : QTreeView(parent), fModel(0),fROOTFileNameItem(0)
-       ,fDaqBufferItem(0),fDirectory(0),fLastWorkingDir("."),fMimeTypeList(0)
+       ,fDaqBufferItem(0),fDirectory(0),fLastWorkingDir(".")
 {
    fModel = new QStandardItemModel(0,3,this); 
    this->header()->setDefaultAlignment(Qt::AlignHCenter);
@@ -95,13 +93,14 @@ void TQtObjectViewFrame::SetRootFile(const QString &fileName)
    QWidgetLockUpdate(*this);
    QFileInfo fi(fileName);
    fROOTFileNameItem->setText(fi.fileName());
+   fFullFileName = fileName;
    ResetView();
    this->resizeColumnToContents(0); 
    SetLastWorkingDir(fileName);
    OpenRootFile();
 }
 //______________________________________________________________
-void TQtObjectViewFrame::SetDirectoryBuffer(TDirectory *buffer, const QString &header)
+void TQtObjectViewFrame::SetDirectoryBuffer(TDirectory *buffer, const QString &/*header*/)
 {
    if (buffer != fDirectory) 
    { 
@@ -119,7 +118,7 @@ void TQtObjectViewFrame::SetDirectoryBuffer(TDirectory *buffer, const QString &h
 void TQtObjectViewFrame::OpenRootFile()
 {
    if (fDirectory) { delete fDirectory; fDirectory = 0;}
-   TFile *file = TFile::Open(fROOTFileNameItem->text().toStdString().c_str());
+   TFile *file = TFile::Open(fFullFileName.toStdString().c_str());
    SetDirectoryBuffer(file," HEADER" );
 }
 //______________________________________________________________
@@ -141,9 +140,7 @@ void TQtObjectViewFrame::Clicked(const QModelIndex &index)
    // Do stuff with the item ...
    if (item) 
    {
-      QVariant cont = item->data();
-      void *obj = cont.value<void *>();
-      TString className = item->text().toStdString().c_str();
+ //     TString className = item->text().toStdString().c_str();
       if (item == fROOTFileNameItem) {
          // manage the file name
          if (fROOTFileNameItem->hasChildren () || fROOTFileNameItem->text().isEmpty()) {            
@@ -162,6 +159,8 @@ void TQtObjectViewFrame::Clicked(const QModelIndex &index)
       }
 #if 0 
       else  if (gROOT->GetClass(className.Data()))  {
+         QVariant cont = item->data();
+         void *obj = cont.value<void *>();
          TQtInspectWidget *inspector= new TQtInspectWidget(0,className.Data(),(const void*)obj);
          inspector->Show();
          // Toggle "collapse / expanded

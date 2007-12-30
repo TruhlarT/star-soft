@@ -19,7 +19,7 @@ static QStandardItem *CreateItem(TDirectory  *parentDir)
 
    QStandardItem *item = 0;
    item = new QStandardItem(parentDir->GetName());
-   item->setData(parentDir);
+   item->setData(qVariantFromValue((void *)parentDir));
 
    TList *listOfKeys = parentDir->GetListOfKeys();
    TIter next(listOfKeys);

@@ -21,7 +21,8 @@ private:
    QString   fLastWorkingDir;// the last directory to open with the next file dialog
    static  QFileIconProvider *fgIcons;
    QString   fLastExpandedFile;  // the name of the file item that was expanded
-   TQMimeTypes *fMimeTypeList;
+   QString   fFullFileName;
+
 protected:
    void ResetView();
    void IconList();

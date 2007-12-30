@@ -1,5 +1,5 @@
 
-TQtObjectViewFrame is a sunclass of QTreeView widget.
+TQtObjectViewFrame is a subclass of QTreeView widget.
 (see: http://doc.trolltech.com/4.3/qtreeview.html )
 The class objects emits
 
@@ -23,8 +23,8 @@ To  build the and run the test application do
    3. Usage:
       Usage: HelloObjectTree [-h | [ [-style=[windows | platinum | cgi | kde ] | [myRootfile.root]]
 
-        Te application creates an instance of the widget and populates it with
-        the objects read from the ROOT file . It pops up the "OpenFile Dialog" as
+        The application creates an instance of the widget and populates it with
+        the objects read from the ROOT file . It pops up the "Open File Dialog" as
         needed
         (see:http://doc.trolltech.com/4.3/qfiledialog.html#getOpenFileName )
 
