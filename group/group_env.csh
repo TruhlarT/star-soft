@@ -1,5 +1,5 @@
 #!/bin/csh -x
-#       $Id: group_env.csh,v 1.199 2007/12/07 15:38:36 jeromel Exp $
+#       $Id: group_env.csh,v 1.200 2007/12/31 23:21:18 jeromel Exp $
 #	Purpose:	STAR group csh setup
 #
 #	Author:		Y.Fisyak     BNL
@@ -34,7 +34,13 @@ if ($ECHO) echo   "Setting up WWW_HOME  = $WWW_HOME"
 setenv AFS       /usr/afsws
 
 if (! $?STAR_ROOT) then
-    setenv STAR_ROOT ${AFS_RHIC}/star;
+    if ( -d ${AFS_RHIC}/star ) then
+	setenv STAR_ROOT ${AFS_RHIC}/star
+    else
+       if ( -d /usr/local/star ) then
+	setenv STAR_ROOT /usr/local/star
+       endif
+    endif
 endif
 if ($ECHO) then
   echo ""
