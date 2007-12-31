@@ -180,8 +180,16 @@ if ($?CERN == 0) then
 	# What to do now ...
 	if( -e "${AFS_RHIC}/asis/@sys/cern" ) then
 	    setenv CERN "${AFS_RHIC}/asis/@sys/cern"
-	else
-	    if ($?ECHO == 1) echo "WARNING /cern nor ${AFS_RHIC}/asis/@sys/cern exist ..."
+        else
+	    if( -e "/usr/local/cern" ) then
+		setenv CERN "/usr/local/cern"
+	    endif
+	endif
+
+	if ( ! $?CERN ) then
+	    if ($?ECHO == 1) then
+		echo "WARNING none of /cern, ${AFS_RHIC}/asis/@sys/cern, /usr/local/cern exist ..."
+	    endif
 	endif
     endif
 endif
