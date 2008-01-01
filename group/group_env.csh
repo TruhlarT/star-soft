@@ -1,5 +1,5 @@
 #!/bin/csh -x
-#       $Id: group_env.csh,v 1.200 2007/12/31 23:21:18 jeromel Exp $
+#       $Id: group_env.csh,v 1.201 2008/01/01 01:47:52 jeromel Exp $
 #	Purpose:	STAR group csh setup
 #
 #	Author:		Y.Fisyak     BNL
@@ -361,7 +361,7 @@ else
     breaksw
 
   default:
-    setenv ROOT_LEVEL 3.02.00
+    setenv ROOT_LEVEL 5.12.00
 
   endsw
 endif
