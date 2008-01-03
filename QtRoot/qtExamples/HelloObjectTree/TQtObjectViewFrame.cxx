@@ -134,10 +134,13 @@ void TQtObjectViewFrame::ActivateObject(const QModelIndex &index)
   QStandardItem *item = fModel->itemFromIndex(index);
   if (item) 
   {
+      if (item->column()) {
+         item = item->parent()->child(item->row());
+      }
       QVariant cont = item->data();
       void *obj = cont.value<void *>();
       TObject *rootObject = (TObject *)obj;
-      emit Activated(rootObject);
+      if (rootObject) emit Activated(rootObject);emit Activated(rootObject);
   }
 }
 //______________________________________________________________
