@@ -1,6 +1,5 @@
 <?php
 
-
 incl("files.php");
 global $lockfile,$refphp;
 

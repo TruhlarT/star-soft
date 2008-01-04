@@ -48,32 +48,23 @@ if ($type == "Info") {
 
   $entr = new qaentry($type);
   $entr->Fill($_POST);
-  foreach ($_POST as $key => $val) {
-    if (substr($key,0,1) == "x") {
-      $entr->AddIssue(substr($key,1));
-    } elseif (isset($entr->info[$key])) {
-      $entr->info[$key] = $val;
-    }
-  }
 
   # If there are issues being added/removed,
   # then save a temporary entry and keep editing.
-  # Negative issue numbers indicate removal from entry.
-  # Issue number =  1 indicates add all previous issues for type.
-  # Issue number = -n indicates do nothing (refresh issues for year n)
+  # addissue > 999 means add that issue
+  # addissue < -999 means remove that issue
+  # addissue = 1 means add all previus issues for type
+  # addissue between -999 and 0 means do nothing (refresh issues)
+  # addissue = 0 means save entry and go on
   getPassedInt("num");
   getPassedInt("addissue");
   if ($addissue != 0) {
     $entr->AddIssue($addissue);
     $entr->Save();
-    logit("Saved entry: temp");
     $passStr = "type=${type}&num=-${num}&editit=yes&issueYear=${issueYear}";
     header("location: ${webdir}formData.php?${passStr}");
     exit;
   }
-
-  # Otherwise, save it and go on...
-  logit("Saved entry: $type $num");
   $entr->Save($num);
 
 }

@@ -4,7 +4,8 @@
 incl("entry.php");
 
 # Reset all issue indices
-if (isset($_POST["res"])) { resetIssueIndices(); }
+#if (isset($_POST["res"])) { resetIssueIndices(); }
+if (isset($_POST["res"])) { fillDBIssuesFromFiles(); }
 $issue;
 
 # modes:
@@ -18,7 +19,7 @@ function PrintDates($issue) {
     global $ents;
     print "Opened/Created: <b>" . $issue->First() . "</b><br>\n";
     foreach ($issue->times as $typ => $lt) {
-      if ($typ == ".") {
+      if ($typ == QAnull) {
         print "Last used/modified: <b>";
         print $issue->Last() . "</b><br>\n";
         print "<font size=-1>";
@@ -144,6 +145,7 @@ getPassedInt("iid",1);
 if ($iid > 0) {
   $mode = "view";
   $issueYear = issYearFromId($iid);
+  setIssMinMax();
 }
 getPassedVarStrict("mode",1);
 if ($mode != "new") {
@@ -159,6 +161,7 @@ fstart("issForm","issueEditor.php","_top");
 fhidden("issueYear","$issueYear");
 ########################################################
 ### Edit Issues:
+
 
 if ($mode != "none") {
 
@@ -182,12 +185,7 @@ if ($mode != "none") {
     $iid = intval($issue->ID);
     $mode = "view";
   } elseif ($mode != "new") {
-    if (!file_exists(getIssFile($iid))) {
-      print "<i>No issue $iid</i><br><br>\n";
-#     $iid = 0;
-      $mode = "not";
-    } else {
-      ($issue = readIssue($iid)) or died("Could not read issue " . $iid);
+    if ($issue = readIssue($iid)) {
       if ($mode == "close") {
         getPassedVar("note");
         $issue->Close($note);
@@ -203,6 +201,10 @@ if ($mode != "none") {
       if ($isclosed) { $mode = "view"; }
       $iname = $issue->Name;
       $idesc = $issue->Desc;
+    } else {
+      print "<i>Could not read issue $iid</i><br><br>\n";
+      #     $iid = 0;
+      $mode = "not";      
     }
   }
 
@@ -277,7 +279,7 @@ if ($type == "none") {
     $entorder[$k] = $v;
   }
 }
-$entorder["."] = $noent;
+$entorder[QAnull] = $noent;
 
 # An empty array for excluding nothing
 $z = array();
@@ -288,10 +290,10 @@ foreach ($entorder as $entn => $enttitle) {
 
   print "\n\n<h3><font color=\"#400000\">Issues for: $enttitle</font></h3>\n\n";
 
-  if ($entn == ".") { $z = $allarray; }
+  if ($entn == QAnull) { $z = $allarray; }
 
 # List issues from past week, most recent first
-  $pastweek = getIssList(7.0,$entn,$z,1);
+  $pastweek = getIssList(7.0,$entn,$z);
   if (count($pastweek) > 0) {
     print "\n\n<b>Issues from past week:</b><br>\n\n";
     listis($pastweek,$entn);
@@ -307,7 +309,7 @@ foreach ($entorder as $entn => $enttitle) {
   }
   
 # List all closed issues
-  $closedissues = getClosedIssList($entn);
+  $closedissues = getIssList(0,$entn,$z,1);
   if (count($closedissues) > 0) {
     print "\n\n<b>Closed Issues:</b><br>\n\n";
     listis($closedissues,$entn);
@@ -323,13 +325,15 @@ foreach ($entorder as $entn => $enttitle) {
 
 fend();
 
-fstart("resetIss","issueEditor.php","_top");
-#print "<p align=right><font size=-3>";
-#print "For debugging only. Please ignore.\n";
-#fhidden("type",$type);
-#fhidden("res","restart");
-#fsubmit(" ");
-#print "</font></p>\n";
-fend();
+if ($QAdebug) {
+  fstart("resetIss","issueEditor.php","_top");
+  print "<p align=right><font size=-3>";
+  print "For debugging only. Please ignore.\n";
+  fhidden("type",$type);
+  fhidden("res","restart");
+  fsubmit(" ");
+  print "</font></p>\n";
+  fend();
+}
 
 foot(); ?>

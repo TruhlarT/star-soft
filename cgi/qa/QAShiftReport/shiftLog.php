@@ -7,7 +7,7 @@ global $slArray, $slFile;
 $slFile = "/tmp/QAsubmission.dat";
 
 $slArray = array("date"      => "",
-                 "trun"      => "Day",
+                 "trun"      => "Overnight (Owl)",
                  "author"    => "",
                  "subsystem" => "QA",
                  "comment"   => ""

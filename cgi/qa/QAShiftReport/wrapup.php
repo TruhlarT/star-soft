@@ -91,10 +91,12 @@ fhidden("mode","none");
 
 linebreak();
 linebreak();
-print "<p align=right><font size=-3>";
-print "For debugging only. Please ignore.\n";
-fbutton("testIt","","subReport('TestIt')");
-print "</font></p>\n";
+if ($QAdebug) {
+  print "<p align=right><font size=-3>";
+  print "For debugging only. Please ignore.\n";
+  fbutton("testIt","","subReport('TestIt')");
+  print "</font></p>\n";
+}
 
 
 $ffile = getInfoFile($ses);

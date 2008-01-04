@@ -2,6 +2,7 @@
 
 @(include "setup.php") or die("Problems (0).");
 incl("data2text.php");
+incl("report.php");
 
 
 getPassedVarStrict("mode");
@@ -29,7 +30,7 @@ if ($mode == "SaveIt") {
 
 $start = "STAR QA Shift Report";
 $startSum = $start . " Summary";
-$startTxt = array($startSum, $startSum . " (FAST OFFLINE)");
+$startTxt = array($kOFFL => $startSum, $kFAST => $startSum . " (FAST OFFLINE)");
 
 
 $allents = "InfoWrapup";
@@ -42,21 +43,16 @@ $datedf = nDigits(2,$shift["dated"]);
 $datestr = $dateyf . "_" . $datemf;
 $datestr2 = "${datemf}/${datedf}/${dateyf}";
 
-$archFile = "";
-$webFile = "";
-$runFileSeqDir = $bdir . "runFileSeqIndex/";
-$runFileSeqIndex = "";
-$fast = 1;
+$fast = $kFAST;
+$repnum = 0;
 $toFolks = array(
-  "Test" => array("squonk@alum.mit.edu","gene@cs.wustl.edu"),
-#  "Real" => array("production-hn@www.star.bnl.gov","shiftreport-hn@www.star.bnl.gov")
-  "Real" => array("starqa-hn@www.star.bnl.gov","starqa-hn@www.star.bnl.gov")
+  "Test" => array($kOFFL => "squonk@alum.mit.edu",
+                  $kFAST => "gene@cs.wustl.edu"),
+#  "Real" => array($kOFFL => "production-hn@www.star.bnl.gov",
+#                  $kFAST => "shiftreport-hn@www.star.bnl.gov")
+  "Real" => array($kOFFL => "starqa-hn@www.star.bnl.gov",
+                  $kFAST => "starqa-hn@www.star.bnl.gov")
 );
-
-# Convert .txt filename to .html
-function HfromT($file) {
-  return preg_replace("/\.txt$/",".html",$file);
-}
 
 ###################################################################
 
@@ -79,8 +75,7 @@ foreach ($ents as $typ => $entN) {
   $typecounts[$typ] = count($entFiles);
   if ($typecounts[$typ] == 0) { continue; }
   $typecounts["all"] += $typecounts[$typ];
-  $issueLIndex = getIssIndexL($typ);
-  $oldtypeissues = readIssListFile($issueLIndex);
+  $oldtypeissues = readIssLast($typ);
 
   $typeissues = array();
   $runFileSeqs = array();
@@ -92,7 +87,7 @@ foreach ($ents as $typ => $entN) {
     }
   }
   $allissues[$typ] = $typeissues;
-  writeIssListFile($typeissues,$issueLIndex);
+  writeIssLast($typeissues,$typ);
   $allRunFileSeqs[$typ] = $runFileSeqs;
 
   # Check for new issues
@@ -121,48 +116,28 @@ foreach ($ents as $typ => $entN) {
 
 # Put a copy of the full report in the appropriate archive directory
 function Archive() {
-  global $reportFile,$archFile,$webFile,$datestr,$fast,$bdir;
+  global $reportFile,$datestr,$fast,$kFAST,$bdir,$dateyf,$datemf,$repnum;
   $archDir = "archive";
-  if ($fast != 0) { $archDir .= "Online"; }
+  if ($fast == $kFAST) $archDir .= "Online";
   $archDir .= "/";
-  $acount = 0;
-  $acntfile = $bdir . $archDir . ".Count";
-  if ($obj = readInt($acntfile)) { $acount = $obj; }
-  $acount++;
-  saveObject($acount,$acntfile);
-  $acountF = nDigits(4,$acount);
-  $webFile = "${archDir}${datestr}/Report_${datestr}_${acountF}.txt";
+  $repnum = getNextRepNum($fast);
+  $webFile = "${archDir}${datestr}/Report_${datestr}_${repnum}.html";
   $archFile = $bdir . $webFile;
   ckdir(dirname($archFile));
   copy($reportFile,$archFile);
-  copy(HfromT($reportFile),HfromT($archFile));
-}
-
-# Trial filenames for archive links
-function linkFileFind($file1) {
-  global $fast,$runFileSeqIndex;
-  $insert = "";
-  if ($fast != 0) { $insert = ".fast"; }
-  $file2 = "";
-  $n = 0;
-  while (ereg(basename($file2 = $file1 . ++$n . $insert . ".txt"),
-              $runFileSeqIndex,$temp) ||
-         file_exists($file2)) {}
-  return $file2;
+  saveReportDB($repnum,$fast,$dateyf,$datemf,readText($reportFile));
 }
 
 # Put a link to the full report in the appropriate runFileSeq directory
 function LinkArchive($typ) {
-  global $runFileSeqDir,$allRunFileSeqs,$webFile,$datestr;
+  global $allRunFileSeqs,$datestr,$fast,$repnum;
   foreach ($allRunFileSeqs[$typ] as $k => $rfs) {
     $runid = strval($rfs[0]);
     $yeardigits = strlen($runid)-6;
     $runyear = substr(strval($runid),0,$yeardigits);
     $runday  = substr(strval($runid),$yeardigits,3);
     $fseqf = nDigits(7,strval($rfs[1]));
-    $file = "${runFileSeqDir}${runyear}/${runday}/${runid}_${fseqf}.";
-    $link = HfromT($webFile) . "#" . $rfs[2];
-    saveText($link,linkFileFind($file));
+    saveLinkDB($fast,$runid,$fseqf,$rfs[2],$repnum);
   }
 }
 
@@ -204,9 +179,8 @@ function OutputExaminedRunFseq($typ) {
 
 # Main routine for archiving/linking/mailing reports & summaries
 function ArchAndMail($typs, $sendmail=1) {
-  global $startTxt,$info,$sesDir,$webFile,$archFile,$webdir,$bdir;
-  global $fast,$toFolks,$mode,$typecounts,$shift,$datestr2,$runFileSeqIndex;
-  $runFileSeqIndex = readText($bdir . "rFSI.lis");
+  global $startTxt,$info,$sesDir,$webdir,$bdir;
+  global $fast,$kFAST,$toFolks,$mode,$typecounts,$shift,$datestr2;
   Archive();
 
   $sumTemp = "";
@@ -221,20 +195,19 @@ function ArchAndMail($typs, $sendmail=1) {
     if ($typecounts[$typ] > 0) { $sumTemp .= OutputExaminedRunFseq($typ); }
   }
 
-  $fullLink = $webdir . HfromT($webFile);
+  $fullLink = $webdir . "showRun.php?repnum=${repnum}&reptype=${fast}";
 
   # output is the email summary, output2 is for the electronic shift log entry
 
   $output  = $startTxt[$fast] . "\n\n" . dashdelim() . "\n";
   $output .= $sumTemp . "\n" . $info . "\nFull report archived in:\n";
-  #$output .= $archFile . "\n" . $fullLink . "\n\n";
   $output .= $fullLink . "\n\n";
 
   $output2  = $startTxt[$fast] . "\n";
   $output2 .= $sumTemp . "\n" . str_replace("----","",$info);
   $output2 .= "\nFull report archived in:\n" . $fullLink;
   
-  if ($fast > 0) {
+  if ($fast == $kFAST) {
     if (strlen($datestr2)<10) { return 11; }
     if (strlen($shift["name"])<2) { return 12; }
     if (strlen($output2)<4) { return 13; }
@@ -251,10 +224,10 @@ function ArchAndMail($typs, $sendmail=1) {
   $to = $toFolks[$testReal][$fast];
   $toalso = $_POST["originator"];
   if (strlen($toalso) > 0) { $to .= "," . $toalso; }
-  logit("submit: (fast=${fast}) sending mail to $to");
+  logit("submit: (reptype=${fast}) sending mail to $to");
   $mailResult = mail($to,$startTxt[$fast],$output);
   if (!$mailResult) {
-    logit("submit: mail failed for fast=$fast"); 
+    logit("submit: mail failed for reptype=$fast"); 
     return 5;
   }
   return 0;
@@ -301,28 +274,25 @@ function SuccessSubmission() {
 #
 
 # Full report
-$reportFile = $sesDir . "Report.txt";
-$output = $start . "\n\n" . data2text($allents);
-saveText($output,$reportFile);
+$reportFile = $sesDir . "Report.html";
 $output = str2page($start,data2html($allents));
-saveText($output,HfromT($reportFile));
+saveText($output,$reportFile);
 
 
 
 # Summaries
-# If there are any fast offline entries, archive report and prepare summary,
+# If there are any FastOffline entries, archive report and prepare summary,
 # but only mail summary if there are some issue changes...
 if ($typecounts["FRP"] > 0) {
-  $fast = 1;
+  $fast = $kFAST;
   $atyps = array("FRP" => $ents["FRP"]);
   $nofastchanges = count($allnewissues["FRP"]) + count($allgoneissues["FRP"]);
-  #ArchAndMail($atyps,$nofastchanges);
   $aamResult = ArchAndMail($atyps);
   if ($aamResult > 0) { FailedSubmission($aamResult); }
 }
-# If there are any non - fast offline entries, archive report and mail summary
+# If there are any non-FastOffline entries, archive report and mail summary
 if ($typecounts["all"] - $typecounts["FRP"] > 0) {
-  $fast = 0;
+  $fast = $kOFFL;
   $atyps = $ents;
   unset($atyps["FRP"]);
   $aamResult = ArchAndMail($atyps);

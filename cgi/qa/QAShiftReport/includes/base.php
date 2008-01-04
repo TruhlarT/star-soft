@@ -3,6 +3,8 @@
 ###############################
 # Basic setup
 #
+    $QAdebug = 0;
+    define("QAnull",".");
 
     # Base directory for working on reports:
     $bdir = "/home/users/starweb/WWW/tmp/QAShiftReport/";
@@ -26,6 +28,24 @@
     
 
 ###############################
+# DB base needs
+#
+    $QAdbconn = QAnull;
+    function connectedDB() {
+      global $QAdbconn;
+      return ($QAdbconn != QAnull);
+    }
+    function setConnectedDB($conn) {
+      global $QAdbconn;
+      $QAdbconn = $conn;
+    }
+    function setUnconnectedDB() {
+      global $QAdbconn;
+      $QAdbconn = QAnull;
+    }
+
+
+###############################
 # Page functions
 #
     function head($title) {
@@ -34,7 +54,10 @@
       incl("head2.html");
     }
     function body() { incl("body.html"); }
-    function foot() { incl("foot.html"); }
+    function foot() {
+      incl("foot.html");
+      if (connectedDB()) closeDB();
+    }
     
     
 ###############################

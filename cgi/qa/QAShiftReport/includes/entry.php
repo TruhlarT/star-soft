@@ -76,8 +76,8 @@ class qaentry {
       if (isset($issueList[$ids])) { $this->issues[$ids] = $issueList[$ids][0]; }
     } else {
       # Add all previous issues ($id==1)
-      foreach ($issuePrev as $issid => $isstxt) {
-        $this->issues[$issid] = $isstxt;
+      foreach ($issuePrev as $k => $issid) {
+        $this->issues[$issid] = $issueList[$issid][0];
       }
     }
   }
@@ -141,12 +141,10 @@ class qaentry {
   }
   
   function UpdateIssues() {
+    clearIssPrev($this->type);
     foreach ($this->issues as $issid => $isstxt) {
-      if ($iss = readIssue($issid)) {
-        $iss->Update($this->type);
-      }
+      if ($iss = readIssue($issid)) { $iss->Update($this->type); }
     }
-    writeIssPrev($this->issues,$this->type);
   }
   
   function Save($numn=-1) {

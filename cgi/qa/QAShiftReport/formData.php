@@ -41,13 +41,6 @@ if ($editit != "no") {
 head("STAR QA Shift Report");
 jstart();
 ?>
-    function RefreshIssues() {
-      form = document.dataForm;
-      run = form.runid.value;
-      ry = parseInt(run/1000000);
-      if (ry < 1) return;
-      AddIssueN(-ry);
-    }
     function AddIssueN(id) {
       form = document.dataForm;
       form.addissue.value = id;
@@ -191,8 +184,7 @@ print "<table border=0 cellspacing=3 cellpadding=0>\n";
 
 # List active issues (if new entry, all issues from last entry are made active)
 $actissues = array();
-if (entry) { $actissues = $entr->issues; }
-else { $actissues = getIssList(0,$type,$actissues); }
+if ($entr) { $actissues = $entr->issues; }
 
 sectionhead("<u><font size=+1>Active Issues for this Data Entry</font></u>");
 if (count($actissues) > 0) {
