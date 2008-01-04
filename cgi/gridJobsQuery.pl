@@ -25,7 +25,7 @@ $dbpass="";
 $dbname="GridJobs";
 
 
- my @prodyear = ("2006","2007");
+ my @prodyear = ("2006","2007","2008");
 
  my $qq = new CGI;
 
@@ -62,7 +62,7 @@ print "<h3 align=center> Select year</h3>";
 print "<h4 align=center>";
 print  $qq->scrolling_list(-name=>'ryear',
                              -values=>\@prodyear,
-                             -default=>2007,
+                             -default=>2008,
 			      -size =>1);
 
 print "<p>";
