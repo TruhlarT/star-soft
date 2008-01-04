@@ -175,7 +175,7 @@ END
 print $query->startform(-action=>"$scriptname");
 
 print "<body bgcolor=\"cornsilk\">\n";
-print "<h1 align=center><u>Grid Test Efficiency</u></h1>\n";
+print "<h1 align=center><u>Grid Production Efficiency</u></h1>\n";
 print "<br>";
 print "<br>";
 print <<END;
