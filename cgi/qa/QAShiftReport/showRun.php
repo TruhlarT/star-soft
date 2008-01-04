@@ -9,9 +9,10 @@
   # 2 know run day
   # 3 know run number
   # 4 know run report
-  # 11 know report offline / fast offline
+  # 11 know report type (Offline / FastOffline)
   # 12 know report year_month
   # 13 know report number
+  # 14 know report number and type, but not year_month
   
   $mode = 0;
   getPassedInt("mode",1);
@@ -32,7 +33,8 @@
       $runyear = intval(substr($runstr,0,$yeardigits));
       $runday = intval(substr($runstr,$yeardigits,3));
     } else if ($repnum) {
-      $mode = 13;
+      $mode = 14;
+      $repnum=nDigits(4,$repnum);
     }
   }
   
@@ -54,9 +56,9 @@
     getPassedVarStrict("reptype");
     getPassedInt("repyrmo",1);
     if ((!cleanRepType($reptype)) ||
-	($mode > 11 && (!$repyrmo || $repyrmo > 209999)) ||
+	(($mode > 11 && $mode < 14) && (!$repyrmo || $repyrmo > 209999)) ||
 	($mode > 12 && (!$repnum || intval($repnum) > 9999)) ||
-	($mode > 13)) $mode = 0;
+	($mode > 14)) $mode = 0;
     else $byrep = 1;
   } else if ($mode < 0) {
     if ($QAdebug) {
@@ -113,7 +115,7 @@
     $mode = 0;
   }
 
-  if ($mode == 4 || $mode == 13) $showrep=1;
+  if ($mode == 4 || $mode == 13 || $mode == 14) $showrep=1;
   
   
   $repfile = "";
@@ -262,6 +264,7 @@ display:<?php print ($showrep ? "none" : "block"); ?> " >
     print "</select> / <select name=repyrmo onchange=\"rform.mode.value=12;submit()\">\n";
     print "<option value=0 disabled" . ($mode==11 ? " selected" : "") . ">year/month</option>\n";
     $result = getReportYrMos($reptype);
+    if ($mode == 14) $repyrmo = getReportYrMo($repnum,$reptype);
     $oldyear = 0;
     while ($row = nextDBrow($result)) {
       $repyr = intval($row['RepYear']);

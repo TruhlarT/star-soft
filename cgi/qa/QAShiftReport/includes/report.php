@@ -51,6 +51,15 @@ function getReportYrMos($RepType) {
   return queryDB($str);
 }
 
+function getReportYrMo($RepNum,$RepType) {
+  global $reportsDB,$repFODB;
+  if (!(cleanStrict($RepNum) && cleanRepType($RepType))) return false;
+  $str = "SELECT RepYear,RepMonth FROM $reportsDB WHERE RepType='" . $repFODB[$RepType]
+       . "' AND RepNum='$RepNum';";
+  $row = queryDBfirst($str);
+  return nDigits(4,$row['RepYear']) . nDigits(2,$row['RepMonth']);
+}
+
 function getReportNums($RepType,$RepYear,$RepMonth) {
   global $reportsDB,$repFODB;
   if (!(cleanRepType($RepType) && cleanInt($RepYear) &&
