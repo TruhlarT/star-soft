@@ -65,7 +65,7 @@ my $nowdate;
 my $thisyear = $year+1900;
 my $dyear = $thisyear - 2000;
 
-my @prodyear = ("2007");
+my @prodyear = ("2007","2008");
 my @submitopt = ("1st_submission","N_resubmission");
 
 # Tables
@@ -192,7 +192,7 @@ print "<h3 align=center> Select year</h3>";
 print "<h4 align=center>";
 print  $query->scrolling_list(-name=>'ryear',
                              -values=>\@prodyear,
-                             -default=>2007,
+                             -default=>2008,
       			     -size =>1);
 
 
@@ -260,6 +260,8 @@ my $maxout;
 
   if($pryear eq "2006") {
     $nowdate = "2006-12-31";
+  }elsif($pryear eq "2007") {
+    $nowdate = "2007-12-31";
   }else{
     $nowdate = $todate;
   }
