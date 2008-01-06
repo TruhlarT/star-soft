@@ -1,8 +1,8 @@
-// @(#)root/qt:$Name:  $:$Id: TQtRootSlot.h,v 1.3 2007/02/06 20:14:17 fine Exp $
+// @(#)root/qt:$Id: TQtRootSlot.h,v 1.4 2008/01/06 23:22:41 fine Exp $
 // Author: Valery Fine      18/01/2007
 
 /****************************************************************************
-** $Id: TQtRootSlot.h,v 1.3 2007/02/06 20:14:17 fine Exp $
+** $Id: TQtRootSlot.h,v 1.4 2008/01/06 23:22:41 fine Exp $
 **
 ** Copyright (C) 2007 by Valeri Fine. Brookhaven National Laboratory.
 **                                    All rights reserved.
@@ -12,6 +12,7 @@
 ** LICENSE.QPL included in the packaging of this file.
 **
 *****************************************************************************/
+//________________________________________________________________________
 //
 // The TQRootSlot singleton class introduces the global SLOT to invoke
 // the  ROOT command line from the GUI signals
@@ -21,7 +22,7 @@
 // to any Qt signal
 // To execute any C++ statement from the GUI oen should connect 
 // his/her Qt signal with the Qt slot of the global instance of this class
-//
+//________________________________________________________________________
 
 #ifndef ROOT_TQRootSlot
 #define ROOT_TQRootSlot
