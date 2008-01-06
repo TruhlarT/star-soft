@@ -1,4 +1,4 @@
-// @(#)root/qt:$Name:  $:$Id: TQtClientWidget.h,v 1.6 2007/06/22 15:04:41 fine Exp $
+// @(#)root/qt:$Name:  $:$Id: TQtClientWidget.h,v 1.7 2008/01/06 23:15:06 fine Exp $
 /*************************************************************************
  * Copyright (C) 1995-2004, Rene Brun and Fons Rademakers.               *
  * Copyright (C) 2002 by Valeri Fine.                                    *
@@ -29,10 +29,11 @@
   
 #include "GuiTypes.h"
 
+//________________________________________________________________________
 //
 // TQtClientWidget  is a QFrame implemantation backing  ROOT TGWindow objects
 // It tries to mimic the X11 Widget behaviour, that kind the ROOT Gui relies on heavily.
-//
+//________________________________________________________________________
 
 class QCursor;
 class QCloseEvent;
