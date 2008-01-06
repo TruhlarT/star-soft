@@ -1,4 +1,4 @@
-// @(#)root/qt:$Name:  $:$Id: TQtClientFilter.h,v 1.3 2007/01/23 17:53:37 fine Exp $
+// @(#)root/qt:$Name:  $:$Id: TQtClientFilter.h,v 1.4 2008/01/06 23:09:09 fine Exp $
 // Author: Valeri Fine   21/01/2002
 
 /*************************************************************************
@@ -42,9 +42,10 @@
 
 #include "TQtClientWidget.h"
 
+//________________________________________________________________________
 //
 //  TQtClientFilter  is Qt "eventFilter" to map Qt event to ROOT event
-//
+//________________________________________________________________________
 
 class TQtNextEventMessage;
 class TQtEventQueue;
