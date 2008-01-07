@@ -1,4 +1,4 @@
-// @(#)root/qt:$Name:  $:$Id: GQtGUI.cxx,v 1.10 2007/08/25 02:31:54 fine Exp $
+// @(#)root/qt:$Name:  $:$Id: GQtGUI.cxx,v 1.11 2008/01/07 02:48:53 fine Exp $
 // Author: Valeri Fine   23/01/2003
 
 /*************************************************************************
@@ -37,7 +37,7 @@
 #  include <qcstring.h>
 #else /* QT_VERSION */
 #  include <q3paintdevicemetrics.h>
-#  include <q3cstring.h>
+#  include <QByteArray>
 #  include <QBoxLayout>
 #  include <Q3Frame>
 #  include <QKeyEvent>
@@ -2380,7 +2380,7 @@ static inline Int_t MapKeySym(int key, bool toQt=true)
 #if QT_VERSION < 0x40000
    QCString r = gQt->GetTextDecoder()->fromUnicode(qev.text());
 #else /* QT_VERSION */
-   Q3CString r = gQt->GetTextDecoder()->fromUnicode(qev.text());
+   QByteArray r = gQt->GetTextDecoder()->fromUnicode(qev.text());
 #endif /* QT_VERSION */
    qstrncpy((char *)&text, (const char *)r,1);
    return text;
