@@ -1,7 +1,7 @@
-// @(#)root/gui:$Name:  $:$Id: TQMimeTypes.h,v 1.5 2008/01/07 01:30:53 fine Exp $
+// @(#)root/gui:$Name:  $:$Id: TQMimeTypes.h,v 1.6 2008/01/07 02:13:28 fine Exp $
 // Author: Valeri Fine   21/01/2003
 /****************************************************************************
-** $Id: TQMimeTypes.h,v 1.5 2008/01/07 01:30:53 fine Exp $
+** $Id: TQMimeTypes.h,v 1.6 2008/01/07 02:13:28 fine Exp $
 **
 ** Copyright (C) 2002 by Valeri Fine. Brookhaven National Laboratory.
 **                                    All rights reserved.
@@ -38,6 +38,7 @@ class QFileIconProvider;
 class TOrdCollection;
 class TRegexp;
 class QFileInfo;
+class QPixmap;
 
 #if (QT_VERSION > 0x39999)
    class QIcon;

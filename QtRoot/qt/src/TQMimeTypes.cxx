@@ -1,4 +1,4 @@
-// @(#)root/qt:$Name:  $:$Id: TQMimeTypes.cxx,v 1.4 2008/01/07 01:30:54 fine Exp $
+// @(#)root/qt:$Name:  $:$Id: TQMimeTypes.cxx,v 1.5 2008/01/07 02:13:28 fine Exp $
 // Author: Valeri Fine   21/01/2003
 /*************************************************************************
  * Copyright (C) 1995-2004, Rene Brun and Fons Rademakers.               *
@@ -54,9 +54,9 @@ TQMimeTypes::IconProvider(const QFileInfo &info)
       fgDefaultProvider = new QFileIconProvider;
     }
 #if QT_VERSION < 0x40000
-    QPimxap *px = fgDefaultProvider-> pixmap(info);
+    const QPixmap *px = fgDefaultProvider-> pixmap(info);
     static QPixmap empty;
-    return px ? *pxfgDefaultProvider : empty;
+    return px ? *px : empty;
 #else
     return fgDefaultProvider->icon(info);
 #endif 
