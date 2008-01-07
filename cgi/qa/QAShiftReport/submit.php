@@ -195,7 +195,7 @@ function ArchAndMail($typs, $sendmail=1) {
     if ($typecounts[$typ] > 0) { $sumTemp .= OutputExaminedRunFseq($typ); }
   }
 
-  $fullLink = $webdir . "showRun.php?repnum=${repnum}&reptype=${fast}";
+  $fullLink = $webdir . "showRun.php?reptype=${fast}&repnum=${repnum}";
 
   # output is the email summary, output2 is for the electronic shift log entry
 
