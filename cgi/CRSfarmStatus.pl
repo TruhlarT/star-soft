@@ -1,9 +1,12 @@
 #!/usr/local/bin/perl
 #!/usr/bin/env perl 
 #
-# $Id: CRSfarmStatus.pl,v 1.21 2007/11/07 17:02:13 didenko Exp $
+# $Id: CRSfarmStatus.pl,v 1.22 2008/01/07 16:10:17 didenko Exp $
 #
 # $Log: CRSfarmStatus.pl,v $
+# Revision 1.22  2008/01/07 16:10:17  didenko
+# updated for year 2008
+#
 # Revision 1.21  2007/11/07 17:02:13  didenko
 # more updates
 #
@@ -66,7 +69,7 @@ $dbname="operation";
 
 my @reqperiod = ("day","week","1_month","2_months","3_months","4_months","5_months","6_months","7_months","8_months","9_months","10_months","11_months","12_months");
 my @plotview = ("numbers","percentage");
-my @prodyear = ("2005","2006","2007");
+my @prodyear = ("2005","2006","2007","2008");
 
 my $query = new CGI;
 
@@ -115,7 +118,7 @@ print "<h3 align=center> Select year of production</h3>";
 print "<h4 align=center>";
 print  $query->scrolling_list(-name=>'ryear',
                              -values=>\@prodyear,
-                             -default=>2007,
+                             -default=>2008,
                              -size =>1); 
 
 print "<p>";
