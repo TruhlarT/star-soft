@@ -19,7 +19,7 @@ BEGIN {
 use CGI;
 use Class::Struct;
 
-require "/afs/rhic.bnl.gov/star/packages/scripts/dbProdSetup.pl";
+require "/afs/rhic.bnl.gov/star/packages/cgi/dbProdSetup.pl";
 
 my $debugOn=0;
 
