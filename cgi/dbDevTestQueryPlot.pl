@@ -1,9 +1,12 @@
 #!/usr/local/bin/perl
 #!/usr/bin/env perl 
 #
-# $Id: dbDevTestQueryPlot.pl,v 1.47 2007/11/07 16:43:02 didenko Exp $
+# $Id: dbDevTestQueryPlot.pl,v 1.48 2008/01/09 20:40:49 didenko Exp $
 #
 # $Log: dbDevTestQueryPlot.pl,v $
+# Revision 1.48  2008/01/09 20:40:49  didenko
+# updated due to moved directory
+#
 # Revision 1.47  2007/11/07 16:43:02  didenko
 # last cleanup for working version
 #
@@ -60,7 +63,7 @@ BEGIN {
  use CGI::Carp qw(fatalsToBrowser carpout);
 }
 
-require "/afs/rhic.bnl.gov/star/packages/scripts/dbTJobsSetup.pl";
+require "/afs/rhic.bnl.gov/star/packages/scripts/dbLib/dbTJobsSetup.pl";
 
 use CGI qw(:standard);
 use GD;
