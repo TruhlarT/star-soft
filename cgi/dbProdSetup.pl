@@ -14,7 +14,7 @@ use DBI;
 
 $dbhost="duvall.star.bnl.gov";
 $dbuser="starreco";
-$dbpass="dbUser@*";
+$dbpass="";
 $dbname="operation";
 
 
@@ -23,7 +23,6 @@ $FileCatalogT = "FileCatalog2004";
 $ProdOptionsT = "ProdOptions";
 $JobStatusT = "JobStatus2004";
 $TriggerEventsT = "TriggerEvents";
-$DAQInfoT = "DAQInfo";
 $crsStatusT = "crsStatus";
 $TriggerSetT = "TriggerSet";
 
