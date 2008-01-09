@@ -1,9 +1,12 @@
 #!/usr/local/bin/perl
 #!/usr/bin/env perl 
 #
-# $Id: CRSstatusPlots.pl,v 1.15 2008/01/07 16:10:33 didenko Exp $
+# $Id: CRSstatusPlots.pl,v 1.16 2008/01/09 20:09:24 didenko Exp $
 #
 # $Log: CRSstatusPlots.pl,v $
+# Revision 1.16  2008/01/09 20:09:24  didenko
+# updated due to changed location
+#
 # Revision 1.15  2008/01/07 16:10:33  didenko
 # updated for year 2008
 #
@@ -43,7 +46,7 @@ BEGIN {
  use CGI::Carp qw(fatalsToBrowser carpout);
 }
 
-require "/afs/rhic.bnl.gov/star/packages/scripts/dbCRSSetup.pl";
+require "/afs/rhic.bnl.gov/star/packages/scripts/CRSUtils/dbCRSSetup.pl";
 
 use CGI qw(:standard);
 use GD;
