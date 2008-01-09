@@ -1,8 +1,11 @@
 #!/usr/bin/env perl 
 #
-# $Id: dbDevTestQuery.pl,v 1.18 2006/04/14 16:20:12 didenko Exp $
+# $Id: dbDevTestQuery.pl,v 1.19 2008/01/09 21:07:42 didenko Exp $
 #
 # $Log: dbDevTestQuery.pl,v $
+# Revision 1.19  2008/01/09 21:07:42  didenko
+# updated tests
+#
 # Revision 1.18  2006/04/14 16:20:12  didenko
 # updated for tracks with nfit point > 15
 #
@@ -93,7 +96,11 @@ my @prod_set = (
                 "daq_sl302/year_2005/CuCu200_MinBias",
                 "daq_sl302/year_2005/CuCu62_MinBias",
                 "daq_sl302/year_2005/CuCu22_MinBias",
-                "daq_sl302/year_2005/ppProduction", 
+                "daq_sl302/year_2005/ppProduction",
+                "daq_sl302/year_2006/ppProdLong",
+                "daq_sl302/year_2006/ppProdTrans",
+                "daq_sl302/year_2007/2007ProductionMinBias",
+                "daq_sl302/year_2008/production_dAu2008",  
 		);
 
 my @sets_name;
