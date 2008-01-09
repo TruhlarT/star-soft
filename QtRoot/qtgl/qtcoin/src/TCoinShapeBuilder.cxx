@@ -1,4 +1,4 @@
-// @(#)root/gtgl:$Name:  $:$Id: TCoinShapeBuilder.cxx,v 1.9 2007/04/12 19:37:35 fine Exp $
+// @(#)root/gtgl:$Name:  $:$Id: TCoinShapeBuilder.cxx,v 1.10 2008/01/09 01:14:42 fine Exp $
 // Author: Valery Fine      24/09/06
 
 /****************************************************************************
@@ -326,9 +326,11 @@ SoGroup * TCoinShapeBuilder::CreateCoinShape()
                *-*     30 : full star               kFullStar
                *-*/
                shapeGroup->addChild(fShapeFaceVertices  = new SoCoordinate3());
-
+               float sizeFactor = 2.66;
                switch (style) {
-                  case kDot: case kFullDotSmall : case kFullDotMedium : case kFullDotLarge : default:
+                  case kDot: default: 
+                     sizeFactor = 0.12;
+                  case kFullDotSmall : case kFullDotMedium : case kFullDotLarge :
                      shapePoint =  new SoPointSet();
                      break;
                   case kMultiply:
@@ -349,7 +351,7 @@ SoGroup * TCoinShapeBuilder::CreateCoinShape()
                      break;
                 };
                SoDrawStyle *ds = new SoDrawStyle();
-               ds->pointSize = max(1.0,(2.66*fShapeView.GetLineWidth() + 0.5));
+               ds->pointSize = max(1.0,(sizeFactor*fShapeView.GetLineWidth() + 0.5));
                shapeGroup->addChild(ds);
                ::AddCoordinates(*fShapeFaceVertices,vertices);
                break;
