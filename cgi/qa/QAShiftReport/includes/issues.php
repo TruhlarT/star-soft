@@ -287,7 +287,7 @@ function readIssFlag($typ,$bit) {
   $result = queryDB($str);
   $list = array();
   while ($row = nextDBrow($result)) {
-    $flagval = $row['$flag'];
+    $flagval = $row[$flag];
     if (testFlag($flagval,$bit)) $list[] = strval($row['ID']);
   }
   return $list;
