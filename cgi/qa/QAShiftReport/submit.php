@@ -179,7 +179,7 @@ function OutputExaminedRunFseq($typ) {
 
 # Main routine for archiving/linking/mailing reports & summaries
 function ArchAndMail($typs, $sendmail=1) {
-  global $startTxt,$info,$sesDir,$webdir,$bdir;
+  global $startTxt,$info,$sesDir,$webdir,$bdir,$repnum;
   global $fast,$kFAST,$toFolks,$mode,$typecounts,$shift,$datestr2;
   Archive();
 
