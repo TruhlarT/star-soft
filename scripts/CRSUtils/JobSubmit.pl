@@ -391,7 +391,7 @@ if ($ThisYear == 2002){
 
 
     # Chain for 2008 starts here
-    $DCHAIN{"dAu"}  = "P2008b,ITTF";
+    $DCHAIN{"dAu"}  = "P2008b,ITTF,BEmcChkStat";
     $SCALIB{"dAu"}  = "OptLaser";
 
 } else {
