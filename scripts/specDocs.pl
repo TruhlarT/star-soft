@@ -15,6 +15,8 @@ use File::Copy;
 
 $web_area = "\/afs\/rhic.bnl.gov\/star\/doc_public\/www\/html\/tmp\/";
 
+# verify this ENV exists
+if ( ! defined($ENV{SCRATCH}) ){  $ENV{SCRATCH} = "/tmp/".$ENV{USER};}
 $write_area = $ENV{SCRATCH} . "\/specDocs\/";
 
 # possible combinations of documentation
@@ -185,8 +187,11 @@ close(STDERR);
 exit;
 
 #_____________________________________________________________________________
-# $Id: specDocs.pl,v 1.3 2008/01/16 18:08:18 jeromel Exp $
+# $Id: specDocs.pl,v 1.4 2008/01/16 18:35:19 jeromel Exp $
 # $Log: specDocs.pl,v $
+# Revision 1.4  2008/01/16 18:35:19  jeromel
+# Fix for ENV not existing within cron (SCRATCH is part of the STAR login whihc is NOT executed if a perl script is directly accessed within a cron)
+#
 # Revision 1.3  2008/01/16 18:08:18  jeromel
 # Create missing directory
 #
