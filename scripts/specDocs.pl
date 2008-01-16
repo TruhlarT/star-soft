@@ -93,7 +93,7 @@ foreach $level (@levels) {
       $psfile3 = $web_area . $psfile2;
 
       $createnew = 0;
-    
+
       if (-e $thefile3) {
 	if ((-M $thefile3) > (-M $thesource)) {
 	    unlink($thefile3);
@@ -141,7 +141,7 @@ foreach $level (@levels) {
   }
   chdir($write_area);
   rmtree("StRoot") if (-d "StRoot");
- 
+
 }
 
 
@@ -172,8 +172,11 @@ close(STDERR);
 exit;
 
 #_____________________________________________________________________________
-# $Id: specDocs.pl,v 1.1 2008/01/11 23:54:07 genevb Exp $
+# $Id: specDocs.pl,v 1.2 2008/01/16 18:03:05 jeromel Exp $
 # $Log: specDocs.pl,v $
+# Revision 1.2  2008/01/16 18:03:05  jeromel
+# Remove ^M characters everywhere
+#
 # Revision 1.1  2008/01/11 23:54:07  genevb
 # Introduction of specDocs.pl
 #
