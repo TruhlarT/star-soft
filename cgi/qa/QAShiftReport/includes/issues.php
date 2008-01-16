@@ -251,10 +251,6 @@ function writeIssLast($list,$typ) {
   global $kLAST;
   if ($typ != QAnull) writeIssFlag($list,$typ,$kLAST);
 }
-function readIssLast($typ) {
-  global $kLAST;
-  return readIssFlag($typ,$kLAST);
-}
 
 function clearIssFlag($typ,$bit) {
   global $IssuesDB,$issMinMax;
@@ -279,16 +275,18 @@ function writeIssFlag($list,$typ,$bit) {
     queryDB($str);
   }
 }
-function readIssFlag($typ,$bit) {
-  global $issMinMax,$IssuesDB;
+function readIssLast($typ) {
+  global $issMinMax,$IssuesDB,$kLAST;
   $flag = flagFromTyp($typ);
-  $str = "SELECT ID,$flag FROM $IssuesDB WHERE $issMinMax";
+  $str = "SELECT ID,Name,$flag FROM $IssuesDB WHERE $issMinMax";
   $str .= " ORDER by ID ASC;";
   $result = queryDB($str);
   $list = array();
   while ($row = nextDBrow($result)) {
     $flagval = $row[$flag];
-    if (testFlag($flagval,$bit)) $list[] = strval($row['ID']);
+    if (testFlag($flagval,$kLAST)) {
+      $list[nDigits(4,$row['ID'])] = $row['Name'];
+    }
   }
   return $list;
 }  
