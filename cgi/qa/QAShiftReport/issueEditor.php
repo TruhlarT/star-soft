@@ -51,7 +51,9 @@ function EditDesc($iname,$idesc) {
 }
 
 function EditNote() {
-    print "Note to add (or <b>resolution</b> if closing):<br>\n";
+    print "Author: ";
+    finput("auth",20);
+    print " Note to add (or <b>resolution</b> if closing):<br>\n";
     print "<textarea tabindex=1 name=note rows=6 cols=74>";
     print "</textarea>\n\n<br>\n\n";
 }
@@ -121,9 +123,17 @@ jstart();
       window.close();
     }
     function NoteData() {
-      if (document.issForm.note.value == "") {
+      note = document.issForm.note.value;
+      if (note == "") {
         alert("Cannot enter an empty note or resolution!\n");
         return false;
+      }
+      auth = document.issForm.auth.value;
+      if (auth == "") {
+        var noauth = confirm("Do you really want to submit this anonymously?\n");
+        if (noath==0) { return false; }
+      } else {
+        document.issForm.note.value = auth + " : " + note;
       }
       return true;
     }
@@ -153,6 +163,11 @@ if ($mode != "new") {
   if (($mode == "edit") || ($mode == "add") || ($mode == "close")) {
     print "<b>${iid}</b>\n";
   } else { finput("iid",5,$iid); fsubmit("Lookup"); }
+  if ($iid>0) {
+    print "<br>\n";
+    print "<font size=-2>";
+    print "link: ${webdir}${refphp}?iid=${iid}</font>\n";
+  }
 }
 fhidden("mode","view");
 fend();
