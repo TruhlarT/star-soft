@@ -23,6 +23,19 @@ $write_area = $ENV{SCRATCH} . "\/specDocs\/";
 @levels = ("CVS","dev","new","pro");
 @types = ("pdf","ps");
 
+
+# create dir if it does not exists - start at level 11
+if ( ! -d $write_area ){
+    my(@items)=split("/",$write_area);
+    my($p)="/".$items[0];
+    for ($i=1; $i <= $#items ; $i++){
+	$p .= "/".$items[$i];
+	if ( ! -d $p){  mkdir($p,0700); }
+    }
+}
+
+
+
 # save output in a log file
 $logfile = $write_area . "specDocs.log";
 open(STDERR, ">>$logfile") or die "Unable to append to ${logfile}\n";
@@ -172,8 +185,11 @@ close(STDERR);
 exit;
 
 #_____________________________________________________________________________
-# $Id: specDocs.pl,v 1.2 2008/01/16 18:03:05 jeromel Exp $
+# $Id: specDocs.pl,v 1.3 2008/01/16 18:08:18 jeromel Exp $
 # $Log: specDocs.pl,v $
+# Revision 1.3  2008/01/16 18:08:18  jeromel
+# Create missing directory
+#
 # Revision 1.2  2008/01/16 18:03:05  jeromel
 # Remove ^M characters everywhere
 #
