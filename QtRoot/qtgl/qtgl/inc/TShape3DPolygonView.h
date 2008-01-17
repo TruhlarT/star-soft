@@ -1,4 +1,4 @@
-// @(#)root/gtgl:$Name:  $:$Id: TShape3DPolygonView.h,v 1.4 2006/10/17 20:07:12 fine Exp $
+// @(#)root/gtgl:$Name:  $:$Id: TShape3DPolygonView.h,v 1.5 2008/01/17 23:53:05 fine Exp $
 // Author: Valery Fine      27/04/05
 
 #ifndef ROOT_TShape3DPolygonView
@@ -150,14 +150,14 @@ public:
 inline void TShape3DPolygonView::Print()
 {
    fprintf(stderr," -------------------------------\n");
-   fprintf(stderr," The number of normals                = %d \n", fNormals.size());
-   fprintf(stderr," The number of vertices               = %d \n", fVertex.size());
-   fprintf(stderr," The number of face binded polygons   = %d \n", fPolygonsFaceBinding.size());
-   fprintf(stderr," The number of vertex binded polygons = %d \n", fPolygonsVertexBinding.size());
+   fprintf(stderr," The number of normals                = %ld \n", fNormals.size());
+   fprintf(stderr," The number of vertices               = %ld \n", fVertex.size());
+   fprintf(stderr," The number of face binded polygons   = %ld \n", fPolygonsFaceBinding.size());
+   fprintf(stderr," The number of vertex binded polygons = %ld \n", fPolygonsVertexBinding.size());
 
    UInt_t i; UInt_t j;
    if (fPolygonsFaceBinding.size()) {
-      fprintf(stderr," -----------fPolygonsFaceBinding----%d----------------\n",fPolygonsFaceBinding.size());
+      fprintf(stderr," -----------fPolygonsFaceBinding----%ld----------------\n",fPolygonsFaceBinding.size());
       for (i = 0; i < fPolygonsFaceBinding.size(); i++) {
          int nIndex = fPolygonsFaceBinding[i].fNormalIndex;
          fprintf(stderr," -- > %d-th face binded polygon\n", i);
@@ -173,7 +173,7 @@ inline void TShape3DPolygonView::Print()
       }
    }
    if (fPolygonsVertexBinding.size()) {
-      fprintf(stderr," -----------fPolygonsVertexBinding---%d -----------------\n",fPolygonsVertexBinding.size());
+      fprintf(stderr," -----------fPolygonsVertexBinding---%ld -----------------\n",fPolygonsVertexBinding.size());
 
       for (i = 0; i < fPolygonsVertexBinding.size(); i++) {
          {
