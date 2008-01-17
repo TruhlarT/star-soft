@@ -1,6 +1,6 @@
 // Author: Valeri Fine   21/01/2002
 /****************************************************************************
-** $Id: TQtInspectImp.cxx,v 1.4 2007/06/02 04:45:51 fine Exp $
+** $Id: TQtInspectImp.cxx,v 1.5 2008/01/17 17:13:59 fine Exp $
 **
 ** Copyright (C) 2002 by Valeri Fine. Brookhaven National Laboratory.
 **                                    All rights reserved.
@@ -231,7 +231,7 @@ void TQtInspectWidget::AddValues()
           if (!p3pointer) {
              sprintf(line[kvalue],"->0");
           } else if (!member->IsBasic()) {
-             sprintf(line[kvalue],"->%x ",  (unsigned int)p3pointer );
+             sprintf(line[kvalue],"->%p ",  p3pointer );
              tlink = new TLink(0, 0, p3pointer);
           } else if (membertype){
                if (!strcmp(membertype->GetTypeName(), "char"))
@@ -243,7 +243,7 @@ void TQtInspectWidget::AddValues()
                    !strcmp(member->GetFullTypeName(), "const char*")) {
              sprintf(line[kvalue], "%s", *ppointer);
           } else {
-             sprintf(line[kvalue],"->%x ", (unsigned int)p3pointer);
+             sprintf(line[kvalue],"->%p ", p3pointer);
              tlink = new TLink(0, 0, p3pointer);
           }
        } else if (membertype)
@@ -255,7 +255,7 @@ void TQtInspectWidget::AddValues()
                strcpy(line[kvalue], membertype->AsString(pointer));
             }
        else
-           sprintf(line[kvalue],"->%x ", (unsigned int)pointer);
+           sprintf(line[kvalue],"->%p ", pointer);
 
     //*-*- Encode data member title
 
