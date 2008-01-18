@@ -1,4 +1,4 @@
-// @(#)root/qt:$Name:  $:$Id: TQtWidget.h,v 1.13 2008/01/18 12:56:23 fine Exp $
+// @(#)root/qt:$Name:  $:$Id: TQtWidget.h,v 1.14 2008/01/18 13:17:06 fine Exp $
 // Author: Valeri Fine   21/01/2002
 /****************************************************************************
 **
@@ -93,6 +93,7 @@ private:
    enum {
       kBitMask       = 0x00ffffff
    };
+   bool fNeedStretch;
 protected:
    void Init();
 public:
@@ -167,7 +168,7 @@ protected:
    virtual void showEvent        ( QShowEvent *  );
    virtual void paintEvent       ( QPaintEvent * );
    virtual void resizeEvent      ( QResizeEvent *);
-  //  Layout methods:
+   //  Layout methods:
    virtual void        SetSizeHint (const QSize &size);
 public:
    virtual QSize       sizeHint () const;        // returns the preferred size of the widget.
