@@ -1,4 +1,4 @@
-// @(#)root/qt:$Name:  $:$Id: TQtWidget.h,v 1.12 2007/08/24 14:00:57 fine Exp $
+// @(#)root/qt:$Name:  $:$Id: TQtWidget.h,v 1.13 2008/01/18 12:56:23 fine Exp $
 // Author: Valeri Fine   21/01/2002
 /****************************************************************************
 **
@@ -48,6 +48,7 @@
   class QString;
   class QEvent;
   class QSizePolicy;
+  class QContextMenuEvent;
 #endif
   class TApplication;
 //
@@ -153,6 +154,7 @@ protected:
 #else   
    virtual void customEvent      ( QCustomEvent *);
 #endif   
+   virtual void contextMenuEvent ( QContextMenuEvent *);
    virtual void focusInEvent     ( QFocusEvent * );
    virtual void focusOutEvent    ( QFocusEvent * );
    virtual void leaveEvent       ( QEvent *      );
@@ -165,7 +167,7 @@ protected:
    virtual void showEvent        ( QShowEvent *  );
    virtual void paintEvent       ( QPaintEvent * );
    virtual void resizeEvent      ( QResizeEvent *);
-   //  Layout methods:
+  //  Layout methods:
    virtual void        SetSizeHint (const QSize &size);
 public:
    virtual QSize       sizeHint () const;        // returns the preferred size of the widget.

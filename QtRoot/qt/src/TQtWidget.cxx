@@ -1,4 +1,4 @@
-// @(#)root/qt:$Name:  $:$Id: TQtWidget.cxx,v 1.14 2007/08/25 02:31:55 fine Exp $
+// @(#)root/qt:$Name:  $:$Id: TQtWidget.cxx,v 1.15 2008/01/18 12:56:24 fine Exp $
 // Author: Valeri Fine   23/01/2003
 
 /*************************************************************************
@@ -164,15 +164,19 @@ void TQtWidget::Init()
   setBackgroundMode(Qt::NoBackground);
   if (fEmbedded) {
     if (!gApplication) InitRint();
+    int minw = 10;
+    int minh = 10;
+    setMinimumSize(minw,minh);
     Bool_t batch = gROOT->IsBatch();
     if (!batch) gROOT->SetBatch(kTRUE); // to avoid the recursion within TCanvas ctor
     TGQt::RegisterWid(this);
-    fCanvas = new TCanvas(name(), 4, 4, TGQt::RegisterWid(this));
+    fCanvas = new TCanvas(name(),minw,minh, TGQt::RegisterWid(this));
     // fprintf(stderr,"TQtWidget::TQtWidget %p fEditable %d\n", fCanvas, fCanvas->IsEditable());
     gROOT->SetBatch(batch);
   }
   fSizeHint = QWidget::sizeHint();
-  setSizePolicy (QSizePolicy::Expanding ,QSizePolicy::Expanding );
+  setSizePolicy(QSizePolicy(QSizePolicy::MinimumExpanding,QSizePolicy::MinimumExpanding));
+  setContextMenuPolicy(Qt::DefaultContextMenu);
 #ifdef R__QTWIN32
    // Set the application icon for all ROOT widgets
    static HICON rootIcon = 0;
@@ -429,6 +433,20 @@ TQtWidget::customEvent(QCustomEvent *e)
    };
 }
 //_____________________________________________________________________________
+void TQtWidget::contextMenuEvent(QContextMenuEvent *e)
+{
+   TCanvas *c = Canvas();
+   if (e && (c || !fWrapper )) {
+#if (QT_VERSION > 0x039999)
+       if (e->reason() != QContextMenuEvent::Mouse) {
+          // the mouse click has been processed by mouseEvent handler
+         c->HandleInput(kButton3Down, e->x(), e->y());
+         e->accept();
+      }
+#endif
+   }
+}
+//_____________________________________________________________________________
 void TQtWidget::focusInEvent ( QFocusEvent *e )
 {
    // The custom responce to the Qt QFocusEvent "in"
@@ -463,13 +481,13 @@ void TQtWidget::mousePressEvent (QMouseEvent *e)
    if (c || !fWrapper ){
       switch (e->button ())
       {
-      case Qt::LeftButton:  rootButton = kButton1Down; break;
-      case Qt::RightButton: rootButton = kButton3Down; break;
-      case Qt::MidButton:   rootButton = kButton2Down; break;
-      default: break;
+        case Qt::LeftButton:  rootButton = kButton1Down; break;
+        case Qt::RightButton: rootButton = kButton3Down; break;
+        case Qt::MidButton:   rootButton = kButton2Down; break;
+        default: break;
       };
       if (rootButton != kNoEvent) {
-         c->HandleInput(rootButton, e->x(), e->y());
+        c->HandleInput(rootButton, e->x(), e->y());
          e->accept(); 
          EmitSignal(kMousePressEvent);
          if (!( IsDoubleBuffered() || IsShadow()) ) {

@@ -1,4 +1,4 @@
-// @(#)root/qt:$Name:  $:$Id: GQtGUI.cxx,v 1.11 2008/01/07 02:48:53 fine Exp $
+// @(#)root/qt:$Name:  $:$Id: GQtGUI.cxx,v 1.12 2008/01/18 12:56:24 fine Exp $
 // Author: Valeri Fine   23/01/2003
 
 /*************************************************************************
@@ -36,10 +36,8 @@
 #  include <qobjectlist.h>
 #  include <qcstring.h>
 #else /* QT_VERSION */
-#  include <q3paintdevicemetrics.h>
 #  include <QByteArray>
 #  include <QBoxLayout>
-#  include <Q3Frame>
 #  include <QKeyEvent>
 #  include <QEvent>
 #  include <Q3ValueList>
@@ -1845,7 +1843,7 @@ void         TGQt::ChangeWindowAttributes(Window_t id, SetWindowAttributes_t *at
 #if QT_VERSION < 0x40000
        f.setFrameStyle( QFrame::Box | QFrame::Plain );
 #else /* QT_VERSION */
-       f.setFrameStyle( Q3Frame::Box | Q3Frame::Plain );
+       f.setFrameStyle( QFrame::Box );
 #endif /* QT_VERSION */
        // printf("TGQt::ChangeWindowAttributes  kWABorderPixel %p name = %s; shape = %d; margin = %d width=%d \n",&f,(const char*)f.name(),f.frameShape(),f.margin(),f.lineWidth() );
    }
