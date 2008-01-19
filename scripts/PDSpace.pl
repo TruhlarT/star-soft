@@ -29,7 +29,7 @@ $ICON2 = "/images/Spider1.jpg";                                # Icon to display
 $DINFO = "(check 'nova' Spiders)";                             # Many tools may be used for indexing
                                                                # display info about which one.
 
-$SpiderControl = "/cgi-bin/starreco/%%RELP%%/SpiderControl.cgi"; # a CGI controling the spiders
+$SpiderControl = "/cgi-bin/%%RELP%%/SpiderControl.cgi"; # a CGI controling the spiders
 
 
 @COLORS = ("#FFFACD","#C1FFC1","#7FFFD4","#00DEFF","#87CEFA","#ccccee","#D8BFD8","#FF69B4");
