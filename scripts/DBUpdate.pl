@@ -90,6 +90,7 @@ $|     = 1;
 
 for ($i=0 ; $i <= $#ARGV ; $i++){
     # Support "-XXX" options
+    #print "Looking at [$ARGV[$i]]\n";
     if ($ARGV[$i] eq "-o"){
 	$FLNM = $ARGV[$i+1];
 
@@ -111,9 +112,11 @@ for ($i=0 ; $i <= $#ARGV ; $i++){
 	    }
 	}
 	if ( open(FO,">$FLNM.tmp") ){
-	    $i++;
 	    $FO = FO;
+	} else {
+	    print "Failed to open $FLNM.tmp\n";
 	}
+	$i++;
 
     } elsif ($ARGV[$i] eq "-nocache"){
 	$DOCACHE= 0;
@@ -158,6 +161,8 @@ $DOIT   = ($#ALL == -1);
 if ( ! defined($FTYPE) ){  $FTYPE = ".MuDst.root";}
 $FTYPE =~ s/^\s*(.*?)\s*$/$1/;   # trim leading/trailing
 
+
+#print "Scanning $SCAND/$SUB\n";
 
 if( $DOIT && -e "$SCAND/$SUB"){
     if ($FTYPE ne "" ){
