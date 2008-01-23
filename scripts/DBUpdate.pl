@@ -101,7 +101,9 @@ for ($i=0 ; $i <= $#ARGV ; $i++){
 	    my($deltatime)= time() - $items[9];
 	    if ( $deltatime < 900){
                 # this file is too recent i.e. less than 10 mnts
-                open(FO,">>$FLNM");
+                if ( ! open(FO,">>$FLNM") ){
+		    die "Failed to open $FLNM in append mode\n";
+		}
                 print FO 
 		    "$FLNM.tmp detected and more recent than expected. ".
 		    "Process $$ exit.\n";
@@ -114,7 +116,7 @@ for ($i=0 ; $i <= $#ARGV ; $i++){
 	if ( open(FO,">$FLNM.tmp") ){
 	    $FO = FO;
 	} else {
-	    print "Failed to open $FLNM.tmp\n";
+	    die "Failed to open $FLNM.tmp\n";
 	}
 	$i++;
 
@@ -286,7 +288,7 @@ $fC->Require("V01.307");             # pathcomment and nodecomment requires a mi
 # Make a main context
 # Temporary so we get it once only
 chomp($NODE    = `/bin/hostname`);
-&Stream("Info : We are on $NODE");
+&Stream("Info : We are on $NODE started on ".localtime());
 
 
 
@@ -460,13 +462,17 @@ FINAL_EXIT:
 		if ( -e $FLNM.".last" ){  unlink($FLNM.".last");}
 		if ( -e $FLNM ){          rename($FLNM,$FLNM.".last");}
 		# rename new to final name
-		rename("$FLNM.tmp","$FLNM");
+		if ( ! rename("$FLNM.tmp","$FLNM") ){
+		    print "Failed to install $FLNM\n";
+		}
 	    } else {
 		unlink("$FLNM.tmp") if ( -e "$FLNM.tmp");
 		# we need to remove old one too so we clean the record
 		# as there is nothing to do with that one
 		unlink("$FLNM")     if ( -e "$FLNM");
-		print "No need for summary for $SCAND\n";
+		print "No need for a summary for $SCAND\n";
+		# remove cache though so we are sure to start the next loop clean
+		#unlink(glob("/tmp/$XSELF"."_*.lis"));
 	    }
 	}
     } else {
