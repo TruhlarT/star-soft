@@ -462,8 +462,11 @@ FINAL_EXIT:
 		# rename new to final name
 		rename("$FLNM.tmp","$FLNM");
 	    } else {
-		unlink("$FLNM.tmp");
-		print "No need for summary\n";
+		unlink("$FLNM.tmp") if ( -e "$FLNM.tmp");
+		# we need to remove old one too so we clean the record
+		# as there is nothing to do with that one
+		unlink("$FLNM")     if ( -e "$FLNM");
+		print "No need for summary for $SCAND\n";
 	    }
 	}
     } else {
