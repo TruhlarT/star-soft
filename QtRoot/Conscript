@@ -21,7 +21,7 @@ foreach my $dir (@dirs) {
     push @src, $dir . "/" . $s;
   }
 }
-my @DepsL = map {$LIB . "/lib" . $_ . ".so"} qw(QtRoot QtGed  RQTGL QtRootGui QtImage);
+my @DepsL = map {$LIB . "/lib" . $_ . ".so"} qw(QtRoot QtGed  RQTGL QtRootGui QtImage QGLViewer);
 my @DepsI = map {$INCLUDE .  "/TQt" . $_ . ".h"} 
   qw(       ClientGuard  GedEditor  PaletteEditor       SymbolCodec      Util
      ClientWidget      Image        Widget               Event            Lock
