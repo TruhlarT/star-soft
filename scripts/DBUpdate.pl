@@ -82,6 +82,7 @@ $SUBPATH= "";
 $SUB    = "reco";
 $DOSL   = 0;
 $DOCACHE= 0;
+$CACHELM= 10;
 
 # Argument pick-up
 $kk    = 0;
@@ -200,8 +201,9 @@ if ( $DOCACHE ){
   ONELIS:
     $kk=0;
     while ( -e "/tmp/$XSELF"."_$kk.lis"){  $kk++;}
-    if ( $kk > 15){  unlink(glob("/tmp/$XSELF"."_*.lis")); goto ONELIS;}
+    if ( $kk > $CACHELM){  unlink(glob("/tmp/$XSELF"."_*.lis")); goto ONELIS;}
 
+    $CACHECNT = $kk;
     if ($kk != 0){
 	# there is a previous $kk-1 file
 	my(@count)=(0,0,0);
@@ -467,12 +469,30 @@ FINAL_EXIT:
 		}
 	    } else {
 		unlink("$FLNM.tmp") if ( -e "$FLNM.tmp");
+		print "No need for a summary for $SCAND\n";
+
 		# we need to remove old one too so we clean the record
 		# as there is nothing to do with that one
-		unlink("$FLNM")     if ( -e "$FLNM");
-		print "No need for a summary for $SCAND\n";
-		# remove cache though so we are sure to start the next loop clean
-		#unlink(glob("/tmp/$XSELF"."_*.lis"));
+		# BUT this can be done ONLY if we are not using caching
+		if ($DOCACHE){
+		    if ( open(FO,">$FLNM.tmp") ){
+			print FO 
+			    "Caching used - Pass done on ".localtime()." found no changes".
+			    " - cache will expire in ".($CACHELM-$CACHECNT)." passes\n";
+			open(FI,"$FLNM");
+			while ( defined($line = <FI>) ){  print FO "$line";}
+			close(FI);
+			close(FO);
+			unlink("$FLNM");
+			rename("$FLNM.tmp","$FLNM");
+		    }
+		} else {
+		    unlink("$FLNM")     if ( -e "$FLNM");
+		    # remove cache if exists since options can be used 
+		    # independently
+		    unlink(glob("/tmp/$XSELF"."_*.lis"));
+		}
+
 	    }
 	}
     } else {
