@@ -85,7 +85,6 @@ my @jobs_set = ();
 
  my $mchainOp;
 
- my $mflName = "n/a";
  my $mjobID = "n/a";
  my $mprodSr = "n/a";
  my $mjobFname = "n/a";
@@ -200,7 +199,6 @@ my $myID;
            $mprodSr = $prodPeriod; 
            $myID = 100000000 + $new_id;
            $mjobID = "Job". $myID . "/" . $prodPeriod ."/". $mlibVer;
-           $mflName = $flname;       
            $msumFile = $jfile . ".log";
            $msumDir = $JOB_LOG;
            $mjobFdir = "new_jobs";
@@ -228,7 +226,7 @@ my $myID;
       $chain = $mchain .",-hitfilt";
     }
 #     if($nfiles < 11 ) {
-          &create_jobs($jfile, $jbset, $chain, $mlibVer, $JOB_DIR, $num, $datDisk); 
+          &create_jobs($jfile, $jbset, $chain, $mlibVer, $JOB_DIR, $datDisk); 
 
       print "JOB ID = " ,$mjobID, " % " . $mjobFname,  "\n";
       $nfiles++;
@@ -280,7 +278,7 @@ my $myID;
 
  sub create_jobs {
 
-  my ($gfile, $Jset, $fchain, $jlibVer, $JobDir, $nseq, $dataDisk ) = @_ ;
+  my ($gfile, $Jset, $fchain, $jlibVer, $JobDir, $dataDisk ) = @_ ;
 
  my $Jsetd;
  my $Jsetr;

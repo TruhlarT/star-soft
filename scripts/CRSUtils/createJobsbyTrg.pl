@@ -4,8 +4,10 @@
 # 
 # $Log: 
 # 
-# createJobsbyTrg.pl - scripts to create CRS jobs. Use 3 (4) arguments: production serie, trigger set name,
-# chainName from ProdOptions table and name of file if requested.   
+# createJobsbyTrg.pl - scripts to create CRS jobs. Use 3 (4) arguments: production serie,
+# trigger set name, chainName from ProdOptions table and name of file if requested.   
+# For example:
+# createJobsbyTrg.pl P07ie 2007Production2 auau200.2007.prod2 st_btag
 # Run on rcrsuser3.
 #
 # Author:  L.Didenko
@@ -78,17 +80,13 @@ my @jobs_set = ();
  my $msumFile = "n/a";
  my $msumDir = "n/a";
  my $mjobSt = "n/a";
- my $mchName = "n/a";
  my $startId = "Job_P00h";
  my $startSer = "P00h";
  my $new_id = 0;
-
- my $filename;
-
- $JOB_DIR =  "/home/starreco/newcrs/" . $prodPeriod ."/requests/". $chainDir; 
-
  my $mchain; 
  my $mlibVer; 
+
+ $JOB_DIR =  "/home/starreco/newcrs/" . $prodPeriod ."/requests/". $chainDir; 
 
  &StDbProdConnect();
 
@@ -182,13 +180,11 @@ my $myID;
     $num = $fileSeq/10 - int($fileSeq/10);
            $mprodSr = $prodPeriod; 
            $myID = 100000000 + $new_id;
-           $mjobID = "Job". $myID . "/" . $prodPeriod ."/". $mlibVer;
-           $mflName = $flname;       
+           $mjobID = "Job". $myID . "/" . $prodPeriod ."/". $mlibVer;       
            $msumFile = $jfile . ".log";
            $msumDir = $JOB_LOG;
            $mjobFdir = "new_jobs";
            $mjobSt = "n/a";
-           $mchName = $chName;
            $chain = $mchain;
           @parts =  split ("/", $jpath);
     $jbset = $trig . "_" .$field . "_" .$prodPeriod . "_" . $parts[5] . "_" . $parts[6]. "_" . $parts[7];
@@ -211,7 +207,7 @@ my $myID;
       $chain = $mchain .",-hitfilt";
     }
 #     if($nfiles < 11 ) {
-          &create_jobs($jfile, $jbset, $chain, $mlibVer, $JOB_DIR, $num, $datDisk); 
+          &create_jobs($jfile, $jbset, $chain, $mlibVer, $JOB_DIR, $datDisk); 
 
       print "JOB ID = " ,$mjobID, " % " . $mjobFname,  "\n";
       $nfiles++;
@@ -247,7 +243,7 @@ my $myID;
     $sql.="sumFileName='$msumFile',";
     $sql.="sumFileDir='$msumDir',";
     $sql.="jobStatus='$mjobSt',"; 
-    $sql.="chainName='$mchName'";
+    $sql.="chainName='$chName'";
 
      print "$sql\n" if $debugOn;
     $rv = $dbh->do($sql) || die $dbh->errstr;
@@ -260,7 +256,7 @@ my $myID;
 
  sub create_jobs {
 
-  my ($gfile, $Jset, $fchain, $jlibVer, $JobDir, $nseq, $dataDisk ) = @_ ;
+  my ($gfile, $Jset, $fchain, $jlibVer, $JobDir, $dataDisk ) = @_ ;
 
  my $Jsetd;
  my $Jsetr;
