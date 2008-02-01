@@ -121,4 +121,10 @@ function getLinksDB($runYear=-1,$runDay=-1,$run=-1) {
   return queryDB(str_replace($xstr,$rstr,$str));
 }
 
+function optimizeReportsDB() {
+  global $rFSIDB,$reportsDB;
+  optimizeTable($rFSIDB);
+  optimizeTable($reportsDB);
+}
+
 ?>

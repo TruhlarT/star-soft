@@ -334,6 +334,11 @@ function getIssList($old,$typ,$exc,$closed=-1) {
   return $issueF;
 }
 
+function optimizeIssuesDB() {
+  global $IssuesDB;
+  optimizeTable($IssuesDB);
+} 
+
 
 # depracated, but needed for coping
 function getIssDir() {

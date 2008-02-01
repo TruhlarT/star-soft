@@ -315,6 +315,8 @@ if ($mode == "SendIt") {
 
 # Mantain that log files do not get too big.
 rotateLog();
+optimizeReportsDB();
+optimizeIssuesDB();
 SuccessSubmission();
 
 ?>
