@@ -6,6 +6,7 @@
 #include <string>
 #include "TH1.h"
 #include "TH2.h"
+#include "TROOT.h"
 
 #include "TFile.h"
 #include "TKey.h"

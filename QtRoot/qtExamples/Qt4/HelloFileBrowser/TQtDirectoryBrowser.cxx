@@ -6,6 +6,7 @@
 #include "TClass.h"
 #include "TDataMember.h"
 #include "TRealData.h"
+#include "TDirectory.h"
 #include "TKey.h"
 #include "TH3.h"
 #include <QDebug>
