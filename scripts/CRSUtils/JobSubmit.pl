@@ -394,6 +394,10 @@ if ($ThisYear == 2002){
     $DCHAIN{"dAu"}  = "P2008b,ITTF,BEmcChkStat";
     $SCALIB{"dAu"}  = "OptLaser";
 
+    # at least, p+p calib
+    $SCALIB{"PPPP"} = "OptLaser";
+
+
 } else {
     # Well, at first you may get that message ... should tell you that
     # you have to add some default values.
