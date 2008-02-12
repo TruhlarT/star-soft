@@ -1,4 +1,4 @@
-// @(#)root/ged:$Name:  $:$Id: TQtMarkerEditor.h,v 1.2 2006/09/22 17:28:08 fine Exp $
+// @(#)root/ged:$Name:  $:$Id: TQtMarkerEditor.h,v 1.3 2008/02/12 21:34:14 fine Exp $
 // Author: Valeri Fine 11/06/06
 
 /****************************************************************************
@@ -40,6 +40,10 @@ class TQtMarkerSelect;
 // class QedMarkerSelect;
 class QFontTypeComboBox;
 // class TQtMarker;
+
+#ifdef __CINT__
+#define slots
+#endif
 
 class TQtMarkerEditor : public TQtGedAttFrame<TAttMarker> {
 #ifndef __CINT__

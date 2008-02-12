@@ -1,4 +1,4 @@
-// @(#)root/ged:$Name:  $:$Id: TQtGedAttFrame.h,v 1.2 2007/02/19 03:43:52 fine Exp $
+// @(#)root/ged:$Name:  $:$Id: TQtGedAttFrame.h,v 1.3 2008/02/12 21:34:14 fine Exp $
 // Author: Valeri Fine 25/06/04
 // based on the code by Marek Biskup, Ilka  Antcheva 28/07/03
 
@@ -39,20 +39,27 @@
 
 #ifndef __CINT__
 // #include <qtoolbar.h> 
-#include <qapplication.h> 
-#include <qcursor.h> 
-#include <qdockwindow.h> 
-#include <qmainwindow.h>
-#include <qobjectlist.h>
-#include <qcombobox.h> 
-#include <qhbox.h> 
-#include <qlayout.h> 
-#include <qlabel.h> 
-#include <qtooltip.h>
+#  include <qapplication.h> 
+#  include <qcursor.h> 
+#  include <qdockwindow.h> 
+#  include <qmainwindow.h>
+#  include <qobjectlist.h>
+#  include <qcombobox.h> 
+#  include <qhbox.h> 
+#  include <qlayout.h> 
+#  include <qlabel.h> 
+#  include <qtooltip.h>
 #else
 // typedef  TObject QToolBar;
-typedef  TObject QDockWindow;
-#define  slots 
+  typedef  TObject QDockWindow;
+  #define  slots 
+  class QWidget;
+  class QMainWindow;
+  class QObjectList ;
+  class QObject;
+  class QLabel;
+  class QString;
+  class QHBox;
 #endif
 
 // ROOT  classes forward declarations:
@@ -70,13 +77,6 @@ class TQtGedMarkerSelect;
 
 //  Qt classes forward declarations:
 
-class QWidget;
-class QMainWindow;
-class QLabel;
-class QString;
-class QHBox;
-class QObjectList ;
-class QObject;
 class TQtGedAttInterfaceB;
 
 //_________________________________________________________________________________________________________

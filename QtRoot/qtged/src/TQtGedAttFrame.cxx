@@ -1,4 +1,4 @@
-// @(#)root/ged:$Name:  $:$Id: TQtGedAttFrame.cxx,v 1.2 2007/02/08 21:16:47 fine Exp $
+// @(#)root/ged:$Name:  $:$Id: TQtGedAttFrame.cxx,v 1.3 2008/02/12 21:34:15 fine Exp $
 // Author: Valeri Fine   22/07/06
 
 /****************************************************************************
@@ -43,8 +43,6 @@
 #include "TGQt.h"
 #include "TQtPatternSelect.h"
 #include "TQtColorSelect.h"
-
-#include <qlabel.h> 
 
 #include "Api.h"
 #include "TPaveLabel.h"
@@ -118,7 +116,7 @@ void TQtGedAttInterfaceB::SetDrawOption(Option_t *option)
 void TQtGedAttInterfaceB::ResetPadOption(TVirtualPad *pad, TObject *object, Option_t *opt)
 {
    //
-   // Workaround of the ROOT desing flaw
+   // Workaround of the ROOT design flaw
    // Needed by TQtArrowEditor
    // It is a hack of the TObject::SetDrawOption method
    //

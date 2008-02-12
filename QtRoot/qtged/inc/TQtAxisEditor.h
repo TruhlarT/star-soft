@@ -1,4 +1,4 @@
-// @(#)root/ged:$Name:  $:$Id: TQtAxisEditor.h,v 1.1 2006/08/16 19:32:43 fine Exp $
+// @(#)root/ged:$Name:  $:$Id: TQtAxisEditor.h,v 1.2 2008/02/12 21:34:13 fine Exp $
 // Author: Valeri Fine 10/07/2004
 
 /****************************************************************************
@@ -43,6 +43,10 @@ class QSpinBox;
 class TQtColorSelect;
 class TQtFloatSpinBox;
 class TQtFontComboBox;
+
+#ifdef __CINT__
+#define slots
+#endif
 
 
 class TQtAxisEditor : public TQtGedAttFrame<TAxis>{

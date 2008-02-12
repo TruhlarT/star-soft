@@ -1,7 +1,7 @@
 // Author: Eric Dumonteil   26/01/2006
 
 /****************************************************************************
-** $Id: TQtArrowEditor.h,v 1.1 2006/08/16 19:32:43 fine Exp $
+** $Id: TQtArrowEditor.h,v 1.2 2008/02/12 21:34:13 fine Exp $
 **
 ** Copyright (C) 2006 by Valeri Fine.  All rights reserved.
 **
@@ -39,7 +39,9 @@ class TQtArrowStyleSelect;
 class QWidget;
 class TQtFloatSpinBox;
 
-
+#ifdef __CINT__
+#define slots
+#endif
 
 class TQtArrowEditor : public TQtGedAttFrame<TArrow>{
 #ifndef __CINT__
