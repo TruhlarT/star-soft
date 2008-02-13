@@ -1142,6 +1142,19 @@ my $Anflag = 0;
 my $runflag = 0;
 my $mCPUbfc = 0;
 my $mRealTbfc = 0;
+my $embflag = 0;
+my $mixline = "/StRoot/macros/embedding";
+my @tmm = ();
+my $mrlt = 0;
+my $mcpu = 0;
+my $rlt = 0;
+my $cput = 0;
+
+
+  if($fl_log =~ /embed/) {
+
+   $embflag = 1;
+ }
 
  
    foreach my $line (@logfile) {
@@ -1163,14 +1176,14 @@ my $mRealTbfc = 0;
        }
 #   get library version
       if ( $line =~ /={3} You are in (\w+)/ ) {
-        if( $Anflag == 0) {
+        if( $Anflag == 0 or $embflag == 1 ) {
         $libV = $1;
       }else{
        next;
        }
     }
 #   get chain option
-	  if($runflag == 1) {
+	  if($runflag == 1 or $embflag == 1) {
 	      if ( $line =~ /Processing bfc.C/)   {
          if( $Anflag == 0 ) {
          @part = split /"/, $line ;
@@ -1180,12 +1193,37 @@ my $mRealTbfc = 0;
     }else{
        next;
         }
+
+    }elsif ( $line =~ /$mixline/ ) {
+     @part = ();
+     @part = split( "/", $line) ;
+       $mchain = $part[4];
+# print $line, "\n";
+
+
        }
  
 #   get  number of events
       if ( $line =~ /Done with Event/ ) {
         $no_event++;
-     } 
+
+#############################################
+    if($embflag == 1)  {
+    @part = ();
+    @part = split( "=", $line) ;
+    $mrlt = $part[1];
+    $mcpu = $part[2];
+     @tmm = ();
+    @tmm = split(" ", $part[1]) ;
+    $rlt = $tmm[0];
+     @tmm = ();
+    @tmm = split(" ", $part[2]) ;
+    $cput = $tmm[0];
+
+    }
+#############################################
+   }
+
 
 #  get memory size
       if ($num_line > 200){
