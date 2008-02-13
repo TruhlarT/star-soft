@@ -4,10 +4,11 @@
 #
 # $Log: L.Didenko
 #
-# dbupdateDEV.pl
+# dbupdateNEW.pl
 #
-# update JobStatus and FileCatalog for DEV test jobs
-# Run this script next day after jobs have been submitted
+# update JobStatus and FileCatalog with test jobs for NEW library
+# Author: L.Didenko
+#
 ##############################################################################
 
 use Mysql;
@@ -21,11 +22,11 @@ require "/afs/rhic.bnl.gov/star/packages/scripts/dbLib/dbTJobsSetup.pl";
 #require "dbTJobsSetup.pl";
 
 my $TOP_DIRD = "/star/rcf/test/new/";
-my @dir_year = ("year_2001", "year_1h", "year_2003", "year_2004", "year_2005", "year_2006", "year_2007");
+my @dir_year = ("year_2001", "year_1h", "year_2003", "year_2004", "year_2005", "year_2006", "year_2007", "year_2008");
 my @node_dir = ("trs_sl302", "trs_sl302_opt","trs_sl302.ittf", "trs_sl302.ittf_opt");
 my @node_daq = ("daq_sl302", "daq_sl302_opt","daq_sl302.ittf","daq_sl302.ittf_opt"); 
 my @hc_dir = ("hc_lowdensity", "hc_standard", "hc_highdensity", "peripheral","pp_minbias","dau_minbias","auau_minbias","auau_central","cucu200_minbias","cucu62_minbias");
-my @daq_dir = ("minbias", "central", "ppMinBias", "dAuMinBias", "AuAuMinBias", "AuAu_prodHigh","AuAu_prodLow","prodPP","CuCu200_MinBias","CuCu200_HighTower","CuCu62_MinBias","CuCu22_MinBias","ppProduction","ppProdLong","ppProdTrans","2007Production","2007ProductionMinBias");
+my @daq_dir = ("minbias", "central", "ppMinBias", "dAuMinBias", "AuAuMinBias", "AuAu_prodHigh","AuAu_prodLow","prodPP","CuCu200_MinBias","CuCu200_HighTower","CuCu62_MinBias","CuCu22_MinBias","ppProduction","CuCu200_embedTpc","CuCu200_embedTpcSvt","ppProdLong","ppProdTrans","2007Production","2007ProductionMinBias","production_dAu2008");
 
 my @OUT_DIR;
 my @OUTD_DIR;
@@ -93,23 +94,28 @@ for ($i = 0; $i < scalar(@node_daq); $i++) {
         $ii++;
    } 
  
-   for ($ik = 8; $ik < 13; $ik++) { 
+   for ($ik = 8; $ik < 15; $ik++) { 
     $OUT_DIR[$ii] = $TOP_DIRD . $node_daq[$i] . "/" . $dir_year[4] . "/" . $daq_dir[$ik];
    print "Output Dir for NEW :", $OUT_DIR[$ii], "\n";
         $ii++;
    } 
-   for ($ik = 13; $ik < 15; $ik++) { 
+   for ($ik = 15; $ik < 17; $ik++) { 
     $OUT_DIR[$ii] = $TOP_DIRD . $node_daq[$i] . "/" . $dir_year[5] . "/" . $daq_dir[$ik];
    print "Output Dir for NEW :", $OUT_DIR[$ii], "\n";
         $ii++;
    } 
 
-    for ($ik = 15; $ik < 17; $ik++) { 
+    for ($ik = 17; $ik < 19; $ik++) { 
     $OUT_DIR[$ii] = $TOP_DIRD . $node_daq[$i] . "/" . $dir_year[6] . "/" . $daq_dir[$ik];
    print "Output Dir for NEW :", $OUT_DIR[$ii], "\n";
         $ii++;
-   } 
+   }
+ 
+   for ($ik = 19; $ik < 20; $ik++) { 
+      $OUT_DIR[$ii] = $TOP_DIRD . $node_daq[$i] . "/" . $dir_year[7] . "/" . $daq_dir[$ik];
+   print "Output Dir for NEW :", $OUT_DIR[$ii], "\n"; 
 
+  }
  }
 
 struct FileAttr => {
