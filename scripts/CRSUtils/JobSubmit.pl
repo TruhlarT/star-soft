@@ -1110,7 +1110,8 @@ sub Submit
 
     if($mode == 2){
 	# This is the calibration specific mode
-	$tags  = "laser";        # **** this is cheap and dirty ****
+#	$tags  = "laser";        # **** this is cheap and dirty ****
+        $tags  = "tags";
 	$calib = $SCALIB{$coll};
     } else {
 	# this is any other mode
