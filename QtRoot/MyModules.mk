@@ -16,11 +16,16 @@ endif
 
 ifneq ($(QTINCDIR),)
 # Core of the Qt ROOT layer
-#MODULES      += qt qtroot 
+MODULES      += qt qtroot 
 EXTRA_CXXFLAGS  += -DR__QT
 EXTRA_CFLAGS    += -DR__QT
 # Extensions of the Qt ROOT layer
-MODULES         += qtgui qtimage qtged
+MODULES         += qtgui qtimage
+ifeq ($(QTVERS),3)
+  MODULES         += qtged
+else
+  MODULES         += qt4ged
+endif
 ifneq ($(ARCH),win32old) 
 ifneq ($(ARCH),win32gdk)
 # MODULES        += qtx3d
@@ -28,6 +33,9 @@ endif
 endif
 ifneq ($(BUILDGL),)
 MODULES      += qtgl
+ifneq ($(IVROOT),)
+MODULES      +=qtgl/qtcoin
+endif
 else
 ifeq ($(ARCH),win32old)
 MODULES      += qtgl
