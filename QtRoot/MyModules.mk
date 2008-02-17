@@ -16,7 +16,7 @@ endif
 
 ifneq ($(QTINCDIR),)
 # Core of the Qt ROOT layer
-MODULES      += qt qtroot 
+## is to be defined by ROOT configure MODULES      += qt qtroot 
 EXTRA_CXXFLAGS  += -DR__QT
 EXTRA_CFLAGS    += -DR__QT
 # Extensions of the Qt ROOT layer
