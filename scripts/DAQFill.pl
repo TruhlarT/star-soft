@@ -12,10 +12,13 @@ use lib "/afs/rhic.bnl.gov/star/packages/scripts/";
 use RunDAQ;
 
 # Mode 1 will quit
-$mode  = 1;
-$sltime= 60;
-$file  = "";   # DAQFill.log";
-$SSELF = "DAQFill";
+$mode    = 1;     # default mode - overwritten by argument 1
+$sltime  = 60;    # sleep time between default between loops - overwriten by arguments 2
+$file    = "";    # Default file name for LOG - overwirten by argument 3 (i.e. DAQFill.log);
+$EXPIRET = 10800; # 3 hours delays expected
+
+$SSELF   = "DAQFill";
+
 
 $mode   = shift(@ARGV) if ( @ARGV );
 $arg1   = shift(@ARGV) if ( @ARGV );
@@ -23,7 +26,11 @@ $file   = shift(@ARGV) if ( @ARGV );
 
 # We added this in 2004 for a bootstrap by run number
 # range.
-if ($arg1 > 0){ $sltime = $arg1;}
+if ( defined($arg1) ){
+    if ( $arg1 > 0){ $sltime = $arg1;}
+} else {
+    $arg1 = 0;
+}
 
 
 # We add an infinit loop around so the table will be filled
@@ -52,13 +59,17 @@ do {
 	    }
 
 	    if($prun ne $run){
-		# do not change this next message - it is used by GetRun()
+		# DO NOT change this next message - it is used by GetRun()
 		&Print("Last Run=$run on ".localtime()."\n");
-		# the format here do not matter
+
+		# the message format do not matter afterward
 		if ( $run < 0){
-		    rdaq_set_message($SSELF,"Last run in our log",(-$run)." but asked to bootstrap all records from the beginning");
+		    rdaq_set_message($SSELF,
+				     "Last run in our log",(-$run)." but asked to bootstrap all records from the beginning");
+		} elsif ($run == 0){
+		    rdaq_set_message($SSELF,"Full scan","We will update or get new runs >= 0");
 		} else {
-		    rdaq_set_message($SSELF,"Last run in our log","We will update or get new runs >= $run");
+		    rdaq_set_message($SSELF,"Last run in our log","We will update or get new runs >= $prun (now at $run)");
 		}
 	    }
 
@@ -66,19 +77,26 @@ do {
 	    $begin = 0;
 	    $by    = 1000;
 	    if($run >= 0){
-		# fetch new records since that run number
+		# fetch new records since prun run number (be carefull of the change of 
+		# logic between prun and run)
 		my($count,$N);
 
-		&Print("Bootstrap case, run = $run ( >= 0)\n");
+		&Print("Bootstrap case, run = $run ( >= 0) ; prun = $prun\n");
 		$count = 0;
 		rdaq_set_dlevel(1);
 		
+		# we use prun instead on run but do not want to use 0.0
+		if ( $prun eq "0.0" || $run == 0){ 
+		    $ctime = localtime();
+		    $prun  = $run;
+		}
+
 		do {
 		    $count++; 
 		    # cleanup
 		    undef(@records);
 
-		    @records = rdaq_raw_files($obj,$run,"$begin,$by");
+		    @records = rdaq_raw_files($obj,$prun,"$begin,$by");
 
 		    # display info
 		    if ($#records != -1){
@@ -146,16 +164,50 @@ sub Print
 sub GetRun
 {
     my(@lines,$line,$rv);
+    my(@info,$delta,$lrv);
 
     $rv = "0.0";
     if( $file ne ""){
-	@lines = `/usr/bin/tail -10 $file`;
+	@lines = `/usr/bin/tail -20 $file`;
 	foreach $line (@lines){
 	    if ($line =~ m/(Run=)(\d+)\.(\d+)/){
+		# this run information comes from rdaq_last_run() which will look
+		# at the latest record in the db. We need to fetch records since an
+		# older run number until now.
 		$rv = "$2.$3";
 	    }
 	}
+	if ( $rv ne "0.0" ){
+	    if ( -e "/tmp/$SSELF.last_run" ){
+		open(FI,"/tmp/$SSELF.last_run");
+		chomp($lrv = <FI>);
+		close(FI);
+
+		@info  = stat("/tmp/$SSELF.last_run");
+		$delta = time()-$info[10];
+		if ( $delta > $EXPIRET ){
+		    rdaq_set_message($SSELF,"Expired","RunNumber expiration for $lrv - moving to $rv");
+		    &Print("Expiration time has arrived for $lrv - moving to $rv\n");
+		    open(FO,">/tmp/$SSELF.last_run");
+		    print FO "$rv\n";
+		    close(FO);
+		} else {
+		    # overwrite
+		    if ($lrv ne "0.0"){
+			&Print("Using older run $lrv instead of $rv ($delta <= $EXPIRET)\n");
+			$rv = $lrv;
+		    }
+		}
+	    } else {
+		# create one - first time this runs or parsin did not find the magic
+		# line over the past 10 lines
+		open(FO,">/tmp/$SSELF.last_run");
+		print FO "$rv\n";
+		close(FO);
+	    }
+	}
     }
+
     $rv;
 }
 
