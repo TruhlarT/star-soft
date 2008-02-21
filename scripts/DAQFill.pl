@@ -51,14 +51,17 @@ do {
 	    # get the top run. Note that <= 0 would get all
 	    # runs ever entered in this database.
 	    if ($arg1 < 0){
-		$run = - $arg1;
-		$prun= 0;
+		$run  = - $arg1;
+		$crun = $prun= 0;
 	    } else {
 		$run = $mode*rdaq_last_run($dbObj);
-		$prun= &GetRun();
+		($prun,$crun)= &GetRun();
 	    }
 
 	    if($prun ne $run){
+		# We need to frequently re-issue the run number message to be sure
+		# to get it later at the end of the log.
+		
 		# DO NOT change this next message - it is used by GetRun()
 		&Print("Last Run=$run on ".localtime()."\n");
 
@@ -69,7 +72,11 @@ do {
 		} elsif ($run == 0){
 		    rdaq_set_message($SSELF,"Full scan","We will update or get new runs >= 0");
 		} else {
-		    rdaq_set_message($SSELF,"Last run in our log","We will update or get new runs >= $prun (now at $run)");
+		    if ( $run ne $crun){
+			# avoid too frequent streamed messages
+			rdaq_set_message($SSELF,"Last run in our log",
+					 "We will update or get new runs >= $prun (now at $run)");
+		    }
 		}
 	    }
 
@@ -163,10 +170,10 @@ sub Print
 #
 sub GetRun
 {
-    my(@lines,$line,$rv);
+    my(@lines,$line,$rv,$cv);
     my(@info,$delta,$lrv);
 
-    $rv = "0.0";
+    $cv = $rv = "0.0";
     if( $file ne ""){
 	@lines = `/usr/bin/tail -20 $file`;
 	foreach $line (@lines){
@@ -174,7 +181,7 @@ sub GetRun
 		# this run information comes from rdaq_last_run() which will look
 		# at the latest record in the db. We need to fetch records since an
 		# older run number until now.
-		$rv = "$2.$3";
+		$cv = $rv = "$2.$3";
 	    }
 	}
 	if ( $rv ne "0.0" ){
@@ -208,6 +215,6 @@ sub GetRun
 	}
     }
 
-    $rv;
+    ($rv,$cv);
 }
 
