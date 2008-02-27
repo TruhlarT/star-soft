@@ -367,7 +367,9 @@ if ($ThisYear == 2002){
 
     # Those are taken from previous yera - agreed upon as per rate, etc...
     # and documented on our Web pages.
-    $LASERTP =  rdaq_string2ftype("laser");
+    $LASERTP =  
+	rdaq_string2ftype("laser")."|".
+	rdaq_string2ftype("laser_adc");
 
     $PHYSTP  =  rdaq_string2ftype("physics");
     $PHYSTP2 =
@@ -395,7 +397,9 @@ if ($ThisYear == 2002){
     $SCALIB{"dAu"}  = "OptLaser";
 
     # at least, p+p calib
+    $DCHAIN{"PPPP"} = "pp2008a,ITTF,BEmcChkStat,QAalltrigs";
     $SCALIB{"PPPP"} = "OptLaser";
+
 
 
 } else {
@@ -922,7 +926,11 @@ if( $TARGET =~ m/^\// || $TARGET =~ m/^\^\// ){
 	    if( substr($TARGET,0,1) eq "C" ){
 		# Simple with a perl module isn't it.
 		$TARGET=~ s/C\//\//;
-		@files = rdaq_get_ffiles($obj,0,$TOT,$LASERTP);
+		undef(@files);
+		my($kind);
+		foreach $kind ( split(/\|/,$LASERTP) ){
+		    push(@files,rdaq_get_ffiles($obj,0,$TOT,$kind));
+		}
 	    } else {
 		# Cannot do this
 		print "$SELF : Failed. Wrong syntax\n";
