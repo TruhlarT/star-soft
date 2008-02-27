@@ -15,7 +15,7 @@ use RunDAQ;
 $mode    = 1;     # default mode - overwritten by argument 1
 $sltime  = 60;    # sleep time between default between loops - overwriten by arguments 2
 $file    = "";    # Default file name for LOG - overwirten by argument 3 (i.e. DAQFill.log);
-$EXPIRET = 10800; # 3 hours delays expected
+$EXPIRET = 14400; # 14400 = 4 hours / 10800 = 3 hours delays expected
 
 $SSELF   = "DAQFill";
 
