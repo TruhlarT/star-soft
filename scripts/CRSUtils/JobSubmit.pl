@@ -521,11 +521,21 @@ if ($TARGET !~ m/^\d+$/){
 	    $space =  $2;
 	}
 
+	#print "$SELF : Target=$TARGET Space=$spcae - checking condition\n";
 
-
-	if ( $TARGET =~ m/^C/ && $space >= $MAXFILL+$FUZZ4C){
-	    print "$SELF : C mode - disk $ltarget is $space % full\n";
-	    rdaq_set_message($SSELF,"Target disk space notice","C mode - $ltarget is $space % full");
+	if ( $TARGET =~ m/^C/ ){
+	    if ( $space >= $MAXFILL+$FUZZ4C){
+		print "$SELF : C mode - disk $ltarget is $space % full\n";
+		rdaq_set_message($SSELF,"Target disk space notice","C mode - $ltarget is $space % full");
+	    } else {
+		if ( $space >= $MAXFILL ){
+		    # provide advance warning
+		    rdaq_set_message($SSELF,
+				     "Target disk space warning",
+				     "$ltarget is $space % full, ".($MAXFILL-$space+$FUZZ4C)." % left before C mode stalls"); 
+		}
+		$OK = 1==1;
+	    }
 
 	} elsif ($space >= $MAXFILL ){
 	    print "$SELF : Target disk $ltarget is $space % full\n";
