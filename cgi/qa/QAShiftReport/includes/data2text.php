@@ -6,7 +6,7 @@ incl("infohandling.php");
 function d2tdelim() { return "###"; }
 function str2page($title,$str) {
   global $incdir;
-  $output .= readText("${incdir}head.html");
+  $output  = readText("${incdir}head.html");
   $output .= $title;
   $output .= readText("${incdir}head2.html");
   $output .= readText("${incdir}body.html");

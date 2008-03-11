@@ -179,7 +179,7 @@ incl("forms.php");
       return $str;
     }
     function mkhref($ref,$val,$trg="QArfr",$onc="") {
-      global $webFullFir;
+      global $webFullFir,$webdir;
       mkhref2($webdir . $ref,$val,$trg,$onc);
     }
     function mkhref2($ref,$val,$trg="QArfr",$onc="") {

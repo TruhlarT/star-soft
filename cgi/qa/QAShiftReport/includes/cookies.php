@@ -25,6 +25,7 @@ global $cookiepath,$domain,$undef;
       if (isset($_COOKIE[$cookieName])) {
         return $_COOKIE[$cookieName];
       }
+      global $undef;
       return $undef;
     }
 

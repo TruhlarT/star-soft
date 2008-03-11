@@ -83,7 +83,7 @@ function getNextRepNum($RepType) {
 # runFileSeqIndex
 
 function saveLinkDB($RepType,$run,$seq,$link,$RepNum) {
-  global $rFSIDB,$refFODB;
+  global $rFSIDB,$repFODB;
   if (!(cleanInt($run) && cleanRepType($RepType) &&
         cleanStrict($seq) && cleanStrict($RepNum))) return false;
   $RepTypeDB = $repFODB[$RepType];
