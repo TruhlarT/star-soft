@@ -9,7 +9,7 @@ logit("--------------------");
 logit("HOST IP: ${rhst}");
 logit("HOST   : ${rhsn}");
 logit("BROWSER: " . $_SERVER["HTTP_USER_AGENT"]);
-logit("COOKIES: " . $_SERVER["HTTP_COOKIE"]);
+#logit("COOKIES: " . $_SERVER["HTTP_COOKIE"]);
 #foreach ($_SERVER as $k => $v ) { logit("$k => $v"); }
 logit("--------------------");
 
