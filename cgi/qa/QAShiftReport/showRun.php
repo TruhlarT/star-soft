@@ -317,7 +317,7 @@ display:<?php print ($showrep ? "none" : "block"); ?> " >
       $row = readReportDB($repnum,$reptype,0);
       $reptext = $row['RepText'];
       $doPre = 1;
-      if (substr($reptxt,0,6) == "<html>") $doPre = 0;
+      if (substr($reptext,0,6) == "<html>") $doPre = 0;
       print "<div id=vwr style=\"position:absolute; width:98%; bottom:0; height:80%;\n";
       print "   z-index:0; border-style:groove none none; \" >";
       if ($doPre) print "<pre>";
