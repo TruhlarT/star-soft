@@ -397,11 +397,11 @@ if ($ThisYear == 2002){
     $SCALIB{"dAu"}  = "OptLaser";
 
     # at least, p+p calib
-#    $DCHAIN{"PPPP"} = "pp2008a,ITTF,BEmcChkStat,QAalltrigs";
-    $DCHAIN{"PPPP"} = "pp2008a,ITTF,BEmcChkStat";
+    $DCHAIN{"PPPP"} = "pp2008a,ITTF,BEmcChkStat,QAalltrigs";
+#    $DCHAIN{"PPPP"} = "pp2008a,ITTF,BEmcChkStat";
     $SCALIB{"PPPP"} = "OptLaser";
-
-
+    $DCHAIN{"AuAu"} = "pp2008a,ITTF,BEmcChkStat,QAalltrigs";
+    $SCALIB{"AuAu"} = "OptLaser";
 
 } else {
     # Well, at first you may get that message ... should tell you that
