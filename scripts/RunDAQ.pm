@@ -1482,6 +1482,8 @@ sub rdaq_file2hpss
 
 #
 # Returns the status string for a given entry.
+# Status level are set according to the explaination and convention below.
+# There is no interface for
 #
 sub rdaq_status_string
 {
@@ -1496,6 +1498,7 @@ sub rdaq_status_string
     $str = "Skipped"   if($sts == 4);
     $str = "SCalib"    if($sts == 5);   # submitted for calibration
     $str = "FCalib"    if($sts == 6);   # submitted for calibration, ezTree
+    $str = "RTSBad";   if($sts == 111);
     $str = "Died"      if($sts == 666);
 
     $str;
