@@ -33,7 +33,7 @@
 #                                   and get_ffiles.
 #      rdaq_set_xstatus             Set XStatus for a given XStatus id
 #      rdaq_set_chain               Set chain according to list
-#      rdaq_set_execdate            Set the file(s) execute date (should be 
+#      rdaq_set_execdate            Set the file(s) execute date (should be
 #                                   passed in GMT)
 #
 # Each rdaq_set_XXX has an equivalent rdaq_set_XXX_where method which accepts
@@ -1056,7 +1056,7 @@ sub rdaq_set_chain_where
 # Setting the ExecDate - val could be 0 or undef which would equate
 # to NOW()+0. This was added for convenience as updating a timestamp
 # field without knowing the date format could be problematic (requires
-# additional calculations)    
+# additional calculations)
 sub rdaq_set_execdate
 {
     my($obj,$val,@files)=@_;
@@ -1067,8 +1067,8 @@ sub rdaq_set_execdate_where
 {
     my($obj,$val,$stscond,@files)=@_;
     if ( ! defined($val) ){ $val = "NOW()";}
-    if ( "$val" eq "0" ){   $val = "NOW()";}    
-    # print "<!-- In set_execdate_where() calling with $val=[$val] and cond=[$stscond] -->\n" if ($DEBUG);    
+    if ( "$val" eq "0" ){   $val = "NOW()";}
+    # print "<!-- In set_execdate_where() calling with $val=[$val] and cond=[$stscond] -->\n" if ($DEBUG);
     return &__set_files_where($obj,"ExecDate",$val,$stscond,@files);
 }
 
@@ -1173,7 +1173,7 @@ sub rdaq_list_field
 	    }
 	    close(FI);
 	    return @all;
-	} 
+	}
     }
 
 
@@ -1498,7 +1498,7 @@ sub rdaq_status_string
     $str = "Skipped"   if($sts == 4);
     $str = "SCalib"    if($sts == 5);   # submitted for calibration
     $str = "FCalib"    if($sts == 6);   # submitted for calibration, ezTree
-    $str = "RTSBad";   if($sts == 111);
+    $str = "RTSBad"    if($sts == 111);
     $str = "Died"      if($sts == 666);
 
     $str;
@@ -1651,7 +1651,7 @@ sub    rdaq_set_delay
 #  FOMessages: id, Itime, Category, Message, Variablemsg
 #
 # Category is arbitrary.
-#   
+#
 #
 sub  rdaq_set_message
 {
@@ -1676,21 +1676,21 @@ sub  rdaq_set_message
 	}
     }
 }
-sub  rdaq_get_message 
+sub  rdaq_get_message
 {
     my($limit,$fld,$sel)=@_;
     my($obj,$cmd,$sth,$sts,$key,$ii);
     my(@tmp,@rec,%Rec);
     my($Debug)=0;
-    
+
     if ( ! defined($limit) ){ $limit = 10;}
     if ( ! defined($sel) ){   $sel   = "";}
     if ( ! defined($fld) ){   $fld   = -1;}
-    
+
     # force type for int
     $limit = int($limit);
     $fld   = int($fld);
-    
+
     if ( $obj = rdaq_open_odatabase() ){
 	my(@fields)=("Itime","Category","Message","Variablemsg");
 	$cmd = "SELECT ".join(",",@fields)." FROM FOMessages";
@@ -1714,7 +1714,7 @@ sub  rdaq_get_message
 	#
 	## now prepare
 	#$sth = $obj->prepare($cmd);
-	
+
 	$cmd .= " ORDER BY ITime DESC LIMIT ".(10*$limit);
 	$sth = $obj->prepare($cmd);
 
@@ -1722,14 +1722,14 @@ sub  rdaq_get_message
 	$ii = 0;
 
 	# can't do the same sorting using MySQL
-	# The limit x10 is purely arbitrary as we will count the records we need 
+	# The limit x10 is purely arbitrary as we will count the records we need
 	# and stop when we get the proper requested number.
 	#
 	# Note the logic: if a selector is used, all records otherwise unique
 	# based on key Message/Variablemsg
 	#
 	if ( $sel ne ""){
-	    $sts = $sth->execute($sel); 
+	    $sts = $sth->execute($sel);
 	} else {
 	    $sts = $sth->execute();
 	}
@@ -1739,7 +1739,7 @@ sub  rdaq_get_message
 	    # print "Execute";
 	    while ( (@tmp = $sth->fetchrow_array()) && $ii < $limit ){
 		$key = $tmp[2]." ".$tmp[3];
-		# print "Got [$key] ";		
+		# print "Got [$key] ";
 		if ( ! defined($Rec{$key}) || $sel ne "" ){
 		    chomp($Rec{$key} = join(";",@tmp));
 		    push(@rec,$Rec{$key});
@@ -1747,13 +1747,13 @@ sub  rdaq_get_message
 		}
 	    }
 	} else {
-	    push(@rec,";ModuleDebug;Execute;Error was [".$obj->errstr."]") if ($Debug); 
+	    push(@rec,";ModuleDebug;Execute;Error was [".$obj->errstr."]") if ($Debug);
 
 	}
 	return @rec;
     } else {
 	return undef;
-    } 
+    }
 }
 
 sub rdaq_purge_message
@@ -1765,10 +1765,10 @@ sub rdaq_purge_message
 
 #
 # April 2007
-#  Added several methods for handling message synchronization / 
+#  Added several methods for handling message synchronization /
 #  reporting amongst components.
 #
-#  CREATE TABLE FOMessages (id INT NOT NULL AUTO_INCREMENT, Itime TIMESTAMP 
+#  CREATE TABLE FOMessages (id INT NOT NULL AUTO_INCREMENT, Itime TIMESTAMP
 #     NOT NULL DEFAULT CURRENT_TIMESTAMP, Category CHAR(15), Message CHAR(80),
 #     Variablemsg TEXT, PRIMARY KEY (id));
 #
