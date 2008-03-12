@@ -1,4 +1,4 @@
-6#!/opt/star/bin/perl -w
+#!/opt/star/bin/perl -w
 
 
 #
@@ -44,7 +44,8 @@ do {
 	#&Print("O-Database opened\n");
 	if ( ($obj = rdaq_open_rdatabase()) == 0){
 	    &Print("Failed to open R-Database on ".localtime()."\n");
-	    rdaq_set_message($SSELF,"Failed to open R-Database","This will prevent fetching of new records");
+	    rdaq_set_message($SSELF,"Failed to open R-Database",
+			     "This will prevent fetching of new records");
 	} else {
 	    # &Print("R-Database opened\n");
 
@@ -61,7 +62,7 @@ do {
 	    if($prun ne $run){
 		# We need to frequently re-issue the run number message to be sure
 		# to get it later at the end of the log.
-		
+
 		# DO NOT change this next message - it is used by GetRun()
 		&Print("Last Run=$run on ".localtime()."\n");
 
@@ -84,22 +85,22 @@ do {
 	    $begin = 0;
 	    $by    = 1000;
 	    if($run >= 0){
-		# fetch new records since prun run number (be carefull of the change of 
+		# fetch new records since prun run number (be carefull of the change of
 		# logic between prun and run)
 		my($count,$N);
 
 		&Print("Bootstrap case, run = $run ( >= 0) ; prun = $prun\n");
 		$count = 0;
 		rdaq_set_dlevel(1);
-		
+
 		# we use prun instead on run but do not want to use 0.0
-		if ( $prun eq "0.0" || $run == 0){ 
+		if ( $prun eq "0.0" || $run == 0){
 		    $ctime = localtime();
 		    $prun  = $run;
 		}
 
 		do {
-		    $count++; 
+		    $count++;
 		    # cleanup
 		    undef(@records);
 
@@ -108,7 +109,7 @@ do {
 		    # display info
 		    if ($#records != -1){
 			&Print("Fetched ".($#records+1)." records on $ctime, ");
-			
+
 			# record entries
 			$N = rdaq_add_entries($dbObj,@records);
 			&Print("Adding $N entr".($N==1?"y":"ies")." to $tot so far\n");
@@ -118,7 +119,7 @@ do {
 		} while ($#records != -1);
 		&Print("Got $tot records in $count passes\n");
 		rdaq_set_message($SSELF,"Fetched new records","$tot records in $count pass".($count==1?"":"es")) if ($tot != 0);
-		
+
 	    } else {
 		&Print("Checking entries on ".localtime()."\n");
 		$mode    = 0;  # main loop reset
