@@ -1,5 +1,5 @@
 #!/bin/csh -x
-#       $Id: group_env.csh,v 1.201 2008/01/01 01:47:52 jeromel Exp $
+#       $Id: group_env.csh,v 1.202 2008/03/19 13:22:24 jeromel Exp $
 #	Purpose:	STAR group csh setup
 #
 #	Author:		Y.Fisyak     BNL
@@ -636,7 +636,7 @@ endif
 # Support for Qt
 if ( -d $OPTSTAR/qt ) then
     setenv QTDIR $OPTSTAR/qt
-    set path=($path $QTDIR/bin)
+    # set path=($path $QTDIR/bin)
     setenv MANPATH ${MANPATH}:$QTDIR/man
     setenv LD_LIBRARY_PATH ${LD_LIBRARY_PATH}:$QTDIR/lib
 endif
