@@ -1,5 +1,5 @@
 #!/bin/csh -x
-#       $Id: group_env.csh,v 1.202 2008/03/19 13:22:24 jeromel Exp $
+#       $Id: group_env.csh,v 1.203 2008/03/19 13:28:02 jeromel Exp $
 #	Purpose:	STAR group csh setup
 #
 #	Author:		Y.Fisyak     BNL
@@ -639,6 +639,20 @@ if ( -d $OPTSTAR/qt ) then
     # set path=($path $QTDIR/bin)
     setenv MANPATH ${MANPATH}:$QTDIR/man
     setenv LD_LIBRARY_PATH ${LD_LIBRARY_PATH}:$QTDIR/lib
+else
+    # make some more conditional logic - we assume
+    # those will be soft-links form example. Qt4 will
+    # take precendece over Qt3 in this scheme
+    if ( ! $?QTDIR && -d $OPTSTAR/qt4 ) then
+	setenv QTDIR $OPTSTAR/qt4	
+    endif
+    if ( ! $?QTDIR && -d $OPTSTAR/qt3 ) then
+	setenv QTDIR $OPTSTAR/qt3	
+    endif
+    if ( $?QTDIR ) then
+	setenv MANPATH ${MANPATH}:$QTDIR/man
+	setenv LD_LIBRARY_PATH ${LD_LIBRARY_PATH}:$QTDIR/lib
+    endif
 endif
 
 
