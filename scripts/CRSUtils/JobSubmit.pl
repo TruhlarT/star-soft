@@ -962,7 +962,14 @@ if( $TARGET =~ m/^\// || $TARGET =~ m/^\^\// ){
 		}
 		rdaq_set_files($obj,5,@OKFILES);  # special flag
 		rdaq_set_chain($obj,$SCHAIN,@OKFILES);
+		# rdaq_toggle_debug(1);
+		#print ">> marking skipped $#SKIPPED $#OKFILES\n";
+		#
+		# ATTENTION - not counting the real submitted has side
+		# effects
+		#
 		rdaq_set_files($obj,4,@SKIPPED);  # mark skipped
+		rdaq_toggle_debug(0);
 	    } else {
 		# there is nothing to submit
 		print "$SELF : There is nothing to submit on $time\n";
@@ -1166,6 +1173,7 @@ sub Submit
 
     } elsif ( $trgrs eq "unknown" || $trgsn eq "unknown"){
 	print "$SELF : Info : Skipping $file has unknown setup or triggers sn=$trgsn ts=$trgrs\n";
+	push(@SKIPPED,$file);
 	return 0;
 
     } elsif ( $trgrs eq "pedestal" || $trgrs eq "pulser" ||
