@@ -1,7 +1,7 @@
-// @(#)root/qt:$Name:  $:$Id: TGQt.cxx,v 1.24 2007/11/06 19:26:12 fine Exp $
+// @(#)root/qt:$Name:  $:$Id: TGQt.cxx,v 1.25 2008/03/20 22:52:04 fine Exp $
 // Author: Valeri Fine   21/01/2002
 /****************************************************************************
-** $Id: TGQt.cxx,v 1.24 2007/11/06 19:26:12 fine Exp $
+** $Id: TGQt.cxx,v 1.25 2008/03/20 22:52:04 fine Exp $
 **
 ** Copyright (C) 2002 by Valeri Fine. Brookhaven National Laboratory.
 **                                    All rights reserved.
@@ -689,6 +689,7 @@ TGQt::TGQt() : TVirtualX(),fDisplayOpened(kFALSE),fQPainter(0),fQClientFilterBuf
 {
    //*-*-*-*-*-*-*-*-*-*-*-*Default Constructor *-*-*-*-*-*-*-*-*-*-*-*-*-*-*
    //*-*                    ===================
+   assert(!fgTQt);
    fgTQt = this;
    gQt   = this;
    fSelectedBuffer = 0;
@@ -702,6 +703,7 @@ TGQt::TGQt(const char *name, const char *title) : TVirtualX(name,title),fDisplay
 {
    //*-*-*-*-*-*-*-*-*-*-*-*-*-*Normal Constructor*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*
    //*-*                        ==================                              *-*
+   assert(!fgTQt);
    fgTQt = this;
    gQt   = this;
    fSelectedBuffer = 0;
@@ -738,7 +740,7 @@ Bool_t TGQt::Init(void* /*display*/)
 {
    //*-*-*-*-*-*-*-*-*-*-*-*-*-*Qt GUI initialization-*-*-*-*-*-*-*-*-*-*-*-*-*-*
    //*-*                        ========================                      *-*
-   fprintf(stderr,"** $Id: TGQt.cxx,v 1.24 2007/11/06 19:26:12 fine Exp $ this=%p\n",this);
+   fprintf(stderr,"** $Id: TGQt.cxx,v 1.25 2008/03/20 22:52:04 fine Exp $ this=%p\n",this);
 #if QT_VERSION >= 0x40000
 #ifndef R__QTWIN32
    extern void qt_x11_set_global_double_buffer(bool);

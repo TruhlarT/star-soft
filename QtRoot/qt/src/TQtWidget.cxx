@@ -1,4 +1,4 @@
-// @(#)root/qt:$Name:  $:$Id: TQtWidget.cxx,v 1.16 2008/01/18 13:17:06 fine Exp $
+// @(#)root/qt:$Name:  $:$Id: TQtWidget.cxx,v 1.17 2008/03/20 22:52:04 fine Exp $
 // Author: Valeri Fine   23/01/2003
 
 /*************************************************************************
@@ -284,6 +284,10 @@ TApplication *TQtWidget::InitRint( Bool_t /*prompt*/, const char *appClassName, 
        }
        TString guiFactory(gEnv->GetValue("Gui.Factory", "native"));
        guiFactory.ToLower();
+#if ROOT_VERSION_CODE >= ROOT_VERSION(5,16,0)
+       TApplication::NeedGraphicsLibs() ; 
+#endif
+
        if (!guiFactory.BeginsWith("qt",TString::kIgnoreCase )){
          // Check for the extention
          char *extLib = gSystem->DynamicPathName("libQtGui",kTRUE);
