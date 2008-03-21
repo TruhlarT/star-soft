@@ -31,7 +31,7 @@ use Cwd;
 
 use vars qw( $CVS_id $CVS_ver $ver_num $ver_rev $version );
 
-$CVS_id = '$Id: cons,v 1.101 2008/03/21 00:41:28 fine Exp $ ';
+$CVS_id = '$Id: cons,v 1.102 2008/03/21 00:43:44 fine Exp $ ';
 $CVS_ver = (split(/\s+/, $CVS_id))[2];
 
 $ver_num = "2.3";
@@ -1220,6 +1220,7 @@ sub find_xpm {
 }
 #________________________________________
 sub find_qrc {
+  # Qt4 Resource file
   @main::search_files   = ();
   &File::Find::find(\&wanted_qrc, @_);
   return @main::search_files;
