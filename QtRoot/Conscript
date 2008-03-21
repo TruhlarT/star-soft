@@ -7,6 +7,7 @@ $build =~ s/\\/\//g;                                    # print "OBJ = $OBJ buil
 $env->{ENV}->{QTROOTSYSDIR} = $ENV{PWD} . "/" . $sysdir;# print "QTROOTSYSDIR = $env->{ENV}->{QTROOTSYSDIR}\n";
 $env->{ENV}->{QTDIR} = $env->{Packages}->{QT}->{DIR};
 $env->{ENV}->{IVROOT} = $env->{Packages}->{COIN3D}->{DIR}; # print "IvRoot = $env->{ENV}->{IVROOT}";
+my $qt4 = ($env->{Packages}->{QT}->{QT_VERSION} == 4);
 my $DirPath = DirPath '.';                              # print "DirPath = $DirPath\n";
 ( my $obj_dir = $DirPath ) =~ s/\\/\//g;                # print "obj_dir = $obj_dir\n";
 ( my $Dir = $obj_dir ) =~ s/$build\///g;                # print "Dir = $Dir\n";
@@ -14,7 +15,12 @@ my $PKGT = "QtRoot";
 printf( "Run Conscript          in %-30s  for %-20s\n", $Dir,$PKGT );
 
 my @src = ();
-my @dirs = qw(qt qtgui qtimage qtgl qtged qtExamples qtroot qtthread);
+my @dirs = qw(qt qtgui qtimage qtgl qtExamples qtroot qtthread);
+if ($qt4)  {
+  push @dirs, "qt4ged";
+} else {
+  push @dirs, "qtged";
+}
 foreach my $dir (@dirs) {
   my @srcL = find_q($Dir . "/" . $dir); #print "dir = $dir ==> @srcL\n";
   foreach my $s (@srcL) {
