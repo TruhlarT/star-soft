@@ -31,7 +31,7 @@ use Cwd;
 
 use vars qw( $CVS_id $CVS_ver $ver_num $ver_rev $version );
 
-$CVS_id = '$Id: cons,v 1.100 2006/11/16 19:56:17 fisyak Exp $ ';
+$CVS_id = '$Id: cons,v 1.101 2008/03/21 00:41:28 fine Exp $ ';
 $CVS_ver = (split(/\s+/, $CVS_id))[2];
 
 $ver_num = "2.3";
@@ -1219,6 +1219,12 @@ sub find_xpm {
   return @main::search_files;
 }
 #________________________________________
+sub find_qrc {
+  @main::search_files   = ();
+  &File::Find::find(\&wanted_qrc, @_);
+  return @main::search_files;
+}
+#________________________________________
 sub wanted {
   #  print "wanted ",$_,"\n";
   my ($dev,$ino,$mode,$nlink,$uid,$gid) = lstat($_);
@@ -1325,6 +1331,29 @@ sub wanted_ui {
      ) {$File::Find::prune = 1; return;}
   if ( /^\.\#/) {return;}
   if ( /^\w.*\.ui$/) {# print " $File::Find::name\n";
+      push @main::search_files,  $File::Find::name;
+  }
+}
+#________________________________________
+sub wanted_qrc {
+# Qt4 resource files
+#    print "wanted ",$_,"\n";
+  my ($dev,$ino,$mode,$nlink,$uid,$gid) = lstat($_);
+  if ( -d _ &&
+       (/^CVS$/ ||
+	/^macros$/ ||
+	/^html$/ ||
+	/^idl$/ ||
+	/^exa$/ ||
+	/^doc$/ ||
+	/^run$/ ||
+	/^examples$/ ||
+	/^local$/ ||
+	/^hold$/ ||
+	/^wrk$/)
+     ) {$File::Find::prune = 1; return;}
+  if ( /^\.\#/) {return;}
+  if ( /^\w.*\.qrc$/) {# print " $File::Find::name\n";
       push @main::search_files,  $File::Find::name;
   }
 }
