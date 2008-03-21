@@ -55,9 +55,17 @@ push @DepsI, $INCLUDE .  "/TQGsiRootCanvas.h";
 #TBrowserCustom Application AxisEditor BrowserImp Brush  Canvas2Html   CanvasImp    TCanvasImp.interface  TEmbeddedPad   TQGsiRootCanvas
 my $DEBUG = "";
 $DEBUG = " CONFIG+=debug" if $env->{DEBUG} !~ /-O/;
-Command $env ["Makefile"], qw(qtRoot.pro qtthread/qtthread.pro), qq(cd $obj_dir; qmake $DEBUG);
-Command $env [(@DepsL, @DepsI)], (Makefile, @src), qq(cd $obj_dir; make; make install);
-# Command $env ["Makefile"], qw(qtExamples/qtExamples.pro), qq(cd $obj_dir; qmake $DEBUG; make);
+my $PATH = $ENV{PATH};
+#print "PATH = $PATH\n";
+if ($PATH) {$PATH .= ":" . $env->{Packages}->{QT}->{BINDIR};}
+else       {$PATH .=       $env->{Packages}->{QT}->{BINDIR};}
+#print "PATH = $PATH\n";
+$ENV{PATH} = $PATH;
+$env2 = $env->clone();
+$env2->{ENV}->{PATH} = $PATH;
+Command $env2 ["Makefile"], qw(qtRoot.pro qtthread/qtthread.pro), qq(cd $obj_dir; qmake $DEBUG);
+Command $env2 [(@DepsL, @DepsI)], (Makefile, @src), qq(cd $obj_dir; make; make install);
+# Command $env2 ["Makefile"], qw(qtExamples/qtExamples.pro), qq(cd $obj_dir; qmake $DEBUG; make);
 #________________________________________
 sub find_q{  @main::search_files   = ();
 #	     print "find_q for $_[0]\n";
