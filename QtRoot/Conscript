@@ -8,9 +8,9 @@ $env->{ENV}->{QTROOTSYSDIR} = $ENV{PWD} . "/" . $sysdir;# print "QTROOTSYSDIR = 
 $env->{ENV}->{QTDIR} = $env->{Packages}->{QT}->{DIR};
 $env->{ENV}->{IVROOT} = $env->{Packages}->{COIN3D}->{DIR}; # print "IvRoot = $env->{ENV}->{IVROOT}";
 my $qt4 = ($env->{Packages}->{QT}->{QT_VERSION} == 4);
-my $DirPath = DirPath '.';                              # print "DirPath = $DirPath\n";
-( my $obj_dir = $DirPath ) =~ s/\\/\//g;                # print "obj_dir = $obj_dir\n";
-( my $Dir = $obj_dir ) =~ s/$build\///g;                # print "Dir = $Dir\n";
+my $DirPath = DirPath '.';                             #  print "DirPath = $DirPath\n";
+( my $obj_dir = $DirPath ) =~ s/\\/\//g;               #  print "obj_dir = $obj_dir\n";
+( my $Dir = $obj_dir ) =~ s/$build\///g;               #  print "Dir = $Dir\n";
 my $PKGT = "QtRoot";
 printf( "Run Conscript          in %-30s  for %-20s\n", $Dir,$PKGT );
 
@@ -63,7 +63,11 @@ else       {$PATH .=       $env->{Packages}->{QT}->{BINDIR};}
 $ENV{PATH} = $PATH;
 $env2 = $env->clone();
 $env2->{ENV}->{PATH} = $PATH;
-Command $env2 ["Makefile"], qw(qtRoot.pro qtthread/qtthread.pro), qq(cd $obj_dir; qmake $DEBUG);
+if ($qt4) {
+  Command $env2 ["Makefile"], qw(qtRoot.pro qtthread/qtthread.pro), qq(cd $obj_dir; qmake PREFIX=$env->{ENV}->{QTROOTSYSDIR} $DEBUG);
+} else {
+  Command $env2 ["Makefile"], qw(qtRoot.pro qtthread/qtthread.pro), qq(cd $obj_dir; qmake $DEBUG);
+}
 Command $env2 [(@DepsL, @DepsI)], (Makefile, @src), qq(cd $obj_dir; make; make install);
 # Command $env2 ["Makefile"], qw(qtExamples/qtExamples.pro), qq(cd $obj_dir; qmake $DEBUG; make);
 #________________________________________

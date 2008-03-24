@@ -9,21 +9,6 @@ CONFIG *= create_prl
 
 TARGET = RQTGL
 
-!exists ($(ROOTSYS)/include/TObjectSet.h){
-     message("qtgl" package requeries the ROOT libTable shared library to be built first)
-     message(Your current ROOT configuration is:)
-unix:     system(more $ROOTSYS/config.status)
-win32:    system(type %ROOTSYS%/config.status)
-   message(Either re-install ROOT to add the "--enable-table" flag to the ROOT configure - RECOMMENDED)
-     error(       or remove the qtgl package from the list of the Qt/Root packages  - NOT RECOMMENDED)
-}
-
-QTROOTSYSPATHINSTALL = $(QTROOTSYSDIR)
-QT_VERSION=$$[QT_VERSION]
-contains( QT_VERSION, "^4.*" ) {
-    QTROOTSYSPATHINSTALL = $$(QTROOTSYSDIR)
-}
-
 isEmpty(DESTDIR) {
   DESTDIR=..
 }
@@ -46,6 +31,21 @@ CREATE_ROOT_DICT_FOR_CLASSES  = $$QTGLH1 $$QTGLDIRI/LinkDef.h
 
 unix {
   LIBS += -L../..
+}
+
+!exists ($(ROOTSYS)/include/TObjectSet.h){
+     message("qtgl" package requeries the ROOT libTable shared library to be built first)
+     message(Your current ROOT configuration is:)
+unix:     system(more $ROOTSYS/config.status)
+win32:    system(type %ROOTSYS%/config.status)
+   message(Either re-install ROOT to add the "--enable-table" flag to the ROOT configure - RECOMMENDED)
+     error(       or remove the qtgl package from the list of the Qt/Root packages  - NOT RECOMMENDED)
+}
+
+QTROOTSYSPATHINSTALL = $(QTROOTSYSDIR)
+QT_VERSION=$$[QT_VERSION]
+contains( QT_VERSION, "^4.*" ) {
+    QTROOTSYSPATHINSTALL = $$(QTROOTSYSDIR)
 }
 
 ROOTCINTFOUND =
