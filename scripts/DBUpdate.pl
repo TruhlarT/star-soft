@@ -311,8 +311,10 @@ foreach  $file (@ALL){
     }
 
     # Add hook file which will globally leave
-    if ( -e "$CHKDIR/$SELF.quit"  && ! defined($ENV{SPDR_DEBUG}) ){
-	print $FO "Warning :  $CHKDIR/$SELF.quit is present. Leaving\n";
+    if (( -e $ENV{HOME}"/$SELF.quit" ||  -e "$CHKDIR/$SELF.quit") && 
+	! defined($ENV{SPDR_DEBUG}) ){
+	my($f)=((-e $CHKDIR/$SELF.quit)?"$CHKDIR/$SELF.quit":$ENV{HOME}"/$SELF.quit");
+	print $FO "Warning : $f is present. Leaving\n";
 	last;
     }
 
