@@ -123,7 +123,7 @@ require  Exporter;
 
 
 use vars qw($VERSION);
-$VERSION   =   "V01.320";
+$VERSION   =   "V01.350";
 
 # The hashes that hold a current context
 my %optoperset;
@@ -144,6 +144,7 @@ my $DEBUG     =  0;
 my $PCLASS    = "";
 my $DELAY     =  0;
 my $SILENT    =  0;
+my $MAXLIMIT  = 1000000000;
 my @DCMD;
 
 # db information
@@ -192,6 +193,8 @@ $FC::IDX     = -1;
 # Those are for private use only but require a keyword for access.
 # DO NOT DOCUMENT THEM !!!
 $keywrds{"flid"          }    =   "fileLocationID"            .",FileLocations"          .",0" .",num"  .",0" .",0" .",0";
+#$keywrds{"glid"          }    =   "fileLocationID"            .",FileLocationsID"        .",0" .",num"  .",0" .",0" .",0";
+
 $keywrds{"fdid"          }    =   "fileDataID"                .",FileData"               .",0" .",num"  .",0" .",0" .",0";
 $keywrds{"rfdid"         }    =   "fileDataID"                .",FileLocations"          .",0" .",num"  .",0" .",1" .",0";
 $keywrds{"pcid"          }    =   "productionConditionID"     .",ProductionConditions"   .",0" .",num"  .",0" .",0" .",0";
@@ -219,6 +222,8 @@ $keywrds{"rspid"         }    =   "simulationParamID"         .",EventGenerator"
 $keywrds{"rtid"          }    =   "runTypeID"                 .",RunTypes"               .",0" .",num"  .",0" .",0" .",0";
 $keywrds{"rrtid"         }    =   "runTypeID"                 .",RunParams"              .",0" .",num"  .",0" .",1" .",0";
 $keywrds{"crid"          }    =   "creatorID"                 .",Creators"               .",0" .",num"  .",0" .",0" .",0";
+
+
 
 # *** Those should be documented
 $keywrds{"filetype"      }    =   "fileTypeName"              .",FileTypes"              .",1" .",text" .",0" .",1" .",1";
@@ -378,6 +383,7 @@ my $delimeter = "::";
 #     The table is at level 2 if it is directly referenced by a table at level 1
 #     etc.
 # 5 - 1 if table is a dictionary table, 0 otherwise
+# 6 - unused
 #
 # FileLocations is considered as being at level 1
 #
@@ -390,26 +396,30 @@ my $delimeter = "::";
 #
 
 my @datastruct;
-$datastruct[0]  = ( "StorageTypes"           . ",FileLocations"       . ",storageTypeID"           . ",2" . ",1");
-$datastruct[1]  = ( "StorageSites"           . ",FileLocations"       . ",storageSiteID"           . ",2" . ",1");
-$datastruct[2]  = ( "FileData"               . ",FileLocations"       . ",fileDataID"              . ",2" . ",0");
-$datastruct[3]  = ( "FilePaths"              . ",FileLocations"       . ",filePathID"              . ",2" . ",1");
-$datastruct[4]  = ( "Hosts"                  . ",FileLocations"       . ",hostID"                  . ",2" . ",1");
-$datastruct[5]  = ( "TriggerWords"           . ",TriggerCompositions" . ",triggerWordID"           . ",2" . ",1");
-$datastruct[6]  = ( "FileData"               . ",TriggerCompositions" . ",fileDataID"              . ",2" . ",0");
-$datastruct[7]  = ( "ProductionConditions"   . ",FileData"            . ",productionConditionID"   . ",3" . ",1");
-$datastruct[8]  = ( "FileTypes"              . ",FileData"            . ",fileTypeID"              . ",3" . ",1");
-$datastruct[9]  = ( "RunParams"              . ",FileData"            . ",runParamID"              . ",3" . ",0");
-$datastruct[10] = ( "RunTypes"               . ",RunParams"           . ",runTypeID"               . ",4" . ",1");
-$datastruct[11] = ( "DetectorConfigurations" . ",RunParams"           . ",detectorConfigurationID" . ",4" . ",0");
-$datastruct[12] = ( "DetectorStates"         . ",RunParams"           . ",detectorStateID"         . ",4" . ",0");
-$datastruct[13] = ( "CollisionTypes"         . ",RunParams"           . ",collisionTypeID"         . ",4" . ",0");
-$datastruct[14] = ( "TriggerSetups"          . ",RunParams"           . ",triggerSetupID"          . ",4" . ",1");
-$datastruct[15] = ( "SimulationParams"       . ",RunParams"           . ",simulationParamsID"      . ",4" . ",0");
-$datastruct[16] = ( "EventGenerators"        . ",SimulationParams"    . ",eventGeneratorID"        . ",5" . ",1");
-$datastruct[17] = ( "FileLocations"          . ","                    . ","                        . ",1" . ",0");
-$datastruct[18] = ( "TriggerCompositions"    . ","                    . ","                        . ",1" . ",0");
-$datastruct[19] = ( "Creators"               . ","                    . ","                        . ",1" . ",1");
+$datastruct[0]  = ( "StorageTypes"           . ",FileLocations"       . ",storageTypeID"           . ",2" . ",1" .",0");
+$datastruct[1]  = ( "StorageSites"           . ",FileLocations"       . ",storageSiteID"           . ",2" . ",1" .",0");
+$datastruct[2]  = ( "FileData"               . ",FileLocations"       . ",fileDataID"              . ",2" . ",0" .",0");
+$datastruct[3]  = ( "FilePaths"              . ",FileLocations"       . ",filePathID"              . ",2" . ",1" .",0");
+$datastruct[4]  = ( "Hosts"                  . ",FileLocations"       . ",hostID"                  . ",2" . ",1" .",0");
+$datastruct[5]  = ( "TriggerWords"           . ",TriggerCompositions" . ",triggerWordID"           . ",2" . ",1" .",0");
+$datastruct[6]  = ( "FileData"               . ",TriggerCompositions" . ",fileDataID"              . ",2" . ",0" .",0");
+$datastruct[7]  = ( "ProductionConditions"   . ",FileData"            . ",productionConditionID"   . ",3" . ",1" .",0");
+$datastruct[8]  = ( "FileTypes"              . ",FileData"            . ",fileTypeID"              . ",3" . ",1" .",0");
+$datastruct[9]  = ( "RunParams"              . ",FileData"            . ",runParamID"              . ",3" . ",0" .",0");
+$datastruct[10] = ( "RunTypes"               . ",RunParams"           . ",runTypeID"               . ",4" . ",1" .",0");
+$datastruct[11] = ( "DetectorConfigurations" . ",RunParams"           . ",detectorConfigurationID" . ",4" . ",0" .",0");
+$datastruct[12] = ( "DetectorStates"         . ",RunParams"           . ",detectorStateID"         . ",4" . ",0" .",0");
+$datastruct[13] = ( "CollisionTypes"         . ",RunParams"           . ",collisionTypeID"         . ",4" . ",0" .",0");
+$datastruct[14] = ( "TriggerSetups"          . ",RunParams"           . ",triggerSetupID"          . ",4" . ",1" .",0");
+$datastruct[15] = ( "SimulationParams"       . ",RunParams"           . ",simulationParamsID"      . ",4" . ",0" .",0");
+$datastruct[16] = ( "EventGenerators"        . ",SimulationParams"    . ",eventGeneratorID"        . ",5" . ",1" .",0");
+$datastruct[17] = ( "FileLocations"          . ","                    . ","                        . ",1" . ",0" .",0");
+$datastruct[18] = ( "TriggerCompositions"    . ","                    . ","                        . ",1" . ",0" .",0");
+$datastruct[19] = ( "Creators"               . ","                    . ","                        . ",1" . ",1" .",0");
+
+
+# Will build this by hand too and may automate later
+$FC::SUPERIDX{"storage"} = "FileLocations";
 
 
 #%FC::FLRELATED;
@@ -515,7 +525,7 @@ sub Version
 # keyword to get the field name for
 # Returns:
 # field name for a given context keyword
-sub get_field_name {
+sub _GetFieldName {
   my @params = @_;
 
   my ($fieldname, $tabname, $rest) = split(",",$keywrds{$params[0]});
@@ -528,7 +538,7 @@ sub get_field_name {
 # keyword to get the table name for
 # Returns:
 # table name for a given context keyword
-sub get_table_name {
+sub _GetTableName {
   my ($mykey) = (@_);
   my ($tabname, $a, $b);
 
@@ -537,7 +547,7 @@ sub get_table_name {
   if (exists $keywrds{$mykey}){
       ($a,$tabname,$b) = split(",",$keywrds{$mykey});
   } else {
-      &die_message("get_table_name","Internal error ; Using non-existent key $mykey");
+      &die_message("_GetTableName","Internal error ; Using non-existent key $mykey");
   }
   return $tabname;
 
@@ -952,7 +962,7 @@ sub connect_as
 	# New style, intent is sufficient for returning a selection
 	# of connections.
 	($Ldbr) = &_ReadConfig($intent);
-	return &Connect("FileCatalog",$Ldbr);
+	return &_Connect("FileCatalog",$Ldbr);
     } else {
 	# Try again to read the missing stuff from XML if any
 	($Ldbr,$Lhost,$Ldb,$Lport,$Luser,$Lpasswd) = &_ReadConfig($intent);
@@ -978,11 +988,11 @@ sub connect
    if (!defined($port)){   $port   = $dbport;}
    if (!defined($host)){   $host   = $dbhost;}
    if (!defined($db)){     $db     = $dbname;}
-   return &Connect("FileCatalog",join(":",$db,$host,$port).",$user,$passwd");
+   return &_Connect("FileCatalog",join(":",$db,$host,$port).",$user,$passwd");
 }
 
 
-sub Connect
+sub _Connect
 {
     if ($_[0] =~ m/FileCatalog/) {   shift(@_);}
 
@@ -1015,38 +1025,36 @@ sub Connect
     $idx++;
     if ($idx > $#Dbr){ $idx = 0;}
 
-    &print_debug("Connect","Trying connection $idx / $#Dbr");
+    &print_debug("_Connect","Trying connection $idx / $#Dbr");
     ($dbref,$user,$passwd)  =  split(",",$Dbr[$idx]);
     if ( $dbref =~ m/\.$/){ chop($dbref);}
     $host  = (split(":",$dbref))[1];
     $dbref = "DBI:mysql:$dbref";
 
 
-    &print_debug("Connect","$dbref,$user (+passwd)");
+    &print_debug("_Connect","$dbref,$user (+passwd)");
     $DBH = DBI->connect($dbref,$user,$passwd,
 			{ PrintError => 0,
 			  RaiseError => 0, AutoCommit => 1 }
 			);
     if (! $DBH ){
 	if ($DBI::err == 1045){
-	    &print_message("Connect","Incorrect password ".($passwd eq ""?"(NULL)":""));
+	    &print_message("_Connect","Incorrect password ".($passwd eq ""?"(NULL)":""));
 	}
 	if ($DBI::err == 2002){
-	    &print_message("Connect","Socket is invalid for [$dbref]",
+	    &print_message("_Connect","Socket is invalid for [$dbref]",
 			   ($host eq ""?"Host was unspecified (too old library version ??)":""));
 	}
 
 	if ( $tries < $NCTRY ){
-	    &print_debug("Connect","Connection failed $DBI::err $DBI::errstr . Retry in $NCSLP secondes");
+	    &print_debug("_Connect","Connection failed $DBI::err $DBI::errstr . Retry in $NCSLP secondes");
 	    sleep($NCSLP);
 	    goto CONNECT_TRY;
 	} else {
-	    &print_message("Connect","cannot connect to $dbname : $DBI::errstr");
+	    &print_message("_Connect","cannot connect to $dbname : $DBI::errstr");
 	    return 0;
 	}
     }
-
-
 
     # Set/Unset global variables here
     $FC::IDX = -1;
@@ -1054,6 +1062,34 @@ sub Connect
     if ( ! defined($DBH) ) {
 	return 0;
     } else {
+	# get a list of tables
+	my($tab,$sth);
+	foreach $tab (("FileLocations","FileData")){
+	    $FC::SPLIT_MIN{$tab} = 0;
+	    $FC::SPLIT_MAX{$tab} = 0;
+
+	    $sth = $DBH->prepare("SHOW TABLES LIKE '$tab%'");
+	    if ( $sth->execute() ){
+		my($val);
+		while ( defined($val = $sth->fetchrow()) ){
+		    if ( $val =~ m/($tab)(_)(\d+)/){
+			if ( $FC::SPLIT_MAX{$tab} < $3){ $FC::SPLIT_MAX{$tab} = $3;}
+			if ( $FC::SPLIT_MIN{$tab} > $3){ $FC::SPLIT_MIN{$tab} = $3;}
+			&print_debug("_Connect","$tab is splitted -> $val");
+		    }
+		}
+	    }
+	    # this will make the test &_TypeSplitted() return FALSE for non-split
+	    # tables i.e. $st > 0 && $st < 0 == FALSE.
+	    if ($FC::SPLIT_MAX{$tab} != 0){  
+		$FC::SPLIT_MAX{$tab}++;
+		&print_debug("_Connect","\tInterval $FC::SPLIT_MIN{$tab} to $FC::SPLIT_MAX{$tab}");
+	    } else {
+		&print_debug("_Connect","Analysis of $tab showed no split");
+	    }
+
+	}
+	$sth->finish();
 	return 1;
     }
 }
@@ -3140,18 +3176,56 @@ sub insert_file_location {
   }
 
 
-  # This table is exponentially growing with an INSERT IGNORE or INSERT
-  # Changed May 31st 2002.
+  # Handle check if recor exists & insert new record (but ignore if exists still)
+  my ($flinchk,$flinsert);
+  my ($UFID);
 
-  my $flinchk    = "SELECT fileLocationID from FileLocations WHERE ";
-  my $flinsert   = "INSERT IGNORE INTO FileLocations ";
+  $UFID = 0;
+  if ( &_SplittedActivated() ){
+      # started in 2008, I splitted FileLocations by storageTypeID 
+      if ( &_TypeSplitted("FileLocations",$storageType) ){
+	  $flinchk    = "SELECT fileLocationID from FileLocations_$storageType WHERE ";
+	  $flinsert   = "INSERT IGNORE INTO FileLocations_$storageType ";
+      } else {
+	  # use index _0 as default
+	  $flinchk    = "SELECT fileLocationID from FileLocations_0 WHERE ";
+	  $flinsert   = "INSERT IGNORE INTO FileLocations_0 ";
+      }
+
+      # note that in this case, we must handle the ID separately as
+      # indexes should be centrally managed if inserts ought to happen
+      # in the underlined tables - note that having this separate table
+      # may become handy to later find empty/usable indexes
+      #
+      # TODO Bootstrap global with
+      #   SELECT  FileLocationsID.fileLocationID FROM  FileLocationsID LEFT OUTER JOIN FileLocations 
+      #       ON FileLocations.fileLocationID =  FileLocationsID.fileLocationID 
+      #       WHERE FileLocationsID.fileLocationID IS NULL;
+      #
+      #   and delete the indexes returned
+      #
+      my $sthid = $DBH->prepare("INSERT INTO FileLocationsID (fileLocationID) VALUES (NULL)");
+      if ( $sthid->execute() ){
+	  $UFID = &get_last_id();
+	  &print_debug("insert_file_location","Selected unique FLID $UFID");
+	  $sthid->finish();
+      } else {
+	  &print_message("insert_file_location","Failed to reserve a new index ".$DBH->errstr);
+	  $sthid->finish();
+	  return 0;
+      }
+  } else {
+      $flinchk    = "SELECT fileLocationID from FileLocations WHERE ";
+      $flinsert   = "INSERT IGNORE INTO FileLocations ";
+  }
 
   $flinsert  .=
       "(fileLocationID, fileDataID, storageTypeID, filePathID, ".
       " createTime, insertTime, owner, fsize, storageSiteID, protection, ".
       " hostID, availability, persistent, sanity)";
+
   $flinsert  .=
-      " VALUES(NULL, $fileData, $storageType, $filePathID, ".
+      " VALUES(".($UFID==0?"NULL":$UFID).", $fileData, $storageType, $filePathID, ".
       " $createTime, NULL, $owner, $fsize, $storageSite, $protection, ".
       " $nodeID, $availability, $persistent, $sanity)";
 
@@ -3201,7 +3275,15 @@ sub insert_file_location {
 
 	      # $DBH->trace(9);
 	      if ( $sth->execute() ) {
-		  $retid = &get_last_id();
+		  if ( $UFID == 0){
+		      $retid = &get_last_id();
+		      if ( &_SplittedActivated() ){
+			  # we MUST re-synchronized
+			  $DBH->do("INSERT IGNORE INTO FileLocationsID (fileLocationID) VALUES ($retid)");
+		      }
+		  } else {
+		      $retid = $UFID;
+		  }
 		  &print_debug("insert_file_location","Returning: $retid");
 		  $sth->finish();
 	      } else {
@@ -3220,13 +3302,75 @@ sub insert_file_location {
 }
 
 
+# This logic may be automated later.
+# This is weak - check FileLocations_* later and
+# build a list of splitted indexes depending on which table
+# is splitted. 
+#
+# Only returns true/false depending if the index checked is
+# in the range of the split.
+#
+sub _TypeSplitted
+{
+    my($tab,$st)=@_;
+    if ( defined($FC::SPLIT_MAX{$tab}) ){
+	return ($st > $FC::SPLIT_MIN{$tab} && $st < $FC::SPLIT_MAX{$tab});
+    } else {
+	return 1==0;
+    }
+}
+
+
+#
+# The main idea of this routine is that while we are building
+# a condition statement, we can check if $keyw with $val is 
+# a super index. Note that this DOES not check for val1 OR val2
+# or fancy queries - this check should be external.
+#   $keyw    the key to check by name (i.e. -cond etc ...)
+#   $val     the value of that key so the split range could be checked
+#            It will be assumed that the merged table was built with
+#            a _0 default table and INSERT_METHOD=FIRST
+#
+sub _IsSuperIndex
+{
+    my($keyw,$val)=@_;
+    my($tab);
+
+    if ( &_SplittedActivated() ){
+	if ( defined($tab = $FC::SUPERIDX{$keyw}) ){
+	    &print_debug("_IsSuperIndex","$keyw -> ".$FC::SUPERIDX{$keyw});
+	    if( &_TypeSplitted($tab,$val) ){
+		return "$tab:$tab"."_$val";
+	    } else {
+		return "$tab:$tab"."_0";
+	    }
+	}
+    }
+    return "";
+}
+
+#
+# Returns true
+#
+sub _SplittedActivated()
+{
+    my($yn)=(0==1);
+
+    # First, our version MUST be greater than the below
+    # Intermediate versions did not have splitting
+    if ($VERSION gt "V01.340"){
+	$yn=1==1;
+    } 
+    $yn;
+}
+
 #====================================================
 # Helper subroutines needed for the generic query building
 #====================================================
 # Gets the 'level' of a database table
 # The table is at level 1, if it not directly referenced by any other table
 # The table is at level 2 if it is directly referenced by a table at level 1 etc.
-sub get_struct_level {
+sub _GetStructLevel {
   my $count;
   my ($paramtable) = @_;
 
@@ -3346,12 +3490,12 @@ sub connect_fields {
 	       "Looking for connection between fields: $begkeyword, $endkeyword");
 
 
-  $begtable = &get_table_name($begkeyword);
-  $begfield = &get_field_name($begkeyword);
-  $endtable = &get_table_name($endkeyword);
-  $endfield = &get_field_name($endkeyword);
-  $blevel   = &get_struct_level($begtable);
-  $elevel   = &get_struct_level($endtable);
+  $begtable = &_GetTableName($begkeyword);
+  $begfield = &_GetFieldName($begkeyword);
+  $endtable = &_GetTableName($endkeyword);
+  $endfield = &_GetFieldName($endkeyword);
+  $blevel   = &_GetStructLevel($begtable);
+  $elevel   = &_GetStructLevel($endtable);
   if ($blevel > $elevel) {
     ($ftable, $stable, $flevel, $slevel) =
       ($begtable, $endtable, $blevel, $elevel)
@@ -3523,7 +3667,7 @@ sub run_query {
   my ($keyw,$count);
   my (%keyset,%xkeys);
   my (%TableUSED,%XTableUSED);
-
+  my (@super_index);
   my $grouping = "";
 
 
@@ -3541,6 +3685,7 @@ sub run_query {
   #        &print_debug("run_query","\t$_ count is ".$rowcounts{$_}."\n");
   #    }
   #}
+
 
 
   #+
@@ -3601,8 +3746,8 @@ sub run_query {
 	      $xkeys{$keyw}  = $list;
 	      $keyset{$keyw} = "_$func";
 	  } else {
-	      $afun = &get_table_name($keyw);
-	      if ( &get_table_name($keyw) eq ""){
+	      $afun = &_GetTableName($keyw);
+	      if ( &_GetTableName($keyw) eq ""){
 		  &die_message("run_query",
 			       "[$keyw] is a special condition or input keyword and does not return a value ");
 	      }
@@ -3633,7 +3778,7 @@ sub run_query {
 	      push(@temp,$keyw);
 
 	      # logic is for optional context
-	      $tl = &get_table_name($keyw);
+	      $tl = &_GetTableName($keyw);
 	      $TableUSED{$tl} = 1;
 	      if ( $FC::FLRELATED{$tl} ){ $XTableUSED{"FileLocations"} = 1;}
 	      if ( $FC::FDRELATED{$tl} ){ $XTableUSED{"FileData"}      = 1;}
@@ -3661,7 +3806,7 @@ sub run_query {
   # keys belong to the same table than the condition.
   &print_debug("run_query","Will inspect optional context now");
   foreach $keyw (keys %optvaluset){
-      my ($tabname) = &get_table_name($keyw);
+      my ($tabname) = &_GetTableName($keyw);
       &print_debug("run_query","\tKey $keyw, table=$tabname");
       if( $tabname ne ""){
 	  # The conditions above are tricky to understand in one glance.
@@ -3691,7 +3836,7 @@ sub run_query {
   # case of querry values from table X with condition with table X
   # only.
   foreach $keyw (keys %valuset){
-      my ($tabname) = &get_table_name($keyw);
+      my ($tabname) = &_GetTableName($keyw);
       if ($tabname eq ""){ next;}
       $TableUSED{$tabname} = 1;
   }
@@ -3729,13 +3874,13 @@ sub run_query {
   if(1==1){
       &print_debug("run_query","Scanning valuset ".join(",",keys %valuset));
       foreach $keyw (keys(%valuset)) {
-	  my ($tabname) = &get_table_name($keyw);
+	  my ($tabname) = &_GetTableName($keyw);
 
 	  # Check if the table name is one of the dictionary ones (or
 	  # check that it is not a dictionary to be more precise)
 	  if ( defined($FC::ISDICT{$tabname}) ){
 	      my ($fieldname,$idname,$addedconstr) =
-		  (&get_field_name($keyw),$tabname,"");
+		  (&_GetFieldName($keyw),$tabname,"");
 
 	      &print_debug("run_query","Table $tabname is a dictionary $#USEDTables");
 	      $idname = &_IDize("run_query",$idname);
@@ -3780,49 +3925,49 @@ sub run_query {
 		  #&print_debug("run_query","1 Rounding Query will be [$sqlquery]");
 
 	      } elsif ($operset{$keyw} eq "~"){
-		  $sqlquery .= &TreatLOps("$fieldname",
-					  "LIKE",
-					  $valuset{$keyw},
-					  3);
+		  $sqlquery .= &_TreatLOps("$fieldname",
+					   "LIKE",
+					   $valuset{$keyw},
+					   3);
 		  #$sqlquery .= "$fieldname LIKE '%".$valuset{$keyw}."%'";
 
 	      } elsif ($operset{$keyw} eq "!~"){
-		  $sqlquery .= &TreatLOps("$fieldname",
-					  "NOT LIKE",
-					  $valuset{$keyw},
-					  3);
+		  $sqlquery .= &_TreatLOps("$fieldname",
+					   "NOT LIKE",
+					   $valuset{$keyw},
+					   3);
 		  #$sqlquery .= "$fieldname NOT LIKE '%".$valuset{$keyw}."%'";
 
 	      } elsif ($operset{$keyw} eq "[]"){
-		  $sqlquery .= &TreatLOps("$fieldname",
-					  "BETWEEN",
-					  $valuset{$keyw},
-					  4);
+		  $sqlquery .= &_TreatLOps("$fieldname",
+					   "BETWEEN",
+					   $valuset{$keyw},
+					   4);
 
 	      } elsif ($operset{$keyw} eq "]["){
-		  $sqlquery .= &TreatLOps("$fieldname",
-					  "NOT BETWEEN",
-					  $valuset{$keyw},
-					  4);
+		  $sqlquery .= &_TreatLOps("$fieldname",
+					   "NOT BETWEEN",
+					   $valuset{$keyw},
+					   4);
 
 	      } elsif ($operset{$keyw} eq "%"){
-		  $sqlquery .= &TreatLOps("$fieldname",
-					  "MOD",
-					  $valuset{$keyw},
-					  4);
+		  $sqlquery .= &_TreatLOps("$fieldname",
+					   "MOD",
+					   $valuset{$keyw},
+					   4);
 
 	      } elsif ($operset{$keyw} eq "%%"){
-		  $sqlquery .= &TreatLOps("$fieldname",
-					  "NOT MOD",
-					  $valuset{$keyw},
-					  4);
+		  $sqlquery .= &_TreatLOps("$fieldname",
+					   "NOT MOD",
+					   $valuset{$keyw},
+					   4);
 
 
 	      } else {
-		  $sqlquery .= &TreatLOps($fieldname,
-					  $operset{$keyw},
-					  $valuset{$keyw},
-					  (&get_field_type($keyw) eq "text")?2:undef);
+		  $sqlquery .= &_TreatLOps($fieldname,
+					   $operset{$keyw},
+					   $valuset{$keyw},
+					   (&get_field_type($keyw) eq "text")?2:undef);
 
 		  #if (&get_field_type($keyw) eq "text"){
 		  #$sqlquery .= "$fieldname ".$operset{$keyw}." '".$valuset{$keyw}."'";
@@ -3854,12 +3999,22 @@ sub run_query {
 			      }
 			      &print_debug("run_query","\tAdded constraints case-1 now $addedconstr");
 			  }
-			  #$addedconstr .= " ) ";
-			  $addedconstr = &_NormalizeAND_OR($addedconstr);
+			  
+			  # we can switch to super-index logic only if only
+			  # one of them is used
+			  #&_storagetypeSplitted($storageType)
+			  if ( ($id = &_IsSuperIndex($keyw,$id)) ne "" && $addedconstr !~ m/OR /){
+			      &print_debug("run_query","\t$keyw is a super index");
+			      # we shall drop this condition all together
+			      push(@super_index,$id);
+                          
+			  } else {
+			      # Add a newly constructed keyword
+			      push (@constraint, $addedconstr);
 
+			      $addedconstr = &_NormalizeAND_OR($addedconstr);
+			  }
 
-			  # Add a newly constructed keyword
-			  push (@constraint, $addedconstr);
 
 			  # Missing backward constraint for more-than-one table
 			  # relation keyword. Adding it by hand for now (dirty)
@@ -3893,7 +4048,7 @@ sub run_query {
 
 	      if ($tabname eq "CollisionTypes"){
 		  # A special case - the collision type
-		  my $fieldname   = &get_field_name($keyw);
+		  my $fieldname   = &_GetFieldName($keyw);
 		  my $idname      = $tabname;
 		  my $addedconstr = "";
 
@@ -3944,30 +4099,30 @@ sub run_query {
   }
 
   &print_debug("run_query","Pushing in FROM ".
-	       join("/",@from)." ".&get_table_name($keywords[0])." $#keywords ".
+	       join("/",@from)." ".&_GetTableName($keywords[0])." $#keywords ".
 	       join("/",@keywords));
-  push (@from, &get_table_name($keywords[0]));
+  push (@from, &_GetTableName($keywords[0]));
 
   for ($count=1; $count<$#keywords+1; $count++) {
       &print_debug("run_query","\t. Connecting $keywords[0] $keywords[$count] ".
 		   &connect_fields($keywords[0], $keywords[$count]));
       
       push (@connections, (&connect_fields($keywords[0], $keywords[$count])));
-      push (@from, &get_table_name($keywords[$count]));
+      push (@from, &_GetTableName($keywords[$count]));
   }
 
   # Also add to the FROM array the tables for each set keyword
   foreach my $key (keys %valuset){
-      if ( &get_table_name($key) ne "" ){
+      if ( &_GetTableName($key) ne "" ){
 	  &print_debug("run_query","Initiate resolve for $keywords[0] $key");
 
 	  my(@l)= &connect_fields($keywords[0], $key);
-	  my($t)= &get_table_name($key);
+	  my($t)= &_GetTableName($key);
 
 	  &print_debug("run_query","\t. Connect ".join(" ",@l).
 		       " From < $t for kwrd=$keywords[0] and key=$key");
 	  push (@connections, @l);
-	  push (@from, &get_table_name($key));
+	  push (@from, &_GetTableName($key));
       }
   }
   &print_debug("run_query","Connections to build the query (1): ".join(" ",@connections));
@@ -3998,35 +4153,35 @@ sub run_query {
 	  &print_debug("run_query",">> Adding keyword: [$keyw] associated with operation [$functions{$keyw}] ");
 	  if ($functions{$keyw} eq "grp"){
 	      if (($grouping =~ m/GROUP BY/) == 0){
-		  $grouping .= " GROUP BY ".&get_table_name($keyw).".".&get_field_name($keyw)." ";
-		  push (@select, &get_table_name($keyw).".".&get_field_name($keyw));
+		  $grouping .= " GROUP BY ".&_GetTableName($keyw).".".&_GetFieldName($keyw)." ";
+		  push (@select, &_GetTableName($keyw).".".&_GetFieldName($keyw));
 	      } else {
 		  &print_debug("run_query","\tSecond grouping ignored. Already $grouping");
 	      }
 
 	  } elsif ($functions{$keyw} eq "orda"){
-	      $grouping .= " ORDER BY ".&get_table_name($keyw).".".&get_field_name($keyw)." ASC ";
-	      push (@select, &get_table_name($keyw).".".&get_field_name($keyw));
+	      $grouping .= " ORDER BY ".&_GetTableName($keyw).".".&_GetFieldName($keyw)." ASC ";
+	      push (@select, &_GetTableName($keyw).".".&_GetFieldName($keyw));
 
 	  } elsif ($functions{$keyw} eq "ordd"){
-	      $grouping .= " ORDER BY ".&get_table_name($keyw).".".&get_field_name($keyw)." DESC ";
-	      push (@select, &get_table_name($keyw).".".&get_field_name($keyw));
+	      $grouping .= " ORDER BY ".&_GetTableName($keyw).".".&_GetFieldName($keyw)." DESC ";
+	      push (@select, &_GetTableName($keyw).".".&_GetFieldName($keyw));
 
 	  } else {
-	      push (@select, uc($functions{$keyw})."(".&get_table_name($keyw).".".&get_field_name($keyw).")");
+	      push (@select, uc($functions{$keyw})."(".&_GetTableName($keyw).".".&_GetFieldName($keyw).")");
 	  }
 
 
       } elsif ($keyw eq "collision") {
 	  &print_debug("run_query",">> Adding keyword: [$keyw] (special treatment) ");
-	  my $tab = &get_table_name($keyw);
+	  my $tab = &_GetTableName($keyw);
 	  push (@select, "CONCAT( $tab.firstParticle, $tab.secondParticle, $tab.collisionEnergy )");
 	  push(@kstack,$keyw);
 
 
       } else {
 	  &print_debug("run_query",">> Adding keyword: [$keyw] (nothing special) ");
-	  push (@select, &get_table_name($keyw).".".&get_field_name($keyw));
+	  push (@select, &_GetTableName($keyw).".".&_GetFieldName($keyw));
 	  push (@kstack,$keyw);
 	  
       }
@@ -4103,12 +4258,12 @@ sub run_query {
   foreach $keyw (keys(%valuset)) {
       if ( defined($threaded{$keyw})) { next;}
       my $fromlist = join(" " , (@fromunique));
-      my $tabname = &get_table_name($keyw);
+      my $tabname = &_GetTableName($keyw);
 
 
 
       if ((($fromlist =~ m/$tabname/) > 0) && ($tabname ne "")  ) {
-	  my $fieldname = &get_field_name($keyw);
+	  my $fieldname = &_GetFieldName($keyw);
 	  if ((($roundfields =~ m/$fieldname/) > 0) && (! defined $valuset{"noround"})){
 	      my ($nround) = $roundfields =~ m/$fieldname,([0-9]*)/;
 	      my ($roundv) = "ROUND($tabname.$fieldname, $nround) ".$operset{$keyw}." ";
@@ -4121,47 +4276,47 @@ sub run_query {
 	      push(@constraint,$roundv);
 
 	  }  elsif ($operset{$keyw} eq "~"){
-	      push( @constraint, &TreatLOps("$tabname.$fieldname",
-					    "LIKE",
-					    $valuset{$keyw},
-					    3));
+	      push( @constraint, &_TreatLOps("$tabname.$fieldname",
+					     "LIKE",
+					     $valuset{$keyw},
+					     3));
 	      #push( @constraint, "$tabname.$fieldname LIKE '%".$valuset{$keyw}."%'" );
 
 	  }  elsif ($operset{$keyw} eq "!~"){
-	      push( @constraint, &TreatLOps("$tabname.$fieldname",
-					    "NOT LIKE",
-					    $valuset{$keyw},
-					    3));
+	      push( @constraint, &_TreatLOps("$tabname.$fieldname",
+					     "NOT LIKE",
+					     $valuset{$keyw},
+					     3));
 	      #push( @constraint, "$tabname.$fieldname NOT LIKE '%".$valuset{$keyw}."%'" );
 
 	  }  elsif ($operset{$keyw} eq "[]"){
-	      push( @constraint, &TreatLOps("$tabname.$fieldname",
-					    "BETWEEN",
-					    $valuset{$keyw},
-					    4));
+	      push( @constraint, &_TreatLOps("$tabname.$fieldname",
+					     "BETWEEN",
+					     $valuset{$keyw},
+					     4));
 
 	  }  elsif ($operset{$keyw} eq "]["){
-	      push( @constraint, &TreatLOps("$tabname.$fieldname",
-					    "NOT BETWEEN",
-					    $valuset{$keyw},
-					    4));
+	      push( @constraint, &_TreatLOps("$tabname.$fieldname",
+					     "NOT BETWEEN",
+					     $valuset{$keyw},
+					     4));
 	  } elsif ($operset{$keyw} eq "%"){
-	      push( @constraint, &TreatLOps("$tabname.$fieldname",
-					    "MOD",
-					    $valuset{$keyw},
-					    4));
+	      push( @constraint, &_TreatLOps("$tabname.$fieldname",
+					     "MOD",
+					     $valuset{$keyw},
+					     4));
 
 	  } elsif ($operset{$keyw} eq "%%"){
-	      push( @constraint, &TreatLOps("$tabname.$fieldname",
-					    "NOT MOD",
-					    $valuset{$keyw},
-					    4));
+	      push( @constraint, &_TreatLOps("$tabname.$fieldname",
+					     "NOT MOD",
+					     $valuset{$keyw},
+					     4));
 
 	  } else {
-	      push(@constraint,&TreatLOps("$tabname.$fieldname",
-					  $operset{$keyw},
-					  $valuset{$keyw},
-					  (&get_field_type($keyw) eq "text")?2:undef));
+	      push(@constraint,&_TreatLOps("$tabname.$fieldname",
+					   $operset{$keyw},
+					   $valuset{$keyw},
+					   (&get_field_type($keyw) eq "text")?2:undef));
 	  }
       }
   }
@@ -4289,7 +4444,8 @@ sub run_query {
   if (defined $valuset{"limit"}){
       $limit = $valuset{"limit"};
       if($limit <= 0){
-	  $limit = 1000000000;
+	  $limit = $MAXLIMIT;
+	  #        1000000000 -> 1.000.000.000
       }
   } else {
       $limit = 100;
@@ -4298,6 +4454,15 @@ sub run_query {
   $sqlquery .= " LIMIT $offset, $limit";
 
 
+  # We can replace FileLocations here if needed
+  if ( $#super_index != -1 ){
+      my($el,$tab,$rep);
+      foreach $el (@super_index){
+	  ($tab,$rep) = split(":",$el);
+	  &print_debug("run_query","Super index was previously detected for $tab -> $rep");
+	  $sqlquery =~ s/$tab/$rep/g;
+      }
+  }
 
   &print_debug("run_query","Using query: $sqlquery");
 
@@ -4388,7 +4553,7 @@ sub _logical_path { return &_logical_name(@_);}
 # Note thate && makes no sens whatsoever. Left for
 # documentary / test purposes.
 #
-sub TreatLOps
+sub _TreatLOps
 {
     my($fldnam,$op,$ival,$flag)=@_;
     my(@Val,$val,$qq,$connect);
@@ -4409,7 +4574,7 @@ sub TreatLOps
 	if ( $op =~ /BETWEEN/){
 	    @Val = split("-",$ival);
 	    if ($#Val > 1){
-		&die_message("TreatLOps","Syntax for a range is min-max");
+		&die_message("_TreatLOps","Syntax for a range is min-max");
 	    }
 	    $ival = "'".$Val[0]."' and '".$Val[1]."'";
 	    undef(@Val);
@@ -4456,7 +4621,7 @@ sub TreatLOps
 	    # By pass for special cases.
 	    # Do nothing
 	} else {
-	    &die_message("TreatLOps","Internal error ; unknown flag $flag");
+	    &die_message("_TreatLOps","Internal error ; unknown flag $flag");
 	}
 	#print "Now   $val\n";
 
@@ -4469,11 +4634,11 @@ sub TreatLOps
 
     # OR and AND should be re-grouped by ()
     if ($#Val > 0 || $flag == 4){
-	&print_debug("TreatLOps","re-group");
+	&print_debug("_TreatLOps","re-group");
 	$qq = &_NormalizeAND_OR($qq,1);
 	#$qq = "( $qq )";
     }
-    #&print_debug("TreatLOps","Will return $qq");
+    #&print_debug("_TreatLOps","Will return $qq");
     $qq;
 }
 
@@ -4631,7 +4796,7 @@ sub bootstrap {
     my($table);
 
 
-    $table = &get_table_name($keyword);
+    $table = &_GetTableName($keyword);
     if ($table eq ""){ return 0; }
     &print_debug("bootstrap","$keyword in table $table");
 
@@ -4842,7 +5007,7 @@ sub _bootstrap_data
     }
 
     my ($keyword, $delete) = (@_);
-    my $table = &get_table_name($keyword);
+    my $table = &_GetTableName($keyword);
 
     if (($table ne "FileData") && ($table ne "FileLocations")){
 	&print_message("bootstrap_data","Wrong usage of routine. Use bootstrap()");
@@ -4941,8 +5106,8 @@ sub update_record {
   my @updates;
   my $xcond;
 
-  my $utable = &get_table_name($ukeyword);
-  my $ufield = &get_field_name($ukeyword);
+  my $utable = &_GetTableName($ukeyword);
+  my $ufield = &_GetFieldName($ukeyword);
 
   # There is bunch of exclusion preventing catastrophe
   # ALL Id's associated to their main tables should be
@@ -4961,8 +5126,8 @@ sub update_record {
   if( ! defined($doit) ){  $doit = 1;}
 
   foreach my $key (keys %keywrds){
-      my $field = &get_field_name($key);
-      my $table = &get_table_name($key);
+      my $field = &_GetFieldName($key);
+      my $table = &_GetTableName($key);
 
       # grab keywords which belongs to the same table
       # This will be used as the selection WHERE clause.
@@ -5019,7 +5184,7 @@ sub update_record {
   my ($qupdate,$qselect);
   if (&get_field_type($ukeyword) eq "text"){
       $qselect = "SELECT $utable.$ufield FROM $utable WHERE $utable.$ufield = '$newvalue'";
-      $qupdate = "UPDATE LOW_PRIORITY $utable SET $utable.$ufield = '$newvalue' ";
+      $qupdate = "UPDATE $utable SET $utable.$ufield = '$newvalue' ";
       if( defined($valuset{$ukeyword}) ){
 	  if ( $valuset{$ukeyword} eq $newvalue){
 	      &print_message("update_record",
@@ -5041,7 +5206,7 @@ sub update_record {
 
   } else {
       $qselect = "SELECT $utable.$ufield FROM $utable WHERE $utable.$ufield = $newvalue";
-      $qupdate = "UPDATE LOW_PRIORITY $utable SET $utable.$ufield = $newvalue ";
+      $qupdate = "UPDATE $utable SET $utable.$ufield = $newvalue ";
       if( defined($valuset{$ukeyword}) ){
 	  if ( $valuset{$ukeyword} == $newvalue){
 	      &print_message("update_record",
@@ -5244,8 +5409,8 @@ sub update_location {
   my ($ukeyword, $newvalue, $doit, $delete) = (@_);
 
   my $mtable;
-  my $utable = &get_table_name($ukeyword);
-  my $ufield = &get_field_name($ukeyword);
+  my $utable = &_GetTableName($ukeyword);
+  my $ufield = &_GetFieldName($ukeyword);
 
 
   &print_debug("update_location","The keyword is [$ukeyword] from table=[$utable]");
@@ -5257,6 +5422,7 @@ sub update_location {
   if ( defined($FC::FDRELATED{$utable}) ){
       $mtable = "FileData";
   } elsif ( defined($FC::FLRELATED{$utable}) ){
+      # *** this name need to change ***
       $mtable = "FileLocations";
   } else {
       $mtable = $utable;
@@ -5315,8 +5481,8 @@ sub update_location {
 
 
   foreach my $key (keys %keywrds){
-      my $field = &get_field_name($key);
-      my $table = &get_table_name($key);
+      my $field = &_GetFieldName($key);
+      my $table = &_GetTableName($key);
 
       # grab keywords which belongs to the same table
       # This will be used as the selection WHERE clause.
@@ -5374,7 +5540,7 @@ sub update_location {
       $ukeyword  = &_IDize("update_location",$utable);
       #$qselect = "SELECT $ukeyword FROM $mtable WHERE $ukeyword=$uid";
       $qdelete = "DELETE LOW_PRIORITY FROM $mtable " ;
-      $qupdate = "UPDATE LOW_PRIORITY $mtable SET $mtable.$ukeyword=$uid ";
+      $qupdate = "UPDATE $mtable SET $mtable.$ukeyword=$uid ";
 
       #if( defined($valuset{$ukeyword}) ){
       #$qupdate .= " WHERE $mtable.$ukeyword=?";
@@ -5390,7 +5556,7 @@ sub update_location {
       &print_debug("update_location","Case filed_type is text");
       #$qselect = "SELECT $ukeyword FROM $mtable WHERE $ufield='$newvalue'";
       $qdelete = "DELETE LOW_PRIORITY FROM $mtable" ;
-      $qupdate = "UPDATE LOW_PRIORITY $utable SET $utable.$ufield = '$newvalue' ";
+      $qupdate = "UPDATE $utable SET $utable.$ufield = '$newvalue' ";
       if( defined($valuset{$ukeyword}) ){
 	  if ( $valuset{$ukeyword} eq "NULL"){
 	      $qupdate .= " WHERE $utable.$ufield IS NULL";
@@ -5405,7 +5571,7 @@ sub update_location {
       &print_debug("update_location","Case any-other-case");
       #$qselect = "SELECT $ufield FROM $mtable WHERE $ufield=$newvalue" ;
       $qdelete = "DELETE LOW_PRIORITY FROM $mtable" ;
-      $qupdate = "UPDATE LOW_PRIORITY $utable SET $utable.$ufield = $newvalue ";
+      $qupdate = "UPDATE $utable SET $utable.$ufield = $newvalue ";
       if( defined($valuset{$ukeyword}) ){
 	  $qupdate .= " WHERE $utable.$ufield = $valuset{$ukeyword}";
       } else {
