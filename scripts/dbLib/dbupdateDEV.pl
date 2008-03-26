@@ -316,30 +316,32 @@ struct JFileAttr => {
 };
 
  struct LFileAttr => {
-        jbId     => '$',
-        pth      => '$',
-        lbT      => '$', 
-        lbL      => '$',
-        rtL      => '$',
-        lgName   => '$',
-        crTm     => '$',
-        chOpt    => '$',
-        errMs    => '$',
-        jbSt     => '$',      
-        evDn     => '$',
-        evSkp    => '$',
-        memF     => '$',
-        memL     => '$',
-        jCPU     => '$',
-        jRT      => '$',
-        avTr     => '$',
-        avPrTr   => '$',
-        avTrGd   => '$',
-        avPrTrGd => '$',        
-        avVrt    => '$',
-        avXi     => '$',
-        avKn     => '$',
-        ndID     => '$', 
+        jbId      => '$',
+        pth       => '$',
+        lbT       => '$', 
+        lbL       => '$',
+        rtL       => '$',
+        lgName    => '$',
+        crTm      => '$',
+        chOpt     => '$',
+        errMs     => '$',
+        jbSt      => '$',      
+        evDn      => '$',
+        evSkp     => '$',
+        memF      => '$',
+        memL      => '$',
+        jCPU      => '$',
+        jRT       => '$',
+        avTr      => '$',
+        avPrTr    => '$',
+        avTrGd    => '$',
+        avPrTrGd  => '$',
+        avPrv1    => '$',
+        avPrfitv1 => '$',       
+        avVrt     => '$',
+        avXi      => '$',
+        avKn      => '$',
+        ndID      => '$', 
 };        
 
  my $fullyear;
@@ -390,6 +392,8 @@ struct JFileAttr => {
  my $tot_prtracks = 0;
  my $tot_trck_nfit15 = 0;
  my $tot_prtrck_hfit15 = 0;
+ my $tot_prtracks_1vtx = 0;
+ my $tot_prtrck_nfit15_1vtx = 0; 
  my $tot_knvertices = 0;
  my $tot_xivertices = 0;
  my $avr_tracks = 0;
@@ -397,6 +401,8 @@ struct JFileAttr => {
  my $avr_prtracks = 0;
  my $avr_trck_nfit15 = 0; 
  my $avr_prtrck_nfit15 = 0;  
+ my $avr_prtracks_1vtx = 0;
+ my $avr_prtrck_nfit15_1vtx = 0; 
  my $avr_knvertices = 0;
  my $avr_xivertices = 0;
  my $node_name = "n/\a";
@@ -529,15 +535,10 @@ my @files;
  $avr_prtracks = 0;
  $avr_knvertices = 0;
  $avr_xivertices = 0;
- $tot_tracks = 0;
- $tot_vertices = 0;
- $tot_prtracks = 0;
  $avr_trck_nfit15 = 0; 
  $avr_prtrck_nfit15 = 0; 
- $tot_trck_nfit15 = 0;
- $tot_prtrck_hfit15 = 0;
- $tot_knvertices = 0;
- $tot_xivertices = 0;
+ $avr_prtracks_1vtx = 0;
+ $avr_prtrck_nfit15_1vtx = 0; 
  $node_name = "n/a";
  $libL = "n/a";
  $libV = "n/a";  
@@ -581,7 +582,6 @@ my @files;
                        $fullyear,$mo,$dy,$hr,$min);    
 
            if( $ltime > 600 && $ltime < 518400 ){         
-#          if( $ltime > 600 ) { 
 #   print "Log time: ", $ltime, "\n";
 #   print $fullname, "\n";
         &logInfo("$fullname", "$platf");
@@ -610,6 +610,8 @@ my @files;
       ($$fObjAdr)->avKn($avr_knvertices);
       ($$fObjAdr)->avTrGd($avr_trck_nfit15);
       ($$fObjAdr)->avPrTr($avr_prtrck_nfit15);
+      ($$fObjAdr)->avPrv1($avr_prtracks_1vtx);
+      ($$fObjAdr)->avPrfitv1($avr_prtrck_nfit15_1vtx);
       ($$fObjAdr)->ndID($node_name); 
       $testJobStFiles[$nJobStFiles] = $fObjAdr;
       $nJobStFiles++;
@@ -671,15 +673,10 @@ my @files;
  $avr_prtracks = 0;
  $avr_knvertices = 0;
  $avr_xivertices = 0;
- $tot_tracks = 0;
- $tot_vertices = 0;
- $tot_prtracks = 0;
- $tot_knvertices = 0;
- $tot_xivertices = 0;
  $avr_trck_nfit15 = 0; 
  $avr_prtrck_nfit15 = 0; 
- $tot_trck_nfit15 = 0;
- $tot_prtrck_hfit15 = 0;
+ $avr_prtracks_1vtx = 0;
+ $avr_prtrck_nfit15_1vtx = 0; 
  $node_name = "n/a";
  $libL = "n/a";
  $libV = "n/a";  
@@ -716,7 +713,8 @@ my @files;
     $avr_xivertices = ($$newjobFile)->avXi;
     $avr_knvertices = ($$newjobFile)->avKn;
     $avr_trck_nfit15 =  ($$newjobFile)->avTrGd;
-    $avr_prtrck_nfit15 =  ($$newjobFile)->avPrTr;
+    $avr_prtrck_nfit15 =  ($$newjobFile)->avPrfitv1;
+    $avr_prtracks_1vtx = ($$newjobFile)->avPrv1; 
     $node_name = ($$newjobFile)->ndID; 
 
     $fullName = $mpath ."/" .$logName;
@@ -941,7 +939,6 @@ foreach  $eachOutNDir (@OUT_DIR) {
               $idHash{$fullname} = $idHash{$jfpath};
 
      print "jobs ID:  ", $idHash{$fullname}," % ",$fullname," % ",$jfpath," % ",$idHash{$jfpath}, "\n";
-#       print "File info: ",$idHash{$fullname}," % ", $jpath ," % ", $platf, " % ", $fullname, " % ", $geom, " % ", $EvType," % ", $EvGen, " % ", $EvReq," % ", $comp," % ", $EvDone," % ", $libV,  "\n";
    
      ($size, $mTime) = (stat($fullname))[7, 9];
      ($sec,$min,$hr,$dy,$mo,$yr) = (localtime($mTime))[0,1,2,3,4,5];
@@ -1216,10 +1213,6 @@ foreach  $eachOutNDir (@OUT_DIR) {
 	 }
 }
 
-##### fill in FilesCatalog with new test files   
-
-          
-
 ##### DB disconnect
 
   &StDbTJobsDisconnect();
@@ -1293,6 +1286,8 @@ sub fillJSTable {
     $sql.="avg_no_primaryT='$avr_prtracks',";
     $sql.="avg_no_tracksnfit15='$avr_trck_nfit15',";
     $sql.="avg_no_primaryTnfit15='$avr_prtrck_nfit15',";
+    $sql.="avg_no_primaryT_1vtx='$avr_prtracks_1vtx',";
+    $sql.="avg_no_primaryTnfit15_1vtx='$avr_prtrck_nfit15_1vtx',";
     $sql.="avg_no_XiVrt='$avr_xivertices',";
     $sql.="avg_no_KinkVrt='$avr_knvertices',";
     $sql.="nodeID='$node_name',"; 
@@ -1330,6 +1325,8 @@ sub  updateJSTable {
  my @no_prtracks = () ;
  my $no_trck_nfit15 = 0; 
  my @no_prtrck_nfit15 = ();
+ my $no_prtracks_1vtx = 0 ;
+ my $no_prtrck_nfit15_1vtx = 0;
  my @word_tr;
  my @nmb = ();
  my @nmbx = ();
@@ -1341,6 +1338,7 @@ sub  updateJSTable {
  my $ij = 0;
  my $end_line; 
  my $npr = 0;
+ my $nevt = 0;
  my $max_npr = 0;
  my $max_npr_nfit15 = 0;
     $tot_tracks = 0;
@@ -1348,6 +1346,8 @@ sub  updateJSTable {
     $tot_prtracks = 0;
     $tot_trck_nfit15 = 0;
     $tot_prtrck_nfit15 = 0;
+    $tot_prtracks_1vtx = 0;
+    $tot_prtrck_nfit15_1vtx = 0;
     $tot_knvertices = 0;
     $tot_xivertices = 0;
     $no_event = 0;
@@ -1360,7 +1360,7 @@ sub  updateJSTable {
 @maker_size = ();
 
 #---------------------------------------------------------
- 
+
   print $fl_log, "\n";
 
   open (LOGFILE, $fl_log ) or die "cannot open $fl_log", "\n";
@@ -1423,7 +1423,6 @@ $jrun = "n/a";
          @part = split /"/, $line ;
          $mchain = $part[1]; 
          $mchain =~ s/ /,/g;  
-#   print  $mchain, "\n";
 
     }else{
        next;
@@ -1433,14 +1432,12 @@ $jrun = "n/a";
      @part = ();
      @part = split( "/", $line) ;
        $mchain = $part[4];
-# print $line, "\n";
 
          }
         
-# print  $mchain, "\n";
 
 #   get  number of events
-#     if ( $line =~ /QAInfo: Done with Event/ ) {
+
       if ( $line =~ /Done with Event/ ) {
         $no_event++;
 
@@ -1460,8 +1457,6 @@ $jrun = "n/a";
     }
 #############################################
      } 
-
-#  print "Number of event ",$no_event, "\n";
 
 #  get memory size
       if ($num_line > 200){
@@ -1490,20 +1485,33 @@ $jrun = "n/a";
 
            my  $string = $logfile[$num_line];
               chop $string; 
-#              print $string, "\n";
+              if($string =~  /track nodes:/) {
               @word_tr = split /:/,$string;
               @nmb =  split /</,$word_tr[2];
               $no_tracks = $nmb[0];
               $tot_tracks += $no_tracks;
+              if($no_tracks >= 1) {
+              $nevt++;
+               }
               @nmbx =  split /</,$word_tr[4];
               $no_trck_nfit15 = $nmbx[0];
               $tot_trck_nfit15 += $no_trck_nfit15;              
+              @no_prtrck_nfit15 = ();
+              @no_prtracks = ();
+              $no_prtrck_nfit15[0] = 0;
+              $no_prtracks[0] = 0; 
+              $no_vertices = 0;
+              $no_xivertices  = 0;
+              $no_knvertices = 0;
+              $npr = 0;
+              $no_prtracks_1vtx = 0;
+              $no_prtrck_nfit15_1vtx = 0;
+               
             for ($ik = 2; $ik< 100; $ik++)  { 
               $string = $logfile[$num_line + $ik];
               chop $string;
-#           print $string, "\n";
 
-           if( $string =~ /primary tracks/) {          
+           if( $string =~ /primary tracks/) {
               @word_tr = split /:/,$string;
               @nmb =  split /</,$word_tr[2];
               $no_prtracks[$npr] = $nmb[0];
@@ -1517,7 +1525,7 @@ $jrun = "n/a";
               } 
               $npr++;
  
-            }elsif( $string =~ /V0 vertices/) { 
+             }elsif( $string =~ /V0 vertices/) { 
               @word_tr = split /:/,$string;
               @nmb =  split /</,$word_tr[2];
               $no_vertices = $nmb[0];              
@@ -1534,9 +1542,14 @@ $jrun = "n/a";
               $tot_knvertices += $no_knvertices;
         } 
       }  
-#  print "Number of tracks:  ", $no_tracks, "  ",$no_trck_nfit15, "  ", $max_npr, "  ",$max_npr_nfit15, "  ", $no_vertices,"  ",$no_xivertices, "\n";
-                 $tot_prtracks += $max_npr;
-              $tot_prtrck_nfit15 += $max_npr_nfit15;    
+   }
+              $no_prtracks_1vtx = $no_prtracks[0];
+              $no_prtrck_nfit15_1vtx  = $no_prtrck_nfit15[0]; 
+
+              $tot_prtracks += $max_npr;
+              $tot_prtrck_nfit15 += $max_npr_nfit15;
+              $tot_prtracks_1vtx += $no_prtracks_1vtx;
+              $tot_prtrck_nfit15_1vtx += $no_prtrck_nfit15_1vtx;                  
 
   }
 
@@ -1574,13 +1587,9 @@ $jrun = "n/a";
           
            $jrun = "Done";      
          }
-#   print "Run completed   ", $jrun,  "\n";
-
-###### 
-     
+####     
        }
  
-#     }
 #### check here
    } 
       $EvDone = $no_event;
@@ -1592,9 +1601,7 @@ $jrun = "n/a";
 
  }
 
-# print "Number of events: ", $runflag,"  ",$libV,"  ",$rootL,"  ",$mchain,"  ",$no_event,"  ",$EvDone,"  ",$EvCom,"  ",$EvSkip,"  ",$jrun,"  ",$mCPU,"  ",$mRealT, "\n";
 
- 
 ##### get CPU and Real Time per event
 
  if ($EvCom != 0) {
@@ -1603,8 +1610,6 @@ $jrun = "n/a";
   foreach $end_line (@cpu_output){
           chop $end_line;
    if ($end_line =~ /QAInfo:Chain/ and $end_line =~ /StBFChain::bfc/) {
-
-#    if ( $end_line =~ /StBFChain::bfc/) {  
 #  print $end_line, "\n";
      @part = split (" ", $end_line); 
       $mCPUbfc = $part[8];
@@ -1619,17 +1624,16 @@ $jrun = "n/a";
     next;
       }
    }
-    $avr_tracks       = $tot_tracks/$EvCom;
-    $avr_vertices     = $tot_vertices/$EvCom;
-    $avr_prtracks     = $tot_prtracks/$EvCom;
-    $avr_trck_nfit15  = $tot_trck_nfit15/$EvCom;   
-    $avr_prtrck_nfit15  = $tot_prtrck_nfit15/$EvCom; 
-    $avr_knvertices = $tot_knvertices/$EvCom;
-    $avr_xivertices = $tot_xivertices/$EvCom;
+    $avr_tracks       = $tot_tracks/$nevt;
+    $avr_vertices     = $tot_vertices/$nevt;
+    $avr_prtracks     = $tot_prtracks/$nevt;
+    $avr_trck_nfit15  = $tot_trck_nfit15/$nevt;   
+    $avr_prtrck_nfit15  = $tot_prtrck_nfit15/$nevt; 
+    $avr_prtracks_1vtx = $tot_prtracks_1vtx/$nevt;
+    $avr_prtrck_nfit15_1vtx = $tot_prtrck_nfit15_1vtx/$nevt;  
+    $avr_knvertices = $tot_knvertices/$nevt;
+    $avr_xivertices = $tot_xivertices/$nevt;
 
-#   print "Number of tracks:  ",  $avr_tracks,"  ",$avr_trck_nfit15,"  ", $avr_vertices,"  ",$avr_prtracks,"  ",$avr_prtrck_nfit15,"  ", $avr_knvertices,"  ",$avr_xivertices, "\n"; 
-
-# print "Size of executable:  ", $EvDone, "  ", $no_event,"  ",$EvCom,"  ",$maker_size[$EvCom -1], "\n";                               
 
     if ( defined $maker_size[0]) { 
     $memFst = $maker_size[0];
@@ -1642,7 +1646,7 @@ $jrun = "n/a";
     $memLst = 0;
   }
  }      
-# print "Memory size:   ",$memFst, "   ", $memLst, "\n";
- 
+    
    close (LOGFILE);
+
 }
