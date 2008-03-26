@@ -3181,7 +3181,7 @@ sub insert_file_location {
   my ($UFID);
 
   $UFID = 0;
-  if ( &_SplittedActivated() ){
+  if ( &_CanHandleSplitted() ){
       # started in 2008, I splitted FileLocations by storageTypeID 
       if ( &_TypeSplitted("FileLocations",$storageType) ){
 	  $flinchk    = "SELECT fileLocationID from FileLocations_$storageType WHERE ";
@@ -3277,7 +3277,7 @@ sub insert_file_location {
 	      if ( $sth->execute() ) {
 		  if ( $UFID == 0){
 		      $retid = &get_last_id();
-		      if ( &_SplittedActivated() ){
+		      if ( &_CanHandleSplitted() ){
 			  # we MUST re-synchronized
 			  $DBH->do("INSERT IGNORE INTO FileLocationsID (fileLocationID) VALUES ($retid)");
 		      }
@@ -3336,13 +3336,15 @@ sub _IsSuperIndex
     my($keyw,$val)=@_;
     my($tab);
 
-    if ( &_SplittedActivated() ){
+    if ( &_CanHandleSplitted() ){
 	if ( defined($tab = $FC::SUPERIDX{$keyw}) ){
 	    &print_debug("_IsSuperIndex","$keyw -> ".$FC::SUPERIDX{$keyw});
 	    if( &_TypeSplitted($tab,$val) ){
 		return "$tab:$tab"."_$val";
 	    } else {
-		return "$tab:$tab"."_0";
+		# return default which will activate anyhow the _0
+		# by construct
+		return "$tab:$tab";
 	    }
 	}
     }
@@ -3352,7 +3354,7 @@ sub _IsSuperIndex
 #
 # Returns true
 #
-sub _SplittedActivated()
+sub _CanHandleSplitted()
 {
     my($yn)=(0==1);
 
