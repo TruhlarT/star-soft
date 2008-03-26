@@ -4357,7 +4357,7 @@ sub run_query {
 
   # Build the actual query string
   my $sqlquery;
-  $sqlquery = "SELECT ";
+  $sqlquery = "SELECT SQL_BUFFER_RESULT ";
   if (! defined($valuset{"nounique"}) ){  $valuset{"nounique"} = 0;}
   if (! $valuset{"nounique"} ){           $sqlquery .= " DISTINCT ";}
 
@@ -4446,7 +4446,7 @@ sub run_query {
   if (defined $valuset{"limit"}){
       $limit = $valuset{"limit"};
       if($limit <= 0){
-	  $limit = $MAXLIMIT;
+	  $limit    = $MAXLIMIT;
 	  #        1000000000 -> 1.000.000.000
       }
   } else {
@@ -4869,7 +4869,7 @@ sub _bootstrap_general
     }
 
 
-    $dcquery = "select $table.$linkfield FROM $table LEFT OUTER JOIN $childtable ON $table.$linkfield = $childtable.$linkfield WHERE $childtable.$linkfield IS NULL";
+    $dcquery = "SELECT SQL_BUFFER_RESULT $table.$linkfield FROM $table LEFT OUTER JOIN $childtable ON $table.$linkfield = $childtable.$linkfield WHERE $childtable.$linkfield IS NULL";
 
     $stq = $DBH->prepare( $dcquery );
     if( ! $stq ){
@@ -5186,7 +5186,7 @@ sub update_record {
   my ($qupdate,$qselect);
   if (&get_field_type($ukeyword) eq "text"){
       $qselect = "SELECT $utable.$ufield FROM $utable WHERE $utable.$ufield = '$newvalue'";
-      $qupdate = "UPDATE $utable SET $utable.$ufield = '$newvalue' ";
+      $qupdate = "UPDATE LOW_PRIORITY $utable SET $utable.$ufield = '$newvalue' ";
       if( defined($valuset{$ukeyword}) ){
 	  if ( $valuset{$ukeyword} eq $newvalue){
 	      &print_message("update_record",
@@ -5208,7 +5208,7 @@ sub update_record {
 
   } else {
       $qselect = "SELECT $utable.$ufield FROM $utable WHERE $utable.$ufield = $newvalue";
-      $qupdate = "UPDATE $utable SET $utable.$ufield = $newvalue ";
+      $qupdate = "UPDATE LOW_PRIORITY $utable SET $utable.$ufield = $newvalue ";
       if( defined($valuset{$ukeyword}) ){
 	  if ( $valuset{$ukeyword} == $newvalue){
 	      &print_message("update_record",
@@ -5558,7 +5558,7 @@ sub update_location {
       &print_debug("update_location","Case filed_type is text");
       #$qselect = "SELECT $ukeyword FROM $mtable WHERE $ufield='$newvalue'";
       $qdelete = "DELETE LOW_PRIORITY FROM $mtable" ;
-      $qupdate = "UPDATE $utable SET $utable.$ufield = '$newvalue' ";
+      $qupdate = "UPDATE LOW_PRIORITY $utable SET $utable.$ufield = '$newvalue' ";
       if( defined($valuset{$ukeyword}) ){
 	  if ( $valuset{$ukeyword} eq "NULL"){
 	      $qupdate .= " WHERE $utable.$ufield IS NULL";
@@ -5573,7 +5573,7 @@ sub update_location {
       &print_debug("update_location","Case any-other-case");
       #$qselect = "SELECT $ufield FROM $mtable WHERE $ufield=$newvalue" ;
       $qdelete = "DELETE LOW_PRIORITY FROM $mtable" ;
-      $qupdate = "UPDATE $utable SET $utable.$ufield = $newvalue ";
+      $qupdate = "UPDATE LOW_PRIORITY $utable SET $utable.$ufield = $newvalue ";
       if( defined($valuset{$ukeyword}) ){
 	  $qupdate .= " WHERE $utable.$ufield = $valuset{$ukeyword}";
       } else {
