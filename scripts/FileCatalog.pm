@@ -3301,25 +3301,9 @@ sub insert_file_location {
 
 }
 
-
-# This logic may be automated later.
-# This is weak - check FileLocations_* later and
-# build a list of splitted indexes depending on which table
-# is splitted. 
-#
-# Only returns true/false depending if the index checked is
-# in the range of the split.
-#
-sub _TypeSplitted
-{
-    my($tab,$st)=@_;
-    if ( defined($FC::SPLIT_MAX{$tab}) ){
-	return ($st > $FC::SPLIT_MIN{$tab} && $st < $FC::SPLIT_MAX{$tab});
-    } else {
-	return 1==0;
-    }
-}
-
+#====================================================
+# Helper subs for handling split tables and super-indexes
+#====================================================
 
 #
 # The main idea of this routine is that while we are building
@@ -3365,6 +3349,22 @@ sub _CanHandleSplitted()
     } 
     $yn;
 }
+
+#
+# Only returns true/false depending if the index checked is
+# in the range of the split.
+#
+sub _TypeSplitted
+{
+    my($tab,$st)=@_;
+    if ( defined($FC::SPLIT_MAX{$tab}) ){
+	return ($st > $FC::SPLIT_MIN{$tab} && $st < $FC::SPLIT_MAX{$tab});
+    } else {
+	return 1==0;
+    }
+}
+
+
 
 #====================================================
 # Helper subroutines needed for the generic query building
