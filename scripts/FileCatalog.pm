@@ -492,7 +492,7 @@ my %GUPDID;
 my %KNOWNVP;                 # 2 arrays (the P=persistent and
 my %KNOWNVT;                 #           T=Temporary)
 my @KNOWNVC     =  (0,0);    # 2 counters
-my $CACHESZ     = 500000;    # both are subecjt to cache flush but "T"
+my $CACHESZ     = 500000;    # both are subject to cache flush but "T"
                              # holds large dictionnaries
 my %TCACHED;
 $TCACHED{"FilePaths"} = 1;   # declare who is in T (default is P)
@@ -1003,7 +1003,6 @@ sub _Connect
     my ($sth,$count);
     my ($tries,$idx);
 
-
     # Build connect
     my(@Dbr)= split(" ",$dbr);
     my(@Dbrr);
@@ -1056,6 +1055,26 @@ sub _Connect
 	    return 0;
 	}
     }
+
+    # this feature will be enabled for MySQL
+    $FC::OPTIMIZE = ($dbref=~m/mysql/);
+    &print_debug("_Connect","Optimization is ".($FC::OPTIMIZE?"ON":"OFF"));
+
+    # check if caching is enabled - unless query_cache_size is not null, there is
+    # no hope
+    $FC::HASCACHE = 1==0;
+    {
+	my($sth) = $DBH->prepare("SHOW VARIABLES LIKE '%query_cache%'");
+	my(@val);
+	if ( $sth->execute() ){
+	    while ( @val = $sth->fetchrow_array() ){
+		if ( $val[0] =~ /have_query_cache/ ){  $FC::HASCACHE  = ($val[1] =~ /yes/i);}
+		if ( $val[0] =~ /query_cache_size/ ){  $FC::HASCACHE &= ($val[1]!=0);}
+	    }
+	}
+	$sth->finish();
+    }
+    &print_debug("_Connect","Caching is ".($FC::HASCACHE?"ON":"OFF"));
 
     # Set/Unset global variables here
     $FC::IDX = -1;
@@ -1272,7 +1291,7 @@ sub get_id_from_dictionary {
       # Dictionnary are intrinsically not case sensitive which may
       # be an issue for accessing Path information.
       #
-      $sqlquery = "SELECT $idname FROM $params[0] WHERE UPPER($params[1]) = UPPER(\"$params[2]\")";
+      $sqlquery = &_CACHED_SELECT()." $idname FROM $params[0] WHERE UPPER($params[1]) = UPPER(\"$params[2]\")";
       if ($DEBUG > 0) {  &print_debug("get_id_from_dictionary","Executing: $sqlquery");}
       $sth = $DBH->prepare($sqlquery);
 
@@ -1319,7 +1338,7 @@ sub get_value_from_dictionary {
   $idx      = uc($params[1])." ".$params[2];
 
   if ( ($id = &_CachedValue($params[0],$idx)) == 0 ){
-      $sqlquery = "SELECT $valname FROM $params[0] WHERE UPPER($params[1]) = $params[2]";
+      $sqlquery = &_CACHED_SELECT()." $valname FROM $params[0] WHERE UPPER($params[1]) = $params[2]";
       if ($DEBUG > 0) {  &print_debug("get_value_from_dictionary","Executing: $sqlquery");}
       $sth = $DBH->prepare($sqlquery);
 
@@ -1614,7 +1633,7 @@ sub get_prodlib_version_ID {
 
 
 	# fetch if exists
-	$cmd1 = "SELECT ".&_IDize("get_prolib_version_ID",$tabname)." FROM $tabname WHERE $fldnm1=? AND $fldnm2=?";
+	$cmd1 = &_CACHED_SELECT()." ".&_IDize("get_prolib_version_ID",$tabname)." FROM $tabname WHERE $fldnm1=? AND $fldnm2=?";
 	#print "$cmd1\n";
 	$sth1 = $DBH->prepare($cmd1);
 	if ( ! $sth1 ){  &die_message("get_prodlib_version_ID","Prepare statements 1 failed");}
@@ -1691,7 +1710,7 @@ sub get_current_detector_configuration {
 
   # This routine introduces caching
   if ( ($detConfiguration = &_CachedValue($tabname,$val)) == 0){
-      $cmd = "SELECT $tabname.$index from $tabname WHERE $tabname.$field='$val'";
+      $cmd = &_CACHED_SELECT()." $tabname.$index from $tabname WHERE $tabname.$field='$val'";
 
       $sth = $DBH->prepare($cmd);
       if( ! $sth ){
@@ -1915,7 +1934,7 @@ sub get_collision_collection {
 
   ($firstParticle, $secondParticle, $energy) = &disentangle_collision_type($colstring);
 
-  my $sqlquery = "SELECT collisionTypeID FROM CollisionTypes WHERE UPPER(firstParticle) = UPPER(\"$firstParticle\") AND UPPER(secondParticle) = UPPER(\"$secondParticle\") AND ROUND(collisionEnergy) = ROUND($energy)";
+  my $sqlquery =  &_CACHED_SELECT()." collisionTypeID FROM CollisionTypes WHERE UPPER(firstParticle) = UPPER(\"$firstParticle\") AND UPPER(secondParticle) = UPPER(\"$secondParticle\") AND ROUND(collisionEnergy) = ROUND($energy)";
 
   if ($DEBUG > 0) {
       &print_debug("get_collision_collection",
@@ -2502,7 +2521,7 @@ sub set_trigger_composition
     #
     # Insert first all entries in TriggerWords in INSERT mode
     #
-    $cmd1 = "SELECT triggerWordID, triggerWordComment FROM TriggerWords ".
+    $cmd1 =  &_CACHED_SELECT()." triggerWordID, triggerWordComment FROM TriggerWords ".
 	" WHERE triggerWordName=? AND triggerWordBits=?  AND triggerWordVersion=?";
     $cmd2 = "INSERT INTO TriggerWords VALUES(NULL, ?, ?, ?, NOW()+0, ".&_GetILogin().", 0, ?)";
 
@@ -2548,7 +2567,7 @@ sub set_trigger_composition
     #
     # Enter entries in TriggerCompositions
     #
-    $cmd1 = "SELECT triggerWordID FROM TriggerCompositions WHERE fileDataID=?";
+    $cmd1 =  &_CACHED_SELECT()." triggerWordID FROM TriggerCompositions WHERE fileDataID=?";
     $cmd2 = "INSERT DELAYED INTO TriggerCompositions VALUES(?,?,?)";
     $sth1 = $DBH->prepare($cmd1);
     $sth2 = $DBH->prepare($cmd2);
@@ -2787,7 +2806,7 @@ sub insert_simulation_params {
       $simComments = '"'.$valuset{"simcomment"}.'"';
   }
 
-  my $sqlquery = "SELECT eventGeneratorID FROM EventGenerators WHERE eventGeneratorName = '".$valuset{"generator"}."' AND eventGeneratorVersion = '".$valuset{"genversion"}."' AND eventGeneratorParams = '".$valuset{"genparams"}."'";
+  my $sqlquery =  &_CACHED_SELECT()." eventGeneratorID FROM EventGenerators WHERE eventGeneratorName = '".$valuset{"generator"}."' AND eventGeneratorVersion = '".$valuset{"genversion"}."' AND eventGeneratorParams = '".$valuset{"genparams"}."'";
   if ($DEBUG > 0) {
       &print_debug("insert_simulation_params","Executing query: $sqlquery");
   }
@@ -2888,7 +2907,7 @@ sub get_current_simulation_params {
 		   "Define generator, genversion and genparams");
       return 0;
   }
-  $sqlquery = "SELECT simulationParamsID FROM SimulationParams, EventGenerators WHERE eventGeneratorName = '".$valuset{"generator"}."' AND eventGeneratorVersion = '".$valuset{"genversion"}."' AND eventGeneratorParams = '".$valuset{"genparams"}."' AND SimulationParams.eventGeneratorID = EventGenerators.eventGeneratorID";
+  $sqlquery =  &_CACHED_SELECT()." simulationParamsID FROM SimulationParams, EventGenerators WHERE eventGeneratorName = '".$valuset{"generator"}."' AND eventGeneratorVersion = '".$valuset{"genversion"}."' AND eventGeneratorParams = '".$valuset{"genparams"}."' AND SimulationParams.eventGeneratorID = EventGenerators.eventGeneratorID";
   if ($DEBUG > 0) {
       &print_debug("get_current_simulation_params","Executing query: $sqlquery");
   }
@@ -3301,6 +3320,15 @@ sub insert_file_location {
   return $retid;
 
 }
+
+
+# small routine to return caching statement
+# this is based on MySQL caching and detected at _Connect()
+sub _CACHED_SELECT
+{
+    $FC::HASCACHE?"SELECT SQL_CACHE":"SELECT";
+}
+
 
 #====================================================
 # Helper subs for handling split tables and super-indexes
@@ -4363,7 +4391,9 @@ sub run_query {
 
   # Build the actual query string
   my $sqlquery;
-  $sqlquery = "SELECT SQL_BUFFER_RESULT ";
+  $sqlquery  = "SELECT ";
+  $sqlquery .= "SQL_BUFFER_RESULT " if ($FC::OPTIMIZE);
+
   if (! defined($valuset{"nounique"}) ){  $valuset{"nounique"} = 0;}
   if (! $valuset{"nounique"} ){           $sqlquery .= " DISTINCT ";}
 
@@ -4458,7 +4488,7 @@ sub run_query {
   } else {
       $limit = 100;
   }
-  if ( $limit < $OPTIMLIMIT ){ 
+  if ( $limit < $OPTIMLIMIT && $FC::OPTIMIZE){ 
       # remove optimization if a small number of rows is requested
       # limit is arbitrary
       $sqlquery =~ s/SQL_BUFFER_RESULT //;
@@ -4881,7 +4911,7 @@ sub _bootstrap_general
     }
 
 
-    $dcquery = "SELECT SQL_BUFFER_RESULT $table.$linkfield FROM $table LEFT OUTER JOIN $childtable ON $table.$linkfield = $childtable.$linkfield WHERE $childtable.$linkfield IS NULL";
+    $dcquery = "SELECT ".($FC::OPTIMIZE?"SQL_BUFFER_RESULT ":"")."$table.$linkfield FROM $table LEFT OUTER JOIN $childtable ON $table.$linkfield = $childtable.$linkfield WHERE $childtable.$linkfield IS NULL";
 
     $stq = $DBH->prepare( $dcquery );
     if( ! $stq ){
