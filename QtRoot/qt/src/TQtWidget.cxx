@@ -1,4 +1,4 @@
-// @(#)root/qt:$Name:  $:$Id: TQtWidget.cxx,v 1.18 2008/03/28 16:59:59 fine Exp $
+// @(#)root/qt:$Name:  $:$Id: TQtWidget.cxx,v 1.19 2008/03/28 17:07:02 fine Exp $
 // Author: Valeri Fine   23/01/2003
 
 /*************************************************************************
@@ -56,18 +56,18 @@ ClassImp(TQtWidget)
 //  It is designed to back the ROOT TCanvasImp class interface  and it can be used
 //  as a regular Qt Widget to create Qt-based GUI with the embedded TCanvas objects
 //
-//           This widget can be used as a Qt "custom widget" 
+//           This widget can be used as a Qt "custom widget"
 //         to build a custom GUI interfaces with  Qt Designer
 //
 // The class emits the Qt signals and has Qt public slots
 //
 //  Public slots:  (Qt)
 //
-//   virtual void cd();  // make the associated TCanvas the current one (shortcut to TCanvas::cd()) 
+//   virtual void cd();  // make the associated TCanvas the current one (shortcut to TCanvas::cd())
 //   virtual void cd(int subpadnumber); // as above - shortcut to Canvas::cd(int subpadnumber)
 //   void Disconnect(); // disconnect the QWidget from the ROOT TCanvas (used in the class dtor)
 //   void Refresh();    // force the associated TCanvas::Update to be called
-//   virtual bool Save(const QString &fileName) const;  // Save the widget image with some ppixmap file 
+//   virtual bool Save(const QString &fileName) const;  // Save the widget image with some ppixmap file
 //   virtual bool Save(const char    *fileName) const;
 //   virtual bool Save(const QString &fileName,const char *format,int quality=60) const;
 //   virtual bool Save(const char    *fileName,const char *format,int quality=60) const;
@@ -115,11 +115,11 @@ ClassImp(TQtWidget)
 //     tipText +="passed";
 //  tipText += " the object <";
 //  tipText += obj->GetName();
-//  tipText += "> of class "; 
+//  tipText += "> of class ";
 //  tipText += obj->ClassName();
 //  tipText += " : ";
 //  tipText += objectInfo;
-//  
+//
 //   QWhatsThis::display(tipText)
 // }
 //
@@ -285,9 +285,8 @@ TApplication *TQtWidget::InitRint( Bool_t /*prompt*/, const char *appClassName, 
        TString guiFactory(gEnv->GetValue("Gui.Factory", "native"));
        guiFactory.ToLower();
 #if ROOT_VERSION_CODE >= ROOT_VERSION(5,16,0)
-       TApplication::NeedGraphicsLibs() ; 
+       TApplication::NeedGraphicsLibs() ;
 #endif
-
        if (!guiFactory.BeginsWith("qt",TString::kIgnoreCase )){
          // Check for the extention
          char *extLib = gSystem->DynamicPathName("libQtGui",kTRUE);
