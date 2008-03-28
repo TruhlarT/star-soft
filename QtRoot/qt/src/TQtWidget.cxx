@@ -1,4 +1,4 @@
-// @(#)root/qt:$Name:  $:$Id: TQtWidget.cxx,v 1.19 2008/03/28 17:07:02 fine Exp $
+// @(#)root/qt:$Name:  $:$Id: TQtWidget.cxx,v 1.20 2008/03/28 17:13:40 fine Exp $
 // Author: Valeri Fine   23/01/2003
 
 /*************************************************************************
@@ -101,12 +101,12 @@ ClassImp(TQtWidget)
 //
 // connect(tQtWidget,SIGNAL(RootEventProcessed(TObject *, unsigned int, TCanvas *))
 //          ,this,SLOT(CanvasEvent(TObject *, unsigned int, TCanvas *)));
-//  . . . 
+//  . . .
 //
 //void qtrootexample1::CanvasEvent(TObject *obj, unsigned int event, TCanvas *)
 //{
 //  TQtWidget *tipped = (TQtWidget *)sender();
-//  const char *objectInfo = 
+//  const char *objectInfo =
 //        obj->GetObjectInfo(tipped->GetEventX(),tipped->GetEventY());
 //  QString tipText ="You have ";
 //  if  (tipped == tQtWidget1)
@@ -134,7 +134,7 @@ TQtWidget::TQtWidget(QWidget* parent, const char* name, Qt::WFlags f,bool embedd
 #endif
           ,fBits(0),fNeedStretch(false),fCanvas(0),fPixmapID(this),fShadowWidget(0),fIsShadow(false),fPaint(TRUE),fSizeChanged(FALSE)
           ,fDoubleBufferOn(FALSE),fEmbedded(embedded),fWrapper(0),fSaveFormat("PNG")
-{ 
+{
    if (name && name[0]) setName(name);
    Init() ;
 }
@@ -269,7 +269,7 @@ TApplication *TQtWidget::InitRint( Bool_t /*prompt*/, const char *appClassName, 
    //
    //  The prompt option can be defined via ROOT parameter file ".rootrc"
    // .rootrc:
-   //    . . . 
+   //    . . .
    //  Gui.Prompt   yes
    //
    static int localArgc   =0;
@@ -341,6 +341,7 @@ void TQtWidget::Erase ()
   fPixmapID.fill(this,QPoint(0,0));
   erase();
 }
+
 //_____________________________________________________________________________
 void TQtWidget::cd()
 {
@@ -403,7 +404,7 @@ void
 TQtWidget::customEvent(QEvent *e)
 #else
 TQtWidget::customEvent(QCustomEvent *e)
-#endif      
+#endif
 {
    // The custom responce to the special WIN32 events
    // These events are not present with X11 systems
@@ -435,7 +436,7 @@ TQtWidget::customEvent(QCustomEvent *e)
          fSizeChanged = TRUE;
 #if (QT_VERSION <0x40000)
          setUpdatesEnabled( TRUE );
-#endif 
+#endif
          exitSizeEvent();
          break;
       }
@@ -545,7 +546,7 @@ void TQtWidget::mouseReleaseEvent(QMouseEvent * e)
 
    if ( IsDoubleBuffered() && IsShadow()) 
    { 
-      hide(); 
+      hide();
 //      fprintf(stderr,"TQtWidget::mouseReleaseEvent this=%x, shadow=%d\n", this, IsShadow());
    }   
    EEventType rootButton = kNoEvent;
@@ -568,7 +569,6 @@ void TQtWidget::mouseReleaseEvent(QMouseEvent * e)
       e->ignore();
    }
    QWidget::mouseReleaseEvent(e);
-   
 }
 
 //_____________________________________________________________________________
@@ -901,7 +901,7 @@ QSizePolicy TQtWidget::sizePolicy () const{
    return QWidget::sizePolicy ();
 }
 //____________________________________________________________________________
-void  TQtWidget::EmitTestedSignal() 
+void  TQtWidget::EmitTestedSignal()
 {
    TCanvas *c        = GetCanvas();
    TObject *selected = GetSelected();
