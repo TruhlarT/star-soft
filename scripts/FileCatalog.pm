@@ -123,7 +123,7 @@ require  Exporter;
 
 
 use vars qw($VERSION);
-$VERSION   =   "V01.352";
+$VERSION   =   "V01.353";
 
 # The hashes that hold a current context
 my %optoperset;
@@ -145,6 +145,7 @@ my $PCLASS    = "";
 my $DELAY     =  0;
 my $SILENT    =  0;
 my $MAXLIMIT  = 1000000000;
+my $OPTIMLIMIT= 10;   # purely empirical I am afraid (just run query with -limit)
 my @DCMD;
 
 # db information
@@ -4012,9 +4013,10 @@ sub run_query {
                           
 			  } else {
 			      # Add a newly constructed keyword
+			      #if ( index(join(" ",@constraint),$addedconstr) == -1){
 			      $addedconstr = &_NormalizeAND_OR($addedconstr);
 			      push (@constraint, $addedconstr);
-
+			      #}
 			  }
 
 
@@ -4214,7 +4216,11 @@ sub run_query {
       if (not $where) {
 	  $where .= " $mtable.$field = $stable.$field ";
       } else {
-	  $where .= " AND $mtable.$field = $stable.$field ";
+	  # user may request fields multiple times - do not
+	  # allow repeats
+	  if ( $where !~ /$mtable.$field = $stable.$field/){
+	      $where .= " AND $mtable.$field = $stable.$field ";
+	  }
       }
   }
   my $toquery = join(" ",(@from));
@@ -4452,7 +4458,7 @@ sub run_query {
   } else {
       $limit = 100;
   }
-  if ( $limit < 10 ){ 
+  if ( $limit < $OPTIMLIMIT ){ 
       # remove optimization if a small number of rows is requested
       # limit is arbitrary
       $sqlquery =~ s/SQL_BUFFER_RESULT //;
