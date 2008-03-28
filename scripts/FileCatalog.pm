@@ -1068,8 +1068,8 @@ sub _Connect
 	my(@val);
 	if ( $sth->execute() ){
 	    while ( @val = $sth->fetchrow_array() ){
-		if ( $val[0] =~ /have_query_cache/ ){  $FC::HASCACHE  = ($val[1] =~ /yes/i);}
-		if ( $val[0] =~ /query_cache_size/ ){  $FC::HASCACHE &= ($val[1]!=0);}
+		if ( $val[0] =~ /have_query_cache/ ){  $FC::HASCACHE  = ($val[1] =~ /yes/i); }
+		if ( $val[0] =~ /query_cache_size/ ){  $FC::HASCACHE &= ($val[1]!=0);        }
 	    }
 	}
 	$sth->finish();
@@ -3938,7 +3938,7 @@ sub run_query {
 		  }
 	      #}
 
-	      my $sqlquery = "SELECT $idname FROM $tabname WHERE ";
+	      my $sqlquery = &_CACHED_SELECT()." $idname FROM $tabname WHERE ";
 
 	      if ((($roundfields =~ m/$fieldname/) > 0) && (! defined $valuset{"noround"})){
 		  #&print_debug("run_query","1 Inspecting [$roundfields] [$fieldname]");
@@ -4391,7 +4391,7 @@ sub run_query {
 
   # Build the actual query string
   my $sqlquery;
-  $sqlquery  = "SELECT ";
+  $sqlquery  = "SELECT "; #&_CACHED_SELECT()." ";
   $sqlquery .= "SQL_BUFFER_RESULT " if ($FC::OPTIMIZE);
 
   if (! defined($valuset{"nounique"}) ){  $valuset{"nounique"} = 0;}
@@ -5061,11 +5061,11 @@ sub _bootstrap_data
   my $dcquery;
   if ($table eq "FileData")
     {
-      $dcquery = "select FileData.fileDataID FROM FileData LEFT OUTER JOIN FileLocations ON FileData.fileDataID = FileLocations.fileDataID WHERE FileLocations.fileLocationID IS NULL";
+      $dcquery = "SELECT FileData.fileDataID FROM FileData LEFT OUTER JOIN FileLocations ON FileData.fileDataID = FileLocations.fileDataID WHERE FileLocations.fileLocationID IS NULL";
     }
   elsif ($table eq "FileLocations")
     {
-      $dcquery = "select FileLocations.fileLocationID FROM FileLocations LEFT OUTER JOIN FileData ON FileData.fileDataID = FileLocations.fileDataID WHERE FileData.fileDataID IS NULL";
+      $dcquery = "SELECT FileLocations.fileLocationID FROM FileLocations LEFT OUTER JOIN FileData ON FileData.fileDataID = FileLocations.fileDataID WHERE FileData.fileDataID IS NULL";
     }
 
   my $stq;
