@@ -341,6 +341,14 @@ struct JFileAttr => {
         avVrt     => '$',
         avXi      => '$',
         avKn      => '$',
+        prctus    => '$',
+        avTrus    => '$',
+        avTrfitus => '$',
+        avPrv1us  => '$',
+        avPrfitv1us => '$',
+        avV0us    => '$',
+        avXius    => '$',
+        avKnus    => '$',
         ndID      => '$', 
 };        
 
@@ -405,6 +413,14 @@ struct JFileAttr => {
  my $avr_prtrck_nfit15_1vtx = 0; 
  my $avr_knvertices = 0;
  my $avr_xivertices = 0;
+ my $perct_usb = 0;
+ my $avr_trk_usb = 0;
+ my $avr_prtrk_usb= 0;
+ my $avr_trkfit15_usb = 0;
+ my $avr_prtrkfit15_usb = 0;
+ my $avr_v0_usb = 0;
+ my $avr_kink_usb = 0;
+ my $avr_xi_usb = 0;
  my $node_name = "n/\a";
  my $rootL = "n/\a"; 
  my $Err_messg = "none";
@@ -530,6 +546,7 @@ my @files;
      
  $jrun = "Run not completed";
  $EvDone = 0;
+ $perct_usb = 0;
  $avr_tracks = 0;
  $avr_vertices = 0;
  $avr_prtracks = 0;
@@ -538,7 +555,14 @@ my @files;
  $avr_trck_nfit15 = 0; 
  $avr_prtrck_nfit15 = 0; 
  $avr_prtracks_1vtx = 0;
- $avr_prtrck_nfit15_1vtx = 0; 
+ $avr_prtrck_nfit15_1vtx = 0;
+ $avr_trk_usb = 0;
+ $avr_prtrk_usb= 0;
+ $avr_trkfit15_usb = 0;
+ $avr_prtrkfit15_usb = 0;
+ $avr_v0_usb = 0;
+ $avr_kink_usb = 0;
+ $avr_xi_usb = 0; 
  $node_name = "n/a";
  $libL = "n/a";
  $libV = "n/a";  
@@ -582,6 +606,7 @@ my @files;
                        $fullyear,$mo,$dy,$hr,$min);    
 
            if( $ltime > 600 && $ltime < 518400 ){         
+#          if( $ltime > 600 ) { 
 #   print "Log time: ", $ltime, "\n";
 #   print $fullname, "\n";
         &logInfo("$fullname", "$platf");
@@ -612,6 +637,14 @@ my @files;
       ($$fObjAdr)->avPrTr($avr_prtrck_nfit15);
       ($$fObjAdr)->avPrv1($avr_prtracks_1vtx);
       ($$fObjAdr)->avPrfitv1($avr_prtrck_nfit15_1vtx);
+      ($$fObjAdr)->prctus($perct_usb);
+      ($$fObjAdr)->avTrus($avr_trk_usb);
+      ($$fObjAdr)->avPrv1us($avr_prtrk_usb);
+      ($$fObjAdr)->avTrfitus($avr_trkfit15_usb);
+      ($$fObjAdr)->avPrfitv1us($avr_prtrkfit15_usb);
+      ($$fObjAdr)->avV0us($avr_v0_usb);
+      ($$fObjAdr)->avKnus($avr_kink_usb);
+      ($$fObjAdr)->avXius($avr_xi_usb);
       ($$fObjAdr)->ndID($node_name); 
       $testJobStFiles[$nJobStFiles] = $fObjAdr;
       $nJobStFiles++;
@@ -668,6 +701,7 @@ my @files;
 
  $jrun = "Run not completed";
  $EvDone = 0;
+ $perct_usb = 0;
  $avr_tracks = 0;
  $avr_vertices = 0;
  $avr_prtracks = 0;
@@ -677,6 +711,13 @@ my @files;
  $avr_prtrck_nfit15 = 0; 
  $avr_prtracks_1vtx = 0;
  $avr_prtrck_nfit15_1vtx = 0; 
+ $avr_trk_usb = 0;
+ $avr_prtrk_usb= 0;
+ $avr_trkfit15_usb = 0;
+ $avr_prtrkfit15_usb = 0;
+ $avr_v0_usb = 0;
+ $avr_kink_usb = 0;
+ $avr_xi_usb = 0;
  $node_name = "n/a";
  $libL = "n/a";
  $libV = "n/a";  
@@ -715,6 +756,14 @@ my @files;
     $avr_trck_nfit15 =  ($$newjobFile)->avTrGd;
     $avr_prtrck_nfit15 =  ($$newjobFile)->avPrfitv1;
     $avr_prtracks_1vtx = ($$newjobFile)->avPrv1; 
+    $perct_usb = ($$newjobFile)->prctus;
+    $avr_trk_usb = ($$newjobFile)->avTrus;
+    $avr_prtrk_usb= ($$newjobFile)->avPrv1us;
+    $avr_trkfit15_usb = ($$newjobFile)->avTrfitus;
+    $avr_prtrkfit15_usb = ($$newjobFile)->avPrfitv1us;
+    $avr_v0_usb = ($$newjobFile)->avV0us;
+    $avr_kink_usb = ($$newjobFile)->avKnus;
+    $avr_xi_usb = ($$newjobFile)->avXius;
     $node_name = ($$newjobFile)->ndID; 
 
     $fullName = $mpath ."/" .$logName;
@@ -939,6 +988,7 @@ foreach  $eachOutNDir (@OUT_DIR) {
               $idHash{$fullname} = $idHash{$jfpath};
 
      print "jobs ID:  ", $idHash{$fullname}," % ",$fullname," % ",$jfpath," % ",$idHash{$jfpath}, "\n";
+#       print "File info: ",$idHash{$fullname}," % ", $jpath ," % ", $platf, " % ", $fullname, " % ", $geom, " % ", $EvType," % ", $EvGen, " % ", $EvReq," % ", $comp," % ", $EvDone," % ", $libV,  "\n";
    
      ($size, $mTime) = (stat($fullname))[7, 9];
      ($sec,$min,$hr,$dy,$mo,$yr) = (localtime($mTime))[0,1,2,3,4,5];
@@ -1213,6 +1263,10 @@ foreach  $eachOutNDir (@OUT_DIR) {
 	 }
 }
 
+##### fill in FilesCatalog with new test files   
+
+          
+
 ##### DB disconnect
 
   &StDbTJobsDisconnect();
@@ -1290,6 +1344,14 @@ sub fillJSTable {
     $sql.="avg_no_primaryTnfit15_1vtx='$avr_prtrck_nfit15_1vtx',";
     $sql.="avg_no_XiVrt='$avr_xivertices',";
     $sql.="avg_no_KinkVrt='$avr_knvertices',";
+    $sql.="percent_of_usable_evt='$perct_usb',";
+    $sql.="avgNoTrack_usbevt='$avr_trk_usb',";
+    $sql.="avgNoTrackNfit15_usbevt='$avr_trkfit15_usb',";
+    $sql.="avgNoPrTrack_1vtx_usbevt='$avr_prtracks_1vtx',";
+    $sql.="avgNoPrTrackNfit15_1vtx_usbevt='$avr_prtrck_nfit15_1vtx',";
+    $sql.="avgNoV0_usbevt='$avr_v0_usb',";
+    $sql.="avgNoXi_usbevt='$avr_xi_usb',";
+    $sql.="avgNoKink_usbevt='$avr_kink_usb',";
     $sql.="nodeID='$node_name',"; 
     $sql.="avail='$mavail'"; 
 
@@ -1423,6 +1485,7 @@ $jrun = "n/a";
          @part = split /"/, $line ;
          $mchain = $part[1]; 
          $mchain =~ s/ /,/g;  
+#   print  $mchain, "\n";
 
     }else{
        next;
@@ -1432,12 +1495,12 @@ $jrun = "n/a";
      @part = ();
      @part = split( "/", $line) ;
        $mchain = $part[4];
+# print $line, "\n";
 
          }
-        
 
 #   get  number of events
-
+#     if ( $line =~ /QAInfo: Done with Event/ ) {
       if ( $line =~ /Done with Event/ ) {
         $no_event++;
 
@@ -1485,6 +1548,8 @@ $jrun = "n/a";
 
            my  $string = $logfile[$num_line];
               chop $string; 
+#              print $string, "\n";
+
               if($string =~  /track nodes:/) {
               @word_tr = split /:/,$string;
               @nmb =  split /</,$word_tr[2];
@@ -1546,7 +1611,7 @@ $jrun = "n/a";
               $no_prtracks_1vtx = $no_prtracks[0];
               $no_prtrck_nfit15_1vtx  = $no_prtrck_nfit15[0]; 
 
-              $tot_prtracks += $max_npr;
+               $tot_prtracks += $max_npr;
               $tot_prtrck_nfit15 += $max_npr_nfit15;
               $tot_prtracks_1vtx += $no_prtracks_1vtx;
               $tot_prtrck_nfit15_1vtx += $no_prtrck_nfit15_1vtx;                  
@@ -1587,9 +1652,11 @@ $jrun = "n/a";
           
            $jrun = "Done";      
          }
-####     
+###### 
+     
        }
  
+#     }
 #### check here
    } 
       $EvDone = $no_event;
@@ -1610,6 +1677,8 @@ $jrun = "n/a";
   foreach $end_line (@cpu_output){
           chop $end_line;
    if ($end_line =~ /QAInfo:Chain/ and $end_line =~ /StBFChain::bfc/) {
+
+#    if ( $end_line =~ /StBFChain::bfc/) {  
 #  print $end_line, "\n";
      @part = split (" ", $end_line); 
       $mCPUbfc = $part[8];
@@ -1624,16 +1693,26 @@ $jrun = "n/a";
     next;
       }
    }
-    $avr_tracks       = $tot_tracks/$nevt;
-    $avr_vertices     = $tot_vertices/$nevt;
-    $avr_prtracks     = $tot_prtracks/$nevt;
-    $avr_trck_nfit15  = $tot_trck_nfit15/$nevt;   
-    $avr_prtrck_nfit15  = $tot_prtrck_nfit15/$nevt; 
-    $avr_prtracks_1vtx = $tot_prtracks_1vtx/$nevt;
-    $avr_prtrck_nfit15_1vtx = $tot_prtrck_nfit15_1vtx/$nevt;  
-    $avr_knvertices = $tot_knvertices/$nevt;
-    $avr_xivertices = $tot_xivertices/$nevt;
+    $perct_usb        = ($nevt/$EvCom)*100;
+    $avr_tracks       = $tot_tracks/$EvCom;
+    $avr_vertices     = $tot_vertices/$EvCom;
+    $avr_prtracks     = $tot_prtracks/$EvCom;
+    $avr_trck_nfit15  = $tot_trck_nfit15/$EvCom;   
+    $avr_prtrck_nfit15  = $tot_prtrck_nfit15/$EvCom; 
+    $avr_prtracks_1vtx = $tot_prtracks_1vtx/$EvCom;
+    $avr_prtrck_nfit15_1vtx = $tot_prtrck_nfit15_1vtx/$EvCom;  
+    $avr_knvertices = $tot_knvertices/$EvCom;
+    $avr_xivertices = $tot_xivertices/$EvCom;
+    $avr_trk_usb = $tot_tracks/$nevt;
+    $avr_prtrk_usb= $tot_prtracks/$nevt; 
+    $avr_trkfit15_usb = $tot_trck_nfit15/$nevt;
+    $avr_prtrkfit15_usb = $tot_prtrck_nfit15/$nevt;
+    $avr_v0_usb = $tot_vertices/$nevt;
+    $avr_kink_usb = $tot_knvertices/$nevt;
+    $avr_xi_usb =$tot_xivertices/$nevt ;
 
+
+# print "Size of executable:  ", $EvDone, "  ", $no_event,"  ",$EvCom,"  ",$maker_size[$EvCom -1], "\n";                               
 
     if ( defined $maker_size[0]) { 
     $memFst = $maker_size[0];
@@ -1646,6 +1725,7 @@ $jrun = "n/a";
     $memLst = 0;
   }
  }      
+# print "Memory size:   ",$memFst, "   ", $memLst, "\n";
     
    close (LOGFILE);
 
