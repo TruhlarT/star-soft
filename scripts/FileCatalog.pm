@@ -123,7 +123,7 @@ require  Exporter;
 
 
 use vars qw($VERSION);
-$VERSION   =   "V01.350";
+$VERSION   =   "V01.352";
 
 # The hashes that hold a current context
 my %optoperset;
@@ -4012,9 +4012,9 @@ sub run_query {
                           
 			  } else {
 			      # Add a newly constructed keyword
+			      $addedconstr = &_NormalizeAND_OR($addedconstr);
 			      push (@constraint, $addedconstr);
 
-			      $addedconstr = &_NormalizeAND_OR($addedconstr);
 			  }
 
 
@@ -4452,8 +4452,14 @@ sub run_query {
   } else {
       $limit = 100;
   }
+  if ( $limit < 10 ){ 
+      # remove optimization if a small number of rows is requested
+      # limit is arbitrary
+      $sqlquery =~ s/SQL_BUFFER_RESULT //;
+  }
 
   $sqlquery .= " LIMIT $offset, $limit";
+  
 
 
   # We can replace FileLocations here if needed
