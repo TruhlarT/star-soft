@@ -1,8 +1,11 @@
 #!/usr/bin/env perl 
 #
-# $Id: dbDevTestQuery.pl,v 1.20 2008/03/31 18:36:09 didenko Exp $
+# $Id: dbDevTestQuery.pl,v 1.21 2008/03/31 18:46:49 didenko Exp $
 #
 # $Log: dbDevTestQuery.pl,v $
+# Revision 1.21  2008/03/31 18:46:49  didenko
+# extended number of weeks one can query
+#
 # Revision 1.20  2008/03/31 18:36:09  didenko
 # extended set of values to be queryed
 #
@@ -163,7 +166,7 @@ print "<h3 align=center>Select Test</h3>";
 print "<h4 align=center>";
 print $query->scrolling_list(-name=>'set1',
 			     -values=>\@sets_name,
-			     -size=>9);
+			     -size=>8);
 print "</td><td>";
 print "<h3 align=center> Select plot:</h3>";
 print "<h4 align=center>";
@@ -174,7 +177,7 @@ print "</td> </tr> </table><hr><center>";
 
 print "<h4 align=center> How many weeks do you want to show: ";
 print $query->popup_menu(-name=>'weeks',
-			 -values=>['1','2','3','4'],
+			 -values=>['1','2','3','4','5','6','7','8'],
 			 -defaults=>1);
 print "</h4>";
 
