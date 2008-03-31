@@ -1,9 +1,12 @@
 #!/usr/local/bin/perl
 #!/usr/bin/env perl 
 #
-# $Id: dbDevTestQueryPlot.pl,v 1.49 2008/03/31 19:21:31 didenko Exp $
+# $Id: dbDevTestQueryPlot.pl,v 1.50 2008/03/31 20:07:30 didenko Exp $
 #
 # $Log: dbDevTestQueryPlot.pl,v $
+# Revision 1.50  2008/03/31 20:07:30  didenko
+# more changes for updated values
+#
 # Revision 1.49  2008/03/31 19:21:31  didenko
 # extended set of averaged values for usable events
 #
@@ -329,7 +332,7 @@ $graph = new GD::Graph::linespoints(550+50*$weeks,500);
 
 
     if( $min_y == 0) {
-	$graph->set(x_label => "(0 value means job failed)");
+	$graph->set(x_label => "(0 value means job failed or data not available)");
     } else {
 	# keep the min_y in the 6th ticks (6/3)
 	$min_y = $min_y - ($max_y-$min_y)*2.0;
