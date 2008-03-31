@@ -107,7 +107,7 @@ require  Exporter;
 	     set_delayed unset_delayed flush_delayed print_delayed
 	     add_trigger_composition
 
-	     run_query
+	     run_query	run_query_cache
 	     clone_location insert_file_data
 	     delete_records update_location update_record
 
@@ -123,7 +123,7 @@ require  Exporter;
 
 
 use vars qw($VERSION);
-$VERSION   =   "V01.353";
+$VERSION   =   "V01.355";
 
 # The hashes that hold a current context
 my %optoperset;
@@ -999,7 +999,7 @@ sub _Connect
 
     #my ($user,$passwd,$port,$host,$db) = @_;
     my ($dbr)=@_;
-    my ($dbref,$user,$passwd,$host);
+    my ($user,$passwd,$host);
     my ($sth,$count);
     my ($tries,$idx);
 
@@ -1026,14 +1026,14 @@ sub _Connect
     if ($idx > $#Dbr){ $idx = 0;}
 
     &print_debug("_Connect","Trying connection $idx / $#Dbr");
-    ($dbref,$user,$passwd)  =  split(",",$Dbr[$idx]);
-    if ( $dbref =~ m/\.$/){ chop($dbref);}
-    $host  = (split(":",$dbref))[1];
-    $dbref = "DBI:mysql:$dbref";
+    ($FC::DBRef,$user,$passwd)  =  split(",",$Dbr[$idx]);
+    if ( $FC::DBRef =~ m/\.$/){ chop($FC::DBRef);}
+    $host  = (split(":",$FC::DBRef))[1];
+    $FC::DBRef = "DBI:mysql:$FC::DBRef";
 
 
-    &print_debug("_Connect","$dbref,$user (+passwd)");
-    $DBH = DBI->connect($dbref,$user,$passwd,
+    &print_debug("_Connect","$FC::DBRef,$user (+passwd)");
+    $DBH = DBI->connect($FC::DBRef,$user,$passwd,
 			{ PrintError => 0,
 			  RaiseError => 0, AutoCommit => 1 }
 			);
@@ -1042,7 +1042,7 @@ sub _Connect
 	    &print_message("_Connect","Incorrect password ".($passwd eq ""?"(NULL)":""));
 	}
 	if ($DBI::err == 2002){
-	    &print_message("_Connect","Socket is invalid for [$dbref]",
+	    &print_message("_Connect","Socket is invalid for [$FC::DBRef]",
 			   ($host eq ""?"Host was unspecified (too old library version ??)":""));
 	}
 
@@ -1057,22 +1057,24 @@ sub _Connect
     }
 
     # this feature will be enabled for MySQL
-    $FC::OPTIMIZE = ($dbref=~m/mysql/);
+    $FC::OPTIMIZE = ($FC::DBRef=~m/mysql/);
+    #$FC::OPTMIZE = 0;
     &print_debug("_Connect","Optimization is ".($FC::OPTIMIZE?"ON":"OFF"));
 
     # check if caching is enabled - unless query_cache_size is not null, there is
     # no hope
-    $FC::HASCACHE = 1==0;
+    $FC::FORCECACHE = 1==0;
+    $FC::HASCACHE   = 1==0;
     {
-	my($sth) = $DBH->prepare("SHOW VARIABLES LIKE '%query_cache%'");
-	my(@val);
-	if ( $sth->execute() ){
-	    while ( @val = $sth->fetchrow_array() ){
-		if ( $val[0] =~ /have_query_cache/ ){  $FC::HASCACHE  = ($val[1] =~ /yes/i); }
-		if ( $val[0] =~ /query_cache_size/ ){  $FC::HASCACHE &= ($val[1]!=0);        }
-	    }
-	}
-	$sth->finish();
+    	my($sth) = $DBH->prepare("SHOW VARIABLES LIKE '%query_cache%'");
+    	my(@val);
+    	if ( $sth->execute() ){
+    	    while ( @val = $sth->fetchrow_array() ){
+    		if ( $val[0] =~ /have_query_cache/ ){  $FC::HASCACHE  = ($val[1] =~ /yes/i); }
+    		if ( $val[0] =~ /query_cache_size/ ){  $FC::HASCACHE &= ($val[1]!=0);        }
+    	    }
+    	}
+    	$sth->finish();
     }
     &print_debug("_Connect","Caching is ".($FC::HASCACHE?"ON":"OFF"));
 
@@ -1107,9 +1109,8 @@ sub _Connect
 	    } else {
 		&print_debug("_Connect","Analysis of $tab showed no split");
 	    }
-
+	    $sth->finish();
 	}
-	$sth->finish();
 	return 1;
     }
 }
@@ -1291,7 +1292,7 @@ sub get_id_from_dictionary {
       # Dictionnary are intrinsically not case sensitive which may
       # be an issue for accessing Path information.
       #
-      $sqlquery = &_CACHED_SELECT()." $idname FROM $params[0] WHERE UPPER($params[1]) = UPPER(\"$params[2]\")";
+      $sqlquery = &_CACHED_SELECT()."$idname FROM $params[0] WHERE UPPER($params[1]) = UPPER(\"$params[2]\")";
       if ($DEBUG > 0) {  &print_debug("get_id_from_dictionary","Executing: $sqlquery");}
       $sth = $DBH->prepare($sqlquery);
 
@@ -1304,11 +1305,12 @@ sub get_id_from_dictionary {
 	      $sth->bind_columns( \$val );
 
 	      if ( $sth->fetch() ) {
-		  $sth->finish();
 		  $id = $val;
 	      }
 	  }
+	  $sth->finish();
       }
+
       ## save in cache
       &_SaveValue($params[0],$idx,$id);
   }
@@ -1338,7 +1340,7 @@ sub get_value_from_dictionary {
   $idx      = uc($params[1])." ".$params[2];
 
   if ( ($id = &_CachedValue($params[0],$idx)) == 0 ){
-      $sqlquery = &_CACHED_SELECT()." $valname FROM $params[0] WHERE UPPER($params[1]) = $params[2]";
+      $sqlquery = &_CACHED_SELECT()."$valname FROM $params[0] WHERE UPPER($params[1]) = $params[2]";
       if ($DEBUG > 0) {  &print_debug("get_value_from_dictionary","Executing: $sqlquery");}
       $sth = $DBH->prepare($sqlquery);
 
@@ -1351,10 +1353,10 @@ sub get_value_from_dictionary {
 	      $sth->bind_columns( \$val );
 
 	      if ( $sth->fetch() ) {
-		  $sth->finish();
 		  $id = $val;
 	      }
 	  }
+	  $sth->finish();
       }
       ## save in cache
       &_SaveValue($params[0],$idx,$id);
@@ -1600,13 +1602,13 @@ sub insert_dictionary_value {
       if ( $sth->execute() ) {
 	  $retid = &get_last_id();
 	  if ($DEBUG > 0) { &print_debug("insert_dictionary_value","Returning: $retid");}
-	  $sth->finish();
       } elsif ( $DBH->err == 1054) {
 	  # wrong field name
 	  &die_message("insert_dictionary_value","logic error for $tabname ".$DBH->err." >> ".$DBH->errstr);
       } else {
 	  &print_debug("insert_dictionary_value","ERROR for $tabname ".$DBH->err." >> ".$DBH->errstr);
       }
+      $sth->finish();
   }
   if ($del_onexit){ $valuset{$keyname} = undef;}
 
@@ -1633,37 +1635,43 @@ sub get_prodlib_version_ID {
 
 
 	# fetch if exists
-	$cmd1 = &_CACHED_SELECT()." ".&_IDize("get_prolib_version_ID",$tabname)." FROM $tabname WHERE $fldnm1=? AND $fldnm2=?";
+	$cmd1 = &_CACHED_SELECT().&_IDize("get_prolib_version_ID",$tabname)." FROM $tabname WHERE $fldnm1=? AND $fldnm2=?";
 	#print "$cmd1\n";
 	$sth1 = $DBH->prepare($cmd1);
-	if ( ! $sth1 ){  &die_message("get_prodlib_version_ID","Prepare statements 1 failed");}
-	if ( $sth1->execute($prod,$lib) ){
-	    $sth1->bind_columns( \$id );
-	    if ($sth1->rows == 0) {
-		# then insert
-		my($cmd2,$sth2);
-
-		$cmd2  = "INSERT IGNORE INTO $tabname ($fldnm1, $fldnm2, ".&_IDatize("",$tabname).", ".&_Creatorize("",$tabname).") ";
-		$cmd2 .= "VALUES('".$prod."', '".$lib." ', NOW()+0, ".&_GetILogin().")";
-		#print "$cmd2\n";
-		$sth2  = $DBH->prepare($cmd2);
-		if ( $sth2->execute() ){
-		    &print_debug("get_prodlib_version_ID","Inserted $prod,$lib");
-		    $id = &get_last_id();
+	if ( ! $sth1 ){  
+	    &die_message("get_prodlib_version_ID","Prepare statements 1 failed");
+	} else {
+	    if ( $sth1->execute($prod,$lib) ){
+		$sth1->bind_columns( \$id );
+		if ($sth1->rows == 0) {
+		    # then insert
+		    my($cmd2,$sth2);
+		    
+		    $cmd2  = "INSERT IGNORE INTO $tabname ($fldnm1, $fldnm2, ".&_IDatize("",$tabname).", ".&_Creatorize("",$tabname).") ";
+		    $cmd2 .= "VALUES('".$prod."', '".$lib." ', NOW()+0, ".&_GetILogin().")";
+		    #print "$cmd2\n";
+		    $sth2  = $DBH->prepare($cmd2);
+		    if ( $sth2->execute() ){
+			&print_debug("get_prodlib_version_ID","Inserted $prod,$lib");
+			$id = &get_last_id();
+		    } else {
+			&print_message("get_prodlib_version_ID","Failed to insert $prod,$lib".$DBH->errstr);
+		    }
+		    $sth2->finish();
+		    
+		} elsif ($sth1->rows > 1) {
+		    $sth1->finish();
+		    &die_message("get_prodlib_version_ID","Self consistency check failed",
+				 "More than one combination production/library found");
 		} else {
-		    &print_message("get_prodlib_version_ID","Failed to insert $prod,$lib".$DBH->errstr);
+		    # Fecth the unique value (it is bound to the $id)
+		    $sth1->fetch();
 		}
-		$sth2->finish();
-
-	    } elsif ($sth1->rows > 1) {
-		&die_message("get_prodlib_version_ID","Self consistency check failed",
-			     "More than one combination production/library found");
-	    } else {
-		# Fecth the unique value (it is bound to the $id)
-		$sth1->fetch();
-	    }
+		$sth1->finish();
+		return $id;
+	    } 
+	    # can we reach here?
 	    $sth1->finish();
-	    return $id;
 	}
 
     } elsif ( defined($valuset{"library"})  ){
@@ -1710,7 +1718,7 @@ sub get_current_detector_configuration {
 
   # This routine introduces caching
   if ( ($detConfiguration = &_CachedValue($tabname,$val)) == 0){
-      $cmd = &_CACHED_SELECT()." $tabname.$index from $tabname WHERE $tabname.$field='$val'";
+      $cmd = &_CACHED_SELECT()."$tabname.$index from $tabname WHERE $tabname.$field='$val'";
 
       $sth = $DBH->prepare($cmd);
       if( ! $sth ){
@@ -1934,7 +1942,7 @@ sub get_collision_collection {
 
   ($firstParticle, $secondParticle, $energy) = &disentangle_collision_type($colstring);
 
-  my $sqlquery =  &_CACHED_SELECT()." collisionTypeID FROM CollisionTypes WHERE UPPER(firstParticle) = UPPER(\"$firstParticle\") AND UPPER(secondParticle) = UPPER(\"$secondParticle\") AND ROUND(collisionEnergy) = ROUND($energy)";
+  my $sqlquery =  &_CACHED_SELECT()."collisionTypeID FROM CollisionTypes WHERE UPPER(firstParticle) = UPPER(\"$firstParticle\") AND UPPER(secondParticle) = UPPER(\"$secondParticle\") AND ROUND(collisionEnergy) = ROUND($energy)";
 
   if ($DEBUG > 0) {
       &print_debug("get_collision_collection",
@@ -1967,9 +1975,8 @@ sub get_collision_collection {
 		  push(@retv,$id);
 	      }
 	  }
-
-	  $sth->finish();
       }
+      $sth->finish();
   }
 
   return @retv;
@@ -2419,16 +2426,16 @@ sub insert_file_data {
       } else {
 	  if ( $sth->execute() ) {
 	      $retid = &get_last_id();
-	      $sth->finish();
 	      &print_debug("insert_file_data","Returning: $retid");
 
 	  } else {
-	      $sth->finish();
 	      &print_debug("insert_file_data",
 			   "ERROR in insert_file_location() ".$DBH->err." >> ".$DBH->errstr);
+	      $sth->finish();
 	      return 0;
 	  }
       }
+      $sth->finish();
   } else {
       &print_debug("insert_file_data","Failed to prepare [$fdinsert]");
   }
@@ -2521,7 +2528,7 @@ sub set_trigger_composition
     #
     # Insert first all entries in TriggerWords in INSERT mode
     #
-    $cmd1 =  &_CACHED_SELECT()." triggerWordID, triggerWordComment FROM TriggerWords ".
+    $cmd1 =  &_CACHED_SELECT()."triggerWordID, triggerWordComment FROM TriggerWords ".
 	" WHERE triggerWordName=? AND triggerWordBits=?  AND triggerWordVersion=?";
     $cmd2 = "INSERT INTO TriggerWords VALUES(NULL, ?, ?, ?, NOW()+0, ".&_GetILogin().", 0, ?)";
 
@@ -2567,7 +2574,7 @@ sub set_trigger_composition
     #
     # Enter entries in TriggerCompositions
     #
-    $cmd1 =  &_CACHED_SELECT()." triggerWordID FROM TriggerCompositions WHERE fileDataID=?";
+    $cmd1 =  &_CACHED_SELECT()."triggerWordID FROM TriggerCompositions WHERE fileDataID=?";
     $cmd2 = "INSERT DELAYED INTO TriggerCompositions VALUES(?,?,?)";
     $sth1 = $DBH->prepare($cmd1);
     $sth2 = $DBH->prepare($cmd2);
@@ -2806,7 +2813,7 @@ sub insert_simulation_params {
       $simComments = '"'.$valuset{"simcomment"}.'"';
   }
 
-  my $sqlquery =  &_CACHED_SELECT()." eventGeneratorID FROM EventGenerators WHERE eventGeneratorName = '".$valuset{"generator"}."' AND eventGeneratorVersion = '".$valuset{"genversion"}."' AND eventGeneratorParams = '".$valuset{"genparams"}."'";
+  my $sqlquery =  &_CACHED_SELECT()."eventGeneratorID FROM EventGenerators WHERE eventGeneratorName = '".$valuset{"generator"}."' AND eventGeneratorVersion = '".$valuset{"genversion"}."' AND eventGeneratorParams = '".$valuset{"genparams"}."'";
   if ($DEBUG > 0) {
       &print_debug("insert_simulation_params","Executing query: $sqlquery");
   }
@@ -2820,7 +2827,10 @@ sub insert_simulation_params {
   }
 
   my( $id );
-  if ( ! $sth->execute() ){  return 0;}
+  if ( ! $sth->execute() ){  
+      $sth->finish();
+      return 0;
+  }
 
   $sth->bind_columns( \$id );
 
@@ -2831,25 +2841,33 @@ sub insert_simulation_params {
       if ($DEBUG > 0) {
 	  &print_debug("insert_simulation_params","Execute $eginsert");
       }
-      my $sth = $DBH->prepare( $eginsert );
+      my $sthe = $DBH->prepare( $eginsert );
 
-      if ( $sth->execute() ) {
-	  $eventGenerator = &get_last_id();
-	  if ($DEBUG > 0) {
-	      &print_debug("insert_simulation_params","Returning: $eventGenerator");
+      if ( $sthe ){
+	  if ( $sthe->execute() ) {
+	      $eventGenerator = &get_last_id();
+	      if ($DEBUG > 0) {
+		  &print_debug("insert_simulation_params","Returning: $eventGenerator");
+	      }
+	  } else {
+	      &print_debug("insert_simulation_params",
+			   "Could not add event generator data.",
+			   "Aborting simulation data insertion query");
 	  }
+	  $sthe->finish();
       } else {
-	  &print_debug("insert_simulation_params",
-		       "Could not add event gerator data.",
-		       "Aborting simulation data insertion query");
+	  &print_debug("insert_simulation_params","Failed to preapre [$eginsert]");
+	  $sth->finish();
+	  return 0;
       }
   } else {
-      $sth->fetch;
+      $sth->fetch();
       if ($DEBUG > 0) {
 	  &print_debug("insert_simulation_params","Got eventGenerator: $id");
       }
       $eventGenerator = $id;
   }
+  $sth->finish();
 
   my $spinsert   = "INSERT IGNORE INTO SimulationParams ";
   $spinsert  .= "(eventGeneratorID, simulationParamIDate, simulationParamCreator, simulationParamComment)";
@@ -2868,6 +2886,7 @@ sub insert_simulation_params {
       if ($DEBUG > 0) {
 	  &print_debug("insert_simulation_params","Returning: $retid");
       }
+      $sth->finish();
   } else {
       &print_debug("insert_simulation_params",
 		   "Could not add simulation data.",
@@ -2875,9 +2894,6 @@ sub insert_simulation_params {
       $sth->finish();
       return 0;
   }
-
-  $sth->finish();
-
 }
 
 #============================================
@@ -2907,7 +2923,7 @@ sub get_current_simulation_params {
 		   "Define generator, genversion and genparams");
       return 0;
   }
-  $sqlquery =  &_CACHED_SELECT()." simulationParamsID FROM SimulationParams, EventGenerators WHERE eventGeneratorName = '".$valuset{"generator"}."' AND eventGeneratorVersion = '".$valuset{"genversion"}."' AND eventGeneratorParams = '".$valuset{"genparams"}."' AND SimulationParams.eventGeneratorID = EventGenerators.eventGeneratorID";
+  $sqlquery =  &_CACHED_SELECT()."simulationParamsID FROM SimulationParams, EventGenerators WHERE eventGeneratorName = '".$valuset{"generator"}."' AND eventGeneratorVersion = '".$valuset{"genversion"}."' AND eventGeneratorParams = '".$valuset{"genparams"}."' AND SimulationParams.eventGeneratorID = EventGenerators.eventGeneratorID";
   if ($DEBUG > 0) {
       &print_debug("get_current_simulation_params","Executing query: $sqlquery");
   }
@@ -2935,9 +2951,9 @@ sub get_current_simulation_params {
 	      $sth->finish();
 	      return $id;
 	  }
+	  $sth->finish();
       }
   }
-  $sth->finish();
   return 0;
 
 }
@@ -3305,7 +3321,6 @@ sub insert_file_location {
 		      $retid = $UFID;
 		  }
 		  &print_debug("insert_file_location","Returning: $retid");
-		  $sth->finish();
 	      } else {
 		  &print_debug("insert_file_location",
 			       "ERROR in insert_file_location() ".$DBH->err." >> ".$DBH->errstr);
@@ -3313,8 +3328,8 @@ sub insert_file_location {
 	  
 	      $td = time()-$ts;
 	      &print_debug("insert_file_location","Execute took $td secondes");
-
 	  }
+	  $sth->finish();
       }
   }
   return $retid;
@@ -3326,7 +3341,7 @@ sub insert_file_location {
 # this is based on MySQL caching and detected at _Connect()
 sub _CACHED_SELECT
 {
-    $FC::HASCACHE?"SELECT SQL_CACHE":"SELECT";
+    $FC::HASCACHE?"SELECT SQL_CACHE ":"SELECT ";
 }
 
 
@@ -3669,6 +3684,16 @@ sub run_query_st {
     }
 }
 
+sub run_query_cache
+{
+    my (@tab);
+
+    $FC::FORCECACHE = 1==1;
+    @tab = &run_query(@_);
+    $FC::FORCECACHE = 1==0;
+    return @tab;
+}
+
 sub run_query {
   if ($_[0] =~ m/FileCatalog/) {
     shift @_;
@@ -3938,7 +3963,7 @@ sub run_query {
 		  }
 	      #}
 
-	      my $sqlquery = &_CACHED_SELECT()." $idname FROM $tabname WHERE ";
+	      my $sqlquery = &_CACHED_SELECT()."$idname FROM $tabname WHERE ";
 
 	      if ((($roundfields =~ m/$fieldname/) > 0) && (! defined $valuset{"noround"})){
 		  #&print_debug("run_query","1 Inspecting [$roundfields] [$fieldname]");
@@ -4008,7 +4033,6 @@ sub run_query {
 	      }
 	      if ($DEBUG > 0) {  &print_debug("run_query","\tExecuting special: $sqlquery");}
 	      $sth = $DBH->prepare($sqlquery);
-
 
 	      if( ! $sth){
 		  &print_debug("run_query","\tget id's : Failed to prepare [$sqlquery]");
@@ -4391,8 +4415,13 @@ sub run_query {
 
   # Build the actual query string
   my $sqlquery;
-  $sqlquery  = "SELECT "; #&_CACHED_SELECT()." ";
-  $sqlquery .= "SQL_BUFFER_RESULT " if ($FC::OPTIMIZE);
+
+  if ( $FC::FORCECACHE ){
+      $sqlquery  = &_CACHED_SELECT();
+  } else {
+      $sqlquery  = "SELECT "; 
+      $sqlquery .= "SQL_BUFFER_RESULT " if ($FC::OPTIMIZE);
+  }
 
   if (! defined($valuset{"nounique"}) ){  $valuset{"nounique"} = 0;}
   if (! $valuset{"nounique"} ){           $sqlquery .= " DISTINCT ";}
@@ -4508,6 +4537,8 @@ sub run_query {
       }
   }
 
+
+
   &print_debug("run_query","Using query: $sqlquery");
 
   my $sth;
@@ -4519,6 +4550,10 @@ sub run_query {
   } else {
       my (@result,$res,$rescount);
       my (@cols);
+
+      # start timer
+      my($ts,$tf);
+      $ts = time(); &print_debug("run_query","START Time DBRef:$FC::DBRef ".localtime($ts));
 
       $count = 0;
       if ( $sth->execute() ){
@@ -4548,10 +4583,16 @@ sub run_query {
 	      $result[$count++] = join($delimeter,@cols);
 
 	  }
-	  $sth->finish();
+
       } else {
 	  &print_debug("run_query","ERROR ".$DBH->err." >> ".$DBH->errstr);
       }
+      $sth->finish();
+
+      # end
+      $tf  = time(); &print_debug("run_query","END Time DBRef:$FC::DBRef ".localtime($tf));
+      $tf -= $ts;    &print_debug("run_query","DELTA Time DBRef:$FC::DBRef $tf ".($#result+1));
+
       return (@result);
   }
 }
@@ -4935,17 +4976,20 @@ sub _bootstrap_general
 		$stfdd = $DBH->prepare($dcdelete);
 		if ($stfdd){
 		    $stfdd->execute();
-		    $stfdd->finish();
 		} else {
 		    &print_debug("_bootstrap_general",
 				 "Failed to prepare [$dcdelete]",
 				 " Record in $table will not be deleted");
 		}
+		$stfdd->finish();
 	    }
 	}
+	$stq->finish();
 	return (@rows);
+    } else {
+	$stq->finish();
+	return 0;
     }
-    return 0;
 }
 
 #
@@ -4993,16 +5037,15 @@ sub _bootstrap_2levels {
 	    $sthd = $DBH->prepare($cmdd);
 	    if ($sthd){
 		$sthd->execute();
-		$sthd->finish();
 	    } else {
 		&print_debug("_bootstrap_2levels",
 			     "Failed to prepare [$cmdd]",
 			     " Records in $tab1 will not be deleted");
 	    }
+	    $sthd->finish();
 	}
     }
     $sth1->finish();
-
 
 
     &print_debug("_bootstrap_2levels","Running [$cmd2]");
@@ -5021,12 +5064,12 @@ sub _bootstrap_2levels {
 	    $sthd = $DBH->prepare($cmdd);
 	    if ($sthd){
 		$sthd->execute();
-		$sthd->finish();
 	    } else {
 		&print_debug("_bootstrap_2levels",
 			     "Failed to prepare [$cmdd]",
 			     " Records in $tab2 will not be deleted");
 	    }
+	    $sthd->finish();
 	}
     }
     $sth2->finish();
@@ -5103,17 +5146,17 @@ sub _bootstrap_data
 	      my $stfdd = $DBH->prepare($dcdelete);
 	      if ($stfdd){
 		  $stfdd->execute();
-		  $stfdd->finish();
 	      } else {
 		  &print_debug("_bootstrap_data",
 			       "Failed to prepare [$dcdelete]",
 			       " Records in $table will not be deleted");
 	      }
+	      $stfdd->finish();
 	  }
       }
       $stq->finish();
       return (@rows);
-    }
+  }
   $stq->finish();
   return 0;
 }
