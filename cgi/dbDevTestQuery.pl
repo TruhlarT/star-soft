@@ -1,8 +1,11 @@
 #!/usr/bin/env perl 
 #
-# $Id: dbDevTestQuery.pl,v 1.19 2008/01/09 21:07:42 didenko Exp $
+# $Id: dbDevTestQuery.pl,v 1.20 2008/03/31 18:36:09 didenko Exp $
 #
 # $Log: dbDevTestQuery.pl,v $
+# Revision 1.20  2008/03/31 18:36:09  didenko
+# extended set of values to be queryed
+#
 # Revision 1.19  2008/01/09 21:07:42  didenko
 # updated tests
 #
@@ -122,7 +125,16 @@ my @myplot =   (
 		"Average_NoPrimaryTNfit15",                 
                 "Average_NoV0Vrt",
 		"Average_NoXiVrt",
-		"Average_NoKinKVrt"
+		"Average_NoKinKVrt",
+                "Percent_of_usableEvents",
+                "Average_NoTracks_per_usableEvent",
+		"Average_NoPrimTrack_per_usableEvent",
+                "Average_NoTracksNfit15_per_usableEvent",
+		"Average_NoPrimTrackNfit15_per_usableEvent",                 
+                "Average_NoV0_per_usableEvent",
+		"Average_NoXi_uper_sableEvent",
+		"Average_NoKink_per_usableEvent",                 
+                
                 );   
 
 $query = new CGI;
