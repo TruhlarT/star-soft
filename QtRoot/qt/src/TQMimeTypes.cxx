@@ -1,4 +1,4 @@
-// @(#)root/qt:$Name:  $:$Id: TQMimeTypes.cxx,v 1.5 2008/01/07 02:13:28 fine Exp $
+// @(#)root/qt:$Id: TQMimeTypes.cxx,v 1.6 2008/04/01 17:57:47 fine Exp $
 // Author: Valeri Fine   21/01/2003
 /*************************************************************************
  * Copyright (C) 1995-2004, Rene Brun and Fons Rademakers.               *
@@ -29,7 +29,6 @@
 
 #include "TQtRConfig.h"
 
-
 #if QT_VERSION < 0x40000
 #  include <qiconset.h>
 #  include <qfiledialog.h>
@@ -40,7 +39,7 @@
 #include <qpixmap.h>
 #include <qfileinfo.h>
 
-ClassImp(TQMimeTypes)  
+ClassImp(TQMimeTypes)
 QFileIconProvider  *TQMimeTypes::fgDefaultProvider = 0; // Default provider of the system icons;
 //______________________________________________________________________________
 #if QT_VERSION < 0x40000
