@@ -61,7 +61,7 @@ $sql="SELECT DISTINCT prodSeries FROM $JobStatusT where prodSeries like 'P0%'";
        $nprodPer++;
     }
 
-$sql="SELECT DISTINCT trigger FROM $FileCatalogT where fName like '%daq' ";
+$sql="SELECT DISTINCT trigset FROM $FileCatalogT where fName like '%daq' ";
 
    $cursor =$dbh->prepare($sql)
       || die "Cannot prepare statement: $DBI::errstr\n";
@@ -75,7 +75,7 @@ $sql="SELECT DISTINCT trigger FROM $FileCatalogT where fName like '%daq' ";
        my $fname=$cursor->{NAME}->[$i];
        print "$fname = $fvalue\n" if $debugOn;
    
-       $mytrig = $fvalue  if($fname eq 'trigger'); 
+       $mytrig = $fvalue  if($fname eq 'trigset'); 
     }
        $trigSet[$ntrigSet] = $mytrig;
        $ntrigSet++;
