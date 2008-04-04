@@ -78,7 +78,7 @@ my  @hpssInFiles;
  my @hpssDstFiles;
   $nhpssDstFiles = 0;
 
-  $sql="SELECT runID, dataset, fName, path, size, Nevents, trigger  FROM $FileCatalogT WHERE runID = '$runNum' AND fName LIKE '%.event.root' AND path like '%$prodSr%' AND hpss = 'Y'";
+  $sql="SELECT runID, dataset, fName, path, size, Nevents, trigset  FROM $FileCatalogT WHERE runID = '$runNum' AND fName LIKE '%.event.root' AND path like '%$prodSr%' AND hpss = 'Y'";
   $cursor =$dbh->prepare($sql)
     || die "Cannot prepare statement: $DBI::errstr\n";
   $cursor->execute;
@@ -98,7 +98,7 @@ my  @hpssInFiles;
       ($$fObjAdr)->Nevts($fvalue)    if( $fname eq 'Nevents');
       ($$fObjAdr)->fsize($fvalue)    if( $fname eq 'size');
       ($$fObjAdr)->numRun($fvalue)   if( $fname eq 'runID');
-      ($$fObjAdr)->trg($fvalue)      if( $fname eq 'trigger');
+      ($$fObjAdr)->trg($fvalue)      if( $fname eq 'trigset');
     }
   
     $hpssDstFiles[$nhpssDstFiles] = $fObjAdr;  

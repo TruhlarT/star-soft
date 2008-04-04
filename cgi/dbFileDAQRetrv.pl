@@ -77,7 +77,7 @@ print <<END;
 <TD WIDTH=\"10%\" HEIGHT=50><B>fName</B></TD>
 <TD WIDTH=\"10%\" HEIGHT=50><B>path</B></TD>
 <TD WIDTH=\"10%\" HEIGHT=50><B>dataset</B></TD>
-<TD WIDTH=\"10%\" HEIGHT=50><B>trigger</B></TD>
+<TD WIDTH=\"10%\" HEIGHT=50><B>trigset</B></TD>
 <TD WIDTH=\"10%\" HEIGHT=50><B>size</B></TD>
 <TD WIDTH=\"10%\" HEIGHT=50><B>createTime</B></TD>
 <TD WIDTH=\"10%\" HEIGHT=50><B>Nevents</B></TD>
@@ -105,7 +105,7 @@ print <<END;
 <td>$pair{'fName'}</td>
 <td>$pair{'path'}</td>
 <td>$pair{'dataset'}</td>
-<td>$pair{'trigger'}</td>
+<td>$pair{'trigset'}</td>
 <td>$pair{'size'}</td>
 <td>$pair{'createTime'}</td>
 <td>$pair{'Nevents'}</td>

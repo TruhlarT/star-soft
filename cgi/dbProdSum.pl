@@ -134,7 +134,7 @@ my $mfield;
 
 if ($trigD eq "all" and $fieldM eq "all" and $detSet eq "all" ) {
 
- $sql="SELECT sum(size), sum(Nevents)  FROM $FileCatalogT WHERE fName LIKE '%.event.root' AND jobID LIKE ? AND dataset like ? AND trigger <> 'n/a' AND site = ?";
+ $sql="SELECT sum(size), sum(Nevents)  FROM $FileCatalogT WHERE fName LIKE '%.event.root' AND jobID LIKE ? AND dataset like ? AND trigset <> 'n/a' AND site = ?";
 
     $cursor =$dbh->prepare($sql)
      || die "Cannot prepare statement: $DBI::errstr\n";
@@ -142,7 +142,7 @@ if ($trigD eq "all" and $fieldM eq "all" and $detSet eq "all" ) {
  
 }elsif($trigD ne "all" and $fieldM eq "all" and $detSet eq "all") {
 
- $sql="SELECT sum(size), sum(Nevents)  FROM $FileCatalogT WHERE fName LIKE '%.event.root' AND jobID LIKE ? AND dataset like ? AND trigger = ? AND site = ? ";
+ $sql="SELECT sum(size), sum(Nevents)  FROM $FileCatalogT WHERE fName LIKE '%.event.root' AND jobID LIKE ? AND dataset like ? AND trigset = ? AND site = ? ";
 
     $cursor =$dbh->prepare($sql)
      || die "Cannot prepare statement: $DBI::errstr\n";
@@ -151,7 +151,7 @@ if ($trigD eq "all" and $fieldM eq "all" and $detSet eq "all" ) {
 
 }elsif ($trigD eq "all" and $fieldM ne "all" and $detSet eq "all") {
 
- $sql="SELECT  sum(size), sum(Nevents) FROM $FileCatalogT WHERE fName LIKE '%.event.root' AND jobID LIKE ? AND dataset like ? AND trigger <> 'n/a'  AND site = ? ";
+ $sql="SELECT  sum(size), sum(Nevents) FROM $FileCatalogT WHERE fName LIKE '%.event.root' AND jobID LIKE ? AND dataset like ? AND trigset <> 'n/a'  AND site = ? ";
 
      $cursor =$dbh->prepare($sql)
      || die "Cannot prepare statement: $DBI::errstr\n";
@@ -160,7 +160,7 @@ if ($trigD eq "all" and $fieldM eq "all" and $detSet eq "all" ) {
  
 }elsif($trigD ne "all" and $fieldM ne "all" and $detSet eq "all") {
 
-$sql="SELECT  sum(size), sum(Nevents) FROM $FileCatalogT WHERE fName LIKE '%.event.root' AND jobID LIKE ? AND dataset like ? AND trigger = ?  AND site = ? ";
+$sql="SELECT  sum(size), sum(Nevents) FROM $FileCatalogT WHERE fName LIKE '%.event.root' AND jobID LIKE ? AND dataset like ? AND trigset = ?  AND site = ? ";
 
     $cursor =$dbh->prepare($sql)
      || die "Cannot prepare statement: $DBI::errstr\n";
@@ -169,7 +169,7 @@ $sql="SELECT  sum(size), sum(Nevents) FROM $FileCatalogT WHERE fName LIKE '%.eve
 
 }elsif ($trigD eq "all" and $fieldM eq "all"  and $detSet ne "all" ) {
 
-$sql="SELECT  sum(size), sum(Nevents) FROM $FileCatalogT WHERE fName LIKE '%.event.root' AND jobID LIKE ? AND dataset like ? AND dataset like ? AND trigger <> 'n/a'  AND site = ? ";
+$sql="SELECT  sum(size), sum(Nevents) FROM $FileCatalogT WHERE fName LIKE '%.event.root' AND jobID LIKE ? AND dataset like ? AND dataset like ? AND trigset <> 'n/a'  AND site = ? ";
 
     $cursor =$dbh->prepare($sql)
      || die "Cannot prepare statement: $DBI::errstr\n";
@@ -177,7 +177,7 @@ $sql="SELECT  sum(size), sum(Nevents) FROM $FileCatalogT WHERE fName LIKE '%.eve
 
 }elsif($trigD ne "all" and $fieldM eq "all" and $detSet ne "all") {
 
-$sql="SELECT  sum(size), sum(Nevents) FROM $FileCatalogT WHERE fName LIKE '%.event.root' AND jobID LIKE ? AND dataset like ? AND dataset like ? AND trigger = ?  AND site = ? ";
+$sql="SELECT  sum(size), sum(Nevents) FROM $FileCatalogT WHERE fName LIKE '%.event.root' AND jobID LIKE ? AND dataset like ? AND dataset like ? AND trigset = ?  AND site = ? ";
 
      $cursor =$dbh->prepare($sql)
      || die "Cannot prepare statement: $DBI::errstr\n";
@@ -186,7 +186,7 @@ $sql="SELECT  sum(size), sum(Nevents) FROM $FileCatalogT WHERE fName LIKE '%.eve
 
 }elsif ($trigD eq "all" and $fieldM ne "all" and $detSet ne "all" ) {
 
-$sql="SELECT  sum(size), sum(Nevents) FROM $FileCatalogT WHERE fName LIKE '%.event.root' AND jobID LIKE ? AND dataset like ? AND dataset like ? AND trigger <> 'n/a'  AND site = ? ";
+$sql="SELECT  sum(size), sum(Nevents) FROM $FileCatalogT WHERE fName LIKE '%.event.root' AND jobID LIKE ? AND dataset like ? AND dataset like ? AND trigset <> 'n/a'  AND site = ? ";
 
       $cursor =$dbh->prepare($sql)
      || die "Cannot prepare statement: $DBI::errstr\n";
@@ -194,7 +194,7 @@ $sql="SELECT  sum(size), sum(Nevents) FROM $FileCatalogT WHERE fName LIKE '%.eve
 
 }elsif($trigD ne "all" and $fieldM ne "all" and $detSet ne "all") {
 
-$sql="SELECT  sum(size), sum(Nevents) FROM $FileCatalogT WHERE fName LIKE '%.event.root' AND jobID LIKE ? AND dataset like ? AND dataset like ? AND trigger = ?  AND site = ? ";
+$sql="SELECT  sum(size), sum(Nevents) FROM $FileCatalogT WHERE fName LIKE '%.event.root' AND jobID LIKE ? AND dataset like ? AND dataset like ? AND trigset = ?  AND site = ? ";
 
 
      $cursor =$dbh->prepare($sql)
@@ -222,7 +222,7 @@ $sql="SELECT  sum(size), sum(Nevents) FROM $FileCatalogT WHERE fName LIKE '%.eve
 
 if ($trigD eq "all" and $fieldM eq "all" and $detSet eq "all" ) {
 
- $sql="SELECT sum(size), sum(Nevents)  FROM $FileCatalogT WHERE fName LIKE '%.daq' AND dataset like ? AND trigger <> 'n/a' AND dataStatus = 'OK' ";
+ $sql="SELECT sum(size), sum(Nevents)  FROM $FileCatalogT WHERE fName LIKE '%.daq' AND dataset like ? AND trigset <> 'n/a' AND dataStatus = 'OK' ";
 
       $cursor =$dbh->prepare($sql)
      || die "Cannot prepare statement: $DBI::errstr\n";
@@ -230,7 +230,7 @@ if ($trigD eq "all" and $fieldM eq "all" and $detSet eq "all" ) {
  
 }elsif($trigD ne "all" and $fieldM eq "all" and $detSet eq "all") {
 
- $sql="SELECT sum(size), sum(Nevents)  FROM $FileCatalogT WHERE fName LIKE '%.daq' AND dataset like ? AND trigger = ?  AND dataStatus = 'OK' ";
+ $sql="SELECT sum(size), sum(Nevents)  FROM $FileCatalogT WHERE fName LIKE '%.daq' AND dataset like ? AND trigset = ?  AND dataStatus = 'OK' ";
  
       $cursor =$dbh->prepare($sql)
      || die "Cannot prepare statement: $DBI::errstr\n";
@@ -238,7 +238,7 @@ if ($trigD eq "all" and $fieldM eq "all" and $detSet eq "all" ) {
 
 }elsif ($trigD eq "all" and $fieldM ne "all" and $detSet eq "all") {
 
- $sql="SELECT  sum(size), sum(Nevents) FROM $FileCatalogT WHERE fName LIKE '%.daq' AND dataset like ? AND trigger <> 'n/a' AND dataStatus = 'OK' ";
+ $sql="SELECT  sum(size), sum(Nevents) FROM $FileCatalogT WHERE fName LIKE '%.daq' AND dataset like ? AND trigset <> 'n/a' AND dataStatus = 'OK' ";
 
        $cursor =$dbh->prepare($sql)
      || die "Cannot prepare statement: $DBI::errstr\n";
@@ -246,7 +246,7 @@ if ($trigD eq "all" and $fieldM eq "all" and $detSet eq "all" ) {
  
 }elsif($trigD ne "all" and $fieldM ne "all" and $detSet eq "all") {
 
-$sql="SELECT  sum(size), sum(Nevents) FROM $FileCatalogT WHERE fName LIKE '%.daq' AND dataset like ? AND trigger = ? AND dataStatus = 'OK' " ;
+$sql="SELECT  sum(size), sum(Nevents) FROM $FileCatalogT WHERE fName LIKE '%.daq' AND dataset like ? AND trigset = ? AND dataStatus = 'OK' " ;
   
       $cursor =$dbh->prepare($sql)
      || die "Cannot prepare statement: $DBI::errstr\n";
@@ -254,7 +254,7 @@ $sql="SELECT  sum(size), sum(Nevents) FROM $FileCatalogT WHERE fName LIKE '%.daq
 
 }elsif ($trigD eq "all" and $fieldM eq "all"  and $detSet ne "all" ) {
 
-$sql="SELECT  sum(size), sum(Nevents) FROM $FileCatalogT WHERE fName LIKE '%.daq' AND dataset like ? AND dataset like ? AND trigger <> 'n/a' AND dataStatus = 'OK' ";
+$sql="SELECT  sum(size), sum(Nevents) FROM $FileCatalogT WHERE fName LIKE '%.daq' AND dataset like ? AND dataset like ? AND trigset <> 'n/a' AND dataStatus = 'OK' ";
 
      $cursor =$dbh->prepare($sql)
      || die "Cannot prepare statement: $DBI::errstr\n";
@@ -262,7 +262,7 @@ $sql="SELECT  sum(size), sum(Nevents) FROM $FileCatalogT WHERE fName LIKE '%.daq
 
 }elsif($trigD ne "all" and $fieldM eq "all" and $detSet ne "all") {
 
-$sql="SELECT  sum(size), sum(Nevents) FROM $FileCatalogT WHERE fName LIKE '%.daq' AND dataset like ? AND dataset like ? AND trigger = ? AND dataStatus = 'OK' ";
+$sql="SELECT  sum(size), sum(Nevents) FROM $FileCatalogT WHERE fName LIKE '%.daq' AND dataset like ? AND dataset like ? AND trigset = ? AND dataStatus = 'OK' ";
 
      $cursor =$dbh->prepare($sql)
      || die "Cannot prepare statement: $DBI::errstr\n";
@@ -271,7 +271,7 @@ $sql="SELECT  sum(size), sum(Nevents) FROM $FileCatalogT WHERE fName LIKE '%.daq
 
 }elsif ($trigD eq "all" and $fieldM ne "all" and $detSet ne "all" ) {
 
-$sql="SELECT  sum(size), sum(Nevents) FROM $FileCatalogT WHERE fName LIKE '%.daq' AND dataset like ? AND  dataset like ? AND trigger <> 'n/a' AND dataStatus = 'OK' ";
+$sql="SELECT  sum(size), sum(Nevents) FROM $FileCatalogT WHERE fName LIKE '%.daq' AND dataset like ? AND  dataset like ? AND trigset <> 'n/a' AND dataStatus = 'OK' ";
 
        $cursor =$dbh->prepare($sql)
      || die "Cannot prepare statement: $DBI::errstr\n";
@@ -279,7 +279,7 @@ $sql="SELECT  sum(size), sum(Nevents) FROM $FileCatalogT WHERE fName LIKE '%.daq
 
 }elsif($trigD ne "all" and $fieldM ne "all" and $detSet ne "all") {
 
-$sql="SELECT  sum(size), sum(Nevents) FROM $FileCatalogT WHERE fName LIKE '%.daq' AND dataset like ? AND dataset like ? AND trigger = ?  AND dataStatus = 'OK' ";
+$sql="SELECT  sum(size), sum(Nevents) FROM $FileCatalogT WHERE fName LIKE '%.daq' AND dataset like ? AND dataset like ? AND trigset = ?  AND dataStatus = 'OK' ";
 
      $cursor =$dbh->prepare($sql)
      || die "Cannot prepare statement: $DBI::errstr\n";
@@ -304,7 +304,7 @@ $sql="SELECT  sum(size), sum(Nevents) FROM $FileCatalogT WHERE fName LIKE '%.daq
 
 if ($trigD eq "all" and $fieldM eq "all" and $detSet eq "all" ) {
 
- $sql="SELECT sum(size) FROM $FileCatalogT WHERE fName LIKE '%.root' AND jobID LIKE ? AND dataset like ? AND trigger <> 'n/a' AND site = ? ";
+ $sql="SELECT sum(size) FROM $FileCatalogT WHERE fName LIKE '%.root' AND jobID LIKE ? AND dataset like ? AND trigset <> 'n/a' AND site = ? ";
 
       $cursor =$dbh->prepare($sql)
      || die "Cannot prepare statement: $DBI::errstr\n";
@@ -312,7 +312,7 @@ if ($trigD eq "all" and $fieldM eq "all" and $detSet eq "all" ) {
  
 }elsif($trigD ne "all" and $fieldM eq "all" and $detSet eq "all") {
 
- $sql="SELECT sum(size) FROM $FileCatalogT WHERE fName LIKE '%.root' AND jobID LIKE ? AND dataset like ? AND trigger = ? AND site = ? ";
+ $sql="SELECT sum(size) FROM $FileCatalogT WHERE fName LIKE '%.root' AND jobID LIKE ? AND dataset like ? AND trigset = ? AND site = ? ";
 
        $cursor =$dbh->prepare($sql)
      || die "Cannot prepare statement: $DBI::errstr\n";
@@ -321,7 +321,7 @@ if ($trigD eq "all" and $fieldM eq "all" and $detSet eq "all" ) {
 
 }elsif ($trigD eq "all" and $fieldM ne "all" and $detSet eq "all") {
 
- $sql="SELECT  sum(size) FROM $FileCatalogT WHERE fName LIKE '%.root' AND jobID LIKE ? AND dataset like ? AND trigger <> 'n/a'  AND site = ? ";
+ $sql="SELECT  sum(size) FROM $FileCatalogT WHERE fName LIKE '%.root' AND jobID LIKE ? AND dataset like ? AND trigset <> 'n/a'  AND site = ? ";
 
        $cursor =$dbh->prepare($sql)
      || die "Cannot prepare statement: $DBI::errstr\n";
@@ -329,7 +329,7 @@ if ($trigD eq "all" and $fieldM eq "all" and $detSet eq "all" ) {
  
 }elsif($trigD ne "all" and $fieldM ne "all" and $detSet eq "all") {
 
-$sql="SELECT  sum(size) FROM $FileCatalogT WHERE fName LIKE '%.root' AND jobID LIKE '%$prodSer%' AND dataset like '$dtset%' AND trigger = ?  AND site = ? ";
+$sql="SELECT  sum(size) FROM $FileCatalogT WHERE fName LIKE '%.root' AND jobID LIKE '%$prodSer%' AND dataset like '$dtset%' AND trigset = ?  AND site = ? ";
 
       $cursor =$dbh->prepare($sql)
       || die "Cannot prepare statement: $DBI::errstr\n";
@@ -337,7 +337,7 @@ $sql="SELECT  sum(size) FROM $FileCatalogT WHERE fName LIKE '%.root' AND jobID L
 
 }elsif ($trigD eq "all" and $fieldM eq "all"  and $detSet ne "all" ) {
 
-$sql="SELECT  sum(size) FROM $FileCatalogT WHERE fName LIKE '%.root' AND jobID LIKE ? AND dataset like ? AND dataset like ? AND trigger <> 'n/a'  AND site = ? ";
+$sql="SELECT  sum(size) FROM $FileCatalogT WHERE fName LIKE '%.root' AND jobID LIKE ? AND dataset like ? AND dataset like ? AND trigset <> 'n/a'  AND site = ? ";
 
        $cursor =$dbh->prepare($sql)
      || die "Cannot prepare statement: $DBI::errstr\n";
@@ -345,7 +345,7 @@ $sql="SELECT  sum(size) FROM $FileCatalogT WHERE fName LIKE '%.root' AND jobID L
 
 }elsif($trigD ne "all" and $fieldM eq "all" and $detSet ne "all") {
 
-$sql="SELECT  sum(size) FROM $FileCatalogT WHERE fName LIKE '%.root' AND jobID LIKE ? AND dataset like ? AND dataset like ? AND trigger = ? AND site = ? ";
+$sql="SELECT  sum(size) FROM $FileCatalogT WHERE fName LIKE '%.root' AND jobID LIKE ? AND dataset like ? AND dataset like ? AND trigset = ? AND site = ? ";
 
       $cursor =$dbh->prepare($sql)
       || die "Cannot prepare statement: $DBI::errstr\n";
@@ -353,7 +353,7 @@ $sql="SELECT  sum(size) FROM $FileCatalogT WHERE fName LIKE '%.root' AND jobID L
 
 }elsif ($trigD eq "all" and $fieldM ne "all" and $detSet ne "all" ) {
 
-$sql="SELECT  sum(size) FROM $FileCatalogT WHERE fName LIKE '%.root' AND jobID LIKE ? AND dataset like ? AND dataset like ? AND trigger <> 'n/a'  AND site = ? ";
+$sql="SELECT  sum(size) FROM $FileCatalogT WHERE fName LIKE '%.root' AND jobID LIKE ? AND dataset like ? AND dataset like ? AND trigset <> 'n/a'  AND site = ? ";
 
         $cursor =$dbh->prepare($sql)
      || die "Cannot prepare statement: $DBI::errstr\n";
@@ -361,7 +361,7 @@ $sql="SELECT  sum(size) FROM $FileCatalogT WHERE fName LIKE '%.root' AND jobID L
 
 }elsif($trigD ne "all" and $fieldM ne "all" and $detSet ne "all") {
 
-$sql="SELECT  sum(size) FROM $FileCatalogT WHERE fName LIKE '%.root' AND jobID LIKE ? AND dataset like ? AND dataset like ? AND trigger = ?  AND site = ? ";
+$sql="SELECT  sum(size) FROM $FileCatalogT WHERE fName LIKE '%.root' AND jobID LIKE ? AND dataset like ? AND dataset like ? AND trigset = ?  AND site = ? ";
 
   
       $cursor =$dbh->prepare($sql)

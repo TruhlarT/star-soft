@@ -57,7 +57,7 @@ $thisDay = '02'.$thisday;
 &beginHtml();
 
 
-$sql="SELECT dataset, path, fName, createTime, Nevents, trigger, dataStatus, comment FROM $FileCatalogT where insertTime > '$thisDay'  AND fName like '%.event.root' AND type = 'daq_reco' AND site = 'disk_rcf' ORDER by runID, fileSeq ";
+$sql="SELECT dataset, path, fName, createTime, Nevents, trigset, dataStatus, comment FROM $FileCatalogT where insertTime > '$thisDay'  AND fName like '%.event.root' AND type = 'daq_reco' AND site = 'disk_rcf' ORDER by runID, fileSeq ";
 $cursor =$dbh->prepare($sql)
   || die "Cannot prepare statement: $DBI::errstr\n";
 $cursor->execute;
@@ -78,7 +78,7 @@ while(@fields = $cursor->fetchrow) {
     ($$fObjAdr)->timeS($fvalue)   if($fname eq 'createTime');
     ($$fObjAdr)->Nevts($fvalue)   if($fname eq 'Nevents');
     ($$fObjAdr)->dataSt($fvalue)  if($fname eq 'dataStatus'); 
-    ($$fObjAdr)->trig($fvalue)    if($fname eq 'trigger');
+    ($$fObjAdr)->trig($fvalue)    if($fname eq 'trigset');
     ($$fObjAdr)->com($fvalue)    if($fname eq 'comment');  
 }
        $dbFiles[$ndbFiles] = $fObjAdr;
