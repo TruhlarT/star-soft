@@ -1,4 +1,4 @@
-// $Id: TQtClientFilter.cxx,v 1.4 2007/06/22 15:04:44 fine Exp $
+// $Id: TQtClientFilter.cxx,v 1.5 2008/04/07 22:57:41 fine Exp $
 // Author: Valeri Fine   21/01/2003
 /****************************************************************************
 **
@@ -781,7 +781,11 @@ void TQtPointerGrabber::ActivateGrabbing(bool on)
    fIsActive = on;
    // Make sure the result is correct
    QWidget *grabber = QWidget::mouseGrabber();
-   assert ( !fPointerGrabber->isVisible() || (fIsActive && (grabber == fPointerGrabber))
+   assert ( !fPointerGrabber->isVisible() || (fIsActive 
+#if QT_VERSION < 0x40000
+         && (grabber == fPointerGrabber)
+#endif
+         )
            || (!fIsActive && !grabber) );
 }
 //______________________________________________________________________________
