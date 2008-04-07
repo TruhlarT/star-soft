@@ -1,6 +1,6 @@
 // Author: Valeri Fine   21/01/2002
 /****************************************************************************
-** $Id: TQtRootGuiFactory.cxx,v 1.2 2007/11/02 17:48:11 fine Exp $
+** $Id: TQtRootGuiFactory.cxx,v 1.3 2008/04/07 19:16:36 fine Exp $
 **
 ** Copyright (C) 2002 by Valeri Fine. Brookhaven National Laboratory.
 **                                    All rights reserved.
@@ -100,12 +100,39 @@ TCanvasImp *TQtRootGuiFactory::CreateCanvasImp(TCanvas *c, const char *title, In
 { return fGuiProxy ? fGuiProxy->CreateCanvasImp(c, title, x, y, width, height) : 0 ;}
 
 //______________________________________________________________________________
+TBrowserImp *TQtRootGuiFactory::CreateBrowserImp(TBrowser *b, const char *title, UInt_t width, UInt_t height,Option_t *opt)
+{ 
+    return fGuiProxy ? 
+#if ROOT_VERSION_CODE >= ROOT_VERSION(5,18,0)
+         fGuiProxy->CreateBrowserImp(b, title, width, height,opt)
+#else
+         if (opt) {}
+         fGuiProxy->CreateBrowserImp(b, title, width, height)
+#endif
+       : 0; 
+}
+
+//______________________________________________________________________________
+TBrowserImp *TQtRootGuiFactory::CreateBrowserImp(TBrowser *b, const char *title, Int_t x, Int_t y, UInt_t width, UInt_t height, Option_t *opt)
+{
+   return fGuiProxy ? 
+#if ROOT_VERSION_CODE >= ROOT_VERSION(5,18,0)
+         fGuiProxy->CreateBrowserImp(b, title, x, y, width, height,opt)
+#else
+         if (opt) {}
+         fGuiProxy->CreateBrowserImp(b, title, x, y, width, height)
+#endif
+        : 0 ; 
+}
+
+
+//______________________________________________________________________________
 TBrowserImp *TQtRootGuiFactory::CreateBrowserImp(TBrowser *b, const char *title, UInt_t width, UInt_t height)
-{ return fGuiProxy ? fGuiProxy->CreateBrowserImp(b, title, width, height) : 0; }
+{ return CreateBrowserImp(b, title, width, height,""); }
 
 //______________________________________________________________________________
 TBrowserImp *TQtRootGuiFactory::CreateBrowserImp(TBrowser *b, const char *title, Int_t x, Int_t y, UInt_t width, UInt_t height)
-{ return fGuiProxy ? fGuiProxy->CreateBrowserImp(b, title, x, y, width, height): 0 ; }
+{ return CreateBrowserImp(b, title, x, y, width, height,""); }
 
 //______________________________________________________________________________
 TContextMenuImp *TQtRootGuiFactory::CreateContextMenuImp(TContextMenu *c, const char *name, const char *title)
