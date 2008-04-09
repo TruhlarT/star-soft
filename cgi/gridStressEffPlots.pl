@@ -14,9 +14,9 @@ BEGIN {
 }
 
 use DBI;
-use CGI;
-use GIFgraph::linespoints;
+use CGI qw(:standard);
 use GD;
+use GD::Graph::linespoints;
 use Mysql;
 use Class::Struct;
 
@@ -415,7 +415,20 @@ $njb = 0;
 
 #  print $qqr->header(); 
 
-   $graph = new GIFgraph::linespoints(750,650);
+#   $graph = new GIFgraph::linespoints(750,650);
+
+ my $graph = new GD::Graph::linespoints(750,650);
+
+  if ( ! $graph){
+    print STDOUT $qqr->header(-type => 'text/plain');
+    print STDOUT "Failed\n";
+
+ } else {
+
+  my $format = $graph->export_format;
+  print header("image/$format");
+  binmode STDOUT;
+
 
     if( $qsite eq "ALL" ) {
 
@@ -452,8 +465,8 @@ $njb = 0;
  
 #  print $qqr->header(-type => "image/gif");
 
-    print $qqr->header(); 
-    print $qqr->start_html(-title=>"Grid efficiency"), "\n";
+#    print $qqr->header(); 
+#    print $qqr->start_html(-title=>"Grid efficiency"), "\n";
  
 
  my $ylabel;
@@ -509,16 +522,8 @@ $xLabelSkip = 12 if( $dim > 550 && $dim <= 600 );
     $graph->set_x_axis_font(gdMediumBoldFont);
     $graph->set_y_axis_font(gdMediumBoldFont);
 
-   if( -e "/afs/rhic.bnl.gov/star/doc/www/html/tmp/pub/effplots/$gname")  {
-       unlink("/afs/rhic.bnl.gov/star/doc/www/html/tmp/pub/effplots/$gname");
-   }
-
-  $graph->plot_to_gif("/afs/rhic.bnl.gov/star/doc/www/html/tmp/pub/effplots/$gname", \@data);
-   
-
-   print "<BR><CENTER><IMG WIDTH=750 HEIGHT=650 SRC=\"/webdatanfs/pub/effplots/$gname\"></CENTER>\n";
-
-  print $qqr->end_html();
+   print STDOUT $graph->plot(\@data)->$format();
+  }
 
 }
 
