@@ -1545,7 +1545,7 @@ $jrun = "n/a";
   $npr = 0;
   $max_npr = 0;
   $max_npr_nfit15 = 0;
-
+   
            my  $string = $logfile[$num_line];
               chop $string; 
 #              print $string, "\n";
@@ -1703,6 +1703,7 @@ $jrun = "n/a";
     $avr_prtrck_nfit15_1vtx = $tot_prtrck_nfit15_1vtx/$EvCom;  
     $avr_knvertices = $tot_knvertices/$EvCom;
     $avr_xivertices = $tot_xivertices/$EvCom;
+    if($nevt >= 1 ) {
     $avr_trk_usb = $tot_tracks/$nevt;
     $avr_prtrk_usb= $tot_prtracks_1vtx/$nevt; 
     $avr_trkfit15_usb = $tot_trck_nfit15/$nevt;
@@ -1710,7 +1711,7 @@ $jrun = "n/a";
     $avr_v0_usb = $tot_vertices/$nevt;
     $avr_kink_usb = $tot_knvertices/$nevt;
     $avr_xi_usb =$tot_xivertices/$nevt ;
-
+}
 
 # print "Size of executable:  ", $EvDone, "  ", $no_event,"  ",$EvCom,"  ",$maker_size[$EvCom -1], "\n";                               
 
