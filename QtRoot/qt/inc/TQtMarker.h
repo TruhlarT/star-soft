@@ -1,4 +1,4 @@
-// @(#)root/qt:$Name:  $:$Id: TQtMarker.h,v 1.3 2007/02/06 21:00:23 fine Exp $
+// @(#)root/qt:$Name:  $:$Id: TQtMarker.h,v 1.4 2008/04/14 02:35:02 fine Exp $
 // Author: Valeri Fine   21/01/2002
 /****************************************************************************
 **
@@ -21,11 +21,11 @@
 #  if QT_VERSION < 0x40000
 #    include <qpointarray.h>
 #  else /* QT_VERSION */
-#     include <q3pointarray.h>
+#     include <QPolygon>
 #  endif /* QT_VERSION */
 #else
    class QPointArray;
-   class Q3PointArray;
+   class QPolygon;
 #endif
 
 ////////////////////////////////////////////////////////////////////////
@@ -44,7 +44,7 @@ private:
 #if (QT_VERSION < 0x40000)
    QPointArray  fChain;    // array of the n chains to build a shaped marker
 #else /* QT_VERSION */
-   Q3PointArray  fChain;    // array of the n chains to build a shaped marker
+   QPolygon  fChain;    // array of the n chains to build a shaped marker
 #endif /* QT_VERSION */
 #endif
    Color_t fCindex;        // Color index of the marker;
@@ -61,7 +61,7 @@ public:
 #if (QT_VERSION < 0x40000)
    QPointArray &GetNodes();
 #else /* QT_VERSION */
-   Q3PointArray &GetNodes();
+   QPolygon &GetNodes();
 #endif /* QT_VERSION */
 #endif
    int     GetType() const;

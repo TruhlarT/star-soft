@@ -1,4 +1,4 @@
-// @(#)root/qt:$Name:  $:$Id: TQtWidget.h,v 1.14 2008/01/18 13:17:06 fine Exp $
+// @(#)root/qt:$Name:  $:$Id: TQtWidget.h,v 1.15 2008/04/14 02:35:02 fine Exp $
 // Author: Valeri Fine   21/01/2002
 /****************************************************************************
 **
@@ -87,7 +87,6 @@ class  TQtWidget : public QWidget {
 #endif
 private:
 		void operator=(const TQtWidget&);
-      TQtWidget(const TQtWidget&);
    //----- Private bits, clients can only test but not change them
    UInt_t         fBits;       //bit field status word
    enum {

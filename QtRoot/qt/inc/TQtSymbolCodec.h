@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: TQtSymbolCodec.h,v 1.2 2006/12/29 20:16:59 fine Exp $
+** $Id: TQtSymbolCodec.h,v 1.3 2008/04/14 02:35:02 fine Exp $
 **
 ** Implementation of QTextCodec class
 **
@@ -18,7 +18,7 @@
 #  endif // QT_H
 #else
 //Added by qt3to4:
-#  include <Q3CString>
+#  include <QByteArray>
 
 #  include <QTextCodec>
 #  include <QByteArray>
@@ -43,7 +43,7 @@ public:
     QCString fromUnicode(const QString& uc, int& lenInOut) const;
     QCString fromUnicode( const QString & uc ) const { return QTextCodec::fromUnicode(uc); }
 #else
-    Q3CString fromUnicode(const QString& uc, int& lenInOut) const;
+    QByteArray fromUnicode(const QString& uc, int& lenInOut) const;
     virtual QByteArray convertFromUnicode( const QChar * input, int number, ConverterState *state ) const;
     virtual QString    convertToUnicode(const char *chars, int len, ConverterState *state) const;
 #endif /* QT_VERSION */

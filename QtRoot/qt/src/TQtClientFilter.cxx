@@ -1,4 +1,4 @@
-// $Id: TQtClientFilter.cxx,v 1.5 2008/04/07 22:57:41 fine Exp $
+// $Id: TQtClientFilter.cxx,v 1.6 2008/04/14 02:35:04 fine Exp $
 // Author: Valeri Fine   21/01/2003
 /****************************************************************************
 **
@@ -29,7 +29,7 @@
 #if QT_VERSION >= 0x40000
 //Added by qt3to4:
 #include <QWheelEvent>
-#include <Q3CString>
+#include <QByteArray>
 #include <QFocusEvent>
 #include <QPaintEvent>
 #include <QCloseEvent>
@@ -212,7 +212,8 @@ static inline UInt_t MapKeySym(const QKeyEvent &qev)
 #if QT_VERSION < 0x40000
    QCString r = gQt->GetTextDecoder()->fromUnicode(qev.text());
 #else /* QT_VERSION */
-   Q3CString r = gQt->GetTextDecoder()->fromUnicode(qev.text());
+   QByteArray oar = gQt->GetTextDecoder()->fromUnicode(qev.text());
+   const char *r = oar.constData();
 #endif /* QT_VERSION */
    qstrncpy((char *)&text, (const char *)r,1);
    return text;
@@ -446,7 +447,11 @@ bool TQtClientFilter::eventFilter( QObject *qWidget, QEvent *e ){
          selectEventMask |=  kButtonPressMask;
          mouseEvent->accept();
          if (    !fgGrabber
+#if (QT_VERSION >= 0x040000)
+              &&  fButtonGrabList.count(frame) >0 
+#else
               &&  fButtonGrabList.findRef(frame) >=0 
+#endif
               &&  frame->IsGrabbed(event) )
          {
             GrabPointer(frame, frame->ButtonEventMask(),0,frame->GrabButtonCursor(), kTRUE,kFALSE);
@@ -781,12 +786,12 @@ void TQtPointerGrabber::ActivateGrabbing(bool on)
    fIsActive = on;
    // Make sure the result is correct
    QWidget *grabber = QWidget::mouseGrabber();
-   assert ( !fPointerGrabber->isVisible() || (fIsActive 
-#if QT_VERSION < 0x40000
-         && (grabber == fPointerGrabber)
+
+#if (QT_VERSION < 0x40000)
+   assert ( !fPointerGrabber->isVisible() || (fIsActive && (grabber == fPointerGrabber)) || (!fIsActive && !grabber) );
+#else
+   assert ( !fPointerGrabber->isVisible() || (fIsActive) || (!fIsActive && !grabber) );
 #endif
-         )
-           || (!fIsActive && !grabber) );
 }
 //______________________________________________________________________________
 void  TQtPointerGrabber::SetGrabPointer(TQtClientWidget *grabber

@@ -1,6 +1,6 @@
 // Author: Valeri Fine   21/01/2002
 /****************************************************************************
-** $Id: TQtMarker.cxx,v 1.1 2006/08/16 19:27:06 fine Exp $
+** $Id: TQtMarker.cxx,v 1.2 2008/04/14 02:35:04 fine Exp $
 **
 ** Copyright (C) 2002 by Valeri Fine. Brookhaven National Laboratory.
 **                                    All rights reserved.
@@ -14,8 +14,7 @@
 #include "TQtRConfig.h"
 #include "TQtMarker.h"
 #if QT_VERSION >= 0x40000
-//Added by qt3to4:
-#include <Q3PointArray>
+#  include <QPolygon>
 #endif /* QT_VERSION */
 
 ClassImp(TQtMarker)
@@ -50,7 +49,7 @@ int    TQtMarker::GetNumber() const {return fNumNode;}
 #if QT_VERSION < 0x40000
 QPointArray &TQtMarker::GetNodes() {return fChain;}
 #else /* QT_VERSION */
-Q3PointArray &TQtMarker::GetNodes() {return fChain;}
+QPolygon &TQtMarker::GetNodes() {return fChain;}
 #endif /* QT_VERSION */
 //______________________________________________________________________________
 int  TQtMarker::GetType() const {return fMarkerType;}
@@ -62,7 +61,7 @@ void TQtMarker::SetMarker(int n, TPoint *xy, int type)
   fNumNode = n;
   fMarkerType = type;
   if (fMarkerType >= 2) {
-#ifdef R__QTWIN32
+#if defined(R__QTWIN32) && (QT_VERSION < 0x40000)
     fChain.setPoints(n,(QCOORD *)xy);
 #else
     fChain.resize(n);
