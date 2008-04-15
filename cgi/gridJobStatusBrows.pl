@@ -258,22 +258,17 @@ if( $qview eq "jobs_browser")  {
     $outSt =$outfile[$outtrans];
      &printFldRow();
 
-  }elsif( $outSt eq "incomplete" or $outSt eq "failed" ) {
-
-    $globSt = $globar[$glStatus];
-    $logSt = $logar[$lgStatus];
-    $inSt = $infile[$intrans]; 
-    $outSt =$outfile[$outtrans];
-     &printTFRow();
-
     }else{
 
     $globSt = $globar[$glStatus];
     $logSt = $logar[$lgStatus];
     $inSt = $infile[$intrans]; 
     $outSt =$outfile[$outtrans];
-
+    if( $outSt eq "incomplete" or $outSt eq "failed" ) {
+    &printTFRow(); 
+   }else{
     &printRow();
+     }
    }
   }
  
