@@ -461,7 +461,7 @@ END
 sub printTFRow {
 
 print <<END;
-<TR BGCOLOR=blue ALIGN=CENTER>
+<TR BGCOLOR=lightblue ALIGN=CENTER>
 <td>$gsite</td>
 <td>$inFile</td>
 <td>$lpath</td>
