@@ -469,7 +469,7 @@ print <<END;
 <td>$glError</td>
 <td>$logSt</td>
 <td>$inSt</td>
-<td BGCOLOR=lightblue> $outSt</td>
+<td BGCOLOR=pink> $outSt</td>
 <td>$recoSt</td>
 <td>$sbtime</td>
 <td>$sdate</td>
