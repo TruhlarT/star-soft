@@ -264,6 +264,7 @@ if( $qview eq "jobs_browser")  {
     $logSt = $logar[$lgStatus];
     $inSt = $infile[$intrans]; 
     $outSt =$outfile[$outtrans];
+
     if( $outSt eq "incomplete" or $outSt eq "failed" ) {
     &printTFRow(); 
    }else{
@@ -460,8 +461,7 @@ END
 sub printTFRow {
 
 print <<END;
-<TR BGCOLOR= lightblue ALIGN=CENTER>
-<TR ALIGN=CENTER>
+<TR BGCOLOR=blue ALIGN=CENTER>
 <td>$gsite</td>
 <td>$inFile</td>
 <td>$lpath</td>
