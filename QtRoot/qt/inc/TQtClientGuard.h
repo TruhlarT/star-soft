@@ -2,7 +2,7 @@
 #define ROOT_TQtClientGuard
  
 /****************************************************************************
-** $Id: TQtClientGuard.h,v 1.1 2006/08/16 19:29:07 fine Exp $
+** $Id: TQtClientGuard.h,v 1.2 2008/04/15 18:24:06 fine Exp $
 **
 ** Copyright (C) 2004 by Valeri Fine. Brookhaven National Laboratory.
 **                                    All rights reserved.
@@ -16,9 +16,9 @@ ls**
 #include <qobject.h>
 #include <qpixmap.h>
 #if QT_VERSION < 0x40000
-#include <qptrlist.h> 
+#  include <qptrlist.h> 
 #else /* QT_VERSION */
-#include <q3ptrlist.h> 
+#  include <QList> 
 #endif /* QT_VERSION */
 #include "TQtClientWidget.h"
 
@@ -30,7 +30,7 @@ private:
 #if QT_VERSION < 0x40000
    mutable QPtrList<QWidget> fQClientGuard;
 #else /* QT_VERSION */
-   mutable Q3PtrList<QWidget> fQClientGuard;
+   mutable QList<QWidget *> fQClientGuard;
 #endif /* QT_VERSION */
    int  fDeadCounter;
    friend class TQtClientWidget;
@@ -43,7 +43,7 @@ public:
    void    Add(QWidget *w);
 
 protected:
-   void    Disconnect(QWidget *w);
+   void    Disconnect(QWidget *w, int found=-1);
    void    DisconnectChildren(TQtClientWidget *w);
 protected slots:
    void    Disconnect();
@@ -56,12 +56,13 @@ private:
 #if QT_VERSION < 0x40000
    mutable QPtrList<QPixmap> fQClientGuard;
 #else /* QT_VERSION */
-   mutable Q3PtrList<QPixmap> fQClientGuard;
+   mutable QList<QPixmap *> fQClientGuard;
 #endif /* QT_VERSION */
    int  fDeadCounter;
+   int  fLastFound;
 
 public:
-   TQtPixmapGuard(): QObject(),fDeadCounter(0){};
+   TQtPixmapGuard(): QObject(),fDeadCounter(0),fLastFound(-1){};
    virtual ~TQtPixmapGuard(){;}
    QPixmap* Create(int w, int h, int depth = -1);
       //Optimization optimization=DefaultOptim);
@@ -77,7 +78,8 @@ public:
    void    Add(QPixmap *w);
 
 protected:
-   void    Disconnect(QPixmap *w);
+   void    Disconnect(QPixmap *w, int found=-1);
+   void    SetCurrent(int found) { fLastFound = found;}
 protected slots:
    void    Disconnect();
 };

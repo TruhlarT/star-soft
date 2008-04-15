@@ -1,4 +1,4 @@
-// @(#)root/qt:$Name:  $:$Id: GQtGUI.cxx,v 1.12 2008/01/18 12:56:24 fine Exp $
+// @(#)root/qt:$Name:  $:$Id: GQtGUI.cxx,v 1.13 2008/04/15 18:24:07 fine Exp $
 // Author: Valeri Fine   23/01/2003
 
 /*************************************************************************
@@ -914,7 +914,7 @@ void TGQt::NextEvent(Event_t &event)
    //   if (qApp->hasPendingEvents())  qApp->processOneEvent ();
    //   qApp->processEvents (5000);
    if (fQClientFilterBuffer) {
-      Event_t *ev = fQClientFilterBuffer->dequeue ();
+      const Event_t *ev = fQClientFilterBuffer->dequeue ();
       if (ev) {
          // There is a danger of artifacts at this point.
          // For example the mouse pointer had left some screen area but

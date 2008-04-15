@@ -1,4 +1,4 @@
-// @(#)root/qt:$Name:  $:$Id: TQtClientFilter.h,v 1.5 2008/04/14 02:35:01 fine Exp $
+// @(#)root/qt:$Id: TQtClientFilter.h,v 1.6 2008/04/15 18:24:06 fine Exp $
 // Author: Valeri Fine   21/01/2002
 
 /*************************************************************************
@@ -30,13 +30,14 @@
 #  endif  /* QT_VERSION */
 #  include <qapplication.h>
 #else
+   class TQtClientWidget;
    class QObject;
 #  if (QT_VERSION > 0x039999)
      class QList<TQtClientWidget*>;
 #  else /* QT_VERSION */
      class QPtrList<TQtClientWidget>;
 #  endif /* QT_VERSION */
-#endif  /* CINT */ 
+#endif  /* CINT */
 
 #include "TQtClientWidget.h"
 
@@ -47,7 +48,7 @@
 
 class TQtNextEventMessage;
 class TQtEventQueue;
-// class TQtClientWidget;
+class TQtClientWidget;
 class TQtPointerGrabber;
 
 class TQtClientFilter : public QObject {
@@ -62,11 +63,13 @@ private:
 protected:
    TQtEventQueue             *fRootEventQueue;
    TQtNextEventMessage       *fNotifyClient;
+#ifndef __CINT__
 #if (QT_VERSION > 0x039999)
    QList<TQtClientWidget*>     fButtonGrabList;
 #else /* QT_VERSION */
    QPtrList<TQtClientWidget>  fButtonGrabList;
 #endif /* QT_VERSION */
+#endif
    static TQtClientWidget    *fgPointerGrabber;
    static TQtClientWidget    *fgButtonGrabber;
    static TQtClientWidget    *fgActiveGrabber;

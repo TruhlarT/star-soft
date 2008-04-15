@@ -1,4 +1,4 @@
-// $Id: TQtClientFilter.cxx,v 1.6 2008/04/14 02:35:04 fine Exp $
+// @(#)root/qt:$Id: TQtClientFilter.cxx,v 1.7 2008/04/15 18:24:08 fine Exp $
 // Author: Valeri Fine   21/01/2003
 /****************************************************************************
 **
@@ -41,6 +41,12 @@
 #include <cassert>
 #include "KeySymbols.h"
 #define QTCLOSE_DESTROY_RESPOND 1
+
+//______________________________________________________________________________
+//
+// QtClientFilter provides QOject event filter to map Qt and  ROOT events 
+//   (see: http://doc.trolltech.com/4.3/qobject.html#installEventFilter )
+//______________________________________________________________________________
 
 ClassImp(TQtClientFilter)
 

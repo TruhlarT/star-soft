@@ -1,6 +1,7 @@
+// @(#)root/qt:$Id: TQtMarker.cxx,v 1.3 2008/04/15 18:24:08 fine Exp $
 // Author: Valeri Fine   21/01/2002
 /****************************************************************************
-** $Id: TQtMarker.cxx,v 1.2 2008/04/14 02:35:04 fine Exp $
+** $Id: TQtMarker.cxx,v 1.3 2008/04/15 18:24:08 fine Exp $
 **
 ** Copyright (C) 2002 by Valeri Fine. Brookhaven National Laboratory.
 **                                    All rights reserved.
