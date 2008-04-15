@@ -258,6 +258,14 @@ if( $qview eq "jobs_browser")  {
     $outSt =$outfile[$outtrans];
      &printFldRow();
 
+  }elsif( $outSt eq "incomplete" or $outSt eq "failed" ) {
+
+    $globSt = $globar[$glStatus];
+    $logSt = $logar[$lgStatus];
+    $inSt = $infile[$intrans]; 
+    $outSt =$outfile[$outtrans];
+     &printTFRow();
+
     }else{
 
     $globSt = $globar[$glStatus];
@@ -453,6 +461,28 @@ END
 
 }
 
+############### 
+sub printTFRow {
+
+print <<END;
+<TR BGCOLOR= lightblue ALIGN=CENTER>
+<TR ALIGN=CENTER>
+<td>$gsite</td>
+<td>$inFile</td>
+<td>$lpath</td>
+<td>$globSt</td>
+<td>$glError</td>
+<td>$logSt</td>
+<td>$inSt</td>
+<td>$outSt</td>
+<td>$recoSt</td>
+<td>$sbtime</td>
+<td>$sdate</td>
+<td>$cretime</td>
+</TR>
+END
+
+}
 
 ############### 
 sub printClRow {
