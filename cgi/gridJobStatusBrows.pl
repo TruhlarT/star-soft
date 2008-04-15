@@ -461,7 +461,7 @@ END
 sub printTFRow {
 
 print <<END;
-<TR BGCOLOR=lightblue ALIGN=CENTER>
+<TR ALIGN=CENTER>
 <td>$gsite</td>
 <td>$inFile</td>
 <td>$lpath</td>
@@ -469,7 +469,7 @@ print <<END;
 <td>$glError</td>
 <td>$logSt</td>
 <td>$inSt</td>
-<td>$outSt</td>
+<td BGCOLOR=lightblue> $outSt</td>
 <td>$recoSt</td>
 <td>$sbtime</td>
 <td>$sdate</td>
