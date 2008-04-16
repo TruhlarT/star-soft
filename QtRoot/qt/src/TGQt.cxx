@@ -1,7 +1,7 @@
-// @(#)root/qt:$Id: TGQt.cxx,v 1.28 2008/04/16 00:59:20 fine Exp $
+// @(#)root/qt:$Id: TGQt.cxx,v 1.29 2008/04/16 15:45:24 fine Exp $
 // Author: Valeri Fine   21/01/2002
 /****************************************************************************
-** $Id: TGQt.cxx,v 1.28 2008/04/16 00:59:20 fine Exp $
+** $Id: TGQt.cxx,v 1.29 2008/04/16 15:45:24 fine Exp $
 **
 ** Copyright (C) 2002 by Valeri Fine. Brookhaven National Laboratory.
 **                                    All rights reserved.
@@ -772,7 +772,7 @@ Bool_t TGQt::Init(void* /*display*/)
 {
    //*-*-*-*-*-*-*-*-*-*-*-*-*-*Qt GUI initialization-*-*-*-*-*-*-*-*-*-*-*-*-*-*
    //*-*                        ========================                      *-*
-   fprintf(stderr,"** $Id: TGQt.cxx,v 1.28 2008/04/16 00:59:20 fine Exp $ this=%p\n",this);
+   fprintf(stderr,"** $Id: TGQt.cxx,v 1.29 2008/04/16 15:45:24 fine Exp $ this=%p\n",this);
 #if QT_VERSION >= 0x40000
 #ifndef R__QTWIN32
    extern void qt_x11_set_global_double_buffer(bool);
@@ -1247,6 +1247,11 @@ void  TGQt::CopyPixmap(int wid, int xpos, int ypos)
    {
       // fprintf(stderr,"x=%d,y=%d: %d %d %d %d\n",xpos,ypos,sr.x(),sr.y(),sr.width(),sr.height());
       QPaintDevice *dst = fSelectedBuffer ? fSelectedBuffer : fSelectedWindow;
+      if (dst == (QPaintDevice *)-1) {
+         Error("TGQt::CopyPixmap","Wrong TGuiFactory implementation was provided. Please, check your plugin settings");
+         assert(dst != (QPaintDevice *)-1);
+      }
+
       bool isPainted = dst->paintingActive ();
       if (isPainted) End();
 #if QT_VERSION < 0x40000
