@@ -1,7 +1,7 @@
-// @(#)root/qt:$Id: TQtMarker.cxx,v 1.3 2008/04/15 18:24:08 fine Exp $
+// @(#)root/qt:$Id: TQtMarker.cxx,v 1.4 2008/04/16 00:59:20 fine Exp $
 // Author: Valeri Fine   21/01/2002
 /****************************************************************************
-** $Id: TQtMarker.cxx,v 1.3 2008/04/15 18:24:08 fine Exp $
+** $Id: TQtMarker.cxx,v 1.4 2008/04/16 00:59:20 fine Exp $
 **
 ** Copyright (C) 2002 by Valeri Fine. Brookhaven National Laboratory.
 **                                    All rights reserved.
@@ -32,7 +32,7 @@ TQtMarker::TQtMarker(int n, TPoint *xy, int type) : fNumNode(n),
                fChain(0), fCindex(0), fMarkerType(type)
 {
   if (type >= 2) {
-#ifdef R__QTWIN32
+#if defined(R__QTWIN32) && (QT_VERSION < 0x40000)
      fChain.setPoints(n,(QCOORD *)xy);
 #else
      fChain.resize(n);

@@ -1,7 +1,7 @@
-// @(#)root/qt:$Id: TGQt.cxx,v 1.27 2008/04/15 18:24:08 fine Exp $
+// @(#)root/qt:$Id: TGQt.cxx,v 1.28 2008/04/16 00:59:20 fine Exp $
 // Author: Valeri Fine   21/01/2002
 /****************************************************************************
-** $Id: TGQt.cxx,v 1.27 2008/04/15 18:24:08 fine Exp $
+** $Id: TGQt.cxx,v 1.28 2008/04/16 00:59:20 fine Exp $
 **
 ** Copyright (C) 2002 by Valeri Fine. Brookhaven National Laboratory.
 **                                    All rights reserved.
@@ -198,38 +198,32 @@ protected:
    inline  Int_t SetMaxId(Int_t newId)
    {
       fIDMax =  newId;
-      fIDTotalMax  = newId>fIDTotalMax ? newId:fIDTotalMax;
+      if (newId>fIDTotalMax) {
+         fIDTotalMax  = newId;
+#if QT_VERSION >= 0x40000
+         fWidgetCollection.resize(fIDTotalMax+1);
+#endif
+      }
       return fIDMax;
    }
 
  public:
    //______________________________________________________________________________
-   TQWidgetCollection () : fWidgetCollection(20) , fIDMax(-1), fIDTotalMax(-1)
+   TQWidgetCollection () : fIDMax(-1), fIDTotalMax(-1)
    {
-       // mark the position below kNone and beteween kNone and kDefault
+       // mark the position before kNone and between kNone and kDefault
        // as "free position" if any
        int kDefault = 1;
-       assert((kNone >= 0) &&  (kDefault > 0 ));
-       Int_t firstRange  = kNone;
-       Int_t secondRange = kDefault;
-       // if (kNone > kDefault ) { firstRange = kDefault; secondRange = kNone;}
-       for (int i=0;i<secondRange;i++)  {
-             if (i == firstRange) continue; // skip it
+       assert(!kNone);
 #if QT_VERSION < 0x40000
-             fWidgetCollection.insert(i,(QPaintDevice *)(-1));
-#else
-             if (fWidgetCollection[i] != (QPaintDevice *)(-1))
-                delete fWidgetCollection[i];
-             fWidgetCollection[i] = (QPaintDevice *)(-1);
+      fWidgetCollection.resize(20);
 #endif
-             fFreeWindowsIdStack.push(i);
-       }
-       SetMaxId (secondRange);
+       SetMaxId (kDefault);
 #if QT_VERSION < 0x40000
        fWidgetCollection.insert(kNone,(QPaintDevice*)0);
        fWidgetCollection.insert(kDefault,(QPaintDevice *)QApplication::desktop());
 #else
-       fWidgetCollection[kNone] = (QPaintDevice*)0;
+       fWidgetCollection[kNone]    = (QPaintDevice*)0;
        fWidgetCollection[kDefault] = (QPaintDevice *)QApplication::desktop();
 #endif
    }
@@ -242,17 +236,18 @@ protected:
          Id = fFreeWindowsIdStack.pop();
          if (Id > fIDMax ) SetMaxId ( Id );
       } else {
-         Id = fWidgetCollection.count()+1;
+         Id = fWidgetCollection.count();
+#if QT_VERSION < 0x40000
+         Id++;
          if (Id >= int(fWidgetCollection.size()) )
               fWidgetCollection.resize(2*Id);
+#endif
          assert(fIDMax <= Id  );
          SetMaxId ( Id );
       }
 #if QT_VERSION < 0x40000
       fWidgetCollection.insert(Id,device);
 #else
-      if (fWidgetCollection[Id] != (QPaintDevice *)(-1)) 
-         delete  fWidgetCollection[Id];
       fWidgetCollection[Id] = device;
 #endif
       // fprintf(stderr," add %p as %d max Id = %d \n", device, Id,fIDMax);
@@ -270,7 +265,7 @@ protected:
              fWidgetCollection.take(intWid)) {
 #else
              fWidgetCollection[intWid]) {
-             fWidgetCollection.replace(intWid,0);
+             fWidgetCollection[intWid] = (QPaintDevice *)(-1);
 #endif
              fFreeWindowsIdStack.push(intWid);
              if (fIDMax == intWid) SetMaxId(--fIDMax);
@@ -290,7 +285,7 @@ protected:
         delete fWidgetCollection.take(Id);
 #else
         delete device;
-        fWidgetCollection.replace(Id,0);
+        fWidgetCollection[Id] = (QPaintDevice *)(-1);
 #endif
         fFreeWindowsIdStack.push(Id);
         if (fIDMax == Id) SetMaxId(--fIDMax);
@@ -777,7 +772,7 @@ Bool_t TGQt::Init(void* /*display*/)
 {
    //*-*-*-*-*-*-*-*-*-*-*-*-*-*Qt GUI initialization-*-*-*-*-*-*-*-*-*-*-*-*-*-*
    //*-*                        ========================                      *-*
-   fprintf(stderr,"** $Id: TGQt.cxx,v 1.27 2008/04/15 18:24:08 fine Exp $ this=%p\n",this);
+   fprintf(stderr,"** $Id: TGQt.cxx,v 1.28 2008/04/16 00:59:20 fine Exp $ this=%p\n",this);
 #if QT_VERSION >= 0x40000
 #ifndef R__QTWIN32
    extern void qt_x11_set_global_double_buffer(bool);
