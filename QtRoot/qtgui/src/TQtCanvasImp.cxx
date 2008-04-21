@@ -1,6 +1,6 @@
 // Author: Valeri Fine   21/01/2002
 /****************************************************************************
-** $Id: TQtCanvasImp.cxx,v 1.13 2007/06/19 21:43:32 fine Exp $
+** $Id: TQtCanvasImp.cxx,v 1.14 2008/04/21 16:07:08 fine Exp $
 **
 ** Copyright (C) 2002 by Valeri Fine. Brookhaven National Laboratory.
 **                                    All rights reserved.
@@ -1171,7 +1171,12 @@ void TQtCanvasImp::SaveFile(const QString &theFile, const QString &selectedFilte
   Info("SaveFile","Selected filter %s \n", (const char *)selectedFilter);
 
   //  define the file extension
-  QString fileNameExtension = QFileInfo(thatFile).extension(FALSE);
+  QString fileNameExtension = 
+#if QT_VERSION < 0x40000
+        QFileInfo(thatFile).extension(FALSE);
+#else
+        QFileInfo(thatFile).suffix();
+#endif
   QString  saveType = fileNameExtension.upper();
 
   if (selectedFilter.contains("*.*")) {
