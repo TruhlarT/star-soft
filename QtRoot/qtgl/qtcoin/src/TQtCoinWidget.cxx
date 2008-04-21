@@ -561,6 +561,7 @@ TQtCoinWidget::TQtCoinWidget(QWidget *parent, COINWIDGETFLAGSTYPE f)
    , fKeyboardHandler(0)
    , fOffScreenBatch(kFALSE)
    , fOffScreenRender(0)
+   , fAddBackground(true)
 {
       memset(fPivotClipPoint,0,sizeof(fPivotClipPoint));
       fMaxSnapFileCounter = CreateSnapShotCounter();
@@ -616,6 +617,7 @@ TQtCoinWidget::TQtCoinWidget(TVirtualPad *pad, const char *title,
    , fKeyboardHandler(0)
    , fOffScreenBatch(kFALSE)
    , fOffScreenRender(0)
+   , fAddBackground(true)
 {
    // printf("TQtCoinWidget::TQtCoinWidget begin Pad=%p\n", pad);
    //Create the default SnapShot file name and type if any
@@ -768,21 +770,34 @@ void TQtCoinWidget::AddRootChild(ULong_t id, EObject3DType type)
        case TGLViewerImp::kSolid:
           //fShapeNode->addChild((SoNode*)id);
           fSolidShapeNode->addChild((SoNode*)id);
-          // printf("TQtCoinWidget::AddRootChild------------SOLID----------  <===\n");
+          //printf("TQtCoinWidget::AddRootChild------------SOLID----------  <===\n");
           break;
        case TGLViewerImp::kWired:
           fWiredShapeNode->addChild((SoNode*)id);
-          // printf("TQtCoinWidget::AddRootChild------------WIRED----------  <===\n");
+          printf("TQtCoinWidget::AddRootChild------------WIRED---------- <===\n");
           break;
        case TGLViewerImp::kRaw:
           fRawShapeNode->addChild((SoNode*)id);          
           break;
        default:
           fSolidShapeNode->addChild((SoNode*)id);
-          // printf("TQtCoinWidget::AddRootChild------------DEFAULT----------  <===\n");
+          //printf("TQtCoinWidget::AddRootChild------------DEFAULT----------  <===\n");
           break;              
     };
    
+    if (fAddBackground) {
+      // read the background object if any
+      TString bkShape = gEnv->GetValue("Gui.InventorBackgroundShape",(const char *)0);
+      // printf("TQtCoinWidget::AddRootChild------------bkShape  %s  <===\n",bkShape.Data());
+      if (!bkShape.IsNull()) {
+         gSystem->ExpandPathName(bkShape);
+         if (!gSystem->AccessPathName(bkShape.Data())) {
+            ReadInputFile((const char*)bkShape);
+            fAddBackground = false;
+         }
+      }
+   }
+
    // Make myCamera see everything.
   // vf --  ViewAll();
 }
@@ -810,6 +825,7 @@ void TQtCoinWidget::Clear(const char *opt)
 	//fShapeNode->removeAllChildren();
 	fSolidShapeNode->removeAllChildren();
    fWiredShapeNode->removeAllChildren();
+   fAddBackground = true;
    // printf("TQtCoinWidget::Clear(const char *opt) ------------SOLID and WIRED----------  <===\n");
    /*
 	fInventorViewer->setSceneGraph(NULL);

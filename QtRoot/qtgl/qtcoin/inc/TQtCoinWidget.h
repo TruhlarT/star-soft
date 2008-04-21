@@ -1,8 +1,8 @@
-// @(#)root/g3d:$Name:  $:$Id: TQtCoinWidget.h,v 1.29 2007/12/13 20:21:41 fine Exp $
+// @(#)root/g3d:$Name:  $:$Id: TQtCoinWidget.h,v 1.30 2008/04/21 23:59:47 fine Exp $
 // Author: Valery Fine      23/05/97
 
 /****************************************************************************
-** $Id: TQtCoinWidget.h,v 1.29 2007/12/13 20:21:41 fine Exp $
+** $Id: TQtCoinWidget.h,v 1.30 2008/04/21 23:59:47 fine Exp $
 **
 ** Copyright (C) 2002 by Valeri Fine. Brookhaven National Laboratory.
 **                                    All rights reserved.
@@ -182,7 +182,7 @@ protected:
    SoEventCallback  *fKeyboardHandler;
    Bool_t            fOffScreenBatch;    // The offscreen (batch) mode
    SoOffscreenRenderer *fOffScreenRender; 
-
+   Bool_t            fAddBackground;
    
 protected:
    friend class TQtCoinViewerImp;
