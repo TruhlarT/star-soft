@@ -1,6 +1,6 @@
 // Author: Valeri Fine   21/01/2002
 /****************************************************************************
-** $Id: TQtCanvasWidget.cxx,v 1.6 2007/11/02 17:48:09 fine Exp $
+** $Id: TQtCanvasWidget.cxx,v 1.7 2008/04/21 16:12:50 fine Exp $
 **
 ** Copyright (C) 2002 by Valeri Fine. Brookhaven National Laboratory.
 **                                    All rights reserved.
@@ -35,7 +35,7 @@ TQtCanvasWidget::TQtCanvasWidget(QWidget* parent, const char* name, Qt::WFlags f
 #if QT_VERSION < 0x40000
    setWFlags(getWFlags () | Qt::WDestructiveClose);
 #else
-   setAttribute(Qt::WA_DeleteOnClose);
+//   setAttribute(Qt::WA_DeleteOnClose);
 #endif
 }
 //_____________________________________________________________________________

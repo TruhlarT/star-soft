@@ -1,6 +1,6 @@
 // Author: Valeri Fine   21/01/2002
 /****************************************************************************
-** $Id: TQtCanvasImp.cxx,v 1.14 2008/04/21 16:07:08 fine Exp $
+** $Id: TQtCanvasImp.cxx,v 1.15 2008/04/21 16:12:45 fine Exp $
 **
 ** Copyright (C) 2002 by Valeri Fine. Brookhaven National Laboratory.
 **                                    All rights reserved.
@@ -61,6 +61,8 @@
 #  include <qscrollview.h>
 #  include <qwhatsthis.h> 
 #else /* QT_VERSION */
+#  include <QTimer>
+#  include <QDebug>
 #  include <q3valuelist.h>
 #  include <QMenu>
 #  include <QImageWriter>
@@ -294,7 +296,11 @@ void TQtCanvasImp::Delete()
       TQtCanvasWidget *wid = fCanvasImpID;
       fCanvasImpID = 0;
       disconnect(wid,SIGNAL(destroyed()),this,SLOT(Disconnect()));
+#if QT_VERSION < 0x40000
       delete wid;
+#else
+      wid->deleteLater(); 
+#endif
    }
 }
 //______________________________________________________________________________
@@ -688,10 +694,22 @@ void TQtCanvasImp::Close()
   // if (fCanvasImpID) fCanvasImpID->topLevelWidget()->close();
   Delete();
 }
+//_____________________________________________________________________________
+void TQtCanvasImp::ReallyDeleteCB()
+{
+   // [slot] to delete the TCanvasImp from the event loop
+   ReallyDelete();
+}
+
 //______________________________________________________________________________
 void TQtCanvasImp::ReallyDelete()
 {
    // Really delete the canvas and this GUI.
+#if ROOT_VERSION_CODE >= ROOT_VERSION(5,18,0)
+      TVirtualPadEditor* gged = TVirtualPadEditor::GetPadEditor(kFALSE);
+   if(gged && gged->GetCanvas() == fCanvas)
+      gged->Hide();
+#endif
    if (fCanvasImpID) fCanvasImpID->hide();
    TVirtualPad *savepad = gPad;
    gPad = 0;        // hide gPad from CINT
@@ -700,14 +718,13 @@ void TQtCanvasImp::ReallyDelete()
 //   Delete();
    TCanvas *c = fCanvas; fCanvas = 0;
    delete c;  // will in turn delete this object
-
 }
 //______________________________________________________________________________
 void TQtCanvasImp::ForceUpdate()
 {
    fprintf(stderr," TQtCanvasImp::ForceUpdate();\n");
-
 }
+
 //______________________________________________________________________________
 #if ROOT_VERSION_CODE > ROOT_VERSION(4,00,4) 
 UInt_t TQtCanvasImp::GetWindowGeometry(Int_t &x, Int_t &y, UInt_t &w, UInt_t &h)
@@ -824,7 +841,9 @@ void TQtCanvasImp::CreateStatusBar(Int_t nparts)
 {
   QStatusBar *statusBar = fCanvasImpID->statusBar();
   Int_t i=0;
+#if QT_VERSION < 0x40000
   fStatusBar.resize(nparts);
+#endif
   for (i=0;i<nparts;i++) {
     QLabel *l = new QLabel(statusBar);
     statusBar->addWidget(l,1,TRUE);
@@ -845,7 +864,9 @@ void TQtCanvasImp::CreateStatusBar(Int_t *parts, Int_t nparts)
   QSplitter *split = new QSplitter(statusBar);
   statusBar->addWidget(split,1,FALSE);
 
+#if QT_VERSION < 0x40000
   fStatusBar.resize(nparts);
+#endif
   Int_t iField=0;
   for (iField=0; iField<nparts; iField++) {
     QLabel *infoBox = new QLabel(split);
@@ -1236,8 +1257,14 @@ void TQtCanvasImp::PrintCB()
 void TQtCanvasImp::CloseCB()
 {
 #if 1   
+  fCanvasImpID->hide();
+#if QT_VERSION < 0x40000
   TCanvas *c = Canvas();
   if (c && c->IsOnHeap() )  delete c;
+#else
+  // qDebug() << "TQtCanvasImp::CloseCB()";
+  QTimer::singleShot(0, this, SLOT(ReallyDeleteCB()));
+#endif
 #else
   Close();
   delete this;
