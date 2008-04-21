@@ -1,6 +1,6 @@
 // Author: Valeri Fine   28/06/2004
 /****************************************************************************
-** $Id: TQtRConfig.h,v 1.2 2006/09/22 16:55:30 fine Exp $
+** $Id: TQtRConfig.h,v 1.3 2008/04/21 15:21:47 fine Exp $
 **
 ** Copyright (C) 2004 by Valeri Fine.  All rights reserved.
 **
@@ -33,11 +33,15 @@
 #undef  R__QTGUITHREAD
 #endif /*R__QTGUITHREAD*/
 
-#if defined(R__UNIX) && !defined(R__MACOSX)
+#ifdef Q_WS_X11
 # define R__QTX11
 #endif
 
-#if defined(R__WIN32)
+#if !defined(R__QTX11) && defined(R__UNIX) && !defined(R__MACOSX)
+# define R__QTX11
+#endif
+
+#if !defined(R__QTX11) &&  defined(R__WIN32)
 # define R__QTWIN32
 #endif
 
