@@ -1,4 +1,4 @@
-// @(#)root/qt:$Name:  $:$Id: GQtGUI.cxx,v 1.14 2008/04/16 00:59:05 fine Exp $
+// @(#)root/qt:$Name:  $:$Id: GQtGUI.cxx,v 1.15 2008/04/21 15:52:21 fine Exp $
 // Author: Valeri Fine   23/01/2003
 
 /*************************************************************************
@@ -2712,15 +2712,13 @@ void         TGQt::Update(Int_t mode)
    // Flush (mode = 0, default) or synchronize (mode = 1) X output buffer.
    // Flush flushes output buffer. Sync flushes buffer and waits till all
    // requests have been processed by X server.
-#ifndef R__QTX11
-   QApplication::flush ();
+   if (mode)
+#ifdef R__QTX11
+      QApplication::syncX (); else
 #else
-   if (mode == 0)
-      QApplication::flush ();
-   if (mode == 1) {
-      QApplication::syncX ();
-   }
+      {}
 #endif
+      QApplication::flush ();
 }
 //------------------------------------------------------------------------------
 //
