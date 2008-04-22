@@ -1,6 +1,6 @@
 // Author: Valeri Fine   21/01/2002
 /****************************************************************************
-** $Id: TQtCanvasImp.h,v 1.5 2007/05/29 18:51:22 fine Exp $
+** $Id: TQtCanvasImp.h,v 1.6 2008/04/22 14:39:00 fine Exp $
 **
 ** Copyright (C) 2002 by Valeri Fine.  All rights reserved.
 **
@@ -27,9 +27,8 @@
 #  include <qptrvector.h>
 #  include <qintdict.h>
 #else /* QT_VERSION */
-#  include <q3ptrvector.h>
-#  include <q3intdict.h>
-//Added by qt3to4:
+#  include <QVector>
+#  include <QMap>
 #  include <QPixmap>
 #  include <QEvent>
 #  include <QMenu>
@@ -82,7 +81,7 @@ private:
    QToolBar   *fFileToolBar;
    QToolBar   *fToolBar;
    QToolBar   *fEditToolBar;
-   Q3IntDict<TQtRootAction> fActions;
+   QMap<int, TQtRootAction*> fActions;
 #endif /* QT_VERSION */
    TVirtualPadEditor   *fEditor;     // pointer to currently loaded pad editor
 
@@ -105,7 +104,7 @@ protected:
 #if QT_VERSION < 0x40000
   QPtrVector<QLabel> fStatusBar;
 #else /* QT_VERSION */
-  Q3PtrVector<QLabel> fStatusBar;
+  QVector<QLabel *> fStatusBar;
 #endif /* QT_VERSION */
   QString     fSaveFileName;
   QString     fSaveType;
@@ -205,6 +204,7 @@ public slots:
    void HelpOnObjectsCB();
    void HelpOnPSCB();
    void HelpOn(const char *title, const char *body);
+   void ReallyDeleteCB();
 
    // ClassDef(TQtCanvasImp,0)  //Win32Canvas class describing main window protocol
 };
