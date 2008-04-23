@@ -1,4 +1,4 @@
-// @(#)root/gui:$Name:  $:$Id: TQtPatternSelectButton.h,v 1.4 2007/07/06 22:27:26 fine Exp $
+// @(#)root/gui:$Name:  $:$Id: TQtPatternSelectButton.h,v 1.5 2008/04/23 23:56:39 fine Exp $
 // Author: Bertrand Bellenot + Fons Rademakers   22/08/02
 
 /*************************************************************************
@@ -151,6 +151,7 @@ public:
    TQtPatternSelectButton(QWidget *p, UInt_t style, Int_t id=-1,TEmitRootSignal *emitter=0);
    TQtPatternSelectButton(QWidget *p, TQtBrush &pattern, Int_t id=-1,TEmitRootSignal *emitter=0);
    TQtPatternSelectButton(QWidget *p, const char *name, Qt::WFlags f = Qt::WStyle_Customize | Qt::WStyle_NoBorder|Qt::WStyle_StaysOnTop);
+   TQtPatternSelectButton(QWidget *p);
          
    virtual ~TQtPatternSelectButton();
 

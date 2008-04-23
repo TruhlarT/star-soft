@@ -1,4 +1,4 @@
-// @(#)root/gui:$Name:  $:$Id: TQtColorSelectButton.h,v 1.5 2007/07/04 20:45:43 fine Exp $
+// @(#)root/gui:$Name:  $:$Id: TQtColorSelectButton.h,v 1.6 2008/04/23 23:56:38 fine Exp $
 // Author: Bertrand Bellenot + Fons Rademakers   22/08/02
 
 /*************************************************************************
@@ -174,6 +174,7 @@ public:
    TQtColorSelectButton(QWidget *p, UInt_t pixel, Int_t id=-1,TColorEmit *emitter=0);
    TQtColorSelectButton(QWidget *p, QColor &color, Int_t id=-1,TColorEmit *emitter=0);
    TQtColorSelectButton(QWidget *p, const char *name, Qt::WFlags f = Qt::WStyle_Customize | Qt::WStyle_NoBorder|Qt::WStyle_StaysOnTop);
+   TQtColorSelectButton(QWidget *p);
    virtual ~TQtColorSelectButton();
 
 

@@ -1,4 +1,4 @@
-// @(#)root/gui:$Name:  $:$Id: TQtColorSelectButton.cxx,v 1.6 2007/08/26 17:47:00 fine Exp $
+// @(#)root/gui:$Name:  $:$Id: TQtColorSelectButton.cxx,v 1.7 2008/04/23 23:56:39 fine Exp $
 // Author: Bertrand Bellenot + Fons Rademakers   22/08/02
 
 /*************************************************************************
@@ -325,6 +325,13 @@ TQtColorSelectButton::TQtColorSelectButton( QWidget *p,  const char *name,Qt::WF
       ,fColor("grey"),fColorEmitter(0)
 {
    if (name) setName(name);
+   CreateWidget();
+}
+
+//________________________________________________________________________________
+TQtColorSelectButton::TQtColorSelectButton( QWidget *p) : QFrame(p)
+      ,fColor("grey"),fColorEmitter(0)
+{
    CreateWidget();
 }
 

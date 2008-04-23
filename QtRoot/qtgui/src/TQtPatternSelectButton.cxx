@@ -1,4 +1,4 @@
-// @(#)root/gui:$Name:  $:$Id: TQtPatternSelectButton.cxx,v 1.6 2007/08/26 17:47:03 fine Exp $
+// @(#)root/gui:$Name:  $:$Id: TQtPatternSelectButton.cxx,v 1.7 2008/04/23 23:56:39 fine Exp $
 // Author: Bertrand Bellenot + Fons Rademakers   22/08/02
 
 /*************************************************************************
@@ -282,6 +282,13 @@ void TQtPatternPopup::languageChange()
     //fPushButton->setText( tr( "pushButton39" ) );
     //QToolTip::add( fPushButton, tr( "Current Brush" ) );
     //QWhatsThis::add( fPushButton, tr( "Your current attribute fill color" ) );
+}
+
+//________________________________________________________________________________
+TQtPatternSelectButton::TQtPatternSelectButton(QWidget *p) : QFrame(p), fBrushEmitter(0)
+{
+   fBrush.SetStyle();
+   CreateWidget();
 }
 //________________________________________________________________________________
 TQtPatternSelectButton::TQtPatternSelectButton(QWidget *p, const char *name, Qt::WFlags f)
