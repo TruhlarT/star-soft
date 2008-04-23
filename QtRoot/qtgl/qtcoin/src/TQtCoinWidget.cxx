@@ -774,7 +774,7 @@ void TQtCoinWidget::AddRootChild(ULong_t id, EObject3DType type)
           break;
        case TGLViewerImp::kWired:
           fWiredShapeNode->addChild((SoNode*)id);
-          printf("TQtCoinWidget::AddRootChild------------WIRED---------- <===\n");
+          // printf("TQtCoinWidget::AddRootChild------------WIRED---------- <===\n");
           break;
        case TGLViewerImp::kRaw:
           fRawShapeNode->addChild((SoNode*)id);          
@@ -784,19 +784,6 @@ void TQtCoinWidget::AddRootChild(ULong_t id, EObject3DType type)
           //printf("TQtCoinWidget::AddRootChild------------DEFAULT----------  <===\n");
           break;              
     };
-   
-    if (fAddBackground) {
-      // read the background object if any
-      TString bkShape = gEnv->GetValue("Gui.InventorBackgroundShape",(const char *)0);
-      // printf("TQtCoinWidget::AddRootChild------------bkShape  %s  <===\n",bkShape.Data());
-      if (!bkShape.IsNull()) {
-         gSystem->ExpandPathName(bkShape);
-         if (!gSystem->AccessPathName(bkShape.Data())) {
-            ReadInputFile((const char*)bkShape);
-            fAddBackground = false;
-         }
-      }
-   }
 
    // Make myCamera see everything.
   // vf --  ViewAll();
@@ -807,6 +794,21 @@ void TQtCoinWidget::ViewAll()
    // Make myCamera see everything.
    if (GetCamera()) {
       GetCamera()->viewAll(fRootNode, fInventorViewer->getViewportRegion());
+      if (fAddBackground) {
+         SoChildList *lc = fFileNode ? fFileNode->getChildren() : 0;
+         if (!lc || (lc->getLength() == 0 ) ) {
+            // read the background object if any
+            TString bkShape = gEnv->GetValue("Gui.InventorBackgroundShape",(const char *)0);
+            // printf("TQtCoinWidget::AddRootChild------------bkShape  %s  <===\n",bkShape.Data());
+            if (!bkShape.IsNull()) {
+               gSystem->ExpandPathName(bkShape);
+               if (!gSystem->AccessPathName(bkShape.Data())) {
+                  ReadInputFile((const char*)bkShape);
+                  fAddBackground = false;
+               }
+            }
+         }
+      }
    }
 }
 
