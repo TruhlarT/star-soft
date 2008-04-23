@@ -1,6 +1,6 @@
 // Author: Valeri Fine   21/01/2002
 /****************************************************************************
-** $Id: TQtCanvasImp.cxx,v 1.15 2008/04/21 16:12:45 fine Exp $
+** $Id: TQtCanvasImp.cxx,v 1.16 2008/04/23 23:55:55 fine Exp $
 **
 ** Copyright (C) 2002 by Valeri Fine. Brookhaven National Laboratory.
 **                                    All rights reserved.
@@ -1460,6 +1460,17 @@ void TQtCanvasImp::GLIVViewCB()
    // static bool loadFlag = TRUE;
    // if (loadFlag) loadFlag = gQt->LoadQt("libRQIVTGL");
 #if  ROOT_VERSION_CODE >= ROOT_VERSION(4,03,3)
+   // Load the Coin library for STAR
+   static TString ivrootDir = "$ROOT/5.99.99/Coin2/.$STAR_HOST_SYS/lib/";
+   if (!ivrootDir.IsNull()) {
+      gSystem->ExpandPathName(ivrootDir);
+      if (!gSystem->AccessPathName(ivrootDir.Data())) {
+         gSystem->Load(ivrootDir+"libSoQt");
+         gSystem->Load(ivrootDir+"libCoin");
+         gSystem->Load(ivrootDir+"libSmallChange");
+         ivrootDir =""; // Try to load it at once
+      }
+   }
    TVirtualViewer3D *viewer = TVirtualViewer3D::Viewer3D(gPad,"oiv");
    if (viewer) {
       // Create Open GL viewer
