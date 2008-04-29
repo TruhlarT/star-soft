@@ -7,6 +7,7 @@
 #include "TH1.h"
 #include "TH2.h"
 #include "TROOT.h"
+#include "TApplication.h"
 
 #include "TFile.h"
 #include "TKey.h"
@@ -31,6 +32,10 @@ HelloFileBrowser::~HelloFileBrowser(){;}
 //__________________________________________________________________
 void HelloFileBrowser::init()
 {
+#if ROOT_VERSION_CODE >= ROOT_VERSION(5,16,0)
+// Make sure the ROOT graphical layer is initialised.
+static struct needgraph {   needgraph () {  TApplication::NeedGraphicsLibs() ;  gApplication->InitializeGraphics();} }  needgraph;
+#endif
 
    // Attach the validator to facilitate the ROOT <tab> completion
    // fTabCompValidator = new TQtTabValidator(comboBox1);
@@ -127,7 +132,11 @@ void HelloFileBrowser::CanvasEvent(TObject *obj, unsigned int /*event*/, TCanvas
   
 
   if  (tipped == widget) {
-      QWhatsThis::showText( QCursor::pos (),tipText); // , globalPosition,tipped);
+     static bool ax = false;     
+     if (obj->IsA() != TAxis::Class() || !ax) {
+        ax = true;
+        QWhatsThis::showText( QCursor::pos (),tipText); // , globalPosition,tipped);
+     }
   } else {
      tipped->setToolTip(tipText);
   }
