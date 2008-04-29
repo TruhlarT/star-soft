@@ -1,4 +1,4 @@
- # .rootrc:$Name:  $:$Id: .rootrc,v 1.2 2006/10/04 21:52:54 fine Exp $
+ # .rootrc:$Name:  $:$Id: .rootrc,v 1.3 2008/04/29 23:04:25 fine Exp $
 # Author: Valeri Fine 10/10/2003
 
 # The custom ROOT env to turn on the Qt-edition of ROOT gui
@@ -8,6 +8,8 @@
 # All others are to be picked from the standard place, namely
 #        $ROOTSYS/etc/system.rootrc
 #
+
+Gui.DefaultFont:            -adobe-helvetica-medium-r-*-*-12-*-*-*-*-*-iso8859-5
 
 
 Plugin.TVirtualPadEditor: Ged TQtGedEditor    QtGed          "TQtGedEditor(TCanvas*)"
