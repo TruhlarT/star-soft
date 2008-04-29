@@ -1,0 +1,14 @@
+# .rootrc:$Name:  $:$Id: rootrcqt,v 1.1 2008/04/29 20:13:29 fine Exp $
+# Author: Valeri Fine 10/10/2003
+
+# The custom ROOT env to turn on the Qt-edition of ROOT gui
+#  see: http://root.bnl.gov
+#
+# One has to define only the custom parameters.
+# All others are to be picked from the standard place, namely
+#        $ROOTSYS/etc/system.rootrc
+#
+
+# GUI specific settings
+Gui.Backend:                qt
+Gui.Factory:                qt
