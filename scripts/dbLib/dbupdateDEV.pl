@@ -24,8 +24,8 @@ my $TOP_DIRD = "/star/rcf/test/dev/";
 my @dir_year = ("year_2001", "year_1h", "year_2003", "year_2004", "year_2005", "year_2006", "year_2007", "year_2008");
 my @node_dir = ("trs_sl302", "trs_sl302_opt", "trs_sl302.ittf");
 my @node_daq = ("daq_sl302", "daq_sl302_opt","daq_sl302.ittf","daq_sl302.ittf_opt");
-my @hc_dir = ("hc_lowdensity", "hc_standard", "hc_highdensity", "peripheral","pp_minbias","dau_minbias","auau_minbias","auau_central","cucu200_minbias","cucu62_minbias");
-my @daq_dir = ("minbias", "central", "ppMinBias", "dAuMinBias", "AuAuMinBias", "AuAu_prodHigh","AuAu_prodLow","prodPP","CuCu200_MinBias","CuCu200_HighTower","CuCu62_MinBias","CuCu22_MinBias","ppProduction","ppProdLong","ppProdTrans","2007ProductionMinBias","production_dAu2008","CuCu200_embedTpc","CuCu200_embedTpcSvt");
+my @hc_dir = ("hc_lowdensity", "hc_standard", "hc_highdensity", "peripheral","pp_minbias","dau_minbias","auau_minbias","auau_central","cucu200_minbias","cucu62_minbias","auau200_central");
+my @daq_dir = ("minbias", "central", "ppMinBias", "dAuMinBias", "AuAuMinBias", "AuAu_prodHigh","AuAu_prodLow","prodPP","CuCu200_MinBias","CuCu200_HighTower","CuCu62_MinBias","CuCu22_MinBias","ppProduction","ppProdLong","ppProdTrans","2007ProductionMinBias","production_dAu2008","ppProduction2008","CuCu200_embedTpc","CuCu200_embedTpcSvt");
 
 my @OUT_DIR;
 my @OUTD_DIR;
@@ -75,7 +75,8 @@ my $thistime;
  
 ##### setup output directories for DEV with thisDay
 
-for ($i = 0; $i < scalar(@node_dir) - 1; $i++) {
+ for ($i = 0; $i < scalar(@node_dir) - 1; $i++) {
+
       for ($ll = 0; $ll < scalar(@hc_dir) - 4; $ll++) {
    $OUT_DIR[$ii] = $TOP_DIRD . $node_dir[$i] . "/" . $testDay . "/". $dir_year[0] . "/" . $hc_dir[$ll];
     print "Output Dir for DEV :", $OUT_DIR[$ii], "\n";
@@ -87,40 +88,45 @@ for ($i = 0; $i < scalar(@node_dir) - 1; $i++) {
 
   $OUT_DIR[$ii] = $TOP_DIRD . $node_dir[$i] . "/" . $testDay . "/". $dir_year[2] . "/" . $hc_dir[5];
   print "Output Dir for DEV :", $OUT_DIR[$ii], "\n";
-    $ii++;
+   $ii++;
 
-    for ($ik = 6; $ik < 8; $ik++) { 
+     for ($ik = 6; $ik < 8; $ik++) { 
 
   $OUT_DIR[$ii] = $TOP_DIRD . $node_dir[$i] . "/" . $testDay . "/". $dir_year[3] . "/" . $hc_dir[$ik];
   print "Output Dir for DEV :", $OUT_DIR[$ii], "\n";
     $ii++;
- }
+  }
 
-    for ($ik = 8; $ik < 10; $ik++) { 
+     for ($ik = 8; $ik < 10; $ik++) { 
 
  $OUT_DIR[$ii] = $TOP_DIRD . $node_dir[$i] . "/" . $testDay . "/". $dir_year[4] . "/" . $hc_dir[$ik];
   print "Output Dir for DEV :", $OUT_DIR[$ii], "\n";
     $ii++;
-
- }
-
-}
+    }
+  }
 
       for ($ik = 6; $ik < 8; $ik++) { 
 
- $OUT_DIR[$ii] = $TOP_DIRD . $node_dir[2] . "/" . $testDay . "/". $dir_year[3] . "/" . $hc_dir[$ik];
+  $OUT_DIR[$ii] = $TOP_DIRD . $node_dir[2] . "/" . $testDay . "/". $dir_year[3] . "/" . $hc_dir[$ik];
   print "Output Dir for DEV :", $OUT_DIR[$ii], "\n";
     $ii++;
-}
+   }
 
-      for ($ik = 8; $ik < 10; $ik++) { 
+     for ($ik = 8; $ik < 10; $ik++) { 
 
-  $OUT_DIR[$ii] = $TOP_DIRD . $node_dir[2] . "/" . $testDay . "/". $dir_year[4] . "/" . $hc_dir[$ik];
+$OUT_DIR[$ii] = $TOP_DIRD . $node_dir[2] . "/" . $testDay . "/". $dir_year[4] . "/" . $hc_dir[$ik];
   print "Output Dir for DEV :", $OUT_DIR[$ii], "\n";
     $ii++;
- }
+  }
 
- 
+     for ($ik = 10; $ik < 11; $ik++) { 
+
+$OUT_DIR[$ii] = $TOP_DIRD . $node_dir[2] . "/" . $testDay . "/". $dir_year[6] . "/" . $hc_dir[$ik];
+  print "Output Dir for DEV :", $OUT_DIR[$ii], "\n";
+    $ii++;
+  }
+
+   
 my $jj = 0;
 #for ($i = 0; $i < scalar(@node_daq); $i++) {
 
@@ -160,7 +166,7 @@ my $jj = 0;
    print "Output Dir for DEV :", $OUT_DIR[$ii], "\n";
         $ii++;
    } 
-   for ($ik = 16; $ik < 17; $ik++) { 
+   for ($ik = 16; $ik < 18; $ik++) { 
     $OUT_DIR[$ii] = $TOP_DIRD . $node_daq[$i] . "/" . $testDay . "/". $dir_year[7] . "/" . $daq_dir[$ik];
    print "Output Dir for DEV :", $OUT_DIR[$ii], "\n";
         $ii++;
@@ -174,7 +180,7 @@ my $jj = 0;
         $ii++;
    }
 
-   for ($ik = 17; $ik < 19; $ik++) { 
+   for ($ik = 18; $ik < 20; $ik++) { 
   $OUT_DIR[$ii] = $TOP_DIRD . $node_daq[2] . "/" . $testDay . "/". $dir_year[4] . "/" . $daq_dir[$ik];
    print "Output Dir for DEV :", $OUT_DIR[$ii], "\n";   
    $ii++;
@@ -228,6 +234,13 @@ $OUT_DIR[$ii] = $TOP_DIRD . $node_dir[2] . "/" . $beforeDay . "/". $dir_year[4] 
     $ii++;
   }
 
+     for ($ik = 10; $ik < 11; $ik++) { 
+
+$OUT_DIR[$ii] = $TOP_DIRD . $node_dir[2] . "/" . $testDay . "/". $dir_year[6] . "/" . $hc_dir[$ik];
+  print "Output Dir for DEV :", $OUT_DIR[$ii], "\n";
+    $ii++;
+  }
+
 $jj = 0;
 
 #for ($i = 0; $i < scalar(@node_daq); $i++) {
@@ -267,7 +280,7 @@ $jj = 0;
    print "Output Dir for DEV :", $OUT_DIR[$ii], "\n";
         $ii++;
    } 
-   for ($ik = 16; $ik < 17; $ik++) { 
+   for ($ik = 16; $ik < 18; $ik++) { 
     $OUT_DIR[$ii] = $TOP_DIRD . $node_daq[$i] . "/" . $beforeDay . "/". $dir_year[7] . "/" . $daq_dir[$ik];
    print "Output Dir for DEV :", $OUT_DIR[$ii], "\n";
         $ii++;
@@ -281,7 +294,7 @@ $jj = 0;
         $ii++;
    }
 
-   for ($ik = 17; $ik < 19; $ik++) { 
+   for ($ik = 18; $ik < 20; $ik++) { 
    $OUT_DIR[$ii] = $TOP_DIRD . $node_daq[2] . "/" . $beforeDay . "/". $dir_year[4] . "/" . $daq_dir[$ik];
    print "Output Dir for DEV :", $OUT_DIR[$ii], "\n";   
    $ii++;
