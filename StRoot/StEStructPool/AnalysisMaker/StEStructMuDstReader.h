@@ -1,6 +1,6 @@
 /**********************************************************************
  *
- * $Id: StEStructMuDstReader.h,v 1.7 2006/04/11 17:50:48 prindle Exp $
+ * $Id: StEStructMuDstReader.h,v 1.8 2008/05/01 23:35:57 prindle Exp $
  *
  * Author: Jeff Porter 
  *
@@ -33,6 +33,7 @@ public:
   StEStructTrackCuts* mTCuts; //!
   bool mInChain;
   bool mAmDone;
+  bool mUseGlobalTracks;
   int  mNumGoodTracks;//!
   int  mhasdEdxCuts;
   TH2F*  dEdxBefore;
@@ -47,6 +48,7 @@ public:
   void setMuDstMaker(StMuDstMaker* MuDstMaker, bool inChain=true);
   void setEventCuts(StEStructEventCuts* cuts);
   void setTrackCuts(StEStructTrackCuts* cuts);
+  void setUseGlobalTracks(bool global=false);
   bool setInChain(bool inChain);
   bool InChain();
   bool hasMaker();
@@ -74,6 +76,10 @@ inline bool StEStructMuDstReader::done(){ return mAmDone; };
 /***********************************************************************
  *
  * $Log: StEStructMuDstReader.h,v $
+ * Revision 1.8  2008/05/01 23:35:57  prindle
+ *   Found that for global tracks we sometimes have global dca = (0,0,0)
+ * Now use dca() when we are using global tracks.
+ *
  * Revision 1.7  2006/04/11 17:50:48  prindle
  *   Remove inChain from constructor arguments (no longer used in macro)
  *
