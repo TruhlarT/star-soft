@@ -1,8 +1,8 @@
-// @(#)root/g3d:$Name:  $:$Id: TQtCoinViewerImp.h,v 1.21 2007/06/26 22:26:00 fine Exp $
+// @(#)root/g3d:$Name:  $:$Id: TQtCoinViewerImp.h,v 1.22 2008/05/01 23:25:34 fine Exp $
 // Author: Valery Fine      23/05/97
 
 /****************************************************************************
-** $Id: TQtCoinViewerImp.h,v 1.21 2007/06/26 22:26:00 fine Exp $
+** $Id: TQtCoinViewerImp.h,v 1.22 2008/05/01 23:25:34 fine Exp $
 **
 ** Copyright (C) 2002 by Valeri Fine. Brookhaven National Laboratory.
 **                                    All rights reserved.
@@ -219,6 +219,7 @@ public:
      virtual void SetFullScreenView(bool);
      virtual void ViewAll();
      virtual void WantRootContextMenuCB(bool on);
+     virtual void WantClipFileNodeMenuCB(bool);
      virtual void AboutCB();
      virtual void HelpCB();
   signals:

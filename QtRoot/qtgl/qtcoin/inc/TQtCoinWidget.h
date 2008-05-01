@@ -1,8 +1,8 @@
-// @(#)root/g3d:$Name:  $:$Id: TQtCoinWidget.h,v 1.30 2008/04/21 23:59:47 fine Exp $
+// @(#)root/g3d:$Name:  $:$Id: TQtCoinWidget.h,v 1.31 2008/05/01 23:25:34 fine Exp $
 // Author: Valery Fine      23/05/97
 
 /****************************************************************************
-** $Id: TQtCoinWidget.h,v 1.30 2008/04/21 23:59:47 fine Exp $
+** $Id: TQtCoinWidget.h,v 1.31 2008/05/01 23:25:34 fine Exp $
 **
 ** Copyright (C) 2002 by Valeri Fine. Brookhaven National Laboratory.
 **                                    All rights reserved.
@@ -134,7 +134,7 @@ private:
    void                   *fPickedObject;
    float                   fPivotClipPoint[3];
    bool                    fEnableObjectPick;
-   
+
    TQtCoinWidget(const TQtCoinWidget&);
    void operator=(const TQtCoinWidget&)  {}
 protected:
@@ -183,7 +183,8 @@ protected:
    Bool_t            fOffScreenBatch;    // The offscreen (batch) mode
    SoOffscreenRenderer *fOffScreenRender; 
    Bool_t            fAddBackground;
-   
+   unsigned int      fClipMask;// The mask to indicate which kind of shape can be clipped
+
 protected:
    friend class TQtCoinViewerImp;
    void CreateViewer(const QString &title);
@@ -261,7 +262,7 @@ public:
    const QString &SaveFilePattern()   const { return fSaveFileMoviePattern; }
    SoEventCallback *KeyboardHandler() const { return fKeyboardHandler;      }
    static void RotateCamera(SoCamera * cam,const SbVec3f & aroundaxis,const float delta);
-
+   unsigned int ClipMask() const { return fClipMask; }
 #ifndef __CINT__
   public slots:
      //virtual void ActivateSelectorWidgetCB(bool);
@@ -285,8 +286,9 @@ public:
      virtual void SetClipPlaneMan(bool on=kTRUE,float x=1.0f, float y=0.0f, float z=0.0f);
      virtual void SetOffScreen(Bool_t offscreen=kTRUE);
      virtual void SetUpdatesEnabled(bool enable);
-     virtual void SetFileName(const QString &fileName);     
-     virtual void SetFileType(const QString &fileType);     
+     virtual void SetFileName(const QString &fileName);
+     virtual void SetFileType(const QString &fileType);
+     virtual void SetClipMask(unsigned int mask);
      virtual void ClearCB();
      virtual void SaveAsCB();
      //virtual void SelectEventCB(bool on);

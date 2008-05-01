@@ -562,10 +562,32 @@ TQtCoinWidget::TQtCoinWidget(QWidget *parent, COINWIDGETFLAGSTYPE f)
    , fOffScreenBatch(kFALSE)
    , fOffScreenRender(0)
    , fAddBackground(true)
+   , fClipMask(0)
 {
       memset(fPivotClipPoint,0,sizeof(fPivotClipPoint));
       fMaxSnapFileCounter = CreateSnapShotCounter();
 }
+//______________________________________________________________________________
+void TQtCoinWidget::SetClipMask(unsigned int mask)
+{
+    if (fFileNode && (mask != fClipMask))  {
+       // swap the parent node for the fFileNode if needed
+       SoSeparator *toremove=fShapeNode;
+       SoSeparator *toadd   =fClippingShapeNode;
+       if (!mask) {
+          toremove = toadd;
+          toadd    = fShapeNode;
+       }
+       // "ref()" to protect the object from the destruction 
+       // between "remove" and "add" actions
+       fFileNode->ref(); 
+       toremove->removeChild(fFileNode);
+       toadd->addChild(fFileNode);
+       fFileNode->unref();
+    }
+    fClipMask = mask; 
+}
+
 //______________________________________________________________________________
 void TQtCoinWidget::SetPad(TVirtualPad *pad)
 {
@@ -618,6 +640,7 @@ TQtCoinWidget::TQtCoinWidget(TVirtualPad *pad, const char *title,
    , fOffScreenBatch(kFALSE)
    , fOffScreenRender(0)
    , fAddBackground(true)
+   , fClipMask(0)
 {
    // printf("TQtCoinWidget::TQtCoinWidget begin Pad=%p\n", pad);
    //Create the default SnapShot file name and type if any
@@ -1090,10 +1113,14 @@ void TQtCoinWidget::ReadInputFile(QString fileName)
        if ( viewDecor.openFile(info.fileName() ) ) {
           SoSeparator *extraObjects = SoDB::readAll(&viewDecor);
           if (extraObjects) {
-	           printf("readings ... %s from %s\n", (const char *)info.fileName(), (const char*)info.dirPath());
+              printf("readings ... %s from %s\n", (const char *)info.fileName(), (const char*)info.dirPath());
               if (!fFileNode) {
                  fFileNode = new SoSeparator();
-                 fShapeNode->addChild(fFileNode);
+                 if (fClipMask) {
+                    fClippingShapeNode->addChild(fFileNode);
+                 } else {
+                    fShapeNode->addChild(fFileNode);
+                 }
               }
               fFileNode->addChild(extraObjects);
           }
@@ -1722,27 +1749,28 @@ void TQtCoinWidget::CreateViewer( const QString &/*name*/)
     //               |----------+
     //               |          |  fShapeNode
     //               |          |-------------+
-    //               | SelectCB               | ShapeHints
+    //               | SelectCB               |  Wired
     //               |---------               |------------
     //               |                        |
-    //               |DeselectCB              |  fileNode
+    //               |DeselectCB              |  FileNode
     //               |----------              |------------
-    //               |
-    //               |PickFilterCB    
-    //               |---------- 
-    //               |
-    //               | MovieCB    
-    //               |---------- 
-    //               |
-    //               | fAxes    
-    //               |---------- 
-    //               |
-    //               | fAnnotation    
-    //               |------------- 
-    //                           |
-    //                           |  camera
-    //                           |----------
-    //                           |
+    //               |                        |
+    //               |                        |   Wired
+    //               |PickFilterCB            |-----------
+    //               |----------              |
+    //               |                        |  Clipped
+    //               | MovieCB                |----------+
+    //               |----------              |          |
+    //               |                        |          |  Raw shapes
+    //               | fAxes                  |          |---------------
+    //               |----------              |          |
+    //               |                        |          |  Solid shapes
+    //               | fAnnotation            |          |--------------+
+    //               |-------------           |                         | ShapeHints
+    //                           |            |                         |------------
+    //                           |  camera    |                mask     |
+    //                           |----------  |  File node   < --- >    | File node
+    //                           |            |------------             |-------------
     //                           |  fFooterText
     //                           |-------------
     // 

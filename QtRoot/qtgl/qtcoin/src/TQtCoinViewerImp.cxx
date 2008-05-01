@@ -764,6 +764,13 @@ void TQtCoinViewerImp::WantRootContextMenuCB(bool on)
 }
 
 //______________________________________________________________________________
+void TQtCoinViewerImp::WantClipFileNodeMenuCB(bool on)
+{
+  // Allow clip the "file node" with the geometry decoration
+  if (fCoinWidget) fCoinWidget->SetClipMask(on);
+}
+
+//______________________________________________________________________________
 void TQtCoinViewerImp::AboutCB()
 { 
    QMessageBox::aboutQt(0);
@@ -1082,7 +1089,7 @@ void TQtCoinViewerImp::MakeMenu()
  */
    // Create a "Context Menu for  the selected object" action
 #if QT_VERSION < 0x40000
-   QAction *viewContextMenuAction =  new QAction("ContexteMenu", "Context menu", CTRL+Key_I, this, "contextmenu" );
+   QAction *viewContextMenuAction =  new QAction("ContextMenu", "Context menu", CTRL+Key_I, this, "contextmenu" );
    viewContextMenuAction->setToggleAction(true);
 #else 
    QAction *viewContextMenuAction =  new QAction("Context menu",this);
@@ -1092,6 +1099,19 @@ void TQtCoinViewerImp::MakeMenu()
    connect ( viewContextMenuAction, SIGNAL( toggled(bool)  ) , this, SLOT( WantRootContextMenuCB(bool) ) );
    const char * viewContextMenuActionText  = "Show the ROOT context menu for the selected ROOT object";
    viewContextMenuAction->setWhatsThis( viewContextMenuActionText );
+
+   // Create a "Context Menu for  the selected object" action
+#if QT_VERSION < 0x40000
+   QAction *clipDecorationMenuAction =  new QAction("ClipDecorationMenu", "Clip &decoration", CTRL+Key_D, this, "clipdecorationmenu" );
+   clipDecorationMenuAction->setToggleAction(true);
+#else 
+   QAction *clipDecorationMenuAction =  new QAction("Clip &Decoration",this);
+   clipDecorationMenuAction->setShortcut(Qt::CTRL+Qt::Key_D);    
+   clipDecorationMenuAction->setCheckable(true);
+#endif 
+   connect ( clipDecorationMenuAction, SIGNAL( toggled(bool)  ) , this, SLOT( WantClipFileNodeMenuCB(bool) ) );
+   const char * clipDecorationMenuActionText  = "Allow clipping the decoration geometry loaded from the extra IV file";
+   viewContextMenuAction->setWhatsThis( clipDecorationMenuActionText );
 
    QMenuBar   *mainMenu = menuBar();
 
@@ -1187,6 +1207,10 @@ void TQtCoinViewerImp::MakeMenu()
     viewContextMenuAction->setOn( false );
     viewContextMenuAction->setEnabled (true);
     
+    clipDecorationMenuAction->addTo(optionMenu);
+    clipDecorationMenuAction->setOn( false );
+    clipDecorationMenuAction->setEnabled (true);
+    
 #endif
 // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
  //  helpMenu
@@ -1266,6 +1290,10 @@ void TQtCoinViewerImp::MakeMenu()
     viewContextMenuAction->setOn( false );
     viewContextMenuAction->setEnabled (true);
     
+    clipDecorationMenuAction->addTo(optionMenu);
+    clipDecorationMenuAction->setOn( false );
+    clipDecorationMenuAction->setEnabled (true);
+
 #endif
 // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
  //  helpMenu
