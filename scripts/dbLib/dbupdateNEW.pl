@@ -1328,6 +1328,8 @@ my $cput = 0;
 
             my  $string = $logfile[$num_line];
             chop $string;
+
+             if($string =~  /track nodes:/) {
               @word_tr = split /:/,$string;
               @nmb =  split /</,$word_tr[2];
               $no_tracks = $nmb[0];
@@ -1385,6 +1387,7 @@ my $cput = 0;
 
          }
       }
+    }
 
               $no_prtracks_1vtx = $no_prtracks[0];
               $no_prtrck_nfit15_1vtx  = $no_prtrck_nfit15[0];
@@ -1394,9 +1397,7 @@ my $cput = 0;
               $tot_prtracks_1vtx += $no_prtracks_1vtx;
               $tot_prtrck_nfit15_1vtx += $no_prtrck_nfit15_1vtx;
 
-
   }
- }   
 
 #  check if job crashed due to break_buss_error
       if($line =~ /bus error/) {
@@ -1435,15 +1436,18 @@ my $cput = 0;
          }
 ###### 
      
-       }
+      }
  
-     }
- 
-      close (LOGFILE);
+  }
 
-      $EvDone = $no_event;
+       $EvDone = $no_event;
       $EvCom = $EvDone - $EvSkip;
 
+  if($embflag == 1) {
+      $mCPU = $cput/$EvDone;
+      $mRealT = $rlt/$EvDone;
+
+ }
 
 
 ##### get CPU and Real Time per event
@@ -1490,7 +1494,7 @@ my $cput = 0;
     $avr_v0_usb = $tot_vertices/$nevt;
     $avr_kink_usb = $tot_knvertices/$nevt;
     $avr_xi_usb =$tot_xivertices/$nevt ; 
-
+   }
 
 # print "Size of executable:  ", $EvDone, "  ", $no_event,"  ",$maker_size[$EvCom  -1], "\n"; 
 
