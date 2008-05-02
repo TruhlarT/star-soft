@@ -153,28 +153,40 @@ struct JFileAttr => {
 };
 
  struct LFileAttr => {
-        jbId     => '$',
-        pth      => '$',
-        lbT      => '$', 
-        lbL      => '$',
-        rtL      => '$',
-        lgName   => '$',
-        crTm     => '$',
-        chOpt    => '$',
-        errMs    => '$',
-        jbSt     => '$',      
-        evDn     => '$',
-        evSkp    => '$',
-        memF     => '$',
-        memL     => '$',
-        jCPU     => '$',
-        jRT      => '$',
-        avTr     => '$',
-        avPrTr   => '$',
-        avVrt    => '$',
-        avXi     => '$',
-        avKn     => '$',
-        ndID     => '$', 
+        jbId      => '$',
+        pth       => '$',
+        lbT       => '$', 
+        lbL       => '$',
+        rtL       => '$',
+        lgName    => '$',
+        crTm      => '$',
+        chOpt     => '$',
+        errMs     => '$',
+        jbSt      => '$',      
+        evDn      => '$',
+        evSkp     => '$',
+        memF      => '$',
+        memL      => '$',
+        jCPU      => '$',
+        jRT       => '$',
+        avTr      => '$',
+        avPrTr    => '$',
+        avVrt     => '$',
+        avTrGd    => '$',
+        avPrTrGd  => '$',
+        avPrv1    => '$',
+        avPrfitv1 => '$',
+        avXi      => '$',
+        avKn      => '$',
+        prctus    => '$',
+        avTrus    => '$',
+        avTrfitus => '$',
+        avPrv1us  => '$',
+        avPrfitv1us => '$',
+        avV0us    => '$',
+        avXius    => '$',
+        avKnus    => '$',
+        ndID      => '$', 
 };        
 
  my $fullyear;
@@ -223,6 +235,10 @@ struct JFileAttr => {
  my $tot_tracks = 0;
  my $tot_vertices = 0;
  my $tot_prtracks = 0;
+ my $tot_trck_nfit15 = 0;
+ my $tot_prtrck_hfit15 = 0;
+ my $tot_prtracks_1vtx = 0;
+ my $tot_prtrck_nfit15_1vtx = 0;
  my $tot_knvertices = 0;
  my $tot_xivertices = 0;
  my $avr_tracks = 0;
@@ -232,8 +248,16 @@ struct JFileAttr => {
  my $avr_xivertices = 0;
  my $avr_trck_nfit15 = 0; 
  my $avr_prtrck_nfit15 = 0; 
- my $tot_trck_nfit15 = 0;
- my $tot_prtrck_hfit15 = 0;
+ my $avr_prtracks_1vtx = 0;
+ my $avr_prtrck_nfit15_1vtx = 0;
+ my $avr_trk_usb = 0;
+ my $avr_prtrk_usb= 0;
+ my $avr_trkfit15_usb = 0;
+ my $avr_prtrkfit15_usb = 0;
+ my $avr_v0_usb = 0;
+ my $avr_kink_usb = 0;
+ my $avr_xi_usb = 0;
+
  my $node_name = "n/\a";
  my $rootL = "n/\a"; 
  my $Err_messg = "none";
@@ -340,13 +364,16 @@ my @files;
  $avr_xivertices = 0;
  $avr_trck_nfit15 = 0; 
  $avr_prtrck_nfit15 = 0; 
- $tot_trck_nfit15 = 0;
- $tot_prtrck_hfit15 = 0;
- $tot_tracks = 0;
- $tot_vertices = 0;
- $tot_prtracks = 0;
- $tot_knvertices = 0;
- $tot_xivertices = 0;
+ $avr_prtracks_1vtx = 0;
+ $avr_prtrck_nfit15_1vtx = 0;
+ $avr_trk_usb = 0;
+ $avr_prtrk_usb= 0;
+ $avr_trkfit15_usb = 0;
+ $avr_prtrkfit15_usb = 0;
+ $avr_v0_usb = 0;
+ $avr_kink_usb = 0;
+ $avr_xi_usb = 0;
+
  $node_name = "n/a";
  $libL = "n/a";
  $libV = "n/a";  
@@ -417,6 +444,19 @@ my @files;
       ($$fObjAdr)->avVrt($avr_vertices);
       ($$fObjAdr)->avXi($avr_xivertices);
       ($$fObjAdr)->avKn($avr_knvertices);
+      ($$fObjAdr)->avTrGd($avr_trck_nfit15);
+      ($$fObjAdr)->avPrTr($avr_prtrck_nfit15);
+      ($$fObjAdr)->avPrv1($avr_prtracks_1vtx);
+      ($$fObjAdr)->avPrfitv1($avr_prtrck_nfit15_1vtx);
+      ($$fObjAdr)->prctus($perct_usb);
+      ($$fObjAdr)->avTrus($avr_trk_usb);
+      ($$fObjAdr)->avPrv1us($avr_prtrk_usb);
+      ($$fObjAdr)->avTrfitus($avr_trkfit15_usb);
+      ($$fObjAdr)->avPrfitv1us($avr_prtrkfit15_usb);
+      ($$fObjAdr)->avV0us($avr_v0_usb);
+      ($$fObjAdr)->avKnus($avr_kink_usb);
+      ($$fObjAdr)->avXius($avr_xi_usb);
+
       ($$fObjAdr)->ndID($node_name); 
       $testJobStFiles[$nJobStFiles] = $fObjAdr;
       $nJobStFiles++;
@@ -479,11 +519,18 @@ my @files;
  $avr_prtracks = 0;
  $avr_knvertices = 0;
  $avr_xivertices = 0;
- $tot_tracks = 0;
- $tot_vertices = 0;
- $tot_prtracks = 0;
- $tot_knvertices = 0;
- $tot_xivertices = 0;
+ $avr_trck_nfit15 = 0;
+ $avr_prtrck_nfit15 = 0;
+ $avr_prtracks_1vtx = 0;
+ $avr_prtrck_nfit15_1vtx = 0;
+ $avr_trk_usb = 0;
+ $avr_prtrk_usb= 0;
+ $avr_trkfit15_usb = 0;
+ $avr_prtrkfit15_usb = 0;
+ $avr_v0_usb = 0;
+ $avr_kink_usb = 0;
+ $avr_xi_usb = 0;
+
  $node_name = "n/a";
  $libL = "n/a";
  $libV = "n/a";  
@@ -519,6 +566,17 @@ my @files;
     $avr_vertices = ($$newjobFile)->avVrt;
     $avr_xivertices = ($$newjobFile)->avXi;
     $avr_knvertices = ($$newjobFile)->avKn;
+    $avr_trck_nfit15 =  ($$newjobFile)->avTrGd;
+    $avr_prtrck_nfit15 =  ($$newjobFile)->avPrfitv1;
+    $avr_prtracks_1vtx = ($$newjobFile)->avPrv1;
+    $perct_usb = ($$newjobFile)->prctus;
+    $avr_trk_usb = ($$newjobFile)->avTrus;
+    $avr_prtrk_usb= ($$newjobFile)->avPrv1us;
+    $avr_trkfit15_usb = ($$newjobFile)->avTrfitus;
+    $avr_prtrkfit15_usb = ($$newjobFile)->avPrfitv1us;
+    $avr_v0_usb = ($$newjobFile)->avV0us;
+    $avr_kink_usb = ($$newjobFile)->avKnus;
+    $avr_xi_usb = ($$newjobFile)->avXius;
     $node_name = ($$newjobFile)->ndID; 
 
     $fullName = $mpath ."/" .$logName;
@@ -1068,6 +1126,14 @@ sub fillJSTable {
     $sql.="avg_no_tracksnfit15='$avr_trck_nfit15',";
     $sql.="avg_no_XiVrt='$avr_xivertices',";
     $sql.="avg_no_KinkVrt='$avr_knvertices',";
+    $sql.="percent_of_usable_evt='$perct_usb',";
+    $sql.="avgNoTrack_usbevt='$avr_trk_usb',";
+    $sql.="avgNoTrackNfit15_usbevt='$avr_trkfit15_usb',";
+    $sql.="avgNoPrTrack_1vtx_usbevt='$avr_prtrk_usb',";
+    $sql.="avgNoPrTrackNfit15_1vtx_usbevt='$avr_prtrkfit15_usb',";
+    $sql.="avgNoV0_usbevt='$avr_v0_usb',";
+    $sql.="avgNoXi_usbevt='$avr_xi_usb',";
+    $sql.="avgNoKink_usbevt='$avr_kink_usb',";
     $sql.="nodeID='$node_name',"; 
     $sql.="avail='$mavail'"; 
 
@@ -1103,6 +1169,8 @@ sub  updateJSTable {
  my @no_prtracks = ();
  my $no_trck_nfit15 = 0; 
  my @no_prtrck_nfit15 = ();
+ my $no_prtracks_1vtx = 0 ;
+ my $no_prtrck_nfit15_1vtx = 0;
  my @word_tr;
   my @nmb = ();
  my @nmbx = ();
@@ -1114,16 +1182,19 @@ sub  updateJSTable {
  my $ij = 0;
  my $end_line; 
  my $npr = 0;
+ my $nevt = 0;
  my $max_npr = 0;
  my $max_npr_nfit15 = 0;
 
     $tot_tracks = 0;
     $tot_vertices = 0;
     $tot_prtracks = 0;
-    $tot_knvertices = 0;
-    $tot_xivertices = 0;
     $tot_trck_nfit15 = 0;
     $tot_prtrck_nfit15 = 0;
+    $tot_prtracks_1vtx = 0;
+    $tot_prtrck_nfit15_1vtx = 0;
+    $tot_knvertices = 0;
+    $tot_xivertices = 0;
     $no_event = 0;
     $mCPU = 0;
     $mRealT = 0;
@@ -1264,10 +1335,24 @@ my $cput = 0;
               @nmb =  split /</,$word_tr[2];
               $no_tracks = $nmb[0];
               $tot_tracks += $no_tracks; 
+              if($no_tracks >= 1) {
+              $nevt++;
+               }
               @nmbx =  split /</,$word_tr[4];
               $no_trck_nfit15 = $nmbx[0];
-              $tot_trck_nfit15 += $no_trck_nfit15;              
-            for ($ik = 2; $ik< 20; $ik++)  { 
+              $tot_trck_nfit15 += $no_trck_nfit15;  
+              @no_prtrck_nfit15 = ();
+              @no_prtracks = ();
+              $no_prtrck_nfit15[0] = 0;
+              $no_prtracks[0] = 0;
+              $no_vertices = 0;
+              $no_xivertices  = 0;
+              $no_knvertices = 0;
+              $npr = 0;
+              $no_prtracks_1vtx = 0;
+              $no_prtrck_nfit15_1vtx = 0;
+            
+            for ($ik = 2; $ik< 100; $ik++)  { 
               $string = $logfile[$num_line + $ik];
               chop $string;
 #           print $string, "\n";
@@ -1304,11 +1389,18 @@ my $cput = 0;
 
          }
       }
-           
-# print "Number of tracks:  ", $no_tracks, "  ",$no_trck_nfit15, "  ", $max_npr, "  ",$max_npr_nfit15, "  ", $no_vertices,"  ",$no_xivertices, "\n";
+
+   }
+
+              $no_prtracks_1vtx = $no_prtracks[0];
+              $no_prtrck_nfit15_1vtx  = $no_prtrck_nfit15[0];
+                         
+ print "Number of tracks:  ", $no_tracks, "  ",$no_trck_nfit15, "  ", $max_npr, "  ",$max_npr_nfit15, "  ", $no_vertices,"  ",$no_xivertices,"  ",$no_prtracks_1vtx,"  ",$no_prtrck_nfit15_1vtx, "\n";
 
               $tot_prtracks += $max_npr;
               $tot_prtrck_nfit15 += $max_npr_nfit15;   
+              $tot_prtracks_1vtx += $no_prtracks_1vtx;
+              $tot_prtrck_nfit15_1vtx += $no_prtrck_nfit15_1vtx;
        
  }   
 #  check if job crashed due to break_buss_error
@@ -1384,14 +1476,29 @@ my $cput = 0;
     next;
       }
    }
+
+    $perct_usb        = ($nevt/$EvCom)*100;
     $avr_tracks     = $tot_tracks/$EvCom;
     $avr_vertices   = $tot_vertices/$EvCom;
     $avr_prtracks   = $tot_prtracks/$EvCom;
     $avr_trck_nfit15  = $tot_trck_nfit15/$EvCom;   
     $avr_prtrck_nfit15  = $tot_prtrck_nfit15/$EvCom; 
+    $avr_prtracks_1vtx = $tot_prtracks_1vtx/$EvCom;
+    $avr_prtrck_nfit15_1vtx = $tot_prtrck_nfit15_1vtx/$EvCom;
+
     $avr_knvertices = $tot_knvertices/$EvCom;
     $avr_xivertices = $tot_xivertices/$EvCom;
- 
+    if($nevt >= 1 ) {
+    $avr_trk_usb = $tot_tracks/$nevt;
+    $avr_prtrk_usb= $tot_prtracks_1vtx/$nevt;
+    $avr_trkfit15_usb = $tot_trck_nfit15/$nevt;
+    $avr_prtrkfit15_usb = $tot_prtrck_nfit15_1vtx/$nevt;
+    $avr_v0_usb = $tot_vertices/$nevt;
+    $avr_kink_usb = $tot_knvertices/$nevt;
+    $avr_xi_usb =$tot_xivertices/$nevt ;
+} 
+
+
 # print "Size of executable:  ", $EvDone, "  ", $no_event,"  ",$maker_size[$EvCom  -1], "\n"; 
 
     if ( defined $maker_size[0]) { 
