@@ -1275,8 +1275,6 @@ my $cput = 0;
      @part = ();
      @part = split( "/", $line) ;
        $mchain = $part[4];
-# print $line, "\n";
-
 
        }
  
@@ -1313,7 +1311,6 @@ my $cput = 0;
         if( $mymaker eq "outputStream:"){
           $maker_size[$no_event] = $memSize[1];
 
-#          print "outputStream size:  ",$no_event, "   ", $maker_size[$no_event], "\n";  
        }
       }
     }
@@ -1355,16 +1352,15 @@ my $cput = 0;
             for ($ik = 2; $ik< 100; $ik++)  { 
               $string = $logfile[$num_line + $ik];
               chop $string;
-#           print $string, "\n";
 
            if( $string =~ /primary tracks/) {          
+
               @word_tr = split /:/,$string;
               @nmb =  split /</,$word_tr[2];
               $no_prtracks[$npr] = $nmb[0];
               @nmbx =  split /</,$word_tr[4];
               $no_prtrck_nfit15[$npr]  = $nmbx[0];
  
-#              if( $no_prtracks[$npr] >= $max_npr) {
                if( $no_prtrck_nfit15[$npr] >= $max_npr_nfit15) {
                $max_npr_nfit15 = $no_prtrck_nfit15[$npr];
                $max_npr = $no_prtracks[$npr];
@@ -1390,19 +1386,18 @@ my $cput = 0;
          }
       }
 
-   }
-
               $no_prtracks_1vtx = $no_prtracks[0];
               $no_prtrck_nfit15_1vtx  = $no_prtrck_nfit15[0];
-                         
- print "Number of tracks:  ", $no_tracks, "  ",$no_trck_nfit15, "  ", $max_npr, "  ",$max_npr_nfit15, "  ", $no_vertices,"  ",$no_xivertices,"  ",$no_prtracks_1vtx,"  ",$no_prtrck_nfit15_1vtx, "\n";
 
               $tot_prtracks += $max_npr;
               $tot_prtrck_nfit15 += $max_npr_nfit15;   
               $tot_prtracks_1vtx += $no_prtracks_1vtx;
               $tot_prtrck_nfit15_1vtx += $no_prtrck_nfit15_1vtx;
-       
+
+
+  }
  }   
+
 #  check if job crashed due to break_buss_error
       if($line =~ /bus error/) {
           $Err_messg = "Break bus error";
@@ -1438,7 +1433,6 @@ my $cput = 0;
           
            $jrun = "Done";      
          }
-
 ###### 
      
        }
@@ -1449,7 +1443,7 @@ my $cput = 0;
 
       $EvDone = $no_event;
       $EvCom = $EvDone - $EvSkip;
-#  print "Number of events: ", $runflag,"  ", $no_event,"  ", $EvDone,"  ",$EvCom, "  ",$EvSkip, "\n";
+
 
 
 ##### get CPU and Real Time per event
@@ -1468,10 +1462,10 @@ my $cput = 0;
       $mRealTbfc = $part[6];
       $mCPUbfc = substr($mCPUbfc,1) + 0;
       $mRealTbfc = substr($mRealTbfc,1) + 0;
-#    print "CPU ", $mCPUbfc,"   %   ", $mRealTbfc, "\n";
+
      $mCPU = $mCPUbfc/$EvCom;
      $mRealT = $mRealTbfc/$EvCom;
-# print "CPU per events ", $mCPU,"   %   ", $mRealT, "\n";   
+
    }else{
     next;
       }
@@ -1495,8 +1489,7 @@ my $cput = 0;
     $avr_prtrkfit15_usb = $tot_prtrck_nfit15_1vtx/$nevt;
     $avr_v0_usb = $tot_vertices/$nevt;
     $avr_kink_usb = $tot_knvertices/$nevt;
-    $avr_xi_usb =$tot_xivertices/$nevt ;
-} 
+    $avr_xi_usb =$tot_xivertices/$nevt ; 
 
 
 # print "Size of executable:  ", $EvDone, "  ", $no_event,"  ",$maker_size[$EvCom  -1], "\n"; 
@@ -1514,6 +1507,6 @@ my $cput = 0;
     $memLst = $maker_size[$EvCom -3];
   }
  }      
-#   print "Memory size:   ",$memFst, "   ", $memLst, "\n";
-#   close (LOGFILE);
-  }
+
+   close (LOGFILE);
+ }
