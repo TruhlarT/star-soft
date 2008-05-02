@@ -1631,6 +1631,7 @@ $jrun = "n/a";
               $tot_knvertices += $no_knvertices;
         } 
       }  
+ 
    }
               $no_prtracks_1vtx = $no_prtracks[0];
               $no_prtrck_nfit15_1vtx  = $no_prtrck_nfit15[0]; 
@@ -1639,8 +1640,8 @@ $jrun = "n/a";
               $tot_prtrck_nfit15 += $max_npr_nfit15;
               $tot_prtracks_1vtx += $no_prtracks_1vtx;
               $tot_prtrck_nfit15_1vtx += $no_prtrck_nfit15_1vtx;                  
-
   }
+ 
 
 #  check if job crashed due to break_buss_error
       if($line =~ /bus error/) {
