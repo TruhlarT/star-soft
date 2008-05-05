@@ -1,8 +1,11 @@
 #!/usr/bin/env perl 
 #
-# $Id: dbDevTestQuery.pl,v 1.21 2008/03/31 18:46:49 didenko Exp $
+# $Id: dbDevTestQuery.pl,v 1.22 2008/05/05 17:07:33 didenko Exp $
 #
 # $Log: dbDevTestQuery.pl,v $
+# Revision 1.22  2008/05/05 17:07:33  didenko
+# updated datasets
+#
 # Revision 1.21  2008/03/31 18:46:49  didenko
 # extended number of weeks one can query
 #
@@ -86,9 +89,11 @@ my @prod_set = (
 		"trs_sl302/year_2001/hc_highdensity",
                 "trs_sl302/year_2001/pp_minbias",
                 "trs_sl302/year_2003/dau_minbias",
-                "trs_sl302/year_2004/auau_minbias", 
+                "trs_sl302/year_2004/auau_minbias",
+                "trs_sl302/year_2004/auau_central", 
                 "trs_sl302/year_2005/cucu200_minbias",
                 "trs_sl302/year_2005/cucu62_minbias",
+                "trs_sl302/year_2007/auau200_central",
 		"daq_sl302/year_2001/minbias",
                 "daq_sl302/year_2001/central",
                 "daq_sl302/year_2001/ppMinBias",
@@ -106,7 +111,8 @@ my @prod_set = (
                 "daq_sl302/year_2006/ppProdLong",
                 "daq_sl302/year_2006/ppProdTrans",
                 "daq_sl302/year_2007/2007ProductionMinBias",
-                "daq_sl302/year_2008/production_dAu2008",  
+                "daq_sl302/year_2008/production_dAu2008",
+                "daq_sl302/year_2008/ppProduction2008", 
 		);
 
 my @sets_name;
