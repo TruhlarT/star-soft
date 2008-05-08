@@ -19,6 +19,7 @@
 #include "TROOT.h"
 #include "TEnv.h"
 #include "TColor.h"
+#include "TObjString.h"
 
 #include <qprinter.h>
 #include <qpixmap.h>
@@ -820,15 +821,33 @@ void TQtCoinWidget::ViewAll()
       if (fAddBackground) {
          SoChildList *lc = fFileNode ? fFileNode->getChildren() : 0;
          if (!lc || (lc->getLength() == 0 ) ) {
-            // read the background object if any
+            // read the background object if any (list of : or ; separated files)
             TString bkShape = gEnv->GetValue("Gui.InventorBackgroundShape",(const char *)0);
             // printf("TQtCoinWidget::AddRootChild------------bkShape  %s  <===\n",bkShape.Data());
-            if (!bkShape.IsNull()) {
-               gSystem->ExpandPathName(bkShape);
-               if (!gSystem->AccessPathName(bkShape.Data())) {
-                  ReadInputFile((const char*)bkShape);
-                  fAddBackground = false;
-               }
+            if (!bkShape.IsNull()) { 
+               // list of : or ; separated search directories
+               TString bkShapeDir = gEnv->GetValue("Gui.InventorShapeDir",(const char *)0);  
+               TObjArray *files =
+#ifdef R__WIN32
+                   bkShape.Tokenize(";");
+#else
+                   bkShape.Tokenize(":");
+#endif
+                TIter next(files);
+                while (TObjString *s = (TObjString*)next()) {
+                   TString fullPath = s->String();
+                   if (bkShapeDir.IsNull()){
+                      gSystem->ExpandPathName(fullPath);
+                   } else {
+                      char *fp = gSystem->Which(bkShapeDir.Data(),s->String());
+                      fullPath = fp; delete [] fp;
+                   }
+                   if (!gSystem->AccessPathName(fullPath)) {
+                      ReadInputFile((const char*)fullPath);
+                      fAddBackground = false;
+                   }
+                }
+                files->Delete(); delete files; files = 0;
             }
          }
       }
