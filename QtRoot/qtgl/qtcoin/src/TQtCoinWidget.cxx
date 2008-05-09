@@ -827,12 +827,7 @@ void TQtCoinWidget::ViewAll()
             if (!bkShape.IsNull()) { 
                // list of : or ; separated search directories
                TString bkShapeDir = gEnv->GetValue("Gui.InventorShapeDir",(const char *)0);  
-               TObjArray *files =
-#ifdef R__WIN32
-                   bkShape.Tokenize(";");
-#else
-                   bkShape.Tokenize(":");
-#endif
+               TObjArray *files = bkShape.Tokenize(",");
                 TIter next(files);
                 while (TObjString *s = (TObjString*)next()) {
                    TString fullPath = s->String();
