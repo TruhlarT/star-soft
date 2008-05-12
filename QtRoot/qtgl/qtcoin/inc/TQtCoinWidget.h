@@ -1,8 +1,8 @@
-// @(#)root/g3d:$Name:  $:$Id: TQtCoinWidget.h,v 1.31 2008/05/01 23:25:34 fine Exp $
+// @(#)root/g3d:$Name:  $:$Id: TQtCoinWidget.h,v 1.32 2008/05/12 19:20:36 fine Exp $
 // Author: Valery Fine      23/05/97
 
 /****************************************************************************
-** $Id: TQtCoinWidget.h,v 1.31 2008/05/01 23:25:34 fine Exp $
+** $Id: TQtCoinWidget.h,v 1.32 2008/05/12 19:20:36 fine Exp $
 **
 ** Copyright (C) 2002 by Valeri Fine. Brookhaven National Laboratory.
 **                                    All rights reserved.
@@ -20,7 +20,7 @@
 //                                                                      //
 // TQtCoinWidget                                                        //
 //                                                                      //
-// Second ABC TQtCoinWidget specifies Window system independent openGL  //
+// class TQtCoinWidget specifies Window system independent openGL       //
 // interface. This class uses the GL includes and isn't passed to CINT  //
 //                                                                      //
 //////////////////////////////////////////////////////////////////////////
