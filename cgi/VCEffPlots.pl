@@ -358,6 +358,8 @@ $njb = 0;
     $siteEff{$gsite}++; 
   }
 }
+
+
    for($ii = 0; $ii <scalar(@sites); $ii++) {
 
    $msite = $sites[$ii]; 
