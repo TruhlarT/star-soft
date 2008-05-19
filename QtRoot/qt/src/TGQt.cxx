@@ -1,7 +1,7 @@
-// @(#)root/qt:$Id: TGQt.cxx,v 1.29 2008/04/16 15:45:24 fine Exp $
+// @(#)root/qt:$Id: TGQt.cxx,v 1.30 2008/05/19 14:25:40 fine Exp $
 // Author: Valeri Fine   21/01/2002
 /****************************************************************************
-** $Id: TGQt.cxx,v 1.29 2008/04/16 15:45:24 fine Exp $
+** $Id: TGQt.cxx,v 1.30 2008/05/19 14:25:40 fine Exp $
 **
 ** Copyright (C) 2002 by Valeri Fine. Brookhaven National Laboratory.
 **                                    All rights reserved.
@@ -772,7 +772,7 @@ Bool_t TGQt::Init(void* /*display*/)
 {
    //*-*-*-*-*-*-*-*-*-*-*-*-*-*Qt GUI initialization-*-*-*-*-*-*-*-*-*-*-*-*-*-*
    //*-*                        ========================                      *-*
-   fprintf(stderr,"** $Id: TGQt.cxx,v 1.29 2008/04/16 15:45:24 fine Exp $ this=%p\n",this);
+   fprintf(stderr,"** $Id: TGQt.cxx,v 1.30 2008/05/19 14:25:40 fine Exp $ this=%p\n",this);
 #if QT_VERSION >= 0x40000
 #ifndef R__QTWIN32
    extern void qt_x11_set_global_double_buffer(bool);
@@ -1861,8 +1861,11 @@ void  TGQt::PutByte(Byte_t )
 
 //______________________________________________________________________________
 void  TGQt::QueryPointer(int &ix, int &iy){
-   // deprecated
-	if (ix*iy){;}
+   // Query pointer position.
+   // ix       : X coordinate of pointer
+   // iy       : Y coordinate of pointer
+   QPoint pos = QCursor::pos();
+   ix = pos.x(); iy = pos.y();
 }
 
 //______________________________________________________________________________
