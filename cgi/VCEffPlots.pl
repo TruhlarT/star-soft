@@ -357,7 +357,7 @@ $njb = 0;
 	$maxout = 6;
     $siteEff{$gsite}++; 
   }
-
+}
    for($ii = 0; $ii <scalar(@sites); $ii++) {
 
    $msite = $sites[$ii]; 
