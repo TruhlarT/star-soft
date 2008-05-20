@@ -285,7 +285,7 @@ my $ndt = 0;
       ($$fObjAdr)->tsite($fvalue)     if( $fname eq 'site');
       ($$fObjAdr)->glstat($fvalue)    if( $fname eq 'globusStatus');
       ($$fObjAdr)->glerr($fvalue)     if( $fname eq 'globusError');
-      ($$fObjAdr)->exstat($fvalue)     if( $fname eq 'execStatus');
+      ($$fObjAdr)->exstat($fvalue)    if( $fname eq 'execStatus');
       ($$fObjAdr)->lgstat($fvalue)    if( $fname eq 'logStatus');
       ($$fObjAdr)->intrs($fvalue)     if( $fname eq 'transfer_in');  
       ($$fObjAdr)->outtrs($fvalue)    if( $fname eq 'transfer_out'); 
@@ -293,7 +293,7 @@ my $ndt = 0;
         }
        $jbstat[$nstat] = $fObjAdr;
         $nstat++;
-      }
+    }
 
 
  %siteH = { };
@@ -357,6 +357,7 @@ $njb = 0;
 	$maxout = 6;
     $siteEff{$gsite}++; 
   }
+
 }
 
 
@@ -381,11 +382,10 @@ $njb = 0;
    }
    $ndt++;
  }
+
     &GRdbDisconnect();
 
 #  print $qqr->header(); 
-
-#   $graph = new GIFgraph::linespoints(750,650);
 
  my $graph = new GD::Graph::linespoints(750,650);
 
@@ -429,7 +429,7 @@ $njb = 0;
 
 #    @data = (\@ndate, \@globeff, \@logeff, \@outputeff, \@inputef, \@recoComeff );
     
- }
+      }
 
         $gname = "Effplot".$ptag.".gif";
  
@@ -495,7 +495,8 @@ $xLabelSkip = 12 if( $dim > 550 && $dim <= 600 );
    print STDOUT $graph->plot(\@data)->$format();
   }
 
-}
+ }
+
 
 ######################
 sub y_format
