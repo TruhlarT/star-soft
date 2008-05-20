@@ -1,6 +1,6 @@
 // Author: Valeri Fine   21/01/2002
 /****************************************************************************
-** $Id: TQtCanvasImp.cxx,v 1.17 2008/05/20 21:11:39 fine Exp $
+** $Id: TQtCanvasImp.cxx,v 1.18 2008/05/20 21:19:20 fine Exp $
 **
 ** Copyright (C) 2002 by Valeri Fine. Brookhaven National Laboratory.
 **                                    All rights reserved.
@@ -1465,14 +1465,34 @@ void TQtCanvasImp::GLIVViewCB()
    // if (loadFlag) loadFlag = gQt->LoadQt("libRQIVTGL");
 #if  ROOT_VERSION_CODE >= ROOT_VERSION(4,03,3)
    // Load the Coin library for STAR
-   static TString ivrootDir = "$ROOT/5.99.99/Coin2/.$STAR_HOST_SYS/lib/";
-   if (!ivrootDir.IsNull()) {
-      gSystem->ExpandPathName(ivrootDir);
-      if (!gSystem->AccessPathName(ivrootDir.Data())) {
-         gSystem->Load(ivrootDir+"libSoQt");
-         gSystem->Load(ivrootDir+"libCoin");
-         gSystem->Load(ivrootDir+"libSmallChange");
-         ivrootDir =""; // Try to load it at once
+   static bool coinWasLoaded = false;
+   if (!coinWasLoaded) {
+      TString ivrootDir = gSystem->Getenv("IVROOT");
+      if (ivrootDir.IsNull() ) {
+         ivrootDir = "$ROOT/5.99.99/Coin2/.$STAR_HOST_SYS";
+      }
+      if (!ivrootDir.IsNull()) {
+#  ifndef R__WIN32
+         ivrootDir += "/lib/";
+         gSystem->ExpandPathName(ivrootDir);
+         if (!gSystem->AccessPathName(ivrootDir.Data())) {
+            if ( ! (gSystem->Load(ivrootDir+"libSoQt") + 
+            gSystem->Load(ivrootDir+"libCoin") +
+            gSystem->Load(ivrootDir+"libSmallChange")) )
+                   coinWasLoaded = true; // Try to load it at once
+         }
+#  else
+/*
+         ivrootDir += "/bin/";
+         gSystem->ExpandPathName(ivrootDir);
+         if (!gSystem->AccessPathName(ivrootDir.Data())) {
+            if ( ! (gSystem->Load(ivrootDir+"soqt1.dll") + 
+            gSystem->Load(ivrootDir+"coin2.dll") +
+            gSystem->Load(ivrootDir+"SmallChange1.dll")) )
+*/
+                   coinWasLoaded = true; // Try to load it at once
+//       }
+#  endif
       }
    }
    //  Make sure gPad belong out TCanvas 
