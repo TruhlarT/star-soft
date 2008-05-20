@@ -1,6 +1,6 @@
 // Author: Valeri Fine   21/01/2002
 /****************************************************************************
-** $Id: TQtCanvasImp.cxx,v 1.16 2008/04/23 23:55:55 fine Exp $
+** $Id: TQtCanvasImp.cxx,v 1.17 2008/05/20 21:11:39 fine Exp $
 **
 ** Copyright (C) 2002 by Valeri Fine. Brookhaven National Laboratory.
 **                                    All rights reserved.
@@ -1431,7 +1431,11 @@ void TQtCanvasImp::GLViewCB()
    // // static bool loadFlag = TRUE;
    // if (loadFlag) loadFlag = gQt->LoadQt("libRQTGL");
 #if  ROOT_VERSION_CODE >= ROOT_VERSION(4,03,03)   
-   TVirtualViewer3D *viewer = TVirtualViewer3D::Viewer3D(gPad,"ogl");
+   //  Make sure gPad belong out TCanvas 
+   TVirtualPad *thisPad = gPad;
+   TCanvas *c = gPad->GetCanvas();
+   if (c != Canvas()) thisPad =  Canvas();
+   TVirtualViewer3D *viewer = TVirtualViewer3D::Viewer3D(thisPad,"ogl");
    if (viewer) {
       // Create Open GL viewer
       TGQt::SetCoinFlag(0);
@@ -1471,7 +1475,11 @@ void TQtCanvasImp::GLIVViewCB()
          ivrootDir =""; // Try to load it at once
       }
    }
-   TVirtualViewer3D *viewer = TVirtualViewer3D::Viewer3D(gPad,"oiv");
+   //  Make sure gPad belong out TCanvas 
+   TVirtualPad *thisPad = gPad;
+   TCanvas *c = gPad->GetCanvas();
+   if (c != Canvas()) thisPad = Canvas();
+   TVirtualViewer3D *viewer = TVirtualViewer3D::Viewer3D(thisPad,"oiv");
    if (viewer) {
       // Create Open GL viewer
       TGQt::SetCoinFlag(1);
