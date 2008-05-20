@@ -114,9 +114,6 @@ my $outSt;
 
  my @arperiod = ("week","1_month","2_months");
 
-# my @arperiod = ("week","1_month","2_months","8_months");
-
-
   $sql="SELECT DISTINCT site   FROM $JobStatusT ";
 
    $cursor =$dbh->prepare($sql)
@@ -351,11 +348,10 @@ $njb = 0;
     $outEfH{$gsite} = $outEfH{$gsite} + $outtrans;
     $recoEfH{$gsite} = $recoEfH{$gsite} + $nreco;
 
-#    if ($bdate <= 20070819000000 ) {
-#    $maxout = 5;
+    $maxout = 6;
 
     if($glStatus == 1 && $lgStatus >= 1 && $intrans == 1 && $outtrans == 6 && $nreco == 1) {
-	$maxout = 6;
+    
     $siteEff{$gsite}++; 
   }
 }
@@ -369,26 +365,15 @@ $njb = 0;
    $globeff[$ndt] = $globEfH{$msite}*100/$njobs[$ndt];
    $logeff[$ndt] = $logEfH{$msite}*100/(2*$njobs[$ndt]);
    $inputef[$ndt] = $inEfH{$msite}*100/$njobs[$ndt];
-#   $outputeff[$ndt] = $outEfH{$msite}*100/($maxout*$njobs[$ndt]);
-   $recoComeff[$ndt] = $recoEfH{$msite}*100/$njobs[$ndt];
-   if( $bdate <= 20070118140000 ) {
-   $outputeff[$ndt] = $outEfH{$msite}*100/($njobs[$ndt]);
-   }else{
    $outputeff[$ndt] = $outEfH{$msite}*100/($maxout*$njobs[$ndt]);
-   }
+   $recoComeff[$ndt] = $recoEfH{$msite}*100/$njobs[$ndt];
    $overeff[$ndt] = $siteEff{$msite}*100/$njobs[$ndt];
    
-   if ($msite eq "UC")  {
+   if ($msite eq "uchicago")  {
    $effpdsf[$ndt] = $siteEff{$msite}*100/$njobs[$ndt];
 
 #
-   }elsif($msite eq "SPU")  {
-   $effspu[$ndt] = $siteEff{$msite}*100/$njobs[$ndt];
-   }elsif($msite eq "WSU")  {
-   $effwsu[$ndt] = $siteEff{$msite}*100/$njobs[$ndt];
-   }elsif($msite eq "BNL")  {
-   $effbnl[$ndt] = $siteEff{$msite}*100/$njobs[$ndt];
-       }
+      }
      }
    }
    $ndt++;
