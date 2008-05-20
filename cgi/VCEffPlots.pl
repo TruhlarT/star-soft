@@ -372,17 +372,12 @@ $njb = 0;
    if ($msite eq "uchicago")  {
    $effpdsf[$ndt] = $siteEff{$msite}*100/$njobs[$ndt];
 
-#
       }
      }
    }
    $ndt++;
  }
     &GRdbDisconnect();
-
-#  print $qqr->header(); 
-
-#   $graph = new GIFgraph::linespoints(750,650);
 
  my $graph = new GD::Graph::linespoints(750,650);
 
@@ -401,7 +396,7 @@ $njb = 0;
 
 	$ptag = "ALL";
 
-    $legend[0] = "Efficiency for PDSF; ";
+    $legend[0] = "Efficiency for UC; ";
 #    $legend[1] = "Efficiency for SPU; "; 
 #    $legend[2] = "Efficiency for WSU; "; 
 #    $legend[3] = "Efficiency for BNL; ";
