@@ -146,7 +146,7 @@ my $scriptname = $query->url(-relative=>1);
 
 
 print $query->header;
-print $query->start_html('Grid Jobs efficiency on VM');
+print $query->start_html('Grid Jobs efficiency');
 print <<END;
 <META HTTP-EQUIV="Expires" CONTENT="0">
 <META HTTP-EQUIV="Pragma" CONTENT="no-cache">
@@ -285,7 +285,7 @@ my $ndt = 0;
       ($$fObjAdr)->tsite($fvalue)     if( $fname eq 'site');
       ($$fObjAdr)->glstat($fvalue)    if( $fname eq 'globusStatus');
       ($$fObjAdr)->glerr($fvalue)     if( $fname eq 'globusError');
-      ($$fObjAdr)->exstat($fvalue)    if( $fname eq 'execStatus');
+      ($$fObjAdr)->exstat($fvalue)     if( $fname eq 'execStatus');
       ($$fObjAdr)->lgstat($fvalue)    if( $fname eq 'logStatus');
       ($$fObjAdr)->intrs($fvalue)     if( $fname eq 'transfer_in');  
       ($$fObjAdr)->outtrs($fvalue)    if( $fname eq 'transfer_out'); 
@@ -293,7 +293,7 @@ my $ndt = 0;
         }
        $jbstat[$nstat] = $fObjAdr;
         $nstat++;
-    }
+      }
 
 
  %siteH = { };
@@ -351,16 +351,32 @@ $njb = 0;
     $outEfH{$gsite} = $outEfH{$gsite} + $outtrans;
     $recoEfH{$gsite} = $recoEfH{$gsite} + $nreco;
 
-    $maxout = 6;
+    if ($bdate <= 20070819000000 ) {
+    $maxout = 5;
 
-     if($glStatus == 1 && $lgStatus >= 1 && $intrans == 1 && $outtrans == 6 && $nreco == 1) {
+     if ( $bdate <= 20061228000000  && $glStatus == 1 && $lgStatus >= 1 ){ 
+
+     $siteEff{$gsite}++;
+
+    }elsif( $bdate >= 20070104000000 && $bdate <= 20070108100000 &&  $glStatus == 1 && $lgStatus >= 1 ){
+
+     $siteEff{$gsite}++;
+
+    }elsif( $bdate >= 20070108100000 && $bdate <= 20070111100000 &&  $glStatus == 1 && $lgStatus >= 1 && $outtrans == 1 ) {
+       $siteEff{$gsite}++;
+    }elsif( $bdate > 20070111100000 && $bdate <= 20070118140000  && $glStatus == 1 && $lgStatus >= 1 && $intrans == 1 && $nreco == 1 ) {
+       $siteEff{$gsite}++;
+    
+    }elsif( $bdate >= 20070118150000 && $bdate <= 2007081900000 && $glStatus == 1 && $lgStatus >= 1 && $intrans == 1 && $outtrans == 5 && $nreco == 1 ) {
+     $siteEff{$gsite}++; 
+ }
+
+#    }elsif($bdate >= 2007081900000 && $glStatus == 1 && $lgStatus >= 1 && $intrans == 1 && $outtrans == 6 && $nreco == 1) {
+    }elsif($glStatus == 1 && $lgStatus >= 1 && $intrans == 1 && $outtrans == 6 && $nreco == 1) {
 	$maxout = 6;
     $siteEff{$gsite}++; 
   }
-
 }
-
-
    for($ii = 0; $ii <scalar(@sites); $ii++) {
 
    $msite = $sites[$ii]; 
@@ -371,21 +387,35 @@ $njb = 0;
    $globeff[$ndt] = $globEfH{$msite}*100/$njobs[$ndt];
    $logeff[$ndt] = $logEfH{$msite}*100/(2*$njobs[$ndt]);
    $inputef[$ndt] = $inEfH{$msite}*100/$njobs[$ndt];
+#   $outputeff[$ndt] = $outEfH{$msite}*100/($maxout*$njobs[$ndt]);
    $recoComeff[$ndt] = $recoEfH{$msite}*100/$njobs[$ndt];
+   if( $bdate <= 20070118140000 ) {
+   $outputeff[$ndt] = $outEfH{$msite}*100/($njobs[$ndt]);
+   }else{
    $outputeff[$ndt] = $outEfH{$msite}*100/($maxout*$njobs[$ndt]);
+   }
    $overeff[$ndt] = $siteEff{$msite}*100/$njobs[$ndt];
    
    if ($msite eq "UC")  {
    $effpdsf[$ndt] = $siteEff{$msite}*100/$njobs[$ndt];
 
+#
+   }elsif($msite eq "SPU")  {
+   $effspu[$ndt] = $siteEff{$msite}*100/$njobs[$ndt];
+   }elsif($msite eq "WSU")  {
+   $effwsu[$ndt] = $siteEff{$msite}*100/$njobs[$ndt];
+   }elsif($msite eq "BNL")  {
+   $effbnl[$ndt] = $siteEff{$msite}*100/$njobs[$ndt];
+       }
      }
    }
    $ndt++;
  }
-
     &GRdbDisconnect();
 
 #  print $qqr->header(); 
+
+#   $graph = new GIFgraph::linespoints(750,650);
 
  my $graph = new GD::Graph::linespoints(750,650);
 
@@ -429,7 +459,7 @@ $njb = 0;
 
 #    @data = (\@ndate, \@globeff, \@logeff, \@outputeff, \@inputef, \@recoComeff );
     
-      }
+ }
 
         $gname = "Effplot".$ptag.".gif";
  
@@ -495,8 +525,7 @@ $xLabelSkip = 12 if( $dim > 550 && $dim <= 600 );
    print STDOUT $graph->plot(\@data)->$format();
   }
 
- }
-
+}
 
 ######################
 sub y_format
