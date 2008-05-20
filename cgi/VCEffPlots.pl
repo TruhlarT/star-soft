@@ -397,9 +397,6 @@ $njb = 0;
 	$ptag = "ALL";
 
     $legend[0] = "Efficiency for UC; ";
-#    $legend[1] = "Efficiency for SPU; "; 
-#    $legend[2] = "Efficiency for WSU; "; 
-#    $legend[3] = "Efficiency for BNL; ";
 
 #    @data = (\@ndate, \@effpdsf, \@effspu, \@effwsu, \@effbnl );
    
