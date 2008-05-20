@@ -351,32 +351,14 @@ $njb = 0;
     $outEfH{$gsite} = $outEfH{$gsite} + $outtrans;
     $recoEfH{$gsite} = $recoEfH{$gsite} + $nreco;
 
-    if ($bdate <= 20070819000000 ) {
-    $maxout = 5;
+#    if ($bdate <= 20070819000000 ) {
+#    $maxout = 5;
 
-     if ( $bdate <= 20061228000000  && $glStatus == 1 && $lgStatus >= 1 ){ 
-
-     $siteEff{$gsite}++;
-
-    }elsif( $bdate >= 20070104000000 && $bdate <= 20070108100000 &&  $glStatus == 1 && $lgStatus >= 1 ){
-
-     $siteEff{$gsite}++;
-
-    }elsif( $bdate >= 20070108100000 && $bdate <= 20070111100000 &&  $glStatus == 1 && $lgStatus >= 1 && $outtrans == 1 ) {
-       $siteEff{$gsite}++;
-    }elsif( $bdate > 20070111100000 && $bdate <= 20070118140000  && $glStatus == 1 && $lgStatus >= 1 && $intrans == 1 && $nreco == 1 ) {
-       $siteEff{$gsite}++;
-    
-    }elsif( $bdate >= 20070118150000 && $bdate <= 2007081900000 && $glStatus == 1 && $lgStatus >= 1 && $intrans == 1 && $outtrans == 5 && $nreco == 1 ) {
-     $siteEff{$gsite}++; 
- }
-
-#    }elsif($bdate >= 2007081900000 && $glStatus == 1 && $lgStatus >= 1 && $intrans == 1 && $outtrans == 6 && $nreco == 1) {
-    }elsif($glStatus == 1 && $lgStatus >= 1 && $intrans == 1 && $outtrans == 6 && $nreco == 1) {
+    if($glStatus == 1 && $lgStatus >= 1 && $intrans == 1 && $outtrans == 6 && $nreco == 1) {
 	$maxout = 6;
     $siteEff{$gsite}++; 
   }
-}
+#}
    for($ii = 0; $ii <scalar(@sites); $ii++) {
 
    $msite = $sites[$ii]; 
