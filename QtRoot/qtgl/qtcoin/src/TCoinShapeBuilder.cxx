@@ -1,4 +1,4 @@
-// @(#)root/gtgl:$Name:  $:$Id: TCoinShapeBuilder.cxx,v 1.10 2008/01/09 01:14:42 fine Exp $
+// @(#)root/gtgl:$Name:  $:$Id: TCoinShapeBuilder.cxx,v 1.11 2008/05/22 21:26:20 fine Exp $
 // Author: Valery Fine      24/09/06
 
 /****************************************************************************
@@ -293,7 +293,7 @@ SoGroup * TCoinShapeBuilder::CreateCoinShape()
             } else if ( ( (*face_binding_iter).fType ==  TPolygone3DView::kPoints) && !shapePoint) {
                if (!fMaterial) shapeGroup->addChild(fMaterial = SetCurrentColor(fRgba));
                Style_t style = (Style_t)fShapeView.GetLineStyle();
-               if (vertices.size() > 20) {
+               if (vertices.size() > 1000) {
                   // Alas, there are too many of them. 
                   // We should not use the simplest  marker style
                   // if the Coin3D in debug mode

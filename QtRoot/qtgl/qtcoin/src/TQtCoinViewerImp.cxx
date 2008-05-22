@@ -154,8 +154,9 @@ TQtCoinViewerImp::TQtCoinViewerImp(TVirtualPad *pad, const char *title,
 	   printf("TQtCoinViewerImp::TQtCoinViewerImp begin Pad=%p\n", pad);
        //Create the default SnapShot file name and type if any
       
-      QString caption = pad->GetTitle();
-      caption += ": Coin viewer";
+      QString caption = " Coin : ";
+      caption += pad->GetTitle();
+      caption += ": viewer";
       setCaption(caption);
       resize(width, height);
       fGLView = 0;
