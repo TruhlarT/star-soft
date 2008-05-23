@@ -92,6 +92,7 @@
 #include <Inventor/nodes/SoMaterial.h>
 #include <Inventor/nodes/SoDrawStyle.h>
 #include <Inventor/nodes/SoTranslation.h>
+#include <Inventor/nodes/SoRotation.h>
 #include <Inventor/nodes/SoCamera.h>
 #include <Inventor/nodes/SoPerspectiveCamera.h>
 #include <Inventor/nodes/SoOrthographicCamera.h> 
@@ -189,46 +190,75 @@ static double Round(double range, int prec=2) {
 //______________________________________________________________________________
 class TCoinAxisSeparator : public SoSeparator 
 {
-private:
+ public:
+     enum EAxisType  {kX=0,kY,kZ};
+ private:
    bool fOn;
-   SmAxisKit *fAxis;
+   SmAxisKit *fAxis[3];
    SoTranslation *fOffset;
    int fNumberTextLabels;
-public:
-   TCoinAxisSeparator(SmAxisKit *ax=0): SoSeparator(), fOn(false), fAxis(ax)
-   , fOffset(0), fNumberTextLabels(-1) {
+   EAxisType fAxisType;
+ public:
+   TCoinAxisSeparator(EAxisType type=kX): SoSeparator(), fOn(false)
+   , fOffset(0), fNumberTextLabels(-1),fAxisType(type) {
       setName("MainAxices");
-      if (!fAxis) {
-         fAxis = new SmAxisKit();
-         fAxis->axisName = "X";
-      }
+      static char *axnames[] = {"X", "Y", "Z"};
       fOffset = new SoTranslation();
       addChild(fOffset);
-      addChild(fAxis);
+      for (int i=0;i<kZ+1;++i) {
+         SoSeparator *s = new SoSeparator;
+         SoRotation *r = new SoRotation;
+         fAxis[i] = new SmAxisKit();
+         fAxis[i]->axisName = axnames[i];
+         if (i==kY) {
+            r->rotation.setValue(SbVec3f(0, 0, 1), 1.5707963f);
+         } else if (i==kZ) {
+            r->rotation.setValue(SbVec3f(0, 1, 0), -1.5707963f);
+         }
+         s->addChild(r);
+         s->addChild(fAxis[i]);
+         addChild(s);
+      }
    }
    bool IsOn() const { return fOn; }
-   SmAxisKit &Axis() const { return *fAxis; }
+   SmAxisKit &Axis(EAxisType type=kX) const { return *fAxis[type]; }
    void SetOn(bool on=true) { fOn = on; }
    void Connect(SoGroup *node, bool connect=true){
       if (connect) node->insertChild(this,0);
       else         node->removeChild(this);
    }
    void Disconnect(SoGroup *node) { Connect(node,false); }
-   void SetRange(float amin, float amax, int nLabels = 12) {
+   void SetRange(float amin, float amax, EAxisType type=kX, int nLabels = 12) {
       double range = amax - amin;
       double textInterval  = Round(range/nLabels);
       amin = textInterval*int(amin/textInterval - (amin < 0 ? 1:0));
-      fAxis->textInterval  = textInterval;
-      fAxis->axisRange.setValue(amin,amax);
-      fAxis->markerHeight  = textInterval/15;
-      fAxis->markerInterval= textInterval/10;
+      fAxis[type]->textInterval  = textInterval;
+      fAxis[type]->axisRange.setValue(amin,amax);
+      fAxis[type]->markerHeight  = textInterval/15;
+      fAxis[type]->markerInterval= textInterval/10;
       // set the new offset
       double offset  = (amin + amax)/2;
       fOffset->translation.setValue(offset, 0.0f, 0.0f);
    }
-   void SetTextLabelNumber(int nLabels=12) {
-      if (fAxis && (nLabels > 0)) 
-         fAxis->textInterval = Round(fAxis->axisRange.getValue().length()/nLabels);
+   void SetRanges(double *amin, double *amax, int *nLabels) {
+      double offset[kZ+1] = {0};
+      for (int i=0;i<kZ+1;++i) {
+         double range = amax[i] - amin[i];
+         double textInterval  = Round(range/nLabels[i]);
+         float mn = textInterval*int(amin[i]/textInterval - (amin[i] < 0 ? 1:0));
+         fAxis[i]->textInterval  = textInterval;
+         fAxis[i]->axisRange.setValue(mn,amax[i]);
+         fAxis[i]->markerHeight  = textInterval/15;
+         fAxis[i]->markerInterval= textInterval/10;
+         // set the new offset
+         offset[i]  = (mn + amax[i])/2;
+      }
+      fOffset->translation.setValue(offset[kX], offset[kY], offset[kZ]);
+      // Rotate yz and Z now
+   }
+   void SetTextLabelNumber(EAxisType type=kX,int nLabels=12) {
+      if (fAxis[type] && (nLabels > 0)) 
+         fAxis[type]->textInterval = Round(fAxis[type]->axisRange.getValue().length()/nLabels);
    }
 };
 
@@ -1608,14 +1638,20 @@ void TQtCoinWidget::ShowFrameAxisCB(bool on)
       ba.apply(fShapeNode);
    
       SbBox3f box = ba.getBoundingBox();
-      double amin = -1;   double amax = +1;
+      double  amin[] = {-1,-1,-1};  double  amax[] = {+1, +1 , +1 };
       // check range to avoid the crash before any geometry added to the viewer
-      if ( (TMath::Abs(box.getMin()[0])< 1.0E+37) &&  (TMath::Abs(box.getMin()[0]) < 1.0E+37))  {
-         amin = box.getMin()[0]; amax = box.getMax()[0];
+      double aminopt[3];  double amaxopt[3]; double width ;int ndivopt[3];
+      if ( (TMath::Abs(box.getMin()[0])< 1.0E+37) &&  (TMath::Abs(box.getMin()[0]) < 1.0E+37))
+      {
+         for (int i=0;i<3; ++i) {
+           amin[i] = box.getMin()[i];
+           amax[i] = box.getMax()[i];
+        }
       }
-      double aminopt;   double amaxopt; double width ;int ndivopt;
-      THLimitsFinder::Optimize(amin,amax,15,aminopt,amaxopt,ndivopt,width);
-      fXAxis->SetRange(aminopt, amaxopt ,ndivopt);
+      for (int i=0;i<3; ++i) {
+         THLimitsFinder::Optimize(amin[i],amax[i],15,aminopt[i],amaxopt[i],ndivopt[i],width);
+      }
+      fXAxis->SetRanges(&aminopt[0], &amaxopt[0] ,&ndivopt[0]);
       fXAxis->Connect(fShapeNode);
    } else {
       if (fXAxis) fXAxis->Disconnect(fShapeNode);
