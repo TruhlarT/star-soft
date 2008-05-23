@@ -1,4 +1,4 @@
-// @(#)root/gtgl:$Name:  $:$Id: TCoinShapeBuilder.cxx,v 1.11 2008/05/22 21:26:20 fine Exp $
+// @(#)root/gtgl:$Name:  $:$Id: TCoinShapeBuilder.cxx,v 1.12 2008/05/23 23:45:53 fine Exp $
 // Author: Valery Fine      24/09/06
 
 /****************************************************************************
@@ -327,6 +327,8 @@ SoGroup * TCoinShapeBuilder::CreateCoinShape()
                *-*/
                shapeGroup->addChild(fShapeFaceVertices  = new SoCoordinate3());
                float sizeFactor = 2.66;
+               static const int makerSize = SoMarkerSet::SHIP_FILLED_5_5+1; // the last marker type
+               int markerShift = makerSize*min(2,int(fShapeView.GetLineWidth()/1.66));
                switch (style) {
                   case kDot: default: 
                      sizeFactor = 0.12;
@@ -335,19 +337,19 @@ SoGroup * TCoinShapeBuilder::CreateCoinShape()
                      break;
                   case kMultiply:
                      shapePoint = new SoMarkerSet();
-                    ((SoMarkerSet *)shapePoint)->markerIndex = SoMarkerSet::CROSS_5_5; // 5_5 - 7_7 - 9_9 
+                    ((SoMarkerSet *)shapePoint)->markerIndex = SoMarkerSet::CROSS_5_5+markerShift; // 5_5 - 7_7 - 9_9 
                      break;
                   case kPlus:
                      shapePoint = new SoMarkerSet();
-                    ((SoMarkerSet *)shapePoint)->markerIndex = SoMarkerSet::PLUS_5_5; // 5_5 - 7_7 - 9_9 
+                    ((SoMarkerSet *)shapePoint)->markerIndex = SoMarkerSet::PLUS_5_5+markerShift; // 5_5 - 7_7 - 9_9 
                      break;
                   case kStar:
                      shapePoint = new SoMarkerSet();
-                    ((SoMarkerSet *)shapePoint)->markerIndex = SoMarkerSet::STAR_5_5;
+                    ((SoMarkerSet *)shapePoint)->markerIndex = SoMarkerSet::STAR_5_5+markerShift;
                      break;
                   case kCircle:case  kOpenCircle:
                      shapePoint = new SoMarkerSet();
-                    ((SoMarkerSet *)shapePoint)->markerIndex = SoMarkerSet::CIRCLE_LINE_5_5;
+                    ((SoMarkerSet *)shapePoint)->markerIndex = SoMarkerSet::CIRCLE_LINE_5_5+markerShift;
                      break;
                 };
                SoDrawStyle *ds = new SoDrawStyle();
