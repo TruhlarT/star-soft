@@ -1,4 +1,4 @@
-// @(#)root/qt:$Name:  $:$Id: TQtWidget.cxx,v 1.21 2008/04/16 16:05:14 fine Exp $
+// @(#)root/qt:$Name:  $:$Id: TQtWidget.cxx,v 1.22 2008/05/25 14:26:15 fine Exp $
 // Author: Valeri Fine   23/01/2003
 
 /*************************************************************************
@@ -379,6 +379,14 @@ void TQtWidget::Refresh()
    }
    update();
 }
+//_____________________________________________________________________________
+void TQtWidget::SetCanvas(TCanvas *c) 
+{ 
+   //  remember my host TCanvas and adopt its name
+   fCanvas = c;
+   setName(fCanvas->GetName());
+}
+
 //_____________________________________________________________________________
 void TQtWidget::resize (int w, int h)
 {

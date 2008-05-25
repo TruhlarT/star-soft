@@ -1,13 +1,7 @@
+// @(#)root/qt:$Id: TQtEventQueue.cxx,v 1.3 2008/05/25 14:26:15 fine Exp $
 // Author: Valeri Fine   25/03/2004
-
-#include "TQtEventQueue.h"
-#include "TQtLock.h"
-#include <qapplication.h>
-#include <cassert>
-
-
 /****************************************************************************
-** $Id: TQtEventQueue.cxx,v 1.2 2008/04/15 18:24:08 fine Exp $
+** $Id: TQtEventQueue.cxx,v 1.3 2008/05/25 14:26:15 fine Exp $
 **
 ** Copyright (C) 2004 by Valeri Fine. Brookhaven National Laboratory.
 **                                    All rights reserved.
@@ -17,6 +11,13 @@
 ** LICENSE.QPL included in the packaging of this file.
 **
 *****************************************************************************/
+
+#include "TQtEventQueue.h"
+#include "TQtLock.h"
+#include <qapplication.h>
+#include <cassert>
+
+
 
 /////////////////////////////////////////////////////////////////////////////////
 //

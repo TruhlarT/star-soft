@@ -1,4 +1,4 @@
-// @(#)root/qt:$Id: TQtWidget.h,v 1.17 2008/04/16 16:05:14 fine Exp $
+// @(#)root/qt:$Id: TQtWidget.h,v 1.18 2008/05/25 14:26:14 fine Exp $
 // Author: Valeri Fine   21/01/2002
 /****************************************************************************
 **
@@ -108,7 +108,7 @@ public:
   TQtWidget( QWidget* parent=0);
 #endif  
   virtual ~TQtWidget();
-  void SetCanvas(TCanvas *c)                 { fCanvas = c;}
+  void SetCanvas(TCanvas *c);
 //  inline TCanvas  *GetCanvas() const         { return fCanvas;}
   inline TCanvas  *GetCanvas() const         { return (!fIsShadow) ? fCanvas : ((TQtWidget *)parentWidget())->GetCanvas(); }
   inline QPixmap  &GetBuffer()               { return fPixmapID;}
