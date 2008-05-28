@@ -61,7 +61,7 @@ my $dyear = $thisyear - 2000;
 
 # Tables
 
-$JobStatusT = "MasterJobEfficiency";
+$MasterJobEfficiencyT = "MasterJobEfficiency";
 $IOStatusT = "MasterIO";
 
 
@@ -110,7 +110,7 @@ my $inName;
   
   &GRdbConnect();
 
-  $sql="SELECT DISTINCT ProductionDate  FROM $JobStatusT order by ProductionDate ";
+  $sql="SELECT DISTINCT ProductionDate  FROM $MasterJobEfficiencyT order by ProductionDate ";
 
    $cursor =$dbh->prepare($sql)
       || die "Cannot prepare statement: $DBI::errstr\n";
@@ -126,7 +126,7 @@ my $inName;
  
   $maxday = $ardays[$nd-1];
 
-  $sql="SELECT DISTINCT site   FROM $JobStatusT ";
+  $sql="SELECT DISTINCT site   FROM $MasterJobEfficiencyT ";
 
    $cursor =$dbh->prepare($sql)
       || die "Cannot prepare statement: $DBI::errstr\n";
@@ -229,7 +229,7 @@ my $qqr = new CGI;
 
   if( $qsite eq "ALL" ) {
 
-      $sql="SELECT $JobStatusT.jobID_MD5 as jobid, $JobStatusT.processID as prodid, submitTime, site, prodTag, submitAttempt, globusError, dotOutHasSize, dotErrorHasSize, exec, transIn, transOut, lastKnownState, overAllState, $IOStatusT.jobID_MD5, $IOStatusT.processID, name_workerNode FROM $JobStatusT, $IOStatusT WHERE productionDate = ? and $JobStatusT.jobID_MD5 = $IOStatusT.jobID_MD5 and $JobStatusT.processID = $IOStatusT.processID and isInputFile = 1 order by id "; 
+      $sql="SELECT $JobStatusT.jobID_MD5 as jobid, $MasterJobEfficiencyT.processID as prodid, submitTime, site, prodTag, submitAttempt, globusError, dotOutHasSize, dotErrorHasSize, exec, transIn, transOut, lastKnownState, overAllState, $IOStatusT.jobID_MD5, $IOStatusT.processID, name_workerNode FROM $MasterJobEfficiencyT, $IOStatusT WHERE productionDate = ? and $MasterJobEfficiencyT.jobID_MD5 = $IOStatusT.jobID_MD5 and $MasterJobEfficiencyT.processID = $IOStatusT.processID and isInputFile = 1 order by id "; 
 
        $cursor =$dbh->prepare($sql)
       || die "Cannot prepare statement: $DBI::errstr\n";
@@ -237,7 +237,7 @@ my $qqr = new CGI;
 
   }else{
 
-     $sql="SELECT $JobStatusT.jobID_MD5 as jobid, $JobStatusT.processID as prodid, submitTime, site, prodTag, submitAttempt, fileName, globusError, dotOutHasSize, dotErrorHasSize, exec, transIn, transOut, lastKnownState, overAllState $IOStatusT.jobID_MD5, $IOStatusT.processID, name_workerNode FROM $JobStatusT, $IOStatusT WHERE productionDate = ? and site = ? and $JobStatusT.jobID_MD5 = $IOStatusT.jobID_MD5 and $JobStatusT.processID = $IOStatusT.processID  order by id  ";
+     $sql="SELECT $MasterJobEfficiencyT.jobID_MD5 as jobid, $MasterJobEfficiencyT.processID as prodid, submitTime, site, prodTag, submitAttempt, fileName, globusError, dotOutHasSize, dotErrorHasSize, exec, transIn, transOut, lastKnownState, overAllState $IOStatusT.jobID_MD5, $IOStatusT.processID, name_workerNode FROM $MasterJobEfficiencyT, $IOStatusT WHERE productionDate = ? and site = ? and $MasterJobEfficiencyT.jobID_MD5 = $IOStatusT.jobID_MD5 and $MasterJobEfficiencyT.processID = $IOStatusT.processID  order by id  ";
 
 
      $cursor =$dbh->prepare($sql)
