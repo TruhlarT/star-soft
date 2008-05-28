@@ -283,7 +283,7 @@ my $qqr = new CGI;
 
     $sbtime    = ($$jstat)->subtime;
     $gsite     = ($$jstat)->tsite; 
-    $prodtag   = $$jstat)->prtag; 
+    $prodtag   = ($$jstat)->prtag; 
     $inName    = ($$jstat)->infile;
     $glError   = ($$jstat)->glerr;
     $lgStatus  = ($$jstat)->lgstat;
