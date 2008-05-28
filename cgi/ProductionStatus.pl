@@ -21,7 +21,7 @@ use File::Basename;
 
 $dbhost="duvall.star.bnl.gov";
 $dbuser="starreco";
-$dbpass="dbUser@*";
+$dbpass="";
 $dbname="Scheduler_bnl";
 
 
