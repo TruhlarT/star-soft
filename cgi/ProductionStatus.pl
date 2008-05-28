@@ -326,7 +326,7 @@ my $qqr = new CGI;
      
      &printUnkRow();
 
-  }elsif{ $jbstat eq "done") {
+  }elsif( $jbstat eq "done") {
 
     &printRow();
    }
