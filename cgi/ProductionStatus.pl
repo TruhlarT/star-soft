@@ -340,8 +340,6 @@ my $qqr = new CGI;
  &endHtml();
 
 
- }
-
 
 ######################
 sub GRdbConnect {
