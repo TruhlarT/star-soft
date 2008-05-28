@@ -21,7 +21,7 @@ use File::Basename;
 
 $dbhost="duvall.star.bnl.gov";
 $dbuser="starreco";
-$dbpass="";
+$dbpass="dbUser@*";
 $dbname="Scheduler_bnl";
 
 
@@ -121,7 +121,7 @@ my $inName;
         $ardays[$nd] = $mydate;
         $nd++;    
     }
-      $cursor->finish;
+      $cursor->finish;         
 
  
   $maxday = $ardays[$nd-1];
@@ -212,7 +212,7 @@ print "<address><a href=\"mailto:didenko\@bnl.gov\">Lidia Didenko</a></address>\
 
 print $query->end_html;
 
-  }
+  }else{
 
 my $qqr = new CGI;
 
@@ -339,7 +339,7 @@ my $qqr = new CGI;
 
  &endHtml();
 
-
+}
 
 ######################
 sub GRdbConnect {
