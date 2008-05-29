@@ -96,19 +96,22 @@ my $logStatus;
 my @recoStat = ();
 $recoStat[0] = "failed";
 $recoStat[1] = "completed";
+$recoStat[2] = "unknown";
 my @inStat = ();
 $inStat[0] = "failed";
 $inStat[1] = "complete";
+$inStat[2] = "unknown";
 my @outStat = ();
 $outStat[0] = "failed";
 $outStat[1] = "complete";
 $outStat[2] = "incomplete";
-
+$outStat[3] = "unknown";
 my $jbstat;
 my @logStat = ();
 $logStat[0] = "failed";
 $logStat[1] = "incomplete";
 $logStat[2] = "complete";
+$logStat[3] = "unknown";
 
 ##############
 
@@ -305,18 +308,29 @@ my $qqr = new CGI;
     $nresub    = ($$jstat)->rsubm ;
     $overstat  = ($$jstat)->ovrstat;
 
+   if($glError <= 0) {
+    $globStatus = "OK";
+  }else{
+   $globStatus = "error ".$glError;
+  }  
     $inFile = basename($inName);
+
+    if($jbstat eq "done") {
+
     $inStatus = $inStat[$intrans];
     $outStatus = $outStat[$outtrans];
     $recoStatus = $recoStat[$recoSt];
     $logStatus = $logStat[$lgStatus+$errStatus];
 
-   if($glError <= 0) {
-    $globStatus = "OK";
   }else{
-   $globStatus = "error=".$glError;
-  }
-    
+
+    $inStatus = $inStat[2];
+    $outStatus = $outStat[3];
+    $recoStatus = $recoStat[2];
+    $logStatus = $logStat[3];
+
+}
+
     if ($overstat eq "complete") {
 
 	$overstat = "success";
