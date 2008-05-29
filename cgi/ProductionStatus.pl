@@ -343,9 +343,14 @@ my $qqr = new CGI;
      
      &printUnkRow();
 
-  }elsif( $jbstat eq "done") {
+  }elsif( $jbstat eq "done" and $overstat eq "success") {
 
     &printRow();
+
+   }elsif( $jbstat eq "done" and $overstat eq "failed") {
+
+     &printFldRow();
+
    }
   }
  
@@ -384,16 +389,16 @@ print <<END;
 <TR>
 <TD ALIGN=CENTER WIDTH=\"5%\" HEIGHT=50><B>Site</B></TD>
 <TD ALIGN=CENTER WIDTH=\"5%\" HEIGHT=50><B>Production tag</B></TD>
-<TD ALIGN=CENTER WIDTH=\"10%\" HEIGHT=50><B>Input File</B></TD>
+<TD ALIGN=CENTER WIDTH=\"10%\" HEIGHT=50><B>Input file name</B></TD>
 <TD ALIGN=CENTER WIDTH=\"5%\" HEIGHT=50><B>N Resubmit</B></TD>
 <TD ALIGN=CENTER WIDTH=\"10%\" HEIGHT=50><B>Submission Time</B></TD>
-<TD ALIGN=CENTER WIDTH=\"10%\" HEIGHT=50><B>Globus Status</B></TD>
+<TD ALIGN=CENTER WIDTH=\"10%\" HEIGHT=50><B>Globus status</B></TD>
 <TD ALIGN=CENTER WIDTH=\"5%\" HEIGHT=50><B>Log file<br> transfer status</B></TD>
 <TD ALIGN=CENTER WIDTH=\"10%\" HEIGHT=50><B>Input file<br> transfer status</B></TD>
 <TD ALIGN=CENTER WIDTH=\"10%\" HEIGHT=50><B>Output files transfer<br>status</B></TD>
 <TD ALIGN=CENTER WIDTH=\"10%\" HEIGHT=50><B>Reco completion<br> status</B></TD>
 <TD ALIGN=CENTER WIDTH=\"10%\" HEIGHT=50><B>Current job status</B></TD>
-<TD ALIGN=CENTER WIDTH=\"10%\" HEIGHT=50><B>Overall performance<br> Status</B></TD>
+<TD ALIGN=CENTER WIDTH=\"10%\" HEIGHT=50><B>Overall performance<br> status</B></TD>
 
 
 </TR> 
