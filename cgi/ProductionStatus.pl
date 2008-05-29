@@ -126,7 +126,7 @@ my $inName;
  
   $maxday = $ardays[$nd-1];
 
-  $sql="SELECT DISTINCT site   FROM $MasterJobEfficiencyT ";
+  $sql="SELECT DISTINCT site FROM $MasterJobEfficiencyT where site is not NULL ";
 
    $cursor =$dbh->prepare($sql)
       || die "Cannot prepare statement: $DBI::errstr\n";
