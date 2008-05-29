@@ -86,20 +86,29 @@ my $sbtime = "0000-00-00 00:00:00";
 my $gsite = "pdsf";
 my $nresub = 0;
 my $overstat = "success";
+my $inStatus = "none";
+my $outStatus = "none";
+my $recoStatus = "none";
 
 ###############
 my $globStatus;
 my $logStatus;
-my @recoStatus = ();
-$recoStatus[0] = "failed";
-$recoStatus[1] = "completed";
-my @inStatus = ();
-$inStatus[0] = "failed";
-$inStatus[1] = "complete";
-my @outStatus = ();
-$outStatus[0] = "failed";
-$outStatus[0] = "complete";
+my @recoStat = ();
+$recoStat[0] = "failed";
+$recoStat[1] = "completed";
+my @inStat = ();
+$inStat[0] = "failed";
+$inStat[1] = "complete";
+my @outStat = ();
+$outStat[0] = "failed";
+$outStat[1] = "complete";
+$outStat[2] = "incomplete";
+
 my $jbstat;
+my @logStat = ();
+$logStat[0] = "failed";
+$logStat[1] = "incomplete";
+$logStat[2] = "complete";
 
 ##############
 
@@ -296,9 +305,13 @@ my $qqr = new CGI;
     $nresub    = ($$jstat)->rsubm ;
     $overstat  = ($$jstat)->ovrstat;
 
-   $inFile = basename($inName);
+    $inFile = basename($inName);
+    $inStatus = $inStat[$intrans];
+    $outStatus = $outStat[$outtrans];
+    $recoStatus = $recoStat[$recoSt];
+    $logStatus = $logStat[$lgStatus+$errStatus];
 
-   if($glError) {
+   if($glError <= 0) {
     $globStatus = "OK";
   }else{
    $globStatus = "error=".$glError;
