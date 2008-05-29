@@ -85,7 +85,7 @@ my $recoSt;
 my $sbtime = "0000-00-00 00:00:00";
 my $gsite = "pdsf";
 my $nresub = 0;
-my $overstat = "success";
+my $overstat = "none";
 my $inStatus = "none";
 my $outStatus = "none";
 my $recoStatus = "none";
@@ -317,7 +317,10 @@ my $qqr = new CGI;
    $globStatus = "error=".$glError;
   }
     
+    if ($overstat eq "complete") {
 
+	$overstat = "success";
+    }
   
     if($jbstat eq "submit" or $jbstat eq "pend" ) {
 
@@ -385,12 +388,12 @@ print <<END;
 <TD ALIGN=CENTER WIDTH=\"5%\" HEIGHT=50><B>N Resubmit</B></TD>
 <TD ALIGN=CENTER WIDTH=\"10%\" HEIGHT=50><B>Submission Time</B></TD>
 <TD ALIGN=CENTER WIDTH=\"10%\" HEIGHT=50><B>Globus Status</B></TD>
-<TD ALIGN=CENTER WIDTH=\"5%\" HEIGHT=50><B>Log file<br> status</B></TD>
-<TD ALIGN=CENTER WIDTH=\"10%\" HEIGHT=50><B>Input Transfer<br>status</B></TD>
-<TD ALIGN=CENTER WIDTH=\"10%\" HEIGHT=50><B>Output Transfer<br>status</B></TD>
-<TD ALIGN=CENTER WIDTH=\"10%\" HEIGHT=50><B>Reco Status</B></TD>
-<TD ALIGN=CENTER WIDTH=\"10%\" HEIGHT=50><B>Current Status</B></TD>
-<TD ALIGN=CENTER WIDTH=\"10%\" HEIGHT=50><B>Overall Status</B></TD>
+<TD ALIGN=CENTER WIDTH=\"5%\" HEIGHT=50><B>Log file<br> transfer status</B></TD>
+<TD ALIGN=CENTER WIDTH=\"10%\" HEIGHT=50><B>Input file<br> transfer status</B></TD>
+<TD ALIGN=CENTER WIDTH=\"10%\" HEIGHT=50><B>Output files transfer<br>status</B></TD>
+<TD ALIGN=CENTER WIDTH=\"10%\" HEIGHT=50><B>Reco completion<br> status</B></TD>
+<TD ALIGN=CENTER WIDTH=\"10%\" HEIGHT=50><B>Current job status</B></TD>
+<TD ALIGN=CENTER WIDTH=\"10%\" HEIGHT=50><B>Overall performance<br> Status</B></TD>
 
 
 </TR> 
