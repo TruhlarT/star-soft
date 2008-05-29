@@ -78,17 +78,17 @@ my $prodtag;
 my $glError;
 my $lgStatus;
 my $errStatus;
-my $logStatus;
+my $logStatus = "unknown";
 my $intrans;
 my $outtrans;
 my $recoSt;
 my $sbtime = "0000-00-00 00:00:00";
 my $gsite = "pdsf";
 my $nresub = 0;
-my $overstat = "none";
-my $inStatus = "none";
-my $outStatus = "none";
-my $recoStatus = "none";
+my $overstat = "unknown";
+my $inStatus = "unknown";
+my $outStatus = "unknown";
+my $recoStatus = "unknown";
 
 ###############
 my $globStatus;
@@ -96,22 +96,22 @@ my $logStatus;
 my @recoStat = ();
 $recoStat[0] = "failed";
 $recoStat[1] = "completed";
-$recoStat[2] = "unknown";
+$recoStat[2] = "n/a";
 my @inStat = ();
 $inStat[0] = "failed";
 $inStat[1] = "complete";
-$inStat[2] = "unknown";
+$inStat[2] = "n/a";
 my @outStat = ();
 $outStat[0] = "failed";
 $outStat[1] = "complete";
 $outStat[2] = "incomplete";
-$outStat[3] = "unknown";
+$outStat[3] = "n/a";
 my $jbstat;
 my @logStat = ();
 $logStat[0] = "failed";
 $logStat[1] = "incomplete";
 $logStat[2] = "complete";
-$logStat[3] = "unknown";
+$logStat[3] = "n/a";
 
 ##############
 
