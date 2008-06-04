@@ -94,24 +94,24 @@ my $recoStatus = "unknown";
 my $globStatus;
 my $logStatus;
 my @recoStat = ();
-$recoStat[0] = "failed";
+$recoStat[0] = "unknown";
 $recoStat[1] = "completed";
-$recoStat[2] = "n/a";
+$recoStat[2] = "failed";
 my @inStat = ();
-$inStat[0] = "failed";
+$inStat[0] = "unknown";
 $inStat[1] = "complete";
-$inStat[2] = "n/a";
+$inStat[2] = "failed";
 my @outStat = ();
-$outStat[0] = "failed";
+$outStat[0] = "unknown";
 $outStat[1] = "complete";
 $outStat[2] = "incomplete";
-$outStat[3] = "n/a";
+$outStat[3] = "failed";
 my $jbstat;
 my @logStat = ();
-$logStat[0] = "failed";
+$logStat[0] = "unknown";
 $logStat[1] = "incomplete";
 $logStat[2] = "complete";
-$logStat[3] = "n/a";
+$logStat[3] = "failed";
 
 ##############
 
@@ -240,6 +240,20 @@ my $qsites = "$qsite%";
 # print "<h1 align=center><u>Production jobs status on $qsite site for day $qdate </u></h1>\n";
 # print "<br>";
 
+$gsite = "none";
+$prodtag = "none";
+$inFile = "none";
+$nresub = 0;
+$sbtime = "0000-00-00 00:00:00";
+$globStatus = "unknown";
+$logStatus = "unknown";
+$inStatus = "unknown";
+$outStatus = "unknown";
+$recoStatus = "unknown";
+$jbstat = "unknown";
+$overstat = "unknown";
+
+
    &GRdbConnect();
 
   if( $qsite eq "ALL" ) {
@@ -318,7 +332,7 @@ my $qsites = "$qsite%";
   }  
     $inFile = basename($inName);
 
-    if($jbstat eq "done") {
+    if($jbstat eq "done" or $jbstat eq "killed" ) {
 
     $inStatus = $inStat[$intrans];
     $outStatus = $outStat[$outtrans];
@@ -327,10 +341,10 @@ my $qsites = "$qsite%";
 
   }else{
 
-    $inStatus = $inStat[2];
-    $outStatus = $outStat[3];
-    $recoStatus = $recoStat[2];
-    $logStatus = $logStat[3];
+    $inStatus = $inStat[0];
+    $outStatus = $outStat[0];
+    $recoStatus = $recoStat[0];
+    $logStatus = $logStat[0];
 
 }
 
