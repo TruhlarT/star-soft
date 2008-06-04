@@ -122,7 +122,7 @@ my $inName;
   
   &GRdbConnect();
 
-  $sql="SELECT DISTINCT date_format(submitTime, "%Y-%m-%d") AS PDATE  FROM $MasterJobEfficiencyT order by PDATE ";
+  $sql="SELECT DISTINCT date_format(submitTime, '%Y-%m-%d') AS PDATE  FROM $MasterJobEfficiencyT order by PDATE ";
 
    $cursor =$dbh->prepare($sql)
       || die "Cannot prepare statement: $DBI::errstr\n";
