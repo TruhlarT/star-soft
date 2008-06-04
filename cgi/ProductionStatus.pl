@@ -325,6 +325,10 @@ $overstat = "unknown";
     $nresub    = ($$jstat)->rsubm ;
     $overstat  = ($$jstat)->ovrstat;
 
+    if ($gsite) {$gsite = "none");
+
+
+
    if($glError <= 0) {
     $globStatus = "OK";
   }else{
