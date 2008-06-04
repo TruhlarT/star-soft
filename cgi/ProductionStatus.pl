@@ -325,7 +325,7 @@ $overstat = "unknown";
     $nresub    = ($$jstat)->rsubm ;
     $overstat  = ($$jstat)->ovrstat;
 
-    if ($gsite) {$gsite = "none"};
+    if (! defined($gsite) ) {$gsite = "none"};
 
 
 
