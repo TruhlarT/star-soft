@@ -122,7 +122,7 @@ my $inName;
   
   &GRdbConnect();
 
-  $sql="SELECT DISTINCT ProductionDate  FROM $MasterJobEfficiencyT order by ProductionDate ";
+  $sql="SELECT DISTINCT date_format(submitTime, "%Y-%m-%d") AS PDATE  FROM $MasterJobEfficiencyT order by PDATE ";
 
    $cursor =$dbh->prepare($sql)
       || die "Cannot prepare statement: $DBI::errstr\n";
@@ -241,7 +241,7 @@ my $qqr = new CGI;
 
   if( $qsite eq "ALL" ) {
 
-      $sql="SELECT $MasterJobEfficiencyT.jobID_MD5 as jobid, $MasterJobEfficiencyT.processID as prodid, submitTime, site, prodTag, submitAttempt, globusError, dotOutHasSize, dotErrorHasSize, exec, transIn, transOut, lastKnownState, overAllState, $IOStatusT.jobID_MD5, $IOStatusT.processID, name_workerNode FROM $MasterJobEfficiencyT, $IOStatusT WHERE productionDate = ? and $MasterJobEfficiencyT.jobID_MD5 = $IOStatusT.jobID_MD5 and $MasterJobEfficiencyT.processID = $IOStatusT.processID and isInputFile = 1 order by $MasterJobEfficiencyT.processID"; 
+      $sql="SELECT $MasterJobEfficiencyT.jobID_MD5 as jobid, $MasterJobEfficiencyT.processID as prodid, submitTime, site, prodTag, submitAttempt, globusError, dotOutHasSize, dotErrorHasSize, exec, transIn, transOut, lastKnownState, overAllState, $IOStatusT.jobID_MD5, $IOStatusT.processID, name_workerNode FROM $MasterJobEfficiencyT, $IOStatusT WHERE submitTime like ? and $MasterJobEfficiencyT.jobID_MD5 = $IOStatusT.jobID_MD5 and $MasterJobEfficiencyT.processID = $IOStatusT.processID and isInputFile = 1 order by $MasterJobEfficiencyT.processID"; 
 
        $cursor =$dbh->prepare($sql)
       || die "Cannot prepare statement: $DBI::errstr\n";
@@ -250,7 +250,7 @@ my $qqr = new CGI;
   }else{
 
 
-     $sql="SELECT $MasterJobEfficiencyT.jobID_MD5 as jobid, $MasterJobEfficiencyT.processID as prodid, submitTime, site, prodTag, submitAttempt, globusError, dotOutHasSize, dotErrorHasSize, exec, transIn, transOut, lastKnownState, overAllState, $IOStatusT.jobID_MD5, $IOStatusT.processID, name_workerNode FROM $MasterJobEfficiencyT, $IOStatusT WHERE productionDate = ? and site = ? and $MasterJobEfficiencyT.jobID_MD5 = $IOStatusT.jobID_MD5 and $MasterJobEfficiencyT.processID = $IOStatusT.processID and isInputFile = 1 order by $MasterJobEfficiencyT.processID ";
+     $sql="SELECT $MasterJobEfficiencyT.jobID_MD5 as jobid, $MasterJobEfficiencyT.processID as prodid, submitTime, site, prodTag, submitAttempt, globusError, dotOutHasSize, dotErrorHasSize, exec, transIn, transOut, lastKnownState, overAllState, $IOStatusT.jobID_MD5, $IOStatusT.processID, name_workerNode FROM $MasterJobEfficiencyT, $IOStatusT WHERE submitTime like ? and site = ? and $MasterJobEfficiencyT.jobID_MD5 = $IOStatusT.jobID_MD5 and $MasterJobEfficiencyT.processID = $IOStatusT.processID and isInputFile = 1 order by $MasterJobEfficiencyT.processID ";
 
 
      $cursor =$dbh->prepare($sql)
