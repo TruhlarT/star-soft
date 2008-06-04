@@ -231,6 +231,9 @@ my $qqr = new CGI;
  my $qdate  =  $qqr->param('proddate');
  my $qsite  =  $qqr->param('prodsite');
 
+my $qdates = "$qdate%";
+my $qsites = "$qsite%";
+
  print $qqr->header;
  print $query->start_html('Grid Production Jobs status');
  print "<body bgcolor=\"cornsilk\">\n";
@@ -245,7 +248,7 @@ my $qqr = new CGI;
 
        $cursor =$dbh->prepare($sql)
       || die "Cannot prepare statement: $DBI::errstr\n";
-     $cursor->execute($qdate);
+     $cursor->execute($qdates);
 
   }else{
 
@@ -255,7 +258,7 @@ my $qqr = new CGI;
 
      $cursor =$dbh->prepare($sql)
       || die "Cannot prepare statement: $DBI::errstr\n";
-     $cursor->execute($qdate, $qsite);
+     $cursor->execute($qdates, $qsites);
 } 
 
       while(@fields = $cursor->fetchrow) {
