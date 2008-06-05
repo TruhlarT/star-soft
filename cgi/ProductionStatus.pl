@@ -240,20 +240,6 @@ my $qsites = "$qsite%";
 # print "<h1 align=center><u>Production jobs status on $qsite site for day $qdate </u></h1>\n";
 # print "<br>";
 
-$gsite = "none";
-$prodtag = "none";
-$inFile = "none";
-$nresub = 0;
-$sbtime = "0000-00-00 00:00:00";
-$globStatus = "unknown";
-$logStatus = "unknown";
-$inStatus = "unknown";
-$outStatus = "unknown";
-$recoStatus = "unknown";
-$jbstat = "unknown";
-$overstat = "unknown";
-
-
    &GRdbConnect();
 
   if( $qsite eq "ALL" ) {
@@ -325,8 +311,16 @@ $overstat = "unknown";
     $nresub    = ($$jstat)->rsubm ;
     $overstat  = ($$jstat)->ovrstat;
 
-    if (! defined($gsite) ) {$gsite = "none"};
-
+    if (! defined($gsite) )   {$gsite = "none"};
+    if (! defined($prodtag) ) {$prodtag = "none"};
+    if (! defined($inFile) )  {$inFile = "none"};
+    if (! defined($sbtime) )  {$sbtime = "0000-00-00 00:00:00"};
+    if (! defined($globStatus) ) {$globStatus = "unknown"};
+    if (! defined($logStatus) )  {$logStatus = "unknown"};
+    if (! defined($inStatus) )   {$inStatus = "unknown"};    
+    if (! defined($outStatus) )  {$outStatus = "unknown"};  
+    if (! defined($recoStatus) ) {$recoStatus = "unknown"};  
+    if (! defined($overstat) )   {$overstatstat = "unknown"};      
 
 
    if($glError <= 0) {
