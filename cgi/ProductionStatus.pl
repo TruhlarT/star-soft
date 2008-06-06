@@ -386,7 +386,10 @@ my $qsites = "$qsite%";
 
      &printFldRow();
 
-   }
+   }else{
+
+   &printUnkRow();
+
   }
  
 
