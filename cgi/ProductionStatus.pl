@@ -328,7 +328,13 @@ my $qsites = "$qsite%";
   }else{
    $globStatus = "error ".$glError;
   }  
+
+   if (! defined($inName) )   {
+   $inName = "none"
+   }else{
+    
     $inFile = basename($inName);
+  }
 
     if($jbstat eq "done" or $jbstat eq "killed" ) {
 
