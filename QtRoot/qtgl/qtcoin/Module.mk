@@ -36,7 +36,7 @@ QTCOIN3DH1      := $(QTCOIN3DDIRI)/TQtCoinViewerImp.h     $(QTCOIN3DDIRI)/TQtCoi
 
 QTCOIN3DH       := $(filter-out $(QTCOIN3DDIRI)/LinkDef%,$(wildcard $(QTCOIN3DDIRI)/*.h))
                
-COINFLAGS     += -I. -I$(QTINCDIR) -DQT_DLL -DQT_THREAD_SUPPORT
+# COINFLAGS     += -I. -I$(QTINCDIR) -DQT_DLL -DQT_THREAD_SUPPORT
 
 QTCOININCDIR   := $(IVROOT)/include $(IVROOT)/include/annex
 
@@ -99,11 +99,7 @@ distclean-qtcoin:   clean-qtcoin
 distclean::     distclean-qtcoin
 
 ##### extra rules ######
-ifneq ($(OIVHOME),)
 QTCOINCXXFLAGS += -DR__OPENINVENTOR -I$(IVINCDIR)
-else
-QTCOINCXXFLAGS += -I$(QGLVIEWERDIR) $(COINFLAGS)
-endif
 
 $(sort $(QTCOIN3DMOCO) $(QTCOIN3DO)) : %.o: %.cxx
 	$(CXX) $(OPT) $(CXXFLAGS) $(QTCOINCXXFLAGS) -Iqt/src $(QTCOININCDIR:%=-I%)  \
