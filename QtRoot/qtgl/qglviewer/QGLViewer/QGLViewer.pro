@@ -12,8 +12,8 @@
 # Uncomment the following line:
 # USE_GLUT = yes
 TEMPLATE = lib
-CONFIG  -= debug
-CONFIG  *= qt opengl warn_on release thread create_prl
+# CONFIG  -= debug
+CONFIG  *= qt opengl warn_on thread create_prl
 TARGET   = QGLViewer
 VERSION  = 2.2.1
 
