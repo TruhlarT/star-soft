@@ -245,6 +245,17 @@ void  TQtRootViewer3D::EndScene(){
    }
    fBuildingScena = kFALSE;
 }
+
+//______________________________________________________________________________
+void  TQtRootViewer3D::SetDrawOption(Option_t *option)
+{
+  if (fViewer)  fViewer->SetDrawOption(option);
+}
+//______________________________________________________________________________
+Option_t   *TQtRootViewer3D::GetDrawOption() const
+{
+   return fViewer? fViewer->GetDrawOption(): 0;
+}
 //______________________________________________________________________________
 void   TQtRootViewer3D::DisconnectPad()
 {

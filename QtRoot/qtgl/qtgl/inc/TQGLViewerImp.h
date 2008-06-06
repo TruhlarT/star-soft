@@ -1,4 +1,4 @@
-// @(#)root/g3d:$Name:  $:$Id: TQGLViewerImp.h,v 1.18 2007/12/13 21:25:23 fine Exp $
+// @(#)root/g3d:$Name:  $:$Id: TQGLViewerImp.h,v 1.19 2008/06/06 21:16:45 fine Exp $
 // Author: Valery Fine      12/03/2005
 
 /*************************************************************************
@@ -115,8 +115,11 @@ public:
    virtual void   Iconify() { };
    virtual void   Show() { };
    virtual void   Update() { fPaint = kTRUE; }
-   virtual ULong_t GetViewerID() const                  = 0;
-   virtual void   Clear(const char *opt=0)              = 0;
+   virtual ULong_t GetViewerID() const                 = 0;
+   virtual void   Clear(const char *opt=0)             = 0;
+   
+   virtual void   SetDrawOption(Option_t *option="")   = 0;
+   virtual Option_t   *GetDrawOption() const           = 0;
 
 // New methods for Qt
    virtual void AddGLList(unsigned int list, EObject3DType type=kSolid)= 0;

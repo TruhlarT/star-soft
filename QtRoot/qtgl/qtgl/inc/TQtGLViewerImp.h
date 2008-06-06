@@ -1,8 +1,8 @@
-// @(#)root/g3d:$Name:  $:$Id: TQtGLViewerImp.h,v 1.13 2007/06/19 21:33:00 fine Exp $
+// @(#)root/g3d:$Name:  $:$Id: TQtGLViewerImp.h,v 1.14 2008/06/06 21:16:45 fine Exp $
 // Author: Valery Fine      23/05/97
 
 /****************************************************************************
-** $Id: TQtGLViewerImp.h,v 1.13 2007/06/19 21:33:00 fine Exp $
+** $Id: TQtGLViewerImp.h,v 1.14 2008/06/06 21:16:45 fine Exp $
 **
 ** Copyright (C) 2002 by Valeri Fine. Brookhaven National Laboratory.
 **                                    All rights reserved.
@@ -145,6 +145,7 @@ public:
    virtual bool GetUpdatesEnabled() const;
    virtual bool IsFullScreen( )     const;
    virtual bool ObjectPickEnabled() const;
+   virtual Option_t   *GetDrawOption() const;
 
 
 #ifndef __CINT__
@@ -168,6 +169,7 @@ public:
      virtual void SelectDetectorCB(bool on);
      virtual void SetBackgroundColor(Color_t color);
      virtual void SetBackgroundColor(const TColor *color);
+     virtual void SetDrawOption(Option_t *option="");
      virtual void ShowObjectInfo(TObject *, const QPoint&);
      virtual void SnapShotSaveCB(bool);
      virtual void SaveSnapShot(bool);

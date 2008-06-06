@@ -370,6 +370,17 @@ bool  TQtGLViewerImp::GetUpdatesEnabled() const
 { 
    return fGLWidget? fGLWidget->isUpdatesEnabled() : isUpdatesEnabled(); 
 }
+//______________________________________________________________________________
+Option_t   *TQtGLViewerImp::GetDrawOption() const
+{
+   // No option for this type of viewe exists yet
+   return 0;
+}
+//______________________________________________________________________________
+void TQtGLViewerImp::SetDrawOption(Option_t *)
+{
+   // No option for this type of viewer exists yet
+}
 
 //______________________________________________________________________________
 void TQtGLViewerImp::ShowStatusBar(Bool_t show)

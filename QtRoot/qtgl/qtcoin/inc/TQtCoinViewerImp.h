@@ -1,8 +1,8 @@
-// @(#)root/g3d:$Name:  $:$Id: TQtCoinViewerImp.h,v 1.22 2008/05/01 23:25:34 fine Exp $
+// @(#)root/g3d:$Name:  $:$Id: TQtCoinViewerImp.h,v 1.23 2008/06/06 21:16:43 fine Exp $
 // Author: Valery Fine      23/05/97
 
 /****************************************************************************
-** $Id: TQtCoinViewerImp.h,v 1.22 2008/05/01 23:25:34 fine Exp $
+** $Id: TQtCoinViewerImp.h,v 1.23 2008/06/06 21:16:43 fine Exp $
 **
 ** Copyright (C) 2002 by Valeri Fine. Brookhaven National Laboratory.
 **                                    All rights reserved.
@@ -180,7 +180,8 @@ public:
 // Off screen rendering   
    virtual Bool_t IsOffScreen()     const;
    virtual void SetOffScreen(Bool_t offscreen=kTRUE);
-   
+   virtual Option_t   *GetDrawOption() const;
+  
 #ifndef __CINT__
   public slots:
      //virtual void ActivateSelectorWidgetCB(bool);
@@ -204,6 +205,7 @@ public:
      //virtual void SelectDetectorCB(bool on);
      virtual void SetBackgroundColor(Color_t color);
      //virtual void SetBackgroundColor(const TColor *color);
+     virtual void SetDrawOption(Option_t *option="");
      virtual void ShowObjectInfo(TObject *, const QPoint&);
      virtual void SnapShotSaveCB(bool);
      virtual void SaveSnapShot(bool);

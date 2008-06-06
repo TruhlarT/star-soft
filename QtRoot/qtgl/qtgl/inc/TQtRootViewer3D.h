@@ -93,6 +93,8 @@ public:
    virtual Bool_t BuildingScene() const; // called by TPad::Paint | PaintModified
    virtual void   EndScene();            // called by TPad::Paint | PaintModified
    virtual void   SetUpdatesEnabled(bool on=true);
+   virtual void   SetDrawOption(Option_t *option="");
+   virtual Option_t   *GetDrawOption() const;
 
    // Simple object addition - buffer represents a unique single positioned object
    virtual Int_t  AddObject(const TBuffer3D & buffer, Bool_t * addChildren = 0);

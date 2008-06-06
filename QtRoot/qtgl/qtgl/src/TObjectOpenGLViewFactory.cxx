@@ -1,4 +1,4 @@
-// @(#)root/gtgl:$Name:  $:$Id: TObjectOpenGLViewFactory.cxx,v 1.4 2007/06/19 19:45:09 fine Exp $
+// @(#)root/gtgl:$Name:  $:$Id: TObjectOpenGLViewFactory.cxx,v 1.5 2008/06/06 21:16:46 fine Exp $
 // Author: Valery Fine      24/04/05
 
 /****************************************************************************
@@ -126,7 +126,7 @@ static inline void CallGLList(const TObject3DView *view
                 if (view->IsSelectable() ) {
                  // fprintf(stderr," 1. Selectable %d object %p view = %p  %s\n",id, view->GetObject(), view, view->GetObject()->GetName());
 // #ifdef NAMESELECTOR                 
-                  glPushName( GLuint(view));
+// tm vf 15.91.2007                  glPushName( GLuint(view));
 // #endif
                      glCallList(id);
 // #ifdef NAMESELECTOR

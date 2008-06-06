@@ -618,6 +618,21 @@ void TQtCoinWidget::SetClipMask(unsigned int mask)
     }
     fClipMask = mask; 
 }
+//______________________________________________________________________________
+Option_t   *TQtCoinWidget::GetDrawOption() const
+{
+   // can not return the const char * from QString yet 
+   assert(0);
+   return 0;                
+}
+//______________________________________________________________________________
+void TQtCoinWidget::SetDrawOption(Option_t *option)
+{
+   // Set the comma separated list of the draw options
+   fViewerDrawOption = "";
+   if (option && option[0]) { fViewerDrawOption = option;}
+
+}
 
 //______________________________________________________________________________
 void TQtCoinWidget::SetPad(TVirtualPad *pad)
@@ -852,7 +867,15 @@ void TQtCoinWidget::ViewAll()
          SoChildList *lc = fFileNode ? fFileNode->getChildren() : 0;
          if (!lc || (lc->getLength() == 0 ) ) {
             // read the background object if any (list of : or ; separated files)
-            TString bkShape = gEnv->GetValue("Gui.InventorBackgroundShape",(const char *)0);
+            TString bkShape;
+            if ( !fViewerDrawOption.isEmpty()) 
+#if QT_VERSION >= 0x40000
+               bkShape=(const char *)fViewerDrawOption.toStdString().c_str();
+#else
+               bkShape=(const char*)fViewerDrawOption;
+#endif
+            const char *shp =  gEnv->GetValue("Gui.InventorBackgroundShape",(const char *)0);
+            if (shp && shp[0]) bkShape += shp;
             // printf("TQtCoinWidget::AddRootChild------------bkShape  %s  <===\n",bkShape.Data());
             if (!bkShape.IsNull()) { 
                // list of : or ; separated search directories

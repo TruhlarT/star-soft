@@ -1,8 +1,8 @@
-// @(#)root/g3d:$Name:  $:$Id: TQtCoinWidget.h,v 1.32 2008/05/12 19:20:36 fine Exp $
+// @(#)root/g3d:$Name:  $:$Id: TQtCoinWidget.h,v 1.33 2008/06/06 21:16:44 fine Exp $
 // Author: Valery Fine      23/05/97
 
 /****************************************************************************
-** $Id: TQtCoinWidget.h,v 1.32 2008/05/12 19:20:36 fine Exp $
+** $Id: TQtCoinWidget.h,v 1.33 2008/06/06 21:16:44 fine Exp $
 **
 ** Copyright (C) 2002 by Valeri Fine. Brookhaven National Laboratory.
 **                                    All rights reserved.
@@ -46,11 +46,7 @@
 #  endif /* QT_VERSION */
 #  include <qlabel.h>
 #else
-#  if QT_VERSION < 0x40000
-     class QFrame;
-#  else /* QT_VERSION */
-     class QFrame;
-#  endif /* QT_VERSION */
+   class QFrame;
    class QString;
 #endif
 
@@ -184,6 +180,7 @@ protected:
    SoOffscreenRenderer *fOffScreenRender; 
    Bool_t            fAddBackground;
    unsigned int      fClipMask;// The mask to indicate which kind of shape can be clipped
+   QString           fViewerDrawOption; // the comma seoparated lis of the draw options
 
 protected:
    friend class TQtCoinViewerImp;
@@ -263,6 +260,7 @@ public:
    SoEventCallback *KeyboardHandler() const { return fKeyboardHandler;      }
    static void RotateCamera(SoCamera * cam,const SbVec3f & aroundaxis,const float delta);
    unsigned int ClipMask() const { return fClipMask; }
+   virtual Option_t   *GetDrawOption() const;
 #ifndef __CINT__
   public slots:
      //virtual void ActivateSelectorWidgetCB(bool);
@@ -289,6 +287,7 @@ public:
      virtual void SetFileName(const QString &fileName);
      virtual void SetFileType(const QString &fileType);
      virtual void SetClipMask(unsigned int mask);
+     virtual void SetDrawOption(Option_t *option="");
      virtual void ClearCB();
      virtual void SaveAsCB();
      //virtual void SelectEventCB(bool on);
