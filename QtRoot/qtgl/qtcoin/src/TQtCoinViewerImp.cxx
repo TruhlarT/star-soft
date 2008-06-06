@@ -409,11 +409,13 @@ bool TQtCoinViewerImp::GetUpdatesEnabled() const
 //______________________________________________________________________________
 Option_t   *TQtCoinViewerImp::GetDrawOption() const
 {
-   return 0;
+   return fCoinWidget ? fCoinWidget->GetDrawOption(): 0;
 }
+
 //______________________________________________________________________________
 void TQtCoinViewerImp::SetDrawOption(Option_t *option)
 {
+   if (fCoinWidget) fCoinWidget->SetDrawOption(option);
 }
 //______________________________________________________________________________
 TVirtualPad *TQtCoinViewerImp::GetPad() 

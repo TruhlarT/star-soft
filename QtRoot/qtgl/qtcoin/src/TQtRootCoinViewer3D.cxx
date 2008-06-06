@@ -91,7 +91,8 @@ void   TQtRootCoinViewer3D::Viewer()
 #ifdef STAR_ONLINE_MONITOR      
       ((TQtCoinViewerImp *)fViewer)->move(0,0);
       ((TQtCoinViewerImp *)fViewer)->showMaximized();
-#endif      
+#endif
+      if (fViewer && !fDrawOption.IsNull()) fViewer->SetDrawOption(fDrawOption.Data());
       fDisconnectSlot = new SlotDisconnect(this);
       QObject::connect(&(fViewer->Signals()),SIGNAL(destroyed()), fDisconnectSlot, SLOT(DestroyMaster()));
       fPad->Connect("Closed()","TQtRootCoinViewer3D", this, "DisconnectPad()");
@@ -199,6 +200,18 @@ void  TQtRootCoinViewer3D::MakeViewerNil()
 void TQtRootCoinViewer3D::Clear(Option_t *)
 {
     ClearPrimitives();
+}
+//______________________________________________________________________________
+void TQtRootCoinViewer3D::SetDrawOption(Option_t *option)
+{ 
+     fDrawOption = option;
+}
+//______________________________________________________________________________
+Option_t   *TQtRootCoinViewer3D::GetDrawOption() const
+{
+   return fViewer ? fViewer->GetDrawOption()
+                  :
+                   (fDrawOption.IsNull() ? 0 : fDrawOption.Data());
 }
 
 /*

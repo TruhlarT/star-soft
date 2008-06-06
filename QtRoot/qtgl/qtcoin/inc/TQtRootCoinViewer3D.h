@@ -40,16 +40,19 @@ public:
    virtual Int_t  AddRawObject(ULong_t placedID, UInt_t optMask);
    virtual void   Clear(Option_t *opt="");
    virtual void   CloseScene();            // called by EndScene
+   virtual void SetDrawOption(Option_t *option="");
+   virtual Option_t   *GetDrawOption() const;
 
    //virtual Int_t  AddObject(TObject *, Option_t* drawOption = 0, Bool_t * addChildren = 0);
    //virtual Int_t  AddObjectFirst(TObject *, Option_t* drawOption = 0, Bool_t * addChildren = 0);
 protected:
-         Bool_t fViewAll;
+         Bool_t      fViewAll;
+         TString     fDrawOption;// the draw optiuoin to pass to the viewer if present
 
 protected:
    // TQtCoinViewerImp   *fCoinViewer;
 
-   virtual void        Viewer();
+   virtual void     Viewer();
 
    virtual void     MakeViewerNil();	
    void             Disconnect();
