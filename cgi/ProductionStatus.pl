@@ -244,7 +244,7 @@ my $qsites = "$qsite%";
 
   if( $qsite eq "ALL" ) {
 
-      $sql="SELECT $MasterJobEfficiencyT.jobID_MD5 as jobid, $MasterJobEfficiencyT.processID as prodid, submitTime, site, prodTag, submitAttempt, globusError, dotOutHasSize, dotErrorHasSize, exec, transIn, transOut, lastKnownState, overAllState, $IOStatusT.jobID_MD5, $IOStatusT.processID, name_workerNode FROM $MasterJobEfficiencyT, $IOStatusT WHERE submitTime like ? and $MasterJobEfficiencyT.jobID_MD5 = $IOStatusT.jobID_MD5 and $MasterJobEfficiencyT.processID = $IOStatusT.processID and isInputFile = 1 order by $MasterJobEfficiencyT.processID"; 
+      $sql="SELECT $MasterJobEfficiencyT.jobID_MD5 as jobid, $MasterJobEfficiencyT.processID as prodid, submitTime, site, prodTag, submitAttempt, globusError, dotOutHasSize, dotErrorHasSize, exec, transIn, transOut, lastKnownState, overAllState, $IOStatusT.jobID_MD5, $IOStatusT.processID, name_requester FROM $MasterJobEfficiencyT, $IOStatusT WHERE submitTime like ? and $MasterJobEfficiencyT.jobID_MD5 = $IOStatusT.jobID_MD5 and $MasterJobEfficiencyT.processID = $IOStatusT.processID and isInputFile = 1 order by $MasterJobEfficiencyT.processID"; 
 
        $cursor =$dbh->prepare($sql)
       || die "Cannot prepare statement: $DBI::errstr\n";
@@ -253,7 +253,7 @@ my $qsites = "$qsite%";
   }else{
 
 
-     $sql="SELECT $MasterJobEfficiencyT.jobID_MD5 as jobid, $MasterJobEfficiencyT.processID as prodid, submitTime, site, prodTag, submitAttempt, globusError, dotOutHasSize, dotErrorHasSize, exec, transIn, transOut, lastKnownState, overAllState, $IOStatusT.jobID_MD5, $IOStatusT.processID, name_workerNode FROM $MasterJobEfficiencyT, $IOStatusT WHERE submitTime like ? and site = ? and $MasterJobEfficiencyT.jobID_MD5 = $IOStatusT.jobID_MD5 and $MasterJobEfficiencyT.processID = $IOStatusT.processID and isInputFile = 1 order by $MasterJobEfficiencyT.processID ";
+     $sql="SELECT $MasterJobEfficiencyT.jobID_MD5 as jobid, $MasterJobEfficiencyT.processID as prodid, submitTime, site, prodTag, submitAttempt, globusError, dotOutHasSize, dotErrorHasSize, exec, transIn, transOut, lastKnownState, overAllState, $IOStatusT.jobID_MD5, $IOStatusT.processID, name_requester FROM $MasterJobEfficiencyT, $IOStatusT WHERE submitTime like ? and site = ? and $MasterJobEfficiencyT.jobID_MD5 = $IOStatusT.jobID_MD5 and $MasterJobEfficiencyT.processID = $IOStatusT.processID and isInputFile = 1 order by $MasterJobEfficiencyT.processID ";
 
 
      $cursor =$dbh->prepare($sql)
@@ -272,7 +272,7 @@ my $qsites = "$qsite%";
 
       ($$fObjAdr)->subtime($fvalue)   if( $fname eq 'submitTime');
       ($$fObjAdr)->tsite($fvalue)     if( $fname eq 'site');
-      ($$fObjAdr)->infile($fvalue)    if( $fname eq 'name_workerNode');
+      ($$fObjAdr)->infile($fvalue)    if( $fname eq 'name_requester');
       ($$fObjAdr)->prtag($fvalue)     if( $fname eq 'prodTag');
       ($$fObjAdr)->glerr($fvalue)     if( $fname eq 'globusError');
       ($$fObjAdr)->errstat($fvalue)   if( $fname eq 'dotErrorHasSize');
