@@ -391,7 +391,7 @@ my $qsites = "$qsite%";
    &printUnkRow();
 
   }
- 
+  } 
 
     &GRdbDisconnect();
 
