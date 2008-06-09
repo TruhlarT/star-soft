@@ -428,7 +428,7 @@ print <<END;
 <TD ALIGN=CENTER WIDTH=\"5%\" HEIGHT=50><B>Site</B></TD>
 <TD ALIGN=CENTER WIDTH=\"5%\" HEIGHT=50><B>Production tag</B></TD>
 <TD ALIGN=CENTER WIDTH=\"10%\" HEIGHT=50><B>Input file name</B></TD>
-<TD ALIGN=CENTER WIDTH=\"5%\" HEIGHT=50><B>N Resubmit</B></TD>
+<TD ALIGN=CENTER WIDTH=\"5%\" HEIGHT=50><B>No. Submit</B></TD>
 <TD ALIGN=CENTER WIDTH=\"10%\" HEIGHT=50><B>Submission Time</B></TD>
 <TD ALIGN=CENTER WIDTH=\"10%\" HEIGHT=50><B>Globus status</B></TD>
 <TD ALIGN=CENTER WIDTH=\"5%\" HEIGHT=50><B>Log file<br> transfer status</B></TD>
