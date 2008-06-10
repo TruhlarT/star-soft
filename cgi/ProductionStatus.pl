@@ -561,7 +561,7 @@ END
 sub printUnkRow {
 
 print <<END;
-<TR BGCOLOR=blue ALIGN=CENTER>
+<TR BGCOLOR=lightblue ALIGN=CENTER>
 <td>$gsite</td>
 <td>$prodtag</td>
 <td>$inFile</td>
