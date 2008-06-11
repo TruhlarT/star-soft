@@ -1,4 +1,4 @@
-// @(#)root/gl:$Name:  $:$Id: TQGLKernel.h,v 1.4 2007/03/06 17:44:01 fine Exp $
+// @(#)root/gl:$Name:  $:$Id: TQGLKernel.h,v 1.5 2008/06/11 17:10:28 fine Exp $
 // Author: Valery Fine(fine@vxcern.cern.ch)   05/03/97
 
 /*************************************************************************
@@ -24,7 +24,7 @@
 
 #include "TQVirtualGL.h"
 
-#ifndef __APPLE__
+#if !defined( __APPLE__ ) || defined(Q_OS_DARWIN)
 #   ifndef ROOT_TRootGLU
 #     include "TRootGLU.h"
 #   endif

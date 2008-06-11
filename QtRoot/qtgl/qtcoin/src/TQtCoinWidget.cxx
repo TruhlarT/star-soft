@@ -158,7 +158,7 @@
 
 
 #include <vector>
-#ifndef __APPLE__
+#if !defined( __APPLE__ ) || defined(Q_OS_DARWIN)
 #  if  ROOT_VERSION_CODE >= ROOT_VERSION(5,15,9)
 #    include  "TGLIncludes.h"
 #  else
