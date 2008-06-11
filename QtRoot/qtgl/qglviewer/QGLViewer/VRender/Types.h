@@ -51,7 +51,7 @@
 # include <windows.h>
 #endif
 
-#if defined(__APPLE__ ) && !defined(Q_OS_DARWIN)
+#if defined(__APPLE__ ) && !defined(Q_WS_X11)
 # include <OpenGL/gl.h>
 #else
 # include <GL/gl.h>

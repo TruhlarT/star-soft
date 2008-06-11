@@ -1,4 +1,4 @@
-// @(#)root/gtgl:$Name:  $:$Id: TObjectOpenGLViewFactory.cxx,v 1.6 2008/06/11 17:10:28 fine Exp $
+// @(#)root/gtgl:$Name:  $:$Id: TObjectOpenGLViewFactory.cxx,v 1.7 2008/06/11 18:02:03 fine Exp $
 // Author: Valery Fine      24/04/05
 
 /****************************************************************************
@@ -23,7 +23,7 @@
 #include "TGeometry.h"
 #include <stack>
 
-#if !defined( __APPLE__ ) || defined(Q_OS_DARWIN)
+#if !defined( __APPLE__ ) || defined(Q_WS_X11)
 #  if  ROOT_VERSION_CODE >= ROOT_VERSION(5,15,9)
 #    include  "TGLIncludes.h"
 #  else
