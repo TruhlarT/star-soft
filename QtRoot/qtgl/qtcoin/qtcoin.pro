@@ -117,9 +117,12 @@ hpux {
 headerfiles.path  = $$QTROOTSYSPATHINSTALL/include
 headerfiles.files = $$QTCOINDIRI/*.*
 
+plugins.path   = $$QTROOTSYSPATHINSTALL/etc/plugins/TVirtualViewer3D/
+plugins.files  = plugins/TVirtualViewer3D/*.C
+
 target.path = $$QTROOTSYSPATHINSTALL/lib
 
-INSTALLS += headerfiles target
+INSTALLS += headerfiles target plugins
 
 # Input
 HEADERS += inc/TQtCoinViewerImp.h            \
