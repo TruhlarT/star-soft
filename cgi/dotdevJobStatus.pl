@@ -79,7 +79,7 @@ struct FileAttr => {
 # print "Today Date :", $thisDay, "\n";
 #  print $mdate, "\n"; 
 
- $testDay = "2008-06-27"; 
+ $mdate = "2008-06-27"; 
 
 my @dbFiles = ();
 my $ndbFiles = 0; 
