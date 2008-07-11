@@ -478,7 +478,7 @@ struct JFileAttr => {
 
 #####  select all files from JobStatusT from testDay direcroties
 
- $sql="SELECT jobID, path, logFile, createTime, avail FROM $JobStatusT WHERE path LIKE '%$testDay%' AND avail = 'Y'";
+ $sql="SELECT jobID, path, logFile, createTime, avail FROM $JobStatusT WHERE path LIKE '%/dev/%$testDay%' AND avail = 'Y'";
    $cursor =$dbh->prepare($sql)
     || die "Cannot prepare statement: $DBI::errstr\n";
    $cursor->execute;
@@ -507,7 +507,7 @@ struct JFileAttr => {
 
 #####  select all files from JobStatusT from beforeDay direcroties
 
- $sql="SELECT jobID, path, logFile, createTime, avail FROM $JobStatusT WHERE path LIKE '%$beforeDay%' AND avail = 'Y'";
+ $sql="SELECT jobID, path, logFile, createTime, avail FROM $JobStatusT WHERE path LIKE '%/dev/%$beforeDay%' AND avail = 'Y'";
    $cursor =$dbh->prepare($sql)
     || die "Cannot prepare statement: $DBI::errstr\n";
    $cursor->execute;
