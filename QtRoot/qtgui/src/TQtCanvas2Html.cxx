@@ -22,6 +22,7 @@
 #include "TH1.h"
 #include "TList.h"
 #include "TIterator.h"
+#include "TError.h"
 // fgPrefix = "Root_Qt_Canvas";
 
 //______________________________________________________________________________________________
@@ -135,31 +136,39 @@ int TQtCanvas2Html::CreateMapPage(TVirtualPad *pad)
 {
    // Create html AREA for each TPad from the current TCanvas
 
-   if (!pad) pad = gPad;
-   // Loop over the TPad and look for the sub-pads
-   TList *l= pad->GetListOfPrimitives();
-   TIter next(l);
    Int_t padCounter = 0;
-   TObject *o = 0;
-   QString map = "map";
-   map += fTargetWindow;
-   MapTag((const char*)map);
-   while ( (o=next()) ) {
-      if (o->InheritsFrom(TVirtualPad::Class())) {
-         TVirtualPad *p = (TVirtualPad *)o;
-         fZoomer->SetPad(p,padCounter ==0);
-         // Find first pad there
-         TVirtualPad  *pp = (TVirtualPad  *)fZoomCanvas->GetListOfPrimitives()->First();
-         TQtPad2Html nextPad(pp,(const char *)HtmlFolder());
-         QFileInfo info(nextPad.PadHtmlFile());
-         CreateRectArea(info.fileName(), nextPad.ImageTitle()
+   if (!pad) pad = gPad;
+
+   // Refresh the pad to make sure its image is up-to-date
+   pad->Modified();
+   pad->Update();
+   if (pad) {
+      // Loop over the TPad and look for the sub-pads
+      TList *l= pad->GetListOfPrimitives();
+      TIter next(l);
+      TObject *o = 0;
+      QString map = "map";
+      map += fTargetWindow;
+      MapTag((const char*)map);
+      while ( (o=next()) ) {
+         if (o->InheritsFrom(TVirtualPad::Class())) {
+            TVirtualPad *p = (TVirtualPad *)o;
+            fZoomer->SetPad(p,padCounter ==0);
+            // Find first pad there
+            TVirtualPad  *pp = (TVirtualPad  *)fZoomCanvas->GetListOfPrimitives()->First();
+            TQtPad2Html nextPad(pp,(const char *)HtmlFolder());
+            QFileInfo info(nextPad.PadHtmlFile());
+            CreateRectArea(info.fileName(), nextPad.ImageTitle()
                         , p->UtoAbsPixel(0), p->VtoAbsPixel(1)
                         , p->UtoAbsPixel(0)+p->UtoPixel(1)
                         , p->VtoAbsPixel(1)+p->VtoPixel(0) );
-         padCounter++;
+            padCounter++;
+         }
       }
+      EndTag("MAP");
+      Printf("Total pages: %d", padCounter+1);
+   } else {
+      Warning("TQtCanvas2Html::CreateMapPage"," No TPad has been provided. ");
    }
-   EndTag("MAP");
-   fprintf(stdout, "Total pages: %d\n", padCounter+1);
    return padCounter;
 }
