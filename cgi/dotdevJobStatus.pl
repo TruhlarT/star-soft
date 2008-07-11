@@ -87,7 +87,7 @@ my $ndbFiles = 0;
  &beginHtml();
 
 
-$sql="SELECT path, logFile, jobStatus, NoEventDone, chainOpt, memUsageF, memUsageL, CPU_per_evt_sec, createTime FROM $JobStatusT where path LIKE '%/dotdev/%$testDay%' AND avail = 'Y' AND createTime like '$mdate%' ";
+$sql="SELECT path, logFile, jobStatus, NoEventDone, chainOpt, memUsageF, memUsageL, CPU_per_evt_sec, createTime FROM $JobStatusT where path LIKE '%/dotdev/%' AND avail = 'Y' ";
  $cursor =$dbh->prepare($sql)
    || die "Cannot prepare statement: $DBI::errstr\n";
  $cursor->execute;
