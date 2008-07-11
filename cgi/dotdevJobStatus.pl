@@ -156,10 +156,10 @@ sub beginHtml {
 print <<END;
   <html>
    <head>
-          <title>Status of Nightly Test Jobs Produced </title>
+          <title>Status of  Test Jobs for .DEV library </title>
    </head>
    <body BGCOLOR=\"#ccffff\"> 
-     <h1 align=center>Status of Nightly Test Jobs Produced Last Night</h1>
+     <h1 align=center>Status of Test Jobs for .DEV library</h1>
 <TABLE ALIGN=CENTER BORDER=5 CELLSPACING=1 CELLPADDING=2 >
 <TR>
 <TD ALIGN=CENTER WIDTH=\"20%\" HEIGHT=50><B>Path</B></TD>
