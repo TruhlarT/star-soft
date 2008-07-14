@@ -97,12 +97,6 @@ my $thistime;
     $ii++;
   }
 
-     for ($ik = 8; $ik < 10; $ik++) { 
-
- $OUT_DIR[$ii] = $TOP_DIRD . $node_dir[$i] . "/" . $testDay . "/". $dir_year[4] . "/" . $hc_dir[$ik];
-  print "Output Dir for DEV :", $OUT_DIR[$ii], "\n";
-    $ii++;
-    }
   }
 
       for ($ik = 6; $ik < 8; $ik++) { 
@@ -220,12 +214,6 @@ my $jj = 0;
     $ii++;
   }
 
-     for ($ik = 8; $ik < 10; $ik++) { 
-
- $OUT_DIR[$ii] = $TOP_DIRD . $node_dir[$i] . "/" . $beforeDay . "/". $dir_year[4] . "/" . $hc_dir[$ik];
-  print "Output Dir for DEV :", $OUT_DIR[$ii], "\n";
-    $ii++;
-    }
   }
 
       for ($ik = 6; $ik < 8; $ik++) { 
