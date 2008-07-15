@@ -1,6 +1,6 @@
 #!/usr/bin/env perl
 
-# $Id: AutoBuild.pl,v 1.34 2007/02/26 18:17:35 jeromel Exp $
+# $Id: AutoBuild.pl,v 1.35 2008/07/15 22:11:43 jeromel Exp $
 # This script was written to perform an automatic compilation
 # with cvs co and write some html page related to it afterward.
 # Written J.Lauret Apr 6 2001
@@ -110,7 +110,7 @@ $DEBUG     = 1==0;       # Debug mode (i.e. no post-tasks)
 $TRASH     = 1==0;       # trash code cvs finds conflicting
 $NOTIFY    = 1==1;       # notify managers if problems
 $FILO      = STDOUT;     # Default Output file
-
+$RELCODE   = 1==0;       # Default is not to release code
 
 # All arguments will be kept for checksum purposes
 $ALLARGS   = "$^O";      # platform will be kept in for sure
@@ -159,6 +159,7 @@ for ($i=0 ; $i <= $#ARGV ; $i++){
 	    # operations
 	    $NIGNOR   = 1==0;
 	    $SILENT   = 1==1;
+
 	} elsif($arg eq "-u"){
 	    $CVSUPD   = 1==1;
 	    $CVSCOU   = 1==0;
@@ -167,6 +168,10 @@ for ($i=0 ; $i <= $#ARGV ; $i++){
 	    $CVSUPD   = 1==0;
 	    $CVSCOU   = 1==1;
 	    $SILENT   = 1==1;
+
+	} elsif($arg eq "-R"){
+	    $RELCODE  = 1==1;
+
 	} elsif($arg eq "-s"){
 	    $NOTIFY   = 1==0;
 	} elsif($arg eq "-d"){
@@ -785,11 +790,28 @@ sub Exit()
 		     "check ".IUHtmlRef()."/$FLNM.html");
 	exit(1);
     } else {
-	# Release the volume now
-	$tmp = IUReleaseFile();
-	ABUnlink($tmp);
-	open(FO,">$tmp"); print FO "Ready to release on ".localtime()."\n";
-	close(FO);
+	# Change in 2008 / create the marker file in a sub-tree, only
+	# release code if checkout / update was requested or -U was asked
+	
+	#if ( $RELCODE ){
+	    # Release the volume now
+	    $tmp = IUReleaseFile();
+	    ABUnlink($tmp);
+	    open(FO,">$tmp"); print FO "Ready to release on ".localtime()."\n";
+	    close(FO);
+	#}
+
+	if ( defined($ENV{STAR_HOST_SYS}) ){
+	    my($subf,$subd);
+
+	    $subd = $subf =".".$ENV{STAR_HOST_SYS}."/".$tmp;
+	    $subd =~ m/(.*\/)(.*)/;
+	    if ( -e $subd ){
+		ABUnlink($subf);
+		open(FO,">$subf"); print FO "Ready to release on ".localtime()."\n";
+		close(FO);
+	    }
+	}
 
 	# And exit with normal status
 	exit(0);
@@ -1090,7 +1112,7 @@ sub lhelp
  default values. They are :
 
  -i           Do not checkout/update from cvs.
- -c           Performs a cvs checkout automatically
+ -c           Performs a cvs checkout automatically 
  -u           Performs a cvs update automatically
 
  -t           Tag any resulting output summary file with OS name i.e.
@@ -1111,6 +1133,8 @@ sub lhelp
  -d           Debug. DO NOT perform post compilation tasks and perform
               a HTML output in $ENV{HOME} instead of
               $TRGTDIR
+ -R           Release main volume (code) in post compilation tasks.
+
  -f           Flush the default list of directories to skip
  -x ABC       Exclude ABC from list in addition to default exclusion
               list $excl
