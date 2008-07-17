@@ -312,6 +312,8 @@ while ( defined($logname = readdir(LOGDIR)) ){
 			    $err .= "Code was aborted | ";
 			}
 		    } elsif ( $logerr =~ m/(^CheckFail:+)(.*)/){
+			# St_db_Maker.cxx >> CheckFail:: Assert will fail for Table
+			# StSpaceChargeEbyEMaker.cxx >> CheckFail: Break of SpaceCharge performance
 			unless ($err =~ /$2/){
 			    $err .= "$2 | ";
 			}
