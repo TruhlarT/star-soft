@@ -1,6 +1,6 @@
 #!/usr/bin/env perl
 
-# $Id: AutoBuild.pl,v 1.35 2008/07/15 22:11:43 jeromel Exp $
+# $Id: AutoBuild.pl,v 1.36 2008/07/18 17:58:11 jeromel Exp $
 # This script was written to perform an automatic compilation
 # with cvs co and write some html page related to it afterward.
 # Written J.Lauret Apr 6 2001
@@ -805,12 +805,22 @@ sub Exit()
 	    my($subf,$subd);
 
 	    $subd = $subf =".".$ENV{STAR_HOST_SYS}."/".$tmp;
-	    $subd =~ m/(.*\/)(.*)/;
+	    $subd =~ m/(.*\/)(.*)/; $subd = $1;
 	    if ( -e $subd ){
 		ABUnlink($subf);
 		open(FO,">$subf"); print FO "Ready to release on ".localtime()."\n";
 		close(FO);
+	    } else {
+		my($flnm)=$ENV{HOME}."/AB-debug.log";
+		open(FD,">>$flnm");
+		print FD "Could not find $subd\n";
+		close(FD);
 	    }
+	} else {
+	    my($flnm)=$ENV{HOME}."/AB-debug.log";
+	    open(FD,">>$flnm");
+	    print FD "Not defined STAR_HOST_SYS\n";
+	    close(FD);
 	}
 
 	# And exit with normal status
