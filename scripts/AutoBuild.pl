@@ -1,6 +1,6 @@
 #!/usr/bin/env perl
 
-# $Id: AutoBuild.pl,v 1.36 2008/07/18 17:58:11 jeromel Exp $
+# $Id: AutoBuild.pl,v 1.37 2008/07/21 20:17:05 jeromel Exp $
 # This script was written to perform an automatic compilation
 # with cvs co and write some html page related to it afterward.
 # Written J.Lauret Apr 6 2001
@@ -793,13 +793,13 @@ sub Exit()
 	# Change in 2008 / create the marker file in a sub-tree, only
 	# release code if checkout / update was requested or -U was asked
 	
-	#if ( $RELCODE ){
+	if ( $RELCODE ){
 	    # Release the volume now
 	    $tmp = IUReleaseFile();
 	    ABUnlink($tmp);
 	    open(FO,">$tmp"); print FO "Ready to release on ".localtime()."\n";
 	    close(FO);
-	#}
+	}
 
 	if ( defined($ENV{STAR_HOST_SYS}) ){
 	    my($subf,$subd);
@@ -810,17 +810,17 @@ sub Exit()
 		ABUnlink($subf);
 		open(FO,">$subf"); print FO "Ready to release on ".localtime()."\n";
 		close(FO);
-	    } else {
-		my($flnm)=$ENV{HOME}."/AB-debug.log";
-		open(FD,">>$flnm");
-		print FD "Could not find $subd\n";
-		close(FD);
+	     #} else {
+		#my($flnm)=$ENV{HOME}."/AB-debug.log";
+		#open(FD,">>$flnm");
+		#print FD "Could not find $subd\n";
+		#close(FD);
 	    }
-	} else {
-	    my($flnm)=$ENV{HOME}."/AB-debug.log";
-	    open(FD,">>$flnm");
-	    print FD "Not defined STAR_HOST_SYS\n";
-	    close(FD);
+	#} else {
+	    #my($flnm)=$ENV{HOME}."/AB-debug.log";
+	    #open(FD,">>$flnm");
+	    #print FD "Not defined STAR_HOST_SYS\n";
+	    #close(FD);
 	}
 
 	# And exit with normal status
