@@ -186,7 +186,7 @@ if ( -r  $GROUP_DIR/star_login.csh ) then
 		breaksw
 	    default
 		# Is update mode, not checkout
-		$SCRIPTD/AutoBuild.pl -u >$HOME/log/AB-$DAY.log
+		$SCRIPTD/AutoBuild.pl -u -R >$HOME/log/AB-$DAY.log
 	    endsw
 	endif
 endif
