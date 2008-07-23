@@ -209,6 +209,11 @@ unsetenv INITIALE
 
 
 # Set hostname
+if ( ! $?HOSTNAME ) then
+    # this may be necessary as globhal login may be
+    # skipped in Condor mode for example
+    setenv HOSTNAME `/bin/hostname`
+endif
 setenv HOST `/bin/hostname | /bin/sed "s/\..*//"`
 
 
