@@ -1,5 +1,5 @@
 //_____________________________________________________________________
-// @(#)StRoot/StBFChain:$Name:  $:$Id: StBFChain.cxx_doc,v 1.49 2008/07/02 19:35:12 jeromel Exp $
+// @(#)StRoot/StBFChain:$Name:  $:$Id: StBFChain.cxx_doc,v 1.50 2008/07/24 19:23:10 jeromel Exp $
 //_____________________________________________________________________
 #include "TROOT.h"
 #include "TString.h"
@@ -75,10 +75,14 @@ Bfc_st BFC[] = {
   {"RY2005d","","","db,detDb" ,"","","y2005d + new SVT",kFALSE},
   {"RY2005e","","","db,detDb" ,"","","y2005e + new SVT",kFALSE},
   {"RY2005f","","","db,detDb" ,"","","y2005f + new SVT",kFALSE},
+  {"RY2005g","","","db,detDb" ,"","","y2005g + new SVT",kFALSE},
 
-  {"RY2006","","","db,detDb" ,"","","y2006 for p+p run",kFALSE},
+  {"RY2006","","" ,"db,detDb" ,"","","y2006 for p+p run",kFALSE},
+  {"RY2006g","","","db,detDb" ,"","","y2006g for p+p run",kFALSE},
 
-  {"RY2007","","","db,detDb" ,"","","y2007 for AuAu run",kFALSE},
+  {"RY2007","","" ,"db,detDb" ,"","","y2007 for AuAu run",kFALSE},
+  {"RY2007g","","","db,detDb" ,"","","y2007g for AuAu run",kFALSE},
+
   {"RY2008","","","db,detDb,NosvtIT,NossdIT" ,"","","y2008 for dAu run",kFALSE},
 
   {"Y2a" ,"","","db,detDb" ,"","","Old (CDR time) complete STAR",kFALSE},
@@ -1251,10 +1255,14 @@ Bfc_st BFC2[] = {
   {"RY2005d","","","db,detDb" ,"","","y2005d + new SVT",kFALSE},
   {"RY2005e","","","db,detDb" ,"","","y2005e + new SVT",kFALSE},
   {"RY2005f","","","db,detDb" ,"","","y2005f + new SVT",kFALSE},
+  {"RY2005g","","","db,detDb" ,"","","y2005g + new SVT",kFALSE},
 
-  {"RY2006","","","db,detDb" ,"","","y2006 for p+p run",kFALSE},
+  {"RY2006","","" ,"db,detDb" ,"","","y2006 for p+p run",kFALSE},
+  {"RY2006g","","","db,detDb" ,"","","y2006g for p+p run",kFALSE},
 
-  {"RY2007","","","db,detDb" ,"","","y2007 for AuAu run",kFALSE},
+  {"RY2007","","" ,"db,detDb" ,"","","y2007 for AuAu run",kFALSE},
+  {"RY2007g","","","db,detDb" ,"","","y2007g for AuAu run",kFALSE},
+
   {"RY2008","","","db,detDb,NosvtIT,NossdIT" ,"","","y2008 for dAu run",kFALSE},
 
   {"Y2a" ,"","","db,detDb" ,"","","Old (CDR time) complete STAR",kFALSE},
@@ -1471,23 +1479,25 @@ Bfc_st BFC2[] = {
   {"B2006" ,"" ,"","ry2005d,in,tpc_daq,tpcI,svt_daq,SvtD,Idst,tags,Tree,evout","",""
                                                               ,"Base chain for 2006 ITTF (tpc+svt)",kFALSE},
 
+
   {"B2006a" ,"" ,"","ry2005d,in,tpc_daq,tpcI,Idst,-SvtDedx,tags,Tree,evout","",""
                                              ,"Base chain for 2006 with 2005d geom ITTF (tpc only)",kFALSE},
   {"B2006b" ,"" ,"","ry2006,in,tpc_daq,tpcI,Idst,-SvtDedx,tags,Tree,evout","",""
                                                              ,"Base chain for 2006 ITTF (tpc only)",kFALSE},
-
-
-
-
-
-
-
+  {"B2006g" ,"" ,"","ry2006g,in,tpc_daq,tpcI,Idst,-SvtDedx,tags,Tree,evout","",""
+                                                       ,"Base chain for 2006 ITTF geo g (tpc only)",kFALSE},
   {"pp2006a" ,"" ,"",
    "B2006a,IAna,fcf,ppOpt,VFPPVnoCTB,beamline,l3onl,emcDY2,fpd,ftpc,trgd,ZDCvtx,Corr3",
                 "","","Production chain for 2005 pp data (+ l3, tof, bcc/fpd, ftpc, e/b-emc, trgd)",kFALSE},
   {"pp2006b" ,"" ,"",
    "B2006b,IAna,fcf,ppOpt,VFPPVnoCTB,beamline,l3onl,emcDY2,fpd,ftpc,trgd,ZDCvtx,Corr4,BeamBack",
                 "","","Production chain for 2005 pp data (+ l3, tof, bcc/fpd, ftpc, e/b-emc, trgd)",kFALSE},
+
+  {"pp2006g" ,"" ,"",
+   "B2006g,IAna,fcf,ppOpt,VFPPVnoCTB,beamline,l3onl,emcDY2,fpd,ftpc,trgd,ZDCvtx,Corr4,BeamBack",
+          "","","Production chain for 2005 pp data geo g (+ l3, tof, bcc/fpd, ftpc, e/b-emc, trgd)",kFALSE},
+
+
 
 
   {"T2007","","","ry2007g,MakeEvent,in,tpc_daq,tpcI,fcf,Tree,evout","","","TPC only chain,  2007 ITTF",kFALSE},
@@ -1534,22 +1544,21 @@ Bfc_st BFC2[] = {
    "B2008,IAna,hitfilt,ppOpt,VFMinuit,l3onl,emcDY2,fpd,ftpc,trgd,ZDCvtx,NosvtIT,NossdIT,Corr4,analysis",
                  "","","Production chain for 2008 data Corr3 (+ l3, tof, bcc/fpd, ftpc, e/b-emc, trgd)",kFALSE},
 
-
-
   {"P2008c" ,"" ,"",
    "B2008,IAna,hitfilt,VFMinuit,l3onl,emcDY2,fpd,ftpc,trgd,ZDCvtx,NosvtIT,NossdIT,Corr4,analysis",
-                      "","","Production chain for 2008 data (+ l3, tof, bcc/fpd, ftpc, e/b-emc, trgd)",kFALSE},
-
-  {"P2008" ,"" ,"",
-   "B2008a,IAna,hitfilt,VFMinuit,l3onl,emcDY2,fpd,ftpc,trgd,ZDCvtx,NosvtIT,NossdIT,Corr4,analysis",
                       "","","Production chain for 2008 data (+ l3, tof, bcc/fpd, ftpc, e/b-emc, trgd)",kFALSE},
 
   {"pp2008c" ,"" ,"",
    "B2008,IAna,hitfilt,ppOpt,Minuit,l3onl,emcDY2,fpd,ftpc,trgd,ZDCvtx,NosvtIT,NossdIT,Corr4,analysis",
                  "","","Production chain for 2008 data Corr3 (+ l3, tof, bcc/fpd, ftpc, e/b-emc, trgd)",kFALSE},
+
+
   {"pp2008" ,"" ,"",
    "B2008a,IAna,hitfilt,ppOpt,VFPPV,l3onl,emcDY2,fpd,ftpc,trgd,ZDCvtx,NosvtIT,NossdIT,Corr4,analysis",
                  "","","Production chain for 2008 data Corr3 (+ l3, tof, bcc/fpd, ftpc, e/b-emc, trgd)",kFALSE},
+  {"P2008" ,"" ,"",
+   "B2008a,IAna,hitfilt,VFMinuit,l3onl,emcDY2,fpd,ftpc,trgd,ZDCvtx,NosvtIT,NossdIT,Corr4,analysis",
+                      "","","Production chain for 2008 data (+ l3, tof, bcc/fpd, ftpc, e/b-emc, trgd)",kFALSE},
 
 
 
