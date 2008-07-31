@@ -1,5 +1,5 @@
 //_____________________________________________________________________
-// @(#)StRoot/StBFChain:$Name:  $:$Id: StBFChain.cxx_doc,v 1.50 2008/07/24 19:23:10 jeromel Exp $
+// @(#)StRoot/StBFChain:$Name:  $:$Id: StBFChain.cxx_doc,v 1.51 2008/07/31 18:11:08 genevb Exp $
 //_____________________________________________________________________
 #include "TROOT.h"
 #include "TString.h"
@@ -1685,6 +1685,7 @@ Bfc_st BFC2[] = {
   {"VFPPVnoCTB" ,"" ,"","genvtx","" ,"","... Pile-up proof vertex finder, noCTB",kFALSE},
   {"VFMinuit" ,"" ,"","genvtx","" ,"","... Generic VF will use Minuit method",kFALSE},
   {"VFMinuit2" ,"" ,"","genvtx","", "","... Generic VF will use Minuit method w/rank mode 2",kFALSE},
+  {"VFMinuit3" ,"" ,"","genvtx","", "","... Generic VF will use Minuit method w/rank mode 3",kFALSE},
   {"VFFV" ,"" ,"","genvtx","" ,"","... Fixed dummy VF method",kFALSE},
   {"VFMCE" ,"" ,"","genvtx","" ,"","... Fixed vertex from MCEvent",kFALSE},
 
@@ -2688,6 +2689,7 @@ Int_t StBFChain::Instantiate()
       if ( GetOption("VFFV") ){      VtxOpt |= (0x1 << 5);} // 32 0x20
       if ( GetOption("VFMCE") ){     VtxOpt |= (0x1 << 6);} // 64 0x40
       if ( GetOption("VFMinuit2") ){ VtxOpt |= (0x1 << 7);} //128 0x80
+      if ( GetOption("VFMinuit3") ){ VtxOpt |= (0x1 << 8);} //256 0x100
       mk->SetMode(VtxOpt);
       
       // All VertexFinders implement those (or not)
