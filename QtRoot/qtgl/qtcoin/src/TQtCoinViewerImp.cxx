@@ -516,6 +516,7 @@ void TQtCoinViewerImp::OpenCB()
 static QString ListOfFilters() 
 {
   QString a = "";
+#if 0
   SoOffscreenRenderer r(*(new SbViewportRegion));
   int num = r.getNumWriteFiletypes();
 
@@ -542,6 +543,21 @@ static QString ListOfFilters()
          (void)fprintf(stdout, ")\n");
     }
   }
+#else  
+   //  Add the Qt image formats
+   a =  "Image (";
+   UInt_t i;
+   for (i = 0; i < QImageIO::outputFormats().count(); i++ ) 
+   {
+      if (i) a +=',';
+      a += "*.";
+      QString str = QString( QImageIO::outputFormats().at( i ) );
+      a += str.lower();
+   }
+   a +=");;";
+#endif
+
+
   return a;
 }
 //______________________________________________________________________________
@@ -608,8 +624,9 @@ void TQtCoinViewerImp::SaveCB()
          // add this extenstion tho the existent file
          thatFile += ".";  thatFile += e;
       }
-//      printf("selectedFilter = %s\n", selectedFilter.data());
-//      printf("thatFile = %s\n", thatFile.data());
+//      printf("selectedFilter = %s\n", selectedFilter.data());//      printf("thatFile = %s\n", thatFile.data())
+
+
 //      printf("e = <%s>\n", e.data());
       
       // EXECUTE THE ACTION
