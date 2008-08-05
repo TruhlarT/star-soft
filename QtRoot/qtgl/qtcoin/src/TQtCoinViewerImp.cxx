@@ -516,28 +516,20 @@ void TQtCoinViewerImp::OpenCB()
 static QString ListOfFilters() 
 {
    QString filter = "";
-   unsigned int i=0;
-   //  Add the Qt image formats
-   filter =  "Image (";
 #if QT_VERSION < 0x40000
+   //  Add the Qt image formats
+   unsigned int i=0;
+   filter =  "Image (";
    for (i = 0; i < QImageIO::outputFormats().count(); i++ ) 
-#else
-   QList<QByteArray> formats =  QImageWriter::supportedImageFormats();
-   QList<QByteArray>::const_iterator j;
-   for (j = formats.constBegin(); j != formats.constEnd(); ++j)
-#endif
    {
       if (i) filter +=',';
       filter += "*.";
-#if QT_VERSION < 0x40000
       QString str = QString( QImageIO::outputFormats().at( i ) );
-#else
-      QString str =  *j; i++;
-#endif
       filter += str.lower();
    }
    filter +=");";
-  
+#endif
+
    SoOffscreenRenderer r(*(new SbViewportRegion));
    int num = r.getNumWriteFiletypes();
 
@@ -552,9 +544,9 @@ static QString ListOfFilters()
          r.getWriteFiletypeInfo(i, extlist, fullname, description);
          if (i > 0) filter+= ";";
          filter += fullname.getString(); 
-         (void)fprintf(stdout, "%s: %s (extension%s: ",
-                      fullname.getString(), description.getString(),
-                      extlist.getLength() > 1 ? "s" : "");
+         // (void)fprintf(stdout, "%s: %s (extension%s: ",
+         //             fullname.getString(), description.getString(),
+         //             extlist.getLength() > 1 ? "s" : "");
          filter+= " ( " ;
          for (int j=0; j < extlist.getLength(); j++) {
             if (j>0) filter+= ", "; filter+= "*."; filter+=(const char*) extlist[j];
