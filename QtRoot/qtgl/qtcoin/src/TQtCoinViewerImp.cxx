@@ -515,51 +515,58 @@ void TQtCoinViewerImp::OpenCB()
 //______________________________________________________________________________
 static QString ListOfFilters() 
 {
-  QString a = "";
-#if 0
-  SoOffscreenRenderer r(*(new SbViewportRegion));
-  int num = r.getNumWriteFiletypes();
+   QString filter = "";
+   unsigned int i=0;
+   //  Add the Qt image formats
+   filter =  "Image (";
+#if QT_VERSION < 0x40000
+   for (i = 0; i < QImageIO::outputFormats().count(); i++ ) 
+#else
+   QList<QByteArray> formats =  QImageWriter::supportedImageFormats();
+   QList<QByteArray>::const_iterator j;
+   for (j = formats.constBegin(); j != formats.constEnd(); ++j)
+#endif
+   {
+      if (i) filter +=',';
+      filter += "*.";
+#if QT_VERSION < 0x40000
+      QString str = QString( QImageIO::outputFormats().at( i ) );
+#else
+      QString str =  *j; i++;
+#endif
+      filter += str.lower();
+   }
+   filter +=");";
+  
+   SoOffscreenRenderer r(*(new SbViewportRegion));
+   int num = r.getNumWriteFiletypes();
 
- if (num == 0) {
-    (void)fprintf(stdout,
+   if (num == 0) {
+     (void)fprintf(stdout,
                    "No image formats supported by the "
                   "SoOffscreenRenderer except SGI RGB and Postscript.\n");
- } else {
-    for (int i=0; i < num; i++) {
-       SbPList extlist;
-       SbString fullname, description;
-       r.getWriteFiletypeInfo(i, extlist, fullname, description);
-       if (i > 0) a+= ";";
-       a += fullname.getString(); 
-       (void)fprintf(stdout, "%s: %s (extension%s: ",
+   } else {
+      for (int i=0; i < num; i++) {
+         SbPList extlist;
+         SbString fullname, description;
+         r.getWriteFiletypeInfo(i, extlist, fullname, description);
+         if (i > 0) filter+= ";";
+         filter += fullname.getString(); 
+         (void)fprintf(stdout, "%s: %s (extension%s: ",
                       fullname.getString(), description.getString(),
                       extlist.getLength() > 1 ? "s" : "");
-         a+= " ( " ;
+         filter+= " ( " ;
          for (int j=0; j < extlist.getLength(); j++) {
-            if (j>0) a+= ", "; a+= "*."; a+=(const char*) extlist[j];
-            (void)fprintf(stdout, "%s%s", j>0 ? ", " : "", (const char*) extlist[j]);
+            if (j>0) filter+= ", "; filter+= "*."; filter+=(const char*) extlist[j];
+            // (void)fprintf(stdout, "%s%s", j>0 ? ", " : "", (const char*) extlist[j]);
          }
-         a += " );";
-         (void)fprintf(stdout, ")\n");
-    }
-  }
-#else  
-   //  Add the Qt image formats
-   a =  "Image (";
-   UInt_t i;
-   for (i = 0; i < QImageIO::outputFormats().count(); i++ ) 
-   {
-      if (i) a +=',';
-      a += "*.";
-      QString str = QString( QImageIO::outputFormats().at( i ) );
-      a += str.lower();
+         filter += " );";
+         // (void)fprintf(stdout, ")\n");
+      }
    }
-   a +=");;";
-#endif
-
-
-  return a;
+   return filter;
 }
+
 //______________________________________________________________________________
 static QStringList ExtensionList(const QString &filter)
 {
