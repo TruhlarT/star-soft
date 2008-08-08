@@ -1,40 +1,34 @@
 // -*- mode: c++;-*-
-// $Id: StjTrg.h,v 1.2 2008/08/02 22:43:43 tai Exp $
+// $Id: StjTrg.h,v 1.4 2008/08/08 21:17:10 tai Exp $
+// Copyright (C) 2008 Tai Sakuma <sakuma@bnl.gov>
 #ifndef STJTRG_H
 #define STJTRG_H
 
-#include "StjTrgSoftware.h"
+#include <TObject.h>
 
-class StMuDstMaker;
+#include <vector>
 
-class StjTrg {
+class StjTrg : public TObject {
 
 public:
-  StjTrg(int trgId, StMuDstMaker* uDstMaker, StjTrgSoftware* soft)
-    : _trgId(trgId), _soft(soft), _uDstMaker(uDstMaker)
-  { }
+  StjTrg() { }
   virtual ~StjTrg() { }
 
-  int id() { return _trgId; }
+  virtual int id() = 0;
 
-  int runNumber();
-  int eventId();
-  bool hard();
-  bool soft();
-  double prescale();
-  double vertexZ();
-  std::vector<int> towers();
-  std::vector<int> jetPatches();
+  virtual int runNumber() = 0;
+  virtual int eventId() = 0;
+  virtual bool hard() = 0;
+  virtual bool soft() = 0;
+  virtual double prescale() = 0;
+  virtual double vertexZ() = 0;
+  virtual std::vector<int> towers() = 0;
+  virtual std::vector<int> jetPatches() = 0;
 
 private:
 
-  int _trgId;
-
-  StjTrgSoftware* _soft;
-
-  StMuDstMaker* _uDstMaker;
+  ClassDef(StjTrg, 1)
 
 };
-
 
 #endif // STJTRG_H
