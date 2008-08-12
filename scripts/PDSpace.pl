@@ -20,6 +20,7 @@ $MIN   =  1;                                             # 4
 $MAX   =  6;                                             # for testing
 $MAX   = 56;                                             # Upper number ; can be as high
 $MAIN  = "/star/data";                                   # default base path
+@ADDD  = ("/star/institutions/*");                       # will be used in a glob statement
 
 
 # Static configuration
@@ -36,10 +37,17 @@ $SpiderControl = "/cgi-bin/%%RELP%%/SpiderControl.cgi"; # a CGI controling the s
 
 
 # Insert an extra table break before those numbers
-$BREAK{"01"} =  "User Space";
-$BREAK{"03"} =  "Reserved Usage Space Area";
-$BREAK{"06"} =  "Production Disks / Assigned TEMPORARY space for Projects";
-$BREAK{"09"} =  "Production Disks";
+$BREAK{"01"}   =  "User Space";
+$BREAK{"03"}   =  "Reserved Usage Space Area";
+$BREAK{"06"}   =  "Production Disks / Assigned TEMPORARY space for Projects";
+$BREAK{"09"}   =  "Production Disks";
+
+# Addiitonal header based on patterns
+$BHEAD{"inst"} =  "Institution disks";
+$BEND          = "#terminate header#" ;  # a random header pattern indicating it will not be re-used
+
+# A generic tag for addiitonal intremediate markers
+$TAG           = "Disk_Group_";
 
 
 # Exclude those completely (alias, un-usable etc ...)
@@ -68,6 +76,11 @@ if ( -e $1."dfpanfs"){
 
 for ( $i = $MIN ; $i <= $MAX ; $i++){
     push(@DISKS,sprintf("$MAIN%2.2d",$i));
+}
+if ( $#ADDD != -1 ){
+    foreach $i (@ADDD){
+	push(@DISKS,glob($i));
+    }
 }
 
 foreach $disk (@DISKS){
@@ -187,6 +200,18 @@ print $FO
     "are the only ones scanned ...\n",
     "The reported structure reflects a tree assumed to be of the form ",
     " Trigger/Field/Production.\n",
+    "<UL>\n";
+
+# add markers
+foreach $tmp (keys %BREAK){
+    print $FO "<LI><A HREF=\"\#$TAG$tmp\">$BREAK{$tmp}</A>\n";
+}
+foreach $tmp (keys %BHEAD){
+    print $FO "<LI><A HREF=\"\#$TAG$tmp\">$BHEAD{$tmp}</A>\n";
+}
+
+print $FO
+    "</UL>",
     "<P>\n",
     "<TABLE border=\"0\">\n<TR><TD>Color Scale</TD>\n";
 
@@ -228,13 +253,24 @@ foreach $disk (sort keys %DINFO){
     }
 
     #print "$col\n";
-    $disk =~ m/(\d+)/;
-
-    if ( defined($DEXCLUDE{$1} ) ){  next;}
-    if ( defined($BREAK{$1}) ){
-	printf $FO
-	    "<TR BGCOLOR=\"#333333\"><TD ALIGN=\"center\" COLSPAN=\"7\">".
-	    "<FONT COLOR=\"white\"><B>$BREAK{$1}</B></FONT></TD></TR>\n";
+    
+    if ( $disk =~ m/(\d+)/ ){
+	if ( defined($DEXCLUDE{$1} ) ){  next;}
+	if ( defined($BREAK{$1}) ){
+	    printf $FO
+		"<TR BGCOLOR=\"#333333\"><TD ALIGN=\"center\" COLSPAN=\"7\">".
+		"<FONT COLOR=\"white\"><B><A NAME=\"$TAG$1\">$BREAK{$1}</A></B></FONT></TD></TR>\n";
+	}
+    } else {
+	foreach $tmp (keys %BHEAD){
+	    if ( $BHEAD{$tmp} ne $BEND ){
+		printf $FO
+		    "<TR BGCOLOR=\"#333333\"><TD ALIGN=\"center\" COLSPAN=\"7\">".
+		    "<FONT COLOR=\"white\"><B><A NAME=\"$TAG$tmp\">$BHEAD{$tmp}</A></B></FONT></TD></TR>\n";		
+		$BHEAD{$tmp} = $BEND;
+		last;
+	    }
+	}
     }
 
     $FCRef = &GetFCRef("FC",$ICON1,$disk);
