@@ -1,6 +1,6 @@
-setenv QT_VERSION 4.3.1
+setenv QT_VERSION 4.4.0
 setenv QT_SRC_VERSION 
-setenv QTDIR /afs/rhic.bnl.gov/star/ROOT/5.99.99/Qt4/qt-x11-opensource-src-${QT_VERSION}/.${STAR_HOST_SYS}/${QT_VERSION}/debug
+setenv QTDIR /afs/rhic.bnl.gov/star/ROOT/5.99.99/Qt4/.$STAR_HOST_SYS/${QT_VERSION}
 #setenv QT_X11_NO_FONTCONFIG 1 
 #setenv QT_FATAL_WARNINGS 1
 setenv LD_LIBRARY_PATH $QTDIR/lib:`dropit qt -p $LD_LIBRARY_PATH`
