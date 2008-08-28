@@ -1,12 +1,12 @@
 #!/bin/sh
 #-------------------------------------------------------
 # Author: Valeri Fine (fine@bnl.gov)       2007/05/16
-# $Id: install.csh,v 1.9 2008/08/27 20:33:03 fine Exp $
+# $Id: install.csh,v 1.10 2008/08/28 00:09:40 fine Exp $
 #-------------------------------------------------------
 QT_VERSION=4.4.0
 QTSDK=qt-x11-opensource-src-${QT_VERSION}
 PLATFORM=g++
-if [ "x$STARCMPL" == "icc" ] ;  then
+if [ "x$STARCMPL" == "xicc" ] ;  then
 PLATFORM=icc
 fi
 # QTSDK=qt-x11-commercial-src-${QT_VERSION}
@@ -18,7 +18,6 @@ then
   if ! test -s ${QTSDK}.tar.gz
   then
     echo 1. -- downloading the distribution kit --- 
-#    wget  --quiet ftp://ftp.trolltech.com/qt/source/${QTSDK}.tar.gz
      wget --quiet  http://wftp.tu-chemnitz.de/pub/Qt/qt/source/${QTSDK}.tar.gz
 #    wget  --quiet ftp://ftp.trolltech.com/qt/source/${QTSDK}.tar.gz
   fi
