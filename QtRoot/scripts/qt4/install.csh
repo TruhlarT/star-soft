@@ -1,13 +1,13 @@
 #!/bin/sh
 #-------------------------------------------------------
 # Author: Valeri Fine (fine@bnl.gov)       2007/05/16
-# $Id: install.csh,v 1.11 2008/08/28 14:33:15 fine Exp $
+# $Id: install.csh,v 1.12 2008/08/28 20:44:58 fine Exp $
 #-------------------------------------------------------
 QT_VERSION=4.4.0
 QTSDK=qt-x11-opensource-src-${QT_VERSION}
 PLATFORM=g++
 if [ "x$STARCMPL" == "xicc" ] ;  then
-PLATFORM=icc -no-xmlpatterns -no-webkit 
+PLATFORM="icc -no-xmlpatterns -no-webkit " 
 fi
 # QTSDK=qt-x11-commercial-src-${QT_VERSION}
 # --
@@ -28,7 +28,7 @@ then
   then
    echo 2. -- unzipping the distribution kit --- 
    tar -xzf ${QTSDK}.tar.gz
-   rm ${QTSDK}.tar.gz
+   #    rm ${QTSDK}.tar.gz
   fi
 fi
 # --
@@ -46,7 +46,8 @@ YES
 # --
 # -- build the Qt4 from `pwd`
 #
-make -j2 && make install 
+echo "Compiling  ${QTSDK} and installing to  .$STAR_HOST_SYS/${QT_VERSION} . . . . Takes time ..."
+make && make install 
 else
   echo No Qt SDK ${QTSDK} has been found yet
   exit 1
