@@ -1,13 +1,13 @@
 #!/bin/sh
 #-------------------------------------------------------
 # Author: Valeri Fine (fine@bnl.gov)       2007/05/16
-# $Id: install.csh,v 1.10 2008/08/28 00:09:40 fine Exp $
+# $Id: install.csh,v 1.11 2008/08/28 14:33:15 fine Exp $
 #-------------------------------------------------------
 QT_VERSION=4.4.0
 QTSDK=qt-x11-opensource-src-${QT_VERSION}
 PLATFORM=g++
 if [ "x$STARCMPL" == "xicc" ] ;  then
-PLATFORM=icc
+PLATFORM=icc -no-xmlpatterns -no-webkit 
 fi
 # QTSDK=qt-x11-commercial-src-${QT_VERSION}
 # --
