@@ -1,5 +1,5 @@
 #setenv IVROOT  $ROOT/5.99.99/Coin2/.$STAR_HOST_SYS/Coin2Qt4
-setenv IVROOT  $ROOT/5.99.99/Coin2/Coin2Qt4
+setenv IVROOT  $ROOT/5.99.99/Coin2Qt4/$STAR_HOST_SYS/coin3d
 setenv PATH `dropit Coin`
 setenv LD_LIBRARY_PATH `dropit Coin -p $LD_LIBRARY_PATH`
 setenv PATH $IVROOT/bin:$PATH
