@@ -1,4 +1,4 @@
-void u2007()
+void upgr20()
 {
 //
 //  This file has been generated automatically via the root
@@ -9,7 +9,7 @@ gSystem->Load("libGeom");
 TGeoRotation *rot;
 TGeoNode *Node, *Node1;
 
-TGeoManager *u2007 = new TGeoManager("u2007","u2007.C");
+TGeoManager *upgr20 = new TGeoManager("upgr20","upgr20.C");
 
 
 //-----------List of Materials and Mixtures--------------
