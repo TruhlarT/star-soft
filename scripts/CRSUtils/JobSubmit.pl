@@ -69,8 +69,10 @@
 #
 # Jan 2005     Added HPSS output mode
 # May 2005     Added disk range syntax support (delegation to bfcca)
-# April 2006   $ltarget/FreeSpace mechanism for PANASAS, changed
+# Apr 2006     $ltarget/FreeSpace mechanism for PANASAS, changed
 #              the meaning of express.
+# Sep 2008     Added JS_DEBUG for additional messages  
+#
 #
 
 use lib "/afs/rhic.bnl.gov/star/packages/scripts";
@@ -388,8 +390,8 @@ if ($ThisYear == 2002){
     $ZEROBIAS=  rdaq_string2ftype("zerobias");
 
     # Order is: regular, bypass, calib
-    @USEQ    = (5,5,5);
-    @SPILL   = (0,4,4);
+    @USEQ    = (5,  5,5);
+    @SPILL   = (0,105,4);
 
 
     # Chain for 2008 starts here
@@ -407,7 +409,7 @@ if ($ThisYear == 2002){
     # Well, at first you may get that message ... should tell you that
     # you have to add some default values.
     print "$SELF : Unknown Year $ThisYear\n";
-    exit;
+    &Exit();
 }
 
 
@@ -448,7 +450,7 @@ $MINEVT  =  0 if (!defined($MINEVT)); # minimum number of events to consider
 if ( -e $QUITF){
     print "$SELF : $QUITF detected I have been asked to skip processing\n";
     rdaq_set_message($SSELF,"$QUITF detected","I have been asked to skip processing");
-    exit;
+    &Exit();
 }
 
 # be sure to turn it ON
@@ -552,7 +554,7 @@ if ($TARGET !~ m/^\d+$/){
     if ( ! $OK){
 	print "$SELF : Target disk(s) $target is/are full (baling out on ".localtime().")\n";
 	rdaq_set_message($SSELF,"Disk Space problem","Target disk(s) $target is/are full (baling out)");
-	exit;
+	&Exit();
     }
 }
 
@@ -577,7 +579,7 @@ if ( -e $LOCKF){
 	print "$SELF : $LOCKF present. Skipping pass using target=$TARGET\n";
 	rdaq_set_message($SSELF,"$LOCKF present. Skipping pass","using target=$TARGET");
     }
-    exit;
+    &Exit();
 }
 
 
@@ -734,7 +736,7 @@ if( $TARGET =~ m/^\// || $TARGET =~ m/^\^\// ){
     print "$SELF : FO bypass $TARGET\n";
 
     $TARGET   = $2;
-    print "$SELF : Target is now $TARGET\n";
+    print "$SELF : Target is now $TARGET - Queue $USEQ[1],$SPILL[1]\n";
 
     # Overwrite queue if necessary
     $USEQ[1] = $tmpUQ if ( defined($tmpUQ) );
@@ -746,11 +748,11 @@ if( $TARGET =~ m/^\// || $TARGET =~ m/^\^\// ){
     if( ! -e $CONFF){ 
 	# no conf exit
 	print "$SELF : mode=bypass ; could not find $CONFF at this moment\n";
-	exit;
+	&Exit();
     }
 
-    if( ! ($obj = rdaq_open_odatabase()) ){ exit;} # no ddb abort
-    if( -e $LOCKF){ exit;}                         # leave if lockf
+    if( ! ($obj = rdaq_open_odatabase()) ){ &Exit("no db connection - abort");} # no ddb abort
+    if( -e $LOCKF){ &Exit("$LOCKF exists - exiting");}                          # leave if lockf
 
     # read conf
     open(FI,$CONFF) || die "Could not open $CONFF for read\n";
@@ -758,7 +760,7 @@ if( $TARGET =~ m/^\// || $TARGET =~ m/^\^\// ){
     close(FI);
 
     if ( $#all == -1){
-	exit;
+	&Exit("Nothing to do $CONFF is empty?");
     } else {
 	my($tmp)=($#all+1);
 	rdaq_set_message($SSELF,"Found bypass requests","$tmp line".($tmp!=1?"s":"")." to consider ".join("::",@all));
@@ -1406,3 +1408,13 @@ sub Scramble
     return @TMP;
 }
 
+
+sub Exit
+{
+    my($mess)=@_;
+
+    if ( defined($mess) && defined($ENV{JS_DEBUG}) ){
+	print "$mess\n";
+    }
+    exit;
+}
