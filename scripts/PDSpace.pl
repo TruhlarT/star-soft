@@ -277,14 +277,14 @@ foreach $disk (sort keys %DINFO){
     printf $FO
 	"<TR bgcolor=\"$col\">\n".
 	"  <TD align=\"right\"><A NAME=\"%s\">%10s</A></TD>\n".
-	"  <TD align=\"right\">%11s</TD>\n".
+	"  <TD align=\"right\">%11s<br>(<I>%5.2f TB</I>)</TD>\n".
 	"  <TD align=\"right\">%11s</TD>\n".
 	"  <TD align=\"right\">%11s</TD>\n".
 	"  <TD align=\"right\">%3s</TD>\n".
 	"  <TD>%s</TD>\n".
 	"  <TD align=\"right\">%s%s%s</TD>\n".
 	"</TR>\n",
-	&GetRef($disk),"<i><b>$disk</b></i>",$items[0],$items[1],$items[2],
+	&GetRef($disk),"<i><b>$disk</b></i>",$items[0],($items[0]/1024/1024/1024),$items[1],$items[2],
 	$items[3],$items[4],$FCRef,(($FCRef eq "")?"":"<BR>"),$items[5];
 
     $totals[0] += $items[0];
