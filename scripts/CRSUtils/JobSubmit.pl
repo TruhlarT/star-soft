@@ -71,7 +71,7 @@
 # May 2005     Added disk range syntax support (delegation to bfcca)
 # Apr 2006     $ltarget/FreeSpace mechanism for PANASAS, changed
 #              the meaning of express.
-# Sep 2008     Added JS_DEBUG for additional messages  
+# Sep 2008     Added JS_DEBUG for additional messages
 #
 #
 
@@ -369,7 +369,7 @@ if ($ThisYear == 2002){
 
     # Those are taken from previous yera - agreed upon as per rate, etc...
     # and documented on our Web pages.
-    $LASERTP =  
+    $LASERTP =
 	rdaq_string2ftype("laser")."|".
 	rdaq_string2ftype("laser_adc");
 
@@ -440,7 +440,7 @@ $PRIORITY= 50;                        # default queue priority    (old=100 [max]
 $SLEEPT  =  1;                        # sleep time between submit (old=10)
 $MAXCNT  = 20;                        # max job to send in a pass
 $RATIO   =  2;                        # time drop down for mode + (2=twice faster)
-$MAXFILL = 95;                        # max disk occupancy 
+$MAXFILL = 95;                        # max disk occupancy
 $FUZZ4C  =  3;                        # for C mode, margin is higher MAXFILL+FUZZ4C <= 100 best ;-)
 $MINEVT  =  0 if (!defined($MINEVT)); # minimum number of events to consider
 
@@ -534,7 +534,7 @@ if ($TARGET !~ m/^\d+$/){
 		    # provide advance warning
 		    rdaq_set_message($SSELF,
 				     "Target disk space warning",
-				     "$ltarget is $space % full, ".($MAXFILL-$space+$FUZZ4C)." % left before C mode stalls"); 
+				     "$ltarget is $space % full, ".($MAXFILL-$space+$FUZZ4C)." % left before C mode stalls");
 		}
 		$OK = 1==1;
 	    }
@@ -746,7 +746,7 @@ if( $TARGET =~ m/^\// || $TARGET =~ m/^\^\// ){
 
     # In this mode, read a configuration file, select those runs
     # and submit them out.
-    if( ! -e $CONFF){ 
+    if( ! -e $CONFF){
 	# no conf exit
 	print "$SELF : mode=bypass ; could not find $CONFF at this moment\n";
 	&Exit();
@@ -778,8 +778,8 @@ if( $TARGET =~ m/^\// || $TARGET =~ m/^\^\// ){
 	my ($DD)=CRSQ_Norm($SPILL[1],0);
 	print "$SELF : $USEQ[1]-$DD to $USEQ[1]\n";
 	for ($i=$USEQ[1]-$DD ; $i <= $USEQ[1] ; $i++){
+	    print "$SELF : Slow mode - Inspecting Queue=$i TotalSlots=$TOT";
 	    $Tot{$i} = CRSQ_getcnt($i,0,$PAT);
-	    print "$SELF : Slow mode - Inspecting Queue=$i -> $Tot{$i}\n";
 	    $TOT += $Tot{$i};
 	}
     }
