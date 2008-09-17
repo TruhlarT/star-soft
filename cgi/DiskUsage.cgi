@@ -63,14 +63,15 @@ if ($disk){
     print "\n<a href=\"$this_script\">Back</a><br>\n";
 
 } else {
-    @raw = glob("$PATH/*.html");
+    @raw = glob("$PATH/SQ*.html");
 
     if($#raw != -1){
 	foreach $val (@raw){
+	    if ($val !~ m/SQ_/){    next;}
 	    if ($val =~ /overall/){ next;}
 	    $val =~ s/.*\///g;
 	    $txt = $val;
-	    $txt =~ s/\..*//;
+	    $txt =~ s/\..*//; $txt =~ s/SQ_//;
 	    $labels{$val} = $txt;
 	    push(@values,$val);
 	}
