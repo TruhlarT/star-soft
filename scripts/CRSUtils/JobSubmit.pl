@@ -733,6 +733,7 @@ if( $TARGET =~ m/^\// || $TARGET =~ m/^\^\// ){
     #
     # Copied from mode 0. Can be merged ...
     #
+
     print "$SELF : FO bypass $TARGET\n";
 
     $TARGET   = $2;
@@ -766,9 +767,23 @@ if( $TARGET =~ m/^\// || $TARGET =~ m/^\^\// ){
 	rdaq_set_message($SSELF,"Found bypass requests","$tmp line".($tmp!=1?"s":"")." to consider ".join("::",@all));
     }
 
+    # alter queue offset to allow for a higher fill
+    CRSQ_Offset(80);
+
     # get number of slots. Work is spill mode.
-    $TOT = CRSQ_getcnt($USEQ[1],$SPILL[1],$PAT);
-    $TOT = 1 if ($DEBUG);
+    $TOT = 0;
+    if ($DEBUG){
+	$TOT++;
+    } else {
+	my ($DD)=CRSQ_Norm($SPILL[1],0);
+	print "$SELF : $USEQ[1]-$DD to $USEQ[1]\n";
+	for ($i=$USEQ[1]-$DD ; $i <= $USEQ[1] ; $i++){
+	    $Tot{$i} = CRSQ_getcnt($i,0,$PAT);
+	    print "$SELF : Slow mode - Inspecting Queue=$i -> $Tot{$i}\n";
+	    $TOT += $Tot{$i};
+	}
+    }
+
 
     # Ok or not ?
     if( $TOT > 0){
@@ -1407,6 +1422,7 @@ sub Scramble
     }
     return @TMP;
 }
+
 
 
 sub Exit
