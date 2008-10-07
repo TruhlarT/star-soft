@@ -70,7 +70,6 @@ my $thistime;
  $testDay = $Nday[$iday - 1];
  $beforeDay = $Nday[$iday - 2];
 
-
   print "Day Name: ",$thisday, " % ", "Index", $iday, "\n";
  
 ##### setup output directories for DEV with thisDay
@@ -347,7 +346,7 @@ struct JFileAttr => {
         avTr      => '$',
         avPrTr    => '$',
         avTrGd    => '$',
-        avPrTrGd  => '$',
+        avPrfit   => '$',  
         avPrv1    => '$',
         avPrfitv1 => '$',       
         avVrt     => '$',
@@ -617,11 +616,11 @@ my @files;
        $timeS = sprintf ("%4.4d-%2.2d-%2.2d %2.2d:%2.2d:00",
                        $fullyear,$mo,$dy,$hr,$min);    
 
-           if( $ltime > 600 && $ltime < 518400 ){         
-#          if( $ltime > 600 ) { 
+#           if( $ltime > 1200 && $ltime < 518400 ){         
+          if( $ltime > 600 ) { 
 #   print "Log time: ", $ltime, "\n";
-#   print $fullname, "\n";
-        &logInfo("$fullname", "$platf");
+   print $fullname, "\n";
+       &logInfo("$fullname", "$platf");
      $jobTime = $timeS;  
 
       $fObjAdr = \(LFileAttr->new());
@@ -646,7 +645,7 @@ my @files;
       ($$fObjAdr)->avXi($avr_xivertices);
       ($$fObjAdr)->avKn($avr_knvertices);
       ($$fObjAdr)->avTrGd($avr_trck_nfit15);
-      ($$fObjAdr)->avPrTr($avr_prtrck_nfit15);
+      ($$fObjAdr)->avPrfit($avr_prtrck_nfit15);
       ($$fObjAdr)->avPrv1($avr_prtracks_1vtx);
       ($$fObjAdr)->avPrfitv1($avr_prtrck_nfit15_1vtx);
       ($$fObjAdr)->prctus($perct_usb);
@@ -766,8 +765,9 @@ my @files;
     $avr_xivertices = ($$newjobFile)->avXi;
     $avr_knvertices = ($$newjobFile)->avKn;
     $avr_trck_nfit15 =  ($$newjobFile)->avTrGd;
-    $avr_prtrck_nfit15 =  ($$newjobFile)->avPrfitv1;
+    $avr_prtrck_nfit15 =  ($$newjobFile)->avPrfit;
     $avr_prtracks_1vtx = ($$newjobFile)->avPrv1; 
+    $avr_prtrck_nfit15_1vtx = ($$newjobFile)->avPrfitv1; 
     $perct_usb = ($$newjobFile)->prctus;
     $avr_trk_usb = ($$newjobFile)->avTrus;
     $avr_prtrk_usb= ($$newjobFile)->avPrv1us;
@@ -778,11 +778,11 @@ my @files;
     $avr_xi_usb = ($$newjobFile)->avXius;
     $node_name = ($$newjobFile)->ndID; 
 
-    $fullName = $mpath ."/" .$logName;
+     $fullName = $mpath ."/" .$logName;
 
     if($flagHash{$fullName} == 1) {
 
-#      $new_id = $dbh->{'mysql_insertid'};
+      $new_id = $dbh->{'mysql_insertid'};
       $mavail = 'Y';
       $myID = 100000000 + $new_id;
       $mjID = "Job". $myID ;
@@ -1366,7 +1366,6 @@ sub fillJSTable {
     $sql.="avgNoKink_usbevt='$avr_kink_usb',";
     $sql.="nodeID='$node_name',"; 
     $sql.="avail='$mavail'"; 
-
     print "$sql\n" if $debugOn;
     $rv = $dbh->do($sql) || die $dbh->errstr;
     $new_id = $dbh->{'mysql_insertid'};  
@@ -1584,19 +1583,20 @@ $jrun = "Run not completed";
               $no_prtracks_1vtx = 0;
               $no_prtrck_nfit15_1vtx = 0;
                
-            for ($ik = 2; $ik< 100; $ik++)  { 
+            for ($ik = 2; $ik< 120; $ik++)  { 
               $string = $logfile[$num_line + $ik];
               chop $string;
 
            if( $string =~ /primary tracks/) {
+
               @word_tr = split /:/,$string;
               @nmb =  split /</,$word_tr[2];
               $no_prtracks[$npr] = $nmb[0];
               @nmbx =  split /</,$word_tr[4];
               $no_prtrck_nfit15[$npr]  = $nmbx[0];
  
-#              if( $no_prtracks[$npr] >= $max_npr) {
-               if( $no_prtrck_nfit15[$npr] >= $max_npr_nfit15) {
+              if( $no_prtracks[$npr] >= $max_npr) {
+#               if( $no_prtrck_nfit15[$npr] >= $max_npr_nfit15) {
                $max_npr_nfit15 = $no_prtrck_nfit15[$npr];
                $max_npr = $no_prtracks[$npr];
               } 
@@ -1625,9 +1625,12 @@ $jrun = "Run not completed";
               $no_prtrck_nfit15_1vtx  = $no_prtrck_nfit15[0]; 
 
                $tot_prtracks += $max_npr;
+#              $tot_prtracks += $no_prtracks[0];
               $tot_prtrck_nfit15 += $max_npr_nfit15;
+#               $tot_prtrck_nfit15 += $no_prtrck_nfit15[0];
               $tot_prtracks_1vtx += $no_prtracks_1vtx;
               $tot_prtrck_nfit15_1vtx += $no_prtrck_nfit15_1vtx;                  
+
   }
  
 
@@ -1675,12 +1678,13 @@ $jrun = "Run not completed";
       $EvDone = $no_event;
       $EvCom = $EvDone - $EvSkip;
 
+     if($EvDone >= 1) {
    if($embflag == 1) {
       $mCPU = $cput/$EvDone;
       $mRealT = $rlt/$EvDone;
 
  }
-
+}
 
 ##### get CPU and Real Time per event
 
@@ -1714,6 +1718,7 @@ $jrun = "Run not completed";
     $avr_prtrck_nfit15  = $tot_prtrck_nfit15/$EvCom; 
     $avr_prtracks_1vtx = $tot_prtracks_1vtx/$EvCom;
     $avr_prtrck_nfit15_1vtx = $tot_prtrck_nfit15_1vtx/$EvCom;  
+
     $avr_knvertices = $tot_knvertices/$EvCom;
     $avr_xivertices = $tot_xivertices/$EvCom;
     if($nevt >= 1 ) {
