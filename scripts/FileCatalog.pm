@@ -156,8 +156,11 @@ my $dbhost    =   "duvall.star.bnl.gov"; # "duvall.star.bnl.gov";
 my $dbport    =   "3336";                # "3336";
 my $dbuser    =   "FC_user";
 my $dbpass    =   "FCatalog";
-my $DBH;
 my $sth;
+
+# Some other name-spaced globals
+$FC::DBH;
+$FC::DBCONTIMEOUT = 5;
 
 
 # hash of keywords
@@ -1032,19 +1035,41 @@ sub _Connect
     $FC::DBRef = "DBI:mysql:$FC::DBRef";
 
 
-    &print_debug("_Connect","$FC::DBRef,$user (+passwd)");
-    $DBH = DBI->connect($FC::DBRef,$user,$passwd,
-			{ PrintError => 0,
-			  RaiseError => 0, AutoCommit => 1 }
-			);
-    if (! $DBH ){
-	if ($DBI::err == 1045){
-	    &print_message("_Connect","Incorrect password ".($passwd eq ""?"(NULL)":""));
-	}
-	if ($DBI::err == 2002){
-	    &print_message("_Connect","Socket is invalid for [$FC::DBRef]",
-			   ($host eq ""?"Host was unspecified (too old library version ??)":""));
-	}
+#    my($PID,$ppid);
+#    $FC::CANCELLED=0;
+#    $SIG{'CHLD'} = 'sighandler';
+#
+#    if ( $PID = fork() ){
+#	$child_alive = 1;
+#	sleep(5);
+#	kill $PID;
+#	$FC::CANCELLED = 1;
+#
+#    } elsif ( defined($PID) ){
+#	$ppid = getppid();
+	&print_debug("_Connect","$FC::DBRef,$user (+passwd)");
+	$FC::DBH = DBI->connect($FC::DBRef,$user,$passwd,
+				{ PrintError => 0,
+				  RaiseError => 0, AutoCommit => 1 }
+				);
+#	kill 14,$ppid;
+#	$FC::CANCELLED = 0;
+#    } else {
+#	&print_debug("_Connect","Can't fork");
+#    }
+
+    if (! $FC::DBH ){
+#	if ( ! $FC::CANCELLED ){
+	    if ($DBI::err == 1045){
+		&print_message("_Connect","Incorrect password ".($passwd eq ""?"(NULL)":""));
+	    }
+	    if ($DBI::err == 2002){
+		&print_message("_Connect","Socket is invalid for [$FC::DBRef]",
+			       ($host eq ""?"Host was unspecified (too old library version ??)":""));
+	    }
+#	} else {
+#	    &print_message("_Connect","Connection to [$FC::DBRef] timed-out");
+#	}
 
 	if ( $tries < $NCTRY ){
 	    &print_debug("_Connect","Connection failed $DBI::err $DBI::errstr . Retry in $NCSLP secondes");
@@ -1066,7 +1091,7 @@ sub _Connect
     $FC::FORCECACHE = 1==0;
     $FC::HASCACHE   = 1==0;
     {
-    	my($sth) = $DBH->prepare("SHOW VARIABLES LIKE '%query_cache%'");
+    	my($sth) = $FC::DBH->prepare("SHOW VARIABLES LIKE '%query_cache%'");
     	my(@val);
     	if ( $sth->execute() ){
     	    while ( @val = $sth->fetchrow_array() ){
@@ -1081,7 +1106,7 @@ sub _Connect
     # Set/Unset global variables here
     $FC::IDX = -1;
 
-    if ( ! defined($DBH) ) {
+    if ( ! defined($FC::DBH) ) {
 	return 0;
     } else {
 	# get a list of tables
@@ -1090,7 +1115,7 @@ sub _Connect
 	    $FC::SPLIT_MIN{$tab} = 0;
 	    $FC::SPLIT_MAX{$tab} = 0;
 
-	    $sth = $DBH->prepare("SHOW TABLES LIKE '$tab%'");
+	    $sth = $FC::DBH->prepare("SHOW TABLES LIKE '$tab%'");
 	    if ( $sth->execute() ){
 		my($val);
 		while ( defined($val = $sth->fetchrow()) ){
@@ -1121,7 +1146,7 @@ sub _Connect
 # for experts only
 sub get_dbh
 {
-    if ($DBH){ return $DBH;}
+    if ($FC::DBH){ return $FC::DBH;}
     else     { return 0;}
 }
 
@@ -1270,7 +1295,7 @@ sub get_id_from_dictionary {
   if ($_[0] =~ m/FileCatalog/) {
     shift @_;
   }
-  if( ! defined($DBH)){
+  if( ! defined($FC::DBH)){
       &print_message("get_id_from_dictionary","Not connected/connecting");
       return 0;
   }
@@ -1294,7 +1319,7 @@ sub get_id_from_dictionary {
       #
       $sqlquery = &_CACHED_SELECT()."$idname FROM $params[0] WHERE UPPER($params[1]) = UPPER(\"$params[2]\")";
       if ($DEBUG > 0) {  &print_debug("get_id_from_dictionary","Executing: $sqlquery");}
-      $sth = $DBH->prepare($sqlquery);
+      $sth = $FC::DBH->prepare($sqlquery);
 
       if( ! $sth){
 	  &print_debug("get_id_from_dictionary","Failed to prepare [$sqlquery]");
@@ -1323,7 +1348,7 @@ sub get_value_from_dictionary {
   if ($_[0] =~ m/FileCatalog/) {
     shift @_;
   }
-  if( ! defined($DBH)){
+  if( ! defined($FC::DBH)){
       &print_message("get_id_from_dictionary","Not connected/connecting");
       return 0;
   }
@@ -1342,7 +1367,7 @@ sub get_value_from_dictionary {
   if ( ($id = &_CachedValue($params[0],$idx)) == 0 ){
       $sqlquery = &_CACHED_SELECT()."$valname FROM $params[0] WHERE UPPER($params[1]) = $params[2]";
       if ($DEBUG > 0) {  &print_debug("get_value_from_dictionary","Executing: $sqlquery");}
-      $sth = $DBH->prepare($sqlquery);
+      $sth = $FC::DBH->prepare($sqlquery);
 
       if( ! $sth){
 	  &print_debug("get_value_from_dictionary","Failed to prepare [$sqlquery]");
@@ -1507,7 +1532,7 @@ sub insert_dictionary_value {
   if ($_[0] =~ m/FileCatalog/) {
     shift @_;
   }
-  if( ! defined($DBH) ){
+  if( ! defined($FC::DBH) ){
       &print_message("insert_dictionary_value","Not connected");
       return 0;
   }
@@ -1595,18 +1620,18 @@ sub insert_dictionary_value {
   my $sth;
   my $retid=0;
 
-  $sth = $DBH->prepare( $dtinsert );
+  $sth = $FC::DBH->prepare( $dtinsert );
   if( ! $sth ){
       &print_debug("insert_dictionary_value","Failed to prepare [$dtinsert]");
   } else {
       if ( $sth->execute() ) {
 	  $retid = &get_last_id();
 	  if ($DEBUG > 0) { &print_debug("insert_dictionary_value","Returning: $retid");}
-      } elsif ( $DBH->err == 1054) {
+      } elsif ( $FC::DBH->err == 1054) {
 	  # wrong field name
-	  &die_message("insert_dictionary_value","logic error for $tabname ".$DBH->err." >> ".$DBH->errstr);
+	  &die_message("insert_dictionary_value","logic error for $tabname ".$FC::DBH->err." >> ".$FC::DBH->errstr);
       } else {
-	  &print_debug("insert_dictionary_value","ERROR for $tabname ".$DBH->err." >> ".$DBH->errstr);
+	  &print_debug("insert_dictionary_value","ERROR for $tabname ".$FC::DBH->err." >> ".$FC::DBH->errstr);
       }
       $sth->finish();
   }
@@ -1617,7 +1642,7 @@ sub insert_dictionary_value {
 
 sub get_prodlib_version_ID {
 
-    if( ! $DBH){
+    if( ! $FC::DBH){
 	&print_message("insert_detector_configuration","Not connected");
 	return 0;
     }
@@ -1637,7 +1662,7 @@ sub get_prodlib_version_ID {
 	# fetch if exists
 	$cmd1 = &_CACHED_SELECT().&_IDize("get_prolib_version_ID",$tabname)." FROM $tabname WHERE $fldnm1=? AND $fldnm2=?";
 	#print "$cmd1\n";
-	$sth1 = $DBH->prepare($cmd1);
+	$sth1 = $FC::DBH->prepare($cmd1);
 	if ( ! $sth1 ){  
 	    &die_message("get_prodlib_version_ID","Prepare statements 1 failed");
 	} else {
@@ -1650,12 +1675,12 @@ sub get_prodlib_version_ID {
 		    $cmd2  = "INSERT IGNORE INTO $tabname ($fldnm1, $fldnm2, ".&_IDatize("",$tabname).", ".&_Creatorize("",$tabname).") ";
 		    $cmd2 .= "VALUES('".$prod."', '".$lib." ', NOW()+0, ".&_GetILogin().")";
 		    #print "$cmd2\n";
-		    $sth2  = $DBH->prepare($cmd2);
+		    $sth2  = $FC::DBH->prepare($cmd2);
 		    if ( $sth2->execute() ){
 			&print_debug("get_prodlib_version_ID","Inserted $prod,$lib");
 			$id = &get_last_id();
 		    } else {
-			&print_message("get_prodlib_version_ID","Failed to insert $prod,$lib".$DBH->errstr);
+			&print_message("get_prodlib_version_ID","Failed to insert $prod,$lib".$FC::DBH->errstr);
 		    }
 		    $sth2->finish();
 		    
@@ -1698,7 +1723,7 @@ sub get_current_detector_configuration {
   my ($field)   = "detectorConfigurationName";
   my ($index)   = &_IDize("get_current_detector_configuration",$tabname);
 
-  if( ! $DBH){
+  if( ! $FC::DBH){
       &print_message("insert_detector_configuration","Not connected");
       return 0;
   }
@@ -1720,7 +1745,7 @@ sub get_current_detector_configuration {
   if ( ($detConfiguration = &_CachedValue($tabname,$val)) == 0){
       $cmd = &_CACHED_SELECT()."$tabname.$index from $tabname WHERE $tabname.$field='$val'";
 
-      $sth = $DBH->prepare($cmd);
+      $sth = $FC::DBH->prepare($cmd);
       if( ! $sth ){
 	  &die_message("get_current_detector_configuration",
 		       "Cannot prepare ddb sentence");
@@ -1757,7 +1782,7 @@ sub get_current_detector_configuration {
 #
 sub insert_detector_configuration {
 
-  if( ! $DBH){
+  if( ! $FC::DBH){
       &print_message("insert_detector_configuration","Not connected");
       return 0;
   }
@@ -1822,7 +1847,7 @@ sub insert_detector_configuration {
   if ($DEBUG > 0) {  &print_debug("insert_detector_configuration","Execute $dtinsert$dtvalues");}
 
   $retid = 0;
-  $sth   = $DBH->prepare( $dtinsert.$dtvalues );
+  $sth   = $FC::DBH->prepare( $dtinsert.$dtvalues );
   if( ! $sth ){
       &print_debug("insert_detector_configuration","Failed to prepare [$dtinsert$dtvalues]");
   } else {
@@ -1922,7 +1947,7 @@ sub get_collision_collection {
   if ($_[0] =~ m/FileCatalog/) {
     shift @_;
   };
-  if( ! defined($DBH) ){
+  if( ! defined($FC::DBH) ){
       &print_message("get_collision_collection","Not connected/connecting");
       return 0;
   }
@@ -1942,7 +1967,10 @@ sub get_collision_collection {
 
   ($firstParticle, $secondParticle, $energy) = &disentangle_collision_type($colstring);
 
-  my $sqlquery =  &_CACHED_SELECT()."collisionTypeID FROM CollisionTypes WHERE UPPER(firstParticle) = UPPER(\"$firstParticle\") AND UPPER(secondParticle) = UPPER(\"$secondParticle\") AND ROUND(collisionEnergy) = ROUND($energy)";
+  my $sqlquery =  &_CACHED_SELECT()."collisionTypeID FROM CollisionTypes WHERE UPPER(firstParticle) = UPPER(\"$firstParticle\") AND UPPER(secondParticle) = UPPER(\"$secondParticle\")";
+  if ( $energy ne "" ){
+      $sqlquery .= " AND ROUND(collisionEnergy) = ROUND($energy)";
+  }
 
   if ($DEBUG > 0) {
       &print_debug("get_collision_collection",
@@ -1956,7 +1984,7 @@ sub get_collision_collection {
   my @retv;
   my $id;
 
-  my $sth = $DBH->prepare($sqlquery);
+  my $sth = $FC::DBH->prepare($sqlquery);
   if( ! $sth){
       &print_debug("get_collision_collection","Failed to prepare [$sqlquery]");
   } else {
@@ -1965,7 +1993,7 @@ sub get_collision_collection {
       } else {
 	  $sth->bind_columns( \$id );
 
-	  if ( $sth->fetch() ) {
+	  while ( $sth->fetch() ) {
 	      push(@retv,$id);
 	  }
 	  if($#retv == -1){
@@ -1995,7 +2023,7 @@ sub insert_collision_type {
   my $secondParticle;
   my $energy;
 
-  if( ! defined($DBH) ){
+  if( ! defined($FC::DBH) ){
       &print_message("insert_collision_type","Not connected");
       return 0;
   }
@@ -2030,7 +2058,7 @@ sub insert_collision_type {
   my $sth;
   my $retid=0;
 
-  $sth = $DBH->prepare( $ctinsert );
+  $sth = $FC::DBH->prepare( $ctinsert );
   if( ! $sth){
       &print_debug("insert_collision_type","Failed to prepare [$ctinsert]");
   } else {
@@ -2055,12 +2083,12 @@ sub get_last_id
     my $id;
     my $retv=0;
 
-    if( ! defined($DBH) ){
+    if( ! defined($FC::DBH) ){
 	&print_message("get_last_id","Not connected");
 	return 0;
     }
 
-    $sth = $DBH->prepare($sqlquery);
+    $sth = $FC::DBH->prepare($sqlquery);
     if( $sth ){
 	if ( $sth->execute() ){
 	    $sth->bind_columns( \$id );
@@ -2100,7 +2128,7 @@ sub insert_run_param_info {
   my $simulation;
   my $magvalue;
 
-  if( ! defined($DBH) ){
+  if( ! defined($FC::DBH) ){
       &print_message("insert_run_param_info","Not connected");
       return 0;
   }
@@ -2235,7 +2263,7 @@ sub insert_run_param_info {
   my $sth;
   my $retid=0;
 
-  $sth = $DBH->prepare( $rpinsert );
+  $sth = $FC::DBH->prepare( $rpinsert );
   if( ! $sth ){
       &print_debug("insert_run_param_info","Failed to prepare [$rpinsert]");
   } else {
@@ -2314,7 +2342,7 @@ sub insert_file_data {
   my @triggerIDs;
   my $count;
 
-  if( ! defined($DBH) ){
+  if( ! defined($FC::DBH) ){
       &print_message("insert_file_data","Not connected");
       return 0;
   }
@@ -2416,7 +2444,7 @@ sub insert_file_data {
 
   my $sth;
   my $retid;
-  $sth = $DBH->prepare( $fdinsert );
+  $sth = $FC::DBH->prepare( $fdinsert );
   if( $sth ){
       if ($DELAY){
 	  push(@DCMD,
@@ -2430,7 +2458,7 @@ sub insert_file_data {
 
 	  } else {
 	      &print_debug("insert_file_data",
-			   "ERROR in insert_file_location() ".$DBH->err." >> ".$DBH->errstr);
+			   "ERROR in insert_file_location() ".$FC::DBH->err." >> ".$FC::DBH->errstr);
 	      $sth->finish();
 	      return 0;
 	  }
@@ -2491,7 +2519,7 @@ sub set_trigger_composition
 {
     my($tcfdid,$update)=@_;
 
-    if( ! defined($DBH)){
+    if( ! defined($FC::DBH)){
 	&print_message("set_trigger_compositio",
 		       "Not connected/connecting");
 	return;
@@ -2532,8 +2560,8 @@ sub set_trigger_composition
 	" WHERE triggerWordName=? AND triggerWordBits=?  AND triggerWordVersion=?";
     $cmd2 = "INSERT INTO TriggerWords VALUES(NULL, ?, ?, ?, NOW()+0, ".&_GetILogin().", 0, ?)";
 
-    $sth1 = $DBH->prepare($cmd1);
-    $sth2 = $DBH->prepare($cmd2);
+    $sth1 = $FC::DBH->prepare($cmd1);
+    $sth2 = $FC::DBH->prepare($cmd2);
 
     if ( ! $sth1 || ! $sth2 ){  &die_message("set_trigger_composition","Prepare statements 1 failed");}
 
@@ -2557,13 +2585,13 @@ sub set_trigger_composition
 		} else {
 		    &die_message("set_trigger_composition",
 				 "Failed to insert $FC::TRGNAME[$i],$FC::TRGWORD[$i],$FC::TRGVERS[$i],$FC::TRGDEFS[$i] error=".
-				 $DBH->err." >> ".$DBH->errstr);
+				 $FC::DBH->err." >> ".$FC::DBH->errstr);
 		}
 	    }
 	} else {
 	    &die_message("set_trigger_composition",
 			 "Failed to execute for $FC::TRGNAME[$i],$FC::TRGWORD[$i],$FC::TRGVERS[$i] error=".
-			 $DBH->err." >> ".$DBH->errstr);
+			 $FC::DBH->err." >> ".$FC::DBH->errstr);
 	}
     }
     $sth1->finish();
@@ -2576,8 +2604,8 @@ sub set_trigger_composition
     #
     $cmd1 =  &_CACHED_SELECT()."triggerWordID FROM TriggerCompositions WHERE fileDataID=?";
     $cmd2 = "INSERT DELAYED INTO TriggerCompositions VALUES(?,?,?)";
-    $sth1 = $DBH->prepare($cmd1);
-    $sth2 = $DBH->prepare($cmd2);
+    $sth1 = $FC::DBH->prepare($cmd1);
+    $sth2 = $FC::DBH->prepare($cmd2);
 
     if ( ! $sth1 || ! $sth2 ){  &die_message("set_trigger_composition","Prepare statements 2 failed");}
 
@@ -2597,7 +2625,7 @@ sub set_trigger_composition
 		# the rest of the list unmodified).
 		#
 		$cmdd = "DELETE LOW_PRIORITY FROM TriggerCompositions WHERE fileDataID=? AND triggerWord=?";
-		$sthd = $DBH->prepare($cmdd);
+		$sthd = $FC::DBH->prepare($cmdd);
 		foreach $el (@all){
 		    &print_debug("set_trigger_composition","$cmdd , $tcfdid, $el");
 		    $sthd->execute($tcfdid,$el);
@@ -2649,7 +2677,7 @@ sub del_trigger_composition
 	} else {
 	    # a complete different story
 	    $cmd = "DELETE LOW_PRIORITY FROM TriggerCompositions WHERE fileDataID=?";
-	    $sth = $DBH->prepare($cmd);
+	    $sth = $FC::DBH->prepare($cmd);
 
 	    if ( ! $sth ){
 		&print_message("del_trigger_composition",
@@ -2689,7 +2717,7 @@ sub get_current_file_data {
   my $filestream;
   my $sqlquery;
 
-  if( ! defined($DBH) ){
+  if( ! defined($FC::DBH) ){
       &print_message("get_current_file_data","Not connected");
       return 0;
   }
@@ -2744,7 +2772,7 @@ sub get_current_file_data {
 
   my($sth,$id);
 
-  $sth = $DBH->prepare($sqlquery);
+  $sth = $FC::DBH->prepare($sqlquery);
 
   if( ! $sth ){
       &print_message("get_current_file_data","Failed to prepare [$sqlquery]");
@@ -2787,7 +2815,7 @@ sub insert_simulation_params {
   my $evgenComments;
   my $eventGenerator;
 
-  if( ! defined($DBH) ){
+  if( ! defined($FC::DBH) ){
       &print_message("insert_simulation_params","Not connected");
       return 0;
   }
@@ -2820,7 +2848,7 @@ sub insert_simulation_params {
 
 
   my $sth;
-  $sth = $DBH->prepare($sqlquery);
+  $sth = $FC::DBH->prepare($sqlquery);
   if( ! $sth ){
       &print_debug("insert_simulation_params","Failed to prepare [$sqlquery]");
       return 0;
@@ -2841,7 +2869,7 @@ sub insert_simulation_params {
       if ($DEBUG > 0) {
 	  &print_debug("insert_simulation_params","Execute $eginsert");
       }
-      my $sthe = $DBH->prepare( $eginsert );
+      my $sthe = $FC::DBH->prepare( $eginsert );
 
       if ( $sthe ){
 	  if ( $sthe->execute() ) {
@@ -2876,7 +2904,7 @@ sub insert_simulation_params {
       &print_debug("insert_simulation_params","Execute $spinsert");
   }
 
-  $sth = $DBH->prepare( $spinsert );
+  $sth = $FC::DBH->prepare( $spinsert );
   if( ! $sth){
       &print_debug("FileCatalog::insert_simulation_params : Failed to prepare [$spinsert]");
       return 0;
@@ -2910,7 +2938,7 @@ sub get_current_simulation_params {
   my $generatorComment;
   my $sqlquery;
 
-  if( ! defined($DBH) ){
+  if( ! defined($FC::DBH) ){
       &print_message("get_current_simulation_params","Not connected");
       return 0;
   }
@@ -2929,7 +2957,7 @@ sub get_current_simulation_params {
   }
 
   my ($sth);
-  $sth = $DBH->prepare($sqlquery);
+  $sth = $FC::DBH->prepare($sqlquery);
   if ( ! $sth){
       &print_debug("get_current_simulation_params","Failed to prepare [$sqlquery]");
       return 0;
@@ -3083,7 +3111,7 @@ sub insert_file_location {
   my $persistent;
   my $sanity;
 
-  if( ! defined($DBH) ){
+  if( ! defined($FC::DBH) ){
       &print_message("insert_file_location","Not connected");
       return 0;
   }
@@ -3240,13 +3268,13 @@ sub insert_file_location {
       #
       #   and delete the indexes returned
       #
-      my $sthid = $DBH->prepare("INSERT INTO FileLocationsID (fileLocationID) VALUES (NULL)");
+      my $sthid = $FC::DBH->prepare("INSERT INTO FileLocationsID (fileLocationID) VALUES (NULL)");
       if ( $sthid->execute() ){
 	  $UFID = &get_last_id();
 	  &print_debug("insert_file_location","Selected unique FLID $UFID");
 	  $sthid->finish();
       } else {
-	  &print_message("insert_file_location","Failed to reserve a new index ".$DBH->errstr);
+	  &print_message("insert_file_location","Failed to reserve a new index ".$FC::DBH->errstr);
 	  $sthid->finish();
 	  return 0;
       }
@@ -3280,7 +3308,7 @@ sub insert_file_location {
 
   &print_debug("insert_file_location","Execute $flinchk");
   #print "Executing $flinchk\n";
-  $sth = $DBH->prepare( $flinchk );
+  $sth = $FC::DBH->prepare( $flinchk );
   if ( ! $sth ){
       &print_debug("insert_file_location","Failed to prepare [$flinchk]");
   } else {
@@ -3296,7 +3324,7 @@ sub insert_file_location {
 
   if( $retid == 0){
       &print_debug("insert_file_location","Execute $flinsert");
-      $sth = $DBH->prepare( $flinsert );
+      $sth = $FC::DBH->prepare( $flinsert );
       #print "++ $flinsert ++";
       if( ! $sth ){
 	  &print_debug("insert_file_location","Failed to prepare [$flinsert]");
@@ -3309,13 +3337,13 @@ sub insert_file_location {
 	      my($ts,$td);
 	      $ts = time();
 
-	      # $DBH->trace(9);
+	      # $FC::DBH->trace(9);
 	      if ( $sth->execute() ) {
 		  if ( $UFID == 0){
 		      $retid = &get_last_id();
 		      if ( &_CanHandleSplitted() ){
 			  # we MUST re-synchronized
-			  $DBH->do("INSERT IGNORE INTO FileLocationsID (fileLocationID) VALUES ($retid)");
+			  $FC::DBH->do("INSERT IGNORE INTO FileLocationsID (fileLocationID) VALUES ($retid)");
 		      }
 		  } else {
 		      $retid = $UFID;
@@ -3323,7 +3351,7 @@ sub insert_file_location {
 		  &print_debug("insert_file_location","Returning: $retid");
 	      } else {
 		  &print_debug("insert_file_location",
-			       "ERROR in insert_file_location() ".$DBH->err." >> ".$DBH->errstr);
+			       "ERROR in insert_file_location() ".$FC::DBH->err." >> ".$FC::DBH->errstr);
 	      }
 	  
 	      $td = time()-$ts;
@@ -3700,7 +3728,7 @@ sub run_query {
   };
 
   # Do not run if not DB
-  if( ! defined($DBH) ){
+  if( ! defined($FC::DBH) ){
       &print_message("run_query","Not connected");
       return;
   }
@@ -4032,7 +4060,7 @@ sub run_query {
 		  #}
 	      }
 	      if ($DEBUG > 0) {  &print_debug("run_query","\tExecuting special: $sqlquery");}
-	      $sth = $DBH->prepare($sqlquery);
+	      $sth = $FC::DBH->prepare($sqlquery);
 
 	      if( ! $sth){
 		  &print_debug("run_query","\tget id's : Failed to prepare [$sqlquery]");
@@ -4543,7 +4571,7 @@ sub run_query {
 
   my $sth;
 
-  $sth = $DBH->prepare($sqlquery);
+  $sth = $FC::DBH->prepare($sqlquery);
   if ( ! $sth ){
       &print_debug("run_query","Failed to prepare [$sqlquery]");
       return;
@@ -4585,7 +4613,7 @@ sub run_query {
 	  }
 
       } else {
-	  &print_debug("run_query","ERROR ".$DBH->err." >> ".$DBH->errstr);
+	  &print_debug("run_query","ERROR ".$FC::DBH->err." >> ".$FC::DBH->errstr);
       }
       $sth->finish();
 
@@ -4752,7 +4780,7 @@ sub delete_records {
   if ($_[0] =~ m/FileCatalog/) {
     shift @_;
   }
-  if( ! defined($DBH) ){
+  if( ! defined($FC::DBH) ){
       &print_message("delete_record","Not connected");
       return 0;
   }
@@ -4786,7 +4814,7 @@ sub delete_records {
 
       $cmd = "DELETE LOW_PRIORITY FROM FileLocations WHERE fileLocationID=$ids[0]";
       #&print_debug("run_query",$cmd);
-      $sth = $DBH->prepare( $cmd );
+      $sth = $FC::DBH->prepare( $cmd );
 
       if( $doit ){
 	  if( $DELAY ){
@@ -4805,7 +4833,7 @@ sub delete_records {
 
 	  $cmd  = "SELECT FileLocations.fileLocationID from FileLocations, FileData ".
 		  " WHERE FileLocations.fileDataID = FileData.fileDataID AND FileData.fileDataID = $ids[1] ";
-	  $stq     = $DBH->prepare( $cmd );
+	  $stq     = $FC::DBH->prepare( $cmd );
 
 
 	  if ( ! $stq->execute() ){
@@ -4818,7 +4846,7 @@ sub delete_records {
 	  if ($rows == 0 || ($DELAY && $rows == 1) ){
 	      # This file data has no file "other" locations
 	      $cmd  = "DELETE LOW_PRIORITY FROM FileData WHERE fileDataID = $ids[1]";
-	      $sth2 = $DBH->prepare($cmd);
+	      $sth2 = $FC::DBH->prepare($cmd);
 
 	      if ($doit){
 		  if ( $DELAY ){
@@ -4834,7 +4862,7 @@ sub delete_records {
 	  }
 
       } else {
-	  &print_debug("run_query","Delete failed ".$DBH->err." ".$DBH->errstr);
+	  &print_debug("run_query","Delete failed ".$FC::DBH->err." ".$FC::DBH->errstr);
       }
       $sth->finish();
   }
@@ -4871,7 +4899,7 @@ sub bootstrap_data { &print_message("bootstrap_data","Obsolete routine called. U
 sub bootstrap {
     if ($_[0] =~ m/FileCatalog/) {  shift @_;}
 
-    if( ! defined($DBH) ){
+    if( ! defined($FC::DBH) ){
 	&print_message("bootstrap","Not connected");
 	return 0;
     }
@@ -4954,7 +4982,7 @@ sub _bootstrap_general
 
     $dcquery = "SELECT ".($FC::OPTIMIZE?"SQL_BUFFER_RESULT ":"")."$table.$linkfield FROM $table LEFT OUTER JOIN $childtable ON $table.$linkfield = $childtable.$linkfield WHERE $childtable.$linkfield IS NULL";
 
-    $stq = $DBH->prepare( $dcquery );
+    $stq = $FC::DBH->prepare( $dcquery );
     if( ! $stq ){
 	&print_debug("_bootstrap_general","Failed to prepare [$dcquery]");
 	return 0;
@@ -4973,7 +5001,7 @@ sub _bootstrap_general
 	    } else {
 		&print_debug("_bootstrap_general","Executing $dcdelete");
 
-		$stfdd = $DBH->prepare($dcdelete);
+		$stfdd = $FC::DBH->prepare($dcdelete);
 		if ($stfdd){
 		    $stfdd->execute();
 		} else {
@@ -5008,8 +5036,8 @@ sub _bootstrap_2levels {
 
     $cmd1  = "SELECT $tab1.$field1 FROM $tab1 LEFT OUTER JOIN $tab3 ON $tab1.$field1 = $tab3.$field1 WHERE $tab3.$field1 IS NULL";
     $cmd2  = "SELECT $tab2.$field2 FROM $tab2 LEFT OUTER JOIN $tab1 ON $tab2.$field2 = $tab1.$field2 WHERE $tab1.$field2 IS NULL";
-    $sth1 = $DBH->prepare( $cmd1 );
-    $sth2 = $DBH->prepare( $cmd2 );
+    $sth1 = $FC::DBH->prepare( $cmd1 );
+    $sth2 = $FC::DBH->prepare( $cmd2 );
 
     if( ! $sth1 || ! $sth2 ){ &die_message("_bootstrap_2levels"," Failed to prepare statements");}
 
@@ -5034,7 +5062,7 @@ sub _bootstrap_2levels {
 	    push(@DCMD,$cmdd);
 	} else {
 	    &print_debug("_bootstrap_2levels","Executing $cmdd");
-	    $sthd = $DBH->prepare($cmdd);
+	    $sthd = $FC::DBH->prepare($cmdd);
 	    if ($sthd){
 		$sthd->execute();
 	    } else {
@@ -5061,7 +5089,7 @@ sub _bootstrap_2levels {
 	    push(@DCMD,$cmdd);
 	} else {
 	    &print_debug("_bootstrap_2levels","Executing [$cmdd]");
-	    $sthd = $DBH->prepare($cmdd);
+	    $sthd = $FC::DBH->prepare($cmdd);
 	    if ($sthd){
 		$sthd->execute();
 	    } else {
@@ -5088,7 +5116,7 @@ sub _bootstrap_data
 {
     if ($_[0] =~ m/FileCatalog/) { shift @_;}
 
-    if( ! defined($DBH) ){
+    if( ! defined($FC::DBH) ){
 	&print_message("bootstrap_data","Not connected");
 	return 0;
     }
@@ -5112,7 +5140,7 @@ sub _bootstrap_data
     }
 
   my $stq;
-  $stq = $DBH->prepare( $dcquery );
+  $stq = $FC::DBH->prepare( $dcquery );
   if( ! $stq ){
       &print_debug("_bootstrap_data","Failed to prepare [$dcquery]");
       return 0;
@@ -5143,7 +5171,7 @@ sub _bootstrap_data
 	      push(@DCMD,$dcdelete);
 	  } else {
 	      if ($DEBUG > 0) { &print_debug("_bootstrap_data","Executing $dcdelete"); }
-	      my $stfdd = $DBH->prepare($dcdelete);
+	      my $stfdd = $FC::DBH->prepare($dcdelete);
 	      if ($stfdd){
 		  $stfdd->execute();
 	      } else {
@@ -5184,7 +5212,7 @@ sub update_record {
   if ($_[0] =~ m/FileCatalog/) {
     my $self = shift;
   }
-  if( ! defined($DBH) ){
+  if( ! defined($FC::DBH) ){
       &print_message("update_record","Not connected");
       return 0;
   }
@@ -5271,7 +5299,7 @@ sub update_record {
   my ($qupdate,$qselect);
   if (&get_field_type($ukeyword) eq "text"){
       $qselect = "SELECT $utable.$ufield FROM $utable WHERE $utable.$ufield = '$newvalue'";
-      $qupdate = "UPDATE LOW_PRIORITY $utable SET $utable.$ufield = '$newvalue' ";
+      $qupdate = "UPDATE $utable SET $utable.$ufield = '$newvalue' ";
       if( defined($valuset{$ukeyword}) ){
 	  if ( $valuset{$ukeyword} eq $newvalue){
 	      &print_message("update_record",
@@ -5293,7 +5321,7 @@ sub update_record {
 
   } else {
       $qselect = "SELECT $utable.$ufield FROM $utable WHERE $utable.$ufield = $newvalue";
-      $qupdate = "UPDATE LOW_PRIORITY $utable SET $utable.$ufield = $newvalue ";
+      $qupdate = "UPDATE $utable SET $utable.$ufield = $newvalue ";
       if( defined($valuset{$ukeyword}) ){
 	  if ( $valuset{$ukeyword} == $newvalue){
 	      &print_message("update_record",
@@ -5341,7 +5369,7 @@ sub update_record {
       # for dictionaries where changing values may be a real
       # disaster.
       if ($utable ne "FileLocations"){
-	  $sth = $DBH->prepare($qselect);
+	  $sth = $FC::DBH->prepare($qselect);
 	  if ($sth){
 	      if ( $sth->execute() ){
 		  $sth->bind_columns(\$val);
@@ -5368,7 +5396,7 @@ sub update_record {
 	  push(@DCMD,$qupdate );
 	  return 1;
       } else {
-	  $sth = $DBH->prepare( $qupdate );
+	  $sth = $FC::DBH->prepare( $qupdate );
 	  if (!$sth){
 	      &print_debug("update_record","Failed to prepare [$qupdate]");
 	  } else {
@@ -5376,7 +5404,7 @@ sub update_record {
 		  $retv = $sth->rows;
 	      } else {
 		  &print_message("update_record","update failed with error=".
-				 $DBH->err." >> ".$DBH->errstr);
+				 $FC::DBH->err." >> ".$FC::DBH->errstr);
 	      }
 	      $sth->finish();
 	  }
@@ -5432,7 +5460,7 @@ sub flush_delayed
     my($sts)=1;
 
     if( ! defined($flag) ){ $flag = 0;}
-    if( ! $DBH){  return 0;}
+    if( ! $FC::DBH){  return 0;}
 
     if( $flag){
 	&print_message("flush_delayed","Flushing ".($#DCMD+1)." commands on ".localtime());
@@ -5440,8 +5468,8 @@ sub flush_delayed
 
     foreach $cmd (@DCMD){
 	&print_debug("update_record","Executing $cmd");
-	if ( ! $DBH->do($cmd) ){
-	    &print_message("flush_delayed","Failed $cmd [".$DBH->errstr."]");
+	if ( ! $FC::DBH->do($cmd) ){
+	    &print_message("flush_delayed","Failed $cmd [".$FC::DBH->errstr."]");
 	    $sts = 0;
 	}
     }
@@ -5485,7 +5513,7 @@ sub print_delayed
 sub update_location {
   if ($_[0] =~ m/FileCatalog/) { my $self = shift;}
 
-  if( ! defined($DBH) ){
+  if( ! defined($FC::DBH) ){
       &print_message("update_location","Not connected");
       return 0;
   }
@@ -5643,7 +5671,7 @@ sub update_location {
       &print_debug("update_location","Case filed_type is text");
       #$qselect = "SELECT $ukeyword FROM $mtable WHERE $ufield='$newvalue'";
       $qdelete = "DELETE LOW_PRIORITY FROM $mtable" ;
-      $qupdate = "UPDATE LOW_PRIORITY $utable SET $utable.$ufield = '$newvalue' ";
+      $qupdate = "UPDATE $utable SET $utable.$ufield = '$newvalue' ";
       if( defined($valuset{$ukeyword}) ){
 	  if ( $valuset{$ukeyword} eq "NULL"){
 	      $qupdate .= " WHERE $utable.$ufield IS NULL";
@@ -5658,7 +5686,7 @@ sub update_location {
       &print_debug("update_location","Case any-other-case");
       #$qselect = "SELECT $ufield FROM $mtable WHERE $ufield=$newvalue" ;
       $qdelete = "DELETE LOW_PRIORITY FROM $mtable" ;
-      $qupdate = "UPDATE LOW_PRIORITY $utable SET $utable.$ufield = $newvalue ";
+      $qupdate = "UPDATE $utable SET $utable.$ufield = $newvalue ";
       if( defined($valuset{$ukeyword}) ){
 	  $qupdate .= " WHERE $utable.$ufield = $valuset{$ukeyword}";
       } else {
@@ -5710,9 +5738,9 @@ sub update_location {
   &print_debug("update_location"," delete >> $qdelete");
 
 
-  #$sth1 = $DBH->prepare( $qselect );
-  $sth2 = $DBH->prepare( $qdelete );
-  $sth3 = $DBH->prepare( $qupdate );
+  #$sth1 = $FC::DBH->prepare( $qselect );
+  $sth2 = $FC::DBH->prepare( $qdelete );
+  $sth3 = $FC::DBH->prepare( $qupdate );
   #if ( ! $sth1 || ! $sth2 || ! $sth3){
   if (  ! $sth3){
       #$sth1->finish() if ($sth1);
@@ -5769,7 +5797,7 @@ sub update_location {
 		      $count++;
 		  } else {
 		      $failed++;
-		      if ($DBH->err == 1062){
+		      if ($FC::DBH->err == 1062){
 			  # Duplicate entry being replaced
 			  #&print_debug("update_location","Duplicate entry is being replaced");
 			  if ( $delete){
@@ -5788,7 +5816,7 @@ sub update_location {
 			  }
 		      } else {
 			  &print_message("update_location","Update of $utable failed error=".
-					 $DBH->err." >> ".$DBH->errstr);
+					 $FC::DBH->err." >> ".$FC::DBH->errstr);
 		      }
 		  }
 	      }
@@ -5946,10 +5974,10 @@ sub print_message
 sub destroy {
   my $self = shift;
   &clear_context();
-  if ( ! defined($DBH) ) { return 0;}
+  if ( ! defined($FC::DBH) ) { return 0;}
 
-  if ( $DBH){
-      if ( $DBH->disconnect ) {
+  if ( $FC::DBH){
+      if ( $FC::DBH->disconnect ) {
 	  return 1;
       } else {
 	  return 0;
