@@ -24,9 +24,9 @@ require "/afs/rhic.bnl.gov/star/packages/scripts/dbLib/dbTJobsSetup.pl";
 my $TOP_DIRD = "/star/rcf/test/new/";
 my @dir_year = ("year_2001", "year_1h", "year_2003", "year_2004", "year_2005", "year_2006", "year_2007", "year_2008");
 my @node_dir = ("trs_sl302", "trs_sl302_opt","trs_sl302.ittf", "trs_sl302.ittf_opt");
-my @node_daq = ("daq_sl302", "daq_sl302_opt","daq_sl302.ittf","daq_sl302.ittf_opt"); 
+my @node_daq = ("daq_sl302", "daq_sl302_opt", "daq_sl302.ittf", "daq_sl302.ittf_opt"); 
 my @hc_dir = ("hc_lowdensity", "hc_standard", "hc_highdensity", "peripheral","pp_minbias","dau_minbias","auau_minbias","auau_central","cucu200_minbias","cucu62_minbias","auau200_central");
-my @daq_dir = ("minbias", "central", "ppMinBias", "dAuMinBias", "AuAuMinBias", "AuAu_prodHigh","AuAu_prodLow","prodPP","CuCu200_MinBias","CuCu200_HighTower","CuCu62_MinBias","CuCu22_MinBias","ppProduction","CuCu200_embedTpc","CuCu200_embedTpcSvt","ppProdLong","ppProdTrans","2007Production","2007ProductionMinBias","production_dAu2008","ppProduction2008");
+my @daq_dir = ("minbias", "central", "ppMinBias", "dAuMinBias", "AuAuMinBias", "AuAu_prodHigh","AuAu_prodLow","prodPP","CuCu200_MinBias","CuCu200_HighTower","CuCu62_MinBias","CuCu22_MinBias","ppProduction","CuCu200_embedTpc","CuCu200_embedTpcSvtSsd","ppProdLong","ppProdTrans","2007Production","2007ProductionMinBias","production_dAu2008","ppProduction2008");
 
 my @OUT_DIR;
 my @OUTD_DIR;
@@ -120,6 +120,7 @@ for ($i = 0; $i < scalar(@node_daq); $i++) {
    for ($ik = 19; $ik < 21; $ik++) { 
       $OUT_DIR[$ii] = $TOP_DIRD . $node_daq[$i] . "/" . $dir_year[7] . "/" . $daq_dir[$ik];
    print "Output Dir for NEW :", $OUT_DIR[$ii], "\n"; 
+    $ii++;
 
   }
  }
@@ -173,7 +174,7 @@ struct JFileAttr => {
         avPrTr    => '$',
         avVrt     => '$',
         avTrGd    => '$',
-        avPrTrGd  => '$',
+        avPrfit   => '$',
         avPrv1    => '$',
         avPrfitv1 => '$',
         avXi      => '$',
@@ -445,7 +446,7 @@ my @files;
       ($$fObjAdr)->avXi($avr_xivertices);
       ($$fObjAdr)->avKn($avr_knvertices);
       ($$fObjAdr)->avTrGd($avr_trck_nfit15);
-      ($$fObjAdr)->avPrTr($avr_prtrck_nfit15);
+      ($$fObjAdr)->avPrfit($avr_prtrck_nfit15);
       ($$fObjAdr)->avPrv1($avr_prtracks_1vtx);
       ($$fObjAdr)->avPrfitv1($avr_prtrck_nfit15_1vtx);
       ($$fObjAdr)->prctus($perct_usb);
@@ -469,6 +470,7 @@ my @files;
           $pvTime = ($$eachOldJob)->oldTime;
           $pvavail = ($$eachOldJob)->oldvail;
           $pfullName = $pvpath . "/" . $pvfile;
+
         
 #       if( ($fullname eq $pfullName) and ($pvavail eq "Y") ) {
 
@@ -567,8 +569,9 @@ my @files;
     $avr_xivertices = ($$newjobFile)->avXi;
     $avr_knvertices = ($$newjobFile)->avKn;
     $avr_trck_nfit15 =  ($$newjobFile)->avTrGd;
-    $avr_prtrck_nfit15 =  ($$newjobFile)->avPrfitv1;
+    $avr_prtrck_nfit15 =  ($$newjobFile)->avPrfit;
     $avr_prtracks_1vtx = ($$newjobFile)->avPrv1;
+    $avr_prtrck_nfit15_1vtx = ($$newjobFile)->avPrfitv1;
     $perct_usb = ($$newjobFile)->prctus;
     $avr_trk_usb = ($$newjobFile)->avTrus;
     $avr_prtrk_usb= ($$newjobFile)->avPrv1us;
@@ -1355,7 +1358,7 @@ my $cput = 0;
               $string = $logfile[$num_line + $ik];
               chop $string;
 
-           if( $string =~ /primary tracks/) {          
+           if( $string =~ /primary tracks:/) {          
 
               @word_tr = split /:/,$string;
               @nmb =  split /</,$word_tr[2];
@@ -1366,7 +1369,7 @@ my $cput = 0;
                if( $no_prtrck_nfit15[$npr] >= $max_npr_nfit15) {
                $max_npr_nfit15 = $no_prtrck_nfit15[$npr];
                $max_npr = $no_prtracks[$npr];
-              } 
+              }
               $npr++;
  
             }elsif( $string =~ /V0 vertices/) { 
@@ -1438,12 +1441,12 @@ my $cput = 0;
      
       }
  
-  }
+ }
 
        $EvDone = $no_event;
       $EvCom = $EvDone - $EvSkip;
 
-  if($embflag == 1) {
+  if($embflag == 1 and $EvDone >= 1) {
       $mCPU = $cput/$EvDone;
       $mRealT = $rlt/$EvDone;
 
