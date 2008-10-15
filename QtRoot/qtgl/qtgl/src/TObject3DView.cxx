@@ -439,14 +439,18 @@ void TObject3DView::MakeVolumeView(TGeoVolume *top, Int_t maxlevel)
                nextVolume = volumeFinder->second;
 
             if (!nextVolume) {
+#if ROOT_VERSION_CODE < ROOT_VERSION(5,16,0)
                gGeoManager->CdDown(i);
+#endif
                nextVolume= new TObject3DView(geoVolume,fMap,fView3DFactory,fLevel+1,maxlevel);
+#if ROOT_VERSION_CODE < ROOT_VERSION(5,16,0)
                gGeoManager->CdUp();
+#endif
             } 
 #else
-               gGeoManager->CdDown(i);
+             //  gGeoManager->CdDown(i);
                nextVolume= new TObject3DView(geoVolume,fMap,fView3DFactory,fLevel+1,maxlevel);
-               gGeoManager->CdUp();
+             //  gGeoManager->CdUp();
 #endif
             position->AddChild(nextVolume);
             AddChild(position);
