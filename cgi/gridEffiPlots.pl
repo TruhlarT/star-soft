@@ -367,6 +367,7 @@ my $ndt = 0;
     $siteH{$gsite}++; 
 
     $datetest{$gsite} = $sbday;
+
     if($glStatus == -1) {
     $globEfH{$gsite}++ ;
   }
@@ -394,6 +395,7 @@ my $ndt = 0;
    for($ii = 0; $ii <scalar(@sites); $ii++) {
 
    $msite = $sites[$ii]; 
+
        if( $siteH{$msite} >= 1 ) {
 
    $ndate[$ndt] = $datetest{$msite};
@@ -437,8 +439,8 @@ my $ndt = 0;
 
 	$ptag = "ALL";
 
-    $legend[0] = "Efficiency for $msite for 1st submission; ";
-    $legend[1] = "Efficiency for $msite with 1st resubmission; "; 
+    $legend[0] = "Efficiency for $ptag for 1st submission; ";
+    $legend[1] = "Efficiency for $ptag with 1st resubmission; "; 
 #    $legend[2] = "Efficiency for WSU; "; 
 #    $legend[3] = "Efficiency for BNL; ";
 
