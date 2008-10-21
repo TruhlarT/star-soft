@@ -402,6 +402,7 @@ my $ndt = 0;
    $recoComeff[$ndt] = $recoEfH{$msite}*100/$njobs[$ndt]; 
    $overeff[$ndt] = $siteEff{$msite}*100/$njobs[$ndt];
    $overeffrs[$ndt] = $siteEffRs{$msite}*100/$njobs[$ndt];
+ print "Second print  ",$ndt,"   ", $ndate[$ndt],"  ",$njobs[$ndt],"  ",$overeff[$ndt],"  ",$overeffrs[$ndt], "\n";
    if ($msite eq "pdsf")  {
    $effpdsf[$ndt] = $siteEff{$msite}*100/$njobs[$ndt];
    $effpdsfovr[$ndt] = $siteEffRs{$msite}*100/$njobs[$ndt];
