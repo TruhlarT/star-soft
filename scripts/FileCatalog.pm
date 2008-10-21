@@ -123,7 +123,7 @@ require  Exporter;
 
 
 use vars qw($VERSION);
-$VERSION   =   "V01.355";
+$VERSION   =   "V01.357";
 
 # The hashes that hold a current context
 my %optoperset;
@@ -1411,9 +1411,13 @@ sub _GlobIzer
     #if ( substr($idname,length($idname),1) eq "s"){ chop($idname);}
     #$tmp =~ s/s$//; if ( $idname ne $tmp){ print "Got something different $idname $fac\n";}
 
+    # if table are splitted, they will be post-fixed with _\d+
+    if ($idname =~ m/(.*)(_\d+$)/ ){ $idname = $1;}
+
     # remove trailing "s" from table name, capitalize
     # postfix and we are done.
     $idname =~ s/s$//;
+
     $idname = lcfirst($idname);
     $idname.= $postfix;
     #print "$postfix,$fac,$idname - > $idname\n";
@@ -5641,12 +5645,32 @@ sub update_location {
 
 
   #
+  # This routine actually handles FileData or FileLocations as logic
+  # change table name upon detecting proper arguments (LFN / PFN 
+  # transparency).
+  # But we can improve if the table is splittable espeically if only
+  # FileLocations is used.
+  #
+  if ($utable eq "FileLocations" && &_CanHandleSplitted() ){
+      # we can use this logic only if storage was specified
+      my ($storageType) = &check_ID_for_params("storage");
+      if ( &_TypeSplitted("FileLocations",$storageType) && $storageType != 0){
+	  $utable = "FileLocations_$storageType";
+	  if ($mtable eq "FileLocations"){  $mtable = $utable;}
+      } 
+  }
+ 
+
+  #
   # Sort out sth
   #
   my($qupdate,$qselect,$qdelete);
   my($sth1,$sth2,$sth3);
 
   if ( defined($FC::FLRELATED{$utable}) && ($utable ne "FileData") ){
+      #+
+      # THIS IS ONLY FOR TABLES WITH A RELATION TO FileLocations BUT FileData
+      #-
       # Patch ... The above logic is true only for
       # tables like FileData/FileLocation but not true for others
       # Note that we should not test FDRELATED in this case ...
@@ -5666,9 +5690,11 @@ sub update_location {
       # to ukeyword)
       $utable = $mtable;
 
-      # THOSE ONLY UPDATES VALUES
   } elsif (&get_field_type($ukeyword) eq "text" ){
-      &print_debug("update_location","Case filed_type is text");
+      #+
+      # THOSE ONLY UPDATES VALUES WHICH ARE TEXT
+      #-
+      &print_debug("update_location","Case field_type is text");
       #$qselect = "SELECT $ukeyword FROM $mtable WHERE $ufield='$newvalue'";
       $qdelete = "DELETE LOW_PRIORITY FROM $mtable" ;
       $qupdate = "UPDATE $utable SET $utable.$ufield = '$newvalue' ";
@@ -5682,7 +5708,12 @@ sub update_location {
 	  &print_debug("update_location"," (text)  $ukeyword ($ufield) not set with an initial value");
 	  #return 0;
       }
+
   } else {
+      #+
+      # THIS BLOCK CAN BE REACHED BY SELECT ON FileLocations, FileData OR TABLES
+      # UNRELATED To FileLocations
+      #-
       &print_debug("update_location","Case any-other-case");
       #$qselect = "SELECT $ufield FROM $mtable WHERE $ufield=$newvalue" ;
       $qdelete = "DELETE LOW_PRIORITY FROM $mtable" ;
@@ -5734,7 +5765,7 @@ sub update_location {
 
 
   &print_debug("update_location"," update >> $qupdate");
-  &print_debug("update_location"," select >> $qselect");
+  #&print_debug("update_location"," select >> $qselect");
   &print_debug("update_location"," delete >> $qdelete");
 
 
@@ -5746,7 +5777,8 @@ sub update_location {
       #$sth1->finish() if ($sth1);
       $sth2->finish() if ($sth2);
       $sth3->finish() if ($sth3);
-      &print_debug("update_location","Failed to prepare [$qupdate] [$qselect] [$qdelete]");
+      #&print_debug("update_location","Failed to prepare [$qupdate] [$qselect] [$qdelete]");
+      &print_debug("update_location","Failed to prepare [$qupdate] [$qdelete]");
       return 0;
   }
 
