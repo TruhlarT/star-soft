@@ -376,12 +376,12 @@ my $ndt = 0;
     $recoEfH{$gsite} = $recoEfH{$gsite} + $recoSt;
    }
 
-    if ( $nsubmit == 0 and $ovrStat eq "success" ) {
+    if ( $nsubmit == 1 and $ovrStat eq "success" ) {
 
        $siteEff{$gsite}++;
        $siteEffRs{$gsite}++;
 
-   }elsif ($nsubmit = 1 and $ovrStat eq "success") {
+   }elsif ($nsubmit = 2 and $ovrStat eq "success") {
       
      $siteEffRs{$gsite}++;
 
