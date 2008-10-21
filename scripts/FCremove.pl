@@ -41,7 +41,7 @@ foreach $ARG (@ARGV){
 	$cancel = 1;
 
     } elsif (substr($ARG,0,1) eq "-"){
-	print "Unkown option $ARG\n";
+	print "Unknown option $ARG\n";
 
     } else {
 	# Take things in order
@@ -93,16 +93,22 @@ while ( defined($file = <FI>)){
     chomp($file);
     next if ($file eq "");
 
+    # this format is a dump format from HPSS 
+    if ( $file =~ m/(.*: \.)(\/.*)/){
+	$file = $2;
+    }
+
+
     # Do not allow for spaces as separator
     @items = split(" ",$file);
     if ($#items > 0){ $file = $items[0];}
 
     # File list sent by the HPSS team i.e. FSS dump-lists
     # have file path starting with a "." . Strip it out.
-
     if ( substr($file,0,1) eq "."){
 	$file = substr($file,1,length($file)-1);
     }
+
     if ($file =~ m/(.*\/)(.*)/){
 	($path,$file) = ($1,$2);
 	if ( $file =~ /::/){
