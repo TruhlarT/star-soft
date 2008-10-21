@@ -293,7 +293,7 @@ my $ndt = 0;
 
   if( $qsite eq "ALL" ) {
 
-      $sql="SELECT date_format(submitTime, '%Y-%m-%d') AS PDATE, site, submitAttempt, globusError, dotOutHasSize, dorErrorHasSize, exec, transIn, transOut, overAllState FROM $JobEfficiencyT WHERE  submitTime like '$tdate%' AND (lastKnownState = 'done' OR lastKnownState = 'failed' OR lastKnownState = 'killed' OR lastKnownState = 'held' ) "; 
+      $sql="SELECT date_format(submitTime, '%Y-%m-%d') AS PDATE, site, submitAttempt, globusError, dotOutHasSize, dotErrorHasSize, exec, transIn, transOut, overAllState FROM $JobEfficiencyT WHERE  submitTime like '$tdate%' AND (lastKnownState = 'done' OR lastKnownState = 'failed' OR lastKnownState = 'killed' OR lastKnownState = 'held' ) "; 
 
     $cursor =$dbh->prepare($sql)
       || die "Cannot prepare statement: $DBI::errstr\n";
@@ -301,7 +301,7 @@ my $ndt = 0;
 
   }else{
 
-     $sql="SELECT date_format(submitTime, '%Y-%m-%d') AS PDATE, site, submitAttempt, globusError, dotOutHasSize, dorErrorHasSize, exec, transIn, transOut, overAllState FROM $JobEfficiencyT WHERE site = ? AND submitTime like '$tdate%' AND (lastKnownState = 'done' OR lastKnownState = 'failed' OR lastKnownState = 'killed' OR lastKnownState = 'held') ";
+     $sql="SELECT date_format(submitTime, '%Y-%m-%d') AS PDATE, site, submitAttempt, globusError, dotOutHasSize, dotErrorHasSize, exec, transIn, transOut, overAllState FROM $JobEfficiencyT WHERE site = ? AND submitTime like '$tdate%' AND (lastKnownState = 'done' OR lastKnownState = 'failed' OR lastKnownState = 'killed' OR lastKnownState = 'held') ";
 
 
      $cursor =$dbh->prepare($sql)
@@ -439,8 +439,8 @@ my $ndt = 0;
 
 	$ptag = "ALL";
 
-    $legend[0] = "Efficiency for 1st submission; ";
-    $legend[1] = "Efficiency with 1st resubmission; "; 
+    $legend[0] = "Efficiency for $ptag for 1st submission; ";
+    $legend[1] = "Efficiency for $ptag with 1st resubmission; "; 
 #    $legend[2] = "Efficiency for WSU; "; 
 #    $legend[3] = "Efficiency for BNL; ";
 
