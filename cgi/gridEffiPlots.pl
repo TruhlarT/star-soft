@@ -439,14 +439,14 @@ my $ndt = 0;
 
 	$ptag = "ALL";
 
-    $legend[0] = "Efficiency for $ptag for 1st submission; ";
-    $legend[1] = "Efficiency for $ptag with 1st resubmission; "; 
+    $legend[0] = "Efficiency for 1st submission; ";
+    $legend[1] = "Efficiency with 1st resubmission; "; 
 #    $legend[2] = "Efficiency for WSU; "; 
 #    $legend[3] = "Efficiency for BNL; ";
 
-#    @data = (\@ndate, \@effpdsf, \@effpdsfovr ) ;
+    @data = (\@ndate, \@effpdsf, \@effpdsfovr ) ;
 
-    @data = (\@ndate, \@overeff, \@overeffrs ) ;
+#    @data = (\@ndate, \@overeff, \@overeffrs ) ;
 
       }else{
 
