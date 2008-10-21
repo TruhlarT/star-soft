@@ -5526,10 +5526,11 @@ sub update_location {
   my @updates;
 
   my ($ukeyword, $newvalue, $doit, $delete) = (@_);
+  my ($mtable);
 
-  my $mtable;
-  my $utable = &_GetTableName($ukeyword);
-  my $ufield = &_GetFieldName($ukeyword);
+  my $fltblnam = "FileLocations";
+  my $utable   = &_GetTableName($ukeyword);
+  my $ufield   = &_GetFieldName($ukeyword);
 
 
   &print_debug("update_location","The keyword is [$ukeyword] from table=[$utable]");
@@ -5542,13 +5543,13 @@ sub update_location {
       $mtable = "FileData";
   } elsif ( defined($FC::FLRELATED{$utable}) ){
       # *** this name need to change ***
-      $mtable = "FileLocations";
+      $mtable = $fltblnam;
   } else {
       $mtable = $utable;
   }
 
   # this is left for protection
-  if ( $mtable ne "FileLocations" &&
+  if ( $mtable ne $fltblnam  &&
        $mtable ne "FileData"      ){
       &print_message("update_location","Improper method called for keyword $ukeyword ($mtable)");
       return 0;
@@ -5578,7 +5579,7 @@ sub update_location {
   &set_context("nounique=1");             # do not run with DISTINCT
 
   my ($id);
-  if ($mtable eq "FileLocations"){
+  if ($mtable eq $fltblnam ){
       $id = "flid";
   } else {
       $id = "fdid";
@@ -5649,14 +5650,16 @@ sub update_location {
   # change table name upon detecting proper arguments (LFN / PFN 
   # transparency).
   # But we can improve if the table is splittable espeically if only
-  # FileLocations is used.
+  # FileLocations is used. Until now, $fltblnam <=> "FileLocations"  
   #
-  if ($utable eq "FileLocations" && &_CanHandleSplitted() ){
+  if ($utable eq $fltblnam && &_CanHandleSplitted() ){
       # we can use this logic only if storage was specified
       my ($storageType) = &check_ID_for_params("storage");
-      if ( &_TypeSplitted("FileLocations",$storageType) && $storageType != 0){
-	  $utable = "FileLocations_$storageType";
-	  if ($mtable eq "FileLocations"){  $mtable = $utable;}
+      if ( &_TypeSplitted($fltblnam,$storageType) && $storageType != 0){
+	  $utable = "$fltblnam"."_$storageType";
+	  if ($mtable eq $fltblnam ){  $mtable = $utable;}
+	  # now reset the $fltblnam 
+	  $fltblnam = $utable;
       } 
   }
  
@@ -5737,12 +5740,12 @@ sub update_location {
   if  ( $utable ne $mtable){
       # But since we are only speaking about FileData or FileLocations
       # we only need to put back in the relation between those tables.
-      $xrel = " FileData.fileDataID = FileLocations.fileDataID ";
+      $xrel = " FileData.fileDataID = $fltblnam.fileDataID ";
       $xjoin= "$utable,$mtable";
       # however, we do not know if cond is related to FileLocations
       # or FileData so we need to re-check all table (kind of screwed
       # logic and relationship between tables)
-      if ($xjoin !~ /FileLocations/){ $xjoin .= ",FileLocations";}
+      if ($xjoin !~ /FileLocations/){ $xjoin .= ",$fltblnam";}
       if ($xjoin !~ /FileData/){      $xjoin .= ",FileData";}
       &print_debug("update_location","will use $utable --> $utable,$mtable");
   } else {
