@@ -26,15 +26,16 @@ if ( defined($ARGV[0]) ){
 
     # one instance at a time
     if ( -e "/tmp/$hostName$<.lock"){
-	 my(@items)=stat("/tmp/$hostName$<.lock");
-	 my($deltatime)= time() - $items[9];
-	 if ( $deltatime < 21600){   # 6 hours
-	     print localtime()." Found /tmp/$hostName$<.lock ; quit.\n";
-	     exit 0;
-	 } else {
-	     unlink("/tmp/$hostName$<.lock");
-	 }
-     }
+	my(@items)=stat("/tmp/$hostName$<.lock");
+	my($deltatime)= time() - $items[9];
+	my($waittime)= ($hostName eq "localhost"?43200:21600); # 43200 = 12 hours / 21600 = 6 hours
+	if ( $deltatime < $waittime ){
+	    print localtime()." Found /tmp/$hostName$<.lock ; quit.\n";
+	    exit 0;
+	} else {
+	    unlink("/tmp/$hostName$<.lock");
+	}
+    }
 
 
     my $fC = FileCatalog->new();
