@@ -1082,8 +1082,8 @@ sub _Connect
     }
 
     # this feature will be enabled for MySQL
-    $FC::OPTIMIZE = ($FC::DBRef=~m/mysql/);
-    #$FC::OPTMIZE = 0;
+    #$FC::OPTIMIZE = ($FC::DBRef=~m/mysql/);
+    $FC::OPTMIZE = 0;
     &print_debug("_Connect","Optimization is ".($FC::OPTIMIZE?"ON":"OFF"));
 
     # check if caching is enabled - unless query_cache_size is not null, there is
