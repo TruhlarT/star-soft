@@ -700,6 +700,7 @@ sub _ReadConfig
     foreach $scope ( (".",
 		      $ENV{HOME},
 		      $ENV{SCATALOG},
+	              defined($ENV{STAR_PATH})?$ENV{STAR_PATH}."/conf":"./conf",
 		      defined($ENV{STAR})?$ENV{STAR}."/StDb/servers":"./StDb/servers",
 		      ) ){
 	if ( ! defined($scope) ){ next;}
