@@ -1,5 +1,5 @@
 #!/bin/csh -x
-#       $Id: group_env.csh,v 1.204 2008/08/27 13:44:00 jeromel Exp $
+#       $Id: group_env.csh,v 1.205 2008/11/25 23:33:46 jeromel Exp $
 #	Purpose:	STAR group csh setup
 #
 #	Author:		Y.Fisyak     BNL
@@ -240,6 +240,8 @@ if ( ! $?SITE ) then
  
 	case "rhic.bnl.gov":
 	case "rcf.bnl.gov":
+	case "star.bnl.gov":
+	case "starp.bnl.gov":
 	    setenv SITE "BNL"
 	    breaksw
 
