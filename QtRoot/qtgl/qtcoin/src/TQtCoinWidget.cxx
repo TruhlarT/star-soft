@@ -2621,7 +2621,7 @@ void TQtCoinWidget::SetClipPlaneMan(bool on, float x, float y, float z)
                                  ,fPivotClipPoint[2]
                                  );
 
-        fClipPlaneMan->setValue(box, SbVec3f(x, y, z), 1.02f);
+        fClipPlaneMan->setValue(box, SbVec3f(-x, -y, -z), 1.02f);
         // construct the clip plane path
 //        fClipPlanePath = new SoPath(fShapeNode);
         fClipPlanePath = new SoPath(fClippingShapeNode);
