@@ -2502,9 +2502,9 @@ void TQtCoinWidget::SetClipPlane(SoClipPlane *plane, int planeDirection)
    if (plane) {
       SbVec3f normal;
       switch (planeDirection) {
-         case 0: normal.setValue(1,0,0); break;
-         case 1: normal.setValue(0,1,0); break;
-         case 2: normal.setValue(0,0,1); break;
+         case 0: normal.setValue(-1,0, 0); break;
+         case 1: normal.setValue(0,-1, 0); break;
+         case 2: normal.setValue(0, 0,-1); break;
       };
       plane->plane.setValue(SbPlane(normal,SbVec3f( fPivotClipPoint[0]
                                                    ,fPivotClipPoint[1]
@@ -2590,9 +2590,9 @@ void TQtCoinWidget::SetActiveClipPlane(int planeDirection)
 #endif                  
       }
       switch (planeDirection) {
-         case 0: SetClipPlaneMan(kTRUE,1,0,0); break;
-         case 1: SetClipPlaneMan(kTRUE,0,1,0); break;
-         case 2: SetClipPlaneMan(kTRUE,0,0,1); break;
+         case 0: SetClipPlaneMan(kTRUE,-1, 0, 0); break;
+         case 1: SetClipPlaneMan(kTRUE, 0,-1, 0); break;
+         case 2: SetClipPlaneMan(kTRUE, 0, 0,-1); break;
       };      
       fClipPlaneState->blockSignals(false);
    } else {
@@ -2621,7 +2621,7 @@ void TQtCoinWidget::SetClipPlaneMan(bool on, float x, float y, float z)
                                  ,fPivotClipPoint[2]
                                  );
 
-        fClipPlaneMan->setValue(box, SbVec3f(-x, -y, -z), 1.02f);
+        fClipPlaneMan->setValue(box, SbVec3f(x, y, z), 1.02f);
         // construct the clip plane path
 //        fClipPlanePath = new SoPath(fShapeNode);
         fClipPlanePath = new SoPath(fClippingShapeNode);
