@@ -1,7 +1,7 @@
-// @(#)root/qt:$Id: TGQt.cxx,v 1.30 2008/05/19 14:25:40 fine Exp $
+// @(#)root/qt:$Id: TGQt.cxx,v 1.31 2008/11/30 04:10:46 fine Exp $
 // Author: Valeri Fine   21/01/2002
 /****************************************************************************
-** $Id: TGQt.cxx,v 1.30 2008/05/19 14:25:40 fine Exp $
+** $Id: TGQt.cxx,v 1.31 2008/11/30 04:10:46 fine Exp $
 **
 ** Copyright (C) 2002 by Valeri Fine. Brookhaven National Laboratory.
 **                                    All rights reserved.
@@ -466,13 +466,14 @@ static float CalibrateFont()
 // WIN32 TTF returns    h = 16
 // Nimbus Roman returns h = 18
 
-         // printf(" Font metric w = %d , h = %d\n", w,h);
+	  printf(" Font metric w = %d , h = %d\n", w,h);
           float f;
           switch (h) {
              case 12: f = 1.10;  break;// it was  f = 1.13 :-(;
              case 14: f = 0.915; break;// it was f = 0.94  :-(;
              case 16: f = 0.94;  break;// to be tested yet
              case 18: f = 0.92;  break;// to be tested yet
+             case 20: f = 0.99;  break;// to be tested yet
              default: f = 1.10;  break;
           }
           fontCalibFactor = f;
@@ -772,7 +773,7 @@ Bool_t TGQt::Init(void* /*display*/)
 {
    //*-*-*-*-*-*-*-*-*-*-*-*-*-*Qt GUI initialization-*-*-*-*-*-*-*-*-*-*-*-*-*-*
    //*-*                        ========================                      *-*
-   fprintf(stderr,"** $Id: TGQt.cxx,v 1.30 2008/05/19 14:25:40 fine Exp $ this=%p\n",this);
+   fprintf(stderr,"** $Id: TGQt.cxx,v 1.31 2008/11/30 04:10:46 fine Exp $ this=%p\n",this);
 #if QT_VERSION >= 0x40000
 #ifndef R__QTWIN32
    extern void qt_x11_set_global_double_buffer(bool);
@@ -2128,7 +2129,7 @@ void  TGQt::SetDoubleBuffer(int wid, int mode)
    // mode : 1 double buffer is on
    //        0 double buffer is off
 
-   if (wid == -1 && wid == kDefault) return;
+   if (wid == -1 || wid == kDefault) return;
    QPaintDevice *dev = iwid(wid);
    if ( TQtWidget *widget = (TQtWidget *)IsWidget(dev) ) {
       widget->SetDoubleBuffer(mode);
