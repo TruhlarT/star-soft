@@ -1,5 +1,8 @@
-* $Id: geometry.g,v 1.172 2008/11/19 04:08:25 perev Exp $
+* $Id: geometry.g,v 1.173 2008/11/30 01:30:53 perev Exp $
 * $Log: geometry.g,v $
+* Revision 1.173  2008/11/30 01:30:53  perev
+* modifs for extending alpha,theta,phi,ort commandas
+*
 * Revision 1.172  2008/11/19 04:08:25  perev
 *  updates to the corrected(vp) starsim
 *
@@ -4488,8 +4491,8 @@ If LL>1
    If (LL>1 & VPDD) then
      call AgDETP new ('VPDD')
      call AgDETP add ('vpdv.vpdConfig=',VpddConfig,1);
-     if(VpddConfig<7) call vpddgeo
-     if(VpddConfig=7) call vpddgeo2
+     if(VpddConfig <7) call vpddgeo
+     if(VpddConfig==7) call vpddgeo2
    endif
 
 ********************** BARREL CALORIMETER ************************
