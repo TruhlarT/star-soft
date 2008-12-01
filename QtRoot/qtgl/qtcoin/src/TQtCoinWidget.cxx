@@ -38,6 +38,7 @@
 #  include <qtooltip.h> 
 #  include <qcheckbox.h> 
 #  include <qpngio.h> 
+#  include <qinputdialog.h>
 #else 
 #  include <QFileDialog>
 #  include <QMenu>
@@ -47,6 +48,7 @@
 #  include <QLabel>
 #  include <QAction>
 #  include <QCheckBox>
+#  include <QInputDialog>
 #endif 
 
 #include <qfile.h>
@@ -80,7 +82,6 @@
 #include <Inventor/Qt/SoQtRenderArea.h>
 
 #include <Inventor/Qt/viewers/SoQtExaminerViewer.h>
-
 #include <Inventor/SoPickedPoint.h>
 
 #include <Inventor/nodes/SoSeparator.h>
@@ -187,6 +188,24 @@ static double Round(double range, int prec=2) {
    return fraction*factor;
 }
 
+class TQtAutoRedraw {
+private: 
+   SoQtRenderArea *fArea;
+   bool fAuto;
+public: 
+   TQtAutoRedraw(SoQtRenderArea *area): fArea(area), fAuto(false) {
+      if (fArea && fArea->isAutoRedraw() ) {
+         fAuto = true;
+         fArea->setAutoRedraw(false);
+      }
+   }
+   ~TQtAutoRedraw() {
+      if (fArea && fAuto) {
+         fArea->setAutoRedraw(fAuto);
+         fArea->render();
+      }
+   }
+};
 //______________________________________________________________________________
 class TCoinAxisSeparator : public SoSeparator 
 {
@@ -2502,14 +2521,14 @@ void TQtCoinWidget::SetClipPlane(SoClipPlane *plane, int planeDirection)
    if (plane) {
       SbVec3f normal;
       switch (planeDirection) {
-         case 0: normal.setValue(-1,0, 0); break;
-         case 1: normal.setValue(0,-1, 0); break;
-         case 2: normal.setValue(0, 0,-1); break;
+         case 0: normal.setValue(-1, 0, 0); break;
+         case 1: normal.setValue( 0,-1, 0); break;
+         case 2: normal.setValue( 0, 0,-1); break;
       };
-      plane->plane.setValue(SbPlane(normal,SbVec3f( fPivotClipPoint[0]
-                                                   ,fPivotClipPoint[1]
-                                                   ,fPivotClipPoint[2]
-                                                   )));
+      plane->plane.setValue(SbPlane(normal,SbVec3f(  fPivotClipPoint[0]
+                                                   , fPivotClipPoint[1]
+                                                   , fPivotClipPoint[2]
+                            )));
    }
 }
 //_______________________________________________________________________________
@@ -2614,8 +2633,33 @@ void TQtCoinWidget::SetClipPlaneMan(bool on, float x, float y, float z)
         fClipPlaneMan->ref();
         SoGetBoundingBoxAction ba(fInventorViewer->getViewportRegion());
         ba.apply(fShapeNode);
-   
         SbBox3f box = ba.getBoundingBox();
+// offset -------------------
+        if (gSystem->Getenv("STAR")) {
+           const char *axisname = "";
+           int xslector[3] = {0,0,0};
+           int planeDirection = 2; // Z be default
+           if (x) planeDirection = 0;
+           else if (y) planeDirection = 1;
+           const char *axnames[3] = {"X","Y","Z"};
+           QString a = "Offset along "; a += axnames[planeDirection]; a += ":";
+           double offset = QInputDialog::getDouble("DCut",a,fPivotClipPoint[planeDirection]);
+           if (offset > 0)  {
+              // -------------------------------------- 
+              // shift box if needed
+              fInventorViewer->setCameraType(SoOrthographicCamera::getClassTypeId());
+              fInventorViewer->setDrawStyle(SoQtViewer::STILL,SoQtViewer::VIEW_HIDDEN_LINE);
+              xslector[planeDirection] = 1;
+              SbMatrix  matrix;
+              SbVec3f  center = box.getCenter();
+              const float *cpnts = center.getValue();
+              offset = offset - cpnts[planeDirection];
+              matrix.setTranslate( SbVec3f( xslector[0] ? offset:0 
+                 ,xslector[1] ? offset:0
+                 ,xslector[2] ? offset:0 ) ); 
+              box.transform(matrix);
+           }
+        }
         box.getCenter().getValue( fPivotClipPoint[0]
                                  ,fPivotClipPoint[1]
                                  ,fPivotClipPoint[2]
@@ -2664,6 +2708,7 @@ void TQtCoinWidget::ViewPlaneX() const
   SoCamera * const camera = GetCamera();
   if (! camera) return; // probably a scene-less viewer
 
+  TQtAutoRedraw redraw(fInventorViewer);
   SbVec3f dir;
   camera->orientation.getValue().multVec(SbVec3f(0, 0, -1), dir);
   SbVec3f focalpoint  = camera->position.getValue()
@@ -2679,6 +2724,7 @@ void TQtCoinWidget::ViewPlaneY() const
   SoCamera * const camera = GetCamera();
   if (! camera) return; // probably a scene-less viewer
 
+  TQtAutoRedraw redraw(fInventorViewer);
   SbVec3f dir;
   camera->orientation.getValue().multVec(SbVec3f(0, 0, -1), dir);
   SbVec3f focalpoint  = camera->position.getValue()
@@ -2736,12 +2782,14 @@ void TQtCoinWidget::RotateCamera(SoCamera * cam,
   cam->orientation.getValue().multVec(DEFAULTDIRECTION, newdir);
   cam->position = focalpoint - cam->focalDistance.getValue() * newdir;
 }
+#if 1
 //______________________________________________________________________________
 void TQtCoinWidget::ViewPlaneZ() const
 {
   SoCamera * const camera = GetCamera();
   if (! camera) return; // probably a scene-less viewer
 
+  TQtAutoRedraw redraw(fInventorViewer);
   SbVec3f dir;
   camera->orientation.getValue().multVec(SbVec3f(0, 0, -1), dir);
   SbVec3f focalpoint  = camera->position.getValue()
@@ -2750,7 +2798,48 @@ void TQtCoinWidget::ViewPlaneZ() const
                       + camera->focalDistance.getValue() * SbVec3f(0, 0, 1);
   camera->orientation = SbRotation(SbVec3f(0, 1, 0), 0);
 }
+#else
+//______________________________________________________________________________
+void TQtCoinWidget::ViewPlaneZ() const
+{
+   //SbViewportRegion SoCamera::getViewportBounds  ( const SbViewportRegion &  region   )  const 
+   //    pcam->position = SbVec3f(0, 0, 5);
+   //  pcam->nearDistance = 0.1;
+   //  pcam->farDistance = 10;
+   // SoType SoQtViewer::getCameraType  ( void    )  const 
 
+  SoCamera * camera = GetCamera();
+  if (! camera) return; // probably a scene-less viewer
+  // make sure the camera type is orthographics
+  TQtAutoRedraw redraw(fInventorViewer);
+  fInventorViewer->setCameraType(SoOrthographicCamera::getClassTypeId());
+  camera = GetCamera(); // get it again just in case the camera type has been changed
+  double offset = QInputDialog::getDouble("DCut", "Offset along Z:",-1.0);
+  SbVec3f dir;
+  camera->orientation.getValue().multVec(SbVec3f(0, 0, -1), dir);
+  if (offset < 0) {
+//     camera->viewportMapping = SoCamera::ADJUST_CAMERA;
+     SbVec3f focalpoint  = camera->position.getValue()
+        + camera->focalDistance.getValue() * dir;
+     fInventorViewer->setAutoClipping(true);
+     camera->position    = focalpoint
+        + camera->focalDistance.getValue() * SbVec3f(0, 0, 1);
+  } else {
+     if ( fInventorViewer->isAutoClipping()) fInventorViewer->setAutoClipping(false);
+     fInventorViewer->setDrawStyle(SoQtViewer::STILL,SoQtViewer::VIEW_HIDDEN_LINE);
+//     camera->viewportMapping = SoCamera::CROP_VIEWPORT_LINE_FRAME;
+     camera->position.setValue(SbVec3f(0, 0, offset+10));
+     camera->farDistance   = offset+10;
+     camera->nearDistance  = offset;
+     camera->focalDistance = offset;
+     // virtual SbViewVolume  camera->getViewVolume (float useaspectratio=0.0f) const  
+     SbViewportRegion vpr = fInventorViewer->getViewportRegion();
+     // vpr.
+     // camera->viewAll(fRootNode, vpr);
+   }
+   camera->orientation = SbRotation(SbVec3f(0, 1, 0), 0);
+}
+#endif
 //______________________________________________________________________________
 void TQtCoinWidget::ClipPlaneModeCB(int mode)
 {
