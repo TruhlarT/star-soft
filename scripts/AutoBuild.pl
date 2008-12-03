@@ -1,6 +1,6 @@
 #!/usr/bin/env perl
 
-# $Id: AutoBuild.pl,v 1.37 2008/07/21 20:17:05 jeromel Exp $
+# $Id: AutoBuild.pl,v 1.38 2008/12/03 20:42:56 jeromel Exp $
 # This script was written to perform an automatic compilation
 # with cvs co and write some html page related to it afterward.
 # Written J.Lauret Apr 6 2001
@@ -255,6 +255,8 @@ if( -e $FLNMRC){
 		chomp(@items);
 		if( uc($items[0]) eq "SKIP_DIRS"){
 		    push(@SKIP,$items[1]);
+		} elsif ( uc($items[0]) eq "EX_DIRS"){
+		    push(@EXDIRS,$items[1]);
 		} elsif ( uc($items[0]) eq "CO_DIRS"){
 		    push(@CODIRS,$items[1]);
 		}
@@ -548,8 +550,39 @@ if ($ans =~ /^\s*y/i){
     push(@REPORT,"<BLOCKQUOTE>\n<I>Update was required</I>");
     push(@REPORT,"<UL>");
     foreach $dir (@DIRS){
+	# Add a list entry for the report
 	push(@REPORT,"<LI><TT>$dir</TT>");
+
+	# before excuting this, take care of EXDIRS if found
+	# will take care of them by renaming
+	foreach $exd (@EXDIRS){
+	    if ( -e "$dir/$exd"){
+		push(@REPORT,"<BR><FONT COLOR=\"#00FF00\"><B>WARNING</B></FONT>".
+		     " $dir/$exd is being excluded from updates");
+		ABRename("$dir/$exd","$dir/$exd.EXCLUDED");
+		#} else {
+		#push(@REPORT,"<BR><I>(Did not find $exd to exclude in $dir</I>");
+	    }
+	}
+
+	# Execute the update. $dir will be things defined in DIRS 
+	# as returned and defined by IUSourceDirs()
 	&Execute("$CVSUPDC $dir",1);
+
+	# Restore exclusions
+	foreach $exd (@EXDIRS){
+	    if ( -e "$dir/$exd.EXCLUDED"){
+		# allow for files based exclusion code i.e. if file
+		# exists aftre update, delete and update
+		if ( -d "$dir/$exd" ){  
+		    push(@REPORT,"<BR><FONT COLOR=\"#FF0000\"><B>WARNING</B></FONT>".
+			 " $dir/$exd was a file which re-appeared after update, ".
+			 "now replaced by older version");
+		    unlink("$dir/$exd");
+		}
+		ABRename("$dir/$exd.EXCLUDED","$dir/$exd");
+	    }
+	}
     }
     push(@REPORT,"</UL></BLOCKQUOTE>");
 } elsif ($ans =~ /^\s*i/i){
@@ -1172,9 +1205,9 @@ sub STRsts
 	$xtra = "";
     }
     if($sts==0){
-	return $xtra."<FONT COLOR=\"#0000FF\"><B>Success </B></FONT>";
+	return $xtra."<FONT COLOR=\"#0000FF\"><B>Success </B></FONT><BR>";
     } else {
-	return $xtra."<FONT COLOR=\"#FF0000\"><B>FAILURE </B></FONT>";
+	return $xtra."<FONT COLOR=\"#FF0000\"><B>FAILURE </B></FONT><BR>";
     }
 }
 
