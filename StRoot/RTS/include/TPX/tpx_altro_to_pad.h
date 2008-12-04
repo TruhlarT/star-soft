@@ -26,12 +26,14 @@ struct tpx_padrow {
 const struct tpx_fee_override_struct {
 	u_char sector ;	// 1..24
 	u_char rdo ;	// 1..6
-	u_char curr_altro ;
-	u_char orig_altro ;
+	u_char curr_altro ;	// what the backplanes reads
+	u_char orig_altro ;	// what is _should_ read!
 } tpx_fee_override[] = {
 	{ 6, 3, 254, 200 },
 	{ 7, 3, 214, 214 },	// FEE reads 235, should 107
 	{ 7, 1, 204,  76 },	// FEE reads 230, should 166 
+	{16, 5, 250,  80 },
+	{23, 5, 194, 130 },	// FEE reads 97, should be 65 
 } ;
    
 const int tpx_fee_override_cou = sizeof(tpx_fee_override)/sizeof(tpx_fee_override[0]) ;
