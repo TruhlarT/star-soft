@@ -118,7 +118,8 @@ class qaentry {
   }
   
   function Anchor() {
-    return $this->type . "_" . nDigits(7,$this->info["runid"])
+    $rundigits = (intval($this->info["runid"])>9999999 ? 8 : 7);
+    return $this->type . "_" . nDigits($rundigits,$this->info["runid"])
                        . "_" . ndigits(7,$this->info["fseq"]);
   }
   function Html() {

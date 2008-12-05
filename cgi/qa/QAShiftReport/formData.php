@@ -106,8 +106,8 @@ fhidden("addissue",0);
   fhidden("runid","");
 } else { ?>
 Run ID:
-<input tabindex=1 name=runid size=8 maxlength=7>
-<font size=-1>(usually a 7 digit number)
+<input tabindex=1 name=runid size=9 maxlength=8>
+<font size=-1>(usually a 7 or 8 digit number)
 <?php
   fbutton("lookup","Lookup","Lookup()");
   print " other QA Reports for this Run</font>";

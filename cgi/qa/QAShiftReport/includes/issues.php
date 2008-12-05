@@ -285,7 +285,8 @@ function readIssLast($typ) {
   while ($row = nextDBrow($result)) {
     $flagval = $row[$flag];
     if (testFlag($flagval,$kLAST)) {
-      $list[nDigits(4,$row['ID'])] = $row['Name'];
+      $iddigits = (intval($row['ID'])>9999 ? 5 : 4);
+      $list[nDigits($iddigits,$row['ID'])] = $row['Name'];
     }
   }
   return $list;
