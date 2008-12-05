@@ -1,7 +1,7 @@
-// @(#)root/qt:$Id: TGQt.cxx,v 1.31 2008/11/30 04:10:46 fine Exp $
+// @(#)root/qt:$Id: TGQt.cxx,v 1.32 2008/12/05 00:55:41 fine Exp $
 // Author: Valeri Fine   21/01/2002
 /****************************************************************************
-** $Id: TGQt.cxx,v 1.31 2008/11/30 04:10:46 fine Exp $
+** $Id: TGQt.cxx,v 1.32 2008/12/05 00:55:41 fine Exp $
 **
 ** Copyright (C) 2002 by Valeri Fine. Brookhaven National Laboratory.
 **                                    All rights reserved.
@@ -347,6 +347,7 @@ QPaintDevice *TGQt::iwid(Int_t wid)
    QPaintDevice *topDevice = 0;
    if (0 <= wid && wid <= int(fWidgetArray->MaxId()) )
      topDevice = (*fWidgetArray)[wid];
+     if (topDevice == (QPaintDevice *)(-1) ) topDevice = 0;
 	else {
      assert(wid <= Int_t(fWidgetArray->MaxTotalId()));
      // this is allowed from the embedded TCanvas dtor only.
@@ -773,7 +774,7 @@ Bool_t TGQt::Init(void* /*display*/)
 {
    //*-*-*-*-*-*-*-*-*-*-*-*-*-*Qt GUI initialization-*-*-*-*-*-*-*-*-*-*-*-*-*-*
    //*-*                        ========================                      *-*
-   fprintf(stderr,"** $Id: TGQt.cxx,v 1.31 2008/11/30 04:10:46 fine Exp $ this=%p\n",this);
+   fprintf(stderr,"** $Id: TGQt.cxx,v 1.32 2008/12/05 00:55:41 fine Exp $ this=%p\n",this);
 #if QT_VERSION >= 0x40000
 #ifndef R__QTWIN32
    extern void qt_x11_set_global_double_buffer(bool);
@@ -2131,12 +2132,10 @@ void  TGQt::SetDoubleBuffer(int wid, int mode)
 
    if (wid == -1 || wid == kDefault) return;
    QPaintDevice *dev = iwid(wid);
-   if ( TQtWidget *widget = (TQtWidget *)IsWidget(dev) ) {
+   TQtWidget *widget = 0;
+   if ( dev && (widget = (TQtWidget *)IsWidget(dev)) ) {
       widget->SetDoubleBuffer(mode);
       // fprintf(stderr," TGQt::SetDoubleBuffer \n");
-#if QT_VERSION >= 0x40000
- //     End();
-#endif
    }
 }
 
