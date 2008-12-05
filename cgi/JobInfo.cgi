@@ -24,9 +24,10 @@ use CGI qw(:standard);
 use DBI;
 
 my $updatetime = 90;
+my $PROT=0;
 
 my $ProdTag = param("PT");
-my $Trigger = param("Trigger");
+my $XTrigger = param("XTrigger");
 my $Status  = param("Status");
 my $Method  = param("button_name");
 my $Method1 = param("button_name1");
@@ -96,18 +97,18 @@ print
     "</HEAD>\n",
     "<BODY BGCOLOR=beige LINK=blue, ALINK=red, VLINK=navy>\n";
 
-if( ($ProdTag) || ($Trigger) ){
+if( ($ProdTag) || ($XTrigger) ){
 
     # Generate Block
     # =====================================================
     # strip multiple words
     if ($ProdTag){  $ProdTag = (split(" ",$ProdTag))[0];}
-    if ($Trigger){  $Trigger = (split(" ",$Trigger))[0];}
+    if ($XTrigger){  $XTrigger = (split(" ",$XTrigger))[0];}
 
     if( $Method eq "Generate" ){
 	print "<!-- We are in Method=Generate -->\n";
 	if ( $full_script !~ /protected/ ){  &Bomb();}
-	$sth1 = $dbh1->prepare("SELECT ProdTag, Trigger, LFName ".
+	$sth1 = $dbh1->prepare("SELECT ProdTag, XTrigger, LFName ".
 			       "FROM RJobInfo ".
 			       "WHERE id = ?"
 			       );
@@ -116,11 +117,11 @@ if( ($ProdTag) || ($Trigger) ){
 	    print
 		"<H1>No jobs selected</H1>\n",
 		"<P align=left>".
-		"<A HREF=$scriptname?PT=$ProdTag&Kind=$Kind&Trigger=$Trigger&Status=$Status&button_name=Submit+Query&>Back</A></P>\n";
+		"<A HREF=$scriptname?PT=$ProdTag&Kind=$Kind&XTrigger=$XTrigger&Status=$Status&button_name=Submit+Query&>Back</A></P>\n";
 	} else {
 	    print
 		"<P align=left>".
-		"<A HREF=$scriptname?PT=$ProdTag&Kind=$Kind&Trigger=$Trigger&Status=$Status&button_name=Submit+Query&>Back</A></P>\n",
+		"<A HREF=$scriptname?PT=$ProdTag&Kind=$Kind&XTrigger=$XTrigger&Status=$Status&button_name=Submit+Query&>Back</A></P>\n",
 		"<A HREF=\"#ListEnd\">End of list</A>\n<BR>\n<BR>\n",
 		"<A NAME=ListBegin><A>\n";
 	
@@ -142,7 +143,7 @@ if( ($ProdTag) || ($Trigger) ){
 		"<FORM action=$scriptname method=POST>\n",
 		"<INPUT type=hidden name=PT value=$ProdTag>\n",
 		"<INPUT type=hidden name=Kind value=$Kind>\n",
-		"<INPUT type=hidden name=Trigger value=$Trigger>\n",
+		"<INPUT type=hidden name=XTrigger value=$XTrigger>\n",
 		"<INPUT type=hidden name=Status value=$Status>\n",
 		"<INPUT type=hidden name=button_name1 value=Update>\n";
 	    undef($chek);
@@ -156,7 +157,7 @@ if( ($ProdTag) || ($Trigger) ){
 		"</FORM>\n";
 	    print 
 		"<P align=left>".
-	    	"<A HREF=$scriptname?PT=$ProdTag&Kind=$Kind&Trigger=$Trigger&Status=$Status&button_name=Submit+Query&>Back</A></P>\n";
+	    	"<A HREF=$scriptname?PT=$ProdTag&Kind=$Kind&XTrigger=$XTrigger&Status=$Status&button_name=Submit+Query&>Back</A></P>\n";
         } # else
     } 
     # End Generate Block
@@ -176,13 +177,13 @@ if( ($ProdTag) || ($Trigger) ){
 	    print 
 		"<H1>No jobs selected</H1>",
 		"<P align=left>",
-		"<A HREF=$scriptname?PT=$ProdTag&Kind=$Kind&Trigger=$Trigger&Status=$Status&button_name=Submit+Query&>Back</A></P>\n";
+		"<A HREF=$scriptname?PT=$ProdTag&Kind=$Kind&XTrigger=$XTrigger&Status=$Status&button_name=Submit+Query&>Back</A></P>\n";
 	} else { 
 	    if( $Method eq "Create List" ){
 	    	undef($move_list);
 	    	$move_list = $list_dir.time().".ml";
 	    	open(MOVELIST,">$move_list") || warn "can't create $move_list\n";
-	    	$sth1 = $dbh1->prepare("SELECT ProdTag, Trigger, LFName ".
+	    	$sth1 = $dbh1->prepare("SELECT ProdTag, XTrigger, LFName ".
 						  "FROM RJobInfo ".
 						  "WHERE id = ?"
 						  )
@@ -210,7 +211,7 @@ if( ($ProdTag) || ($Trigger) ){
 		print
 		    "<H1>db RJobInfo was updated</H1>\n",
 		    "<P align=left>",
-		    "<A HREF=$scriptname?PT=$ProdTag&Kind=$Kind&Trigger=$Trigger&Status=$Status&button_name=Submit+Query&>Back</A></P>\n";
+		    "<A HREF=$scriptname?PT=$ProdTag&Kind=$Kind&XTrigger=$XTrigger&Status=$Status&button_name=Submit+Query&>Back</A></P>\n";
 	    }
         }
     } 
@@ -223,31 +224,31 @@ if( ($ProdTag) || ($Trigger) ){
     if( ($Method eq "Update") or ($Method eq "Submit Query") or ($Method1 eq "Update") ){
 	print "<!-- We are in the update method -->\n";
 	if( $Status==1 ){
-	    $query = "Where ProdTag = \"$ProdTag\" AND Trigger = \"$Trigger\" AND Status=1";
+	    $query = "Where ProdTag = \"$ProdTag\" AND XTrigger = \"$XTrigger\" AND Status=1";
         }elsif( $Status==0 ){
-	    $query = "Where ProdTag = \"$ProdTag\" AND Trigger = \"$Trigger\" AND Status=0";
+	    $query = "Where ProdTag = \"$ProdTag\" AND XTrigger = \"$XTrigger\" AND Status=0";
 	}elsif( $Status==-1 ){
-	    $query = "Where ProdTag = \"$ProdTag\" AND Trigger = \"$Trigger\" AND  ";
+	    $query = "Where ProdTag = \"$ProdTag\" AND XTrigger = \"$XTrigger\" AND  ";
 	}
-	if( ($ProdTag eq "All") && ($Trigger eq "All") ){
+	if( ($ProdTag eq "All") && ($XTrigger eq "All") ){
 	    if( $Status==-1 ){
 		$query=~s/Where//;
 	    }
-	    $query =~ s/ProdTag = \"$ProdTag\" AND Trigger = \"$Trigger\" AND//;
+	    $query =~ s/ProdTag = \"$ProdTag\" AND XTrigger = \"$XTrigger\" AND//;
 	} elsif( $Status==-1 ){
 	    $query=~s/AND  //;
 	}
 	if( $ProdTag eq "All" ){
 	    $query =~ s/ProdTag = \"$ProdTag\" AND//;
 	}
-	if( $Trigger eq "All" ){
+	if( $XTrigger eq "All" ){
 	    if( $Status==-1 ){
-		$query =~ s/AND Trigger = \"$Trigger\"//;
+		$query =~ s/AND XTrigger = \"$XTrigger\"//;
 	    } else {
-		$query =~ s/Trigger = \"$Trigger\" AND//;
+		$query =~ s/XTrigger = \"$XTrigger\" AND//;
 	    }
 	}
-	$sth2 = $dbh1->prepare("SELECT id, ProdTag, Trigger, LFName, mtime, node, ErrorStr, Status ".
+	$sth2 = $dbh1->prepare("SELECT id, ProdTag, XTrigger, LFName, mtime, node, ErrorStr, Status ".
 				  "FROM RJobInfo $query")
 	    or die "cannot prepare query";
 	$sth2->execute();
@@ -257,13 +258,13 @@ if( ($ProdTag) || ($Trigger) ){
 		"<TR bgcolor=#ffdc9f>",
 			"<TH>ProdTag</TH>\n",
 			"<TH>Kind</TH>\n",
-	    		"<TH>Trigger</TH> \n",
+	    		"<TH>XTrigger</TH> \n",
 	    		"<TH>Status</TH>\n",
 		"</TR>\n",
 		"<TR align=center bgcolor=khaki>\n",
 			"<TD>$ProdTag</TD>",
 			"<TD>$Kind</TD>",
-			"<TD>$Trigger</TD>";
+			"<TD>$XTrigger</TD>";
 	    	if( $Status==1 ){
 		    print
 		        "<TD>Moved</TD>";
@@ -282,14 +283,14 @@ if( ($ProdTag) || ($Trigger) ){
 	    "<FORM action=$scriptname method=POST>\n",
 	    "<INPUT type=hidden name=PT value=$ProdTag\n>",
 	    "<INPUT type=hidden name=Kind value=$Kind>\n",
-	    "<INPUT type=hidden name=Trigger value=$Trigger>\n",
+	    "<INPUT type=hidden name=XTrigger value=$XTrigger>\n",
 	    "<INPUT type=hidden name=Status value=$Status>\n",
             "<P align=center><A HREF=\"#TableEnd\">End of table</A></P>\n",
 	    "<A NAME=TableBegin><A>\n",
 	    "<TABLE align=center>\n",
 	    	"<TR bgcolor=#ffdc9f>",
 	    		"<TH>ProdTag</TH>\n",
-	    		"<TH>Trigger</TH> \n",
+	    		"<TH>XTrigger</TH> \n",
 	    		"<TH>LogFileName</TH>\n",
 	    		"<TH>MTime</TH>\n",
 	    		"<TH>ErrorString</TH>\n",
@@ -353,24 +354,24 @@ if( ($ProdTag) || ($Trigger) ){
     # =====================================================		
 
     print "<!-- We are in the default block -->\n";
-    # drop temp tables for ProdTag and Trigger if exist and create them
+    # drop temp tables for ProdTag and XTrigger if exist and create them
     $sth7 = $dbh1->prepare("DROP TABLE if exists ValidProdTag");
     $sth4 = $dbh1->prepare("CREATE TABLE ValidProdTag (ProdTag CHAR(8) NOT NULL, PRIMARY KEY(ProdTag))");
     $sth7->execute() or die "Cannnot drop table: $DBI::errstr\n";
     $sth4->execute() or die "Cannnot create table: $DBI::errstr\n";
 
     $sth = $dbh1->prepare("DROP TABLE if exists ValidTrigger");
-    $sth1 = $dbh1->prepare("CREATE TABLE ValidTrigger (Trigger CHAR(20) NOT NULL, PRIMARY KEY(Trigger))");
+    $sth1 = $dbh1->prepare("CREATE TABLE ValidTrigger (XTrigger CHAR(20) NOT NULL, PRIMARY KEY(XTrigger))");
     $sth->execute() || die "Cannnot drop table: $DBI::errstr\n";
     $sth1->execute() or die "Cannnot create table: $DBI::errstr\n";
 
     # fill tables from db RJobInfo
-    $sth2 = $dbh1->prepare("INSERT INTO ValidTrigger SELECT DISTINCT RJobInfo.Trigger FROM RJobInfo");
+    $sth2 = $dbh1->prepare("INSERT INTO ValidTrigger SELECT DISTINCT RJobInfo.XTrigger FROM RJobInfo");
     $sth2->execute() or die "Cannnot prepare query: $DBI::errstr\n";
     $sth5 = $dbh1->prepare("INSERT INTO ValidProdTag SELECT DISTINCT RJobInfo.ProdTag FROM RJobInfo");
     $sth5->execute() or die "Cannnot prepare query: $DBI::errstr\n";
-    # select Trigger and ProdTag from temp tables
-    $sth3 = $dbh1->prepare("SELECT Trigger FROM ValidTrigger");
+    # select XTrigger and ProdTag from temp tables
+    $sth3 = $dbh1->prepare("SELECT XTrigger FROM ValidTrigger");
     $sth3->execute() or die "Cannnot execute query: $DBI::errstr\n";
     $sth6 = $dbh1->prepare("SELECT ProdTag FROM ValidProdTag");
     $sth6->execute() or die "Cannnot execute query: $DBI::errstr\n";
@@ -386,7 +387,7 @@ if( ($ProdTag) || ($Trigger) ){
     }
     print "\t</SELECT></td></tr>\n";
     print 
-	"<tr bgcolor=khaki><td>Trigger:</td><td bgcolor=beige><SELECT name=Trigger>\n",
+	"<tr bgcolor=khaki><td>Trigger:</td><td bgcolor=beige><SELECT name=XTrigger>\n",
 	"<OPTION value=All>All\n";
     while( ($tr) = $sth3->fetchrow_array() ){
 	print "\t<OPTION value=$tr>$tr\n";
@@ -464,11 +465,15 @@ sub parse_formdata {
 
 sub Bomb
 {
-    $scriptname =~ s/.*\///;
-    print 
-	"<BLOCKQUOTE><FONT SIZE=\"+1\" COLOR=\"#0000FF\">\n",
-	" <B>Access of protected operation via un-protected script not allowed.<BR>\n",
-	" Use <A HREF=\"/cgi-bin/starreco/protected/$scriptname\">this link</A> instead\n",
-	"</FONT></BLOCKQUOTE>\n";
-    exit(1);
+    if (! $PROT ){
+	return;
+    } else {
+	$scriptname =~ s/.*\///;
+	print 
+	    "<BLOCKQUOTE><FONT SIZE=\"+1\" COLOR=\"#0000FF\">\n",
+	    " <B>Access of protected operation via un-protected script not allowed.<BR>\n",
+	    " Use <A HREF=\"/cgi-bin/starreco/protected/$scriptname\">this link</A> instead\n",
+	    "</FONT></BLOCKQUOTE>\n";
+	exit(1);
+    }
 }
