@@ -61,7 +61,7 @@ my $mtime;
 my $ctime;
 my $job_name;
 my $id;
-my $Trigger;
+my $XTrigger;
 my $err_file;
 my $Status;
 my @log_errs1;
@@ -91,13 +91,13 @@ if( defined($ARGV[1]) ){
 }
 
 my $sth1 = $dbh1->prepare("INSERT INTO RJobInfo ".
-			  "(ProdTag, Trigger, LFName, ".
+			  "(ProdTag, XTrigger, LFName, ".
 			  "ctime, mtime, node, ErrorStr) ".
 			  "VALUES (?, ?, ?, ?, ?, ?, ?)");
 
 my $sth3=$dbh1->prepare("SELECT id, mtime FROM RJobInfo ".
 			"WHERE ProdTag = \"$ProdTag\" AND ".
-			"Trigger = ? AND ".
+			"XTrigger = ? AND ".
 			"LFName = ?");
 
 my $sth4 = $dbh1->prepare("UPDATE RJobInfo SET ".
@@ -116,6 +116,7 @@ if( ! $sth3 || ! $sth1){
 }
 
 my(%JNAMES);
+print "Opening archive directory $arch_dir\n" if ($DEBUG);
 opendir(ARCH,"$arch_dir") || &Die("Could not open archive directory $arch_dir\n");
 while ( defined($job_name = readdir(ARCH)) ){
   if($job_name !~ /st_/ && $job_name !~ /rcf.*evts/ ){ next;}
@@ -128,6 +129,7 @@ while ( defined($job_name = readdir(ARCH)) ){
 closedir(ARCH);
 
 
+print "Opening log directory $log_dir\n" if ($DEBUG);
 opendir(LOGDIR,$log_dir) || &Die("can't open $log_dir\n: $!");
 if ( ! -d "$log_dir/$SDIR"){   mkdir("$log_dir/$SDIR",0755);}
 
@@ -136,6 +138,7 @@ while ( defined($logname = readdir(LOGDIR)) ){
     # may contain other files. 
     $count++;
     if ( $count > $max_file){
+	print "$log_dir contains more than $max_file . Please clean.\n" if ($DEBUG);
 	&Die("$log_dir contains more than $max_file . Please clean.");
     }
 
@@ -367,7 +370,7 @@ while ( defined($logname = readdir(LOGDIR)) ){
 	    } #else fsize/minsize compare
 
 	    if ( $err ){
-		$sth3->execute($Trigger, $shortname)
+		$sth3->execute($XTrigger, $shortname)
 		    or &Die("cannot execute sth3\n");
 		#print $sth3->fetchrow_array()."\n";
 		if ( ($id, $mtime) = $sth3->fetchrow_array() ){
@@ -382,7 +385,7 @@ while ( defined($logname = readdir(LOGDIR)) ){
 		} else {
 		    #insert record
 		    print "Inserted $shortname\n";
-		    $sth1->execute($ProdTag, $Trigger, $shortname, $c_time, $fc[9], $node ,$err);
+		    $sth1->execute($ProdTag, $XTrigger, $shortname, $c_time, $fc[9], $node ,$err);
 		}
 		print "----\n";
 	    } #if $err
@@ -402,10 +405,10 @@ $sth4->finish();
 # If you want to see a content of the table every time you run the script
 # uncomment this block.
 
-#my $sth2 = $dbh1->prepare("SELECT id, ProdTag, Trigger, LFName, ctime, mtime, Status, ErrorStr FROM RJobInfo");
+#my $sth2 = $dbh1->prepare("SELECT id, ProdTag, XTrigger, LFName, ctime, mtime, Status, ErrorStr FROM RJobInfo");
 #$sth2->execute();
-#while (($id, $ProdTag, $Trigger, $logname, $c_time, $m_time, $Status, $err) = $sth2->fetchrow_array()) {
-#    print "$id  $ProdTag  $Trigger  $logname  $Status  $m_time  $err\n";
+#while (($id, $ProdTag, $XTrigger, $logname, $c_time, $m_time, $Status, $err) = $sth2->fetchrow_array()) {
+#    print "$id  $ProdTag  $XTrigger  $logname  $Status  $m_time  $err\n";
 #}
 #$sth2->finish();
 
@@ -428,11 +431,11 @@ sub define_trigger
     my ($lname,$jname) = @_;
     my (@temp);
 
-    # define Trigger, use a default value
-    $Trigger = "unknown";
+    # define XTrigger, use a default value
+    $XTrigger = "unknown";
     @temp = split(/_/, $jname);
-    if ( $temp[0] !~ /^\d+/){ $Trigger = $temp[0];}
-    return $Trigger;
+    if ( $temp[0] !~ /^\d+/){ $XTrigger = $temp[0];}
+    return $XTrigger;
 }
 
 #
@@ -443,8 +446,8 @@ sub define_trigger_old {
     my @temp;
     my $i = 0;
 
-    # define Trigger, use a default value
-    $Trigger = "unknown";
+    # define XTrigger, use a default value
+    $XTrigger = "unknown";
     @temp = split(/_/, $jname);
 
     if($#temp == -1){ return;}
@@ -457,11 +460,11 @@ sub define_trigger_old {
     }
 
     if ( substr($temp[$i],0,1) eq "2" || $i == ($#temp-1)){
-	# Wrong field. Trigger is missing and we
+	# Wrong field. XTrigger is missing and we
 	# grabbed the next item = date.
 	return;
     } else {
-	$Trigger = $temp[$i];
+	$XTrigger = $temp[$i];
     }
 }
 
