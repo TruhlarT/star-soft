@@ -1,0 +1,47 @@
+<?xml version="1.0" encoding="utf-8"?>
+<wc-entries
+   xmlns="svn:">
+<entry
+   committed-rev="930"
+   name=""
+   committed-date="2008-08-06T15:38:18.738430Z"
+   url="https://fusion.txcorp.com/pubsvn/ucm/trunk/tracking/main/cpp/data"
+   last-author="james"
+   kind="dir"
+   uuid="853c8b77-9f24-0410-9472-baf75fb908c2"
+   prop-time="2008-12-05T00:09:46.000000Z"
+   revision="1144"/>
+<entry
+   committed-rev="930"
+   name="TxUCMException.cpp"
+   text-time="2008-12-05T00:09:46.000000Z"
+   committed-date="2008-08-06T15:38:18.738430Z"
+   checksum="759c4fbd672e9a12433feb8ab0556228"
+   last-author="james"
+   kind="file"
+   prop-time="2008-12-05T00:09:42.000000Z"/>
+<entry
+   committed-rev="930"
+   name="TxUCMException.h"
+   text-time="2008-12-05T00:09:46.000000Z"
+   committed-date="2008-08-06T15:38:18.738430Z"
+   checksum="bb5700fe68256312e8ca0ed65f09b167"
+   last-author="james"
+   kind="file"
+   prop-time="2008-12-05T00:09:42.000000Z"/>
+<entry
+   name="modules"
+   kind="dir"/>
+<entry
+   committed-rev="719"
+   name="Makefile.am"
+   text-time="2008-12-05T00:09:46.000000Z"
+   committed-date="2008-05-29T16:50:45.941892Z"
+   checksum="61c824e8dd083226533196ccec661964"
+   last-author="roopa"
+   kind="file"
+   prop-time="2008-12-05T00:09:44.000000Z"/>
+<entry
+   name="base"
+   kind="dir"/>
+</wc-entries>

@@ -1,0 +1,140 @@
+<?xml version="1.0" encoding="utf-8"?>
+<wc-entries
+   xmlns="svn:">
+<entry
+   committed-rev="930"
+   name=""
+   committed-date="2008-08-06T15:38:18.738430Z"
+   url="https://fusion.txcorp.com/pubsvn/ucm/trunk/tracking/main/cpp/data/modules"
+   last-author="james"
+   kind="dir"
+   uuid="853c8b77-9f24-0410-9472-baf75fb908c2"
+   prop-time="2008-12-05T00:09:43.000000Z"
+   revision="1144"/>
+<entry
+   committed-rev="930"
+   name="TxModuleFactory.h"
+   text-time="2008-12-05T00:09:43.000000Z"
+   committed-date="2008-08-06T15:38:18.738430Z"
+   checksum="d96421d1cd6d66b5a68d1335e576318d"
+   last-author="james"
+   kind="file"
+   prop-time="2008-12-05T00:09:42.000000Z"/>
+<entry
+   committed-rev="930"
+   name="TxMySQLRow.h"
+   text-time="2008-12-05T00:09:43.000000Z"
+   committed-date="2008-08-06T15:38:18.738430Z"
+   checksum="0adfed25a6dab585a57d6819650a0de7"
+   last-author="james"
+   kind="file"
+   prop-time="2008-12-05T00:09:43.000000Z"/>
+<entry
+   committed-rev="930"
+   name="TxModuleException.cpp"
+   text-time="2008-12-05T00:09:44.000000Z"
+   committed-date="2008-08-06T15:38:18.738430Z"
+   checksum="15bde7e6df311a28f737ab35bbdbbf48"
+   last-author="james"
+   kind="file"
+   prop-time="2008-12-05T00:09:43.000000Z"/>
+<entry
+   committed-rev="930"
+   name="TxMySQLResult.cpp"
+   text-time="2008-12-05T00:09:44.000000Z"
+   committed-date="2008-08-06T15:38:18.738430Z"
+   checksum="b81fa3325a93c185f5e0dad0d6623309"
+   last-author="james"
+   kind="file"
+   prop-time="2008-12-05T00:09:43.000000Z"/>
+<entry
+   committed-rev="930"
+   name="TxModule.cpp"
+   text-time="2008-12-05T00:09:44.000000Z"
+   committed-date="2008-08-06T15:38:18.738430Z"
+   checksum="ee619f4c82cb2f02d68b4d8e130d453b"
+   last-author="james"
+   kind="file"
+   prop-time="2008-12-05T00:09:43.000000Z"/>
+<entry
+   committed-rev="930"
+   name="TxMySQLConnection.cpp"
+   text-time="2008-12-05T00:09:44.000000Z"
+   committed-date="2008-08-06T15:38:18.738430Z"
+   checksum="09b356234768bfd895cd773989bbbfd4"
+   last-author="james"
+   kind="file"
+   prop-time="2008-12-05T00:09:43.000000Z"/>
+<entry
+   committed-rev="930"
+   name="TxModuleException.h"
+   text-time="2008-12-05T00:09:44.000000Z"
+   committed-date="2008-08-06T15:38:18.738430Z"
+   checksum="32ad7e68e0e4672f6f37d2afe6868f8d"
+   last-author="james"
+   kind="file"
+   prop-time="2008-12-05T00:09:43.000000Z"/>
+<entry
+   committed-rev="930"
+   name="TxMySQLResult.h"
+   text-time="2008-12-05T00:09:44.000000Z"
+   committed-date="2008-08-06T15:38:18.738430Z"
+   checksum="f90c853bbfa171ae7ea83b53ec13763d"
+   last-author="james"
+   kind="file"
+   prop-time="2008-12-05T00:09:43.000000Z"/>
+<entry
+   committed-rev="930"
+   name="TxModule.h"
+   text-time="2008-12-05T00:09:44.000000Z"
+   committed-date="2008-08-06T15:38:18.738430Z"
+   checksum="ec7dffe27abe1b4b79e3a3f28a865e59"
+   last-author="james"
+   kind="file"
+   prop-time="2008-12-05T00:09:43.000000Z"/>
+<entry
+   committed-rev="930"
+   name="TxMySQLConnection.h"
+   text-time="2008-12-05T00:09:44.000000Z"
+   committed-date="2008-08-06T15:38:18.738430Z"
+   checksum="ed9f0f7c15b32cc6863f284dabe9a742"
+   last-author="james"
+   kind="file"
+   prop-time="2008-12-05T00:09:43.000000Z"/>
+<entry
+   committed-rev="930"
+   name="TxMySQLModule.cpp"
+   text-time="2008-12-05T00:09:44.000000Z"
+   committed-date="2008-08-06T15:38:18.738430Z"
+   checksum="85c48a4fc252032fd0ce248a0cec0588"
+   last-author="james"
+   kind="file"
+   prop-time="2008-12-05T00:09:43.000000Z"/>
+<entry
+   committed-rev="930"
+   name="TxModuleFactory.cpp"
+   text-time="2008-12-05T00:09:44.000000Z"
+   committed-date="2008-08-06T15:38:18.738430Z"
+   checksum="82c33ece0aee4e14deadf9e9110a6a43"
+   last-author="james"
+   kind="file"
+   prop-time="2008-12-05T00:09:43.000000Z"/>
+<entry
+   committed-rev="930"
+   name="TxMySQLRow.cpp"
+   text-time="2008-12-05T00:09:44.000000Z"
+   committed-date="2008-08-06T15:38:18.738430Z"
+   checksum="bd31955aa604538afa619917e3bc30bf"
+   last-author="james"
+   kind="file"
+   prop-time="2008-12-05T00:09:43.000000Z"/>
+<entry
+   committed-rev="930"
+   name="TxMySQLModule.h"
+   text-time="2008-12-05T00:09:44.000000Z"
+   committed-date="2008-08-06T15:38:18.738430Z"
+   checksum="81153417a216c33f09d8f7c49f33a52b"
+   last-author="james"
+   kind="file"
+   prop-time="2008-12-05T00:09:43.000000Z"/>
+</wc-entries>
