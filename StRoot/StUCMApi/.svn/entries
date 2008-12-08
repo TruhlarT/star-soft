@@ -1,0 +1,86 @@
+<?xml version="1.0" encoding="utf-8"?>
+<wc-entries
+   xmlns="svn:">
+<entry
+   committed-rev="930"
+   name=""
+   committed-date="2008-08-06T15:38:18.738430Z"
+   url="https://fusion.txcorp.com/pubsvn/ucm/trunk/tracking/main/cpp/api"
+   last-author="james"
+   kind="dir"
+   uuid="853c8b77-9f24-0410-9472-baf75fb908c2"
+   prop-time="2008-12-05T00:08:51.000000Z"
+   revision="1144"/>
+<entry
+   committed-rev="930"
+   name="TxTask.cpp"
+   text-time="2008-12-05T00:08:51.000000Z"
+   committed-date="2008-08-06T15:38:18.738430Z"
+   checksum="1baf0d82f1b5cfe8475957524dcdefda"
+   last-author="james"
+   kind="file"
+   prop-time="2008-12-05T00:08:50.000000Z"/>
+<entry
+   committed-rev="930"
+   name="TxEventLog.cpp"
+   text-time="2008-12-05T00:08:51.000000Z"
+   committed-date="2008-08-06T15:38:18.738430Z"
+   checksum="5e39b36f0f245084481993ade4552f00"
+   last-author="james"
+   kind="file"
+   prop-time="2008-12-05T00:08:51.000000Z"/>
+<entry
+   committed-rev="930"
+   name="TxUCMConstants.h"
+   text-time="2008-12-05T00:08:51.000000Z"
+   committed-date="2008-08-06T15:38:18.738430Z"
+   checksum="afc79b20dcabab31a3b28fd2d893e360"
+   last-author="james"
+   kind="file"
+   prop-time="2008-12-05T00:08:51.000000Z"/>
+<entry
+   committed-rev="930"
+   name="TxTask.h"
+   text-time="2008-12-05T00:08:51.000000Z"
+   committed-date="2008-08-06T15:38:18.738430Z"
+   checksum="90134aa708c4004c7b0b14a7363f498a"
+   last-author="james"
+   kind="file"
+   prop-time="2008-12-05T00:08:51.000000Z"/>
+<entry
+   committed-rev="930"
+   name="TxEventLog.h"
+   text-time="2008-12-05T00:08:51.000000Z"
+   committed-date="2008-08-06T15:38:18.738430Z"
+   checksum="c9efb7463d2d740be65261bf9d6f31af"
+   last-author="james"
+   kind="file"
+   prop-time="2008-12-05T00:08:51.000000Z"/>
+<entry
+   committed-rev="930"
+   name="TxJob.cpp"
+   text-time="2008-12-05T00:08:51.000000Z"
+   committed-date="2008-08-06T15:38:18.738430Z"
+   checksum="0865ba7ebddc6f8c943e44c79bac1f1c"
+   last-author="james"
+   kind="file"
+   prop-time="2008-12-05T00:08:51.000000Z"/>
+<entry
+   committed-rev="428"
+   name="Makefile.am"
+   text-time="2008-12-05T00:08:51.000000Z"
+   committed-date="2007-11-05T10:06:55.273164Z"
+   checksum="7db2098c9753a4e4cbf8abc61ff3330b"
+   last-author="tramer"
+   kind="file"
+   prop-time="2008-12-05T00:08:51.000000Z"/>
+<entry
+   committed-rev="930"
+   name="TxJob.h"
+   text-time="2008-12-05T00:08:51.000000Z"
+   committed-date="2008-08-06T15:38:18.738430Z"
+   checksum="187a4f90e359c43f9f79a192a173fb87"
+   last-author="james"
+   kind="file"
+   prop-time="2008-12-05T00:08:51.000000Z"/>
+</wc-entries>
