@@ -1,5 +1,6 @@
 # * * * * * /star/u/starlib/bin/token.csh
 05,35 * * * *   /star/u/starlib/bin/PDSpace.csh /afs/rhic.bnl.gov/star/doc/www/html/tmp/pub/overall.html
+06,35 * * * *   /star/u/starlib/bin/showquota.csh -html -o /afs/rhic.bnl.gov/star/doc/www/html/tmp/pub/ 
 
 00 21 * * 2,4,6 /afs/rhic.bnl.gov/star/packages/scripts/AutoBuild.csh Clean
 05 23 * * *     /afs/rhic.bnl.gov/star/packages/scripts/AutoBuild.csh
@@ -19,7 +20,8 @@
 00           01   * * 0,3 /afs/rhic.bnl.gov/star/users/starlib/novabin/updateServers.csh newlog
 # added for peace of mind 
 15           22    * * *   /afs/rhic.bnl.gov/star/users/starlib/novabin/updateServers.csh 'hook 3'
-# 15        02,14    * * *   /afs/rhic.bnl.gov/star/users/starlib/novabin/updateServers.csh hook
+05  02,08,14,20    * * *   /afs/rhic.bnl.gov/star/users/starlib/novabin/updateServers.csh 'hook 7'
+15        02,14    * * *   /afs/rhic.bnl.gov/star/users/starlib/novabin/updateServers.csh hook
 
 
 # Fill with new entries as necessary / cycle every 6 hours
@@ -27,11 +29,11 @@
 
 
 # Generate plots for nova disk - this will speed up 
+00 06 * * 1  /usr/bin/test -e /star/u/starlib/novabin/showDisk.csh && /star/u/starlib/novabin/showDisk.csh -zero
 17 1,3,5,7,9,11,13,15,17,19,21,23 * * * /usr/bin/test -e /star/u/starlib/novabin/showDisk.csh && /star/u/starlib/novabin/showDisk.csh
 
 
 
-# XROOTD load measurement and publishing
 # each hour do plots
 0 * * * * /star/data08/users/pjakl/cas_loadStat/bin/publishLoadStat.csh hour
 # each day at 00:00:00 do day statistic
@@ -43,7 +45,6 @@
 # at 01:10:00 and 13:10:00 do a synchronization 
 10 01,13 * * * /star/data08/users/pjakl/cas_loadStat/bin/publishLoadStat.csh synch
 
-# XROOTD ganglia plots downloading
 # each week at 00:00:00 on Sunday do week
 0 0 * * 1 /star/data08/users/pjakl/gangliaStat/bin/publishGangliaStat.pl week
 # each week at 01:00:00 on Sunday do synchronization
@@ -53,7 +54,6 @@
 # each first day in month at 01:00:00 do month synchronization
 0 1 * 1 * /star/data08/users/pjakl/gangliaStat/bin/publishGangliaStat.csh synch
 
-# XROOTD failure statistic collector
 # each day at 00:30:00 do day statistic
 30 5 * * * /star/data08/users/pjakl/failureStat/bin/failureCollector.csh day
 # each week at 00:00:00 on Monday do week
@@ -66,7 +66,6 @@
 
 
 
-# XROOTD load measurement and publishing for CRS cluster
 # each hour do plots
 15 * * * * /star/data08/users/pjakl/crs_loadStat/bin/publishLoadStat.csh hour
 # each day at 00:00:00 do day statistic  
@@ -78,12 +77,14 @@
 # at 01:10:00 and 13:10:00 do a synchronization
 40 02,14 * * * /star/data08/users/pjakl/crs_loadStat/bin/publishLoadStat.csh synch
 
-# xrootd and Olbd startup added on Mon Oct 30 15:39:40 EST 2006
-* * * * * /star/u/starlib/ROOT/xrootd/utils/StartXRD
-01 * * * * /star/u/starlib/ROOT/xrootd/utils/StartXRD savelog
-# xrootd and Olbd developement version added on Mon Oct 30 15:39:40 EST 2006
-* * * * * /star/u/starlib/ROOT/xrootd_dev/utils/StartXRD
-01 * * * * /star/u/starlib/ROOT/xrootd_dev/utils/StartXRD savelog
 # Reference for AddThisNode.csh and nova daemon added on Thu Feb  8 18:17:18 EST 2007
 19 18,20,22,0,2,4,6,8,10,12,14,16 * * * /tmp/nova/novaStart.csh
 19 0,2,4,6,8,10,12,14,16,18,20,22 * * * /usr/bin/test -e /star/u/starlib/novabin/AddThisNode.csh && /star/u/starlib/novabin/AddThisNode.csh 
+
+############# BEGIN OF Xrootd PRODUCTION SECTION #####################
+# Xrootd production startup added on Tue Aug 14 21:53:23 EDT 2007
+* * * * * /afs/rhic.bnl.gov/star/packages/ROOT/Xrootd/prod/utils/StartXRD
+1 * * * * /afs/rhic.bnl.gov/star/packages/ROOT/Xrootd/prod/utils/StartXRD savelog
+# Restart Xrootd production dataserver once a day
+0 1 * * * /afs/rhic.bnl.gov/star/packages/ROOT/Xrootd/prod/utils/StartXRD softrestart
+############## END OF Xrootd PRODUCTION SECTION ####################
