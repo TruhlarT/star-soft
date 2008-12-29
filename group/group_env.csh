@@ -1,5 +1,5 @@
 #!/bin/csh -x
-#       $Id: group_env.csh,v 1.205 2008/11/25 23:33:46 jeromel Exp $
+#       $Id: group_env.csh,v 1.206 2008/12/29 22:47:16 jeromel Exp $
 #	Purpose:	STAR group csh setup
 #
 #	Author:		Y.Fisyak     BNL
@@ -650,7 +650,7 @@ if ( -d $OPTSTAR/qt ) then
 else
     # make some more conditional logic - we assume
     # those will be soft-links form example. Qt4 will
-    # take precendece over Qt3 in this scheme
+    # take precedence over Qt3 in this scheme
     if ( ! $?QTDIR && -d $OPTSTAR/qt4 ) then
 	setenv QTDIR $OPTSTAR/qt4	
     endif
