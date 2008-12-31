@@ -25,7 +25,7 @@ $dbpass="";
 $dbname="GridJobs";
 
 
- my @prodyear = ("2006","2007","2008");
+ my @prodyear = ("2006","2007","2008","2009");
 
  my $qq = new CGI;
 

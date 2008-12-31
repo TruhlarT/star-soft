@@ -65,7 +65,7 @@ my $nowdate;
 my $thisyear = $year+1900;
 my $dyear = $thisyear - 2000;
 
-my @prodyear = ("2007","2008");
+my @prodyear = ("2007","2008","2009");
 my @submitopt = ("1st_submission","N_resubmission");
 
 # Tables
