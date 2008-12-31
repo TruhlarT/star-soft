@@ -1,9 +1,12 @@
 #!/usr/local/bin/perl
 #!/usr/bin/env perl 
 #
-# $Id: CRSfarmStatus.pl,v 1.22 2008/01/07 16:10:17 didenko Exp $
+# $Id: CRSfarmStatus.pl,v 1.23 2008/12/31 17:08:23 didenko Exp $
 #
 # $Log: CRSfarmStatus.pl,v $
+# Revision 1.23  2008/12/31 17:08:23  didenko
+# updated for year 2009
+#
 # Revision 1.22  2008/01/07 16:10:17  didenko
 # updated for year 2008
 #
@@ -69,7 +72,7 @@ $dbname="operation";
 
 my @reqperiod = ("day","week","1_month","2_months","3_months","4_months","5_months","6_months","7_months","8_months","9_months","10_months","11_months","12_months");
 my @plotview = ("numbers","percentage");
-my @prodyear = ("2005","2006","2007","2008");
+my @prodyear = ("2005","2006","2007","2008","2009");
 
 my $query = new CGI;
 
