@@ -262,6 +262,8 @@ my $maxout;
     $nowdate = "2006-12-31";
   }elsif($pryear eq "2007") {
     $nowdate = "2007-12-31";
+  }elsif($pryear eq "2008") {
+    $nowdate = "2008-12-31";
   }else{
     $nowdate = $todate;
   }
