@@ -7,6 +7,7 @@
 my $jobdir;
 my $archdir;
 my $lostdir;
+my $loopdir;
 
  my @statlist = ();
  my @joblist = ();
@@ -96,16 +97,26 @@ my $outfile = "/star/u/starreco/failjobs.".$filestamp.".csh";
 
 #      print $jobname,"   ", $prt[1], "\n";
 
+   $loopdir = "/home/starreco/newcrs/" . $prodSer ."/requests/daq/jobs_looping"; 
+
+     if( $jobname =~ /2007Production/ ) {
+
+  $jobdir = "/home/starreco/newcrs/" . $prodSer ."/requests/daq/jobfiles_2007";  
+  $archdir = "/home/starreco/newcrs/" . $prodSer ."/requests/daq/archive_2007";
+}else{
+
   $jobdir = "/home/starreco/newcrs/" . $prodSer ."/requests/daq/jobfiles";  
   $archdir = "/home/starreco/newcrs/" . $prodSer ."/requests/daq/archive";
-
+}
      $fullname = $archdir ."/". $jobname;
+
+############## uncomment next lines
 
       `crs_job -kill $crsjobname`;
      next if( $jobname =~ /dev/);
 
-      `mv $fullname $jobdir \n`;
-        print "Looping job killed and resubmitted: ", $jobname,"   ", $prt[1],  "\n";
+      `mv $fullname $loopdir \n`;
+        print "Looping job killed and moved to jobs_looping dir: ", $jobname,"   ", $prt[1],  "\n";
     }
   }
 
@@ -142,8 +153,16 @@ my $outfile = "/star/u/starreco/failjobs.".$filestamp.".csh";
 
 #      print $jobname,"   ", $prt[1], "\n";
 
+     if( $jobname =~ /2007Production/ ) {
+
+  $jobdir = "/home/starreco/newcrs/" . $prodSer ."/requests/daq/jobfiles_2007";  
+  $archdir = "/home/starreco/newcrs/" . $prodSer ."/requests/daq/archive_2007";
+}else{
+
   $jobdir = "/home/starreco/newcrs/" . $prodSer ."/requests/daq/jobfiles";  
   $archdir = "/home/starreco/newcrs/" . $prodSer ."/requests/daq/archive";
+}
+
   $lostdir = "/home/starreco/newcrs/" . $prodSer ."/requests/daq/jobs_lostfiles"; 
 
      $fullname = $archdir ."/". $jobname;
