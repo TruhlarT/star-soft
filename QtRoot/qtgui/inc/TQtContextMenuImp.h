@@ -1,6 +1,6 @@
 // Author: Valeri Fine   21/01/2002
 /****************************************************************************
-** $Id: TQtContextMenuImp.h,v 1.4 2007/08/26 17:46:58 fine Exp $
+** $Id: TQtContextMenuImp.h,v 1.5 2009/01/05 21:29:12 fine Exp $
 **
 ** Copyright (C) 2002 by Valeri Fine.  All rights reserved.
 **
@@ -137,6 +137,7 @@ class TQtContextMenuImp : public QObject, public TContextMenuImp
    void  AboutToShow();
    void  InspectCB();
    void  BrowseCB();
+   void  CopyCB();
 signals:
 #if QT_VERSION < 0x40000
 #ifndef Q_MOC_RUN

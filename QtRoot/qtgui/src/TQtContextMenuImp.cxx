@@ -1,6 +1,6 @@
 // Author: Valeri Fine   21/01/2002
 /****************************************************************************
-** $Id: TQtContextMenuImp.cxx,v 1.4 2007/06/05 15:38:06 fine Exp $
+** $Id: TQtContextMenuImp.cxx,v 1.5 2009/01/05 21:29:13 fine Exp $
 **
 ** Copyright (C) 2002 by Valeri Fine. Brookhaven National Laboratory.
 **                                    All rights reserved.
@@ -14,9 +14,12 @@
 #include "TQtContextMenuImp.h"
 #if QT_VERSION >= 0x40000
 #  include <QMenu>
+#  include <QClipboard>
+#  include <QDebug>
 #else
 #  include "qpopupmenu.h"
 #  include  <qlabel.h>
+#  include <qclipboard.h>
 #endif /* QT_VERSION */
 
 #include "TGQt.h"
@@ -108,6 +111,7 @@ void TQtContextMenuImp::CreatePopup () {
 //*-*  Include the standard static item into the context menu
     fPopupMenu->insertItem("&Inspect",    this,SLOT(InspectCB()));
     fPopupMenu->insertItem("&Browse",     this,SLOT(BrowseCB()));
+    fPopupMenu->insertItem("&Copy",       this,SLOT(CopyCB()), CTRL+Key_C);
 #else
     QAction *action = fPopupMenu->addAction(titleBar);
     QFont af = action->font();
@@ -117,8 +121,12 @@ void TQtContextMenuImp::CreatePopup () {
     fPopupMenu->addSeparator(); fPopupMenu->addSeparator();
 
 //*-*  Include the standard static item into the context menu
-    fPopupMenu->addAction("&Inspect",    this,SLOT(InspectCB()));
-    fPopupMenu->addAction("&Browse",     this,SLOT(BrowseCB()));
+    QAction *a = fPopupMenu->addAction("&Inspect",    this,SLOT(InspectCB()));
+    a->setToolTip(tr("Open the ROOT Object Inspector"));
+    a = fPopupMenu->addAction("&Copy",       this,SLOT(CopyCB()),QKeySequence::Copy);
+    a->setToolTip(tr("Copy the object pointer to the clipboard"));
+    a = fPopupMenu->addAction("&Browse",     this,SLOT(BrowseCB()));
+    a->setToolTip(tr("Open the ROOT Object Browser"));
 #endif
   }
 }
@@ -254,4 +262,20 @@ void TQtContextMenuImp::BrowseCB()
   TContextMenu *c = GetContextMenu();
   TObject *object = c? c->GetSelectedObject() : 0;
   if (object) new TBrowser(object->GetName(),object);
+}
+//______________________________________________________________________________
+void TQtContextMenuImp::CopyCB()
+{
+   // Copy the object pointer to the clipboard
+  TContextMenu *c = GetContextMenu();
+  TObject *object = c? c->GetSelectedObject() : 0;
+  QString className = object->ClassName();
+  QClipboard *clipboard = QApplication::clipboard();
+  clipboard->setText(
+               QString("((%1 *)0x%2)->")
+              .arg(className)
+              .arg((ulong)object,0,16)
+              ,clipboard->supportsSelection()
+              ?QClipboard::Selection 
+              :QClipboard::Clipboard);
 }
