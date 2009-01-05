@@ -1,9 +1,12 @@
 #!/usr/local/bin/perl
 #!/usr/bin/env perl 
 #
-# $Id: CRSfarmStatus.pl,v 1.23 2008/12/31 17:08:23 didenko Exp $
+# $Id: CRSfarmStatus.pl,v 1.24 2009/01/05 18:06:06 didenko Exp $
 #
 # $Log: CRSfarmStatus.pl,v $
+# Revision 1.24  2009/01/05 18:06:06  didenko
+# change default to 2009
+#
 # Revision 1.23  2008/12/31 17:08:23  didenko
 # updated for year 2009
 #
@@ -121,7 +124,7 @@ print "<h3 align=center> Select year of production</h3>";
 print "<h4 align=center>";
 print  $query->scrolling_list(-name=>'ryear',
                              -values=>\@prodyear,
-                             -default=>2008,
+                             -default=>2009,
                              -size =>1); 
 
 print "<p>";
