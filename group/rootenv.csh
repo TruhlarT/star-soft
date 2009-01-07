@@ -135,10 +135,12 @@ if ( -e ${ROOTSYS}/config.log ) then
 	    # qt4 was used for ROOT but possibly an ambigous path
 	    # reset
 	    setenv LD_LIBRARY_PATH `echo $LD_LIBRARY_PATH | /bin/sed 's/qt\/lib/qt4\/lib/'`
+	    setenv QTDIR ${OPTSTAR}/qt4
 	endif
 	if ( "$test3" != "" && "$test2" == "") then
 	    # qt4 defined in LD_LIBRARY_PATH but no qt4 in config.log
 	    setenv LD_LIBRARY_PATH `echo $LD_LIBRARY_PATH | /bin/sed 's/qt4\/lib/qt\/lib/'`
+	    setenv QTDIR ${OPTSTAR}/qt
 	endif
     endif
 endif
