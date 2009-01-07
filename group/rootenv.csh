@@ -123,6 +123,25 @@ if ($level >= 404  && $?XROOTDSYS ) then
 endif
 
 
+# attempt to check qt from ROOT
+if ( -e ${ROOTSYS}/config.log ) then
+    if ( -e ${OPTSTAR}/qt4 && -e ${OPTSTAR}/qt3 ) then
+	# there is a possibility for an ambiguity to be
+	# resolved
+	set test1=`/bin/grep qt4 ${ROOTSYS}/config.log | /usr/bin/wc -l`
+	set test2=`echo $LD_LIBRARY_PATH | /bin/grep 'qt/lib'`
+	set test3=`echo $LD_LIBRARY_PATH | /bin/grep 'qt4/lib'`
+	if ( $test1 != 0 && "$test2" != "") then
+	    # qt4 was used for ROOT but possibly an ambigous path
+	    # reset
+	    setenv LD_LIBRARY_PATH `echo $LD_LIBRARY_PATH | /bin/sed 's/qt\/lib/qt4\/lib/'`
+	endif
+	if ( "$test3" != "" && "$test2" == "") then
+	    # qt4 defined in LD_LIBRARY_PATH but no qt4 in config.log
+	    setenv LD_LIBRARY_PATH `echo $LD_LIBRARY_PATH | /bin/sed 's/qt4\/lib/qt\/lib/'`
+	endif
+    endif
+endif
 
 
 
