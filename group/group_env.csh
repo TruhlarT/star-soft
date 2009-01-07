@@ -1,5 +1,5 @@
 #!/bin/csh -x
-#       $Id: group_env.csh,v 1.206 2008/12/29 22:47:16 jeromel Exp $
+#       $Id: group_env.csh,v 1.207 2009/01/07 19:43:11 jeromel Exp $
 #	Purpose:	STAR group csh setup
 #
 #	Author:		Y.Fisyak     BNL
@@ -642,24 +642,26 @@ endif
 
 
 # Support for Qt
-if ( -d $OPTSTAR/qt ) then
-    setenv QTDIR $OPTSTAR/qt
-    # set path=($path $QTDIR/bin)
-    setenv MANPATH ${MANPATH}:$QTDIR/man
-    setenv LD_LIBRARY_PATH ${LD_LIBRARY_PATH}:$QTDIR/lib
-else
-    # make some more conditional logic - we assume
-    # those will be soft-links form example. Qt4 will
-    # take precedence over Qt3 in this scheme
-    if ( ! $?QTDIR && -d $OPTSTAR/qt4 ) then
-	setenv QTDIR $OPTSTAR/qt4	
-    endif
-    if ( ! $?QTDIR && -d $OPTSTAR/qt3 ) then
-	setenv QTDIR $OPTSTAR/qt3	
-    endif
-    if ( $?QTDIR ) then
+if (! $?QTDIR ) then
+    if ( -d $OPTSTAR/qt ) then
+	setenv QTDIR $OPTSTAR/qt
+	# set path=($path $QTDIR/bin)
 	setenv MANPATH ${MANPATH}:$QTDIR/man
 	setenv LD_LIBRARY_PATH ${LD_LIBRARY_PATH}:$QTDIR/lib
+    else
+	# make some more conditional logic - we assume
+	# those will be soft-links form example. Qt4 will
+	# take precedence over Qt3 in this scheme
+	if ( ! $?QTDIR && -d $OPTSTAR/qt4 ) then
+	    setenv QTDIR $OPTSTAR/qt4	
+	endif
+	if ( ! $?QTDIR && -d $OPTSTAR/qt3 ) then
+	    setenv QTDIR $OPTSTAR/qt3	
+	endif
+	if ( $?QTDIR ) then
+	    setenv MANPATH ${MANPATH}:$QTDIR/man
+	    setenv LD_LIBRARY_PATH ${LD_LIBRARY_PATH}:$QTDIR/lib
+	endif
     endif
 endif
 
