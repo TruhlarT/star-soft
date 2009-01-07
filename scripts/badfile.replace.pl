@@ -60,7 +60,7 @@ if ( $user eq ""){
   my $tophpss = "/home/starreco/reco";
   my $pathpass;
 
-my $rscript = "/star/u/starreco/FCrmRootfiles.csh";
+my $rscript = "/star/u/starreco/FCrmRootfiles_4.csh";
 
    open (CSFILE, ">$rscript");
   print CSFILE "#! /usr/local/bin/tcsh -f", "\n";
