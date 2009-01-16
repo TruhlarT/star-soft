@@ -438,10 +438,10 @@ my $ndt = 0;
 
 	$ptag = "ALL";
 
-    $legend[0] = "Efficiency for $ptag for 1st submission; ";
-    $legend[1] = "Efficiency for $ptag with 1st resubmission; "; 
-#    $legend[2] = "Efficiency for WSU; "; 
-#    $legend[3] = "Efficiency for BNL; ";
+    $legend[0] = "Efficiency for PDSF for 1st submission; ";
+    $legend[1] = "Efficiency for PDSF with <=4 resubmissions; "; 
+#    $legend[2] = "Efficiency for VM for 1st submission; "; 
+#    $legend[3] = "Efficiency for VM with <=4 submission; ";
 
     @data = (\@ndate, \@effpdsf, \@effpdsfrs ) ;
 
