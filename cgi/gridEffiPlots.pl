@@ -408,7 +408,7 @@ my $ndt = 0;
    $recoComeff[$ndt] = $recoEfH{$msite}*100/$njobs[$ndt]; 
    $overeff[$ndt] = $siteEff{$msite}*100/$njobs[$ndt];
    $overeffrs[$ndt] = $siteEffRs{$msite}*100/$njobs[$ndt];
-   if ($msite eq "PDSF")  {
+   if ($msite eq "pdsf")  {
    $effpdsf[$ndt] = $siteEff{$msite}*100/$njobs[$ndt];
    $effpdsfrs[$ndt] = $siteEffRs{$msite}*100/$njobs[$ndt];
    }elsif($msite eq "VM")  {
