@@ -94,8 +94,9 @@ my @overeff = ();
 my @overeffrs = (); 
 my @ndate = ();
 my @effpdsf = ();
-my @effpdsfovr = ();
-my @effwsu = ();
+my @effpdsfrs = ();
+my @effvm = ();
+my @effvmrs = ();
 my @effbnl = ();
 my %globEfH = { };
 my %logEfH = { };
@@ -280,10 +281,11 @@ $day_diff = int($day_diff);
 my $ndt = 0;
 
  @effpdsf = ();
- @effpdsfovr = ();
+ @effpdsfrs = ();
  @overeff = ();
  @overeffrs = (); 
- @effwsu = ();
+ @effvm = ();
+ @effvmrs = ();
  @effbnl = ();
 
    foreach  $tdate (@ardays) {
@@ -385,7 +387,7 @@ my $ndt = 0;
        $siteEff{$gsite}++;
        $siteEffRs{$gsite}++;
 
-   }elsif ($nsubmit = 2 and $ovrStat eq "success") {
+   }elsif ($nsubmit >= 2 and $nsubmit < 5 and $ovrStat eq "success") {
       
      $siteEffRs{$gsite}++;
 
@@ -406,7 +408,13 @@ my $ndt = 0;
    $recoComeff[$ndt] = $recoEfH{$msite}*100/$njobs[$ndt]; 
    $overeff[$ndt] = $siteEff{$msite}*100/$njobs[$ndt];
    $overeffrs[$ndt] = $siteEffRs{$msite}*100/$njobs[$ndt];
-
+   if ($msite eq "PDSF")  {
+   $effpdsf[$ndt] = $siteEff{$msite}*100/$njobs[$ndt];
+   $effpdsfrs[$ndt] = $siteEffRs{$msite}*100/$njobs[$ndt];
+   }elsif($msite eq "VM")  {
+   $effvm[$ndt] = $siteEff{$msite}*100/$njobs[$ndt];
+   $effvmrs[$ndt] = $siteEffRs{$msite}*100/$njobs[$ndt];
+    }
    }
  }  
    $ndt++;
@@ -435,7 +443,7 @@ my $ndt = 0;
 #    $legend[2] = "Efficiency for WSU; "; 
 #    $legend[3] = "Efficiency for BNL; ";
 
-    @data = (\@ndate, \@overeff, \@overeffrs ) ;
+    @data = (\@ndate, \@effpdsf, \@effpdsfrs ) ;
 
       }else{
 
