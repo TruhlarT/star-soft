@@ -447,8 +447,9 @@ my $ndt = 0;
     $legend[3] = "Output transferring;      ";
     $legend[4] = "Reco completion;          ";
     $legend[5] = "Overall efficiency;       ";
+    $legend[6] = "Overall efficiency with resubmission;       ";
 
-      @data = (\@ndate, \@globeff, \@logeff, \@inputef, \@outputeff, \@recoComeff, \@overeff) ;
+      @data = (\@ndate, \@globeff, \@logeff, \@inputef, \@outputeff, \@recoComeff, \@overeff, \@overeffrs ) ;
   }
 
 #   print $qqr->start_html(-title=>"Grid efficiency"), "\n"; 
