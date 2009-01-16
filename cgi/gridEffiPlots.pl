@@ -59,7 +59,7 @@ my $nowdate;
 my $thisyear = $year+1900;
 my $dyear = $thisyear - 2000;
 
-my @prodyear = ("2008");
+my @prodyear = ("2008","2009");
 my @submitopt = ("1_submission","N_resubmission");
 
 # Tables
@@ -181,7 +181,7 @@ print "<h3 align=center> Select year</h3>";
 print "<h4 align=center>";
 print  $query->scrolling_list(-name=>'ryear',
                              -values=>\@prodyear,
-                             -default=>2008,
+                             -default=>2009,
       			     -size =>1);
 
 
@@ -247,11 +247,11 @@ my @ardays = ();
 my $tdate;
 my $nsubmit;
 
-#  if($pryear eq "2008") {
-#    $nowdate = "2006-12-31";
-#  }else{
+   if($pryear eq "2008") {
+    $nowdate = "2007-12-31";
+  }else{
     $nowdate = $todate;
-#  }
+  }
 
     if( $qperiod eq "week") {
            $day_diff = 8;
@@ -390,7 +390,6 @@ my $ndt = 0;
      $siteEffRs{$gsite}++;
 
  }
-
 }
    for($ii = 0; $ii <scalar(@sites); $ii++) {
 
@@ -408,20 +407,12 @@ my $ndt = 0;
    $overeff[$ndt] = $siteEff{$msite}*100/$njobs[$ndt];
    $overeffrs[$ndt] = $siteEffRs{$msite}*100/$njobs[$ndt];
 
-   if ($msite eq "pdsf")  {
-   $effpdsf[$ndt] = $siteEff{$msite}*100/$njobs[$ndt];
-   $effpdsfovr[$ndt] = $siteEffRs{$msite}*100/$njobs[$ndt];
-   }elsif($msite eq "WSU")  {
-   $effwsu[$ndt] = $siteEff{$msite}*100/$njobs[$ndt];
-   }elsif($msite eq "BNL")  {
-   $effbnl[$ndt] = $siteEff{$msite}*100/$njobs[$ndt];
-       }
-     }
    }
+ }  
    $ndt++;
-
- }
-    &GRdbDisconnect();
+}
+ 
+   &GRdbDisconnect();
 
  my $graph = new GD::Graph::linespoints(750,650);
 
@@ -444,9 +435,7 @@ my $ndt = 0;
 #    $legend[2] = "Efficiency for WSU; "; 
 #    $legend[3] = "Efficiency for BNL; ";
 
-    @data = (\@ndate, \@effpdsf, \@effpdsfovr ) ;
-
-#    @data = (\@ndate, \@overeff, \@overeffrs ) ;
+    @data = (\@ndate, \@overeff, \@overeffrs ) ;
 
       }else{
 
