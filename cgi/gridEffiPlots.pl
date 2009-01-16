@@ -470,8 +470,8 @@ $xLabelSkip = 7 if( $qperiod eq "7_months" );
 $xLabelSkip = 8 if( $qperiod eq "8_months" );
 $xLabelSkip = 9 if( $qperiod eq "9_months" );
 $xLabelSkip = 10 if( $qperiod eq "10_months" );
-$xLabelSkip = 11 if( $qperiod eq "11_months" );
-$xLabelSkip = 12 if( $qperiod eq "12_months" );
+$xLabelSkip = 10 if( $qperiod eq "11_months" );
+$xLabelSkip = 10 if( $qperiod eq "12_months" );
 
 
   $min_y = 0;
@@ -489,7 +489,7 @@ $xLabelSkip = 12 if( $qperiod eq "12_months" );
                 y_number_format => \&y_format,
                 #labelclr => "lblack",
                 titleclr => "lblack",
-                dclrs => [ qw(lblack lblue lred lgreen lpurple lorange ) ],
+                dclrs => [ qw(lblack lgreen lred lpurple lorange lblue lgray) ],
                 line_width => 4,
                 markers => [ 2,3,4,5,6,7,8,9],
                 marker_size => 3,
