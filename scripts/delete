@@ -16,11 +16,16 @@ if ( ! defined(@ARGV ) ){
 	"\n";
 }
 
-$d = 0;
+$ALLOWDIR = 0;
+$e = $d   = 0;
+
+
 foreach $arg (@ARGV){
     # since globbing can result is lots of files,
     # do it as the arguments comes. Another way 
     # would be opendir()
+    if ( $arg eq "-d"){   $ALLOWDIR = 1;}
+    
     push(@FILES,glob($arg));
     foreach $file (@FILES){
         if ( ! unlink($file) ){  print STDERR "Could not delete $file\n";}
