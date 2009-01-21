@@ -8,6 +8,9 @@
 ** LICENSE.QPL included in the packaging of this file.
 **
 *****************************************************************************/
+#include <stdio.h>
+#include <stdlib.h>
+    
 #include "TObject3DView.h"
 #include "TROOT.h"
 #include "TColor.h"
@@ -19,6 +22,8 @@
 #include "TGeoVolume.h"
 #include "TGeoNode.h"
 #include "TGeoMatrix.h"
+#include "TGeoCompositeShape.h"
+#include "TGeoBoolNode.h"
 #include "TNode.h"
 #include "TPolyMarker3D.h"
 #include "TPolyLine3D.h"
@@ -356,7 +361,7 @@ TObject3DView *TObject3DView::AddNodeByDefinition(const TObject *descriptor)
 //_____________________________________________________________________________
 void  TObject3DView::MakeShape(const TObject *shape)
 {
-   TObject3DView *shapeView = 0; // new TObject3DView(0,fMap,fLevel+1);
+    TObject3DView *shapeView = 0; // new TObject3DView(0,fMap,fLevel+1);
     if (fView3DFactory) {
         // Emit signal to allow the final touch up
 
@@ -387,6 +392,49 @@ void  TObject3DView::MakeShape(const TObject *shape)
       shapeView->IncCounter();
    }
 }
+//_____________________________________________________________________________
+void TObject3DView::MakeCompositeShape(const TGeoCompositeShape *top)
+{
+   // Create the composite shape as a trivial superposition of two shapes
+   // No bool opeation is provided yet.
+
+   if (!top) return ;
+   // fprintf(stderr,"1. TObject3DView::MakeCompositeShape %s \"%s\"\n",  top->GetName(),top->GetTitle());
+   //   top->ls();
+
+   // if (!top->IsVolumeMulti())    
+   TString title = top->GetTitle();
+   if (title.IsNull() ) title = top->GetName();
+
+   TGeoBoolNode *shapeNode = top->GetBoolNode();
+   if (shapeNode) {
+      TGeoMatrix *geoMatrice[2] =  { shapeNode->GetLeftMatrix(), shapeNode->GetRightMatrix()};
+      TGeoShape  *geoShape[2]   =  { shapeNode->GetLeftShape(),  shapeNode->GetRightShape() };
+              
+      for (Int_t i = 0;  i < 2  ; i++) {
+         if (!geoShape[i]) continue;
+         //  Add transformation
+         TGeoMatrix *geoMatrix       = geoMatrice[i];
+         const Double_t   *trans     = geoMatrix->GetTranslation();
+         const Double_t   *rotation  = geoMatrix->IsIdentity() ? 0 : geoMatrix->GetRotationMatrix();
+         Bool_t isReflection  = geoMatrix->IsReflection();
+         Double_t mx[9];
+         if (rotation) {
+            mx[0] = rotation[0]; mx[1] = rotation[3]; mx[2] = rotation[6];
+            mx[3] = rotation[1]; mx[4] = rotation[4]; mx[5] = rotation[7];
+            mx[6] = rotation[2]; mx[7] = rotation[5]; mx[8] = rotation[8];
+            rotation = &mx[0];
+         }
+         TObject3DView *position =  MakeMatrix(trans,rotation,isReflection);
+         position->AddNodeByDefinition(geoMatrix);
+         if ( geoShape[i]->IsComposite() )  MakeCompositeShape((TGeoCompositeShape *)geoShape[i]);
+         else position->MakeShape(geoShape[i]);
+         AddChild(position);
+         // ls(0);
+         position->CompileViewLevel();
+      }  
+   }
+}
 
 //_____________________________________________________________________________
 void TObject3DView::MakeVolumeView(TGeoVolume *top, Int_t maxlevel)
@@ -402,7 +450,11 @@ void TObject3DView::MakeVolumeView(TGeoVolume *top, Int_t maxlevel)
       SetLineColor(top->GetLineColor()); SetLineStyle(top->GetLineStyle());
       SetLineWidth(top->GetLineWidth()); SetFillColor(top->GetLineColor());
       if (top->GetTransparency()) SetFillStyle( 4100-top->GetTransparency() );
-      MakeShape(top->GetShape());
+      TGeoShape *thisShape = top->GetShape();
+      if (thisShape) {
+         if (thisShape->IsComposite()) MakeCompositeShape((TGeoCompositeShape *)thisShape);
+         else MakeShape(thisShape);
+      }
    }
    TString title = top->GetTitle();
    if (title.IsNull() ) title = top->GetName();
@@ -439,20 +491,24 @@ void TObject3DView::MakeVolumeView(TGeoVolume *top, Int_t maxlevel)
                nextVolume = volumeFinder->second;
 
             if (!nextVolume) {
-#if ROOT_VERSION_CODE < ROOT_VERSION(5,16,0)
+#  if ROOT_VERSION_CODE < ROOT_VERSION(5,16,0)
                gGeoManager->CdDown(i);
-#endif
+#  endif
                nextVolume= new TObject3DView(geoVolume,fMap,fView3DFactory,fLevel+1,maxlevel);
-#if ROOT_VERSION_CODE < ROOT_VERSION(5,16,0)
+#  if ROOT_VERSION_CODE < ROOT_VERSION(5,16,0)
                gGeoManager->CdUp();
-#endif
+#  endif
             } 
 #else
-             //  gGeoManager->CdDown(i);
+#  if ROOT_VERSION_CODE < ROOT_VERSION(5,16,0)
+               gGeoManager->CdDown(i);
+#  endif
                nextVolume= new TObject3DView(geoVolume,fMap,fView3DFactory,fLevel+1,maxlevel);
-             //  gGeoManager->CdUp();
+#  if ROOT_VERSION_CODE < ROOT_VERSION(5,16,0)
+               gGeoManager->CdUp();
+#  endif
 #endif
-            position->AddChild(nextVolume);
+           position->AddChild(nextVolume);
             AddChild(position);
             nextVolume->IncCounter();
             position->CompileViewLevel();

@@ -1,4 +1,4 @@
-// @(#)root/gtgl:$Name:  $:$Id: TObject3DView.h,v 1.4 2007/01/10 04:07:31 fine Exp $
+// @(#)root/gtgl:$Name:  $:$Id: TObject3DView.h,v 1.5 2009/01/21 18:59:12 fine Exp $
 // Author: Valery Fine      23/10/03
 
 #ifndef ROOT_TObject3DView
@@ -33,6 +33,7 @@ class TMarker3DBox;
 class TPolyMarker3D;
 class TPolyLine3D;
 class TPolyLineShape;
+class TGeoCompositeShape;
 
 typedef  std::map<TObject *,TObject3DView *>  OBJECT_MAP;
 class TObject3DView : public TObjectSet, public TAttLine, public TAttFill, public TQObject{
@@ -105,6 +106,7 @@ public:
     void  MakeVolumeView(TPolyLineShape *node,  Int_t maxlevel=3);
 
     void  MakeShape(const TObject *shape);            //*SIGNAL*
+    void  MakeCompositeShape(const TGeoCompositeShape *shape);            //*SIGNAL*
     ULong_t GetViewId(TObject3DViewFactoryABC::ERenderType type=TObject3DViewFactoryABC::kNormal) const;
     void  GetBoundBox(Double_t *min, Double_t *max) const;
     void  MarkModified(TObject *modefiedObject);
