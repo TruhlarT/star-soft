@@ -427,7 +427,7 @@ void TObject3DView::MakeCompositeShape(const TGeoCompositeShape *top)
          }
          TObject3DView *position =  MakeMatrix(trans,rotation,isReflection);
          position->AddNodeByDefinition(geoMatrix);
-         if ( geoShape[i]->IsComposite() )  MakeCompositeShape((TGeoCompositeShape *)geoShape[i]);
+         if ( geoShape[i]->IsComposite() )  position->MakeCompositeShape((TGeoCompositeShape *)geoShape[i]);
          else position->MakeShape(geoShape[i]);
          AddChild(position);
          // ls(0);
