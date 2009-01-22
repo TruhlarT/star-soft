@@ -123,7 +123,7 @@ require  Exporter;
 
 
 use vars qw($VERSION);
-$VERSION   =   "V01.357";
+$VERSION   =   "V01.358";
 
 # The hashes that hold a current context
 my %optoperset;
@@ -551,7 +551,7 @@ sub _GetTableName {
   if (exists $keywrds{$mykey}){
       ($a,$tabname,$b) = split(",",$keywrds{$mykey});
   } else {
-      &die_message("_GetTableName","Internal error ; Using non-existent key $mykey");
+      &die_message("_GetTableName","Internal error ; Using non-existent key [$mykey]");
   }
   return $tabname;
 
@@ -3762,7 +3762,10 @@ sub run_query {
 
 
   # Transfer into associative array for easier handling
-  foreach (@keywords){  $keyset{$_} =$_ ;}
+  foreach $keyw (@keywords){  
+      $keyw =~ s/ //g;
+      $keyset{$keyw} =$keyw ;
+  }
 
 
   # Little debugging of the table size. This information was
@@ -3850,8 +3853,8 @@ sub run_query {
   my ($j,$tl,@temp,@items,@setkeys);
 
   for ($j=$i=0 ; $i <= $#keywords ; $i++){
-      $keyw = $keywords[$i];
-      &print_debug("run_query","... Checking $keyw");
+      $keyw = $keywords[$i]; 
+      &print_debug("run_query","... Checking [$keyw]");
       if ( defined($keyset{$keyw}) ){
 	  if ( defined($xkeys{$keyw}) ){
 	      push(@setkeys,$keyw);   # keep ordered track for later use
