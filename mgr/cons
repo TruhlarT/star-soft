@@ -31,7 +31,7 @@ use Cwd;
 
 use vars qw( $CVS_id $CVS_ver $ver_num $ver_rev $version );
 
-$CVS_id = '$Id: cons,v 1.102 2008/03/21 00:43:44 fine Exp $ ';
+$CVS_id = '$Id: cons,v 1.103 2009/01/23 19:10:53 jeromel Exp $ ';
 $CVS_ver = (split(/\s+/, $CVS_id))[2];
 
 $ver_num = "2.3";
@@ -1239,6 +1239,7 @@ sub wanted {
 	/^doc$/ ||
 	/^run$/ ||
 	/^examples$/ ||
+	/^images$/ ||
 	/^local$/ ||
 	/^hold$/ ||
 	/^wrk$/)
@@ -1270,6 +1271,7 @@ sub wanted_idlM {
 	/^doc$/ ||
 	/^run$/ ||
 	/^examples$/ ||
+	/^images$/ ||
 	/^local$/ ||
 	/^hold$/ ||
 	/^wrk$/)
@@ -1299,6 +1301,7 @@ sub wanted_inc {
 	/^doc$/ ||
 	/^run$/ ||
 	/^examples$/ ||
+	/^images$/ ||
 	/^local$/ ||
 	/^hold$/ ||
 	/^wrk$/)
@@ -1326,6 +1329,7 @@ sub wanted_ui {
 	/^doc$/ ||
 	/^run$/ ||
 	/^examples$/ ||
+	/^images$/ ||
 	/^local$/ ||
 	/^hold$/ ||
 	/^wrk$/)
@@ -1349,6 +1353,7 @@ sub wanted_qrc {
 	/^doc$/ ||
 	/^run$/ ||
 	/^examples$/ ||
+	/^images$/ ||
 	/^local$/ ||
 	/^hold$/ ||
 	/^wrk$/)
@@ -1371,6 +1376,7 @@ sub wanted_xpm {
 	/^doc$/ ||
 	/^run$/ ||
 	/^examples$/ ||
+	/^images$/ ||
 	/^local$/ ||
 	/^hold$/ ||
 	/^wrk$/)
@@ -1393,6 +1399,7 @@ sub wanted_obj {
 	/^doc$/ ||
 	/^run$/ ||
 	/^examples$/ ||
+	/^images$/ ||
 	/^local$/ ||
 	/^hold$/ ||
 	/^wrk$/)
@@ -1452,6 +1459,7 @@ sub wanted_Def {
 	/^doc$/      ||
 	/^run$/      ||
 	/^examples$/ ||
+	/^images$/ ||
 	/^local$/    ||
 	/^hold$/     ||
 	/^wrk$/))       {$File::Find::prune = 1; return;}
@@ -1484,6 +1492,7 @@ sub wanted_idl {
 	/^doc$/ ||
 	/^run$/ ||
 	/^examples$/ ||
+	/^images$/ ||
 	/^local$/ ||
 	/^hold$/ ||
 	/^wrk$/)
