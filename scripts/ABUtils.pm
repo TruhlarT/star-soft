@@ -37,7 +37,7 @@ $INSU::COMPDIR="/afs/.rhic/star/replicas/DEV";
 $INSU::STARAFS="/afs/rhic.bnl.gov/star/packages";
 
 # list of dirs affected by a cvs co
-@INSU::DIRS=("StRoot","StarDb","StDb","StarVMC","pams","asps","mgr","QtRoot");
+@INSU::DIRS=("StRoot","StarDb","StDb","StarVMC","pams","asps","mgr","QtRoot","OnlTools");
 
 # List of excluded modules in StRoot compilation. This is a default
 # and does not preclude the SKIP_DIRS usage.
