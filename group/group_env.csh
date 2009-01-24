@@ -1,5 +1,5 @@
 #!/bin/csh -x
-#       $Id: group_env.csh,v 1.207 2009/01/07 19:43:11 jeromel Exp $
+#       $Id: group_env.csh,v 1.208 2009/01/24 16:49:31 jeromel Exp $
 #	Purpose:	STAR group csh setup
 #
 #	Author:		Y.Fisyak     BNL
@@ -74,7 +74,7 @@ if ( $?DECHO) echo "$self :: Defining GROUP_DIR GROUP_PATH STAR_PATH"
 
 # Defined by Group Dir
 if ( ! $?GROUP_DIR )  setenv GROUP_DIR ${STAR_ROOT}/group
-if ( $?DECHO) echo   "Value of GROUP_DIR = ${GROUP_DIR}"
+if ( $?DECHO) echo   "$self :: Value of GROUP_DIR = ${GROUP_DIR}"
 
 # Defined in CORE. GROUP_PATH/GROUPPATH are global
 # while GROUP_DIR may be local
