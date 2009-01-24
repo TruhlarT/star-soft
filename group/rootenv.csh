@@ -130,18 +130,24 @@ if ( -e ${ROOTSYS}/config.log ) then
 	# resolved
 	set test1=`/bin/grep qt4 ${ROOTSYS}/config.log | /usr/bin/wc -l`
 	set test2=`echo $LD_LIBRARY_PATH | /bin/grep 'qt/lib'`
-	set test3=`echo $LD_LIBRARY_PATH | /bin/grep 'qt4/lib'`
-	if ( $test1 != 0 && "$test2" != "") then
+	set test3=`echo $LD_LIBRARY_PATH | /bin/grep 'qt3/lib'`
+	set test4=`echo $LD_LIBRARY_PATH | /bin/grep 'qt4/lib'`
+	if  ( $test1 != 0 && "$test2" != "") then
 	    # qt4 was used for ROOT but possibly an ambigous path
 	    # reset
 	    setenv LD_LIBRARY_PATH `echo $LD_LIBRARY_PATH | /bin/sed 's/qt\/lib/qt4\/lib/'`
 	    setenv QTDIR ${OPTSTAR}/qt4
-	endif
-	if ( "$test3" != "" && "$test2" == "") then
-	    # qt4 defined in LD_LIBRARY_PATH but no qt4 in config.log
-	    setenv LD_LIBRARY_PATH `echo $LD_LIBRARY_PATH | /bin/sed 's/qt4\/lib/qt\/lib/'`
-	    setenv QTDIR ${OPTSTAR}/qt
-	endif
+	else 
+	 if ( $test1 != 0 && "$test3" != "") then
+	    # qt4 was usedfor ROOT and path needs to be changed
+	    setenv LD_LIBRARY_PATH `echo $LD_LIBRARY_PATH | /bin/sed 's/qt3\/lib/qt4\/lib/'`
+	    setenv QTDIR ${OPTSTAR}/qt4
+	 else
+	    # assume qt3 - we have already tested we had $OPTSTAR/qt3
+	    setenv LD_LIBRARY_PATH `echo $LD_LIBRARY_PATH | /bin/sed 's/qt\d+\/lib/qt3\/lib/'`
+	    setenv QTDIR ${OPTSTAR}/qt3	    
+	 endif
+	endif 
     endif
 endif
 
