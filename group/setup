@@ -14,11 +14,11 @@ if ($#argv == 0 || $#argv > 2) then
                                     of the STAR software
 
    Grid|OSG                         Setup Grid environment
-   root|ROOT  {version}             load or change root version
+   root|ROOT     {version}          load or change root version
    parasoft|PARASOFT|insure|ISURE   load the Insure++ toolkit environment
 
-   gcc        {version}             set environment to use gcc (or alternative version)
-   icc|ifc|ifort                    set environment to use Intel compilers
+   gcc           {version}          set environment to use gcc (or alternative version)
+   icc|ifc|ifort {version}          set environment to use Intel compilers
 
    alt|noalt                        adds/remove OPTSTAR/alt from path
 
@@ -96,9 +96,9 @@ switch ($pkg)
     case "icc":
     case "ifc":
     case "ifort":
-	if ( -f $GROUP_DIR/intelcc.csh  )  source $GROUP_DIR/intelcc.csh 
-	if ( $?optstar ) setenv  OPTSTAR  $optstar
-	if ( $?optstar ) setenv XOPTSTAR $xoptstar
+	if ( -f $GROUP_DIR/intelcc.csh  )  source $GROUP_DIR/intelcc.csh $version
+	if ( $?optstar )  setenv  OPTSTAR  $optstar
+	if ( $?xoptstar ) setenv XOPTSTAR  $xoptstar
 	if ( $?STARCMPL && -x $GROUP_DIR/dropit ) then
 	    setenv PATH            `$GROUP_DIR/dropit $STAR_HOST_SYS`
 	    setenv LD_LIBRARY_PATH `$GROUP_DIR/dropit -p $LD_LIBRARY_PATH $STAR_HOST_SYS`
@@ -125,8 +125,8 @@ switch ($pkg)
 	  setenv LD_LIBRARY_PATH $OPTSTAR/alt/lib:$LD_LIBRARY_PATH
         endif
       endif
-      if ( $?optstar ) setenv  OPTSTAR  $optstar
-      if ( $?optstar ) setenv XOPTSTAR $xoptstar
+      if ( $?optstar )  setenv  OPTSTAR  $optstar
+      if ( $?xoptstar ) setenv XOPTSTAR $xoptstar
       if ( $?STARCMPL && -x $GROUP_DIR/dropit ) then
 	setenv PATH            `$GROUP_DIR/dropit $STAR_HOST_SYS`
 	setenv LD_LIBRARY_PATH `$GROUP_DIR/dropit -p $LD_LIBRARY_PATH $STAR_HOST_SYS`
