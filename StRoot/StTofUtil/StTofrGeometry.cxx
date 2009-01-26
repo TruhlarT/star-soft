@@ -1,6 +1,6 @@
 /*******************************************************************
  *
- * $Id: StTofrGeometry.cxx,v 1.9 2008/03/27 00:15:39 dongx Exp $
+ * $Id: StTofrGeometry.cxx,v 1.10 2009/01/26 15:05:33 fisyak Exp $
  * 
  * Authors: Shuwei Ye, Xin Dong
  *******************************************************************
@@ -10,6 +10,9 @@
  *
  *******************************************************************
  * $Log: StTofrGeometry.cxx,v $
+ * Revision 1.10  2009/01/26 15:05:33  fisyak
+ * rename TMemStat => StMemStat due to clash with ROOT class
+ *
  * Revision 1.9  2008/03/27 00:15:39  dongx
  *  Update for Run8 finished.
  *
@@ -50,7 +53,7 @@
 #include "TDataSet.h"
 #include "TDataSetIter.h"
 #include "StMaker.h"
-//#include "TMemStat.h"
+//#include "StMemStat.h"
 #include "StMessMgr.h"
 
 //#include "Debugger.h"
