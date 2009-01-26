@@ -14,7 +14,7 @@ SOURCES += TMyQButton.cxx
 
 CREATE_ROOT_DICT_FOR_CLASSES  = $$HEADERS LinkDef.h
 
-includeFile = $(QTROOTSYSDIR)/include
+includeFile = $$QTROOTSYSDIR/include
 exists ($$includeFile) {
   include ($$includeFile/rootcint.pri)
 }
