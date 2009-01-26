@@ -10,8 +10,8 @@ setenv QTDIR $OPTSTAR/qt4
 #                  -I$QTDIR/QtSvg      -I$QTDIR/QtUiTools -I$QTDIR/QtXml     \
 #                  -I$QTDIR/QtSql
 if (-x $GROUP_DIR/dropit) then
-    setenv LD_LIBRARY_PATH `$GROUP_DIR/dropit qt -p $LD_LIBRARY_PATH`
-    setenv PATH            `$GROUP_DIR/dropit qt`
+    setenv LD_LIBRARY_PATH `$GROUP_DIR/dropit qt Qt -p $LD_LIBRARY_PATH`
+    setenv PATH            `$GROUP_DIR/dropit qt Qt`
 endif                 
 setenv LD_LIBRARY_PATH $QTDIR/lib:$LD_LIBRARY_PATH
 setenv PATH $QTDIR/bin:$PATH
