@@ -5,9 +5,12 @@
 #   Purpose: Display information on
 #     AutoCalib states and chains
 #
-# $Id: AutoCalib_display.pl,v 1.3 2009/01/30 19:31:40 jeromel Exp $
+# $Id: AutoCalib_display.pl,v 1.4 2009/01/30 19:57:30 jeromel Exp $
 #
 # $Log: AutoCalib_display.pl,v $
+# Revision 1.4  2009/01/30 19:57:30  jeromel
+# Misc fixes
+#
 # Revision 1.3  2009/01/30 19:31:40  jeromel
 # Add use lib
 #
@@ -182,13 +185,14 @@ sub beginHtml{
 
 }
 sub printState {
-	print <<END;
-	<TR ALIGN=CENTER HEIGHT=80 bgcolor=lightblue>
+    print <<END;
+    <TR ALIGN=CENTER HEIGHT=80 bgcolor=lightblue>
     <td HEIGHT=80><h3>$tpcState</h3></td>
     <td HEIGHT=80><h3>$emcState</h3></td>
     <td HEIGHT=80><h3>$qaState</h3></td>
     </TR>
-    END
+END
+
 }
 
 #####################
@@ -205,13 +209,13 @@ sub endHtml {
     <!-- hhmts end -->
     </body>
     </html>
-    END
+END
 
-    }
+}
 
-    ##############
-    sub cgiSetup {
+##############
+sub cgiSetup {
     $q=new CGI;
     if ( exists($ENV{'QUERY_STRING'}) ) { print $q->header };
-    }
+}
 
