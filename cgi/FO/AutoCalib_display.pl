@@ -5,9 +5,12 @@
 #   Purpose: Display information on
 #     AutoCalib states and chains
 #
-# $Id: AutoCalib_display.pl,v 1.2 2009/01/30 17:24:44 jeromel Exp $
+# $Id: AutoCalib_display.pl,v 1.3 2009/01/30 19:31:40 jeromel Exp $
 #
 # $Log: AutoCalib_display.pl,v $
+# Revision 1.3  2009/01/30 19:31:40  jeromel
+# Add use lib
+#
 # Revision 1.2  2009/01/30 17:24:44  jeromel
 # Fixed ^M and changed some names
 #
@@ -25,9 +28,11 @@ BEGIN {
 
 use Class::Struct;
 use CGI;
-
-use AutoCalibDB;
 use DBI;
+
+use lib "/afs/rhic.bnl.gov/star/packages/cgi/";
+use AutoCalibDB;
+
 
 
 my @coll=('PPPP','AuAu','dAu','All');
