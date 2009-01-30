@@ -1,20 +1,23 @@
-#!/usr/bin/env perl -w
+#!/usr/bin/env perl
 #
 # AutoCalib_webInterface_display.pl
 #   Author: M. Elnimr (Wayne State Univ.)
 #   Purpose: Display information on
 #     AutoCalib states and chains
 #
-# $Id: AutoCalib_display.pl,v 1.1 2009/01/27 17:57:34 genevb Exp $
+# $Id: AutoCalib_display.pl,v 1.2 2009/01/30 17:24:44 jeromel Exp $
 #
 # $Log: AutoCalib_display.pl,v $
+# Revision 1.2  2009/01/30 17:24:44  jeromel
+# Fixed ^M and changed some names
+#
 # Revision 1.1  2009/01/27 17:57:34  genevb
 # Introduction of AutoCalib codes
 #
 #
 ###########################################################
 
- 
+
 
 BEGIN {
     use CGI::Carp qw(fatalsToBrowser carpout);
@@ -34,8 +37,8 @@ my $textfield;
 $query = new CGI;
 
 print $query->header;
-print $query->start_html('AutoCalib_webInterface_display');
-print $query->startform();  
+print $query->start_html('AutoCalib_display');
+print $query->startform();
 
 print "<html>\n";
 print " <head>\n";
@@ -59,21 +62,21 @@ END
 print "</td><td>";
 print "<h3 align=center>Collision System :</h3>";
 print "<h3 align=center>";
-print $query->popup_menu(-name=>'SetC',  
+print $query->popup_menu(-name=>'SetC',
 -values=>\@coll,
 -default=>'AuAu'
 
-);  
+);
 
 print "</td><td>";
 print "<h3 align=center> Validity Time: (i.e. 2008-08-17 02:00:00, default :NOW())</h3>";
 print "<h3 align=center>";
-print $query->textfield(-name=>'SetA',  
+print $query->textfield(-name=>'SetA',
 -size=>50,
--maxlength=>100);  
+-maxlength=>100);
 
 print "<p>";
-print "<p><br><br>"; 
+print "<p><br><br>";
 print $query->submit;
 print "<P><br>", $query->reset;
 print $query->endform;
@@ -81,7 +84,7 @@ print $query->endform;
 print "<P>";
 print "</body>";
 print "</html>";
-print $query->end_html; 
+print $query->end_html;
 
 ################################################################################################
 
@@ -92,9 +95,9 @@ my $qaState;
 if($query->param){
     #$NOW="'2008-09-17 02:00:00'";
     $CHAIN="";
-    
+
     $ChainToInsert="'ITTF,ezTree'";
-    
+
     my $CollisionType_template=$query->param('SetC');
     my @spl = ();
     my $NOW=$query->param('SetA');
@@ -102,15 +105,15 @@ if($query->param){
     if(!$NOW) {$NOW="NOW()";
     $NOW="'".$NOW."'";}
     else {$NOW="'".$NOW."'";}
-    
+
 	@spll=split(" ",$coll[0]);
     @spl = split(" ", $CollisionType_template);
     my $CollisionType = $spl[0];
     $CollisionType="'".$CollisionType."'";
-    
+
     if($CollisionType eq "'All'")
 	{
-		
+
 		for($a=0 ; $a<4;$a++)
 		{
 			$coll[$a]="'".$coll[$a]."'";
@@ -124,8 +127,8 @@ if($query->param){
 		}
 	}
     else
-    {		
-        
+    {
+
         $CHAIN=fetch_BaseChain_AutoCalibDB($CollisionType,$NOW).",";
         $qaState=fetch_AutoCalibDB("QA",$NOW);
         $CHAIN=$CHAIN.fetch_DetChain_AutoCalibDB("qaState='$qaState'","qaChain").",";
@@ -134,7 +137,7 @@ if($query->param){
         $emcState=fetch_AutoCalibDB("EMC",$NOW);
         $CHAIN=$CHAIN.fetch_DetChain_AutoCalibDB("emcState='$emcState'","emcChain");
     }
-	
+
 	if($CollisionType eq "'All'")
 	{
 		print "The chains are :  <BR> ";
@@ -142,36 +145,36 @@ if($query->param){
 		print "AuAu:\"$chain[1]\" <BR><BR><BR>";
 		print "dAu: \"$chain[2]\" <BR><BR><BR>";
 		print "PbPb: \"$chain[3]\" <BR><BR><BR>";
-        
+
 	}
 	else
 	{
 		print "The full chain is :  <BR> ";
 		print "\"$CHAIN\" <BR><BR><BR>";
 	}
-	
+
     #beginHtml();
-    #printState(); 
+    #printState();
     endHtml();
-}    
+}
 
 sub beginHtml{
-    print 
+    print
     "<html>
 	<head>
 	<title>Web interface for FO</title>
 	</head>
-	<body BGCOLOR=\"#ccffff\"> 
+	<body BGCOLOR=\"#ccffff\">
 	<h2 align=center>Subdetectors status: </h2>
 	<TABLE ALIGN=CENTER BORDER=5 CELLSPACING=1 CELLPADDING=2 >
 	<TR>
 	<TD ALIGN=CENTER WIDTH=\"20%\" HEIGHT=100><B>TPC </B></TD>
 	<TD ALIGN=CENTER WIDTH=\"20%\" HEIGHT=100><B>EMC<br></B></TD>
 	<TD ALIGN=CENTER WIDTH=\"20%\" HEIGHT=100><B>QA<br></B></TD>
-	</TR> 
+	</TR>
 	</head>
 	<body>";
-    
+
 }
 sub printState {
 	print <<END;
@@ -186,7 +189,7 @@ sub printState {
 #####################
 sub endHtml {
     my $Date = `/bin/date`;
-    
+
     print <<END;
     </TABLE>
     <h5>
@@ -198,12 +201,12 @@ sub endHtml {
     </body>
     </html>
     END
-    
+
     }
-    
+
     ##############
     sub cgiSetup {
     $q=new CGI;
     if ( exists($ENV{'QUERY_STRING'}) ) { print $q->header };
     }
-    
+

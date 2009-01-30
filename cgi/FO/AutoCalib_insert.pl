@@ -1,13 +1,16 @@
-#!/usr/bin/env perl -w
+#!/usr/bin/env perl 
 #
 # AutoCalib_webInterface_insert.pl
 #   Author: M. Elnimr (Wayne State Univ.)
 #   Purpose: Control information on
 #     AutoCalib states and chains
 #
-# $Id: AutoCalib_insert.pl,v 1.1 2009/01/27 17:57:34 genevb Exp $
+# $Id: AutoCalib_insert.pl,v 1.2 2009/01/30 17:24:44 jeromel Exp $
 #
 # $Log: AutoCalib_insert.pl,v $
+# Revision 1.2  2009/01/30 17:24:44  jeromel
+# Fixed ^M and changed some names
+#
 # Revision 1.1  2009/01/27 17:57:34  genevb
 # Introduction of AutoCalib codes
 #
@@ -27,16 +30,16 @@ use AutoCalibDB;
 
 my @coll=("PPPP","AuAu","dAu");
 my $textfield;
-######################################################################################################################################################
-######################################################################################################################################################
-######################################################################################################################################################
-######################################################################################################################################################
+###############################################################
+###############################################################
+###############################################################
+###############################################################
 $query2 = new CGI;
 $query = new CGI;
 
 print $query2->header;
-print $query2->start_html('AutoCalib_webInterface_insert.pl');
-print $query2->startform();  
+print $query2->start_html('AutoCalib_insert.pl');
+print $query2->startform();
 my $qaState;
 my $emcState;
 my $tpcState;
@@ -55,26 +58,26 @@ if($query2->param('button2'))
     my @spl2=();
     my @spl3=();
     my @spl4=();
-    
+
     $db_query_2=$query2->param('tpc');
     my $db_query_3=$query2->param('emc');
     my $db_query_4=$query2->param('qa');
-	
+
     my $radio_query_2=$query2->param('StateInsertion');
-    
+
     @spl_2=split("---",$db_query_2);
     @spl_3=split("---",$db_query_3);
     @spl_4=split("---",$db_query_4);
-    
+
     #&cgiSetup();
-    
+
     if($db_query_2 eq "")
     {
         print "******************No CHAIN/STATE to insert**********************";
     }
     else
     {
-        
+
         if($db_query_2 ne "")
         {
             # my $tmp1=fetch_AutoCalibDB("TPC","NOW()");
@@ -84,9 +87,9 @@ if($query2->param('button2'))
             $InsertionStatus=insert_DetChain_AutoCalibDB($spl_4[0],$spl_2[0],$spl_3[0],"state");
             # print "<br>The QA state inserted is :  <BR> ";
             # print "<br>$spl_2[0] <br>";
-            
+
             #else {print "<br>----------No QA state to insert------------<br>";}
-            
+
             #if($radio_query_2 eq 'TPC state'){
             #my $tmp1=fetch_AutoCalibDB("QA","NOW()");
             #my $tmp2=fetch_AutoCalibDB("EMC","NOW()");
@@ -97,7 +100,7 @@ if($query2->param('button2'))
             #print "<br>$spl_2[0] <br>";
             #}
             #else {print "<br>----------No TPC state to insert------------<br>";}
-            
+
             #if($radio_query_2 eq 'EMC state'){
             #   my $tmp1=fetch_AutoCalibDB("QA","NOW()");
             #    my $tmp2=fetch_AutoCalibDB("TPC","NOW()");
@@ -108,13 +111,13 @@ if($query2->param('button2'))
             #    print "<br>$spl_2[0] <br>";
             #}
             #else {print "<br>----------No EMC state to insert------------<br>";}
-        } 
-        
-        
+        }
+
+
     }
-	
-   
-    
+
+
+
 }
 ######
 
@@ -122,7 +125,7 @@ if($query2->param('button2'))
 
 #print $query->header;
 print $query->start_html('AutoCalib_webInterface_insert.pl');
-print $query->startform();  
+print $query->startform();
 
 # print "<html>\n";
 # print " <head>\n";
@@ -146,7 +149,7 @@ print "</td><td>";
 print "<i>Please use the textfield below for inserting new chains for a subsystem or the basechain and the time when the chain is valid:</i>";
 print "<h3 align=center>Chain insertion : (i.e. <font color=red>Base Chain </font>'2008-08-17 02:00:00','AuAu','pp2009a')<p> &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;(i.e. <font color=red>Any other Chain </font>'2008-08-17 02:00:00','state','required chain')  </h3>";
 print "<h3 align=center>";
-print $query->textfield(-name=>'Set1',  
+print $query->textfield(-name=>'Set1',
 -size=>50,
 -maxlength=>100);
 
@@ -158,9 +161,9 @@ print $query->radio_group(-name=>'ChainInsertion',
 -values=>['emcChain','tpcChain','qaChain','baseChain'],
 -linebreak=>'true');
 print "<p>";
-#print "<p><br><br>"; 
+#print "<p><br><br>";
 #print "<p>";
-#print "<p><br><br>"; 
+#print "<p><br><br>";
 
 $NOW="'2011-12-22 16:40:34'"; ################################# LOL
 #$NOW="NOW()";
@@ -183,7 +186,7 @@ print "AuAu: \"$chain[1]\" <BR><BR><BR>";
 print "dAu: \"$chain[2]\" <BR><BR><BR>";
 print "PbPb: \"$chain[3]\" <BR><BR><BR>";
 print "<p>";
-print "<p><br><br>"; 
+print "<p><br><br>";
 print $query->submit(-name=>'button1',-value=>'submit');
 print "<p><br>", $query->reset;
 print $query->endform;
@@ -202,13 +205,13 @@ if($query->param('button1'))
 		print "<b><font color=red>-------------Not valid input----------------</font></b>";
 		exit;
 	}
-	
+
 	#if((!cleanStrict_DB($spl_2[0])&&($spl_2[1] ne ""))||(!cleanInt_DB($spl_2[0])&&($spl_2[1] ne "")))
 	#{
 	#print "-------------Not valid input----------------";
 	#exit;
 	#}
-	
+
 	my $CollisionType = $spl[1];
 	my $BeginTime=$spl[0];
 	my $chain=$spl[2];
@@ -224,23 +227,23 @@ if($query->param('button1'))
 				print "<br>$BeginTime,$CollisionType,$chain <br>";
 			}
 			#else {print "<br>--------No baseChain to insert ---------- <br>";}
-			
+
 			if($radio_query eq'tpcChain') {insert_DetChain_AutoCalibDB($spl[0],$spl[1],$spl[2],"tpcChain");
 				print "<br>The tpcChain inserted is: <br>";
 				print "<br>$spl2[0],$spl2[1],$spl2[2] <br>";
 			}
 			#else {print "<br>----------No tpcChain to insert----------<br>";}
-			
+
 			if($radio_query eq'emcChain'){insert_DetChain_AutoCalibDB($spl[0],$spl[1],$spl[2],"emcChain");}
 			#else {print "<br>----------No emcChain to insert------------<br>";}
-			
-			
+
+
 			if($radio_query eq'qaChain'){insert_DetChain_AutoCalibDB($spl[0],$spl[1],$spl[2],"qaChain");}
 			#else {print "<br>----------No qaChain to insert------------<br>";}
-			
+
 		}
 	}
-	
+
 }
 
 print <<END;
@@ -270,45 +273,45 @@ for($count=0;@ALLstate[$count] ne "";$count++)
 {
     my $temp=@ALLstate[$count];
     @ALLstate[$count]=$temp."---".fetch_DetChain_AutoCalibDB("tpcState='$temp'","tpcChain");
-    
+
 }
 
 
 %attributes=("$tpcState__"=>{'style'=>'color:red'});
 print "<font color=red><b> ";
-print $query2->popup_menu(-name=>'tpc',  
+print $query2->popup_menu(-name=>'tpc',
                      -values=>\@ALLstate,
-                     -default=>"$tpcState__", 
-                    -attributes=>\%attributes);    
+                     -default=>"$tpcState__",
+                    -attributes=>\%attributes);
 print "</b></font>";
 print "   TPC status";
-print "<p><br>"; 
+print "<p><br>";
 @ALLstate=fetch_available_states("emcState","emcChain");
 for($count=0;@ALLstate[$count] ne "";$count++)
 {
     my $temp=@ALLstate[$count];
     @ALLstate[$count]=$temp."---".fetch_DetChain_AutoCalibDB("emcState='$temp'","emcChain");
-    
+
 }
 %attributes=("$emcState__"=>{'style'=>'color:red'});
-print $query2->popup_menu(-name=>'emc',  
+print $query2->popup_menu(-name=>'emc',
                   -values=>\@ALLstate,
                   -default=>"$emcState__",
                   -attributes=>\%attributes);
 print "  EMC status";
-print "<p><br>"; 
+print "<p><br>";
 @ALLstate=fetch_available_states("qaState","qaChain");
 for($count=0;@ALLstate[$count] ne "";$count++)
 {
     my $temp=@ALLstate[$count];
     @ALLstate[$count]=$temp."---".fetch_DetChain_AutoCalibDB("qaState='$temp'","qaChain");
-    
+
 }
 %attributes=("$qaState__"=>{'style'=>'color:red'});
-print $query2->popup_menu(-name=>'qa',  
+print $query2->popup_menu(-name=>'qa',
                        -values=>\@ALLstate,
                        -default=>"$qaState__",
-                       -attributes=>\%attributes);    
+                       -attributes=>\%attributes);
 print "  QA status";
 print "</td><td>";
 print "</td><td>";
@@ -318,7 +321,7 @@ print "<h3 align=center>";
 #-linebreak=>'true');
 
 print "<p>";
-print "<p><br><br>"; 
+print "<p><br><br>";
 print $query2->submit(-name=>'button2',-value=>'submit');
 print "<P><br>", $query2->reset;
 print $query2->endform;
@@ -343,7 +346,7 @@ print "</html>";
 #</TR>
 #END
 #}
-print $query2->end_html; 
+print $query2->end_html;
 ###################################################################################################################################################
 ###################################################################################################################################################
 ###################################################################################################################################################
@@ -353,69 +356,69 @@ if($query2->param('button2'))
 {
     if ($InsertionStatus)
     { print"<br>success....$dbtable was inserted\n";}
-    else 
+    else
     {print "<br> Failed to insert.......\n";}
-    
+
     #$now="NOW()";
     $now="'2010-12-22 16:40:34'"; #temporariy solution
-	
+
 	$tpcState_=fetch_AutoCalibDB("TPC",$now);
 	$qaState_=fetch_AutoCalibDB("QA",$now);
 	$emcState_=fetch_AutoCalibDB("EMC",$now);
-    
+
 	#&bginHtml_table();
 	#&printState();
 	&endHtml();
-    
+
 }
 
 ####################
 
 sub printState {
-    
+
     print "
     <TR ALIGN=CENTER HEIGHT=80 bgcolor=lightblue>
     <td HEIGHT=80><h3>$tpcState_</h3></td>
     <td HEIGHT=80><h3>$emcState_</h3></td>
     <td HEIGHT=80><h3>$qaState_</h3></td>
-    
+
     </TR>
     ";
 }
 ####################
 
 sub beginHtml {
-    
+
     print <<END;
-    
+
     <html>
     <head>
     <title>Web interface for FO</title>
         </head>
-        <body BGCOLOR=\"#ccffff\"> 
-        
+        <body BGCOLOR=\"#ccffff\">
+
         <TR>
-        </TR> 
+        </TR>
         </head>
         <body>
         END
         }
-        
+
         sub beginHtml_table{
-        
-        print 
+
+        print
         "<html>
         <head>
         <title>Web interface for FO</title>
             </head>
-            <body BGCOLOR=\"#ccffff\"> 
+            <body BGCOLOR=\"#ccffff\">
             <h2 align=center>The current subdetectors status: </h2>
             <TABLE ALIGN=CENTER BORDER=5 CELLSPACING=1 CELLPADDING=2 >
             <TR>
             <TD ALIGN=CENTER WIDTH=\"20%\" HEIGHT=100><B>TPC </B></TD>
             <TD ALIGN=CENTER WIDTH=\"20%\" HEIGHT=100><B>EMC<br></B></TD>
             <TD ALIGN=CENTER WIDTH=\"20%\" HEIGHT=100><B>QA<br></B></TD>
-            </TR> 
+            </TR>
             </head>
             <body>";
 END
@@ -424,14 +427,14 @@ END
 ####################
 
 sub begin2Html {
-    
+
     print <<END;
-    
+
     <html>
     <head>
     <title>Production Summary by Trigger</title>
     </head>
-    <body BGCOLOR=\"#ccffff\"> 
+    <body BGCOLOR=\"#ccffff\">
     <TABLE ALIGN=CENTER BORDER=5 CELLSPACING=1 CELLPADDING=2 >
     <TR>
     <TD ALIGN=CENTER WIDTH=\"10%\" HEIGHT=100><B>Events<br> with primary vertex</B></TD>
@@ -443,18 +446,18 @@ sub begin2Html {
     <TD ALIGN=CENTER WIDTH=\"10%\" HEIGHT=100><B>TOPO</B></TD>
     <TD ALIGN=CENTER WIDTH=\"10%\" HEIGHT=100><B>TOPO & ZDC</B></TD>
     <TD ALIGN=CENTER WIDTH=\"10%\" HEIGHT=100><B>TOPOeff</B></TD>
-    </TR> 
-    
+    </TR>
+
     </head>
     <body>
 END
     }
-    
-    
+
+
 #####################
     sub endHtml {
     my $Date = `/bin/date`;
-    
+
     print <<END;
     </TABLE>
     <h5>
@@ -466,9 +469,9 @@ END
     </body>
     </html>
 END
-    
+
     }
-    
+
 ##############
     sub cgiSetup {
     $q=new CGI;
