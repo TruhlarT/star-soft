@@ -6,9 +6,12 @@
 #     AutoCalib states used to determine
 #     the FastOffline chain
 #
-# $Id: AutoCalibDB.pm,v 1.2 2009/01/30 19:29:58 jeromel Exp $
+# $Id: AutoCalibDB.pm,v 1.3 2009/01/30 19:49:11 jeromel Exp $
 #
 # $Log: AutoCalibDB.pm,v $
+# Revision 1.3  2009/01/30 19:49:11  jeromel
+# Parametrize USER and return TRUE
+#
 # Revision 1.2  2009/01/30 19:29:58  jeromel
 # Changed server + removed ^M
 #
@@ -34,9 +37,10 @@ $TARGET  = "/star/u/melnimr/";
 
 $SUBMIT="JobSubmit.pl";
 $servername="duvall.star.bnl.gov";
-$servername="hal-223.physics.wayne.edu";
+#$servername="hal-223.physics.wayne.edu";
 $DB="AutoCalib";
 $DDBPORT=3306;
+$USER=""; # "root"
 
 
 
@@ -45,7 +49,7 @@ $DDBPORT=3306;
 sub Connect_AutoCalibDB
 {
     my ($servername,$port,$DB)=@_;
-    $db_handler=DBI->connect("DBI:mysql:$DB:$servername","root","",{RaiseError=>1,AutoCommit=>1}) || die "Couldn't connect to the database ". DBI->errstr;
+    $db_handler=DBI->connect("DBI:mysql:$DB:$servername",$USER,"",{RaiseError=>1,AutoCommit=>1}) || die "Couldn't connect to the database ". DBI->errstr;
     return $db_handler;
 }
 
@@ -260,3 +264,4 @@ sub cleanInt_DB
 
 
 
+1;
