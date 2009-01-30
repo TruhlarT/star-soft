@@ -6,9 +6,12 @@
 #     AutoCalib states used to determine
 #     the FastOffline chain
 #
-# $Id: AutoCalibDB.pm,v 1.1 2009/01/27 17:57:33 genevb Exp $
+# $Id: AutoCalibDB.pm,v 1.2 2009/01/30 19:29:58 jeromel Exp $
 #
 # $Log: AutoCalibDB.pm,v $
+# Revision 1.2  2009/01/30 19:29:58  jeromel
+# Changed server + removed ^M
+#
 # Revision 1.1  2009/01/27 17:57:33  genevb
 # Introduction of AutoCalib codes
 #
@@ -26,11 +29,12 @@ require Exporter;
 
 
 
-$TARGET  = "/star/u/melnimr/";       
+$TARGET  = "/star/u/melnimr/";
 
 
 $SUBMIT="JobSubmit.pl";
 $servername="duvall.star.bnl.gov";
+$servername="hal-223.physics.wayne.edu";
 $DB="AutoCalib";
 $DDBPORT=3306;
 
@@ -52,11 +56,11 @@ sub fetch_AutoCalibDB
     my $Cond2="entryTime";
     my $Cond="entryTime<$NOW";
     my $dbtable="state";
-    
+
     my $db_handler=Connect_AutoCalibDB($servername,$DDBPORT,$DB);
     #my $sql=qq(SELECT $column1  FROM $dbtable WHERE $Cond ORDER BY beginTime DESC LIMIT 1 );
     #print "$sql\n";
-   
+
     my $sth=$db_handler->prepare("SELECT $column1  FROM $dbtable"." WHERE $Cond ORDER BY $Cond2 DESC LIMIT 1");
     $sth->execute();
 
@@ -76,7 +80,7 @@ sub fetch_DetChain_AutoCalibDB
     my $db_handler=Connect_AutoCalibDB($servername,$DDBPORT,$DB);
     #my $sql=qq(SELECT $column1  FROM $dbtable WHERE $Cond ORDER BY beginTime DESC LIMIT 1 );
     #print "$sql\n";
-   
+
     my $sth=$db_handler->prepare("SELECT $column1  FROM $dbtable"." WHERE $Cond ORDER BY $Cond2 DESC LIMIT 1");
     $sth->execute();
 
@@ -90,7 +94,7 @@ sub fetch_DetChain_AutoCalibDB
 sub fetch_FullChain
 {
     my $coll_=@_;
-    
+
     $NOW="NOW()";
     $coll_="'".$coll_."'";
     $CHAIN=fetch_BaseChain_AutoCalibDB($coll_,$NOW).",";
@@ -111,14 +115,14 @@ sub fetch_BaseChain_AutoCalibDB
     my $Cond2="entryTime";
     my $dbtable="baseChain";
     my ($CollisionType,$validityTime)=@_;
-    
-		
-    
+
+
+
     my $Cond="collision=$CollisionType AND beginTime<$validityTime";
     my $db_handler=Connect_AutoCalibDB($servername,$DDBPORT,$DB);
     #my $sql=qq(SELECT $column1  FROM $dbtable WHERE $Cond ORDER BY beginTime DESC LIMIT 1 );
     #print "$sql\n";
-   
+
     my $sth=$db_handler->prepare("SELECT $column1  FROM $dbtable"." WHERE $Cond ORDER BY $Cond2 DESC LIMIT 1");
     $sth->execute();
 
@@ -134,21 +138,21 @@ sub fetch_validityTime_BaseChain_AutoCalibDB
     my $Cond2="entryTime";
     my $dbtable="baseChain";
     my ($CollisionType,$validityTime)=@_;
-    
-    
-    
+
+
+
     my $Cond="collision=$CollisionType AND beginTime<$validityTime";
     my $db_handler=Connect_AutoCalibDB($servername,$DDBPORT,$DB);
     #my $sql=qq(SELECT $column1  FROM $dbtable WHERE $Cond ORDER BY beginTime DESC LIMIT 1 );
     #print "$sql\n";
-    
+
     my $sth=$db_handler->prepare("SELECT $column1  FROM $dbtable"." WHERE $Cond ORDER BY $Cond2 DESC LIMIT 1");
     $sth->execute();
-    
+
     $row=$sth->fetchrow_array;
     $sth->finish();
     return $row;
-    
+
 }
 
 
@@ -162,46 +166,46 @@ sub fetch_available_states
 	my @AvailStates;
 	for($count=0;@AvailStates=$sth->fetchrow_array();$count++)
 	{
-		
+
 		@AvailStatesTMP[$count]=@AvailStates[0];
-		
+
 	}
-	
+
 	return @AvailStatesTMP;
-	
+
 }
 
 
 sub insert_AutoCalibDB
 {
-   
-    my $db_handler=Connect_AutoCalibDB($servername,$DDBPORT,$DB);		
+
+    my $db_handler=Connect_AutoCalibDB($servername,$DDBPORT,$DB);
     my ($col1,$col2,$col3,$dbtable)=@_;
     my $sth=$db_handler->prepare("INSERT INTO $dbtable VALUES(NOW(),$col1,$col2,$col3)");
     if(!$sth->execute()){ print "failed to insert....\n";}
     else {print "<br>success.... $dbtable was inserted...\n";}
-    
+
 }
 
 sub insert_BaseChain_AutoCalibDB
 {
    my $dbtable="baseChain";
-    my $db_handler=Connect_AutoCalibDB($servername,$DDBPORT,$DB);		
+    my $db_handler=Connect_AutoCalibDB($servername,$DDBPORT,$DB);
     my ($col1,$col2,$col3)=@_;
     my $sth=$db_handler->prepare("INSERT INTO $dbtable VALUES(NOW(),$col1,$col2,$col3)");
     if(!$sth->execute()){ print "failed to insert....\n";}
     else {print "<br>success....$dbtable was inserted\n";}
-    
+
 }
 sub insert_DetChain_AutoCalibDB
 {
-   
-    my $db_handler=Connect_AutoCalibDB($servername,$DDBPORT,$DB);		
+
+    my $db_handler=Connect_AutoCalibDB($servername,$DDBPORT,$DB);
     my ($col1,$col2,$col3,$dbtable)=@_;
     my $sth=$db_handler->prepare("INSERT INTO $dbtable VALUES(NOW(),$col1,$col2,$col3)");
     if(!$sth->execute()){ return 0;}
     else { return 1;}
-    
+
 }
 
 sub fetch_test_AutoCalibDB
@@ -209,7 +213,7 @@ sub fetch_test_AutoCalibDB
     my($db_handler,$dbtable)=@_;
     my $sth=$db_handler->prepare("SELECT * FROM $dbtable ORDER BY entryTime DESC LIMIT 1");
     $sth->execute();
-    
+
     @row=$sth->fetchrow_array;
     $sth->finish();
 
@@ -235,7 +239,7 @@ sub cleanStrictChar_DB
     my @temp=@_;
     #print "++++++++$temp[0]\n";
     if($temp[0] =~ m/'\w{1,}'/)
-    
+
     {
 	return 1;
     }
@@ -248,7 +252,7 @@ sub cleanInt_DB
     #if($temp[0] =~ m/^1/ || $temp[0] =~ m/^0/)
     if($temp[0] =~ m/[0-9]/ )
     {
-	
+
 	return 1;
     }
     return 0;
