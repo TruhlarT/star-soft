@@ -579,7 +579,7 @@ for ($kk=0 ; $kk <= $#PROJECTS ; $kk++){
 		"\n",
 		"<ul>",
 		"<li><a href=\"doxycron-errors.html\">Runtime warnings</a>",
-		"<li><a href=\"/STAR/comp/sofi/doxygen/\">User documentation</a>";
+		"<li><a href=\"/public/comp/sofi/doxygen/\">User documentation</a>";
 
 	    @refs = split(" ",$OTHERIDX);
 	    if ($#refs != -1){
