@@ -5,9 +5,12 @@
 #   Purpose: Control information on
 #     AutoCalib states and chains
 #
-# $Id: AutoCalib_insert.pl,v 1.4 2009/01/30 20:38:38 jeromel Exp $
+# $Id: AutoCalib_insert.pl,v 1.5 2009/01/30 21:01:01 jeromel Exp $
 #
 # $Log: AutoCalib_insert.pl,v $
+# Revision 1.5  2009/01/30 21:01:01  jeromel
+# Changes by ME
+#
 # Revision 1.4  2009/01/30 20:38:38  jeromel
 # Removed use lib (pm moved)
 #
@@ -229,22 +232,25 @@ if($query->param('button1'))
 		if($db_query ne "")
 		{
 			if( $radio_query eq'baseChain') {insert_BaseChain_AutoCalibDB($BeginTime,$CollisionType,$chain);
-				print "<br>The baseChain inserted is :  <BR> ";
-				print "<br>$BeginTime,$CollisionType,$chain <br>";
+							 print "<br><font color=red>The chain was inserted   </font><BR> ";
+				#print "<br>$BeginTime,$CollisionType,$chain <br>";
 			}
 			#else {print "<br>--------No baseChain to insert ---------- <br>";}
 
 			if($radio_query eq'tpcChain') {insert_DetChain_AutoCalibDB($spl[0],$spl[1],$spl[2],"tpcChain");
-				print "<br>The tpcChain inserted is: <br>";
-				print "<br>$spl2[0],$spl2[1],$spl2[2] <br>";
+						       print "<br><font color=red> The chain was inserted </font> <br>";
+
+				#print "<br>$spl2[0],$spl2[1],$spl2[2] <br>";
 			}
 			#else {print "<br>----------No tpcChain to insert----------<br>";}
 
-			if($radio_query eq'emcChain'){insert_DetChain_AutoCalibDB($spl[0],$spl[1],$spl[2],"emcChain");}
+			if($radio_query eq'emcChain'){insert_DetChain_AutoCalibDB($spl[0],$spl[1],$spl[2],"emcChain");
+						   print "<br><font color=red>The chain was inserted </font> <br>";}
 			#else {print "<br>----------No emcChain to insert------------<br>";}
 
 
-			if($radio_query eq'qaChain'){insert_DetChain_AutoCalibDB($spl[0],$spl[1],$spl[2],"qaChain");}
+			if($radio_query eq'qaChain'){insert_DetChain_AutoCalibDB($spl[0],$spl[1],$spl[2],"qaChain");
+						  print "<br><font color=red>The chain was inserted </font> <br>";}
 			#else {print "<br>----------No qaChain to insert------------<br>";}
 
 		}
