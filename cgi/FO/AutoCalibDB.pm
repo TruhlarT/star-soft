@@ -6,9 +6,12 @@
 #     AutoCalib states used to determine
 #     the FastOffline chain
 #
-# $Id: AutoCalibDB.pm,v 1.3 2009/01/30 19:49:11 jeromel Exp $
+# $Id: AutoCalibDB.pm,v 1.4 2009/01/30 20:38:17 jeromel Exp $
 #
 # $Log: AutoCalibDB.pm,v $
+# Revision 1.4  2009/01/30 20:38:17  jeromel
+# Minor adjustements (moved to FO/ too)
+#
 # Revision 1.3  2009/01/30 19:49:11  jeromel
 # Parametrize USER and return TRUE
 #
@@ -68,7 +71,7 @@ sub fetch_AutoCalibDB
     my $sth=$db_handler->prepare("SELECT $column1  FROM $dbtable"." WHERE $Cond ORDER BY $Cond2 DESC LIMIT 1");
     $sth->execute();
 
-    $row=$sth->fetchrow_array;
+    $row=$sth->fetchrow_array();
     $sth->finish();
     return $row;
 
@@ -78,14 +81,14 @@ sub fetch_AutoCalibDB
 sub fetch_DetChain_AutoCalibDB
 {
     my ($Cond,$dbtable)=@_;
-    my $Cond2="beginTime,entryTime";
+    my $Cond2="beginTime DESC,entryTime DESC";
     my $column1="chain";
 
     my $db_handler=Connect_AutoCalibDB($servername,$DDBPORT,$DB);
     #my $sql=qq(SELECT $column1  FROM $dbtable WHERE $Cond ORDER BY beginTime DESC LIMIT 1 );
     #print "$sql\n";
 
-    my $sth=$db_handler->prepare("SELECT $column1  FROM $dbtable"." WHERE $Cond ORDER BY $Cond2 DESC LIMIT 1");
+    my $sth=$db_handler->prepare("SELECT $column1  FROM $dbtable"." WHERE $Cond ORDER BY $Cond2 LIMIT 1");
     $sth->execute();
 
     $row=$sth->fetchrow_array;
@@ -186,8 +189,11 @@ sub insert_AutoCalibDB
     my $db_handler=Connect_AutoCalibDB($servername,$DDBPORT,$DB);
     my ($col1,$col2,$col3,$dbtable)=@_;
     my $sth=$db_handler->prepare("INSERT INTO $dbtable VALUES(NOW(),$col1,$col2,$col3)");
-    if(!$sth->execute()){ print "failed to insert....\n";}
-    else {print "<br>success.... $dbtable was inserted...\n";}
+    if(!$sth->execute()){ 
+	print "failed to insert....\n";
+    } else {
+	print "<br>success.... $dbtable was inserted...\n";
+    }
 
 }
 
