@@ -5,9 +5,12 @@
 #   Purpose: Display information on
 #     AutoCalib states and chains
 #
-# $Id: AutoCalib_display.pl,v 1.4 2009/01/30 19:57:30 jeromel Exp $
+# $Id: AutoCalib_display.pl,v 1.5 2009/01/30 20:38:38 jeromel Exp $
 #
 # $Log: AutoCalib_display.pl,v $
+# Revision 1.5  2009/01/30 20:38:38  jeromel
+# Removed use lib (pm moved)
+#
 # Revision 1.4  2009/01/30 19:57:30  jeromel
 # Misc fixes
 #
@@ -32,8 +35,6 @@ BEGIN {
 use Class::Struct;
 use CGI;
 use DBI;
-
-use lib "/afs/rhic.bnl.gov/star/packages/cgi/";
 use AutoCalibDB;
 
 

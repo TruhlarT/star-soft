@@ -5,9 +5,12 @@
 #   Purpose: Control information on
 #     AutoCalib states and chains
 #
-# $Id: AutoCalib_insert.pl,v 1.3 2009/01/30 19:31:40 jeromel Exp $
+# $Id: AutoCalib_insert.pl,v 1.4 2009/01/30 20:38:38 jeromel Exp $
 #
 # $Log: AutoCalib_insert.pl,v $
+# Revision 1.4  2009/01/30 20:38:38  jeromel
+# Removed use lib (pm moved)
+#
 # Revision 1.3  2009/01/30 19:31:40  jeromel
 # Add use lib
 #
@@ -29,8 +32,6 @@ BEGIN {
 use Class::Struct;
 use CGI;
 use DBI;
-
-use lib "/afs/rhic.bnl.gov/star/packages/cgi/";
 use AutoCalibDB;
 
 my @coll=("PPPP","AuAu","dAu");
