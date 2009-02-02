@@ -25,7 +25,7 @@ my @dir_year = ("year_2001", "year_1h", "year_2003", "year_2004", "year_2005", "
 my @node_dir = ("trs_sl302", "trs_sl302_opt", "trs_sl302.ittf","trs_sl302.ittf_opt");
 my @node_daq = ("daq_sl302", "daq_sl302_opt","daq_sl302.ittf","daq_sl302.ittf_opt");
 my @hc_dir = ("hc_lowdensity", "hc_standard", "hc_highdensity", "peripheral","pp_minbias","dau_minbias","auau_minbias","auau_central","cucu200_minbias","cucu62_minbias","auau200_central");
-my @daq_dir = ("minbias", "central", "ppMinBias", "dAuMinBias", "AuAuMinBias", "AuAu_prodHigh","AuAu_prodLow","prodPP","CuCu200_MinBias","CuCu200_HighTower","CuCu62_MinBias","CuCu22_MinBias","ppProduction","ppProdLong","ppProdTrans","2007ProductionMinBias","production_dAu2008","ppProduction2008","pp200_embed","CuCu200_embedTpc","CuCu200_embedTpcSvtSsd" );
+my @daq_dir = ("minbias", "central", "ppMinBias", "dAuMinBias", "AuAuMinBias", "AuAu_prodHigh","AuAu_prodLow","prodPP","CuCu200_MinBias","CuCu200_HighTower","CuCu62_MinBias","CuCu22_MinBias","ppProduction","ppProdLong","ppProdTrans","2007ProductionMinBias","production_dAu2008","ppProduction2008","pp200_embed","CuCu200_embedTpc","CuCu200_embedTpcSvtSsd","auau200_embedTpcSvtSsd" );
 
 my @OUT_DIR;
 my @OUTD_DIR;
@@ -187,6 +187,11 @@ my $jj = 0;
    $ii++;
 
  }
+  
+  $OUT_DIR[$ii] = $TOP_DIRD . $node_daq[2] . "/" . $testDay . "/". $dir_year[6] . "/" . $daq_dir[21];
+   print "Output Dir for DEV :", $OUT_DIR[$ii], "\n";   
+   $ii++;
+
 
 ##### setup output directories for DEV with beforeDay
 
@@ -297,6 +302,11 @@ $jj = 0;
    print "Output Dir for DEV :", $OUT_DIR[$ii], "\n";   
    $ii++;
  }
+
+   $OUT_DIR[$ii] = $TOP_DIRD . $node_daq[2] . "/" . $beforeDay . "/". $dir_year[6] . "/" . $daq_dir[21];
+   print "Output Dir for DEV :", $OUT_DIR[$ii], "\n";   
+   $ii++; 
+
 
 struct FileAttr => {
       fjbID     => '$',
