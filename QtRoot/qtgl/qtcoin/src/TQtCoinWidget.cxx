@@ -1688,6 +1688,10 @@ void TQtCoinWidget::ShowFrameAxisCB(bool on)
          for (int i=0;i<3; ++i) {
            amin[i] = box.getMin()[i];
            amax[i] = box.getMax()[i];
+	   // correct th axis size
+	   double correction = (amax[i]-amin[i])/10;
+	   amin[i] -= correction;
+	   amax[i] += correction;
         }
       }
       for (int i=0;i<3; ++i) {
