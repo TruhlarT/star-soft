@@ -348,8 +348,8 @@ my @sizevm = ();
       $ndt2++; 
    }    
 
-}
-
+  }
+ }
  
    &GRdbDisconnect();
 
