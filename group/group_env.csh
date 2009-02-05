@@ -1,5 +1,5 @@
 #!/bin/csh -x
-#       $Id: group_env.csh,v 1.208 2009/01/24 16:49:31 jeromel Exp $
+#       $Id: group_env.csh,v 1.209 2009/02/05 23:04:14 jeromel Exp $
 #	Purpose:	STAR group csh setup
 #
 #	Author:		Y.Fisyak     BNL
@@ -658,13 +658,12 @@ if (! $?QTDIR ) then
 	if ( ! $?QTDIR && -d $OPTSTAR/qt3 ) then
 	    setenv QTDIR $OPTSTAR/qt3	
 	endif
-	if ( $?QTDIR ) then
-	    setenv MANPATH ${MANPATH}:$QTDIR/man
-	    setenv LD_LIBRARY_PATH ${LD_LIBRARY_PATH}:$QTDIR/lib
-	endif
     endif
 endif
-
+if ( $?QTDIR ) then
+    setenv MANPATH ${MANPATH}:$QTDIR/man
+    setenv LD_LIBRARY_PATH ${LD_LIBRARY_PATH}:$QTDIR/lib
+endif
 
 
 
