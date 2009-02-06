@@ -2,7 +2,7 @@
 
 #
 # Setup for Intel compiler 
-# (c) J. Lauret 2003
+# (c) J. Lauret 2003-2009
 #
 
 set self="intelcc"
@@ -11,8 +11,19 @@ set self="intelcc"
 set vers=0
 if ( $?1 ) then
     set vers=$1
+endif
+if ( $vers == "" || $vers == 0 ) then
+    if ( $?DECHO ) then
+	echo "$self :: Will check for INTELC_VERSION"
+    endif
+
+    if ( $?INTELC_VERSION ) then
+	set vers=$INTELC_VERSION
+    endif
+    # if still empty, set to 0
     if ( $vers == "") set vers=0
 endif
+
 
 
 set pathtointel = `/bin/ls -1d /usr/intel* | /usr/bin/tail -1`
