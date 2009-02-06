@@ -58,8 +58,14 @@ if ( "$pathtointel" != "") then
 	setenv LD_LIBRARY_PATH `$GROUP_DIR/dropit -p $LD_LIBRARY_PATH intel`
 	setenv MANPATH         `$GROUP_DIR/dropit -p $MANPATH intel`
     endif
+    # correct problem with version 10
+    if ( $?INTEL_LICENSE_FILE)  unsetenv INTEL_LICENSE_FILE
     if ( "$seticc"   != "") source $seticc
     if ( "$setifc"   != "") source $setifc
     if ( "$setifort" != "") source $setifort
     if ( "$setidb"   != "") source $setidb
+endif
+
+if ( $?DECHO ) then
+   echo "$self :: Done [$seticc]"
 endif
