@@ -1,16 +1,14 @@
 #!/bin/csh -x
-#       $Id: group_env.csh,v 1.209 2009/02/05 23:04:14 jeromel Exp $
+#       $Id: group_env.csh,v 1.210 2009/02/06 17:19:10 jeromel Exp $
 #	Purpose:	STAR group csh setup
 #
-#	Author:		Y.Fisyak     BNL
-#	Date:		27 Feb. 1998
-#	Modified:
-#     3 Mar 98  T. Wenaus  HP Jetprint added (for sol)
-#     2 Apr 01  J. Lauret  Insure path added
+# Revisions & notes
+#    2001-2009  Maintained J. Lauret
 #    24 Apr 01  J. Lauret  Disabled echoing in ! prompt.
 #                          DO NOT MODIFY THIS !!!
-#
-#	STAR software group	1998
+#     2 Apr 01  J. Lauret  Insure path added
+#     3 Mar 98  T. Wenaus  HP Jetprint added (for sol)
+#    17 Feb 98  Created Y.Fisyak (BNL)
 #
 # Should be loaded by star_login itself loaded executed by
 # our individual .login files.
@@ -92,9 +90,9 @@ if ( $?DECHO) echo "$self :: Setting STAR_VERSION"
 setenv STAR_VERSION ${STAR_LEVEL}
 if ($STAR_LEVEL  == "old" || $STAR_LEVEL  == "pro" || $STAR_LEVEL  == "new" || $STAR_LEVEL  == "dev" || $STAR_LEVEL  == ".dev") then
   # i.e. replace with link value instead
-  if ( $?DECHO ) echo "Will test -e $STAR_PATH/${STAR_LEVEL}"  
+  if ( $?DECHO ) echo "Will test -e $STAR_PATH/${STAR_LEVEL}"
   # exit
-  
+
   if( -e $STAR_PATH/${STAR_LEVEL}) then
     # be carefull, it may not be "seen" as a soft link
     # at all ... Some AFS client do not show the link.
@@ -179,8 +177,8 @@ endif
 if (  $?OPTSTAR ) then
     if ($ECHO) echo   "Setting up OPTSTAR   = ${OPTSTAR}"
 else
-    # nothing found, so set it to nothing and the login 
-    # will be able to proceed (at least, repair will be 
+    # nothing found, so set it to nothing and the login
+    # will be able to proceed (at least, repair will be
     # possible)...
     setenv OPTSTAR
 
@@ -217,7 +215,7 @@ if( ! $?DOMAINNAME) then
     endif
 
     # Fake it
-    if ( "$DOMAINNAME" == "(none)") then 
+    if ( "$DOMAINNAME" == "(none)") then
        setenv DOMAINNAME `/bin/hostname | /bin/sed 's/^[^\.]*\.//'`
     endif
 endif
@@ -231,13 +229,13 @@ endif
 #
 # Each Grid site should have an entry.
 # Only sites having local DB rules could have an entry.
-# 
+#
 if ( ! $?SITE ) then
     switch ($DOMAINNAME)
 	case "nersc.gov":    # <--- or whatever domainame returns
 	    setenv SITE "LBL"
 	    breaksw
- 
+
 	case "rhic.bnl.gov":
 	case "rcf.bnl.gov":
 	case "star.bnl.gov":
@@ -269,10 +267,10 @@ if ( $?SITE ) then
     if ( -e ${STAR_PATH}/conf/dbLoadBalancerLocalConfig_${SITE}.xml ) then
         # 2008/08 new location and unique for all libraries
     	setenv DB_SERVER_LOCAL_CONFIG ${STAR_PATH}/conf/dbLoadBalancerLocalConfig_${SITE}.xml
-    else	
+    else
         # old method and value for backward compat
 	setenv DB_SERVER_LOCAL_CONFIG ${STAR}/StDb/servers/dbLoadBalancerLocalConfig_${SITE}.xml
-    endif 	
+    endif
     #endif
 endif
 
@@ -327,7 +325,7 @@ if (-f $STAR/mgr/ROOT_LEVEL && -f $STAR/mgr/CERN_LEVEL) then
   if ( -f $STAR/mgr/CERN_LEVEL.${STAR_SYS} ) then
     # Overwrite
     setenv CERN_LEVEL `/bin/cat $STAR/mgr/CERN_LEVEL.${STAR_SYS}`
-  endif 
+  endif
   if ( -f $STAR/mgr/CERN_LEVEL.${STAR_HOST_SYS} ) then
     # Overwrite
     setenv CERN_LEVEL `/bin/cat $STAR/mgr/CERN_LEVEL.${STAR_HOST_SYS}`
@@ -402,7 +400,7 @@ if ( -x ${GROUP_DIR}/dropit) then
   #if ($?LD_LIBRARY_PATH == 1) setenv LD_LIBRARY_PATH `${GROUP_DIR}/dropit -p ${LD_LIBRARY_PATH} $STAR_PATH`
   setenv LD_LIBRARY_PATH `${GROUP_DIR}/dropit -p "${LD_LIBRARY_PATH}" $STAR_PATH`
   if ($?SHLIB_PATH == 1)      setenv SHLIB_PATH      `${GROUP_DIR}/dropit -p ${SHLIB_PATH} $STAR_PATH`
-  
+
   setenv PATH `${GROUP_DIR}/dropit -p ${GROUPPATH} -p /usr/afsws/bin -p /usr/afsws/etc -p ${OPTSTAR}/bin -p /usr/sue/bin -p /usr/local/bin -p ${PATH}`
 endif
 
@@ -563,7 +561,7 @@ if ( $?DECHO ) echo "$self :: Extraneous packages check"
 # Support for LSF
 if ( -d /usr/local/lsf/bin && ! $?LSF_ENVDIR ) then
     if ( -e /etc/profile.d/lsfsetup.csh ) then
-	source /etc/profile.d/lsfsetup.csh 
+	source /etc/profile.d/lsfsetup.csh
     else
 	setenv LSF_DIR    /usr/local/lsf
 	setenv LSF_ENVDIR $LSF_DIR/mnt/conf
@@ -653,10 +651,10 @@ if (! $?QTDIR ) then
 	# those will be soft-links form example. Qt4 will
 	# take precedence over Qt3 in this scheme
 	if ( ! $?QTDIR && -d $OPTSTAR/qt4 ) then
-	    setenv QTDIR $OPTSTAR/qt4	
+	    setenv QTDIR $OPTSTAR/qt4
 	endif
 	if ( ! $?QTDIR && -d $OPTSTAR/qt3 ) then
-	    setenv QTDIR $OPTSTAR/qt3	
+	    setenv QTDIR $OPTSTAR/qt3
 	endif
     endif
 endif
@@ -780,7 +778,7 @@ if ( "$OPTSTAR" == "") then
 	    echo "          ########################################"
 	    echo ""
 
-	    # turn some echo OFF now so this message is 
+	    # turn some echo OFF now so this message is
 	    # not cluttered
 	    setenv SILENT 1
     endif
