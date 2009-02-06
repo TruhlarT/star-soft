@@ -391,7 +391,7 @@ $xLabelSkip = 5 if( $qperiod eq "5_months" );
 $xLabelSkip = 6 if( $qperiod eq "6_months" );
 
   $min_y = 0;
-  $max_y = 50 ;  
+  $max_y = 80 ;  
   $ylabel = "Size in MB of transfered files and number";
   $gtitle = "Size of files transffered for the period $qperiod from  $qsite site";
 
