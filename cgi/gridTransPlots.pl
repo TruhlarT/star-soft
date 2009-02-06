@@ -245,7 +245,7 @@ my $ndt2 = 0;
 
   }else{
 
-     $sql="SELECT  date_format(date_requester, '%Y-%m-%d %H') as PDATE, size_requester, $MasterIOT.jobID_MD5 as jobMID, $MasterIOT.processID as prMID, $JobEfficiencyT.jobID_MD5 as jobEfID, $JobEfficiencyT.processID as prJID, site FROM $MasterIOT, $JobEfficiencyT WHERE $MasterIOT.jobID_MD5 = $JobEfficiencyT.jobID_MD5 AND $MasterIOT.processID = $JobEfficiencyT.processID AND site = ? AND isInputFile = 0 AND date_requester like '$tdate%' order by PDATE";
+     $sql="SELECT  date_format(date_requester, '%Y-%m-%d %H') as PDATE, size_requester, $MasterIOT.jobID_MD5 as jobMID, $MasterIOT.processID as prMID, $JobEfficiencyT.jobID_MD5 as jobEfID, $JobEfficiencyT.processID as prJID, site FROM $MasterIOT, $JobEfficiencyT WHERE $MasterIOT.jobID_MD5 = $JobEfficiencyT.jobID_MD5 AND $MasterIOT.processID = $JobEfficiencyT.processID AND site = ? AND date_requester like '$tdate%' order by PDATE";
 
 
      $cursor =$dbh->prepare($sql)
@@ -383,19 +383,19 @@ my @sizevm = ();
  my $xLabelPosition = 0;
  my $xLabelSkip = 1;
 
-$xLabelSkip = 1 if( $qperiod eq "1_months" );
-$xLabelSkip = 2 if( $qperiod eq "2_months" );
-$xLabelSkip = 3 if( $qperiod eq "3_months" );
-$xLabelSkip = 4 if( $qperiod eq "4_months" );
-$xLabelSkip = 5 if( $qperiod eq "5_months" );
-$xLabelSkip = 6 if( $qperiod eq "6_months" );
+$xLabelSkip = 2 if( $qperiod eq "1_months" );
+$xLabelSkip = 4 if( $qperiod eq "2_months" );
+$xLabelSkip = 6 if( $qperiod eq "3_months" );
+$xLabelSkip = 8 if( $qperiod eq "4_months" );
+$xLabelSkip = 10 if( $qperiod eq "5_months" );
+$xLabelSkip = 12 if( $qperiod eq "6_months" );
 
   $min_y = 0;
   $max_y = 100 ;  
-  $ylabel = "Size in GB of transfered files and number";
+  $ylabel = "Size in GB and number of transfered files per 1 hour";
   $gtitle = "Size of files transffered for the period $qperiod from  $qsite site";
 
-     $graph->set(x_label => "Time of file transferring",
+     $graph->set(x_label => "Date of file transferring",
                 y_label => $ylabel,
                 title   => $gtitle,
                 y_tick_number => 15,
