@@ -332,20 +332,19 @@ my @sizevm = ();
       if( $datepdsf{$mdate}) {
 
      $ndatepdsf[$ndt1] = $datepdsf{$mdate};     
-     $npdsf[$ndt1] = $nfpdsf{$mdate}; 
-     $sizepdsf[$ndt1] = $sumpdsf{$mdate}/1000000 ;
+     $npdsf[$ndt1] = $nfpdsf{$mdate}/10; 
+     $sizepdsf[$ndt1] = $sumpdsf{$mdate}/1000000000 ;
       $ndt1++; 
       }
       if( $datevm{$mdate}) {
 
      $ndatevm[$ndt2] = $datevm{$mdate};     
-     $nvm[$ndt2] = $nfvm{$mdate}; 
-     $sizevm[$ndt2] = $sumvm{$mdate}/1000000 ;
+     $nvm[$ndt2] = $nfvm{$mdate}/10; 
+     $sizevm[$ndt2] = $sumvm{$mdate}/1000000000 ;
       $ndt2++; 
    }    
 
   }
-# }
  
    &GRdbDisconnect();
 
@@ -363,8 +362,8 @@ my @sizevm = ();
 
     $ptag = $qsite; 
 
-    $legend[0] = "Size of files in MB ";
-    $legend[1] = "Number of files; "; 
+    $legend[0] = "Size of files in GB ";
+    $legend[1] = "Number of files/10; "; 
 
   if($qsite eq "pdsf")  {
 
@@ -392,7 +391,7 @@ $xLabelSkip = 5 if( $qperiod eq "5_months" );
 $xLabelSkip = 6 if( $qperiod eq "6_months" );
 
   $min_y = 0;
-  $max_y = 1000 ;  
+  $max_y = 50 ;  
   $ylabel = "Size in MB of transfered files and number";
   $gtitle = "Size of files transffered for the period $qperiod from  $qsite site";
 
