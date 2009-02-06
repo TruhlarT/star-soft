@@ -333,14 +333,14 @@ my @sizevm = ();
 
      $ndatepdsf[$ndt1] = $datepdsf{$mdate};     
      $npdsf[$ndt1] = $nfpdsf{$mdate}/10; 
-     $sizepdsf[$ndt1] = $sumpdsf{$mdate}/1000000000 ;
+     $sizepdsf[$ndt1] = $sumpdsf{$mdate}/1000000000. ;
       $ndt1++; 
       }
       if( $datevm{$mdate}) {
 
      $ndatevm[$ndt2] = $datevm{$mdate};     
      $nvm[$ndt2] = $nfvm{$mdate}/10; 
-     $sizevm[$ndt2] = $sumvm{$mdate}/1000000000 ;
+     $sizevm[$ndt2] = $sumvm{$mdate}/1000000000. ;
       $ndt2++; 
    }    
 
@@ -391,8 +391,8 @@ $xLabelSkip = 5 if( $qperiod eq "5_months" );
 $xLabelSkip = 6 if( $qperiod eq "6_months" );
 
   $min_y = 0;
-  $max_y = 80 ;  
-  $ylabel = "Size in MB of transfered files and number";
+  $max_y = 100 ;  
+  $ylabel = "Size in GB of transfered files and number";
   $gtitle = "Size of files transffered for the period $qperiod from  $qsite site";
 
      $graph->set(x_label => "Time of file transferring",
