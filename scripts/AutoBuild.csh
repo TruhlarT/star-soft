@@ -128,14 +128,19 @@ if ( -r  $GROUP_DIR/star_login.csh ) then
 		breaksw
 
 
+	    case "icc9":
+		# this was added to provide cross verison support
+		# default tatrget becomes the latest
+		setenv INTELC_VERSION 9
+
 	    case "icc":
 		set LPATH=$AFS_RHIC/star/packages/adev
 		set SPATH=$AFS_RHIC/star/doc/www/comp/prod/Sanity
-
+		
 		# this is only for double checking. AutoBuild.pl is
 		# impermeable to external env changes (start a new process)
 		# so modifications has to be passed at command line level
-		echo "Testing setup icc "
+		echo "Testing setup icc ${INTELC_VERSION}"
 		setup icc
 		set test=`which icc`
 		set sts=$status
