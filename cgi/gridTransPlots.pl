@@ -71,7 +71,7 @@ my %siteH = { };
   &GRdbConnect();
 
  
- my @arperiod = ("day","week","1_month","2_months","3_months","4_months","5_months","6_months","7_months","8_months","9_months","10_months","11_months","12_months");
+ my @arperiod = ("day","week","1_month","2_months","3_months","4_months","5_months","6_months");
 
 
   $sql="SELECT DISTINCT site FROM $JobEfficiencyT where site is not NULL ";
@@ -88,7 +88,7 @@ my %siteH = { };
    $cursor->finish; 
 
   push @sites, @arsites;
-  push @arsites, "ALL";
+#  push @arsites, "ALL";
    
   
     &GRdbDisconnect();
@@ -152,7 +152,7 @@ print "<h3 align=center>Production Site</h3>";
 print "<h4 align=center>";
 print  $query->scrolling_list(-name=>'prodsite',
                              -values=>\@arsites,
-                             -default=>All,
+                             -default=>pdsf,
                              -size =>1); 
 
 
@@ -229,15 +229,15 @@ $day_diff = int($day_diff);
 my $ndt1 = 0;
 my $ndt2 = 0;
 
-
-   foreach  $tdate (@ardays) {
-
  @trstat = ();  
  $nstat = 0;
 
+
+   foreach  $tdate (@ardays) {
+
   if( $qsite eq "ALL" ) {
 
-      $sql="SELECT date_format(date_requester, '%Y-%m-%d %H') as TDATE, size_requester, $MasterIOT.jobID_MD5 as jobMID, $JobEfficiencyT.jobID_MD5 as jobEfID, site FROM $MasterIOT, $JobEfficiencyT WHERE $MasterIOT.jobID_MD5 = $JobEfficiencyT.jobID_MD5 AND isInputFile = 0 AND TDATE like '$tdate%' order by TDATE";
+     $sql="SELECT  date_format(date_requester, '%Y-%m-%d %H') as PDATE, size_requester, $MasterIOT.jobID_MD5 as jobMID, $MasterIOT.processID as prMID, $JobEfficiencyT.jobID_MD5 as jobEfID, $JobEfficiencyT.processID as prJID, site FROM $MasterIOT, $JobEfficiencyT WHERE $MasterIOT.jobID_MD5 = $JobEfficiencyT.jobID_MD5 AND $MasterIOT.processID = $JobEfficiencyT.processID AND isInputFile = 0 AND date_requester like '$tdate%' order by PDATE";
 
     $cursor =$dbh->prepare($sql)
       || die "Cannot prepare statement: $DBI::errstr\n";
@@ -245,7 +245,7 @@ my $ndt2 = 0;
 
   }else{
 
-     $sql="SELECT  date_format(date_requester, '%Y-%m-%d %H') as TDATE, size_requester, $MasterIOT.jobID_MD5 as jobMID, $JobEfficiencyT.jobID_MD5 as jobEfID, site FROM $MasterIOT, $JobEfficiencyT WHERE $MasterIOT.jobID_MD5 = $JobEfficiencyT.jobID_MD5 AND site = ? AND isInputFile = 0 AND TDATE like '$tdate%' order by TDATE";
+     $sql="SELECT  date_format(date_requester, '%Y-%m-%d %H') as PDATE, size_requester, $MasterIOT.jobID_MD5 as jobMID, $MasterIOT.processID as prMID, $JobEfficiencyT.jobID_MD5 as jobEfID, $JobEfficiencyT.processID as prJID, site FROM $MasterIOT, $JobEfficiencyT WHERE $MasterIOT.jobID_MD5 = $JobEfficiencyT.jobID_MD5 AND $MasterIOT.processID = $JobEfficiencyT.processID AND site = ? AND isInputFile = 0 AND date_requester like '$tdate%' order by PDATE";
 
 
      $cursor =$dbh->prepare($sql)
@@ -262,7 +262,7 @@ my $ndt2 = 0;
              my $fname=$cursor->{NAME}->[$i];
 #          print "$fname = $fvalue\n" ;
 
-      ($$fObjAdr)->tsdate($fvalue)    if( $fname eq 'TDATE');
+      ($$fObjAdr)->tsdate($fvalue)    if( $fname eq 'PDATE');
       ($$fObjAdr)->tsite($fvalue)     if( $fname eq 'site');
       ($$fObjAdr)->tsize($fvalue)     if( $fname eq 'size_requester');
 
@@ -270,7 +270,7 @@ my $ndt2 = 0;
        $trstat[$nstat] = $fObjAdr;
         $nstat++;
       }
-
+  }
 
  %siteH = { };
 
@@ -307,10 +307,6 @@ my @sizevm = ();
 
  if(!defined($gsite)) {$gsite = "unknown"}
 
-    $sumsz{$gdate} = $sumsz{$gdate} + $gsize;
-    $siteH{$gdate}++; 
-    $datetrans{$gdate} = $gdate;
-    
     if ($gsite eq "pdsf") {
     $sumpdsf{$gdate} = $sumpdsf{$gdate} + $gsize;
     $datepdsf{$gdate} = $gdate;
@@ -349,7 +345,7 @@ my @sizevm = ();
    }    
 
   }
- }
+# }
  
    &GRdbDisconnect();
 
@@ -365,24 +361,19 @@ my @sizevm = ();
   print header("image/$format");
   binmode STDOUT;
 
-    if( $qsite eq "ALL" ) {
+    $ptag = $qsite; 
 
-	$ptag = "ALL";
+    $legend[0] = "Size of files in MB ";
+    $legend[1] = "Number of files; "; 
 
-    $legend[0] = "PDSF ";
-    $legend[1] = "amazon; "; 
+  if($qsite eq "pdsf")  {
 
-    @data = (\@ndatepdsf, \@sizepdsf ) ;
-#     @data = (\@ndatevm, \@sizevm ) ;
+    @data = (\@ndatepdsf, \@sizepdsf, \@npdsf ) ;
 
-      }else{
+    }elsif($qsite eq "amazon" ) {
 
-     $ptag = $qsite; 
+     @data = (\@ndatevm, \@sizevm, \@nvm ) ; 
 
-    @data = (\@ndatepdsf, \@sizepdsf ) ;
-   
-    $legend[0] = "PDSF; ";
-    $legend[1] = "amazon;  ";
   }
 
 #   print $qqr->start_html(-title=>"Files transferring"), "\n"; 
@@ -399,17 +390,10 @@ $xLabelSkip = 3 if( $qperiod eq "3_months" );
 $xLabelSkip = 4 if( $qperiod eq "4_months" );
 $xLabelSkip = 5 if( $qperiod eq "5_months" );
 $xLabelSkip = 6 if( $qperiod eq "6_months" );
-$xLabelSkip = 7 if( $qperiod eq "7_months" );
-$xLabelSkip = 8 if( $qperiod eq "8_months" );
-$xLabelSkip = 9 if( $qperiod eq "9_months" );
-$xLabelSkip = 10 if( $qperiod eq "10_months" );
-$xLabelSkip = 10 if( $qperiod eq "11_months" );
-$xLabelSkip = 10 if( $qperiod eq "12_months" );
-
 
   $min_y = 0;
-  $max_y = 150 ;  
-  $ylabel = "Size of transfered files in MB";
+  $max_y = 1000 ;  
+  $ylabel = "Size in MB of transfered files and number";
   $gtitle = "Size of files transffered for the period $qperiod from  $qsite site";
 
      $graph->set(x_label => "Time of file transferring",
