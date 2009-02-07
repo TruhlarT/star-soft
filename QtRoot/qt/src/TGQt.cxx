@@ -1,7 +1,7 @@
-// @(#)root/qt:$Id: TGQt.cxx,v 1.32 2008/12/05 00:55:41 fine Exp $
+// @(#)root/qt:$Id: TGQt.cxx,v 1.33 2009/02/07 02:46:39 fine Exp $
 // Author: Valeri Fine   21/01/2002
 /****************************************************************************
-** $Id: TGQt.cxx,v 1.32 2008/12/05 00:55:41 fine Exp $
+** $Id: TGQt.cxx,v 1.33 2009/02/07 02:46:39 fine Exp $
 **
 ** Copyright (C) 2002 by Valeri Fine. Brookhaven National Laboratory.
 **                                    All rights reserved.
@@ -715,7 +715,7 @@ void TGQt::PostQtEvent(QObject *receiver, QEvent *event)
 
 //______________________________________________________________________________
 TGQt::TGQt() : TVirtualX(),fDisplayOpened(kFALSE),fQPainter(0),fQClientFilterBuffer(0)
-,fCodec(0),fSymbolFontFamily("Symbol")
+,fCodec(0),fSymbolFontFamily("Symbol"),fQtEventHasBeenProcessed(0)
 {
    //*-*-*-*-*-*-*-*-*-*-*-*Default Constructor *-*-*-*-*-*-*-*-*-*-*-*-*-*-*
    //*-*                    ===================
@@ -729,7 +729,7 @@ TGQt::TGQt() : TVirtualX(),fDisplayOpened(kFALSE),fQPainter(0),fQClientFilterBuf
 //______________________________________________________________________________
 TGQt::TGQt(const char *name, const char *title) : TVirtualX(name,title),fDisplayOpened(kFALSE)
 ,fQPainter(0),fCursors(kNumCursors),fQClientFilter(0),fQClientFilterBuffer(0),fPointerGrabber(0)
-,fCodec(0),fSymbolFontFamily("Symbol")
+,fCodec(0),fSymbolFontFamily("Symbol"),fQtEventHasBeenProcessed(0)
 {
    //*-*-*-*-*-*-*-*-*-*-*-*-*-*Normal Constructor*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*
    //*-*                        ==================                              *-*
@@ -774,7 +774,7 @@ Bool_t TGQt::Init(void* /*display*/)
 {
    //*-*-*-*-*-*-*-*-*-*-*-*-*-*Qt GUI initialization-*-*-*-*-*-*-*-*-*-*-*-*-*-*
    //*-*                        ========================                      *-*
-   fprintf(stderr,"** $Id: TGQt.cxx,v 1.32 2008/12/05 00:55:41 fine Exp $ this=%p\n",this);
+   fprintf(stderr,"** $Id: TGQt.cxx,v 1.33 2009/02/07 02:46:39 fine Exp $ this=%p\n",this);
 #if QT_VERSION >= 0x40000
 #ifndef R__QTWIN32
    extern void qt_x11_set_global_double_buffer(bool);

@@ -1,4 +1,4 @@
-// @(#)root/qt:$Name:  $:$Id: GQtGUI.cxx,v 1.15 2008/04/21 15:52:21 fine Exp $
+// @(#)root/qt:$Name:  $:$Id: GQtGUI.cxx,v 1.16 2009/02/07 02:46:39 fine Exp $
 // Author: Valeri Fine   23/01/2003
 
 /*************************************************************************
@@ -901,6 +901,7 @@ void TGQt::NextEvent(Event_t &event)
 
    // Map the accumulated Qt events to the ROOT one tp process:
    if (qApp->hasPendingEvents ()) qApp->processEvents ();
+   fQtEventHasBeenProcessed = 1;
 
    memset(&event,0,sizeof(Event_t));
    event.fType   = kOtherEvent;
@@ -1718,8 +1719,13 @@ void         TGQt::SetDashes(GContext_t /*gc*/, Int_t /*offset*/, const char * /
 //______________________________________________________________________________
 Int_t  TGQt::EventsPending() {
 #ifndef R__QTGUITHREAD
+     // to avoid the race condition
     Int_t retCode = fQClientFilterBuffer ? fQClientFilterBuffer->count(): 0;
-    return  retCode ? retCode : qApp->hasPendingEvents ();
+    if (fQtEventHasBeenProcessed) {
+       fQtEventHasBeenProcessed++;
+       if (fQtEventHasBeenProcessed > 2) fQtEventHasBeenProcessed = 0;
+    } else retCode = qApp->hasPendingEvents();
+    return  retCode;
 #endif
 
    if (fQClientFilterBuffer && fQClientFilterBuffer->isEmpty())

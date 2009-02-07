@@ -1,4 +1,4 @@
-// @(#)root/qt:$Id: TGQt.h,v 1.10 2008/04/15 18:24:06 fine Exp $
+// @(#)root/qt:$Id: TGQt.h,v 1.11 2009/02/07 02:46:39 fine Exp $
 // Author: Valeri Fine   21/01/2002
 /****************************************************************************
 **
@@ -153,7 +153,7 @@ protected:
     QTextCodec            *fCodec;            // The Current text decoder
     QString                fFontTextCode;     // The default code text code page (from the Gui.DefaultFont)
     const char            *fSymbolFontFamily; // the name of the font to substiute the non-standard "Symbol"
-
+    Int_t                 fQtEventHasBeenProcessed; // Flag whether the events were processed
 
 //
 //   Text management
