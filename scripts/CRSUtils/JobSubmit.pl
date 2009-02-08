@@ -79,11 +79,14 @@ use lib "/afs/rhic.bnl.gov/star/packages/scripts";
 use RunDAQ;
 use CRSQueues;
 
-$ThisYear = 2008;                 # Block to consider. Completely artificial
+$ThisYear = 2009;                 # Block to consider. Completely artificial
                                   # and used to preserve older options in if
                                   # block along with current option.
 $HPSS     = 1;                    # turn to 0 for UNIX staging only
                                   # HPSS staging was requested for Run5
+
+# disable at first
+$ThisYear = -1;
 
 # Self-sorted vars
 $SELF  =  $0;
@@ -116,94 +119,11 @@ $TREEMODE = 0;
 $DEBUG    = 0;
 
 
-# Default values Year2 data
-if ($ThisYear == 2002){
-    $LIB     = "dev";
-    $NUMEVT  = 20;           # this may be overwritten by command line arguments
-    $TARGET  = "/star/data13/reco";
-
-    $PHYSTP  = 1;
-    $LASERTP = 3;            # This can known only by looking into the FOFileType
-                             # or calling some extra routine from the pm. Prefer to
-                             # hard-code (that is -> faster) Sorry ...
-    @USEQ    = (4,4,2);      # queue to be used for regular mode, bypass and calib
-    @SPILL   = (0,3,1);      # queue spill level for the 3 modes
-
-    #
-    # Default production chains by species
-    #                           ^^^^^^^^^^
-    # Note that in 2002, the specie for p+p was ProtonProton and this changed
-    # later in PPPP. One has to be aware of the Specices and define the appropriate
-    # chains before FastOffline can submit AND accept any jobs. If a chain is missing,
-    # the jobs (files) will be ignored.
-    #
-    $DCHAIN{"AuAu"}           = "P2001a";
-    $DCHAIN{"ProtonProton"}   = "PP2001,fpd";
-
-
-    #
-    # Default pre-pass calibration chains by species used in regular mode if defined
-    # pre-pass is any pass done with the SAME production job but done just before
-    # the data-cranking.
-    #
-    $DCALIB{"AuAu"}           = "";   # Trash out default calib pass.
-                                      # All done now ; was PreTpcT0
-    $DCALIB{"ProtonProton"}   = "";   # PreLaser" no more interlayed laser,
-                                      # all laser files processed
-
-
-    # Stand-alone Calibration pass. Used in C/mode
-    $SCALIB{"AuAu"}           = "";
-    $SCALIB{"ProtonProton"}   = "OptLaser";
-
-} elsif ($ThisYear == 2003 ){
-    $LIB     = "dev";
-    $NUMEVT  = 100;
-    $TARGET  = "/star/data27/reco";
-
-    $LASERTP = 2;
-    $PHYSTP  = 5;
-
-    @USEQ    = (4,4,3);
-    @SPILL   = (0,3,1);
-
-    # Default chain
-    $DCHAIN{"dAu"}            = "dAu2003,alltrigger,est,CMuDst";
-    $DCHAIN{"ProtonProton"}   = "pp2003,alltrigger,trgd,est,CMuDst";
-
-    # Default pre-calib
-    #$DCALIB{"dAu"}            = "PreTpcT0";
-
-    # Default stand-alone auto-calib (works only on $LASERTP files)
-    $SCALIB{"dAu"}            = "OptLaser";
-    $SCALIB{"ProtonProton"}   = "OptLaser";
-
-} elsif ( $ThisYear == 2004 ){
-    $LIB     = "dev";
-    $NUMEVT  = 100;
-    $TARGET  = "/star/data27/reco";
-
-    $LASERTP =  3;
-    $PHYSTP  =  1;
-    $PHYSTP2 =  5;    # just comment them if you want them disabled
-    @EXPRESS = (8);
-    $ZEROBIAS= 11;
-
-    @USEQ    = (4,4,3);
-    @SPILL   = (0,3,2);
-
-    # Default chain
-    $DCHAIN{"AuAu"}           = "P2004,svt_daq,svtD,EST,eemcD,OShortR,-OSpaceZ,OSpaceZ2,Xi2,V02,Kink2,CMuDst";
-    $DCHAIN{"PPPP"}           = "P2004,ppOpt,svt_daq,svtD,EST,eemcD,OShortR,-OSpaceZ,OSpaceZ2,Xi2,V02,Kink2,CMuDst";
-
-    # Default pre-calib
-    #$DCALIB{"dAu"}            = "PreTpcT0";
-
-    # Default stand-alone auto-calib (works only on $LASERTP files)
-    $SCALIB{"AuAu"}           = "OptLaser";
-    $SCALIB{"PPPP"}           = "OptLaser";
-
-} elsif ( $ThisYear == 2005 ){
+#
+# Default values Year9 data
+# Removed 2002->2004 on 2009/02 J.Lauret (see cvs revisions for history)
+#
+if ( $ThisYear == 2005 ){
     $TREEMODE= 1;
     $LIB     = "dev";
 
@@ -389,6 +309,11 @@ if ($ThisYear == 2002){
 		);
     $ZEROBIAS=  rdaq_string2ftype("zerobias");
 
+    # Added for tetsing purposes
+    $ZEROBIAS_W = 0;
+    $EXPRESS_W  = 0;
+
+
     # Order is: regular, bypass, calib
     @USEQ    = (5,  5,5);
     @SPILL   = (0,105,4);
@@ -405,6 +330,54 @@ if ($ThisYear == 2002){
     $DCHAIN{"AuAu"} = "pp2008a,ITTF,BEmcChkStat,QAalltrigs";
     $SCALIB{"AuAu"} = "OptLaser";
 
+    
+} elsif ( $ThisYear == 2009 ) {
+    $TREEMODE= 1;
+    $LIB     = "dev";
+
+    $NUMEVT  = 100;
+    $MINEVT  = 200;
+
+    $TARGET  = "/star/data09/reco";       # This is ONLY a default value.
+                                          # Overwritten by ARGV (see crontab)
+
+    # Those are taken from previous yera - agreed upon as per rate, etc...
+    # and documented on our Web pages.
+    $LASERTP =
+	rdaq_string2ftype("laser")."|".
+	rdaq_string2ftype("laser_adc");
+
+    $PHYSTP  =  rdaq_string2ftype("physics");
+    $PHYSTP2 =
+	rdaq_string2ftype("physics_adc")."|".
+	rdaq_string2ftype("upsilon")."|".
+	rdaq_string2ftype("btag");
+
+    @EXPRESS = (
+		rdaq_string2ftype("express"),
+		rdaq_string2ftype("jpsi"),
+		rdaq_string2ftype("gamma"),
+		rdaq_string2ftype("mtd"),
+		rdaq_string2ftype("muon"),
+		rdaq_string2ftype("upcjpsi")
+		);
+    $ZEROBIAS=  rdaq_string2ftype("zerobias");
+
+    # Added for tetsing purposes
+    $ZEROBIAS_W = 0;
+    $EXPRESS_W  = 0;
+
+
+    # Order is: regular, bypass, calib
+    @USEQ    = (5,  5,5);
+    @SPILL   = (0,105,4);
+
+
+    # at least, p+p calib
+    $DCHAIN{"PPPP"} = "pp2009a,ITTF,BEmcChkStat,QAalltrigs";
+    $SCALIB{"PPPP"} = "OptLaser";
+
+    
 } else {
     # Well, at first you may get that message ... should tell you that
     # you have to add some default values.
@@ -438,7 +411,7 @@ $QUITF   = "FastOff.quit";
 $CONFF   = "JobSubmit$LIB.lis";
 $PRIORITY= 50;                        # default queue priority    (old=100 [max], new 50 (lower the better))
 $SLEEPT  =  1;                        # sleep time between submit (old=10)
-$MAXCNT  = 20;                        # max job to send in a pass
+$MAXCNT  = 50;                        # max job to send in a pass
 $RATIO   =  2;                        # time drop down for mode + (2=twice faster)
 $MAXFILL = 95;                        # max disk occupancy
 $FUZZ4C  =  3;                        # for C mode, margin is higher MAXFILL+FUZZ4C <= 100 best ;-)
@@ -778,11 +751,14 @@ if( $TARGET =~ m/^\// || $TARGET =~ m/^\^\// ){
 	my ($DD)=CRSQ_Norm($SPILL[1],0);
 	print "$SELF : $USEQ[1]-$DD to $USEQ[1]\n";
 	for ($i=$USEQ[1]-$DD ; $i <= $USEQ[1] ; $i++){
-	    print "$SELF : Slow mode - Inspecting Queue=$i TotalSlots=$TOT";
+	    print "$SELF : Slow mode - Inspecting Queue=$i TotalSlots=$TOT\n";
 	    $Tot{$i} = CRSQ_getcnt($i,0,$PAT);
 	    $TOT += $Tot{$i};
 	}
     }
+    # if the number of slots is non zero, push higher
+    $TOT   += 50;   # this about the number of nodes we have
+    $MAXCNT = 50 if ($MAXCNT < 50);
 
 
     # Ok or not ?
@@ -847,8 +823,10 @@ if( $TARGET =~ m/^\// || $TARGET =~ m/^\^\// ){
 	    }
 
 	    # OK. We have $cnt for that one and $TOT slots.
-	    print "$SELF : Working with $run -> $cnt and $TOT slots\n";
-	    rdaq_set_message($SSELF,"Working with run","$run -> $cnt and $TOT slots");
+	    if ( $TOT != 0){
+		print "$SELF : Working with $run -> $cnt and $TOT slots (Decrement MAX = $MAXCNT)\n";
+		rdaq_set_message($SSELF,"Working with run","$run -> $cnt and $TOT slots");
+	    }
 
 	    # Submit no more than $TOT jobs
 	    if($#files != -1){
@@ -1211,6 +1189,15 @@ sub Submit
 		"but Year=$ThisYear not skipping it\n";
 	}
     }
+
+    # just for one request
+    #if ($file !~ m/st_physics/ && $file !~/st_zerobias/){
+    #if ($file !~ m/st_zerobias/){
+    #	print "$SELF : Info : Skipping $file (special hardcoded exclusion)\n";
+    #	push(@SKIPPED,$file);
+    #	return 0;	
+    #}
+
 
     # Note that skipping dets when tpc is not present is ONLY related to
     # mode 1. While mode is weakly related to regular/calib/bypass, mode Z (ezTree)
