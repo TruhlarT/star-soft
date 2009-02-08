@@ -16,7 +16,7 @@ use Date::Manip;
 $query = new CGI;
 $this_script= $query->url();
 
-$author   = "Jerome Lauret (c) 2004-2007";
+$author   = "Jerome Lauret (c) 2004-2009";
 $title    = "Fast Offline Browser";
 #$title   .= "&nbsp;<BLINK><FONT COLOR=\"#FF0000\">UNDER WORK</FONT></BLINK>";
 $BGCOLOR  = "whitesmoke"; # Body color fields
