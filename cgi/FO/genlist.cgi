@@ -133,9 +133,10 @@ if( defined($dest) ){
 } else {
     print 
 	"This script is ONLY meant to help you generate a list of file \n",
-	"to recover from HPSS. This is NOT a submission script. This cgi \n",
-	"will function only based on files the FastOffline system knows about\n",
-	"(this is a limitation).<br>\n",
+	"to recover from HPSS. This is NOT a submission script.<br>\n",
+        "<b>This cgi will function <font size=\"+1\">only</font> based on files the ",
+        "<font size=\"+1\">FastOffline</font></b> system <b>knows</b> about\n",
+	"(this is a limitation).<p>\n",
 	"The produced output of this cgi MUST serve as input of the \n",
 	"<a href=\"$dctref\">DataCarousel</a> tool for the files to ",
 	"appear ...<p>\n",
