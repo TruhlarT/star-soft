@@ -272,7 +272,7 @@ my $qsites = "$qsite%";
 
       ($$fObjAdr)->subtime($fvalue)   if( $fname eq 'submitTime');
       ($$fObjAdr)->tsite($fvalue)     if( $fname eq 'site');
-      ($$fObjAdr)->infile($fvalue)    if( $fname eq 'name_requester');
+      ($$fObjAdr)->infile($fvalue)    if( $fname eq 'name_workerNode');
       ($$fObjAdr)->prtag($fvalue)     if( $fname eq 'prodTag');
       ($$fObjAdr)->glerr($fvalue)     if( $fname eq 'globusError');
       ($$fObjAdr)->errstat($fvalue)   if( $fname eq 'dotErrorHasSize');
