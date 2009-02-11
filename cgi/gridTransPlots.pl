@@ -367,12 +367,24 @@ my @sizevm = ();
 
   if($qsite eq "pdsf")  {
 
+      if (scalar(@ndatepdsf) <= 1 ) {
+
+    print STDOUT "No Data for that period\n";
+
+    }else{
     @data = (\@ndatepdsf, \@sizepdsf, \@npdsf ) ;
+     }
 
     }elsif($qsite eq "amazon" ) {
 
-     @data = (\@ndatevm, \@sizevm, \@nvm ) ; 
+      if (scalar(@ndatevm) <= 1 ) {
 
+    print STDOUT "No Data for that period\n";
+
+    }else{   
+
+     @data = (\@ndatevm, \@sizevm, \@nvm ) ; 
+    }
   }
 
 #   print $qqr->start_html(-title=>"Files transferring"), "\n"; 
@@ -383,7 +395,7 @@ my @sizevm = ();
  my $xLabelPosition = 0;
  my $xLabelSkip = 1;
 
-$xLabelSkip = 10 if( $qperiod eq "week" );
+$xLabelSkip = 12 if( $qperiod eq "week" );
 $xLabelSkip = 12 if( $qperiod eq "1_months" );
 $xLabelSkip = 12 if( $qperiod eq "2_months" );
 $xLabelSkip = 12 if( $qperiod eq "3_months" );
