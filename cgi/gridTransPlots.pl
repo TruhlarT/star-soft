@@ -367,24 +367,11 @@ my @sizevm = ();
 
   if($qsite eq "pdsf")  {
 
-      if (scalar(@ndatepdsf) <= 1 ) {
-
-    print STDOUT "No Data for that period\n";
-
-    }else{
     @data = (\@ndatepdsf, \@sizepdsf, \@npdsf ) ;
-     }
 
     }elsif($qsite eq "amazon" ) {
 
-      if (scalar(@ndatevm) <= 1 ) {
-
-    print STDOUT "No Data for that period\n";
-
-    }else{   
-
      @data = (\@ndatevm, \@sizevm, \@nvm ) ; 
-    }
   }
 
 #   print $qqr->start_html(-title=>"Files transferring"), "\n"; 
@@ -434,8 +421,14 @@ $xLabelSkip = 20 if( $qperiod eq "6_months" );
     $graph->set_x_axis_font(gdMediumBoldFont);
     $graph->set_y_axis_font(gdMediumBoldFont);
 
+         if (scalar(@ndatepdsf) <= 1 ) {
+
+    print STDOUT "No Data for that period\n";
+    } else{
+
    print STDOUT $graph->plot(\@data)->$format();
 
+     }
     }
   }
 
