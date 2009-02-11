@@ -423,10 +423,12 @@ $xLabelSkip = 20 if( $qperiod eq "6_months" );
 
    if ($qsite eq "pdsf" and  scalar(@ndatepdsf) <= 1 ) {
 
-    print STDOUT "<h1 align=center>No Data for that Period</h1>\n";
+#    print STDOUT "No Data for that Period\n";
+   $qqr->start_html(-title=>"No Data for that Period")
+
     } elsif($qsite eq "amazon" and  scalar(@ndatevm) <= 1 ) {
 
-    print STDOUT "<h1 align=center>No Data for that Period</h1>\n";
+    print STDOUT "No Data for that Period\n";
 
     } else{ 
 
