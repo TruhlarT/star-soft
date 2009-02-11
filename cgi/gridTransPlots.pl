@@ -381,14 +381,21 @@ my @sizevm = ();
  my $xLabelsVertical = 1;
  my $xLabelPosition = 0;
  my $xLabelSkip = 1;
+  my $skipnum = 1;
 
-$xLabelSkip = 12 if( $qperiod eq "week" );
-$xLabelSkip = 12 if( $qperiod eq "1_months" );
-$xLabelSkip = 12 if( $qperiod eq "2_months" );
-$xLabelSkip = 12 if( $qperiod eq "3_months" );
-$xLabelSkip = 12 if( $qperiod eq "4_months" );
-$xLabelSkip = 14 if( $qperiod eq "5_months" );
-$xLabelSkip = 20 if( $qperiod eq "6_months" );
+  if (scalar(@ndatepdsf) >= 40 ) {
+   $skipnum = init(scalar(@ndatepdsf)/40); 
+
+}
+  $xLabelSkip = $skipnum;
+
+#$xLabelSkip = 12 if( $qperiod eq "week" );
+#$xLabelSkip = 12 if( $qperiod eq "1_months" );
+#$xLabelSkip = 12 if( $qperiod eq "2_months" );
+##$xLabelSkip = 12 if( $qperiod eq "3_months" );
+#$xLabelSkip = 12 if( $qperiod eq "4_months" );
+#$xLabelSkip = 14 if( $qperiod eq "5_months" );
+#$xLabelSkip = 20 if( $qperiod eq "6_months" );
 
   $min_y = 0;
 #  $max_y = 100 ;  
@@ -425,13 +432,9 @@ $xLabelSkip = 20 if( $qperiod eq "6_months" );
 
    &beginHtml();
 
-#   print STDOUT "No Data for that Period\n";
-
     } elsif($qsite eq "amazon" and  scalar(@ndatevm) <= 1 ) {
 
        &beginHtml();
-
-#    print STDOUT "No Data for that Period\n";
 
     } else{ 
 
