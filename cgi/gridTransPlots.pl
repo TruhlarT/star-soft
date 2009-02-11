@@ -423,11 +423,15 @@ $xLabelSkip = 20 if( $qperiod eq "6_months" );
 
    if ($qsite eq "pdsf" and  scalar(@ndatepdsf) <= 1 ) {
 
-   print STDOUT "No Data for that Period\n";
+   &beginHtml();
+
+#   print STDOUT "No Data for that Period\n";
 
     } elsif($qsite eq "amazon" and  scalar(@ndatevm) <= 1 ) {
 
-    print STDOUT "No Data for that Period\n";
+       &beginHtml();
+
+#    print STDOUT "No Data for that Period\n";
 
     } else{ 
 
@@ -460,3 +464,18 @@ sub GRdbDisconnect {
     $dbh = $dbh->disconnect() || die "Disconnect failure $DBI::errstr\n";
 }
 
+#####################################
+
+sub beginHtml {
+
+print <<END;
+  <html>
+   <head>
+          <title>Files Transferring</title>
+   </head>
+   <body BGCOLOR=\"#ccffff\">
+     <h1 align=center>No Data for that Period</h1>
+
+    </body>
+END
+}
