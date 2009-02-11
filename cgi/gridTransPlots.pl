@@ -383,15 +383,16 @@ my @sizevm = ();
  my $xLabelPosition = 0;
  my $xLabelSkip = 1;
 
-$xLabelSkip = 2 if( $qperiod eq "1_months" );
-$xLabelSkip = 4 if( $qperiod eq "2_months" );
-$xLabelSkip = 6 if( $qperiod eq "3_months" );
-$xLabelSkip = 8 if( $qperiod eq "4_months" );
-$xLabelSkip = 10 if( $qperiod eq "5_months" );
-$xLabelSkip = 12 if( $qperiod eq "6_months" );
+$xLabelSkip = 2 if( $qperiod eq "week" );
+$xLabelSkip = 4 if( $qperiod eq "1_months" );
+$xLabelSkip = 6 if( $qperiod eq "2_months" );
+$xLabelSkip = 8 if( $qperiod eq "3_months" );
+$xLabelSkip = 10 if( $qperiod eq "4_months" );
+$xLabelSkip = 14 if( $qperiod eq "5_months" );
+$xLabelSkip = 20 if( $qperiod eq "6_months" );
 
   $min_y = 0;
-  $max_y = 100 ;  
+#  $max_y = 100 ;  
   $ylabel = "Size in GB and number of transfered files per 1 hour";
   $gtitle = "Size of files transffered for the period $qperiod from  $qsite site";
 
