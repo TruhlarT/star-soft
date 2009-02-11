@@ -381,10 +381,10 @@ my @sizevm = ();
  my $xLabelsVertical = 1;
  my $xLabelPosition = 0;
  my $xLabelSkip = 1;
-  my $skipnum = 1;
+ my $skipnum = 1;
 
   if (scalar(@ndatepdsf) >= 40 ) {
-   $skipnum = init(scalar(@ndatepdsf)/40); 
+   $skipnum = int(scalar(@ndatepdsf)/40); 
 
 }
   $xLabelSkip = $skipnum;
