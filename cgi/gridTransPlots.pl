@@ -423,12 +423,14 @@ $xLabelSkip = 20 if( $qperiod eq "6_months" );
 
    if ($qsite eq "pdsf" and  scalar(@ndatepdsf) <= 1 ) {
 
-#    print STDOUT "No Data for that Period\n";
-   $qqr->start_html(-title=>"No Data for that Period")
+     &beginHtml(); 
+#   print STDOUT "No Data for that Period\n";
 
     } elsif($qsite eq "amazon" and  scalar(@ndatevm) <= 1 ) {
 
-    print STDOUT "No Data for that Period\n";
+   &beginHtml();
+
+#    print STDOUT "No Data for that Period\n";
 
     } else{ 
 
@@ -461,3 +463,18 @@ sub GRdbDisconnect {
     $dbh = $dbh->disconnect() || die "Disconnect failure $DBI::errstr\n";
 }
 
+########################
+
+sub beginHtml {
+
+print <<END;
+  <html>
+   <head>
+          <title>Grid Production Jobs Status</title>
+   </head>
+  <body BGCOLOR=\"#ccffff\"> 
+
+  </head>
+    <body>
+END
+}
