@@ -421,9 +421,18 @@ $xLabelSkip = 20 if( $qperiod eq "6_months" );
     $graph->set_x_axis_font(gdMediumBoldFont);
     $graph->set_y_axis_font(gdMediumBoldFont);
 
-         if (scalar(@ndatepdsf) <= 1 ) {
+         if ($qsite eq "pdsf" and  scalar(@ndatepdsf) <= 1 ) {
 
-    print STDOUT "No Data for that period\n";
+    print STDOUT "<h1 align=center><u>No Data for that Period</u></h1>\n";
+    } else{
+
+   print STDOUT $graph->plot(\@data)->$format();
+
+     }
+
+         if ($qsite eq "amazon" and  scalar(@ndatevm) <= 1 ) {
+
+    print STDOUT "<h1 align=center><u>No Data for that Period</u></h1>\n";
     } else{
 
    print STDOUT $graph->plot(\@data)->$format();
