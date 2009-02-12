@@ -60,7 +60,6 @@ my $thisyear = $year+1900;
 my $dyear = $thisyear - 2000;
 
 my @prodyear = ("2008","2009");
-my @submitopt = ("1_submission","N_resubmission");
 
 # Tables
 
@@ -140,7 +139,7 @@ my $outSt;
    $cursor->finish; 
 
   push @sites, @arsites;
-  push @arsites, "ALL";
+#  push @arsites, "ALL";
    
     &GRdbDisconnect();
 
@@ -203,7 +202,7 @@ print "<h3 align=center>Production Site</h3>";
 print "<h4 align=center>";
 print  $query->scrolling_list(-name=>'prodsite',
                              -values=>\@arsites,
-                             -default=>ALL,
+                             -default=>pdsf,
                              -size =>1); 
 
 
@@ -393,29 +392,19 @@ my $ndt = 0;
 
  }
 }
-   for($ii = 0; $ii <scalar(@sites); $ii++) {
 
-   $msite = $sites[$ii]; 
+       if( $siteH{$qsite} >= 1 ) {
 
-       if( $siteH{$msite} >= 1 ) {
-
-   $ndate[$ndt] = $datetest{$msite};
-   $njobs[$ndt] = $siteH{$msite};
-   $globeff[$ndt] = $globEfH{$msite}*100/$njobs[$ndt];
-   $logeff[$ndt] = $logEfH{$msite}*100/(2*$njobs[$ndt]);
-   $inputef[$ndt] = $inEfH{$msite}*100/$njobs[$ndt];
-   $outputeff[$ndt] = $outEfH{$msite}*100/$njobs[$ndt];
-   $recoComeff[$ndt] = $recoEfH{$msite}*100/$njobs[$ndt]; 
-   $overeff[$ndt] = $siteEff{$msite}*100/$njobs[$ndt];
-   $overeffrs[$ndt] = $siteEffRs{$msite}*100/$njobs[$ndt];
-   if ($msite eq "pdsf")  {
-   $effpdsf[$ndt] = $siteEff{$msite}*100/$njobs[$ndt];
-   $effpdsfrs[$ndt] = $siteEffRs{$msite}*100/$njobs[$ndt];
-   }elsif($msite eq "VM")  {
-   $effvm[$ndt] = $siteEff{$msite}*100/$njobs[$ndt];
-   $effvmrs[$ndt] = $siteEffRs{$msite}*100/$njobs[$ndt];
-    }
-   }
+   $ndate[$ndt] = $datetest{$qsite};
+   $njobs[$ndt] = $siteH{$qsite};
+   $globeff[$ndt] = $globEfH{$qsite}*100/$njobs[$ndt];
+   $logeff[$ndt] = $logEfH{$qsite}*100/(2*$njobs[$ndt]);
+   $inputef[$ndt] = $inEfH{$qsite}*100/$njobs[$ndt];
+   $outputeff[$ndt] = $outEfH{$qsite}*100/$njobs[$ndt];
+   $recoComeff[$ndt] = $recoEfH{$qsite}*100/$njobs[$ndt]; 
+   $overeff[$ndt] = $siteEff{$qsite}*100/$njobs[$ndt];
+   $overeffrs[$ndt] = $siteEffRs{$qsite}*100/$njobs[$ndt];
+   
  }  
    $ndt++;
 }
@@ -434,18 +423,6 @@ my $ndt = 0;
   print header("image/$format");
   binmode STDOUT;
 
-    if( $qsite eq "ALL" ) {
-
-	$ptag = "ALL";
-
-    $legend[0] = "Efficiency for PDSF for 1st submission; ";
-    $legend[1] = "Efficiency for PDSF with <=4 resubmissions; "; 
-#    $legend[2] = "Efficiency for VM for 1st submission; "; 
-#    $legend[3] = "Efficiency for VM with <=4 submission; ";
-
-    @data = (\@ndate, \@effpdsf, \@effpdsfrs ) ;
-
-      }else{
 
      $ptag = $gsite; 
 
@@ -455,13 +432,10 @@ my $ndt = 0;
     $legend[3] = "Output transferring;      ";
     $legend[4] = "Reco completion;          ";
     $legend[5] = "Overall efficiency;       ";
-    $legend[6] = "Overall efficiency with resubmission;       ";
+    $legend[6] = "Overall efficiency with resubmission <= 4;       ";
 
       @data = (\@ndate, \@globeff, \@logeff, \@inputef, \@outputeff, \@recoComeff, \@overeff, \@overeffrs ) ;
-  }
-
-#   print $qqr->start_html(-title=>"Grid efficiency"), "\n"; 
-
+  
  my $ylabel;
  my $gtitle; 
  my $xLabelsVertical = 1;
