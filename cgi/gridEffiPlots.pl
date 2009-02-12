@@ -432,7 +432,7 @@ my $ndt = 0;
     $legend[3] = "Output transferring;      ";
     $legend[4] = "Reco completion;          ";
     $legend[5] = "Overall efficiency;       ";
-    $legend[6] = "Overall efficiency with resubmission <= 4;       ";
+    $legend[6] = "Overall efficiency with resubmission <= 4;";
 
       @data = (\@ndate, \@globeff, \@logeff, \@inputef, \@outputeff, \@recoComeff, \@overeff, \@overeffrs ) ;
   
@@ -487,11 +487,17 @@ $xLabelSkip = 10 if( $qperiod eq "12_months" );
     $graph->set_x_axis_font(gdMediumBoldFont);
     $graph->set_y_axis_font(gdMediumBoldFont);
 
+    if ( scalar(@ndate) <= 1 ) {
+
+   &beginHtml();
+
+    } else{
+
    print STDOUT $graph->plot(\@data)->$format();
 
     }
   }
-
+}
  
 ######################
 sub y_format
@@ -514,3 +520,18 @@ sub GRdbDisconnect {
     $dbh = $dbh->disconnect() || die "Disconnect failure $DBI::errstr\n";
 }
 
+#####################################
+
+sub beginHtml {
+
+print <<END;
+  <html>
+   <head>
+          <title>Jobs Efficiency</title>
+   </head>
+   <body BGCOLOR=\"#ccffff\">
+     <h1 align=center>No Data for that Period</h1>
+
+    </body>
+END
+}
