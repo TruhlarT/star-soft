@@ -381,11 +381,13 @@ my @sizevm = ();
        if($npdsf[$k] >= $ymaxp ) {
 	   $ymaxp = $npdsf[$k];
        }
+   }
    
     for($k = 0; $k <scalar(@nvm); $k++) {
        if($nvm[$k] >= $ymaxp ) {
 	   $ymaxv = $npdsf[$k];
        } 
+   }
 
  my $ylabel;
  my $gtitle; 
@@ -405,9 +407,8 @@ my @sizevm = ();
    }
   $xLabelSkip = $skipnum;
   $max_y = $ymaxp + 20 ;
- }
 
-   if($qsite eq "amazon")  {
+ }elsif($qsite eq "amazon")  {
 
   if (scalar(@ndatevm) >= 40 ) {
    $skipnum = int(scalar(@ndatevm)/40); 
@@ -415,7 +416,8 @@ my @sizevm = ();
    }
   $xLabelSkip = $skipnum;
   $max_y = $ymaxv + 20 ;
- } 
+
+ }
 
 
   
