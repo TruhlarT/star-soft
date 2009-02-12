@@ -406,7 +406,7 @@ my @sizevm = ();
 
    }
   $xLabelSkip = $skipnum;
-  $max_y = $ymaxp + 20 ;
+  $max_y = int($ymaxp) + 10 ;
 
  }elsif($qsite eq "amazon")  {
 
@@ -415,7 +415,7 @@ my @sizevm = ();
 
    }
   $xLabelSkip = $skipnum;
-  $max_y = $ymaxv + 20 ;
+  $max_y = int($ymaxv) + 10 ;
 
  }
 
