@@ -374,7 +374,18 @@ my @sizevm = ();
      @data = (\@ndatevm, \@sizevm, \@nvm ) ; 
   }
 
-#   print $qqr->start_html(-title=>"Files transferring"), "\n"; 
+  my $ymaxp = 1;
+  my $ymaxv = 1;
+
+   for($k = 0; $k <scalar(@npdsf); $k++) {
+       if($npdsf[$k] >= $ymaxp ) {
+	   $ymaxp = $npdsf[$k];
+       }
+   
+    for($k = 0; $k <scalar(@nvm); $k++) {
+       if($nvm[$k] >= $ymaxp ) {
+	   $ymaxv = $npdsf[$k];
+       } 
 
  my $ylabel;
  my $gtitle; 
@@ -383,22 +394,31 @@ my @sizevm = ();
  my $xLabelSkip = 1;
  my $skipnum = 1;
 
+  $min_y = 0;
+  $max_y = 100 ;
+
+   if($qsite eq "pdsf")  {
+
   if (scalar(@ndatepdsf) >= 40 ) {
    $skipnum = int(scalar(@ndatepdsf)/40); 
 
-}
+   }
   $xLabelSkip = $skipnum;
+  $max_y = $ymaxp + 20 ;
+ }
 
-#$xLabelSkip = 12 if( $qperiod eq "week" );
-#$xLabelSkip = 12 if( $qperiod eq "1_months" );
-#$xLabelSkip = 12 if( $qperiod eq "2_months" );
-##$xLabelSkip = 12 if( $qperiod eq "3_months" );
-#$xLabelSkip = 12 if( $qperiod eq "4_months" );
-#$xLabelSkip = 14 if( $qperiod eq "5_months" );
-#$xLabelSkip = 20 if( $qperiod eq "6_months" );
+   if($qsite eq "amazon")  {
 
-  $min_y = 0;
-#  $max_y = 100 ;  
+  if (scalar(@ndatevm) >= 40 ) {
+   $skipnum = int(scalar(@ndatevm)/40); 
+
+   }
+  $xLabelSkip = $skipnum;
+  $max_y = $ymaxv + 20 ;
+ } 
+
+
+  
   $ylabel = "Size in GB and number of transfered files per 1 hour";
   $gtitle = "Size of files transffered for the period $qperiod from  $qsite site";
 
