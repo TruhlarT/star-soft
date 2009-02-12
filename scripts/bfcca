@@ -386,7 +386,10 @@ if( $NUMEVT =~ /(\d+)(-)(\d+)/ ){
     $NUMEVT = -1;
 } else {
     $MAXEVT = $MINEVT = 0;
-    if( $NUMEVT <= 0){ $NUMEVT = 100000;}
+    if( $NUMEVT <= 0){ 
+	#        500.000 -> 500 k
+	$NUMEVT = 500000;
+    }
 }
 
 # Simplify library version change (commodity)
