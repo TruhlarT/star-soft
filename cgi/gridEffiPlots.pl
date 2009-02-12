@@ -441,23 +441,19 @@ my $ndt = 0;
  my $xLabelsVertical = 1;
  my $xLabelPosition = 0;
  my $xLabelSkip = 1;
-
-$xLabelSkip = 1 if( $qperiod eq "1_months" );
-$xLabelSkip = 2 if( $qperiod eq "2_months" );
-$xLabelSkip = 3 if( $qperiod eq "3_months" );
-$xLabelSkip = 4 if( $qperiod eq "4_months" );
-$xLabelSkip = 5 if( $qperiod eq "5_months" );
-$xLabelSkip = 6 if( $qperiod eq "6_months" );
-$xLabelSkip = 7 if( $qperiod eq "7_months" );
-$xLabelSkip = 8 if( $qperiod eq "8_months" );
-$xLabelSkip = 9 if( $qperiod eq "9_months" );
-$xLabelSkip = 10 if( $qperiod eq "10_months" );
-$xLabelSkip = 10 if( $qperiod eq "11_months" );
-$xLabelSkip = 10 if( $qperiod eq "12_months" );
-
+ my $skipnum = 1;
+ 
 
   $min_y = 0;
-  $max_y = 150 ;  
+  $max_y = 140 ; 
+
+  if (scalar(@ndate) >= 40 ) {
+   $skipnum = int(scalar(@ndatepdsf)/40);
+
+   }
+
+  $xLabelSkip = $skipnum;
+
   $ylabel = "Efficiency in %";
   $gtitle = "Efficiency of jobs execution for the period of $qperiod on  $qsite site";
 
