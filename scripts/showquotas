@@ -22,6 +22,7 @@ $EXPIRES  = 3600;
 $TEMPLATE =~ m/(.*\/)(.*)/;
 $FL       = $2;
 $TARGET   = "$FL.$<";
+$GDATE    = "";
 
 $SQ::GLB  = undef;
 
@@ -79,14 +80,17 @@ if ( -e $TARGET){
     if ( open(FI,$TARGET) ){
 	while(  defined($line = <FI>) ){
 	    $line =~ s/^\s*(.*?)\s*$/$1/;
-	    if ( $line eq ""){  
+
+	    if ( $line eq ""){
+		# empty lines, next will be a new disk too
 		$new = 1; 
 		if ( $#all != -1 && $disk ne ""){
 		    &PrintPreviousResults($disk,@all);
 		}
 		$disk = "";
-	    }
-	    if ( $line =~ m/^\/.*/ && $new ){  
+
+	    } elsif ( $line =~ m/^\/.*/ && $new ){
+		# a disk information has been recovered, reset counters to 0
 		$disk = $line;
 		$new  = 0;
 
@@ -98,14 +102,18 @@ if ( -e $TARGET){
 		&CalculateParams($disk);
 
 		print "Got $disk $SQ::tots,  $SQ::totu,  $SQ::totf and  $SQ::prct\n";
-	    }
-	    if ( $line =~ m/---/ && $disk ne ""){ 
+
+	    } elsif ( $line =~ m/---/ && $disk ne ""){ 
 		undef(@all); 
 		print "Looking at individual space now ...\n" if ($DEBUG);
 		next;
+		
+	    } elsif ( $line =~ m/(.*updated on)(.*)/ ){
+		$GDATE = $2;
+		next;
 	    }
 
-	    $total = 0;
+	    # $total = 0;
 	    push(@all,$line);
 
 	}
@@ -171,7 +179,8 @@ sub PrintPreviousResults
 	print $FO
 	    "<!-- Generated on ".localtime()." -->\n",
 	    "<h2>Path $disk</h2>\n",
-	    "Partition info (kBytes) on ".localtime()."\n",
+	    "Partition info (kBytes) on ".localtime()."<br>\n",
+	    "(<i>Information reflects snapshot from $GDATE</i>)\n",
 	    "<table border=0>",
 	    "<tr><td>Total Usable</td><$TD>$SQ::tots</td>\n",
 	    "<tr><td>Total Used</td><$TD>$SQ::totu</td>\n",
@@ -187,6 +196,7 @@ sub PrintPreviousResults
 	print $FO
 	    "Path $disk\n",
 	    "Partition info (kBytes) on ".localtime()."\n",
+ 	    "(Information reflect snapshot from $GDATE)\n",
 	    "     TotalUsable : $SQ::tots\n",
 	    "     TotalUsed   : $SQ::totu\n",
 	    "     Free space  : $SQ::totf\n",
