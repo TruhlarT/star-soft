@@ -37,7 +37,8 @@ if ( ! -x $WGET ){
 	@info = stat($TARGET);
 	$delta = time()-$info[10];
 	if ( $delta > $EXPIRES){
-	    unlink($TARGET);
+	    if ( -e $TARGET.".old"){  unlink($TARGET.".old");}
+	    rename($TARGET,$TARGET.".old");
 	    exit;
 	}
     } else { 
@@ -74,8 +75,28 @@ for ($i=0; $i <= $#ARGV ; $i++){
 # because previous version actualy used a filename for -o, strip
 if ( ! -d $DIRN && $DIRN ne ""){ $DIRN =~ m/(.*\/)(.*)/; $DIRN = $1;}
 
-print "We got HTML=$HTML $DIRN $DEBUG\n" if($DEBUG);
+print "We got HTML=$HTML $DIRN $DEBUG $TARGET\n" if($DEBUG);
 
+
+# make quick diff if
+$DIFF = -1;
+if ( -e $TARGET && -e $TARGET.".old" ){
+    $DIFF = 0;
+    open(FI1,$TARGET);
+    open(FI2,$TARGET.".old");
+    while ( defined($line1 = <FI1>) && defined($line2 = <FI2>) ){
+	if ($line1 ne $line2){
+	    print "Differs from previous\n" if ($DEBUG);
+	    $DIFF = 1;
+	    last;
+	}
+    }
+    close(FI1);
+    close(FI2);
+}
+
+
+# Now read
 if ( -e $TARGET){
     if ( open(FI,$TARGET) ){
 	while(  defined($line = <FI>) ){
@@ -176,11 +197,12 @@ sub PrintPreviousResults
     # Format result
     if($HTML){
 	$TD = "td align=\"right\"";
+	$HL = ($DIFF==0?"b":"i");
 	print $FO
 	    "<!-- Generated on ".localtime()." -->\n",
 	    "<h2>Path $disk</h2>\n",
 	    "Partition info (kBytes) on ".localtime()."<br>\n",
-	    "(<i>Information reflects snapshot from $GDATE</i>)\n",
+	    "<$HL>Information reflects snapshot from $GDATE</$HL>)<br>\n",
 	    "<table border=0>",
 	    "<tr><td>Total Usable</td><$TD>$SQ::tots</td>\n",
 	    "<tr><td>Total Used</td><$TD>$SQ::totu</td>\n",
@@ -196,7 +218,7 @@ sub PrintPreviousResults
 	print $FO
 	    "Path $disk\n",
 	    "Partition info (kBytes) on ".localtime()."\n",
- 	    "(Information reflect snapshot from $GDATE)\n",
+ 	    ($DIFF==0?"(Information reflect snapshot from $GDATE)":"")."\n",
 	    "     TotalUsable : $SQ::tots\n",
 	    "     TotalUsed   : $SQ::totu\n",
 	    "     Free space  : $SQ::totf\n",
