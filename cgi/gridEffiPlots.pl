@@ -266,7 +266,7 @@ $day_diff = int($day_diff);
 
    &GRdbConnect();
 
-   $sql="SELECT DISTINCT date_format(submitTime, '%Y-%m-%d') AS PDATE  FROM $JobEfficiencyT WHERE ( lastKnownState = 'done' OR lastKnownState = 'failed' OR lastKnownState = 'killed' OR lastKnownState = 'held' ) AND prodType = 'reco' AND (TO_DAYS(\"$nowdate\") - TO_DAYS(submitTime)) < ? order by PDATE";
+   $sql="SELECT DISTINCT date_format(submitTime, '%Y-%m-%d') AS PDATE  FROM $JobEfficiencyT WHERE ( lastKnownState = 'done' OR lastKnownState = 'failed' OR lastKnownState = 'killed' OR lastKnownState = 'held' ) AND prodType <> 'simu' AND (TO_DAYS(\"$nowdate\") - TO_DAYS(submitTime)) < ? order by PDATE";
 
      $cursor =$dbh->prepare($sql)
       || die "Cannot prepare statement: $DBI::errstr\n";
@@ -294,7 +294,7 @@ my $ndt = 0;
 
   if( $qsite eq "ALL" ) {
 
-      $sql="SELECT date_format(submitTime, '%Y-%m-%d') AS PDATE, site, submitAttempt, globusError, dotOutHasSize, dotErrorHasSize, exec, transIn, transOut, overAllState FROM $JobEfficiencyT WHERE  submitTime like '$tdate%' AND (lastKnownState = 'done' OR lastKnownState = 'failed' OR lastKnownState = 'killed' OR lastKnownState = 'held' ) AND prodType = 'reco' "; 
+      $sql="SELECT date_format(submitTime, '%Y-%m-%d') AS PDATE, site, submitAttempt, globusError, dotOutHasSize, dotErrorHasSize, exec, transIn, transOut, overAllState FROM $JobEfficiencyT WHERE  submitTime like '$tdate%' AND (lastKnownState = 'done' OR lastKnownState = 'failed' OR lastKnownState = 'killed' OR lastKnownState = 'held' ) AND prodType <> 'simu' "; 
 
     $cursor =$dbh->prepare($sql)
       || die "Cannot prepare statement: $DBI::errstr\n";
@@ -302,7 +302,7 @@ my $ndt = 0;
 
   }else{
 
-     $sql="SELECT date_format(submitTime, '%Y-%m-%d') AS PDATE, site, submitAttempt, globusError, dotOutHasSize, dotErrorHasSize, exec, transIn, transOut, overAllState FROM $JobEfficiencyT WHERE site = ? AND submitTime like '$tdate%' AND (lastKnownState = 'done' OR lastKnownState = 'failed' OR lastKnownState = 'killed' OR lastKnownState = 'held') AND prodType = 'reco' ";
+     $sql="SELECT date_format(submitTime, '%Y-%m-%d') AS PDATE, site, submitAttempt, globusError, dotOutHasSize, dotErrorHasSize, exec, transIn, transOut, overAllState FROM $JobEfficiencyT WHERE site = ? AND submitTime like '$tdate%' AND (lastKnownState = 'done' OR lastKnownState = 'failed' OR lastKnownState = 'killed' OR lastKnownState = 'held') AND prodType <> 'simu' ";
 
 
      $cursor =$dbh->prepare($sql)
