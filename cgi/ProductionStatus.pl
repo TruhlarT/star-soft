@@ -258,7 +258,7 @@ my $qsites = "$qsite%";
 
      $cursor =$dbh->prepare($sql)
       || die "Cannot prepare statement: $DBI::errstr\n";
-     $cursor->execute($qdates, $qsites);
+     $cursor->execute($qdates, $qsite);
 } 
 
       while(@fields = $cursor->fetchrow) {
