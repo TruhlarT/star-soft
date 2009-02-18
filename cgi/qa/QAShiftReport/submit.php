@@ -68,6 +68,7 @@ $allissues = array();
 $allnewissues = array();
 $allgoneissues = array();
 $allRunFileSeqs = array();
+$allRunIssues = array();
 
 foreach ($ents as $typ => $entN) {
   $entFiles = dirlist($sesDir,$typ,".data");
@@ -84,6 +85,16 @@ foreach ($ents as $typ => $entN) {
     if ($entr = readObjectEntry($sesDir . $entFile)) {
       $typeissues += $entr->issues;
       $runFileSeqs[] = array($entr->info["runid"],$entr->info["fseq"],$entr->Anchor());
+
+      # Compile list of runs for each issue
+      if (count($entry->issues) > 0) {
+        foreach ($entry->issues as $id => $isstxt) {
+          $allRunIssues[$id][] = $entr->info["runid"];
+        }
+      } else {
+        # no issues
+        $allRunIssues["0"][] = $entr->info["runid"];
+      }
     }
   }
   $allissues[$typ] = $typeissues;
@@ -105,6 +116,9 @@ foreach ($ents as $typ => $entN) {
   $allgoneissues[$typ] = $goneissues;
 
 }
+
+# Update the run-issue index
+updateRunIssueIndex($allRunIssues);
 
 
 ###################################################################

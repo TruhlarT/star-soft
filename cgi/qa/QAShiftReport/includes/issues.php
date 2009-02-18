@@ -22,8 +22,9 @@ if (intval(date("m"))>9) $issueYear += 1;
 $kPREV = 0;
 $kLAST = 1;
 
-global $IssuesDB;
+global $IssuesDB,$RunIssuesDB;
 $IssuesDB = "QAIssues";
+$RunIssuesDB = "QArunIssueIndex";
 
 class qaissue {
   var $ID;
@@ -178,6 +179,52 @@ function setIssMinMax() {
   $issMinMax = "ID BETWEEN $minIss and $maxIss";
 }
 
+# Functions for handling the run-issue index
+function updateRunIssueIndex($runIssues) {
+  if (count($runIssues)<1) return;
+  $str = "INSERT INTO $RunIssuesDB (issueID,run) VALUES ";
+  $more_than_one = 0;
+  foreach ($runIssues as $id => $rlist) {
+    foreach ($rlist as $run) {
+      if ($more_than_one++>0) $str .= ",";
+      $str .= "('$id','$run')";
+    }
+  }
+  $str .= " ON DUPLICATE KEY UPDATE run=run;";
+  queryDB($str);
+}
+
+function cleanRunIssueIndex() {
+  global $RunIssuesDB;
+  $str = "SELECT run FROM $RunIssuesDB GROUP BY run";
+  $str .= " HAVING min(issueID)='0' and max(issueID)>'0';";
+  $result = queryDB($str);
+  $to_delete = 0;
+  $str = "DELETE FROM $RunIssues WHERE issueID='0' and run in (";
+  while ($row = nextDBrow($result)) {
+    if ($to_delete++>0) $str .= ",";
+    $str .= "'" . $row['run'] . "'";
+  }
+  if ($to_delete>0) queryDB($str . ");");
+}
+
+function getListOfRunsForIssue($id) {
+  global $RunIssuesDB;
+  $str = "SELECT run FROM $RunIssuesDB WHERE issueID='$id'";
+  $str .= " ORDER BY run ASC;";
+  $result = queryDB($str);
+  $runs = array();
+  while ($row = nextDBrow($result)) $runs[] = $row['run'];
+  return $runs;
+}
+
+function getListOfRunsToggleIssue($id) {
+  global $RunIssuesDB;
+  $str = "SELECT run,bit_or(issueID='$id') FROM $RunIssuesDB";
+  $str .= " GROUP BY run ORDER BY run ASC;";
+  return queryDB($str);
+}
+
 # Functions for issue directories and file names
 function getIssWebLink($id) {
   global $webdir;
@@ -198,7 +245,7 @@ function readIssue($id,$full=1) {
     $str .= ",closed,Name,Description,timeFirst,timeLast";
     foreach ($ents as $k=>$v) { $str .= ",time$k"; }
   }
-  $str .= " from $IssuesDB where ID='$id';";
+  $str .= " FROM $IssuesDB WHERE ID='$id';";
   $result = queryDBfirst($str);
   if ($full && $result) {
     $iss = new qaissue("","");
@@ -336,8 +383,10 @@ function getIssList($old,$typ,$exc,$closed=-1) {
 }
 
 function optimizeIssuesDB() {
-  global $IssuesDB;
+  global $IssuesDB,$RunIssuesDB;
   optimizeTable($IssuesDB);
+  cleanRunIssueIndex();
+  optimizeTable($RunIssuesDB);
 } 
 
 

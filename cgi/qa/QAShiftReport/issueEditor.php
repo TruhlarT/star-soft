@@ -33,6 +33,28 @@ function PrintDates($issue) {
     }
 }
 
+function PrintRuns($iid) {
+    $runlist = getListOfRunsForIssue($iid);
+    if (count($runlist)<1) return;
+    print "<table border=0 cellpadding=0 cellspacing=0>\n";
+    print "<tr valign=top><td>Runs tagged with this issue:</td><td align=right>";
+    print "<div id =\"noRunList\"\n";
+    print "       style=\"display:block ;z-index:2\">\n";
+    fbutton("showRunsButton","Show full list of runs","showRunList()");
+    print "First-last runs: <b>" . min($runlist) . "-" . max($runlist) . "</b><br>";
+    print "</div>\n";
+    print "<div id =\"fullRunList\"\n";
+    print "       style=\"display:none ;z-index:2\">\n";
+    print "<table border=0 cellpadding=0 cellspacing=0><tr valign=top><td>\n";
+    fbutton("hideRunsButton","Show only first-last runs","hideRunList()");
+    print "</td><td>";
+    foreach ($runlist as $run) print "<b>$run</b><br>\n";
+    print "</td></tr></table>\n";
+    print "</div>\n";
+    print "</td></tr></table>\n";
+}
+
+
 function ViewDesc($iname,$idesc) {
     print "\n<b><font color=\"#800000\">";
     print stripslashes($iname) . "</font></b><br>\n";
@@ -137,6 +159,16 @@ jstart();
       }
       return true;
     }
+    function showRunList() {
+      document.getElementById('noRunList').style.display = 'none';
+      document.getElementById('fullRunList').style.display = 'block';
+      return false;
+    }
+    function hideRunList() {
+      document.getElementById('noRunList').style.display = 'block';
+      document.getElementById('fullRunList').style.display = 'none';
+      return false;
+    }
 
 <?php
 jend();
@@ -231,6 +263,7 @@ if ($mode != "none") {
         print "<i><b>THIS ISSUE IS CLOSED/RESOLVED!</b></i><p>\n";
       }
       PrintDates($issue);
+      PrintRuns($iid);
     } else {
       print "<i>New issue</i><br>\n";
     }
