@@ -149,6 +149,8 @@ class qaentry {
   }
   
   function Save($numn=-1) {
+    # a negative parameter means save a temporary copy
+    # non-negative params indicate the entry number in a report
     $file = "";
     $num = intval($numn);
     if ($num < 0) {
@@ -180,6 +182,8 @@ function fileEntry($typ,$num) {
 
 function readObjectEntry($file) { return readObjectClass($file,"qaentry"); }
 function readEntry($typ,$num=-1) {
+  # a negative parameter means read the temporary copy
+  # non-negative params indicate the entry number in a report
   $file = "";
   if ($num == -1) { $file = tempEntry(); }
   else { $file = fileEntry($typ,$num); }
