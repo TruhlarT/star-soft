@@ -266,7 +266,7 @@ $day_diff = int($day_diff);
 
    &GRdbConnect();
 
-   $sql="SELECT DISTINCT date_format(submitTime, '%Y-%m-%d') AS PDATE  FROM $JobEfficiencyT WHERE ( lastKnownState = 'done' OR lastKnownState = 'failed' OR lastKnownState = 'killed' OR lastKnownState = 'held' ) AND (TO_DAYS(\"$nowdate\") - TO_DAYS(submitTime)) < ? AND PDATE is not NULL  order by PDATE";
+   $sql="SELECT DISTINCT date_format(submitTime, '%Y-%m-%d') AS PDATE  FROM $JobEfficiencyT WHERE ( lastKnownState = 'done' OR lastKnownState = 'failed' OR lastKnownState = 'killed' OR lastKnownState = 'held' ) AND (TO_DAYS(\"$nowdate\") - TO_DAYS(submitTime)) < ?  order by PDATE";
 
      $cursor =$dbh->prepare($sql)
       || die "Cannot prepare statement: $DBI::errstr\n";
@@ -453,8 +453,8 @@ my $ndt = 0;
   $min_y = 0;
   $max_y = 140 ; 
 
-  if (scalar(@ndate) >= 40 ) {
-   $skipnum = int(scalar(@ndatepdsf)/40);
+  if (scalar(@ndate) >= 20 ) {
+   $skipnum = int(scalar(@ndatepdsf)/20);
 
    }
 
