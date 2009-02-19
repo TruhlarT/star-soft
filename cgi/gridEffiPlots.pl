@@ -282,20 +282,7 @@ my $ndt = 0;
  @overeff = ();
  @overeffrs = (); 
 
- %siteH = { };
- %globEfH = { };
- %logEfH = { };
- %inEfH  = { };
- %outEfH  = { };
- %recoEfH = { };
- %overEfH = { };
- %siteEff = { };
- %siteEffRs = { };
- %datetest = { };
- %effjid = { };
- %rseffjid = { }; 
-
-   foreach  $tdate (@ardays) {
+    foreach  $tdate (@ardays) {
 
  @jbstat = ();  
  $nstat = 0;
@@ -344,6 +331,19 @@ my $ndt = 0;
         $nstat++;
       }
 
+
+ %siteH = { };
+ %globEfH = { };
+ %logEfH = { };
+ %inEfH  = { };
+ %outEfH  = { };
+ %recoEfH = { };
+ %overEfH = { };
+ %siteEff = { };
+ %siteEffRs = { };
+ %datetest = { };
+ %effjid = { };
+ %rseffjid = { }; 
 
       foreach $jstat (@jbstat) {
 
