@@ -30,7 +30,9 @@ $dbname="Scheduler_bnl";
 
  struct JobAttr => {
     subday      => '$',
-    tsite       => '$',
+      jbid      => '$',
+     prcid      => '$', 
+     tsite      => '$',
     glstat      => '$',
     lgstat      => '$',
     erstat      => '$',
@@ -92,11 +94,6 @@ my @recoComeff = ();
 my @overeff = ();
 my @overeffrs = (); 
 my @ndate = ();
-my @effpdsf = ();
-my @effpdsfrs = ();
-my @effvm = ();
-my @effvmrs = ();
-my @effbnl = ();
 my %globEfH = { };
 my %logEfH = { };
 my %inEfH  = { };
@@ -106,13 +103,17 @@ my %overEfH = { };
 my %siteEff = { };
 my %siteEffRs = { };
 my %datetest = { };
+my %effjid = { };
+my %rseffjid = { }; 
 my $nreco = 0;
 my @sites = ();
 my $msite;
 my $ptag = "none";
 my $gname;
 my $recoSt;
-
+my $jid;
+my $proid;
+my $jobid;
 my $globSt;
 my $logSt;
 my $inSt;
@@ -266,7 +267,7 @@ $day_diff = int($day_diff);
 
    &GRdbConnect();
 
-   $sql="SELECT DISTINCT date_format(submitTime, '%Y-%m-%d') AS PDATE  FROM $JobEfficiencyT WHERE ( lastKnownState = 'done' OR lastKnownState = 'failed' OR lastKnownState = 'killed' OR lastKnownState = 'held' ) AND prodType <> 'simu' AND (TO_DAYS(\"$nowdate\") - TO_DAYS(submitTime)) < ? order by PDATE";
+   $sql="SELECT DISTINCT date_format(submitTime, '%Y-%m-%d') AS PDATE  FROM $JobEfficiencyT WHERE ( lastKnownState = 'done' OR lastKnownState = 'failed' OR lastKnownState = 'killed' OR lastKnownState = 'held' ) AND (TO_DAYS(\"$nowdate\") - TO_DAYS(submitTime)) < ? order by PDATE";
 
      $cursor =$dbh->prepare($sql)
       || die "Cannot prepare statement: $DBI::errstr\n";
@@ -279,13 +280,21 @@ $day_diff = int($day_diff);
 
 my $ndt = 0;
 
- @effpdsf = ();
- @effpdsfrs = ();
  @overeff = ();
  @overeffrs = (); 
- @effvm = ();
- @effvmrs = ();
- @effbnl = ();
+
+ %siteH = { };
+ %globEfH = { };
+ %logEfH = { };
+ %inEfH  = { };
+ %outEfH  = { };
+ %recoEfH = { };
+ %overEfH = { };
+ %siteEff = { };
+ %siteEffRs = { };
+ %datetest = { };
+ %effjid = { };
+ %rseffjid = { }; 
 
    foreach  $tdate (@ardays) {
 
@@ -294,7 +303,7 @@ my $ndt = 0;
 
   if( $qsite eq "ALL" ) {
 
-      $sql="SELECT date_format(submitTime, '%Y-%m-%d') AS PDATE, site, submitAttempt, globusError, dotOutHasSize, dotErrorHasSize, exec, transIn, transOut, overAllState FROM $JobEfficiencyT WHERE  submitTime like '$tdate%' AND (lastKnownState = 'done' OR lastKnownState = 'failed' OR lastKnownState = 'killed' OR lastKnownState = 'held' ) AND prodType <> 'simu' "; 
+      $sql="SELECT date_format(submitTime, '%Y-%m-%d') AS PDATE, JobID_MD5, processID, site, submitAttempt, globusError, dotOutHasSize, dotErrorHasSize, exec, transIn, transOut, overAllState FROM $JobEfficiencyT WHERE  submitTime like '$tdate%' AND (lastKnownState = 'done' OR lastKnownState = 'failed' OR lastKnownState = 'killed' OR lastKnownState = 'held' ) AND prodType <> 'simu' "; 
 
     $cursor =$dbh->prepare($sql)
       || die "Cannot prepare statement: $DBI::errstr\n";
@@ -302,7 +311,7 @@ my $ndt = 0;
 
   }else{
 
-     $sql="SELECT date_format(submitTime, '%Y-%m-%d') AS PDATE, site, submitAttempt, globusError, dotOutHasSize, dotErrorHasSize, exec, transIn, transOut, overAllState FROM $JobEfficiencyT WHERE site = ? AND submitTime like '$tdate%' AND (lastKnownState = 'done' OR lastKnownState = 'failed' OR lastKnownState = 'killed' OR lastKnownState = 'held') AND prodType <> 'simu' ";
+     $sql="SELECT date_format(submitTime, '%Y-%m-%d') AS PDATE, JobID_MD5, processID, site, submitAttempt, globusError, dotOutHasSize, dotErrorHasSize, exec, transIn, transOut, overAllState FROM $JobEfficiencyT WHERE site = ? AND submitTime like '$tdate%' AND (lastKnownState = 'done' OR lastKnownState = 'failed' OR lastKnownState = 'killed' OR lastKnownState = 'held') AND prodType <> 'simu' ";
 
 
      $cursor =$dbh->prepare($sql)
@@ -319,6 +328,8 @@ my $ndt = 0;
 #          print "$fname = $fvalue\n" ;
 
       ($$fObjAdr)->subday($fvalue)    if( $fname eq 'PDATE');
+      ($$fObjAdr)->jbid($fvalue)      if( $fname eq 'JobID_MD5');
+      ($$fObjAdr)->prcid($fvalue)     if( $fname eq 'processID');
       ($$fObjAdr)->tsite($fvalue)     if( $fname eq 'site');
       ($$fObjAdr)->glstat($fvalue)    if( $fname eq 'globusError');
       ($$fObjAdr)->lgstat($fvalue)    if( $fname eq 'dotOutHasSize');
@@ -334,21 +345,11 @@ my $ndt = 0;
         $nstat++;
       }
 
-
- %siteH = { };
- %globEfH = { };
- %logEfH = { };
- %inEfH  = { };
- %outEfH  = { };
- %recoEfH = { };
- %overEfH = { };
- %siteEff = { };
- %siteEffRs = { };
- %datetest = { };
- 
       foreach $jstat (@jbstat) {
 
     $sbday     = ($$jstat)->subday;
+    $jid       = ($$jstat)->jbid;
+    $proid     = ($$jstat)->prcid
     $gsite     = ($$jstat)->tsite; 
     $glStatus  = ($$jstat)->glstat; 
     $lgStatus  = ($$jstat)->lgstat;
@@ -359,56 +360,62 @@ my $ndt = 0;
     $ovrStat   = ($$jstat)->ovrstat;
     $nsubmit   = ($$jstat)->nsubmt;  
 
+    $jobid = $jid."_".$proid;
+
+ if(!defined($gsite)) {$gsite = "unknown"}
+
     if( $glStatus == 129 ) {
 	$glStatus = -1;
    }
 
- if(!defined($gsite)) {$gsite = "unknown"}
+   if ( $nsubmit == 1) {
 
-    $siteH{$gsite}++; 
-
-    $datetest{$gsite} = $sbday;
+    $siteH{$sbday}++; 
 
     if($glStatus == -1) {
-    $globEfH{$gsite}++ ;
+    $globEfH{$sbday}++ ;
   }
-    $logEfH{$gsite} =  $logEfH{$gsite} +  $lgStatus + $erStatus;
-    $inEfH{$gsite} = $inEfH{$gsite} + $intrans; 
-    if( $outtrans <= 1) { 
-    $outEfH{$gsite} = $outEfH{$gsite} + $outtrans;
+ 
+    $logEfH{$sbday} =  $logEfH{$sbday} +  $lgStatus + $erStatus;
+    $inEfH{$sbday} = $inEfH{$sbday} + $intrans; 
+    if( $outtrans = 1) { 
+    $outEfH{$sbday}++;
     }
-    if( $recoSt <= 1) {     
-    $recoEfH{$gsite} = $recoEfH{$gsite} + $recoSt;
+    if( $recoSt = 1) {     
+    $recoEfH{$sbday}++;
    }
 
-    if ( $nsubmit == 1 and $ovrStat eq "success" ) {
+ if ($ovrStat eq "success" ) {
 
-       $siteEff{$gsite}++;
-       $siteEffRs{$gsite}++;
-
-   }elsif ($nsubmit >= 2 and $nsubmit < 5 and $ovrStat eq "success") {
-      
-     $siteEffRs{$gsite}++;
-
- }
-}
-
-       if( $siteH{$qsite} >= 1 ) {
-
-   $ndate[$ndt] = $datetest{$qsite};
-   $njobs[$ndt] = $siteH{$qsite};
-   $globeff[$ndt] = $globEfH{$qsite}*100/$njobs[$ndt];
-   $logeff[$ndt] = $logEfH{$qsite}*100/(2*$njobs[$ndt]);
-   $inputef[$ndt] = $inEfH{$qsite}*100/$njobs[$ndt];
-   $outputeff[$ndt] = $outEfH{$qsite}*100/$njobs[$ndt];
-   $recoComeff[$ndt] = $recoEfH{$qsite}*100/$njobs[$ndt]; 
-   $overeff[$ndt] = $siteEff{$qsite}*100/$njobs[$ndt];
-   $overeffrs[$ndt] = $siteEffRs{$qsite}*100/$njobs[$ndt];
    
- }  
-   $ndt++;
-}
+       $siteEff{$sbday}++;
+       $effjid{$jobid}++;
+       $rseffjid{$jobid}++;
+   }
+
+   $ndate[$ndt] = $sbday;
+
+   $njobs[$ndt] = $siteH{$sbday};
+
+   $globeff[$ndt] = $globEfH{$sbday}*100/$njobs[$ndt];
+   $logeff[$ndt] = $logEfH{$sbday}*100/(2*$njobs[$ndt]);
+   $inputef[$ndt] = $inEfH{$sbday}*100/$njobs[$ndt];
+   $outputeff[$ndt] = $outEfH{$sbday}*100/$njobs[$ndt];
+   $recoComeff[$ndt] = $recoEfH{$sbday}*100/$njobs[$ndt]; 
+   $overeff[$ndt] = $siteEff{$sbday}*100/$njobs[$ndt];
+   
+ $ndt++;
+
+     }elsif($nsubmit >= 2 and $nsubmit < 5 and $ovrStat eq "success") { 
+     
+        $rseffjid{$jobid}++;
+     }
+    }
+  }
  
+
+
+
    &GRdbDisconnect();
 
  my $graph = new GD::Graph::linespoints(750,650);
@@ -434,7 +441,7 @@ my $ndt = 0;
     $legend[5] = "Overall efficiency;       ";
     $legend[6] = "Overall efficiency with resubmission <= 4;";
 
-      @data = (\@ndate, \@globeff, \@logeff, \@inputef, \@outputeff, \@recoComeff, \@overeff, \@overeffrs ) ;
+      @data = (\@ndate, \@globeff, \@logeff, \@inputef, \@outputeff, \@recoComeff, \@overeff ) ;
   
  my $ylabel;
  my $gtitle; 
