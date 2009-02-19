@@ -403,14 +403,13 @@ my $ndt = 0;
    $outputeff[$ndt] = $outEfH{$sbday}*100/$njobs[$ndt];
    $recoComeff[$ndt] = $recoEfH{$sbday}*100/$njobs[$ndt]; 
    $overeff[$ndt] = $siteEff{$sbday}*100/$njobs[$ndt];
-   
- $ndt++;
 
      }elsif($nsubmit >= 2 and $nsubmit < 5 and $ovrStat eq "success") { 
      
         $rseffjid{$jobid}++;
      }
-    }
+   }
+  $ndt++;
  }
  
 
