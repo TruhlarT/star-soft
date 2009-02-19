@@ -101,7 +101,6 @@ my %outEfH  = { };
 my %recoEfH = { };
 my %overEfH = { };
 my %siteEff = { };
-my %siteEffRs = { };
 my %datetest = { };
 my %effjid = { };
 my %rseffjid = { }; 
@@ -345,6 +344,7 @@ my $ndt = 0;
         $nstat++;
       }
 
+
       foreach $jstat (@jbstat) {
 
     $sbday     = ($$jstat)->subday;
@@ -411,10 +411,8 @@ my $ndt = 0;
         $rseffjid{$jobid}++;
      }
     }
-  }
+ }
  
-
-
 
    &GRdbDisconnect();
 
