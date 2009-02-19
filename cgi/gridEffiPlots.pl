@@ -349,7 +349,7 @@ my $ndt = 0;
 
     $sbday     = ($$jstat)->subday;
     $jid       = ($$jstat)->jbid;
-    $proid     = ($$jstat)->prcid
+    $proid     = ($$jstat)->prcid;
     $gsite     = ($$jstat)->tsite; 
     $glStatus  = ($$jstat)->glstat; 
     $lgStatus  = ($$jstat)->lgstat;
