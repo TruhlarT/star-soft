@@ -454,7 +454,7 @@ my $ndt = 0;
   $max_y = 140 ; 
 
   if (scalar(@ndate) >= 20 ) {
-   $skipnum = int(scalar(@ndatepdsf)/20);
+   $skipnum = int(scalar(@ndate)/20);
 
    }
 
