@@ -394,8 +394,8 @@ my $ndt = 0;
        $rseffjid{$jobid}++;
    }
 
-   $ndate[$ndt] = $sbday;
-     
+#   $ndate[$ndt] = $sbday;
+    $ndate[$ndt] = $tdate;    
 
    $njobs[$ndt] = $siteH{$sbday};
 
