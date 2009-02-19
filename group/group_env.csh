@@ -1,5 +1,5 @@
 #!/bin/csh -x
-#       $Id: group_env.csh,v 1.210 2009/02/06 17:19:10 jeromel Exp $
+#       $Id: group_env.csh,v 1.211 2009/02/19 23:35:04 jeromel Exp $
 #	Purpose:	STAR group csh setup
 #
 # Revisions & notes
@@ -294,6 +294,12 @@ if ($?INSURE) then
   else
    if ($ECHO) echo  "Setting up STAR_lib  = Cannot Set (missing tree)"
   endif
+
+else if ($?GPROF) then
+  setenv STAR_lib  $STAR/.${STAR_HOST_SYS}/GLIB ;  if ($ECHO) echo   "Setting up STAR_lib  = ${STAR_lib}"
+  setenv MINE_lib        .${STAR_HOST_SYS}/GLIB
+  setenv STAR_BIN  $STAR/.${STAR_HOST_SYS}/GBIN
+  setenv MY_BIN          .${STAR_HOST_SYS}/GBIN
 
 else if ($?NODEBUG) then
   setenv STAR_lib  $STAR/.${STAR_HOST_SYS}/LIB ;  if ($ECHO) echo   "Setting up STAR_lib  = ${STAR_lib}"

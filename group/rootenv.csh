@@ -11,6 +11,7 @@ if ($level >= 305 )  then
     set p = ""
     set x = "deb"
     if ($?INSURE)  set p = "I"
+    if ($?GPROF)   set p = "G"
     if ($?NODEBUG) set x = ""
 
     set ROOTBASE = "${ROOT}/${ROOT_LEVEL}/.${STAR_HOST_SYS}"
@@ -53,11 +54,14 @@ if ( -x ${GROUP_DIR}/dropit) then
 	if ($?INSURE) then
 	    setenv LD_LIBRARY_PATH `${GROUP_DIR}/dropit -p ${ROOTSYS}/ILIB -p ${LD_LIBRARY_PATH}`
 	endif
+	if ($?GPROF) then
+	    setenv LD_LIBRARY_PATH `${GROUP_DIR}/dropit -p ${ROOTSYS}/GLIB -p ${LD_LIBRARY_PATH}`
+	endif
     else
 	if ($?NODEBUG) then
 	    setenv  LD_LIBRARY_PATH `${GROUP_DIR}/dropit -p ${ROOTBASE}/root/lib -p ${LD_LIBRARY_PATH}`
 	endif
-	if ($?INSURE) then
+	if ($?INSURE || $?GPROF ) then
 	    setenv LD_LIBRARY_PATH `${GROUP_DIR}/dropit -p ${ROOTBASE}/${p}root/lib -p ${LD_LIBRARY_PATH}`
 	endif
     endif
@@ -78,12 +82,15 @@ if ( -x ${GROUP_DIR}/dropit) then
 	if ($?INSURE) then
 	    setenv PATH `${GROUP_DIR}/dropit -p ${ROOTSYS}/IBIN -p ${PATH}`
 	endif
+	if ($?GPROF) then
+	    setenv PATH `${GROUP_DIR}/dropit -p ${ROOTSYS}/GBIN -p ${PATH}`
+	endif
     else
 	if ($?NODEBUG) then
 	    ##VP   setenv PATH "${ROOTSYS}/${root}/BIN:${PATH}"
 	    setenv PATH `${GROUP_DIR}/dropit -p ${ROOTBASE}/root/bin -p ${PATH}`
 	endif
-	if ($?INSURE) then
+	if ($?INSURE || $?GPROF ) then
 	    setenv PATH `${GROUP_DIR}/dropit -p ${ROOTBASE}/${p}root/bin -p ${PATH}`
 	endif
     endif

@@ -13,6 +13,10 @@ if ($#argv == 0 || $#argv > 2) then
    nodebug|NODEBUG                  switch the environment to the nodebug (optimized) 
                                     of the STAR software
 
+   gprof|GRPOF                      enables/disables gprof profiling environment
+   nogprof|NOGPROF                  non-optimized version will be implied when enabled
+
+
    Grid|OSG                         Setup Grid environment
    root|ROOT     {version}          load or change root version
    parasoft|PARASOFT|insure|ISURE   load the Insure++ toolkit environment
@@ -96,6 +100,7 @@ switch ($pkg)
     case "icc":
     case "ifc":
     case "ifort":
+	unsetenv GPROF  # don't know about -qp ; perhaps later
 	if ( -f $GROUP_DIR/intelcc.csh  )  source $GROUP_DIR/intelcc.csh $version
 	if ( $?optstar )  setenv  OPTSTAR  $optstar
 	if ( $?xoptstar ) setenv XOPTSTAR  $xoptstar
@@ -151,20 +156,43 @@ switch ($pkg)
       endif
       breaksw
 
+
     # debug / nodebug
     case "nodebug":
     case "NODEBUG":
-      setenv NODEBUG yes; starver $STAR_LEVEL
-      breaksw
+	unsetenv GPROF
+	setenv NODEBUG yes
+	starver $STAR_LEVEL
+	breaksw
     case "debug":
     case "DEBUG":
-      unsetenv NODEBUG yes;
-      if ( -x $GROUP_DIR/dropit ) then
-	setenv PATH            `$GROUP_DIR/dropit BIN`
-	setenv LD_LIBRARY_PATH `$GROUP_DIR/dropit -p $LD_LIBRARY_PATH LIB`
-      endif
-      starver $STAR_LEVEL
-      breaksw
+	unsetenv NODEBUG yes
+	if ( -x $GROUP_DIR/dropit ) then
+	    setenv PATH            `$GROUP_DIR/dropit BIN`
+	    setenv LD_LIBRARY_PATH `$GROUP_DIR/dropit -p $LD_LIBRARY_PATH LIB`
+	endif
+	starver $STAR_LEVEL
+	breaksw
+
+
+    # grpof / nogrpof
+    case "gprof":
+    case "GPROF":
+	setenv GPROF "yes"
+	unsetenv NODEBUG
+	starver $STAR_LEVEL
+	breaksw
+
+    case "nogprof":
+    case "NOGPROF":
+	unsetenv GPROF       
+	if ( -x $GROUP_DIR/dropit ) then
+	    setenv PATH            `$GROUP_DIR/dropit GBIN`
+	    setenv LD_LIBRARY_PATH `$GROUP_DIR/dropit -p $LD_LIBRARY_PATH GLIB`
+	endif
+	starver $STAR_LEVEL
+	breaksw
+
 
 
     #
