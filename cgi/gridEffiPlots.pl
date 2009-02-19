@@ -363,6 +363,7 @@ my $ndt = 0;
     $jobid = $jid."_".$proid;
 
  if(!defined($gsite)) {$gsite = "unknown"}
+    next if(!defined($sbday)) ;
 
     if( $glStatus == 129 ) {
 	$glStatus = -1;
