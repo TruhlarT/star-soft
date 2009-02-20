@@ -392,7 +392,6 @@ my $ndt = 0;
  %overEfH = { };
  %siteEff = { };
  %siteEffRs = { };
- %rseffjid = { }; 
 
       foreach $jstat (@jbstat) {
 
