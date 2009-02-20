@@ -86,7 +86,7 @@ $HPSS     = 1;                    # turn to 0 for UNIX staging only
                                   # HPSS staging was requested for Run5
 
 # disable at first
-$ThisYear = -1;
+# $ThisYear = -1;
 
 # Self-sorted vars
 $SELF  =  $0;
@@ -374,7 +374,8 @@ if ( $ThisYear == 2005 ){
 
 
     # at least, p+p calib
-    $DCHAIN{"PPPP"} = "pp2009a,ITTF,BEmcChkStat,QAalltrigs";
+    $DCHAIN{"PPPP"} = "pp2009a,ITTF,BEmcChkStat,QAalltrigs,btofDat";
+    #$DCHAIN{"PPPP"} = "pp2009b,ITTF,BEmcChkStat,QAalltrigs,btofDat"; <-- switch to this if trgd crash
     $SCALIB{"PPPP"} = "OptLaser";
 
     

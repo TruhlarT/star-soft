@@ -1437,8 +1437,14 @@ sub rdaq_file2hpss
     $file =~ m/(st_)(\w+_)(\d+)(_.*)/;
     $code = $3;
 
-    ($y,$dm,$n) = $code =~ m/(\d)(\d{3,})(\d{3,})/;
+
+    print "<!-- Getting $code -->\n" if ($DEBUG);
+    ($y,$dm,$n) = $code =~ m/(\d+)(\d{3,})(\d{3,})/;
+    print "<!-- Now $y $dm $n -->\n"   if ($DEBUG);
+
     $y += 1999;
+
+
     if($y <= 2000){
 	# The default path is to store by month
 	# We are NOT taking care of exceptions ...
