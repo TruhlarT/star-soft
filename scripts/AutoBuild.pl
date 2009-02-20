@@ -1,6 +1,6 @@
 #!/usr/bin/env perl
 
-# $Id: AutoBuild.pl,v 1.38 2008/12/03 20:42:56 jeromel Exp $
+# $Id: AutoBuild.pl,v 1.39 2009/02/20 01:31:17 jeromel Exp $
 # This script was written to perform an automatic compilation
 # with cvs co and write some html page related to it afterward.
 # Written J.Lauret Apr 6 2001
@@ -132,6 +132,20 @@ for ($i=0 ; $i <= $#ARGV ; $i++){
 	} elsif($arg eq "-a"){
 	    $CHENV    = $ARGV[++$i];
 	    $ALLARGS .= " $CHENV";
+
+	} elsif($arg eq "-A"){
+	    my(@LL) = sort keys %COMPILC;
+	    my($LIGNE,$cmd);
+
+	    $LIGNE    = $LL[0];
+
+	    $cmd      = $ARGV[++$i];
+	    $LIGNE    =~ s/%%CHENV%%/$cmd/;
+
+	    $cmd      = "echo ".($#LL+1+1);
+	    $LIGNE    =~ s/echo 1/$cmd/;
+	    $COMPILC{$LIGNE} = 1;
+
 
 	} elsif($arg eq "-o"){
 	    $FILO= $ARGV[++$i];
@@ -1169,8 +1183,14 @@ sub lhelp
  -p Path      Change the default $COMPDIR working directory
               to 'Path'. This option automatically disables post-compilation
               operations (-d option is ON).
+
  -a Cmd       Executes 'Cmd' before star library version change (can be used
               for executing a setup)
+ -A Cmd       Add 'Cmd' as an additional compilation environment setup. With
+              this option, AutoBuild may perform more than two passes. This
+              is useful if you want to syncrhonize other compilation passes
+              with the same code update (but beware that a failure of that
+              pass will make the entire compilation fail)
 
  -s           Silent i.e. do not send Email to managers on failures
  -d           Debug. DO NOT perform post compilation tasks and perform
