@@ -101,14 +101,11 @@ my %outEfH  = { };
 my %recoEfH = { };
 my %overEfH = { };
 my %siteEff = { };
-my %datetest = { };
-my %effjid = { };
+my %siteEffRs = { };
 my %rseffjid = { }; 
-my $nreco = 0;
 my @sites = ();
 my $msite;
 my $ptag = "none";
-my $gname;
 my $recoSt;
 my $jid;
 my $proid;
@@ -246,6 +243,10 @@ my $nday = 0;
 my @ardays = ();
 my $tdate;
 my $nsubmit;
+my @jbsub = ();
+my $njb = 0;
+my $jbt;
+
 
    if($pryear eq "2008") {
     $nowdate = "2007-12-31";
@@ -277,10 +278,60 @@ $day_diff = int($day_diff);
         $nday++;
       }
 
+###########
+
+   $sql="SELECT DISTINCT JobID_MD5, processID, submitAttempt, site, overAllState  FROM $JobEfficiencyT WHERE ( lastKnownState = 'done' OR lastKnownState = 'failed' OR lastKnownState = 'killed' OR lastKnownState = 'held' ) AND submitAttempt >= 2  AND site is not NULL ";
+
+     $cursor =$dbh->prepare($sql)
+      || die "Cannot prepare statement: $DBI::errstr\n";
+     $cursor->execute;
+
+      while(@fields = $cursor->fetchrow) {
+        my $cols=$cursor->{NUM_OF_FIELDS};
+          $fObjAdr = \(JobAttr->new());
+
+          for($i=0;$i<$cols;$i++) {
+             my $fvalue=$fields[$i];
+             my $fname=$cursor->{NAME}->[$i];
+#          print "$fname = $fvalue\n" ;
+
+      ($$fObjAdr)->jbid($fvalue)      if( $fname eq 'JobID_MD5');
+      ($$fObjAdr)->prcid($fvalue)     if( $fname eq 'processID');
+      ($$fObjAdr)->tsite($fvalue)     if( $fname eq 'site');
+      ($$fObjAdr)->ovrstat($fvalue)   if( $fname eq 'overAllState');
+      ($$fObjAdr)->nsubmt($fvalue)    if( $fname eq 'submitAttempt');
+
+        }
+       $jbsub[$njb] = $fObjAdr;
+        $njb++;
+      }
+
 my $ndt = 0;
 
  @overeff = ();
  @overeffrs = (); 
+ %rseffjid = { }; 
+
+######################
+ 
+    foreach $jbt (@jbsub) {
+
+    $jid       = ($$jbt)->jbid;
+    $proid     = ($$jbt)->prcid;
+    $gsite     = ($$jbt)->tsite; 
+    $ovrStat   = ($$jbt)->ovrstat;
+    $nsubmit   = ($$jbt)->nsubmt;  
+
+    $jobid = $jid."_".$proid;
+    
+
+    if($nsubmit >= 2 and $nsubmit <= 5 and $ovrStat eq "success") { 
+     
+        $rseffjid{$jobid}++;
+     }
+  }
+
+#####################
 
     foreach  $tdate (@ardays) {
 
@@ -341,8 +392,6 @@ my $ndt = 0;
  %overEfH = { };
  %siteEff = { };
  %siteEffRs = { };
- %datetest = { };
- %effjid = { };
  %rseffjid = { }; 
 
       foreach $jstat (@jbstat) {
@@ -388,14 +437,18 @@ my $ndt = 0;
 
  if ($ovrStat eq "success" ) {
 
-   
-       $siteEff{$sbday}++;
-       $effjid{$jobid}++;
-       $rseffjid{$jobid}++;
-   }
+    $siteEff{$sbday}++;
 
-#   $ndate[$ndt] = $sbday;
-    $ndate[$ndt] = $tdate;    
+   }else{
+
+     if($rseffjid{$jobid} >= 1) {
+     $siteEffRs{$sbday} = $siteEff{$sbday} + $rseffjid{$jobid}; 
+
+    }
+  }
+
+   $ndate[$ndt] = $sbday;
+#    $ndate[$ndt] = $tdate;    
 
    $njobs[$ndt] = $siteH{$sbday};
 
@@ -405,10 +458,8 @@ my $ndt = 0;
    $outputeff[$ndt] = $outEfH{$sbday}*100/$njobs[$ndt];
    $recoComeff[$ndt] = $recoEfH{$sbday}*100/$njobs[$ndt]; 
    $overeff[$ndt] = $siteEff{$sbday}*100/$njobs[$ndt];
+   $overeffrs[$ndt] = $siteEffRs{$sbday}*100/$njobs[$ndt];
 
-     }elsif($nsubmit >= 2 and $nsubmit < 5 and $ovrStat eq "success") { 
-     
-        $rseffjid{$jobid}++;
      }
    }
   $ndt++;
@@ -440,7 +491,7 @@ my $ndt = 0;
     $legend[5] = "Overall efficiency;       ";
     $legend[6] = "Overall efficiency with resubmission <= 4;";
 
-      @data = (\@ndate, \@globeff, \@logeff, \@inputef, \@outputeff, \@recoComeff, \@overeff ) ;
+      @data = (\@ndate, \@globeff, \@logeff, \@inputef, \@outputeff, \@recoComeff, \@overeff, \@overeffrs ) ;
   
  my $ylabel;
  my $gtitle; 
