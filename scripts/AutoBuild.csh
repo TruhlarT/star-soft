@@ -17,6 +17,8 @@
 #
 #   Insure     Builds Insure++ compilation
 #   icc        Builds with icc
+#   gprof      Builds with gprof options
+# 
 #   inter      Builds as per the default target but do not perform
 #              post compilation tasks (and do not send Email if
 #              failure) and do NOT perform cvs co either (-s -i)
@@ -158,6 +160,27 @@ if ( -r  $GROUP_DIR/star_login.csh ) then
 		endif
 		echo "Reverting to gcc setup"
 		setup gcc
+		breaksw
+
+
+	    case "gprof":
+		set LPATH=$AFS_RHIC/star/packages/adev
+		set SPATH=$AFS_RHIC/star/doc/www/comp/prod/Sanity
+		
+		# this is only for double checking. AutoBuild.pl is
+		# impermeable to external env changes (start a new process)
+		# so modifications has to be passed at command line level
+		echo "Testing setup gprof"
+		setup gprof
+		$SCRIPTD/AutoBuild.pl -1 -k -i -t -T gprof -a 'setup gprof' -p $LPATH 
+		if( -e $HOME/AutoBuild-linux-gprof.html) then
+		    mv -f $HOME/AutoBuild-linux-gprof.html $SPATH/AutoBuild-$1.html
+		endif
+		cd $LPATH
+		echo "Cleaning older libraries"
+		mgr/CleanLibs GOBJ 1
+		echo "Reverting to normal setup"
+		setup nogprof
 		breaksw
 
 
