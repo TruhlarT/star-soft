@@ -1,5 +1,11 @@
 #!/bin/csh
 
+#
+# Setup ROOT environment according to STAR path standard
+# Multiple version and scheme supported
+#
+set self="rootenv"
+
 #if ($#argv > 0) setenv ROOT_LEVEL $1
 if ($?STAR_HOST_SYS == 0) setenv STAR_HOST_SYS `sys`
 set level = `echo $ROOT_LEVEL | /bin/awk -F. '{print $1$2}'`
@@ -15,6 +21,10 @@ if ($level >= 305 )  then
     if ($?NODEBUG) set x = ""
 
     set ROOTBASE = "${ROOT}/${ROOT_LEVEL}/.${STAR_HOST_SYS}"
+
+    if ( ! -e ${ROOT}/${ROOT_LEVEL}/.${STAR_HOST_SYS}/${p}root${x} && $?DECHO )then
+	echo "$self :: Did not find ${p}root${x}"
+    endif
 
     if ( ! $?ROOTSYS || ! -e ${ROOT}/${ROOT_LEVEL}/.${STAR_HOST_SYS}/${p}root${x} ) then
 	# We set "a" default
@@ -58,6 +68,7 @@ if ( -x ${GROUP_DIR}/dropit) then
 	    setenv LD_LIBRARY_PATH `${GROUP_DIR}/dropit -p ${ROOTSYS}/GLIB -p ${LD_LIBRARY_PATH}`
 	endif
     else
+	# version is greater
 	if ($?NODEBUG) then
 	    setenv  LD_LIBRARY_PATH `${GROUP_DIR}/dropit -p ${ROOTBASE}/root/lib -p ${LD_LIBRARY_PATH}`
 	endif
