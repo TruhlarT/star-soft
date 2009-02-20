@@ -437,6 +437,7 @@ my $ndt = 0;
  if ($ovrStat eq "success" ) {
 
     $siteEff{$sbday}++;
+    $siteEffRs{$sbday} = $siteEff{$sbday};
 
    }else{
 
