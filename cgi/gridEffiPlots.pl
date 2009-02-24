@@ -280,7 +280,7 @@ $day_diff = int($day_diff);
 
 ###########
 
-   $sql="SELECT DISTINCT JobID_MD5, processID, submitAttempt, site, overAllState  FROM $JobEfficiencyT WHERE ( lastKnownState = 'done' OR lastKnownState = 'failed' OR lastKnownState = 'killed' OR lastKnownState = 'held' ) AND submitAttempt >= 2  AND AND site = ? ";
+   $sql="SELECT DISTINCT JobID_MD5, processID, submitAttempt, site, overAllState  FROM $JobEfficiencyT WHERE ( lastKnownState = 'done' OR lastKnownState = 'failed' OR lastKnownState = 'killed' OR lastKnownState = 'held' ) AND submitAttempt >= 2  AND site = ? ";
 
      $cursor =$dbh->prepare($sql)
       || die "Cannot prepare statement: $DBI::errstr\n";
