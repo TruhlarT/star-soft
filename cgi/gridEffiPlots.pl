@@ -267,11 +267,11 @@ $day_diff = int($day_diff);
 
    &GRdbConnect();
 
-   $sql="SELECT DISTINCT date_format(submitTime, '%Y-%m-%d') AS PDATE  FROM $JobEfficiencyT WHERE ( lastKnownState = 'done' OR lastKnownState = 'failed' OR lastKnownState = 'killed' OR lastKnownState = 'held' ) AND submitAttempt >= 1 AND (TO_DAYS(\"$nowdate\") - TO_DAYS(submitTime)) < ?  order by PDATE";
+   $sql="SELECT DISTINCT date_format(submitTime, '%Y-%m-%d') AS PDATE  FROM $JobEfficiencyT WHERE ( lastKnownState = 'done' OR lastKnownState = 'failed' OR lastKnownState = 'killed' OR lastKnownState = 'held' ) AND submitAttempt >= 1 AND site = ? AND (TO_DAYS(\"$nowdate\") - TO_DAYS(submitTime)) < ?  order by PDATE";
 
      $cursor =$dbh->prepare($sql)
       || die "Cannot prepare statement: $DBI::errstr\n";
-     $cursor->execute($day_diff);
+     $cursor->execute($qsite,$day_diff);
 
       while($myday = $cursor->fetchrow) {
         $ardays[$nday] = $myday;
@@ -280,11 +280,11 @@ $day_diff = int($day_diff);
 
 ###########
 
-   $sql="SELECT DISTINCT JobID_MD5, processID, submitAttempt, site, overAllState  FROM $JobEfficiencyT WHERE ( lastKnownState = 'done' OR lastKnownState = 'failed' OR lastKnownState = 'killed' OR lastKnownState = 'held' ) AND submitAttempt >= 2  AND site is not NULL ";
+   $sql="SELECT DISTINCT JobID_MD5, processID, submitAttempt, site, overAllState  FROM $JobEfficiencyT WHERE ( lastKnownState = 'done' OR lastKnownState = 'failed' OR lastKnownState = 'killed' OR lastKnownState = 'held' ) AND submitAttempt >= 2  AND AND site = ? ";
 
      $cursor =$dbh->prepare($sql)
       || die "Cannot prepare statement: $DBI::errstr\n";
-     $cursor->execute;
+     $cursor->execute($qsite);
 
       while(@fields = $cursor->fetchrow) {
         my $cols=$cursor->{NUM_OF_FIELDS};
@@ -327,7 +327,7 @@ my $ndt = 0;
 
     if($nsubmit >= 2 and $nsubmit <= 5 and $ovrStat eq "success") { 
      
-        $rseffjid{$jobid}++;
+        $rseffjid{$jobid}= 1;
      }
   }
 
