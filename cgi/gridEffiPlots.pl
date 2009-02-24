@@ -340,7 +340,7 @@ my $ndt = 0;
 
   if( $qsite eq "ALL" ) {
 
-      $sql="SELECT date_format(submitTime, '%Y-%m-%d') AS PDATE, JobID_MD5, processID, site, submitAttempt, globusError, dotOutHasSize, dotErrorHasSize, exec, transIn, transOut, overAllState FROM $JobEfficiencyT WHERE  submitTime like '$tdate%' AND (lastKnownState = 'done' OR lastKnownState = 'failed' OR lastKnownState = 'killed' OR lastKnownState = 'held' ) AND submitAttempt >= 1 AND prodType <> 'simu' "; 
+      $sql="SELECT date_format(submitTime, '%Y-%m-%d') AS PDATE, JobID_MD5, processID, site, submitAttempt, globusError, dotOutHasSize, dotErrorHasSize, exec, transIn, transOut, overAllState FROM $JobEfficiencyT WHERE  submitTime like '$tdate%' AND (lastKnownState = 'done' OR lastKnownState = 'failed' OR lastKnownState = 'killed' OR lastKnownState = 'held' ) AND submitAttempt = 1 AND prodType <> 'simu' "; 
 
     $cursor =$dbh->prepare($sql)
       || die "Cannot prepare statement: $DBI::errstr\n";
@@ -348,7 +348,7 @@ my $ndt = 0;
 
   }else{
 
-     $sql="SELECT date_format(submitTime, '%Y-%m-%d') AS PDATE, JobID_MD5, processID, site, submitAttempt, globusError, dotOutHasSize, dotErrorHasSize, exec, transIn, transOut, overAllState FROM $JobEfficiencyT WHERE site = ? AND submitTime like '$tdate%' AND (lastKnownState = 'done' OR lastKnownState = 'failed' OR lastKnownState = 'killed' OR lastKnownState = 'held') AND submitAttempt >= 1 AND prodType <> 'simu' ";
+     $sql="SELECT date_format(submitTime, '%Y-%m-%d') AS PDATE, JobID_MD5, processID, site, submitAttempt, globusError, dotOutHasSize, dotErrorHasSize, exec, transIn, transOut, overAllState FROM $JobEfficiencyT WHERE site = ? AND submitTime like '$tdate%' AND (lastKnownState = 'done' OR lastKnownState = 'failed' OR lastKnownState = 'killed' OR lastKnownState = 'held') AND submitAttempt = 1 AND prodType <> 'simu' ";
 
 
      $cursor =$dbh->prepare($sql)
@@ -447,8 +447,7 @@ my $ndt = 0;
     }
   }
 
-   $ndate[$ndt] = $sbday;
-#    $ndate[$ndt] = $tdate;    
+   $ndate[$ndt] = $sbday;    
 
    $njobs[$ndt] = $siteH{$sbday};
 
