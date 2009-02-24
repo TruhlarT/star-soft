@@ -441,7 +441,7 @@ my $ndt = 0;
 
    }else{
 
-     if($rseffjid{$jobid} >= 1) {
+     if($rseffjid{$jobid} = 1) {
      $siteEffRs{$sbday} = $siteEffRs{$sbday} + $rseffjid{$jobid}; 
 
     }
