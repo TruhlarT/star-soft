@@ -324,13 +324,21 @@ my $ndt = 0;
 
     $jobid = $jid."_".$proid;
 
-    $rseffjid{$jobid}= 0;
 
-    if($nsubmit >= 2 and $nsubmit <= 5 and $ovrStat eq "success") { 
+   if($ovrStat eq "success") {
+
+    if($nsubmit >= 2 and $nsubmit <= 5 ) { 
      
-        $rseffjid{$jobid}= 1;
+        $rseffjid{$jobid} = 1;
+     }else{
+        $rseffjid{$jobid} = 0;
+     }
+       }else{
+     $rseffjid{$jobid} = 0;
+ 
      }
   }
+
 
 #####################
 
@@ -428,10 +436,10 @@ my $ndt = 0;
  
     $logEfH{$sbday} =  $logEfH{$sbday} +  $lgStatus + $erStatus;
     $inEfH{$sbday} = $inEfH{$sbday} + $intrans; 
-    if( $outtrans = 1) { 
+    if( $outtrans == 1) { 
     $outEfH{$sbday}++;
     }
-    if( $recoSt = 1) {     
+    if( $recoSt == 1) {     
     $recoEfH{$sbday}++;
    }
 
