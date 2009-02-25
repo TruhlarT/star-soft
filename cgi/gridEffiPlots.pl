@@ -439,7 +439,7 @@ my $ndt = 0;
     if( $outtrans == 1) { 
     $outEfH{$sbday}++;
     }
-    if( $recoSt == 1) {     
+    if( $recoSt = 1) {     
     $recoEfH{$sbday}++;
    }
 
@@ -450,7 +450,7 @@ my $ndt = 0;
 
    }else{
 
-     if($rseffjid{$jobid} = 1) {
+     if($rseffjid{$jobid} == 1) {
      $siteEffRs{$sbday} = $siteEffRs{$sbday} + 1 ; 
 
     }
