@@ -280,7 +280,7 @@ $day_diff = int($day_diff);
 
 ###########
 
-   $sql="SELECT DISTINCT JobID_MD5, processID, submitAttempt, site, overAllState  FROM $JobEfficiencyT WHERE ( lastKnownState = 'done' OR lastKnownState = 'failed' OR lastKnownState = 'killed' OR lastKnownState = 'held' ) AND submitAttempt >= 2  AND site = ? ";
+   $sql="SELECT DISTINCT JobID_MD5, processID, submitAttempt, site, overAllState  FROM $JobEfficiencyT WHERE ( lastKnownState = 'done' OR lastKnownState = 'failed' OR lastKnownState = 'killed' OR lastKnownState = 'held' ) AND submitAttempt >= 1  AND site = ? ";
 
      $cursor =$dbh->prepare($sql)
       || die "Cannot prepare statement: $DBI::errstr\n";
@@ -323,7 +323,8 @@ my $ndt = 0;
     $nsubmit   = ($$jbt)->nsubmt;  
 
     $jobid = $jid."_".$proid;
-    
+
+    $rseffjid{$jobid}= 0;
 
     if($nsubmit >= 2 and $nsubmit <= 5 and $ovrStat eq "success") { 
      
@@ -442,7 +443,7 @@ my $ndt = 0;
    }else{
 
      if($rseffjid{$jobid} = 1) {
-     $siteEffRs{$sbday} = $siteEffRs{$sbday} + $rseffjid{$jobid}; 
+     $siteEffRs{$sbday} = $siteEffRs{$sbday} + 1 ; 
 
     }
   }
