@@ -5,10 +5,13 @@
 # of te FileCatalog database
 #
 # Written by Adam Kisiel, Warsaw University of Technology (2002)
-# Modified by J.Lauret, BNL 2002-2006
+#
+# Modified by J.Lauret, BNL 2002-2009
 #
 
-use lib "/afs/rhic.bnl.gov/star/packages/scripts";
+use Env qw(STAR_SCRIPTS);
+use lib "$STAR_SCRIPTS";
+#use lib "/star/u/jeromel/work/ddb";
 use strict;
 use FileCatalog;
 
@@ -200,6 +203,8 @@ if ( $passwd eq "" ){
     chomp($passwd = <STDIN>);
 }
 
+# Introduce new method to manage load
+$fileC->set_thresholds(100,5,2);
 
 
 #
