@@ -1,7 +1,7 @@
 # FileCatalog.pm
 #
 # Written by Adam Kisiel, November-December 2001
-# Written and/or Modified by J.Lauret, 2002 - 2005
+# Written and/or Modified by J.Lauret, 2002 - 2009
 #
 # Methods of class FileCatalog:
 #
@@ -87,6 +87,8 @@
 #        -> flush_delayed() flush out i.e. execute all delayed commands.
 #        -> print_delayed() print out on screen all delayed commands.
 #
+#        -> set_thresholds() sets an upper limit for number of SELECT, INSERT, DELETE
+#
 #
 # NOT YET DOCUMENTED
 #
@@ -114,6 +116,8 @@ require  Exporter;
 	     check_ID_for_params insert_dictionary_value
 	     get_detectors
 
+	     set_thresholds
+
 	     debug_on debug_off message_class
 	     Require Version
 
@@ -123,7 +127,7 @@ require  Exporter;
 
 
 use vars qw($VERSION);
-$VERSION   =   "V01.358";
+$VERSION   =   "V01.360";
 
 # The hashes that hold a current context
 my %optoperset;
@@ -159,8 +163,11 @@ my $dbpass    =   "FCatalog";
 my $sth;
 
 # Some other name-spaced globals
-$FC::DBH;
+$FC::DBH          = undef;
 $FC::DBCONTIMEOUT = 5;
+$FC::INTENT       = "User";
+@FC::LOADMANAGE   = (0,0,0); # s,i,d
+
 
 
 # hash of keywords
@@ -732,7 +739,6 @@ sub _ReadConfig
 	    my($site,$lintent);
 	    my($ref,$server) ;
 	    my($bref);
-
 	    # intent can be BNL::Admin
 	    if ($intent =~ /::/){
 		($site,$lintent) = split("::",$intent);
@@ -740,6 +746,7 @@ sub _ReadConfig
 		$site    = (defined($DSITE)?$DSITE:"");
 		$lintent = $intent;
 	    }
+	    $FC::INTENT = $lintent;  # save it for later
 
 	    #
 	    # schema change in terms of object inheritance is not that
@@ -762,7 +769,7 @@ sub _ReadConfig
 		$bref = $XMLREF->{SITE};
 		foreach my $key (keys %{$XMLREF->{SITE}} ){
 		    if ($key eq $site || $site eq ""){
-			&print_debug("_ReadConfig","XML :: Parsing for SITE=$key (agree with intent=$lintent)");
+			&print_debug("_ReadConfig","XML :: Parsing for SITE=$key (agree with intent=$FC::INTENT)");
 			@servers = @{$XMLREF->{SITE}->{$key}->{SERVER}};
 			last;
 		    }
@@ -773,8 +780,8 @@ sub _ReadConfig
 	    # Several servers will appear in an array of hashes
 	    if ($#servers != -1){
 		foreach my $key2 ( @servers ){
-		    if ( $key2->{SCOPE} eq $lintent ){
-			&print_debug("_ReadConfig","XML :: Found entry for intent=$lintent (as requested)");
+		    if ( $key2->{SCOPE} eq $FC::INTENT ){
+			&print_debug("_ReadConfig","XML :: Found entry for intent=$FC::INTENT (as requested)");
 			my (@hosts) = @{$key2->{HOST}};
 
 			if ($#hosts != -1){
@@ -840,9 +847,10 @@ sub _ReadConfig
 		$site    = (defined($DSITE)?$DSITE:"");
 		$lintent = $intent;
 	    }
+	    $FC::INTENT = $lintent;
 
 	    if ( ! defined($flag) ){
-		&print_debug("_ReadConfig","Searching for $lintent in $config");
+		&print_debug("_ReadConfig","Searching for $FC::INTENT in $config");
 	    }
 	    open(FI,$config);
 
@@ -867,8 +875,8 @@ sub _ReadConfig
 		    $scope = $2;
 
 		    # the intent flag is not yet set
-		    &print_debug("_ReadConfig","XML :: Comparing scopes found=[$scope] intent=[$lintent]");
-		    if ($scope =~ m/$lintent/){
+		    &print_debug("_ReadConfig","XML :: Comparing scopes found=[$scope] intent=[$FC::INTENT]");
+		    if ($scope =~ m/$FC::INTENT/){
 			&print_debug("_ReadConfig","XML :: scope matches intent (mask ON)");
 			$ok = 1;
 		    } else {
@@ -1104,6 +1112,51 @@ sub _Connect
     }
     &print_debug("_Connect","Caching is ".($FC::HASCACHE?"ON":"OFF"));
 
+
+    # check number of SELECT but only if Admin
+    if ($FC::INTENT =~ /Admin/i){
+    	my($sth) = $FC::DBH->prepare("SHOW PROCESSLIST");
+	&print_debug("_Connect","Additional information");   
+ 	my(@val);
+	my($sel,$ins,$delr)=(0,0,0);
+	my($cond)=0;
+
+    	if ( $sth->execute() ){
+	    while ( @val = $sth->fetchrow_array() ){
+		&print_debug("_Connect","Running >> ".$val[7]);
+		if ($val[7] =~ /SELECT/){
+		    $sel++;
+		} elsif ($val[7] =~ /INSERT/){
+		    $ins++;
+		} elsif ($val[7] =~ /DELETE/){
+		    $delr++;
+		}
+	    }
+	}
+	$sth->finish();
+	&print_debug("_Connect","SELECT=$sel INSERT=$ins DELETE=$delr");
+
+	if ( $cond = ($sel > $FC::LOADMANAGE[0] && $FC::LOADMANAGE[0] > 0) ){
+	    &print_message("_Connect","SELECT=$sel INSERT=$ins DELETE=$delr - SELECT greater than threshold $FC::LOADMANAGE[0]");
+	} elsif ( $cond = ($ins > $FC::LOADMANAGE[1] && $FC::LOADMANAGE[1] > 0) ){
+	    &print_message("_Connect","SELECT=$sel INSERT=$ins DELETE=$delr - INSERT greater than threshold $FC::LOADMANAGE[1]");
+	} elsif ( $cond = ($delr > $FC::LOADMANAGE[2] && $FC::LOADMANAGE[2] > 0) ){
+	    &print_message("_Connect","SELECT=$sel INSERT=$ins DELETE=$delr - DELETE greater than threshold $FC::LOADMANAGE[2]");
+	}
+	if ($cond){
+	    &destroy();
+	    if ( $tries < $NCTRY-1){
+		&print_message("_Connect","Will sleep for ".($NCSLP*2)." seconds and retry");
+		&destroy();   sleep($NCSLP*2);
+		goto CONNECT_TRY;
+	    } else {
+		&print_message("_Connect","No luck - please try later");
+		return 0;
+	    }
+	}
+    }
+
+
     # Set/Unset global variables here
     $FC::IDX = -1;
 
@@ -1139,6 +1192,21 @@ sub _Connect
 	}
 	return 1;
     }
+}
+
+
+
+#
+# Sets thresholds
+#
+sub set_thresholds
+{
+   if ($_[0] =~ m/FileCatalog/) {   shift(@_);}
+   my($s,$i,$d)=@_;  
+
+   if ( defined($s) ){  $FC::LOADMANAGE[0] = $s;}
+   if ( defined($i) ){  $FC::LOADMANAGE[1] = $i;}
+   if ( defined($d) ){  $FC::LOADMANAGE[2] = $d;}
 }
 
 
