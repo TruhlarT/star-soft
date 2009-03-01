@@ -375,7 +375,7 @@ if ( $ThisYear == 2005 ){
 
     # at least, p+p calib
     $DCHAIN{"PPPP"} = "pp2009a,ITTF,BEmcChkStat,QAalltrigs,btofDat";
-    #$DCHAIN{"PPPP"} = "pp2009b,ITTF,BEmcChkStat,QAalltrigs,btofDat"; <-- switch to this if trgd crash
+    # $DCHAIN{"PPPP"} = "pp2009b,ITTF,BEmcChkStat,QAalltrigs,btofDat"; # <-- switch to this if trgd crash
     $SCALIB{"PPPP"} = "OptLaser";
 
     
@@ -662,14 +662,14 @@ if( $TARGET =~ m/^\// || $TARGET =~ m/^\^\// ){
 			    push(@SKIPPED,$file);
 			} else {
 			    $run  = $2;
-			    #print "DEBUG:: Deduced run=$run\n";
+			    # print "DEBUG:: Deduced run=$run\n";
 
 			    # Check run-number
 			    if ($prun != $run){
 				$count = 0;
 				$prun  = $run;
 			    } else {
-				#print "DEBUG:: Same run but $count cmp $THROTTLE\n";
+				# print "DEBUG:: Same run but $count cmp $THROTTLE\n";
 				$count++;
 				if ( $count >= $THROTTLE && $THROTTLE != 0){ next;}
 			    }
@@ -774,7 +774,17 @@ if( $TARGET =~ m/^\// || $TARGET =~ m/^\^\// ){
 	    # or has been marked for re-run. We will recognize
 	    # a new run by a run number only on a line.
 	    @items = split(" ",$line);
+	    
+	    # eliminate duplicate runs first
+	    if ( defined($KRUN{$items[0]}) ){
+		print "$SELF : Ignoring [$line] duplicate of previous record $KRUN{$items[0]} (already in?)\n";
+		rdaq_set_message($SSELF,"Ignoring [$line] duplicate of previous record $KRUN{$items[0]} (already in?)");
+		next;
+	    } else {
+		$KRUN{$items[0]} = $line;
+	    }
 
+	    # now, sort case
 	    if (defined($items[3]) ){
 		$patt = $items[3];
 	    } else {
@@ -793,7 +803,7 @@ if( $TARGET =~ m/^\// || $TARGET =~ m/^\^\// ){
 		}
 		$SEL{"runNumber"} = $items[0];
 
-		#foreach (keys %SEL){   print "XXXXDEBUG:: $_ $SEL{$_}\n";}
+		# foreach (keys %SEL){   print "XXXXDEBUG:: $_ $SEL{$_}\n";}
 
 
 		@files = rdaq_get_orecords($obj,\%SEL,-1);
@@ -1108,8 +1118,8 @@ sub Submit
     # get field as string
     $field = &rdaq_scaleToString($items[6]);
 
-    #print "$SELF : DEBUG scale=$items[6] --> $field\n"  if ($DEBUG);
-    #print "$SELF : DEBUG 10=$items[10] 11=$items[11]\n" if ($DEBUG);
+    # print "$SELF : DEBUG scale=$items[6] --> $field\n"  if ($DEBUG);
+    # print "$SELF : DEBUG 10=$items[10] 11=$items[11]\n" if ($DEBUG);
 
     # Trigger setup string
     $trgsn = rdaq_trgs2string($items[10]);
@@ -1118,7 +1128,7 @@ sub Submit
     # Detector setup information
     $dets  = rdaq_bits2string("DetSetMask",$items[9]);
 
-    #print "$SELF : DEBUG 10=$trgsn 11=$trgrs\n"          if ($DEBUG);
+    # print "$SELF : DEBUG 10=$trgsn 11=$trgrs\n"          if ($DEBUG);
 
     if($chain eq "" || $chain eq "none" || $chain eq "default"){
 	$chain = $DCHAIN{$coll};
@@ -1203,7 +1213,8 @@ sub Submit
     # Note that skipping dets when tpc is not present is ONLY related to
     # mode 1. While mode is weakly related to regular/calib/bypass, mode Z (ezTree)
     # uses mode=1 and will therefore ACCEPT files with no tpc information in.
-    if ( $dets ne "tpc" && $dets !~ m/\.tpc/ &&  $dets !~ m/tpc\./){
+    if ( $dets ne "tpc" && $dets !~ m/\.tpc/ &&  $dets !~ m/tpc\./ &&
+	 $dets ne "tpx" && $dets !~ m/\.tpx/ &&  $dets !~ m/tpx\./){
 	if ($mode != 1){
 	    print "$SELF : Info : detectors are [$dets] (not including tpc) skipping it\n";
 	    push(@SKIPPED,$file);
