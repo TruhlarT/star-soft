@@ -1,0 +1,87 @@
+#!/usr/bin/env perl
+
+#
+# Initial version to help users locate files
+# J. Lauret 2009
+#
+
+use Env qw(STAR_SCRIPTS);
+use lib "$STAR_SCRIPTS";
+
+use RunDAQ;
+
+$obj   = rdaq_open_odatabase();
+
+foreach $run (@ARGV){
+    
+    if ($run =~ m/(\d+)-(\d+)/){
+	$lowrn = $1;
+	$highr = $2;
+	for ($r=$lowrn; $r<=$highr; $r++){
+	    &ProcessRun($r);
+	}
+    } else {
+	&ProcessRun($run);
+    }
+}
+rdaq_close_odatabase($obj);
+
+
+sub ProcessRun {
+    my($run)=@_;
+    
+    # prepare conditons but one by one
+    $Conds{runNumber} = $run;
+    
+    @all = rdaq_get_orecords($obj,\%Conds,0,-1);
+
+    if ($#all == -1){
+	print "Do not know about runNumber=$run\n";
+    } else {
+	print "runNumber=$run summary\n";
+	foreach $ligne (@all){
+	    @info = split(" ",$ligne);
+	    $status = $info[$#info]; 
+	    $numevt = $info[2];
+	    $stsstr = rdaq_status_string($status);
+
+	    printf "%40.40s - %10.10s (%6.6d) ",$info[0],$stsstr,$numevt;
+	    
+	    $xtra = "";
+	    if ($numevt == 0){
+		$reason = "Unknown/delayed evt";
+		$xtra   = "Ignored";
+	    } elsif ( $numevt<100){
+		$reason = "Low event count";
+		$xtra   = "Skipped";
+	    } else {
+		$reason = "OK";
+	    }
+
+	    # analyze/sort more potential problems
+	    if ( $info[9] == 0){
+		$reason = "Unknown detector set";
+		$xtra   = "Ignored";
+	    } elsif ( $info[9] == 0){
+		$reason = "Unknown trigger set";
+		$xtra   = "Ignored";		
+	    }
+	    
+	  
+	    # check location
+	    $loc = rdaq_get_location($obj,$info[0]);
+
+	    if ( $loc ne 0 && $xtra eq ""){
+		$xtra = "ON DISK";
+	    } elsif ( $status == 1 && $xtra eq ""){
+		$xtra = "Check later";
+	    }
+	    
+	    printf "%20.20s %12.12s %s\n",$reason,$xtra,($loc ne 0?$loc:"");
+
+	} 
+    }
+    
+    
+}
+
