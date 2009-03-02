@@ -29,11 +29,18 @@ const struct tpx_fee_override_struct {
 	u_char curr_altro ;	// what the backplanes reads
 	u_char orig_altro ;	// what is _should_ read!
 } tpx_fee_override[] = {
+#ifdef TEST_RDO_ZG
+	{ 24, 1,   0,  90 },
+	{ 24, 1, 250, 100 },	// FEE reads 235, should 107
+	{ 24, 1, 252, 102 },	// FEE reads 230, should 166 
+	{ 24, 1, 254, 104 },
+#else
 	{ 6, 3, 254, 200 },
 	{ 7, 3, 214, 214 },	// FEE reads 235, should 107
 	{ 7, 1, 204,  76 },	// FEE reads 230, should 166 
 	{16, 5, 250,  80 },
 	{23, 5, 194, 130 },	// FEE reads 97, should be 65 
+#endif
 } ;
    
 const int tpx_fee_override_cou = sizeof(tpx_fee_override)/sizeof(tpx_fee_override[0]) ;
