@@ -596,5 +596,6 @@ print <<END;
      <h1 align=center>No Data for that Period</h1>
 
     </body>
+   </html>
 END
 }
