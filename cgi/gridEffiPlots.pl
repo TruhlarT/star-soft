@@ -587,7 +587,7 @@ sub GRdbDisconnect {
 
 sub beginHtml {
 
-print STDOUT <<END;
+print <<END;
   <html>
    <head>
           <title>Jobs Efficiency</title>
