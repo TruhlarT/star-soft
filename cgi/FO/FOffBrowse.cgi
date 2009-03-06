@@ -81,6 +81,7 @@ $DLOG  = "<A HREF=\"$this_script?Trace=1\"><IMG BORDER=\"0\" SRC=\"/icons/text.g
 #$LINKREF = "http://online.star.bnl.gov/$TARGET/Summary.php3?run=";
 $TARGET  = "RunLog";
 $LINKREF = "http://online.star.bnl.gov/$TARGET/Summary.php?run=";
+$ESLREF  = "http://online.star.bnl.gov/apps/shiftLog/logForFullTextSearch.jsp?text=";
 
 $CACHES  = 120;
 
@@ -305,6 +306,7 @@ if( $flag && ! $trace ){
 	# There were no records within this selection.
 	print 
 	    "Nothing was returned for the following selection<br>\n",
+	    "To return, click $BBACK, see the log $DLOG\n",
 	    "<blockquote>\n";
 	foreach $field (keys %SEL){
 	    print "<u>$field</u> : $SEL{$field}<br>\n";
@@ -314,6 +316,13 @@ if( $flag && ! $trace ){
 		    print 
 			"<BLOCKQUOTE>\n",
 			"This run number is in transit. Latest valid one is $lrun\n",
+			"</BLOCKQUOTE>";
+		} else {
+		    # add helper links
+		    print 
+			"<BLOCKQUOTE>\n",
+			"Check the RunLog for <A HREF=\"$LINKREF$SEL{$field}\" TARGET=\"$TARGET\">$SEL{$field}</A><br>\n",
+			"Check the ShiftLog for <A HREF=\"$ESLREF$SEL{$field}\" TARGET=\"ESL\">$SEL{$field}</A><br>\n",
 			"</BLOCKQUOTE>";
 		}
 	    }
@@ -565,7 +574,7 @@ sub FormatLine
     for($j=0 ; $j <= ($#vals) ; $j++){
 	$eli = $el  = $vals[$j];
 	if($j == 0 && $dol){
-	    $el = "<A HREF=\"$LINKREF$run\" TARGET=\"$TARGET\">$el</A>";
+	    $el = "<A HREF=\"$LINKREF$run\" TARGET=\"$TARGET\">$el</A>&nbsp;<FONT SIZE=\"-2\">[<A HREF=\"$ESLREF$run\">ESL</A>]</FONT>";
 	} elsif($j == 1){
 	    # skip runnmuber
 	    next;
