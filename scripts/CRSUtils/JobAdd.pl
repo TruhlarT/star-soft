@@ -51,12 +51,15 @@ while (-e "FastOff.lock"){
 }
 
 
-open(FO,">>JobSubmit$ver.lis");
-foreach $seq (@TOADD){
-    print "Adding [$seq]\n";
-    print FO "$seq\n";
+if ( open(FO,">>JobSubmit$ver.lis") ){
+    foreach $seq (@TOADD){
+	print "Adding [$seq]\n";
+	print FO "$seq\n";
+    }
+    close(FO);
+} else {
+    print "Could not open JobSubmit$ver.lis (protection issue? wrong account? space?)\n";
 }
-close(FO);
 
 
 
