@@ -374,7 +374,7 @@ if ( $ThisYear == 2005 ){
 
 
     # at least, p+p calib
-    $DCHAIN{"PPPP"} = "pp2009a,ITTF,BEmcChkStat,QAalltrigs,btofDat";
+    $DCHAIN{"PPPP"} = "pp2009a,ITTF,BEmcChkStat,QAalltrigs,btofDat,Corr3";
     # $DCHAIN{"PPPP"} = "pp2009b,ITTF,BEmcChkStat,QAalltrigs,btofDat"; # <-- switch to this if trgd crash
     $SCALIB{"PPPP"} = "OptLaser";
 
@@ -696,7 +696,7 @@ if( $TARGET =~ m/^\// || $TARGET =~ m/^\^\// ){
 	}
 	if(-e $LOCKF){  unlink($LOCKF);}
     } else {
-	rdaq_set_message($SSELF,"No slots available","$USEQ[0] / $SPILL[0]","mode=direct");
+	rdaq_set_message($SSELF,"No slots available within range $USEQ[0] / $SPILL[0]","mode=direct");
     }
 
 
@@ -773,12 +773,13 @@ if( $TARGET =~ m/^\// || $TARGET =~ m/^\^\// ){
 	    # There are 2 possibilities. The run is new
 	    # or has been marked for re-run. We will recognize
 	    # a new run by a run number only on a line.
+	    $line  =~ s/^\s*(.*?)\s*$/$1/;
 	    @items = split(" ",$line);
 	    
 	    # eliminate duplicate runs first
 	    if ( defined($KRUN{$items[0]}) ){
 		print "$SELF : Ignoring [$line] duplicate of previous record $KRUN{$items[0]} (already in?)\n";
-		rdaq_set_message($SSELF,"Ignoring [$line] duplicate of previous record $KRUN{$items[0]} (already in?)");
+		rdaq_set_message($SSELF,"Duplicate request","Ignoring [$line] - found previous record $KRUN{$items[0]}");
 		next;
 	    } else {
 		$KRUN{$items[0]} = $line;
@@ -896,7 +897,7 @@ if( $TARGET =~ m/^\// || $TARGET =~ m/^\^\// ){
 		}
 	    } else {
 		print "$SELF : Run $run will be ignored. No files returned by ddb\n";
-		rdaq_set_message($SSELF,"Run $run will be ignored. No files returned by ddb");
+		rdaq_set_message($SSELF,"No files returned by ddb","Run $run will be ignored");
 	    }
 	}
 
@@ -969,7 +970,7 @@ if( $TARGET =~ m/^\// || $TARGET =~ m/^\^\// ){
 		rdaq_set_files($obj,5,@OKFILES);  # special flag
 		rdaq_set_chain($obj,$SCHAIN,@OKFILES);
 		# rdaq_toggle_debug(1);
-		#print ">> marking skipped $#SKIPPED $#OKFILES\n";
+		# print ">> marking skipped $#SKIPPED $#OKFILES\n";
 		#
 		# ATTENTION - not counting the real submitted has side
 		# effects
@@ -1068,7 +1069,7 @@ if( $TARGET =~ m/^\// || $TARGET =~ m/^\^\// ){
 	if(-e $LOCKF){  unlink($LOCKF);}
     } else {
 	print "$SELF : Target=Z - There are no slots available within range $USEQ[0] / $SPILL[0]\n";
-	rdaq_set_message($SSELF,"Target=XForm - No slots available within range $USEQ[0] / $SPILL[0]");
+	rdaq_set_message($SSELF,"No slots available within range $USEQ[0] / $SPILL[0]","Target=XForm");
     }
 
 
@@ -1155,7 +1156,7 @@ sub Submit
 	# Mode to is calibration only so if we are missing
 	# the option, do NOT continue.
 	push(@SKIPPED,$file);
-	print "$SELF : Info : mode 2 requested and calib is empty\n";
+	print "$SELF : Info : mode 2 requested and calib is empty $file\n";
 	return 0;
     } elsif ($calib eq ""){
 	# Change it to a dummy value so the
@@ -1173,7 +1174,7 @@ sub Submit
     # has answered saying we can skip the 'test' ones.
     #
     if ( $file =~ /pedestal/){
-	print "$SELF : Info : Skipping $file (name matching exclusion)\n";
+	print "$SELF : Info : Skipping $file (name matching exclusion on pedestal)\n";
 	push(@SKIPPED,$file);
 	return 0;
 
@@ -1183,7 +1184,7 @@ sub Submit
 	return 0;
 
     } elsif ( $trgrs eq "pedestal" || $trgrs eq "pulser" ||
-	 $trgsn eq "pedestal" || $trgsn eq "pulser" ){
+	      $trgsn eq "pedestal" || $trgsn eq "pulser" ){
 	print "$SELF : Info : Skipping $file has setup=$trgsn 'triggers'=$items[11]=$trgrs\n";
 	push(@SKIPPED,$file);
 	return 0;
@@ -1216,7 +1217,7 @@ sub Submit
     if ( $dets ne "tpc" && $dets !~ m/\.tpc/ &&  $dets !~ m/tpc\./ &&
 	 $dets ne "tpx" && $dets !~ m/\.tpx/ &&  $dets !~ m/tpx\./){
 	if ($mode != 1){
-	    print "$SELF : Info : detectors are [$dets] (not including tpc) skipping it\n";
+	    print "$SELF : Info : detectors are [$dets] (not including tpc) skipping $file\n";
 	    push(@SKIPPED,$file);
 	    return 0;
 	} else {
@@ -1391,7 +1392,7 @@ __EOF__
 		    return 1;
 		}
 	    } else {
-		rdaq_set_message($SSELF,"DEBUG is ON - There will be no submission");
+		rdaq_set_message($SSELF,"Notice","DEBUG is ON - There will be no submission");
 		print "$SELF : DEBUG is on, $jfile not submitted\n";
 		return 0;
 	    }
