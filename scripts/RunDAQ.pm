@@ -609,7 +609,7 @@ sub rdaq_hack
     # Will later be in beamInfo table. Use global
     # variable for spead.
     # THIS IS NOW IN THE DATABASE. Moi : Jul 20th 2001
-    #push(@res,"AuAu");
+    # push(@res,"AuAu");
 
 
     # Dataset selection, the DetectorTypes was filled by hand.
@@ -619,7 +619,7 @@ sub rdaq_hack
 
     # Trigger label
     # Year2
-    #$sthl = $obj->prepare("SELECT triggerLabel,numberOfEvents FROM triggerSet ".
+    # $sthl = $obj->prepare("SELECT triggerLabel,numberOfEvents FROM triggerSet ".
     #			  "WHERE runNumber=? ORDER BY triggerLabel DESC");
     # Year3
     $sthl = $obj->prepare("SELECT name,numberOfEvents FROM l0TriggerSet ".
@@ -862,8 +862,8 @@ sub rdaq_get_files
     # Default values will be sorted out here.
     if( ! defined($limit) ){  $limit = 0;}
     if( ! defined($mode)  ){  $mode  = 0;}
-    if( ! defined($status)){  $status= 0;}
-    #if( ! defined($ftype) ){  $ftype = 1;}
+    # if( ! defined($status)){  $status= 0;}
+    # if( ! defined($ftype) ){  $ftype = 1;}
 
     if ( defined($SEL) ){
 	# consider it as a hash reference and transfer
@@ -872,7 +872,7 @@ sub rdaq_get_files
     }
 
     # We MUST pass a reference to a hash.
-    $Conds{"Status"} = $status;
+    $Conds{"Status"} = $status if defined($status);
     if ( $#ftypes != -1){
 	if ( $#ftypes > 0 ){
 	    # switch to OR syntax
