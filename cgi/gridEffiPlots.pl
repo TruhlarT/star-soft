@@ -28,7 +28,7 @@ $dbname="Scheduler_bnl";
 
 
 
- struct JobAttr => {
+struct JobAttr => {
     subday      => '$',
       jbid      => '$',
      prcid      => '$', 
@@ -42,10 +42,10 @@ $dbname="Scheduler_bnl";
     rftime      => '$',
     ovrstat     => '$',
     nsubmt      => '$', 
-		    };
+};
 
 
-($sec,$min,$hour,$mday,$mon,$year) = localtime;
+($sec,$min,$hour,$mday,$mon,$year) = localtime();
 
 
 if( $mon < 10) { $mon = '0'.$mon };
@@ -116,453 +116,438 @@ my $inSt;
 my $outSt;
 
  
-  &GRdbConnect();
+&GRdbConnect();
 
  
- my @arperiod = ("week","1_month","2_months","3_months","4_months","5_months","6_months","7_months","8_months","9_months","10_months","11_months","12_months");
+my @arperiod = ("week","1_month","2_months","3_months","4_months","5_months","6_months","7_months","8_months","9_months","10_months","11_months","12_months");
 
 
-  $sql="SELECT DISTINCT site  FROM $JobEfficiencyT where site is not NULL ";
+$sql="SELECT DISTINCT site  FROM $JobEfficiencyT where site is not NULL ";
 
-   $cursor =$dbh->prepare($sql)
-      || die "Cannot prepare statement: $DBI::errstr\n";
-   $cursor->execute;
+$cursor =$dbh->prepare($sql)
+  || die "Cannot prepare statement: $DBI::errstr\n";
+$cursor->execute();
 
-    while($mysite = $cursor->fetchrow) {
-        $arsites[$nsite] = $mysite;
-        $nsite++;
-      }
+while( $mysite = $cursor->fetchrow() ) {
+    $arsites[$nsite] = $mysite;
+    $nsite++;
+}
+$cursor->finish();
 
-   $cursor->finish; 
 
-  push @sites, @arsites;
+push(@sites, @arsites);
 #  push @arsites, "ALL";
    
-    &GRdbDisconnect();
+&GRdbDisconnect();
 
- my $query = new CGI;
+my $query = new CGI;
 
 my $scriptname = $query->url(-relative=>1);
 
- my $pryear  = $query->param('ryear');
- my $qperiod = $query->param('period');
- my $qsite   = $query->param('prodsite');
+my $pryear  = $query->param('ryear');
+my $qperiod = $query->param('period');
+my $qsite   = $query->param('prodsite');
 
- if( $qperiod eq "" and $qsite eq "" and $pryear eq "" ) {
-
-
-print $query->header;
-print $query->start_html('Grid Jobs efficiency');
-print <<END;
+if( $qperiod eq "" and $qsite eq "" and $pryear eq "" ) {
+    print $query->header();
+    print $query->start_html('Grid Jobs efficiency');
+    print <<END;
 <META HTTP-EQUIV="Expires" CONTENT="0">
 <META HTTP-EQUIV="Pragma" CONTENT="no-cache">
 <META HTTP-EQUIV="Cache-Control" CONTENT="no-cache">
 END
-print $query->startform(-action=>"$scriptname");
+    print $query->startform(-action=>"$scriptname");
 
-print "<body bgcolor=\"cornsilk\">\n";
-print "<h1 align=center><u>Grid Production Efficiency</u></h1>\n";
-print "<br>";
-print "<br>";
-print <<END;
-
+    print "<body bgcolor=\"cornsilk\">\n";
+    print "<h1 align=center><u>Grid Production Efficiency</u></h1>\n";
+    print "<br>";
+    print "<br>";
+    print <<END;
 <hr>
 <table BORDER=0 align=center width=99% cellspacing=3>
 <tr ALIGN=center VALIGN=CENTER NOSAVE>
 <td>
 END
 
-print "<p>";
-print "</td><td>";
-print "<h3 align=center> Select year</h3>";
-print "<h4 align=center>";
-print  $query->scrolling_list(-name=>'ryear',
-                             -values=>\@prodyear,
-                             -default=>2009,
-      			     -size =>1);
+    print "<p>";
+    print "</td><td>";
+    print "<h3 align=center> Select year</h3>";
+    print "<h4 align=center>";
+    print  $query->scrolling_list(-name=>'ryear',
+	                          -values=>\@prodyear,
+	                          -default=>2009,
+      			          -size =>1);
+
+    print "<p>";
+    print "</td><td>";  
+    print "<h3 align=center> Period of monitoring</h3>";
+    print "<h4 align=center>";
+    print  $query->scrolling_list(-name=>'period',
+                                  -values=>\@arperiod,
+                                  -default=>week,
+                                  -size =>1); 
 
 
-
-print "<p>";
-print "</td><td>";  
-print "<h3 align=center> Period of monitoring</h3>";
-print "<h4 align=center>";
-print  $query->scrolling_list(-name=>'period',
-                             -values=>\@arperiod,
-                             -default=>week,
-                             -size =>1); 
-
-
-print "<p>";
-print "</td><td>";
-print "<h3 align=center>Production Site</h3>";
-print "<h4 align=center>";
-print  $query->scrolling_list(-name=>'prodsite',
-                             -values=>\@arsites,
-                             -default=>pdsf,
-                             -size =>1); 
+    print "<p>";
+    print "</td><td>";
+    print "<h3 align=center>Production Site</h3>";
+    print "<h4 align=center>";
+    print  $query->scrolling_list(-name=>'prodsite',
+	                          -values=>\@arsites,
+                                  -default=>pdsf,
+                                  -size =>1); 
 
 
-print "<p>";
-print "</td><td>";
-print "</td> </tr> </table><hr><center>";
+    print "<p>";
+    print "</td><td>";
+    print "</td> </tr> </table><hr><center>";
 
-print "</h4>";
-print "<br>";
-print "<br>";
-print "<br>";
-print $query->submit,"<p>";
-print $query->reset;
-print $query->endform;
-print "<br>";
-print "<br>";
-print "<address><a href=\"mailto:didenko\@bnl.gov\">Lidia Didenko</a></address>\n";
+    print "</h4>";
+    print "<br>";
+    print "<br>";
+    print "<br>";
+    print $query->submit(),"<p>";
+    print $query->reset();
+    print $query->endform();
+    print "<br>";
+    print "<br>";
+    print "<address><a href=\"mailto:didenko\@bnl.gov\">Lidia Didenko</a></address>\n";
 
-print $query->end_html;
+    print $query->end_html();
 
-  }else{
+} else {
+    # Argumnts are provided
+    
+    # my $query = new CGI;
 
-my $qqr = new CGI;
-
- my $pryear  = $qqr->param('ryear');
- my $qperiod = $qqr->param('period');
- my $qsite   = $qqr->param('prodsite');
+    my $pryear  = $query->param('ryear');
+    my $qperiod = $query->param('period');
+    my $qsite   = $query->param('prodsite');
  
-my $dyear = $pryear - 2000;
-if($dyear < 10) { $dyear = "0".$dyear };
+    my $dyear = $pryear - 2000;
+    if($dyear < 10) { $dyear = "0".$dyear };
 
-# Tables
+    # Tables
 
-$JobEfficiencyT = "MasterJobEfficiency";
+    $JobEfficiencyT = "MasterJobEfficiency";
 
-my $day_diff = 0;
-my $nmonth = 0;
-my @prt = ();
-my $myday;
-my $nday = 0;
-my @ardays = ();
-my $tdate;
-my $nsubmit;
-my @jbsub = ();
-my $njb = 0;
-my $jbt;
+    my $day_diff = 0;
+    my $nmonth = 0;
+    my @prt = ();
+    my $myday;
+    my $nday = 0;
+    my @ardays = ();
+    my $tdate;
+    my $nsubmit;
+    my @jbsub = ();
+    my $njb = 0;
+    my $jbt;
 
 
-   if($pryear eq "2008") {
-    $nowdate = "2007-12-31";
-  }else{
-    $nowdate = $todate;
-  }
-
-    if( $qperiod eq "week") {
-           $day_diff = 8;
-  
-   }elsif ( $qperiod =~ /month/) {
-       @prt = split("_", $qperiod);
-       $nmonth = $prt[0];
-       $day_diff = 30*$nmonth + 1; 
+    if($pryear eq "2008") {
+	$nowdate = "2007-12-31";
+    } else {
+	$nowdate = $todate;
     }
 
-$day_diff = int($day_diff);
+    if( $qperiod eq "week") {
+	$day_diff = 8;
+  
+    } elsif ( $qperiod =~ /month/) {
+	@prt = split("_", $qperiod);
+	$nmonth = $prt[0];
+	$day_diff = 30*$nmonth + 1; 
+    }
 
-   &GRdbConnect();
+    $day_diff = int($day_diff);
 
-   $sql="SELECT DISTINCT date_format(submitTime, '%Y-%m-%d') AS PDATE  FROM $JobEfficiencyT WHERE ( lastKnownState = 'done' OR lastKnownState = 'failed' OR lastKnownState = 'killed' OR lastKnownState = 'held' ) AND submitAttempt = 1 AND site = ? AND (TO_DAYS(\"$nowdate\") - TO_DAYS(submitTime)) < ?  order by PDATE";
+    &GRdbConnect();
 
-     $cursor =$dbh->prepare($sql)
-      || die "Cannot prepare statement: $DBI::errstr\n";
-     $cursor->execute($qsite,$day_diff);
-
-      while($myday = $cursor->fetchrow) {
-        $ardays[$nday] = $myday;
-        $nday++;
-      }
-
-###########
-
-   $sql="SELECT DISTINCT JobID_MD5, processID, submitAttempt, site, overAllState  FROM $JobEfficiencyT WHERE ( lastKnownState = 'done' OR lastKnownState = 'failed' OR lastKnownState = 'killed' OR lastKnownState = 'held' ) AND submitAttempt >= 1  AND site = ? ";
-
-     $cursor =$dbh->prepare($sql)
-      || die "Cannot prepare statement: $DBI::errstr\n";
-     $cursor->execute($qsite);
-
-      while(@fields = $cursor->fetchrow) {
-        my $cols=$cursor->{NUM_OF_FIELDS};
-          $fObjAdr = \(JobAttr->new());
-
-          for($i=0;$i<$cols;$i++) {
-             my $fvalue=$fields[$i];
-             my $fname=$cursor->{NAME}->[$i];
-#          print "$fname = $fvalue\n" ;
-
-      ($$fObjAdr)->jbid($fvalue)      if( $fname eq 'JobID_MD5');
-      ($$fObjAdr)->prcid($fvalue)     if( $fname eq 'processID');
-      ($$fObjAdr)->tsite($fvalue)     if( $fname eq 'site');
-      ($$fObjAdr)->ovrstat($fvalue)   if( $fname eq 'overAllState');
-      ($$fObjAdr)->nsubmt($fvalue)    if( $fname eq 'submitAttempt');
-
-        }
-       $jbsub[$njb] = $fObjAdr;
-        $njb++;
-      }
-
-my $ndt = 0;
-
- @overeff = ();
- @overeffrs = (); 
- %rseffjid = { }; 
-
-######################
- 
-    foreach $jbt (@jbsub) {
-
-    $jid       = ($$jbt)->jbid;
-    $proid     = ($$jbt)->prcid;
-    $gsite     = ($$jbt)->tsite; 
-    $ovrStat   = ($$jbt)->ovrstat;
-    $nsubmit   = ($$jbt)->nsubmt;  
-
-    $jobid = $jid."_".$proid;
-
-
-   if($ovrStat eq "success") {
-
-    if($nsubmit >= 2 and $nsubmit <= 5 ) { 
-     
-        $rseffjid{$jobid} = 1;
-     }else{
-        $rseffjid{$jobid} = 0;
-     }
-       }else{
-     $rseffjid{$jobid} = 0;
- 
-     }
-  }
-
-
-#####################
-
-    foreach  $tdate (@ardays) {
-
- @jbstat = ();  
- $nstat = 0;
-
-  if( $qsite eq "ALL" ) {
-
-      $sql="SELECT date_format(submitTime, '%Y-%m-%d') AS PDATE, JobID_MD5, processID, site, submitAttempt, globusError, dotOutHasSize, dotErrorHasSize, exec, transIn, transOut, overAllState FROM $JobEfficiencyT WHERE  submitTime like '$tdate%' AND (lastKnownState = 'done' OR lastKnownState = 'failed' OR lastKnownState = 'killed' OR lastKnownState = 'held' ) AND submitAttempt = 1 AND prodType <> 'simu' "; 
+    $sql="SELECT DISTINCT date_format(submitTime, '%Y-%m-%d') AS PDATE  FROM $JobEfficiencyT WHERE ( lastKnownState = 'done' OR lastKnownState = 'failed' OR lastKnownState = 'killed' OR lastKnownState = 'held' ) AND submitAttempt = 1 AND site = ? AND (TO_DAYS(\"$nowdate\") - TO_DAYS(submitTime)) < ?  order by PDATE";
 
     $cursor =$dbh->prepare($sql)
       || die "Cannot prepare statement: $DBI::errstr\n";
-     $cursor->execute;
+    $cursor->execute($qsite,$day_diff);
 
-  }else{
+    while($myday = $cursor->fetchrow) {
+        $ardays[$nday] = $myday;
+        $nday++;
+    }
 
-     $sql="SELECT date_format(submitTime, '%Y-%m-%d') AS PDATE, JobID_MD5, processID, site, submitAttempt, globusError, dotOutHasSize, dotErrorHasSize, exec, transIn, transOut, overAllState FROM $JobEfficiencyT WHERE site = ? AND submitTime like '$tdate%' AND (lastKnownState = 'done' OR lastKnownState = 'failed' OR lastKnownState = 'killed' OR lastKnownState = 'held') AND submitAttempt = 1 AND prodType <> 'simu' ";
+    ###########
 
+    $sql="SELECT DISTINCT JobID_MD5, processID, submitAttempt, site, overAllState  FROM $JobEfficiencyT WHERE ( lastKnownState = 'done' OR lastKnownState = 'failed' OR lastKnownState = 'killed' OR lastKnownState = 'held' ) AND submitAttempt >= 1  AND site = ? ";
 
-     $cursor =$dbh->prepare($sql)
+    $cursor =$dbh->prepare($sql)
       || die "Cannot prepare statement: $DBI::errstr\n";
-     $cursor->execute($qsite);
- } 
-      while(@fields = $cursor->fetchrow) {
-        my $cols=$cursor->{NUM_OF_FIELDS};
-          $fObjAdr = \(JobAttr->new());
+    $cursor->execute($qsite);
 
-          for($i=0;$i<$cols;$i++) {
-             my $fvalue=$fields[$i];
-             my $fname=$cursor->{NAME}->[$i];
+    while( @fields = $cursor->fetchrow() ) {
+        my $cols=$cursor->{NUM_OF_FIELDS};
+	$fObjAdr = \(JobAttr->new());
+
+	for($i=0;$i<$cols;$i++) {
+	    my $fvalue=$fields[$i];
+	    my $fname=$cursor->{NAME}->[$i];
 #          print "$fname = $fvalue\n" ;
 
-      ($$fObjAdr)->subday($fvalue)    if( $fname eq 'PDATE');
-      ($$fObjAdr)->jbid($fvalue)      if( $fname eq 'JobID_MD5');
-      ($$fObjAdr)->prcid($fvalue)     if( $fname eq 'processID');
-      ($$fObjAdr)->tsite($fvalue)     if( $fname eq 'site');
-      ($$fObjAdr)->glstat($fvalue)    if( $fname eq 'globusError');
-      ($$fObjAdr)->lgstat($fvalue)    if( $fname eq 'dotOutHasSize');
-      ($$fObjAdr)->erstat($fvalue)    if( $fname eq 'dotErrorHasSize');
-      ($$fObjAdr)->exstat($fvalue)    if( $fname eq 'exec');          
-      ($$fObjAdr)->intrs($fvalue)     if( $fname eq 'transIn');  
-      ($$fObjAdr)->outtrs($fvalue)    if( $fname eq 'transOut'); 
-      ($$fObjAdr)->ovrstat($fvalue)   if( $fname eq 'overAllState');
-      ($$fObjAdr)->nsubmt($fvalue)    if( $fname eq 'submitAttempt');
+	    ($$fObjAdr)->jbid($fvalue)      if( $fname eq 'JobID_MD5');
+	    ($$fObjAdr)->prcid($fvalue)     if( $fname eq 'processID');
+	    ($$fObjAdr)->tsite($fvalue)     if( $fname eq 'site');
+	    ($$fObjAdr)->ovrstat($fvalue)   if( $fname eq 'overAllState');
+	    ($$fObjAdr)->nsubmt($fvalue)    if( $fname eq 'submitAttempt');
 
-        }
-       $jbstat[$nstat] = $fObjAdr;
-        $nstat++;
-      }
-
-
- %siteH = { };
- %globEfH = { };
- %logEfH = { };
- %inEfH  = { };
- %outEfH  = { };
- %recoEfH = { };
- %overEfH = { };
- %siteEff = { };
- %siteEffRs = { };
-
-      foreach $jstat (@jbstat) {
-
-    $sbday     = ($$jstat)->subday;
-    $jid       = ($$jstat)->jbid;
-    $proid     = ($$jstat)->prcid;
-    $gsite     = ($$jstat)->tsite; 
-    $glStatus  = ($$jstat)->glstat; 
-    $lgStatus  = ($$jstat)->lgstat;
-    $erStatus  = ($$jstat)->erstat; 
-    $intrans   = ($$jstat)->intrs;
-    $outtrans  = ($$jstat)->outtrs; 
-    $recoSt    = ($$jstat)->exstat;
-    $ovrStat   = ($$jstat)->ovrstat;
-    $nsubmit   = ($$jstat)->nsubmt;  
-
-    $jobid = $jid."_".$proid;
-
- if(!defined($gsite)) {$gsite = "unknown"}
-
-
-    if( $glStatus == 129 ) {
-	$glStatus = -1;
-   }
-
-   if ( $nsubmit == 1) {
-
-    $siteH{$sbday}++; 
-
-    if($glStatus == -1) {
-    $globEfH{$sbday}++ ;
-  }
- 
-    $logEfH{$sbday} =  $logEfH{$sbday} +  $lgStatus + $erStatus;
-    $inEfH{$sbday} = $inEfH{$sbday} + $intrans; 
-    if( $outtrans == 1) { 
-    $outEfH{$sbday}++;
+	}
+	$jbsub[$njb] = $fObjAdr;
+        $njb++;
     }
-    if( $recoSt = 1) {     
-    $recoEfH{$sbday}++;
-   }
 
- if ($ovrStat eq "success" ) {
+    my $ndt = 0;
 
-    $siteEff{$sbday}++;
-    $siteEffRs{$sbday}++;
+    @overeff = ();
+    @overeffrs = (); 
+    %rseffjid = { }; 
 
-   }else{
+    ######################
+ 
+    foreach $jbt (@jbsub) {
+	$jid       = ($$jbt)->jbid;
+	$proid     = ($$jbt)->prcid;
+	$gsite     = ($$jbt)->tsite; 
+	$ovrStat   = ($$jbt)->ovrstat;
+	$nsubmit   = ($$jbt)->nsubmt;  
+	
+	$jobid = $jid."_".$proid;
 
-     if($rseffjid{$jobid} == 1) {
-     $siteEffRs{$sbday} = $siteEffRs{$sbday} + 1 ; 
 
+	if($ovrStat eq "success") {
+	    if($nsubmit >= 2 and $nsubmit <= 5 ) { 
+     		$rseffjid{$jobid} = 1;
+	    } else {
+		$rseffjid{$jobid} = 0;
+	    }
+	} else {
+	    $rseffjid{$jobid} = 0;
+ 
+	}
     }
-  }
 
-   $ndate[$ndt] = $sbday;    
 
-   $njobs[$ndt] = $siteH{$sbday};
+    #####################
 
-   $globeff[$ndt] = $globEfH{$sbday}*100/$njobs[$ndt];
-   $logeff[$ndt] = $logEfH{$sbday}*100/(2*$njobs[$ndt]);
-   $inputef[$ndt] = $inEfH{$sbday}*100/$njobs[$ndt];
-   $outputeff[$ndt] = $outEfH{$sbday}*100/$njobs[$ndt];
-   $recoComeff[$ndt] = $recoEfH{$sbday}*100/$njobs[$ndt]; 
-   $overeff[$ndt] = $siteEff{$sbday}*100/$njobs[$ndt];
-   $overeffrs[$ndt] = $siteEffRs{$sbday}*100/$njobs[$ndt];
+    foreach  $tdate (@ardays) {
+	@jbstat = ();  
+	$nstat = 0;
 
-     }
-   }
-  $ndt++;
- }
+	if( $qsite eq "ALL" ) {
+
+	    $sql="SELECT date_format(submitTime, '%Y-%m-%d') AS PDATE, JobID_MD5, processID, site, submitAttempt, globusError, dotOutHasSize, dotErrorHasSize, exec, transIn, transOut, overAllState FROM $JobEfficiencyT WHERE  submitTime like '$tdate%' AND (lastKnownState = 'done' OR lastKnownState = 'failed' OR lastKnownState = 'killed' OR lastKnownState = 'held' ) AND submitAttempt = 1 AND prodType <> 'simu' "; 
+
+	    $cursor =$dbh->prepare($sql)
+	      || die "Cannot prepare statement: $DBI::errstr\n";
+	    $cursor->execute;
+
+	} else {
+
+	    $sql="SELECT date_format(submitTime, '%Y-%m-%d') AS PDATE, JobID_MD5, processID, site, submitAttempt, globusError, dotOutHasSize, dotErrorHasSize, exec, transIn, transOut, overAllState FROM $JobEfficiencyT WHERE site = ? AND submitTime like '$tdate%' AND (lastKnownState = 'done' OR lastKnownState = 'failed' OR lastKnownState = 'killed' OR lastKnownState = 'held') AND submitAttempt = 1 AND prodType <> 'simu' ";
+
+
+	    $cursor =$dbh->prepare($sql)
+	      || die "Cannot prepare statement: $DBI::errstr\n";
+	    $cursor->execute($qsite);
+	} 
+	while(@fields = $cursor->fetchrow) {
+	    my $cols=$cursor->{NUM_OF_FIELDS};
+	    $fObjAdr = \(JobAttr->new());
+
+	    for($i=0;$i<$cols;$i++) {
+		my $fvalue=$fields[$i];
+		my $fname=$cursor->{NAME}->[$i];
+                # print "$fname = $fvalue\n" ;
+
+		($$fObjAdr)->subday($fvalue)    if( $fname eq 'PDATE');
+		($$fObjAdr)->jbid($fvalue)      if( $fname eq 'JobID_MD5');
+		($$fObjAdr)->prcid($fvalue)     if( $fname eq 'processID');
+		($$fObjAdr)->tsite($fvalue)     if( $fname eq 'site');
+		($$fObjAdr)->glstat($fvalue)    if( $fname eq 'globusError');
+		($$fObjAdr)->lgstat($fvalue)    if( $fname eq 'dotOutHasSize');
+		($$fObjAdr)->erstat($fvalue)    if( $fname eq 'dotErrorHasSize');
+		($$fObjAdr)->exstat($fvalue)    if( $fname eq 'exec');          
+		($$fObjAdr)->intrs($fvalue)     if( $fname eq 'transIn');  
+		($$fObjAdr)->outtrs($fvalue)    if( $fname eq 'transOut'); 
+		($$fObjAdr)->ovrstat($fvalue)   if( $fname eq 'overAllState');
+		($$fObjAdr)->nsubmt($fvalue)    if( $fname eq 'submitAttempt');
+
+	    }
+	    $jbstat[$nstat] = $fObjAdr;
+	    $nstat++;
+	}
+
+
+	%siteH     = { };
+	%globEfH   = { };
+	%logEfH    = { };
+	%inEfH     = { };
+	%outEfH    = { };
+	%recoEfH   = { };
+	%overEfH   = { };
+	%siteEff   = { };
+	%siteEffRs = { };
+
+	foreach $jstat (@jbstat) {
+	    $sbday     = ($$jstat)->subday;
+	    $jid       = ($$jstat)->jbid;
+	    $proid     = ($$jstat)->prcid;
+	    $gsite     = ($$jstat)->tsite; 
+	    $glStatus  = ($$jstat)->glstat; 
+	    $lgStatus  = ($$jstat)->lgstat;
+	    $erStatus  = ($$jstat)->erstat; 
+	    $intrans   = ($$jstat)->intrs;
+	    $outtrans  = ($$jstat)->outtrs; 
+	    $recoSt    = ($$jstat)->exstat;
+	    $ovrStat   = ($$jstat)->ovrstat;
+	    $nsubmit   = ($$jstat)->nsubmt;  
+
+	    $jobid = $jid."_".$proid;
+
+	    if(!defined($gsite)) {$gsite = "unknown"}
+
+
+	    if( $glStatus == 129 ) {
+		$glStatus = -1;
+	    }
+
+	    if ( $nsubmit == 1) {
+       		$siteH{$sbday}++; 
+
+		if($glStatus == -1) {
+		    $globEfH{$sbday}++ ;
+		}
+ 
+		$logEfH{$sbday} =  $logEfH{$sbday} +  $lgStatus + $erStatus;
+		$inEfH{$sbday} = $inEfH{$sbday} + $intrans; 
+		if( $outtrans == 1) { 
+		    $outEfH{$sbday}++;
+		}
+		if( $recoSt = 1) {     
+		    $recoEfH{$sbday}++;
+		}
+
+		if ($ovrStat eq "success" ) {
+		    $siteEff{$sbday}++;
+		    $siteEffRs{$sbday}++;
+		} else {
+		    if($rseffjid{$jobid} == 1) {
+			$siteEffRs{$sbday} = $siteEffRs{$sbday} + 1 ; 
+		    }
+		}
+
+		$ndate[$ndt] = $sbday;    
+
+		$njobs[$ndt] = $siteH{$sbday};
+
+		$globeff[$ndt] = $globEfH{$sbday}*100/$njobs[$ndt];
+		$logeff[$ndt] = $logEfH{$sbday}*100/(2*$njobs[$ndt]);
+		$inputef[$ndt] = $inEfH{$sbday}*100/$njobs[$ndt];
+		$outputeff[$ndt] = $outEfH{$sbday}*100/$njobs[$ndt];
+		$recoComeff[$ndt] = $recoEfH{$sbday}*100/$njobs[$ndt]; 
+		$overeff[$ndt] = $siteEff{$sbday}*100/$njobs[$ndt];
+		$overeffrs[$ndt] = $siteEffRs{$sbday}*100/$njobs[$ndt];
+	    }
+	}
+	$ndt++;
+    } # foreach tdate
  
 
-   &GRdbDisconnect();
+    &GRdbDisconnect();
 
-my @data = ();
+    my @data = ();
 
- my $graph = new GD::Graph::linespoints(750,650);
+    my $graph = new GD::Graph::linespoints(750,650);
 
-  if ( ! $graph){
-    print STDOUT $qqr->header(-type => 'text/plain');
-    print STDOUT "Failed\n";
+    if ( ! $graph){
+	print STDOUT $query->header(-type => 'text/plain');
+	print STDOUT "Failed\n";
 
- } else {
+    } else {
+	# 
+	my $format = $graph->export_format();
+	print header("image/$format");
+	binmode STDOUT;
 
-  my $format = $graph->export_format;
-  print header("image/$format");
-  binmode STDOUT;
 
+	$ptag = $gsite; 
 
-     $ptag = $gsite; 
-
-    $legend[0] = "Globus efficiency;        ";
-    $legend[1] = "Log files delivery;       ";
-    $legend[2] = "Input transferring;       ";
-    $legend[3] = "Output transferring;      ";
-    $legend[4] = "Reco completion;          ";
-    $legend[5] = "Overall efficiency;       ";
-    $legend[6] = "Overall efficiency with resubmission <= 4;";
-
-      @data = (\@ndate, \@globeff, \@logeff, \@inputef, \@outputeff, \@recoComeff, \@overeff, \@overeffrs ) ;
+	$legend[0] = "Globus efficiency;        ";
+	$legend[1] = "Log files delivery;       ";
+	$legend[2] = "Input transferring;       ";
+	$legend[3] = "Output transferring;      ";
+	$legend[4] = "Reco completion;          ";
+	$legend[5] = "Overall efficiency;       ";
+	$legend[6] = "Overall efficiency with resubmission <= 4;";
+	
+	@data = (\@ndate, \@globeff, \@logeff, \@inputef, \@outputeff, \@recoComeff, \@overeff, \@overeffrs ) ;
   
- my $ylabel;
- my $gtitle; 
- my $xLabelsVertical = 1;
- my $xLabelPosition = 0;
- my $xLabelSkip = 1;
- my $skipnum = 1;
+	my $ylabel;
+	my $gtitle; 
+	my $xLabelsVertical = 1;
+	my $xLabelPosition = 0;
+	my $xLabelSkip = 1;
+	my $skipnum = 1;
  
 
-  $min_y = 0;
-  $max_y = 140 ; 
+	$min_y = 0;
+	$max_y = 140 ; 
 
-  if (scalar(@ndate) >= 20 ) {
-   $skipnum = int(scalar(@ndate)/20);
+	if (scalar(@ndate) >= 20 ) {
+	    $skipnum = int(scalar(@ndate)/20);
+	}
 
-   }
+	$xLabelSkip = $skipnum;
 
-  $xLabelSkip = $skipnum;
+	$ylabel = "Efficiency in %";
+	$gtitle = "Efficiency of jobs execution for the period of $qperiod on  $qsite site";
+	
+	$graph->set(x_label => "Date of Production",
+	            y_label => $ylabel,
+                    title   => $gtitle,
+                    y_tick_number => 15,
+                    x_label_position => 0.5,
+                    y_min_value => $min_y,
+                    y_max_value => $max_y,
+                    y_number_format => \&y_format,
+	            #labelclr => "lblack",
+                    titleclr => "lblack",
+                    dclrs => [ qw(lblue lgreen lgray lpurple lorange lred lblack) ],
+                    line_width => 4,
+                    markers => [ 2,3,4,5,6,7,8,9],
+                    marker_size => 3,
+                    x_label_skip => $xLabelSkip, 
+                    x_labels_vertical =>$xLabelsVertical, 
+	            );
 
-  $ylabel = "Efficiency in %";
-  $gtitle = "Efficiency of jobs execution for the period of $qperiod on  $qsite site";
-
-     $graph->set(x_label => "Date of Production",
-                y_label => $ylabel,
-                title   => $gtitle,
-                y_tick_number => 15,
-                x_label_position => 0.5,
-                y_min_value => $min_y,
-                y_max_value => $max_y,
-                y_number_format => \&y_format,
-                #labelclr => "lblack",
-                titleclr => "lblack",
-                dclrs => [ qw(lblue lgreen lgray lpurple lorange lred lblack) ],
-                line_width => 4,
-                markers => [ 2,3,4,5,6,7,8,9],
-                marker_size => 3,
-                x_label_skip => $xLabelSkip, 
-                x_labels_vertical =>$xLabelsVertical, 
-                );
-
-    $graph->set_legend(@legend);
-    $graph->set_legend_font(gdMediumBoldFont);
-    $graph->set_title_font(gdGiantFont);
-    $graph->set_x_label_font(gdGiantFont);
-    $graph->set_y_label_font(gdGiantFont);
-    $graph->set_x_axis_font(gdMediumBoldFont);
-    $graph->set_y_axis_font(gdMediumBoldFont);
-
-    if ( scalar(@ndate) <= 1 ) {
-
-   &beginHtml();
-
-    } else{
-
-   print STDOUT $graph->plot(\@data)->$format();
-
+	$graph->set_legend(@legend);
+	$graph->set_legend_font(gdMediumBoldFont);
+	$graph->set_title_font(gdGiantFont);
+	$graph->set_x_label_font(gdGiantFont);
+	$graph->set_y_label_font(gdGiantFont);
+	$graph->set_x_axis_font(gdMediumBoldFont);
+	$graph->set_y_axis_font(gdMediumBoldFont);
+	
+	if ( scalar(@ndate) <= 1 ) {
+	    &beginHtml();
+	} else {
+	    print STDOUT $graph->plot(\@data)->$format();
+	}
     }
-  }
 }
  
-######################
+
+
+
+###############################
+#  subs and helper routines
+###############################
 sub y_format
 {
     my $value = shift;
@@ -575,7 +560,7 @@ sub y_format
 ######################
 sub GRdbConnect {
     $dbh = DBI->connect("dbi:mysql:$dbname:$dbhost", $dbuser, $dbpass)
-        || die "Cannot connect to db server $DBI::errstr\n";
+      || die "Cannot connect to db server $DBI::errstr\n";
 }
 
 ######################
