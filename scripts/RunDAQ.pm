@@ -50,6 +50,8 @@
 #      rdaq_ftype2string            Return file type/flavor name
 #      rdaq_string2ftyype           Return file type/flavor Index from its name
 #      rdaq_toggle_debug            Turn ON/OFF SELECT of raw data.
+#      rdaq_html_mode               Turn ON/OFF HTML message printing
+#
 #      rdaq_set_dlevel              Set debug level
 #      rdaq_set_message             Add a message to the message stack (debug)
 #      rdaq_get_message             Get N message from the message stack
@@ -163,7 +165,7 @@ require Exporter;
 	    rdaq_bits2string
 	    rdaq_trgs2string  rdaq_string2trgs
 	    rdaq_ftype2string rdaq_string2ftype
-	    rdaq_toggle_debug rdaq_set_dlevel rdaq_scaleToString
+	    rdaq_toggle_debug rdaq_html_mode rdaq_set_dlevel rdaq_scaleToString
 
 	    rdaq_set_files_where rdaq_update_entries
 
@@ -212,6 +214,7 @@ $DELAY     = 60;                              # delay backward in time in second
 #
 $DEBUG     = 0;
 $DLEVEL    = 0;
+$PHTML     = 0;
 
 # Build ddb ref here.
 $DDBREF    = "DBI:mysql:$DDBNAME:$DDBSERVER:$DDBPORT";
@@ -495,7 +498,7 @@ sub rdaq_raw_files
     my($obj,$from,$limit)=@_;
     my($sth,$cmd,$llimit);
     my(@all,@res,$tres);
-    my($tref,$kk);
+    my($tref,$kk,$gotit);
 
     if(!$obj){ return 0;}
 
@@ -555,8 +558,9 @@ sub rdaq_raw_files
     print "<!-- $cmd -->\n" if ($DEBUG);
     $sth  = $obj->prepare($cmd);
     if ( ! $sth->execute() ){ &info_message("raw_files",3,"Could not execute statement\n");}
-    $kk=0;
+    $gotit = $kk=0;
     while( @res = $sth->fetchrow_array() ){
+	$gotit++;
 	# Massage the results to return a non-ambiguous information
 	# We are still lacking
 	if ( ($#res+1) != $rval){
@@ -589,6 +593,9 @@ sub rdaq_raw_files
 	}
     }
     $sth->finish();
+    if ( ! $gotit && $DEBUG){
+	&info_message("raw_files",2,"Nothing known or returned for $from\n");
+    }
     @all;
 }
 
@@ -743,14 +750,14 @@ sub rdaq_hack
     for ($ii=0 ; $ii <= $#res ; $ii++){
 	$mask .= "$ii $EXPLAIN[$ii] -> [$res[$ii]] ; ";
 	if ($res[$ii] eq ""){
+	    &info_message("hack",2,
+			  "Element $ii is NULL (not expected)\n");
 	    &info_message("hack",1,
-			  "Element $ii is null\n");
-	    &info_message("hack",1,
-			  "I received ".($#init+1)." elements and ended with ".($#res+1)."\n");
-	    &info_message("hack",1,
+	    		  "I received ".($#init+1)." elements and ended with ".($#res+1)."\n");
+	    &info_message("hack",2,
 			  "$mask\n");
 
-	    print "BOGUS records for run=$res[1]\n";
+	    &info_message("hack",2,"BOGUS records for run=$res[1]\n");
 	    return undef;
 	}
     }
@@ -1625,7 +1632,22 @@ sub	info_message
     if ($l < $DLEVEL){ return;}
 
     foreach $mess (@messages){
-	printf "FastOffl :: %10.10s : %s",$routine,$mess;
+	if ($PHTML){
+	    chomp($mess);
+	    if ($mess =~ /;/){
+		my(@items) = split(/;/,$mess);
+		printf "FastOffl :: <TT>%10.10s</TT> :<BR>\n<BLOCKQUOTE>\n",$routine;
+		foreach (@items){
+		    print "$_<BR>\n";
+		}
+		print "</BLOCKQUOTE>\n";
+	    } else {
+		printf "FastOffl :: <TT>%10.10s</TT> : %s<BR>\n",$routine,$mess;
+	    }
+	} else {
+	    # default mode
+	    printf "FastOffl :: %10.10s : %s",$routine,$mess;
+	}
     }
 }
 
@@ -1642,6 +1664,20 @@ sub    rdaq_toggle_debug
     return $DEBUG;
 }
 
+sub    rdaq_html_mode
+{
+    my($arg)=@_;
+
+    if ( ! defined($arg) ){
+	$PHTML = ! $PHTML;
+    } else {
+	$PHTML = ($arg==1);
+    }
+    return $PHTML;
+}
+
+
+#
 #
 # New method to set delay
 #
