@@ -324,6 +324,14 @@ if( $flag && ! $trace ){
 			"Check the RunLog for <A HREF=\"$LINKREF$SEL{$field}\" TARGET=\"$TARGET\">$SEL{$field}</A><br>\n",
 			"Check the ShiftLog for <A HREF=\"$ESLREF$SEL{$field}\" TARGET=\"ESL\">$SEL{$field}</A><br>\n",
 			"</BLOCKQUOTE>";
+
+		    print "<B>Below is a trace from FastOffline</B><BR>\n";
+		    $obj2 = rdaq_open_rdatabase();
+		    rdaq_toggle_debug(); 
+		    rdaq_set_dlevel(1);
+		    rdaq_html_mode();
+		    my(@all)=rdaq_raw_files($obj2,"=".$SEL{$field},1);
+		    rdaq_close_rdatabase();
 		}
 	    }
 	}
