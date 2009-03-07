@@ -72,7 +72,7 @@
 #
 # HowTo add a field
 #  Adding a field with a plain type is easy. Just ALTER the table, modify
-#  VALUES() and add a ?, modify the hack routine to make this field
+#  VALUES() and add a ?, modify the fetcher routine to make this field
 #  appear at the proper place, eventually modify the MAINTAINER only
 #  routine update_entries to initialize the column, and save ... Status
 #  column is always expected to be the last field. For readability,
@@ -579,7 +579,7 @@ sub rdaq_raw_files
 	#for ($ii = 0 ; $ii <= $#res ; $ii++){
 	#    print "$ii --> $res[$ii]\n";
 	#}
-	$tres = &rdaq_hack($obj,@res);
+	$tres = &rdaq_fetcher($obj,@res);
 	if ( defined($tres) ){
 	    push(@all,$tres);
 	    $kk++;
@@ -599,11 +599,11 @@ sub rdaq_raw_files
     @all;
 }
 
-# hack for currently missing elements and information in
+# fetcher for currently missing elements and information in
 # database. This routine is internal only and may be
 # rehsaped at any time. However the final returned values
 # should remain the same.
-sub rdaq_hack
+sub rdaq_fetcher
 {
     my($obj,@res)=@_;
     my($ii,$stht,$sthl,$sths);
@@ -645,10 +645,10 @@ sub rdaq_hack
     &Record_n_Fetch("FOruns","$run");
 
     if( ! defined($DETSETS{$run}) ){
-	#&info_message("hack",3,"Checking DataSet for run $run\n");
+	#&info_message("fetcher",3,"Checking DataSet for run $run\n");
 	$stht->execute($run);
 	if( ! $stht ){
-	    &info_message("hack",3,"$run cannot be evaluated. No DataSET info.\n");
+	    &info_message("fetcher",3,"$run cannot be evaluated. No DataSET info.\n");
 	    return undef;
 	} else {
 	    $mask = 0;
@@ -658,7 +658,7 @@ sub rdaq_hack
 	}
 
 	if ($mask eq ""){
-	    &info_message("rdaq_hack",1,
+	    &info_message("rdaq_fetcher",1,
 			  "Reading detectorTypes table=detectorTypes,detectorSet leaded to [$mask]");
 	    return undef;
 	} else {
@@ -674,11 +674,11 @@ sub rdaq_hack
     # This block is for the TriggerSetup
     #
     if( ! defined($TRGSET{$run}) ){
-	#&info_message("hack",3,"Checking TrgMask for run $run -> ");
+	#&info_message("fetcher",3,"Checking TrgMask for run $run -> ");
 	$mask = 0;
 	$sths->execute($run);
 	if( ! $sths ){
-	    &info_message("hack",3,"$run cannot be evaluated. No TriggerSetup info.\n");
+	    &info_message("fetcher",3,"$run cannot be evaluated. No TriggerSetup info.\n");
 	    return undef;
 	} else {
 	    $mask = "";
@@ -689,7 +689,7 @@ sub rdaq_hack
 	    $mask = &Record_n_Fetch("FOTriggerSetup",$mask);
 	}
 	if ($mask eq ""){
-	    &info_message("rdaq_hack",1,
+	    &info_message("rdaq_fetcher",1,
 			  "Reading TrgSet table=runDescriptor field= glbSetupName leaded to [$mask]");
 	    return undef;
 	} else {
@@ -705,11 +705,11 @@ sub rdaq_hack
     # Now, add to this all possible trigger mask
     #
     if( ! defined($TRGMASK{$run}) ){
-	#&info_message("hack",3,"Checking TrgMask for run $run -> ");
+	#&info_message("fetcher",3,"Checking TrgMask for run $run -> ");
 	$mask = 0;
 	$sthl->execute($run);
 	if( ! $sthl ){
-	    &info_message("hack",3,"$run cannot be evaluated. No TriggerLabel info.\n");
+	    &info_message("fetcher",3,"$run cannot be evaluated. No TriggerLabel info.\n");
 	    return undef;
 	} else {
 	    while( @items = $sthl->fetchrow_array() ){
@@ -719,7 +719,7 @@ sub rdaq_hack
 	    }
 	}
 	if ($mask eq ""){
-	    &info_message("rdaq_hack",1,
+	    &info_message("fetcher",1,
 			  "Reading TrgMask table=l0TriggerSet leaded to [$mask]");
 	    return undef;
 	} else {
@@ -745,19 +745,19 @@ sub rdaq_hack
     push(@EXPLAIN,"FOFileType (parsed)");
 
 
-    #print "Returning from rdaq_hack() with ".($#res+1)." values\n" if($DEBUG);
+    #print "Returning from rdaq_fetcher() with ".($#res+1)." values\n" if($DEBUG);
     $mask = "";
     for ($ii=0 ; $ii <= $#res ; $ii++){
 	$mask .= "$ii $EXPLAIN[$ii] -> [$res[$ii]] ; ";
 	if ($res[$ii] eq ""){
-	    &info_message("hack",2,
+	    &info_message("fetcher",2,
 			  "Element $ii is NULL (not expected)\n");
-	    &info_message("hack",1,
+	    &info_message("fetcher",0,
 	    		  "I received ".($#init+1)." elements and ended with ".($#res+1)."\n");
-	    &info_message("hack",2,
+	    &info_message("fetcher",2,
 			  "$mask\n");
 
-	    &info_message("hack",2,"BOGUS records for run=$res[1]\n");
+	    &info_message("fetcher",2,"BOGUS records for run=$res[1]\n");
 	    return undef;
 	}
     }
