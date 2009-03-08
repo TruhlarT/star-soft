@@ -88,7 +88,10 @@
 #        -> print_delayed() print out on screen all delayed commands.
 #
 #        -> set_thresholds() sets an upper limit for number of SELECT, INSERT, DELETE
-#
+#        -> warn_if_duplicates() disable warning of duplicate actions - to be used if a
+#                            two database scheme is used (doing quesries on slave but
+#                            updates on master) as slow propagation of updates may
+#                            create this condition
 #
 # NOT YET DOCUMENTED
 #
@@ -116,18 +119,18 @@ require  Exporter;
 	     check_ID_for_params insert_dictionary_value
 	     get_detectors
 
-	     set_thresholds
+	     set_thresholds warn_if_duplicates
 
 	     debug_on debug_off message_class
 	     Require Version
 
 	     );
 
-#@EXPORT_OK = qw(%operset %valuset);
+# @EXPORT_OK = qw(%operset %valuset);
 
 
 use vars qw($VERSION);
-$VERSION   =   "V01.360";
+$VERSION   =   "V01.367";
 
 # The hashes that hold a current context
 my %optoperset;
@@ -137,7 +140,7 @@ my %valuset;
 
 
 use DBI;
-#use Digest::MD5;
+# use Digest::MD5;
 use strict;
 no strict "refs";
 
@@ -149,7 +152,7 @@ my $PCLASS    = "";
 my $DELAY     =  0;
 my $SILENT    =  0;
 my $MAXLIMIT  = 1000000000;
-my $OPTIMLIMIT= 10;   # purely empirical I am afraid (just run query with -limit)
+my $OPTIMLIMIT= 10;                      # purely empirical I am afraid (just run query with -limit)
 my @DCMD;
 
 # db information
@@ -164,11 +167,14 @@ my $sth;
 
 # Some other name-spaced globals
 $FC::DBH          = undef;
-$FC::DBCONTIMEOUT = 5;
-$FC::INTENT       = "User";
-$FC::TIMEOUT      = 2700;      # 45 mnts query
-@FC::LOADMANAGE   = (50,5,10); # s,i,d - default values
+$FC::INTENT       = "User";              # Default intent / do not change
 
+$FC::DBCONTIMEOUT = 5;                   # << NOT USED YET
+$FC::TIMEOUT      = 2700;                # timeout of 45 mnts for query
+
+@FC::LOADMANAGE   = (50,5,10);           # s,i,d - default values / no update count for now
+
+$FC::WDUPS        = 1;                   # warn when duplicate update/delete happens
 
 
 # hash of keywords
@@ -1130,20 +1136,21 @@ sub _Connect
 	
 	if (      $cond = ($sel  > ($FC::LOADMANAGE[0]+$fr[0]) && $FC::LOADMANAGE[0] > 0) ){
 	    &print_message("_Connect","SELECT=$sel INSERT=$ins DELETE=$delr - SELECT greater than threshold ".
-		                      sprintf("%.3d [%2.2d]",($FC::LOADMANAGE[0]+$fr[0]),$rtries)." ".localtime() );
+		                      sprintf("%3.3d [%3.3d]",($FC::LOADMANAGE[0]+$fr[0]),$rtries)." ".localtime() );
 	} elsif ( $cond = ($ins  > ($FC::LOADMANAGE[1]+$fr[1]) && $FC::LOADMANAGE[1] > 0) ){
 	    &print_message("_Connect","SELECT=$sel INSERT=$ins DELETE=$delr - INSERT greater than threshold ".
-		                      sprintf("%.3d [%2.2d]",($FC::LOADMANAGE[0]+$fr[1]),$rtries)." ".localtime() );
+		                      sprintf("%3.3d [%3.3d]",($FC::LOADMANAGE[1]+$fr[1]),$rtries)." ".localtime() );
 	} elsif ( $cond = ($delr > ($FC::LOADMANAGE[2]+$fr[2]) && $FC::LOADMANAGE[2] > 0) ){
 	    &print_message("_Connect","SELECT=$sel INSERT=$ins DELETE=$delr - DELETE greater than threshold ".
-		                      sprintf("%.3d [%2.2d]",($FC::LOADMANAGE[0]+$fr[2]),$rtries)." ".localtime() );
+		                      sprintf("%3.3d [%3.3d]",($FC::LOADMANAGE[2]+$fr[2]),$rtries)." ".localtime() );
 	}
 	if ($cond){
 	    &destroy();
 	    # if ( $tries < $NCTRY-1){
 	        $tries--;  # try infinitely
 	        &print_debug("_Connect","Will sleep for ".($NCSLP*2)." seconds and retry");
-		&destroy();   sleep($NCSLP*2);
+		&destroy();   
+	        sleep($NCSLP*2);
 		goto CONNECT_TRY;
 	    # } else {
 	    #	&print_message("_Connect","No luck - please try later");
@@ -1191,6 +1198,19 @@ sub _Connect
 }
 
 
+#
+# Sets the duplicate warning flag
+#
+sub warn_if_duplicates
+{
+    my($val)=@_;
+    
+    if ( defined($val) ){
+	$FC::WDUPS = ($val==1);
+    } else {
+	$FC::WDUPS = ! 	$FC::WDUPS;
+    }
+}
 
 #
 # Sets thresholds
@@ -5687,8 +5707,11 @@ sub update_location {
   if ($#REFid == -1){
       my($info);
       $info = &get_context("storage")."::".&get_context("path")."::".&get_context("filename");
-      
-      &print_message("update_location","The context did not return any candidate for [$info]");
+      if ( $FC::WDUPS ){      
+	  &print_message("update_location","The context did not return any candidate for [$info]");
+      } else {
+	  &print_debug("update_location","Context not found, record may have been updated [$info]");
+      }
       return 0;
   }
 
@@ -5906,21 +5929,27 @@ sub update_location {
 	      #$tmp = $qdelete; $tmp =~ s/\?/$fldid/;  push(@DCMD,"$tmp");
 	      $count++;
 	  } else {
-	      #if ( $sth1->execute($fldid) ){
+	      # if ( $sth1->execute($fldid) ){
 	      #	  my(@all);
 	      #	  if ( @all = $sth1->fetchrow() ){
 	      #	      &print_message("update_location","Deleting similar records for $fldid");
 	      #	      $sth2->execute($fldid);
 	      #	  }
-	      #}
+	      # }
 	      if ( defined($GUPDID{$qupdate.$fldid}) ){
-		  &print_message("update_location",
-				 "Loop detected for $mtable (record exists, update failed or corrupt db)",
-				 "\tat $fldid [$qupdate] with ? = $fldid",
-				 "\tContext = ".join(",",@CTXMEM));
+		  if ( $FC::WDUPS ){
+		      &print_message("update_location",
+			             "Loop detected for $mtable (record exists, update failed, corrupt db or slow propagation of updates)",
+				     "\tat $fldid [$qupdate] with ? = $fldid",
+				     "\tContext = ".join(",",@CTXMEM));
+		  } else {
+		      &print_debug(  "update_location",
+			             "Loop detected for $mtable (record exists for fldid=$fldid)",
+				     "\tContext = ".join(",",@CTXMEM));		      
+		  }
 	      } else {
 		  $GUPDID{$qupdate.$fldid} = $qdelete;
-		  #&print_debug("update_location","Working on flid: $fldid");
+		  # &print_debug("update_location","Working on flid: $fldid");
 		  if ( $sth3->execute($fldid) ){
 		      #&print_debug("update_location","Update of $mtable at $fldid succeeded [$qupdate]");
 		      $count++;
@@ -6092,7 +6121,7 @@ sub print_message
 
     foreach $line (@lines){
 	chomp($line);
-	printf STDERR "FileCatalog :: %15.15s : %s\n",$routine,$line;
+	printf STDERR "FileCatalog($$) :: %15.15s : %s\n",$routine,$line;
     }
     return;
 }
