@@ -166,8 +166,8 @@ my $sth;
 $FC::DBH          = undef;
 $FC::DBCONTIMEOUT = 5;
 $FC::INTENT       = "User";
-$FC::TIMEOUT      = 2700;    # 45 mnts query
-@FC::LOADMANAGE   = (0,0,0); # s,i,d
+$FC::TIMEOUT      = 2700;     # 45 mnts query
+@FC::LOADMANAGE   = (75,5,2); # s,i,d - default values
 
 
 
@@ -727,13 +727,13 @@ sub _ReadConfig
 	eval "require XML::Simple";
 	if (!$@){
 	    if ( ! defined($XMLREF) ){
-		#use Data::Dumper;
+		# use Data::Dumper;
 		require XML::Simple;
 
 		my($xs) = new XML::Simple();
 		$XMLREF = $xs->XMLin($config,
 				     ForceArray => 1);
-		#print Dumper($XMLREF);
+		# print Dumper($XMLREF);
 	    }
 
 
@@ -927,10 +927,10 @@ sub _ReadConfig
 	    $EL{DBREF} = join(":",$EL{DB},$EL{HOST},$EL{PORT}).",".$EL{USER}.",".$EL{PASS}." ";
 	}
     }
-    #&print_debug("_ReadConfig","XML :: Host=$EL{HOST} Db=$EL{DB} Port=$EL{PORT}");
-    #&print_debug("_ReadConfig","XML :: User=$EL{USER} Pass=$EL{PASS} Site=$EL{site}");
-    #print "XML :: Host=$EL{HOST} Db=$EL{DB} Port=$EL{PORT}\n";
-    #print "XML :: User=$EL{USER} Pass=$EL{PASS} Site=$EL{site}\n";
+    # &print_debug("_ReadConfig","XML :: Host=$EL{HOST} Db=$EL{DB} Port=$EL{PORT}");
+    # &print_debug("_ReadConfig","XML :: User=$EL{USER} Pass=$EL{PASS} Site=$EL{site}");
+    # print "XML :: Host=$EL{HOST} Db=$EL{DB} Port=$EL{PORT}\n";
+    # print "XML :: User=$EL{USER} Pass=$EL{PASS} Site=$EL{site}\n";
     chop($EL{DBREF}) if ( defined($EL{DBREF}));
 
     return ($EL{DBREF},$EL{HOST},$EL{DB},$EL{PORT},$EL{USER},$EL{PASS},$EL{site});
@@ -948,6 +948,7 @@ sub get_connection
 
     my($intent)=@_;
     my($dbr,$host,$db,$port,$user,$passwd) = &_ReadConfig($intent,1);
+    # print "Will return $user,$passwd,$port,$host,$db\n";
     return ($user,$passwd,$port,$host,$db);
 }
 sub get_Connection
@@ -976,10 +977,12 @@ sub connect_as
 	# New style, intent is sufficient for returning a selection
 	# of connections.
 	($Ldbr) = &_ReadConfig($intent);
+        # print "connect_as() $Ldbr\n";
 	return &_Connect("FileCatalog",$Ldbr);
     } else {
 	# Try again to read the missing stuff from XML if any
 	($Ldbr,$Lhost,$Ldb,$Lport,$Luser,$Lpasswd) = &_ReadConfig($intent);
+	# print "connect_as() we now got $Ldbr,$Lhost,$Ldb,$Lport,$Luser,$Lpasswd\n";
 	if ( ! defined($user) ){    $user   = $Luser;}
 	if ( ! defined($passwd) ){  $passwd = $Lpasswd;}
 	if ( ! defined($port) ){    $port   = $Lport;}
@@ -995,14 +998,16 @@ sub connect_as
 # connection. Beware that the order are different.
 sub connect
 {
-   if ($_[0] =~ m/FileCatalog/) {   shift(@_);}
-   my($user,$passwd,$port,$host,$db)=@_;
-   if (!defined($user)){   $user   = $dbuser;}
-   if (!defined($passwd)){ $passwd = $dbpass;}
-   if (!defined($port)){   $port   = $dbport;}
-   if (!defined($host)){   $host   = $dbhost;}
-   if (!defined($db)){     $db     = $dbname;}
-   return &_Connect("FileCatalog",join(":",$db,$host,$port).",$user,$passwd");
+    if ($_[0] =~ m/FileCatalog/) {   shift(@_);}
+    my($user,$passwd,$port,$host,$db)=@_;
+    if (!defined($user)){   $user   = $dbuser;}
+    if (!defined($passwd)){ $passwd = $dbpass;}
+    if (!defined($port)){   $port   = $dbport;}
+    if (!defined($host)){   $host   = $dbhost;}
+    if (!defined($db)){     $db     = $dbname;}
+
+    # print "connect() called $db,$host,$port,$user,$passwd\n";
+    return &_Connect("FileCatalog",join(":",$db,$host,$port).",$user,$passwd");
 }
 
 
@@ -1010,7 +1015,7 @@ sub _Connect
 {
     if ($_[0] =~ m/FileCatalog/) {   shift(@_);}
 
-    #my ($user,$passwd,$port,$host,$db) = @_;
+    # my ($user,$passwd,$port,$host,$db) = @_;
     my ($dbr)=@_;
     my ($user,$passwd,$host);
     my ($sth,$count);
@@ -1118,11 +1123,11 @@ sub _Connect
 	&print_debug("_Connect","kill ".join("; kill ",@pid));
 
 	if ( $cond = ($sel > $FC::LOADMANAGE[0] && $FC::LOADMANAGE[0] > 0) ){
-	    &print_message("_Connect","SELECT=$sel INSERT=$ins DELETE=$delr - SELECT greater than threshold $FC::LOADMANAGE[0]");
+	    &print_message("_Connect","SELECT=$sel INSERT=$ins DELETE=$delr - SELECT greater than threshold $FC::LOADMANAGE[0] ".localtime());
 	} elsif ( $cond = ($ins > $FC::LOADMANAGE[1] && $FC::LOADMANAGE[1] > 0) ){
-	    &print_message("_Connect","SELECT=$sel INSERT=$ins DELETE=$delr - INSERT greater than threshold $FC::LOADMANAGE[1]");
+	    &print_message("_Connect","SELECT=$sel INSERT=$ins DELETE=$delr - INSERT greater than threshold $FC::LOADMANAGE[1] ".localtime());
 	} elsif ( $cond = ($delr > $FC::LOADMANAGE[2] && $FC::LOADMANAGE[2] > 0) ){
-	    &print_message("_Connect","SELECT=$sel INSERT=$ins DELETE=$delr - DELETE greater than threshold $FC::LOADMANAGE[2]");
+	    &print_message("_Connect","SELECT=$sel INSERT=$ins DELETE=$delr - DELETE greater than threshold $FC::LOADMANAGE[2] ".localtime());
 	}
 	if ($cond){
 	    &destroy();
@@ -5667,11 +5672,14 @@ sub update_location {
   # Bring back the previous delimeter
   &set_delimeter($delim);
 
-  #delete($valuset{"path"});
+  # delete($valuset{"path"});
 
 
   if ($#REFid == -1){
-      &print_message("update_location","The context did not return any candidate");
+      my($info);
+      $info = &get_context("storage")."::".&get_context("path")."::".&get_context("filename");
+      
+      &print_message("update_location","The context did not return any candidate for [$info]");
       return 0;
   }
 
