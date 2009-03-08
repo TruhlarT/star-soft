@@ -11,7 +11,7 @@
 
 use Env qw(STAR_SCRIPTS);
 use lib "$STAR_SCRIPTS";
-#use lib "/star/u/jeromel/work/ddb";
+# use lib "/star/u/jeromel/work/ddb";
 use strict;
 use FileCatalog;
 
@@ -35,6 +35,7 @@ my $confirm;
 my $allst;
 my $class;
 my $instance="";
+my $limit;
 
 # Connection parameters
 my $user=undef;
@@ -54,7 +55,7 @@ $delay    = 0;
 $mode     = 1;  # check is the default
 $confirm  = 0;
 $allst    = 0;
-
+$limit    = 1;
 
 # Parse the command line arguments.
 $count = 0;
@@ -75,6 +76,9 @@ while (defined $ARGV[$count]){
 
     } elsif ($ARGV[$count] eq "-nodebug"){
 	$debug = 0;
+
+    } elsif ($ARGV[$count] eq "-nl"){
+	$limit = 0;
 
     } elsif ($ARGV[$count] eq "-i"){
 	$instance  = $ARGV[++$count];
@@ -204,7 +208,7 @@ if ( $passwd eq "" ){
 }
 
 # Introduce new method to manage load
-$fileC->set_thresholds(100,5,2);
+$fileC->set_thresholds(100,5,2) unless (!$limit);
 
 
 #
@@ -733,6 +737,7 @@ sub Usage
                          Without it, the API will only display the operation it
                          intends to perform (i.e. debug mode). It is wise to start
                          in debug mode.
+ -nl                     Bypass the load balancer - do not use this option in cron     
  -class XXX              Set debugging class
 ~;
 
