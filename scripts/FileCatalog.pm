@@ -166,7 +166,7 @@ my $sth;
 $FC::DBH          = undef;
 $FC::DBCONTIMEOUT = 5;
 $FC::INTENT       = "User";
-$FC::TIMEOUT      = 1800;    # 30 mnts query
+$FC::TIMEOUT      = 2700;    # 45 mnts query
 @FC::LOADMANAGE   = (0,0,0); # s,i,d
 
 
