@@ -166,8 +166,8 @@ my $sth;
 $FC::DBH          = undef;
 $FC::DBCONTIMEOUT = 5;
 $FC::INTENT       = "User";
-$FC::TIMEOUT      = 2700;     # 45 mnts query
-@FC::LOADMANAGE   = (75,5,2); # s,i,d - default values
+$FC::TIMEOUT      = 2700;      # 45 mnts query
+@FC::LOADMANAGE   = (50,5,10); # s,i,d - default values
 
 
 
@@ -1019,7 +1019,7 @@ sub _Connect
     my ($dbr)=@_;
     my ($user,$passwd,$host);
     my ($sth,$count);
-    my ($tries,$idx);
+    my ($tries,$rtries,$idx);
 
     # Build connect
     my(@Dbr)= split(" ",$dbr);
@@ -1037,9 +1037,9 @@ sub _Connect
 
     # Make it more permissive. Simultaneous connections
     # may make this fail.
-    $idx = $tries = 0;
+    $idx = $rtries = $tries = 0;
   CONNECT_TRY:
-    $tries++;
+    $tries++; $rtries++;
     $idx++;
     if ($idx > $#Dbr){ $idx = 0;}
 
@@ -1104,6 +1104,7 @@ sub _Connect
  	my(@val,@pid);
 	my($sel,$ins,$delr)=(0,0,0);
 	my($cond)=0;
+	my(@fr,$ii);
 
     	if ( $sth->execute() ){
 	    while ( @val = $sth->fetchrow_array() ){
@@ -1122,12 +1123,20 @@ sub _Connect
 	&print_debug("_Connect","SELECT=$sel INSERT=$ins DELETE=$delr");
 	&print_debug("_Connect","kill ".join("; kill ",@pid));
 
-	if ( $cond = ($sel > $FC::LOADMANAGE[0] && $FC::LOADMANAGE[0] > 0) ){
-	    &print_message("_Connect","SELECT=$sel INSERT=$ins DELETE=$delr - SELECT greater than threshold $FC::LOADMANAGE[0] ".localtime());
-	} elsif ( $cond = ($ins > $FC::LOADMANAGE[1] && $FC::LOADMANAGE[1] > 0) ){
-	    &print_message("_Connect","SELECT=$sel INSERT=$ins DELETE=$delr - INSERT greater than threshold $FC::LOADMANAGE[1] ".localtime());
-	} elsif ( $cond = ($delr > $FC::LOADMANAGE[2] && $FC::LOADMANAGE[2] > 0) ){
-	    &print_message("_Connect","SELECT=$sel INSERT=$ins DELETE=$delr - DELETE greater than threshold $FC::LOADMANAGE[2] ".localtime());
+	# be fair - the longest we wait, more likely we will go through
+	for ($ii=0 ; $ii <= $#FC::LOADMANAGE ; $ii++){
+	    $fr[$ii] = int($rtries/($FC::LOADMANAGE[$ii]**0.4) );
+	}
+	
+	if (      $cond = ($sel  > ($FC::LOADMANAGE[0]+$fr[0]) && $FC::LOADMANAGE[0] > 0) ){
+	    &print_message("_Connect","SELECT=$sel INSERT=$ins DELETE=$delr - SELECT greater than threshold ".
+		                      sprintf("%.3d [%2.2d]",($FC::LOADMANAGE[0]+$fr[0]),$rtries)." ".localtime() );
+	} elsif ( $cond = ($ins  > ($FC::LOADMANAGE[1]+$fr[1]) && $FC::LOADMANAGE[1] > 0) ){
+	    &print_message("_Connect","SELECT=$sel INSERT=$ins DELETE=$delr - INSERT greater than threshold ".
+		                      sprintf("%.3d [%2.2d]",($FC::LOADMANAGE[0]+$fr[1]),$rtries)." ".localtime() );
+	} elsif ( $cond = ($delr > ($FC::LOADMANAGE[2]+$fr[2]) && $FC::LOADMANAGE[2] > 0) ){
+	    &print_message("_Connect","SELECT=$sel INSERT=$ins DELETE=$delr - DELETE greater than threshold ".
+		                      sprintf("%.3d [%2.2d]",($FC::LOADMANAGE[0]+$fr[2]),$rtries)." ".localtime() );
 	}
 	if ($cond){
 	    &destroy();
@@ -1137,8 +1146,8 @@ sub _Connect
 		&destroy();   sleep($NCSLP*2);
 		goto CONNECT_TRY;
 	    # } else {
-		&print_message("_Connect","No luck - please try later");
-		return 0;
+	    #	&print_message("_Connect","No luck - please try later");
+	    #	return 0;
 	    # }
 	}
     }
