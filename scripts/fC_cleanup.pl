@@ -23,7 +23,8 @@ my $delay;
 
 # Control variables
 # The size of a batch to process at once.
-my $batchsize = 1000;
+my $batchsize =  1000;
+my $MARKSIZE  =  5000;
 my $mode;
 my $cond_list;
 my $state="";
@@ -43,6 +44,10 @@ my $passwd=undef;
 my $host=undef;
 my $port=undef;
 my $db=undef;
+
+# global array
+my @MARK;
+my $ligne;
 
 # Load the modules
 my $fileC = FileCatalog->new();
@@ -173,75 +178,30 @@ if ( $instance ne ""){
 }
 
 
-#
-# Allow for one shot disable
-#
-my($test) = $ENV{HOME}."/fC_cleanup.quit";
-if ( -e $test ){
-    &Print("Found $test - quitting");
-    exit;
-}
-
-
-
-
-
-# Get connection fills the blanks while reading from XML
-# However, USER/PASSWORD presence are re-checked
-my ($USER,$PASSWD,$PORT,$HOST,$DB) = $fileC->get_connection("Admin");
-$user   = $USER   if ( defined($USER)   && ! defined($user) );
-$passwd = $PASSWD if ( defined($PASSWD) && ! defined($passwd) );
-$port   = $PORT   if ( defined($PORT)   && ! defined($port) );
-$host   = $HOST   if ( defined($HOST)   && ! defined($host) );
-$db     = $DB     if ( defined($DB)     && ! defined($db)   );
-
-
-if ( $user eq "" ){
-    # get it from command line
-    print "Username for FileCatalog : ";
-    chomp($user = <STDIN>);
-}
-if ( $passwd eq "" ){
-    # get it from command line
-    print "Password for $user : ";
-    chomp($passwd = <STDIN>);
-}
-
-# Introduce new method to manage load
-$fileC->set_thresholds(100,5,2) unless (!$limit);
-
-
-#
-# Now connect
-#
-if ( ! $fileC->connect($user,$passwd,$port,$host,$db) ){
-    &Print("Failed to connect to db");
-    exit;
-#} else {
-#    &Print("A priori connected $mode");
-}
-
-
-
 
 
 my $morerecords = 1;
 my $start = 0;
 while ($morerecords)
 {
+    #
+    # Allow for one shot disable
+    #
+    my($test) = $ENV{HOME}."/fC_cleanup.quit";
+    if ( -e $test ){
+	# &Print("Found $test - quitting");
+	&Die("Found $test - quitting");
+    }
+    
     &Print("--- ($$)") if ($start == 0 && abs($mode) < 5);
     $morerecords = 0;
-    # Setting the context based on the swiches
-    $fileC->clear_context();
-    if (defined $cond_list){
-	foreach (split(/,/,$cond_list)){
-	    $fileC->set_context($_);
-	}
-    }
 
     if ($mode == 0){
 	# First mode of operation - just get the file list and their availability
-	&Print("Checking mode=0 $start (+$batchsize) ".localtime());
+	&MyConnect($fileC,"User")  if ($start == 0);
+	&ResetContext($fileC);
+	
+	&Print("Checking mode=0 so-far=$start (getting +$batchsize records) ".localtime());
 	$fileC->set_context("limit=$batchsize");
 	$fileC->set_context("startrecord=$start");
 	$fileC->set_delimeter("::");
@@ -266,8 +226,19 @@ while ($morerecords)
     } elsif ($mode*$mode == 1){
 	# Second mode of operation - get the file list,
 	# select the available ones and check if they
-	# really exist - if not, mark them as unavailable
-	&Print("Checking mode=$mode $start (+$batchsize) ".localtime());
+	# really exist - if not, mark them as unavailable later
+	$n = 0;
+	if ($start == 0){
+	    &MyConnect($fileC,"User");
+	} else {
+	    if ($#MARK > $MARKSIZE ){
+		$n += &DoMark($fileC,"User");
+	    }
+	}
+	&ResetContext($fileC);
+	
+	&Print("Checking mode=$mode so-far=$start (+getting $batchsize records) ".localtime());
+	
 	$fileC->set_context("limit=$batchsize");
 	$fileC->set_context("startrecord=$start");
 	if ($mode == 1){
@@ -291,23 +262,24 @@ while ($morerecords)
 
 	# Getting the data
 	@output = $fileC->run_query("path","filename","available","node","site");
+	# @output = "/star/data34/reco/cuProductionMinBias/ReversedFullField/P07ib/2005/030::st_physics_adc_6030096_raw_2080008.tags.root::1::localhost::BNL";
 
 	# Check if there are any records left
-	#print "OUTPUT: $#output batchsize $batchsize\n";
+	# print "OUTPUT: $#output batchsize $batchsize\n";
 	if (($#output +1) == $batchsize)
 	  { $morerecords = 1; }
 
 	# checking the availability
-	$n = 0;
+	# $n = 0;
 	foreach (@output){
 	    my ($path, $fname,$available,$node,$site) = split ("::");
 
-	    $fileC->clear_context();
-	    $fileC->set_context("filename=$fname");
-	    $fileC->set_context("path=$path");
-	    $fileC->set_context("storage=$store");
-	    $fileC->set_context("node=$node") if ($node ne "");
-	    $fileC->set_context("site=$site") if ($site ne "");
+	    # $fileC->clear_context();
+	    # $fileC->set_context("filename=$fname");
+	    # $fileC->set_context("path=$path");
+	    # $fileC->set_context("storage=$store");
+	    # $fileC->set_context("node=$node") if ($node ne "");
+	    # $fileC->set_context("site=$site") if ($site ne "");
 
 	    if ( ($mode == 1  && $available <= 0) ||
 		 ($mode == -1 && $available != 0)){
@@ -315,27 +287,33 @@ while ($morerecords)
 		next;
 	    }
 
-	    print "$path/$fname\n";
+	    # print "$path/$fname\n";
 	    if ( &Exist("$path/$fname") ){
 		if ($mode == -1){
 		    # remark available
 		    &Print("File  $site.$store://$node$path/$fname exists $available");
-		    $fileC->update_location("available",1,$confirm);
-		    $n++;
+		    # $fileC->update_location("available",1,$confirm);
+		    push(@MARK,"1:$confirm:$fname:$path:$available:$store:$node:$site");
+		    # $n++;
 		} elsif ($debug > 1){
 		    &Print("Found  $site.$store://$node$path/$fname and avail=$available");
 		}
 	    } else {
 		if ($mode == 1){
 		    # and ! Exist($path/$file) that is ...
-		    &Print("File  $site.$store://$node$path/$fname DOES NOT exist or is unavailable !");
+		    &Print("File  $site.$store://$node$path/$fname DOES NOT exist and available=$available");
                     # mark it un-available
-		    $fileC->update_location("available",0,$confirm);
-		    $n++;
+		    # $fileC->update_location("available",0,$confirm);
+		    push(@MARK,"0:$confirm:$fname:$path:$available:$store:$node:$site");
+		    # print "Pushing 0:$confirm:$fname:$path:".":$store:$node:$site $#MARK\n";
+		    # print $MARK[0]."\n";
+		    # $n++;
 		}
 	    }
 
 	}
+	# &DoMark($fileC,"User");	
+	
 	# We have modified records so the next ROW number
 	# need to be offset by how many we just changed
 	$start += ($batchsize - $n) if ($n <= $batchsize);
@@ -344,8 +322,11 @@ while ($morerecords)
 	# Delete records. Note that this function is EXTREMELY
 	# dangerous now since any record can be deleted based
 	# on context.
+	&MyConnect($fileC,"Admin")  if ($start == 0);
+	&ResetContext($fileC);
+	
 	my($rec,@items);
-	&Print("Checking $start (+$batchsize) ".localtime());
+	&Print("Checking mode=$mode so-far=$start (getting +$batchsize records) ".localtime());
 	$fileC->set_context("limit=$batchsize");
 	$fileC->set_context("startrecord=$start");
 	if ($mode == -2){
@@ -374,7 +355,7 @@ while ($morerecords)
 	    }
 
 	    if ( $delay){
-		#$fileC->print_delayed();
+		# $fileC->print_delayed();
 		$fileC->flush_delayed();
 	    }
 	} else {
@@ -403,6 +384,9 @@ while ($morerecords)
     } elsif ( $mode == 3 ){
 	# Fourth mode of operation - mark selected files as available/unavailable
 	# without checking if they exist or not.
+	&MyConnect($fileC,"Admin")  if ($start == 0);
+	&ResetContext($fileC);
+
 	if ($debug>0){
 	    if ($state eq "on"){
 		&Print("Marking files as available");
@@ -434,6 +418,9 @@ while ($morerecords)
 
 
     } elsif ( $mode*$mode == 16){
+	&MyConnect($fileC,"Admin")  if ($start == 0);
+	&ResetContext($fileC);
+	
 	$fileC->set_context("limit=$batchsize");
 	if ($kwrd ne ""){
 	    if( ! defined($newval) ){
@@ -460,13 +447,23 @@ while ($morerecords)
 	}
 	# only for stat
 	$start += $morerecords;
-	#print "$morerecords\n";
+	# print "$morerecords\n";
 
     } elsif ($mode == 5){
 	# Fifth mode of operation - get the file list,
 	# and check if they really exist - if not, mark them as unavailable
 	# if yes - remark them as available
-	&Print("Checking $start (+$batchsize) ".localtime());
+	$n = 0;
+	if ($start == 0){	
+	    &MyConnect($fileC,"User");
+	} else {
+	    if ($#MARK > $MARKSIZE ){
+		 $n += &DoMark($fileC,"User");
+	    }
+	}
+	&ResetContext($fileC);
+
+	&Print("Checking mode=$mode so-far=$start (getting +$batchsize records) ".localtime());
 	$fileC->set_context("limit=$batchsize");
 	$fileC->set_context("startrecord=$start");
 	$fileC->set_context("all=1");
@@ -488,42 +485,45 @@ while ($morerecords)
 	@output = $fileC->run_query("path","filename","available","node","site");
 
 	# Check if there are any records left
-	#print "OUTPUT: $#output batchsize $batchsize\n";
+	# print "OUTPUT: $#output batchsize $batchsize\n";
 	if (($#output +1) == $batchsize)
 	  { $morerecords = 1; }
 
 	# checking the availability
-	$n = 0;
+	# $n = 0;
 	foreach (@output){
 	    my ($path, $fname, $av,$node, $site) = split ("::");
 	    if ( &Exist("$path/$fname") ){
 		if ($av == 0){
-		    #if ($debug > 0)
-		    #{
+		    # if ($debug > 0)
+		    # {
 		    &Print("File $site.$store://$node$path/$fname exists");
-		    #}
+		    # }
 		    # Marking the file as available
-		    $fileC->clear_context();
-		    $fileC->set_context("filename=$fname");
-		    $fileC->set_context("path=$path");
-		    $fileC->set_context("available=0");
-		    $fileC->set_context("storage=$store");
-		    $fileC->set_context("node=$node") if ($node ne "");
-		    $fileC->set_context("site=$site") if ($site ne "");
-		    $n += $fileC->update_location("available",1);
+		    # $fileC->clear_context();
+		    # $fileC->set_context("filename=$fname");
+		    # $fileC->set_context("path=$path");
+		    # $fileC->set_context("available=0");
+		    # $fileC->set_context("storage=$store");
+		    # $fileC->set_context("node=$node") if ($node ne "");
+		    # $fileC->set_context("site=$site") if ($site ne "");
+		    # $n += $fileC->update_location("available",1);
+		    push(@MARK,"1:".":$fname:$path:0:$store:$node:$site")		    
 		}
 	    } else {
 		if ($av == 1){
-		    #if ($debug>0)
-		    #{
-		    &Print("File $site.$store://$node$path/$fname DOES NOT exist or is unavailable !");
-		    #}
+		    # if ($debug>0)
+		    # {
+		    &Print("File $site.$store://$node$path/$fname DOES NOT exist and available=1");
+		    # }
 		    # Marking the file as unavailable
-		    $fileC->clear_context();
-		    $fileC->set_context("filename=$fname");
-		    $fileC->set_context("path=$path");
-		    $fileC->set_context("available=1");
-		    $n += $fileC->update_location("available",0);
+		    # $fileC->clear_context();
+		    # $fileC->set_context("filename=$fname");
+		    # $fileC->set_context("path=$path");
+		    # $fileC->set_context("available=1");
+		    # $n += $fileC->update_location("available",0);
+		    # NOTE: No store before (???)
+		    push(@MARK,"0:".":$fname:$path:1:$store:$node:$site")		    		    
 		}
 	    }
 	}
@@ -534,6 +534,9 @@ while ($morerecords)
 	# Fourth mode of operation - mark selected files as available/unavailable
 	# without checking if they exist or not.
 	# Marking the file as unavailable
+	&MyConnect($fileC,"Admin")  if ($start == 0);
+	&ResetContext($fileC);
+
 	my @rows;
 	$fileC->set_context("limit=100000000");
 	@rows = $fileC->bootstrap("filename",$confirm);
@@ -544,6 +547,9 @@ while ($morerecords)
 	# Fourth mode of operation - mark selected files as available/unavailable
 	# without checking if they exist or not.
 	# Marking the file as unavailable
+	&MyConnect($fileC,"Admin")  if ($start == 0);
+	&ResetContext($fileC);
+	
 	my @rows;
 	$fileC->set_context("limit=100000000");
 	@rows = $fileC->bootstrap("owner",$confirm);
@@ -551,6 +557,9 @@ while ($morerecords)
 	print "Use -doit to do a real cleaning\n" if (! $confirm);
 
     } elsif ($mode == 8){
+	&MyConnect($fileC,"Admin")  if ($start == 0);
+	&ResetContext($fileC);
+
 	my @rows;
 	$fileC->set_context("limit=100000000");
 	@rows = $fileC->bootstrap("tctwid",$confirm);
@@ -558,6 +567,9 @@ while ($morerecords)
 	print "Use -doit to do a real cleaning\n" if (! $confirm);
 
     } elsif ($mode == 9){
+	&MyConnect($fileC,"Admin")  if ($start == 0);
+	&ResetContext($fileC);
+
 	if ( $keyw eq "all"){
 	    &FullBootstrap($confirm);
 	} else {
@@ -570,14 +582,147 @@ while ($morerecords)
     }
 }
 
+# need to work on the last batch of files not yet treated
+if ($#MARK != -1){
+    &DoMark($fileC,"User");
+}
+$fileC->destroy();
+
 unlink($instance) if ( $instance ne "");
 
+
+#
+# This will destroy i.e. close the FileCatalog, re-open as admin
+# and start a batch marking
+#
+sub DoMark
+{
+    my($fileC,$wasas)=@_;
+    my($count)=0;
+    my($ligne,$Tstart,$rate,$delta);
+    
+    if ($#MARK != -1){
+	if ($wasas ne "Admin"){
+	    # this means we need to close and re-open as admin
+	    $fileC->destroy();
+	    # $fileC->debug_on();
+	    &MyConnect($fileC,"Admin");
+	    &Die("NULL FC handler")      if (!$fileC);
+	    &Print("Now marking a batch of ".($#MARK+1)." files (switching to Admin)");
+	} else {
+	    &Print("Now marking a batch of ".($#MARK+1)." files (was Admin, re-using db connection)");
+	}
+	# &ResetContext($fileC);
+	
+	$Tstart=time();
+	# $fileC->set_delayed();
+	$fileC->warn_if_duplicates(0); # wedisable because of delays between Userand Admin
+	foreach $ligne (@MARK){
+	    # print "Got [$ligne]\n";
+	    my($avail,$confirm,$fname,$path,$av,$store,$node,$site) = split(":",$ligne);
+	    # print "Retreiving $avail,$confirm,$fname,$path,$av,$store,$node,$site\n";
+	    # die;
+	    
+	    # $fileC->debug_on();
+	    $fileC->clear_context();
+	    $fileC->set_context("filename=$fname");
+	    $fileC->set_context("path=$path");
+	    $fileC->set_context("available=$av")   if ($av   ne "");
+	    $fileC->set_context("storage=$store");
+	    $fileC->set_context("node=$node")      if ($node ne "");
+	    $fileC->set_context("site=$site")      if ($site ne "");
+	    if ($confirm eq ""){  $confirm = undef;}
+	    if ( $fileC->update_location("available",$avail,$confirm) ){
+		$count++;
+		$delta= time()-$Tstart;
+		if ($delta != 0){
+		    $rate = sprintf("%.4f",60*$count/(time()-$Tstart));
+		} else {
+		    $rate = "unknown";
+		}
+		&Print("Marked $fname $path ($rate ops/mn)"); # $store $node $site
+	    }
+	}
+	# &Print("Flushing $count delayed operations ".localtime());
+	# $fileC->flush_delayed();
+	# $fileC->unset_delayed();
+	# $rate = sprintf("%.4f",60*$count/(time()-$Tstart));
+	
+	# now re-connect as a normal non-Admin
+	if ($wasas ne "Admin"){
+	    # re-connect as initial $wasas
+	    $fileC->destroy();
+	    &MyConnect($fileC,$wasas) 
+	}
+	$fileC->warn_if_duplicates(1);
+	undef(@MARK);
+    }
+    return $count;
+}
+
+
+sub MyConnect
+{
+    my($fileC,$as)=@_;
+    my($luser,$lpasswd,$lport,$lhost,$ldb);
+    
+    if ( ! defined($as) ){  $as = "User";}
+    
+    # Get connection fills the blanks while reading from XML
+    # However, USER/PASSWORD presence are re-checked
+    my ($USER,$PASSWD,$PORT,$HOST,$DB) = $fileC->get_connection($as);
+    
+    $luser   = defined($user)?$user:$USER;
+    $lpasswd = defined($passwd)?$passwd:$PASSWD;
+    $lport   = defined($port)?$port:$PORT;
+    $lhost   = defined($host)?$host:$HOST;
+    $ldb     = defined($db)?$db:$DB;
+
+    if ( $luser eq "" ){
+	# get it from command line
+	print "Username for FileCatalog : ";
+	chomp($luser = <STDIN>);
+    }
+    if ( $lpasswd eq "" ){
+	# get it from command line
+	print "Password for $user : ";
+	chomp($lpasswd = <STDIN>);
+    }
+
+    # Load is managed globally - remove limit if -nl
+    if ( !$limit && $as eq "Admin"){
+	$fileC->set_thresholds(0,0,0);
+    }
+    
+
+    #
+    # Now connect
+    #
+    if ( ! $fileC->connect($luser,$lpasswd,$lport,$lhost,$ldb) ){
+	&Print("Failed to connect to db");
+	exit;
+    }
+}
+
+sub ResetContext
+{
+    my($fileC)=@_;
+    
+    # Setting the context based on the swiches
+    $fileC->clear_context();
+    if (defined $cond_list){
+	foreach (split(/,/,$cond_list)){
+	    $fileC->set_context($_);
+	}
+    }
+}
 
 
 sub Die
 {
     my($mess)=@_;
     unlink($instance) if ( $instance ne "");
+    $fileC->destroy() if ( $fileC);
     die "$mess\n";
 }
 sub Exit
