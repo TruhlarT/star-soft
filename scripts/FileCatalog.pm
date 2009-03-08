@@ -166,6 +166,7 @@ my $sth;
 $FC::DBH          = undef;
 $FC::DBCONTIMEOUT = 5;
 $FC::INTENT       = "User";
+$FC::TIMEOUT      = 1800;    # 30 mnts query
 @FC::LOADMANAGE   = (0,0,0); # s,i,d
 
 
@@ -1044,42 +1045,20 @@ sub _Connect
     $FC::DBRef = "DBI:mysql:$FC::DBRef";
 
 
-#    my($PID,$ppid);
-#    $FC::CANCELLED=0;
-#    $SIG{'CHLD'} = 'sighandler';
-#
-#    if ( $PID = fork() ){
-#	$child_alive = 1;
-#	sleep(5);
-#	kill $PID;
-#	$FC::CANCELLED = 1;
-#
-#    } elsif ( defined($PID) ){
-#	$ppid = getppid();
-	&print_debug("_Connect","$FC::DBRef,$user (+passwd)");
-	$FC::DBH = DBI->connect($FC::DBRef,$user,$passwd,
-				{ PrintError => 0,
-				  RaiseError => 0, AutoCommit => 1 }
-				);
-#	kill 14,$ppid;
-#	$FC::CANCELLED = 0;
-#    } else {
-#	&print_debug("_Connect","Can't fork");
-#    }
+    &print_debug("_Connect","$FC::DBRef,$user (+passwd)");
+    $FC::DBH = DBI->connect($FC::DBRef,$user,$passwd,
+	                     { PrintError => 0,
+			       RaiseError => 0, AutoCommit => 1 }
+                           );
 
     if (! $FC::DBH ){
-#	if ( ! $FC::CANCELLED ){
-	    if ($DBI::err == 1045){
-		&print_message("_Connect","Incorrect password ".($passwd eq ""?"(NULL)":""));
-	    }
-	    if ($DBI::err == 2002){
-		&print_message("_Connect","Socket is invalid for [$FC::DBRef]",
-			       ($host eq ""?"Host was unspecified (too old library version ??)":""));
-	    }
-#	} else {
-#	    &print_message("_Connect","Connection to [$FC::DBRef] timed-out");
-#	}
-
+	if ($DBI::err == 1045){
+	    &print_message("_Connect","Incorrect password ".($passwd eq ""?"(NULL)":""));
+	}
+	if ($DBI::err == 2002){
+	    &print_message("_Connect","Socket is invalid for [$FC::DBRef]",
+		           ($host eq ""?"Host was unspecified (too old library version ??)":""));
+	}
 	if ( $tries < $NCTRY ){
 	    &print_debug("_Connect","Connection failed $DBI::err $DBI::errstr . Retry in $NCSLP secondes");
 	    sleep($NCSLP);
@@ -1117,7 +1096,7 @@ sub _Connect
     if ($FC::INTENT =~ /Admin/i){
     	my($sth) = $FC::DBH->prepare("SHOW PROCESSLIST");
 	&print_debug("_Connect","Additional information");   
- 	my(@val);
+ 	my(@val,@pid);
 	my($sel,$ins,$delr)=(0,0,0);
 	my($cond)=0;
 
@@ -1126,6 +1105,7 @@ sub _Connect
 		&print_debug("_Connect","Running >> ".$val[7]);
 		if ($val[7] =~ /SELECT/){
 		    $sel++;
+		    push(@pid,$val[0]);
 		} elsif ($val[7] =~ /INSERT/){
 		    $ins++;
 		} elsif ($val[7] =~ /DELETE/){
@@ -1135,6 +1115,7 @@ sub _Connect
 	}
 	$sth->finish();
 	&print_debug("_Connect","SELECT=$sel INSERT=$ins DELETE=$delr");
+	&print_debug("_Connect","kill ".join("; kill ",@pid));
 
 	if ( $cond = ($sel > $FC::LOADMANAGE[0] && $FC::LOADMANAGE[0] > 0) ){
 	    &print_message("_Connect","SELECT=$sel INSERT=$ins DELETE=$delr - SELECT greater than threshold $FC::LOADMANAGE[0]");
@@ -1145,14 +1126,15 @@ sub _Connect
 	}
 	if ($cond){
 	    &destroy();
-	    if ( $tries < $NCTRY-1){
-		&print_message("_Connect","Will sleep for ".($NCSLP*2)." seconds and retry");
+	    # if ( $tries < $NCTRY-1){
+	        $tries--;  # try infinitely
+	        &print_debug("_Connect","Will sleep for ".($NCSLP*2)." seconds and retry");
 		&destroy();   sleep($NCSLP*2);
 		goto CONNECT_TRY;
-	    } else {
+	    # } else {
 		&print_message("_Connect","No luck - please try later");
 		return 0;
-	    }
+	    # }
 	}
     }
 
@@ -4654,13 +4636,34 @@ sub run_query {
   } else {
       my (@result,$res,$rescount);
       my (@cols);
+      my ($success)=0;
 
       # start timer
       my($ts,$tf);
       $ts = time(); &print_debug("run_query","START Time DBRef:$FC::DBRef ".localtime($ts));
 
+      # try this
+      &print_debug("run_query","Raising ALRM - timer expires in ".($FC::TIMEOUT/60)." mnts");
+      eval {
+	  # RAISE ALARM
+	  local $SIG{ALRM} = sub { die "ALARM\n"};
+	  alarm($FC::TIMEOUT);
+	  # EXECUTE 
+	  $success = $sth->execute();
+	  # CANCEL ALARM
+	  alarm(0);
+      };
+      if ($@){
+	  $sth->finish(); 
+	  &print_message("run_query","ALRM signal received, we timed out after ".($FC::TIMEOUT/60)." mnts"); 
+	  return 0;
+      } else {
+	  alarm(0);
+	  &print_debug("run_query","ALRM cancelled - success");
+      }
+
       $count = 0;
-      if ( $sth->execute() ){
+      if ( $success ){
 	  while ( @cols = $sth->fetchrow_array() ) {
 	      # if field is empty, fetchrow_array() returns undef()
 	      # fix it by empty string instead.
@@ -4692,6 +4695,8 @@ sub run_query {
 	  &print_debug("run_query","ERROR ".$FC::DBH->err." >> ".$FC::DBH->errstr);
       }
       $sth->finish();
+
+      alarm(0);
 
       # end
       $tf  = time(); &print_debug("run_query","END Time DBRef:$FC::DBRef ".localtime($tf));
