@@ -1129,9 +1129,9 @@ sub _Connect
 	&print_debug("_Connect","SELECT=$sel INSERT=$ins DELETE=$delr");
 	&print_debug("_Connect","kill ".join("; kill ",@pid));
 
-	# be fair - the longest we wait, more likely we will go through
+	# be fair - the longer we wait, more likely we will go through
 	for ($ii=0 ; $ii <= $#FC::LOADMANAGE ; $ii++){
-	    $fr[$ii] = int($rtries/($FC::LOADMANAGE[$ii]**0.4) );
+	    $fr[$ii] = int( 0.5 + log($rtries)/($FC::LOADMANAGE[$ii]**0.1) );
 	}
 	
 	if (      $cond = ($sel  > ($FC::LOADMANAGE[0]+$fr[0]) && $FC::LOADMANAGE[0] > 0) ){
