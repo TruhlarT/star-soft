@@ -1,11 +1,12 @@
 #!/usr/bin/env perl
 
 #
-# Deletes all files with available <= 0 or sanity <= 0
+# Physically deletes all files with available <= 0 or sanity <= 0
 # Attention: this will work for a give storage
 #
-# Written J. Lauret - 2002 - 2006
+# Written J. Lauret - 2002 - 2009
 #
+# This script is used in daemons
 # DO NOT change the arguments please
 #
 # Usage:
