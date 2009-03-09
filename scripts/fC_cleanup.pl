@@ -201,7 +201,7 @@ while ($morerecords)
 	&MyConnect($fileC,"User")  if ($start == 0);
 	&ResetContext($fileC);
 	
-	&Print("Checking mode=0 so-far=$start (getting +$batchsize records) ".localtime());
+	&Print("Checking mode=0 treated=$start (getting +$batchsize records) ".localtime());
 	$fileC->set_context("limit=$batchsize");
 	$fileC->set_context("startrecord=$start");
 	$fileC->set_delimeter("::");
@@ -237,7 +237,7 @@ while ($morerecords)
 	}
 	&ResetContext($fileC);
 	
-	&Print("Checking mode=$mode so-far=$start (+getting $batchsize records) ".localtime());
+	&Print("Checking mode=$mode checked=$start (getting +$batchsize records, cached=".($#MARK+1).") ".localtime());
 	
 	$fileC->set_context("limit=$batchsize");
 	$fileC->set_context("startrecord=$start");
@@ -326,7 +326,7 @@ while ($morerecords)
 	&ResetContext($fileC);
 	
 	my($rec,@items);
-	&Print("Checking mode=$mode so-far=$start (getting +$batchsize records) ".localtime());
+	&Print("Checking mode=$mode treated=$start (getting +$batchsize records) ".localtime());
 	$fileC->set_context("limit=$batchsize");
 	$fileC->set_context("startrecord=$start");
 	if ($mode == -2){
@@ -463,7 +463,7 @@ while ($morerecords)
 	}
 	&ResetContext($fileC);
 
-	&Print("Checking mode=$mode so-far=$start (getting +$batchsize records) ".localtime());
+	&Print("Checking mode=$mode checked=$start (getting +$batchsize records, cached=".($#MARK+1).") ".localtime());
 	$fileC->set_context("limit=$batchsize");
 	$fileC->set_context("startrecord=$start");
 	$fileC->set_context("all=1");
