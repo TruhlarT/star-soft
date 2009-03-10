@@ -1,7 +1,7 @@
 # FileCatalog.pm
 #
-# Written by Adam Kisiel, November-December 2001
-# Written and/or Modified by J.Lauret, 2002 - 2009
+# Written by Adam Kisiel, service work November-December 2001
+# Directed and/or written+modified by J.Lauret, 2002 - 2009
 #
 # Methods of class FileCatalog:
 #
@@ -1104,7 +1104,7 @@ sub _Connect
 
 
     # check number of SELECT but only if Admin
-    if ($FC::INTENT =~ /Admin/i){
+    if ($FC::INTENT =~ m/Admin/i){
     	my($sth) = $FC::DBH->prepare("SHOW PROCESSLIST");
 	&print_debug("_Connect","Additional information");   
  	my(@val,@pid);
@@ -1114,14 +1114,16 @@ sub _Connect
 
     	if ( $sth->execute() ){
 	    while ( @val = $sth->fetchrow_array() ){
-		&print_debug("_Connect","Running >> ".$val[7]);
-		if ($val[7] =~ /SELECT/){
-		    $sel++;
-		    push(@pid,$val[0]);
-		} elsif ($val[7] =~ /INSERT/){
-		    $ins++;
-		} elsif ($val[7] =~ /DELETE/){
-		    $delr++;
+		if ( defined($val[7]) ){  # some commands are NULL when connections are established
+		    &print_debug("_Connect","Running >> ".$val[7]);
+		    if ($val[7] =~ /SELECT/){
+			$sel++;
+			push(@pid,$val[0]);
+		    } elsif ($val[7] =~ /INSERT/){
+			$ins++;
+		    } elsif ($val[7] =~ /DELETE/){
+			$delr++;
+		    }
 		}
 	    }
 	}
@@ -1148,9 +1150,9 @@ sub _Connect
 	    &destroy();
 	    # if ( $tries < $NCTRY-1){
 	        $tries--;  # try infinitely
-	        &print_debug("_Connect","Will sleep for ".($NCSLP*2)." seconds and retry");
+	        &print_debug("_Connect","Will sleep for ".($NCSLP*3)." seconds and retry");
 		&destroy();   
-	        sleep($NCSLP*2);
+	        sleep($NCSLP*3);
 		goto CONNECT_TRY;
 	    # } else {
 	    #	&print_message("_Connect","No luck - please try later");
