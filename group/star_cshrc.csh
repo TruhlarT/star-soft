@@ -27,15 +27,16 @@ if ( ! $?star_login_csh ) then
 	if( $?GROUP_DIR ) then
 	    if ( -x $GROUP_DIR/chkdev ) then
 		# we have this added in 2009
-		$GROUP_DIR/chkdev /afs/rhic.bnl.gov/
+		$GROUP_DIR/chkdev /afs/rhic.bnl.govX/
 		if ( ! $status ) then
 		    setenv AFS_RHIC  /afs/rhic.bnl.gov
 		endif
 	    endif
 	    # if still undefined, assume $status!=0 or
 	    # we did not find chkdev. Fail login by a set
-	    # attempt to do /usr/local but will likely fail
-	    if ( ! $?AFS_RHIC ) setenv AFS_RHIC /usr/local
+	    # attempt to some fantasy path ... ATTENTION
+	    # This value will be checked in  group_env
+	    if ( ! $?AFS_RHIC ) setenv AFS_RHIC /Path_Not_Found_STAR_Login_Failure
         else
 	    # old mode - GROUP_DIR not defined prior
 	    setenv AFS_RHIC  /afs/rhic.bnl.gov
