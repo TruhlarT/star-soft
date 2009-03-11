@@ -1,5 +1,5 @@
 #!/bin/csh -x
-#       $Id: group_env.csh,v 1.211 2009/02/19 23:35:04 jeromel Exp $
+#       $Id: group_env.csh,v 1.212 2009/03/11 01:07:06 jeromel Exp $
 #	Purpose:	STAR group csh setup
 #
 # Revisions & notes
@@ -36,7 +36,29 @@ if (! $?STAR_ROOT) then
 	setenv STAR_ROOT ${AFS_RHIC}/star
     else
        if ( -d /usr/local/star ) then
-	setenv STAR_ROOT /usr/local/star
+	    setenv STAR_ROOT /usr/local/star
+       else
+	    # this will not work but prevent a failure
+	    if ($ECHO) then
+		echo ""
+		echo "***************************************************************"
+		echo "* ERROR Cannot find a valid Path for STAR_ROOT                *"
+		echo "* STAR Login has failed and is incomplete                     *"
+		# perhaps AFS issue?
+		if (`echo $AFS_RHIC | /bin/grep Path_Not_Found_STAR_Login_Failure` != "") then
+		echo "* Reason: AFS lookup has failed                               *"
+		else
+		echo "* Reason: Improper installation                               *"
+		echo "*   Please check that STAR_ROOT our installation              *"
+		echo "*   documentation available at                                *"
+		echo "*   http://drupal.star.bnl.gov/STAR/comp/sofi/installing      *"
+		endif    
+		echo "***************************************************************"
+		echo ""
+		# disable messages
+		if( ! $?DECHO) set ECHO = 0
+	    endif
+	    setenv STAR_ROOT /Path_Not_Found_STAR_Login_Failure
        endif
     endif
 endif
