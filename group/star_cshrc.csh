@@ -27,7 +27,7 @@ if ( ! $?star_login_csh ) then
 	if( $?GROUP_DIR ) then
 	    if ( -x $GROUP_DIR/chkdev ) then
 		# we have this added in 2009
-		$GROUP_DIR/chkdev /afs/rhic.bnl.govX/
+		$GROUP_DIR/chkdev /afs/rhic.bnl.gov/
 		if ( ! $status ) then
 		    setenv AFS_RHIC  /afs/rhic.bnl.gov
 		endif
