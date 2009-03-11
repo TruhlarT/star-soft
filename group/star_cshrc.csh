@@ -21,7 +21,26 @@ if ( ! $?star_login_csh ) then
     # This is actually the case in 'r' or 's'-service calls or even
     # some shells ...
     #
-    if( ! $?AFS_RHIC)   setenv AFS_RHIC  /afs/rhic.bnl.gov
+
+    # in case this is installed locally, check path
+    if( ! $?AFS_RHIC) then
+	if( $?GROUP_DIR ) then
+	    if ( -x $GROUP_DIR/chkdev ) then
+		# we have this added in 2009
+		$GROUP_DIR/chkdev /afs/rhic.bnl.gov/
+		if ( ! $status ) then
+		    setenv AFS_RHIC  /afs/rhic.bnl.gov
+		endif
+	    endif
+	    # if still undefined, assume $status!=0 or
+	    # we did not find chkdev. Fail login by a set
+	    # attempt to do /usr/local but will likely fail
+	    if ( ! $?AFS_RHIC ) setenv AFS_RHIC /usr/local
+        else
+	    # old mode - GROUP_DIR not defined prior
+	    setenv AFS_RHIC  /afs/rhic.bnl.gov
+	endif
+    endif
     if( ! $?GROUP_DIR ) setenv GROUP_DIR $AFS_RHIC/star/group/
 
     if( -r $GROUP_DIR/star_login.csh ) then
