@@ -1,6 +1,8 @@
 #!/opt/star/bin/perl -w
 
-use lib "/afs/rhic.bnl.gov/star/packages/scripts";
+use Env (OPTSTAR);
+use lib "$OPTSTAR/lib";
+#use lib "/star/u/jeromel/work/STAR/scripts";
 use FileCatalog;
 use Date::Manip;
 
@@ -18,7 +20,12 @@ if ($#ARGV == -1){
                       using full path
    -z                 use any filetype (not the default)
    -l                 consider soft-links in path
-   -nocache           do not use caching
+
+   -nocache           do not use caching (default)
+   -cache             use caching which will allow to process the difference 
+                      only saving querry cycles
+   -coff Offsset      add the value Offset to the cache frequency
+
 
  Purpose
    This script scans a disk given as the first argument
@@ -82,7 +89,9 @@ $SUBPATH= "";
 $SUB    = "reco";
 $DOSL   = 0;
 $DOCACHE= 0;
-$CACHELM= 10;
+
+$CACHELM= 10;  # cache limit
+$CACHOFF=  0;  # cache offset
 
 # Argument pick-up
 $kk    = 0;
@@ -134,6 +143,22 @@ for ($i=0 ; $i <= $#ARGV ; $i++){
 
     } elsif ($ARGV[$i] eq "-z"){
 	$FTYPE   = " ";
+
+    } elsif ($ARGV[$i] eq "-coff"){
+	$CACHOFF= int($ARGV[++$i]);
+	if ( $CACHOFF == 0){
+	    # use the default algorithm, adding a modulo which is 5 times the base
+	    # based on the node name
+	    chomp($HOST = `/bin/hostname`);
+	    # use it as seed
+	    if ( $HOST =~ m/(\d+)/ ){
+		$CACHOFF = ($1 % ($CACHELM*5));
+	    } else {
+		# revert to 0
+		$CACHOFF = 0;
+	    }
+	    print "$SELF :: Cache offset is $CACHOFF\n";
+	}
 
     } else {
 	# ... as well as previous syntax
@@ -201,7 +226,7 @@ if ( $DOCACHE ){
   ONELIS:
     $kk=0;
     while ( -e "/tmp/$XSELF"."_$kk.lis"){  $kk++;}
-    if ( $kk > $CACHELM){  unlink(glob("/tmp/$XSELF"."_*.lis")); goto ONELIS;}
+    if ( $kk > ($CACHELM+$CACHOFF) ){  unlink(glob("/tmp/$XSELF"."_*.lis")); goto ONELIS;}
 
     $CACHECNT = $kk;
     if ($kk != 0){
@@ -364,7 +389,7 @@ foreach  $file (@ALL){
 		     "filename = $file",
 		     "storage = HPSS",
 		     "site = $SITE");
-    @all = $fC->run_query("size");
+    @all = $fC->run_query_cache("size");
 
 
 
@@ -480,7 +505,7 @@ FINAL_EXIT:
 		    if ( open(FO,">$FLNM.tmp") ){
 			print FO 
 			    "Caching used - Pass done on ".localtime()." found no changes".
-			    " - cache will expire in ".($CACHELM-$CACHECNT)." passes\n";
+			    " - cache will expire in ".($CACHELM+$CACHOFF-$CACHECNT)." passes\n";
 			open(FI,"$FLNM");
 			while ( defined($line = <FI>) ){  print FO "$line";}
 			close(FI);
