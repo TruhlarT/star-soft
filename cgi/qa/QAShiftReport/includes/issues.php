@@ -91,7 +91,8 @@ class qaissue {
       global $issueYear,$issMinMax;
       $cnt = issIdFromYear($issueYear);
       $row = queryDBfirst("SELECT max(ID) FROM $IssuesDB WHERE $issMinMax;");
-      if ($row) $cnt = intval($row['max(ID)']);
+      # careful: mysql max() func can return NULL for no matching entries
+      if ($row) $cnt = max($cnt,intval($row['max(ID)']));
       $cnt++;
       $this->ID = $cnt;
       queryDB("INSERT INTO $IssuesDB (ID) VALUES ('$cnt');");
@@ -181,6 +182,7 @@ function setIssMinMax() {
 
 # Functions for handling the run-issue index
 function updateRunIssueIndex($runIssues) {
+  global $RunIssuesDB;
   if (count($runIssues)<1) return;
   $str = "INSERT INTO $RunIssuesDB (issueID,run) VALUES ";
   $more_than_one = 0;

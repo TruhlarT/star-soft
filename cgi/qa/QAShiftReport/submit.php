@@ -87,8 +87,8 @@ foreach ($ents as $typ => $entN) {
       $runFileSeqs[] = array($entr->info["runid"],$entr->info["fseq"],$entr->Anchor());
 
       # Compile list of runs for each issue
-      if (count($entry->issues) > 0) {
-        foreach ($entry->issues as $id => $isstxt) {
+      if (count($entr->issues) > 0) {
+        foreach ($entr->issues as $id => $isstxt) {
           $allRunIssues[$id][] = $entr->info["runid"];
         }
       } else {

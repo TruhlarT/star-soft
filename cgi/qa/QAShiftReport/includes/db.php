@@ -23,10 +23,10 @@ function closeDB() {
   setUnconnectedDB();
 }
 function queryDB($str) {
-  global $QAdebug;
+  global $QAdebug,$QAdbconn;
   connectDB();
-  if ($QAdebug) logit("QUERY>>>\n$str\n<<<QUERY");
-  @($result = mysql_query($str)) or died("Could not query the DB");
+  if ($QAdebug) logit("QUERY###\n$str\n###QUERY");
+  @($result = mysql_query($str,$QAdbconn)) or died("Could not query the DB");
   return $result;
 }
 function nextDBrow($result) {
