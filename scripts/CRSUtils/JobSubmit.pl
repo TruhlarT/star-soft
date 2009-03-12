@@ -1103,6 +1103,7 @@ sub Submit
     my($Hfile,$jfile,$mfile,@items);
     my($field,$tags);
     my($trgsn,$trgrs);
+    my($filseq);
     my($stagedon);
     my($destination);
 
@@ -1110,24 +1111,29 @@ sub Submit
     # the mode 2 of get_ffiles() and counting on the
     # elements position.
     #print "$SELF : $file\n";
-    @items = split(" ",$file);
-    $file  = $items[0];
-    $coll  = $items[8];
+    @items   = split(" ",$file);
+    $fileseq = $file  = $items[0];
+    $coll    = $items[8];
 
-    $coll  = "dAu" if ($coll eq "DeuteronAu");
+    # this is a patch due to early diffreent coding of collision
+    $coll    = "dAu" if ($coll eq "DeuteronAu");
+
+    # get filesequence
+    $fileseq =~ s/.*_//; $fileseq =~ s/\..*//;
+    $fileseq = int(substr($fileseq,length($fileseq)-4,4));
 
     # get field as string
-    $field = &rdaq_scaleToString($items[6]);
+    $field   = &rdaq_scaleToString($items[6]);
 
     # print "$SELF : DEBUG scale=$items[6] --> $field\n"  if ($DEBUG);
     # print "$SELF : DEBUG 10=$items[10] 11=$items[11]\n" if ($DEBUG);
 
     # Trigger setup string
-    $trgsn = rdaq_trgs2string($items[10]);
+    $trgsn   = rdaq_trgs2string($items[10]);
     # Triggers  mask information
-    $trgrs = rdaq_bits2string("TrgMask",$items[11]);
+    $trgrs   = rdaq_bits2string("TrgMask",$items[11]);
     # Detector setup information
-    $dets  = rdaq_bits2string("DetSetMask",$items[9]);
+    $dets    = rdaq_bits2string("DetSetMask",$items[9]);
 
     # print "$SELF : DEBUG 10=$trgsn 11=$trgrs\n"          if ($DEBUG);
 
@@ -1319,7 +1325,10 @@ __EOH__
 
 	# SEVERAL OUTPUT "MAY" BE CREATED, NOTE THAT IN CALIBF MODE, $tags WILL
 	# BE CHANGED TO TAKE INTO ACCOUNT THE laser.root FILE.
-	print FO <<__EOF__;
+	
+	# first, decide if event.root should be saved - once every 10
+	if ( $fileseq % 10 == 0 && $fileseq !=0 ){
+	    print FO <<__EOF__;
 
 #output
     outputnumstreams=5
@@ -1328,6 +1337,19 @@ __EOH__
     outputstreamtype[0]=$stagedon
     outputdir[0]=$SCRATCH
     outputfile[0]=$prefix$mfile.event.root
+__EOF__
+
+	} else {
+	    print FO <<__EOF__;
+
+#output
+    outputnumstreams=4
+__EOF__
+
+        }
+
+	# print the rest now
+	print FO <<__EOF__;
 
     outputstreamtype[1]=$stagedon
     outputdir[1]=$SCRATCH
