@@ -11,16 +11,16 @@
 $TIMEOUT=10;
 
 # return true if no argument
-return 1 if $#ARGV == -1;
+exit 1 if $#ARGV == -1;
 
 eval {
     # Set signal handler to call anon routine with "die" command
-    $SIG{ALRM} = sub { die "stat on $filename Timed out"; };
+    local $SIG{ALRM} = sub { die "stat on $filename Timed out"; };
 
     # For every file on the command line, try to stat it
-    foreach $filename ( @ARGV) {
+    foreach $filename ( @ARGV ) {
         alarm($TIMEOUT); # $TIMEOUT second timeout on the stat
-        die "$filename not readable" unless ( -r $filename );
+        die "$filename not readable" if ( ! -e $filename );
         alarm(0);        # reset timeout
     }
 };
@@ -29,5 +29,6 @@ if ($@) {
     print "Error: $@";
     exit( 1);
 } else {
+    alarm(0);            # superfluous as we are exiting
     exit( 0 );
 }
