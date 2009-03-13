@@ -1,5 +1,5 @@
-#!/bin/csh -x
-#       $Id: group_env.csh,v 1.212 2009/03/11 01:07:06 jeromel Exp $
+#!/bin/csh -v
+#       $Id: group_env.csh,v 1.213 2009/03/13 22:33:33 jeromel Exp $
 #	Purpose:	STAR group csh setup
 #
 # Revisions & notes
@@ -15,6 +15,8 @@
 #
 #
 set ECHO = 1;
+set FAIL = "";
+
 if ($?STAR == 1)   set ECHO = 0
 if ( ! $?prompt)   set ECHO = 0
 if ($?SILENT == 1) set ECHO = 0
@@ -26,9 +28,6 @@ if ( $?DECHO && $?STAR_LEVEL ) then
 endif
 
 
-setenv WWW_HOME http://www.star.bnl.gov/
-if ($ECHO) echo   "Setting up WWW_HOME  = $WWW_HOME"
-
 setenv AFS       /usr/afsws
 
 if (! $?STAR_ROOT) then
@@ -36,45 +35,26 @@ if (! $?STAR_ROOT) then
 	setenv STAR_ROOT ${AFS_RHIC}/star
     else
        if ( -d /usr/local/star ) then
+	    # this is valid
 	    setenv STAR_ROOT /usr/local/star
        else
-	    # this will not work but prevent a failure
-	    if ($ECHO) then
-		echo ""
-		echo "***************************************************************"
-		echo "* ERROR Cannot find a valid Path for STAR_ROOT                *"
-		echo "* STAR Login has failed and is incomplete                     *"
-		# perhaps AFS issue?
-		if (`echo $AFS_RHIC | /bin/grep Path_Not_Found_STAR_Login_Failure` != "") then
-		echo "* Reason: AFS lookup has failed                               *"
-		else
-		echo "* Reason: Improper installation                               *"
-		echo "*   Please check that STAR_ROOT our installation              *"
-		echo "*   documentation available at                                *"
-		echo "*   http://drupal.star.bnl.gov/STAR/comp/sofi/installing      *"
-		endif    
-		echo "***************************************************************"
-		echo ""
-		# disable messages
-		if( ! $?DECHO) set ECHO = 0
-	    endif
+	    # We will fail (we know that)
 	    setenv STAR_ROOT /Path_Not_Found_STAR_Login_Failure
+	    set FAIL="$FAIL STAR_ROOT"
        endif
     endif
 endif
-if ($ECHO) then
-  echo ""
-  echo "         ----- STAR Group Login from $GROUP_DIR/ -----"
-  echo ""
-endif
-if ($ECHO) echo   "Setting up STAR_ROOT = ${STAR_ROOT}"
 
 
 # Define /opt/star (or equivalent)
 # X indicates points to the AFS reference
 if ( ! $?XOPTSTAR ) then
     # keep a reference to the AFS one
-    if ( -e ${AFS_RHIC}/opt/star )  setenv XOPTSTAR ${AFS_RHIC}/opt/star
+    if ( -e ${AFS_RHIC}/opt/star )  then
+	setenv XOPTSTAR ${AFS_RHIC}/opt/star
+    else
+	set FAIL="$FAIL XOPTSTAR" 
+    endif
 endif
 if ( ! $?OPTSTAR ) then
     # local first
@@ -84,24 +64,81 @@ if ( ! $?OPTSTAR ) then
 	# remote second
 	if ( $?XOPTSTAR ) then
 	    setenv OPTSTAR ${XOPTSTAR}
+	else
+	    setenv FAIL "$FAIL OPTSTAR"
 	endif
     endif
 endif
 
+# define but feedback later
+if ( $?DECHO) echo "$self :: Defining GROUP_DIR STAR_PATH"
+if ( ! $?GROUP_DIR )   setenv GROUP_DIR ${STAR_ROOT}/group     # Defined by Group Dir
+if ( $?STAR_PATH == 0) setenv STAR_PATH ${STAR_ROOT}/packages;
 
 
-if ( $?DECHO) echo "$self :: Defining GROUP_DIR GROUP_PATH STAR_PATH"
-
-# Defined by Group Dir
-if ( ! $?GROUP_DIR )  setenv GROUP_DIR ${STAR_ROOT}/group
 if ( $?DECHO) echo   "$self :: Value of GROUP_DIR = ${GROUP_DIR}"
+
+# make this additional test ahead
+if ( ! -e $STAR_PATH ) then
+    set FAIL="$FAIL STAR_PATH"
+endif
+
+
+if ( "$FAIL" != "") then
+    if ($?DECHO) echo "$self :: FAIL is [$FAIL], something is not right (checking)"
+
+    # this will not work but prevent a failure
+    if (`echo $AFS_RHIC | /bin/grep Path_Not_Found_STAR_Login_Failure` != "") then
+	set FAIL="$FAIL AFS_RHIC"
+    endif
+
+    if ($ECHO) then
+	echo ""
+	echo "***************************************************************"
+	echo "  ERROR Cannot find a valid Path for                           "
+	echo "    $FAIL                                                      "
+	echo "  STAR Login is incomplete                                     "
+	echo "                                                               "
+	# we can try to guess the reason but it may not be the whole story
+	if ( `echo $FAIL | /bin/grep AFS` != "" &&  `echo $FAIL | /bin/grep STAR_PATH` != "") then
+	echo "  Reason: It appears the AFS lookup has failed and             "
+	else
+	# any other reason, display a generic message
+	echo "  Reason: Improper or incomplete installation                  " 
+	endif
+	echo "          You do not have a local installation of the STAR     "
+	echo "          software stack.                                      "
+	echo "                                                               "
+	echo "    If you are installing for the first time, ignore & proceed " 
+	echo "    with installation. Our documentation is available at       " 
+        echo "    http://drupal.star.bnl.gov/STAR/comp/sofi/installing       "
+	echo "***************************************************************"
+	echo ""
+	# disable messages
+	if( ! $?DECHO) set ECHO = 0
+    endif
+else
+    if ($?DECHO) echo "$self :: FAIL is NULL, we are fine so far"
+    if ($ECHO) then
+	echo ""
+	echo "         ----- STAR Group Login from $GROUP_DIR/ -----"
+	echo ""
+	echo "Setting up STAR_ROOT = ${STAR_ROOT}"
+	echo "Setting up STAR_PATH = ${STAR_PATH}"
+    endif
+endif
+
+
+setenv WWW_HOME http://www.star.bnl.gov/
+if ($ECHO) echo   "Setting up WWW_HOME  = $WWW_HOME"
+
 
 # Defined in CORE. GROUP_PATH/GROUPPATH are global
 # while GROUP_DIR may be local
-if ( ! $?GROUP_PATH ) setenv GROUP_PATH ${STAR_ROOT}/group
+if ( ! $?GROUP_PATH )  setenv GROUP_PATH ${STAR_ROOT}/group    
 setenv GROUPPATH  $GROUP_PATH
-if ($?STAR_PATH == 0) setenv STAR_PATH ${STAR_ROOT}/packages;
-if ($ECHO) echo   "Setting up STAR_PATH = ${STAR_PATH}"
+
+
 
 
 # Default value (some if not already defined)
