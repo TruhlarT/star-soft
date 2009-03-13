@@ -14,18 +14,22 @@ if ( $?FLOGIN ) then
    unsetenv star_login_csh
 endif
 
+if ( $?DECHO ) echo "$self :: we are setting ourselves a defined"
 setenv star_cshrc_csh 1
+
 if ( ! $?star_login_csh ) then
     #
     # OK. Missing environment variables ... 
     # This is actually the case in 'r' or 's'-service calls or even
     # some shells ...
     #
+    if ( $?DECHO ) echo "$self :: star_login_csh not defined, trying"
 
     # in case this is installed locally, check path
     if( ! $?AFS_RHIC) then
 	if( $?GROUP_DIR ) then
 	    if ( -x $GROUP_DIR/chkdev ) then
+		if ( $?DECHO ) echo "$self :: Checking AFS path"
 		# we have this added in 2009
 		$GROUP_DIR/chkdev /afs/rhic.bnl.gov/
 		if ( ! $status ) then
@@ -41,6 +45,8 @@ if ( ! $?star_login_csh ) then
 	    # old mode - GROUP_DIR not defined prior
 	    setenv AFS_RHIC  /afs/rhic.bnl.gov
 	endif
+    else
+        if ( $?DECHO ) echo "$self :: AFS path pre-defined"
     endif
     if( ! $?GROUP_DIR ) setenv GROUP_DIR $AFS_RHIC/star/group/
 
