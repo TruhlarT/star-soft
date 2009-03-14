@@ -1,5 +1,5 @@
 #!/bin/csh 
-#       $Id: group_env.csh,v 1.217 2009/03/14 04:12:27 jeromel Exp $
+#       $Id: group_env.csh,v 1.218 2009/03/14 20:35:22 jeromel Exp $
 #	Purpose:	STAR group csh setup
 #
 # Revisions & notes
@@ -35,7 +35,7 @@ setenv AFS       /usr/afsws
 # check if AFS_RHIC is readable
 set READ_AFS=`echo $AFS_RHIC | /bin/grep Path_Not_Found`
 
-if ( $?DECHO) echo "$self :: READ_AFS is [$READ_AFS], checking STAR_ROOT"
+if ( $?DECHO) echo "$self :: READ_AFS is [$READ_AFS]"
 
 if (! $?STAR_ROOT) then
     if ( $?DECHO) echo "$self :: checking STAR_ROOT"
@@ -71,22 +71,35 @@ endif
 
 if ( ! $?OPTSTAR ) then
     # local first - BEWARE this may be a link over 
-    # AFS as well
-    set IS_OPTSTAR_AFS=`/bin/ls -ld /opt/star | /bin/grep afs`
+    # AFS as well and as it turns out, -e test locks as well
+
+    # there is not even a /opt, -e will be safe
+    # if there is no star in /opt, also safe to do -e
+    # note that ALL ls must be escaped to avoid argument aliasing
+    # forcing color, fancy display etc ... all doing a form of stat
+    # hence locking again
+    set IS_OPTSTAR_AFS=""
+
+    if ( -d /opt ) then
+        set TEST=`/bin/ls /opt/ | /bin/grep star`
+	if ( "$TEST" == "star" )  then
+            set IS_OPTSTAR_AFS=`/bin/ls -ld /opt/star | /bin/grep afs`
+	endif
+    endif
 
     if ( "$IS_OPTSTAR_AFS" == "" || "$READ_AFS" == "") then
 	if ( $?DECHO) echo "$self :: Safe to test -e on /opt/star"
 	if ( -e /opt/star ) then
 	    setenv  OPTSTAR /opt/star
 	endif
+    endif
+
+    # remote second
+    if ( $?DECHO) echo "$self :: Not safe to check /opt/star OPTSTAR_AFS=[$IS_OPTSTAR_AFS] READ_AFS=[$READ_AFS]"
+    if ( $?XOPTSTAR ) then
+        setenv OPTSTAR ${XOPTSTAR}
     else
-	# remote second
-	if ( $?DECHO) echo "$self :: Not safe to check /opt/star OPTSTAR_AFS=[$IS_OPTSTAR_AFS] READ_AFS=[$READ_AFS]"
-	if ( $?XOPTSTAR ) then
-	    setenv OPTSTAR ${XOPTSTAR}
-	else
-	    setenv FAIL "$FAIL OPTSTAR"
-	endif
+        setenv FAIL "$FAIL OPTSTAR"
     endif
 endif
 
