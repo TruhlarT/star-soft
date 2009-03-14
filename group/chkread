@@ -6,11 +6,10 @@
 # Written J. Lauret 2009
 #
 
-$TIMEOUT=10;
-
 use POSIX qw(:signal_h :errno_h :sys_wait_h);
 
 $TIMEOUT=10;
+$self   ="chkread";
 
 # return true if no argument
 exit 1 if $#ARGV == -1;
@@ -32,12 +31,12 @@ if( $PID = fork() ) {
 
     if ($child_alive){
 	# that's too bad - kill
-	print "Lookup of ".join(" ",@ARGV)." is hanging\n";
+	print "$self :: Lookup of ".join(" ",@ARGV)." is hanging\n";
 	kill 9,$PID;
-	print "Parent exiting with failure\n"                if ($DEBUG);
+	print "$self :: arent exiting with failure\n"        if ($DEBUG);
 	exit 1;
     } else {
-	print "Parent leaving with success\n"                if ($DEBUG);
+	print "$self :: Parent leaving with success\n"       if ($DEBUG);
 	exit 0;
     }
 
@@ -45,20 +44,20 @@ if( $PID = fork() ) {
     ## child
     $ppid = getppid();
 
-    print "I am in child\n"                                  if ($DEBUG);
+    print "$self :: I am in child\n"                         if ($DEBUG);
 
     my($status)=0;
     # do something
     foreach $filename (@ARGV){
-	print "Checking $filename\n"                         if ($DEBUG);
+	print "$self :: Checking $filename\n"                if ($DEBUG);
 	if ( ! -r $filename){
-	    print "File or directory $filename is not readable\n";
+	    print "$self :: File or directory $filename is not readable\n";
 	    $status = 1;
 	    last;
 	}
     }
 
-    print "Done - sending signal to my parent $ppid\n"       if ($DEBUG);
+    print "$self :: Done - sending signal to my parent $ppid\n"  if ($DEBUG);
     # send wake signal
     kill $status==0?14:10,$ppid;
     exit 0;
@@ -70,7 +69,7 @@ if( $PID = fork() ) {
 
 } else {
     ## can't fork, not  a good sign
-    print "Cannot fork - leaving with error\n"               if ($DEBUG);
+    print "$self :: Cannot fork - leaving with error\n"  if ($DEBUG);
     exit 1;
 }
 
@@ -81,15 +80,15 @@ sub sighandler
     my ($sig) = @_;
     if ($sig eq 'ALRM') {
         # do nothing, just child waking us, all ok
-	print "- Received signal ALRM\n"    if ($DEBUG);
+	print "$self :: - Received signal ALRM\n"   if ($DEBUG);
         $child_alive = 0;
 	exit 0;
     } elsif ($sig eq 'USR1') {
-	print "- Received signal USR1\n"    if ($DEBUG);
+	print "$self :: - Received signal USR1\n"   if ($DEBUG);
 	$child_alive = 0;
 	exit 1;
     } else {
-	print "- Sighandler - Caught SIG: $sig, shutting down\n" if ($DEBUG);
+	print "$self :: - Sighandler : Caught SIG: $sig, shutting down\n" if ($DEBUG);
         exit 1;
     }
 }
@@ -105,12 +104,12 @@ sub REAPER
     if ($pid == -1){
 	# no child anymore ignore it
     } elsif ( WIFEXITED($?) ){
-	print " + Reaper - process $pid exited\n"      if ($DEBUG);
+	print "$self :: + Reaper - process $pid exited\n"      if ($DEBUG);
 	$child_alive = 0;
     } elsif ( $pid == 0 )  {
-	print " + Reaper - NULL pid from child handler\n" if ($DEBUG);
+	print "$self :: + Reaper - NULL pid from child handler\n" if ($DEBUG);
     } else {
-	print " + Reaper - [$?] alarm on $pid\n"       if ($DEBUG);
+	print "$self :: + Reaper - [$?] alarm on $pid\n"       if ($DEBUG);
     }
     # system may send up a wake up signal and we need to double
     # trap if we reach this point
