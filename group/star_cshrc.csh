@@ -44,7 +44,7 @@ if ( ! $?star_login_csh ) then
 		endif
 	    endif
 	    # if still undefined, assume $status!=0 or
-	    # we did not find chkdev. Fail login by a set
+	    # we did not find chkread. Fail login by a set
 	    # attempt to some fantasy path ... ATTENTION
 	    # This value will be checked in  group_env
 	    if ( ! $?AFS_RHIC ) setenv AFS_RHIC /Path_Not_Found_STAR_Login_Failure

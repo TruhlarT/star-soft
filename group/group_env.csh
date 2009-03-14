@@ -1,5 +1,5 @@
 #!/bin/csh 
-#       $Id: group_env.csh,v 1.215 2009/03/14 02:38:10 jeromel Exp $
+#       $Id: group_env.csh,v 1.216 2009/03/14 03:13:42 jeromel Exp $
 #	Purpose:	STAR group csh setup
 #
 # Revisions & notes
@@ -74,7 +74,7 @@ endif
 
 # define but feedback later
 if ( $?DECHO) echo "$self :: Defining GROUP_DIR STAR_PATH"
-if ( ! $?GROUP_DIR )   setenv GROUP_DIR ${STAR_ROOT}/group     # Defined by Group Dir
+if ( ! $?GROUP_DIR )   setenv GROUP_DIR ${STAR_ROOT}/group     # Defined to AFS Group Dir
 if ( $?STAR_PATH == 0) setenv STAR_PATH ${STAR_ROOT}/packages;
 
 
@@ -101,8 +101,21 @@ if ( "$FAIL" != "") then
 	echo "    $FAIL                                                      "
 	echo "  STAR Login is incomplete                                     "
 	echo "                                                               "
+
 	# we can try to guess the reason but it may not be the whole story
+	set failafs=0
 	if ( `echo $FAIL | /bin/grep AFS` != "" &&  `echo $FAIL | /bin/grep STAR_PATH` != "") then
+	    # if AFS detection failed and STAR_PATH was not defined we have no options
+	    set failafs=1
+	endif
+	if ( `echo $STAR_ROOT | /bin/grep $AFS_RHIC` != "" &&  `echo $STAR_PATH | /bin/grep $STAR_ROOT` != "" && `echo $FAIL | /bin/grep STAR_PATH` != "") then
+	    # ! -e STAR_PATH but defined as AFS resident is the second sign of failure
+	    # it does seem like the above but this second test is necessary due to client
+	    # file caching
+	    set failafs=1
+	endif
+
+	if ( $failafs ) then
 	echo "  Reason: It appears the AFS lookup has failed and             "
 	else
 	# any other reason, display a generic message
