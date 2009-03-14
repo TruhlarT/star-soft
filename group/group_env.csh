@@ -1,5 +1,5 @@
 #!/bin/csh 
-#       $Id: group_env.csh,v 1.216 2009/03/14 03:13:42 jeromel Exp $
+#       $Id: group_env.csh,v 1.217 2009/03/14 04:12:27 jeromel Exp $
 #	Purpose:	STAR group csh setup
 #
 # Revisions & notes
@@ -28,18 +28,30 @@ if ( $?DECHO && $?STAR_LEVEL ) then
 endif
 
 
+# possible path for utilities
 setenv AFS       /usr/afsws
 
+
+# check if AFS_RHIC is readable
+set READ_AFS=`echo $AFS_RHIC | /bin/grep Path_Not_Found`
+
+if ( $?DECHO) echo "$self :: READ_AFS is [$READ_AFS], checking STAR_ROOT"
+
 if (! $?STAR_ROOT) then
-    if ( -d ${AFS_RHIC}/star ) then
-	setenv STAR_ROOT ${AFS_RHIC}/star
+    if ( $?DECHO) echo "$self :: checking STAR_ROOT"
+    if ( "$READ_AFS" == "") then
+	if ( $?DECHO) echo "$self ::  Defining STAR_ROOT as AFS based if -d checks"
+	if ( -d ${AFS_RHIC}/star ) then
+	    setenv STAR_ROOT ${AFS_RHIC}/star
+        endif
     else
        if ( -d /usr/local/star ) then
 	    # this is valid
+	    if ( $?DECHO) echo "$self ::  Defining STAR_ROOT as /usr/local/star"
 	    setenv STAR_ROOT /usr/local/star
        else
 	    # We will fail (we know that)
-	    echo "$self :: Did not find a valid STAR_ROOT"
+	    echo "$self ::  Did not find a valid STAR_ROOT"
 	    setenv STAR_ROOT /Path_Not_Found_STAR_Login_Failure
 	    set FAIL="$FAIL STAR_ROOT"
        endif
@@ -51,19 +63,25 @@ endif
 # X indicates points to the AFS reference
 if ( ! $?XOPTSTAR ) then
     # keep a reference to the AFS one
-    if ( $?DECHO ) echo "$self :: Checking AFS based XOPTSTAR"
-    if ( -e ${AFS_RHIC}/opt/star )  then
+    # this -e test may fail - don't do it
+    if ( "$READ_AFS" == "" ) then
 	setenv XOPTSTAR ${AFS_RHIC}/opt/star
-    else
-	set FAIL="$FAIL XOPTSTAR" 
     endif
 endif
+
 if ( ! $?OPTSTAR ) then
-    # local first
-    if ( -e /opt/star ) then
-	setenv  OPTSTAR /opt/star
+    # local first - BEWARE this may be a link over 
+    # AFS as well
+    set IS_OPTSTAR_AFS=`/bin/ls -ld /opt/star | /bin/grep afs`
+
+    if ( "$IS_OPTSTAR_AFS" == "" || "$READ_AFS" == "") then
+	if ( $?DECHO) echo "$self :: Safe to test -e on /opt/star"
+	if ( -e /opt/star ) then
+	    setenv  OPTSTAR /opt/star
+	endif
     else
 	# remote second
+	if ( $?DECHO) echo "$self :: Not safe to check /opt/star OPTSTAR_AFS=[$IS_OPTSTAR_AFS] READ_AFS=[$READ_AFS]"
 	if ( $?XOPTSTAR ) then
 	    setenv OPTSTAR ${XOPTSTAR}
 	else
@@ -89,8 +107,8 @@ endif
 if ( "$FAIL" != "") then
     if ($?DECHO) echo "$self :: FAIL is [$FAIL], something is not right (checking)"
 
-    # this will not work but prevent a failure
-    if (`echo $AFS_RHIC | /bin/grep Path_Not_Found_STAR_Login_Failure` != "") then
+    # we can add this only now because setup may be AFS-free
+    if ( "$READ_AFS" != "" ) then
 	set FAIL="$FAIL AFS_RHIC"
     endif
 

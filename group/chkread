@@ -33,7 +33,7 @@ if( $PID = fork() ) {
 	# that's too bad - kill
 	print "$self :: Lookup of ".join(" ",@ARGV)." is hanging\n";
 	kill 9,$PID;
-	print "$self :: arent exiting with failure\n"        if ($DEBUG);
+	print "$self :: parent exiting with failure\n"       if ($DEBUG);
 	exit 1;
     } else {
 	print "$self :: Parent leaving with success\n"       if ($DEBUG);
