@@ -1,5 +1,5 @@
 #!/bin/csh 
-#       $Id: group_env.csh,v 1.214 2009/03/14 02:03:36 jeromel Exp $
+#       $Id: group_env.csh,v 1.215 2009/03/14 02:38:10 jeromel Exp $
 #	Purpose:	STAR group csh setup
 #
 # Revisions & notes
@@ -39,6 +39,7 @@ if (! $?STAR_ROOT) then
 	    setenv STAR_ROOT /usr/local/star
        else
 	    # We will fail (we know that)
+	    echo "$self :: Did not find a valid STAR_ROOT"
 	    setenv STAR_ROOT /Path_Not_Found_STAR_Login_Failure
 	    set FAIL="$FAIL STAR_ROOT"
        endif
@@ -50,7 +51,7 @@ endif
 # X indicates points to the AFS reference
 if ( ! $?XOPTSTAR ) then
     # keep a reference to the AFS one
-    if ( $?DECHO ) echo "Checking AFS based XOPTSTAR"
+    if ( $?DECHO ) echo "$self :: Checking AFS based XOPTSTAR"
     if ( -e ${AFS_RHIC}/opt/star )  then
 	setenv XOPTSTAR ${AFS_RHIC}/opt/star
     else

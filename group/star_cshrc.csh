@@ -29,9 +29,12 @@ if ( ! $?star_login_csh ) then
     if( ! $?AFS_RHIC) then
 	if( $?GROUP_DIR ) then
 	    if ( -x $GROUP_DIR/chkdev ) then
-		if ( $?DECHO ) echo "$self :: Checking AFS path"
+		if ( $?DECHO ) then
+		    setenv chkread_debug 1
+		    echo "$self :: Checking AFS path"
+		endif
 		# we have this added in 2009
-		$GROUP_DIR/chkdev /afs/rhic.bnl.gov/
+		$GROUP_DIR/chkread /afs/rhic.bnl.gov/
 		if ( ! $status ) then
 		    if ( $?DECHO ) echo "$self :: AFS seems to be readable"
 		    setenv AFS_RHIC  /afs/rhic.bnl.gov

@@ -22,7 +22,7 @@ $SIG{'USR2'} = 'sighandler';
 
 $child_alive = 0;
 
-$DEBUG = $ENV{DECHO}||0;
+$DEBUG = 0||$ENV{DECHO}||$ENV{chkread_debug};
 
 if( $PID = fork() ) {
     # parent process
@@ -46,20 +46,20 @@ if( $PID = fork() ) {
 
     print "$self :: I am in child\n"                         if ($DEBUG);
 
-    my($status)=0;
+    my($sig)=14;
     # do something
     foreach $filename (@ARGV){
 	print "$self :: Checking $filename\n"                if ($DEBUG);
 	if ( ! -r $filename){
 	    print "$self :: File or directory $filename is not readable\n";
-	    $status = 1;
+	    $sig = 10;
 	    last;
 	}
     }
 
-    print "$self :: Done - sending signal to my parent $ppid\n"  if ($DEBUG);
+    print "$self :: ".($sig==10?"FAIL":"OK")." - sending signal $sig to my parent $ppid\n"  if ($DEBUG);
     # send wake signal
-    kill $status==0?14:10,$ppid;
+    kill $sig,$ppid;
     exit 0;
 
 } elsif ($! == EAGAIN ) {
