@@ -1,5 +1,5 @@
-#!/bin/csh -v
-#       $Id: group_env.csh,v 1.213 2009/03/13 22:33:33 jeromel Exp $
+#!/bin/csh 
+#       $Id: group_env.csh,v 1.214 2009/03/14 02:03:36 jeromel Exp $
 #	Purpose:	STAR group csh setup
 #
 # Revisions & notes
@@ -50,6 +50,7 @@ endif
 # X indicates points to the AFS reference
 if ( ! $?XOPTSTAR ) then
     # keep a reference to the AFS one
+    if ( $?DECHO ) echo "Checking AFS based XOPTSTAR"
     if ( -e ${AFS_RHIC}/opt/star )  then
 	setenv XOPTSTAR ${AFS_RHIC}/opt/star
     else
