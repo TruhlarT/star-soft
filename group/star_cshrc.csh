@@ -33,7 +33,10 @@ if ( ! $?star_login_csh ) then
 		# we have this added in 2009
 		$GROUP_DIR/chkdev /afs/rhic.bnl.gov/
 		if ( ! $status ) then
+		    if ( $?DECHO ) echo "$self :: AFS seems to be readable"
 		    setenv AFS_RHIC  /afs/rhic.bnl.gov
+		else
+		    if ( $?DECHO ) echo "$self :: Error while checking AFS"
 		endif
 	    endif
 	    # if still undefined, assume $status!=0 or
