@@ -28,7 +28,7 @@ if ( ! $?star_login_csh ) then
     # in case this is installed locally, check path
     if( ! $?AFS_RHIC) then
 	if( $?GROUP_DIR ) then
-	    echo "$self :: GROUP_DIR is defined"
+	    if ( $?DECHO ) echo "$self :: GROUP_DIR is defined"
 	    if ( -x $GROUP_DIR/chkread ) then
 		if ( $?DECHO ) then
 		    setenv chkread_debug 1
