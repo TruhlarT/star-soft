@@ -1,34 +1,119 @@
-#!/usr/bin/env perl
+#!/usr/bin/env perl 
 
-# Simple script to stat the files on the commandline, and return
-# an error condition if they don't respond within 10 seconds, or
-# if the file is not readable
+# Not so simple script ... to stat the files on the commandline
+# Return 1 on failure, 0 otherwese 
 #
-# Reshaped from a script from sychan 4/9/2001 (PDSF)
-# J. Lauret 2009
+# Written J. Lauret 2009
 #
+
+$TIMEOUT=10;
+
+use POSIX qw(:signal_h :errno_h :sys_wait_h);
 
 $TIMEOUT=10;
 
 # return true if no argument
 exit 1 if $#ARGV == -1;
 
-eval {
-    # Set signal handler to call anon routine with "die" command
-    local $SIG{ALRM} = sub { die "stat on $filename Timed out"; };
+# connect our handlers
+$SIG{'CHLD'} = \&REAPER ; 
+$SIG{'ALRM'} = 'sighandler';
+$SIG{'USR1'} = 'sighandler';
+$SIG{'USR2'} = 'sighandler';
 
-    # For every file on the command line, try to stat it
-    foreach $filename ( @ARGV ) {
-        alarm($TIMEOUT); # $TIMEOUT second timeout on the stat
-        die "$filename not readable" if ( ! -e $filename );
-        alarm(0);        # reset timeout
+$child_alive = 0;
+
+$DEBUG = $ENV{DECHO}||0;
+
+if( $PID = fork() ) {
+    # parent process
+    $child_alive = 1;
+    sleep($TIMEOUT);
+
+    if ($child_alive){
+	# that's too bad - kill
+	print "Lookup of ".join(" ",@ARGV)." is hanging\n";
+	kill 9,$PID;
+	print "Parent exiting with failure\n"                if ($DEBUG);
+	exit 1;
+    } else {
+	print "Parent leaving with success\n"                if ($DEBUG);
+	exit 0;
     }
-};
 
-if ($@) {
-    print "Error: $@";
-    exit( 1);
+} elsif ( defined($PID) ){
+    ## child
+    $ppid = getppid();
+
+    print "I am in child\n"                                  if ($DEBUG);
+
+    my($status)=0;
+    # do something
+    foreach $filename (@ARGV){
+	print "Checking $filename\n"                         if ($DEBUG);
+	if ( ! -r $filename){
+	    print "File or directory $filename is not readable\n";
+	    $status = 1;
+	    last;
+	}
+    }
+
+    print "Done - sending signal to my parent $ppid\n"       if ($DEBUG);
+    # send wake signal
+    kill $status==0?14:10,$ppid;
+    exit 0;
+
+} elsif ($! == EAGAIN ) {
+    ## oops!
+    sleep 2;
+    redo FORK;
+
 } else {
-    alarm(0);            # superfluous as we are exiting
-    exit( 0 );
+    ## can't fork, not  a good sign
+    print "Cannot fork - leaving with error\n"               if ($DEBUG);
+    exit 1;
 }
+
+
+# handle other signals / parent
+sub sighandler
+{
+    my ($sig) = @_;
+    if ($sig eq 'ALRM') {
+        # do nothing, just child waking us, all ok
+	print "- Received signal ALRM\n"    if ($DEBUG);
+        $child_alive = 0;
+	exit 0;
+    } elsif ($sig eq 'USR1') {
+	print "- Received signal USR1\n"    if ($DEBUG);
+	$child_alive = 0;
+	exit 1;
+    } else {
+	print "- Sighandler - Caught SIG: $sig, shutting down\n" if ($DEBUG);
+        exit 1;
+    }
+}
+
+
+# Handles CHLD signals.
+sub REAPER
+{
+    my $pid;
+
+    $pid = waitpid(-1,&WNOHANG);
+
+    if ($pid == -1){
+	# no child anymore ignore it
+    } elsif ( WIFEXITED($?) ){
+	print " + Reaper - process $pid exited\n"      if ($DEBUG);
+	$child_alive = 0;
+    } elsif ( $pid == 0 )  {
+	print " + Reaper - NULL pid from child handler\n" if ($DEBUG);
+    } else {
+	print " + Reaper - [$?] alarm on $pid\n"       if ($DEBUG);
+    }
+    # system may send up a wake up signal and we need to double
+    # trap if we reach this point
+    $SIG{'CHLD'} = \&REAPER ; 	
+}
+
