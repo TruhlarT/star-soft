@@ -1,5 +1,5 @@
 #!/bin/csh 
-#       $Id: group_env.csh,v 1.218 2009/03/14 20:35:22 jeromel Exp $
+#       $Id: group_env.csh,v 1.219 2009/03/16 14:36:26 jeromel Exp $
 #	Purpose:	STAR group csh setup
 #
 # Revisions & notes
@@ -79,6 +79,7 @@ if ( ! $?OPTSTAR ) then
     # forcing color, fancy display etc ... all doing a form of stat
     # hence locking again
     set IS_OPTSTAR_AFS=""
+    set TEST=""
 
     if ( -d /opt ) then
         set TEST=`/bin/ls /opt/ | /bin/grep star`
@@ -92,11 +93,12 @@ if ( ! $?OPTSTAR ) then
 	if ( -e /opt/star ) then
 	    setenv  OPTSTAR /opt/star
 	endif
+	#else -> note that eventually, we could set blindly OPTSTAR if TEST!=""
     endif
 
     # remote second
     if ( $?DECHO) echo "$self :: Not safe to check /opt/star OPTSTAR_AFS=[$IS_OPTSTAR_AFS] READ_AFS=[$READ_AFS]"
-    if ( $?XOPTSTAR ) then
+    if ( $?XOPTSTAR && ! $?OPTSTAR ) then
         setenv OPTSTAR ${XOPTSTAR}
     else
         setenv FAIL "$FAIL OPTSTAR"
