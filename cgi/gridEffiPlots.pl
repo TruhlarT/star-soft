@@ -508,7 +508,7 @@ END
 	$graph->set(x_label => "Date of Production",
 	            y_label => $ylabel,
                     title   => $gtitle,
-                    y_tick_number => 15,
+                    y_tick_number => 14,
                     x_label_position => 0.5,
                     y_min_value => $min_y,
                     y_max_value => $max_y,
