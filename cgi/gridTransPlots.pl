@@ -175,7 +175,7 @@ print $query->end_html;
 
   }else{
 
-# my $qqr = new CGI;
+ my $qqr = new CGI;
 
  my $pryear  = $qqr->param('ryear');
  my $qperiod = $qqr->param('period');
@@ -454,12 +454,14 @@ my @sizevm = ();
 
    if ($qsite eq "pdsf" and  scalar(@ndatepdsf) <= 1 ) {
 
-   print $query->header(-type => 'text/html')."\n";
+    print $qqr->header(-type => 'text/plain');
+ 
    &beginHtml();
 
     } elsif($qsite eq "amazon" and  scalar(@ndatevm) <= 1 ) {
 
-     print $query->header(-type => 'text/html')."\n";
+     print $qqr->header(-type => 'text/html')."\n";
+
        &beginHtml();
 
     } else{ 
