@@ -386,7 +386,7 @@ my @sizevm = ();
    }
    
     for($k = 0; $k <scalar(@nvm); $k++) {
-       if($nvm[$k] >= $ymaxp ) {
+       if($nvm[$k] >= $ymaxv ) {
 	   $ymaxv = $nvm[$k];
        } 
    }
@@ -408,7 +408,8 @@ my @sizevm = ();
 
    }
   $xLabelSkip = $skipnum;
-  $max_y = int($ymaxp) + 10 ;
+#  $max_y = int($ymaxp) + 10 ;
+  $max_y = int(($ymaxp + 10)/10)*10 ;
 
  }elsif($qsite eq "amazon")  {
 
@@ -417,9 +418,10 @@ my @sizevm = ();
 
    }
   $xLabelSkip = $skipnum;
-  $max_y = int($ymaxv) + 10 ;
+#  $max_y = int($ymaxv) + 10 ;
+    $max_y = int(($ymaxv + 10)/10)*10 ; 
 
- }
+}
 
 
   
