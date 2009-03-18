@@ -175,7 +175,7 @@ print $query->end_html;
 
   }else{
 
-my $qqr = new CGI;
+# my $qqr = new CGI;
 
  my $pryear  = $qqr->param('ryear');
  my $qperiod = $qqr->param('period');
@@ -348,6 +348,8 @@ my @sizevm = ();
  
    &GRdbDisconnect();
 
+ my @data = ();
+
  my $graph = new GD::Graph::linespoints(750,650);
 
   if ( ! $graph){
@@ -357,8 +359,8 @@ my @sizevm = ();
  } else {
 
   my $format = $graph->export_format;
-  print header("image/$format");
-  binmode STDOUT;
+#  print header("image/$format");
+#  binmode STDOUT;
 
     $ptag = $qsite; 
 
@@ -401,8 +403,8 @@ my @sizevm = ();
 
    if($qsite eq "pdsf")  {
 
-  if (scalar(@ndatepdsf) >= 40 ) {
-   $skipnum = int(scalar(@ndatepdsf)/40); 
+  if (scalar(@ndatepdsf) >= 20 ) {
+   $skipnum = int(scalar(@ndatepdsf)/20); 
 
    }
   $xLabelSkip = $skipnum;
@@ -410,8 +412,8 @@ my @sizevm = ();
 
  }elsif($qsite eq "amazon")  {
 
-  if (scalar(@ndatevm) >= 40 ) {
-   $skipnum = int(scalar(@ndatevm)/40); 
+  if (scalar(@ndatevm) >= 20 ) {
+   $skipnum = int(scalar(@ndatevm)/20); 
 
    }
   $xLabelSkip = $skipnum;
@@ -427,7 +429,7 @@ my @sizevm = ();
      $graph->set(x_label => "Date of file transferring",
                 y_label => $ylabel,
                 title   => $gtitle,
-                y_tick_number => 15,
+                y_tick_number => 10,
                 x_label_position => 0.5,
                 y_min_value => $min_y,
                 y_max_value => $max_y,
@@ -452,15 +454,20 @@ my @sizevm = ();
 
    if ($qsite eq "pdsf" and  scalar(@ndatepdsf) <= 1 ) {
 
+   print $query->header(-type => 'text/html')."\n";
    &beginHtml();
 
     } elsif($qsite eq "amazon" and  scalar(@ndatevm) <= 1 ) {
 
+     print $query->header(-type => 'text/html')."\n";
        &beginHtml();
 
     } else{ 
 
-   print STDOUT $graph->plot(\@data)->$format();
+    print header("image/$format");
+    binmode STDOUT;
+
+    print STDOUT $graph->plot(\@data)->$format();
 
      }
 
