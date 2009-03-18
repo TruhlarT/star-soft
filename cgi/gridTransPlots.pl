@@ -387,7 +387,7 @@ my @sizevm = ();
    
     for($k = 0; $k <scalar(@nvm); $k++) {
        if($nvm[$k] >= $ymaxp ) {
-	   $ymaxv = $npdsf[$k];
+	   $ymaxv = $nvm[$k];
        } 
    }
 
