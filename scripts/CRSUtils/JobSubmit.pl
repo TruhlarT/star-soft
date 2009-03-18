@@ -1327,7 +1327,7 @@ __EOH__
 	# BE CHANGED TO TAKE INTO ACCOUNT THE laser.root FILE.
 	
 	# first, decide if event.root should be saved - once every 10
-	if ( $fileseq % 10 == 0 && $fileseq !=0 ){
+	if ( ($fileseq % 10 == 0 && $fileseq !=0) || $fileseq ==1 ){
 	    print FO <<__EOF__;
 
 #output
@@ -1337,19 +1337,6 @@ __EOH__
     outputstreamtype[0]=$stagedon
     outputdir[0]=$SCRATCH
     outputfile[0]=$prefix$mfile.event.root
-__EOF__
-
-	} else {
-	    print FO <<__EOF__;
-
-#output
-    outputnumstreams=4
-__EOF__
-
-        }
-
-	# print the rest now
-	print FO <<__EOF__;
 
     outputstreamtype[1]=$stagedon
     outputdir[1]=$SCRATCH
@@ -1367,9 +1354,40 @@ __EOF__
     outputdir[4]=$SCRATCH
     outputfile[4]=$prefix$mfile.runco.root
 
-#    outputstreamtype[4]=$stagedon
-#    outputdir[4]=$SCRATCH
-#    outputfile[4]=$mfile.dst.root
+#standard out
+    stdoutdir=/star/rcf/prodlog/$LIB/log/daq
+    stdout=$mfile.log
+
+#standard error
+    stderrdir=/star/rcf/prodlog/$LIB/log/daq
+    stderr=$mfile.err
+    notify=starreco\@rcrsuser3.rcf.bnl.gov
+
+#program to run
+    executable=$SPATH/bfccb
+__EOF__
+
+	} else {
+	    print FO <<__EOF__;
+
+#output
+    outputnumstreams=4
+
+    outputstreamtype[0]=$stagedon
+    outputdir[0]=$SCRATCH
+    outputfile[0]=$prefix$mfile.MuDst.root
+
+    outputstreamtype[1]=$stagedon
+    outputdir[1]=$SCRATCH
+    outputfile[1]=$prefix$mfile.hist.root
+
+    outputstreamtype[2]=$stagedon
+    outputdir[2]=$SCRATCH
+    outputfile[2]=$prefix$mfile.$tags.root
+
+    outputstreamtype[3]=$stagedon
+    outputdir[3]=$SCRATCH
+    outputfile[3]=$prefix$mfile.runco.root
 
 #standard out
     stdoutdir=/star/rcf/prodlog/$LIB/log/daq
@@ -1383,6 +1401,9 @@ __EOF__
 #program to run
     executable=$SPATH/bfccb
 __EOF__
+
+
+        }
 
 
 
