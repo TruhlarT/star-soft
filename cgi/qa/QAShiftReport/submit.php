@@ -277,7 +277,7 @@ function SuccessSubmission() {
   print "<h2>NEVER SELECT YOUR BROWSER'S RELOAD BUTTON AFTER FORM SUBMISSION!</h2>\n\n";
   PostToShiftLog();
   foot();
-  exit;
+  #exit;
 }
 
 ###################################################################
@@ -302,7 +302,7 @@ if ($typecounts["FRP"] > 0) {
   $atyps = array("FRP" => $ents["FRP"]);
   $nofastchanges = count($allnewissues["FRP"]) + count($allgoneissues["FRP"]);
   $aamResult = ArchAndMail($atyps);
-  if ($aamResult > 0) { FailedSubmission($aamResult); }
+  if ($aamResult > 0) { FailSubmission($aamResult); }
 }
 # If there are any non-FastOffline entries, archive report and mail summary
 if ($typecounts["all"] - $typecounts["FRP"] > 0) {
@@ -310,7 +310,7 @@ if ($typecounts["all"] - $typecounts["FRP"] > 0) {
   $atyps = $ents;
   unset($atyps["FRP"]);
   $aamResult = ArchAndMail($atyps);
-  if ($aamResult > 0) { FailedSubmission($aamResult); }
+  if ($aamResult > 0) { FailSubmission($aamResult); }
 }
 
 ###################################################################

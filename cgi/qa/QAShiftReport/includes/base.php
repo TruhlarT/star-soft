@@ -54,9 +54,9 @@
       incl("head2.html");
     }
     function body() { incl("body.html"); }
-    function foot() {
+    function foot($noClose=0) {
       incl("foot.html");
-      if (connectedDB()) closeDB();
+      if ($noClose!=0 && connectedDB()) closeDB();
     }
     
     

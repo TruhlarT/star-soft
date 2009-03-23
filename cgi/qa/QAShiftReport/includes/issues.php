@@ -202,7 +202,7 @@ function cleanRunIssueIndex() {
   $str .= " HAVING min(issueID)='0' and max(issueID)>'0';";
   $result = queryDB($str);
   $to_delete = 0;
-  $str = "DELETE FROM $RunIssues WHERE issueID='0' and run in (";
+  $str = "DELETE FROM $RunIssuesDB WHERE issueID='0' and run in (";
   while ($row = nextDBrow($result)) {
     if ($to_delete++>0) $str .= ",";
     $str .= "'" . $row['run'] . "'";
