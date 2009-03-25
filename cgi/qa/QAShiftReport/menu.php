@@ -68,14 +68,16 @@ print "  </td><td align=right><b>$work</b></td></tr></table>\n\n";
 if (defd($work)) {
 
 NewRow();
-mymkhref("contents.php?mode=View","View Current Contents");
+print "Manage Contents:\n";
 NewRow();
-mymkhref("info.php?work=${work}&mode=Edit","Re-Enter Shift Info");
+mymkhref("contents.php?mode=View","&#149; View Current Contents");
+NewRow();
+mymkhref("info.php?work=${work}&mode=Edit","&#149; (Re)Enter Shift Info");
 EndRow();
 ?>
   <tr onmouseover="showSubMenu()" onmouseout="hideSubMenu()">
   <td bgcolor="#ffdc9f">
-    Add A Data Entry For...
+    &#149; <font color=navy>Add A Data Entry For...</font>
 
     <table id ="Tsubmenu" border=0 cellpadding=1 cellspacing=1
            style="display:none ;z-index:2">
@@ -92,7 +94,7 @@ foreach ($ents as $k => $v) {
 <?php
 
 Newrow();
-mymkhref("wrapup.php","Finish &amp; Submit");
+mymkhref("wrapup.php","&#149; Finish &amp; Submit Report");
 
 }
 # end of "if defined session"

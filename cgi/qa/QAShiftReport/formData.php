@@ -147,13 +147,6 @@ if ($entr) {
 <p>
 
 <?php
-print "<center>\n\n";
-fbutton("ContinueTwo","Save/Continue","CheckDigits()");
-freset("Reset");
-fhidden("num",$num);
-fhidden("type",$type);
-fhidden("editit",$editit);
-print "</center>\n\n";
 
 
 
@@ -193,6 +186,14 @@ if (count($actissues) > 0) {
   print "<tr><td colspan=3>No active issues.</td></tr>\n";
 }
 
+print "<tr><td>&nbsp;</td></tr><tr><td align=center colspan=3 bgcolor=\"#ffdc9f\">\n";
+fbutton("ContinueTwo","Save/Continue","CheckDigits()");
+freset("Reset");
+fhidden("num",$num);
+fhidden("type",$type);
+fhidden("editit",$editit);
+print "</td></tr><tr><td>&nbsp;</td></tr>\n";
+
 print "<tr><td align=right colspan=3>\n";
 fbutton("issEd","Open/Create New Issue","document.issEd.submit()");
 fbutton("refresh","Refresh Issues","AddIssueN(-${issueYear})");
@@ -201,11 +202,10 @@ print "</td></tr>\n\n";
 
 # List issues from the last filed entry.
 $previssues = getIssList(0,$type,$actissues);
-sectionhead("<br><u><font size=+1>Inactive Issues</font></u>");
+sectionhead("<br><u><font size=+1>Available Inactive Issues</font></u>");
 if (count($previssues) > 0) {
   sectionhead("Issues in the latest " . $ents[$type] . " entry");
   listar($previssues,"Add");
-  holinel(30);
   if (count($actissues) > 0) { $actissues += $previssues; }
   else { $actissues = $previssues; }
   print "<tr><td colspan=3>\n";
@@ -243,14 +243,12 @@ fsubmit("Open/Create New Issue");
 fbutton("refresh","Refresh Issues","AddIssueN(-${issueYear})");
 print "</td></tr>\n\n";
 
-print "\n</table>\n\n";
-
-holinel(60);
-
-print "<center>\n";
+print "<tr><td>&nbsp;</td></tr><tr><td align=center colspan=3 bgcolor=\"#ffdc9f\">\n";
 fbutton("Continue","Save/Continue","CheckDigits()");
 fbutton("Reset","Reset","document.dataForm.reset()");
-print "</center>\n";
+print "</td></tr>\n";
+print "\n</table>\n\n";
+
 fend();
 
 fstart("lookupForm","showRun.php",
