@@ -187,14 +187,14 @@ if (count($actissues) > 0) {
 }
 
 print "<tr><td>&nbsp;</td></tr><tr><td align=center colspan=3 bgcolor=\"#ffdc9f\">\n";
-fbutton("ContinueTwo","Save/Continue","CheckDigits()");
-freset("Reset");
+fbutton("ContinueTwo","Save &amp; Continue","CheckDigits()");
+fbutton("Reset","Reset This Page","reset()");
 fhidden("num",$num);
 fhidden("type",$type);
 fhidden("editit",$editit);
 print "</td></tr><tr><td>&nbsp;</td></tr>\n";
 
-print "<tr><td align=right colspan=3>\n";
+print "<tr><td align=right colspan=3 bgcolor=\"#ffcc9f\">\n";
 fbutton("issEd","Open/Create New Issue","document.issEd.submit()");
 fbutton("refresh","Refresh Issues","AddIssueN(-${issueYear})");
 print "</td></tr>\n\n";
@@ -233,7 +233,7 @@ if (count($oldissues)+count($pastweek)+count($previssues) == 0) {
 
 fend();
 
-print "<tr><td align=right colspan=3>\n";
+print "<tr><td align=right colspan=3 bgcolor=\"#ffcc9f\">\n";
 fstart("issEd","issueEditor.php","QAifr");
 fhidden("type",$type);
 fhidden("mode","new");
@@ -244,8 +244,8 @@ fbutton("refresh","Refresh Issues","AddIssueN(-${issueYear})");
 print "</td></tr>\n\n";
 
 print "<tr><td>&nbsp;</td></tr><tr><td align=center colspan=3 bgcolor=\"#ffdc9f\">\n";
-fbutton("Continue","Save/Continue","CheckDigits()");
-fbutton("Reset","Reset","document.dataForm.reset()");
+fbutton("Continue","Save &amp; Continue","CheckDigits()");
+fbutton("Reset","Reset This Page","document.dataForm.reset()");
 print "</td></tr>\n";
 print "\n</table>\n\n";
 

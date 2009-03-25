@@ -75,49 +75,17 @@ Shift Date:
 <option value="11">11 (Nov)</option>
 <option value="12">12 (Dec)</option>
 </select>/<select name=dated>
-<option value="01">01</option>
-<option value="02">02</option>
-<option value="03">03</option>
-<option value="04">04</option>
-<option value="05">05</option>
-<option value="06">06</option>
-<option value="07">07</option>
-<option value="08">08</option>
-<option value="09">09</option>
-<option value="10">10</option>
-<option value="11">11</option>
-<option value="12">12</option>
-<option value="13">13</option>
-<option value="14">14</option>
-<option value="15">15</option>
-<option value="16">16</option>
-<option value="17">17</option>
-<option value="18">18</option>
-<option value="19">19</option>
-<option value="20">20</option>
-<option value="21">21</option>
-<option value="22">22</option>
-<option value="23">23</option>
-<option value="24">24</option>
-<option value="25">25</option>
-<option value="26">26</option>
-<option value="27">27</option>
-<option value="28">28</option>
-<option value="29">29</option>
-<option value="30">30</option>
-<option value="31">31</option>
+<?php for ($mo = 1; $mo<=31; $mo++) {
+  $month = nDigits(2,$mo);
+  print "<option value=\"$month\">$month</option>\n";
+} ?>
 </select>/<select name=datey>
-<option value="04">2004</option>
-<option value="05">2005</option>
-<option value="06">2006</option>
-<option value="07">2007</option>
-<option value="08">2008</option>
-<option value="09">2009</option>
-<option value="10">2010</option>
-<option value="11">2011</option>
-<option value="12">2012</option>
+<?php for ($yr = 4; $yr<=date("y")+date("m")/12; $yr++) {
+  $year = nDigits(2,$yr);
+  print "<option value=\"$year\">20$year</option>\n";
+} ?>
 </select>
-(mm/dd/yy, e.g. 04/30/01, <b>NOT</b> 30/04/01)<br>
+(mm/dd/yyyy, e.g. 04/30/2007, <b>NOT</b> 30/04/2007)<br>
 
 Shift Time:
 Start: <input name=start size=6 maxlength=5> 
@@ -127,7 +95,7 @@ End: <input name=end size=6 maxlength=5>
 PLEASE ENTER THE START AND END TIMES OF THE SHIFT ACCORDING
 TO THE TIME AT BNL (U.S. EASTERN TIME)!
 (current time and date at BNL is: <b>
-<?php print date("H:i m/d/y T"); ?>
+<?php print date("H:i m/d/Y T"); ?>
 </b>)
 </font><br>
 
@@ -140,13 +108,13 @@ Shift Location:
 
 <?php
 
-print "<center>\n";
 holine(20);
-fsubmit("Save/Continue");
-freset("Reset");
+print "<center><div style=\"background-color:#ffdc9f; \">\n";
+fsubmit("Save &amp; Continue");
+freset("Reset This Page");
 fhidden("type","Info");
 fhidden("work",$work);
-print "</center>\n";
+print "</div></center>\n";
 fend();
 
 incl("fillform.php");

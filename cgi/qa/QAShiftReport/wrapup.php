@@ -79,12 +79,14 @@ print "<b>PLEASE NOTE:</b> If you are submitting data entries for Fast Offline, 
 print "will <u>need to know the STAR protected area password</u> for the summary\n";
 print "of this Shift Report to appear in the Electronic Shift Log!<br>\n";
 
+print "<div style=\"background-color:#ffdc9f; \">\n";
 fbutton("saveIt","Save &amp; Continue","subReport('SaveIt')");
 freset("Reset This Page");
 linebreak();
+print "</div><div style=\"background-color:#ffcc9f; \">\n";
 fbutton("sendIt","Save &amp; Submit Report","subReport('SendIt')");
 fbutton("keepIt","Save &amp; Submit Report, Keep Session","subReport('KeepIt')");
-print "</center>\n";
+print "</div></center>\n";
 
 fhidden("mode","none");
 
