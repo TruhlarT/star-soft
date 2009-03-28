@@ -187,7 +187,7 @@ if (count($actissues) > 0) {
 }
 
 print "<tr><td>&nbsp;</td></tr><tr><td align=center colspan=3 bgcolor=\"#ffdc9f\">\n";
-fbutton("ContinueTwo","Save &amp; Continue","CheckDigits()");
+fbutton("ContinueTwo","Save &amp; View Contents","CheckDigits()");
 fbutton("Reset","Reset This Page","reset()");
 fhidden("num",$num);
 fhidden("type",$type);
@@ -244,7 +244,7 @@ fbutton("refresh","Refresh Issues","AddIssueN(-${issueYear})");
 print "</td></tr>\n\n";
 
 print "<tr><td>&nbsp;</td></tr><tr><td align=center colspan=3 bgcolor=\"#ffdc9f\">\n";
-fbutton("Continue","Save &amp; Continue","CheckDigits()");
+fbutton("Continue","Save &amp; View Contents","CheckDigits()");
 fbutton("Reset","Reset This Page","document.dataForm.reset()");
 print "</td></tr>\n";
 print "\n</table>\n\n";

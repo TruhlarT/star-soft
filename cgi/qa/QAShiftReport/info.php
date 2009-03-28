@@ -110,7 +110,7 @@ Shift Location:
 
 holine(20);
 print "<center><div style=\"background-color:#ffdc9f; \">\n";
-fsubmit("Save &amp; Continue");
+fsubmit("Save &amp; View Contents");
 freset("Reset This Page");
 fhidden("type","Info");
 fhidden("work",$work);

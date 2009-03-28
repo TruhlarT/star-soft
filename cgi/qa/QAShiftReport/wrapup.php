@@ -80,11 +80,11 @@ print "will <u>need to know the STAR protected area password</u> for the summary
 print "of this Shift Report to appear in the Electronic Shift Log!<br>\n";
 
 print "<div style=\"background-color:#ffdc9f; \">\n";
-fbutton("saveIt","Save &amp; Continue","subReport('SaveIt')");
+fbutton("saveIt","Save &amp; View Contents","subReport('SaveIt')");
 freset("Reset This Page");
 linebreak();
 print "</div><div style=\"background-color:#ffcc9f; \">\n";
-fbutton("sendIt","Save &amp; Submit Report","subReport('SendIt')");
+fbutton("sendIt","Save &amp; Submit Report, Erase Session","subReport('SendIt')");
 fbutton("keepIt","Save &amp; Submit Report, Keep Session","subReport('KeepIt')");
 print "</div></center>\n";
 
