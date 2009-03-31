@@ -124,7 +124,7 @@ for ($i = 0; $i < scalar(@node_daq); $i++) {
 
   }
  }
-   for ($ij = 2; $ij < 4; $ik++) { 
+   for ($ij = 2; $ij < 4; $ij++) { 
       $OUT_DIR[$ii] = $TOP_DIRD . $node_daq[$ij] . "/" . $dir_year[8] . "/" . $daq_dir[22];
    print "Output Dir for NEW :", $OUT_DIR[$ii], "\n"; 
     $ii++;
@@ -680,6 +680,9 @@ foreach  $eachOutNDir (@OUT_DIR) {
     } elsif ($EvTp eq "cucu62_minbias") {
        $EvGen = "hijing";
        $EvType = "cucu62_minbias";
+    } elsif ($EvTp eq "auau200_central") {
+       $EvGen = "hijing";
+       $EvType = "auau200_central";
 
    } else {
        $EvGen = "daq";
@@ -729,10 +732,10 @@ foreach  $eachOutNDir (@OUT_DIR) {
       }   
 
      elsif($EvTp eq "CuCu200_MinBias") {
-        $EvReq = 800;
+        $EvReq = 7120;
       }
      elsif($EvTp eq "CuCu200_HighTower") {
-        $EvReq = 800;
+        $EvReq = 606;
       }
      elsif($EvTp eq "CuCu62_MinBias") {
         $EvReq = 800;
@@ -744,11 +747,28 @@ foreach  $eachOutNDir (@OUT_DIR) {
         $EvReq = 800;
       }   
      elsif($EvTp eq "ppProdLong") {
-        $EvReq = 5000;
+        $EvReq = 2000;
       }
      elsif($EvTp eq "ppProdTrans") {
-        $EvReq = 5000;
+        $EvReq = 2000;
       }      
+     elsif($EvTp eq "2007ProductionMinBias") {
+        $EvReq = 600;
+      }
+     elsif($EvTp eq "2007Production") {
+        $EvReq = 600;
+      }
+     elsif($EvTp eq "ppProduction2008") {
+        $EvReq = 1000;
+      }
+     elsif($EvTp eq "production_dAu2008") {
+        $EvReq = 400;
+      }
+
+     elsif($EvTp eq "production2009_500GeV") {
+        $EvReq = 500;
+      }
+
 #       else {
 #      @prt = split(/\./,$bsname);
 #      $evR = $prt[1];
