@@ -21,11 +21,11 @@ require "/afs/rhic.bnl.gov/star/packages/scripts/dbLib/dbTJobsSetup.pl";
 #require "dbTJobsSetup.pl";
 
 my $TOP_DIRD = "/star/rcf/test/dev/";
-my @dir_year = ("year_2001", "year_1h", "year_2003", "year_2004", "year_2005", "year_2006", "year_2007", "year_2008");
+my @dir_year = ("year_2001", "year_1h", "year_2003", "year_2004", "year_2005", "year_2006", "year_2007", "year_2008", "year_2009");
 my @node_dir = ("trs_sl302", "trs_sl302_opt", "trs_sl302.ittf","trs_sl302.ittf_opt");
 my @node_daq = ("daq_sl302", "daq_sl302_opt","daq_sl302.ittf","daq_sl302.ittf_opt");
 my @hc_dir = ("hc_lowdensity", "hc_standard", "hc_highdensity", "peripheral","pp_minbias","dau_minbias","auau_minbias","auau_central","cucu200_minbias","cucu62_minbias","auau200_central");
-my @daq_dir = ("minbias", "central", "ppMinBias", "dAuMinBias", "AuAuMinBias", "AuAu_prodHigh","AuAu_prodLow","prodPP","CuCu200_MinBias","CuCu200_HighTower","CuCu62_MinBias","CuCu22_MinBias","ppProduction","ppProdLong","ppProdTrans","2007ProductionMinBias","production_dAu2008","ppProduction2008","pp200_embed","CuCu200_embedTpc","CuCu200_embedTpcSvtSsd","auau200_embedTpcSvtSsd" );
+my @daq_dir = ("minbias", "central", "ppMinBias", "dAuMinBias", "AuAuMinBias", "AuAu_prodHigh","AuAu_prodLow","prodPP","CuCu200_MinBias","CuCu200_HighTower","CuCu62_MinBias","CuCu22_MinBias","ppProduction","ppProdLong","ppProdTrans","2007ProductionMinBias","production_dAu2008","ppProduction2008","pp200_embed","CuCu200_embedTpc","CuCu200_embedTpcSvtSsd","auau200_embedTpcSvtSsd","production2009_500GeV" );
 
 my @OUT_DIR;
 my @OUTD_DIR;
@@ -179,6 +179,10 @@ my $jj = 0;
     $OUT_DIR[$ii] = $TOP_DIRD . $node_daq[$i] . "/" . $testDay . "/". $dir_year[2] . "/" . $daq_dir[3];
    print "Output Dir for DEV :", $OUT_DIR[$ii], "\n";
         $ii++;
+   $OUT_DIR[$ii] = $TOP_DIRD . $node_daq[$i] . "/" . $testDay . "/". $dir_year[8] . "/" . $daq_dir[22];
+   print "Output Dir for DEV :", $OUT_DIR[$ii], "\n";
+        $ii++;
+
    }
 
    for ($ik = 19; $ik < 21; $ik++) { 
@@ -295,6 +299,10 @@ $jj = 0;
     $OUT_DIR[$ii] = $TOP_DIRD . $node_daq[$i] . "/" . $beforeDay . "/". $dir_year[2] . "/" . $daq_dir[3];
    print "Output Dir for DEV :", $OUT_DIR[$ii], "\n";
         $ii++;
+   $OUT_DIR[$ii] = $TOP_DIRD . $node_daq[$i] . "/" . $beforeDay . "/". $dir_year[8] . "/" . $daq_dir[22];
+   print "Output Dir for DEV :", $OUT_DIR[$ii], "\n";
+        $ii++;
+
    }
 
    for ($ik = 19; $ik < 21; $ik++) { 
@@ -941,6 +949,26 @@ foreach  $eachOutNDir (@OUT_DIR) {
      elsif($EvTp eq "ppProduction") {
         $EvReq = 500;
       }
+     elsif($EvTp eq "ppProdLong") {
+        $EvReq = 1000;
+      }
+     elsif($EvTp eq "ppProdTrans") {
+        $EvReq = 1000;
+      }
+     elsif($EvTp eq "2007ProductionMinBias") {
+        $EvReq = 100;
+      }
+     elsif($EvTp eq "ppProduction2008") {
+        $EvReq = 1000;
+      }
+     elsif($EvTp eq "production_dAu2008") {
+        $EvReq = 400;
+      }
+
+     elsif($EvTp eq "production2009_500GeV") {
+        $EvReq = 1000;
+      }
+
 #       else {
 #      @prt = split(/\./,$bsname);
 #      $evR = $prt[1];
@@ -969,11 +997,17 @@ foreach  $eachOutNDir (@OUT_DIR) {
      elsif($EvTp eq "auau_minbias") {          
          $EvReq = 100;
  }
+    elsif($EvTp eq "auau_central") {          
+         $EvReq = 50;
+ }
      elsif($EvTp eq "cucu200_minbias") {          
          $EvReq = 200;
  }
     elsif($EvTp eq "cucu62_minbias") {          
          $EvReq = 200;
+ }
+    elsif($EvTp eq "auau200_central") {          
+         $EvReq = 50;
  }     
       if( $bsname =~ /hc_highdensity/) {
       $lgFile = $eachOutNDir ."/" . $bsname ."16_evts.log" ;
@@ -1444,7 +1478,7 @@ sub  updateJSTable {
 
 #---------------------------------------------------------
 
-  print $fl_log, "\n";
+#  print $fl_log, "\n";
 
   open (LOGFILE, $fl_log ) or die "cannot open $fl_log", "\n";
 
