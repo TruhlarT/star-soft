@@ -966,7 +966,7 @@ foreach  $eachOutNDir (@OUT_DIR) {
       }
 
      elsif($EvTp eq "production2009_500GeV") {
-        $EvReq = 1000;
+        $EvReq = 500;
       }
 
 #       else {
