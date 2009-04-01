@@ -38,11 +38,11 @@ function queryDBfirst($str) {
   $result = queryDB($str);
   return nextDBrow($result);
 }
-function queryDBarray($str,$var) {
-  # returns an array of column $var from the DB
+function queryDBarray($str,$col) {
+  # returns an array of column $col from the DB
   $res = queryDB($str);
   $list = array();
-  while ($row = nextDBrow($res)) { $list[] = $row['$var']; }
+  while ($row = nextDBrow($res)) { $list[] = $row["$col"]; }
   return $list;
 }
 function escapeDB($str) {
