@@ -118,9 +118,8 @@ class qaentry {
   }
   
   function Anchor() {
-    $rundigits = (intval($this->info["runid"])>9999999 ? 8 : 7);
-    return $this->type . "_" . nDigits($rundigits,$this->info["runid"])
-                       . "_" . ndigits(7,$this->info["fseq"]);
+    return $this->type . "_" . formatRun($this->info["runid"])
+                       . "_" . formatFseq($this->info["fseq"]);
   }
   function Html() {
     $str = "<a name=\"". $this->Anchor() . "\">\n<pre>";
@@ -190,5 +189,15 @@ function readEntry($typ,$num=-1) {
   return readObjectEntry($file);
 }
 
+function isTriggerType($var) {
+  return (preg_match("/^[A-Z][A-Z]$/",$var,$temparr));
+}
+function formatFseq($var) {
+  return (isTriggerType($var) ? $var : nDigits(7,$var));
+}
+function formatRun($var) {
+  $rundigits = (intval($var)>9999999 ? 8 : 7);
+  return nDigits($rundigits,$var);
+}
 
 ?>

@@ -88,6 +88,20 @@ jstart();
       }
       form.submit();
     }
+    function my_is_int(value){
+      if((parseFloat(value) == parseInt(value)) && !isNaN(parseInt(value))) {
+        return true;
+      } else { return false; } 
+    }
+    function trig2fseq() {
+      form = document.dataForm;
+      form.fseq.value = form.trigset.value;
+    }
+    function fseq2trig() {
+      form = document.dataForm;
+      if (my_is_int(form.fseq.value)) { form.trigset.value = "NA"; }
+      else { form.trigset.value = form.fseq.value; }
+    }
 <?php
 jend();
 body();
@@ -120,8 +134,23 @@ Run ID:
   }
 } ?>
 File Sequence number:
-<input tabindex=2 name=fseq size=8 maxlength=7>
-<font size=-1>(leave as NA if none available)</font><br>
+<input tabindex=2 name=fseq id="Tfseq" size=8 maxlength=7
+  onchange="fseq2trig()"> or
+<select tabindex=20 name=trigset id="Ttrig"
+  onchange="trig2fseq()">
+<option value="NA" selected>NA - not applicable</option>
+<option value="GE">GE - General</option>
+<option value="MB">MB - MinBias</option>
+<option value="CL">CL - Central</option>
+<option value="HT">HT - High Tower</option>
+<option value="JP">JP - Jet Patch</option>
+<option value="HP">HP - High Pt</option>
+<option value="XX">XX - Other Physics</option>
+</select>
+<font size=-1>(select from the menu for combined sequences)</font><br>
+
+
+
 Production Job ID:
 <input tabindex=3 name=prodid size=20 value="NA"><br>
 Production job status:
@@ -262,5 +291,8 @@ if ($entr) {
 } else {
   reloadMenu();
 }
+jstart();
+print "  setTimeout(\"fseq2trig();\",250);\n";
+jend();
 
 foot(); ?>

@@ -214,10 +214,7 @@ function getListOfRunsForIssue($id) {
   global $RunIssuesDB;
   $str = "SELECT run FROM $RunIssuesDB WHERE issueID='$id'";
   $str .= " ORDER BY run ASC;";
-  $result = queryDB($str);
-  $runs = array();
-  while ($row = nextDBrow($result)) $runs[] = $row['run'];
-  return $runs;
+  return queryDBarray($str,"run");
 }
 
 function getListOfRunsToggleIssue($id) {

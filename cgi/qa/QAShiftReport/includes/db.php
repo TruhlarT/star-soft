@@ -26,7 +26,8 @@ function queryDB($str) {
   global $QAdebug,$QAdbconn;
   connectDB();
   if ($QAdebug) logit("QUERY###\n$str\n###QUERY");
-  @($result = mysql_query($str,$QAdbconn)) or died("Could not query the DB");
+  @($result = mysql_query($str,$QAdbconn)) or
+    died("Could not query the DB: " . ($QAdebug ? mysql_error() : "please report"));
   return $result;
 }
 function nextDBrow($result) {
@@ -36,6 +37,13 @@ function queryDBfirst($str) {
   # returns the first such row from the DB
   $result = queryDB($str);
   return nextDBrow($result);
+}
+function queryDBarray($str,$var) {
+  # returns an array of column $var from the DB
+  $res = queryDB($str);
+  $list = array();
+  while ($row = nextDBrow($res)) { $list[] = $row['$var']; }
+  return $list;
 }
 function escapeDB($str) {
   if (get_magic_quotes_gpc()) { $str = stripslashes($str); }

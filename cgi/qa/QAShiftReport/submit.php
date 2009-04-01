@@ -150,7 +150,7 @@ function LinkArchive($typ) {
     $yeardigits = strlen($runid)-6;
     $runyear = substr(strval($runid),0,$yeardigits);
     $runday  = substr(strval($runid),$yeardigits,3);
-    $fseqf = nDigits(7,strval($rfs[1]));
+    $fseqf = formatFseq($rfs[1]);
     saveLinkDB($fast,$runid,$fseqf,$rfs[2],$repnum);
   }
 }
@@ -183,8 +183,7 @@ function OutputExaminedRunFseq($typ) {
   if (count($allRunFileSeqs[$typ]) > 0) {
     $ostr .= "\n\nSUMMARY OF RUNS / FILE SEQUENCES EXAMINED FOR " . $ents[$typ];
     foreach ($allRunFileSeqs[$typ] as $k => $rfs) {
-      $rundigits = (intval($rfs[0])>9999999 ? 8 : 7);
-      $ostr .= "\n  " . nDigits($rundigits,$rfs[0]) . " / " . nDigits(7,$rfs[1]);
+      $ostr .= "\n  " . formatRun($rfs[0]) . " / " . formatFseq($rfs[1]);
     }
     $ostr .= "\n";
   }
