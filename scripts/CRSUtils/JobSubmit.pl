@@ -119,6 +119,9 @@ $TREEMODE = 0;
 $DEBUG    = 0;
 
 
+# variables default value before they were implemented
+$FRACTT = 100;                    # %tage sent when AllFiles is TRUE - feature starts 2009
+
 #
 # Default values Year9 data
 # Removed 2002->2004 on 2009/02 J.Lauret (see cvs revisions for history)
@@ -337,6 +340,7 @@ if ( $ThisYear == 2005 ){
 
     $NUMEVT  = 100;
     $MINEVT  = 200;
+    $FRACTT  =  33;
 
     $TARGET  = "/star/data09/reco";       # This is ONLY a default value.
                                           # Overwritten by ARGV (see crontab)
@@ -1327,8 +1331,14 @@ __EOH__
 	# SEVERAL OUTPUT "MAY" BE CREATED, NOTE THAT IN CALIBF MODE, $tags WILL
 	# BE CHANGED TO TAKE INTO ACCOUNT THE laser.root FILE.
 	
-	# first, decide if event.root should be saved - once every 10
-	if ( ($fileseq % 10 == 0 && $fileseq !=0) || $fileseq ==1 ){
+	# first, decide if event.root should be saved - once every 10 ...
+	$AllFiles = ($fileseq % 10 == 0 && $fileseq !=0) || $fileseq ==1;
+	# ... and do regular MC i.e. toss a coin
+	$prob = int(rand()*100);
+	if ($prob >= $FRACTT){ 	$AllFiles = 1==0;}  # set to false
+
+
+	if ( $AllFiles ){
 	    print FO <<__EOF__;
 
 #output
