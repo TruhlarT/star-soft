@@ -1333,15 +1333,25 @@ __EOH__
 	
 	# first, decide if event.root should be saved - once every 10 ...
 	$AllFiles = ($fileseq % 10 == 0 && $fileseq !=0) || $fileseq ==1;
-	# ... and do regular MC i.e. toss a coin
-	$prob = int(rand()*100);
-	if ($prob >= $FRACTT){ 	$AllFiles = 1==0;}  # set to false
+	if ( $AllFiles){ 
+	    $hint = "filseq check lead to use event.root";
 
+	    # ... and do regular MC i.e. toss a coin
+	    $prob = int(rand()*100);
+	    if ($prob >= $FRACTT){ 	
+		# set to false
+		$AllFiles = 1==0;
+		$hint = "filseq check -> event.root but disabled by regular MC ($prob >=  $FRACTT)";
+	    } 
+	} else { 
+	    $hint = "standard file selection";
+	}
 
 	if ( $AllFiles ){
 	    print FO <<__EOF__;
 
 #output
+# $hint
     outputnumstreams=5
 
 #output stream
@@ -1382,6 +1392,7 @@ __EOF__
 	    print FO <<__EOF__;
 
 #output
+# $hint
     outputnumstreams=4
 
     outputstreamtype[0]=$stagedon
@@ -1412,7 +1423,6 @@ __EOF__
 #program to run
     executable=$SPATH/bfccb
 __EOF__
-
 
         }
 
