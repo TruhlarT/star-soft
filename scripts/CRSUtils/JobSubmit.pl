@@ -378,8 +378,8 @@ if ( $ThisYear == 2005 ){
 
 
     # at least, p+p calib
-#    $DCHAIN{"PPPP"} = "pp2009a,ITTF,BEmcChkStat,QAalltrigs,btofDat,Corr3,-hitfilt";
-    $DCHAIN{"PPPP"} = "pp2009a,ITTF,BEmcChkStat,btofDat,Corr3,-hitfilt"; 
+    $DCHAIN{"PPPP"} = "pp2009a,ITTF,BEmcChkStat,QAalltrigs,btofDat,Corr3,-hitfilt";
+#    $DCHAIN{"PPPP"} = "pp2009a,ITTF,BEmcChkStat,btofDat,Corr3,-hitfilt"; 
    # $DCHAIN{"PPPP"} = "pp2009b,ITTF,BEmcChkStat,QAalltrigs,btofDat"; # <-- switch to this if trgd crash
     $SCALIB{"PPPP"} = "OptLaser";
 
