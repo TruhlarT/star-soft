@@ -1096,7 +1096,7 @@ sub GetAvailableDisk
 	$pos = 0;
     } else {
 	# Chose one randomly
-	$pos = int(rand($#CANDIDATES));
+	$pos = int(rand($#CANDIDATES+1));
     }
 
 
