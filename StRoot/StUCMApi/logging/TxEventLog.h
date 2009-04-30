@@ -2,7 +2,7 @@
  * @file TxEventLog.h
  * @author Roopa Pundaleeka
  *
- * @(#)cpp/api:$Id: TxEventLog.h,v 1.1 2009/04/07 19:00:27 fine Exp $
+ * @(#)cpp/api:$Id: TxEventLog.h,v 1.2 2009/04/30 17:09:27 fine Exp $
  *
  * TxEventLog provides an interface for applications so that they can write
  * event information into a CEDPS formated file.
@@ -12,20 +12,15 @@
 #define TX_EVENT_LOG_H
 
 #include <string>
-#include <cstdlib>
-#include <vector>
-#include <sys/types.h>
-#include <unistd.h>
-#include <ctime>
-#include <sstream>
-#include <iostream>
-#include <fstream>
-#include <map>
 
-#include "TxUCMUtils.h"
 #include "TxUCMConstants.h"
 
 namespace TxLogging {
+
+    /**
+     * TxEventLog is an abstarct inteface to the logginh system
+     *
+     */    
   class TxEventLog {
     
   public:
@@ -60,20 +55,21 @@ namespace TxLogging {
       DONE           = 8,
       FAILED         = 9
     };
-
+protected:
     /**
      * Constructor
      * - Gets hostname and sets nodeLocation for the running job.  
      *
      */    
     TxEventLog ();
+public:
 
     /**
      * Destructor: 
      * - Sets job state to finished (STAGE = END) 
      *
      */
-    ~TxEventLog ();
+    virtual ~TxEventLog ();
 
     /**
      * The concept of a job ID and task ID assigned by broker is
@@ -83,7 +79,7 @@ namespace TxLogging {
      * @param string envBrokerTaskID, Name of the environment variable
      *
      */
-    void setEnvBrokerTaskID (const std::string& envBrokerTaskID);
+    virtual void setEnvBrokerTaskID (const std::string& envBrokerTaskID)=0;
     
     /**
      * The concept of a job ID and task ID assigned by broker is
@@ -93,7 +89,7 @@ namespace TxLogging {
      * @param string envBrokerJobID, Name of the environment variable
      *
      */
-    void setEnvBrokerJobID (const std::string& envBrokerJobID);
+    virtual void setEnvBrokerJobID (const std::string& envBrokerJobID)=0;
     
     /**
      * The concept of a job ID and task ID assigned by broker is
@@ -102,7 +98,7 @@ namespace TxLogging {
      * @param string brokerTaskID, value of Task ID
      *
      */
-    void setBrokerTaskID (const std::string& brokerTaskID);
+    virtual void setBrokerTaskID (const std::string& brokerTaskID)=0;
     
     /**
      * The concept of a job ID and task ID assigned by broker is
@@ -111,7 +107,7 @@ namespace TxLogging {
      * @param int brokerJobID, value of Job ID
      *
      */
-    void setBrokerJobID (int brokerJobID);
+    virtual void setBrokerJobID (int brokerJobID)=0;
     
     /**
      * Set the requester name
@@ -119,21 +115,21 @@ namespace TxLogging {
      * @param string requesterName
      *
      */
-    void setRequesterName (const std::string& requester);
+    virtual void setRequesterName (const std::string& requester)=0;
     
     /**
      * Set context for this task/job
      *
      * @param context, the message context
      */
-    void setContext (const std::string& context);
+    virtual void setContext (const std::string& context)=0;
 
     /**
      * Called by the *application* to log a START event
      *
      */
-    void logStart (const std::string& key   = TxUCMConstants::appStart,
-		   const std::string& value = "application started");
+    virtual void logStart (const std::string& key   = TxUCMConstants::appStart,
+		   const std::string& value = "application started")=0;
 
     /**
      * Log the job submit location. This method will be called by the
@@ -142,7 +138,7 @@ namespace TxLogging {
      * @param string url, Job submit location. 
      *
      */    
-    void setJobSubmitLocation (const std::string& url);
+    virtual void setJobSubmitLocation (const std::string& url)=0;
 
     /**
      * Log the job state. This method will be called by the Broker.
@@ -150,7 +146,7 @@ namespace TxLogging {
      * @param enum Stage, Job state. 
      *
      */    
-    void setJobSubmitState (State state);
+    virtual void setJobSubmitState (State state)=0;
 
     /**
      * Log the job submit ID. This method will be called by the
@@ -159,7 +155,7 @@ namespace TxLogging {
      * @param string ID, Job submit ID. 
      *
      */    
-    void setJobSubmitID (const std::string& ID);
+    virtual void setJobSubmitID (const std::string& ID)=0;
 
     /**
      * Log a simple message event. This event is always associated
@@ -171,10 +167,10 @@ namespace TxLogging {
      * @param msgContext The context in which the event occurs.
      *
      */
-    void logEvent (const std::string& logMsg, 
+    virtual void logEvent (const std::string& logMsg, 
 		   Level level = LEVEL_INFO, 
 		   Stage stage = STATUS, 
-		   const std::string& msgContext = TxUCMConstants::defaultContext);
+		   const std::string& msgContext = TxUCMConstants::defaultContext)=0;
     
     /**
      * Log a key-value pair type event. This event is always
@@ -187,50 +183,18 @@ namespace TxLogging {
      * @param msgContext The context in which the event occurs.
      *
      */    
-    void logEvent (const std::string& userKey, 
+    virtual void logEvent (const std::string& userKey, 
 		   const std::string& userValue, 
 		   Level level = LEVEL_INFO, 
 		   Stage stage = STATUS, 
-		   const std::string& msgContext = TxUCMConstants::defaultContext);
+		   const std::string& msgContext = TxUCMConstants::defaultContext)=0;
 
     /**
      * Called by the *application* to log an END event
      *
      */
-    void logEnd (const std::string& key   = TxUCMConstants::appEnd,
-		 const std::string& value = "application ended");
-
-  private:
-    /**
-     * Read properties file to get the location of the log file
-     */
-    void readProperties ();
-  
-    /**
-     * Set default context, hostname, and call readProperties
-     */
-    void setDefaults ();
-
-    /**
-     * Creates a CEDPS formatted header
-     */
-    const char* createHeader ();
-
-    /**
-     * Creates a CEDPS formatted message
-     */
-    void writeMessage (const std::string& event,
-		       const std::string& context,
-		       const Level& level,
-		       const Stage& stage,
-		       const std::string& key = "",
-		       const std::string& value = "");
-
-    std::string brokerJobID, brokerTaskID, requester, context;
-    std::map <std::string, std::string> ucmLogProps;
-    std::string timestamp, logFilePath;
-    std::string username, hostname;
-    bool startMsgWritten;
+    virtual void logEnd (const std::string& key   = TxUCMConstants::appEnd,
+		 const std::string& value = "application ended")=0;
   };
 }
 #endif
