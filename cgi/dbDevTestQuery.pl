@@ -1,8 +1,11 @@
 #!/usr/bin/env perl 
 #
-# $Id: dbDevTestQuery.pl,v 1.23 2009/04/01 15:54:52 didenko Exp $
+# $Id: dbDevTestQuery.pl,v 1.24 2009/05/01 15:42:27 didenko Exp $
 #
 # $Log: dbDevTestQuery.pl,v $
+# Revision 1.24  2009/05/01 15:42:27  didenko
+# fixed year 2009
+#
 # Revision 1.23  2009/04/01 15:54:52  didenko
 # add pp 500GeV test
 #
@@ -116,7 +119,7 @@ my @prod_set = (
                 "daq_sl302/year_2007/2007ProductionMinBias",
                 "daq_sl302/year_2008/production_dAu2008",
                 "daq_sl302/year_2008/ppProduction2008", 
-                "daq_sl302/year_2008/production2009_500GeV", 
+                "daq_sl302/year_2009/production2009_500GeV", 
 		);
 
 my @sets_name;
