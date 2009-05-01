@@ -25,7 +25,7 @@ my @dir_year = ("year_2001", "year_1h", "year_2003", "year_2004", "year_2005", "
 my @node_dir = ("trs_sl302", "trs_sl302_opt", "trs_sl302.ittf","trs_sl302.ittf_opt");
 my @node_daq = ("daq_sl302", "daq_sl302_opt","daq_sl302.ittf","daq_sl302.ittf_opt");
 my @hc_dir = ("hc_lowdensity", "hc_standard", "hc_highdensity", "peripheral","pp_minbias","dau_minbias","auau_minbias","auau_central","cucu200_minbias","cucu62_minbias","auau200_central");
-my @daq_dir = ("minbias", "central", "ppMinBias", "dAuMinBias", "AuAuMinBias", "AuAu_prodHigh","AuAu_prodLow","prodPP","CuCu200_MinBias","CuCu200_HighTower","CuCu62_MinBias","CuCu22_MinBias","ppProduction","ppProdLong","ppProdTrans","2007ProductionMinBias","production_dAu2008","ppProduction2008","pp200_embed","CuCu200_embedTpc","CuCu200_embedTpcSvtSsd","auau200_embedTpcSvtSsd","production2009_500GeV" );
+my @daq_dir = ("minbias", "central", "ppMinBias", "dAuMinBias", "AuAuMinBias", "AuAu_prodHigh","AuAu_prodLow","prodPP","CuCu200_MinBias","CuCu200_HighTower","CuCu62_MinBias","CuCu22_MinBias","ppProduction","ppProdLong","ppProdTrans","2007ProductionMinBias","production_dAu2008","ppProduction2008","pp200_embed","CuCu200_embedTpc","CuCu200_embedTpcSvtSsd","auau200_embedTpcSvtSsd","production2009_500GeV", "production2009_200Gev_Hi");
 
 my @OUT_DIR;
 my @OUTD_DIR;
@@ -179,10 +179,11 @@ my $jj = 0;
     $OUT_DIR[$ii] = $TOP_DIRD . $node_daq[$i] . "/" . $testDay . "/". $dir_year[2] . "/" . $daq_dir[3];
    print "Output Dir for DEV :", $OUT_DIR[$ii], "\n";
         $ii++;
-   $OUT_DIR[$ii] = $TOP_DIRD . $node_daq[$i] . "/" . $testDay . "/". $dir_year[8] . "/" . $daq_dir[22];
+   for ($ik = 22; $ik < 24; $ik++) { 
+   $OUT_DIR[$ii] = $TOP_DIRD . $node_daq[$i] . "/" . $testDay . "/". $dir_year[8] . "/" . $daq_dir[$ik];
    print "Output Dir for DEV :", $OUT_DIR[$ii], "\n";
         $ii++;
-
+     }
    }
 
    for ($ik = 19; $ik < 21; $ik++) { 
@@ -309,6 +310,11 @@ $jj = 0;
    $OUT_DIR[$ii] = $TOP_DIRD . $node_daq[2] . "/" . $beforeDay . "/". $dir_year[4] . "/" . $daq_dir[$ik];
    print "Output Dir for DEV :", $OUT_DIR[$ii], "\n";   
    $ii++;
+   for ($ik = 22; $ik < 24; $ik++) { 
+   $OUT_DIR[$ii] = $TOP_DIRD . $node_daq[$i] . "/" . $beforeDay . "/". $dir_year[8] . "/" . $daq_dir[$ik];
+   print "Output Dir for DEV :", $OUT_DIR[$ii], "\n";
+        $ii++;
+     }
  }
 
    $OUT_DIR[$ii] = $TOP_DIRD . $node_daq[2] . "/" . $beforeDay . "/". $dir_year[6] . "/" . $daq_dir[21];
