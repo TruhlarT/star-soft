@@ -1,8 +1,8 @@
 #!/opt/star/bin/perl -w
 
-use Env (OPTSTAR);
-use lib "$OPTSTAR/lib";
-#use lib "/star/u/jeromel/work/STAR/scripts";
+use Env qw(STAR_SCRIPTS);
+use lib "$STAR_SCRIPTS/";
+# use lib "/star/u/jeromel/work/STAR/scripts";
 use FileCatalog;
 use Date::Manip;
 
@@ -22,6 +22,7 @@ if ($#ARGV == -1){
    -l                 consider soft-links in path
 
    -nocache           do not use caching (default)
+   -dcache            delete cache entirely
    -cache             use caching which will allow to process the difference 
                       only saving querry cycles
    -coff Offsset      add the value Offset to the cache frequency
@@ -134,7 +135,9 @@ for ($i=0 ; $i <= $#ARGV ; $i++){
 	$DOCACHE= 0;
     } elsif ($ARGV[$i] eq "-cache"){
 	$DOCACHE= 1;
-
+    } elsif ($ARGV[$i] eq "-dcache"){	
+	$DOCACHE= -1;
+	
     } elsif ($ARGV[$i] eq "-k"){
 	$SUBPATH = $ARGV[++$i];
 
@@ -215,14 +218,24 @@ if( $DOIT && -e "$SCAND/$SUB"){
     }
 }
 
+
+$XSELF = "$SELF$SCAND";
+$XSELF =~ s/[+\/\*]/_/g; 
+
+
+# cache deletion
+if ( $DOCACHE == -1){
+   print "Deleting cache\n";
+   unlink(glob("/tmp/$XSELF"."_*.lis"));			
+}
+
+    
+# Eventually, if nothing is to be done, leave now
 if ($#ALL == -1){ goto FINAL_EXIT;}
 
 
 # Added algo to process by differences
 if ( $DOCACHE ){
-    $XSELF = "$SELF$SCAND";
-    $XSELF =~ s/[+\/\*]/_/g; 
-
   ONELIS:
     $kk=0;
     while ( -e "/tmp/$XSELF"."_$kk.lis"){  $kk++;}
