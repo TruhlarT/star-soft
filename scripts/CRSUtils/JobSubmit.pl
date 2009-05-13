@@ -85,6 +85,9 @@ $ThisYear = 2009;                 # Block to consider. Completely artificial
 $HPSS     = 1;                    # turn to 0 for UNIX staging only
                                   # HPSS staging was requested for Run5
 
+$DSKLOG = "/star/rcf";            # disk where the logs go
+# $DSKLOG = "/star/data36";
+
 # disable at first
 # $ThisYear = -1;
 
@@ -1376,11 +1379,11 @@ __EOH__
     outputfile[4]=$prefix$mfile.runco.root
 
 #standard out
-    stdoutdir=/star/rcf/prodlog/$LIB/log/daq
+    stdoutdir=$DSKLOG/prodlog/$LIB/log/daq
     stdout=$mfile.log
 
 #standard error
-    stderrdir=/star/rcf/prodlog/$LIB/log/daq
+    stderrdir=$DSKLOG/prodlog/$LIB/log/daq
     stderr=$mfile.err
     notify=starreco\@rcrsuser3.rcf.bnl.gov
 
@@ -1412,11 +1415,11 @@ __EOF__
     outputfile[3]=$prefix$mfile.runco.root
 
 #standard out
-    stdoutdir=/star/rcf/prodlog/$LIB/log/daq
+    stdoutdir=$DSKLOG/prodlog/$LIB/log/daq
     stdout=$mfile.log
 
 #standard error
-    stderrdir=/star/rcf/prodlog/$LIB/log/daq
+    stderrdir=$DSKLOG/prodlog/$LIB/log/daq
     stderr=$mfile.err
     notify=starreco\@rcrsuser3.rcf.bnl.gov
 
