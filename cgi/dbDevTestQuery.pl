@@ -1,8 +1,11 @@
 #!/usr/bin/env perl 
 #
-# $Id: dbDevTestQuery.pl,v 1.24 2009/05/01 15:42:27 didenko Exp $
+# $Id: dbDevTestQuery.pl,v 1.25 2009/05/21 19:08:15 didenko Exp $
 #
 # $Log: dbDevTestQuery.pl,v $
+# Revision 1.25  2009/05/21 19:08:15  didenko
+# updated for pp 200GeV run 2009 test
+#
 # Revision 1.24  2009/05/01 15:42:27  didenko
 # fixed year 2009
 #
@@ -120,6 +123,7 @@ my @prod_set = (
                 "daq_sl302/year_2008/production_dAu2008",
                 "daq_sl302/year_2008/ppProduction2008", 
                 "daq_sl302/year_2009/production2009_500GeV", 
+                "daq_sl302/year_2009/production2009_200Gev_Hi" 
 		);
 
 my @sets_name;
