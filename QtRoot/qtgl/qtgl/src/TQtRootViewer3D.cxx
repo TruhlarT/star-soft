@@ -80,24 +80,23 @@ TQtRootViewer3D::TQtRootViewer3D(TVirtualPad*pad)
 //______________________________________________________________________________
 void   TQtRootViewer3D::Viewer()
 {
-   if (!fViewer && fPad) {
-      // fprintf(stderr,"-- TQtRootViewer3D::Viewer begin -- \n");
+   if (!fViewer){
       fView3DFactory = TObject3DViewFactoryABC::View3DFactory("ogl");
       if (!fView3DFactory) {
          TObject3DViewFactoryABC::Registr(new TObjectOpenGLViewFactory(), "ogl");
          fView3DFactory = TObject3DViewFactoryABC::View3DFactory("ogl");
       }
       fListOfPrimitives.SetViewFactory(fView3DFactory);
-      fViewer = new TQtGLViewerImp(fPad,fPad->GetName(),fPad->UtoPixel(1.),fPad->VtoPixel(0.) );
+      fViewer = fPad ? 
+            new TQtGLViewerImp(fPad,fPad->GetName(),fPad->UtoPixel(1.),fPad->VtoPixel(0.))
+           :
+            new TQtGLViewerImp(fPad,"OpenGL Viewer");
       // fprintf(stderr,"QtRootViewer3D %p for TPad %p : %s \n", this, fPad, fPad->GetName());
-      fDisconnectSlot = new SlotDisconnect(this);
-     //  QObject::connect(fViewer,SIGNAL(destroyed()), fDisconnectSlot, SLOT(Disconnect()));
-      QObject::connect(&(fViewer->Signals()),SIGNAL(destroyed()), fDisconnectSlot, SLOT(DestroyMaster()));
- //     QObject::connect(fViewer->GLWidget(),SIGNAL(viewerAbout2Close())
- //                     , fDisconnectSlot, SLOT(CleanPrimitives()));
-      // fPad->Connect("Modified()","TQtRootViewer3D", this, "UpdateView()");
-      fPad->Connect("Closed()","TQtRootViewer3D", this, "DisconnectPad()");
-      QObject::connect(gQt->Emitter(),SIGNAL(padPainted(QPixmap*)),fDisconnectSlot, SLOT(UpdateView(QPixmap*)));
+      if (fPad) {
+         fDisconnectSlot = new SlotDisconnect(this);
+         fPad->Connect("Closed()","TQtRootViewer3D", this, "DisconnectPad()");
+         QObject::connect(gQt->Emitter(),SIGNAL(padPainted(QPixmap*)),fDisconnectSlot, SLOT(UpdateView(QPixmap*)));
+      }
    }
 }
 //______________________________________________________________________________

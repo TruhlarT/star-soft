@@ -61,7 +61,7 @@ TQtRootCoinViewer3D::TQtRootCoinViewer3D(TVirtualPad * pad)
 //______________________________________________________________________________
 void   TQtRootCoinViewer3D::Viewer()
 {
-   if (!fViewer && fPad) {
+   if (!fViewer) {
    fView3DFactory = TObject3DViewFactoryABC::View3DFactory("oiv");
    if (!fView3DFactory) {
       SoDB::init();
@@ -87,7 +87,12 @@ void   TQtRootCoinViewer3D::Viewer()
    }
    assert(fView3DFactory);
    fListOfPrimitives.SetViewFactory(fView3DFactory);
-      fViewer = new TQtCoinViewerImp(fPad,fPad->GetName(),fPad->UtoPixel(1.),fPad->VtoPixel(0.) );
+   
+   fViewer = fPad ?
+         new TQtCoinViewerImp(fPad,fPad->GetName(),fPad->UtoPixel(1.),fPad->VtoPixel(0.) )
+         :
+         new TQtCoinViewerImp(fPad,"Coint3DViewer");
+         
 #ifdef STAR_ONLINE_MONITOR      
       ((TQtCoinViewerImp *)fViewer)->move(0,0);
       ((TQtCoinViewerImp *)fViewer)->showMaximized();
@@ -95,8 +100,10 @@ void   TQtRootCoinViewer3D::Viewer()
       if (fViewer && !fDrawOption.IsNull()) fViewer->SetDrawOption(fDrawOption.Data());
       fDisconnectSlot = new SlotDisconnect(this);
       QObject::connect(&(fViewer->Signals()),SIGNAL(destroyed()), fDisconnectSlot, SLOT(DestroyMaster()));
-      fPad->Connect("Closed()","TQtRootCoinViewer3D", this, "DisconnectPad()");
-      QObject::connect(gQt->Emitter(),SIGNAL(padPainted(QPixmap*)),fDisconnectSlot, SLOT(UpdateView(QPixmap*)));
+      if (fPad) {
+         fPad->Connect("Closed()","TQtRootCoinViewer3D", this, "DisconnectPad()");
+         QObject::connect(gQt->Emitter(),SIGNAL(padPainted(QPixmap*)),fDisconnectSlot, SLOT(UpdateView(QPixmap*)));
+      }
    }
    // printf("TQtRootCoinViewer3D::Viewer end\n");
 }

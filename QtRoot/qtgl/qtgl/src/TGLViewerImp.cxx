@@ -1,4 +1,4 @@
-// @(#)root/g3d:$Name:  $:$Id: TGLViewerImp.cxx,v 1.6 2007/05/09 22:57:10 fine Exp $
+// @(#)root/g3d:$Name:  $:$Id: TGLViewerImp.cxx,v 1.7 2009/05/26 19:07:05 fine Exp $
 // Author: Valery Fine      23/05/97
 
 /*************************************************************************
@@ -21,7 +21,7 @@
 #include "RVersion.h"
 #if ROOT_VERSION_CODE >= ROOT_VERSION(4,01,00)
 
-//  This class was relocated from ROOT 4.00.08 g3g package
+//  This class was relocated from ROOT 4.00.08 g3d package
 
 #include "TQGLViewerImp.h"
 #include "TGuiFactory.h"

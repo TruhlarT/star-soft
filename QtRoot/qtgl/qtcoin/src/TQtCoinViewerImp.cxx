@@ -150,24 +150,22 @@ TQtCoinViewerImp::TQtCoinViewerImp(TVirtualPad *pad, const char *title,
 #if QT_VERSION >= 0x40000
    setAttribute(Qt::WA_DeleteOnClose);
 #endif   
-   if (pad ) {
-	   printf("TQtCoinViewerImp::TQtCoinViewerImp begin Pad=%p\n", pad);
+   printf("TQtCoinViewerImp::TQtCoinViewerImp begin Pad=%p\n", pad);
        //Create the default SnapShot file name and type if any
       
-      QString caption = " Coin : ";
-      caption += pad->GetTitle();
-      caption += ": viewer";
-      setCaption(caption);
-      resize(width, height);
-      fGLView = 0;
-      CreateViewer(title);      
-      fCoinWidget ->SetPad(pad);
-      int parts[] = {43,7,10,39};
-      CreateStatusBar(parts,4);
-      MakeMenu();
-      SetDrawList(0);
-      show();
-   }
+   QString caption = " Coin : ";
+   caption += pad ? pad->GetTitle() : "No TPad";
+   caption += ": viewer";
+   setCaption(caption);
+   resize(width, height);
+   fGLView = 0;
+   CreateViewer(title);      
+   fCoinWidget ->SetPad(pad);
+   int parts[] = {43,7,10,39};
+   CreateStatusBar(parts,4);
+   MakeMenu();
+   SetDrawList(0);
+   show();
    // fMaxSnapFileCounter = 2;//CreateSnapShotCounter();
    printf("TQtCoinViewerImp::TQtCoinViewerImp end\n");
 }

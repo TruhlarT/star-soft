@@ -1,8 +1,8 @@
-// @(#)root/qtgl:$Name:  $:$Id: TQtGLViewerWidget.cxx,v 1.6 2007/03/14 00:12:00 fine Exp $
+// @(#)root/qtgl:$Name:  $:$Id: TQtGLViewerWidget.cxx,v 1.7 2009/05/26 19:07:06 fine Exp $
 // Author: Valery Fine(fine@vxcern.cern.ch)   12/11/02
  
 /****************************************************************************
-** $Id: TQtGLViewerWidget.cxx,v 1.6 2007/03/14 00:12:00 fine Exp $
+** $Id: TQtGLViewerWidget.cxx,v 1.7 2009/05/26 19:07:06 fine Exp $
 **
 ** Copyright (C) 2002 by Valeri Fine. Brookhaven National Laboratory.
 **                                    All rights reserved.
@@ -289,9 +289,10 @@ TQtGLViewerWidget::TQtGLViewerWidget(TVirtualPad *pad, const char *title,QWidget
     Float_t  theta = 0;//M_PI/2; //  90.;
     Float_t  psi   =  0;//  M_PI/2; // 90. ;
     TVirtualPad *thisPad  = fGLView ? fGLView->GetPad() : fPad;
+    fStateFileName = "."; 
     if (thisPad) {
-       fStateFileName = "."; fStateFileName += thisPad->GetName(); fStateFileName += ".xml";
-       setStateFileName (fStateFileName );
+       fStateFileName += thisPad->GetName();
+       fStateFileName += ".xml";
        TView *padView = thisPad->GetView();
        if (padView)  {
           padView->GetRange(minBound,maxBound);
@@ -301,7 +302,11 @@ TQtGLViewerWidget::TQtGLViewerWidget(TVirtualPad *pad, const char *title,QWidget
 
        }
        SetBackgroundColor(thisPad->GetFillColor());
+    } else {
+       fStateFileName += "nopad.xml";
     }
+    setStateFileName (fStateFileName );
+
     // calculate the raduis
     Float_t raduis = TMath::Sqrt(
        (maxBound[2]-minBound[2])*(maxBound[2]-minBound[2]) 

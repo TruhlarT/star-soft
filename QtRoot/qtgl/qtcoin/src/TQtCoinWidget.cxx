@@ -662,23 +662,21 @@ void TQtCoinWidget::SetPad(TVirtualPad *pad)
       SetFileName(saveFile);
       SetFileType("PNG");
    }
-   if ( fPad ) {
-      // printf("TQtCoinWidget::TQtCoinWidget begin Pad=%p\n", pad);
-      //Create the default SnapShot file name and type if any
-      if (saveFile.isEmpty() || saveFile.endsWith("/") ) {
-         saveFile += fPad->GetName();
-         saveFile += ".";
-         saveFile += "jpg";
-         SetFileType("JPG");
-         SetFileName(saveFile);
-      }
-            
-      QString caption = fPad->GetTitle();
-      caption += ": Coin viewer";
-      fGLView = 0;
-      CreateViewer(caption);
-      SetDrawList(0);
+   // printf("TQtCoinWidget::TQtCoinWidget begin Pad=%p\n", pad);
+   //Create the default SnapShot file name and type if any
+   if (saveFile.isEmpty() || saveFile.endsWith("/") ) {
+      saveFile += fPad ? fPad->GetName() : "noPad";
+      saveFile += ".";
+      saveFile += "jpg";
+      SetFileType("JPG");
+      SetFileName(saveFile);
    }
+          
+   QString caption = fPad ? fPad->GetTitle() : "no pad";
+   caption += ": Coin viewer";
+   fGLView = 0;
+   CreateViewer(caption);
+   SetDrawList(0);
 }
       
 //______________________________________________________________________________
@@ -716,9 +714,10 @@ TQtCoinWidget::TQtCoinWidget(TVirtualPad *pad, const char *title,
    }
    
    memset(fPivotClipPoint,0,sizeof(fPivotClipPoint));
-   if ( fPad ) {
+//   if ( fPad ) 
+   {
       if (saveFile.isEmpty() || saveFile.endsWith("/") ) {
-        saveFile += fPad->GetName();
+        saveFile += fPad ? fPad->GetName() : "noPad";
         saveFile += ".";
         saveFile += "jpg";
       
@@ -726,7 +725,7 @@ TQtCoinWidget::TQtCoinWidget(TVirtualPad *pad, const char *title,
         SetFileName(saveFile);
       }
      
-      QString caption = fPad->GetTitle();
+      QString caption = fPad ? fPad->GetTitle(): "no pad";
       caption += ": Coin viewer";
       setCaption(caption);
       resize(width, height);
@@ -2152,7 +2151,7 @@ void TQtCoinWidget::CreateViewer( const QString &/*name*/)
    fMovie->ref();
    
    //  Pick the background color from pad
-   SetBackgroundColor(fPad->GetFillColor());
+   if (fPad) SetBackgroundColor(fPad->GetFillColor());
 //   SetFooter("Test Two lines\nSecond lines");
 #if 1
    // Create the keyborad handler
