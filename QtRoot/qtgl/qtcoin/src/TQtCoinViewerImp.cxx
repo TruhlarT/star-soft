@@ -30,6 +30,7 @@
 #  include <qaction.h>
 #  include <qpngio.h> 
 #else 
+#  include <QImageWriter>
 #  include <QFileDialog>
 #  include <QMenu>
 #  include <QWhatsThis> 
