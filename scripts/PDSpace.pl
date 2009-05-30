@@ -33,7 +33,7 @@ $DINFO = "(check 'nova' Spiders)";                             # Many tools may 
 $SpiderControl = "/cgi-bin/%%RELP%%/SpiderControl.cgi"; # a CGI controling the spiders
 
 
-@COLORS = ("#FFFACD","#C1FFC1","#7FFFD4","#00DEFF","#87CEFA","#ccccee","#D8BFD8","#FF69B4");
+@COLORS = ("#7FFFD4","#40E0D0","#00DEFF","#87CEFA","#CCCCEE","#D8BFD8","#D02090"); #"#FF69B4");
 
 
 # Insert an extra table break before those numbers
@@ -92,13 +92,13 @@ foreach $disk (@DISKS){
 	next;
     }
 
-    #print "DEBUG Checking $disk using $DF\n";
+    # print "DEBUG Checking $disk using $DF\n";
     chomp($res = `$DF $disk | /bin/grep % | /bin/grep '/'`);
     $res   =~ s/^\s*(.*?)\s*$/$1/;
     $res   =~ s/\s+/ /g;
     @items =  split(" ",$res);
 
-    #print STDERR "$disk $res\n";
+    # print STDERR "$disk $res\n";
 
     if ($#items < 5){
 	$tota = $items[0];
@@ -111,7 +111,7 @@ foreach $disk (@DISKS){
 	$avai = $items[3];
 	$prct = $items[4];
     }
-    #print STDERR "\t$tota $used $avai $prct\n";
+    # print STDERR "\t$tota $used $avai $prct\n";
 
     # Now scan the disk for a reco directory
     undef(@TRGS);
@@ -120,21 +120,21 @@ foreach $disk (@DISKS){
     # Logic sorting our the trigger level and the library
     # level. This implies a strict naming convention.
     if( -d "$disk/reco"){
-	#print "DEBUG $disk -d reco OK\n";
+	# print "DEBUG $disk -d reco OK\n";
 	@TMP = glob("$disk/reco/*");
-	#print "DEBUG:: glob returned $#TMP args\n";
+	# print "DEBUG:: glob returned $#TMP args\n";
 	foreach $trg (@TMP){
-	    #print "Found $trg\n";
+	    # print "Found $trg\n";
 	    if ($trg =~ /StarDb/){ next;}
 	    $tmp = $trg;
 	    $tmp =~ s/.*\///;
 	    push (@TRGS,$tmp);
 
-	    #print "DEBUG Looking now in $trg\n";
+	    # print "DEBUG Looking now in $trg\n";
 	    @vers = glob("$trg/*/*");
 	    foreach $ver (@vers){
 		if (! -d $ver && ! -l $ver){ next;}
-		#print "\tFound $ver\n";
+		# print "\tFound $ver\n";
 		$ver =~ s/.*\///;
 		$LIBS{$ver} = 1;
 		if ( defined($ALIBS{$ver}) ){
@@ -154,24 +154,47 @@ foreach $disk (@DISKS){
 	$trg .= "$tmp ";
     }
 
-    #print "DEBUG Will now search for a README file on $disk\n";
+    # print "DEBUG Will now search for a README file on $disk\n";
 
     if ( ! defined($RDMEXCLUDE{$disk}) ){
 	if ( -e "$disk/AAAREADME"){
 	    @all = `/bin/cat $disk/AAAREADME`;
-	    $DINFO{$disk} .= "<B><PRE>".join("",@all)."</PRE></B>";
+
+	    $tmp = "<FONT SIZE=\"-1\" FACE=\"helvetica,sans-serif\">\n";
+	    foreach $l (@all){
+	  	chomp($l); 
+		if ( length($l) >= 80){
+		    $l = substr($l,0,75)." [...]";
+		}
+		$l =~ s/\t/&nbsp;/g;
+		$l =~ s/\s/&nbsp;/g;
+		$l =~ s/^(.*?)\s*$/$1/g;
+		$tmp .= "$l<BR>\n";
+	    }
+	    $tmp .= "</FONT>\n";
+	    $README{$disk} = $tmp;
+	    
 	}
     }
-    $DINFO{$disk} .= "$trg;";
 
-    #print "DEBUG Done and ready to format information ...\n";
+    #
+    # Add the list of trigger setup
+    #
+    if ( $trg !~ m/^\s*$/ ){
+	$DINFO{$disk} .= "<FONT SIZE=\"-1\" FACE=\"verdana\">$trg</FONT>";
+    }
+    $DINFO{$disk} .= ";";
+
+    
+    
+    # print "DEBUG Done and ready to format information ...\n";
 
     $ver = " ";
     foreach $tmp (keys %LIBS){
 	$ver .= "<A HREF=\"#".&GetRef($tmp)."\">$tmp</A> ";
     }
     $DINFO{$disk} .= "$ver;";
-    #print STDERR "$disk --> $DINFO{$disk}\n";
+    # print STDERR "$disk --> $DINFO{$disk}\n";
 }
 
 if ( defined($ARGV[0]) ){
@@ -183,10 +206,13 @@ if ( defined($ARGV[0]) ){
 
 print $FO
     "<HTML>\n",
-    "<HEAD><TITLE>Disk space overview</TITLE></HEAD>\n",
+    "<HEAD><TITLE>Disk space overview</TITLE>\n",
+    "      <META http-equiv=\"Refresh\" content=\"1800\">\n",
+    "</HEAD>\n",
     "<BODY>\n",
+    "<BASEFONT FACE=\"verdana,arial,helvetica,sans-serif\">\n",
     "<H1 ALIGN=\"center\">Disk space overview</H1>\n",
-    "<h5 align=\"center\">Generated on ".localtime()."</h5>\n",
+    "<H5 align=\"center\">Generated on ".localtime()."</H5>\n",
     "<H1>Information</H1>\n",
     "<OL>\n",
     "<LI><A HREF=\"#DSO\">Disk Space Overview</A>",
@@ -224,68 +250,88 @@ for ($i=0 ; $i <= $#COLORS ; $i++){
 print $FO
     "</TR>\n</TABLE>\n",
     "<P>\n",
-    "<TABLE border=\"1\" cellspacing=\"0\" width=\"50\">\n";
+    "<TABLE border=\"0\" frame=\"box\" rules=\"rows\" cellspacing=\"0\">\n";
 
 
 printf $FO
     "<TR>$TD%10s$ETD $TD%11s$ETD $TD%11s$ETD $TD%11s$ETD $TD%3s$ETD $TD%s$ETD $TD%s$ETD</TR>\n",
     "Disk","Total","Used","Avail","Used %","Triggers","Libs";
 
-
+$idx     = 0;
 $col     = 0;
 @$totals = (0,0,0);
 foreach $disk (sort keys %DINFO){
 
-    #print STDERR "$DINFO{$disk}\n";
+    # print STDERR "$DINFO{$disk}\n";
     @items = split(";",$DINFO{$disk});
-    $items[4] =~ s/\s/&nbsp; /;
-    $items[5] =~ s/\s/&nbsp; /;
+
+    # 4 and 5 are the message and library listing
+    # print "[$items[4]]\n";
+    $items[4] =  "&nbsp;" if ( $items[4] =~ m/^\s*$/);
+    $items[5] =  "&nbsp;" if ( $items[5] =~ m/^\s*$/);
 
     $icol =  $items[3];
     $icol =~ s/%//;
-    #print "$icol ";
+    # print "$icol ";
     $col =  int( ($#COLORS+1) * ( $icol /100.0));
-    #print "$col ";
+    # print "$col ";
     if( $icol >= 99 ){
 	$col = "red";
     } else {
 	$col = $COLORS[$col];
     }
 
-    #print "$col\n";
-    
+    # print "$col\n";
+
     if ( $disk =~ m/(\d+)/ ){
 	if ( defined($DEXCLUDE{$1} ) ){  next;}
 	if ( defined($BREAK{$1}) ){
 	    printf $FO
-		"<TR BGCOLOR=\"#333333\"><TD ALIGN=\"center\" COLSPAN=\"7\">".
-		"<FONT COLOR=\"white\"><B><A NAME=\"$TAG$1\">$BREAK{$1}</A></B></FONT></TD></TR>\n";
+		"<TR BGCOLOR=\"#333333\">".
+	        "  <TD ALIGN=\"center\" COLSPAN=\"7\">".
+		"     <FONT COLOR=\"white\" FACE=\"arial\"><A NAME=\"$TAG$1\">$BREAK{$1}</A></FONT>".
+	        "  </TD>\n".
+	        "</TR>\n";
 	}
     } else {
 	foreach $tmp (keys %BHEAD){
 	    if ( $BHEAD{$tmp} ne $BEND ){
 		printf $FO
-		    "<TR BGCOLOR=\"#333333\"><TD ALIGN=\"center\" COLSPAN=\"7\">".
-		    "<FONT COLOR=\"white\"><B><A NAME=\"$TAG$tmp\">$BHEAD{$tmp}</A></B></FONT></TD></TR>\n";		
+		    "<TR BGCOLOR=\"#333333\">".
+		    "  <TD ALIGN=\"center\" COLSPAN=\"7\">".
+		    "     <FONT COLOR=\"white\" FACE=\"arial\"><B><A NAME=\"$TAG$tmp\">$BHEAD{$tmp}</A></B></FONT>".
+		    "  </TD>\n".
+		    "</TR>\n";
 		$BHEAD{$tmp} = $BEND;
 		last;
 	    }
 	}
     }
 
+    
+    $idx++;
     $FCRef = &GetFCRef("FC",$ICON1,$disk);
+    $dcol  = "#EFEFEF";
+    
+    if ( defined($README{$disk}) ){
+	$dskinfo = $README{$disk}.$items[4];	
+    } else {
+	$dskinfo = $items[4];
+    }
+    
+    # "<TR onMouseOver=\"style.backgroundColor='$col'\" onmouseout=\"style.backgroundColor='$dcol'\">\n".
     printf $FO
-	"<TR bgcolor=\"$col\">\n".
-	"  <TD align=\"right\"><A NAME=\"%s\">%10s</A></TD>\n".
-	"  <TD align=\"right\">%11s<br>(<I>%5.2f TB</I>)</TD>\n".
-	"  <TD align=\"right\">%11s</TD>\n".
-	"  <TD align=\"right\">%11s</TD>\n".
-	"  <TD align=\"right\">%3s</TD>\n".
-	"  <TD>%s</TD>\n".
-	"  <TD align=\"right\">%s%s%s</TD>\n".
+        "<TR>\n".
+	"  <TD align=\"right\" BGCOLOR=\"#DDDDDD\"> <A NAME=\"%s\">%10s</A>                         </TD>\n".
+	"  <TD align=\"right\" BGCOLOR=\"$col\"> %11s<br>(<I>%5.2f TB</I>)                          </TD>\n".
+	"  <TD align=\"right\" BGCOLOR=\"$col\"> %11s                                               </TD>\n".
+	"  <TD align=\"right\" BGCOLOR=\"$col\"> %11s                                               </TD>\n".
+	"  <TD align=\"right\" BGCOLOR=\"$col\"> <B> %3s </B>                                       </TD>\n".
+	"  <TD BGCOLOR=\"$col\">                 %s                                                 </TD>\n".
+	"  <TD align=\"right\" BGCOLOR=\"$col\"> <FONT SIZE=\"-1\">%s%s%s</FONT>                    </TD>\n".
 	"</TR>\n",
-	&GetRef($disk),"<i><b>$disk</b></i>",$items[0],($items[0]/1024/1024/1024),$items[1],$items[2],
-	$items[3],$items[4],$FCRef,(($FCRef eq "")?"":"<BR>"),$items[5];
+	&GetRef($disk),$disk,$items[0],($items[0]/1024/1024/1024),$items[1],$items[2],
+	$items[3], $dskinfo ,$FCRef,(($FCRef eq "")?"":"<BR>"),$items[5];
 
     $totals[0] += $items[0];
     $totals[1] += $items[1];
@@ -310,7 +356,9 @@ print $FO
     "<H2><A NAME=\"FCREF\">Disk needing indexing</A></H2>\n";
 
 if ($#FCRefs == -1){
+    # not as straight forward
     print $FO "<I>Catalog is up-to-date or indexing daemon are down $DINFO.</I>\n";
+
 } else {
     print $FO
 	"<TABLE ALIGN=\"center\" CELLSPACING=\"0\"  BORDER=\"0\">\n",
@@ -380,6 +428,101 @@ if ($#FCRefs == -1){
     print $FO "</TABLE>\n";
 }
 
+# added this test in 2009
+my(@killed)=glob("$OUTD/*.kill");
+if ( $#killed != -1 ){
+    print $FO
+	"<BLOCKQUOTE>\n".
+	"  <BLINK><B>WARNING</B></BLINK>\n".
+	"  <I>Several daemon could not accomplish their task within timeout, a summary\n".
+	"     of which is below</I><BR>\n".
+	"  This may be caused by a high load of the FS or the FileCatalog DB, large FS\n".
+	"  or many file modifications\n".
+	"</BLOCKQUOTE>\n".
+	"\n".
+	"<TABLE ALIGN=\"center\" BORDER=\"0\" CELLSPACING=\"0\">\n".
+	"\t<TR>".
+	"\t    <!-- column 1 -->\n".
+	"\t    $TD Disk       $ETD\n".
+	"\t    $TD Last tried $ETD\n".
+	"\t    $TD Timeout    $ETD\n".
+	"\t    $TD Mode       $ETD\n".
+	"\t    $TD Node       $ETD\n".
+	"\t    <TD>&nbsp;     </TD>\n".
+	"\t    <!-- column 2 -->\n".
+	"\t    $TD Disk       $ETD\n".
+	"\t    $TD Last tried $ETD\n".
+	"\t    $TD Timeout    $ETD\n".
+	"\t    $TD Mode       $ETD\n".
+	"\t    $TD Node       $ETD\n".
+	"\t    <TD>&nbsp;     </TD>\n".
+        "\t</TR>\n";
+
+    $ii = 0;
+    $col = "white";
+    foreach $file (@killed){
+	$file =~ m/(.*[FC|AS])(.*)(\..*)/;
+	$disk = $2;  $disk =~ s/_/\//g;
+	$node = $mode = $to = $date = "unknown";
+	if ( open(FX,$file) ){
+	    while ( defined($line = <FX>) ){
+		if ($line =~ m/(failed with Mode=)(.*)/){
+		                               $mode = $2;
+		                               $date = <FX>; next;}  # assumed to be the next line
+		if ($line =~ m/(Node=)(.*)/){  $node = $2;   next;}
+		if ($line =~ m/(\d+)( sec)/){  $to   = $1;   next;}
+
+	    }
+	    close(FX);
+	}
+	chomp($date); chomp($to); chomp($node);
+
+	if ($ii == 0){
+	    $ii = 1;
+	    print $FO
+		"\t<TR>\n".
+		"\t    <!-- column 1 -->\n".
+		"\t    <TD BGCOLOR=\"$col\"><font size=\"-2\">$disk</font></font> </TD>\n". # 1
+		"\t    <TD BGCOLOR=\"$col\"><font size=\"-2\">$date</font></font> </TD>\n". # 2
+		"\t    <TD BGCOLOR=\"$col\"><font size=\"-2\">$to</font></font>   </TD>\n". # 3
+		"\t    <TD BGCOLOR=\"$col\"><font size=\"-2\">$mode</font></font> </TD>\n". # 4
+		"\t    <TD BGCOLOR=\"$col\"><font size=\"-2\">$node</font></font> </TD>\n". # 5
+		"\t    <TD><font size=\"-2\">&nbsp;</font></TD>\n";                         # 6
+
+	    if ($col eq "#EEEEEE"){ $col = "white";}
+	    else {                  $col = "#EEEEEE";}
+
+	} else {
+	    $ii = 0;
+	    print $FO
+		"\t    <!-- column 2 -->\n".
+		"\t    <TD BGCOLOR=\"$col\"><font size=\"-2\">$disk</font></font> </TD>\n". # 1
+		"\t    <TD BGCOLOR=\"$col\"><font size=\"-2\">$date</font></font> </TD>\n". # 2
+		"\t    <TD BGCOLOR=\"$col\"><font size=\"-2\">$to</font></font>   </TD>\n". # 3
+		"\t    <TD BGCOLOR=\"$col\"><font size=\"-2\">$mode</font></font> </TD>\n". # 4
+		"\t    <TD BGCOLOR=\"$col\"><font size=\"-2\">$node</font></font> </TD>\n". # 5
+		"\t    <TD><font size=\"-2\">&nbsp;</font></TD>\n".                         # 6
+		"\t</TR>\n";
+	}
+    }
+    if ($ii == 1){
+	print $FO
+	    "\t    <TD BGCOLOR=\"$col\"><font size=\"-2\">&nbsp;</font></font></TD>\n".     # 1
+	    "\t    <TD BGCOLOR=\"$col\"><font size=\"-2\">&nbsp;</font></font></TD>\n".     # 2
+	    "\t    <TD BGCOLOR=\"$col\"><font size=\"-2\">&nbsp;</font></font></TD>\n".     # 3
+	    "\t    <TD BGCOLOR=\"$col\"><font size=\"-2\">&nbsp;</font></font></TD>\n".     # 4
+	    "\t    <TD BGCOLOR=\"$col\"><font size=\"-2\">&nbsp;</font></font></TD>\n".     # 5
+	    "\t    <TD><font size=\"-2\">&nbsp;</font></TD>\n".                             # 6
+	    "\t</TR>\n";
+    }
+    print $FO
+	"</TABLE>\n";
+
+
+}
+
+
+
 
 #
 # Production Location summary
@@ -387,7 +530,7 @@ if ($#FCRefs == -1){
 print $FO
     "<P>",
     "<H2><A NAME=\"PLOC\">Production Location</A></H2>\n",
-    "<TABLE align=\"center\" cellspacing=\"0\" border=\"1\" width=\"750\">\n",
+    "<TABLE align=\"center\" cellspacing=\"0\" border=\"0\" width=\"750\">\n",
     "<TR>$TD Production $ETD$TD Trigger setup $ETD$TD Location list$ETD</TR>\n";
 
 undef(@LINES);
@@ -409,7 +552,7 @@ foreach $tmp (sort keys %ALIBS){
 		 "\t<TD BGCOLOR=\"#DDDDDD\"><FONT FACE=\"Arial, Helvetica\">".
 		 (defined($LB{$tmp})?"&nbsp;":"<A NAME=\"".&GetRef($tmp)."\">$tmp</A>")."</FONT></TD>\n".
 		 "\t<TD BGCOLOR=\"#EEEEEE\">$trg</TD>\n".
-		 "\t<TD BGCOLOR=\"#EEEEEE\">");
+		 "\t<TD BGCOLOR=\"#EEEEEE\"><FONT SIZE=\"-1\">");
 	    $TR{$tmp.$trg} = 1;
 	    $LB{$tmp}      = 1;
 	}
@@ -419,7 +562,7 @@ foreach $tmp (sort keys %ALIBS){
 	}
     }
 }
-push(@LINES,"</TD>\n</TR>\n");
+push(@LINES,"</FONT></TD>\n</TR>\n");
 foreach $tmp (@LINES){  print $FO $tmp;}
 
 
@@ -468,6 +611,8 @@ sub GetFCRef
     my($x);
 
     $el =~ s/[\/ ]/_/g;
+
+    # print "Searching for $OUTD/$What$el.txt\n";
 
     if ( -e $OUTD."/$What$el.txt"){
 	if ( $What eq "FC"){
