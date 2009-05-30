@@ -33,8 +33,8 @@ $DINFO = "(check 'nova' Spiders)";                             # Many tools may 
 $SpiderControl = "/cgi-bin/%%RELP%%/SpiderControl.cgi"; # a CGI controling the spiders
 
 
-@COLORS = ("#7FFFD4","#40E0D0","#00DEFF","#87CEFA","#CCCCEE","#D8BFD8","#D02090"); #"#FF69B4");
-
+@COLORS = ("#7FFFD4","#40E0D0","#00DEFF","#87CEFA","#CCCCEE","#D8BFD8","#DB7093"); #"#D02090"); #"#FF69B4");
+$RED = "#B03060";
 
 # Insert an extra table break before those numbers
 $BREAK{"01"}   =  "User Space";
@@ -169,7 +169,7 @@ foreach $disk (@DISKS){
 		$l =~ s/\t/&nbsp;/g;
 		$l =~ s/\s/&nbsp;/g;
 		$l =~ s/^(.*?)\s*$/$1/g;
-		$tmp .= "$l<BR>\n";
+		$tmp .= "&nbsp; $l<BR>\n";
 	    }
 	    $tmp .= "</FONT>\n";
 	    $README{$disk} = $tmp;
@@ -250,12 +250,12 @@ for ($i=0 ; $i <= $#COLORS ; $i++){
 print $FO
     "</TR>\n</TABLE>\n",
     "<P>\n",
-    "<TABLE border=\"0\" frame=\"box\" rules=\"rows\" cellspacing=\"0\">\n";
+    "<TABLE frame=\"border\" cellspacing=\"0\">\n"; # rules="rows"
 
 
 printf $FO
-    "<TR>$TD%10s$ETD $TD%11s$ETD $TD%11s$ETD $TD%11s$ETD $TD%3s$ETD $TD%s$ETD $TD%s$ETD</TR>\n",
-    "Disk","Total","Used","Avail","Used %","Triggers","Libs";
+    "<TR>$TD%10s$ETD $TD%11s$ETD $TD%11s$ETD $TD%3s$ETD $TD%s$ETD $TD%s$ETD</TR>\n",
+    "Disk","Total","Used &amp; Avail","%Used","Triggers &amp Policies","Libs";
 
 $idx     = 0;
 $col     = 0;
@@ -276,7 +276,7 @@ foreach $disk (sort keys %DINFO){
     $col =  int( ($#COLORS+1) * ( $icol /100.0));
     # print "$col ";
     if( $icol >= 99 ){
-	$col = "red";
+	$col = $RED;
     } else {
 	$col = $COLORS[$col];
     }
@@ -288,7 +288,7 @@ foreach $disk (sort keys %DINFO){
 	if ( defined($BREAK{$1}) ){
 	    printf $FO
 		"<TR BGCOLOR=\"#333333\">".
-	        "  <TD ALIGN=\"center\" COLSPAN=\"7\">".
+	        "  <TD ALIGN=\"center\" COLSPAN=\"6\">".
 		"     <FONT COLOR=\"white\" FACE=\"arial\"><A NAME=\"$TAG$1\">$BREAK{$1}</A></FONT>".
 	        "  </TD>\n".
 	        "</TR>\n";
@@ -298,7 +298,7 @@ foreach $disk (sort keys %DINFO){
 	    if ( $BHEAD{$tmp} ne $BEND ){
 		printf $FO
 		    "<TR BGCOLOR=\"#333333\">".
-		    "  <TD ALIGN=\"center\" COLSPAN=\"7\">".
+		    "  <TD ALIGN=\"center\" COLSPAN=\"6\">".
 		    "     <FONT COLOR=\"white\" FACE=\"arial\"><B><A NAME=\"$TAG$tmp\">$BHEAD{$tmp}</A></B></FONT>".
 		    "  </TD>\n".
 		    "</TR>\n";
@@ -314,24 +314,28 @@ foreach $disk (sort keys %DINFO){
     $dcol  = "#EFEFEF";
     
     if ( defined($README{$disk}) ){
-	$dskinfo = $README{$disk}.$items[4];	
+	$dskinfo = $README{$disk}.$items[4];
     } else {
 	$dskinfo = $items[4];
     }
     
     # "<TR onMouseOver=\"style.backgroundColor='$col'\" onmouseout=\"style.backgroundColor='$dcol'\">\n".
     printf $FO
+        "<TR><TD COLSPAN=\"6\"><A NAME=\"%s\"></TD></TR>\n".
         "<TR>\n".
-	"  <TD align=\"right\" BGCOLOR=\"#DDDDDD\"> <A NAME=\"%s\">%10s</A>                         </TD>\n".
+	"  <TD align=\"right\" BGCOLOR=\"#DDDDDD\"><B> %10s </B>                                    </TD>\n".
 	"  <TD align=\"right\" BGCOLOR=\"$col\"> %11s<br>(<I>%5.2f TB</I>)                          </TD>\n".
-	"  <TD align=\"right\" BGCOLOR=\"$col\"> %11s                                               </TD>\n".
-	"  <TD align=\"right\" BGCOLOR=\"$col\"> %11s                                               </TD>\n".
+	"  <TD align=\"right\" BGCOLOR=\"$col\"> %11s<BR>%11s                                       </TD>\n".
 	"  <TD align=\"right\" BGCOLOR=\"$col\"> <B> %3s </B>                                       </TD>\n".
 	"  <TD BGCOLOR=\"$col\">                 %s                                                 </TD>\n".
 	"  <TD align=\"right\" BGCOLOR=\"$col\"> <FONT SIZE=\"-1\">%s%s%s</FONT>                    </TD>\n".
-	"</TR>\n",
-	&GetRef($disk),$disk,$items[0],($items[0]/1024/1024/1024),$items[1],$items[2],
-	$items[3], $dskinfo ,$FCRef,(($FCRef eq "")?"":"<BR>"),$items[5];
+	"</A></TR>\n",
+	&GetRef($disk),$disk,
+        $items[0],($items[0]/1024/1024/1024), 
+        $items[1],$items[2],
+        $items[3], 
+        $dskinfo,
+        $FCRef,(($FCRef eq "")?"":"<BR>"),$items[5];
 
     $totals[0] += $items[0];
     $totals[1] += $items[1];
