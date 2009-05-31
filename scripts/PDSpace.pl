@@ -436,13 +436,13 @@ if ($#FCRefs == -1){
 my(@killed)=glob("$OUTD/*.kill");
 if ( $#killed != -1 ){
     print $FO
-	"<BLOCKQUOTE>\n".
-	"  <BLINK><B>WARNING</B></BLINK>\n".
+	"<P ALIGN=\"center\">\n".
+	"  <B>WARNING</B><BR>\n".
 	"  <I>Several daemon could not accomplish their task within timeout, a summary\n".
 	"     of which is below</I><BR>\n".
 	"  This may be caused by a high load of the FS or the FileCatalog DB, large FS\n".
 	"  or many file modifications\n".
-	"</BLOCKQUOTE>\n".
+	"</P>\n".
 	"\n".
 	"<TABLE ALIGN=\"center\" BORDER=\"0\" CELLSPACING=\"0\">\n".
 	"\t<TR>".
@@ -470,7 +470,7 @@ if ( $#killed != -1 ){
 	$node = $mode = $to = $date = "unknown";
 	if ( open(FX,$file) ){
 	    while ( defined($line = <FX>) ){
-		if ($line =~ m/(failed with Mode=)(.*)/){
+		if ($line =~ m/(failed with Mode=)(.*)/i){
 		                               $mode = $2;
 		                               $date = <FX>; next;}  # assumed to be the next line
 		if ($line =~ m/(Node=)(.*)/){  $node = $2;   next;}
