@@ -36,6 +36,10 @@ $SpiderControl = "/cgi-bin/%%RELP%%/SpiderControl.cgi"; # a CGI controling the s
 @COLORS = ("#7FFFD4","#40E0D0","#00DEFF","#87CEFA","#CCCCEE","#D8BFD8","#DB7093"); #"#D02090"); #"#FF69B4");
 $RED = "#B03060";
 
+$UPGO = "<A HREF=\"#TOP\"><IMG ALT=\"[TOP]\"  BORDER=\"0\" SRC=\"/icons/up.gif\"   WIDTH=10></A>";
+$DOWN = "<A HREF=\"#BOT\"><IMG ALT=\"[DOWN]\" BORDER=\"0\" SRC=\"/icons/down.gif\" WIDTH=10></A>";
+
+
 # Insert an extra table break before those numbers
 $BREAK{"01"}   =  "User Space";
 $BREAK{"03"}   =  "Reserved Usage Space Area";
@@ -212,7 +216,7 @@ print $FO
     "<BODY>\n",
     "<BASEFONT FACE=\"verdana,arial,helvetica,sans-serif\">\n",
     "<H1 ALIGN=\"center\">Disk space overview</H1>\n",
-    "<H5 align=\"center\">Generated on ".localtime()."</H5>\n",
+    "<A NAME=\"#TOP\"><H5 align=\"center\">Generated on ".localtime()."</H5></A>\n",
     "<H1>Information</H1>\n",
     "<OL>\n",
     "<LI><A HREF=\"#DSO\">Disk Space Overview</A>",
@@ -311,6 +315,9 @@ foreach $disk (sort keys %DINFO){
     
     $idx++;
     $FCRef = &GetFCRef("FC",$ICON1,$disk);
+    if ($FCRef ne ""){
+	$FCRef = "<A HREF=\"#FCREF\">$FCRef</A>";
+    }
     $dcol  = "#EFEFEF";
     
     if ( defined($README{$disk}) ){
@@ -319,6 +326,9 @@ foreach $disk (sort keys %DINFO){
 	$dskinfo = $items[4];
     }
     
+    #
+    # This is where the lines from the main table get formatted
+    #
     # "<TR onMouseOver=\"style.backgroundColor='$col'\" onmouseout=\"style.backgroundColor='$dcol'\">\n".
     printf $FO
         "<TR><TD COLSPAN=\"6\"><A NAME=\"%s\"></TD></TR>\n".
@@ -357,7 +367,7 @@ foreach $disk (sort keys %DINFO){
 print $FO
     "</TABLE>\n",
     "<P>\n",
-    "<H2><A NAME=\"FCREF\">Disk needing indexing</A></H2>\n";
+    "<H2><A NAME=\"FCREF\">Disk needing indexing</A> $UPGO</H2>\n";
 
 if ($#FCRefs == -1){
     # not as straight forward
@@ -465,8 +475,8 @@ if ( $#killed != -1 ){
     $ii = 0;
     $col = "white";
     foreach $file (@killed){
-	$file =~ m/(.*[FC|AS])(.*)(\..*)/;
-	$disk = $2;  $disk =~ s/_/\//g;
+	$file =~ m/(.*)(FC|AS|CK)(.*)(\..*)/;
+	$disk = $3;  $disk =~ s/_/\//g;
 	$node = $mode = $to = $date = "unknown";
 	if ( open(FX,$file) ){
 	    while ( defined($line = <FX>) ){
@@ -533,7 +543,7 @@ if ( $#killed != -1 ){
 #
 print $FO
     "<P>",
-    "<H2><A NAME=\"PLOC\">Production Location</A></H2>\n",
+    "<H2><A NAME=\"PLOC\">Production Location</A> $UPGO</H2>\n",
     "<TABLE align=\"center\" cellspacing=\"0\" border=\"0\" width=\"750\">\n",
     "<TR>$TD Production $ETD$TD Trigger setup $ETD$TD Location list$ETD</TR>\n";
 
@@ -573,7 +583,7 @@ foreach $tmp (@LINES){  print $FO $tmp;}
 print $FO
     "</TABLE>\n",
     "<P>",
-    "<H2><A NAME=\"SUM\">Summary</A></H2>\n",
+    "<H2><A NAME=\"SUM\">Summary</A> $UPGO</H2>\n",
     "<BLOCKQUOTE>\n",
     "Total Space = ".sprintf("%.2f",$totals[0]/1024/1024)." GB<br>\n",
     "Total Used =  ".sprintf("%.2f",$totals[1]/1024/1024)." GB<br>\n",
