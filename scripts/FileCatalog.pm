@@ -211,7 +211,7 @@ $FC::IDX     = -1;
 # Those are for private use only but require a keyword for access.
 # DO NOT DOCUMENT THEM !!!
 $keywrds{"flid"          }    =   "fileLocationID"            .",FileLocations"          .",0" .",num"  .",0" .",0" .",0";
-#$keywrds{"glid"          }    =   "fileLocationID"            .",FileLocationsID"        .",0" .",num"  .",0" .",0" .",0";
+$keywrds{"glid"          }    =   "fileLocationID"            .",FileLocationsID"        .",0" .",num"  .",0" .",0" .",0";
 
 $keywrds{"fdid"          }    =   "fileDataID"                .",FileData"               .",0" .",num"  .",0" .",0" .",0";
 $keywrds{"rfdid"         }    =   "fileDataID"                .",FileLocations"          .",0" .",num"  .",0" .",1" .",0";
@@ -434,6 +434,8 @@ $datastruct[16] = ( "EventGenerators"        . ",SimulationParams"    . ",eventG
 $datastruct[17] = ( "FileLocations"          . ","                    . ","                        . ",1" . ",0" .",0");
 $datastruct[18] = ( "TriggerCompositions"    . ","                    . ","                        . ",1" . ",0" .",0");
 $datastruct[19] = ( "Creators"               . ","                    . ","                        . ",1" . ",1" .",0");
+$datastruct[20] = ( "FileLocationsID"        . ",FileLocations"       . ",fileLocationID"          . ",2" . ",1" .",0");
+
 
 
 # Will build this by hand too and may automate later
@@ -1133,7 +1135,11 @@ sub _Connect
 
 	# be fair - the longer we wait, more likely we will go through
 	for ($ii=0 ; $ii <= $#FC::LOADMANAGE ; $ii++){
-	    $fr[$ii] = int( 0.5 + log($rtries)/($FC::LOADMANAGE[$ii]**0.1) );
+	    if ( $FC::LOADMANAGE[$ii] != 0){
+		$fr[$ii] = int( 0.5 + log($rtries)/($FC::LOADMANAGE[$ii]**0.1) );
+	    } else {
+		$fr[$ii] = 0;
+	    }
 	}
 	
 	if (      $cond = ($sel  > ($FC::LOADMANAGE[0]+$fr[0]) && $FC::LOADMANAGE[0] > 0) ){
@@ -5035,14 +5041,13 @@ sub bootstrap {
 	return &_bootstrap_data($keyword, $delete);
 
     } elsif ($table eq "TriggerWords" || $table eq "TriggerCompositions"){
-	#return &bootstrap_trgc($delete);
 	return &_bootstrap_2levels("TriggerCompositions","TriggerWords","FileData",
 				   "fileDataID",         "triggerWordID",
 				   $delete);
 
 
     } elsif ($table eq "SimulationParams" || $table eq "EventGenerators"){
-	#return &bootstrap_sim($delete);
+	# return &bootstrap_sim($delete);
 	return &_bootstrap_2levels("SimulationParams","EventGenerators","RunParams",
 				   "simulationParamsID","eventGeneratorID",
 				   $delete);
