@@ -11,7 +11,7 @@
 
 use Env qw(STAR_SCRIPTS);
 use lib "$STAR_SCRIPTS";
-# use lib "/star/u/jeromel/work/ddb";
+#use lib "/star/u/jeromel/work/ddb";
 use strict;
 use FileCatalog;
 
@@ -52,6 +52,13 @@ my $ligne;
 # Load the modules
 my $fileC = FileCatalog->new();
 
+# other vars
+my $STARTT=undef;
+my $TIMEOUT=undef;
+my $OLDO;
+my $FLNM=undef;
+my $TMPF;
+
 
 # Turn off module debugging and script debugging
 $fileC->debug_off();
@@ -61,6 +68,9 @@ $mode     = 1;  # check is the default
 $confirm  = 0;
 $allst    = 0;
 $limit    = 1;
+
+# start timer
+&CheckTime(0);
 
 # Parse the command line arguments.
 $count = 0;
@@ -87,6 +97,8 @@ while (defined $ARGV[$count]){
 
     } elsif ($ARGV[$count] eq "-i"){
 	$instance  = $ARGV[++$count];
+    } elsif ($ARGV[$count] eq "-t"){
+	&CheckTime($ARGV[++$count]);
     } elsif ($ARGV[$count] eq "-u"){
 	$user      = $ARGV[++$count];
     } elsif ($ARGV[$count] eq "-p"){
@@ -98,6 +110,16 @@ while (defined $ARGV[$count]){
     } elsif ($ARGV[$count] eq "-db"){
 	$port      = $ARGV[++$count];
 
+    } elsif ($ARGV[$count] eq "-o"){
+	# redirect ooutput to a file
+	$TMPF = $FLNM = $ARGV[++$count];
+	$TMPF =~ s/.*\///; $TMPF = "/tmp/$TMPF$$.tmp";
+
+	open($OLDO, ">&STDOUT");
+	open(STDOUT,">$TMPF"); 
+	select(STDOUT); $| = 1;
+
+	
     } elsif ($ARGV[$count] eq "-delete"){
 	$mode      = 2;
 	$batchsize = 250;
@@ -172,7 +194,7 @@ if ( $instance ne ""){
 	    unlink($instance);
 	} else {
 	    &Print("$instance exists, $$ exiting");
-	    exit;
+	    &Exit();
 	}
     } 
 }
@@ -191,6 +213,9 @@ while ($morerecords)
     if ( -e $test ){
 	# &Print("Found $test - quitting");
 	&Die("Found $test - quitting");
+    }
+    if ( &CheckTime(-1) ){
+	&Die("Timer reached @ $TIMEOUT seconds");
     }
     
     &Print("--- ($$)") if ($start == 0 && abs($mode) < 5);
@@ -588,7 +613,7 @@ if ($#MARK != -1){
 }
 $fileC->destroy();
 
-unlink($instance) if ( $instance ne "");
+&Exit();
 
 
 #
@@ -622,6 +647,7 @@ sub DoMark
 	    my($avail,$confirm,$fname,$path,$av,$store,$node,$site) = split(":",$ligne);
 	    # print "Retreiving $avail,$confirm,$fname,$path,$av,$store,$node,$site\n";
 	    # die;
+	    last if ( &CheckTime(-1) );
 	    
 	    # $fileC->debug_on();
 	    $fileC->clear_context();
@@ -700,7 +726,7 @@ sub MyConnect
     #
     if ( ! $fileC->connect($luser,$lpasswd,$lport,$lhost,$ldb) ){
 	&Print("Failed to connect to db");
-	exit;
+	&Exit();
     }
 }
 
@@ -721,15 +747,32 @@ sub ResetContext
 sub Die
 {
     my($mess)=@_;
-    unlink($instance) if ( $instance ne "");
-    $fileC->destroy() if ( $fileC);
-    die "$mess\n";
+    &Exit("$mess",1);
 }
 sub Exit
 {
-    my($val)=@_;
+    my($val,$mode)=@_;
+
+    if ( !defined($val))  { $val  = 0;} 
+    if ( !defined($mode)) { $mode = 0;}
+    
+    $fileC->destroy() if ( $fileC);
     unlink($instance) if ( $instance ne "");
-    exit $val;
+    
+    if ($TMPF ne ""){
+	close(STDOUT);
+	open(STDOUT, ">&$OLDO");
+
+	# rename will not work as across FS
+	# print "/bin/cp -fp $TMPF $FLNM\n";
+	system("/bin/cp -fp $TMPF $FLNM");
+
+    }
+    if ($mode == 1){
+	die "$val\n";
+    } else {
+	exit $val;
+    }
 }
 
 
@@ -882,11 +925,33 @@ sub Usage
                          Without it, the API will only display the operation it
                          intends to perform (i.e. debug mode). It is wise to start
                          in debug mode.
+ -o file                 Redirect all standard output to 'file'
+ -t time                 Terminate gracefully after approximately 'time' has elapsed
  -nl                     Bypass the load balancer - do not use this option in cron     
  -class XXX              Set debugging class
 ~;
 
-    if( defined($sts) ){ exit;}
+    if( defined($sts) ){ &Exit();}
 
+}
+
+# return true false if we have timed-out
+# Call with  0 to initialize the timer
+# Call with a value > 0 to initialize timeout time
+# Call with -1 to check timer
+sub CheckTime
+{
+    my($w)=@_;
+
+    if ($w == 0){
+        # Init timer
+        $STARTT = time();
+    } elsif ($w > 0){
+        # set timeout
+        $TIMEOUT = $w;
+    } else { # < 0
+        return 0 if ( ! defined($TIMEOUT) || ! defined($STARTT) );
+        return (time()-$STARTT) > 0.9*$TIMEOUT; # 90% to be sure
+    }
 }
 
