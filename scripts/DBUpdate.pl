@@ -20,6 +20,7 @@ if ($#ARGV == -1){
                       using full path
    -z                 use any filetype (not the default)
    -l                 consider soft-links in path
+   -t ts              finsih after approximately ts seconds
 
    -nocache           do not use caching (default)
    -dcache            delete cache entirely
@@ -91,13 +92,14 @@ $SUB    = "reco";
 $DOSL   = 0;
 $DOCACHE= 0;
 
-$CACHELM= 10;  # cache limit
-$CACHOFF=  0;  # cache offset
-
 # Argument pick-up
 $kk    = 0;
 $FO    = STDERR;
 $|     = 1;
+
+# start timer
+&CheckTime(0);
+
 
 for ($i=0 ; $i <= $#ARGV ; $i++){
     # Support "-XXX" options
@@ -129,6 +131,13 @@ for ($i=0 ; $i <= $#ARGV ; $i++){
 	} else {
 	    die "Failed to open $FLNM.tmp\n";
 	}
+	# if we were called and there is a .kill file, remove
+	$FLNM =~ m/(.*)(\..*)/; $tmp = $1; 
+	if ( -e "$tmp.kill"){
+	    print "Deleting $tmp.kill\n";
+	    unlink("$tmp.kill");
+	}
+
 	$i++;
 
     } elsif ($ARGV[$i] eq "-nocache"){
@@ -140,6 +149,9 @@ for ($i=0 ; $i <= $#ARGV ; $i++){
 	
     } elsif ($ARGV[$i] eq "-k"){
 	$SUBPATH = $ARGV[++$i];
+
+    } elsif ($ARGV[$i] eq "-t"){
+	&CheckTime($ARGV[++$i]);
 
     } elsif ($ARGV[$i] eq "-l"){
 	$DOSL    = 1;
@@ -153,6 +165,10 @@ for ($i=0 ; $i <= $#ARGV ; $i++){
 	    # use the default algorithm, adding a modulo which is 5 times the base
 	    # based on the node name
 	    chomp($HOST = `/bin/hostname`);
+
+	    # this will initialize the caching values
+	    ToFromCache(-2);
+	    
 	    # use it as seed
 	    if ( $HOST =~ m/(\d+)/ ){
 		$CACHOFF = ($1 % ($CACHELM*5));
@@ -219,15 +235,9 @@ if( $DOIT && -e "$SCAND/$SUB"){
 }
 
 
-$XSELF = "$SELF$SCAND";
-$XSELF =~ s/[+\/\*]/_/g; 
-
-
 # cache deletion
-if ( $DOCACHE == -1){
-   print "Deleting cache\n";
-   unlink(glob("/tmp/$XSELF"."_*.lis"));			
-}
+if ( $DOCACHE == -1){     &ToFromCache(-1); }
+
 
     
 # Eventually, if nothing is to be done, leave now
@@ -235,55 +245,7 @@ if ($#ALL == -1){ goto FINAL_EXIT;}
 
 
 # Added algo to process by differences
-if ( $DOCACHE ){
-  ONELIS:
-    $kk=0;
-    while ( -e "/tmp/$XSELF"."_$kk.lis"){  $kk++;}
-    if ( $kk > ($CACHELM+$CACHOFF) ){  unlink(glob("/tmp/$XSELF"."_*.lis")); goto ONELIS;}
-
-    $CACHECNT = $kk;
-    if ($kk != 0){
-	# there is a previous $kk-1 file
-	my(@count)=(0,0,0);
-	
-	if ( open(OCACHE,"/tmp/$XSELF"."_".($kk-1).".lis") ){
-	    while ( defined($line = <OCACHE>) ){  
-		chomp($line);
-		$RECORDS{$line}=1;
-		$count[0]++;
-	    }
-	    close(OCACHE);
-	}
-	push(@TEMP,@ALL); 
-	if ( open(CACHE,">/tmp/$XSELF"."_".($kk).".lis") ){
-	    undef(@ALL);
-	    foreach $file (@TEMP){
-		chomp($file);
-		print CACHE "$file\n";
-		if ( ! defined($RECORDS{$file}) ){  
-		    $count[1]++;
-		    push(@ALL,$file);
-		}
-		$count[2]++;
-	    }
-	    close(CACHE);
-	}
-	undef(@TEMP);
-	if ($count[1] != $count[2]){
-	    print "Previous pass had $count[0], found $count[2] and selected $count[1]\n";
-	}
-    } else {
-	# still dump it all to an _0
-	if ( open(CACHE,">/tmp/$XSELF"."_0.lis") ){
-	    foreach $file (@ALL){
-		chomp($file);
-		print CACHE "$file\n";
-	    }
-	    close(CACHE);
-	    print "Dumped initial ".($#ALL+1)." records\n";
-	}
-    }
-}
+if ( $DOCACHE ){   @ALL = &ToFromCache(0,@ALL);}
 
 
 
@@ -332,9 +294,12 @@ chomp($NODE    = `/bin/hostname`);
 
 
 
-
+undef(@TEMP);  # to be sure
 foreach  $file (@ALL){
+    last if ( &CheckTime(-1) );
+
     chomp($file);
+    push(@TEMP,$file);
 
     # If soft-link, check if real file is present or not
     if ( -l $file ){
@@ -413,19 +378,22 @@ foreach  $file (@ALL){
     } else {
 	$mess = "Found ".($#all+1)." records for [$file] ";
 
-	@stat   = stat("$path/$file");
-
-
-	if ($#stat == -1){
+	if ( $realfile ne ""){
+	    @stat   = stat($realfile);
+	} else {
+	    @stat   = stat("$path/$file");	    
+	}
+	
+	if ( $#stat == -1 ){
 	    &Stream("Error : stat () failed -- $path/$file");
 	    next;
 	}
 
-	#if( $stat[7] != 0){
+	# if( $stat[7] != 0){
 	#    $sanity = 1;
-	#} else {
+	# } else {
 	#    $sanity = 0;
-	#}
+	# }
 
 
 	if ($#all1 != -1){
@@ -455,7 +423,7 @@ foreach  $file (@ALL){
 				 "size       = $fsize",
 				 "owner      = $own[0]",
 				 "protection = $prot",
-				 #"createtime = $dt",
+				 # "createtime = $dt",
 				 "available  = 1",
 				 "site       = $SITE");
 		if ( $node ne ""){
@@ -483,6 +451,7 @@ foreach  $file (@ALL){
 }
 
 $fC->destroy();
+&ToFromCache(1,@TEMP);
 
 FINAL_EXIT:
     if ($LOUT){
@@ -517,8 +486,8 @@ FINAL_EXIT:
 		if ($DOCACHE){
 		    if ( open(FO,">$FLNM.tmp") ){
 			print FO 
-			    "Caching used - Pass done on ".localtime()." found no changes".
-			    " - cache will expire in ".($CACHELM+$CACHOFF-$CACHECNT)." passes\n";
+			    "Caching used - Pass done on ".localtime()." found no changes\n".
+			    " - cache will expire in ".&ToFromCache(-2)." passes\n";
 			open(FI,"$FLNM");
 			while ( defined($line = <FI>) ){  print FO "$line";}
 			close(FI);
@@ -528,9 +497,7 @@ FINAL_EXIT:
 		    }
 		} else {
 		    unlink("$FLNM")     if ( -e "$FLNM");
-		    # remove cache if exists since options can be used 
-		    # independently
-		    unlink(glob("/tmp/$XSELF"."_*.lis"));
+		    &ToFromCache(-1);
 		}
 
 	    }
@@ -586,8 +553,149 @@ sub ShowPerms
 }
 
 
+# return true false if we have timed-out
+# Call with  0 to initialize the timer
+# Call with a value > 0 to initialize timeout time
+# Call with -1 to check timer
+sub CheckTime
+{
+    my($w)=@_;
+
+    if ($w == 0){
+	# Init timer
+	$STARTT = time();
+    } elsif ($w > 0){
+	# set timeout
+	$TIMEOUT = $w;
+    } else { # < 0
+	return 0 if ( ! defined($TIMEOUT) );
+	return (time()-$STARTT) > 0.9*$TIMEOUT; # 90% to be sure
+    }
+}
 
 
 
 
+#
+# -2  => Return when cache will be flushed
+# -1  => delete cache
+#  0  => from cache
+#  1  => to cache
+#
+sub ToFromCache
+{
+    my($mode,@ALL)=@_;
+    my(@TEMP,$kk);
+    my(%RECORDS,$file);
+    my(@count)=(0,0,0);
 
+
+    # Check values we need
+    if ( ! defined($SELF) ){
+	$SELF  = $0; 
+	$SELF =~ s/.*\///; 
+	$SELF =~ s/\..*//;
+    }
+    if ( ! defined($XSELF) ){
+	$XSELF = "$SELF$SCAND";
+	$XSELF =~ s/[+\/\*]/_/g; 
+    }
+    if ( ! defined($CACHELM) ){  $CACHELM = 10;} # cache limit
+    if ( ! defined($CACHOFF) ){  $CACHOFF =  0;} # cache offset
+
+
+    # get cache count for this pass
+    if ( ! defined($CACHECNT) ){
+	$kk=0;
+	while ( -e "/tmp/$XSELF"."_$kk.lis"){  $kk++;}
+	if ( $kk > ($CACHELM+$CACHOFF) ){
+	    # we have exahusted all numbers
+	    print "Cache is being reset (reached limit)\n";
+	    unlink(glob("/tmp/$XSELF"."_*.lis"));
+	    return @ALL;
+	}
+	    
+	# else we have something
+	$CACHECNT = $kk;
+
+	print "Cache file will be /tmp/$XSELF"."_$CACHECNT.lis\n";
+    }
+
+
+    #+
+    # Treat the cases now
+    #-
+    if ($mode == -1){
+	# delete all cache pretty much now
+	print "Deleting cache\n";
+	unlink(glob("/tmp/$XSELF"."_*.lis"));
+
+    } elsif ($mode == -2){
+	# return when cache will be deleted
+	return (($CACHELM+$CACHOFF)-$CACHECNT);
+
+    } elsif ( $mode == 0 || $mode == 1){
+	# From cache, return an array of values, second argument
+	# must be present
+
+	# To cache - We want to flush all to cache
+	# It is then only  a question of adding previous to current
+
+	# In both cases, we start the same way by reading the
+	# previous cache
+	if ($CACHECNT != 0){
+	    # there is a previous $kk-1 file
+	
+	    # read cache, suck into %RECORDS
+	    if ( open(OCACHE,"/tmp/$XSELF"."_".($CACHECNT-1).".lis") ){
+		while ( defined($file = <OCACHE>) ){  
+		    chomp($file);
+		    $RECORDS{$file}=1;
+		    $count[0]++;
+		}
+		close(OCACHE);
+	    }
+	}
+	
+	
+	if ( $mode == 1 ){
+	    # ToCache - need to merge all files together
+	    foreach $file (@ALL){
+		chomp($file);
+		$RECORDS{$file} = 1 if ( ! defined($RECORDS{$file}) );
+	    }
+
+
+	    # Open the real cache filer now not the index -1 and dump it all
+	    if ( open(OCACHE,">/tmp/$XSELF"."_".($CACHECNT-0).".lis") ){
+		foreach $file ( keys %RECORDS ){
+		    print OCACHE "$file\n";
+		}
+		close(OCACHE);
+	    }
+
+	} elsif ( $mode == 0){
+	    # Now we either have previous records or not
+	    # scan @ALL and rebuild the list excluding what is
+	    # in the cache
+	    foreach $file (@ALL){
+		chomp($file);
+		if ( ! defined($RECORDS{$file}) ){
+		    $count[1]++;
+		    push(@TEMP,$file);
+		} else {
+		    $count[2]++;
+		}
+	    }
+
+	    # are done, @TEMP contains the files which are new
+	    if ($count[1] != $count[2]){
+		print "Previous pass had $count[0], found $count[2] old and selected $count[1]\n";
+	    }
+	    return @TEMP;
+	}
+    } else {
+	print "Mode $mode not implemented\n";
+    }
+
+}
