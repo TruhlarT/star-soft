@@ -126,11 +126,8 @@ for ($i = 0; $i < scalar(@node_daq); $i++) {
  }
 
    for ($ij = 2; $ij < 4; $ij++) { 
-      $OUT_DIR[$ii] = $TOP_DIRD . $node_daq[$ij] . "/" . $dir_year[8] . "/" . $daq_dir[22];
-   print "Output Dir for NEW :", $OUT_DIR[$ii], "\n"; 
-    $ii++;
    for ($ik = 22; $ik < 24; $ik++) {
-   $OUT_DIR[$ii] = $TOP_DIRD . $node_daq[$i] . "/" . $testDay . "/". $dir_year[8] . "/" . $daq_dir[$ik];
+   $OUT_DIR[$ii] = $TOP_DIRD . $node_daq[$ij] . "/" . $dir_year[8] . "/" . $daq_dir[$ik];
    print "Output Dir for DEV :", $OUT_DIR[$ii], "\n";
         $ii++;
      }
