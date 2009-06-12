@@ -240,6 +240,7 @@ $OUT_DIR[$ii] = $TOP_DIRD . $node_dir[$i] . "/" . $beforeDay . "/". $dir_year[4]
     $ii++;
   }
  }
+
      for ($ik = 10; $ik < 11; $ik++) { 
     for ($i = 2; $i < 4; $i++) { 
 $OUT_DIR[$ii] = $TOP_DIRD . $node_dir[$i] . "/" . $beforeDay . "/". $dir_year[6] . "/" . $hc_dir[$ik];
@@ -300,9 +301,11 @@ $jj = 0;
     $OUT_DIR[$ii] = $TOP_DIRD . $node_daq[$i] . "/" . $beforeDay . "/". $dir_year[2] . "/" . $daq_dir[3];
    print "Output Dir for DEV :", $OUT_DIR[$ii], "\n";
         $ii++;
-   $OUT_DIR[$ii] = $TOP_DIRD . $node_daq[$i] . "/" . $beforeDay . "/". $dir_year[8] . "/" . $daq_dir[22];
+   for ($ik = 22; $ik < 24; $ik++) { 
+   $OUT_DIR[$ii] = $TOP_DIRD . $node_daq[$i] . "/" . $beforeDay . "/". $dir_year[8] . "/" . $daq_dir[$ik];
    print "Output Dir for DEV :", $OUT_DIR[$ii], "\n";
         $ii++;
+     }
 
    }
 
@@ -310,11 +313,6 @@ $jj = 0;
    $OUT_DIR[$ii] = $TOP_DIRD . $node_daq[2] . "/" . $beforeDay . "/". $dir_year[4] . "/" . $daq_dir[$ik];
    print "Output Dir for DEV :", $OUT_DIR[$ii], "\n";   
    $ii++;
-   for ($ik = 22; $ik < 24; $ik++) { 
-   $OUT_DIR[$ii] = $TOP_DIRD . $node_daq[$i] . "/" . $beforeDay . "/". $dir_year[8] . "/" . $daq_dir[$ik];
-   print "Output Dir for DEV :", $OUT_DIR[$ii], "\n";
-        $ii++;
-     }
  }
 
    $OUT_DIR[$ii] = $TOP_DIRD . $node_daq[2] . "/" . $beforeDay . "/". $dir_year[6] . "/" . $daq_dir[21];
