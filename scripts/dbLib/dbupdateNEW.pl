@@ -82,6 +82,7 @@ for ($i = 0; $i < scalar(@node_dir); $i++) {
   }
 
 my $jj = 0;
+
 for ($i = 0; $i < scalar(@node_daq); $i++) {
       for ($ll = 0; $ll < 3; $ll++) {
           
