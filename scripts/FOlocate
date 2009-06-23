@@ -6,15 +6,32 @@
 #
 
 use Env qw(STAR_SCRIPTS);
-use lib "$STAR_SCRIPTS";
+# use lib "$STAR_SCRIPTS";
 
 use RunDAQ;
+
+$QUERY = 0;
+$SELF  = $0;
+$SELF  =~ s/.*\///;
+
+if ( $#ARGV == -1){
+    print qq~
+Usage:
+  % $SELF runNumber       # query a unique run
+  % $SELF runMin-runMax   # using a range of run numbers
+ 
+Use -Q for querrying the primary database.
+
+~;
+    exit;
+}
 
 $obj   = rdaq_open_odatabase();
 
 foreach $run (@ARGV){
-    
-    if ($run =~ m/(\d+)-(\d+)/){
+    if ($run =~ /-Q/){
+	$QUERY = 1;
+    } elsif ($run =~ m/(\d+)-(\d+)/){
 	$lowrn = $1;
 	$highr = $2;
 	for ($r=$lowrn; $r<=$highr; $r++){
@@ -81,7 +98,23 @@ sub ProcessRun {
 
 	} 
     }
-    
+
+    if ( $QUERY){
+	# rdaq_toggle_debug(1);
+	my($OO)=rdaq_open_rdatabase();
+	if ($OO){
+	    @runs = rdaq_raw_files($OO,"=$run");
+	    print "Found ".($#runs+1)." in the primary DB\n";
+	    #rdaq_toggle_debug(0);
+	    rdaq_close_rdatabase($OO);
+	    printf "\t%40.40s %5.5s %6.6s %10.10s\n","Name","#Evts","BeamE","Coll";
+	    printf "\t%64.64s\n","----------------------------------------------------------------------";
+	    foreach $ligne (@runs){
+		@items = split(" ",$ligne);
+		printf "\t%40.40s %5.5d %4.2f %10.10s\n",$items[0],$items[2],$items[7],$items[8];
+	    }
+	}
+    }
     
 }
 
