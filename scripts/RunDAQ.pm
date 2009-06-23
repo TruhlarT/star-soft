@@ -499,6 +499,7 @@ sub rdaq_raw_files
     my($sth,$cmd,$llimit);
     my(@all,@res,$tres);
     my($tref,$kk,$gotit);
+    my($rskip,$xrows);
 
     if(!$obj){ return 0;}
 
@@ -557,8 +558,16 @@ sub rdaq_raw_files
 
     print "<!-- $cmd -->\n" if ($DEBUG);
     $sth  = $obj->prepare($cmd);
-    if ( ! $sth->execute() ){ &info_message("raw_files",3,"Could not execute statement\n");}
-    $gotit = $kk=0;
+    if ( ! $sth->execute() ){ 
+	&info_message("raw_files",3,"Could not execute statement\n");
+	return undef;
+    }
+    # else
+    $rskip = $gotit = $kk=0;
+    $xrows = $sth->rows();
+
+    &info_message("raw_files",3,"Expected number of rows = $xrows\n") if ($DEBUG);
+
     while( @res = $sth->fetchrow_array() ){
 	$gotit++;
 	# Massage the results to return a non-ambiguous information
@@ -569,12 +578,18 @@ sub rdaq_raw_files
 
 	# skip scaler files added in 2006
 	if ( $res[0] =~ /\.sca/){  next;}
-
+	# even more exotic files are appearing in the DB from 2007 onwards
 	if ( $res[0] !~ /\.daq/){
-	    &info_message("raw_files",3,"File not matching expected name pattern [$res[0]]\n");
+	    if ($DEBUG){
+		&info_message("raw_files",3,"File not matching expected name pattern ".join(";",@res)."\n");
+	    } else {
+		&info_message("raw_files",3,"File not matching expected name pattern [$res[0]]\n");
+	    }
+	    $rskip++;
 	    next;
 	}
 
+	# &info_message("raw_files",3,"Got a valid entry ".join(";",@res)."\n") if ($DEBUG);
 
 	#for ($ii = 0 ; $ii <= $#res ; $ii++){
 	#    print "$ii --> $res[$ii]\n";
@@ -593,9 +608,15 @@ sub rdaq_raw_files
 	}
     }
     $sth->finish();
-    if ( ! $gotit && $DEBUG){
-	&info_message("raw_files",2,"Nothing known or returned for $from\n");
+
+    # print some more info in debug mode - sanity checks mainly
+    if ($DEBUG ){
+	&info_message("raw_files",2,"Nothing known or returned for $from\n") if (!$gotit );
+	if ($xrows != ($#all+1+$rskip)){
+	    &info_message("raw_files",2,"Boo\n");
+	}
     }
+
     @all;
 }
 
@@ -775,10 +796,12 @@ sub rdaq_open_rdatabase
     my($obj);
     my($i,$cmd,$sth);
 
+    &info_message("open_rdatabase",2,"Opening $DDBREF\n") if ($DEBUG);
     $obj = DBI->connect($DDBREF,$DDBUSER,$DDBPASSWD,
 			{PrintError  => 0, AutoCommit => 1,
 			 ChopBlanks  => 1, LongReadLen => 200});
     if(!$obj){
+	&info_message("open_rdatabase",1,"Failed to open $DDBREF using user=$DDBUSER\n") if ($DEBUG);
 	return 0;
     }
 
@@ -795,6 +818,7 @@ sub rdaq_open_rdatabase
     }
 
     # return object
+    &info_message("open_rdatabase",2,"All OK, DB is opened\n") if ($DEBUG);
     return $obj;
 }
 sub rdaq_close_rdatabase
