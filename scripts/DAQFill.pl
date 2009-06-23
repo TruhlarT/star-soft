@@ -52,8 +52,8 @@ do {
 	    # get the top run. Note that <= 0 would get all
 	    # runs ever entered in this database.
 	    if ($arg1 < 0){
-		$run  = - $arg1;
-		$crun = $prun= 0;
+		$run  = - $arg1 . ".0";
+		$crun = $prun= "0.0";
 	    } else {
 		$run = $mode*rdaq_last_run($dbObj);
 		($prun,$crun)= &GetRun();
