@@ -347,6 +347,14 @@ if( $flag && ! $trace ){
 	my(@info)=stat("/tmp/FOPage.html");
 	if ( (time()-$info[10]) > $CACHES || ! -e "/tmp/FOPage.html" ){
 	    if (open(FF,">/tmp/FOPage.html")){
+		# try a second form
+		print FF 
+		    "<FORM ACTION=\"$this_script\">\n", 
+		    "Enter a specific runNumber\n",
+		    $query->textfield(-size=>(12),-name=>"runNumber",-default=>0),"\n",
+		    $query->submit(),"\n",
+		    $query->endform(),"or use the full selection below ...\n<HR>\n";
+
 		print FF
 		    "<FORM ACTION=\"$this_script\">\n",
 		    "<TABLE WIDTH=800 BORDER=\"0\">\n";   
@@ -504,8 +512,9 @@ if( $flag && ! $trace ){
 		print FF
 		    "</TABLE>\n",
 		    $query->submit(),"\n",
-		    $query->endform(),"\n<HR>\n",
-		    $DLOG;
+		    $query->endform(),"\n<HR>\n";
+
+		print FF $DLOG;
 		close(FF);
 	    }
 	}
