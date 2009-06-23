@@ -499,7 +499,7 @@ sub rdaq_raw_files
     my($sth,$cmd,$llimit);
     my(@all,@res,$tres);
     my($tref,$kk,$gotit);
-    my($rskip,$xrows);
+    my($rskip,$xrows,$xinfo);
 
     if(!$obj){ return 0;}
 
@@ -534,6 +534,7 @@ sub rdaq_raw_files
 
 
     # Optional arguments
+    $xinfo = "runNumber unspecified";
     if( $from ne ""){
 	# start from some run number
 	if( index($from,"\.") != -1){
@@ -542,12 +543,15 @@ sub rdaq_raw_files
 	    #$cmd .= " AND (daqSummary.runNumber > $res[0] OR ".
 	    #" (daqSummary.runNumber=$res[0] AND daqFileTag.fileSequence > $res[1]))";
 	    # Changed for Year4 -- FileSequence is complex ....
-	    $cmd .= " AND (daqSummary.runNumber >= $res[0]) ";
+	    $cmd  .= " AND (daqSummary.runNumber >= $res[0]) ";
+	    $xinfo = "runNumber >= $res[0]";
 	} elsif ( $from =~ /=/){
-	    $cmd .=  " AND daqSummary.runNumber $from";
+	    $cmd  .= " AND daqSummary.runNumber $from";
+	    $xinfo = "runNumber $from";
 	} else {
 	    # old expected a run number only
 	    $cmd .= " AND daqSummary.runNumber > $from";
+	    $xinfo = "runNumber > $from";
 	}
 	$cmd .= " AND daqFileTag.entryTime <= $tref";
     }
@@ -566,7 +570,7 @@ sub rdaq_raw_files
     $rskip = $gotit = $kk=0;
     $xrows = $sth->rows();
 
-    &info_message("raw_files",3,"Expected number of rows = $xrows\n") if ($DEBUG);
+    &info_message("raw_files",3,"Expected number of rows = $xrows ($xinfo)\n") if ($DEBUG);
 
     while( @res = $sth->fetchrow_array() ){
 	$gotit++;
