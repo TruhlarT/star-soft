@@ -6,7 +6,7 @@
 #
 
 use Env qw(STAR_SCRIPTS);
-# use lib "$STAR_SCRIPTS";
+use lib "$STAR_SCRIPTS";
 
 use RunDAQ;
 
@@ -19,7 +19,7 @@ if ( $#ARGV == -1){
 Usage:
   % $SELF runNumber       # query a unique run
   % $SELF runMin-runMax   # using a range of run numbers
- 
+
 Use -Q for querrying the primary database.
 
 ~;
@@ -46,10 +46,10 @@ rdaq_close_odatabase($obj);
 
 sub ProcessRun {
     my($run)=@_;
-    
+
     # prepare conditons but one by one
     $Conds{runNumber} = $run;
-    
+
     @all = rdaq_get_orecords($obj,\%Conds,0,-1);
 
     if ($#all == -1){
@@ -58,12 +58,12 @@ sub ProcessRun {
 	print "runNumber=$run summary\n";
 	foreach $ligne (@all){
 	    @info = split(" ",$ligne);
-	    $status = $info[$#info]; 
+	    $status = $info[$#info];
 	    $numevt = $info[2];
 	    $stsstr = rdaq_status_string($status);
 
 	    printf "%40.40s - %10.10s (%6.6d) ",$info[0],$stsstr,$numevt;
-	    
+
 	    $xtra = "";
 	    if ($numevt == 0){
 		$reason = "Unknown/delayed evt";
@@ -81,10 +81,10 @@ sub ProcessRun {
 		$xtra   = "Ignored";
 	    } elsif ( $info[9] == 0){
 		$reason = "Unknown trigger set";
-		$xtra   = "Ignored";		
+		$xtra   = "Ignored";
 	    }
-	    
-	  
+
+
 	    # check location
 	    $loc = rdaq_get_location($obj,$info[0]);
 
@@ -93,10 +93,10 @@ sub ProcessRun {
 	    } elsif ( $status == 1 && $xtra eq ""){
 		$xtra = "Check later";
 	    }
-	    
+
 	    printf "%20.20s %12.12s %s\n",$reason,$xtra,($loc ne 0?$loc:"");
 
-	} 
+	}
     }
 
     if ( $QUERY){
@@ -115,6 +115,6 @@ sub ProcessRun {
 	    }
 	}
     }
-    
+
 }
 
