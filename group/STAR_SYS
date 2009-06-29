@@ -6,19 +6,29 @@
 #
 setenv STAR_SYS ""
 
+# get awk
+set AWK  = "echo"
+if (-x /bin/awk) then
+  set AWK = "/bin/awk"
+else
+  if (-x /usr/bin/awk) then
+    set AWK = "/usr/bin/awk"
+  endif
+endif
+
 #
 # Get it through the AFS fs sysname command which may
 # be set by the administrator.
 #
 if (-e /usr/arla/bin/fs) then
-  setenv STAR_SYS `/usr/arla/bin/fs sysname | /bin/awk -F\' '{print $2}'`
+  setenv STAR_SYS `/usr/arla/bin/fs sysname | $AWK -F\' '{print $2}'`
 else
   if (-e /usr/afsws/bin/fs)  then
-    setenv STAR_SYS `/usr/afsws/bin/fs sysname | /bin/awk -F\' '{print $2}'`
+    setenv STAR_SYS `/usr/afsws/bin/fs sysname | $AWK -F\' '{print $2}'`
   else
     # attempt some cygwin stuff
     if ( -e /cygdrive/c/PROGRA~1/IBM/AFS/Client/Program/fs) then
-	setenv STAR_SYS `/cygdrive/c/PROGRA~1/IBM/AFS/Client/Program/fs sysname | /bin/awk -F\' '{print $2}'`
+	setenv STAR_SYS `/cygdrive/c/PROGRA~1/IBM/AFS/Client/Program/fs sysname | $AWK -F\' '{print $2}'`
     else
 	# no /bin/sys anywhere (Linux, Solaris, Digital)
 	if (-e /bin/sys) then
@@ -42,7 +52,12 @@ if ( "${STAR_SYS}" == "") then
 	setenv STAR_SYS i386_redhat51
 	breaksw
      case "Linux*":
-	setenv STAR_SYS i386_redhat61
+	#setnenv STAR_SYS i386_redhat61
+	# Creating a sys name like <architecture>_<sysname><sysversion>
+	set sysname = `/bin/uname -s | /usr/bin/tr '[A-Z]' '[a-z]'`
+	set architecture =  `/bin/uname -m | /bin/sed -e 's/_//g'`
+	set sysversion = `/bin/uname -r | $AWK -F- '{print $1}' | /bin/sed -e 's/\.//g'`
+	setenv STAR_SYS ${architecture}_${sysname}${sysversion}
 	breaksw
 
      case "OSF1V32":
@@ -80,7 +95,6 @@ if ( "${STAR_SYS}" == "") then
     endsw
 endif
 
-
 # Solaris 4 hack
 if ("${STAR_SYS}" == "sun4x_56") then
     if ($STAR_LEVEL  == "old") then
@@ -103,7 +117,7 @@ if ("${STAR_SYS}" == "i386_linux22" || "${STAR_SYS}" == "i386_linux2") then
     # Old scheme pre 2003 and pre kernel 2.4
     set redhat = "6.1";
     setenv STAR_SYS i386_redhat61
-    if (-f /etc/redhat-release) set redhat = `/bin/awk '{print $5}' /etc/redhat-release`
+    if (-f /etc/redhat-release) set redhat = `$AWK '{print $5}' /etc/redhat-release`
     if ("$redhat" == "6.0") setenv STAR_SYS "i386_redhat60"
     if ("$redhat" == "6.1") setenv STAR_SYS "i386_redhat61"
     if ("$redhat" == "6.2") setenv STAR_SYS "i386_redhat61"
@@ -136,8 +150,8 @@ else
     set redhat = ""
 
     if (-f /etc/redhat-release) then
-	set rhflavor = `/bin/awk '{print $1 $2}' /etc/redhat-release | /bin/sed "s/[a-z]//g" | /bin/awk '{print tolower($1)}'`
-	set redhat   = `/bin/awk '{for (i=1;i<=NF;i++) if ($i == "release" || $i == "Release") print $(i+1)}' /etc/redhat-release`
+	set rhflavor = `$AWK '{print $1 $2}' /etc/redhat-release | /bin/sed "s/[a-z]//g" | $AWK '{print tolower($1)}'`
+	set redhat   = `$AWK '{for (i=1;i<=NF;i++) if ($i == "release" || $i == "Release") print $(i+1)}' /etc/redhat-release`
 	set rhmajor  = `echo $redhat | /bin/sed "s/\..*//"`
 	set redhat   = `echo $redhat | /bin/sed "s/\.//g"`
     else
@@ -154,7 +168,10 @@ else
 		set rhmajor  = `uname -s | tr '[A-Z]' '[a-z]'`
 		set redhat   = `uname -m | tr '[A-Z]' '[a-z]' | /bin/sed "s/ /_/g"`
 		breaksw
-
+	    case "*linux*"
+                set rhflavor = `uname -s | tr '[A-Z]' '[a-z]'`
+                set redhat = `uname -r | $AWK -F- '{print $1}' | sed -e 's/\.//g'`
+		set rhmajor = 0
 	    default:
         endsw
     endif
@@ -172,12 +189,12 @@ else
 	    #set vers = `icc -V -dryrun > & /tmp/icc_version; \
 	    #/bin/awk '{ if (NR==1) print $8 }' /tmp/icc_version | /bin/awk -F\. '{print $1$2}'; \
 	    #/bin/rm  /tmp/icc_version;`
-	    set vers =  `icc -v >&/tmp/icc_version$$ ; /bin/awk '{print $2}' /tmp/icc_version$$ | /bin/sed "s/\.//" && /bin/rm  /tmp/icc_version$$;`
+	    set vers =  `icc -v >&/tmp/icc_version$$ ; $AWK '{print $2}' /tmp/icc_version$$ | /bin/sed "s/\.//" && /bin/rm  /tmp/icc_version$$;`
 	    breaksw
 
 	 default:
 	    setenv STARCMPL "gcc"
-	    set vers = `gcc -dumpversion | /bin/awk -F. '{print $1$2$3}'`
+	    set vers = `gcc -dumpversion | $AWK -F. '{print $1$2$3}'`
        endsw
 
        # The above was made to exclude 7.2 Redhat using i386_linux24
@@ -201,10 +218,10 @@ else
    endif
 endif
 
-
-
-
 #  $Log: STAR_SYS,v $
+#  Revision 1.46  2009/06/29 13:33:05  jeromel
+#  Better support for other linux flavor, reshape awk (detect)
+#
 #  Revision 1.45  2009/02/06 17:15:54  jeromel
 #  simplified icc version check + save /tmp file
 #
@@ -351,5 +368,5 @@ endif
 #
 #  Revision 1.1.1.1  1997/12/31 14:35:23  fisyak
 #
-#             Last modification $Date: 2009/02/06 17:15:54 $
+#             Last modification $Date: 2009/06/29 13:33:05 $
 #
