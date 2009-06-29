@@ -1,6 +1,17 @@
 #!/bin/csh
 # Set up STAR enviroment
-set i = `echo $1 | /bin/awk '{printf("%1.1s\n",$1)}'`
+
+set AWK  = "echo"
+if (-x /bin/awk) then
+  set AWK = "/bin/awk"
+else
+  if (-x /usr/bin/awk) then
+    set AWK = "/usr/bin/awk"
+  endif
+endif
+
+
+set i = `echo $1 | $AWK '{printf("%1.1s\n",$1)}'`
 if ("$i" == "9" || "$i" == "0") then
   setenv STAR_LEVEL SL$1
 else
@@ -11,7 +22,7 @@ if ( -e $GROUP_DIR/group_env.csh ) then
 	if ( $?prompt ) then
 	    if ( ! -e $STAR) then
 		echo "$STAR_LEVEL is incompletely defined."
-		echo "Could not /usr/bin/find $STAR"
+		echo "Could not $STAR"
 	    endif
 	endif
 	#echo "$STAR"
