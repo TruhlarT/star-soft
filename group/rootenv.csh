@@ -5,10 +5,11 @@
 # Multiple version and scheme supported
 #
 set self="rootenv"
+source $GROUP_DIR/unix_programs.csh
 
 #if ($#argv > 0) setenv ROOT_LEVEL $1
 if ($?STAR_HOST_SYS == 0) setenv STAR_HOST_SYS `sys`
-set level = `echo $ROOT_LEVEL | /bin/awk -F. '{print $1$2}'`
+set level = `echo $ROOT_LEVEL | $AWK -F. '{print $1$2}'`
 
 if (! $?ROOT) setenv ROOT ${STAR_ROOT}/ROOT
 

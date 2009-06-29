@@ -1,5 +1,7 @@
 #!/bin/csh
-# Find and set a few unix program
+
+# Find and set a few unix program automatically
+# May/will be sourced by other scripts
 
 if ( ! $?AWK ) then
     set AWK  = "echo"

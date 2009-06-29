@@ -5,16 +5,7 @@
 # History at the end of this script
 #
 setenv STAR_SYS ""
-
-# get awk
-set AWK  = "echo"
-if (-x /bin/awk) then
-  set AWK = "/bin/awk"
-else
-  if (-x /usr/bin/awk) then
-    set AWK = "/usr/bin/awk"
-  endif
-endif
+source $GROUP_DIR/unix_programs.csh
 
 #
 # Get it through the AFS fs sysname command which may
@@ -219,6 +210,9 @@ else
 endif
 
 #  $Log: STAR_SYS,v $
+#  Revision 1.47  2009/06/29 14:16:38  jeromel
+#  Move definition/detection into other file we source
+#
 #  Revision 1.46  2009/06/29 13:33:05  jeromel
 #  Better support for other linux flavor, reshape awk (detect)
 #
@@ -368,5 +362,5 @@ endif
 #
 #  Revision 1.1.1.1  1997/12/31 14:35:23  fisyak
 #
-#             Last modification $Date: 2009/06/29 13:33:05 $
+#             Last modification $Date: 2009/06/29 14:16:38 $
 #
