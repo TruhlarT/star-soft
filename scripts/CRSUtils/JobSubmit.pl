@@ -356,9 +356,11 @@ if ( $ThisYear == 2005 ){
 
     $PHYSTP  =  rdaq_string2ftype("physics");
     $PHYSTP2 =
-	rdaq_string2ftype("physics_adc")."|".
-	rdaq_string2ftype("upsilon")."|".
-	rdaq_string2ftype("btag");
+        rdaq_string2ftype("physics_adc")."|".
+        rdaq_string2ftype("upsilon").    "|".
+        rdaq_string2ftype("minbias").    "|".
+        rdaq_string2ftype("minbias_adc")."|".
+        rdaq_string2ftype("btag");
 
     @EXPRESS = (
 		rdaq_string2ftype("express"),
