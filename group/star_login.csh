@@ -86,6 +86,7 @@ set user=$USER
 # May be more. To be extended if needed or
 # actually supressed if unused.
 setenv OSTYPE `/bin/uname -s`
+# setenv OSPROC `/bin/uname -p`
 switch ($OSTYPE)
     case "SunOS":
 	set OS="Solaris"
@@ -174,29 +175,31 @@ setenv LESSCHARSET latin1
 if ( $?DECHO ) echo "$self :: Checking CERN stuff"
 
 if ($?CERN == 0) then
-    if ( -e /cern ) then
-	setenv CERN "/cern"
-    else 
-	# What to do now ...
-	if( -e "${AFS_RHIC}/asis/@sys/cern" ) then
-	    setenv CERN "${AFS_RHIC}/asis/@sys/cern"
-        else
-	    if( -e "/usr/local/cern" ) then
-		setenv CERN "/usr/local/cern"
-	    endif
-	endif
+    set x="/cern64 /cern ${AFS_RHIC}/asis/@sys/cern64 ${AFS_RHIC}/asis/@sys/cern /usr/local/cern64 /usr/local/cern"
 
-	if ( ! $?CERN ) then
-	    if ($?ECHO == 1) then
-		echo "WARNING none of /cern, ${AFS_RHIC}/asis/@sys/cern, /usr/local/cern exist ..."
-	    endif
+    foreach d ($x)
+	if ( -e $d ) then
+	    setenv CERN $d
+	    break
 	endif
+    end
+    if ($?ECHO == 1) then
+	if ( ! $?CERN ) then
+	    echo "$self :: WARNING none of $x exist ..."
+	endif
+    else
+	echo "$self :: Set CERN to $CERN"
     endif
 endif
 
 # if still undefined, set it to /cern
 if ($?CERN == 0) setenv CERN "/cern"
 if ($?CERN_LEVEL == 0) setenv CERN_LEVEL pro
+# add one more check - if not existing, swicth to pro
+if ( ! -e $CERN/$CERN_LEVEL ) then
+    if ( $?DECHO ) echo "$self :: $CERN/$CERN_LEVEL not found, switch to pro"
+    setenv CERN_LEVEL pro
+endif
 setenv CERN_ROOT "$CERN/$CERN_LEVEL"
 
 
