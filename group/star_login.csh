@@ -39,15 +39,15 @@ endif
 # Variables subject to changes
 # ------------------------------
 # this is kept for compatibility purposes (until I can cleared
-# out if it is really necessary or not) but is actually a 
+# out if it is really necessary or not) but is actually a
 # soft-link to .../star/
-setenv GROUP rhstar           
+setenv GROUP rhstar
 
 
 # -------------------------------------
 # Initial checks and definitions
 # -------------------------------------
-# Username defined ? Define it then ... 
+# Username defined ? Define it then ...
 if ( ! $?USER ) then
     if ( $?LOGNAME ) then
 	setenv USER $LOGNAME
@@ -60,8 +60,8 @@ if ( ! $?LOGNAME ) then
 endif
 
 
-# CHECK FOR LOGIN PERMISSION                          
-if ( -f /etc/nologin &&  $USER != root  ) then  
+# CHECK FOR LOGIN PERMISSION
+if ( -f /etc/nologin &&  $USER != root  ) then
    echo "$self :: Sorry but this system is under maintenance. No logins ..."
    /bin/cat /etc/nologin
    /bin/sleep 5
@@ -70,7 +70,7 @@ if ( -f /etc/nologin &&  $USER != root  ) then
 endif
 
 
-# Set the umask so that newly created files and directories will be 
+# Set the umask so that newly created files and directories will be
 # readable by others, but writable only by the user.
 
 # Set a minimal path. With this, we will be able to use several
@@ -134,7 +134,7 @@ if( ! $?X11BIN || ! $?PATH) then
 
     # Support for Globus toolkit
     if ( $?GLOBUS_PATH ) then
-	if ( -d /opt/globus/bin ) then 
+	if ( -d /opt/globus/bin ) then
 	    set UGLOBUS="$GLOBUS_PATH/bin /opt/globus/bin"
 	else
 	    set UGLOBUS="$GLOBUS_PATH/bin"
@@ -146,7 +146,7 @@ if( ! $?X11BIN || ! $?PATH) then
 
     if ( $USER == "root" ) then
 	set path=( $SAVED_PATH $ROOTPATH $UGLOBUS)
-    else 
+    else
 	set path=( $USERPATH $UGLOBUS $SAVED_PATH )
     endif
     unset USERPATH
@@ -175,6 +175,11 @@ setenv LESSCHARSET latin1
 if ( $?DECHO ) echo "$self :: Checking CERN stuff"
 
 if ($?CERN == 0) then
+    #if ( $?USE_NATIVE64 ) then
+    #    set x="/cern64 /cern ${AFS_RHIC}/asis/@sys/cern64 ${AFS_RHIC}/asis/@sys/cern /usr/local/cern64 /usr/local/cern"
+    #else
+    #    set x="/cern ${AFS_RHIC}/asis/@sys/cern /usr/local/cern"
+    #endif
     set x="/cern64 /cern ${AFS_RHIC}/asis/@sys/cern64 ${AFS_RHIC}/asis/@sys/cern /usr/local/cern64 /usr/local/cern"
 
     foreach d ($x)
@@ -291,7 +296,7 @@ unset test2
 
 # Set default mask
 umask 022
-# Some systems the user doesn't own his tty device 
+# Some systems the user doesn't own his tty device
 set ttydev=`tty`
 if ("$ttydev" != "") then
     /bin/chmod 622 $ttydev >& /dev/null
@@ -307,7 +312,7 @@ if ($?SCRATCH == 0) then
 	setenv SCRATCH /scr22/$LOGNAME
     else if ( -w /scratch ) then
 	setenv SCRATCH /scratch/$LOGNAME
-    else 
+    else
 	# echo No scratch directory available. Using /tmp/$USER ...
 	setenv SCRATCH /tmp/$LOGNAME
     endif
@@ -328,7 +333,7 @@ if ( ! $?star_cshrc_csh) then
     endif
 endif
 
-# Now, display the news if any 
+# Now, display the news if any
 if ($?SILENT == 0 && $?prompt) then
     if ( -f $STAR_PATH/news/motd ) cat $STAR_PATH/news/motd
     if ( -f $STAR_PATH/news/motd.$STAR_SYS ) cat $STAR_PATH/news/motd.$STAR_SYS
@@ -340,7 +345,7 @@ endif
 
 # This file is reserved for pre-login env setup which
 # are site specific (can use variables already set by
-# the star login and/or massage them out according to 
+# the star login and/or massage them out according to
 # needs).
 if( -r $GROUP_DIR/site_post_setup.csh ) then
     if ( $?DECHO )  echo "$self :: Sourcing site post setup"

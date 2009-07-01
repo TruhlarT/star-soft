@@ -1,5 +1,5 @@
 #!/bin/csh
-#       $Id: group_env.csh,v 1.222 2009/07/01 15:22:36 jeromel Exp $
+#       $Id: group_env.csh,v 1.223 2009/07/01 23:11:26 jeromel Exp $
 #	Purpose:	STAR group csh setup
 #
 # Revisions & notes
@@ -572,7 +572,13 @@ switch ($STAR_SYS)
 
       # PGI compiler
       if ( ! $?PGI) then
+	#if ( $?USE_NATIVE64 ) then
+	#    set x="/usr/pgi64 /usr/pgi"
+        #else
+	#    set x="/usr/pgi"
+        #endif
 	set x="/usr/pgi64 /usr/pgi"
+
 	foreach d ($x)
 	    if ( -d $d ) then
 		setenv PGI $d
