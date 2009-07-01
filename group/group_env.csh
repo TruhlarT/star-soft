@@ -1,5 +1,5 @@
 #!/bin/csh
-#       $Id: group_env.csh,v 1.221 2009/07/01 15:05:46 jeromel Exp $
+#       $Id: group_env.csh,v 1.222 2009/07/01 15:22:36 jeromel Exp $
 #	Purpose:	STAR group csh setup
 #
 # Revisions & notes
@@ -563,17 +563,22 @@ switch ($STAR_SYS)
       limit  coredumpsize 0
       breaksw
 
+    case "x8664_*":
     case "i386_*":
       #  ====================
-      # make sure that afws in the path
+      # make sure that afws is in the path
       if (! -d /usr/afsws/bin) setenv PATH `${GROUP_DIR}/dropit -p $PATH -p ${AFS_RHIC}/i386_redhat50/usr/afsws/bin`
 
 
       # PGI compiler
       if ( ! $?PGI) then
-	if ( -d /usr/pgi ) then
-	    setenv PGI /usr/pgi
-	endif
+	set x="/usr/pgi64 /usr/pgi"
+	foreach d ($x)
+	    if ( -d $d ) then
+		setenv PGI $d
+		break
+	    endif
+	end
       endif
       if ( $?PGI ) then
        if ( ! -d $PGI/linux86/bin && -e $PGI/linux86 ) then
