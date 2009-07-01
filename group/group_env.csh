@@ -1,5 +1,5 @@
-#!/bin/csh 
-#       $Id: group_env.csh,v 1.220 2009/07/01 15:03:20 jeromel Exp $
+#!/bin/csh
+#       $Id: group_env.csh,v 1.221 2009/07/01 15:05:46 jeromel Exp $
 #	Purpose:	STAR group csh setup
 #
 # Revisions & notes
@@ -70,7 +70,7 @@ if ( ! $?XOPTSTAR ) then
 endif
 
 if ( ! $?OPTSTAR ) then
-    # local first - BEWARE this may be a link over 
+    # local first - BEWARE this may be a link over
     # AFS as well and as it turns out, -e test locks as well
 
     # there is not even a /opt, -e will be safe
@@ -152,13 +152,13 @@ if ( "$FAIL" != "") then
 	echo "  Reason: It appears the AFS lookup has failed and             "
 	else
 	# any other reason, display a generic message
-	echo "  Reason: Improper or incomplete installation                  " 
+	echo "  Reason: Improper or incomplete installation                  "
 	endif
 	echo "          You do not have a local installation of the STAR     "
 	echo "          software stack.                                      "
 	echo "                                                               "
-	echo "    If you are installing for the first time, ignore & proceed " 
-	echo "    with installation. Our documentation is available at       " 
+	echo "    If you are installing for the first time, ignore & proceed "
+	echo "    with installation. Our documentation is available at       "
         echo "    http://drupal.star.bnl.gov/STAR/comp/sofi/installing       "
 	echo "***************************************************************"
 	echo ""
@@ -183,7 +183,7 @@ if ($ECHO) echo   "Setting up WWW_HOME  = $WWW_HOME"
 
 # Defined in CORE. GROUP_PATH/GROUPPATH are global
 # while GROUP_DIR may be local
-if ( ! $?GROUP_PATH )  setenv GROUP_PATH ${STAR_ROOT}/group    
+if ( ! $?GROUP_PATH )  setenv GROUP_PATH ${STAR_ROOT}/group
 setenv GROUPPATH  $GROUP_PATH
 
 
@@ -455,7 +455,7 @@ if (-f $STAR/mgr/ROOT_LEVEL && -f $STAR/mgr/CERN_LEVEL) then
   endif
 
   # now check if CERN exists
-  if ( $?CERN ) then    
+  if ( $?CERN ) then
     if ( $?DECHO) echo "$self :: Caught $CERN_LEVEL from config in $STAR/mgr/ but not found"
     if ( ! -e $CERN/$CERN_LEVEL ) setenv CERN_LEVEL pro
   endif
