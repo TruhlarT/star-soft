@@ -186,9 +186,9 @@ if ($?CERN == 0) then
     if ($?ECHO == 1) then
 	if ( ! $?CERN ) then
 	    echo "$self :: WARNING none of $x exist ..."
+	else
+	    echo "$self :: Set CERN to $CERN"
 	endif
-    else
-	echo "$self :: Set CERN to $CERN"
     endif
 endif
 

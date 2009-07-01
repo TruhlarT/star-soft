@@ -1,5 +1,5 @@
 #!/bin/csh 
-#       $Id: group_env.csh,v 1.219 2009/03/16 14:36:26 jeromel Exp $
+#       $Id: group_env.csh,v 1.220 2009/07/01 15:03:20 jeromel Exp $
 #	Purpose:	STAR group csh setup
 #
 # Revisions & notes
@@ -453,6 +453,13 @@ if (-f $STAR/mgr/ROOT_LEVEL && -f $STAR/mgr/CERN_LEVEL) then
     # Overwrite
     setenv ROOT_LEVEL `/bin/cat $STAR/mgr/ROOT_LEVEL.${STAR_HOST_SYS}`
   endif
+
+  # now check if CERN exists
+  if ( $?CERN ) then    
+    if ( $?DECHO) echo "$self :: Caught $CERN_LEVEL from config in $STAR/mgr/ but not found"
+    if ( ! -e $CERN/$CERN_LEVEL ) setenv CERN_LEVEL pro
+  endif
+
 else
  switch ( $STAR_VERSION )
 
