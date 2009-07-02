@@ -1,7 +1,7 @@
 #!/bin/sh
 # **********************************************************************
 # * @(#) cernlib
-# * @(#) $Header: /scratch/smirnovd//star-cvs-local/soft/group/cernlib,v 1.2 2004/11/25 23:29:42 jeromel Exp $
+# * @(#) $Header: /scratch/smirnovd//star-cvs-local/soft/group/cernlib,v 1.3 2009/07/02 01:01:04 jeromel Exp $
 # *                                                                    *
 # * Attachment of CERN Libraries for link step                         *
 # *                                                                    *
@@ -11,8 +11,17 @@
  
   SHOPT="G:Psuv:"
 #SEQ,GETOPTD.
+
+  #if [ `/bin/uname -p` = "x86_64" ] ; then
+  #    X="64"
+  #else
+  #    X=""
+  #fi
+  $X=""   
+
+  [ -z "$CERN" ] && CERN = "/cern$X"
+
  
-  [ -z "$CERN"       ] && CERN="/cern"
   [ -z "$CERN_LEVEL" ] && gver="pro" || gver="$CERN_LEVEL"
  
   _P=0  ; _p=0 ;   _u=0 ; _s=0; Gsys=""
@@ -35,6 +44,7 @@
   CERNLIB=""
  
   liblist=`echo $* | /bin/sed -e 's/,/ /g'`
+  #echo "Lib list is $liblist"
   for lib in $liblist
   do
       case $lib in
@@ -113,18 +123,18 @@
                SYSGGL="-lfgl -lgl_s -lm -lbsd" ;
                SYSGMOTIF="-lXm -lXt -lX11 -lPW"
 	       ;;
-      Linux)   [ -d /usr/X386/lib ] && SYSGX11="-L/usr/X386/lib -lX11"
-	       [ -d /usr/X11/lib ] && SYSGX11="-L/usr/X11/lib -lX11"
-	       [ -d /usr/X11R6/lib ] && SYSGX11="-L/usr/X11R6/lib -lX11"
-	       [ -d /usr/X11R6/lib ] && SYSGMOTIF="-L/usr/X11R6/lib -lXm -lXt -lXp -lXext -lX11"
+      Linux)   [ -d /usr/X386/lib$X ] && SYSGX11="-L/usr/X386/lib$X -lX11"
+	       [ -d /usr/X11/lib$X ] && SYSGX11="-L/usr/X11/lib$X -lX11"
+	       [ -d /usr/X11R6/lib$X ] && SYSGX11="-L/usr/X11R6/lib$X -lX11"
+	       [ -d /usr/X11R6/lib$X ] && SYSGMOTIF="-L/usr/X11R6/lib$X -lXm -lXt -lXp -lXext -lX11"
 	       [ `/bin/uname -m` = ppc ] && SYSGMOTIF="$SYSGMOTIF -lSM -lICE -lXpm"
 	       ;;
       NeXT)    SYSGX11="/usr/lib/X11/libX11.r" ;
                SYSGMOTIF="-lXm -lXt /usr/lib/X11/libX11.r" ;;
       OSF1)    SYSGX11="-lX11 -ldnet_stub" ;
                SYSGMOTIF="-lXm -lXt -lX11 -ldnet_stub -lPW -lXmu" ;;
-      SunOS)   [ -d /usr/motif/lib ] && Motif="-L/usr/motif/lib" || Motif=" "
-	       if [ -d /usr/motif12/usr/lib ] ; then
+      SunOS)   [ -d /usr/motif/lib$X ] && Motif="-L/usr/motif/lib$X" || Motif=" "
+	       if [ -d /usr/motif12/usr/lib$X ] ; then
 		  Motif="-L/usr/motif12/usr/lib"
 #                               motif12 needs X11R5 from usr/local/lib
 		  X11="-L/usr/local/lib"
@@ -168,7 +178,7 @@
      esac
   fi
   if [ $_s -eq 1 ] ; then
-         CERNLIB="$CERNLIB -L/usr/local/lib -lshift"
+         CERNLIB="$CERNLIB -L/usr/local/lib$X -lshift"
   fi  
   if [ $_u -eq 0 ] ; then
   

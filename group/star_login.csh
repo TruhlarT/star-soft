@@ -175,12 +175,12 @@ setenv LESSCHARSET latin1
 if ( $?DECHO ) echo "$self :: Checking CERN stuff"
 
 if ($?CERN == 0) then
-    #if ( $?USE_NATIVE64 ) then
-    #    set x="/cern64 /cern ${AFS_RHIC}/asis/@sys/cern64 ${AFS_RHIC}/asis/@sys/cern /usr/local/cern64 /usr/local/cern"
-    #else
-    #    set x="/cern ${AFS_RHIC}/asis/@sys/cern /usr/local/cern"
-    #endif
-    set x="/cern64 /cern ${AFS_RHIC}/asis/@sys/cern64 ${AFS_RHIC}/asis/@sys/cern /usr/local/cern64 /usr/local/cern"
+    if ( $?USE_NATIVE64 ) then
+        set x="/cern64 /cern ${AFS_RHIC}/asis/@sys/cern64 ${AFS_RHIC}/asis/@sys/cern /usr/local/cern64 /usr/local/cern"
+    else
+        set x="/cern ${AFS_RHIC}/asis/@sys/cern /usr/local/cern"
+    endif
+    #set x="/cern64 /cern ${AFS_RHIC}/asis/@sys/cern64 ${AFS_RHIC}/asis/@sys/cern /usr/local/cern64 /usr/local/cern"
 
     foreach d ($x)
 	if ( -e $d ) then
