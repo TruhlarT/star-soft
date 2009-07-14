@@ -41,6 +41,8 @@ $dbname="Scheduler_bnl";
     stat        => '$',
     rsubm       => '$',
     ovrstat     => '$',    
+    rcpu        => '$',
+    smcpu       => '$',
   };
 
 
@@ -89,6 +91,8 @@ my $overstat = "unknown";
 my $inStatus = "unknown";
 my $outStatus = "unknown";
 my $recoStatus = "unknown";
+my $recpu = 0;
+my $simcpu = 0;
 
 ###############
 my $globStatus;
@@ -244,7 +248,7 @@ my $qsites = "$qsite%";
 
   if( $qsite eq "ALL" ) {
 
-      $sql="SELECT $MasterJobEfficiencyT.jobID_MD5 as jobid, $MasterJobEfficiencyT.processID as prodid, submitTime, site, prodTag, submitAttempt, globusError, dotOutHasSize, dotErrorHasSize, exec, transIn, transOut, lastKnownState, overAllState, $IOStatusT.jobID_MD5, $IOStatusT.processID, name_workerNode FROM $MasterJobEfficiencyT, $IOStatusT WHERE submitTime like ? and $MasterJobEfficiencyT.jobID_MD5 = $IOStatusT.jobID_MD5 and $MasterJobEfficiencyT.processID = $IOStatusT.processID and isInputFile = 1 and name_workerNode is not NULL order by $MasterJobEfficiencyT.processID"; 
+      $sql="SELECT $MasterJobEfficiencyT.jobID_MD5 as jobid, $MasterJobEfficiencyT.processID as prodid, submitTime, site, prodTag, submitAttempt, globusError, dotOutHasSize, dotErrorHasSize, exec, transIn, transOut, lastKnownState, overAllState, recoCpuPerEvt, simTimePerEvt, $IOStatusT.jobID_MD5, $IOStatusT.processID, name_workerNode FROM $MasterJobEfficiencyT, $IOStatusT WHERE submitTime like ? and $MasterJobEfficiencyT.jobID_MD5 = $IOStatusT.jobID_MD5 and $MasterJobEfficiencyT.processID = $IOStatusT.processID and isInputFile = 1 and name_workerNode is not NULL order by $MasterJobEfficiencyT.processID"; 
 
        $cursor =$dbh->prepare($sql)
       || die "Cannot prepare statement: $DBI::errstr\n";
@@ -253,7 +257,7 @@ my $qsites = "$qsite%";
   }else{
 
 
-     $sql="SELECT $MasterJobEfficiencyT.jobID_MD5 as jobid, $MasterJobEfficiencyT.processID as prodid, submitTime, site, prodTag, submitAttempt, globusError, dotOutHasSize, dotErrorHasSize, exec, transIn, transOut, lastKnownState, overAllState, $IOStatusT.jobID_MD5, $IOStatusT.processID, name_workerNode FROM $MasterJobEfficiencyT, $IOStatusT WHERE submitTime like ? and site = ? and $MasterJobEfficiencyT.jobID_MD5 = $IOStatusT.jobID_MD5 and $MasterJobEfficiencyT.processID = $IOStatusT.processID and isInputFile = 1 and name_workerNode is not NULL order by $MasterJobEfficiencyT.processID ";
+     $sql="SELECT $MasterJobEfficiencyT.jobID_MD5 as jobid, $MasterJobEfficiencyT.processID as prodid, submitTime, site, prodTag, submitAttempt, globusError, dotOutHasSize, dotErrorHasSize, exec, transIn, transOut, lastKnownState, overAllState, recoCpuPerEvt, simTimePerEvt, $IOStatusT.jobID_MD5, $IOStatusT.processID, name_workerNode FROM $MasterJobEfficiencyT, $IOStatusT WHERE submitTime like ? and site = ? and $MasterJobEfficiencyT.jobID_MD5 = $IOStatusT.jobID_MD5 and $MasterJobEfficiencyT.processID = $IOStatusT.processID and isInputFile = 1 and name_workerNode is not NULL order by $MasterJobEfficiencyT.processID ";
 
 
      $cursor =$dbh->prepare($sql)
@@ -283,8 +287,11 @@ my $qsites = "$qsite%";
       ($$fObjAdr)->stat($fvalue)      if( $fname eq 'lastKnownState'); 
       ($$fObjAdr)->rsubm($fvalue)     if( $fname eq 'submitAttempt');
       ($$fObjAdr)->ovrstat($fvalue)   if( $fname eq 'overAllState');
+      ($$fObjAdr)->rcpu($fvalue)      if( $fname eq 'recoCpuPerEvt');
+      ($$fObjAdr)->smcpu($fvalue)     if( $fname eq 'simTimePerEvt');
 
          }
+
        $jbstat[$nstat] = $fObjAdr;
         $nstat++;
       }
@@ -310,6 +317,8 @@ my $qsites = "$qsite%";
     $jbstat    = ($$jstat)->stat;
     $nresub    = ($$jstat)->rsubm ;
     $overstat  = ($$jstat)->ovrstat;
+    $recpu     = ($$jstat)->rcpu;
+    $simcpu    = ($$jstat)->smcpu;
 
     if (! defined($gsite) )   {$gsite = "none"};
     if (! defined($prodtag) ) {$prodtag = "none"};
@@ -433,12 +442,13 @@ print <<END;
 <TD ALIGN=CENTER WIDTH=\"10%\" HEIGHT=50><B>Submission Time</B></TD>
 <TD ALIGN=CENTER WIDTH=\"10%\" HEIGHT=50><B>Globus status</B></TD>
 <TD ALIGN=CENTER WIDTH=\"5%\" HEIGHT=50><B>Log file<br> transfer status</B></TD>
-<TD ALIGN=CENTER WIDTH=\"10%\" HEIGHT=50><B>Input file<br> transfer status</B></TD>
-<TD ALIGN=CENTER WIDTH=\"10%\" HEIGHT=50><B>Output files transfer<br>status</B></TD>
+<TD ALIGN=CENTER WIDTH=\"5%\" HEIGHT=50><B>Input file<br> transfer status</B></TD>
+<TD ALIGN=CENTER WIDTH=\"5%\" HEIGHT=50><B>Output files transfer<br>status</B></TD>
 <TD ALIGN=CENTER WIDTH=\"10%\" HEIGHT=50><B>Reco completion<br> status</B></TD>
 <TD ALIGN=CENTER WIDTH=\"10%\" HEIGHT=50><B>Current job status</B></TD>
 <TD ALIGN=CENTER WIDTH=\"10%\" HEIGHT=50><B>Overall performance<br> status</B></TD>
-
+<TD ALIGN=CENTER WIDTH=\"5%\" HEIGHT=50><B>RecoCPU/evts sec</B></TD>
+<TD ALIGN=CENTER WIDTH=\"5%\" HEIGHT=50><B>SimeCPU/evts sec</B></TD>
 
 </TR> 
    </head>
@@ -464,6 +474,8 @@ print <<END;
 <td>$recoStatus</td>
 <td>$jbstat</td>
 <td>$overstat</td>
+<td>$recpu</td>
+<td>$simcpu</td>
 </TR>
 END
 
@@ -487,6 +499,9 @@ print <<END;
 <td>$recoStatus</td>
 <td>$jbstat</td>
 <td>$overstat</td>
+<td>$recpu</td>
+<td>$simcpu</td>
+</TR>
 END
 
 }
@@ -508,6 +523,8 @@ print <<END;
 <td>$recoStatus</td>
 <td>$jbstat</td>
 <td>$overstat</td>
+<td>$recpu</td>
+<td>$simcpu</td>
 </TR>
 END
 
@@ -530,6 +547,8 @@ print <<END;
 <td>$recoStatus</td>
 <td>$jbstat</td>
 <td>$overstat</td>
+<td>$recpu</td>
+<td>$simcpu</td>
 </TR>
 END
 
@@ -553,6 +572,8 @@ print <<END;
 <td>$recoStatus</td>
 <td>$jbstat</td>
 <td>$overstat</td>
+<td>$recpu</td>
+<td>$simcpu</td>
 </TR>
 END
 
@@ -575,6 +596,8 @@ print <<END;
 <td>$recoStatus</td>
 <td>$jbstat</td>
 <td>$overstat</td>
+<td>$recpu</td>
+<td>$simcpu</td>
 </TR>
 END
 
