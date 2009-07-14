@@ -447,8 +447,8 @@ print <<END;
 <TD ALIGN=CENTER WIDTH=\"10%\" HEIGHT=50><B>Reco completion<br> status</B></TD>
 <TD ALIGN=CENTER WIDTH=\"10%\" HEIGHT=50><B>Current job status</B></TD>
 <TD ALIGN=CENTER WIDTH=\"10%\" HEIGHT=50><B>Overall performance<br> status</B></TD>
-<TD ALIGN=CENTER WIDTH=\"5%\" HEIGHT=50><B>RecoCPU sec</B></TD>
-<TD ALIGN=CENTER WIDTH=\"5%\" HEIGHT=50><B>SimeCPU sec</B></TD>
+<TD ALIGN=CENTER WIDTH=\"5%\" HEIGHT=50><B>RecoCPU<br> 1evt sec</B></TD>
+<TD ALIGN=CENTER WIDTH=\"5%\" HEIGHT=50><B>SimeCPU<br> 1evt sec</B></TD>
 
 </TR> 
    </head>
