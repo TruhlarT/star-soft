@@ -1,24 +1,22 @@
 /****************************************************************************
 
- This file is part of the QGLViewer library.
- Copyright (C) 2002, 2003, 2004, 2005, 2006 Gilles Debunne (Gilles.Debunne@imag.fr)
- Version 2.2.1-1, released on March 30, 2006.
+ Copyright (C) 2002-2008 Gilles Debunne. All rights reserved.
 
- http://artis.imag.fr/Members/Gilles.Debunne/QGLViewer
+ This file is part of the QGLViewer library version 2.3.1.
 
- libQGLViewer is free software; you can redistribute it and/or modify
- it under the terms of the GNU General Public License as published by
- the Free Software Foundation; either version 2 of the License, or
- (at your option) any later version.
+ http://www.libqglviewer.com - contact@libqglviewer.com
 
- libQGLViewer is distributed in the hope that it will be useful,
- but WITHOUT ANY WARRANTY; without even the implied warranty of
- MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- GNU General Public License for more details.
+ This file may be used under the terms of the GNU General Public License 
+ versions 2.0 or 3.0 as published by the Free Software Foundation and
+ appearing in the LICENSE file included in the packaging of this file.
+ In addition, as a special exception, Gilles Debunne gives you certain 
+ additional rights, described in the file GPL_EXCEPTION in this package.
 
- You should have received a copy of the GNU General Public License
- along with libQGLViewer; if not, write to the Free Software
- Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
+ libQGLViewer uses dual licensing. Commercial/proprietary software must
+ purchase a libQGLViewer Commercial License.
+
+ This file is provided AS IS with NO WARRANTY OF ANY KIND, INCLUDING THE
+ WARRANTY OF DESIGN, MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE.
 
 *****************************************************************************/
 
@@ -28,13 +26,19 @@
 # if QT_VERSION >= 0x040000
 #  include "ui_VRenderInterface.Qt4.h"
 # else
-#  if QT_VERSION >= 0x030000
-#   include "VRenderInterface.Qt3.h"
-#  else
-#   include "VRenderInterface.Qt2.h"
-#  endif
+#  include <qcheckbox.h>
+#  include <qcombobox.h>
+#  include "VRenderInterface.Qt3.h"
 # endif
 # include "VRender/VRender.h"
+#endif
+
+#if QT_VERSION >= 0x040000
+# include "ui_ImageInterface.Qt4.h"
+#else
+# include <qspinbox.h>
+# include <qcheckbox.h>
+# include "ImageInterface.Qt3.h"
 #endif
 
 // Output format list
@@ -48,15 +52,10 @@
 #include <qfiledialog.h>
 #include <qmessagebox.h>
 #include <qapplication.h>
-#include <qcheckbox.h>
-#include <qcombobox.h>
 #include <qmap.h>
 #include <qinputdialog.h>
 #include <qprogressdialog.h>
-#include <qcombobox.h>
-#include <qpushbutton.h>
 #include <qcursor.h>
-#include <qlayout.h>
 
 using namespace std;
 
@@ -179,7 +178,7 @@ void QGLViewer::initializeSnapshotFormats()
     }
 }
 
-// Returns false is the user refused to use the fileName
+// Returns false if the user refused to use the fileName
 static bool checkFileName(QString& fileName, QWidget* widget, const QString& snapshotFormat)
 {
   if (fileName.isEmpty())
@@ -247,11 +246,11 @@ class ProgressDialog
 {
 public:
   static void showProgressDialog(QGLWidget* parent);
-  static void updateProgress(float progress, const std::string& stepString);
+  static void updateProgress(float progress, const QString& stepString);
   static void hideProgressDialog();
 
 private:
-    static QProgressDialog* progressDialog;
+  static QProgressDialog* progressDialog;
 };
 
 QProgressDialog* ProgressDialog::progressDialog = NULL;
@@ -260,23 +259,23 @@ void ProgressDialog::showProgressDialog(QGLWidget* parent)
 {
   progressDialog = new QProgressDialog(parent);
 #if QT_VERSION >= 0x040000
-  progressDialog->setWindowTitle("Vectorial rendering progress");
+  progressDialog->setWindowTitle("Image rendering progress");
 #else
-  progressDialog->setCaption("Vectorial rendering progress");
+  progressDialog->setCaption("Image rendering progress");
 #endif
   progressDialog->setMinimumSize(300, 40);
   progressDialog->setCancelButton(NULL);
   progressDialog->show();
 }
 
-void ProgressDialog::updateProgress(float progress, const std::string& stepString)
+void ProgressDialog::updateProgress(float progress, const QString& stepString)
 {
 #if QT_VERSION >= 0x040000
   progressDialog->setValue(int(progress*100));
 #else
   progressDialog->setProgress(int(progress*100));
 #endif
-  QString message(stepString.c_str());
+  QString message(stepString);
   if (message.length() > 33)
     message = message.left(17) + "..." + message.right(12);
   progressDialog->setLabelText(message);
@@ -307,8 +306,13 @@ static int saveVectorialSnapshot(const QString& fileName, QGLWidget* widget, con
   static VRenderInterface* VRinterface = NULL;
 
   if (!VRinterface)
+#if QT_VERSION >= 0x030000
     VRinterface = new VRenderInterface(widget);
+#else
+    VRinterface = new VRenderInterface(widget, "", true); // Make the dialog modal
+#endif
 
+  
   // Configure interface according to selected snapshotFormat
   if (snapshotFormat == "XFIG")
     {
@@ -325,11 +329,7 @@ static int saveVectorialSnapshot(const QString& fileName, QGLWidget* widget, con
     return -1;
 
   vrender::VRenderParams vparams;
-#if QT_VERSION >= 0x040000
-  vparams.setFilename(fileName.toLatin1().data());
-#else
   vparams.setFilename(fileName);
-#endif
 
   if (snapshotFormat == "EPS")	vparams.setFormat(vrender::VRenderParams::EPS);
   if (snapshotFormat == "PS")	vparams.setFormat(vrender::VRenderParams::PS);
@@ -355,10 +355,10 @@ static int saveVectorialSnapshot(const QString& fileName, QGLWidget* widget, con
       qWarning("VRenderInterface::saveVectorialSnapshot: Unknown SortMethod");
     }
 
-  widget->makeCurrent();
-
   vparams.setProgressFunction(&ProgressDialog::updateProgress);
   ProgressDialog::showProgressDialog(widget);
+  widget->makeCurrent();
+  widget->raise();
   vrender::VectorialRender(drawVectorial, (void*) widget, vparams);
   ProgressDialog::hideProgressDialog();
 #if QT_VERSION < 0x030000
@@ -371,6 +371,185 @@ static int saveVectorialSnapshot(const QString& fileName, QGLWidget* widget, con
   return 0;
 }
 #endif // NO_VECTORIAL_RENDER
+
+
+#if QT_VERSION >= 0x040000
+class ImageInterface: public QDialog, public Ui::ImageInterface
+{
+ public: ImageInterface(QWidget *parent) : QDialog(parent) { setupUi(this); }
+};
+#endif
+
+
+// Pops-up an image settings dialog box and save to fileName.
+// Returns false in case of problem.
+bool QGLViewer::saveImageSnapshot(const QString& fileName)
+{
+  static ImageInterface* imageInterface = NULL;
+
+  if (!imageInterface)
+#if QT_VERSION >= 0x030000
+    imageInterface = new ImageInterface(this);
+#else
+    imageInterface = new ImageInterface(this, "", true);  // Make the dialog modal
+#endif
+
+  // 1 means never set
+  //if (imageInterface->imgWidth->value() == 1)
+  imageInterface->imgWidth->setValue(width());
+  //if (imageInterface->imgHeight->value() == 1)
+  imageInterface->imgHeight->setValue(height());
+  imageInterface->imgQuality->setValue(snapshotQuality());
+
+  if (imageInterface->exec() == QDialog::Rejected)
+    return true;
+
+  // Hide Closed dialog
+  qApp->processEvents();
+  
+  setSnapshotQuality(imageInterface->imgQuality->value());
+  
+  QColor previousBGColor = backgroundColor();
+  if (imageInterface->whiteBackground->isChecked())
+    setBackgroundColor(Qt::white);
+
+  QSize finalSize(imageInterface->imgWidth->value(), imageInterface->imgHeight->value());
+
+  double oversampling = imageInterface->oversampling->value();
+  QSize subSize(int(this->width()/oversampling), int(this->height()/oversampling));
+
+  double aspectRatio = width() / static_cast<double>(height());
+  double newAspectRatio = finalSize.width() / static_cast<double>(finalSize.height());
+
+  double zNear = camera()->zNear();
+  double zFar = camera()->zFar();
+
+  double xMin, yMin;
+  bool expand = imageInterface->expandFrustum->isChecked();
+  if (camera()->type() == qglviewer::Camera::PERSPECTIVE)
+    if ((expand && (newAspectRatio>aspectRatio)) || (!expand && (newAspectRatio<aspectRatio)))
+      {
+	yMin = zNear * tan(camera()->fieldOfView() / 2.0);
+	xMin = newAspectRatio * yMin;
+      }
+    else
+      {
+	xMin = zNear * tan(camera()->fieldOfView() / 2.0) * aspectRatio;
+	yMin = xMin / newAspectRatio;
+      }
+  else
+    {
+      camera()->getOrthoWidthHeight(xMin, yMin);
+      if ((expand && (newAspectRatio>aspectRatio)) || (!expand && (newAspectRatio<aspectRatio)))
+	xMin = newAspectRatio * yMin;
+      else
+	yMin = xMin / newAspectRatio;
+    }
+  
+#if QT_VERSION >= 0x040000
+  QImage image(finalSize.width(), finalSize.height(), QImage::Format_ARGB32);
+#else
+  QImage image(finalSize.width(), finalSize.height(), 32);
+#endif
+
+  if (image.isNull())
+    {
+      QMessageBox::warning(this, "Image saving error",
+			   "Unable to create resulting image",
+			   QMessageBox::Ok, QMessageBox::NoButton);
+      return false;
+    }
+
+  // ProgressDialog::showProgressDialog(this);
+
+  double deltaX = 2.0 * xMin * subSize.width() / finalSize.width();
+  double deltaY = 2.0 * yMin * subSize.height() / finalSize.height();
+
+  int nbX = finalSize.width() / subSize.width();
+  int nbY = finalSize.height() / subSize.height();
+
+  // Extra subimage on the border if needed
+  if (nbX * subSize.width() < finalSize.width())
+    nbX++;
+  if (nbY * subSize.height() < finalSize.height())
+    nbY++;
+
+  makeCurrent();
+
+  int count=0;
+  for (int i=0; i<nbX; i++)
+    for (int j=0; j<nbY; j++)
+      {
+	preDraw();
+	// Change projection matrix
+	glMatrixMode(GL_PROJECTION);
+	glLoadIdentity();
+	if (camera()->type() == qglviewer::Camera::PERSPECTIVE)
+	  glFrustum(-xMin + i*deltaX, -xMin + (i+1)*deltaX, yMin - (j+1)*deltaY, yMin - j*deltaY, zNear, zFar);
+	else
+	  glOrtho(-xMin + i*deltaX, -xMin + (i+1)*deltaX, yMin - (j+1)*deltaY, yMin - j*deltaY, zNear, zFar);
+	glMatrixMode(GL_MODELVIEW);
+	  
+	draw();
+	postDraw();
+
+	// ProgressDialog::hideProgressDialog();
+	// qApp->processEvents();
+
+	QImage snapshot = grabFrameBuffer(true);
+
+	// ProgressDialog::showProgressDialog(this);
+	// ProgressDialog::updateProgress(count / (float)(nbX*nbY),
+	// "Generating image ["+QString::number(count)+"/"+QString::number(nbX*nbY)+"]");
+	// qApp->processEvents();
+
+#if QT_VERSION >= 0x040000
+	QImage subImage = snapshot.scaled(subSize, Qt::IgnoreAspectRatio, Qt::SmoothTransformation);
+#else
+# if QT_VERSION >= 0x030000
+	QImage subImage = snapshot.scale(subSize, QImage::ScaleFree);
+# else
+	QImage subImage = snapshot.smoothScale(subSize.width(), subSize.height());
+# endif
+#endif
+
+	// Copy subImage in image
+	for (int ii=0; ii<subSize.width(); ii++)
+	  {
+	    int fi = i*subSize.width() + ii;
+	    if (fi == image.width())
+	      break;
+	    for (int jj=0; jj<subSize.height(); jj++)
+	      {
+		int fj = j*subSize.height() + jj;
+		if (fj == image.height())
+		  break;
+		image.setPixel(fi, fj, subImage.pixel(ii,jj));
+	      }
+	  }
+	count++;
+      }
+  
+#if QT_VERSION >= 0x040000
+  bool saveOK = image.save(fileName, snapshotFormat().toLatin1().constData(), snapshotQuality());
+#else
+  bool saveOK = image.save(fileName, snapshotFormat(), snapshotQuality());
+#endif
+
+  // ProgressDialog::hideProgressDialog();
+
+  // #if QT_VERSION < 0x030000
+  // setCursor(Qt::arrowCursor);
+  // #else
+  // setCursor(QCursor(Qt::ArrowCursor));
+  // #endif
+
+  if (imageInterface->whiteBackground->isChecked())
+    setBackgroundColor(previousBGColor);
+
+  return saveOK;
+}
+
 
 /*! Saves a snapshot of the current image displayed by the widget.
 
@@ -416,22 +595,13 @@ static int saveVectorialSnapshot(const QString& fileName, QGLWidget* widget, con
  exists. In \p automatic mode, the snapshotCounter() is incremented (if positive) until a
  non-existing file name is found instead. Otherwise the file is overwritten without confirmation.
 
- The VRender library was written by Cyril Soler (Cyril dot Soler at imag dot fr). Remove that
- anti-aliasing option to correctly display the generated PS and EPS results.
+ The VRender library was written by Cyril Soler (Cyril dot Soler at imag dot fr). If the generated
+ PS or EPS file is not properly displayed, remove the anti-aliasing option in your postscript viewer.
 
  \note In order to correctly grab the frame buffer, the QGLViewer window is raised in front of
  other windows by this method. */
 void QGLViewer::saveSnapshot(bool automatic, bool overwrite)
 {
-  static QImage snapshot;
-  // Viewer must be on top of other windows.
-  raise();
-  // Hack: Qt has problems if the frame buffer is grabbed after QFileDialog is displayed.
-  // We grab the frame buffer before, even if it might be not necessary (vectorial rendering).
-  // The problem could not be reproduced on a simple example to submit a Qt bug.
-  // However, only grabs the backgroundImage in the eponym example. May come from the driver.
-  snapshot = grabFrameBuffer(true);
-
   // Ask for file name
   if (snapshotFileName().isEmpty() || !automatic)
     {
@@ -444,7 +614,8 @@ void QGLViewer::saveSnapshot(bool automatic, bool overwrite)
 #else
       QString selectedFormat = FDFormatString[snapshotFormat()];
 # if QT_VERSION >= 0x040000
-      fileName = QFileDialog::getSaveFileName(this, "Choose a file name to save under", snapshotFileName(), formats, &selectedFormat);
+      fileName = QFileDialog::getSaveFileName(this, "Choose a file name to save under", snapshotFileName(), formats, &selectedFormat,
+					      overwrite?QFileDialog::DontConfirmOverwrite:QFlag(0));
 # else
       fileName = QFileDialog::getSaveFileName(snapshotFileName(), formats, this,
 					      "Save Snapshot dialog", "Choose a file name to save under", &selectedFormat);
@@ -491,31 +662,40 @@ void QGLViewer::saveSnapshot(bool automatic, bool overwrite)
 	  }
     }
 
+#if QT_VERSION < 0x040000
   if ((fileInfo.exists()) && (!overwrite) &&
       (QMessageBox::warning(this,"Overwrite file ?",
 			    "File "+fileInfo.fileName()+" already exists.\nOverwrite ?",
 			    QMessageBox::Yes,
 			    QMessageBox::Cancel) == QMessageBox::Cancel))
       return;
-
+#endif
+  
   bool saveOK;
 #ifndef NO_VECTORIAL_RENDER
   if ( (snapshotFormat() == "EPS") || (snapshotFormat() == "PS") || (snapshotFormat() == "XFIG") )
-    {
-      // Vectorial snapshot
-      int res = saveVectorialSnapshot(fileInfo.filePath(), this, snapshotFormat());
-      if (res == -1) // CANCEL
-	return;
-      else
-	saveOK = (res == 0);
-    }
+      // Vectorial snapshot. -1 means cancel, 0 is ok, >0 (should be) an error
+      saveOK = (saveVectorialSnapshot(fileInfo.filePath(), this, snapshotFormat()) <= 0);
   else
 #endif
+    if (automatic)
+	{
+      // Viewer must be on top of other windows.
+      makeCurrent();
+      raise();
+      // Hack: Qt has problems if the frame buffer is grabbed after QFileDialog is displayed.
+      // We grab the frame buffer before, even if it might be not necessary (vectorial rendering).
+      // The problem could not be reproduced on a simple example to submit a Qt bug.
+      // However, only grabs the backgroundImage in the eponym example. May come from the driver.
+      QImage snapshot = grabFrameBuffer(true);
 #if QT_VERSION >= 0x040000
     saveOK = snapshot.save(fileInfo.filePath(), snapshotFormat().toLatin1().constData(), snapshotQuality());
 #else
     saveOK = snapshot.save(fileInfo.filePath(), snapshotFormat(), snapshotQuality());
 #endif
+	}
+	else
+	  saveOK = saveImageSnapshot(fileInfo.filePath());
 
   if (!saveOK)
     QMessageBox::warning(this, "Snapshot problem", "Unable to save snapshot in\n"+fileInfo.filePath());

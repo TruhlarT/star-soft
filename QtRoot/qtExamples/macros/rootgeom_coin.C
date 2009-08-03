@@ -141,7 +141,28 @@ void rootgeom_coin()
    //#Viewer3D.DefaultDrawOption:   ogl
    
    geom->SetVisLevel(4);
+
+   // Add the  globus  just fro fun
+   if ( gSystem->AccessPathName("earth.iv") ) {
+      // Create the Inventor file if needed
+      ofstream out("earth.iv");
+
+      // Define the IV header format
+      out << "#Inventor V2.1 ascii" << endl;
+
+      // Define the texture file
+      out << " Texture2 { filename \"worldmap.bmp\"  " << endl;
+      out << " model REPLACE } "<< endl;
+
+      // Define the shape the texture is to be applied to
+      out << "Sphere {   radius 100 }" << endl;
+   }
+   
    gGeoManager->GetTopVolume()->Draw("oiv");
+   TVirtualViewer3D  *viewer = 0;
+   if  (viewer = TVirtualViewer3D::Viewer3D(gPad,"oiv")) {
+       viewer->SetDrawOption("earth.iv");
+   }
    printf("\n\n-----------------------------------------\n");
    printf(" With your left mouse button, select menu: \n");
    printf(" \"View\" -> \"View3D with\" -> \"Coin3D view\" \n");

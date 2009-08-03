@@ -47,3 +47,4 @@ if __name__ == '__main__':
    w = window()
    w.show()
    ROOT.gApplication.Run(1)
+   print 'Bye forever!'

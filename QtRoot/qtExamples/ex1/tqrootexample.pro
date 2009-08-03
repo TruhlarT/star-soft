@@ -1,6 +1,8 @@
 TEMPLATE	= app
 LANGUAGE	= C++
 
+QMAKE_RPATH=
+
 CONFIG	+= qt warn_on  thread debug
 
 SOURCES	+= main.cpp

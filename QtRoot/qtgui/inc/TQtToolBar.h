@@ -1,6 +1,6 @@
 // Author: Valeri Fine   16/06/2006
 /****************************************************************************
-** $Id: TQtToolBar.h,v 1.4 2007/05/22 01:05:23 fine Exp $
+** $Id: TQtToolBar.h,v 1.5 2009/08/03 18:03:09 fine Exp $
 **
 ** Copyright (C) 2006 by Valeri Fine.  All rights reserved.
 **
@@ -23,19 +23,12 @@
 
 #include <qglobal.h>
 
-#if QT_VERSION < 0x40000
-#  include <qintdict.h>
-#  include <qtoolbar.h>
-#else /* QT_VERSION */
-#  include <q3intdict.h>
-#  include <QToolBar>
-#endif
+#include <q3intdict.h>
+#include <QToolBar>
+#include "TQtRootAction.h"
 
-#if QT_VERSION < 0x40000
+
 #define TOOLBARCLASSNAME QToolBar
-#else /* QT_VERSION */
-#define TOOLBARCLASSNAME QToolBar
-#endif /* QT_VERSION */
 
 class QMainWindow;
 class TQtRootAction;
@@ -47,11 +40,7 @@ class TQtToolBar : public TOOLBARCLASSNAME {
 Q_OBJECT
 
 private:
-#if QT_VERSION < 0x40000
-   QIntDict<TQtRootAction> fActions;
-#else /* QT_VERSION */
    Q3IntDict<TQtRootAction> fActions;
-#endif /* QT_VERSION */
 
 public:
 

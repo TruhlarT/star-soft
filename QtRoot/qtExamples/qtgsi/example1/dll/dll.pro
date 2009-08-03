@@ -6,6 +6,8 @@ QT += qt3support
 TEMPLATE = lib thread
 win32: CONFIG *= DLL
 
+QMAKE_RPATH=
+
 INCLUDEPATH += .
 
 GSIEXAMPLE1 = example1

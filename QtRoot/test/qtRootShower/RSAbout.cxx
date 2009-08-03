@@ -20,8 +20,7 @@
 //______________________________________________________________________________
 RootShowerAbout::RootShowerAbout(QWidget *p,
                        UInt_t w, UInt_t h, UInt_t options) :
-    QMessageBox ( "About RootShower...", "", QMessageBox::NoIcon, QMessageBox::Ok, QMessageBox::NoButton, 
-                                             QMessageBox::NoButton, p, "RootShowerAbout")
+    QMessageBox (p,"About RootShower...")
      
 {
    setTextFormat (Qt::RichText);

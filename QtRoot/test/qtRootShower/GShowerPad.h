@@ -21,15 +21,15 @@
 
 #ifndef GSHOWERPAD_H
 #define GSHOWERPAD_H
-#include <qvbox.h>
+#include <q3vbox.h>
 
 class TQtWidget;
 class TCanvas;
 
-class GShowerPad : public QVBox {
+class GShowerPad : public Q3VBox {
    Q_OBJECT
 public:
-   GShowerPad(QWidget * parent = 0, const char * name = 0, WFlags f = 0 );
+   GShowerPad(QWidget * parent = 0, const char * name = 0, Qt::WFlags f = 0 );
    TCanvas *GetCanvas();
 public slots:
    void PadZoomForward();

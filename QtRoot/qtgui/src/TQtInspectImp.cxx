@@ -1,6 +1,6 @@
 // Author: Valeri Fine   21/01/2002
 /****************************************************************************
-** $Id: TQtInspectImp.cxx,v 1.5 2008/01/17 17:13:59 fine Exp $
+** $Id: TQtInspectImp.cxx,v 1.6 2009/08/03 18:03:10 fine Exp $
 **
 ** Copyright (C) 2002 by Valeri Fine. Brookhaven National Laboratory.
 **                                    All rights reserved.

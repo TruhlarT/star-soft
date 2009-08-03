@@ -3,11 +3,14 @@
 ######################################################################
 
 TEMPLATE = lib
-QGLVIEWERDIR = ../qglviewer/QGLViewer
+QGLVIEWERTOP = ../qglviewer
+QGLVIEWERDIR = $$QGLVIEWERTOP/QGLViewer
 CONFIG *= thread dll opengl
 CONFIG *= create_prl
 
 TARGET = RQTGL
+
+QMAKE_RPATH=
 
 isEmpty(DESTDIR) {
   DESTDIR=..
@@ -19,8 +22,8 @@ isEmpty(QTROOTSYSPATHINSTALL) {
 QTGLDIRS  = src
 QTGLDIRI  = inc
 
-DEPENDPATH  += $$QTGLDIRI $$QTGLDIRS $$QGLVIEWERDIR
-INCLUDEPATH += $$QTGLDIRI $$QGLVIEWERDIR  
+DEPENDPATH  += $$QTGLDIRI $$QTGLDIRS $$QGLVIEWERTOP
+INCLUDEPATH += $$QTGLDIRI $$QGLVIEWERTOP
 
 GQTDIRI   = ../../qt/inc
 
@@ -94,17 +97,30 @@ mac {
 }
 
 #  LIBS += -L$$QGLVIEWERDIR  -lQGLViewer
-# LIB_NAME
-LIB_NAME = libQGLViewer.so
-macx|darwin-g++ {
-   LIB_NAME = libQGLViewer.$${QMAKE_EXTENSION_SHLIB}
-  }
-hpux {
-  LIB_NAME = libQGLViewer.sl
+# LIB_NAME 
+
+
+LIB_NAME = QGLViewer
+
+# take in account the new QGLViewer.pro rules
+
+CONFIG(debug, debug|release) {
+     unix: LIB_NAME = $${LIB_NAME}
+     else: LIB_NAME = $${LIB_NAME}
+#     unix: LIB_NAME = $${LIB_NAME}_debug
+#     else: LIB_NAME = d$${LIB_NAME}
 }
 
-LIBS +=  $$QGLVIEWERDIR/$$LIB_NAME
-    
+macx|darwin-g++ {
+   LIB_NAME = lib$${LIB_NAME}.$${QMAKE_EXTENSION_SHLIB}
+}
+hpux {
+  LIB_NAME = lib$${LIB_NAME}.sl
+}
+
+#LIBS +=  $$QGLVIEWERDIR/$$LIB_NAME
+LIBS +=  -L$$QGLVIEWERDIR -l$$LIB_NAME
+
 headerfiles.path  = $$QTROOTSYSPATHINSTALL/include
 headerfiles.files = $$QTGLDIRI/*.*
 

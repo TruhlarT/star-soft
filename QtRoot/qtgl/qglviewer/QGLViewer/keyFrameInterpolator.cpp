@@ -1,24 +1,22 @@
 /****************************************************************************
 
- This file is part of the QGLViewer library.
- Copyright (C) 2002, 2003, 2004, 2005, 2006 Gilles Debunne (Gilles.Debunne@imag.fr)
- Version 2.2.1-1, released on March 30, 2006.
+ Copyright (C) 2002-2008 Gilles Debunne. All rights reserved.
 
- http://artis.imag.fr/Members/Gilles.Debunne/QGLViewer
+ This file is part of the QGLViewer library version 2.3.1.
 
- libQGLViewer is free software; you can redistribute it and/or modify
- it under the terms of the GNU General Public License as published by
- the Free Software Foundation; either version 2 of the License, or
- (at your option) any later version.
+ http://www.libqglviewer.com - contact@libqglviewer.com
 
- libQGLViewer is distributed in the hope that it will be useful,
- but WITHOUT ANY WARRANTY; without even the implied warranty of
- MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- GNU General Public License for more details.
+ This file may be used under the terms of the GNU General Public License 
+ versions 2.0 or 3.0 as published by the Free Software Foundation and
+ appearing in the LICENSE file included in the packaging of this file.
+ In addition, as a special exception, Gilles Debunne gives you certain 
+ additional rights, described in the file GPL_EXCEPTION in this package.
 
- You should have received a copy of the GNU General Public License
- along with libQGLViewer; if not, write to the Free Software
- Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
+ libQGLViewer uses dual licensing. Commercial/proprietary software must
+ purchase a libQGLViewer Commercial License.
+
+ This file is provided AS IS with NO WARRANTY OF ANY KIND, INCLUDING THE
+ WARRANTY OF DESIGN, MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE.
 
 *****************************************************************************/
 
@@ -424,12 +422,17 @@ void KeyFrameInterpolator::drawPath(int mask, int nbFrames, float scale)
       if (mask & 1)
 	{
 	  glBegin(GL_LINE_STRIP);
-#if QT_VERSION >= 0x040000 || QT_VERSION < 0x030000
+#if QT_VERSION >= 0x040000
+	  foreach (Frame fr, path_)
+	    glVertex3fv(fr.position());
+#else
+# if QT_VERSION < 0x030000
 	  for (int i=0; i < path_.size(); ++i)
 	    glVertex3fv((path_.at(i)).position());
-#else
+# else
 	  for (QValueVector<Frame>::const_iterator pnt=path_.begin(), end=path_.end(); pnt!=end; ++pnt)
 	    glVertex3fv((*pnt).position());
+# endif
 #endif
 	  glEnd();
 	}
@@ -439,19 +442,27 @@ void KeyFrameInterpolator::drawPath(int mask, int nbFrames, float scale)
 	  if (nbFrames > nbSteps)
 	    nbFrames = nbSteps;
 	  float goal = 0.0f;
-#if QT_VERSION >= 0x040000 || QT_VERSION < 0x030000
-	  for (int i=0; i < path_.size(); ++i)
+#if QT_VERSION >= 0x040000
+	  foreach (Frame fr, path_)
 #else
-	    for (QValueVector<Frame>::const_iterator pnt=path_.begin(), end=path_.end(); pnt!=end; ++pnt)
+# if QT_VERSION < 0x030000
+	  for (int i=0; i < path_.size(); ++i)
+# else
+	  for (QValueVector<Frame>::const_iterator pnt=path_.begin(), end=path_.end(); pnt!=end; ++pnt)
+# endif
 #endif
 	      if ((count++) >= goal)
 		{
 		  goal += nbSteps / static_cast<float>(nbFrames);
 		  glPushMatrix();
-#if QT_VERSION >= 0x040000 || QT_VERSION < 0x030000
-		  glMultMatrixd((path_.at(i)).matrix());
+#if QT_VERSION >= 0x040000
+		  glMultMatrixd(fr.matrix());
 #else
+# if QT_VERSION < 0x030000
+		  glMultMatrixd((path_.at(i)).matrix());
+# else
 		  glMultMatrixd((*pnt).matrix());
+# endif
 #endif
 		  if (mask & 2) drawCamera(scale);
 		  if (mask & 4) QGLViewer::drawAxis(scale/10.0);
@@ -706,13 +717,11 @@ QDomElement KeyFrameInterpolator::domElement(const QString& name, QDomDocument& 
   QDomElement de = document.createElement(name);
   int count = 0;
 #if QT_VERSION >= 0x040000
-  for (int i=0; i<keyFrame_.size(); ++i)
-    {
-      KeyFrame* kf = keyFrame_.at(i);
+  foreach (KeyFrame* kf, keyFrame_)
 #else
   for (KeyFrame* kf = keyFrame_.first(); kf; kf = keyFrame_.next() )
-    {
 #endif
+    {
       Frame fr(kf->position(), kf->orientation());
       QDomElement kfNode = fr.domElement("KeyFrame", document);
       kfNode.setAttribute("index", QString::number(count));

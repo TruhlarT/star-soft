@@ -15,7 +15,7 @@ the zooming widget and connect it with the TCanvas objects:
 
     To use this macro:
 
-    1. run $(ROOTSYS)/tutorials/hsimple.C 
+    1. run $ROOTSYS)/tutorials/hsimple.C 
        to create the "hsimple.root" file at once
 
        > root.exe -q -b -l $ROOTSYS/tutorials/hsimple.C

@@ -1,4 +1,4 @@
-# .rootrc:$Name:  $:$Id: rootrc.win32,v 1.1 2006/08/16 19:41:04 fine Exp $
+# .rootrc:$Name:  $:$Id: rootrc.win32,v 1.2 2009/08/03 18:03:01 fine Exp $
 # Author: Valeri Fine 10/10/2003
 
 # The custom ROOT env to turn on the Qt-edition of ROOT gui
@@ -9,7 +9,7 @@
 #        $ROOTSYS/etc/system.rootrc
 #
 
-Plugin.TVirtualPadEditor: Ged  TPadEditorOld GedOld     "TPadEditorOld()"
+Plugin.TVirtualPadEditor: ^Ged  TPadEditorOld GedOld     "TPadEditorOld()"
 
 Unix.*.Root.DynamicPath:    .:$(ROOTSYS)/lib:$(ROOTSYS)/test/qtRootShower
 Unix.*.Root.MacroPath:      .:$(ROOTSYS)/macros:$(ROOTSYS)/tutorials;$(ROOTSYS)/test/qt;$(ROOTSYS)/test/qtRootShower
@@ -24,7 +24,7 @@ Plugin.TImage:              *  TQtImage          QtImage  "TQtImage()"
 Gui.Style:                  windows
 Gui.Backend:                qt
 Gui.Factory:                qtgui
-Plugin.TVirtualX:   qt      TGQt             GQt          "TGQt(const char*,const char*)"
-Plugin.TGuiFactory: qtgui   TQtGUIFactory   QtRootGui    "TQtGUIFactory()"
-Plugin.TVirtualViewer3D:   ogl TQtRootViewer3D  RQTGL    "TQtRootViewer3D(TVirtualPad*)"
+Plugin.TVirtualX:   ^qt      TGQt             GQt          "TGQt(const char*,const char*)"
+Plugin.TGuiFactory: ^qtgui   TQtGUIFactory   QtRootGui    "TQtGUIFactory()"
+Plugin.TVirtualViewer3D:   ^ogl TQtRootViewer3D  RQTGL    "TQtRootViewer3D(TVirtualPad*)"
 

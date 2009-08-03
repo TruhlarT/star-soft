@@ -1,4 +1,4 @@
-// @(#)root/qt:$Name:  $:$Id: TQtCustomizeCanvasMenu.cxx,v 1.2 2006/09/22 17:27:11 fine Exp $
+// @(#)root/qt:$Name:  $:$Id: TQtCustomizeCanvasMenu.cxx,v 1.3 2009/08/03 18:03:10 fine Exp $
 // Author: Valeri Fine   12/12/2005
 /****************************************************************************
 **
@@ -12,13 +12,12 @@
 #include "TQtContextMenuImp.h"
 #include "TQtWidget.h"
 #include "TGQt.h"
-#if QT_VERSION >= 0x40000
-//Added by qt3to4:
+
 #include <QContextMenuEvent>
 #include <QMouseEvent>
 #include <QEvent>
-#include <Q3PopupMenu>
-#endif /* QT_VERSION */
+#include <QMenu>
+
 /////////////////////////////////////////////////////////////////////////////////////
 //
 // TQtCustomizeCanvasMenu class is a Qt event filter.
@@ -137,13 +136,8 @@ bool TQtCustomizeCanvasMenu::MakeContextMenu(TQtWidget *canvas)
          TQtContextMenuImp *qtImpl = 
                      (TQtContextMenuImp *)fContextMenu->GetContextMenuImp();
                   
-#if QT_VERSION < 0x40000
-         connect(qtImpl,SIGNAL( AboutToShow(QPopupMenu *,TContextMenu *))
-               , this,  SIGNAL( AboutToShow (QPopupMenu *,TContextMenu *)));
-#else /* QT_VERSION */
-         connect(qtImpl,SIGNAL( AboutToShow(Q3PopupMenu *,TContextMenu *))
-               , this,  SIGNAL( AboutToShow (Q3PopupMenu *,TContextMenu *)));
-#endif /* QT_VERSION */
+         connect(qtImpl,SIGNAL( AboutToShow(QMenu *,TContextMenu *))
+               , this,  SIGNAL( AboutToShow (QMenu *,TContextMenu *)));
       }
       TObject *obj = fCanvasWidget->GetSelected();
       if  (obj) {

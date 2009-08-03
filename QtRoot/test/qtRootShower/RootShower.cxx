@@ -23,24 +23,29 @@
 
 #include "TQtWidget.h"
 #include <qfile.h>
-#include <qtoolbar.h>
-#include <qpopupmenu.h>
-#include <qvbox.h>
+#include <q3toolbar.h>
+#include <q3popupmenu.h>
+#include <q3vbox.h>
 #include <qtimer.h>
-#include <qframe.h>
-#include <qhbox.h>
+#include <q3frame.h>
+#include <q3hbox.h>
 #include <qsplitter.h>
-#include <qvaluelist.h>
-#include <qlistview.h>
+#include <q3valuelist.h>
+#include <q3listview.h>
 #include <qtabwidget.h>
-#include <qtextbrowser.h>
+#include <q3textbrowser.h>
 #include <qstatusbar.h>
 #include <qaction.h>
 #include <qmenubar.h>
 #include <qtooltip.h>
 #include <qmessagebox.h>
-#include <qfiledialog.h>
+#include <q3filedialog.h>
 #include <qapplication.h>
+//Added by qt3to4:
+#include <Q3TextStream>
+#include <QLabel>
+#include <QPixmap>
+#include <QDebug>
 
 #include "GShowerPad.h"
 #include <TCanvas.h>
@@ -168,9 +173,9 @@ ToolBarData_t tb_data[] = {
 
 RootShower      *gRootShower;
 Int_t            gColIndex;
-QListViewItem  *gEventListTree; //  top "event" for 
-QListViewItem  *gTmpLTI;
-QListViewItem  *gLTI[MAX_PARTICLE];
+Q3ListViewItem  *gEventListTree; //  top "event" for 
+Q3ListViewItem  *gTmpLTI;
+Q3ListViewItem  *gLTI[MAX_PARTICLE];
 
 const TGPicture *bpic, *bspic;
 const TGPicture *lpic, *lspic;
@@ -192,7 +197,7 @@ Int_t RootShower::fgDefaultYPosition = 20;
 
 
 //______________________________________________________________________________
-RootShower::RootShower(QWidget *p, UInt_t w, UInt_t h): QMainWindow (p)
+RootShower::RootShower(QWidget *p, UInt_t w, UInt_t h): Q3MainWindow (p)
 {
     // Create (the) Event Display.
     //
@@ -236,18 +241,14 @@ RootShower::RootShower(QWidget *p, UInt_t w, UInt_t h): QMainWindow (p)
     }
 
     //---- toolbar. Add the action with the icon to the toolbar
-    fToolBar = new QToolBar(this);
+    fToolBar = new Q3ToolBar(this);
     addDockWindow(fToolBar);
     for (i = 0; xpm_names[i]; i++) {
         if (xpm_names[i][0]) {
            char *iconname = new char[100];
-#ifdef R__WIN32
-           sprintf(iconname,"icons\\%s",xpm_names[i]);
-#else
-           sprintf(iconname,"icons/%s",xpm_names[i]);
-#endif
+           sprintf(iconname,":/icons/%s",xpm_names[i]);
            ShowerAction *action = fActions[tb_data[i].fId];
-           action->setIconSet( QIconSet( QPixmap(ProgramPath(iconname)) ));
+           action->setIconSet( QIcon(iconname ));
            action->addTo(fToolBar);
         }
     }
@@ -255,13 +256,13 @@ RootShower::RootShower(QWidget *p, UInt_t w, UInt_t h): QMainWindow (p)
     // Create menubar and popup menus.
     MakeMenuBarFrame();
 
-    QVBox *fVBox = new QVBox(this,"central");
+    Q3VBox *fVBox = new Q3VBox(this,"central");
     setCentralWidget(fVBox);
 
     // CREATE TITLE FRAME
     fTitleFrame = new GTitleFrame(fVBox, "ROOT Shower Monte Carlo", "Event Display", 100, 100);
     // CREATE MAIN SCHENE  FRAME
-    QHBox *fHBox = new QHBox(fVBox,"scene");
+    Q3HBox *fHBox = new Q3HBox(fVBox,"scene");
 
    // Create the central frame
 
@@ -270,7 +271,7 @@ RootShower::RootShower(QWidget *p, UInt_t w, UInt_t h): QMainWindow (p)
     //sizes.push_back(w/4); sizes.push_back(w-(w/4));
     //split->setSizes(sizes);
 
-    fSelectionFrame   = new QVBox(split,"event");
+    fSelectionFrame   = new Q3VBox(split,"event");
 
     // left pane
     // create button frame
@@ -279,11 +280,11 @@ RootShower::RootShower(QWidget *p, UInt_t w, UInt_t h): QMainWindow (p)
     connect(fButtonFrame,SIGNAL(SelectEvent()),this,SLOT(SelectEvent()));
     connect(fButtonFrame,SIGNAL( Interrupt() ),this,SLOT( Interrupt() ));
 
-    fEventListTree =  new QListView ( fSelectionFrame);
+    fEventListTree =  new Q3ListView ( fSelectionFrame);
     fEventListTree->addColumn("Particles"); 
     fEventListTree->addColumn("Energy [Gev]"); 
-    connect( fEventListTree, SIGNAL(selectionChanged ( QListViewItem * )),this,SLOT(OnShowSelected(QListViewItem *)));
-    gEventListTree = new QListViewItem( fEventListTree, "Event" );
+    connect( fEventListTree, SIGNAL(selectionChanged ( Q3ListViewItem * )),this,SLOT(OnShowSelected(Q3ListViewItem *)));
+    gEventListTree = new Q3ListViewItem( fEventListTree, "Event" );
 
     // CREATE MAIN FRAME
     // Create Display Canvas Tab (where the actual main event is displayed)
@@ -304,8 +305,8 @@ RootShower::RootShower(QWidget *p, UInt_t w, UInt_t h): QMainWindow (p)
        fDisplayFrame->addTab(fEmbeddedCanvas3,"Statistics");
 
        // PDG Table
-       QTextBrowser *fTextView = new QTextBrowser(fDisplayFrame);
-       fTextView->setWordWrap(QTextEdit::NoWrap);
+       Q3TextBrowser *fTextView = new Q3TextBrowser(fDisplayFrame);
+       fTextView->setWordWrap(Q3TextEdit::NoWrap);
        fTextView->setFamily("Courier");
        fDisplayFrame->addTab(fTextView,"PDG Table");
 
@@ -355,8 +356,8 @@ RootShower::RootShower(QWidget *p, UInt_t w, UInt_t h): QMainWindow (p)
     pdgFilename += "/etc/pdg_table.txt";
 
     QFile file( pdgFilename ); // Read the text from a file
-    if ( file.open( IO_ReadOnly ) ) {
-        QTextStream stream( &file );
+    if ( file.open( QIODevice::ReadOnly ) ) {
+        Q3TextStream stream( &file );
         fTextView->setText( stream.read() );
     }
 
@@ -417,20 +418,20 @@ void RootShower::MakeMenuBarFrame()
     // Create menubar and popup menus.
     fMenuBar = menuBar();
 // -- File Menu
-    fMenuFile = new QPopupMenu();
+    fMenuFile = new Q3PopupMenu();
 
-    fActions[M_FILE_OPEN]->addTo(fMenuFile); fActions[M_FILE_OPEN]->setAccel(CTRL+Key_O);
+    fActions[M_FILE_OPEN]->addTo(fMenuFile); fActions[M_FILE_OPEN]->setAccel(Qt::CTRL+Qt::Key_O);
 //    fMenuFile->insertItem("&Close",  this,SLOT(CloseCB()));
 //    fMenuFile->insertItem("&Print",  this,SLOT(PrintCB()),CTRL+Key_P);
     fMenuFile->                    insertSeparator();
     fActions[M_FILE_SAVE]->  addTo(fMenuFile); fActions[M_FILE_SAVE]->  setEnabled(false);
     fActions[M_FILE_SAVEAS]->addTo(fMenuFile); fActions[M_FILE_SAVEAS]->setEnabled(false);
-                                               fActions[M_FILE_SAVEAS]->setAccel(CTRL+Key_A);
+                                               fActions[M_FILE_SAVEAS]->setAccel(Qt::CTRL+Qt::Key_A);
 
     fMenuFile->                                 insertSeparator();
-    fActions[M_FILE_EXIT]->addTo(fMenuFile); fActions[M_FILE_EXIT]->setAccel(CTRL+Key_X);
+    fActions[M_FILE_EXIT]->addTo(fMenuFile); fActions[M_FILE_EXIT]->setAccel(Qt::CTRL+Qt::Key_X);
 // -- Test Menu
-    fMenuTest = new QPopupMenu();
+    fMenuTest = new Q3PopupMenu();
     fMenuTest->insertItem("Simulation Settings...");
     fMenuTest->insertSeparator(); fMenuTest->insertSeparator();
 
@@ -450,20 +451,20 @@ void RootShower::MakeMenuBarFrame()
     fActions[M_SHOW_3D]->   addTo(fMenuTest); fActions[M_SHOW_3D]->   setEnabled(false);
     fActions[M_SHOW_TRACK]->addTo(fMenuTest); fActions[M_SHOW_TRACK]->setEnabled(false);
 // -- Inpsect Menu
-    fMenuInspect = new QPopupMenu();
+    fMenuInspect = new Q3PopupMenu();
     fMenuInspect->insertItem("Simulation Tools...");
     fMenuInspect->insertSeparator(); fMenuInspect->insertSeparator();
 
     fActions[M_INSPECT_BROWSER]->addTo(fMenuInspect); 
     fActions[M_FILE_HTML]->      addTo(fMenuInspect); 
 // -- View Menu
-    fMenuView = new QPopupMenu();
+    fMenuView = new Q3PopupMenu();
     fActions[M_VIEW_TOOLBAR]->addTo(fMenuView); fActions[M_VIEW_TOOLBAR]->setToggleAction (true);
                                                 fActions[M_VIEW_TOOLBAR]->setOn (true);
     fActions[M_VIEW_TOOLBAR]->disconnect(SIGNAL(activated()));
     connect(fActions[M_VIEW_TOOLBAR],SIGNAL(toggled ( bool)), this,SLOT(ShowToolBar(bool)));
 // ---  Help menu 
-    fMenuHelp = new QPopupMenu();
+    fMenuHelp = new Q3PopupMenu();
     fActions[M_HELP_PHYSICS]->   addTo(fMenuHelp); 
     fActions[M_HELP_SIMULATION]->addTo(fMenuHelp); 
     fMenuHelp->insertSeparator();
@@ -546,7 +547,7 @@ void  RootShower::ProcessMessage() {
              if (dir.isEmpty()) dir = gSystem->WorkingDirectory(); 
              else               dir = QFileInfo(dir).dirPath();
 
-             QString fOpenFileName = QFileDialog::getOpenFileName (dir
+             QString fOpenFileName = Q3FileDialog::getOpenFileName (dir
                 , filetypes, this, "Open"
                 , "Open ROOT file "
                 , &selectedFilter);
@@ -579,7 +580,7 @@ void  RootShower::ProcessMessage() {
              QString selectedFilter;
              QString dir = fSaveFileName;
              if (dir.isEmpty()) dir = gSystem->WorkingDirectory(); 
-             fSaveFileName = QFileDialog::getSaveFileName(dir
+             fSaveFileName = Q3FileDialog::getSaveFileName(dir
                 , filetypes, this, "SaveAs"
                 , "Save the selected Canvas/Pad as"
                 , &selectedFilter);
@@ -690,7 +691,7 @@ void  RootShower::ProcessMessage() {
           if(fIsRunning) break;
           {
              fDisplayFrame->setCurrentPage (1);
-             QListViewItem *item;
+             Q3ListViewItem *item;
              if ((item = fEventListTree->selectedItem () ) != 0)
                 OnShowSelected(item);
           }
@@ -703,7 +704,7 @@ void RootShower::Initialize(Int_t set_angles)
     Interrupt(kFALSE);
     gEventListTree = 0;
     fEventListTree->clear();
-    gEventListTree = new QListViewItem( fEventListTree, "Event" );
+    gEventListTree = new Q3ListViewItem( fEventListTree, "Event" );
 
 //    gClient->NeedRedraw(fEventListTree);
 
@@ -887,10 +888,10 @@ void RootShower::OnShowerProduce()
 }
 
 //______________________________________________________________________________
-void RootShower::HighLight(QListViewItem *item)
+void RootShower::HighLight(Q3ListViewItem *item)
 { if (item) item->listView()->setCurrentItem(item); }
 //______________________________________________________________________________
-void RootShower::OnShowSelected(QListViewItem *item)
+void RootShower::OnShowSelected(Q3ListViewItem *item)
 {
     // Shows track which has been selected into the list tree
     Int_t i,retval;
@@ -956,7 +957,7 @@ void RootShower::OnOpenFile(const Char_t *filename)
     Initialize(1);
 
     for(i=0;i<=fEvent->GetTotal();i++) {
-        gTmpLTI = new QListViewItem(gEventListTree, fEvent->GetParticle(i)->GetName());
+        gTmpLTI = new Q3ListViewItem(gEventListTree, fEvent->GetParticle(i)->GetName());
         sprintf(strtmp,"%1.2f GeV",fEvent->GetParticle(i)->Energy());
 //        QToolTip::add(gTmpLTI,strtmp);
         gLTI[i] = gTmpLTI;
@@ -1123,7 +1124,7 @@ void RootShower::NextEvent()
 void RootShower::SelectEvent()
 {
    fDisplayFrame->setCurrentPage (1);
-   QListViewItem *item;
+   Q3ListViewItem *item;
    if ((item = fEventListTree->selectedItem () ) != 0)
       OnShowSelected(item);
 }

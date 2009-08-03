@@ -3,7 +3,8 @@
 #
 # Author: Valeri Fine, 7/02/2004
 
-MODDIR       := qtimage
+MODNAME      := qtimage
+MODDIR       := $(MODNAME)
 MODDIRS      := $(MODDIR)/src
 MODDIRI      := $(MODDIR)/inc
 
@@ -14,8 +15,8 @@ QTIMAGEDIRI  := $(QTIMAGEDIR)/inc
 ##### libqtimage #####
 
 
-QTIMAGEH     := $(filter-out $(MODDIRI)/LinkDef%,$(wildcard $(MODDIRI)/*.h))
-QTIMAGES     := $(filter-out $(MODDIRS)/moc_%,$(filter-out $(MODDIRS)/G__%,$(wildcard $(MODDIRS)/*.cxx)))
+QTIMAGEH     := $(filter-out $(QTIMAGEDIRI)/LinkDef%,$(wildcard $(QTIMAGEDIRI)/*.h))
+QTIMAGES     := $(filter-out $(QTIMAGEDIRS)/moc_%,$(filter-out $(QTIMAGEDIRS)/G__%,$(wildcard $(QTIMAGEDIRS)/*.cxx)))
 QTIMAGEO     := $(QTIMAGES:.cxx=.o)
 
 # --  Qt signals/slots
@@ -29,6 +30,7 @@ QTIMAGEL     := $(MODDIRI)/LinkDef.h
 QTIMAGEDS    := $(MODDIRS)/G__QtImage.cxx
 QTIMAGEDO    := $(QTIMAGEDS:.cxx=.o)
 QTIMAGEDH    := $(QTIMAGEDS:.cxx=.h)
+QTIMAGEMAP   := $(QTIMAGELIB:.$(SOEXT)=.rootmap)
 
 QTIMAGEDEP   := $(QTIMAGEO:.o=.d) 
 # -- $(QTIMAGEDO:.o=.d)
@@ -39,6 +41,7 @@ QTIMAGECXXFLAGS := -DQT_DLL -DQT_THREAD_SUPPORT -I. -I$(QTDIR)/mkspecs/default $
 
 # used in the main Makefile
 ALLHDRS     += $(patsubst $(MODDIRI)/%.h,include/%.h,$(QTIMAGEH))
+ALLMAPS     += $(SQTIMAGEMAP)
 ALLLIBS     += $(QTIMAGELIB)
 
 # include all dependency files
@@ -55,39 +58,45 @@ $(QTIMAGELIB):  $(QTIMAGEO) $(QTIMAGEDO) $(QTIMAGEMOCO) $(MAINLIBS) \
 		   "$(QTIMAGEO) $(QTIMAGEMOCO) $(QTIMAGEDO)" \
 		   "$(QTIMAGELIBEXTRA) "
 
-$(QTIMAGEDS):   $(QTIMAGEH) $(QTIMAGEL) $(ROOTCINTTMPEXE)
+$(QTIMAGEDS):   $(QTIMAGEH) $(QTIMAGEL) $(ROOTCINTTMPDEP)
 		@echo "Generating dictionary $@..."
 		$(ROOTCINTTMP) -f $@ -c $(QTIMAGEH) $(QTIMAGEL)
 
-$(QTIMAGEDO):   $(QTIMAGEDS)
-		$(CXX) $(NOOPT) $(CXXFLAGS) $(QTIMAGECXXFLAGS)  $(CXXOUT)$@ -c $<
+$(QTIMAGEMAP):     $(RLIBMAP) $(MAKEFILEDEP) $(QTIMAGEL)
+		$(RLIBMAP) -o $(QTIMAGEMAP) -l $(QTIMAGELIB) \
+		   -d $(QTIMAGELIBDEP) -c $(QTIMAGEL)
+		
+#(QTIMAGEDO):   $(QTIMAGEDS)
+#		$(CXX) $(NOOPT) $(CXXFLAGS) $(QTIMAGECXXFLAGS)  $(CXXOUT)$@ -c $<
 
-all-qtimage:    $(QTIMAGELIB)
+all-$(MODNAME):    $(QTIMAGELIB)
 
-clean-qtimage:
+clean-$(MODNAME):
 		@rm -f $(QTIMAGEO) $(QTIMAGEDO) $(QTIMAGEMOCO) $(QTIMAGEMOC)
 
-clean::         clean-qtimage
+clean::         clean-$(MODNAME)
 
-distclean-qtimage: clean-qtimage
+distclean-$(MODNAME): clean-$(MODNAME)
 		@rm -f $(QTIMAGEDEP) $(QTIMAGEDS) $(QTIMAGEDH) $(QTIMAGELIB)
 
-distclean::     distclean-qtimage
+distclean::     distclean-$(MODNAME)
 
-show-qtimage:
+show-$(MODNAME):
+	@echo QTIMAGEDIRI  $(QTIMAGEDIRI)
 	@echo QTIMAGES:    $(QTIMAGES)
 	@echo QTIMAGEMOCS: $(QTIMAGEMOCS)
 	@echo QTIMAGEO:    $(QTIMAGEO)
 	@echo QTIMAGEMOCO: $(QTIMAGEMOCO)
 
 ##### extra rules ######
-$(QTIMAGEO): CXXFLAGS +=  $(QTIMAGECXXFLAGS)
+$(sort $(QTIMAGEMOCO) $(QTIMAGEO)):  CXXFLAGS += $(GQTCXXFLAGS)
+$(QTIMAGEDO): CXXFLAGS += $(GQTCXXFLAGS)
 
-$(QTIMAGEMOCO): %.o: %.cxx
-	$(CXX) $(OPT) $(CXXFLAGS) $(QTIMAGECXXFLAGS) $(CXXOUT)$@ -c $<
+#$(QTIMAGEMOCO): %.o: %.cxx
+#	$(CXX) $(OPT) $(CXXFLAGS) $(QTIMAGECXXFLAGS) $(CXXOUT)$@ -c $<
 
 #moc_%.cpp: %.h
 #            $(QTMOCEXE) $< -o $@
 
 $(sort $(QTIMAGEMOCS)) : $(QTIMAGEDIRS)/moc_%.cxx: $(QTIMAGEDIRI)/%.h 
-	$(QTMOCEXE) $< -o $@
+	$(QTMOCEXE)  $(GQTCXXFLAGS) $< -o $@

@@ -1,4 +1,4 @@
-// @(#)root/qtgsi:$Name:  $:$Id: TQRootCanvas.cxx,v 1.3 2007/01/30 02:56:37 fine Exp $
+// @(#)root/qtgsi:$Name:  $:$Id: TQRootCanvas.cxx,v 1.4 2009/08/03 18:03:09 fine Exp $
 // Author: Denis Bertini, M. Al-Turany  01/11/2000
 
 /*************************************************************************
@@ -16,14 +16,9 @@
 #include "qpushbutton.h"
 #include "qlabel.h"
 #include "qpainter.h"
-#if QT_VERSION < 0x40000
-#include "qdragobject.h"
-#else /* QT_VERSION */
-#include "q3dragobject.h"
 //Added by qt3to4:
 #include <QDragEnterEvent>
 #include <QDropEvent>
-#endif /* QT_VERSION */
 
 #include "TQGsiRootCanvas.h"
 #include "TCanvas.h"
@@ -132,27 +127,23 @@ TQRootCanvas::TQRootCanvas( QWidget *parent, QWidget* tabWin, const char *name, 
 void TQRootCanvas::dragEnterEvent( QDragEnterEvent *e )
 {
    // Entering a drag event.
-
-#if QT_VERSION < 0x40000
-   if ( QTextDrag::canDecode(e))
-#else /* QT_VERSION */
-   if ( Q3TextDrag::canDecode(e))
-#endif /* QT_VERSION */
-      e->accept();
+   if ( e->mimeData()->hasText() ) {
+      QString str = e->mimeData()->text();
+      if(gROOT->FindObject(str.toStdString().c_str()))
+         e->acceptProposedAction();
+      else
+         qWarning("object %s  not found by ROOT", str.toStdString().c_str());
+   }
 }
 
 //______________________________________________________________________________
 void TQRootCanvas::dropEvent( QDropEvent *Event )
 {
-   // Start a drop, for now only histogram objects can be drwon by droping.
+   // Start a drop, for now only histogram objects can be drawn by droping.
 
-   QString str;
-#if QT_VERSION < 0x40000
-   if ( QTextDrag::decode( Event, str ) ) {
-#else /* QT_VERSION */
-   if ( Q3TextDrag::decode( Event, str ) ) {
-#endif /* QT_VERSION */
-      TObject *dragedObject = gROOT->FindObject(str);
+   if ( Event->mimeData()->hasText() ) {
+      QString str = Event->mimeData()->text();
+      TObject *dragedObject = gROOT->FindObject(str.toStdString().c_str());
       QPoint Pos = Event->pos();
       TObject *object=0;
       TPad *pad = fCanvas->Pick(Pos.x(), Pos.y(), object);
@@ -164,7 +155,7 @@ void TQRootCanvas::dropEvent( QDropEvent *Event )
          }
       }
       else
-         qWarning("object %s  not found by ROOT", (const char *)str);
+         qWarning("object %s  not found by ROOT", str.toStdString().c_str());
    }
 }
 

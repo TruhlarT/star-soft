@@ -1,4 +1,4 @@
-// @(#)root/x3d:$Name:  $:$Id: TQtViewerX3D.cxx,v 1.1 2006/08/16 19:27:09 fine Exp $
+// @(#)root/x3d:$Name:  $:$Id: TQtViewerX3D.cxx,v 1.2 2009/08/03 18:03:12 fine Exp $
 // Author: Valeri Fine   30/10/02
 /****************************************************************************
  ** Copyright (C) 2002 by Valeri Fine. Brookhaven National Laboratory.

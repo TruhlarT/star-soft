@@ -1,13 +1,14 @@
-// @(#)root/qt:$Name:  $:$Id: QtMultiFileDialog.C,v 1.1 2006/08/16 19:41:06 fine Exp $
+// @(#)root/qt:$Name:  $:$Id: QtMultiFileDialog.C,v 1.2 2009/08/03 18:03:02 fine Exp $
 // Author: Valeri Fine   23/03/2006
 #ifndef __CINT__
-#  include <qapplication.h> 
-#  include <qstyle.h> 
-#  include <qfiledialog.h> 
-#  include <qstringlist.h> 
-#  include <qstring.h> 
+#  include <QApplication>
+#  include <QStyle>
+#  include <QFileDialog>
+#  include <QStringList>
+#  include <QString>
 #  include "TObjString.h"
 #  include "TList.h"
+#  include <string>
 #endif
 TList *QtMultiFileDialog(const char *style="") {
   // This is a small ROOT macro to use Qt 3.3 class :begin_html <a href="http://doc.trolltech.com/3.3/qfiledialog.html">QFileDialog</a> end_html
@@ -39,20 +40,21 @@ TList *QtMultiFileDialog(const char *style="") {
   // Load the qt cint dictionary.
   // One is recommended to do that at once somewhere.
   // For example  from his/her custom rootlogon.C script
-  gSystem->Load("$ROOTSYS/cint/include/qtcint");
+  gSystem->Load("$ROOTSYS/cint/cint/include/qtcint");
 #endif   
   QStyle *saveStyle =  0;
   if (!QString(style).isEmpty()) { 
-     saveStyle = &QApplication::style();
+     saveStyle = QApplication::style();
      QApplication::setStyle(style);
   }
   TList *listOfNames = new TList();
   QStringList files = QFileDialog::getOpenFileNames ();
   QStringList::Iterator it = files.begin();
   while ( it != files.end() ) {
-      printf ("Next file selected: %s\n", (const char *)(*it));
+      std::string flnm = (*it).toStdString();
+      printf ("Next file selected: %s\n", flnm.c_str() );
       // Convert QString to TObjString and add it to the output
-      listOfNames->Add(new TObjString((const char *)(*it)));
+      listOfNames->Add(new TObjString(flnm.c_str()));
       ++it;
   }
   // Restore the style

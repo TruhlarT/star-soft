@@ -1,4 +1,4 @@
-/* @(#)root/x3d:$Name:  $:$Id: x3d.c,v 1.1 2006/08/16 19:27:09 fine Exp $ */
+/* @(#)root/x3d:$Name:  $:$Id: x3d.c,v 1.2 2009/08/03 18:03:12 fine Exp $ */
 /* Author: Mark Spychalla*/
 /*
   Copyright 1992 Mark Spychalla

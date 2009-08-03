@@ -1,6 +1,6 @@
 // Author: Valeri Fine   21/01/2002
 /****************************************************************************
-** $Id: TQtControlBarImp.cxx,v 1.3 2007/05/30 23:18:21 fine Exp $
+** $Id: TQtControlBarImp.cxx,v 1.4 2009/08/03 18:03:09 fine Exp $
 **
 ** Copyright (C) 2002 by Valeri Fine. Brookhaven National Laboratory.
 **                                    All rights reserved.

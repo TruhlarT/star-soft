@@ -1,10 +1,11 @@
-# $Id: Module.mk,v 1.4 2007/08/27 05:06:50 fine Exp $
+# $Id: Module.mk,v 1.5 2009/08/03 18:02:56 fine Exp $
 # Module.mk for qt module
 # Copyright (c) 2001 Valeri Fine
 #
 # Author: Valeri Fine, 21/10/2001
 
-MODDIR        := qt
+MODNAME       := qt
+MODDIR        := graf2d/$(MODNAME)
 MODDIRS       := $(MODDIR)/src
 MODDIRI       := $(MODDIR)/inc
 
@@ -22,8 +23,8 @@ GQTH1         := $(GQTDIRI)/TGQt.h  $(GQTDIRI)/TQtTimer.h              \
                  $(GQTDIRI)/TQtApplication.h $(GQTDIRI)/TQtBrush.h     \
                  $(GQTDIRI)/TQMimeTypes.h $(GQTDIRI)/TQtClientFilter.h \
                  $(GQTDIRI)/TQtClientWidget.h $(GQTDIRI)/TQtWidget.h   \
-                 $(GQTDIRI)/TQtMarker.h $(GQTDIRI)/TQtTimer.h \
-                 $(GQTDIRI)/TQtRootSlot.h
+                 $(GQTDIRI)/TQtMarker.h $(GQTDIRI)/TQtTimer.h          \
+                 $(GQTDIRI)/TQtRootSlot.h $(GQTDIRI)/TQtPadFont.h
 
 GQTH          := $(filter-out $(MODDIRI)/LinkDef%,$(wildcard $(MODDIRI)/*.h))
 GQTS          := $(filter-out $(MODDIRS)/moc_%,\
@@ -40,11 +41,20 @@ GQTMOCO       := $(GQTMOC:.cxx=.o)
 
 GQTDEP        := $(GQTO:.o=.d) $(GQTDO:.o=.d)
 
+QT4           := $(findstring QtCore, $(QTINCDIR))
+
 QT3CPPFLAGS   := -DQT_DLL  -DQT_NO_DEBUG  -DQT_THREAD_SUPPORT
-QT4CPPFLAGS   := -DQT_QT3SUPPORT_LIB -DQT3_SUPPORT -DQT_GUI_LIB -DQT_CORE_LIB 
+QT4CPPFLAGS   := -DQT3_SUPPORT  -DQT_QT3SUPPORT_LIB -DQT_GUI_LIB -DQT_CORE_LIB 
 QT3QT4CPPFLAGS:= -DQT_SHARED
 
-GQTCXXFLAGS   := $(QT4CPPFLAGS) $(QT3CPPFLAGS) $(QT3QT4CPPFLAGS) -I$(QTDIR)/mkspecs/default -I. $(QTINCDIR:%=-I%)
+GQTCXXFLAGS   :=  $(QT4CPPFLAGS) $(QT3CPPFLAGS) $(QT3QT4CPPFLAGS)
+ifeq ($(ARCH),win32)
+GQTCXXFLAGS   += -I$(QTDIR)/mkspecs/win32-msvc2005
+else
+GQTCXXFLAGS   += -I$(QTDIR)/mkspecs/default 
+endif
+
+GQTCXXFLAGS   +=  -I. $(QTINCDIR:%=-I%)
 
 GQTLIB        := $(LPATH)/libGQt.$(SOEXT)
 GQTMAP        := $(GQTLIB:.$(SOEXT)=.rootmap)
@@ -66,6 +76,8 @@ ALLMAPS       += $(GQTMAP)
 INCLUDEFILES  += $(GQTDEP)
 
 ##### local rules #####
+.PHONY:         all-$(MODNAME) clean-$(MODNAME) distclean-$(MODNAME)
+
 include/%.h:    $(GQTDIRI)/%.h
 		cp $< $@
 
@@ -81,7 +93,7 @@ $(GQTLIB):      $(GQTO) $(GQTDO) $(GQTMOCO) $(ORDER_) $(MAINLIBS) $(GQTLIBDEP)
 		   "$(GQTO) $(GQTMOCO) $(GQTDO)" \
 		   "$(GQTLIBEXTRA) $(QTLIBDIR) $(QTLIB)"
 
-$(GQTDS):       $(GQTH1) $(GQTL) $(ROOTCINTTMPEXE)
+$(GQTDS):       $(GQTH1) $(GQTL) $(ROOTCINTTMPDEP)
 		@echo "Generating dictionary $@..."
 		$(ROOTCINTTMP) -f $@ -c $(GQTH1) $(GQTL)
 
@@ -89,24 +101,28 @@ $(GQTMAP):      $(RLIBMAP) $(MAKEFILEDEP) $(GQTL)
 		$(RLIBMAP) -o $(GQTMAP) -l $(GQTLIB) \
 		   -d $(GQTLIBDEPM) -c $(GQTL)
 
-all-qt:         $(GQTLIB) $(GQTMAP)
+all-$(MODNAME): $(GQTLIB) $(GQTMAP)
 
-clean-qt:
+clean-$(MODNAME):
 		@rm  -f $(GQTO) $(GQTDO) $(GQTMOCO) $(GQTMOC)
 
-clean::         clean-qt
+clean::         clean-$(MODNAME)
 
-distclean-qt: clean-qt
+distclean-$(MODNAME): clean-$(MODNAME)
 		@rm -f $(GQTDEP) $(GQTDS) $(GQTDH) $(GQTMOC) $(GQTLIB) $(GQTMAP)
 
-distclean::     distclean-qt
+distclean::     distclean-$(MODNAME)
 
 ##### extra rules ######
 $(sort $(GQTMOCO) $(GQTO)): CXXFLAGS += $(GQTCXXFLAGS)
 $(GQTDO): CXXFLAGS += $(GQTCXXFLAGS)
 
 $(GQTMOC) : $(GQTDIRS)/moc_%.cxx: $(GQTDIRI)/%.h
-	$(QTMOCEXE) $< -o $@
+ifeq (,$(QT4))
+	$(QTMOCEXE)  $< -o $@
+else
+	$(QTMOCEXE) $(GQTCXXFLAGS) $< -o $@
+endif
 
 ##### cintdlls ######
 
@@ -115,9 +131,9 @@ $(GQTMOC) : $(GQTDIRS)/moc_%.cxx: $(GQTDIRI)/%.h
 
 qtcint: lib/qtcint.dll
 
-lib/qtcint.dll: $(CINTTMP) $(ROOTCINTTMPEXE) cint/lib/qt/qtcint.h \
-                cint/lib/qt/qtclasses.h cint/lib/qt/qtglobals.h \
-                cint/lib/qt/qtfunctions.h
+lib/qtcint.dll: $(CINTTMP) $(ROOTCINTTMPEXE) cint/cint/lib/qt/qtcint.h \
+                cint/cint/lib/qt/qtclasses.h cint/cint/lib/qt/qtglobals.h \
+                cint/cint/lib/qt/qtfunctions.h
 	$(MAKECINTDLL) $(PLATFORM) C++ qtcint qt \
 	  " -p $(GQTCXXFLAGS) qtcint.h " \
            "$(CINTTMP)" "$(ROOTCINTTMP)" \

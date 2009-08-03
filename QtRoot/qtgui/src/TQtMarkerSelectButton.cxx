@@ -4,7 +4,6 @@
 #include "TAttMarker.h"
 #include <qstring.h>
 
-
 #if QT_VERSION < 0x40000
 #  include <qbuttongroup.h>
 #  include <qlayout.h>
@@ -12,6 +11,8 @@
 #else /* QT_VERSION */
 #  include <QHBoxLayout>
 #  include <QVBoxLayout>
+#  include <QMenu>
+#  include <QTimer>
 #endif /* QT_VERSION */
 
 /////////////////////////////////////////////////////////////////////////////////////////////////
@@ -29,16 +30,18 @@ TQtMarkerFrame::TQtMarkerFrame ( QWidget *p, const char * name, Style_t style )
 }
 
 //__________________________________________________________________________________
-void TQtMarkerFrame::SetStyle ( const Style_t & style )
+void TQtMarkerFrame::SetStyle ( const Style_t style )
 {
-   if ( fStyle != style ) {
+   if ( fStyle != style )
+   {
       fStyle  = style;
       fPixmap = TQtGui::GetPicture( QString("marker")  + QString::number(fStyle) + ".xpm" ) ;
-      setPixmap ( fPixmap );
       // set Tool tip
 #if QT_VERSION < 0x40000
+      setPixmap ( fPixmap );
       QToolTip::add(this,QString("ROOT marker style %1").arg(style));
 #else
+      setIcon(fPixmap);
       setToolTip(QString("ROOT marker style %1").arg(style));
 #endif            
    }
@@ -80,7 +83,8 @@ TQt18MarkerSelector::TQt18MarkerSelector( QWidget * p,Qt::WFlags f) :
    int i = 0; int j = 0;
    while (i< nStyles) { 
      for (int k =0; k < 3 && i< nStyles ;k++,i++) {
-        frame = new TQtMarkerFrame ( group, "",  styles[i] ); connect ( frame, SIGNAL (selected( TQtMarkerFrame * )), this, SLOT( selectedSlot ( TQtMarkerFrame * )) );
+        frame = new TQtMarkerFrame ( group, "", styles[i]); 
+        connect ( frame, SIGNAL (selected( TQtMarkerFrame * )), this, SLOT( selectedSlot ( TQtMarkerFrame * )) );
         frame->setSizePolicy(QSizePolicy( QSizePolicy::Fixed, QSizePolicy::Minimum ));
         gridLayout->addWidget(frame,j,k);
      }
@@ -109,6 +113,7 @@ TQtMarkerSelectButton::TQtMarkerSelectButton ( QWidget * p, const char *, Style_
    : QFrame(p)
    , fSelected(0)
    , fPopup   (0)
+   , fFakeMenu(0)
 { 
    QHBoxLayout *hbox = new QHBoxLayout(this);
    hbox->setMargin (0);
@@ -116,22 +121,31 @@ TQtMarkerSelectButton::TQtMarkerSelectButton ( QWidget * p, const char *, Style_
    
    setSizePolicy(QSizePolicy( QSizePolicy::Fixed, QSizePolicy::Minimum ));
 
-                 fSelected = new TQtMarkerFrame (this,"selectedMarker",style);
-   QToolButton * arrow     = new QToolButton( Qt::DownArrow,this,"arrowDownToolButton" );
+   fSelected = new TQtMarkerFrame (this,"selectedMarker",style);
    hbox->addWidget(fSelected);
-   hbox->addWidget(arrow);
-
-   connect ( arrow     , SIGNAL ( clicked ( ))                  , this , SLOT ( showPopup()    )) ;
    connect ( fSelected , SIGNAL ( clicked ( ))                  , this , SLOT ( showPopup()    )) ;
+#if QT_VERSION >= 0x40000
+                 fSelected->setPopupMode(QToolButton::MenuButtonPopup);
+#else   
+   QToolButton * arrow     = new QToolButton( Qt::DownArrow,this,"arrowDownToolButton" );
+   hbox->addWidget(arrow);
+   connect ( arrow     , SIGNAL ( clicked ( ))                  , this , SLOT ( showPopup()    )) ;
+   arrow->setFixedWidth(arrow->sizeHint().width()+4);
+   arrow->setSizePolicy(QSizePolicy( QSizePolicy::Fixed, QSizePolicy::Minimum ));
+#endif
 
    fPopup    = new TQt18MarkerSelector(this); //,"18markerSelector");
 
    connect ( fPopup    , SIGNAL ( selected ( TQtMarkerFrame * )), this , SLOT ( selectedSlot(TQtMarkerFrame * ) )) ;
-
-   arrow->setFixedWidth(arrow->sizeHint().width()+4);
-   arrow->setSizePolicy(QSizePolicy( QSizePolicy::Fixed, QSizePolicy::Minimum ));
-
    fSelected->setSizePolicy(QSizePolicy( QSizePolicy::Fixed, QSizePolicy::Minimum ));
+#if QT_VERSION >= 0x40000
+   if (!fFakeMenu) {
+       // Add fake menu to force the "real" Dialog popup
+       fFakeMenu = new QMenu(this);
+       fSelected->setMenu(fFakeMenu);
+       connect(fFakeMenu,SIGNAL(aboutToShow()), this, SLOT(showPopup()));
+    }
+#endif
 }
 
 //__________________________________________________________________________________
@@ -160,7 +174,12 @@ void TQtMarkerSelectButton::SetStyle(Style_t style)
 void TQtMarkerSelectButton::showPopup()
 {
    fPopup->adjustSize();
+#if QT_VERSION < 0x40000
    fPopup->showSelector( fSelected->mapToGlobal(fSelected->pos()+QPoint(fSelected->width(),fSelected->height())) ); // QWidget::mapToGlobal().
+#else
+   fPopup->showSelector( fSelected->mapToGlobal(fSelected->pos()+QPoint(-10,fSelected->height())) ); // QWidget::mapToGlobal().
+   if (fFakeMenu && (sender() == fFakeMenu) ) QTimer::singleShot(0,fFakeMenu, SLOT(close()) );
+#endif
 }
 
 //__________________________________________________________________________________

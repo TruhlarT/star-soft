@@ -1,4 +1,4 @@
-// @(#)root/gui:$Name:  $:$Id: TQtColorSelectButton.h,v 1.6 2008/04/23 23:56:38 fine Exp $
+// @(#)root/gui:$Name:  $:$Id: TQtColorSelectButton.h,v 1.7 2009/08/03 18:03:08 fine Exp $
 // Author: Bertrand Bellenot + Fons Rademakers   22/08/02
 
 /*************************************************************************
@@ -56,7 +56,7 @@
 
 
 
-
+class QMenu;
 class TColorEmit;
 //----------------------------------------------------------------------
 //                TQtColorFrame
@@ -67,7 +67,7 @@ Q_OBJECT
 
 protected:
    QColor          fPixel;
-   Bool_t          fActive;
+   Int_t           fActive;
    QColor          fColor;
    QString         fColorTipLabel;
    
@@ -75,11 +75,12 @@ protected:
    virtual void drawButtonLabel(QPainter *);
 
 public:
-   TQtColorFrame(QWidget *p, const QColor &c, Int_t n);
+   TQtColorFrame(QWidget *p, const QColor &c, Int_t n=-1);
    virtual ~TQtColorFrame() { }
          QSize   sizeHint () const ;
          void    SetActive(Bool_t in) { fActive = in;  }
    const QColor &GetColor() const { return fColor; }
+         void SetColor(const QColor &color);
 
 protected slots:
    virtual void languageChange();
@@ -160,13 +161,14 @@ protected:
    TColorEmit    *fColorEmitter;
 #if QT_VERSION < 0x40000
    QButton       *fPushButton;
+   QToolButton   *fArrowButton;
 #else /* QT_VERSION */
 //MOC_SKIP_BEGIN
    QAbstractButton       *fPushButton;
 //MOC_SKIP_END
 #endif /* QT_VERSION */
-   QToolButton   *fArrowButton;
-//     QToolButton   *fPushButton;
+   QMenu         *fFakeMenu;
+   //     QToolButton   *fPushButton;
 //   QToolButtonQPushButton   *fPushButton;
 
    void CreateWidget();

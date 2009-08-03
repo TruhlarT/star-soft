@@ -1,4 +1,4 @@
-// @(#)root/ged:$Name:  $:$Id: TQtGraphEditor.h,v 1.1 2006/08/16 19:32:43 fine Exp $
+// @(#)root/ged:$Name:  $:$Id: TQtGraphEditor.h,v 1.2 2009/08/03 18:03:03 fine Exp $
 // Author: Valeri Fine 16/07/06
 
 /*************************************************************************

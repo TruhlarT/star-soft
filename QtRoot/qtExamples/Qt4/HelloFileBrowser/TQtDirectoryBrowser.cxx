@@ -9,6 +9,7 @@
 #include "TDirectory.h"
 #include "TKey.h"
 #include "TH3.h"
+#include "TH2.h"
 #include <QDebug>
 
 //_________________________________________________________________
@@ -30,7 +31,7 @@ static QStandardItem *CreateItem(TDirectory  *parentDir)
       TObject *obj = ((TKey *)key)->ReadObj();
       QStandardItem *nextItem = 0;
       TDirectory    *nextDir  = 0;
-      if (nextDir = dynamic_cast<TDirectory*>(obj)) {
+      if ( (nextDir = dynamic_cast<TDirectory*>(obj) ) ) {
          nextItem  =  CreateItem(nextDir);
       } else {
          nextItem =  TQtObjectViewFrame::ClearEditFlag(new QStandardItem(obj->GetName()));

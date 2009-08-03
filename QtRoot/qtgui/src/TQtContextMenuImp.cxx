@@ -1,6 +1,6 @@
 // Author: Valeri Fine   21/01/2002
 /****************************************************************************
-** $Id: TQtContextMenuImp.cxx,v 1.5 2009/01/05 21:29:13 fine Exp $
+** $Id: TQtContextMenuImp.cxx,v 1.6 2009/08/03 18:03:09 fine Exp $
 **
 ** Copyright (C) 2002 by Valeri Fine. Brookhaven National Laboratory.
 **                                    All rights reserved.
@@ -16,15 +16,23 @@
 #  include <QMenu>
 #  include <QClipboard>
 #  include <QDebug>
+#  include <QtWebKit/QWebView>
+#  include <QtNetwork/QNetworkProxy>
+#  include <QtCore/QString>
+#  include <QtCore/QUrl>
+#if QT_VERSION >= 0x40500
+#  include <QtNetwork/QNetworkProxyFactory>
+#endif
 #else
 #  include "qpopupmenu.h"
-#  include  <qlabel.h>
 #  include <qclipboard.h>
+#  include <qlabel.h>
 #endif /* QT_VERSION */
 
 #include "TGQt.h"
+#include "TSystem.h"
 #include "TQtLock.h"
-
+#include <qclipboard.h> 
 #include "TCanvas.h"
 #include "TClass.h"
 
@@ -34,37 +42,39 @@
 #include "TDataType.h"
 #include "TMethodCall.h"
 #include "TROOT.h"
+#include "TEnv.h"
 
 #include "TContextMenuImp.h"
 #include "TObjArray.h"
 #include "TApplication.h"
 #include "TQtApplication.h"
 #include "TQtObjectDialog.h"
-#include "TQtBrowserImp.h"
 #include "TObjectExecute.h"
+
 
 //______________________________________________________________________________
 TQtContextMenuImp::TQtContextMenuImp(TContextMenu *c) :  TContextMenuImp(c), fPopupMenu(0)
-                      
+,fExecute(0), fHelpWidget(0)
 {
-    fItems.setAutoDelete(TRUE);
+   // Create the ROOT Context menu implmenation and optional WebView
+   // to access the class defininition from ROOT Web site
     fExecute = new TObjectExecute();
 }
 //______________________________________________________________________________
 TQtContextMenuImp::~TQtContextMenuImp()
 {
-  DeletePopup();
+   // destroy the WebView if any
+   delete fHelpWidget; fHelpWidget = 0;
+   // destroy all menu item first
+   foreach (TQtMenutItem *it, fItems) { delete it; }
+   DeletePopup();
 }
 //______________________________________________________________________________
 void TQtContextMenuImp::DeletePopup()
 {
   if (fPopupMenu) {
     fPopupMenu->disconnect(this);
-#if QT_VERSION < 0x40000
-    QPopupMenu   *m = fPopupMenu; fPopupMenu = 0;
-#else /* QT_VERSION */
     QMenu   *m = fPopupMenu; fPopupMenu = 0;
-#endif /* QT_VERSION */
     delete m; 
   }
   ClearProperties();
@@ -91,43 +101,29 @@ void TQtContextMenuImp::CreatePopup () {
 //*-*  Add a title. 
     if (fPopupMenu) delete fPopupMenu;
     fPopupMenu = 0;
-#if QT_VERSION < 0x40000
-    fPopupMenu = new QPopupMenu(parent,"ContextMenu");
-#else /* QT_VERSION */
     fPopupMenu = new QMenu("ContextMenu",parent);
     fPopupMenu->setSeparatorsCollapsible(false);
-#endif /* QT_VERSION */
     connect(fPopupMenu,SIGNAL(destroyed()),this,SLOT(Disconnect()));
     connect(fPopupMenu,SIGNAL(aboutToShow () ),this,SLOT( AboutToShow() ));
-    fPopupMenu->setCaption("Title");
+//    fPopupMenu->setCaption("Title");
 
 //*-*  Include the menu title
     TObject *object = c? c->GetSelectedObject() : 0;
     QString titleBar = fContextMenu->CreatePopupTitle(object);
-#if QT_VERSION < 0x40000
-    fPopupMenu->insertItem(new QLabel(titleBar,fPopupMenu));
-    fPopupMenu->insertSeparator(); fPopupMenu->insertSeparator();
-
-//*-*  Include the standard static item into the context menu
-    fPopupMenu->insertItem("&Inspect",    this,SLOT(InspectCB()));
-    fPopupMenu->insertItem("&Browse",     this,SLOT(BrowseCB()));
-    fPopupMenu->insertItem("&Copy",       this,SLOT(CopyCB()), CTRL+Key_C);
-#else
+    fPopupMenu->setTitle(titleBar);
     QAction *action = fPopupMenu->addAction(titleBar);
     QFont af = action->font();
     af.setBold(true);
     action->setFont(af);
 
     fPopupMenu->addSeparator(); fPopupMenu->addSeparator();
-
-//*-*  Include the standard static item into the context menu
+//*-*  Include the standard static items into the context menu
     QAction *a = fPopupMenu->addAction("&Inspect",    this,SLOT(InspectCB()));
     a->setToolTip(tr("Open the ROOT Object Inspector"));
     a = fPopupMenu->addAction("&Copy",       this,SLOT(CopyCB()),QKeySequence::Copy);
     a->setToolTip(tr("Copy the object pointer to the clipboard"));
     a = fPopupMenu->addAction("&Browse",     this,SLOT(BrowseCB()));
     a->setToolTip(tr("Open the ROOT Object Browser"));
-#endif
   }
 }
 //______________________________________________________________________________
@@ -146,11 +142,13 @@ void  TQtContextMenuImp::Dialog( TObject *object, TMethod *method )
 {
   if ( !( object && method ) ) return;
   TQtObjectDialog *d = new TQtObjectDialog(object,method);
+  connect(d,SIGNAL(helpRequested()),this,SLOT(HelpCB()));
   if (d->exec() == QDialog::Accepted )  {
     TObjArray *parList = d->GetParamList();
     if (fExecute) fExecute->Execute(object,method,parList);
     // TContextMenu *c=GetContextMenu();
     //  c->Execute(object,method,parList); 
+    if (fHelpWidget) fHelpWidget->hide();
   }
   delete d;
 }
@@ -159,15 +157,16 @@ void  TQtContextMenuImp::Dialog( TObject *object, TFunction *function )
 {
   if ( !( object && function ) ) return;
   TQtObjectDialog *d = new TQtObjectDialog(object,(TMethod *)function);
+  connect(d,SIGNAL(helpRequested()),this,SLOT(HelpCB()));
   if (d->exec() == QDialog::Accepted )  {
     TObjArray *parList = d->GetParamList();
     if (fExecute) fExecute->Execute(function,parList);
     // TContextMenu *c=GetContextMenu();
     //  c->Execute(0,function,parList); 
+    if (fHelpWidget) fHelpWidget->hide();
   }
   delete d;
 }
-
 //______________________________________________________________________________
 void TQtContextMenuImp::Disconnect()
 {
@@ -201,17 +200,11 @@ void TQtContextMenuImp::UpdateProperties()
   if (object)
   {
     //*-*   Change title
-    fPopupMenu->setCaption(fContextMenu->CreatePopupTitle(object));
+    fPopupMenu->setTitle(fContextMenu->CreatePopupTitle(object));
     
     //*-*  Include the "Properties" item "by canvases"
-#if QT_VERSION < 0x40000
-    QPopupMenu *propertiesMenu = new QPopupMenu();
-    fPopupMenu->insertSeparator();
-    fPopupMenu->insertItem("&Properties",propertiesMenu);
-#else /* QT_VERSION */
     fPopupMenu->addSeparator();
     QMenu *propertiesMenu = fPopupMenu->addMenu("&Properties");
-#endif /* QT_VERSION */
 
     //*-*  Create Menu "Properties"
 
@@ -222,28 +215,19 @@ void TQtContextMenuImp::UpdateProperties()
     TList *methodList = new TList();
     object->IsA()->GetMenuItems( methodList );
     TIter next( methodList );
+    foreach (TQtMenutItem *it, fItems) { delete it; }
     fItems.clear();
-
     while ( ( method = (TMethod *) next () ) ) {
-      
-      if ( classPtr != method->GetClass() ) {
-        //*-*  Add a separator.
-        if (classPtr) 
-#if QT_VERSION < 0x40000
-           propertiesMenu->insertSeparator();
-#else        
-           propertiesMenu->addSeparator();
-#endif           
-        classPtr = method->GetClass();
-      }
-      //*-*  Create a popup item.
-      TQtMenutItem *menuItem = new TQtMenutItem(c,method,object);
-      fItems.push(menuItem);
-#if QT_VERSION < 0x40000
-      propertiesMenu->insertItem(method->GetName(),menuItem,SLOT(Exec()));
-#else
-      propertiesMenu->addAction(method->GetName(),menuItem,SLOT(Exec()));
-#endif            
+
+       if ( classPtr != method->GetClass() ) {
+          //*-*  Add a separator.
+          if (classPtr) propertiesMenu->addSeparator();
+          classPtr = method->GetClass();
+       }
+       //*-*  Create a popup item.
+       TQtMenutItem *menuItem = new TQtMenutItem(c,method,object);
+       fItems.push_back(menuItem);
+       propertiesMenu->addAction(method->GetName(),menuItem,SLOT(Exec()));
     }
     // Delete linked list of methods.
     delete methodList;
@@ -252,13 +236,15 @@ void TQtContextMenuImp::UpdateProperties()
 //______________________________________________________________________________
 void TQtContextMenuImp::InspectCB()
 {
+   // Open the ROOT Object Inspector 
   TContextMenu *c = GetContextMenu();
   TObject *object = c? c->GetSelectedObject() : 0;
   if (object) object->Inspect();
 }
 //______________________________________________________________________________
 void TQtContextMenuImp::BrowseCB()
-{ 
+{
+   // Open the ROOT Object Browser 
   TContextMenu *c = GetContextMenu();
   TObject *object = c? c->GetSelectedObject() : 0;
   if (object) new TBrowser(object->GetName(),object);
@@ -266,7 +252,7 @@ void TQtContextMenuImp::BrowseCB()
 //______________________________________________________________________________
 void TQtContextMenuImp::CopyCB()
 {
-   // Copy the object pointer to the clipboard
+   // Copy the object pointer to the system clipboard
   TContextMenu *c = GetContextMenu();
   TObject *object = c? c->GetSelectedObject() : 0;
   QString className = object->ClassName();
@@ -278,4 +264,56 @@ void TQtContextMenuImp::CopyCB()
               ,clipboard->supportsSelection()
               ?QClipboard::Selection 
               :QClipboard::Clipboard);
+}
+//______________________________________________________________________________
+void TQtContextMenuImp::HelpCB()
+{
+  // Pop Web page with the class HTML doc from web site defined by "Browser.StartUrl"
+  TObject *obj = fContextMenu->GetSelectedObject(); 
+  if (obj) { 
+     QString clname = obj->ClassName(); 
+     QString url = gEnv->GetValue("Browser.StartUrl", "http://root.cern.ch/root/html/"); 
+     if (url.endsWith(".html",Qt::CaseInsensitive))  url = url.left(url.lastIndexOf("/")+1);
+     if (!url.endsWith("/")) url += "/";
+     if (fContextMenu->GetSelectedMethod()) { 
+         TString smeth = fContextMenu->GetSelectedMethod()->GetName(); 
+         TMethod *method = obj->IsA()->GetMethodAllAny(smeth.Data()); 
+         if (method) clname = method->GetClass()->GetName(); 
+         url += QString("%1.html#%1:%2").arg(clname).arg(smeth.Data()); 
+     } else { 
+         url += QString("%1.html").arg(clname); 
+     } 
+     if (!fHelpWidget) {
+        // Set proxy
+        QString http_proxy = gSystem->Getenv("http_proxy");
+        if (!http_proxy.isEmpty()) {
+           if (!http_proxy.contains("//")) {
+              http_proxy = "http://" + http_proxy;
+           }
+           QNetworkProxy proxy;
+           QUrl url(http_proxy);
+           proxy.setType(QNetworkProxy::HttpProxy);
+           proxy.setHostName(url.host());
+           proxy.setPort(url.port());
+           QNetworkProxy::setApplicationProxy(proxy); 
+        }
+#if QT_VERSION >= 0x40500           
+        else {
+           // attempt to get the system defined proxy
+           QList<QNetworkProxy> list = QNetworkProxyFactory::systemProxyForQuery();
+           // Find one that suitable for http:
+           for (int i = 0; i < list.size(); ++i) {
+              if (list.at(i).type() == QNetworkProxy::HttpProxy) {
+                QNetworkProxy::setApplicationProxy(list.at(i));
+                break;
+              }
+           }
+        }
+#endif
+        fHelpWidget = new QWebView;
+        fHelpWidget->resize(400,400);
+     }
+     fHelpWidget->setUrl(url);
+     fHelpWidget->show();
+  }
 }

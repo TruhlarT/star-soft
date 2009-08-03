@@ -1,4 +1,4 @@
-// @(#)root/gtgl:$Name:  $:$Id: TShape3DPolygonView.h,v 1.5 2008/01/17 23:53:05 fine Exp $
+// @(#)root/gtgl:$Name:  $:$Id: TShape3DPolygonView.h,v 1.6 2009/08/03 18:03:07 fine Exp $
 // Author: Valery Fine      27/04/05
 
 #ifndef ROOT_TShape3DPolygonView

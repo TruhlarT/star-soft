@@ -58,11 +58,11 @@ $(QTGEDDO):       $(QTGEDDS)
 
 all-qtged:        $(QTGEDLIB)
 
-#map-qtged:        $(RLIBMAP)
-#		$(RLIBMAP) -r $(ROOTMAP) -l $(QTGEDLIB) \
-#		   -d $(QTGEDLIBDEP) -c $(QTGEDL)
+map-qtged:        $(RLIBMAP)
+		$(RLIBMAP) -r $(ROOTMAP) -l $(QTGEDLIB) \
+		   -d $(QTGEDLIBDEP) -c $(QTGEDL)
 
-# map::           map-qtged
+map::           map-qtged
 
 clean-qtged:
 		@rm -f $(QTGEDO) $(QTGEDDO) $(QTGEDMOCO)

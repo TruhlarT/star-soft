@@ -1,13 +1,17 @@
 TEMPLATE	= app
 LANGUAGE	= C++
 
-!exists ($(ROOTSYS)/lib/libQtRootGui.$$QMAKE_EXTENSION_SHLIB) {
+QMAKE_RPATH=
+
+!exists ($$(ROOTSYS)/lib/libQtRootGui.$$QMAKE_EXTENSION_SHLIB) {
       message ("No ROOT Qt Extension was found. Use Qt-layer instead")
 }
-CONFIG	+= qt warn_on  thread debug
+CONFIG	+= qt warn_on  thread debug 
+QT +=  qt3support
+SOURCES	+= main.cpp qtrootexample1.cxx
+HEADERS	+= qtrootexample1.h
 
-SOURCES	+= main.cpp
-           
+
 FORMS	= qtrootexample1.ui
 
 IMAGES	= images/h1_t.png \
@@ -16,19 +20,19 @@ IMAGES	= images/h1_t.png \
 	images/OpenGLView.png \
 	images/BnlLogoSmall.png
 
-includeDir = $(QTROOTSYSDIR)/include
-includeFile = $$includeDir/rootcint.pri
+includeDir = $$(QTROOTSYSDIR)/include
+incFile = $$includeDir/rootcint.pri
 exists ($$includeDir) { # Win32 wants us to check the directory existence separately
-   exists ($$includeFile) {
-     include ($$includeFile)
+   exists ($$incFile) {
+     include ($$incFile)
    } 
 }
 !exists ($$includeDir) {
-  includeFile = $(ROOTSYS)/include/rootcint.pri
-  exists ($$includeFile) {
-    include ($$includeFile)
+  incFile = $$(ROOTSYS)/include/rootcint.pri
+  exists ($$incFile) {
+    include ($$incFile)
   } 
-  !exists ($$includeFile) {
+  !exists ($$incFile) {
     message (" ")
     message ("WARNING:  The $$inlcudeFile was not found !!!")
     message ("Please update your Qt layer version from http://root.bnl.gov ")

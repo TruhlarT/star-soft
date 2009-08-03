@@ -1,4 +1,4 @@
-// @(#)root/qt:$Name:  $:$Id: TQtTimer.h,v 1.3 2007/01/23 17:53:37 fine Exp $
+// @(#)root/qt:$Name:  $:$Id: TQtTimer.h,v 1.4 2009/08/03 18:02:57 fine Exp $
 // Author: Valeri Fine   09/08/2004
 /****************************************************************************
 **
@@ -15,7 +15,7 @@
 #include "Rtypes.h"
 
 #ifndef __CINT__
-#  include <qtimer.h>
+#  include <QTimer>
 #else
   class QTimer;
 #endif
@@ -35,14 +35,15 @@ private:
 protected:
   static TQtTimer *fgQTimer;
   int fCounter;     
-  TQtTimer (QObject *parent=0, const char *name=0): QTimer(parent,name),fCounter(0){}
-  
+  TQtTimer (QObject *mother=0): QTimer(mother),fCounter(0)
+  {}
+
 protected slots:
   virtual void AwakeRootEvent();
  
 public:
   virtual ~TQtTimer(){}
-  static TQtTimer *Create(QObject *parent=0, const char *name=0);
+  static TQtTimer *Create(QObject *parent=0);
   static TQtTimer *QtTimer();
   ClassDef(TQtTimer,0) // QTimer to awake the ROOT event loop from Qt event loop
 };

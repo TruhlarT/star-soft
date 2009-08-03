@@ -1,4 +1,4 @@
-// @(#)root/asimage:$Name:  $:$Id: TQtImage.h,v 1.3 2007/02/06 19:46:22 fine Exp $
+// @(#)root/asimage:$Name:  $:$Id: TQtImage.h,v 1.4 2009/08/03 18:03:10 fine Exp $
 // Author: Valeri Fine 7/02/2004
 
 /*************************************************************************
@@ -204,6 +204,7 @@ public:
    virtual Bool_t    SetImageBuffer(char ** /*buffer*/, EImageFileTypes /*type*/ = TImage::kPng) { return kFALSE; }
    virtual void      PaintImage(Drawable_t /*wid*/, Int_t /*x*/, Int_t /*y*/) { }
    virtual void      FromWindow(Drawable_t /*wid*/, Int_t /*x*/ = 0, Int_t /*y*/ = 0, UInt_t /*w*/ = 0, UInt_t /*h*/ = 0) {}
+   virtual void      FromGLBuffer(UChar_t* /*buf*/, UInt_t /*w*/, UInt_t /*h*/) {}
 
    virtual Double_t  MaxValue()   const { return fMaxValue;   }   // max value in image
    virtual Double_t  MinValue()   const { return fMinValue;   }   // min value in image

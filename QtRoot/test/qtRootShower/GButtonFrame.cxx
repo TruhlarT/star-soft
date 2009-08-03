@@ -15,6 +15,7 @@
 #include <qpushbutton.h>
 #include <qtooltip.h>
 #include "GButtonFrame.h"
+#include <QDebug>
 
 //______________________________________________________________________________
 // GButtonFrame
@@ -23,7 +24,7 @@
 //______________________________________________________________________________
 
 //______________________________________________________________________________
-GButtonFrame::GButtonFrame(QWidget* p) : QVButtonGroup(p)
+GButtonFrame::GButtonFrame(QWidget* p) : Q3VButtonGroup(p)
 {
     // Create GButtonFrame object, with QWidget parent *p.
     //
@@ -31,15 +32,15 @@ GButtonFrame::GButtonFrame(QWidget* p) : QVButtonGroup(p)
     fNextEventButton = new QPushButton("Start &New Event",this);
     // fNextEventButton->setToggleButton(true);
     QToolTip::add(fNextEventButton,"Start new simulation event");
-    connect(fNextEventButton,SIGNAL(clicked()),this,SIGNAL(NextEvent()));
+    connect(this,SIGNAL(clicked(int)),this,SLOT(Clicked(int)));
 
     fStopSimButton = new QPushButton("&Interrupt Simulation",this);
     QToolTip::add(fStopSimButton,"Interrupts the current simulation");
-    connect(fStopSimButton,SIGNAL(clicked()),this,SIGNAL(Interrupt()));
+    // connect(fStopSimButton,SIGNAL(clicked(bool)),this,SLOT(Clicked(bool)));
 
     fShowTrackButton = new QPushButton("&Show Selection",this); // showTrackId
     QToolTip::add(fShowTrackButton,"Shows the selected track");
-    connect(fShowTrackButton,SIGNAL(clicked()),this,SIGNAL( SelectEvent() ));
+    // connect(fShowTrackButton,SIGNAL(clicked(bool)),this,SLOT(Clicked(bool)));
 
     fShowTrackButton->setEnabled (false );
     fStopSimButton->setEnabled (false );
@@ -69,3 +70,13 @@ void GButtonFrame::SetState(EState state)
     qApp->processEvents();
 }
 
+//______________________________________________________________________________
+void GButtonFrame::Clicked(int id)
+{
+   // Emit signals:
+   switch (id) {
+     case 0: emit NextEvent();   break;
+     case 1: emit Interrupt();   break;
+     case 2: emit SelectEvent(); break;
+   }
+}

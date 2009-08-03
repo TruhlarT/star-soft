@@ -1,6 +1,6 @@
 // Author: Valeri Fine   21/01/2002
 /****************************************************************************
-** $Id: TQtCanvasWidget.cxx,v 1.7 2008/04/21 16:12:50 fine Exp $
+** $Id: TQtCanvasWidget.cxx,v 1.8 2009/08/03 18:03:09 fine Exp $
 **
 ** Copyright (C) 2002 by Valeri Fine. Brookhaven National Laboratory.
 **                                    All rights reserved.
@@ -29,14 +29,9 @@
 #endif
 
 //_____________________________________________________________________________
-TQtCanvasWidget::TQtCanvasWidget(QWidget* parent, const char* name, Qt::WFlags f)
-          :QMainWindow(parent,name,f)
+TQtCanvasWidget::TQtCanvasWidget(QWidget* parent):QMainWindow(parent)
 { 
-#if QT_VERSION < 0x40000
-   setWFlags(getWFlags () | Qt::WDestructiveClose);
-#else
 //   setAttribute(Qt::WA_DeleteOnClose);
-#endif
 }
 //_____________________________________________________________________________
 void TQtCanvasWidget::ChangeDocking(bool)
@@ -57,6 +52,16 @@ bool TQtCanvasWidget::ExitSizeEvent (int update)
   QApplication::sendEvent(w,new QCustomEvent(int(QEvent::User+update)) );
   
   return TRUE;
+}
+//_____________________________________________________________________________
+void TQtCanvasWidget::closeEvent(QCloseEvent *event)
+{
+   if ( event->spontaneous()) {
+      event->ignore();
+      emit WMCloseCanvas();
+   } else {
+      QWidget::closeEvent(event);
+   }
 }
 
 #ifdef R__WIN32

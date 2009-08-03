@@ -1,6 +1,6 @@
 // Author: Valeri Fine   21/01/2002
 /****************************************************************************
-** $Id: TQtInspectImp.h,v 1.4 2007/08/26 17:46:59 fine Exp $
+** $Id: TQtInspectImp.h,v 1.5 2009/08/03 18:03:08 fine Exp $
 **
 ** Copyright (C) 2002 by Valeri Fine.  All rights reserved.
 **

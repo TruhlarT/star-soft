@@ -1,16 +1,13 @@
 #include "PixmapWidget.h"
-#include <qpixmap.h>
-#include <qpainter.h>
-#include <qevent.h>
-#include <qtimer.h>
+#include <QPixmap>
+#include <QPainter>
+#include <QEvent>
+#include <QTimer>
+#include <QWheelEvent>
 
 //_____________________________________________________________________
 PixmapWidget::PixmapWidget( const QPixmap &pixmap, QWidget *parent , Qt::WFlags f)
-#if QT_VERSION < 0x40000
-: QWidget( parent,"maginifier", f )
-#else
-: QWidget( parent,f )
-#endif
+: QWidget( parent,f ), m_pm(0)
 {
 	ResetPixmap(pixmap);
 }

@@ -1,6 +1,6 @@
 // Author: Valeri Fine   21/01/2002
 /****************************************************************************
-** $Id: TQtIconBrowserImp.cxx,v 1.4 2007/01/23 20:13:05 fine Exp $
+** $Id: TQtIconBrowserImp.cxx,v 1.5 2009/08/03 18:03:10 fine Exp $
 **
 ** Copyright (C) 2002 by Valeri Fine. Brookhaven National Laboratory.
 **                                    All rights reserved.
@@ -318,7 +318,7 @@ const QIcon  *TQtIconBrowserImp::Shape2GeoShapeIcon(const char *shapeName)
    else if (shapeIconName == "TGeoCons") shapeIconName = "TGeoConeSeg";
    else if (shapeIconName == "TGeoTubs") shapeIconName = "TGeoTubeSeg";
    else if (shapeIconName == "TGeoSphe") shapeIconName = "TGeoSphere";
-   // printf(" Final Form = %s\n", (const char *)shapeIconName);
+   // printf(" Final Form = %s\n", (const char *)shapeIconName.toAscii().data());
    return IconList()->GetIcon(shapeIconName);
 }
 //______________________________________________________________________________

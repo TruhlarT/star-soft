@@ -4,6 +4,9 @@
 
 QT += qt3support
 
+QMAKE_RPATH=
+
+
 TEMPLATE = lib 
 CONFIG += thread dll
 CONFIG += create_prl

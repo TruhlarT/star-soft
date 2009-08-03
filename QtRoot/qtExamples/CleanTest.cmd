@@ -138,7 +138,17 @@ cd ..\..
 
 echo ---------  Qt RootCint test -----------
 cd macros
-root.exe QtFileDialog.C
+echo -- check the Qt ROOT environment setting
+root.exe -q SetQtEnv.C
+echo --  call a simple Qt Dialog as ROOT macro
+root.exe -q QtFileDialog.C
+echo --  call a simple Qt Dialog as Windows DLL
+root.exe -q QtFileDialog.C++
+echo -- test a set of the simple function 
+echo    to input the data via graphical Qt dialogs
+root.exe DialogsQ.C
+echo -- test the Coin3D plug-in to crate the mixed ROOT/Coin geometries
+root.exe rootgeom_coin.C
 cd ..
 echo All example has been performed !!!
 

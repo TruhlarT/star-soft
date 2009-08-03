@@ -1,24 +1,22 @@
 /****************************************************************************
 
- This file is part of the QGLViewer library.
- Copyright (C) 2002, 2003, 2004, 2005, 2006 Gilles Debunne (Gilles.Debunne@imag.fr)
- Version 2.2.1-1, released on March 30, 2006.
+ Copyright (C) 2002-2008 Gilles Debunne. All rights reserved.
 
- http://artis.imag.fr/Members/Gilles.Debunne/QGLViewer
+ This file is part of the QGLViewer library version 2.3.1.
 
- libQGLViewer is free software; you can redistribute it and/or modify
- it under the terms of the GNU General Public License as published by
- the Free Software Foundation; either version 2 of the License, or
- (at your option) any later version.
+ http://www.libqglviewer.com - contact@libqglviewer.com
 
- libQGLViewer is distributed in the hope that it will be useful,
- but WITHOUT ANY WARRANTY; without even the implied warranty of
- MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- GNU General Public License for more details.
+ This file may be used under the terms of the GNU General Public License 
+ versions 2.0 or 3.0 as published by the Free Software Foundation and
+ appearing in the LICENSE file included in the packaging of this file.
+ In addition, as a special exception, Gilles Debunne gives you certain 
+ additional rights, described in the file GPL_EXCEPTION in this package.
 
- You should have received a copy of the GNU General Public License
- along with libQGLViewer; if not, write to the Free Software
- Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
+ libQGLViewer uses dual licensing. Commercial/proprietary software must
+ purchase a libQGLViewer Commercial License.
+
+ This file is provided AS IS with NO WARRANTY OF ANY KIND, INCLUDING THE
+ WARRANTY OF DESIGN, MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE.
 
 *****************************************************************************/
 
@@ -161,12 +159,15 @@ Camera& Camera::operator=(const Camera& camera)
 You should not call this method when the Camera is associated with a QGLViewer, since the
 latter automatically updates these values when it is resized (hence overwritting your values).
 
+Non-positive dimension are silently replaced by a 1 pixel value to ensure frustrum coherence.
+
 If your Camera is used without a QGLViewer (offscreen rendering, shadow maps), use setAspectRatio()
 instead to define the projection matrix. */
 void Camera::setScreenWidthAndHeight(int width, int height)
 {
-  screenWidth_  = width;
-  screenHeight_ = height;
+  // Prevent negative and zero dimensions that would cause divisions by zero.
+	screenWidth_  = width > 0 ? width : 1;
+	screenHeight_ = height > 0 ? height : 1;
 }
 
 /*! Returns the near clipping plane distance used by the Camera projection matrix.
@@ -201,6 +202,8 @@ void Camera::setScreenWidthAndHeight(int width, int height)
    virtual float Camera::zFar() const { return 100.0; };
  }
  \endcode
+
+ See the <a href="../examples/standardCamera.html">standardCamera example</a> for an application.
 
  \attention The value is always positive although the clipping plane is positioned at a negative z
  value in the Camera coordinate system. This follows the \c gluPerspective standard. */
@@ -290,7 +293,8 @@ float Camera::distanceToSceneCenter() const
  When zooming on the object, the Camera is translated forward \e and its frustum is narrowed, making
  the object appear bigger on screen, as intuitively expected.
 
- Overload this method to change this behavior if desired. */
+ Overload this method to change this behavior if desired, as is done in the 
+ <a href="../examples/standardCamera.html">standardCamera example</a>. */
 void Camera::getOrthoWidthHeight(GLdouble& halfWidth, GLdouble& halfHeight) const
 {
   const float dist = orthoCoef_ * fabs(cameraCoordinatesOf(revolveAroundPoint()).z);
@@ -611,6 +615,28 @@ void Camera::getModelViewMatrix(GLdouble m[16]) const
     m[i] = modelViewMatrix_[i];
 }
 
+/*! Fills \p m with the product of the ModelView and Projection matrices.
+
+  Calls getModelViewMatrix() and getProjectionMatrix() and then fills \p m with the product of these two matrices. */
+void Camera::getModelViewProjectionMatrix(GLdouble m[16]) const
+{
+  GLdouble mv[16];
+  GLdouble proj[16];
+  getModelViewMatrix(mv);
+  getProjectionMatrix(proj);
+	
+  for (unsigned short i=0; i<4; ++i)
+  {
+    for (unsigned short j=0; j<4; ++j)
+    {
+      double sum = 0.0;
+      for (unsigned short k=0; k<4; ++k)
+        sum += proj[i+4*k]*mv[k+4*j];
+      m[i+4*j] = sum;
+    }
+  }
+}
+
 #ifndef DOXYGEN
 void Camera::getProjectionMatrix(GLfloat m[16]) const
 {
@@ -657,6 +683,7 @@ void Camera::setSceneBoundingBox(const Vec& min, const Vec& max)
   setSceneCenter((min+max)/2.0);
   setSceneRadius(0.5*(max-min).norm());
 }
+
 
 /*! Sets the sceneCenter().
 
@@ -844,6 +871,26 @@ void Camera::interpolateToFitScene()
   interpolationKfi_->startInterpolation();
 }
 
+
+/*! Smoothly interpolates the Camera on a KeyFrameInterpolator path so that it goes to \p fr.
+ 
+  \p fr is expressed in world coordinates. \p duration tunes the interpolation speed (default is
+  1 second).
+  
+  See also interpolateToFitScene() and interpolateToZoomOnPixel(). */
+void Camera::interpolateTo(const Frame& fr, float duration)
+{
+  if (interpolationKfi_->interpolationIsStarted())
+    interpolationKfi_->stopInterpolation();
+
+  interpolationKfi_->deletePath();
+  interpolationKfi_->addKeyFrame(*(frame()));
+  interpolationKfi_->addKeyFrame(fr, duration);
+
+  interpolationKfi_->startInterpolation();
+}
+
+
 /*! Returns the coordinates of the 3D point located at pixel (x,y) on screen.
 
  Calls a \c glReadPixel to get the pixel depth and applies an unprojectedCoordinatesOf() to the
@@ -864,7 +911,7 @@ Vec Camera::pointUnderPixel(const QPoint& pixel, bool& found) const
 {
   float depth;
   // Qt uses upper corner for its origin while GL uses the lower corner.
-  glReadPixels(pixel.x(), screenHeight()-pixel.y(), 1, 1, GL_DEPTH_COMPONENT, GL_FLOAT, &depth);
+  glReadPixels(pixel.x(), screenHeight()-1-pixel.y(), 1, 1, GL_DEPTH_COMPONENT, GL_FLOAT, &depth);
   found = depth < 1.0;
   Vec point(pixel.x(), pixel.y(), depth);
   point = unprojectedCoordinatesOf(point);
@@ -1334,9 +1381,9 @@ void Camera::getViewport(GLint viewport[4]) const
  for instance), make sure the Camera matrices are updated before calling this method. Call
  computeModelViewMatrix() and computeProjectionMatrix() to do so.
 
- This method is not computationally optimized. If you call it several times with no change in the
- matrices, you should precompute the entire projection matrix (modelview, projection and then
- viewport) to speed-up the queries. */
+ If you call this method several times with no change in the matrices, consider precomputing the
+ projection times modelview matrix to save computation time if required (\c P x \c M in the \c
+ gluProject man page). */
 Vec Camera::projectedCoordinatesOf(const Vec& src, const Frame* frame) const
 {
   GLdouble x,y,z;
@@ -1569,7 +1616,9 @@ QDomElement Camera::domElement(const QString& name, QDomDocument& document) cons
   paramNode.setAttribute("zNearCoefficient", QString::number(zNearCoefficient()));
   paramNode.setAttribute("zClippingCoefficient", QString::number(zClippingCoefficient()));
   paramNode.setAttribute("orthoCoef", QString::number(orthoCoef_));
-  // paramNode.setAttribute("sceneRadius", QString::number(sceneRadius()));
+  paramNode.setAttribute("sceneRadius", QString::number(sceneRadius()));
+  paramNode.appendChild(sceneCenter().domElement("SceneCenter", document));
+
   switch (type())
     {
     case Camera::PERSPECTIVE  :	paramNode.setAttribute("Type", "PERSPECTIVE"); break;
@@ -1621,10 +1670,7 @@ QDomElement Camera::domElement(const QString& name, QDomDocument& document) cons
 
  The frame() pointer is not modified by this method. The frame() state is however modified.
 
- The sceneRadius() and sceneCenter() are not part of the domElement() and are hence not modified by
- this method.
-
- \attention The keyFrameInterpolator() are deleted and should be copied if they are shared. */
+ \attention The original keyFrameInterpolator() are deleted and should be copied first if they are shared. */
 void Camera::initFromDOMElement(const QDomElement& element)
 {
   QDomElement child=element.firstChild().toElement();
@@ -1641,22 +1687,24 @@ void Camera::initFromDOMElement(const QDomElement& element)
 	  setZNearCoefficient(DomUtils::floatFromDom(child, "zNearCoefficient", 0.005f));
 	  setZClippingCoefficient(DomUtils::floatFromDom(child, "zClippingCoefficient", sqrt(3.0)));
 	  orthoCoef_ = DomUtils::floatFromDom(child, "orthoCoef", tan(fieldOfView()/2.0));
-	  // setSceneRadius(DomUtils::floatValueFromDom(child, "sceneRadius", sceneRadius()));
+	  setSceneRadius(DomUtils::floatFromDom(child, "sceneRadius", sceneRadius()));
 
 	  setType(PERSPECTIVE);
 	  QString type = child.attribute("Type", "PERSPECTIVE");
 	  if (type == "PERSPECTIVE")  setType(Camera::PERSPECTIVE);
 	  if (type == "ORTHOGRAPHIC") setType(Camera::ORTHOGRAPHIC);
+
+      QDomElement child2=child.firstChild().toElement();
+      while (!child2.isNull())
+	  {
+	    /* Although the scene does not change when a camera is loaded, restore the saved center and radius values. 
+	       Mainly useful when a the viewer is restored on startup, with possible additional cameras. */
+	    if (child2.tagName() == "SceneCenter")
+	      setSceneCenter(Vec(child2));
+
+	    child2 = child2.nextSibling().toElement();
+	  }
 	}
-
-      /*
-	The scene does not change when a camera is loaded. Keep previous value.
-	if (child.tagName() == "SceneCenter")
-	setSceneCenter(Vec(sc));
-      */
-
-      if (child.tagName() == "RevolveAroundPoint")
-	setRevolveAroundPoint(Vec(child));
 
       if (child.tagName() == "ManipulatedCameraFrame")
 	frame()->initFromDOMElement(child);
@@ -1728,7 +1776,8 @@ void Camera::drawCamera(float, float, float)
 /*! Draws a representation of the Camera in the 3D world.
 
 The near and far planes are drawn as quads, the frustum is drawn using lines and the camera up
-vector is represented by an arrow to disambiguate the drawing.
+vector is represented by an arrow to disambiguate the drawing. See the 
+<a href="../examples/standardCamera.html">standardCamera example</a> for an illustration.
 
 Note that the current \c glColor and \c glPolygonMode are used to draw the near and far planes. See
 the <a href="../examples/frustumCulling.html">frustumCulling example</a> for an example of
@@ -1743,7 +1792,7 @@ matrix corresponds to the world coordinate system (as it is at the beginning of 
 The Camera is then correctly positioned and orientated.
 
 \note The drawing of a QGLViewer's own QGLViewer::camera() should not be visible, but may create
-artefacts due to imprecisions. */
+artefacts due to numerical imprecisions. */
 void Camera::draw(bool drawFarPlane, float scale) const
 {
   glPushMatrix();

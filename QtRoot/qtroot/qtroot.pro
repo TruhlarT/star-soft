@@ -8,6 +8,8 @@ TEMPLATE = lib
 CONFIG += thread dll
 CONFIG += create_prl
 
+QMAKE_RPATH=
+
 TARGET = QtRoot
 
 QTROOTSYSPATHINSTALL = $(QTROOTSYSDIR)
@@ -38,10 +40,16 @@ unix {
   LIBS += -L..
 }
 # Input
-HEADERS += $$QTROOTDIRI/TQtRootGuiFactory.h
-SOURCES += $$QTROOTDIRS/TQtRootGuiFactory.cxx
+HEADERS += $$QTROOTDIRI/TQtRootGuiFactory.h  \
+           $$QTROOTDIRI/TQtContextMenuImp.h  \
+           $$QTROOTDIRI/TQtObjectDialog.h
+
+SOURCES += $$QTROOTDIRS/TQtRootGuiFactory.cxx \
+           $$QTROOTDIRS/TQtObjectDialog.cxx   \
+           $$QTROOTDIRS/TQtContextMenuImp.cxx
+
            
-CREATE_ROOT_DICT_FOR_CLASSES  = $$HEADERS $$QTROOTDIRI/LinkDef.h
+CREATE_ROOT_DICT_FOR_CLASSES  = $$QTROOTDIRI/TQtRootGuiFactory.h $$QTROOTDIRI/LinkDef.h
 
 !exists ($$GQTDIRI/rootcintrule.pri){
      message "The rootcintrule.pri was not found"
@@ -80,4 +88,5 @@ unix {
 
 }
 #The following line was inserted by qt3to4
-QT += qt3support 
+QT += webkit 
+# qt3support 

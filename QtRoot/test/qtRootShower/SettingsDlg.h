@@ -16,21 +16,21 @@
 #ifndef SETTINGSDIALOG_H
 #define SETTINGSDIALOG_H
 
-#include <qtabdialog.h>
+#include <q3tabdialog.h>
 
-class QTable;
-class QListBox;
-class QVButtonGroup;
+class Q3Table;
+class Q3ListBox;
+class Q3VButtonGroup;
 class RootShower;
 
-class SettingsDialog : public QTabDialog {
+class SettingsDialog : public Q3TabDialog {
 Q_OBJECT
 private:
 
-    QTable        *fDimensionTable;
-    QTable        *fParticleTable;
-    QListBox      *fListBox;
-    QVButtonGroup *fF1;
+    Q3Table        *fDimensionTable;
+    Q3Table        *fParticleTable;
+    Q3ListBox      *fListBox;
+    Q3VButtonGroup *fF1;
 
 public:
     SettingsDialog(RootShower *p, unsigned int w, unsigned int h);                         

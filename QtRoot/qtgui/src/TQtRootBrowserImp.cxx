@@ -1,6 +1,6 @@
 // Author: Valeri Fine   21/01/2002
 /****************************************************************************
-** $Id: TQtRootBrowserImp.cxx,v 1.6 2007/05/22 20:17:37 fine Exp $
+** $Id: TQtRootBrowserImp.cxx,v 1.7 2009/08/03 18:03:10 fine Exp $
 **
 ** Copyright (C) 2002 by Valeri Fine. Brookhaven National Laboratory.
 **                                    All rights reserved.
@@ -110,7 +110,7 @@ public:
       QMainWindow( parent, (const char*)0, f ), fFileList(0){setAcceptDrops(true);}
 #else /* QT_VERSION */
    RootMainWindows( QWidget* parent=0, Qt::WFlags f = Qt::WType_TopLevel ) :
-      QMainWindow( parent, f ), fFileList(0){setAcceptDrops(true);}
+      QMainWindow( parent, f ), fFileList(0){ setAcceptDrops(true);   }
 #endif /* QT_VERSION */
       ~RootMainWindows() {
          if (fFileList) {
@@ -210,7 +210,7 @@ TQtRootBrowserImp::~TQtRootBrowserImp()
     if (fBrowserImpID) {
       QWidget *w = fBrowserImpID; 
       fBrowserImpID = 0;
-      delete w;
+      w->deleteLater ();
     }
 }
 //______________________________________________________________________________
@@ -327,7 +327,7 @@ void TQtRootBrowserImp::Refresh(Bool_t /*flag*/) { }
 void TQtRootBrowserImp::Show() { 
    if (!fBrowserImpID) InitWindow();
    if (fBrowserImpID)  {
-#ifdef WIN32
+#if defined(WIN320)
       // raising the window under MS Windows needs some extra effort.
       HWND h = fBrowserImpID->winId();
       SetWindowPos(h,HWND_TOPMOST,0,0,0,0,SWP_NOMOVE | SWP_NOSIZE | SWP_SHOWWINDOW);
@@ -651,7 +651,7 @@ void TQtRootBrowserImp::SaveAsCB()
 
   // QString defExtension[] = {"C","ps","eps","root","bmp","C"};
 
-  UInt_t i;
+  UInt_t i=0;
 #if QT_VERSION < 0x40000
   for (i = 0; i < QImageIO::outputFormats().count(); i++ ) 
 #else

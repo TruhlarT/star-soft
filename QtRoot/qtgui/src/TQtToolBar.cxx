@@ -1,6 +1,6 @@
 // Author: Valeri Fine   16/06/2006
 /****************************************************************************
-** $Id: TQtToolBar.cxx,v 1.5 2007/08/26 17:47:03 fine Exp $
+** $Id: TQtToolBar.cxx,v 1.6 2009/08/03 18:03:10 fine Exp $
 **
 ** Copyright (C) 2006 by Valeri Fine. Brookhaven National Laboratory.
 **                                    All rights reserved.

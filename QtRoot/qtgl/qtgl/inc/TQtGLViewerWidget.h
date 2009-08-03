@@ -1,12 +1,12 @@
 
-// @(#)root/gtgl:$Name:  $:$Id: TQtGLViewerWidget.h,v 1.7 2007/06/21 22:35:35 fine Exp $
+// @(#)root/gtgl:$Name:  $:$Id: TQtGLViewerWidget.h,v 1.8 2009/08/03 18:03:07 fine Exp $
 // Author: Valery Fine      23/10/03
 
 #ifndef ROOT_TQtGLViewerWidget_
 #define ROOT_TQtGLViewerWidget_
 
 /****************************************************************************
-** $Id: TQtGLViewerWidget.h,v 1.7 2007/06/21 22:35:35 fine Exp $
+** $Id: TQtGLViewerWidget.h,v 1.8 2009/08/03 18:03:07 fine Exp $
 **
 ** Copyright (C) 2002 by Valeri Fine.  All rights reserved.
 **
@@ -36,10 +36,11 @@
 #include "Gtypes.h"
 
 #ifndef __CINT__
+#  include  "TQtGLIncludes.h"
 // Hide the Qt header files from CINT to build the RootCint Dictionary
-#  include "qglviewer.h"
-#  include "qstring.h"
-#  include "qfont.h"
+#  include "QGLViewer/qglviewer.h"
+#  include <QString>
+#  include <QFont>
 #else
   class QWidget;
   class QGLWidget;

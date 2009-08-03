@@ -1,6 +1,6 @@
 // Author: Valeri Fine   21/01/2002
 /****************************************************************************
-** $Id: TQtRootGuiFactory.cxx,v 1.4 2008/04/15 17:10:30 fine Exp $
+** $Id: TQtRootGuiFactory.cxx,v 1.5 2009/08/03 18:03:11 fine Exp $
 **
 ** Copyright (C) 2002 by Valeri Fine. Brookhaven National Laboratory.
 **                                    All rights reserved.
@@ -27,6 +27,7 @@
 
 #include "TApplication.h"
 #include "TQtApplication.h"
+#include "TQtContextMenuImp.h"
 
 #include "TSystem.h"
 #ifdef R__QTWIN32
@@ -135,8 +136,10 @@ TBrowserImp *TQtRootGuiFactory::CreateBrowserImp(TBrowser *b, const char *title,
 { return CreateBrowserImp(b, title, x, y, width, height,""); }
 
 //______________________________________________________________________________
-TContextMenuImp *TQtRootGuiFactory::CreateContextMenuImp(TContextMenu *c, const char *name, const char *title)
-{ return fGuiProxy ? fGuiProxy->CreateContextMenuImp(c, name, title): 0;} 
+TContextMenuImp *TQtRootGuiFactory::CreateContextMenuImp(TContextMenu *c, const char * /* name */ , const char * /* title */ )
+{ 	return new TQtContextMenuImp(c);
+//   fGuiProxy ? fGuiProxy->CreateContextMenuImp(c, name, title): 0; 
+} 
 
 //______________________________________________________________________________
 TControlBarImp *TQtRootGuiFactory::CreateControlBarImp(TControlBar *c, const char *title)

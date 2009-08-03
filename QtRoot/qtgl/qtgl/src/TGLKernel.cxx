@@ -1,4 +1,4 @@
-// @(#)root/gl:$Name:  $:$Id: TGLKernel.cxx,v 1.3 2006/10/04 21:40:54 fine Exp $
+// @(#)root/gl:$Name:  $:$Id: TGLKernel.cxx,v 1.4 2009/08/03 18:03:07 fine Exp $
 // Author: Valery Fine(fine@vxcern.cern.ch)   05/03/97
 /*************************************************************************
  * Copyright (C) 1995-2000, Rene Brun and Fons Rademakers.               *

@@ -1,5 +1,5 @@
 TEMPLATE	= app
-
+QMAKE_RPATH=
 CONFIG	+= qt warn_on  thread debug
 
 HEADERS += HelloFileBrowser.h TQtObjectViewFrame.h

@@ -1,8 +1,8 @@
-// @(#)root/g3d:$Name:  $:$Id: TQtCoinWidget.h,v 1.33 2008/06/06 21:16:44 fine Exp $
+// @(#)root/g3d:$Name:  $:$Id: TQtCoinWidget.h,v 1.34 2009/08/03 18:03:06 fine Exp $
 // Author: Valery Fine      23/05/97
 
 /****************************************************************************
-** $Id: TQtCoinWidget.h,v 1.33 2008/06/06 21:16:44 fine Exp $
+** $Id: TQtCoinWidget.h,v 1.34 2009/08/03 18:03:06 fine Exp $
 **
 ** Copyright (C) 2002 by Valeri Fine. Brookhaven National Laboratory.
 **                                    All rights reserved.
@@ -124,8 +124,6 @@ private:
    SmAxisDisplayKit       *fAxes;
    std::vector<int>        flist[3];
    TCoinAxisSeparator     *fXAxis;
-   SmAxisKit              *fYAxis;
-   SmAxisKit              *fZAxis;
    SoFieldSensor          *fCameraSensor;
    void                   *fPickedObject;
    float                   fPivotClipPoint[3];
@@ -261,6 +259,8 @@ public:
    static void RotateCamera(SoCamera * cam,const SbVec3f & aroundaxis,const float delta);
    unsigned int ClipMask() const { return fClipMask; }
    virtual Option_t   *GetDrawOption() const;
+   virtual unsigned  char GetLocation(int axIndex = 0);
+   virtual TCoinAxisSeparator    *Axes();
 #ifndef __CINT__
   public slots:
      //virtual void ActivateSelectorWidgetCB(bool);
@@ -322,6 +322,7 @@ public:
      virtual void WantRootContextMenuCB(bool on);
      virtual void AboutCB();
      virtual void HelpCB();
+     virtual void SetLocation(unsigned  char location, int axIndex = 0);
   signals:
        void ObjectSelected(TObject *, const QPoint&);
        void NodeSelected(ULong_t, const QPoint&);

@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: HelloLifeDlg.h,v 1.1 2006/08/16 19:41:02 fine Exp $
+** $Id: HelloLifeDlg.h,v 1.2 2009/08/03 18:03:00 fine Exp $
 **
 ** Copyright (C) 1992-2000 Trolltech AS.  All rights reserved.
 **

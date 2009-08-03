@@ -1,6 +1,6 @@
 //*-- Author :    Valery Fine(fine@bnl.gov)  04/01/2006
 //
-// $Id: DialogsQ.C,v 1.2 2007/01/23 18:45:49 fine Exp $
+// $Id: DialogsQ.C,v 1.3 2009/08/03 18:03:02 fine Exp $
 //
 // This file contains the set of functions to use class QInputDialog
 //     http://doc.trolltech.com/3.3/qinputdialog.html
@@ -34,25 +34,12 @@
 //    printf("analyse run %d, event %d from file %s\n", run ,event, file);
 // }
 //
-#ifndef __CINT__
-#  include <qapplication.h> 
-#  include <qstyle.h> 
-#  include <qfiledialog.h> 
-#  include <qstringlist.h> 
-#  include <qstring.h> 
-#  include "TObjString.h"
-#  include "TList.h"
-#  include "TSystem.h"
-#  include <qinputdialog.h> 
-#endif
 
 //--- Utility Functions --------------------------------------------------------
 //______________________________________________________________________
 void DialogsQ() {
    // Load the Qt ROOT dictionary
-#ifdef __CINT__
    gSystem->Load("qtcint");
-#endif   
 }
 //______________________________________________________________________
 const char *OpenFileDialog()

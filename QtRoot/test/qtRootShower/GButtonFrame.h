@@ -23,12 +23,12 @@
 #ifndef GBUTTONFRAME_H
 #define GBUTTONFRAME_H
 
-#include <qvbuttongroup.h>
+#include <q3buttongroup.h>
 
 class QPushButton;
 class RootShower;
 
-class GButtonFrame: public QVButtonGroup {
+class GButtonFrame: public Q3VButtonGroup {
 Q_OBJECT
 private:
 
@@ -46,6 +46,9 @@ public:
     GButtonFrame(QWidget* p);
     virtual ~GButtonFrame();
     void SetState(EState state);
+
+protected slots:
+    void Clicked(int idButton);
 signals:
     void NextEvent();
     void SelectEvent();

@@ -1,4 +1,4 @@
-// @(#)root/gtgl:$Name:  $:$Id: TObjectOpenGLViewFactory.cxx,v 1.7 2008/06/11 18:02:03 fine Exp $
+// @(#)root/gtgl:$Name:  $:$Id: TObjectOpenGLViewFactory.cxx,v 1.8 2009/08/03 18:03:07 fine Exp $
 // Author: Valery Fine      24/04/05
 
 /****************************************************************************
@@ -23,15 +23,8 @@
 #include "TGeometry.h"
 #include <stack>
 
-#if !defined( __APPLE__ ) || defined(Q_WS_X11)
-#  if  ROOT_VERSION_CODE >= ROOT_VERSION(5,15,9)
-#    include  "TGLIncludes.h"
-#  else
-#    include "TRootGLU.h"
-#  endif
-#else
-#  include <glu.h>
-#endif
+#include  "TQtGLIncludes.h"
+
 #include "assert.h"
 
 // #define DEBUG_OPENGL 1
@@ -738,15 +731,9 @@ void TGLKernel::SetCurrentColor(Int_t color)
     if (gVirtualGL->GetTrueColorMode())
     {
         Float_t rgba[4];
-#if QT_VERSION < 0x40000
         Float_t red;
         Float_t green;
         Float_t blue;
-#else /* QT_VERSION */
-        Float_t Qt::red;
-        Float_t Qt::green;
-        Float_t Qt::blue;
-#endif /* QT_VERSION */
         
         Float_t alpha = 1.0;
         // Define the alpha component 
@@ -767,17 +754,10 @@ void TGLKernel::SetCurrentColor(Int_t color)
         TColor *c = gROOT->GetColor(color);
         if (c->GetNumber() == kBlack ) c = 0;
         if (!c) c = gROOT->GetColor(17);
-#if QT_VERSION < 0x40000
         c->GetRGB(red,green,blue);
         rgba[0] = red;
         rgba[1] = green;
         rgba[2] = blue;
-#else /* QT_VERSION */
-        c->GetRGB(Qt::red,Qt::green,Qt::blue);
-        rgba[0] = Qt::red;
-        rgba[1] = Qt::green;
-        rgba[2] = Qt::blue;
-#endif /* QT_VERSION */
         rgba[3] = alpha;
         TGLKernel::SetGLColor(rgba);
     }

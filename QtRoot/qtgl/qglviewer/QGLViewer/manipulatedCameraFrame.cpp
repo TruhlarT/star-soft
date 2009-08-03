@@ -1,30 +1,32 @@
 /****************************************************************************
 
- This file is part of the QGLViewer library.
- Copyright (C) 2002, 2003, 2004, 2005, 2006 Gilles Debunne (Gilles.Debunne@imag.fr)
- Version 2.2.1-1, released on March 30, 2006.
+ Copyright (C) 2002-2008 Gilles Debunne. All rights reserved.
 
- http://artis.imag.fr/Members/Gilles.Debunne/QGLViewer
+ This file is part of the QGLViewer library version 2.3.1.
 
- libQGLViewer is free software; you can redistribute it and/or modify
- it under the terms of the GNU General Public License as published by
- the Free Software Foundation; either version 2 of the License, or
- (at your option) any later version.
+ http://www.libqglviewer.com - contact@libqglviewer.com
 
- libQGLViewer is distributed in the hope that it will be useful,
- but WITHOUT ANY WARRANTY; without even the implied warranty of
- MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- GNU General Public License for more details.
+ This file may be used under the terms of the GNU General Public License 
+ versions 2.0 or 3.0 as published by the Free Software Foundation and
+ appearing in the LICENSE file included in the packaging of this file.
+ In addition, as a special exception, Gilles Debunne gives you certain 
+ additional rights, described in the file GPL_EXCEPTION in this package.
 
- You should have received a copy of the GNU General Public License
- along with libQGLViewer; if not, write to the Free Software
- Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
+ libQGLViewer uses dual licensing. Commercial/proprietary software must
+ purchase a libQGLViewer Commercial License.
+
+ This file is provided AS IS with NO WARRANTY OF ANY KIND, INCLUDING THE
+ WARRANTY OF DESIGN, MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE.
 
 *****************************************************************************/
 
 #include "domUtils.h"
 #include "manipulatedCameraFrame.h"
 #include "qglviewer.h"
+
+#if QT_VERSION >= 0x040000
+# include <QMouseEvent>
+#endif
 
 using namespace qglviewer;
 using namespace std;
@@ -35,7 +37,7 @@ using namespace std;
 
   \attention Created object is removeFromMouseGrabberPool(). */
 ManipulatedCameraFrame::ManipulatedCameraFrame()
-  : flyUpVector_(0.0, 1.0, 0.0)
+  : driveSpeed_(0.0), flyUpVector_(0.0, 1.0, 0.0)
 {
   setFlySpeed(0.0);
   removeFromMouseGrabberPool();
@@ -87,6 +89,10 @@ void ManipulatedCameraFrame::flyUpdate()
       break;
     case QGLViewer::MOVE_BACKWARD:
       flyDisp.z = flySpeed();
+      translate(localInverseTransformOf(flyDisp));
+      break;
+    case QGLViewer::DRIVE:
+      flyDisp.z = flySpeed() * driveSpeed_;
       translate(localInverseTransformOf(flyDisp));
       break;
     default:
@@ -179,6 +185,7 @@ void ManipulatedCameraFrame::startAction(int ma, bool withConstraint)
     {
     case QGLViewer::MOVE_FORWARD:
     case QGLViewer::MOVE_BACKWARD:
+    case QGLViewer::DRIVE:
 #if QT_VERSION >= 0x040000
       flyTimer_.setSingleShot(false);
 #endif
@@ -223,20 +230,31 @@ void ManipulatedCameraFrame::mouseMoveEvent(QMouseEvent* const event, Camera* co
 	break;
       }
 
-    case QGLViewer::MOVE_BACKWARD:
-      {
-	Quaternion rot = pitchYawQuaternion(event->x(), event->y(), camera);
-	rotate(rot);
-	translate(inverseTransformOf(Vec(0.0, 0.0, flySpeed())));
-	break;
-      }
-
     case QGLViewer::MOVE_FORWARD:
       {
 	Quaternion rot = pitchYawQuaternion(event->x(), event->y(), camera);
 	rotate(rot);
 	//#CONNECTION# wheelEvent MOVE_FORWARD case
-	translate(inverseTransformOf(Vec(0.0, 0.0, -flySpeed())));
+	// actual translation is made in flyUpdate().
+	//translate(inverseTransformOf(Vec(0.0, 0.0, -flySpeed())));
+	break;
+      }
+
+    case QGLViewer::MOVE_BACKWARD:
+      {
+	Quaternion rot = pitchYawQuaternion(event->x(), event->y(), camera);
+	rotate(rot);
+	// actual translation is made in flyUpdate().
+	//translate(inverseTransformOf(Vec(0.0, 0.0, flySpeed())));
+	break;
+      }
+
+    case QGLViewer::DRIVE:
+      {
+	Quaternion rot = turnQuaternion(event->x(), camera);
+	rotate(rot);
+	// actual translation is made in flyUpdate().
+	driveSpeed_ = 0.01 * (event->y() - pressPos_.y());
 	break;
       }
 
@@ -341,7 +359,7 @@ void ManipulatedCameraFrame::mouseMoveEvent(QMouseEvent* const event, Camera* co
   terminated. */
 void ManipulatedCameraFrame::mouseReleaseEvent(QMouseEvent* const event, Camera* const camera)
 {
-  if ((action_ == QGLViewer::MOVE_FORWARD) || (action_ == QGLViewer::MOVE_BACKWARD))
+  if ((action_ == QGLViewer::MOVE_FORWARD) || (action_ == QGLViewer::MOVE_BACKWARD) || (action_ == QGLViewer::DRIVE))
     flyTimer_.stop();
 
   if (action_ == QGLViewer::ZOOM_ON_REGION)
@@ -406,6 +424,12 @@ void ManipulatedCameraFrame::wheelEvent(QWheelEvent* const event, Camera* const 
 }
 
 ////////////////////////////////////////////////////////////////////////////////
+
+/*! Returns a Quaternion that is a rotation around current camera Y, proportionnal to the horizontal mouse position. */
+Quaternion ManipulatedCameraFrame::turnQuaternion(int x, const Camera* const camera)
+{
+  return Quaternion(Vec(0.0, 1.0, 0.0), rotationSensitivity()*(prevPos_.x()-x)/camera->screenWidth());
+}
 
 /*! Returns a Quaternion that is the composition of two rotations, inferred from the
   mouse pitch (X axis) and yaw (flyUpVector() axis). */

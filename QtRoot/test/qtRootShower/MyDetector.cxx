@@ -14,6 +14,8 @@
 #include "MyDetector.h"
 #endif
 
+#include "TMath.h"
+
 //______________________________________________________________________________
 //
 // MyDetector class implementation

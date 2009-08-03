@@ -5,6 +5,8 @@
 
 TEMPLATE = lib
 
+QMAKE_RPATH=
+
 CONFIG += thread dll
 CONFIG += create_prl
 

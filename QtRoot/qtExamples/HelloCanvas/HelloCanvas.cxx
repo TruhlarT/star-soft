@@ -8,9 +8,9 @@
 #include "TGraph.h"
 #include "TQtWidget.h"
 #include "TCanvas.h"
-#include <qtooltip.h>
-#include <qlabel.h>
-
+#include "TDatime.h"
+#include "TAxis.h"
+#include <QLabel>
 int main( int argc, char **argv )
 {
 
@@ -21,32 +21,46 @@ int main( int argc, char **argv )
     MyWidget->resize(300,200);
 
     // Add some tool tip:
-    QToolTip::add( MyWidget, "Close this widget to terminate your application");
+    MyWidget->setToolTip("Close this widget to terminate your application");
     
     // Create any other Qt-widget here
     //         . . .
 
     // Make the the embedded TCanvas to be the current ROOT TCanvas
     MyWidget->GetCanvas()->cd();
-    
-    // Add some ROOT object to the current TCanvas
-    TGraph *mygraph;
-    float x[3] = {1,2,3};
-    float y[3] = {1.5, 3.0, 4.5};
-    mygraph  = new TGraph(3,x,y);
-    mygraph->SetMarkerStyle(20);
-    mygraph->Draw("AP");
+
+    TDatime datTime (2009,3,4,17,2,0);
+    double timeOffset = (double) datTime.Convert();
+
+    float x[] = {1,2,3,4,5};
+    float y[] = {1.5f, 3.0f, 4.5f, 3.8f,5.2f};
+    TGraph*  m_graph  = new TGraph(sizeof(x)/sizeof(float),x,y);
+
+    m_graph->GetXaxis()->SetLabelOffset(0.04f);
+    m_graph->GetXaxis()->SetLabelSize(0.02f);
+    m_graph->GetXaxis()->SetTimeDisplay(1);
+    m_graph->GetXaxis()->SetTimeOffset(timeOffset, "local");
+    char timeFormat[] = "#splitline{%d\\/%b\\/%Y}{%H:%M:%S}";
+    m_graph->GetXaxis()->SetTimeFormat(timeFormat);
+    m_graph->GetYaxis()->SetLabelSize(0.04f);
+    m_graph->SetTitle("Just a test");
+
+    m_graph->SetMarkerStyle(7);
+    m_graph->Draw("AC*");
+
 
     //Add Qt Label in the top the ROOT TCanvas
-    QLabel *label = new QLabel("L",MyWidget);
+    QLabel *label = new QLabel("<b>HelloCanvas</b> Example",MyWidget);
     label->setBackgroundMode(Qt::NoBackground);
+    label->setStyleSheet("QLabel {border: 2px solid blue; border-radius: 10px; padding: 0 8px;}");
     label->move(40,40);
-    label->resize(10,10);
+    label->resize(148,26);
+    label->setToolTip("This is a QLabel object");
 
     // Raise the widget on the top
     MyWidget->show();
     MyWidget->Refresh();
-    
+
     // Create the png file
     MyWidget->Save("HelloCanvas.png");
     app->exec();

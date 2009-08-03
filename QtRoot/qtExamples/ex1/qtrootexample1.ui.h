@@ -25,7 +25,7 @@ void qtrootexample1::init()
    // In other words :-)
    // assign  the "gPad" pointer pointing to the embeded into the QWidget a TCanvas 
    
-   currentWidget = tQtWidget1; currentWidget->cd();
+   currentWidget = tQtWidget1; currentWidget->cd();   
    
    // Open pre-defined ROOT file
    TKey *key = 0;
@@ -96,23 +96,20 @@ void qtrootexample1::CanvasEvent(TObject *obj, unsigned int /*event*/, TCanvas *
   TQtWidget *tipped = (TQtWidget *)sender();
   const char *objectInfo = 
         obj->GetObjectInfo(tipped->GetEventX(),tipped->GetEventY());
-  QString tipText ="<P>You have ";
-  if  (tipped == tQtWidget1)
-     tipText +="clicked";
-  else
-     tipText +="passed";
-  tipText += " the object:<b> ";
-  tipText += obj->GetName();
-  tipText += "</b> of class <b>"; 
-  tipText += obj->ClassName();
-  tipText += "</b> : ";
-  tipText += objectInfo;
-  
+  QString tipText ="<P>You have %1  the object: <b>%2</b> of class <b>%3</b> : %4";
 
   if  (tipped == tQtWidget1) {
-     QWhatsThis::display(tipText); // , globalPosition,tipped);
+     QWhatsThis::display(tipText.arg("clicked"       )
+                                .arg(obj->GetName()  )
+                                .arg(obj->ClassName())
+                                .arg(objectInfo      )
+                                ); // , globalPosition,tipped);
   } else {
      QToolTip::remove(tipped);
-     QToolTip::add(tipped,tipText);
+     QToolTip::add(tipped,tipText.arg("passed"        )
+                                 .arg(obj->GetName()  )
+                                 .arg(obj->ClassName())
+                                 .arg(objectInfo      )
+                  );
   }
 }

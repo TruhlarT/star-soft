@@ -1,4 +1,4 @@
-// @(#)root/g3d:$Name:  $:$Id: TGLViewerImp.cxx,v 1.7 2009/05/26 19:07:05 fine Exp $
+// @(#)root/g3d:$Name:  $:$Id: TGLViewerImp.cxx,v 1.8 2009/08/03 18:03:07 fine Exp $
 // Author: Valery Fine      23/05/97
 
 /*************************************************************************

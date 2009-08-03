@@ -9,6 +9,8 @@ GSIEXAMPLE1 = example1
 
 TARGET = QtGsiTest
 
+QMAKE_RPATH=
+
 # Input
 HEADERS += ../dll/example1.h
 SOURCES +=main.cxx

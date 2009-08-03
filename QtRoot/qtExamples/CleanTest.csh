@@ -127,15 +127,15 @@ cd ..
 cd HelloZoomPad
 echo -----------  HelloZoomPad -------------
 root.exe -q -l $ROOTSYS/tutorials/hsimple.C
-root.exe h1draw_zoom.C
+root.exe -l h1draw_zoom.C
 cd ..
 
 echo -----------  QtGSI test -------------
-cd qtgsi/example1
+cd qtgsi\example1
 qmake
 nmake
-exe/QtGsiTest.exe
-cd ../..
+exe\QtGsiTest.exe
+cd ..\..
 
 echo ---------  Qt RootCint test -----------
 cd macros

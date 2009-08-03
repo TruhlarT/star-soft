@@ -1,6 +1,6 @@
 // Author: Valeri Fine   21/01/2002
 /****************************************************************************
-** $Id: TQtRootBrowserImp.h,v 1.3 2007/05/22 20:07:21 fine Exp $
+** $Id: TQtRootBrowserImp.h,v 1.4 2009/08/03 18:03:09 fine Exp $
 **
 ** Copyright (C) 2002 by Valeri Fine.  All rights reserved.
 **
@@ -22,18 +22,14 @@
 
 #include "TBrowserImp.h"
 #include "TQtGui.h"
+#include "TQtRootAction.h"
 
 #include <qstring.h>
 #include <qobject.h>
 
-#if QT_VERSION < 0x40000
-#  include <qptrvector.h>
-#  include <qintdict.h>
-#else /* QT_VERSION */
 #  include <q3ptrvector.h>
 #  include <q3intdict.h>
 // #  include <QActionGroup>
-#endif /* QT_VERSION */
 
 // class TQtBrowserWidget;
 class TQtBrowserImp;
@@ -59,11 +55,7 @@ protected:
   UInt_t  fWidth,fHeight;
   QString fTitle;  
 
-#if QT_VERSION < 0x40000
-  QIntDict<TQtRootAction> fActions;
-#else /* QT_VERSION */
   Q3IntDict<TQtRootAction> fActions;
-#endif /* QT_VERSION */
 
   QActionGroup      *fViewActions;
   QToolBar          *fToolBar;

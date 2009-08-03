@@ -8,9 +8,10 @@
 #include "TGraph.h"
 #include "TEmbeddedPad.h"
 #include <qtooltip.h>
-#include <qframe.h>
-#include <qpixmap.h>
-#include <qlayout.h>
+#include <QFrame>
+#include <QPixmap>
+#include <QLayout>
+#include <QDebug>
 
 int main( int argc, char **argv )
 {
@@ -18,8 +19,8 @@ int main( int argc, char **argv )
     QApplication *app = new QApplication(argc, argv);
     app->connect(app,SIGNAL(lastWindowClosed ()),app,SLOT(quit()));
     QFrame *frame = new QFrame();
-    frame->resize(600,600);
-    QGridLayout *layout = new QGridLayout(frame,3,3);
+    frame->resize(800,800);
+    QGridLayout *layout = new QGridLayout(frame);
 
     int x,y,w,h;
     frame->rect().rect(&x,&y,&w,&h);
@@ -34,7 +35,7 @@ int main( int argc, char **argv )
     mygraph  = new TGraph(3,xg,yg);
     mygraph->SetMarkerStyle(20);
     mygraph->Draw("AP");
-    pad->Modified(); pad->Update();
+    pad->Modified(); pad->Update();pad->Print("pad.png","PNG");
     // 
     float angle = 0;
     int row,col;
@@ -47,10 +48,15 @@ int main( int argc, char **argv )
        };
        QWidget *w = new QWidget(frame);
        layout->addWidget(w,row,col);
-       w->setPaletteBackgroundPixmap (*(QPixmap*)pad->GetHandleRotate((ULong_t)&graphPixmap,angle));
+       w->setAutoFillBackground (true); 
+       QPalette p =  w->palette();
+       QPixmap &padImage = *(QPixmap*)pad->GetHandleRotate((ULong_t)&graphPixmap,angle);
+       p.setBrush(w->backgroundRole(), QBrush(padImage));
+       w->setPalette(p);
+       w->setToolTip(QString("angle=%1").arg(angle));
     }
     // Add some tool tip:
-    QToolTip::add( frame, "Close this widget to terminate your application");
+    frame->setToolTip("Close this widget to terminate your application");
     // Raise the widget on the top
     frame->show();
     

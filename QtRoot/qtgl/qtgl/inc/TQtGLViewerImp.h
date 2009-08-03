@@ -1,8 +1,8 @@
-// @(#)root/g3d:$Name:  $:$Id: TQtGLViewerImp.h,v 1.14 2008/06/06 21:16:45 fine Exp $
+// @(#)root/g3d:$Name:  $:$Id: TQtGLViewerImp.h,v 1.15 2009/08/03 18:03:07 fine Exp $
 // Author: Valery Fine      23/05/97
 
 /****************************************************************************
-** $Id: TQtGLViewerImp.h,v 1.14 2008/06/06 21:16:45 fine Exp $
+** $Id: TQtGLViewerImp.h,v 1.15 2009/08/03 18:03:07 fine Exp $
 **
 ** Copyright (C) 2002 by Valeri Fine. Brookhaven National Laboratory.
 **                                    All rights reserved.

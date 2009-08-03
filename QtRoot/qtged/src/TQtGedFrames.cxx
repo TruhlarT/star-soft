@@ -1,4 +1,4 @@
-// @(#)root/ged:$Name:  $:$Id: TQtGedFrames.cxx,v 1.1 2006/08/16 19:27:06 fine Exp $
+// @(#)root/ged:$Name:  $:$Id: TQtGedFrames.cxx,v 1.2 2009/08/03 18:03:03 fine Exp $
 // Author: Marek Biskup, Ilka Antcheva   22/07/03
 
 /****************************************************************************

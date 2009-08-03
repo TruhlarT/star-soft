@@ -1,8 +1,8 @@
-// @(#)root/ged:$Name:  $:$Id: TQtGedEditor.h,v 1.1 2007/07/06 23:02:43 fine Exp $
+// @(#)root/ged:$Name:  $:$Id: TQtGedEditor.h,v 1.2 2009/08/03 18:02:58 fine Exp $
 // Author: Valeri Fine 10/07/2004
 
 /****************************************************************************
-** $Id: TQtGedEditor.h,v 1.1 2007/07/06 23:02:43 fine Exp $
+** $Id: TQtGedEditor.h,v 1.2 2009/08/03 18:02:58 fine Exp $
 **
 ** Copyright (C) 2004 by Valeri Fine.  All rights reserved.
 **
@@ -62,11 +62,7 @@ class TQtGedEditor : public TVirtualPadEditor {
    friend class TQtGedAttInterfaceB;
 protected:
    TCanvas                 *fCanvas;
-#if QT_VERSION < 0x40000
-   QDockArea               *fDock;
-#else   
    QDockWidget             *fDock;
-#endif   
    QMainWindow             *fCanvasImpID;
    QWidget                 *fCanvasID;
    Bool_t                   fGlobal;           //true if editor is global
@@ -75,11 +71,7 @@ protected:
    static std::list<TQtGedFactoryI *> *fgGedFactoriesList; // the list of the primitive editors
    int                fIsMainWindow;
 #ifndef __CINT__
-#if QT_VERSION < 0x40000
-   static Qt::Dock            fgDockPosition;
-#else /* QT_VERSION */
    static Qt::DockWidgetArea  fgDockPosition;
-#endif /* QT_VERSION */
 #endif
    virtual void Build();
 
@@ -91,13 +83,8 @@ public:
    static bool Register(TQtGedFactoryI *gedFactory,bool replace=true);
    static bool UnRegister(TQtGedFactoryI *gedFactory);
 #ifndef __CINT__
-#if QT_VERSION < 0x40000
-   static void SetDefaultPosition(Qt::Dock dockPosition);
-   static Qt::Dock DefaultPosition();
-#else /* QT_VERSION */
    static void SetDefaultPosition(Qt::DockWidgetArea dockPosition);
    static Qt::DockWidgetArea DefaultPosition();
-#endif /* QT_VERSION */
 #endif
    virtual Bool_t   IsGlobal() const;
    virtual void     SetGlobal(Bool_t);

@@ -1,6 +1,6 @@
 // Author: Valeri Fine   21/01/2002
 /****************************************************************************
-** $Id: TQtObjectDialog.cxx,v 1.3 2007/06/05 21:47:12 fine Exp $
+** $Id: TQtObjectDialog.cxx,v 1.4 2009/08/03 18:03:10 fine Exp $
 **
 ** Copyright (C) 2002 by Valeri Fine. Brookhaven National Laboratory.
 **                                    All rights reserved.
@@ -10,6 +10,17 @@
 ** LICENSE.QPL included in the packaging of this file.
 **
 *****************************************************************************/
+
+#include "TClass.h"
+
+#include "TContextMenu.h"
+#include "TMethod.h"
+#include "TMethodArg.h"
+#include "TDataType.h"
+#include "TMethodCall.h"
+#include "TROOT.h"
+#include "TObjArray.h"
+#include "TObjString.h"
 
 #include "TQtObjectDialog.h"
 #include "TGQt.h"
@@ -26,40 +37,33 @@
 #  include <q3cstring.h> 
 #  include <QVBoxLayout>
 #  include <QHBoxLayout>
+#  include <QDialogButtonBox>
+#  include <QDebug>
 #endif /* QT_VERSION */
 #include <qtextcodec.h> 
 
-#include "TClass.h"
-
-#include "TContextMenu.h"
-#include "TMethod.h"
-#include "TMethodArg.h"
-#include "TDataType.h"
-#include "TMethodCall.h"
-#include "TROOT.h"
-#include "TObjArray.h"
-#include "TObjString.h"
 
 //______________________________________________________________________________
-TQtObjectDialog::TQtObjectDialog( TObject *object, TMethod *method ):QDialog(0,0,TRUE), fParArray(0)
+TQtObjectDialog::TQtObjectDialog( TObject *object, TMethod *method ):QDialog(0,0), fParArray(0)
 {
     if ( !( object && method ) ) return;
     // Create Dummy TContextMenu for the sake of its static method ???
+    setWindowModality ( Qt::WindowModal );
     TContextMenu dummy(0);
-
-    setCaption(dummy.CreateDialogTitle( object, method ));
+    setWindowTitle(dummy.CreateDialogTitle( object, method ));
 
     /* Some common values for all controls */
 
         TMethodArg *argument = NULL;
-        TIter next( method->GetListOfMethodArgs() );
+        TList *argList =  method->GetListOfMethodArgs();
+        TIter next(argList);
 
         QVBoxLayout *layout = new QVBoxLayout( this );
         while ( (argument = (TMethodArg *) next() ) ) {
             // Create a label gadget.
 //*-* - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 //*-*          Label      as STATIC control
-          char *argname  = dummy.CreateArgumentTitle( argument );
+         const char *argname  = dummy.CreateArgumentTitle( argument );
 //------------------ begin of copy / paste from void TRootContextMenu::Dialog(TObject *object, TMethod *method)
          const Text_t *type       = argument->GetTypeName();
          TDataType    *datatype   = gROOT->GetType(type);
@@ -126,18 +130,17 @@ TQtObjectDialog::TQtObjectDialog( TObject *object, TMethod *method ):QDialog(0,0
            // remember the first widget to put initial focus on it
         }
         // Create Layout
-        QHBoxLayout *buttonLayout = new QHBoxLayout( layout );
+        QDialogButtonBox *box = new QDialogButtonBox(this);
+        layout->addWidget(box);
 
-        QPushButton *Ok = new QPushButton("Ok",this);
-        connect(Ok,SIGNAL(clicked()),this,SLOT(accept ()));
-        buttonLayout->addWidget(Ok);
-        Ok->setFixedSize(Ok->size ());
+        box->addButton(QDialogButtonBox::Ok);
+        connect(box,SIGNAL(accepted ()),this,SLOT(accept ()));
 
-        QPushButton *Cancel = new QPushButton("Cancel",this);
-        buttonLayout->addWidget(Cancel);
-        connect(Cancel,SIGNAL(clicked()),this,SLOT(reject()));
-        Cancel->setFixedSize(Cancel->size ());
+        box->addButton(QDialogButtonBox::Cancel);
+        connect(box,SIGNAL(rejected ()),this,SLOT(reject()));
 
+        box->addButton(QDialogButtonBox::Help);
+        connect(box,SIGNAL(helpRequested()),this,SLOT(emitHelpRequest()));
 }
 //______________________________________________________________________________
 void TQtObjectDialog::accept () 
@@ -148,8 +151,8 @@ void TQtObjectDialog::accept ()
    fParArray = new TObjArray(list.size());
    Int_t index = 0;
    for (int i = 0; i < list.size(); ++i) {
-      Q3CString r = gQt->GetTextDecoder()->fromUnicode( list.at(i)->text() );
-      fParArray->AddAt((TObject *)(new TObjString((const char *)r)),index);
+      QByteArray r = gQt->GetTextDecoder()->fromUnicode( list.at(i)->text() );
+      fParArray->AddAt((TObject *)(new TObjString(r.data())),index);
       index++;
    }     
 #else        
@@ -168,4 +171,9 @@ void TQtObjectDialog::accept ()
 #endif  
   QDialog::accept();
 }
-
+//______________________________________________________________________________
+void TQtObjectDialog::emitHelpRequest()
+{  
+   // [slot] to emit signal on behalf of the internal dialog box
+   emit helpRequested();
+}

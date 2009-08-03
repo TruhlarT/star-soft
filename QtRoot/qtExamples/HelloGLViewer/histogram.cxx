@@ -3,18 +3,24 @@
 #include "TH1F.h"
 #include "TH2F.h"
 #include "TROOT.h"
+#include "TQtWidget.h"
+#include <QHBoxLayout>
 
 //_______________________________________________________________________
-Histogram::Histogram(QWidget *parent): TQtWidget(parent), histogram_(0)
+Histogram::Histogram(QWidget *parent): QWidget(parent), fCanvas(0), histogram_(0)
 {
    gROOT->SetStyle("video");
+   fCanvas = new TQtWidget(this);
+   QHBoxLayout *layout = new QHBoxLayout;
+   layout->addWidget(fCanvas);
+   setLayout(layout);
 }
 //_______________________________________________________________________
 void Histogram::create(const char *title,int  nbins,double xlow, double xup)
 {
     if (histogram_) delete histogram_;
     histogram_ = new TH1F("Histogram", title,nbins,xlow,xup);
-    cd(); histogram_->Draw("surf4");
+    fCanvas->cd(); histogram_->Draw("surf4");
 }
 
 //_______________________________________________________________________
@@ -33,12 +39,14 @@ void Histogram::init()
 {
     if (histogram_) histogram_->Reset();
 }
-
 //_______________________________________________________________________
 void Histogram::animate(bool)
 {
-   Canvas()->Modified(); 
-   Canvas()->Update();
+   TCanvas *cv = fCanvas ? fCanvas->GetCanvas() : 0;
+   if (cv) {
+      cv->Modified(); 
+      cv->Update();
+   }
 }
 
 //_______________________________________________________________________

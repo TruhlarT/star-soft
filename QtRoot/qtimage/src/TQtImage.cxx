@@ -1,4 +1,4 @@
-// @(#)root/asimage:$Name:  $:$Id: TQtImage.cxx,v 1.3 2007/06/27 12:36:31 fine Exp $
+// @(#)root/asimage:$Name:  $:$Id: TQtImage.cxx,v 1.4 2009/08/03 18:03:11 fine Exp $
 // Author: Valeri Fine   2/02/2004
 
 /*************************************************************************
@@ -52,7 +52,7 @@
 #include "TColor.h"
 #include "TObjArray.h"
 #include "TQtPaletteEditor.h"
-#include "TMath.h"
+//#include "TMath.h"
 const Int_t kFRS = 5;  // size of frame of image on pad in pixels
 
 ClassImp(TQtImage)
@@ -225,7 +225,12 @@ void TQtImage::WriteImage(const char *file, EImageFileTypes type)
       return;
    }
 
-   QString outFormat = QFileInfo(file).extension(FALSE).upper();   
+   QString outFormat = 
+#if QT_VERSION < 0x40000
+      QFileInfo(file).extension(FALSE).upper();   
+#else
+      QFileInfo(file).suffix().toUpper();   
+#endif
    if (type == kUnknown) 
       outFormat = TGQt::QtFileFormat(outFormat);
    
@@ -236,7 +241,11 @@ void TQtImage::WriteImage(const char *file, EImageFileTypes type)
    UInt_t aquality;
    EImageQuality quality = GetImageQuality();
    MapQuality(quality, aquality);
+#if QT_VERSION < 0x40000
    if (!fImage->save(file,outFormat,quality))
+#else
+   if (!fImage->save(file,outFormat.toAscii().constData(),quality))
+#endif
        Error("WriteImage", "error writing file %s", file);
 }
 //______________________________________________________________________________
@@ -384,29 +393,33 @@ void TQtImage::SetImage(const Double_t *imageData, UInt_t width, UInt_t height,
    if (depth == 1) {
       for (x =0; x< width;x++) {
          for (y =0; y< height; y++) {
+#if (QT_VERSION < 0x040000)
             if ( image.bitOrder() == QImage::LittleEndian )
+#else
+            if ( image.format() == QImage::Format_MonoLSB )
+#endif            
                *(image.scanLine(y) + (x >> 3)) |= 
-                   TMath::Nint(((*(imageData++))-fMinValue) / (fMaxValue - fMinValue)) << (x & 7);
+                   int(((*(imageData++))-fMinValue) / (fMaxValue - fMinValue)) << (x & 7);
             else
                *(image.scanLine(y) + (x >> 3)) |= 
-                   TMath::Nint(((*(imageData++))-fMinValue) / (fMaxValue - fMinValue)) << (7 - (x & 7));
+                   int(((*(imageData++))-fMinValue) / (fMaxValue - fMinValue)) << (7 - (x & 7));
       }   }
    } else if (depth == 8) {
       for (x =0; x< width;x++) {
          for (y =0; y< height; y++) {
-            *(image.scanLine(y) + x) = (uchar)TMath::Nint(pal.fNumPoints * ((*(imageData++))-fMinValue) / (fMaxValue - fMinValue));
+            *(image.scanLine(y) + x) = (uchar)int(pal.fNumPoints * ((*(imageData++))-fMinValue) / (fMaxValue - fMinValue));
       }   }
    } else if (depth == 16) {
       for (x =0; x< width; x++) {
          for (y =0; y< height;y++) {
             uint *p = (uint *)image.scanLine(y) + x;
-            *p = qPalette[TMath::Nint(pal.fNumPoints * ((*(imageData++))-fMinValue) / (fMaxValue - fMinValue))];
+            *p = qPalette[int(pal.fNumPoints * ((*(imageData++))-fMinValue) / (fMaxValue - fMinValue))];
       }   }
    } else {
       for (x =0; x< width; x++) {
          for (y =0; y< height;y++) {
             ushort *p = (ushort *)image.scanLine(y) + x;
-            *p = qPalette[TMath::Nint(pal.fNumPoints * ((*(imageData++))-fMinValue) / (fMaxValue - fMinValue))];
+            *p = qPalette[int(pal.fNumPoints * ((*(imageData++))-fMinValue) / (fMaxValue - fMinValue))];
       }   }
    }
    
@@ -455,7 +468,11 @@ void  TQtImage::SetImage(Pixmap_t pxm, Pixmap_t /*mask*/)
    SetName("unknown");
    if (pxm) {
        QPixmap &thisPix = *(QPixmap *)TGQt::iwid(pxm);
+#if (QT_VERSION < 0x040000)
        fImage = new QImage(thisPix.convertToImage ());
+#else
+       fImage = new QImage(thisPix.toImage ());
+#endif
    }
 }
 //______________________________________________________________________________
@@ -658,7 +675,7 @@ void TQtImage::Paint(Option_t *option)
                fScaledImage = new TQtImage(); fScaledImage->SetImage(scaledImg);
             } else {
                // scale image, no zooming
-#if (QT_VERSION < 0x040000)                     
+#if (QT_VERSION < 0x040000)
                 QImage *scaledImg = new QImage(fImage->scale(to_w, to_h));
 #else
                 QImage *scaledImg = new QImage(fImage->scaled(to_w, to_h));
@@ -682,7 +699,11 @@ void TQtImage::Paint(Option_t *option)
    if (tile) {
       delete fScaledImage; fScaledImage = 0;
       QPainter tile(&pxmap);
+#if (QT_VERSION < 0x040000)                     
       QPixmap pxImage(*fImage);
+#else
+      QPixmap pxImage = QPixmap::fromImage(*fImage);
+#endif
       tile.drawTiledPixmap(0,0,to_w,to_h,pxImage);
    } else {
       QPainter normal(&pxmap);
@@ -993,8 +1014,12 @@ void TQtImage::Scale(UInt_t toWidth, UInt_t toHeight)
       if (toHeight <  1   ) toHeight = 1;
       if (toWidth  > 30000) toWidth  = 30000;
       if (toHeight > 30000) toHeight = 30000;
-
-      QImage *img = new QImage(fImage->smoothScale( toWidth, toHeight ));
+      QImage *img = new QImage
+#if (QT_VERSION < 0x040000) 
+                    (fImage->smoothScale( toWidth, toHeight ));
+#else
+       (fImage->scaled( QSize(toWidth, toHeight )));
+#endif
       delete fImage;
       delete fScaledImage; fScaledImage = 0;
 
@@ -1060,8 +1085,13 @@ void TQtImage::Flip(Int_t flip)
    // destroyed.
 
   if (IsValid() ) {
+#if (QT_VERSION < 0x040000)
       QWMatrix flipMatrix;  flipMatrix.rotate(flip);
       QImage *img = new QImage(fImage->xForm(flipMatrix));
+#else
+      QMatrix flipMatrix;  flipMatrix.rotate(flip);
+      QImage *img = new QImage(fImage->transformed(flipMatrix));
+#endif
 
       delete fImage;          fImage        = 0;
       delete fScaledImage;    fScaledImage  = 0;
@@ -1087,7 +1117,12 @@ void TQtImage::Mirror(Bool_t vert)
 
    if (IsValid() ) {
       delete fScaledImage; fScaledImage = 0;
-      QImage *mirror = new QImage(fImage->mirror(!vert,vert));
+      QImage *mirror = new QImage
+#if (QT_VERSION < 0x040000)
+         (fImage->mirror(!vert,vert));
+#else
+         (fImage->mirrored(!vert,vert));
+#endif
       delete fImage;
       fImage = mirror;
       gPad->Modified(kTRUE);
@@ -1152,7 +1187,11 @@ Pixmap_t  TQtImage::GetPixmap()
    if (img) {
       gVirtualX->CreatePixmap(0,GetWidth(),GetHeight());
       QPixmap &thisPix = *(QPixmap *)TGQt::iwid(pixmap);
+#if (QT_VERSION < 0x040000)
       thisPix.convertFromImage(*img);
+#else
+      thisPix = QPixmap::fromImage(*img);
+#endif
    }
    return pixmap; 
 }
@@ -1166,7 +1205,11 @@ Pixmap_t  TQtImage::GetMask()
       gVirtualX->CreatePixmap(0,GetWidth(),GetHeight());
       QPixmap &thisPix = *(QPixmap *)TGQt::iwid(pixmap);
       // QImage mask = img->
+#if (QT_VERSION < 0x040000)
       thisPix.convertFromImage(*img);
+#else
+      thisPix = QPixmap::fromImage(*img);
+#endif
    }
    return pixmap;
 }

@@ -1,4 +1,4 @@
-// @(#)root/qt:$Name:  $:$Id: TQtBrush.h,v 1.1 2006/08/16 19:29:07 fine Exp $
+// @(#)root/qt:$Name:  $:$Id: TQtBrush.h,v 1.2 2009/08/03 18:02:56 fine Exp $
 // Author: Valeri Fine   21/01/2002
 /****************************************************************************
 **
@@ -23,18 +23,21 @@
 #endif
 
 #include "Rtypes.h"
+
+class TAttFill;
+class TPoint;
    //
    // TQtBrush creates the QBrush Qt object based on the ROOT "fill" attributes 
    //
 class TQtBrush : public QBrush
 {
 protected:
-  QColor fBackground;
-  int fStyle;
-  int fFasi;
-#ifdef R__WIN32
-  QPixmap fCustomPixmap; // shadow transparent pixmap fro WIN32
-#endif
+   QColor fBackground;
+   int fStyle;
+   int fFasi;
+   int fAlpha; // transparency
+   void SetColorOwn();
+
 public:
    TQtBrush();
    TQtBrush(const TQtBrush &src):QBrush(src)
@@ -43,13 +46,23 @@ public:
       fStyle=src.fStyle;
       fFasi=src.fFasi;
    }
-   virtual ~TQtBrush(){;}
-   void SetStyle(int style=1000){  SetStyle(style/1000,style%1000); };
+   TQtBrush(const TAttFill &rootFillAttributes);
+   virtual ~TQtBrush();
+   TQtBrush &operator=(const TAttFill &rootFillAttributes);
+   void  SetFillAttributes(const TAttFill &rootFillAttributes);
+   Bool_t IsTransparent() const;
+   void SetStyle(int newStyle=1000){ if (newStyle < 0) fStyle = fFasi = -1;
+                                     else  SetStyle(newStyle/1000,newStyle%1000); 
+                                   };
    void SetStyle(int style, int fasi);
-   void SetColor(const QColor &color);
+   void SetColor(const QColor &qtcolor);
+   void SetColor(Color_t cindex);
    const QColor &GetColor() const { return fBackground;}
    int   GetStyle()         const { return 1000*fStyle + fFasi; }
    ClassDef(TQtBrush,0); // create QBrush object based on the ROOT "fill" attributes 
 };
+
+inline Bool_t TQtBrush::IsTransparent() const
+{ return fStyle >= 4000 && fStyle <= 4100 ? kTRUE : kFALSE; }
 
 #endif

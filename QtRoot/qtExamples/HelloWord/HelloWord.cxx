@@ -1,5 +1,5 @@
 #include <TRint.h>
-#include <qpushbutton.h>
+#include <QtGui/QPushButton>
 int main( int argc, char **argv )
 {  
     // Create an interactive ROOT application

@@ -1,8 +1,10 @@
-// @(#)root/qt:$Name:  $:$Id: QtFileDialog.C,v 1.1 2006/08/16 19:41:06 fine Exp $
+// @(#)root/qt:$Name:  $:$Id: QtFileDialog.C,v 1.2 2009/08/03 18:03:02 fine Exp $
 // Author: Valeri Fine   23/03/2006
 #ifndef __CINT__
-#  include <qfiledialog.h> 
-#  include <qstring.h> 
+#  include <QFileDialog> 
+#  include <QString> 
+#  include "TString.h"
+#  include <string>
 #endif
 TString QtFileDialog() {
   // This is a small ROOT macro to use Qt 3.3 class: begin_html <a href="http://doc.trolltech.com/3.3/qfiledialog.html">QFileDialog</a> end_html
@@ -27,10 +29,10 @@ TString QtFileDialog() {
   // Load the qt cint dictionary.
   // One is recommended to do that at once somewhere.
   // For example  from his/her custom rootlogon.C script
-  gSystem->Load("$ROOTSYS/cint/include/qtcint");
-#endif   
+  gSystem->Load("$ROOTSYS/cint/cint/include/qtcint");
+#endif
   QString fileName = QFileDialog::getOpenFileName ();
-  return TString((const char *)fileName);
+  std::string flnm = fileName.toStdString();
+  return TString(flnm.c_str());
 }
 
- 

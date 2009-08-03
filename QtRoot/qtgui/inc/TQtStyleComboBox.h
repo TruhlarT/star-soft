@@ -1,4 +1,4 @@
-// @(#)root/gui:$Name:  $:$Id: TQtStyleComboBox.h,v 1.3 2007/08/26 17:46:59 fine Exp $
+// @(#)root/gui:$Name:  $:$Id: TQtStyleComboBox.h,v 1.4 2009/08/03 18:03:09 fine Exp $
 // Author: Valeri Fine 07/07/2006
 
 
@@ -24,7 +24,9 @@ class TQtStyleComboBox : public QComboBox {
     
     virtual void Build();
     TEmbeddedPad  &Pad();
-    virtual void AddItem(QPixmap &pix, QString &str);
+    int AddComboItem(QPixmap &pix,  QString &str);
+    int AddComboItem(QFont   &font, QString &str);
+    int AddComboItem(QPen    &pen,  QString &str);
  protected:
     virtual void resizeEvent(QResizeEvent *);
 
@@ -46,9 +48,6 @@ class TQtStyleComboBox : public QComboBox {
 
 class TQtLineStyleComboBox : public TQtStyleComboBox {
 
-protected:
-   virtual void AddItem(QPixmap &pix, QString &str) {TQtStyleComboBox::AddItem(pix,str);}
-
 public:
     TQtLineStyleComboBox(QWidget *parent=0,const QString name="lineStyle");
     virtual ~TQtLineStyleComboBox(){}
@@ -63,8 +62,6 @@ public:
 //////////////////////////////////////////////////////////////////////////
 
 class TQtLineWidthComboBox : public TQtStyleComboBox {
-protected:
-   virtual void AddItem(QPixmap &pix, QString &str) {TQtStyleComboBox::AddItem(pix,str);}
    
 public:
    TQtLineWidthComboBox(QWidget *parent=0,const QString name="Linewidth");
@@ -82,14 +79,14 @@ public:
 
 
 class TQtFontComboBox : public TQtStyleComboBox {
-
-protected:
-   virtual void AddItem(QPixmap &pix, QString &str) {TQtStyleComboBox::AddItem(pix,str);}
-
+Q_OBJECT
 public:
    TQtFontComboBox(QWidget *parent=0, const QString name="fontselector");
    virtual ~TQtFontComboBox(){;}
    virtual void AddItem(int style, bool savepad=TRUE);
+   QSize   sizeHint() const;
+public  slots:
+   void SetFont(int);
 };
 
 #endif

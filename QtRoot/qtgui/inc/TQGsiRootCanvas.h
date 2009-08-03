@@ -1,4 +1,4 @@
-// @(#)root/qtgsi:$Name:  $:$Id: TQGsiRootCanvas.h,v 1.3 2007/10/19 15:03:35 fine Exp $
+// @(#)root/qtgsi:$Name:  $:$Id: TQGsiRootCanvas.h,v 1.4 2009/08/03 18:03:08 fine Exp $
 // Author: Denis Bertini, M. AL-Turany  01/11/2000
 
 /*************************************************************************
@@ -58,10 +58,8 @@ class QEvent;
 
 class TQRootCanvas : public TQtWidget
 {
-#ifndef __CINT__
 #ifndef WIN32
    Q_OBJECT
-#endif
 #endif
 private:
    TQRootCanvas(const TQRootCanvas &);

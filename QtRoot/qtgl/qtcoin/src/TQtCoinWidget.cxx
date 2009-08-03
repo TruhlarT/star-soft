@@ -49,6 +49,8 @@
 #  include <QAction>
 #  include <QCheckBox>
 #  include <QInputDialog>
+#  include <QDebug>
+#  include <QVBoxLayout>
 #endif 
 
 #include <qfile.h>
@@ -78,6 +80,8 @@
 #include <qlayout.h> 
 #include <qframe.h> 
 
+#include  "TQtGLIncludes.h"
+
 #include <Inventor/Qt/SoQt.h>
 #include <Inventor/Qt/SoQtRenderArea.h>
 
@@ -89,7 +93,6 @@
 #include <Inventor/nodes/SoBaseColor.h> 
 #include <Inventor/nodes/SoCallback.h>
 #include <Inventor/nodes/SoEventCallback.h>
-#include <Inventor/actions/SoCallbackAction.h>
 #include <Inventor/nodes/SoMaterial.h>
 #include <Inventor/nodes/SoDrawStyle.h>
 #include <Inventor/nodes/SoTranslation.h>
@@ -98,12 +101,14 @@
 #include <Inventor/nodes/SoPerspectiveCamera.h>
 #include <Inventor/nodes/SoOrthographicCamera.h> 
 #include <Inventor/nodes/SoPickStyle.h>
-#include <Inventor/SoSceneManager.h>
+#include <Inventor/nodes/SoMultipleCopy.h> 
 #include <Inventor/nodes/SoShapeHints.h>
 #include <Inventor/nodes/SoFaceSet.h>
 #include <Inventor/nodes/SoPointSet.h>
 #include <Inventor/nodes/SoLineSet.h>
 #include <Inventor/nodes/SoIndexedLineSet.h>
+#include <Inventor/actions/SoCallbackAction.h>
+#include <Inventor/SoSceneManager.h>
 //#include <Inventor/VRMLnodes/SoVRMLIndexedLineSet.h>
 //#include <Inventor/VRMLnodes/SoVRMLCoordinate.h>
 #include <Inventor/VRMLnodes/SoVRMLShape.h>
@@ -157,17 +162,13 @@
 #include "yc.xpm.h"
 #include "zc.xpm.h"
 
+#if QT_VERSION < 0x040000 // pre Qt 4
+#define QTWIDGET_NOFOCUS QWidget::NoFocus
+#else // Qt 4.0.0+
+#define QTWIDGET_NOFOCUS Qt::NoFocus
+#endif // Qt 4.0.0+
 
 #include <vector>
-#if !defined( __APPLE__ ) || defined(Q_WS_X11)
-#  if  ROOT_VERSION_CODE >= ROOT_VERSION(5,15,9)
-#    include  "TGLIncludes.h"
-#  else
-#    include "TRootGLU.h"
-#  endif
-#else
-#  include <glu.h>
-#endif
 
 //#include "OverlayHighlightRenderAction.h"
 Bool_t TQtCoinWidget::fgCoinInitialized = kFALSE;
@@ -188,6 +189,10 @@ static double Round(double range, int prec=2) {
    return fraction*factor;
 }
 
+//______________________________________________________________________________
+//
+//   TQtAutoRedraw - activate / deactivate the rendering to allow editing
+//______________________________________________________________________________
 class TQtAutoRedraw {
 private: 
    SoQtRenderArea *fArea;
@@ -206,80 +211,186 @@ public:
       }
    }
 };
+
+//______________________________________________________________________________
+//
+//   TCoinSmAxis- set of the axis (and grid) along one direction
+//______________________________________________________________________________
+class TCoinSmAxis : public SoMultipleCopy  {
+ public:
+     enum EAxisType  {kX=0,kY,kZ};
+     enum EAxLocation { kNoLocation=0
+                    , kLocation00=0x1
+                    , kLocation01=0x2
+                    , kLocation11=0x4
+                    , kLocation10=0x8
+                    , kLocationCenter=0x10
+                    };
+   private:
+      SmAxisKit     *fAxis;
+      EAxLocation    fLocation;
+      EAxisType      fAxisType;
+      SbRotation     fRotation;
+      bool           fGrid;
+   public:
+      TCoinSmAxis(EAxisType ax) : SoMultipleCopy()
+         ,fAxis(0)
+         ,fLocation(kNoLocation)
+         ,fAxisType(ax)
+         ,fGrid(false)
+      { 
+         static char *axnames[] = {"X", "Y", "Z"};
+         fAxis = new SmAxisKit();
+         fAxis->axisName = axnames[ax];
+         if (ax==kY) {
+            fRotation.setValue(SbVec3f(0, 0, 1), 1.5707963f);
+         } else if (ax==kZ) {
+            fRotation.setValue(SbVec3f(0, 1, 0), -1.5707963f);
+         }
+         addChild(fAxis);
+
+      }
+      ~TCoinSmAxis() {  }
+      inline float Range() const {
+         // Return the axis range
+         return fAxis ? fAxis->axisRange.getValue()[1] -  fAxis->axisRange.getValue()[0] : 0;
+      }
+      
+      void  ResetValue(unsigned char locations, double *amin, double *amax, double *scenter)
+      {
+         // clean the previos transformation first
+         matrix.deleteValues(0);
+         int mxCounter = 0;
+         for (unsigned char l=0;l < 5; ++l) {
+            int i = 0;
+            float range[kZ+1] = {1956};
+            unsigned char tr = locations & 0x1;
+            locations = locations >> 1;
+            if (!tr) continue;
+            switch (l) {
+            case 0: // kLocation00: at (0,0) point
+              for (i=0; i<=kZ; ++i) { 
+                 range[i]  = amin[i] + ((i==fAxisType) ? TMath::Abs(Range())/2 : 0);
+              }
+              break;
+          case  1: { //kLocation01:   at (0,max)
+              int counter=0;
+              for (i=0; i<=kZ; ++i) {
+                 if (i==fAxisType)
+                     range[i]  = amin[i] + TMath::Abs(Range())/2;
+                 else if (counter++) range[i] = amin[i];
+                 else range[i] = amax[i];
+               } }
+             break;
+           case 2: { // kLocation10: at (max,0)
+              int counter=0;
+              for (i=0; i<=kZ; ++i) {
+                 if (i==fAxisType)
+                     range[i]  = amin[i] + TMath::Abs(Range())/2;
+                 else if (counter++) range[i] = amax[i];
+                 else range[i] = amin[i];
+              } }
+              break;
+           case 3: // kLocation11: at (max,max) point
+              for (i=0; i<=kZ; ++i) {
+                 if (i==fAxisType)
+                      range[i] = amin[i] + TMath::Abs(Range())/2;
+                 else range[i] = amax[i];
+              }
+              break;
+           case 4:  // kLocationCenter: at center  point
+              for (i=0; i<=kZ; ++i) {
+                 if (i==fAxisType)
+                     range[i]  = amin[i] + TMath::Abs(Range())/2;
+                 else range[i] = scenter[i];
+              }
+              break;
+           };
+           SbMatrix mt;
+           mt.setTransform( SbVec3f(range[kX],range[kY],range[kZ])
+                          , fRotation
+                          , SbVec3f(1,1,1)
+                          );
+           
+           matrix.set1Value(mxCounter++,mt);
+         }
+      }
+      SmAxisKit &Axis() const { return *fAxis; }
+};
 //______________________________________________________________________________
 class TCoinAxisSeparator : public SoSeparator 
 {
- public:
-     enum EAxisType  {kX=0,kY,kZ};
  private:
    bool fOn;
-   SmAxisKit *fAxis[3];
-   SoTranslation *fOffset;
+   TCoinSmAxis *fAxis[TCoinSmAxis::kZ+1];
    int fNumberTextLabels;
-   EAxisType fAxisType;
+   unsigned char fLocation[TCoinSmAxis::kZ+1];
  public:
-   TCoinAxisSeparator(EAxisType type=kX): SoSeparator(), fOn(false)
-   , fOffset(0), fNumberTextLabels(-1),fAxisType(type) {
+   //____
+   TCoinAxisSeparator(): SoSeparator(), fOn(false),fNumberTextLabels(-1)
+   {
       setName("MainAxices");
-      static char *axnames[] = {"X", "Y", "Z"};
-      fOffset = new SoTranslation();
-      addChild(fOffset);
-      for (int i=0;i<kZ+1;++i) {
-         SoSeparator *s = new SoSeparator;
-         SoRotation *r = new SoRotation;
-         fAxis[i] = new SmAxisKit();
-         fAxis[i]->axisName = axnames[i];
-         if (i==kY) {
-            r->rotation.setValue(SbVec3f(0, 0, 1), 1.5707963f);
-         } else if (i==kZ) {
-            r->rotation.setValue(SbVec3f(0, 1, 0), -1.5707963f);
-         }
-         s->addChild(r);
-         s->addChild(fAxis[i]);
-         addChild(s);
-      }
+      for (int i=0;i<=TCoinSmAxis::kZ;++i) {
+          addChild ( fAxis[i] = new TCoinSmAxis(TCoinSmAxis::EAxisType(i)));
+          fLocation[i] = 0x10; // TCoinSmAxis::kLocationCenter ;
+          // fLocation[i] = 0x1; // TCoinSmAxis::kLocation00;
+       }
    }
+   //____
    bool IsOn() const { return fOn; }
-   SmAxisKit &Axis(EAxisType type=kX) const { return *fAxis[type]; }
+   //____
+   SmAxisKit &Axis(TCoinSmAxis::EAxisType type=TCoinSmAxis::kX) const { return fAxis[type]->Axis(); }
+   //____
    void SetOn(bool on=true) { fOn = on; }
+   //____
    void Connect(SoGroup *node, bool connect=true){
       if (connect) node->insertChild(this,0);
       else         node->removeChild(this);
    }
+   //____
    void Disconnect(SoGroup *node) { Connect(node,false); }
-   void SetRange(float amin, float amax, EAxisType type=kX, int nLabels = 12) {
-      double range = amax - amin;
-      double textInterval  = Round(range/nLabels);
-      amin = textInterval*int(amin/textInterval - (amin < 0 ? 1:0));
-      fAxis[type]->textInterval  = textInterval;
-      fAxis[type]->axisRange.setValue(amin,amax);
-      fAxis[type]->markerHeight  = textInterval/15;
-      fAxis[type]->markerInterval= textInterval/10;
-      // set the new offset
-      double offset  = (amin + amax)/2;
-      fOffset->translation.setValue(offset, 0.0f, 0.0f);
-   }
-   void SetRanges(double *amin, double *amax, int *nLabels) {
-      double offset[kZ+1] = {0};
-      for (int i=0;i<kZ+1;++i) {
-         double range = amax[i] - amin[i];
-         double textInterval  = Round(range/nLabels[i]);
-         float mn = textInterval*int(amin[i]/textInterval - (amin[i] < 0 ? 1:0));
-         fAxis[i]->textInterval  = textInterval;
-         fAxis[i]->axisRange.setValue(mn,amax[i]);
-         fAxis[i]->markerHeight  = textInterval/15;
-         fAxis[i]->markerInterval= textInterval/10;
-         // set the new offset
-         offset[i]  = (mn + amax[i])/2;
+   //____
+   void SetRanges(double *vmin, double *vmax) {
+      int nLabels[3] = {0};
+      double offsetc[TCoinSmAxis::kZ+1] = {0};
+      double amin[3];  double amax[3];
+      double width ;
+      for (int i=0;i<=TCoinSmAxis::kZ; ++i) {
+         offsetc[i] = (vmax[i] + vmin[i])/2;
+         THLimitsFinder::Optimize(vmin[i],vmax[i],15,amin[i],amax[i],nLabels[i],width);
       }
-      fOffset->translation.setValue(offset[kX], offset[kY], offset[kZ]);
-      // Rotate yz and Z now
+      double offset[TCoinSmAxis::kZ+1] = {0};
+      for (int i=0;i<=TCoinSmAxis::kZ;++i) {
+         double range            = amax[i] - amin[i];
+         double textInterval     = Round(range/nLabels[i]);
+         float mn = textInterval*int(amin[i]/textInterval - (amin[i] < 0 ? 1:0));
+         fAxis[i]->Axis().textInterval   = textInterval;
+         fAxis[i]->Axis().axisRange.setValue(mn,amax[i]);  // It will be centered !!!
+         fAxis[i]->Axis().markerHeight   = textInterval/15;
+         fAxis[i]->Axis().markerInterval = textInterval/10;
+         // set the new offset
+         offset[i]  = mn; //(mn + amax[i])/2;
+      }
+      // do not forget to remove memcpy from above
+      for (int i=0;i<=TCoinSmAxis::kZ;++i) {
+        fAxis[i]->ResetValue(fLocation[i], offset, amax, offsetc);
+      }
    }
-   void SetTextLabelNumber(EAxisType type=kX,int nLabels=12) {
+   //____
+   void SetTextLabelNumber(TCoinSmAxis::EAxisType type=TCoinSmAxis::kX,int nLabels=12) {
       if (fAxis[type] && (nLabels > 0)) 
-         fAxis[type]->textInterval = Round(fAxis[type]->axisRange.getValue().length()/nLabels);
+         fAxis[type]->Axis().textInterval = Round(fAxis[type]->Axis().axisRange.getValue().length()/nLabels);
    }
-};
+  //____
+  void SetLocation(unsigned  char location, TCoinSmAxis::EAxisType type=TCoinSmAxis::kX) 
+  { 
+     // qDebug() << "TCoinAxisSeparator::SetLocation type:" << type << " location:" << hex <<location;
+     fLocation[type] = location;
+  }
+  //____
+  unsigned  char GetLocation(TCoinSmAxis::EAxisType type=TCoinSmAxis::kX) 
+  { return fLocation[type]; }
+ };
 
 //______________________________________________________________________________
 SoGLRenderAction &TQtCoinWidget::BoxHighlightAction()
@@ -299,13 +410,11 @@ SoGLRenderAction &TQtCoinWidget::LineHighlightAction()
 //______________________________________________________________________________
 static void ViewerKeyPressCB(void *userData, SoEventCallback *eventCB)
 {
-   fprintf(stderr,"ViewerKeyPressCB --> \n");
    if (userData) {
       TQtCoinWidget *currentViewer = (TQtCoinWidget *)userData;
       {
          const SoKeyboardEvent  *event = (SoKeyboardEvent *)eventCB->getEvent();
          int axis = 0;
-         fprintf(stderr,"ViewerKeyPressCB %d\n", event->getKey());
          switch (event->getKey()) {
             case SoKeyboardEvent::X: 
                axis = 0; break;
@@ -600,7 +709,7 @@ TQtCoinWidget::TQtCoinWidget(QWidget *parent, COINWIDGETFLAGSTYPE f)
    , fInventorViewer(0),fRootNode(0)
    , fShapeNode(0),fWiredShapeNode(0),fClippingShapeNode(0),fSolidShapeNode(0),fRawShapeNode(0)
    , fFileNode(0),fSelNode(0),fAnnotation(0),fFooterText(0),fCamera(0),fAxes(0)
-   , fXAxis(0), fYAxis(0), fZAxis(0),fCameraSensor(0),fPickedObject(0),fEnableObjectPick(true)
+   , fXAxis(0),fCameraSensor(0),fPickedObject(0),fEnableObjectPick(true)
    , fSaveType("JPEG"),fMaxSnapFileCounter(2),fSnapshotCounter(0),fPad(0),fContextMenu(0),fSelectedObject(0)
    , fWantRootContextMenu(kFALSE)
    //,fGLWidget(0),fSelectedView(0),fSelectedViewActive(kFALSE)
@@ -691,7 +800,7 @@ TQtCoinWidget::TQtCoinWidget(TVirtualPad *pad, const char *title,
    , fInventorViewer(0),fRootNode(0)
    , fShapeNode(0),fWiredShapeNode(0),fClippingShapeNode(0),fSolidShapeNode(0),fRawShapeNode(0)
    , fFileNode(0),fSelNode(0),fAnnotation(0),fFooterText(0),fCamera(0),fAxes(0)
-   , fXAxis(0), fYAxis(0), fZAxis(0),fCameraSensor(0),fPickedObject(0),fEnableObjectPick(true)
+   , fXAxis(0),fCameraSensor(0),fPickedObject(0),fEnableObjectPick(true)
    , fSaveType("JPEG"),fMaxSnapFileCounter(2),fSnapshotCounter(0),fPad(pad),fContextMenu(0),fSelectedObject(0)
    , fWantRootContextMenu(kFALSE)
    //,fGLWidget(0),fSelectedView(0),fSelectedViewActive(kFALSE)
@@ -840,12 +949,17 @@ TQtCoinWidget::~TQtCoinWidget()
    if (fAxes)         { fAxes        ->unref(); fAxes          = 0;}
 #endif
    if (fXAxis)        { fXAxis       ->unref(); fXAxis         = 0;}
-   if (fYAxis)        { fYAxis       ->unref(); fYAxis         = 0;}
-   if (fZAxis)        { fZAxis       ->unref(); fZAxis         = 0;}
    delete fBoxHighlightAction; fBoxHighlightAction  = 0;
    delete fLineHighlightAction;fLineHighlightAction = 0;
    delete fCameraSensor;       fCameraSensor        = 0;
    if (fRootNode)     { fRootNode    ->unref(); fRootNode      = 0;}
+}
+//______________________________________________________________________________
+TCoinAxisSeparator    *TQtCoinWidget::Axes()
+{
+   // Create an instance of the coordinate axes collection at once
+   if (!fXAxis) { fXAxis = new TCoinAxisSeparator; fXAxis->ref(); }
+   return fXAxis;
 }
 
 //______________________________________________________________________________
@@ -1673,30 +1787,25 @@ void TQtCoinWidget::SynchTPadCB(bool on)
 void TQtCoinWidget::ShowFrameAxisCB(bool on)
 {  
    if (on) {
-      if (!fXAxis) { fXAxis = new TCoinAxisSeparator; fXAxis->ref(); }
+      Axes();
       
       SoGetBoundingBoxAction ba(fInventorViewer->getViewportRegion());
       ba.apply(fShapeNode);
    
       SbBox3f box = ba.getBoundingBox();
       double  amin[] = {-1,-1,-1};  double  amax[] = {+1, +1 , +1 };
-      // check range to avoid the crash before any geometry added to the viewer
-      double aminopt[3];  double amaxopt[3]; double width ;int ndivopt[3];
       if ( (TMath::Abs(box.getMin()[0])< 1.0E+37) &&  (TMath::Abs(box.getMin()[0]) < 1.0E+37))
       {
          for (int i=0;i<3; ++i) {
            amin[i] = box.getMin()[i];
            amax[i] = box.getMax()[i];
-	   // correct th axis size
-	   double correction = (amax[i]-amin[i])/10;
-	   amin[i] -= correction;
-	   amax[i] += correction;
+           // correct the axis size
+           double correction = (amax[i]-amin[i])/10;
+           amin[i] -= correction;
+           amax[i] += correction;
         }
       }
-      for (int i=0;i<3; ++i) {
-         THLimitsFinder::Optimize(amin[i],amax[i],15,aminopt[i],amaxopt[i],ndivopt[i],width);
-      }
-      fXAxis->SetRanges(&aminopt[0], &amaxopt[0] ,&ndivopt[0]);
+      fXAxis->SetRanges(&amin[0], &amax[0]);
       fXAxis->Connect(fShapeNode);
    } else {
       if (fXAxis) fXAxis->Disconnect(fShapeNode);
@@ -1831,7 +1940,7 @@ void TQtCoinWidget::CreateViewer( const QString &/*name*/)
    if ( !fgCoinInitialized) { 
       SoQt::init(this); 
       SoHardCopy::init();
- #ifdef __SMALLCHANGE__ 
+#ifdef __SMALLCHANGE__ 
       smallchange_init(); 
 #endif
      fgCoinInitialized = kTRUE;
@@ -1981,20 +2090,16 @@ void TQtCoinWidget::CreateViewer( const QString &/*name*/)
    fSelNode->setPickFilterCallback(PickFilterCB, this); 		//!
    
    QVBoxLayout *l  = new QVBoxLayout(this);
+   l->setSpacing(0);
+   l->setContentsMargins (0,0,0,0);
    fInventorViewer = new SoQtExaminerViewer(this);
    // Decorate it with the extra buttons
    // add X, Y, Z viewpoint buttons
    //  X-button
    SoQtFullViewer *fullViewer = (SoQtFullViewer *)fInventorViewer;
-   QWidget *buttonParent = fullViewer->getAppPushButtonParent();
-
-   QPushButton *button = new QPushButton(buttonParent);
-   button->setFocusPolicy(
-#if QT_VERSION < 0x40000
-   QWidget::NoFocus);
-#else   
-   Qt::NoFocus);
-#endif   
+   // buttonParent->layout()->setContentsMargins(0,0,0,0);
+   QPushButton *button = new QPushButton(this);
+   button->setFocusPolicy(QTWIDGET_NOFOCUS);
    button->setPixmap(QPixmap((const char **) x_xpm));
    QObject::connect(button, SIGNAL(clicked()),
                     this, SLOT(ViewPlaneX()));
@@ -2002,16 +2107,15 @@ void TQtCoinWidget::CreateViewer( const QString &/*name*/)
    QToolTip::add(button,"View the YZ plane");
 #else
    button->setToolTip(tr("View the YZ plane"));
-#endif      
+#endif
+   button->setIconSize(QSize(24, 24));
+   button->setFixedSize(30, 30);
+   button->adjustSize();
    fullViewer->addAppPushButton(button);
+
    //  Y-button
-   button = new QPushButton(buttonParent);
-   button->setFocusPolicy(
-#if QT_VERSION < 0x40000
-   QWidget::NoFocus);
-#else   
-   Qt::NoFocus);
-#endif   
+   button = new QPushButton(this);
+   button->setFocusPolicy(QTWIDGET_NOFOCUS);
    button->setPixmap(QPixmap((const char **) y_xpm));
    QObject::connect(button, SIGNAL(clicked()),
                     this, SLOT(ViewPlaneY()));
@@ -2020,16 +2124,14 @@ void TQtCoinWidget::CreateViewer( const QString &/*name*/)
 #else   
    button->setToolTip(tr("View the XZ plane"));
 #endif   
+   button->setIconSize(QSize(24, 24));
+   button->setFixedSize(30, 30);
+   button->adjustSize();
    fullViewer->addAppPushButton(button);
 
    //  Z-button
-   button = new QPushButton(buttonParent);
-   button->setFocusPolicy(
-#if QT_VERSION < 0x40000
-   QWidget::NoFocus);
-#else   
-   Qt::NoFocus);
-#endif   
+   button = new QPushButton(this);
+   button->setFocusPolicy(QTWIDGET_NOFOCUS);
    button->setPixmap(QPixmap((const char **) z_xpm));
    QObject::connect(button, SIGNAL(clicked()),
                     this, SLOT(ViewPlaneZ()));
@@ -2038,19 +2140,17 @@ void TQtCoinWidget::CreateViewer( const QString &/*name*/)
 #else   
    button->setToolTip(tr("View the XY plane"));
 #endif   
+   button->setIconSize(QSize(24, 24));
+   button->setFixedSize(30, 30);
+   button->adjustSize();
    fullViewer->addAppPushButton(button);
 
     // Clip Plane buttons;
 
    //  X-button
-   button = new QPushButton(buttonParent);
+   button = new QPushButton(this);
    button->setName("z");
-   button->setFocusPolicy(
-#if QT_VERSION < 0x40000
-   QWidget::NoFocus);
-#else   
-   Qt::NoFocus);
-#endif   
+   button->setFocusPolicy(QTWIDGET_NOFOCUS);
    button->setPixmap(QPixmap((const char **) xc_xpm));
    QObject::connect(button, SIGNAL(clicked()),
                     this, SLOT(SetClipPlaneXCB()));
@@ -2059,16 +2159,15 @@ void TQtCoinWidget::CreateViewer( const QString &/*name*/)
 #else   
    button->setToolTip(tr("Clip the YZ plane"));
 #endif   
+   button->setIconSize(QSize(24, 24));
+   button->setFixedSize(30, 30);
+   button->adjustSize();
    fullViewer->addAppPushButton(button);
+   
    //  Y-button
-   button = new QPushButton(buttonParent);
+   button = new QPushButton(this);
    button->setName("y");
-   button->setFocusPolicy(
-#if QT_VERSION < 0x40000
-   QWidget::NoFocus);
-#else   
-   Qt::NoFocus);
-#endif   
+   button->setFocusPolicy(QTWIDGET_NOFOCUS);
    button->setPixmap(QPixmap((const char **) yc_xpm));
    QObject::connect(button, SIGNAL(clicked()),
                     this, SLOT(SetClipPlaneYCB()));
@@ -2077,17 +2176,15 @@ void TQtCoinWidget::CreateViewer( const QString &/*name*/)
 #else
    button->setToolTip(tr("Clip the XZ plane"));
 #endif   
+   button->setIconSize(QSize(24, 24));
+   button->setFixedSize(30, 30);
+   button->adjustSize();
    fullViewer->addAppPushButton(button);
 
    //  Z-button
-   button = new QPushButton(buttonParent);
+   button = new QPushButton(this);
    button->setName("z");
-   button->setFocusPolicy(
-#if QT_VERSION < 0x40000
-   QWidget::NoFocus);
-#else   
-   Qt::NoFocus);
-#endif   
+   button->setFocusPolicy(QTWIDGET_NOFOCUS);
    button->setPixmap(QPixmap((const char **) zc_xpm));
    QObject::connect(button, SIGNAL(clicked()),
                     this, SLOT(SetClipPlaneZCB()));
@@ -2096,16 +2193,14 @@ void TQtCoinWidget::CreateViewer( const QString &/*name*/)
 #else
    button->setToolTip(tr("Clip the XY plane"));
 #endif   
+   button->setIconSize(QSize(24, 24));
+   button->setFixedSize(30, 30);
+   button->adjustSize();
    fullViewer->addAppPushButton(button);
 
    //  Plane-switch-button
-   fClipPlaneState = new QCheckBox(buttonParent);
-   button->setFocusPolicy(
-#if QT_VERSION < 0x40000
-   QWidget::NoFocus);
-#else   
-   Qt::NoFocus);
-#endif   
+   fClipPlaneState = new QCheckBox();
+   button->setFocusPolicy(QTWIDGET_NOFOCUS);
    fClipPlaneState->setTristate(true);
    fClipPlaneState->setNoChange();
    // button->setPixmap(QPixmap((const char **) zc_xpm));
@@ -2116,7 +2211,10 @@ void TQtCoinWidget::CreateViewer( const QString &/*name*/)
 #else
    fClipPlaneState->setToolTip(tr("Switch between edit/clip/no clip views"));
 #endif   
-    fullViewer->addAppPushButton(fClipPlaneState);
+   button->setIconSize(QSize(24, 24));
+   button->setFixedSize(30, 30);
+   button->adjustSize();
+   fullViewer->addAppPushButton(fClipPlaneState);
 
 
    //  Slice-switch-button
@@ -2124,12 +2222,7 @@ void TQtCoinWidget::CreateViewer( const QString &/*name*/)
    // suspend this feature for the time being
    button = new QPushButton(buttonParent);
    button->setName("slice");
-   button->setFocusPolicy(
-#if QT_VERSION < 0x40000
-   QWidget::NoFocus);
-#else   
-   Qt::NoFocus);
-#endif   
+   button->setFocusPolicy(QTWIDGET_NOFOCUS);
    button->setPixmap(QPixmap((const char **) zc_xpm));
    QObject::connect(button, SIGNAL(clicked()),
                     this, SLOT(SetSlicePlaneCB()));
@@ -2138,8 +2231,12 @@ void TQtCoinWidget::CreateViewer( const QString &/*name*/)
 #else
    button->setToolTip(tr("Slice plane"));
 #endif   
-      fullViewer->addAppPushButton(button);
-#endif
+   button->setIconSize(QSize(24, 24));
+   button->setFixedSize(30, 30);
+   button->adjustSize();
+   fullViewer->addAppPushButton(button);
+#endif  
+
    l->addWidget(fInventorViewer->getWidget());
    fInventorViewer->setSceneGraph(fRootNode);
    fInventorViewer->setTransparencyType(SoGLRenderAction::NONE);
@@ -2638,16 +2735,19 @@ void TQtCoinWidget::SetClipPlaneMan(bool on, float x, float y, float z)
         ba.apply(fShapeNode);
         SbBox3f box = ba.getBoundingBox();
 // offset -------------------
-        if (gSystem->Getenv("STAR")) {
-           const char *axisname = "";
+//        if (gSystem->Getenv("STAR"))  // what it is STAR feature ?
+        {
+           // const char *axisname = "";
            int xslector[3] = {0,0,0};
            int planeDirection = 2; // Z be default
            if (x) planeDirection = 0;
            else if (y) planeDirection = 1;
            const char *axnames[3] = {"X","Y","Z"};
+           bool ok;
            QString a = "Offset along "; a += axnames[planeDirection]; a += ":";
-           double offset = QInputDialog::getDouble("DCut",a,fPivotClipPoint[planeDirection]);
-           if (offset > 0)  {
+           double offset = QInputDialog::getDouble(this,"DCut",a,fPivotClipPoint[planeDirection]
+               ,-2147483647, 2147483647, 1, &ok);
+           if (ok)  {
               // -------------------------------------- 
               // shift box if needed
               fInventorViewer->setCameraType(SoOrthographicCamera::getClassTypeId());
@@ -2785,6 +2885,28 @@ void TQtCoinWidget::RotateCamera(SoCamera * cam,
   cam->orientation.getValue().multVec(DEFAULTDIRECTION, newdir);
   cam->position = focalpoint - cam->focalDistance.getValue() * newdir;
 }
+
+//______________________________________________________________________________
+void TQtCoinWidget::SetLocation(unsigned  char location, int axIndex)
+{
+   // Set  the number of the location of the axise for "axIndex" direction
+   // axIndex = 0 - X - direction
+   //           1   Y - direction
+   //           2   Z - direction
+   // location - bit masks to define the number of the axice and the its positions:
+   //
+   Axes()->SetLocation(location, TCoinSmAxis::EAxisType(axIndex));
+} 
+//______________________________________________________________________________
+unsigned  char TQtCoinWidget::GetLocation(int axIndex)
+{
+   // return mask defining the number and locations pof the axis
+   // axIndex  = 0 - X - axis
+   //            1 - Y - axis
+   //            2 - Z - axis
+   return Axes()->GetLocation(TCoinSmAxis::EAxisType(axIndex));
+}
+
 #if 1
 //______________________________________________________________________________
 void TQtCoinWidget::ViewPlaneZ() const

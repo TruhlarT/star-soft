@@ -1,8 +1,8 @@
-// @(#)root/ged:$Name:  $:$Id: TQtGedEditor.cxx,v 1.1 2007/07/06 23:02:44 fine Exp $
+// @(#)root/ged:$Name:  $:$Id: TQtGedEditor.cxx,v 1.2 2009/08/03 18:02:58 fine Exp $
 // Author: Valeri Fine 10/07/2004
 
 /****************************************************************************
-** $Id: TQtGedEditor.cxx,v 1.1 2007/07/06 23:02:44 fine Exp $
+** $Id: TQtGedEditor.cxx,v 1.2 2009/08/03 18:02:58 fine Exp $
 **
 ** Copyright (C) 2004 by Valeri Fine.  All rights reserved.
 **
@@ -41,22 +41,18 @@
 #include "TQtAxisEditor.h"
 #include "TQtArrowEditor.h"
 #include "TQtCanvasWidget.h"
+#include "TQtWidget.h"
 
 #ifdef R__WIN32
 #  include "TPadEditorHelper.h"
 #endif
-#if QT_VERSION < 0x40000
-#  include <qdockarea.h> 
-#else /* QT_VERSION */
-#endif /* QT_VERSION */
+
+#include <QTimer> 
+#include <QDebug> 
 
 std::list<TQtGedFactoryI *> *TQtGedEditor::fgGedFactoriesList = 0;
-#if QT_VERSION < 0x40000
-  Qt::Dock  TQtGedEditor::fgDockPosition =  Qt::DockLeft; // The default ediotrs position
-#else /* QT_VERSION */
-  Qt::DockWidgetArea  TQtGedEditor::fgDockPosition =  Qt::LeftDockWidgetArea; // The default ediotrs position
-#endif /* QT_VERSION */
- 
+Qt::DockWidgetArea  TQtGedEditor::fgDockPosition =  Qt::LeftDockWidgetArea; // The default ediotrs position
+
 ClassImp(TQtGedEditor)
 
 enum {
@@ -104,22 +100,14 @@ void TQtGedEditor::Build()
    }
 }
 //______________________________________________________________________________
-#if QT_VERSION < 0x40000
-void TQtGedEditor::SetDefaultPosition(Qt::Dock dockPosition)
-#else /* QT_VERSION */
 void TQtGedEditor::SetDefaultPosition(Qt::DockWidgetArea dockPosition)
-#endif /* QT_VERSION */
 {
     // Set the default editor positions
     fgDockPosition = dockPosition;
 }
 
 //______________________________________________________________________________
-#if QT_VERSION < 0x40000
-Qt::Dock TQtGedEditor::DefaultPosition()
-#else /* QT_VERSION */
 Qt::DockWidgetArea TQtGedEditor::DefaultPosition()
-#endif /* QT_VERSION */
 {
     // return the default editor positions
     return fgDockPosition;
@@ -140,13 +128,8 @@ void TQtGedEditor::Insert(TQtGedAttInterfaceB *frame)
 {
    // Add the frame to the container of the object editors
    if (frame) {
-#if QT_VERSION < 0x40000
-      fCanvasImpID->moveDockWindow( frame->Dock(),fgDockPosition);
-#else /* QT_VERSION */
-      
       fCanvasImpID->removeDockWidget( frame->Dock());
       fCanvasImpID->addDockWidget( fgDockPosition,frame->Dock());
-#endif /* QT_VERSION */
       fGedPropertyFrames.push_back(frame);
       if (!frame->IsInitialized()) frame->CompleteInit();
       frame->ConnectToCanvas(fCanvas);
@@ -186,6 +169,7 @@ void TQtGedEditor::CloseWindow()
 void TQtGedEditor::Show()
 {
     // Show editor.
+    QApplication::setOverrideCursor(QCursor(Qt::WaitCursor));
     fCanvasImpID->setUpdatesEnabled(FALSE);
     TCanvas *newCanvas = 0;
     // Check whether one needs to reconnect the editor to another TCanvas
@@ -194,28 +178,8 @@ void TQtGedEditor::Show()
     }
 
     if (!fDock ) {
-#if QT_VERSION < 0x40000
-       switch(fgDockPosition) {
-          case Qt::DockTop:       //  above the central widget, below the menu bar. 
-             fDock = ((QMainWindow *)fCanvasImpID)->leftDock();
-             break;
-          case Qt::DockBottom:    // below the central widget, above the status bar. 
-             fDock = ((QMainWindow *)fCanvasImpID)->leftDock();
-             break;
-          case Qt::DockLeft:      // to the left of the central widget. 
-             fDock = ((QMainWindow *)fCanvasImpID)->leftDock();
-             break;
-          case Qt::DockRight:     // to the right of the central widget. 
-             fDock = ((QMainWindow *)fCanvasImpID)->leftDock();
-             break;
-          default:
-             fDock = new QDockArea(Qt::Vertical, QDockArea::Normal, fCanvasImpID, "GedEditor");
-             break;
-       };
-#else
        fDock = new QDockWidget(fCanvasImpID);
        fCanvasImpID->addDockWidget(fgDockPosition,fDock);
-#endif /* QT_VERSION */
        Build();
        QSize size = fDock->frameSize() + QSize(0,50);
        fDock->resize(size);
@@ -228,8 +192,11 @@ void TQtGedEditor::Show()
        else                frame->Hide();
        frame->Connect(newCanvas);
     }
+    fDock->show();
     fCanvasImpID->setUpdatesEnabled(TRUE);
     if (fIsMainWindow == kOrdinaryWidget ) fCanvasImpID->show();
+    else QTimer::singleShot(0,(TQtWidget*)fCanvasID, SLOT(Refresh()));
+    QApplication::restoreOverrideCursor();
 }
 
 //______________________________________________________________________________
@@ -237,8 +204,10 @@ void TQtGedEditor::Hide()
 {
    // Hide editor.
     if (!fDock) return;
-    if (fIsMainWindow == kOrdinaryWidget ) fCanvasImpID->hide();
+    QApplication::setOverrideCursor(QCursor(Qt::WaitCursor));
     fCanvasImpID->setUpdatesEnabled(FALSE);
+    if (fIsMainWindow == kOrdinaryWidget ) fCanvasImpID->hide();
+    else fDock->hide();
     std::list<TQtGedAttInterfaceB *>::iterator it = fGedPropertyFrames.begin();
     for (; it != fGedPropertyFrames.end(); ++it) {
        TQtGedAttInterfaceB *frame = *it;
@@ -246,6 +215,8 @@ void TQtGedEditor::Hide()
        frame->Hide();
     }
     fCanvasImpID->setUpdatesEnabled(TRUE);
+    if (fIsMainWindow != kOrdinaryWidget ) QTimer::singleShot(0,(TQtWidget*)fCanvasID, SLOT(Refresh()));
+    QApplication::restoreOverrideCursor();
 }
 
 //______________________________________________________________________________

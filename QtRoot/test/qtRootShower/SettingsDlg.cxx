@@ -15,13 +15,13 @@
 #include "constants.h"
 #include "RSHelpText.h"
 
-#include <qhbox.h>
-#include <qvbuttongroup.h> 
+#include <q3hbox.h>
+#include <q3buttongroup.h> 
 #include <qradiobutton.h>
 #include <qtooltip.h>
-#include <qvgroupbox.h> 
-#include <qlistbox.h>
-#include <qtable.h>
+#include <q3vgroupbox.h> 
+#include <q3listbox.h>
+#include <q3table.h>
 #include <qmessagebox.h>
 
 // definition of structure used to retrieve
@@ -82,7 +82,7 @@ str_choice_def choice_def[] = {
 
 //______________________________________________________________________________
 SettingsDialog::SettingsDialog(RootShower *p,unsigned int /*w*/, unsigned int /*h*/ )
-                          : QTabDialog(p,"SettingsDialog",true)
+                          : Q3TabDialog(p,"SettingsDialog",true)
 {
     // Create a dialog window. A dialog window pops up with respect to its
     // "main" window.
@@ -91,12 +91,12 @@ SettingsDialog::SettingsDialog(RootShower *p,unsigned int /*w*/, unsigned int /*
 
     setCaption("Shower Settings");
     //--------- create Tab widget and some composite frames for Tab testing
-    QHBox *tf = new QHBox(this,"TargetPropertiesBox");
+    Q3HBox *tf = new Q3HBox(this,"TargetPropertiesBox");
     addTab(tf,"Target properties");
  // First tab 
  // --  material 
     {  // we made the bracket just to highlight the first tab staff
-       fF1 = new QVButtonGroup("Material",tf);
+       fF1 = new Q3VButtonGroup("Material",tf);
        fF1->setRadioButtonExclusive (true);
        {
           QRadioButton *radioButton =new QRadioButton ( "Polystyrene", fF1);
@@ -118,11 +118,11 @@ SettingsDialog::SettingsDialog(RootShower *p,unsigned int /*w*/, unsigned int /*
           fF1->setButton(p->fMaterial);
        }
 
-       QVGroupBox  *dimensionBox = new QVGroupBox  ( "Dimensions", tf);
+       Q3VGroupBox  *dimensionBox = new Q3VGroupBox  ( "Dimensions", tf);
        dimensionBox->setAlignment(Qt::AlignRight);
        {
           // another matrix with text and buttons
-          fDimensionTable = new QTable ( 3,1, dimensionBox);
+          fDimensionTable = new Q3Table ( 3,1, dimensionBox);
           fDimensionTable->setRowLabels (QStringList::split(",","X [cm],Y [cm],Z [cm]"));
           fDimensionTable->setTopMargin( 0 );
 
@@ -137,20 +137,20 @@ SettingsDialog::SettingsDialog(RootShower *p,unsigned int /*w*/, unsigned int /*
        }
     }
 //---  second tab
-    tf = new QHBox(this,"PhysicsSettingsx");
+    tf = new Q3HBox(this,"PhysicsSettingsx");
     addTab(tf,"Physics settings");
 // Particle box
     {
-       fListBox = new QListBox(new QVGroupBox ( "Particle", tf),"Particle");
+       fListBox = new Q3ListBox(new Q3VGroupBox ( "Particle", tf),"Particle");
        for (i = 0; choice_def[i].pdg_name; i++) {
           fListBox->insertItem(choice_def[i].pdg_name);
        }
 
-       QVGroupBox *groupBox  = new QVGroupBox  ( "E0 / B", tf);
+       Q3VGroupBox *groupBox  = new Q3VGroupBox  ( "E0 / B", tf);
        groupBox->setAlignment(Qt::AlignRight);
        {
           // another matrix with text and buttons
-          fParticleTable = new QTable (2,1, groupBox);
+          fParticleTable = new Q3Table (2,1, groupBox);
           fParticleTable->setRowLabels (QStringList::split(",","E0 [GeV],B [kGauss]"));
           fParticleTable->setTopMargin( 0 );
 
@@ -188,7 +188,7 @@ void SettingsDialog::ProcessMessage()
 {
    // Process messages coming from widgets associated with the dialog.
    Int_t Selection;
-   QListBoxItem *selected = fListBox->selectedItem ();
+   Q3ListBoxItem *selected = fListBox->selectedItem ();
    Selection = fListBox->index(selected);
    if(Selection > 37) {
       QMessageBox::critical (this, "Particle selection" 

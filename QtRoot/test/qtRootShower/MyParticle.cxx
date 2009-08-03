@@ -11,6 +11,7 @@
 
 #include <TRandom.h>
 #include <TParticle.h>
+#include <TParticlePDG.h>
 #include "MyParticle.h"
 #include "TVector3.h"
 #include "constants.h"

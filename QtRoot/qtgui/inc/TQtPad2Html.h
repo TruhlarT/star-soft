@@ -12,12 +12,6 @@
 **
 *****************************************************************************/
 
-#ifndef __CINT__
-#include "qstring.h"
-#else
-class QString;
-#endif
-
 ////////////////////////////////////////////////////////////////////////////
 //                                                                        //
 // class QtPad2Html  converts the TPad object into the Html format        //
@@ -38,25 +32,29 @@ class TVirtualPad;
 class QTextStream;
 class TObject;
 class QFile;
+class QString;
+class TH1;
+class TIter;
 
 class TQtPad2Html {
 private:
-     QString fAuthorName;
-     QString fAuthorEmail;
-     QString fFullHtmlName;
-     QString fFullImageName;
-     QString fHtmlFolder;
+     QString *fAuthorName;
+     QString *fAuthorEmail;
+     QString *fFullHtmlName;
+     QString *fFullImageName;
+     QString *fHtmlFolder;
      TVirtualPad *fPad;
      QTextStream *fHtml;
      QFile       *fFile;
 
 protected:
-   TQtPad2Html(TVirtualPad *pad,bool,const QString &folder = QString());
+   TQtPad2Html(TVirtualPad *pad,bool,const QString &folder);
    virtual QTextStream &EndTag(const QString &tagName);
    virtual QTextStream &Eol();
    virtual QTextStream &Html();
    virtual QTextStream &HtmlTag(const char* tagName, const char *tagParameters=0, bool closed=false);
    virtual QTextStream &Quote();
+   virtual QTextStream &MapHistograms(TVirtualPad *pad);
    virtual void Close();
 
   public:
@@ -70,10 +68,12 @@ protected:
      virtual const QString &HtmlFolder();
      virtual QTextStream &OpenHeader(TVirtualPad *pad=0);
      virtual TVirtualPad *Pad() const;
-     virtual QString &PadHtmlFile(TVirtualPad *pad=0, const char *name =0);
+     virtual const QString &PadHtmlFile(TVirtualPad *pad=0, const char *name =0);
      virtual const    QString &PadImageFile(TVirtualPad *pad=0, const char *name =0);
      virtual void     SetFolder(const QString &folder);
      virtual void     WriteHtmlPad(TVirtualPad *pad=0, const char *name =0);
      virtual void     WritePad(TVirtualPad *pad=0, const char *name =0);
+     virtual void     MakeHistArea(const TH1 *hist,TVirtualPad *pad);
+     virtual void     MakeHistArea(TIter &next,TVirtualPad *pad);
 };
 #endif

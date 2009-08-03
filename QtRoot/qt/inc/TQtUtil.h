@@ -1,6 +1,6 @@
 // Author: Valeri Fine   21/01/2002
 /****************************************************************************
-** $Id: TQtUtil.h,v 1.1 2006/08/16 19:29:08 fine Exp $
+** $Id: TQtUtil.h,v 1.2 2009/08/03 18:02:57 fine Exp $
 **
 ** Copyright (C) 2002 by Valeri Fine.  All rights reserved.
 **
@@ -16,55 +16,39 @@
 #include "TCanvas.h"
 #include "TCanvasImp.h"
 
-#include "qpixmap.h"
-#include "qwidget.h"
+#include <QtGui/QPixmap>
+#include <QtGui/QWidget>
 
 //----------------------------------------
 //      Q: How to get Qt pointer:
 //----------------------------------------
-
+namespace  TQtUtil {
 //_______________________________________
 inline QPixmap *padPixmap(TPad *pad)
 {     return (QPixmap *)TGQt::iwid(pad->GetPixmapID());   }
 //_______________________________________
 inline QWidget *canvasWidget(TCanvas *c)
 {  return (QWidget *)TGQt::iwid(c->GetCanvasID()) ; }
+#if 0
 //_______________________________________
 inline QWidget *canvasWidget(TCanvasImp *c)
 { return (QWidget *) TGQt::iwid(((TQtCanvasImp *)c)->GetCanvasImpID()); }
 //_______________________________________
 inline QWidget *mainWidget(TCanvas *c)
 {  return canvasWidget(c->GetCanvasImp());}
+#endif
 
 //----------------------------------------
 // Q: Get WIN32/X11 handles:
 //    (see function above and Qt manual also)
 //----------------------------------------
 //_______________________________________
-inline HDC wigdetHdc(TPad *pad)
+inline unsigned long  wigdetHdc(TPad *pad)
 {  return padPixmap(pad)->handle(); }
-//_______________________________________
-inline HDC wigdetHdc(TCanvas *c)
-{ return canvasWidget(c)->handle(); }
-//_______________________________________
-inline HDC wigdetHdc(TCanvasImp *c)
-{ return canvasWidget(c)->handle(); }
 
-ifdef WIN32
 //_______________________________________
-inline HWND hwndWin32(TCanvas *c)
+inline unsigned long  hwndWin32(TCanvas *c)
 {  return canvasWidget(c)->winId(); }
-//_______________________________________
-inline HWND hwndWin32(TCanvasImp *c)
-{ return canvasWidget(c)->winId(); }
-#else
-//_______________________________________
-inline Ulong_t hwndWin32(TCanvas *c)
-{  return canvasWidget(c)->winId(); }
-//_______________________________________
-inline Ulong_t hwndWin32(TCanvasImp *c)
-{ return canvasWidget(c)->winId(); }
-#endif
-
+};
 #endif
 

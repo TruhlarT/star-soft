@@ -23,7 +23,7 @@ void drawColorWheel( QPainter *p )
 
     for ( int i=0; i<36; i++ ) {		// draws 36 rotated rectangles
 
-        QWMatrix matrix;
+        QMatrix matrix;
         matrix.translate( 250.0F, 250.0F );	// move to center
         matrix.shear( 0.0F, 0.3F );		// twist it
         matrix.rotate( (float)i*10 );		// rotate 0,10,20,.. degrees

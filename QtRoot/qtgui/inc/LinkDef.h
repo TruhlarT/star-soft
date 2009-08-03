@@ -1,7 +1,7 @@
-/* @(#)root/win32:$Name:  $:$Id: LinkDef.h,v 1.2 2006/09/22 17:27:10 fine Exp $ */
+/* @(#)root/win32:$Name:  $:$Id: LinkDef.h,v 1.3 2009/08/03 18:03:08 fine Exp $ */
 
 /****************************************************************************
-** $Id: LinkDef.h,v 1.2 2006/09/22 17:27:10 fine Exp $
+** $Id: LinkDef.h,v 1.3 2009/08/03 18:03:08 fine Exp $
 **
 ** Copyright (C) 2004 by Valeri Fine. Brookhaven National Laboratory.
 **                                    All rights reserved.
@@ -31,4 +31,6 @@
 #pragma link C++ class TQtPad2Html;
 #pragma link C++ class TQtCanvas2Html;
 #pragma link C++ class TQtPixmapBox;
+#pragma link C++ class TEmitRootSignal;
+#pragma link C++ class TColorEmit;
 #endif

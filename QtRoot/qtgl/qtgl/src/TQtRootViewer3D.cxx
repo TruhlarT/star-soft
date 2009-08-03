@@ -20,15 +20,7 @@
 #include "TList.h"
 #include "TError.h"
 
-#if !defined( __APPLE__ ) || defined(Q_WS_X11)
-#  if  ROOT_VERSION_CODE >= ROOT_VERSION(5,15,9)
-#    include  "TGLIncludes.h"
-#  else
-#    include "TRootGLU.h"
-#  endif
-#else
-#  include <glu.h>
-#endif
+#include  "TQtGLIncludes.h"
 
 #include "TObjectOpenGLViewFactory.h"
 #if QT_VERSION >= 0x40000
@@ -152,11 +144,38 @@ Int_t  TQtRootViewer3D::AddRawObject(ULong_t placedID, UInt_t optMask)
    if (fViewer) {
       fViewer->MakeCurrent();
       fViewer->AddGLList(placedID, TGLViewerImp::EObject3DType(optMask));
-   }
+   } 
    return 0;
 }
+// When they can, TPad::Paint() and TPad::PaintModified() simply
+// call the following function:
 //______________________________________________________________________________
-void   TQtRootViewer3D::BeginScene() {
+void   TQtRootViewer3D::PadPaint(TVirtualPad*pad)
+{
+   // Entry point for updating scene contents via VirtualViewer3D
+   // interface.
+   // For now this is handled by TGLViewer as it remains
+   // the 'Viewer3D' of given pad.
+
+   if (pad != fPad)
+   {
+      Error("TGLScenePad::PadPaint", "Mismatch between pad argument and data-member!");
+      return;
+   }
+   UpdateView();
+}
+
+//______________________________________________________________________________
+void   TQtRootViewer3D::ObjectPaint(TObject* obj, Option_t* opt)
+{
+   // Override of virtual TVirtualViewer3D::ObjectPaint().
+   // to adopt the exist AddObject interface
+    AddObject(obj,opt);
+}
+
+//______________________________________________________________________________
+void   TQtRootViewer3D::BeginScene() 
+{
    BeginScene(fPad);
 }
 //______________________________________________________________________________

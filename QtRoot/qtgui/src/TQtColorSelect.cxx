@@ -1,7 +1,7 @@
-// @(#)root/gui:$Name:  $:$Id: TQtColorSelect.cxx,v 1.3 2007/07/04 20:45:43 fine Exp $
+// @(#)root/gui:$Name:  $:$Id: TQtColorSelect.cxx,v 1.4 2009/08/03 18:03:09 fine Exp $
 // Author: Valeri Fine  21/05/2004
 /****************************************************************************
-** $Id: TQtColorSelect.cxx,v 1.3 2007/07/04 20:45:43 fine Exp $
+** $Id: TQtColorSelect.cxx,v 1.4 2009/08/03 18:03:09 fine Exp $
 **
 ** Copyright (C) 2004 by Valeri Fine. Brookhaven National Laboratory.
 **                                    All rights reserved.
@@ -67,7 +67,7 @@ Pixel_t TQtColorSelect::GetColor() const
 { return  (fColorSelector) ? fColorSelector->GetColor().pixel() : 0; }
 //______________________________________________________________________________
 void    TQtColorSelect::SetColor(Color_t color)
-{if (fColorSelector) fColorSelector->SetColor(gQt->ColorIndex(color)); }
+{if (fColorSelector) fColorSelector->SetColor(gQt->ColorIndex(gQt->UpdateColor(color))); }
 //______________________________________________________________________________
 void TQtColorSelect::SavePrimitive(ofstream & out, Option_t *opt)
 {

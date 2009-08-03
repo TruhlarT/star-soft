@@ -1,6 +1,6 @@
 // Author: Valeri Fine   21/01/2002
 /****************************************************************************
-** $Id: TQtBrowserImp.cxx,v 1.7 2008/06/05 22:59:14 fine Exp $
+** $Id: TQtBrowserImp.cxx,v 1.8 2009/08/03 18:03:09 fine Exp $
 **
 ** Copyright (C) 2002 by Valeri Fine. Brookhaven National Laboratory.
 **                                    All rights reserved.
@@ -734,12 +734,10 @@ Int_t TQtBrowserImp::InitWindow(Bool_t show)
 #endif /* QT_VERSION */
 
    fBrowserImpID->addColumn("ROOT folders");
-   int cIndx = fBrowserImpID->addColumn("class name");
+   fBrowserImpID->addColumn("class name");
+#ifdef SORT_ROW_BY_DEFAULT   
    fBrowserImpID->setShowSortIndicator(TRUE); 
-    // If column for setSorting is larger than the number of columns 
-    // the user must click on a column header to sort the list view. 
-   fBrowserImpID->setSorting ( 3*cIndx);
-
+#endif   
    fRootItem = new TQtBrowserItem(0,fBrowserImpID,"ROOT");
    Add(gROOT,"ROOT");
    fRootItem->setEnabled(TRUE);

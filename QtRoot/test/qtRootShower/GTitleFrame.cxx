@@ -15,6 +15,8 @@
 #include <TGClient.h>
 #include <qlabel.h>
 #include <qpixmap.h>
+//Added by qt3to4:
+#include <Q3Frame>
 #include "GTitleFrame.h"
 #include "ProgramPath.h"
 
@@ -27,7 +29,7 @@
 GTitleFrame::GTitleFrame(QWidget *p,
 			     const Text_t *mainText, const Text_t *subText,
 			     UInt_t /*w*/, UInt_t /*h*/,
-			     UInt_t /*options*/): QHBox(p)
+			     UInt_t /*options*/): Q3HBox(p)
 {
     QLabel *fLeftIconPicture  = new QLabel(this,"leftlogo");
     QLabel *fTextFrame        = new QLabel(this,"title");
@@ -36,7 +38,7 @@ GTitleFrame::GTitleFrame(QWidget *p,
     // Create GTitleFrame object, with TGWindow parent 'p', text 'mainText'
     // with sub text 'subText'. 
     // add text
-    fTextFrame->setFrameStyle( QFrame::Panel | QFrame::Sunken );
+    fTextFrame->setFrameStyle( Q3Frame::Panel | Q3Frame::Sunken );
     fTextFrame->setText( QString(mainText) + QString("\n") + QString(subText) );
     fTextFrame->setAlignment( Qt::AlignCenter );
    

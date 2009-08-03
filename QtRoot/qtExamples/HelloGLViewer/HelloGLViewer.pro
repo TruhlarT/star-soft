@@ -3,17 +3,20 @@
 ######################################################################
 
 TEMPLATE = app
+QT += xml opengl qt3support
 
-includeFile = $(QTROOTSYSDIR)/include/rootcint.pri
-exists ($$includeFile) {
-  include ($$includeFile)
+QMAKE_RPATH=
+
+incFile = $(QTROOTSYSDIR)/include/rootcint.pri
+exists ($$incFile) {
+  include ($$incFile)
 } 
-!exists ($$includeFile) {
-  includeFile = $(ROOTSYS)/include/rootcint.pri
-  exists ($$includeFile) {
-    include ($$includeFile)
+!exists ($$incFile) {
+  incFile = $(ROOTSYS)/include/rootcint.pri
+  exists ($$incFile) {
+    include ($$incFile)
   } 
-  !exists ($$includeFile) {
+  !exists ($$incFile) {
     message (" ")
     message ("WARNING:  The $$inlcudeFile was not found !!!")
     message ("Please update your Qt layer version from http://root.bnl.gov ")
@@ -29,7 +32,6 @@ win32 {
 }
 unix {
  LIBS += -L$(STAR)/.$(STAR_HOST_SYS)/lib -lQGLViewer
- INCLUDEPATH += . /afs/rhic.bnl.gov/star/users/fine/starfine/public/QTROOT/qtRoot/qtgl/qglviewer
 }
 # Input
 HEADERS += animation.h histogram.h

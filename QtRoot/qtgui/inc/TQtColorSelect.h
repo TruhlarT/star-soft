@@ -1,11 +1,11 @@
-// @(#)root/gui:$Name:  $:$Id: TQtColorSelect.h,v 1.3 2007/01/30 02:56:36 fine Exp $
+// @(#)root/gui:$Name:  $:$Id: TQtColorSelect.h,v 1.4 2009/08/03 18:03:08 fine Exp $
 // Author: Valeri Fine  21/05/2004
 
 #ifndef ROOT_TQtColorSelect
 #define ROOT_TQtColorSelect
 
 /****************************************************************************
-** $Id: TQtColorSelect.h,v 1.3 2007/01/30 02:56:36 fine Exp $
+** $Id: TQtColorSelect.h,v 1.4 2009/08/03 18:03:08 fine Exp $
 **
 ** Copyright (C) 2004 by Valeri Fine. Brookhaven National Laboratory.
 **                                    All rights reserved.

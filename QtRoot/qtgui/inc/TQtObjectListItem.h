@@ -1,6 +1,6 @@
 // Author: Valeri Fine   21/01/2002
 /****************************************************************************
-** $Id: TQtObjectListItem.h,v 1.2 2006/09/22 17:27:10 fine Exp $
+** $Id: TQtObjectListItem.h,v 1.3 2009/08/03 18:03:08 fine Exp $
 **
 ** Copyright (C) 2002 by Valeri Fine.  All rights reserved.
 **

@@ -22,38 +22,45 @@
 
 /****************************************************************************
 
- This file is part of the QGLViewer library.
- Copyright (C) 2002, 2003, 2004, 2005, 2006 Gilles Debunne (Gilles.Debunne@imag.fr)
- Version 2.2.1-1, released on March 30, 2006.
+ Copyright (C) 2002-2008 Gilles Debunne. All rights reserved.
 
- http://artis.imag.fr/Members/Gilles.Debunne/QGLViewer
+ This file is part of the QGLViewer library version 2.3.1.
 
- libQGLViewer is free software; you can redistribute it and/or modify
- it under the terms of the GNU General Public License as published by
- the Free Software Foundation; either version 2 of the License, or
- (at your option) any later version.
+ http://www.libqglviewer.com - contact@libqglviewer.com
 
- libQGLViewer is distributed in the hope that it will be useful,
- but WITHOUT ANY WARRANTY; without even the implied warranty of
- MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- GNU General Public License for more details.
+ This file may be used under the terms of the GNU General Public License 
+ versions 2.0 or 3.0 as published by the Free Software Foundation and
+ appearing in the LICENSE file included in the packaging of this file.
+ In addition, as a special exception, Gilles Debunne gives you certain 
+ additional rights, described in the file GPL_EXCEPTION in this package.
 
- You should have received a copy of the GNU General Public License
- along with libQGLViewer; if not, write to the Free Software
- Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
+ libQGLViewer uses dual licensing. Commercial/proprietary software must
+ purchase a libQGLViewer Commercial License.
+
+ This file is provided AS IS with NO WARRANTY OF ANY KIND, INCLUDING THE
+ WARRANTY OF DESIGN, MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE.
 
 *****************************************************************************/
 
 #ifndef _VRENDER_H_
 #define _VRENDER_H_
 
-#include <string>
+#include "../config.h"
+#if QT_VERSION >= 0x040000
+# include <QTextStream>
+# include <QString>
+#else
+# include <qtextstream.h>
+# include <qstring.h>
+#endif
+
+#include "../qglviewer.h"
 
 namespace vrender
 {
 	class VRenderParams ;
 	typedef void (*RenderCB)(void *) ;
-	typedef void (*ProgressFunction)(float,const std::string&) ;
+	typedef void (*ProgressFunction)(float,const QString&) ;
 
 	void VectorialRender(RenderCB DrawFunc, void *callback_params, VRenderParams& render_params) ;
 
@@ -78,8 +85,8 @@ namespace vrender
 			int format()        { return _format; }
 			void setFormat(VRenderFormat f) { _format = f; }
 
-			const char *filename() { return _filename ; }
-			void setFilename(const char *s) ;
+			const QString filename() { return _filename ; }
+			void setFilename(const QString& filename) ;
 
 			void setOption(VRenderOption,bool) ;
 			bool isEnabled(VRenderOption) ;
@@ -94,7 +101,7 @@ namespace vrender
 			ProgressFunction _progress_function ;
 
 			unsigned int _options; // _DrawMode; _ClearBG; _TightenBB;
-			char *_filename;
+			QString _filename;
 
 			friend void VectorialRender(	RenderCB render_callback,
 							void *callback_params,
@@ -109,7 +116,7 @@ namespace vrender
 			int& error() { return _error ; }
 			int& size()  { static int size=1000000; return size ; }
 
-			void progress(float,const std::string&) ;
+			void progress(float,const QString&) ;
 	};
 }
 #endif

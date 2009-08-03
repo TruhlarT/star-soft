@@ -3,11 +3,14 @@
 ######################################################################
 
 TEMPLATE = lib 
+QT += webkit
 CONFIG += thread dll
 CONFIG += create_prl
 DEPENDPATH += inc src
-
+# DEFINES += QT_QTCOLORPICKER_EXPORT
 TARGET = QtRootGui
+
+QMAKE_RPATH=
 
 GQTDIRI   = ../qt/inc
 
@@ -124,6 +127,13 @@ HEADERS += inc/TBrowserCustom.h       \
            inc/TQtMarkerSelect.h      \
            inc/TQtMarkerSelectButton.h\
            inc/TQtFloatSlider.h       \
+           inc/TQtRootCommandCombo.h  \
+           inc/qtcolorpicker.h        \
+           inc/qtmmlwidget.h          \
+           inc/QtMmlWidget            \
+           inc/QtMmlDocument          \
+           inc/TQtMmlTextProxy.h      \
+           inc/TQtColorPickerHelper.h \
            inc/TQtCustomizeCanvasMenu.h
 
 
@@ -161,6 +171,10 @@ SOURCES += src/TQtMarkerSelect.cxx      \
            src/TQtStyleComboBox.cxx     \
            src/TQtGui.cxx               \
            src/TQtFloatSlider.cxx       \
+           src/TQtRootCommandCombo.cxx  \
+           src/qtcolorpicker.cxx        \
+           src/qtmmlwidget.cxx          \
+           src/TQtMmlTextProxy.cxx      \
            src/TQtObjectListItemInterface.cxx
            
            
@@ -202,5 +216,7 @@ unix {
 }
 #The following line was inserted by qt3to4
 QT +=  qt3support 
-#The following line was inserted by qt3to4
-QT +=  
+
+QT +=
+
+

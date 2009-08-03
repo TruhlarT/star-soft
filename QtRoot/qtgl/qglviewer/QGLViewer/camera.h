@@ -1,24 +1,22 @@
 /****************************************************************************
 
- This file is part of the QGLViewer library.
- Copyright (C) 2002, 2003, 2004, 2005, 2006 Gilles Debunne (Gilles.Debunne@imag.fr)
- Version 2.2.1-1, released on March 30, 2006.
+ Copyright (C) 2002-2008 Gilles Debunne. All rights reserved.
 
- http://artis.imag.fr/Members/Gilles.Debunne/QGLViewer
+ This file is part of the QGLViewer library version 2.3.1.
 
- libQGLViewer is free software; you can redistribute it and/or modify
- it under the terms of the GNU General Public License as published by
- the Free Software Foundation; either version 2 of the License, or
- (at your option) any later version.
+ http://www.libqglviewer.com - contact@libqglviewer.com
 
- libQGLViewer is distributed in the hope that it will be useful,
- but WITHOUT ANY WARRANTY; without even the implied warranty of
- MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- GNU General Public License for more details.
+ This file may be used under the terms of the GNU General Public License 
+ versions 2.0 or 3.0 as published by the Free Software Foundation and
+ appearing in the LICENSE file included in the packaging of this file.
+ In addition, as a special exception, Gilles Debunne gives you certain 
+ additional rights, described in the file GPL_EXCEPTION in this package.
 
- You should have received a copy of the GNU General Public License
- along with libQGLViewer; if not, write to the Free Software
- Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
+ libQGLViewer uses dual licensing. Commercial/proprietary software must
+ purchase a libQGLViewer Commercial License.
+
+ This file is provided AS IS with NO WARRANTY OF ANY KIND, INCLUDING THE
+ WARRANTY OF DESIGN, MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE.
 
 *****************************************************************************/
 
@@ -70,7 +68,7 @@ namespace qglviewer {
   playPath() to make the Camera follow the path (default shortcut is F[1-12]). See the <a
   href="../keyboard.html">keyboard page</a> for details on key customization.
 
-  Use cameraCoordinatesOf() ans worldCoordinatesOf() to convert to and from the Camera frame()
+  Use cameraCoordinatesOf() and worldCoordinatesOf() to convert to and from the Camera frame()
   coordinate system. projectedCoordinatesOf() and unprojectedCoordinatesOf() will convert from
   screen to 3D coordinates. convertClickToLine() is very useful for analytical object selection.
 
@@ -111,7 +109,7 @@ namespace qglviewer {
     Use setPosition() to set the Camera position. Other convenient methods are showEntireScene() or
     fitSphere(). Actually returns \c frame()->position().
 
-    This position corresponds to the projection center of a Camera::PERSPECTIVE Camera. It it not
+    This position corresponds to the projection center of a Camera::PERSPECTIVE Camera. It is not
     located in the image plane, which is at a zNear() distance ahead. */
     Vec position() const { return frame()->position(); };
 
@@ -176,6 +174,7 @@ namespace qglviewer {
     void centerScene();
     void interpolateToZoomOnPixel(const QPoint& pixel);
     void interpolateToFitScene();
+    void interpolateTo(const Frame& fr, float duration);
     //@}
 
 
@@ -249,8 +248,8 @@ namespace qglviewer {
     float zNearCoefficient() const { return zNearCoef_; };
     /*! Returns the coefficient used to position the near and far clipping planes.
 
-    The near (resp. far) clipping plane is positioned at a distance equal to zClippingCoefficient()
-    * sceneRadius() in front of (resp. behind) the sceneCenter(). This garantees an optimal use of
+    The near (resp. far) clipping plane is positioned at a distance equal to zClippingCoefficient() *
+    sceneRadius() in front of (resp. behind) the sceneCenter(). This garantees an optimal use of
     the z-buffer range and minimizes aliasing. See the zNear() and zFar() documentations.
 
     Default value is square root of 3.0 (so that a cube of size sceneRadius() is not clipped).
@@ -260,7 +259,7 @@ namespace qglviewer {
     planes. See also zNearCoefficient().
 
     For a total control on clipping planes' positions, an other option is to overload the zNear()
-    and zFar() methods.
+    and zFar() methods. See the <a href="../examples/standardCamera.html">standardCamera example</a>.
 
     \attention When QGLViewer::cameraPathAreEdited(), this value is set to 5.0 so that the Camera
     paths are not clipped. The previous zClippingCoefficient() value is restored back when you leave
@@ -405,6 +404,7 @@ public slots:
 
     void getProjectionMatrix(GLdouble m[16]) const;
     void getModelViewMatrix(GLdouble m[16]) const;
+	void getModelViewProjectionMatrix(GLdouble m[16]) const;
 
 #ifndef DOXYGEN
     // Required for windows which otherwise silently fills

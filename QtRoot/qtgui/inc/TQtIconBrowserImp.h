@@ -1,6 +1,6 @@
 // Author: Valeri Fine   21/01/2002
 /****************************************************************************
-** $Id: TQtIconBrowserImp.h,v 1.4 2007/08/26 17:46:58 fine Exp $
+** $Id: TQtIconBrowserImp.h,v 1.5 2009/08/03 18:03:08 fine Exp $
 **
 ** Copyright (C) 2002 by Valeri Fine.  All rights reserved.
 **
@@ -271,10 +271,10 @@ signals:
 inline  const char* TQtIconBrowserImp::GetTitle() const { return fTitle;        }
 #if QT_VERSION < 0x40000
 #ifndef Q_MOC_RUN
-inline  void TQtIconBrowserImp::SetIconSize(QIconSet::Size size) { fIconSize = size;     };
+inline  void TQtIconBrowserImp::SetIconSize(QIconSet::Size size) { fIconSize = size;     }
 #endif
 #else /* QT_VERSION */
-inline  void TQtIconBrowserImp::SetIconSize(QIcon::Size size) { fIconSize = size;     };
+inline  void TQtIconBrowserImp::SetIconSize(QIcon::Size size) { fIconSize = size;     }
 #endif /* QT_VERSION */
 
 #endif

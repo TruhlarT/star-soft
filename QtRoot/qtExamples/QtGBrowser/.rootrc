@@ -1,4 +1,4 @@
- # .rootrc:$Name:  $:$Id: .rootrc,v 1.3 2008/04/29 23:04:25 fine Exp $
+ # .rootrc:$Name:  $:$Id: .rootrc,v 1.4 2009/08/03 18:03:01 fine Exp $
 # Author: Valeri Fine 10/10/2003
 
 # The custom ROOT env to turn on the Qt-edition of ROOT gui
@@ -9,19 +9,20 @@
 #        $ROOTSYS/etc/system.rootrc
 #
 
-Gui.DefaultFont:            -adobe-helvetica-medium-r-*-*-12-*-*-*-*-*-iso8859-5
+#  Custom plugins (ROOT 5.18 and above)
+Unix.*.Root.PluginPath:      :./plugins:$(HOME)/plugins:$(QTROOTSYSDIR)/etc/plugins:$(QTROOTSYSDIR)/plugins:$(ROOTSYS)/etc/plugins:
+WinNT.*.Root.PluginPath:     ;./plugins;$(HOME)/plugins;$(QTROOTSYSDIR)/etc/plugins;$(QTROOTSYSDIR)/plugins;$(ROOTSYS)/etc/plugins;
 
-
-Plugin.TVirtualPadEditor: Ged TQtGedEditor    QtGed          "TQtGedEditor(TCanvas*)"
+Plugin.TVirtualPadEditor: ^Ged TQtGedEditor    QtGed          "TQtGedEditor(TCanvas*)"
 
 #Plugin.TPaletteEditor:      *  TQtPaletteEditor  QtImage  "TQtPaletteEditor(TAttImage*,UInt_t,UInt_t)"
 #Plugin.TImage:              *  TQtImage          QtImage  "TQtImage()"
 # GUI specific settings
-# Gui.Style:                  sgi
+Gui.Style:                  windows
 Gui.Backend:                qt
 Gui.Factory:                qtgui
 #
-Plugin.TVirtualX:        qt     TGQt             GQt       "TGQt(const char*,const char*)"
-Plugin.TGuiFactory:      qtgui  TQtGUIFactory    QtRootGui "TQtGUIFactory()"
-Plugin.TVirtualViewer3D: ogl    TQtRootViewer3D  RQTGL    "TQtRootViewer3D(TVirtualPad*)"
-+Plugin.TVirtualViewer3D: oiv   TQtRootCoinViewer3D  RQIVTGL    "TQtRootCoinViewer3D(TVirtualPad*)"
+Plugin.TVirtualX:        ^qt     TGQt             GQt       "TGQt(const char*,const char*)"
+Plugin.TGuiFactory:      ^qtgui  TQtGUIFactory    QtRootGui "TQtGUIFactory()"
+Plugin.TVirtualViewer3D: ^ogl    TQtRootViewer3D  RQTGL    "TQtRootViewer3D(TVirtualPad*)"
++Plugin.TVirtualViewer3D: ^oiv   TQtRootCoinViewer3D  RQIVTGL    "TQtRootCoinViewer3D(TVirtualPad*)"

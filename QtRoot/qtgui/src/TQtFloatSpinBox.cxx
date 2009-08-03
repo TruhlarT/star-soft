@@ -1,6 +1,6 @@
 // Author: Valeri Fine   30/04/2003
 /****************************************************************************
-** $Id: TQtFloatSpinBox.cxx,v 1.4 2007/07/06 22:27:27 fine Exp $
+** $Id: TQtFloatSpinBox.cxx,v 1.5 2009/08/03 18:03:10 fine Exp $
 **
 ** Copyright (C) 2002 by Valeri Fine. Brookhaven National Laboratory.
 **                                    All rights reserved.
@@ -200,7 +200,7 @@ void  TQtFloatSpinBox::SetDigit(int dig)
 void  TQtFloatSpinBox::SetMinValue( float v) 
 { 
    setMinimum(v);
-};
+}
 //______________________________________________________________________________
 void  TQtFloatSpinBox::SetMaxValue( float v) 
 { 
@@ -241,7 +241,7 @@ float TQtFloatSpinBox::Value() const
 
 //______________________________________________________________________________
 void  TQtFloatSpinBox::SetValue   ( float v)
-{ setValue (v); };
+{ setValue (v); }
 //______________________________________________________________________________
 void  TQtFloatSpinBox::SetMinValue( const QString &v)
 { setMinimum(v.toFloat());}

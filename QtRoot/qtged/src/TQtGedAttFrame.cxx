@@ -1,4 +1,4 @@
-// @(#)root/ged:$Name:  $:$Id: TQtGedAttFrame.cxx,v 1.3 2008/02/12 21:34:15 fine Exp $
+// @(#)root/ged:$Name:  $:$Id: TQtGedAttFrame.cxx,v 1.4 2009/08/03 18:03:03 fine Exp $
 // Author: Valeri Fine   22/07/06
 
 /****************************************************************************

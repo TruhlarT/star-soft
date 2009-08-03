@@ -5,7 +5,7 @@ QObject::disconnect:  (receiver name: 'unnamed')
 */
 
 /****************************************************************************
-** $Id: xform.cpp,v 1.1 2006/08/16 19:23:40 fine Exp $
+** $Id: xform.cpp,v 1.2 2009/08/03 18:03:12 fine Exp $
 **
 ** Copyright (C) 1992-2000 Trolltech AS.  All rights reserved.
 **

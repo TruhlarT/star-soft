@@ -2,7 +2,7 @@
 #define ROOT_TQtZoomPadWidget
 // Author: Valeri Fine   16/03/2006
 /****************************************************************************
-** $Id: TQtZoomPadWidget.h,v 1.4 2007/08/26 17:46:59 fine Exp $
+** $Id: TQtZoomPadWidget.h,v 1.5 2009/08/03 18:03:09 fine Exp $
 **
 ** Copyright (C) 2006 by Valeri Fine. Brookhaven National Laboratory.
 **                                    All rights reserved.
@@ -24,29 +24,13 @@ class QResizeEvent;
 
 #ifdef __CINT__
 #ifndef Q_MOC_RUN
-//MOC_SKIP_BEGIN
-   class QFrame;
-   class QHBox;
-   class Q3Frame;
-   class Q3HBox;
-//MOC_SKIP_END
+   class QWidget;
 #endif
 #else
-#  include <qglobal.h>
-#  if QT_VERSION < 0x40000
-#ifndef Q_MOC_RUN
-#    include "qhbox.h"
-#endif
-#  else /* QT_VERSION */
-//MOC_SKIP_BEGIN
-#    include "q3hbox.h"
-//MOC_SKIP_END
-#  endif /* QT_VERSION */
+#include <QWidget>
 #endif
 
 #include "Buttons.h"
-
-
 
 /////////////////////////////////////////////////////////////////////////////////////
 //                                                                                 //
@@ -85,23 +69,13 @@ class QResizeEvent;
 
 
 #ifndef __CINT__
-#if QT_VERSION < 0x40000
-#ifndef Q_MOC_RUN
-  class  TQtZoomPadWidget : public QHBox 
-#endif
-#else /* QT_VERSION */
-//MOC_SKIP_BEGIN
-  class  TQtZoomPadWidget : public Q3HBox 
-//MOC_SKIP_END
-#endif /* QT_VERSION */
+  class  TQtZoomPadWidget : public QWidget
 {   
   Q_OBJECT
 #else
 #ifndef Q_MOC_RUN
-//MOC_SKIP_BEGIN
 class  TQtZoomPadWidget
 {
-//MOC_SKIP_END
 #endif
 #endif
   private:
@@ -130,9 +104,7 @@ class  TQtZoomPadWidget
      TQtZoomPadWidget(TVirtualPad *pad =0, QWidget *parent=0, const char *name=0, Qt::WFlags f=0);
 #else
 #ifndef Q_MOC_RUN
-//MOC_SKIP_BEGIN
      TQtZoomPadWidget(TVirtualPad *pad =0, QWidget *parent=0, const char *name=0);
-//MOC_SKIP_END
 #endif  
 #endif  
      virtual ~TQtZoomPadWidget(){;}

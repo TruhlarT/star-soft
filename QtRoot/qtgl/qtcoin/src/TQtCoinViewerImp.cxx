@@ -37,6 +37,8 @@
 //Added by qt3to4:
 #  include <QLabel>
 #  include <QAction>
+#  include <QActionGroup>
+#  include <QDebug>
 #endif 
 
 #include <qfile.h>
@@ -69,16 +71,15 @@
 #include <Inventor/SoOffscreenRenderer.h>
 
 #include <vector>
-#if !defined( __APPLE__ ) || defined(Q_WS_X11)
-#  if  ROOT_VERSION_CODE >= ROOT_VERSION(5,15,9)
-#    include  "TGLIncludes.h"
-#  else
-#    include "TRootGLU.h"
-#  endif
-#else
-#  include <glu.h>
-#endif
+#include  "TQtGLIncludes.h"
 
+// grid icons
+#include "cA00.xpm.h"
+#include "cA01.xpm.h"
+#include "cA10.xpm.h"
+#include "cA11.xpm.h"
+#include "cAcc.xpm.h"
+#include "cAGrid.xpm.h"
 
 /*
 //______________________________________________________________________________
@@ -144,7 +145,7 @@ TQtCoinViewerImp::TQtCoinViewerImp(TVirtualPad *pad, const char *title,
 #endif 
    )
    , TGLViewerImp(0,title,width,height),fCoinWidget(0)
-   , fSnapShotAction(0)
+   , fSnapShotAction(0), fShowFrameAxisAction(0)
    //,fGLWidget(0),fSelectedView(0),fSelectedViewActive(kFALSE)
    //, fSelectionViewer(kFALSE),fSelectionHighlight(kFALSE),fShowSelectionGlobal(kFALSE)
 {
@@ -1020,16 +1021,56 @@ void TQtCoinViewerImp::MakeMenu()
    // Show frame axis
    
 #if QT_VERSION < 0x40000
-   QAction *showFrameAxisAction =  new QAction("Frame3DAxis", "Show Frame axis", CTRL+Key_1, this, "frameaxis" );
+   QAction *showFrameAxisAction =  new QAction("Frame3DAxis", "Show Frame axes", CTRL+Key_1, this, "frameaxis" );
    showFrameAxisAction->setToggleAction(true);
+   connect ( showFrameAxisAction, SIGNAL( toggled(bool) ) , this, SLOT( ShowFrameAxisCB(bool)  ) );
+   const char *showFrameAxisText = "Show the ROOT 3D object axes";
+   showFrameAxisAction->setWhatsThis( showFrameAxisText);
 #else 
-   QAction *showFrameAxisAction =  new QAction("Show Frame axis", this);
+   QAction *showFrameAxisAction =  fShowFrameAxisAction = new QAction("Show Frame axes", this);
+   QMenu *showFrameAxisMenu = new QMenu("Set Axes &Origins", this);
    showFrameAxisAction->setCheckable(true);
    showFrameAxisAction->setShortcut(Qt::CTRL+Qt::Key_1);    
-#endif 
    connect ( showFrameAxisAction, SIGNAL( toggled(bool) ) , this, SLOT( ShowFrameAxisCB(bool)  ) );
-   const char *showFrameAxisText = "Show the ROOT 3D object axis";
-   showFrameAxisAction->setWhatsThis( showFrameAxisText);
+   const char *xNames[] = {"X", "Y", "Z"};
+   for (int i=0; i<3; ++i) { // 3 axes x.y.z
+       QMenu *axMenu = showFrameAxisMenu->addMenu(QString("O")+xNames[i]); 
+       QActionGroup *axGroup = new QActionGroup(this);
+       axGroup->setExclusive(false);
+       switch (i) {
+          case 0:
+             connect(axGroup,SIGNAL(triggered ( QAction *) ), this, SLOT(SetAxisPositionXCB(QAction *)));
+             break;
+          case 1:
+             connect(axGroup,SIGNAL(triggered ( QAction *) ), this, SLOT(SetAxisPositionYCB(QAction *)));
+             break;
+          case 2:
+             connect(axGroup,SIGNAL(triggered ( QAction *) ), this, SLOT(SetAxisPositionZCB(QAction *)));
+             break;
+       }
+       static char **axicons[] = { cA00, cA01, cA10, cA11, cAcc, cAGrid } ;
+       static char *locNames[] = { "-1/-1", "-1/+1", "+1/-1", "+1/+1", "0/0"} ;
+       static char *locTip[] = { "(min %1/min %2)", "(min %1 /max %2)", "(max %1/min %2)", "(max %1/max %2)", "(center %1/center %2)"} ;
+       unsigned char initLocation = fCoinWidget ? fCoinWidget->GetLocation(i) : 0;
+       for (int j=0;j<5; ++j) { // 5 possible locations for each axis
+          QAction *a = new QAction(QIcon(QPixmap(axicons[j])),locNames[j],this);
+          QString planeNames[2];
+          int counter = 0;
+          for (int kk =0; kk<3; kk++) {
+             if (kk == i) continue;
+             planeNames[counter++] = xNames[i];
+          }
+          QString tip = QString("The \"%1\" axis crosses the %2%3 plane at ").arg(xNames[i]).arg(planeNames[0]).arg(planeNames[1]) 
+                + QString(locTip[j]).arg(planeNames[0]).arg(planeNames[1]);
+          a->setToolTip(tip);
+          a->setCheckable(true);
+          if (initLocation & 0x1) a->setChecked(true);
+          initLocation >>= 1;
+          axGroup->addAction(a);
+          axMenu->addAction(a);
+       }
+   }
+#endif 
 
    // Show frame axis
    
@@ -1198,6 +1239,7 @@ void TQtCoinViewerImp::MakeMenu()
     showSmallAxesAction->addTo(optionMenu);
     showSmallAxesAction->setOn(false);
     showSmallAxesAction->setEnabled(true);
+    showFrameAxisMenu->addTo(optionMenu);
     
 /*
     showLightsAction->addTo(optionMenu);
@@ -1274,8 +1316,9 @@ void TQtCoinViewerImp::MakeMenu()
 
     optionMenu->clear();
     optionMenu->addAction(showFrameAxisAction);
+    optionMenu->addMenu(showFrameAxisMenu);
     //showFrameAxisAction->setOn(glView? glView->FrameAxisScale()> 0 : false);
-    showFrameAxisAction->setChecked(false);
+    // showFrameAxisAction->setChecked(false);
     showFrameAxisAction->setEnabled(true);
     
     optionMenu->addAction(showSmallAxesAction);
@@ -1470,6 +1513,41 @@ void TQtCoinViewerImp::SetSnapFileCounter(int counter)
 void TQtCoinViewerImp::SetCliPlaneMan(bool on)
 {
     if (fCoinWidget) fCoinWidget->SetClipPlaneMan(on);
+}
+//______________________________________________________________________________
+void TQtCoinViewerImp::SetAxisPositionCB(QAction *action, int axIndex)
+{
+    if (fCoinWidget && action) {
+       // fCoinWidget->GetLocation(axIndex);
+       QActionGroup *gr =  action->actionGroup();
+       QList<QAction *>actions =  gr->actions ();
+       unsigned char location = 0;
+       for (int i = actions.size()-1; i>=0; --i) {
+          location <<= 1;
+          if ( actions.at(i)->isChecked () ) location |= 0x1;
+       }
+       // qDebug() <<" TQtCoinViewerImp::SetAxisPositionCB location: " << hex << location << " ax=" << axIndex;
+       fCoinWidget->SetLocation(location,axIndex);
+       if (fShowFrameAxisAction && fShowFrameAxisAction->isChecked()) fShowFrameAxisAction->trigger();
+      //       ShowFrameAxisCB(true);
+    }
+}
+
+//______________________________________________________________________________
+void TQtCoinViewerImp::SetAxisPositionXCB(QAction *action )
+{   
+    SetAxisPositionCB(action, 0);
+}
+
+//______________________________________________________________________________
+void TQtCoinViewerImp::SetAxisPositionYCB(QAction *action)
+{   
+    SetAxisPositionCB(action, 1);
+}
+//______________________________________________________________________________
+void TQtCoinViewerImp::SetAxisPositionZCB(QAction *action )
+{   
+    SetAxisPositionCB(action, 2);
 }
 
 //______________________________________________________________________________

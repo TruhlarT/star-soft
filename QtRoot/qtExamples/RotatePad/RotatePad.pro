@@ -4,6 +4,7 @@
 ######################################################################
 
 TEMPLATE = app thread
+QMAKE_RPATH=
 CONFIG -= moc
 #
 # Include "by hand" the qmake include file "rootcint.pri"
@@ -14,15 +15,15 @@ CONFIG -= moc
 #     Qt application against of
 #  3. qmake rules to generate ROOT/Cint dictionaries
 
-includeFile = $(QTROOTSYSDIR)/include
-exists ($$includeFile) {
-  include ($$includeFile/rootcint.pri)
+incFile = $$(QTROOTSYSDIR)/include
+exists ($$incFile) {
+  include ($$incFile/rootcint.pri)
 }
 
-!exists ($$includeFile) {
-  includeFile = $(ROOTSYS)/include/rootcint.pri
-  exists ($$includeFile) {
-    include ($$includeFile)
+!exists ($$incFile) {
+  incFile = $$(ROOTSYS)/include/rootcint.pri
+  exists ($$incFile) {
+    include ($$incFile)
   }
 }
 
@@ -31,7 +32,7 @@ exists ($$includeFile) {
 SOURCES += RotatePad.cxx
 
 #  -- Check for the obsolete ROOT version :(
-!exists ($$inlcudeFile) {
+!exists ($$incFile) {
     message (" ")
     message ("WARNING:  The $$inlcudeFile was not found !!!")
     message ("Please update your Qt layer version from http://root.bnl.gov ")

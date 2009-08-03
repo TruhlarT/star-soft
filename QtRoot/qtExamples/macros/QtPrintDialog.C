@@ -1,9 +1,10 @@
-// @(#)root/qt:$Name:  $:$Id: QtPrintDialog.C,v 1.1 2006/08/16 19:41:06 fine Exp $
+// @(#)root/qt:$Name:  $:$Id: QtPrintDialog.C,v 1.2 2009/08/03 18:03:02 fine Exp $
 // Author: Valeri Fine   23/03/2006
 #ifndef __CINT__
-#  include <qprinter.h> 
-#  include <qpainter.h> 
-#  include <qpixmap.h> 
+#  include <QPrintDialog>
+#  include <QPrinter> 
+#  include <QPainter> 
+#  include <QPixmap> 
 #  include <TCanvas.h> 
 #  include <TGQt.h> 
 #endif
@@ -30,14 +31,15 @@ void  QtPrintDialog(TVirtualPad *pad = 0) {
   // Load the qt cint dictionary.
   // One is recommended to do that at once somewhere.
   // For example  from his/her custom rootlogon.C script
-  gSystem->Load("$ROOTSYS/cint/include/qtcint");
+  gSystem->Load("$ROOTSYS/cint/cint/include/qtcint");
 #endif
   TVirtualPad *pd = pad;
   if (!pd) pd = TPad::Pad(); // ->GetCanvas();
   if (pd) {
     QPrinter p;
     // Open the Qt "Setup Printer" dialog to configure the "QPrinter p" object
-    if (p.setup()) {
+    QPrintDialog printDialog(&p);
+    if (printDialog.exec() == QDialog::Accepted) {
        Int_t id = pd->GetPixmapID();
        QPixmap *pix = (QPixmap *)(TGQt::iwid(id));
        QPainter pnt(&p);

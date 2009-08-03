@@ -22,25 +22,23 @@
 
 /****************************************************************************
 
- This file is part of the QGLViewer library.
- Copyright (C) 2002, 2003, 2004, 2005, 2006 Gilles Debunne (Gilles.Debunne@imag.fr)
- Version 2.2.1-1, released on March 30, 2006.
+ Copyright (C) 2002-2008 Gilles Debunne. All rights reserved.
 
- http://artis.imag.fr/Members/Gilles.Debunne/QGLViewer
+ This file is part of the QGLViewer library version 2.3.1.
 
- libQGLViewer is free software; you can redistribute it and/or modify
- it under the terms of the GNU General Public License as published by
- the Free Software Foundation; either version 2 of the License, or
- (at your option) any later version.
+ http://www.libqglviewer.com - contact@libqglviewer.com
 
- libQGLViewer is distributed in the hope that it will be useful,
- but WITHOUT ANY WARRANTY; without even the implied warranty of
- MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- GNU General Public License for more details.
+ This file may be used under the terms of the GNU General Public License 
+ versions 2.0 or 3.0 as published by the Free Software Foundation and
+ appearing in the LICENSE file included in the packaging of this file.
+ In addition, as a special exception, Gilles Debunne gives you certain 
+ additional rights, described in the file GPL_EXCEPTION in this package.
 
- You should have received a copy of the GNU General Public License
- along with libQGLViewer; if not, write to the Free Software
- Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
+ libQGLViewer uses dual licensing. Commercial/proprietary software must
+ purchase a libQGLViewer Commercial License.
+
+ This file is provided AS IS with NO WARRANTY OF ANY KIND, INCLUDING THE
+ WARRANTY OF DESIGN, MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE.
 
 *****************************************************************************/
 
@@ -48,7 +46,7 @@
 # include <windows.h>
 #endif
 
-#if defined(__APPLE__ ) && !defined(Q_WS_X11)
+#ifdef __APPLE__
 # include <OpenGL/gl.h>
 #else
 # include <GL/gl.h>
@@ -56,6 +54,9 @@
 
 #include <stdio.h>
 #include <vector>
+#include <stdlib.h>
+#include <string.h>
+
 #include "VRender.h"
 #include "ParserGL.h"
 #include "Exporter.h"
@@ -79,7 +80,7 @@ void vrender::VectorialRender(RenderCB render_callback, void *callback_params, V
 
 		int nb_renders = 0 ;
 
-		vparams.progress(0.0,string("Rendering")) ;
+		vparams.progress(0.0, QGLViewer::tr("Rendering...")) ;
 
 		while(returned < 0)
 		{
@@ -113,7 +114,7 @@ void vrender::VectorialRender(RenderCB render_callback, void *callback_params, V
 		}
 #endif
 		if (returned > vparams.size())
-		    vparams.size() = returned;
+			vparams.size() = returned;
 #ifdef _VRENDER_DEBUG
 		cout << "Size = " << vparams.size() << ", returned=" << returned << endl ;
 #endif
@@ -142,21 +143,21 @@ void vrender::VectorialRender(RenderCB render_callback, void *callback_params, V
 
 		switch(vparams.sortMethod())
 		{
-			case VRenderParams::AdvancedTopologicalSort:
-			case VRenderParams::TopologicalSort: {
-																 TopologicalSortMethod *tsm = new TopologicalSortMethod() ;
-																 tsm->setBreakCycles(vparams.sortMethod() == VRenderParams::AdvancedTopologicalSort) ;
-																 sort_method = tsm ;
-															 }
-															 break ;
+		case VRenderParams::AdvancedTopologicalSort:
+		case VRenderParams::TopologicalSort: {
+			TopologicalSortMethod *tsm = new TopologicalSortMethod() ;
+			tsm->setBreakCycles(vparams.sortMethod() == VRenderParams::AdvancedTopologicalSort) ;
+			sort_method = tsm ;
+											 }
+											 break ;
 
-			case VRenderParams::BSPSort: 				sort_method = new BSPSortMethod() ;
-																break ;
+		case VRenderParams::BSPSort: 				sort_method = new BSPSortMethod() ;
+			break ;
 
-			case VRenderParams::NoSorting: 			sort_method = new DontSortMethod() ;
-																break ;
-			default:
-																throw std::runtime_error("Unknown sorting method.") ;
+		case VRenderParams::NoSorting: 			sort_method = new DontSortMethod() ;
+			break ;
+		default:
+			throw std::runtime_error("Unknown sorting method.") ;
 		}
 
 		sort_method->sortPrimitives(primitive_tab,vparams) ;
@@ -180,18 +181,18 @@ void vrender::VectorialRender(RenderCB render_callback, void *callback_params, V
 
 		switch(vparams.format())
 		{
-			case VRenderParams::EPS: exporter = new EPSExporter() ;
-											 break ;
-			case VRenderParams::PS:  exporter = new PSExporter() ;
-											 break ;
-			case VRenderParams::XFIG:exporter = new FIGExporter() ;
-											 break ;
+		case VRenderParams::EPS: exporter = new EPSExporter() ;
+			break ;
+		case VRenderParams::PS:  exporter = new PSExporter() ;
+			break ;
+		case VRenderParams::XFIG:exporter = new FIGExporter() ;
+			break ;
 #ifdef A_FAIRE
-			case VRenderParams::SVG: exporter = new SVGExporter() ;
-											 break ;
+		case VRenderParams::SVG: exporter = new SVGExporter() ;
+			break ;
 #endif
-			default:
-											 throw std::runtime_error("Sorry, this output format is not handled now. Only EPS and PS are currently supported.") ;
+		default:
+			throw std::runtime_error("Sorry, this output format is not handled now. Only EPS and PS are currently supported.") ;
 		}
 
 		// sets background and black & white options
@@ -242,34 +243,23 @@ VRenderParams::VRenderParams()
 {
 	_options = 0 ;
 	_format = EPS ;
-	_filename = NULL ;
+	_filename = "" ;
 	_progress_function = NULL ;
 	_sortMethod = BSPSort ;
 }
 
 VRenderParams::~VRenderParams()
+{}
+
+
+void VRenderParams::progress(float f, const QString& progress_string)
 {
-	if(_filename != NULL)
-		free(_filename) ;
+	_progress_function(f,progress_string) ;
 }
 
-
-void VRenderParams::progress(float f, const std::string& progress_string)
+void VRenderParams::setFilename(const QString& filename)
 {
-	if(_progress_function != NULL)
-		_progress_function(f,progress_string) ;
-}
-
-void VRenderParams::setFilename(const char *fn)
-{
-	if(strlen(fn) > 10000)
-		throw std::runtime_error("VectorialRender: filename too long.") ;
-
-	if(_filename != NULL)
-		free(_filename) ;
-
-	if((_filename = strdup(fn)) == NULL)
-		throw std::runtime_error("could not copy supplied filename. Out of memory ?") ;
+	_filename = filename;
 }
 
 void VRenderParams::setOption(VRenderOption opt,bool b)

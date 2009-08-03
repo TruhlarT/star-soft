@@ -22,25 +22,23 @@
 
 /****************************************************************************
 
- This file is part of the QGLViewer library.
- Copyright (C) 2002, 2003, 2004, 2005, 2006 Gilles Debunne (Gilles.Debunne@imag.fr)
- Version 2.2.1-1, released on March 30, 2006.
+ Copyright (C) 2002-2008 Gilles Debunne. All rights reserved.
 
- http://artis.imag.fr/Members/Gilles.Debunne/QGLViewer
+ This file is part of the QGLViewer library version 2.3.1.
 
- libQGLViewer is free software; you can redistribute it and/or modify
- it under the terms of the GNU General Public License as published by
- the Free Software Foundation; either version 2 of the License, or
- (at your option) any later version.
+ http://www.libqglviewer.com - contact@libqglviewer.com
 
- libQGLViewer is distributed in the hope that it will be useful,
- but WITHOUT ANY WARRANTY; without even the implied warranty of
- MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- GNU General Public License for more details.
+ This file may be used under the terms of the GNU General Public License 
+ versions 2.0 or 3.0 as published by the Free Software Foundation and
+ appearing in the LICENSE file included in the packaging of this file.
+ In addition, as a special exception, Gilles Debunne gives you certain 
+ additional rights, described in the file GPL_EXCEPTION in this package.
 
- You should have received a copy of the GNU General Public License
- along with libQGLViewer; if not, write to the Free Software
- Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
+ libQGLViewer uses dual licensing. Commercial/proprietary software must
+ purchase a libQGLViewer Commercial License.
+
+ This file is provided AS IS with NO WARRANTY OF ANY KIND, INCLUDING THE
+ WARRANTY OF DESIGN, MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE.
 
 *****************************************************************************/
 
@@ -66,60 +64,57 @@ EPSExporter::EPSExporter()
 	last_b = -1 ;
 }
 
-void EPSExporter::writeHeader(FILE *file) const
+void EPSExporter::writeHeader(QTextStream& out) const
 {
 	/* Emit EPS header. */
 
-	fputs("%!PS-Adobe-2.0 EPSF-2.0\n", file);
+	out << "%!PS-Adobe-2.0 EPSF-2.0\n";
 
-	fprintf(file, "%%%%HiResBoundingBox: %g %g %g %g\n", _xmin,_ymin,_xmax,_ymax);
+	out << "%%%%HiResBoundingBox: " << _xmin << " " << _ymin << " " << _xmax << " " << _ymax << "\n";
 
-	fprintf(file, "%%%%Creator: %s (using OpenGL feedback)\n", CREATOR);
-	fputs("%%EndComments\n", file);
-	fputs("\n", file);
-	fputs("gsave\n", file);
-	fputs("\n", file);
+	out << "%%%%Creator: " << CREATOR << " (using OpenGL feedback)\n";
+	out << "%%EndComments\n\ngsave\n\n";
 
-	fputs("%\n",file) ;
-	fputs("% Contributors:\n",file) ;
-	fputs("%\n",file) ;
-	fputs("%   Frederic Delhoume (delhoume@ilog.fr):\n",file) ;
-	fputs("%        Gouraud triangle PostScript fragment\n", file);
-	fputs("%\n",file) ;
-	fputs("%   Cyril Soler       (csoler@imag.fr):\n",file) ;
-	fputs("%        BSP Sort,\n",file) ;
-	fputs("%        Topological and advanced topological Sort,\n",file) ;
-	fputs("%        Hidden surface removal,\n",file) ;
-	fputs("%        Xfig3.2 (and EPS) format\n", file);
-	fputs("%\n\n",file) ;
+	out << "%\n";
+	out << "% Contributors:\n";
+	out << "%\n";
+	out << "%   Frederic Delhoume (delhoume@ilog.fr):\n";
+	out << "%        Gouraud triangle PostScript fragment\n";
+	out << "%\n";
+	out << "%   Cyril Soler       (csoler@imag.fr):\n";
+	out << "%        BSP Sort,\n";
+	out << "%        Topological and advanced topological Sort,\n";
+	out << "%        Hidden surface removal,\n";
+	out << "%        Xfig3.2 (and EPS) format\n";
+	out << "%\n\n";
 
-	fprintf(file, "/threshold %g def\n", EPS_GOURAUD_THRESHOLD);
+	out << "/threshold " << EPS_GOURAUD_THRESHOLD << " def\n";
 
 	for(int i = 0; GOURAUD_TRIANGLE_EPS[i] != NULL; i++)
-		fprintf(file, "%s\n", GOURAUD_TRIANGLE_EPS[i]);
+		out << GOURAUD_TRIANGLE_EPS[i] << "\n";
 #ifdef A_VOIR
-	fprintf(file, "\n%g setlinewidth\n\n", _lineWidth);
+	out <<  "\n" <<  << " setlinewidth\n\n", _lineWidth;
 #endif
 	/* Clear the background like OpenGL had it. */
 
 	if(_clearBG)
 	{
-		fprintf(file, "%g %g %g setrgbcolor\n", _clearR, _clearG, _clearB);
-		fprintf(file, "%g %g %g %g rectfill\n\n",_xmin,_ymin,_xmax,_ymax);
+		out << _clearR << " " << _clearG << " " << _clearB << " setrgbcolor\n";
+		out << _xmin << " " << _ymin << " " << _xmax << " " << _ymax << " rectfill\n\n";
 	}
 }
 
-void EPSExporter::writeFooter(FILE *file) const
+void EPSExporter::writeFooter(QTextStream& out) const
 {
-	fputs("grestore\n\n", file);
+	out << "grestore\n\n";
 
-	fputs("% uncomment next line to be able to print to a printer.\n", file);
-	fputs("% showpage\n", file) ;
+	out << "% uncomment next line to be able to print to a printer.\n";
+	out << "% showpage\n";
 }
 
-void PSExporter::writeFooter(FILE *file) const
+void PSExporter::writeFooter(QTextStream& out) const
 {
-	fputs("showpage\n", file) ;
+	out << "showpage\n";
 }
 
 const char *EPSExporter::GOURAUD_TRIANGLE_EPS[] =
@@ -153,36 +148,8 @@ const char *EPSExporter::GOURAUD_TRIANGLE_EPS[] =
 	"triangle } ifelse } bd",
 	NULL
 };
-#ifdef A_VIRER
-//	"/bd{bind def}bind def /triangle { aload pop   setrgbcolor  aload pop 5 3",
-//	"roll 4 2 roll 3 2 roll exch moveto lineto lineto closepath fill } bd",
-//	"/computediff1 { 2 copy sub abs threshold ge {pop pop pop true} { exch 2",
-//	"index sub abs threshold ge { pop pop true} { sub abs threshold ge } ifelse",
-//	"} ifelse } bd /computediff3 { 3 copy 0 get 3 1 roll 0 get 3 1 roll 0 get",
-//	"computediff1 {true} { 3 copy 1 get 3 1 roll 1 get 3 1 roll 1 get",
-//	"computediff1 {true} { 3 copy 2 get 3 1 roll  2 get 3 1 roll 2 get",
-//	"computediff1 } ifelse } ifelse } bd /middlecolor { aload pop 4 -1 roll",
-//	"aload pop 4 -1 roll add 2 div 5 1 roll 3 -1 roll add 2 div 3 1 roll add 2",
-//	"div 3 1 roll exch 3 array astore } bd /gdt { computediff3 { 4",
-//	"-1 roll aload 7 1 roll 6 -1 roll pop 3 -1 roll pop add 2 div 3 1 roll add",
-//	"2 div exch 3 -1 roll aload 7 1 roll exch pop 4 -1 roll pop add 2 div 3 1",
-//	"roll add 2 div exch 3 -1 roll aload 7 1 roll pop 3 -1 roll pop add 2 div 3",
-//	"1 roll add 2 div exch 7 3 roll 10 -3 roll dup 3 index middlecolor 4 1 roll",
-//	"2 copy middlecolor 4 1 roll 3 copy pop middlecolor 4 1 roll 13 -1 roll",
-//	"aload pop 17 index 6 index 15 index 19 index 6 index 17 index 6 array",
-//	"astore 10 index 10 index 14 index gdt 17 index 5 index 17",
-//	"index 19 index 5 index 19 index 6 array astore 10 index 9 index 13 index",
-//	"gdt 13 index 16 index 5 index 15 index 18 index 5 index 6",
-//	"array astore 12 index 12 index 9 index gdt 17 index 16 index",
-//	"15 index 19 index 18 index 17 index 6 array astore 10 index 12 index 14",
-//	"index gdt 18 {pop} repeat } { aload pop 5 3 roll aload pop 7 3",
-//	"roll aload pop 9 3 roll 4 index 6 index 4 index add add 3 div 10 1 roll 7",
-//	"index 5 index 3 index add add 3 div 10 1 roll 6 index 4 index 2 index add",
-//	"add 3 div 10 1 roll 9 {pop} repeat 3 array astore triangle } ifelse } bd",
-//	NULL
-#endif
 
-void EPSExporter::spewPolygone(const Polygone *P,FILE *file)
+void EPSExporter::spewPolygone(const Polygone *P, QTextStream& out)
 {
 	int nvertices;
 	GLfloat red, green, blue;
@@ -211,13 +178,12 @@ void EPSExporter::spewPolygone(const Polygone *P,FILE *file)
 
 			for (int j = 0; j < nvertices - 2; j++)
 			{
-				fprintf(file, "[%g %g %g %g %g %g]",P->sommet3DColor(0).x(), P->sommet3DColor(j + 1).x(), P->sommet3DColor(j + 2).x(),
-																P->sommet3DColor(0).y(), P->sommet3DColor(j + 1).y(), P->sommet3DColor(j + 2).y());
+				out <<  "[" << P->sommet3DColor(0).x() << " " << P->sommet3DColor(j + 1).x() << " " << P->sommet3DColor(j + 2).x() 
+					<< " "	<< P->sommet3DColor(0).y() << " " << P->sommet3DColor(j + 1).y() << " " << P->sommet3DColor(j + 2).y() << "]";
 
-				fprintf(file, " [%g %g %g] [%g %g %g] [%g %g %g] gdt\n",
-						P->sommet3DColor(0    ).red(), P->sommet3DColor(0    ).green(), P->sommet3DColor(0    ).blue(),
-						P->sommet3DColor(j + 1).red(), P->sommet3DColor(j + 1).green(), P->sommet3DColor(j + 1).blue(),
-						P->sommet3DColor(j + 2).red(), P->sommet3DColor(j + 2).green(), P->sommet3DColor(j + 2).blue());
+				out <<  " [" << P->sommet3DColor(0    ).red() << " " << P->sommet3DColor(0    ).green() << " " << P->sommet3DColor(0    ).blue() 
+					<< "] [" << P->sommet3DColor(j + 1).red() << " " << P->sommet3DColor(j + 1).green() << " " << P->sommet3DColor(j + 1).blue() 
+					<< "] [" << P->sommet3DColor(j + 2).red() << " " << P->sommet3DColor(j + 2).green() << " " << P->sommet3DColor(j + 2).blue() << "] gdt\n";
 
 				last_r = last_g = last_b = -1.0 ;
 			}
@@ -226,26 +192,26 @@ void EPSExporter::spewPolygone(const Polygone *P,FILE *file)
 		{
 			/* Flat shaded polygon and white polygons; all vertex colors the same. */
 
-			fprintf(file, "newpath\n");
+			out <<  "newpath\n";
 
 			if(_blackAndWhite)
-				setColor(file,1.0,1.0,1.0) ;
+				setColor(out,1.0,1.0,1.0) ;
 			else
-				setColor(file,red,green,blue) ;
+				setColor(out,red,green,blue) ;
 
 			/* Draw a filled triangle. */
 
-			fprintf(file, "%g %g moveto\n", P->sommet3DColor(0).x(), P->sommet3DColor(0).y());
+			out << P->sommet3DColor(0).x() << " " << P->sommet3DColor(0).y() << " moveto\n";
 
 			for (int i = 1; i < nvertices; i++)
-				fprintf(file, "%g %g lineto\n", P->sommet3DColor(i).x(), P->sommet3DColor(i).y());
+				out << P->sommet3DColor(i).x() << " " << P->sommet3DColor(i).y() << " lineto\n";
 
-			fprintf(file, "closepath fill\n\n");
+			out << "closepath fill\n\n";
 		}
 	}
 }
 
-void EPSExporter::spewSegment(const Segment *S,FILE * file)
+void EPSExporter::spewSegment(const Segment *S, QTextStream& out)
 {
   GLdouble dx, dy;
   GLfloat dr, dg, db, absR, absG, absB, colormax;
@@ -304,11 +270,11 @@ void EPSExporter::spewSegment(const Segment *S,FILE * file)
 	  steps = 0; /* Single color line. */
 
   if(_blackAndWhite)
-	  setColor(file,0.0,0.0,0.0) ;
+	  setColor(out,0.0,0.0,0.0) ;
   else
-	  setColor(file,P1.red(),P1.green(),P1.blue()) ;
+	  setColor(out,P1.red(),P1.green(),P1.blue()) ;
 
-  fprintf(file, "%g %g moveto\n", P1.x(), P1.y());
+  out << P1.x() << " " << P1.y() << " moveto\n";
 
   for(int i = 0;i < steps;i++)
   {
@@ -318,31 +284,31 @@ void EPSExporter::spewSegment(const Segment *S,FILE * file)
 	  gnext += gstep;
 	  bnext += bstep;
 
-	  fprintf(file, "%g %g lineto stroke\n", xnext, ynext);
-	  fprintf(file, "%g %g %g setrgbcolor\n", rnext, gnext, bnext);
-	  fprintf(file, "%g %g moveto\n", xnext, ynext);
+	  out << xnext << " " << ynext << " lineto stroke\n";
+	  out << rnext << " " << gnext << " " << bnext << " setrgbcolor\n";
+	  out << xnext << " " << ynext << " moveto\n";
 
 	  last_r = last_g = last_b = -1.0 ;
   }
-  fprintf(file, "%g %g lineto stroke\n", P2.x(), P2.y());
+  out << P2.x() << " " << P2.y() << " lineto stroke\n";
 }
 
-void EPSExporter::spewPoint(const Point *P,FILE *file)
+void EPSExporter::spewPoint(const Point *P, QTextStream& out)
 {
 	const Feedback3DColor& p = Feedback3DColor(P->sommet3DColor(0)) ;
 
 	if(_blackAndWhite)
-		setColor(file,0.0,0.0,0.0) ;
+		setColor(out,0.0,0.0,0.0) ;
 	else
-		setColor(file,p.red(),p.green(),p.blue()) ;
+		setColor(out,p.red(),p.green(),p.blue()) ;
 
-	fprintf(file, "%g %g %g 0 360 arc fill\n\n", p.x(), p.y(), _pointSize / 2.0);
+	out << p.x() << " " << p.y() << " " << (_pointSize / 2.0) << " 0 360 arc fill\n\n";
 }
 
-void EPSExporter::setColor(FILE *file, float red, float green, float blue)
+void EPSExporter::setColor(QTextStream& out, float red, float green, float blue)
 {
 	if(last_r != red || last_g != green || last_b != blue)
-		fprintf(file, "%g %g %g setrgbcolor\n", red, green, blue);
+		out << red << " " << green << " " << blue << " setrgbcolor\n";
 
 	last_r = red ;
 	last_g = green ;

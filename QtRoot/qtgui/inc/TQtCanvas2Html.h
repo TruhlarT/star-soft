@@ -43,23 +43,23 @@ class TQtWidget;
 
 class TQtCanvas2Html : public  TQtPad2Html {
 protected:
-     QString  fTargetWindow;
+     QString          *fTargetWindow;
      TQtZoomPadWidget *fZoomer;
      TCanvas          *fZoomCanvas;
      bool              fOwnZoom;// do we own fZoomer;
-     QString           fUUID; // Unique ID to compare the Web pages
+     QString          *fUUID; // Unique ID to compare the Web pages
 
 
      virtual  int  CreateMapPage(TVirtualPad *pad);
      virtual  void CreateRectArea(const QString &name,const QString &title,int uleft_x, int uleft_y, int lright_x, int lright_y);
-     virtual  void MakePage(float zoom=1.8,uint width=0, uint height=0);
+     virtual  void MakePage(float zoom=1.8,unsigned int width=0, unsigned int height=0);
      virtual  void MapTag(const char *name);
 
 public:
      TQtCanvas2Html(TVirtualPad *pad=0,  float zoom=1.8, const char *folder=0, TQtZoomPadWidget *zoomer=0);
      TQtCanvas2Html(TQtWidget *canvas, float zoom=1.8, const char *folder=0, TQtZoomPadWidget *zoomer=0);
-     TQtCanvas2Html(TVirtualPad *pad,  uint width, uint height, const char *folder=0, TQtZoomPadWidget *zoomer=0);
-     TQtCanvas2Html(TQtWidget *canvas, uint width, uint height, const char *folder=0, TQtZoomPadWidget *zoomer=0);
+     TQtCanvas2Html(TVirtualPad *pad,  unsigned int width, unsigned int height, const char *folder=0, TQtZoomPadWidget *zoomer=0);
+     TQtCanvas2Html(TQtWidget *canvas, unsigned int width, unsigned int height, const char *folder=0, TQtZoomPadWidget *zoomer=0);
      virtual ~TQtCanvas2Html();
 };
 #endif

@@ -1,4 +1,4 @@
-// @(#)root/graf:$Name:  $:$Id: TQtPixmapBox.cxx,v 1.2 2007/03/22 20:24:48 fine Exp $
+// @(#)root/graf:$Name:  $:$Id: TQtPixmapBox.cxx,v 1.3 2009/08/03 18:03:10 fine Exp $
 // Author: Valeri Fine   03/09/2006
 
 /****************************************************************************

@@ -1,6 +1,6 @@
 // Author: Valeri Fine   21/01/2002
 /****************************************************************************
-** $Id: TQtContextMenuImp.h,v 1.5 2009/01/05 21:29:12 fine Exp $
+** $Id: TQtContextMenuImp.h,v 1.6 2009/08/03 18:03:08 fine Exp $
 **
 ** Copyright (C) 2002 by Valeri Fine.  All rights reserved.
 **
@@ -27,15 +27,7 @@
 
 #include <qglobal.h>
 #include <qobject.h>
-#if QT_VERSION < 0x40000
-#ifndef Q_MOC_RUN
-#  include "qptrstack.h"
-#endif
-#else /* QT_VERSION */
-//MOC_SKIP_BEGIN
-#  include "q3ptrstack.h"
-//MOC_SKIP_END
-#endif /* QT_VERSION */
+#include <QVector>
 
 // *-*
 // *-* Context Menu is derived from QPopupMenu (since it is special type of PopUp menu
@@ -54,15 +46,9 @@
 
 class TQtDialog;
 class QEvent;
-#if QT_VERSION < 0x40000
-#ifndef Q_MOC_RUN
-  class QPopupMenu;
-#endif
-#else /* QT_VERSION */
 //MOC_SKIP_BEGIN
   class QMenu;
 //MOC_SKIP_END
-#endif /* QT_VERSION */
 
 class TQtMenutItem : public QObject {
 
@@ -81,6 +67,7 @@ public slots:
 };
 
 class TObjectExecute;
+class QWebView;
 
 class TQtContextMenuImp : public QObject, public TContextMenuImp 
 {
@@ -89,18 +76,10 @@ class TQtContextMenuImp : public QObject, public TContextMenuImp
 
  private:
 
-#if QT_VERSION < 0x40000
-#ifndef Q_MOC_RUN
-   QPopupMenu   *fPopupMenu;
-   QPtrStack<TQtMenutItem> fItems;
-#endif
-#else /* QT_VERSION */
-//MOC_SKIP_BEGIN
    QMenu   *fPopupMenu;
-   Q3PtrStack<TQtMenutItem> fItems;
-//MOC_SKIP_END
-#endif /* QT_VERSION */
+   QVector<TQtMenutItem *> fItems;
    TObjectExecute  *fExecute;
+   QWebView        *fHelpWidget;
 
    virtual void  ClearProperties();
            void  CreatePopup  ();
@@ -117,37 +96,22 @@ class TQtContextMenuImp : public QObject, public TContextMenuImp
 
     virtual void       DisplayPopup ( Int_t x, Int_t y);
             void       DeletePopup();
-#if QT_VERSION < 0x40000
-#ifndef Q_MOC_RUN
-    QPopupMenu &PopupMenu() const { return *fPopupMenu; }
-#endif
-#else /* QT_VERSION */
-//MOC_SKIP_BEGIN
     QMenu &PopupMenu() const { return *fPopupMenu; }
-//MOC_SKIP_END
-#endif /* QT_VERSION */
 
     virtual bool   event(QEvent *){return FALSE;}
     
  protected slots:
-  void Disconnect();
+   void Disconnect();
 
  public slots:
 
    void  AboutToShow();
+   void  CopyCB();
    void  InspectCB();
    void  BrowseCB();
-   void  CopyCB();
+   void  HelpCB();
 signals:
-#if QT_VERSION < 0x40000
-#ifndef Q_MOC_RUN
-      void AboutToShow(QPopupMenu *, TContextMenu *);
-#endif
-#else /* QT_VERSION */
-//MOC_SKIP_BEGIN
-      void AboutToShow(QMenu *, TContextMenu *);
-//MOC_SKIP_END
-#endif /* QT_VERSION */
+   void AboutToShow(QMenu *, TContextMenu *);
     // ClassDef(TQtContextMenuImp,0) //Context sensitive popup menu implementation
 };
 #endif

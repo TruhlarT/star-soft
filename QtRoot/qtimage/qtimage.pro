@@ -9,6 +9,8 @@ CONFIG += create_prl
 
 GQTDIRI   = ../qt/inc
 
+QMAKE_RPATH=
+
 TARGET = QtImage
 
 QTROOTSYSPATHINSTALL = $(QTROOTSYSDIR)

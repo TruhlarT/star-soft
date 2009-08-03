@@ -26,13 +26,13 @@ int main( int argc, char **argv )
     // Create the embedded TCanvas
     TQtWidget *MyWidget= new TQtWidget(mainWindow,"MyWidget");
     // Add some tool tip:
-    QToolTip::add( MyWidget, "Close this widget to terminate your application");
+    MyWidget->setToolTip("Close this widget to terminate your application");
     
     // Add the embedded TCanvas to the Qt QMainWindow 
     mainWindow->setCentralWidget(MyWidget);     
     
     // Create ROOT tool bar
-    mainWindow->addDockWindow(new TQtToolBar(mainWindow));
+    mainWindow->addToolBar(new TQtToolBar(mainWindow));
     
     // Create any other Qt-widget here
     //         . . .

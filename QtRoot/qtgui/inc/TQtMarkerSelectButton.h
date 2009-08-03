@@ -10,7 +10,7 @@
 #ifndef __CINT__
 #if QT_VERSION < 0x40000
 #  include <qdialog.h>
-#include <qframe.h>
+#  include <qframe.h>
 #else
 #  include  <QDialog>
 #  include  <QFrame>
@@ -35,8 +35,8 @@ public :
    TQtMarkerFrame ( QWidget *p, const char * name, Style_t style );
    virtual ~TQtMarkerFrame(){}
 
-   void SetStyle ( const Style_t & style );
-   const Style_t & GetStyle ( ) const { return fStyle ; }
+   void SetStyle ( const Style_t style );
+   const Style_t GetStyle ( ) const { return fStyle ; }
 
 protected slots :
    void clickedSlot () { emit selected(this); }
@@ -65,6 +65,7 @@ signals :
 
 }; // class TQt18MarkerSelector
 
+class QMenu;
 /////////////////////////////////////////////////////////////////////////////////////////////////
 // TQtMarkerSelectButton                                                                              //
 /////////////////////////////////////////////////////////////////////////////////////////////////
@@ -73,7 +74,7 @@ Q_OBJECT
 private :
    TQtMarkerFrame      * fSelected ;
    TQt18MarkerSelector * fPopup ;
-
+   QMenu               * fFakeMenu;
    TQtMarkerSelectButton(const TQtMarkerSelectButton&);
    TQtMarkerSelectButton &operator=(const TQtMarkerSelectButton&);
 

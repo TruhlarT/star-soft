@@ -1,8 +1,8 @@
-// @(#)root/qtgl:$Name:  $:$Id: TQtGLViewerWidget.cxx,v 1.7 2009/05/26 19:07:06 fine Exp $
+// @(#)root/qtgl:$Name:  $:$Id: TQtGLViewerWidget.cxx,v 1.8 2009/08/03 18:03:08 fine Exp $
 // Author: Valery Fine(fine@vxcern.cern.ch)   12/11/02
  
 /****************************************************************************
-** $Id: TQtGLViewerWidget.cxx,v 1.7 2009/05/26 19:07:06 fine Exp $
+** $Id: TQtGLViewerWidget.cxx,v 1.8 2009/08/03 18:03:08 fine Exp $
 **
 ** Copyright (C) 2002 by Valeri Fine. Brookhaven National Laboratory.
 **                                    All rights reserved.
@@ -45,14 +45,11 @@
 #  include <qdatetime.h> 
 #endif
 
-#if QT_VERSION >= 0x40000
-//Added by qt3to4:
-#  include <QKeyEvent>
-#endif /* QT_VERSION */
+#include <QKeyEvent>
 
-#include <manipulatedFrame.h> 
+#include <QGLViewer/manipulatedFrame.h> 
 #include <qfontmetrics.h> 
-#include <quaternion.h>
+#include <QGLViewer/quaternion.h>
 
 // TWin32GLViewer* TQtGLViewerWidget::fgCurrent = 0;
 using namespace qglviewer;  
@@ -226,33 +223,21 @@ void TGLSlicePlaneAttribute::MakeAttribute()
 
 //______________________________________________________________________________
  TQtGLViewerWidget::TQtGLViewerWidget(QWidget *parent, const char *name,const QGLWidget *shareWidget, Qt::WFlags f) :
-#if QT_VERSION < 0x40000 || defined QT3_SUPPORT
-  QGLViewer(parent,name,shareWidget,f)
-#else /* QT_VERSION */
   QGLViewer(parent,shareWidget,f)
-#endif /* QT_VERSION */
  ,fGLView(0),fPad(0),fClipPlane(-1),fPadSynch(kFALSE)
  ,fSolidAttributes(0),fWiredAttributes(0),fSelectedAttributes(0),fSlicingAttributes(0),fSolidSelectable(kTRUE),fWiredSelectable(kTRUE) 
  , fFrameAxisFactor(-1)
 {   memset(fGLLights,0,sizeof(fGLLights));                                       }
 //______________________________________________________________________________
 TQtGLViewerWidget::TQtGLViewerWidget(TPadOpenGLView *view, const char *title,QWidget *parent,Qt::WFlags f):
-#if QT_VERSION < 0x40000 || defined QT3_SUPPORT
-      QGLViewer(parent,title,0,f)
-#else /* QT_VERSION */
       QGLViewer(parent,0,f)
-#endif /* QT_VERSION */
       ,fGLView(view),fPad(0),fClipPlane(-1), fPadSynch(kFALSE)
       , fSolidAttributes(0),fWiredAttributes(0),fSelectedAttributes(0),fSlicingAttributes(0),fSolidSelectable(kTRUE),fWiredSelectable(kTRUE)
       , fFrameAxisFactor(-1)
 { memset(fGLLights,0,sizeof(fGLLights));                                        }
 //______________________________________________________________________________
 TQtGLViewerWidget::TQtGLViewerWidget(TVirtualPad *pad, const char *title,QWidget *parent,Qt::WFlags f):
-#if QT_VERSION < 0x40000 || defined QT3_SUPPORT
-      QGLViewer(parent,title,0,f)
-#else
       QGLViewer(parent,0,f)
-#endif /* QT_VERSION */
       ,fGLView(0),fPad(pad),fClipPlane(-1), fPadSynch(kFALSE)
       ,fSolidAttributes(0),fWiredAttributes(0),fSelectedAttributes(0),fSlicingAttributes(0),fSolidSelectable(kTRUE),fWiredSelectable(kTRUE)
       , fFrameAxisFactor(-1)
@@ -307,7 +292,7 @@ TQtGLViewerWidget::TQtGLViewerWidget(TVirtualPad *pad, const char *title,QWidget
     }
     setStateFileName (fStateFileName );
 
-    // calculate the raduis
+   // calculate the raduis
     Float_t raduis = TMath::Sqrt(
        (maxBound[2]-minBound[2])*(maxBound[2]-minBound[2]) 
        + (maxBound[1]-minBound[1])*(maxBound[1]-minBound[1]) 

@@ -13,13 +13,14 @@
 #include <TPolyLine3D.h>
 #include <TRandom.h>
 #include <TParticle.h>
+#include <TParticlePDG.h>
 #include <TDecayChannel.h>
 #include "MyParticle.h"
 #include "TVector3.h"
 #include "MyEvent.h"
 #include "RootShower.h"
 
-#include <qlistview.h>
+#include <q3listview.h>
 
 //______________________________________________________________________________
 //
@@ -96,7 +97,7 @@ void MyEvent::Init(Int_t id, Int_t first_particle, Double_t E_0, Double_t B_0,
     AddTrack(0, fDetector.GetMinY(), 0, gColIndex);
 
     sprintf(strtmp,"%1.2e",GetParticle(0)->Energy());
-    gTmpLTI = new QListViewItem(gEventListTree, GetParticle(0)->GetName(),strtmp);
+    gTmpLTI = new Q3ListViewItem(gEventListTree, GetParticle(0)->GetName(),strtmp);
     //        QToolTip::add(gTmpLTI,strtmp);
 #if 0
     sprintf(strtmp,"%1.2e",GetParticle(0)->Energy());
@@ -262,7 +263,7 @@ Int_t MyEvent::Bremsstrahlung(Int_t id)
 
         // add a particle related list tree item to the event list tree
         sprintf(strtmp,"%1.2e",part->Energy());
-        gTmpLTI = new QListViewItem(gLTI[id], part->GetName(),strtmp);
+        gTmpLTI = new Q3ListViewItem(gLTI[id], part->GetName(),strtmp);
 
   //      gTmpLTI = gEventListTree->AddItem(gLTI[id], part->GetName());
   //      gEventListTree->SetToolTipItem(gTmpLTI, strtmp);
@@ -282,7 +283,7 @@ Int_t MyEvent::Bremsstrahlung(Int_t id)
 
         // add a particle related list tree item to the event list tree
         sprintf(strtmp,"%1.2e",part->Energy());
-        gTmpLTI = new QListViewItem(gLTI[id],part->GetName(),strtmp);
+        gTmpLTI = new Q3ListViewItem(gLTI[id],part->GetName(),strtmp);
 
        //  gTmpLTI = gEventListTree->AddItem(gLTI[id],part->GetName());
        //  gEventListTree->SetToolTipItem(gTmpLTI, strtmp);
@@ -323,7 +324,7 @@ Int_t MyEvent::Pair_production(Int_t id)
 
         // add a particle related list tree item to the event list tree
         sprintf(strtmp,"%1.2e",part->Energy());
-        gTmpLTI = new QListViewItem(gLTI[id],part->GetName(),strtmp);
+        gTmpLTI = new Q3ListViewItem(gLTI[id],part->GetName(),strtmp);
 
 //        gTmpLTI = gEventListTree->AddItem(gLTI[id], part->GetName());
  //       gEventListTree->SetToolTipItem(gTmpLTI, strtmp);
@@ -342,7 +343,7 @@ Int_t MyEvent::Pair_production(Int_t id)
 
         // add a particle related list tree item to the event list tree
        sprintf(strtmp,"%1.2e",part->Energy());
-       gTmpLTI = new QListViewItem(gLTI[id],part->GetName(),strtmp);
+       gTmpLTI = new Q3ListViewItem(gLTI[id],part->GetName(),strtmp);
 
 //         gTmpLTI = gEventListTree->AddItem(gLTI[id], part->GetName());
 //        gEventListTree->SetToolTipItem(gTmpLTI, strtmp);
@@ -743,7 +744,7 @@ Int_t MyEvent::Decay(Int_t id)
 
         // add a child related list tree item to the event list tree
         sprintf(strtmp,"%1.2e",part->Energy());
-        gTmpLTI = new QListViewItem(gLTI[id], part->GetName(),strtmp);
+        gTmpLTI = new Q3ListViewItem(gLTI[id], part->GetName(),strtmp);
 
 //        gTmpLTI = gEventListTree->AddItem(gLTI[id],
 //            part->GetName());

@@ -3,6 +3,9 @@ TEMPLATE	= lib
 unix:  TARGET   = RootShower
 win32: TARGET   = libRootShower
 
+QMAKE_RPATH=
+
+RESOURCES = RootShower.qrc
 CONFIG		+= qt warn_on  thread dll
 # CONFIG		+= qt warn_on dll
 HEADERS		= constants.h GButtonFrame.h GShowerPad.h GTitleFrame.h MyDetector.h MyEvent.h\
@@ -31,7 +34,7 @@ exists ($$inlcudeFile) {
 !win32 {
   LIBS += -lEG
 }
-win32:LIBS      += $(ROOTSYS)/lib/libEG.lib  $(ROOTSYS)/lib/libHtml.lib
+win32:LIBS      +=  $(ROOTSYS)/lib/libRIO.lib $(ROOTSYS)/lib/libEG.lib  $(ROOTSYS)/lib/libHtml.lib   $(ROOTSYS)/lib/libMathCore.lib
 
 unix {
 # -- trick to force the the trivial symbolic link under UNIX
@@ -61,3 +64,5 @@ unix {
   MOC_DIR = .moc
   OBJECTS_DIR = .obj
 }
+#The following line was inserted by qt3to4
+QT +=  qt3support 

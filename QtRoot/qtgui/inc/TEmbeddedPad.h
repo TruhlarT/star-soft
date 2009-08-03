@@ -1,4 +1,4 @@
-// @(#)root/base:$Name:  $:$Id: TEmbeddedPad.h,v 1.2 2006/09/22 17:27:10 fine Exp $
+// @(#)root/base:$Name:  $:$Id: TEmbeddedPad.h,v 1.3 2009/08/03 18:03:08 fine Exp $
 // Author: Valeri Fine   02/18/2006
 /****************************************************************************
 **
@@ -18,8 +18,8 @@
 //                                                                         //
 // TEmbeddedPad                                                            //
 //                                                                         //
-// Reimplemenation of the TPad class to create the stand-alone offscreen   //
-// TPad  QPixmap (without any mother TCanvas                               //
+// Reimplementation of the TPad class to create the stand-alone offscreen  //
+// TPad  QPixmap (without any mother TCanvas)                              //
 //                                                                         //
 /////////////////////////////////////////////////////////////////////////////
 
@@ -27,6 +27,7 @@
 #include "TPad.h"
 #endif
 
+class TImage;
 class TEmbeddedPad  : public TPad {
 
 private:
@@ -77,6 +78,7 @@ public:
     virtual ULong_t GetHandle( ULong_t handle, double m11, double m12, double m21, double m22, double dx, double dy) const;
     virtual Int_t   GetHandleRotate( Int_t id, double angle) const;
     virtual ULong_t GetHandleRotate( ULong_t handle,  double angle) const;
+	 virtual TImage *CreateImage( Int_t x=0, Int_t y=0, UInt_t w=0, UInt_t h=0);
 
     virtual UInt_t GetWh()      const;
     virtual UInt_t GetWw()      const;

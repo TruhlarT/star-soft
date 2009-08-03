@@ -1,4 +1,4 @@
-// @(#)root/ged:$Name:  $:$Id: TQtGraphEditor.cxx,v 1.1 2006/08/16 19:27:06 fine Exp $
+// @(#)root/ged:$Name:  $:$Id: TQtGraphEditor.cxx,v 1.2 2009/08/03 18:03:03 fine Exp $
 // Author: Valeri Fine 16/08/04
 
 /****************************************************************************
@@ -84,22 +84,19 @@ enum {
 TQtGraphEditor::TQtGraphEditor(QMainWindow *p, TCanvas *canvas, Int_t id, Int_t width,
                          Int_t height, UInt_t options, Pixel_t back)
    : TQtGedAttFrame<TGraph>(p, QString::null, canvas, id, width, height, options, back)
-{
-   
+{ 
 }
 //______________________________________________________________________________
 TQtGraphEditor::TQtGraphEditor( TCanvas *canvas,QWidget  *p, Int_t id, Int_t width,
                          Int_t height, UInt_t options, Pixel_t back)
    : TQtGedAttFrame<TGraph>("Graph", p, canvas, id, width, height, options, back)
-{
-   
+{ 
 }
 //______________________________________________________________________________
 void TQtGraphEditor::BuildView(QWidget  *editorPanel) {
+
    // Constructor of graph editor.
 
-
-   
    QVBox *vframe  = new QVBox(editorPanel);
    
    MakeTitle("Title",vframe);
@@ -166,8 +163,6 @@ void TQtGraphEditor::ChangeView()
 {
    // Pick up the used values of graph attributes.
    
-   // The name is confusing -- really we are changing the view
-
    // set the Title TextEntry
    const char *text = fModel->GetTitle();
    fTitle->setText(gQt->GetTextDecoder()->toUnicode (text) );

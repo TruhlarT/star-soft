@@ -1,7 +1,7 @@
 #include "TQtTabValidator.h"
 #include "TTabCom.h"
 /****************************************************************************
-** $Id: TQtTabValidator.cxx,v 1.2 2006/09/22 17:27:11 fine Exp $
+** $Id: TQtTabValidator.cxx,v 1.3 2009/08/03 18:03:10 fine Exp $
 **
 ** Copyright (C) 2003 by Valeri Fine.  All rights reserved.
 **

@@ -1,8 +1,8 @@
-// @(#)root/g3d:$Name:  $:$Id: TQtCoinViewerImp.h,v 1.23 2008/06/06 21:16:43 fine Exp $
+// @(#)root/g3d:$Name:  $:$Id: TQtCoinViewerImp.h,v 1.24 2009/08/03 18:03:06 fine Exp $
 // Author: Valery Fine      23/05/97
 
 /****************************************************************************
-** $Id: TQtCoinViewerImp.h,v 1.23 2008/06/06 21:16:43 fine Exp $
+** $Id: TQtCoinViewerImp.h,v 1.24 2009/08/03 18:03:06 fine Exp $
 **
 ** Copyright (C) 2002 by Valeri Fine. Brookhaven National Laboratory.
 **                                    All rights reserved.
@@ -110,7 +110,8 @@ protected:
    //Bool_t          fSelectionViewer;     // Flag to create the slave viewer with no own layout
    //Bool_t          fSelectionHighlight;  // Flag to highlight the selection object in place
    //Bool_t          fShowSelectionGlobal; // Show the selected object in the global coordinate
-   QAction        *fSnapShotAction;      // QAction to toggle the snap shot file saving
+   QAction        *fSnapShotAction;        // QAction to toggle the snap shot file saving
+   QAction        *fShowFrameAxisAction;   // QAction to toggle the the 3D axes on /off 
      
    
 protected:
@@ -216,6 +217,10 @@ public:
      virtual void SetRotationAxisAngle(const float  x, const float  y, const float  z, const float a);
      virtual void SetSnapFileCounter(int counter);
      virtual void SetUpdatesEnabled(bool);
+     virtual void SetAxisPositionCB(QAction *, int axIndex=0);
+     virtual void SetAxisPositionXCB(QAction *);
+     virtual void SetAxisPositionYCB(QAction *);
+     virtual void SetAxisPositionZCB(QAction *);
      virtual void SetFooter(const char *);
      virtual void SetFooter(QString &text);
      virtual void SetFullScreenView(bool);

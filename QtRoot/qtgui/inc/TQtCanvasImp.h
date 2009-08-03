@@ -1,6 +1,6 @@
 // Author: Valeri Fine   21/01/2002
 /****************************************************************************
-** $Id: TQtCanvasImp.h,v 1.6 2008/04/22 14:39:00 fine Exp $
+** $Id: TQtCanvasImp.h,v 1.7 2009/08/03 18:03:08 fine Exp $
 **
 ** Copyright (C) 2002 by Valeri Fine.  All rights reserved.
 **
@@ -23,27 +23,19 @@
 
 
 #include <qobject.h>
-#if QT_VERSION < 0x40000
-#  include <qptrvector.h>
-#  include <qintdict.h>
-#else /* QT_VERSION */
-#  include <QVector>
-#  include <QMap>
-#  include <QPixmap>
-#  include <QEvent>
-#  include <QMenu>
-#endif /* QT_VERSION */
-#include <qlabel.h>
+#include <QVector>
+#include <QMap>
+#include <QPixmap>
+#include <QEvent>
+#include <QMenu>
+#include <QLabel>
 
 #include "TCanvasImp.h"
+#include "TQtRootAction.h"
 
 class TVirtualPadEditor;
 
-#if QT_VERSION < 0x40000
-   class QPopupMenu;
-#else /* QT_VERSION */
-   class QMenu;
-#endif /* QT_VERSION */
+class QMenu;
 class QMenuBar;
 class QToolBar;
 class QPixmap;
@@ -69,20 +61,10 @@ private:
    Int_t       fY; 
    UInt_t      fWidth;
    UInt_t      fHeight;
-   Int_t       fCoinMenu; // position of the disables coin menu entry
-#if QT_VERSION < 0x40000
-   QPopupMenu *fViewMenu; // pointer to the view popup menu
-   QToolBar   *fFileToolBar;
-   QToolBar   *fToolBar;
-   QToolBar   *fEditToolBar;
-   QIntDict<TQtRootAction> fActions;
-#else /* QT_VERSION */
-   QMenu       *fViewMenu; // pointer to the view popup menu
    QToolBar   *fFileToolBar;
    QToolBar   *fToolBar;
    QToolBar   *fEditToolBar;
    QMap<int, TQtRootAction*> fActions;
-#endif /* QT_VERSION */
    TVirtualPadEditor   *fEditor;     // pointer to currently loaded pad editor
 
    
@@ -95,17 +77,9 @@ protected:
 #endif          
   static TQtZoomPadWidget  *fgZoomingWidget;
   QMenuBar   *fMenuBar;
-#if QT_VERSION < 0x40000
-  QPopupMenu *fOptionMenu;
-#else /* QT_VERSION */
   QMenu *fOptionMenu;
-#endif /* QT_VERSION */
   Bool_t      fDoubleBuffer;
-#if QT_VERSION < 0x40000
-  QPtrVector<QLabel> fStatusBar;
-#else /* QT_VERSION */
   QVector<QLabel *> fStatusBar;
-#endif /* QT_VERSION */
   QString     fSaveFileName;
   QString     fSaveType;
 

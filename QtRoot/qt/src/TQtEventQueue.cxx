@@ -1,7 +1,13 @@
-// @(#)root/qt:$Id: TQtEventQueue.cxx,v 1.3 2008/05/25 14:26:15 fine Exp $
 // Author: Valeri Fine   25/03/2004
+
+#include "TQtEventQueue.h"
+#include "TQtLock.h"
+#include <QApplication>
+#include <cassert>
+
+
 /****************************************************************************
-** $Id: TQtEventQueue.cxx,v 1.3 2008/05/25 14:26:15 fine Exp $
+** $Id: TQtEventQueue.cxx,v 1.4 2009/08/03 18:02:57 fine Exp $
 **
 ** Copyright (C) 2004 by Valeri Fine. Brookhaven National Laboratory.
 **                                    All rights reserved.
@@ -11,13 +17,6 @@
 ** LICENSE.QPL included in the packaging of this file.
 **
 *****************************************************************************/
-
-#include "TQtEventQueue.h"
-#include "TQtLock.h"
-#include <qapplication.h>
-#include <cassert>
-
-
 
 /////////////////////////////////////////////////////////////////////////////////
 //
@@ -31,51 +30,17 @@
 /////////////////////////////////////////////////////////////////////////////////
 
 //______________________________________________________________________________
-#if QT_VERSION < 0x40000
-TQtEventQueue::TQtEventQueue(bool autoDelete): QPtrList<Event_t> ()
-{ 
-  //  If auto-deleting is turned on, all the items in a collection 
-  //  are deleted when the collection itself is deleted.
-   setAutoDelete(autoDelete); 
+TQtEventQueue::TQtEventQueue(): QQueue<const Event_t *> ()
+{
+   // Create the ROOT event queue
 }
-#else /* QT_VERSION */
-TQtEventQueue::TQtEventQueue(bool autoDelete): QQueue<const Event_t *> ()
-{ 
-  //  If auto-deleting is turned on, all the items in a collection 
-  //  are deleted when the collection itself is deleted.
-}
-#endif /* QT_VERSION */
 
 //______________________________________________________________________________
 TQtEventQueue::~TQtEventQueue()
 {
-#if QT_VERSION >= 0x40000
+    // Remove all remaining events if any
     qDeleteAll(*this); 
-#endif
 }
-#if 0
-//______________________________________________________________________________
-#if QT_VERSION < 0x40000
-int TQtEventQueue::compareItems(QPtrCollection::Item i1, QPtrCollection::Item i2)
-#else /* QT_VERSION */
-int TQtEventQueue::compareItems(Q3PtrCollection::Item i1, Q3PtrCollection::Item i2)
-#endif /* QT_VERSION */
-{
-//   This virtual function compares two list items. 
-//   Returns:   zero if item1 == item2  
-//   --------   nonzero if item1 != item2 
-//             
-//   This function returns int rather than bool 
-//   so that reimplementations can return three values 
-//   and use it to sort by: 
-//       0 if item1 == item2 
-//     > 0 (positive integer) if item1 > item2 
-//     < 0 (negative integer) if item1 < item2 
-   Event_t &ev1 = *(Event_t *)i1;
-   Event_t &ev2 = *(Event_t *)i2;
-   return ev1.fWindow - ev2.fWindow;
-}
-#endif
 
 //______________________________________________________________________________
 int TQtEventQueue::RemoveItems(const Event_t *ev)
@@ -87,27 +52,7 @@ int TQtEventQueue::RemoveItems(const Event_t *ev)
    // This method is used to debug the application only (by far)
    int counter = 0;
    assert(0);
-   if (ev) {
-#if 0
-      TQtLock lock;
-#if QT_VERSION < 0x40000
-      int next = find(ev);
-      while(next != -1) {
-         remove();            // The removed item is deleted also
-         next = findNext(ev);
-         counter++;
-      }
-#else
-      // to be done yet.  
-      assert(0);
-      int next = remove_if(begin(),end(),ev);
-      while(next != -1) {
-         remove();            // The removed item is deleted also
-         next = findNext(ev);
-         counter++;
-      }
-#endif
-#endif 
-   }
+   if (ev) { }
    return counter;
 }
+

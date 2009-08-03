@@ -1,7 +1,7 @@
-// @(#)root/gui:$Name:  $:$Id: TQtPatternSelect.cxx,v 1.3 2007/07/04 20:45:43 fine Exp $
+// @(#)root/gui:$Name:  $:$Id: TQtPatternSelect.cxx,v 1.4 2009/08/03 18:03:10 fine Exp $
 // Author: Valeri Fine  21/05/2004
 /****************************************************************************
-** $Id: TQtPatternSelect.cxx,v 1.3 2007/07/04 20:45:43 fine Exp $
+** $Id: TQtPatternSelect.cxx,v 1.4 2009/08/03 18:03:10 fine Exp $
 **
 ** Copyright (C) 2004 by Valeri Fine. Brookhaven National Laboratory.
 **                                    All rights reserved.
@@ -31,11 +31,8 @@
 #include "TQtEvent.h"
 #include "TQtApplication.h"
 #include <qapplication.h>
-#if QT_VERSION >= 0x40000
 //Added by qt3to4:
 #include <QEvent>
-#endif /* QT_VERSION */
-
 
 ClassImp(TQtPatternSelect)
 //______________________________________________________________________________
@@ -51,11 +48,11 @@ void   TQtPatternSelect::ConstructorThread(QWidget *p,  Style_t pattern, Int_t i
    { //---- Define a message ---
       class ev : public TQtEvent {
       public:
-                          QWidget *fP;  UInt_t fPattern; Int_t fId;
-         ev(QObject *obj, QWidget *p,   UInt_t pattern,  Int_t id)
-            :  TQtEvent(0), fP(p), fPattern(pattern), fId(id) {setData(obj);}
+         QWidget *fP;  UInt_t fPattern; Int_t fId; TQtPatternSelect *fObj;
+         ev(TQtPatternSelect *obj, QWidget *p,   UInt_t pattern,  Int_t id)
+            :  TQtEvent(0), fP(p), fPattern(pattern), fId(id),fObj(obj) {;}
             void ExecuteCB()  {         
-               ((TQtPatternSelect *)data())->Constructor(fP,fPattern,fId);
+               fObj->Constructor(fP,fPattern,fId);
             }
       };
       //---- Send the message ---

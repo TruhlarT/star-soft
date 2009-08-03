@@ -1,4 +1,4 @@
-// @(#)root/gui:$Name:  $:$Id: TQtPad2Html.cxx,v 1.4 2007/08/26 17:47:02 fine Exp $
+// @(#)root/gui:$Name:  $:$Id: TQtPad2Html.cxx,v 1.5 2009/08/03 18:03:10 fine Exp $
 // Author: Valeri Fine 07/06/2006
 /****************************************************************************
 **
@@ -20,6 +20,8 @@
 #  include <QPixmap>
 #  include <QDir>
 #  include <QIODevice>
+#  include <QDebug>
+#  include <QString>
 #else
 #  include <qtextstream.h>
 #  include <qfileinfo.h> 
@@ -35,18 +37,25 @@
 #include "TSystem.h"
 #include "TIterator.h"
 #include "TList.h"
+#include "TObjArray.h"
+#include "THStack.h"
+#include "TH1.h"
 // fgPrefix = "Root_Qt_Canvas";
 
 //__________________________________________________________________________________
-TQtPad2Html::TQtPad2Html(TVirtualPad *pad,bool, const QString &folder) : fPad(pad ? pad : gPad),fHtml(0)
+TQtPad2Html::TQtPad2Html(TVirtualPad *pad,bool, const QString &folder) : 
+             fAuthorName(0),fAuthorEmail(0),fFullHtmlName(0),fFullImageName(0),
+             fHtmlFolder(0), fPad(pad ? pad : gPad),fHtml(0)
 { 
     // dummy ctor to be called by TQtCanvas2Html 
    if (!folder.isEmpty()) SetFolder(folder); 
 }
 
 //__________________________________________________________________________________
-TQtPad2Html::TQtPad2Html(TVirtualPad *pad, const char *folder) : fPad(pad ? pad : gPad),fHtml(0)
-{  
+TQtPad2Html::TQtPad2Html(TVirtualPad *pad, const char *folder) : 
+             fAuthorName(0),fAuthorEmail(0),fFullHtmlName(0),fFullImageName(0),
+             fHtmlFolder(0),fPad(pad ? pad : gPad),fHtml(0)
+{
    if (folder && folder[0]) SetFolder(QString(folder)); 
    WriteHtmlPad(fPad); 
 }
@@ -55,6 +64,12 @@ TQtPad2Html::TQtPad2Html(TVirtualPad *pad, const char *folder) : fPad(pad ? pad 
 TQtPad2Html::~TQtPad2Html()
 {
    Close();
+   delete fHtml;         fHtml         = 0;
+   delete fAuthorName;   fAuthorName   = 0;
+   delete fAuthorEmail;  fAuthorEmail  = 0;
+   delete fFullHtmlName; fFullHtmlName = 0;
+   delete fFullImageName;fFullImageName= 0;
+   delete fHtmlFolder;   fHtmlFolder   = 0;
 }
 
 //__________________________________________________________________________________
@@ -63,7 +78,6 @@ void TQtPad2Html::Close() {
       fFile->close();
       delete fFile; fFile = 0;
    }
-   delete fHtml; fHtml = 0;
 }
 
 //__________________________________________________________________________________
@@ -148,47 +162,54 @@ void TQtPad2Html::WriteHtmlPad(TVirtualPad *pad, const char *name)
    if (name) {}
    OpenHeader(pad); 
    WritePad(pad);
-   MapCanvas(pad);
+   MapCanvas(pad,"hist");
+   MapHistograms(pad);
    ClosePage();
 }
 
 //__________________________________________________________________________________
-QString &TQtPad2Html::PadHtmlFile(TVirtualPad *pad, const char *name)
+const QString &TQtPad2Html::PadHtmlFile(TVirtualPad *pad, const char *name)
 {
+   // Set the Html file for the pad at once per class instance
    if (name) {}
-   if (fFullHtmlName.isEmpty() ){
+   if (!fFullHtmlName) {
+      fFullHtmlName = new QString;
       if (pad) {
          QString folder = HtmlFolder().isEmpty() ? "./" : HtmlFolder();
          QString fileName = name ? name : pad->GetName();
          fileName +=  ".html";
-         fFullHtmlName = folder + fileName;
+         *fFullHtmlName = folder + fileName;
       }
-      fprintf(stderr," Create Web page: %s\n", (const char*)fFullHtmlName);
+      fprintf(stderr," Create Web page: %s\n", fFullHtmlName->toAscii().data());
    }
-   return fFullHtmlName;
+   return *fFullHtmlName;
 }
 
 //__________________________________________________________________________________
 const QString &TQtPad2Html::PadImageFile(TVirtualPad *pad, const char *name)
 {
+   // Set the Image file name at once per instance
+   // returns the Image file name
    if (name) {}
-   if (fFullImageName.isEmpty() ){
+   if (!fFullImageName) {
+      fFullImageName = new QString;
       if (pad) {
          QString folder = HtmlFolder().isEmpty() ? "./" : HtmlFolder();
          QString fileName = name ? name : pad->GetName();
          fileName +=  ".png";
-         fFullImageName = folder + fileName;
+         *fFullImageName = folder + fileName;
       }
    }
-   return fFullImageName;
+   return *fFullImageName;
 }
 
 //__________________________________________________________________________________
 const QString &TQtPad2Html::HtmlFolder()
-{ 
-   if ( !(fHtmlFolder.isEmpty() || fHtmlFolder.endsWith("/")) )
-      fHtmlFolder += "/";
-   return fHtmlFolder;
+{
+   if (!fHtmlFolder) fHtmlFolder = new QString;
+   if ( !(fHtmlFolder->isEmpty() || fHtmlFolder->endsWith("/")) )
+      *fHtmlFolder += "/";
+   return *fHtmlFolder;
 }
 
 //__________________________________________________________________________________
@@ -201,7 +222,8 @@ void  TQtPad2Html::SetFolder(const QString &folder)
         QDir d("."); d.mkdir(folder);
      }
    }
-   fHtmlFolder = folder;
+   if (!fHtmlFolder) fHtmlFolder = new QString;
+   *fHtmlFolder = folder;
 }
 
 //__________________________________________________________________________________
@@ -215,7 +237,7 @@ void TQtPad2Html::WritePad(TVirtualPad *pad, const char *name)
       QPixmap *pix = 0;
       if (pad->GetCanvas() ==  pad) {
          TQtWidget *fCanvasID = (TQtWidget *)TGQt::iwid(((TCanvas *)pad)->GetCanvasID());
-         pix = &fCanvasID->GetBuffer();
+         pix = fCanvasID->GetOffScreenBuffer();
       } else {
          pix = (QPixmap *)TGQt::iwid(pad->GetPixmapID());
       }
@@ -245,6 +267,102 @@ QString TQtPad2Html::ImageTitle(TVirtualPad *pad)
    }
    return title;
 }
+//__________________________________________________________________________________
+void   TQtPad2Html:: MakeHistArea(const TH1 *hist,TVirtualPad *pad)
+{
+   //  Create the POLY HTML area
+   if (!pad) pad = fPad;
+   if (!fPad) pad = gPad;
+   // Create the POLY html AREA
+   if (hist && hist->GetDimension() == 1) {
+      Html() << "<AREA ";
+      Html() << " ALT=";   Quote() << hist->GetTitle();     Quote();
+      Html() << " TITLE="; Quote() << hist->GetTitle();     Quote();
+      Html() << " SHAPE=POLY COORDS=";           Quote();
+      Eol();
+      Double_t xmin; Double_t ymin; Double_t xmax; Double_t ymax;
+      pad->GetRangeAxis(xmin, ymin, xmax,  ymax);
+      int nBins  = hist->GetNbinsX();
+      Float_t w  = hist->GetBinWidth(1);
+      Float_t y0 = hist->GetBinContent(1);
+      Float_t x0 = hist->GetBinCenter(1)-w/2;
+      Html() <<  QString("%1,%2").arg(pad->XtoPixel(x0))
+                                 .arg(pad->YtoPixel(ymin));
+      Float_t x = x0;
+      if (ymin != y0) {
+         Html() <<  QString(",%1,%2").arg(pad->XtoPixel(x0))
+                                     .arg(pad->YtoPixel(y0));
+      }
+      Eol();
+      for (int i=1; i < nBins; i++) {
+#if ROOT_VERSION_CODE >= ROOT_VERSION(5,23,00)         
+         if ( hist->IsBinOverflow(i) || hist->IsBinUnderflow(i)) continue;
+#endif
+         Float_t y = hist->GetBinContent(i);
+         if (y != y0 ) {
+            // Horizontal (can be long) line
+            Html() <<  QString(",%1,%2").arg(pad->XtoPixel(x))
+                                    .arg(pad->YtoPixel(y0)); 
+            // Vertical line
+            Html() <<  QString(",%1,%2").arg(pad->XtoPixel(x))
+                                        .arg(pad->YtoPixel(y));
+            Eol();
+            y0 = y;
+            x0 = x;
+         }
+         x += hist->GetBinWidth(i);         
+      }
+      
+      Html() <<  QString(",%1,%2").arg(pad->XtoPixel(x))
+                                  .arg(pad->YtoPixel(y0)); 
+      Eol();
+      Html() <<  QString(",%1,%2").arg(pad->XtoPixel(x))
+                                  .arg(pad->YtoPixel(ymin));
+      Eol();
+
+      Quote() << " href=";  
+      Quote() <<"javascript:window.alert(\'";
+              Html() << hist->GetTitle() << "\')";
+      Quote() << " onMouseOver=";  
+      Quote() << "self.status=\'"; Html() << hist->GetTitle();
+                 Html()  << "\';return true";
+      Quote() << ">"; 
+      Eol();
+   }
+}
+//__________________________________________________________________________________
+void   TQtPad2Html::MakeHistArea(TIter &next,TVirtualPad *pad)
+{ 
+   // Create the HTML map from the nested list of the histograms if any
+   TObject *hist = 0;
+   while ( (hist = next())) {
+      if (hist->InheritsFrom("TSeqCollection")) {
+         TIter nextCollection((TSeqCollection *)hist,kIterBackward);
+         MakeHistArea(nextCollection,pad);
+      } else if (hist->InheritsFrom("THStack")) {
+         TIter nextStack(((THStack*)hist)->GetStack());
+         MakeHistArea(nextStack,pad);
+      } else if (hist->InheritsFrom("TH1")) {
+         MakeHistArea((const TH1*)hist,pad);
+      }
+   }
+}
+
+//__________________________________________________________________________________
+QTextStream &TQtPad2Html::MapHistograms(TVirtualPad *pad)
+{
+    // create an extra map for the histograms
+   if (!pad) pad = fPad;
+   if (!fPad) pad = gPad;
+   if (pad) {
+      // update first (just in case)
+      pad->Update();
+      // look up pad
+      TIter nextPrimities(pad->GetListOfPrimitives(),kIterBackward);
+      MakeHistArea(nextPrimities,pad);
+   }
+   return Html();
+}
 
 //__________________________________________________________________________________
 QTextStream &TQtPad2Html::MapCanvas(TVirtualPad *pad, const char *mapName,bool adjust) 
@@ -272,19 +390,19 @@ QTextStream &TQtPad2Html::MapCanvas(TVirtualPad *pad, const char *mapName,bool a
 
 //__________________________________________________________________________________
 const QString &TQtPad2Html::AuthorName() {
-   if (fAuthorName.isEmpty()) {
-      fAuthorName = gSystem->Getenv("USER");
-   }
-   return fAuthorName;
+   if (!fAuthorName) 
+      fAuthorName = new QString(gSystem->Getenv("USER"));
+   return *fAuthorName;
 }
 
 //__________________________________________________________________________________
-const QString &TQtPad2Html::AuthorEMail() {
-  if (fAuthorEmail.isEmpty()) {
-     fAuthorEmail = AuthorName();
-     fAuthorEmail += "@bnl.gov";
+const QString &TQtPad2Html::AuthorEMail() 
+{
+  if (!fAuthorEmail) {
+     fAuthorEmail = new QString(AuthorName());
+     *fAuthorEmail += "@bnl.gov";
   }
-  return fAuthorEmail;
+  return *fAuthorEmail;
 }
 
 //__________________________________________________________________________________

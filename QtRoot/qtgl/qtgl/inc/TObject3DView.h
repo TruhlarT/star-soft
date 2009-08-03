@@ -1,4 +1,4 @@
-// @(#)root/gtgl:$Name:  $:$Id: TObject3DView.h,v 1.5 2009/01/21 18:59:12 fine Exp $
+// @(#)root/gtgl:$Name:  $:$Id: TObject3DView.h,v 1.6 2009/08/03 18:03:07 fine Exp $
 // Author: Valery Fine      23/10/03
 
 #ifndef ROOT_TObject3DView

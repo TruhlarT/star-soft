@@ -1,6 +1,6 @@
 // Author: Valeri Fine   16/03/2006
 /****************************************************************************
-** $Id: TQtZoomPadWidget.cxx,v 1.7 2007/05/22 01:05:24 fine Exp $
+** $Id: TQtZoomPadWidget.cxx,v 1.8 2009/08/03 18:03:10 fine Exp $
 **
 ** Copyright (C) 2006 by Valeri Fine. Brookhaven National Laboratory.
 **                                    All rights reserved.
@@ -20,13 +20,13 @@
 #include "qevent.h"
 #include "qtooltip.h"
 #include "qapplication.h"
-#if QT_VERSION >= 0x40000
-//Added by qt3to4:
-#  include <QMouseEvent>
-#  include <Q3Frame>
-#  include <QResizeEvent>
-#  include <cmath>
-#endif /* QT_VERSION */
+
+#include <QMouseEvent>
+#include <QResizeEvent>
+#include <QResizeEvent>
+#include <QHBoxLayout>
+
+#include <cmath>
 
 
 /////////////////////////////////////////////////////////////////////////////////////
@@ -65,21 +65,19 @@
 /////////////////////////////////////////////////////////////////////////////////////
 
 //__________________________________________________________________________________
-#if QT_VERSION < 0x40000
-TQtZoomPadWidget::TQtZoomPadWidget(TVirtualPad *pad, QWidget *parent, const char *name, WFlags f)
-: QHBox(parent, name, f),fSelectingButton(kButton2Down),fSetPadInProgress(false),fSmartZoomFactor(true)
-#else /* QT_VERSION */
 TQtZoomPadWidget::TQtZoomPadWidget(TVirtualPad *pad, QWidget *parent, const char *name, Qt::WFlags f)
-: Q3HBox(parent, name, f),fSelectingButton(kButton2Down),fSetPadInProgress(false),fSmartZoomFactor(true)
-#endif /* QT_VERSION */
+: QWidget(parent, f),fSelectingButton(kButton2Down),fSetPadInProgress(false),fSmartZoomFactor(true)
 , fJustOpen(true), fOldWidth(-1), fOldHieght(-1),fPad(0),fHideOnLeave(true),fZoomFactor(1.8), fSrcWidget(0),fMouseBits(0)
 , fLastZoomed(0),fIgnoreNextMotion(false)
 {
     // Create the Embedded TCanvas to draw the zoomed image of the "pad"
     // Other parameteres are passed to QHBox ctor
+    setName(name);
 
+    setLayout(new QHBoxLayout(QBoxLayout::TopToBottom));
     TVirtualPad *savePad = gPad;
     TQtWidget *w = new TQtWidget(this);
+    layout()->addWidget(w);
     connect(w,SIGNAL(RootEventProcessed(TObject *, unsigned int, TCanvas *))
            ,this,SLOT(CanvasEvent(TObject *, unsigned int, TCanvas *)));
     w->EnableSignalEvents(kMousePressEvent);
@@ -101,11 +99,6 @@ void TQtZoomPadWidget::leaveEvent(QEvent *e)
        Disconnect();
        emit madeHidden();
     }
-#if QT_VERSION < 0x40000
-    QFrame::leaveEvent(e);
-#else /* QT_VERSION */
-    Q3Frame::leaveEvent(e);
-#endif /* QT_VERSION */
 }
 //__________________________________________________________________________________
 void TQtZoomPadWidget::CanvasEvent(TObject *, unsigned int event, TCanvas *)
@@ -140,11 +133,7 @@ void TQtZoomPadWidget::resizeEvent(QResizeEvent *e)
       fOldHieght = e->size().height();
    }
    if (HasSmartZoom()) fJustOpen = false;
-#if QT_VERSION < 0x40000
-   QHBox::resizeEvent(e);
-#else /* QT_VERSION */
-   Q3HBox::resizeEvent(e);
-#endif /* QT_VERSION */
+   QWidget::resizeEvent(e);
 }
 //__________________________________________________________________________________
 void TQtZoomPadWidget::Connect(const char *canvasName)
@@ -207,7 +196,7 @@ void TQtZoomPadWidget::Connect(TQtWidget  *wid)
       connect(wid,SIGNAL(RootEventProcessed(TObject *, unsigned int, TCanvas *))
            ,this,SLOT(RootEventProcessed(TObject *, unsigned int, TCanvas *)));
       wid->EnableSignalEvents(kMousePressEvent);
-      QToolTip::add(wid,"To zoom any <b>TPad</b> click it with the <b>wheel</b> button");
+      wid->setToolTip("To zoom any <b>TPad</b> click it with the <b>wheel</b> button");
       ResetLastZoomed();
    }
 }
@@ -283,7 +272,7 @@ void TQtZoomPadWidget::Disconnect(TQtWidget  *wid)
       if ( fSrcWidget == wid ) Disconnect();
       disconnect(wid,SIGNAL(RootEventProcessed(TObject *, unsigned int, TCanvas *))
            ,this,SLOT(RootEventProcessed(TObject *, unsigned int, TCanvas *)));
-      QToolTip::remove(wid);
+      wid->setToolTip("");
    }
 }
 //__________________________________________________________________________________

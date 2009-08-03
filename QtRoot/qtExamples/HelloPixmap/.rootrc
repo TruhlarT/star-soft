@@ -1,4 +1,4 @@
- # .rootrc:$Name:  $:$Id: .rootrc,v 1.1 2006/09/22 17:16:08 fine Exp $
+ # .rootrc:$Name:  $:$Id: .rootrc,v 1.2 2009/08/03 18:03:00 fine Exp $
 # Author: Valeri Fine 10/10/2003
 
 # The custom ROOT env to turn on the Qt-edition of ROOT gui
@@ -9,8 +9,11 @@
 #        $ROOTSYS/etc/system.rootrc
 #
 
+#  Custom plugins (ROOT 5.18 and above)
+Unix.*.Root.PluginPath:      :./plugins:$(HOME)/plugins:$(QTROOTSYSDIR)/etc/plugins:$(QTROOTSYSDIR)/plugins:$(ROOTSYS)/etc/plugins:
+WinNT.*.Root.PluginPath:     ;./plugins;$(HOME)/plugins;$(QTROOTSYSDIR)/etc/plugins;$(QTROOTSYSDIR)/plugins;$(ROOTSYS)/etc/plugins;
 
-Plugin.TVirtualPadEditor: Ged TQtGedEditor    QtGed          "TQtGedEditor(TCanvas*)"
+Plugin.TVirtualPadEditor: ^Ged TQtGedEditor    QtGed          "TQtGedEditor(TCanvas*)"
 
 #Plugin.TPaletteEditor:      *  TQtPaletteEditor  QtImage  "TQtPaletteEditor(TAttImage*,UInt_t,UInt_t)"
 #Plugin.TImage:              *  TQtImage          QtImage  "TQtImage()"

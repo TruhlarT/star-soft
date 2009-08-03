@@ -10,6 +10,8 @@ COIN3DDIR= $(IVROOT)
 
 TARGET = RQIVTGL
 
+QMAKE_RPATH=
+
 isEmpty(DESTDIR) {
   DESTDIR=..
 }
@@ -137,6 +139,12 @@ HEADERS += inc/TQtCoinViewerImp.h            \
            inc/xc.xpm.h                      \
            inc/yc.xpm.h                      \
            inc/zc.xpm.h                      \
+           inc/cA00.xpm.h                    \
+           inc/cA01.xpm.h                    \
+           inc/cA10.xpm.h                    \
+           inc/cA11.xpm.h                    \
+           inc/cAcc.xpm.h                    \
+           inc/cAGrid.xpm.h                  \
            inc/TQtCoin3DDefInterface.h
            
 SOURCES += src/TQtCoinWidget.cxx             \

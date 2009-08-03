@@ -1,4 +1,4 @@
-// @(#)root/gtgl:$Name:  $:$Id: TCoinShapeBuilder.cxx,v 1.13 2008/06/06 21:16:28 fine Exp $
+// @(#)root/gtgl:$Name:  $:$Id: TCoinShapeBuilder.cxx,v 1.14 2009/08/03 18:03:07 fine Exp $
 // Author: Valery Fine      24/09/06
 
 /****************************************************************************

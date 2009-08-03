@@ -1,5 +1,5 @@
-// @(#)root/thread:$Name:  $:$Id: LinkDef.h,v 1.1 2006/08/16 19:34:49 fine Exp $
-// $Id: LinkDef.h,v 1.1 2006/08/16 19:34:49 fine Exp $
+// @(#)root/thread:$Name:  $:$Id: LinkDef.h,v 1.2 2009/08/03 18:03:11 fine Exp $
+// $Id: LinkDef.h,v 1.2 2009/08/03 18:03:11 fine Exp $
 // Author: Valery Fine  08/25/2005
 #ifdef __CINT__
 

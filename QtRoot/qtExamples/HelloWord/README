@@ -34,6 +34,9 @@ To  build it from the Qt project file do
 To start the application do:
             
       "HelloWord"
+      or on Win32
+      "debug\HelloWord"
+      "release\HelloWord"
       
      One can define the custom look and feel of the GUI application.
      To do that you should edit the "Gui.Style" parameter from ".rootrc" 

@@ -1,4 +1,4 @@
-// @(#)root/asimage:$Name:  $:$Id: TQtPaletteEditor.cxx,v 1.3 2007/09/05 18:44:45 fine Exp $
+// @(#)root/asimage:$Name:  $:$Id: TQtPaletteEditor.cxx,v 1.4 2009/08/03 18:03:11 fine Exp $
 // Author: Reiner Rohlfs   24/03/2002
 
 /*************************************************************************
@@ -76,8 +76,7 @@ static UShort_t gBlueRainbow[12] = {
 ClassImp(TQtPaletteEditor)
 //______________________________________________________________________________
 TQtPaletteEditor::TQtPaletteEditor(TAttImage *attImage, UInt_t w, UInt_t h)
-    : QMainWindow(0, "paletterEditor")
-    , TPaletteEditor(attImage, w, h)
+    : TPaletteEditor(attImage, w, h)
 {
    // Palette editor constructor.
    // The palette editor aloows the editing of the color palette of the image.
@@ -119,8 +118,13 @@ TQtPaletteEditor::TQtPaletteEditor(TAttImage *attImage, UInt_t w, UInt_t h)
    fPaintPalette = new PaintPalette(&fPalette, attImage);
    fPaintPalette->Draw();
 
+#if QT_VERSION < 0x40000
    setCaption ( "Palette Editor" );
    setIconText( "Palette Editor" ); 
+#else
+   setWindowTitle   ( "Palette Editor" );
+   setWindowIconText( "Palette Editor" ); 
+#endif
    resize (w+300, h+2*50);
    UpdateScreen(kFALSE);
    show();
@@ -147,7 +151,12 @@ void TQtPaletteEditor::CloseWindow()
    // Close editor.
 
    TPaletteEditor::CloseWindow();
+#if QT_VERSION >= 0x40000
+   if (!testAttribute(Qt::WA_DeleteOnClose)) setAttribute(Qt::WA_DeleteOnClose);
+   close();
+#else
    close(true);
+#endif
 }
 //______________________________________________________________________________
 QWidget *TQtPaletteEditor::CreateMenuToolBox()

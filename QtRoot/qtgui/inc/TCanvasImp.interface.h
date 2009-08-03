@@ -1,4 +1,4 @@
-// @(#)root/base:$Name:  $:$Id: TCanvasImp.interface.h,v 1.2 2006/09/22 17:27:10 fine Exp $
+// @(#)root/base:$Name:  $:$Id: TCanvasImp.interface.h,v 1.3 2009/08/03 18:03:08 fine Exp $
 // Author: Valeri Fine   25/05/2004
 
 //////////////////////////////////////////////////////////////////////////

@@ -1,6 +1,6 @@
 // Author: Valeri Fine   21/01/2002
 /****************************************************************************
-** $Id: TObjectExecute.h,v 1.1 2006/08/16 19:29:07 fine Exp $
+** $Id: TObjectExecute.h,v 1.2 2009/08/03 18:02:56 fine Exp $
 **
 ** Copyright (C) 2002 by Valeri Fine.  All rights reserved.
 **

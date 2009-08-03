@@ -19,10 +19,13 @@
 #include <qobject.h>
 #include <qaction.h>
 #include <qlabel.h>
-#include <qmainwindow.h> 
-#include <qintdict.h>
-#include <qptrvector.h>
+#include <q3mainwindow.h> 
+#include <q3intdict.h>
+#include <q3ptrvector.h>
 #include <qstring.h>
+//Added by qt3to4:
+#include <QPixmap>
+#include <Q3PopupMenu>
 
 #ifndef ROOT_TGFrame
 #include "TGFrame.h"
@@ -32,16 +35,16 @@
 #endif
 
 class QMenuBar;
-class QPopupMenu;
+class Q3PopupMenu;
 class GTitleFrame;
 class GButtonFrame;
 class QButton;
 class QListTree;
-class QListViewItem;
+class Q3ListViewItem;
 class TRootEmbeddedCanvas;
 class TGCanvas;
 class QStatusBar;
-class QTextEdit;
+class Q3TextEdit;
 class QTabWidget;
 class TCanvas;
 class TPad;
@@ -52,18 +55,18 @@ class TGeometry;
 class TBRIK;
 class TNode;
 class TH1F;
-class QToolBar;
+class Q3ToolBar;
 class TGButton;
-class QVBox;
-class QListView;
+class Q3VBox;
+class Q3ListView;
 class QTabWidget;
 
 class TQtWidget;
 
-extern QListViewItem   *gEventListTree; // event selection QListTree
-extern QListViewItem   *gBaseLTI;
-extern QListViewItem   *gTmpLTI;
-extern QListViewItem   *gLTI[];
+extern Q3ListViewItem   *gEventListTree; // event selection QListTree
+extern Q3ListViewItem   *gBaseLTI;
+extern Q3ListViewItem   *gTmpLTI;
+extern Q3ListViewItem   *gLTI[];
 
 extern Int_t            gColIndex;
 
@@ -79,10 +82,11 @@ struct ToolBarData_t {
 class ShowerAction : public QAction {
 public:
    ShowerAction(QObject * parent, ToolBarData_t &data, const char * name = 0, bool toggle = FALSE)
-      : QAction(parent,name,toggle),fBarData(data) 
+      : QAction(name,parent),fBarData(data) 
    {
        setMenuText(fBarData.fPixmap);
-       setToolTip(fBarData.fTipText);       
+       setToolTip(fBarData.fTipText);
+       setCheckable (toggle);
    }
    int Id(){ return fBarData.fId; }
 private:
@@ -90,7 +94,7 @@ private:
 };
 
 //___________________________________________________________
-class RootShower: public QMainWindow {
+class RootShower: public Q3MainWindow {
 Q_OBJECT
     friend class SettingsDialog;
 
@@ -118,28 +122,28 @@ private:
     TEnv               *fRootShowerEnv;
     // MenuBar Frame
     QMenuBar          *fMenuBar;
-    QPopupMenu        *fMenuFile;
-    QPopupMenu        *fMenuTest;
-    QPopupMenu        *fMenuInspect;
-    QPopupMenu        *fMenuView;
-    QPopupMenu        *fMenuHelp;
+    Q3PopupMenu        *fMenuFile;
+    Q3PopupMenu        *fMenuTest;
+    Q3PopupMenu        *fMenuInspect;
+    Q3PopupMenu        *fMenuView;
+    Q3PopupMenu        *fMenuHelp;
     void                MakeMenuBarFrame();
 
     // ToolBar Frame
-    QToolBar           *fToolBar;
+    Q3ToolBar           *fToolBar;
 
     // Title Frame
     GTitleFrame        *fTitleFrame;
 
     // Selection frame
-    QVBox             *fSelectionFrame;
+    Q3VBox             *fSelectionFrame;
     GButtonFrame      *fButtonFrame; // button frame
-    QListView         *fEventListTree; // event selection QListTree
+    Q3ListView         *fEventListTree; // event selection QListTree
 
     // Display frame
     QTabWidget        *fDisplayFrame;    // QTab for graphical and text display
     TQtWidget         *fEmbeddedCanvas3; // the actual frame which displays histo
-    QTextEdit         *fTextView;
+    Q3TextEdit         *fTextView;
 
     QTimer             *fTimer;
     TCanvas            *cA;
@@ -152,9 +156,9 @@ private:
     TPad               *padA,*padB,*padC;
     
     TH1F               *fHisto_dEdX;       // histogram of particle's energy loss
-    QIntDict<ShowerAction> fActions;
+    Q3IntDict<ShowerAction> fActions;
      // Statusbar
-    QPtrVector<QLabel>  fStatusBar;
+    Q3PtrVector<QLabel>  fStatusBar;
     QPixmap            *fLeafPic;
     QPixmap            *fBranchPic;
     QString             fSaveFileName;
@@ -186,7 +190,7 @@ public:
     virtual void       OnShowerProduce();
     virtual void       produce();
     virtual void       ShowInfos();
-    virtual void       HighLight(QListViewItem *item);
+    virtual void       HighLight(Q3ListViewItem *item);
     virtual void       CloseWindow();
     virtual Int_t      DistancetoPrimitive(Int_t px, Int_t py);
     void               SetStatusText(const char *text, Int_t partidx);
@@ -195,7 +199,7 @@ public:
 public slots:
     virtual void       ProcessMessage();
     virtual void       ShowToolBar(bool);
-    virtual void       OnShowSelected(QListViewItem *item);
+    virtual void       OnShowSelected(Q3ListViewItem *item);
     virtual void       NextEvent();
     virtual void       SelectEvent();
             void       Interrupt(Bool_t inter=true) { fInterrupted = inter; }

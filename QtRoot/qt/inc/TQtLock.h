@@ -1,4 +1,4 @@
-// @(#)root/qt:$Name:  $:$Id: TQtLock.h,v 1.1 2006/08/16 19:29:07 fine Exp $
+// @(#)root/qt:$Name:  $:$Id: TQtLock.h,v 1.2 2009/08/03 18:02:56 fine Exp $
 // Author: Giulio Eulisse  04/07/2005
 #ifndef ROOT_TQtLock
 #define ROOT_TQtLock

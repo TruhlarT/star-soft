@@ -7,6 +7,8 @@
 #  include <QFileInfo>
 #  include <QFile>
 #  include <QPixmap>
+#  include <QString>
+#  include <QDebug>
 #else
 #  include <qtextstream.h>
 #  include <qfileinfo.h> 
@@ -27,8 +29,8 @@
 
 //______________________________________________________________________________________________
 TQtCanvas2Html::TQtCanvas2Html(TVirtualPad *pad,float zoom, const char *folder,  TQtZoomPadWidget *zoomer) 
-: TQtPad2Html(pad,true,folder ? QString(folder):QString()),fZoomer(zoomer), fZoomCanvas(0)
-, fOwnZoom((zoomer == 0))
+: TQtPad2Html(pad,true,folder ? QString(folder):QString()),fTargetWindow(0)
+, fZoomer(zoomer), fZoomCanvas(0), fOwnZoom((zoomer == 0)),fUUID(0)
 { 
    // Create the clickable HTML map from the input "pad"
    MakePage(zoom);
@@ -36,8 +38,8 @@ TQtCanvas2Html::TQtCanvas2Html(TVirtualPad *pad,float zoom, const char *folder, 
 }
 //______________________________________________________________________________________________
 TQtCanvas2Html::TQtCanvas2Html(TQtWidget *canvas, float zoom, const char *folder, TQtZoomPadWidget *zoomer)
-: TQtPad2Html((canvas ? canvas->GetCanvas():0),true,folder ? QString(folder):QString()),fZoomer(zoomer)
-, fZoomCanvas(0), fOwnZoom ((zoomer == 0))
+: TQtPad2Html((canvas ? canvas->GetCanvas():0),true,folder ? QString(folder):QString()),fTargetWindow(0)
+, fZoomer(zoomer), fZoomCanvas(0), fOwnZoom ((zoomer == 0)),fUUID(0) 
 {
    // Create the clickable HTML map from the input "canvas widget"
 
@@ -45,9 +47,9 @@ TQtCanvas2Html::TQtCanvas2Html(TQtWidget *canvas, float zoom, const char *folder
    ClosePage();
 }
 //______________________________________________________________________________________________
-TQtCanvas2Html::TQtCanvas2Html(TVirtualPad *pad,  uint width, uint height, const char *folder, TQtZoomPadWidget *zoomer)
-: TQtPad2Html(pad,true,folder ? QString(folder):QString()),fZoomer(zoomer), fZoomCanvas(0)
-, fOwnZoom((zoomer == 0))
+TQtCanvas2Html::TQtCanvas2Html(TVirtualPad *pad,  unsigned int width, unsigned int height, const char *folder, TQtZoomPadWidget *zoomer)
+: TQtPad2Html(pad,true,folder ? QString(folder):QString()),fTargetWindow(0)
+, fZoomer(zoomer), fZoomCanvas(0), fOwnZoom((zoomer == 0)),fUUID(0)
 {
    // Create the clickable HTML map from the input "pad"
    //  and define its size if defined by "width" and  "height"  in pixels
@@ -55,9 +57,9 @@ TQtCanvas2Html::TQtCanvas2Html(TVirtualPad *pad,  uint width, uint height, const
    ClosePage();
 }
 //______________________________________________________________________________________________
-TQtCanvas2Html::TQtCanvas2Html(TQtWidget *canvas, uint width, uint height, const char *folder, TQtZoomPadWidget *zoomer)
-: TQtPad2Html((canvas ? canvas->GetCanvas():0),true,folder ? QString(folder):QString()),fZoomer(zoomer)
-, fZoomCanvas(0), fOwnZoom ((zoomer == 0))
+TQtCanvas2Html::TQtCanvas2Html(TQtWidget *canvas, unsigned int width, unsigned int height, const char *folder, TQtZoomPadWidget *zoomer)
+: TQtPad2Html((canvas ? canvas->GetCanvas():0),true,folder ? QString(folder):QString()),fTargetWindow(0)
+, fZoomer(zoomer), fZoomCanvas(0), fOwnZoom ((zoomer == 0)),fUUID(0)
 {
    // Create the clickable HTML map from the input "canvas widget" with the 
    //  and define its size if defined by "width" and  "height"  in pixels
@@ -67,27 +69,27 @@ TQtCanvas2Html::TQtCanvas2Html(TQtWidget *canvas, uint width, uint height, const
 }
 
 //______________________________________________________________________________________________
-void TQtCanvas2Html::MakePage(float zoom,uint width, uint height)
+void TQtCanvas2Html::MakePage(float zoom,unsigned int width, unsigned int height)
 {
    // Open and generate html and png files
    // Make UUID
    TUUID id;
-   fUUID = id.AsString();
-   fTargetWindow = "Zoom_";
+   fUUID = new QString(id.AsString());
+   fTargetWindow = new QString("Zoom_");
    TVirtualPad *pad = Pad();
-   if (pad) fTargetWindow += pad->GetName();
-   fTargetWindow.remove(" ");
-   fTargetWindow.lower();
+   if (pad) *fTargetWindow += pad->GetName();
+   fTargetWindow->remove(" ");
+   fTargetWindow->lower();
    if (!fZoomer) {
       fZoomer =  new TQtZoomPadWidget(pad);
       fZoomer->SetZoomFactor(zoom);
    }
    // Disregard the zoom factor and assign the fixed size
+   fZoomCanvas = fZoomer->GetCanvas();
    if (width*height) {
       fZoomer->HideOnLeave(false);
       fZoomer->resize(width,height);
    }
-   fZoomCanvas = fZoomer->GetCanvas();
    OpenHeader(pad); 
    WritePad(pad);
    HtmlTag("h3");Eol();
@@ -98,12 +100,17 @@ void TQtCanvas2Html::MakePage(float zoom,uint width, uint height)
    HtmlTag("DIV", "ALIGN=CENTER"); Eol();
    CreateMapPage(pad);
    QString map = "map";
-   map += fTargetWindow;
-   MapCanvas(pad,(const char *)map,false);
+   map += *fTargetWindow;
+   MapCanvas(pad, map.toAscii().data(),false);
 }
 //______________________________________________________________________________________________
 TQtCanvas2Html::~TQtCanvas2Html()
-{ if (fOwnZoom) delete fZoomer; fZoomer = 0;fOwnZoom=false; }
+{ 
+   if (fOwnZoom) delete fZoomer; fZoomer = 0;
+   fOwnZoom=false;
+   delete fTargetWindow;fTargetWindow = 0;
+   delete fUUID;        fUUID = 0;
+}
 
 //______________________________________________________________________________________________
 void TQtCanvas2Html::MapTag(const char *name) 
@@ -127,7 +134,7 @@ void TQtCanvas2Html::CreateRectArea(const QString &name,const QString &title
     Html() << " SHAPE=RECT COORDS=";           Quote();
     Html() <<
         QString("%1,%2,%3,%4").arg(upperLeft_x).arg(upperLeft_y).arg(lowRight_x).arg(lowRight_y);
-    Quote() << " target="; Quote() << fTargetWindow << fUUID; Quote();
+    Quote() << " target="; Quote() << *fTargetWindow << *fUUID; Quote();
     Quote() << ">"; Eol();
 }
 
@@ -139,32 +146,32 @@ int TQtCanvas2Html::CreateMapPage(TVirtualPad *pad)
    Int_t padCounter = 0;
    if (!pad) pad = gPad;
 
-   // Refresh the pad to make sure its image is up-to-date
-   pad->Modified();
-   pad->Update();
    if (pad) {
       // Loop over the TPad and look for the sub-pads
       TList *l= pad->GetListOfPrimitives();
       TIter next(l);
       TObject *o = 0;
       QString map = "map";
-      map += fTargetWindow;
+      map += *fTargetWindow;
       MapTag((const char*)map);
       while ( (o=next()) ) {
          if (o->InheritsFrom(TVirtualPad::Class())) {
             TVirtualPad *p = (TVirtualPad *)o;
             fZoomer->SetPad(p,padCounter ==0);
+            padCounter++;
             // Find first pad there
             TVirtualPad  *pp = (TVirtualPad  *)fZoomCanvas->GetListOfPrimitives()->First();
-            TQtPad2Html nextPad(pp,(const char *)HtmlFolder());
+            // Refresh the pad to make sure its image is up-to-date
+            pp->Modified(); pp->Update();
+            TQtPad2Html nextPad(pp,HtmlFolder().toAscii().data());
             QFileInfo info(nextPad.PadHtmlFile());
             CreateRectArea(info.fileName(), nextPad.ImageTitle()
                         , p->UtoAbsPixel(0), p->VtoAbsPixel(1)
                         , p->UtoAbsPixel(0)+p->UtoPixel(1)
                         , p->VtoAbsPixel(1)+p->VtoPixel(0) );
-            padCounter++;
          }
-      }
+      } 
+      MapHistograms(pad);
       EndTag("MAP");
       Printf("Total pages: %d", padCounter+1);
    } else {

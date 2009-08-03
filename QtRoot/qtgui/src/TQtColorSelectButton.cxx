@@ -1,4 +1,4 @@
-// @(#)root/gui:$Name:  $:$Id: TQtColorSelectButton.cxx,v 1.7 2008/04/23 23:56:39 fine Exp $
+// @(#)root/gui:$Name:  $:$Id: TQtColorSelectButton.cxx,v 1.8 2009/08/03 18:03:09 fine Exp $
 // Author: Bertrand Bellenot + Fons Rademakers   22/08/02
 
 /*************************************************************************
@@ -73,11 +73,13 @@
 #else /* QT_VERSION */
 #   include <QWhatsThis>
 #   include <QToolButton>
-//Added by qt3to4:
 #   include <QFrame>
 #   include <QHBoxLayout>
 #   include <QStyleOptionButton>
 #   include <QButtonGroup>
+#   include <QDebug>
+#   include <QMenu>
+#   include <QTimer>
 #endif /* QT_VERSION */
 
 //ClassImp(TQtColorFrame)
@@ -90,17 +92,51 @@ static int boxSize = 22;
 TQtColorPopup *TQtColorPopup::fgColorPopup = 0;
 
 //________________________________________________________________________________
-//TQtColorFrame::TQtColorFrame( QWidget *p, ULong_t color, Int_t /*n*/) 
-//: QToolButton(p)
-//{
-//   setPaletteBackgroundColor (gQt->QtColor(color));
-//   setPaletteForegroundColor (gQt->QtColor(color));
-//   fColor = color;
-//}
-
-//________________________________________________________________________________
-TQtColorFrame::TQtColorFrame(QWidget *p, const QColor &color, Int_t n): QToolButton(p),fActive(n),fColor(color)
+TQtColorFrame::TQtColorFrame(QWidget *p, const QColor &color, Int_t n): QToolButton(p),fActive(n),fColor()
 {
+   SetColor(color);
+#if QT_VERSION < 0x40000
+   QToolTip::add(this,fColorTipLabel + fColor.name());
+#else
+   if (fActive == -1) {
+      QSizePolicy szp = sizePolicy();
+      szp.setHorizontalPolicy ( QSizePolicy::Expanding );
+      setSizePolicy(szp);
+   }
+   setToolTip(fColorTipLabel + fColor.name());
+#endif      
+   languageChange();
+  //  resize(10,10);
+}
+//________________________________________________________________________________
+QSize TQtColorFrame::sizeHint () const 
+{
+   return fActive != -1 ? QSize(2*boxSize,2*boxSize): size();
+}
+//________________________________________________________________________________
+void TQtColorFrame::drawButtonLabel(QPainter *paint)
+{
+#if QT_VERSION < 0x40000
+     QRect buttonDraw =  QApplication::style().subRect(QStyle::SR_PushButtonContents,this);
+     buttonDraw.addCoords(1,1,-1,-2);
+     paint->fillRect (buttonDraw, fColor);
+#else
+     if(paint) {}
+     //QStyleOptionButton button;
+     //QRect buttonDraw = QApplication::style()->subElementRect(QStyle::SE_PushButtonContents,&button);
+#endif
+
+}
+//______________________________________________________________________________
+void TQtColorFrame::languageChange()
+{
+   fColorTipLabel = tr("Color ");
+}
+//________________________________________________________________________________
+void TQtColorFrame::SetColor(const QColor &color)
+{
+   if (color != fColor) {
+      fColor = color;
 #if QT_VERSION < 0x40000
    setPaletteBackgroundColor (fColor);
    setPaletteForegroundColor (fColor);
@@ -111,45 +147,13 @@ TQtColorFrame::TQtColorFrame(QWidget *p, const QColor &color, Int_t n): QToolBut
      setSizePolicy ( QSizePolicy::Fixed, QSizePolicy::Fixed );
    }
 #else
-      QPalette palette;
-      // palette.setColor(backgroundRole(), fColor);
-      //palette.setColor(foregroundRole(), fColor);
-      setPalette(palette);
-      QPixmap px(2*boxSize,2*boxSize);
+      QSize iSize = (fActive == -1) ? size() - QSize(0,3) : QSize(boxSize-6,boxSize-6);
+      setIconSize(iSize);
+      QPixmap px(iSize);
       px.fill(fColor);
       setIcon(px);
 #endif
-
-   languageChange();
-#if QT_VERSION < 0x40000
-   QToolTip::add(this,fColorTipLabel + fColor.name());
-#else
-   setToolTip(fColorTipLabel + fColor.name());
-#endif      
-  //  resize(10,10);
-}
-//________________________________________________________________________________
-QSize TQtColorFrame::sizeHint () const 
-{
-   return QSize(boxSize,boxSize);
-}
-//________________________________________________________________________________
-void TQtColorFrame::drawButtonLabel(QPainter *paint)
-{
-#if QT_VERSION < 0x40000
-     QRect buttonDraw =  QApplication::style().subRect(QStyle::SR_PushButtonContents,this);
-#else
-     QStyleOptionButton button;
-     QRect buttonDraw = QApplication::style()->subElementRect(QStyle::SE_PushButtonContents,&button);
-#endif
-
-   buttonDraw.addCoords(1,1,-1,-2);
-   paint->fillRect (buttonDraw, fColor);
-}
-//______________________________________________________________________________
-void TQtColorFrame::languageChange()
-{
-   fColorTipLabel = tr("Color ");
+   }
 }
 
 //________________________________________________________________________________
@@ -186,7 +190,7 @@ TQt16ColorSelector::TQt16ColorSelector( QWidget *p,const char *name) :
 //   int nDefColors = sizeof(defColors)/sizeof(Color_t);
    for (int k=0;k < 4;k++) {
       for (int j=0;j < 4;j++,i++) {
-         fCe[i] = new TQtColorFrame(group,gQt->ColorIndex(defColors[i]), i);
+         fCe[i] = new TQtColorFrame(group,gQt->ColorIndex(gQt->UpdateColor(defColors[i])), i);
 #if QT_VERSION >= 0x40000
          gridLayout->addWidget(fCe[i],j,k);
          buttonGroup->addButton(fCe[i],i);
@@ -322,7 +326,7 @@ TQtColorSelectButton::TQtColorSelectButton( QWidget *p,  const char *name,Qt::WF
 #else /* QT_VERSION */
     : QFrame(p,f)
 #endif /* QT_VERSION */
-      ,fColor("grey"),fColorEmitter(0)
+      ,fColor("grey"),fColorEmitter(0), fFakeMenu(0)
 {
    if (name) setName(name);
    CreateWidget();
@@ -330,7 +334,7 @@ TQtColorSelectButton::TQtColorSelectButton( QWidget *p,  const char *name,Qt::WF
 
 //________________________________________________________________________________
 TQtColorSelectButton::TQtColorSelectButton( QWidget *p) : QFrame(p)
-      ,fColor("grey"),fColorEmitter(0)
+      ,fColor("grey"),fColorEmitter(0), fFakeMenu(0)
 {
    CreateWidget();
 }
@@ -342,7 +346,7 @@ TQtColorSelectButton::TQtColorSelectButton( QWidget *p, UInt_t pixel, Int_t /*id
 #else /* QT_VERSION */
     : QFrame(p)
 #endif /* QT_VERSION */
-      ,fColor(gQt->QtColor(pixel)),fColorEmitter(emitter)
+      ,fColor(gQt->QtColor(pixel)),fColorEmitter(emitter), fFakeMenu(0)
 {
 #if QT_VERSION >= 0x40000
    setName("ColorSelectButton");
@@ -352,7 +356,7 @@ TQtColorSelectButton::TQtColorSelectButton( QWidget *p, UInt_t pixel, Int_t /*id
 }
 //________________________________________________________________________________
 TQtColorSelectButton::TQtColorSelectButton( QWidget *p, QColor &color, Int_t /*id*/,TColorEmit *emitter) 
-    : QFrame(p),fColor(color),fColorEmitter(emitter)
+    : QFrame(p),fColor(color),fColorEmitter(emitter), fFakeMenu(0)
 {
    setName("ColorSelectButton");
    CreateWidget();
@@ -360,59 +364,60 @@ TQtColorSelectButton::TQtColorSelectButton( QWidget *p, QColor &color, Int_t /*i
 //________________________________________________________________________________
 void TQtColorSelectButton::CreateWidget() 
 {
-    setSizePolicy(QSizePolicy( QSizePolicy::Minimum, QSizePolicy::Fixed ));
-    QRect r;
 #if QT_VERSION < 0x40000
+    QRect r;
+    setSizePolicy(QSizePolicy( QSizePolicy::Preferred, QSizePolicy::Fixed ));
     r = QApplication::style().querySubControlMetrics(QStyle::CC_ComboBox, this, QStyle::SC_ComboBoxEditField);
           //QRect r = QStyle::visualRect( combo->style().querySubControlMetrics(QStyle::CC_ComboBox, combo,
 	 //							        combo );
     setMinimumSize( QSize( int(r.width()*0.75), r.height() ) );
 #else
-      QStyleOptionComboBox editField;
-      r = QApplication::style()->subControlRect(QStyle::CC_ComboBox, &editField, QStyle::SC_ComboBoxEditField);
+    setSizePolicy(QSizePolicy(QSizePolicy::Preferred, QSizePolicy::Fixed,
+                                 QSizePolicy::ComboBox));
 #endif
     setLineWidth(1);
     //setFrameShape( QFrame::StyledPanel );
     setFrameShadow( QFrame::Raised );
     //setFrameShadow(QFrame::Plain);
     
-    QHBoxLayout *layout = new QHBoxLayout( this, 0, 0, "layoutColorButton"); 
        
     //  Color Button
+    QHBoxLayout *layout = new QHBoxLayout( this, 0, 0, "layoutColorButton"); 
 #if QT_VERSION < 0x40000
     fPushButton = new QButton( this, "currentColorButton" );        
     fPushButton->setPaletteBackgroundColor (fColor);
     fPushButton->setEraseColor(fColor);
+    layout->setStretchFactor(fPushButton,4); 
 #else /* QT_VERSION */
-    fPushButton = new QPushButton(this);        
-    QPalette palette;
-    palette.setColor(fPushButton->backgroundRole(), fColor);
-    fPushButton->setPalette(palette);
+    fPushButton = new  TQtColorFrame(this, fColor);
+    ((TQtColorFrame *)fPushButton)->setPopupMode( QToolButton::MenuButtonPopup); 
+    if (!fFakeMenu) {
+       // Add fake menu to force the "real" Dialog popup
+       fFakeMenu = new QMenu(this);
+       ((TQtColorFrame *)fPushButton)->setMenu(fFakeMenu);
+       connect(fFakeMenu,SIGNAL(aboutToShow()), this, SLOT(PopupDialog()));
+    }
 #endif /* QT_VERSION */
 
-      layout->setStretchFactor(fPushButton,4); 
-      layout->addWidget(fPushButton);
-      connect(fPushButton,SIGNAL(clicked()),this, SLOT(PopupDialog()));
-
-
+    layout->addWidget(fPushButton);
+    connect(fPushButton,SIGNAL(clicked()),this, SLOT(PopupDialog()));
+    // The arrow button
+#if QT_VERSION < 0x40000
     // The vertical divider 
     QFrame *line1 = new QFrame( this, "line1" );
       line1->setFrameShape ( QFrame::VLine  );
       line1->setFrameShadow( QFrame::Sunken );
       layout->setStretchFactor(line1,1); 
       layout->addWidget( line1 );
-
-    // The arrow button
-#if QT_VERSION < 0x40000
       fArrowButton = new QToolButton( Qt::DownArrow,this,"arrowDownToolButton" );
-#else
-      fArrowButton = new QToolButton(this);
-      fArrowButton->setArrowType(Qt::DownArrow);
-#endif        
       fArrowButton->setFixedWidth(fArrowButton->sizeHint().width()+4);
       layout->setStretchFactor(fArrowButton,1); 
       layout->addWidget( fArrowButton );
       connect(fArrowButton,SIGNAL(clicked()),this, SLOT(PopupDialog()));
+#else
+//      fArrowButton = new QToolButton(this);
+//      fArrowButton->setArrowType(Qt::DownArrow);
+#endif        
       
     languageChange();
 #if QT_VERSION < 0x40000
@@ -427,9 +432,16 @@ TQtColorSelectButton::~TQtColorSelectButton()
 void TQtColorSelectButton::PopupDialog()
 {
    TQtColorPopup *popup = TQtColorPopup::Create(0,fColor);
-   QPoint global = fArrowButton->mapToGlobal(QPoint(0,0));
+   QPoint global = 
+#if QT_VERSION < 0x40000
+     fArrowButton->mapToGlobal(QPoint(0,0));
    popup->move(global.x()
               ,global.y()+fArrowButton->frameSize().height());
+#else
+      fPushButton->mapToGlobal(QPoint(0,0));
+   popup->move(global.x()+fPushButton->frameSize().width()-10
+              ,global.y()+fPushButton->frameSize().height());
+#endif
    if ( popup->exec() == QDialog::Accepted ){
       // to emit the ROOT signal
       SetColor(popup->Color());
@@ -437,6 +449,9 @@ void TQtColorSelectButton::PopupDialog()
       if (fColorEmitter) fColorEmitter->ColorEmit(fColor.pixel());
       emit colorSelected(fColor);
    }
+#if QT_VERSION >= 0x40000
+   if (fFakeMenu && (sender() == fFakeMenu) ) QTimer::singleShot(0,fFakeMenu, SLOT(close()) );
+#endif
 }
 //________________________________________________________________________________
 void TQtColorSelectButton::SetColor(const QColor &color)
@@ -449,10 +464,11 @@ void TQtColorSelectButton::SetColor(const QColor &color)
       fPushButton->setPaletteBackgroundColor (color);
       fPushButton->setPaletteForegroundColor (color);
 #else      
-      QPalette palette;
-      palette.setColor(fPushButton->backgroundRole(), color);
-      palette.setColor(fPushButton->foregroundRole(), color);
-      fPushButton->setPalette(palette);
+      ((TQtColorFrame *)fPushButton)->SetColor(color);
+      //QPalette palette;
+      //palette.setColor(fPushButton->backgroundRole(), color);
+      //palette.setColor(fPushButton->foregroundRole(), color);
+      //fPushButton->setPalette(palette);
 #endif
       update();
    }

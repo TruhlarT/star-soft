@@ -1,4 +1,4 @@
-// @(#)root/base:$Name:  $:$Id: TEmbeddedPad.cxx,v 1.4 2007/02/06 19:34:46 fine Exp $
+// @(#)root/base:$Name:  $:$Id: TEmbeddedPad.cxx,v 1.5 2009/08/03 18:03:09 fine Exp $
 // Author: Valeri Fine   02/18/2006
 
 /****************************************************************************
@@ -29,6 +29,7 @@
 #include "TView.h"
 #include "TMath.h"
 #include "TList.h"
+#include "TImage.h"
 #ifdef R__QT
 #  include "TGQt.h"
 #  include "TQtWidget.h"
@@ -287,21 +288,21 @@ void TEmbeddedPad::SetDoubleBuffer(Int_t mode)
 //______________________________________________________________________________
 ULong_t TEmbeddedPad::GetHandle() const
 {
-	// Return the platform depended handle of the pixmap
-	// implementation, 
-	// QPixmap* in case of the Qt implementation
+    // Return the platform depended handle of the pixmap
+    // implementation, 
+    // QPixmap* in case of the Qt implementation
 
-	UInt_t handle = 0;
+   UInt_t handle = 0;
    Int_t wid = HasChildren() ? fFullPixmapID : GetPixmapID();
    if (!wid || (wid == -1) ) return handle;
 #ifdef R__QT
-	QPaintDevice &dev = *TGQt::iwid(wid);
+   QPaintDevice &dev = *TGQt::iwid(wid);
    QPixmap *pix=0;
    if  ( dev.devType() == QInternal::Pixmap )
-	{
+   {
       pix = (QPixmap *)&dev;
-	}
-	handle = (ULong_t )pix;
+   }
+   handle = (ULong_t )pix;
 #endif
    return handle;
 }
@@ -376,6 +377,19 @@ ULong_t TEmbeddedPad::GetHandleRotate( ULong_t handle, double angle) const
    return handle;
 }
 //______________________________________________________________________________
+TImage *TEmbeddedPad::CreateImage( Int_t x, Int_t y, UInt_t w, UInt_t h)
+{
+	// Create a TImage object from this TPad
+	// The user is responsible to delete it
+   TImage *img = TImage::Create(); 
+	// TASImage::FromPad implementation does ise TPad::Paint method
+	// that can change "this" object. 
+	// by this reason we can not make this method to be "const"
+   img->FromPad(this,x,y,w,h); 
+	return img;
+}
+
+//______________________________________________________________________________
 void TEmbeddedPad::SetSelected(TObject *obj)
 {
    // Set selected.
@@ -389,10 +403,10 @@ void TEmbeddedPad::Update()
     // Update pad.
 
     if (fCanvas) TPad::Update();
-	 else {
-	    PaintModified();
-	    Flush();
-	 }
+    else {
+       PaintModified();
+       Flush();
+    }
 }
 //______________________________________________________________________________
 void TEmbeddedPad::Flush()
@@ -404,7 +418,7 @@ void TEmbeddedPad::Flush()
         if (fFullPixmapID == -1)      // this case is handled via the ctor
             fFullPixmapID = gVirtualX->OpenPixmap(fPw, fPh);
         else 
-            if (gVirtualX->ResizePixmap(fFullPixmapID, fPw, fPh));
+            gVirtualX->ResizePixmap(fFullPixmapID, fPw, fPh);
         gVirtualX->SelectWindow(fFullPixmapID);
         CopyPixmaps();
       }

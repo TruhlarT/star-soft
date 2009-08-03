@@ -22,31 +22,37 @@
 
 /****************************************************************************
 
- This file is part of the QGLViewer library.
- Copyright (C) 2002, 2003, 2004, 2005, 2006 Gilles Debunne (Gilles.Debunne@imag.fr)
- Version 2.2.1-1, released on March 30, 2006.
+ Copyright (C) 2002-2008 Gilles Debunne. All rights reserved.
 
- http://artis.imag.fr/Members/Gilles.Debunne/QGLViewer
+ This file is part of the QGLViewer library version 2.3.1.
 
- libQGLViewer is free software; you can redistribute it and/or modify
- it under the terms of the GNU General Public License as published by
- the Free Software Foundation; either version 2 of the License, or
- (at your option) any later version.
+ http://www.libqglviewer.com - contact@libqglviewer.com
 
- libQGLViewer is distributed in the hope that it will be useful,
- but WITHOUT ANY WARRANTY; without even the implied warranty of
- MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- GNU General Public License for more details.
+ This file may be used under the terms of the GNU General Public License 
+ versions 2.0 or 3.0 as published by the Free Software Foundation and
+ appearing in the LICENSE file included in the packaging of this file.
+ In addition, as a special exception, Gilles Debunne gives you certain 
+ additional rights, described in the file GPL_EXCEPTION in this package.
 
- You should have received a copy of the GNU General Public License
- along with libQGLViewer; if not, write to the Free Software
- Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
+ libQGLViewer uses dual licensing. Commercial/proprietary software must
+ purchase a libQGLViewer Commercial License.
+
+ This file is provided AS IS with NO WARRANTY OF ANY KIND, INCLUDING THE
+ WARRANTY OF DESIGN, MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE.
 
 *****************************************************************************/
 
-#include <stdexcept>
 #include "VRender.h"
 #include "Exporter.h"
+#include "../qglviewer.h"
+
+#if QT_VERSION >= 0x040000
+# include <QFile>
+# include <QMessageBox>
+#else
+# include <qfile.h>
+# include <qmessagebox.h>
+#endif
 
 using namespace vrender ;
 using namespace std ;
@@ -57,16 +63,20 @@ Exporter::Exporter()
 	_pointSize=1 ;
 }
 
-void Exporter::exportToFile(	const char *filename,
-										const vector<PtrPrimitive>& primitive_tab,
-										VRenderParams& vparams)
+void Exporter::exportToFile(const QString& filename,
+							const vector<PtrPrimitive>& primitive_tab,
+							VRenderParams& vparams)
 {
-	FILE *f = fopen(filename,"w") ;
+	QFile file(filename);
 
-	if(f == NULL)
-		throw runtime_error(string("could not open file ") + filename) ;
+	if (!file.open(QIODevice::WriteOnly | QIODevice::Text)) {
+		QMessageBox::warning(NULL, QGLViewer::tr("Exporter error", "Message box window title"), QGLViewer::tr("Unable to open file %1.").arg(filename));
+		return;
+	}
 
-	writeHeader(f) ;
+	QTextStream out(&file);
+
+	writeHeader(out) ;
 
 	int N = primitive_tab.size()/200 + 1 ;
 
@@ -76,17 +86,17 @@ void Exporter::exportToFile(	const char *filename,
 		Segment *s = dynamic_cast<Segment *>(primitive_tab[i]) ;
 		Polygone *P = dynamic_cast<Polygone *>(primitive_tab[i]) ;
 
-		if(p != NULL) spewPoint(p,f) ;
-		if(s != NULL) spewSegment(s,f) ;
-		if(P != NULL) spewPolygone(P,f) ;
+		if(p != NULL) spewPoint(p,out) ;
+		if(s != NULL) spewSegment(s,out) ;
+		if(P != NULL) spewPolygone(P,out) ;
 
 		if(i%N == 0)
-			vparams.progress(i/(float)primitive_tab.size(),string("Exporting to file ")+filename) ;
+			vparams.progress(i/(float)primitive_tab.size(),QGLViewer::tr("Exporting to file %1").arg(filename)) ;
 	}
 
-	writeFooter(f) ;
+	writeFooter(out) ;
 
-	fclose(f) ;
+	file.close();
 }
 
 void Exporter::setBoundingBox(float xmin,float ymin,float xmax,float ymax)

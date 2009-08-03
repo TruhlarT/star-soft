@@ -1,8 +1,8 @@
-// @(#)root/ged:$Name:  $:$Id: TQtAxisEditor.cxx,v 1.2 2007/08/26 17:46:54 fine Exp $
+// @(#)root/ged:$Name:  $:$Id: TQtAxisEditor.cxx,v 1.3 2009/08/03 18:03:03 fine Exp $
 // Author: Ilka Antcheva   11/05/04
 
 /****************************************************************************
-** $Id: TQtAxisEditor.cxx,v 1.2 2007/08/26 17:46:54 fine Exp $
+** $Id: TQtAxisEditor.cxx,v 1.3 2009/08/03 18:03:03 fine Exp $
 **
 ** Copyright (C) 2004 by Valeri Fine.  All rights reserved.
 **

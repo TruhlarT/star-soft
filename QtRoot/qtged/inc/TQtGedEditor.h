@@ -1,8 +1,8 @@
-// @(#)root/ged:$Name:  $:$Id: TQtGedEditor.h,v 1.2 2006/09/28 00:41:13 fine Exp $
+// @(#)root/ged:$Name:  $:$Id: TQtGedEditor.h,v 1.3 2009/08/03 18:03:03 fine Exp $
 // Author: Valeri Fine 10/07/2004
 
 /****************************************************************************
-** $Id: TQtGedEditor.h,v 1.2 2006/09/28 00:41:13 fine Exp $
+** $Id: TQtGedEditor.h,v 1.3 2009/08/03 18:03:03 fine Exp $
 **
 ** Copyright (C) 2004 by Valeri Fine.  All rights reserved.
 **

@@ -7,6 +7,7 @@
 #if QT_VERSION >= 0x40000
 //Added by qt3to4:
 #  include <QPixmap>
+#  include <QString>
 #endif /* QT_VERSION */
 static QPixmap *gDummyIcon = 0;
 //________________________________________________________________________
@@ -35,6 +36,16 @@ bool TQtGui::AddPicture(const QPixmap &pic, const char *pictureName, bool checkC
    }
    return res;
 }
+//________________________________________________________________________
+const QPixmap &TQtGui::GetPicture(QString &pictureName) 
+{
+#if QT_VERSION >= 0x40000
+   std::string pName = pictureName.toStdString();
+#else
+   std::string pName = (const char *)pictureName;
+#endif
+   return GetPicture(pName.c_str());
+}
 
 //________________________________________________________________________
 const QPixmap &TQtGui::GetPicture(const char *pictureName) 
@@ -53,7 +64,12 @@ const QPixmap &TQtGui::GetPicture(const char *pictureName)
       QString ext   = QFileInfo(pname).extension(FALSE).lower();
 
       if (!ext.isEmpty()) { // ".xpm", ".gif" etc
-         char *pxname = gSystem->ExpandPathName(gSystem->UnixPathName((const char*)pname));
+#if QT_VERSION >= 0x40000
+         std::string mstrname = pname.toStdString();
+#else
+         std::string mstrname = (const char *)pname;
+#endif
+         char *pxname = gSystem->ExpandPathName(gSystem->UnixPathName(mstrname.c_str()));
          pname = pxname;
          delete [] pxname;
       }

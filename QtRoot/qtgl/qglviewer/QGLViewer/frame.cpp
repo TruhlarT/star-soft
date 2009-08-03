@@ -1,24 +1,22 @@
 /****************************************************************************
 
- This file is part of the QGLViewer library.
- Copyright (C) 2002, 2003, 2004, 2005, 2006 Gilles Debunne (Gilles.Debunne@imag.fr)
- Version 2.2.1-1, released on March 30, 2006.
+ Copyright (C) 2002-2008 Gilles Debunne. All rights reserved.
 
- http://artis.imag.fr/Members/Gilles.Debunne/QGLViewer
+ This file is part of the QGLViewer library version 2.3.1.
 
- libQGLViewer is free software; you can redistribute it and/or modify
- it under the terms of the GNU General Public License as published by
- the Free Software Foundation; either version 2 of the License, or
- (at your option) any later version.
+ http://www.libqglviewer.com - contact@libqglviewer.com
 
- libQGLViewer is distributed in the hope that it will be useful,
- but WITHOUT ANY WARRANTY; without even the implied warranty of
- MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- GNU General Public License for more details.
+ This file may be used under the terms of the GNU General Public License 
+ versions 2.0 or 3.0 as published by the Free Software Foundation and
+ appearing in the LICENSE file included in the packaging of this file.
+ In addition, as a special exception, Gilles Debunne gives you certain 
+ additional rights, described in the file GPL_EXCEPTION in this package.
 
- You should have received a copy of the GNU General Public License
- along with libQGLViewer; if not, write to the Free Software
- Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
+ libQGLViewer uses dual licensing. Commercial/proprietary software must
+ purchase a libQGLViewer Commercial License.
+
+ This file is provided AS IS with NO WARRANTY OF ANY KIND, INCLUDING THE
+ WARRANTY OF DESIGN, MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE.
 
 *****************************************************************************/
 
@@ -78,7 +76,7 @@ Frame::Frame(const Frame& frame)
 /*! Returns the 4x4 OpenGL transformation matrix represented by the Frame.
 
   This method should be used in conjunction with \c glMultMatrixd() to modify the OpenGL modelview
-  matrix from a Frame hierarchy. If we define this Frame hierarchy:
+  matrix from a Frame hierarchy. With this Frame hierarchy:
   \code
   Frame* body     = new Frame();
   Frame* leftArm  = new Frame();
@@ -108,7 +106,7 @@ Frame::Frame(const Frame& frame)
     glPopMatrix();
   }
   \endcode
-  Note how we use nested glPushMatrix() and glPopMatrix() to represent our frame hierarchy: \c
+  Note the use of nested \c glPushMatrix() and \c glPopMatrix() blocks to represent the frame hierarchy: \c
   leftArm and \c rightArm are both correctly drawn with respect to the \c body coordinate system.
 
   This matrix only represents the local Frame transformation (i.e. with respect to the
@@ -178,7 +176,7 @@ Frame Frame::inverse() const
   // The modelview here corresponds to the world coordinate system.
   Frame fr(pos, Quaternion(from, to));
   glPushMatrix();
-  glMultMatrixd(fr.matrix());
+  glMultMatrixd(fr.worldMatrix());
   // draw object in the fr coordinate system.
   glPopMatrix();
   \endcode

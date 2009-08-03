@@ -1,4 +1,4 @@
-// @(#)root/gui:$Name:  $:$Id: TQtPatternSelectButton.cxx,v 1.7 2008/04/23 23:56:39 fine Exp $
+// @(#)root/gui:$Name:  $:$Id: TQtPatternSelectButton.cxx,v 1.8 2009/08/03 18:03:10 fine Exp $
 // Author: Bertrand Bellenot + Fons Rademakers   22/08/02
 
 /*************************************************************************
@@ -60,29 +60,23 @@
 #include "TEmbeddedPad.h"
 #include "TColor.h"
 
-#include <qcolordialog.h> 
-#include <qtooltip.h> 
-#include <qcolor.h> 
-#if QT_VERSION < 0x40000
-#  include <qhgroupbox.h> 
-#  include <qwhatsthis.h>
-#  include <qtoolbutton.h> 
-#  include <qevent.h>
-#else
-#  include <QStyleOptionButton>
-#  include <QPixmap>
-#  include <QBitmap>
-#  include <QHBoxLayout>
-#  include <QToolButton>
-#  include <QDebug>
-#  include <QMouseEvent>
-#endif /* QT_VERSION */
-#include <qapplication.h> 
+#include <QColorDialog> 
+#include <QToolTip> 
+#include <QColor> 
+#include <QStyleOptionButton>
+#include <QPixmap>
+#include <QBitmap>
+#include <QHBoxLayout>
+#include <QToolButton>
+#include <QMenu>
+#include <QTimer>
+#include <QMouseEvent>
+#include <QApplication> 
 
-#include <qstyle.h>
-#include <qvariant.h>
-#include <qlayout.h>
-
+#include <QStyle>
+#include <QVariant>
+#include <QLayout>
+#include <QSpinBox>
 //ClassImp(TQtPatternFrame)
 //ClassImp(TQt16ColorSelector)
 //ClassImp(TQtPatternPopup)
@@ -93,86 +87,103 @@ static int wSize = 3*boxSize ;
 static int hSize = 2*boxSize ;
 
 TQtPatternPopup *TQtPatternPopup::fgBrushPopup = 0;
-
-//________________________________________________________________________________
-//TQtPatternFrame::TQtPatternFrame( QWidget *p, ULong_t color, Int_t /*n*/) 
-//: QToolButton(p)
-//{
-//   setPaletteBackgroundColor (gQt->QtColor(color));
-//   setPaletteForegroundColor (gQt->QtColor(color));
-//   fColor = color;
-//}
+QPalette *TQtPatternFrame::fgPalette = 0;
 
  //________________________________________________________________________________
-TQtPatternFrame::TQtPatternFrame(QWidget *p, Style_t pattern, Int_t n):QFrame(p)
+QPalette &TQtPatternFrame::palette()
+{
+   // Create a singleton pallete to control the buttons
+   if (!fgPalette) {
+      fgPalette = new QPalette;
+   }
+   return *fgPalette;
+}
+
+ //________________________________________________________________________________
+TQtPatternFrame::TQtPatternFrame(QWidget *p, Style_t pattern, Int_t n):QToolButton(p)
 ,fActive(n)
 {
    fBrush.SetStyle(pattern);
-
+   fBrush.SetColor(palette().color(QPalette::Text));
    languageChange();
    SetIcon();
-   resize(wSize, hSize);   
 }
  //________________________________________________________________________________
-TQtPatternFrame::TQtPatternFrame(QWidget *p, TQtBrush &pattern, Int_t n): QFrame(p)
+TQtPatternFrame::TQtPatternFrame(QWidget *p, TQtBrush &pattern, Int_t n): QToolButton(p)
 ,fActive(n),fBrush(pattern)
 { 
-   if (boxSize == 0 ) {
-#if QT_VERSION < 0x40000
-      boxSize = 
-            QApplication::style().subRect(QStyle::SR_PushButtonContents,this).height();
-#else
-      QStyleOptionButton button;
-      boxSize = 
-            QApplication::style()->subElementRect(QStyle::SE_PushButtonContents,&button).height();
-#endif
-    }
-
+   if (fActive == -1) {
+      QSizePolicy szp = sizePolicy();
+      szp.setHorizontalPolicy ( QSizePolicy::Expanding );
+      setSizePolicy(szp);
+   }
    languageChange();
    SetIcon();
-   resize(wSize, hSize);
 }
 //________________________________________________________________________________
 void TQtPatternFrame::SetBrush(TQtBrush &newBrush)
 { 
    fBrush = newBrush;
-   update();
+      QSize iSize = fActive == -1 ? size() - QSize(0,3) :sizeHint() - QSize(4,4);
+      setIconSize(iSize);
+      if (fBrush.GetStyle()) {
+         QPixmap px(iSize);
+         QPainter p(&px);
+         p.setBackgroundMode(Qt::OpaqueMode);
+         QPalette pal;
+         p.setBackground(palette().color(QPalette::Button));
+         p.setBrush(fBrush);
+         p.drawRect(contentsRect());
+         p.end();
+         setIcon(px);
+      } else {
+         // create the spinbox 
+          QSpinBox *alphaBox = new QSpinBox(this);
+          alphaBox->setRange(0,100);
+          alphaBox->setSingleStep(5);
+          alphaBox->setValue(0);
+          connect(alphaBox,SIGNAL(editingFinished()),this,SLOT(SetBrushAlpha()));
+      }
 }
-
+//________________________________________________________________________________
+void TQtPatternFrame::SetBrushAlpha()
+{
+   // Set the alpha value for the translucent box
+   QSpinBox *sp = (QSpinBox *)sender();
+   int alpha = 0;
+   if (sp) {
+      alpha = sp->value();
+      int oldStyle = fBrush.GetStyle();
+      // convert alpha to style
+      int newStyle = 4000 + alpha;
+      if (newStyle != oldStyle) {
+         if (alpha) {
+            setToolTip(QString(tr("Style %1 - translucent")).arg(newStyle));
+            fBrush.SetStyle(newStyle);
+         } else {
+            setToolTip(tr("Style 0 - trasparent"));
+            fBrush.SetStyle(0);
+         }
+         emit clicked();
+      }
+   }
+}
 //________________________________________________________________________________
 void TQtPatternFrame::paintEvent(QPaintEvent *e) 
 {
-   QFrame::paintEvent(e);
-   QPainter p(this);
-#ifdef R__WIN32
-   if ( 3000 <= fBrush.GetStyle() && fBrush.GetStyle() < 4000) {
-      QPixmap &px = *fBrush.pixmap();
-      px.fill(fBrush.GetColor());
-      p.drawTiledPixmap(contentsRect(), px);
-   } else 
-#endif
-      p.fillRect(contentsRect(), fBrush);
+   QToolButton::paintEvent(e);
 }
-
-
 //________________________________________________________________________________
 void TQtPatternFrame::SetIcon()
 {   
-#if QT_VERSION < 0x40000
-   setFrameStyle(QFrame::Panel | QFrame::Raised);
-   QToolTip::add(this,fBrushTipLabel + QString::number(fBrush.GetStyle()) );
-   setMargin(0);
-   //   setFrameStyle(QFrame::StyledPanel | QFrame::Raised);
-#else
-   setFrameStyle(QFrame::StyledPanel | QFrame::Raised);
+   SetBrush(fBrush);
    setToolTip(fBrushTipLabel + QString::number(fBrush.GetStyle()) );
-   setContentsMargins(2,2,2,2);
-#endif
 }
 //________________________________________________________________________________
 QSize TQtPatternFrame::sizeHint () const 
 {
-   return QSize(wSize, hSize);
+ //   return fActive == -1 ? QToolButton::sizeHint () : QSize(wSize, hSize);
+   return fActive == -1 ? size() : QSize(wSize, hSize);
 }
 
 //______________________________________________________________________________
@@ -184,21 +195,19 @@ void TQtPatternFrame::languageChange()
 //________________________________________________________________________________
 void TQtPatternFrame::mouseReleaseEvent(QMouseEvent *event)
 {
-   if (event->button() == Qt::LeftButton)  emit clicked();      
-   return QFrame::mouseReleaseEvent(event);
+   return QToolButton::mouseReleaseEvent(event);
 }
 
 //________________________________________________________________________________
 TQtPatternPopup::TQtPatternPopup(QWidget *p, TQtBrush &color,const char *name, bool modal, Qt::WFlags f) :
-#if QT_VERSION < 0x40000
-   QDialog(p,name,modal,f)
-#else
    QDialog(p,f)
-#endif            
  ,fCurrentBrush(color)
 { 
+   delete layout();
    QGridLayout *gridLayout = new QGridLayout(this);
+   setLayout(gridLayout);
    gridLayout->setMargin(0);
+
    QFrame *group = new QFrame(this);
    gridLayout->addWidget(group,0,0);
    group->setFrameShape(QFrame::Panel);
@@ -213,41 +222,31 @@ TQtPatternPopup::TQtPatternPopup(QWidget *p, TQtBrush &color,const char *name, b
    TQtPatternFrame *fr = new TQtPatternFrame(group,ULong_t(0), i++); 
    gridLayout->addWidget(fr,0,0);
    connect(fr,SIGNAL(clicked()),this,SLOT(SetActiveSlot()));
-   fr->resize(wSize, hSize);
-#if QT_VERSION < 0x40000
-   QToolTip::add(fr," Style: 0 - transparent" );
-#else   
    fr->setToolTip(tr(" Style: 0 - transparent" ));
-#endif 
    
    fr = new TQtPatternFrame(group,ULong_t(1000), i++); 
    gridLayout->addWidget(fr,0,1);
    connect(fr,SIGNAL(clicked()),this,SLOT(SetActiveSlot()));
-   fr->resize(wSize, hSize);
-#if QT_VERSION < 0x40000
-   QToolTip::add(fr," Style: 1000 - solid" );
-#else   
    fr->setToolTip(tr(" Style: 1000 - solid"    ));
-#endif 
    
    fr = new TQtPatternFrame(group,ULong_t(2000), i++); 
    gridLayout->addWidget(fr,0,2);
-   fr->resize(wSize, hSize);
    connect(fr,SIGNAL(clicked()),this,SLOT(SetActiveSlot()));
-#if QT_VERSION < 0x40000
-   QToolTip::add(fr," Style: 2000 - pattern" );
-#else   
    fr->setToolTip(tr(" Style: 2000 - pattern"  ));
-#endif 
    for (int k=1;k < 10;k++) {
       for (int j=0;j <= 2;j++) {    
         fr = new TQtPatternFrame(group,ULong_t(3000+i-3), i++); 
         gridLayout->addWidget(fr,k,j);
-        fr->resize(wSize, hSize);
         connect(fr,SIGNAL(clicked()),this,SLOT(SetActiveSlot()));
       }
    }
-   resize(2  + 3*(wSize+1) +1, 2 + 10*(hSize+1) + 2 );
+  resize(2  + 3*(wSize+1) +1, 2 + 10*(hSize+1) + 2 );
+  updateGeometry();
+}
+//________________________________________________________________________________
+QSize TQtPatternPopup::sizeHint () const
+{
+   return QSize(2  + 3*(wSize+1) +1, 2 + 10*(hSize+1) + 2);
 }
 //________________________________________________________________________________
 TQtPatternPopup *TQtPatternPopup::Create(QWidget *p, TQtBrush &color,const char *name, bool modal, Qt::WFlags f) 
@@ -285,19 +284,16 @@ void TQtPatternPopup::languageChange()
 }
 
 //________________________________________________________________________________
-TQtPatternSelectButton::TQtPatternSelectButton(QWidget *p) : QFrame(p), fBrushEmitter(0)
+TQtPatternSelectButton::TQtPatternSelectButton(QWidget *p) : QFrame(p),  fFakeMenu(0)
+   ,fBrushEmitter(0)
 {
    fBrush.SetStyle();
    CreateWidget();
 }
 //________________________________________________________________________________
 TQtPatternSelectButton::TQtPatternSelectButton(QWidget *p, const char *name, Qt::WFlags f)
-#if QT_VERSION < 0x40000
-    : QFrame(p,name,f)
-#else /* QT_VERSION */
     : QFrame(p,f)
-#endif /* QT_VERSION */
-    , fBrushEmitter(0)
+    , fFakeMenu(0), fBrushEmitter(0)
 {
    if (name && name[0]) setName(name);
    fBrush.SetStyle();
@@ -306,17 +302,11 @@ TQtPatternSelectButton::TQtPatternSelectButton(QWidget *p, const char *name, Qt:
 
 //________________________________________________________________________________
 TQtPatternSelectButton::TQtPatternSelectButton( QWidget *p, UInt_t pattern, Int_t /*id*/,TEmitRootSignal *emitter) 
-#if QT_VERSION < 0x40000
-    : QFrame(p,"BrushSelectButton",Qt::WStyle_Customize | Qt::WStyle_NoBorder|Qt::WStyle_StaysOnTop)
-#else /* QT_VERSION */
     : QFrame(p)
-#endif /* QT_VERSION */
-   , fBrushEmitter(emitter)
+   , fFakeMenu(0), fBrushEmitter(emitter)
 {
-#if QT_VERSION >= 0x40000
    setName("BrushSelectButton");
    setWindowFlags (Qt::WindowStaysOnTopHint);
-#endif   
    fBrush.SetStyle(pattern);
    CreateWidget();
 }
@@ -324,7 +314,7 @@ TQtPatternSelectButton::TQtPatternSelectButton( QWidget *p, UInt_t pattern, Int_
 //________________________________________________________________________________
 TQtPatternSelectButton::TQtPatternSelectButton( QWidget *p, TQtBrush &pattern, Int_t /*id*/,TEmitRootSignal *emitter) 
     : QFrame(p)
-    , fBrush(pattern),fBrushEmitter(emitter)
+    , fFakeMenu(0), fBrush(pattern),fBrushEmitter(emitter)
 {
    setName("BrushSelectButton");
    CreateWidget();
@@ -332,43 +322,28 @@ TQtPatternSelectButton::TQtPatternSelectButton( QWidget *p, TQtBrush &pattern, I
 //________________________________________________________________________________
 void TQtPatternSelectButton::CreateWidget() 
 {
-
-    // setGeometry( QRect( 80, 30, 80, 27 ) );
     setLineWidth(1);
-    //setFrameShape( QFrame::StyledPanel );
-    //setFrameShadow( QFrame::Raised );
-    
-  
+    fBrush.SetColor("white");
+    setFrameStyle(QFrame::NoFrame);
+    setContentsMargins(0,0,0,0);
     QHBoxLayout *layout = new QHBoxLayout(this, 0, 0, "layoutPatternSelect"); 
     layout->setSpacing(0);
     layout->setMargin(0);
-    
 
     //  Brush Button TQtPatternFrame
     fPushButton = new TQtPatternFrame( this, fBrush );
-      layout->setStretchFactor(fPushButton,3); 
       layout->addWidget(fPushButton);
       connect(fPushButton,SIGNAL(clicked()),this, SLOT(PopupDialog()));
-
-    // The vertical divider 
-    QFrame *line1 = new QFrame( this, "line1" );
-      line1->setFrameShape ( QFrame::VLine  );
-      line1->setFrameShadow( QFrame::Sunken );
-      
-      layout->setStretchFactor(line1,1); 
-      layout->addWidget( line1 );
-
-    // The arrow button
-    fArrowButton = new QToolButton( Qt::DownArrow,this,"arrowDownToolButton" );
-      fArrowButton->setFixedWidth(fArrowButton->sizeHint().width()+4);
-      layout->setStretchFactor(fArrowButton,1); 
-      layout->addWidget( fArrowButton );
-      connect(fArrowButton,SIGNAL(clicked()),this, SLOT(PopupDialog()));
-
+    setSizePolicy(QSizePolicy(QSizePolicy::Preferred, QSizePolicy::Fixed,
+                                 QSizePolicy::ComboBox));
+    fPushButton->setPopupMode( QToolButton::MenuButtonPopup); 
+    if (!fFakeMenu) {
+       // Add fake menu to force the "real" Dialog popup
+       fFakeMenu = new QMenu(this);
+       fPushButton->setMenu(fFakeMenu);
+       connect(fFakeMenu,SIGNAL(aboutToShow()), this, SLOT(PopupDialog()));
+    }
     languageChange();
-#if QT_VERSION < 0x40000
-     clearWState( WState_Polished );
-#endif /* QT_VERSION */
 }
 //________________________________________________________________________________
 TQtPatternSelectButton::~TQtPatternSelectButton()
@@ -378,18 +353,24 @@ TQtPatternSelectButton::~TQtPatternSelectButton()
 void TQtPatternSelectButton::PopupDialog()
 {
    TQtPatternPopup *popup = TQtPatternPopup::Create(0,fBrush);
-   QPoint global = fArrowButton->mapToGlobal(QPoint(0,0));
-   popup->move(global.x()
-              ,global.y()+fArrowButton->frameSize().height());
+   QPoint global = 
+      fPushButton->mapToGlobal(QPoint(0,0));
+   popup->move(global.x()+fPushButton->frameSize().width()-10
+              ,global.y()+fPushButton->frameSize().height());
+   popup->resize(2  + 3*(wSize+1) +1, 2 + 10*(hSize+1) + 2);
    if ( popup->exec() == QDialog::Accepted ){
       // to emit the ROOT signal
       SetBrush(popup->Brush());
       if (fBrushEmitter) fBrushEmitter->EmitRootSignal(fBrush.GetStyle());
       emit brushSelected(fBrush);
    }
+   if (fFakeMenu && (sender() == fFakeMenu) ) QTimer::singleShot(0,fFakeMenu, SLOT(close()) );
+
 }
 //________________________________________________________________________________
-void TQtPatternSelectButton::SetBrush(UInt_t style) {
+void TQtPatternSelectButton::SetBrush(UInt_t style) 
+{
+   // Set the Qt brush style from the ROOT pattern style
    if (UInt_t(fBrush.GetStyle()) != style) {
       fBrush.SetStyle(style);
       fPushButton->SetBrush(fBrush);
@@ -399,24 +380,24 @@ void TQtPatternSelectButton::SetBrush(UInt_t style) {
 //________________________________________________________________________________
 void TQtPatternSelectButton::SetBrush(const TQtBrush &pattern)
 {
-   // Set color.
-//   if (fBrush != pattern) 
-      {
-      fBrush = pattern;
-      fPushButton->SetBrush(fBrush);
-   }
+   // Set the Qt brush style from the input pattern brush
+   fBrush = pattern;
+   fPushButton->SetBrush(fBrush);
+}
+//________________________________________________________________________________
+void TQtPatternSelectButton::SetBrush(const QColor &color)
+{
+   // Set the brush color
+   fBrush.SetColor(color);
+   fPushButton->SetBrush(fBrush);
 }
 
 //______________________________________________________________________________
 void TQtPatternSelectButton::languageChange()
 {
-    setCaption( tr( "Select Pattern" ) );
-    if (fPushButton) {
-       QToolTip::add( fPushButton, tr( "Current Pattern" ) );
-#if QT_VERSION < 0x40000
-       QWhatsThis::add( fPushButton, tr( "Your current attribute fill pattern" ) );
-#else /* QT_VERSION */
-       fPushButton->setWhatsThis(tr( "Your current attribute fill pattern" ) );
-#endif /* QT_VERSION */
-    }
+   setCaption( tr( "Select Pattern" ) );
+   if (fPushButton) {
+      QToolTip::add( fPushButton, tr( "Current Pattern" ) );
+      fPushButton->setWhatsThis(tr( "Your current attribute fill pattern" ) );
+   }
 }

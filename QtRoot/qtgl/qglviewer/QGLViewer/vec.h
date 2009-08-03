@@ -1,24 +1,22 @@
 /****************************************************************************
 
- This file is part of the QGLViewer library.
- Copyright (C) 2002, 2003, 2004, 2005, 2006 Gilles Debunne (Gilles.Debunne@imag.fr)
- Version 2.2.1-1, released on March 30, 2006.
+ Copyright (C) 2002-2008 Gilles Debunne. All rights reserved.
 
- http://artis.imag.fr/Members/Gilles.Debunne/QGLViewer
+ This file is part of the QGLViewer library version 2.3.1.
 
- libQGLViewer is free software; you can redistribute it and/or modify
- it under the terms of the GNU General Public License as published by
- the Free Software Foundation; either version 2 of the License, or
- (at your option) any later version.
+ http://www.libqglviewer.com - contact@libqglviewer.com
 
- libQGLViewer is distributed in the hope that it will be useful,
- but WITHOUT ANY WARRANTY; without even the implied warranty of
- MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- GNU General Public License for more details.
+ This file may be used under the terms of the GNU General Public License 
+ versions 2.0 or 3.0 as published by the Free Software Foundation and
+ appearing in the LICENSE file included in the packaging of this file.
+ In addition, as a special exception, Gilles Debunne gives you certain 
+ additional rights, described in the file GPL_EXCEPTION in this package.
 
- You should have received a copy of the GNU General Public License
- along with libQGLViewer; if not, write to the Free Software
- Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
+ libQGLViewer uses dual licensing. Commercial/proprietary software must
+ purchase a libQGLViewer Commercial License.
+
+ This file is provided AS IS with NO WARRANTY OF ANY KIND, INCLUDING THE
+ WARRANTY OF DESIGN, MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE.
 
 *****************************************************************************/
 
@@ -27,8 +25,12 @@
 
 #include <math.h>
 #include <iostream>
-#include <qdom.h>
-// #include <qapplication.h>
+
+#if QT_VERSION >= 0x040000
+# include <QDomElement>
+#else
+# include <qdom.h>
+#endif
 
 // Included by all files as vec.h is at the end of the include hierarchy
 #include "config.h" // Specific configuration options.
@@ -70,12 +72,12 @@ class QGLVIEWER_EXPORT Vec
   // If your compiler complains the "The class "qglviewer::Vec" has no member "x"."
   // Add your architecture Q_OS_XXXX flag (see qglobal.h) in this list.
 #if defined (Q_OS_IRIX) || defined (Q_OS_AIX) || defined (Q_OS_HPUX)
-# define UNION_NOT_SUPPORTED
+# define QGLVIEWER_UNION_NOT_SUPPORTED
 #endif
 
 public:
   /*! The internal data representation is public. One can use v.x, v.y, v.z. See also operator[](). */
-#if defined (DOXYGEN) || defined (UNION_NOT_SUPPORTED)
+#if defined (DOXYGEN) || defined (QGLVIEWER_UNION_NOT_SUPPORTED)
   float x, y, z;
 #else
   union
@@ -107,7 +109,7 @@ public:
   camera()->setPosition(v);
   \endcode
 
-  Note that standard vector types (stl, \c float[3], ...) implement this operator and can hence
+  Note that standard vector types (STL, \c float[3], ...) implement this operator and can hence
   be used in place of Vec. See also operator const float*() .*/
   template <class C>
   explicit Vec(const C& c) : x(c[0]), y(c[1]), z(c[2]) {}
@@ -123,7 +125,7 @@ public:
     return *this;
   }
 
-  /*! Set the current value. Maybe faster than using operator=() with a temporary Vec(x,y,z). */
+  /*! Set the current value. May be faster than using operator=() with a temporary Vec(x,y,z). */
   void setValue(float X, float Y, float Z)
   { x=X; y=Y; z=Z; }
 
@@ -141,7 +143,7 @@ public:
   //@{
   /*! Bracket operator, with a constant return value. \p i must range in [0..2]. */
   float operator[](int i) const {
-#ifdef UNION_NOT_SUPPORTED
+#ifdef QGLVIEWER_UNION_NOT_SUPPORTED
     return (&x)[i];
 #else
     return v_[i];
@@ -150,7 +152,7 @@ public:
 
   /*! Bracket operator returning an l-value. \p i must range in [0..2]. */
   float& operator[](int i) {
-#ifdef UNION_NOT_SUPPORTED
+#ifdef QGLVIEWER_UNION_NOT_SUPPORTED
     return (&x)[i];
 #else
     return v_[i];
@@ -171,7 +173,7 @@ public:
   glVertex3fv(pos);
   \endcode */
   operator const float*() const {
-#ifdef UNION_NOT_SUPPORTED
+#ifdef QGLVIEWER_UNION_NOT_SUPPORTED
     return &x;
 #else
     return v_;
@@ -182,7 +184,7 @@ public:
 
   Useful to pass a Vec to a method that requires and fills a \c float*, as provided by certain libraries. */
   operator float*() {
-#ifdef UNION_NOT_SUPPORTED
+#ifdef QGLVIEWER_UNION_NOT_SUPPORTED
     return &x;
 #else
     return v_;
@@ -241,7 +243,7 @@ public:
     return !(a==b);
   }
 
-  /*! Returns \c true when the squaredNorm() of the difference vector is lower then 1E-10. */
+  /*! Returns \c true when the squaredNorm() of the difference vector is lower than 1E-10. */
   friend bool operator==(const Vec &a, const Vec &b)
   {
     const float epsilon = 1.0E-10f;
@@ -303,8 +305,6 @@ public:
 	       a.x*b.y - a.y*b.x);
   }
 
-  /*! Returns a Vec orthogonal to the Vec. Its norm() depends on the Vec, but is zero only for a
-  null Vec. Note that the function that associates an orthogonalVec() to a Vec is not continous. */
   Vec orthogonalVec() const;
   //@}
 

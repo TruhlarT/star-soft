@@ -1,24 +1,22 @@
 /****************************************************************************
 
- This file is part of the QGLViewer library.
- Copyright (C) 2002, 2003, 2004, 2005, 2006 Gilles Debunne (Gilles.Debunne@imag.fr)
- Version 2.2.1-1, released on March 30, 2006.
+ Copyright (C) 2002-2008 Gilles Debunne. All rights reserved.
 
- http://artis.imag.fr/Members/Gilles.Debunne/QGLViewer
+ This file is part of the QGLViewer library version 2.3.1.
 
- libQGLViewer is free software; you can redistribute it and/or modify
- it under the terms of the GNU General Public License as published by
- the Free Software Foundation; either version 2 of the License, or
- (at your option) any later version.
+ http://www.libqglviewer.com - contact@libqglviewer.com
 
- libQGLViewer is distributed in the hope that it will be useful,
- but WITHOUT ANY WARRANTY; without even the implied warranty of
- MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- GNU General Public License for more details.
+ This file may be used under the terms of the GNU General Public License 
+ versions 2.0 or 3.0 as published by the Free Software Foundation and
+ appearing in the LICENSE file included in the packaging of this file.
+ In addition, as a special exception, Gilles Debunne gives you certain 
+ additional rights, described in the file GPL_EXCEPTION in this package.
 
- You should have received a copy of the GNU General Public License
- along with libQGLViewer; if not, write to the Free Software
- Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
+ libQGLViewer uses dual licensing. Commercial/proprietary software must
+ purchase a libQGLViewer Commercial License.
+
+ This file is provided AS IS with NO WARRANTY OF ANY KIND, INCLUDING THE
+ WARRANTY OF DESIGN, MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE.
 
 *****************************************************************************/
 
@@ -30,7 +28,7 @@
 #ifndef QGLVIEWER_CONFIG_H
 #define QGLVIEWER_CONFIG_H
 
-#define QGLVIEWER_VERSION 0x020201
+#define QGLVIEWER_VERSION 0x020301
 
 // Needed for Qt < 4 (?)
 #ifndef QT_CLEAN_NAMESPACE
@@ -71,12 +69,15 @@
 #endif
 
 // OpenGL includes - Included here and hence shared by all the files that need OpenGL headers.
-#include <qgl.h>
-
+#if QT_VERSION >= 0x040000
+# include <QGLWidget>
+#else
+# include <qgl.h>
+#endif
 
 // Old Qt versions require GLUT for text rendering
-#define QT_VERSION_WITHOUT_GLUT 0x030100
-#if QT_VERSION < QT_VERSION_WITHOUT_GLUT
+#define QGLVIEWER_QT_VERSION_WITHOUT_GLUT 0x030100
+#if QT_VERSION < QGLVIEWER_QT_VERSION_WITHOUT_GLUT
 # ifdef Q_OS_MAC
 #  include <GLUT/glut.h>
 # else
@@ -91,24 +92,12 @@
 // Container classes interfaces changed a lot in Qt.
 // Compatibility patches are all grouped here.
 #if QT_VERSION >= 0x040000
-# include <qlist.h>
-# include <qvector.h>
+# include <QList>
+# include <QVector>
 #else
 # define qMax(a,b) QMAX(a,b)
-# if QT_VERSION >= 0x030000
-#  include <qptrlist.h>
-#  include <qvaluevector.h>
-# else
-#  pragma warning( disable : 4530 ) // exception handler but unwind semantics. Use \GX option
-#  include <vector> // also defines std::max and std::abs
-#  define QVector std::vector
-#  undef Q_UNUSED
-#  define Q_UNUSED(x) (void)x;
-#  include <qlist.h>
-// So that there is no need to make Qt2 specific cases
-#  define QPtrList QList
-#  define QPtrListIterator QListIterator
-# endif
+# include <qptrlist.h>
+# include <qvaluevector.h>
 #endif
 
 // For deprecated methods

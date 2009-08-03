@@ -1,4 +1,4 @@
-// @(#)root/gtgl:$Name:  $:$Id: TObject3DViewFactory.cxx,v 1.9 2009/01/06 02:54:17 perev Exp $
+// @(#)root/gtgl:$Name:  $:$Id: TObject3DViewFactory.cxx,v 1.10 2009/08/03 18:03:07 fine Exp $
 // Author: Valery Fine      24/04/05
 
 /****************************************************************************
@@ -855,8 +855,7 @@ TObject3DView *TObject3DViewFactory::MakeShape(const TPGON &shp, const Float_t *
 
 //________________________________________________________________
 TObject3DView *TObject3DViewFactory::MakeShape(const TELTU &shp, const Float_t *rgba)
-// {    return MakeConeShape(shp,rgba,-(shp.GetNumberOfDivisions()+1),2,kCyl);          }
-{    return MakeConeShape(shp,rgba,(shp.GetNumberOfDivisions()),2,kCyl);          }
+{    return MakeConeShape(shp,rgba,shp.GetNumberOfDivisions(),2,kCyl);          }
 
 
 //________________________________________________________________

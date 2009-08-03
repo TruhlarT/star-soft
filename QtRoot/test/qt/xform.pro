@@ -1,6 +1,9 @@
 TEMPLATE	= lib
 CONFIG		+= qt warn_on release dll
 
+QMAKE_RPATH=
+
+
 !exists ($(ROOTSYS)/include/rootcint.pri){
      message "The Rootcint.pri was not found"
 }

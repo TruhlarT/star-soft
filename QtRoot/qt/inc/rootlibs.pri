@@ -4,7 +4,7 @@
 # Qmake include file to add the rules to create RootCint Dictionary
 #-------------------------------------------------------------------------
 #
-# $Id: rootlibs.pri,v 1.5 2008/04/14 02:35:02 fine Exp $
+# $Id: rootlibs.pri,v 1.6 2009/08/03 18:02:57 fine Exp $
 #
 # Copyright (C) 2002 by Valeri Fine.  All rights reserved.
 #
@@ -47,6 +47,7 @@ unix {
 }
 
 mac {
+#  I dropped using .dylib as extension with 10.5 as MacOS X now allows .so . Fons. 
   QMAKE_EXTENSION_SHLIB = dylib
   CONFIG += no_smart_library_merge
 }
@@ -58,21 +59,21 @@ win32 {
 #-- permanent components to be included into any ".pro" file to build the RootCint dictionary
 
 win32 {
-   LIBS	+=                                                                                                \
-      -include:_G__cpp_setupG__Hist       -include:_G__cpp_setupG__Graf1  -include:_G__cpp_setupG__G3D     \
+   LIBS	+=                                                                                                 \
+      -include:_G__cpp_setupG__Hist       -include:_G__cpp_setupG__G3D                                     \
       -include:_G__cpp_setupG__GPad       -include:_G__cpp_setupG__Tree   -include:_G__cpp_setupG__Rint    \
       -include:_G__cpp_setupG__PostScript -include:_G__cpp_setupG__Matrix -include:_G__cpp_setupG__Physics \
       -include:_G__cpp_setupG__Gui1       -include:_G__cpp_setupG__Geom1 
     
-   exists( $(ROOTSYS)/lib/libRIO.lib ) {
+   exists( $$(ROOTSYS)/lib/libRIO.lib ) {
       LIBS	+= -include:_G__cpp_setupG__IO
    }   
 
-   exists( $(ROOTSYS)/lib/libTable.lib ) {
+   exists( $$(ROOTSYS)/lib/libTable.lib ) {
       LIBS	+= -include:_G__cpp_setupG__Table
    }   
 
-   exists( $(ROOTSYS)/lib/libQtRootGui.lib ) {
+   exists( $%(ROOTSYS)/lib/libQtRootGui.lib ) {
       LIBS	+=  -include:_G__cpp_setupG__QtGUI     
    }   
    
@@ -84,39 +85,38 @@ win32 {
     "$(ROOTSYS)/lib/libGeom.lib"   "$(ROOTSYS)/lib/libTable.lib"                                         \
     "$(ROOTSYS)/lib/libGQt.lib"   
     
-   exists( $(ROOTSYS)/lib/libRIO.lib ) {
+   exists( $$(ROOTSYS)/lib/libRIO.lib ) {
       LIBS	+= "$(ROOTSYS)/lib/libRIO.lib" 
    }   
 
-   exists( $(ROOTSYS)/lib/libTable.lib ) {
+   exists( $$(ROOTSYS)/lib/libTable.lib ) {
       LIBS	+=  "$(ROOTSYS)/lib/libTable.lib"
    }   
        
-   exists( $(ROOTSYS)/lib/libQtRootGui.lib ) {
+   exists( $$(ROOTSYS)/lib/libQtRootGui.lib ) {
       LIBS	+=  "$(ROOTSYS)/lib/libQtRootGui.lib"
    }   
 }
 
 unix {
-    LIBS	+= $$system(${ROOTSYS}/bin/root-config --glibs)
-    libFile = $(ROOTSYS)/lib/libTable.$$QMAKE_EXTENSION_SHLIB 
-    exists( $$libFile ) {
-        LIBS += -lTable
-    }   
-    
-    libFile = $(QTROOTSYSDIR)/lib/libGQt.$$QMAKE_EXTENSION_SHLIB
+    libFile = $$(QTROOTSYSDIR)/lib/libGQt.$$QMAKE_EXTENSION_SHLIB
     exists ($$libFile ) {
         LIBS += -L$(QTROOTSYSDIR)/lib
         LIBS += -lGQt  
     }
-    libFile = $(QTROOTSYSDIR)/lib/libQtRootGui.$$QMAKE_EXTENSION_SHLIB
+    libFile = $$(QTROOTSYSDIR)/lib/libQtRootGui.$$QMAKE_EXTENSION_SHLIB
     exists ($$libFile ) {
         LIBS += -lQtRootGui
-        message ( "Found Qt extensions library !!!") 
     }
+    LIBS	+= $$system(${ROOTSYS}/bin/root-config --glibs)
+    libFile = $$(ROOTSYS)/lib/libTable.$$QMAKE_EXTENSION_SHLIB 
+    exists( $$libFile ) {
+        LIBS += -lTable
+    }   
+    
     LIBS *= -lGQt 
-
-    exists( $(ROOTSYS)/lib/libQtRootGui.$$QMAKE_EXTENSION_SHLIB ) {
+    
+    exists( $$(ROOTSYS)/lib/libQtRootGui.$$QMAKE_EXTENSION_SHLIB ) {
           LIBS	*=  -lQtRootGui  
           message ( "Found Qt extensions library !!!") 
     }
@@ -132,11 +132,11 @@ mac {
   # this trick does not work yet (To be fixed. V.Fine)
       LIBS	+=  $$join( FORCELINKLIST, " -u ")                                                                
 
-      exists( $(ROOTSYS)/lib/libTable.lib ) {
+      exists( $$(ROOTSYS)/lib/libTable.lib ) {
          LIBS	+= -u _G__cpp_setupG__Table
       }   
 
-      exists( $(ROOTSYS)/lib/libQtRootGui.lib ) {
+      exists( $$(ROOTSYS)/lib/libQtRootGui.lib ) {
          LIBS	+=  -u _G__cpp_setupG__QtGUI     
       }
   }

@@ -1,5 +1,6 @@
 #include "GShowerPad.h"
-#include <qhbuttongroup.h> 
+//#include <qhbuttongroup.h> 
+#include <Q3HButtonGroup>
 #include <qpushbutton.h> 
 #include <qwidget.h> 
 #include <qtooltip.h>
@@ -13,8 +14,8 @@
 #endif
 
 //______________________________________________________________________________
-GShowerPad::GShowerPad(QWidget *parent, const char * name, WFlags f ):
-QVBox(parent,name,f) 
+GShowerPad::GShowerPad(QWidget *parent, const char * name, Qt::WFlags f ):
+Q3VBox(parent,name,f) 
 {
    
    setMargin(2);
@@ -27,7 +28,7 @@ QVBox(parent,name,f)
 
 
    //add the button group
-   QHButtonGroup  *group = new QHButtonGroup(this,"zoom");
+   Q3HButtonGroup  *group = new Q3HButtonGroup(this,"zoom");
    // First button
    QPushButton *button = new QPushButton("&Zoom Forward",group);
    QToolTip::add(button,"Zoom forward event view");
@@ -64,7 +65,7 @@ void GShowerPad::PadZoomBackward()
 void GShowerPad::Show3D()
 {
    TCanvas *c = cA->GetCanvas();
-  #if  ROOT_VERSION_CODE >= ROOT_VERSION(4,03,03)   
+#if  ROOT_VERSION_CODE >= ROOT_VERSION(4,03,03)   
          TVirtualViewer3D *viewer = TVirtualViewer3D::Viewer3D(c,"ogl");
          if (viewer) {
             // Create Open GL viewer

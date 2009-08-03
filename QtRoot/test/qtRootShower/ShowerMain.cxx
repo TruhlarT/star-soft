@@ -34,13 +34,14 @@ void  ShowerMain::main(/*int argc, char **argv*/)
     gStyle->SetStatFont(42);
 
     gRandom->SetSeed( (UInt_t)time( NULL ) );
+#if ROOT_VERSION_CODE < ROOT_VERSION(5,16,0)
     const Int_t NRGBs = 5;
     Double_t Stops[NRGBs] = { 0.00, 0.34, 0.61, 0.84, 1.00 };
     Double_t Red[NRGBs] = { 1.00, 0.75, 0.50, 0.25, 0.00 };
     Double_t Green[NRGBs] = { 0.00, 0.00, 0.00, 0.00, 0.00 };
     Double_t Blue[NRGBs] = { 0.00, 0.25, 0.50, 0.75, 1.00 };
     gColIndex = gStyle->CreateGradientColorTable(NRGBs, Stops, Red, Green, Blue, 11);
-
+#endif
     // Create RootShower
 
    gROOT->SetLineHasBeenProcessed();

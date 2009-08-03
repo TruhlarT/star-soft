@@ -1,4 +1,4 @@
-// @(#)root/thread:$Name:  $:$Id: TQtCondition.cxx,v 1.1 2006/08/16 19:27:08 fine Exp $
+// @(#)root/thread:$Name:  $:$Id: TQtCondition.cxx,v 1.2 2009/08/03 18:03:11 fine Exp $
 // Author: Bertrand Bellenot  20/10/2004
 
 /*************************************************************************

@@ -1,6 +1,6 @@
 #ifndef STAR_TQtCoin3DDefInterface
 #define STAR_TQtCoin3DDefInterface
-// @(#)root/gtgl:$Name:  $:$Id: TQtCoin3DDefInterface.h,v 1.1 2007/01/15 16:18:05 fine Exp $
+// @(#)root/gtgl:$Name:  $:$Id: TQtCoin3DDefInterface.h,v 1.2 2009/08/03 18:03:06 fine Exp $
 // Author: Valery Fine     10/01/07
 
 /****************************************************************************

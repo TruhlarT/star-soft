@@ -87,11 +87,19 @@ public:
    // supply them
     virtual Bool_t PreferLocalFrame() const {return kTRUE; }
 
+       // Viewers can implement their own loop over pad's primitive list.
+    virtual Bool_t CanLoopOnPrimitives() const { return kTRUE; }
+    // When they can, TPad::Paint() and TPad::PaintModified() simply 
+    // call the following function:
+    virtual void   PadPaint(TVirtualPad*);
+    virtual void   ObjectPaint(TObject*, Option_t* = "");
+
    // Addition/removal of objects must occur between Begin/EndUpdate calls
    virtual void   BeginScene();          // called by TPad::Paint | PaintModified
    virtual void   BeginScene(TVirtualPad *pad); 
    virtual Bool_t BuildingScene() const; // called by TPad::Paint | PaintModified
    virtual void   EndScene();            // called by TPad::Paint | PaintModified
+
    virtual void   SetUpdatesEnabled(bool on=true);
    virtual void   SetDrawOption(Option_t *option="");
    virtual Option_t   *GetDrawOption() const;

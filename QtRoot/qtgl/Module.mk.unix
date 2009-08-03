@@ -5,14 +5,22 @@
 
 QMAKE        := $(QTDIR)/bin/qmake
 
-MODDIR       := qtgl
-MODDIRS      := $(MODDIR)/qtgl/src
-MODDIRI      := $(MODDIR)/qtgl/inc
+ifeq ($(ARCH),win32)
+ifeq ($(WINRTDEBUG),yes) 
+QMAKE_CONFIG := CONFIG+=debug
+else
+QMAKE_CONFIG := CONFIG+=release
+endif
+endif
 
-QTGLDIR      := $(MODDIR)/qtgl
+MODNAME      := qtgl
+MODDIR       := qtgl/$(MODNAME)
+MODDIRS      := $(MODDIR)/src
+MODDIRI      := $(MODDIR)/inc
+
+QTGLDIR      := $(MODDIR)
 QTGLDIRS     := $(QTGLDIR)/src
 QTGLDIRI     := $(QTGLDIR)/inc
-
 ifeq ($(ARCH),win32)
 QTGLMAKE   := nmake
 else
@@ -36,39 +44,17 @@ QTGLH1       := $(QTGLDIRI)/TObject3DViewFactoryABC.h   $(QTGLDIRI)/TQGLViewerIm
 QTGLH       := $(filter-out $(QTGLDIRI)/LinkDef%,$(wildcard $(QTGLDIRI)/*.h))
 QTGLH       := $(filter-out $(QTGLDIRI)/TVirtualOIViewer%,$(QTGLH))
 QTGLMOCH    := $(QTGLDIRI)/TQtGLViewerImp.h   $(QTGLDIRI)/TQtGLViewerWidget.h   \
-               $(QTGLDIRI)/TQtRootViewer3D.h
-#               $(QTGLDIRI)/TVirtualOIViewer.h 
+               $(QTGLDIRI)/TQtRootViewer3D.h  $(QTGLDIRI)/TQGLViewerImp.h
                
 QTGLMOC     := $(subst $(QTGLDIRI)/,$(QTGLDIRS)/moc_,$(patsubst %.h,%.cxx,$(QTGLMOCH)))
 QTGLMOCO    := $(QTGLMOC:.cxx=.o)
 
-# QTGLS          := TGLKernel.cxx
-
-COINFLAGS     += -I. -I$(QTINCDIR) -DQT_DLL -DQT_THREAD_SUPPORT
-
-
-ifneq ($(OPENIVLIB),)
-
-##### Open Inventor viewer #####
- COINFLAGS     += -DR__OPENINVENTOR -I$(OPENIVINCDIR)  -DSOQT_DLL -DCOIN_DLL  -DCoin3D
- COINLIBS      := $(OPENIVLIBDIR) $(filter-out %Xt,$(OPENIVLIB))
- 
- QTIVGLH       := $(QTGLDIRI)/TVirtualOIViewer.h
- QTIVGLMOC     := $(subst $(QTGLDIRI)/,$(QTGLDIRS)/moc_,$(patsubst %.h,%.cxx,$(QTIVGLH)))
- QTIVGLMOCO    := $(QTIVGLMOC:.cxx=.o)
-
- QTIVGLS       += TVirtualOIViewer.cxx
- QTIVGLS       := $(patsubst %,$(QTGLDIRS)/%,$(QTIVGLS))
- QTIVGLO       := $(QTIVGLS:.cxx=.o)
- QTIVGLDEP     := $(QTIVGLO:.o=.d)
- QTIVGLLIB     := $(LPATH)/libRQIVTGL.$(SOEXT)
- QTGLLIBEXTRA  += $(IVLIBDIR) $(COINLIBS)
-endif # OPENIVLIB
+COINFLAGS     +=  $(GQTCXXFLAGS)
+# -I. $(QTINCDIR:%=-I%) -DQT_DLL -DQT_THREAD_SUPPORT
 
 QTGLS          += TQtGLViewerImp.cxx  TQtGLViewerWidget.cxx                                    \
                   TObject3DView.cxx TObject3DViewFactory.cxx TObjectOpenGLViewFactory.cxx      \
                   TGLViewerImp.cxx TObject3DViewFactoryABC.cxx TQVirtualGL.cxx TQtRootViewer3D.cxx
-# TQtGLKernelThread.cxx                  
 
 QTGLS          := $(patsubst %,$(QTGLDIRS)/%,$(QTGLS))
 
@@ -77,88 +63,83 @@ QTGLO          := $(QTGLS:.cxx=.o)
 QTGLDEP        := $(QTGLO:.o=.d) $(QTGLDO:.o=.d)
 
 QTGLLIB        := $(LPATH)/libRQTGL.$(SOEXT)
+QTGLMAP        := $(QTGLLIB:.$(SOEXT)=.rootmap)
 
 # used in the main Makefile
 ALLHDRS     += $(patsubst $(QTGLDIRI)/%.h,include/%.h,$(QTGLH))
-ALLHDRS     += $(patsubst $(QTGLDIRI)/%.h,include/%.h,$(QTIVGLH))
-ALLLIBS     += $(QTGLLIB) $(QTIVGLLIB)
+ALLLIBS     += $(QTGLLIB)
 # include all dependency files
-INCLUDEFILES += $(QTGLDEP) $(QTIVGLDEP)
+INCLUDEFILES += $(QTGLDEP)
 
 ##### local rules #####
+$(sort $(QTGLMOCO) $(QTGLO)): CXXFLAGS += $(GQTCXXFLAGS)
+$(QTGLDO): CXXFLAGS += $(GQTCXXFLAGS)
+
 include/%.h:    $(QTGLDIRI)/%.h
 		cp $< $@
 		
 #  QGLViewer 
 QGLVIEWER    := qglviewer
-QGLVIEWERDIR := $(MODDIR)/$(QGLVIEWER)/QGLViewer
-QGLVIEWERLIB := libQGLViewer.$(SOEXT)
+QGLVIEWERDIR := qtgl/$(QGLVIEWER)/QGLViewer
+QGLVIEWERDIRBIN : =  $(QGLVIEWERDIR)
+QGLVIEWERVERSION :=2
+QGLVIEWERNAME := QGLViewer$(QGLVIEWERVERSION)
+ifneq ($(ARCH),win32)
+  QGLVIEWERLIB := lib$(QGLVIEWERNAME).$(SOEXT)
+else
+  ifeq ($(WINRTDEBUG),yes) 
+    QGLVIEWERDIRBIN += $(QGLVIEWERDIR)/debug
+	 BINPREFIX := d
+  else  
+    QGLVIEWERDIRBIN += $(QGLVIEWERDIR)/release
+  endif
+  QGLVIEWERLIB := $(BINPREFIX)$(QGLVIEWERNAME).lib
+endif
+
+include/QGLViewer: $(wildcard $(QGLVIEWERDIR)/*.h)
+		mkdir -p include/QGLViewer
+		cp -rf $? $@
+		echo cp $? $@
+
+#include/QGLViewer/%.h:     $(QGLVIEWERDIR)/%.h include/QGLViewer
+#		cp $< $@
 
 ifeq ($(ARCH),win32)
- QTGLLIBEXTRA += lib/QGLViewer.lib  $(WIN32GDKLIBEXTRA)
- $(QGLVIEWERDIR)/QGLViewer.lib:
- $(QGLVIEWERDIR)/QGLViewer.$(SOEXT): $(QGLVIEWERDIR)/Makefile
-	"cmd /c cd  $(QGLVIEWERDIR) && nmake $(QGLVIEWERDIR)"
+  QTGLLIBEXTRA += lib/QGLViewer.lib  $(WIN32GDKLIBEXTRA)
+  $(QGLVIEWERDIRBIN)/$(BINPREFIX)$(QGLVIEWERNAME).lib:
+  $(QGLVIEWERDIRBIN)/$(BINPREFIX)$(QGLVIEWERNAME).$(SOEXT): $(QGLVIEWERDIR)/Makefile include/QGLViewer 
+		cd $(QGLVIEWERDIR); $(QTGLMAKE)
 	
- bin/QGLViewer.$(SOEXT): $(QGLVIEWERDIR)/QGLViewer.$(SOEXT)
-	cp $< $@
+  bin/$(BINPREFIX)$(QGLVIEWERNAME).$(SOEXT): $(QGLVIEWERDIRBIN)/$(BINPREFIX)$(QGLVIEWERNAME).$(SOEXT)
+		cp $< $@
 
- $(QTGLVIEWERLIB): $(QGLVIEWERDIR)/QGLViewer.lib bin/QGLViewer.$(SOEXT)
-	cp $< $@
-
-$(QGLVIEWERDIR)/Makefile: $(QGLVIEWERDIR)/src.pro
-	cd $(QGLVIEWERDIR); qmake $(<F)
- 	 
-endif
-
-ifneq ($(ARCH),win32)
-# used in the main Makefile
-
-$(QGLVIEWERDIR)/$(QGLVIEWERLIB) : $(QGLVIEWERDIR)/Makefile
-	$(QTGLMAKE)  -C $(QGLVIEWERDIR)
-	
-lib/$(QGLVIEWERLIB): $(QGLVIEWERDIR)/$(QGLVIEWERLIB)
-	$(QTGLMAKE) -C $(QGLVIEWERDIR)  install 	
-	cp $< $@
-	@rm -rf  /tmp/QGLViewer
-
-
-$(QGLVIEWERDIR)/Makefile: $(QGLVIEWERDIR)/QGLViewer.pro
-	 cd $(QGLVIEWERDIR); $(QMAKE) INCLUDE_DIR=/tmp LIB_DIR=$(CURRENTROOT)/lib $(<F)
-endif
+  $(QGLVIEWERDIR)/Makefile: $(QGLVIEWERDIR)/QGLViewer.pro
+		cd $(QGLVIEWERDIR);  $(QMAKE) $(QMAKE_CONFIG)
 		
-ifneq ($(OPENIVLIB),)
-$(QTIVGLLIB):   $(QTIVGLO) $(QTIVGLMOCO) $(MAINLIBS) $(QTGLLIBDEP)
-		@$(MAKELIB) $(PLATFORM) $(LD) "$(LDFLAGS)" \
-		   "$(SOFLAGS)" libRQIVTGL.$(SOEXT) $@ "$(QTIVGLO)" "$(QTIVGLMOCO) $(COINLIBS)" \
-		   "$(QTGLLIBEXTRA) $(OIVHOME)/lib/*.lib"
-endif
+  lib/QGLViewer.lib: $(QGLVIEWERDIRBIN)/$(BINPREFIX)$(QGLVIEWERNAME).lib
+		cp $< $@
 
-ifneq ($(ARCH),win32)
-$(QTGLLIB):       $(QTGLO) $(QTGLDO) $(QTGLMOCO) lib/$(QGLVIEWERLIB) $(MAINLIBS) $(QTIVGLLIB) $(QTGLLIBDEP) 
-		@$(MAKELIB) $(PLATFORM) $(LD) "$(LDFLAGS)" \
-		   "$(SOFLAGS)" libRQTGL.$(SOEXT) $@ "$(QTGLO)"  "$(QTGLDO) $(QTGLMOCO) \
-		   lib/$(QGLVIEWERLIB) $(QTIVGLLIB) $(QTGLLIBEXTRA)"
-endif
-ifeq ($(ARCH),win32)
-$(QTGLLIB):       $(QTGLO) $(QTGLDO)  $(QTGLMOCO) $(MAINLIBS) $(QTGLLIBDEP) $(QTGLVIEWERLIB) $(QTIVGLLIB)
+  $(QTGLLIB):       $(QTGLO) $(QTGLDO)  $(QTGLMOCO) $(MAINLIBS) $(QTGLLIBDEP) lib/QGLViewer.lib  bin/$(BINPREFIX)$(QGLVIEWERNAME).$(SOEXT)
 		@$(MAKELIB) $(PLATFORM) $(LD) "$(LDFLAGS)" \
 		   "$(SOFLAGS)" libRQTGL.$(SOEXT) $@ "$(QTGLO) $(QTGLDO)  $(QTGLMOCO)" \
-		   " $(QTGLLIBEXTRA) $(QTIVGLLIB:.dll=.lib) $(QTGLVIEWERLIB)"
+		   " $(QTGLLIBEXTRA) $(QTGLVIEWERLIB)"
 endif
 
-$(QTGLDS):    $(QTGLH1) $(QTGLL) $(ROOTCINTTMPEXE)
+
+$(QTGLDS):    $(QTGLH1) $(QTGLL) $(ROOTCINTTMPDEP)
 		@echo "Generating dictionary $@..."
 		$(ROOTCINTTMP) -f $@ -c $(QTGLH1) $(QTGLL)
 
-$(QTGLDO): $(QTGLDS)
-		$(CXX) $(OPT) $(CXXFLAGS) $(GQTCXXFLAGS) $(QGLVIEWERDIR:%=-I%)  $(CXXOUT)$@ -c $<
+all-$(MODNAME):         $(QTGLLIB) $(QTGLMOC) $(QTGLMAP)
 
+$(QTGLO):  bin/$(BINPREFIX)$(QGLVIEWERNAME).$(SOEXT) include/QGLViewer
 
-all-qtgl:         $(QTGLLIB) $(QTIVGLLIB) $(QTGLMOC) lib/$(QGLVIEWERLIB)
-
-clean-qtgl:
-		@rm -f $(QTGLO)  $(QTGLDO)  $(QTIVGLO) $(QTGLMOC) $(QTGLMOCO)
+$(QTGLMAP):     $(RLIBMAP) $(MAKEFILEDEP) $(QTGLL)
+		$(RLIBMAP) -o $(QTGLMAP) -l $(QTGLLIB) \
+		   -d $(QTGLLIBDEP) -c $(QTGLL)
+			
+clean-$(MODNAME):
+		@rm -f $(QTGLO)  $(QTGLDO) $(QTGLMOC) $(QTGLMOCO) $(QTGLMAP)
 		cd $(QGLVIEWERDIR); $(QTGLMAKE) clean;
 		@rm -f lib/$(QGLVIEWERLIB)* lib/*.prl
 #  win32 only:		@rm -f bin/QGLViewer.$(SOEXT)
@@ -167,23 +148,16 @@ clean-qtgl:
 clean::   clean-qtgl
 
 distclean-qtgl:   clean-qtgl
-		$(QTGLMAKE)  -C $(QGLVIEWERDIR) clean
-		@rm -f $(QTGLDEP) $(QTGLLIB) $(QTIVGLLIB)
+		cd $(QGLVIEWERDIR); $(QTGLMAKE) distclean;
+		@rm -f $(QTGLDEP) $(QTGLLIB)
 		@rm -f $(QGLVIEWERDIR)/Makefile
 
 distclean::     distclean-qtgl
 
 ##### extra rules ######
-ifneq ($(OIVHOME),)
-QTCOINCXXFLAGS += -DR__OPENINVENTOR -I$(IVINCDIR)
-else
-QTCOINCXXFLAGS += -I$(QGLVIEWERDIR) $(COINFLAGS)
-endif
 
-$(sort $(QTGLMOCO) $(QTIVGLMOCO) $(QTIVGLO) $(QTGLO)) : %.o: %.cxx
-	$(CXX) $(OPT) $(CXXFLAGS) $(QTCOINCXXFLAGS) -Iqt/src $(OPENGLINCDIR:%=-I%)  \
-	    $(CXXOUT)$@ -c $<
-##### extra rules ######
+$(sort $(GQTMOCO) $(GQTO)): CXXFLAGS += $(QTCOINCXXFLAGS)
+$(GQTDO): CXXFLAGS += $(QTCOINCXXFLAGS)
 
-$(sort $(QTGLMOC) $(QTIVGLMOC) ): $(QTGLDIRS)/moc_%.cxx: $(QTGLDIRI)/%.h
-	$(QTMOCEXE) $< -o $@
+$(sort $(QTGLMOC) ): $(QTGLDIRS)/moc_%.cxx: $(QTGLDIRI)/%.h
+	$(QTMOCEXE) $(GQTCXXFLAGS) $< -o $@

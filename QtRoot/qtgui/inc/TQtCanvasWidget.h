@@ -1,6 +1,6 @@
 // Author: Valeri Fine   21/01/2002
 /****************************************************************************
-** $Id: TQtCanvasWidget.h,v 1.5 2007/11/02 17:48:08 fine Exp $
+** $Id: TQtCanvasWidget.h,v 1.6 2009/08/03 18:03:08 fine Exp $
 **
 ** Copyright (C) 2002 by Valeri Fine.  All rights reserved.
 **
@@ -22,7 +22,7 @@
 class  TQtCanvasWidget : public QMainWindow {
  Q_OBJECT
 public:
-  TQtCanvasWidget( QWidget* parent=0, const char* name=0, Qt::WFlags f=Qt::WDestructiveClose|Qt::WType_TopLevel);
+  TQtCanvasWidget( QWidget* parent=0);
   virtual ~TQtCanvasWidget(){;}
  
 protected slots:
@@ -35,7 +35,10 @@ protected:
   virtual bool winEvent(MSG *msg);
   virtual bool winEvent(MSG *msg, long * result);
 #endif
-
+protected:
+  virtual void closeEvent(QCloseEvent *event);
+signals:
+  void WMCloseCanvas();
 };
 
 #endif

@@ -1,4 +1,4 @@
-// @(#)root/gtgl:$Name:  $:$Id: TCoinShapeBuilder.h,v 1.1 2006/10/17 20:12:27 fine Exp $
+// @(#)root/gtgl:$Name:  $:$Id: TCoinShapeBuilder.h,v 1.2 2009/08/03 18:03:06 fine Exp $
 // Author: Valery Fine      04/10/06
 
 #ifndef ROOT_TCoinShapeBuilder

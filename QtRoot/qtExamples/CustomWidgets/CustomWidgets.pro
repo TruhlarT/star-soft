@@ -3,6 +3,8 @@ QT += qt3support
 TEMPLATE	= app
 LANGUAGE	= C++
 
+QMAKE_RPATH=
+
 CONFIG	+= qt warn_on release
 
 SOURCES	+= CustomWidgetsMain.cpp

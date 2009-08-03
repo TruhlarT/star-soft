@@ -1,6 +1,6 @@
 // Author: Valeri Fine   21/01/2002
 /****************************************************************************
-** $Id: TQtCanvasImp.cxx,v 1.18 2008/05/20 21:19:20 fine Exp $
+** $Id: TQtCanvasImp.cxx,v 1.19 2009/08/03 18:03:09 fine Exp $
 **
 ** Copyright (C) 2002 by Valeri Fine. Brookhaven National Laboratory.
 **                                    All rights reserved.
@@ -150,7 +150,7 @@ enum ERootCanvasCommands {
    kHelpOnGraphicsEd,
    kHelpOnBrowser,
    kHelpOnObjects,
-   kHelpOnPS,
+   kHelpOnPS
 };
 
 //static const char *gOpenTypes[] = { "ROOT files",   "*.root",
@@ -244,12 +244,12 @@ TQtZoomPadWidget  *TQtCanvasImp::fgZoomingWidget = 0;
 //______________________________________________________________________________
 TQtCanvasImp::TQtCanvasImp()
 : QObject(), TCanvasImp()
-, fCanvasImpID(0),fCoinMenu(-1), fViewMenu(0),fEditor(0)
+, fCanvasImpID(0), fEditor(0)
 , fMenuBar(0),fOptionMenu(0),fDoubleBuffer(kTRUE) {;}
 //______________________________________________________________________________
 TQtCanvasImp::TQtCanvasImp(TCanvas *c, const char *name, UInt_t width, UInt_t height,bool initFlag)
 :   QObject(), TCanvasImp(c, name, width, height)
- , fCanvasImpID(0),fX(0),fY(0),fWidth(width),fHeight(height), fCoinMenu(-1), fViewMenu(0) 
+ , fCanvasImpID(0),fX(0),fY(0),fWidth(width),fHeight(height)
  , fFileToolBar(0),fToolBar(0),fEditToolBar(0),fEditor(0)
  , fMenuBar(0),fOptionMenu(0), fDoubleBuffer(kTRUE)  
 { 
@@ -258,7 +258,7 @@ TQtCanvasImp::TQtCanvasImp(TCanvas *c, const char *name, UInt_t width, UInt_t he
 //______________________________________________________________________________
 TQtCanvasImp::TQtCanvasImp(TCanvas *c, const char *name, Int_t x, Int_t y, UInt_t width, UInt_t height,bool initFlag)
 :  QObject(), TCanvasImp(c, name,x,y,width, height)
- , fCanvasImpID(0),fX(x),fY(y),fWidth(width),fHeight(height), fCoinMenu(-1), fViewMenu(0)
+ , fCanvasImpID(0),fX(x),fY(y),fWidth(width),fHeight(height)
  , fFileToolBar(0),fToolBar(0),fEditToolBar(0),fEditor(0)
  , fMenuBar(0),fOptionMenu(0), fDoubleBuffer(kTRUE)  
 {
@@ -267,9 +267,7 @@ TQtCanvasImp::TQtCanvasImp(TCanvas *c, const char *name, Int_t x, Int_t y, UInt_
 //______________________________________________________________________________
 TQtCanvasImp::~TQtCanvasImp()
 { 
-#ifndef WIN32
   Delete();
-#endif
 }
 //______________________________________________________________________________
 void TQtCanvasImp::Delete() 
@@ -279,6 +277,10 @@ void TQtCanvasImp::Delete()
       TCanvas *c =  Canvas();
       if (c) c->DisconnectWidget();
       fCanvasImpID->hide();
+#if ROOT_VERSION_CODE >= ROOT_VERSION(5,18,0)
+      TVirtualPadEditor* gged = TVirtualPadEditor::GetPadEditor(kFALSE);
+      if(gged && gged->GetCanvas() == fCanvas)  gged->Hide();
+#endif
       if (c && c->GetCanvasID() != TGQt::iwid(((TGQt *)gVirtualX)->GetSelectedWindow()) ) 
          gVirtualX->SelectWindow ( TGQt::iwid(fCanvasID));
       fCanvasID = 0;
@@ -291,15 +293,15 @@ void TQtCanvasImp::Delete()
          TVirtualPadEditor::Terminate();
 #else
       delete fEditor; fEditor = 0;
-#endif      
-      gVirtualX->CloseWindow();
+#endif 
       TQtCanvasWidget *wid = fCanvasImpID;
       fCanvasImpID = 0;
       disconnect(wid,SIGNAL(destroyed()),this,SLOT(Disconnect()));
+      gVirtualX->CloseWindow();
 #if QT_VERSION < 0x40000
       delete wid;
 #else
-      wid->deleteLater(); 
+      wid->deleteLater();
 #endif
    }
 }
@@ -706,9 +708,8 @@ void TQtCanvasImp::ReallyDelete()
 {
    // Really delete the canvas and this GUI.
 #if ROOT_VERSION_CODE >= ROOT_VERSION(5,18,0)
-      TVirtualPadEditor* gged = TVirtualPadEditor::GetPadEditor(kFALSE);
-   if(gged && gged->GetCanvas() == fCanvas)
-      gged->Hide();
+   TVirtualPadEditor* gged = TVirtualPadEditor::GetPadEditor(kFALSE);
+   if(gged && gged->GetCanvas() == fCanvas) gged->Hide();
 #endif
    if (fCanvasImpID) fCanvasImpID->hide();
    TVirtualPad *savepad = gPad;
@@ -756,11 +757,9 @@ Int_t TQtCanvasImp::InitWindow()
   if (!fCanvasImpID) 
   {
      // fprintf(stderr,"TQtCanvasImp::InitWindow: ");
-#if QT_VERSION < 0x40000
-    fCanvasImpID = new TQtCanvasWidget (0,gVirtualX->GetName(),Qt::WDestructiveClose|Qt::WType_TopLevel);
-#else        
-    fCanvasImpID = new TQtCanvasWidget (0,gVirtualX->GetName());
-#endif    
+    fCanvasImpID = new TQtCanvasWidget();
+    fCanvasImpID->setName(gVirtualX->GetName());
+    connect(fCanvasImpID,SIGNAL(WMCloseCanvas()),this,SLOT(CloseCB()));
     connect(fCanvasImpID,SIGNAL(destroyed()),this,SLOT(Disconnect()));
 //    fCanvasID = (TQtWidget *)TGQt::iwid(gVirtualX->InitWindow(TGQt::iwid(fCanvasImpID)));
     fCanvasID = (TQtWidget *)TGQt::iwid(gVirtualX->InitWindow(0));
@@ -1001,6 +1000,7 @@ void TQtCanvasImp::ShowEditor(Bool_t show)
       if (fEditor) fEditor->Hide();
    }
    if (savedPad) gPad = savedPad;
+   QTimer::singleShot(0,fCanvasID, SLOT(Refresh()));
 }
 //______________________________________________________________________________
 void TQtCanvasImp::ShowMenuBar(Bool_t show)
@@ -1096,6 +1096,7 @@ void TQtCanvasImp::SaveCB()
 //______________________________________________________________________________
 void TQtCanvasImp::SaveAsCB()
 { 
+  QString selectedFilter = "all files (*.*)"; 
   QString filter = 
       "C++ macro (*.cpp,*.cxx,*.C);"
      ";Postscript (*.ps);"
@@ -1109,46 +1110,25 @@ void TQtCanvasImp::SaveAsCB()
      ";Image (";
 
   UInt_t i=0;
-#if QT_VERSION < 0x40000
-  for (i = 0; i < QImageIO::outputFormats().count(); i++ ) 
-#else
   QList<QByteArray> formats =  QImageWriter::supportedImageFormats();
   QList<QByteArray>::const_iterator j;
   for (j = formats.constBegin(); j != formats.constEnd(); ++j)
-#endif
   {
     if (i) filter +=',';
     filter += "*.";
-#if QT_VERSION < 0x40000
-    QString str = QString( QImageIO::outputFormats().at( i ) );
-#else
     QString str =  *j; i++;
-#endif
     filter += str.lower();
   }
   filter +=");";
   filter +=";all files (*.*);;";
 
-  QString selectedFilter;
-
   QString thatFile = QFileDialog::getSaveFileName(
-#if QT_VERSION < 0x40000
-         gSystem->WorkingDirectory()
-       , filter
-       , fCanvasImpID
-       , "SaveAs"
-       , tr("Save the selected Canvas/Pad as")
-       , &selectedFilter
-       );
-#else /* QT_VERSION */
          fCanvasImpID 
        , tr("Save the selected Canvas/Pad as")
        , gSystem->WorkingDirectory()
        , filter
        , &selectedFilter
        );
-#endif /* QT_VERSION */
-         
   if (thatFile.isEmpty()) return;
   SaveFile(thatFile,selectedFilter);
 }
@@ -1160,16 +1140,9 @@ void TQtCanvasImp::SaveAsWebCB()
   QString filter = "Web page (*.html);";
 
   QString thatFolder = QFileDialog::getExistingDirectory(
-#if QT_VERSION < 0x40000
-         gSystem->WorkingDirectory()
-       , fCanvasImpID
-       , "SaveAsWeb"
-       , tr("Select the folder to save the Canvas/Pad as Web site") );
-#else /* QT_VERSION */
          fCanvasImpID
        , tr("Select the folder to save the Canvas/Pad as Web site")
        , gSystem->WorkingDirectory() );
-#endif /* QT_VERSION */
 
    if (thatFolder.isEmpty()) return;
    if (fActions[kViewZoomer]->isOn() ) {
@@ -1192,12 +1165,7 @@ void TQtCanvasImp::SaveFile(const QString &theFile, const QString &selectedFilte
   Info("SaveFile","Selected filter %s \n", (const char *)selectedFilter);
 
   //  define the file extension
-  QString fileNameExtension = 
-#if QT_VERSION < 0x40000
-        QFileInfo(thatFile).extension(FALSE);
-#else
-        QFileInfo(thatFile).suffix();
-#endif
+  QString fileNameExtension = QFileInfo(thatFile).suffix();
   QString  saveType = fileNameExtension.upper();
 
   if (selectedFilter.contains("*.*")) {
@@ -1247,7 +1215,7 @@ void TQtCanvasImp::PrintCB()
 { 
   QPrinter p;
   if (p.setup()) {     
-    QPixmap *pix = &fCanvasID->GetBuffer(); //(QPixmap *)TGQt::iwid(c->GetCanvasID());
+    QPixmap *pix = fCanvasID->GetOffScreenBuffer(); //(QPixmap *)TGQt::iwid(c->GetCanvasID());
     QPainter pnt(&p);
     pnt.drawPixmap(0,0,*pix);
   }
@@ -1287,7 +1255,7 @@ void TQtCanvasImp::CopyCB()
   QPixmap *p = 0;
   if (gPad == gPad->GetCanvas() ) {
     // Copy the double buffer of the TCanvas
-    p = &fCanvasID->GetBuffer();
+    p = fCanvasID->GetOffScreenBuffer();
   } else {
     // Get the selected TPad only
     p = (QPixmap *)TGQt::iwid(gPad->GetPixmapID());
@@ -1334,8 +1302,12 @@ void TQtCanvasImp::CreateEditor()
    TString show = gEnv->GetValue("Canvas.ShowEditor","false");
    gEnv->SetValue("Canvas.ShowEditor","true");
    gPad = Canvas();
-   fEditor = TVirtualPadEditor::LoadEditor();
-   fEditor->SetGlobal(kFALSE);
+#if ROOT_VERSION_CODE >= ROOT_VERSION(5,20,0)
+   fEditor = TVirtualPadEditor::LoadEditor(); //  TVirtualPadEditor::LoadEditor();
+#else
+   fEditor = TVirtualPadEditor::GetPadEditor(kTRUE); //  TVirtualPadEditor::LoadEditor();
+#endif
+   if (fEditor) fEditor->SetGlobal(kFALSE);
 
    // next line is related to the old editor
    if (show == "false") gEnv->SetValue("Canvas.ShowEditor","false");
@@ -1368,11 +1340,7 @@ void TQtCanvasImp::ZoomCB()
    TQtRootAction *action = (TQtRootAction *)sender();
    if (!fgZoomingWidget && (action->isOn()))  {
        fgZoomingWidget = new TQtZoomPadWidget();
-#if QT_VERSION < 0x40000
-       QWhatsThis::display(
-#else /* QT_VERSION */
        QWhatsThis::showText(QCursor::pos(),
-#endif /* QT_VERSION */
        tr("<P>Click any <b>TPad</b> object with the <b>middle</b> mouse button to zoom it out"));
    }
    if (action->isOn()) { 
@@ -1453,7 +1421,7 @@ void TQtCanvasImp::GLViewCB()
    }
 #endif  
    else {
-      fViewMenu->setItemEnabled(fCoinMenu, false);
+      fActions[kViewInventorGL]->setEnabled(false);
    }
 }
 //______________________________________________________________________________
@@ -1488,7 +1456,7 @@ void TQtCanvasImp::GLIVViewCB()
          if (!gSystem->AccessPathName(ivrootDir.Data())) {
             if ( ! (gSystem->Load(ivrootDir+"soqt1.dll") + 
             gSystem->Load(ivrootDir+"coin2.dll") +
-            gSystem->Load(ivrootDir+"SmallChange1.dll")) )
+            gSystem->Load(iirootDir+"SmallChange1.dll")) )
 */
                    coinWasLoaded = true; // Try to load it at once
 //       }
@@ -1516,8 +1484,8 @@ void TQtCanvasImp::GLIVViewCB()
       gPad->x3d("OPENGL");
    }
 #endif
-   else {
-      fViewMenu->setItemEnabled(fCoinMenu, false);
+   else { 
+      fActions[kViewInventorGL]->setEnabled(false);
    }
 }
 

@@ -1,6 +1,6 @@
 // Author: Valeri Fine   10/08/2004
 /****************************************************************************
-** $Id: TQtTabValidator.h,v 1.3 2007/08/26 17:46:59 fine Exp $
+** $Id: TQtTabValidator.h,v 1.4 2009/08/03 18:03:09 fine Exp $
 **
 ** Copyright (C) 2003 by Valeri Fine.  All rights reserved.
 **

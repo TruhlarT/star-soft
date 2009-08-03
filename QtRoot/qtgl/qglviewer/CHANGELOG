@@ -1,11 +1,6 @@
+This is libQGLViewer version 2.3.1. Packaged on September 30, 2008.
 
-		l i b Q G L V i e w e r   C h a n g e L o g
-		     Copyright 2002-2003-2004-2005-2006
-		  Gilles Debunne (Gilles.Debunne@imag.fr)
+The complete change log is available in doc/changeLog.html
 
-See doc/changeLog.html for details.
-
-This is version 2.2.1-1. Packaged on March 30, 2006.
-
-The latest versions and changeLog are available at:
-http://artis.imag.fr/Members/Gilles.Debunne/QGLViewer/changeLog.html
+The latest releases and changeLog are available at:
+http://www.libqglviewer.com/changeLog.html

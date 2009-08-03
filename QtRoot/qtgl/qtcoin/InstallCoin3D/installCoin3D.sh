@@ -116,8 +116,12 @@ if [ -d Coin-2 ]; then
 
   export PATH=$installDir/bin:$PATH
   cd $builddir/SoGuiExamples-SoQt
-  $srcdir/SoGuiExamples/configure --with-soqt $common_build_opt
-  make
+## Skip this step on Windows 
+  uname -s | grep CYGWIN && PLATFORM=Win
+  if [ "x$PLATFORM" != "xWin" ]; then 
+    $srcdir/SoGuiExamples/configure --with-soqt $common_build_opt
+    make
+  fi
   echo "---- Installation of Coin3D package has been completed"
   echo " Do not forget to set the env variable "
   echo "export IVROOT=$installDir"

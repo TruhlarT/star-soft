@@ -1,6 +1,6 @@
 // Author: Valeri Fine   21/01/2002
 /****************************************************************************
-** $Id: TQtEvent.cxx,v 1.1 2006/08/16 19:27:06 fine Exp $
+** $Id: TQtEvent.cxx,v 1.2 2009/08/03 18:02:57 fine Exp $
 **
 ** Copyright (C) 2002 by Valeri Fine. Brookhaven National Laboratory.
 **                                    All rights reserved.
@@ -11,14 +11,9 @@
 **
 *****************************************************************************/
 
+#include <QObject>
 #include "TQtEvent.h"
 #include "TWaitCondition.h"
-#include "qobject.h"
-#if QT_VERSION >= 0x40000
-//Added by qt3to4:
-#include <QCustomEvent>
-#include <QEvent>
-#endif /* QT_VERSION */
 #include <assert.h>
 
 //////////////////////////////////////////////////////////////////////////////
@@ -28,11 +23,11 @@
 //////////////////////////////////////////////////////////////////////////////
 
 //______________________________________________________________________________
-TQtEvent::TQtEvent(int code):QCustomEvent(QEvent::User+code), fCondition(0), fResult(0)
+TQtEvent::TQtEvent(int code):QEvent(QEvent::Type(QEvent::User+code)), fCondition(0), fResult(0)
          , fReceiver(0),fThatEvent(0)
 { }
 //______________________________________________________________________________
-TQtEvent::TQtEvent(QObject *o, QEvent *e): QCustomEvent(QEvent::User), fCondition(0)
+TQtEvent::TQtEvent(QObject *o, QEvent *e): QEvent(QEvent::User), fCondition(0)
          , fResult(0), fReceiver(o),fThatEvent(e)
 { }
 //______________________________________________________________________________
@@ -47,7 +42,7 @@ bool TQtEvent::Notify()
   return r;
 }
 //______________________________________________________________________________
-void TQtEvent::SetResult(ULong_t e)
+void TQtEvent::SetResult(unsigned long e)
 {
   if (fResult)   *fResult = e;
   if (fCondition) fCondition->wakeOne();
@@ -58,7 +53,7 @@ void TQtEvent::SetWait(TWaitCondition &condition)
   fCondition = &condition;
 }
 //______________________________________________________________________________
-void TQtEvent::SetWait(TWaitCondition &condition, ULong_t &result)
+void TQtEvent::SetWait(TWaitCondition &condition,unsigned long &result)
 {
   SetWait(condition);
   fResult    = &result;

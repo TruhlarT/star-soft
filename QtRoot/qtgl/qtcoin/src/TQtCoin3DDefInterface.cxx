@@ -1,4 +1,4 @@
-// @(#)root/gtgl:$Name:  $:$Id: TQtCoin3DDefInterface.cxx,v 1.1 2007/01/13 20:40:57 fine Exp $
+// @(#)root/gtgl:$Name:  $:$Id: TQtCoin3DDefInterface.cxx,v 1.2 2009/08/03 18:03:07 fine Exp $
 // Author: Valery Fine     10/01/07
 
 /****************************************************************************

@@ -32,15 +32,7 @@
 #include "TList.h"
 #include "TError.h"
 
-#if !defined( __APPLE__ ) || defined(Q_WS_X11)
-#  if  ROOT_VERSION_CODE >= ROOT_VERSION(5,15,9)
-#    include  "TGLIncludes.h"
-#  else
-#    include "TRootGLU.h"
-#  endif
-#else
-#  include <glu.h>
-#endif
+#include  "TQtGLIncludes.h"
 
 #include "TObjectOpenGLViewFactory.h"
 #if QT_VERSION >= 0x40000

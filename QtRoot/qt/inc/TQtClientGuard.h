@@ -2,7 +2,7 @@
 #define ROOT_TQtClientGuard
  
 /****************************************************************************
-** $Id: TQtClientGuard.h,v 1.2 2008/04/15 18:24:06 fine Exp $
+** $Id: TQtClientGuard.h,v 1.3 2009/08/03 18:02:56 fine Exp $
 **
 ** Copyright (C) 2004 by Valeri Fine. Brookhaven National Laboratory.
 **                                    All rights reserved.

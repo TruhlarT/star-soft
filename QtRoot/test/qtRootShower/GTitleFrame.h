@@ -23,11 +23,13 @@
 #ifndef GTITLEFRAME_H
 #define GTITLEFRAME_H
 
-#include "qhbox.h"
+#include "q3hbox.h"
+//Added by qt3to4:
+#include <QLabel>
 
 class QLabel;
 
-class GTitleFrame: public QHBox {
+class GTitleFrame: public Q3HBox {
 private:
     QLabel *fRightIconPicture;
 public:

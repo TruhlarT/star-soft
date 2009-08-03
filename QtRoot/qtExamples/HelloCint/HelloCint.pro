@@ -5,6 +5,8 @@
 TEMPLATE = lib  thread
 CONFIG *= dll
 
+QMAKE_RPATH=
+
 # Get the "lib" prefix to match the Unix default
 win32 : TARGET = libHelloCint
 
@@ -14,20 +16,20 @@ SOURCES += TMyQButton.cxx
 
 CREATE_ROOT_DICT_FOR_CLASSES  = $$HEADERS LinkDef.h
 
-includeFile = $$QTROOTSYSDIR/include
-exists ($$includeFile) {
-  include ($$includeFile/rootcint.pri)
+incFile = $$(QTROOTSYSDIR)/include
+exists ($$incFile) {
+  include ($$incFile/rootcint.pri)
 }
 
-!exists ($$includeFile) {
-  includeFile = $(ROOTSYS)/include/rootcint.pri
-  exists ($$includeFile) {
-    include ($$includeFile)
+!exists ($$incFile) {
+  incFile = $$(ROOTSYS)/include/rootcint.pri
+  exists ($$incFile) {
+    include ($$incFile)
   }
 }
 
 #  -- Check for the obsolete ROOT version :(
-!exists ($$inlcudeFile) {
+!exists ($$incFile) {
     message (" ")
     message ("WARNING:  The $$inlcudeFile was not found !!!")
     message ("          The example $$TARGET can not be built")

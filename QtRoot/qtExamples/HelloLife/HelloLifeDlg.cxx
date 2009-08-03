@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: HelloLifeDlg.cxx,v 1.1 2006/08/16 19:41:02 fine Exp $
+** $Id: HelloLifeDlg.cxx,v 1.2 2009/08/03 18:03:00 fine Exp $
 **
 ** Copyright (C) 1992-2000 Trolltech AS.  All rights reserved.
 **
@@ -9,12 +9,15 @@
 *****************************************************************************/
 
 #include "HelloLifeDlg.h"
-#include <qapplication.h>
-#include <qpushbutton.h>
-#include <qlabel.h>
-#include <qslider.h>
-#include <qcombobox.h>
-#include <qdatetime.h>
+#include <QApplication>
+#include <QPushButton>
+#include <QLabel>
+#include <QSlider>
+#include <QComboBox>
+#include <QDateTime>
+#include <QDesktopWidget>
+#include <QResizeEvent>
+
 #include <stdlib.h>
 
 #include "patterns.cxx"
@@ -75,9 +78,11 @@ LifeDialog::LifeDialog( int scale, QWidget * parent, const char * name )
     sp = new QLabel( "Speed:", this );
     sp->adjustSize();
     sp->move( SIDEBORDER, 45 );
-    scroll = new QSlider( 0, LifeTimer::MAXSPEED, 50,
-                          LifeTimer::MAXSPEED / 2,
-                          QSlider::Horizontal, this );
+    scroll = new QSlider( Qt::Horizontal, this );
+    scroll->setMinimum(0);
+    scroll->setMaximum(LifeTimer::MAXSPEED);
+    scroll->setPageStep(50);
+    scroll->setValue(LifeTimer::MAXSPEED / 2);
     connect( scroll, SIGNAL(valueChanged(int)),
              timer,  SLOT(setSpeed(int)) );
 
@@ -121,7 +126,6 @@ LifeDialog::LifeDialog( int scale, QWidget * parent, const char * name )
     cb->insertItem( "Sym Puffer " );
     cb->insertItem( "], Near Ship, Pi Heptomino " );
     cb->insertItem( "R Pentomino " );
-    cb->setAutoResize( FALSE );
     cb->setCurrentItem( sel );
     cb->show();
     connect( cb, SIGNAL(activated(int)), SLOT(getPattern(int)) );

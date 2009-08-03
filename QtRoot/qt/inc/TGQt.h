@@ -1,4 +1,4 @@
-// @(#)root/qt:$Id: TGQt.h,v 1.11 2009/02/07 02:46:39 fine Exp $
+// @(#)root/qt:$Id: TGQt.h,v 1.12 2009/08/03 18:02:56 fine Exp $
 // Author: Valeri Fine   21/01/2002
 /****************************************************************************
 **
@@ -29,26 +29,18 @@
 #include <map>
 
 #include <qobject.h>
-#include <qmap.h>
-#include <qcolor.h>
-#include <qcursor.h>
-#include <qpainter.h>
-#include <qrect.h>
-#include <qmap.h>
+#include <QMap>
+#include <QColor>
+#include <QCursor>
+#include <QPainter>
+#include <QRect>
 #include <qnamespace.h>
 
-#if (QT_VERSION > 0x039999)
-#  include <QPixmap>
-#  include <QEvent>
-#  include <QVector>
-#else
-#  include <qmemarray.h>
-#  include <qptrqueue.h>
-#  include <qptrlist.h>
-#  include <qptrvector.h>
-#endif /* QT_VERSION */
+#include <QtGui/QPixmap>
+#include <QtCore/QEvent>
+#include <QtCore/QVector>
 
-#include <qfontdatabase.h>
+#include <QtGui/QFontDatabase>
 
 #include "TQtClientGuard.h"
 
@@ -57,11 +49,17 @@
   class QEvent;
 #endif  /* CINT */
 
-class  QPen;
-class  QMarker;
-class  QFont;
-class  QPaintDevice;
-class  QTextCodec;
+class QPainter;
+class QPen;
+class QMarker;
+//class  QFont;
+class QPaintDevice;
+class QTextCodec;
+class QPoint;
+class QString;
+class QSize;
+class QColor;
+
 
 #include "TVirtualX.h"
 #include "TQtEmitter.h"
@@ -76,9 +74,43 @@ class TFileHandler;
 class TQtApplication;
 class TQtClientFilter;
 class TQtEventQueue;
-
+class TQtPadFont;
+class TQtPen;
+class TQtPainter;
+class TQtFeedBackWidget;
 
 //#define TRACE_TGQt() fprintf(stdout, "TGQt::%s() %d\n", __FUNCTION__, __LINE__)
+class TQtTextProxy {
+private:
+    TQtTextProxy(const TQtTextProxy&);
+    void operator=(const TQtTextProxy&);
+protected:
+    TQtTextProxy(){;}
+public:
+    virtual  ~TQtTextProxy(){;}
+    virtual void clear() = 0;
+
+    bool setContent(const char *text, QString *errorMsg = 0,
+                    int *errorLine = 0, int *errorColumn = 0);
+    virtual bool setContent(const QString &text, QString *errorMsg   = 0,
+                    int *errorLine = 0, int *errorColumn = 0) = 0;
+    virtual bool setMmlContent(const QString &text, QString *errorMsg   = 0,
+                    int *errorLine = 0, int *errorColumn = 0) = 0;
+    virtual void paint(QPainter *p,unsigned int x, unsigned int y) const  = 0;
+    virtual unsigned int width() const = 0; 
+    virtual unsigned int height()    const = 0;
+
+    virtual void setFont(Font_t fontnumber) = 0;
+
+    virtual int baseFontPointSize() const   = 0;
+    virtual void setBaseFontPointSize(int size) = 0;
+    virtual void setForegroundColor(const QColor &) = 0;
+    virtual bool isMine() const { return false;};
+    virtual TQtTextProxy *Clone() = 0;
+};
+inline bool TQtTextProxy::setContent(const char *text, QString *errorMsg,
+                    int *errorLine, int *errorColumn )
+{ return setContent(QString(text),errorMsg, errorLine, errorColumn); }
 
 class TGQt  : public TVirtualX  {
 
@@ -92,26 +124,28 @@ class TGQt  : public TVirtualX  {
    friend class TQtImage;
    friend class TQtClientGuard;
    friend class TQtClientFilter;
+   friend class TQtSynchPainting;
+   friend class TQtToggleFeedBack;
+   friend class TQtColorSelect;
+   friend class TQt16ColorSelector;
+   friend class TQtPen; 
+   friend class TQtBrush; 
+   friend class TQtPainter;
+   friend class TQtTextProxy;
 
 protected:
    enum DEFWINDOWID { kDefault=1 };
    QPaintDevice *fSelectedWindow;      // Pointer to the current "paintdevice: PixMap, Widget etc"
-   QPaintDevice *fSelectedBuffer;      // Pointer to the current "paintdevice buffer"
    QPaintDevice *fPrevWindow;          // Pointer to the previous "Window"
    Int_t         fDisplayOpened;
-   QPainter     *fQPainter;
+   TQtPainter     *fQPainter;
    TQtEmitter    fEmitter;             // object to emit Qt signals on behalf of TVirtualX
-   static TVirtualX     *fgTQt;        // The hiden poiner to fullish  ROOT TPluginManager
+   static TVirtualX     *fgTQt;        // The hiden poiner to foolish  ROOT TPluginManager
 
-   void        *fhEvent;                   // The event object to synch threads
+   void        *fhEvent;               // The event object to synch threads
 
-#if QT_VERSION < 0x40000
-   QPtrVector<QCursor>   fCursors;
-#else /* QT_VERSION */
    QVector<QCursor *>      fCursors;
-#endif /* QT_VERSION */
-//   Qt::CursorShape  fCursors[kNumCursors];  //List of cursors
-   ECursor         fCursor;                 // Current cursor number;
+   ECursor         fCursor;            // Current cursor number;
 
    Style_t      fMarkerStyle;
 
@@ -125,14 +159,10 @@ protected:
 //   Common HANDLES of the graphics attributes for all HIGZ windows
 
    TQtBrush  *fQBrush;
-   QPen      *fQPen;
+   TQtPen    *fQPen;
    TQtMarker *fQtMarker;
-   QFont     *fQFont;
-#if (QT_VERSION <0x40000)
-   Qt::RasterOp fDrawMode;
-#else
+   TQtPadFont *fQFont;
    QPainter::CompositionMode  fDrawMode;
-#endif
 
    typedef QMap<QPaintDevice *,QRect> TQTCLIPMAP;
    TQTCLIPMAP fClipMap;
@@ -154,26 +184,23 @@ protected:
     QString                fFontTextCode;     // The default code text code page (from the Gui.DefaultFont)
     const char            *fSymbolFontFamily; // the name of the font to substiute the non-standard "Symbol"
     Int_t                 fQtEventHasBeenProcessed; // Flag whether the events were processed
-
+    Bool_t                fFeedBackMode;      // TCanvas feedback mode 
+    TQtFeedBackWidget    *fFeedBackWidget;    // The dedicated widget for TCanvas feebback mode
+    Bool_t                fBlockRGB;          // Protect agaist color doubel setting
+    static TQtTextProxy   *fgTextProxy;         // proxy for the custom text rendering engine
 //
 //   Text management
 //
 
    //Qt::AlignmentFlags fTextAlign;
 
-   void  SetTextFont(const char *fontname, Int_t italic, Int_t bold);
+   // void  SetTextFont(const char *fontname, Int_t italic, Int_t bold);
    Int_t CreatROOTThread();
    void  DeleteSelectedObj();
 
 //  Qt methods
    static QRect GetQRect(QPaintDevice &dev);
-   void Begin();
-   void End();
-   void UpdateFont();
-   void UpdatePen();
-   void UpdateBrush();
-   void UpdateClipRectangle();
-
+   int  UpdateColor(int cindex);
    QPaintDevice *GetDoubleBuffer(QPaintDevice *dev);
 
 #endif
@@ -186,13 +213,12 @@ public:
 
     TGQt();
     TGQt(const TGQt &vx): TVirtualX(vx) { MayNotUse("TGQt(const TGQt &)"); }   // without dict does not compile? (rdm)
-    TGQt(const Text_t *name, const Text_t *title);
+    TGQt(const char *name, const char *title);
     virtual ~TGQt();
 // Include the base TVirtualX class interface
 #include "TVirtualX.interface.h"
 #ifndef __CINT__
 // extracted methods
-    virtual const QColor&   ColorIndex(Color_t indx) const;
     virtual QPaintDevice *GetSelectedWindow(){ return fSelectedWindow; }
     virtual void      SetFillStyleIndex( Int_t style, Int_t fasi);
     virtual void      SetMarkerType( Int_t type, Int_t n, TPoint *xy );
@@ -225,11 +251,12 @@ public:
    static void           PrintEvent(Event_t &);
    static QString        SetFileName(const QString &fileName);
    static QString        GetNewFileName(const QString &fileNamePrototype);
-
+   static TQtTextProxy  *TextProxy();
+   static void           SetTextProxy(TQtTextProxy  *proxy);
 
    void SetQClientFilter(TQtClientFilter *filter) {fQClientFilter = filter;}
    TQtClientFilter  *QClientFilter() const {return fQClientFilter;}
-   QColor &QtColor(ULong_t pixel);
+   QColor QtColor(ULong_t pixel);
    void SendDestroyEvent(TQtClientWidget *) const;
 
    TQtEmitter *Emitter(){ return &fEmitter;}
@@ -239,6 +266,8 @@ public:
    virtual void      SetAlpha(Int_t cindex, Float_t a);
    virtual void      GetRGBA(Int_t cindex, Float_t &r, Float_t &g, Float_t &b, Float_t &a);
    virtual Float_t   GetAlpha(Int_t cindex);
+   virtual const QColor& ColorIndex(Color_t indx) const;
+
    virtual Int_t LoadQt(const char *shareLibFileName);
    static void PostQtEvent(QObject *receiver, QEvent *event);
    virtual Int_t processQtEvents(Int_t maxtime=300); //milliseconds
@@ -259,9 +288,7 @@ public:
 #endif
 
 #ifndef Q_MOC_RUN
-//MOC_SKIP_BEGIN
    ClassDef(TGQt,0)  //Interface to Qt GUI
-//MOC_SKIP_END
 #endif
 
 };

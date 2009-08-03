@@ -22,25 +22,23 @@
 
 /****************************************************************************
 
- This file is part of the QGLViewer library.
- Copyright (C) 2002, 2003, 2004, 2005, 2006 Gilles Debunne (Gilles.Debunne@imag.fr)
- Version 2.2.1-1, released on March 30, 2006.
+ Copyright (C) 2002-2008 Gilles Debunne. All rights reserved.
 
- http://artis.imag.fr/Members/Gilles.Debunne/QGLViewer
+ This file is part of the QGLViewer library version 2.3.1.
 
- libQGLViewer is free software; you can redistribute it and/or modify
- it under the terms of the GNU General Public License as published by
- the Free Software Foundation; either version 2 of the License, or
- (at your option) any later version.
+ http://www.libqglviewer.com - contact@libqglviewer.com
 
- libQGLViewer is distributed in the hope that it will be useful,
- but WITHOUT ANY WARRANTY; without even the implied warranty of
- MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- GNU General Public License for more details.
+ This file may be used under the terms of the GNU General Public License 
+ versions 2.0 or 3.0 as published by the Free Software Foundation and
+ appearing in the LICENSE file included in the packaging of this file.
+ In addition, as a special exception, Gilles Debunne gives you certain 
+ additional rights, described in the file GPL_EXCEPTION in this package.
 
- You should have received a copy of the GNU General Public License
- along with libQGLViewer; if not, write to the Free Software
- Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
+ libQGLViewer uses dual licensing. Commercial/proprietary software must
+ purchase a libQGLViewer Commercial License.
+
+ This file is provided AS IS with NO WARRANTY OF ANY KIND, INCLUDING THE
+ WARRANTY OF DESIGN, MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE.
 
 *****************************************************************************/
 
@@ -89,27 +87,28 @@ FIGExporter::FIGExporter()
 {
 }
 
-void FIGExporter::writeHeader(FILE *file) const
+void FIGExporter::writeHeader(QTextStream& out) const
 {
-	fputs("#FIG 3.2\nPortrait\nCenter\nInches\nLetter\n100.00\nSingle\n0\n1200 2\n",file) ;
+	out << "#FIG 3.2\nPortrait\nCenter\nInches\nLetter\n100.00\nSingle\n0\n1200 2\n";
 	_depth = 999 ;
 	_sizeX = int(0.5f + _xmax - _xmin) ;
 	_sizeY = int(0.5f + _ymax - _ymin) ;
 }
 
-void FIGExporter::writeFooter(FILE *) const
+void FIGExporter::writeFooter(QTextStream& out) const
 {
+	Q_UNUSED(out);
 }
 
-void FIGExporter::spewPoint(const Point *P,FILE *file)
+void FIGExporter::spewPoint(const Point *P, QTextStream& out)
 {
-	fprintf(file, "2 1 0 5 0 7 %d 0 -1 0.000 0 1 -1 0 0 1\n",_depth--) ;
+	out << "2 1 0 5 0 7 " << (_depth--) << " 0 -1 0.000 0 1 -1 0 0 1\n";
 
-	fprintf(file, "\t %d %d\n",FigCoordX(P->vertex(0)[0]),FigCoordY(P->vertex(0)[1])) ;
+	out << "\t " << FigCoordX(P->vertex(0)[0]) << " " << FigCoordY(P->vertex(0)[1]) << "\n";
 	if(_depth > 0) _depth = 0 ;
 }
 
-void FIGExporter::spewSegment(const Segment *S,FILE *file)
+void FIGExporter::spewSegment(const Segment *S, QTextStream& out)
 {
 	const Feedback3DColor& P1 = Feedback3DColor(S->sommet3DColor(0)) ;
 	const Feedback3DColor& P2 = Feedback3DColor(S->sommet3DColor(1)) ;
@@ -170,14 +169,14 @@ void FIGExporter::spewSegment(const Segment *S,FILE *file)
 		steps = 0;
 	}
 
-	fprintf(file,"2 1 0 1 0 7 %d 0 -1 0.000 0 0 -1 0 0 2\n",_depth--) ;
-	fprintf(file,"\t %d %d",FigCoordX(P1.x()),FigCoordY(P1.y())) ;
+	out << "2 1 0 1 0 7 " << (_depth--) << " 0 -1 0.000 0 0 -1 0 0 2\n";
+	out << "\t " << FigCoordX(P1.x()) << " " << FigCoordY(P1.y());
 
-	fprintf(file, " %d %d\n", FigCoordX(P2.x()), FigCoordY(P2.y())) ;
+	out << " " << FigCoordX(P2.x()) << " " << FigCoordY(P2.y())<< "\n";
 	if(_depth > 0) _depth = 0 ;
 }
 
-void FIGExporter::spewPolygone(const Polygone *P,FILE * file)
+void FIGExporter::spewPolygone(const Polygone *P, QTextStream& out)
 {
 	int nvertices;
 	GLfloat red, green, blue;
@@ -206,18 +205,18 @@ void FIGExporter::spewPolygone(const Polygone *P,FILE * file)
 		/* Flat shaded polygon; all vertex colors the same. */
 
 		if(_blackAndWhite)
-			fprintf(file, "2 3 0 0 0 7 %d 0 20 0.000 0 0 -1 0 0 %d\n",_depth--,nvertices+1);
+			out << "2 3 0 0 0 7 " << (_depth--) << " 0 20 0.000 0 0 -1 0 0 " << (nvertices+1) << "\n";
 		else
-			fprintf(file, "2 3 0 0 0 7 %d 0 %d 0.000 0 0 -1 0 0 %d\n",_depth--,FigGrayScaleIndex(red,green,blue),nvertices+1);
+			out << "2 3 0 0 0 7 " << (_depth--) << " 0 " << (FigGrayScaleIndex(red,green,blue)) << " 0.000 0 0 -1 0 0 " << (nvertices+1) << "\n";
 
 		/* Draw a filled triangle. */
 
-		fprintf(file, "\t") ;
+		out << "\t";
 
 		for (int j = 0; j < nvertices; j++)
-			fprintf(file, " %d %d", FigCoordX(P->sommet3DColor(j).x()), FigCoordY(P->sommet3DColor(j).y()));
+			out << " " << FigCoordX(P->sommet3DColor(j).x()) << " " << FigCoordY(P->sommet3DColor(j).y());
 
-		fprintf(file, " %d %d\n",FigCoordX(P->sommet3DColor(0).x()), FigCoordY(P->sommet3DColor(0).y()));
+		out << " " << FigCoordX(P->sommet3DColor(0).x()) << " " << FigCoordY(P->sommet3DColor(0).y()) << "\n";
 	}
 
 	if(_depth > 0) _depth = 0 ;

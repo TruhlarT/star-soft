@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: TQtSymbolCodec.cxx,v 1.2 2008/04/14 02:35:04 fine Exp $
+** $Id: TQtSymbolCodec.cxx,v 1.3 2009/08/03 18:02:57 fine Exp $
 **
 ** Implementation of QTextCodec class
 **
@@ -9,9 +9,7 @@
 **********************************************************************/
 
 #include "TQtSymbolCodec.h"
-#if QT_VERSION >= 0x40000
-#   include <QByteArray>
-#endif /* QT_VERSION */
+#include <QByteArray>
 
 #ifndef QT_NO_CODEC_SYMBOL
 
@@ -29,7 +27,7 @@ static const ushort greek_symbol_to_unicode[64] = {
     0x0399, 0x03D1, 0x039A, 0x039B, 0x039C, 0x039D, 0x039F, 0x03A0,
 //  Theta    Rho    Sigma    Tau    Upsilon Stigma   Omega     Xi
     0x0398, 0x03A1, 0x03A3, 0x03A4, 0x03A5, 0x03DB, 0x03A9, 0x039E,
-//   Psi     Zeta   Sigma    Tau    Upsilon  ????   Omega     Xi
+//   Psi     Zeta   Sigma
     0x03A8, 0x0396, 0x03EA, 0xFFFD, 0xFFFD, 0xFFFD, 0xFFFD, 0xFFFD,
 //
 //  lower case letters:
@@ -40,7 +38,7 @@ static const ushort greek_symbol_to_unicode[64] = {
     0x03B9, 0x03C6, 0x03BA, 0x03BB, 0x03BC, 0x03BD, 0x03BF, 0x03C0,
 //  Theta    Rho    Sigma    Tau    Upsilon OmegaPi Omega     Xi
     0x03B8, 0x03C1, 0x03C3, 0x03C4, 0x03C5, 0x03D6, 0x03B9, 0x03BE,
-//   Psi     Zeta   Sigma    Tau    Upsilon  ????   Omega     Xi
+//   Psi     Zeta   Sigma
     0x03C8, 0x03B6, 0x03EA, 0xFFFD, 0xFFFD, 0xFFFD, 0xFFFD, 0xFFFD
 };
 
@@ -115,17 +113,9 @@ int QSymbolCodec::mibEnum() const
 
 //_______________________________________________________________________
 /*! \reimp */
-#if QT_VERSION < 0x40000
-const char* QSymbolCodec::name() const
-#else /* QT_VERSION */
 QByteArray QSymbolCodec::name() const
-#endif /* QT_VERSION */
 {
-#if QT_VERSION < 0x40000
-    return "symbol";
-#else /* QT_VERSION */
     return mimeName(); // "symbol";
-#endif /* QT_VERSION */
 }
 
 //_______________________________________________________________________
@@ -163,38 +153,30 @@ QString QSymbolCodec::toUnicode(const char* chars, int len ) const
    return r;
 }
 //_______________________________________________________________________
-#if QT_VERSION < 0x40000
-QCString QSymbolCodec::fromUnicode(const QString& uc, int& lenInOut) const
-#else /* QT_VERSION */
 QByteArray QSymbolCodec::fromUnicode(const QString& uc, int& lenInOut) const
-#endif /* QT_VERSION */
 {
    // process only len chars...
    qWarning( "Method <QSymbolCodec::fromUnicode> has not been implemated yet");
    int l;
    if( lenInOut > 0 )
-      l = QMIN((int)uc.length(),lenInOut);
+      l = qMin((int)uc.length(),lenInOut);
    else
       l = (int)uc.length();
-#if QT_VERSION < 0x40000
-   QCString rstr;
-#else /* QT_VERSION */
    QByteArray rstr;
-#endif /* QT_VERSION */
 
    return rstr;
 }
 
-#if QT_VERSION >= 0x40000
 //_______________________________________________________________________
 /*! \reimp */
 QByteArray QSymbolCodec::convertFromUnicode( const QChar *input, int number, ConverterState *) const
 {  return  fromUnicode(input, number) ;                         }
+
  //_______________________________________________________________________
 /*! \reimp */
 QString    QSymbolCodec::convertToUnicode(const char *chars, int len, ConverterState *) const
 {  return toUnicode(chars,len);                                                    }
-#endif
+
 //_______________________________________________________________________
 /*! \reimp */
 int QSymbolCodec::heuristicContentMatch(const char* chars, int len) const
@@ -202,7 +184,7 @@ int QSymbolCodec::heuristicContentMatch(const char* chars, int len) const
    const unsigned char * c = (const unsigned char *)chars;
    int score = 0;
    for (int i=0; i<len; i++) {
-      if( c[i] > 64 || c[i] < 255 ) 
+      if( c[i] > 64 && c[i] < 255 ) 
          //	    if ( symbol_to_unicode[c[i] - 0x80] != 0xFFFD)
          score++;
       else

@@ -1,4 +1,4 @@
-// @(#)root/gui:$Name:  $:$Id: TQtPatternSelectButton.h,v 1.5 2008/04/23 23:56:39 fine Exp $
+// @(#)root/gui:$Name:  $:$Id: TQtPatternSelectButton.h,v 1.6 2009/08/03 18:03:08 fine Exp $
 // Author: Bertrand Bellenot + Fons Rademakers   22/08/02
 
 /*************************************************************************
@@ -60,6 +60,8 @@
 
 class QToolButton;
 class QMouseEvent;
+class QMenu;
+class QPalette;
 
 class TEmitRootSignal;
 //----------------------------------------------------------------------
@@ -68,20 +70,22 @@ class TEmitRootSignal;
 
 //class TQtPatternFrame : public QPushButton {
 //class TQtPatternFrame : public QToolButton {
-class TQtPatternFrame : public QFrame {
+class TQtPatternFrame : public QToolButton {
 Q_OBJECT
 
 protected:
    QColor          fPixel;
-   Bool_t          fActive;
+   Int_t           fActive;
    TQtBrush        fBrush;
    QString         fBrushTipLabel;
    QWidget        *fPanel;
+   static QPalette *fgPalette;
    
 protected:
    virtual void SetIcon();
    virtual void mouseReleaseEvent(QMouseEvent *event);
    virtual void paintEvent(QPaintEvent *e);
+   static QPalette &palette();
 
 public:
    TQtPatternFrame(QWidget *p, TQtBrush &c, Int_t n=-1);
@@ -93,10 +97,9 @@ public:
 
 public slots:
    void    SetBrush(TQtBrush &newBrush);
+   void    SetBrushAlpha();
 protected slots:
    virtual void languageChange();
-signals:
-   void clicked();
 
    // ClassDef(TQtPatternFrame,0)  // Frame for color cell
 };
@@ -120,6 +123,7 @@ public:
    virtual ~TQtPatternPopup();
 
    const TQtBrush &Brush() const { return fCurrentBrush;}
+   virtual QSize sizeHint () const; 
    
 protected slots:
     void SetActiveSlot();
@@ -139,13 +143,17 @@ protected slots:
 
   class TQtPatternSelectButton : public QFrame {
 Q_OBJECT
+private:
+   QMenu         *fFakeMenu;
+
 protected:
    TQtBrush         fBrush;
    TQtPatternPopup *fBrushPopup;
    TEmitRootSignal *fBrushEmitter;
    TQtPatternFrame *fPushButton;
+#if QT_VERSION < 0x40000
    QToolButton     *fArrowButton;
- 
+#endif
    void CreateWidget();
 public:
    TQtPatternSelectButton(QWidget *p, UInt_t style, Int_t id=-1,TEmitRootSignal *emitter=0);
@@ -164,6 +172,7 @@ public slots:
    virtual void PopupDialog();
    virtual void SetBrush(UInt_t style);
    virtual void SetBrush(const TQtBrush &pattern);
+   virtual void SetBrush(const QColor &color);
    void    SetStyle(Style_t pattern){SetBrush(UInt_t(pattern ));}
 protected slots:
    virtual void languageChange();

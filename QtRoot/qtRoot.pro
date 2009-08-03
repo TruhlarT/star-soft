@@ -4,9 +4,12 @@
 
 QT += qt3support
 
+CONFIG += ordered
 TEMPLATE = subdirs
+win32: DEFINES +=  _CRT_SECURE_NO_WARNINGS
 #  qt4ged
-QTPACKAGES = qt qtroot qtgui qtgl qtthread qtimage 
+QTPACKAGES = qt qtgui qtgl qtthread qtimage 
+unix: QTPACKAGES +=  qtroot
 QT_VERSION=$$[QT_VERSION]
 
 QTROOTSYS = $$(QTROOTSYSDIR)
