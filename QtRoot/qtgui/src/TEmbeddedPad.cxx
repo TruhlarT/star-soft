@@ -1,4 +1,4 @@
-// @(#)root/base:$Name:  $:$Id: TEmbeddedPad.cxx,v 1.5 2009/08/03 18:03:09 fine Exp $
+// @(#)root/base:$Name:  $:$Id: TEmbeddedPad.cxx,v 1.6 2009/08/14 22:24:38 fine Exp $
 // Author: Valeri Fine   02/18/2006
 
 /****************************************************************************
@@ -16,7 +16,7 @@
 //                                                                         //
 // TEmbeddedPad                                                            //
 //                                                                         //
-// Reimplemenation of the TPad class to create the stand-alone offscreen   //
+// Reimplementation of the TPad class to create the stand-alone offscreen   //
 // TPad  (without any mother TCanvas                                       //
 //                                                                         //
 // begin_html <P ALIGN=CENTER> <IMG SRC="png/TEmbeddedPadLife.png"> </P>  end_html  //
@@ -35,6 +35,10 @@
 #  include "TQtWidget.h"
 #  include "qpaintdevice.h"
 #  include "qpixmap.h"
+#endif
+
+#if ROOT_VERSION_CODE >= ROOT_VERSION(5,24,0)
+#  include "TVirtualPadPainter.h"
 #endif
 
 ClassImp(TEmbeddedPad)
@@ -133,7 +137,37 @@ TEmbeddedPad::~TEmbeddedPad()
        gVirtualX->SelectWindow(fFullPixmapID);
        gVirtualX->ClosePixmap();
     }
+} 
+//______________________________________________________________________________
+void  TEmbeddedPad::Close(Option_t *option)
+{
+   // ROOT version has no propection against fCanvas == 0
+#if ROOT_VERSION_CODE >= ROOT_VERSION(5,24,0)
+   if (fPixmapID != -1) {
+     if (gPad) {
+        if (!gPad->IsBatch()) {
+           GetPainter()->SelectDrawable(fPixmapID);
+           GetPainter()->DestroyDrawable();
+         }
+      }
+      fPixmapID = -1;
+   }
+#endif
+   TPad
+::Close(option);
 }
+
+#if ROOT_VERSION_CODE >= ROOT_VERSION(5,24,0)
+//______________________________________________________________________________
+TVirtualPadPainter *TEmbeddedPad::GetPainter()
+{
+   //Get pad painter from TCanvas.
+   // The method is not virtual. The bug report has was filed
+   // <http://savannah.cern.ch/bugs/?54044>
+   return fCanvas ? TPad::GetPainter() : 0;
+}
+#endif
+
 //______________________________________________________________________________
 Int_t TEmbeddedPad::GetCanvasID() const
 {
@@ -245,20 +279,29 @@ Bool_t TEmbeddedPad::OpaqueResizing() const
 //______________________________________________________________________________
 void TEmbeddedPad::RecursiveRemove(TObject *obj)
 {
-	TPad::RecursiveRemove(obj);
+	if (fCanvas) TPad::RecursiveRemove(obj);
+#if ROOT_VERSION_CODE >= ROOT_VERSION(5,24,0)
+   else {
+      // No protection against of 
+      if (obj == fView) fView = 0;
+      if (!fPrimitives) return;
+      Int_t nold = fPrimitives->GetSize();
+      fPrimitives->RecursiveRemove(obj);
+      if (nold != fPrimitives->GetSize()) fModified = kTRUE;
+   }
+#endif
 }
 
 //______________________________________________________________________________
 void TEmbeddedPad::SetBatch(Bool_t batch)
 {
    // Set pad in batch mode.
-
    if (fCanvas) TPad::SetBatch(batch);
 }
 //______________________________________________________________________________
 void TEmbeddedPad::SetCrosshair(Int_t crhair)
 {
-    if (fCanvas) TPad::SetCrosshair(crhair);
+   if (fCanvas) TPad::SetCrosshair(crhair);
 }
 
 //______________________________________________________________________________
@@ -297,11 +340,19 @@ ULong_t TEmbeddedPad::GetHandle() const
    if (!wid || (wid == -1) ) return handle;
 #ifdef R__QT
    QPaintDevice &dev = *TGQt::iwid(wid);
+#if QT_VERSION < 0x40000
    QPixmap *pix=0;
    if  ( dev.devType() == QInternal::Pixmap )
    {
       pix = (QPixmap *)&dev;
    }
+#else
+   QImage *pix=0;
+   if  ( dev.devType() == QInternal::Image )
+   {
+      pix = (QImage*)&dev;
+   }
+#endif
    handle = (ULong_t )pix;
 #endif
    return handle;
@@ -423,6 +474,7 @@ void TEmbeddedPad::Flush()
         CopyPixmaps();
       }
    }
+   gVirtualX->SelectWindow(-1);
 }
 
 //______________________________________________________________________________
