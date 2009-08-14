@@ -53,6 +53,8 @@
 #  endif
 #endif
 
+using namespace std;
+
 // ClassImp(TQtGLViewerImp)
 Int_t TQtGLViewerImp::gfDefaultMaxSnapFileCounter = 2;
 //______________________________________________________________________________
@@ -285,7 +287,7 @@ void TQtGLViewerImp::CreateStatusBar(Int_t nparts)
     QLabel *l = new QLabel(thisStatusBar);
     thisStatusBar->addWidget(l,1,TRUE);
     // remember to delete later
-    fStatusBar.insert(i,l);  
+    fStatusBar[i]=l;  
   }
 }
 //______________________________________________________________________________
@@ -313,7 +315,7 @@ void TQtGLViewerImp::CreateStatusBar(Int_t *parts, Int_t nparts)
     infoBox->resize(s);
 
     // remember to delete later
-    fStatusBar.insert(iField,infoBox);
+    fStatusBar[iField] = infoBox;
   }
 }
 //______________________________________________________________________________

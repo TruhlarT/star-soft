@@ -1,8 +1,8 @@
-// @(#)root/g3d:$Name:  $:$Id: TQtGLViewerImp.h,v 1.15 2009/08/03 18:03:07 fine Exp $
+// @(#)root/g3d:$Name:  $:$Id: TQtGLViewerImp.h,v 1.16 2009/08/14 22:21:42 fine Exp $
 // Author: Valery Fine      23/05/97
 
 /****************************************************************************
-** $Id: TQtGLViewerImp.h,v 1.15 2009/08/03 18:03:07 fine Exp $
+** $Id: TQtGLViewerImp.h,v 1.16 2009/08/14 22:21:42 fine Exp $
 **
 ** Copyright (C) 2002 by Valeri Fine. Brookhaven National Laboratory.
 **                                    All rights reserved.
@@ -44,14 +44,15 @@
 #    include <qptrvector.h>
 #  else /* QT_VERSION */
 #    include <QMainWindow>
-#    include <q3ptrvector.h>
 #  endif /* QT_VERSION */
 #  include <qlabel.h>
 #else
    class QMainWindow;
    class QString;
 #endif
-
+   
+#include <vector>
+   
 class TVirtualPad;
 class QGLWidget;
 class TColor;
@@ -83,7 +84,7 @@ protected:
    QPtrVector<QLabel> fStatusBar;
 #else /* QT_VERSION */
 //MOC_SKIP_BEGIN
-   Q3PtrVector<QLabel> fStatusBar;
+   std::vector<QLabel*> fStatusBar;
 //MOC_SKIP_END
 #endif /* QT_VERSION */
 #endif
