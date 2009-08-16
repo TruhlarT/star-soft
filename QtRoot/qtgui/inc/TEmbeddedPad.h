@@ -1,4 +1,4 @@
-// @(#)root/base:$Name:  $:$Id: TEmbeddedPad.h,v 1.4 2009/08/14 22:24:44 fine Exp $
+// @(#)root/base:$Name:  $:$Id: TEmbeddedPad.h,v 1.5 2009/08/16 01:07:21 fine Exp $
 // Author: Valeri Fine   02/18/2006
 /****************************************************************************
 **
@@ -28,6 +28,8 @@
 #endif
 
 class TImage;
+class TVirtualPadPainter;
+
 class TEmbeddedPad  : public TPad {
 
 private:
@@ -39,7 +41,8 @@ protected:
    UInt_t        fPw;              //Width of the pad along X (pixels)
    UInt_t        fPh;              //Height of the pad along Y (pixels)
    Int_t         fFullPixmapID;    //The pixmap Id that conatins all childldren pads images
-   
+   TVirtualPadPainter *fPainter;   // Painter (ROOT > = 5.24 )
+
 protected:
 
     // Re-implement TCanvas related methods

@@ -1,4 +1,4 @@
-// @(#)root/base:$Name:  $:$Id: TEmbeddedPad.cxx,v 1.6 2009/08/14 22:24:38 fine Exp $
+// @(#)root/base:$Name:  $:$Id: TEmbeddedPad.cxx,v 1.7 2009/08/16 01:07:21 fine Exp $
 // Author: Valeri Fine   02/18/2006
 
 /****************************************************************************
@@ -39,19 +39,20 @@
 
 #if ROOT_VERSION_CODE >= ROOT_VERSION(5,24,0)
 #  include "TVirtualPadPainter.h"
+#  include "TPadPainter.h"
 #endif
 
 ClassImp(TEmbeddedPad)
 
 //______________________________________________________________________________
-TEmbeddedPad::TEmbeddedPad(TPad *mother) :  TPad()
+TEmbeddedPad::TEmbeddedPad(TPad *mother) :  TPad(), fPainter(0)
 {   fMother = mother;                                                               }
 //______________________________________________________________________________
 TEmbeddedPad::TEmbeddedPad(const char *name, const char *title, UInt_t width,
         UInt_t height, Color_t color, Short_t bordersize, Short_t bordermode)
       : /* TVirtualPad(name,title,0,0,1,1,color,bordersize,bordermode), */
         fPw(width),fPh(height)
-      , fFullPixmapID(-1)
+      , fFullPixmapID(-1), fPainter(0)
 {
    // TEmbeddedPad constructor.
    //
@@ -164,7 +165,23 @@ TVirtualPadPainter *TEmbeddedPad::GetPainter()
    //Get pad painter from TCanvas.
    // The method is not virtual. The bug report has was filed
    // <http://savannah.cern.ch/bugs/?54044>
-   return fCanvas ? TPad::GetPainter() : 0;
+   if (!fPainter) {
+      if (fCanvas) {
+         // use Painter via base class
+         fPainter =  TPad::GetPainter();
+      } else {
+         // Alas we have to copy code with the mouse from
+         // TCanvas::GetCanvasPainter()
+         // ROOT provides us no suitable interface
+         // ----  TCanvas::GetCanvasPainter()
+
+         // Access and (probably) creation of pad painter.
+         // CreatePainter();
+         fPainter = new TPadPainter;//Do not need plugin manager for this!
+        //  if ( UseGL() )   fUseGL = kFALSE;
+      }
+   }
+   return  fPainter;
 }
 #endif
 

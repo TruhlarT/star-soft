@@ -1,4 +1,4 @@
-// @(#)root/qt:$Name:  $:$Id: TQtBrush.h,v 1.2 2009/08/03 18:02:56 fine Exp $
+// @(#)root/qt:$Name:  $:$Id: TQtBrush.h,v 1.3 2009/08/16 01:07:21 fine Exp $
 // Author: Valeri Fine   21/01/2002
 /****************************************************************************
 **
@@ -23,6 +23,7 @@
 #endif
 
 #include "Rtypes.h"
+#include "Gtypes.h"
 
 class TAttFill;
 class TPoint;
