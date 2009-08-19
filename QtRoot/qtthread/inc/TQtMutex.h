@@ -1,5 +1,5 @@
-// @(#)root/thread:$Name:  $:$Id: TQtMutex.h,v 1.2 2009/08/03 18:03:11 fine Exp $
-// $Id: TQtMutex.h,v 1.2 2009/08/03 18:03:11 fine Exp $
+// @(#)root/thread:$Name:  $:$Id: TQtMutex.h,v 1.3 2009/08/19 17:08:06 fine Exp $
+// $Id: TQtMutex.h,v 1.3 2009/08/19 17:08:06 fine Exp $
 // Author: Valery Fine  08/25/2005
 /****************************************************************************
 ** Copyright (C) 2005 by Valeri Fine. Brookhaven National Laboratory.
@@ -14,13 +14,13 @@
 #define ROOT_TQtMutex
 
 
-//////////////////////////////////////////////////////////////////////////
-//                                                                      //
-// TQtMutex                                                          //
-//                                                                      //
-// This class provides an interface to the Win32 mutex routines.        //
-//                                                                      //
-//////////////////////////////////////////////////////////////////////////
+/////////////////////////////////////////////////////////////////////////////
+//                                                                         //
+// TQtMutex                                                                //
+//                                                                         //
+// This class provides a Qt-based implementation of the TMutexImp interface//
+//                                                                         //
+/////////////////////////////////////////////////////////////////////////////
 
 #ifndef ROOT_TMutexImp
 #include "TMutexImp.h"
@@ -33,22 +33,22 @@ class TQtMutex : public TMutexImp {
 friend class TQtCondition;
 
 private:
-   QMutex *fMutex;
+   QMutex *fQMutex;
 
 public:
-   TQtMutex();
+   TQtMutex(Bool_t recursive=kFALSE);
    virtual ~TQtMutex();
 
-   Int_t  Lock();
-   Int_t  UnLock();
-   Int_t  TryLock();
+   virtual Int_t  Lock();
+   virtual Int_t  UnLock();
+   virtual Int_t  TryLock();
 // 
-   const QMutex *Mutex() const;
-   QMutex *Mutex();
-   ClassDef(TQtMutex,0)  // Qt mutex lock
+   const QMutex &Mutex() const;
+   QMutex &Mutex();
+   ClassDef(TQtMutex,0)  // Qt-based implementation of the TMutexImp interface
 };
 
-inline  const QMutex *TQtMutex::Mutex() const { return fMutex; }
-inline        QMutex *TQtMutex::Mutex()       { return fMutex; }
+inline  const QMutex &TQtMutex::Mutex() const { return *fQMutex; }
+inline        QMutex &TQtMutex::Mutex()       { return *fQMutex; }
 
 #endif

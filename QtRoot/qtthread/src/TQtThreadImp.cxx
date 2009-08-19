@@ -1,5 +1,5 @@
-// @(#)root/thread:$Name:  $:$Id: TQtThreadImp.cxx,v 1.3 2009/08/03 18:03:11 fine Exp $
-// $Id: TQtThreadImp.cxx,v 1.3 2009/08/03 18:03:11 fine Exp $
+// @(#)root/thread:$Name:  $:$Id: TQtThreadImp.cxx,v 1.4 2009/08/19 17:08:06 fine Exp $
+// $Id: TQtThreadImp.cxx,v 1.4 2009/08/19 17:08:06 fine Exp $
 // Author: Valery Fine  08/25/2005
 /****************************************************************************
 ** Copyright (C) 2005 by Valeri Fine. Brookhaven National Laboratory.
@@ -20,28 +20,33 @@
 
 // ------------------------------
 //
-//  The workaroung to provide the Qt thread fro the previous version of ROOT
+// The workaround to provide the Qt thread for the previous version of ROOT
 // unless the class will be introduced as a legal friend officially by Fons :)
 //
 #define TWin32Thread TWin32Thread; friend class TQtThreadImp; friend class TRootThread;
 #include "TQtThreadImp.h"
 #undef TWin32Thread
 // ------------------------------
-#include <qthread.h>
-
+#include <QtCore/QThread>
+//
+// TRootThread - is a hack to gain an access to the private "fHanle" data-member
+//
 class TRootThread : public QThread {
   private:
-    TThread *fROOTTHread;
+    TThread *fROOTThread;
   public:
-     TRootThread(TThread *thread) : fROOTTHread(thread) {}
+     TRootThread(TThread *thread) : fROOTThread(thread) {}
      virtual ~TRootThread() {
-        fROOTTHread->fHandle = 0L;
+        fROOTThread->fHandle = 0L;
      }
      virtual void run() { 
-           fROOTTHread->fId = (Long_t)QThread::currentThread();
-           TThread::Function(fROOTTHread); 
+           fROOTThread->fId = (Long_t)QThread::currentThread();
+           TThread::Function(fROOTThread); 
      }
 };
+//
+// TCancelThread 
+//
 class TCancelThread : public QThread {
    private:
      TCancelThread() {};
@@ -64,31 +69,38 @@ Int_t TQtThreadImp::Run(TThread *th)
 
    QThread *thread = new  TRootThread(th);
    th->fHandle = (Long_t)thread;
-   const QThread::Priority Root2QtMap[] = {QThread::LowPriority,QThread::InheritPriority,QThread::HighPriority};
-   thread->start(Root2QtMap[th->fPriority]);
+   QThread::Priority pri = QThread::InheritPriority;
+   switch (th->GetPriority()) {
+     case  TThread::kLowPriority:   pri = QThread::LowPriority;     break;
+     case  TThread::kNormalPriority:pri = QThread::InheritPriority; break;
+     case  TThread::kHighPriority:  pri = QThread::HighPriority;    break;
+   };
+   thread->start(pri);
    return 0;
 }
 
 //______________________________________________________________________________
 Int_t TQtThreadImp::Join(TThread *th, void ** /*ret*/)
 {
-   // Wait for specified thread execution (if any) to complete
-   // (like pthread_join).
+   // Join  suspends  the  execution  of the calling thread until the
+   // thread identified by th terminates, Exit or by being cancelled.
+   
    QThread *qt = ((QThread*)th->fHandle);
-   if (qt) qt->wait();
-   return 0;
+   // QThread:;wait() provides similar functionality 
+   // to the POSIX pthread_join() function.
+   return qt ? (qt->wait() ? 0 : -1) : 0;
 }
 
 //______________________________________________________________________________
 Int_t TQtThreadImp::Exit(void * /*ret*/)
 {
-   // Exit the thread.
+   // Terminates the execution of the calling thread.
 
 #if (QT_VERSION < 0x040000)
    QThread::exit();
-#else   
+#else
    QThread *qt = QThread::currentThread();
-   if (qt) qt->quit();
+   if (qt)    qt->terminate();
 #endif   
    return 0;
 }
@@ -96,11 +108,11 @@ Int_t TQtThreadImp::Exit(void * /*ret*/)
 //______________________________________________________________________________
 Int_t TQtThreadImp::Kill(TThread *th)
 {
-   // This is a somewhat dangerous function; it's not
-   // suggested to Stop() threads a lot.
-      
+   // Cancellation is the mechanism by which a thread can terminate the
+   // execution of another thread. (why is it called "Kill" ??? ) 
+
    QThread *qt = ((QThread*)th->fHandle);
-   if (qt) { qt->terminate();  qt->wait(); delete qt; }
+   if (qt) { qt->terminate();  qt->wait(); delete qt;  th->fHandle = 0L;}
    return 0;
 }
 
@@ -134,7 +146,7 @@ Int_t TQtThreadImp::CleanUp(void **main)
 //______________________________________________________________________________
 Long_t TQtThreadImp::SelfId()
 {
-   // Return the current thread's ID.
+   // Return the thread identifier for the calling thread.
 
    return (Long_t)QThread::currentThread();
 }
@@ -142,6 +154,7 @@ Long_t TQtThreadImp::SelfId()
 //______________________________________________________________________________
 Int_t TQtThreadImp::SetCancelOff()
 {
+   // Turn off the cancellation state of the calling thread.
 #if (QT_VERSION < 0x040000)
    if (gDebug)
       Warning("SetCancelOff", "Not implemented on Qt");
@@ -156,6 +169,7 @@ Int_t TQtThreadImp::SetCancelOff()
 //______________________________________________________________________________
 Int_t TQtThreadImp::SetCancelOn()
 {
+   // Turn on the cancellation state of the calling thread.
 #if (QT_VERSION < 0x040000)
    if (gDebug)
       Warning("SetCancelOn", "Not implemented on Qt ");
@@ -169,6 +183,10 @@ Int_t TQtThreadImp::SetCancelOn()
 //______________________________________________________________________________
 Int_t TQtThreadImp::SetCancelAsynchronous()
 {
+   // Set the cancellation response type of the calling thread to
+   // asynchronous, i.e. cancel as soon as the cancellation request
+   // is received.
+
    if (gDebug)
       Warning("SetCancelAsynchronous", "Not implemented on Qt");
    return 0;
@@ -177,6 +195,9 @@ Int_t TQtThreadImp::SetCancelAsynchronous()
 //______________________________________________________________________________
 Int_t TQtThreadImp::SetCancelDeferred()
 {
+   // Set the cancellation response type of the calling thread to
+   // deferred, i.e. cancel only at next cancellation point.
+   
    if (gDebug)
       Warning("SetCancelDeferred", "Not implemented on Qt");
    return 0;
@@ -185,6 +206,7 @@ Int_t TQtThreadImp::SetCancelDeferred()
 //______________________________________________________________________________
 Int_t TQtThreadImp::CancelPoint()
 {
+   // Introduce an explicit cancellation point.
    if (gDebug)
       Warning("CancelPoint", "Not implemented on Qt");
    return 0;

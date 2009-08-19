@@ -1,5 +1,5 @@
-// @(#)root/thread:$Name:  $:$Id: TQtThreadImp.h,v 1.2 2009/08/03 18:03:11 fine Exp $
-// $Id: TQtThreadImp.h,v 1.2 2009/08/03 18:03:11 fine Exp $
+// @(#)root/thread:$Name:  $:$Id: TQtThreadImp.h,v 1.3 2009/08/19 17:08:06 fine Exp $
+// $Id: TQtThreadImp.h,v 1.3 2009/08/19 17:08:06 fine Exp $
 // Author: Valery Fine  08/25/2005
 /****************************************************************************
 ** Copyright (C) 2005 by Valeri Fine. Brookhaven National Laboratory.

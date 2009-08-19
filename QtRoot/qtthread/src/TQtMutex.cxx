@@ -1,5 +1,5 @@
-// @(#)root/thread:$Name:  $:$Id: TQtMutex.cxx,v 1.2 2009/08/03 18:03:11 fine Exp $
-// $Id: TQtMutex.cxx,v 1.2 2009/08/03 18:03:11 fine Exp $
+// @(#)root/thread:$Name:  $:$Id: TQtMutex.cxx,v 1.3 2009/08/19 17:08:06 fine Exp $
+// $Id: TQtMutex.cxx,v 1.3 2009/08/19 17:08:06 fine Exp $
 // Author: Valery Fine  08/25/2005
 /****************************************************************************
 ** Copyright (C) 2005 by Valeri Fine. Brookhaven National Laboratory.
@@ -10,26 +10,26 @@
 **
 *****************************************************************************/
 
-//////////////////////////////////////////////////////////////////////////
-//                                                                      //
-// TQtMutex                                                             //
-//                                                                      //
-// This class provides an interface to the Win32 mutex routines.        //
-//                                                                      //
-//////////////////////////////////////////////////////////////////////////
+/////////////////////////////////////////////////////////////////////////////
+//                                                                         //
+// TQtMutex                                                                //
+//                                                                         //
+// This class provides a Qt-based implementation of the TMutexImp interface//
+//                                                                         //
+/////////////////////////////////////////////////////////////////////////////
 
 #include "TThread.h"
 #include "TQtMutex.h"
-#include <qmutex.h>
+#include <QtCore/QMutex>
 
 ClassImp(TQtMutex)
 
 //______________________________________________________________________________
-TQtMutex::TQtMutex()
+TQtMutex::TQtMutex(Bool_t recursive)
 {
-   // Create a Qt mutex lock.
-
-   fMutex = new QMutex();
+   // Create a Qt mutex.
+   fQMutex = recursive  ? new QMutex(QMutex::Recursive)
+                        : new QMutex(QMutex::NonRecursive);
 }
 
 //______________________________________________________________________________
@@ -37,14 +37,14 @@ TQtMutex::~TQtMutex()
 {
    // TMutex dtor.
 
-  QMutex *m = fMutex; fMutex=0; delete m;
+  QMutex *m = fQMutex; fQMutex=0; delete m;
 }
 
 //______________________________________________________________________________
 Int_t TQtMutex::Lock()
 {
    // Lock the mutex.
-   if (fMutex) fMutex->lock();
+   if (fQMutex) fQMutex->lock();
    return 0;
 }
 
@@ -54,7 +54,7 @@ Int_t TQtMutex::TryLock()
    // Try locking the mutex. Returns 0 if mutex can be locked.
 
    Int_t locked = 1;
-   if (fMutex && fMutex->tryLock()) locked = 0;
+   if (fQMutex && fQMutex->tryLock()) locked = 0;
    return locked;
 }
 
@@ -63,6 +63,6 @@ Int_t TQtMutex::UnLock(void)
 {
    // Unlock the mutex.
 
-   if (fMutex) fMutex->unlock();
+   if (fQMutex) fQMutex->unlock();
    return 0;
 }

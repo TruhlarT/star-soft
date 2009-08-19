@@ -1,5 +1,5 @@
-// @(#)root/thread:$Name:  $:$Id: TQtThreadFactory.cxx,v 1.2 2009/08/03 18:03:11 fine Exp $
-// $Id: TQtThreadFactory.cxx,v 1.2 2009/08/03 18:03:11 fine Exp $
+// @(#)root/thread:$Name:  $:$Id: TQtThreadFactory.cxx,v 1.3 2009/08/19 17:08:06 fine Exp $
+// $Id: TQtThreadFactory.cxx,v 1.3 2009/08/19 17:08:06 fine Exp $
 // Author: Valery Fine  08/25/2005
 /****************************************************************************
 ** Copyright (C) 2005 by Valeri Fine. Brookhaven National Laboratory.
@@ -25,6 +25,7 @@
 
 // Force creation of TQtThreadFactory when shared library will be loaded
 // (don't explicitely create a TQtThreadFactory).
+
 static TQtThreadFactory gQtThreadFactoryCreator;
 
 ClassImp(TQtThreadFactory)
@@ -36,6 +37,14 @@ TQtThreadFactory::TQtThreadFactory(const char *name, const char *title) :
    // Create Q thread factory. Also sets global gThreadFactory to this.
 
    gThreadFactory = this;
+}
+
+//______________________________________________________________________________
+TMutexImp *TQtThreadFactory::CreateMutexImp(Bool_t recursive)
+{
+   // Return a Win32 Mutex.
+
+   return new TQtMutex(recursive);
 }
 
 //______________________________________________________________________________

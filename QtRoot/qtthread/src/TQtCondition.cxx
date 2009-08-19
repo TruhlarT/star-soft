@@ -1,4 +1,4 @@
-// @(#)root/thread:$Name:  $:$Id: TQtCondition.cxx,v 1.2 2009/08/03 18:03:11 fine Exp $
+// @(#)root/thread:$Name:  $:$Id: TQtCondition.cxx,v 1.3 2009/08/19 17:08:06 fine Exp $
 // Author: Bertrand Bellenot  20/10/2004
 
 /*************************************************************************
@@ -21,20 +21,19 @@
 #include "TQtCondition.h"
 #include "TQtMutex.h"
 
-#include <qwaitcondition.h> 
-#include <qmutex.h>
+#include <QtCore/QWaitCondition> 
+#include <QtCore/QMutex>
 
 ClassImp(TQtCondition)
 
 //______________________________________________________________________________
-TQtCondition::TQtCondition(TMutexImp *m)
+TQtCondition::TQtCondition(TMutexImp *m):fMutex(((TQtMutex *) m)->Mutex())
 {
    // Create QWaitCondition object. Ctor must be given a pointer to an
    // existing mutex. The condition variable is then linked to the mutex,
    // so that there is an implicit unlock and lock around Wait() and
    // TimedWait().
 
-   fMutex = ((TQtMutex *) m)->Mutex();
    fCond  = new QWaitCondition();
 }
 
@@ -53,7 +52,7 @@ Int_t TQtCondition::Wait()
    // If Wait() is called by multiple threads, a signal may wake up more
    // than one thread. See POSIX threads documentation for details.
 
-   if (fCond) fCond->wait(fMutex);
+   if (fCond) fCond->wait(&fMutex);
    return 0;
 }
 
@@ -68,7 +67,7 @@ Int_t TQtCondition::TimedWait(ULong_t secs, ULong_t nanoSecs)
    Int_t timeOut = 1;
    if (fCond) {
       ULong_t dwMillisecondsNow = ((secs * 1000) + (nanoSecs / 1000000));
-      if ( fCond->wait(fMutex,dwMillisecondsNow) ) timeOut = 0;
+      if ( fCond->wait(&fMutex,dwMillisecondsNow) ) timeOut = 0;
    }
    return timeOut;
 }
