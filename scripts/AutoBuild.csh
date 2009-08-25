@@ -14,6 +14,7 @@
 #   SL302
 #   SL305
 #   SL44
+#   SL5
 #
 #   Insure     Builds Insure++ compilation
 #   icc        Builds with icc
@@ -192,11 +193,12 @@ if ( -r  $GROUP_DIR/star_login.csh ) then
 	    case "SL302":
 	    case "SL305":
 	    case "SL44":
+	    case "SL5":
 		set LPATH=$AFS_RHIC/star/packages/adev
 		set SPATH=$AFS_RHIC/star/doc/www/comp/prod/Sanity
 		$SCRIPTD/AutoBuild.pl -k -i -1 -T $1 -p $LPATH
 		if( -e $HOME/AutoBuild-$1.html) then
-		    mv -f $HOME/AutoBuild-$1.html $SPATH/AutoBuild-$1.html
+		    /bin/mv -f $HOME/AutoBuild-$1.html $SPATH/AutoBuild-$1.html
 		endif
 		cd $LPATH
 		echo "Cleaning older libraries"
