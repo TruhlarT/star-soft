@@ -27,10 +27,12 @@ $MAIN  = "/star/data";                                   # default base path
 $OUTD  = "/afs/rhic.bnl.gov/star/doc/www/html/tmp/pub/Spider"; # this will be used for Catalog hand-shake
 $ICON1 = "/icons/transfer.gif";                                # Icon to display for indexer result
 $ICON2 = "/images/Spider1.jpg";                                # Icon to display for spider result
-$DINFO = "(check 'nova' Spiders)";                             # Many tools may be used for indexing
-                                                               # display info about which one.
 
 $SpiderControl = "/cgi-bin/%%RELP%%/SpiderControl.cgi"; # a CGI controling the spiders
+
+$DINFO = "(check '<A HREF=\"$SpiderControl\">nova</A>' Spiders)"; # Many tools may be used for indexing
+                                                               # display info about which one.
+$DINFO =~ s/%%RELP%%/public/;
 
 
 @COLORS = ("#7FFFD4","#40E0D0","#00DEFF","#87CEFA","#CCCCEE","#D8BFD8","#DB7093"); #"#D02090"); #"#FF69B4");
