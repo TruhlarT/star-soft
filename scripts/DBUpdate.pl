@@ -20,7 +20,7 @@ if ($#ARGV == -1){
                       using full path
    -z                 use any filetype (not the default)
    -l                 consider soft-links in path
-   -t ts              finsih after approximately ts seconds
+   -t ts              finish after approximately ts seconds
 
    -nocache           do not use caching (default)
    -dcache            delete cache entirely
@@ -97,6 +97,10 @@ $kk    = 0;
 $FO    = STDERR;
 $|     = 1;
 
+# will hold time for this pass
+$ext   = 0;
+
+
 # start timer
 &CheckTime(0);
 
@@ -167,7 +171,7 @@ for ($i=0 ; $i <= $#ARGV ; $i++){
 	    chomp($HOST = `/bin/hostname`);
 
 	    # this will initialize the caching values
-	    ToFromCache(-2);
+	    &ToFromCache(-2);
 	    
 	    # use it as seed
 	    if ( $HOST =~ m/(\d+)/ ){
@@ -211,6 +215,7 @@ $FTYPE =~ s/^\s*(.*?)\s*$/$1/;   # trim leading/trailing
 
 #print "Scanning $SCAND/$SUB\n";
 
+$stimer = time();
 if( $DOIT && -e "$SCAND/$SUB"){
     if ($FTYPE ne "" ){
 	print "Searching for all files like '*$FTYPE' in $SCAND/$SUB  ...\n";
@@ -233,7 +238,7 @@ if( $DOIT && -e "$SCAND/$SUB"){
 	}
     }
 }
-
+$etimer = time()-$stimer;
 
 # cache deletion
 if ( $DOCACHE == -1){     &ToFromCache(-1); }
@@ -293,10 +298,9 @@ chomp($NODE    = `/bin/hostname`);
 &Stream("Info : We are on $NODE started on ".localtime());
 
 
-
 undef(@TEMP);  # to be sure
 foreach  $file (@ALL){
-    last if ( &CheckTime(-1) );
+    last if &CheckTime(-1);
 
     chomp($file);
     push(@TEMP,$file);
@@ -450,21 +454,28 @@ foreach  $file (@ALL){
     }
 }
 
+# for statistics purposes
+$ext = &CheckTime(-3);
+
 $fC->destroy();
 &ToFromCache(1,@TEMP);
+
 
 FINAL_EXIT:
     if ($LOUT){
 	print $FO
-	    "$SELF :: Info : Summary follows\n",
+	    "$SELF :: Info : Summary for $SCAND/$SUB\n",
 	    ($unkn  !=0 ? "\tUnknown = $unkn ".sprintf("%2.2f%%",100*$unkn/($unkn+$new+$old))."\n": ""),
 	    ($old   !=0 ? "\tOld     = $old\n"   : ""),
 	    ($new   !=0 ? "\tNew     = $new\n"   : ""),
-	    ($failed!=0 ? "\tFailed  = $failed\n": "");
+	    ($failed!=0 ? "\tFailed  = $failed\n": ""),
+	    "\tTimes   = $etimer / $ext\n";
 
 	# Check if we have opened a file
 	if ($FO ne STDERR){
-	    print $FO "Scan done on ".localtime()."\n";
+	    print $FO 
+		"Scan done on ".localtime()."\n",
+		"Time taken the operation ($SCAND) $ext\n";
 	    close($FO);
 
 	    # Save previous
@@ -557,6 +568,7 @@ sub ShowPerms
 # Call with  0 to initialize the timer
 # Call with a value > 0 to initialize timeout time
 # Call with -1 to check timer
+# Call with -3 to return laps time
 sub CheckTime
 {
     my($w)=@_;
@@ -567,9 +579,11 @@ sub CheckTime
     } elsif ($w > 0){
 	# set timeout
 	$TIMEOUT = $w;
+    } elsif ($w == -3){
+	return (time()-$STARTT);
     } else { # < 0
 	return 0 if ( ! defined($TIMEOUT) );
-	return (time()-$STARTT) > 0.9*$TIMEOUT; # 90% to be sure
+	return (time()-$STARTT) > 0.75*$TIMEOUT; # 75% to be sure
     }
 }
 
