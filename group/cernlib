@@ -1,7 +1,7 @@
 #!/bin/sh
 # **********************************************************************
 # * @(#) cernlib
-# * @(#) $Header: /scratch/smirnovd//star-cvs-local/soft/group/cernlib,v 1.3 2009/07/02 01:01:04 jeromel Exp $
+# * @(#) $Header: /scratch/smirnovd//star-cvs-local/soft/group/cernlib,v 1.4 2009/09/03 14:31:02 jeromel Exp $
 # *                                                                    *
 # * Attachment of CERN Libraries for link step                         *
 # *                                                                    *
@@ -12,12 +12,11 @@
   SHOPT="G:Psuv:"
 #SEQ,GETOPTD.
 
-  #if [ `/bin/uname -p` = "x86_64" ] ; then
-  #    X="64"
-  #else
-  #    X=""
-  #fi
-  $X=""   
+  if [ `/bin/uname -p` = "x86_64" ] ; then
+      X="64";
+  else
+      X="";
+  fi
 
   [ -z "$CERN" ] && CERN = "/cern$X"
 

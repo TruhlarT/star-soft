@@ -104,7 +104,7 @@ setenv SYSTYPE sysV
 # -------------------------------------
 # path path and more paths ...
 # -------------------------------------
-if ( $?DECHO ) echo "$self :: Setting X11 and other path setup"
+if ( $?DECHO ) echo "$self :: Setting X11 and other path setup [$PATH]"
 
 # This is done stupidly in HEpix. I prefer
 if( ! $?X11BIN || ! $?PATH) then
@@ -129,7 +129,7 @@ if( ! $?X11BIN || ! $?PATH) then
 	    set ROOTPATH="$tdir $ROOTPATH"
 	endif
     end
-    set USERPATH="$HOME/bin $HOME/scripts $ROOTPATH /cern/pro/bin ."
+    set USERPATH="$HOME/bin $HOME/scripts $ROOTPATH ."
 
 
     # Support for Globus toolkit
@@ -155,6 +155,8 @@ if( ! $?X11BIN || ! $?PATH) then
 endif
 
 
+if ( $?DECHO ) echo "$self :: PATH is now = $PATH"
+
 
 # Default manpath
 if ( $?DECHO ) echo "$self :: Setting basic manpath"
@@ -175,12 +177,12 @@ setenv LESSCHARSET latin1
 if ( $?DECHO ) echo "$self :: Checking CERN stuff"
 
 if ($?CERN == 0) then
-    if ( $?USE_NATIVE64 ) then
-        set x="/cern64 /cern ${AFS_RHIC}/asis/@sys/cern64 ${AFS_RHIC}/asis/@sys/cern /usr/local/cern64 /usr/local/cern"
-    else
-        set x="/cern ${AFS_RHIC}/asis/@sys/cern /usr/local/cern"
-    endif
-    #set x="/cern64 /cern ${AFS_RHIC}/asis/@sys/cern64 ${AFS_RHIC}/asis/@sys/cern /usr/local/cern64 /usr/local/cern"
+    #if ( $?USE_NATIVE64 ) then
+    #    set x="/cern64 /cern ${AFS_RHIC}/asis/@sys/cern64 ${AFS_RHIC}/asis/@sys/cern /usr/local/cern64 /usr/local/cern"
+    #else
+    #    set x="/cern ${AFS_RHIC}/asis/@sys/cern /usr/local/cern"
+    #endif
+    set x="/cern64 /cern ${AFS_RHIC}/asis/@sys/cern64 ${AFS_RHIC}/asis/@sys/cern /usr/local/cern64 /usr/local/cern"
 
     foreach d ($x)
 	if ( -e $d ) then
