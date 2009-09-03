@@ -1,5 +1,5 @@
 #!/bin/csh
-#       $Id: group_env.csh,v 1.224 2009/07/02 01:01:04 jeromel Exp $
+#       $Id: group_env.csh,v 1.225 2009/09/03 12:31:52 jeromel Exp $
 #	Purpose:	STAR group csh setup
 #
 # Revisions & notes
@@ -512,6 +512,7 @@ if ( -f $GROUP_DIR/rootenv.csh) then
 endif
 
 if ( $?DECHO ) echo "$self :: Re-adjusting xxPATH for OPTSTAR and STAR_PATH"
+if ( $?DECHO ) echo "$self :: PATH is now $PATH"
 if ( -x ${GROUP_DIR}/dropit) then
   # clean-up PATH
   setenv MANPATH `${GROUP_DIR}/dropit -p ${OPTSTAR}/man -p ${MANPATH}`
@@ -572,12 +573,12 @@ switch ($STAR_SYS)
 
       # PGI compiler
       if ( ! $?PGI) then
-	if ( $?USE_NATIVE64 ) then
-	    set x="/usr/pgi64 /usr/pgi"
-        else
-	    set x="/usr/pgi"
-        endif
-	#set x="/usr/pgi64 /usr/pgi"
+	#if ( $?USE_NATIVE64 ) then
+	#    set x="/usr/pgi64 /usr/pgi"
+        #else
+	#    set x="/usr/pgi"
+        #endif
+	set x="/usr/pgi64 /usr/pgi"
 
 	foreach d ($x)
 	    if ( -d $d ) then
@@ -605,11 +606,11 @@ switch ($STAR_SYS)
       endif
 
 
-      # This is no longer used right ??
-      if (-d /usr/local/KAI/KCC.flex-3.4f-1/KCC_BASE) then
-       setenv KAI /usr/local/KAI/KCC.flex-3.4f-1/KCC_BASE
-       setenv PATH `${GROUP_DIR}/dropit -p $KAI/bin -p $PATH`
-      endif
+      ## This is no longer used right ??
+      #if (-d /usr/local/KAI/KCC.flex-3.4f-1/KCC_BASE) then
+      #  setenv KAI /usr/local/KAI/KCC.flex-3.4f-1/KCC_BASE
+      #  setenv PATH `${GROUP_DIR}/dropit -p $KAI/bin -p $PATH`
+      #endif
 
       setenv PATH  `${GROUP_DIR}/dropit -p $PATH  -p /usr/local/bin/ddd`
       if ($?LD_LIBRARY_PATH == 0) setenv LD_LIBRARY_PATH
