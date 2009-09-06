@@ -998,7 +998,7 @@ void TQtCoinWidget::ViewAll()
       if (fAddBackground) {
          SoChildList *lc = fFileNode ? fFileNode->getChildren() : 0;
          if (!lc || (lc->getLength() == 0 ) ) {
-            // read the background object if any (list of : or ; separated files)
+            // read the background object if any (list of comma "," separated files)
             TString bkShape;
             if ( !fViewerDrawOption.isEmpty()) 
 #if QT_VERSION >= 0x40000
@@ -1007,7 +1007,7 @@ void TQtCoinWidget::ViewAll()
                bkShape=(const char*)fViewerDrawOption;
 #endif
             const char *shp =  gEnv->GetValue("Gui.InventorBackgroundShape",(const char *)0);
-            if (shp && shp[0]) bkShape += shp;
+            if (shp && shp[0]) { bkShape += ","; bkShape += shp; }
             // printf("TQtCoinWidget::AddRootChild------------bkShape  %s  <===\n",bkShape.Data());
             if (!bkShape.IsNull()) { 
                // list of : or ; separated search directories
@@ -1162,6 +1162,9 @@ void TQtGLViewerImp::ShowStatusBar(Bool_t show)
 //______________________________________________________________________________
 void TQtCoinWidget::SetUpdatesEnabled(bool enable)
 {   
+   // This method sets whether redrawing should be handled automatically 
+   // or not when data in the scenegraph changes
+
   //  fprintf(stderr,"TQtCoinWidget::SetUpdatesEnabled %d\n", enable); 
    if (!enable) QApplication::setOverrideCursor( QCursor(Qt::WaitCursor), TRUE );
    else if (! IsOffScreen() ) {
@@ -1174,7 +1177,7 @@ void TQtCoinWidget::SetUpdatesEnabled(bool enable)
 //______________________________________________________________________________
 bool TQtCoinWidget::GetUpdatesEnabled() const
 {   
-   // This method sets whether redrawing should be handled automatically 
+   // This method tests whether redrawing should be handled automatically 
    // or not when data in the scenegraph changes
    return 
       fInventorViewer ? fInventorViewer->isAutoRedraw()  
@@ -1315,6 +1318,7 @@ void TQtCoinWidget::ReadInputFile(QString fileName)
               printf("readings ... %s from %s\n", (const char *)info.fileName(), (const char*)info.dirPath());
               if (!fFileNode) {
                  fFileNode = new SoSeparator();
+                 fFileNode->setName(fileName.toStdString().c_str());
                  if (fClipMask) {
                     fClippingShapeNode->addChild(fFileNode);
                  } else {
@@ -1787,11 +1791,11 @@ void TQtCoinWidget::SynchTPadCB(bool on)
 void TQtCoinWidget::ShowFrameAxisCB(bool on)
 {  
    if (on) {
-      Axes();
-      
+      Axes(); // Create an instance of the coordinate axes collection at once
+
       SoGetBoundingBoxAction ba(fInventorViewer->getViewportRegion());
       ba.apply(fShapeNode);
-   
+
       SbBox3f box = ba.getBoundingBox();
       double  amin[] = {-1,-1,-1};  double  amax[] = {+1, +1 , +1 };
       if ( (TMath::Abs(box.getMin()[0])< 1.0E+37) &&  (TMath::Abs(box.getMin()[0]) < 1.0E+37))
