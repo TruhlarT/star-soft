@@ -1,8 +1,8 @@
-// @(#)root/g3d:$Name:  $:$Id: TQtCoinWidget.h,v 1.34 2009/08/03 18:03:06 fine Exp $
+// @(#)root/g3d:$Name:  $:$Id: TQtCoinWidget.h,v 1.35 2009/09/07 04:42:12 fine Exp $
 // Author: Valery Fine      23/05/97
 
 /****************************************************************************
-** $Id: TQtCoinWidget.h,v 1.34 2009/08/03 18:03:06 fine Exp $
+** $Id: TQtCoinWidget.h,v 1.35 2009/09/07 04:42:12 fine Exp $
 **
 ** Copyright (C) 2002 by Valeri Fine. Brookhaven National Laboratory.
 **                                    All rights reserved.
@@ -185,7 +185,7 @@ protected:
    void CreateViewer(const QString &title);
    void CreateViewer(const char *name="qcoinviewer");
    // void CreateViewer(QGLWidget *share, const char *name="qglviewershared"){;}
-   virtual void EmitImageSaved(QString &fileName,QString &fileType, int frameCounter);
+   virtual void EmitImageSaved(const QString &fileName,const QString &fileType, int frameCounter);
    //void CreateSelectionViewer();
    static int CreateSnapShotCounter();
 
@@ -277,10 +277,10 @@ public:
      virtual void CopyCB();
      virtual void CopyFrameCB();
      virtual void ReadInputFile(const char *fileName);
-     virtual void ReadInputFile(QString fileName);
+     virtual void ReadInputFile(const QString &fileName);
      virtual void RotateCamera(int axis,float angle);
      virtual void RotateCamera(int axis,bool clockWise=true);
-     virtual void Save(QString fileName,QString type="png");
+     virtual void Save(const QString &fileName,const QString &type="png");
      virtual void SetClipPlaneMan(bool on=kTRUE,float x=1.0f, float y=0.0f, float z=0.0f);
      virtual void SetOffScreen(Bool_t offscreen=kTRUE);
      virtual void SetUpdatesEnabled(bool enable);
@@ -299,6 +299,9 @@ public:
      virtual void SetSnapshotCounter(int counter=2);
      virtual void SaveMpegShot(bool);
      virtual void SaveSnapShot(bool on=TRUE);
+     virtual void Save(const char *filename="", const char *type="png");
+     virtual void Print(const char *filename="", const char *type="wrl");
+     virtual void Print(const QString &filename,const QString  &type="wrl");     
      virtual void SmallAxesActionCB(bool on);
      virtual void ShowFrameAxisCB(bool);
      virtual void ShowLightsCB(bool);
@@ -327,7 +330,7 @@ public:
        void ObjectSelected(TObject *, const QPoint&);
        void NodeSelected(ULong_t, const QPoint&);
        void NextFrameReady(bool on=TRUE);
-       void ImageSaved(QString fileName,QString fileType, int frameCounter);
+       void ImageSaved(const QString &fileName,const QString &fileType, int frameCounter);
 #endif
 
 //   ClassDef(TQtCoinWidget,0)  //ROOT OpenGL viewer implementation

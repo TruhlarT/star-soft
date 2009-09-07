@@ -1,8 +1,8 @@
-// @(#)root/g3d:$Name:  $:$Id: TQtCoinViewerImp.h,v 1.24 2009/08/03 18:03:06 fine Exp $
+// @(#)root/g3d:$Name:  $:$Id: TQtCoinViewerImp.h,v 1.25 2009/09/07 04:42:12 fine Exp $
 // Author: Valery Fine      23/05/97
 
 /****************************************************************************
-** $Id: TQtCoinViewerImp.h,v 1.24 2009/08/03 18:03:06 fine Exp $
+** $Id: TQtCoinViewerImp.h,v 1.25 2009/09/07 04:42:12 fine Exp $
 **
 ** Copyright (C) 2002 by Valeri Fine. Brookhaven National Laboratory.
 **                                    All rights reserved.
@@ -210,6 +210,10 @@ public:
      virtual void ShowObjectInfo(TObject *, const QPoint&);
      virtual void SnapShotSaveCB(bool);
      virtual void SaveSnapShot(bool);
+     virtual void Save(const QString &filename,const QString  &type="png");
+     virtual void Save(const char *filename="", const char *type="png");
+     virtual void Print(const char *filename="", const char *type="wrl");
+     virtual void Print(const QString &filename,const QString  &type="wrl");
      virtual void SmallAxesActionCB(bool on);
      virtual void ShowFrameAxisCB(bool);
      virtual void ShowLightsCB(bool);

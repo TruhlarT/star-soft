@@ -1,4 +1,4 @@
-// @(#)root/g3d:$Name:  $:$Id: TQGLViewerImp.h,v 1.20 2009/08/03 18:03:07 fine Exp $
+// @(#)root/g3d:$Name:  $:$Id: TQGLViewerImp.h,v 1.21 2009/09/07 04:42:13 fine Exp $
 // Author: Valery Fine      12/03/2005
 
 /*************************************************************************
@@ -131,6 +131,8 @@ public:
    virtual void RemoveGLList(unsigned int list)         = 0;
    virtual void SetBackgroundColor(Color_t color)       = 0;
    virtual void SaveSnapShot(bool)                      = 0;
+   virtual void Save(const char *filename="", const char *type="png") = 0;
+   virtual void Print(const char *filename="", const char *type="wrl") = 0;
    virtual void ShowFrameAxisCB(bool)                   = 0;
    virtual void ShowLightsCB(bool)                      = 0;
    virtual void SynchTPadCB(bool)                       = 0;

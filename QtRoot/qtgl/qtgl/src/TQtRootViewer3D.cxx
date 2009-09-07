@@ -172,6 +172,23 @@ void   TQtRootViewer3D::ObjectPaint(TObject* obj, Option_t* opt)
    // to adopt the exist AddObject interface
     AddObject(obj,opt);
 }
+//______________________________________________________________________________
+void   TQtRootViewer3D::Print(const Option_t *fileName) const
+{
+   // The only interface we can use here is TObject::Print() :(
+   TQtRootViewer3D *that = ((TQtRootViewer3D *)this);
+   that->Viewer() ;
+   const char *fn =  fileName && fileName[0] ? fileName : "RoottViewer3D.wrl";
+   if (fViewer ) {
+      that->fViewer->Print(fn,"wrl");
+   }
+}
+
+//______________________________________________________________________________
+void   TQtRootViewer3D::PrintObjects()
+{
+   this->Print("wrl");
+}
 
 //______________________________________________________________________________
 void   TQtRootViewer3D::BeginScene() 

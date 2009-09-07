@@ -1302,7 +1302,7 @@ void TQtCoinWidget::ReadInputFile(const char *fileName)
 }
 
 //______________________________________________________________________________
-void TQtCoinWidget::ReadInputFile(QString fileName)
+void TQtCoinWidget::ReadInputFile(const QString &fileName)
 { 	
    // Read in the external scene in the "OpenInventor" format
     QFileInfo info(fileName);
@@ -1318,7 +1318,7 @@ void TQtCoinWidget::ReadInputFile(QString fileName)
               printf("readings ... %s from %s\n", (const char *)info.fileName(), (const char*)info.dirPath());
               if (!fFileNode) {
                  fFileNode = new SoSeparator();
-                 fFileNode->setName(fileName.toStdString().c_str());
+                 fFileNode->setName(fileName.toAscii().data());
                  if (fClipMask) {
                     fClippingShapeNode->addChild(fFileNode);
                  } else {
@@ -1399,12 +1399,12 @@ bool TQtCoinWidget::OffScreenRender()
 }
 
 //______________________________________________________________________________
-void TQtCoinWidget::Save(QString fileName,QString type)
+void TQtCoinWidget::Save(const QString &fileName,const QString &type)
 { 
    if (fileName.isEmpty()) return;
    
-   QString &thatFile  = fileName;
-   QString &e = type;
+   const QString &thatFile  = fileName;
+   const QString &e = type;
    
    if (!Recording()) {
       SetFileName(thatFile);
@@ -1664,8 +1664,25 @@ void TQtCoinWidget::SetSnapshotCounter(int counter)
    // reset the current counter
    fSnapshotCounter = counter;
 }
+
 //______________________________________________________________________________
-void TQtCoinWidget::EmitImageSaved(QString &fileName,QString &fileType, int frameCounter)
+void TQtCoinWidget::Save(const char *filename, const char *type)
+{
+   Save (QString(filename),QString(type));
+}
+//______________________________________________________________________________
+void TQtCoinWidget::Print(const char *filename, const char *type)
+{
+   Save(filename,type);
+}
+//______________________________________________________________________________
+void TQtCoinWidget::Print(const QString &filename,const QString  &type)
+{
+   Save(filename,type);
+}
+
+//______________________________________________________________________________
+void TQtCoinWidget::EmitImageSaved(const QString &fileName,const QString &fileType, int frameCounter)
 {
    emit ImageSaved(fileName,fileType,frameCounter);
 }

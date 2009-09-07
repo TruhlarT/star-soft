@@ -643,6 +643,27 @@ void TQtCoinViewerImp::SaveSnapShot(bool yes)
 {
   if (fCoinWidget) fCoinWidget->SaveSnapShot(yes);
 }
+//______________________________________________________________________________
+void TQtCoinViewerImp::Save(const QString &filename,const QString  &type)
+{
+   if (fCoinWidget) fCoinWidget->Save(filename,type);
+}
+//______________________________________________________________________________
+void TQtCoinViewerImp::Save(const char *filename, const char *type)
+{
+   Save (QString(filename),QString(type));
+}
+//______________________________________________________________________________
+void TQtCoinViewerImp::Print(const char *filename, const char *type)
+{
+   Save(filename,type);
+}
+//______________________________________________________________________________
+void TQtCoinViewerImp::Print(const QString &filename,const QString  &type)
+{
+   Save(filename,type);
+}
+
 /*
 //______________________________________________________________________________
 void TQtGLViewerImp::CopyFile(const QString &fileName2Copy,Int_t counter)

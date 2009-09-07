@@ -1,8 +1,8 @@
-// @(#)root/g3d:$Name:  $:$Id: TQtGLViewerImp.h,v 1.16 2009/08/14 22:21:42 fine Exp $
+// @(#)root/g3d:$Name:  $:$Id: TQtGLViewerImp.h,v 1.17 2009/09/07 04:42:13 fine Exp $
 // Author: Valery Fine      23/05/97
 
 /****************************************************************************
-** $Id: TQtGLViewerImp.h,v 1.16 2009/08/14 22:21:42 fine Exp $
+** $Id: TQtGLViewerImp.h,v 1.17 2009/09/07 04:42:13 fine Exp $
 **
 ** Copyright (C) 2002 by Valeri Fine. Brookhaven National Laboratory.
 **                                    All rights reserved.
@@ -174,6 +174,10 @@ public:
      virtual void ShowObjectInfo(TObject *, const QPoint&);
      virtual void SnapShotSaveCB(bool);
      virtual void SaveSnapShot(bool);
+     virtual void Save(const QString &filename,const QString  &type="png");
+     virtual void Save(const char *filename="", const char *type="png");
+     virtual void Print(const char *filename="", const char *type="wrl");
+     virtual void Print(const QString &filename,const QString  &type="wrl");
      virtual void ShowFrameAxisCB(bool);
      virtual void ShowLightsCB(bool);
      virtual void SynchTPadCB(bool);

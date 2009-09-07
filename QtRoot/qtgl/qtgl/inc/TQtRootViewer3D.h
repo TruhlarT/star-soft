@@ -93,7 +93,8 @@ public:
     // call the following function:
     virtual void   PadPaint(TVirtualPad*);
     virtual void   ObjectPaint(TObject*, Option_t* = "");
-
+    virtual void   Print(const Option_t *opt="wgl") const;
+    virtual void   PrintObjects(); 
    // Addition/removal of objects must occur between Begin/EndUpdate calls
    virtual void   BeginScene();          // called by TPad::Paint | PaintModified
    virtual void   BeginScene(TVirtualPad *pad); 

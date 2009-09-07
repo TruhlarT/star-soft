@@ -609,6 +609,29 @@ void TQtGLViewerImp::SaveSnapShot(bool)
 #endif
 }
 //______________________________________________________________________________
+void TQtGLViewerImp::Save(const QString &filename,const QString  &type)
+{
+   fSaveFile = filename.toAscii().data(); 
+   fSaveType = type.toAscii().data(); 
+   SaveCB();
+}
+//______________________________________________________________________________
+void TQtGLViewerImp::Save(const char *filename, const char *type)
+{
+     Save (QString(filename),QString(type));
+}
+//______________________________________________________________________________
+void TQtGLViewerImp::Print(const char *filename, const char *type)
+{
+   Save(filename,type);
+}
+//______________________________________________________________________________
+void TQtGLViewerImp::Print(const QString &filename,const QString  &type)
+{
+   Save(filename,type);
+}
+
+//______________________________________________________________________________
 void TQtGLViewerImp::CopyFile(const QString &fileName2Copy,Int_t counter)
 {
   QFileInfo infoOldFile(fileName2Copy);
