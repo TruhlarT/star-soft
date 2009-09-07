@@ -354,6 +354,7 @@ foreach $disk (sort keys %DINFO){
     $totals[2] += $items[2];
 
     if ( $FCRef ne ""){
+	# print $FO "<!-- Pushing $disk -->\n";
 	push(@FCRefs,$FCRef." $disk ");
     }
 
@@ -381,41 +382,36 @@ if ($#FCRefs == -1){
 	"  <TR>\n".
 	"      $TD Disk    $ETD\n".
 	"      $TD Indexer $ETD\n".
-	"      $TD Spider  $ETD\n".
 	"      <TD> &nbsp  </TD>\n".
 	"      $TD Disk    $ETD\n".
 	"      $TD Indexer $ETD\n".
-	"      $TD Spider  $ETD\n".
 	"      <TD> &nbsp  </TD>\n".
 	"      $TD Disk    $ETD\n".
 	"      $TD Indexer $ETD\n".
-	"      $TD Spider  $ETD\n".
 	"</TR>\n";
 
     $ii = 0;
     foreach $line (@FCRefs){
+	# print $FO "<!-- Got $line -->\n";
 	$line  =~ m/(.*>\s+)(.*)(\s+)/;
 	($ind,$disk) = ($1,$2);
+
 	$refdisk = $disk;
 	$refdisk =~ s/\//_/g;
+	
+	# remove previous ref but presrve icon and numbers
+	$ind     =~ s/.*<IMG/<IMG/;
+	$ind     =~ s/<\/A>//;
+	# print $FO "<!-- Now $ind -->\n";
 
-	$FCRef = &GetFCRef("SD",$ICON2,$disk);
-	if ( $FCRef ne ""){
-	    $Info  = "<A HREF=\"$SpiderControl?disk=$refdisk&action=view\">$FCRef</A>";
-	} else {
-	    $Info  = "<A HREF=\"$SpiderControl?disk=$refdisk&action=ON\"><i>off</i></A>";
-	}
 	$ind = "<A HREF=\"$SpiderControl?disk=$refdisk&action=view\"><i>$ind</i></A>";
-
 	$ind  =~ s/%%RELP%%/public/;
-	$Info =~ s/%%RELP%%/protected/;
 
 	if ($ii % 3 == 0){ print $FO "<TR>\n";}
 	print $FO
 	    "    <!-- $ii -->\n".
 	    "    <TD BGCOLOR=\"#DDDDDD\">$disk</TD>\n".
-	    "    <TD BGCOLOR=\"#EFEFEF\" ALIGN=\"middle\">$ind</TD>\n".
-	    "    <TD BGCOLOR=\"#EFEFEF\" ALIGN=\"middle\">$Info</TD>\n";
+	    "    <TD BGCOLOR=\"#EFEFEF\" ALIGN=\"middle\">$ind</TD>\n";
 
 	if (($ii+1) % 3 == 0){
 	    print $FO "</TR>\n";
@@ -429,13 +425,11 @@ if ($#FCRefs == -1){
 	    print $FO
 		"    <TD>&nbsp;</TD>\n".
 		"    <TD>&nbsp;</TD>\n".
-		"    <TD>&nbsp;</TD>\n".
 		"    <TD>&nbsp;</TD>\n";
 	}
 	print $FO "</TR>\n";
     } elsif ($ii % 2 == 0){
 	print $FO
-	    "    <TD>&nbsp;</TD>\n".
 	    "    <TD>&nbsp;</TD>\n".
 	    "    <TD>&nbsp;</TD>\n".
 	    "    <TD>&nbsp;</TD>\n".
