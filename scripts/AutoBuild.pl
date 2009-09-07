@@ -1,6 +1,6 @@
 #!/usr/bin/env perl
 
-# $Id: AutoBuild.pl,v 1.39 2009/02/20 01:31:17 jeromel Exp $
+# $Id: AutoBuild.pl,v 1.40 2009/09/07 20:32:58 jeromel Exp $
 # This script was written to perform an automatic compilation
 # with cvs co and write some html page related to it afterward.
 # Written J.Lauret Apr 6 2001
@@ -61,7 +61,7 @@ $MAXRECOVERY= 1;
 # There are some assumptions made :
 # 0 - csh is used to execute the commands.
 # 1 - the SKIP_DIRS rule will be respected
-# 2 - $CHENV command will be executed before library version change
+# 2 - $CHENV{A|B} command will be executed after/before library version change
 # 3 - $CHVER command will be issued before compilation
 # 4 - The compilation command MUST be the last item in a serie of "&&"
 #     related commands. This assumption is used in recovery procedures
@@ -71,8 +71,8 @@ $MAXRECOVERY= 1;
 # want them to be in this SAME exact order.
 #
 %COMPILC = (
-	    "echo 1 && %%CHENV%% && unsetenv NODEBUG   && %%CHVER%% && cons ", 1,
-	    "echo 2 && %%CHENV%% && setenv NODEBUG yes && %%CHVER%% && cons ", 1);
+    "echo 1 && %%CHENVB%% && unsetenv NODEBUG   && %%CHVER%% && %%CHENVA%% && cons ", 1,
+    "echo 2 && %%CHENVB%% && setenv NODEBUG yes && %%CHVER%% && %%CHENVA%% && cons ", 1);
 @SKIP    = IUExcluded();
 $OPTCONS = "";
 
@@ -114,7 +114,7 @@ $RELCODE   = 1==0;       # Default is not to release code
 
 # All arguments will be kept for checksum purposes
 $ALLARGS   = "$^O";      # platform will be kept in for sure
-$CHENV     = "echo noop";# possible extraneous environment change command
+$CHENVA    = $CHENVB = "echo noop";# possible additional environment change command
 
 
 # Quick argument parsing (dirty)
@@ -130,8 +130,11 @@ for ($i=0 ; $i <= $#ARGV ; $i++){
 	    undef(@SKIP);
 
 	} elsif($arg eq "-a"){
-	    $CHENV    = $ARGV[++$i];
-	    $ALLARGS .= " $CHENV";
+	    $CHENVA   = $ARGV[++$i];
+	    $ALLARGS .= " $CHENVA";
+	} elsif($arg eq "-b"){
+	    $CHENVB   = $ARGV[++$i];
+	    $ALLARGS .= " $CHENVB";
 
 	} elsif($arg eq "-A"){
 	    my(@LL) = sort keys %COMPILC;
@@ -140,7 +143,8 @@ for ($i=0 ; $i <= $#ARGV ; $i++){
 	    $LIGNE    = $LL[0];
 
 	    $cmd      = $ARGV[++$i];
-	    $LIGNE    =~ s/%%CHENV%%/$cmd/;
+	    print $FILO "Considering $cmd\n";
+	    $LIGNE    =~ s/%%CHENVB%%/$cmd/;
 
 	    $cmd      = "echo ".($#LL+1+1);
 	    $LIGNE    =~ s/echo 1/$cmd/;
@@ -672,7 +676,8 @@ COMPILE_BEGIN:
 
 	$iline= $line;
 	$line =~ s/%%CHVER%%/$CHVER/;
-	$line =~ s/%%CHENV%%/$CHENV/;
+	$line =~ s/%%CHENVB%%/$CHENVB/;
+	$line =~ s/%%CHENVA%%/$CHENVA/;
 	print $FILO " - Preparing command [$line]\n";
 	print FO
 	    "#!/bin/csh\n",
@@ -1184,13 +1189,16 @@ sub lhelp
               to 'Path'. This option automatically disables post-compilation
               operations (-d option is ON).
 
- -a Cmd       Executes 'Cmd' before star library version change (can be used
+ -b Cmd       Executes 'Cmd' before star library version change (can be used
               for executing a setup)
- -A Cmd       Add 'Cmd' as an additional compilation environment setup. With
-              this option, AutoBuild may perform more than two passes. This
-              is useful if you want to syncrhonize other compilation passes
-              with the same code update (but beware that a failure of that
-              pass will make the entire compilation fail)
+ -a Cmd       Executes 'Cmd' after star library version change (can be used
+              for modifying the setup)
+
+ -A Cmd       Append/Add 'Cmd' as an additional compilation environment setup. 
+              With this option, AutoBuild may perform more than two passes. 
+              This is useful if you want to syncrhonize other compilation 
+              passes with the same code update (but beware that a failure 
+              of that pass will make the entire compilation fail)
 
  -s           Silent i.e. do not send Email to managers on failures
  -d           Debug. DO NOT perform post compilation tasks and perform
