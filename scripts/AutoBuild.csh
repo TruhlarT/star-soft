@@ -149,7 +149,7 @@ if ( -r  $GROUP_DIR/star_login.csh ) then
 		set sts=$status
 		if ( $sts == 0 ) then
 		    echo "icc is $test ; starting AutoBuild"
-		    $SCRIPTD/AutoBuild.pl -k -i -t -T icc -p $LPATH -a 'setup icc' >$HOME/log/AB-icc-$DAY.log
+		    $SCRIPTD/AutoBuild.pl -k -i -t -T icc -p $LPATH -b 'setup icc' >$HOME/log/AB-icc-$DAY.log
 		    if( -e $HOME/AutoBuild-linux-icc.html) then
 			mv -f $HOME/AutoBuild-linux-icc.html $SPATH/AutoBuild-$1.html
 		    endif
@@ -173,7 +173,7 @@ if ( -r  $GROUP_DIR/star_login.csh ) then
 		# so modifications has to be passed at command line level
 		echo "Testing setup gprof"
 		setup gprof
-		$SCRIPTD/AutoBuild.pl -1 -k -i -t -T gprof -a 'setup gprof' -p $LPATH 
+		$SCRIPTD/AutoBuild.pl -1 -k -i -t -T gprof -b 'setup gprof' -p $LPATH 
 		if( -e $HOME/AutoBuild-linux-gprof.html) then
 		    mv -f $HOME/AutoBuild-linux-gprof.html $SPATH/AutoBuild-$1.html
 		endif
@@ -185,6 +185,8 @@ if ( -r  $GROUP_DIR/star_login.csh ) then
 		breaksw
 
 
+	    case "SL5":
+		set XTRACMD="unsetenv PGI"
 	    case "Linux61":
 	    case "Linux72":
 	    case "Linux80":
@@ -193,10 +195,14 @@ if ( -r  $GROUP_DIR/star_login.csh ) then
 	    case "SL302":
 	    case "SL305":
 	    case "SL44":
-	    case "SL5":
 		set LPATH=$AFS_RHIC/star/packages/adev
 		set SPATH=$AFS_RHIC/star/doc/www/comp/prod/Sanity
-		$SCRIPTD/AutoBuild.pl -k -i -1 -T $1 -p $LPATH
+		if ( ! $?XTRACMD ) then
+		    $SCRIPTD/AutoBuild.pl -k -i -1 -T $1 -p $LPATH
+		else
+		    $SCRIPTD/AutoBuild.pl -k -i -1 -a "$XTRACMD" -T $1 -p $LPATH
+		endif
+
 		if( -e $HOME/AutoBuild-$1.html) then
 		    /bin/mv -f $HOME/AutoBuild-$1.html $SPATH/AutoBuild-$1.html
 		endif
