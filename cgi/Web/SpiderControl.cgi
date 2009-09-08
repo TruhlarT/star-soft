@@ -29,7 +29,6 @@ my $full_script= $query->url();
 
 $OUTD     = "/afs/rhic.bnl.gov/star/doc/www/html/tmp/pub/Spider";
 
-
 $title    = "Spider Control Center";
 $BGCOLOR  = ""; # Body color fields
 $TEXTCOL  = "black";
@@ -57,10 +56,9 @@ $DISKI   = "/webdata/pub/overall.html#";
 $WWWD  = "/webdata/pub/Spider";                                # Web equivalent
 $ICON0 = "/icons/text.gif";                                    # Icon to display for OK disks
 $ICON1 = "/icons/transfer.gif";                                # Icon to display for indexer result
-$ICON2 = "/STARpublic/images/Spider1.jpg";                     # Icon to display for spider result
+$ICON2 = "/images/Spider1.jpg";                                # Icon to display for spider result
 $ALERT = "/icons/alert.red.gif";                               # Problem alert icon
 $IKILL = "/icons/skull-small.gif";                             # Dead thingy alert
-$KK = "/home/users/starweb/bin/bla.csh";
 
 print
     $query->header,
@@ -150,8 +148,7 @@ if ( defined($disk) || defined($file) ){
 		print "<UL>\n";
 		foreach $file (@clean){
 		    print "<LI>Lock existed as <TT>$file</TT> ";
-		    system("$KK && /bin/rm -f $file");
-		    if ( ! -e $file ){
+		    if ( unlink($file) ){
 			print " <I>Deleted</I>\n";
 		    } else {
 			print " <B>Cannot be deleted</B>\n";
@@ -167,9 +164,10 @@ if ( defined($disk) || defined($file) ){
 	} else {
 	    print "<UL>\n";
 	    foreach $file (@SPIDERS){
-	    system("$KK && /bin/date >$OUTD/$file.quit");
-		if ( -e "$OUTD/$file.quit" ){
+		if (open(FO,">$OUTD/$file.quit")){
 		    print " <LI><I>Lock created for $file</I><BR>\n";
+		    print FO localtime()."\n";
+		    close(FO);
 		} else {
 		    print " <LI><B>Lock creating failed for $file</B><BR>\n";
 		}
@@ -190,8 +188,7 @@ if ( defined($disk) || defined($file) ){
 		print "<UL>\n";
 		foreach $file (@clean){
 		    print "<LI>Found <TT>$file</TT> ";
-		    system("$KK && /bin/rm -f $file");
-		    if ( ! -e $file ){
+		    if ( unlink($file) ){
 			print " <I>Deleted</I>\n";
 		    } else {
 			print " <B>Cannot be deleted</B>\n";
@@ -220,8 +217,7 @@ if ( defined($disk) || defined($file) ){
 		    #next  if ($file =~ m/\.lock$/);
 		    if ( $file =~ m/.on/ && ! $dcln){ next;}   # do not delete ON files
 		    print "<LI>Found <TT>$file</TT> ";
-		    system("$KK && /bin/rm -f $file");
-		    if ( ! -e $file ){
+		    if ( unlink($file) ){
 			print " <I>Deleted</I>\n";
 		    } else {
 			print " <B>Cannot be deleted</B>\n";
@@ -239,8 +235,9 @@ if ( defined($disk) || defined($file) ){
 	    if ( -e "$OUTD/AS$rdisk.on"){
 		print "<I>$disk already as Auto-Spidering activated</I>\n";
 	    } else {
-		system("$KK && echo \"Spidering requested on ".localtime()."\" >$OUTD/AS$rdisk.on");
-		if ( -e "$OUTD/AS$rdisk.on" ){
+		if ( open(FO,">$OUTD/AS$rdisk.on") ){
+		    print FO "Spidering requested on ".localtime()."\n";
+		    close(FO);
 		    print "<I>Auto-Spidering marker created</I>\n";
 		    $error = 0;
 		} else {
@@ -254,8 +251,7 @@ if ( defined($disk) || defined($file) ){
 	    &Bomb();
 	} else {
 	    if ( -e "$OUTD/AS$rdisk.on" ){
-		system("$KK && /bin/rm -f $OUTD/AS$rdisk.on");
-		if ( ! -e "$OUTD/AS$rdisk.on" ){
+		if ( unlink("$OUTD/AS$rdisk.on") ){
 		    print "<I>Auto-Spidering marker deleted</I>\n";
 		} else {
 		    print "<B>Cannot delete $OUTD/AS$rdisk.on</B>\n";
@@ -300,7 +296,7 @@ print
 
 @needed = glob("$OUTD/FC*.txt");
 if ($#needed != -1){
-    $count = 0;
+    $count = -1;
     foreach $d (@needed){
 	$disk = $d;	    
 	$disk =~ s/$OUTD//;
@@ -322,21 +318,25 @@ if ($#needed != -1){
 	    if ( $ind =~ m/alert/){
 		$ind = "<FONT COLOR=\"#FF0000\">Problem occured</FONT> $ind";
 	    } else {
-		$ind = "$ind No spidering required";
+		$ind = "$ind No spidering required<br>\n".&Activity("FC",$disk,1);
 	    }
 	}
 
 
 	$count++;
-	if ( $count == 1){
+	if ( $count == 0){
 	    print 
-		"<TABLE ALIGN=\"center\" CELLSPACING=\"0\"  BORDER=\"1\">\n",
+		"<TABLE ALIGN=\"center\" CELLSPACING=\"1\" BORDER=\"0\">\n",
 		"  <TR>$TD Disk    $ETD\n".
 		"      $TD Indexer $ETD\n".
 		"      $TD Spider  $ETD\n".
-		"      $TD Info    $ETD\n".
+		"      <TD> &nbsp  </TD>\n".
+		"      $TD Disk    $ETD\n".
+		"      $TD Indexer $ETD\n".
+		"      $TD Spider  $ETD\n".
 		"</TR>\n";
 	}
+	if ($count % 2 == 0){ print  "<TR>\n";}
 
 	$FCRef = &GetFCRef("SD",$ICON2,$disk);
 
@@ -351,19 +351,28 @@ if ($#needed != -1){
 		    "<i>Not recommended unless day missmatch</i><br>".
 		    "$Info<br>".
 		    "Now ".localtime()."<br>";
-	    } else {
-		$Info  = "<A HREF=\"$this_script?disk=$rdisk&action=clean\">Turn Spider OFF</A><br>$Info";
-	    }
-	} else {
-	    $Info  = "<A HREF=\"$this_script?disk=$rdisk&action=ON\">Turn Spider ON</A>";
+	    } 
 	}
 	print 
-	    "<TR><TD BGCOLOR=\"#DDDDDD\"><A HREF=\"$DISKI$rdisk\">$disk</A></TD>\n".
+	    "    <TD BGCOLOR=\"#DDDDDD\"><A HREF=\"$DISKI$rdisk\">$disk</A></TD>\n".
 	    "    <TD BGCOLOR=\"#EFEFEF\" ALIGN=\"center\">$ind</TD>\n".
-	    "    <TD BGCOLOR=\"#EFEFEF\" ALIGN=\"center\">".($FCRef ne "" ? $FCRef : "<i>off</i>")."</TD>\n".
-	    "    <TD BGCOLOR=\"#EFEFEF\" ALIGN=\"center\">".($Info  ne "" ? $Info  : "&nbsp;")."</TD>\n".
+	    "    <TD BGCOLOR=\"#EFEFEF\" ALIGN=\"center\">".($FCRef ne "" ? $FCRef : "<i>off</i>")."<BR>$Info</TD>\n";
+
+	if ($count %2 == 0){ print "    <TD>&nbsp</TD> <!-- Separator -->\n";}
+	if (($count+1) % 2 == 0){
+            print "</TR>\n";
+        }
+
+    }
+    if ($count % 2 == 0){
+	print 
+	    "    <!-- Ending table -->\n".
+	    "    <TD>&nbsp;</TD>\n".
+	    "    <TD>&nbsp;</TD>\n".
+	    "    <TD>&nbsp;</TD>\n".
 	    "</TR>\n";
     }
+
     print "</TABLE>\n" if ($count != 0);
 
     if ($#OKDISKS != -1){
@@ -399,15 +408,15 @@ if ($#needed != -1 ){
 	"<B>Server logs</b>:<br>\n",
 	"<BLOCKQUOTE>\n";
 
-    if ( -e "$OUTD/Auto-Spider.report"){
-	open(FI,"<$OUTD/Auto-Spider.report");
-	while ( defined($line = <FI>) ){
-	    chomp($line);
-	    # will format later - is $d;$TAG;$LCK;localtime();$status;$stsstr;$CMD;
-	    print "<FONT SIZE=\"-1\">$line</FONT><BR>\n";
-	}
-	close(FI);
-    }
+#    if ( -e "$OUTD/Auto-Spider.report"){
+#	open(FI,"<$OUTD/Auto-Spider.report");
+#	while ( defined($line = <FI>) ){
+#	    chomp($line);
+#	    # will format later - is $d;$TAG;$LCK;localtime();$status;$stsstr;$CMD;
+#	    print "<FONT SIZE=\"-1\">$line</FONT><BR>\n";
+#	}
+#	close(FI);
+#    }
 
     $ii = 0;
     foreach $file (@needed){
@@ -474,7 +483,7 @@ sub GetFCRef
     my($x,$xx,$xtra);
     $el =~ s/[\/ ]/_/g;
 
-    if ( ! -e "$OUTD/$What$el.txt" && -e "$OUTD/$What$el.txt.last" ){
+    if ( ! -e $OUTD."/$What$el.txt" && -e $OUTD."/$What$el.txt.last" ){
 	$xtra = ".last";
     } else {
 	$xtra = "";
@@ -485,7 +494,7 @@ sub GetFCRef
     $XWhat = $What;
     $XWhat = "AS" if ($What eq "SD");
 
-    if ( -e "$OUTD/$XWhat$el.kill"){
+    if ( -e $OUTD."/$XWhat$el.kill"){
 	my $res=`/bin/cat $OUTD/$XWhat$el.kill | /bin/grep -v Cmd`;
 	$res =~ s/\n/<BR>/g;
 	return 
@@ -498,7 +507,7 @@ sub GetFCRef
     # while @STAT is global, the intent is to get the value of the previous
     # globally stat-ed file a result.  Do not undef() on an else statement.
 
-    if ( -e "$OUTD/$What$el.txt$xtra"){
+    if ( -e $OUTD."/$What$el.txt$xtra"){
 	@STAT = stat($OUTD."/$What$el.txt$xtra");
 	if ( $STAT[7] != 0){
 	    #return 
@@ -530,11 +539,13 @@ sub GetFCRef
 
 sub Activity
 {
-    my($What,$el)=@_;
-    $el =~ s/[\/ ]/_/g;
-    if ( -e "$OUTD/$What$el.txt"){ 
-	$res = `/usr/bin/tail -12 $OUTD/$What$el.txt | /bin/grep '=' |/bin/grep -v '= 0' `;
+    my($What,$el,$frmt)=@_;
 
+    if ( ! defined($frmt) ){  $frmt = 0;}
+    $el =~ s/[\/ ]/_/g;
+    if ( -e $OUTD."/$What$el.txt"){ 
+	$res = `/usr/bin/tail -12 $OUTD/$What$el.txt | /bin/grep '=' |/bin/grep -v '= 0' `;
+	chomp($res);
 
 	print "<!-- DEBUG $res -->\n";
 
@@ -560,21 +571,32 @@ sub Activity
 
 	if ($res ne ""){
 	    print "<!-- DEBUG FINAL [$res] -->\n";
-	    return 
-		$res."\n<FONT SIZE=\"-2\">".
-		localtime((stat("$OUTD/$What$el.txt"))[9]).
-		"</FONT>";
+	    if ( $frmt == 0){
+		return 
+		    $res."\n<FONT SIZE=\"-2\">".
+		    localtime((stat("$OUTD/$What$el.txt"))[9]).
+		    "</FONT>";
+	    } else {
+		return 
+		    "\t<P><FONT SIZE=\"-1\">".$res."</FONT><br>\n".
+		    "\t<FONT SIZE=\"-2\">".localtime((stat("$OUTD/$What$el.txt"))[9])."</FONT>";
+	    }
 	} else {
-	    return 
-		"Last ".
-		localtime((stat("$OUTD/$What$el.txt"))[10]);
+	    if ( $frmt == 0){
+		return 
+		    "Last ".
+		    localtime((stat("$OUTD/$What$el.txt"))[10]);
+	    } else {
+		return 
+		    "\t<P><FONT SIZE=\"-1\">Last ".localtime((stat("$OUTD/$What$el.txt"))[10])."</FONT>";
+	    }
 	}
-    } elsif ( -e "$OUTD/AS$el.on"){
+    } elsif ( -e $OUTD."/AS$el.on"){
 	return 
 	    "<FONT COLOR=\"#5555EE\"><FONT SIZE=\"-2\">".
 	    `/bin/cat $OUTD/AS$el.on`."</FONT></FONT>";
 
-    } elsif ( -e "$OUTD/$What$el.txt.last"){
+    } elsif ( -e $OUTD."/$What$el.txt.last"){
 	return 
 	    "<A HREF=\"$WWWD/$What$el.txt.last\">Old</A>".
 	    localtime((stat("$OUTD/$What$el.txt.last"))[10]);
