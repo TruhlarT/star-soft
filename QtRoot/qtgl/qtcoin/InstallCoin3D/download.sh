@@ -4,6 +4,8 @@
 
 svn co https://svn.coin3d.org/repos/simacros/trunk/src simacros/src
 svn co https://svn.coin3d.org/repos/Coin-2/trunk Coin-2
+wget http://ftp.coin3d.org/coin/src/all/Coin-3.1.0.tar.gz
+tar -xzf Coin-3.1.0.tar.gz
 svn co https://svn.coin3d.org/repos/SoQt/trunk SoQt
 svn co https://svn.coin3d.org/repos/SoGuiExamples/trunk SoGuiExamples
 svn co https://svn.coin3d.org/repos/simage/trunk simage
