@@ -31,7 +31,7 @@ use Cwd;
 
 use vars qw( $CVS_id $CVS_ver $ver_num $ver_rev $version );
 
-$CVS_id = '$Id: cons,v 1.103 2009/01/23 19:10:53 jeromel Exp $ ';
+$CVS_id = '$Id: cons,v 1.104 2009/09/09 19:21:26 jeromel Exp $ ';
 $CVS_ver = (split(/\s+/, $CVS_id))[2];
 
 $ver_num = "2.3";
@@ -1166,7 +1166,7 @@ sub Salt($) {
 sub find_sources {
   @main::search_files   = ();
   if (-d $_[0]) {
-    &File::Find::find(\&wanted, @_);
+    &File::Find::find({wanted => \&wanted, follow => 1}, @_);
     for my $dir (@_) {
       if ( -d $dir ) {
 	my $i = 0;
@@ -1182,19 +1182,19 @@ sub find_sources {
 #________________________________________
 sub find_inc {
   @main::search_files   = ();
-  &File::Find::find(\&wanted_inc, @_);
+  &File::Find::find({wanted => \&wanted_inc, follow => 1}, @_);
   return @main::search_files;
 }
 #________________________________________
 sub find_obj {
   @main::search_files   = ();
-  &File::Find::find(\&wanted_obj, @_);
+  &File::Find::find({wanted => \&wanted_obj, follow => 1}, @_);
   return @main::search_files;
 }
 #________________________________________
 sub find_idlM {
   @main::search_files   = ();
-  &File::Find::find(\&wanted_idlM, @_);
+  &File::Find::find({wanted => \&wanted_idlM, follow => 1}, @_);
   for my $dir (@_) {
     if ( -d $dir ) {# print "dir = $dir\n";
       my $i = 0;
@@ -1209,20 +1209,20 @@ sub find_idlM {
 #________________________________________
 sub find_ui {
   @main::search_files   = ();
-  &File::Find::find(\&wanted_ui, @_);
+  &File::Find::find({wanted => \&wanted_ui, follow => 1}, @_);
   return @main::search_files;
 }
 #________________________________________
 sub find_xpm {
   @main::search_files   = ();
-  &File::Find::find(\&wanted_xpm, @_);
+  &File::Find::find({wanted => \&wanted_xpm, follow => 1}, @_);
   return @main::search_files;
 }
 #________________________________________
 sub find_qrc {
   # Qt4 Resource file
   @main::search_files   = ();
-  &File::Find::find(\&wanted_qrc, @_);
+  &File::Find::find({wanted => \&wanted_qrc, follow => 1}, @_);
   return @main::search_files;
 }
 #________________________________________
