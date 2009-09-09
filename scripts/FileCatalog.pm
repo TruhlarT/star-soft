@@ -4742,7 +4742,7 @@ sub run_query {
 
       # end
       $tf  = time(); &print_debug("run_query","END Time DBRef:$FC::DBRef ".localtime($tf));
-      $tf -= $ts;    &print_debug("run_query","DELTA Time DBRef:$FC::DBRef $tf ".($#result+1));
+      $tf -= $ts;    &print_debug("run_query","DELTA Time DBRef:$FC::DBRef $tf nfiles=".($#result+1));
 
       return (@result);
   }
