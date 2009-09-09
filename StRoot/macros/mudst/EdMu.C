@@ -1,4 +1,4 @@
-// $Id: EdMu.C,v 1.2 2009/09/09 23:13:58 fine Exp $
+// $Id: EdMu.C,v 1.5 2009/09/09 23:18:50 fine Exp $
 // *-- Author :    Valery Fine(fine@bnl.gov)   25/02/2009
 
 //! \file EdMu.C 
@@ -58,6 +58,7 @@ StMuDstMaker *chain = 0;
 class StuDraw3DMuEvent;
 StuDraw3DMuEvent *gEd = 0;
 
+//____________________________________________________________________________________
 //! This function \b redraws all hits and/or tracks from the \c current event
 /*! 
    \param hits - flag to mark whether the hits from the event should be rendered 
@@ -66,7 +67,7 @@ StuDraw3DMuEvent *gEd = 0;
                    first (before any new component is added)
    \note No MuHits can be rendered directly for the time being.
 */
-//__________________________________________
+//____________________________________________________________________________________
 void mrd(bool hits=false, bool clear=false) 
 {  
    // redraw the event
@@ -76,12 +77,15 @@ void mrd(bool hits=false, bool clear=false)
       } else gEd->Tracks();
    }
  }
-//! This function is to search for the next non-empty event and draw it by looping over StBFChain (reading the next events from the file)
+ 
+//____________________________________________________________________________________
+//____________________________________________________________________________________
+//! This function is to search for the next non-empty event and draw it by looping over STAR muDST file (reading the next events from the file)
 /*! 
    \param hits - flag to mark whether the hits from the event should be rendered 
    if the \a hist = \c true the hits is to be drawn otherwise it is to render the tracks
 */
-//__________________________________________
+//____________________________________________________________________________________
 void mae(bool hits=false) 
 {
  // Advance till next "good" event
@@ -92,11 +96,13 @@ void mae(bool hits=false)
      chain->Make();
      if (muEvent = chain->muDst()->event()) {
          mrd();     // Draw the tracks
-    } else {
+      } else {
         printf(" muEvent is empty\n");
         goto newevent;
-     }
+      }
  }
+//____________________________________________________________________________________
+//____________________________________________________________________________________
 //! Main entry point to initialize the primitive "Event Display" and the STAR bfc chain 
 /*! 
    \param file  - the ROOT file with StEvent
@@ -104,7 +110,7 @@ void mae(bool hits=false)
    \note To start "Event Display" \c EdMu just invoke:
    \code root4star EdMu.C \endcode
 */
-//__________________________________________
+//____________________________________________________________________________________
  void EdMu(const char* file =
  "/star/data15/reco/ppProduction2008/ReversedFullField/P08ie/2008/046/9046031/st_physics_adc_9046031_raw_2070002.MuDst.root"
  , const char * detectorNames="TPC")
@@ -129,10 +135,8 @@ void mae(bool hits=false)
    gROOT->Macro("loadMuDst.C");
    chain=new StMuDstMaker(0,0,muDstFile.Data());
    chain->Init();
-//   gROOT->Macro(Form("bfc.C(0,\"doevents\",\"%s\")",file));
    delete gEd; // destroy the built-in display
    gEd = new StuDraw3DMuEvent(detectorNames); // create our own one (with no detector geometry)
-//   new StuDraw3DEvent("TPC"); // create our own one (with TPC detector)
    gEd->SetBkColor(kBlack);
    printf("\n The display is ready!\n");
    printf(" call:\n");   
@@ -144,7 +148,6 @@ void mae(bool hits=false)
    printf(" call:\n");   
    printf("\t---\n");
    printf("\tmae() - to draw the tracks\n");
-   printf("\tmae(1) - to draw the tracksand its hits\n");
    printf("\t---\n");
    printf("method to see the next event\n");
  }
