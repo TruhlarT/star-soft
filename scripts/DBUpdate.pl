@@ -16,6 +16,8 @@ if ($#ARGV == -1){
 
  Options are
    -o outputFile      redirect output to file outputFile
+   -of markerFile      on finding, create markerFile delete otherwise if exists
+
    -k subpath         strip subpath before comparing to HPSS, then clone
                       using full path
    -z                 use any filetype (not the default)
@@ -75,12 +77,13 @@ if ($#ARGV == -1){
 #  (2) There is an hidden logic based on $path !~ /\/star\/data/
 #      to recognized if the storage is local or NFS.
 
-$SITE  = "BNL";
-$HPSSD = "/home/starreco";
-$CHKDIR= "/afs/rhic.bnl.gov/star/doc/www/html/tmp/pub/Spider";
-$SELF  = "DBUpdate";
-$LOUT  = 0;
-$FLNM  = "";
+$SITE   = "BNL";
+$HPSSD  = "/home/starreco";
+$CHKDIR = "/afs/rhic.bnl.gov/star/doc/www/html/tmp/pub/Spider";
+$SELF   = "DBUpdate";
+$LOUT   = 0;
+$FLNM   = "";
+$MARKERF="";
 
 # Those default should nt be changed here but via
 # command line options
@@ -93,12 +96,12 @@ $DOSL   = 0;
 $DOCACHE= 0;
 
 # Argument pick-up
-$kk    = 0;
-$FO    = STDERR;
-$|     = 1;
+$kk     = 0;
+$FO     = STDERR;
+$|      = 1;
 
 # will hold time for this pass
-$ext   = 0;
+$ext    = 0;
 
 
 # start timer
@@ -143,6 +146,9 @@ for ($i=0 ; $i <= $#ARGV ; $i++){
 	}
 
 	$i++;
+
+    } elsif ($ARGV[$i] eq "-of"){
+	$MARKERF= $ARGV[++$i];
 
     } elsif ($ARGV[$i] eq "-nocache"){
 	$DOCACHE= 0;
@@ -471,6 +477,32 @@ FINAL_EXIT:
 	    ($failed!=0 ? "\tFailed  = $failed\n": ""),
 	    "\tTimes   = $etimer / $ext\n";
 
+	# Added 2009/09
+	if ( $MARKERF ne ""){
+	    if ( $new != 0 ){
+		# create the marker file if set
+		unlink($MARKERF) if ( -e $MARKERF);
+		if ( ! open(FM,">$MARKERF")){
+		    print $FO "$SELF :: Could not open $MARKERF\n";
+		} else {
+		    print FM "Auto-created - ".localtime()."\n";
+		    close(FM);
+		}
+	    } else {
+		# Nothing new ... but we would be safe to delete only in no cache
+		# mode or cache but full pass
+		if ( $DOCACHE ){
+		    if ( &ToFromCache(-2) == ($CACHELM+$CACHOFF ) ){
+			unlink($MARKERF) if ( -e $MARKERF);
+		    }
+		} else {
+		    # No cache, delete if exists as we checked a full list
+		    unlink($MARKERF) if ( -e $MARKERF);
+		}
+	    }
+	}
+
+
 	# Check if we have opened a file
 	if ($FO ne STDERR){
 	    print $FO 
@@ -611,8 +643,9 @@ sub ToFromCache
 	$SELF =~ s/\..*//;
     }
     if ( ! defined($XSELF) ){
-	$XSELF = "$SELF$SCAND";
-	$XSELF =~ s/[+\/\*]/_/g; 
+	$XSELF  = $SELF;
+	$XSELF .= $SCAND if ( $XSELF !~ m/$SCAND/);
+	$XSELF  =~ s/[+\/\*]/_/g; 
     }
     if ( ! defined($CACHELM) ){  $CACHELM = 10;} # cache limit
     if ( ! defined($CACHOFF) ){  $CACHOFF =  0;} # cache offset
@@ -621,18 +654,21 @@ sub ToFromCache
     # get cache count for this pass
     if ( ! defined($CACHECNT) ){
 	$kk=0;
-	while ( -e "/tmp/$XSELF"."_$kk.lis"){  $kk++;}
+	$CACHEDIR = $ENV{HOME}."/.cache";
+	if ( ! -e $CACHEDIR ){ mkdir($CACHEDIR);}
+	while ( -e "$CACHEDIR/$XSELF"."_$kk.lis"){  $kk++;}
 	if ( $kk > ($CACHELM+$CACHOFF) ){
-	    # we have exahusted all numbers
+	    # we have exhausted all numbers
 	    print "Cache is being reset (reached limit)\n";
-	    unlink(glob("/tmp/$XSELF"."_*.lis"));
+	    unlink(glob("$CACHEDIR/$XSELF"."_*.lis"));
+	    $CACHECNT = 0;
 	    return @ALL;
 	}
 	    
 	# else we have something
 	$CACHECNT = $kk;
 
-	print "Cache file will be /tmp/$XSELF"."_$CACHECNT.lis\n";
+	print "Cache file will be $CACHEDIR/$XSELF"."_$CACHECNT.lis\n";
     }
 
 
@@ -642,7 +678,7 @@ sub ToFromCache
     if ($mode == -1){
 	# delete all cache pretty much now
 	print "Deleting cache\n";
-	unlink(glob("/tmp/$XSELF"."_*.lis"));
+	unlink(glob("$CACHEDIR/$XSELF"."_*.lis"));
 
     } elsif ($mode == -2){
 	# return when cache will be deleted
@@ -661,7 +697,7 @@ sub ToFromCache
 	    # there is a previous $kk-1 file
 	
 	    # read cache, suck into %RECORDS
-	    if ( open(OCACHE,"/tmp/$XSELF"."_".($CACHECNT-1).".lis") ){
+	    if ( open(OCACHE,"$CACHEDIR/$XSELF"."_".($CACHECNT-1).".lis") ){
 		while ( defined($file = <OCACHE>) ){  
 		    chomp($file);
 		    $RECORDS{$file}=1;
@@ -681,7 +717,7 @@ sub ToFromCache
 
 
 	    # Open the real cache filer now not the index -1 and dump it all
-	    if ( open(OCACHE,">/tmp/$XSELF"."_".($CACHECNT-0).".lis") ){
+	    if ( open(OCACHE,">$CACHEDIR/$XSELF"."_".($CACHECNT-0).".lis") ){
 		foreach $file ( keys %RECORDS ){
 		    print OCACHE "$file\n";
 		}
