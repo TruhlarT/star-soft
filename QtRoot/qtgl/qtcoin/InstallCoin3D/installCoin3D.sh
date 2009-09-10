@@ -75,7 +75,10 @@ if [ -d Coin-2 ]; then
   if [ ! -d SoQt ];        then
      mkdir SoQt
   fi
-  if [ ! -d SoGuiExamples-SoQt ];  then
+  if [ ! -d Quarter ];        then
+     mkdir Quarter
+  fi   
+  fi  if [ ! -d SoGuiExamples-SoQt ];  then
      mkdir SoGuiExamples-SoQt
   fi
  cd ../..
@@ -104,6 +107,11 @@ if [ -d Coin-2 ]; then
    $srcdir/SoQt/configure   $enable_qt_debug  --with-qt=true  --with-coin    $common_build_opt
     make install
   
+ echo " Configure Quarter"
+ cd $builddir/Quarter
+   $srcdir/Quarter/configure   $enable_qt_debug  --with-qt=true  --with-coin    $common_build_opt
+    make install
+
   if test "x$testPlatform" = "x0" ; then
     # non Windows 
    echo " Configure SoXt"

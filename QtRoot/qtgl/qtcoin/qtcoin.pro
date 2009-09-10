@@ -38,7 +38,8 @@ QTCOINH1    = $$QTCOINDIRI/TQtCoinViewerImp.h      $$QTCOINDIRI/TQtCoinWidget.h 
 CREATE_ROOT_DICT_FOR_CLASSES  = $$QTCOINH1 $$QTCOINDIRI/LinkDef.h
 
 unix {
-  LIBS += -L../.. -L$$COIN3DDIR/lib -lSoQt -lCoin -lSmallChange
+#  LIBS += -L../.. -L$$COIN3DDIR/lib -lSoQt -lCoin -lSmallChange
+  LIBS += -L../.. -L$$COIN3DDIR/lib -lSoQt -lCoin 
 }
 
 !exists ($(ROOTSYS)/include/TObjectSet.h){
@@ -145,6 +146,9 @@ HEADERS += inc/TQtCoinViewerImp.h            \
            inc/cA11.xpm.h                    \
            inc/cAcc.xpm.h                    \
            inc/cAGrid.xpm.h                  \
+           inc/SmAxisKit.h                   \
+           inc/SoText2Set.h                  \
+           inc/SmallChange.h                 \
            inc/TQtCoin3DDefInterface.h
            
 SOURCES += src/TQtCoinWidget.cxx             \
@@ -153,6 +157,9 @@ SOURCES += src/TQtCoinWidget.cxx             \
            src/TObjectCoinViewFactory.cxx    \
            src/TCoinShapeBuilder.cxx         \
            src/TSimageMovie.cxx              \
+           src/SmAxisKit.cxx                 \
+           src/SoText2Set.cxx                \
+           src/SmallChangeInit.cxx           \
            src/TQtCoin3DDefInterface.cxx
 
 DISTFILES += LICENSE.QPL

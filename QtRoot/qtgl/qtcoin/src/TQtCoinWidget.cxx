@@ -150,8 +150,10 @@
 #ifdef NOEXAMINERVIEWER
 #  include <SmallChange/nodekits/SmAxisDisplayKit.h>
 #endif 
-#include <SmallChange/nodekits/SmAxisKit.h>
-#include <SmallChange/misc/Init.h>
+#include "SmAxisKit.h"
+
+// #include <SmallChange/nodekits/SmAxisKit.h>
+// #include <SmallChange/misc/Init.h>
 #include <Inventor/sensors/SoFieldSensor.h> 
 
 #include "x.xpm.h"
@@ -1961,9 +1963,10 @@ void TQtCoinWidget::CreateViewer( const QString &/*name*/)
    if ( !fgCoinInitialized) { 
       SoQt::init(this); 
       SoHardCopy::init();
-#ifdef __SMALLCHANGE__ 
-      smallchange_init(); 
-#endif
+      SmallChange::init();
+//#ifdef __SMALLCHANGE__ 
+//      smallchange_init(); 
+//#endif
      fgCoinInitialized = kTRUE;
    }
     // 
