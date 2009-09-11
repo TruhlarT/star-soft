@@ -1883,20 +1883,21 @@ void TQtCoinWidget::HelpCB()
     QString msg;
     
     
-    msg += "<b>hold down left mousebutton</b> and move mouse pointer to <b>rotate</b> ";
+    msg += "<b>ROTATION</b> - <b> hold down left mousebutton</b> and move mouse pointer to <b>rotate</b> ";
     msg += "the camera around it's current focal point"; 
-    msg += "(the focal point can be changed by doing a seek operation)";
+    msg += "(the focal point can be changed by doing a \"seek\" operation)";
     msg += "<P>";
 
-    msg += "<b>hold middle mousebutton</b> to <b>pan</b>";
+    msg += "<b>PAN</b> - <b>hold middle mousebutton</b> to <b>pan</b>";
     msg += " (or a CTRL-key plus left mousebutton, or a SHIFT-key plus left mousebutton)";
     msg += "<P>";
 
-    msg += "<b>hold down left + middle mousebutton</b> to <b>zoom / dolly</b>, ";
+    msg += "<b>ZOOM IN/OUT</b> - <b>hold down left + middle mousebutton</b> to <b>zoom / dolly</b>, ";
     msg += "or CTRL + middle mousebutton, or CTRL + SHIFT + the left mousebutton";
     msg += "<P>";
 
-    msg += "<b>click \'s\'</b>, then <b>pick</b> with the left mousebutton to seek";
+    msg += "<b>CHANGE THE SCENE CENTER</B> - <b>press \'s\'</b>key of your keyboard, then <b>pick</b> with the left mousebutton to seek";
+    msg += "<br>One can click the \"seek\" button instead";
     msg += "<P>";
 
     msg += "<b>right mousebutton</b> opens the <b>popup menu</b>";

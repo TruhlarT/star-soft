@@ -220,7 +220,7 @@ SmAxisKitP::generateAxis(void) const
   SoCoordinate3 * markerCoords1 = new SoCoordinate3;
   SoCoordinate3 * markerCoords2 = new SoCoordinate3;
   SoTranslation * mtrans1 = new SoTranslation;
-  SoTranslation * mtrans2 = new SoTranslation;
+  // SoTranslation * mtrans2 = new SoTranslation;
   SoBaseColor * markerColor = new SoBaseColor;
 
   markerCoords1->point.set1Value(0, 0.0f, 0.0f, 0.0f);
@@ -315,7 +315,7 @@ SmAxisKitP::generateAxis(void) const
 }
 
 static void
-fieldsChangedCallback(void * classObject, SoSensor * sensor)
+fieldsChangedCallback(void * classObject, SoSensor * /*sensor*/ )
 {
   SmAxisKitP * thisp = (SmAxisKitP *) classObject;  // Fetch caller object
 
