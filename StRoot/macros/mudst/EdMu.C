@@ -1,4 +1,4 @@
-// $Id: EdMu.C,v 1.4 2009/09/09 23:18:07 fine Exp $
+// $Id: EdMu.C,v 1.6 2009/09/11 23:03:34 fine Exp $
 // *-- Author :    Valery Fine(fine@bnl.gov)   25/02/2009
 
 //! \file EdMu.C 
@@ -6,7 +6,7 @@
 /*!
   \brief EdMu.C macro is the simple ROOT macro to draw the StMuDst from ROOT file
 
-  EdMu.C macro demonstrates how the StuDraw3DEvent class object can be used
+  EdMu.C macro demonstrates how the StuDraw3DMuEvent class object can be used
     to loop over StMuEvent's from the ROOT file and draw the event components
     like "tracks" in 3D space over the the detector geometry.
     
@@ -135,10 +135,8 @@ void mae(bool hits=false)
    gROOT->Macro("loadMuDst.C");
    chain=new StMuDstMaker(0,0,muDstFile.Data());
    chain->Init();
-//   gROOT->Macro(Form("bfc.C(0,\"doevents\",\"%s\")",file));
    delete gEd; // destroy the built-in display
    gEd = new StuDraw3DMuEvent(detectorNames); // create our own one (with no detector geometry)
-//   new StuDraw3DEvent("TPC"); // create our own one (with TPC detector)
    gEd->SetBkColor(kBlack);
    printf("\n The display is ready!\n");
    printf(" call:\n");   
