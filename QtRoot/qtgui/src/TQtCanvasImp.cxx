@@ -1,6 +1,6 @@
 // Author: Valeri Fine   21/01/2002
 /****************************************************************************
-** $Id: TQtCanvasImp.cxx,v 1.19 2009/08/03 18:03:09 fine Exp $
+** $Id: TQtCanvasImp.cxx,v 1.20 2009/09/11 20:43:09 fine Exp $
 **
 ** Copyright (C) 2002 by Valeri Fine. Brookhaven National Laboratory.
 **                                    All rights reserved.
@@ -1431,7 +1431,9 @@ void TQtCanvasImp::GLIVViewCB()
    // Load Qt-based GL viewer first
    // static bool loadFlag = TRUE;
    // if (loadFlag) loadFlag = gQt->LoadQt("libRQIVTGL");
+// #if  ROOT_VERSION_CODE < ROOT_VERSION(5,20,0)
 #if  ROOT_VERSION_CODE >= ROOT_VERSION(4,03,3)
+#if  ROOT_VERSION_CODE < ROOT_VERSION(5,20,0)
    // Load the Coin library for STAR
    static bool coinWasLoaded = false;
    if (!coinWasLoaded) {
@@ -1445,8 +1447,8 @@ void TQtCanvasImp::GLIVViewCB()
          gSystem->ExpandPathName(ivrootDir);
          if (!gSystem->AccessPathName(ivrootDir.Data())) {
             if ( ! (gSystem->Load(ivrootDir+"libSoQt") + 
-            gSystem->Load(ivrootDir+"libCoin") +
-            gSystem->Load(ivrootDir+"libSmallChange")) )
+            gSystem->Load(ivrootDir+"libCoin") 
+            /* + gSystem->Load(ivrootDir+"libSmallChange") */)  )
                    coinWasLoaded = true; // Try to load it at once
          }
 #  else
@@ -1463,6 +1465,7 @@ void TQtCanvasImp::GLIVViewCB()
 #  endif
       }
    }
+#endif
    //  Make sure gPad belong out TCanvas 
    TVirtualPad *thisPad = gPad;
    TCanvas *c = gPad->GetCanvas();
