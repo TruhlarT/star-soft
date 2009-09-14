@@ -329,7 +329,9 @@ my $qsites = "$qsite%";
     if (! defined($inStatus) )   {$inStatus = "unknown"};    
     if (! defined($outStatus) )  {$outStatus = "unknown"};  
     if (! defined($recoStatus) ) {$recoStatus = "unknown"};  
-    if (! defined($overstat) )   {$overstatstat = "unknown"};      
+    if (! defined($overstat) )   {$overstatstat = "unknown"};
+    if (! defined($recpu) )      {$recpu = "0.0"};
+    if (! defined($simcpu) )     {$simcpu = "0.0"};          
 
 
    if($glError <= 0) {
@@ -448,7 +450,7 @@ print <<END;
 <TD ALIGN=CENTER WIDTH=\"10%\" HEIGHT=50><B>Current job status</B></TD>
 <TD ALIGN=CENTER WIDTH=\"10%\" HEIGHT=50><B>Overall performance<br> status</B></TD>
 <TD ALIGN=CENTER WIDTH=\"5%\" HEIGHT=50><B>RecoCPU<br> 1evt sec</B></TD>
-<TD ALIGN=CENTER WIDTH=\"5%\" HEIGHT=50><B>SimeCPU<br> 1evt sec</B></TD>
+<TD ALIGN=CENTER WIDTH=\"5%\" HEIGHT=50><B>SimuCPU<br> 1evt sec</B></TD>
 
 </TR> 
    </head>
