@@ -306,12 +306,14 @@ endif
 
 # Prepare the scratch disk if not present
 if ($?SCRATCH == 0) then
-    if ( -w /scr20 ) then
-	setenv SCRATCH /scr20/$LOGNAME
-    else if ( -w /scr21 ) then
-	setenv SCRATCH /scr21/$LOGNAME
-    else if ( -w /scr22 ) then
-	setenv SCRATCH /scr22/$LOGNAME
+    if ( $?TMPDIR ) then
+	setenv SCRATCH $TMPDIR
+    #else if ( -w /scr20 ) then
+    #	setenv SCRATCH /scr20/$LOGNAME
+    #else if ( -w /scr21 ) then
+    #	setenv SCRATCH /scr21/$LOGNAME
+    #else if ( -w /scr22 ) then
+    #	setenv SCRATCH /scr22/$LOGNAME
     else if ( -w /scratch ) then
 	setenv SCRATCH /scratch/$LOGNAME
     else
