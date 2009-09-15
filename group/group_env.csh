@@ -1,5 +1,5 @@
 #!/bin/csh
-#       $Id: group_env.csh,v 1.225 2009/09/03 12:31:52 jeromel Exp $
+#       $Id: group_env.csh,v 1.226 2009/09/15 13:44:11 jeromel Exp $
 #	Purpose:	STAR group csh setup
 #
 # Revisions & notes
@@ -812,7 +812,9 @@ if ( $?DECHO ) echo "$self :: Final touch ..."
 
 # We need this aliases even during BATCH
 if (-r $GROUP_DIR/group_aliases.csh) source $GROUP_DIR/group_aliases.csh
-# Scratch space ...
+
+# Scratch space ... Also in star_login but defined here in case
+# undefined
 if ($?SCRATCH == 0) then
     setenv SCRATCH /tmp/$LOGNAME
 endif
