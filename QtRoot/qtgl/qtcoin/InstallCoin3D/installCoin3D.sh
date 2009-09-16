@@ -75,9 +75,9 @@ if [ -d Coin-2 ]; then
   if [ ! -d SoQt ];        then
      mkdir SoQt
   fi
-  if [ ! -d Quarter ];        then
-     mkdir Quarter
-  fi   
+#  if [ ! -d Quarter ];        then
+#     mkdir Quarter
+#  fi   
   fi  if [ ! -d SoGuiExamples-SoQt ];  then
      mkdir SoGuiExamples-SoQt
   fi
