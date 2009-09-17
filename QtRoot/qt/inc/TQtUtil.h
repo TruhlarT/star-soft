@@ -1,6 +1,6 @@
 // Author: Valeri Fine   21/01/2002
 /****************************************************************************
-** $Id: TQtUtil.h,v 1.3 2009/08/16 01:07:21 fine Exp $
+** $Id: TQtUtil.h,v 1.4 2009/09/17 22:28:58 fine Exp $
 **
 ** Copyright (C) 2002 by Valeri Fine.  All rights reserved.
 **
@@ -23,28 +23,36 @@
 //      Q: How to get Qt pointer:
 //----------------------------------------
 namespace  TQtUtil {
+///
+/// Returns QPixmap backend for the given TVirtualPad 
+///
 //_______________________________________
 inline QPixmap *padPixmap(TVirtualPad *pad)
 {     return (QPixmap *)TGQt::iwid(pad->GetPixmapID());   }
+
+///
+/// Returns QWidget backend for the given TCanvas
+///  if "c" is not a TCanvas returns zero 
+///
 //_______________________________________
 inline QWidget *canvasWidget(TVirtualPad *c)
 {  return (QWidget *)TGQt::iwid(c->GetCanvasID()) ; }
-#if 0
-//_______________________________________
-inline QWidget *canvasWidget(TCanvasImp *c)
-{ return (QWidget *) TGQt::iwid(((TQtCanvasImp *)c)->GetCanvasImpID()); }
-//_______________________________________
-inline QWidget *mainWidget(TVirtualPad *c)
-{  return canvasWidget(c->GetCanvasImp());}
-#endif
-
 //----------------------------------------
 // Q: Get WIN32/X11 handles:
 //    (see function above and Qt manual also)
 //----------------------------------------
+///
+/// Returns system depended backend handle 
+/// for the given TVirtualPad 
+///
 //_______________________________________
 inline unsigned long  wigdetHdc(TVirtualPad *pad)
 {  return padPixmap(pad)->handle(); }
+
+///
+/// Returns system depended backend handle 
+/// for the given TCanvas
+///  if "c" is not a TCanvas returns zero 
 
 //_______________________________________
 inline unsigned long  hwndWin32(TVirtualPad *c)
