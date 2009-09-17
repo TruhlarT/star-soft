@@ -1,4 +1,4 @@
-// @(#)root/qt:$Id: TQtWidget.h,v 1.19 2009/08/03 18:02:57 fine Exp $
+// @(#)root/qt:$Id: TQtWidget.h,v 1.20 2009/09/17 22:23:59 fine Exp $
 // Author: Valeri Fine   21/01/2002
 /****************************************************************************
 **
@@ -55,6 +55,7 @@
   class QSize;
   class QPoint;
 #endif
+  class QTimer;
   class TApplication;
 //
 // TQtWidget is a custom QWidget to back ROOT TCanvas.
@@ -153,6 +154,7 @@ protected:
    bool        fInsidePaintEvent;
    QPoint      fOldMousePos;
    int         fIgnoreLeaveEnter;
+   QTimer     *fRefreshTimer;
 
 
    void SetRootID(QWidget *wrapper);
@@ -240,6 +242,9 @@ public slots:
    virtual bool Save(const char    *fileName) const;
    virtual bool Save(const QString &fileName,const char *format,int quality=60) const;
    virtual bool Save(const char    *fileName,const char *format,int quality=60) const;
+protected slots:
+   void RefreshCB();
+   
 #ifndef __CINT__
 signals:
    // emit the Qt signal when the double buffer of the TCamvas has been filled up
