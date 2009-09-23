@@ -1,4 +1,4 @@
-// @(#)root/qt:$Name:  $:$Id: TQtPen.h,v 1.1 2009/08/03 18:02:57 fine Exp $
+// @(#)root/qt:$Name:  $:$Id: TQtPen.h,v 1.2 2009/09/23 18:01:41 fine Exp $
 // Author: Valeri Fine   21/01/2002
 /****************************************************************************
 **
@@ -31,6 +31,7 @@ public:
    TQtPen(const TAttLine &line);
    TQtPen &operator=(const TAttLine &line);
    virtual ~TQtPen(){;}
+   void  SetLineAttributes() { TAttLine::SetLineAttributes(); }
    void  SetLineAttributes(const TAttLine &lineAttributes);
    void  SetLineColor(Color_t cindex);
    void  SetLineType(int n, int*dash);

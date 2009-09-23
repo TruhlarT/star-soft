@@ -1,4 +1,4 @@
-// @(#)root/base:$Name:  $:$Id: TVirtualX.interface.h,v 1.5 2009/08/03 18:02:57 fine Exp $
+// @(#)root/base:$Name:  $:$Id: TVirtualX.interface.h,v 1.6 2009/09/23 18:01:41 fine Exp $
 // Author: Valeri Fine   28/07/2004
 
 //
@@ -42,6 +42,8 @@ public:
    virtual void      GetPlanes(Int_t &nplanes);
    virtual void      GetRGB(Int_t index, Float_t &r, Float_t &g, Float_t &b);
    virtual void      GetTextExtent(UInt_t &w, UInt_t &h, char *mess);
+   virtual Int_t     GetFontAscent()  const;
+   virtual Int_t     GetFontDescent() const;
    virtual Float_t   GetTextMagnitude();
    virtual Window_t  GetWindowID(Int_t wid);
    virtual Bool_t    HasTTFonts() const;

@@ -1,4 +1,4 @@
-// @(#)root/qt:$Id: TGQt.h,v 1.12 2009/08/03 18:02:56 fine Exp $
+// @(#)root/qt:$Id: TGQt.h,v 1.13 2009/09/23 18:01:41 fine Exp $
 // Author: Valeri Fine   21/01/2002
 /****************************************************************************
 **
@@ -185,9 +185,11 @@ protected:
     const char            *fSymbolFontFamily; // the name of the font to substiute the non-standard "Symbol"
     Int_t                 fQtEventHasBeenProcessed; // Flag whether the events were processed
     Bool_t                fFeedBackMode;      // TCanvas feedback mode 
-    TQtFeedBackWidget    *fFeedBackWidget;    // The dedicated widget for TCanvas feebback mode
-    Bool_t                fBlockRGB;          // Protect agaist color doubel setting
-    static TQtTextProxy   *fgTextProxy;         // proxy for the custom text rendering engine
+    TQtFeedBackWidget    *fFeedBackWidget;    // The dedicated widget for TCanvas feedback mode
+    Bool_t                fBlockRGB;          // Protect against color double setting
+    Bool_t                fUseTTF;            // Flag whether ROOT font has a priority
+    
+    static TQtTextProxy   *fgTextProxy;       // proxy for the custom text rendering engine
 //
 //   Text management
 //

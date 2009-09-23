@@ -1,7 +1,7 @@
-// @(#)root/qt:$Id: TGQt.cxx,v 1.34 2009/08/03 18:02:57 fine Exp $
+// @(#)root/qt:$Id: TGQt.cxx,v 1.35 2009/09/23 18:01:42 fine Exp $
 // Author: Valeri Fine   21/01/2002
 /****************************************************************************
-** $Id: TGQt.cxx,v 1.34 2009/08/03 18:02:57 fine Exp $
+** $Id: TGQt.cxx,v 1.35 2009/09/23 18:01:42 fine Exp $
 **
 ** Copyright (C) 2002 by Valeri Fine. Brookhaven National Laboratory.
 **                                    All rights reserved.
@@ -793,7 +793,7 @@ void TGQt::PostQtEvent(QObject *receiver, QEvent *event)
 //______________________________________________________________________________
 TGQt::TGQt() : TVirtualX(),fDisplayOpened(kFALSE),fQPainter(0),fQClientFilterBuffer(0)
 ,fCodec(0),fSymbolFontFamily("Symbol"),fQtEventHasBeenProcessed(0)
-,fFeedBackMode(kFALSE),fFeedBackWidget(0),fBlockRGB(kFALSE)
+,fFeedBackMode(kFALSE),fFeedBackWidget(0),fBlockRGB(kFALSE),fUseTTF(kTRUE)
 {
    //*-*-*-*-*-*-*-*-*-*-*-*Default Constructor *-*-*-*-*-*-*-*-*-*-*-*-*-*-*
    //*-*                    ===================
@@ -807,7 +807,7 @@ TGQt::TGQt() : TVirtualX(),fDisplayOpened(kFALSE),fQPainter(0),fQClientFilterBuf
 TGQt::TGQt(const char *name, const char *title) : TVirtualX(name,title),fDisplayOpened(kFALSE)
 ,fQPainter(0),fCursors(kNumCursors),fQClientFilter(0),fQClientFilterBuffer(0),fPointerGrabber(0)
 ,fCodec(0),fSymbolFontFamily("Symbol"),fQtEventHasBeenProcessed(0)
-,fFeedBackMode(kFALSE),fFeedBackWidget(0),fBlockRGB(kFALSE)
+,fFeedBackMode(kFALSE),fFeedBackWidget(0),fBlockRGB(kFALSE),fUseTTF(kTRUE)
 {
    //*-*-*-*-*-*-*-*-*-*-*-*-*-*Normal Constructor*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*
    //*-*                        ==================                              *-*
@@ -850,7 +850,7 @@ Bool_t TGQt::Init(void* /*display*/)
 {
    //*-*-*-*-*-*-*-*-*-*-*-*-*-*Qt GUI initialization-*-*-*-*-*-*-*-*-*-*-*-*-*-*
    //*-*                        ========================                      *-*
-   fprintf(stderr,"** $Id: TGQt.cxx,v 1.34 2009/08/03 18:02:57 fine Exp $ this=%p\n",this);
+   fprintf(stderr,"** $Id: TGQt.cxx,v 1.35 2009/09/23 18:01:42 fine Exp $ this=%p\n",this);
 #ifndef R__QTWIN32
    extern void qt_x11_set_global_double_buffer(bool);
 //   qt_x11_set_global_double_buffer(false);
@@ -982,6 +982,7 @@ Bool_t TGQt::Init(void* /*display*/)
     }
     if (symbolFontFound) TQtPadFont::SetSymbolFontFamily(fontFamily.toAscii().data());
 #endif
+   fUseTTF=gEnv->GetValue("Qt.Screen.TTF",kTRUE);
    //  printf(" TGQt::Init finsihed\n");
    // Install filter for the desktop
    // QApplication::desktop()->installEventFilter(QClientFilter());
@@ -1768,12 +1769,41 @@ void  TGQt::GetTextExtent(unsigned int &w, unsigned int &h, char *mess)
          w = textSize.width() ;
          h = (unsigned int)(textSize.height());
       }
-//      fprintf(stderr,"  TGQt::GetTextExtent  w=%d h=%d font = %d size =%f\n", w,h,fTextFont, fTextSize);
+      // qDebug() << "  TGQt::GetTextExtent  w=" <<w <<" h=" << h << "font = " 
+      //         << fTextFont << " size =" << fTextSize 
+      //         << mess;
    }
+}
+//______________________________________________________________________________
+Int_t TGQt::GetFontAscent() const
+{
+   // Returns ascent of the current font (in pixels).
+   // The ascent of a font is the distance from the baseline 
+   // to the highest position characters extend to
+   Int_t ascent = 0;
+   if (fQFont) {
+      QFontMetrics fm(*fQFont);
+      ascent = fm.ascent(); //+fm.descent();
+   }
+   return ascent;
 }
 
 //______________________________________________________________________________
-Bool_t  TGQt::HasTTFonts() const {return kTRUE;}
+Int_t TGQt::GetFontDescent() const 
+{ 
+   // Returns the descent of the current font (in pixels.
+   // The descent is the distance from the base line 
+   // to the lowest point characters extend to.
+   Int_t descent = 0;
+   if (fQFont) {
+      QFontMetrics fm(*fQFont);
+      descent = fm.descent();
+   }
+   return descent;
+}
+
+//______________________________________________________________________________
+Bool_t  TGQt::HasTTFonts() const {return fUseTTF;}
 
 //______________________________________________________________________________
 void  TGQt::MoveWindow(Int_t wd, Int_t x, Int_t y)
