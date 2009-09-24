@@ -1,5 +1,5 @@
 #!/bin/csh
-#       $Id: group_env.csh,v 1.226 2009/09/15 13:44:11 jeromel Exp $
+#       $Id: group_env.csh,v 1.227 2009/09/24 19:49:07 jeromel Exp $
 #	Purpose:	STAR group csh setup
 #
 # Revisions & notes
@@ -571,38 +571,20 @@ switch ($STAR_SYS)
       if (! -d /usr/afsws/bin) setenv PATH `${GROUP_DIR}/dropit -p $PATH -p ${AFS_RHIC}/i386_redhat50/usr/afsws/bin`
 
 
-      # PGI compiler
-      if ( ! $?PGI) then
-	#if ( $?USE_NATIVE64 ) then
-	#    set x="/usr/pgi64 /usr/pgi"
-        #else
-	#    set x="/usr/pgi"
-        #endif
-	set x="/usr/pgi64 /usr/pgi"
-
-	foreach d ($x)
-	    if ( -d $d ) then
-		setenv PGI $d
-		break
+      # PGI
+      if ( $?redhat ) then
+	# from SL5 onward, stop loading PGI automatically
+	set loadPGI=`echo "$redhat < 50" | /usr/bin/bc`
+	if ( $loadPGI  ) then
+	    if( -x $GROUP_DIR/setup ) then
+		# echo "Executing setup PGI"
+		source $GROUP_DIR/setup PGI
+		# echo "PGI = $PGI"
+	    else
+		if ($ECHO)    echo   "Could not setup PGI environment"
 	    endif
-	end
-      endif
-      if ( $?PGI ) then
-       if ( ! -d $PGI/linux86/bin && -e $PGI/linux86 ) then
-	    set version=`/bin/ls  $PGI/linux86/ | /usr/bin/tail -1`
-	    setenv PGI_V linux86/$version
-       else
-	    setenv PGI_V linux86
-       endif
-       setenv PATH `${GROUP_DIR}/dropit -p $PGI/$PGI_V/bin -p $PATH`
-       if ( -d $PGI/$PGI_V/man) then
-	setenv MANPATH `${GROUP_DIR}/dropit -p ${MANPATH} -p ${PGI}/${PGI_V}/man`
-       else
-	setenv MANPATH `${GROUP_DIR}/dropit -p ${MANPATH} -p ${PGI}/man`
-	#alias  pgman 'man -M $PGI/man'
-       endif
-       setenv PGILIB  ${PGI}/${PGI_V}/lib
-       setenv LM_LICENSE_FILE $PGI/license.dat
+	endif
+	unset loadPGI
       endif
 
 
