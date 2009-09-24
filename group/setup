@@ -19,10 +19,11 @@ if ($#argv == 0 || $#argv > 2) then
 
    Grid|OSG                         Setup Grid environment
    root|ROOT     {version}          load or change root version
-   parasoft|PARASOFT|insure|ISURE   load the Insure++ toolkit environment
 
+   parasoft|PARASOFT|insure|ISURE   load the Insure++ toolkit environment
    gcc           {version}          set environment to use gcc (or alternative version)
    icc|ifc|ifort {version}          set environment to use Intel compilers
+   PGI|pgi                          set PGI path for using its compiler
 
    alt|noalt                        adds/remove OPTSTAR/alt from path
 
@@ -35,6 +36,46 @@ set version = 0;
 if ( $#argv > 0 ) set version = $1
 
 switch ($pkg)
+    case "PGI":
+    case "pgi":
+      # PGI compiler - this may be used
+      if ( ! $?PGI) then
+	#if ( $?USE_NATIVE64 ) then
+	#    set x="/usr/pgi64 /usr/pgi"
+        #else
+	#    set x="/usr/pgi"
+        #endif
+	set x="/usr/pgi64 /usr/pgi"
+
+	foreach d ($x)
+	    if ( -d $d ) then
+		#echo "Setting PGI to $d"
+		setenv PGI $d
+		break
+	    endif
+	end
+      endif
+      if ( $?PGI ) then
+	if ( ! -d $PGI/linux86/bin && -e $PGI/linux86 ) then
+	    set version=`/bin/ls  $PGI/linux86/ | /usr/bin/tail -1`
+	    setenv PGI_V linux86/$version
+	else
+	    setenv PGI_V linux86
+	endif
+	setenv PATH `${GROUP_DIR}/dropit -p $PGI/$PGI_V/bin -p $PATH`
+	if ( -d $PGI/$PGI_V/man) then
+	    setenv MANPATH `${GROUP_DIR}/dropit -p ${MANPATH} -p ${PGI}/${PGI_V}/man`
+	else
+	    setenv MANPATH `${GROUP_DIR}/dropit -p ${MANPATH} -p ${PGI}/man`
+	    #alias  pgman 'man -M $PGI/man'
+	endif
+	setenv PGILIB  ${PGI}/${PGI_V}/lib
+	setenv LM_LICENSE_FILE $PGI/license.dat
+      endif
+      breaksw
+
+
+
     case "OSG":
     case "Grid":
 	# Support for OSG - Try to locate things from OSG including Worker Node
@@ -67,9 +108,11 @@ switch ($pkg)
 		    # redefine path and ld path
 		    setenv PATH             ${GSAVED_PATH}:${PATH}
 		    setenv LD_LIBRARY_PATH  ${GSAVED_LDPATH}:${LD_LIBRARY_PATH}
+	        endif
 	    endif
-	endif
-    endif
+        endif
+	breaksw
+
 
 
     # Root setup
