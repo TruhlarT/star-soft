@@ -94,7 +94,7 @@ if [ -d Coin-${COIN_VERSION} ]; then
  pwd
 
   $srcdir/Coin-${COIN_VERSION}/configure  --enable-optimization=yes  $common_build_opt
-  make -j4
+  make -j 4
   make install
 
  cd $builddir/SmallChange
