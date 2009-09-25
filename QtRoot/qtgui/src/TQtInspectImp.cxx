@@ -1,6 +1,6 @@
 // Author: Valeri Fine   21/01/2002
 /****************************************************************************
-** $Id: TQtInspectImp.cxx,v 1.6 2009/08/03 18:03:10 fine Exp $
+** $Id: TQtInspectImp.cxx,v 1.7 2009/09/25 17:57:06 fine Exp $
 **
 ** Copyright (C) 2002 by Valeri Fine. Brookhaven National Laboratory.
 **                                    All rights reserved.
@@ -26,27 +26,16 @@
 #include "qclipboard.h"
 #include "qapplication.h"
 
-#if QT_VERSION >= 0x40000
-#  include <QTableWidgetItem>
-#  include <QHeaderView>
-#  include <QtDebug>
-#  include <QTableWidget>
-#endif /* QT_VERSION */
+#include <QTableWidgetItem>
+#include <QHeaderView>
+#include <QtDebug>
+#include <QTableWidget>
 
-class TQtInspectorItem : public
-#if QT_VERSION < 0x40000
-                         QListViewItem 
-#else /* QT_VERSION */
-                         QTableWidgetItem 
-#endif /* QT_VERSION */
+class TQtInspectorItem : public   QTableWidgetItem 
                             {
 private:
   TLink *fLink;
 public:
-#if QT_VERSION < 0x40000
-  TQtInspectorItem(QListView * parent, QString label, QString label2,QString label3, TLink *link)
-    :  QListViewItem(parent,label,label2,label3),fLink(link) {}
-#else /* QT_VERSION */
   TQtInspectorItem(QTableWidget*parent, QString label, QString label2,QString label3, TLink *link)
     :  QTableWidgetItem(label),fLink(link) 
   {
@@ -69,7 +58,6 @@ public:
 //       qDebug() << "Row" << rows+1<<":"<< label << label2 << label3;
 
   }
-#endif /* QT_VERSION */
    TLink *Link(){ return fLink;} 
   ~TQtInspectorItem(){delete Link(); }
 };
@@ -85,61 +73,38 @@ public:
 
 //______________________________________________________________________________
 TQtInspectWidget::TQtInspectWidget(QWidget *parent,const TObject *obj) :
-#if QT_VERSION < 0x40000
-                                   QListView(parent,0,Qt::WDestructiveClose)
-#else /* QT_VERSION */
                                   QTableWidget(parent)
-#endif /* QT_VERSION */
 , fInspector(0)
  {
    CreateInspector(obj);
-#if QT_VERSION < 0x40000
-   connect(this,SIGNAL(clicked(QListViewItem *)),SLOT(Selected(QListViewItem *)));
-#else /* QT_VERSION */
    connect(this,SIGNAL(itemClicked(QTableWidgetItem *)),SLOT(Selected(QTableWidgetItem *)));
    setAttribute(Qt::WA_DeleteOnClose);
-#endif /* QT_VERSION */
 }
 
 //______________________________________________________________________________
 TQtInspectWidget::TQtInspectWidget(TQtInspectImp  *parent,const TObject *obj) :
-#if QT_VERSION < 0x40000
-                                   QListView(0,0,Qt::WDestructiveClose)
-#else /* QT_VERSION */
                                   QTableWidget()
-#endif /* QT_VERSION */
 , fInspector(parent)
  {
    CreateInspector(obj);
-#if QT_VERSION < 0x40000
-   connect(this,SIGNAL(clicked(QListViewItem *)),SLOT(Selected(QListViewItem *)));
-#else /* QT_VERSION */
    connect(this,SIGNAL(itemClicked(QTableWidgetItem *)),SLOT(Selected(QTableWidgetItem *)));
    setAttribute(Qt::WA_DeleteOnClose);
-#endif /* QT_VERSION */
 }
 
 //______________________________________________________________________________
 void TQtInspectWidget::CreateInspector(const TObject *obj)
 {
   fObject = obj;
-#if QT_VERSION >= 0x40000   
- setSortingEnabled(false);
- setColumnCount(3);
-#endif      
+  setSortingEnabled(false);
+  setColumnCount(3);
   MakeTitle();
   MakeHeaders();
   AddValues();
-  
-  
+
   // Enable the sorting
-#if QT_VERSION < 0x40000
-  setShowSortIndicator(TRUE); 
-#else  
   verticalHeader()->hide();
   setSortingEnabled(TRUE);
-#endif      
-  
+
 }
 
 //______________________________________________________________________________
@@ -151,22 +116,14 @@ void TQtInspectWidget::MakeHeaders()
   headers[1] = "Value";
   headers[2] = "Title";
 
-#if QT_VERSION < 0x40000
-  Int_t widths[]  = {96,120,-320};
-#else  
   Int_t widths[]  = {96,120, 320};
-#endif  
   int i;
   int lHeader = sizeof(headers)/sizeof(const char *);
   for (i=0;i<lHeader;i++){
-#if QT_VERSION < 0x40000
-    addColumn(headers[i],widths[i]);
-#else    
     QTableWidgetItem *item = new QTableWidgetItem();
     item->setText(tr(headers[i]));
     setHorizontalHeaderItem(i, item);
     setColumnWidth(i, widths[i]);
-#endif           
   }  
 }
 //______________________________________________________________________________
@@ -191,11 +148,7 @@ void TQtInspectWidget::AddValues()
     Bool_t isdate = kFALSE;
     enum {kname, kvalue, ktitle};
 
-    char *line[ktitle+1];
-
-    line[kname] = " ";
-    line[kvalue] = new char[2048];
-    line[ktitle] = " ";
+    QString line[ktitle+1];
 
     TClass *cl = fObject->IsA();
     if (cl == 0) return;
@@ -229,39 +182,39 @@ void TQtInspectWidget::AddValues()
        if (member->IsaPointer()) {
           char **p3pointer = (char**)(*ppointer);
           if (!p3pointer) {
-             sprintf(line[kvalue],"->0");
+             line[kvalue] = "->0";
           } else if (!member->IsBasic()) {
-             sprintf(line[kvalue],"->%p ",  p3pointer );
+             line[kvalue] = QString("->0x%1").arg((ulong)p3pointer,2*sizeof(ulong),16);
              tlink = new TLink(0, 0, p3pointer);
           } else if (membertype){
                if (!strcmp(membertype->GetTypeName(), "char"))
-                  sprintf(line[kvalue], "%s", *ppointer);
+                  line[kvalue] = *ppointer;
                else
-                  strcpy(line[kvalue], membertype->AsString(p3pointer));
+                  line[kvalue] =  membertype->AsString(p3pointer);
           }
           else if (!strcmp(member->GetFullTypeName(), "char*") ||
                    !strcmp(member->GetFullTypeName(), "const char*")) {
-             sprintf(line[kvalue], "%s", *ppointer);
+             line[kvalue] =  *ppointer;
           } else {
-             sprintf(line[kvalue],"->%p ", p3pointer);
+             line[kvalue] = QString("->0x%1").arg( (ulong)p3pointer,2*sizeof(ulong),16);
              tlink = new TLink(0, 0, p3pointer);
           }
        } else if (membertype)
             if (isdate) {
                cdatime = (UInt_t*)pointer;
-               TDatime::GetDateTime(cdatime[0],cdate,ctime);
-               sprintf(line[kvalue],"%d/%d",cdate,ctime);
+               TDatime::GetDateTime(cdatime[0],cdate,ctime); 
+               line[kvalue] = QString("%1/%1").arg(cdate).arg(ctime);
             } else {
-               strcpy(line[kvalue], membertype->AsString(pointer));
+               line[kvalue] =  membertype->AsString(pointer);
             }
        else
-           sprintf(line[kvalue],"->%p ", pointer);
+           line[kvalue] = QString("->0x%1").arg((ulong)pointer,2*sizeof(ulong),16);
 
     //*-*- Encode data member title
 
        if (strcmp(member->GetFullTypeName(), "char*") &&
            strcmp(member->GetFullTypeName(), "const char*")) {
-          line[ktitle] = (char *)member->GetTitle();
+           line[ktitle] = (char *)member->GetTitle();
        }
        if (tlink) {
          tlink->SetName((char *)member->GetTypeName());
@@ -282,38 +235,27 @@ TQtInspectWidget::~TQtInspectWidget()
 void TQtInspectWidget::Hide(){ hide(); }
 //______________________________________________________________________________
 void TQtInspectWidget::Show(){ 
-#if QT_VERSION >= 0x40000
    resizeColumnToContents(2); 
  //  show();
-#endif   
    raise();
    showNormal();
 //   gVirtualX->RaiseWindow(TGQt::iwid(this)); 
 }
 
 //______________________________________________________________________________
-#if QT_VERSION < 0x40000
-void TQtInspectWidget::Selected(QListViewItem * item)
-#else /* QT_VERSION */
-void TQtInspectWidget::Selected(QTableWidgetItem *item)
-#endif /* QT_VERSION */
+void TQtInspectWidget::Selected(QTableWidgetItem *myItem)
 {
   // - Expand the selected item (if possible)
   // - Copy the selected item to the system clipboard
 
-  if (item) {
+  if (myItem) {
     QString clipboardText;
-    
-#if QT_VERSION < 0x40000
-    clipboardText += item->text(0);
-    clipboardText += item->text(1);
-    clipboardText += item->text(2);
-#else    
-    int row = item->row();
-    clipboardText += takeItem(row,0)->text();
-    clipboardText += takeItem(row,1)->text();
-    clipboardText += takeItem(row,2)->text();
-#endif        
+
+    int row = myItem->row();
+    clipboardText += this->item(row,0)->text();
+    clipboardText += this->item(row,1)->text();
+    clipboardText += this->item(row,2)->text();
+
     if ( ! clipboardText.isEmpty() ){
       // Copy it to the system clipboard
       QClipboard *cb = QApplication::clipboard();
@@ -321,11 +263,7 @@ void TQtInspectWidget::Selected(QTableWidgetItem *item)
     }
     // Execute ROOT action
     TQtInspectorItem *it = 0;
-#if QT_VERSION < 0x40000
-    it = (TQtInspectorItem *)item;
-#else    
-    it = (TQtInspectorItem *)takeItem(row,0);
-#endif    
+    it = (TQtInspectorItem *)this->item(row,0);
     if (it) {
        TLink *tlink = it->Link();
        if (tlink) tlink->ExecuteEvent(kButton1Up,0,0);
