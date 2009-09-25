@@ -1,7 +1,7 @@
-// @(#)root/qt:$Id: TGQt.cxx,v 1.35 2009/09/23 18:01:42 fine Exp $
+// @(#)root/qt:$Id: TGQt.cxx,v 1.36 2009/09/25 21:02:15 fine Exp $
 // Author: Valeri Fine   21/01/2002
 /****************************************************************************
-** $Id: TGQt.cxx,v 1.35 2009/09/23 18:01:42 fine Exp $
+** $Id: TGQt.cxx,v 1.36 2009/09/25 21:02:15 fine Exp $
 **
 ** Copyright (C) 2002 by Valeri Fine. Brookhaven National Laboratory.
 **                                    All rights reserved.
@@ -850,7 +850,7 @@ Bool_t TGQt::Init(void* /*display*/)
 {
    //*-*-*-*-*-*-*-*-*-*-*-*-*-*Qt GUI initialization-*-*-*-*-*-*-*-*-*-*-*-*-*-*
    //*-*                        ========================                      *-*
-   fprintf(stderr,"** $Id: TGQt.cxx,v 1.35 2009/09/23 18:01:42 fine Exp $ this=%p\n",this);
+   fprintf(stderr,"** $Id: TGQt.cxx,v 1.36 2009/09/25 21:02:15 fine Exp $ this=%p\n",this);
 #ifndef R__QTWIN32
    extern void qt_x11_set_global_double_buffer(bool);
 //   qt_x11_set_global_double_buffer(false);
@@ -1570,7 +1570,7 @@ void  TGQt::DrawText(int x, int y, float angle, float mgn, const char *text, TVi
          QFontInfo fi(*fQFont);
          proxy->setBaseFontPointSize(fi.pointSize());
          proxy->setForegroundColor(ColorIndex(fTextColor));
-         if (textProxy = proxy->setContent(text)) {
+         if ( ( textProxy = proxy->setContent(text) ) ) {
              w = proxy->width();
              h = proxy->height();
          }
@@ -1759,7 +1759,7 @@ void  TGQt::GetTextExtent(unsigned int &w, unsigned int &h, char *mess)
          proxy->clear();
          QFontInfo fi(*fQFont);
          proxy->setBaseFontPointSize(fi.pointSize());
-         if (textProxy = proxy->setContent(mess)) {
+         if ( (textProxy = proxy->setContent(mess)) ) {
             w = proxy->width();
             h = proxy->height();
          }
