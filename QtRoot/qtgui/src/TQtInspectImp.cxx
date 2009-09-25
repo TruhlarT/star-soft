@@ -1,6 +1,6 @@
 // Author: Valeri Fine   21/01/2002
 /****************************************************************************
-** $Id: TQtInspectImp.cxx,v 1.7 2009/09/25 17:57:06 fine Exp $
+** $Id: TQtInspectImp.cxx,v 1.8 2009/09/25 18:11:09 fine Exp $
 **
 ** Copyright (C) 2002 by Valeri Fine. Brookhaven National Laboratory.
 **                                    All rights reserved.
@@ -184,7 +184,7 @@ void TQtInspectWidget::AddValues()
           if (!p3pointer) {
              line[kvalue] = "->0";
           } else if (!member->IsBasic()) {
-             line[kvalue] = QString("->0x%1").arg((ulong)p3pointer,2*sizeof(ulong),16);
+             line[kvalue] = QString("->0x%1").arg((ulong)p3pointer,2*sizeof(ulong),16,QChar('0'));
              tlink = new TLink(0, 0, p3pointer);
           } else if (membertype){
                if (!strcmp(membertype->GetTypeName(), "char"))
@@ -196,7 +196,7 @@ void TQtInspectWidget::AddValues()
                    !strcmp(member->GetFullTypeName(), "const char*")) {
              line[kvalue] =  *ppointer;
           } else {
-             line[kvalue] = QString("->0x%1").arg( (ulong)p3pointer,2*sizeof(ulong),16);
+             line[kvalue] = QString("->0x%1").arg( (ulong)p3pointer,2*sizeof(ulong),16,QChar('0'));
              tlink = new TLink(0, 0, p3pointer);
           }
        } else if (membertype)
@@ -208,7 +208,7 @@ void TQtInspectWidget::AddValues()
                line[kvalue] =  membertype->AsString(pointer);
             }
        else
-           line[kvalue] = QString("->0x%1").arg((ulong)pointer,2*sizeof(ulong),16);
+           line[kvalue] = QString("->0x%1").arg((ulong)pointer,2*sizeof(ulong),16,QChar('0'));
 
     //*-*- Encode data member title
 
