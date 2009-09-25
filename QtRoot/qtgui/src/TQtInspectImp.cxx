@@ -1,6 +1,6 @@
 // Author: Valeri Fine   21/01/2002
 /****************************************************************************
-** $Id: TQtInspectImp.cxx,v 1.8 2009/09/25 18:11:09 fine Exp $
+** $Id: TQtInspectImp.cxx,v 1.9 2009/09/25 18:33:50 fine Exp $
 **
 ** Copyright (C) 2002 by Valeri Fine. Brookhaven National Laboratory.
 **                                    All rights reserved.
@@ -36,23 +36,27 @@ class TQtInspectorItem : public   QTableWidgetItem
 private:
   TLink *fLink;
 public:
-  TQtInspectorItem(QTableWidget*parent, QString label, QString label2,QString label3, TLink *link)
-    :  QTableWidgetItem(label),fLink(link) 
+  TQtInspectorItem(QTableWidget*parent, QString labelName, QString label2Value,QString label3Title, TLink *link)
+    :  QTableWidgetItem(labelName),fLink(link) 
   {
       Qt::ItemFlags flags = Qt::ItemIsSelectable | Qt::ItemIsEnabled;
       int rows = parent->rowCount();
       parent->setRowCount (rows+1);      
       parent->setItem(rows,0,this); 
-      setText(label);
+      setText(labelName);
       setFlags(flags);
        
       QTableWidgetItem *item= new QTableWidgetItem();       
-      item->setText(label2);
+      item->setText(label2Value);
       item->setFlags(flags);
       parent->setItem(rows,1,item);
-      
+      if (label2Value.contains("->")) {
+         // mark clickable linl with the blue foreground
+          this->setForeground(Qt::blue);
+          item->setForeground(Qt::blue);
+      }
       item= new QTableWidgetItem();
-      item->setText(label3);
+      item->setText(label3Title);
       item->setFlags(flags);
       parent->setItem(rows,2,item);
 //       qDebug() << "Row" << rows+1<<":"<< label << label2 << label3;
