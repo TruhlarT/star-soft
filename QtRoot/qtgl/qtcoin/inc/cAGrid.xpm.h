@@ -1,7 +1,7 @@
 #ifndef COIN_PIXMAP_CAGRID_XPM
 #define COIN_PIXMAP_CAGRID_XPM
 /* XPM */
-static char *cAGrid[] = {
+static const char *cAGrid[] = {
 /* columns rows colors chars-per-pixel */
 "120 119 6 1",
 "  c black",

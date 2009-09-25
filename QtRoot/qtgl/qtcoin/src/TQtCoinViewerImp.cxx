@@ -1069,9 +1069,9 @@ void TQtCoinViewerImp::MakeMenu()
              connect(axGroup,SIGNAL(triggered ( QAction *) ), this, SLOT(SetAxisPositionZCB(QAction *)));
              break;
        }
-       static char **axicons[] = { cA00, cA01, cA10, cA11, cAcc, cAGrid } ;
-       static char *locNames[] = { "-1/-1", "-1/+1", "+1/-1", "+1/+1", "0/0"} ;
-       static char *locTip[] = { "(min %1/min %2)", "(min %1 /max %2)", "(max %1/min %2)", "(max %1/max %2)", "(center %1/center %2)"} ;
+       static const char **axicons[] = { cA00, cA01, cA10, cA11, cAcc, cAGrid } ;
+       static const char *locNames[] = { "-1/-1", "-1/+1", "+1/-1", "+1/+1", "0/0"} ;
+       static const char *locTip[] = { "(min %1/min %2)", "(min %1 /max %2)", "(max %1/min %2)", "(max %1/max %2)", "(center %1/center %2)"} ;
        unsigned char initLocation = fCoinWidget ? fCoinWidget->GetLocation(i) : 0;
        for (int j=0;j<5; ++j) { // 5 possible locations for each axis
           QAction *a = new QAction(QIcon(QPixmap(axicons[j])),locNames[j],this);

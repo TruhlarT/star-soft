@@ -241,7 +241,7 @@ class TCoinSmAxis : public SoMultipleCopy  {
          ,fAxisType(ax)
          ,fGrid(false)
       { 
-         static char *axnames[] = {"X", "Y", "Z"};
+         static const char *axnames[] = {"X", "Y", "Z"};
          fAxis = new SmAxisKit();
          fAxis->axisName = axnames[ax];
          if (ax==kY) {
@@ -677,11 +677,7 @@ static void SelectCB(void * viewer, SoPath *p)
       QWidget *viewerWidget = thisViewer->GetCoinViewer()->getWidget();
       QPoint cursorPosition = viewerWidget->mapFromGlobal(globalPosition);
       QString tipText =  selectedObject->GetObjectInfo(cursorPosition.x(),cursorPosition.y());
-#if QT_VERSION < 0x40000
-      QWhatsThis::display(tipText, globalPosition,viewerWidget);
-#else
       QWhatsThis::showText(globalPosition,tipText,viewerWidget );
-#endif
    } else if (!selectedObject) {
       QPoint globalPosition = QCursor::pos();
       QWidget *viewerWidget = thisViewer->GetCoinViewer()->getWidget();
@@ -690,11 +686,7 @@ static void SelectCB(void * viewer, SoPath *p)
          SbName name = node->getName();
          if (name.getLength()) {            
             QString tipText =  name.getString();
-#if QT_VERSION < 0x40000
-            QWhatsThis::display(tipText, globalPosition,viewerWidget);
-#else
             QWhatsThis::showText(globalPosition,tipText,viewerWidget );
-#endif
          }
       }
    }
@@ -702,11 +694,7 @@ static void SelectCB(void * viewer, SoPath *p)
 
 //______________________________________________________________________________
 TQtCoinWidget::TQtCoinWidget(QWidget *parent, COINWIDGETFLAGSTYPE f)
-#if QT_VERSION < 0x40000
-      :QFrame(parent,0,f)
-#else
-      :QFrame(parent,f)
-#endif      
+   :QFrame(parent,f)
    , TGLViewerImp(0,"",0,0)
    , fInventorViewer(0),fRootNode(0)
    , fShapeNode(0),fWiredShapeNode(0),fClippingShapeNode(0),fSolidShapeNode(0),fRawShapeNode(0)
@@ -793,11 +781,7 @@ void TQtCoinWidget::SetPad(TVirtualPad *pad)
 //______________________________________________________________________________
 TQtCoinWidget::TQtCoinWidget(TVirtualPad *pad, const char *title,
                        UInt_t width, UInt_t height)
-#if QT_VERSION < 0x40000
-   : QFrame(0,"coinviewer", Qt::WDestructiveClose)
-#else 
    : QFrame(0, Qt::WDestructiveClose)
-#endif 
    , TGLViewerImp(0,title,width,height)
    , fInventorViewer(0),fRootNode(0)
    , fShapeNode(0),fWiredShapeNode(0),fClippingShapeNode(0),fSolidShapeNode(0),fRawShapeNode(0)
@@ -1003,11 +987,7 @@ void TQtCoinWidget::ViewAll()
             // read the background object if any (list of comma "," separated files)
             TString bkShape;
             if ( !fViewerDrawOption.isEmpty()) 
-#if QT_VERSION >= 0x40000
                bkShape=(const char *)fViewerDrawOption.toStdString().c_str();
-#else
-               bkShape=(const char*)fViewerDrawOption;
-#endif
             const char *shp =  gEnv->GetValue("Gui.InventorBackgroundShape",(const char *)0);
             if (shp && shp[0]) { bkShape += ","; bkShape += shp; }
             // printf("TQtCoinWidget::AddRootChild------------bkShape  %s  <===\n",bkShape.Data());
@@ -2679,18 +2659,11 @@ void TQtCoinWidget::SetClipPlaneZCB()
 void TQtCoinWidget::SetSlicePlaneCB()
 {
    // Switch to Off state
-#if QT_VERSION < 0x40000
-   if (fClipPlaneState->state() != QButton::Off) {
-      fClipPlaneState->setChecked(false);
-      ClipPlaneModeCB(QButton::Off);
-   }
-#else
    if (fClipPlaneState->checkState() != Qt::Unchecked) {
       fClipPlaneState->setCheckState(Qt::Unchecked);
       ClipPlaneModeCB(Qt::Unchecked);
    }
-#endif            
-    SbVec3d normal =   fClipPlane->plane.getValue().getNormal();
+   SbVec3f normal =   fClipPlane->plane.getValue().getNormal();
    // Invert normal
    normal *= -1;
    float distance =   fClipPlane->plane.getValue().getDistanceFromOrigin();
@@ -2703,18 +2676,10 @@ void TQtCoinWidget::SetSlicePlaneCB()
 //_______________________________________________________________________________
 void TQtCoinWidget::SetActiveClipPlane(int planeDirection)
 {
-#if QT_VERSION < 0x40000
-   if (fClipPlaneState->state()      != QButton::Off) 
-#else
    if (fClipPlaneState->checkState() !=Qt::Unchecked)
-#endif                  
    {
       fClipPlaneState->blockSignals(true);
-#if QT_VERSION < 0x40000
-      if (fClipPlaneState->state() == QButton::On)
-#else
       if (fClipPlaneState->checkState() == Qt::Checked)
-#endif                  
       {
          // Recreate the path
          if (fClipPlanePath) {
@@ -2727,11 +2692,7 @@ void TQtCoinWidget::SetActiveClipPlane(int planeDirection)
             fClipPlaneMan->unref(); fClipPlaneMan = 0;
          }
       } else {
-#if QT_VERSION < 0x40000
-         fClipPlaneState->setChecked(true);
-#else
          fClipPlaneState->setCheckState(Qt::Checked);
-#endif                  
       }
       switch (planeDirection) {
          case 0: SetClipPlaneMan(kTRUE,-1, 0, 0); break;
@@ -2994,27 +2955,15 @@ void TQtCoinWidget::ViewPlaneZ() const
 void TQtCoinWidget::ClipPlaneModeCB(int mode)
 {
    switch (mode) {
-#if QT_VERSION < 0x40000
-       case QButton::Off:
-#else          
        case Qt::Unchecked:
-#endif          
           // Remove the clip plane manipulator
           SetClipPlaneMan(false);
           break;
-#if QT_VERSION < 0x40000
-       case QButton::On:
-#else          
        case   Qt::Checked:
-#endif          
           // Set the clip plane manipulator
           SetClipPlaneMan(true);
           break;
-#if QT_VERSION < 0x40000
-       case QButton::NoChange:
-#else          
        case Qt::PartiallyChecked:
-#endif          
        default:
           // Remove the clip plane manipulator if present
           if (fClipPlaneMan->getRefCount() > 1 ) SetClipPlaneMan(false);

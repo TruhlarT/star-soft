@@ -2,7 +2,7 @@
 #define COIN_PIXMAP_CA11_XPM
 
 /* XPM */
-static char *cA11[] = {
+static const char *cA11[] = {
 /* columns rows colors chars-per-pixel */
 "119 118 43 1",
 "  c black",
