@@ -144,7 +144,7 @@ endif
 
 # attempt to check qt from ROOT
 if ( -e ${ROOTSYS}/config.log ) then
-    if ( -e ${OPTSTAR}/qt4 && -e ${OPTSTAR}/qt3 ) then
+    if ( -e ${OPTSTAR}/qt4 || -e ${OPTSTAR}/qt3 ) then
 	# there is a possibility for an ambiguity to be
 	# resolved
 	set test1=`/bin/grep qt4 ${ROOTSYS}/config.log | /usr/bin/wc -l`
