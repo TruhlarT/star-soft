@@ -20,7 +20,11 @@ $MIN   =  1;                                             # 4
 $MAX   =  6;                                             # for testing
 $MAX   = 85;                                             # Upper number ; can be as high
 $MAIN  = "/star/data";                                   # default base path
-@ADDD  = ("/star/institutions/*");                       # will be used in a glob statement
+@ADDD  = ("/star/institutions/*",                        # will be used in a glob statement
+	  "/star/u/",
+	  "/star/simu/",
+	  "/star/grid/",
+	  "/star/starlib/");                       
 
 
 # Static configuration
@@ -49,7 +53,7 @@ $BREAK{"06"}   =  "Production Disks / Assigned TEMPORARY space for Projects";
 $BREAK{"09"}   =  "Production Disks";
 
 # Addiitonal header based on patterns
-$BHEAD{"inst"} =  "Institution disks";
+$BHEAD{"inst"} =  "Institution or specialized usage disks";
 $BEND          = "#terminate header#" ;  # a random header pattern indicating it will not be re-used
 
 # A generic tag for addiitonal intremediate markers
