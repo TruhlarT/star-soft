@@ -23,19 +23,20 @@ SMALLCHANGE_VERSION=1083
 
 #_____________________________________________________________________
 Download() {
-#  download the Coin3D $1 component, version $2
+  # --  download the Coin3D $1 component, version $2
   package=$1
   package_version=$2
   full_package_file=${package}${package_version}
   echo Downloading . . .${full_package_file}  . . . .
   wget http://ftp.coin3d.org/coin/src/all/${full_package_file}.tar.gz
   # svn co https://svn.coin3d.org/repos/${package}/trunk ${package}
-  if [ ! -d ${package} ]; then 
-      mkdir ${package}
+  if [ -d ${package} ]; then 
+  # remove the old version to start from the scratch
+      rm -rf ${package}
   fi
-  cd ${package}
-  tar  --strip-components=1  -xzf ../${full_package_file}.tar.gz
-  cd ..
+  tar -xzf ${full_package_file}.tar.gz
+  #--  rename the directory (We can not use symbolic link to make Windows happy
+  mv ${full_package_file} ${package}
   echo ------------ Done ! 
 }
 # --
@@ -44,11 +45,12 @@ Download() {
 COIN_VERSION_MAJOR=3
 COIN_VERSION_MINOR=1.1
 COIN_VERSION=${COIN_VERSION_MAJOR}.${COIN_VERSION_MINOR}
-PACKAGE=Coin-${COIN_VERSION_MAJOR}.
-PACKAGE_VERSION=${COIN_VERSION_MINOR}
+PACKAGE=Coin-${COIN_VERSION_MAJOR}
+PACKAGE_VERSION=.${COIN_VERSION_MINOR}
 Download ${PACKAGE}  ${PACKAGE_VERSION}
 
-# --
+
+# -- -r 2451
 # -------------  SoQt ----------------
 #
 PACKAGE=SoQt
