@@ -1,4 +1,4 @@
-// @(#)root/base:$Name:  $:$Id: TEmbeddedPad.h,v 1.5 2009/08/16 01:07:21 fine Exp $
+// @(#)root/base:$Name:  $:$Id: TEmbeddedPad.h,v 1.6 2009/09/30 17:55:23 fine Exp $
 // Author: Valeri Fine   02/18/2006
 /****************************************************************************
 **
@@ -67,9 +67,7 @@ protected:
     virtual void RecursiveRemove(TObject *obj);
     virtual TVirtualViewer3D *GetViewer3D(Option_t *type);
     virtual Int_t GetGLDevice();
-#if ROOT_VERSION_CODE >= ROOT_VERSION(5,24,0)
     virtual TVirtualPadPainter *GetPainter();
-#endif
 
 public:
 
