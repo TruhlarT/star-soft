@@ -1,4 +1,4 @@
-// @(#)root/base:$Name:  $:$Id: TEmbeddedPad.cxx,v 1.7 2009/08/16 01:07:21 fine Exp $
+// @(#)root/base:$Name:  $:$Id: TEmbeddedPad.cxx,v 1.8 2009/10/02 00:58:39 fine Exp $
 // Author: Valeri Fine   02/18/2006
 
 /****************************************************************************
@@ -158,10 +158,10 @@ void  TEmbeddedPad::Close(Option_t *option)
 ::Close(option);
 }
 
-#if ROOT_VERSION_CODE >= ROOT_VERSION(5,24,0)
 //______________________________________________________________________________
 TVirtualPadPainter *TEmbeddedPad::GetPainter()
 {
+#if ROOT_VERSION_CODE >= ROOT_VERSION(5,24,0)
    //Get pad painter from TCanvas.
    // The method is not virtual. The bug report has was filed
    // <http://savannah.cern.ch/bugs/?54044>
@@ -182,8 +182,11 @@ TVirtualPadPainter *TEmbeddedPad::GetPainter()
       }
    }
    return  fPainter;
-}
+#else
+   return 0;
 #endif
+
+}
 
 //______________________________________________________________________________
 Int_t TEmbeddedPad::GetCanvasID() const
