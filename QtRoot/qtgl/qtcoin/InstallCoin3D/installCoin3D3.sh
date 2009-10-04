@@ -1,5 +1,22 @@
 #!/bin/sh
 COIN_VERSION=3
+IV_PLATFORM=$(uname -s )
+NCPUS=0
+if [ "$IV_PLATFORM" == "Linux" ]; then
+    NCPUS=$(grep -e 'cpu[0-9]' /proc/stat | grep -c .)
+fi
+##=================================================================
+if [ "$IV_PLATFORM" == "Darwin" ]; then
+    NCPUS=$(/usr/sbin/system_profiler SPHardwareDataType | grep Cores: | sed s/.*Cores://g )
+fi
+##=================================================================
+if [ "$IV_PLATFORM" == "Win" ]; then
+    NCPUS=$(grep -e 'cpu[0-9]' /proc/stat | grep -c .)
+fi
+
+if [ "$NCPUS" -le "0" ]; then
+    NCPUS=1;
+fi
 
 # stop at the first error.
 # trap  "echo ; echo SOME FATAL ERROR DURING COIN3D INSTALLATION, SORRY... ; echo ; exit;" ERR
@@ -86,7 +103,7 @@ if [ -d Coin-${COIN_VERSION} ]; then
  echo " Configure simage $builddir/simage"
  cd $builddir/simage
   $srcdir/simage/configure --enable-optimization=yes  $enable_qt_debug --enable-qimage --with-qt=true --with-mpeg2enc --with-avienc $common_build_opt
-  make -j 4
+  make -j $NCPUS
   make install
  
  cd $builddir/Coin-${COIN_VERSION}
@@ -94,7 +111,7 @@ if [ -d Coin-${COIN_VERSION} ]; then
  pwd
 
   $srcdir/Coin-${COIN_VERSION}/configure  --enable-optimization=yes  $common_build_opt
-  make -j 4
+  make -j $NCPUS
   make install
 
  cd $builddir/SmallChange
@@ -102,13 +119,13 @@ if [ -d Coin-${COIN_VERSION} ]; then
  pwd
 
   $srcdir/SmallChange/configure --enable-optimization=yes  $common_build_opt
-  make -j 4
+  make -j $NCPUS
   make install
   
  echo " Configure SoQt"
  cd $builddir/SoQt
    $srcdir/SoQt/configure   $enable_qt_debug  --with-qt=true  --with-coin    $common_build_opt
-    make -j 4
+    make -j $NCPUS
     make install
   
 # echo " Configure Quarter"
@@ -127,13 +144,13 @@ if [ -d Coin-${COIN_VERSION} ]; then
   fi
 
   export PATH=$installDir/bin:$PATH
-  cd $builddir/SoGuiExamples-SoQt
+# cd $builddir/SoGuiExamples-SoQt
 ## Skip this step on Windows 
-  uname -s | grep CYGWIN && PLATFORM=Win
-  if [ "x$PLATFORM" != "xWin" ]; then 
-    $srcdir/SoGuiExamples/configure --with-soqt $common_build_opt
-    make
-  fi
+#  uname -s | grep CYGWIN && PLATFORM=Win
+#  if [ "x$PLATFORM" != "xWin" ]; then 
+#    $srcdir/SoGuiExamples/configure --with-soqt $common_build_opt
+#    make
+#  fi
   echo "---- Installation of Coin3D package has been completed"
   echo " Do not forget to set the env variable "
   echo "export IVROOT=$installDir"
