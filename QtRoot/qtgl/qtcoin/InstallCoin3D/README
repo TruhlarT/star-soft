@@ -42,23 +42,23 @@ To install Coint Suite:
      build directory in  this order:
      
      cd coinBuild/simage
-     ${COIN_SRC}/simage/configure      --prefix=${COIN_PREFIX}  --enable-threadsafe --enable-debug --disable-dependency-tracking --enable-optimization=yes   --enable-qimage --with-qt=true --with-mpeg2enc --with-avienc 
+     ${COIN_SRC}/simage/configure      --prefix=${COIN_PREFIX}  --enable-threadsafe  --enable-optimization=yes   --enable-qimage --with-qt=true --with-mpeg2enc --with-avienc 
      make -j 9   # estimated time to complete 20 sec  (on rcas6002)
      make install
 
      cd coinBuild/Coin-3
-     ${COIN_SRC}/Coin-3/configure      --prefix=${COIN_PREFIX}  --enable-threadsafe --enable-debug --disable-dependency-tracking --enable-optimization=yes
+     ${COIN_SRC}/Coin-3/configure      --prefix=${COIN_PREFIX}  --enable-threadsafe  --enable-optimization=yes
      make -j 9   # estimated time to complete 15 min  (on rcas6002) 
      make install
     
      setenv PATH ${COIN_PREFIX}/bin:$PATH
      cd coinBuild/Coin-3
-     ${COIN_SRC}/SmallChange/configure --prefix=${COIN_PREFIX}  --enable-threadsafe --enable-debug --disable-dependency-tracking --enable-optimization=yes 
+     ${COIN_SRC}/SmallChange/configure --prefix=${COIN_PREFIX}  --enable-threadsafe  --enable-optimization=yes 
      make -j 9  # estimated time to complete 1 min  (on rcas6002)
      make install
 
      cd coinBuild/SoQt
-     ${COIN_SRC}/SoQt/configure        --prefix=${COIN_PREFIX}  --enable-threadsafe --enable-debug --disable-dependency-tracking --enable-optimization=yes  --with-qt=true --with-coin
+     ${COIN_SRC}/SoQt/configure        --prefix=${COIN_PREFIX}  --enable-threadsafe  --enable-optimization=yes  --with-qt=true --with-coin
      make -j 9  # estimated time to complete 9 min (on rcas6002)
      make install
 
