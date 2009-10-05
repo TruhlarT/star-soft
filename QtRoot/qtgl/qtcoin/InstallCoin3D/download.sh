@@ -7,6 +7,7 @@
 # --trap  "echo ; echo SOME FATAL ERROR DURING Coin3D downloading, SORRY... ; echo ; exit;" ERR
 
 DOWNLOAD_FTP=Yes
+CREATE_TAR_FROM_SVN=yes
 COIN_FTP_SERVER=http://ftp.coin3d.org/coin/src/all
 COIN_SVN_SERVER=https://svn.coin3d.org/repos
 
@@ -55,7 +56,11 @@ Download() {
     # ---   via svn server
     echo Downloading . . . ${package} from ${COIN_SVN_SERVER}/${package}/trunk   . . . .
     svn co ${COIN_SVN_SERVER}/${package}/trunk ${package}
-  fi  
+    if [ "x${CREATE_TAR_FROM_SVN}" == "xYes" ]; then 
+       echo Creating the tar file for the local archive  . . . 
+       tar -czf ${package}.tar.gz ${package}
+    fi
+  fi
   echo ------------ Done ! 
 }
 # --
