@@ -399,9 +399,9 @@ print <<END;
 <TD ALIGN=CENTER WIDTH=\"5%\" HEIGHT=50><B>Input Transfer</B></TD>
 <TD ALIGN=CENTER WIDTH=\"5%\" HEIGHT=50><B>Output Transfer</B></TD>
 <TD ALIGN=CENTER WIDTH=\"10%\" HEIGHT=50><B>Reco Status</B></TD>
-<TD ALIGN=CENTER WIDTH=\"10%\" HEIGHT=50><B>Submission Time<br>EST</B></TD>
+<TD ALIGN=CENTER WIDTH=\"10%\" HEIGHT=50><B>Submission Time<br>EDT</B></TD>
 <TD ALIGN=CENTER WIDTH=\"10%\" HEIGHT=50><B>Reco Finish Time<br>site local</B></TD>
-<TD ALIGN=CENTER WIDTH=\"10%\" HEIGHT=50><B>Files Created at Time<br>EST</B></TD>
+<TD ALIGN=CENTER WIDTH=\"10%\" HEIGHT=50><B>Files Created at Time<br>EDT</B></TD>
 </TR> 
    </head>
     <body>
