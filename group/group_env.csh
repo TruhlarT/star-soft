@@ -1,5 +1,5 @@
 #!/bin/csh
-#       $Id: group_env.csh,v 1.228 2009/09/24 19:54:11 jeromel Exp $
+#       $Id: group_env.csh,v 1.229 2009/10/20 15:11:32 jeromel Exp $
 #	Purpose:	STAR group csh setup
 #
 # Revisions & notes
@@ -580,7 +580,9 @@ switch ($STAR_SYS)
 	    if( -x $GROUP_DIR/setup ) then
 		if ( $?DECHO ) echo "$self :: Executing setup PGI"
 		source $GROUP_DIR/setup PGI
-		if ( $?DECHO ) echo "$self :: PGI = $PGI"
+		if ( $?DECHO ) then
+		    echo "$self :: PGI = $PGI"
+		endif
 	    else
 		if ($ECHO)    echo   "Could not setup PGI environment"
 	    endif
