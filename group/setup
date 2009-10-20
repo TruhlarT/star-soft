@@ -12,6 +12,7 @@ if ($#argv == 0 || $#argv > 2) then
                                     the STAR software
    nodebug|NODEBUG                  switch the environment to the nodebug (optimized) 
                                     of the STAR software
+   64bits|32bits                    Switch to 64 or 64 bits env
 
    gprof|GRPOF                      enables/disables gprof profiling environment
    nogprof|NOGPROF                  non-optimized version will be implied when enabled
@@ -36,6 +37,22 @@ set version = 0;
 if ( $#argv > 0 ) set version = $1
 
 switch ($pkg)
+    case "64bits":
+    case "64b":
+      setenv USE_64BITS 1
+      source $GROUP_DIR/STAR_SYS
+      unsetenv OPTSTAR
+      source $GROUP_DIR/group_env.csh
+      breaksw
+
+    case "32bits":
+    case "32b":
+      setenv USE_64BITS 0
+      source $GROUP_DIR/STAR_SYS
+      unsetenv OPTSTAR
+      source $GROUP_DIR/group_env.csh 
+      breaksw
+
     case "PGI":
     case "pgi":
       # PGI compiler - this may be used
