@@ -1,4 +1,4 @@
-// @(#)root/base:$Name:  $:$Id: TEmbeddedPad.h,v 1.6 2009/09/30 17:55:23 fine Exp $
+// @(#)root/base:$Name:  $:$Id: TEmbeddedPad.h,v 1.7 2009/10/21 19:07:45 fine Exp $
 // Author: Valeri Fine   02/18/2006
 /****************************************************************************
 **
@@ -90,10 +90,10 @@ public:
     virtual Bool_t IsBatch()    const;
 
     virtual TObject *Pick(Int_t px, Int_t py);
-    virtual TPad    *Pick(Int_t px, Int_t py, TObjLink *&pickobj) { return TPad::Pick(px,py,pickobj); }
+    virtual TPad    *Pick(Int_t px, Int_t py, TObjLink *&pickobj);
 
     virtual void  Print(const char *filenam, Option_t *option);
-    virtual void  Print(Option_t *option="") const { TPad::Print(option); }
+    virtual void  Print(Option_t *option="") const;
     virtual void  ResizePad(UInt_t width, UInt_t height);
     virtual void  ResizePad(Option_t *option="");
     virtual void  Update();

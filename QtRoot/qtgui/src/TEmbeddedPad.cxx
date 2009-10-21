@@ -1,4 +1,4 @@
-// @(#)root/base:$Name:  $:$Id: TEmbeddedPad.cxx,v 1.8 2009/10/02 00:58:39 fine Exp $
+// @(#)root/base:$Name:  $:$Id: TEmbeddedPad.cxx,v 1.9 2009/10/21 19:07:45 fine Exp $
 // Author: Valeri Fine   02/18/2006
 
 /****************************************************************************
@@ -382,6 +382,7 @@ Int_t TEmbeddedPad::GetHandle( Int_t id, double m11, double m12, double m21, dou
 {
    // Copy the pad pixmap onto the pixmap defined by "id"
    // To create the id one has to apply TVirtualX::OpenPixmap   method
+   //    Int_t qpixid = gVirtualX->OpenPixmap(...);
    // to free the id one should apply 
    //        TVirtualX::SelectPixmap(Int_t qpixid)
    //        TVirtualX::ClosePixmap()
@@ -773,4 +774,15 @@ Int_t TEmbeddedPad::GetGLDevice()
 #else
    return -1;
 #endif
+}
+
+//______________________________________________________________________________
+TPad    *TEmbeddedPad::Pick(Int_t px, Int_t py, TObjLink *&pickobj) 
+{ 
+   return TPad::Pick(px,py,pickobj); 
+}
+//______________________________________________________________________________
+void  TEmbeddedPad::Print(Option_t *option) const 
+{ 
+   TPad::Print(option); 
 }
