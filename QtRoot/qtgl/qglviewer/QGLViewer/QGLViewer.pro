@@ -198,19 +198,28 @@ unix {
   INSTALLS *= target include documentation docImages docRefManual
 }
 
+message ( --  L i n u x  -- linux-g++ ) 
 
 #		--  L i n u x  --
 linux-g++ {
+message ( --  L i n u x  -- linux-g++ ) 
   # Patch for gcc 3.2.0 and 3.3.1-2
   system( g++ --version | grep " 3\.2\.0 " > /dev/null )|system( g++ --version | grep " 3\.3\.1\-2" > /dev/null ) {
       message( Patching gcc bug - using debug configuration )
       CONFIG -= release
       CONFIG *= debug
   }
-  #Patch to for gcc 4.3.2 bug
-  QMAKE_CXXFLAGS *= -fno-inline  
+  #Patch for gcc 4.3.2 bug
+  QMAKE_CXXFLAGS = -fno-inline
 }
-
+linux-g++-32 {
+  message ( Patch for gcc 4.3.2 bug --  L i n u x  -- linux-g++-32 ) 
+  QMAKE_CXXFLAGS = -fno-inline
+}
+linux-g++-64 {
+  message ( Patch for gcc 4.3.2 bug --  L i n u x  -- linux-g++-64 ) 
+  QMAKE_CXXFLAGS = -fno-inline
+}
 
 #		--  S G I   I r i x  --
 irix-cc|irix-n32 {
