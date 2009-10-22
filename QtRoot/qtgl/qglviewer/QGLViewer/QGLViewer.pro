@@ -198,8 +198,6 @@ unix {
   INSTALLS *= target include documentation docImages docRefManual
 }
 
-message ( --  L i n u x  -- linux-g++ ) 
-
 #		--  L i n u x  --
 linux-g++ {
 message ( --  L i n u x  -- linux-g++ ) 
@@ -210,15 +208,15 @@ message ( --  L i n u x  -- linux-g++ )
       CONFIG *= debug
   }
   #Patch for gcc 4.3.2 bug
-  QMAKE_CXXFLAGS = -fno-inline
+  QMAKE_CXXFLAGS *= -fno-inline
 }
 linux-g++-32 {
   message ( Patch for gcc 4.3.2 bug --  L i n u x  -- linux-g++-32 ) 
-  QMAKE_CXXFLAGS = -fno-inline
+  QMAKE_CXXFLAGS *= -fno-inline
 }
 linux-g++-64 {
   message ( Patch for gcc 4.3.2 bug --  L i n u x  -- linux-g++-64 ) 
-  QMAKE_CXXFLAGS = -fno-inline
+  QMAKE_CXXFLAGS *= -fno-inline
 }
 
 #		--  S G I   I r i x  --
