@@ -7,7 +7,6 @@
 # If your Qt version is lower than 3.1 (look at $QTDIR/lib), you need to link with GLUT.
 # Uncomment the following line:
 # USE_GLUT = yes
-message(HELLO)
 TEMPLATE = lib
 TARGET = QGLViewer
 VERSION = 2.3.1
@@ -16,10 +15,11 @@ win32 {
   CONFIG *= qt opengl warn_on shared thread create_prl rtti
 }
 unix {
- CONFIG -= debug debug_and_release
- CONFIG *= release qt opengl warn_on shared thread create_prl rtti
+CONFIG -= debug debug_and_release
+CONFIG *= release qt opengl warn_on shared thread create_prl rtti
+# respect the external release / debug options
+#  CONFIG *=  qt opengl warn_on shared thread create_prl rtti
 }
-
 QMAKE_RPATH=
 
 HEADERS = qglviewer.h \
@@ -207,6 +207,8 @@ linux-g++ {
       CONFIG -= release
       CONFIG *= debug
   }
+  #Patch to for gcc 4.3.2 bug
+  QMAKE_CXXFLAGS *= -fno-inline  
 }
 
 
