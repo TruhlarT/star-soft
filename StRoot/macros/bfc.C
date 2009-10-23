@@ -3,7 +3,7 @@
 // Macro for running chain with different inputs                        //
 // owner:  Yuri Fisyak                                                  //
 //                                                                      //
-// $Id: bfc.C,v 1.173 2009/10/22 19:19:53 jeromel Exp $
+// $Id: bfc.C,v 1.167.2.1 2009/10/23 18:11:26 didenko Exp $
 //////////////////////////////////////////////////////////////////////////
 class StBFChain;        
 class StMessMgr;
@@ -49,9 +49,6 @@ void Load(const Char_t *options){
     if (!TString(options).Contains("nodefault",TString::kIgnoreCase) || 
 	TString(options).Contains("mysql",TString::kIgnoreCase)) {
       Char_t *mysql = "libmysqlclient";
-      //
-      // ATTENTION: The below will FAIL for 64 bits systems (JL 2009/10/22)
-      //
       Char_t *libs[]  = {"", "/usr/mysql/lib/","/usr/lib/", 0}; // "$ROOTSYS/mysql-4.1.20/lib/",
       //Char_t *libs[]  = {"/usr/lib/", 0};
       Int_t i = 0;
@@ -67,26 +64,27 @@ void Load(const Char_t *options){
       }
     }
   }
-  //  if (gClassTable->GetID("TMatrix") < 0) gSystem->Load("StarRoot");// moved to rootlogon.C  StMemStat::PrintMem("load StarRoot");
+  if (gClassTable->GetID("TTable")  < 0) gSystem->Load("libTable");
+  if (gClassTable->GetID("TRArray") < 0) gSystem->Load("StarRoot");//  TMemStat::PrintMem("load StarRoot");
 #ifdef UseLogger
   // Look up for the logger option
   Bool_t needLogger  = kFALSE;
   if (!TString(options).Contains("-logger",TString::kIgnoreCase)) {
-    needLogger = gSystem->Load("liblog4cxx.so") <= 0;              //  StMemStat::PrintMem("load log4cxx");
+    needLogger = kTRUE;              //  TMemStat::PrintMem("load log4cxx");
   }
 #endif
-  gSystem->Load("libSt_base");                                        //  StMemStat::PrintMem("load St_base");
+  gSystem->Load("libSt_base");                                        //  TMemStat::PrintMem("load St_base");
 #ifdef UseLogger
   if (needLogger) {
     gSystem->Load("libStStarLogger.so");
-    gROOT->ProcessLine("StLoggerManager::StarLoggerInit();");      //  StMemStat::PrintMem("load StStarLogger");
+    gROOT->ProcessLine("StLoggerManager::StarLoggerInit();");      //  TMemStat::PrintMem("load StStarLogger");
   }
 #endif
   gSystem->Load("libHtml");
-  gSystem->Load("libStChain");                                        //  StMemStat::PrintMem("load StChain");
-  gSystem->Load("libStUtilities");                                    //  StMemStat::PrintMem("load StUtilities");
-  gSystem->Load("libStBFChain");                                      //  StMemStat::PrintMem("load StBFChain");
-  gSystem->Load("libStChallenger");                                   //  StMemStat::PrintMem("load StChallenger");
+  gSystem->Load("libStChain");                                        //  TMemStat::PrintMem("load StChain");
+  gSystem->Load("libStUtilities");                                    //  TMemStat::PrintMem("load StUtilities");
+  gSystem->Load("libStBFChain");                                      //  TMemStat::PrintMem("load StBFChain");
+  gSystem->Load("libStChallenger");                                   //  TMemStat::PrintMem("load StChallenger");
 }
 //_____________________________________________________________________
 void bfc(Int_t First, Int_t Last,
@@ -101,12 +99,9 @@ void bfc(Int_t First, Int_t Last,
   // Dynamically link some shared libs
   if (gClassTable->GetID("StBFChain") < 0) Load(Chain);
   chain = new StBFChain(); cout << "Create chain " << chain->GetName() << endl;
-  TString tChain(Chain);
-  chain->cd();
   chain->SetDebug(1);
   if (Last < -3) return;
   chain->SetFlags(Chain);
-  if (tChain == "" || ! tChain.CompareTo("ittf",TString::kIgnoreCase)) Usage();
   chain->Set_IO_Files(infile,outfile);
   if (TreeFile) chain->SetTFile(new TFile(TreeFile,"RECREATE"));
   gMessMgr->QAInfo() << Form("Process [First=%6i/Last=%6i/Total=%6i] Events",First,Last,Last-First+1) << endm;
@@ -120,14 +115,13 @@ void bfc(Int_t First, Int_t Last,
     gMessMgr->Error() << "Problems with instantiation of Maker(s)" << endm;
     gSystem->Exit(1);
   }
-  if (Last < 0) return;
   StMaker *dbMk = chain->GetMaker("db");
   if (dbMk) dbMk->SetDebug(1);
 #if 0
   // Insert your maker before "tpc_hits"
   Char_t *myMaker = "St_TLA_Maker";
   if (gClassTable->GetID(myMaker) < 0) {
-	  gSystem->Load(myMaker);//  TString ts("load "; ts+=myMaker; StMemStat::PrintMem(ts.Data());
+	  gSystem->Load(myMaker);//  TString ts("load "; ts+=myMaker; TMemStat::PrintMem(ts.Data());
   }
   StMaker *myMk = chain->GetMaker(myMaker);
   if (myMk) delete myMk;
@@ -160,20 +154,28 @@ void bfc(Int_t First, Int_t Last,
   gMessMgr->QAInfo() << Form("Run on %s in %s",gSystem->HostName(),gSystem->WorkingDirectory()) << endm;
   gMessMgr->QAInfo() << Form("with %s", chain->GetCVS()) << endm;
   // Init the chain and all its makers
-  TAttr::SetDebug(0);
+  Int_t iTotal = 0, iBad = 0;
+
   chain->SetAttr(".Privilege",0,"*"                ); 	//All  makers are NOT priviliged
   chain->SetAttr(".Privilege",1,"StIOInterFace::*" ); 	//All IO makers are priviliged
   chain->SetAttr(".Privilege",1,"St_geant_Maker::*"); 	//It is also IO maker
-  chain->SetAttr(".Privilege",1,"StTpcDbMaker::*"); 	//It is also TpcDb maker to catch trips
+  if (Last < 0) return;
   Int_t iInit = chain->Init();
   if (iInit >=  kStEOF) {chain->FatalErr(iInit,"on init"); return;}
   if (Last == 0) return;
   StEvtHddr *hd = (StEvtHddr*)chain->GetDataSet("EvtHddr");
   if (hd) hd->SetRunNumber(-2); // to be sure that InitRun calls at least once
     // skip if any
-  chain->EventLoop(First,Last,0);
+  chain->Skip(First-1);
+  StMaker *treeMk = chain->GetMaker("outputStream");
+  chain->EventLoop(First,Last,treeMk);
   gMessMgr->QAInfo() << "Run completed " << endm;
   gSystem->Exec("date");
+  {
+    TDatime t;
+    gMessMgr->QAInfo() << Form("Run is finished at Date/Time %i/%i; Total events processed :%i and not completed: %i",
+			       t.GetDate(),t.GetTime(),iTotal,iBad) << endm;
+  }
 }
 //_____________________________________________________________________
 void bfc(Int_t Last, 
@@ -186,6 +188,15 @@ void bfc(Int_t Last,
 }
 //____________________________________________________________
 void Usage() {
+  Char_t *path  = "./StRoot/StBFChain:$STAR/StRoot/StBFChain";
+  Char_t *rootf = "BigFullChain.h";
+  Char_t *file = gSystem->Which(path,rootf,kReadPermission);
+  if (file) {
+    printf ("============= \tBigFullChain options  =============\n");
+    TString cmd("cat ");
+    cmd += file;
+    gSystem->Exec(cmd);
+  }
   printf ("============= \t U S A G E =============\n");
   printf ("bfc(Int_t First,Int_t Last,const Char_t *Chain,const Char_t *infile,const Char_t *outfile,const Char_t *TreeFile)\n");
   printf ("bfc(Int_t Last,const Char_t *Chain,const Char_t *infile,const Char_t *outfile,const Char_t *TreeFile)\n");
@@ -199,9 +210,9 @@ void Usage() {
   printf (" outfile   \t- Name of Output file   \t(Default = 0, i.e. define Output file name from Input one)\n");
   printf (" outfile   \t- Name of Tree File     \t(Default = 0, i.e. define Output file name from Input one (tags TNtuple))\n");
   printf (" ChainShort\t- Short cut for chain   \t(Default = \"\" -> print out of this message)\n");
-  gSystem->Exit(1);
 }
 //_____________________________________________________________________
-void bfc(const Char_t *Chain="ittf") {
-  bfc(-2,Chain);
+void bfc() {
+  Usage(); 
+  gSystem->Exit(1);
 }
