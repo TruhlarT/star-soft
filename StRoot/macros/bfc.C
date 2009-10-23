@@ -3,7 +3,7 @@
 // Macro for running chain with different inputs                        //
 // owner:  Yuri Fisyak                                                  //
 //                                                                      //
-// $Id: bfc.C,v 1.173 2009/10/22 19:19:53 jeromel Exp $
+// $Id: bfc.C,v 1.169.2.1 2009/10/23 16:02:18 didenko Exp $
 //////////////////////////////////////////////////////////////////////////
 class StBFChain;        
 class StMessMgr;
@@ -49,9 +49,6 @@ void Load(const Char_t *options){
     if (!TString(options).Contains("nodefault",TString::kIgnoreCase) || 
 	TString(options).Contains("mysql",TString::kIgnoreCase)) {
       Char_t *mysql = "libmysqlclient";
-      //
-      // ATTENTION: The below will FAIL for 64 bits systems (JL 2009/10/22)
-      //
       Char_t *libs[]  = {"", "/usr/mysql/lib/","/usr/lib/", 0}; // "$ROOTSYS/mysql-4.1.20/lib/",
       //Char_t *libs[]  = {"/usr/lib/", 0};
       Int_t i = 0;
@@ -67,26 +64,26 @@ void Load(const Char_t *options){
       }
     }
   }
-  //  if (gClassTable->GetID("TMatrix") < 0) gSystem->Load("StarRoot");// moved to rootlogon.C  StMemStat::PrintMem("load StarRoot");
+  //  if (gClassTable->GetID("TMatrix") < 0) gSystem->Load("StarRoot");// moved to rootlogon.C  TMemStat::PrintMem("load StarRoot");
 #ifdef UseLogger
   // Look up for the logger option
   Bool_t needLogger  = kFALSE;
   if (!TString(options).Contains("-logger",TString::kIgnoreCase)) {
-    needLogger = gSystem->Load("liblog4cxx.so") <= 0;              //  StMemStat::PrintMem("load log4cxx");
+    needLogger = kTRUE;              //  TMemStat::PrintMem("load log4cxx");
   }
 #endif
-  gSystem->Load("libSt_base");                                        //  StMemStat::PrintMem("load St_base");
+  gSystem->Load("libSt_base");                                        //  TMemStat::PrintMem("load St_base");
 #ifdef UseLogger
   if (needLogger) {
     gSystem->Load("libStStarLogger.so");
-    gROOT->ProcessLine("StLoggerManager::StarLoggerInit();");      //  StMemStat::PrintMem("load StStarLogger");
+    gROOT->ProcessLine("StLoggerManager::StarLoggerInit();");      //  TMemStat::PrintMem("load StStarLogger");
   }
 #endif
   gSystem->Load("libHtml");
-  gSystem->Load("libStChain");                                        //  StMemStat::PrintMem("load StChain");
-  gSystem->Load("libStUtilities");                                    //  StMemStat::PrintMem("load StUtilities");
-  gSystem->Load("libStBFChain");                                      //  StMemStat::PrintMem("load StBFChain");
-  gSystem->Load("libStChallenger");                                   //  StMemStat::PrintMem("load StChallenger");
+  gSystem->Load("libStChain");                                        //  TMemStat::PrintMem("load StChain");
+  gSystem->Load("libStUtilities");                                    //  TMemStat::PrintMem("load StUtilities");
+  gSystem->Load("libStBFChain");                                      //  TMemStat::PrintMem("load StBFChain");
+  gSystem->Load("libStChallenger");                                   //  TMemStat::PrintMem("load StChallenger");
 }
 //_____________________________________________________________________
 void bfc(Int_t First, Int_t Last,
@@ -127,7 +124,7 @@ void bfc(Int_t First, Int_t Last,
   // Insert your maker before "tpc_hits"
   Char_t *myMaker = "St_TLA_Maker";
   if (gClassTable->GetID(myMaker) < 0) {
-	  gSystem->Load(myMaker);//  TString ts("load "; ts+=myMaker; StMemStat::PrintMem(ts.Data());
+	  gSystem->Load(myMaker);//  TString ts("load "; ts+=myMaker; TMemStat::PrintMem(ts.Data());
   }
   StMaker *myMk = chain->GetMaker(myMaker);
   if (myMk) delete myMk;
@@ -164,7 +161,6 @@ void bfc(Int_t First, Int_t Last,
   chain->SetAttr(".Privilege",0,"*"                ); 	//All  makers are NOT priviliged
   chain->SetAttr(".Privilege",1,"StIOInterFace::*" ); 	//All IO makers are priviliged
   chain->SetAttr(".Privilege",1,"St_geant_Maker::*"); 	//It is also IO maker
-  chain->SetAttr(".Privilege",1,"StTpcDbMaker::*"); 	//It is also TpcDb maker to catch trips
   Int_t iInit = chain->Init();
   if (iInit >=  kStEOF) {chain->FatalErr(iInit,"on init"); return;}
   if (Last == 0) return;
