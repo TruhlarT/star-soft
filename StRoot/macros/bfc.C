@@ -3,7 +3,7 @@
 // Macro for running chain with different inputs                        //
 // owner:  Yuri Fisyak                                                  //
 //                                                                      //
-// $Id: bfc.C,v 1.173 2009/10/22 19:19:53 jeromel Exp $
+// $Id: bfc.C,v 1.171.4.1 2009/10/23 15:25:13 didenko Exp $
 //////////////////////////////////////////////////////////////////////////
 class StBFChain;        
 class StMessMgr;
@@ -49,9 +49,6 @@ void Load(const Char_t *options){
     if (!TString(options).Contains("nodefault",TString::kIgnoreCase) || 
 	TString(options).Contains("mysql",TString::kIgnoreCase)) {
       Char_t *mysql = "libmysqlclient";
-      //
-      // ATTENTION: The below will FAIL for 64 bits systems (JL 2009/10/22)
-      //
       Char_t *libs[]  = {"", "/usr/mysql/lib/","/usr/lib/", 0}; // "$ROOTSYS/mysql-4.1.20/lib/",
       //Char_t *libs[]  = {"/usr/lib/", 0};
       Int_t i = 0;
@@ -72,7 +69,7 @@ void Load(const Char_t *options){
   // Look up for the logger option
   Bool_t needLogger  = kFALSE;
   if (!TString(options).Contains("-logger",TString::kIgnoreCase)) {
-    needLogger = gSystem->Load("liblog4cxx.so") <= 0;              //  StMemStat::PrintMem("load log4cxx");
+    needLogger = kTRUE;              //  StMemStat::PrintMem("load log4cxx");
   }
 #endif
   gSystem->Load("libSt_base");                                        //  StMemStat::PrintMem("load St_base");
