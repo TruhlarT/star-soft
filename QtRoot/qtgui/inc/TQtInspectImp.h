@@ -1,6 +1,6 @@
 // Author: Valeri Fine   21/01/2002
 /****************************************************************************
-** $Id: TQtInspectImp.h,v 1.5 2009/08/03 18:03:08 fine Exp $
+** $Id: TQtInspectImp.h,v 1.6 2009/10/27 22:40:42 fine Exp $
 **
 ** Copyright (C) 2002 by Valeri Fine.  All rights reserved.
 **
@@ -20,31 +20,14 @@
 ///////////////////////////////////////////////////////////////
 
 #include "TInspectorImp.h"
-#include <qglobal.h>
 
-#if QT_VERSION < 0x40000
-#ifndef Q_MOC_RUN
-#  include "qlistview.h"
-#endif
-#else /* QT_VERSION */
-//MOC_SKIP_BEGIN
-#   include <QTableWidget>
+#include <QTableWidget>
 class QTableWidget;
 class QTableWidgetItem;
-//MOC_SKIP_END
-#endif /* QT_VERSION */
 
 class TQtInspectImp;
 
-#if QT_VERSION < 0x40000
-#ifndef Q_MOC_RUN
-  class TQtInspectWidget : public QListView    {
-#endif
-#else /* QT_VERSION */
-//MOC_SKIP_BEGIN
-  class TQtInspectWidget : public QTableWidget {
-//MOC_SKIP_END
-#endif /* QT_VERSION */
+class TQtInspectWidget : public QTableWidget {
 
 Q_OBJECT
 
@@ -68,15 +51,7 @@ public:
   virtual void Show();
 
 public slots:
-#if QT_VERSION < 0x40000
-#ifndef Q_MOC_RUN
-  virtual void Selected(QListViewItem * item);
-#endif
-#else /* QT_VERSION */
-//MOC_SKIP_BEGIN
   virtual void Selected(QTableWidgetItem *item );
-//MOC_SKIP_END
-#endif /* QT_VERSION */
 };
   
 
