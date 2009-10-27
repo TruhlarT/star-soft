@@ -1,6 +1,6 @@
 // Author: Valeri Fine   21/01/2002
 /****************************************************************************
-** $Id: TQtInspectImp.cxx,v 1.9 2009/09/25 18:33:50 fine Exp $
+** $Id: TQtInspectImp.cxx,v 1.10 2009/10/27 22:40:02 fine Exp $
 **
 ** Copyright (C) 2002 by Valeri Fine. Brookhaven National Laboratory.
 **                                    All rights reserved.
@@ -207,7 +207,7 @@ void TQtInspectWidget::AddValues()
             if (isdate) {
                cdatime = (UInt_t*)pointer;
                TDatime::GetDateTime(cdatime[0],cdate,ctime); 
-               line[kvalue] = QString("%1/%1").arg(cdate).arg(ctime);
+               line[kvalue] = QString("%1/%2").arg(cdate).arg(ctime);
             } else {
                line[kvalue] =  membertype->AsString(pointer);
             }
