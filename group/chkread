@@ -33,9 +33,11 @@ if( $PID = fork() ) {
 	# that's too bad - kill
 	print "$self :: Lookup of ".join(" ",@ARGV)." is hanging\n";
 	kill 9,$PID;
+	&SafeReaper(); # see func for explaination
 	print "$self :: parent exiting with failure\n"       if ($DEBUG);
 	exit 1;
     } else {
+	# &SafeReaper(); # see func for explaination
 	print "$self :: Parent leaving with success\n"       if ($DEBUG);
 	exit 0;
     }
@@ -82,6 +84,7 @@ sub sighandler
         # do nothing, just child waking us, all ok
 	print "$self :: - Received signal ALRM\n"   if ($DEBUG);
         $child_alive = 0;
+	&SafeReaper(); # see func for explaination
 	exit 0;
     } elsif ($sig eq 'USR1') {
 	print "$self :: - Received signal USR1\n"   if ($DEBUG);
@@ -113,6 +116,19 @@ sub REAPER
     }
     # system may send up a wake up signal and we need to double
     # trap if we reach this point
-    $SIG{'CHLD'} = \&REAPER ; 	
+    # JL 2009 change -> use SafeReaper now - see below why
+    $SIG{'CHLD'} = \&SafeReaper; 	
 }
 
+# This was introduced to cope for a bug in system issue i.e. a
+# random timing of the parent/child dying/exiting relationship.
+# Pitty this is yet another bug. Basically, you cannot count anymore
+# that a child is really dead ... and need to check constantly.
+# 
+# What the signal handler does (although obvious)
+#  Wait for the child to go away (else we might get perl seg faulting 
+#  on exit)
+sub SafeReaper
+{
+    while (waitpid(-1, WNOHANG) != -1) {};
+}
