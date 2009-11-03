@@ -42,6 +42,9 @@ if ( ! $?star_login_csh ) then
 		else
 		    if ( $?DECHO ) echo "$self :: Error while checking AFS"
 		endif
+	    else
+		# define it as-is and move on
+		setenv AFS_RHIC  /afs/rhic.bnl.gov
 	    endif
 	    # if still undefined, assume $status!=0 or
 	    # we did not find chkread. Fail login by a set
