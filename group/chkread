@@ -1,7 +1,7 @@
-#!/usr/bin/env perl 
+#!/usr/bin/env perl
 
 # Not so simple script ... to stat the files on the commandline
-# Return 1 on failure, 0 otherwese 
+# Return 1 on failure, 0 otherwese
 #
 # Written J. Lauret 2009
 #
@@ -15,7 +15,7 @@ $self   ="chkread";
 exit 1 if $#ARGV == -1;
 
 # connect our handlers
-$SIG{'CHLD'} = \&REAPER ; 
+$SIG{'CHLD'} = \&REAPER ;
 $SIG{'ALRM'} = 'sighandler';
 $SIG{'USR1'} = 'sighandler';
 $SIG{'USR2'} = 'sighandler';
@@ -117,16 +117,16 @@ sub REAPER
     # system may send up a wake up signal and we need to double
     # trap if we reach this point
     # JL 2009 change -> use SafeReaper now - see below why
-    $SIG{'CHLD'} = \&SafeReaper; 	
+    $SIG{'CHLD'} = \&SafeReaper;
 }
 
 # This was introduced to cope for a bug in system issue i.e. a
 # random timing of the parent/child dying/exiting relationship.
 # Pitty this is yet another bug. Basically, you cannot count anymore
 # that a child is really dead ... and need to check constantly.
-# 
+#
 # What the signal handler does (although obvious)
-#  Wait for the child to go away (else we might get perl seg faulting 
+#  Wait for the child to go away (else we might get perl seg faulting
 #  on exit)
 sub SafeReaper
 {
