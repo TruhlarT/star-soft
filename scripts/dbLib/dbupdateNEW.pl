@@ -19,18 +19,17 @@ use File::Basename;
 
 require "/afs/rhic.bnl.gov/star/packages/scripts/dbLib/dbTJobsSetup.pl";
 
-#require "dbTJobsSetup.pl";
-
 my $TOP_DIRD = "/star/rcf/test/new/";
-my @dir_year = ("year_2001", "year_1h", "year_2003", "year_2004", "year_2005", "year_2006", "year_2007", "year_2008","year_2009");
-my @node_dir = ("trs_sl302", "trs_sl302_opt","trs_sl302.ittf", "trs_sl302.ittf_opt");
-my @node_daq = ("daq_sl302", "daq_sl302_opt", "daq_sl302.ittf", "daq_sl302.ittf_opt"); 
-my @hc_dir = ("hc_lowdensity", "hc_standard", "hc_highdensity", "peripheral","pp_minbias","dau_minbias","auau_minbias","auau_central","cucu200_minbias","cucu62_minbias","auau200_central");
-my @daq_dir = ("minbias", "central", "ppMinBias", "dAuMinBias", "AuAuMinBias", "AuAu_prodHigh","AuAu_prodLow","prodPP","CuCu200_MinBias","CuCu200_HighTower","CuCu62_MinBias","CuCu22_MinBias","ppProduction","CuCu200_embedTpc","CuCu200_embedTpcSvtSsd","ppProdLong","ppProdTrans","2007Production","2007ProductionMinBias","production_dAu2008","ppProduction2008","auau200_embedTpcSvtSsd","production2009_500GeV","production2009_200Gev_Hi");
+my @dir_year = ("year_2000", "year_2001", "year_2003", "year_2004", "year_2005", "year_2006", "year_2007", "year_2008","year_2009");
+my @node_dir = ("daq_sl302.ittf", "daq_sl302.ittf_opt" ,"trs_sl302.ittf", "trs_sl302.ittf_opt"); 
 
-my @OUT_DIR;
-my @OUTD_DIR;
-
+my @OUT_DIR0 = ();
+my @OUT_DIR1 = ();
+my @OUT_DIR2 = ();
+my @OUT_DIR3 = ();
+my @OUT_DIR = ();
+my @OUTD_DIR = ();
+my @TDIR = ();
 my $min;
 my $hour;
 my $mday;
@@ -45,98 +44,37 @@ my $ii = 0;
 
 ##### setup output directories 
 
-for ($i = 0; $i < scalar(@node_dir); $i++) {
-      for ($ll = 0; $ll < scalar(@hc_dir) - 4; $ll++) {
-   $OUT_DIR[$ii] = $TOP_DIRD . $node_dir[$i] . "/" . $dir_year[0] . "/" . $hc_dir[$ll];
-    print "Output Dir for NEW :", $OUT_DIR[$ii], "\n";
-        $ii++;
-  }
-  $OUT_DIR[$ii] = $TOP_DIRD . $node_dir[$i] . "/" . $dir_year[1] . "/" . $hc_dir[1]; 
-  print "Output Dir for NEW :", $OUT_DIR[$ii], "\n";
-    $ii++; 
+ for ($i = 0; $i < scalar(@node_dir); $i++) {
 
-  $OUT_DIR[$ii] = $TOP_DIRD . $node_dir[$i] . "/" . $dir_year[2] . "/" . $hc_dir[5];
-  print "Output Dir for NEW :", $OUT_DIR[$ii], "\n";
-    $ii++;
-
-   for ($ik = 6; $ik < 8; $ik++) {
-
-   $OUT_DIR[$ii] = $TOP_DIRD . $node_dir[$i] . "/" . $dir_year[3] . "/" . $hc_dir[$ik];
-  print "Output Dir for NEW :", $OUT_DIR[$ii], "\n";
-    $ii++;
-
+    $TDIR[$i] = $TOP_DIRD . $node_dir[$i]."/*/*";
 }
-     for ($ik = 8; $ik < 10; $ik++) {
-
-  $OUT_DIR[$ii] = $TOP_DIRD . $node_dir[$i] . "/" . $dir_year[4] . "/" . $hc_dir[$ik];
-  print "Output Dir for NEW :", $OUT_DIR[$ii], "\n";
+    @OUT_DIR0 = `ls -d $TDIR[0]`;
+    @OUT_DIR1 = `ls -d $TDIR[1]`;
+    @OUT_DIR2 = `ls -d $TDIR[2]`;
+    @OUT_DIR3 = `ls -d $TDIR[3]`;
+ $ii = 0;
+  
+  for ($i = 0; $i < scalar(@OUT_DIR0); $i++) {
+      $OUT_DIR[$ii] = $OUT_DIR0[$i];
+  print "Output Dir for NEW :", $OUT_DIR[$ii],"\n";
     $ii++;
-    }
-     for ($ik = 10; $ik < 11; $ik++) {
+}
+  for ($i = 0; $i < scalar(@OUT_DIR1); $i++) {
+     $OUT_DIR[$ii] = $OUT_DIR1[$i];
+  print "Output Dir for NEW :", $OUT_DIR[$ii],"\n";
+     $ii++;
+}
 
-  $OUT_DIR[$ii] = $TOP_DIRD . $node_dir[$i] . "/" . $dir_year[6] . "/" . $hc_dir[$ik];
-  print "Output Dir for NEW :", $OUT_DIR[$ii], "\n";
-    $ii++;
-    }
-
+  for ($i = 0; $i < scalar(@OUT_DIR2); $i++) {
+     $OUT_DIR[$ii] = $OUT_DIR2[$i];
+  print "Output Dir for NEW :", $OUT_DIR[$ii],"\n";
+   $ii++; 
+}
+  for ($i = 0; $i < scalar(@OUT_DIR3); $i++) {
+     $OUT_DIR[$ii] = $OUT_DIR3[$i];
+  print "Output Dir for NEW :", $OUT_DIR[$ii],"\n";
+      $ii++;  
   }
-
-my $jj = 0;
-
-for ($i = 0; $i < scalar(@node_daq); $i++) {
-      for ($ll = 0; $ll < 3; $ll++) {
-          
-   $OUT_DIR[$ii] = $TOP_DIRD . $node_daq[$i] . "/" . $dir_year[0] . "/" . $daq_dir[$ll];
-   print "Output Dir for NEW :", $OUT_DIR[$ii], "\n";
-        $ii++;
-      }
-    for ($ik = 2; $ik < 4; $ik++) { 
-    $OUT_DIR[$ii] = $TOP_DIRD . $node_daq[$i] . "/" . $dir_year[2] . "/" . $daq_dir[$ik];
-   print "Output Dir for NEW :", $OUT_DIR[$ii], "\n";
-        $ii++;
-   } 
-   for ($ik = 4; $ik < 8; $ik++) { 
-    $OUT_DIR[$ii] = $TOP_DIRD . $node_daq[$i] . "/" . $dir_year[3] . "/" . $daq_dir[$ik];
-   print "Output Dir for NEW :", $OUT_DIR[$ii], "\n";
-        $ii++;
-   } 
- 
-   for ($ik = 8; $ik < 15; $ik++) { 
-    $OUT_DIR[$ii] = $TOP_DIRD . $node_daq[$i] . "/" . $dir_year[4] . "/" . $daq_dir[$ik];
-   print "Output Dir for NEW :", $OUT_DIR[$ii], "\n";
-        $ii++;
-   } 
-   for ($ik = 15; $ik < 17; $ik++) { 
-    $OUT_DIR[$ii] = $TOP_DIRD . $node_daq[$i] . "/" . $dir_year[5] . "/" . $daq_dir[$ik];
-   print "Output Dir for NEW :", $OUT_DIR[$ii], "\n";
-        $ii++;
-   } 
-
-    for ($ik = 17; $ik < 19; $ik++) { 
-    $OUT_DIR[$ii] = $TOP_DIRD . $node_daq[$i] . "/" . $dir_year[6] . "/" . $daq_dir[$ik];
-   print "Output Dir for NEW :", $OUT_DIR[$ii], "\n";
-        $ii++;
-   }
- 
-   for ($ik = 19; $ik < 21; $ik++) { 
-      $OUT_DIR[$ii] = $TOP_DIRD . $node_daq[$i] . "/" . $dir_year[7] . "/" . $daq_dir[$ik];
-   print "Output Dir for NEW :", $OUT_DIR[$ii], "\n"; 
-    $ii++;
-
-  }
- }
-
-   for ($ij = 2; $ij < 4; $ij++) { 
-   for ($ik = 22; $ik < 24; $ik++) {
-   $OUT_DIR[$ii] = $TOP_DIRD . $node_daq[$ij] . "/" . $dir_year[8] . "/" . $daq_dir[$ik];
-   print "Output Dir for DEV :", $OUT_DIR[$ii], "\n";
-        $ii++;
-     }
-  }
-
-   $OUT_DIR[$ii] = $TOP_DIRD . $node_daq[2] . "/" . $dir_year[6] . "/" . $daq_dir[21];
-   print "Output Dir for NEW :", $OUT_DIR[$ii], "\n"; 
-    $ii++;
 
 struct FileAttr => {
       fjbID     => '$',
@@ -358,10 +296,13 @@ my $Fname;
 my @files;
 
  foreach  my $eachOutLDir (@OUT_DIR) {
+
+    chop $eachOutLDir;
+#  print $eachOutLDir,"\n";
+
           if (-d $eachOutLDir) {
-###
-#	      if($eachOutLDir =~ /ittf/ )  {
-###
+	      next if ($eachOutLDir =~ /temp/) ;
+
      opendir(DIR, $eachOutLDir) or die "can't open $eachOutLDir\n";
       @files = readdir(DIR);
 #    while( defined($fname = readdir(DIR)) ) {
@@ -523,7 +464,6 @@ my @files;
    }
  }
 ###
-# }
 
              foreach my $newjobFile (@testJobStFiles) {
 
@@ -599,7 +539,7 @@ my @files;
 
     if($flagHash{$fullName} == 1) {
 
-#      $new_id = $dbh->{'mysql_insertid'};
+      $new_id = $dbh->{'mysql_insertid'};
       $mavail = 'Y';
       $myID = 100000000 + $new_id;
       $mjID = "Job". $myID ;
@@ -618,10 +558,10 @@ my @files;
    print  "Changing avalability for files have been replaced  :", $pvjbId, " % ",$pvpath," % ",$pvfile, "\n";
      &updateJSTable();
 
+        }
+      }
     }
-	}
-    }
-}
+   }
 ##### delete from $JobStatusT inserted JobID
 
 
