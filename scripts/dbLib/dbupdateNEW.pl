@@ -56,22 +56,26 @@ my $ii = 0;
   
   for ($i = 0; $i < scalar(@OUT_DIR0); $i++) {
       $OUT_DIR[$ii] = $OUT_DIR0[$i];
+      chop $OUT_DIR[$ii];
   print "Output Dir for NEW :", $OUT_DIR[$ii],"\n";
     $ii++;
 }
   for ($i = 0; $i < scalar(@OUT_DIR1); $i++) {
-     $OUT_DIR[$ii] = $OUT_DIR1[$i];
+     $OUT_DIR[$ii] = $OUT_DIR1[$i]; 
+     chop $OUT_DIR[$ii];
   print "Output Dir for NEW :", $OUT_DIR[$ii],"\n";
      $ii++;
 }
 
   for ($i = 0; $i < scalar(@OUT_DIR2); $i++) {
      $OUT_DIR[$ii] = $OUT_DIR2[$i];
+     chop $OUT_DIR[$ii];  
   print "Output Dir for NEW :", $OUT_DIR[$ii],"\n";
    $ii++; 
 }
   for ($i = 0; $i < scalar(@OUT_DIR3); $i++) {
      $OUT_DIR[$ii] = $OUT_DIR3[$i];
+     chop $OUT_DIR[$ii]; 
   print "Output Dir for NEW :", $OUT_DIR[$ii],"\n";
       $ii++;  
   }
@@ -296,9 +300,6 @@ my $Fname;
 my @files;
 
  foreach  my $eachOutLDir (@OUT_DIR) {
-
-    chop $eachOutLDir;
-#  print $eachOutLDir,"\n";
 
           if (-d $eachOutLDir) {
 	      next if ($eachOutLDir =~ /temp/) ;
