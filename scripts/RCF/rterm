@@ -354,8 +354,13 @@ if( -e /usr/X11R6/bin/xterm) then
     # Linux with R6
     set TERM_PRGM=/usr/X11R6/bin/xterm
 endif
+if( -e /usr/bin/xterm) then
+    # Linux starting at SL5
+    set TERM_PRGM=/usr/bin/xterm
+endif
 if ( ! $?TERM_PRGM ) then
     echo "Could not locate an Xterm program"
+    exit
 endif
 
 
