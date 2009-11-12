@@ -185,8 +185,10 @@ if ( -r  $GROUP_DIR/star_login.csh ) then
 		breaksw
 
 
-	    case "SL5":
-		set XTRACMD="unsetenv PGI"
+	    #case "SL5":
+	    #	set XTRACMD="unsetenv PGI"
+	    case "SL5-64":
+		set XTRACMD="setup 64bits"
 	    case "Linux61":
 	    case "Linux72":
 	    case "Linux80":
