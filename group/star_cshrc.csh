@@ -19,7 +19,7 @@ setenv star_cshrc_csh 1
 
 if ( ! $?star_login_csh ) then
     #
-    # OK. Missing environment variables ... 
+    # OK. Missing environment variables ...
     # This is actually the case in 'r' or 's'-service calls or even
     # some shells ...
     #
@@ -124,7 +124,7 @@ endif
 # support csh/tcsh
 set filec
 set fignore=( .o .dvi .aux .toc .log .blg .bbl .bak .BAK .sav .old .trace)
-set noclobber               
+set noclobber
 set ignoreeof
 set notify
 set savehist=50
@@ -149,7 +149,7 @@ switch ($shell)
 	breaksw
 endsw
 
-# key bindings. 
+# key bindings.
 if ($?tcsh) then
     bindkey '^[[1~'  exchange-point-and-mark
     bindkey '^[[2~'  overwrite-mode
@@ -171,12 +171,12 @@ if ($?tcsh) then
     bindkey '^[Ox'   yank
     bindkey '^[Oy'   kill-region
 endif
- 
+
 # This was taken from HEPIX 100 % as-is
 # Make sure csh.login will be sourced on IRIX
 if ( ! $?SHLVL ) then
     setenv SHLVL 1
-endif   
+endif
 
 setprompt
 
