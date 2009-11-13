@@ -3,7 +3,7 @@
 # Not so simple script ... to stat the files on the commandline
 # Return 1 on failure, 0 otherwese
 #
-# Written J. Lauret 2009
+# Written J. Lauret 2009 / disabled 200911
 #
 
 use POSIX qw(:signal_h :errno_h :sys_wait_h);
