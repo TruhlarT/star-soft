@@ -32,7 +32,6 @@ else
   MACHOPT := -m32
 endif
 
-
 SHARE     := share
 
 ifdef STAR_HOST_SYS
@@ -40,6 +39,7 @@ ARCH      := $(STAR_HOST_SYS)
 else
 ARCH      := $(shell (test -x $(AFS) && $(AFS)) || (test -x /usr/bin/sys && sys) || uname -s)
 endif
+
 
 ifneq (1,$(words $(G3)))
 G3        := $(shell which geant3 2>/dev/null)
@@ -59,7 +59,7 @@ ifeq (Linux,$(UNAME))
  EX       := -ffixed-line-length-132
  CC       := gcc $(MACHOPT) -g -w -O2
  CPP      := g++ $(MACHOPT) -g -w -O2
-#LDS      := ld $(MACHOPT) -shared -o
+#LDS      := ld -shared -o
  LDS      := g++ $(MACHOPT) -shared -o
  LD90     := $(PGI)/linux86/bin/pgf90 -v -shared -o
 endif
@@ -411,7 +411,7 @@ $(LNK_SPEC):
 #------------------------------ library -------------------------------------
 $(LIB_DIR)/$(NAME).$(SL): $(LIST_o) $(LIST_co) $(LIST_go)
 	$(LDS) $(LIB_DIR)/$(NAME).$(SL) $(LIST_o) $(LIST_co) $(LIST_go) \
-               $(inputL) $(LLIBS) $(inputl) $(inputlib) -L$(STAR_LIB) -lStarMagFieldNoDict
+               $(inputL) $(LLIBS) $(inputl) $(inputlib)
 	@rm -f $(LIB_DIR)/tagsl*; touch $(LIB_DIR)/tagsl$(subst /,-,$(SOURCE))
 #------------------------- idm  conversion rules ----------------------------
 $(LIST_cc):  $(WRK_DIR)/%_i.cc: %.idl
