@@ -1,8 +1,11 @@
 #!/usr/bin/env perl 
 #
-# $Id: dbDevTestQuery.pl,v 1.25 2009/05/21 19:08:15 didenko Exp $
+# $Id: dbDevTestQuery.pl,v 1.26 2009/11/18 20:49:48 didenko Exp $
 #
 # $Log: dbDevTestQuery.pl,v $
+# Revision 1.26  2009/11/18 20:49:48  didenko
+# updated for changed tests
+#
 # Revision 1.25  2009/05/21 19:08:15  didenko
 # updated for pp 200GeV run 2009 test
 #
@@ -89,13 +92,8 @@ my $debugOn = 0;
 
 my $rand = rand(100);
 my @prod_set = (
-#		"trs_sl302/year_1h/hc_lowdensity",
-		"trs_sl302/year_1h/hc_standard",
-#		"trs_sl302/year_1h/hc_highdensity",
-#		"trs_sl302/year_1h/peripheral", 
-		"trs_sl302/year_2001/hc_lowdensity",
+#		"trs_sl302/year_2000/hc_standard",
 		"trs_sl302/year_2001/hc_standard",
-		"trs_sl302/year_2001/hc_highdensity",
                 "trs_sl302/year_2001/pp_minbias",
                 "trs_sl302/year_2003/dau_minbias",
                 "trs_sl302/year_2004/auau_minbias",
@@ -103,6 +101,8 @@ my @prod_set = (
                 "trs_sl302/year_2005/cucu200_minbias",
                 "trs_sl302/year_2005/cucu62_minbias",
                 "trs_sl302/year_2007/auau200_central",
+                "daq_sl302/year_2000/minbias",
+                "daq_sl302/year_2000/central",
 		"daq_sl302/year_2001/minbias",
                 "daq_sl302/year_2001/central",
                 "daq_sl302/year_2001/ppMinBias",
