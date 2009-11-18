@@ -1,8 +1,11 @@
 #!/usr/bin/env perl 
 #
-# $Id: dbDevTestQuery.pl,v 1.26 2009/11/18 20:49:48 didenko Exp $
+# $Id: dbDevTestQuery.pl,v 1.27 2009/11/18 20:55:18 didenko Exp $
 #
 # $Log: dbDevTestQuery.pl,v $
+# Revision 1.27  2009/11/18 20:55:18  didenko
+# uncomment right line
+#
 # Revision 1.26  2009/11/18 20:49:48  didenko
 # updated for changed tests
 #
@@ -92,7 +95,7 @@ my $debugOn = 0;
 
 my $rand = rand(100);
 my @prod_set = (
-#		"trs_sl302/year_2000/hc_standard",
+	  	"trs_sl302/year_2000/hc_standard",
 		"trs_sl302/year_2001/hc_standard",
                 "trs_sl302/year_2001/pp_minbias",
                 "trs_sl302/year_2003/dau_minbias",
