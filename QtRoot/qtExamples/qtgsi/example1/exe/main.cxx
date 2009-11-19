@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: main.cxx,v 1.2 2009/08/03 18:03:02 fine Exp $
+** $Id: main.cxx,v 1.3 2009/11/19 19:23:10 fine Exp $
 **
 ** Copyright (C) 1992-2000 Trolltech AS.  All rights reserved.
 **

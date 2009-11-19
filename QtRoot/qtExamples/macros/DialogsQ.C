@@ -1,6 +1,6 @@
 //*-- Author :    Valery Fine(fine@bnl.gov)  04/01/2006
 //
-// $Id: DialogsQ.C,v 1.3 2009/08/03 18:03:02 fine Exp $
+// $Id: DialogsQ.C,v 1.4 2009/11/19 19:23:10 fine Exp $
 //
 // This file contains the set of functions to use class QInputDialog
 //     http://doc.trolltech.com/3.3/qinputdialog.html
