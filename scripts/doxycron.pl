@@ -110,7 +110,7 @@ $BINCRON = "/opt/star/bin";                          # path where doxycron will
 $DOXYGEN = "doxygen";                                # exe names on local node
 $DOXYTAG = "doxytag";                                # can be full path or not.
 $HTTPD   = "http://www.star.bnl.gov";                # HTTP Server
-$URLPATH = "webdatanfs";                             # Base URL path
+$URLPATH = "webdata";                                # Base URL path
 
 
 
@@ -979,7 +979,7 @@ INPUT                  = Auto->/afs/rhic.bnl.gov/star/packages/dev/StRoot
 # *.c *.cc *.cxx *.c++ *.java *.ii *.ixx *.ipp *.i++ *.inl *.h *.hh *.hxx *.hpp 
 # *.h++ *.idl
 
-FILE_PATTERNS          = 
+FILE_PATTERNS          = *.C *.c *.cc *.cxx *.h *.hh *.idl
 
 # The RECURSIVE tag can be used to turn specify whether or not subdirectories 
 # should be searched for input files as well. Possible values are YES and NO. 
@@ -1552,7 +1552,7 @@ CGI_URL                = Auto->http://www.star.bnl.gov/cgi-bin/dox
 # documentation is located. If left blank the absolute path to the 
 # documentation, with file:// prepended to it, will be used.
 
-DOC_URL                = Auto->http://www.star.bnl.gov/webdatanfs/dox/html
+DOC_URL                = Auto->http://www.star.bnl.gov/webdata/dox/html
 
 # The DOC_ABSPATH tag should be the absolute path to the directory where the 
 # documentation is located. If left blank the directory on the local machine 
