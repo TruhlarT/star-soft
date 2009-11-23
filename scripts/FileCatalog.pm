@@ -172,7 +172,7 @@ $FC::INTENT       = "User";              # Default intent / do not change
 $FC::DBCONTIMEOUT = 5;                   # << NOT USED YET
 $FC::TIMEOUT      = 2700;                # timeout of 45 mnts for query
 
-@FC::LOADMANAGE   = (50,5,10);           # s,i,d - default values / no update count for now
+@FC::LOADMANAGE   = (50,10,15);          # s,i,d - default values / no update count for now
 
 $FC::WDUPS        = 1;                   # warn when duplicate update/delete happens
 
@@ -440,6 +440,12 @@ $datastruct[20] = ( "FileLocationsID"        . ",FileLocations"       . ",fileLo
 
 # Will build this by hand too and may automate later
 $FC::SUPERIDX{"storage"} = "FileLocations";
+
+# New internal relational table handling partitioning, a comma separated
+# list of possible sub-indexes which will lead to Table_$index1{..._$indexN}
+# Note also that partitioning by N-1 is forward comaptible with partitioning
+# by N but re-ordering the index is not supported.
+$FC::PARTITION{"FileLocations"}    = "site,storage";
 
 
 #%FC::FLRELATED;
