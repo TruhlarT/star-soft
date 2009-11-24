@@ -1,7 +1,7 @@
-// @(#)root/qt:$Id: TGQt.cxx,v 1.36 2009/09/25 21:02:15 fine Exp $
+// @(#)root/qt:$Id: TGQt.cxx,v 1.37 2009/11/24 20:16:31 fine Exp $
 // Author: Valeri Fine   21/01/2002
 /****************************************************************************
-** $Id: TGQt.cxx,v 1.36 2009/09/25 21:02:15 fine Exp $
+** $Id: TGQt.cxx,v 1.37 2009/11/24 20:16:31 fine Exp $
 **
 ** Copyright (C) 2002 by Valeri Fine. Brookhaven National Laboratory.
 **                                    All rights reserved.
@@ -850,7 +850,7 @@ Bool_t TGQt::Init(void* /*display*/)
 {
    //*-*-*-*-*-*-*-*-*-*-*-*-*-*Qt GUI initialization-*-*-*-*-*-*-*-*-*-*-*-*-*-*
    //*-*                        ========================                      *-*
-   fprintf(stderr,"** $Id: TGQt.cxx,v 1.36 2009/09/25 21:02:15 fine Exp $ this=%p\n",this);
+   fprintf(stderr,"** $Id: TGQt.cxx,v 1.37 2009/11/24 20:16:31 fine Exp $ this=%p\n",this);
 #ifndef R__QTWIN32
    extern void qt_x11_set_global_double_buffer(bool);
 //   qt_x11_set_global_double_buffer(false);
@@ -1558,7 +1558,7 @@ void  TGQt::DrawText(int x, int y, float angle, float mgn, const char *text, TVi
    // fprintf(stderr,"TGQt::DrawText: %s\n", text);
    if (text && text[0]) {
       TQtLock lock;
-      fQFont->SetTextMaginfy(mgn);
+      fQFont->SetTextMagnify(mgn);
       TQtPainter p(this,TQtPainter::kUpdateFont);
       p.setPen(ColorIndex(fTextColor));
       p.setBrush(ColorIndex(fTextColor));

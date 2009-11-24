@@ -1,4 +1,4 @@
-// @(#)root/qt:$Name:  $:$Id: TQtPadFont.h,v 1.1 2009/08/03 18:02:56 fine Exp $
+// @(#)root/qt:$Name:  $:$Id: TQtPadFont.h,v 1.2 2009/11/24 20:16:31 fine Exp $
 // Author: Valeri Fine   21/01/2002
 /****************************************************************************
 **
@@ -39,7 +39,7 @@ public:
    void  SetTextFont(Font_t fontnumber=62);
    void  SetTextSize(Float_t textsize=1);
    void  SetTextSizePixels(Int_t npixels);
-   void  SetTextMaginfy(Float_t mgn);
+   void  SetTextMagnify(Float_t mgn);
    static const char *RomanFontName();
    static const char *ArialFontName();
    static const char *CourierFontName();
