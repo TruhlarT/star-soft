@@ -3,6 +3,7 @@
 ######################################################################
 
 TEMPLATE = subdirs
+CONFIG *= ordered
 
 QT_VERSION=$$[QT_VERSION]
 
