@@ -1,6 +1,6 @@
 // Author: Valeri Fine   21/01/2002
 /****************************************************************************
-** $Id: TQtPadFont.cxx,v 1.1 2009/08/03 18:02:57 fine Exp $
+** $Id: TQtPadFont.cxx,v 1.2 2009/11/24 20:13:14 fine Exp $
 **
 ** Copyright (C) 2002 by Valeri Fine. Brookhaven National Laboratory.
 **                                    All rights reserved.
@@ -250,7 +250,7 @@ void  TQtPadFont::SetTextSize(Float_t textsize)
       TAttText::SetTextSize(textsize);
       if (fTextSize > 0) {
          Int_t   tsize =(Int_t)( textsize+0.5);
-         SetTextSizePixels(int(FontMagicFactor(tsize)));
+         this->setPixelSize(static_cast<int>(FontMagicFactor(tsize)));
       }
    }
 }
@@ -258,8 +258,7 @@ void  TQtPadFont::SetTextSize(Float_t textsize)
  void  TQtPadFont::SetTextSizePixels(Int_t npixels)
  {
     // Set the text pixel size
-    TAttText::SetTextSizePixels(npixels);
-    this->setPixelSize(npixels);
+    SetTextSizePixels(static_cast<float>(npixels));
  }
 //______________________________________________________________________________
 const char *TQtPadFont::RomanFontName() 
@@ -295,7 +294,7 @@ void TQtPadFont::SetSymbolFontFamily(const char *symbolFnName)
 }
 
 //______________________________________________________________________________
-void   TQtPadFont::SetTextMaginfy(Float_t  mgn)
+void   TQtPadFont::SetTextMagnify(Float_t  mgn)
 {
    //
    // Scale the font accroding the inout mgn magnification factor
@@ -304,5 +303,9 @@ void   TQtPadFont::SetTextMaginfy(Float_t  mgn)
    // see: TVirtualX::DrawText(int x, int y, float angle, float mgn, const char *text, TVirtualX::ETextMode /*mode*/)
    //
     Int_t tsize = (Int_t)(fTextSize+0.5);
-    if (TMath::Abs(mgn-1) >0.05)  this->setPixelSize(int(mgn*FontMagicFactor(tsize)));
+    if (TMath::Abs(mgn-1) >0.05)  {
+       int pxSize = mgn*FontMagicFactor(tsize);
+       if(pxSize<=0) pxSize=1;
+       this->setPixelSize(pxSize);
+    }
 }
