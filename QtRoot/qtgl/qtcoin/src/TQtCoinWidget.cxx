@@ -108,6 +108,7 @@
 #include <Inventor/nodes/SoLineSet.h>
 #include <Inventor/nodes/SoIndexedLineSet.h>
 #include <Inventor/actions/SoCallbackAction.h>
+#include <Inventor/actions/SoReorganizeAction.h>
 #include <Inventor/SoSceneManager.h>
 //#include <Inventor/VRMLnodes/SoVRMLIndexedLineSet.h>
 //#include <Inventor/VRMLnodes/SoVRMLCoordinate.h>
@@ -1307,6 +1308,11 @@ void TQtCoinWidget::ReadInputFile(const QString &fileName)
                     fShapeNode->addChild(fFileNode);
                  }
               }
+              // it replaces everything with the triangles.
+              // It is faster but wireframe view and hidden line look are ugly.
+//            SoChildList *children =  extraObjects->getChildren();           
+//            SoReorganizeAction reorg;
+//            reorg.apply(fFileNode);
               fFileNode->addChild(extraObjects);
           }
        }
