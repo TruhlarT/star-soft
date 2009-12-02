@@ -1,9 +1,12 @@
 #!/usr/local/bin/perl
 #!/usr/bin/env perl 
 #
-# $Id: dbDevTestQueryPlot.pl,v 1.50 2008/03/31 20:07:30 didenko Exp $
+# $Id: dbDevTestQueryPlot.pl,v 1.51 2009/12/02 21:51:04 didenko Exp $
 #
 # $Log: dbDevTestQueryPlot.pl,v $
+# Revision 1.51  2009/12/02 21:51:04  didenko
+# add initialization
+#
 # Revision 1.50  2008/03/31 20:07:30  didenko
 # more changes for updated values
 #
@@ -207,13 +210,13 @@ while($n_weeks >= 0) {
 
 	if ($n_weeks == 0) {
 
-	    $sql="SELECT path, $mplotVal FROM JobStatus WHERE path LIKE ? AND avail='Y' AND jobStatus=\"Done\" AND (TO_DAYS(\"$nowdate\") -TO_DAYS(createTime)) < ? ORDER by createTime DESC LIMIT 5";
+	    $sql="SELECT path, $mplotVal FROM JobStatus WHERE path LIKE ? AND avail='Y' AND jobStatus=\"Done\" AND (TO_DAYS(\"$nowdate\") -TO_DAYS(createTime)) < ? ORDER by createTime DESC LIMIT 6";
 
  	$cursor = $dbh->prepare($sql) || die "Cannot prepare statement: $dbh->errstr\n";
 	$cursor->execute($qupath,$day_diff);
 
 	} else {
-	    $sql="SELECT path, $mplotVal FROM JobStatus WHERE path LIKE ? AND jobStatus=\"Done\" AND (TO_DAYS(\"$nowdate\") -TO_DAYS(createTime)) < ? AND (TO_DAYS(\"$nowdate\") -TO_DAYS(createTime)) > ? ORDER by createTime DESC LIMIT 5";
+	    $sql="SELECT path, $mplotVal FROM JobStatus WHERE path LIKE ? AND jobStatus=\"Done\" AND (TO_DAYS(\"$nowdate\") -TO_DAYS(createTime)) < ? AND (TO_DAYS(\"$nowdate\") -TO_DAYS(createTime)) > ? ORDER by createTime DESC LIMIT 6";
 
 
 	$cursor = $dbh->prepare($sql) || die "Cannot prepare statement: $dbh->errstr\n";
@@ -298,6 +301,7 @@ while($n_weeks >= 0) {
 }
 
 &StDbTJobsDisconnect();
+@data = ();
 
 if ($plotVal eq "MemUsage") {
     @data = (\@Nday, \@point0, \@point1, \@point2, \@point3, \@point4, \@point5, \@point6, \@point7 );
