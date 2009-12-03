@@ -1,11 +1,11 @@
 #!/usr/local/bin/perl
 #!/usr/bin/env perl 
 #
-# $Id: dbDevTestQueryPlot.pl,v 1.52 2009/12/03 21:59:08 didenko Exp $
+# $Id: dbDevTestQueryPlot.pl,v 1.53 2009/12/03 22:11:01 didenko Exp $
 #
 # $Log: dbDevTestQueryPlot.pl,v $
-# Revision 1.52  2009/12/03 21:59:08  didenko
-# fixed bug in path naming
+# Revision 1.53  2009/12/03 22:11:01  didenko
+# more fixes
 #
 # Revision 1.50  2008/03/31 20:07:30  didenko
 # more changes for updated values
@@ -213,7 +213,7 @@ while($n_weeks >= 0) {
 
 #	$path =~ s(/)(%)g;
 
-	    my $qupath = "%$path";
+	    my $qupath = "%$path%";
 
 	if ($n_weeks == 0) {
 
