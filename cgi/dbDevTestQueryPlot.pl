@@ -1,11 +1,11 @@
 #!/usr/local/bin/perl
 #!/usr/bin/env perl 
 #
-# $Id: dbDevTestQueryPlot.pl,v 1.51 2009/12/02 21:51:04 didenko Exp $
+# $Id: dbDevTestQueryPlot.pl,v 1.52 2009/12/03 21:59:08 didenko Exp $
 #
 # $Log: dbDevTestQueryPlot.pl,v $
-# Revision 1.51  2009/12/02 21:51:04  didenko
-# add initialization
+# Revision 1.52  2009/12/03 21:59:08  didenko
+# fixed bug in path naming
 #
 # Revision 1.50  2008/03/31 20:07:30  didenko
 # more changes for updated values
@@ -180,6 +180,10 @@ for($i=1;$i<$weeks;$i++) {
 
 &StDbTJobsConnect();
 
+my $path;
+my $path;
+my$sql; 
+
 my $n_weeks = $weeks - 1;
 while($n_weeks >= 0) {
     my $rn_weeks = $weeks-1-$n_weeks;
@@ -195,28 +199,31 @@ while($n_weeks >= 0) {
   $day_diff = int($day_diff);
   $day_diff1 = int($day_diff1);
 
-  my $sql;
-	
-  my $path;
-
   @spl = ();
   
    @spl = split(" ", $set1);
    $path = $spl[0];  
 	$path =~ s(year)($Nday[$d_week]/year);
-	$path =~ s(/)(%)g;
 
-	    my $qupath = "%$path%";
+   @spl = ();
+   @spl = split("/", $set1);
+   $pth = $spl[0]."%" ;
+   $path =~ s($spl[0])($pth)g;
+
+
+#	$path =~ s(/)(%)g;
+
+	    my $qupath = "%$path";
 
 	if ($n_weeks == 0) {
 
-	    $sql="SELECT path, $mplotVal FROM JobStatus WHERE path LIKE ? AND avail='Y' AND jobStatus=\"Done\" AND (TO_DAYS(\"$nowdate\") -TO_DAYS(createTime)) < ? ORDER by createTime DESC LIMIT 6";
+	    $sql="SELECT path, $mplotVal FROM JobStatus WHERE path LIKE ? AND avail='Y' AND jobStatus=\"Done\" AND (TO_DAYS(\"$nowdate\") -TO_DAYS(createTime)) < ? ORDER by createTime DESC LIMIT 5";
 
  	$cursor = $dbh->prepare($sql) || die "Cannot prepare statement: $dbh->errstr\n";
 	$cursor->execute($qupath,$day_diff);
 
 	} else {
-	    $sql="SELECT path, $mplotVal FROM JobStatus WHERE path LIKE ? AND jobStatus=\"Done\" AND (TO_DAYS(\"$nowdate\") -TO_DAYS(createTime)) < ? AND (TO_DAYS(\"$nowdate\") -TO_DAYS(createTime)) > ? ORDER by createTime DESC LIMIT 6";
+	    $sql="SELECT path, $mplotVal FROM JobStatus WHERE path LIKE ? AND jobStatus=\"Done\" AND (TO_DAYS(\"$nowdate\") -TO_DAYS(createTime)) < ? AND (TO_DAYS(\"$nowdate\") -TO_DAYS(createTime)) > ? ORDER by createTime DESC LIMIT 5";
 
 
 	$cursor = $dbh->prepare($sql) || die "Cannot prepare statement: $dbh->errstr\n";
