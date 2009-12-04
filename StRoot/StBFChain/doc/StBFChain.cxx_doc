@@ -1,5 +1,5 @@
 //_____________________________________________________________________
-// @(#)StRoot/StBFChain:$Name:  $:$Id: StBFChain.cxx_doc,v 1.56 2009/11/30 21:53:55 jeromel Exp $
+// @(#)StRoot/StBFChain:$Name:  $:$Id: StBFChain.cxx_doc,v 1.57 2009/12/04 16:45:37 jeromel Exp $
 //_____________________________________________________________________
 #include "TROOT.h"
 #include "TString.h"
@@ -634,6 +634,9 @@ Bfc_st BFC[] = {
 
 
 
+  {"FiltGamma" ,"","","StEvent,StMcEvent,EmcUtil",
+                                           "StGammaFilterMaker","StFilterMaker", "Gamma filtering",kFALSE},
+
 
 
 
@@ -654,6 +657,20 @@ Bfc_st BFC[] = {
   {"PixelIT" ,"" ,"","","" ,"","ITTF: track using Pixel geom",kFALSE},
   {"IstIT" ,"" ,"","","" ,"","ITTF: track using Ist geom",kFALSE},
   {"skip1row" ,"" ,"","","" ,"","ITTF: skip the first pad row in TPC",kFALSE},
+  {"genvtx" ,"" ,"","ctf_T,EEmcUtil","StGenericVertexMaker",
+                    "St_ctf,St_ctf_Maker,Minuit,StGenericVertexMaker", "Generic Vertex Finder",kFALSE},
+  {"StiUtil" ,"","","", "","StiUtilities","Load StiUtilities library",kFALSE},
+  {"StiRnD" ,"","","", "","StiRnD", "Load StiRnD shared library",kFALSE},
+  {"Sti" ,"Sti","","SCL,StEvent,StiLibs,StDbT,TpcIT,StiUtil,compend","StiMaker",
+                                                    "StEventUtilities,Sti,StiMaker" ,"ITTF tracker",kFALSE},
+  {"StiVMC" ,"StiVMC","","-Sti,SCL,StEvent,StDbT,TpcDb,compend","StiVMCMaker"
+   , "StEventUtilities,StiVMC,StiVMCMaker" ,"ITTF VMC tracker",kFALSE},
+  {"StiPulls" ,"","","Sti", "","", "Request to make Sti Pulls",kFALSE},
+  {"BeamBack" ,"","","StEvent","StBeamBackMaker","StBeamBackMaker",
+                                                               "Beam background tracker in the TPC",kFALSE},
+  {"dEdxY2" ,"dEdxY2","","tpcDb,StEvent","StdEdxY2Maker","libMinuit,StdEdxY2Maker",
+                                                                     "Bichsel method used for dEdx",kFALSE},
+
 
 
   {"btofSim" ,"","BTofChain","BTofUtil","StBTofSimMaker","StEvent,StBTofHitMaker,StBTofSimMaker",
@@ -662,20 +679,6 @@ Bfc_st BFC[] = {
                                                                           "TPC-BTOF track matching",kFALSE},
   {"btofCalib" ,"","BTofChain","db,BTofUtil","StBTofCalibMaker","StBTofCalibMaker",
                                                                                  "BTOF calibration",kFALSE},
-
-  {"genvtx" ,"" ,"","ctf_T,EEmcUtil","StGenericVertexMaker"
-   ,"St_ctf,St_ctf_Maker,Minuit,StGenericVertexMaker", "Generic Vertex Finder",kFALSE},
-  {"StiUtil" ,"","","", "","StiUtilities","Load StiUtilities library",kFALSE},
-  {"StiRnD" ,"","","", "","StiRnD", "Load StiRnD shared library",kFALSE},
-  {"Sti" ,"Sti","","SCL,StEvent,StiLibs,StDbT,TpcIT,StiUtil,compend","StiMaker"
-   , "StEventUtilities,Sti,StiMaker" ,"ITTF tracker",kFALSE},
-  {"StiVMC" ,"StiVMC","","-Sti,SCL,StEvent,StDbT,TpcDb,compend","StiVMCMaker"
-   , "StEventUtilities,StiVMC,StiVMCMaker" ,"ITTF VMC tracker",kFALSE},
-  {"StiPulls" ,"","","Sti", "","", "Request to make Sti Pulls",kFALSE},
-  {"BeamBack" ,"","","StEvent","StBeamBackMaker","StBeamBackMaker"
-   , "Beam background tracker in the TPC",kFALSE},
-  {"dEdxY2" ,"dEdxY2","","tpcDb,StEvent","StdEdxY2Maker","libMinuit,StdEdxY2Maker"
-   , "Bichsel method used for dEdx",kFALSE},
 
   {"FindVtxSeed" ,"FindVtxSeed" ,"","globT,MuDSTDeps","StVertexSeedMaker"
    , "StPass0CalibMaker", "Performs vertex seed finding",kFALSE},
@@ -1630,6 +1633,9 @@ Bfc_st BFC[] = {
 
 
 
+  {"FiltGamma" ,"","","StEvent,StMcEvent,EmcUtil",
+                                           "StGammaFilterMaker","StFilterMaker", "Gamma filtering",kFALSE},
+
 
 
 
@@ -1650,6 +1656,20 @@ Bfc_st BFC[] = {
   {"PixelIT" ,"" ,"","","" ,"","ITTF: track using Pixel geom",kFALSE},
   {"IstIT" ,"" ,"","","" ,"","ITTF: track using Ist geom",kFALSE},
   {"skip1row" ,"" ,"","","" ,"","ITTF: skip the first pad row in TPC",kFALSE},
+  {"genvtx" ,"" ,"","ctf_T,EEmcUtil","StGenericVertexMaker",
+                    "St_ctf,St_ctf_Maker,Minuit,StGenericVertexMaker", "Generic Vertex Finder",kFALSE},
+  {"StiUtil" ,"","","", "","StiUtilities","Load StiUtilities library",kFALSE},
+  {"StiRnD" ,"","","", "","StiRnD", "Load StiRnD shared library",kFALSE},
+  {"Sti" ,"Sti","","SCL,StEvent,StiLibs,StDbT,TpcIT,StiUtil,compend","StiMaker",
+                                                    "StEventUtilities,Sti,StiMaker" ,"ITTF tracker",kFALSE},
+  {"StiVMC" ,"StiVMC","","-Sti,SCL,StEvent,StDbT,TpcDb,compend","StiVMCMaker"
+   , "StEventUtilities,StiVMC,StiVMCMaker" ,"ITTF VMC tracker",kFALSE},
+  {"StiPulls" ,"","","Sti", "","", "Request to make Sti Pulls",kFALSE},
+  {"BeamBack" ,"","","StEvent","StBeamBackMaker","StBeamBackMaker",
+                                                               "Beam background tracker in the TPC",kFALSE},
+  {"dEdxY2" ,"dEdxY2","","tpcDb,StEvent","StdEdxY2Maker","libMinuit,StdEdxY2Maker",
+                                                                     "Bichsel method used for dEdx",kFALSE},
+
 
 
   {"btofSim" ,"","BTofChain","BTofUtil","StBTofSimMaker","StEvent,StBTofHitMaker,StBTofSimMaker",
@@ -1658,20 +1678,6 @@ Bfc_st BFC[] = {
                                                                           "TPC-BTOF track matching",kFALSE},
   {"btofCalib" ,"","BTofChain","db,BTofUtil","StBTofCalibMaker","StBTofCalibMaker",
                                                                                  "BTOF calibration",kFALSE},
-
-  {"genvtx" ,"" ,"","ctf_T,EEmcUtil","StGenericVertexMaker"
-   ,"St_ctf,St_ctf_Maker,Minuit,StGenericVertexMaker", "Generic Vertex Finder",kFALSE},
-  {"StiUtil" ,"","","", "","StiUtilities","Load StiUtilities library",kFALSE},
-  {"StiRnD" ,"","","", "","StiRnD", "Load StiRnD shared library",kFALSE},
-  {"Sti" ,"Sti","","SCL,StEvent,StiLibs,StDbT,TpcIT,StiUtil,compend","StiMaker"
-   , "StEventUtilities,Sti,StiMaker" ,"ITTF tracker",kFALSE},
-  {"StiVMC" ,"StiVMC","","-Sti,SCL,StEvent,StDbT,TpcDb,compend","StiVMCMaker"
-   , "StEventUtilities,StiVMC,StiVMCMaker" ,"ITTF VMC tracker",kFALSE},
-  {"StiPulls" ,"","","Sti", "","", "Request to make Sti Pulls",kFALSE},
-  {"BeamBack" ,"","","StEvent","StBeamBackMaker","StBeamBackMaker"
-   , "Beam background tracker in the TPC",kFALSE},
-  {"dEdxY2" ,"dEdxY2","","tpcDb,StEvent","StdEdxY2Maker","libMinuit,StdEdxY2Maker"
-   , "Bichsel method used for dEdx",kFALSE},
 
   {"FindVtxSeed" ,"FindVtxSeed" ,"","globT,MuDSTDeps","StVertexSeedMaker"
    , "StPass0CalibMaker", "Performs vertex seed finding",kFALSE},
