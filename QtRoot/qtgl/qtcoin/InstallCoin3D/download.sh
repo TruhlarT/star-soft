@@ -12,7 +12,7 @@ COIN_FTP_SERVER=http://ftp.coin3d.org/coin/src/all
 COIN_SVN_SERVER=https://svn.coin3d.org/repos
 
 COIN_VERSION_MAJOR=3
-COIN_VERSION_MINOR=1.1
+COIN_VERSION_MINOR=1.2
 
 # SoQt 1.4.1 is the last SoQt version available from the ftp server
 # It is obsolete  and it is not compatible woth Coin-3
@@ -67,8 +67,6 @@ Download() {
 # --
 # -------------  Coin ----------------
 #
-COIN_VERSION_MAJOR=3
-COIN_VERSION_MINOR=1.1
 COIN_VERSION=${COIN_VERSION_MAJOR}.${COIN_VERSION_MINOR}
 PACKAGE=Coin-${COIN_VERSION_MAJOR}
 PACKAGE_VERSION=.${COIN_VERSION_MINOR}
