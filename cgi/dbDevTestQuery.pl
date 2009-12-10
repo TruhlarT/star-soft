@@ -1,8 +1,11 @@
 #!/usr/bin/env perl 
 #
-# $Id: dbDevTestQuery.pl,v 1.27 2009/11/18 20:55:18 didenko Exp $
+# $Id: dbDevTestQuery.pl,v 1.28 2009/12/10 18:43:24 didenko Exp $
 #
 # $Log: dbDevTestQuery.pl,v $
+# Revision 1.28  2009/12/10 18:43:24  didenko
+# extanded test samples for pp pythia
+#
 # Revision 1.27  2009/11/18 20:55:18  didenko
 # uncomment right line
 #
@@ -103,7 +106,13 @@ my @prod_set = (
                 "trs_sl302/year_2004/auau_central", 
                 "trs_sl302/year_2005/cucu200_minbias",
                 "trs_sl302/year_2005/cucu62_minbias",
+                "trs_sl302/year_2006/pp200_minbias",
                 "trs_sl302/year_2007/auau200_central",
+                "trs_sl302/year_2008/dau200_minbias",
+                "trs_sl302/year_2008/pp200_minbias",
+                "trs_sl302/year_2009/pp200_minbias",
+                "trs_sl302/year_2009/pp500_minbias",
+                "trs_sl302/year_2010/auau200_minbias",
                 "daq_sl302/year_2000/minbias",
                 "daq_sl302/year_2000/central",
 		"daq_sl302/year_2001/minbias",
