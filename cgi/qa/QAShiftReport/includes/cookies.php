@@ -19,7 +19,8 @@ global $cookiepath,$domain,$undef;
       eraseCookie($cookieName);
       if ($val == "") { $val = $undef; }
       $exptime = time() + (3600*24);
-      setcookie($cookieName,$val,$exptime,$cookiepath,$domain);
+      $res = setcookie($cookieName,$val,$exptime,$cookiepath,$domain);
+      if (!$res) logit("Error setting cookie: $cookieName => $val");
     }
     function getCookie($cookieName) {
       if (isset($_COOKIE[$cookieName])) {

@@ -36,20 +36,22 @@
     }
     
 //print a textarea
-    function ftext($element_name, $values) {
-      print '<textarea name="' . $element_name .'">';
-      print stripslashes($values[$element_name]) . '</textarea>';
+    function ftext($element_name,$values,$rows=-1,$cols=-1) {
+      print "<textarea name=\"${element_name}\"";
+      if ($rows >= 0) { print " rows=${rows}"; }
+      if ($cols >= 0) { print " cols=${cols}"; }
+      print ">" . stripslashes($values[$element_name]) . "</textarea>";
     }
 
 //print a radio button or checkbox
     function fradio($type, $element_name,
                            $values, $element_value) {
-      print '<input type="' . $type . '" name="' .
-            $element_name .'" value="' . $element_value . '" ';
+      print "<input type=\"${type}\" name=\"${element_name}\"" .
+            " value=\"${element_value}\" ";
       if ($element_value == $values[$element_name]) {
-          print ' checked="checked"';
+          print " checked=\"checked\"";
       }
-      print '/>';
+      print "/>";
     }
 
 ?>

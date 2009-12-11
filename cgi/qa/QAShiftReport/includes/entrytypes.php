@@ -25,5 +25,10 @@ function existsType($type) {
   return isset($ents[$type]);
 }
 
+function existsTrigType($type) {
+  global $trigs;
+  return isset($trigs[$type]);
+}
+
 $noent = "No data entry type specified";
 ?>

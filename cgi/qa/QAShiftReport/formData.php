@@ -190,11 +190,11 @@ function sectionhead($tit) {
 }
 function listar($arr,$AR) {
   if (!is_array($arr)) { logit("formData.php: listar: " . gettype($arr)); }
-  foreach ($arr as $id => $desc) {
+  foreach ($arr as $id => $issName) {
     print "<tr><td>";
     fbutton("${AR}${id}","${AR}:${id}","${AR}IssueN('${id}')");
     print "</td>\n<td><font color=\"#800000\">";
-    print stripslashes($desc) . "</font></td>\n<td>";
+    print htmlentities(stripslashes($issName)) . "</font></td>\n<td>";
     fbutton("Edit${id}","Edit/Examine","EditIssue('${id}')");
     if ($AR == "Remove") { fhidden("x${id}","1"); }
     print "</td></tr>\n";

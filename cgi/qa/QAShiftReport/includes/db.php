@@ -36,6 +36,7 @@ function nextDBrow($result) {
 function queryDBfirst($str) {
   # returns the first such row from the DB
   $result = queryDB($str);
+  if (mysql_num_rows($result)<1) return 0;
   return nextDBrow($result);
 }
 function queryDBarray($str,$col) {

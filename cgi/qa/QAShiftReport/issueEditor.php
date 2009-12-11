@@ -57,7 +57,7 @@ function PrintRuns($iid) {
 
 function ViewDesc($iname,$idesc) {
     print "\n<b><font color=\"#800000\">";
-    print stripslashes($iname) . "</font></b><br>\n";
+    print htmlentities(stripslashes($iname)) . "</font></b><br>\n";
     print "Full Description And Notes:\n";
     print "<b><font color=\"#C00000\" size=+1><pre>\n";
     print preserve_wordwrap(htmlentities(stripslashes($idesc)),75,chr(10));
@@ -109,9 +109,9 @@ function EditType($iid,$type) {
 }
 
 function listis($arr,$typ) {
-  foreach ($arr as $id => $desc) {
+  foreach ($arr as $id => $issName) {
     fbutton("brw${id}",$id,"editIssueN(-${id},'${typ}','view')");
-    print " : <font color=\"#800000\">" . stripslashes($desc) . "</font>";
+    print " : <font color=\"#800000\">" . htmlentities(stripslashes($issName)) . "</font>";
     linebreak();
   }
 }
@@ -198,7 +198,7 @@ if ($mode != "new") {
   if ($iid>0) {
     print "<br>\n";
     print "<font size=-2>";
-    print "link: ${webdir}${refphp}?iid=${iid}</font>\n";
+    print "link: ${webdir}${refphp}.php?iid=${iid}</font>\n";
   }
 }
 fhidden("mode","view");

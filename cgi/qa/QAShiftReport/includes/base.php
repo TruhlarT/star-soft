@@ -54,7 +54,8 @@
       incl("head2.html");
     }
     function body() { incl("body.html"); }
-    function foot($noClose=0) {
+    function foot($noClose=0,$numBR=2) {
+      for ($nbr=0;$nbr<$numBR;$nbr++) { linebreak(); }
       incl("foot.html");
       if ($noClose!=0 && connectedDB()) closeDB();
     }
