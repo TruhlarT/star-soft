@@ -22,7 +22,7 @@ require "/afs/rhic.bnl.gov/star/packages/scripts/dbLib/dbTJobsSetup.pl";
 
 my $TOP_DIRD = "/star/rcf/test/dev/";
 
-my @dir_year = ("year_2000", "year_2001", "year_2003", "year_2004", "year_2005", "year_2006", "year_2007", "year_2008","year_2009");
+my @dir_year = ("year_2000", "year_2001", "year_2003", "year_2004", "year_2005", "year_2006", "year_2007", "year_2008","year_2009", "year_2010");
 my @node_dir = ("daq_sl302.ittf", "daq_sl302.ittf_opt" ,"trs_sl302.ittf", "trs_sl302.ittf_opt");
 
 
@@ -481,7 +481,7 @@ my @files;
        $timeS = sprintf ("%4.4d-%2.2d-%2.2d %2.2d:%2.2d:00",
                        $fullyear,$mo,$dy,$hr,$min);    
 
-           if( $ltime > 600 && $ltime < 518400 ){         
+           if( $ltime > 1800 && $ltime < 518400 ){         
 #          if( $ltime > 600 ) { 
 #   print "Log time: ", $ltime, "\n";
    print $fullname, "\n";
