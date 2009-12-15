@@ -51,6 +51,7 @@
 #  include <QInputDialog>
 #  include <QDebug>
 #  include <QVBoxLayout>
+#  include <QRegExp>
 #endif 
 
 #include <qfile.h>
@@ -748,9 +749,18 @@ Option_t   *TQtCoinWidget::GetDrawOption() const
 void TQtCoinWidget::SetDrawOption(Option_t *option)
 {
    // Set the comma separated list of the draw options
-   fViewerDrawOption = "";
-   if (option && option[0]) { fViewerDrawOption = option;}
-
+   // Naive "Style Sheet"
+   // TQtCoinWidget { footter:"text";  background-color : color }
+   if (option && option[0])  {
+      QString opt =option;
+      QStringList optlist =  opt.split(":");
+      if (optlist.size() > 1) {
+          SetFooter(optlist[1].trimmed().remove('}'));         
+      } else {
+        fViewerDrawOption = "";
+        fViewerDrawOption = option;
+      }
+   }
 }
 
 //______________________________________________________________________________
@@ -1310,7 +1320,7 @@ void TQtCoinWidget::ReadInputFile(const QString &fileName)
               }
               // it replaces everything with the triangles.
               // It is faster but wireframe view and hidden line look are ugly.
-//            SoChildList *children =  extraObjects->getChildren();           
+//            SoChildList *children =  extraObjects->getChildren();
 //            SoReorganizeAction reorg;
 //            reorg.apply(fFileNode);
               fFileNode->addChild(extraObjects);

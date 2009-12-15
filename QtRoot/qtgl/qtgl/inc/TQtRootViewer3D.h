@@ -88,7 +88,7 @@ public:
     virtual Bool_t PreferLocalFrame() const {return kTRUE; }
 
        // Viewers can implement their own loop over pad's primitive list.
-    virtual Bool_t CanLoopOnPrimitives() const { return kTRUE; }
+    virtual Bool_t CanLoopOnPrimitives() const;
     // When they can, TPad::Paint() and TPad::PaintModified() simply 
     // call the following function:
     virtual void   PadPaint(TVirtualPad*);

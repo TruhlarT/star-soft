@@ -1,4 +1,4 @@
-// @(#)root/gtgl:$Name:  $:$Id: TShape3DPolygonView.h,v 1.6 2009/08/03 18:03:07 fine Exp $
+// @(#)root/gtgl:$Name:  $:$Id: TShape3DPolygonView.h,v 1.7 2009/12/15 00:49:45 fine Exp $
 // Author: Valery Fine      27/04/05
 
 #ifndef ROOT_TShape3DPolygonView
@@ -150,14 +150,14 @@ public:
 inline void TShape3DPolygonView::Print()
 {
    fprintf(stderr," -------------------------------\n");
-   fprintf(stderr," The number of normals                = %ld \n", fNormals.size());
-   fprintf(stderr," The number of vertices               = %ld \n", fVertex.size());
-   fprintf(stderr," The number of face binded polygons   = %ld \n", fPolygonsFaceBinding.size());
-   fprintf(stderr," The number of vertex binded polygons = %ld \n", fPolygonsVertexBinding.size());
+   fprintf(stderr," The number of normals                = %uld \n", fNormals.size());
+   fprintf(stderr," The number of vertices               = %uld \n", fVertex.size());
+   fprintf(stderr," The number of face binded polygons   = %uld \n", fPolygonsFaceBinding.size());
+   fprintf(stderr," The number of vertex binded polygons = %uld \n", fPolygonsVertexBinding.size());
 
    UInt_t i; UInt_t j;
    if (fPolygonsFaceBinding.size()) {
-      fprintf(stderr," -----------fPolygonsFaceBinding----%ld----------------\n",fPolygonsFaceBinding.size());
+      fprintf(stderr," -----------fPolygonsFaceBinding----%uld----------------\n",fPolygonsFaceBinding.size());
       for (i = 0; i < fPolygonsFaceBinding.size(); i++) {
          int nIndex = fPolygonsFaceBinding[i].fNormalIndex;
          fprintf(stderr," -- > %d-th face binded polygon\n", i);
@@ -173,7 +173,7 @@ inline void TShape3DPolygonView::Print()
       }
    }
    if (fPolygonsVertexBinding.size()) {
-      fprintf(stderr," -----------fPolygonsVertexBinding---%ld -----------------\n",fPolygonsVertexBinding.size());
+      fprintf(stderr," -----------fPolygonsVertexBinding---%uld -----------------\n",fPolygonsVertexBinding.size());
 
       for (i = 0; i < fPolygonsVertexBinding.size(); i++) {
          {

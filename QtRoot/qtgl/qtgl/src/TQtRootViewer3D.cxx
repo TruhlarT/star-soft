@@ -105,6 +105,11 @@ TQtRootViewer3D::~TQtRootViewer3D()
     if (sav) delete sav;
 }
 //______________________________________________________________________________
+Bool_t  TQtRootViewer3D::CanLoopOnPrimitives() const { 
+    return kTRUE; 
+}
+
+//______________________________________________________________________________
 Int_t  TQtRootViewer3D::AddObject(TObject *obj, Option_t *drawOption, Bool_t *addChildren )
 {
   // Add one TObject to the viewer at the end of the list
@@ -150,13 +155,13 @@ Int_t  TQtRootViewer3D::AddRawObject(ULong_t placedID, UInt_t optMask)
 // When they can, TPad::Paint() and TPad::PaintModified() simply
 // call the following function:
 //______________________________________________________________________________
-void   TQtRootViewer3D::PadPaint(TVirtualPad*pad)
+void   TQtRootViewer3D::PadPaint(TVirtualPad *pad)
 {
    // Entry point for updating scene contents via VirtualViewer3D
    // interface.
    // For now this is handled by TGLViewer as it remains
    // the 'Viewer3D' of given pad.
-
+   if (!fPad) fPad = pad;
    if (pad != fPad)
    {
       Error("TGLScenePad::PadPaint", "Mismatch between pad argument and data-member!");
@@ -203,8 +208,8 @@ void  TQtRootViewer3D::BeginScene(TVirtualPad *pad)
    fBuildingScena = kTRUE;
    Viewer(); 
    // Bool_t began3DScene = kFALSE;
-   ClearPrimitives(); 
    if (pad) {
+      ClearPrimitives(); 
       TObjOptLink *lnk = (TObjOptLink*)pad->GetListOfPrimitives()->FirstLink();
       TObject *obj = 0;
       while (lnk) {
@@ -248,7 +253,8 @@ void   TQtRootViewer3D::CloseScene()
 {
     // called by EndScene
    if (fViewer) {
-      fViewer->SetBackgroundColor(gPad->GetFillColor());
+      if (gPad) 
+         fViewer->SetBackgroundColor(gPad->GetFillColor());
 #if 0     
        fListOfPrimitives.CompileViewLevel();
 #endif     
@@ -284,7 +290,7 @@ void  TQtRootViewer3D::EndScene(){
 //______________________________________________________________________________
 void  TQtRootViewer3D::SetDrawOption(Option_t *option)
 {
-  if (fViewer)  fViewer->SetDrawOption(option);
+   if (fViewer)  fViewer->SetDrawOption(option);
 }
 //______________________________________________________________________________
 Option_t   *TQtRootViewer3D::GetDrawOption() const

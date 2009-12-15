@@ -204,6 +204,7 @@ void TQtRootCoinViewer3D::Clear(Option_t *)
 void TQtRootCoinViewer3D::SetDrawOption(Option_t *option)
 { 
      fDrawOption = option;
+     if (fViewer) fViewer->SetDrawOption(option);
 }
 //______________________________________________________________________________
 Option_t   *TQtRootCoinViewer3D::GetDrawOption() const
