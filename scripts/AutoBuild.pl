@@ -1,6 +1,6 @@
 #!/usr/bin/env perl
 
-# $Id: AutoBuild.pl,v 1.40 2009/09/07 20:32:58 jeromel Exp $
+# $Id: AutoBuild.pl,v 1.41 2009/12/22 21:02:51 jeromel Exp $
 # This script was written to perform an automatic compilation
 # with cvs co and write some html page related to it afterward.
 # Written J.Lauret Apr 6 2001
@@ -201,7 +201,7 @@ for ($i=0 ; $i <= $#ARGV ; $i++){
 	    $ALLARGS .= " $LIBRARY";
 	} elsif($arg eq "-p"){
 	    $COMPDIR  = $ARGV[++$i];
-	    $DEBUG    = 1==1;
+	    # $DEBUG    = 1==1;
 	    $ALLARGS .= " $COMPDIR";
 	} elsif ($arg eq "-h" || $arg eq "--help"){
 	    &lhelp();
@@ -810,7 +810,7 @@ sub DumpContent
 sub Exit()
 {
     my($sts)=@_;
-    my($tmp);
+    my($tmp,$rtsts);
 
     # Delete the lock file
     IULockDelete();
@@ -819,65 +819,64 @@ sub Exit()
     # while using the Exit()
     if ( $sts < 0){ exit;}
 
-    # Output HTML
-    &ReportToHtml($sts);
-
     # Close global output if needed
     if($FILO ne STDOUT){ close($FILO);}
 
 
+    # default return status
+    $rtsts = 0;
+
     if( $DEBUG){
 	print "Debug mode. Stopping at this stage. $ERRSTR\n";
-	exit(0);
-    }
 
-
-    # LEAVE NOW. Either send Email warning to admin or
-    # release the volume.
-    if($sts != 0){
-	# Send Emails to the list of managers if the compilation
-	# failed. We do NOT want to be influcenced by anything else
-	&SendMessage("AutoBuild: Action failed",
-		     "Last error is $ERRSTR\nFor more information,".
-		     "check ".IUHtmlRef()."/$FLNM.html");
-	exit(1);
     } else {
-	# Change in 2008 / create the marker file in a sub-tree, only
-	# release code if checkout / update was requested or -U was asked
-	
-	if ( $RELCODE ){
-	    # Release the volume now
-	    $tmp = IUReleaseFile();
-	    ABUnlink($tmp);
-	    open(FO,">$tmp"); print FO "Ready to release on ".localtime()."\n";
-	    close(FO);
-	}
-
-	if ( defined($ENV{STAR_HOST_SYS}) ){
-	    my($subf,$subd);
-
-	    $subd = $subf =".".$ENV{STAR_HOST_SYS}."/".$tmp;
-	    $subd =~ m/(.*\/)(.*)/; $subd = $1;
-	    if ( -e $subd ){
-		ABUnlink($subf);
-		open(FO,">$subf"); print FO "Ready to release on ".localtime()."\n";
+	# LEAVE NOW. Either send Email warning to admin or
+	# release the volume.
+	if($sts != 0){
+	    # Send Emails to the list of managers if the compilation
+	    # failed. We do NOT want to be influcenced by anything else
+	    &SendMessage("AutoBuild: Action failed",
+			 "Last error is $ERRSTR\nFor more information,".
+			 "check ".IUHtmlRef()."/$FLNM.html");
+	    $rtsts = 1;
+	} else {
+	    # Change in 2008 / create the marker file in a sub-tree, only
+	    # release code if checkout / update was requested or -U was asked
+	    
+	    if ( $RELCODE ){
+		# Release the volume now
+		$tmp = IUReleaseFile();
+		ABUnlink($tmp);
+		open(FO,">$tmp"); print FO "Ready to release on ".localtime()."\n";
 		close(FO);
-	     #} else {
-		#my($flnm)=$ENV{HOME}."/AB-debug.log";
-		#open(FD,">>$flnm");
-		#print FD "Could not find $subd\n";
-		#close(FD);
+		push(@REPORT,"Release via $tmp done ".localtime()."<br>\n");
+		
+		if ( defined($ENV{STAR_HOST_SYS}) ){
+		    my($subf,$subd);
+		    
+		    $subd = $subf =".".$ENV{STAR_HOST_SYS}."/".$tmp;
+		    $subd =~ m/(.*\/)(.*)/; $subd = $1;
+		    if ( -e $subd ){
+			ABUnlink($subf);
+			open(FO,">$subf"); print FO "Ready to release on ".localtime()."\n";
+			close(FO);
+			push(@REPORT,"Release via $subf done ".localtime()."<br>\n");		
+		    }
+		} else {
+		    push(@REPORT,"Release via subdir cannot be done - no STAR_HOST_SYS defined");
+		}
 	    }
-	#} else {
-	    #my($flnm)=$ENV{HOME}."/AB-debug.log";
-	    #open(FD,">>$flnm");
-	    #print FD "Not defined STAR_HOST_SYS\n";
-	    #close(FD);
+	    # And exit with normal status
+	    $rtsts = 0;
 	}
-
-	# And exit with normal status
-	exit(0);
     }
+
+    # Now andonly now dump report - change JL 200912
+    # Output HTML
+    &ReportToHtml($sts);
+
+
+    exit($rtsts);
 }
 
 
@@ -1186,8 +1185,7 @@ sub lhelp
  -v Lib       Change default library version from $LIBRARY to 'Lib' where
               'Lib' stands for new, old, SL01i etc ...
  -p Path      Change the default $COMPDIR working directory
-              to 'Path'. This option automatically disables post-compilation
-              operations (-d option is ON).
+              to 'Path'. 
 
  -b Cmd       Executes 'Cmd' before star library version change (can be used
               for executing a setup)
