@@ -1,6 +1,6 @@
 #!/usr/bin/env perl
 
-# $Id: AutoBuild.pl,v 1.41 2009/12/22 21:02:51 jeromel Exp $
+# $Id: AutoBuild.pl,v 1.42 2009/12/22 22:44:41 jeromel Exp $
 # This script was written to perform an automatic compilation
 # with cvs co and write some html page related to it afterward.
 # Written J.Lauret Apr 6 2001
@@ -844,13 +844,25 @@ sub Exit()
 	    # release code if checkout / update was requested or -U was asked
 	    
 	    if ( $RELCODE ){
+		push(@REPORT,"<BLOCKQUOTE>");
+		push(@REPORT,"%%REF%%<B>AFS release</B>\n");
+		push(@REPORT," <UL>\n");
 		# Release the volume now
-		$tmp = IUReleaseFile();
-		ABUnlink($tmp);
-		open(FO,">$tmp"); print FO "Ready to release on ".localtime()."\n";
-		close(FO);
-		push(@REPORT,"Release via $tmp done ".localtime()."<br>\n");
-		
+		$subd = $tmp = IUReleaseFile();
+		$subd =~ m/(.*\/)(.*)/; $subd = $1;
+		if ( -e $subd ){
+		    ABUnlink($tmp);
+		    if ( open(FO,">$tmp") ){
+			print FO "Ready to release on ".localtime()."\n";
+			close(FO);
+			push(@REPORT," <LI>Release via $tmp done ".localtime()."\n");
+		    } else {
+			push(@REPORT," <LI>Failed to create $tmp on ".localtime()."\n");
+		    }
+		} else {
+		    push(@REPORT," <LI>No dir for creating $tmp\n");
+		} 
+
 		if ( defined($ENV{STAR_HOST_SYS}) ){
 		    my($subf,$subd);
 		    
@@ -858,13 +870,22 @@ sub Exit()
 		    $subd =~ m/(.*\/)(.*)/; $subd = $1;
 		    if ( -e $subd ){
 			ABUnlink($subf);
-			open(FO,">$subf"); print FO "Ready to release on ".localtime()."\n";
-			close(FO);
-			push(@REPORT,"Release via $subf done ".localtime()."<br>\n");		
+			if ( open(FO,">$subf") ){
+			    print FO "Ready to release on ".localtime()."\n";
+			    close(FO);
+			    push(@REPORT," <LI>Release via $subf done ".localtime()."\n");
+			} else {
+			    push(@REPORT," <LI>Failed to create $subf on ".localtime()."\n");
+			}
+		    } else {
+			push(@REPORT," <LI>No dir for creating $subf<br>\n");
 		    }
 		} else {
-		    push(@REPORT,"Release via subdir cannot be done - no STAR_HOST_SYS defined");
+		    push(@REPORT,
+			 " <LI>Release via subdir cannot be done - no STAR_HOST_SYS defined\n");
 		}
+		push(@REPORT," </UL>\n");
+		push(@REPORT,"</BLOCKQUOTE>\n");
 	    }
 	    # And exit with normal status
 	    $rtsts = 0;
