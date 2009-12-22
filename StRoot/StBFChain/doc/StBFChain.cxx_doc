@@ -1,5 +1,5 @@
 //_____________________________________________________________________
-// @(#)StRoot/StBFChain:$Name:  $:$Id: StBFChain.cxx_doc,v 1.59 2009/12/07 21:20:34 jeromel Exp $
+// @(#)StRoot/StBFChain:$Name:  $:$Id: StBFChain.cxx_doc,v 1.60 2009/12/22 23:01:54 fisyak Exp $
 //_____________________________________________________________________
 #include "TROOT.h"
 #include "TString.h"
@@ -304,6 +304,7 @@ Bfc_st BFC[] = {
   {"Debug1" ,"" ,"","" ,"","","Set debug flag = 1",kFALSE},
   {"Debug2" ,"" ,"","" ,"","","Set debug flag = 2",kFALSE},
   {"IdTruth" ,"" ,"","" ,"","","Enable IdTruth association in StAssociationMaker",kFALSE},
+  {"OldMiniMc" ,"" ,"","" ,"","","Keep old (Manuel) convention for MiniMc",kFALSE},
   {"useInTracker","" ,"","","","" ,"switch from EGR to Sti global tracks in StAssociationMaker",kFALSE},
   {"noRepeat" ,"" ,"","" ,"","","No repeat in Messenger",kFALSE},
   {"noHistos" ,"" ,"","" ,"","","Disables Attributes histos",kFALSE},
@@ -1316,6 +1317,7 @@ Bfc_st BFC[] = {
   {"Debug1" ,"" ,"","" ,"","","Set debug flag = 1",kFALSE},
   {"Debug2" ,"" ,"","" ,"","","Set debug flag = 2",kFALSE},
   {"IdTruth" ,"" ,"","" ,"","","Enable IdTruth association in StAssociationMaker",kFALSE},
+  {"OldMiniMc" ,"" ,"","" ,"","","Keep old (Manuel) convention for MiniMc",kFALSE},
   {"useInTracker","" ,"","","","" ,"switch from EGR to Sti global tracks in StAssociationMaker",kFALSE},
   {"noRepeat" ,"" ,"","" ,"","","No repeat in Messenger",kFALSE},
   {"noHistos" ,"" ,"","" ,"","","Disables Attributes histos",kFALSE},
@@ -2450,7 +2452,7 @@ Int_t StBFChain::Instantiate()
       if (GetOption("IdTruth")) cmd += Form("((StAssociationMaker *) %p)->useIdAssoc();",mk);
       ProcessLine(cmd);
     }
-    if (maker == "StMiniMcMaker" && GetOption("IdTruth")) {
+    if (maker == "StMiniMcMaker" && GetOption("IdTruth") && ! GetOption("OldMiniMc")) {
       mk->SetMode(1);
       gMessMgr->QAInfo() << "StBFChain::Instantiate create simplified MiniMcTree in " << maker  << endm;
     }
