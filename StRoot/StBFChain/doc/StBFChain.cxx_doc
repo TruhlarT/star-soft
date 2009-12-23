@@ -1,5 +1,5 @@
 //_____________________________________________________________________
-// @(#)StRoot/StBFChain:$Name:  $:$Id: StBFChain.cxx_doc,v 1.61 2009/12/23 00:15:20 jeromel Exp $
+// @(#)StRoot/StBFChain:$Name:  $:$Id: StBFChain.cxx_doc,v 1.62 2009/12/23 16:20:08 fisyak Exp $
 //_____________________________________________________________________
 #include "TROOT.h"
 #include "TString.h"
@@ -461,8 +461,8 @@ Bfc_st BFC[] = {
   {"------------","-----------","-----------","------------------------------------------","","","",kFALSE},
   {"db" ,"db" ,"","StDbT" ,"St_db_Maker","StDbLib,StDbBroker,St_db_Maker","",kFALSE},
   {"detDb","detDb","","db","StDetectorDbMaker","StDetectorDbMaker","Load and run StDetectorDbMaker",kFALSE},
-  {"magF" ,"MagField","","StDbT,db","StMagFMaker","StarMagField,StMagF"
-   , "Mag.field map with scale factor from Db",kFALSE},
+  {"magF" ,"MagField","","StDbT,db","StMagFMaker","StarMagField,StMagF",
+                                                          "Mag.field map with scale factor from Db",kFALSE},
   {"dbutil" ,"" ,"","detDb,StDbT" ,"","StDbUtilities","Load StDbUtilities",kFALSE},
   {"tpcDB" ,"tpcDB","","tpc_T,dbutil,db,StarMagField" ,"StTpcDbMaker","StTpcDb","",kFALSE},
   {"svtDb" ,"svtDb","","tpcDb,SvtCL", "StSvtDbMaker","StSvtDbMaker","Load and run SvtDbMaker",kFALSE},
@@ -507,6 +507,7 @@ Bfc_st BFC[] = {
   {"ctf" ,"ctf","l0Chain","ctf_T,db" ,"St_ctf_Maker","St_ctf,St_ctf_Maker","ToF simulation",kFALSE},
   {"mwc" ,"","","", "","","WARNING *** Option is OBSOLETE ***",kFALSE},
   {"ppMCTrig" ,"","","", "","","WARNING *** Option is OBSOLETE ***",kFALSE},
+  {"pp2pp" ,"","","", "St_pp2pp_Maker","St_pp2pp_Maker","pp->pp",kFALSE},
   {"tpc" ,"","","fcf,tpcI" ,"","","WARNING *** Option is OBSOLETE *** use tpcI,fcf instead",kFALSE},
   {"tpcI" ,"tpcChain","","tpc_T,globT,db,tpcDB,TpcHitMover", "StMaker","StChain","tpc with ITTF",kFALSE},
   {"tpcX" ,"tpcChain","","-tpcI,tpx,MakeEvent" ,"StMaker","StChain","tpc+tpcx with ITTF",kFALSE},
@@ -1489,8 +1490,8 @@ Bfc_st BFC[] = {
   {"------------","-----------","-----------","------------------------------------------","","","",kFALSE},
   {"db" ,"db" ,"","StDbT" ,"St_db_Maker","StDbLib,StDbBroker,St_db_Maker","",kFALSE},
   {"detDb","detDb","","db","StDetectorDbMaker","StDetectorDbMaker","Load and run StDetectorDbMaker",kFALSE},
-  {"magF" ,"MagField","","StDbT,db","StMagFMaker","StarMagField,StMagF"
-   , "Mag.field map with scale factor from Db",kFALSE},
+  {"magF" ,"MagField","","StDbT,db","StMagFMaker","StarMagField,StMagF",
+                                                          "Mag.field map with scale factor from Db",kFALSE},
   {"dbutil" ,"" ,"","detDb,StDbT" ,"","StDbUtilities","Load StDbUtilities",kFALSE},
   {"tpcDB" ,"tpcDB","","tpc_T,dbutil,db,StarMagField" ,"StTpcDbMaker","StTpcDb","",kFALSE},
   {"svtDb" ,"svtDb","","tpcDb,SvtCL", "StSvtDbMaker","StSvtDbMaker","Load and run SvtDbMaker",kFALSE},
@@ -1535,6 +1536,7 @@ Bfc_st BFC[] = {
   {"ctf" ,"ctf","l0Chain","ctf_T,db" ,"St_ctf_Maker","St_ctf,St_ctf_Maker","ToF simulation",kFALSE},
   {"mwc" ,"","","", "","","WARNING *** Option is OBSOLETE ***",kFALSE},
   {"ppMCTrig" ,"","","", "","","WARNING *** Option is OBSOLETE ***",kFALSE},
+  {"pp2pp" ,"","","", "St_pp2pp_Maker","St_pp2pp_Maker","pp->pp",kFALSE},
   {"tpc" ,"","","fcf,tpcI" ,"","","WARNING *** Option is OBSOLETE *** use tpcI,fcf instead",kFALSE},
   {"tpcI" ,"tpcChain","","tpc_T,globT,db,tpcDB,TpcHitMover", "StMaker","StChain","tpc with ITTF",kFALSE},
   {"tpcX" ,"tpcChain","","-tpcI,tpx,MakeEvent" ,"StMaker","StChain","tpc+tpcx with ITTF",kFALSE},
