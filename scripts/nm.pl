@@ -5,6 +5,9 @@
 #
 # (c) J.Lauret 2003-2009
 #
+# Add NMPL_DEBUG
+#
+use Digest::MD5;
 
 $STAR       = $ENV{STAR};
 $ROOTSYS    = $ENV{ROOTSYS};
@@ -12,6 +15,7 @@ $OS         = $ENV{STAR_HOST_SYS};
 $CERN       = $ENV{CERN};
 $CERN_LEVEL = $ENV{CERN_LEVEL};
 $OSG        = $ENV{OSG};
+$DEBUG      = $ENV{NMPL_DEBUG};
 
 if ( !defined($ARGV[0]) ){
     die "Syntax: $0 SymbolToLocate [LibraryPattern]\n";
@@ -98,23 +102,48 @@ push(@all,glob("$CERN/$CERN_LEVEL/lib/*.a"));
 
 
 if ( defined($OSG) ){
-    print "\tAdding Globus librraies from $OSG/globus/lib/*.so\n";
+    print "\tAdding Globus libraries from $OSG/globus/lib/*.so\n";
     push(@all,glob("$OSG/globus/lib/*.so"));
 }
 
-# a common file intermediate
-$FF = "/tmp/nm$$.$<.tmp";
+
+# Make a common cache for this script 
+umask(0000);
+$CACHEDIR = "/tmp/cache_nm".(getpwuid($<))[3];
+if ( ! -d $CACHEDIR ){  print "Creating $CACHEDIR\n"; 
+			mkdir($CACHEDIR,0775);}
+
+
+$md5 = Digest::MD5->new();
+chomp($ldir = `pwd`);
 
 foreach $file (@all){
-    unlink($FF) if ( -e $FF);
-    `$NM $file >&$FF`;
+    # in case the file dispapeared on us between search and now
+    next if ( ! -e $file); 
+
+    @stat = stat($file);
+    $md5->reset();
+
+    $md5->add($file);                                  # name
+    $md5->add($stat[9]);                               # add mdate
+    if ( substr($file,0,1) eq "."){ $md5->add($ldir);} # relative path requires additional pwd()
+				    
+    $digest = $md5->hexdigest();
+    $FF     = "$CACHEDIR/$digest";
+
+    # unlink($FF) if ( -e $FF);
+    if ( ! -e "$FF" ){
+	print "\tCreating cache $digest for $file\n" if ($DEBUG);
+	`$NM $file >&$FF.tmp`;
+	chmod(0660,"$FF.tmp");
+	rename("$FF.tmp","$FF");
+    }
     if ( -e $FF ){
 	open(FI,"<$FF"); @SYM = <FI>; close(FI);
 	chomp(@res = grep(/$symb/,@SYM));
     }
+
     
-    # chomp(@res = `$NM $file >&$FF`); 
-    # | /bin/grep $symb`);
 
     if($#res != -1){
 	print "$file >>\n";
@@ -160,4 +189,4 @@ foreach $file (@all){
 	}
     }
 }
-unlink($FF) if ( -e $FF);
+
