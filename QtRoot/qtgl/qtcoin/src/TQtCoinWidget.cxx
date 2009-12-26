@@ -577,7 +577,9 @@ h() == 0) {
    }
    path->unref();
 	*/
+  ((TQtCoinWidget*)(viewer))->setToolTip("No volume is selected");
   ((TQtCoinWidget*)(viewer))->Update();
+        
 }
 
 
@@ -630,6 +632,7 @@ static SoPath * PickFilterCB(void * viewer, const SoPickedPoint * pick)
         thisViewer->EmitNodeSelectSignal(p->getTail());
      }
      selPath = p->copy(0);
+     thisViewer->setToolTip("No volume is selected");
   }
   // fprintf(stderr,"static SoPath *PickFilterCB path %p\n", selPath);
   return selPath;
@@ -680,6 +683,7 @@ static void SelectCB(void * viewer, SoPath *p)
       QPoint cursorPosition = viewerWidget->mapFromGlobal(globalPosition);
       QString tipText =  selectedObject->GetObjectInfo(cursorPosition.x(),cursorPosition.y());
       QWhatsThis::showText(globalPosition,tipText,viewerWidget );
+      viewerWidget->setToolTip(tipText);
    } else if (!selectedObject) {
       QPoint globalPosition = QCursor::pos();
       QWidget *viewerWidget = thisViewer->GetCoinViewer()->getWidget();
@@ -688,7 +692,10 @@ static void SelectCB(void * viewer, SoPath *p)
          SbName name = node->getName();
          if (name.getLength()) {            
             QString tipText =  name.getString();
-            QWhatsThis::showText(globalPosition,tipText,viewerWidget );
+            QWhatsThis::showText(globalPosition,tipText,viewerWidget ); 
+            viewerWidget->setToolTip(tipText);
+         } else {
+            viewerWidget->setToolTip("No volume is selected");
          }
       }
    }
