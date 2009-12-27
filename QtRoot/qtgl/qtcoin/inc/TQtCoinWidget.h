@@ -1,8 +1,8 @@
-// @(#)root/g3d:$Name:  $:$Id: TQtCoinWidget.h,v 1.35 2009/09/07 04:42:12 fine Exp $
+// @(#)root/g3d:$Name:  $:$Id: TQtCoinWidget.h,v 1.36 2009/12/27 21:18:05 fine Exp $
 // Author: Valery Fine      23/05/97
 
 /****************************************************************************
-** $Id: TQtCoinWidget.h,v 1.35 2009/09/07 04:42:12 fine Exp $
+** $Id: TQtCoinWidget.h,v 1.36 2009/12/27 21:18:05 fine Exp $
 **
 ** Copyright (C) 2002 by Valeri Fine. Brookhaven National Laboratory.
 **                                    All rights reserved.
@@ -238,6 +238,7 @@ public:
    bool ObjectPickEnabled() const { return  fEnableObjectPick; }
 
    void EmitSelectSignal(TObject *view);
+   void EmitSelect3DPointSignal(float x, float y, float z);
    void EmitNodeSelectSignal(SoNode *node);
    Bool_t Recording()  const { return fRecord;}
    void SetBoxSelection();
@@ -331,7 +332,8 @@ public:
        void NodeSelected(ULong_t, const QPoint&);
        void NextFrameReady(bool on=TRUE);
        void ImageSaved(const QString &fileName,const QString &fileType, int frameCounter);
-#endif
+       void Selected3DPoint(float x, float y, float z);
+      #endif
 
 //   ClassDef(TQtCoinWidget,0)  //ROOT OpenGL viewer implementation
 };

@@ -588,6 +588,8 @@ static SoPath * PickFilterCB(void * viewer, const SoPickedPoint * pick)
 {
    SoPath *selPath = 0;
    SoPath *p = pick->getPath();
+   const SbVec3f pnt3d = pick->getPoint();
+   printf ( " SoPath * PickFilterCB %f %f %f \n", pnt3d[0],pnt3d[1],pnt3d[2]);
 	/*
    if (p->getTail()->getTypeId() == SoLineSet::getClassTypeId()          ||
        p->getTail()->getTypeId() == SoIndexedLineSet::getClassTypeId()) {
@@ -613,6 +615,7 @@ static SoPath * PickFilterCB(void * viewer, const SoPickedPoint * pick)
  // printf("static SoPath *PickFilterCB l=%d, i=%d %s : root name = %s \n",p->getLength(),i
  //        ,(const char *)p->getNode(i)->getName(),(const char *)v->GetName());
   TQtCoinWidget *thisViewer = (TQtCoinWidget*)viewer;
+  thisViewer->EmitSelect3DPointSignal(pnt3d[0],pnt3d[1],pnt3d[2]);
   if (v) {
      if (v->IsSolid()) thisViewer->SetLineSelection();
      else              thisViewer->SetBoxSelection();
@@ -2334,6 +2337,11 @@ void TQtCoinWidget::EmitNodeSelectSignal(SoNode *node)
    emit NodeSelected(ULong_t(node), mousePosition);
 }
 
+//______________________________________________________________________________
+void TQtCoinWidget::EmitSelect3DPointSignal(float x, float y, float z)
+{
+     emit Selected3DPoint(x,y,z);
+}
 //______________________________________________________________________________
 void TQtCoinWidget::EmitSelectSignal(TObject *obj)
 {
