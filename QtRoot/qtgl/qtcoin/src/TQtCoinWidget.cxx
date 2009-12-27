@@ -759,10 +759,19 @@ void TQtCoinWidget::SetDrawOption(Option_t *option)
    // Naive "Style Sheet"
    // TQtCoinWidget { footter:"text";  background-color : color }
    if (option && option[0])  {
-      QString opt =option;
-      QStringList optlist =  opt.split(":");
-      if (optlist.size() > 1) {
-          SetFooter(optlist[1].trimmed().remove('}'));         
+      QString opt =option;  
+      QRegExp rx("\\s*\\{\\s*(footer|record|save|background-color)(\\s*:\\s*)(.+\\S+)\\s*\\}");
+      rx.setCaseSensitivity(Qt::CaseInsensitive);
+      int pos = rx.indexIn(option);
+      if (pos >=0) {
+          if (rx.cap(1) == "footer") {
+              SetFooter(rx.cap(3));
+           } else if (rx.cap(1) == "record") {
+              SnapShotSaveCB(rx.cap(3) == "true");
+           } else if (rx.cap(1) == "save" ) { 
+              Save(rx.cap(3));
+           } else if (rx.cap(1) == "background-color" ) {
+           }
       } else {
         fViewerDrawOption = "";
         fViewerDrawOption = option;
@@ -2323,7 +2332,7 @@ void TQtCoinWidget::EmitSelectSignal(TObject *obj)
       if (obj) {
          // fprintf(stderr,"\tTQtCoinWidget::EmitSelectSignal view = %p, obj = %p; obj name %s \n", view, obj, (const char*)obj->GetName());
          emit ObjectSelected(obj,  mousePosition);
-      }      
+      }
    }
 }
 
