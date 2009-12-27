@@ -760,7 +760,7 @@ void TQtCoinWidget::SetDrawOption(Option_t *option)
    // TQtCoinWidget { footter:"text";  background-color : color }
    if (option && option[0])  {
       QString opt =option;  
-      QRegExp rx("\\s*\\{\\s*(footer|record|save|background-color)(\\s*:\\s*)(.+\\S+)\\s*\\}");
+      QRegExp rx("\\s*\\{\\s*(footer|record|save|background-color|screen|view)(\\s*:\\s*)(.+\\S+)\\s*\\}");
       rx.setCaseSensitivity(Qt::CaseInsensitive);
       int pos = rx.indexIn(option);
       if (pos >=0) {
@@ -770,7 +770,20 @@ void TQtCoinWidget::SetDrawOption(Option_t *option)
               SnapShotSaveCB(rx.cap(3) == "true");
            } else if (rx.cap(1) == "save" ) { 
               Save(rx.cap(3));
+           } else if (rx.cap(1) == "screen" ) {
+              SetFullScreenView(rx.cap(3) == "full");
+              QWidget *p = this;
+              QWidget *nextp = 0;
+              while (p && !p->isWindow() && (nextp = p->parentWidget()) )
+              {   p = nextp;                                            }
+              if (p) {
+                 p->move(0,0);
+                 p->showMaximized();
+              }
+           } else if ( (rx.cap(1) == "view") && (rx.cap(3) == "all") ) {
+              ViewAll();
            } else if (rx.cap(1) == "background-color" ) {
+              // to be done yet
            }
       } else {
         fViewerDrawOption = "";
