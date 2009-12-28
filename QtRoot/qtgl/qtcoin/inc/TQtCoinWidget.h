@@ -1,8 +1,8 @@
-// @(#)root/g3d:$Name:  $:$Id: TQtCoinWidget.h,v 1.36 2009/12/27 21:18:05 fine Exp $
+// @(#)root/g3d:$Name:  $:$Id: TQtCoinWidget.h,v 1.37 2009/12/28 09:12:28 fine Exp $
 // Author: Valery Fine      23/05/97
 
 /****************************************************************************
-** $Id: TQtCoinWidget.h,v 1.36 2009/12/27 21:18:05 fine Exp $
+** $Id: TQtCoinWidget.h,v 1.37 2009/12/28 09:12:28 fine Exp $
 **
 ** Copyright (C) 2002 by Valeri Fine. Brookhaven National Laboratory.
 **                                    All rights reserved.
@@ -26,24 +26,13 @@
 //////////////////////////////////////////////////////////////////////////
 
 #include "RVersion.h"
-#if ROOT_VERSION_CODE >= 262400
-// ROOT_VERSION(4,01,00)
-#  include "TQGLViewerImp.h"
-#else
-#  include "TGLViewerImp.h"
-#endif
+#include "TQGLViewerImp.h"
 
 #include "TString.h"
 
 #ifndef __CINT__
-#  include <qglobal.h>
-#  if QT_VERSION < 0x40000
-#    include <qframe.h>
-#    include <qptrvector.h>
-#  else /* QT_VERSION */
-#    include <QFrame>
-#    include <q3ptrvector.h>
-#  endif /* QT_VERSION */
+#  include <QFrame>
+#  include <q3ptrvector.h>
 #  include <qlabel.h>
 #else
    class QFrame;
@@ -92,23 +81,13 @@ class SoOffscreenRenderer;
 #ifdef __CINT__
 #  define COINWIDGETFLAGSTYPE  UInt_t
 #else
-#  if QT_VERSION < 0x40000
-#    define COINWIDGETFLAGSTYPE  Qt::WFlags
-#  else
-#    define COINWIDGETFLAGSTYPE  Qt::WindowFlags
-#  endif
+#  define COINWIDGETFLAGSTYPE  Qt::WindowFlags
 #endif     
 
-#if QT_VERSION < 0x40000
-  class TQtCoinWidget :public QFrame, public TGLViewerImp {
-#else /* QT_VERSION */
-//MOC_SKIP_BEGIN
-  class TQtCoinWidget :public QFrame, public TGLViewerImp {
-//MOC_SKIP_END
-#endif /* QT_VERSION */
-Q_OBJECT	  
+class TQtCoinWidget :public QFrame, public TGLViewerImp {
+ Q_OBJECT
 private:
-	
+
    SoQtViewer             *fInventorViewer;
    SoSeparator            *fRootNode;
    SoSeparator            *fShapeNode;
@@ -145,13 +124,7 @@ protected:
    TObject        *fSelectedObject;     // The last selected TObject
 
 #ifndef __CINT__
-#if QT_VERSION < 0x40000
-   QPtrVector<QLabel> fStatusBar;
-#else
-//MOC_SKIP_BEGIN
    Q3PtrVector<QLabel> fStatusBar;
-//MOC_SKIP_END
-#endif
 #endif
 
    //TQtCoinWidget *fSelectedView;        // extra viewer to show the selected object only
@@ -179,7 +152,8 @@ protected:
    Bool_t            fAddBackground;
    unsigned int      fClipMask;// The mask to indicate which kind of shape can be clipped
    QString           fViewerDrawOption; // the comma seoparated lis of the draw options
-
+public:
+   float             fLastSelectedPoint[3];
 protected:
    friend class TQtCoinViewerImp;
    void CreateViewer(const QString &title);

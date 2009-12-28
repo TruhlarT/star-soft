@@ -589,8 +589,7 @@ static SoPath * PickFilterCB(void * viewer, const SoPickedPoint * pick)
    SoPath *selPath = 0;
    SoPath *p = pick->getPath();
    const SbVec3f pnt3d = pick->getPoint();
-   printf ( " SoPath * PickFilterCB %f %f %f \n", pnt3d[0],pnt3d[1],pnt3d[2]);
-	/*
+/*
    if (p->getTail()->getTypeId() == SoLineSet::getClassTypeId()          ||
        p->getTail()->getTypeId() == SoIndexedLineSet::getClassTypeId()) {
 	// for lines
@@ -623,7 +622,9 @@ static SoPath * PickFilterCB(void * viewer, const SoPickedPoint * pick)
      if (!thisViewer->WasPicked(v) ) {
         TObject3DView  *parent = (TObject3DView  *)v->GetParent();
         TObject *obj = parent ? parent->GetObject() :0 ;
-        if (thisViewer->ObjectPickEnabled() && obj && obj->TestBit(TObject::kNotDeleted))  thisViewer->EmitSelectSignal(obj);
+        if (thisViewer->ObjectPickEnabled() && obj && obj->TestBit(TObject::kNotDeleted)) {
+           thisViewer->EmitSelectSignal(obj);
+        }
      }
      selPath = p->copy(0, i);
   } else {
@@ -684,9 +685,10 @@ static void SelectCB(void * viewer, SoPath *p)
       QPoint globalPosition = QCursor::pos();
       QWidget *viewerWidget = thisViewer->GetCoinViewer()->getWidget();
       QPoint cursorPosition = viewerWidget->mapFromGlobal(globalPosition);
-      QString tipText =  selectedObject->GetObjectInfo(cursorPosition.x(),cursorPosition.y());
+      QString tipText = QString("<b>X=%1; Y=%2; Z=%3</b><br>%4").arg(thisViewer->fLastSelectedPoint[0]).arg(thisViewer->fLastSelectedPoint[1]).arg(thisViewer->fLastSelectedPoint[2])
+                        .arg(selectedObject->GetObjectInfo(cursorPosition.x(),cursorPosition.y()));
       QWhatsThis::showText(globalPosition,tipText,viewerWidget );
-      viewerWidget->setToolTip(tipText);
+      viewerWidget->setToolTip(QString("<p>Last selected:<br>%1<br>").arg(tipText));
    } else if (!selectedObject) {
       QPoint globalPosition = QCursor::pos();
       QWidget *viewerWidget = thisViewer->GetCoinViewer()->getWidget();
@@ -696,7 +698,7 @@ static void SelectCB(void * viewer, SoPath *p)
          if (name.getLength()) {            
             QString tipText =  name.getString();
             QWhatsThis::showText(globalPosition,tipText,viewerWidget ); 
-            viewerWidget->setToolTip(tipText);
+            viewerWidget->setToolTip(QString("<p>Last selected:<br>%1<br>").arg(tipText));
          } else {
             viewerWidget->setToolTip("No volume is selected");
          }
@@ -2340,6 +2342,10 @@ void TQtCoinWidget::EmitNodeSelectSignal(SoNode *node)
 //______________________________________________________________________________
 void TQtCoinWidget::EmitSelect3DPointSignal(float x, float y, float z)
 {
+     fLastSelectedPoint[0] = x;
+     fLastSelectedPoint[1] = y;
+     fLastSelectedPoint[2] = z;
+
      emit Selected3DPoint(x,y,z);
 }
 //______________________________________________________________________________
