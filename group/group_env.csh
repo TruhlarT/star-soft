@@ -1,5 +1,5 @@
 #!/bin/csh
-#       $Id: group_env.csh,v 1.230 2009/12/04 00:03:08 jeromel Exp $
+#       $Id: group_env.csh,v 1.231 2009/12/29 16:44:41 jeromel Exp $
 #	Purpose:	STAR group csh setup
 #
 # Revisions & notes
@@ -274,7 +274,7 @@ if ( $?OPTSTAR ) then
 	# Redhat > 7.3  transition ; adding one level
 	setenv OPTSTAR    ${optstar}/${STAR_HOST_SYS}
     endif
-    if ( -e ${XOPTSTAR}/${STAR_HOST_SYS} ) then
+    if ( -e ${xoptstar}/${STAR_HOST_SYS} ) then
 	setenv XOPTSTAR  ${xoptstar}/${STAR_HOST_SYS}
     endif
 endif
