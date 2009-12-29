@@ -42,6 +42,7 @@ switch ($pkg)
       setenv USE_64BITS 1
       source $GROUP_DIR/STAR_SYS
       unsetenv OPTSTAR
+      unsetenv QTDIR
       source $GROUP_DIR/group_env.csh
       breaksw
 
@@ -50,6 +51,7 @@ switch ($pkg)
       setenv USE_64BITS 0
       source $GROUP_DIR/STAR_SYS
       unsetenv OPTSTAR
+      unsetenv QTDIR
       source $GROUP_DIR/group_env.csh 
       breaksw
 
