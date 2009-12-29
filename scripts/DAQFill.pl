@@ -32,6 +32,9 @@ if ( defined($arg1) ){
     $arg1 = 0;
 }
 
+if ( defined($ENV{FO_DEBUG}) ){
+    rdaq_toggle_debug();
+}
 
 # We add an infinit loop around so the table will be filled
 # as we go.

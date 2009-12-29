@@ -526,7 +526,7 @@ sub rdaq_raw_files
     #$cmd  = "SELECT daqFileTag.file, daqSummary.runNumber, daqFileTag.numberOfEvents, daqFileTag.beginEvent, daqFileTag.endEvent, magField.current, magField.scaleFactor, beamInfo.yellowEnergy+beamInfo.blueEnergy, CONCAT(beamInfo.blueSpecies,beamInfo.yellowSpecies) FROM daqFileTag, daqSummary, magField, beamInfo  WHERE daqSummary.runNumber=daqFileTag.run AND daqSummary.runStatus=0 AND daqSummary.destinationID In(1,2,4) AND magField.runNumber=daqSummary.runNumber AND magField.entryTag=0 AND beamInfo.runNumber=daqSummary.runNumber AND beamInfo.entryTag=0";
     # One more table runStatus, daqSummary.runStatus=0 gone, entryTag=5 for hardwired values
     $rval  = 9;
-    $cmd   = "SELECT daqFileTag.file, daqSummary.runNumber, daqFileTag.numberOfEvents,daqFileTag.beginEvent, daqFileTag.endEvent, magField.current,magField.scaleFactor, beamInfo.yellowEnergy+beamInfo.blueEnergy,CONCAT(beamInfo.blueSpecies,beamInfo.yellowSpecies) FROM daqFileTag,daqSummary, magField, beamInfo,runStatus WHERE daqSummary.runNumber=daqFileTag.run AND daqSummary.destinationID In(1,2,4) AND runStatus.runNumber=daqFileTag.run AND runStatus.rtsStatus=0  AND runStatus.shiftLeaderStatus<=1  AND magField.runNumber=daqSummary.runNumber AND magField.entryTag In (0,5) AND beamInfo.runNumber=daqSummary.runNumber AND beamInfo.entryTag In (0,5)";
+    $cmd   = "SELECT daqFileTag.file, daqSummary.runNumber, daqFileTag.numberOfEvents,daqFileTag.beginEvent, daqFileTag.endEvent, magField.current,magField.scaleFactor, beamInfo.yellowEnergy+beamInfo.blueEnergy,CONCAT(beamInfo.blueSpecies,beamInfo.yellowSpecies) FROM daqFileTag,daqSummary, magField, beamInfo,runStatus WHERE daqSummary.runNumber=daqFileTag.run AND magField.runNumber=daqSummary.runNumber AND runStatus.runNumber=daqFileTag.run AND beamInfo.runNumber=daqSummary.runNumber AND daqSummary.destinationID In(1,2,4) AND runStatus.rtsStatus=0  AND runStatus.shiftLeaderStatus<=1  AND magField.entryTag In(0,5) AND beamInfo.entryTag In(0,5)";
 
     @EXPLAIN = ("File","RunNumber","numberOfEvents","beginEvent","endEvent",
 		"magField current","magField scaleFactor",
@@ -570,7 +570,20 @@ sub rdaq_raw_files
     $rskip = $gotit = $kk=0;
     $xrows = $sth->rows();
 
-    &info_message("raw_files",3,"Expected number of rows = $xrows ($xinfo)\n") if ($DEBUG);
+    if ($DEBUG){
+	&info_message("raw_files",3,"Expected number of rows = $xrows ($xinfo)\n");
+	if ( $xrows == 0 ){
+	    # Then verify what could be wrong with the querry
+	    my($mcmd,$ccmd);
+	    my($vsth,$cnt);
+	    $mcmd = $ccmd = $cmd;
+	    $mcmd =~ s/AND daqSummary.destinationID.*\)//;
+	    &info_message("raw_files",3,"$mcmd\n");
+	    $vsth = $obj->prepare($mcmd);
+	    $cnt  = $vsth->rows();
+	    &info_message("raw_files",3,"Without selector on destination,status,field tag -> $cnt\n");
+	}
+    }
 
     while( @res = $sth->fetchrow_array() ){
 	$gotit++;
