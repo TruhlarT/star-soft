@@ -184,13 +184,15 @@ endif
 
 
 # OpenGL
-if (-e $ROOTSYS/../Mesa) setenv OPENGL $ROOTSYS/../Mesa
+if ( -e $ROOTSYS/../Mesa) setenv OPENGL $ROOTSYS/../Mesa
+
+# CINT
 if ( -d ${ROOTSYS}/cint/cint ) then
     setenv CINTSYSDIR ${ROOTSYS}/cint/cint
 else
     setenv CINTSYSDIR ${ROOTSYS}/cint
 endif
 
-if ( -x ${GROUP_DIR}/dropit) then
-    setenv MANPATH `${GROUP_DIR}/dropit -p ${MANPATH} -p ${CINTSYSDIR}/doc`
+if ( -x ${GROUP_DIR}/dropit && -d ${ROOTSYS}/cint/doc ) then
+    setenv MANPATH `${GROUP_DIR}/dropit -p ${MANPATH} -p ${ROOTSYS}/cint/doc`
 endif
