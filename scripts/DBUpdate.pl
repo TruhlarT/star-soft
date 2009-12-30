@@ -3,6 +3,7 @@
 use Env qw(STAR_SCRIPTS);
 use lib "$STAR_SCRIPTS/";
 # use lib "/star/u/jeromel/work/STAR/scripts";
+use SpiderUtil;
 use FileCatalog;
 use Date::Manip;
 
@@ -77,9 +78,9 @@ if ($#ARGV == -1){
 #  (2) There is an hidden logic based on $path !~ /\/star\/data/
 #      to recognized if the storage is local or NFS.
 
+$SPDR   = new SpiderUtil();
+
 $SITE   = "BNL";
-$HPSSD  = "/home/starreco";
-$CHKDIR = "/afs/rhic.bnl.gov/star/doc/www/html/tmp/pub/Spider";
 $SELF   = "DBUpdate";
 $LOUT   = 0;
 $FLNM   = "";
@@ -95,6 +96,11 @@ $SUB    = "reco";
 $DOSL   = 0;
 $DOCACHE= 0;
 
+# var recovered from module
+$CHKDIR = $SPDR->GetWDir();
+$HPSSD  = $SPDR->GetHPSSDir();
+
+
 # Argument pick-up
 $kk     = 0;
 $FO     = STDERR;
@@ -105,7 +111,8 @@ $ext    = 0;
 
 
 # start timer
-&CheckTime(0);
+$SPDR->SetTimeThreshold(0.75);
+$SPDR->CheckTime(0);
 
 
 for ($i=0 ; $i <= $#ARGV ; $i++){
@@ -161,7 +168,7 @@ for ($i=0 ; $i <= $#ARGV ; $i++){
 	$SUBPATH = $ARGV[++$i];
 
     } elsif ($ARGV[$i] eq "-t"){
-	&CheckTime($ARGV[++$i]);
+	$SPDR->CheckTime($ARGV[++$i]);
 
     } elsif ($ARGV[$i] eq "-l"){
 	$DOSL    = 1;
@@ -177,15 +184,16 @@ for ($i=0 ; $i <= $#ARGV ; $i++){
 	    chomp($HOST = `/bin/hostname`);
 
 	    # this will initialize the caching values
-	    &ToFromCache(-2);
+	    $SPDR->ToFromCache(-2);
 	    
 	    # use it as seed
 	    if ( $HOST =~ m/(\d+)/ ){
-		$CACHOFF = ($1 % ($CACHELM*5));
+		$CACHOFF = ($1 % ($SPRD->SetCacheLimit()*5));
 	    } else {
 		# revert to 0
 		$CACHOFF = 0;
 	    }
+	    $SPDR->SetCacheOffset($CACHOFF);
 	    print "$SELF :: Cache offset is $CACHOFF\n";
 	}
 
@@ -206,6 +214,8 @@ for ($i=0 ; $i <= $#ARGV ; $i++){
 #@items  = split("/",$SCAND);
 #$SCANDS = "/".$items[1]."/".$items[2];
 
+# Set cache name
+$SPDR->SetCacheName($SCAND);
 
 
 #@ALL =( "$SCAND/$SUB/FPDXmas/FullField/P02ge/2002/013/st_physics_3013016_raw_0018.MuDst.root",
@@ -247,7 +257,7 @@ if( $DOIT && -e "$SCAND/$SUB"){
 $etimer = time()-$stimer;
 
 # cache deletion
-if ( $DOCACHE == -1){     &ToFromCache(-1); }
+if ( $DOCACHE == -1){     $SPDR->ToFromCache(-1); }
 
 
     
@@ -256,7 +266,7 @@ if ($#ALL == -1){ goto FINAL_EXIT;}
 
 
 # Added algo to process by differences
-if ( $DOCACHE ){   @ALL = &ToFromCache(0,@ALL);}
+if ( $DOCACHE ){   @ALL = $SPDR->ToFromCache(0,@ALL);}
 
 
 
@@ -306,7 +316,7 @@ chomp($NODE    = `/bin/hostname`);
 
 undef(@TEMP);  # to be sure
 foreach  $file (@ALL){
-    last if &CheckTime(-1);
+    last if $SPDR->CheckTime(-1);
 
     chomp($file);
     push(@TEMP,$file);
@@ -383,7 +393,7 @@ foreach  $file (@ALL){
 
     if ($#all == -1){
 	$unkn++;
-	&Stream("Warning : File not found as storage=HPSS -- $path/$file");
+	&Stream("Warning : File not found as storage=HPSS -- $path/$file \n\t[$hpath]\n\t[$file]");
 
     } else {
 	$mess = "Found ".($#all+1)." records for [$file] ";
@@ -422,7 +432,7 @@ foreach  $file (@ALL){
 
 		$fsize = $stat[7];
 		@own   = getpwuid($stat[4]);
-		$prot  = &ShowPerms($stat[2]);
+		$prot  = $SPDR->ShowPerms($stat[2]);
 
 		# Enabled, it may update createtime / not enabled, it will likely
 		# set to previous value in clone context - Ideally, do NOT restore.
@@ -461,10 +471,10 @@ foreach  $file (@ALL){
 }
 
 # for statistics purposes
-$ext = &CheckTime(-3);
+$ext = $SPDR->CheckTime(-3);
 
 $fC->destroy();
-&ToFromCache(1,@TEMP);
+$SPDR->ToFromCache(1,@TEMP);
 
 
 FINAL_EXIT:
@@ -492,7 +502,7 @@ FINAL_EXIT:
 		# Nothing new ... but we would be safe to delete only in no cache
 		# mode or cache but full pass
 		if ( $DOCACHE ){
-		    if ( &ToFromCache(-2) == ($CACHELM+$CACHOFF ) ){
+		    if ( $SPDR->ToFromCache(-2) == ($CACHELM+$CACHOFF ) ){
 			unlink($MARKERF) if ( -e $MARKERF);
 		    }
 		} else {
@@ -530,7 +540,7 @@ FINAL_EXIT:
 		    if ( open(FO,">$FLNM.tmp") ){
 			print FO 
 			    "Caching used - Pass done on ".localtime()." found no changes\n".
-			    " - cache will expire in ".&ToFromCache(-2)." passes\n";
+			    " - cache will expire in ".$SPDR->ToFromCache(-2)." passes\n";
 			open(FI,"$FLNM");
 			while ( defined($line = <FI>) ){  print FO "$line";}
 			close(FI);
@@ -540,7 +550,7 @@ FINAL_EXIT:
 		    }
 		} else {
 		    unlink("$FLNM")     if ( -e "$FLNM");
-		    &ToFromCache(-1);
+		    $SPDR->ToFromCache(-1);
 		}
 
 	    }
@@ -573,179 +583,3 @@ sub Stream
 }
 
 
-# This sub has been taken from fcheck software
-# as-is (was too lazzy to get it done by myself)
-sub ShowPerms
-{
-    local ($mode) = @_;
-
-    local (@perms) = ("---", "--x",  "-w-",  "-wx",  "r--",  "r-x",  "rw-",  "rwx");
-    local (@ftype) = ("?", "p", "c", "?", "d", "?", "b", "?", "-", "?", "l", "?", "s", "?", "?", "?");
-    local ($setids) = ($mode & 07000)>>9;
-    local (@permstrs) = @perms[($mode & 0700) >> 6, ($mode & 0070) >> 3, ($mode & 0007) >> 0];
-    local ($ftype) = $ftype[($mode & 0170000)>>12];
-    if ($setids){
-	# Sticky Bit?
-	if ($setids & 01) { $permstrs[2] =~ s/([-x])$/$1 eq 'x' ? 't' : 'T'/e; }
-	# Setuid Bit?
-	if ($setids & 04) { $permstrs[0] =~ s/([-x])$/$1 eq 'x' ? 's' : 'S'/e; }
-	# Setgid Bit?
-	if ($setids & 02) { $permstrs[1] =~ s/([-x])$/$1 eq 'x' ? 's' : 'S'/e; }
-    }
-    return (join('', $ftype, @permstrs));
-}
-
-
-# return true false if we have timed-out
-# Call with  0 to initialize the timer
-# Call with a value > 0 to initialize timeout time
-# Call with -1 to check timer
-# Call with -3 to return laps time
-sub CheckTime
-{
-    my($w)=@_;
-
-    if ($w == 0){
-	# Init timer
-	$STARTT = time();
-    } elsif ($w > 0){
-	# set timeout
-	$TIMEOUT = $w;
-    } elsif ($w == -3){
-	return (time()-$STARTT);
-    } else { # < 0
-	return 0 if ( ! defined($TIMEOUT) );
-	return (time()-$STARTT) > 0.75*$TIMEOUT; # 75% to be sure
-    }
-}
-
-
-
-
-#
-# -2  => Return when cache will be flushed
-# -1  => delete cache
-#  0  => from cache
-#  1  => to cache
-#
-sub ToFromCache
-{
-    my($mode,@ALL)=@_;
-    my(@TEMP,$kk);
-    my(%RECORDS,$file);
-    my(@count)=(0,0,0);
-
-
-    # Check values we need
-    if ( ! defined($SELF) ){
-	$SELF  = $0; 
-	$SELF =~ s/.*\///; 
-	$SELF =~ s/\..*//;
-    }
-    if ( ! defined($XSELF) ){
-	$XSELF  = $SELF;
-	$XSELF .= $SCAND if ( $XSELF !~ m/$SCAND/);
-	$XSELF  =~ s/[+\/\*]/_/g; 
-    }
-    if ( ! defined($CACHELM) ){  $CACHELM = 10;} # cache limit
-    if ( ! defined($CACHOFF) ){  $CACHOFF =  0;} # cache offset
-
-
-    # get cache count for this pass
-    if ( ! defined($CACHECNT) ){
-	$kk=0;
-	$CACHEDIR = $ENV{HOME}."/.cache";
-	if ( ! -e $CACHEDIR ){ mkdir($CACHEDIR);}
-	while ( -e "$CACHEDIR/$XSELF"."_$kk.lis"){  $kk++;}
-	if ( $kk > ($CACHELM+$CACHOFF) ){
-	    # we have exhausted all numbers
-	    print "Cache is being reset (reached limit)\n";
-	    unlink(glob("$CACHEDIR/$XSELF"."_*.lis"));
-	    $CACHECNT = 0;
-	    return @ALL;
-	}
-	    
-	# else we have something
-	$CACHECNT = $kk;
-
-	print "Cache file will be $CACHEDIR/$XSELF"."_$CACHECNT.lis\n";
-    }
-
-
-    #+
-    # Treat the cases now
-    #-
-    if ($mode == -1){
-	# delete all cache pretty much now
-	print "Deleting cache\n";
-	unlink(glob("$CACHEDIR/$XSELF"."_*.lis"));
-
-    } elsif ($mode == -2){
-	# return when cache will be deleted
-	return (($CACHELM+$CACHOFF)-$CACHECNT);
-
-    } elsif ( $mode == 0 || $mode == 1){
-	# From cache, return an array of values, second argument
-	# must be present
-
-	# To cache - We want to flush all to cache
-	# It is then only  a question of adding previous to current
-
-	# In both cases, we start the same way by reading the
-	# previous cache
-	if ($CACHECNT != 0){
-	    # there is a previous $kk-1 file
-	
-	    # read cache, suck into %RECORDS
-	    if ( open(OCACHE,"$CACHEDIR/$XSELF"."_".($CACHECNT-1).".lis") ){
-		while ( defined($file = <OCACHE>) ){  
-		    chomp($file);
-		    $RECORDS{$file}=1;
-		    $count[0]++;
-		}
-		close(OCACHE);
-	    }
-	}
-	
-	
-	if ( $mode == 1 ){
-	    # ToCache - need to merge all files together
-	    foreach $file (@ALL){
-		chomp($file);
-		$RECORDS{$file} = 1 if ( ! defined($RECORDS{$file}) );
-	    }
-
-
-	    # Open the real cache filer now not the index -1 and dump it all
-	    if ( open(OCACHE,">$CACHEDIR/$XSELF"."_".($CACHECNT-0).".lis") ){
-		foreach $file ( keys %RECORDS ){
-		    print OCACHE "$file\n";
-		}
-		close(OCACHE);
-	    }
-
-	} elsif ( $mode == 0){
-	    # Now we either have previous records or not
-	    # scan @ALL and rebuild the list excluding what is
-	    # in the cache
-	    foreach $file (@ALL){
-		chomp($file);
-		if ( ! defined($RECORDS{$file}) ){
-		    $count[1]++;
-		    push(@TEMP,$file);
-		} else {
-		    $count[2]++;
-		}
-	    }
-
-	    # are done, @TEMP contains the files which are new
-	    if ($count[1] != $count[2]){
-		print "Previous pass had $count[0], found $count[2] old and selected $count[1]\n";
-	    }
-	    return @TEMP;
-	}
-    } else {
-	print "Mode $mode not implemented\n";
-    }
-
-}
