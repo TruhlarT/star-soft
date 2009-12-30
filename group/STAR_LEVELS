@@ -98,7 +98,11 @@ if ($ARGV[0] eq "-g"){
 	$cmo  = $cdy = $year = $chr = $cmin = "?";
     }
     chomp($host = `/bin/hostname`);
-    print "$host;CERN-$ENV{CERN_LEVEL};STAR-$VERSION;root4star-$cmo/$cdy/$year-$chr:$cmin-$pgmf\n";
+
+    $ROOT = "ROOT-$ENV{ROOT_LEVEL}";
+    if ( defined($tmp = $ENV{QTDIR}) ){ $tmp =~ s/.*\///; $ROOT .= ";($tmp)";}
+
+    print "$host;CERN-$ENV{CERN_LEVEL};$ROOT;STAR-$VERSION;root4star-$cmo/$cdy/$year-$chr:$cmin-$pgmf\n";
 }
 
 
