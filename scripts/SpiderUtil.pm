@@ -42,7 +42,7 @@ $SPDR::SCANNER   = "/star/u/jeromel/work/ddb/util/DBUpdate.pl";
 $SPDR::SPIDER    = "/star/u/starreco/bin/DBUpdateProd.pl";
 $SPDR::CLEANER   = "/star/u/jeromel/work/ddb/fC_cleanup.pl";
 
-# disk info
+# disk pattern info in case a number is used
 $SPDR::DISKP     = "/star/data%2.2d";
 
 
@@ -385,7 +385,7 @@ sub GetTags
 	return ("SD","SPDR")
 
     } elsif ($arg eq "Cleaner" || $arg eq "Clean" || $arg eq "Check"){
-	return ("CK","");
+	return ("CK","CHKR");
 
     } else {
 	return undef;
@@ -403,7 +403,7 @@ sub GetFileName
     if ($_[0] =~ m/$SPDR::NAME/) {   shift(@_);} 
 
     my($m,$arg,$disk)=@_;
-    my($tag,$mrk)= &GetTags("Spider",$arg);
+    my($tag,$mrk)= &GetTags($SPDR::NAME,$arg);
     my($prefix);
 
     die "Argument 2=$arg is not valid" if ( !defined($tag) || ! defined($mrk) );
