@@ -17,7 +17,7 @@ require Exporter;
 	     GetScanner GetSpider GetCleaner GetTags GetCmd GetOptions
 	     GetFileName
 	     GetGrep GetZcat
-	     CheckTime SetTimeThreshold
+	     CheckTime SetTimeThreshold SetTimeout
 	     SetCacheLimit SetCacheOffset SetCachePrefix ToFromCache
 	     ShowPerms
 	     );
@@ -33,6 +33,7 @@ $SPDR::LOGDIR    = "/star/rcf/prodlog";
 $SPDR::HPSSD     = "/home/starreco";
 $SPDR::THRESHOLD = 0.9;
 $SPDR::CACHELM   = 10;
+$SPDR::TIMEOUT   = 7200;
 $SPDR::XSELF     = undef;
 $SPDR::SCAND     = undef;
 
@@ -250,6 +251,8 @@ sub CheckTime
 
     my($w)=@_;
 
+    #print "I am being passed $w\n";
+
     if ($w == 0){
 	# Init timer
 	$SPDR::STARTT = time();
@@ -274,6 +277,17 @@ sub SetTimeThreshold
     if ($val > 0){ $SPDR::THRESHOLD = $val};
 
     return  $SPDR::THRESHOLD;
+}
+
+sub SetTimeout
+{
+    if ($_[0] =~ m/$SPDR::NAME/) {   shift(@_);} 
+    
+    my($val)=@_;
+
+    if ( ! defined($val) ){ $val = 0;}
+    if ($val > 0){  $SPDR::TIMEOUT = $val;} 
+    return $SPDR::TIMEOUT;
 }
 
 
@@ -341,14 +355,14 @@ sub GetOptions
     my($arg)=@_;
 
     if ($arg eq "Scanner" || $arg eq "Scan"){
-	return ("-cache","-z","-t",$TIMEOUT,"-o","%%OUTPUT%%","-of",
+	return ("-cache","-z","-t",$SPDR::TIMEOUT,"-o","%%OUTPUT%%","-of",
 		"%%MARKER%%","%%DISK%%");
 
     } elsif ($arg eq "Spider"){
-	return ("-cache","-z","-t",$TIMEOUT,"-o","%%OUTPUT%%","%%DISK%%");
+	return ("-cache","-z","-t",$SPDR::TIMEOUT,"-o","%%OUTPUT%%","%%DISK%%");
 
     } elsif ($arg eq "Cleaner" || $arg eq "Clean" || $arg eq "Check"){
-	return ("-check","-doit","-t",$TIMEOUT,"-o","%%OUTPUT%%",
+	return ("-check","-doit","-t",$SPDR::TIMEOUT,"-o","%%OUTPUT%%",
 		"-cond","storage=NFS,path~%%DISK%%")
 
     } else {
