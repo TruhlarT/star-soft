@@ -99,7 +99,7 @@ $DOCACHE= 0;
 # var recovered from module
 $CHKDIR = $SPDR->GetWDir();
 $HPSSD  = $SPDR->GetHPSSDir();
-
+$DEBUG  = defined($ENV{SPDR_DEBUG})?$ENV{SPDR_DEBUG}:0;
 
 # Argument pick-up
 $kk     = 0;
@@ -188,7 +188,7 @@ for ($i=0 ; $i <= $#ARGV ; $i++){
 	    
 	    # use it as seed
 	    if ( $HOST =~ m/(\d+)/ ){
-		$CACHOFF = ($1 % ($SPRD->SetCacheLimit()*5));
+		$CACHOFF = ($1 % ($SPDR->SetCacheLimit()*5));
 	    } else {
 		# revert to 0
 		$CACHOFF = 0;
@@ -334,8 +334,7 @@ foreach  $file (@ALL){
     }
 
     # Add hook file which will globally leave
-    if (( -e $ENV{HOME}."/$SELF.quit" ||  -e "$CHKDIR/$SELF.quit") && 
-	! defined($ENV{SPDR_DEBUG}) ){
+    if (( -e $ENV{HOME}."/$SELF.quit" ||  -e "$CHKDIR/$SELF.quit") && ! $DEBUG ){
 	my($f)=((-e "$CHKDIR/$SELF.quit")?"$CHKDIR/$SELF.quit":$ENV{HOME}."/$SELF.quit");
 	print $FO "Warning :  $f is present. Leaving\n";
 	last;
@@ -453,14 +452,14 @@ foreach  $file (@ALL){
 				     "pathcomment= 'Added by $SELF'");
 		}
 
-		$fC->debug_on() if ( defined($ENV{SPDR_DEBUG}) );
+		$fC->debug_on() if ( $DEBUG );
 		if ( ! $fC->insert_file_location() ){
 		    &Stream("Error : Attempt to insert new location [$path] failed");
 		    $failed++;
 		} else {
 		    $new++;
 		}
-		if ( defined($ENV{SPDR_DEBUG}) ){
+		if ( $DEBUG ){
 		    die "DEBUG mode, Quitting\n";
 		}
 	    }
@@ -502,7 +501,7 @@ FINAL_EXIT:
 		# Nothing new ... but we would be safe to delete only in no cache
 		# mode or cache but full pass
 		if ( $DOCACHE ){
-		    if ( $SPDR->ToFromCache(-2) == ($CACHELM+$CACHOFF ) ){
+		    if ( $SPDR->ToFromCache(-2) == 0 ){
 			unlink($MARKERF) if ( -e $MARKERF);
 		    }
 		} else {
