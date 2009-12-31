@@ -488,7 +488,7 @@ FINAL_EXIT:
 
 	# Added 2009/09
 	if ( $MARKERF ne ""){
-	    if ( $new != 0 ){
+	    if ( $new != 0 || $unkn  !=0 ){
 		# create the marker file if set
 		unlink($MARKERF) if ( -e $MARKERF);
 		if ( ! open(FM,">$MARKERF")){
