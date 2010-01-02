@@ -1,5 +1,5 @@
 //_____________________________________________________________________
-// @(#)StRoot/StBFChain:$Name:  $:$Id: StBFChain.cxx_doc,v 1.62 2009/12/23 16:20:08 fisyak Exp $
+// @(#)StRoot/StBFChain:$Name:  $:$Id: StBFChain.cxx_doc,v 1.63 2010/01/02 18:24:04 jeromel Exp $
 //_____________________________________________________________________
 #include "TROOT.h"
 #include "TString.h"
@@ -259,6 +259,19 @@ Bfc_st BFC[] = {
   {"pp2009c" ,"" ,"",
    "B2009.2,BAna,hitfilt,ppOpt,l3onl,emcDY2,fpd,ftpc,trgd,ZDCvtx,NosvtIT,NossdIT,analysis","","",
               "Production chain for 2009 data - no Corr, no VF (+l3, bcc/fpd, ftpc, e/b-emc, trig)",kFALSE},
+
+
+
+
+  {"B2010","","","ry2010,in,tpcX,ITTF,tpcDB,TpcHitMover,Idst,tags,Tree,evout","","",
+                                                                   "Base chain for 2010 ITTF (tpc)",kFALSE},
+
+  {"P2010a","" ,"",
+   "B2010,BAna,hitfilt,VFMinuit,l3onl,emcDY2,fpd,ftpc,ZDCvtx,NosvtIT,NossdIT,analysis",
+        "","","Production chain for 2010 data - no Corr (+ l3, bcc/fpd, ftpc, e/b-emc, no trigger)",kFALSE},
+  {"pp2010a","" ,"",
+   "B2010,BAna,hitfilt,ppOpt,l3onl,emcDY2,fpd,ftpc,ZDCvtx,NosvtIT,NossdIT,analysis",
+  "","","Production chain for 2010 data - no Corr (+ l3, bcc/fpd, ftpc, e/b-emc, no trigger, no VF)",kFALSE},
 
 
 
@@ -832,6 +845,8 @@ Bfc_st BFC[] = {
   {"EvOutOnly" ,"" ,"","EvOut,Tree,noTags" ,"","","Only event.root files",kFALSE},
   {"NoDefault" ,"" ,"","" ,"","","No Default consistency check",kFALSE},
   {"Notpc_daq" ,"" ,"","-tpc_daq" ,"","","No tpc_daq",kFALSE},
+
+
   {"Calibration chains","------------","-----------","-----------------------------------","","","",kFALSE},
   {"LanaDV","","","MakeEvent,trgd,in,tpc_daq,tpcI,fcf,LaserIT,VFMinuit,Lana,Analysis,Corr4,NosvtIT,NossdIT",
    "","" ,"get LDV",kFALSE},
@@ -1292,6 +1307,19 @@ Bfc_st BFC[] = {
 
 
 
+  {"B2010","","","ry2010,in,tpcX,ITTF,tpcDB,TpcHitMover,Idst,tags,Tree,evout","","",
+                                                                   "Base chain for 2010 ITTF (tpc)",kFALSE},
+
+  {"P2010a","" ,"",
+   "B2010,BAna,hitfilt,VFMinuit,l3onl,emcDY2,fpd,ftpc,ZDCvtx,NosvtIT,NossdIT,analysis",
+        "","","Production chain for 2010 data - no Corr (+ l3, bcc/fpd, ftpc, e/b-emc, no trigger)",kFALSE},
+  {"pp2010a","" ,"",
+   "B2010,BAna,hitfilt,ppOpt,l3onl,emcDY2,fpd,ftpc,ZDCvtx,NosvtIT,NossdIT,analysis",
+  "","","Production chain for 2010 data - no Corr (+ l3, bcc/fpd, ftpc, e/b-emc, no trigger, no VF)",kFALSE},
+
+
+
+
   {"LaserCal0","" ,"","db,detDb,tpc_daq,tpcDb,tcl,globT,laser,LaserTest","",""
    , "Laser Calibration Chain (tcl)",kFALSE},
   {"LaserCal","" ,"","db,detDb,tpc_daq,tpcDb,fcf,globT,laser,LaserTest","",""
@@ -1861,6 +1889,8 @@ Bfc_st BFC[] = {
   {"EvOutOnly" ,"" ,"","EvOut,Tree,noTags" ,"","","Only event.root files",kFALSE},
   {"NoDefault" ,"" ,"","" ,"","","No Default consistency check",kFALSE},
   {"Notpc_daq" ,"" ,"","-tpc_daq" ,"","","No tpc_daq",kFALSE},
+
+
   {"Calibration chains","------------","-----------","-----------------------------------","","","",kFALSE},
   {"LanaDV","","","MakeEvent,trgd,in,tpc_daq,tpcI,fcf,LaserIT,VFMinuit,Lana,Analysis,Corr4,NosvtIT,NossdIT",
    "","" ,"get LDV",kFALSE},
@@ -3401,16 +3431,21 @@ void StBFChain::SetOutputFile (const Char_t *outfile){
   if (fFileOut != "")  gMessMgr->QAInfo() << "Output root file name " <<  fFileOut.Data() << endm;  
   else                 SetOption("NoOutput","No Output File"); 
   if (!GetTFile()) {
-    if (GetOption("tags")  &&  ( (fFileOut != "") ||
-	GetOption("lana") ||  GetOption("Laser") || GetOption("lanaDV") ) ) {
-      TString TagsName = fFileOut;
-      if(GetOption("LaserCal")){
-	TagsName.ReplaceAll(".root",".laser.root");
-      } else {
-	TagsName.ReplaceAll(".root",".tags.root");
-      }
-      SetTFile(new TFile(TagsName.Data(),"RECREATE"));
-    }
+//   if (GetOption("tags")  &&  ( 
+//				 (fFileOut != "")    || 
+//				 GetOption("lana")   ||  GetOption("Laser") ||
+//				 GetOption("lanaDV") ||  GetOption("lanaDVtpx")  )
+//	) {
+     
+     if ( ( GetOption("tags")  || GetOption("lana") ) &&  (fFileOut != "") ){
+	TString TagsName = fFileOut;
+	if( GetOption("lana") ){
+	   TagsName.ReplaceAll(".root",".laser.root");
+	} else {
+	   TagsName.ReplaceAll(".root",".tags.root");
+	}
+	SetTFile(new TFile(TagsName.Data(),"RECREATE"));
+     }
   }
   //    gSystem->Exit(1);
 }
