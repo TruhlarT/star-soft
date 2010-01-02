@@ -79,7 +79,7 @@ use lib "/afs/rhic.bnl.gov/star/packages/scripts";
 use RunDAQ;
 use CRSQueues;
 
-$ThisYear = 2009;                 # Block to consider. Completely artificial
+$ThisYear = 2010;                 # Block to consider. Completely artificial
                                   # and used to preserve older options in if
                                   # block along with current option.
 $HPSS     = 1;                    # turn to 0 for UNIX staging only
@@ -315,7 +315,7 @@ if ( $ThisYear == 2005 ){
 		);
     $ZEROBIAS=  rdaq_string2ftype("zerobias");
 
-    # Added for tetsing purposes
+    # Added for testing purposes
     $ZEROBIAS_W = 0;
     $EXPRESS_W  = 0;
 
@@ -372,7 +372,7 @@ if ( $ThisYear == 2005 ){
 		);
     $ZEROBIAS=  rdaq_string2ftype("zerobias");
 
-    # Added for tetsing purposes
+    # Added for testing purposes
     $ZEROBIAS_W = 0;
     $EXPRESS_W  = 0;
 
@@ -388,6 +388,59 @@ if ( $ThisYear == 2005 ){
    # $DCHAIN{"PPPP"} = "pp2009b,ITTF,BEmcChkStat,QAalltrigs,btofDat"; # <-- switch to this if trgd crash
     $SCALIB{"PPPP"} = "OptLaser";
 
+    
+} elsif ( $ThisYear == 2010 ) {
+    $TREEMODE= 1;
+    $LIB     = "dev";
+
+    $NUMEVT  = 100;
+    $MINEVT  = 200;
+    $FRACTT  =  33;
+
+    $TARGET  = "/star/data09/reco";       # This is ONLY a default value.
+                                          # Overwritten by ARGV (see crontab)
+
+    # Those are taken from previous yera - agreed upon as per rate, etc...
+    # and documented on our Web pages.
+    $LASERTP =
+	rdaq_string2ftype("laser")."|".
+	rdaq_string2ftype("laser_adc");
+
+    $PHYSTP  =  rdaq_string2ftype("physics");
+    $PHYSTP2 =
+        rdaq_string2ftype("physics_adc")."|".
+        rdaq_string2ftype("upsilon").    "|".
+        rdaq_string2ftype("minbias").    "|".
+        rdaq_string2ftype("minbias_adc")."|".
+        rdaq_string2ftype("btag");
+
+    @EXPRESS = (
+		rdaq_string2ftype("express"),
+		rdaq_string2ftype("jpsi"),
+		rdaq_string2ftype("gamma"),
+		rdaq_string2ftype("mtd"),
+	        rdaq_string2ftype("hlt"),
+		rdaq_string2ftype("muon"),
+		rdaq_string2ftype("upcjpsi")
+		);
+    $ZEROBIAS=  rdaq_string2ftype("zerobias");
+
+    # Added for testing purposes
+    $ZEROBIAS_W = 0;
+    $EXPRESS_W  = 0;
+
+
+    # Order is: regular, bypass, calib
+    @USEQ    = (5,  5,5);
+    @SPILL   = (0,105,4);
+
+
+    # at least, p+p calib
+    $DCHAIN{"AUAU"} = "P2010a,tofx,BEmcChkStat,QAalltrigs,Corr3,-hitfilt";
+    $DCHAIN{"PPPP"} = "pp2010a,VFPPVnoCTB,BEmcChkStat,QAalltrigs,Corr3,-hitfilt";
+    $SCALIB{"AUAU"} = "OptLaser";
+
+       
     
 } else {
     # Well, at first you may get that message ... should tell you that
