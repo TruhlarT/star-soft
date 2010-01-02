@@ -436,9 +436,9 @@ if ( $ThisYear == 2005 ){
 
 
     # at least, p+p calib
-    $DCHAIN{"AUAU"} = "P2010a,tofx,BEmcChkStat,QAalltrigs,Corr3,-hitfilt";
-    $DCHAIN{"PPPP"} = "pp2010a,VFPPVnoCTB,BEmcChkStat,QAalltrigs,Corr3,-hitfilt";
-    $SCALIB{"AUAU"} = "OptLaser";
+    $DCHAIN{"AuAu"} = "P2010a,btof,BEmcChkStat,QAalltrigs,Corr3,-hitfilt";
+    $DCHAIN{"PPPP"} = "pp2010a,btof,VFPPVnoCTB,BEmcChkStat,QAalltrigs,Corr3,-hitfilt";
+    $SCALIB{"AuAu"} = "OptLaser";
 
        
     
@@ -1212,8 +1212,8 @@ sub Submit
 
     if($mode == 2){
 	# This is the calibration specific mode
-#	$tags  = "laser";        # **** this is cheap and dirty ****
-        $tags  = "tags";
+	$tags  = "laser";        # **** this is cheap and dirty ****
+#        $tags  = "tags";
 	$calib = $SCALIB{$coll};
     } else {
 	# this is any other mode
