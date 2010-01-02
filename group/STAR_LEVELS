@@ -100,7 +100,7 @@ if ($ARGV[0] eq "-g"){
     chomp($host = `/bin/hostname`);
 
     $ROOT = "ROOT-$ENV{ROOT_LEVEL}";
-    if ( defined($tmp = $ENV{QTDIR}) ){ $tmp =~ s/.*\///; $ROOT .= ";($tmp)";}
+    if ( defined($tmp = $ENV{QTDIR}) ){ $tmp =~ s/.*\///; $ROOT .= "-$tmp";}
 
     print "$host;CERN-$ENV{CERN_LEVEL};$ROOT;STAR-$VERSION;root4star-$cmo/$cdy/$year-$chr:$cmin-$pgmf\n";
 }
