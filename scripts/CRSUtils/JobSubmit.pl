@@ -1440,7 +1440,7 @@ __EOH__
 #standard error
     stderrdir=$DSKLOG/prodlog/$LIB/log/daq
     stderr=$mfile.err
-    notify=starreco\@rcrsuser3.rcf.bnl.gov
+    notify=starreco\@rcrsuser4.rcf.bnl.gov
 
 #program to run
     executable=$SPATH/bfccb
@@ -1476,7 +1476,7 @@ __EOF__
 #standard error
     stderrdir=$DSKLOG/prodlog/$LIB/log/daq
     stderr=$mfile.err
-    notify=starreco\@rcrsuser3.rcf.bnl.gov
+    notify=starreco\@rcrsuser4.rcf.bnl.gov
 
 #program to run
     executable=$SPATH/bfccb
