@@ -106,33 +106,19 @@ my $year = $yr + 1900 ;
 if( $mon < 10) { $mon = '0'.$mon };
 if( $mday < 10) { $mday = '0'.$mday };
 
- $thisday = $year."-".$mon."-".$mday; 
+$thisday = $year."-".$mon."-".$mday; 
 
 
-# This script also loses Email content. 
-# Not very good for debugging purposes so ...
-if ( -e "mbox.piped"){
-    # If gets too big, move and delete old
-    my @info = stat("mbox.piped");
-    if ( $info[7] >= $MAXMBXSIZE){
-	unlink("mbox.piped.old") if ( -e "mbox.piped.old");
-	rename("mbox.piped","mbox.piped.old");
-    }
-}
-if ( ! -e "mbox.piped"){ 
-    open(FO,">mbox.piped"); 
-    print FO "Begin on ".localtime()."\n";
-    close(FO);
-}
-open(FO,">>mbox.piped");
 
 
 $outfile = "mail" . "_" .$thisday . "_" . "out"; 
 $QFLAG   = 1==1;
+@OUTPUT  = undef;   # will hold all lines we receive
 
-while (<>) {
-    chomp($mail_line = $_);
-    print FO "$mail_line\n";
+
+while ( defined($mail_line = <STDIN>) ) {
+    chomp($mail_line);
+    push(@OUTPUT,$mail_line);
 
     if ($mail_line =~ /Date/) {
 	$date_line = $mail_line;
@@ -192,8 +178,36 @@ while (<>) {
     }
 
 }
-close(FO);
 
+
+#+
+# Output all we received back to a log
+# This script also used to lose Email content.
+#-
+if ( -e "mbox.piped"){
+    # If gets too big, move and delete old
+    my @info = stat("mbox.piped");
+    if ( $info[7] >= $MAXMBXSIZE){
+	unlink("mbox.piped.old") if ( -e "mbox.piped.old");
+	rename("mbox.piped","mbox.piped.old");
+    }
+}
+if ( ! -e "mbox.piped"){ 
+    open(FO,">mbox.piped"); 
+    print FO "Begin on ".localtime()."\n";
+    close(FO);
+}
+chomp($HOST= `/bin/hostname -s`);
+$k   = 0; while ( -e "/tmp/mbox$$$k.pipe" ){ $k++;}
+$FLO = "/tmp/mbox$$$k.pipe";
+open(FO,">$FLO");         print FO "\n[$0 ".localtime()." on $HOST Pid=$$ Idx=$k]\n";
+foreach $line (@OUTPUT){  print FO "$mon$mday$hour$min$sec $line\n";}
+close(FO);
+system("/bin/cat $FLO >>mbox.piped && /bin/rm -f $FLO");
+
+
+
+# Now revert to treating special cases
 if( defined($date_line) ){
     open (OUT,">> $outfile") or die "Can't open $outfile";
     print OUT $date_line, "\n";
