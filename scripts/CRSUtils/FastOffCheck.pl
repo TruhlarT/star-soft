@@ -41,8 +41,8 @@ $DEBUGR = 8348080;
 
 # Assume standard tree structure
 $JOBDIR    = "/star/u/starreco/$LIB/requests/daq/archive/";
-$SCRATCH   = defined($ENV{SCRATCH})?$ENV{SCRATCH}:"/tmp/$<";
-$SPACEPRGM = $ENV{STAR_SCRIPTS}."/dfpanfs";
+$SCRATCH   = (defined($ENV{SCRATCH})?$ENV{SCRATCH}:"/tmp/$<");
+$SPACEPRGM = (defined($ENV{STAR_SCRIPTS})?$ENV{STAR_SCRIPTS}:"/afs/rhic.bnl.gov/star/packages/scripts")."/dfpanfs";
 
 
 # create scratch if not there
