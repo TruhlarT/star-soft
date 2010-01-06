@@ -1,9 +1,12 @@
 #!/usr/local/bin/perl
 #!/usr/bin/env perl 
 #
-# $Id: CRSstatusPlots.pl,v 1.18 2009/01/05 18:06:06 didenko Exp $
+# $Id: CRSstatusPlots.pl,v 1.19 2010/01/06 18:52:36 didenko Exp $
 #
 # $Log: CRSstatusPlots.pl,v $
+# Revision 1.19  2010/01/06 18:52:36  didenko
+# updates for year 2010
+#
 # Revision 1.18  2009/01/05 18:06:06  didenko
 # change default to 2009
 #
@@ -78,7 +81,7 @@ $query = new CGI;
 
  my $fstatus   =  $query->param('statusfield');
  my $fperiod   =  $query->param('period');
- my @prodyear = ("2005","2006","2007","2008","2009");
+ my @prodyear = ("2005","2006","2007","2008","2009"."2010");
 
   if( $fperiod eq "" and $fstatus eq "" and $pryear eq "" ) {
 
@@ -109,7 +112,7 @@ print "<h3 align=center> Select year of production</h3>";
 print "<h4 align=center>";
 print  $query->scrolling_list(-name=>'ryear',
                              -values=>\@prodyear,
-                             -default=>2009,
+                             -default=>2010,
                              -size =>1); 
 
 print "<p>";
