@@ -58,10 +58,10 @@ my $nowdate;
 my $thisyear = $year+1900;
 my $dyear = $thisyear - 2000;
 
-my @prodyear = ("2006","2007","2008","2009");
+my @prodyear = ("2006","2007","2008","2009","2010");
 
 # Tables
-$JobStatusT = "JobStatus_09";
+$JobStatusT = "JobStatus_10";
 
 my @arsites = ( );
 my $mydate;
@@ -175,7 +175,7 @@ print "<h3 align=center> Select year</h3>";
 print "<h4 align=center>";
 print  $query->scrolling_list(-name=>'ryear',
                              -values=>\@prodyear,
-                             -default=>2009,
+                             -default=>2010,
       			     -size =>1);
 
 
@@ -246,6 +246,8 @@ my $tdate;
     $nowdate = "2007-12-31";
   }elsif($pryear eq "2008") {
     $nowdate = "2008-12-31";
+  }elsif($pryear eq "2009") {
+    $nowdate = "2009-12-31";
   }else{
     $nowdate = $todate;
   }
@@ -401,7 +403,7 @@ my $ndt = 0;
    }
    $ndt++;
 
- }
+}
     &GRdbDisconnect();
 
  my $graph = new GD::Graph::linespoints(750,650);
