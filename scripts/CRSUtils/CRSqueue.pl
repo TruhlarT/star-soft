@@ -13,7 +13,7 @@ $dbname="operation";
 
 
 # Tables
-$crsQueueT = "crsQueueY9";
+$crsQueueT = "crsQueueY10";
 
  my @statlist = ();
 
