@@ -246,7 +246,7 @@ END
 
     if($pryear eq "2008") {
 	$nowdate = "2008-12-31";
-    elsif($pryear eq "2009") {
+    }elsif($pryear eq "2009") {
 	$nowdate = "2009-12-31";
     } else {
 	$nowdate = $todate;
