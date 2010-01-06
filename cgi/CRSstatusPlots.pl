@@ -1,9 +1,12 @@
 #!/usr/local/bin/perl
 #!/usr/bin/env perl 
 #
-# $Id: CRSstatusPlots.pl,v 1.20 2010/01/06 18:57:26 didenko Exp $
+# $Id: CRSstatusPlots.pl,v 1.21 2010/01/06 19:03:21 didenko Exp $
 #
 # $Log: CRSstatusPlots.pl,v $
+# Revision 1.21  2010/01/06 19:03:21  didenko
+# fixed scale
+#
 # Revision 1.20  2010/01/06 18:57:26  didenko
 # fixed syntax
 #
@@ -282,7 +285,7 @@ if ( ! $graph){
  my $xLabelPosition = 0;
  my $xLabelSkip = 1;
 
-$xLabelSkip = 2  if( $fperiod eq "day" );
+$xLabelSkip = 10  if( $fperiod eq "day" );
 $xLabelSkip = 12 if( $fperiod eq "week" );
 $xLabelSkip = 24 if( $fperiod eq "1_month" );
 $xLabelSkip = 48 if( $fperiod eq "2_months" );

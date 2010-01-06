@@ -1,9 +1,12 @@
 #!/usr/local/bin/perl
 #!/usr/bin/env perl 
 #
-# $Id: CRSqueueStatus.pl,v 1.12 2010/01/06 18:52:36 didenko Exp $
+# $Id: CRSqueueStatus.pl,v 1.13 2010/01/06 19:03:22 didenko Exp $
 #
 # $Log: CRSqueueStatus.pl,v $
+# Revision 1.13  2010/01/06 19:03:22  didenko
+# fixed scale
+#
 # Revision 1.12  2010/01/06 18:52:36  didenko
 # updates for year 2010
 #
@@ -323,7 +326,7 @@ if ( ! $graph){
  my $xLabelPosition = 0;
  my $xLabelSkip = 1;
 
-$xLabelSkip = 2  if( $fperiod eq "day" );
+$xLabelSkip = 10  if( $fperiod eq "day" );
 $xLabelSkip = 12  if( $fperiod eq "week" );
 $xLabelSkip = 24 if( $fperiod eq "1_month" );
 $xLabelSkip = 48 if( $fperiod eq "2_months" );

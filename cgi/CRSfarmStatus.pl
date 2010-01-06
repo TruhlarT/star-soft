@@ -1,9 +1,12 @@
 #!/usr/local/bin/perl
 #!/usr/bin/env perl 
 #
-# $Id: CRSfarmStatus.pl,v 1.25 2010/01/06 18:52:36 didenko Exp $
+# $Id: CRSfarmStatus.pl,v 1.26 2010/01/06 19:00:22 didenko Exp $
 #
 # $Log: CRSfarmStatus.pl,v $
+# Revision 1.26  2010/01/06 19:00:22  didenko
+# fixed scale
+#
 # Revision 1.25  2010/01/06 18:52:36  didenko
 # updates for year 2010
 #
@@ -301,7 +304,7 @@ $day_diff = int($day_diff);
  my $xLabelPosition = 0;
  my $xLabelSkip = 1;
 
-$xLabelSkip = 2  if( $fperiod eq "day" );
+$xLabelSkip = 10  if( $fperiod eq "day" );
 $xLabelSkip = 12  if( $fperiod eq "week" );
 $xLabelSkip = 24 if( $fperiod eq "1_month" );
 $xLabelSkip = 48 if( $fperiod eq "2_months" );
