@@ -197,8 +197,11 @@ sub GetRun
 		@info  = stat("/tmp/$SSELF.last_run");
 		$delta = time()-$info[10];
 		if ( $delta > $EXPIRET ){
-		    rdaq_set_message($SSELF,"Expired","RunNumber expiration for $lrv - moving to $rv");
-		    &Print("Expiration time has arrived for $lrv - moving to $rv\n");
+		    my($irv)=int($lrv+0.75*($rv-$lrv)); # move only part of the way
+
+		    rdaq_set_message($SSELF,"Expired",
+				     "RunNumber expiration for $lrv - now $rv, moving to $irv");
+		    &Print("Expiration time has arrived for $lrv -  now $rv, moving to $irv\n");
 		    open(FO,">/tmp/$SSELF.last_run");
 		    print FO "$rv\n";
 		    close(FO);
