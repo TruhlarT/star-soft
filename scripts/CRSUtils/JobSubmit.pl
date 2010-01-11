@@ -436,7 +436,7 @@ if ( $ThisYear == 2005 ){
 
 
     # at least, p+p calib
-    $DCHAIN{"AuAu"} = "P2010a,btof,BEmcChkStat,QAalltrigs,Corr3,-hitfilt";
+    $DCHAIN{"AuAu"} = "P2010a,btof,BEmcChkStat,QAalltrigs,Corr4,OSpaceZ2,OGridLeak3D,-hitfilt";
     $DCHAIN{"PPPP"} = "pp2010a,btof,VFPPVnoCTB,BEmcChkStat,QAalltrigs,Corr3,-hitfilt";
     $SCALIB{"AuAu"} = "OptLaser";
 
