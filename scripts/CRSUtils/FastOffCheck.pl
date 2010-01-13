@@ -36,8 +36,8 @@ $UPDATE  = shift(@ARGV) if ( @ARGV );   # 0, scan and delete if old,
                                         # 2, get db entries and compare
 
 # You can debug a specific run #
-$DEBUGR = 8348080;
-
+#$DEBUGR = 8348080;
+$RMEVROOT  = 1==1;                      # could be a parameter later, delete event.root files
 
 # Assume standard tree structure
 $JOBDIR    = "/star/u/starreco/$LIB/requests/daq/archive/";
@@ -307,11 +307,16 @@ if ($UPDATE == 0){
 	    $qfile = $ffile = $file;
 	    $ffile =~ s/\.daq/\.MuDst\.root/;
 	    $qfile =~ s/\.daq/\.hist\.root/;
+	    $efile =~ s/\.daq/\.event\.root/;
 
 	    if ( ! -e "$path/$ffile"){
+		# file is not found, somehting is not right
 		rdaq_set_location($obj,0,$file);
 		print "$path $ffile not found\n";
 	    } else {
+		# delete only if MuDST is found 
+		unlink ($efile) if ( -e "$path/$efile" && $RMEVROOT );
+
 		foreach $tfile (("$path/$ffile","$path/$qfile")){
 		    # we will require for this to have both event and hist
 		    # present or disable it
