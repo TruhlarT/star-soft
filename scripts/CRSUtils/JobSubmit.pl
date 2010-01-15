@@ -1260,8 +1260,9 @@ sub Submit
 	push(@SKIPPED,$file);
 	return 0;
 
-    } elsif ( ($trgrs =~ m/test/ || $trgrs =~ m/tune/) && $mode == 0){
-	if ( $ThisYear == 2002){
+    } elsif ( ($trgrs =~ m/test/ || $trgsn =~ m/test/ ||
+	       $trgrs =~ m/tune/ || $trgsn =~ m/tune/   ) && $mode == 0){
+	if ( $ThisYear == 2002 || $ThisYear == 2010 ){
 	    # start with a warning
 	    print "$SELF : Info : Skipping $file has 'triggers'=$items[11]=$trgrs\n";
 	    push(@SKIPPED,$file);
