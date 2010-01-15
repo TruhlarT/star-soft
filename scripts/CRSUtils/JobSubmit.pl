@@ -421,13 +421,14 @@ if ( $ThisYear == 2005 ){
 		rdaq_string2ftype("mtd"),
 	        rdaq_string2ftype("hlt"),
 		rdaq_string2ftype("muon"),
-		rdaq_string2ftype("upcjpsi")
+		rdaq_string2ftype("upcjpsi"),
+		rdaq_string2ftype("upc")
 		);
     $ZEROBIAS=  rdaq_string2ftype("zerobias");
 
     # Added for testing purposes
     $ZEROBIAS_W = 0;
-    $EXPRESS_W  = 0;
+    $EXPRESS_W  = 20;
 
 
     # Order is: regular, bypass, calib
