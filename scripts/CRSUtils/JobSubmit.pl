@@ -439,7 +439,7 @@ if ( $ThisYear == 2005 ){
     # at least, p+p calib
 #    $DCHAIN{"AuAu"} = "P2010a,btof,BEmcChkStat,QAalltrigs,Corr4,OSpaceZ2,OGridLeak3D,-hitfilt";
     $DCHAIN{"AuAu"} = "P2010a,btof,BEmcChkStat,Corr4,OSpaceZ2,OGridLeak3D,-hitfilt";
-    $DCHAIN{"PPPP"} = "pp2010a,btof,VFPPVnoCTB,BEmcChkStat,QAalltrigs,Corr3,-hitfilt";
+    $DCHAIN{"PPPP"} = "pp2010a,btof,VFPPVnoCTB,beamline,BEmcChkStat,QAalltrigs,Corr4,OSpaceZ2,OGridLeak3D,-hitfilt";
     $SCALIB{"AuAu"} = "OptLaser";
 
        
@@ -1210,6 +1210,9 @@ sub Submit
 		" No chain options declared. No default for [$coll] either.\n";
 	    return 0;
 	}
+        # GVB: upc express streams get PPPP CHAIN
+        # This is purely a hack and a better solution should be found!
+        if ($ThisYear == 2010 && $coll eq "AuAu" && $file =~ /upc/) { $chain = $DCHAIN{"PPPP"}; }
     }
 
     if($mode == 2){
@@ -1260,8 +1263,10 @@ sub Submit
 	push(@SKIPPED,$file);
 	return 0;
 
-    } elsif ( ($trgrs =~ m/test/ || $trgsn =~ m/test/ ||
-	       $trgrs =~ m/tune/ || $trgsn =~ m/tune/   ) && $mode == 0){
+# GVB: No longer cut on trgrs
+#    } elsif ( ($trgrs =~ m/test/ || $trgsn =~ m/test/ ||
+#	       $trgrs =~ m/tune/ || $trgsn =~ m/tune/   ) && $mode == 0){
+    } elsif ( ($trgsn =~ m/test/ || $trgsn =~ m/tune/   ) && $mode == 0){
 	if ( $ThisYear == 2002 || $ThisYear == 2010 ){
 	    # start with a warning
 	    print "$SELF : Info : Skipping $file has 'triggers'=$items[11]=$trgrs\n";
