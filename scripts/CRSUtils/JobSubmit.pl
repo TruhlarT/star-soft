@@ -422,7 +422,8 @@ if ( $ThisYear == 2005 ){
 	        rdaq_string2ftype("hlt"),
 		rdaq_string2ftype("muon"),
 		rdaq_string2ftype("upcjpsi"),
-		rdaq_string2ftype("upc")
+		rdaq_string2ftype("upc"),
+                rdaq_string2ftype("atomcules")
 		);
     $ZEROBIAS=  rdaq_string2ftype("zerobias");
 
