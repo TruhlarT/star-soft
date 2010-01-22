@@ -1,4 +1,4 @@
-// @(#)root/gtgl:$Name:  $:$Id: TObjectCoinViewFactory.h,v 1.4 2009/08/03 18:03:06 fine Exp $
+// @(#)root/gtgl:$Name:  $:$Id: TObjectCoinViewFactory.h,v 1.5 2010/01/22 01:24:28 fine Exp $
 // Author: Valery Fine      24/04/05
 
 #ifndef ROOT_TObjectCoinViewFactory
@@ -23,7 +23,8 @@
 #include "TBoundBoxEstimator.h"
 
 class TShape3DPolygonView;
-
+class SoNode;
+class QString;
 
 class TObjectCoinViewFactory : public TObject3DViewFactory {
 protected:
@@ -48,5 +49,6 @@ public:
    virtual ULong_t GetViewerId(TObject3DView *) const;
    virtual Bool_t NeedCompilation()             const;
    virtual void   Release(TObject3DView *);
+   static  SoNode *ReadCoinFile(const QString &fileName);
 };
 #endif

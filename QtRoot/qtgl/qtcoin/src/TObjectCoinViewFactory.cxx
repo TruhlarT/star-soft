@@ -1,4 +1,4 @@
-// @(#)root/gtgl:$Name:  $:$Id: TObjectCoinViewFactory.cxx,v 1.10 2009/08/03 18:03:07 fine Exp $
+// @(#)root/gtgl:$Name:  $:$Id: TObjectCoinViewFactory.cxx,v 1.11 2010/01/22 01:24:28 fine Exp $
 // Author: Valery Fine      24/09/06
 
 /****************************************************************************
@@ -40,6 +40,7 @@
 #include <qdir.h>
 
 #include <qfileinfo.h>
+#include <QDebug>
 
 
 #include "assert.h"
@@ -133,13 +134,14 @@ TObject3DView *TObjectCoinViewFactory::EndModel()
 TObject3DView *TObjectCoinViewFactory::CreateNormal(double const*)
 { return 0; }
 
+
 //______________________________________________________________________________
-static SoNode *ReadInputFile(QString fileName)
+static SoNode *ReadInputFile(const QString &fileName)
 { 	
    // Read in the external scene in the "OpenInventor" format
     SoNode *exObj = 0;
     SoInput viewDecor;
-    SbString thisFile = SoInput::searchForFile((const char *)fileName
+    SbString thisFile = SoInput::searchForFile(fileName.toStdString().c_str()
        ,SoInput::getDirectories ()
        ,SbStringList());
     QFileInfo info(thisFile.getString());
@@ -150,19 +152,24 @@ static SoNode *ReadInputFile(QString fileName)
        gSystem->ChangeDirectory((const char*)ivDir);
        if ( viewDecor.openFile(info.fileName() ) ) {
           if (!SoDB::read(&viewDecor,exObj)) {
-             qWarning(" Can not open the Coin3D file <%s>",thisFile.getString());
+             qWarning(" Can not open the Coin3D file <%s>:<%s>",thisFile.getString(),info.fileName().toStdString().c_str());
              exObj = 0; // FIX ME. Print something for user
           }
        } else {
-          qWarning(" Can not open the file %s",(const char*)fileName);
+          qWarning(" Can not open the file %s",(const char*)fileName.toStdString().c_str());
        }
-       gSystem->ChangeDirectory((const char*)saveWorkingDir);
+       gSystem->ChangeDirectory(saveWorkingDir.toStdString().c_str());
     } else { 
        qWarning(" Can not read the file <%s>",thisFile.getString());
     }
     return exObj;
 }
 
+//______________________________________________________________________________
+SoNode *TObjectCoinViewFactory::ReadCoinFile(const QString &fileName)
+{
+    return ReadInputFile(fileName);
+}
 
 //____________________________________________________________________________________________________________________
 TObject3DView *TObjectCoinViewFactory::CreateCoinNode(const TObject *descriptor)
@@ -185,10 +192,11 @@ TObject3DView *TObjectCoinViewFactory::CreateCoinNode(const TObject *descriptor)
                }
             }
             break;
-         case TQtCoin3DDefInterface::kFileNode:
+         case TQtCoin3DDefInterface::kFileNode: {
             // Read the fist SoNode defintion from the file provided
-            thisNode = ReadInputFile(coinDescriptor->GetFileName());
-            break;
+            QString fn = coinDescriptor->GetFileName();
+            thisNode = ReadInputFile(fn);
+            break; }
          case TQtCoin3DDefInterface::kMemoryNode:
             thisNode =  ((TQtCoin3DDefInterface *)coinDescriptor)->GetNode();
             break;

@@ -29,30 +29,18 @@
 #include <qimage.h>
 #include <qdir.h>
 
-#if QT_VERSION < 0x40000
-#  include <qfiledialog.h>
-#  include <qpopupmenu.h>
-#  include <qwhatsthis.h> 
-#  include <qaction.h>
-#  include <qpushbutton.h> 
-#  include <qtooltip.h> 
-#  include <qcheckbox.h> 
-#  include <qpngio.h> 
-#  include <qinputdialog.h>
-#else 
-#  include <QFileDialog>
-#  include <QMenu>
-#  include <QWhatsThis> 
-#  include <QPushButton> 
+#include <QFileDialog>
+#include <QMenu>
+#include <QWhatsThis> 
+#include <QPushButton> 
 //Added by qt3to4:
-#  include <QLabel>
-#  include <QAction>
-#  include <QCheckBox>
-#  include <QInputDialog>
-#  include <QDebug>
-#  include <QVBoxLayout>
-#  include <QRegExp>
-#endif 
+#include <QLabel>
+#include <QAction>
+#include <QCheckBox>
+#include <QInputDialog>
+#include <QDebug>
+#include <QVBoxLayout>
+#include <QRegExp>
 
 #include <qfile.h>
 #include <qfileinfo.h>
@@ -69,6 +57,7 @@
 #include <qevent.h>
 
 #include "TObject3DView.h"
+#include "TObjectCoinViewFactory.h"
 
 //=============
 
@@ -754,7 +743,7 @@ void TQtCoinWidget::SetClipMask(unsigned int mask)
 Option_t   *TQtCoinWidget::GetDrawOption() const
 {
    // can not return the const char * from QString yet 
-   assert(0);
+   assert(0 && "can not return the const char * from QString yet");
    return 0;                
 }
 //______________________________________________________________________________
@@ -765,7 +754,7 @@ void TQtCoinWidget::SetDrawOption(Option_t *option)
    // TQtCoinWidget { footter:"text";  background-color : color }
    if (option && option[0])  {
       QString opt =option;  
-      QRegExp rx("\\s*\\{\\s*(footer|record|save|background-color|screen|view)(\\s*:\\s*)(.+\\S+)\\s*\\}");
+      QRegExp rx("\\s*\\{\\s*(footer|record|save|background-color|screen|view|file)(\\s*:\\s*)(.+\\S+)\\s*\\}");
       rx.setCaseSensitivity(Qt::CaseInsensitive);
       int pos = rx.indexIn(option);
       if (pos >=0) {
@@ -789,7 +778,44 @@ void TQtCoinWidget::SetDrawOption(Option_t *option)
               ViewAll();
            } else if (rx.cap(1) == "background-color" ) {
               // to be done yet
-           }
+           } else if (rx.cap(1) == "file" ) {
+              std::string basefn = rx.cap(3).toStdString();
+              const char *cfn = basefn.c_str();
+               TString fullPath = cfn;
+               TString bkShapeDir = gEnv->GetValue("Gui.InventorShapeDir",(const char *)0);  
+               if (bkShapeDir.IsNull()){
+                  gSystem->ExpandPathName(fullPath);
+               } else {
+                   char *fp = gSystem->Which(bkShapeDir.Data(),cfn);
+                   fullPath = fp; delete [] fp;
+               }
+               if (!gSystem->AccessPathName(fullPath)) {
+                    // find fSelNode
+                   int selNodeIndx = fRootNode->findChild(fSelNode);
+                   if (selNodeIndx >=1) {
+                      QString fn = fullPath.Data();
+                      SoNode *topFileNode = TObjectCoinViewFactory::ReadCoinFile(fn);
+                      if (topFileNode) {
+                         // add / replace the new node in front of fSelNode
+                         // reloading the Coin file replaces the previous version
+                         topFileNode->setName(cfn);
+                         SoSearchAction sch;
+                         sch.setName(topFileNode->getName());
+                         sch.apply(fRootNode);
+                         SoPath *p = sch.getPath();
+                         if (p) {
+                            SoNode *old2Replace = p->getTail();
+                            fRootNode->replaceChild(old2Replace,topFileNode);
+                         } else { 
+                            fRootNode->insertChild(topFileNode,selNodeIndx);
+                         }
+                      }
+                   } else {
+                      assert(0 && "Broken Coin3D  structure. Call author please");
+                   }
+               }
+            }
+
       } else {
         fViewerDrawOption = "";
         fViewerDrawOption = option;
@@ -2004,6 +2030,13 @@ void TQtCoinWidget::CreateViewer( const QString &/*name*/)
     // fInventorViewer
     //      | 
     //  fRootNode ---+
+    //               /
+    //               | fCamera (custom camera if any)
+    //               |----------+
+    //               /
+    //               / optional, defined by "file" StDrawOpt command
+    //               |----------+
+    //               /
     //               | fSelNode
     //               |----------+
     //               |          |  fShapeNode
