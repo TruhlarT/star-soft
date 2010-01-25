@@ -2539,7 +2539,9 @@ void TQtCoinWidget::SetFooter(QString &text)
         SoSeparator *s = new SoSeparator();
         // Add annotation in front of fMovie if any
         int indx = -1;
-        if (fMovie) indx = fRootNode->findChild(fMovie);
+//        if (fMovie) indx = fRootNode->findChild(fMovie);
+        if (fSelNode) indx = fRootNode->findChild(fSelNode);
+        
         if (indx >0)
            fRootNode->insertChild(s,indx-1);
         else 
