@@ -16,6 +16,7 @@ $dbname="operation";
 $crsJobStatusT = "crsJobStatusY10";
 
  my @statlist = ();
+ my @joblist  = ();
 
  @statlist = `farmstat`;
  
@@ -39,8 +40,15 @@ my $Nexporth = 0;
 my $Nexportu = 0;
 my $Ndone = 0;
 my $Nerror = 0;
+my $Nhpexport = 0;
+my $Nhpimport = 0;
+my $Nhprespon = 0;
+my $Nhperr = 0;
+my $Ntimeout = 0;
+my $Nhpbusy = 0;
 my $Nfatal = 0;
 my @prt = ();
+my @wrd = ();
 
 
  ($sec,$min,$hour,$mday,$mon,$yr) = localtime;
@@ -91,10 +99,45 @@ if( $sec < 10) { $sec = '0'.$sec };
 	} elsif ($prt[0] eq "ERROR") {        
          $Nerror =  $prt[1];
  	} elsif ($prt[0] eq "FATAL") {        
+
+	    if ($prt[1] >= 0 ) {
          $Nfatal =  $prt[1];
-     }
+            }else{
+            $Nfatal = 0;
+         }
+	}
+ }
+
+      @joblist = `crs_job -stat_show_problem | grep ERROR` ;
+
+    foreach my $erline (@joblist) {
+     chop $erline ;
+#      print $erline, "\n";
+
+      @wrd = ();
+      @wrd = split (" ", $erline);
+
+    if ( $wrd[1] eq "hpss_export_failed" ) {
+      $Nhpexport++;
+  }elsif($wrd[1] eq "pftp_get_failed") { 
+      $Nhpimport++;
+
+  }elsif($wrd[1] eq "no_response_from_hpss_server") {      
+      $Nhprespon++;
+  }elsif($wrd[1] eq "hpss_stage_request_timed_out") {  
+      $Ntimeout++;
+  }elsif($wrd[1] eq "hpss_request_submission_timed_out") {  
+      $Ntimeout++;
+  }elsif($wrd[1] eq "hpss_busy") {  
+      $Nhpbusy++;
+  }elsif($wrd[1] =~ /hpss_error/) {
+     $Nhperr++;
+
+     }else{
+   }
 
  }
+
 
       &fillTable();
 
@@ -121,6 +164,12 @@ exit;
  $sql.="exportUNIX='$Nexportu',";
  $sql.="done='$Ndone',";
  $sql.="error='$Nerror',";
+ $sql.="hpss_export_failed='$Nhpexport',";
+ $sql.="hpss_import_failed='$Nhpimport',";
+ $sql.="hpss_no_response='$Nhprespon',";
+ $sql.="hpss_timeout='$Ntimeout',";
+ $sql.="hpss_busy='$Nhpbusy',";
+ $sql.="hpss_error='$Nhperr',";
  $sql.="fatal='$Nfatal',";
  $sql.="sdate='$thisday' "; 
 #   print "$sql\n" if $debugOn;
