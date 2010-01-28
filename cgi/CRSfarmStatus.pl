@@ -1,9 +1,12 @@
 #!/usr/local/bin/perl
 #!/usr/bin/env perl 
 #
-# $Id: CRSfarmStatus.pl,v 1.26 2010/01/06 19:00:22 didenko Exp $
+# $Id: CRSfarmStatus.pl,v 1.27 2010/01/28 19:27:35 didenko Exp $
 #
 # $Log: CRSfarmStatus.pl,v $
+# Revision 1.27  2010/01/28 19:27:35  didenko
+# adjust max slots for CRS farm
+#
 # Revision 1.26  2010/01/06 19:00:22  didenko
 # fixed scale
 #
@@ -93,7 +96,7 @@ my $max_y = 10000;
 my $min_y = 0;
 my @data;
 my @legend;
-my $Nmaxjobs = 422;
+my $Nmaxjobs = 500;
 
  my $pryear =  $query->param('ryear');
  my $fperiod  =  $query->param('period');
@@ -212,6 +215,12 @@ my $thisyear = $year+1900;
  $nowdate = $pryear."-12-31 23:59:59";
 
 } 
+
+  if ($pryear == 2010 ) {
+   $Nmaxjobs = 800;
+}else{
+   $Nmaxjobs = 500; 
+}
 
 my $day_diff = 0;
 my $nmonth = 0;
