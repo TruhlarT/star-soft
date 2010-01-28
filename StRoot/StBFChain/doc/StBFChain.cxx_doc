@@ -1,5 +1,5 @@
 //_____________________________________________________________________
-// @(#)StRoot/StBFChain:$Name:  $:$Id: StBFChain.cxx_doc,v 1.65 2010/01/26 20:52:47 fisyak Exp $
+// @(#)StRoot/StBFChain:$Name:  $:$Id: StBFChain.cxx_doc,v 1.66 2010/01/28 23:33:50 fisyak Exp $
 //_____________________________________________________________________
 #include "TROOT.h"
 #include "TString.h"
@@ -24,6 +24,7 @@
 #if 0
 // Keep to be compartible with old documentaion
 #define STR_OBSOLETE "WARNING *** Option is OBSOLETE ***"
+
 
 
 
@@ -134,9 +135,9 @@ Bfc_st BFC[] = {
   {"IAna" ,"" ,"","dEdxY2,Kink2,xi2,CMuDst,analysis","","" ,"Turn on Xi, Kink, dEdx and MuDst",kFALSE},
   {"BAna" ,"" ,"","dEdxY2,CMuDst,analysis" ,"","" ,"Turn on dEdx and MuDst",kFALSE},
 
+  {"B2003I" ,"","","ry2003,in,tpc_daq,tpcI,fcf,Physics,Idst,l0,tags,Tree,evout"
 
 
-  {"B2003I" ,"","","ry2003,in,TpxRaw,TpxClu,Idst,l0,tags,Tree,evout"
 
    , "","","Base chain for 2003 ITTF",kFALSE},
   {"dau2003i" ,"","","B2003I,IAna,CtbMatchVtx,Corr2,ppOpt,l3onl,tofDat,emcDY2,fpd,svt_daq,SvtD,ftpc,trgd"
@@ -389,8 +390,11 @@ Bfc_st BFC[] = {
   {"svt1hit","" ,"","","" ,"","Use 1 SVT hit only combination",kFALSE},
   {"CtbMatchVtx" ,"" ,"","VFMinuit","" ,"","... CTB Matching ON in Vertex Finding",kFALSE},
 
-  {"VFPPV" ,"" ,"","genvtx","" ,"StiPPVertex","... Pile-up proof vertex finder",kFALSE},
-  {"VFPPVnoCTB" ,"" ,"","genvtx","" ,"StiPPVertex","... Pile-up proof vertex finder, noCTB",kFALSE},
+
+
+
+  {"VFPPV" ,"" ,"","genvtx","" ,"","... Pile-up proof vertex finder",kFALSE},
+  {"VFPPVnoCTB" ,"" ,"","genvtx","" ,"","... Pile-up proof vertex finder, noCTB",kFALSE},
 
   {"VFMinuit" ,"" ,"","genvtx","" ,"","... Generic VF will use Minuit method",kFALSE},
   {"VFMinuit2" ,"" ,"","genvtx","", "","... Generic VF will use Minuit method w/rank mode 2",kFALSE},
@@ -425,9 +429,9 @@ Bfc_st BFC[] = {
   {"sim_T" ,"" ,"","","" ,"sim_Tables","Load sim_Tables",kFALSE},
   {"svt_T" ,"" ,"","","" ,"svt_Tables","Load svt_Tables",kFALSE},
 
+  {"tpc_T" ,"" ,"","","" ,"tpc_Tables","Load tpc_Tables",kFALSE},
 
 
-  {"tpc_T" ,"" ,"","","" ,"","WARNING *** Option is OBSOLETE ***",kFALSE},
 
   {"trg_T" ,"","","", "","","WARNING *** Option is OBSOLETE ***",kFALSE},
   {"vpd_T" ,"","","", "","","WARNING *** Option is OBSOLETE ***",kFALSE},
@@ -532,13 +536,13 @@ Bfc_st BFC[] = {
   {"ppMCTrig" ,"","","", "","","WARNING *** Option is OBSOLETE ***",kFALSE},
   {"pp2pp" ,"","","", "St_pp2pp_Maker","St_pp2pp_Maker","pp->pp",kFALSE},
 
-
-
-
-
-  {"tpc" ,"","","TpxRaw,TpxClu,tpcI" ,"","","WARNING *** Option is OBSOLETE *** use TpxClu instead",kFALSE},
-  {"tpcI" ,"tpcChain","","db,tpcDB,TpcHitMover", "StMaker","StChain","tpc with ITTF",kFALSE},
+  {"tpc" ,"","","tcl,tpcI" ,"","","WARNING *** Option is OBSOLETE *** use tcl,tpcI instead",kFALSE},
+  {"tpcI" ,"tpcChain","","tpc_T,globT,db,tpcDB,fcf,TpcHitMover","StMaker","StChain","tpc with ITTF",kFALSE},
   {"tpcX" ,"tpcChain","","-tpcI,tpx,MakeEvent" ,"StMaker","StChain","tpc+tpcx with ITTF",kFALSE},
+
+
+
+
 
   {"Trs","Trs","tpcChain","scl,tpcDB,TrsToF,StEvent,EmbeddingShortCut","StTrsMaker","StTrsMaker","",kFALSE},
   {"TpcRS","","tpcChain","scl,tpcDB,-Trs,-EmbeddingShortCut","StTpcRSMaker","libMathMore,StTpcRSMaker"
@@ -550,24 +554,24 @@ Bfc_st BFC[] = {
   {"St_tpc" ,"","","", "","","WARNING *** Option is OBSOLETE ***",kFALSE},
   {"St_svt" ,"","","", "","","WARNING *** Option is OBSOLETE ***",kFALSE},
 
+  {"tpc_daq" ,"tpc_raw","tpcChain","detDb,tpc_T","St_tpcdaq_Maker","StTrsMaker,St_tpcdaq_Maker","",kFALSE},
+  {"tcl" ,"","fcf","","", "WARNING *** Option is OBSOLETE *** use fcf instead",kFALSE},
+  {"fcf","","tpcChain","daq,-tcl,tpc_daq,StEvent","StRTSClientFCFMaker","StRTSClientFCF,StRTSClientFCFMaker"
+   , "Offline FCF Cluster finder",kFALSE},
 
 
 
 
-
-  {"tpc_daq" ,"","","TpxRaw", "","","WARNING *** Option is OBSOLETE *** use TpxRaw instead",kFALSE},
-  {"tcl","","","TpxRaw,TpxClu,MakeEvent","","","St_tcl_Maker has been replaced by StTpcRTSHitMaker",kFALSE},
-  {"fcf" ,"","","-tcl,tpcX", "","","StRTSClientFCFMaker has been replaced by StTpcHitMaker",kFALSE},
 
    {"tfs" ,"","","TpcFastSim","","","WARNING *** Option is OBSOLETE *** use TpcFastSim instead",kFALSE},
   {"TpcFastSim" ,"tpc_hits","tpcChain","MakeEvent,Simu,-trs,-TpcRS,-tcl,-fcf,-tpc_daq,StEvent,"
    "EmbeddingShortCut", "StTpcFastSimMaker","St_tcl_Maker","use tfs (no StTrsMaker)",kFALSE},
 
-
-
-
-  {"tpx" ,"tpx_hits","tpcChain","MakeEvent,tpc_T,StEvent,rts,detDb"
+  {"tpx" ,"tpc_hits","tpcChain","MakeEvent,-trs,-TpcRS,-tcl,-fcf,-tpc_daq,StEvent,rts,detDb"
    , "StTpcHitMaker","StTpcHitMaker","TPC hit reader for tpc + tpx via EVP_READER",kFALSE},
+
+
+
 
   {"TpxPulser","TpxPulser","tpcChain","rts,detDb","StTpcHitMaker","StTpcHitMaker","TPC+TPX pulser analysis"
    , kFALSE},
@@ -1092,6 +1096,7 @@ Bfc_st BFC[] = {
 
 
 
+
 Bfc_st BFC[] = {
   {"Key" ,"Name" ,"Chain" ,"Opts" ,"Maker","Libs","Comment",kFALSE},
   {"------------","-----------","-----------","------------------------------------------","","","",kFALSE},
@@ -1199,9 +1204,9 @@ Bfc_st BFC[] = {
   {"IAna" ,"" ,"","dEdxY2,Kink2,xi2,CMuDst,analysis","","" ,"Turn on Xi, Kink, dEdx and MuDst",kFALSE},
   {"BAna" ,"" ,"","dEdxY2,CMuDst,analysis" ,"","" ,"Turn on dEdx and MuDst",kFALSE},
 
+  {"B2003I" ,"","","ry2003,in,tpc_daq,tpcI,fcf,Physics,Idst,l0,tags,Tree,evout"
 
 
-  {"B2003I" ,"","","ry2003,in,TpxRaw,TpxClu,Idst,l0,tags,Tree,evout"
 
    , "","","Base chain for 2003 ITTF",kFALSE},
   {"dau2003i" ,"","","B2003I,IAna,CtbMatchVtx,Corr2,ppOpt,l3onl,tofDat,emcDY2,fpd,svt_daq,SvtD,ftpc,trgd"
@@ -1454,8 +1459,11 @@ Bfc_st BFC[] = {
   {"svt1hit","" ,"","","" ,"","Use 1 SVT hit only combination",kFALSE},
   {"CtbMatchVtx" ,"" ,"","VFMinuit","" ,"","... CTB Matching ON in Vertex Finding",kFALSE},
 
-  {"VFPPV" ,"" ,"","genvtx","" ,"StiPPVertex","... Pile-up proof vertex finder",kFALSE},
-  {"VFPPVnoCTB" ,"" ,"","genvtx","" ,"StiPPVertex","... Pile-up proof vertex finder, noCTB",kFALSE},
+
+
+
+  {"VFPPV" ,"" ,"","genvtx","" ,"","... Pile-up proof vertex finder",kFALSE},
+  {"VFPPVnoCTB" ,"" ,"","genvtx","" ,"","... Pile-up proof vertex finder, noCTB",kFALSE},
 
   {"VFMinuit" ,"" ,"","genvtx","" ,"","... Generic VF will use Minuit method",kFALSE},
   {"VFMinuit2" ,"" ,"","genvtx","", "","... Generic VF will use Minuit method w/rank mode 2",kFALSE},
@@ -1490,9 +1498,9 @@ Bfc_st BFC[] = {
   {"sim_T" ,"" ,"","","" ,"sim_Tables","Load sim_Tables",kFALSE},
   {"svt_T" ,"" ,"","","" ,"svt_Tables","Load svt_Tables",kFALSE},
 
+  {"tpc_T" ,"" ,"","","" ,"tpc_Tables","Load tpc_Tables",kFALSE},
 
 
-  {"tpc_T" ,"" ,"","","" ,"","WARNING *** Option is OBSOLETE ***",kFALSE},
 
   {"trg_T" ,"","","", "","","WARNING *** Option is OBSOLETE ***",kFALSE},
   {"vpd_T" ,"","","", "","","WARNING *** Option is OBSOLETE ***",kFALSE},
@@ -1597,13 +1605,13 @@ Bfc_st BFC[] = {
   {"ppMCTrig" ,"","","", "","","WARNING *** Option is OBSOLETE ***",kFALSE},
   {"pp2pp" ,"","","", "St_pp2pp_Maker","St_pp2pp_Maker","pp->pp",kFALSE},
 
-
-
-
-
-  {"tpc" ,"","","TpxRaw,TpxClu,tpcI" ,"","","WARNING *** Option is OBSOLETE *** use TpxClu instead",kFALSE},
-  {"tpcI" ,"tpcChain","","db,tpcDB,TpcHitMover", "StMaker","StChain","tpc with ITTF",kFALSE},
+  {"tpc" ,"","","tcl,tpcI" ,"","","WARNING *** Option is OBSOLETE *** use tcl,tpcI instead",kFALSE},
+  {"tpcI" ,"tpcChain","","tpc_T,globT,db,tpcDB,fcf,TpcHitMover","StMaker","StChain","tpc with ITTF",kFALSE},
   {"tpcX" ,"tpcChain","","-tpcI,tpx,MakeEvent" ,"StMaker","StChain","tpc+tpcx with ITTF",kFALSE},
+
+
+
+
 
   {"Trs","Trs","tpcChain","scl,tpcDB,TrsToF,StEvent,EmbeddingShortCut","StTrsMaker","StTrsMaker","",kFALSE},
   {"TpcRS","","tpcChain","scl,tpcDB,-Trs,-EmbeddingShortCut","StTpcRSMaker","libMathMore,StTpcRSMaker"
@@ -1615,24 +1623,24 @@ Bfc_st BFC[] = {
   {"St_tpc" ,"","","", "","","WARNING *** Option is OBSOLETE ***",kFALSE},
   {"St_svt" ,"","","", "","","WARNING *** Option is OBSOLETE ***",kFALSE},
 
+  {"tpc_daq" ,"tpc_raw","tpcChain","detDb,tpc_T","St_tpcdaq_Maker","StTrsMaker,St_tpcdaq_Maker","",kFALSE},
+  {"tcl" ,"","fcf","","", "WARNING *** Option is OBSOLETE *** use fcf instead",kFALSE},
+  {"fcf","","tpcChain","daq,-tcl,tpc_daq,StEvent","StRTSClientFCFMaker","StRTSClientFCF,StRTSClientFCFMaker"
+   , "Offline FCF Cluster finder",kFALSE},
 
 
 
 
-
-  {"tpc_daq" ,"","","TpxRaw", "","","WARNING *** Option is OBSOLETE *** use TpxRaw instead",kFALSE},
-  {"tcl","","","TpxRaw,TpxClu,MakeEvent","","","St_tcl_Maker has been replaced by StTpcRTSHitMaker",kFALSE},
-  {"fcf" ,"","","-tcl,tpcX", "","","StRTSClientFCFMaker has been replaced by StTpcHitMaker",kFALSE},
 
    {"tfs" ,"","","TpcFastSim","","","WARNING *** Option is OBSOLETE *** use TpcFastSim instead",kFALSE},
   {"TpcFastSim" ,"tpc_hits","tpcChain","MakeEvent,Simu,-trs,-TpcRS,-tcl,-fcf,-tpc_daq,StEvent,"
    "EmbeddingShortCut", "StTpcFastSimMaker","St_tcl_Maker","use tfs (no StTrsMaker)",kFALSE},
 
-
-
-
-  {"tpx" ,"tpx_hits","tpcChain","MakeEvent,tpc_T,StEvent,rts,detDb"
+  {"tpx" ,"tpc_hits","tpcChain","MakeEvent,-trs,-TpcRS,-tcl,-fcf,-tpc_daq,StEvent,rts,detDb"
    , "StTpcHitMaker","StTpcHitMaker","TPC hit reader for tpc + tpx via EVP_READER",kFALSE},
+
+
+
 
   {"TpxPulser","TpxPulser","tpcChain","rts,detDb","StTpcHitMaker","StTpcHitMaker","TPC+TPX pulser analysis"
    , kFALSE},
@@ -2152,7 +2160,7 @@ Bfc_st BFC[] = {
 #endif
 
 // NoChainOptions -> Number of chain options auto-calculated
-//#define __KEEP_TPCDAQ_FCF__
+#define __KEEP_TPCDAQ_FCF__
 TableImpl(Bfc);
 ClassImp(StBFChain);
 
