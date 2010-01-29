@@ -53,7 +53,7 @@ END
 print $query->startform(-action=>"$scriptname");  
 
 print "<body bgcolor=\"cornsilk\">\n";
-print "<h1 align=center><u>CRS HPSS transferring status</u></h1>\n";
+print "<h1 align=center><u>HPSS files transferring status for CRS farm jobs</u></h1>\n";
 print "<br>";
 print <<END;
 
@@ -277,7 +277,7 @@ $xLabelSkip = 288 if( $fperiod eq "12_months" );
 		y_number_format => \&y_format,
 		#labelclr => "lblack",
                 titleclr => "lblack",
-		dclrs => [ qw(lblack lblue lred lgreen lpurple lorange lyellow ) ],
+		dclrs => [ qw(lblack lblue lred lgreen lpurple lorange lyellow lpink) ],
 		line_width => 2,
 		markers => [ 2,3,4,5,6,7,8,9],
 		marker_size => 1,
