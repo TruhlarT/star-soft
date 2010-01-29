@@ -373,7 +373,7 @@ my @files;
                        $fullyear,$mo,$dy,$hr,$min);    
 
 #           if( $ltime > 600 && $ltime < 518400 ){         
-          if( $ltime > 1800 ) { 
+          if( $ltime > 2400 ) { 
 #   print "Log time: ", $ltime, "\n";
 #   print $fullname, "\n";
         &logInfo("$fullname", "$platf");

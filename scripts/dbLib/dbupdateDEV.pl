@@ -481,7 +481,7 @@ my @files;
        $timeS = sprintf ("%4.4d-%2.2d-%2.2d %2.2d:%2.2d:00",
                        $fullyear,$mo,$dy,$hr,$min);    
 
-           if( $ltime > 1800 && $ltime < 518400 ){         
+           if( $ltime > 2400 && $ltime < 518400 ){         
 #          if( $ltime > 600 ) { 
 #   print "Log time: ", $ltime, "\n";
    print $fullname, "\n";
