@@ -267,8 +267,6 @@ $xLabelSkip = 288 if( $fperiod eq "12_months" );
   $gtitle = "Number of jobs failed to make HPSS transferring for the period of $fperiod ";
 
 
-}
-
     $graph->set(x_label => "  ",
 		y_label => $ylabel,
 		title   => $gtitle,
@@ -297,7 +295,7 @@ $xLabelSkip = 288 if( $fperiod eq "12_months" );
     $graph->set_y_axis_font(gdMediumBoldFont);
 
     print STDOUT $graph->plot(\@data)->$format();      
-}
+ }
 }
 ######################
 sub y_format
