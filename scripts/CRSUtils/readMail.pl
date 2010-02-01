@@ -198,12 +198,14 @@ if ( ! -e "mbox.piped"){
     close(FO);
 }
 chomp($HOST= `/bin/hostname -s`);
-$k   = 0; while ( -e "/tmp/mbox$$$k.pipe" ){ $k++;}
-$FLO = "/tmp/mbox$$$k.pipe";
-open(FO,">$FLO");         print FO "\n[$0 ".localtime()." on $HOST Pid=$$ Idx=$k]\n";
-foreach $line (@OUTPUT){  print FO "$mon$mday$hour$min$sec $line\n";}
-close(FO);
-system("/bin/cat $FLO >>mbox.piped && /bin/rm -f $FLO");
+$k   = 0; while ( -e "/tmp/mbox$$"."$k.pipe" ){ $k++;}
+$FLO = "/tmp/mbox$$"."$k.pipe";
+if ( open(FO,">$FLO") ){
+    print FO "\n[$0 ".localtime()." on $HOST Pid=$$ Idx=$k]\n";
+    foreach $line (@OUTPUT){  print FO "$mon$mday$hour$min$sec $line\n";}
+    close(FO);
+    system("/bin/cat $FLO >>mbox.piped && /bin/rm -f $FLO");
+} # if not open, I guess we will lose it for now
 
 
 
