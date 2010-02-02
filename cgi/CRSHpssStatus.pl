@@ -39,8 +39,10 @@ my @legend;
 
  my $pryear =  $query->param('ryear');
  my $fperiod  =  $query->param('period');
+ my $plview   =  $query->param('plotvw');
 
-  if( $fperiod eq "" and $pryear eq "") {
+
+  if( $fperiod eq "" and $plview eq "" and $pryear eq "") {
 
 
 print $query->header;
@@ -82,6 +84,17 @@ print  $query->scrolling_list(-name=>'period',
                              -default=>day,
                              -size =>1); 
 
+
+print "<p>";
+print "</td><td>";
+print "<h3 align=center> How do you want to view plots:</h3>";
+print "<h4 align=center>";
+print  $query->scrolling_list(-name=>'plotvw',
+                             -values=>\@plotview,
+                             -default=>numbers,
+                             -size =>1);
+
+
 print "<p>";
 print "</td> </tr> </table><hr><center>";
 
@@ -104,6 +117,8 @@ my $qqr = new CGI;
 
 my $pryear    =  $qqr->param('ryear');
 my $fperiod   =  $qqr->param('period');
+my $plview    =  $qqr->param('plotvw');
+
 
 my $dyear = $pryear - 2000 ;
 
@@ -119,6 +134,14 @@ my @numjobs4 = ();
 my @numjobs5 = ();
 my @numjobs6 = ();
 my @numjobs7 = ();
+my @jobsdone = ();
+my @jobrate1 = ();
+my @jobrate2 = ();
+my @jobrate3 = ();
+my @jobrate4 = ();
+my @jobrate5 = ();
+my @jobrate6 = ();
+my @jobrate7 = ();
 my @Npoint = ();
 my @maxvalue = ();
 
@@ -167,9 +190,16 @@ $day_diff = int($day_diff);
  @numjobs5 = ();
  @numjobs6 = ();
  @numjobs7 = ();
+ @jobsdone = ();
+ @jobrate1 = ();
+ @jobrate2 = ();
+ @jobrate3 = ();
+ @jobrate4 = ();
+ @jobrate5 = ();
+ @jobrate6 = ();
+ @jobrate7 = ();
   @Npoint = ();
  @maxvalue = ();
-
 
  
              $sql="SELECT max(hpss_export_failed), max(hpss_import_failed), max(hpss_no_response), max(hpss_timeout), max(hpss_busy), max(hpss_error), max(error) FROM  $crsJobStatusT WHERE (TO_DAYS(\"$nowdate\") - TO_DAYS(sdate)) <= ? ";
@@ -189,7 +219,7 @@ $day_diff = int($day_diff);
 
  my $ii = 0;
 
-            $sql="SELECT hpss_export_failed, hpss_import_failed, hpss_no_response, hpss_timeout, hpss_busy, hpss_error, error, sdate FROM  $crsJobStatusT WHERE (TO_DAYS(\"$nowdate\") - TO_DAYS(sdate)) <= ? ORDER by sdate ";
+            $sql="SELECT hpss_export_failed, hpss_import_failed, hpss_no_response, hpss_timeout, hpss_busy, hpss_error, error, done, sdate FROM  $crsJobStatusT WHERE (TO_DAYS(\"$nowdate\") - TO_DAYS(sdate)) <= ? ORDER by sdate ";
 
 	$cursor = $dbh->prepare($sql) || die "Cannot prepare statement: $dbh->errstr\n";
 	$cursor->execute($day_diff);
@@ -202,11 +232,15 @@ $day_diff = int($day_diff);
                 $numjobs5[$ii] = $fields[4];
 		$numjobs6[$ii] = $fields[5];
                 $numjobs7[$ii] = $fields[6];
-                $Npoint[$ii] =  $fields[7]; 
+                $jobsdone[$ii] = $fields[7];
+                $Npoint[$ii] =  $fields[8]; 
                	$ii++;
  
  }
 
+my $hmax = ();
+my $ymax = 1;
+my $rtmax = 1;
 
     &StcrsdbDisconnect();
 
@@ -227,7 +261,7 @@ $day_diff = int($day_diff);
     $legend[3] = "Jobs failed due to 'hpss_staging_timeout'";
     $legend[4] = "Jobs failed due to 'hpss_bussy'";
     $legend[5] = "Jobs failed due to 'hpss_error'";
-    $legend[6] = "Total CRS errors";
+    $legend[6] = "Total number of failed jobs on CRS farm";
 
  my $ylabel;
  my $gtitle; 
@@ -251,21 +285,68 @@ $xLabelSkip = 264 if( $fperiod eq "11_months" );
 $xLabelSkip = 288 if( $fperiod eq "12_months" );
 
 
-    my  $ymax = 1;
+$ymax = 1;
+  @hmax = ();
+  $rtmax = 1;
 
     for ($k = 0; $k < scalar(@maxvalue); $k++) {
 	if( $ymax <= $maxvalue[$k]) {
-     $ymax = $maxvalue[$k];    
+     $ymax = $maxvalue[$k];        
        }
     }
 
-    @data = (\@Npoint, \@numjobs1, \@numjobs2, \@numjobs3, \@numjobs4, \@numjobs5, \@numjobs6,\@numjobs7 );
+  if( $plview eq "numbers") {
+ 
+    @data = (\@Npoint, \@numjobs1, \@numjobs2, \@numjobs3, \@numjobs4, \@numjobs5, \@numjobs6, \@numjobs7 );
 
   $min_y = 0;
-  $max_y = $ymax + 200 ;  
+  $max_y = $ymax + 50 ;  
   $ylabel = "Number of jobs";
   $gtitle = "Number of jobs failed to make HPSS transferring for the period of $fperiod ";
 
+    } else{
+
+ for ($i = 0; $i<scalar(@Npoint); $i++) {
+  $jobrate1[$i] = $numjobs1[$i]*100/$jobsdone[$i];
+  $jobrate2[$i] = $numjobs2[$i]*100/$jobsdone[$i];
+  $jobrate3[$i] = $numjobs3[$i]*100/$jobsdone[$i];
+  $jobrate4[$i] = $numjobs4[$i]*100/$jobsdone[$i];
+  $jobrate5[$i] = $numjobs5[$i]*100/$jobsdone[$i];
+  $jobrate6[$i] = $numjobs6[$i]*100/$jobsdone[$i];
+  $jobrate7[$i] = $numjobs7[$i]*100/$jobsdone[$i];
+	if( $hmax[$i] <= $jobrate1[$i]) {
+     $hmax[i] = $jobrate1[$i];        
+       }  
+	if( $hmax[$i] <= $jobrate2[$i]) {
+     $hmax[i] = $jobrate2[$i];        
+       }
+	if( $hmax[$i] <= $jobrate3[$i]) {
+     $hmax[i] = $jobrate3[$i];        
+       }
+ 	if( $hmax[$i] <= $jobrate4[$i]) {
+     $hmax[i] = $jobrate4[$i];        
+       }      
+	if( $hmax[$i] <= $jobrate5[$i]) {
+     $hmax[i] = $jobrate5[$i];        
+       }
+	if( $hmax[$i] <= $jobrate6[$i]) {
+     $hmax[i] = $jobrate6[$i];        
+       }
+	if( $hmax[$i] <= $jobrate7[$i]) {
+     $hmax[i] = $jobrate7[$i];        
+       }
+    $rtmax =  $hmax[i];
+ }
+
+    @data = (\@Npoint, \@jobrate1, \@jobrate2, \@jobrate3, \@jobrate4, \@jobrate5, \@jobrate6, \@jobrate7 );
+
+  $min_y = 0;  
+  $max_y =  $rtmax + 20 ;
+
+  $ylabel = "Number of jobs in % ";
+  $gtitle = "Number of jobs in % failed to make HPSS transferring for the period of $fperiod ";
+
+}
 
     $graph->set(x_label => "  ",
 		y_label => $ylabel,
