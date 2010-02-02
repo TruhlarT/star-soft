@@ -106,7 +106,6 @@
 
 #include <Inventor/elements/SoCacheElement.h>
 #include <Inventor/manips/SoClipPlaneManip.h>
-
 #include <Inventor/SoOffscreenRenderer.h>
 
 #include <Inventor/actions/SoSearchAction.h> 
@@ -1075,7 +1074,7 @@ void TQtCoinWidget::ViewAll()
                       fullPath = fp; delete [] fp;
                    }
                    if (!gSystem->AccessPathName(fullPath)) {
-                      ReadInputFile((const char*)fullPath);
+                      ReadInputFile((const char*)fullPath,"UNPICKABLE");
                       fAddBackground = false;
                    }
                 }
@@ -1345,18 +1344,27 @@ void TQtCoinWidget::CopyFrameCB()
    // Copy the entire window including the menu and the status bar
    QClipboard *cb = QApplication::clipboard();
    cb->setPixmap(QPixmap::grabWidget(topLevelWidget()));	
-}
+} 
+
 //______________________________________________________________________________
 void TQtCoinWidget::ReadInputFile(const char *fileName)
 {
-   // Read in the external scene in the "OpenInventor" format
-   ReadInputFile(QString( fileName));
+   ReadInputFile(fileName,"SHAPE");
 }
 
 //______________________________________________________________________________
-void TQtCoinWidget::ReadInputFile(const QString &fileName)
+void TQtCoinWidget::ReadInputFile(const char *fileName, const char *pickStyle)
+{
+   // Read in the external scene in the "OpenInventor" format
+   // See :http://doc.coin3d.org/Coin-3.1/classSoPickStyle.html 
+   ReadInputFile(QString( fileName),pickStyle);
+}
+
+//______________________________________________________________________________
+void TQtCoinWidget::ReadInputFile(const QString &fileName, const char *pickStyle)
 { 	
    // Read in the external scene in the "OpenInventor" format
+   // See :http://doc.coin3d.org/Coin-3.1/classSoPickStyle.html 
     QFileInfo info(fileName);
     SoInput viewDecor;
     if (info.isReadable() ) {
@@ -1382,6 +1390,11 @@ void TQtCoinWidget::ReadInputFile(const QString &fileName)
 //            SoChildList *children =  extraObjects->getChildren();
 //            SoReorganizeAction reorg;
 //            reorg.apply(fFileNode);
+              if (std::string(pickStyle) == "UNPICKABLE") {
+                   SoPickStyle *pickStyle = new SoPickStyle;
+                   pickStyle->style= SoPickStyle::UNPICKABLE;
+                   fFileNode->addChild(pickStyle);
+              }
               fFileNode->addChild(extraObjects);
           }
        }

@@ -1,8 +1,8 @@
-// @(#)root/g3d:$Name:  $:$Id: TQtCoinWidget.h,v 1.37 2009/12/28 09:12:28 fine Exp $
+// @(#)root/g3d:$Name:  $:$Id: TQtCoinWidget.h,v 1.38 2010/02/02 20:29:23 fine Exp $
 // Author: Valery Fine      23/05/97
 
 /****************************************************************************
-** $Id: TQtCoinWidget.h,v 1.37 2009/12/28 09:12:28 fine Exp $
+** $Id: TQtCoinWidget.h,v 1.38 2010/02/02 20:29:23 fine Exp $
 **
 ** Copyright (C) 2002 by Valeri Fine. Brookhaven National Laboratory.
 **                                    All rights reserved.
@@ -252,7 +252,8 @@ public:
      virtual void CopyCB();
      virtual void CopyFrameCB();
      virtual void ReadInputFile(const char *fileName);
-     virtual void ReadInputFile(const QString &fileName);
+     virtual void ReadInputFile(const char *fileName,    const char *pickStyle);
+     virtual void ReadInputFile(const QString &fileName, const char *pickStyle="SHAPE");
      virtual void RotateCamera(int axis,float angle);
      virtual void RotateCamera(int axis,bool clockWise=true);
      virtual void Save(const QString &fileName,const QString &type="png");
