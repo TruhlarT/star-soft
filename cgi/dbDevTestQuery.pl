@@ -1,8 +1,11 @@
 #!/usr/bin/env perl 
 #
-# $Id: dbDevTestQuery.pl,v 1.28 2009/12/10 18:43:24 didenko Exp $
+# $Id: dbDevTestQuery.pl,v 1.29 2010/02/02 19:37:32 didenko Exp $
 #
 # $Log: dbDevTestQuery.pl,v $
+# Revision 1.29  2010/02/02 19:37:32  didenko
+# update for run 2010
+#
 # Revision 1.28  2009/12/10 18:43:24  didenko
 # extanded test samples for pp pythia
 #
@@ -135,7 +138,8 @@ my @prod_set = (
                 "daq_sl302/year_2008/production_dAu2008",
                 "daq_sl302/year_2008/ppProduction2008", 
                 "daq_sl302/year_2009/production2009_500GeV", 
-                "daq_sl302/year_2009/production2009_200Gev_Hi" 
+                "daq_sl302/year_2009/production2009_200Gev_Hi", 
+                "daq_sl302/year_2010/auau200_production"
 		);
 
 my @sets_name;
