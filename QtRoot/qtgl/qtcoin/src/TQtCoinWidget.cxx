@@ -407,7 +407,7 @@ static void ViewerKeyPressCB(void *userData, SoEventCallback *eventCB)
       TQtCoinWidget *currentViewer = (TQtCoinWidget *)userData;
       {
          const SoKeyboardEvent  *event = (SoKeyboardEvent *)eventCB->getEvent();
-         int axis = 0;
+         int axis = -1;
          switch (event->getKey()) {
             case SoKeyboardEvent::X: 
                axis = 0; break;
@@ -415,10 +415,9 @@ static void ViewerKeyPressCB(void *userData, SoEventCallback *eventCB)
                axis = 1; break;
             case SoKeyboardEvent::Z: 
                axis = 2; break;
-            default: 
-                         break;
+            default: axis = -1; break;
          };
-         currentViewer->RotateCamera(axis,(bool)event->wasShiftDown() );
+         if (axis >=0) currentViewer->RotateCamera(axis,(bool)event->wasShiftDown() );
       }
    }
 }
