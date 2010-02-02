@@ -24,6 +24,7 @@ $dbname="operation";
 
 my @reqperiod = ("day","week","1_month","2_months","3_months","4_months","5_months","6_months","7_months","8_months","9_months","10_months","11_months","12_months");
 my @prodyear = ("2010");
+my @plotview = ("numbers","percentage");
 
 my $query = new CGI;
 
@@ -307,6 +308,7 @@ $ymax = 1;
     } else{
 
  for ($i = 0; $i<scalar(@Npoint); $i++) {
+     if($jobsdone[$i] >= 1 ) {
   $jobrate1[$i] = $numjobs1[$i]*100/$jobsdone[$i];
   $jobrate2[$i] = $numjobs2[$i]*100/$jobsdone[$i];
   $jobrate3[$i] = $numjobs3[$i]*100/$jobsdone[$i];
@@ -336,6 +338,7 @@ $ymax = 1;
      $hmax[i] = $jobrate7[$i];        
        }
     $rtmax =  $hmax[i];
+  }
  }
 
     @data = (\@Npoint, \@jobrate1, \@jobrate2, \@jobrate3, \@jobrate4, \@jobrate5, \@jobrate6, \@jobrate7 );
