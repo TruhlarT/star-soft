@@ -41,6 +41,7 @@
 #include <QDebug>
 #include <QVBoxLayout>
 #include <QRegExp>
+#include <QClipboard>
 
 #include <qfile.h>
 #include <qfileinfo.h>
@@ -576,6 +577,10 @@ static SoPath * PickFilterCB(void * viewer, const SoPickedPoint * pick)
    SoPath *selPath = 0;
    SoPath *p = pick->getPath();
    const SbVec3f pnt3d = pick->getPoint();
+   QClipboard *clipboard = QApplication::clipboard();
+   clipboard->setText(QString("x=%1;y=%2;z=%3").arg(pnt3d[0]).arg(pnt3d[1]).arg(pnt3d[2])
+             ,clipboard->supportsSelection()?QClipboard::Selection 
+                                            :QClipboard::Clipboard);
 /*
    if (p->getTail()->getTypeId() == SoLineSet::getClassTypeId()          ||
        p->getTail()->getTypeId() == SoIndexedLineSet::getClassTypeId()) {
