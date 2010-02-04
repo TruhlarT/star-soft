@@ -1,4 +1,4 @@
-// @(#)root/qt:$Name:  $:$Id: TQtTimer.h,v 1.4 2009/08/03 18:02:57 fine Exp $
+// @(#)root/qt:$Name:  $:$Id: TQtTimer.h,v 1.5 2010/02/04 20:35:05 fine Exp $
 // Author: Valeri Fine   09/08/2004
 /****************************************************************************
 **
@@ -47,7 +47,5 @@ public:
   static TQtTimer *QtTimer();
   ClassDef(TQtTimer,0) // QTimer to awake the ROOT event loop from Qt event loop
 };
-inline TQtTimer *TQtTimer::QtTimer(){ return fgQTimer; }
-
 
 #endif

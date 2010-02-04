@@ -1,4 +1,4 @@
-// @(#)root/qt:$Id: TQtClientFilter.cxx,v 1.8 2009/08/03 18:02:57 fine Exp $
+// @(#)root/qt:$Id: TQtClientFilter.cxx,v 1.9 2010/02/04 20:35:06 fine Exp $
 // Author: Valeri Fine   21/01/2003
 /****************************************************************************
 **
@@ -725,6 +725,38 @@ void TQtClientFilter::GrabPointer(TQtClientWidget *grabber, UInt_t evmask, Windo
         fgGrabber = new TQtPointerGrabber (grabber,evmask,grabber->SelectEventMask()
                                     , cursor, grab, owner_events);
    }
+}
+
+//______________________________________________________________________________
+TQtPointerGrabber *TQtClientFilter::PointerGrabber()
+{   return fgGrabber; }
+
+//______________________________________________________________________________
+TQtClientWidget *TQtClientFilter::GetPointerGrabber()
+{   return fgPointerGrabber; }
+
+//______________________________________________________________________________
+TQtClientWidget *TQtClientFilter::GetButtonGrabber() 
+{   return fgButtonGrabber; }
+
+//______________________________________________________________________________
+void TQtClientFilter::SetButtonGrabber(TQtClientWidget *grabber)
+{   fgButtonGrabber = grabber; }
+   
+//______________________________________________________________________________
+void TQtClientFilter::AppendButtonGrab(TQtClientWidget *widget)
+{   fButtonGrabList.append(widget); }
+
+//______________________________________________________________________________
+void TQtClientFilter::RemoveButtonGrab(QObject *widget)
+{ 
+   TQtClientWidget *wid = (TQtClientWidget *)widget;
+   if ((fgButtonGrabber == wid) && fgGrabber) fgGrabber->DisactivateGrabbing();
+#if (QT_VERSION >= 0x040000)
+   fButtonGrabList.removeAll(wid);
+#else
+   fButtonGrabList.remove(wid);
+#endif
 }
 
 //______________________________________________________________________________
