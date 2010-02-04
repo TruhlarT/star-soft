@@ -239,7 +239,7 @@ $day_diff = int($day_diff);
  
  }
 
-my $hmax = ();
+my $hmax = 0;
 my $ymax = 1;
 my $rtmax = 1;
 
@@ -287,7 +287,7 @@ $xLabelSkip = 288 if( $fperiod eq "12_months" );
 
 
 $ymax = 1;
-  @hmax = ();
+  $hmax = 0;
   $rtmax = 1;
 
     for ($k = 0; $k < scalar(@maxvalue); $k++) {
@@ -308,7 +308,9 @@ $ymax = 1;
     } else{
 
  for ($i = 0; $i<scalar(@Npoint); $i++) {
-     if($jobsdone[$i] >= 1 ) {
+     if($jobsdone[$i] < 0.1 ) {
+     $jobsdone[$i] = 1 ;
+   }
   $jobrate1[$i] = $numjobs1[$i]*100/$jobsdone[$i];
   $jobrate2[$i] = $numjobs2[$i]*100/$jobsdone[$i];
   $jobrate3[$i] = $numjobs3[$i]*100/$jobsdone[$i];
@@ -316,36 +318,36 @@ $ymax = 1;
   $jobrate5[$i] = $numjobs5[$i]*100/$jobsdone[$i];
   $jobrate6[$i] = $numjobs6[$i]*100/$jobsdone[$i];
   $jobrate7[$i] = $numjobs7[$i]*100/$jobsdone[$i];
-	if( $hmax[$i] <= $jobrate1[$i]) {
-     $hmax[i] = $jobrate1[$i];        
+	if( $hmax <= $jobrate1[$i]) {
+     $hmax = $jobrate1[$i];        
        }  
-	if( $hmax[$i] <= $jobrate2[$i]) {
-     $hmax[i] = $jobrate2[$i];        
+	if( $hmax <= $jobrate2[$i]) {
+     $hmax = $jobrate2[$i];        
        }
-	if( $hmax[$i] <= $jobrate3[$i]) {
-     $hmax[i] = $jobrate3[$i];        
+	if( $hmax <= $jobrate3[$i]) {
+     $hmax = $jobrate3[$i];        
        }
- 	if( $hmax[$i] <= $jobrate4[$i]) {
-     $hmax[i] = $jobrate4[$i];        
+ 	if( $hmax <= $jobrate4[$i]) {
+     $hmax = $jobrate4[$i];        
        }      
-	if( $hmax[$i] <= $jobrate5[$i]) {
-     $hmax[i] = $jobrate5[$i];        
+	if( $hmax <= $jobrate5[$i]) {
+     $hmax = $jobrate5[$i];        
        }
-	if( $hmax[$i] <= $jobrate6[$i]) {
-     $hmax[i] = $jobrate6[$i];        
+	if( $hmax <= $jobrate6[$i]) {
+     $hmax = $jobrate6[$i];        
        }
-	if( $hmax[$i] <= $jobrate7[$i]) {
-     $hmax[i] = $jobrate7[$i];        
+	if( $hmax <= $jobrate7[$i]) {
+     $hmax = $jobrate7[$i];        
        }
-    $rtmax =  $hmax[i];
-  }
+    $rtmax =  $hmax;
+
  }
 
     @data = (\@Npoint, \@jobrate1, \@jobrate2, \@jobrate3, \@jobrate4, \@jobrate5, \@jobrate6, \@jobrate7 );
 
   $min_y = 0;  
-#  $max_y =  $rtmax + 20 ;
- $max_y = 140;
+  $max_y =  $rtmax + 20 ;
+# $max_y = 140;
 
 
   $ylabel = "Number of jobs in % ";
