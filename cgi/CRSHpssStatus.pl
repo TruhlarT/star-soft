@@ -344,7 +344,9 @@ $ymax = 1;
     @data = (\@Npoint, \@jobrate1, \@jobrate2, \@jobrate3, \@jobrate4, \@jobrate5, \@jobrate6, \@jobrate7 );
 
   $min_y = 0;  
-  $max_y =  $rtmax + 20 ;
+#  $max_y =  $rtmax + 20 ;
+ $max_y = 140;
+
 
   $ylabel = "Number of jobs in % ";
   $gtitle = "Number of jobs in % failed to make HPSS transferring for the period of $fperiod ";
