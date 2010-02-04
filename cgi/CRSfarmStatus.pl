@@ -1,9 +1,12 @@
 #!/usr/local/bin/perl
 #!/usr/bin/env perl 
 #
-# $Id: CRSfarmStatus.pl,v 1.27 2010/01/28 19:27:35 didenko Exp $
+# $Id: CRSfarmStatus.pl,v 1.28 2010/02/04 20:53:34 didenko Exp $
 #
 # $Log: CRSfarmStatus.pl,v $
+# Revision 1.28  2010/02/04 20:53:34  didenko
+# fixed scaling
+#
 # Revision 1.27  2010/01/28 19:27:35  didenko
 # adjust max slots for CRS farm
 #
@@ -217,9 +220,9 @@ my $thisyear = $year+1900;
 } 
 
   if ($pryear == 2010 ) {
-   $Nmaxjobs = 800;
+   $Nmaxjobs = 900;
 }else{
-   $Nmaxjobs = 500; 
+   $Nmaxjobs = 460; 
 }
 
 my $day_diff = 0;
@@ -313,7 +316,7 @@ $day_diff = int($day_diff);
  my $xLabelPosition = 0;
  my $xLabelSkip = 1;
 
-$xLabelSkip = 10  if( $fperiod eq "day" );
+$xLabelSkip = 2  if( $fperiod eq "day" );
 $xLabelSkip = 12  if( $fperiod eq "week" );
 $xLabelSkip = 24 if( $fperiod eq "1_month" );
 $xLabelSkip = 48 if( $fperiod eq "2_months" );
