@@ -270,7 +270,7 @@ my $rtmax = 1;
  my $xLabelPosition = 0;
  my $xLabelSkip = 1;
 
-$xLabelSkip = 10  if( $fperiod eq "day" );
+$xLabelSkip = 2  if( $fperiod eq "day" );
 $xLabelSkip = 12  if( $fperiod eq "week" );
 $xLabelSkip = 24 if( $fperiod eq "1_month" );
 $xLabelSkip = 48 if( $fperiod eq "2_months" );
