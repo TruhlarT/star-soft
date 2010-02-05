@@ -162,10 +162,8 @@ my $ndbFiles = 0;
 
 &StDbTJobsConnect();
 
- &beginHtml();
+$sql="SELECT path, logFile, jobStatus, NoEventDone, chainOpt, memUsageF, memUsageL, CPU_per_evt_sec, createTime FROM $JobStatusT where path LIKE '/star/rcf/test/dev/%Fri%' AND avail = 'Y' ";
 
-
-$sql="SELECT path, logFile, jobStatus, NoEventDone, chainOpt, memUsageF, memUsageL, CPU_per_evt_sec, createTime FROM $JobStatusT where path LIKE '%/dev/%$wkday%' AND avail = 'Y' ";
  $cursor =$dbh->prepare($sql)
    || die "Cannot prepare statement: $DBI::errstr\n";
  $cursor->execute;
@@ -206,6 +204,10 @@ $sql="SELECT path, logFile, jobStatus, NoEventDone, chainOpt, memUsageF, memUsag
  my $mychain;
  my $cdate;
 my @prt;
+
+
+ &beginHtml();
+  
 
   foreach $eachFile (@dbFiles) {
 
