@@ -16,7 +16,15 @@ use Mysql;
 use Class::Struct;
 use DBI;
 
-require "/afs/rhic.bnl.gov/star/packages/scripts/dbLib/dbTJobsSetup.pl";
+$dbhost="duvall.star.bnl.gov";
+$dbuser="starreco";
+$dbpass="";
+$dbname="LibraryJobs";
+
+
+# Tables
+$FilesCatalogT = "FilesCatalog";
+$JobStatusT = "JobStatus";
 
 my $TOP_DIRD = "/star/rcf/test/dev/";
 
@@ -215,10 +223,11 @@ my @prt;
     }
  &endHtml();
 
- }
-
  &StDbTJobsDisconnect();
  
+
+ }
+
 
 #################
 
@@ -286,6 +295,16 @@ END
 }
 
 
+######################
+sub StDbTJobsConnect {
+    $dbh = DBI->connect("dbi:mysql:$dbname:$dbhost", $dbuser, $dbpass)
+        || die "Cannot connect to db server $DBI::errstr\n";
+}
+
+######################
+sub StDbTJobsDisconnect {
+    $dbh = $dbh->disconnect() || die "Disconnect failure $DBI::errstr\n";
+}
 
 
 
