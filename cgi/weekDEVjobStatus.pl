@@ -155,6 +155,16 @@ my @dbFiles = ();
 my $ndbFiles = 0; 
 
 
+$dbhost="duvall.star.bnl.gov";
+$dbuser="starreco";
+$dbpass="";
+$dbname="LibraryJobs";
+
+
+# Tables
+$FilesCatalogT = "FilesCatalog";
+$JobStatusT = "JobStatus";
+
  print $qqr->header;
  print $qqr->start_html('DEV jobs status');
  print "<body bgcolor=\"cornsilk\">\n";
@@ -162,7 +172,7 @@ my $ndbFiles = 0;
 
 &StDbTJobsConnect();
 
-$sql="SELECT path, logFile, jobStatus, NoEventDone, chainOpt, memUsageF, memUsageL, CPU_per_evt_sec, createTime FROM $JobStatusT where path LIKE '/star/rcf/test/dev/%Fri%' AND avail = 'Y' ";
+$sql="SELECT path, logFile, jobStatus, NoEventDone, chainOpt, memUsageF, memUsageL, CPU_per_evt_sec, createTime FROM $JobStatusT where path LIKE '/star/rcf/test/dev/%$wkday%' AND avail = 'Y' ";
 
  $cursor =$dbh->prepare($sql)
    || die "Cannot prepare statement: $DBI::errstr\n";
@@ -230,12 +240,11 @@ my @prt;
 
     }
 
+ &StDbTJobsDisconnect();
+
  print $qqr->end_html;
 
  &endHtml();
-
- &StDbTJobsDisconnect();
- 
 
  }
 
