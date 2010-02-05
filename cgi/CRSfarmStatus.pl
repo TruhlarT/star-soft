@@ -1,9 +1,12 @@
 #!/usr/local/bin/perl
 #!/usr/bin/env perl 
 #
-# $Id: CRSfarmStatus.pl,v 1.28 2010/02/04 20:53:34 didenko Exp $
+# $Id: CRSfarmStatus.pl,v 1.29 2010/02/05 16:12:15 didenko Exp $
 #
 # $Log: CRSfarmStatus.pl,v $
+# Revision 1.29  2010/02/05 16:12:15  didenko
+# correct titles
+#
 # Revision 1.28  2010/02/04 20:53:34  didenko
 # fixed scaling
 #
@@ -346,8 +349,8 @@ $xLabelSkip = 288 if( $fperiod eq "12_months" );
 
   $min_y = 0;
   $max_y = $ymax + 200 ;  
-  $ylabel = "Number of jobs";
-  $gtitle = "Number of jobs on the farm for the period of $fperiod ";
+  $ylabel = "Number of jobs per hour";
+  $gtitle = "Number of jobs per hour on the farm for the period of $fperiod ";
 
     } else{
 
@@ -367,8 +370,8 @@ $xLabelSkip = 288 if( $fperiod eq "12_months" );
   $min_y = 0;
   $max_y = $ymax*100/$Nmaxjobs + 40 ;  
 
-  $ylabel = "Number of jobs in % "; 
-  $gtitle = "Number of jobs on the farm in % to available slots for the period of $fperiod ";
+  $ylabel = "Number of jobs per hour in % to avalable slots"; 
+  $gtitle = "Number of jobs per hour in % to available slots for the period of $fperiod ";
 
 }
 
