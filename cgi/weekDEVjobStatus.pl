@@ -154,6 +154,12 @@ my $wkday    =  $qqr->param('wday');
 my @dbFiles = ();
 my $ndbFiles = 0; 
 
+
+ print $qqr->header;
+ print $qqr->start_html('DEV jobs status');
+ print "<body bgcolor=\"cornsilk\">\n";
+
+
 &StDbTJobsConnect();
 
  &beginHtml();
@@ -221,6 +227,9 @@ my @prt;
    &printRow();
 
     }
+
+ print $qqr->end_html;
+
  &endHtml();
 
  &StDbTJobsDisconnect();
