@@ -55,6 +55,17 @@ my $thisday;
 my $thistime;
 
 
+ my $myFile;
+ my $myPath;
+ my $myEvtD;
+ my $myJobS;
+ my $myMemF;
+ my $myMemL;
+ my $myCPU;
+ my $myCtime;
+ my $mychain;
+ my $cdate;
+
 
 struct FileAttr => {
         flname  => '$', 
@@ -169,7 +180,7 @@ $JobStatusT = "JobStatus";
  print $qqr->start_html('DEV jobs status');
  print "<body bgcolor=\"cornsilk\">\n";
 
- $qpath = "/star/rcf/test/dev/%/$wkday/%"; 
+ $qpath = "/star/rcf/test/dev/%$wkday%"; 
 
 &StDbTJobsConnect();
 
@@ -204,18 +215,7 @@ $sql="SELECT path, logFile, jobStatus, NoEventDone, chainOpt, memUsageF, memUsag
       
   }
  
- my $myFile;
- my $myPath;
- my $myEvtD;
- my $myJobS;
- my $myMemF;
- my $myMemL;
- my $myCPU;
- my $myCtime;
- my $mychain;
- my $cdate;
 my @prt;
-
 
  &beginHtml();
   
@@ -260,7 +260,7 @@ print <<END;
           <title>Status of Nightly Test Jobs Produced on $wkday </title>
    </head>
    <body BGCOLOR=\"#ccffff\"> 
-     <h1 align=center>Status of Nightly Test Jobs Produced Last Night</h1>
+     <h1 align=center>Status of Nightly Test Jobs Produced on $wkday </h1>
 <TABLE ALIGN=CENTER BORDER=5 CELLSPACING=1 CELLPADDING=2 >
 <TR>
 <TD ALIGN=CENTER WIDTH=\"20%\" HEIGHT=50><B>Path</B></TD>
