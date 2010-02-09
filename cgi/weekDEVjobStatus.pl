@@ -169,7 +169,7 @@ $JobStatusT = "JobStatus";
  print $qqr->start_html('DEV jobs status');
  print "<body bgcolor=\"cornsilk\">\n";
 
- $qpath = "/star/rcf/test/dev/$wkday%"; 
+ $qpath = "/star/rcf/test/dev/%/$wkday/%"; 
 
 &StDbTJobsConnect();
 
