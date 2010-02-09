@@ -153,7 +153,7 @@ my $wkday    =  $qqr->param('wday');
 
 my @dbFiles = ();
 my $ndbFiles = 0; 
-
+my $qpath;
 
 $dbhost="duvall.star.bnl.gov";
 $dbuser="starreco";
@@ -169,14 +169,15 @@ $JobStatusT = "JobStatus";
  print $qqr->start_html('DEV jobs status');
  print "<body bgcolor=\"cornsilk\">\n";
 
+ $qpath = "/star/rcf/test/dev/$wkday%"; 
 
 &StDbTJobsConnect();
 
-$sql="SELECT path, logFile, jobStatus, NoEventDone, chainOpt, memUsageF, memUsageL, CPU_per_evt_sec, createTime FROM $JobStatusT where path LIKE '/star/rcf/test/dev/%$wkday%' AND avail = 'Y' ";
+$sql="SELECT path, logFile, jobStatus, NoEventDone, chainOpt, memUsageF, memUsageL, CPU_per_evt_sec, createTime FROM $JobStatusT where path LIKE ? AND avail = 'Y' ";
 
  $cursor =$dbh->prepare($sql)
    || die "Cannot prepare statement: $DBI::errstr\n";
- $cursor->execute;
+ $cursor->execute($qpath);
 
  my $counter = 0;
  while(@fields = $cursor->fetchrow) {
