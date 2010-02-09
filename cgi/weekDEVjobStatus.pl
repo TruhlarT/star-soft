@@ -50,7 +50,7 @@ my %wkHash = (
                  "Thu" => "Thursday", 
                  "Fri" => "Friday",
                  "Sat" => "Saturday",
-                 "Sun" => "Sunday"; 
+                 "Sun" => "Sunday" 
                  );
 
 
