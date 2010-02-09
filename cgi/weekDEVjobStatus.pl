@@ -43,6 +43,17 @@ my %dayHash = (
                  "Sun" => 7 
                  );
 
+my %wkHash = (
+                 "Mon" => "Monday",
+                 "Tue" => "Tuesday", 
+                 "Wed" => "Wednesday", 
+                 "Thu" => "Thursday", 
+                 "Fri" => "Friday",
+                 "Sat" => "Saturday",
+                 "Sun" => "Sunday"; 
+                 );
+
+
 my $min;
 my $hour;
 my $mday;
@@ -260,7 +271,7 @@ print <<END;
           <title>Status of Nightly Test Jobs Produced on $wkday </title>
    </head>
    <body BGCOLOR=\"#ccffff\"> 
-     <h1 align=center>Status of Nightly Test Jobs Produced on $wkday </h1>
+     <h1 align=center>Status of Nightly Test Jobs Produced on $wkHash{$wkday} </h1>
 <TABLE ALIGN=CENTER BORDER=5 CELLSPACING=1 CELLPADDING=2 >
 <TR>
 <TD ALIGN=CENTER WIDTH=\"20%\" HEIGHT=50><B>Path</B></TD>
