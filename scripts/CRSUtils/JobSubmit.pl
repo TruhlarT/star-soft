@@ -650,6 +650,8 @@ if( $TARGET =~ m/^\// || $TARGET =~ m/^\^\// ){
 
     print "$SELF : Mode=direct Queue count Tot=$TOT\n";
 
+    
+    $TOT = 10;
 
     $time = localtime();
     if ($TOT > 0 && ! -e $LOCKF){
@@ -669,7 +671,7 @@ if( $TARGET =~ m/^\// || $TARGET =~ m/^\^\// ){
 		print "$SELF : Top of the list only ...\n";
 		$TARGET=~ s/\^//;
 		if ($#EXPRESS != 0){
-		    $num = int($TOT*$EXPRESS_W/100)+1;
+		    $num  = int($TOT*$EXPRESS_W/100)+1;
 		    push(@Xfiles,rdaq_get_files($obj,-1,$num, 1,\%SEL,@EXPRESS));
 		}
 		if ($ZEROBIAS != 0){
@@ -692,8 +694,19 @@ if( $TARGET =~ m/^\// || $TARGET =~ m/^\^\// ){
 		# crawl-down the list).
 		print "$SELF : Crawling down the list ...\n";
 		if ($#EXPRESS != -1){
-		    $num = int($TOT*$EXPRESS_W/100)+1;
-		    push(@Xfiles,rdaq_get_files($obj,0,$num, 1,\%SEL,@EXPRESS));
+		    my(@Fs);
+		    # my($HOME);
+		    # $HOME = $ENV{HOME};
+		    
+		    $num  = int($TOT*$EXPRESS_W/100)+1;
+		    @Fs   = rdaq_get_files($obj,0,$num*($#EXPRESS+1), 1,\%SEL,@EXPRESS);
+		    # open(FD,">>$HOME/debug.log"); print FD "\n";
+		    # $z = 0; foreach my $f (@Fs){ @zozo = split(" ",$f); $z++; print FD "0 $z - $zozo[0]\n";} close(FD);
+		    &RandArray(\@Fs);
+		    # open(FD,">>$HOME/debug.log"); 
+		    # $z = 0; foreach my $f (@Fs){ @zozo = split(" ",$f); $z++; print FD "1 $z - $zozo[0]\n";} close(FD);
+
+		    push(@Xfiles,@Fs[0..$num]);
 		}
 		if ($ZEROBIAS != 0){
 		    $num = int($TOT*$ZEROBIAS_W/100)+1;
@@ -1555,8 +1568,30 @@ sub Scramble
     return @TMP;
 }
 
+#
+# Act on array itself (will be faster) hence receive a
+# reference to an array (do not get confused).
+#
+# This implements the Fisher-Yates technique. I use splicing
+# abilities of perl for the permunation (no need for an intermediate
+# var).
+#    
+sub RandArray 
+{
+    my($array) = @_;
+    my($i,$j);
+    for ($i = @$array; --$i; ) {
+        $j = int( rand($i+1));
+        next if ($i == $j);
+        @$array[$i,$j] = @$array[$j,$i];
+    }
+}
 
 
+    
+#
+# Global xit routine in case cleanups are needed
+#
 sub Exit
 {
     my($mess)=@_;
