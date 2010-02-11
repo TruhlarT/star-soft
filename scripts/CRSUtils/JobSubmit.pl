@@ -442,7 +442,17 @@ if ( $ThisYear == 2005 ){
 #    $DCHAIN{"AuAu"} = "P2010a,btof,BEmcChkStat,QAalltrigs,Corr4,OSpaceZ2,OGridLeak3D,-hitfilt";
     $DCHAIN{"AuAu"} = "P2010a,btof,BEmcChkStat,Corr4,OSpaceZ2,OGridLeak3D,-hitfilt";
     $DCHAIN{"PPPP"} = "pp2010a,btof,VFPPVnoCTB,beamline,BEmcChkStat,QAalltrigs,Corr4,OSpaceZ2,OGridLeak3D,-hitfilt";
-    $SCALIB{"AuAu"} = "OptLaser";
+
+    # allow chain switch on condition matching
+    # introduced in 2010, syntax is 
+    #    collision;name-match;... (could be other match later)
+    #
+    # Note that an empty string for a match will always pass the selection (by design)
+    # and a partial match such as "Au" will also pass the criteria.
+    #
+    $MCHAIN{"AuAu;upc"}  = $DCHAIN{"PPPP"};  
+    
+    $SCALIB{"AuAu"}      = "OptLaser";
 
        
     
@@ -1225,9 +1235,20 @@ sub Submit
 		" No chain options declared. No default for [$coll] either.\n";
 	    return 0;
 	}
-        # GVB: upc express streams get PPPP CHAIN
-        # This is purely a hack and a better solution should be found!
-        if ($ThisYear == 2010 && $coll eq "AuAu" && $file =~ /upc/) { $chain = $DCHAIN{"PPPP"}; }
+	
+	# check if there is a specific chain for a file match
+	foreach $key ( keys %MCHAIN ){
+	    my($collision,$nmpat) = split(";",$key);
+	    # collision could then be partial
+	    if ($coll =~ m/$collision/){
+		if ( $file =~ m/$nmpat/){
+		    print "$SELF : Info : $file match $nmpat - chain changed for $key\n";
+		    $chain = $MCHAIN{$key};
+		    last;
+		}
+	    }
+	}
+	
     }
 
     if($mode == 2){
@@ -1278,7 +1299,6 @@ sub Submit
 	push(@SKIPPED,$file);
 	return 0;
 
-# GVB: No longer cut on trgrs
 #    } elsif ( ($trgrs =~ m/test/ || $trgsn =~ m/test/ ||
 #	       $trgrs =~ m/tune/ || $trgsn =~ m/tune/   ) && $mode == 0){
     } elsif ( ($trgsn =~ m/test/ || $trgsn =~ m/tune/   ) && $mode == 0){
