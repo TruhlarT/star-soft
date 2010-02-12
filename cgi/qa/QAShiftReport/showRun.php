@@ -156,7 +156,7 @@ display:<?php print ($showrep ? "none" : "block"); ?> " >
 
 <?php
   if ($QAdebug) {
-    fstart("fillRFSI","showRun.php","_top");
+    fstart("fillRFSI","","_top");
     print "<p align=right><font size=-3>";
     print "For debugging only. Please ignore.Mode = $mode\n\n";
     print "," . getNextRepNum($kOFFL) . " , " . getNextRepNum($kFAST) . "\n";
@@ -167,7 +167,7 @@ display:<?php print ($showrep ? "none" : "block"); ?> " >
   }
     
   
-  fstart("rform","showRun.php","");
+  fstart("rform","","");
   fhidden("mode",$mode);
   
   ####### By Run ######
@@ -312,6 +312,7 @@ display:<?php print ($showrep ? "none" : "block"); ?> " >
   }
   print "</div>\n";
   if ($showrep) {
+$QAdebug=1;
     if ($QAdebug) logit("Getting report from DB? $textFromDB");
     if ($textFromDB) {
       $row = readReportDB($repnum,$reptype,0);
@@ -320,9 +321,37 @@ display:<?php print ($showrep ? "none" : "block"); ?> " >
       if (substr($reptext,0,6) == "<html>" || substr($reptext,0,14) == "<!doctype html") $doPre = 0;
       print "<div id=vwr style=\"position:absolute; width:98%; bottom:0; height:80%;\n";
       print "   z-index:0; border-style:groove none none; \" >";
-      if ($doPre) print "<pre>";
-      print "$reptext";      
-      if ($doPre) print "</pre>";
+      if ($doPre) {
+        print "<pre>${reptext}</pre>";
+      } else {
+        # Remove any HTML "body" wrapping
+        $reptext1 = stristr(stristr($reptext,"<body"),"<hr>");
+        $reptext2 = strtolower($reptext1);
+        $endofbody = strpos($reptext2,"</body");
+        if ($mode==4) {
+          # Remove all but the entry of interest
+          $anchor = strtolower(str_replace(chr(10),"",$repfile));
+          $anchorpos = strpos($reptext2,$anchor);
+          if ($anchorpos > 0) {
+            $anchorpos = strpos($reptext2,">",$anchorpos + 1) + 1; # end of anchor
+            # Remove everything before and through desired anchor
+            $firstanchorpos = strpos($reptext2,"<a name");
+            $remove_len = $anchorpos - $firstanchorpos;
+            $reptext1 = substr_replace($reptext1,"",$firstanchorpos,$remove_len);
+            $endofbody -= $remove_len;
+            # Remove anything after entry
+            $nextanchorpos = strpos($reptext2,"<a name",$anchorpos);
+            if ($nextanchorpos > 0) {
+              $nextanchorpos -= $remove_len;
+              $remove_len = $endofbody - $nextanchorpos;
+              $reptext1 = substr_replace($reptext1,"",$nextanchorpos,$remove_len);
+              $endofbody -= $remove_len;
+            }
+          }
+        }
+        $reptext1 = substr($reptext1,0,$endofbody);
+        print "$reptext1";
+      }
       print "\n</div>\n";      
 
 # The txt files might be better handled with objects anyhow...
