@@ -3,8 +3,6 @@
 # 
 # Author: Valeri Fine, 11/11/2002
 
-QMAKE        := $(QTDIR)/bin/qmake
-
 ifeq ($(ARCH),win32)
 ifeq ($(WINRTDEBUG),yes) 
 QMAKE_CONFIG := CONFIG+=debug
@@ -23,8 +21,10 @@ QTGLDIRS     := $(QTGLDIR)/src
 QTGLDIRI     := $(QTGLDIR)/inc
 ifeq ($(ARCH),win32)
 QTGLMAKE   := nmake
+QMAKE      := $(shell cygpath $(QTDIR))/bin/qmake
 else
 QTGLMAKE   := make
+QMAKE      := $(QTDIR)/bin/qmake
 endif
 
 # remeber the current directory
