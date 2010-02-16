@@ -756,6 +756,7 @@ void TQtCoinWidget::SetDrawOption(Option_t *option)
    // Naive "Style Sheet"
    // TQtCoinWidget { footter:"text";  background-color : color }
    if (option && option[0])  {
+      TQtAutoRedraw redraw(fInventorViewer);
       QString opt =option;  
       QRegExp rx("\\s*\\{\\s*(footer|record|save|background-color|screen|view|file)(\\s*:\\s*)(.+\\S+)\\s*\\}");
       rx.setCaseSensitivity(Qt::CaseInsensitive);
