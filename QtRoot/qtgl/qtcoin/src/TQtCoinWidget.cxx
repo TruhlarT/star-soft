@@ -2489,7 +2489,8 @@ void TQtCoinWidget::Update()
 {  
  	fRootNode->touch();
    if (!IsOffScreen()) {
-      fInventorViewer->render();
+//      fInventorViewer->render();
+      fInventorViewer->scheduleRedraw();
    } else {
       SaveSnapShot(); 
    }
