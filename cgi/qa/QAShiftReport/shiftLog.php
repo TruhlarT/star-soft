@@ -2,7 +2,7 @@
 
 @(include "setup.php") or die("Problems (0).");
 
-global $slArray, $slFile;
+global $slArray, $slFile, $slCookie;
 
 $slFile = "/tmp/QAsubmission.dat";
 
@@ -13,6 +13,8 @@ $slArray = array("date"      => "",
                  "comment"   => ""
                 );
 
+$slCookie = "QAShiftSub_" . getSesName() . "_";
+
 function PrepShiftLog($date,$author,$comment) {
   global $slArray;
   logit("PrepShiftLog with $date : $author : " . strlen($comment));
@@ -22,7 +24,7 @@ function PrepShiftLog($date,$author,$comment) {
 }
 
 function PostToShiftLog() {
-  global $slArray, $slFile, $webdir;
+  global $slArray, $slFile, $slCookie, $webdir;
   logit("Post to shift log for author: " . $slArray["author"]);
   if (strlen($slArray["author"]) < 2) { return; }
   saveObject($slArray,$slFile);
@@ -33,8 +35,12 @@ function PostToShiftLog() {
   print "  parent.QAnfr.location.href=\"${loc}\";\n";
   jend();
   logit("REDIRECT:\n  parent.QAnfr.location.href=\"${loc}\";\n");
-  if (file_exists($slFile)) { logit("Successfully wrote to $slFile \n"); }
-  else { logit("Failed write to $slFile \n"); }
+  if (file_exists($slFile)) {
+   logit("Successfully wrote to $slFile \n");
+   QAsetCookie($slCookie,1,1);
+  } else {
+   logit("Failed write to $slFile \n");
+  }
 }
 
 
@@ -46,9 +52,29 @@ if (file_exists($slFile)) {
   rmfile($slFile);
   ob_start();
   head("QA Shift Report Shift Log");
+  jstart();
+  # javascript called on submit to avoid multiple submits
+?>
+    function OnlyWithCookie(slCookieName) {
+      var cookies = document.cookie;
+      var cookie_idx = cookies.indexOf(slCookieName);
+      if (cookie_idx != -1) {
+        var startpos = cookie_idx + slCookieName.length + 1;
+        var endpos = cookies.indexOf(";",startpos);
+        if (endpos == -2) endpos = cookies.length;
+        var cookie_val = unescape(cookies.substring(startpos,endpos));
+        if (cookie_val == 1) {
+          document.cookie = slCookieName + '<?php cookieEraser(); ?>';
+          return true;
+        }
+      }
+      return false;
+    }
+<?php
+  jend();
   body();
   $summaryUrl = "http://online.star.bnl.gov/apps/shiftLog/private/addWebSummry.jsp";
-  fstart("sform",$summaryUrl,"QAnfr","POST",0);
+  fstart("sform",$summaryUrl,"QAnfr","POST",0,"return OnlyWithCookie(\"${slCookie}\")");
   logit("SHIFTLOG DATA START");
   foreach ($slArray as $name => $val) {
     if ($name == "comment") {
@@ -63,6 +89,7 @@ if (file_exists($slFile)) {
   print "  setTimeout('document.sform.submit()',100);\n";
   jend();
   foot();
+  logit("Current submission cookie ${slCookie} = " . getCookie($slCookie));
   $page = ob_get_contents();
   ob_end_flush();
 
@@ -75,6 +102,7 @@ if (file_exists($slFile)) {
   $subfile .= ($subCnt >= $maxCnt) ? $subFiles[0] : $prefix . $subCnt . ".html";
   logit("SHIFTLOG ENTRY SAVED TO $subfile");
   saveText($page,$subfile);
+  logit("Current submission cookie ${slCookie} = " . getCookie($slCookie));
   exit;
 }
 

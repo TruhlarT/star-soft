@@ -1,12 +1,14 @@
 <?php
 # Forms HTML    
 				
-    function fstart($name,$action,$target="QArfr",$meth="POST",$auto=1) {
-      global $webdir;
-      #print "<form name=\"${name}\" action=\"${action}\" ";
+    function fstart($name,$action,$target="QArfr",$meth="POST",$auto=1,$onsub="") {
+      global $webdir,$refphp;
       print "<form name=\"${name}\" action=\"";
       if ($auto==1) { print $webdir; }
-      print $action . "\" method=\"${meth}\" target=${target}>\n";
+      print (strlen($action) ? $action : "${refphp}.php");
+      print "\" method=\"${meth}\" target=${target}";
+      if (strlen($onsub)) { print " onSubmit=\"$onsub\""; }
+      print ">\n";
     }
 
     function fend() { print "</form>\n"; }
@@ -31,8 +33,10 @@
       print "<input type=reset name=reset value=\"${val}\">\n";
     }
     
-    function finput($name,$size,$defval="") {
-      print "<input name=${name} size=${size} value=\"${defval}\">\n";
+    function finput($name,$size,$defval="",$onchg="") {
+      print "<input name=${name} size=${size} value=\"${defval}\"";
+      if (strlen($onchg) > 0) print " onchange=\"${onchg}\"";
+      print ">\n";
     }
     
 //print a textarea
