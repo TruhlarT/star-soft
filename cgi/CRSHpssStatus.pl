@@ -311,13 +311,13 @@ $ymax = 1;
      if($jobsdone[$i] < 0.1 ) {
      $jobsdone[$i] = 1 ;
    }
-  $jobrate1[$i] = $numjobs1[$i]*100/$jobsdone[$i];
-  $jobrate2[$i] = $numjobs2[$i]*100/$jobsdone[$i];
-  $jobrate3[$i] = $numjobs3[$i]*100/$jobsdone[$i];
-  $jobrate4[$i] = $numjobs4[$i]*100/$jobsdone[$i];
-  $jobrate5[$i] = $numjobs5[$i]*100/$jobsdone[$i];
-  $jobrate6[$i] = $numjobs6[$i]*100/$jobsdone[$i];
-  $jobrate7[$i] = $numjobs7[$i]*100/$jobsdone[$i];
+  $jobrate1[$i] = $numjobs1[$i]*100/($numjobs1[$i] + $jobsdone[$i]);
+  $jobrate2[$i] = $numjobs2[$i]*100/($numjobs2[$i] + $jobsdone[$i]);
+  $jobrate3[$i] = $numjobs3[$i]*100/($numjobs3[$i] + $jobsdone[$i]);
+  $jobrate4[$i] = $numjobs4[$i]*100/($numjobs4[$i] + $jobsdone[$i]);
+  $jobrate5[$i] = $numjobs5[$i]*100/($numjobs5[$i] + $jobsdone[$i]);
+  $jobrate6[$i] = $numjobs6[$i]*100/($numjobs6[$i] + $jobsdone[$i]);
+  $jobrate7[$i] = $numjobs7[$i]*100/($numjobs7[$i] + $jobsdone[$i]);
 	if( $hmax <= $jobrate1[$i]) {
      $hmax = $jobrate1[$i];        
        }  
@@ -350,7 +350,7 @@ $ymax = 1;
 # $max_y = 140;
 
 
-  $ylabel = "Number of jobs per hour in % to number of jobs DONE ";
+  $ylabel = "Number of jobs per hour in % to number of jobs finished ";
   $gtitle = "Percent of jobs per hour failed to make HPSS transferring for the period of $fperiod ";
 
 }
