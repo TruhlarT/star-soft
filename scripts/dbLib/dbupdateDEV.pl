@@ -410,7 +410,7 @@ my $pfullName;
 my $fflag;
 my $Fname;
 my @files;
-my $pyear;
+my $pyear = 0;
  @prt = ();
 
 
