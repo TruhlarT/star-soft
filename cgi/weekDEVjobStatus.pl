@@ -76,6 +76,9 @@ my $thistime;
  my $myCtime;
  my $mychain;
  my $cdate;
+ my $bdate;
+my $dftime;
+
 
 struct FileAttr => {
         flname  => '$', 
@@ -108,6 +111,8 @@ struct FileAttr => {
   my $beforeDay;
   $iday = $dayHash{$thisday}; 
  $testDay = $Nday[$iday - 1];
+
+my $ddate = $yr.$mon.$mday;
 
 my $query = new CGI;
 
@@ -244,22 +249,23 @@ my @prt;
         $mychain = ($$eachFile)->chOpt;
 
        @prt = split (" ", $myCtime);
-    $cdate = $prt[0]; 
+    $cdate = $prt[0];
+    $bdate = $cdate;
+    $bdate =~ s/-//g;  
     next if $myPath =~ /tfs_/;
     next if $myPath =~ /year_2a/;
     next if $myPath =~ /embedding/;
+	$dftime = $ddate - $bdate ;
 
-	if($myPath =~ /$testDay/ ) {
-
-	if($myCtime =~ /$mdate/ and $myJobS eq "Done") {
+	if($dftime <= 6 and $myJobS eq "Done") {
 
       &printRow();
 
-       }elsif($myCtime =~ /$mdate/ and $myJobS eq "Run not completed") {
+       }elsif( $dftime <= 6 and $myJobS eq "Run not completed") {
    
       &printRowFd(); 
 
-      }else{
+      }elsif( $dftime > 6.1 ) {
       
       $myJobS = "n/a";
       $myEvtD = 0;
@@ -268,20 +274,10 @@ my @prt;
       $myCPU  = 0;
 
       &printRowNA(); 
-      }
-    }else{
      
- 	if( $myJobS eq "Done") {
-
-      &printRow();
-
-       }elsif( $myJobS eq "Run not completed") {
-   
-      &printRowFd();  
-       }
-
+        }
       }
-    }
+
 
  &StDbTJobsDisconnect();
 
