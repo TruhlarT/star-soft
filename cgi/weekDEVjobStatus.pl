@@ -252,9 +252,7 @@ my @prt;
     $cdate = $prt[0];
     $bdate = $cdate;
     $bdate =~ s/-//g;  
-    next if $myPath =~ /tfs_/;
-    next if $myPath =~ /year_2a/;
-    next if $myPath =~ /embedding/;
+
 	$dftime = $ddate - $bdate ;
 
 	if($dftime <= 6 and $myJobS eq "Done") {
@@ -268,10 +266,10 @@ my @prt;
       }elsif( $dftime > 6.1 ) {
       
       $myJobS = "n/a";
-      $myEvtD = 0;
       $myMemF = 0;
-      $myMemL  = 0;
-      $myCPU  = 0;
+      $myMemL = 0;
+      $myCPU = 0;
+      $myEvtD = 0;
 
       &printRowNA(); 
      
@@ -309,7 +307,7 @@ print <<END;
 <TD ALIGN=CENTER WIDTH=\"5%\" HEIGHT=50><B>Memory usage<br>for first event</B></TD>
 <TD ALIGN=CENTER WIDTH=\"5%\" HEIGHT=50><B>Memory usage<br>for last event </B></TD>
 <TD ALIGN=CENTER WIDTH=\"5%\" HEIGHT=50><B>CPU per event</B></TD>
-<TD ALIGN=CENTER WIDTH=\"20%\" HEIGHT=50><B>Last created date</B></TD>
+<TD ALIGN=CENTER WIDTH=\"20%\" HEIGHT=50><B>Last create date</B></TD>
 </TR> 
    </head>
     <body>
