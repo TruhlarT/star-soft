@@ -249,6 +249,8 @@ my @prt;
     next if $myPath =~ /year_2a/;
     next if $myPath =~ /embedding/;
 
+	if($myPath =~ /$testDay/ ) {
+
 	if($myCtime =~ /$mdate/ and $myJobS eq "Done") {
 
       &printRow();
@@ -263,8 +265,20 @@ my @prt;
       $myEvtD = 0;
       $myMemF = 0;
       $myMemL  = 0;
+      $myCPU  = 0;
 
       &printRowNA(); 
+      }
+    }else{
+     
+ 	if( $myJobS eq "Done") {
+
+      &printRow();
+
+       }elsif( $myJobS eq "Run not completed") {
+   
+      &printRowFd();  
+       }
 
       }
     }
@@ -299,7 +313,7 @@ print <<END;
 <TD ALIGN=CENTER WIDTH=\"5%\" HEIGHT=50><B>Memory Usage<br>for First Event</B></TD>
 <TD ALIGN=CENTER WIDTH=\"5%\" HEIGHT=50><B>Memory Usage<br>for Last Event </B></TD>
 <TD ALIGN=CENTER WIDTH=\"5%\" HEIGHT=50><B>CPU per Event</B></TD>
-<TD ALIGN=CENTER WIDTH=\"20%\" HEIGHT=50><B>Create Date</B></TD>
+<TD ALIGN=CENTER WIDTH=\"20%\" HEIGHT=50><B>Last Create Date</B></TD>
 </TR> 
    </head>
     <body>
