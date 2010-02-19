@@ -77,12 +77,13 @@ my $thistime;
  my $mychain;
  my $cdate;
  my $bdate;
-my $dftime;
-
+ my $dftime;
+ my $dtyear;
 
 struct FileAttr => {
         flname  => '$', 
          fpath  => '$',
+         pyear  => '$',
          jobSt  => '$',
          timeS  => '$',
         noEvtD  => '$',
@@ -199,7 +200,7 @@ $JobStatusT = "JobStatus";
 
 &StDbTJobsConnect();
 
-$sql="SELECT path, logFile, jobStatus, NoEventDone, chainOpt, memUsageF, memUsageL, CPU_per_evt_sec, createTime FROM $JobStatusT where path LIKE ? AND avail = 'Y' order by prodyear ";
+$sql="SELECT path, prodyear, logFile, jobStatus, NoEventDone, chainOpt, memUsageF, memUsageL, CPU_per_evt_sec, createTime FROM $JobStatusT where path LIKE ? AND avail = 'Y' order by prodyear ";
 
  $cursor =$dbh->prepare($sql)
    || die "Cannot prepare statement: $DBI::errstr\n";
@@ -216,6 +217,7 @@ $sql="SELECT path, logFile, jobStatus, NoEventDone, chainOpt, memUsageF, memUsag
 #     print "$fname = $fvalue\n" ;
 
      ($$fObjAdr)->fpath($fvalue)   if($fname eq 'path'); 
+     ($$fObjAdr)->pyear($fvalue)   if($fname eq 'prodyear'); 
      ($$fObjAdr)->flname($fvalue)  if($fname eq 'logFile');
      ($$fObjAdr)->noEvtD($fvalue)  if($fname eq 'NoEventDone');
      ($$fObjAdr)->jobSt($fvalue)   if($fname eq 'jobStatus');
@@ -240,6 +242,7 @@ my @prt;
 
         $myFile  = ($$eachFile)->flname;
         $myPath  = ($$eachFile)->fpath;
+        $dtyear  = ($$eachFile)->pyear;
         $myEvtD  = ($$eachFile)->noEvtD;
         $myJobS  = ($$eachFile)->jobSt; 
         $myMemF  = ($$eachFile)->memF; 
@@ -300,6 +303,7 @@ print <<END;
 <TABLE ALIGN=CENTER BORDER=5 CELLSPACING=1 CELLPADDING=2 >
 <TR>
 <TD ALIGN=CENTER WIDTH=\"20%\" HEIGHT=50><B>Path</B></TD>
+<TD ALIGN=CENTER WIDTH=\"5%\" HEIGHT=50><B>Year of data taken</B></TD>
 <TD ALIGN=CENTER WIDTH=\"10%\" HEIGHT=50><B>Log file name</B></TD>
 <TD ALIGN=CENTER WIDTH=\"20%\" HEIGHT=50><B>Chain options</B></TD>
 <TD ALIGN=CENTER WIDTH=\"10%\" HEIGHT=50><B>Job status</B></TD>
@@ -307,7 +311,7 @@ print <<END;
 <TD ALIGN=CENTER WIDTH=\"5%\" HEIGHT=50><B>Memory usage<br>for first event</B></TD>
 <TD ALIGN=CENTER WIDTH=\"5%\" HEIGHT=50><B>Memory usage<br>for last event </B></TD>
 <TD ALIGN=CENTER WIDTH=\"5%\" HEIGHT=50><B>CPU per event</B></TD>
-<TD ALIGN=CENTER WIDTH=\"20%\" HEIGHT=50><B>Last create date</B></TD>
+<TD ALIGN=CENTER WIDTH=\"5%\" HEIGHT=50><B>Last create date</B></TD>
 </TR> 
    </head>
     <body>
@@ -320,6 +324,7 @@ sub printRow {
 print <<END;
 <TR ALIGN=CENTER>
 <td>$myPath</td>
+<td>$dtyear</td> 
 <td>$myFile</td>
 <td>$mychain</td>
 <td>$myJobS</td>
@@ -339,6 +344,7 @@ sub printRowNA {
 print <<END;
 <TR BGCOLOR=\"#ffdc9f\" ALIGN=CENTER>
 <td>$myPath</td>
+<td>$dtyear</td> 
 <td>$myFile</td>
 <td>$mychain</td>
 <td>$myJobS</td>
@@ -358,6 +364,7 @@ sub printRowFd {
 print <<END;
 <TR BGCOLOR=\"#D8BFD8\" ALIGN=CENTER>
 <td>$myPath</td>
+<td>$dtyear</td> 
 <td>$myFile</td>
 <td>$mychain</td>
 <td>$myJobS</td>
