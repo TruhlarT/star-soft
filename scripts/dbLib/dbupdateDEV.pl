@@ -194,6 +194,7 @@ struct JFileAttr => {
  struct LFileAttr => {
         jbId      => '$',
         pth       => '$',
+        pyr       => '$',
         lbT       => '$', 
         lbL       => '$',
         rtL       => '$',
@@ -330,7 +331,7 @@ struct JFileAttr => {
 
 #####  select all files from JobStatusT from testDay direcroties
 
- $sql="SELECT jobID, path, logFile, createTime, avail FROM $JobStatusT WHERE path LIKE '%/dev/%$testDay%' AND avail = 'Y'";
+ $sql="SELECT jobID, path, logFile, createTime, avail FROM $JobStatusT WHERE path LIKE '%/dev/%$testDay%' AND avail = 'Y' ";
    $cursor =$dbh->prepare($sql)
     || die "Cannot prepare statement: $DBI::errstr\n";
    $cursor->execute;
@@ -409,6 +410,8 @@ my $pfullName;
 my $fflag;
 my $Fname;
 my @files;
+my $pyear;
+ @prt = ();
 
 
  foreach  my $eachOutLDir (@OUT_DIR) {
@@ -453,14 +456,17 @@ my @files;
  $memLst = 0; 
  $EvSkip = 0;
  $jobTime = 0; 
-
-       if ($fname =~ /.log/)  {
+ @prt = ();
+ 
+      if ($fname =~ /.log/)  {
 #    print "File Name:",$fname, "\n";       
        $fullname = $eachOutLDir."/".$fname;
       $mpath = $eachOutLDir;
       @dirF = split(/\//, $eachOutLDir);
        $libL = $dirF[4];
-       $platf = $dirF[5]; 
+       $platf = $dirF[5];
+       @prt =split("_", $dirF[7]);  
+       $pyear = $prt[1];
       next if ($mpath =~ /ppl_minbias/);
        $logName = $fname; 
 #      $Fname =  $mpath . "/" . $fname;
@@ -490,6 +496,7 @@ my @files;
 
       $fObjAdr = \(LFileAttr->new());
       ($$fObjAdr)->pth($mpath);
+      ($$fObjAdr)->pyr($pyear);
       ($$fObjAdr)->lbT($libV);
       ($$fObjAdr)->lbL($libL);
       ($$fObjAdr)->rtL($rootL);
@@ -610,6 +617,7 @@ my @files;
  $jobTime = 0;
 
     $mpath =   ($$newjobFile)->pth;
+    $pyear =   ($$newjobFile)->pyr;
     $libV=     ($$newjobFile)->lbT;
     $libL =    ($$newjobFile)->lbL;
     $rootL =   ($$newjobFile)->rtL;
@@ -685,6 +693,9 @@ my @files;
 my @fileR;
 ######## read output files for DEV test at testDay
 
+@prt = ();
+
+
 foreach  $eachOutNDir (@OUT_DIR) {
          if (-d $eachOutNDir) {
     opendir(DIR, $eachOutNDir) or die "can't open $eachOutNDir\n";
@@ -701,7 +712,6 @@ foreach  $eachOutNDir (@OUT_DIR) {
        $platf = $dirF[5]; 
        $geom = $dirF[7];
        $EvTp = $dirF[8];
- 
        if ($EvTp =~ /hc_/) {
        $EvGen = "hadronic_cocktail";
        $EvType = substr($EvTp,3); 
@@ -1226,6 +1236,7 @@ sub fillJSTable {
     $sql.="LibTag='$libV',";
     $sql.="rootLevel='$rootL',";
     $sql.="path='$mpath',";
+    $sql.="prodyear='$pyear',";
     $sql.="logFile='$logName',";
     $sql.="createTime='$jobTime',";
     $sql.="chainOpt='$mchain',";
@@ -1398,6 +1409,7 @@ $jrun = "Run not completed";
      @part = split( "/", $line) ;
        $mchain = $part[4];
 # print $line, "\n";
+# print $mchain, "\n";
 
          }
 
