@@ -77,7 +77,6 @@ my $thistime;
  my $mychain;
  my $cdate;
 
-
 struct FileAttr => {
         flname  => '$', 
          fpath  => '$',
@@ -191,7 +190,7 @@ $JobStatusT = "JobStatus";
  print $qqr->start_html('DEV jobs status');
  print "<body bgcolor=\"cornsilk\">\n";
 
- $qpath = "/star/rcf/test/dev/%$wkday%"; 
+ $qpath = "/star/rcf/test/dev/%ittf%$wkday%"; 
 
 &StDbTJobsConnect();
 
@@ -220,6 +219,7 @@ $sql="SELECT path, logFile, jobStatus, NoEventDone, chainOpt, memUsageF, memUsag
      ($$fObjAdr)->mCPU($fvalue)    if($fname eq 'CPU_per_evt_sec');
      ($$fObjAdr)->timeS($fvalue)   if($fname eq 'createTime');
      ($$fObjAdr)->chOpt($fvalue)   if($fname eq 'chainOpt');
+
  }
         $dbFiles[$ndbFiles] = $fObjAdr;
         $ndbFiles++; 
@@ -242,14 +242,31 @@ my @prt;
         $myCPU   = ($$eachFile)->mCPU;          
         $myCtime = ($$eachFile)->timeS;  
         $mychain = ($$eachFile)->chOpt;
+
        @prt = split (" ", $myCtime);
     $cdate = $prt[0]; 
     next if $myPath =~ /tfs_/;
     next if $myPath =~ /year_2a/;
     next if $myPath =~ /embedding/;
 
-   &printRow();
+	if($myCtime =~ /$mdate/ and $myJobS eq "Done") {
 
+      &printRow();
+
+       }elsif($myCtime =~ /$mdate/ and $myJobS eq "Run not completed") {
+   
+      &printRowFd(); 
+
+      }else{
+      
+      $myJobS = "n/a";
+      $myEvtD = 0;
+      $myMemF = 0;
+      $myMemL  = 0;
+
+      &printRowNA(); 
+
+      }
     }
 
  &StDbTJobsDisconnect();
@@ -294,6 +311,44 @@ sub printRow {
 
 print <<END;
 <TR ALIGN=CENTER>
+<td>$myPath</td>
+<td>$myFile</td>
+<td>$mychain</td>
+<td>$myJobS</td>
+<td>$myEvtD</td>
+<td>$myMemF</td>
+<td>$myMemL</td>
+<td>$myCPU</td>
+<td>$cdate</td>
+</TR>
+END
+
+}
+
+############### 
+sub printRowNA {
+
+print <<END;
+<TR BGCOLOR=\"#ffdc9f\" ALIGN=CENTER>
+<td>$myPath</td>
+<td>$myFile</td>
+<td>$mychain</td>
+<td>$myJobS</td>
+<td>$myEvtD</td>
+<td>$myMemF</td>
+<td>$myMemL</td>
+<td>$myCPU</td>
+<td>$cdate</td>
+</TR>
+END
+
+}
+
+############### 
+sub printRowFd {
+
+print <<END;
+<TR BGCOLOR=\"#D8BFD8\" ALIGN=CENTER>
 <td>$myPath</td>
 <td>$myFile</td>
 <td>$mychain</td>
