@@ -302,14 +302,14 @@ print <<END;
 <TABLE ALIGN=CENTER BORDER=5 CELLSPACING=1 CELLPADDING=2 >
 <TR>
 <TD ALIGN=CENTER WIDTH=\"20%\" HEIGHT=50><B>Path</B></TD>
-<TD ALIGN=CENTER WIDTH=\"10%\" HEIGHT=50><B>Log File Name</B></TD>
-<TD ALIGN=CENTER WIDTH=\"20%\" HEIGHT=50><B>Chain Option</B></TD>
-<TD ALIGN=CENTER WIDTH=\"10%\" HEIGHT=50><B>Job Status</B></TD>
-<TD ALIGN=CENTER WIDTH=\"5%\" HEIGHT=50><B>Number of Events<br>Done</B></TD>
-<TD ALIGN=CENTER WIDTH=\"5%\" HEIGHT=50><B>Memory Usage<br>for First Event</B></TD>
-<TD ALIGN=CENTER WIDTH=\"5%\" HEIGHT=50><B>Memory Usage<br>for Last Event </B></TD>
-<TD ALIGN=CENTER WIDTH=\"5%\" HEIGHT=50><B>CPU per Event</B></TD>
-<TD ALIGN=CENTER WIDTH=\"20%\" HEIGHT=50><B>Last Create Date</B></TD>
+<TD ALIGN=CENTER WIDTH=\"10%\" HEIGHT=50><B>Log file name</B></TD>
+<TD ALIGN=CENTER WIDTH=\"20%\" HEIGHT=50><B>Chain option</B></TD>
+<TD ALIGN=CENTER WIDTH=\"10%\" HEIGHT=50><B>Job status</B></TD>
+<TD ALIGN=CENTER WIDTH=\"5%\" HEIGHT=50><B>Number of events<br>Done</B></TD>
+<TD ALIGN=CENTER WIDTH=\"5%\" HEIGHT=50><B>Memory usage<br>for first event</B></TD>
+<TD ALIGN=CENTER WIDTH=\"5%\" HEIGHT=50><B>Memory usage<br>for last event </B></TD>
+<TD ALIGN=CENTER WIDTH=\"5%\" HEIGHT=50><B>CPU per event</B></TD>
+<TD ALIGN=CENTER WIDTH=\"20%\" HEIGHT=50><B>Last created date</B></TD>
 </TR> 
    </head>
     <body>
