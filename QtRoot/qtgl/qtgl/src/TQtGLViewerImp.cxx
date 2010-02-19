@@ -21,19 +21,12 @@
 #include <qclipboard.h>
 #include <qimage.h>
 
-#if QT_VERSION < 0x40000
-#  include <qfiledialog.h>
-#  include <qpopupmenu.h>
-#  include <qwhatsthis.h> 
-#  include <qaction.h>
-#else /* QT_VERSION */
-#  include <QFileDialog>
-#  include <QMenu>
-#  include <QWhatsThis> 
-//Added by qt3to4:
-#  include <QLabel>
-#  include <QAction>
-#endif /* QT_VERSION */
+#include <QFileDialog>
+#include <QMenu>
+#include <QWhatsThis>
+#include <QPrintDialog>
+#include <QLabel>
+#include <QAction>
 
 #include <qfile.h>
 #include <qfileinfo.h>
@@ -76,7 +69,7 @@ TQtGLViewerImp::TQtGLViewerImp(TPadOpenGLView *pad, const char *title,
    setAttribute(Qt::WA_DeleteOnClose);
 #endif   
    QString saveFile = TGLViewerImp::GetSnapShotFileName();
-   if (!saveFile.isEmpty()) fSaveFile = (const char*)saveFile;
+   if (!saveFile.isEmpty()) fSaveFile = saveFile.toAscii().data();
    if (pad) {
       TVirtualPad *thisPad = pad->GetPad();
       if (thisPad) {
@@ -88,7 +81,7 @@ TQtGLViewerImp::TQtGLViewerImp(TPadOpenGLView *pad, const char *title,
          }
          QString caption = thisPad->GetTitle();
          caption += ": OpenGL viewer";
-         setCaption(caption);
+         setWindowTitle(caption);
          resize(width, height);
          fGLView = pad;
          CreateViewer(title);
@@ -119,7 +112,7 @@ TQtGLViewerImp::TQtGLViewerImp(TPadOpenGLView *pad, const char *title,
    setAttribute(Qt::WA_DeleteOnClose);
 #endif   
    QString saveFile = TGLViewerImp::GetSnapShotFileName();
-   if (!saveFile.isEmpty()) fSaveFile = (const char*)saveFile;
+   if (!saveFile.isEmpty()) fSaveFile = saveFile.toAscii().data();
    if (pad) {
       TVirtualPad *thisPad = pad->GetPad();
       if (thisPad) {
@@ -130,7 +123,7 @@ TQtGLViewerImp::TQtGLViewerImp(TPadOpenGLView *pad, const char *title,
          }
          QString caption = thisPad->GetTitle();
          caption += ": OpenGL viewer";
-         setCaption(caption);
+         setWindowTitle(caption);
 
          setGeometry(x, y, width, height);
          fGLView = pad;
@@ -162,7 +155,7 @@ TQtGLViewerImp::TQtGLViewerImp(TVirtualPad *pad, const char *title,
 #endif   
    // Create the default SnapShot file name and type if any
    QString saveFile = TGLViewerImp::GetSnapShotFileName();
-   if (!saveFile.isEmpty()) fSaveFile = (const char*)saveFile;
+   if (!saveFile.isEmpty()) fSaveFile = saveFile.toAscii().data();
    if (fPad) {
       if (saveFile.isEmpty() || saveFile.endsWith("/") ) {
          fSaveFile += fPad->GetName();
@@ -172,7 +165,7 @@ TQtGLViewerImp::TQtGLViewerImp(TVirtualPad *pad, const char *title,
        
       QString caption = fPad->GetTitle();
       caption += ": OpenGL viewer";
-      setCaption(caption);
+      setWindowTitle(caption);
       resize(width, height);
       fGLView = 0;
       CreateViewer(title);
@@ -201,7 +194,7 @@ TQtGLViewerImp::TQtGLViewerImp(TVirtualPad *pad, const char *title,
    setAttribute(Qt::WA_DeleteOnClose);
 #endif   
    QString saveFile = TGLViewerImp::GetSnapShotFileName();
-   if (!saveFile.isEmpty()) fSaveFile = (const char*)saveFile;
+   if (!saveFile.isEmpty()) fSaveFile = saveFile.toAscii().data();
    if (fPad) {
       if (saveFile.isEmpty() || saveFile.endsWith("/") ) {
          fSaveFile += fPad->GetName();
@@ -210,7 +203,7 @@ TQtGLViewerImp::TQtGLViewerImp(TVirtualPad *pad, const char *title,
       }
       QString caption = fPad->GetTitle();
       caption += ": OpenGL viewer";
-      setCaption(caption);
+      setWindowTitle(caption);
 
       setGeometry(x, y, width, height);
       fGLView = 0;
@@ -242,7 +235,7 @@ TQtGLViewerImp::TQtGLViewerImp(TQtGLViewerImp &parent) :
    connect(this,SIGNAL(destroyed() ),&parent, SLOT(DisconnectSelectorWidgetCB()));
    QString caption;
    QString saveFile = TGLViewerImp::GetSnapShotFileName();
-   if (!saveFile.isEmpty()) fSaveFile = (const char*)saveFile;
+   if (!saveFile.isEmpty()) fSaveFile = saveFile.toAscii().data();
    if (fPad) {
       if (saveFile.isEmpty() || saveFile.endsWith("/") ) {
          fSaveFile += fPad->GetName();
@@ -253,7 +246,7 @@ TQtGLViewerImp::TQtGLViewerImp(TQtGLViewerImp &parent) :
    }
    fGLView = 0;
    caption += ": selection viewer";
-   setCaption(caption);
+   setWindowTitle(caption);
    resize(2*parent.width()/3,2*parent.height()/3);
    CreateViewer(parent.GLWidget(),"selection");
    MakeMenu();
@@ -285,7 +278,7 @@ void TQtGLViewerImp::CreateStatusBar(Int_t nparts)
   fStatusBar.resize(nparts);
   for (i=0;i<nparts;i++) {
     QLabel *l = new QLabel(thisStatusBar);
-    thisStatusBar->addWidget(l,1,TRUE);
+    thisStatusBar->addWidget(l);
     // remember to delete later
     fStatusBar[i]=l;  
   }
@@ -303,7 +296,7 @@ void TQtGLViewerImp::CreateStatusBar(Int_t *parts, Int_t nparts)
   // Any number of widgets may be controlled by just
   // one splitter
   QSplitter *split = new QSplitter(thisStatusBar);
-  thisStatusBar->addWidget(split,1,FALSE);
+  thisStatusBar->addWidget(split);
 
   fStatusBar.resize(nparts);
   Int_t iField=0;
@@ -356,7 +349,9 @@ void TQtGLViewerImp::SetStatusText(const char *text, Int_t partidx, Int_t stype)
        TColor *rootColor = gROOT->GetColor(stype);
        float rgb[3];
        rootColor->GetRGB(rgb[0],rgb[1],rgb[2]);
-       fStatusBar[partidx]->setPaletteForegroundColor(QColor(int(255*rgb[0]),int(255*rgb[1]),int(255*rgb[2])));
+       QPalette pp = fStatusBar[partidx]->palette();
+       pp.setColor(QPalette::WindowText, QColor(int(255*rgb[0]),int(255*rgb[1]),int(255*rgb[2])));
+       fStatusBar[partidx]->setPalette(pp);
     }
     fStatusBar[partidx]->setText(text);
   }
@@ -370,7 +365,7 @@ void TQtGLViewerImp::SetUpdatesEnabled( bool enable)
 //______________________________________________________________________________
 bool  TQtGLViewerImp::GetUpdatesEnabled() const
 { 
-   return fGLWidget? fGLWidget->isUpdatesEnabled() : isUpdatesEnabled(); 
+   return fGLWidget? fGLWidget->updatesEnabled() : updatesEnabled(); 
 }
 //______________________________________________________________________________
 Option_t   *TQtGLViewerImp::GetDrawOption() const
@@ -466,11 +461,14 @@ void TQtGLViewerImp::NewViewer(){
 void TQtGLViewerImp::PrintCB(){
    QPrinter p;
    QWidget *c = centralWidget();
-   if (c && p.setup()) {
-      QPainter pnt(&p);
+   if (c) {
+      QPrintDialog printDialog(&p,this);
+      if (printDialog.exec() == QDialog::Accepted) { 
+        QPainter pnt(&p);
         QGLWidget *glView = (QGLWidget *)c;
         if (glView) pnt.drawImage(0,0,glView-> grabFrameBuffer());
-      pnt.end();
+        pnt.end();
+     }
    }
 }
 //______________________________________________________________________________
@@ -514,7 +512,7 @@ void TQtGLViewerImp::SaveCB()
      TQtGLViewerWidget *glView = (TQtGLViewerWidget *)c;
      glView->setSnapshotFileName  (fSaveFile.Data());
      glView->saveSnapshot(true);
-     fSaveFile = (const char*) glView->snapshotFileName();
+     fSaveFile = glView->snapshotFileName().toAscii().data();
 #endif
   }
 }
@@ -542,20 +540,12 @@ void TQtGLViewerImp::SaveAsCB()
    QString selectedFilter;
 
    QString thatFile = QFileDialog::getSaveFileName(
-#if QT_VERSION < 0x40000
-          gSystem->WorkingDirectory()
-        , filter, centralWidget(), "SaveAs"
-        , tr("Save the current 3D view as")
-        , &selectedFilter
-        );
-#else /* QT_VERSION */
          centralWidget(),
        , tr("Save the current 3D view as")
        , gSystem->WorkingDirectory()
        , filter
        , &selectedFilter
        );
-#endif /* QT_VERSION */
 
    if (thatFile.isEmpty()) return;
  
@@ -575,7 +565,7 @@ void TQtGLViewerImp::SaveAsCB()
 #else
      TQtGLViewerWidget *glView = (TQtGLViewerWidget *)c;
      glView->saveSnapshot(false);
-     fSaveFile = (const char *)glView->snapshotFileName( );
+     fSaveFile = glView->snapshotFileName( ).toAscii().data();
 #endif
 }
 //______________________________________________________________________________
@@ -635,22 +625,22 @@ void TQtGLViewerImp::Print(const QString &filename,const QString  &type)
 void TQtGLViewerImp::CopyFile(const QString &fileName2Copy,Int_t counter)
 {
   QFileInfo infoOldFile(fileName2Copy);
-  QString newName = infoOldFile.dirPath() + "/" + infoOldFile.baseName(TRUE) +
-  "_S."+infoOldFile.extension(FALSE); 
+  QString newName = infoOldFile.path() + "/" + infoOldFile.completeBaseName() +
+  "_S."+infoOldFile.suffix();
   QFileInfo infoNewFile(newName);
 
 QString shellCommand;
 #ifndef WIN32  
-   shellCommand = "cd " + infoOldFile.dirPath(true)  + " && " +
-                  "cp " + infoOldFile.baseName(TRUE) + "-000" + QString::number(counter) + "." + infoOldFile.extension(FALSE)
-                       + "   " + infoNewFile.baseName(TRUE) + "-000" + QString::number(counter) + "."
-                         + infoNewFile.extension(FALSE);
+   shellCommand = "cd " + infoOldFile.path()  + " && " +
+                  "cp " + infoOldFile.completeBaseName() + "-000" + QString::number(counter) + "." + infoOldFile.suffix()
+                       + "   " + infoNewFile.completeBaseName() + "-000" + QString::number(counter) + "."
+                         + infoNewFile.suffix();
 #else
    shellCommand = 
-                 "copy " + infoOldFile.baseName(TRUE) + "-000" + QString::number(counter) + "." + infoOldFile.extension(FALSE)
-                         + "   " + infoNewFile.baseName(TRUE) + "-000" + QString::number(counter) + "." + infoNewFile.extension(FALSE);
+                 "copy " + infoOldFile.completeBaseName() + "-000" + QString::number(counter) + "." + infoOldFile.suffix(FALSE)
+                         + "   " + infoNewFile.completeBaseName() + "-000" + QString::number(counter) + "." + infoNewFile.suffix(FALSE);
 #endif
-   gSystem->Exec((const char*) shellCommand);
+   gSystem->Exec( shellCommand.toAscii().data());
 //   fprintf(stderr," ==Copy==  %s \n", (const char*) shellCommand);
 
    SaveHtml(newName,counter);
@@ -679,7 +669,7 @@ void TQtGLViewerImp::SaveHtml(QString &saveFile, Int_t counter)
    
    QFileInfo info(saveFile);
 #endif   
-   QString htmlFile(  info.dirPath(true) + "/" + info.baseName(TRUE) + "-000" +
+   QString htmlFile(  info.path() + "/" + info.completeBaseName() + "-000" +
                       QString::number(counter) +".html");
 #ifdef GENERATE_HTML
    TVirtualPad *thisPad= GetPad();
@@ -721,19 +711,19 @@ void TQtGLViewerImp::SaveHtml(QString &saveFile, Int_t counter)
    QFileInfo html(htmlFile);
    if (html.exists() && html.isReadable() ) {
 #ifndef WIN32
-           shellCommand =  "cd " + info.dirPath(true)  + " && " 
+           shellCommand =  "cd " + info.path()  + " && " 
                          + "cp " + htmlFile   + " "
-                                 + "." + info.baseName(TRUE) + ".html && "
-                         + "mv " + "." + info.baseName(TRUE) + ".html " + info.baseName(TRUE) + ".html";
+                                 + "." + info.completeBaseName() + ".html && "
+                         + "mv " + "." + info.completeBaseName() + ".html " + info.completeBaseName() + ".html";
 #else
-          shellCommand =   "cd  " + info.dirPath(true)  + " && "
+          shellCommand =   "cd  " + info.path(true)  + " && "
                          + "copy "+ htmlFile            + "   "
-                                  + "." + info.baseName(TRUE) + ".html && "
-                         + "ren  "+ "." + info.baseName(TRUE) + ".html " + info.baseName(TRUE) + ".html";
+                                  + "." + info.completeBaseName() + ".html && "
+                         + "ren  "+ "." + info.completeBaseName() + ".html " + info.completeBaseName() + ".html";
 #endif
    }
 #endif
-    if (!shellCommand.isEmpty())  gSystem->Exec((const char*) shellCommand);
+    if (!shellCommand.isEmpty())  gSystem->Exec(shellCommand.toAscii().data());
     // fprintf(stderr," ***  %s \n", (const char*) shellCommand);
 #ifdef GENERATE_HTML
    } else {
@@ -768,10 +758,10 @@ void TQtGLViewerImp::SnapShotSaveCB(bool on)
    TQtGLViewerWidget *glView = (TQtGLViewerWidget *)c;
    // Adjust the menu indicator if any
    if (fSnapShotAction) {
-      bool snapStatus = fSnapShotAction->isOn();
+      bool snapStatus = fSnapShotAction->isChecked();
       if (snapStatus != on ) {
          blockSignals (true);
-         fSnapShotAction->setOn(on);
+         fSnapShotAction->setChecked(on);
          blockSignals (false);
       }
    }
@@ -1413,9 +1403,9 @@ void TQtGLViewerImp::ShowObjectInfo(TObject *obj, const QPoint &cursorPosition)
       TAttLine *lAttr = dynamic_cast<TAttLine *>(obj);
       if (lAttr)  objectColor =  lAttr->GetLineColor();
    }
-   SetStatusText(QString("%1,%2").arg(cursorPosition.x()).arg(cursorPosition.y()), 1,objectColor);
+   SetStatusText(QString("%1,%2").arg(cursorPosition.x()).arg(cursorPosition.y()).toAscii().data(), 1,objectColor);
    SetStatusText(obj->ClassName(), 2);
-   SetStatusText(tipText, 3);
+   SetStatusText(tipText.toAscii().data(), 3);
    // Create a tooltip
 
    TQtGLViewerWidget *tipped = (TQtGLViewerWidget *)sender();
@@ -1434,7 +1424,7 @@ void TQtGLViewerImp::ShowObjectInfo(TObject *obj, const QPoint &cursorPosition)
          CreateSelectionViewer();
       else 
          fSelectedView->Clear();
-      fSelectedView->setCaption(tipText);
+      fSelectedView->setWindowTitle(tipText);
       ULong_t id = 0;
       if (fShowSelectionGlobal) {
           if (!view->GetViewId(TObject3DViewFactoryABC::kSelected)) view->CompileSelection();

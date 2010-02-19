@@ -3,7 +3,7 @@
 ######################################################################
 
 TEMPLATE = lib
-QT += xml opengl qt3support
+QT += xml opengl
 
 QMAKE_RPATH=
 

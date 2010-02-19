@@ -1,8 +1,8 @@
-// @(#)root/qtgl:$Name:  $:$Id: TQtGLViewerWidget.cxx,v 1.8 2009/08/03 18:03:08 fine Exp $
+// @(#)root/qtgl:$Name:  $:$Id: TQtGLViewerWidget.cxx,v 1.9 2010/02/19 11:46:15 fine Exp $
 // Author: Valery Fine(fine@vxcern.cern.ch)   12/11/02
  
 /****************************************************************************
-** $Id: TQtGLViewerWidget.cxx,v 1.8 2009/08/03 18:03:08 fine Exp $
+** $Id: TQtGLViewerWidget.cxx,v 1.9 2010/02/19 11:46:15 fine Exp $
 **
 ** Copyright (C) 2002 by Valeri Fine. Brookhaven National Laboratory.
 **                                    All rights reserved.
@@ -227,21 +227,30 @@ void TGLSlicePlaneAttribute::MakeAttribute()
  ,fGLView(0),fPad(0),fClipPlane(-1),fPadSynch(kFALSE)
  ,fSolidAttributes(0),fWiredAttributes(0),fSelectedAttributes(0),fSlicingAttributes(0),fSolidSelectable(kTRUE),fWiredSelectable(kTRUE) 
  , fFrameAxisFactor(-1)
-{   memset(fGLLights,0,sizeof(fGLLights));                                       }
+{
+   if (name && name[0]) setObjectName(name);
+   memset(fGLLights,0,sizeof(fGLLights));
+ }
 //______________________________________________________________________________
 TQtGLViewerWidget::TQtGLViewerWidget(TPadOpenGLView *view, const char *title,QWidget *parent,Qt::WFlags f):
       QGLViewer(parent,0,f)
       ,fGLView(view),fPad(0),fClipPlane(-1), fPadSynch(kFALSE)
       , fSolidAttributes(0),fWiredAttributes(0),fSelectedAttributes(0),fSlicingAttributes(0),fSolidSelectable(kTRUE),fWiredSelectable(kTRUE)
       , fFrameAxisFactor(-1)
-{ memset(fGLLights,0,sizeof(fGLLights));                                        }
+{  
+   if (title && title[0]) setWindowTitle(title);
+   memset(fGLLights,0,sizeof(fGLLights));
+}
 //______________________________________________________________________________
 TQtGLViewerWidget::TQtGLViewerWidget(TVirtualPad *pad, const char *title,QWidget *parent,Qt::WFlags f):
       QGLViewer(parent,0,f)
       ,fGLView(0),fPad(pad),fClipPlane(-1), fPadSynch(kFALSE)
       ,fSolidAttributes(0),fWiredAttributes(0),fSelectedAttributes(0),fSlicingAttributes(0),fSolidSelectable(kTRUE),fWiredSelectable(kTRUE)
       , fFrameAxisFactor(-1)
-{ memset(fGLLights,0,sizeof(fGLLights));                                        }
+{ 
+    if (title && title[0]) setWindowTitle(title);
+    memset(fGLLights,0,sizeof(fGLLights));
+}
 //______________________________________________________________________________
  TQtGLViewerWidget::~TQtGLViewerWidget()
  {
@@ -773,7 +782,7 @@ void  TQtGLViewerWidget::initFromDOMElement(const QDomElement &element)
      if (child.tagName() == "Slicing")
      {
        if (child.hasAttribute("state"))
-         setSlicing(child.attribute("state").lower() == "on");
+         setSlicing(child.attribute("state").toLower() == "on");
      } else if ( child.tagName() == "Selection") {
         QDomElement selection=child.firstChild().toElement();
         while (!selection.isNull())
@@ -781,10 +790,10 @@ void  TQtGLViewerWidget::initFromDOMElement(const QDomElement &element)
            if (selection.tagName() == "Detector")
            {
               if (selection.hasAttribute("State"))
-                 SetSolidSelectable(selection.attribute("state").lower() == "on");
+                 SetSolidSelectable(selection.attribute("state").toLower() == "on");
            } else if (selection.tagName() == "Event") 
               if (selection.hasAttribute("state"))
-                 SetWiredSelectable(selection.attribute("state").lower() == "on");
+                 SetWiredSelectable(selection.attribute("state").toLower() == "on");
            selection = selection.nextSibling().toElement();
         }
      } else if ( child.tagName() == "FrameAxisScale" ) {
@@ -961,8 +970,8 @@ void TQtGLViewerWidget::keyPressEvent(QKeyEvent * e)
 void TQtGLViewerWidget::actionGLView(char option, int count) 
 {
    // mimic keyboard action
-   QKeyEvent *e = new QKeyEvent( QEvent::KeyPress,0,option,Qt::NoButton
-                                ,QString::null ,(count>1) ,count);
+   QKeyEvent *e = new QKeyEvent(QEvent::KeyPress,0,Qt::NoModifier, QString(option)
+                               ,false,1);
    QApplication::postEvent(this,e);
 }
 //______________________________________________________________________________
