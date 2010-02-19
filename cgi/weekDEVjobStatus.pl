@@ -324,7 +324,7 @@ sub printRow {
 print <<END;
 <TR ALIGN=CENTER>
 <td>$myPath</td>
-<td>$dtyear</td> 
+<td><b>$dtyear</b></td> 
 <td>$myFile</td>
 <td>$mychain</td>
 <td>$myJobS</td>
@@ -344,7 +344,7 @@ sub printRowNA {
 print <<END;
 <TR BGCOLOR=\"#ffdc9f\" ALIGN=CENTER>
 <td>$myPath</td>
-<td>$dtyear</td> 
+<td><b>$dtyear</b></td> 
 <td>$myFile</td>
 <td>$mychain</td>
 <td>$myJobS</td>
@@ -364,7 +364,7 @@ sub printRowFd {
 print <<END;
 <TR BGCOLOR=\"#D8BFD8\" ALIGN=CENTER>
 <td>$myPath</td>
-<td>$dtyear</td> 
+<td><b>$dtyear</b></td> 
 <td>$myFile</td>
 <td>$mychain</td>
 <td>$myJobS</td>
