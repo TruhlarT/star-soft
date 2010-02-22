@@ -312,8 +312,8 @@ print <<END;
      <h1 align=center>Status of Nightly Test Jobs Produced on $wkHash{$wkday} </h1>
 <TABLE ALIGN=CENTER BORDER=5 CELLSPACING=1 CELLPADDING=2 >
 <TR>
-<TD ALIGN=CENTER WIDTH=\"15%\" HEIGHT=50><B>Path</B></TD>
 <TD ALIGN=CENTER WIDTH=\"5%\" HEIGHT=50><B>Year of data taken</B></TD>
+<TD ALIGN=CENTER WIDTH=\"15%\" HEIGHT=50><B>Path</B></TD
 <TD ALIGN=CENTER WIDTH=\"5%\" HEIGHT=50><B>Event type</B></TD>
 <TD ALIGN=CENTER WIDTH=\"10%\" HEIGHT=50><B>Log file name</B></TD>
 <TD ALIGN=CENTER WIDTH=\"20%\" HEIGHT=50><B>Chain options</B></TD>
@@ -334,8 +334,8 @@ sub printRow {
 
 print <<END;
 <TR ALIGN=CENTER>
-<td>$myPath</td>
 <td><b>$dtyear</b></td> 
+<td>$myPath</td>
 <td><b>$evtype</b></td> 
 <td>$myFile</td>
 <td>$mychain</td>
@@ -355,8 +355,8 @@ sub printRowNA {
 
 print <<END;
 <TR BGCOLOR=\"#ffdc9f\" ALIGN=CENTER>
-<td>$myPath</td>
 <td><b>$dtyear</b></td>
+<td>$myPath</td>
 <td><b>$evtype</b></td>  
 <td>$myFile</td>
 <td>$mychain</td>
@@ -376,8 +376,8 @@ sub printRowFd {
 
 print <<END;
 <TR BGCOLOR=\"#D8BFD8\" ALIGN=CENTER>
-<td>$myPath</td>
 <td><b>$dtyear</b></td>
+<td>$myPath</td>
 <td><b>$evtype</b></td>  
 <td>$myFile</td>
 <td>$mychain</td>
