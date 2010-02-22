@@ -252,12 +252,12 @@ my @prt;
         $myCPU   = ($$eachFile)->mCPU;          
         $myCtime = ($$eachFile)->timeS;  
         $mychain = ($$eachFile)->chOpt;
-    if($myPath =~ /embed/  {
+
+    if($myPath =~ /embed/)  {
        $evtype = "embedding";
     }elsif($myPath =~ /daq/)  {
       $evtype = "realData";
-	}elsif{
-      ($myPath =~ /trs/ ) {
+    }elsif($myPath =~ /trs/ ) {
         $evtype = "MC";
     }
 
