@@ -13,12 +13,15 @@ BEGIN {
 
 use CGI;
 
+&cgiSetup();
+ 
+
 my $set = $q->param("set");
 
 
 &beginHtml();
 
-
+ &printRow(); 
 
 &endHtml();
 
@@ -37,8 +40,6 @@ print <<END;
 <TR>
 <TR ALIGN=CENTER VALIGN=CENTER>
 <TD WIDTH=\"50%\" HEIGHT=50><B>Chain options</B></TD>
-<TR ALIGN=CENTER VALIGN=CENTER>
-<TD>$set</TD>
 </TR>
 
 END
