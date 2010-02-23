@@ -338,7 +338,7 @@ print <<END;
 <td><b>$dtyear</b></td> 
 <td><b>$evtype</b></td> 
 <td>$myFile</td>
-<td>$mychain</td>
+<td><a href="http://www.star.bnl.gov/devcgi/jobChainRetrv.pl?set= $mychain">chain</td>
 <td>$myJobS</td>
 <td>$myEvtD</td>
 <td>$myMemF</td>
@@ -359,7 +359,7 @@ print <<END;
 <td><b>$dtyear</b></td>
 <td><b>$evtype</b></td>  
 <td>$myFile</td>
-<td>$mychain</td>
+<td><a href="http://www.star.bnl.gov/devcgi/jobChainRetrv.pl?set= $mychain">chain</td>
 <td>$myJobS</td>
 <td>$myEvtD</td>
 <td>$myMemF</td>
@@ -380,7 +380,7 @@ print <<END;
 <td><b>$dtyear</b></td>
 <td><b>$evtype</b></td>  
 <td>$myFile</td>
-<td>$mychain</td>
+<td><a href="http://www.star.bnl.gov/devcgi/jobChainRetrv.pl?set= $mychain">chain</td>
 <td>$myJobS</td>
 <td>$myEvtD</td>
 <td>$myMemF</td>
