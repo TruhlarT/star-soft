@@ -195,7 +195,7 @@ $FilesCatalogT = "FilesCatalog";
 $JobStatusT = "JobStatus";
 
  print $qqr->header;
- print $qqr->start_html('DEV jobs status');
+ print $qqr->start_html('Nightly test status for DEV library');
  print "<body bgcolor=\"cornsilk\">\n";
 
  $qpath = "/star/rcf/test/dev/%ittf%$wkday%"; 
@@ -309,7 +309,7 @@ print <<END;
           <title>Status of Nightly Test Jobs Produced on $wkday </title>
    </head>
    <body BGCOLOR=\"#ccffff\"> 
-     <h1 align=center>Status of Nightly Test Jobs Produced on $wkHash{$wkday} </h1>
+     <h1 align=center>Status of Nightly Test Jobs Produced Last $wkHash{$wkday} </h1>
 <TABLE ALIGN=CENTER BORDER=5 CELLSPACING=1 CELLPADDING=2 >
 <TR>
 <TD ALIGN=CENTER WIDTH=\"20%\" HEIGHT=50><B>Path</B></TD>
