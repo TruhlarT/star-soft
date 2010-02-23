@@ -13,8 +13,9 @@ BEGIN {
 
 use CGI;
 
-&cgiSetup();
- 
+#&cgiSetup();
+
+my $q=new CGI;
 
 my $set = $q->param("set");
 
