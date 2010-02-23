@@ -1,9 +1,12 @@
 #!/usr/local/bin/perl
 #!/usr/bin/env perl 
 #
-# $Id: CRSfarmStatus.pl,v 1.29 2010/02/05 16:12:15 didenko Exp $
+# $Id: CRSfarmStatus.pl,v 1.30 2010/02/23 21:34:42 didenko Exp $
 #
 # $Log: CRSfarmStatus.pl,v $
+# Revision 1.30  2010/02/23 21:34:42  didenko
+# adjust max number of jobs on the farm
+#
 # Revision 1.29  2010/02/05 16:12:15  didenko
 # correct titles
 #
@@ -223,7 +226,7 @@ my $thisyear = $year+1900;
 } 
 
   if ($pryear == 2010 ) {
-   $Nmaxjobs = 900;
+   $Nmaxjobs = 1000;
 }else{
    $Nmaxjobs = 460; 
 }
