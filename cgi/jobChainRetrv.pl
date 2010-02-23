@@ -13,9 +13,12 @@ BEGIN {
 
 use CGI;
 
-#&cgiSetup();
+# &cgiSetup();
 
-my $q=new CGI;
+ my $q=new CGI;
+
+ if ( exists($ENV{'QUERY_STRING'}) ) { print $q->header };
+
 
 my $set = $q->param("set");
 
