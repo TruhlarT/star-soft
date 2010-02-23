@@ -35,7 +35,6 @@ my @OUT_DIRB1 = ();
 my @OUT_DIRB2 = ();
 my @OUT_DIRB3 = ();
 my @OUT_DIR;
-my @OUT_DIRB;
 my @TDIR = ();
 my @BDIR = ();
 
@@ -135,31 +134,32 @@ my $thistime;
     @OUT_DIRB2 = `ls -d $BDIR[2]`;
     @OUT_DIRB3 = `ls -d $BDIR[3]`;
 
- $ik = 0;
+$ik = $ii;
 
   for ($i = 0; $i < scalar(@OUT_DIRB0); $i++) {
-      $OUT_DIRB[$ik] = $OUT_DIRB0[$i];
-      chop $OUT_DIRB[$ik];
-  print "Output Dir for $beforeDay :", $OUT_DIRB[$ik],"\n";
+      $OUT_DIR[$ik] = $OUT_DIRB0[$i];
+      chop $OUT_DIR[$ik];
+     
+  print "Output Dir for $beforeDay :", $OUT_DIR[$ik],"\n";
     $ik++;
 }
   for ($i = 0; $i < scalar(@OUT_DIRB1); $i++) {
-     $OUT_DIRB[$ik] = $OUT_DIRB1[$i];
-     chop $OUT_DIRB[$ik];
-  print "Output Dir for $beforeDay :", $OUT_DIRB[$ik],"\n";
+     $OUT_DIR[$ik] = $OUT_DIRB1[$i];
+     chop $OUT_DIR[$ik];
+  print "Output Dir for $beforeDay :", $OUT_DIR[$ik],"\n";
      $ik++;
 }
 
   for ($i = 0; $i < scalar(@OUT_DIRB2); $i++) {
-     $OUT_DIRB[$ik] = $OUT_DIRB2[$i];
-     chop $OUT_DIRB[$ik];
-  print "Output Dir for $beforeDay :", $OUT_DIRB[$ik],"\n";
+     $OUT_DIR[$ik] = $OUT_DIRB2[$i];
+     chop $OUT_DIR[$ik];
+  print "Output Dir for $beforeDay :", $OUT_DIR[$ik],"\n";
    $ik++;
 }
   for ($i = 0; $i < scalar(@OUT_DIRB3); $i++) {
-     $OUT_DIRB[$ik] = $OUT_DIRB3[$i];
-     chop $OUT_DIRB[$ik];
-  print "Output Dir for $beforeDay :", $OUT_DIRB[$ik],"\n";
+     $OUT_DIR[$ik] = $OUT_DIRB3[$i];
+     chop $OUT_DIR[$ik];
+  print "Output Dir for $beforeDay :", $OUT_DIR[$ik],"\n";
       $ik++;
   }
 
@@ -462,6 +462,7 @@ my $pyear = 0;
 #    print "File Name:",$fname, "\n";       
        $fullname = $eachOutLDir."/".$fname;
       $mpath = $eachOutLDir;
+#  print "Path Name: ",$mpath, "\n";   
       @dirF = split(/\//, $eachOutLDir);
        $libL = $dirF[4];
        $platf = $dirF[5];
