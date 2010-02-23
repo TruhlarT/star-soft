@@ -322,7 +322,7 @@ print <<END;
 <TD ALIGN=CENTER WIDTH=\"5%\" HEIGHT=50><B>Memory usage<br>for first event</B></TD>
 <TD ALIGN=CENTER WIDTH=\"5%\" HEIGHT=50><B>Memory usage<br>for last event </B></TD>
 <TD ALIGN=CENTER WIDTH=\"5%\" HEIGHT=50><B>CPU per event</B></TD>
-<TD ALIGN=CENTER WIDTH=\"15%\" HEIGHT=50><B>Last create date</B></TD>
+<TD ALIGN=CENTER WIDTH=\"20%\" HEIGHT=50><B>Last create date</B></TD>
 </TR> 
    </head>
     <body>
@@ -344,7 +344,7 @@ print <<END;
 <td>$myMemF</td>
 <td>$myMemL</td>
 <td>$myCPU</td>
-<td>$myCtime</td>
+<td>"$myCtime"</td>
 </TR>
 END
 
@@ -365,7 +365,7 @@ print <<END;
 <td>$myMemF</td>
 <td>$myMemL</td>
 <td>$myCPU</td>
-<td>$myCtime</td>
+<td>"$myCtime"</td>
 </TR>
 END
 
@@ -386,7 +386,7 @@ print <<END;
 <td>$myMemF</td>
 <td>$myMemL</td>
 <td>$myCPU</td>
-<td>myCtime</td>
+<td>"$myCtime"</td>
 </TR>
 END
 
