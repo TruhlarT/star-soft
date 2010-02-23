@@ -38,7 +38,7 @@ print <<END;
 <TABLE BORDER=5 CELLSPACING=1 CELLPADDING=2 >
 <TR>
 <TR ALIGN=CENTER VALIGN=CENTER>
-<TD WIDTH=\"80%\" HEIGHT=50><h3>Chain options</h3></TD>
+<TD WIDTH=\"100%\" HEIGHT=50><h3>Chain options</h3></TD>
 </TR>
 
 END
@@ -61,11 +61,7 @@ my $Date = `date`;
 
 print <<END;
 </TABLE>
-      <h5>
-      <address><a href=\"mailto:didenko\@bnl.gov\">Lidia Didenko</a></address>
-Last modified: $Date
-<!-- hhmts end -->
-  </body>
+   </body>
 </html>
 END
 
