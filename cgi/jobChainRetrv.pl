@@ -21,9 +21,6 @@ my $set = $q->param("set");
 
 &beginHtml();
 
-&endHtml();
-
-
 #################
 sub beginHtml {
 
@@ -40,18 +37,10 @@ print <<END;
 <TD  ALIGN=CENTER WIDTH=\"100%\" HEIGHT=50><h3>$set</h3></TD>
 </TR>
 
+</TABLE>
+   </body>
+</html>
 END
-}
-
-###############
-sub printRow {
-
-print <<END;
-<TR ALIGN=CENTER >
-<td><h3>$set</h3></td>
-</TR>
-END
-
 }
 
 ###############
