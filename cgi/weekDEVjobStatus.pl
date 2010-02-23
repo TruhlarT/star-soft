@@ -312,17 +312,17 @@ print <<END;
      <h1 align=center>Status of Nightly Test Jobs Produced on $wkHash{$wkday} </h1>
 <TABLE ALIGN=CENTER BORDER=5 CELLSPACING=1 CELLPADDING=2 >
 <TR>
-<TD ALIGN=CENTER WIDTH=\"15%\" HEIGHT=50><B>Path</B></TD>
+<TD ALIGN=CENTER WIDTH=\"20%\" HEIGHT=50><B>Path</B></TD>
 <TD ALIGN=CENTER WIDTH=\"5%\" HEIGHT=50><B>Year of production</B></TD>
 <TD ALIGN=CENTER WIDTH=\"5%\" HEIGHT=50><B>Event type</B></TD>
 <TD ALIGN=CENTER WIDTH=\"10%\" HEIGHT=50><B>Log file name</B></TD>
-<TD ALIGN=CENTER WIDTH=\"20%\" HEIGHT=50><B>Chain options</B></TD>
-<TD ALIGN=CENTER WIDTH=\"10%\" HEIGHT=50><B>Job status</B></TD>
+<TD ALIGN=CENTER WIDTH=\"10%\" HEIGHT=50><B>Chain options</B></TD>
+<TD ALIGN=CENTER WIDTH=\"15%\" HEIGHT=50><B>Job status</B></TD>
 <TD ALIGN=CENTER WIDTH=\"5%\" HEIGHT=50><B>Number of events<br>Done</B></TD>
 <TD ALIGN=CENTER WIDTH=\"5%\" HEIGHT=50><B>Memory usage<br>for first event</B></TD>
 <TD ALIGN=CENTER WIDTH=\"5%\" HEIGHT=50><B>Memory usage<br>for last event </B></TD>
 <TD ALIGN=CENTER WIDTH=\"5%\" HEIGHT=50><B>CPU per event</B></TD>
-<TD ALIGN=CENTER WIDTH=\"5%\" HEIGHT=50><B>Last create date</B></TD>
+<TD ALIGN=CENTER WIDTH=\"15%\" HEIGHT=50><B>Last create date</B></TD>
 </TR> 
    </head>
     <body>
@@ -339,12 +339,12 @@ print <<END;
 <td><b>$evtype</b></td> 
 <td>$myFile</td>
 <td><a href="http://www.star.bnl.gov/devcgi/jobChainRetrv.pl?set= $mychain">chain</td>
-<td>$myJobS</td>
+<td><b>$myJobS</b></td>
 <td>$myEvtD</td>
 <td>$myMemF</td>
 <td>$myMemL</td>
 <td>$myCPU</td>
-<td>$cdate</td>
+<td>$myCtime</td>
 </TR>
 END
 
@@ -360,12 +360,12 @@ print <<END;
 <td><b>$evtype</b></td>  
 <td>$myFile</td>
 <td><a href="http://www.star.bnl.gov/devcgi/jobChainRetrv.pl?set= $mychain">chain</td>
-<td>$myJobS</td>
+<td><b>$myJobS</b></td>
 <td>$myEvtD</td>
 <td>$myMemF</td>
 <td>$myMemL</td>
 <td>$myCPU</td>
-<td>$cdate</td>
+<td>$myCtime</td>
 </TR>
 END
 
@@ -381,12 +381,12 @@ print <<END;
 <td><b>$evtype</b></td>  
 <td>$myFile</td>
 <td><a href="http://www.star.bnl.gov/devcgi/jobChainRetrv.pl?set= $mychain">chain</td>
-<td>$myJobS</td>
+<td><b>$myJobS</b></td>
 <td>$myEvtD</td>
 <td>$myMemF</td>
 <td>$myMemL</td>
 <td>$myCPU</td>
-<td>$cdate</td>
+<td>myCtime</td>
 </TR>
 END
 
