@@ -344,7 +344,7 @@ print <<END;
 <td>$myMemF</td>
 <td>$myMemL</td>
 <td>$myCPU</td>
-<td WIDTH=\"10%\">$myCtime</td>
+<td>$cdate</td>
 </TR>
 END
 
@@ -365,7 +365,7 @@ print <<END;
 <td>$myMemF</td>
 <td>$myMemL</td>
 <td>$myCPU</td>
-<td WIDTH=\"10%\">$myCtime</td>
+<td>$cdate</td>
 </TR>
 END
 
@@ -386,7 +386,7 @@ print <<END;
 <td>$myMemF</td>
 <td>$myMemL</td>
 <td>$myCPU</td>
-<td WIDTH=\"10%\">$myCtime</td>
+<td>$cdate</td>
 </TR>
 END
 
