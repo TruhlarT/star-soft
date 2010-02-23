@@ -35,11 +35,10 @@ print <<END;
           <title>Chain used for test</title>
   </head>
   <body BGCOLOR=\"#ccffff\"> 
-     <h3>set = $set </h3>
 <TABLE BORDER=5 CELLSPACING=1 CELLPADDING=2 >
 <TR>
 <TR ALIGN=CENTER VALIGN=CENTER>
-<TD WIDTH=\"50%\" HEIGHT=50><B>Chain options</B></TD>
+<TD WIDTH=\"80%\" HEIGHT=50><h3>Chain options</h3></TD>
 </TR>
 
 END
@@ -50,7 +49,7 @@ sub printRow {
 
 print <<END;
 <TR ALIGN=CENTER VALIGN=CENTER>
-<td>$set</td>
+<td><h3>$set</h3></td>
 </tr>
 END
 
@@ -64,8 +63,6 @@ print <<END;
 </TABLE>
       <h5>
       <address><a href=\"mailto:didenko\@bnl.gov\">Lidia Didenko</a></address>
-<!-- Created: Tue Set 10  05:29:25 MET 1999 -->
-<!-- hhmts start -->
 Last modified: $Date
 <!-- hhmts end -->
   </body>
