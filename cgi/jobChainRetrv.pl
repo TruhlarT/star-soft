@@ -34,11 +34,10 @@ print <<END;
   <head>
           <title>Chain used for test</title>
   </head>
-  <body BGCOLOR=\"#ccffff\"> 
-<TABLE BORDER=5 CELLSPACING=1 CELLPADDING=2 >
+  <body BGCOLOR=\"cornsilk\"> 
+<TABLE ALIGN=CENTER BORDER=5 CELLSPACING=1 CELLPADDING=2 >
 <TR>
-<TR ALIGN=CENTER VALIGN=CENTER>
-<TD WIDTH=\"100%\" HEIGHT=50><h3>Chain options</h3></TD>
+<TD  ALIGN=CENTER WIDTH=\"100%\" HEIGHT=50><h3>Chain options</h3></TD>
 </TR>
 
 END
@@ -48,9 +47,9 @@ END
 sub printRow {
 
 print <<END;
-<TR ALIGN=CENTER VALIGN=CENTER>
+<TR ALIGN=CENTER >
 <td><h3>$set</h3></td>
-</tr>
+</TR>
 END
 
 }
