@@ -1,8 +1,8 @@
-// @(#)root/g3d:$Name:  $:$Id: TQtCoinWidget.h,v 1.38 2010/02/02 20:29:23 fine Exp $
+// @(#)root/g3d:$Name:  $:$Id: TQtCoinWidget.h,v 1.39 2010/02/24 06:24:27 fine Exp $
 // Author: Valery Fine      23/05/97
 
 /****************************************************************************
-** $Id: TQtCoinWidget.h,v 1.38 2010/02/02 20:29:23 fine Exp $
+** $Id: TQtCoinWidget.h,v 1.39 2010/02/24 06:24:27 fine Exp $
 **
 ** Copyright (C) 2002 by Valeri Fine. Brookhaven National Laboratory.
 **                                    All rights reserved.
@@ -295,6 +295,7 @@ public:
      virtual void SetClipPlaneZCB();
      virtual void SetSlicePlaneCB();
      virtual void ViewAll();
+     virtual void ViewBox(float dx, float dy, float dz, float x0=0,float y0=0, float z0=0,float aspect=1,float slack=1);
      virtual void SetFooter(const char *text);
      virtual void SetFooter(QString &text);
      virtual void SetFullScreenView(bool);

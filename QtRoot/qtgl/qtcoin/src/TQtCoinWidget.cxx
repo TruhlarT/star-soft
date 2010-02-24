@@ -778,8 +778,13 @@ void TQtCoinWidget::SetDrawOption(Option_t *option)
                  p->move(0,0);
                  p->showMaximized();
               }
-           } else if ( (rx.cap(1) == "view") && (rx.cap(3) == "all") ) {
-              ViewAll();
+           } else if ( (rx.cap(1) == "view") ){
+              if  (rx.cap(3) == "all")  {
+                 ViewAll();
+              } else {
+//                    QRegExp rx("\\s*\\s*:\\s*)(.+\\S+)\\s*\\}");
+                 ViewBox(10,10,10,-200);
+              }
            } else if (rx.cap(1) == "background-color" ) {
               // to be done yet
            } else if (rx.cap(1) == "file" ) {
@@ -1088,6 +1093,21 @@ void TQtCoinWidget::ViewAll()
             }
          }
       }
+   }
+}
+//______________________________________________________________________________
+void TQtCoinWidget::ViewBox(float dx, float dy, float dz, float x0,float y0, float z0,float aspect,float slack)
+{
+   // view the box with the center point x0,y0,zo and 2*dx x 2*dy x 2 dz dimension
+   SoCamera *camera  = GetCamera();
+   if (camera) {
+      camera->viewAll(fRootNode, fInventorViewer->getViewportRegion());
+      class mycamera : public SoCamera {
+         public:
+           void viewBox(const SbBox3f & box, float aspect,float slack)
+           { viewBoundingBox(box,aspect,slack); }
+      };
+      ((mycamera *)camera)->viewBox (SbBox3f(x0-dx,y0-dy,z0-dz,x0+dx,y0+dy,z0+dz),aspect,slack);
    }
 }
 
