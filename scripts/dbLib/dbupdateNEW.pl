@@ -111,6 +111,7 @@ struct JFileAttr => {
  struct LFileAttr => {
         jbId      => '$',
         pth       => '$',
+        pyr       => '$',
         lbT       => '$', 
         lbL       => '$',
         rtL       => '$',
@@ -298,6 +299,8 @@ my $pfullName;
 my $fflag;
 my $Fname;
 my @files;
+my $pyear = 0;
+ @prt = ();
 
  foreach  my $eachOutLDir (@OUT_DIR) {
 
@@ -343,7 +346,8 @@ my @files;
  $memFst = 0;
  $memLst = 0; 
  $EvSkip = 0;
- $jobTime = 0; 
+ $jobTime = 0;
+ @prt = ();
 
        if ($fname =~ /.log/)  {
 #    print "File Name:",$fname, "\n";       
@@ -351,7 +355,9 @@ my @files;
       $mpath = $eachOutLDir;
       @dirF = split(/\//, $eachOutLDir);
        $libL = $dirF[4];
-       $platf = $dirF[5]; 
+       $platf = $dirF[5];
+       @prt =split("_", $dirF[6]);
+       $pyear = $prt[1]; 
        $logName = $fname; 
        next if ($mpath =~ /ppl_minbias/);
 #      $Fname =  $mpath . "/" . $fname;
@@ -381,6 +387,7 @@ my @files;
 
       $fObjAdr = \(LFileAttr->new());
       ($$fObjAdr)->pth($mpath);
+      ($$fObjAdr)->pyr($pyear);
       ($$fObjAdr)->lbT($libV);
       ($$fObjAdr)->lbL($libL);
       ($$fObjAdr)->rtL($rootL);
@@ -503,6 +510,7 @@ my @files;
  $jobTime = 0;
 
     $mpath =   ($$newjobFile)->pth;
+    $pyear =   ($$newjobFile)->pyr;
     $libV=     ($$newjobFile)->lbT;
     $libL =    ($$newjobFile)->lbL;
     $rootL =   ($$newjobFile)->rtL;
@@ -1084,6 +1092,7 @@ sub fillJSTable {
     $sql.="LibTag='$libV',";
     $sql.="rootLevel='$rootL',";
     $sql.="path='$mpath',";
+    $sql.="prodyear='$pyear',";
     $sql.="logFile='$logName',";
     $sql.="createTime='$jobTime',";
     $sql.="chainOpt='$mchain',";
