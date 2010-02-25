@@ -82,10 +82,8 @@ my $nd = 0;
 
     if ( exists($ENV{'QUERY_STRING'}) ) { print $q->header };
 
- &beginHtml();
-
-
 &StDbTJobsConnect();
+
 
  $sql="SELECT distinct LibTag FROM $JobStatusT where path LIKE '%test/new%ittf%' order by createTime ";
 
@@ -215,7 +213,7 @@ print <<END;
           <title>Status of nightly test for the new library</title>
    </head>
    <body BGCOLOR=\"cornsilk\"> 
-     <h1 align=center>Status of nightly test for the NEW $lastlib library</h1>
+     <h1 align=center>Status of nightly test for $lastlib library</h1>
 <TABLE ALIGN=CENTER BORDER=5 CELLSPACING=1 CELLPADDING=2 >
 <TR>
 <TD ALIGN=CENTER WIDTH=\"20%\" HEIGHT=50><B>Path</B></TD>
