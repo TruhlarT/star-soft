@@ -78,8 +78,6 @@ my $ddate = $yr.$mon.$mday;
   my $q=new CGI;
 
     if ( exists($ENV{'QUERY_STRING'}) ) { print $q->header };
-}
-
 
 &StDbTJobsConnect();
 
