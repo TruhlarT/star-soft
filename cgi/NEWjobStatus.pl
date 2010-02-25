@@ -103,6 +103,9 @@ my $nd = 0;
 my $lastlib = $arlib[$nd-1];
 
 
+ &beginHtml();
+
+
 $sql="SELECT path, prodyear, logFile, LibTag, jobStatus, NoEventDone, chainOpt, memUsageF, memUsageL, CPU_per_evt_sec, createTime FROM $JobStatusT where path LIKE '%test/new%ittf%'  AND avail = 'Y' order by prodyear ";
 
 
