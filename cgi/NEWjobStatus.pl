@@ -74,14 +74,33 @@ struct FileAttr => {
   if( $mday < 10) { $mday = '0'.$mday };
 
 my $ddate = $yr.$mon.$mday;
+my $newlib;
+my @arlib = ();
+my $nd = 0;
 
   my $q=new CGI;
 
     if ( exists($ENV{'QUERY_STRING'}) ) { print $q->header };
 
+ &beginHtml();
+
+
 &StDbTJobsConnect();
 
- &beginHtml();
+ $sql="SELECT distinct LibTag FROM $JobStatusT where path LIKE '%test/new%ittf%' order by createTime ";
+
+  $cursor =$dbh->prepare($sql)
+      || die "Cannot prepare statement: $DBI::errstr\n";
+   $cursor->execute;
+
+     while($newlib = $cursor->fetchrow) {
+
+        $arlib[$nd] = $newlib;
+        $nd++;
+    }
+      $cursor->finish;
+
+my $lastlib = $arlib[$nd-1];
 
 
 $sql="SELECT path, prodyear, logFile, LibTag, jobStatus, NoEventDone, chainOpt, memUsageF, memUsageL, CPU_per_evt_sec, createTime FROM $JobStatusT where path LIKE '%test/new%ittf%'  AND avail = 'Y' order by prodyear ";
@@ -130,8 +149,6 @@ $sql="SELECT path, prodyear, logFile, LibTag, jobStatus, NoEventDone, chainOpt, 
  my $mychain;
  my $cdate;
  my @prt;
- my $bdate;
- my $dftime;
  my $dtyear;
  my $evtype;
 
@@ -160,20 +177,16 @@ $sql="SELECT path, prodyear, logFile, LibTag, jobStatus, NoEventDone, chainOpt, 
 
         @prt = split (" ", $myCtime);
     $cdate = $prt[0];  
-   $bdate = $cdate;
-    $bdate =~ s/-//g;
 
-        $dftime = $ddate - $bdate ;
-
-        if($dftime <= 6 and $myJobS eq "Done") {
+        if($mylib eq $lastlib and $myJobS eq "Done") {
 
       &printRow();
 
-       }elsif( $dftime <= 6 and $myJobS eq "Run not completed") {
+       }elsif( $mylib eq $lastlib  and $myJobS eq "Run not completed") {
 
       &printRowFd();
 
-      }elsif( $dftime > 6.1 ) {
+      }elsif(  $mylib ne $lastlib ) {
 
       $myJobS = "n/a";
       $myMemF = 0;
@@ -186,9 +199,9 @@ $sql="SELECT path, prodyear, logFile, LibTag, jobStatus, NoEventDone, chainOpt, 
         }
      }
 
- &endHtml();
-
  &StDbTJobsDisconnect();
+
+ &endHtml();
 
 #################
 sub beginHtml {
