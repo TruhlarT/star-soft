@@ -18,13 +18,22 @@ namespace eval ::jobCreate:: {
     variable showingXML
     variable showingMain
     variable undone
-    variable lastNode
     variable numberOfInstances
     variable slaveInterpCount 0
     variable findString ""
 
     variable addQAHistograms 1
     variable addCutsHistograms 1
+    variable tagColors
+    array set tagColor {
+        declareAnalysis  #d9f1d9
+        declareReader    #9bf1d9
+        allocateAnalysis #9cbcd1
+        preLoop   #b1c494
+        preEvent  #c8b486
+        postEvent #d0a18e
+        postLoop  #b1998e
+    }
 }
 
 ################################################################################
@@ -268,25 +277,42 @@ proc ::jobCreate::createWindow {} {
     set ::jobCreate::scrollableFrame $sf
     pack $sw -fill both -expand true
 
+    # File menu.
     $m add cascade -label File -menu $file
     $file add command -label "New Schema File..."      -command [namespace code getNewSchema]
     $file add command -label "Read Job Description..." -command [namespace code [list getJobXmlFile]]
     $file add command -label "Create Job Files"        -command [namespace code createJobFiles]
-    $file add command -label "Submit Job"              -command [namespace code submitJob]
-    $file add command -label "Start jobMonitor"        -command [namespace code startJobMonitor]
-    $file add command -label Exit -command [namespace code exit]
-    set edit [menu $m.edit]
-    $m add cascade -label Edit -menu $edit
-    $edit add command -label PlaceHolder
+    $file add command -label "Submit Job"              -command [namespace code submitJob] -accelerator "Alt-S"
+    $file add command -label "Start jobMonitor"        -command [namespace code startJobMonitor] -accelerator "Alt-M"
+    $file add command -label Exit -command [namespace code exit] -accelerator "Ctrl-Q"
+    # Accelerators don't seem to actually invoke code.
+    bind $::jobCreate::interfaceWindow <Alt-S>     [namespace code submitJob]
+    bind $::jobCreate::interfaceWindow <Alt-M>     [namespace code startJobMonitor]
+    bind $::jobCreate::interfaceWindow <Control-Q> [namespace code exit]
+
+    # Edit menu. Just a place holder.
+    #set edit [menu $m.edit]
+    #$m add cascade -label Edit -menu $edit
+    #$edit add command -label PlaceHolder
+
+    # Post batch job menu.
     set post [menu $m.post -postcommand [namespace code [list checkAnalysisType $m.post]]]
     $m add cascade -label "Apr\u00e8s batch" -menu $post
-    $post add command -label "Add histograms" -command [namespace code addHistograms]
-    $post add command -label "Combine centralities" -command [namespace code combineCentralities]
-    $post add command -label "selectAll macro"  -command [namespace code selectAll]
-    $post add command -label "copy to HPSS"  -command [namespace code copyToHPSS]
+    $post add command -label "Add histograms"       -command [namespace code addHistograms]       -accelerator "Alt-A"
+    $post add command -label "Combine centralities" -command [namespace code combineCentralities] -accelerator "Alt-C"
+    $post add command -label "selectAll macro"      -command [namespace code selectAll]           -accelerator "Alt-s"
+    $post add command -label "copy to HPSS"         -command [namespace code copyToHPSS]          -accelerator "Alt-c"
+    #
+    bind $::jobCreate::interfaceWindow <Alt-A> [namespace code addHistograms]
+    bind $::jobCreate::interfaceWindow <Alt-C> [namespace code combineCentralities]
+    bind $::jobCreate::interfaceWindow <Alt-s> [namespace code selectAll]
+    bind $::jobCreate::interfaceWindow <Alt-c> [namespace code copyToHPSS]
+
+    # Help menu
     set help [menu $m.help]
     $m add cascade -label Help -menu $help
-    $help add command -label Help -command [namespace code [list displayHelp ""]]
+    $help add command -label Help -command [namespace code [list displayHelp ""]] -accelerator "F1"
+    bind $::jobCreate::interfaceWindow <F1> [namespace code [list displayHelp ""]]
 
 
     +JobDescriptionFrame $sf
@@ -340,7 +366,13 @@ proc ::jobCreate::+listDefaultXml {type t c b} {
                            dataAuAu130_2000_MinBias.lis \
                            dataAuAu200_2001_MinBiasVertex.lis \
                            dataAuAu200_2001_ProductionMinBias.lis \
-                           dataAuAu200_2004_MinBias.lis \
+                           dataAuAu200_2004A_ProductionMinBias.lis \
+                           dataAuAu200_2004B_ProductionMinBias.lis \
+                           dataAuAu200_2004_ProductionLow.lis \
+                           dataAuAu200_2004_ProductionMid.lis \
+                           dataAuAu200_2004_ProductionHigh.lis \
+                           dataAuAu200_2007ProductionMinBias.lis \
+                           dataAuAu200_2007Production2.lis \
                            dataAuAu200_2007_MinBias.lis \
                            dataAuAu200_2007_PMD.lis \
                            dataCuCu22_P05if_cuProductionMinBias.lis \
@@ -350,8 +382,9 @@ proc ::jobCreate::+listDefaultXml {type t c b} {
                            dataCuCu200_2007ic_cuProductionMinBias.lis]
         }
         GEANT {
-            set vals [list GEANTAuAu200_b_0_3.lis \
-                           GEANTPP200_minbias.lis]
+            set vals [list GEANTPP200_minbias.lis \
+                           GEANTAuAu200_b_0_3.lis \
+                           GEANTAuAu200_minbias_P08if.lis]
         }
         Hijing {
             set vals [list hijing19GeVAuAuQuenchOn.lis   \
@@ -481,7 +514,7 @@ proc ::jobCreate::+jobControl {f} {
 proc ::jobCreate::+starSubmit {f} {
     set jNode [$::jobCreate::jobInfo getElementsByTagName starSubmit]
     button $f.jobCmd -text "Show <job>" \
-            -command [namespace code "displayCode $jNode {}
+            -command [namespace code "displayCode $jNode
                       wm deiconify .fileText
                       raise .fileText"]
     pack $f.jobCmd -anchor w
@@ -522,6 +555,9 @@ proc ::jobCreate::+pairCuts {f} {
 proc ::jobCreate::+doEStructMacro {f} {
     set jNode [$::jobCreate::jobInfo getElementsByTagName doEStructMacro]
 
+    grid columnconfigure $f 0 -weight 0
+    grid columnconfigure $f 1 -weight 1
+    set bFrame ""
     set sNode [$::jobCreate::schemaInfo selectNodes //*\[@name='doEStructMacro'\]]
     foreach sN [$sNode getElementsByTagName xs:element] {
         set name [$sN getAttribute ref]
@@ -557,17 +593,24 @@ proc ::jobCreate::+doEStructMacro {f} {
                     -vcmd [namespace code "modifyMacroNode $node %P %W %V"]
             grid $f.$name $f.${name}Code -sticky w
         } elseif {$wType eq "text"} {
-            label  $f.$name -text $name
-            if {$name eq "main"} {
-                set bl "show"
-            } else {
-                set bl "edit"
+            if {$bFrame eq ""} {
+                set bFrame [frame $f.bFrame]
+                grid $bFrame -sticky we -columnspan 2
             }
-            button $f.${name}Code -text $bl -pady 1 \
-                    -command [namespace code "displayCode $node {Part of doEStruct.C}
-                              wm deiconify .fileText
-                              raise .fileText"]
-            grid $f.$name $f.${name}Code -sticky w
+            if {$name eq "main"} {
+                label  $f.$name -text doEStruct.C
+                button $f.${name}Code -text edit -pady 1 \
+                        -command [namespace code "displayCode $node
+                                  wm deiconify .fileText
+                                  raise .fileText"]
+                grid $f.$name $f.${name}Code -sticky w
+                ::DynamicHelp::register $f.$name balloon $comment
+            } else {
+                button $bFrame.$name -text $name -pady 1          \
+                        -background $::jobCreate::tagColor($name) \
+                        -command [namespace code "chooseTagColor $bFrame.$name $name"]
+                pack $bFrame.$name -side left
+            }
         } else {
             continue
         }
@@ -1036,7 +1079,7 @@ proc ::jobCreate::modifyPythiaParameter {node val e cond} {
         return true
     }
     if {[info exists ::jobCreate::showingMain] && $::jobCreate::showingMain} {
-        displayCode [$::jobCreate::jobInfo getElementsByTagName main] {}
+        displayCode [$::jobCreate::jobInfo getElementsByTagName main]
     }
     return true
 }
@@ -1059,10 +1102,10 @@ proc ::jobCreate::modifyJobControlNode {node val e cond} {
         return true
     }
     if {[info exists ::jobCreate::showingXML] && $::jobCreate::showingXML} {
-        displayCode [$::jobCreate::jobInfo getElementsByTagName starSubmit] {}
+        displayCode [$::jobCreate::jobInfo getElementsByTagName starSubmit]
     }
     if {[info exists ::jobCreate::showingMain] && $::jobCreate::showingMain} {
-        displayCode [$::jobCreate::jobInfo getElementsByTagName main] {}
+        displayCode [$::jobCreate::jobInfo getElementsByTagName main]
     }
     return true
 }
@@ -1076,17 +1119,50 @@ proc ::jobCreate::modifyMacroNode {node val e cond} {
     }
     if {[info exists ::jobCreate::showingMain] && $::jobCreate::showingMain} {
         set doE [$::jobCreate::jobInfo getElementsByTagName doEStructMacro]
-        displayCode [$doE getElementsByTagName main] {}
+        displayCode [$doE getElementsByTagName main]
     }
     return true
 }
-################################################################################
-# displayCode is used for display of all text (as opposed to entry) nodes.
-# For special cases of nodeName = main or starSubmit disable editing.
-# When this proc is called check to see if we are already displaying
-# a node and, if modified, ask user to save it.
-################################################################################
-proc ::jobCreate::displayCode {node title} {
+###############################################################3
+# Want to be able to show tagged regions and only edit those.
+
+# Make text widgets readonly outside of specific tagged regions
+# Note: This procedure is not in the jobCreate namespace because either WIDGET or
+# WIDGET.internal kept ending up in that namespace. Both need to be in the global space
+# and I couldn't figure out how to do that right off, other than putting the proc in
+# the global namespace.
+proc makeReadOnly {textwidget} {
+    rename $textwidget $textwidget.internal
+    proc $textwidget {args} [string map [list WIDGET $textwidget] {
+        set cmd [lindex $args 0]
+        if {$cmd eq "reallyDelete"} {
+            return [eval WIDGET.internal delete [lrange $args 1 end]]
+        } elseif {$cmd eq "reallyInsert"} {
+            return [eval WIDGET.internal insert [lrange $args 1 end]]
+        } elseif {$cmd eq "insert" || $cmd eq "delete"} {
+            set tags  [list declareAnalysis declareReader allocateAnalysis preLoop preEvent postEvent postLoop]
+            if {[WIDGET.internal tag ranges sel] ne ""} {
+                foreach {sel1 sel2} [WIDGET.internal tag ranges sel] {break}
+                set it1 [WIDGET.internal tag names $sel1]
+                set it2 [WIDGET.internal tag names $sel2]
+                if {[lsearch $it1 $it2] < 0 || [lsearch $tags $it2] < 0} {return}
+            }
+            set found false
+            foreach t [WIDGET.internal tag names [WIDGET.internal index insert]] {
+                if {[lsearch $tags $t] >= 0} {
+                    set found true
+                }
+            }
+            if {$found} {
+                return [uplevel 1 WIDGET.internal $args]
+            }
+        } else {
+            return [uplevel 1 WIDGET.internal $args]
+        }
+    }]
+}
+
+proc ::jobCreate::displayCode {node} {
     if {![winfo exists .fileText]} {
         toplevel .fileText
         set m [menu .fileText.menu]
@@ -1099,9 +1175,9 @@ proc ::jobCreate::displayCode {node title} {
         wm protocol .fileText WM_DELETE_WINDOW {wm iconify .fileText}
         set edit [menu $m.edit -postcommand [namespace code "checkUndo $m.edit .fileText.t"]]
         $m add cascade -label Edit -menu $edit
-        $edit add command -label Undo -command [namespace code "undo $m.edit .fileText.t"]
-        $edit add command -label Redo -command [namespace code "redo $m.edit .fileText.t"]
-        $edit add command -label Find -command [namespace code findDialog]
+        $edit add command -label Undo      -command [namespace code "undo $m.edit .fileText.t"]
+        $edit add command -label Redo      -command [namespace code "redo $m.edit .fileText.t"]
+        $edit add command -label "Find..." -command [namespace code findDialog]
 
         text .fileText.t -yscrollcommand {.fileText.y set} \
                          -xscrollcommand {.fileText.x set} -wrap none \
@@ -1117,52 +1193,89 @@ proc ::jobCreate::displayCode {node title} {
         grid rowconfigure    .fileText 0 -weight 1
 
         bind .fileText <Control-w> {destroy .fileText}
+        bind .fileText.t <<Modified>> [namespace code "checkTextMod .fileText .fileText.t"]
+        makeReadOnly .fileText.t
     }
-    if {[.fileText.t edit modified] && [info exists ::jobCreate::lastNode]} {
-        set title "Save edits for [$::jobCreate::lastNode nodeName]"
-        set msg   "Do you want to save edits for [$::jobCreate::lastNode nodeName]?" 
+    if {[.fileText.t edit modified]} {
+        set title "Save edits for doEStruct.C?"
+        set msg   "Do you want to save edits for doEStruct.C?" 
         set save [tk_messageBox -message $msg -type yesno \
                 -icon question -title $title]
         if {$save} {
-            save .fileText.menu.file $::jobCreate::lastNode .fileText.t
+            save .fileText.t
         }
     }
     set ::jobCreate::showingMain false
     set ::jobCreate::showingXML  false
-    .fileText.t configure -state normal
     if {[$node nodeName] eq "main"} {
         # Try to keep current position visible in file when minor changes
         # are made. This seems to assume that all other things we might
         # view in this window are small enough users won't scroll them.
         set yPos [.fileText.t yview]
-        wm title .fileText "doEStruct.C: After current substitutions."
-        .fileText.t delete 0.0 end
-        .fileText.t insert end [applyXsl doEStruct.xsl asText]
+        wm title .fileText "doEStruct.C - After substitutions."
+        .fileText.t reallyDelete 0.0 end
+        .fileText.t reallyInsert end [applyXsl doEStruct.xsl asText]
         set ::jobCreate::showingMain true
-        .fileText.t configure -state disabled
         .fileText.t yview moveto [lindex $yPos 0]
+
+        # Tag the following nodes. Any edits made to these sections will be
+        # stored back in the xml tree (if they are saved).
+        .fileText.t configure -cursor crosshair
+        set tagColors [list #bcd998 #fcae98 #7099b8 #1cd950 #d06348 #3c63c6]
+        set nodeNames  [list declareAnalysis declareReader allocateAnalysis preLoop preEvent postEvent postLoop]
+        set numLines [list 1 1 1 2 2 2 2]
+        foreach name $nodeNames n $numLines {
+            foreach {i1 i2} [getNodeTags .fileText.t $name] {break}
+            .fileText.t tag configure $name -background $::jobCreate::tagColor($name)
+            .fileText.t tag add $name $i1 $i2+${n}lines
+            .fileText.t tag bind $name <Enter> {.fileText.t configure -cursor xterm}
+            .fileText.t tag bind $name <Leave> {.fileText.t configure -cursor crosshair}
+        }
     } elseif {[$node nodeName] eq "starSubmit"} {
-        wm title .fileText "xml for star-submit: After current substitutions."
-        .fileText.t delete 0.0 end
-        .fileText.t insert end [applyXsl job.xsl asXML]
+        wm title .fileText "xml for star-submit - After substitutions."
+        .fileText.t reallyDelete 0.0 end
+        .fileText.t reallyInsert end [applyXsl job.xsl asXML]
         set ::jobCreate::showingXML true
-        .fileText.t configure -state disabled
-    } else {
-        wm title .fileText "[$node nodeName]: $title"
-        .fileText.t delete 0.0 end
-        .fileText.t insert end [$node asText ]
     }
     .fileText.t edit reset
     .fileText.t edit modified false
     .fileText.menu.file entryconfigure Save   -state disabled \
-            -command [namespace code "save   .fileText.menu.file $node .fileText.t"]
+            -command [namespace code "save   .fileText.t"]
     .fileText.menu.file entryconfigure Revert -state disabled \
-            -command [namespace code "revert .fileText.menu.file $node .fileText.t"]
+            -command [namespace code "revert .fileText.t"]
     .fileText.menu.edit entryconfigure Undo -state disabled
     .fileText.menu.edit entryconfigure Redo -state disabled
     set ::jobCreate::undone 0
-    set ::jobCreate::lastNode $node
     ::jobCreate::highlightString $::jobCreate::findString
+}
+proc ::jobCreate::getNodeTags {w nodeName} {
+    set n [$::jobCreate::jobInfo getElementsByTagName $nodeName]
+    set iList [list]
+    set start 1.0
+    foreach line [split [$n asText] \n] {
+        if {[string length [string trim $line]] > 0} {
+            set start [$w search $line $start]
+            lappend iList [$w search $line $start]
+        }
+    }
+    set ind1 [lrange $iList 0 0]
+    set ind2 [lrange $iList end end]
+    return [list $ind1 $ind2]
+}
+proc ::jobCreate::chooseTagColor {w name} {
+    set color [tk_chooseColor -initialcolor $::jobCreate::tagColor($name) -title "Color for $name in doEStruct.C"]
+    if {$color ne ""} {
+        set ::jobCreate::tagColor($name) $color
+        $w configure -background $color
+        .fileText.t tag configure $name -background $color
+    }
+}
+proc  ::jobCreate::checkTextMod {w t} {
+    if {[$t edit modified]} {
+        wm title $w "doEStruct.C (modified) - After substitutions."
+    } else {
+        wm title $w "doEStruct.C - After substitutions."
+    }
 }
 ################################################################################
 # popupSearch will pop up a box allowing user to enter a search string and
@@ -1213,8 +1326,7 @@ proc ::jobCreate::highlightString {string} {
 # undo/redo menus to reflect current state.
 ################################################################################
 proc ::jobCreate::checkFile {m t} {
-    if {$::jobCreate::showingMain        ||
-        $::jobCreate::showingXML} {
+    if {$::jobCreate::showingXML} {
         return
     }
     if {[$t edit modified]} {
@@ -1227,26 +1339,36 @@ proc ::jobCreate::checkFile {m t} {
 }
 ################################################################################
 # Next five procs are for undo/redo of text widget.
+# This is now only possible for doEStruct.C macro display
 # 1############################################################################
-proc ::jobCreate::save {m n t} {
-    foreach cn [$n childNodes] {
-        if {[$cn nodeName] eq "#text"} {
-            $cn nodeValue [$t get 1.0 end-1c]
+# This is now only called when doEStruct macro is edited.
+# Six nodes can be edited via text widget. Save all of them.
+proc ::jobCreate::save {t} {
+    set nodeNames  [list declareAnalysis declareReader allocateAnalysis preLoop preEvent postEvent postLoop]
+    foreach name $nodeNames {
+        foreach {i1 i2} [$t tag ranges $name] {break}
+        set txt [$t get $i1 $i2]
+        set n [$::jobCreate::jobInfo getElementsByTagName $name]
+        # I assume node has one TEXT_NODE child node
+        # Need to rethink if this changes.
+        foreach cn [$n childNodes] {
+            if {[$cn nodeType] eq "TEXT_NODE"} {
+                $cn nodeValue $txt
+            }
         }
     }
-    revert $m $n $t
+    $t edit modified false
 }
 # 2 ############################################################################
-proc ::jobCreate::revert {m n t} {
+proc ::jobCreate::revert {t} {
     set title [wm title .fileText]
     regsub {[a-zA-Z0-9]*: } $title {} title
     $t edit modified false
-    displayCode $n $title
+    displayCode [$::jobCreate::jobInfo getElementsByTagName main]
 }
 # 3 ############################################################################
 proc ::jobCreate::checkUndo {m t} {
-    if {$::jobCreate::showingMain        ||
-        $::jobCreate::showingXML} {
+    if {$::jobCreate::showingXML} {
         return
     }
     if {[$t edit modified]} {
@@ -1466,7 +1588,7 @@ proc ::jobCreate::modifyAttribute {node att val e cond} {
     $e configure -foreground black
     if {[info exists ::jobCreate::showingXML] && $::jobCreate::showingXML} {
         set node [$::jobCreate::jobInfo getElementsByTagName starSubmit]
-        displayCode $node {}
+        displayCode $node
     }
 
     set ::jobCreate::jobFilesCurrent false
@@ -1489,7 +1611,7 @@ proc ::jobCreate::-AttributeRow {f el att node} {
 
     if {[info exists ::jobCreate::showingXML] && $::jobCreate::showingXML} {
         set node [$::jobCreate::jobInfo getElementsByTagName starSubmit]
-        displayCode $node {}
+        displayCode $node
     }
 }
 ################################################################################
@@ -1509,7 +1631,7 @@ proc ::jobCreate::-ElementRow {f el node} {
 
     if {[info exists ::jobCreate::showingXML] && $::jobCreate::showingXML} {
         set node [$::jobCreate::jobInfo getElementsByTagName starSubmit]
-        displayCode $node {}
+        displayCode $node
     }
 }
 
@@ -1577,18 +1699,18 @@ proc ::jobCreate::createJobFiles {} {
 
     # Check if we have an un-saved change from the currently edited node.
     if {[winfo exists .fileText] && [.fileText.t edit modified]} {
-        set title "Save edits for [$::jobCreate::lastNode nodeName]"
+        set title "Save edits for doEStruct.C?"
         set msg   "Do you want to save edits for [$::jobCreate::lastNode nodeName] before submitting job?" 
         set save [tk_messageBox -message $msg -type yesno \
                 -icon question -title $title]
         if {$save} {
-            save .fileText.menu.file $::jobCreate::lastNode .fileText.t
+            save .fileText.t
         }
     }
     
     # Make directory structure for job files and output.
-    set d [list /]
-    foreach dir [split $path /] {
+    set d [list]
+    foreach dir [file split $path] {
         set d [file join $d $dir]
         if {![file exists $d]} {
             file mkdir $d
@@ -1617,6 +1739,10 @@ proc ::jobCreate::createJobFiles {} {
     }
     if {![file exists $path/StRoot]} {
         file mkdir $path/StRoot
+    }
+    set hidden .$::env(STAR_HOST_SYS)
+    if {![file exists $path/StRoot/$hidden]} {
+        file mkdir $path/StRoot/$hidden
     }
 
     # Create CutsFile with event and track cuts.
@@ -1675,12 +1801,22 @@ proc ::jobCreate::createJobFiles {} {
     puts $f $subInfo
     close $f
 
-    # Make copy of source code. This also picks up object files.
+    # Make copy of source code.
+    # This does not pick up object files.
     # If this is a problem we should modify how copy is done.
     set node [$::jobCreate::jobInfo getElementsByTagName localDir]
     set srcDir [$node text]
     if {[catch {file copy $srcDir/StRoot/StEStructPool $path/StRoot}]} {
         tk_messageBox -message "Problem copying StRoot subdir in $srcDir" \
+                -type ok \
+                -icon question -title "Skipping copying source code"
+    }
+    # Want to copy compiled library. This lets users modify source code
+    # while jobs that are waiting to run get the compiled code the way it was
+    # at job submission.    
+    if {[catch {file copy $srcDir/$hidden/lib $path/StRoot/$hidden}] ||
+        [catch {file copy $srcDir/$hidden/obj $path/StRoot/$hidden}]} {
+        tk_messageBox -message "Problem copying compiled code from $srcDir. We will try using $srcDir directly which means any changes you make could affect jobs waiting to run" \
                 -type ok \
                 -icon question -title "Skipping copying source code"
     }
@@ -1884,7 +2020,9 @@ proc ::jobCreate::addHistograms {} {
         grid .addHistograms.y -sticky ns
         grid .addHistograms.x -sticky we
         grid [frame  .addHistograms.b]
-        grid [button .addHistograms.b.action -text "Add em up" -state disabled]
+        set b1 [button .addHistograms.b.action -text "Add em up" -state disabled]
+        set b2 [button .addHistograms.b.batch  -text "Add using batch" -state disabled]
+        grid $b1 $b2
         grid columnconfigure .addHistograms 0 -weight 1
         grid rowconfigure    .addHistograms 1 -weight 1
         grid rowconfigure    .addHistograms 2 -weight 1
@@ -1903,6 +2041,7 @@ proc ::jobCreate::addHistograms {} {
     } else {
         set dataFrame .addHistograms.data
         .addHistograms.b.action configure -text "Add em up" -state disabled
+        .addHistograms.b.batch  configure -text "Add using batch" -state disabled
         raise .addHistograms
     }
     set ::jobCreate::stopAddHistograms false
@@ -1959,9 +2098,16 @@ proc ::jobCreate::addHistograms {} {
                 close $fh
             }
 
-            # Get all files for centrality and remove already added ones.
+            # Get all files for centrality and remove already added and zero size files.
             set fileList [glob -nocomplain [file join $path data dataHists_M${i}_*.root]]
             set fileList [lremove $fileList $::jobCreate::alreadyAdded($i)]
+            set zeros [list]
+            foreach f $fileList {
+                if {[file size $f] == 0} {
+                    lappend zeros $f
+                }
+            }
+            set fileList [lremove $fileList $zeros]
             set ::jobCreate::filesToAdd($i) [lsort -dictionary $fileList]
 
             # Calculate average file size to estimate how many we can combine at once.
@@ -2033,9 +2179,16 @@ proc ::jobCreate::addHistograms {} {
             close $fh
         }
 
-        # Get all fluctuation files, remove already added ones.
+        # Get all fluctuation files, remove already added and zero size files
         set fileList [glob -nocomplain [file join $path data dataHists_*.root]]
         set fileList [lremove $fileList $::jobCreate::alreadyAdded]
+        set zeros [list]
+        foreach f $fileList {
+            if {[file size $f] == 0} {
+                lappend zeros $f
+            }
+        }
+        set fileList [lremove $fileList $zeros]
         set ::jobCreate::filesToAdd [lsort -dictionary $fileList]
 
         # Calculate average file size to estimate how many we can combine at once.
@@ -2074,6 +2227,8 @@ proc ::jobCreate::addHistograms {} {
     }
     .addHistograms.b.action configure -state normal \
             -command [namespace code [list startAddingHistograms $nCentralities]]
+    .addHistograms.b.batch configure -state normal \
+            -command [namespace code [list submitAddingHistograms $nCentralities]]
 }
 ################################################################################
 # showAddedFiles simply shows the files that have already been added.
@@ -2234,6 +2389,318 @@ proc ::jobCreate::startAddingHistograms {nCentralities} {
     } else {
         .addHistograms.b.action configure -text Done -command {} -state disabled
     }
+}
+################################################################################
+# submitAddHistograms parses output directory for histograms, creates *.csh
+# scripts to add them then submits those scripts.
+# Think I can do SGE (via qsub now). Need to figure out Condor next.
+#>>>>> Need to check if qsub is available and use condor if it is not.
+#>>>>> I don't know how to tell condor to wait until previous jobs are finished,
+#>>>>>  but I am pretty sure it is possible.
+################################################################################
+proc ::jobCreate::submitAddingHistograms {nCentralities} {
+    set node [$::jobCreate::jobInfo getElementsByTagName outputDir]
+    set path [$node text]
+    set node [$::jobCreate::jobInfo getElementsByTagName analysisType]
+    set aType [$node text]
+
+    # Add QA files
+    if {$::jobCreate::addQAHistograms} {
+        set fileList  [lsort -dictionary [glob -nocomplain [file join $path QA QA_*.root]]]
+        set sumName   [file join $path QA   QA.root]
+        set QALogFile [file join $path QA   addedQALog]
+        set batchLog  [file join $path logs HAddQA.log]
+
+        .addHistograms.t insert end "About to sum QA files\n" input
+        .addHistograms.t see end
+        .addHistograms.t insert end "hadd -f $sumName $fileList\n" input
+        .addHistograms.t see end
+
+        set scriptFile [file join $path scripts schedHAddQA.csh]
+        set script [open $scriptFile w]
+        if {[catch {exec qstat -u $::env(USER)}]} {
+            set condorFile [file join $path scripts schedHAddQA.condor]
+            set condorLog  [file join $path scripts schedHAddQA.condor.log]
+            set condorDir  [file join $path scripts]
+            ::jobCreate::createCondorFile $condorFile $scriptFile $batchLog $condorLog $condorDir
+
+            puts $script "#!/bin/csh"
+            puts $script "# condor_submit $condorFile"
+            puts $script "cd [file join $path QA]"
+            puts $script "hadd -f $sumName $fileList"
+            close $script
+            file attributes $scriptFile -permissions +x
+            catch {exec condor_submit $condorFile} res
+        } else {
+            puts $script "#!/bin/csh"
+            puts $script "# qsub -o $batchLog -j y $scriptFile"
+            puts $script "cd [file join $path QA]"
+            puts $script "hadd -f $sumName $fileList"
+            close $script
+            set res [exec qsub -j y -o $batchLog $scriptFile]
+        }
+    }
+    .addHistograms.control.cbQA configure -selectcolor blue
+
+    # Add Cuts files
+    if {$::jobCreate::addCutsHistograms} {
+        set fileList    [lsort -dictionary [glob -nocomplain [file join $path cuts cutHists_*.root]]]
+        set sumName     [file join $path cuts Cuts.root]
+        set CutsLogFile [file join $path cuts addedCutsLog]
+        set batchLog    [file join $path logs HAddCuts.log]
+
+        .addHistograms.t insert end "About to sum cuts files\n" input
+        .addHistograms.t see end
+        .addHistograms.t insert end "hadd -f $sumName $fileList\n" input
+        .addHistograms.t see end
+
+        set scriptFile [file join $path scripts schedHAddCuts.csh]
+        set script [open $scriptFile w]
+        if {[catch {exec qstat -u $::env(USER)}]} {
+            set condorFile [file join $path scripts schedHAddCuts.condor]
+            set condorLog  [file join $path scripts schedHAddCuts.condor.log]
+            set condorDir  [file join $path scripts]
+            ::jobCreate::createCondorFile $condorFile $scriptFile $batchLog $condorLog $condorDir
+
+            puts $script "#!/bin/csh"
+            puts $script "# condor_submit $condorFile"
+            puts $script "cd [file join $path cuts]"
+            puts $script "hadd -f $sumName $fileList"
+            close $script
+            file attributes $scriptFile -permissions +x
+            catch {exec condor_submit $condorFile} res
+        } else {
+            puts $script "#!/bin/csh"
+            puts $script "# qsub -o $batchLog -j y $scriptFile"
+            puts $script "cd [file join $path cuts]"
+            puts $script "hadd -f $sumName $fileList"
+            close $script
+            set res [exec qsub -j y -o $batchLog $scriptFile]
+        }
+    }
+    .addHistograms.control.cbCuts configure -selectcolor blue
+
+    # For data histograms we have given the user some control 
+    # over what to add. Use variables 
+    if {$nCentralities eq ""} {
+        # This is for fluctuations. Need to think about how to do this in the current way.
+        if {$::jobCreate::addCentrality  && !$::jobCreate::stopAddHistograms} {
+            .addHistograms.t insert end "About to sum Fluctuation files\n" input
+            .addHistograms.t see end
+            set fl $::jobCreate::filesToAdd
+            set nPerSet $::jobCreate::numPerSet
+            addDataHistograms $fl $nPerSet {}
+        }
+    } else {
+        for {set ic 0} {$ic < $nCentralities} {incr ic} {
+            if {$::jobCreate::addCentrality($ic)} {
+                .addHistograms.t insert end "Creating csh scripts for centrality $ic\n" input
+                .addHistograms.t see end
+
+                # For correlations we are adding up histograms from a single centrality.
+                .addHistograms.data.centrality$ic configure -selectcolor orange
+
+                # If files to be added are too big root will crash. I don't
+                # know how to figure out how many files I can add at once.
+                # Let user decide (although we suggested defaults.)
+
+                set fileList $::jobCreate::filesToAdd($ic)
+                set nFiles [llength $fileList]
+                set numPerSet $::jobCreate::numPerSet($ic)
+                set nSets [expr $nFiles/$numPerSet]
+                if {$nFiles%$numPerSet} {
+                    incr nSets
+                }
+                set nTmp 0
+                set firstPass [list]
+                set tmpFiles  [list]
+                for {set j 0} {$j < $nSets} {incr j} {
+                    set logFile [file join $path data addedFileNames${ic}Log]
+                    if {[file exists $logFile]} {
+                        set addLog [open $logFile a]
+                    } else  {
+                        set addLog [open $logFile w]
+                    }
+                    set start [expr $j*$numPerSet]
+                    set end   [expr $start+$numPerSet-1]
+                    if {$end>=$nFiles} {
+                        set end [expr $nFiles-1]
+                    }
+                    set sumFile [file join $path data Data${ic}_${nTmp}.root]
+                    if {$start == $end} {
+                        # If group has single file simply copy it, don't bother with batch submission.
+                        puts $addLog "file copy [lindex $fileList $start] $sumFile"
+                        if {[catch {file copy [lindex $fileList $start] $sumFile} mess]} {
+                            .addHistograms.t insert end $mess errorOutput
+                            .addHistograms.t insert end "\n\n" errorOutput
+                            puts $addLog "$mess"
+                        } else {
+                            .addHistograms.t insert end $mess normalOutput
+                            .addHistograms.t insert end "\n\n" normalOutput
+                        }
+                        lappend tmpFiles $sumFile
+                        lappend ::jobCreate::alreadyAdded($ic) [lindex $fileList $start]
+                        set ::jobCreate::filesToAdd($ic) [lremove $::jobCreate::filesToAdd($ic) [lindex $fileList $start]]
+                    } else {
+                        # Group has more than one file.
+                        # Submit batch job to do actual hadd.
+                        set scriptFile [file join $path scripts schedHAdding_M${ic}_${nTmp}.csh]
+                        set batchLog   [file join $path logs    HAdding_M${ic}_${nTmp}.log]
+                        while {[file exists $scriptFile]} {
+                            incr nTmp
+                            set scriptFile [file join $path scripts schedHAdding_M${ic}_${nTmp}.csh]
+                            set batchLog   [file join $path logs    HAdding_M${ic}_${nTmp}.log]
+                        }
+                        set cmd "hadd $sumFile [lrange $fileList $start $end]"
+                        puts $addLog "$cmd"
+                        set script [open $scriptFile w]
+                        # If we have SGE command sqtat available use qsub.
+                        # Otherwise we use condor (which requires another file)
+                        if {[catch {exec qstat -u $::env(USER)}]} {
+                            set condorFile [file join $path scripts schedHAdding_M${ic}_${nTmp}.condor]
+                            set condorLog  [file join $path scripts schedHAdding_M${ic}_${nTmp}.condor.log]
+                            set condorDir  [file join $path scripts]
+                            ::jobCreate::createCondorFile $condorFile $scriptFile $batchLog $condorLog $condorDir
+
+                            puts $script "#!/bin/csh"
+                            puts $script "# condor_submit $condorFile"
+                            puts $script "cd [file join $path data]"
+                            puts $script "$cmd"
+                            close $script
+                            file attributes $scriptFile -permissions +x
+                            catch {exec condor_submit $condorFile} res
+                        } else {
+                            puts $script "#!/bin/csh"
+                            puts $script "# qsub -o $batchLog -j y $scriptFile"
+                            puts $script "cd [file join $path data]"
+                            puts $script "$cmd"
+                            close $script
+                            set res [exec qsub -j y -o $batchLog $scriptFile]
+                        }
+                        lappend tmpFiles $sumFile
+                        lappend firstPass [lindex $res 2]
+
+                        .addHistograms.t insert end "Created script for batch submission of histogram addition:\n" input
+                        .addHistograms.t insert end "    $script\n" input
+                        .addHistograms.t insert end "by hand run: $cmd\n" input
+                        .addHistograms.t see end
+
+                        set ::jobCreate::alreadyAdded($ic) [concat $::jobCreate::alreadyAdded($ic) [lrange $fileList $start $end]]
+                        set ::jobCreate::filesToAdd($ic) [lremove $::jobCreate::filesToAdd($ic) [lrange $fileList $start $end]]
+                    }
+                    close $addLog
+                    incr nTmp
+                    .addHistograms.data.addedFiles$ic configure -text [llength $::jobCreate::alreadyAdded($ic)]
+                    .addHistograms.data.filesToAdd$ic configure -text [llength $::jobCreate::filesToAdd($ic)]
+                }
+
+                # Now add all of those groups together (for each centrality)
+                # Submit a batch job that waits for all the previous jobs to end.
+                # Corner case include:
+                #  Might not have added any files.
+                #    firstPass and tmpFiles will be empty lists.
+                #  Might have only had one file we attempted to add.
+                #    This would have been renamed and firstPass will be empty while tmpFiles has one entry.
+                #  Might have only submitted one hadd group.
+                #    firstPass and tmpFiles will have one entry each. Can rename (in a batch job so we can wait for the hadd to finish.)
+                set nTmp 0
+                set scriptFile [file join $path scripts schedHAddSums_M${ic}_${nTmp}.csh]
+                set batchLog   [file join $path logs    HAddSums_M${ic}_${nTmp}.log]
+                while {[file exists $scriptFile]} {
+                    incr nTmp
+                    set scriptFile [file join $path scripts schedHAddSums_M${ic}_${nTmp}.csh]
+                    set batchLog   [file join $path logs    HAddSums_M${ic}_${nTmp}.log]
+                }
+                if {(0 == [llength $firstPass]) && (0 == [llength $tmpFiles])} {
+                    continue
+                } else {
+                    #
+                    .addHistograms.data.centrality$ic configure -selectcolor blue
+                    set logFile [file join $path data addedFileNames${ic}Log]
+                    set addLog [open $logFile a]
+                    set sumFile [file join $path data Data${ic}.root]
+
+                    if {[file exists $sumFile]} {
+                        set tmpName [file join $path data Data${ic}Tmp.root]
+                        puts $addLog "file rename $sumFile $tmpName"
+                        file rename $sumFile $tmpName
+                        lappend tmpFiles $tmpName
+                        .addHistograms.t insert end "file rename $sumFile $tmpName\n" input
+                        .addHistograms.t see end
+                    }
+                    if {[llength $tmpFiles] > 1} {
+                        set cmd "hadd $sumFile $tmpFiles"
+                        puts $addLog "$cmd"
+                        .addHistograms.t insert end "$cmd\n" input
+                        .addHistograms.t see end
+                    } else {
+                        set cmd "/bin/mv $tmpFiles $sumFile"
+                        puts $addLog "$cmd"
+                        .addHistograms.t insert end "file rename $tmpFiles $sumFile\n" input
+                        .addHistograms.t see end
+                    }
+                    set script [open $scriptFile w]
+                    if {[catch {exec qstat -u $::env(USER)}]} {
+                        set condorFile [file join $path scripts schedHAddSums_M${ic}_${nTmp}.condor]
+                        set condorLog  [file join $path scripts schedHAddSums_M${ic}_${nTmp}.condor.log]
+                        set condorDir  [file join $path scripts]
+                        ::jobCreate::createCondorFile $condorFile $scriptFile $batchLog $condorLog $condorDir true
+
+                        puts $script "#!/bin/csh"
+                        puts $script "# condor_submit $condorFile"
+                        puts $script "cd [file join $path data]"
+                        puts $script "$cmd"
+                        foreach tmp $tmpFiles {
+                            puts $script "/bin/rm $tmp"
+                        }
+                        close $script
+                        file attributes $scriptFile -permissions +x
+                        catch {exec condor_submit $condorFile} res
+                    } else {
+                        puts $script "#!/bin/csh"
+                        puts $script "# qsub -o $batchLog -j y -hold_jid [join $firstPass ,] $scriptFile"
+                        puts $script "cd [file join $path data]"
+                        puts $script "$cmd"
+                        foreach tmp $tmpFiles {
+                            puts $script "/bin/rm $tmp"
+                        }
+                        close $script
+                        set res [exec qsub -o $batchLog -j y -hold_jid [join $firstPass ,] $scriptFile]
+                    }
+                    close $addLog
+                }
+
+                # Done with this centrality
+                .addHistograms.data.centrality$ic configure -selectcolor blue
+            }
+        }
+    }
+}
+################################################################################
+# createCondorFile is utility to create file controlling codor batch submission.
+# I just copy this from what SUMS does, I don't understand it yet.
+################################################################################
+proc ::jobCreate::createCondorFile {fileName scriptFile outPut log dir {hold false}} {
+    set condor [open $fileName w]
+    puts $condor "Universe       = vanilla"
+    puts $condor "Notification   = never"
+    puts $condor "GetEnv         = true"
+    puts $condor ""
+    puts $condor "Executable     = $scriptFile"
+    puts $condor "Output         = $outPut"
+    puts $condor "Requirements   = (CPU_Experiment == \"star\")"
+    puts $condor "Log            = $log"
+    puts $condor "Initialdir     = $dir"
+    if {$hold} {
+        puts $condor "Hold     = true"
+    }
+    puts $condor ""
+    puts $condor "+Experiment     = \"star\""
+    puts $condor "Priority        = +10"
+    puts $condor "+Job_Type       = \"cas\""
+    puts $condor "PeriodicRemove  = (JobStatus == 2 && (CurrentTime - JobCurrentStartDate > (54000)) && ((RemoteUserCpu+RemoteSysCpu)/(CurrentTime-JobCurrentStartDate) < 0.10)) || (((CurrentTime - EnteredCurrentStatus) > (2*24*3600)) && JobStatus == 5) || (JobRunCount >= 1 && JobStatus == 1)"
+    puts $condor "Queue"
+    close $condor
 }
 ################################################################################
 # addSmallHistograms takes list from addHistograms and adds them together.
@@ -2497,7 +2964,9 @@ proc ::jobCreate::combineCentralities {} {
             -command [namespace code [list addSumFileLine $fileList $cents]]
         button .combineCentralities.addEm -text "Add em up" -state disabled \
             -command [namespace code [list sumFilesUp]]
-        pack .combineCentralities.addSum .combineCentralities.addEm -side left
+        button .combineCentralities.batchAddEm -text "Add in batch" -state disabled \
+            -command [namespace code [list submitSumFilesUp]]
+        pack .combineCentralities.addSum .combineCentralities.addEm .combineCentralities.batchAddEm -side left
 
         # Create labels for previously summed files.
         set found [list]
@@ -2542,6 +3011,7 @@ proc ::jobCreate::combineCentralities {} {
         }
     }
     .combineCentralities.addEm configure -state $state
+    .combineCentralities.batchAddEm configure -state $state
 }
 ################################################################################
 # addSumFileLine creates a line of buttons to indicate which centralities
@@ -2594,6 +3064,84 @@ proc ::jobCreate::includeSumFile {centList sFile ic fn} {
     set b [lindex $oList end]
     set ::jobCreate::sumFileName($sFile) "Sum${a}_$b"
     .combineCentralities.addEm configure -state $state
+    .combineCentralities.batchAddEm configure -state $state
+}
+################################################################################
+# submitSumFilesUp uses information from ::jobCreate::sumFileList to combine histogram centrality files.
+# Create a csh script and submit to a batch node.
+################################################################################
+proc ::jobCreate::submitSumFilesUp {} {
+    set node [$::jobCreate::jobInfo getElementsByTagName outputDir]
+    set path [$node text]
+    # Assume addCentralities.C script is under the localDir job was submitted from.
+    set node [$::jobCreate::jobInfo getElementsByTagName localDir]
+    set lDir [$node text]
+
+    set logFile [file join $path data sumCentralitiesLog]
+    if {[file exists $logFile]} {
+        set sumLog [open $logFile a]
+    } else  {
+        set sumLog [open $logFile w]
+    }
+
+    for {set j 0} {$j < $::jobCreate::numberSumFiles} {incr j} {
+        set outFile $::jobCreate::sumFileName($j)
+        set numFiles [llength $::jobCreate::sumFileNumbers($j)]
+
+        set nTmp 0
+        set combineC   [file join $path scripts Combine_${j}_${nTmp}.C]
+        set combinecsh [file join $path scripts schedCombine_${j}_${nTmp}.csh]
+        set combineLog [file join $path logs         Combine_${j}_${nTmp}.log]
+        while {[file exists $combineC]} {
+            incr nTmp
+            set combineC   [file join $path scripts Combine_${j}_${nTmp}.C]
+            set combinecsh [file join $path scripts schedCombine_${j}_${nTmp}.csh]
+            set combineLog [file join $path logs Combine_${j}_${nTmp}.log]
+        }
+        set C   [open $combineC w]
+        set csh [open $combinecsh w]
+
+        puts $sumLog "Creating C macro and csh script to combine centralities."
+        puts $sumLog "Want to run following commands."
+        puts $sumLog "    gROOT->LoadMacro(\"addCentralities.C\");"
+        puts $sumLog "    int inFile\[\] = {[join $::jobCreate::sumFileNumbers($j) ,]};"
+        puts $sumLog "    addCentralities(\"[file join $path data]\",\"Data\",\"$outFile\",inFile,$numFiles);"
+
+        puts $C "void Combine_${j}_${nTmp} \(\) {"
+        puts $C "    gROOT->LoadMacro(\"addCentralities.C\");"
+        puts $C "    int inFile\[\] = {[join $::jobCreate::sumFileNumbers($j) ,]};"
+        puts $C "    addCentralities(\"[file join $path data]\",\"Data\",\"$outFile\",inFile,$numFiles);"
+        puts $C "};"
+        close $C
+
+#>>>>> Should be easy to check if qsub is available and use condor if it is not.
+        if {[catch {exec qstat -u $::env(USER)}]} {
+            set condorFile [file join $path scripts schedCombine_${j}_${nTmp}.condor]
+            set condorLog  [file join $path scripts schedCombine_${j}_${nTmp}.condor.log]
+            set condorDir  [file join $path scripts]
+            ::jobCreate::createCondorFile $condorFile $combinecsh $combineLog $condorLog $condorDir
+
+            puts $csh "#!/bin/csh"
+            puts $csh "# condor_submit $condorFile"
+            puts $csh "cd $lDir"
+            puts $csh "root4star -q -b [file join $path scripts Combine_${j}_${nTmp}.C\\(\\)]"
+            close $csh
+            file attributes $combinecsh -permissions +x
+            catch {exec condor_submit $condorFile}
+        } else {
+            puts $csh "#!/bin/csh"
+            puts $csh "# qsub -o $combineLog -j y $combinecsh"
+            puts $csh "cd $lDir"
+            puts $csh "root4star -q -b [file join $path scripts Combine_${j}_${nTmp}.C\\(\\)]"
+            close $csh
+            exec qsub -o $combineLog -j y $combinecsh
+        }
+
+        foreach nf $::jobCreate::sumFileNumbers($j) {
+            .combineCentralities.centralities.cb${j}${nf} configure -selectcolor blue
+        }
+    }
+    close $sumLog
 }
 ################################################################################
 # sumFilesUp uses information from ::jobCreate::sumFileList to combine histogram centrality files.
@@ -2725,11 +3273,15 @@ proc ::jobCreate::selectAll {} {
 
         button .selectAll.runIt -text "Run selectAll" -state disabled \
             -command [namespace code [list runSelectAll]]
+        button .selectAll.batchRunIt -text "Batch selectAll" -state disabled \
+            -command [namespace code [list batchRunSelectAll]]
         button .selectAll.anotherGroup -text "Add \u0394\u03c1/\u221a\u03c1_ref file" \
             -command [namespace code [list addDeltaRhoFile]]
         button .selectAll.createDeltaRhoFile -text "Create \u0394\u03c1/\u221a\u03c1_ref files" -state disabled \
             -command [namespace code [list createDeltaRhoFile]]
-        pack .selectAll.runIt .selectAll.anotherGroup .selectAll.createDeltaRhoFile -side left
+        button .selectAll.batchCreateDeltaRhoFile -text "Batch \u0394\u03c1/\u221a\u03c1_ref files" -state disabled \
+            -command [namespace code [list batchCreateDeltaRhoFile]]
+        pack .selectAll.runIt .selectAll.batchRunIt .selectAll.anotherGroup .selectAll.createDeltaRhoFile .selectAll.batchCreateDeltaRhoFile -side left
 
         # Want to only allow window to be destroyed when not in action?
         #bind .selectAll <Control-w> {destroy .selectAll}
@@ -2866,6 +3418,7 @@ proc ::jobCreate::selectAll {} {
 
         if {[llength $::jobCreate::selectAllFiles] > 0} {
             .selectAll.runIt configure -state normal
+            .selectAll.batchRunIt configure -state normal
         }
         .selectAll.anotherGroup configure -command [namespace code [list addDeltaRhoFile $dList $sList]]
     } else {
@@ -2936,6 +3489,7 @@ proc ::jobCreate::addDeltaRhoFile {dList sList} {
     }
     if {$nCheck > 0} {
         .selectAll.createDeltaRhoFile configure -state normal
+        .selectAll.batchCreateDeltaRhoFile configure -state normal
     }
 }
 ################################################################################
@@ -2953,6 +3507,7 @@ proc ::jobCreate::toggleHistFile {j ic f} {
     }
     if {$nCheck > 0} {
         .selectAll.createDeltaRhoFile configure -state normal
+        .selectAll.batchCreateDeltaRhoFile configure -state normal
     }
 }
 ################################################################################
@@ -2967,6 +3522,107 @@ proc ::jobCreate::includeInSelect {i f} {
     }
     if {[llength $::jobCreate::selectAllFiles] > 0} {
         .selectAll.runIt configure -state normal
+        .selectAll.batchRunIt configure -state normal
+    }
+}
+################################################################################
+# batchRunSelectAll creates a csh script to executes the appropriate version of selectAll for the
+# mode for all the files selected by selectAll.
+################################################################################
+proc ::jobCreate::batchRunSelectAll {} {
+    set node [$::jobCreate::jobInfo getElementsByTagName cutMode]
+    set mode [$node text]
+    set node [$::jobCreate::jobInfo getElementsByTagName outputDir]
+    set path [$node text]
+    # Assume selectAllM${mode}.C script is under the localDir job was submitted from.
+    # Assume code compiled for starLibVersion
+    set node [$::jobCreate::jobInfo getElementsByTagName localDir]
+    set lDir [$node text]
+    set node [$::jobCreate::jobInfo getElementsByTagName starLibVersion]
+    set sVer [$node text]
+
+    set logFile [file join $path data selectAllLog]
+    if {[file exists $logFile]} {
+        set log [open $logFile a]
+    } else  {
+        set log [open $logFile w]
+    }
+    set selectC   [file join $path scripts SelectAll${mode}.C]
+    if {![file exists $selectC]} {
+        set C   [open $selectC w]
+        puts $C "void SelectAll${mode} \(const char *dirName, const char *fileBase\) {"
+        puts $C "    gROOT->LoadMacro\(\"selectAllM${mode}.C\"\);"
+        puts $C "    selectAllM${mode}\(dirName,fileBase\);"
+        puts $C "};"
+        close $C
+    }
+    foreach s $::jobCreate::selectAllFiles {
+        # Check if we understand file and get suffix for button name.
+        if {[regexp {Data(\d+)} $s m i]} {
+            set ok true
+        } elseif {[regexp {Sum(\d+_\d+)} $s m i]} {
+            set ok true
+        }
+        if {!$ok} {
+            set abort [tk_messageBox -message "Problem parsing file name $f. Abort?" -type yesno \
+                    -icon question -title "in runSelectAll"]
+            if {$abort} {
+                break
+            } else {
+                continue
+            }
+        }
+#>>>>> Need to create a *.C file and a *.csh file for batch submission as was done for combine centralities.
+        set nTmp 0
+        set selectcsh [file join $path scripts schedSelect_${nTmp}.csh]
+        set selectLog [file join $path logs         Select_${nTmp}.log]
+        while {[file exists $selectcsh]} {
+            incr nTmp
+            set selectcsh [file join $path scripts schedSelect_${nTmp}.csh]
+            set selectLog [file join $path logs Select_${nTmp}.log]
+        }
+        set csh [open $selectcsh w]
+
+        puts $log "Creating C macro and csh script to run selectAll."
+        puts $log "Want to run following command."
+        puts $log "    root4star -q -b selectAllM${mode}.C\(\"$path\",\"[file rootname $s]\"\);"
+
+
+#>>>>> Should be easy to check if qsub is available and use condor if it is not.
+        if {[catch {exec qstat -u $::env(USER)}]} {
+            set condorFile [file join $path scripts schedSelect_${nTmp}.condor]
+            set condorLog  [file join $path scripts schedSelect_${nTmp}.condor.log]
+            set condorDir  [file join $path scripts]
+            ::jobCreate::createCondorFile $condorFile $selectcsh $selectLog $condorLog $condorDir
+
+            puts $csh "#!/bin/csh"
+            puts $csh "# condor_submit $condorFile"
+            puts $csh "cd $lDir"
+            puts $csh "starver $sVer"
+            puts $csh "root4star -q -b [file join $path scripts SelectAll${mode}.C\\(\\\"[file join $path data]\\\",\\\"[file rootname $s]\\\"\\)]"
+            close $csh
+            file attributes $selectcsh -permissions +x
+            catch {exec condor_submit $condorFile}
+        } else {
+            puts $csh "#!/bin/csh"
+            puts $csh "# qsub -o $selectLog -j y $selectcsh"
+            puts $csh "cd $lDir"
+            puts $csh "starver $sVer"
+            puts $csh "root4star -q -b [file join $path scripts SelectAll${mode}.C\\(\\\"[file join $path data]\\\",\\\"[file rootname $s]\\\"\\)]"
+            close $csh
+            exec qsub -o $selectLog -j y $selectcsh
+        }
+
+        .selectAll.tFrame.t insert end "Creating C macro and csh script to run selectAll." input
+        .selectAll.tFrame.t insert end "Want to run following command." input
+        .selectAll.tFrame.t insert end "    root4star -q -b selectAllM${mode}.C\(\"$path\",\"[file rootname $s]\"\);" input
+        .selectAll.tFrame.t see end
+
+        set fn [file rootname $s]
+        if {![winfo exists .selectAll.found.l$fn]} {
+            pack [label .selectAll.found.l$fn -text $fn]  -side left
+        }
+        .selectAll.files.sel$i configure -selectcolor blue
     }
 }
 ################################################################################
@@ -3044,6 +3700,126 @@ proc ::jobCreate::runSelectAll {} {
         .selectAll.runIt configure -text Done -command "" -state disabled
     }
     cd $pwd
+}
+################################################################################
+# batchCreateDeltaRhoFile creates .C and .csh files to run combineHistogram{mode} in
+# batch mode. This takes files produced by the selectAll{mode} macro and produces
+# \Delta\rho/\rho_{ref} histograms in one file.
+################################################################################
+proc ::jobCreate::batchCreateDeltaRhoFile {} {
+    set node [$::jobCreate::jobInfo getElementsByTagName cutMode]
+    set mode [$node text]
+    set node [$::jobCreate::jobInfo getElementsByTagName outputDir]
+    set path [$node text]
+    # Assume combineHistograms.C script is under the localDir job was submitted from.
+    # Assume code compiled for starLibVersion
+    set node [$::jobCreate::jobInfo getElementsByTagName localDir]
+    set lDir [$node text]
+    set node [$::jobCreate::jobInfo getElementsByTagName starLibVersion]
+    set sVer [$node text]
+
+    set logFile [file join $path data combineLog]
+    if {[file exists $logFile]} {
+        set log [open $logFile a]
+    } else  {
+        set log [open $logFile w]
+    }
+
+    for {set j 0} {$j < $::jobCreate::numberHistFiles} {incr j} {
+        set fList [list]
+        set fN [list]
+        set icList [list]
+        foreach h [lsort -dictionary $::jobCreate::histFileList($j)] {
+            set ok false
+            if {[regexp {Data(\d+)} $h m ic]} {
+                set ok true
+            } elseif {[regexp {Sum(\d+_\d+)} $h m ic]} {
+                set ok true
+            }
+            if {!$ok} {
+                set abort [tk_messageBox -message "Problem parsing file name $h. Abort?" -type yesno \
+                        -icon question -title "in createDeltaRhoFile"]
+                if {$abort} {
+                    break
+                } else {
+                    continue
+                }
+            }
+            lappend fList \"$h\"
+            lappend fN $h
+            lappend icList $ic
+        }
+
+        set outFile DeltaRhoBySqrtRho_$j
+        set numFiles [llength $fList]
+        if {0 == $numFiles} {
+            continue
+        }
+
+#>>>>> Need to create a *.csh file for batch submission as was done for combine centralities.
+        set nTmp 0
+        set deltaRhoC   [file join $path scripts Combine${mode}_${nTmp}.C]
+        set deltaRhocsh [file join $path scripts schedDeltaRho_${nTmp}.csh]
+        set deltaRhoLog [file join $path logs         DeltaRho_${nTmp}.log]
+        while {[file exists $deltaRhoC]} {
+            incr nTmp
+            set deltaRhoC   [file join $path scripts Combine${mode}_${nTmp}.C]
+            set deltaRhocsh [file join $path scripts schedDeltaRho_${nTmp}.csh]
+            set deltaRhoLog [file join $path logs DeltaRho_${nTmp}.log]
+        }
+        set csh [open $deltaRhocsh w]
+
+        puts $log "Creating C macro and csh script to run combineHistograms${mode}."
+        puts $log "Want to run following commands."
+        puts $log "    gROOT->LoadMacro(\"combineHistograms${mode}.C\");"
+        puts $log "    char *inNames\[\] = {[join $fList ,]};"
+        puts $log "    combineHistograms${mode}(\"[file join $path data]\",inNames,\"$outFile\",$numFiles);"
+
+        set C   [open $deltaRhoC w]
+        puts $C "void Combine${mode}_${nTmp} \(const char *dirName, const char *outName\) {"
+        puts $C "    gROOT->LoadMacro(\"combineHistograms${mode}.C\");"
+        puts $C "    char *inNames\[\] = {[join $fList ,]};"
+        puts $C "    combineHistograms${mode}(dirName,inNames,outName,$numFiles);"
+        puts $C "};"
+        close $C
+
+#>>>>> Should be easy to check if qsub is available and use condor if it is not.
+        if {[catch {exec qstat -u $::env(USER)}]} {
+            set condorFile [file join $path scripts schedDeltaRho_${nTmp}.condor]
+            set condorLog  [file join $path scripts schedDeltaRho_${nTmp}.condor.log]
+            set condorDir  [file join $path scripts]
+            ::jobCreate::createCondorFile $condorFile $deltaRhocsh $deltaRhoLog $condorLog $condorDir
+
+            puts $csh "#!/bin/csh"
+            puts $csh "# condor_submit $condorFile"
+            puts $csh "cd $lDir"
+            puts $csh "starver $sVer"
+            puts $csh "root4star -q -b [file join $path scripts Combine${mode}_${nTmp}.C\\(\\\"[file join $path data]\\\",\\\"$outFile\\\"\\)]"
+            close $csh
+            file attributes $deltaRhocsh -permissions +x
+            catch {exec condor_submit $condorFile}
+        } else {
+            puts $csh "#!/bin/csh"
+            puts $csh "# qsub -o $deltaRhoLog -j y $deltaRhocsh"
+            puts $csh "cd $lDir"
+            puts $csh "starver $sVer"
+            puts $csh "root4star -q -b [file join $path scripts Combine${mode}_${nTmp}.C\\(\\\"[file join $path data]\\\",\\\"$outFile\\\"\\)]"
+            close $csh
+            exec qsub -o $deltaRhoLog -j y $deltaRhocsh
+        }
+
+        .selectAll.tFrame.t insert end "Creating C macro and csh script to run selectAll." input
+        .selectAll.tFrame.t insert end "Want to run following commands." input
+        .selectAll.tFrame.t insert end "    gROOT->LoadMacro(\"combineHistograms${mode}.C\");\n"
+        .selectAll.tFrame.t insert end "    char *inFile\[\] = {[join $fList ,]}\n"
+        .selectAll.tFrame.t insert end "    combineHistograms${mode}(\"$path\",inFile,\"$outFile\",$numFiles);\n"
+        .selectAll.tFrame.t see end
+
+        foreach ic $icList {
+            .selectAll.hists.cb${j}${ic} configure -selectcolor blue
+        }
+    }
+    close $log
 }
 ################################################################################
 # createDeltaRhoFile executes the combineHistogram{mode} which will read histograms
@@ -3467,7 +4243,8 @@ proc ::jobCreate::displayHelp {w} {
 
     $w insert end " o Apr\u00e8s batch\n" bullet
     $w insert end "- Add Histograms\n" n
-    $w insert end "  For use after all jobs are finished. " n
+    $w insert end "  For use after all jobs are finished (although we do keep track of which data histograms. " n
+    $w insert end "  have been added so you can run this before all batch jobs are done, just to get a look). " n
     $w insert end "Add all cuts histograms to Cuts.root, all QA histograms " n
     $w insert end "to QA.root and all dataHistograms. For StEStructCorrelation " n
     $w insert end "we end up with one DataN.root histograms for each " n
@@ -3476,25 +4253,42 @@ proc ::jobCreate::displayHelp {w} {
     $w insert end "Because of root memory limitation, we add small groups into intermediate files, then " n
     $w insert end "sum all these groups together, cleaning up the intermediate " n
     $w insert end "files at the end.\n " n
-    $w insert end " This can take a while.\n" n
-    $w insert end " I have recently added visual feed-back and more user control " n
-    $w insert end "over the process. May not be 100% stable yet. \n\n" n
+    $w insert end " For each centrality you can select how many files to add as a subgroup.\n" n
+    $w insert end "The \"Added files\" buttons shows which files have been added." n
+    $w insert end "The \"Files to add\" buttons allows you to exclude specific files from being added." n
+    $w insert end " The \"Add em up\" button at the bottom will use the interactive node you\n" n
+    $w insert end "are on to add files sequentially. " n
+    $w insert end "The \"Add using batch\" will create necessary files so we can run hadd in batch. " n
+    $w insert end "You can monitor progress using the jobMonitor. I figured out how to hold and release " n
+    $w insert end "the jobs to sum the sub-groups on SGE. For condor I don't know how to release " n
+    $w insert end "those jobs when the sub-groups have finished adding. You must do that yourself " n
+    $w insert end "(with the jobMonitor it is easy.) \n\n" n
     $w insert end "- Combine centralities\n" n
     $w insert end "  For StEStructCorrelation only. \n" n
     $w insert end "Allows user to specify which of the Data{n} files (where n " n
     $w insert end "is a centrality bin) to merge creating Sum{n1}_{n2}. " n
     $w insert end "Original Data{n} files are left. Merge is done by renaming " n
     $w insert end "histograms (in the Sum{n1}_{n2} file) to include the centrality bin in the " n
-    $w insert end "the z vertex bin tag. \n\n" n
+    $w insert end "the z vertex bin tag. \n" n
+    $w insert end "  As in \"Add Histograms\" you can \"Add em up\" on the interactive node " n
+    $w insert end "or \"Add in batch\" to submit as batch jobs. Again, use jobMonitor to see " n
+    $w insert end "status of batch jobs \n\n" n
     $w insert end "- selectAll macro\n" n
     $w insert end "  For StEStructCorrelation only. \n" n
     $w insert end "Allows user to speficy which Data{n} and Sum{n1}_{n2} files " n
-    $w insert end "to run through selectAllM{mode} macro. This macro combines cut bins " n
+    $w insert end "to run through selectAllM{mode} macro (via \"Run selectAll\" (interactively) " n
+    $w insert end "or \"Batch selectAll\" (as batch jobs)). This macro combines cut bins " n
     $w insert end "but doesn't create \u0394\u03c1/\u221a\u03c1_ref histograms. \n" n
-    $w insert end "After selectAllM{mode} macro has been run user can specify which " n
+    $w insert end "After the selectAllM{mode} macro has been run user can specify which " n
     $w insert end "classes of files to turn into \u0394\u03c1/\u221a\u03c1_ref histograms " n
     $w insert end "via the combineHistograms{mode} macro. Output of this macro " n
-    $w insert end "is a root histogram file that can be used without the STAR library. \n\n" n
+    $w insert end "is a root histogram file that can be used without the STAR library. " n
+    $w insert end "You may wish to create more than one \u0394\u03c1/\u221a\u03c1_ref histogram file " n
+    $w insert end "(for example if you want minimum bias and centrality dependent histograms) " n
+    $w insert end "and you can use \"Add \u0394\u03c1/\u221a\u03c1_ref file for this purpose. " n
+    $w insert end "The combineHistograms{mode} macro can be run on the interactive node " n
+    $w insert end "(via \"Create \u0394\u03c1/\u221a\u03c1_ref files\") or in batch " n
+    $w insert end "(via \"Batch \u0394\u03c1/\u221a\u03c1_ref files\".)\n\n" n
     $w insert end "- copy to HPSS\n" n
     $w insert end "  Copy the output directory tree to HPSS using htar. \n" n
     $w insert end "This will result in a tar file named \$jobName.tar (jobName is described " n
