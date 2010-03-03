@@ -1,7 +1,7 @@
-// @(#)root/qt:$Id: TGQt.cxx,v 1.37 2009/11/24 20:16:31 fine Exp $
+// @(#)root/qt:$Id: TGQt.cxx,v 1.38 2010/03/03 21:17:30 fine Exp $
 // Author: Valeri Fine   21/01/2002
 /****************************************************************************
-** $Id: TGQt.cxx,v 1.37 2009/11/24 20:16:31 fine Exp $
+** $Id: TGQt.cxx,v 1.38 2010/03/03 21:17:30 fine Exp $
 **
 ** Copyright (C) 2002 by Valeri Fine. Brookhaven National Laboratory.
 **                                    All rights reserved.
@@ -850,7 +850,7 @@ Bool_t TGQt::Init(void* /*display*/)
 {
    //*-*-*-*-*-*-*-*-*-*-*-*-*-*Qt GUI initialization-*-*-*-*-*-*-*-*-*-*-*-*-*-*
    //*-*                        ========================                      *-*
-   fprintf(stderr,"** $Id: TGQt.cxx,v 1.37 2009/11/24 20:16:31 fine Exp $ this=%p\n",this);
+   fprintf(stderr,"** $Id: TGQt.cxx,v 1.38 2010/03/03 21:17:30 fine Exp $ this=%p\n",this);
 #ifndef R__QTWIN32
    extern void qt_x11_set_global_double_buffer(bool);
 //   qt_x11_set_global_double_buffer(false);
@@ -2271,11 +2271,12 @@ void  TGQt::SetMarkerStyle(Style_t markerstyle){
 
    if (fMarkerStyle == markerstyle) return;
    TPoint shape[15];
-   if (markerstyle >= 31) return;
    markerstyle  = TMath::Abs(markerstyle);
-   fMarkerStyle = markerstyle;
+   if (markerstyle%1000 >= 31) return;
+   fMarkerStyle = markerstyle%1000;
+   Style_t penWidth = markerstyle-fMarkerStyle;
    Int_t im = Int_t(4*fMarkerSize + 0.5);
-   switch (markerstyle) {
+   switch (fMarkerStyle) {
 
 case 2:
    //*-*--- + shaped marker
@@ -2283,7 +2284,7 @@ case 2:
    shape[1].SetX(im);  shape[1].SetY( 0);
    shape[2].SetX(0) ;  shape[2].SetY( -im);
    shape[3].SetX(0) ;  shape[3].SetY( im);
-   SetMarkerType(4,4,shape);
+   SetMarkerType(4+penWidth,4,shape);
    break;
 
 case 3:
@@ -2297,13 +2298,13 @@ case 3:
    shape[5].SetX( im);  shape[5].SetY( im);
    shape[6].SetX(-im);  shape[6].SetY( im);
    shape[7].SetX( im);  shape[7].SetY(-im);
-   SetMarkerType(4,8,shape);
+   SetMarkerType(4+penWidth,8,shape);
    break;
 
 case 4:
 case 24:
    //*-*--- O shaped marker
-   SetMarkerType(0,im*2,shape);
+   SetMarkerType(0+penWidth,im*2,shape);
    break;
 
 case 5:
@@ -2313,7 +2314,7 @@ case 5:
    shape[1].SetX( im);  shape[1].SetY( im);
    shape[2].SetX(-im);  shape[2].SetY( im);
    shape[3].SetX( im);  shape[3].SetY(-im);
-   SetMarkerType(4,4,shape);
+   SetMarkerType(4+penWidth,4,shape);
    break;
 
 case  6:
@@ -2322,7 +2323,7 @@ case  6:
    shape[1].SetX( 1);  shape[1].SetY( 0);
    shape[2].SetX( 0);  shape[2].SetY(-1);
    shape[3].SetX( 0);  shape[3].SetY( 1);
-   SetMarkerType(4,4,shape);
+   SetMarkerType(4+penWidth,4,shape);
    break;
 
 case 7:
@@ -2333,7 +2334,7 @@ case 7:
    shape[3].SetX( 1);  shape[3].SetY( 0);
    shape[4].SetX(-1);  shape[4].SetY(-1);
    shape[5].SetX( 1);  shape[5].SetY(-1);
-   SetMarkerType(4,6,shape);
+   SetMarkerType(4+penWidth,6,shape);
    break;
 case  8:
 case 20:
@@ -2372,7 +2373,7 @@ case 25:
    shape[2].SetX( im);  shape[2].SetY( im);
    shape[3].SetX(-im);  shape[3].SetY( im);
    //     shape[4].SetX(-im);  shape[4].SetY(-im);
-   SetMarkerType(2,4,shape);
+   SetMarkerType(2+penWidth,4,shape);
    break;
 case 26:
    //*-*--- HIGZ open triangle up
@@ -2380,7 +2381,7 @@ case 26:
    shape[1].SetX( im);  shape[1].SetY( im);
    shape[2].SetX(  0);  shape[2].SetY(-im);
    //     shape[3].SetX(-im);  shape[3].SetY( im);
-   SetMarkerType(2,3,shape);
+   SetMarkerType(2+penWidth,3,shape);
    break;
 case 27: {
    //*-*--- HIGZ open losange
@@ -2390,7 +2391,7 @@ case 27: {
    shape[2].SetX(imx);  shape[2].SetY( 0);
    shape[3].SetX(  0);  shape[3].SetY( im);
    //     shape[4].SetX(-imx); shape[4].SetY( 0);
-   SetMarkerType(2,4,shape);
+   SetMarkerType(2+penWidth,4,shape);
    break;
          }
 case 28: {
@@ -2409,7 +2410,7 @@ case 28: {
    shape[10].SetX(-imx);shape[10].SetY(imx);
    shape[11].SetX(-im); shape[11].SetY(imx);
    //     shape[12].SetX(-im); shape[12].SetY(-imx);
-   SetMarkerType(2,12,shape);
+   SetMarkerType(2+penWidth,12,shape);
    break;
          }
 case 29: {
@@ -2429,7 +2430,7 @@ case 29: {
    shape[8].SetX(  0);  shape[8].SetY( im);
    shape[9].SetX(-im4); shape[9].SetY( im4);
    //     shape[10].SetX(-im); shape[10].SetY( im4);
-   SetMarkerType(3,10,shape);
+   SetMarkerType(3+penWidth,10,shape);
    break;
          }
 
@@ -2449,7 +2450,7 @@ case 30: {
    shape[7].SetX(im4);  shape[7].SetY( im4);
    shape[8].SetX(  0);  shape[8].SetY( im);
    shape[9].SetX(-im4); shape[9].SetY( im4);
-   SetMarkerType(2,10,shape);
+   SetMarkerType(2+penWidth,10,shape);
    break;
          }
 
@@ -2459,7 +2460,7 @@ case 31:
    break;
 default:
    //*-*--- single dot
-   SetMarkerType(0,0,shape);
+   SetMarkerType(0+penWidth,0,shape);
    }
 }
 

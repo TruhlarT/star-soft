@@ -1,7 +1,7 @@
-// @(#)root/qt:$Id: TQtMarker.cxx,v 1.5 2009/08/03 18:02:57 fine Exp $
+// @(#)root/qt:$Id: TQtMarker.cxx,v 1.6 2010/03/03 21:17:30 fine Exp $
 // Author: Valeri Fine   21/01/2002
 /****************************************************************************
-** $Id: TQtMarker.cxx,v 1.5 2009/08/03 18:02:57 fine Exp $
+** $Id: TQtMarker.cxx,v 1.6 2010/03/03 21:17:30 fine Exp $
 **
 ** Copyright (C) 2002 by Valeri Fine. Brookhaven National Laboratory.
 **                                    Al;l rights reserved.
@@ -31,9 +31,10 @@ ClassImp(TQtMarker)
 
 //______________________________________________________________________________
 TQtMarker::TQtMarker(int n, TPoint *xy, int type) : fNumNode(n),
-               fChain(0), fCindex(0), fMarkerType(type)
+               fChain(0), fCindex(0), fMarkerType(0),fLineWidth(0)
 {
-  if (type != kDot) {
+  SetPenAttributes(type);
+  if (GetType() != kDot) {
      fChain.resize(n);
      TPoint *rootPoint = xy;
      for (int i=0;i<n;i++,rootPoint++)
@@ -49,34 +50,48 @@ TQtMarker &TQtMarker::operator=(const TAttMarker&markerAttributes)
 	SetMarkerAttributes(markerAttributes);
 	return *this;
 }
+
 //______________________________________________________________________________
 TQtMarker::TQtMarker(const TAttMarker &markerAttributes)
 {
    // Create the TQtMarker from ROOT TAttMarker 
 	SetMarkerAttributes(markerAttributes);
 }
+
 //______________________________________________________________________________
 void TQtMarker::SetMarkerAttributes(const TAttMarker& markerAttributes)
 {
    // Map Qt marker  attributes to ROOT TAttMaker parameters
    fCindex     = markerAttributes.GetMarkerColor();
-   fMarkerType = markerAttributes.GetMarkerStyle();
+   SetPenAttributes(markerAttributes.GetMarkerStyle());
   // to be done yet:  fNumNode    = markerAttributes.GetMarkerSize();
+}
+
+//______________________________________________________________________________
+void  TQtMarker::SetPenAttributes(int type)
+{
+   // Pen attrbutes is 1000*width + "marker style"
+   static const int packFactor = 1000;
+   fMarkerType = type%packFactor;
+   fLineWidth = (type - fMarkerType)/packFactor;
 }
 //______________________________________________________________________________
 int   TQtMarker::GetNumber() const {return fNumNode;}
 //______________________________________________________________________________
 const QPolygon &TQtMarker::GetNodes() const {return fChain;}
 //______________________________________________________________________________
-int  TQtMarker::GetType() const {return fMarkerType;}
+int  TQtMarker::GetType()  const {return fMarkerType;}
+
+//______________________________________________________________________________
+int  TQtMarker::GetWidth() const { return fLineWidth;}
 
 //______________________________________________________________________________
 void TQtMarker::SetMarker(int n, TPoint *xy, int type)
 {
 //*-* Did we have a chain ?
   fNumNode = n;
-  fMarkerType = type;
-  if (fMarkerType != kDot) {
+  SetPenAttributes(type);
+  if (GetType() != kDot) {
     fChain.resize(n);
     TPoint *rootPoint = xy;
     for (int i=0;i<n;i++,rootPoint++)
@@ -106,7 +121,11 @@ void  TQtMarker::DrawPolyMarker(QPainter &p, int n, TPoint *xy)
 		p.drawPoints(qtPoints);
 	} else {
 		int r = this->GetNumber()/2;
-		p.setPen(mColor);
+      if (this->GetWidth()>0) {
+         p.setPen(QPen(mColor,this->GetWidth()));
+      } else {
+         p.setPen(mColor);
+      }
 		switch (this -> GetType())
 		{
 		case 1:
