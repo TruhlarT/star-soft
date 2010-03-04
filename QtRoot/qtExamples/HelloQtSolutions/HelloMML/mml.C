@@ -12,7 +12,7 @@ void mml() {
    // write formulas
    TLatex l;
    
-	l->SetTextFont(61); //!!!  turn the latex redndereing off
+	l.SetTextFont(61); //!!!  turn the latex redndereing off
 
    l.SetTextAlign(12);
    l.SetTextSize(0.04);
