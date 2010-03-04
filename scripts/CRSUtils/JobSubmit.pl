@@ -424,7 +424,8 @@ if ( $ThisYear == 2005 ){
 		rdaq_string2ftype("upcjpsi"),
 		rdaq_string2ftype("upc"),
                 rdaq_string2ftype("ht"),
-                rdaq_string2ftype("atomcules")
+                rdaq_string2ftype("atomcules"),
+                rdaq_string2ftype("pmdftp")
 		);
     $ZEROBIAS=  rdaq_string2ftype("zerobias");
 
@@ -440,7 +441,7 @@ if ( $ThisYear == 2005 ){
 
     # at least, p+p calib
 #    $DCHAIN{"AuAu"} = "P2010a,btof,BEmcChkStat,QAalltrigs,Corr4,OSpaceZ2,OGridLeak3D,-hitfilt";
-    $DCHAIN{"AuAu"} = "P2010a,btof,BEmcChkStat,Corr4,OSpaceZ2,OGridLeak3D,-hitfilt";
+    $DCHAIN{"AuAu"} = "P2010a,pmdReco,btof,BEmcChkStat,Corr4,OSpaceZ2,OGridLeak3D,-hitfilt";
     $DCHAIN{"PPPP"} = "pp2010a,btof,VFPPVnoCTB,beamline,BEmcChkStat,QAalltrigs,Corr4,OSpaceZ2,OGridLeak3D,-hitfilt";
 
     # allow chain switch on condition matching
