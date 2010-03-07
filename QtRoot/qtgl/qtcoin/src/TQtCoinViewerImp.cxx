@@ -1132,7 +1132,7 @@ void TQtCoinViewerImp::MakeMenu()
    //
    QAction *interruptMenuAction =  new QAction("Interrupt",this);
    interruptMenuAction->setShortcut(Qt::ALT+Qt::Key_C);
-   connect (interruptMenuAction, SIGNAL( clicked()  ) , this, SLOT( InterruptCB() ) );
+   connect (interruptMenuAction, SIGNAL( triggered() ) , this, SLOT( InterruptCB() ) );
    const char * interruptMenuActionText("Send the interruption signal to the application");
    interruptMenuAction->setWhatsThis(interruptMenuActionText);
    const QPixmap &pixmap = TQtGui::GetPicture("interrupt.xpm");
