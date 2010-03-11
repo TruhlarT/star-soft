@@ -1,8 +1,8 @@
-// @(#)root/g3d:$Name:  $:$Id: TQtGLViewerImp.h,v 1.17 2009/09/07 04:42:13 fine Exp $
+// @(#)root/g3d:$Name:  $:$Id: TQtGLViewerImp.h,v 1.18 2010/03/11 19:21:43 fine Exp $
 // Author: Valery Fine      23/05/97
 
 /****************************************************************************
-** $Id: TQtGLViewerImp.h,v 1.17 2009/09/07 04:42:13 fine Exp $
+** $Id: TQtGLViewerImp.h,v 1.18 2010/03/11 19:21:43 fine Exp $
 **
 ** Copyright (C) 2002 by Valeri Fine. Brookhaven National Laboratory.
 **                                    All rights reserved.
@@ -38,14 +38,8 @@
 #include "Gtypes.h"
 
 #ifndef __CINT__
-#  include <qglobal.h>
-#  if QT_VERSION < 0x40000
-#    include <qmainwindow.h>
-#    include <qptrvector.h>
-#  else /* QT_VERSION */
-#    include <QMainWindow>
-#  endif /* QT_VERSION */
-#  include <qlabel.h>
+#  include <QtGui/QMainWindow>
+#  include <QtGui/QLabel>
 #else
    class QMainWindow;
    class QString;
@@ -64,9 +58,7 @@ class QAction;
   class TQtGLViewerImp :public QMainWindow, public TGLViewerImp {
 Q_OBJECT
 #else 
-//MOC_SKIP_BEGIN
   class TQtGLViewerImp : public TGLViewerImp {
-//MOC_SKIP_END
 #endif
 private:
    TQtGLViewerImp(const TQtGLViewerImp&);
@@ -74,19 +66,13 @@ private:
 protected:
    TString         fSaveFile;           // the file name to save the pixmap to
    TString         fSaveType;           // the image format type name
-   Int_t           fMaxSnapFileCounter; // The max number of the difffrent "snapshot files" (The length of the cyclic buffer)
+   Int_t           fMaxSnapFileCounter; // The max number of the different "snapshot files" (The length of the cyclic buffer)
    static Int_t    gfDefaultMaxSnapFileCounter; // the default max number of the different "snapshot files" (The length of the cyclic bugger)
    QGLWidget      *fGLWidget;           // QT GL widget to render the view
    TVirtualPad    *fPad;                // For forward compatibility with the new viewer
    TContextMenu   *fContextMenu;        // ROOT Context menu for the 3D widget
 #ifndef __CINT__
-#if QT_VERSION < 0x40000
-   QPtrVector<QLabel> fStatusBar;
-#else /* QT_VERSION */
-//MOC_SKIP_BEGIN
    std::vector<QLabel*> fStatusBar;
-//MOC_SKIP_END
-#endif /* QT_VERSION */
 #endif
    TQtGLViewerImp *fSelectedView;        // extra viewer to show the selected object only
    Bool_t          fSelectedViewActive;  // the flag to activate the "Selected view"
