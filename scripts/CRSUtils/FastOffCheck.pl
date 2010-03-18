@@ -35,6 +35,8 @@ $UPDATE  = shift(@ARGV) if ( @ARGV );   # 0, scan and delete if old,
                                         # 1, scan and enter in db
                                         # 2, get db entries and compare
 
+exit if ( ! -d $TARGET);                # do not lose time, leave
+
 # You can debug a specific run #
 #$DEBUGR = 8348080;
 $RMEVROOT  = 1==1;                      # could be a parameter later, delete event.root files
