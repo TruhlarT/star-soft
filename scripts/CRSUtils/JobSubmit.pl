@@ -425,7 +425,8 @@ if ( $ThisYear == 2005 ){
 		rdaq_string2ftype("upc"),
                 rdaq_string2ftype("ht"),
                 rdaq_string2ftype("atomcules"),
-                rdaq_string2ftype("pmdftp")
+                rdaq_string2ftype("pmdftp"),
+                rdaq_string2ftype("monitor")
 		);
     $ZEROBIAS=  rdaq_string2ftype("zerobias");
 
@@ -549,6 +550,14 @@ if ($TARGET !~ m/^\d+$/){
     for( $i=$low ; $i <= $high ; $i++){
 	if ( $i != 0){  $ltarget = sprintf("%s%2.2d%s",$disk,$i,$last);}
 	else         {  $ltarget = $target;}
+
+	if ( ! -e "$ltarget"){
+	    print "$SELF : $ltarget does not exists\n"; 
+	    rdaq_set_message($SSELF,
+			     "Target disk space warning",
+			     "$larget does not exists");
+	    next;
+	}
 
 	#
 	# FreeSpace file is generated from outside and especially from
