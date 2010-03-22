@@ -289,12 +289,13 @@ END
           foreach my $mfile (@arstream) {      
 	      if ($nstr."_".$mfile[$ndt] >= 0.01) {
           $rte."_".$mfile[$ndt] =  $rte."_".$mfile[$ndt]/$nstr."_".$mfile[$ndt];           
-         }else{
+            }else{
 	  next;
-         }
+           }
 	$ndt++;
+	  }
     } # foreach tdate
- 
+
 
     &StDbProdDisconnect();
 
@@ -374,6 +375,7 @@ END
 
 	    print STDOUT $graph->plot(\@data)->$format();
 	}
+#
     }
 }
  
@@ -411,7 +413,7 @@ sub beginHtml {
 print <<END;
   <html>
    <head>
-          <title>Jobs Efficiency</title>
+          <title>CPU versus RealTime usage</title>
    </head>
    <body BGCOLOR=\"#ccffff\">
      <h1 align=center>No Data for that Period</h1>
