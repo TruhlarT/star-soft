@@ -411,18 +411,20 @@ if ( $ThisYear == 2005 ){
         rdaq_string2ftype("physics_adc")."|".
         rdaq_string2ftype("upsilon").    "|".
         rdaq_string2ftype("minbias").    "|".
-        rdaq_string2ftype("minbias_adc")."|".
-        rdaq_string2ftype("btag");
+	#rdaq_string2ftype("upc").        "|".  # <--
+        rdaq_string2ftype("minbias_adc");
+
 
     @EXPRESS = (
 		rdaq_string2ftype("express"),
 		rdaq_string2ftype("jpsi"),
+		rdaq_string2ftype("btag"),
 		rdaq_string2ftype("gamma"),
 		rdaq_string2ftype("mtd"),
 	        rdaq_string2ftype("hlt"),
 		rdaq_string2ftype("muon"),
 		rdaq_string2ftype("upcjpsi"),
-		rdaq_string2ftype("upc"),
+		rdaq_string2ftype("upc"),    # <---
                 rdaq_string2ftype("ht"),
                 rdaq_string2ftype("atomcules"),
                 rdaq_string2ftype("pmdftp"),
