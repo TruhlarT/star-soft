@@ -443,7 +443,7 @@ print <<END;
           <title>CPU versus RealTime usage</title>
    </head>
    <body BGCOLOR=\"#ccffff\">
-     <h1 align=center>No Data for that Period</h1>
+     <h1 align=center>No Data for $qprod and $qperiod </h1>
      
 
     </body>
