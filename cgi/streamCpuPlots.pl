@@ -339,9 +339,9 @@ END
 	$legend[3] = "st_hlt       ";
 	$legend[4] = "st_gamma     ";
 	
-#	@data = (\@ndate, \@arphysics, \@armtd, \@arupsilon, \@arhlt, \@argamma ) ;
+	@data = (\@ndate, \@arphysics, \@armtd, \@arupsilon, \@arhlt, \@argamma ) ;
 
-        	@data = (\@ndate, \@arphysics );   
+#        	@data = (\@ndate, \@arphysics );   
   
 	my $ylabel;
 	my $gtitle; 
@@ -352,7 +352,7 @@ END
  
 
 	$min_y = 0;
-	$max_y = 10 ; 
+	$max_y = 50 ; 
 
 	if (scalar(@ndate) >= 20 ) {
 	    $skipnum = int(scalar(@ndate)/20);
