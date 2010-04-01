@@ -333,10 +333,6 @@ END
 
     } else {
 	 
-	my $format = $graph->export_format();
-        print header("image/$format");
-        binmode STDOUT;
-
 	$legend[0] = "st_physics   ";
 	$legend[1] = "st_mtd       ";
 	$legend[2] = "st_upsilon   ";
@@ -356,7 +352,7 @@ END
  
 
 	$min_y = 0;
-#	$max_y = 140 ; 
+	$max_y = 10 ; 
 
 	if (scalar(@ndate) >= 20 ) {
 	    $skipnum = int(scalar(@ndate)/20);
@@ -397,6 +393,7 @@ END
 	    print $qqr->header(-type => 'text/html')."\n";
 	    &beginHtml();
 	} else {
+            my $format = $graph->export_format;
 	    print header("image/$format");
 	    binmode STDOUT;
 
