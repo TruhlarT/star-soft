@@ -76,7 +76,7 @@ my @arphysics = ();
 my @argamma = ();
 my @arhlt = ();
 my @ndate = ();
-
+my $ndt = 0;
 
 $JobStatusT = "JobStatus2009";
  
@@ -187,6 +187,7 @@ END
   my @jbstat = ();  
   my $nstat = 0;
 
+
      @arstream = ();
 
 
@@ -234,7 +235,7 @@ END
     }
 
 
- my $ndt = 0;
+ $ndt = 0;
  my $jset;
 
     #####################
@@ -247,8 +248,8 @@ END
  @arphysics = ();
  @argamma = ();
  @arhlt = ();
-     @ndate = ();
-
+ @ndate = ();
+ 
 
     foreach  $tdate (@ardays) {
 	@jbstat = ();  
@@ -313,6 +314,8 @@ END
 	       }
               }
           }
+print STDOUT "Check data   ",$ndt,"   ", $ndate[$ndt],"   ",$arphysics[$ndt],"   ", $argamma[$ndt], "\n";
+
         $ndt++;
 
     } # foreach tdate
@@ -340,7 +343,9 @@ END
 	$legend[3] = "st_hlt       ";
 	$legend[4] = "st_gamma     ";
 	
-	@data = (\@ndate, \@arphysics, \@armtd, \@arupsilon, \@arhlt, \@argamma ) ;
+#	@data = (\@ndate, \@arphysics, \@armtd, \@arupsilon, \@arhlt, \@argamma ) ;
+
+        	@data = (\@ndate, \@arphysics );   
   
 	my $ylabel;
 	my $gtitle; 
@@ -439,6 +444,7 @@ print <<END;
    </head>
    <body BGCOLOR=\"#ccffff\">
      <h1 align=center>No Data for that Period</h1>
+     
 
     </body>
    </html>
