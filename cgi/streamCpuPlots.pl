@@ -165,7 +165,7 @@ END
 
     print $query->end_html();
 
- } else {
+ } else (
     
      my $qqr = new CGI;
 
@@ -329,13 +329,14 @@ print STDOUT "Check data   ",$ndt,"   ", $ndate[$ndt],"   ",$arphysics[$ndt],"  
     my $graph = new GD::Graph::linespoints(750,650);
 
     if ( ! $graph){
-	print STDOUT $query->header(-type => 'text/plain');
+	print STDOUT $qqr->header(-type => 'text/plain');
 	print STDOUT "Failed\n";
 
     } else {
 	# 
 	my $format = $graph->export_format();
-
+        print header("image/$format");
+        binmode STDOUT;
 
 	$legend[0] = "st_physics   ";
 	$legend[1] = "st_mtd       ";
@@ -394,7 +395,7 @@ print STDOUT "Check data   ",$ndt,"   ", $ndate[$ndt],"   ",$arphysics[$ndt],"  
 	$graph->set_y_axis_font(gdMediumBoldFont);
 	
 	if ( scalar(@ndate) <= 1 ) {
-	    print $query->header(-type => 'text/html')."\n";
+	    print $qqr->header(-type => 'text/html')."\n";
 	    &beginHtml();
 	} else {
 	    print header("image/$format");
