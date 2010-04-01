@@ -70,6 +70,12 @@ my $pstream;
 
 my %rte = {};
 my %nstr = {};
+my @arupsilon = ();
+my @armtd = ();
+my @arphysics = ();
+my @argamma = ();
+my @arhlt = ();
+
 
 
 $JobStatusT = "JobStatus2009";
@@ -233,6 +239,15 @@ END
 
     #####################
 
+
+ %rte = {};
+ %nstr = {};
+ @arupsilon = ();
+ @armtd = ();
+ @arphysics = ();
+ @argamma = ();
+ @arhlt = ();
+
     foreach  $tdate (@ardays) {
 	@jbstat = ();  
 	$nstat = 0;
@@ -283,7 +298,17 @@ END
           foreach my $mfile (@arstream) {      
               if ($nstr{$mfile,$ndt} >= 0.01) {
                   $rte{$mfile,$ndt} = $rte{$mfile,$ndt}/$nstr{$mfile,$ndt};
-
+		  if ( $mfile eq "physics" ) {
+	       $arphysics[$ndt] =  $rte{$mfile,$ndt};
+	      }elsif( $mfile eq "mtd" ) {
+               $armtd[$ndt] =  $rte{$mfile,$ndt};
+              }elsif( $mfile eq "upsilon" ) {
+               $arupsilon[$ndt] =  $rte{$mfile,$ndt};
+              }elsif( $mfile eq "gamma" ) {
+               $argamma[$ndt] =  $rte{$mfile,$ndt};
+              }elsif( $mfile eq "hlt" ) {
+               $arhlt[$ndt] =  $rte{$mfile,$ndt};
+	       }
               }
           }
         $ndt++;
@@ -313,7 +338,7 @@ END
 	$legend[3] = "st_hlt       ";
 	$legend[4] = "st_gamma     ";
 	
-	@data = (\@ndate, \@rte{physics}, \@rte{mtd}, \@rte{upsilon}, \@rte{hlt}, \@rte{gamma} ) ;
+	@data = (\@ndate, \@arphysics, \@armtd, \@arupsilon, \@arhlt, \@argamma ) ;
   
 	my $ylabel;
 	my $gtitle; 
