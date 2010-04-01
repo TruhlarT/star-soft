@@ -165,9 +165,9 @@ END
 
     print $query->end_html();
 
- } else (
+} else{
     
-     my $qqr = new CGI;
+  my $qqr = new CGI;
 
     my $qprod = $qqr->param('prod');
     my $qperiod = $qqr->param('period');
@@ -314,7 +314,6 @@ END
 	       }
               }
           }
-print STDOUT "Check data   ",$ndt,"   ", $ndate[$ndt],"   ",$arphysics[$ndt],"   ", $argamma[$ndt], "\n";
 
         $ndt++;
 
@@ -333,7 +332,7 @@ print STDOUT "Check data   ",$ndt,"   ", $ndate[$ndt],"   ",$arphysics[$ndt],"  
 	print STDOUT "Failed\n";
 
     } else {
-	# 
+	 
 	my $format = $graph->export_format();
         print header("image/$format");
         binmode STDOUT;
@@ -405,7 +404,7 @@ print STDOUT "Check data   ",$ndt,"   ", $ndate[$ndt],"   ",$arphysics[$ndt],"  
 	}
 #
     }
-}
+ }
  
 
 
