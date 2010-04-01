@@ -386,15 +386,15 @@ END
 	$graph->set_x_axis_font(gdMediumBoldFont);
 	$graph->set_y_axis_font(gdMediumBoldFont);
 	
-	if ( scalar(@ndate) <= 1 ) {
-	    print $query->header(-type => 'text/html')."\n";
-	    &beginHtml();
-	} else {
+#	if ( scalar(@ndate) <= 1 ) {
+#	    print $query->header(-type => 'text/html')."\n";
+#	    &beginHtml();
+#	} else {
 	    print header("image/$format");
 	    binmode STDOUT;
 
 	    print STDOUT $graph->plot(\@data)->$format();
-	}
+#	}
 #
     }
 }
