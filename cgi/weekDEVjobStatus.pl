@@ -289,7 +289,7 @@ my @prt;
    
       &printRowFd(); 
 
-      }elsif( $dfmon = 0 and $dftime > 7.1 ) {
+      }elsif( $dftime > 7.1 ) {
       
       $myJobS = "n/a";
       $myMemF = 0;
