@@ -67,18 +67,10 @@ my $pday;
 my $pcpu;
 my $prtime;
 my $pstream;
-my @rte_upsilon = ();
-my @rte_mtd = ();
-my @rte_hlt = ();
-my @rte_physics = ();
-my @rte_gamma = ();
-my @rte_minbias = ();
-my @nstr_upsilon = ();
-my @nstr_mtd = ();
-my @nstr_hlt = ();
-my @nstr_physics = ();
-my @nstr_gamma = ();
-my @nstr_minbias = ();
+
+my %rte = {};
+my %nstr = {};
+
 
 $JobStatusT = "JobStatus2009";
  
@@ -278,23 +270,26 @@ END
 	    $pstream  = ($$jset)->strv;
 
     if( $pcpu >= 0.01) {             
-            $rte."_".$pstream[$ndt] = $rte."_".$pstream[$ndt] + $prtime/$pcpu; 
-            $nstr."_".$pstream[$ndt]++;
+
+        $rte{$pstream,$ndt} = $rte{$pstream,$ndt} + $prtime/$pcpu;
+        $nstr{$pstream,$ndt}++;
          
             $ndate[$ndt] = $pday;    
 
 	    }
 	  }
 ####################        
+
           foreach my $mfile (@arstream) {      
-	      if ($nstr."_".$mfile[$ndt] >= 0.01) {
-          $rte."_".$mfile[$ndt] =  $rte."_".$mfile[$ndt]/$nstr."_".$mfile[$ndt];           
-            }else{
-	  next;
-           }
-	$ndt++;
-	  }
+              if ($nstr{$mfile,$ndt} >= 0.01) {
+                  $rte{$mfile,$ndt} = $rte{$mfile,$ndt}/$nstr{$mfile,$ndt};
+
+              }
+          }
+        $ndt++;
+
     } # foreach tdate
+
 
 
     &StDbProdDisconnect();
@@ -318,7 +313,7 @@ END
 	$legend[3] = "st_hlt       ";
 	$legend[4] = "st_gamma     ";
 	
-	@data = (\@ndate, \@rte_physics, \@rte_mtd, \@rte_upsilon, \@rte_hlt, \@rte_gamma ) ;
+	@data = (\@ndate, \@rte{physics}, \@rte{mtd}, \@rte{upsilon}, \@rte{hlt}, \@rte{gamma} ) ;
   
 	my $ylabel;
 	my $gtitle; 
@@ -329,7 +324,7 @@ END
  
 
 	$min_y = 0;
-	$max_y = 140 ; 
+#	$max_y = 140 ; 
 
 	if (scalar(@ndate) >= 20 ) {
 	    $skipnum = int(scalar(@ndate)/20);
