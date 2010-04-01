@@ -101,17 +101,20 @@ struct FileAttr => {
 ($sec,$min,$hour,$mday,$mon,$year,$wday,$yday,$isdst) = localtime;
     $thisday = (Sun,Mon,Tue,Wed,Thu,Fri,Sat)[(localtime)[6]];
 
-  my $ii = 0;
-  my $yr;
-  my $mdate;
+ my $ii = 0;
+ my $yr;
+ my $mdate;
   $yr = 1900 + $year;
   $mon++;
   if( $mon < 10) { $mon = '0'.$mon };
   if( $mday < 10) { $mday = '0'.$mday };
   $mdate = $yr."-".$mon."-".$mday;
-  my $iday;
-  my $testDay;
-  my $beforeDay;
+ my $iday;
+ my $testDay;
+ my $beforeDay;
+ my $lstmon = 0;
+ my $dfmon = 0;
+
   $iday = $dayHash{$thisday}; 
  $testDay = $Nday[$iday - 1];
 
@@ -268,15 +271,25 @@ my @prt;
 
 	$dftime = $ddate - $bdate ;
 
-	if($dftime <= 6 and $myJobS eq "Done") {
+	@prt = ();
+      @prt = split ("-", $cdate); 
+      $lstmon = $prt[1];
+      $dfmon = $lstmon - $mon;
+      if($dfmon = 1 ) {       
+
+      $bdate = $prt[0].$mon."00";
+      $dftime = $ddate - $bdate ;
+    } 
+
+	if( $dftime <= 6 and $myJobS eq "Done") {
 
       &printRow();
 
-       }elsif( $dftime <= 6 and $myJobS eq "Run not completed") {
+       }elsif( $dftime <= 6  and $myJobS eq "Run not completed") {
    
       &printRowFd(); 
 
-      }elsif( $dftime > 6.1 ) {
+      }elsif( $dfmon = 0 and $dftime > 7.1 ) {
       
       $myJobS = "n/a";
       $myMemF = 0;
@@ -285,7 +298,7 @@ my @prt;
       $myEvtD = 0;
 
       &printRowNA(); 
-     
+
         }
       }
 
