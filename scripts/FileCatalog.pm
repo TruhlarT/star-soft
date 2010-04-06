@@ -1,7 +1,7 @@
 # FileCatalog.pm
 #
 # Written by Adam Kisiel, service work November-December 2001
-# Directed and/or written+modified by J.Lauret, 2002 - 2009
+# Directed and/or written + modified by J.Lauret, 2002 - 2010
 #
 # Methods of class FileCatalog:
 #
@@ -130,7 +130,7 @@ require  Exporter;
 
 
 use vars qw($VERSION);
-$VERSION   =   "V01.367";
+$VERSION   =   "V01.368";
 
 # The hashes that hold a current context
 my %optoperset;
@@ -151,7 +151,6 @@ my $DEBUG     =  0;
 my $PCLASS    = "";
 my $DELAY     =  0;
 my $SILENT    =  0;
-my $MAXLIMIT  = 1000000000;
 my $OPTIMLIMIT= 10;                      # purely empirical I am afraid (just run query with -limit)
 my @DCMD;
 
@@ -4603,16 +4602,20 @@ sub run_query {
 
   $sqlquery .= join(" , ",(@selectunique))." FROM ".join(" , ",(@fromunique));
 
-  # Small stupidity check
+  # Small user stupidity check + a useful check on unsetting the limit
+  my $using_global_func = 0;
   if ( $#selectunique >= 1             &&
        ($sqlquery =~ /SUM\(.*\)/ ||
 	$sqlquery =~ /MIN\(.*\)/ ||
 	$sqlquery =~ /MAX\(.*\)/ ||
-	$sqlquery =~ /COUNT\(.*\)/ )  &&
-       $grouping !~ /GROUP BY/){
-      $sqlquery =~ m/( .*\()(.*)/;
-      &print_message("run_query()","$1) without GRP() will not lead to any result");
-      return;
+	$sqlquery =~ /COUNT\(.*\)/ ) ){
+      if ( $grouping !~ /GROUP BY/){
+	  $sqlquery =~ m/( .*\()(.*)/;
+	  &print_message("run_query()","$1) without GRP() will not lead to any result");
+	  return;
+      } else {
+	  $using_global_func = 1;
+      }
   }
 
 
@@ -4636,7 +4639,7 @@ sub run_query {
   # Sort out if a limiting number of records or range
   # has been asked
   #
-  my ($offset, $limit);
+  my ($offset, $limit)=(undef,undef);
   if (defined $valuset{"startrecord"}){
       $offset = $valuset{"startrecord"};
   } else {
@@ -4645,19 +4648,20 @@ sub run_query {
   if (defined $valuset{"limit"}){
       $limit = $valuset{"limit"};
       if($limit <= 0){
-	  $limit    = $MAXLIMIT;
-	  #        1000000000 -> 1.000.000.000
+	  $limit    = undef;
       }
   } else {
-      $limit = 100;
+      if ( ! $using_global_func){ $limit = 100;}
   }
-  if ( $limit < $OPTIMLIMIT && $FC::OPTIMIZE){ 
-      # remove optimization if a small number of rows is requested
-      # limit is arbitrary
-      $sqlquery =~ s/SQL_BUFFER_RESULT //;
+  if ( defined($limit) ){
+      if ( $limit < $OPTIMLIMIT && $FC::OPTIMIZE){ 
+	  # remove optimization if a small number of rows is requested
+	  # limit is arbitrary
+	  $sqlquery =~ s/SQL_BUFFER_RESULT //;
+      }
+      $sqlquery .= " LIMIT $offset, $limit";
   }
 
-  $sqlquery .= " LIMIT $offset, $limit";
   
 
 
