@@ -24,6 +24,7 @@ $MAIN  = "/star/data";                                   # default base path
 	  "/star/u/",
 	  "/star/simu/",
 	  "/star/grid/",
+	  "/star/scratch/",
 	  "/star/starlib/");                       
 
 
