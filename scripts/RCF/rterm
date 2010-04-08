@@ -21,7 +21,6 @@ set node=""
 set port=""
 set extra=""
 set col=""
-set node=""
 set excluded=""
 set DEBUG=0
 set pool="condor02.rcf.bnl.gov:9664"
@@ -65,13 +64,8 @@ while ( $count <= $#argv)
 	    set port="-p $argv[$count]"
 	    set extra="$extra port $argv[$count]"
 	    if ($DEBUG) then
-		echo "Additional args are   [$extra]"
+		echo "Extraneous args are   [$extra]"
 	    endif
-	    @ count++
-	    breaksw
-
-	case "-bg":
-	    set col=$argv[$count]
 	    @ count++
 	    breaksw
 
@@ -204,11 +198,6 @@ __EOF__
 end
 
 
-if ( $DEBUG ) then
-    echo "Node is [$node]"
-endif
-
-
 if ("$node" == "") then
     # Tom has requested an automatic node association
     # based on group name. Easy ...
@@ -225,22 +214,22 @@ if ("$node" == "") then
     switch ($GROUP)
        case "rhstar":
 	set node="rcas6+"
-        set pool="condor02.rcf.bnl.gov:9664"
+        set pool="condor01.rcf.bnl.gov:9664"
 	breaksw;
 
        case "rhphobos":
         set node="rcas4+"
-        set pool="condor02.rcf.bnl.gov:9663"
+        set pool="condor01.rcf.bnl.gov:9663"
 	breaksw;
 
        case "rhphenix":
 	set node="rcas2+"
-        set pool="condor02.rcf.bnl.gov:9662"
+        set pool="condor01.rcf.bnl.gov:9662"
 	breaksw;
 
        case "rhbrahms":
         set node="rcas0+"
-        set pool="condor02.rcf.bnl.gov:9661"
+        set pool="condor01.rcf.bnl.gov:9661"
 	breaksw;
 
        case "usatlas":
@@ -261,19 +250,19 @@ if ("$node" == "") then
 else
     switch ($node)
        case "rcas6*":
-        set pool="condor02.rcf.bnl.gov:9664"
+        set pool="condor01.rcf.bnl.gov:9664"
         breaksw;
 
        case "rcas4*":
-        set pool="condor02.rcf.bnl.gov:9663"
+        set pool="condor01.rcf.bnl.gov:9663"
         breaksw;
 
        case "rcas2*":
-        set pool="condor02.rcf.bnl.gov:9662"
+        set pool="condor01.rcf.bnl.gov:9662"
         breaksw;
 
        case "rcas0*":
-        set pool="condor02.rcf.bnl.gov:9661"
+        set pool="condor01.rcf.bnl.gov:9661"
         breaksw;
 
        case "acas*":
@@ -281,11 +270,8 @@ else
         breaksw;
 
        default:
-        # Exact node specification MUST allow rterm to work
-        # if node is accessible, regardless of condor pool or
-        # not.
-        #echo "no Condor pool found for $node"
-        #set help=1
+        # echo "no Condor pool found for $node"
+        # set help=1
         breaksw;
     endsw
 endif
@@ -315,13 +301,12 @@ Currently implemented options are :
   -x node    Exclude 'node' from possible node to connect to. May be
              a comma separated list of nodes.
   -funky     pick a color randomly
-  -bg color  pick specific color
 
 The 'NodeSpec' argument may be a node name (specific login to a given node) 
 or a partial node name followed by the '+' sign (wildcard). For example,
   % $prgm $node
 
-will open a connection on the least loaded node amongst all available 
+will open a connection on the least loaded node amongst all LSF-available 
 $wnode* nodes. By default, this command will determine the appropriate
 wildcarded node specification for your GroupID. However, if this help
 is displayed when the command '% $prgm' is used, contact the RCF support 
@@ -354,13 +339,8 @@ if( -e /usr/X11R6/bin/xterm) then
     # Linux with R6
     set TERM_PRGM=/usr/X11R6/bin/xterm
 endif
-if( -e /usr/bin/xterm) then
-    # Linux starting at SL5
-    set TERM_PRGM=/usr/bin/xterm
-endif
 if ( ! $?TERM_PRGM ) then
     echo "Could not locate an Xterm program"
-    exit
 endif
 
 
@@ -372,7 +352,8 @@ set TEST=`echo $node | $SED "s/+//"`
 
 
 if ("$TEST" != "$node") then
-    # use LSF lsload to pickup a node
+    # Used to use LSF lsload to pickup a node
+    # now uses Condor
     # Do not allow user to mess with us ...
     if ("$TEST" == "") then
 	echo "The '+' syntax requires a partial node name."
@@ -383,9 +364,12 @@ if ("$TEST" != "$node") then
     #set LOAD=`which lsload`
     #if( "$LOAD" == "") then
     # try to find it
-    set LOAD=""
-    foreach path ( /opt/local/bin /usr/local/bin /usr/bin )
+    foreach path ( /opt/local/bin /usr/local/bin  /usr/bin )
 	if ( -e $path) then
+	    # if (-x $path/lsload) then
+	    #	set LOAD=$path/lsload
+	    #	break
+	    # endif
 	    if (-x $path/condor_status) then
 		set LOAD=$path/condor_status
 		break
@@ -395,21 +379,16 @@ if ("$TEST" != "$node") then
 
     # if not found, bail out
     if( "$LOAD" != "") then    
+	# set CANDIDATES=`$LOAD -R "select[inter] order[r1m:pg]" | $GREP $TEST | $GREP -i " ok" | $AWK '{print $1}'`
         setenv CONDOR_CONFIG /dev/null
         set CANDIDATES=`$LOAD -pool $pool -constraint 'interactive_node == True' -format "%s " Machine -format "%f\n" TotalLoadAvg | $SORT -un -k 2 | $GREP $TEST | $AWK '{print $1}'`
-	if ( $DEBUG) then
-	    echo "Candidates are [$CANDIDATES]"
-	endif
 	if ( $#CANDIDATES != 0) then
 	    set i=1
 	    AGAIN:
-		set node=$CANDIDATES[$i]
-		#if ( $DEBUG ) then
-		#    echo "Checking [$node]"
-		#    
-		#endif
-		set node=`echo $node | $SED "s/\..*//"`
-		if( `echo $excluded | $GREP $node` != "") then
+		set  node=$CANDIDATES[$i]
+		set rnode=`echo $node | $SED "s/\..*//"`
+		if ( $DEBUG ) echo "Found node=$node -> $rnode"
+		if( `echo $excluded | $GREP $rnode` != "") then
 		    if ($DEBUG) then
 			echo "Excluded node         [$node] $i/$#CANDIDATES"
 		    endif
@@ -459,21 +438,9 @@ endif
 
 # Allow user to chose a color but set a default
 if ( "$col" != "") then
-    if ( $DEBUG ) then
-	echo "Color comes set as [$col]"
-    endif
     set TERM_BKG_COLOR=$col
-else 
-    if ( ! $?TERM_BKG_COLOR) then
-	if ( $DEBUG ) then
-	    echo "Color set to default value - env var not defined"
-	endif
-	set TERM_BKG_COLOR=PowderBlue
-    else
-	if ( $DEBUG ) then
-	    echo "Color set via env to [$TERM_BKG_COLOR]"
-	endif
-    endif
+else if ( ! $?TERM_BKG_COLOR) then
+    set TERM_BKG_COLOR=PowderBlue
 endif
 # TERM_OPTIONS supersedes it all
 if( ! $?TERM_OPTIONS ) then
@@ -507,7 +474,7 @@ else
 	echo "Opening a connection to $node for $user $extra"
 	$SLOGIN $port $user@$node
     else
-	echo "Opening a $col terminal on $node for $user $extra ($TERM_BKG_COLOR)"
+	echo "Opening a $col terminal on $node for $user $extra"
 	$TERM_PRGM -sl 500 -sb +si -sk -T "$user@$node" -n "Xterm_$node" -bg $TERM_BKG_COLOR $TERM_OPTIONS -e $SLOGIN -X $port $user@$node &
     endif
 endif
@@ -516,8 +483,9 @@ endif
 
 #
 # Revised 2006
-# - Collapsed logic regarding Condor changes fixed
-# - Added for -bg color for color picking
+# - RCF personel added Condor support
+# - Misc fix for broken options + restored LSF lines
+#   as comment for historical purposes 
 #
 # Revised Feb 2005
 # - Modified call to lsload
