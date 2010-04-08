@@ -327,18 +327,11 @@ endif
 
 
 # Where is the xterm program ? (may differe depending on OS)
-if( -e /usr/openwin/bin/xterm) then
-    # Damned open window systems
-    set TERM_PRGM=/usr/openwin/bin/xterm
-endif
-if (-e /usr/bin/X11/xterm) then
-    # Digital Unix etc ...
-    set TERM_PRGM=/usr/bin/X11/xterm
-endif 
-if( -e /usr/X11R6/bin/xterm) then
-    # Linux with R6
-    set TERM_PRGM=/usr/X11R6/bin/xterm
-endif
+foreach path ( /usr/openwin/bin/ /usr/bin/X11/ /usr/X11R6/bin/ /usr/bin/ )
+    if ( -e $path/xterm ) then
+	set TERM_PRGM=$path/xterm	
+    endif
+end
 if ( ! $?TERM_PRGM ) then
     echo "Could not locate an Xterm program"
 endif
