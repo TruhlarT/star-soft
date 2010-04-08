@@ -12,7 +12,9 @@
 # Written J.Lauret 2002 based on $REPQUOTA , a Solaris program.
 # This script was re-written in 2008 as quota info was no longer available.
 #
-$TEMPLATE = "http://www.rhic.bnl.gov/RCF/UserInfo/Facilities/NFSService/Monitoring/DiskAbusers/star_quota.txt";
+#$TEMPLATE = "http://www.rhic.bnl.gov/RCF/UserInfo/Facilities/NFSService/Monitoring/DiskAbusers/star_quota.txt";
+$TEMPLATE = "https://www.racf.bnl.gov/Facility/NFS/RHICNFS/QUOTAS/star_quota.txt";
+
 $WGET     = "/usr/bin/wget";
 $SELF     = "showquota";
 $EXPIRES  = 3600;
