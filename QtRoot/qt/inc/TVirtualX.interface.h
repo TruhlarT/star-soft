@@ -1,4 +1,4 @@
-// @(#)root/base:$Name:  $:$Id: TVirtualX.interface.h,v 1.6 2009/09/23 18:01:41 fine Exp $
+// @(#)root/base:$Name:  $:$Id: TVirtualX.interface.h,v 1.7 2010/04/12 18:04:10 fine Exp $
 // Author: Valeri Fine   28/07/2004
 
 //
@@ -245,9 +245,11 @@ public:
    virtual void         DeleteImage(Drawable_t img);
 //  The method to support ASImage (by V.Onuchine
    unsigned char *GetColorBits(Drawable_t wid, Int_t x = 0, Int_t y = 0, UInt_t w = 0, UInt_t h = 0);
-   Pixmap_t       CreatePixmapFromData(unsigned char *bits, UInt_t width, UInt_t height);
-   Window_t       GetCurrentWindow() const;
-   
+   virtual  Pixmap_t    CreatePixmapFromData(unsigned char *bits, UInt_t width, UInt_t height);
+   virtual  Window_t    GetCurrentWindow() const;
+
+   virtual Int_t  SupportsExtension(const char *ext) const;
+
    //---- Drag and Drop -----
    virtual void         DeleteProperty(Window_t, Atom_t&);
    virtual Int_t        GetProperty(Window_t, Atom_t, Long_t, Long_t, Bool_t, Atom_t,

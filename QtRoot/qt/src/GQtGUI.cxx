@@ -1,4 +1,4 @@
-// @(#)root/qt:$Name:  $:$Id: GQtGUI.cxx,v 1.17 2009/08/03 18:02:57 fine Exp $
+// @(#)root/qt:$Name:  $:$Id: GQtGUI.cxx,v 1.18 2010/04/12 18:04:10 fine Exp $
 // Author: Valeri Fine   23/01/2003
 
 /*************************************************************************
@@ -3217,6 +3217,19 @@ Window_t TGQt::GetCurrentWindow() const
    assert(0);
 
    return (Window_t)(fSelectedWindow);
+}
+
+//______________________________________________________________________________
+Int_t TGQt::SupportsExtension(const char *extensionName) const 
+ { 
+    // Returns 1 if window system server supports extension given by the 
+    // argument, returns 0 in case extension is not supported and returns -1 
+    // in case of error (like server not initialized). 
+#if ROOT_VERSION_CODE >= ROOT_VERSION(5,27,1)
+    return   TVirtualX::SupportsExtension(extensionName);
+#else
+    return -1;
+#endif
 }
 
 //______________________________________________________________________________
