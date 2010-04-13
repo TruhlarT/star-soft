@@ -3,7 +3,7 @@
 #
 # Usage: nm.pl SymbolToLocate [LibraryPattern]
 #
-# (c) J.Lauret 2003-2009
+# (c) J.Lauret 2003-2010
 #
 # Add NMPL_DEBUG
 #
@@ -16,6 +16,9 @@ $CERN       = $ENV{CERN};
 $CERN_LEVEL = $ENV{CERN_LEVEL};
 $OSG        = $ENV{OSG};
 $DEBUG      = $ENV{NMPL_DEBUG};
+
+$SELF       = "nm.pl";
+
 
 if ( !defined($ARGV[0]) ){
     die "Syntax: $0 SymbolToLocate [LibraryPattern]\n";
@@ -74,8 +77,11 @@ if ($OS =~ m/icc/){
     chomp($CXXFILT = `c++filt $symb`);
 }
 
+print 
+  "Symbol demangler and search tool. Send suggestions to jlauret\@bnl.gov\n",
+  "Syntax is % $SELF symbol {LibNamePattern}\n\n",
+  "Searching for   $symb = $CXXFILT\n";
 
-print "Searching for   $symb = $CXXFILT\n";
 
 print "\tLooking into $dir/$pat\n";
 push(@all,glob("$dir/$pat"));
