@@ -66,7 +66,8 @@ if ( -e $lockf ){
 	unlink($lockf);
     } else {
 	print "$PID Skipping - $lockf is present\n";
-	rdaq_set_message($SSELF,"A lock file exist","Its age is ".(int($delta/6/6)/100)." hours old - leaving for now");
+	rdaq_set_message($SSELF,"A lock file exist","Its age is ".
+			 (int($delta/6/6)/100)." hours old (<$DLIMIT seconds) - leaving for now");
 	exit;
     }
 }
