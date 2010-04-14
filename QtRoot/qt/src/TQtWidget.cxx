@@ -1,9 +1,9 @@
-// @(#)root/qt:$Name:  $:$Id: TQtWidget.cxx,v 1.24 2009/09/17 22:24:00 fine Exp $
+// @(#)root/qt:$Name:  $:$Id: TQtWidget.cxx,v 1.25 2010/04/14 19:26:27 fine Exp $
 // Author: Valeri Fine   23/01/2003
 
 /*************************************************************************
- * Copyright (C) 1995-2004, Rene Brun and Fons Rademakers.               *
- * Copyright (C) 2003 by Valeri Fine.                                    *
+ * $$Copyright$
+ * $$Copyright$
  * All rights reserved.                                                  *
  *                                                                       *
  * For the licensing terms see $ROOTSYS/LICENSE.                         *
@@ -325,9 +325,11 @@ TApplication *TQtWidget::InitRint( Bool_t /*prompt*/, const char *appClassName, 
    //    . . .
    //  Gui.Prompt   yes
    //
-   static int localArgc   =0;
+   static int localArgc      =0;
+   static char **localArgv  =0;
    if (!gApplication) {
-       localArgc = argc ? *argc : qApp->argc();
+       QStringList args  = QCoreApplication::arguments ();
+       localArgc = argc ? *argc : args.size();
        // check the Gui.backend and Factory
        TString guiBackend(gEnv->GetValue("Gui.Backend", "native"));
        guiBackend.ToLower();
@@ -350,8 +352,18 @@ TApplication *TQtWidget::InitRint( Bool_t /*prompt*/, const char *appClassName, 
          }
          delete [] extLib;
        }
+       if (!argc && !argv ) {
+          localArgv  = new char*[args.size()]; // leaking :-(
+          for (int i = 0; i < args.size(); ++i) {
+             QString nextarg = args.at(i);
+             localArgv[i]= new char[nextarg.length()+1]; 
+             strcpy(localArgv[i], nextarg.toAscii().constData());
+          } 
+       } else {
+         localArgv  = argv;
+       }
 
-       TRint *rint = new TRint(appClassName, &localArgc, argv ? argv : qApp->argv(),options,numOptions,noLogo);
+       TRint *rint = new TRint(appClassName, &localArgc, localArgv, options,numOptions,noLogo);
        // To mimic what TRint::Run(kTRUE) does.
        Int_t prompt= gEnv->GetValue("Gui.Prompt", (Int_t)0);
        if (prompt) {
