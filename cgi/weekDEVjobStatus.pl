@@ -101,20 +101,17 @@ struct FileAttr => {
 ($sec,$min,$hour,$mday,$mon,$year,$wday,$yday,$isdst) = localtime;
     $thisday = (Sun,Mon,Tue,Wed,Thu,Fri,Sat)[(localtime)[6]];
 
- my $ii = 0;
- my $yr;
- my $mdate;
+  my $ii = 0;
+  my $yr;
+  my $mdate;
   $yr = 1900 + $year;
   $mon++;
   if( $mon < 10) { $mon = '0'.$mon };
   if( $mday < 10) { $mday = '0'.$mday };
   $mdate = $yr."-".$mon."-".$mday;
- my $iday;
- my $testDay;
- my $beforeDay;
- my $lstmon = 0;
- my $dfmon = 0;
-
+  my $iday;
+  my $testDay;
+  my $beforeDay;
   $iday = $dayHash{$thisday}; 
  $testDay = $Nday[$iday - 1];
 
@@ -198,7 +195,7 @@ $FilesCatalogT = "FilesCatalog";
 $JobStatusT = "JobStatus";
 
  print $qqr->header;
- print $qqr->start_html('Nightly test status for DEV library');
+ print $qqr->start_html('DEV jobs status');
  print "<body bgcolor=\"cornsilk\">\n";
 
  $qpath = "/star/rcf/test/dev/%ittf%$wkday%"; 
@@ -271,21 +268,11 @@ my @prt;
 
 	$dftime = $ddate - $bdate ;
 
-	@prt = ();
-      @prt = split ("-", $cdate); 
-      $lstmon = $prt[1];
-      $dfmon = $lstmon - $mon;
-      if($dfmon = 1 ) {       
-
-      $bdate = $prt[0].$mon."00";
-      $dftime = $ddate - $bdate ;
-    } 
-
-	if( $dftime <= 6 and $myJobS eq "Done") {
+	if($dftime <= 6 and $myJobS eq "Done") {
 
       &printRow();
 
-       }elsif( $dftime <= 6  and $myJobS eq "Run not completed") {
+       }elsif( $dftime <= 6 and $myJobS eq "Run not completed") {
    
       &printRowFd(); 
 
@@ -298,7 +285,7 @@ my @prt;
       $myEvtD = 0;
 
       &printRowNA(); 
-
+     
         }
       }
 
@@ -322,20 +309,20 @@ print <<END;
           <title>Status of Nightly Test Jobs Produced on $wkday </title>
    </head>
    <body BGCOLOR=\"#ccffff\"> 
-     <h1 align=center>Status of Nightly Test Jobs Produced Last $wkHash{$wkday} </h1>
+     <h1 align=center>Status of Nightly Test Jobs Produced on $wkHash{$wkday} </h1>
 <TABLE ALIGN=CENTER BORDER=5 CELLSPACING=1 CELLPADDING=2 >
 <TR>
-<TD ALIGN=CENTER WIDTH=\"20%\" HEIGHT=50><B>Path</B></TD>
-<TD ALIGN=CENTER WIDTH=\"5%\" HEIGHT=50><B>Year of production</B></TD>
+<TD ALIGN=CENTER WIDTH=\"15%\" HEIGHT=50><B>Path</B></TD>
+<TD ALIGN=CENTER WIDTH=\"5%\" HEIGHT=50><B>Year of data taken</B></TD>
 <TD ALIGN=CENTER WIDTH=\"5%\" HEIGHT=50><B>Event type</B></TD>
 <TD ALIGN=CENTER WIDTH=\"10%\" HEIGHT=50><B>Log file name</B></TD>
-<TD ALIGN=CENTER WIDTH=\"10%\" HEIGHT=50><B>Chain options</B></TD>
-<TD ALIGN=CENTER WIDTH=\"15%\" HEIGHT=50><B>Job status</B></TD>
+<TD ALIGN=CENTER WIDTH=\"20%\" HEIGHT=50><B>Chain options</B></TD>
+<TD ALIGN=CENTER WIDTH=\"10%\" HEIGHT=50><B>Job status</B></TD>
 <TD ALIGN=CENTER WIDTH=\"5%\" HEIGHT=50><B>Number of events<br>Done</B></TD>
 <TD ALIGN=CENTER WIDTH=\"5%\" HEIGHT=50><B>Memory usage<br>for first event</B></TD>
 <TD ALIGN=CENTER WIDTH=\"5%\" HEIGHT=50><B>Memory usage<br>for last event </B></TD>
 <TD ALIGN=CENTER WIDTH=\"5%\" HEIGHT=50><B>CPU per event</B></TD>
-<TD ALIGN=CENTER WIDTH=\"10%\" HEIGHT=50><B>Last create date</B></TD>
+<TD ALIGN=CENTER WIDTH=\"5%\" HEIGHT=50><B>Last create date</B></TD>
 </TR> 
    </head>
     <body>
@@ -351,8 +338,8 @@ print <<END;
 <td><b>$dtyear</b></td> 
 <td><b>$evtype</b></td> 
 <td>$myFile</td>
-<td><a href="http://www.star.bnl.gov/devcgi/jobChainRetrv.pl?set= $mychain">chain</td>
-<td><b>$myJobS</b></td>
+<td>$mychain</td>
+<td>$myJobS</td>
 <td>$myEvtD</td>
 <td>$myMemF</td>
 <td>$myMemL</td>
@@ -372,8 +359,8 @@ print <<END;
 <td><b>$dtyear</b></td>
 <td><b>$evtype</b></td>  
 <td>$myFile</td>
-<td><a href="http://www.star.bnl.gov/devcgi/jobChainRetrv.pl?set= $mychain">chain</td>
-<td><b>$myJobS</b></td>
+<td>$mychain</td>
+<td>$myJobS</td>
 <td>$myEvtD</td>
 <td>$myMemF</td>
 <td>$myMemL</td>
@@ -393,8 +380,8 @@ print <<END;
 <td><b>$dtyear</b></td>
 <td><b>$evtype</b></td>  
 <td>$myFile</td>
-<td><a href="http://www.star.bnl.gov/devcgi/jobChainRetrv.pl?set= $mychain">chain</td>
-<td><b>$myJobS</b></td>
+<td>$mychain</td>
+<td>$myJobS</td>
 <td>$myEvtD</td>
 <td>$myMemF</td>
 <td>$myMemL</td>
