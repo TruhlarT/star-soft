@@ -281,13 +281,11 @@ my @prt;
 #      $dftime = $ddate - $bdate ;
 #    } 
 
-#	if( $dftime <= 6 and $myJobS eq "Done") {
+	if( $dftime <= 6 and $myJobS eq "Done") {
 
-	if( $myJobS eq "Done") {
       &printRow();
 
-#       }elsif( $dftime <= 6  and $myJobS eq "Run not completed") {
-       }elsif( $myJobS eq "Run not completed") { 
+       }elsif( $dftime <= 6  and $myJobS eq "Run not completed") {
   
       &printRowFd(); 
 
