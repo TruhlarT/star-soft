@@ -1,7 +1,7 @@
-// @(#)root/qt:$Id: TQtMarker.cxx,v 1.11 2010/04/19 17:25:38 fine Exp $
+// @(#)root/qt:$Id: TQtMarker.cxx,v 1.12 2010/04/19 17:35:02 fine Exp $
 // Author: Valeri Fine   21/01/2002
 /****************************************************************************
-** $Id: TQtMarker.cxx,v 1.11 2010/04/19 17:25:38 fine Exp $
+** $Id: TQtMarker.cxx,v 1.12 2010/04/19 17:35:02 fine Exp $
 **
 ** $Copyright$
 **
@@ -72,7 +72,7 @@ void  TQtMarker::SetPenAttributes(int type)
 {
    // Pen attrbutes is 100000*LineFlag + 1000*width + "marker style"
    static const int packFactor = 1000;
-   static const int lineFactor = 100000;
+   static const int lineFactor = 10000;
    fMarkerType = type%packFactor;
    fLineWidth = (type - fMarkerType)/packFactor;
    if (type >= lineFactor) {
