@@ -1,7 +1,7 @@
-// @(#)root/qt:$Id: TQtMarker.cxx,v 1.10 2010/04/19 17:25:14 fine Exp $
+// @(#)root/qt:$Id: TQtMarker.cxx,v 1.11 2010/04/19 17:25:38 fine Exp $
 // Author: Valeri Fine   21/01/2002
 /****************************************************************************
-** $Id: TQtMarker.cxx,v 1.10 2010/04/19 17:25:14 fine Exp $
+** $Id: TQtMarker.cxx,v 1.11 2010/04/19 17:25:38 fine Exp $
 **
 ** $Copyright$
 **
@@ -80,7 +80,6 @@ void  TQtMarker::SetPenAttributes(int type)
       fLineWidth -= lineFactor/packFactor;
       fLineOption = true;
    }
-   qDebug() << __FUNCTION__ << fLineWidth << fLineOption << fMarkerType;
 }
 //______________________________________________________________________________
 int   TQtMarker::GetNumber() const {return fNumNode;}
