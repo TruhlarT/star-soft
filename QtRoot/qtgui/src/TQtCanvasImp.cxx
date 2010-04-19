@@ -1,6 +1,6 @@
 // Author: Valeri Fine   21/01/2002
 /****************************************************************************
-** $Id: TQtCanvasImp.cxx,v 1.22 2010/04/19 23:52:06 fine Exp $
+** $Id: TQtCanvasImp.cxx,v 1.23 2010/04/19 23:58:31 fine Exp $
 **
 ** Copyright (C) 2002 by Valeri Fine. Brookhaven National Laboratory.
 **                                    All rights reserved.
@@ -1280,8 +1280,8 @@ void TQtCanvasImp::EditorCB()
   // Canvas()->EditorBar(); 
    TCanvas *c = Canvas();
    // This is XOR operation
-   if (c && ( c->GetShowEditor() && !fActions[kViewEditor]->isOn() ) ||
-            (!c->GetShowEditor() &&  fActions[kViewEditor]->isOn() ) )
+   if (c && ( ( c->GetShowEditor() && !fActions[kViewEditor]->isOn() ) ||
+              (!c->GetShowEditor() &&  fActions[kViewEditor]->isOn() ) ) )
             {
                  Canvas()->ToggleEditor();
             }

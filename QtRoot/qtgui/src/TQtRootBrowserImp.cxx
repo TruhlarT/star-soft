@@ -1,6 +1,6 @@
 // Author: Valeri Fine   21/01/2002
 /****************************************************************************
-** $Id: TQtRootBrowserImp.cxx,v 1.8 2010/04/19 23:52:06 fine Exp $
+** $Id: TQtRootBrowserImp.cxx,v 1.9 2010/04/19 23:58:31 fine Exp $
 **
 ** Copyright (C) 2002 by Valeri Fine. Brookhaven National Laboratory.
 **                                    All rights reserved.
@@ -244,7 +244,7 @@ void  TQtRootBrowserImp::AddCheckBox(TObject * , Bool_t )
    // and a checkmark on TGLVEntry if check = kTRUE.
 }
 //______________________________________________________________________________
-void  TQtRootBrowserImp::CheckObjectItem(TObject *obj, Bool_t check)
+void  TQtRootBrowserImp::CheckObjectItem(TObject * , Bool_t  )
 { 
    // Check / uncheck the TGListTreeItem corresponding to this
    // object and add a checkmark on TGLVEntry if check = kTRUE.
