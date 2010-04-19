@@ -130,12 +130,39 @@ foreach $file (@all){
     @stat = stat($file);
     $md5->reset();
 
-    $md5->add($file);                                  # name
+    # better treatment of soft-links - 2010/04
+    $name = "";
+    if ( -l $file ){
+	my($lnk)=readlink($file);
+	if ( substr($lnk,0,1) eq "." ){
+	    # This path is relative
+	    # strip the name and replace with the relative path
+	    $file =~ m/(.*\/)(.*)/;
+	    my($p,$f)=($1,$2);
+	    $f = $1.$lnk;
+	    #print "*** $f\n" if ($file =~ m/StarRoot/);
+	    $name = $f;
+	} else {
+	    # this path is absolute, use that name
+	    $name = $lnk;
+	}
+    } else {
+	$name = $file;
+    }
+
+    $md5->add($name);                                  # name
     $md5->add($stat[9]);                               # add mdate
     if ( substr($file,0,1) eq "."){ $md5->add($ldir);} # relative path requires additional pwd()
 				    
     $digest = $md5->hexdigest();
     $FF     = "$CACHEDIR/$digest";
+
+    # skip known files in this session
+    if ( defined($SESSIONMD5{$digest}) ){
+	print "$file = $SESSIONMD5{$digest}\n" if ($DEBUG);
+	next;
+    }
+    $SESSIONMD5{$digest} = $file;
 
     # unlink($FF) if ( -e $FF);
     if ( ! -e "$FF" ){
