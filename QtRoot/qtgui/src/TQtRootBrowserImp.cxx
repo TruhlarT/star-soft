@@ -1,6 +1,6 @@
 // Author: Valeri Fine   21/01/2002
 /****************************************************************************
-** $Id: TQtRootBrowserImp.cxx,v 1.7 2009/08/03 18:03:10 fine Exp $
+** $Id: TQtRootBrowserImp.cxx,v 1.8 2010/04/19 23:52:06 fine Exp $
 **
 ** Copyright (C) 2002 by Valeri Fine. Brookhaven National Laboratory.
 **                                    All rights reserved.
@@ -222,7 +222,7 @@ void TQtRootBrowserImp::Add(TObject *obj, const char *caption)
    Add(obj,caption, -1);
 }
 //______________________________________________________________________________
-void TQtRootBrowserImp::Add(TObject *obj, const char *caption, Int_t check  ) 
+void TQtRootBrowserImp::Add(TObject *obj, const char *caption, Int_t  ) 
 {
    Add(obj,caption,kFALSE);
 }
@@ -238,7 +238,7 @@ void TQtRootBrowserImp::Add(TObject *obj, const char *caption, Bool_t firstFlag)
   if (fIconView && !firstFlag) fIconView->Add(obj,n);
 }
 //______________________________________________________________________________
-void  TQtRootBrowserImp::AddCheckBox(TObject *obj, Bool_t check)
+void  TQtRootBrowserImp::AddCheckBox(TObject * , Bool_t )
 {  
    // Add a checkbox in the TGListTreeItem corresponding to obj
    // and a checkmark on TGLVEntry if check = kTRUE.
@@ -250,12 +250,12 @@ void  TQtRootBrowserImp::CheckObjectItem(TObject *obj, Bool_t check)
    // object and add a checkmark on TGLVEntry if check = kTRUE.
 }
 //______________________________________________________________________________
-void  TQtRootBrowserImp::RemoveCheckBox(TObject *obj)
+void  TQtRootBrowserImp::RemoveCheckBox(TObject * )
 {
   // Remove checkbox from TGListTree and checkmark from TGListView.
 }
 //______________________________________________________________________________
-void   TQtRootBrowserImp::SetDrawOption(Option_t *option)
+void   TQtRootBrowserImp::SetDrawOption(Option_t * )
 { 
    // Sets drawing option.
 }
@@ -497,7 +497,7 @@ void TQtRootBrowserImp::MakeMenu()
 #else /* QT_VERSION */
  QMenu *fileMenu      = mainMenu->addMenu("&File");
  QMenu *viewMenu      = mainMenu->addMenu("&View");
- QMenu *optionsMenu   = mainMenu->addMenu("&Options");
+ // QMenu *optionsMenu   = mainMenu->addMenu("&Options");
                                                  mainMenu->addSeparator();
  QMenu *helpMenu      = mainMenu->addMenu("Help");
 

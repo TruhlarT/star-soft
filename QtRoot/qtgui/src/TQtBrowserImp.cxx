@@ -1,6 +1,6 @@
 // Author: Valeri Fine   21/01/2002
 /****************************************************************************
-** $Id: TQtBrowserImp.cxx,v 1.8 2009/08/03 18:03:09 fine Exp $
+** $Id: TQtBrowserImp.cxx,v 1.9 2010/04/19 23:52:06 fine Exp $
 **
 ** Copyright (C) 2002 by Valeri Fine. Brookhaven National Laboratory.
 **                                    All rights reserved.
@@ -212,7 +212,7 @@ void  TQtBrowserImp::CloseBranch(int depth)
    // close all open folders of the selected branch
   int size = fOpenFolderList.count();
   if (depth < size) 
-         for (int i=depth;(i<size)&&(CloseItem(i));i++);
+         for (int i=depth;(i<size)&&(CloseItem(i));i++){}
 }
 //______________________________________________________________________________
 TQtBrowserItem *TQtBrowserImp::CloseItem(int depth)
@@ -279,7 +279,7 @@ void TQtBrowserImp::Add(TObject *obj, const char *caption)
    Add(obj,caption, -1);
 }
 //______________________________________________________________________________
-void TQtBrowserImp::Add(TObject *obj, const char *caption, Int_t check)
+void TQtBrowserImp::Add(TObject *obj, const char *caption, Int_t /* check */)
 { 
    // Add items to the browser. This function has to be called
    // by the Browse() member function of objects when they are
@@ -325,7 +325,7 @@ void TQtBrowserImp::Add(TObject *obj, const char *caption, Int_t check)
    }
 }
 //______________________________________________________________________________
-void  TQtBrowserImp::AddCheckBox(TObject *obj, Bool_t check)
+void  TQtBrowserImp::AddCheckBox(TObject *, Bool_t )
 {  
    // Add a checkbox in the TGListTreeItem corresponding to obj
    // and a checkmark on TGLVEntry if check = kTRUE.
@@ -368,7 +368,7 @@ void TQtBrowserImp::Chdir(const TQtBrowserItem *item)
    }
 }
 //______________________________________________________________________________
-void  TQtBrowserImp::CheckObjectItem(TObject *obj, Bool_t check)
+void  TQtBrowserImp::CheckObjectItem(TObject *, Bool_t )
 { 
    // Check / uncheck the TGListTreeItem corresponding to this
    // object and add a checkmark on TGLVEntry if check = kTRUE.
@@ -379,7 +379,7 @@ void  TQtBrowserImp::RemoveCheckBox(TObject *obj)
   // Remove checkbox from TGListTree and checkmark from TGListView.
 }
 //______________________________________________________________________________
-void  TQtBrowserImp::SetDrawOption(Option_t *option)
+void  TQtBrowserImp::SetDrawOption(Option_t *)
 { 
    // Sets drawing option.
 }

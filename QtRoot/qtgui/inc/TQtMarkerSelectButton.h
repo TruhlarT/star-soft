@@ -36,7 +36,7 @@ public :
    virtual ~TQtMarkerFrame(){}
 
    void SetStyle ( const Style_t style );
-   const Style_t GetStyle ( ) const { return fStyle ; }
+   Style_t GetStyle ( ) const { return fStyle ; }
 
 protected slots :
    void clickedSlot () { emit selected(this); }

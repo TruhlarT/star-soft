@@ -1,6 +1,6 @@
 // Author: Valeri Fine   16/03/2006
 /****************************************************************************
-** $Id: TQtZoomPadWidget.cxx,v 1.8 2009/08/03 18:03:10 fine Exp $
+** $Id: TQtZoomPadWidget.cxx,v 1.9 2010/04/19 23:52:06 fine Exp $
 **
 ** Copyright (C) 2006 by Valeri Fine. Brookhaven National Laboratory.
 **                                    All rights reserved.
@@ -90,7 +90,7 @@ TQtZoomPadWidget::TQtZoomPadWidget(TVirtualPad *pad, QWidget *parent, const char
     SmartZoomEnable (true);
 }
 //__________________________________________________________________________________
-void TQtZoomPadWidget::leaveEvent(QEvent *e)
+void TQtZoomPadWidget::leaveEvent(QEvent *)
 {
     // Hide the Zoomer  according the "hide on leave" mode
 
