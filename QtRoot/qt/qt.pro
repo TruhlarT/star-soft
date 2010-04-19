@@ -3,8 +3,9 @@
 ######################################################################
 
 TEMPLATE = lib 
-CONFIG += thread dll
+CONFIG += thread dll ordered
 CONFIG += create_prl
+CONFIG *= ordered
 
 # QT += qt3support
 
