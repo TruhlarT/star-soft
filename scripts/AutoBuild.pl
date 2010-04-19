@@ -1,6 +1,6 @@
 #!/usr/bin/env perl
 
-# $Id: AutoBuild.pl,v 1.42 2009/12/22 22:44:41 jeromel Exp $
+# $Id: AutoBuild.pl,v 1.43 2010/04/19 15:14:14 jeromel Exp $
 # This script was written to perform an automatic compilation
 # with cvs co and write some html page related to it afterward.
 # Written J.Lauret Apr 6 2001
@@ -999,8 +999,11 @@ sub ReportToHtml
 
 	    $REPORT[$i] = $line;
 	    $k++;
+	    
+	    # TODO: those should be made extendable patterns
 	} elsif ($line =~ m/errors constructing/ ||
-		 $line =~ m/error constructing/ ){
+		 $line =~ m/error constructing/  ||
+		 $line =~ m/cons: don\'t know how to construct/ ){
 	    push(@REFS,"<A HREF=\"#Ref$k\">$line</A>");
 	    $REPORT[$i] = "<A NAME=\"Ref$k\"></A>$line";
 	    $ERRSTR = $line;         # over-write stupid default
