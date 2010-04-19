@@ -1,7 +1,7 @@
-// @(#)root/qt:$Id: TQtMarker.cxx,v 1.9 2010/04/19 17:10:15 fine Exp $
+// @(#)root/qt:$Id: TQtMarker.cxx,v 1.10 2010/04/19 17:25:14 fine Exp $
 // Author: Valeri Fine   21/01/2002
 /****************************************************************************
-** $Id: TQtMarker.cxx,v 1.9 2010/04/19 17:10:15 fine Exp $
+** $Id: TQtMarker.cxx,v 1.10 2010/04/19 17:25:14 fine Exp $
 **
 ** $Copyright$
 **
@@ -17,6 +17,7 @@
 #include "TGQt.h"
 #include <QtGui/QPolygon>
 #include <QtGui/QPainter>
+#include <QtCore/QDebug>
 
 
 ClassImp(TQtMarker)
@@ -74,11 +75,12 @@ void  TQtMarker::SetPenAttributes(int type)
    static const int lineFactor = 100000;
    fMarkerType = type%packFactor;
    fLineWidth = (type - fMarkerType)/packFactor;
-   if (fLineWidth >= 100000/lineFactor) {
+   if (type >= lineFactor) {
       // Set line style 
-      fLineWidth -= lineFactor;
+      fLineWidth -= lineFactor/packFactor;
       fLineOption = true;
    }
+   qDebug() << __FUNCTION__ << fLineWidth << fLineOption << fMarkerType;
 }
 //______________________________________________________________________________
 int   TQtMarker::GetNumber() const {return fNumNode;}
@@ -115,31 +117,28 @@ void  TQtMarker::DrawPolyMarker(QPainter &p, int n, TPoint *xy)
 	/* Set marker Color */
 	const QColor &mColor  = gQt->ColorIndex(fCindex);
 
-	p.save();
-	if( this->GetNumber() <= 0  || fLineOption )
-	{
-      p.setPen(mColor);
+   p.save();
+   if (this->GetWidth()>0) p.setPen(QPen(mColor,this->GetWidth()));
+   else                    p.setPen(mColor);
+
+   if( this->GetNumber() <= 0  || fLineOption )
+   {
       QPolygon qtPoints(n);
       TPoint *rootPoint = xy;
       for (int i=0;i<n;i++,rootPoint++)
         qtPoints.setPoint(i,rootPoint->fX,rootPoint->fY);
       if (fLineOption) p.drawPolyline(qtPoints);
       else             p.drawPoints(qtPoints);
-	}
+   }
    if ( this->GetNumber() >0 ) {
       int r = this->GetNumber()/2;
-      if (this->GetWidth()>0) {
-         p.setPen(QPen(mColor,this->GetWidth()));
-      } else {
-         p.setPen(mColor);
-      }
       switch (this -> GetType())
-		{
-		case 1:
-		case 3:
-		default:
-			p.setBrush(mColor);
-			break;
+      {
+      case 1:
+      case 3:
+      default:
+         p.setBrush(mColor);
+         break;
 		case 0:
 		case 2:
 			p.setBrush(Qt::NoBrush);
