@@ -1,7 +1,7 @@
-// @(#)root/qt:$Id: TQtMarker.cxx,v 1.7 2010/04/19 16:46:51 fine Exp $
+// @(#)root/qt:$Id: TQtMarker.cxx,v 1.8 2010/04/19 17:07:42 fine Exp $
 // Author: Valeri Fine   21/01/2002
 /****************************************************************************
-** $Id: TQtMarker.cxx,v 1.7 2010/04/19 16:46:51 fine Exp $
+** $Id: TQtMarker.cxx,v 1.8 2010/04/19 17:07:42 fine Exp $
 **
 ** $Copyright$
 **
@@ -124,8 +124,9 @@ void  TQtMarker::DrawPolyMarker(QPainter &p, int n, TPoint *xy)
       for (int i=0;i<n;i++,rootPoint++)
         qtPoints.setPoint(i,rootPoint->fX,rootPoint->fY);
       if (fLineOption) p.drawPolyline(qtPoints);
-      else p.drawPoints(qtPoints);
-	} else {
+      else             p.drawPoints(qtPoints);
+	}
+   if ( this->GetNumber() >0 ) {
       int r = this->GetNumber()/2;
       if (this->GetWidth()>0) {
          p.setPen(QPen(mColor,this->GetWidth()));
