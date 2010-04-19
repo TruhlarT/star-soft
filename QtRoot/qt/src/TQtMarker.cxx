@@ -1,10 +1,9 @@
-// @(#)root/qt:$Id: TQtMarker.cxx,v 1.6 2010/03/03 21:17:30 fine Exp $
+// @(#)root/qt:$Id: TQtMarker.cxx,v 1.7 2010/04/19 16:46:51 fine Exp $
 // Author: Valeri Fine   21/01/2002
 /****************************************************************************
-** $Id: TQtMarker.cxx,v 1.6 2010/03/03 21:17:30 fine Exp $
+** $Id: TQtMarker.cxx,v 1.7 2010/04/19 16:46:51 fine Exp $
 **
-** Copyright (C) 2002 by Valeri Fine. Brookhaven National Laboratory.
-**                                    Al;l rights reserved.
+** $Copyright$
 **
 ** This file may be distributed under the terms of the Q Public License
 ** as defined by Trolltech AS of Norway and appearing in the file
@@ -31,7 +30,7 @@ ClassImp(TQtMarker)
 
 //______________________________________________________________________________
 TQtMarker::TQtMarker(int n, TPoint *xy, int type) : fNumNode(n),
-               fChain(0), fCindex(0), fMarkerType(0),fLineWidth(0)
+               fChain(0), fCindex(0), fMarkerType(0),fLineWidth(0),fLineOption(false)
 {
   SetPenAttributes(type);
   if (GetType() != kDot) {
@@ -70,10 +69,16 @@ void TQtMarker::SetMarkerAttributes(const TAttMarker& markerAttributes)
 //______________________________________________________________________________
 void  TQtMarker::SetPenAttributes(int type)
 {
-   // Pen attrbutes is 1000*width + "marker style"
+   // Pen attrbutes is 100000*LineFlag + 1000*width + "marker style"
    static const int packFactor = 1000;
+   static const int lineFactor = 100000;
    fMarkerType = type%packFactor;
    fLineWidth = (type - fMarkerType)/packFactor;
+   if (fLineWidth >= 100000) {
+      // Set line style 
+      fLineWidth -= lineFactor;
+      fLineOption = true;
+   }
 }
 //______________________________________________________________________________
 int   TQtMarker::GetNumber() const {return fNumNode;}
@@ -111,22 +116,23 @@ void  TQtMarker::DrawPolyMarker(QPainter &p, int n, TPoint *xy)
 	const QColor &mColor  = gQt->ColorIndex(fCindex);
 
 	p.save();
-	if( this->GetNumber() <= 0 )
+	if( this->GetNumber() <= 0  || fLineOption )
 	{
-		p.setPen(mColor);
-		QPolygon qtPoints(n);
-		TPoint *rootPoint = xy;
-		for (int i=0;i<n;i++,rootPoint++)
-			qtPoints.setPoint(i,rootPoint->fX,rootPoint->fY);
-		p.drawPoints(qtPoints);
+      p.setPen(mColor);
+      QPolygon qtPoints(n);
+      TPoint *rootPoint = xy;
+      for (int i=0;i<n;i++,rootPoint++)
+        qtPoints.setPoint(i,rootPoint->fX,rootPoint->fY);
+      if (fLineOption) p.drawPolyline(qtPoints);
+      else p.drawPoints(qtPoints);
 	} else {
-		int r = this->GetNumber()/2;
+      int r = this->GetNumber()/2;
       if (this->GetWidth()>0) {
          p.setPen(QPen(mColor,this->GetWidth()));
       } else {
          p.setPen(mColor);
       }
-		switch (this -> GetType())
+      switch (this -> GetType())
 		{
 		case 1:
 		case 3:

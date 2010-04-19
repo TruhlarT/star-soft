@@ -1,4 +1,4 @@
-// @(#)root/qt:$Id: TQtMarker.h,v 1.7 2010/03/03 21:17:30 fine Exp $
+// @(#)root/qt:$Id: TQtMarker.h,v 1.8 2010/04/19 16:46:51 fine Exp $
 // Author: Valeri Fine   21/01/2002
 /****************************************************************************
 **
@@ -41,7 +41,8 @@ private:
    QPolygon  fChain;       // array of the n chains to build a shaped marker
    Color_t fCindex;        // Color index of the marker;
    int     fMarkerType;    // Type of the current marker
-   int     fLineWidth;     // The widt of the line used to outline the markers
+   int     fLineWidth;     // The width of the line used to outline the markers
+   int     fLineOption;    // Connect the markers with the segments
 
 public:
 
