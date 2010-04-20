@@ -712,14 +712,14 @@ if( $TARGET =~ m/^\// || $TARGET =~ m/^\^\// ){
 		push(@Files,rdaq_get_files($obj,-1,$W*($THROTTLE?10:0), 1,\%SEL,$COND));
 
 	    } else {
+		my(@Fs);  # wil be used for randomizing the selection
+		my($HOME)=$ENV{HOME};
+
 		# ask only for status=0 files (will therefore
 		# crawl-down the list).
 		print "$SELF : Crawling down the list ...\n";
+
 		if ($#EXPRESS != -1){
-		    my(@Fs);
-		    # my($HOME);
-		    # $HOME = $ENV{HOME};
-		    
 		    $num  = int($TOT*$EXPRESS_W/100)+1;
 		    @Fs   = rdaq_get_files($obj,0,$num*($#EXPRESS+1), 1,\%SEL,@EXPRESS);
 		    # open(FD,">>$HOME/debug.log"); print FD "\n";
@@ -734,8 +734,38 @@ if( $TARGET =~ m/^\// || $TARGET =~ m/^\^\// ){
 		    $num = int($TOT*$ZEROBIAS_W/100)+1;
 		    push(@Xfiles,rdaq_get_files($obj,0,$num, 1,\%SEL,$ZEROBIAS));
 		}
-		$W = ($TOT-$#Xfiles+1);
-		push(@Files,rdaq_get_files($obj,0,$W*($THROTTLE?10:0), 1,\%SEL,$COND));
+		# now the regular files
+		$W  = ($TOT-$#Xfiles+1);
+		# push(@Files,rdaq_get_files($obj,0,$W*($THROTTLE?10:0), 1,\%SEL,$COND));
+
+		#
+		# Randomize entries so we would pick the a representative sample
+		# We cannot use the same trick than for streams because the st_physics
+		# may dominate by a lot (making st_upc for example come at the end) so
+		# we take equal amount of each and slice to $W instead.
+		#
+		my(@volatile) = split(/\|/,$COND);  
+		# count non-zero values
+		$num = 0; foreach my $t (@volatile){  if ( $t ne ""){ $num++;}}
+		#print "DEBUG --> We have $num in [$COND]\n";
+		$num += 1 if ($num == 0);
+
+		# now take individual trigger instead of a global mask
+		undef(@Fs);
+		foreach my $t (@volatile){
+		    push(@Fs,rdaq_get_files($obj,0,$W, 1,\%SEL,$t));
+		}
+		
+		#print "Got $#Fs files $HOME\n";
+		#open(FD,">>$HOME/debug.log"); print FD "\n";
+		#$z = 0; 
+		#foreach my $f (@Fs){ @zozo = split(" ",$f); $z++; print FD "0 $z - ".($z<$W?"Y":"N")." - $zozo[0]\n";} 
+		&RandArray(\@Fs);
+		#$z = 0; 
+		#foreach my $f (@Fs){ @zozo = split(" ",$f); $z++; print FD "1 $z - ".($z<$W?"Y":"N")." - $zozo[0]\n";} 
+		close(FD);
+		push(@Files,@Fs[0..$W]);
+
 	    }
 
 	    print "$SELF : Xfiles=$#Xfiles Files=$#Files $TARGET\n";
