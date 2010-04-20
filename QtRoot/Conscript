@@ -2,9 +2,9 @@
 Import qw ( env INCLUDE LIB BIN BUILD OBJ);
 ( my $build = $OBJ ) =~ s/\#//g;
 $build =~ s/\\/\//g;                                    # print "OBJ = $OBJ build = $build\n";
-(my $sysdir = $build ) =~ s/\/obj//i;
 #print "PWD === $ENV{PWD}\n"; die;
-$env->{ENV}->{QTROOTSYSDIR} = $ENV{PWD} . "/" . $sysdir;# print "QTROOTSYSDIR = $env->{ENV}->{QTROOTSYSDIR}\n";
+
+$env->{ENV}->{QTROOTSYSDIR} = $ENV{PWD}."/.".$env->{ENV}->{STAR_HOST_SYS}; 
 $env->{ENV}->{QTDIR} = $env->{Packages}->{QT}->{DIR};
 $env->{ENV}->{IVROOT} = $env->{Packages}->{COIN3D}->{DIR}; # print "IvRoot = $env->{ENV}->{IVROOT}";
 my $qt4 = ($env->{Packages}->{QT}->{QT_VERSION} == 4);
