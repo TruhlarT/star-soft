@@ -161,6 +161,23 @@ if ( -e ${ROOTSYS}/config.log ) then
 	    setenv LD_LIBRARY_PATH `echo $LD_LIBRARY_PATH | /bin/sed 's/qt3\/lib/qt4\/lib/'`
 	    endif
 	    setenv QTDIR ${OPTSTAR}/qt4
+
+	    # Beware that on Linux, the login may default to qt3 with diverse
+	    # naming conventions
+	    if ( -e /etc/profile.d/qt.csh ) then
+		set test4=`echo $PATH | /bin/grep '/qt.*4/'`
+		set test3=`echo $PATH | /bin/grep '/qt.*3/'`
+
+		if ( "$test4" == "") then
+		    setenv PATH $QTDIR/bin:${PATH}
+		endif
+		if ( "$test3" != "") then
+		    if ( -x ${GROUP_DIR}/dropit) then
+			setenv PATH `${GROUP_DIR}/dropit qt3 qt-3`
+		    endif
+		endif
+	    endif
+
 	else 
 	    # assume qt3 - we have already tested we had $OPTSTAR/qt3
 	    if ( "testq" != "") then
