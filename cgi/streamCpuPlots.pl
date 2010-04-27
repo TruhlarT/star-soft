@@ -348,10 +348,11 @@ END
        $legend[2] = "st_mtd       ";
        $legend[3] = "st_upsilon   ";
        $legend[4] = "st_gamma     ";
+       $legend[5] = "st_hlt       ";
 
 #    @data = (\@ndate, \@arphysics, \@armtd, \@arupsilon, \@arhlt, \@argamma, \@arfmsfast ) ;
  
-   @data = (\@ndate, \@arphysics, \@arfmsfast, \@armtd, \@arupsilon, \@argamma ) ;
+   @data = (\@ndate, \@arphysics, \@arfmsfast, \@armtd, \@arupsilon, \@argamma, \@arhlt ) ;
 
 #        	@data = (\@ndate, \@arphysics );   
   
