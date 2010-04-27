@@ -344,7 +344,9 @@ END
 	$legend[4] = "st_gamma     ";
 	$legend[5] = "st_fmsfast   ";
 	
-	@data = (\@ndate, \@arphysics, \@armtd, \@arupsilon, \@arhlt, \@argamma, \@arfmsfast ) ;
+#	@data = (\@ndate, \@arphysics, \@armtd, \@arupsilon, \@arhlt, \@argamma, \@arfmsfast ) ;
+ 
+   @data = (\@ndate, \@arphysics, \@arfmsfast ) ;
 
 #        	@data = (\@ndate, \@arphysics );   
   
