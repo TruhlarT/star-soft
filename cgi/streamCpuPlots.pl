@@ -343,10 +343,10 @@ END
 	$legend[3] = "st_hlt       ";
 	$legend[4] = "st_gamma     ";
 	$legend[5] = "st_fmsfast   ";
-	
-#	@data = (\@ndate, \@arphysics, \@armtd, \@arupsilon, \@arhlt, \@argamma, \@arfmsfast ) ;
+
+    @data = (\@ndate, \@arphysics, \@armtd, \@arupsilon, \@arhlt, \@argamma, \@arfmsfast ) ;
  
-   @data = (\@ndate, \@arphysics, \@arfmsfast ) ;
+#   @data = (\@ndate, \@arphysics, \@arfmsfast ) ;
 
 #        	@data = (\@ndate, \@arphysics );   
   
@@ -359,7 +359,7 @@ END
  
 
 	$min_y = 0;
-	$max_y = 50 ; 
+	$max_y = 100 ; 
 
 	if (scalar(@ndate) >= 20 ) {
 	    $skipnum = int(scalar(@ndate)/20);
