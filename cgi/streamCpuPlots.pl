@@ -75,6 +75,7 @@ my @armtd = ();
 my @arphysics = ();
 my @argamma = ();
 my @arhlt = ();
+my @arfmsfast = ();
 my @ndate = ();
 my $ndt = 0;
 
@@ -248,6 +249,7 @@ END
  @arphysics = ();
  @argamma = ();
  @arhlt = ();
+ @arfmsfast = ();
  @ndate = ();
  
 
@@ -311,6 +313,8 @@ END
                $argamma[$ndt] =  $rte{$mfile,$ndt};
               }elsif( $mfile eq "hlt" ) {
                $arhlt[$ndt] =  $rte{$mfile,$ndt};
+              }elsif( $mfile eq "fmsfast" ) {
+               $arfmsfast[$ndt] =  $rte{$mfile,$ndt};
 	       }
               }
           }
@@ -338,8 +342,9 @@ END
 	$legend[2] = "st_upsilon   ";
 	$legend[3] = "st_hlt       ";
 	$legend[4] = "st_gamma     ";
+	$legend[5] = "st_fmsfast   ";
 	
-	@data = (\@ndate, \@arphysics, \@armtd, \@arupsilon, \@arhlt, \@argamma ) ;
+	@data = (\@ndate, \@arphysics, \@armtd, \@arupsilon, \@arhlt, \@argamma, \@arfmsfast ) ;
 
 #        	@data = (\@ndate, \@arphysics );   
   
@@ -373,7 +378,7 @@ END
                     y_number_format => \&y_format,
 	            #labelclr => "lblack",
                     titleclr => "lblack",
-                    dclrs => [ qw(lblue lgreen lgray lpurple lorange lred lblack) ],
+                    dclrs => [ qw(lblue lgreen lpurple lorange lred lblack lgray) ],
                     line_width => 4,
                     markers => [ 2,3,4,5,6,7,8,9],
                     marker_size => 3,
