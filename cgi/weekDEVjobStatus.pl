@@ -274,12 +274,12 @@ my @prt;
 	@prt = ();
       @prt = split ("-", $cdate); 
       $lstmon = $prt[1];
-      $dfmon = $lstmon - $mon;
-#      if($dfmon = 1 ) {       
+      $dfmon = $mon - $lstmon;
+      if($dfmon == 1 ) {       
 
-#      $bdate = $prt[0].$mon."00";
-#      $dftime = $ddate - $bdate ;
-#    } 
+      $bdate = $prt[0].$mon."00";
+      $dftime = $ddate - $bdate ;
+    } 
 
 	if( $dftime <= 6 and $myJobS eq "Done") {
 
