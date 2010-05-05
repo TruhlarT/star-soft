@@ -1,5 +1,5 @@
 //_____________________________________________________________________
-// @(#)StRoot/StBFChain:$Name:  $:$Id: StBFChain.cxx_doc,v 1.69 2010/04/23 22:40:17 fine Exp $
+// @(#)StRoot/StBFChain:$Name:  $:$Id: StBFChain.cxx_doc,v 1.70 2010/05/05 20:39:39 fisyak Exp $
 //_____________________________________________________________________
 #include "TROOT.h"
 #include "TString.h"
@@ -24,8 +24,6 @@
 #if 0
 // Keep to be compartible with old documentaion
 #define STR_OBSOLETE "WARNING *** Option is OBSOLETE ***"
-
-
 
 
 Bfc_st BFC[] = {
@@ -311,9 +309,11 @@ Bfc_st BFC[] = {
   {"FieldOff" ,"" ,"","MagF" ,"","" ,"No Field option",kFALSE},
   {"HalfField" ,"" ,"","MagF" ,"","","Half Field option",kFALSE},
   {"ReverseField","" ,"","MagF" ,"","","Reverse Field option",kFALSE},
-  {"NoCintDb" ,"" ,"","" ,"","","Switch off standard Cint Db",kFALSE},
-  {"NoCintCalDb" ,"" ,"","" ,"","","Switch off local Cint Db",kFALSE},
+  {"NoCintDb" ,"" ,"","" ,"","","Switch off all Cint Db",kFALSE},
+  {"NoStarCintDb","" ,"","" ,"","","Switch off standard Cint Db",kFALSE},
+  {"NoLocalCintDb","" ,"","" ,"","","Switch off local Cint Db",kFALSE},
   {"NoMySQLDb" ,"" ,"","" ,"","","Switch off MySQL Db",kFALSE},
+  {"NoCintCalDb" ,"" ,"","NoLocalCintDb" ,"","","Switch off local Cint Db",kFALSE},
   {"dbSnapshot" ,"" ,"","" ,"","","Create?use dbSnapshot",kFALSE},
   {"NoEvent" ,"" ,"","-event,-analysis" ,"","","Switch Off StEvent and StAnalysis Makers",kFALSE},
   {"MakeDoc" ,"" ,"","" ,"","","Make HTML documentation for the given Chain",kFALSE},
@@ -1097,8 +1097,6 @@ Bfc_st BFC[] = {
 // ITTF Chains
 
 
-
-
 Bfc_st BFC[] = {
   {"Key" ,"Name" ,"Chain" ,"Opts" ,"Maker","Libs","Comment",kFALSE},
   {"------------","-----------","-----------","------------------------------------------","","","",kFALSE},
@@ -1382,9 +1380,11 @@ Bfc_st BFC[] = {
   {"FieldOff" ,"" ,"","MagF" ,"","" ,"No Field option",kFALSE},
   {"HalfField" ,"" ,"","MagF" ,"","","Half Field option",kFALSE},
   {"ReverseField","" ,"","MagF" ,"","","Reverse Field option",kFALSE},
-  {"NoCintDb" ,"" ,"","" ,"","","Switch off standard Cint Db",kFALSE},
-  {"NoCintCalDb" ,"" ,"","" ,"","","Switch off local Cint Db",kFALSE},
+  {"NoCintDb" ,"" ,"","" ,"","","Switch off all Cint Db",kFALSE},
+  {"NoStarCintDb","" ,"","" ,"","","Switch off standard Cint Db",kFALSE},
+  {"NoLocalCintDb","" ,"","" ,"","","Switch off local Cint Db",kFALSE},
   {"NoMySQLDb" ,"" ,"","" ,"","","Switch off MySQL Db",kFALSE},
+  {"NoCintCalDb" ,"" ,"","NoLocalCintDb" ,"","","Switch off local Cint Db",kFALSE},
   {"dbSnapshot" ,"" ,"","" ,"","","Create?use dbSnapshot",kFALSE},
   {"NoEvent" ,"" ,"","-event,-analysis" ,"","","Switch Off StEvent and StAnalysis Makers",kFALSE},
   {"MakeDoc" ,"" ,"","" ,"","","Make HTML documentation for the given Chain",kFALSE},
@@ -2367,8 +2367,9 @@ Int_t StBFChain::Instantiate()
 	if (GetOption("NoMySQLDb"))   {MySQLDb = "";}
 	// Removed twice already and put back (start to be a bit boring)
 	// DO NOT REMOVE THE NEXT OPTION - Used in AutoCalibration
-	if (GetOption("NoCintCalDb")) {MyCintDb = "";}
-	if (GetOption("NoCintDb"))    {MainCintDb = ""; MyCintDb = "";}
+	if (GetOption("NoLocalCintDb")) {MyCintDb = "";}
+	if (GetOption("NoStarCintDb") ) {MainCintDb = "";}
+	if (GetOption("NoCintDb")     ) {MainCintDb = ""; MyCintDb = "";}
 	
 	TString Dirs[3];
 	Int_t j;
@@ -2922,7 +2923,7 @@ Int_t StBFChain::Finish()
   fBFC = 0;
   TFile *tf = GetTFile();
   if (tf) {tf->Write(); tf->Flush(); tf->Close(); delete tf; SetTFile(0);}
-  delete gMessMgr; gMessMgr = 0;
+//  delete gMessMgr; gMessMgr = 0;
   return ians;
 }
 
