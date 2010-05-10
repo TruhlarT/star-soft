@@ -17,6 +17,7 @@ $SELF  =~ s/.*\///;
 # Internal parameters
 $QUERY = 0;               # returns primary DB info on #Evets and coll
 $QHPSS = 0;               # query path in HPSS
+$ALLP  = 0;               # disable default info if $QHPSS is on
 
 if ( $#ARGV == -1){
     print qq~
@@ -24,7 +25,9 @@ Usage:
   % $SELF runNumber       # query a unique run
   % $SELF runMin-runMax   # using a range of run numbers
 
-Use -Q for querrying the primary database.
+Use -Q     for querrying the primary database.
+    -hpss  to display a possible path in HPSS for the processed files
+    -allp  to re-enable all printouts along wity -hpss
 
 ~;
     exit;
@@ -38,6 +41,9 @@ foreach $run (@ARGV){
 
     } elsif ($run =~ m/-hpss/){
 	$QHPSS = 1;
+
+    } elsif ($run =~ m/-allp/){
+	$ALLP = 1;
 
     } elsif ($run =~ m/(\d+)-(\d+)/){
 	$lowrn = $1;
@@ -61,16 +67,16 @@ sub ProcessRun {
     @all = rdaq_get_orecords($obj,\%Conds,0,-1);
 
     if ($#all == -1){
-	print "Do not know about runNumber=$run\n";
+	print "Do not know about runNumber=$run\n" if ( ! $QHPSS || $ALLP );
     } else {
-	print "runNumber=$run summary\n";
+	print "runNumber=$run summary\n"           if ( ! $QHPSS || $ALLP );
 	foreach $ligne (@all){
 	    @info = split(" ",$ligne);
 	    $status = $info[$#info];
 	    $numevt = $info[2];
 	    $stsstr = rdaq_status_string($status);
 
-	    printf "%40.40s - %10.10s (%6.6d) ",$info[0],$stsstr,$numevt;
+	    printf "%40.40s - %10.10s (%6.6d) ",$info[0],$stsstr,$numevt if ( ! $QHPSS || $ALLP );
 
 	    $xtra = "";
 	    if ($numevt == 0){
@@ -121,9 +127,14 @@ sub ProcessRun {
 		$xtra = "Check later";
 	    }
 
-	    printf "%20.20s %12.12s %s\n",$reason,$xtra,($loc ne 0?$loc:"");
+	    printf "%20.20s %12.12s %s\n",$reason,$xtra,($loc ne 0?$loc:"")  if ( ! $QHPSS || $ALLP );
 	    if ( $path ne ""){
-		printf "%40.40s * %s\n","",$path;
+		if ( $ALLP ){
+		    printf "%40.40s * %s\n","",$path;
+		} else {
+		    print "$path\n";
+		}
+
 	    }
 	}
     }
