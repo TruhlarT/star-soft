@@ -1,4 +1,4 @@
-// @(#)root/base:$Name:  $:$Id: TVirtualX.interface.h,v 1.7 2010/04/12 18:04:10 fine Exp $
+// @(#)root/base:$Name:  $:$Id: TVirtualX.interface.h,v 1.8 2010/05/10 22:51:26 fine Exp $
 // Author: Valeri Fine   28/07/2004
 
 //

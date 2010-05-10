@@ -1,4 +1,4 @@
-// @(#)root/qt:$Id: TQtClientFilter.h,v 1.8 2010/02/04 20:35:05 fine Exp $
+// @(#)root/qt:$Id: TQtClientFilter.h,v 1.9 2010/05/10 22:51:26 fine Exp $
 // Author: Valeri Fine   21/01/2002
 
 /*************************************************************************

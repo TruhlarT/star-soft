@@ -1,6 +1,6 @@
 // Author: Valeri Fine   28/06/2004
 /****************************************************************************
-** $Id: TQtRConfig.h,v 1.4 2009/08/03 18:02:57 fine Exp $
+** $Id: TQtRConfig.h,v 1.5 2010/05/10 22:51:26 fine Exp $
 **
 ** Copyright (C) 2004 by Valeri Fine.  All rights reserved.
 **

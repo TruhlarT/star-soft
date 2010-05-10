@@ -1,7 +1,7 @@
-// @(#)root/qt:$Id: TGQt.cxx,v 1.38 2010/03/03 21:17:30 fine Exp $
+// @(#)root/qt:$Id: TGQt.cxx,v 1.39 2010/05/10 22:51:26 fine Exp $
 // Author: Valeri Fine   21/01/2002
 /****************************************************************************
-** $Id: TGQt.cxx,v 1.38 2010/03/03 21:17:30 fine Exp $
+** $Id: TGQt.cxx,v 1.39 2010/05/10 22:51:26 fine Exp $
 **
 ** Copyright (C) 2002 by Valeri Fine. Brookhaven National Laboratory.
 **                                    All rights reserved.
@@ -850,7 +850,7 @@ Bool_t TGQt::Init(void* /*display*/)
 {
    //*-*-*-*-*-*-*-*-*-*-*-*-*-*Qt GUI initialization-*-*-*-*-*-*-*-*-*-*-*-*-*-*
    //*-*                        ========================                      *-*
-   fprintf(stderr,"** $Id: TGQt.cxx,v 1.38 2010/03/03 21:17:30 fine Exp $ this=%p\n",this);
+   fprintf(stderr,"** $Id: TGQt.cxx,v 1.39 2010/05/10 22:51:26 fine Exp $ this=%p\n",this);
 #ifndef R__QTWIN32
    extern void qt_x11_set_global_double_buffer(bool);
 //   qt_x11_set_global_double_buffer(false);
@@ -982,7 +982,11 @@ Bool_t TGQt::Init(void* /*display*/)
     }
     if (symbolFontFound) TQtPadFont::SetSymbolFontFamily(fontFamily.toAscii().data());
 #endif
-   fUseTTF=gEnv->GetValue("Qt.Screen.TTF",kTRUE);
+#if ROOT_VERSION_CODE >= ROOT_VERSION(5,26,0)
+       fUseTTF=gEnv->GetValue("Qt.Screen.TTF",kFALSE);
+#else
+       fUseTTF=gEnv->GetValue("Qt.Screen.TTF",kTRUE);
+#endif
    //  printf(" TGQt::Init finsihed\n");
    // Install filter for the desktop
    // QApplication::desktop()->installEventFilter(QClientFilter());

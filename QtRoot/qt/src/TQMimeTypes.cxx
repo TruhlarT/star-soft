@@ -1,4 +1,4 @@
-// @(#)root/qt:$Id: TQMimeTypes.cxx,v 1.7 2009/08/03 18:02:57 fine Exp $
+// @(#)root/qt:$Id: TQMimeTypes.cxx,v 1.8 2010/05/10 22:51:26 fine Exp $
 // Author: Valeri Fine   21/01/2003
 /*************************************************************************
  * Copyright (C) 1995-2004, Rene Brun and Fons Rademakers.               *

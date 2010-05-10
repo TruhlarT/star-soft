@@ -1,4 +1,4 @@
-# $Id: Module.mk,v 1.5 2009/08/03 18:02:56 fine Exp $
+# $Id: Module.mk,v 1.6 2010/05/10 22:51:25 fine Exp $
 # Module.mk for qt module
 # Copyright (c) 2001 Valeri Fine
 #

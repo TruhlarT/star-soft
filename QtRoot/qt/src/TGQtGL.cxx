@@ -1,4 +1,4 @@
-// @(#)root/win32gdk:$Name:  $:$Id: TGQtGL.cxx,v 1.2 2009/08/03 18:02:57 fine Exp $
+// @(#)root/win32gdk:$Name:  $:$Id: TGQtGL.cxx,v 1.3 2010/05/10 22:51:26 fine Exp $
 // Author: Valeriy Onuchin(TGQtGL)/ Timur Pocheptsov (TGQtGLManager)
 
 /*************************************************************************

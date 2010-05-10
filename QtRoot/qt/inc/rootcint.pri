@@ -4,7 +4,7 @@
 # Qmake include file to add the rules to create RootCint Dictionary
 #-------------------------------------------------------------------------
 #
-# $Id: rootcint.pri,v 1.2 2009/08/03 18:02:57 fine Exp $
+# $Id: rootcint.pri,v 1.3 2010/05/10 22:51:26 fine Exp $
 #
 # Copyright (C) 2002 by Valeri Fine.  All rights reserved.
 #
@@ -111,4 +111,9 @@ isEmpty(ROOTCINTRULEPRI){
 }
 !isEmpty(ROOTCINTRULEPRI){
    include ($$ROOTCINTRULEPRI)
+}
+# ------------------ Mac OS settings -----------------------
+macx|darwin-g++ {
+  QMAKE_MACOSX_DEPLOYMENT_TARGET = $$system(/usr/bin/sw_vers -productVersion | cut -d. -f1-2)
+  message( Configuring Qt for Mac OS $$QMAKE_MACOSX_DEPLOYMENT_TARGET build ! )
 }

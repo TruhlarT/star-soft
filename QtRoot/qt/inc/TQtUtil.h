@@ -1,6 +1,6 @@
 // Author: Valeri Fine   21/01/2002
 /****************************************************************************
-** $Id: TQtUtil.h,v 1.4 2009/09/17 22:28:58 fine Exp $
+** $Id: TQtUtil.h,v 1.5 2010/05/10 22:51:26 fine Exp $
 **
 ** Copyright (C) 2002 by Valeri Fine.  All rights reserved.
 **

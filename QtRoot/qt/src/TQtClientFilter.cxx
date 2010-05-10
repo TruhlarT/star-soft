@@ -1,4 +1,4 @@
-// @(#)root/qt:$Id: TQtClientFilter.cxx,v 1.9 2010/02/04 20:35:06 fine Exp $
+// @(#)root/qt:$Id: TQtClientFilter.cxx,v 1.10 2010/05/10 22:51:26 fine Exp $
 // Author: Valeri Fine   21/01/2003
 /****************************************************************************
 **
@@ -752,11 +752,7 @@ void TQtClientFilter::RemoveButtonGrab(QObject *widget)
 { 
    TQtClientWidget *wid = (TQtClientWidget *)widget;
    if ((fgButtonGrabber == wid) && fgGrabber) fgGrabber->DisactivateGrabbing();
-#if (QT_VERSION >= 0x040000)
    fButtonGrabList.removeAll(wid);
-#else
-   fButtonGrabList.remove(wid);
-#endif
 }
 
 //______________________________________________________________________________

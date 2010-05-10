@@ -1,4 +1,4 @@
-// @(#)root/qt:$Id: TQtWidget.h,v 1.20 2009/09/17 22:23:59 fine Exp $
+// @(#)root/qt:$Id: TQtWidget.h,v 1.21 2010/05/10 22:51:26 fine Exp $
 // Author: Valeri Fine   21/01/2002
 /****************************************************************************
 **
@@ -242,10 +242,10 @@ public slots:
    virtual bool Save(const char    *fileName) const;
    virtual bool Save(const QString &fileName,const char *format,int quality=60) const;
    virtual bool Save(const char    *fileName,const char *format,int quality=60) const;
+#ifndef __CINT__
 protected slots:
    void RefreshCB();
    
-#ifndef __CINT__
 signals:
    // emit the Qt signal when the double buffer of the TCamvas has been filled up
    void CanvasPainted();  // Signal the TCanvas has been painted onto the screen

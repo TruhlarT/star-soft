@@ -1,8 +1,8 @@
 // Author: Valeri Fine   21/01/2002
 /****************************************************************************
-** $Id: TQtPadFont.cxx,v 1.2 2009/11/24 20:13:14 fine Exp $
+** $Id: TQtPadFont.cxx,v 1.3 2010/05/10 22:51:26 fine Exp $
 **
-** Copyright (C) 2002 by Valeri Fine. Brookhaven National Laboratory.
+** $$Copyright$
 **                                    All rights reserved.
 **
 ** This file may be distributed under the terms of the Q Public License
@@ -61,7 +61,8 @@ static float CalibrateFont()
                    << "points=" << pattern.pointSize()
                    << "pixels=" << pattern.pixelSize()
                    << pattern;
-
+// graf2d/graf/src/TTF.cxx:const Float_t kScale = 0.93376068
+          const Float_t kScale = 0.95; //0.93376068;
           float f;
           switch (h) {
              case 12: f = 1.10;  break;// it was  f = 1.13 :-(;
@@ -70,7 +71,7 @@ static float CalibrateFont()
              case 18: f = 0.92;  break;// to be tested yet
              case 20: f = 0.99;  break;// to be tested yet
              case 21: f = 0.90;  break;// to be tested yet
-             default: f = 1.10;  break;
+             default: f = kScale;  break;
           }
           fontCalibFactor = f;
        }
@@ -106,7 +107,7 @@ void  TQtPadFont::SetTextFont(const char *fontname, int italic_, int bold_)
    this->setWeight((long) bold_*10);
    this->setItalic((Bool_t)italic_);
    this->setFamily(fontname);
-#if QT_VERSION >= 0x40000
+
    if (!strcmp(fontname,RomanFontName())) {
       this->setStyleHint(QFont::Serif);
    } else if (!strcmp(fontname,ArialFontName())) {
@@ -122,7 +123,7 @@ void  TQtPadFont::SetTextFont(const char *fontname, int italic_, int bold_)
          << this->substitute (fontname)
          << "ROOT  font number=" << fTextFont;
 #endif
-#endif
+
 #if 0
    qDebug() << "TGQt::SetTextFont font:"    << fontname 
             << " bold="  << bold_
@@ -258,7 +259,7 @@ void  TQtPadFont::SetTextSize(Float_t textsize)
  void  TQtPadFont::SetTextSizePixels(Int_t npixels)
  {
     // Set the text pixel size
-    SetTextSizePixels(static_cast<float>(npixels));
+    SetTextSize(static_cast<float>(npixels));
  }
 //______________________________________________________________________________
 const char *TQtPadFont::RomanFontName() 

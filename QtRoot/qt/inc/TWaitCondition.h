@@ -3,7 +3,7 @@
 
 // Author: Valeri Fine   21/01/2002
 /****************************************************************************
-** $Id: TWaitCondition.h,v 1.2 2009/08/03 18:02:57 fine Exp $
+** $Id: TWaitCondition.h,v 1.3 2010/05/10 22:51:26 fine Exp $
 **
 ** Copyright (C) 2002 by Valeri Fine.  All rights reserved.
 **

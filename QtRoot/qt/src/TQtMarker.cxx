@@ -1,7 +1,7 @@
-// @(#)root/qt:$Id: TQtMarker.cxx,v 1.12 2010/04/19 17:35:02 fine Exp $
+// @(#)root/qt:$Id: TQtMarker.cxx,v 1.13 2010/05/10 22:51:26 fine Exp $
 // Author: Valeri Fine   21/01/2002
 /****************************************************************************
-** $Id: TQtMarker.cxx,v 1.12 2010/04/19 17:35:02 fine Exp $
+** $Id: TQtMarker.cxx,v 1.13 2010/05/10 22:51:26 fine Exp $
 **
 ** $Copyright$
 **

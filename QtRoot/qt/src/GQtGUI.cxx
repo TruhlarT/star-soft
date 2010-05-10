@@ -1,4 +1,4 @@
-// @(#)root/qt:$Name:  $:$Id: GQtGUI.cxx,v 1.19 2010/04/19 23:52:06 fine Exp $
+// @(#)root/qt:$Name:  $:$Id: GQtGUI.cxx,v 1.20 2010/05/10 22:51:26 fine Exp $
 // Author: Valeri Fine   23/01/2003
 
 /*************************************************************************
@@ -3220,7 +3220,7 @@ Window_t TGQt::GetCurrentWindow() const
 }
 
 //______________________________________________________________________________
-Int_t TGQt::SupportsExtension(const char * extensionName) const 
+Int_t TGQt::SupportsExtension(const char *extensionName) const 
  { 
     // Returns 1 if window system server supports extension given by the 
     // argument, returns 0 in case extension is not supported and returns -1 

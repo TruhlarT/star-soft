@@ -1,6 +1,6 @@
 // Author: Valery Fine  09/08/2004
 /****************************************************************************
-** $Id: TQtTimer.cxx,v 1.3 2010/02/04 20:35:06 fine Exp $
+** $Id: TQtTimer.cxx,v 1.4 2010/05/10 22:51:26 fine Exp $
 **
 ** Copyright (C) 2002 by Valeri Fine. Brookhaven National Laboratory.
 **                                    All rights reserved.
@@ -45,7 +45,7 @@ TQtTimer * TQtTimer::Create(QObject *parent)
 //______________________________________________________________________________
 TQtTimer *TQtTimer::QtTimer()
 {
-   // Return the singelton TQtTimer object
+   // Return the singleton TQtTimer object
    return fgQTimer;
 }
 
