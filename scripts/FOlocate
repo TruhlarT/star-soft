@@ -2,7 +2,7 @@
 
 #
 # Initial version to help users locate files
-# J. Lauret 2009
+# J. Lauret 2009-2010
 #
 
 use Env qw(STAR_SCRIPTS);
@@ -10,9 +10,13 @@ use lib "$STAR_SCRIPTS";
 
 use RunDAQ;
 
-$QUERY = 0;
+# Do not change - auto
 $SELF  = $0;
 $SELF  =~ s/.*\///;
+
+# Internal parameters
+$QUERY = 0;               # returns primary DB info on #Evets and coll
+$QHPSS = 0;               # query path in HPSS
 
 if ( $#ARGV == -1){
     print qq~
@@ -31,6 +35,10 @@ $obj   = rdaq_open_odatabase();
 foreach $run (@ARGV){
     if ($run =~ /-Q/){
 	$QUERY = 1;
+
+    } elsif ($run =~ m/-hpss/){
+	$QHPSS = 1;
+
     } elsif ($run =~ m/(\d+)-(\d+)/){
 	$lowrn = $1;
 	$highr = $2;
@@ -86,7 +94,26 @@ sub ProcessRun {
 
 
 	    # check location
-	    $loc = rdaq_get_location($obj,$info[0]);
+	    $path = "";
+	    $loc  = rdaq_get_location($obj,$info[0]);
+
+	    if ( $QHPSS ){
+		#print "*** $loc\n";
+		if ( $loc ne 0 && ( $status == 2 || $status == 3) ){
+		    if ( $info[1] >= 10000000 ){
+			$trgsn = &rdaq_trgs2string($info[10]);
+			$field = &rdaq_scaleToString($info[6]);
+			$dm    = &rdaq_file2hpss($info[0]); 
+			         $dm =~ s/.*daq\///;
+			         $dm =~ s/\/st_.*//;
+			$path  = "/home/starreco/reco/$trgsn/$field/dev/$dm $info[0]";
+			# "*** Yeah! $path\n";
+			#print "***".join(";",@info)."\n";
+			# rdaq_file2hpss($info[0],0)."\n";
+		    }
+		}
+	    }
+
 
 	    if ( $loc ne 0 && $xtra eq ""){
 		$xtra = "ON DISK";
@@ -95,7 +122,9 @@ sub ProcessRun {
 	    }
 
 	    printf "%20.20s %12.12s %s\n",$reason,$xtra,($loc ne 0?$loc:"");
-
+	    if ( $path ne ""){
+		printf "%40.40s * %s\n","",$path;
+	    }
 	}
     }
 
