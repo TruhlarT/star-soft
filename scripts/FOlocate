@@ -13,11 +13,17 @@ use RunDAQ;
 # Do not change - auto
 $SELF  = $0;
 $SELF  =~ s/.*\///;
+$DEFP  = "/star/data05/scratch/".$ENV{USER};
+$DFILE = "/tmp/$SELF.$<";
 
 # Internal parameters
 $QUERY = 0;               # returns primary DB info on #Evets and coll
 $QHPSS = 0;               # query path in HPSS
 $ALLP  = 0;               # disable default info if $QHPSS is on
+$DIFF  = 0;               # see -diff below to enable this feature
+$PAT   = "";              # no special pattern match (all files)
+$EXT   = "";              # will be used for pattern replacement - see -x
+$BASEP = "";              # base path for -dco / do not speicfy here
 
 if ( $#ARGV == -1){
     print qq~
@@ -25,9 +31,36 @@ Usage:
   % $SELF runNumber       # query a unique run
   % $SELF runMin-runMax   # using a range of run numbers
 
-Use -Q     for querrying the primary database.
-    -hpss  to display a possible path in HPSS for the processed files
-    -allp  to re-enable all printouts along wity -hpss
+Use -Q          for querrying the primary database
+    -m [pat]    only list files matching pattern 'pat'
+    -x{=ext}    default is to display .daq files, replace by ext (default=MuDst.root)
+    -dco{=path} use DataCarousel output format and useeventaully using 'path' for replacement 
+                in the default output format  (default is $DEFP). 
+                If path is specified and not terminated by "/", build a relative tree from
+                the base path 'path' respecting the HPSS structure otherwise, dump all files 
+                in the specified directory 
+
+    -diff       enable differential output (shows only changes since last run)
+                Limitation - please run from the same node as /tmp file will be used
+                for this feature.
+
+    -hpss       to display a possible path in HPSS for the processed files
+    -allp       to re-enable all printouts along wity -hpss
+
+Example:
+ % ./FOlocate 11067022        show a summary of what FO is doing with run 11067022
+ % ./FOlocate -hpss 11067022  show HPSS path for files which were processed by FO
+                              ATTENTION: push of result into HPSS may have failed.
+ % ./FOlocate -x=event.root -hpss 11067022
+                              Same but replace .daq by .event.root
+
+ % ./FOlocate -dco -x -hpss 11067022
+                              Generate a DataCarousel ready output for MuDst.root files
+                              where the destination path will be auto-build and relative 
+                              to $DEFP
+ % ./FOlocate -dco=/star/institution/bnl/jeromel/daq2010/ ...
+                              similar but dump all files in the same directory 
+                              /star/institution/bnl/jeromel/daq2010/
 
 ~;
     exit;
@@ -35,7 +68,8 @@ Use -Q     for querrying the primary database.
 
 $obj   = rdaq_open_odatabase();
 
-foreach $run (@ARGV){
+for ($ii=0; $ii <= $#ARGV ; $ii++){
+    $run = $ARGV[$ii];
     if ($run =~ /-Q/){
 	$QUERY = 1;
 
@@ -43,35 +77,99 @@ foreach $run (@ARGV){
 	$QHPSS = 1;
 
     } elsif ($run =~ m/-allp/){
-	$ALLP = 1;
+	$ALLP  = 1;
 
+    } elsif ($run =~ m/-dif/){
+	# suck in diff file - hopefully not that much data (will 
+	# streamline in a later version)
+	if ( -e $DFILE){
+	    if ( open(FF,$DFILE) ){
+		while ( defined($ligne = <FF>) ){  
+		    ($file,$dt)   = split(" ",$ligne);
+		    $KNOWN{$file} = $dt;
+		}
+		close(FF);
+	    }
+	}
+	$DIFF = 1;
+	
+
+    } elsif ($run =~ m/-m/){
+	$PAT   = $ARGV[++$ii];
+
+    } elsif ($run =~ m/(-x)(.*)/){
+	if ($2){
+	    $EXT   = substr($2,1,length($2)-1);
+	} else {
+	    $EXT   = "MuDst.root";
+	}
+
+    } elsif ($run =~ m/(-dco)(.*)/){
+	if ($2){
+	    $BASEP = substr($2,1,length($2)-1);
+	} else {
+	    $BASEP = $DEFP;
+	}
+	#die "Path is $BASEP\n"; 
+
+	# All the rest, range ot specific run goes through the 
+	# ProcessRun() routine
     } elsif ($run =~ m/(\d+)-(\d+)/){
 	$lowrn = $1;
 	$highr = $2;
 	for ($r=$lowrn; $r<=$highr; $r++){
-	    &ProcessRun($r);
+	    &ProcessRun($r,0);
 	}
     } else {
-	&ProcessRun($run);
+	&ProcessRun($run,1);
     }
 }
 rdaq_close_odatabase($obj);
 
+# before leaving, dump the diff file
+if ( $DIFF ){
+    if ( open(FF,">$DFILE.tmp") ){
+	foreach $key (keys %KNOWN){
+	    print FF "$key $KNOWN{$key}\n";
+	}
+	close(FF);
+	unlink($DFILE) if ( -e $DFILE);
+	rename("$DFILE.tmp",$DFILE);
+    }
+}
+
+
 
 sub ProcessRun {
-    my($run)=@_;
+    my($run,$warn)=@_;
 
     # prepare conditons but one by one
     $Conds{runNumber} = $run;
 
     @all = rdaq_get_orecords($obj,\%Conds,0,-1);
 
+
+
     if ($#all == -1){
-	print "Do not know about runNumber=$run\n" if ( ! $QHPSS || $ALLP );
+	print "Do not know about runNumber=$run\n" unless ( ! $warn || $QHPSS );
     } else {
 	print "runNumber=$run summary\n"           if ( ! $QHPSS || $ALLP );
 	foreach $ligne (@all){
 	    @info = split(" ",$ligne);
+	    $file = $info[0];
+	    if ( $DIFF ){
+		next if defined($KNOWN{$file});
+		$KNOWN{$file} = time();
+	    }
+
+	    # pattern match requested
+	    if ( $PAT ne ""){
+		next if ($file !~ m/$PAT/);
+	    }
+	    if ( $EXT ne ""){
+		$file =~ s/\.daq/\.$EXT/;
+	    }
+
 	    $status = $info[$#info];
 	    $numevt = $info[2];
 	    $stsstr = rdaq_status_string($status);
@@ -107,12 +205,23 @@ sub ProcessRun {
 		#print "*** $loc\n";
 		if ( $loc ne 0 && ( $status == 2 || $status == 3) ){
 		    if ( $info[1] >= 10000000 ){
+			# TODO: this logic is similar to the one in JobSubmit
+			# and hence needs to be moved to the module
 			$trgsn = &rdaq_trgs2string($info[10]);
 			$field = &rdaq_scaleToString($info[6]);
 			$dm    = &rdaq_file2hpss($info[0]); 
 			         $dm =~ s/.*daq\///;
 			         $dm =~ s/\/st_.*//;
-			$path  = "/home/starreco/reco/$trgsn/$field/dev/$dm $info[0]";
+			if ( $BASEP ne ""){
+			    $path  = "/home/starreco/reco/$trgsn/$field/dev/$dm/$file";
+			    if ( substr($BASEP,length($BASEP)-1,1) eq "/"){
+				$path .= " $BASEP$file";
+			    } else {
+				$path .= " $BASEP/$trgsn/$field/dev/$dm/$file";
+			    }
+			} else {
+			    $path  = "/home/starreco/reco/$trgsn/$field/dev/$dm $file";
+			}
 			# "*** Yeah! $path\n";
 			#print "***".join(";",@info)."\n";
 			# rdaq_file2hpss($info[0],0)."\n";
