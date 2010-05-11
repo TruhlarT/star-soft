@@ -32,7 +32,7 @@ Usage:
   % $SELF runMin-runMax   # using a range of run numbers
 
 Use -Q          for querrying the primary database
-    -m [pat]    only list files matching pattern 'pat'
+    -m=pat      only list files matching pattern 'pat'
     -x{=ext}    default is to display .daq files, replace by ext (default=MuDst.root)
     -dco{=path} use DataCarousel output format and useeventaully using 'path' for replacement 
                 in the default output format  (default is $DEFP). 
@@ -94,8 +94,8 @@ for ($ii=0; $ii <= $#ARGV ; $ii++){
 	$DIFF = 1;
 	
 
-    } elsif ($run =~ m/-m/){
-	$PAT   = $ARGV[++$ii];
+    } elsif ($run =~ m/(-m=)(.*)/){
+	$PAT   = $2;
 
     } elsif ($run =~ m/(-x)(.*)/){
 	if ($2){
