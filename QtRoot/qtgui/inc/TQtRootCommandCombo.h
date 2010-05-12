@@ -1,10 +1,10 @@
 #ifndef STAR_TQROOTCOMMNANDCOMBO
 #define STAR_TQROOTCOMMNANDCOMBO
-// @(#)root/gt:$Name:  $:$Id: TQtRootCommandCombo.h,v 1.1 2009/08/03 18:03:09 fine Exp $
+// @(#)root/gt:$Name:  $:$Id: TQtRootCommandCombo.h,v 1.2 2010/05/12 23:12:07 fine Exp $
 // Author: Valeri Fine   11/01/2009
 
 /****************************************************************************
-** $Id: TQtRootCommandCombo.h,v 1.1 2009/08/03 18:03:09 fine Exp $
+** $Id: TQtRootCommandCombo.h,v 1.2 2010/05/12 23:12:07 fine Exp $
 **
 ** Copyright (C) 2009 by Valeri Fine. Brookhaven National Laboratory.
 **                                    All rights reserved.
@@ -34,9 +34,11 @@ class TQtRootCommandCombo : public QComboBox
    private:
       QString fLastComboLine;
       bool   fRootCommandExecute;
+      bool   fAutoadd;
    protected:
       void ConnectTreeSlots();
       void Init();
+      void InitFromHistory();
 
    public:
       TQtRootCommandCombo(QWidget *parent = 0);
@@ -44,9 +46,10 @@ class TQtRootCommandCombo : public QComboBox
       const QString &ComboLine() const { return fLastComboLine;}
       void SetRootCommandExecute(bool on=true);
       bool IsRootCommnadExecute() const { return fRootCommandExecute;}
-
+      bool autoAdd() const { return fAutoadd;}
    public slots:
-      void rootCommandExecute();      
+      void rootCommandExecute();
+      void setAutoadd(bool on=true) { fAutoadd = on; }
    signals:
       void CommandEntered(const QString &);
 
