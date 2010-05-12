@@ -78,15 +78,14 @@ my @arfmsfast = ();
 my @ndate = ();
 my $ndt = 0;
 
-$JobStatus2009T = "JobStatus2009";
-$JobStatus2010T = "JobStatus2010";
+$JobStatusT = "JobStatus2009";
  
 my @arperiod = ("week","1_month","2_months","3_months","6_months","12_months");
 
   &StDbProdConnect();
 
 
-    $sql="SELECT DISTINCT prodSeries  FROM $JobStatus2009T, $JobStatus2010T ";
+    $sql="SELECT DISTINCT prodSeries  FROM $JobStatusT ";
 
       $cursor =$dbh->prepare($sql)
           || die "Cannot prepare statement: $DBI::errstr\n";
@@ -98,6 +97,19 @@ my @arperiod = ("week","1_month","2_months","3_months","6_months","12_months");
        }
     $cursor->finish();
 
+ $JobStatusT = "JobStatus2010";  
+
+    $sql="SELECT DISTINCT prodSeries  FROM $JobStatusT ";
+
+      $cursor =$dbh->prepare($sql)
+          || die "Cannot prepare statement: $DBI::errstr\n";
+       $cursor->execute();
+
+       while( $mpr = $cursor->fetchrow() ) {
+          $arrprod[$npr] = $mpr;
+          $npr++;
+       }
+    $cursor->finish();
 
 &StDbProdDisconnect();
 
