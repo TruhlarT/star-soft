@@ -26,8 +26,6 @@ $dbuser="starreco";
 $dbpass="";
 $dbname="operation";
 
- $JobStatusT = "JobStatus2009";
-
 struct JobAttr => {
       vday      => '$',
       cpuv      => '$',
@@ -54,6 +52,7 @@ my $dyear = $thisyear - 2000;
 
 my @prodyear = ("2009","2010");
 
+
 my @arperiod = ( );
 my $mstr;
 
@@ -79,14 +78,15 @@ my @arfmsfast = ();
 my @ndate = ();
 my $ndt = 0;
 
-$JobStatusT = "JobStatus2009";
+$JobStatus2009T = "JobStatus2009";
+$JobStatus2010T = "JobStatus2010";
  
 my @arperiod = ("week","1_month","2_months","3_months","6_months","12_months");
 
   &StDbProdConnect();
 
 
-    $sql="SELECT DISTINCT prodSeries  FROM $JobStatusT ";
+    $sql="SELECT DISTINCT prodSeries  FROM $JobStatus2009T, $JobStatus2010T ";
 
       $cursor =$dbh->prepare($sql)
           || die "Cannot prepare statement: $DBI::errstr\n";
@@ -105,11 +105,12 @@ my $query = new CGI;
 
 my $scriptname = $query->url(-relative=>1);
 
-my $qprod  = $query->param('prod');
+my $pryear = $query->param('pyear');
+my $qprod = $query->param('prod');
 my $qperiod = $query->param('period');
 
 
-if( $qperiod eq "" and $pryear eq "" ) {
+if( $qperiod eq "" and $qprod eq "" and $pryear eq "" ) {
     print $query->header();
     print $query->start_html('Production CPU usage');
     print <<END;
@@ -130,9 +131,18 @@ END
 <td>
 END
 
-    print "<p>";
+   print "<p>";
     print "</td><td>";
     print "<h3 align=center> Select year</h3>";
+    print "<h4 align=center>";
+    print  $query->scrolling_list(-name=>'pyear',
+	                          -values=>\@prodyear,
+	                          -default=>2009,
+      			          -size =>1);
+
+    print "<p>";
+    print "</td><td>";
+    print "<h3 align=center> Select production series</h3>";
     print "<h4 align=center>";
     print  $query->scrolling_list(-name=>'prod',
 	                          -values=>\@arrprod,
@@ -169,14 +179,16 @@ END
 } else{
     
   my $qqr = new CGI;
-
+ 
+    my $pryear = $qqr->param('pyear');  
     my $qprod = $qqr->param('prod');
     my $qperiod = $qqr->param('period');
  
     
  # Tables
 
- #   $JobStatusT = "JobStatus".$pryear;
+    $JobStatusT = "JobStatus".$pryear;
+
 
   my $day_diff = 0;
   my $nmonth = 0;
