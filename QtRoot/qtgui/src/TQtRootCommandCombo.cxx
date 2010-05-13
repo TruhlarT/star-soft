@@ -1,8 +1,8 @@
-// @(#)root/gt:$Name:  $:$Id: TQtRootCommandCombo.cxx,v 1.2 2010/05/12 23:12:07 fine Exp $
+// @(#)root/gt:$Name:  $:$Id: TQtRootCommandCombo.cxx,v 1.3 2010/05/13 19:42:37 fine Exp $
 // Author: Valeri Fine   11/01/2009
 
 /****************************************************************************
-** $Id: TQtRootCommandCombo.cxx,v 1.2 2010/05/12 23:12:07 fine Exp $
+** $Id: TQtRootCommandCombo.cxx,v 1.3 2010/05/13 19:42:37 fine Exp $
 **
 ** Copyright (C) 2009 by Valeri Fine. Brookhaven National Laboratory.
 **                                    All rights reserved.
@@ -35,7 +35,7 @@
 using namespace std;
 //_____________________________________________________________________________
 TQtRootCommandCombo::TQtRootCommandCombo(QWidget *parent) : QComboBox(parent)
-, fRootCommandExecute(true),fAutoadd(true)
+, fRootCommandExecute(true)
 {
    Init();
 }
@@ -44,11 +44,17 @@ TQtRootCommandCombo::TQtRootCommandCombo(QWidget *parent) : QComboBox(parent)
 void TQtRootCommandCombo::Init()
 {
    setEditable (true);
-   InitFromHistory();
+   //InitFromHistory();
+   setInsertPolicy(QComboBox::InsertAtTop);
+   QSizePolicy comboBoxPolicy = sizePolicy();
+   comboBoxPolicy.setHorizontalPolicy (QSizePolicy::Ignored);
+   setSizePolicy(comboBoxPolicy);
+   InsertFromHistory();
+   setCurrentIndex(0);
    ConnectTreeSlots();
 }
 //_____________________________________________________________________________
-void TQtRootCommandCombo::InitFromHistory() 
+void TQtRootCommandCombo::InsertFromHistory(int index) 
 {
    QString defhist =  QDir::homePath () + "/.root_hist";
    QFile lunin(defhist);
@@ -56,7 +62,7 @@ void TQtRootCommandCombo::InitFromHistory()
      QTextStream in(&lunin);
      while (!in.atEnd()) {
          QString line = in.readLine();
-         insertItem(line);
+         insertItem(index,line);
      }
    }
 }
@@ -79,10 +85,7 @@ TQtRootCommandCombo::~TQtRootCommandCombo() {}
 void TQtRootCommandCombo::rootCommandExecute() {    
    // Save and execute the last command if needed
    fLastComboLine = this->lineEdit()->text();
-   if ( IsRootCommnadExecute() ) {
-      if (autoAdd()) insertItem(fLastComboLine);
-      emit CommandEntered(fLastComboLine);
-   }
+   if ( IsRootCommnadExecute() )  emit CommandEntered(fLastComboLine);
 }
 
 //_____________________________________________________________________________
