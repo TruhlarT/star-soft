@@ -41,25 +41,15 @@ void CustomWidgets::init()
    // comboBox1->setValidator(fTabCompValidator);
 
    // Predefine to ROOT command
-   comboBox_4->addItem("gROOT->Macro(\"$ROOTSYS/tutorials/hsimple.C\");");
-   comboBox_4->addItem("new TCanvas");
-   comboBox_4->addItem("new TBrowser");
-   comboBox_4->addItem(".q");
-   // Connect the QLineEditor with the ROOT command interpreter  
-   connect(comboBox_4->lineEdit(),SIGNAL(returnPressed ()),this, SLOT( execRoot()) );
+   comboBox_4->insertItem(0,".q");
+   comboBox_4->insertItem(0,"new TBrowser");
+   comboBox_4->insertItem(0,"new TCanvas");
+   comboBox_4->insertItem(0,"gROOT->Macro(\"$ROOTSYS/tutorials/hsimple.C\");");
+   comboBox_4->setCurrentIndex(0);
 }
 //__________________________________________________________________
 void CustomWidgets::destroy()
 {}
-//__________________________________________________________________
-void CustomWidgets::execRoot()
-{
-   // Execute the ROOT command
-   // TQtTabValidator::Clear(); 
-   string ROOTCommand = comboBox_4->lineEdit()->text().toStdString();
-   gROOT->ProcessLine(ROOTCommand.c_str());
-   gROOT->ProcessLine("gPad->Update();");
-}
 
 //__________________________________________________________________
 void CustomWidgets::SliderValue(double v)

@@ -16,8 +16,6 @@ public slots:
     virtual void destroy();
     virtual void widget_destroyed( QObject * );
     virtual void SliderValue(double v);
-    virtual void execRoot();
-
 
 protected slots:
     virtual void languageChange();
