@@ -1,8 +1,8 @@
-// @(#)root/qt:$Id: TQtRootSlot.h,v 1.6 2010/05/10 22:51:26 fine Exp $
+// @(#)root/qt:$Id: TQtRootSlot.h,v 1.7 2010/05/13 19:40:39 fine Exp $
 // Author: Valery Fine      18/01/2007
 
 /****************************************************************************
-** $Id: TQtRootSlot.h,v 1.6 2010/05/10 22:51:26 fine Exp $
+** $Id: TQtRootSlot.h,v 1.7 2010/05/13 19:40:39 fine Exp $
 **
 ** Copyright (C) 2007 by Valeri Fine. Brookhaven National Laboratory.
 **                                    All rights reserved.
@@ -52,6 +52,7 @@ public:
 public slots:
    void ProcessLine(const char *);
    void ProcessLine(const QString &);
+   void EndOfLine();
    void Terminate(int status) const;
    void Terminate()           const;
    void TerminateAndQuit()    const;

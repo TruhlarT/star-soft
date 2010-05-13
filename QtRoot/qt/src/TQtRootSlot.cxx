@@ -1,10 +1,10 @@
-// @(#)root/gt:$Name:  $:$Id: TQtRootSlot.cxx,v 1.4 2010/05/10 22:51:26 fine Exp $
+// @(#)root/gt:$Name:  $:$Id: TQtRootSlot.cxx,v 1.5 2010/05/13 19:40:39 fine Exp $
 // Author: Valery Fine      18/01/2007
 
 /****************************************************************************
-** $Id: TQtRootSlot.cxx,v 1.4 2010/05/10 22:51:26 fine Exp $
+** $Id: TQtRootSlot.cxx,v 1.5 2010/05/13 19:40:39 fine Exp $
 **
-** Copyright (C) 2007 by Valeri Fine. Brookhaven National Laboratory.
+** $$Copyright$
 **                                    All rights reserved.
 **
 ** This file may be distributed under the terms of the Q Public License
@@ -39,6 +39,7 @@
 #include "TQtRootSlot.h"
 #include "TROOT.h"
 #include "TApplication.h"
+#include "TInterpreter.h"
 #include <qapplication.h>
 #include <QString>
 
@@ -50,6 +51,14 @@ TQtRootSlot *TQtRootSlot::CintSlot()
    if (!fgTQtRootSlot) fgTQtRootSlot = new TQtRootSlot();
    return fgTQtRootSlot;
 }
+//____________________________________________________
+void TQtRootSlot::EndOfLine()
+{
+   // slot to perform the standard "EndOfLine" ROOT action
+   // it used to update the current gPad
+   if (gInterpreter)  gInterpreter->EndOfLineAction();
+}
+
 //____________________________________________________
 void TQtRootSlot::ProcessLine(const QString &command)
 {
